@@ -1,0 +1,43 @@
+{
+  "experiment": "dhs_phase1_sequence_length_scaling",
+  "model_key": "gpt2-medium",
+  "model_name": "openai-community/gpt2-medium",
+  "length_results": [
+    {
+      "seq_len": 256,
+      "median_valley_depth": 194.1715646759846,
+      "mean_valley_depth": 362.29238452592716,
+      "std_valley_depth": 605.7838976392715
+    },
+    {
+      "seq_len": 512,
+      "median_valley_depth": 341.39990542202275,
+      "mean_valley_depth": 5346.729983957977,
+      "std_valley_depth": 36081.80883139965
+    },
+    {
+      "seq_len": 768,
+      "median_valley_depth": 430.22641377073614,
+      "mean_valley_depth": 3144.0299598971537,
+      "std_valley_depth": 12344.52659483613
+    },
+    {
+      "seq_len": 1024,
+      "median_valley_depth": 662.4656835482944,
+      "mean_valley_depth": 7725.798523961957,
+      "std_valley_depth": 28884.158343449755
+    }
+  ],
+  "used_lengths": [
+    256,
+    512,
+    768,
+    1024
+  ],
+  "skipped_lengths": [],
+  "spearman_log_length_vs_median_valley_depth": {
+    "rho": 1.0,
+    "p_value": 0.0
+  },
+  "runtime_s": 14.121329307556152
+}

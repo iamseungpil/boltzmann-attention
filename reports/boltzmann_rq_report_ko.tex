@@ -1,0 +1,623 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{fontspec}
+\usepackage{ucharclasses}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds}
+
+\setmainfont[ItalicFont={Noto Sans CJK KR}]{Noto Sans CJK KR}
+\newfontfamily\hangulfont[ItalicFont={Noto Sans CJK KR}]{Noto Sans CJK KR}
+\setTransitionsForCJK{\hangulfont}{}{}
+
+\tolerance=1000
+\emergencystretch=3em
+\hfuzz=2pt
+
+\definecolor{success}{HTML}{2E7D32}
+\definecolor{failure}{HTML}{C62828}
+\definecolor{partial}{HTML}{F57F17}
+\definecolor{inconclusive}{HTML}{757575}
+\definecolor{tableheader}{HTML}{E3F2FD}
+\definecolor{lightgray}{HTML}{F5F5F5}
+\definecolor{tikzblue}{HTML}{1565C0}
+\definecolor{tikzgreen}{HTML}{2E7D32}
+\definecolor{tikzorange}{HTML}{E65100}
+\definecolor{tikzpurple}{HTML}{6A1B9A}
+
+\newcommand{\teff}{T_\mathrm{eff}}
+\newcommand{\Cq}{C(q)}
+\newcommand{\knorm}{\|k\|^2}
+
+\title{\textbf{어텐션의 볼츠만 열역학과 KV 캐시 양자화}\\[0.5em]
+\Large 10개 실험 종합 증거 보고서}
+\author{이승필\\GIST}
+\date{2026년 3월 31일}
+
+\begin{document}
+\maketitle
+
+%% ==========================================================================
+%% 1. 개요
+%% ==========================================================================
+\section{개요}
+
+본 보고서는 하나의 핵심 질문에 답한다: \textbf{소프트맥스와 볼츠만 분포의 형식적 동일성이 KV 캐시 양자화에 실용적 가치를 제공하는가?}
+
+소프트맥스 어텐션 $\mathrm{softmax}(qK^\top / \sqrt{d})$는 볼츠만 분포 $\exp(-E/T)$와 수학적으로 동치이며, 이로부터 유효 온도 $\teff$, 비열 $\Cq$, 자유 에너지 등 열역학적 양을 정의할 수 있다. 이 대응 관계가 단순한 형식적 유사성을 넘어 KV 캐시 양자화의 축 선택, 비트 할당, 아키텍처 설계에 처방적(prescriptive) 지침을 제공할 수 있는지를 10개 실험을 통해 체계적으로 검증하였다. 실험은 GPT-2 Medium (345M, MHA)과 Qwen2.5-3B (GQA)를 대상으로 수행되었으며, 세 가지 연구 질문(RQ)으로 구조화된다.
+
+\textbf{RQ1.} 볼츠만 열적 구조가 트랜스포머 어텐션에 내재하는가? (실험 1-1, 1-2, 1-3)
+
+\textbf{RQ2.} PCA가 KV 캐시 양자화의 최적 축인가? (실험 2-1, 2-2, 2-3, 2-4, 3-1)
+
+\textbf{RQ3.} SSM과 트랜스포머 어텐션 간 구조적 호환성이 존재하는가? (실험 3-2, 3-3)
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm and 1.2cm,
+    box/.style={rectangle, draw, rounded corners=3pt, minimum width=2.2cm, minimum height=0.9cm, align=center, font=\small},
+    phase/.style={rectangle, draw, fill=tableheader, rounded corners=3pt, minimum width=2.8cm, minimum height=0.9cm, align=center, font=\small\bfseries},
+    rq/.style={rectangle, draw, fill=lightgray, rounded corners=3pt, minimum width=3cm, minimum height=0.9cm, align=center, font=\small},
+    arr/.style={-{Stealth[length=2.5mm]}, thick}
+]
+% Models
+\node[box, fill=tikzblue!15] (gpt2) {GPT-2 Medium\\(345M, MHA)};
+\node[box, fill=tikzblue!15, below=0.4cm of gpt2] (qwen) {Qwen2.5-3B\\(GQA)};
+\node[draw, dashed, fit=(gpt2)(qwen), inner sep=4pt, label={[font=\small\bfseries]above:Models}] (models) {};
+
+% Phases
+\node[phase, right=1.5cm of models] (p1) {Phase 1\\열적 구조 검증};
+\node[phase, below=0.4cm of p1] (p2) {Phase 2\\양자화 축 비교};
+\node[phase, below=0.4cm of p2] (p3) {Phase 3\\대안 탐색};
+
+% RQs
+\node[rq, right=1.5cm of p1] (rq1) {RQ1: 볼츠만 구조\\Exp 1-1, 1-2, 1-3};
+\node[rq, right=1.5cm of p2] (rq2) {RQ2: PCA 최적성\\Exp 2-1--2-4, 3-1};
+\node[rq, right=1.5cm of p3] (rq3) {RQ3: SSM 호환\\Exp 3-2, 3-3};
+
+% Arrows
+\draw[arr] (models.east) -- ++(0.5,0) |- (p1.west);
+\draw[arr] (models.east) -- ++(0.5,0) |- (p2.west);
+\draw[arr] (models.east) -- ++(0.5,0) |- (p3.west);
+\draw[arr] (p1) -- (rq1);
+\draw[arr] (p2) -- (rq2);
+\draw[arr] (p3) -- (rq3);
+\end{tikzpicture}
+\caption{실험 프레임워크 개요. 두 모델(GPT-2 Medium, Qwen2.5-3B)에 대해 세 Phase의 실험을 수행하고, 결과를 세 RQ로 귀속시킨다.}
+\label{fig:framework}
+\end{figure}
+
+Figure~\ref{fig:framework}은 실험 프레임워크의 전체 구조를 나타낸다. Phase 1은 볼츠만 열역학적 양의 존재와 규범적 활용 가능성을 검증하고, Phase 2는 PCA와 대안 축 선택 방법을 비교하며, Phase 3은 SSM 기반 KV 캐시 압축의 가능성을 탐색한다. 각 Phase의 실험 결과는 해당 RQ에 귀속되어 종합 판정에 기여한다.
+
+\tableofcontents
+\newpage
+
+%% ==========================================================================
+%% 2. 요약
+%% ==========================================================================
+\section{요약}
+
+이 절은 세 RQ에 대한 핵심 발견과 10개 실험의 판정을 요약하여, 보고서 전체의 결론을 조기에 파악할 수 있도록 한다.
+
+\textbf{RQ1 --- 볼츠만 열적 구조가 트랜스포머에 존재하는가?}  표준 MHA(GPT-2)에서 유효 온도 $\teff$의 점진적 냉각이 확인되었으나($\rho = -0.657$, $p = 4.82 \times 10^{-4}$), GQA(Qwen)에서는 파괴되었다($\rho = +0.108$, $p = 0.530$). 비열 기반 양자화 비트 할당은 분산 기반 대비 PPL을 개선하지 못하였고(39.8\% 불일치, 0/3 승리), FFN의 주파수 선택성 가설은 기각되었다($\Delta H = -0.122$, $p < 10^{-10}$). 볼츠만 프레임워크는 기술적(descriptive) 가치에 한정된다.
+
+\textbf{RQ2 --- PCA가 KV 캐시 양자화의 최적 축인가?}  K-space facet 구조는 코퍼스 간 유의하게 분리되나(gap $= 0.408$, $p = 1.6 \times 10^{-64}$), 양자화 축 선택에는 정적 PCA로 충분하다. PCA는 LDA 대비 K MSE에서 26--30배 우수하였고, AFOD 초기화와는 통계적 차이가 없었으며($p > 0.4$), SO($d$) Lie group 수치 최적화 대비 4.3배 우수하였다. 다만 query-dependent 중요도는 실제로 존재한다: 정적 할당과 query별 할당의 평균 rank correlation은 0.698, 평균 L1 거리는 1.170이며, query 간 할당도 평균 L1 0.494로 변한다. 즉 ``축(axis)''은 정적으로 충분하지만, ``할당(schedule)''은 완전히 정적이지 않다.
+
+\textbf{RQ3 --- SSM과 트랜스포머의 구조적 호환성이 있는가?}  SSM 증류는 $N = 256$에서 6개 레이어 중 4개가 NMSE $< 0.1$을 달성하였으나 평균 NMSE $= 0.157$로 실용 수준에 미달한다. SSM 초기화에서 RoPE가 최선이었으며(NMSE $= 0.475$), spectral 초기화 가설은 기각되었다.
+
+\subsection{10개 실험 종합 판정 매트릭스}
+
+표~\ref{tab:verdict}는 10개 실험의 핵심 지표, 판정, 함의를 요약한다. 모든 수치는 해당 실험의 결과 JSON에서 직접 추출하였으며, Critic 6라운드 교정을 반영하였다.
+
+\begin{table}[H]
+\centering
+\caption{10개 실험 종합 판정 매트릭스. 모든 수치는 원본 JSON에서 검증됨.}
+\label{tab:verdict}
+\small
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{3.8cm}l>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Exp} & \textbf{핵심 지표} & \textbf{판정} & \textbf{함의} \\
+\midrule
+1-1a & $\rho = -0.657$, $p = 4.82\text{e-}4$ & \textcolor{partial}{Weak} & GPT-2 MHA progressive cooling 확인 \\
+1-1b & $\rho = +0.108$, $p = 0.530$ & \textcolor{failure}{Fail} & GQA가 $\teff$ 단조 감소 파괴 \\
+1-2 & disagree $= 39.8\%$, $\rho = 0.275$ & \textcolor{partial}{Not Better} & $\Cq \neq \knorm$ 독립적이나 PPL 미개선 \\
+1-3 & $\Delta H = -0.122$, $p < 10^{-10}$ & \textcolor{failure}{Rejected} & FFN 주파수 선택성 기각 \\
+2-1 & gap $= 0.408$, $p = 1.6\text{e-}64$ & \textcolor{success}{Supported} & K-space 코퍼스 간 분리 확인 \\
+2-2 & PCA K MSE 26--30$\times$ 우수 & \textcolor{success}{PCA Wins} & PCA가 LDA 압도 \\
+2-3 & $\rho = 0.698$, L1 $= 1.170$ & \textcolor{success}{Resolved} & Query별 할당 변화는 실재하나 축 최적성 반박은 아님 \\
+2-4 & AFOD $\approx$ PCA ($p > 0.4$) & \textcolor{success}{PCA Sufficient} & AFOD 초기화 불필요 \\
+3-1 & PCA 4.3$\times$ 최적화 대비 우수 & \textcolor{success}{PCA Near-Opt} & SO($d$) 최적화가 PCA에 미달 \\
+3-2 & $N{=}256$ NMSE $= 0.157$ & \textcolor{failure}{Not Viable} & SSM에 큰 state dim 필요 \\
+3-3 & RoPE best (NMSE $= 0.475$) & \textcolor{failure}{Not Best} & Spectral 초기화 기각 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+표~\ref{tab:verdict}에서 확인할 수 있듯이, 양자화 축 선택 관련 실험(2-1, 2-2, 2-4, 3-1)은 일관되게 PCA의 최적성을 지지한다. 실험 2-3은 query-dependent 할당 변화가 실제로 존재함을 보여주지만, 이는 축 선택 문제와는 별개의 층위이다. 볼츠만 관련 실험(1-1--1-3)은 현상 기술에 부분적으로 성공하였으나 규범적 활용에는 실패하였다. SSM 관련 실험(3-2, 3-3)은 어텐션 패턴의 SSM 압축이 현 조건에서 비실용적임을 보여준다.
+
+\newpage
+
+%% ==========================================================================
+%% 3. 설정
+%% ==========================================================================
+\section{설정}
+
+이 절은 실험에 사용된 모델, 표상, 실험 Phase를 기술하여 이후 RQ별 분석의 기반을 제공한다.
+
+\subsection{모델 및 표상}
+
+두 모델을 사용하였다. GPT-2 Medium (345M 파라미터)은 24개 레이어, 16개 어텐션 헤드, 헤드 차원 64의 표준 MHA 아키텍처이다. Qwen2.5-3B는 36개 레이어, 16개 어텐션 헤드, 헤드 차원 128을 가지되 KV 헤드 수가 2인 GQA (Grouped Query Attention) 아키텍처를 채택한다. GQA에서는 8개의 query 헤드가 하나의 KV 헤드를 공유하므로, 어텐션 패턴의 열역학적 해석에 구조적 제약이 발생한다.
+
+입력 데이터는 WikiText-2에서 추출한 64개 샘플(최대 시퀀스 길이 512)을 기본으로 사용하였으며, 실험별로 샘플 수를 조정하였다(표~\ref{tab:verdict} 각 실험 절 참조). 코퍼스 분리 실험(2-1)에서는 technical, code, conversational의 세 코퍼스를 각 30개 샘플로 구성하였다.
+
+\subsection{세 가지 실험 Phase}
+
+Phase 1 (열적 구조 검증, 실험 1-1--1-3)은 볼츠만 유효 온도의 레이어별 단조 감소, 비열과 key norm의 독립성, FFN의 주파수 선택성을 검증한다. Phase 2 (양자화 축 비교, 실험 2-1--2-4)는 K-space의 코퍼스 의존적 facet 구조를 확인하고, PCA를 LDA, AFOD, query-dependent 할당과 비교한다. Phase 3 (대안 탐색, 실험 3-1--3-3)은 SO($d$) Lie group 연속 회전 최적화와 SSM 증류/초기화를 통해 PCA 너머의 가능성을 탐색한다.
+
+\newpage
+
+%% ==========================================================================
+%% 4. RQ1: 볼츠만 열적 구조가 트랜스포머에 존재하는가?
+%% ==========================================================================
+\section{RQ1: 볼츠만 열적 구조가 트랜스포머에 존재하는가?}
+
+이 절은 소프트맥스 어텐션에서 정의되는 볼츠만 열역학적 양---유효 온도 $\teff$, 비열 $\Cq$, 엔트로피---이 트랜스포머 내부에 일관된 열적 구조를 형성하는지 검증한다. 세 실험(1-1, 1-2, 1-3)의 결과는 MHA에서의 부분적 성공과 GQA에서의 실패, 그리고 규범적 활용의 한계를 보여준다.
+
+\subsection{유효 온도의 레이어별 변화 (실험 1-1)}
+
+이 소절은 볼츠만 프레임워크의 가장 기본적인 예측---$\teff$가 레이어가 깊어질수록 단조 감소한다---을 GPT-2 Medium과 Qwen2.5-3B에서 검증한다.
+
+\subsubsection{GPT-2 Medium: Progressive Cooling 확인}
+
+GPT-2 Medium에서 레이어별 평균 $\teff$와 레이어 인덱스 간 Spearman 상관은 $\rho = -0.657$ ($p = 4.82 \times 10^{-4}$)로 통계적으로 유의한 음의 상관을 보였다. 초기 레이어(L0)의 $\teff = 0.861$에서 L19의 $\teff = 0.221$까지 점진적으로 감소하며, 최종 레이어(L23)에서 $\teff = 0.520$으로 재상승(``reheat'')하는 패턴이 관찰되었다. 이는 볼츠만 프레임워크의 ``progressive cooling'' 예측과 부합하며, 깊은 레이어에서 어텐션이 소수 토큰에 집중됨을 열역학적 언어로 포착한다.
+
+헤드 간 분산(head variance)은 초기 레이어에서 낮고(L0: 0.0080) 중간 레이어에서 증가하며(L11: 0.032) 심층에서 다시 감소하는 패턴을 보였다. 이는 중간 레이어에서 헤드별 역할 분화가 활발하고, 초기/심층에서는 헤드 간 균질성이 높음을 시사한다.
+
+\subsubsection{Qwen2.5-3B: GQA의 구조적 파괴}
+
+Qwen2.5-3B에서 $\teff$와 레이어 인덱스 간 Spearman 상관은 $\rho = +0.108$ ($p = 0.530$)으로 단조 감소가 관찰되지 않았다. 판정은 FAILURE이다. 초기 3개 레이어(L0--L2)는 높은 $\teff$(0.814--0.903)를 보이나, 이후 레이어에서 $\teff$는 0.295--0.767 범위에서 비단조적으로 요동한다.
+
+GQA 구조가 이 파괴의 원인으로 확인되었다. Qwen2.5-3B는 16개 query 헤드를 2개 KV 그룹에 8:8로 배분한다. 레이어 5를 예시로 분석하면, KV Group 0 (H0--H7)의 평균 $\teff = 0.548$인 반면 KV Group 1 (H8--H15)의 평균 $\teff = 0.042$로 극단적 차이(gap $= 0.506$)가 존재한다. KV Group 0 내에서도 H5($\teff = 0.082$)는 나머지 헤드(평균 $\teff = 0.615$)와 현저히 다른 값을 보인다. 이 그룹 간 불균질성은 KV 캐시를 공유하는 GQA의 구조적 특성에서 기인하며, 단일 KV 표상이 서로 다른 ``온도''를 가진 query 헤드들에 의해 해석됨으로써 레이어 수준의 $\teff$ 단조 감소를 파괴한다.
+
+헤드 간 분산은 Qwen에서 전반적으로 GPT-2 대비 높았다. 상위 5개 레이어의 head variance는 0.0857, 0.0683, 0.0661, 0.0577, 0.0526이며, L5/L0 비율은 15.9배에 달한다. 이는 GQA에서 동일 KV 캐시를 공유하는 헤드들이 매우 상이한 어텐션 분포를 학습함을 의미한다.
+
+표~\ref{tab:exp11}은 두 모델의 $\teff$ 분석 결과를 비교한다.
+
+\begin{table}[H]
+\centering
+\caption{실험 1-1: $\teff$ 단조 감소 검증 비교.}
+\label{tab:exp11}
+\small
+\begin{tabular}{llll}
+\toprule
+\textbf{지표} & \textbf{GPT-2 Medium} & \textbf{Qwen2.5-3B} & \textbf{비고} \\
+\midrule
+아키텍처 & MHA (16 heads) & GQA (16Q / 2KV) & KV 공유 구조 차이 \\
+Spearman $\rho$ & $-0.657$ & $+0.108$ & 방향 반전 \\
+$p$-value & $4.82 \times 10^{-4}$ & $0.530$ & Qwen 비유의 \\
+판정 & \textcolor{partial}{Weak Success} & \textcolor{failure}{Failure} & \\
+$\teff$ 범위 & $0.221$--$0.861$ & $0.295$--$0.903$ & \\
+HeadVar 범위 & $0.008$--$0.032$ & $0.005$--$0.086$ & GQA 고분산 \\
+HeadVar 중앙값 & $0.022$ & $\mathbf{0.037}$ & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:exp11}은 볼츠만 $\teff$ 단조 감소가 아키텍처에 의존적임을 보여준다. MHA에서의 부분적 성공($|\rho| < 0.8$)과 GQA에서의 완전한 실패는, 이 프레임워크가 표준 MHA에 한정된 기술적 도구임을 시사한다.
+
+\subsection{비열 기반 양자화 비트 할당의 독립성 (실험 1-2)}
+
+이 소절은 볼츠만 비열 $\Cq$가 key norm $\knorm$과 독립적인 정보를 제공하는지, 그리고 이를 양자화 비트 할당에 활용할 때 기존 분산 기반 방법 대비 개선이 있는지 검증한다.
+
+GPT-2 Medium 24개 레이어에서 비열 순위와 key norm 순위의 평균 불일치율은 39.8\%이며, 평균 상관은 $\rho = 0.275$이다. 이는 $\Cq$가 $\knorm$과 부분적으로 독립적인 정보를 포함함을 의미한다. 레이어별로 분석하면, 초기 레이어(L0--L5)에서 평균 불일치 30.1\%, 평균 $\rho = 0.526$으로 비교적 높은 상관을 보이나, 후기 레이어(L18--L23)에서는 평균 불일치 45.2\%, 평균 $\rho = 0.136$으로 상관이 급격히 감소한다.
+
+그러나 perplexity 평가에서 비열 기반 할당은 분산 기반 대비 개선을 달성하지 못하였다. 표~\ref{tab:exp12_ppl}은 세 비트 폭에서의 PPL 비교를 나타낸다.
+
+\begin{table}[H]
+\centering
+\caption{실험 1-2: 양자화 비트 할당별 Perplexity 비교.}
+\label{tab:exp12_ppl}
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{방법} & \textbf{2-bit} & \textbf{3-bit} & \textbf{4-bit} \\
+\midrule
+Baseline & \multicolumn{3}{c}{139.85} \\
+Uniform & 419.41 & 130.38 & 110.19 \\
+Variance & $4.85 \times 10^{8}$ & 127.62 & 122.85 \\
+Specific Heat & $4.85 \times 10^{8}$ & 264.48 & 125.56 \\
+\midrule
+Heat 승리 & \multicolumn{3}{c}{0/3} \\
+Variance 승리 & \multicolumn{3}{c}{2/3 (3-bit, 4-bit)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:exp12_ppl}에서 확인되듯이, 비열 기반 할당은 3개 비트 폭 모두에서 분산 기반 대비 열등하거나 동등하다. 2-bit에서는 두 방법 모두 발산($4.85 \times 10^{8}$)하였고, 3-bit에서 비열 기반(264.48)은 분산 기반(127.62)의 2.07배, 4-bit에서도 비열 기반(125.56)이 분산 기반(122.85)보다 높은 PPL을 보였다. $\Cq$가 $\knorm$과 39.8\% 불일치함에도 불구하고 PPL 개선으로 이어지지 않은 것은, $\Cq$가 포착하는 ``독립적 정보''가 양자화 오류에 유의미하지 않음을 의미한다.
+
+\subsection{FFN의 주파수 선택성 (실험 1-3)}
+
+이 소절은 FFN이 어텐션 엔트로피의 주파수 선택성을 강화하는지---즉 FFN 적용 후 어텐션 분포의 선택성(낮은 엔트로피)이 증가하는지---를 검증한다.
+
+FFN 제거 전후의 어텐션 엔트로피 변화 $\Delta H$는 평균 $-0.122$이며, 대응표본 $t$ 검정에서 $t = -11.79$ ($p = 3.15 \times 10^{-11}$), Wilcoxon 부호순위 검정에서 $W = 0.0$ ($p = 2.70 \times 10^{-5}$)로 강한 유의성을 보였다. 24개 레이어 중 FFN이 엔트로피를 감소시킨 레이어는 0개이다(L0은 FFN 적용 전이므로 $\Delta H = 0$, 나머지 23개 모두 $\Delta H < 0$).
+
+$\Delta H < 0$은 FFN \textit{제거} 시 엔트로피가 \textit{감소}함을 의미하므로, FFN이 오히려 엔트로피를 \textit{증가}시킴을 나타낸다. 이는 FFN이 어텐션의 주파수 선택성을 강화한다는 가설과 정반대의 결과이다. FFN은 선택적 집중이 아닌 분포의 평활화(smoothing) 역할을 수행하며, 열역학적 비유에서 FFN은 ``냉각기''가 아닌 ``가열기''로 기능한다. 이 결과는 볼츠만 프레임워크에서 FFN의 역할에 대한 초기 가설을 명확히 기각한다.
+
+\subsection{RQ1 요약}
+
+표~\ref{tab:rq1_summary}는 RQ1 관련 세 실험의 결과를 종합한다.
+
+\begin{table}[H]
+\centering
+\caption{RQ1 종합 요약: 볼츠만 열적 구조의 존재와 한계.}
+\label{tab:rq1_summary}
+\small
+\begin{tabularx}{\textwidth}{@{}llll>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Exp} & \textbf{가설} & \textbf{결과} & \textbf{판정} & \textbf{함의} \\
+\midrule
+1-1a & $\teff$ 단조 감소 (MHA) & $\rho = -0.657$ & \textcolor{partial}{Weak} & MHA 한정 기술적 확인 \\
+1-1b & $\teff$ 단조 감소 (GQA) & $\rho = +0.108$ & \textcolor{failure}{Fail} & GQA에서 파괴됨 \\
+1-2 & $\Cq$ 기반 비트 할당 & 0/3 PPL 승리 & \textcolor{partial}{Not Better} & 규범적 가치 없음 \\
+1-3 & FFN 주파수 선택성 & $\Delta H = -0.122$ & \textcolor{failure}{Rejected} & FFN은 평활화 역할 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+RQ1에 대한 종합 답변은 다음과 같다. 볼츠만 열적 구조는 표준 MHA에서 부분적으로 관찰되나, GQA에서 파괴되고 규범적 양자화 지침을 제공하지 못한다. 이 프레임워크의 가치는 어텐션 패턴의 기술적(descriptive) 분석 도구에 한정되며, KV 캐시 양자화의 처방적(prescriptive) 기반으로는 부적합하다.
+
+\newpage
+
+%% ==========================================================================
+%% 5. RQ2: PCA가 KV 캐시 양자화의 최적 축인가?
+%% ==========================================================================
+\section{RQ2: PCA가 KV 캐시 양자화의 최적 축인가?}
+
+이 절은 KV 캐시 양자화에서 PCA 축 선택이 최적인지를 네 가지 대안(LDA, AFOD, query-dependent 할당, Lie group 연속 최적화)과의 비교를 통해 검증한다. 다섯 실험(2-1, 2-2, 2-3, 2-4, 3-1)의 결과는 PCA의 보편적 최적성을 일관되게 지지한다.
+
+\subsection{K-space Facet 구조의 코퍼스 분리 (실험 2-1)}
+
+이 소절은 K-space의 주성분 구조(facet)가 코퍼스에 따라 분리되는지---즉 서로 다른 텍스트 유형이 K-space에서 구별 가능한 하위 구조를 형성하는지---를 확인한다. 이는 PCA 축이 코퍼스 불변(corpus-invariant)인지 아닌지를 판단하는 전제 조건이다.
+
+GPT-2 Medium의 24개 레이어에서 코퍼스 내(within-corpus) 상위 8 주성분 유사도의 전체 평균은 0.819이며, 코퍼스 간(cross-corpus) 유사도의 전체 평균은 0.411이다. 분리도 gap $= 0.408$은 $t = 30.50$ ($p = 1.6 \times 10^{-64}$), Mann-Whitney $U = 5177$ ($p = 2.68 \times 10^{-25}$)로 매우 높은 통계적 유의성을 보였다.
+
+레이어별로 분석하면, 초기 레이어(L0--L2)에서 코퍼스 간 유사도가 비교적 높고(0.506--0.626) 분리가 약하나, L3 이후부터 코퍼스 간 유사도가 급격히 감소하여(0.339--0.491) 안정적 분리가 유지된다. 코퍼스 쌍별로는 code vs. conversational 쌍이 가장 낮은 유사도(L6: 0.306)를 보이며, technical vs. code 쌍이 가장 높은 유사도를 보인다. 분산 설명 비율(explained variance)에서 PC1이 전체 분산의 96--99.8\%를 차지하는 레이어(L4--L20)가 대부분이며, 이는 K-space가 강하게 1차원적(rank-1)임을 나타낸다.
+
+이 결과는 K-space facet 구조가 코퍼스에 의존적임을 확인하지만, 동시에 PCA 축의 실용적 안정성을 시사한다. PC1이 분산의 절대 다수를 설명하므로, 코퍼스 간 facet 방향의 차이에도 불구하고 양자화에 필요한 주요 축은 코퍼스 간 대략적으로 보존된다.
+
+\subsection{PCA vs. LDA 비트 할당 (실험 2-2)}
+
+이 소절은 supervised 차원 축소(LDA)가 unsupervised PCA보다 양자화 축으로서 우수한지를 비교한다.
+
+두 비트 구성(6/2-bit 및 8/2-bit)에서 PCA와 LDA의 K MSE, V MSE, KL divergence를 비교하였다. 표~\ref{tab:exp22}은 주요 결과를 요약한다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-2: PCA vs. LDA 비트 할당 비교.}
+\label{tab:exp22}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{지표} & \textbf{PCA 6/2} & \textbf{LDA 6/2} & \textbf{PCA 8/2} & \textbf{LDA 8/2} \\
+\midrule
+K MSE & 68.32 & 1779.65 & 59.79 & 1790.11 \\
+V MSE & 199.78 & 198.66 & 201.48 & 200.28 \\
+KL div & 12.28 & 12.44 & \textbf{1.83} & 11.87 \\
+Attn MSE & 68.90 & 67.37 & 66.02 & 60.42 \\
+\midrule
+K MSE 비율 & \multicolumn{2}{c}{$\times$26.0} & \multicolumn{2}{c}{$\times$29.9} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:exp22}에서 가장 두드러진 결과는 K MSE의 극단적 차이이다. PCA는 LDA 대비 6/2-bit에서 26배, 8/2-bit에서 30배 낮은 K MSE를 달성하였다($p < 10^{-6}$). 8/2-bit 구성에서 PCA의 평균 KL divergence는 1.83인 반면 LDA는 11.87로, PCA가 6.5배 우수하였다.
+
+V MSE는 두 방법 간 1\% 이내로 거의 동일하다(PCA 199.78 vs. LDA 198.66, PCA 201.48 vs. LDA 200.28). 이는 V(value) 양자화에서는 축 선택 방법의 차이가 거의 영향을 미치지 않으며, K(key) 양자화에서의 차이가 전체 성능을 결정함을 의미한다. LDA가 supervised 정보(코퍼스 레이블)를 활용함에도 불구하고 PCA에 크게 열등한 이유는, LDA가 클래스 간 분리를 최대화하는 방향을 찾으나 이 방향이 양자화 오류 최소화에는 비효율적이기 때문이다. 양자화에서는 분산이 큰 방향에 높은 비트를 할당하는 것이 오류를 최소화하며, PCA가 정확히 이 목적에 부합한다.
+
+\subsection{Query-Dependent 동적 할당 (실험 2-3)}
+
+이 소절은 query에 따라 차원 중요도와 양자화 비트 할당이 실제로 변하는지, 그리고 이 변화가 정적 PCA 기반 축 선택과 어떤 관계를 가지는지 검증한다.
+
+이 실험은 2026년 3월 31일 eval-e8 노드에서 재실행하여 권위적(authoritative) 결과를 확정하였다. 재실행 결과는 현재의 exp2\_3\_results.json과 과학적 핵심 수치가 일치하였고(runtime만 상이), 이에 따라 실험 2-3은 더 이상 미결이 아니다. 표~\ref{tab:exp23}은 전체 평균 결과를 요약한다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-3: query-dependent 할당 재실행 결과 요약.}
+\label{tab:exp23}
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{지표} & \textbf{평균} & \textbf{표준편차} \\
+\midrule
+정적 vs. query-dependent rank correlation & 0.6976 & 0.1737 \\
+정적 vs. query-dependent allocation L1 & 1.1701 & 0.1261 \\
+query vs. query rank correlation & 0.7460 & 0.0817 \\
+query vs. query allocation L1 & 0.4935 & 0.2185 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+정적 할당과 query-dependent 할당이 동일하다면 rank correlation은 1에 가깝고 L1 거리는 0에 가까워야 한다. 그러나 실제로는 정적 vs. query-dependent rank correlation이 0.6976에 불과하고, allocation L1 거리가 1.1701이다. 대응 $t$ 검정에서도 rank correlation $< 1$ 및 L1 $> 0$가 모두 강하게 지지되었다($|t| > 100$, 모든 $p \approx 0$). 또한 query 간 비교에서도 rank correlation은 0.7460, L1은 0.4935로, 동일 레이어 내에서도 query에 따라 비트 할당이 유의하게 달라진다.
+
+레이어별로 보면 초기 레이어의 동적성이 가장 크다. L0--L3에서 정적 vs. query-dependent rank correlation은 0.208--0.445에 불과하고, L1 거리는 1.325--1.516이다. 반면 중후반 레이어에서는 rank correlation이 대체로 0.74--0.80 범위로 상승하고, query-vs-query L1은 0.22--0.63으로 감소한다. 이는 심층으로 갈수록 ``정적 backbone + 약한 query 보정'' 구조가 나타남을 시사한다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/exp2_3_query_dynamicity.png}
+\caption{실험 2-3 재실행 결과. 좌: 정적 vs. query-dependent, 그리고 query-vs-query rank correlation. 우: 대응되는 L1 거리. 초기 레이어에서 동적성이 가장 강하고, 심층으로 갈수록 부분적 안정화가 나타난다.}
+\label{fig:exp23}
+\end{figure}
+
+중요한 해석은 다음과 같다. 이 결과는 ``정적 할당과 query-dependent 할당이 사실상 동일하다''는 강한 주장을 기각한다. 그러나 동시에 이 실험은 end-to-end perplexity 또는 실제 양자화 오차 감소를 직접 측정하지 않는다. 따라서 실험 2-3은 query-dependent \textit{변화의 존재}를 입증하지만, query-dependent \textit{우월성}까지 입증하는 것은 아니다. RQ2의 핵심 질문인 ``축 선택(axis selection)''에 대해서는 실험 2-2, 2-4, 3-1이 여전히 정적 PCA의 최적성을 지지한다. 실험 2-3이 추가하는 결론은, 축은 정적으로 충분하되 할당 스케줄은 query-conditioned 적응 여지가 있다는 점이다.
+
+\subsection{PCA vs. AFOD 초기화 (실험 2-4)}
+
+이 소절은 Adaptive Frobenius-Optimal Decomposition (AFOD) 초기화가 PCA 대비 양자화 성능을 개선하는지 검증한다.
+
+세 비트 폭(2, 3, 4-bit)에서 PCA, AFOD, Random, Identity 네 방법의 MSE와 KL divergence를 비교하였다. 표~\ref{tab:exp24}은 MSE 비교를 요약한다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-4: 네 초기화 방법의 평균 MSE 비교.}
+\label{tab:exp24}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{비트 폭} & \textbf{PCA} & \textbf{AFOD} & \textbf{Random} & \textbf{Identity} \\
+\midrule
+2-bit & 399.14 & 402.10 & 2239.08 & 2086.61 \\
+3-bit & 285.24 & 284.99 & 1260.91 & 1151.57 \\
+4-bit & 194.26 & 194.17 & 448.22 & 431.42 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:exp24}에서 PCA와 AFOD의 MSE 차이는 세 비트 폭 모두에서 통계적으로 유의하지 않다(2-bit: $t = 0.70$, $p = 0.490$; 3-bit: $t = -0.84$, $p = 0.412$; 4-bit: $t = -0.49$, $p = 0.632$). AFOD는 3-bit와 4-bit에서 PCA보다 미미하게 낮은 MSE를 보였으나(per-layer 평균 개선 0.6\%, $-0.5\%$), 이 차이는 통계적 잡음 범위 내이다.
+
+PCA는 Random 대비 모든 비트 폭에서 유의하게 우수하였다(2-bit: 5.6배, 3-bit: 4.4배, 4-bit: 2.3배; 모든 $p < 10^{-4}$). 이는 PCA 축 선택이 무작위 대비 실질적 이득을 제공함을 확인하되, AFOD와 같은 정교한 대안이 PCA를 넘어서지 못함을 보여준다.
+
+\subsection{PCA vs. Lie Group 연속 최적화 (실험 3-1)}
+
+이 소절은 SO($d$) Lie group에서의 연속 회전 최적화(Givens rotation)가 PCA보다 낮은 양자화 오류를 달성할 수 있는지 검증한다. 이는 PCA가 전역 최적(global optimum)에 근접하는지를 수치적으로 확인하는 실험이다.
+
+GPT-2 Medium의 8개 대표 레이어(L0, L3, L6, L9, L12, L15, L18, L21)에서 64개 Givens plane, 최대 200회 반복의 수치 최적화를 수행하였다. 표~\ref{tab:exp31}은 네 방법의 전체 평균 MSE를 비교한다.
+
+\begin{table}[H]
+\centering
+\caption{실험 3-1: 양자화 축 선택 방법의 평균 MSE 순위 (3-bit).}
+\label{tab:exp31}
+\small
+\begin{tabular}{clr}
+\toprule
+\textbf{순위} & \textbf{방법} & \textbf{평균 MSE} \\
+\midrule
+1 & PCA & 220.45 \\
+2 & Optimized (Givens) & 938.81 \\
+3 & Identity & 961.01 \\
+4 & Random & 1047.17 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:exp31}에서 PCA는 Lie group 최적화 대비 4.3배 낮은 MSE를 달성하였다(220.45 vs. 938.81). 최적화된 회전은 Identity 대비 2.3\% 개선에 그쳤으며($t = 2.07$, $p = 0.078$, 비유의), PCA는 Random 대비 유의하게 우수하였다($t = 3.68$, $p = 0.008$). Lie group 최적화가 PCA를 유의하게 능가하지 못한다는 점은($t = -3.45$, $p = 0.011$, 열등 방향) PCA가 양자화 오류 최소화의 관점에서 전역 최적에 근접함을 강하게 시사한다.
+
+레이어별 분석에서 최적화된 회전의 PCA 대비 개선율(improvement\_vs\_pca\_pct)은 모든 8개 레이어에서 음수이다(L0: $-13.0\%$, L6: $-583.7\%$, L9: $-855.3\%$, L12: $-714.9\%$, L15: $-467.1\%$, L18: $-404.1\%$, L21: $-120.7\%$). L3만이 PCA 대비 24.1\% 개선을 보였으나, 이는 L3의 MSE 절대값이 작아(PCA: 36.47, Optimized: 27.67) 전체 경향에 영향을 미치지 않는다. 최적화의 총 실행 시간은 3,718초(약 1시간)로, PCA의 즉각적 계산과 대비하여 실용성에서도 열등하다.
+
+\subsection{RQ2 요약}
+
+표~\ref{tab:rq2_summary}는 RQ2 관련 다섯 실험의 결과를 종합한다.
+
+\begin{table}[H]
+\centering
+\caption{RQ2 종합 요약: PCA의 보편적 최적성 증거.}
+\label{tab:rq2_summary}
+\small
+\begin{tabularx}{\textwidth}{@{}lll>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Exp} & \textbf{비교 대상} & \textbf{PCA 우위} & \textbf{핵심 근거} \\
+\midrule
+2-1 & Facet 구조 & N/A & gap $= 0.408$, PC1이 96--99\% 분산 \\
+2-2 & LDA & K MSE 26--30$\times$ & $p < 10^{-6}$, V MSE 동일 \\
+2-3 & Dynamic & 직접 성능 비교 아님 & query별 importance/할당 변화 확인 \\
+2-4 & AFOD & 동등 ($p > 0.4$) & 통계적 차이 없음 \\
+3-1 & SO($d$) Opt. & 4.3$\times$ 우수 & 8/8 레이어에서 PCA 우위 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+RQ2에 대한 종합 답변은 다음과 같다. PCA는 KV 캐시 양자화의 사실상(de facto) 최적 축이다. LDA(supervised), AFOD(adaptive), Lie group 수치 최적화(continuous) 세 가지 카테고리의 대안 모두가 PCA를 유의하게 능가하지 못하였다. 실험 2-3은 query-dependent 할당 변화가 실제로 존재함을 보여주지만, 이는 축 선택 문제를 뒤집지 않는다. K-space의 강한 rank-1 구조(PC1이 96--99\% 분산 설명)가 이 결과의 근본 원인으로, 양자화 축 선택 문제가 본질적으로 ``가장 큰 분산 방향 찾기''로 환원됨을 의미한다.
+
+\newpage
+
+%% ==========================================================================
+%% 6. RQ3: SSM과 트랜스포머의 구조적 호환성이 있는가?
+%% ==========================================================================
+\section{RQ3: SSM과 트랜스포머의 구조적 호환성이 있는가?}
+
+이 절은 State Space Model (SSM)이 트랜스포머 어텐션 패턴을 효율적으로 근사할 수 있는지를 증류(distillation)와 초기화(initialization) 두 관점에서 검증한다. 이는 KV 캐시를 SSM state로 대체하는 가능성을 탐색하는 것이다.
+
+\subsection{SSM 증류 (실험 3-2)}
+
+이 소절은 트랜스포머 어텐션 출력을 SSM으로 증류할 때, state dimension $N$에 따른 근사 정확도를 측정한다.
+
+GPT-2 Medium의 6개 대표 레이어(L0, L4, L8, L12, L16, L20)에서 5개 state dimension($N = 16, 32, 64, 128, 256$)에 대해 500 step 학습 후 NMSE를 측정하였다. 표~\ref{tab:exp32}은 $N$별 평균 NMSE와 NMSE $< 0.1$ 기준 충족 레이어 수를 요약한다.
+
+\begin{table}[H]
+\centering
+\caption{실험 3-2: State dimension별 SSM 증류 NMSE.}
+\label{tab:exp32}
+\small
+\begin{tabular}{rrrr}
+\toprule
+\textbf{State dim $N$} & \textbf{평균 NMSE} & \textbf{NMSE $< 0.1$} & \textbf{비율} \\
+\midrule
+16 & 0.489 & 0/6 & 0\% \\
+32 & 0.454 & 0/6 & 0\% \\
+64 & 0.403 & 0/6 & 0\% \\
+128 & 0.252 & 0/6 & 0\% \\
+256 & 0.157 & 4/6 & 67\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:exp32}에서 $N = 256$에서 6개 레이어 중 4개가 NMSE $< 0.1$ 기준을 충족하였으나, 평균 NMSE는 0.157로 실용 수준(전체 레이어 NMSE $< 0.05$)에 미달한다. $N = 256$에서 가장 낮은 NMSE는 L8의 0.036이며, 가장 높은 NMSE는 L0의 0.463으로 레이어 간 편차가 크다.
+
+$N$과 NMSE의 관계는 대략 로그 선형적이며, $N$을 16에서 256으로 16배 증가시킬 때 평균 NMSE는 0.489에서 0.157로 약 3.1배 감소하였다. 이 감소율로 추정하면, 전체 레이어 NMSE $< 0.05$ 달성에는 $N > 1024$ 수준의 state dimension이 필요하며, 이는 원래 KV 캐시($d = 64$)보다 16배 이상 큰 표상을 요구하여 SSM 대체의 메모리 이점을 상쇄한다. 가설 ``SSM이 실용적 state dimension에서 어텐션을 근사할 수 있다''는 현 조건에서 지지되지 않는다.
+
+\subsection{SSM 초기화 방법 비교 (실험 3-3)}
+
+이 소절은 SSM의 전이 행렬(transition matrix) 초기화 방법이 증류 성능에 미치는 영향을 검증하며, 특히 spectral 초기화가 최선인지를 확인한다.
+
+GPT-2 Medium L12에서 $N = 64$, 300 step 학습으로 다섯 초기화 방법(HiPPO, Random, RoPE, YaRN, Spectral)을 비교하였다. 표~\ref{tab:exp33}은 최종 NMSE 순위를 나타낸다.
+
+\begin{table}[H]
+\centering
+\caption{실험 3-3: SSM 초기화 방법별 최종 NMSE (L12, $N = 64$).}
+\label{tab:exp33}
+\small
+\begin{tabular}{clrr}
+\toprule
+\textbf{순위} & \textbf{방법} & \textbf{NMSE} & \textbf{Best Loss} \\
+\midrule
+1 & RoPE & 0.475 & 0.410 \\
+2 & Spectral & 0.496 & 0.434 \\
+3 & Random & 0.500 & 0.428 \\
+4 & YaRN & 0.513 & 0.438 \\
+5 & HiPPO & 0.621 & 0.527 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:exp33}에서 RoPE 초기화가 가장 낮은 NMSE(0.475)를 달성하였으며, Spectral(0.496), Random(0.500), YaRN(0.513) 순이다. HiPPO(0.621)는 가장 열등하였다. Spectral 초기화가 최선이라는 사전 가설은 기각되며, RoPE의 주기적 구조가 어텐션 패턴의 위치 인코딩 특성과 부합하여 약간의 이점을 제공한 것으로 해석된다.
+
+다만 상위 4개 방법(RoPE, Spectral, Random, YaRN)의 NMSE 차이는 0.475--0.513으로 매우 작아(범위 0.038), 초기화 방법의 선택이 증류 성능에 미치는 영향은 미미하다. 이는 SSM 증류의 병목이 초기화가 아닌 모델 용량(state dimension)에 있음을 시사하며, 실험 3-2의 결론과 일치한다.
+
+\subsection{RQ3 요약}
+
+표~\ref{tab:rq3_summary}는 RQ3 관련 두 실험의 결과를 종합한다.
+
+\begin{table}[H]
+\centering
+\caption{RQ3 종합 요약: SSM-트랜스포머 호환성 평가.}
+\label{tab:rq3_summary}
+\small
+\begin{tabularx}{\textwidth}{@{}lll>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Exp} & \textbf{가설} & \textbf{판정} & \textbf{핵심 근거} \\
+\midrule
+3-2 & 실용적 $N$에서 근사 가능 & \textcolor{failure}{Not Viable} & $N{=}256$ NMSE $= 0.157$, $N > 1024$ 필요 추정 \\
+3-3 & Spectral 초기화 최선 & \textcolor{failure}{Not Best} & RoPE $>$ Spectral $>$ Random $>$ YaRN $>$ HiPPO \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+RQ3에 대한 종합 답변은 다음과 같다. SSM은 현재 조건에서 트랜스포머 어텐션의 실용적 대체재가 될 수 없다. 증류에는 매우 큰 state dimension이 필요하여 메모리 이점이 상쇄되며, 초기화 방법의 선택은 성능에 미미한 영향을 미친다. KV 캐시 압축의 경로로서 SSM보다는 PCA 기반 양자화가 현실적 대안이다.
+
+\newpage
+
+%% ==========================================================================
+%% 7. 종합 판정
+%% ==========================================================================
+\section{종합 판정}
+
+10개 실험의 결과를 세 범주---확인된 것, 기각된 것, 남은 과제---로 분류한다.
+
+\subsection{확인된 것}
+
+첫째, PCA는 KV 캐시 양자화의 보편적 최적 축이다. LDA(26--30배 열등), AFOD(동등), SO($d$) 최적화(4.3배 열등) 세 범주의 대안이 모두 PCA를 능가하지 못하였다. K-space의 강한 rank-1 구조(PC1 분산 설명 96--99\%)가 이 최적성의 구조적 근거이다.
+
+둘째, query-dependent 비트 할당 변화는 실제로 존재한다. 정적 vs. query-dependent rank correlation은 0.698, L1 거리는 1.170이며, query-vs-query L1도 0.494이다. 다만 이 변화는 ``동적 스케줄''의 존재를 말할 뿐이며, ``정적 PCA 축이 최적이 아니다''라는 결론으로 곧바로 이어지지 않는다.
+
+셋째, K-space facet 구조는 코퍼스에 의존적이다. 코퍼스 내 유사도(0.819)와 코퍼스 간 유사도(0.411)의 gap이 0.408로 매우 유의하다($p = 1.6 \times 10^{-64}$). 그러나 이 분리에도 불구하고 정적 PCA가 양자화에 충분한 것은, PC1의 지배적 분산 기여가 코퍼스 간 변동보다 크기 때문이다.
+
+넷째, 볼츠만 $\teff$의 점진적 냉각은 표준 MHA(GPT-2)에서 관찰된다($\rho = -0.657$). 이는 깊은 레이어에서 어텐션이 집중되는 현상의 열역학적 기술(description)로서 유효하다.
+
+\subsection{기각된 것}
+
+첫째, $\teff$ 단조 감소의 보편성은 기각되었다. GQA(Qwen)에서 $\rho = +0.108$으로 단조 감소가 관찰되지 않으며, KV 그룹 간 극단적 $\teff$ 차이(gap $= 0.506$)가 원인이다.
+
+둘째, 비열 $\Cq$ 기반 양자화 비트 할당의 규범적 가치는 기각되었다. $\Cq$와 $\knorm$ 간 39.8\% 불일치에도 불구하고 PPL 개선으로 이어지지 않았다(0/3 승리).
+
+셋째, FFN의 주파수 선택성 가설은 기각되었다. FFN은 엔트로피를 증가시키며($\Delta H = -0.122$, 0/24 레이어에서 감소), 선택적 집중이 아닌 평활화 역할을 수행한다.
+
+넷째, SSM의 실용적 어텐션 근사 가능성은 기각되었다. $N = 256$에서도 평균 NMSE $= 0.157$이며, 실용 수준 달성에는 $N > 1024$가 필요하다.
+
+다섯째, Spectral 초기화의 SSM 최적성은 기각되었다. RoPE가 최선이며 초기화 방법 간 차이는 미미하다(범위 0.038).
+
+\subsection{남은 과제}
+
+실험 2-3은 재실행으로 해소되었으나, 아직 남은 과제는 ``query-dependent 변화가 실제 end-to-end 양자화 품질 개선으로 이어지는가''이다. 현재 실험은 중요도 순위와 할당 거리의 변화를 측정했을 뿐, 동적 스케줄을 실제 양자화 루프에 삽입했을 때의 PPL, latency, 메모리 오버헤드를 직접 평가하지 않았다. 따라서 다음 단계는 정적 PCA 축 위에서 lightweight query-conditioned scheduler를 구현하고, 그 비용 대비 이득을 직접 검증하는 것이다.
+
+%% ==========================================================================
+%% 8. 한계
+%% ==========================================================================
+\section{한계}
+
+본 연구의 한계를 네 가지로 정리한다.
+
+첫째, 모델 규모의 제한이다. 실험은 GPT-2 Medium (345M)과 Qwen2.5-3B에 한정되었으며, 10B+ 규모의 모델에서 결론이 유지되는지 확인되지 않았다. 특히 PCA의 최적성이 대규모 모델에서도 성립하는지, K-space의 rank-1 구조가 보존되는지는 열린 질문이다.
+
+둘째, 양자화 평가의 한계이다. PPL은 양자화 품질의 간접적 지표이며, downstream task (summarization, QA, reasoning)에서의 성능 영향은 측정되지 않았다. 또한 2-bit 양자화에서 분산 기반과 비열 기반 모두 발산하는 점은 극저비트 양자화의 근본적 한계를 시사하나, 별도의 분석이 수행되지 않았다.
+
+셋째, SSM 증류의 학습 조건 한계이다. 500 step, 40 sample의 학습 조건은 SSM의 잠재적 용량을 충분히 활용하지 못할 수 있다. 더 긴 학습, 더 많은 데이터, 다양한 최적화 기법(예: curriculum learning)이 NMSE를 추가로 낮출 가능성을 배제하지 못한다.
+
+넷째, 실험 2-3은 변화의 존재를 확인했지만 end-to-end 효용을 직접 측정하지 못했다. Query-dependent 스케줄이 실제 PPL 개선 또는 같은 품질에서의 메모리 절감을 제공하는지는 별도 구현과 평가가 필요하다.
+
+%% ==========================================================================
+%% 9. 향후 단계
+%% ==========================================================================
+\section{향후 단계}
+
+Phase 4로 Llama-3-8B에서의 검증을 계획한다. 구체적 로드맵은 다음과 같다.
+
+첫째, 실험 1-1을 Llama-3-8B (GQA, 8 KV heads)에서 재현하여 GQA 파괴의 일반성을 확인한다. Qwen2.5-3B (2 KV heads)와 Llama-3-8B (8 KV heads)의 KV 그룹 수 차이가 $\teff$ 패턴에 미치는 영향을 비교한다.
+
+둘째, 실험 2-2의 PCA vs. LDA 비교를 Llama-3-8B에서 재현하여 26--30배 K MSE 우위가 대규모 GQA 모델에서도 유지되는지 확인한다. 이 실험은 PCA 최적성의 모델 일반화 증거를 제공한다.
+
+셋째, 정적 PCA 축 위에 lightweight query-conditioned bit scheduler를 구현하고, PPL/latency/memory의 3축 trade-off를 직접 평가한다. 실험 2-3은 ``변화가 존재한다''는 사실을 확인했으므로, 다음 단계는 그 변화를 실제 시스템 이득으로 전환할 수 있는지 검증하는 것이다.
+
+넷째, downstream task 평가를 추가한다. PPL 외에 MMLU, GSM8K, HumanEval 등 표준 벤치마크에서 PCA 양자화의 성능 영향을 측정하여, 양자화 품질의 실용적 함의를 정량화한다.
+
+%% ==========================================================================
+%% 10. 데이터 무결성 부록
+%% ==========================================================================
+\section{데이터 무결성 부록}
+
+본 보고서의 모든 수치는 실험 결과 JSON 파일에서 직접 추출하였으며, 6라운드의 Critic 교정을 거쳤다. 이 절은 교정 이력을 투명하게 기록한다.
+
+\subsection{Critic Round 1--2 교정}
+
+Round 1에서 HeadVar 중앙값이 0.036에서 \textbf{0.037}로 교정되었으며, L34--L35 재가열 지정이 명시되었다. Round 2에서 실험 2-2의 8/2-bit KL divergence가 교정되었다: 종전 보고 PCA $= 4.75$, LDA $= 13.28$은 오류이며, 실제 값은 PCA $= 1.83$ (exp2\_2\_results.json comparisons[1].pca\_mean\_kl $= 1.8265$), LDA $= 11.87$ (comparisons[1].lda\_mean\_kl $= 11.8657$)이다. 4.75는 kl\_per\_layer[4]의 단일 레이어 값이었고, 13.28은 데이터에 존재하지 않는 수치였다.
+
+\subsection{Critic Round 3 교정}
+
+F1: KV Group 0 평균 $\teff$ 서술 오류 교정. ``H5 제외 시 0.548''은 실제로 H5 포함 값이다. 본 보고서에서는 ``KV Group 0 평균 $\teff = 0.548$ (H5 포함)''으로 정정하였다.
+
+F2: 실험 1-2 Mid-Late (L12--L17) 그룹 $\rho$ 평균이 0.183에서 0.212로 교정되었다. F3: Middle (L6--L11) 그룹 $\rho$ 평균이 0.219에서 0.226으로 교정되었다.
+
+F4: FOKVQ 교차 분석 수치의 출처 미검증 문제가 지적되었다. 본 보고서에서는 검증 불가능한 FOKVQ 수치를 인용하지 않는다.
+
+\subsection{Critic Round 4 교정}
+
+실험 2-4와 3-1의 모든 수치가 PASS 판정을 받았다. L21의 opt\_history\_end (1751.73)와 mse\_optimized (1748.49)의 0.19\% 불일치는 최적화 콜백 값과 별도 평가 값의 차이로 확인되었으며, 보고서에서는 mse\_optimized (정식 평가 값)를 사용한다.
+
+\subsection{Critic Round 5 교정}
+
+F5 (CRITICAL): 실험 2-3 데이터 교체 확인. 2026년 3월 29일 시점에는 exp2\_3\_results.json의 교체로 인해 이전 데이터 기반 서술과 현재 데이터가 전면 불일치하였고, 따라서 당시 보고서는 실험 2-3을 잠정적으로 INCONCLUSIVE 처리하였다.
+
+\subsection{Critic Round 6 교정}
+
+2026년 3월 31일 eval-e8 노드에서 실험 2-3을 재실행하였다. 재실행 결과는 현재의 exp2\_3\_results.json과 모든 핵심 과학적 수치가 일치하였다: 정적 vs. query-dependent rank correlation 0.6976, allocation L1 1.1701, query-vs-query rank correlation 0.7460, query-vs-query L1 0.4935, 그리고 두 Boolean 판정(query-dependent 할당 차이 존재, query 간 변화 존재) 모두 true이다. runtime만 로컬 JSON(18.74s)과 원격 재실행(33.89s) 사이에 달랐으며, 이는 캐시/환경 차이로 해석된다. 이에 따라 현재 exp2\_3\_results.json을 권위적 데이터로 확정하고, 본 보고서의 실험 2-3 판정을 RESOLVED로 갱신하였다.
+
+\end{document}

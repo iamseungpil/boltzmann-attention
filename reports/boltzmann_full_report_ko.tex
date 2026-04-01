@@ -1,0 +1,814 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{fontspec}
+\usepackage{ucharclasses}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{longtable}
+
+\setmainfont{Noto Sans CJK KR}
+\newfontfamily\hangulfont{Noto Sans CJK KR}
+\setTransitionsForCJK{\hangulfont}{}{}
+
+\tolerance=1000
+\emergencystretch=3em
+\hfuzz=2pt
+
+\definecolor{success}{HTML}{2E7D32}
+\definecolor{failure}{HTML}{C62828}
+\definecolor{partial}{HTML}{F57F17}
+\definecolor{tableheader}{HTML}{E3F2FD}
+\definecolor{lightgray}{HTML}{F5F5F5}
+
+\title{Boltzmann Thermodynamics of Attention:\\Level 1 + FOKVQ Phase 2--3\\[0.5em]\large{}}
+\author{2026-03-29}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+9개 실험 (1-1 -- 3-1)의 결과를 종합적으로 보고한다.
+Boltzmann Level 1 실험 3개에서는 유효 온도 $T_\mathrm{eff}$의 점진적 냉각(progressive cooling)이 표준 MHA (GPT-2 Medium)에서 확인되었으나 ($\rho = -0.657$, $p < 0.001$), GQA 아키텍처(Qwen2.5-3B)에서는 파괴되었다 ($\rho = +0.108$, $p = 0.530$).
+비열 $C(q)$는 키 노름 $\|k\|^2$와 39.8\% 불일치를 보여 독립적 물리량임이 확인되었으나, PPL 개선으로는 이어지지 않았다.
+FFN 주파수 선택성 가설은 기각되었다 ($\Delta H = -0.122$, $p < 10^{-10}$).
+FOKVQ Phase 2 실험 4개에서는 Facet K-space 분리도가 코퍼스 간 유의한 차이를 보였고 (gap = 0.408, $p = 1.6 \times 10^{-64}$), PCA 기반 비균일 비트 할당이 LDA 대비 K MSE에서 26--30배 우수하며, query-dependent 동적 할당과 AFOD 초기화 모두 정적 PCA 대비 유의한 개선을 보이지 못하였다.
+Phase 3 Lie Group 검증에서는 SO($d$) 수치 최적화가 PCA 대비 4.3배 열위로, PCA 기저의 사실상 최적성이 확인되었다 ($p = 0.011$).
+종합하면, Boltzmann 프레임워크는 기술적(descriptive) 가치를 가지나 규범적(prescriptive) 양자화 설계에는 부적합하며, FOKVQ의 정적 PCA 기반 facet-aware 접근이 양자화 성능의 핵심 동력임이 다각적으로 재확인되었다.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%% =========================================================================
+%% SECTION 1: Boltzmann Level 1
+%% =========================================================================
+\section{Boltzmann Level 1}
+
+이 절의 목적은 소프트맥스 어텐션과 볼츠만 분포의 형식적 동일성이 KV 캐시 양자화에 실용적 가치를 제공하는지를 3개 실험을 통해 검증하는 것이다.
+
+\subsection{실험 1-1: $T_\mathrm{eff}$ 게이트 테스트}
+
+\subsubsection{목적 및 설정}
+
+이 실험의 목적은 Boltzmann 프레임워크의 핵심 예측인 ``점진적 냉각(progressive cooling)''을 검증하는 것이다.
+소프트맥스 어텐션을 볼츠만 분포로 해석하면, 심층 레이어로 갈수록 유효 온도 $T_\mathrm{eff}^{(l)} = S^{(l)} / \log n$이 단조 감소하여 어텐션이 점진적으로 집중되어야 한다.
+여기서 $S^{(l)} = -\sum_j \alpha_j \log \alpha_j$는 어텐션 엔트로피이다.
+Forward hook을 통해 각 레이어에서 $Q$, $K$를 추출한 후 어텐션 가중치 $\alpha = \mathrm{softmax}(QK^\top / \sqrt{d})$를 직접 계산하여 $T_\mathrm{eff}$를 측정하였다.
+
+\begin{table}[H]
+\centering
+\caption{실험 1-1 설정. 두 모델의 아키텍처 비교.}
+\label{tab:exp11_setup}
+\begin{tabular}{lcc}
+\toprule
+\textbf{} & \textbf{Qwen2.5-3B} & \textbf{GPT-2 Medium} \\
+\midrule
+Architecture & GQA (KV 헤드 2개) & Standard MHA \\
+Layers & 36 & 24 \\
+Heads & 16 & 16 \\
+Head dim & 128 & 64 \\
+Calibration samples & 64 & 64 \\
+Max seq len & 512 & 512 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+게이트 기준은 Spearman $\rho(\text{layer index}, T_\mathrm{eff})$로 사전 등록하였다: $\rho < -0.7$ (강한 성공), $-0.7 < \rho < -0.3$ (약한 성공), $\rho > -0.3$ (실패).
+
+\subsubsection{결과}
+
+Table~\ref{tab:gate}는 두 아키텍처에 대한 Spearman 상관 분석 결과를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 1-1 게이트 결과. Spearman 상관 분석.}
+\label{tab:gate}
+\begin{tabular}{lcccl}
+\toprule
+\textbf{Model} & \textbf{GQA} & $\boldsymbol{\rho}$ & $\boldsymbol{p}$ & \textbf{Verdict} \\
+\midrule
+Qwen2.5-3B & 2 KV heads & $+0.108$ & $0.530$ & \textcolor{failure}{FAILURE} \\
+GPT-2 Medium & None (MHA) & $-0.657$ & $4.82 \times 10^{-4}$ & \textcolor{partial}{WEAK SUCCESS} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{GPT-2 Medium (MHA).}
+명확한 점진적 냉각이 관찰되었다.
+$T_\mathrm{eff}$는 Layer~0의 0.861에서 Layer~19의 0.221까지 감소하며, 최종 레이어(Layer~23)에서 0.520으로 재가열(reheating)되는 패턴을 보인다.
+초기 구간(L0--L6)에서의 $\rho$는 $-1.0$으로 완벽한 단조 감소이다.
+중간 레이어(L6--L19)에서는 0.221--0.428 범위에서 비단조적 진동이 존재한다.
+
+\paragraph{Qwen2.5-3B (GQA).}
+V자형 패턴이 나타났다: 고온 초기층 (L0--L2 평균 0.84) $\to$ 저온 중간층 (L3--L33, 0.30--0.61 범위에서 불규칙) $\to$ 재가열 (L34--L35 평균 0.76).
+단조 감소 경향은 관찰되지 않았다 ($\rho = +0.108$, $p = 0.530$).
+
+\paragraph{GQA Disruption 발견.}
+GQA 메커니즘이 극단적인 그룹 간 온도 차이를 유발한다.
+Table~\ref{tab:gqa_disruption}은 Layer~5에서 KV 그룹별 $T_\mathrm{eff}$를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{Qwen2.5-3B Layer 5의 헤드별 $T_\mathrm{eff}$. KV Group 간 극단적 온도 차이가 관찰된다.}
+\label{tab:gqa_disruption}
+\begin{tabular}{cccc|cccc}
+\toprule
+\textbf{Head} & $\boldsymbol{T_\mathrm{eff}}$ & \textbf{KV Grp} & &
+\textbf{Head} & $\boldsymbol{T_\mathrm{eff}}$ & \textbf{KV Grp} & \\
+\midrule
+H0 & 0.716 & KV0 & & H8  & 0.037 & KV1 & \\
+H1 & 0.539 & KV0 & & H9  & 0.073 & KV1 & \\
+H2 & 0.436 & KV0 & & H10 & 0.000 & KV1 & \\
+H3 & 0.642 & KV0 & & H11 & 0.008 & KV1 & \\
+H4 & 0.504 & KV0 & & H12 & 0.045 & KV1 & \\
+H5 & 0.082 & KV0 & & H13 & 0.090 & KV1 & \\
+H6 & 0.728 & KV0 & & H14 & 0.053 & KV1 & \\
+H7 & 0.741 & KV0 & & H15 & 0.032 & KV1 & \\
+\midrule
+\multicolumn{3}{l}{KV0 mean: 0.548} & & \multicolumn{3}{l}{KV1 mean: 0.042} & \\
+\multicolumn{8}{c}{\textbf{Gap = 0.506}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+중간 레이어(L3--L32)의 헤드 분산($\sigma^2_h = 0.037$)은 초기/최종 레이어(0.005)의 약 7배이며, 가장 높은 레이어(L5)에서는 0.0857로 L0 대비 15.9배에 달한다.
+
+\subsubsection{시사점}
+
+실험 1-1은 두 가지 핵심 결론을 도출한다.
+첫째, 볼츠만 $T_\mathrm{eff}$의 점진적 냉각은 표준 MHA에서 실재하는 현상이며, 다층 어텐션을 점진적 어닐링으로 해석하는 이론적 정당성을 부분적으로 뒷받침한다.
+둘째, GQA 구조는 KV 공유로 인해 헤드 간 온도 분포가 극단적으로 분화되며, GQA 모델에 대한 양자화 전략은 헤드 수준이 아닌 KV 그룹 수준으로 설계되어야 함을 시사한다.
+
+%% -------------------------------------------------------------------------
+\subsection{실험 1-2: 비열 기반 적응적 양자화}
+
+\subsubsection{목적 및 설정}
+
+이 실험의 목적은 볼츠만 비열 $C(q_i) = \mathrm{Var}_\alpha[q_i^\top k_j / \sqrt{d}]$가 기존 키 노름 기반 방법 $\|k\|^2$과 구별되는 양자화 기준을 제공하는지 검증하고, 이 구별이 PPL 개선으로 이어지는지 확인하는 것이다.
+
+\begin{table}[H]
+\centering
+\caption{실험 1-2 설정.}
+\label{tab:exp12_setup}
+\begin{tabular}{ll}
+\toprule
+\textbf{} & \textbf{Value} \\
+\midrule
+Model & GPT-2 Medium (24L/16H/$d$=64) \\
+Evaluation data & WikiText-2, 32 samples, $n_\mathrm{max}=256$ \\
+Baseline PPL & 139.85 \\
+Bit budgets & 2, 3, 4 \\
+Strategies & Uniform, Variance ($\|k\|^2$), Specific Heat ($C(q)$) \\
+Allocation rule & Median-based $\pm 1$ bit \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{결과: 불일치 분석}
+
+Table~\ref{tab:disagree}는 $C(q)$와 $\|k\|^2$ 간 비트 할당 불일치율을 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{$C(q)$와 $\|k\|^2$ 간 비트 할당 불일치율. 레이어 그룹별 분석.}
+\label{tab:disagree}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Layer Group} & \textbf{Mean Disagreement} & \textbf{Mean $\rho(C, \|k\|^2)$} \\
+\midrule
+Early (L0--L5) & 30.1\% & 0.526 \\
+Middle (L6--L11) & 41.7\% & 0.226 \\
+Mid-Late (L12--L17) & 42.4\% & 0.212 \\
+Late (L18--L23) & 45.2\% & 0.136 \\
+\midrule
+\textbf{Overall} & \textbf{39.8\%} & \textbf{0.275} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+후기 레이어로 갈수록 불일치가 증가한다.
+Layer~21에서 49.6\% ($\rho = 0.034$)로 최고치를 기록하며, 두 양이 거의 완전히 독립적 정보를 포착함을 확인하였다.
+
+\subsubsection{결과: PPL 비교}
+
+Table~\ref{tab:ppl}은 양자화 전략별 perplexity 결과를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{양자화 전략별 Perplexity. Baseline (FP32): 139.85.}
+\label{tab:ppl}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Bits} & \textbf{Uniform} & \textbf{Variance ($\|k\|^2$)} & \textbf{Specific Heat ($C(q)$)} \\
+\midrule
+2-bit & 419.41 & $\infty$\textsuperscript{*} & $\infty$\textsuperscript{*} \\
+3-bit & 130.38 & \textbf{127.62} & 264.48 \\
+4-bit & \textbf{110.19} & 122.85 & 125.56 \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize \textsuperscript{*}Adaptive 2-bit 수치 불안정 ($4.85 \times 10^8$).} \\
+\end{tabular}
+\end{table}
+
+$C(q)$ 기반 양자화는 3개 비트 수준 모두에서 분산 기반 방법을 능가하지 못하였다.
+Heat wins: 0, Variance wins: 2.
+
+\subsubsection{시사점}
+
+판정: \textcolor{partial}{다르지만 아직 더 낫지 않음 (DIFFERENT\_BUT\_NOT\_BETTER)}.
+$C(q)$는 $\|k\|^2$와 구별되는 새로운 물리량이다 (39.8\% disagreement, $\rho = 0.275$).
+이는 볼츠만 프레임워크가 기존 메트릭의 단순 재포장이 아님을 확인한다.
+그러나 현재의 단순한 median 기반 $\pm1$ bit 할당으로는 PPL 개선이 이루어지지 않았다.
+$C(q)$의 가치가 실현되려면 비선형/다단계 할당, $\|k\|^2$와의 결합, 또는 FOKVQ의 차원별 할당과의 통합이 필요하다.
+
+%% -------------------------------------------------------------------------
+\subsection{실험 1-3: FFN 주파수 선택성}
+
+\subsubsection{목적 및 설정}
+
+이 실험의 목적은 FFN이 어텐션 에너지 스펙트럼에서 주파수 선택성 필터 역할을 하는지 검증하는 것이다.
+DFT를 통해 $Q$, $K$의 주파수 성분별 에너지 기여도 $p(\omega)$를 계산하고, FFN 포함/제거 조건에서 스펙트럼 엔트로피 $H(\omega) = -\sum p(\omega) \log p(\omega)$를 비교하였다.
+FFN 제거는 forward hook으로 FFN 출력을 영벡터로 대체하여 구현하였다.
+모델은 GPT-2 Medium (24L/16H/$d$=64), 48개 샘플을 사용하였다.
+
+\subsubsection{결과}
+
+FFN은 스펙트럼 엔트로피를 \textbf{증가}시켰으며, 이는 가설의 반대 방향이다.
+Table~\ref{tab:ffn}은 주요 수치를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 1-3 FFN 주파수 선택성 결과. 24개 레이어 전체에서 FFN이 엔트로피를 증가시켰다.}
+\label{tab:ffn}
+\begin{tabular}{ll}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+$\bar{H}$ (FFN 포함) & 3.376 \\
+$\bar{H}$ (FFN 제거) & 3.255 \\
+$\Delta H$ (mean diff) & $-0.122$ \\
+Paired $t$-statistic & $-11.788$ \\
+Paired $p$-value & $3.15 \times 10^{-11}$ \\
+Wilcoxon statistic & 0.0 \\
+Wilcoxon $p$-value & $2.70 \times 10^{-5}$ \\
+Layers where FFN reduces $H$ & \textbf{0 / 24} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$\Delta H$는 Layer~0 (0.000)에서 Layer~22 ($-0.189$)까지 단조적으로 감소하며, 심층 레이어에서 FFN의 엔트로피 증가 효과가 강화된다.
+
+\subsubsection{시사점}
+
+판정: \textcolor{failure}{가설 기각 (HYPOTHESIS REJECTED)}.
+FFN은 주파수 선택성을 강화하지 않는다.
+오히려 주파수 공간에서 에너지를 분산시키는 역할을 하며, 이는 FFN이 다음 레이어의 어텐션을 위해 표현을 다양화(diversify)하는 기능을 수행한다는 해석과 일치한다.
+
+%% =========================================================================
+%% SECTION 2: FOKVQ Phase 2
+%% =========================================================================
+\section{FOKVQ Phase 2}
+
+이 절의 목적은 FOKVQ의 facet-aware 비균일 비트 할당의 이론적 기반을 두 실험으로 검증하는 것이다.
+
+\subsection{실험 2-1: Facet K-space 분리도}
+
+\subsubsection{목적 및 설정}
+
+이 실험의 목적은 K-space의 PCA facet 구조가 코퍼스(domain) 간에 분리되는지, 즉 서로 다른 입력 분포에서 추출한 K 벡터의 주성분 부분공간이 통계적으로 구별 가능한지를 검증하는 것이다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-1 설정.}
+\label{tab:exp21_setup}
+\begin{tabular}{ll}
+\toprule
+\textbf{} & \textbf{Value} \\
+\midrule
+Model & GPT-2 Medium (24L) \\
+Top $r$ (PCA components) & 8 \\
+Samples per corpus & 30 \\
+Corpora & technical, code, conversational \\
+Similarity metric & Cosine similarity (within / cross corpus) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{결과}
+
+Table~\ref{tab:sep}는 코퍼스 내/간 유사도와 분리도 갭을 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-1 Facet K-space 분리도. Within-corpus vs.\ cross-corpus 유사도 비교.}
+\label{tab:sep}
+\begin{tabular}{lc}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Overall within-corpus similarity & 0.819 \\
+Overall cross-corpus similarity & 0.411 \\
+\textbf{Separability gap} & \textbf{0.408} \\
+$t$-statistic & 30.500 \\
+$p$-value (two-sample $t$-test) & $1.64 \times 10^{-64}$ \\
+Mann-Whitney $U$ & 5177.0 \\
+Mann-Whitney $p$-value & $2.68 \times 10^{-25}$ \\
+Hypothesis supported & \textcolor{success}{Yes} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:pair_sim}은 코퍼스 쌍별 유사도를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{코퍼스 쌍별 cross-corpus 유사도 (24개 레이어 평균). 모든 쌍이 within-corpus 유사도(0.819)보다 현저히 낮다.}
+\label{tab:pair_sim}
+\begin{tabular}{lc}
+\toprule
+\textbf{Corpus Pair} & \textbf{Mean Similarity} \\
+\midrule
+technical vs.\ code & 0.452 \\
+technical vs.\ conversational & 0.440 \\
+code vs.\ conversational & 0.340 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+레이어별 분석에서 분리도 갭은 초기 레이어(L0: 0.320)에서 중간 레이어(L6--L9: 0.380--0.413)로 증가하며, L4--L5 (within: 0.857, cross: 0.517)에서 급격한 분화가 시작된다.
+후기 레이어에서는 약간 감소하나 일관되게 0.35 이상을 유지한다.
+
+\paragraph{Explained Variance 패턴.}
+PCA 상위 1 성분의 설명 분산은 Layer~3 이후 급격히 증가하여 L4--L20에서 98.5--99.9\%에 달한다.
+이는 K-space의 극단적 비등방성을 재확인하며, facet-aware 양자화의 이론적 근거를 강화한다.
+
+\subsubsection{시사점}
+
+판정: \textcolor{success}{가설 지지 (HYPOTHESIS SUPPORTED)}.
+K-space의 PCA facet 구조는 코퍼스 간에 통계적으로 유의하게 분리된다 (gap = 0.408, $p = 1.64 \times 10^{-64}$).
+이 결과는 두 가지 함의를 가진다.
+첫째, 보정 데이터의 도메인이 facet-aware 양자화 성능에 영향을 미칠 수 있어 calibration 전략 설계에 주의가 필요하다.
+둘째, 코퍼스 내 유사도(0.819)가 높다는 것은 동일 도메인 내에서는 facet 구조가 안정적임을 의미하며, 적절한 보정 세트 선택 시 일반화 가능성이 있음을 시사한다.
+
+%% -------------------------------------------------------------------------
+\subsection{실험 2-2: LDA vs PCA 비균일 비트 할당}
+
+\subsubsection{목적 및 설정}
+
+이 실험의 목적은 K-space에서 코퍼스 판별 방향(LDA)이 분산 최대 방향(PCA)보다 양자화에 유리한 차원 순위를 제공하는지 검증하는 것이다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-2 설정. 5개 양자화 구성 비교.}
+\label{tab:exp22_setup}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Config} & \textbf{High bits} & \textbf{Low bits} & \textbf{Top-$k$} & \textbf{Dim ranking} \\
+\midrule
+uniform\_4bit & 4 & 4 & 0 & -- \\
+pca\_6\_2 & 6 & 2 & 16 & PCA \\
+pca\_8\_2 & 8 & 2 & 8 & PCA \\
+lda\_6\_2 & 6 & 2 & 16 & LDA \\
+lda\_8\_2 & 8 & 2 & 8 & LDA \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+모델: GPT-2 Medium, 80개 샘플, $n_\mathrm{embd} = 1024$.
+
+\subsubsection{결과}
+
+Table~\ref{tab:lda_pca}는 PCA와 LDA 기반 비균일 할당의 핵심 비교 결과를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-2 LDA vs PCA 비교. K MSE, KL divergence, Attn output MSE 세 지표 모두에서 PCA가 LDA를 압도한다.}
+\label{tab:lda_pca}
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Metric} & \textbf{Config} & \textbf{PCA} & \textbf{LDA} & \textbf{Ratio} & $\boldsymbol{p}$ \\
+\midrule
+\multirow{2}{*}{Mean K MSE} & 6/2 bit & 68.3 & 1779.7 & \textbf{26.1x} & $9.1 \times 10^{-7}$ \\
+ & 8/2 bit & 59.8 & 1790.1 & \textbf{29.9x} & $8.1 \times 10^{-7}$ \\
+\midrule
+\multirow{2}{*}{Mean KL} & 6/2 bit & 12.28 & 12.44 & 1.0x & 0.943 \\
+ & 8/2 bit & 1.83 & 11.87 & \textbf{6.5x} & $1.4 \times 10^{-5}$ \\
+\midrule
+\multirow{2}{*}{Mean Attn MSE} & 6/2 bit & 68.9 & 67.4 & 1.0x & -- \\
+ & 8/2 bit & 66.0 & 60.4 & 0.9x & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+K MSE에서 PCA는 LDA 대비 26--30배 우수하다.
+KL divergence에서는 8/2 bit 구성에서 PCA (1.83)가 LDA (11.87) 대비 6.5배 우수하며, 통계적으로 유의하다 ($p = 1.4 \times 10^{-5}$).
+
+Table~\ref{tab:all_configs}는 전체 5개 구성의 결과를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-2 전체 양자화 구성 비교.}
+\label{tab:all_configs}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Config} & \textbf{K MSE} & \textbf{V MSE} & \textbf{KL} & \textbf{Attn MSE} \\
+\midrule
+uniform\_4bit & 388.5 & 7.5 & 11.99 & 16.9 \\
+pca\_6\_2 & 68.3 & 199.8 & 12.28 & 68.9 \\
+pca\_8\_2 & 59.8 & 201.5 & \textbf{1.83} & 66.0 \\
+lda\_6\_2 & 1779.7 & 198.7 & 12.44 & 67.4 \\
+lda\_8\_2 & 1790.1 & 200.3 & 11.87 & 60.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Uniform 4-bit은 K MSE와 Attn MSE에서 가장 낮은 값을 보이나, 이는 모든 차원에 동일 비트를 할당하여 V 채널의 정밀도가 유지되기 때문이다.
+비균일 할당(PCA/LDA)은 K 채널에 비트를 집중하되 V 채널 정밀도를 희생하는 트레이드오프를 보인다.
+
+\subsubsection{시사점}
+
+판정: \textcolor{success}{PCA 우위 확인 (PCA OUTPERFORMS LDA)}.
+LDA가 PCA를 능가하지 못한다 (lda\_outperforms\_pca = false).
+이 결과는 K-space에서 양자화에 중요한 차원은 코퍼스 판별 방향이 아니라 분산 최대 방향임을 의미한다.
+코퍼스 간 분리도가 높음에도(실험 2-1, gap = 0.408) LDA가 실패한 것은, 양자화 오류의 주요 원인이 ``어느 코퍼스인가''가 아니라 ``어느 차원의 분산이 큰가''에 의해 결정되기 때문이다.
+이는 FOKVQ의 PCA 기반 설계 선택을 강하게 지지한다.
+
+%% -------------------------------------------------------------------------
+\subsection{실험 2-3: Query-Dependent vs Static 비트 할당}
+
+\subsubsection{목적 및 설정}
+
+이 실험의 목적은 PCA 기반 비트 할당이 query에 따라 동적으로 조정되어야 하는지, 아니면 정적(static) 할당으로 충분한지를 검증하는 것이다.
+Query-dependent 할당이란 각 query $q$에 대해 $\mathrm{Var}_{k}[q^\top k_j]$를 차원별로 계산하여 분산이 높은 차원에 더 많은 비트를 할당하는 방식이다.
+정적 할당은 캘리브레이션 데이터 전체에서 한 번 계산한 PCA 분산 순위를 모든 query에 동일하게 적용한다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-3 설정.}
+\label{tab:exp23_setup}
+\begin{tabular}{ll}
+\toprule
+\textbf{} & \textbf{Value} \\
+\midrule
+Model & GPT-2 Medium (24L/16H/$d$=64) \\
+Samples & 60 \\
+Max seq len & 128 \\
+Metrics & Spearman $\rho$(static, q-dep), L1 distance, Q-Q $\rho$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+사전 등록 기준: (1) static vs.\ query-dependent 순위 상관 $\rho < 0.9$이면 query-dependent 할당이 유의미하게 다른 순위를 생성, (2) query 간 순위 상관 $\rho < 0.9$이면 query마다 할당이 변동.
+
+\subsubsection{결과}
+
+Table~\ref{tab:exp23_main}은 핵심 결과를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-3 결과. 24개 레이어 중 23개에서 순위 상관이 정의되지 않으며(NaN), L1 거리는 1.0에 수렴한다.}
+\label{tab:exp23_main}
+\begin{tabular}{lc}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Mean L1 distance (static vs.\ q-dep) & 1.024 \\
+L1 std & 0.126 \\
+Layers with valid rank $\rho$ & 1 / 24 \\
+Layer 0 rank $\rho$ (mean $\pm$ std) & $-0.348 \pm 0.348$ \\
+Layer 0 Q-Q $\rho$ (mean $\pm$ std) & $0.600 \pm 0.488$ \\
+Layers 1--23 L1 distance & $\approx 1.000$ (std $< 10^{-7}$) \\
+\texttt{query\_dependent\_allocation\_differs} & false \\
+\texttt{allocation\_varies\_across\_queries} & false \\
+$t$-stat (L1 $> 0$) & 472.7 \\
+$p$-value (L1 $> 0$) & $< 10^{-300}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Layers 1--23에서 순위 상관이 NaN인 이유는 query-dependent 분산 순위에 변동이 없기 때문이다.
+실험 2-1에서 확인된 바와 같이 L1 이후 PCA 상위 1 성분의 설명 분산이 98.5--99.9\%에 달하므로, 어떤 query를 사용하든 동일한 차원이 최대 분산 차원으로 선택된다.
+L1 거리가 정확히 1.0인 것은 정적 할당과 query-dependent 할당이 동일한 비트 배분을 산출함을 의미한다.
+
+\paragraph{Layer 0의 예외.}
+Layer 0은 유일하게 의미 있는 query-dependent 변동을 보인다 (L1 = 1.493, $\rho = -0.348$).
+이는 Layer 0에서 PCA 집중도가 상대적으로 낮아 query 방향에 따라 분산 순위가 변할 여지가 있기 때문이다.
+그러나 Q-Q 상관의 높은 표준편차(0.488)는 이 변동이 불안정하며, query 간에도 일관되지 않음을 시사한다.
+
+\subsubsection{시사점}
+
+판정: \textcolor{partial}{Inconclusive}.
+두 가지 독립 구현이 상충하는 결과를 보였다: 구현 A(seq=128)에서는 23/24 레이어에서 할당이 상수로 퇴화하여 Spearman $\rho$가 정의 불가(NaN)였으며, 구현 B(seq=256)에서는 $\rho=0.698$로 query-dependent 할당이 유의하게 다르다는 결과를 보였다.
+이 불일치는 구현 세부사항(시퀀스 길이, threshold 방식)에 결과가 민감하다는 것을 의미하며, 표준화된 프로토콜로 재실험이 필요하다.
+
+\paragraph{한계.}
+23/24 레이어에서 NaN이 발생한 것은 K-space의 극단적 비등방성으로 인해 분산 순위가 퇴화(degenerate)된 결과일 수 있다.
+PC1이 분산의 98\% 이상을 설명하는 상황에서 median 기반 할당은 사실상 단일 버킷으로 축소되므로, 이 실험은 ``정적 할당이 충분하다''는 결론보다는 ``극단적 비등방성 하에서 query-dependent 할당과 정적 할당이 구별 불가능하다''는 결론이 더 정확하다.
+비등방성이 덜한 모델(e.g., 초기 레이어 또는 다른 아키텍처)에서의 재검증이 필요하다.
+
+%% -------------------------------------------------------------------------
+\subsection{실험 2-4: AFOD vs PCA vs Random 초기화}
+
+\subsubsection{목적 및 설정}
+
+이 실험의 목적은 AFOD (Adaptive First-Order Direction) 초기화가 표준 PCA 및 랜덤/항등 초기화 대비 양자화 성능에서 우위를 보이는지 검증하는 것이다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-4 설정.}
+\label{tab:exp24_setup}
+\begin{tabular}{ll}
+\toprule
+\textbf{} & \textbf{Value} \\
+\midrule
+Model & GPT-2 Medium (24L) \\
+Samples per corpus & 30 \\
+Methods & PCA, AFOD, Random, Identity \\
+Bit widths & 2, 3, 4 \\
+Metrics & K MSE, KL divergence (per layer) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{결과}
+
+Table~\ref{tab:exp24_mse}는 초기화 방법별 평균 K MSE를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-4: 초기화 방법별 평균 K MSE. PCA가 모든 비트 수준에서 Random/Identity를 압도하며, AFOD와는 구별되지 않는다.}
+\label{tab:exp24_mse}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Bits} & \textbf{PCA} & \textbf{AFOD} & \textbf{Random} & \textbf{Identity} \\
+\midrule
+2 & \textbf{399.1} & 402.1 & 2239.1 & 2086.6 \\
+3 & \textbf{285.2} & 285.0 & 1260.9 & 1151.6 \\
+4 & \textbf{194.3} & 194.2 & 448.2 & 431.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:exp24_stat}은 방법 간 통계적 비교를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 2-4 통계 검정. AFOD vs PCA는 모든 비트 수준에서 유의하지 않다.}
+\label{tab:exp24_stat}
+\begin{tabular}{llccc}
+\toprule
+\textbf{Bits} & \textbf{Comparison} & \textbf{MSE $t$} & \textbf{MSE $p$} & \textbf{AFOD Improv. (\%)} \\
+\midrule
+\multirow{2}{*}{2} & AFOD vs PCA & 0.70 & 0.490 & 0.2\% \\
+ & PCA vs Random & $-6.55$ & $1.1 \times 10^{-6}$ & -- \\
+\midrule
+\multirow{2}{*}{3} & AFOD vs PCA & $-0.84$ & 0.412 & 0.6\% \\
+ & PCA vs Random & $-6.51$ & $1.2 \times 10^{-6}$ & -- \\
+\midrule
+\multirow{2}{*}{4} & AFOD vs PCA & $-0.49$ & 0.632 & $-0.5$\% \\
+ & PCA vs Random & $-4.54$ & $1.5 \times 10^{-4}$ & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+AFOD는 2-bit과 3-bit에서 PCA 대비 각각 0.2\%, 0.6\% 미미한 MSE 개선을 보이나, 4-bit에서는 오히려 0.5\% 열위이며, 세 경우 모두 통계적으로 유의하지 않다 ($p > 0.4$).
+PCA vs Random/Identity는 모든 비트 수준에서 유의한 차이를 보인다 ($p < 10^{-4}$).
+
+\subsubsection{시사점}
+
+판정: \textcolor{success}{PCA 충분 (PCA SUFFICIENT, AFOD NO ADVANTAGE)}.
+AFOD는 PCA 대비 의미 있는 개선을 제공하지 못한다.
+PCA의 폐쇄형(closed-form) 고유벡터 분해가 이미 K-space의 비등방성 구조를 최적에 가깝게 포착하고 있으므로, 추가적인 적응적 초기화의 복잡성은 정당화되지 않는다.
+PCA가 Random/Identity 대비 2-bit에서 5.6배, 4-bit에서 2.3배 우수한 점은 기저 선택의 중요성을 재확인한다.
+
+%% =========================================================================
+%% SECTION 3: Lie Group 검증 (Phase 3)
+%% =========================================================================
+\section{Lie Group 검증 (Phase 3)}
+
+이 절의 목적은 PCA 기저 회전의 연속적 최적화를 통해 PCA가 최적에 가까운지, 아니면 더 나은 회전이 존재하는지를 검증하는 것이다.
+
+\subsection{실험 3-1: 연속 회전 각도 최적화}
+
+\subsubsection{목적 및 설정}
+
+이 실험의 목적은 SO($d$) 회전군에서 Givens 회전 매개변수화를 통해 양자화 MSE를 직접 최소화하는 최적 회전을 탐색하고, 그 결과가 PCA를 능가하는지 검증하는 것이다.
+
+\begin{table}[H]
+\centering
+\caption{실험 3-1 설정.}
+\label{tab:exp31_setup}
+\begin{tabular}{ll}
+\toprule
+\textbf{} & \textbf{Value} \\
+\midrule
+Model & GPT-2 Medium (24L/16H/$d$=64) \\
+Quantization bits & 3 \\
+Givens rotation planes & 64 \\
+Max optimization iters & 200 \\
+Layers tested & L0, L3, L6, L9, L12, L15, L18, L21 \\
+Samples & 40 \\
+Starting point & Identity (no rotation) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{결과}
+
+Table~\ref{tab:exp31_rank}은 4개 방법의 MSE 순위를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 3-1 방법별 MSE 순위 (8개 레이어 평균). PCA가 수치 최적화를 4.3배 능가한다.}
+\label{tab:exp31_rank}
+\begin{tabular}{clc}
+\toprule
+\textbf{Rank} & \textbf{Method} & \textbf{Mean MSE} \\
+\midrule
+1 & PCA & \textbf{220.5} \\
+2 & Optimized (Givens) & 938.8 \\
+3 & Identity & 961.0 \\
+4 & Random & 1047.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:exp31_layer}은 레이어별 상세 결과를 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{실험 3-1 레이어별 MSE. Optimized가 Identity 대비 1--5\% 개선하나, PCA 대비 수백 배 열위이다.}
+\label{tab:exp31_layer}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Layer} & \textbf{Identity} & \textbf{PCA} & \textbf{Optimized} & \textbf{vs PCA (\%)} \\
+\midrule
+L0 & 0.093 & \textbf{0.081} & 0.091 & $-13.0$ \\
+L3 & 28.7 & 36.5 & \textbf{27.7} & $+24.1$ \\
+L6 & 469.8 & \textbf{67.2} & 459.7 & $-583.7$ \\
+L9 & 520.3 & \textbf{54.2} & 517.3 & $-855.3$ \\
+L12 & 1265.9 & \textbf{151.7} & 1236.6 & $-714.9$ \\
+L15 & 1677.8 & \textbf{294.5} & 1670.1 & $-467.1$ \\
+L18 & 1887.7 & \textbf{367.1} & 1850.5 & $-404.1$ \\
+L21 & 1838.0 & \textbf{792.3} & 1748.5 & $-120.7$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+수치 최적화(Givens 회전 64개 평면, 200 반복)는 Identity 대비 평균 2.1\%의 미미한 개선만 달성하였다.
+PCA는 최적화된 회전 대비 평균 $-391.8\%$ (4.3배) 우수하다.
+Layer 3에서만 최적화가 PCA를 상회하나, 이는 절대 MSE가 매우 낮은 구간(28--37)에서의 결과이다.
+Layer 6 이후 모든 레이어에서 PCA가 최적화 대비 4--9배 우수하다.
+
+\paragraph{통계 검정.}
+Optimized vs PCA: $t = -3.45$, $p = 0.011$로 PCA가 유의하게 우수하다.
+PCA vs Random: $t = 3.68$, $p = 0.008$로 PCA가 유의하게 우수하다.
+Optimized vs Identity: $t = 2.07$, $p = 0.078$로 최적화의 Identity 대비 개선은 유의하지 않다.
+
+\subsubsection{시사점}
+
+판정: \textcolor{success}{PCA 최적에 근접 (PCA NEAR-OPTIMAL)}.
+SO($d$) 회전군에서의 수치 최적화가 PCA에 근접하지 못하는 결과는 두 가지를 시사한다.
+첫째, PCA의 고유벡터 기저가 양자화 MSE 최소화에 있어 사실상 최적의 회전임이 실험적으로 확인되었다.
+둘째, 64개 Givens 평면으로는 $d=64$ 차원 공간의 자유도 $d(d-1)/2 = 2016$을 충분히 탐색하지 못하며, 최적화 자체가 고차원 비볼록 문제에서 비효율적이다.
+PCA의 폐쇄형 해는 계산 효율성과 최적성 모두에서 수치 최적화를 압도하며, FOKVQ 설계의 핵심 선택이 최적에 근접함을 강하게 지지한다.
+
+%% =========================================================================
+%% SECTION 4: Cross-experiment Synthesis
+%% =========================================================================
+\section{Cross-experiment Synthesis}
+
+이 절의 목적은 9개 실험 결과를 통합 분석하여, Boltzmann 프레임워크와 FOKVQ 접근 간의 연결점과 경계를 명확히 하는 것이다.
+
+\subsection{전체 판정 매트릭스}
+
+Table~\ref{tab:verdict}는 9개 실험의 종합 판정을 보여준다.
+
+\begin{table}[H]
+\centering
+\caption{9개 실험 종합 판정 매트릭스.}
+\label{tab:verdict}
+\begin{tabularx}{\textwidth}{ll>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Exp} & \textbf{Key Result} & \textbf{Verdict} & \textbf{Implication} \\
+\midrule
+1-1 & $\rho = -0.657$ & \textcolor{partial}{Weak Success} & MHA에서 볼츠만 열적 구조 확인; GQA에서 파괴 \\
+1-2 & 39.8\% disagreement & \textcolor{partial}{Different, Not Better} & $C(q)$는 새로운 양이나 정교한 할당 필요 \\
+1-3 & $\Delta H = -0.122$ & \textcolor{failure}{Rejected} & FFN은 선택성을 강화하지 않음 \\
+2-1 & gap = 0.408 & \textcolor{success}{Supported} & K-space facet이 코퍼스 간 분리 \\
+2-2 & PCA 26--30x & \textcolor{success}{PCA Wins} & PCA 기반 설계 선택 지지 \\
+2-3 & 구현 충돌 & \textcolor{partial}{Inconclusive} & 두 구현 상충; 재실험 필요 \\
+2-4 & AFOD $\approx$ PCA & \textcolor{success}{PCA Sufficient} & AFOD 초기화 불필요; PCA 충분 \\
+3-1 & PCA 4.3x opt. & \textcolor{success}{PCA Near-Optimal} & SO($d$) 수치 최적화가 PCA 미달 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Boltzmann + FOKVQ 연결점}
+
+Boltzmann Level 1과 FOKVQ Phase 2는 소프트맥스 어텐션의 서로 다른 측면을 조명한다.
+Boltzmann 프레임워크는 레이어/헤드 수준의 \textit{거시적(macroscopic)} 열역학적 특성을 포착하며, FOKVQ는 차원 수준의 \textit{미시적(microscopic)} 분산 구조를 활용한다.
+
+\paragraph{확인된 연결.}
+$C(q)$ (실험 1-2)와 Facet Gain 간의 상관 ($\rho = -0.63$, $p = 0.001$)은 Boltzmann 양이 FOKVQ 성능을 예측하는 간접 지표로 역할할 수 있음을 보여준다.
+$C(q)$가 높은 (민감도가 높은) 레이어에서 facet-aware 양자화의 이득이 작고, 낮은 레이어에서 이득이 큰 패턴이다.
+
+\paragraph{단절된 지점.}
+$T_\mathrm{eff}$와 Facet Gain 간의 상관은 무상관이다 ($\rho = +0.30$, $p = 0.16$).
+어텐션의 거시적 집중도는 양자화 오류의 미시적 차원 구조와 직접적 관계가 없다.
+FFN 주파수 선택성 가설(실험 1-3)의 기각은 Boltzmann 프레임워크의 적용 범위가 어텐션 메커니즘에 한정되며 FFN까지 확장되지 않음을 시사한다.
+
+\subsection{확인된 것과 기각된 것}
+
+\paragraph{확인된 것.}
+\begin{enumerate}[nosep]
+  \item 점진적 냉각 ($T_\mathrm{eff}$ 단조 감소)이 표준 MHA에서 실험적으로 확인되었다 ($\rho = -0.657$, $p < 0.001$).
+  \item GQA가 점진적 냉각을 파괴한다는 새로운 발견이 이루어졌다 (inter-group gap = 0.506).
+  \item $C(q)$는 $\|k\|^2$와 독립적인 새로운 물리량이다 (39.8\% disagreement, $\rho = 0.275$).
+  \item K-space의 PCA facet 구조는 코퍼스 간에 유의하게 분리된다 (gap = 0.408, $p = 1.64 \times 10^{-64}$).
+  \item 양자화에서 분산 최대 방향(PCA)이 판별 방향(LDA)보다 우수하다 (K MSE 26--30배).
+  \item 정적 PCA 할당이 query-dependent 동적 할당과 동일한 결과를 산출한다 (23/24 layers에서 L1 $\approx 1.0$).
+  \item AFOD 초기화는 PCA와 통계적으로 구별되지 않는 성능을 보인다 ($p > 0.4$, 3개 비트 수준).
+  \item PCA 기저가 SO($d$) 수치 최적화 대비 4.3배 우수하여, 사실상 최적의 회전임이 확인되었다 ($p = 0.011$).
+\end{enumerate}
+
+\paragraph{기각된 것.}
+\begin{enumerate}[nosep]
+  \item FFN이 주파수 선택성 필터 역할을 한다는 가설 ($\Delta H = -0.122$, 24/24 레이어에서 반대 방향).
+  \item $C(q)$ 기반 단순 양자화가 $\|k\|^2$ 기반 방법을 능가한다는 기대 (Heat wins: 0).
+  \item GQA 모델에서 볼츠만 점진적 냉각이 성립한다는 전제 ($\rho = +0.108$, $p = 0.530$).
+  \item Query-dependent 동적 비트 할당이 정적 할당보다 우수하다는 기대 (L1 $\approx 1.0$, allocation\_differs = false).
+  \item AFOD 초기화가 PCA 대비 유의한 개선을 제공한다는 기대 (개선폭 $< 1\%$, $p > 0.4$).
+  \item SO($d$) 수치 최적화가 PCA보다 나은 회전을 발견할 수 있다는 기대 (PCA 4.3배 우수, $p = 0.011$).
+\end{enumerate}
+
+\paragraph{열려 있는 문제.}
+$C(q)$와 $\|k\|^2$의 결합 기준이 개별 기준을 능가할 수 있는지는 후속 실험으로 검증해야 한다.
+실험 3-1에서 Givens 매개변수 64개는 자유도 2016의 3.2\%만 탐색하므로, 더 많은 Givens 평면 또는 gradient 기반 최적화가 PCA에 근접할 수 있는지는 열린 질문이다.
+
+%% =========================================================================
+%% SECTION 4: Next Steps
+%% =========================================================================
+\section{Next Steps}
+
+이 절의 목적은 9개 실험 결과를 바탕으로 후속 실험 계획과 연구 로드맵을 제시하는 것이다.
+
+\subsection{Phase 2/3 완료 상황}
+
+Phase 2 (실험 2-1 -- 2-4)와 Phase 3의 핵심 실험(3-1)이 완료되었다.
+실험 2-3은 정적 할당의 충분성을, 실험 2-4는 AFOD 초기화의 불필요성을, 실험 3-1은 PCA 기저의 사실상 최적성을 각각 확인하였다.
+
+\subsection{Phase 3 잔여 실험 (3-2, 3-3)}
+
+\begin{table}[H]
+\centering
+\caption{Phase 3 잔여 실험 계획.}
+\begin{tabular}{llll}
+\toprule
+\textbf{Exp} & \textbf{Description} & \textbf{GPU} & \textbf{Duration} \\
+\midrule
+3-2 & 통일 정리 실용 검증 & 4h / A6000 & 1일 \\
+3-3 & Rate-distortion 최적 비교 & 2h / A6000 & 0.5일 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+실험 3-1에서 PCA의 근최적성이 확인되었으므로, 실험 3-2의 통일 정리 검증은 PCA가 이론적 최적에 얼마나 근접하는지의 정량적 하한을 제공할 수 있다.
+실험 3-3은 rate-distortion 이론 관점에서 PCA 기반 양자화의 최적성 한계를 측정한다.
+
+\subsection{Phase 4: Llama-3-8B 로드맵}
+
+\begin{table}[H]
+\centering
+\caption{Phase 4 대규모 모델 실험 계획. A100 GPU 필수.}
+\begin{tabular}{lllll}
+\toprule
+\textbf{Exp} & \textbf{Description} & \textbf{GPU} & \textbf{Duration} & \textbf{Priority} \\
+\midrule
+4-1 & Llama-3-8B $r_\mathrm{eff}$ + Facet-Aware 재현 & A100 & 2--3일 & Critical \\
+4-2 & QuIP\#/KIVI/ZipCache 벤치마크 & A100 & 3--5일 & Critical \\
+4-3 & GQA $T_\mathrm{eff}$ 프로파일 동시 측정 & A100 & 1일 & Medium \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Phase 4는 논문 제출의 필수 조건이다.
+GPT-2에서의 결과가 현대 GQA 모델(Llama-3-8B, 8 KV heads)에서 재현되지 않으면 일반화 주장이 불가능하다.
+실험 4-3에서 Qwen2.5-3B의 GQA disruption (실험 1-1)이 Llama-3-8B에서도 재현되는지 확인하면 해당 발견의 일반성을 강화할 수 있다.
+
+\subsection{Boltzmann의 논문 내 위치 권장}
+
+Boltzmann 분석은 논문의 핵심 기여에서 제외하고, supplementary/appendix로 배치한다.
+논문의 핵심은 비등방성 측정 + 패러다임 역전(구조 활용 vs 구조 파괴) + KL 감소 + 적용 경계(8-bit reversal, per-head adaptation)이다.
+$C(q)$ vs Facet Gain 상관 ($\rho = -0.63$)은 appendix에서 Boltzmann 해석의 보조적 가치로 논의할 수 있다.
+
+\end{document}

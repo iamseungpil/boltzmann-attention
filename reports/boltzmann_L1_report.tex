@@ -1,0 +1,179 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+
+\tolerance=1000
+\emergencystretch=3em
+\hfuzz=2pt
+
+\definecolor{success}{HTML}{2E7D32}
+\definecolor{failure}{HTML}{C62828}
+\definecolor{partial}{HTML}{F57F17}
+
+\title{Boltzmann Thermodynamics of Attention:\\Level 1 Experiment Report}
+\author{Intermediate Results --- \today}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We test whether the formal equivalence between softmax attention and the Boltzmann distribution yields practical value for KV cache quantization.
+Level~1 experiments measure (1)~effective temperature $T_\mathrm{eff}$ monotonicity across layers and (2)~whether the Boltzmann specific heat $C(q)$ provides a quantization criterion distinct from variance-based methods.
+Results show \textbf{progressive cooling exists} in standard MHA models ($\rho=-0.66$, $p<0.001$) but is disrupted by GQA.
+$C(q)$ and $\|k\|^2$ disagree on 39.8\% of bit allocations, confirming they measure different quantities, though $C(q)$ does not yet outperform variance-based quantization in PPL.
+\end{abstract}
+
+\section{Experiment 1-1: $T_\mathrm{eff}$ Gate Test}
+
+\subsection{Setup}
+The effective temperature is defined as $T_\mathrm{eff}^{(l)} = S^{(l)} / \log n$, where $S^{(l)} = -\sum_j \alpha_j \log \alpha_j$ is the attention entropy.
+We compute $T_\mathrm{eff}$ per layer and head by extracting $Q, K$ via forward hooks, then computing attention weights $\alpha = \mathrm{softmax}(QK^\top / \sqrt{d})$ manually.
+
+\begin{itemize}[nosep]
+  \item \textbf{Models}: Qwen2.5-3B (GQA, 2 KV heads), GPT-2 Medium (standard MHA)
+  \item \textbf{Calibration}: 64 samples, $n_\mathrm{max} = 512$
+  \item \textbf{Gate metric}: Spearman $\rho(\text{layer index}, T_\mathrm{eff})$
+\end{itemize}
+
+\subsection{Results}
+
+\begin{table}[H]
+\centering
+\caption{Experiment 1-1 gate results across two architectures.}
+\label{tab:gate}
+\begin{tabular}{lcccl}
+\toprule
+\textbf{Model} & \textbf{GQA} & $\boldsymbol{\rho}$ & $\boldsymbol{p}$ & \textbf{Gate} \\
+\midrule
+Qwen2.5-3B & 2 KV heads & $+0.108$ & $0.53$ & \textcolor{failure}{FAILURE} \\
+GPT-2 Medium & None (MHA) & $-0.657$ & $4.8\times10^{-4}$ & \textcolor{partial}{WEAK SUCCESS} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{GPT-2 Medium (MHA).}
+Clear progressive cooling: $T_\mathrm{eff}$ decreases from 0.86 (Layer~0) to 0.22 (Layer~19), with a final-layer ``reheating'' to 0.52 (Layer~23).
+This pattern is consistent with the Boltzmann interpretation of multi-layer attention as progressive annealing.
+
+\paragraph{Qwen2.5-3B (GQA).}
+A V-shaped pattern: hot initial layers (0.84) $\to$ cold middle (0.30--0.60) $\to$ reheat (0.76).
+No monotonic trend ($\rho = +0.11$).
+The GQA mechanism introduces extreme inter-group temperature gaps---at Layer~5, KV-group~0 has $T_\mathrm{eff}=0.548$ while KV-group~1 has $T_\mathrm{eff}=0.042$, a gap of \textbf{0.506}.
+Head variance in middle layers ($\sigma^2_h = 0.036$) is $7\times$ that of initial/final layers (0.005), reflecting strong functional differentiation between KV groups.
+
+\paragraph{Implication.}
+The Boltzmann thermal structure is a \textit{real phenomenon} in standard MHA transformers.
+GQA disrupts it by forcing multiple query heads to share key-value projections, creating artificial temperature patterns.
+Future work should analyze $T_\mathrm{eff}$ \textit{per KV group} rather than per head in GQA models.
+
+\subsection{Gate Decision}
+Per the pre-registered criteria: $\rho < -0.7$ (strong), $-0.7 < \rho < -0.3$ (weak), $\rho > -0.3$ (failure).
+GPT-2 Medium achieves \textcolor{partial}{weak success} ($\rho = -0.66$, just above the strong threshold).
+\textbf{Proceed to Experiments 1-2 and 1-3.}
+
+\section{Experiment 1-2: Specific Heat Quantization}
+
+\subsection{Setup}
+The Boltzmann specific heat is $C(q_i) = \mathrm{Var}_\alpha[q_i^\top k_j / \sqrt{d}]$, the attention-weighted variance of energy.
+We compare three KV cache quantization strategies at 2, 3, and 4-bit:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Uniform}: all tokens quantized at the same bit width
+  \item \textbf{Variance-based}: $\|k_j\|^2 > \text{median} \to +1$~bit, else $-1$~bit
+  \item \textbf{Specific heat}: $C(q_i) > \text{median} \to +1$~bit, else $-1$~bit
+\end{enumerate}
+
+Model: GPT-2 Medium. Evaluation: WikiText-2 (32 samples, $n_\mathrm{max}=256$). Baseline PPL: 139.85.
+
+\subsection{Disagreement Analysis}
+
+\begin{table}[H]
+\centering
+\caption{Bit allocation disagreement between $C(q)$ and $\|k\|^2$ by layer group.}
+\label{tab:disagree}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Layer Group} & \textbf{Avg Disagreement} & \textbf{Avg $\rho(C, \|k\|^2)$} \\
+\midrule
+Early (L0--L5) & 24.4\% & 0.56 \\
+Middle (L6--L17) & 42.3\% & 0.19 \\
+Late (L18--L23) & 42.6\% & 0.14 \\
+\midrule
+\textbf{Overall} & \textbf{39.8\%} & \textbf{0.275} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$C(q)$ and $\|k\|^2$ disagree on \textbf{39.8\%} of bit allocations (well above the 20\% threshold).
+Disagreement increases in later layers where attention is more focused, reaching 49.6\% at Layer~21.
+The Spearman correlation between the two quantities is only 0.275, confirming they capture largely independent information.
+
+\subsection{PPL Results}
+
+\begin{table}[H]
+\centering
+\caption{Perplexity under different quantization strategies. Baseline (FP32): 139.85.}
+\label{tab:ppl}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Bits} & \textbf{Uniform} & \textbf{Variance} & \textbf{Specific Heat} \\
+\midrule
+2-bit & 419.4 & $\infty$\textsuperscript{*} & $\infty$\textsuperscript{*} \\
+3-bit & 130.4 & \textbf{127.6} & 264.5 \\
+4-bit & \textbf{110.2} & 122.9 & 125.6 \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize \textsuperscript{*}Numerical instability in adaptive 2-bit scheme.}
+\end{tabular}
+\end{table}
+
+\subsection{Decision: \textcolor{partial}{DIFFERENT BUT NOT BETTER}}
+
+$C(q)$ provides a \textbf{genuinely novel measurement} that captures query-dependent sensitivity missed by key-norm methods.
+However, the naive median-based $\pm1$~bit allocation does not translate this into PPL improvement.
+Possible reasons:
+\begin{itemize}[nosep]
+  \item The median threshold is too coarse---$C(q)$'s value lies in identifying \textit{extreme} sensitivity, not binary classification.
+  \item The hook-based K-replacement may introduce artifacts (2-bit explosion in both adaptive methods).
+  \item $C(q)$ may need to be combined with $\|k\|^2$ rather than replacing it.
+\end{itemize}
+
+\section{Summary and Next Steps}
+
+\begin{table}[H]
+\centering
+\caption{Level 1 decision matrix (current status).}
+\begin{tabularx}{\textwidth}{lll>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Exp} & \textbf{Result} & \textbf{Gate} & \textbf{Implication} \\
+\midrule
+1-1 Gate & $\rho=-0.66$ & \textcolor{partial}{Weak Success} & Boltzmann thermal structure confirmed in MHA \\
+1-2 Quant & 39.8\% disagree & \textcolor{partial}{Different, not better} & $C(q)$ is novel but needs refined allocation \\
+1-3 FFN & --- & Pending & --- \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Key contributions so far.}
+\begin{enumerate}[nosep]
+  \item Progressive cooling ($T_\mathrm{eff}$ monotonic decrease) is empirically confirmed in MHA.
+  \item GQA disrupts this pattern---a novel finding with implications for GQA-aware analysis.
+  \item $C(q)$ and $\|k\|^2$ are largely independent ($\rho=0.275$, 39.8\% disagreement), validating $C(q)$ as a \textit{new} quantity, not a repackaging.
+  \item Translating $C(q)$ into practical quantization gain requires more sophisticated allocation.
+\end{enumerate}
+
+\paragraph{Immediate next steps.}
+\begin{itemize}[nosep]
+  \item \textbf{Exp 1-3}: Test whether FFN enhances spectral frequency selectivity.
+  \item \textbf{Refined 1-2}: Try top-$k$\% / bottom-$k$\% allocation instead of median split; combine $C(q) + \|k\|^2$ as joint criterion.
+  \item \textbf{Scale validation}: Test on larger non-GQA model (GPT-2 XL, 1.5B).
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+
+# Local documents and archives
+*.docx
+*.zip
+
+# Generated LaTeX/PDF artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.pdf
+
+# Nested paper repo is managed separately
+paper/
+
+# AMLT / environment noise
+.DS_Store

@@ -1,0 +1,45 @@
+description: fokvq-boltzmann-2gpu
+
+target:
+  service: sing
+  name: msrresrchvc
+  workspace_name: msra-sh-aml-ws
+
+environment:
+  image: amlt-sing/acpt-torch2.7.1-py3.10-cuda12.6-ubuntu22.04
+  setup:
+    - echo "export LC_CTYPE=en_US.UTF-8" >> ~/.profile
+    - echo "export CUDA_HOME=/usr/local/cuda-12.6" >> ~/.profile
+    - echo "export PATH=/usr/local/cuda-12.6/bin:/opt/conda/envs/ptca/bin:$$PATH" >> ~/.profile
+    - echo "export LD_LIBRARY_PATH=/usr/local/cuda-12.6/lib64:/opt/conda/envs/ptca/lib:$$LD_LIBRARY_PATH" >> ~/.profile
+    - source ~/.profile
+    - echo "environment initialized"
+    - pip install transformers accelerate datasets scipy matplotlib huggingface_hub scikit-learn
+    - curl -Lk 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-x64' --output /tmp/vscode_cli.tar.gz
+    - tar -xf /tmp/vscode_cli.tar.gz -C /usr/local/bin/
+
+code:
+  local_dir: $CONFIG_DIR/
+
+storage:
+  external:
+    storage_account_name: xufluo
+    container_name: zhangquanchen
+    mount_dir: /mnt/input
+    is_output: True
+
+jobs:
+  - name: fokvq_2gpu
+    sku: 80G2-A100
+    sla_tier: premium
+    priority: high
+    identity: managed
+    submit_args:
+      env:
+        _AZUREML_SINGULARITY_JOB_UAI: "/subscriptions/c4c534bc-9978-4974-9c87-551f7c5754ef/resourceGroups/msra-sh-aml-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/msra-sh-aml-uai"
+    command:
+      - nvidia-smi
+      - mkdir -p /mnt/input/boltzmann/{scripts,results,logs}
+      - mkdir -p /mnt/input/fokvq/{scripts,results,logs}
+      - echo "FOKVQ 2xA100 ready"
+      - sleep 7d

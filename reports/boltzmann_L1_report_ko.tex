@@ -1,0 +1,210 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{fontspec}
+\usepackage{ucharclasses}
+
+\setmainfont{Noto Sans CJK KR}
+\newfontfamily\hangulfont{Noto Sans CJK KR}
+\setTransitionsForCJK{\hangulfont}{}{}
+
+\tolerance=1000
+\emergencystretch=3em
+\hfuzz=2pt
+
+\definecolor{success}{HTML}{2E7D32}
+\definecolor{failure}{HTML}{C62828}
+\definecolor{partial}{HTML}{F57F17}
+
+\title{Boltzmann Thermodynamics of Attention:\\Level 1 중간 실험 보고서}
+\author{2026년 3월 27일}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+소프트맥스 어텐션과 볼츠만 분포의 형식적 동일성이 KV 캐시 양자화에 실용적 가치를 제공하는지 검증한다.
+Level~1 실험은 (1)~레이어별 유효 온도 $T_\mathrm{eff}$의 단조 감소 여부와 (2)~볼츠만 비열 $C(q)$가 기존 분산 기반 방법과 구별되는 양자화 기준을 제공하는지를 측정한다.
+실험 결과, \textbf{점진적 냉각(progressive cooling)이 표준 MHA 모델에서 확인}되었으며($\rho=-0.66$, $p<0.001$), GQA 구조에서는 이 패턴이 파괴되었다.
+$C(q)$와 $\|k\|^2$는 비트 할당의 39.8\%에서 불일치하여 서로 다른 양을 측정함이 확인되었으나, PPL 개선으로는 아직 이어지지 않았다.
+\end{abstract}
+
+\section{실험 1-1: $T_\mathrm{eff}$ 게이트 테스트}
+
+\subsection{설정}
+유효 온도는 $T_\mathrm{eff}^{(l)} = S^{(l)} / \log n$으로 정의된다. 여기서 $S^{(l)} = -\sum_j \alpha_j \log \alpha_j$는 어텐션 엔트로피이다.
+Forward hook을 통해 각 레이어에서 $Q$, $K$를 추출한 후, 어텐션 가중치 $\alpha = \mathrm{softmax}(QK^\top / \sqrt{d})$를 직접 계산하여 $T_\mathrm{eff}$를 측정하였다.
+
+\begin{itemize}[nosep]
+  \item \textbf{모델}: Qwen2.5-3B (GQA, KV 헤드 2개), GPT-2 Medium (표준 MHA, 24층/16헤드)
+  \item \textbf{보정 데이터}: 64 샘플, $n_\mathrm{max} = 512$
+  \item \textbf{게이트 기준}: Spearman $\rho(\text{레이어 인덱스}, T_\mathrm{eff})$
+\end{itemize}
+
+\subsection{결과}
+
+\begin{table}[H]
+\centering
+\caption{실험 1-1 게이트 결과. 두 아키텍처에 대한 Spearman 상관 분석.}
+\label{tab:gate}
+\begin{tabular}{lcccl}
+\toprule
+\textbf{모델} & \textbf{GQA} & $\boldsymbol{\rho}$ & $\boldsymbol{p}$ & \textbf{판정} \\
+\midrule
+Qwen2.5-3B & 2 KV 헤드 & $+0.108$ & $0.53$ & \textcolor{failure}{실패} \\
+GPT-2 Medium & 없음 (MHA) & $-0.657$ & $4.8\times10^{-4}$ & \textcolor{partial}{약한 성공} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{GPT-2 Medium (MHA).}
+명확한 점진적 냉각이 관찰되었다. $T_\mathrm{eff}$는 Layer~0의 0.86에서 Layer~19의 0.22까지 단조 감소하며, 최종 레이어(Layer~23)에서 0.52로 ``재가열(reheating)''되는 패턴을 보인다. 이는 다층 어텐션을 점진적 어닐링(annealing)으로 해석하는 볼츠만 프레임워크와 일치한다.
+
+\paragraph{Qwen2.5-3B (GQA).}
+V자형 패턴이 나타났다: 고온 초기층(L0--L2 평균 0.84) $\to$ 저온 중간층(0.30--0.60) $\to$ 재가열(L34--L35 평균 0.76). 단조 감소 경향은 없다($\rho = +0.11$).
+GQA 메커니즘이 극단적인 그룹 간 온도 차이를 유발한다---Layer~5에서 KV 그룹~0의 $T_\mathrm{eff}=0.548$, KV 그룹~1의 $T_\mathrm{eff}=0.042$로 \textbf{0.506}의 격차가 발생했다. 중간 레이어(L3--L32)의 헤드 분산($\sigma^2_h = 0.037$)은 초기/최종 레이어(0.005)의 7배에 달하며, 이는 KV 그룹 간 강한 기능적 분화를 반영한다.
+
+\paragraph{해석.}
+GPT-2 Medium 실험에서 볼츠만 열적 구조가 표준 MHA 트랜스포머에서 관찰되었다. GQA는 여러 쿼리 헤드가 키-값 프로젝션을 공유하도록 강제함으로써 이 패턴을 파괴한다. 향후 GQA 모델에서는 헤드별이 아닌 \textit{KV 그룹별} $T_\mathrm{eff}$ 분석이 필요하다.
+
+\subsection{게이트 판정}
+사전 등록된 기준: $\rho < -0.7$(강한 성공), $-0.7 < \rho < -0.3$(약한 성공), $\rho > -0.3$(실패).
+GPT-2 Medium은 \textcolor{partial}{약한 성공}을 달성했다($\rho = -0.66$, 강한 성공 임계값 바로 위).
+\textbf{실험 1-2 및 1-3으로 진행한다.}
+
+\section{실험 1-2: 비열 기반 적응적 양자화}
+
+\subsection{설정}
+볼츠만 비열은 $C(q_i) = \mathrm{Var}_\alpha[q_i^\top k_j / \sqrt{d}]$로, 어텐션 가중 에너지 분산이다. 2, 3, 4비트에서 세 가지 KV 캐시 양자화 전략을 비교하였다:
+
+\begin{enumerate}[nosep]
+  \item \textbf{균일 양자화}: 모든 토큰에 동일 비트폭 적용
+  \item \textbf{분산 기반}: $\|k_j\|^2 > \text{중앙값} \to +1$비트, 아니면 $-1$비트 (기존 방법 대표)
+  \item \textbf{비열 기반}: $C(q_i) > \text{중앙값} \to +1$비트, 아니면 $-1$비트 (볼츠만 신규)
+\end{enumerate}
+
+모델: GPT-2 Medium. 평가: WikiText-2 (32 샘플, $n_\mathrm{max}=256$). 기준 PPL: 139.85.
+
+\subsection{불일치 분석}
+
+\begin{table}[H]
+\centering
+\caption{$C(q)$와 $\|k\|^2$ 간 비트 할당 불일치율. 레이어 그룹별 분석.}
+\label{tab:disagree}
+\begin{tabular}{lcc}
+\toprule
+\textbf{레이어 그룹} & \textbf{평균 불일치율} & \textbf{평균 $\rho(C, \|k\|^2)$} \\
+\midrule
+초기 (L0--L5) & 30.1\% & 0.53 \\
+중간 (L6--L17) & 42.0\% & 0.22 \\
+후기 (L18--L23) & 45.2\% & 0.14 \\
+\midrule
+\textbf{전체} & \textbf{39.8\%} & \textbf{0.275} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$C(q)$와 $\|k\|^2$는 비트 할당의 \textbf{39.8\%}에서 불일치한다(20\% 기준 충족). 후기 레이어에서 불일치가 증가하여 Layer~21에서 49.6\%에 달한다. 두 양 사이의 Spearman 상관은 0.275에 불과하여, 거의 독립적인 정보를 포착함을 확인하였다.
+
+\subsection{PPL 결과}
+
+\begin{table}[H]
+\centering
+\caption{양자화 전략별 Perplexity. 기준선 (FP32): 139.85.}
+\label{tab:ppl}
+\begin{tabular}{lccc}
+\toprule
+\textbf{비트} & \textbf{균일} & \textbf{분산 기반} & \textbf{비열 기반} \\
+\midrule
+2비트 & 419.4 & $\infty$\textsuperscript{*} & $\infty$\textsuperscript{*} \\
+3비트 & 130.4 & \textbf{127.6} & 264.5 \\
+4비트 & \textbf{110.2} & 122.9 & 125.6 \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize \textsuperscript{*}적응적 2비트 방식의 수치 불안정성.}
+\end{tabular}
+\end{table}
+
+\subsection{판정: \textcolor{partial}{다르지만 아직 더 낫지 않음}}
+
+$C(q)$는 키 노름 방법이 놓치는 질의 의존적 민감도를 포착하는 새로운 양을 제공한다. 다만 단순한 중앙값 기반 $\pm1$비트 할당으로는 PPL 개선이 이루어지지 않았다. 가능한 원인:
+\begin{itemize}[nosep]
+  \item 중앙값 기준이 너무 조잡하다---$C(q)$의 가치는 \textit{극단적} 민감도 식별에 있지, 이진 분류가 아니다.
+  \item Hook 기반 K 교체가 아티팩트를 유발했을 수 있다(2비트에서 두 적응적 방법 모두 폭발).
+  \item $C(q)$는 $\|k\|^2$를 대체하는 것이 아니라 결합하여 사용해야 할 수 있다.
+\end{itemize}
+
+\section{종합 판정 및 향후 계획}
+
+\begin{table}[H]
+\centering
+\caption{Level 1 판정 매트릭스 (현재 상태).}
+\begin{tabularx}{\textwidth}{lll>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{실험} & \textbf{결과} & \textbf{판정} & \textbf{함의} \\
+\midrule
+1-1 게이트 & $\rho=-0.66$ & \textcolor{partial}{약한 성공} & MHA에서 볼츠만 열적 구조 확인 \\
+1-2 양자화 & 39.8\% 불일치 & \textcolor{partial}{다르지만 미개선} & $C(q)$는 새로운 양이나 정교한 할당 필요 \\
+1-3 FFN & $\Delta H=-0.12$, $p<10^{-10}$ & \textcolor{failure}{가설 기각} & FFN은 선택성을 강화하지 않음 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{현재까지의 핵심 기여.}
+\begin{enumerate}[nosep]
+  \item 점진적 냉각($T_\mathrm{eff}$ 단조 감소)이 MHA에서 실험적으로 확인되었다.
+  \item GQA가 이 패턴을 파괴한다는 것은 새로운 발견이며, GQA 인지 분석에 대한 함의를 가진다.
+  \item $C(q)$와 $\|k\|^2$는 거의 독립적이다($\rho=0.275$, 39.8\% 불일치). $C(q)$가 기존 양의 재포장이 아닌 \textit{새로운 양}임을 확인하였다.
+  \item $C(q)$를 실용적 양자화 이득으로 전환하려면 더 정교한 할당 전략이 필요하다.
+\end{enumerate}
+
+\section{실험 1-3: FFN 주파수 선택성}
+
+\subsection{설정}
+DFT를 통해 $Q$, $K$의 주파수 성분별 에너지 기여도 $p(\omega)$를 계산하고, FFN 포함/제거 조건에서 스펙트럼 엔트로피 $H(\omega) = -\sum p(\omega) \log p(\omega)$를 비교하였다.
+FFN 제거는 forward hook으로 FFN 출력을 영벡터로 대체하여 구현하였다.
+
+\subsection{결과}
+FFN은 스펙트럼 엔트로피를 \textbf{증가}시켰다 (가설의 반대 방향):
+\begin{itemize}[nosep]
+  \item FFN 포함: $\bar{H} = 3.376$, FFN 제거: $\bar{H} = 3.255$
+  \item 차이: $\Delta H = -0.122$ (FFN이 엔트로피를 높임)
+  \item Paired t-test: $t = -11.79$, $p = 3.15 \times 10^{-11}$
+  \item 24개 레이어 중 FFN이 엔트로피를 낮추는 레이어: \textbf{0개}
+\end{itemize}
+
+\subsection{판정: \textcolor{failure}{가설 기각}}
+FFN은 주파수 선택성을 강화하지 않는다. 오히려 주파수 공간에서 에너지를 분산시키는 역할을 한다.
+이는 FFN이 다음 레이어의 어텐션을 위해 표현을 다양화(diversify)하는 기능을 수행한다는 해석과 일치한다.
+
+\section{종합 판정}
+
+\begin{table}[H]
+\centering
+\caption{Level 1 최종 판정 매트릭스.}
+\begin{tabularx}{\textwidth}{lll>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{실험} & \textbf{결과} & \textbf{판정} & \textbf{함의} \\
+\midrule
+1-1 게이트 & $\rho=-0.66$ & \textcolor{partial}{약한 성공} & MHA에서 볼츠만 열적 구조 확인 \\
+1-2 양자화 & 39.8\% 불일치 & \textcolor{partial}{다르지만 미개선} & $C(q)$는 새로운 양이나 정교한 할당 필요 \\
+1-3 FFN & $\Delta H=-0.12$, $p<10^{-10}$ & \textcolor{failure}{가설 기각} & FFN은 선택성을 강화하지 않음 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{다음 단계.}
+\begin{itemize}[nosep]
+  \item \textbf{FOKVQ Phase 2}: Facet K-space separability 검증 (Exp 2-1--2-4)
+  \item \textbf{FOKVQ Phase 4-1}: Llama-3-8B 대규모 모델 재현 (A100 필수)
+  \item \textbf{실험 1-2 개선}: $C(q) + \|k\|^2$ 결합 기준, 상위/하위 $k$\% 할당
+\end{itemize}
+
+\end{document}

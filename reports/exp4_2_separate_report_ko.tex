@@ -1,0 +1,263 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage{xcolor}
+\usepackage{fontspec}
+\usepackage{ucharclasses}
+
+\setmainfont[ItalicFont={Noto Sans CJK KR}]{Noto Sans CJK KR}
+\newfontfamily\hangulfont[ItalicFont={Noto Sans CJK KR}]{Noto Sans CJK KR}
+\setTransitionsForCJK{\hangulfont}{}{}
+
+\tolerance=1000
+\emergencystretch=3em
+\hfuzz=2pt
+
+\definecolor{tableheader}{HTML}{E3F2FD}
+\definecolor{lightgray}{HTML}{F5F5F5}
+\definecolor{goodblue}{HTML}{1565C0}
+\definecolor{warnred}{HTML}{C62828}
+\definecolor{okgreen}{HTML}{2E7D32}
+
+\title{\textbf{Exp 4-2 추가 실험 별도 보고서}\\[0.4em]
+\large WikiText-2 Sliding-Window PPL Benchmark 결과 정리}
+\author{Boltzmann Attention / FOKVQ}
+\date{2026년 4월 1일}
+
+\begin{document}
+\maketitle
+
+\section{개요}
+
+본 보고서는 \texttt{gpt2-medium} 기반 \texttt{WikiText-2} sliding-window perplexity 벤치마크에서 수행한 \textbf{Exp 4-2 추가 실험}의 최종 정리본이다. 목적은 세 가지였다. 첫째, \texttt{FOKVQ}가 공정한 평균 비트 예산 하에서 \texttt{uniform}, \texttt{KIVI-style}, \texttt{turboquant-style}보다 우수한지 확인한다. 둘째, 저비트에서 \texttt{PCA basis}가 \texttt{random} 또는 \texttt{identity} basis보다 실제로 유리한지 확인한다. 셋째, 이러한 경향이 더 긴 문맥에서도 유지되는지 점검한다.
+
+핵심 결론은 다음과 같다. \texttt{FOKVQ}는 현재 구현과 프로토콜에서는 \texttt{KIVI-style} 및 \texttt{turboquant-style}보다 우수하지 않다. \texttt{4-bit}에서는 거의 모든 방법이 근접하여 \texttt{FOKVQ}의 이점이 드러나지 않았고, \texttt{2-bit}에서는 \texttt{PCA basis}가 \texttt{random}/\texttt{identity}보다 낫지만 strong baseline을 넘지는 못했다. 따라서 현재 결과는 우월성(superiority) 증거라기보다 \textbf{방법론적이고 부정적이지만 유의미한 결과}로 해석하는 편이 정확하다.
+
+\section{실험 프로토콜}
+
+\begin{table}[H]
+\centering
+\caption{공통 실험 설정}
+\label{tab:setup}
+\small
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{항목} & \textbf{설정} \\
+\midrule
+모델 & \texttt{openai-community/gpt2-medium} \\
+데이터셋 & \texttt{WikiText-2} \\
+평가 방식 & sliding-window causal LM perplexity \\
+최대 평가 토큰 수 & \texttt{4096} \\
+Calibration samples & \texttt{8} \\
+Attention implementation & \texttt{eager} \\
+시드 & \texttt{42} \\
+비교 방법 & \texttt{uniform}, \texttt{KIVI-style}, \texttt{turboquant-style}, \texttt{FOKVQ(PCA)} \\
+주의사항 1 & \texttt{turboquant-style}은 random orthogonal rotation + Lloyd-Max scalar quantization 기반 내부 구현이며, 공식 TurboQuant 완전 재현으로 해석하면 안 된다. \\
+주의사항 2 & \texttt{FOKVQ} 결과는 공정한 평균 비트 예산을 강제한 이후의 실험만 반영한다. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{핵심 결과}
+
+\subsection{4-bit 메인 비교}
+
+\begin{table}[H]
+\centering
+\caption{4-bit main comparison (\texttt{context\_len=256}, \texttt{stride=128})}
+\label{tab:4bit-main}
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{Method} & \textbf{PPL} \\
+\midrule
+FP16 & 26.8638 \\
+KIVI-style & 26.8770 \\
+uniform & 26.8983 \\
+FOKVQ & 26.9954 \\
+turboquant-style & 27.0020 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+이 표의 해석은 단순하다. \texttt{4-bit}에서는 모든 방법이 매우 가깝고, \texttt{FOKVQ}는 \texttt{KIVI-style}보다 낫지 않다. 따라서 \texttt{4-bit}는 현재 구현의 주력 주장 영역이 아니다.
+
+\subsection{4-bit 축 ablation}
+
+\begin{table}[H]
+\centering
+\caption{4-bit axis ablation (\texttt{context\_len=256}, \texttt{stride=128})}
+\label{tab:4bit-axis}
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{Method} & \textbf{PPL} \\
+\midrule
+FP16 & 26.8638 \\
+uniform & 26.8983 \\
+random basis & 26.9608 \\
+FOKVQ(PCA) & 26.9954 \\
+identity basis & 27.0862 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\texttt{identity}는 가장 나쁘지만, \texttt{random}이 \texttt{PCA}보다 약간 더 좋다. 즉 \texttt{4-bit}에서는 \texttt{PCA basis}의 구조적 우위가 관찰되지 않는다.
+
+\subsection{2-bit 공정 비교: \texttt{topk=0.25} vs \texttt{topk=0.5}}
+
+\begin{table}[H]
+\centering
+\caption{2-bit fair main comparison}
+\label{tab:2bit-main}
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{Method} & \textbf{topk=0.25} & \textbf{topk=0.5} \\
+\midrule
+FP16 & 26.8638 & 26.8638 \\
+KIVI-style & 27.7507 & 27.7507 \\
+turboquant-style & 27.7524 & 27.7524 \\
+uniform & 32.4926 & 32.4926 \\
+FOKVQ & 48.2813 & 34.5466 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\texttt{topk=0.5}는 \texttt{0.25}보다 현저히 낫다. 그러나 \texttt{topk=0.5}에서도 \texttt{FOKVQ}는 여전히 \texttt{uniform}, \texttt{KIVI-style}, \texttt{turboquant-style}보다 좋지 않다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/exp4_2_2bit_topk050_contexts.png}
+\caption{2-bit 공정 비교에서 \texttt{topk=0.5} 설정의 문맥 길이별 PPL 변화. \texttt{FOKVQ}는 긴 문맥으로 갈수록 개선되지만, 모든 구간에서 \texttt{turboquant-style} 및 \texttt{KIVI-style}보다 열세이다.}
+\label{fig:2bit-context}
+\end{figure}
+
+Figure~\ref{fig:2bit-context}에서 \texttt{FOKVQ(topk=0.5)}는 문맥이 길어질수록 절대 PPL이 낮아진다. 그러나 같은 구간에서 \texttt{turboquant-style}과 \texttt{KIVI-style}도 더 좋아지므로 순위는 바뀌지 않는다. 즉 긴 문맥이 \texttt{FOKVQ}에만 유리하게 작동하지는 않았다.
+
+\subsection{2-bit 장문맥 비교}
+
+\begin{table}[H]
+\centering
+\caption{2-bit fair comparison across longer contexts}
+\label{tab:2bit-long}
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{Method} & \textbf{512 / 256} & \textbf{1024 / 512} \\
+\midrule
+FP16 & 22.5366 & 18.3817 \\
+turboquant-style & 23.3546 & 19.3868 \\
+KIVI-style & 23.9904 & 20.4618 \\
+uniform & 27.3654 & 22.4624 \\
+FOKVQ (\texttt{topk=0.25}) & 45.9687 & 42.2597 \\
+FOKVQ (\texttt{topk=0.5}) & 28.8335 & 24.0110 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\texttt{topk=0.25}는 장문맥에서도 회복되지 않는다. \texttt{topk=0.5}는 훨씬 개선되지만, 여전히 strong baseline보다 낮은 순위에 머문다. 특히 \texttt{1024/512}에서 \texttt{turboquant-style}이 19.3868로 가장 강한 양자화 baseline이다.
+
+\subsection{축 선택 효과: PCA vs random vs identity}
+
+\begin{table}[H]
+\centering
+\caption{Axis ablation summary}
+\label{tab:axis-summary}
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Setting} & \textbf{identity} & \textbf{random} & \textbf{FOKVQ(PCA)} \\
+\midrule
+2-bit, \texttt{topk=0.25} & 412.4942 & 84.4536 & 48.2813 \\
+2-bit, \texttt{topk=0.5} & 149.8334 & 52.9955 & 34.5466 \\
+4-bit & 27.0862 & 26.9608 & 26.9954 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/exp4_2_axis_ablation.png}
+\caption{축 선택 ablation. 저비트에서는 \texttt{PCA basis}가 \texttt{random} 및 \texttt{identity}보다 확실히 낫지만, \texttt{4-bit}에서는 이 차이가 사실상 사라진다.}
+\label{fig:axis-ablation}
+\end{figure}
+
+Figure~\ref{fig:axis-ablation}과 표~\ref{tab:axis-summary}은 \texttt{PCA basis}의 역할을 가장 명확히 보여준다. \texttt{2-bit}에서는 \texttt{PCA}가 \texttt{random} 및 \texttt{identity}보다 유의미하게 낫다. 따라서 \textbf{축 선택 효과 자체는 실재한다}. 다만 이 효과만으로 strong baseline을 넘지는 못한다.
+
+\section{결과 해석}
+
+\subsection{주장 가능한 것}
+
+\begin{enumerate}
+\item \texttt{FOKVQ}에는 저비트에서 의미 있는 \texttt{basis-selection effect}가 있다.
+\item \texttt{PCA basis}는 naive \texttt{random} 또는 \texttt{identity} basis보다 낫다.
+\item 공정한 평균 비트 예산을 강제하면 이전의 일부 개선은 bit-budget artifact였음이 드러난다.
+\end{enumerate}
+
+\subsection{주장하면 안 되는 것}
+
+\begin{enumerate}
+\item \texttt{FOKVQ}가 \texttt{KIVI-style}보다 우수하다.
+\item \texttt{FOKVQ}가 \texttt{turboquant-style}보다 우수하다.
+\item \texttt{4-bit}에서 \texttt{PCA basis}가 분명한 우위를 보인다.
+\item 현재 \texttt{turboquant-style} 구현이 공식 TurboQuant 재현이다.
+\end{enumerate}
+
+\subsection{연구적으로 가지는 의미}
+
+현재 결과는 ``새로운 최고 성능 방법''의 증거라기보다, \textbf{축 정렬이 왜 일부 경우에만 유효하고 strong baseline 우위로 이어지지 않는지}를 보여주는 분석적 결과에 가깝다. 특히 \texttt{2-bit} 축 ablation은 \texttt{PCA}가 무의미하지 않음을 보여주지만, 동시에 그 효과의 크기가 실전적인 baseline 우위를 만들 정도는 아님을 입증한다.
+
+\section{운영상 발견}
+
+병렬 실험 배치에서 GPU보다 CPU thread oversubscription이 더 큰 병목이었다. 다음 환경 제한을 둔 후 wall-clock runtime이 약 \texttt{9--10분}에서 \texttt{6--12초} 수준으로 줄었다.
+
+\begin{itemize}
+\item \texttt{OMP\_NUM\_THREADS=8}
+\item \texttt{MKL\_NUM\_THREADS=8}
+\item \texttt{OPENBLAS\_NUM\_THREADS=8}
+\item \texttt{NUMEXPR\_NUM\_THREADS=8}
+\end{itemize}
+
+이 운영상 수정은 프로토콜을 바꾸지 않고 실행 효율만 크게 개선했으므로, 이후 원격 실험의 기본 설정으로 유지하는 것이 적절하다.
+
+\section{최종 결론과 다음 단계}
+
+가장 정직한 결론은 다음과 같다.
+
+\begin{quote}
+\texttt{FOKVQ}는 저비트에서 \texttt{PCA} 기반 축 정렬 효과를 보이지만, 공정한 비교 조건에서는 \texttt{KIVI-style} 및 \texttt{turboquant-style}보다 우수하지 않다.
+\end{quote}
+
+따라서 현재 결과를 논문화한다면 ``새로운 SOTA 방법''보다는 ``축 기반 KV quantization의 조건부 효과와 한계''를 드러내는 보고서로 정리하는 편이 맞다. 다음 실험 우선순위는 다음 세 가지가 적절하다.
+
+\begin{enumerate}
+\item layer-wise 또는 head-wise adaptive basis selection
+\item PCA coefficient clipping / normalization / robust scaling
+\item memory, latency까지 포함한 trade-off 분석
+\end{enumerate}
+
+\section*{원본 결과 파일}
+
+\begingroup
+\small
+\sloppy
+\noindent\path{/scratch/amlt_code/outputs/exp4_2_followup_4bit/main/gpt2-medium-4bit-main_standard_ppl.json}\par
+\noindent\path{/scratch/amlt_code/outputs/exp4_2_followup_4bit/axis_ablation/gpt2-medium-4bit-axis-ablation_standard_ppl.json}\par
+\noindent\path{/scratch/amlt_code/outputs/exp4_2_followup_2bit_topk025/main/gpt2-medium-2bit-topk025-main_standard_ppl.json}\par
+\noindent\path{/scratch/amlt_code/outputs/exp4_2_followup_2bit_topk025/axis_ablation/gpt2-medium-2bit-topk025-axis-ablation_standard_ppl.json}\par
+\noindent\path{/scratch/amlt_code/outputs/exp4_2_followup_2bit_topk050/main/gpt2-medium-2bit-topk050-main_standard_ppl.json}\par
+\noindent\path{/scratch/amlt_code/outputs/exp4_2_followup_2bit_topk050/axis_ablation/gpt2-medium-2bit-topk050-axis-ablation_standard_ppl.json}\par
+\noindent\path{/scratch/amlt_code/outputs/exp4_2_followup_2bit_topk050/longctx512/gpt2-medium-2bit-topk050-longctx512_standard_ppl.json}\par
+\noindent\path{/scratch/amlt_code/outputs/exp4_2_followup_2bit_topk050/longctx1024/gpt2-medium-2bit-topk050-longctx1024_standard_ppl.json}\par
+\endgroup
+
+\end{document}
