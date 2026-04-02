@@ -1,0 +1,91 @@
+{
+  "experiment": "exp4_2_v3_full_quant_ppl",
+  "model_key": "gpt2-medium",
+  "model_name": "gpt2-medium",
+  "device": "cuda:1",
+  "dtype": "torch.float16",
+  "chunk_len": 1024,
+  "protocol": "post_rope",
+  "fokvq_gamma": 0.3,
+  "methods": [
+    "fp16",
+    "uniform",
+    "kivi",
+    "fokvq",
+    "fokvq_qw"
+  ],
+  "bits": [
+    2,
+    3,
+    4
+  ],
+  "total_tokens_in_corpus": 283287,
+  "key_difference_vs_v2": "100% K quantization via hooks (v2 was 50% prefix-only)",
+  "results": {
+    "fp16": {
+      "ppl": 21.360645754805947,
+      "total_nll": 864422.5887451172,
+      "total_tokens": 282348,
+      "n_chunks": 276,
+      "runtime_s": 9.614058494567871
+    },
+    "uniform": {
+      "2": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      }
+    },
+    "kivi": {
+      "2": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      }
+    },
+    "fokvq": {
+      "2": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      }
+    },
+    "fokvq_qw": {
+      "2": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "'GPT2Attention' object has no attribute '_split_heads'"
+      }
+    }
+  },
+  "runtime_s": 11.140352964401245,
+  "peak_memory_gib": 1.1502437591552734
+}
