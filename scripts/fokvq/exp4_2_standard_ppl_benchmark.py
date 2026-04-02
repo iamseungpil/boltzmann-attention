@@ -321,8 +321,13 @@ def quantize_nonuniform_with_basis(
     topk_frac: float,
     adaptive_energy_frac: Optional[float] = None,
     clip_quantile: Optional[float] = None,
+    mean: Optional[torch.Tensor] = None,
+    seq_asymmetric: bool = False,
 ) -> torch.Tensor:
-    coeffs = torch.matmul(keys, basis)
+    centered_keys = keys
+    if mean is not None:
+        centered_keys = keys - mean.view(1, -1, 1, mean.shape[-1])
+    coeffs = torch.matmul(centered_keys, basis)
     dim = coeffs.shape[-1]
     if dim == 0:
         return keys
@@ -336,12 +341,14 @@ def quantize_nonuniform_with_basis(
     high_frac = float(top_k) / float(dim)
     high_bits, low_bits = bit_schedule(target_bits, high_frac)
     if top_k >= dim:
-        coeffs_q = symmetric_quantize_last_dim(coeffs, target_bits)
-        return torch.matmul(coeffs_q, basis.transpose(-1, -2))
-    coeffs_hi = symmetric_quantize_last_dim(coeffs[..., :top_k], high_bits)
-    coeffs_lo = symmetric_quantize_last_dim(coeffs[..., top_k:], low_bits)
+        coeffs_q = asymmetric_quantize_seq_dim(coeffs, target_bits) if seq_asymmetric else symmetric_quantize_last_dim(coeffs, target_bits)
+        recon = torch.matmul(coeffs_q, basis.transpose(-1, -2))
+        return recon if mean is None else recon + mean.view(1, -1, 1, mean.shape[-1])
+    coeffs_hi = asymmetric_quantize_seq_dim(coeffs[..., :top_k], high_bits) if seq_asymmetric else symmetric_quantize_last_dim(coeffs[..., :top_k], high_bits)
+    coeffs_lo = asymmetric_quantize_seq_dim(coeffs[..., top_k:], low_bits) if seq_asymmetric else symmetric_quantize_last_dim(coeffs[..., top_k:], low_bits)
     coeffs_q = torch.cat([coeffs_hi, coeffs_lo], dim=-1)
-    return torch.matmul(coeffs_q, basis.transpose(-1, -2))
+    recon = torch.matmul(coeffs_q, basis.transpose(-1, -2))
+    return recon if mean is None else recon + mean.view(1, -1, 1, mean.shape[-1])
 
 
 def quantize_variance_keys(keys: torch.Tensor, target_bits: int) -> torch.Tensor:
@@ -430,11 +437,65 @@ def run_self_tests(seed: int) -> None:
     assert torch.isfinite(adaptive_q).all() and torch.isfinite(clipped_q).all() and torch.isfinite(pca_lloyd_q).all()
     assert adaptive_q.shape == keys.shape == clipped_q.shape == pca_lloyd_q.shape
 
+    shifted_keys = torch.randn(2, 3, 23, 8, generator=generator, dtype=torch.float32) + 3.0
+    shifted_mean = shifted_keys.mean(dim=(0, 2))
+    uncentered_shifted = quantize_nonuniform_with_basis(
+        shifted_keys,
+        random_basis,
+        target_bits=2,
+        topk_frac=0.5,
+    )
+    centered_shifted = quantize_nonuniform_with_basis(
+        shifted_keys,
+        random_basis,
+        target_bits=2,
+        topk_frac=0.5,
+        mean=shifted_mean,
+    )
+    uncentered_shifted_mse = torch.mean((shifted_keys - uncentered_shifted) ** 2).item()
+    centered_shifted_mse = torch.mean((shifted_keys - centered_shifted) ** 2).item()
+    assert centered_shifted_mse < uncentered_shifted_mse, (
+        f"Centering should help on shifted tensors: centered={centered_shifted_mse:.6f}, "
+        f"uncentered={uncentered_shifted_mse:.6f}"
+    )
+
+    skewed_keys = torch.exp(torch.randn(2, 3, 19, 8, generator=generator, dtype=torch.float32) * 0.6)
+    symmetric_skewed = quantize_nonuniform_with_basis(
+        skewed_keys,
+        torch.eye(8, dtype=torch.float32),
+        target_bits=2,
+        topk_frac=1.0,
+        mean=None,
+        seq_asymmetric=False,
+    )
+    asymmetric_skewed = quantize_nonuniform_with_basis(
+        skewed_keys,
+        torch.eye(8, dtype=torch.float32),
+        target_bits=2,
+        topk_frac=1.0,
+        mean=None,
+        seq_asymmetric=True,
+    )
+    symmetric_skewed_mse = torch.mean((skewed_keys - symmetric_skewed) ** 2).item()
+    asymmetric_skewed_mse = torch.mean((skewed_keys - asymmetric_skewed) ** 2).item()
+    assert asymmetric_skewed_mse < symmetric_skewed_mse, (
+        f"Sequence-asymmetric quantization should help on skewed tensors: "
+        f"asym={asymmetric_skewed_mse:.6f}, sym={symmetric_skewed_mse:.6f}"
+    )
+
     payload = {
         "self_test": "passed",
         "orthogonality_max_abs_error": orth_error,
         "lloyd_mse": lloyd_mse,
         "uniform_mse": uniform_mse,
+        "centered_shifted_mse": {
+            "uncentered": uncentered_shifted_mse,
+            "centered": centered_shifted_mse,
+        },
+        "skewed_mse": {
+            "symmetric": symmetric_skewed_mse,
+            "asymmetric": asymmetric_skewed_mse,
+        },
         "turboquant_mse": {
             "2": mse_2,
             "4": mse_4,
@@ -450,7 +511,7 @@ def build_fokvq_bases(
     calibration_texts: Sequence[str],
     device: str,
     max_len: int,
-) -> Dict[int, torch.Tensor]:
+) -> Tuple[Dict[int, torch.Tensor], Dict[int, torch.Tensor]]:
     num_layers = model.config.num_hidden_layers
     per_layer_keys: Dict[int, List[torch.Tensor]] = {idx: [] for idx in range(num_layers)}
 
@@ -471,14 +532,18 @@ def build_fokvq_bases(
         torch.cuda.empty_cache()
 
     bases = {}
+    means = {}
     for layer_idx in range(num_layers):
         head_batches = torch.cat(per_layer_keys[layer_idx], dim=1).numpy()  # (h, n, d)
         head_bases = []
+        head_means = []
         for head_idx in range(head_batches.shape[0]):
+            head_means.append(torch.from_numpy(head_batches[head_idx].mean(axis=0).astype(np.float32)))
             basis_np = pca_basis_np(head_batches[head_idx])
             head_bases.append(torch.from_numpy(basis_np))
         bases[layer_idx] = torch.stack(head_bases, dim=0).to(device=device, dtype=torch.float32)
-    return bases
+        means[layer_idx] = torch.stack(head_means, dim=0).to(device=device, dtype=torch.float32)
+    return bases, means
 
 
 def build_identity_bases(model, device: str) -> Dict[int, torch.Tensor]:
@@ -515,6 +580,7 @@ def quantize_cache(
     method: str,
     bits: int,
     fokvq_bases: Optional[Dict[int, torch.Tensor]],
+    fokvq_means: Optional[Dict[int, torch.Tensor]],
     fokvq_topk_frac: float,
     fokvq_adaptive_energy_frac: float,
     fokvq_clip_quantile: float,
@@ -533,10 +599,15 @@ def quantize_cache(
             key_quant = quantize_variance_keys(key_cache, bits)
         elif method == "kivi":
             key_quant = asymmetric_quantize_seq_dim(key_cache, bits)
-        elif method in {"fokvq", "identity", "random", "fokvq_adaptive", "fokvq_clip"}:
+        elif method in {"fokvq", "identity", "random", "fokvq_adaptive", "fokvq_clip", "fokvq_centered", "fokvq_centered_asym"}:
             if fokvq_bases is None:
                 raise ValueError(f"Bases are required for method={method}")
             basis = fokvq_bases[layer_idx].to(device=key_cache.device)
+            mean = None
+            if method in {"fokvq_centered", "fokvq_centered_asym"}:
+                if fokvq_means is None:
+                    raise ValueError(f"Means are required for method={method}")
+                mean = fokvq_means[layer_idx].to(device=key_cache.device)
             key_quant = quantize_nonuniform_with_basis(
                 key_cache.float(),
                 basis,
@@ -544,6 +615,8 @@ def quantize_cache(
                 fokvq_topk_frac,
                 adaptive_energy_frac=fokvq_adaptive_energy_frac if method == "fokvq_adaptive" else None,
                 clip_quantile=fokvq_clip_quantile if method == "fokvq_clip" else None,
+                mean=mean,
+                seq_asymmetric=(method == "fokvq_centered_asym"),
             ).to(dtype=key_cache.dtype)
         elif method == "fokvq_lloyd":
             if fokvq_bases is None or turbo_codebooks is None:
@@ -649,6 +722,7 @@ def evaluate_quantized_sliding_window(
     method: str,
     bits: int,
     fokvq_bases: Optional[Dict[int, torch.Tensor]],
+    fokvq_means: Optional[Dict[int, torch.Tensor]],
     fokvq_topk_frac: float,
     fokvq_adaptive_energy_frac: float,
     fokvq_clip_quantile: float,
@@ -685,6 +759,7 @@ def evaluate_quantized_sliding_window(
             method,
             bits,
             fokvq_bases,
+            fokvq_means,
             fokvq_topk_frac,
             fokvq_adaptive_energy_frac,
             fokvq_clip_quantile,
@@ -798,11 +873,12 @@ def run() -> None:
             args.stride,
         )
 
-    fokvq_basis_methods = {"fokvq", "fokvq_adaptive", "fokvq_clip", "fokvq_lloyd"}
+    fokvq_basis_methods = {"fokvq", "fokvq_adaptive", "fokvq_clip", "fokvq_lloyd", "fokvq_centered", "fokvq_centered_asym"}
     fokvq_bases = None
+    fokvq_means = None
     if any(method in fokvq_basis_methods for method in args.methods):
         print("Building FOKVQ PCA bases...")
-        fokvq_bases = build_fokvq_bases(
+        fokvq_bases, fokvq_means = build_fokvq_bases(
             model,
             tokenizer,
             calibration_texts,
@@ -819,6 +895,10 @@ def run() -> None:
         method_bases = None
         method_codebooks = None
         if method == "fokvq":
+            method_bases = fokvq_bases
+        elif method == "fokvq_centered":
+            method_bases = fokvq_bases
+        elif method == "fokvq_centered_asym":
             method_bases = fokvq_bases
         elif method == "fokvq_adaptive":
             method_bases = fokvq_bases
@@ -845,6 +925,7 @@ def run() -> None:
                 method,
                 bits,
                 method_bases,
+                fokvq_means,
                 args.fokvq_topk_frac,
                 args.fokvq_adaptive_energy_frac,
                 args.fokvq_clip_quantile,
