@@ -326,8 +326,9 @@ def turbo_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
 
     # QJL 1-bit residual correction
     residual = K_rot - K_q
+    # Generate on CPU with seed, then move to device (avoids cuda generator issue)
     rng = torch.Generator(device='cpu').manual_seed(42)
-    R_jl = torch.randn(d, d, generator=rng, dtype=torch.float32, device=K_head.device)
+    R_jl = torch.randn(d, d, generator=rng, dtype=torch.float32).to(K_head.device)
     R_jl = R_jl / R_jl.norm(dim=1, keepdim=True)
     proj = residual @ R_jl.T
     signs = torch.sign(proj)
@@ -1314,14 +1315,10 @@ class AttentionKQuantPatcher:
             attn_output = attn_output.reshape(bsz, q_len, -1)
             attn_output = attn_module.o_proj(attn_output)
 
-            # Qwen2/Llama decoder expects: (attn_output, attn_weights, past_kv)
-            # attn_weights=None when output_attentions=False
-            # past_kv=None when use_cache=False
-            outputs = (attn_output,
-                       attn_weights if output_attentions else None,
-                       past_key_value if use_cache else None)
-
-            return outputs
+            # Qwen2/Llama decoder layer unpacks: hidden_states, _ = self.self_attn(...)
+            # Original Qwen2Attention returns exactly 2: (attn_output, attn_weights)
+            # We must match this exactly.
+            return attn_output, attn_weights if output_attentions else None
 
         return patched_forward
 
