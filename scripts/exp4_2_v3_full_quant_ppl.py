@@ -757,6 +757,10 @@ def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
             # E3: K-only PCA + MK-weighted Lloyd-Max (no Q_cov needed)
             K_q, _ = fokvq_e3_quantize_head(K_head, bits, gamma)
             return K_q
+        elif method == "fokvq_e2e3":
+            # E2+E3: K-only PCA + MK-weighted Lloyd-Max (no Q_cov, no E1)
+            K_q, _ = fokvq_full_quantize_head(K_head, bits, gamma, Q_cov=None)
+            return K_q
         elif method == "fokvq_full":
             # E1+E2+E3: Q-weighted PCA + MK-weighted Lloyd-Max
             K_q, _ = fokvq_full_quantize_head(K_head, bits, gamma, Q_cov=q_cov)
