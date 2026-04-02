@@ -1159,11 +1159,12 @@ class AttentionKQuantPatcher:
             attn_output = attn_output.reshape(bsz, q_len, -1)
             attn_output = attn_module.o_proj(attn_output)
 
-            outputs = (attn_output,)
-            if output_attentions:
-                outputs += (attn_weights,)
-            if use_cache:
-                outputs += (past_key_value,)
+            # Qwen2/Llama decoder expects: (attn_output, attn_weights, past_kv)
+            # attn_weights=None when output_attentions=False
+            # past_kv=None when use_cache=False
+            outputs = (attn_output,
+                       attn_weights if output_attentions else None,
+                       past_key_value if use_cache else None)
 
             return outputs
 

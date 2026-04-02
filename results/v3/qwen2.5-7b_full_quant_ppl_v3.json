@@ -30,107 +30,107 @@
       "total_nll": 605105.3449707031,
       "total_tokens": 296815,
       "n_chunks": 145,
-      "runtime_s": 71.5223798751831
+      "runtime_s": 71.3955864906311
     },
     "uniform": {
       "2": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "3": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "4": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       }
     },
     "kivi": {
       "2": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "3": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "4": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       }
     },
     "fokvq": {
       "2": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "3": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "4": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       }
     },
     "fokvq_qw": {
       "2": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "3": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "4": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       }
     },
     "fokvq_e2": {
       "2": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "3": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "4": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       }
     },
     "fokvq_e3": {
       "2": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "3": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "4": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       }
     },
     "fokvq_full": {
       "2": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "3": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       },
       "4": {
         "ppl": Infinity,
-        "error": "not enough values to unpack (expected 2, got 1)"
+        "error": "too many values to unpack (expected 2)"
       }
     }
   },
-  "runtime_s": 218.66926503181458,
+  "runtime_s": 215.40284609794617,
   "peak_memory_gib": 17.09672260284424
 }
