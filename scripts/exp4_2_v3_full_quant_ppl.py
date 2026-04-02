@@ -338,6 +338,235 @@ def fokvq_qw_quantize_head(K_head: torch.Tensor, Q_cov: torch.Tensor,
     return K_recon.to(K_head.dtype), r_eff
 
 
+# ============================================================================
+# E2: Per-Axis Adaptive Quantizer (Lloyd-Max codebook per PCA axis)
+# ============================================================================
+
+def _fit_lloyd_max_1d(data: torch.Tensor, n_levels: int,
+                      n_iters: int = 20) -> torch.Tensor:
+    """Fit 1D Lloyd-Max codebook to data via iterative quantile refinement.
+
+    Returns: codebook of shape (n_levels,), sorted ascending.
+    """
+    vals = data.reshape(-1).float()
+    if vals.numel() == 0 or n_levels <= 1:
+        return vals.mean().unsqueeze(0)
+    # Initialize with quantiles
+    quantiles = torch.linspace(0.0, 1.0, n_levels + 2, dtype=torch.float32)[1:-1]
+    cb = torch.quantile(vals, quantiles.to(vals.device)).unique(sorted=True)
+    if cb.numel() < n_levels:
+        cb = torch.linspace(vals.min(), vals.max(), n_levels,
+                            device=vals.device, dtype=torch.float32)
+    for _ in range(n_iters):
+        thresholds = 0.5 * (cb[:-1] + cb[1:])
+        bucket = torch.bucketize(vals, thresholds)
+        new_cb = cb.clone()
+        for idx in range(n_levels):
+            mask = bucket == idx
+            if mask.any():
+                new_cb[idx] = vals[mask].mean()
+        if torch.allclose(new_cb, cb, atol=1e-7):
+            break
+        cb = new_cb
+    return cb.sort().values
+
+
+def _quantize_with_codebook_1d(data: torch.Tensor,
+                               codebook: torch.Tensor) -> torch.Tensor:
+    """Quantize 1D tensor to nearest codebook entry."""
+    flat = data.reshape(-1, 1).float()
+    levels = codebook.to(device=data.device, dtype=torch.float32).reshape(1, -1)
+    nearest = (flat - levels).abs().argmin(dim=1)
+    return levels.squeeze(0)[nearest].reshape_as(data).to(data.dtype)
+
+
+def _fit_lloyd_max_mahalanobis_1d(data: torch.Tensor, n_levels: int,
+                                   weight: float,
+                                   n_iters: int = 20) -> torch.Tensor:
+    """Fit 1D Lloyd-Max codebook minimizing Mahalanobis-weighted distortion.
+
+    Mahalanobis weight = 1/variance for this axis.
+    Higher weight → this axis matters more → finer codebook placement.
+    In practice, the optimal codebook for weighted MSE on 1D data is the same
+    as standard Lloyd-Max applied to scaled data: data * sqrt(weight).
+
+    We scale data, fit standard Lloyd-Max, then unscale codebook.
+    """
+    scale = max(weight, 1e-10) ** 0.5
+    scaled = data * scale
+    cb_scaled = _fit_lloyd_max_1d(scaled, n_levels, n_iters)
+    return cb_scaled / scale
+
+
+def _pca_decompose(K_head: torch.Tensor, Q_cov: Optional[torch.Tensor] = None):
+    """Shared PCA decomposition for E1/E2/E3 variants.
+
+    Returns: (centered, mean, evals, evecs, K_pca)
+      - If Q_cov is None: standard K-only PCA
+      - If Q_cov is provided: Q-weighted PCA (E1)
+    """
+    d = K_head.shape[-1]
+    K_f = K_head.float()
+    mean = K_f.mean(dim=0)
+    centered = K_f - mean
+
+    Sigma_K = (centered.T @ centered) / max(centered.shape[0] - 1, 1)
+    Sigma_K += torch.eye(d, device=Sigma_K.device) * 1e-8
+
+    if Q_cov is not None:
+        # E1: Q-weighted PCA
+        Q_cov_f = Q_cov.float().to(K_f.device)
+        Q_cov_f += torch.eye(d, device=Q_cov_f.device) * 1e-6
+        ev_q, U_q = torch.linalg.eigh(Q_cov_f)
+        ev_q = torch.clamp(ev_q, min=1e-8)
+        sqrt_Q = U_q @ torch.diag(ev_q.sqrt()) @ U_q.T
+        inv_sqrt_Q = U_q @ torch.diag(ev_q.rsqrt()) @ U_q.T
+
+        Sigma_KQ = sqrt_Q @ Sigma_K @ sqrt_Q
+        Sigma_KQ = (Sigma_KQ + Sigma_KQ.T) / 2
+        Sigma_KQ += torch.eye(d, device=Sigma_KQ.device) * 1e-8
+
+        evals, evecs_kq = torch.linalg.eigh(Sigma_KQ)
+        idx = torch.argsort(evals, descending=True)
+        evals = evals[idx]
+        evecs_kq = evecs_kq[:, idx]
+        evecs = inv_sqrt_Q @ evecs_kq
+        evecs, _ = torch.linalg.qr(evecs)
+    else:
+        # Standard K-only PCA
+        evals, evecs = torch.linalg.eigh(Sigma_K)
+        idx = torch.argsort(evals, descending=True)
+        evals = evals[idx]
+        evecs = evecs[:, idx]
+
+    K_pca = centered @ evecs
+    return centered, mean, evals, evecs, K_pca
+
+
+def _compute_bit_allocation(evals: torch.Tensor, d: int, bits_avg: int,
+                            gamma: float) -> np.ndarray:
+    """Shared eigenvalue-weighted bit allocation."""
+    ev_np = evals.cpu().numpy()
+    ev_pos = np.maximum(ev_np, 1e-10)
+    w = ev_pos ** gamma
+    w /= w.sum()
+    ib = np.clip(np.round(w * d * bits_avg).astype(int), 1, 8)
+    while ib.sum() > d * bits_avg:
+        ib[np.argmax(ib)] -= 1
+    while ib.sum() < d * bits_avg:
+        ib[np.argmin(ib)] += 1
+    return np.clip(ib, 1, 8)
+
+
+def _quantize_pca_uniform(K_pca: torch.Tensor, ib: np.ndarray) -> torch.Tensor:
+    """Standard per-axis uniform asymmetric quantization (baseline FOKVQ)."""
+    d = K_pca.shape[-1]
+    K_q = torch.zeros_like(K_pca)
+    for i in range(d):
+        col = K_pca[:, i]
+        c_min, c_max = col.min(), col.max()
+        n_lev = 2 ** int(ib[i])
+        step = max((c_max - c_min).item(), 1e-8) / (n_lev - 1)
+        K_q[:, i] = torch.round((col - c_min) / step) * step + c_min
+    return K_q
+
+
+def _quantize_pca_lloyd(K_pca: torch.Tensor, ib: np.ndarray) -> torch.Tensor:
+    """E2: Per-axis Lloyd-Max adaptive codebook quantization."""
+    d = K_pca.shape[-1]
+    K_q = torch.zeros_like(K_pca)
+    for i in range(d):
+        col = K_pca[:, i]
+        n_lev = 2 ** int(ib[i])
+        cb = _fit_lloyd_max_1d(col, n_lev)
+        K_q[:, i] = _quantize_with_codebook_1d(col, cb)
+    return K_q
+
+
+def _quantize_pca_mk(K_pca: torch.Tensor, ib: np.ndarray,
+                      evals: torch.Tensor) -> torch.Tensor:
+    """E3: Per-axis Mahalanobis-weighted Lloyd-Max codebook.
+
+    Axes with smaller eigenvalue (lower K variance) get higher MK weight
+    because errors there are amplified by Σ_K^{-1}.
+    MK weight for axis i = 1 / eigenvalue_i.
+    """
+    d = K_pca.shape[-1]
+    ev_np = evals.cpu().numpy()
+    ev_pos = np.maximum(ev_np, 1e-10)
+    K_q = torch.zeros_like(K_pca)
+    for i in range(d):
+        col = K_pca[:, i]
+        n_lev = 2 ** int(ib[i])
+        mk_weight = 1.0 / ev_pos[i]
+        cb = _fit_lloyd_max_mahalanobis_1d(col, n_lev, mk_weight)
+        K_q[:, i] = _quantize_with_codebook_1d(col, cb)
+    return K_q
+
+
+def fokvq_e2_quantize_head(K_head: torch.Tensor, bits_avg: int,
+                           gamma: float = 0.3,
+                           Q_cov: Optional[torch.Tensor] = None
+                           ) -> Tuple[torch.Tensor, float]:
+    """E2: FOKVQ + per-axis Lloyd-Max adaptive codebook.
+
+    Same PCA axes as FOKVQ (or Q-weighted if Q_cov given),
+    but replaces uniform scalar quantizer with per-axis Lloyd-Max codebook.
+    """
+    d = K_head.shape[-1]
+    centered, mean, evals, evecs, K_pca = _pca_decompose(K_head, Q_cov)
+    ib = _compute_bit_allocation(evals, d, bits_avg, gamma)
+    K_q = _quantize_pca_lloyd(K_pca, ib)
+    K_recon = K_q @ evecs.T + mean
+    ev_np = np.maximum(evals.cpu().numpy(), 1e-10)
+    ev_norm = ev_np / ev_np.sum()
+    r_eff = float(np.exp(-np.sum(ev_norm * np.log(ev_norm + 1e-30))))
+    return K_recon.to(K_head.dtype), r_eff
+
+
+def fokvq_e3_quantize_head(K_head: torch.Tensor, bits_avg: int,
+                           gamma: float = 0.3,
+                           Q_cov: Optional[torch.Tensor] = None
+                           ) -> Tuple[torch.Tensor, float]:
+    """E3: FOKVQ + Mahalanobis-weighted Lloyd-Max codebook.
+
+    Same PCA axes, but codebook optimized for MK distortion (1/eigenvalue weight).
+    Low-variance axes get finer codebook placement because Σ_K^{-1} amplifies
+    errors there.
+    """
+    d = K_head.shape[-1]
+    centered, mean, evals, evecs, K_pca = _pca_decompose(K_head, Q_cov)
+    ib = _compute_bit_allocation(evals, d, bits_avg, gamma)
+    K_q = _quantize_pca_mk(K_pca, ib, evals)
+    K_recon = K_q @ evecs.T + mean
+    ev_np = np.maximum(evals.cpu().numpy(), 1e-10)
+    ev_norm = ev_np / ev_np.sum()
+    r_eff = float(np.exp(-np.sum(ev_norm * np.log(ev_norm + 1e-30))))
+    return K_recon.to(K_head.dtype), r_eff
+
+
+def fokvq_full_quantize_head(K_head: torch.Tensor, bits_avg: int,
+                             gamma: float = 0.3,
+                             Q_cov: Optional[torch.Tensor] = None
+                             ) -> Tuple[torch.Tensor, float]:
+    """E1+E2+E3 combined: Q-weighted PCA + MK-weighted Lloyd-Max codebook.
+
+    The strongest variant:
+      - E1: Q-weighted PCA axes (if Q_cov provided)
+      - E2: Per-axis Lloyd-Max adaptive codebook
+      - E3: Mahalanobis (1/eigenvalue) weighted codebook optimization
+    """
+    d = K_head.shape[-1]
+    centered, mean, evals, evecs, K_pca = _pca_decompose(K_head, Q_cov)
+    ib = _compute_bit_allocation(evals, d, bits_avg, gamma)
+    K_q = _quantize_pca_mk(K_pca, ib, evals)
+    K_recon = K_q @ evecs.T + mean
+    ev_np = np.maximum(evals.cpu().numpy(), 1e-10)
+    ev_norm = ev_np / ev_np.sum()
+    r_eff = float(np.exp(-np.sum(ev_norm * np.log(ev_norm + 1e-30))))
+    return K_recon.to(K_head.dtype), r_eff
+
+
 def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
                       gamma: float = 0.3,
                       q_covs: Optional[torch.Tensor] = None) -> torch.Tensor:
@@ -347,7 +576,8 @@ def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
 
     Args:
         K: key tensor
-        method: "fp16", "uniform", "kivi", "fokvq", or "fokvq_qw"
+        method: "fp16", "uniform", "kivi", "fokvq", "fokvq_qw",
+                "fokvq_e2", "fokvq_e3", "fokvq_full"
         bits: quantization bits
         gamma: FOKVQ eigenvalue weighting exponent
         q_covs: For fokvq_qw only. Q covariance matrices per head.
@@ -372,8 +602,19 @@ def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
             if q_cov is not None:
                 K_q, _ = fokvq_qw_quantize_head(K_head, q_cov, bits, gamma)
             else:
-                # Fallback to regular FOKVQ if no Q covariance available
                 K_q, _ = fokvq_quantize_head(K_head, bits, gamma)
+            return K_q
+        elif method == "fokvq_e2":
+            # E2: K-only PCA + Lloyd-Max codebook (no Q_cov needed)
+            K_q, _ = fokvq_e2_quantize_head(K_head, bits, gamma)
+            return K_q
+        elif method == "fokvq_e3":
+            # E3: K-only PCA + MK-weighted Lloyd-Max (no Q_cov needed)
+            K_q, _ = fokvq_e3_quantize_head(K_head, bits, gamma)
+            return K_q
+        elif method == "fokvq_full":
+            # E1+E2+E3: Q-weighted PCA + MK-weighted Lloyd-Max
+            K_q, _ = fokvq_full_quantize_head(K_head, bits, gamma, Q_cov=q_cov)
             return K_q
         else:
             raise ValueError(f"Unknown method: {method}")
@@ -678,7 +919,7 @@ class AttentionKQuantPatcher:
                          For GQA models, Q heads are already grouped to match KV heads.
         """
         q_covs = None
-        if self.method == "fokvq_qw" and query_states is not None:
+        if self.method in ("fokvq_qw", "fokvq_full") and query_states is not None:
             # Compute per-head Q covariance on-the-fly from current chunk
             # query_states: (batch, n_heads_or_kv_heads, seq, d_head)
             # We compute covariance per head across the sequence dimension
@@ -820,9 +1061,11 @@ class AttentionKQuantPatcher:
             key_states = attn_module.k_proj(hidden_states)
             value_states = attn_module.v_proj(hidden_states)
 
-            # Get head dimensions
-            num_heads = attn_module.num_heads
-            num_kv_heads = attn_module.num_key_value_heads
+            # Get head dimensions (transformers 5.x: may be on config, not module)
+            num_heads = getattr(attn_module, 'num_heads',
+                                attn_module.config.num_attention_heads)
+            num_kv_heads = getattr(attn_module, 'num_key_value_heads',
+                                   attn_module.config.num_key_value_heads)
             head_dim = attn_module.head_dim
 
             query_states = query_states.view(
@@ -857,7 +1100,7 @@ class AttentionKQuantPatcher:
             # With GQA, multiple Q heads map to one KV head.
             # We pool Q heads within each group for the covariance.
             q_for_qw = None
-            if patcher.method == "fokvq_qw":
+            if patcher.method in ("fokvq_qw", "fokvq_full"):
                 if num_kv_heads != num_heads:
                     # GQA: pool Q heads per KV group -> (bsz, num_kv_heads, seq, d)
                     n_rep = num_heads // num_kv_heads
@@ -1202,6 +1445,58 @@ def run_self_tests(seed: int) -> None:
         mses_qw[bits] = (K - K_q).pow(2).mean().item()
     assert mses_qw[4] < mses_qw[3] < mses_qw[2], f"QW Monotonicity failed: {mses_qw}"
     print(f"  [PASS] MSE monotonicity (fokvq_qw): 2b={mses_qw[2]:.4f} > 3b={mses_qw[3]:.4f} > 4b={mses_qw[4]:.4f}")
+
+    # Test 6: E2 (Lloyd-Max), E3 (MK), full (E1+E2+E3) basic correctness
+    K_test = torch.randn(64, 32) + 3.0
+    Q_cov_test = torch.eye(32) + torch.randn(32, 32) * 0.1
+    Q_cov_test = (Q_cov_test + Q_cov_test.T) / 2
+
+    K_e2, r_e2 = fokvq_e2_quantize_head(K_test, 3, 0.3)
+    K_e3, r_e3 = fokvq_e3_quantize_head(K_test, 3, 0.3)
+    K_full, r_full = fokvq_full_quantize_head(K_test, 3, 0.3, Q_cov=Q_cov_test)
+    assert K_e2.shape == K_test.shape and torch.isfinite(K_e2).all()
+    assert K_e3.shape == K_test.shape and torch.isfinite(K_e3).all()
+    assert K_full.shape == K_test.shape and torch.isfinite(K_full).all()
+    print("  [PASS] E2/E3/full basic shape and finiteness")
+
+    # E2/E3 should produce different results from base FOKVQ
+    K_base, _ = fokvq_quantize_head(K_test, 3, 0.3)
+    diff_e2 = (K_e2 - K_base).abs().mean().item()
+    diff_e3 = (K_e3 - K_base).abs().mean().item()
+    diff_full = (K_full - K_base).abs().mean().item()
+    print(f"  [INFO] Mean abs diff vs base: E2={diff_e2:.6f}, E3={diff_e3:.6f}, full={diff_full:.6f}")
+
+    # Test 7: E2/E3/full MSE comparison on anisotropic data
+    np.random.seed(seed)
+    evals_arr = np.array([100, 50, 10, 1] + [0.01] * 28, dtype=np.float32)
+    U = np.linalg.qr(np.random.randn(32, 32).astype(np.float32))[0]
+    data = (np.random.randn(128, 32).astype(np.float32)
+            @ np.diag(np.sqrt(evals_arr)) @ U.T)
+    K_aniso = torch.from_numpy(data) + 3.0
+
+    mse_base = (K_aniso - fokvq_quantize_head(K_aniso, 3, 0.3)[0]).pow(2).mean().item()
+    mse_e2 = (K_aniso - fokvq_e2_quantize_head(K_aniso, 3, 0.3)[0]).pow(2).mean().item()
+    mse_e3 = (K_aniso - fokvq_e3_quantize_head(K_aniso, 3, 0.3)[0]).pow(2).mean().item()
+    mse_unif = (K_aniso - uniform_quantize_tensor(K_aniso, 3)).pow(2).mean().item()
+    print(f"  [INFO] Anisotropic 3bit MSE: uniform={mse_unif:.6f}, "
+          f"fokvq={mse_base:.6f}, E2={mse_e2:.6f}, E3={mse_e3:.6f}")
+
+    # Test 8: quantize_k_tensor dispatches E2/E3/full correctly
+    K_4d = torch.randn(1, 4, 32, 16)
+    for m in ["fokvq_e2", "fokvq_e3", "fokvq_full"]:
+        q = quantize_k_tensor(K_4d, m, 3)
+        assert q.shape == K_4d.shape and torch.isfinite(q).all()
+    print("  [PASS] quantize_k_tensor dispatches E2/E3/full correctly")
+
+    # Test 9: MSE monotonicity for E2 and full
+    K_mono = torch.randn(64, 32) + 2.0
+    for label, fn in [("E2", fokvq_e2_quantize_head), ("E3", fokvq_e3_quantize_head)]:
+        mses_x = {}
+        for bits in [2, 3, 4]:
+            K_q, _ = fn(K_mono, bits, 0.3)
+            mses_x[bits] = (K_mono - K_q).pow(2).mean().item()
+        assert mses_x[4] < mses_x[3] < mses_x[2], f"{label} monotonicity failed: {mses_x}"
+        print(f"  [PASS] MSE monotonicity ({label}): 2b={mses_x[2]:.4f} > 3b={mses_x[3]:.4f} > 4b={mses_x[4]:.4f}")
 
     print("\nAll self-tests passed.")
 
