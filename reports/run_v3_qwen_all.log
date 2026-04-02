@@ -1,0 +1,223 @@
+=== Qwen v3 ALL methods Start: 2026. 04. 02. (목) 17:36:46 KST ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+========================================================================
+FOKVQ Exp 4-2 v3: Full KV Cache Quantization PPL Benchmark
+Date: 2026-04-02 17:36:47
+Model: Qwen/Qwen2.5-7B (qwen2.5-7b)
+Device: cuda:0, dtype: torch.bfloat16
+Chunk length: 2048 (non-overlapping)
+Protocol: post_rope
+Methods: ['fp16', 'uniform', 'kivi', 'quip', 'kvquant', 'gear', 'zipcache', 'turboquant', 'fokvq', 'fokvq_qw', 'fokvq_e2', 'fokvq_e3', 'fokvq_full'], Bits: [2, 3, 4]
+FOKVQ gamma: 0.3
+========================================================================
+
+KEY DIFFERENCE vs v2:
+  v2: sliding window, only prefix K quantized (50% of window)
+  v3: non-overlapping chunks, ALL K quantized via hooks (100%)
+
+Loading model...
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:32, 10.52it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 117.49it/s]Loading weights:  16%|█▌        | 54/339 [00:00<00:01, 166.42it/s]Loading weights:  26%|██▌       | 87/339 [00:00<00:01, 216.94it/s]Loading weights:  34%|███▎      | 114/339 [00:00<00:00, 228.52it/s]Loading weights:  44%|████▍     | 149/339 [00:00<00:00, 255.87it/s]Loading weights:  53%|█████▎    | 179/339 [00:00<00:00, 267.25it/s]Loading weights:  62%|██████▏   | 209/339 [00:00<00:00, 269.29it/s]Loading weights:  70%|███████   | 238/339 [00:01<00:00, 273.54it/s]Loading weights:  79%|███████▉  | 268/339 [00:01<00:00, 276.25it/s]Loading weights:  87%|████████▋ | 296/339 [00:01<00:00, 267.26it/s]Loading weights:  96%|█████████▋| 327/339 [00:01<00:00, 276.76it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 243.15it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (298938 > 131072). Running this sequence through the model will result in indexing errors
+  layers=28, heads=28, kv_heads=4, d_head=128
+
+========================================================================
+MODE: WikiText-2 PPL (v3: 100% K quantized)
+========================================================================
+
+Loading WikiText-2...
+  WikiText-2 test: 4358 lines -> 298938 tokens
+
+--- FP16 Baseline ---
+    chunk 1/145 | tokens=2047 | ppl=5.82 | 0.7s
+    chunk 10/145 | tokens=20470 | ppl=6.60 | 5.1s
+    chunk 20/145 | tokens=40940 | ppl=7.45 | 9.9s
+    chunk 30/145 | tokens=61410 | ppl=7.76 | 14.8s
+    chunk 40/145 | tokens=81880 | ppl=7.15 | 19.7s
+    chunk 50/145 | tokens=102350 | ppl=7.54 | 24.6s
+    chunk 60/145 | tokens=122820 | ppl=7.34 | 29.5s
+    chunk 70/145 | tokens=143290 | ppl=7.47 | 34.4s
+    chunk 80/145 | tokens=163760 | ppl=7.53 | 39.3s
+    chunk 90/145 | tokens=184230 | ppl=7.50 | 44.2s
+    chunk 100/145 | tokens=204700 | ppl=7.84 | 49.2s
+    chunk 110/145 | tokens=225170 | ppl=7.71 | 54.1s
+    chunk 120/145 | tokens=245640 | ppl=7.73 | 59.1s
+    chunk 130/145 | tokens=266110 | ppl=7.71 | 64.0s
+    chunk 140/145 | tokens=286580 | ppl=7.66 | 69.0s
+  PPL = 7.6803 (296815 tokens, 71.5s)
+
+--- uniform_2bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=uniform, bits=2)
+    chunk 1/145 | tokens=2047 | ppl=9177.78 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=8356.95 | 5.1s
+    chunk 20/145 | tokens=40940 | ppl=9842.17 | 10.1s
+    chunk 30/145 | tokens=61410 | ppl=10191.57 | 15.2s
+    chunk 40/145 | tokens=81880 | ppl=10705.50 | 20.2s
+    chunk 50/145 | tokens=102350 | ppl=10819.08 | 25.3s
+    chunk 60/145 | tokens=122820 | ppl=11175.02 | 30.4s
+    chunk 70/145 | tokens=143290 | ppl=11760.08 | 35.4s
+    chunk 80/145 | tokens=163760 | ppl=11704.72 | 40.5s
+    chunk 90/145 | tokens=184230 | ppl=11478.43 | 45.6s
+    chunk 100/145 | tokens=204700 | ppl=11420.80 | 50.7s
+    chunk 110/145 | tokens=225170 | ppl=11638.38 | 55.7s
+    chunk 120/145 | tokens=245640 | ppl=11699.57 | 60.8s
+    chunk 130/145 | tokens=266110 | ppl=11654.32 | 65.9s
+    chunk 140/145 | tokens=286580 | ppl=11640.81 | 71.0s
+  PPL = 11746.2442 (296815 tokens, 73.5s, key_MSE=50.070502)
+
+--- uniform_3bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=uniform, bits=3)
+    chunk 1/145 | tokens=2047 | ppl=10001.69 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=8791.88 | 5.1s
+    chunk 20/145 | tokens=40940 | ppl=8720.92 | 10.2s
+    chunk 30/145 | tokens=61410 | ppl=8824.61 | 15.2s
+    chunk 40/145 | tokens=81880 | ppl=9531.61 | 20.3s
+    chunk 50/145 | tokens=102350 | ppl=9484.94 | 25.4s
+    chunk 60/145 | tokens=122820 | ppl=10046.02 | 30.5s
+    chunk 70/145 | tokens=143290 | ppl=10727.13 | 35.5s
+    chunk 80/145 | tokens=163760 | ppl=10507.43 | 40.6s
+    chunk 90/145 | tokens=184230 | ppl=10494.83 | 45.7s
+    chunk 100/145 | tokens=204700 | ppl=10353.74 | 50.8s
+    chunk 110/145 | tokens=225170 | ppl=10410.99 | 55.9s
+    chunk 120/145 | tokens=245640 | ppl=10316.30 | 61.0s
+    chunk 130/145 | tokens=266110 | ppl=10331.57 | 66.0s
+    chunk 140/145 | tokens=286580 | ppl=10334.10 | 71.1s
+  PPL = 10401.5790 (296815 tokens, 73.7s, key_MSE=21.891253)
+
+--- uniform_4bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=uniform, bits=4)
+    chunk 1/145 | tokens=2047 | ppl=10319.64 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=10587.16 | 5.1s
+    chunk 20/145 | tokens=40940 | ppl=12394.85 | 10.2s
+    chunk 30/145 | tokens=61410 | ppl=12741.27 | 15.2s
+    chunk 40/145 | tokens=81880 | ppl=13234.00 | 20.3s
+    chunk 50/145 | tokens=102350 | ppl=12518.56 | 25.4s
+    chunk 60/145 | tokens=122820 | ppl=13095.76 | 30.5s
+    chunk 70/145 | tokens=143290 | ppl=13389.64 | 35.5s
+    chunk 80/145 | tokens=163760 | ppl=12947.08 | 40.6s
+    chunk 90/145 | tokens=184230 | ppl=12793.78 | 45.7s
+    chunk 100/145 | tokens=204700 | ppl=12460.13 | 50.8s
+    chunk 110/145 | tokens=225170 | ppl=12540.63 | 55.9s
+    chunk 120/145 | tokens=245640 | ppl=12740.62 | 60.9s
+    chunk 130/145 | tokens=266110 | ppl=12722.17 | 66.0s
+    chunk 140/145 | tokens=286580 | ppl=12674.39 | 71.1s
+  PPL = 12853.9584 (296815 tokens, 73.6s, key_MSE=3.333909)
+
+--- kivi_2bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=kivi, bits=2)
+    chunk 1/145 | tokens=2047 | ppl=80.90 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=64.45 | 5.1s
+    chunk 20/145 | tokens=40940 | ppl=68.44 | 10.2s
+    chunk 30/145 | tokens=61410 | ppl=73.18 | 15.3s
+    chunk 40/145 | tokens=81880 | ppl=68.26 | 20.4s
+    chunk 50/145 | tokens=102350 | ppl=73.69 | 25.5s
+    chunk 60/145 | tokens=122820 | ppl=71.00 | 30.6s
+    chunk 70/145 | tokens=143290 | ppl=71.53 | 35.7s
+    chunk 80/145 | tokens=163760 | ppl=71.78 | 40.8s
+    chunk 90/145 | tokens=184230 | ppl=70.46 | 45.9s
+    chunk 100/145 | tokens=204700 | ppl=75.64 | 51.0s
+    chunk 110/145 | tokens=225170 | ppl=75.20 | 56.1s
+    chunk 120/145 | tokens=245640 | ppl=75.21 | 61.2s
+    chunk 130/145 | tokens=266110 | ppl=73.24 | 66.3s
+    chunk 140/145 | tokens=286580 | ppl=71.99 | 71.4s
+  PPL = 72.6203 (296815 tokens, 74.0s, key_MSE=0.556381)
+
+--- kivi_3bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=kivi, bits=3)
+    chunk 1/145 | tokens=2047 | ppl=7.03 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=7.79 | 5.1s
+    chunk 20/145 | tokens=40940 | ppl=8.68 | 10.2s
+    chunk 30/145 | tokens=61410 | ppl=9.08 | 15.3s
+    chunk 40/145 | tokens=81880 | ppl=8.33 | 20.4s
+    chunk 50/145 | tokens=102350 | ppl=8.77 | 25.5s
+    chunk 60/145 | tokens=122820 | ppl=8.50 | 30.6s
+    chunk 70/145 | tokens=143290 | ppl=8.63 | 35.7s
+    chunk 80/145 | tokens=163760 | ppl=8.69 | 40.8s
+    chunk 90/145 | tokens=184230 | ppl=8.63 | 45.9s
+    chunk 100/145 | tokens=204700 | ppl=9.04 | 51.0s
+    chunk 110/145 | tokens=225170 | ppl=8.94 | 56.1s
+    chunk 120/145 | tokens=245640 | ppl=8.95 | 61.2s
+    chunk 130/145 | tokens=266110 | ppl=8.91 | 66.3s
+    chunk 140/145 | tokens=286580 | ppl=8.84 | 71.4s
+  PPL = 8.8739 (296815 tokens, 73.9s, key_MSE=0.110129)
+
+--- kivi_4bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=kivi, bits=4)
+    chunk 1/145 | tokens=2047 | ppl=5.93 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=6.77 | 5.1s
+    chunk 20/145 | tokens=40940 | ppl=7.62 | 10.2s
+    chunk 30/145 | tokens=61410 | ppl=7.92 | 15.3s
+    chunk 40/145 | tokens=81880 | ppl=7.30 | 20.4s
+    chunk 50/145 | tokens=102350 | ppl=7.69 | 25.5s
+    chunk 60/145 | tokens=122820 | ppl=7.49 | 30.6s
+    chunk 70/145 | tokens=143290 | ppl=7.62 | 35.7s
+    chunk 80/145 | tokens=163760 | ppl=7.68 | 40.8s
+    chunk 90/145 | tokens=184230 | ppl=7.64 | 45.9s
+    chunk 100/145 | tokens=204700 | ppl=8.00 | 51.0s
+    chunk 110/145 | tokens=225170 | ppl=7.87 | 56.1s
+    chunk 120/145 | tokens=245640 | ppl=7.90 | 61.2s
+    chunk 130/145 | tokens=266110 | ppl=7.87 | 66.3s
+    chunk 140/145 | tokens=286580 | ppl=7.82 | 71.4s
+  PPL = 7.8417 (296815 tokens, 73.9s, key_MSE=0.023892)
+
+--- quip_2bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=quip, bits=2)
+    chunk 1/145 | tokens=2047 | ppl=219.42 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=131.91 | 5.4s
+    chunk 20/145 | tokens=40940 | ppl=140.41 | 10.9s
+    chunk 30/145 | tokens=61410 | ppl=156.58 | 16.3s
+    chunk 40/145 | tokens=81880 | ppl=143.95 | 21.7s
+    chunk 50/145 | tokens=102350 | ppl=156.51 | 27.2s
+    chunk 60/145 | tokens=122820 | ppl=145.57 | 32.6s
+    chunk 70/145 | tokens=143290 | ppl=147.40 | 38.0s
+    chunk 80/145 | tokens=163760 | ppl=152.10 | 43.5s
+    chunk 90/145 | tokens=184230 | ppl=149.38 | 48.9s
+    chunk 100/145 | tokens=204700 | ppl=163.65 | 54.3s
+    chunk 110/145 | tokens=225170 | ppl=159.47 | 59.8s
+    chunk 120/145 | tokens=245640 | ppl=161.50 | 65.2s
+    chunk 130/145 | tokens=266110 | ppl=157.44 | 70.6s
+    chunk 140/145 | tokens=286580 | ppl=155.19 | 76.1s
+  PPL = 157.5566 (296815 tokens, 78.8s, key_MSE=0.689538)
+
+--- quip_3bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=quip, bits=3)
+    chunk 1/145 | tokens=2047 | ppl=7.95 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=8.72 | 5.4s
+    chunk 20/145 | tokens=40940 | ppl=9.72 | 10.9s
+    chunk 30/145 | tokens=61410 | ppl=10.23 | 16.3s
+    chunk 40/145 | tokens=81880 | ppl=9.39 | 21.8s
+    chunk 50/145 | tokens=102350 | ppl=9.94 | 27.2s
+    chunk 60/145 | tokens=122820 | ppl=9.56 | 32.7s
+    chunk 70/145 | tokens=143290 | ppl=9.71 | 38.1s
+    chunk 80/145 | tokens=163760 | ppl=9.80 | 43.6s
+    chunk 90/145 | tokens=184230 | ppl=9.72 | 49.0s
+    chunk 100/145 | tokens=204700 | ppl=10.21 | 54.5s
+    chunk 110/145 | tokens=225170 | ppl=10.09 | 59.9s
+    chunk 120/145 | tokens=245640 | ppl=10.08 | 65.4s
+    chunk 130/145 | tokens=266110 | ppl=10.01 | 70.8s
+    chunk 140/145 | tokens=286580 | ppl=9.92 | 76.3s
+  PPL = 9.9678 (296815 tokens, 79.0s, key_MSE=0.138835)
+
+--- quip_4bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=quip, bits=4)
+    chunk 1/145 | tokens=2047 | ppl=6.26 | 0.5s
+    chunk 10/145 | tokens=20470 | ppl=6.95 | 5.4s
+    chunk 20/145 | tokens=40940 | ppl=7.80 | 10.9s
+    chunk 30/145 | tokens=61410 | ppl=8.12 | 16.3s
+    chunk 40/145 | tokens=81880 | ppl=7.47 | 21.8s
+    chunk 50/145 | tokens=102350 | ppl=7.86 | 27.2s
+    chunk 60/145 | tokens=122820 | ppl=7.65 | 32.7s
+    chunk 70/145 | tokens=143290 | ppl=7.78 | 38.1s
+    chunk 80/145 | tokens=163760 | ppl=7.84 | 43.5s
+    chunk 90/145 | tokens=184230 | ppl=7.80 | 49.0s
+    chunk 100/145 | tokens=204700 | ppl=8.16 | 54.5s
+    chunk 110/145 | tokens=225170 | ppl=8.04 | 59.9s
+    chunk 120/145 | tokens=245640 | ppl=8.06 | 65.4s
+    chunk 130/145 | tokens=266110 | ppl=8.03 | 70.8s
+    chunk 140/145 | tokens=286580 | ppl=7.97 | 76.3s
+  PPL = 7.9972 (296815 tokens, 79.0s, key_MSE=0.030135)
+
+--- kvquant_2bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=kvquant, bits=2)
+    chunk 1/145 | tokens=2047 | ppl=8.94 | 100.3s
+    chunk 10/145 | tokens=20470 | ppl=9.61 | 2339.3s

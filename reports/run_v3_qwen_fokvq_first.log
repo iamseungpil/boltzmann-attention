@@ -1,0 +1,98 @@
+=== Qwen v3 FOKVQ-first Start: 2026. 04. 02. (목) 17:59:12 KST ===
+`torch_dtype` is deprecated! Use `dtype` instead!
+========================================================================
+FOKVQ Exp 4-2 v3: Full KV Cache Quantization PPL Benchmark
+Date: 2026-04-02 17:59:13
+Model: Qwen/Qwen2.5-7B (qwen2.5-7b-fokvq)
+Device: cuda:0, dtype: torch.bfloat16
+Chunk length: 2048 (non-overlapping)
+Protocol: post_rope
+Methods: ['fokvq', 'fokvq_qw', 'fokvq_e2', 'fokvq_e3', 'fokvq_full'], Bits: [2, 3, 4]
+FOKVQ gamma: 0.3
+========================================================================
+
+KEY DIFFERENCE vs v2:
+  v2: sliding window, only prefix K quantized (50% of window)
+  v3: non-overlapping chunks, ALL K quantized via hooks (100%)
+
+Loading model...
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:29, 11.30it/s]Loading weights:   9%|▊         | 29/339 [00:00<00:02, 120.84it/s]Loading weights:  16%|█▌        | 54/339 [00:00<00:01, 167.38it/s]Loading weights:  25%|██▍       | 84/339 [00:00<00:01, 212.92it/s]Loading weights:  33%|███▎      | 112/339 [00:00<00:01, 226.07it/s]Loading weights:  41%|████      | 138/339 [00:00<00:00, 235.95it/s]Loading weights:  51%|█████     | 172/339 [00:00<00:00, 261.80it/s]Loading weights:  59%|█████▊    | 199/339 [00:00<00:00, 252.19it/s]Loading weights:  68%|██████▊   | 232/339 [00:01<00:00, 268.76it/s]Loading weights:  77%|███████▋  | 260/339 [00:01<00:00, 258.91it/s]Loading weights:  86%|████████▌ | 291/339 [00:01<00:00, 267.37it/s]Loading weights:  94%|█████████▍| 318/339 [00:01<00:00, 255.56it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 236.78it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Token indices sequence length is longer than the specified maximum sequence length for this model (298938 > 131072). Running this sequence through the model will result in indexing errors
+  layers=28, heads=28, kv_heads=4, d_head=128
+
+========================================================================
+MODE: WikiText-2 PPL (v3: 100% K quantized)
+========================================================================
+
+Loading WikiText-2...
+  WikiText-2 test: 4358 lines -> 298938 tokens
+
+--- fokvq_2bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=fokvq, bits=2)
+    chunk 1/145 | tokens=2047 | ppl=58.79 | 4.1s
+    chunk 10/145 | tokens=20470 | ppl=54.90 | 38.1s
+    chunk 20/145 | tokens=40940 | ppl=61.14 | 75.9s
+    chunk 30/145 | tokens=61410 | ppl=64.09 | 113.8s
+    chunk 40/145 | tokens=81880 | ppl=56.51 | 151.7s
+    chunk 50/145 | tokens=102350 | ppl=60.46 | 189.5s
+    chunk 60/145 | tokens=122820 | ppl=55.65 | 227.4s
+    chunk 70/145 | tokens=143290 | ppl=56.53 | 265.2s
+    chunk 80/145 | tokens=163760 | ppl=56.78 | 303.0s
+    chunk 90/145 | tokens=184230 | ppl=55.63 | 340.9s
+    chunk 100/145 | tokens=204700 | ppl=59.34 | 378.7s
+    chunk 110/145 | tokens=225170 | ppl=58.38 | 416.6s
+    chunk 120/145 | tokens=245640 | ppl=57.80 | 454.4s
+    chunk 130/145 | tokens=266110 | ppl=56.95 | 492.2s
+    chunk 140/145 | tokens=286580 | ppl=56.75 | 530.1s
+  PPL = 56.9985 (296815 tokens, 549.0s, key_MSE=0.853286)
+
+--- fokvq_3bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=fokvq, bits=3)
+    chunk 1/145 | tokens=2047 | ppl=8.36 | 3.8s
+    chunk 10/145 | tokens=20470 | ppl=9.35 | 37.8s
+    chunk 20/145 | tokens=40940 | ppl=10.57 | 75.6s
+    chunk 30/145 | tokens=61410 | ppl=10.88 | 113.4s
+    chunk 40/145 | tokens=81880 | ppl=9.93 | 151.2s
+    chunk 50/145 | tokens=102350 | ppl=10.34 | 189.0s
+    chunk 60/145 | tokens=122820 | ppl=9.97 | 226.8s
+    chunk 70/145 | tokens=143290 | ppl=10.18 | 264.6s
+    chunk 80/145 | tokens=163760 | ppl=10.23 | 302.4s
+    chunk 90/145 | tokens=184230 | ppl=10.12 | 340.3s
+    chunk 100/145 | tokens=204700 | ppl=10.55 | 378.0s
+    chunk 110/145 | tokens=225170 | ppl=10.43 | 415.9s
+    chunk 120/145 | tokens=245640 | ppl=10.42 | 453.7s
+    chunk 130/145 | tokens=266110 | ppl=10.36 | 491.5s
+    chunk 140/145 | tokens=286580 | ppl=10.27 | 529.3s
+  PPL = 10.3131 (296815 tokens, 548.2s, key_MSE=0.123799)
+
+--- fokvq_4bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=fokvq, bits=4)
+    chunk 1/145 | tokens=2047 | ppl=6.28 | 3.8s
+    chunk 10/145 | tokens=20470 | ppl=7.14 | 37.8s
+    chunk 20/145 | tokens=40940 | ppl=8.01 | 75.6s
+    chunk 30/145 | tokens=61410 | ppl=8.33 | 113.5s
+    chunk 40/145 | tokens=81880 | ppl=7.65 | 151.3s
+    chunk 50/145 | tokens=102350 | ppl=8.07 | 189.1s
+    chunk 60/145 | tokens=122820 | ppl=7.83 | 226.9s
+    chunk 70/145 | tokens=143290 | ppl=7.98 | 264.8s
+    chunk 80/145 | tokens=163760 | ppl=8.05 | 302.6s
+    chunk 90/145 | tokens=184230 | ppl=8.00 | 340.4s
+    chunk 100/145 | tokens=204700 | ppl=8.37 | 378.3s
+    chunk 110/145 | tokens=225170 | ppl=8.27 | 416.1s
+    chunk 120/145 | tokens=245640 | ppl=8.29 | 453.9s
+    chunk 130/145 | tokens=266110 | ppl=8.25 | 491.8s
+    chunk 140/145 | tokens=286580 | ppl=8.18 | 529.6s
+  PPL = 8.2108 (296815 tokens, 548.5s, key_MSE=0.030933)
+
+--- fokvq_qw_2bit (post_rope) ---
+  Patched 28 attention modules (type=qwen2, method=fokvq_qw, bits=2)
+    chunk 1/145 | tokens=2047 | ppl=853.63 | 4.3s
+    chunk 10/145 | tokens=20470 | ppl=666.49 | 42.9s
+    chunk 20/145 | tokens=40940 | ppl=632.06 | 85.8s
+    chunk 30/145 | tokens=61410 | ppl=789.53 | 128.7s
+    chunk 40/145 | tokens=81880 | ppl=708.25 | 171.6s
+    chunk 50/145 | tokens=102350 | ppl=713.74 | 214.6s
+    chunk 60/145 | tokens=122820 | ppl=681.18 | 257.5s
+    chunk 70/145 | tokens=143290 | ppl=691.51 | 300.3s
+    chunk 80/145 | tokens=163760 | ppl=690.40 | 343.2s

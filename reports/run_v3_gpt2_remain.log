@@ -1,0 +1,129 @@
+=== GPT-2 v3 REMAINING methods Start: 2026. 04. 02. (목) 17:58:04 KST ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+========================================================================
+FOKVQ Exp 4-2 v3: Full KV Cache Quantization PPL Benchmark
+Date: 2026-04-02 17:58:05
+Model: gpt2-medium (gpt2-medium-remain)
+Device: cuda:1, dtype: torch.float16
+Chunk length: 1024 (non-overlapping)
+Protocol: post_rope
+Methods: ['quip', 'kvquant', 'gear', 'zipcache', 'turboquant', 'fokvq_e2', 'fokvq_e3', 'fokvq_full'], Bits: [2, 3, 4]
+FOKVQ gamma: 0.3
+========================================================================
+
+KEY DIFFERENCE vs v2:
+  v2: sliding window, only prefix K quantized (50% of window)
+  v3: non-overlapping chunks, ALL K quantized via hooks (100%)
+
+Loading model...
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3071.51it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (283287 > 1024). Running this sequence through the model will result in indexing errors
+  layers=24, heads=16, kv_heads=16, d_head=64
+
+========================================================================
+MODE: WikiText-2 PPL (v3: 100% K quantized)
+========================================================================
+
+Loading WikiText-2...
+  WikiText-2 test: 4358 lines -> 283287 tokens
+
+--- quip_2bit (post_rope) ---
+  Patched 24 attention modules (type=gpt2, method=quip, bits=2)
+    chunk 1/276 | tokens=1023 | ppl=75.91 | 0.6s
+    chunk 10/276 | tokens=10230 | ppl=112.17 | 2.8s
+    chunk 20/276 | tokens=20460 | ppl=97.99 | 5.1s
+    chunk 30/276 | tokens=30690 | ppl=95.45 | 7.5s
+    chunk 40/276 | tokens=40920 | ppl=95.21 | 9.9s
+    chunk 50/276 | tokens=51150 | ppl=99.24 | 12.3s
+    chunk 60/276 | tokens=61380 | ppl=97.25 | 14.6s
+    chunk 70/276 | tokens=71610 | ppl=92.62 | 17.0s
+    chunk 80/276 | tokens=81840 | ppl=89.07 | 19.4s
+    chunk 90/276 | tokens=92070 | ppl=94.63 | 21.8s
+    chunk 100/276 | tokens=102300 | ppl=94.63 | 24.2s
+    chunk 110/276 | tokens=112530 | ppl=92.80 | 26.6s
+    chunk 120/276 | tokens=122760 | ppl=92.93 | 29.0s
+    chunk 130/276 | tokens=132990 | ppl=90.61 | 31.4s
+    chunk 140/276 | tokens=143220 | ppl=90.45 | 33.8s
+    chunk 150/276 | tokens=153450 | ppl=89.99 | 36.2s
+    chunk 160/276 | tokens=163680 | ppl=89.26 | 38.6s
+    chunk 170/276 | tokens=173910 | ppl=89.70 | 41.0s
+    chunk 180/276 | tokens=184140 | ppl=93.13 | 43.4s
+    chunk 190/276 | tokens=194370 | ppl=94.61 | 45.8s
+    chunk 200/276 | tokens=204600 | ppl=94.28 | 48.2s
+    chunk 210/276 | tokens=214830 | ppl=94.22 | 50.7s
+    chunk 220/276 | tokens=225060 | ppl=94.32 | 53.1s
+    chunk 230/276 | tokens=235290 | ppl=94.48 | 55.4s
+    chunk 240/276 | tokens=245520 | ppl=94.17 | 57.8s
+    chunk 250/276 | tokens=255750 | ppl=94.09 | 60.3s
+    chunk 260/276 | tokens=265980 | ppl=94.29 | 62.7s
+    chunk 270/276 | tokens=276210 | ppl=94.07 | 65.1s
+  PPL = 94.5450 (282348 tokens, 66.5s, key_MSE=0.887797)
+
+--- quip_3bit (post_rope) ---
+  Patched 24 attention modules (type=gpt2, method=quip, bits=3)
+    chunk 1/276 | tokens=1023 | ppl=13.45 | 0.2s
+    chunk 10/276 | tokens=10230 | ppl=26.92 | 2.4s
+    chunk 20/276 | tokens=20460 | ppl=25.06 | 4.8s
+    chunk 30/276 | tokens=30690 | ppl=25.58 | 7.2s
+    chunk 40/276 | tokens=40920 | ppl=25.82 | 9.5s
+    chunk 50/276 | tokens=51150 | ppl=26.58 | 11.9s
+    chunk 60/276 | tokens=61380 | ppl=25.96 | 14.4s
+    chunk 70/276 | tokens=71610 | ppl=24.92 | 16.7s
+    chunk 80/276 | tokens=81840 | ppl=23.69 | 19.1s
+    chunk 90/276 | tokens=92070 | ppl=24.83 | 21.5s
+    chunk 100/276 | tokens=102300 | ppl=24.69 | 23.9s
+    chunk 110/276 | tokens=112530 | ppl=24.22 | 26.3s
+    chunk 120/276 | tokens=122760 | ppl=24.39 | 28.7s
+    chunk 130/276 | tokens=132990 | ppl=23.81 | 31.1s
+    chunk 140/276 | tokens=143220 | ppl=23.74 | 33.5s
+    chunk 150/276 | tokens=153450 | ppl=23.66 | 35.9s
+    chunk 160/276 | tokens=163680 | ppl=23.49 | 38.3s
+    chunk 170/276 | tokens=173910 | ppl=23.31 | 40.7s
+    chunk 180/276 | tokens=184140 | ppl=23.88 | 43.1s
+    chunk 190/276 | tokens=194370 | ppl=24.09 | 45.4s
+    chunk 200/276 | tokens=204600 | ppl=24.02 | 47.9s
+    chunk 210/276 | tokens=214830 | ppl=24.10 | 50.3s
+    chunk 220/276 | tokens=225060 | ppl=24.13 | 52.7s
+    chunk 230/276 | tokens=235290 | ppl=24.12 | 55.0s
+    chunk 240/276 | tokens=245520 | ppl=24.09 | 57.4s
+    chunk 250/276 | tokens=255750 | ppl=24.13 | 59.8s
+    chunk 260/276 | tokens=265980 | ppl=24.15 | 62.2s
+    chunk 270/276 | tokens=276210 | ppl=24.10 | 64.6s
+  PPL = 24.1853 (282348 tokens, 66.0s, key_MSE=0.165538)
+
+--- quip_4bit (post_rope) ---
+  Patched 24 attention modules (type=gpt2, method=quip, bits=4)
+    chunk 1/276 | tokens=1023 | ppl=12.80 | 0.2s
+    chunk 10/276 | tokens=10230 | ppl=24.34 | 2.4s
+    chunk 20/276 | tokens=20460 | ppl=22.50 | 4.8s
+    chunk 30/276 | tokens=30690 | ppl=23.07 | 7.2s
+    chunk 40/276 | tokens=40920 | ppl=23.24 | 9.5s
+    chunk 50/276 | tokens=51150 | ppl=23.90 | 11.9s
+    chunk 60/276 | tokens=61380 | ppl=23.32 | 14.3s
+    chunk 70/276 | tokens=71610 | ppl=22.41 | 16.7s
+    chunk 80/276 | tokens=81840 | ppl=21.29 | 19.1s
+    chunk 90/276 | tokens=92070 | ppl=22.33 | 21.5s
+    chunk 100/276 | tokens=102300 | ppl=22.20 | 23.9s
+    chunk 110/276 | tokens=112530 | ppl=21.80 | 26.3s
+    chunk 120/276 | tokens=122760 | ppl=21.96 | 28.7s
+    chunk 130/276 | tokens=132990 | ppl=21.43 | 31.1s
+    chunk 140/276 | tokens=143220 | ppl=21.35 | 33.5s
+    chunk 150/276 | tokens=153450 | ppl=21.27 | 35.9s
+    chunk 160/276 | tokens=163680 | ppl=21.13 | 38.3s
+    chunk 170/276 | tokens=173910 | ppl=20.97 | 40.6s
+    chunk 180/276 | tokens=184140 | ppl=21.46 | 43.0s
+    chunk 190/276 | tokens=194370 | ppl=21.62 | 45.4s
+    chunk 200/276 | tokens=204600 | ppl=21.57 | 47.8s
+    chunk 210/276 | tokens=214830 | ppl=21.65 | 50.2s
+    chunk 220/276 | tokens=225060 | ppl=21.67 | 52.6s
+    chunk 230/276 | tokens=235290 | ppl=21.67 | 55.0s
+    chunk 240/276 | tokens=245520 | ppl=21.65 | 57.4s
+    chunk 250/276 | tokens=255750 | ppl=21.67 | 59.8s
+    chunk 260/276 | tokens=265980 | ppl=21.69 | 62.1s
+    chunk 270/276 | tokens=276210 | ppl=21.65 | 64.5s
+  PPL = 21.7251 (282348 tokens, 65.9s, key_MSE=0.035493)
+
+--- kvquant_2bit (post_rope) ---
+  Patched 24 attention modules (type=gpt2, method=kvquant, bits=2)
+    chunk 1/276 | tokens=1023 | ppl=31.33 | 642.9s
