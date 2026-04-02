@@ -1,0 +1,826 @@
+=== Qwen v3+E1+E2+E3 Start: 2026. 04. 02. (목) 15:03:34 KST ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+========================================================================
+FOKVQ Exp 4-2 v3: Full KV Cache Quantization PPL Benchmark
+Date: 2026-04-02 15:03:36
+Model: Qwen/Qwen2.5-7B (qwen2.5-7b)
+Device: cuda:0, dtype: torch.bfloat16
+Chunk length: 2048 (non-overlapping)
+Protocol: post_rope
+Methods: ['fp16', 'uniform', 'kivi', 'fokvq', 'fokvq_qw', 'fokvq_e2', 'fokvq_e3', 'fokvq_full'], Bits: [2, 3, 4]
+FOKVQ gamma: 0.3
+========================================================================
+
+KEY DIFFERENCE vs v2:
+  v2: sliding window, only prefix K quantized (50% of window)
+  v3: non-overlapping chunks, ALL K quantized via hooks (100%)
+
+Loading model...
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:29, 11.39it/s]Loading weights:   9%|▊         | 29/339 [00:00<00:02, 123.00it/s]Loading weights:  16%|█▌        | 54/339 [00:00<00:01, 171.26it/s]Loading weights:  25%|██▍       | 84/339 [00:00<00:01, 215.92it/s]Loading weights:  32%|███▏      | 108/339 [00:00<00:01, 211.93it/s]Loading weights:  40%|███▉      | 135/339 [00:00<00:00, 225.11it/s]Loading weights:  48%|████▊     | 162/339 [00:00<00:00, 229.49it/s]Loading weights:  58%|█████▊    | 196/339 [00:00<00:00, 244.99it/s]Loading weights:  65%|██████▌   | 222/339 [00:01<00:00, 246.99it/s]Loading weights:  73%|███████▎  | 249/339 [00:01<00:00, 253.39it/s]Loading weights:  83%|████████▎ | 280/339 [00:01<00:00, 263.08it/s]Loading weights:  91%|█████████ | 307/339 [00:01<00:00, 256.29it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 231.57it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (298938 > 131072). Running this sequence through the model will result in indexing errors
+  layers=28, heads=28, kv_heads=4, d_head=128
+
+Loading WikiText-2...
+  WikiText-2 test: 4358 lines -> 298938 tokens
+
+--- FP16 Baseline ---
+    chunk 1/145 | tokens=2047 | ppl=5.82 | 0.7s
+    chunk 10/145 | tokens=20470 | ppl=6.60 | 5.1s
+    chunk 20/145 | tokens=40940 | ppl=7.45 | 9.9s
+    chunk 30/145 | tokens=61410 | ppl=7.76 | 14.8s
+    chunk 40/145 | tokens=81880 | ppl=7.15 | 19.7s
+    chunk 50/145 | tokens=102350 | ppl=7.54 | 24.6s
+    chunk 60/145 | tokens=122820 | ppl=7.34 | 29.5s
+    chunk 70/145 | tokens=143290 | ppl=7.47 | 34.4s
+    chunk 80/145 | tokens=163760 | ppl=7.53 | 39.3s
+    chunk 90/145 | tokens=184230 | ppl=7.50 | 44.3s
+    chunk 100/145 | tokens=204700 | ppl=7.84 | 49.2s
+    chunk 110/145 | tokens=225170 | ppl=7.71 | 54.1s
+    chunk 120/145 | tokens=245640 | ppl=7.73 | 59.1s
+    chunk 130/145 | tokens=266110 | ppl=7.71 | 64.1s
+    chunk 140/145 | tokens=286580 | ppl=7.66 | 69.0s
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1598, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1279, in evaluate_method
+    result = evaluate_ppl_chunked(model, input_ids, chunk_len)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1205, in evaluate_ppl_chunked
+    outputs = model(chunk, use_cache=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 857, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 462, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 931, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 399, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 293, in forward
+    hidden_states, _ = self.self_attn(
+    ^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 1)

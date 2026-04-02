@@ -1,0 +1,212 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+========================================================================
+FOKVQ Exp 4-2 v3: Full KV Cache Quantization PPL Benchmark
+Date: 2026-04-02 14:28:28
+Model: gpt2-medium (gpt2-medium)
+Device: cuda:0, dtype: torch.float16
+Chunk length: 1024 (non-overlapping)
+Protocol: post_rope
+Methods: ['fp16', 'uniform', 'kivi', 'fokvq'], Bits: [2, 3, 4]
+FOKVQ gamma: 0.3
+========================================================================
+
+KEY DIFFERENCE vs v2:
+  v2: sliding window, only prefix K quantized (50% of window)
+  v3: non-overlapping chunks, ALL K quantized via hooks (100%)
+
+Loading model...
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3078.51it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (283287 > 1024). Running this sequence through the model will result in indexing errors
+  layers=24, heads=16, kv_heads=16, d_head=64
+
+Loading WikiText-2...
+  WikiText-2 test: 4358 lines -> 283287 tokens
+
+--- FP16 Baseline ---
+    chunk 1/276 | tokens=1023 | ppl=12.50 | 0.2s
+    chunk 10/276 | tokens=10230 | ppl=23.92 | 0.5s
+    chunk 20/276 | tokens=20460 | ppl=22.13 | 0.9s
+    chunk 30/276 | tokens=30690 | ppl=22.71 | 1.2s
+    chunk 40/276 | tokens=40920 | ppl=22.87 | 1.6s
+    chunk 50/276 | tokens=51150 | ppl=23.52 | 1.9s
+    chunk 60/276 | tokens=61380 | ppl=22.96 | 2.3s
+    chunk 70/276 | tokens=71610 | ppl=22.07 | 2.6s
+    chunk 80/276 | tokens=81840 | ppl=20.98 | 3.0s
+    chunk 90/276 | tokens=92070 | ppl=21.99 | 3.3s
+    chunk 100/276 | tokens=102300 | ppl=21.87 | 3.7s
+    chunk 110/276 | tokens=112530 | ppl=21.48 | 4.0s
+    chunk 120/276 | tokens=122760 | ppl=21.63 | 4.3s
+    chunk 130/276 | tokens=132990 | ppl=21.11 | 4.7s
+    chunk 140/276 | tokens=143220 | ppl=21.02 | 5.0s
+    chunk 150/276 | tokens=153450 | ppl=20.95 | 5.4s
+    chunk 160/276 | tokens=163680 | ppl=20.81 | 5.7s
+    chunk 170/276 | tokens=173910 | ppl=20.65 | 6.1s
+    chunk 180/276 | tokens=184140 | ppl=21.12 | 6.4s
+    chunk 190/276 | tokens=194370 | ppl=21.28 | 6.7s
+    chunk 200/276 | tokens=204600 | ppl=21.23 | 7.1s
+    chunk 210/276 | tokens=214830 | ppl=21.30 | 7.4s
+    chunk 220/276 | tokens=225060 | ppl=21.32 | 7.8s
+    chunk 230/276 | tokens=235290 | ppl=21.31 | 8.1s
+    chunk 240/276 | tokens=245520 | ppl=21.29 | 8.4s
+    chunk 250/276 | tokens=255750 | ppl=21.31 | 8.8s
+    chunk 260/276 | tokens=265980 | ppl=21.33 | 9.1s
+    chunk 270/276 | tokens=276210 | ppl=21.29 | 9.5s
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 1060, in run
+    result = evaluate_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/vllm_env/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 868, in evaluate_method
+    patcher.patch()
+  File "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/exp4_2_v3_full_quant_ppl.py", line 498, in patch
+    raise RuntimeError("No attention modules found")
+RuntimeError: No attention modules found
+  PPL = 21.3606 (282348 tokens, 9.7s)
+
+--- uniform_2bit (post_rope) ---
+  ERROR: No attention modules found
+
+--- uniform_3bit (post_rope) ---
+  ERROR: No attention modules found
+
+--- uniform_4bit (post_rope) ---
+  ERROR: No attention modules found
+
+--- kivi_2bit (post_rope) ---
+  ERROR: No attention modules found
+
+--- kivi_3bit (post_rope) ---
+  ERROR: No attention modules found
+
+--- kivi_4bit (post_rope) ---
+  ERROR: No attention modules found
+
+--- fokvq_2bit (post_rope) ---
+  ERROR: No attention modules found
+
+--- fokvq_3bit (post_rope) ---
+  ERROR: No attention modules found
+
+--- fokvq_4bit (post_rope) ---
+  ERROR: No attention modules found
+
+Results written to results/v3/gpt2-medium_full_quant_ppl_v3.json
+
+========================================================================
+SUMMARY (v3: 100% K quantized)
+========================================================================
+  FP16 baseline: 21.36
+  Protocol: post_rope
+  Method             2bit       3bit       4bit
+  ------------ ---------- ---------- ----------
+  uniform             N/A        N/A        N/A
+  kivi                N/A        N/A        N/A
+  fokvq               N/A        N/A        N/A
+========================================================================
+
+EXPECTED CHANGES vs v2 (50% prefix-only quantization):
+  - Larger PPL degradation at low bits (full quantization effect visible)
+  - GPT-2 3bit: expect > +0.4% (was diluted in v2)
+  - Qwen 3bit: expect similar or larger than +24%
+  - Qwen 4bit: expect similar or larger than +1.5%
+  - Key insight: if v3 results are similar to v2, the 50% dilution
+    was already minor (good for the paper)
