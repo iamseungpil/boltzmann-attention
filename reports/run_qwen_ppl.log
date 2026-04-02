@@ -127,3 +127,63 @@ Loading WikiText-2...
     win=20 | tokens=21503 | ppl=10.97 | 41.1s
     win=40 | tokens=41983 | ppl=12.89 | 84.1s
     win=60 | tokens=62463 | ppl=14.11 | 126.8s
+    win=80 | tokens=82943 | ppl=13.26 | 169.8s
+    win=100 | tokens=103423 | ppl=14.26 | 212.7s
+    win=120 | tokens=123903 | ppl=13.62 | 255.5s
+    win=140 | tokens=144383 | ppl=13.76 | 298.2s
+    win=160 | tokens=164863 | ppl=13.85 | 340.9s
+    win=180 | tokens=185343 | ppl=13.77 | 383.5s
+    win=200 | tokens=205823 | ppl=14.66 | 426.2s
+    win=220 | tokens=226303 | ppl=14.51 | 469.0s
+    win=240 | tokens=246783 | ppl=14.48 | 511.6s
+    win=260 | tokens=267263 | ppl=14.30 | 554.3s
+    win=280 | tokens=287743 | ppl=14.20 | 597.1s
+  PPL = 14.3390 (298937 tokens, 620.4s, key_MSE=0.685154)
+
+--- fokvq_3bit ---
+    win=20 | tokens=21503 | ppl=7.00 | 41.1s
+    win=40 | tokens=41983 | ppl=7.98 | 83.7s
+    win=60 | tokens=62463 | ppl=8.40 | 126.5s
+    win=80 | tokens=82943 | ppl=7.77 | 169.2s
+    win=100 | tokens=103423 | ppl=8.21 | 212.1s
+    win=120 | tokens=123903 | ppl=7.92 | 255.1s
+    win=140 | tokens=144383 | ppl=8.06 | 298.0s
+    win=160 | tokens=164863 | ppl=8.13 | 340.9s
+    win=180 | tokens=185343 | ppl=8.08 | 383.9s
+    win=200 | tokens=205823 | ppl=8.47 | 426.8s
+    win=220 | tokens=226303 | ppl=8.38 | 469.4s
+    win=240 | tokens=246783 | ppl=8.39 | 512.3s
+    win=260 | tokens=267263 | ppl=8.33 | 555.0s
+    win=280 | tokens=287743 | ppl=8.28 | 597.8s
+  PPL = 8.3219 (298937 tokens, 621.4s, key_MSE=0.094190)
+
+--- fokvq_4bit ---
+    win=20 | tokens=21503 | ppl=6.14 | 41.1s
+    win=40 | tokens=41983 | ppl=6.83 | 83.8s
+    win=60 | tokens=62463 | ppl=7.20 | 126.6s
+    win=80 | tokens=82943 | ppl=6.63 | 169.5s
+    win=100 | tokens=103423 | ppl=7.00 | 212.2s
+    win=120 | tokens=123903 | ppl=6.79 | 255.0s
+    win=140 | tokens=144383 | ppl=6.91 | 297.7s
+    win=160 | tokens=164863 | ppl=6.97 | 340.7s
+    win=180 | tokens=185343 | ppl=6.93 | 383.7s
+    win=200 | tokens=205823 | ppl=7.24 | 426.3s
+    win=220 | tokens=226303 | ppl=7.13 | 469.0s
+    win=240 | tokens=246783 | ppl=7.15 | 512.0s
+    win=260 | tokens=267263 | ppl=7.11 | 554.6s
+    win=280 | tokens=287743 | ppl=7.08 | 597.6s
+  PPL = 7.0983 (298937 tokens, 621.1s, key_MSE=0.022685)
+
+Results written to results/qwen2.5-7b_standard_ppl_v2.json
+
+========================================================================
+SUMMARY
+========================================================================
+  FP16 baseline: 7.00
+  Method           2bit     3bit     4bit
+  ------------ -------- -------- --------
+  uniform       3282.52  3419.53  3308.63
+  kivi            14.53     7.28     7.05
+  fokvq           14.34     8.32     7.10
+========================================================================
+=== End: 2026. 04. 02. (목) 12:12:51 KST ===

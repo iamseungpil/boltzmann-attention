@@ -1,0 +1,91 @@
+{
+  "experiment": "exp4_2_v3_full_quant_ppl",
+  "model_key": "qwen2.5-7b",
+  "model_name": "Qwen/Qwen2.5-7B",
+  "device": "cuda:0",
+  "dtype": "torch.bfloat16",
+  "chunk_len": 2048,
+  "protocol": "post_rope",
+  "fokvq_gamma": 0.3,
+  "methods": [
+    "fp16",
+    "uniform",
+    "kivi",
+    "fokvq",
+    "fokvq_qw"
+  ],
+  "bits": [
+    2,
+    3,
+    4
+  ],
+  "total_tokens_in_corpus": 298938,
+  "key_difference_vs_v2": "100% K quantization via hooks (v2 was 50% prefix-only)",
+  "results": {
+    "fp16": {
+      "ppl": 7.680323028670486,
+      "total_nll": 605105.3449707031,
+      "total_tokens": 296815,
+      "n_chunks": 145,
+      "runtime_s": 72.13417458534241
+    },
+    "uniform": {
+      "2": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      }
+    },
+    "kivi": {
+      "2": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      }
+    },
+    "fokvq": {
+      "2": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      }
+    },
+    "fokvq_qw": {
+      "2": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "'Qwen2Attention' object has no attribute 'num_heads'"
+      }
+    }
+  },
+  "runtime_s": 73.9615523815155,
+  "peak_memory_gib": 17.09672260284424
+}

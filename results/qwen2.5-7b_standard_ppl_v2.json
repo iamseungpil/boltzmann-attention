@@ -1,0 +1,115 @@
+{
+  "experiment": "exp4_2_standard_ppl_benchmark_v2",
+  "model_key": "qwen2.5-7b",
+  "model_name": "Qwen/Qwen2.5-7B",
+  "device": "cuda:0",
+  "dtype": "torch.bfloat16",
+  "context_len": 2048,
+  "stride": 1024,
+  "fokvq_gamma": 0.3,
+  "methods": [
+    "fp16",
+    "uniform",
+    "kivi",
+    "fokvq"
+  ],
+  "bits": [
+    2,
+    3,
+    4
+  ],
+  "total_tokens_in_corpus": 298938,
+  "fixes_vs_v1": [
+    "PCA centering (mean subtract before projection, restore after inverse)",
+    "Continuous bit allocation (eigenvalue^gamma, not binary top-k split)",
+    "Asymmetric min-max quantization (not symmetric around zero)"
+  ],
+  "results": {
+    "fp16": {
+      "ppl": 6.999612652855901,
+      "total_nll": 581688.0,
+      "total_tokens": 298937,
+      "runtime_s": 141.282151222229
+    },
+    "uniform": {
+      "2": {
+        "ppl": 3282.5247005799215,
+        "total_nll": 2420304.0,
+        "total_tokens": 298937,
+        "runtime_s": 152.60105633735657,
+        "avg_key_mse": 49.9172933671128,
+        "n_windows": 291
+      },
+      "3": {
+        "ppl": 3419.5344332754753,
+        "total_nll": 2432528.0,
+        "total_tokens": 298937,
+        "runtime_s": 152.55131602287292,
+        "avg_key_mse": 21.851383141953075,
+        "n_windows": 291
+      },
+      "4": {
+        "ppl": 3308.6301560551065,
+        "total_nll": 2422672.0,
+        "total_tokens": 298937,
+        "runtime_s": 152.49346804618835,
+        "avg_key_mse": 3.4537513780618645,
+        "n_windows": 291
+      }
+    },
+    "kivi": {
+      "2": {
+        "ppl": 14.527481175856371,
+        "total_nll": 799968.0,
+        "total_tokens": 298937,
+        "runtime_s": 152.77509903907776,
+        "avg_key_mse": 0.5234528855149969,
+        "n_windows": 291
+      },
+      "3": {
+        "ppl": 7.283774114207094,
+        "total_nll": 593584.0,
+        "total_tokens": 298937,
+        "runtime_s": 152.78847885131836,
+        "avg_key_mse": 0.09411629537221393,
+        "n_windows": 291
+      },
+      "4": {
+        "ppl": 7.045845406964575,
+        "total_nll": 583656.0,
+        "total_tokens": 298937,
+        "runtime_s": 152.73588752746582,
+        "avg_key_mse": 0.020439096758362328,
+        "n_windows": 291
+      }
+    },
+    "fokvq": {
+      "2": {
+        "ppl": 14.338991448177199,
+        "total_nll": 796064.0,
+        "total_tokens": 298937,
+        "runtime_s": 620.4498918056488,
+        "avg_key_mse": 0.6851540162205109,
+        "n_windows": 291
+      },
+      "3": {
+        "ppl": 8.32193347445344,
+        "total_nll": 633416.0,
+        "total_tokens": 298937,
+        "runtime_s": 621.3553602695465,
+        "avg_key_mse": 0.09418987747960783,
+        "n_windows": 291
+      },
+      "4": {
+        "ppl": 7.098269857427537,
+        "total_nll": 585872.0,
+        "total_tokens": 298937,
+        "runtime_s": 621.0572779178619,
+        "avg_key_mse": 0.022685132660155226,
+        "n_windows": 291
+      }
+    }
+  },
+  "runtime_s": 2921.286959171295,
+  "peak_memory_gib": 16.144961833953857
+}

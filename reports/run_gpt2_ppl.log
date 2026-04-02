@@ -236,3 +236,72 @@ Loading WikiText-2...
     win=20 | tokens=10751 | ppl=20.19 | 55.4s
     win=40 | tokens=20991 | ppl=18.55 | 113.9s
     win=60 | tokens=31231 | ppl=19.32 | 172.4s
+    win=80 | tokens=41471 | ppl=19.45 | 230.8s
+    win=100 | tokens=51711 | ppl=20.08 | 289.2s
+    win=120 | tokens=61951 | ppl=19.45 | 347.7s
+    win=140 | tokens=72191 | ppl=18.63 | 405.7s
+    win=160 | tokens=82431 | ppl=17.91 | 463.7s
+    win=180 | tokens=92671 | ppl=18.75 | 522.3s
+    win=200 | tokens=102911 | ppl=18.59 | 580.3s
+    win=220 | tokens=113151 | ppl=18.12 | 638.6s
+    win=240 | tokens=123391 | ppl=18.33 | 696.7s
+    win=260 | tokens=133631 | ppl=17.90 | 755.1s
+    win=280 | tokens=143871 | ppl=17.87 | 813.1s
+    win=300 | tokens=154111 | ppl=17.82 | 871.6s
+    win=320 | tokens=164351 | ppl=17.64 | 930.2s
+    win=340 | tokens=174591 | ppl=17.57 | 988.9s
+    win=360 | tokens=184831 | ppl=18.00 | 1047.8s
+    win=380 | tokens=195071 | ppl=18.15 | 1106.2s
+    win=400 | tokens=205311 | ppl=18.18 | 1164.4s
+    win=420 | tokens=215551 | ppl=18.28 | 1222.7s
+    win=440 | tokens=225791 | ppl=18.28 | 1281.1s
+    win=460 | tokens=236031 | ppl=18.28 | 1339.3s
+    win=480 | tokens=246271 | ppl=18.25 | 1397.3s
+    win=500 | tokens=256511 | ppl=18.25 | 1455.9s
+    win=520 | tokens=266751 | ppl=18.23 | 1514.1s
+    win=540 | tokens=276991 | ppl=18.23 | 1572.2s
+  PPL = 18.3081 (283286 tokens, 1610.7s, key_MSE=0.062509)
+
+--- fokvq_4bit ---
+    win=20 | tokens=10751 | ppl=20.19 | 55.6s
+    win=40 | tokens=20991 | ppl=18.52 | 113.8s
+    win=60 | tokens=31231 | ppl=19.27 | 172.3s
+    win=80 | tokens=41471 | ppl=19.41 | 230.5s
+    win=100 | tokens=51711 | ppl=20.03 | 289.1s
+    win=120 | tokens=61951 | ppl=19.41 | 347.2s
+    win=140 | tokens=72191 | ppl=18.59 | 405.5s
+    win=160 | tokens=82431 | ppl=17.88 | 463.9s
+    win=180 | tokens=92671 | ppl=18.71 | 522.1s
+    win=200 | tokens=102911 | ppl=18.55 | 580.2s
+    win=220 | tokens=113151 | ppl=18.08 | 638.4s
+    win=240 | tokens=123391 | ppl=18.29 | 696.6s
+    win=260 | tokens=133631 | ppl=17.86 | 754.9s
+    win=280 | tokens=143871 | ppl=17.83 | 813.3s
+    win=300 | tokens=154111 | ppl=17.78 | 871.5s
+    win=320 | tokens=164351 | ppl=17.60 | 929.9s
+    win=340 | tokens=174591 | ppl=17.53 | 988.1s
+    win=360 | tokens=184831 | ppl=17.95 | 1046.6s
+    win=380 | tokens=195071 | ppl=18.10 | 1104.7s
+    win=400 | tokens=205311 | ppl=18.13 | 1163.0s
+    win=420 | tokens=215551 | ppl=18.23 | 1221.3s
+    win=440 | tokens=225791 | ppl=18.23 | 1279.4s
+    win=460 | tokens=236031 | ppl=18.22 | 1337.5s
+    win=480 | tokens=246271 | ppl=18.20 | 1395.6s
+    win=500 | tokens=256511 | ppl=18.20 | 1453.9s
+    win=520 | tokens=266751 | ppl=18.18 | 1512.0s
+    win=540 | tokens=276991 | ppl=18.18 | 1570.1s
+  PPL = 18.2522 (283286 tokens, 1607.9s, key_MSE=0.014241)
+
+Results written to results/gpt2-medium_standard_ppl_v2.json
+
+========================================================================
+SUMMARY
+========================================================================
+  FP16 baseline: 18.23
+  Method           2bit     3bit     4bit
+  ------------ -------- -------- --------
+  uniform         19.97    18.33    18.27
+  kivi            21.70    18.43    18.27
+  fokvq           19.34    18.31    18.25
+========================================================================
+=== End: 2026. 04. 02. (목) 12:34:51 KST ===
