@@ -98,6 +98,17 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--attn-implementation", type=str, default="eager",
                    help="Must be 'eager' for post_rope protocol (need manual attention)")
     p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--mode", type=str, default="ppl",
+                   choices=["ppl", "niah", "both"],
+                   help="ppl: WikiText-2 PPL, niah: Needle-in-a-Haystack, both: run both")
+    p.add_argument("--niah-context-lens", nargs="+", type=int,
+                   default=[4096, 8192, 16384],
+                   help="Context lengths for NIAH evaluation")
+    p.add_argument("--niah-depths", nargs="+", type=float,
+                   default=[0.1, 0.3, 0.5, 0.7, 0.9],
+                   help="Needle depth positions (fraction of context)")
+    p.add_argument("--niah-repeats", type=int, default=3,
+                   help="Number of repeats per NIAH condition")
     return p.parse_args()
 
 
@@ -1384,6 +1395,212 @@ def evaluate_ppl_chunked(model, input_ids: torch.Tensor,
 
 
 # ============================================================================
+# Needle-in-a-Haystack (NIAH) Evaluation
+# ============================================================================
+
+NIAH_NEEDLES = [
+    ("The secret verification code is 7392.", "What is the secret verification code?", "7392"),
+    ("The hidden password for the vault is ALPHA-BRAVO-9.", "What is the hidden password for the vault?", "ALPHA-BRAVO-9"),
+    ("The special launch sequence is 4-7-2-9-1.", "What is the special launch sequence?", "4-7-2-9-1"),
+]
+
+NIAH_FILLER_TOPICS = [
+    "The history of maritime exploration spans thousands of years, from ancient Polynesian wayfinding to modern GPS navigation.",
+    "Advances in renewable energy have transformed how nations approach electricity generation and distribution.",
+    "The development of programming languages from assembly to modern high-level languages reflects changing computational needs.",
+    "Agricultural practices have evolved from subsistence farming to precision agriculture using satellite imagery.",
+    "Medical research continues to push boundaries in understanding genetic disorders and developing targeted therapies.",
+    "Urban planning challenges include managing population density, transportation infrastructure, and green spaces.",
+    "The evolution of financial markets has been shaped by technological innovation and regulatory frameworks.",
+    "Climate science integrates atmospheric physics, ocean chemistry, and ecological modeling to project future conditions.",
+    "Telecommunications networks have progressed from telegraph wires to fiber optic cables and satellite constellations.",
+    "Archaeological discoveries continue to reshape our understanding of ancient civilizations and human migration.",
+    "Materials science enables breakthroughs from semiconductor fabrication to biocompatible implant design.",
+    "The philosophy of science examines how empirical methods generate reliable knowledge about natural phenomena.",
+    "Space exploration missions have revealed details about planetary geology, atmospheric composition, and potential habitability.",
+    "Cognitive psychology studies how attention, memory, and perception interact during complex decision making.",
+    "International trade agreements balance economic growth objectives with environmental and labor protections.",
+]
+
+
+def _build_haystack(tokenizer, context_len: int, needle_text: str,
+                    depth: float, seed: int = 42) -> str:
+    """Build a haystack of approximately context_len tokens with needle at depth."""
+    rng = np.random.RandomState(seed)
+
+    # Build filler text by repeating and shuffling topics
+    filler_paragraphs = list(NIAH_FILLER_TOPICS)
+    filler_text = ""
+    while True:
+        rng.shuffle(filler_paragraphs)
+        candidate = filler_text + "\n\n".join(filler_paragraphs) + "\n\n"
+        tokens = tokenizer(candidate, add_special_tokens=False)["input_ids"]
+        if len(tokens) >= context_len * 2:
+            break
+        filler_text = candidate
+
+    # Tokenize filler, truncate to make room for needle
+    needle_tokens = tokenizer(needle_text, add_special_tokens=False)["input_ids"]
+    target_filler_tokens = context_len - len(needle_tokens) - 10  # margin
+
+    filler_tokens = tokenizer(filler_text, add_special_tokens=False)["input_ids"]
+    filler_tokens = filler_tokens[:target_filler_tokens]
+
+    # Insert needle at depth position
+    insert_pos = max(1, int(len(filler_tokens) * depth))
+    combined = filler_tokens[:insert_pos] + needle_tokens + filler_tokens[insert_pos:]
+    combined = combined[:context_len]  # exact truncation
+
+    return tokenizer.decode(combined)
+
+
+@torch.no_grad()
+def evaluate_niah_single(model, tokenizer, context_text: str,
+                         question: str, answer: str,
+                         max_new_tokens: int = 30) -> float:
+    """Evaluate a single NIAH instance. Returns 1.0 if answer found, 0.0 otherwise."""
+    prompt = context_text + f"\n\nQuestion: {question}\nAnswer:"
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True,
+                       max_length=model.config.max_position_embeddings
+                       if hasattr(model.config, 'max_position_embeddings') else 32768)
+    inputs = {k: v.to(next(model.parameters()).device) for k, v in inputs.items()}
+
+    output_ids = model.generate(
+        **inputs,
+        max_new_tokens=max_new_tokens,
+        do_sample=False,
+        temperature=1.0,
+    )
+    # Decode only new tokens
+    new_tokens = output_ids[0, inputs["input_ids"].shape[1]:]
+    response = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+
+    # Check if answer is in response
+    return 1.0 if answer.lower() in response.lower() else 0.0
+
+
+@torch.no_grad()
+def evaluate_niah_method(model, tokenizer, method: str, bits: int,
+                         gamma: float, protocol: str,
+                         context_lens: List[int], depths: List[float],
+                         n_repeats: int = 3) -> Dict:
+    """Run full NIAH evaluation for a single method/bits combination."""
+    results = {}
+
+    for ctx_len in context_lens:
+        results[str(ctx_len)] = {}
+        for depth in depths:
+            scores = []
+            for rep in range(n_repeats):
+                # Pick needle (cycle through available needles)
+                needle_idx = rep % len(NIAH_NEEDLES)
+                needle_text, question, answer = NIAH_NEEDLES[needle_idx]
+
+                # Build haystack
+                haystack = _build_haystack(
+                    tokenizer, ctx_len, needle_text, depth,
+                    seed=42 + rep * 1000 + int(depth * 100))
+
+                score = evaluate_niah_single(
+                    model, tokenizer, haystack, question, answer)
+                scores.append(score)
+
+            avg_score = float(np.mean(scores))
+            results[str(ctx_len)][f"{depth:.1f}"] = avg_score
+
+    # Compute averages
+    all_scores = [results[cl][d] for cl in results for d in results[cl]]
+    results["avg"] = float(np.mean(all_scores)) if all_scores else 0.0
+
+    return results
+
+
+def run_niah(args, model, tokenizer) -> Dict:
+    """Run NIAH evaluation for all methods/bits combinations."""
+    print("\n" + "=" * 72)
+    print("NIAH (Needle-in-a-Haystack) Evaluation")
+    print(f"Context lengths: {args.niah_context_lens}")
+    print(f"Depths: {args.niah_depths}")
+    print(f"Repeats: {args.niah_repeats}")
+    print("=" * 72)
+
+    niah_results = {}
+    t0 = time.time()
+
+    # FP16 baseline
+    if "fp16" in args.methods:
+        print("\n--- NIAH: FP16 ---")
+        result = evaluate_niah_method(
+            model, tokenizer, "fp16", 16, args.gamma, args.protocol,
+            args.niah_context_lens, args.niah_depths, args.niah_repeats)
+        niah_results["fp16"] = result
+        print(f"  Avg score: {result['avg']:.3f}")
+
+    # Quantized methods
+    for method in [m for m in args.methods if m != "fp16"]:
+        niah_results[method] = {}
+        for bits in args.bits:
+            key = f"{method}_{bits}bit"
+            print(f"\n--- NIAH: {key} ({args.protocol}) ---")
+
+            # Install quantization
+            if args.protocol == "post_rope":
+                patcher = AttentionKQuantPatcher(model, method, bits, args.gamma)
+                patcher.patch()
+                patcher.active = True
+                patcher.reset_stats()
+            elif args.protocol == "pre_rope":
+                hooks = install_pre_rope_hooks(model, method, bits, args.gamma)
+                for h in hooks:
+                    h.active = True
+                    h.reset_stats()
+
+            try:
+                result = evaluate_niah_method(
+                    model, tokenizer, method, bits, args.gamma, args.protocol,
+                    args.niah_context_lens, args.niah_depths, args.niah_repeats)
+                niah_results[method][str(bits)] = result
+                print(f"  Avg score: {result['avg']:.3f}")
+            except Exception as e:
+                print(f"  ERROR: {e}")
+                import traceback
+                traceback.print_exc()
+                niah_results[method][str(bits)] = {"avg": 0.0, "error": str(e)}
+            finally:
+                if args.protocol == "post_rope":
+                    patcher.active = False
+                    patcher.unpatch()
+                elif args.protocol == "pre_rope":
+                    for h in hooks:
+                        h.active = False
+                    remove_hooks(hooks)
+
+            torch.cuda.empty_cache()
+            gc.collect()
+
+    elapsed = time.time() - t0
+
+    # Print summary table
+    print("\n" + "=" * 72)
+    print("NIAH SUMMARY")
+    print("=" * 72)
+    fp16_avg = niah_results.get("fp16", {}).get("avg", 0.0)
+    print(f"  FP16 baseline: {fp16_avg:.3f}")
+    print(f"  {'Method':<15} {'2bit':>8} {'3bit':>8} {'4bit':>8}")
+    print(f"  {'-'*15} {'-'*8} {'-'*8} {'-'*8}")
+    for method in [m for m in args.methods if m != "fp16"]:
+        row = f"  {method:<15}"
+        for bits in args.bits:
+            r = niah_results.get(method, {}).get(str(bits), {})
+            avg = r.get("avg", 0.0) if isinstance(r, dict) else 0.0
+            row += f" {avg:>8.3f}"
+        print(row)
+    print(f"  Total NIAH time: {elapsed:.1f}s")
+
+    return niah_results
+
+
+# ============================================================================
 # Main Evaluation Dispatch
 # ============================================================================
 
@@ -1699,110 +1916,121 @@ def run() -> None:
         if 'gpt2' not in model_type and not hasattr(model, 'model'):
             print("  WARNING: post_rope protocol may not work with this model type")
 
-    # Load data
-    print("\nLoading WikiText-2...")
-    input_ids = load_wikitext2_ids(tokenizer, args.device, cache_dir)
-    if args.max_eval_tokens > 0:
-        input_ids = input_ids[:, :args.max_eval_tokens]
-        print(f"  Truncated to {input_ids.shape[1]} tokens")
-
-    # Summary dict
+    # ================================================================
+    # MODE: PPL
+    # ================================================================
     summary = {
-        "experiment": "exp4_2_v3_full_quant_ppl",
+        "experiment": "exp4_2_v3",
+        "mode": args.mode,
         "model_key": args.model_key,
         "model_name": args.model_name,
         "device": args.device,
         "dtype": str(dtype),
-        "chunk_len": args.context_len,
         "protocol": args.protocol,
         "fokvq_gamma": args.gamma,
         "methods": args.methods,
         "bits": args.bits,
-        "total_tokens_in_corpus": int(input_ids.shape[1]),
-        "key_difference_vs_v2": "100% K quantization via hooks (v2 was 50% prefix-only)",
-        "results": {},
     }
 
     t0 = time.time()
 
-    # --- FP16 Baseline ---
-    if "fp16" in args.methods:
-        print("\n--- FP16 Baseline ---")
-        result = evaluate_ppl_chunked(model, input_ids, args.context_len)
-        summary["results"]["fp16"] = result
-        print(f"  PPL = {result['ppl']:.4f} "
-              f"({result['total_tokens']} tokens, {result['runtime_s']:.1f}s)")
+    if args.mode in ("ppl", "both"):
+        print(f"\n{'='*72}")
+        print("MODE: WikiText-2 PPL (v3: 100% K quantized)")
+        print(f"{'='*72}")
 
-    # --- Quantized Methods ---
-    for method in [m for m in args.methods if m != "fp16"]:
-        summary["results"][method] = {}
-        for bits in args.bits:
-            key = f"{method}_{bits}bit"
-            print(f"\n--- {key} ({args.protocol}) ---")
-            try:
-                result = evaluate_method(
-                    model, input_ids, args.context_len,
-                    method, bits, args.gamma, args.protocol)
-                summary["results"][method][str(bits)] = result
-                mse_str = (f", key_MSE={result.get('avg_key_mse', 0):.6f}"
-                          if 'avg_key_mse' in result else "")
-                print(f"  PPL = {result['ppl']:.4f} "
-                      f"({result['total_tokens']} tokens, "
-                      f"{result['runtime_s']:.1f}s{mse_str})")
-            except Exception as e:
-                print(f"  ERROR: {e}")
-                import traceback
-                traceback.print_exc()
-                summary["results"][method][str(bits)] = {
-                    "ppl": float('inf'), "error": str(e),
-                }
+        # Load data
+        print("\nLoading WikiText-2...")
+        input_ids = load_wikitext2_ids(tokenizer, args.device, cache_dir)
+        if args.max_eval_tokens > 0:
+            input_ids = input_ids[:, :args.max_eval_tokens]
+            print(f"  Truncated to {input_ids.shape[1]} tokens")
 
-            torch.cuda.empty_cache()
-            gc.collect()
+        summary["chunk_len"] = args.context_len
+        summary["total_tokens_in_corpus"] = int(input_ids.shape[1])
+        summary["ppl_results"] = {}
 
+        # --- FP16 Baseline ---
+        if "fp16" in args.methods:
+            print("\n--- FP16 Baseline ---")
+            result = evaluate_ppl_chunked(model, input_ids, args.context_len)
+            summary["ppl_results"]["fp16"] = result
+            print(f"  PPL = {result['ppl']:.4f} "
+                  f"({result['total_tokens']} tokens, {result['runtime_s']:.1f}s)")
+
+        # --- Quantized Methods ---
+        for method in [m for m in args.methods if m != "fp16"]:
+            summary["ppl_results"][method] = {}
+            for bits in args.bits:
+                key = f"{method}_{bits}bit"
+                print(f"\n--- {key} ({args.protocol}) ---")
+                try:
+                    result = evaluate_method(
+                        model, input_ids, args.context_len,
+                        method, bits, args.gamma, args.protocol)
+                    summary["ppl_results"][method][str(bits)] = result
+                    mse_str = (f", key_MSE={result.get('avg_key_mse', 0):.6f}"
+                              if 'avg_key_mse' in result else "")
+                    print(f"  PPL = {result['ppl']:.4f} "
+                          f"({result['total_tokens']} tokens, "
+                          f"{result['runtime_s']:.1f}s{mse_str})")
+                except Exception as e:
+                    print(f"  ERROR: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    summary["ppl_results"][method][str(bits)] = {
+                        "ppl": float('inf'), "error": str(e),
+                    }
+                torch.cuda.empty_cache()
+                gc.collect()
+
+        # PPL Summary Table
+        print("\n" + "=" * 72)
+        print("PPL SUMMARY (v3: 100% K quantized)")
+        print("=" * 72)
+        fp16_ppl = summary["ppl_results"].get("fp16", {}).get("ppl", float('inf'))
+        print(f"  FP16 baseline: {fp16_ppl:.2f}")
+        print(f"  {'Method':<15} {'2bit':>12} {'3bit':>12} {'4bit':>12}")
+        print(f"  {'-'*15} {'-'*12} {'-'*12} {'-'*12}")
+        for method in [m for m in args.methods if m != "fp16"]:
+            row = f"  {method:<15}"
+            for bits in args.bits:
+                ppl = summary["ppl_results"].get(method, {}).get(
+                    str(bits), {}).get("ppl", float('inf'))
+                if math.isfinite(ppl):
+                    if math.isfinite(fp16_ppl) and fp16_ppl > 0:
+                        delta = (ppl - fp16_ppl) / fp16_ppl * 100
+                        row += f" {ppl:>7.2f}({delta:+.0f}%)"
+                    else:
+                        row += f" {ppl:>12.2f}"
+                else:
+                    row += f" {'N/A':>12}"
+            print(row)
+        print("=" * 72)
+
+        del input_ids
+        torch.cuda.empty_cache()
+
+    # ================================================================
+    # MODE: NIAH
+    # ================================================================
+    if args.mode in ("niah", "both"):
+        niah_results = run_niah(args, model, tokenizer)
+        summary["niah_results"] = niah_results
+
+    # ================================================================
+    # Write results
+    # ================================================================
     summary["runtime_s"] = time.time() - t0
     if torch.cuda.is_available():
         summary["peak_memory_gib"] = (
             torch.cuda.max_memory_allocated(torch.device(args.device)) / (1024 ** 3))
 
-    # --- Write JSON ---
-    out_path = output_dir / f"{args.model_key}_full_quant_ppl_v3.json"
+    out_path = output_dir / f"{args.model_key}_{args.mode}_v3.json"
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, default=str)
     print(f"\nResults written to {out_path}")
-
-    # --- Print Summary Table ---
-    print("\n" + "=" * 72)
-    print("SUMMARY (v3: 100% K quantized)")
-    print("=" * 72)
-    fp16_ppl = summary["results"].get("fp16", {}).get("ppl", float('inf'))
-    print(f"  FP16 baseline: {fp16_ppl:.2f}")
-    print(f"  Protocol: {args.protocol}")
-    print(f"  {'Method':<12} {'2bit':>10} {'3bit':>10} {'4bit':>10}")
-    print(f"  {'-'*12} {'-'*10} {'-'*10} {'-'*10}")
-    for method in [m for m in args.methods if m != "fp16"]:
-        row = f"  {method:<12}"
-        for bits in args.bits:
-            ppl = summary["results"].get(method, {}).get(str(bits), {}).get("ppl", float('inf'))
-            if math.isfinite(ppl):
-                if math.isfinite(fp16_ppl) and fp16_ppl > 0:
-                    delta = (ppl - fp16_ppl) / fp16_ppl * 100
-                    row += f" {ppl:>7.2f}({delta:+.1f}%)"
-                else:
-                    row += f" {ppl:>10.2f}"
-            else:
-                row += f" {'N/A':>10}"
-        print(row)
-    print("=" * 72)
-
-    # Compare with v2 expectations
-    print("\nEXPECTED CHANGES vs v2 (50% prefix-only quantization):")
-    print("  - Larger PPL degradation at low bits (full quantization effect visible)")
-    print("  - GPT-2 3bit: expect > +0.4% (was diluted in v2)")
-    print("  - Qwen 3bit: expect similar or larger than +24%")
-    print("  - Qwen 4bit: expect similar or larger than +1.5%")
-    print("  - Key insight: if v3 results are similar to v2, the 50% dilution")
-    print("    was already minor (good for the paper)")
+    print(f"Total runtime: {summary['runtime_s']:.1f}s")
 
     # Cleanup
     del model, tokenizer
