@@ -196,6 +196,139 @@ def kivi_quantize_tensor(K: torch.Tensor, bits: int) -> torch.Tensor:
     return K_q.to(K.dtype)
 
 
+# ============================================================================
+# SOTA Methods (QuIP#, KVQuant, GEAR, ZipCache, TurboQuant)
+# Adapted from Phase 7 numpy implementations to torch for v3 PPL benchmark
+# ============================================================================
+
+def _hadamard_matrix(d: int, device: torch.device) -> torch.Tensor:
+    """Deterministic Hadamard-like orthogonal matrix."""
+    if d & (d - 1) != 0:
+        # Not power of 2: use deterministic QR
+        rng = torch.Generator(device='cpu').manual_seed(42)
+        M = torch.randn(d, d, generator=rng, dtype=torch.float32)
+        Q, _ = torch.linalg.qr(M)
+        return Q.to(device)
+    H = torch.tensor([[1.0]], device=device)
+    while H.shape[0] < d:
+        H = torch.cat([
+            torch.cat([H, H], dim=1),
+            torch.cat([H, -H], dim=1),
+        ], dim=0) / (2 ** 0.5)
+    return H
+
+
+def _per_dim_uniform(K: torch.Tensor, bits: int) -> torch.Tensor:
+    """Per-dimension uniform quantization (for rotated space)."""
+    K_f = K.float()
+    n = 2 ** bits
+    x_min = K_f.min(dim=-2, keepdim=True).values
+    x_max = K_f.max(dim=-2, keepdim=True).values
+    rng = torch.clamp(x_max - x_min, min=1e-8)
+    step = rng / (n - 1)
+    K_q = torch.round((K_f - x_min) / step) * step + x_min
+    return K_q.to(K.dtype)
+
+
+def quip_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
+    """QuIP#: Hadamard incoherence rotation + uniform quantization.
+    Chee et al. (2024). Rotates K to spread outlier energy, then uniform quantize."""
+    d = K_head.shape[-1]
+    H = _hadamard_matrix(d, K_head.device)
+    K_rot = K_head.float() @ H
+    K_q = _per_dim_uniform(K_rot, bits)
+    return (K_q @ H.T).to(K_head.dtype)
+
+
+def kvquant_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
+    """KVQuant: per-channel Lloyd-Max + outlier separation at FP16.
+    Hooper et al. (NeurIPS 2024)."""
+    d = K_head.shape[-1]
+    K_f = K_head.float()
+    K_q = torch.zeros_like(K_f)
+    for i in range(d):
+        col = K_f[:, i]
+        mu, sigma = col.mean(), col.std()
+        outlier_mask = (col - mu).abs() > 2.5 * sigma
+        # Lloyd-Max on this dimension
+        cb = _fit_lloyd_max_1d(col, 2 ** bits)
+        K_q[:, i] = _quantize_with_codebook_1d(col, cb)
+        # Restore outliers at full precision
+        K_q[outlier_mask, i] = col[outlier_mask]
+    return K_q.to(K_head.dtype)
+
+
+def gear_quantize_head(K_head: torch.Tensor, bits: int,
+                       rank: int = 4) -> torch.Tensor:
+    """GEAR: uniform quantize + low-rank residual + sparse outlier.
+    Kang et al. (NeurIPS 2024)."""
+    K_f = K_head.float()
+    # Stage 1: Uniform quantize
+    K_q1 = _per_dim_uniform(K_f, bits)
+    residual = K_f - K_q1
+
+    # Stage 2: Low-rank SVD of residual
+    U, S, Vt = torch.linalg.svd(residual, full_matrices=False)
+    K_lr = U[:, :rank] @ torch.diag(S[:rank]) @ Vt[:rank, :]
+
+    # Stage 3: Sparse outlier (top-1% of remaining residual)
+    remain = residual - K_lr
+    threshold = torch.quantile(remain.abs().reshape(-1).float(), 0.99)
+    sparse = torch.where(remain.abs() > threshold, remain, torch.zeros_like(remain))
+
+    K_recon = K_q1 + K_lr + sparse
+    return K_recon.to(K_head.dtype)
+
+
+def zipcache_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
+    """ZipCache: token importance split (recent=4bit, old=2bit).
+    NeurIPS 2024. Approximation: recent 30% tokens get bits+2, rest get bits."""
+    n = K_head.shape[0]
+    n_recent = max(1, int(n * 0.3))
+    K_f = K_head.float()
+    K_q = torch.zeros_like(K_f)
+    # Old tokens: low bits
+    low_bits = max(1, bits)
+    high_bits = min(8, bits + 2)
+    if n - n_recent > 0:
+        K_old = K_f[:n - n_recent]
+        K_q[:n - n_recent] = _per_dim_uniform(K_old, low_bits)
+    # Recent tokens: high bits
+    K_recent = K_f[n - n_recent:]
+    K_q[n - n_recent:] = _per_dim_uniform(K_recent, high_bits)
+    return K_q.to(K_head.dtype)
+
+
+def turbo_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
+    """TurboQuant: Hadamard + Lloyd-Max + QJL 1-bit residual correction.
+    Zandieh et al. (ICLR 2026)."""
+    d = K_head.shape[-1]
+    H = _hadamard_matrix(d, K_head.device)
+    K_f = K_head.float()
+    K_rot = K_f @ H
+
+    # Lloyd-Max per dimension
+    K_q = torch.zeros_like(K_rot)
+    for i in range(d):
+        cb = _fit_lloyd_max_1d(K_rot[:, i], 2 ** bits)
+        K_q[:, i] = _quantize_with_codebook_1d(K_rot[:, i], cb)
+
+    # QJL 1-bit residual correction
+    residual = K_rot - K_q
+    rng = torch.Generator(device='cpu').manual_seed(42)
+    R_jl = torch.randn(d, d, generator=rng, dtype=torch.float32, device=K_head.device)
+    R_jl = R_jl / R_jl.norm(dim=1, keepdim=True)
+    proj = residual @ R_jl.T
+    signs = torch.sign(proj)
+    mags = proj.abs().mean(dim=0, keepdim=True)
+    correction = (signs * mags) @ R_jl
+    scale = residual.norm() / correction.norm().clamp(min=1e-8)
+    K_corrected = K_q + correction * scale * 0.5
+
+    K_recon = K_corrected @ H.T
+    return K_recon.to(K_head.dtype)
+
+
 def fokvq_quantize_head(K_head: torch.Tensor, bits_avg: int,
                         gamma: float = 0.3) -> Tuple[torch.Tensor, float]:
     """FOKVQ per-head: PCA rotate -> continuous bit alloc -> asymmetric quant."""
@@ -616,6 +749,17 @@ def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
             # E1+E2+E3: Q-weighted PCA + MK-weighted Lloyd-Max
             K_q, _ = fokvq_full_quantize_head(K_head, bits, gamma, Q_cov=q_cov)
             return K_q
+        # --- SOTA methods ---
+        elif method == "quip":
+            return quip_quantize_head(K_head, bits)
+        elif method == "kvquant":
+            return kvquant_quantize_head(K_head, bits)
+        elif method == "gear":
+            return gear_quantize_head(K_head, bits)
+        elif method == "zipcache":
+            return zipcache_quantize_head(K_head, bits)
+        elif method == "turboquant":
+            return turbo_quantize_head(K_head, bits)
         else:
             raise ValueError(f"Unknown method: {method}")
 
