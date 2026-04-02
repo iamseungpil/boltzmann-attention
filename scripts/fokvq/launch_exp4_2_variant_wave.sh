@@ -11,6 +11,7 @@ OUTPUT_ROOT="$2"
 REPO_ROOT="${3:-$(cd "$(dirname "$0")/../.." && pwd)}"
 
 SCRIPT_PATH="$REPO_ROOT/scripts/fokvq/exp4_2_standard_ppl_benchmark.py"
+PYTHON_BIN="${PYTHON_BIN:-python}"
 
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-8}"
 export MKL_NUM_THREADS="${MKL_NUM_THREADS:-8}"
@@ -44,7 +45,7 @@ launch_job() {
   shift 2
   (
     export CUDA_VISIBLE_DEVICES="$gpu"
-    python "$SCRIPT_PATH" "${COMMON_ARGS[@]}" "$@" --output-dir "$out_dir"
+    "$PYTHON_BIN" "$SCRIPT_PATH" "${COMMON_ARGS[@]}" "$@" --output-dir "$out_dir"
   ) >"$out_dir/run.log" 2>&1 &
   local pid=$!
   echo "$pid" >"$out_dir/run.pid"
