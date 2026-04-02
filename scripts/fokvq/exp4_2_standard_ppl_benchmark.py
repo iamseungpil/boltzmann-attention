@@ -301,6 +301,19 @@ def select_topk_from_energy(coeffs: torch.Tensor, energy_frac: float) -> int:
     return max(1, min(dim, top_k))
 
 
+def snap_topk_to_fair_schedule(dim: int, desired_top_k: int, target_bits: int) -> int:
+    desired_top_k = max(1, min(dim, desired_top_k))
+    candidates = sorted(range(1, dim + 1), key=lambda x: (abs(x - desired_top_k), x))
+    for top_k in candidates:
+        high_frac = float(top_k) / float(dim)
+        try:
+            bit_schedule(target_bits, high_frac)
+            return top_k
+        except ValueError:
+            continue
+    return dim
+
+
 def quantize_nonuniform_with_basis(
     keys: torch.Tensor,
     basis: torch.Tensor,
@@ -316,9 +329,10 @@ def quantize_nonuniform_with_basis(
     if clip_quantile is not None:
         coeffs = global_clip_abs(coeffs, clip_quantile)
     if adaptive_energy_frac is not None:
-        top_k = select_topk_from_energy(coeffs, adaptive_energy_frac)
+        desired_top_k = select_topk_from_energy(coeffs, adaptive_energy_frac)
     else:
-        top_k = max(1, min(dim, int(round(dim * topk_frac))))
+        desired_top_k = max(1, min(dim, int(round(dim * topk_frac))))
+    top_k = snap_topk_to_fair_schedule(dim, desired_top_k, target_bits)
     high_frac = float(top_k) / float(dim)
     high_bits, low_bits = bit_schedule(target_bits, high_frac)
     if top_k >= dim:
