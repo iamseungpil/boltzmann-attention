@@ -1170,7 +1170,15 @@ class AttentionKQuantPatcher:
                 attn_weights = attn_weights.masked_fill(~causal_mask, mask_value)
 
             if attention_mask is not None:
-                attn_weights = attn_weights + attention_mask
+                # Fix: transformers 5.x may pass mask with kv_len > actual key length
+                # when DynamicCache accumulates across layers. Truncate to match.
+                am = attention_mask
+                actual_kv = key.shape[-2]
+                if am.shape[-1] > actual_kv:
+                    am = am[:, :, :, -actual_kv:] if am.dim() == 4 else am[:, -actual_kv:]
+                if am.dim() == 4 and am.shape[-2] > query_length:
+                    am = am[:, :, -query_length:, :]
+                attn_weights = attn_weights + am
 
             attn_weights = F.softmax(attn_weights, dim=-1)
             attn_weights = attn_weights.to(value.dtype)
@@ -1309,6 +1317,15 @@ class AttentionKQuantPatcher:
                 elif causal_mask.dim() == 3:
                     causal_mask = causal_mask[:, None, :, :]
                 # 4D mask: (batch, 1, q_len, kv_len)
+                # Fix: transformers 5.x may generate mask with kv_len =
+                # seq_len + past_cache_len, but our patched forward computes
+                # K from scratch (no cache concat), so actual kv_len = q_len.
+                # Truncate mask to match actual K shape.
+                actual_kv_len = key_states.shape[2]
+                if causal_mask.shape[-1] > actual_kv_len:
+                    causal_mask = causal_mask[:, :, :, -actual_kv_len:]
+                if causal_mask.shape[-2] > q_len:
+                    causal_mask = causal_mask[:, :, -q_len:, :]
                 attn_weights = attn_weights + causal_mask
 
             attn_weights = F.softmax(
