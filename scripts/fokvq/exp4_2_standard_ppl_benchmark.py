@@ -61,6 +61,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--methods", nargs="+", default=["fp16", "uniform", "fokvq"])
     parser.add_argument("--bits", nargs="+", type=int, default=[2, 3, 4])
     parser.add_argument("--fokvq-topk-frac", type=float, default=0.25)
+    parser.add_argument("--fokvq-adaptive-energy-frac", type=float, default=0.9)
+    parser.add_argument("--fokvq-clip-quantile", type=float, default=0.995)
     parser.add_argument("--output-dir", type=str, required=required, default="/tmp/exp4_2_self_test")
     parser.add_argument("--cache-dir", type=str, default="")
     parser.add_argument("--attn-implementation", type=str, default="eager")
@@ -277,17 +279,46 @@ def scalar_uniform_quantize(tensor: torch.Tensor, bits: int) -> torch.Tensor:
     return quant * scale + t_min
 
 
+def global_clip_abs(tensor: torch.Tensor, clip_quantile: float) -> torch.Tensor:
+    if not 0.0 < clip_quantile < 1.0:
+        raise ValueError(f"clip_quantile must be in (0, 1), got {clip_quantile}")
+    clip_value = torch.quantile(tensor.abs().reshape(-1).float(), clip_quantile).clamp(min=1e-8)
+    return tensor.clamp(min=-clip_value, max=clip_value)
+
+
+def select_topk_from_energy(coeffs: torch.Tensor, energy_frac: float) -> int:
+    if not 0.0 < energy_frac <= 1.0:
+        raise ValueError(f"energy_frac must be in (0, 1], got {energy_frac}")
+    dim = coeffs.shape[-1]
+    if dim == 0:
+        return 0
+    energy = coeffs.float().pow(2).sum(dim=tuple(range(coeffs.ndim - 1)))
+    total = float(energy.sum().item())
+    if total <= 0.0:
+        return dim
+    cumulative = torch.cumsum(energy, dim=0) / total
+    top_k = int(torch.searchsorted(cumulative, energy_frac).item()) + 1
+    return max(1, min(dim, top_k))
+
+
 def quantize_nonuniform_with_basis(
     keys: torch.Tensor,
     basis: torch.Tensor,
     target_bits: int,
     topk_frac: float,
+    adaptive_energy_frac: Optional[float] = None,
+    clip_quantile: Optional[float] = None,
 ) -> torch.Tensor:
     coeffs = torch.matmul(keys, basis)
     dim = coeffs.shape[-1]
     if dim == 0:
         return keys
-    top_k = max(1, min(dim, int(round(dim * topk_frac))))
+    if clip_quantile is not None:
+        coeffs = global_clip_abs(coeffs, clip_quantile)
+    if adaptive_energy_frac is not None:
+        top_k = select_topk_from_energy(coeffs, adaptive_energy_frac)
+    else:
+        top_k = max(1, min(dim, int(round(dim * topk_frac))))
     high_frac = float(top_k) / float(dim)
     high_bits, low_bits = bit_schedule(target_bits, high_frac)
     if top_k >= dim:
@@ -315,8 +346,11 @@ def quantize_turboquant_keys(
     keys: torch.Tensor,
     basis: torch.Tensor,
     codebook: torch.Tensor,
+    clip_quantile: Optional[float] = None,
 ) -> torch.Tensor:
     coeffs = torch.matmul(keys.float(), basis)
+    if clip_quantile is not None:
+        coeffs = global_clip_abs(coeffs, clip_quantile)
     scale = coeffs.std(dim=(-2, -1), keepdim=True).clamp(min=1e-6)
     coeffs_norm = coeffs / scale
     coeffs_q = quantize_with_codebook(coeffs_norm, codebook)
@@ -363,6 +397,24 @@ def run_self_tests(seed: int) -> None:
     mse_2 = torch.mean((keys - turbo_2) ** 2).item()
     mse_4 = torch.mean((keys - turbo_4) ** 2).item()
     assert mse_4 < mse_2, f"Higher-bit turboquant should reduce error: 4-bit={mse_4:.6f}, 2-bit={mse_2:.6f}"
+
+    adaptive_q = quantize_nonuniform_with_basis(
+        keys,
+        random_basis,
+        target_bits=2,
+        topk_frac=0.25,
+        adaptive_energy_frac=0.9,
+    )
+    clipped_q = quantize_nonuniform_with_basis(
+        keys,
+        random_basis,
+        target_bits=2,
+        topk_frac=0.5,
+        clip_quantile=0.95,
+    )
+    pca_lloyd_q = quantize_turboquant_keys(keys, random_basis, codebooks[2], clip_quantile=0.95)
+    assert torch.isfinite(adaptive_q).all() and torch.isfinite(clipped_q).all() and torch.isfinite(pca_lloyd_q).all()
+    assert adaptive_q.shape == keys.shape == clipped_q.shape == pca_lloyd_q.shape
 
     payload = {
         "self_test": "passed",
@@ -450,10 +502,14 @@ def quantize_cache(
     bits: int,
     fokvq_bases: Optional[Dict[int, torch.Tensor]],
     fokvq_topk_frac: float,
+    fokvq_adaptive_energy_frac: float,
+    fokvq_clip_quantile: float,
     turbo_codebooks: Optional[Dict[int, torch.Tensor]] = None,
-):
+) -> Tuple[object, Dict[str, float]]:
     legacy_cache, cache_cls = to_legacy_cache(past_key_values)
     quantized_layers = []
+    key_sq_error = 0.0
+    key_sq_count = 0
     for layer_idx, layer_cache in enumerate(legacy_cache):
         key_cache = layer_cache[0]
         other_items = list(layer_cache[1:])
@@ -463,7 +519,7 @@ def quantize_cache(
             key_quant = quantize_variance_keys(key_cache, bits)
         elif method == "kivi":
             key_quant = asymmetric_quantize_seq_dim(key_cache, bits)
-        elif method in {"fokvq", "identity", "random"}:
+        elif method in {"fokvq", "identity", "random", "fokvq_adaptive", "fokvq_clip"}:
             if fokvq_bases is None:
                 raise ValueError(f"Bases are required for method={method}")
             basis = fokvq_bases[layer_idx].to(device=key_cache.device)
@@ -472,6 +528,19 @@ def quantize_cache(
                 basis,
                 bits,
                 fokvq_topk_frac,
+                adaptive_energy_frac=fokvq_adaptive_energy_frac if method == "fokvq_adaptive" else None,
+                clip_quantile=fokvq_clip_quantile if method == "fokvq_clip" else None,
+            ).to(dtype=key_cache.dtype)
+        elif method == "fokvq_lloyd":
+            if fokvq_bases is None or turbo_codebooks is None:
+                raise ValueError("fokvq_lloyd requires PCA bases and codebooks")
+            basis = fokvq_bases[layer_idx].to(device=key_cache.device)
+            codebook = turbo_codebooks[bits]
+            key_quant = quantize_turboquant_keys(
+                key_cache.float(),
+                basis,
+                codebook,
+                clip_quantile=fokvq_clip_quantile,
             ).to(dtype=key_cache.dtype)
         elif method == "turboquant":
             if fokvq_bases is None or turbo_codebooks is None:
@@ -485,8 +554,15 @@ def quantize_cache(
             ).to(dtype=key_cache.dtype)
         else:
             raise ValueError(f"Unsupported quantization method: {method}")
+        diff = (key_cache.float() - key_quant.float()).pow(2)
+        key_sq_error += float(diff.sum().item())
+        key_sq_count += int(diff.numel())
         quantized_layers.append((key_quant,) + tuple(other_items))
-    return from_legacy_cache(tuple(quantized_layers), cache_cls)
+    stats = {
+        "key_mse_sum": key_sq_error,
+        "key_mse_count": key_sq_count,
+    }
+    return from_legacy_cache(tuple(quantized_layers), cache_cls), stats
 
 
 def negative_log_likelihood_from_logits(logits: torch.Tensor, labels: torch.Tensor) -> Tuple[float, int]:
@@ -528,6 +604,8 @@ def evaluate_fp16_sliding_window(
     total_tokens = 0
     prev_end = 0
     t0 = time.time()
+    key_mse_sum = 0.0
+    key_mse_count = 0
 
     for begin in range(0, input_ids.size(1), stride):
         end = min(begin + context_len, input_ids.size(1))
@@ -558,6 +636,8 @@ def evaluate_quantized_sliding_window(
     bits: int,
     fokvq_bases: Optional[Dict[int, torch.Tensor]],
     fokvq_topk_frac: float,
+    fokvq_adaptive_energy_frac: float,
+    fokvq_clip_quantile: float,
     turbo_codebooks: Optional[Dict[int, torch.Tensor]] = None,
 ) -> Dict[str, float]:
     total_nll = 0.0
@@ -584,14 +664,18 @@ def evaluate_quantized_sliding_window(
         target_ids = window[:, prefix_len:]
 
         prefix_outputs = model(prefix_ids, use_cache=True)
-        quantized_cache = quantize_cache(
+        quantized_cache, cache_stats = quantize_cache(
             prefix_outputs.past_key_values,
             method,
             bits,
             fokvq_bases,
             fokvq_topk_frac,
+            fokvq_adaptive_energy_frac,
+            fokvq_clip_quantile,
             turbo_codebooks,
         )
+        key_mse_sum += cache_stats["key_mse_sum"]
+        key_mse_count += cache_stats["key_mse_count"]
 
         full_attention_mask = torch.ones(
             1,
@@ -629,6 +713,7 @@ def evaluate_quantized_sliding_window(
         "total_nll": total_nll,
         "total_tokens": total_tokens,
         "runtime_s": time.time() - t0,
+        "avg_key_mse": (key_mse_sum / key_mse_count) if key_mse_count > 0 else 0.0,
     }
 
 
@@ -680,6 +765,8 @@ def run() -> None:
         "methods": args.methods,
         "bits": args.bits,
         "fokvq_topk_frac": args.fokvq_topk_frac,
+        "fokvq_adaptive_energy_frac": args.fokvq_adaptive_energy_frac,
+        "fokvq_clip_quantile": args.fokvq_clip_quantile,
         "turboquant_note": "turboquant-style random rotation + Lloyd-Max scalar quantization; not an official full TurboQuant reproduction",
         "smoke": args.smoke,
         "results": {},
@@ -695,8 +782,9 @@ def run() -> None:
             args.stride,
         )
 
+    fokvq_basis_methods = {"fokvq", "fokvq_adaptive", "fokvq_clip", "fokvq_lloyd"}
     fokvq_bases = None
-    if "fokvq" in args.methods:
+    if any(method in fokvq_basis_methods for method in args.methods):
         print("Building FOKVQ PCA bases...")
         fokvq_bases = build_fokvq_bases(
             model,
@@ -708,13 +796,21 @@ def run() -> None:
     identity_bases = build_identity_bases(model, args.device) if "identity" in args.methods else None
     random_bases = build_random_bases(model, args.device, args.seed) if "random" in args.methods else None
     turbo_bases = build_random_bases(model, args.device, args.seed + 10_000) if "turboquant" in args.methods else None
-    turbo_codebooks = build_standard_normal_codebooks(args.bits, args.seed) if "turboquant" in args.methods else None
+    needs_codebooks = any(method in {"turboquant", "fokvq_lloyd"} for method in args.methods)
+    turbo_codebooks = build_standard_normal_codebooks(args.bits, args.seed) if needs_codebooks else None
 
     for method in [m for m in args.methods if m != "fp16"]:
         method_bases = None
         method_codebooks = None
         if method == "fokvq":
             method_bases = fokvq_bases
+        elif method == "fokvq_adaptive":
+            method_bases = fokvq_bases
+        elif method == "fokvq_clip":
+            method_bases = fokvq_bases
+        elif method == "fokvq_lloyd":
+            method_bases = fokvq_bases
+            method_codebooks = turbo_codebooks
         elif method == "identity":
             method_bases = identity_bases
         elif method == "random":
@@ -734,6 +830,8 @@ def run() -> None:
                 bits,
                 method_bases,
                 args.fokvq_topk_frac,
+                args.fokvq_adaptive_energy_frac,
+                args.fokvq_clip_quantile,
                 method_codebooks,
             )
             if not math.isfinite(result["ppl"]):
