@@ -656,6 +656,8 @@ def evaluate_quantized_sliding_window(
 ) -> Dict[str, float]:
     total_nll = 0.0
     total_tokens = 0
+    key_mse_sum = 0.0
+    key_mse_count = 0
     prev_end = 0
     t0 = time.time()
 
