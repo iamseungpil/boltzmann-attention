@@ -176,6 +176,84 @@
 - 이 결과는 "축 선택 자체의 효과"를 지지한다.
 - 하지만 이 효과만으로 strong baseline을 이기지는 못한다.
 
+### 3.6 Same-Harness Variant Follow-up
+
+새 변형 세 가지를 같은 harness에서 추가 검증했다.
+
+- `fokvq_lloyd`: `PCA rotation + Lloyd-Max scalar codebook`
+- `fokvq_adaptive`: energy fraction 기반 axis 수 자동 조절
+- `fokvq_clip`: PCA coefficient clipping
+
+출처:
+- `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_2bit_v2/main/gpt2-medium-2bit_standard_ppl.json`
+- `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_2bit_v2/longctx512/gpt2-medium-2bit_standard_ppl.json`
+- `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_2bit_v2/longctx1024/gpt2-medium-2bit_standard_ppl.json`
+- `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_4bit_v2/main/gpt2-medium-4bit_standard_ppl.json`
+- `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_4bit_v2/longctx512/gpt2-medium-4bit_standard_ppl.json`
+- `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_4bit_v2/longctx1024/gpt2-medium-4bit_standard_ppl.json`
+
+#### 2-bit main
+
+| Method | PPL | avg key MSE |
+|---|---:|---:|
+| FP16 | 26.8638 | 0.0000 |
+| KIVI-style | 27.7507 | 0.3043 |
+| turboquant-style | 27.7524 | 0.4778 |
+| uniform | 32.4926 | 2.1123 |
+| FOKVQ | 33.6741 | 2.1685 |
+| FOKVQ + Lloyd | 34.3090 | 1.5274 |
+| FOKVQ + clip | 34.4791 | 2.2529 |
+| FOKVQ + adaptive | 35.2711 | 2.7130 |
+
+#### 2-bit long context
+
+| Method | 512 PPL | 1024 PPL |
+|---|---:|---:|
+| KIVI-style | 23.9904 | 20.4618 |
+| turboquant-style | 23.3546 | 19.3868 |
+| uniform | 27.3654 | 22.4624 |
+| FOKVQ | 28.8335 | 24.0110 |
+| FOKVQ + Lloyd | 27.2620 | 28.3483 |
+| FOKVQ + clip | 29.0065 | 23.6791 |
+| FOKVQ + adaptive | 33.9548 | 37.1294 |
+
+해석:
+- `fokvq_adaptive`는 일관되게 악화됐다.
+- `fokvq_clip`은 `context_len=1024`에서만 base `FOKVQ`보다 소폭 낫지만, 여전히 `uniform`과 strong baseline을 넘지 못했다.
+- `fokvq_lloyd`는 `context_len=512`에서는 base `FOKVQ`보다 좋아졌지만 `1024`에서 크게 무너졌다.
+- 가장 중요한 관찰은 `fokvq_lloyd`가 `avg_key_mse`를 줄였음에도 `PPL`은 개선되지 않았다는 점이다. 즉, 현재 문제는 단순 reconstruction quality 하나로 설명되지 않는다.
+
+#### 4-bit main
+
+| Method | PPL | avg key MSE |
+|---|---:|---:|
+| FP16 | 26.8638 | 0.0000 |
+| KIVI-style | 26.8770 | 0.0119 |
+| uniform | 26.8983 | 0.0713 |
+| FOKVQ | 26.9954 | 0.0475 |
+| turboquant-style | 27.0020 | 0.0434 |
+| FOKVQ + adaptive | 27.0465 | 0.0546 |
+| FOKVQ + clip | 27.3888 | 0.1904 |
+| FOKVQ + Lloyd | 29.3253 | 0.6933 |
+
+#### 4-bit long context
+
+| Method | 512 PPL | 1024 PPL |
+|---|---:|---:|
+| KIVI-style | 22.5641 | 18.3727 |
+| uniform | 22.5972 | 18.4042 |
+| FOKVQ | 22.6055 | 18.4042 |
+| FOKVQ + adaptive | 22.6027 | 18.4086 |
+| turboquant-style | 22.6359 | 18.4266 |
+| FOKVQ + clip | 22.9952 | 18.4221 |
+| FOKVQ + Lloyd | 24.0991 | 23.4947 |
+
+해석:
+- `4-bit`에서는 새 변형들이 전혀 구조적 개선을 만들지 못했다.
+- `fokvq_adaptive`는 일부 slice에서 base `FOKVQ`와 거의 같지만, ranking을 바꾸지는 못한다.
+- `fokvq_lloyd`는 `4-bit`에서 특히 심하게 무너져, 현재 문제를 "PCA 후 Lloyd-Max를 붙이면 된다"로 해석할 수 없게 만든다.
+- 따라서 지금까지의 가장 강한 해석은 "`rotation quality`와 `post-rotation scalar quantizer quality`를 각각 개선해도, attention 품질로 곧바로 이어지지 않는다"는 것이다.
+
 ## 4. 현재 주장 가능 범위
 
 ### 4.1 주장 가능한 것
@@ -183,6 +261,7 @@
 1. `FOKVQ`에는 저비트에서 의미 있는 `basis-selection effect`가 있다.
 2. `PCA basis`는 naive `random` 또는 `identity` basis보다 낫다.
 3. 공정한 평균 비트 예산을 강제하면 이전의 일부 개선은 bit-budget artifact였음이 드러난다.
+4. `avg_key_mse`를 줄이는 것만으로 `PPL`이 자동으로 좋아지지는 않는다.
 
 ### 4.2 주장하면 안 되는 것
 
@@ -198,6 +277,7 @@
 핵심 의미는 다음과 같다.
 - 축 정렬은 무의미하지 않다.
 - 그러나 단순한 PCA 기반 mixed-precision axis quantization만으로는 low-bit KV-cache quantization의 strong baseline을 넘기 어렵다.
+- PCA 회전 뒤에 더 정교한 scalar quantizer를 붙여도, 현재 형태에서는 언어모델 품질로 안정적으로 이어지지 않는다.
 - 따라서 다음 단계의 기여는 새로운 수식이나 서술보다, 왜 PCA 정렬 효과가 strong baseline으로 이어지지 않는지에 대한 구조적 분석이어야 한다.
 
 ## 6. 운영상 발견
@@ -222,7 +302,7 @@
 2. `FOKVQ`를 더 밀고 싶다면, 단순 `topk` 조정보다 메커니즘 자체를 바꿔야 한다.
 3. 추가 실험을 한다면 다음 세 가지가 우선이다.
    - layer-wise or head-wise adaptive basis selection
-   - PCA coefficient clipping / normalization / robust scaling
+   - attention-relevant objective를 직접 보는 basis / codebook optimization
    - memory or latency까지 포함한 trade-off 분석
 
 ## 8. 최종 결론

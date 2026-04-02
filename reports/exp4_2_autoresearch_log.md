@@ -324,3 +324,133 @@ Implement and run the reviewer-grade sliding-window PPL benchmark described in
     - but even the best current fair PCA setting still trails `uniform`, `kivi`, and `turboquant-style` on every tested slice
 - Decision: keep
 - Reason: this batch establishes the strongest defensible internal readout so far. There is a real axis-selection effect at 2-bit because `fokvq(PCA)` clearly beats `random` and `identity`, but the effect is not strong enough to support a superiority claim against stronger baselines. The most honest paper direction is therefore mechanistic or methodological, not SOTA-style.
+
+### Iteration 11
+
+- Change: fixed a regression in the new variant harness before launching the follow-up wave.
+  - bug: `evaluate_quantized_sliding_window()` consumed `cache_stats` but did not initialize the local `key_mse_sum` / `key_mse_count` accumulators
+  - auxiliary change: added `PYTHON_BIN` override support to `scripts/fokvq/launch_exp4_2_variant_wave.sh` so the remote node can force the correct `grpo` interpreter instead of the default `ptca` environment
+- Verification:
+  - local `py_compile` passed after the fix
+  - remote `--self-test` on `metacognition-e8` passed again:
+    - `orthogonality_max_abs_error=4.77e-07`
+    - `lloyd_mse=0.1148`
+    - `uniform_mse=0.6005`
+    - `turboquant_mse`: `2-bit=0.1196`, `4-bit=0.0097`
+  - `tiny-gpt2` smoke was discarded as the final verification vehicle because `uniform-2` became non-finite on that toy model
+  - accepted verification vehicle:
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_gpt2_variant_smoke/gpt2-variants-smoke_standard_ppl.json`
+    - model: `openai-community/gpt2`
+    - protocol slice: `context_len=256`, `stride=128`, `max_eval_tokens=384`
+    - methods: `fp16 uniform kivi turboquant fokvq fokvq_lloyd fokvq_adaptive fokvq_clip`
+    - result: all methods and both `2/4-bit` settings finished and wrote JSON successfully
+- Decision: keep
+- Reason: this was a real correctness bug in the newly extended harness. Fixing it was necessary before any full-wave conclusion about the new variants could be trusted.
+
+### Iteration 12
+
+- Change: ran the missing full-protocol `2-bit` variant wave on `metacognition-e8` with the strengthened same-harness comparison set:
+  - main / long-context methods:
+    - `fp16 uniform kivi turboquant fokvq fokvq_lloyd fokvq_adaptive fokvq_clip`
+  - axis ablation methods:
+    - `fp16 identity random fokvq fokvq_lloyd fokvq_adaptive fokvq_clip`
+  - launch wrapper:
+    - `scripts/fokvq/launch_exp4_2_variant_wave.sh`
+  - output root:
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_2bit_v2`
+- Verification:
+  - all 4 runs finished cleanly and wrote JSON outputs:
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_2bit_v2/main/gpt2-medium-2bit_standard_ppl.json`
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_2bit_v2/axis_ablation/gpt2-medium-2bit_standard_ppl.json`
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_2bit_v2/longctx512/gpt2-medium-2bit_standard_ppl.json`
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_2bit_v2/longctx1024/gpt2-medium-2bit_standard_ppl.json`
+  - node returned to idle after completion
+  - main table (`context_len=256`, `stride=128`):
+    - `fp16=26.8638`
+    - `uniform-2=32.4926`
+    - `kivi-2=27.7507`
+    - `turboquant-style-2=27.7524`
+    - `fokvq-2=33.6741`
+    - `fokvq_lloyd-2=34.3090`
+    - `fokvq_adaptive-2=35.2711`
+    - `fokvq_clip-2=34.4791`
+  - long-context `512/256`:
+    - `uniform-2=27.3654`
+    - `kivi-2=23.9904`
+    - `turboquant-style-2=23.3546`
+    - `fokvq-2=28.8335`
+    - `fokvq_lloyd-2=27.2620`
+    - `fokvq_adaptive-2=33.9548`
+    - `fokvq_clip-2=29.0065`
+  - long-context `1024/512`:
+    - `uniform-2=22.4624`
+    - `kivi-2=20.4618`
+    - `turboquant-style-2=19.3868`
+    - `fokvq-2=24.0110`
+    - `fokvq_lloyd-2=28.3483`
+    - `fokvq_adaptive-2=37.1294`
+    - `fokvq_clip-2=23.6791`
+  - axis ablation:
+    - `identity-2=149.8334`
+    - `random-2=52.9955`
+    - `fokvq-2=33.6741`
+    - `fokvq_lloyd-2=34.3090`
+    - `fokvq_adaptive-2=35.2711`
+    - `fokvq_clip-2=34.4791`
+  - important proxy-vs-task observation from the same JSONs:
+    - `fokvq_lloyd` consistently reduced `avg_key_mse` versus base `fokvq`
+    - but that lower reconstruction error did not translate into better `PPL` on the main slice and often regressed it
+- Decision:
+  - `fokvq_adaptive`: discard as a promising direction under the current design
+  - `fokvq_lloyd`: keep only as a mechanistic ablation, not as a candidate improvement
+  - `fokvq_clip`: keep as a weak ablation because it gave small wins on some longer-context slices, but not as a headline method
+- Reason: the 2-bit wave sharpens the main mechanistic conclusion. Better scalar reconstruction in the rotated space is not sufficient by itself. The one partial positive sign is that `fokvq_lloyd` helped at `longctx512`, and `fokvq_clip` slightly helped at `longctx1024`, but neither closes the gap to `kivi` or `turboquant-style`, and neither is stable enough to claim as the new main method.
+
+### Iteration 13
+
+- Change: ran the matching full-protocol `4-bit` variant wave on the same 4 slices and the same strengthened comparison set.
+  - output root:
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_4bit_v2`
+- Verification:
+  - all 4 runs finished cleanly and wrote JSON outputs:
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_4bit_v2/main/gpt2-medium-4bit_standard_ppl.json`
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_4bit_v2/axis_ablation/gpt2-medium-4bit_standard_ppl.json`
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_4bit_v2/longctx512/gpt2-medium-4bit_standard_ppl.json`
+    - `/scratch/boltzmann-attention-run/outputs/exp4_2_variants_4bit_v2/longctx1024/gpt2-medium-4bit_standard_ppl.json`
+  - main table (`context_len=256`, `stride=128`):
+    - `fp16=26.8638`
+    - `kivi-4=26.8770`
+    - `uniform-4=26.8983`
+    - `fokvq-4=26.9954`
+    - `turboquant-style-4=27.0020`
+    - `fokvq_adaptive-4=27.0465`
+    - `fokvq_clip-4=27.3888`
+    - `fokvq_lloyd-4=29.3253`
+  - long-context `512/256`:
+    - `kivi-4=22.5641`
+    - `uniform-4=22.5972`
+    - `fokvq_adaptive-4=22.6027`
+    - `fokvq-4=22.6055`
+    - `turboquant-style-4=22.6359`
+    - `fokvq_clip-4=22.9952`
+    - `fokvq_lloyd-4=24.0991`
+  - long-context `1024/512`:
+    - `kivi-4=18.3727`
+    - `uniform-4=18.4042`
+    - `fokvq-4=18.4042`
+    - `fokvq_adaptive-4=18.4086`
+    - `turboquant-style-4=18.4266`
+    - `fokvq_clip-4=18.4221`
+    - `fokvq_lloyd-4=23.4947`
+  - axis ablation:
+    - `identity-4=27.0862`
+    - `random-4=26.9509`
+    - `fokvq-4=26.9954`
+    - `fokvq_adaptive-4=27.0465`
+    - `fokvq_clip-4=27.3888`
+    - `fokvq_lloyd-4=29.3253`
+- Decision:
+  - `fokvq_lloyd`: discard as an improvement candidate at 4-bit
+  - `fokvq_adaptive`: discard as an improvement candidate at 4-bit
+  - `fokvq_clip`: discard as an improvement candidate at 4-bit
+- Reason: the 4-bit wave is even more clearly negative than the 2-bit wave. Once the bit budget is high enough that the main baselines are already close, none of the new `fokvq` variants improves the ranking, and `fokvq_lloyd` becomes dramatically worse despite lower-level reconstruction intuition. This reinforces the claim that the bottleneck is not simply the scalar quantizer in the rotated coordinates.
