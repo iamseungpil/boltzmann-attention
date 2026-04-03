@@ -113,6 +113,120 @@ Each iteration must follow the same loop.
 7. if not promising:
    - discard from the main queue
 
+## 3.1 Structured Experiment Sheet
+
+The active queue below is intentionally written in:
+- `Intent`
+- `Hypothesis`
+- `Verification`
+- `Failure criterion`
+
+so that each candidate can be judged mechanically rather than narratively.
+
+### E-C1. Complex Unitary Residual
+
+Intent:
+- operationalize the "complex rotation Lie group" idea without changing the
+  underlying model RoPE
+- preserve the strongest practical prior (`recent FP16 tail`)
+- change only the old quantized prefix geometry
+
+Hypothesis:
+- if RoPE really induces a complex geometric structure, then a Hermitian
+  covariance + unitary basis on complex channels should preserve the relevant
+  attention structure better than:
+  - plain `fokvq_e2_residual`
+  - pair-local `rope_unitary`
+  - direct `rope_magphase`
+
+Verification:
+- local syntax check
+- remote `--self-test`
+- `Qwen 2048` smoke:
+  - `fp16`
+  - `kivi_residual`
+  - `fokvq_e2_residual`
+  - `complex_unitary_residual`
+- accept as promising only if:
+  - finite
+  - `4-bit` does not behave pathologically vs `3-bit`
+  - `3-bit` beats `fokvq_e2_residual`
+  - and closes at least part of the gap to `kivi_residual`
+
+Failure criterion:
+- worse than `fokvq_e2_residual` at both `3/4-bit`
+- or catastrophic runtime/instability
+
+### E-C2. Complex Query-Metric Residual
+
+Intent:
+- move from "K variance axis" to "attention-relevant axis"
+- use the query-side metric while remaining GQA-safe
+
+Hypothesis:
+- the correct complex basis is not the eigenbasis of `Sigma_K` alone, but of a
+  query-weighted complex metric
+- if that is true, a complex query-metric basis should improve over
+  `complex_unitary_residual`
+
+Verification:
+- remote self-test with synthetic anisotropic Q/K
+- `Qwen 2048` smoke against:
+  - `kivi_residual`
+  - `fokvq_e2_residual`
+  - `complex_unitary_residual`
+  - `complex_qmetric_residual`
+- accept only if it improves over `complex_unitary_residual` without breaking
+  the correctness gate
+
+Failure criterion:
+- no gain over `complex_unitary_residual`
+- or obvious GQA fragility / instability
+
+### E-C3. Frequency-Banded Complex Unitary Residual
+
+Intent:
+- respect the fact that RoPE pairs correspond to different frequencies
+- avoid forcing one global complex basis across all frequency bands
+
+Hypothesis:
+- low-frequency and high-frequency RoPE pairs require different bases
+- banded complex unitary transforms should outperform a single global unitary
+  basis
+
+Verification:
+- synthetic smoke that checks separate low/high band finiteness
+- `Qwen 2048` smoke:
+  - `complex_unitary_residual`
+  - `banded_complex_unitary_residual`
+- accept only if the banded variant strictly improves on the global complex
+  unitary candidate
+
+Failure criterion:
+- no improvement over the global complex unitary basis
+
+### E-C4. Commutator-Regularized Complex Basis
+
+Intent:
+- test the actual Lie claim, not just another heuristic basis
+- explicitly encode compatibility with the RoPE generator
+
+Hypothesis:
+- if RoPE-compatible geometry matters, then smaller commutator
+  `||[U, Theta]||` should correlate with better PPL
+- a mildly regularized complex basis may outperform the unregularized one
+
+Verification:
+- synthetic check of commutator magnitude
+- `Qwen 2048` smoke:
+  - unregularized `complex_unitary_residual`
+  - regularized `complex_comm_residual`
+- accept only if lower commutator is accompanied by equal or better PPL
+
+Failure criterion:
+- lower commutator but no PPL gain
+- or unstable optimization / very high runtime
+
 ## 4. Ranking Rules
 
 ### Keep as main candidate
@@ -161,14 +275,15 @@ Update paper claim to:
 
 Run in this order:
 
-1. integrate the latest remote safety fix review
-2. close the outstanding `Qwen 16k` control/main runs
-3. discard generic real-Lie candidates from the practical queue
-4. test a first `RoPE-pair-preserving` unitary candidate
-5. test residual-tail hybridization if the unitary candidate fails
-6. test magnitude-phase quantization if the residual hybrid still trails
-7. only if one candidate is promising:
-   - promote to a wider `Qwen` compare run
+1. run `E-C1` (`complex_unitary_residual`)
+2. only if `E-C1` is finite and at least competitive with `fokvq_e2_residual`:
+   - run `E-C2` (`complex_query_metric_residual`)
+3. only if `E-C1` survives but remains clearly behind `kivi_residual`:
+   - run `E-C3` (`frequency-banded complex unitary`)
+4. only if one complex candidate is mechanistically promising:
+   - run `E-C4` commutator regularization
+5. promote to `16k` only if a smoke candidate is clearly better than the current
+   structured baseline
 
 ## 6.1 Active 4-GPU Wave on `tops-caiman`
 
