@@ -1,537 +1,525 @@
-# Exp 4-2 Lie-Algebra Autoresearch Plan
+# Exp 4-2 Lie-Rotation Autoresearch Plan
 
-Date: 2026-04-02
-Target: `Qwen2.5-7B` `3/4-bit` full-quant PPL
-Primary baseline to beat: `kivi_residual`
-Secondary baselines: `fokvq`, `fokvq_e2`, `turboquant_rand`, `quip`
+Date: 2026-04-03  
+Target: `Qwen2.5-7B`, `post_rope`, full-K quantization  
+Scope: `3/4-bit` practical regime, `2-bit` mechanistic stress tests, and a
+secondary Hamiltonian-style descriptive diagnostic track
 
-## 1. Goal
+## 0. Evidence Base
 
-Find out whether a Lie-algebra-inspired orthogonal transform can beat
-`kivi_residual` on the practically relevant `Qwen/GQA` `3/4-bit` regime.
+### 0.1 Authoritative artifacts
 
-This is explicitly narrower than the older “PCA beats everything” question.
-The current evidence already shows:
+- `reports/exp4_2_autoresearch_log.md` Iteration 24-29 for the corrected Qwen queue
+- `reports/exp4_2_separate_report_ko.md` for GPT-2 same-harness control tables
+- current-harness smoke JSON files with `benchmark_meta`
+- bounded Qwen mechanistic smoke on `2026-04-03`
+  - `FP16=11.8666`
+  - `fokvq_e2(2b)=12.4561`, `kivi_residual(2b)=13.1795`,
+    `turboquant_rand(2b)=14.5626`
+  - `fokvq_e2(3b)=11.5092`, `turboquant_rand(3b)=11.7115`,
+    `kivi_residual(3b)=11.8421`
 
-- `GPT-2/MHA`: structured rotation is meaningful
-- `Qwen/GQA`: `kivi_residual` is the strongest current same-harness control
-- therefore the next useful question is whether a better `SO(d)` transform,
-  not naive PCA alone, can close the remaining gap on `Qwen`
+### 0.2 Deprecated artifact
 
-## 2. Working Hypotheses
+- `results/v3/qwen2.5-7b_full_quant_ppl_v3.json`
+  - contains older hook/runtime failures
+  - keep for history only, never as the source of a current claim
 
-### H-C0. Correctness Gate
+## 1. Revised Intent
 
-Before any scientific comparison, the harness must satisfy:
+The current paper-safe question is no longer:
 
-- `16-bit patched == fp16`
-- smoke output must be finite
-- `4-bit` must not be worse than `3-bit` by a large margin for a stable method
+> Can the current FOKVQ implementation beat every strong KV-cache baseline?
 
-If this gate fails, the wave is invalid and must be discarded.
+The current paper-safe question is:
 
-### H-L1. Robust Lie Equalization
+> Can a Lie-group view of rotation selection explain why some cache-coordinate
+> transforms help and others fail, can `fokvq_e2` serve as the strongest current
+> structured candidate, and do Hamiltonian-style geometry diagnostics help
+> describe the surviving effect without overclaiming causality?
 
-Naive variance equalization is too sensitive to outliers.
-A robust covariance estimate before constructing the Givens rotation may
-improve `3/4-bit` behavior.
+This matters because the current evidence is asymmetric:
 
-Candidate method:
-- `lie_eq_robust`
+- `GPT-2 / MHA`: strong support for anisotropy and PCA as a static basis
+- `Qwen / GQA / RoPE`: long-budget practical pressure still favors `kivi_residual`
+- bounded `Qwen` mechanistic smoke now shows `fokvq_e2` beating both
+  `kivi_residual` and `turboquant_rand`
+- therefore the real open problem is not “does PCA exist,” but
+  “which structured generator and quantizer survive once we separate
+  mechanism, practical retention, and geometry diagnostics”
 
-Acceptance signal:
-- beats plain `lie_eq`
-- does not regress badly against `fokvq_e2`
-- stays within `+0.5 PPL` of `kivi_residual` at either `3-bit` or `4-bit`
+## 2. Benchmark Ladder
 
-### H-L2. Query-Safe Lie Weighting
+Experiments must be matched to the hypothesis they test.
 
-Full Q-weighted PCA is GQA-fragile as a main method because query-head pooling
-can collapse structure. But a weaker query-aware diagonal weighting may still
-be safe.
+### B1. PPL Quality Benchmark
 
-Candidate method:
-- `lie_qdiag`
+**Intent**  
+Measure pure LM quality retention under full-K quantization.
 
-Mechanism:
-- pool query energy into a per-coordinate importance for each KV head
-- construct a Lie transform using weighted K statistics rather than raw K
+**Benchmark**  
+WikiText-2 chunked/full-K PPL.
 
-Acceptance signal:
-- beats `fokvq` and `lie_eq` on `Qwen` `3-bit`
-- remains finite and stable under GQA
-- materially improves over `lie_eq_robust`
+**Why this benchmark**
+- comparable to existing KV-cache papers
+- cheap enough for iterative same-harness loops
+- good at exposing catastrophic quantizer failures
 
-### H-L3. Robust + Query-Safe Combined Lie Transform
+**Methods required**
+- `fp16`
+- `uniform`
+- `kivi_residual`
+- `turboquant_rand`
+- target Lie/FOKVQ candidates
 
-If the weak point is both outlier sensitivity and lack of query relevance,
-combine the two.
+### B2. Rotation Mechanistic Benchmark
 
-Candidate method:
-- `lie_qdiag_robust`
+**Intent**  
+Test whether covariance-aligned or Lie-structured generators beat agnostic
+bases before making any practical claim.
 
-Acceptance signal:
-- best among the Lie variants
-- at least approaches `kivi_residual` closely at `3/4-bit`
+**Benchmark**  
+Same-harness axis-selection comparison:
+- `identity`
+- `random`
+- `fokvq`
+- structured Lie candidates
 
-### H-C1. Public-Gap Control Revision
+**Why this benchmark**
+- directly measures the axis-selection hypothesis
+- prevents negative main-table results from being misread as “rotation never helps”
 
-The old same-harness `kivi` proxy was too weak. A more public-faithful
-control with a residual FP16 tail changes the ranking.
+### B3. Retrieval Depth Benchmark
 
-Acceptance signal:
-- `kivi_residual` beats old `kivi` on `Qwen` smoke
-- and changes at least one prior ranking against `fokvq` or `fokvq_e2`
+**Intent**  
+Check whether a structured transform preserves useful cache geometry across
+different needle depths, not only average next-token likelihood.
 
-### H-C2. Random-Rotation Turbo Control
+**Benchmark**
+- NIAH depth sweep with multiple context lengths
+- minimum 3 depths; 5 preferred
 
-The Hadamard proxy may understate or distort the TurboQuant-style control.
-A seeded random orthogonal rotation is a better same-harness proxy.
+**Why this benchmark**
+- the paper’s current interpretation is about geometry, not only scalar MSE
+- depth sensitivity is a cleaner retrieval proxy than one averaged score
 
-Acceptance signal:
-- `turboquant_rand` is no worse than deterministic `turboquant`
-- and is competitive with the best non-Lie control after `kivi_residual`
+### B3.5. Hamiltonian Descriptive Diagnostic
 
-## 3. Iteration Protocol
+**Intent**
+Test whether methods that preserve RoPE-pair geometry also preserve simple
+Hamiltonian-style invariants on sampled cache tensors.
 
-Each iteration must follow the same loop.
+**Benchmark**
+- sampled post-RoPE K tensors from the real model
+- descriptive metrics:
+  - quadratic energy drift
+  - pair-phase drift
+  - symplectic-form drift
 
-1. implement one candidate
-2. run self-test
-3. run `Qwen 2048-token` smoke
-4. compare against:
-   - `kivi_residual`
-   - `fokvq`
-   - `fokvq_e2`
-   - `lie_eq`
-5. keep only if:
-   - finite PPL
-   - no harness breakage
-   - empirical improvement over at least one relevant structured baseline
-6. if promising:
-   - schedule `16k` run
-7. if not promising:
-   - discard from the main queue
+**Why this benchmark**
+- it does not claim Hamiltonian dynamics are proved
+- it gives a falsifiable descriptive check for the proposed interpretation
+- it can explain why some structured methods survive bounded smoke while others fail
 
-## 3.1 Structured Experiment Sheet
+### B4. Optional External Generalization
 
-The active queue below is intentionally written in:
-- `Intent`
-- `Hypothesis`
-- `Verification`
-- `Failure criterion`
+**Intent**  
+Only after B1-B3 are stable, test broader long-context task generalization.
 
-so that each candidate can be judged mechanically rather than narratively.
+**Benchmark**
+- LongBench or RULER-style tasks
+
+**Why optional**
+- useful for paper scope later
+- but not necessary for the current smoke-critic-improve loop
+
+### B5. Metric Robustness Benchmark
+
+**Intent**
+Check whether PPL alone is masking or distorting the practically relevant
+effect.
+
+**Benchmark**
+- WikiText-2 full-K PPL
+- NIAH depth sweep
+- sampled attention-logit distortion
+- sampled top-k attention rank overlap
+
+**Why this benchmark**
+- PPL is sensitive to average next-token likelihood
+- cache quantization may preserve retrieval geometry while still hurting token
+  likelihood on unrelated positions
+- a method can be mechanistically meaningful without being a PPL winner
+
+## 3. Correctness Gate
+
+No scientific interpretation is allowed until this gate passes.
+
+### G0. Harness correctness
+
+**Intent**  
+Ensure the harness actually measures the intended benchmark.
+
+**Hypothesis**
+- full-K quantization is active
+- patched methods produce finite outputs
+- benchmark preset and method set are aligned
+
+**Verification**
+- `--self-test` passes
+- small preset smoke passes
+- no unknown-method failures
+- benchmark metadata is written to JSON
+
+**Failure interpretation**
+- any failure invalidates the current wave; fix harness before running a new experiment
+
+## 4. Scientific Tracks
+
+### H1. PCA/static basis remains meaningful on Qwen only if it survives axis ablation
+
+**Intent**  
+Test whether the paper’s mechanistic story survives in the harder GQA setting.
+
+**Hypothesis**  
+Even if the current full FOKVQ method loses to `kivi_residual`, a structured
+basis should still beat `identity` or `random` in the same harness.
+
+**Verification**
+- run `rotation_mechanistic` preset
+- require:
+  - finite `fp16`, `identity`, `random`, `fokvq`
+  - target method improves over at least one agnostic basis
+
+**Failure interpretation**
+- if the target method does not beat `identity/random`, the Lie/PCA story is
+  not yet empirically anchored on Qwen
+
+### H2. Recent-tail preservation is a necessary inductive bias on Qwen
+
+**Intent**  
+Preserve the strongest current positive empirical signal.
+
+**Hypothesis**  
+Methods that quantize only the older prefix and keep a recent FP16 tail are
+more stable than transforms applied uniformly to the whole cache.
+
+**Verification**
+- compare `fokvq_e2` vs `fokvq_e2_residual`
+- compare `complex_unitary_residual`-family methods against non-residual transforms
+- use both PPL and average key MSE
+
+**Failure interpretation**
+- if residual-tail preservation gives no stability advantage, the practical
+  story must be revised away from “recent tail + structured prefix”
+
+### H3. `fokvq_e2` is the current main constructive candidate
+
+**Intent**
+Promote the only structured candidate that has a new verified win on bounded
+Qwen mechanistic smoke.
+
+**Hypothesis**
+`fokvq_e2` is stronger than plain `fokvq`, and on bounded Qwen mechanistic
+evaluation it can outperform `identity`, `random`, `kivi_residual`, and
+`turboquant_rand`.
+
+**Verification**
+- keep the `rotation_mechanistic` preset as the first gate
+- require the bounded ranking to remain:
+  - better than `identity/random`
+  - better than or tied with other structured candidates
+- only then promote to `ppl_quality`
+
+**Failure interpretation**
+- if `fokvq_e2` loses its bounded mechanistic edge after a harness fix, it
+  falls back to a secondary structured baseline rather than the lead candidate
+
+### H4. Complex/unitary generators are exploratory Lie candidates, not the lead path
+
+**Intent**  
+Test whether RoPE-aware complex structure adds value beyond the currently
+stronger `fokvq_e2` baseline.
+
+**Hypothesis**  
+Complex Hermitian/unitary generators may outperform:
+- pair-local RoPE heuristics
+- weaker real-rotation controls
+- but they must now also justify themselves against `fokvq_e2`
+
+**Verification**
+- first on `rotation_mechanistic` and the Hamiltonian descriptive diagnostic
+- then on `retrieval_depth` only if smoke passes
+- keep only methods that:
+  - are finite
+  - are monotone in bit-width
+  - beat or tie `fokvq_e2` on at least one meaningful axis
+
+**Failure interpretation**
+- if complex/unitary variants fail against `fokvq_e2` and weak controls, the
+  Lie story stays descriptive, not algorithmic
+
+### H5. Main-table superiority is optional; basis-level evidence is mandatory
+
+**Intent**  
+Prevent scope creep and overclaiming.
+
+**Hypothesis**  
+The paper can still make a real contribution if:
+- structured basis choices are empirically meaningful
+- but the current low-bit quantizer is not yet strong enough to beat `kivi_residual`
+
+**Verification**
+- report both:
+  - practical ranking (`kivi_residual`, `turboquant_rand`, `fokvq`, variants)
+  - mechanistic ranking (`identity`, `random`, structured basis variants)
+
+**Failure interpretation**
+- if both rankings are negative, the current paper must collapse to an internal
+  report rather than a methods paper
+
+### H6. Hamiltonian diagnostics are descriptive support, not a practical claim
+
+**Intent**
+Use conservative geometry diagnostics to support or reject Hamiltonian-style
+language in the paper.
+
+**Hypothesis**
+Methods with lower quadratic energy drift and lower symplectic-form drift on
+sampled post-RoPE K tensors will tend to be the methods that survive bounded
+mechanistic PPL better.
+
+**Verification**
+- compute Hamiltonian-style metrics on the same sampled K tensors used for smoke
+- compare metric ranking against bounded mechanistic PPL ranking
+- only claim descriptive alignment, never causal proof
+
+**Failure interpretation**
+- if the diagnostic ranking and PPL ranking disagree strongly, Hamiltonian
+  language must be demoted to motivation or appendix only
+
+### H7. The practical gap is caused by objective mismatch, not by absence of structure
+
+**Intent**
+Explain why a method can win bounded mechanistic ranking and still lose the main
+practical table.
+
+**Hypothesis**
+`fokvq_e2` improves basis alignment, but practical performance is still limited
+by one or more of:
+- tail/recency mismatch
+- scalar quantizer mismatch after rotation
+- head-group mismatch under GQA
+- benchmark mismatch between retrieval geometry and average PPL
+
+**Verification**
+- compare PPL, NIAH, attention-logit distortion, and Hamiltonian-style drift
+- compare plain vs residual-tail variants
+- compare grouped-KV behavior on Qwen heads
+
+**Failure interpretation**
+- if no diagnostic separates practical losers from practical winners, the
+  current theory needs a narrower descriptive claim
+
+## 5. Active Candidate Queue
+
+### E-M1. FOKVQ-E2 practical promotion
+
+**Intent**
+Test whether the new bounded mechanistic winner survives when the evaluation
+budget is raised toward practical same-harness PPL.
+
+**Hypothesis**
+`fokvq_e2` remains better than plain `fokvq` and stays competitive with
+`kivi_residual` and `turboquant_rand` in at least one low-bit regime.
+
+**Verification**
+- self-test
+- bounded `rotation_mechanistic` smoke
+- medium-budget `ppl_quality`
+- keep only if it still improves over plain `fokvq` and does not collapse
+
+**Failure interpretation**
+- if bounded success disappears immediately under a larger budget, the result is
+  mechanistic evidence only, not a practical promotion
+
+### E-H1. Hamiltonian descriptive probe
+
+**Intent**
+Attach conservative Hamiltonian-style diagnostics to the same smoke runs already
+used for mechanistic ranking.
+
+**Hypothesis**
+`fokvq_e2` and stable residual methods preserve simple pairwise energy and
+symplectic structure better than weak controls.
+
+**Verification**
+- add descriptive metrics to the harness
+- require finiteness and stable ordering on small smokes
+
+**Failure interpretation**
+- if the metrics are unstable or uninformative, drop them from the main paper
+
+### E-M2. Why-not-practical ablation
+
+**Intent**
+Directly test why bounded wins do not yet become practical wins.
+
+**Hypothesis**
+One of the following bottlenecks dominates:
+- `A1` recency bottleneck: recent FP16 tail matters more than global basis quality
+- `A2` quantizer bottleneck: Lloyd-Max on rotated axes is still not the right
+  distortion objective for downstream attention
+- `A3` GQA bottleneck: one KV head shared by many Q heads weakens the value of a
+  static K-only rotated basis
+- `A4` metric bottleneck: PPL underweights the retrieval and geometry benefit
+
+**Verification**
+- `A1`: compare `fokvq_e2` vs `fokvq_e2_residual`
+- `A2`: add attention-logit distortion and top-k overlap on sampled chunks
+- `A3`: inspect grouped Q-vs-KV covariance mismatch and groupwise drift
+- `A4`: compare ranking on PPL vs NIAH vs geometry metrics
+
+**Failure interpretation**
+- if all four fail, the method is likely descriptive-only under current design
+
+### E-M3. PPL validity check
+
+**Intent**
+Test whether PPL is the wrong primary metric for the claim we care about.
+
+**Hypothesis**
+Methods that preserve retrieval geometry or attention structure can be
+undervalued by average next-token PPL.
+
+**Verification**
+- keep PPL as the main practical metric
+- add:
+  - NIAH depth profiles
+  - sampled attention-logit MSE
+  - sampled top-k attention overlap
+- look for cases where PPL is flat or negative but retrieval/attention metrics
+  improve
+
+**Failure interpretation**
+- if all metrics agree that the method loses, the gap is algorithmic rather
+  than metric-related
 
 ### E-C1. Complex Unitary Residual
 
-Intent:
-- operationalize the "complex rotation Lie group" idea without changing the
-  underlying model RoPE
-- preserve the strongest practical prior (`recent FP16 tail`)
-- change only the old quantized prefix geometry
+**Intent**  
+Use a Hermitian covariance and unitary basis on complex RoPE channels while
+preserving the recent FP16 tail.
 
-Hypothesis:
-- if RoPE really induces a complex geometric structure, then a Hermitian
-  covariance + unitary basis on complex channels should preserve the relevant
-  attention structure better than:
-  - plain `fokvq_e2_residual`
-  - pair-local `rope_unitary`
-  - direct `rope_magphase`
+**Hypothesis**  
+Global complex unitary structure is more faithful than pair-local RoPE
+heuristics and generic real rotations.
 
-Verification:
-- local syntax check
-- remote `--self-test`
-- `Qwen 2048` smoke:
-  - `fp16`
-  - `kivi_residual`
-  - `fokvq_e2_residual`
-  - `complex_unitary_residual`
-- accept as promising only if:
-  - finite
-  - `4-bit` does not behave pathologically vs `3-bit`
-  - `3-bit` beats `fokvq_e2_residual`
-  - and closes at least part of the gap to `kivi_residual`
+**Verification**
+- self-test
+- `ppl_quality` smoke
+- `rotation_mechanistic` smoke
+- keep only if it beats at least one weaker structured baseline
 
-Failure criterion:
-- worse than `fokvq_e2_residual` at both `3/4-bit`
-- or catastrophic runtime/instability
+**Failure interpretation**
+- no better than plain `fokvq_e2_residual` means the complex basis is not yet
+  adding useful inductive bias
 
-### E-C2. Complex Query-Metric Residual
+### E-C2. Banded Complex Unitary Residual
 
-Intent:
-- move from "K variance axis" to "attention-relevant axis"
-- use the query-side metric while remaining GQA-safe
+**Intent**  
+Allow low- and high-frequency RoPE bands to use different complex generators.
 
-Hypothesis:
-- the correct complex basis is not the eigenbasis of `Sigma_K` alone, but of a
-  query-weighted complex metric
-- if that is true, a complex query-metric basis should improve over
-  `complex_unitary_residual`
+**Hypothesis**  
+One global unitary basis is too rigid; frequency-banded bases should preserve
+RoPE structure better.
 
-Verification:
-- remote self-test with synthetic anisotropic Q/K
-- `Qwen 2048` smoke against:
-  - `kivi_residual`
-  - `fokvq_e2_residual`
-  - `complex_unitary_residual`
-  - `complex_qmetric_residual`
-- accept only if it improves over `complex_unitary_residual` without breaking
-  the correctness gate
-
-Failure criterion:
-- no gain over `complex_unitary_residual`
-- or obvious GQA fragility / instability
-
-### E-C3. Frequency-Banded Complex Unitary Residual
-
-Intent:
-- respect the fact that RoPE pairs correspond to different frequencies
-- avoid forcing one global complex basis across all frequency bands
-
-Hypothesis:
-- low-frequency and high-frequency RoPE pairs require different bases
-- banded complex unitary transforms should outperform a single global unitary
-  basis
-
-Verification:
-- synthetic smoke that checks separate low/high band finiteness
-- `Qwen 2048` smoke:
+**Verification**
+- self-test
+- `rotation_mechanistic` smoke against:
   - `complex_unitary_residual`
   - `banded_complex_unitary_residual`
-- accept only if the banded variant strictly improves on the global complex
-  unitary candidate
 
-Failure criterion:
-- no improvement over the global complex unitary basis
+**Failure interpretation**
+- no improvement means frequency banding is not the missing ingredient
 
-### E-C4. Commutator-Regularized Complex Basis
+### E-C3. Query-Metric Complex Residual
 
-Intent:
-- test the actual Lie claim, not just another heuristic basis
-- explicitly encode compatibility with the RoPE generator
+**Intent**  
+Inject query relevance without falling back to fragile full query-weighted PCA.
 
-Hypothesis:
-- if RoPE-compatible geometry matters, then smaller commutator
-  `||[U, Theta]||` should correlate with better PPL
-- a mildly regularized complex basis may outperform the unregularized one
+**Hypothesis**  
+The useful complex basis is not purely `Sigma_K`-aligned but query-metric aware.
 
-Verification:
-- synthetic check of commutator magnitude
-- `Qwen 2048` smoke:
-  - unregularized `complex_unitary_residual`
-  - regularized `complex_comm_residual`
-- accept only if lower commutator is accompanied by equal or better PPL
+**Verification**
+- self-test must show basis sensitivity under anisotropic `q_cov`
+- `ppl_quality` smoke against `complex_unitary_residual`
 
-Failure criterion:
-- lower commutator but no PPL gain
-- or unstable optimization / very high runtime
+**Failure interpretation**
+- if it changes the basis but not the metric, query-metric weighting is likely
+  not the practical bottleneck
 
-## 4. Ranking Rules
+### E-C4. Future commutator-regularized candidate
 
-### Keep as main candidate
+**Intent**  
+Test the strongest pure Lie claim only after E-C1 to E-C3 are stable.
 
-- improves `Qwen 3-bit` PPL over both `fokvq` and `fokvq_e2`
-- and either beats `kivi_residual` or narrows the gap enough to justify a full run
+**Hypothesis**  
+Generators that better commute with the RoPE operator should degrade less.
 
-### Keep as mechanistic ablation
+**Verification**
+- synthetic commutator check first
+- real benchmark only after smoke success
+
+**Failure interpretation**
+- lower commutator with no metric gain means the Lie claim is descriptive only
+
+## 6. Execution Loop
+
+Each candidate must follow the same strict loop.
+
+1. implement one change
+2. run `--self-test`
+3. run one small preset smoke
+4. fix any harness failure
+5. only then run a real benchmark
+6. keep only if the result improves the target ranking without breaking the guard
+7. log the result in `exp4_2_autoresearch_log.md`
+
+## 7. Promotion Rules
+
+### Promote to full run
+
+- self-test passes
+- preset smoke passes
+- at least one of:
+  - practical gain over `fokvq` / `fokvq_e2`
+  - mechanistic gain over `identity` / `random`
+  - descriptive Hamiltonian metrics that align with the mechanistic ranking
+
+### Keep as mechanistic evidence only
 
 - does not beat `kivi_residual`
-- but teaches something clear, for example:
-  - robust stats help
-  - query-safe weighting helps
-  - equalization hurts high-bit reconstruction
+- but clearly beats weaker basis controls or clarifies a failure mode
 
 ### Discard
 
 - unstable
-- clearly worse than `lie_eq` and `fokvq_e2`
-- too slow relative to the information gained
-
-## 5. Paper Update Triggers
-
-### If a Lie method beats `kivi_residual` on `Qwen 3/4-bit`
-
-Update paper claim to:
-- PCA is not the final answer
-- a structured `SO(d)` transform with the right inductive bias can outperform
-  both naive PCA and stronger non-rotational baselines in the GQA setting
-
-### If a Lie method helps but does not beat `kivi_residual`
-
-Update paper claim to:
-- `SO(d)` structure matters
-- but the practical frontier is conditional and architecture-sensitive
-- the contribution is mechanistic rather than SOTA-like
-
-### If all Lie methods fail
-
-Update paper claim to:
-- structured rotation alone is insufficient at `Qwen 3/4-bit`
-- the main scientific value is the boundary condition itself:
-  MHA and GQA reward different quantization geometries
-
-## 6. Immediate Queue
-
-Run in this order:
-
-1. run `E-C1` (`complex_unitary_residual`)
-2. only if `E-C1` is finite and at least competitive with `fokvq_e2_residual`:
-   - run `E-C2` (`complex_query_metric_residual`)
-3. only if `E-C1` survives but remains clearly behind `kivi_residual`:
-   - run `E-C3` (`frequency-banded complex unitary`)
-4. only if one complex candidate is mechanistically promising:
-   - run `E-C4` commutator regularization
-5. promote to `16k` only if a smoke candidate is clearly better than the current
-   structured baseline
-
-## 6.1 Active 4-GPU Wave on `tops-caiman`
-
-Current bounded queue after the Qwen eager-wrapper fix and the stronger
-`kivi_residual` control revision:
-
-- `GPU0`: `16384-token` full run still active
-  - now completed
-- `GPU0`: current smoke active
-  - `fp16`, `kivi_residual`, `fokvq_e2_residual`, `rope_magphase`
-- `GPU1`: previous smoke completed
-  - `fp16`, `kivi_residual`, `fokvq_e2`, `fokvq_e2_residual`
-- `GPU2`: currently free
-  - reserved for the next promoted candidate
-- `GPU3`: `16384-token` full run
-  - now completed: `fp16`, `kivi_residual`, `quip`, `turboquant`, `turboquant_rand`
-
-Decision rule for the next wave:
-
-- if `rope_unitary` cannot materially improve over `fokvq` or close the gap to
-  `kivi_residual`, discard it from the practical queue and reclaim `GPU1`
-  for:
-  - `residual-tail + structured transform`
-  - or `magnitude-phase` quantization
-- active next check:
-  - `rope_magphase` failed catastrophically and is discarded
-  - current next check:
-    - test whether `complex_unitary_residual` can beat `fokvq_e2_residual`
-    - and whether a Hermitian/unitary complex basis is better aligned with
-      the intended Lie interpretation than direct phase quantization
-- if `rope_unitary` is promising, promote only that candidate to a wider run
-  before adding new complexity
-
-## 6.2 Updated Control Interpretation
-
-The baseline audit changed the queue.
-
-- old `kivi` should now be treated as a weak same-harness proxy
-- new `kivi_residual` is still not the official KIVI implementation, but it is a
-  materially more faithful K-only proxy because it preserves a recent FP16 tail
-- therefore the practical Qwen target is no longer just `kivi`, but primarily:
-  - `kivi_residual`
-  - then the best of `quip`, `kvquant`, `turboquant_rand`
-
-Immediate implication:
-
-- if a Lie method cannot challenge `kivi_residual` on `Qwen 3/4-bit`, it should
-  not be carried as a practical winner
-- it may still survive as a mechanistic result if it reveals a geometry effect
-  that differs from PCA and from KIVI-style residual preservation
-
-## 6.3 Validated Findings So Far
-
-These are no longer speculative.
-
-- `Qwen 2048-token smoke`
-  - `fp16 = 6.0769`
-  - old `kivi`: `7.3729 / 6.4674` at `3 / 4` bit
-  - `kivi_residual`: `6.5734 / 6.1431`
-  - `fokvq`: `9.7439 / 6.9743`
-- `rope_unitary`: `14.3512 / 13.9959`
-- `fokvq_e2`: `7.7454 / 7.3983`
-- `fokvq_e2_residual`: `7.4612 / 7.4540`
-- `rope_magphase`: `750.0469 / 424.5279`
-- `Qwen 16k complete`
-  - `fp16 = 6.7544`
-  - `kivi_residual`: `7.2060 / 6.7738`
-  - `fokvq`: `9.6555 / 7.4720`
-  - `fokvq_e2`: `8.7232 / 8.4917`
-  - `quip`: `9.1795 / 7.1394`
-  - `turboquant`: `7.5671 / 7.0900`
-  - `turboquant_rand`: `7.5587 / 7.0212`
-
-Interpretation:
-
-- the old `kivi` proxy understated the strength of the KIVI family
-- `kivi_residual` is the correct practical control for the current same-harness queue
-- plain `fokvq` is not competitive with that control on `Qwen 3-bit`
-- current real-Lie candidates (`lie_qdiag`, `lie_qdiag_robust`) are too weak to
-  remain in the practical frontier queue
-- `rope_unitary` is also practically dead despite respecting pair locality
-- `rope_magphase` shows that naive direct phase quantization is not the right
-  way to operationalize the complex-rotation hypothesis
-- `fokvq_e2_residual` helps at `3-bit`, but not enough to challenge the control
-- the remaining open practical questions are:
-  - whether a true complex/unitary basis can do better than pairwise rotation
-  - whether any RoPE-aware candidate can close the remaining gap to `kivi_residual`
-
-## 6.4 Literature-Driven Next Hypotheses
-
-The next wave should not just retry the same PCA family. Recent KV-cache and
-rotation literature suggests several distinct directions:
-
-### H-N1. Residual-Tail + Rotation Hybrid
-
-Current evidence suggests that preserving a recent FP16 tail is a very strong
-control on `Qwen`. A natural next step is to combine:
-
-- `kivi_residual` style recent-token preservation
-- with a structured rotation on the older quantized prefix only
-
-Candidate:
-- `fokvq_residual`
-- `lie_qdiag_residual`
-
-Why this is plausible:
-- KIVI-style residual preservation is empirically strong in the current queue
-- rotation may help only on the older, harder-to-preserve region rather than on
-  the entire cache
-
-Acceptance signal:
-- beats plain `kivi_residual` at either `3-bit` or `4-bit`
-
-### H-N2. Learned / Calibrated Rotation Instead of Plain PCA
-
-Rotation literature suggests that random rotations vary widely in quality and
-that learned or calibrated rotations can outperform naive fixed choices.
-
-Candidate:
-- calibration-optimized orthogonal basis on a small held-out set
-- low-rank or Cayley-style update starting from PCA or random rotation
-
-Acceptance signal:
-- beats plain `fokvq` and `turboquant_rand`
-- narrows the gap to `kivi_residual`
-
-### H-N3. Pivot / Salient Token Preservation
-
-Some recent quantization work keeps a small critical token subset in higher
-precision rather than treating every token uniformly.
-
-Candidate:
-- preserve a tiny pivot-token set plus quantize the rest
-- combine token preservation with `fokvq_e2`
-
-Acceptance signal:
-- reduces the `3-bit` gap without large runtime cost
-
-### H-N4. Head-Grouped Key Compression
-
-Recent post-training KV compression work uses head grouping/reordering before
-compression. That suggests our per-head independent basis may be too local.
-
-Candidate:
-- group KV heads by similarity
-- fit a shared basis or shared codebook per group
-
-Acceptance signal:
-- improves `Qwen 3-bit` over per-head `fokvq_e2`
-
-### H-N5. Hybrid Quantization + Low-Rank Residual
-
-GEAR and ReCalKV indicate that pure scalar quantization may not be enough when
-important residual structure is low-rank.
-
-Candidate:
-- `fokvq_e2 + rank-r residual`
-- `kivi_residual + rank-r residual`
-
-Acceptance signal:
-- practical improvement at `3-bit` with modest runtime overhead
-
-## 6.5 Complex-Rotation / Unitary Direction
-
-Document review across the folder suggests that the strongest shared mathematical
-object is not a generic real rotation, but an exponential map with phase
-structure:
-
-- `FOKVQ_PAPER_v3/v6`: quantization is framed as a Lie-group rotation
-- `DHS_PAPER_v2` and `HEAT_PAPER_v2`: RoPE is interpreted as a rotation matrix
-  whose frequency controls recency decay
-- `M-SSM` and `M-SSM_Universal_Framework`: Transformer position encoding is
-  written explicitly as `exp(i Θ · pos) ∈ U(d)` and tied to the same family as
-  `exp(iH t)` and other exponential-map models
-
-This suggests the current failed Lie variants may be using the wrong symmetry
-class on `Qwen`.
-
-### Core Diagnosis
-
-Current `lie_eq` / `lie_qdiag` operate as generic real-valued `SO(d)` transforms.
-That is plausible on `GPT-2` where there is no RoPE phase geometry, but on
-`Qwen` the head dimensions come in paired coordinates that already represent
-complex phases. A generic real rotation can mix unrelated pairs and destroy the
-RoPE-compatible phase structure.
-
-### H-U1. RoPE-Commuting Unitary Rotation
-
-Restrict the transform to blockwise `SO(2)` / complex `U(d/2)` rotations that
-respect the RoPE pairing.
-
-Implementation sketch:
-- reshape each head from `d` real dimensions into `d/2` complex channels
-- parameterize the transform as block-2x2 rotations or a unitary matrix
-- optionally constrain it to commute approximately with the RoPE generator `Θ`
-
-Acceptance signal:
-- beats current real-valued Lie variants on `Qwen`
-- narrows the gap to `kivi_residual`
-
-### H-U2. Magnitude-Phase Split Quantization
-
-Treat each RoPE pair as a complex number `z = r e^{iφ}` and quantize:
-
-- magnitude `r` with non-uniform / Lloyd-Max style allocation
-- phase `φ` with circular quantization or protected high precision
-
-Rationale:
-- the documents repeatedly tie position information to phase
-- current PCA-style methods only preserve Euclidean variance, not angular error
-
-Acceptance signal:
-- reduces long-range attention degradation at `3-bit`
-- improves `Qwen` more than `GPT-2`, which would support the RoPE-phase claim
-
-### H-U3. Commutator Test
-
-Test whether respecting the RoPE generator matters by comparing:
-
-- unconstrained real rotation
-- complex/unitary rotation
-- complex rotation with commutator penalty `||[H, Θ]||`
-
-Interpretation:
-- if lower commutator correlates with better PPL, that directly supports the
-  complex-rotation Lie interpretation instead of a generic “any rotation helps”
-  story
-
-### H-U4. Residual-Tail + Unitary Prefix
-
-Combine the strongest practical control with the strongest geometric prior:
-
-- keep the recent residual tail in FP16 (`kivi_residual`)
-- apply a RoPE-compatible unitary transform only to the older quantized prefix
-
-This is the most plausible bridge between the current practical winner and the
-folder’s Lie/HEAT theory.
-
-## 7. Document Alignment Notes
-
-- `phase4_1_ppl_results.docx` is no longer the authoritative Qwen evidence.
-  It remains useful as historical motivation, but the active paper-facing readout
-  must come from the `v3` full-quant harness because that is the first protocol
-  that quantizes all K states rather than a diluted slice.
-- `FOKVQ_ADDITIONAL_EXPERIMENT_PLAN_v9.docx` is still directionally correct:
-  `Exp 4-2` remains the decisive benchmark. The difference is that the current
-  queue is now narrowed to the credible Qwen/GQA battleground instead of broad
-  GPT-2-first optimism.
-- The practical paper story must be conditional on `Qwen 3/4-bit`:
-  if a Lie candidate cannot at least challenge `fokvq_e2`, then the result is
-  mechanistic only and should not replace PCA as the main practical method.
+- benchmark misaligned
+- no gain over weaker controls
+- only improves MSE while PPL and retrieval stay unchanged or regress
+
+## 8. Current Go / No-Go Reading
+
+- `kivi_residual` remains the long-budget practical leader.
+- bounded `rotation_mechanistic` evidence is now positive for `fokvq_e2`.
+- `fokvq_e2` is the main constructive candidate to promote next.
+- complex/unitary residual methods are still worth testing, but as exploratory
+  challengers rather than the default lead.
+- Hamiltonian diagnostics are allowed only as descriptive support.
+- the next expansion must explain the practical gap explicitly rather than only
+  searching for another variant.
+- no new remote run should start until:
+  - self-test passes
+  - preset smoke passes
+  - the candidate is logged with `Intent / Hypothesis / Verification / Failure interpretation`

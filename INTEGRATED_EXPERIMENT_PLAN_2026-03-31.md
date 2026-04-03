@@ -1,432 +1,257 @@
 # Integrated Experiment Plan
 
-Date: 2026-03-31
-Scope: Boltzmann/FOKVQ precursor results + DHS/HEAT paper validation
-Primary sources:
-- `results/experiment_log_v2.md`
-- `reports/boltzmann_definitive_report_ko.tex`
-- `DHS_PATENT_EXPERIMENT_PLAN_v3.docx`
-- `HEAT_PAPER_v2.docx`
+Date: 2026-04-03  
+Scope: FOKVQ / Lie-group rotation interpretation / benchmark redesign
 
-## 1. Goal
+## 0. Evidence Base And Source Policy
 
-This plan has two goals.
+### 0.1 Authoritative sources
 
-1. Close the current Boltzmann/FOKVQ line with a reproducible, internally consistent result set.
-2. Validate the DHS/HEAT hypothesis as a paper-ready theory with a small number of decisive experiments before committing to large end-to-end system work.
+- `results/v3/gpt2-medium_full_quant_ppl_v3.json`
+- `reports/exp4_2_separate_report_ko.md`
+- `reports/exp4_2_autoresearch_log.md` Iteration 24-29
+- benchmark-smoke JSON files produced by the current harness version
+- bounded Qwen mechanistic smoke on `2026-04-03`
 
-The key practical constraint is that the repository already contains substantial precursor evidence for temperature profiles, facet structure, and quantization behavior, but it does not yet contain the core DHS experiments such as dual-exponential fitting, RoPE-kappa coupling, anchor insertion, and position-aware quantization.
+### 0.2 Deprecated or non-authoritative artifacts
 
-## 2. Current Status
+- `results/v3/qwen2.5-7b_full_quant_ppl_v3.json`
+  - this file is an older failed run with hook/runtime errors
+  - it must not be used as the source of truth for current Qwen claims
 
-### 2.1 Completed precursor experiments
+### 0.3 Reporting rule
 
-The following results already exist and should be treated as baseline assets, not rerun by default.
+- Every report table must name its source artifact class:
+  - raw JSON
+  - experiment log
+  - smoke-only wiring check
+- No practical claim may rely on a stale failed JSON when a later corrected log exists.
 
-| Area | Existing result |
-|---|---|
-| Boltzmann temperature | `1-1` GPT-2 weak success, Qwen GQA failure |
-| Specific heat / quantization | `1-2` C(q) is different but not better than variance-based allocation |
-| FFN spectral claim | `1-3` rejected |
-| Facet separability | `2-1` supported |
-| PCA vs LDA | `2-2` PCA wins clearly |
-| AFOD init | `2-4` PCA sufficient |
-| Lie-group rotation | `3-1` PCA near-optimal |
-| SSM distillation | `3-2` not practical at useful state sizes |
-| SSM initialization | `3-3` spectral is not best |
+## 1. Updated Objective
 
-### 2.2 Unresolved baseline issue
+The repository now has enough evidence to reject a naive paper framing:
 
-`Exp 2-3` is not stable at the reporting level. The current JSON indicates that query-dependent allocation differs from static allocation, but older report text still reflects a degenerate negative result. This must be fixed before any DHS or HEAT paper uses the quantization story as supporting evidence.
+> “Current FOKVQ implementation is a finished low-bit winner over all strong baselines.”
 
-### 2.3 Missing DHS/HEAT core experiments
+The realistic paper framing is instead:
 
-The repository does not yet contain dedicated experiment code or frozen results for:
+> “Rotation-based KV-cache quantization can be interpreted as a Lie-group
+> coordinate-selection problem, PCA is a strong covariance-aligned static
+> baseline, `fokvq_e2` is the strongest current structured candidate, and
+> current experiments show where this interpretation is supported, where
+> long-budget practical retention still fails, and where Hamiltonian-style
+> diagnostics can only be used descriptively.”
 
-- Dual-exponential attention-profile fitting
-- RoPE-kappa coupling
-- Residual-reheating intervention
-- GQA multimodality under HEAT fitting
-- Sequence-length valley-depth scaling
-- Sink-count auto-selection
-- Position-aware KV quantization
-- Anchor insertion for Lost in the Middle
-- End-to-end Pareto and latency benchmarking
+This plan is built around that narrower but defensible claim.
 
-## 3. Decision Strategy
+## 2. Claim Hierarchy
 
-The work should be staged with explicit gates.
+### 2.1 Positive claims currently supported
 
-- Gate A: If dual-exponential fitting is not consistently better than simple baselines, do not push DHS/HEAT as a central theory paper.
-- Gate B: If at least one mechanism-level prediction among RoPE-kappa coupling, residual-reheating coupling, or GQA multimodality fails cleanly, keep DHS/HEAT descriptive and avoid strong causal wording.
-- Gate C: If position-aware quantization and anchor-based mitigation do not improve task or PPL metrics, do not position DHS/HEAT as a practical KV-cache management method.
+- K-space anisotropy is real.
+- PCA is a strong static generator choice on GPT-2 surrogate experiments.
+- Query dependence exists, but it is more plausibly a scheduling issue than a
+  proof that the basis itself must be dynamic.
+- In Qwen/GQA, practical strength currently comes from recency-preserving
+  residual-tail baselines.
+- In bounded Qwen mechanistic smoke, `fokvq_e2` is the strongest verified
+  structured candidate so far.
 
-This means the theory should be validated before expensive end-to-end systems work on A100.
+### 2.2 Claims currently unsupported
 
-## 4. Recommended Phases
+- Current FOKVQ is SOTA on fair same-harness PPL
+- Current methods already beat `kivi_residual` in long-budget practical PPL
+- Qwen results prove the full practical method
+- Hamiltonian language is already experimentally validated as a causal story
 
-## Phase 0. Baseline Freeze
+## 3. Benchmark Ladder
 
-Window: 2026-03-31 to 2026-04-01
-Hardware: local GPU or existing environment
-Goal: clean up the current story so later DHS work has a stable baseline.
+Each benchmark must map to a hypothesis.
 
-### P0-1. Re-run and freeze `Exp 2-3`
+### B1. Quality retention
 
-Purpose:
-- Produce one authoritative result for query-dependent vs static allocation.
+**Intent**  
+Measure how much pure LM quality is preserved.
 
-Tasks:
-- Re-run the experiment from a fixed configuration.
-- Save raw outputs, summary JSON, and a short interpretation note.
-- Update report text so it matches the new JSON.
+**Hypothesis**  
+The practical quantizer quality is visible in same-harness full-K PPL.
 
-Success criterion:
-- One result file, one interpretation, no contradiction between JSON and report.
+**Verification**
+- WikiText-2 chunked/full-K PPL
+- `fp16`, `uniform`, `kivi_residual`, `turboquant_rand`, target methods
 
-### P0-2. Build a baseline index
+### B2. Rotation mechanism
 
-Purpose:
-- Create a one-page mapping from completed experiments to reusable metrics, code, and figures.
+**Intent**  
+Test whether covariance-aligned or Lie-structured bases are better than agnostic
+bases before any systems-level claim.
 
-Output:
-- experiment id
-- script path
-- result path
-- main conclusion
-- whether the result is reused by DHS/HEAT
+**Hypothesis**  
+`identity < random < PCA/structured basis` should hold at least in the stress regime.
 
-## Phase 1. DHS Theory Go/No-Go
+**Verification**
+- same-harness axis ablation
+- required methods: `identity`, `random`, `fokvq`, target structured methods
 
-Window: 2026-04-02 to 2026-04-07
-Goal: decide whether DHS/HEAT is strong enough to deserve a paper-centered push.
+### B3. Retrieval depth
 
-### P1-1. Dual-exponential superiority
+**Intent**  
+Check whether a basis preserves useful cache geometry across positions, not just
+average next-token likelihood.
 
-Source mapping:
-- DHS `Exp 1.1`
-- HEAT Prediction 1
+**Hypothesis**  
+If the geometry is meaningful, deep-needle retrieval should degrade more
+gracefully than with weaker bases.
 
-Models:
-- GPT-2 Medium
-- Qwen2.5-7B
-- Llama-3-8B
+**Verification**
+- NIAH depth sweep
+- at least 3 depth points
+- multiple context lengths
 
-Comparison baselines:
-- Poly-2
-- Poly-4
-- single-exponential
-- optional: cosh, two-Gaussian if implementation cost is low
+### B4. Optional external generalization
 
-Primary metrics:
-- per-head R^2
-- AIC or BIC win rate
-- fraction of heads where dual-exponential wins
+**Intent**  
+Only after B1-B3 are stable, test whether the effect survives broader long-context tasks.
 
-Success criterion:
-- GPT-2: dual-exponential beats Poly-4 for at least 80 percent of heads
-- GQA models: dual-exponential beats Poly-4 for at least 70 percent of heads
+**Hypothesis**  
+A method that survives B1-B3 deserves evaluation on broader task suites.
 
-Interpretation:
-- This is the main Go/No-Go gate.
+**Verification**
+- optional external long-context benchmark suite
 
-### P1-2. Sequence-length scaling
+### B5. Hamiltonian descriptive diagnostics
 
-Source mapping:
-- DHS `Exp 5.1`
-- HEAT Prediction 5
+**Intent**  
+Use conservative geometry diagnostics to decide whether Hamiltonian-style
+language belongs in the paper body or only in supporting discussion.
 
-Models:
-- GPT-2 Medium first
-- Llama-3-8B second if Phase 1 stays alive
+**Hypothesis**  
+Methods that better preserve quadratic pair energy and the canonical
+symplectic-form proxy tend to retain bounded mechanistic PPL better.
 
-Lengths:
-- 256, 512, 1024, 2048, 4096
-- 8192 only on the large-model track
+**Verification**
+- sampled post-RoPE K tensors
+- energy drift
+- phase drift
+- symplectic-form drift
+- only descriptive correlation, never causal proof
 
-Metric:
-- Spearman correlation between log sequence length and valley depth
+## 4. Active Hypotheses
 
-Success criterion:
-- strong positive correlation, ideally above 0.8
+### H1. Anisotropy is the prerequisite signal
 
-Reason:
-- This is cheaper than full end-to-end evaluation and directly checks a unique DHS prediction.
+**Intent**  
+Verify that rotation is worth discussing at all.
 
-### P1-3. GQA multimodality
+**Hypothesis**  
+A small number of principal directions explain a disproportionate amount of K variance.
 
-Source mapping:
-- DHS `Exp 4.1`
-- HEAT Prediction 4
+**Verification**
+- effective rank
+- corpus separability gap
+- head-wise anisotropy summary
 
-Model:
-- Llama-3-8B
+**Failure interpretation**
+- If this fails, the Lie/PCA paper center collapses.
 
-Metric:
-- per-Q-head fit quality
-- per-KV-group aggregated profile shape
-- multimodality test on aggregated distributions
+### H2. PCA is a strong static basis
 
-Success criterion:
-- per-Q-head remains roughly U-shaped
-- averaged KV-group profile becomes multi-modal or clearly non-simple-U
+**Intent**  
+Test the core mechanistic claim on static rotation choice.
 
-Reason:
-- This is the cleanest bridge from existing Qwen GQA findings to the DHS paper.
+**Hypothesis**  
+PCA outperforms identity, random, and weaker alternatives on reconstruction or
+same-harness axis ablations.
 
-## Phase 2. Mechanism Validation
+**Verification**
+- KL / MSE surrogates on GPT-2
+- same-harness axis ablation on GPT-2 and Qwen where possible
 
-Window: 2026-04-08 to 2026-04-11
-Goal: strengthen the paper from descriptive fit to mechanism-level evidence.
+**Failure interpretation**
+- If PCA does not beat weaker bases, the theory section must be narrowed.
 
-### P2-1. RoPE-kappa coupling
+### H3. The current bottleneck is the post-rotation quantizer
 
-Source mapping:
-- DHS `Exp 2.1`
-- HEAT Prediction 2
+**Intent**  
+Separate basis evidence from final practical ranking.
 
-Model family:
-- Llama-3-8B variants preferred
+**Hypothesis**  
+A basis-level effect can coexist with negative main-table results.
 
-Metric:
-- correlation between RoPE base frequency and fitted recency decay constant kappa_2
+**Verification**
+- compare basis ablations and main-table PPL side by side
 
-Success criterion:
-- negative correlation with practically meaningful effect size
+**Failure interpretation**
+- If both are negative, the current story is only an internal report.
 
-### P2-2. Residual-reheating coupling
+### H4. `fokvq_e2` is the main constructive candidate on Qwen
 
-Source mapping:
-- DHS `Exp 3.1`
-- HEAT Prediction 3
+**Intent**  
+Promote the only structured candidate with a new verified bounded win.
 
-Model:
-- GPT-2 Medium
+**Hypothesis**  
+`fokvq_e2` remains stronger than plain `fokvq` and weak controls when moved
+from bounded mechanistic smoke toward medium-budget practical PPL.
 
-Intervention:
-- scale residual strength at inference
+**Verification**
+- bounded mechanistic smoke
+- medium-budget `ppl_quality`
 
-Metric:
-- correlation between residual scale and reheating magnitude
+**Failure interpretation**
+- if the bounded advantage disappears immediately, the contribution is
+  mechanistic rather than practical
 
-Success criterion:
-- monotone positive relationship
+### H5. Complex/unitary residual variants remain exploratory
 
-Interpretation:
-- If this fails, the reheating story should remain descriptive rather than causal.
+**Intent**  
+Focus the constructive search on candidates compatible with RoPE geometry.
 
-## Phase 3. Practical Value Gate
+**Hypothesis**  
+Complex/unitary residual transforms may explain RoPE geometry better, but they
+must now justify themselves against `fokvq_e2`, not just weak controls.
 
-Window: 2026-04-12 to 2026-04-17
-Goal: test whether DHS/HEAT has practical value beyond explanation.
+**Verification**
+- self-test
+- preset smoke
+- full run only after both pass
+- Hamiltonian diagnostics may support them descriptively, but do not rescue
+  negative practical or mechanistic results
 
-### P3-1. Position-aware quantization
+**Failure interpretation**
+- If these also fail, the Lie framing remains descriptive rather than algorithmic.
 
-Source mapping:
-- DHS `Exp 7.1`
-- HEAT practical implication on KV quantization
+### H6. Hamiltonian framing is descriptive until diagnostics align
 
-Models:
-- GPT-2 Medium
-- Qwen2.5-7B if GPT-2 result is promising
+**Intent**  
+Prevent the theory section from overclaiming beyond current evidence.
 
-Baselines:
-- uniform
-- variance-based baseline from existing work
-- KIVI-style position-agnostic setting
-- optional combined FOKVQ + DHS if single-axis result is positive
+**Hypothesis**  
+If Hamiltonian-style diagnostics align with bounded mechanistic ranking, the
+paper may use Hamiltonian language as explanatory support.
 
-Metrics:
-- KL divergence
-- WikiText-2 PPL
-- stability under 2, 3, 4-bit settings
+**Verification**
+- diagnostic ranking must be stable
+- diagnostic ordering should not strongly contradict PPL ordering
 
-Success criterion:
-- clear improvement over uniform at at least one useful bit budget without instability
+**Failure interpretation**
+- if alignment is weak, Hamiltonian framing moves to motivation or appendix only
 
-Decision:
-- If this fails, do not pitch DHS/HEAT as a quantization method.
+## 5. Execution Protocol
 
-### P3-2. Sink-count auto-selection
+Every new wave must follow:
 
-Source mapping:
-- DHS `Exp 6.1`
+1. define `Intent / Hypothesis / Verification / Failure interpretation`
+2. run self-test
+3. run one smoke in the matching benchmark preset
+4. fix any harness or launcher issue first
+5. only then launch a real experiment
+6. keep only if the result improves the target metric without breaking the guard
+7. write the outcome into the autoresearch log
 
-Goal:
-- test whether k derived from kappa_1 is better than fixed k=4
+## 6. Current Priority Order
 
-Metrics:
-- retained quality under sink-preserving compression
-- per-head or per-layer agreement with optimal retained length
-
-Success criterion:
-- at least modest but consistent gain over fixed-k heuristic
-
-### P3-3. Layer-wise KV budget allocation
-
-Source mapping:
-- DHS `Exp 9.1`
-
-Goal:
-- compare U-shaped or T_eff-based layer budgeting against pyramid heuristics
-
-Metrics:
-- memory-budgeted PPL
-- layerwise degradation pattern
-
-Success criterion:
-- equal or better quality under the same global cache budget
-
-## Phase 4. Lost-in-the-Middle Intervention
-
-Window: 2026-04-18 to 2026-04-22
-Goal: test the strongest practical narrative for the paper.
-
-### P4-1. Anchor insertion at the profile level
-
-Source mapping:
-- DHS `Exp 8.1`
-
-Goal:
-- verify that inserted anchors convert U-shaped profiles toward W-shaped profiles
-
-Metrics:
-- local peak formation at anchor positions
-- valley-depth reduction
-
-Success criterion:
-- clear profile-shape change in the predicted direction
-
-### P4-2. Anchor spacing from DHS parameters
-
-Source mapping:
-- DHS `Exp 8.2`
-
-Goal:
-- compare DHS-derived spacing against simple evenly spaced or oracle-lite variants
-
-Success criterion:
-- DHS spacing is competitive with or better than naive spacing
-
-### P4-3. Lost in the Middle QA evaluation
-
-Source mapping:
-- DHS `Exp 8.3`
-
-Models:
-- Qwen2.5-7B or Llama-3-8B
-
-Tasks:
-- Lost in the Middle reproduction
-- optional RULER follow-up if the base result is positive
-
-Success criterion:
-- middle-position accuracy improves meaningfully without major degradation at the ends
-
-Decision:
-- This is the highest-value practical result for a DHS/HEAT paper.
-
-## Phase 5. End-to-End Systems Validation
-
-Window: 2026-04-23 onward
-Goal: only start if both theory and practical gates have passed.
-
-### P5-1. Pareto evaluation
-
-Source mapping:
-- DHS `Exp 10.1`
-
-Model:
-- Qwen2.5-7B on A100
-
-Metrics:
-- memory
-- latency
-- PPL
-- optional task metric such as MMLU or long-context QA
-
-Compare against:
-- full cache
-- sink + recent window baselines
-- quantization-only baseline
-- anchor-only baseline
-- integrated DHS configuration
-
-### P5-2. O(1) latency claim
-
-Source mapping:
-- DHS `Exp 10.2`
-
-Goal:
-- verify that the proposed priority function is effectively constant-cost at runtime relative to dynamic scoring baselines
-
-Decision:
-- If the latency advantage is weak, keep the claim narrow and avoid systems-heavy positioning.
-
-## 5. Hardware Plan
-
-### Local / A6000 track
-
-Use for:
-- GPT-2 experiments
-- baseline cleanup
-- fitting code development
-- early quantization prototypes
-
-### A100 track
-
-Use for:
-- Llama-3-8B
-- Qwen2.5-7B long-context runs
-- Lost in the Middle evaluation
-- Pareto and latency benchmarks
-
-Practical rule:
-- Do not spend A100 time until Phase 1 produces a positive signal.
-
-## 6. Priority Order
-
-If only six experiments can be done, run them in this order.
-
-1. `Exp 2-3` freeze and cleanup
-2. Dual-exponential superiority
-3. GQA multimodality
-4. RoPE-kappa coupling
-5. Position-aware quantization
-6. Lost in the Middle with anchors
-
-This order maximizes information gain while keeping large-model cost under control.
-
-## 7. Deliverables
-
-Each experiment should produce the same minimal package:
-
-- one script or notebook entry point
-- one result JSON with raw metrics
-- one short markdown interpretation
-- one figure-ready CSV or image
-- one line verdict: PASS, PARTIAL, FAIL, or INCONCLUSIVE
-
-At the end of each phase, produce a phase summary page with:
-
-- what passed
-- what failed
-- what changes in the paper claim
-- whether to continue to the next phase
-
-## 8. Final Recommendation
-
-Do not start from the full 19-experiment DHS plan.
-
-The right strategy is:
-
-1. freeze the current baseline,
-2. run the three theory-critical DHS experiments,
-3. run one quantization experiment and one Lost-in-the-Middle intervention,
-4. only then decide whether the paper is a theory paper, a descriptive analysis paper, or a practical KV-cache paper.
-
-At the current state of the repository, the most likely efficient outcome is not a full patent-style program, but a narrower paper built around:
-
-- dual-exponential fit quality,
-- GQA as a boundary condition,
-- one successful practical implication if available.
+1. keep the paper aligned with supported claims
+2. preserve benchmark alignment in code and logs
+3. finish mechanistic evidence before optional broad generalization
+4. only then continue remote autoresearch waves
+5. treat Hamiltonian results as descriptive unless the diagnostics remain stable

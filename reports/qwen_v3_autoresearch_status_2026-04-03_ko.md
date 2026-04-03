@@ -4,21 +4,21 @@
 **작성일**: 2026-04-03  
 **대상 모델**: `Qwen/Qwen2.5-7B-Instruct`  
 **평가 프로토콜**: `Exp 4-2 v3`, `post_rope`, full-K quantization, WikiText-2 PPL  
-**핵심 질문**: `Qwen/GQA/RoPE` 환경에서 `Lie / complex rotation` 기반 방법이 `kivi_residual`을 이길 수 있는가
+**핵심 질문**: `Qwen/GQA/RoPE` 환경에서 구조적 축 선택 효과가 실제로 남아 있는가, 그리고 그 효과를 Lie/Hamiltonian 언어로 어디까지 설명할 수 있는가
 
 ## 1. 요약
 
-현재까지의 결론은 명확하다.
+현재 상태는 두 층으로 나눠서 읽어야 한다.
 
-- 현재 same-harness 기준 practical leader는 `kivi_residual`이다.
-- `fokvq`, `fokvq_e2`, `quip`, `turboquant`, `turboquant_rand` 모두 `Qwen 3/4-bit`에서 이를 넘지 못했다.
-- `rope_unitary`, `rope_magphase`처럼 RoPE-aware를 직접 노린 초기 Lie/복소수 계열 후보도 현재 구현에서는 실패했다.
-- 다만 `fokvq_e2_residual`은 `3-bit`에서 plain `fokvq_e2`보다 개선되어, "recent residual tail + structured prefix"라는 방향 자체는 계속 볼 가치가 있다.
+- long-budget practical run에서는 `kivi_residual`이 여전히 leader다.
+- bounded mechanistic smoke에서는 `fokvq_e2`가 현재 가장 강한 structured candidate다.
+- 따라서 지금의 정직한 메시지는 "`이미 SOTA를 이겼다`"가 아니라, "`Qwen/GQA/RoPE`에서도 구조적 축 선택 효과는 남아 있지만 practical win과 이론적 일반화는 별도로 검증해야 한다"이다.
 
-따라서 현재 논리적으로 맞는 다음 단계는 다음 두 가지다.
+이 해석은 theory framing에도 직접 연결된다.
 
-1. `phase 직접 양자화`가 아니라, **복소수 Hermitian covariance 기반 unitary basis**에서 양자화하는 진짜 complex-Lie 방향으로 이동한다.
-2. practical 측면에서는 `kivi_residual`의 강점을 인정하고, **recent tail 보존 + 오래된 prefix에만 structured transform**을 넣는 하이브리드 계열을 계속 검증한다.
+- `Lie` 해석은 main framing으로 유지할 수 있다.
+- `Hamiltonian` 해석은 아직 method claim이 아니라 descriptive diagnostic이어야 한다.
+- 즉, quadratic energy drift, phase drift, symplectic-form drift 같은 보조 지표가 bounded mechanistic 결과와 같이 움직일 때에만 설명적 근거로 쓴다.
 
 ## 2. 프로토콜
 
@@ -26,45 +26,41 @@
 - 데이터: `WikiText-2`
 - 평가:
   - non-overlapping chunk
-  - `context_len=2048`
   - `post_rope` attention wrapper
   - full K quantization
-- dtype: `bfloat16`
-- 주요 비교군:
-  - `kivi_residual`
-  - `quip`
-  - `turboquant`
-  - `turboquant_rand`
-  - `fokvq`
-  - `fokvq_e2`
-  - `fokvq_e2_residual`
-  - `rope_unitary`
-  - `rope_magphase`
+- practical run:
+  - `context_len=2048`
+  - 16k budget 기준 결과
+- bounded mechanistic smoke:
+  - `context_len=256`
+  - `max_eval_tokens=512`
+  - `rotation_mechanistic` preset
 
 주의:
 
-- `kivi_residual`, `turboquant`, `turboquant_rand`는 **same-harness proxy**이다.
-- 따라서 공식 external reproduction이라고 쓰면 안 되고, 이 보고서에서도 same-harness control로만 해석한다.
+- `kivi_residual`, `turboquant`, `turboquant_rand`는 **same-harness proxy**다.
+- 따라서 공식 external reproduction이라고 쓰면 안 되고, 이 문서에서도 same-harness control로만 해석한다.
+- `Hamiltonian`은 현재 실험군의 중심 승부 항목이 아니라, 구조 보존을 설명하는 보조 진단 축이다.
 
 ## 3. 확정 결과
 
-### 3.1 Qwen 16k full run
+### 3.1 Qwen 16k full run: practical ranking
 
 | Method | 3-bit PPL | 4-bit PPL |
 |---|---:|---:|
 | FP16 | 6.7544 | 6.7544 |
 | kivi_residual | 7.2060 | 6.7738 |
-| fokvq | 9.6555 | 7.4720 |
-| fokvq_e2 | 8.7232 | 8.4917 |
-| quip | 9.1795 | 7.1394 |
-| turboquant | 7.5671 | 7.0900 |
 | turboquant_rand | 7.5587 | 7.0212 |
+| turboquant | 7.5671 | 7.0900 |
+| quip | 9.1795 | 7.1394 |
+| fokvq_e2 | 8.7232 | 8.4917 |
+| fokvq | 9.6555 | 7.4720 |
 
 해석:
 
-- `kivi_residual`이 가장 강한 control이다.
-- `turboquant_rand`는 `turboquant`보다 근소하게 낫지만, 여전히 `kivi_residual`보다 뒤처진다.
-- `fokvq_e2`는 `fokvq`보다 3-bit에서 좋아졌지만, 4-bit에서는 오히려 매우 약하다.
+- practical leader는 여전히 `kivi_residual`이다.
+- `turboquant_rand`와 `turboquant`는 강한 control이지만, 현재 same-harness에서는 `kivi_residual`보다 뒤에 있다.
+- `fokvq_e2`는 plain `fokvq`보다 낫지만, long-budget practical winner라고 부를 수준은 아니다.
 
 ### 3.2 Qwen 2048 smoke: residual hybrid
 
@@ -77,11 +73,11 @@
 
 해석:
 
-- `fokvq_e2_residual`은 `3-bit`에서 `fokvq_e2`보다 좋아졌다.
-- 그러나 `4-bit`에서는 오히려 소폭 악화되었다.
-- 따라서 이 방법은 practical winner는 아니지만, "recent tail + structured prefix" 방향의 mechanistic signal은 제공한다.
+- `fokvq_e2_residual`은 `3-bit`에서 plain `fokvq_e2`보다 좋아졌다.
+- 그러나 `4-bit`에서는 개선이 유지되지 않았다.
+- 즉, `recent tail + structured prefix`는 중요한 bias이지만, 그것만으로 practical winner가 되지는 않는다.
 
-### 3.3 Qwen 2048 smoke: Lie / complex 초기 후보
+### 3.3 Qwen 2048 smoke: 초기 Lie / complex 후보
 
 | Method | 3-bit PPL | 4-bit PPL |
 |---|---:|---:|
@@ -93,56 +89,116 @@
 
 - `rope_unitary`는 pair-local `SO(2)` 제약만으로는 충분하지 않았다.
 - `rope_magphase`는 실질적으로 붕괴했다.
-- 즉, "RoPE-aware"라는 이름만 붙인 단순 변형은 부족하며, 복소수 공간 전체에서의 일관된 unitary basis가 필요하다는 반증으로 볼 수 있다.
+- 따라서 "RoPE-aware"라는 이름만 붙인 단순 변형은 설명도 성능도 모두 부족하다.
+
+### 3.4 Qwen bounded mechanistic smoke: structured basis effect는 살아 있다
+
+이 작은 smoke는 practical run이 아니라 `rotation_mechanistic` preset으로 구조적 축 선택 효과를 직접 보는 실험이다.
+
+| Method | 2-bit PPL | 3-bit PPL |
+|---|---:|---:|
+| FP16 | 11.8666 | 11.8666 |
+| identity | 19.1351 | 12.6156 |
+| random | 26.2928 | 12.6578 |
+| fokvq | 15.1640 | 12.2210 |
+| fokvq_e2 | 12.4561 | 11.5092 |
+| kivi_residual | 13.1795 | 11.8421 |
+| turboquant_rand | 14.5626 | 11.7115 |
+| complex_unitary_residual | 15.3706 | 13.0332 |
+| banded_complex_unitary_residual | 17.2121 | 12.0620 |
+
+해석:
+
+- bounded mechanistic regime에서는 `fokvq_e2`가 현재 가장 강한 structured candidate다.
+- `fokvq_e2`는 `identity`, `random`뿐 아니라 `kivi_residual`, `turboquant_rand`보다도 좋았다.
+- complex/unitary 계열은 이번 smoke에서 주력 경로로 승격될 근거를 아직 만들지 못했다.
 
 ## 4. 현재 해석
 
 ### 4.1 무엇이 확인됐는가
 
 - `Qwen/GQA/RoPE`에서는 `recent residual tail`이 매우 강한 inductive bias다.
-- `MHA/GPT-2`에서 보였던 rotation 계열의 직관은 `Qwen`에 그대로 이식되지 않는다.
-- reconstruction MSE를 줄이는 것만으로 PPL이 좋아지지 않는다.
+- 그와 별개로 bounded mechanistic regime에서는 structured basis effect가 실제로 남아 있다.
+- reconstruction MSE를 줄이는 것만으로 PPL이 좋아지지 않는다는 점도 계속 확인되고 있다.
 
-### 4.2 무엇이 아직 남아 있는가
+### 4.2 무엇이 아직 확인되지 않았는가
 
-- Lie 군 해석 자체가 무의미하다고 보기는 어렵다.
-- 다만 현재까지 실패한 것은:
-  - generic real rotation
-  - pair-local rotation
-  - naive magnitude-phase quantization
+- long-budget practical winner
+- complex/unitary 계열의 확실한 우위
+- Hamiltonian 언어의 직접적인 실험적 정당화
 
-즉, 남은 타당한 방향은 **복소수 공간의 Hermitian 구조를 보존하는 unitary transform**이다.
+즉, 지금의 올바른 방향은 세 가지다.
+
+- `fokvq_e2`를 practical track에서 다시 올려 본다.
+- Lie 해석은 main framing으로 유지한다.
+- Hamiltonian 해석은 descriptive diagnostic으로만 검증한다.
+
+### 4.3 왜 practical winner가 되지 못하는가: 현재 가설
+
+현재까지의 결과를 가장 보수적으로 읽으면, 원인은 하나가 아니라 네 갈래일 가능성이 높다.
+
+첫째, `recency bottleneck`이다. Qwen에서는 최근 tail을 FP16으로 남기는 bias가 매우 강하다. 그래서 구조적 basis가 좋아도, 최신 토큰 근처의 cache를 얼마나 보존하느냐가 practical PPL을 더 크게 좌우할 수 있다.
+
+둘째, `post-rotation quantizer bottleneck`이다. bounded mechanistic run에서 `fokvq_e2`가 강하다는 사실은 basis 자체는 유의미하다는 뜻이다. 그런데 long-budget practical run에서는 그 이득이 충분히 남지 않는다. 이 경우 가장 자연스러운 해석은, 회전 뒤에 붙는 scalar quantizer가 attention 목적함수와 정확히 맞지 않는다는 것이다.
+
+셋째, `GQA bottleneck`이다. Qwen에서는 하나의 KV head가 여러 Q head와 연결된다. 이 구조에서는 K-only basis가 평균적으로는 좋아도, head-group별 query mismatch가 practical 성능을 깎을 수 있다.
+
+넷째, `metric bottleneck`이다. PPL은 평균 next-token likelihood를 본다. 그런데 cache quantization의 장점이 retrieval geometry나 특정 위치의 attention structure에 더 가깝다면, PPL만으로는 그 이득이 희석될 수 있다.
+
+이 네 가설은 서로 배타적이지 않다. 현재로서는 `recency bottleneck + quantizer bottleneck` 조합이 가장 유력하고, `GQA bottleneck`과 `metric bottleneck`이 그 뒤를 잇는다.
 
 ## 5. 다음 실험 방향
 
 ### 5.1 우선순위 1
 
-`complex_unitary_residual`
+`fokvq_e2` practical promotion
 
-- RoPE pair를 complex channel로 해석
-- old prefix에서 Hermitian covariance 추정
-- unitary eigenbasis로 회전
-- complex basis에서 real/imag를 양자화
-- recent tail은 FP16 유지
-
-이 방향은 현재까지 시도한 후보 중 가장 직접적으로 "복소수 회전 Lie 군" 해석에 부합한다.
+- bounded mechanistic win이 medium-budget same-harness PPL에서도 유지되는지 확인
+- 최소 비교군:
+  - `kivi_residual`
+  - `turboquant_rand`
+  - `fokvq`
+  - `fokvq_e2`
+- 여기서도 무너지면 `fokvq_e2`는 practical method가 아니라 mechanistic evidence로 남긴다
 
 ### 5.2 우선순위 2
 
-`kivi_residual + structured prefix calibration`
+Hamiltonian descriptive probe
 
-- practical leader인 `kivi_residual`을 baseline이 아니라 출발점으로 삼아야 한다.
-- structured transform은 전체 cache가 아니라 old prefix에만 제한해야 한다.
+- RoPE pair를 `(q, p)` canonical pair처럼 읽었을 때
+- quadratic energy drift
+- pair phase drift
+- symplectic-form drift
+를 계산해 bounded mechanistic PPL 순위와 비교한다.
+
+이 단계는 "해밀토니안이 맞다"를 증명하는 단계가 아니다. 어떤 방법이 canonical pair 구조를 덜 망가뜨리는지 설명하는 보조 진단 단계다.
+
+### 5.3 우선순위 3
+
+Practical-gap explanation track
+
+- `fokvq_e2` vs `fokvq_e2_residual`로 recency bottleneck을 본다.
+- sampled attention-logit distortion과 top-k attention overlap으로 quantizer bottleneck을 본다.
+- grouped Q-vs-KV mismatch를 측정해 GQA bottleneck을 본다.
+- PPL과 NIAH가 어긋나는지 비교해 metric bottleneck을 본다.
+
+### 5.4 우선순위 4
+
+`complex_unitary_residual`, `banded_complex_unitary_residual`
+
+- complex/Lie 계열은 계속 보되, 더 이상 default lead candidate로 두지 않는다.
+- Hamiltonian/Lie diagnostics에서 의미 있는 보조 신호가 있을 때만 다시 승격한다.
 
 ## 6. 결론
 
-현재 결과는 negative에 가깝지만, completely dead는 아니다.
+현재 결과는 단순 negative result라기보다, claim hierarchy를 다시 세우게 만든 결과다.
 
 - practical claim:
-  - 아직 `kivi_residual`을 이길 방법을 찾지 못했다.
-- scientific claim:
-  - `Qwen/GQA/RoPE`에서는 단순 PCA/real rotation이 통하지 않으며,
-    recency-preserving 구조와 complex/unitary geometry를 함께 고려해야 한다.
+  - 아직 `kivi_residual`을 long-budget same-harness에서 이기지 못했다.
+- mechanistic claim:
+  - `Qwen/GQA/RoPE`에서도 structured basis effect는 bounded regime에서 살아 있다.
+- theory claim:
+  - `Lie` 해석은 유지 가능하다.
+  - `Hamiltonian` 해석은 아직 descriptive support에 머물러야 한다.
 
-즉, 지금의 가장 중요한 메시지는 "기존 방법보다 좋다"가 아니라,
-"어떤 Lie/rotation 해석은 실패하고, 어떤 geometry만이 살아남는가"를 경계 조건으로 밝혀내는 쪽에 가깝다.
+즉, 지금의 가장 중요한 메시지는 "이미 baseline보다 좋다"가 아니라, "어떤 structured effect는 살아남고 어떤 이론 언어는 아직 보조 설명에 머무는가"를 경계 조건으로 분리해 보여 주는 데 있다.

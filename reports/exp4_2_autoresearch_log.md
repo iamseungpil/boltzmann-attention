@@ -518,6 +518,50 @@ Implement and run the reviewer-grade sliding-window PPL benchmark described in
       - `kivi-4=18.5064`
       - `fokvq-2=21.6894`
       - `fokvq-3=18.3762`
+
+### Iteration 17
+
+- Change: aligned the `v3` harness with the revised paper hypotheses instead of leaving benchmark intent implicit.
+  - added `--benchmark-preset` with:
+    - `ppl_quality`
+    - `rotation_mechanistic`
+    - `retrieval_depth`
+    - `paper_full`
+  - each preset now writes:
+    - `intent`
+    - `hypothesis`
+    - `verification_focus`
+    into the JSON summary
+  - added alignment guards so that, for example:
+    - `rotation_mechanistic` requires `identity/random/fokvq`
+    - NIAH depth tests require at least 3 depth points
+- Verification:
+  - local `--self-test` passed after the preset addition
+  - new self-test coverage added for preset metadata and alignment guards
+- Decision: keep
+- Reason: this was a paper-alignment correction rather than a metric tweak. It reduces the chance of running a benchmark that cannot answer the intended hypothesis.
+
+### Iteration 18
+
+- Change: fixed a real harness mismatch discovered by the new mechanistic smoke.
+  - issue:
+    - `rotation_mechanistic` preset requested `identity` and `random`
+    - but `exp4_2_v3_full_quant_ppl.py` did not dispatch those methods in `quantize_k_tensor`
+  - fix:
+    - added `identity_basis_quantize_head`
+    - added `random_basis_quantize_head`
+    - wired both through the `v3` dispatch path
+    - expanded self-test coverage so `identity` and `random` are exercised in `2D/3D/4D`
+  - auxiliary operational fix:
+    - launcher defaults now point to the actual torch-enabled interpreter instead of bare `python3`
+- Verification:
+  - `--self-test` passed after the dispatch fix
+  - local smoke:
+    - model: `sshleifer/tiny-gpt2`
+    - preset: `rotation_mechanistic`
+    - result: all requested methods (`identity`, `random`, `fokvq`, `kivi_residual`, `turboquant_rand`, complex variants) completed without unknown-method errors and wrote JSON successfully
+- Decision: keep
+- Reason: this was a true correctness bug, not a performance regression. The new paper-aligned benchmark could not even run before the fix, so no further autoresearch wave would have been defensible.
     - `Qwen2.5-7B`, `2048` tokens:
       - `fp16=6.0769`
       - `kivi-2=134.9345`
@@ -898,3 +942,139 @@ Implement and run the reviewer-grade sliding-window PPL benchmark described in
   - this is the first candidate that matches the intended "complex rotation Lie
     group" interpretation more faithfully than the failed pair-local or direct
     phase-quantization variants
+
+### Iteration 31
+
+- Change:
+  - re-ran the current local correctness gate on the revised harness
+  - verified both:
+    - full `--self-test`
+    - a fresh `rotation_mechanistic` smoke on `sshleifer/tiny-gpt2`
+- Verification:
+  - local `--self-test` passed completely on the current file state
+  - smoke JSON now records:
+    - `benchmark_meta`
+    - `intent`
+    - `hypothesis`
+    - `verification_focus`
+  - all requested mechanistic methods completed without unknown-method errors:
+    - `identity`
+    - `random`
+    - `fokvq`
+    - `kivi_residual`
+    - `turboquant_rand`
+    - `complex_unitary_residual`
+    - `banded_complex_unitary_residual`
+- Decision: keep
+- Reason:
+  - this does not add scientific evidence by itself because `tiny-gpt2` is only a wiring smoke
+  - but it confirms that the current harness, dispatch path, and benchmark metadata all agree after the recent fixes
+
+### Iteration 32
+
+- Change:
+  - fixed launcher drift and result provenance drift
+  - launcher fixes:
+    - moved outputs to repo-level `results/v3`
+    - moved logs to repo-level `reports/`
+    - switched Qwen practical launchers to `ppl_quality`
+    - upgraded controls from older `kivi` to `kivi_residual`
+    - added a dedicated `run_v3_qwen_rotation.sh` for the mechanistic benchmark
+  - harness metadata fix:
+    - output JSON now also records timestamp, hostname, cwd, and git head
+- Verification:
+  - launcher paths now align with the report's artifact conventions
+  - the current git head can be recovered directly from future result JSONs
+- Decision: keep
+- Reason:
+  - this is a reproducibility correction
+  - it reduces the risk that later reports accidentally mix stale failed artifacts with corrected benchmark-aligned runs
+
+### Iteration 33
+
+- Change:
+  - added an early alignment guard for bounded PPL smoke runs:
+    - fail fast when `max_eval_tokens < context_len`
+- Verification:
+  - discovered during remote `Qwen` smoke that the old behavior only failed after model load
+  - added self-test coverage for this misconfiguration path
+- Decision: keep
+- Reason:
+  - this is a real smoke-critic fix
+  - it turns a late expensive failure into an early configuration error
+
+### Iteration 34
+
+- Change:
+  - bootstrapped a fresh torch-enabled remote environment on `tops-caiman`
+  - installed:
+    - `torch 2.6.0+cu124`
+    - `transformers 5.3.0`
+    - `datasets 4.8.2`
+    - `accelerate 1.13.0`
+  - re-synced the current harness after the local guard fix
+- Verification:
+  - remote GPUs were idle before launch
+  - remote `torch.cuda.is_available()` returned `True`
+  - remote `--self-test` passed completely
+- Decision: keep
+- Reason:
+  - this removes the main operational blocker between local harness validation and real remote smoke runs
+
+### Iteration 35
+
+- Change:
+  - launched a bounded remote `Qwen` `rotation_mechanistic` smoke:
+    - `context_len=256`
+    - `max_eval_tokens=512`
+    - methods:
+      - `fp16`
+      - `identity`
+      - `random`
+      - `fokvq`
+      - `fokvq_e2`
+      - `kivi_residual`
+      - `turboquant_rand`
+      - `complex_unitary_residual`
+      - `banded_complex_unitary_residual`
+- Verification:
+  - early partial results:
+    - `fp16=11.8666`
+    - `identity-2=19.1351`
+    - `identity-3=12.6156`
+    - `random-2=26.2928`
+    - `random-3=12.6578`
+    - `fokvq-2=15.1640`
+  - live GPU status while running:
+    - `GPU0` active
+    - `GPU1-3` idle
+- Decision: in progress
+- Reason:
+  - the first partial result already suggests the mechanistic story survives on bounded `Qwen` smoke:
+    - `fokvq-2` is materially better than both agnostic controls seen so far
+  - full bounded smoke must finish before deciding the 4-GPU follow-up wave
+
+### Iteration 36
+
+- Change:
+  - completed the bounded remote `Qwen` `rotation_mechanistic` smoke and
+    recorded the full method table
+- Verification:
+  - final bounded smoke results:
+    - `FP16=11.8666`
+    - `identity: 2b=19.1351, 3b=12.6156`
+    - `random: 2b=26.2928, 3b=12.6578`
+    - `fokvq: 2b=15.1640, 3b=12.2210`
+    - `fokvq_e2: 2b=12.4561, 3b=11.5092`
+    - `kivi_residual: 2b=13.1795, 3b=11.8421`
+    - `turboquant_rand: 2b=14.5626, 3b=11.7115`
+    - `complex_unitary_residual: 2b=15.3706, 3b=13.0332`
+    - `banded_complex_unitary_residual: 2b=17.2121, 3b=12.0620`
+- Decision: keep
+- Reason:
+  - the structured-basis effect survives on bounded `Qwen`
+  - `fokvq_e2` becomes the strongest current structured candidate
+  - this changes the search order:
+    - promote `fokvq_e2` first
+    - keep complex/unitary paths as exploratory challengers
+    - attach Hamiltonian-style diagnostics only as descriptive support
