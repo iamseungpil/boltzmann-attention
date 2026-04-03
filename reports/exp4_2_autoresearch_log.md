@@ -454,3 +454,447 @@ Implement and run the reviewer-grade sliding-window PPL benchmark described in
   - `fokvq_adaptive`: discard as an improvement candidate at 4-bit
   - `fokvq_clip`: discard as an improvement candidate at 4-bit
 - Reason: the 4-bit wave is even more clearly negative than the 2-bit wave. Once the bit budget is high enough that the main baselines are already close, none of the new `fokvq` variants improves the ranking, and `fokvq_lloyd` becomes dramatically worse despite lower-level reconstruction intuition. This reinforces the claim that the bottleneck is not simply the scalar quantizer in the rotated coordinates.
+
+### Iteration 14
+
+- Change: validated and redeployed the `v3` full-quant harness on `tops-caiman` with the patched attention wrappers that now call the official eager-attention implementations for both GPT-2 and Qwen2.
+  - code path:
+    - `/home/v-seungplee/boltzmann-attention-develop/scripts/exp4_2_v3_full_quant_ppl.py`
+  - remote sync target:
+    - `/scratch/boltzmann-attention-v3-repro`
+- Verification:
+  - `--self-test` passed after the wrapper fixes and the Q-covariance centering fix.
+  - smoke runs on `tops-caiman` produced sane same-harness full-quant readouts:
+    - `GPT-2 medium`, `2048` tokens:
+      - `fp16=18.1481`
+      - `uniform-2=88.7298`
+      - `kivi-2=136.0648`
+      - `kivi-3=23.4826`
+      - `kivi-4=18.5064`
+    - `Qwen2.5-7B`, `2048` tokens:
+      - `fp16=6.0769`
+      - `uniform-2=25825.2416`
+      - `uniform-3=19069.2664`
+      - `uniform-4=10616.5824`
+      - `kivi-2=134.9345`
+      - `kivi-3=7.3729`
+      - `kivi-4=6.4674`
+- Decision: keep
+- Reason: this establishes that the repaired `v3` harness is now directionally believable. In particular, `Qwen + kivi` no longer explodes to absurd values at 3/4-bit, while `uniform` remains clearly broken on the harder GQA/RoPE setting. That is exactly the baseline-separation pattern we needed before extending the method set.
+
+### Iteration 15
+
+- Change: added a new Lie-group-inspired same-harness method, `lie_eq`, to `v3`.
+  - mechanism:
+    - greedy Givens rotations inside `SO(d)` that equalize per-axis variance
+    - followed by per-axis Lloyd-Max scalar quantization
+  - implementation:
+    - `_greedy_variance_equalizing_rotation`
+    - `lie_eq_quantize_head`
+    - dispatch path `method == "lie_eq"`
+- Verification:
+  - local self-test on the edited script passed.
+  - synthetic anisotropic check:
+    - variance spread reduced from `50.20` to `1.05`
+    - orthogonality error stayed below `1e-4`
+    - 4-bit reconstruction error was lower than 2-bit reconstruction error
+- Decision: keep
+- Reason: this is a defensible next-step generalization beyond PCA that stays compatible with both MHA and GQA. It does not depend on query-head pooling, and it gives a concrete `SO(d)` comparison point inside the same evaluation harness rather than only in the older offline MSE experiments.
+
+### Iteration 16
+
+- Change: restructured the running experiment queue to reduce iteration cost.
+  - killed the slow `lie_eq` smoke jobs that still included `turboquant`
+  - relaunched fast `lie_eq` comparison runs without `turboquant`
+  - killed the very slow `GPT-2 full` run once it hit the `turboquant` bottleneck and relaunched a `full-fast` run with:
+    - `fp16 uniform kivi fokvq fokvq_e2 lie_eq`
+  - kept `Qwen full` with `turboquant` alive because it had already yielded a useful `2-bit` reference point
+- Verification:
+  - partial fast-smoke readouts now available:
+    - `GPT-2 medium`, `2048` tokens:
+      - `fp16=18.1481`
+      - `kivi-2=136.0648`
+      - `kivi-3=23.4826`
+      - `kivi-4=18.5064`
+      - `fokvq-2=21.6894`
+      - `fokvq-3=18.3762`
+    - `Qwen2.5-7B`, `2048` tokens:
+      - `fp16=6.0769`
+      - `kivi-2=134.9345`
+      - `kivi-3=7.3729`
+      - `kivi-4=6.4674`
+      - `fokvq-2=76.1748`
+      - `fokvq-3=9.7439`
+  - partial long run readouts:
+    - `GPT-2 medium`, `16384` tokens:
+      - `fp16=22.0033`
+      - `uniform-2=108.1708`
+      - `kivi-2=147.8516`
+      - `kivi-3=28.0145`
+      - `kivi-4=22.6052`
+    - `Qwen2.5-7B`, `16384` tokens:
+      - `fp16=6.7544`
+      - `uniform-2=13945.5075`
+      - `kivi-2=105.6188`
+      - `kivi-3=8.0162`
+      - `kivi-4=7.0309`
+      - `turboquant-2=11.4734`
+- Decision: keep
+- Reason: this iteration materially improved experiment throughput without changing the scientific question. It also sharpened the emerging interpretation:
+  - on `GPT-2/MHA`, `fokvq` remains clearly more promising than `kivi`
+  - on `Qwen/GQA`, `kivi` remains stronger at `3/4-bit`, while `fokvq` is competitive only at the harder `2-bit` setting
+  - `turboquant` is scientifically relevant on `Qwen`, but its current implementation cost is too high to leave on every branch of the queue
+
+### Iteration 17
+
+- Change:
+  - reviewed the current `docx` corpus again before continuing the Lie-algebra branch:
+    - `phase4_1_ppl_results.docx`
+    - `FOKVQ_ADDITIONAL_EXPERIMENT_PLAN*.docx`
+    - `FOKVQ_PAPER_v3.docx`, `FOKVQ_PAPER_v6.docx`
+    - `FOKVQ_FINAL_REPORT.docx`
+    - `DHS_PAPER_v1.docx`, `DHS_PAPER_v2.docx`, `HEAT_PAPER_v2.docx`
+  - added explicit self-tests for:
+    - `lie_eq_robust`
+    - `lie_qdiag`
+    - `lie_qdiag_robust`
+    - `quantize_k_tensor` dispatch coverage for the new Lie variants
+- Verification:
+  - local `--self-test` passed after the additions
+  - new coverage now verifies:
+    - finiteness of all new Lie branches
+    - monotonicity for `lie_eq_robust`
+    - non-degenerate query sensitivity for `lie_qdiag`
+  - document review outcome:
+    - `phase4_1_ppl_results.docx` is now treated as preliminary because it predates the current `v3` full-quant harness
+    - `FOKVQ_ADDITIONAL_EXPERIMENT_PLAN_v9.docx` still correctly treats `Exp 4-2` as the decisive reviewer-grade benchmark
+    - the DHS/HEAT documents use quantization as a practical implication, not as a settled empirical fact, so they should inherit the new `v3` readout rather than the older optimistic table
+- Decision: keep
+- Reason: this iteration tightened the verification boundary and aligned the active experiment queue with the most defensible document interpretation.
+
+### Iteration 18
+
+- Change:
+  - synchronized the updated `scripts/exp4_2_v3_full_quant_ppl.py` to `tops-caiman`
+  - queued the next bounded autoresearch run on the remote node:
+    - target: `Qwen2.5-7B`, `2048-token` smoke
+    - methods: `fp16 kivi fokvq fokvq_e2 lie_eq lie_eq_robust`
+    - bits: `3 4`
+    - queue worker: `/tmp/qwen_lie_eq_robust_fast.sh`
+- Verification:
+  - remote script sync completed successfully
+  - remote queue worker is alive on `tops-caiman`:
+    - launcher shell PID observed: `547780`
+    - log path prepared: `/scratch/boltzmann-attention-v3-repro/logs/qwen_lie_eq_robust_fast.queue.log`
+  - current remote status at queue time:
+    - all 4 GPUs still occupied by earlier runs
+    - `Qwen` fast-smoke partials confirm the current ranking:
+      - `kivi-3=7.3729`
+      - `fokvq-3=9.7439`
+      - `fokvq_e2-3=7.7454`
+      - `lie_eq-2=40.9443`
+      - `lie_eq-3` already looks clearly weak from partial output
+- Decision: keep
+- Reason: no GPU was idle immediately, so the most pragmatic next step was to queue the best next hypothesis (`lie_eq_robust`) without interrupting already-running evidence collection.
+
+### Iteration 19
+
+- Change:
+  - investigated the new `Qwen` collapse that appeared after the recent `v3` refactor.
+  - replaced the brittle custom `Qwen2Attention.forward` rewrite with a wrapper around the official
+    `transformers.models.qwen2.modeling_qwen2.eager_attention_forward`.
+  - kept quantization confined to the `key` tensor while delegating the actual attention math back to the upstream eager path.
+- Verification:
+  - decisive remote no-op check on `tops-caiman`:
+    - `fp16=6.0769`
+    - `kivi-16bit=6.0769`
+    - `kivi-4bit=6.4674`
+  - interpretation:
+    - before this change, even `16-bit` quantized runs could diverge catastrophically from `fp16`, which proved the regression was in the patched forward path rather than in the quantizer.
+    - after the wrapper fix, `16-bit == fp16` holds on the actual remote environment and `4-bit` returns the previously sane `kivi` readout.
+- Decision: keep
+- Reason: this is the core correctness fix. Without forward-equivalence at `16-bit`, none of the Qwen quantization numbers are scientifically interpretable.
+
+### Iteration 20
+
+- Change:
+  - redeployed the repaired harness to `tops-caiman`.
+  - launched a 4-GPU bounded autoresearch wave to separate:
+    - smoke validation of the repaired base methods
+    - smoke validation of query-safe Lie variants
+    - full `16k` main-table rerun
+    - full `16k` Lie-table rerun
+- Running queue on `tops-caiman`:
+  - `GPU0`: `qwen_regfix_smoke_base`
+    - methods: `fp16 kivi fokvq fokvq_e2 lie_eq lie_eq_robust`
+    - bits: `3 4`
+    - log: `/scratch/boltzmann-attention-v3-repro/logs/qwen_regfix_smoke_base.log`
+  - `GPU1`: `qwen_regfix_smoke_qdiag`
+    - methods: `fp16 kivi fokvq_e2 lie_qdiag lie_qdiag_robust`
+    - bits: `3 4`
+    - log: `/scratch/boltzmann-attention-v3-repro/logs/qwen_regfix_smoke_qdiag.log`
+  - `GPU2`: `qwen_full_main_regfix_16k`
+    - methods: `fp16 kivi fokvq fokvq_e2`
+    - bits: `3 4`
+    - log: `/scratch/boltzmann-attention-v3-repro/logs/qwen_full_main_regfix_16k.log`
+  - `GPU3`: `qwen_full_lie_regfix_16k`
+    - methods: `fp16 kivi fokvq_e2 lie_eq lie_eq_robust`
+    - bits: `3 4`
+    - log: `/scratch/boltzmann-attention-v3-repro/logs/qwen_full_lie_regfix_16k.log`
+- Verification:
+  - remote process table shows all four jobs alive on the expected GPUs.
+  - current smoke partials are sane rather than collapsed:
+    - `fp16=6.0769`
+    - `kivi-3=7.3729`
+    - `kivi-4=6.4674`
+    - `fokvq-3=9.7439`
+    - `fokvq-4` has entered the expected slow path rather than exploding
+  - current long-run partials are also sane:
+    - `fp16(16k)=6.7544`
+    - `kivi-3(16k)=8.0162`
+    - `kivi-4(16k)=7.0309`
+    - `fokvq-3(16k)=9.6555`
+- Decision: keep running
+- Reason: the repaired harness now exhibits consistent, finite Qwen behavior under full-quant evaluation, and the 4-GPU queue is collecting exactly the evidence needed for the next prune-or-keep decision.
+
+### Iteration 21
+
+- Change:
+  - audited the public-code gap before running the next Qwen wave.
+  - reviewed the official `KIVI` repository directly and confirmed that our old same-harness `kivi` baseline was only a proxy:
+    - official KIVI uses grouped quantization,
+    - keeps a recent `residual_length` tail in full precision,
+    - and jointly treats K/V caches rather than K only.
+  - also rechecked the remote `transformers` environment:
+    - `transformers==4.52.3`
+    - Qwen2 uses the eager-attention signature we wrapped rather than the older brittle path.
+- Verification:
+  - public KIVI repo inspection showed:
+    - `group_size`
+    - `residual_length`
+    - repeated quant/full cache handling in the official model code
+  - remote environment check showed the expected eager signatures for both `qwen2` and `gpt2`.
+- Decision: keep
+- Reason: this separates two questions that were previously conflated:
+  - harness correctness
+  - baseline faithfulness
+  The Qwen harness was already repaired, but the KIVI baseline still needed a more public-faithful proxy.
+
+### Iteration 22
+
+- Change:
+  - implemented two comparison-focused improvements in `v3`:
+    - `kivi_residual`: a more public-KIVI-inspired K-only proxy that:
+      - quantizes old tokens in sequence groups
+      - leaves the most recent `residual_length=32` tokens in full precision
+    - `turboquant_rand`: a random-orthogonal-rotation variant closer to the published TurboQuant description than the older deterministic Hadamard proxy
+  - extended self-tests to cover:
+    - `kivi_residual`
+    - `turboquant_rand`
+    - updated dispatch paths
+  - added an explicit runtime note in the harness output that KIVI/TurboQuant entries are same-harness proxies unless labeled otherwise.
+- Verification:
+  - local syntax check:
+    - `python3 -m py_compile scripts/exp4_2_v3_full_quant_ppl.py`
+  - remote self-test passed after sync:
+    - `kivi_residual` residual-tail preservation check passed
+    - all prior FOKVQ / E2 / Lie tests still passed
+- Decision: keep
+- Reason: this is the minimum defensible improvement needed before interpreting the next wave of control comparisons.
+
+### Iteration 23
+
+- Change:
+  - stopped the mixed long/smoke queue on `tops-caiman`.
+  - relaunched a smoke-only 4-GPU wave organized by scientific role:
+    - `GPU0`: Qwen core comparison
+      - `fp16`, `kivi`, `kivi_residual`, `fokvq`, `fokvq_e2`
+    - `GPU1`: Qwen Lie comparison
+      - initially `fp16`, `fokvq_e2`, `lie_eq`, `lie_eq_robust`, `lie_qdiag`, `lie_qdiag_robust`
+    - `GPU2`: Qwen control comparison
+      - initially `fp16`, `uniform`, `quip`, `kvquant`, `turboquant`, `turboquant_rand`
+    - `GPU3`: GPT-2 cross-architecture comparison
+      - `fp16`, `kivi`, `kivi_residual`, `fokvq`, `fokvq_e2`, `lie_eq`, `lie_qdiag`, `turboquant`, `turboquant_rand`
+- Verification:
+  - remote self-test was clean before relaunch
+  - node reset was confirmed:
+    - all 4 GPUs were free before the smoke wave
+  - one launch duplication bug briefly created duplicate processes; the older duplicates were explicitly killed so that only one process per GPU remained
+- Decision: keep
+- Reason: this restores the intended autoresearch structure:
+  - smoke first
+  - critic on smoke output
+  - only then promote survivors to `16k`
+
+### Iteration 24
+
+- Change:
+  - ran the first smoke-critic pass and then improved the queue ordering:
+    - `GPU1`: restarted `qwen_smoke_lie` with `Lie` methods before `fokvq_e2`
+    - `GPU2`: restarted `qwen_smoke_ctrl` with `turboquant` and `turboquant_rand` before slower controls
+- Verification:
+  - early Qwen core smoke already changed the control interpretation materially:
+    - `fp16=6.0769`
+    - old `kivi-3=7.3729`, `kivi-4=6.4674`
+    - new `kivi_residual-3=6.5734`, `kivi_residual-4=6.1431`
+    - `fokvq-3=9.7439`
+    - `fokvq-4=6.9743`
+  - early Qwen control smoke before reorder:
+    - `quip-3=8.3246`
+    - `quip-4=6.2592`
+    - `kvquant-3=6.78` (partial, already slower than `kivi_residual-3`)
+  - early GPT-2 cross-architecture smoke:
+    - `fp16=18.1481`
+    - old `kivi-2=107.6853`, `kivi-3=22.4750`, `kivi-4=18.9404`
+    - new `kivi_residual-2=20.2778`, `kivi_residual-3=18.9892`, `kivi_residual-4=18.6668`
+    - `fokvq-2=22.9927`, `fokvq-3=18.8355`, `fokvq-4=18.6213`
+- Decision: keep and continue
+- Reason: the public-gap fix was not cosmetic; it substantially changed the baseline ranking. The old same-harness `kivi` was too weak. With `kivi_residual`, the Qwen 3/4-bit battleground becomes materially harder, and that is the correct comparison to carry into the next wave.
+
+### Iteration 25
+
+- Change:
+  - promoted the validated winners from smoke to `16k` `Qwen` full-quant runs while keeping unresolved smoke questions on the remaining GPUs.
+  - active split:
+    - `GPU0`: `qwen-full-main-v2`
+      - `fp16`, `kivi_residual`, `fokvq`, `fokvq_e2`
+    - `GPU3`: `qwen-full-ctrl-v2`
+      - `fp16`, `kivi_residual`, `quip`, `turboquant`, `turboquant_rand`
+    - `GPU1`: `qwen-smoke-qdiag-fast`
+      - `fp16`, `lie_qdiag`, `lie_qdiag_robust`, `fokvq_e2`, `kivi_residual`
+    - `GPU2`: `qwen-smoke-turbo-fast`
+      - `fp16`, `turboquant`, `turboquant_rand`, `quip`, `kivi_residual`
+- Verification:
+  - `Qwen 16k` main partial:
+    - `fp16=6.7544`
+    - `kivi_residual-3=7.2060`
+    - `kivi_residual-4=6.7738`
+    - `fokvq-3=9.6555`
+  - `Qwen 16k` control partial:
+    - `fp16=6.7544`
+    - `kivi_residual-3=7.2060`
+    - `kivi_residual-4=6.7738`
+    - `quip-3=9.1795`
+  - smoke evidence carried into the promotion:
+    - `Qwen 2048`: `kivi_residual-3=6.5734`, `kivi_residual-4=6.1431`
+    - `Qwen 2048`: `fokvq-3=9.7439`, `fokvq-4=6.9743`
+    - `Qwen 2048`: `turboquant-3=6.96` (older reordered smoke)
+    - `Qwen 2048`: `lie_eq-3=23.42`
+- Decision: keep
+- Reason: one main hypothesis is now effectively settled:
+  - `kivi_residual` is the strongest current same-harness practical control on `Qwen`
+  - plain `fokvq` and `lie_eq` do not challenge it at `3-bit`
+  The remaining useful work is narrowed to `fokvq_e2`, `turboquant_rand`, and `lie_qdiag`.
+
+### Iteration 26
+
+- Change:
+  - implemented the first `RoPE-pair-preserving` candidate:
+    - `rope_unitary`
+    - blockwise `SO(2)` rotations applied independently to each RoPE pair
+  - extended self-tests with:
+    - pairwise commuting check against a RoPE block
+    - finite / monotone reconstruction check
+- Verification:
+  - remote `--self-test` passed after sync
+  - `Qwen 2048` smoke:
+    - `fp16=6.0769`
+    - `kivi_residual=6.5734 / 6.1431`
+    - `rope_unitary=14.3512 / 13.9959`
+  - runtime was also poor:
+    - `324.1s / 591.5s` for the single-chunk `3 / 4-bit` smoke
+- Decision: discard as a practical candidate
+- Reason: the RoPE-pair restriction alone does not recover good geometry on
+  `Qwen`; it is dramatically worse than both `kivi_residual` and `fokvq_e2`.
+
+### Iteration 27
+
+- Change:
+  - closed the outstanding `Qwen 16k` runs and added the first residual-tail
+    structured hybrid:
+    - `fokvq_e2_residual`
+    - recent `32` tokens remain FP16
+    - older prefix uses `fokvq_e2`
+  - kept the same full-quant harness and same-harness control set
+- Verification:
+  - completed `Qwen 16k` control results:
+    - `fp16=6.7544`
+    - `kivi_residual=7.2060 / 6.7738`
+    - `quip=9.1795 / 7.1394`
+    - `turboquant=7.5671 / 7.0900`
+    - `turboquant_rand=7.5587 / 7.0212`
+  - completed `Qwen 16k` main results:
+    - `fokvq=9.6555 / 7.4720`
+    - `fokvq_e2=8.7232 / 8.4917`
+  - `Qwen 2048` smoke for the new hybrid:
+    - `kivi_residual=6.5734 / 6.1431`
+    - `fokvq_e2=7.7454 / 7.3983`
+    - `fokvq_e2_residual=7.4612 / 7.4540`
+- Decision:
+  - keep `turboquant_rand` as the stronger TurboQuant-style control
+  - keep `fokvq_e2_residual` only as a mechanistic hybrid
+  - discard `fokvq_e2_residual` as a practical winner
+- Reason:
+  - `fokvq_e2_residual` improves over plain `fokvq_e2` at `3-bit`
+  - but it regresses at `4-bit` and still remains far behind `kivi_residual`
+  - `kivi_residual` remains the practical leader in the current same-harness queue
+
+### Iteration 28
+
+- Change:
+  - started the next `RoPE-phase` hypothesis:
+    - `rope_magphase`
+    - treat each RoPE pair as `z = r e^{i phi}`
+    - quantize `log(1+r)` with Lloyd-Max
+    - quantize phase with uniform circular bins and a phase-priority bit split
+  - added dispatch and self-test coverage for the new path
+- Verification:
+  - remote `--self-test` passed after sync
+  - launched `Qwen 2048` smoke on `tops-caiman`:
+    - `fp16`, `kivi_residual`, `fokvq_e2_residual`, `rope_magphase`
+  - initial run state:
+    - process active on `GPU0`
+    - baseline section already matches the expected `Qwen` reference values
+- Decision: in progress
+- Reason: this is the next clean test of the document-driven claim that RoPE
+  phase structure, not generic Euclidean rotation, is the relevant geometry.
+
+### Iteration 29
+
+- Change:
+  - completed the `rope_magphase` smoke
+  - compared it directly against `kivi_residual` and `fokvq_e2_residual`
+- Verification:
+  - `Qwen 2048` smoke:
+    - `fp16=6.0769`
+    - `kivi_residual=6.5734 / 6.1431`
+    - `fokvq_e2_residual=7.4612 / 7.4540`
+    - `rope_magphase=750.0469 / 424.5279`
+- Decision: discard
+- Reason:
+  - the method is finite and the harness is correct, but the candidate is
+    scientifically noncompetitive and practically unusable
+  - naive phase-priority quantization destroys too much structure on `Qwen`
+
+### Iteration 30
+
+- Change:
+  - started the next complex-Lie candidate:
+    - `complex_unitary_residual`
+    - treat each RoPE pair as a complex channel
+    - estimate Hermitian covariance on the old prefix
+    - rotate by a unitary eigenbasis
+    - quantize real/imag parts in that complex basis
+    - keep the recent tail in FP16
+  - added self-test coverage for:
+    - finiteness
+    - residual-tail preservation
+    - higher-bit monotonicity on the quantized prefix
+- Verification:
+  - local syntax check passed
+  - remote self-test still pending at the time of writing this entry
+- Decision: in progress
+- Reason:
+  - this is the first candidate that matches the intended "complex rotation Lie
+    group" interpretation more faithfully than the failed pair-local or direct
+    phase-quantization variants
