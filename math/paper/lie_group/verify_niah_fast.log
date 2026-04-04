@@ -1,0 +1,63 @@
+NIAH Fast: device=cuda:0, bits=[2, 3]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:  20%|██        | 69/339 [00:00<00:00, 688.14it/s]Loading weights:  41%|████      | 138/339 [00:00<00:00, 588.82it/s]Loading weights:  68%|██████▊   | 230/339 [00:00<00:00, 711.23it/s]Loading weights:  90%|█████████ | 306/339 [00:00<00:00, 712.44it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 734.12it/s]
+Model loaded
+[Cal] start
+[Cal] done: 112 heads
+
+[fp16]
+  d=0.00: 5/5=100%
+  d=0.25: 5/5=100%
+  d=0.50: 5/5=100%
+  d=0.75: 5/5=100%
+  d=1.00: 5/5=100%
+  avg=100%
+
+[turbo_2b]
+  d=0.00: 0/5=0%
+  d=0.25: 5/5=100%
+  d=0.50: 5/5=100%
+  d=0.75: 5/5=100%
+  d=1.00: 5/5=100%
+  avg=80%
+
+[pre_pca_2b]
+  d=0.00: 3/5=60%
+  d=0.25: 3/5=60%
+  d=0.50: 3/5=60%
+  d=0.75: 5/5=100%
+  d=1.00: 5/5=100%
+  avg=76%
+
+[turbo_3b]
+  d=0.00: 5/5=100%
+  d=0.25: 5/5=100%
+  d=0.50: 5/5=100%
+  d=0.75: 5/5=100%
+  d=1.00: 5/5=100%
+  avg=100%
+
+[pre_pca_3b]
+  d=0.00: 5/5=100%
+  d=0.25: 5/5=100%
+  d=0.50: 5/5=100%
+  d=0.75: 5/5=100%
+  d=1.00: 5/5=100%
+  avg=100%
+
+============================================================
+NIAH Summary
+============================================================
+  Method                    d=0.00 d=0.25 d=0.50 d=0.75 d=1.00  Avg
+  fp16                       100%  100%  100%  100%  100%  100%
+  pre_pca_2b                  60%   60%   60%  100%  100%  76%
+  pre_pca_3b                 100%  100%  100%  100%  100%  100%
+  turbo_2b                     0%  100%  100%  100%  100%  80%
+  turbo_3b                   100%  100%  100%  100%  100%  100%
+
+  2b: pre_pca=76% vs turbo=80% -> turbo
+
+  3b: pre_pca=100% vs turbo=100% -> pre_pca
+
+Saved. Total: 493s

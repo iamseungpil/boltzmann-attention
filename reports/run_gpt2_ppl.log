@@ -1,0 +1,307 @@
+=== Start: 2026. 04. 02. (목) 11:09:06 KST ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+========================================================================
+FOKVQ Exp 4-2 v2: WikiText-2 Standard PPL Benchmark
+Date: 2026-04-02 11:09:07
+Model: gpt2-medium (gpt2-medium)
+Device: cuda:1, dtype: torch.float16
+Context: 1024, Stride: 512
+Methods: ['fp16', 'uniform', 'kivi', 'fokvq'], Bits: [2, 3, 4]
+FOKVQ gamma: 0.3
+========================================================================
+
+Loading model...
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 2987.13it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (283287 > 1024). Running this sequence through the model will result in indexing errors
+  layers=24, heads=16, kv_heads=16, d_head=64
+
+Loading WikiText-2...
+  WikiText-2 test: 4358 lines -> 283287 tokens
+
+--- FP16 Baseline ---
+  PPL = 18.2335 (283286 tokens, 17.2s)
+
+--- uniform_2bit ---
+    win=20 | tokens=10751 | ppl=21.87 | 1.8s
+    win=40 | tokens=20991 | ppl=20.17 | 3.5s
+    win=60 | tokens=31231 | ppl=20.99 | 5.1s
+    win=80 | tokens=41471 | ppl=21.20 | 6.8s
+    win=100 | tokens=51711 | ppl=21.90 | 8.5s
+    win=120 | tokens=61951 | ppl=21.21 | 10.2s
+    win=140 | tokens=72191 | ppl=20.34 | 12.0s
+    win=160 | tokens=82431 | ppl=19.54 | 13.7s
+    win=180 | tokens=92671 | ppl=20.47 | 15.4s
+    win=200 | tokens=102911 | ppl=20.31 | 17.1s
+    win=220 | tokens=113151 | ppl=19.79 | 18.8s
+    win=240 | tokens=123391 | ppl=20.02 | 20.5s
+    win=260 | tokens=133631 | ppl=19.55 | 22.2s
+    win=280 | tokens=143871 | ppl=19.53 | 23.9s
+    win=300 | tokens=154111 | ppl=19.48 | 25.7s
+    win=320 | tokens=164351 | ppl=19.27 | 27.4s
+    win=340 | tokens=174591 | ppl=19.19 | 29.2s
+    win=360 | tokens=184831 | ppl=19.65 | 30.8s
+    win=380 | tokens=195071 | ppl=19.82 | 32.5s
+    win=400 | tokens=205311 | ppl=19.86 | 34.2s
+    win=420 | tokens=215551 | ppl=19.95 | 35.9s
+    win=440 | tokens=225791 | ppl=19.96 | 37.6s
+    win=460 | tokens=236031 | ppl=19.94 | 39.3s
+    win=480 | tokens=246271 | ppl=19.92 | 41.0s
+    win=500 | tokens=256511 | ppl=19.92 | 42.7s
+    win=520 | tokens=266751 | ppl=19.88 | 44.4s
+    win=540 | tokens=276991 | ppl=19.88 | 46.2s
+  PPL = 19.9694 (283286 tokens, 47.3s, key_MSE=1.259352)
+
+--- uniform_3bit ---
+    win=20 | tokens=10751 | ppl=20.20 | 1.6s
+    win=40 | tokens=20991 | ppl=18.55 | 3.3s
+    win=60 | tokens=31231 | ppl=19.34 | 5.0s
+    win=80 | tokens=41471 | ppl=19.48 | 6.7s
+    win=100 | tokens=51711 | ppl=20.12 | 8.5s
+    win=120 | tokens=61951 | ppl=19.48 | 10.3s
+    win=140 | tokens=72191 | ppl=18.66 | 12.1s
+    win=160 | tokens=82431 | ppl=17.95 | 13.7s
+    win=180 | tokens=92671 | ppl=18.79 | 15.4s
+    win=200 | tokens=102911 | ppl=18.63 | 17.1s
+    win=220 | tokens=113151 | ppl=18.16 | 18.8s
+    win=240 | tokens=123391 | ppl=18.37 | 20.6s
+    win=260 | tokens=133631 | ppl=17.94 | 22.3s
+    win=280 | tokens=143871 | ppl=17.91 | 24.0s
+    win=300 | tokens=154111 | ppl=17.85 | 25.7s
+    win=320 | tokens=164351 | ppl=17.67 | 27.4s
+    win=340 | tokens=174591 | ppl=17.59 | 29.2s
+    win=360 | tokens=184831 | ppl=18.02 | 30.9s
+    win=380 | tokens=195071 | ppl=18.17 | 32.7s
+    win=400 | tokens=205311 | ppl=18.20 | 34.4s
+    win=420 | tokens=215551 | ppl=18.30 | 36.1s
+    win=440 | tokens=225791 | ppl=18.31 | 37.8s
+    win=460 | tokens=236031 | ppl=18.30 | 39.5s
+    win=480 | tokens=246271 | ppl=18.27 | 41.3s
+    win=500 | tokens=256511 | ppl=18.27 | 43.0s
+    win=520 | tokens=266751 | ppl=18.26 | 44.8s
+    win=540 | tokens=276991 | ppl=18.26 | 46.5s
+  PPL = 18.3307 (283286 tokens, 47.6s, key_MSE=0.226431)
+
+--- uniform_4bit ---
+    win=20 | tokens=10751 | ppl=20.21 | 1.6s
+    win=40 | tokens=20991 | ppl=18.55 | 3.3s
+    win=60 | tokens=31231 | ppl=19.31 | 5.0s
+    win=80 | tokens=41471 | ppl=19.44 | 6.8s
+    win=100 | tokens=51711 | ppl=20.07 | 8.5s
+    win=120 | tokens=61951 | ppl=19.44 | 10.3s
+    win=140 | tokens=72191 | ppl=18.61 | 11.9s
+    win=160 | tokens=82431 | ppl=17.90 | 13.7s
+    win=180 | tokens=92671 | ppl=18.74 | 15.3s
+    win=200 | tokens=102911 | ppl=18.58 | 17.0s
+    win=220 | tokens=113151 | ppl=18.10 | 18.8s
+    win=240 | tokens=123391 | ppl=18.31 | 20.5s
+    win=260 | tokens=133631 | ppl=17.88 | 22.2s
+    win=280 | tokens=143871 | ppl=17.85 | 23.9s
+    win=300 | tokens=154111 | ppl=17.79 | 25.7s
+    win=320 | tokens=164351 | ppl=17.61 | 27.5s
+    win=340 | tokens=174591 | ppl=17.54 | 29.3s
+    win=360 | tokens=184831 | ppl=17.97 | 31.0s
+    win=380 | tokens=195071 | ppl=18.12 | 32.7s
+    win=400 | tokens=205311 | ppl=18.15 | 34.5s
+    win=420 | tokens=215551 | ppl=18.25 | 36.2s
+    win=440 | tokens=225791 | ppl=18.26 | 37.9s
+    win=460 | tokens=236031 | ppl=18.24 | 39.6s
+    win=480 | tokens=246271 | ppl=18.22 | 41.4s
+    win=500 | tokens=256511 | ppl=18.22 | 43.1s
+    win=520 | tokens=266751 | ppl=18.20 | 44.8s
+    win=540 | tokens=276991 | ppl=18.20 | 46.5s
+  PPL = 18.2744 (283286 tokens, 47.6s, key_MSE=0.049146)
+
+--- kivi_2bit ---
+    win=20 | tokens=10751 | ppl=24.21 | 1.7s
+    win=40 | tokens=20991 | ppl=21.97 | 3.3s
+    win=60 | tokens=31231 | ppl=22.69 | 5.1s
+    win=80 | tokens=41471 | ppl=23.02 | 6.8s
+    win=100 | tokens=51711 | ppl=23.78 | 8.5s
+    win=120 | tokens=61951 | ppl=23.14 | 10.2s
+    win=140 | tokens=72191 | ppl=22.25 | 11.9s
+    win=160 | tokens=82431 | ppl=21.35 | 13.6s
+    win=180 | tokens=92671 | ppl=22.34 | 15.3s
+    win=200 | tokens=102911 | ppl=22.11 | 17.0s
+    win=220 | tokens=113151 | ppl=21.52 | 18.7s
+    win=240 | tokens=123391 | ppl=21.76 | 20.4s
+    win=260 | tokens=133631 | ppl=21.23 | 22.1s
+    win=280 | tokens=143871 | ppl=21.25 | 23.8s
+    win=300 | tokens=154111 | ppl=21.15 | 25.5s
+    win=320 | tokens=164351 | ppl=20.92 | 27.3s
+    win=340 | tokens=174591 | ppl=20.85 | 29.0s
+    win=360 | tokens=184831 | ppl=21.38 | 30.7s
+    win=380 | tokens=195071 | ppl=21.56 | 32.4s
+    win=400 | tokens=205311 | ppl=21.59 | 34.1s
+    win=420 | tokens=215551 | ppl=21.68 | 35.8s
+    win=440 | tokens=225791 | ppl=21.70 | 37.4s
+    win=460 | tokens=236031 | ppl=21.68 | 39.2s
+    win=480 | tokens=246271 | ppl=21.65 | 40.9s
+    win=500 | tokens=256511 | ppl=21.66 | 42.7s
+    win=520 | tokens=266751 | ppl=21.60 | 44.5s
+    win=540 | tokens=276991 | ppl=21.60 | 46.2s
+  PPL = 21.6985 (283286 tokens, 47.3s, key_MSE=0.582798)
+
+--- kivi_3bit ---
+    win=20 | tokens=10751 | ppl=20.41 | 1.7s
+    win=40 | tokens=20991 | ppl=18.70 | 3.4s
+    win=60 | tokens=31231 | ppl=19.47 | 5.1s
+    win=80 | tokens=41471 | ppl=19.60 | 6.8s
+    win=100 | tokens=51711 | ppl=20.24 | 8.5s
+    win=120 | tokens=61951 | ppl=19.59 | 10.2s
+    win=140 | tokens=72191 | ppl=18.75 | 12.0s
+    win=160 | tokens=82431 | ppl=18.05 | 13.7s
+    win=180 | tokens=92671 | ppl=18.90 | 15.4s
+    win=200 | tokens=102911 | ppl=18.74 | 17.1s
+    win=220 | tokens=113151 | ppl=18.25 | 18.8s
+    win=240 | tokens=123391 | ppl=18.46 | 20.5s
+    win=260 | tokens=133631 | ppl=18.02 | 22.2s
+    win=280 | tokens=143871 | ppl=17.99 | 23.9s
+    win=300 | tokens=154111 | ppl=17.93 | 25.7s
+    win=320 | tokens=164351 | ppl=17.75 | 27.4s
+    win=340 | tokens=174591 | ppl=17.68 | 29.1s
+    win=360 | tokens=184831 | ppl=18.11 | 30.8s
+    win=380 | tokens=195071 | ppl=18.26 | 32.5s
+    win=400 | tokens=205311 | ppl=18.29 | 34.3s
+    win=420 | tokens=215551 | ppl=18.39 | 36.0s
+    win=440 | tokens=225791 | ppl=18.40 | 37.7s
+    win=460 | tokens=236031 | ppl=18.39 | 39.4s
+    win=480 | tokens=246271 | ppl=18.37 | 41.1s
+    win=500 | tokens=256511 | ppl=18.37 | 42.8s
+    win=520 | tokens=266751 | ppl=18.35 | 44.5s
+    win=540 | tokens=276991 | ppl=18.35 | 46.2s
+  PPL = 18.4252 (283286 tokens, 47.3s, key_MSE=0.103964)
+
+--- kivi_4bit ---
+    win=20 | tokens=10751 | ppl=20.20 | 1.6s
+    win=40 | tokens=20991 | ppl=18.55 | 3.3s
+    win=60 | tokens=31231 | ppl=19.31 | 5.0s
+    win=80 | tokens=41471 | ppl=19.44 | 6.7s
+    win=100 | tokens=51711 | ppl=20.07 | 8.4s
+    win=120 | tokens=61951 | ppl=19.45 | 10.1s
+    win=140 | tokens=72191 | ppl=18.62 | 11.9s
+    win=160 | tokens=82431 | ppl=17.91 | 13.6s
+    win=180 | tokens=92671 | ppl=18.74 | 15.3s
+    win=200 | tokens=102911 | ppl=18.58 | 17.1s
+    win=220 | tokens=113151 | ppl=18.11 | 18.8s
+    win=240 | tokens=123391 | ppl=18.31 | 20.4s
+    win=260 | tokens=133631 | ppl=17.88 | 22.2s
+    win=280 | tokens=143871 | ppl=17.85 | 23.9s
+    win=300 | tokens=154111 | ppl=17.79 | 25.6s
+    win=320 | tokens=164351 | ppl=17.61 | 27.3s
+    win=340 | tokens=174591 | ppl=17.54 | 29.0s
+    win=360 | tokens=184831 | ppl=17.97 | 30.7s
+    win=380 | tokens=195071 | ppl=18.12 | 32.4s
+    win=400 | tokens=205311 | ppl=18.15 | 34.2s
+    win=420 | tokens=215551 | ppl=18.25 | 35.9s
+    win=440 | tokens=225791 | ppl=18.25 | 37.5s
+    win=460 | tokens=236031 | ppl=18.24 | 39.2s
+    win=480 | tokens=246271 | ppl=18.22 | 40.9s
+    win=500 | tokens=256511 | ppl=18.21 | 42.6s
+    win=520 | tokens=266751 | ppl=18.20 | 44.3s
+    win=540 | tokens=276991 | ppl=18.20 | 46.1s
+  PPL = 18.2705 (283286 tokens, 47.2s, key_MSE=0.022515)
+
+--- fokvq_2bit ---
+    win=20 | tokens=10751 | ppl=21.13 | 55.2s
+    win=40 | tokens=20991 | ppl=19.50 | 113.2s
+    win=60 | tokens=31231 | ppl=20.34 | 171.2s
+    win=80 | tokens=41471 | ppl=20.50 | 229.8s
+    win=100 | tokens=51711 | ppl=21.13 | 288.2s
+    win=120 | tokens=61951 | ppl=20.51 | 346.5s
+    win=140 | tokens=72191 | ppl=19.65 | 404.4s
+    win=160 | tokens=82431 | ppl=18.89 | 462.2s
+    win=180 | tokens=92671 | ppl=19.76 | 520.3s
+    win=200 | tokens=102911 | ppl=19.61 | 578.7s
+    win=220 | tokens=113151 | ppl=19.13 | 637.1s
+    win=240 | tokens=123391 | ppl=19.35 | 695.7s
+    win=260 | tokens=133631 | ppl=18.89 | 753.9s
+    win=280 | tokens=143871 | ppl=18.87 | 812.3s
+    win=300 | tokens=154111 | ppl=18.81 | 870.6s
+    win=320 | tokens=164351 | ppl=18.62 | 929.7s
+    win=340 | tokens=174591 | ppl=18.55 | 988.7s
+    win=360 | tokens=184831 | ppl=19.00 | 1047.1s
+    win=380 | tokens=195071 | ppl=19.18 | 1105.4s
+    win=400 | tokens=205311 | ppl=19.20 | 1163.9s
+    win=420 | tokens=215551 | ppl=19.31 | 1222.5s
+    win=440 | tokens=225791 | ppl=19.32 | 1281.0s
+    win=460 | tokens=236031 | ppl=19.31 | 1339.5s
+    win=480 | tokens=246271 | ppl=19.29 | 1398.2s
+    win=500 | tokens=256511 | ppl=19.29 | 1456.8s
+    win=520 | tokens=266751 | ppl=19.26 | 1515.7s
+    win=540 | tokens=276991 | ppl=19.27 | 1574.3s
+  PPL = 19.3448 (283286 tokens, 1612.3s, key_MSE=0.510380)
+
+--- fokvq_3bit ---
+    win=20 | tokens=10751 | ppl=20.19 | 55.4s
+    win=40 | tokens=20991 | ppl=18.55 | 113.9s
+    win=60 | tokens=31231 | ppl=19.32 | 172.4s
+    win=80 | tokens=41471 | ppl=19.45 | 230.8s
+    win=100 | tokens=51711 | ppl=20.08 | 289.2s
+    win=120 | tokens=61951 | ppl=19.45 | 347.7s
+    win=140 | tokens=72191 | ppl=18.63 | 405.7s
+    win=160 | tokens=82431 | ppl=17.91 | 463.7s
+    win=180 | tokens=92671 | ppl=18.75 | 522.3s
+    win=200 | tokens=102911 | ppl=18.59 | 580.3s
+    win=220 | tokens=113151 | ppl=18.12 | 638.6s
+    win=240 | tokens=123391 | ppl=18.33 | 696.7s
+    win=260 | tokens=133631 | ppl=17.90 | 755.1s
+    win=280 | tokens=143871 | ppl=17.87 | 813.1s
+    win=300 | tokens=154111 | ppl=17.82 | 871.6s
+    win=320 | tokens=164351 | ppl=17.64 | 930.2s
+    win=340 | tokens=174591 | ppl=17.57 | 988.9s
+    win=360 | tokens=184831 | ppl=18.00 | 1047.8s
+    win=380 | tokens=195071 | ppl=18.15 | 1106.2s
+    win=400 | tokens=205311 | ppl=18.18 | 1164.4s
+    win=420 | tokens=215551 | ppl=18.28 | 1222.7s
+    win=440 | tokens=225791 | ppl=18.28 | 1281.1s
+    win=460 | tokens=236031 | ppl=18.28 | 1339.3s
+    win=480 | tokens=246271 | ppl=18.25 | 1397.3s
+    win=500 | tokens=256511 | ppl=18.25 | 1455.9s
+    win=520 | tokens=266751 | ppl=18.23 | 1514.1s
+    win=540 | tokens=276991 | ppl=18.23 | 1572.2s
+  PPL = 18.3081 (283286 tokens, 1610.7s, key_MSE=0.062509)
+
+--- fokvq_4bit ---
+    win=20 | tokens=10751 | ppl=20.19 | 55.6s
+    win=40 | tokens=20991 | ppl=18.52 | 113.8s
+    win=60 | tokens=31231 | ppl=19.27 | 172.3s
+    win=80 | tokens=41471 | ppl=19.41 | 230.5s
+    win=100 | tokens=51711 | ppl=20.03 | 289.1s
+    win=120 | tokens=61951 | ppl=19.41 | 347.2s
+    win=140 | tokens=72191 | ppl=18.59 | 405.5s
+    win=160 | tokens=82431 | ppl=17.88 | 463.9s
+    win=180 | tokens=92671 | ppl=18.71 | 522.1s
+    win=200 | tokens=102911 | ppl=18.55 | 580.2s
+    win=220 | tokens=113151 | ppl=18.08 | 638.4s
+    win=240 | tokens=123391 | ppl=18.29 | 696.6s
+    win=260 | tokens=133631 | ppl=17.86 | 754.9s
+    win=280 | tokens=143871 | ppl=17.83 | 813.3s
+    win=300 | tokens=154111 | ppl=17.78 | 871.5s
+    win=320 | tokens=164351 | ppl=17.60 | 929.9s
+    win=340 | tokens=174591 | ppl=17.53 | 988.1s
+    win=360 | tokens=184831 | ppl=17.95 | 1046.6s
+    win=380 | tokens=195071 | ppl=18.10 | 1104.7s
+    win=400 | tokens=205311 | ppl=18.13 | 1163.0s
+    win=420 | tokens=215551 | ppl=18.23 | 1221.3s
+    win=440 | tokens=225791 | ppl=18.23 | 1279.4s
+    win=460 | tokens=236031 | ppl=18.22 | 1337.5s
+    win=480 | tokens=246271 | ppl=18.20 | 1395.6s
+    win=500 | tokens=256511 | ppl=18.20 | 1453.9s
+    win=520 | tokens=266751 | ppl=18.18 | 1512.0s
+    win=540 | tokens=276991 | ppl=18.18 | 1570.1s
+  PPL = 18.2522 (283286 tokens, 1607.9s, key_MSE=0.014241)
+
+Results written to results/gpt2-medium_standard_ppl_v2.json
+
+========================================================================
+SUMMARY
+========================================================================
+  FP16 baseline: 18.23
+  Method           2bit     3bit     4bit
+  ------------ -------- -------- --------
+  uniform         19.97    18.33    18.27
+  kivi            21.70    18.43    18.27
+  fokvq           19.34    18.31    18.25
+========================================================================
+=== End: 2026. 04. 02. (목) 12:34:51 KST ===
