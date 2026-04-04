@@ -1,0 +1,140 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+######################################################################
+# NIAH Experiment on cuda:1
+######################################################################
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]
+######################################################################
+# Lloyd-Max MSE Experiment on cuda:0
+######################################################################
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:01, 218.14it/s]Loading weights:  15%|█▍        | 50/339 [00:00<00:01, 216.23it/s]Loading weights:   9%|▉         | 31/339 [00:00<00:01, 259.48it/s]Loading weights:  22%|██▏       | 74/339 [00:00<00:00, 351.90it/s]Loading weights:  23%|██▎       | 78/339 [00:00<00:01, 233.24it/s]Loading weights:  33%|███▎      | 112/339 [00:00<00:00, 257.63it/s]Loading weights:  32%|███▏      | 110/339 [00:00<00:00, 317.75it/s]Loading weights:  41%|████      | 138/339 [00:00<00:00, 239.85it/s]Loading weights:  42%|████▏     | 143/339 [00:00<00:00, 288.14it/s]Loading weights:  53%|█████▎    | 180/339 [00:00<00:00, 292.22it/s]Loading weights:  51%|█████     | 173/339 [00:00<00:00, 289.46it/s]Loading weights:  64%|██████▎   | 216/339 [00:00<00:00, 300.99it/s]Loading weights:  60%|█████▉    | 203/339 [00:00<00:00, 281.95it/s]Loading weights:  73%|███████▎  | 247/339 [00:00<00:00, 281.81it/s]Loading weights:  70%|███████   | 238/339 [00:00<00:00, 269.38it/s]Loading weights:  81%|████████▏ | 276/339 [00:01<00:00, 266.62it/s]Loading weights:  81%|████████▏ | 276/339 [00:00<00:00, 289.12it/s]Loading weights:  89%|████████▉ | 303/339 [00:01<00:00, 259.20it/s]Loading weights:  90%|█████████ | 306/339 [00:01<00:00, 289.44it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 299.24it/s]
+Loading weights: 100%|██████████| 339/339 [00:01<00:00, 272.41it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (298938 > 131072). Running this sequence through the model will result in indexing errors
+Token indices sequence length is longer than the specified maximum sequence length for this model (298938 > 131072). Running this sequence through the model will result in indexing errors
+
+======================================================================
+Lloyd-Max MSE Results (avg over 112 heads)
+======================================================================
+
+--- 2-bit ---
+  Method                        MSE    Ratio
+  NoRot+Uni                0.623390    1.32x
+  NoRot+Lloyd             86.838150  184.52x
+  Turbo+Uni                0.762924    1.62x
+  Turbo+Lloyd             82.625745  175.57x
+  PrePCA+Uni               0.470627    1.00x ***
+  PrePCA+Lloyd            87.084964  185.04x
+
+  Lloyd-Max gain (same rotation):
+    NoRot:  0.01x
+    Turbo:  0.01x
+    PrePCA: 0.01x
+  Rotation gain (same quantizer):
+    Uniform:  Turbo/PrePCA = 1.62x
+    Lloyd:    Turbo/PrePCA = 0.95x
+  BEST vs TurboQuant paper (Turbo+Lloyd):
+    PrePCA+Lloyd vs Turbo+Lloyd = 0.95x
+
+--- 3-bit ---
+  Method                        MSE    Ratio
+  NoRot+Uni                0.111807    1.34x
+  NoRot+Lloyd             85.724538 1028.89x
+  Turbo+Uni                0.138122    1.66x
+  Turbo+Lloyd             80.040011  960.67x
+  PrePCA+Uni               0.083317    1.00x ***
+  PrePCA+Lloyd            86.042402 1032.71x
+
+  Lloyd-Max gain (same rotation):
+    NoRot:  0.00x
+    Turbo:  0.00x
+    PrePCA: 0.00x
+  Rotation gain (same quantizer):
+    Uniform:  Turbo/PrePCA = 1.66x
+    Lloyd:    Turbo/PrePCA = 0.93x
+  BEST vs TurboQuant paper (Turbo+Lloyd):
+    PrePCA+Lloyd vs Turbo+Lloyd = 0.93x
+
+--- 4-bit ---
+  Method                        MSE    Ratio
+  NoRot+Uni                0.024318    1.34x
+  NoRot+Lloyd             84.859491 4680.11x
+  Turbo+Uni                0.030081    1.66x
+  Turbo+Lloyd             77.979090 4300.65x
+  PrePCA+Uni               0.018132    1.00x ***
+  PrePCA+Lloyd            85.289476 4703.83x
+
+  Lloyd-Max gain (same rotation):
+    NoRot:  0.00x
+    Turbo:  0.00x
+    PrePCA: 0.00x
+  Rotation gain (same quantizer):
+    Uniform:  Turbo/PrePCA = 1.66x
+    Lloyd:    Turbo/PrePCA = 0.91x
+  BEST vs TurboQuant paper (Turbo+Lloyd):
+    PrePCA+Lloyd vs Turbo+Lloyd = 0.91x
+
+Done in 209.2s. Saved: /home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/paper/lie_group/verification_results/lloydmax_v2_results.json
+
+  [FP16]
+    [fp16 0b] d=0.00: 10/10=100%
+    [fp16 0b] d=0.25: 10/10=100%
+    [fp16 0b] d=0.50: 10/10=100%
+    [fp16 0b] d=0.75: 10/10=100%
+    [fp16 0b] d=1.00: 10/10=100%
+
+  [2-bit]
+    [identity 2b] d=0.00: 8/10=80%
+    [identity 2b] d=0.25: 10/10=100%
+    [identity 2b] d=0.50: 10/10=100%
+    [identity 2b] d=0.75: 10/10=100%
+    [identity 2b] d=1.00: 10/10=100%
+    [random 2b] d=0.00: 10/10=100%
+    [random 2b] d=0.25: 10/10=100%
+    [random 2b] d=0.50: 10/10=100%
+    [random 2b] d=0.75: 10/10=100%
+    [random 2b] d=1.00: 10/10=100%
+    [pre_pca 2b] d=0.00: 10/10=100%
+    [pre_pca 2b] d=0.25: 10/10=100%
+    [pre_pca 2b] d=0.50: 10/10=100%
+    [pre_pca 2b] d=0.75: 10/10=100%
+    [pre_pca 2b] d=1.00: 10/10=100%
+
+  [4-bit]
+    [identity 4b] d=0.00: 10/10=100%
+    [identity 4b] d=0.25: 10/10=100%
+    [identity 4b] d=0.50: 10/10=100%
+    [identity 4b] d=0.75: 10/10=100%
+    [identity 4b] d=1.00: 10/10=100%
+    [random 4b] d=0.00: 10/10=100%
+    [random 4b] d=0.25: 10/10=100%
+    [random 4b] d=0.50: 10/10=100%
+    [random 4b] d=0.75: 10/10=100%
+    [random 4b] d=1.00: 10/10=100%
+    [pre_pca 4b] d=0.00: 10/10=100%
+    [pre_pca 4b] d=0.25: 10/10=100%
+    [pre_pca 4b] d=0.50: 10/10=100%
+    [pre_pca 4b] d=0.75: 10/10=100%
+    [pre_pca 4b] d=1.00: 10/10=100%
+
+======================================================================
+NIAH Summary
+======================================================================
+  Method                    d=0.00 d=0.25 d=0.50 d=0.75 d=1.00  Avg
+  fp16                       100%  100%  100%  100%  100%  100%
+  identity_2                  80%  100%  100%  100%  100%  96%
+  identity_4                 100%  100%  100%  100%  100%  100%
+  pre_pca_2                  100%  100%  100%  100%  100%  100%
+  pre_pca_4                  100%  100%  100%  100%  100%  100%
+  random_2                   100%  100%  100%  100%  100%  100%
+  random_4                   100%  100%  100%  100%  100%  100%
+
+  MSE rank = NIAH rank?
+    2b: MSE=['pre_pca', 'random', 'identity'], NIAH=['random', 'pre_pca', 'identity'] -> MISMATCH
+    4b: MSE=['pre_pca', 'random', 'identity'], NIAH=['identity', 'random', 'pre_pca'] -> MISMATCH
+
+Done in 1113.9s
+
+ALL DONE in 1115.5s

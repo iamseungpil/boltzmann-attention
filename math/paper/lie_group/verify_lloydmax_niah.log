@@ -1,0 +1,130 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+######################################################################
+# NIAH Experiment on cuda:1
+######################################################################
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:  19%|█▉        | 64/339 [00:00<00:00, 624.96it/s]Loading weights:  44%|████▎     | 148/339 [00:00<00:00, 706.54it/s]
+######################################################################
+# Lloyd-Max Experiment on cuda:0
+######################################################################
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:35,  9.58it/s]Loading weights:  65%|██████▍   | 219/339 [00:00<00:00, 480.81it/s]Loading weights:  15%|█▌        | 52/339 [00:00<00:00, 291.63it/s]Loading weights:  81%|████████  | 273/339 [00:00<00:00, 453.54it/s]Loading weights:  28%|██▊       | 94/339 [00:00<00:00, 346.46it/s]Loading weights:  95%|█████████▍| 322/339 [00:00<00:00, 442.09it/s]Loading weights:  40%|████      | 136/339 [00:00<00:00, 374.76it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 484.55it/s]
+Loading weights:  65%|██████▍   | 220/339 [00:00<00:00, 524.26it/s]Loading weights:  90%|████████▉ | 304/339 [00:00<00:00, 613.39it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 515.66it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Token indices sequence length is longer than the specified maximum sequence length for this model (298938 > 131072). Running this sequence through the model will result in indexing errors
+  [Step 1] Collecting pre-RoPE keys...
+  Collected 112 heads
+
+======================================================================
+MSE: 6 methods (rotation x quantizer)
+======================================================================
+
+--- 2-bit ---
+  NoRot+Uniform         : MSE=0.623390 (1.32x)
+  NoRot+LloydMax        : MSE=86.838150 (184.52x)
+  TurboQ+Uniform        : MSE=0.762924 (1.62x)
+  TurboQ+LloydMax       : MSE=82.625745 (175.57x)
+  PrePCA+Uniform        : MSE=0.470627 (1.00x) *** BEST ***
+  PrePCA+LloydMax       : MSE=87.084964 (185.04x)
+
+  TurboQ+LloydMax vs PrePCA+LloydMax: 82.625745 vs 87.084964
+  => TurboQ+LloydMax WINS by 1.05x
+  Lloyd-Max gain (TurboQ): 0.01x
+  Lloyd-Max gain (PrePCA): 0.01x
+
+--- 3-bit ---
+  NoRot+Uniform         : MSE=0.111807 (1.34x)
+  NoRot+LloydMax        : MSE=85.724538 (1028.89x)
+  TurboQ+Uniform        : MSE=0.138122 (1.66x)
+  TurboQ+LloydMax       : MSE=80.040011 (960.67x)
+  PrePCA+Uniform        : MSE=0.083317 (1.00x) *** BEST ***
+  PrePCA+LloydMax       : MSE=86.042402 (1032.71x)
+
+  TurboQ+LloydMax vs PrePCA+LloydMax: 80.040011 vs 86.042402
+  => TurboQ+LloydMax WINS by 1.07x
+  Lloyd-Max gain (TurboQ): 0.00x
+  Lloyd-Max gain (PrePCA): 0.00x
+
+--- 4-bit ---
+  NoRot+Uniform         : MSE=0.024318 (1.34x)
+  NoRot+LloydMax        : MSE=84.859491 (4680.11x)
+  TurboQ+Uniform        : MSE=0.030081 (1.66x)
+  TurboQ+LloydMax       : MSE=77.979090 (4300.65x)
+  PrePCA+Uniform        : MSE=0.018132 (1.00x) *** BEST ***
+  PrePCA+LloydMax       : MSE=85.289479 (4703.83x)
+
+  TurboQ+LloydMax vs PrePCA+LloydMax: 77.979090 vs 85.289479
+  => TurboQ+LloydMax WINS by 1.09x
+  Lloyd-Max gain (TurboQ): 0.00x
+  Lloyd-Max gain (PrePCA): 0.00x
+
+Saved: /home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/paper/lie_group/verification_results/lloydmax_mse_results.json
+  [Calibration]...
+  Calibration done: 112 heads
+
+  [FP16 baseline]
+    [fp16 0bit] depth=0.00: 0/10 = 0%
+    [fp16 0bit] depth=0.25: 0/10 = 0%
+    [fp16 0bit] depth=0.50: 0/10 = 0%
+    [fp16 0bit] depth=0.75: 0/10 = 0%
+    [fp16 0bit] depth=1.00: 0/10 = 0%
+
+  [2-bit experiments]
+    [identity 2bit] depth=0.00: 0/10 = 0%
+    [identity 2bit] depth=0.25: 0/10 = 0%
+    [identity 2bit] depth=0.50: 0/10 = 0%
+    [identity 2bit] depth=0.75: 0/10 = 0%
+    [identity 2bit] depth=1.00: 0/10 = 0%
+    [random 2bit] depth=0.00: 0/10 = 0%
+    [random 2bit] depth=0.25: 0/10 = 0%
+    [random 2bit] depth=0.50: 0/10 = 0%
+    [random 2bit] depth=0.75: 0/10 = 0%
+    [random 2bit] depth=1.00: 0/10 = 0%
+    [pre_pca 2bit] depth=0.00: 0/10 = 0%
+    [pre_pca 2bit] depth=0.25: 0/10 = 0%
+    [pre_pca 2bit] depth=0.50: 0/10 = 0%
+    [pre_pca 2bit] depth=0.75: 0/10 = 0%
+    [pre_pca 2bit] depth=1.00: 0/10 = 0%
+
+  [4-bit experiments]
+    [identity 4bit] depth=0.00: 0/10 = 0%
+    [identity 4bit] depth=0.25: 0/10 = 0%
+    [identity 4bit] depth=0.50: 0/10 = 0%
+    [identity 4bit] depth=0.75: 0/10 = 0%
+    [identity 4bit] depth=1.00: 0/10 = 0%
+    [random 4bit] depth=0.00: 0/10 = 0%
+    [random 4bit] depth=0.25: 0/10 = 0%
+    [random 4bit] depth=0.50: 0/10 = 0%
+    [random 4bit] depth=0.75: 0/10 = 0%
+    [random 4bit] depth=1.00: 0/10 = 0%
+    [pre_pca 4bit] depth=0.00: 0/10 = 0%
+    [pre_pca 4bit] depth=0.25: 0/10 = 0%
+    [pre_pca 4bit] depth=0.50: 0/10 = 0%
+    [pre_pca 4bit] depth=0.75: 0/10 = 0%
+    [pre_pca 4bit] depth=1.00: 0/10 = 0%
+
+======================================================================
+NIAH Summary
+======================================================================
+  Method                    d=0.00 d=0.25 d=0.50 d=0.75 d=1.00  Avg
+  fp16                         0%    0%    0%    0%    0%  0%
+  identity_2                   0%    0%    0%    0%    0%  0%
+  random_2                     0%    0%    0%    0%    0%  0%
+  pre_pca_2                    0%    0%    0%    0%    0%  0%
+  identity_4                   0%    0%    0%    0%    0%  0%
+  random_4                     0%    0%    0%    0%    0%  0%
+  pre_pca_4                    0%    0%    0%    0%    0%  0%
+
+  MSE ranking predicts NIAH ranking?
+    2-bit: MSE pred=['pre_pca', 'random', 'identity'], NIAH=['identity', 'random', 'pre_pca'] -> MISMATCH
+      identity: 0%
+      random: 0%
+      pre_pca: 0%
+    4-bit: MSE pred=['pre_pca', 'random', 'identity'], NIAH=['identity', 'random', 'pre_pca'] -> MISMATCH
+      identity: 0%
+      random: 0%
+      pre_pca: 0%
+
+Saved: /home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/paper/lie_group/verification_results/niah_results.json
+
+ALL DONE in 1139.8s

@@ -1,0 +1,175 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+######################################################################
+# MSE Experiment on cuda:0
+######################################################################
+  Loading Qwen/Qwen2.5-7B...
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   7%|▋         | 24/339 [00:00<00:01, 237.13it/s]
+######################################################################
+# PPL Experiment on cuda:1
+######################################################################
+  Loading Qwen/Qwen2.5-7B...
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:  16%|█▌        | 53/339 [00:00<00:01, 266.58it/s]Loading weights:  11%|█         | 37/339 [00:00<00:00, 357.85it/s]Loading weights:  33%|███▎      | 111/339 [00:00<00:00, 406.76it/s]Loading weights:  25%|██▍       | 84/339 [00:00<00:00, 387.84it/s]Loading weights:  45%|████▌     | 154/339 [00:00<00:00, 397.20it/s]Loading weights:  37%|███▋      | 125/339 [00:00<00:00, 390.53it/s]Loading weights:  58%|█████▊    | 196/339 [00:00<00:00, 400.81it/s]Loading weights:  51%|█████     | 172/339 [00:00<00:00, 402.41it/s]Loading weights:  71%|███████   | 241/339 [00:00<00:00, 417.01it/s]Loading weights:  64%|██████▎   | 216/339 [00:00<00:00, 411.39it/s]Loading weights:  83%|████████▎ | 283/339 [00:00<00:00, 405.51it/s]Loading weights:  78%|███████▊  | 264/339 [00:00<00:00, 426.61it/s]Loading weights:  96%|█████████▌| 324/339 [00:00<00:00, 400.82it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 400.42it/s]
+Loading weights:  93%|█████████▎| 316/339 [00:00<00:00, 447.62it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 443.03it/s]
+Token indices sequence length is longer than the specified maximum sequence length for this model (298938 > 131072). Running this sequence through the model will result in indexing errors
+Token indices sequence length is longer than the specified maximum sequence length for this model (298938 > 131072). Running this sequence through the model will result in indexing errors
+  layers=28, kv_heads=4, d_head=128, tokens=2048
+  Collected: 112 pre-RoPE, 112 post-RoPE heads
+
+======================================================================
+MSE Comparison: Pre-RoPE PCA vs Post-RoPE PCA vs Random vs Identity
+======================================================================
+
+======================================================================
+Summary: Average MSE across all heads
+======================================================================
+
+--- 2-bit ---
+  No rotation                   : MSE=0.623390 (x1.62)
+  TurboQuant(random)            : MSE=0.762924 (x1.98)
+  PostRoPE PCA+uni              : MSE=0.688019 (x1.78)
+  PostRoPE PCA+WF(FOKVQ)        : MSE=1.091336 (x2.83)
+  PreRoPE PCA+uni               : MSE=0.470627 (x1.22)
+  PreRoPE PCA+WF(OPTIMAL)       : MSE=0.385623 (x1.00) *** BEST ***
+  R_aniso(Sigma_0) = 4.27
+  Theory: PreRoPE PCA+WF should be 4.27x better than TurboQuant
+  Actual:  1.98x
+  Theory vs Actual error: 53.7%
+
+  KEY: Pre-RoPE PCA+WF vs TurboQuant: 0.385623 vs 0.762924
+       => Pre-RoPE WINS by 1.98x
+  KEY: Post-RoPE PCA+WF vs TurboQuant: 1.091336 vs 0.762924
+       => TurboQuant WINS by 1.43x
+
+--- 3-bit ---
+  No rotation                   : MSE=0.111807 (x2.00)
+  TurboQuant(random)            : MSE=0.138122 (x2.47)
+  PostRoPE PCA+uni              : MSE=0.122773 (x2.19)
+  PostRoPE PCA+WF(FOKVQ)        : MSE=0.112277 (x2.01)
+  PreRoPE PCA+uni               : MSE=0.083317 (x1.49)
+  PreRoPE PCA+WF(OPTIMAL)       : MSE=0.055941 (x1.00) *** BEST ***
+  R_aniso(Sigma_0) = 4.27
+  Theory: PreRoPE PCA+WF should be 4.27x better than TurboQuant
+  Actual:  2.47x
+  Theory vs Actual error: 42.2%
+
+  KEY: Pre-RoPE PCA+WF vs TurboQuant: 0.055941 vs 0.138122
+       => Pre-RoPE WINS by 2.47x
+  KEY: Post-RoPE PCA+WF vs TurboQuant: 0.112277 vs 0.138122
+       => Post-RoPE WINS by 1.23x
+
+--- 4-bit ---
+  No rotation                   : MSE=0.024318 (x2.74)
+  TurboQuant(random)            : MSE=0.030081 (x3.39)
+  PostRoPE PCA+uni              : MSE=0.026716 (x3.01)
+  PostRoPE PCA+WF(FOKVQ)        : MSE=0.021411 (x2.42)
+  PreRoPE PCA+uni               : MSE=0.018132 (x2.05)
+  PreRoPE PCA+WF(OPTIMAL)       : MSE=0.008861 (x1.00) *** BEST ***
+  R_aniso(Sigma_0) = 4.27
+  Theory: PreRoPE PCA+WF should be 4.27x better than TurboQuant
+  Actual:  3.39x
+  Theory vs Actual error: 20.6%
+
+  KEY: Pre-RoPE PCA+WF vs TurboQuant: 0.008861 vs 0.030081
+       => Pre-RoPE WINS by 3.39x
+  KEY: Post-RoPE PCA+WF vs TurboQuant: 0.021411 vs 0.030081
+       => Post-RoPE WINS by 1.40x
+
+Saved: /home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/paper/lie_group/verification_results/prerope_mse_results.json
+  [Step 1] Calibration: collecting pre-RoPE covariance...
+  Calibration done: 112 heads
+
+  [Step 2] FP16 baseline...
+  FP16 PPL = 6.5551 (49152 tokens)
+
+  [Step] identity 2-bit...
+    [identity 2bit] chunk 5/24 | ppl=10.5266
+    [identity 2bit] chunk 10/24 | ppl=9.3827
+    [identity 2bit] chunk 15/24 | ppl=9.9314
+    [identity 2bit] chunk 20/24 | ppl=10.2417
+  identity_2: PPL=10.3737 (55.1s)
+
+  [Step] random_rot 2-bit...
+    [random_rot 2bit] chunk 5/24 | ppl=9.5827
+    [random_rot 2bit] chunk 10/24 | ppl=8.2544
+    [random_rot 2bit] chunk 15/24 | ppl=8.8286
+    [random_rot 2bit] chunk 20/24 | ppl=9.1990
+  random_rot_2: PPL=9.3016 (141.1s)
+
+  [Step] pre_rope_pca 2-bit...
+    [pre_rope_pca 2bit] chunk 5/24 | ppl=8.1375
+    [pre_rope_pca 2bit] chunk 10/24 | ppl=7.1715
+    [pre_rope_pca 2bit] chunk 15/24 | ppl=7.6186
+    [pre_rope_pca 2bit] chunk 20/24 | ppl=7.8798
+  pre_rope_pca_2: PPL=7.9587 (67.5s)
+
+  [Step] identity 3-bit...
+    [identity 3bit] chunk 5/24 | ppl=6.5604
+    [identity 3bit] chunk 10/24 | ppl=6.0349
+    [identity 3bit] chunk 15/24 | ppl=6.5085
+    [identity 3bit] chunk 20/24 | ppl=6.7793
+  identity_3: PPL=6.8597 (21.7s)
+
+  [Step] random_rot 3-bit...
+    [random_rot 3bit] chunk 5/24 | ppl=6.5246
+    [random_rot 3bit] chunk 10/24 | ppl=6.0290
+    [random_rot 3bit] chunk 15/24 | ppl=6.5001
+    [random_rot 3bit] chunk 20/24 | ppl=6.7710
+  random_rot_3: PPL=6.8352 (71.8s)
+
+  [Step] pre_rope_pca 3-bit...
+    [pre_rope_pca 3bit] chunk 5/24 | ppl=6.3934
+    [pre_rope_pca 3bit] chunk 10/24 | ppl=5.9408
+    [pre_rope_pca 3bit] chunk 15/24 | ppl=6.4135
+    [pre_rope_pca 3bit] chunk 20/24 | ppl=6.6761
+  pre_rope_pca_3: PPL=6.7503 (69.4s)
+
+  [Step] identity 4-bit...
+    [identity 4bit] chunk 5/24 | ppl=6.1714
+    [identity 4bit] chunk 10/24 | ppl=5.7918
+    [identity 4bit] chunk 15/24 | ppl=6.2775
+    [identity 4bit] chunk 20/24 | ppl=6.5463
+  identity_4: PPL=6.6227 (21.7s)
+
+  [Step] random_rot 4-bit...
+    [random_rot 4bit] chunk 5/24 | ppl=6.1641
+    [random_rot 4bit] chunk 10/24 | ppl=5.7721
+    [random_rot 4bit] chunk 15/24 | ppl=6.2698
+    [random_rot 4bit] chunk 20/24 | ppl=6.5326
+  random_rot_4: PPL=6.6109 (72.6s)
+
+  [Step] pre_rope_pca 4-bit...
+    [pre_rope_pca 4bit] chunk 5/24 | ppl=6.1341
+    [pre_rope_pca 4bit] chunk 10/24 | ppl=5.7636
+    [pre_rope_pca 4bit] chunk 15/24 | ppl=6.2571
+    [pre_rope_pca 4bit] chunk 20/24 | ppl=6.5234
+  pre_rope_pca_4: PPL=6.5985 (70.9s)
+
+======================================================================
+PPL Summary
+======================================================================
+  FP16: 6.5551
+
+  --- 2-bit ---
+    identity            : PPL=10.3737 (1.583x FP16)
+    random_rot          : PPL=9.3016 (1.419x FP16)
+    pre_rope_pca        : PPL=7.9587 (1.214x FP16)
+
+  --- 3-bit ---
+    identity            : PPL=6.8597 (1.046x FP16)
+    random_rot          : PPL=6.8352 (1.043x FP16)
+    pre_rope_pca        : PPL=6.7503 (1.030x FP16)
+
+  --- 4-bit ---
+    identity            : PPL=6.6227 (1.010x FP16)
+    random_rot          : PPL=6.6109 (1.008x FP16)
+    pre_rope_pca        : PPL=6.5985 (1.007x FP16)
+
+Saved: /home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/paper/lie_group/verification_results/prerope_ppl_results.json
+
+======================================================================
+ALL DONE in 671.1s
+======================================================================

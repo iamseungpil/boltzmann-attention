@@ -1,0 +1,14 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+######################################################################
+# NIAH Final: 2bit on cuda:0, bits=[2]
+######################################################################
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]
+######################################################################
+# NIAH Final: 3bit on cuda:1, bits=[3]
+######################################################################
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   9%|▉         | 31/339 [00:00<00:01, 292.99it/s]Loading weights:   1%|          | 2/339 [00:00<00:21, 15.73it/s]Loading weights:  22%|██▏       | 76/339 [00:00<00:00, 356.16it/s]Loading weights:  22%|██▏       | 76/339 [00:00<00:00, 372.62it/s]Loading weights:  37%|███▋      | 124/339 [00:00<00:00, 387.81it/s]Loading weights:  37%|███▋      | 124/339 [00:00<00:00, 404.66it/s]Loading weights:  48%|████▊     | 163/339 [00:00<00:00, 384.80it/s]Loading weights:  49%|████▉     | 166/339 [00:00<00:00, 403.05it/s]Loading weights:  62%|██████▏   | 209/339 [00:00<00:00, 404.96it/s]Loading weights:  61%|██████▏   | 208/339 [00:00<00:00, 396.56it/s]Loading weights:  76%|███████▌  | 256/339 [00:00<00:00, 401.11it/s]Loading weights:  73%|███████▎  | 249/339 [00:00<00:00, 400.75it/s]Loading weights:  90%|████████▉ | 304/339 [00:00<00:00, 413.46it/s]Loading weights:  87%|████████▋ | 294/339 [00:00<00:00, 414.07it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 408.77it/s]
+Loading weights: 100%|██████████| 339/339 [00:00<00:00, 417.30it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.

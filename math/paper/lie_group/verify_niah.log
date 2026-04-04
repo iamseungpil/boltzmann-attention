@@ -1,0 +1,14 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+######################################################################
+# NIAH Experiment: gpu0_2bit on cuda:0, bits=[2]
+######################################################################
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]
+######################################################################
+# NIAH Experiment: gpu1_34bit on cuda:1, bits=[3, 4]
+######################################################################
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:  11%|█         | 38/339 [00:00<00:00, 360.79it/s]Loading weights:  12%|█▏        | 40/339 [00:00<00:00, 355.56it/s]Loading weights:  23%|██▎       | 77/339 [00:00<00:00, 375.62it/s]Loading weights:  26%|██▌       | 88/339 [00:00<00:00, 399.77it/s]Loading weights:  37%|███▋      | 124/339 [00:00<00:00, 393.54it/s]Loading weights:  40%|███▉      | 134/339 [00:00<00:00, 417.99it/s]Loading weights:  49%|████▉     | 166/339 [00:00<00:00, 401.46it/s]Loading weights:  52%|█████▏    | 176/339 [00:00<00:00, 413.62it/s]Loading weights:  62%|██████▏   | 209/339 [00:00<00:00, 408.10it/s]Loading weights:  65%|██████▍   | 220/339 [00:00<00:00, 409.14it/s]Loading weights:  76%|███████▌  | 256/339 [00:00<00:00, 409.42it/s]Loading weights:  79%|███████▉  | 268/339 [00:00<00:00, 419.18it/s]Loading weights:  88%|████████▊ | 297/339 [00:00<00:00, 406.20it/s]Loading weights:  91%|█████████▏| 310/339 [00:00<00:00, 412.05it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 412.91it/s]
+Loading weights: 100%|██████████| 339/339 [00:00<00:00, 432.47it/s]
