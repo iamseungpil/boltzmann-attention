@@ -1,0 +1,211 @@
+{
+  "experiment": "exp4_2_v3_full_quant_ppl",
+  "model_key": "qwen2.5-7b",
+  "model_name": "Qwen/Qwen2.5-7B",
+  "device": "cuda:0",
+  "dtype": "torch.bfloat16",
+  "chunk_len": 2048,
+  "protocol": "post_rope",
+  "fokvq_gamma": 0.3,
+  "methods": [
+    "fp16",
+    "uniform",
+    "kivi",
+    "quip",
+    "kvquant",
+    "gear",
+    "zipcache",
+    "turboquant",
+    "fokvq",
+    "fokvq_qw",
+    "fokvq_e2",
+    "fokvq_e3",
+    "fokvq_full"
+  ],
+  "bits": [
+    2,
+    3,
+    4
+  ],
+  "total_tokens_in_corpus": 298938,
+  "key_difference_vs_v2": "100% K quantization via hooks (v2 was 50% prefix-only)",
+  "results": {
+    "fp16": {
+      "ppl": 7.680323028670486,
+      "total_nll": 605105.3449707031,
+      "total_tokens": 296815,
+      "n_chunks": 145,
+      "runtime_s": 71.53533983230591
+    },
+    "uniform": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "kivi": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "quip": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "kvquant": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "gear": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "zipcache": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "turboquant": {
+      "2": {
+        "ppl": Infinity,
+        "error": "Expected a 'cuda' device type for generator but found 'cpu'"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "Expected a 'cuda' device type for generator but found 'cpu'"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "Expected a 'cuda' device type for generator but found 'cpu'"
+      }
+    },
+    "fokvq": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "fokvq_qw": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "fokvq_e2": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "fokvq_e3": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    },
+    "fokvq_full": {
+      "2": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "3": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      },
+      "4": {
+        "ppl": Infinity,
+        "error": "too many values to unpack (expected 2)"
+      }
+    }
+  },
+  "runtime_s": 245.78811049461365,
+  "peak_memory_gib": 17.09672260284424
+}

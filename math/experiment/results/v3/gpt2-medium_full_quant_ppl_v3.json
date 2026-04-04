@@ -1,0 +1,151 @@
+{
+  "experiment": "exp4_2_v3_full_quant_ppl",
+  "model_key": "gpt2-medium",
+  "model_name": "gpt2-medium",
+  "device": "cuda:1",
+  "dtype": "torch.float16",
+  "chunk_len": 1024,
+  "protocol": "post_rope",
+  "fokvq_gamma": 0.3,
+  "methods": [
+    "fp16",
+    "uniform",
+    "kivi",
+    "fokvq",
+    "fokvq_qw"
+  ],
+  "bits": [
+    2,
+    3,
+    4
+  ],
+  "total_tokens_in_corpus": 283287,
+  "key_difference_vs_v2": "100% K quantization via hooks (v2 was 50% prefix-only)",
+  "results": {
+    "fp16": {
+      "ppl": 21.360645754805947,
+      "total_nll": 864422.5887451172,
+      "total_tokens": 282348,
+      "n_chunks": 276,
+      "runtime_s": 9.607147932052612
+    },
+    "uniform": {
+      "2": {
+        "ppl": 99.23704674821676,
+        "total_nll": 1298098.1486816406,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 17.996938705444336,
+        "avg_key_mse": 1.442755419138936,
+        "quantization_point": "post_rope"
+      },
+      "3": {
+        "ppl": 24.966211102559313,
+        "total_nll": 908461.2841796875,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 17.81954336166382,
+        "avg_key_mse": 0.24221176925736168,
+        "quantization_point": "post_rope"
+      },
+      "4": {
+        "ppl": 21.765616878090473,
+        "total_nll": 869725.4432373047,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 17.817611694335938,
+        "avg_key_mse": 0.05166577102169608,
+        "quantization_point": "post_rope"
+      }
+    },
+    "kivi": {
+      "2": {
+        "ppl": 138.56301481413604,
+        "total_nll": 1392349.8083496094,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 21.177966833114624,
+        "avg_key_mse": 0.9102495587790825,
+        "quantization_point": "post_rope"
+      },
+      "3": {
+        "ppl": 27.15086996693727,
+        "total_nll": 932146.2534179688,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 21.141576766967773,
+        "avg_key_mse": 0.1631267808137601,
+        "quantization_point": "post_rope"
+      },
+      "4": {
+        "ppl": 21.96163781019918,
+        "total_nll": 872256.8845214844,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 21.152601957321167,
+        "avg_key_mse": 0.034867168916642426,
+        "quantization_point": "post_rope"
+      }
+    },
+    "fokvq": {
+      "2": {
+        "ppl": 25.651550035163147,
+        "total_nll": 916107.4501953125,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 836.2053480148315,
+        "avg_key_mse": 0.7129798063975736,
+        "quantization_point": "post_rope"
+      },
+      "3": {
+        "ppl": 21.676196095383897,
+        "total_nll": 868563.0693359375,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 1815.2824363708496,
+        "avg_key_mse": 0.08601047509092026,
+        "quantization_point": "post_rope"
+      },
+      "4": {
+        "ppl": 21.412421311786595,
+        "total_nll": 865106.1372070312,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 1751.7934908866882,
+        "avg_key_mse": 0.017976802433552354,
+        "quantization_point": "post_rope"
+      }
+    },
+    "fokvq_qw": {
+      "2": {
+        "ppl": 28.003374569377662,
+        "total_nll": 940875.3056640625,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 2066.539709329605,
+        "avg_key_mse": 1.1076782574024555,
+        "quantization_point": "post_rope"
+      },
+      "3": {
+        "ppl": 21.813296187458555,
+        "total_nll": 870343.2724609375,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 2129.3874039649963,
+        "avg_key_mse": 0.11538389674254304,
+        "quantization_point": "post_rope"
+      },
+      "4": {
+        "ppl": 21.42816854147493,
+        "total_nll": 865313.7066650391,
+        "total_tokens": 282348,
+        "n_chunks": 276,
+        "runtime_s": 2130.209881067276,
+        "avg_key_mse": 0.02210573526102839,
+        "quantization_point": "post_rope"
+      }
+    }
+  },
+  "runtime_s": 10857.821454048157,
+  "peak_memory_gib": 1.1502437591552734
+}

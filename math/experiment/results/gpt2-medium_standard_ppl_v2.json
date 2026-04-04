@@ -1,0 +1,115 @@
+{
+  "experiment": "exp4_2_standard_ppl_benchmark_v2",
+  "model_key": "gpt2-medium",
+  "model_name": "gpt2-medium",
+  "device": "cuda:1",
+  "dtype": "torch.float16",
+  "context_len": 1024,
+  "stride": 512,
+  "fokvq_gamma": 0.3,
+  "methods": [
+    "fp16",
+    "uniform",
+    "kivi",
+    "fokvq"
+  ],
+  "bits": [
+    2,
+    3,
+    4
+  ],
+  "total_tokens_in_corpus": 283287,
+  "fixes_vs_v1": [
+    "PCA centering (mean subtract before projection, restore after inverse)",
+    "Continuous bit allocation (eigenvalue^gamma, not binary top-k split)",
+    "Asymmetric min-max quantization (not symmetric around zero)"
+  ],
+  "results": {
+    "fp16": {
+      "ppl": 18.23351149410713,
+      "total_nll": 822453.25,
+      "total_tokens": 283286,
+      "runtime_s": 17.229099988937378
+    },
+    "uniform": {
+      "2": {
+        "ppl": 19.969417386486857,
+        "total_nll": 848215.5,
+        "total_tokens": 283286,
+        "runtime_s": 47.30542039871216,
+        "avg_key_mse": 1.2593523190465896,
+        "n_windows": 553
+      },
+      "3": {
+        "ppl": 18.330734630743173,
+        "total_nll": 823959.75,
+        "total_tokens": 283286,
+        "runtime_s": 47.55428075790405,
+        "avg_key_mse": 0.22643106444491354,
+        "n_windows": 553
+      },
+      "4": {
+        "ppl": 18.274396426457656,
+        "total_nll": 823087.75,
+        "total_tokens": 283286,
+        "runtime_s": 47.56774353981018,
+        "avg_key_mse": 0.04914573419011794,
+        "n_windows": 553
+      }
+    },
+    "kivi": {
+      "2": {
+        "ppl": 21.698507783449045,
+        "total_nll": 871740.0,
+        "total_tokens": 283286,
+        "runtime_s": 47.277196168899536,
+        "avg_key_mse": 0.5827975740812602,
+        "n_windows": 553
+      },
+      "3": {
+        "ppl": 18.425207571449892,
+        "total_nll": 825416.0,
+        "total_tokens": 283286,
+        "runtime_s": 47.3108229637146,
+        "avg_key_mse": 0.1039639102028748,
+        "n_windows": 553
+      },
+      "4": {
+        "ppl": 18.27054244128145,
+        "total_nll": 823028.0,
+        "total_tokens": 283286,
+        "runtime_s": 47.164294481277466,
+        "avg_key_mse": 0.022514729741307686,
+        "n_windows": 553
+      }
+    },
+    "fokvq": {
+      "2": {
+        "ppl": 19.344824175370444,
+        "total_nll": 839213.5,
+        "total_tokens": 283286,
+        "runtime_s": 1612.3437206745148,
+        "avg_key_mse": 0.5103802762482459,
+        "n_windows": 553
+      },
+      "3": {
+        "ppl": 18.308149454197387,
+        "total_nll": 823610.5,
+        "total_tokens": 283286,
+        "runtime_s": 1610.6504282951355,
+        "avg_key_mse": 0.06250856343752315,
+        "n_windows": 553
+      },
+      "4": {
+        "ppl": 18.25218670494299,
+        "total_nll": 822743.25,
+        "total_tokens": 283286,
+        "runtime_s": 1607.9305922985077,
+        "avg_key_mse": 0.01424149729916021,
+        "n_windows": 553
+      }
+    }
+  },
+  "runtime_s": 5133.496538877487,
+  "peak_memory_gib": 1.1036133766174316
+}

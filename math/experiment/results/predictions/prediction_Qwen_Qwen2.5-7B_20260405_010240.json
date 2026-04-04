@@ -1,0 +1,408 @@
+{
+  "model_info": {
+    "name": "Qwen/Qwen2.5-7B",
+    "d_model": 3584,
+    "d_head": 128,
+    "n_heads": 28,
+    "n_kv_heads": 4,
+    "n_layers": 28,
+    "G": 7,
+    "rope_theta": 10000.0
+  },
+  "diagnostics": {
+    "R_aniso_mean": 4.067118167877197,
+    "R_aniso_min": 1.5701600313186646,
+    "R_aniso_max": 16.387834548950195,
+    "eta2_mean": 0.40640565752983093,
+    "eta4_mean": 0.4231081008911133,
+    "AM_GM_w_mean": 1.1861051072517033,
+    "AM_GM_w_max": 3.3972341771007883,
+    "n_heads_total": 112
+  },
+  "predictions": {
+    "model": "Qwen/Qwen2.5-7B",
+    "bits": {
+      "2": {
+        "mse_relative": {
+          "TurboQuant": 4.067118167877197,
+          "KVTC": 1.0524631293793532,
+          "PreRoPE_PCA_WF": 1.0,
+          "fokvq_full": 0.6814365052535065,
+          "No_rotation": 4.473829984664917
+        },
+        "mse_ranking": [
+          [
+            "fokvq_full",
+            0.6814365052535065
+          ],
+          [
+            "PreRoPE_PCA_WF",
+            1.0
+          ],
+          [
+            "KVTC",
+            1.0524631293793532
+          ],
+          [
+            "TurboQuant",
+            4.067118167877197
+          ],
+          [
+            "No_rotation",
+            4.473829984664917
+          ]
+        ],
+        "ppl_ranking": [
+          [
+            "fokvq_full",
+            0.6814365052535065
+          ],
+          [
+            "PreRoPE_PCA_WF",
+            1.0
+          ],
+          [
+            "KVTC",
+            1.0524631293793532
+          ],
+          [
+            "TurboQuant",
+            4.067118167877197
+          ],
+          [
+            "No_rotation",
+            4.473829984664917
+          ]
+        ],
+        "niah": {
+          "easy_90pct": {
+            "TurboQuant": 0.9999967247208942,
+            "KVTC": 1.0,
+            "PreRoPE_PCA_WF": 1.0,
+            "fokvq_full": 1.0,
+            "No_rotation": 0.9999913831402244
+          },
+          "medium_50pct": {
+            "TurboQuant": 0.8163542791945422,
+            "KVTC": 0.9618264728162808,
+            "PreRoPE_PCA_WF": 0.9654818260027924,
+            "fokvq_full": 0.9861865512093547,
+            "No_rotation": 0.8049958486437732
+          },
+          "hard_30pct": {
+            "TurboQuant": 0.6739256721158883,
+            "KVTC": 0.8122297950176236,
+            "PreRoPE_PCA_WF": 0.8183489295565511,
+            "fokvq_full": 0.8646108640686614,
+            "No_rotation": 0.666329853193809
+          },
+          "extreme_10pct": {
+            "TurboQuant": 0.5715460649867611,
+            "KVTC": 0.6385018809146845,
+            "PreRoPE_PCA_WF": 0.6419352155722173,
+            "fokvq_full": 0.6702156871892025,
+            "No_rotation": 0.568249969916429
+          }
+        },
+        "ruler_vt": {
+          "3": {
+            "TurboQuant": 0.44703233488969046,
+            "KVTC": 0.7834705679950177,
+            "PreRoPE_PCA_WF": 0.7968620741601101,
+            "fokvq_full": 0.8874159445170597,
+            "No_rotation": 0.42895691272400727
+          },
+          "5": {
+            "TurboQuant": 0.26135545132562066,
+            "KVTC": 0.6658419352169801,
+            "PreRoPE_PCA_WF": 0.6849180252507435,
+            "fokvq_full": 0.8194932472901273,
+            "No_rotation": 0.24398106250184703
+          },
+          "10": {
+            "TurboQuant": 0.06830667193761886,
+            "KVTC": 0.44334548269349316,
+            "PreRoPE_PCA_WF": 0.4691127013133781,
+            "fokvq_full": 0.6715691823541178,
+            "No_rotation": 0.05952675885953018
+          }
+        },
+        "sigma_relative": {
+          "TurboQuant": 2.016709738132188,
+          "KVTC": 1.025896256635803,
+          "PreRoPE_PCA_WF": 1.0,
+          "fokvq_full": 0.8254916748541481,
+          "No_rotation": 2.115143017543948
+        },
+        "theory_constants": {
+          "lm_ratio": 0.8082553191489362,
+          "am_gm_w": 1.1861051072517033,
+          "eta_head": 1.0524631293793532,
+          "R_aniso": 4.067118167877197
+        }
+      },
+      "3": {
+        "mse_relative": {
+          "TurboQuant": 4.067118167877197,
+          "KVTC": 1.0524631293793532,
+          "PreRoPE_PCA_WF": 1.0,
+          "fokvq_full": 0.6008475086199722,
+          "No_rotation": 4.473829984664917
+        },
+        "mse_ranking": [
+          [
+            "fokvq_full",
+            0.6008475086199722
+          ],
+          [
+            "PreRoPE_PCA_WF",
+            1.0
+          ],
+          [
+            "KVTC",
+            1.0524631293793532
+          ],
+          [
+            "TurboQuant",
+            4.067118167877197
+          ],
+          [
+            "No_rotation",
+            4.473829984664917
+          ]
+        ],
+        "ppl_ranking": [
+          [
+            "fokvq_full",
+            0.6008475086199722
+          ],
+          [
+            "PreRoPE_PCA_WF",
+            1.0
+          ],
+          [
+            "KVTC",
+            1.0524631293793532
+          ],
+          [
+            "TurboQuant",
+            4.067118167877197
+          ],
+          [
+            "No_rotation",
+            4.473829984664917
+          ]
+        ],
+        "niah": {
+          "easy_90pct": {
+            "TurboQuant": 1.0,
+            "KVTC": 1.0,
+            "PreRoPE_PCA_WF": 1.0,
+            "fokvq_full": 1.0,
+            "No_rotation": 1.0
+          },
+          "medium_50pct": {
+            "TurboQuant": 0.990892653796128,
+            "KVTC": 0.9999982722455574,
+            "PreRoPE_PCA_WF": 0.9999990411290555,
+            "fokvq_full": 0.9999999995957645,
+            "No_rotation": 0.9878179746780289
+          },
+          "hard_30pct": {
+            "TurboQuant": 0.8811216182203658,
+            "KVTC": 0.9898525572864243,
+            "PreRoPE_PCA_WF": 0.9913660280019122,
+            "fokvq_full": 0.9989355246581776,
+            "No_rotation": 0.8698473206946673
+          },
+          "extreme_10pct": {
+            "TurboQuant": 0.681624014047084,
+            "KVTC": 0.8233844908831691,
+            "PreRoPE_PCA_WF": 0.8295480920359348,
+            "fokvq_full": 0.8903986733776421,
+            "No_rotation": 0.6737413501441984
+          }
+        },
+        "ruler_vt": {
+          "3": {
+            "TurboQuant": 0.9142340726712539,
+            "KVTC": 0.9996932449234813,
+            "PreRoPE_PCA_WF": 0.9997911624915715,
+            "fokvq_full": 0.9999986655715436,
+            "No_rotation": 0.8962712898175941
+          },
+          "5": {
+            "TurboQuant": 0.8611834432940914,
+            "KVTC": 0.9994887938179604,
+            "PreRoPE_PCA_WF": 0.9996519617160174,
+            "fokvq_full": 0.999997775953562,
+            "No_rotation": 0.8331677956871251
+          },
+          "10": {
+            "TurboQuant": 0.7416369230038674,
+            "KVTC": 0.9989778489676813,
+            "PreRoPE_PCA_WF": 0.9993040445626821,
+            "fokvq_full": 0.9999955519120705,
+            "No_rotation": 0.694168575770143
+          }
+        },
+        "sigma_relative": {
+          "TurboQuant": 2.016709738132188,
+          "KVTC": 1.025896256635803,
+          "PreRoPE_PCA_WF": 1.0,
+          "fokvq_full": 0.7751435406555176,
+          "No_rotation": 2.115143017543948
+        },
+        "theory_constants": {
+          "lm_ratio": 0.7126682986536108,
+          "am_gm_w": 1.1861051072517033,
+          "eta_head": 1.0524631293793532,
+          "R_aniso": 4.067118167877197
+        }
+      },
+      "4": {
+        "mse_relative": {
+          "TurboQuant": 4.067118167877197,
+          "KVTC": 1.0524631293793532,
+          "PreRoPE_PCA_WF": 1.0,
+          "fokvq_full": 0.5411631956405843,
+          "No_rotation": 4.473829984664917
+        },
+        "mse_ranking": [
+          [
+            "fokvq_full",
+            0.5411631956405843
+          ],
+          [
+            "PreRoPE_PCA_WF",
+            1.0
+          ],
+          [
+            "KVTC",
+            1.0524631293793532
+          ],
+          [
+            "TurboQuant",
+            4.067118167877197
+          ],
+          [
+            "No_rotation",
+            4.473829984664917
+          ]
+        ],
+        "ppl_ranking": [
+          [
+            "fokvq_full",
+            0.5411631956405843
+          ],
+          [
+            "PreRoPE_PCA_WF",
+            1.0
+          ],
+          [
+            "KVTC",
+            1.0524631293793532
+          ],
+          [
+            "TurboQuant",
+            4.067118167877197
+          ],
+          [
+            "No_rotation",
+            4.473829984664917
+          ]
+        ],
+        "niah": {
+          "easy_90pct": {
+            "TurboQuant": 1.0,
+            "KVTC": 1.0,
+            "PreRoPE_PCA_WF": 1.0,
+            "fokvq_full": 1.0,
+            "No_rotation": 1.0
+          },
+          "medium_50pct": {
+            "TurboQuant": 0.999999999714464,
+            "KVTC": 1.0,
+            "PreRoPE_PCA_WF": 1.0,
+            "fokvq_full": 1.0,
+            "No_rotation": 0.9999999982870283
+          },
+          "hard_30pct": {
+            "TurboQuant": 0.9990294766676976,
+            "KVTC": 0.999999999443271,
+            "PreRoPE_PCA_WF": 0.9999999997947736,
+            "fokvq_full": 1.0,
+            "No_rotation": 0.9984360614232943
+          },
+          "extreme_10pct": {
+            "TurboQuant": 0.8924462556186679,
+            "KVTC": 0.9925929807774757,
+            "PreRoPE_PCA_WF": 0.9937903346742238,
+            "fokvq_full": 0.9996611072612188,
+            "No_rotation": 0.8813878590321933
+          }
+        },
+        "ruler_vt": {
+          "3": {
+            "TurboQuant": 0.9999989348008753,
+            "KVTC": 1.0,
+            "PreRoPE_PCA_WF": 1.0,
+            "fokvq_full": 1.0,
+            "No_rotation": 0.9999965957329029
+          },
+          "5": {
+            "TurboQuant": 0.9999982246687559,
+            "KVTC": 1.0,
+            "PreRoPE_PCA_WF": 1.0,
+            "fokvq_full": 1.0,
+            "No_rotation": 0.9999943262279432
+          },
+          "10": {
+            "TurboQuant": 0.9999964493406635,
+            "KVTC": 1.0,
+            "PreRoPE_PCA_WF": 1.0,
+            "fokvq_full": 1.0,
+            "No_rotation": 0.999988652488078
+          }
+        },
+        "sigma_relative": {
+          "TurboQuant": 2.016709738132188,
+          "KVTC": 1.025896256635803,
+          "PreRoPE_PCA_WF": 1.0,
+          "fokvq_full": 0.7356379514683731,
+          "No_rotation": 2.115143017543948
+        },
+        "theory_constants": {
+          "lm_ratio": 0.6418764302059498,
+          "am_gm_w": 1.1861051072517033,
+          "eta_head": 1.0524631293793532,
+          "R_aniso": 4.067118167877197
+        }
+      }
+    },
+    "diagnostics": {
+      "R_aniso": 4.067118167877197,
+      "R_aniso_range": "1.57 ~ 16.39",
+      "eta2": 0.40640565752983093,
+      "eta4": 0.4231081008911133,
+      "AM_GM_w": 1.1861051072517033,
+      "eta_head_estimated": 1.0524631293793532,
+      "n_heads_total": 112,
+      "method_selection": "b=d: Pre-RoPE PCA + MK (fokvq_full) \u2014 \u03b7(4) < 0.95, \uc804\uc5ed \uc0c1\uad00 \uac15\ud568"
+    }
+  },
+  "timestamp": "2026-04-05T01:02:40.182609",
+  "args": {
+    "model_name": "Qwen/Qwen2.5-7B",
+    "device": "cuda:1",
+    "n_calib_tokens": 2000,
+    "bits": [
+      2,
+      3,
+      4
+    ],
+    "output_dir": "/home/woori/workspace_common/CDP/poc/docs/architecture/paper/FOKVQ/experiment/4-2_ex/results/predictions",
+    "cache_dir": "",
+    "seed": 42
+  }
+}
