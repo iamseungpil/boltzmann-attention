@@ -35,14 +35,12 @@ G(d) \leq G(b) \leq G(1) \leq G_{\mathrm{uniform}} = \frac{\trace(\Sigma)}{d}
 
 분포 무관 결과는 \emph{순서}를 보장하지만 \emph{정량적 이득}을 주지 않는다. 이득을 닫힌 공식으로 표현하려면 소스 분포의 가정이 필요하다.
 
-\begin{theorem}[Master Formula --- 가우시안 소스]
-\label{thm:master_formula}
-가우시안 소스 $k \sim \mathcal{N}(0, \Sigma)$와 고율 근사 아래에서, 블록-$b$ 직교 변환 후 독립 스칼라 $B$-bit 양자화의 최적 왜곡은
+가우시안 소스와 고율 근사 하에서, 직교 변환 후 스칼라 양자화의 왜곡에 대한 닫힌 공식은 정보 이론에서 잘 알려져 있다 \citep{goyal2001transform,cover2006elements}:
 \begin{equation}
-D^*(b, B, \Sigma) = d \cdot G(b, \Sigma) \cdot 2^{-2B}
+D^*(b, B, \Sigma) = d \cdot G(b, \Sigma) \cdot 2^{-2B},
+\label{eq:master_formula}
 \end{equation}
-이다 \citep{cover2006elements}. 여기서 $G(b, \Sigma) = \min_\pi [\prod_{k=1}^{d/b} \det \Sigma^{(k)}_\pi]^{1/d}$이고, $2^{-2B}$ 인자는 가우시안 소스의 율-왜곡 함수에서 유래한다.
-\end{theorem}
+여기서 $G(b, \Sigma) = \min_\pi [\prod_{k=1}^{d/b} \det \Sigma^{(k)}_\pi]^{1/d}$이다. 본 논문은 이 기존 결과를 RoPE 구조의 KV 캐시 양자화에 적용한다.
 
 \begin{corollary}[TurboQuant 대비 이득 상한 --- 가우시안]
 \label{cor:gain_over_turbo}

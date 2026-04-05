@@ -1,24 +1,18 @@
 \section{서론}
 \label{sec:intro}
 
-KV 캐시는 긴 문맥 추론에서 메모리와 대역폭의 주된 병목이다. 최근 KV 캐시 양자화 연구는 \emph{직교 회전 후 양자화}라는 패러다임으로 수렴하고 있다: TurboQuant \citep{zandieh2025turboquant}는 무작위 직교 행렬을, KVTC \citep{staniszewski2025kvtc}는 공유 Pre-RoPE PCA를, SpinQuant \citep{liu2024spinquant}은 학습된 회전을, PolarQuant \citep{wu2025polarquant}는 극좌표 분해를 적용한다. 그러나 이들은 각각 독립적으로 개발되었으며, \textbf{왜 어떤 회전이 다른 것보다 양자화에 유리한지}에 대한 이론적 이해가 없다.
+KV 캐시는 긴 문맥 추론에서 메모리와 대역폭의 주된 병목이다. 최근 KV 캐시 양자화 연구는 \emph{직교 회전 후 양자화}라는 패러다임으로 수렴하고 있다: TurboQuant \citep{zandieh2025turboquant}는 무작위 직교 행렬을, KVTC \citep{staniszewski2025kvtc}는 공유 Pre-RoPE PCA를, SpinQuant \citep{liu2024spinquant}은 학습된 회전을, PolarQuant \citep{wu2025polarquant}는 극좌표 분해를 적용한다. KVTC는 이미 Pre-RoPE PCA를 경험적으로 사용하고 있지만, \textbf{왜 Pre-RoPE PCA가 다른 회전보다 양자화에 유리한지, 그리고 왜 Post-RoPE가 아닌 Pre-RoPE여야 하는지}에 대한 이론적 이해가 없다.
 
-본 논문은 이 질문에 답한다. 모든 직교 회전은 $SO(d)$의 원소이므로, 다양한 방법들은 동일한 탐색 공간 위의 서로 다른 선택으로 볼 수 있다. 이 공통 구조를 활용하면 최적해의 존재를 묻고 답할 수 있다. 특히 RoPE 구조가 부여하는 토러스 대칭성 $T^{d/2}$은 최적 회전을 결정하는 핵심 제약이다:
-\begin{equation}
-\mathrm{RoPE}(k, \mathrm{pos}) = e^{\mathrm{pos} \cdot A_{\mathrm{RoPE}}} \cdot k, \quad A_{\mathrm{RoPE}} = \diag(\theta_1 J, \ldots, \theta_{d/2} J).
-\label{eq:rope_hamiltonian}
-\end{equation}
+직교 변환 후 스칼라 양자화에서 KLT(=PCA)가 MSE를 최소화한다는 것은 정보 이론에서 잘 알려진 결과다 \citep{cover2006elements}. 그러나 RoPE 구조 하에서 이 결과를 적용하려면, 위치에 따라 공분산이 달라지는 문제($\Sigma(\mathrm{pos}) = R_{\mathrm{RoPE}} \Sigma_0 R_{\mathrm{RoPE}}^\top$)를 해결해야 한다. 본 논문은 이 위치 의존성이 \emph{대수적으로 상쇄}되어, Pre-RoPE 공분산의 PCA만으로 모든 위치에서 동시에 최적이 됨을 증명한다.
 
 \paragraph{기여.} 본 논문의 기여는 다음 세 가지다.
 
 \begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
-\item \textbf{Pre-RoPE PCA 최적성 정리 (분포 무관)} (정리~\ref{thm:optimal_hamiltonian}). Class~C (직교 회전 + 독립 스칼라 양자화) 내에서, \emph{소스 분포의 특정 매개변수 가정 없이}, RoPE 구조 하의 양자화 MSE를 최소화하는 최적 회전이 Pre-RoPE 공분산의 고유벡터 $V_0$임을 증명한다. 핵심 insight는 RoPE의 직교성이 대수적으로 상쇄되어, 위치에 무관한 단일 회전이 모든 위치에서 동시에 최적이 된다는 것이다.
+\item \textbf{RoPE 상쇄 정리} (정리~\ref{thm:optimal_hamiltonian}). RoPE 구조에서 위치별 공분산의 최적 고유벡터가 $R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0$이며, 이를 pre-RoPE 키에 적용하면 RoPE가 상쇄되어 위치에 무관한 단일 회전 $V_0$만으로 모든 위치에서 동시에 MSE가 최소화됨을 증명한다. 이것은 KVTC 등이 경험적으로 사용하는 Pre-RoPE PCA의 이론적 근거를 처음으로 제공한다. 또한 Post-RoPE PCA가 위치별 공분산의 혼합으로 인해 열등해질 수 있음을 이론적으로 설명한다.
 
-\item \textbf{Master Formula와 정량적 이득 (가우시안 소스)}. 가우시안 소스와 고율 근사를 추가로 가정하면, 블록-$b$ 양자화의 최적 왜곡에 대한 닫힌 공식 $D^*(b, B, \Sigma) = d \cdot G(b, \Sigma) \cdot 2^{-2B}$가 유도된다. AM-GM 계층 $G(d) \leq G(b) \leq G(1)$에 의해 Haar 무작위 회전 대비 이득 상한 $R_{\mathrm{aniso}}$가 정량화된다.
+\item \textbf{헤드별 PCA의 최적성과 KVTC 대비 이득}. KVTC의 공유 PCA가 헤드 간 공분산 이질성을 무시하므로 최적이 아님을 보이고, 헤드별 PCA가 Llama-3.1-8B 2-bit에서 46.3\% PPL을 개선함을 확인한다.
 
-\item \textbf{4모델 실증 검증과 MSE-PPL 경계의 규명}. Qwen2.5-7B, Llama-3.1-8B, Mistral-7B, Qwen2.5-14B에서 Pre-RoPE PCA의 우위가 3-bit에서 4/4 모델로 PPL에 전이됨을 확인한다. 2-bit에서는 2/4 모델에서 MSE-PPL 순서 역전이 관찰되어, 극단적 양자화에서 이론이 PPL로 전이되는 경계를 정량화한다. 또한 KVTC의 공유 PCA 대비 헤드별 PCA가 46.3\% PPL을 개선함을 보인다 (Llama 2-bit).
+\item \textbf{4모델 실증 검증, Baseline 비교, 및 Class~C의 경계}. Qwen2.5-7B, Llama-3.1-8B, Mistral-7B, Qwen2.5-14B에서 Pre-RoPE PCA가 KIVI (무회전)를 모든 설정에서, GEAR (SVD 잔차)를 대부분 설정에서 상회함을 확인한다. Pre-RoPE vs Post-RoPE 예측은 3-bit에서 4/4 모델로 확인되고, 2-bit에서는 MSE-PPL 전이의 모델 의존적 경계를 규명한다.
 \end{enumerate}
 
-나아가, MSE 최적 양자화기(Lloyd-Max)가 PPL에서 실패하는 현상을 통해, \emph{회전 선택}은 본 정리로 해결되었으나 \emph{양자화기 설계}에는 MSE와 attention 민감도 사이의 간극이 남아 있음을 보인다. 이것이 Class~C의 구조적 경계이다.
-
-이론적 프레임워크로서, 기존 8가지 회전 기반 방법을 $\mathfrak{so}(d)$의 서로 다른 부분 대수에서의 선택으로 통일적으로 분류할 수 있음을 부록에서 보인다. 이 분류는 최적 회전 탐색의 동기를 제공하는 배경 도구이다.
+정량적 분석 도구로서 잘 알려진 고율 가우시안 왜곡 공식 $D^* = d \cdot G(b,\Sigma) \cdot 2^{-2B}$ \citep{cover2006elements}을 활용하여, Haar 무작위 회전 대비 이득 상한 $R_{\mathrm{aniso}} = \mathrm{AM}(\lambda)/\mathrm{GM}(\lambda)$를 도출한다. 또한 MSE 최적 양자화기(Lloyd-Max)가 PPL에서 실패하는 현상을 통해 Class~C의 구조적 경계를 밝힌다.
