@@ -64,5 +64,27 @@ Post-RoPE PCA는 위치별 공분산의 혼합 $\bar{\Sigma} = \frac{1}{T}\sum_t
 \begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
 \item \textbf{보존되는 것.} PCA의 최적성 (정리~\ref{thm:optimal_hamiltonian}), $G$ 순서 (따름정리~\ref{cor:block_hierarchy}), RoPE 상쇄는 분포 무관이므로 항상 성립한다.
 \item \textbf{근사되는 것.} $R_{\mathrm{aniso}}$ 상한과 $2^{-2B}$ 스케일링은 가우시안에서만 정확하다. 3모델의 PCA 성분별 초과 첨도(excess kurtosis)를 측정한 결과, 평균 $\bar{\kappa}_4 - 3 \approx 0.5$ (가우시안=0)로 mild departure를 보이며, $\sim$12\%의 성분만이 $\kappa_4 - 3 > 1$ (heavy tail)이다. 이 비가우시안성이 이론-실측 간극의 주 원인이며, 2-bit에서 약 50\%, 4-bit에서 약 20\%의 간극으로 나타난다.
-\item \textbf{깨지는 것.} MSE 최소화가 PPL 최소화를 보장하지 않는다. 이 간극은 직교 회전(축 1)에서는 경험적으로 보존되지만, 비선형 양자화기(축 2)에서는 깨진다 (Section~\ref{sec:exp_lloyd}).
+\item \textbf{깨지는 것.} MSE 최소화가 PPL 최소화를 보장하지 않는다. 이 간극은 직교 회전(축 1)에서는 경험적으로 보존되지만, 비선형 양자화기(축 2)에서는 깨진다 (Section~\ref{sec:exp_lloyd}). 아래의 명제~\ref{prop:attn_weighted}는 이 간극의 이론적 원인을 분석한다.
 \end{enumerate}
+
+\subsection{MSE-PPL 간극의 이론적 분석}
+\label{sec:attn_weighted}
+
+정리~\ref{thm:optimal_hamiltonian}은 재구성 MSE $D = \E[\lVert k - \hat{k} \rVert^2]$를 최소화한다. 그러나 attention 메커니즘에서 중요한 것은 내적 오차 $q^\top (k - \hat{k})$이다. 쿼리 공분산 $\Sigma_Q = \E[qq^\top]$을 도입하면 attention-weighted distortion을 정의할 수 있다.
+
+\begin{proposition}[Attention-Weighted Optimal Rotation]
+\label{prop:attn_weighted}
+양자화 오차 $\delta k = k - \hat{k}$가 쿼리 $q$와 독립이라고 가정하면, attention-weighted distortion은
+\begin{equation}
+D_{\mathrm{attn}} = \E\bigl[\lvert q^\top \delta k \rvert^2\bigr] = \trace(\Sigma_Q \cdot \Sigma_{\mathrm{err}})
+\end{equation}
+이다. 여기서 $\Sigma_{\mathrm{err}} = \E[\delta k \cdot \delta k^\top]$은 양자화 오차 공분산이다. $D_{\mathrm{attn}}$을 최소화하는 최적 회전은 합동 행렬(joint matrix)
+\begin{equation}
+M = \Sigma_Q^{1/2} \cdot \Sigma_K \cdot \Sigma_Q^{1/2}
+\end{equation}
+의 고유벡터에 의해 결정된다. $\Sigma_Q \propto I$ (등방적 쿼리)일 때 이것은 $\Sigma_K$의 표준 PCA로 환원되어 정리~\ref{thm:optimal_hamiltonian}의 특수 사례가 된다.
+\end{proposition}
+
+\begin{theorycomment}
+\textbf{의미.} 이 명제는 다음을 설명한다. (i)~대부분의 경우 $\Sigma_Q$가 $\Sigma_K$에 비해 충분히 등방적이면 표준 PCA가 attention-weighted 최적해에 가깝다. 이것이 3-bit 이상에서 PCA의 PPL 이득이 MSE 이득과 일치하는 이유다. (ii)~2-bit에서 양자화 오차가 극단적으로 커지면, $\Sigma_Q$의 비등방성이 상대적으로 중요해져 표준 PCA와 attention-weighted PCA의 차이가 커진다. 이것이 2-bit PPL 역전의 이론적 원인이다. (iii)~Lloyd-Max는 $\Sigma_Q$를 전혀 고려하지 않으므로, MSE에서 최적이라도 $D_{\mathrm{attn}}$에서 최적이 아닐 수 있다. 이것이 Lloyd-Max PPL 실패의 이론적 설명이다.
+\end{theorycomment}
