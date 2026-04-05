@@ -3,50 +3,30 @@
 
 \subsection{Lie 군과 KV 캐시 양자화}
 
-직교군 $SO(d)$의 원소 $R$은 내적을 보존하는 회전이다. 그 Lie 대수 $\mathfrak{so}(d) = \{A \in \R^{d \times d} : A^\top = -A\}$의 원소 $A$를 \emph{생성자(generator)} 또는 \emph{해밀토니안}이라 부르며, 지수 사상 $R = e^A$를 통해 회전을 생성한다 \citep{hall2015lie}. 반대칭 행렬 $A$의 스펙트럼 분해
-\begin{equation}
-A = P \cdot \diag(\omega_1 J, \ldots, \omega_{d/2} J) \cdot P^\top, \quad J = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix}
-\label{eq:spectral_decomp}
-\end{equation}
-에서 각 $\omega_i$는 2D 평면의 회전 각속도(에너지)를 결정하고, $P$는 회전 평면의 방향을 결정한다.
+직교군 $SO(d)$의 원소 $R$은 내적을 보존하는 회전이다. 그 Lie 대수 $\mathfrak{so}(d) = \{A \in \R^{d \times d} : A^\top = -A\}$의 원소 $A$를 \emph{생성자} 또는 \emph{해밀토니안}이라 부르며, 지수 사상 $R = e^A$를 통해 회전을 생성한다 \citep{hall2015lie}. 반대칭 행렬 $A$의 스펙트럼 분해에서 각 고유값 $\omega_i$는 2D 평면의 회전 각속도를 결정한다.
 
 \paragraph{RoPE는 해밀토니안 동역학이다.}
-Rotary Position Embedding (RoPE)은 위치 $\mathrm{pos}$를 시간 매개변수로 사용하는 해밀토니안 회전이다 (식~\ref{eq:rope_hamiltonian}). 주파수 $\theta_i = 10000^{-2(i-1)/d}$는 해밀토니안의 고유값이고, RoPE가 생성하는 토러스 군 $T^{d/2} = SO(2)_1 \times \cdots \times SO(2)_{d/2}$는 KV 캐시에 대칭성을 부여한다.
+Rotary Position Embedding (RoPE)은 위치 $\mathrm{pos}$를 시간 매개변수로 사용하는 해밀토니안 회전이다 (식~\ref{eq:rope_hamiltonian}). 주파수 $\theta_i = 10000^{-2(i-1)/d}$는 각 2D 평면의 회전 속도를 결정하고, RoPE가 생성하는 토러스 군 $T^{d/2} = SO(2)_1 \times \cdots \times SO(2)_{d/2}$는 KV 캐시에 대칭성을 부여한다.
 
-\subsection{회전 기반 양자화 방법의 해밀토니안 분류}
+\subsection{회전 기반 양자화 방법}
 
-\begin{table}[t]
-\centering
-\caption{8가지 회전 기반 KV 캐시 양자화 방법의 해밀토니안 분류. 모든 방법은 일반화된 해밀토니안 프레임워크 $R = e^{tA}$ (Mode~I) 또는 궤도 분해 (Mode~II)의 특수 사례다.}
-\label{tab:hamiltonian_classification}
-\small
-\begin{tabular}{@{}llcccl@{}}
-\toprule
-방법 & 학회 & 해밀토니안 $A$ & 블록 $b$ & 모드 & 비고 \\
-\midrule
-RoPE & --- & $A_{\mathrm{RoPE}}$ (고정) & 2 & I & 위치 인코딩 \\
-TurboQuant & ICLR'26 & $A \sim \mathrm{Haar}$ (무작위) & $d$ & I & 등방화 \\
-KVTC & ICLR'26 & $A_{\mathrm{PCA}}$ (공유) & $d$ & I & DP 비트 배분 \\
-PolarQuant & NeurIPS'25 & $A_{\mathrm{RoPE}}$ 구조 & 2 & II & 궤도 분해 \\
-CommVQ & ICML'25 & 중심화군 $C(T^{d/2})$ & 2 & I & RoPE 교환 \\
-SpinQuant & ICLR'25 & $A_{\mathrm{learn}}$ (학습) & $d$ & I & Cayley SGD \\
-RotorQuant \citep{scrya2026rotorquant} & Preprint'26 & Clifford $\mathrm{Cl}(3,0)$ & 3 & I & Rotor \\
-IsoQuant \citep{chen2026isoquant} & Preprint'26 & $\mathfrak{so}(4)$ 분해 & 4 & I & Isoclinic \\
-\bottomrule
-\end{tabular}
-\end{table}
+최근의 KV 캐시 양자화는 크게 세 가지 회전 전략을 사용한다.
 
-표~\ref{tab:hamiltonian_classification}은 8가지 방법을 해밀토니안으로 분류한다. 공통 구조는 명확하다: 모든 방법은 $\mathfrak{so}(d)$의 어떤 부분 대수에서 해밀토니안을 선택하고, 그 지수 사상으로 회전을 생성한다. 블록 크기 $b$에 따른 부분군 계층
-\[
-SO(2)^{d/2} \subset SO(4)^{d/4} \subset SO(d)
-\]
-이 방법들 간의 자유도-효율 트레이드오프를 결정한다. 작은 $b$는 파라미터가 적어 안정적이나 블록 간 상관을 활용하지 못하고, 큰 $b$는 표현력이 크지만 과적합 위험이 있다.
+\begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
+\item \textbf{무회전 또는 채널별 처리.} KIVI \citep{liu2024kivi}는 키를 채널별, 값을 토큰별로 비대칭 양자화한다. KVQuant \citep{hooper2024kvquant}는 Pre-RoPE 채널별 양자화에 이상치(outlier) 분리를 추가한다. 이들은 회전을 사용하지 않으므로 본 프레임워크에서는 $A=0$ (항등 회전)에 해당한다.
+
+\item \textbf{무작위 직교 회전.} TurboQuant \citep{zandieh2025turboquant}는 Haar 측도에서 표본한 무작위 직교 행렬로 키를 회전한 뒤, 등방화된 분포에 대해 양자화한다. 본 프레임워크에서는 $A \sim \mathrm{Haar}(\mathfrak{so}(d))$에 해당한다.
+
+\item \textbf{데이터 의존 회전.} KVTC \citep{staniszewski2025kvtc}는 전체 KV 헤드를 합쳐서 하나의 공유 Pre-RoPE PCA를 계산한다. SpinQuant \citep{liu2024spinquant}는 Cayley SGD로 $SO(d)$ 위의 최적 회전을 학습한다. PolarQuant \citep{wu2025polarquant}는 RoPE 쌍별 극좌표 분해를 사용한다.
+\end{enumerate}
+
+이 방법들은 모두 $\mathfrak{so}(d)$의 서로 다른 부분 대수에서 해밀토니안을 선택하는 것으로 통일적으로 기술할 수 있다 (8개 방법의 상세 분류는 부록~\ref{sec:full_classification}에 둔다).
 
 \subsection{선행연구 대비 본 논문의 위치}
 
-선행연구들은 각자 하나의 해밀토니안을 ad-hoc으로 선택하고 경험적으로 평가한다. \textbf{어떤 논문도 PCA 회전의 양자화 MSE 최적성을 증명하지 않았고, Pre-RoPE vs Post-RoPE의 이론적 비교를 제시하지 않았으며, 방법들을 통일적으로 비교하는 프레임워크를 제공하지 않았다.} IsoQuant만이 $\mathfrak{so}(4)$ 분해를 명시적으로 사용하지만, end-to-end LLM 실험이 없다.
+선행연구들은 각자 하나의 회전 전략을 ad-hoc으로 선택하고 경험적으로 평가한다. \textbf{어떤 논문도 PCA 회전의 양자화 MSE 최적성을 증명하지 않았고, Pre-RoPE vs Post-RoPE의 이론적 비교를 제시하지 않았다.} 본 논문은 (i)~Pre-RoPE PCA가 Class~C 내에서 MSE-최적임을 증명하고, (ii)~이 증명이 소스 분포의 특정 매개변수 가정 없이 성립함을 보이며, (iii)~4개 모델에서 이 예측을 PPL로 검증한다.
 
 \begin{definition}[Class~C]
 \label{def:classC}
-직교 회전 $R \in O(d)$와 독립 스칼라 양자화기 $\mathcal{Q} = \prod_{j=1}^{d} \mathcal{Q}_j$의 조합으로 이루어진 양자화 방법의 클래스를 Class~C라 한다. 표~\ref{tab:hamiltonian_classification}의 8개 방법은 모두 Class~C에 속한다.
+직교 회전 $R \in O(d)$와 독립 스칼라 양자화기 $\mathcal{Q} = \prod_{j=1}^{d} \mathcal{Q}_j$의 조합으로 이루어진 양자화 방법의 클래스를 Class~C라 한다. 위에 열거한 모든 방법은 Class~C에 속한다.
 \end{definition}

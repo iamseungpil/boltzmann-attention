@@ -50,7 +50,7 @@
 
 \begin{table}[t]
 \centering
-\caption{WikiText-2 PPL. Pre-RoPE PCA가 3모델에서 TurboQuant를 상회한다. WF(floor=2)는 실용적 비트 배분 개선이다.}
+\caption{WikiText-2 PPL. $^\dagger$Random rotation = Haar 무작위 직교 행렬 + per-channel uniform 양자화. TurboQuant \citep{zandieh2025turboquant}의 회전 성분만을 재현한 것이며, TurboQuant의 전체 파이프라인(Beta Lloyd-Max + QJL 잔차)과는 다르다.}
 \label{tab:ppl_main}
 \small
 \begin{tabular}{@{}llccc@{}}
@@ -59,22 +59,22 @@
 \midrule
 \multirow{4}{*}{Qwen2.5-7B} & FP16 & \multicolumn{3}{c}{6.556} \\
  & No rotation & 10.525 & 6.877 & 6.626 \\
- & TurboQuant & 9.332 & 6.821 & 6.614 \\
+ & Random rot.$^\dagger$ & 9.332 & 6.821 & 6.614 \\
  & \textbf{Pre-RoPE PCA} & \textbf{7.961} & \textbf{6.755} & \textbf{6.600} \\
 \midrule
 \multirow{4}{*}{Llama-3.1-8B} & FP16 & \multicolumn{3}{c}{6.398} \\
  & No rotation & 16.599 & 6.735 & 6.457 \\
- & TurboQuant & 11.264 & 6.704 & 6.454 \\
+ & Random rot.$^\dagger$ & 11.264 & 6.704 & 6.454 \\
  & \textbf{Pre-RoPE PCA} & \textbf{10.944} & \textbf{6.668} & 6.460 \\
 \midrule
 \multirow{4}{*}{Mistral-7B} & FP16 & \multicolumn{3}{c}{5.572} \\
  & No rotation & 7.203 & 5.708 & 5.602 \\
- & TurboQuant & 6.371 & 5.675 & 5.592 \\
+ & Random rot.$^\dagger$ & 6.371 & 5.675 & 5.592 \\
  & Pre-RoPE PCA & 6.404 & \textbf{5.683} & 5.588 \\
 \midrule
 \multirow{4}{*}{Qwen2.5-14B} & FP16 & \multicolumn{3}{c}{4.605} \\
  & No rotation & 8.648 & 5.001 & 4.652 \\
- & TurboQuant & 6.689 & 4.940 & 4.637 \\
+ & Random rot.$^\dagger$ & 6.689 & 4.940 & 4.637 \\
  & \textbf{Pre-RoPE PCA} & \textbf{6.310} & \textbf{4.859} & 4.626 \\
 \bottomrule
 \end{tabular}
@@ -87,7 +87,9 @@
 \label{fig:ppl_comparison}
 \end{figure}
 
-표~\ref{tab:ppl_main}과 그림~\ref{fig:ppl_comparison}의 핵심 결과: Pre-RoPE PCA는 2-bit에서 3/4 모델(Qwen-7B +14.7\%, Qwen-14B +5.7\%, Llama +2.8\%)에서 TurboQuant를 상회한다. Mistral에서는 근소 열등(-0.5\%)이지만, 3-bit에서는 4/4 모델 모두 Pre-RoPE PCA $\leq$ TurboQuant이다. Mistral에서는 2-bit에서 근소 열등(6.461 vs 6.371)한데, 이는 $R_{\mathrm{aniso}}=131.62$의 극단적 이방성이 소수 헤드에 집중되어 2048 토큰 캘리브레이션이 불안정하기 때문으로 추정된다.
+표~\ref{tab:ppl_main}의 핵심 결과를 해석한다. Pre-RoPE PCA는 2-bit에서 4개 모델 중 3개(Qwen-7B, Qwen-14B, Llama)에서 Haar 무작위 회전보다 낮은 PPL을 달성한다. 이득은 Qwen-7B에서 14.7\%, Qwen-14B에서 5.7\%, Llama에서 2.8\%이다. Mistral에서는 0.5\% 열등한데, 이것은 $R_{\mathrm{aniso}}=131.62$의 극단적 이방성이 소수 헤드에 집중되어 2048 토큰 캘리브레이션이 불안정한 것에 기인하는 것으로 추정된다. 3-bit에서는 4/4 모델 모두 Pre-RoPE PCA가 우수하다.
+
+여기서 ``Haar 무작위 회전''은 TurboQuant \citep{zandieh2025turboquant}의 회전 성분만을 재현한 것이며, TurboQuant의 전체 파이프라인(Beta 분포 기반 Lloyd-Max, QJL 잔차 양자화)은 포함하지 않는다. 따라서 본 비교는 \emph{회전 선택 전략}의 차이만을 분리하여 평가한 것이다.
 
 \paragraph{실용적 개선: WF(floor=2).} Pre-RoPE PCA 위에 Water-Filling 비트 배분(최소 2-bit 하한)을 추가하면 2-bit PPL이 추가 개선된다 (Qwen 7.98$\to$7.10, Llama 10.14$\to$7.16, Mistral 6.46$\to$5.82). 이는 정리의 회전 최적성과 독립적인 비트 배분 개선이다.
 

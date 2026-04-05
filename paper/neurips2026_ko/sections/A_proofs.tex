@@ -143,4 +143,30 @@ Identity (무회전) & 98\% & 94\% \\
 \end{tabular}
 \end{center}
 
-무회전 2-bit 8K에서만 94\%로 저하 (depth=0.75에서 80\%). 회전 방법 간 차별화는 관찰되지 않는다.
+무회전 2-bit 8K에서만 94\%로 저하 (depth=0.75에서 80\%). 회전 방법 간 차별화는 이 설정에서 관찰되지 않는다.
+
+\subsection{8가지 방법의 상세 해밀토니안 분류}
+\label{sec:full_classification}
+
+\begin{table}[h]
+\centering
+\caption{8가지 회전 기반 KV 캐시 양자화 방법의 해밀토니안 분류. 모든 방법은 $\mathfrak{so}(d)$의 부분 대수에서 해밀토니안을 선택하고 지수 사상 $R = e^{tA}$ (Mode~I) 또는 궤도 분해 (Mode~II)를 적용한다.}
+\label{tab:hamiltonian_full}
+\small
+\begin{tabular}{@{}llcccl@{}}
+\toprule
+방법 & 학회 & 해밀토니안 $A$ & 블록 $b$ & 모드 & 비고 \\
+\midrule
+RoPE & --- & $A_{\mathrm{RoPE}}$ (고정) & 2 & I & 위치 인코딩 \\
+TurboQuant \citep{zandieh2025turboquant} & ICLR'26 & $A \sim \mathrm{Haar}$ & $d$ & I & 등방화 \\
+KVTC \citep{staniszewski2025kvtc} & ICLR'26 & $A_{\mathrm{PCA}}$ (공유) & $d$ & I & DP 비트 배분 \\
+PolarQuant \citep{wu2025polarquant} & NeurIPS'25 & $A_{\mathrm{RoPE}}$ 구조 & 2 & II & 궤도 분해 \\
+CommVQ \citep{li2025commvq} & ICML'25 & 중심화군 $C(T^{d/2})$ & 2 & I & RoPE 교환 \\
+SpinQuant \citep{liu2024spinquant} & ICLR'25 & $A_{\mathrm{learn}}$ & $d$ & I & Cayley SGD \\
+RotorQuant \citep{scrya2026rotorquant} & Preprint'26 & $\mathrm{Cl}(3,0)$ & 3 & I & Rotor \\
+IsoQuant \citep{chen2026isoquant} & Preprint'26 & $\mathfrak{so}(4)$ & 4 & I & Isoclinic \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+이 분류는 본 논문의 이론적 프레임워크가 기존 방법들을 어떻게 설명하는지를 보여주기 위한 것이다. 본문의 실험에서는 이 중 직접 구현 및 재현이 가능한 4개 전략(무회전, Haar 무작위 회전, Post-RoPE PCA, Pre-RoPE PCA)만을 비교한다. 나머지 방법들과의 공정한 비교는 각 방법의 공개 코드와 동일한 평가 프로토콜이 필요하며, 향후 과제로 남긴다.
