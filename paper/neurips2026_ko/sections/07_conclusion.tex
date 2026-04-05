@@ -1,8 +1,8 @@
 \section{결론}
 \label{sec:conclusion}
 
-본 논문은 회전 기반 KV 캐시 양자화를 Lie 군 관점에서 재해석하여, 8가지 기존 방법을 해밀토니안 프레임워크의 특수 사례로 통일하였다. 핵심 이론적 결과로서, RoPE 구조 하에서 Class~C 내의 최적 해밀토니안이 Pre-RoPE PCA의 수반 작용임을 증명하였다 (정리~\ref{thm:optimal_hamiltonian}). 이 정리는 Pre-RoPE PCA가 TurboQuant 대비 $R_{\mathrm{aniso}}$를 상한으로 하는 MSE 이득을 달성함을 보장한다.
+본 논문은 회전 기반 KV 캐시 양자화에서 ``어떤 회전이 최적인가''라는 질문에 답하였다. 핵심 결과로서, Class~C (직교 회전 + 독립 스칼라 양자화) 내에서 RoPE 구조 하의 최적 회전이 Pre-RoPE 공분산의 고유벡터임을 소스 분포 가정 없이 증명하였다 (정리~\ref{thm:optimal_hamiltonian}). 이 증명의 핵심은 RoPE의 직교성이 대수적으로 상쇄되어, 위치에 무관한 단일 회전이 모든 위치에서 동시에 MSE를 최소화한다는 것이다.
 
-3모델(Qwen2.5-7B, Llama-3.1-8B, Mistral-7B)에서의 실험은 이 이론을 지지한다. Pre-RoPE PCA + WF(floor=2)는 2-bit에서 TurboQuant 대비 8.6--36.4\% PPL을 개선하고, KVTC의 공유 PCA 대비 46.3\%를 개선한다.
+4개 모델(Qwen2.5-7B/14B, Llama-3.1-8B, Mistral-7B)에서의 실험은 이 이론을 3-bit 이상에서 일관되게 지지한다 (Pre-RoPE PCA $<$ Post-RoPE PCA, 4/4 모델). 2-bit에서는 MSE-PPL 전이가 모델에 따라 달라지며 (2/4 모델에서 역전), 이것은 극단적 양자화에서 MSE 최적성이 PPL 최적성으로 전이되는 경계를 보여준다.
 
-동시에, MSE 최적 양자화기(Lloyd-Max)가 PPL에서 실패하는 현상은 Class~C의 구조적 경계를 밝힌다: 직교 회전의 최적 선택은 이론으로 해결되었지만, 그 위의 스칼라 양자화기 설계는 MSE 최적성과 attention 민감도 사이의 간극이 남아있다. 이 간극을 메우는 attention-aware 양자화기 설계는 향후 연구의 방향이다.
+동시에, MSE 최적 양자화기(Lloyd-Max)가 PPL에서 실패하는 현상은 Class~C의 구조적 경계를 밝힌다: 회전 선택 문제는 본 정리로 해결되었지만, 그 위의 양자화기 설계는 MSE와 attention 민감도 사이의 간극이 남아 있다. Attention-aware 양자화기 설계는 향후 연구의 자연스러운 방향이다.
