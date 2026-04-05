@@ -51,6 +51,9 @@
 
 | F39 | V16-2 Ablation: Axis 1 gain 1.32x, Axis 3 gain 1.12x, combined 1.48x at 2-bit Qwen. WF benefits TurboQuant too (9.33→8.52). | `v16_ablation_*.json` | direct experiment 2026-04-05 |
 
+| F40 | Gaussianity check: PCA components have mean excess kurtosis 0.49-0.58 (mild non-Gaussian), ~12% with kurtosis>1, Shapiro-Wilk pass rate ~22%. Consistent across 3 models. | `gaussianity_check_*.json` | direct experiment 2026-04-05 |
+| F41 | 4-bit WF floor=2 ≈ Uniform for all 3 models (difference <0.1%). WF only helps at 2-3 bit. | `4bit_wf_*.json` | direct experiment 2026-04-05 |
+
 ## Unverified or Not Yet Ready
 
 | Claim | Reason |

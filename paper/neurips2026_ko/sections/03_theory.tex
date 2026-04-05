@@ -1,71 +1,70 @@
 \section{이론: RoPE 구조 하의 최적 회전}
 \label{sec:theory}
 
-\subsection{Master Formula: 블록-$b$ 양자화의 최적 왜곡}
+본 절의 결과는 두 층으로 구성된다. 첫째, PCA 최적성과 RoPE 상쇄는 \textbf{소스 분포에 무관하게} 성립한다 (유한 이차 적률만 요구). 둘째, 이득의 정량화(Master Formula, $R_{\mathrm{aniso}}$)는 \textbf{가우시안 소스와 고율 근사}를 추가로 가정한다.
 
-가우시안 소스 $k \sim \mathcal{N}(0, \Sigma)$와 고율 근사 아래에서, 블록-$b$ 직교 변환 후 독립 스칼라 $B$-bit 양자화의 최적 왜곡은 다음과 같다 \citep{cover2006elements}.
+\subsection{분포 무관 결과: PCA 최적성과 RoPE 상쇄}
 
-\begin{theorem}[Master Formula]
-\label{thm:master_formula}
+\begin{theorem}[RoPE-최적 회전 --- 분포 무관]
+\label{thm:optimal_hamiltonian}
+유한 이차 적률 $\Sigma_0 = \mathrm{Cov}(k_{\mathrm{pre}})$를 가진 \emph{임의의} 소스 분포에 대해, RoPE 구조 $k_{\mathrm{post}} = R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot k_{\mathrm{pre}}$ 하에서 Class~C 내의 양자화 MSE를 최소화하는 최적 회전은
 \begin{equation}
-D^*(b, B, \Sigma) = d \cdot G(b, \Sigma) \cdot 2^{-2B},
+U^*(\mathrm{pos}) = R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0,
 \end{equation}
-여기서 $G(b, \Sigma) = \min_\pi \left[\prod_{k=1}^{d/b} \det \Sigma^{(k)}_\pi \right]^{1/d}$이고, $\Sigma^{(k)}_\pi$는 차원 순열 $\pi$에 의한 $k$번째 $b \times b$ 블록의 공분산이다.
+여기서 $V_0$는 $\Sigma_0$의 고유벡터 행렬이다. 이 회전을 pre-RoPE 키에 적용하면 RoPE가 상쇄되어,
+\begin{equation}
+U^*(\mathrm{pos})^\top k_{\mathrm{post}} = V_0^\top k_{\mathrm{pre}},
+\end{equation}
+즉 \textbf{위치에 무관하게} $V_0$만 pre-RoPE 키에 적용하면 모든 위치에서 동시에 MSE가 최소화된다.
 \end{theorem}
 
-$G(b, \Sigma)$를 기하 평균 왜곡 계수라 부른다. 핵심 성질은 AM-GM 계층이다.
+\begin{theorycomment}
+\textbf{증명 개요.} (1)~PCA(KLT)는 임의 분포에 대해 공분산의 기하 평균 $G = (\prod_i \lambda_i)^{1/d}$를 최소화한다 (Hadamard 부등식). (2)~위치 $\mathrm{pos}$에서의 최적 고유벡터는 $R_{\mathrm{RoPE}} V_0$이다 (유사 변환의 고유분해 성질). (3)~$V_0^\top R_{\mathrm{RoPE}}^\top R_{\mathrm{RoPE}} k_{\mathrm{pre}} = V_0^\top k_{\mathrm{pre}}$ (직교성에 의한 RoPE 상쇄). 이 세 단계 모두 소스 분포에 무관하다. 완전한 증명은 부록~\ref{sec:proof_optimal}에 둔다.
+\end{theorycomment}
 
-\begin{corollary}[블록 크기 계층]
+\begin{corollary}[블록 크기 계층 --- 분포 무관]
 \label{cor:block_hierarchy}
-임의의 양의 정부호 공분산 $\Sigma$에 대해,
+임의의 양의 정부호 공분산 $\Sigma$에 대해, 기하 평균 왜곡 계수의 순서
 \begin{equation}
-G(d) \leq G(b) \leq G(1) \leq G_{\mathrm{uniform}} = \frac{\trace(\Sigma)}{d}.
+G(d) \leq G(b) \leq G(1) \leq G_{\mathrm{uniform}} = \frac{\trace(\Sigma)}{d}
 \end{equation}
-여기서 $G(d) = (\prod_i \lambda_i)^{1/d}$는 고유값의 기하 평균 (최적 회전 = PCA 후)이고, $G(1) = (\prod_i \Sigma_{ii})^{1/d}$는 \emph{원래 좌표}의 대각 분산의 기하 평균 (회전 없음)이다. Hadamard 부등식 $\det \Sigma \leq \prod_i \Sigma_{ii}$에 의해 $G(d) \leq G(1)$이 보장된다.
+이 성립한다. 여기서 $G(d) = (\prod_i \lambda_i)^{1/d}$ (PCA 후 고유값의 기하 평균), $G(1) = (\prod_i \Sigma_{ii})^{1/d}$ (원래 좌표의 대각 분산의 기하 평균)이다. 이 순서는 Hadamard 부등식과 AM-GM 부등식에 의해 보장되며, 분포 가정이 필요 없다.
 \end{corollary}
 
-\begin{theorycomment}
-\textbf{해석.} $G(d)$는 전체 $d$차원을 하나의 블록으로 보는 최적 (= PCA), $G(b)$는 블록 대각 회전, $G(1)$은 차원별 독립 양자화, $G_{\mathrm{uniform}}$은 회전 없이 균일 양자화에 대응한다. 따라서 8가지 방법의 MSE 순서는 $G$ 값으로 사전 예측된다.
-\end{theorycomment}
+\subsection{가우시안 소스 하의 정량적 결과: Master Formula}
 
-\subsection{RoPE-최적 해밀토니안 정리}
-\label{sec:optimal_hamiltonian}
+분포 무관 결과는 \emph{순서}를 보장하지만 \emph{정량적 이득}을 주지 않는다. 이득을 닫힌 공식으로 표현하려면 소스 분포의 가정이 필요하다.
 
-이 절이 본 논문의 핵심 결과다. RoPE가 존재하는 구조에서, 어떤 해밀토니안이 양자화 MSE를 최소화하는가?
-
-\begin{theorem}[RoPE-최적 해밀토니안]
-\label{thm:optimal_hamiltonian}
-가우시안 소스와 고율 근사를 가정한다. RoPE 구조 $k_{\mathrm{post}} = R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot k_{\mathrm{pre}}$ 아래에서, Class~C (직교 회전 + 독립 스칼라 양자화) 내의 양자화 MSE를 최소화하는 최적 회전은
+\begin{theorem}[Master Formula --- 가우시안 소스]
+\label{thm:master_formula}
+가우시안 소스 $k \sim \mathcal{N}(0, \Sigma)$와 고율 근사 아래에서, 블록-$b$ 직교 변환 후 독립 스칼라 $B$-bit 양자화의 최적 왜곡은
 \begin{equation}
-A_{\mathrm{opt}}(\mathrm{pos}) = \mathrm{Ad}_{R_{\mathrm{RoPE}}(\mathrm{pos})}\bigl(A_{\mathrm{PCA}}(\Sigma_0)\bigr) = R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot A_{\mathrm{PCA}}(\Sigma_0) \cdot R_{\mathrm{RoPE}}(\mathrm{pos})^\top
+D^*(b, B, \Sigma) = d \cdot G(b, \Sigma) \cdot 2^{-2B}
 \end{equation}
-이다. 여기서 $\Sigma_0$는 Pre-RoPE 키 벡터의 공분산이고, $A_{\mathrm{PCA}}(\Sigma_0)$는 $\Sigma_0$의 고유 구조에 대응하는 해밀토니안이다.
+이다 \citep{cover2006elements}. 여기서 $G(b, \Sigma) = \min_\pi [\prod_{k=1}^{d/b} \det \Sigma^{(k)}_\pi]^{1/d}$이고, $2^{-2B}$ 인자는 가우시안 소스의 율-왜곡 함수에서 유래한다.
 \end{theorem}
 
-\begin{theorycomment}
-\textbf{증명 핵심.} 위치 $\mathrm{pos}$에서 post-RoPE 키의 공분산은 $\Sigma(\mathrm{pos}) = R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot \Sigma_0 \cdot R_{\mathrm{RoPE}}(\mathrm{pos})^\top$이다. MSE 최소화를 위한 최적 회전은 $\Sigma(\mathrm{pos})$의 고유벡터 행렬, 즉 $R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0$이다 (정리~\ref{thm:master_formula}에서 $G(d)$ 달성). 이 회전을 pre-RoPE 키에 적용하면 $R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0$의 역변환이 RoPE를 상쇄하여, \textbf{위치에 무관하게} $V_0$만 적용하면 된다. 이것이 ``Pre-RoPE PCA''다. 완전한 증명은 부록 A.1에 둔다.
-\end{theorycomment}
-
-\begin{corollary}[TurboQuant 대비 이득 상한]
+\begin{corollary}[TurboQuant 대비 이득 상한 --- 가우시안]
 \label{cor:gain_over_turbo}
-TurboQuant는 Haar 무작위 회전 $R$을 적용한다. 무작위 회전 후 각 성분의 기대 한계 분산은 $\E[(R\Sigma_0 R^\top)_{ii}] = \trace(\Sigma_0)/d$이므로, 기대 왜곡 계수는 $\E[G(1, R\Sigma_0 R^\top)] \leq \trace(\Sigma_0)/d = \mathrm{AM}(\lambda)$이다 (Jensen 부등식에 의해, 기하 평균의 기대값 $\leq$ 기대값의 산술 평균). 따라서 Pre-RoPE PCA의 TurboQuant 대비 기대 이득의 상한은
+가우시안 소스를 추가로 가정하면, TurboQuant (Haar 무작위 회전)의 기대 왜곡 계수 $\E[G(1, R\Sigma_0 R^\top)] \leq \mathrm{AM}(\lambda)$이므로 (Jensen 부등식), Pre-RoPE PCA의 기대 이득 상한은
 \begin{equation}
-\frac{\E[D_{\mathrm{TurboQuant}}]}{D^*_{\mathrm{opt}}} \leq R_{\mathrm{aniso}}(\Sigma_0) = \frac{\mathrm{AM}(\lambda_1, \ldots, \lambda_d)}{\mathrm{GM}(\lambda_1, \ldots, \lambda_d)}.
+\frac{\E[D_{\mathrm{TurboQuant}}]}{D^*_{\mathrm{PCA}}} \leq R_{\mathrm{aniso}}(\Sigma_0) = \frac{\mathrm{AM}(\lambda_1, \ldots, \lambda_d)}{\mathrm{GM}(\lambda_1, \ldots, \lambda_d)}.
 \end{equation}
 실측에서 이 상한의 달성률은 4-bit에서 약 80\%, 2-bit에서 약 50\%다.
 \end{corollary}
 
 \begin{remark}[Post-RoPE PCA의 열등성]
 \label{rem:post_rope_fails}
-Post-RoPE PCA는 위치별로 다른 공분산 $\Sigma(\mathrm{pos})$의 \emph{혼합} $\bar{\Sigma} = \frac{1}{T}\sum_t \Sigma(t)$에 대해 PCA를 수행한다. $\bar{\Sigma}$의 고유벡터는 개별 $\Sigma(t)$의 고유벡터와 일반적으로 불일치하므로, 개별 위치에서 최적이 아니다. 실측에서 Post-RoPE PCA+WF의 2-bit MSE가 TurboQuant를 상회하는 것이 관찰된다 (Qwen: 1.091 vs 0.763). 이것은 정리~\ref{thm:optimal_hamiltonian}이 Pre-RoPE PCA를 요구하는 이유를 실증적으로 뒷받침한다.
+Post-RoPE PCA는 위치별 공분산의 혼합 $\bar{\Sigma} = \frac{1}{T}\sum_t \Sigma(t)$에 대해 PCA를 수행한다. $\bar{\Sigma}$의 고유벡터는 개별 위치의 최적 기저와 불일치하므로, 2-bit에서 TurboQuant보다 높은 MSE를 보일 수 있다 (Qwen 실측: 1.091 vs 0.763).
 \end{remark}
 
-\subsection{이론과 실측의 간극}
+\subsection{이론과 실측의 간극: 가우시안 가정의 영향}
 \label{sec:theory_gap}
 
-정리~\ref{thm:optimal_hamiltonian}은 가우시안 소스와 고율 근사를 가정한다. 실측에서는 두 가지 간극이 존재한다.
+가우시안 가정이 깨질 때의 영향을 정리한다.
 
 \begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
-\item \textbf{비가우시안성.} 실제 키 분포는 heavy tail을 가진다. 이론적 이득 $R_{\mathrm{aniso}}$와 실측 이득의 비율은 2-bit에서 약 50\%, 4-bit에서 약 80\% 수준이다.
-\item \textbf{MSE $\neq$ PPL.} MSE 최소화가 PPL 최소화를 보장하지 않는다. MSE-PPL 순서는 직교 회전(축 1)에서는 경험적으로 보존되지만, 비선형 양자화기(축 2)에서는 깨진다 (Section~\ref{sec:exp_lloyd}).
+\item \textbf{보존되는 것.} PCA의 최적성 (정리~\ref{thm:optimal_hamiltonian}), $G$ 순서 (따름정리~\ref{cor:block_hierarchy}), RoPE 상쇄는 분포 무관이므로 항상 성립한다.
+\item \textbf{근사되는 것.} $R_{\mathrm{aniso}}$ 상한과 $2^{-2B}$ 스케일링은 가우시안에서만 정확하다. 3모델의 PCA 성분별 초과 첨도(excess kurtosis)를 측정한 결과, 평균 $\bar{\kappa}_4 - 3 \approx 0.5$ (가우시안=0)로 mild departure를 보이며, $\sim$12\%의 성분만이 $\kappa_4 - 3 > 1$ (heavy tail)이다. 이 비가우시안성이 이론-실측 간극의 주 원인이며, 2-bit에서 약 50\%, 4-bit에서 약 20\%의 간극으로 나타난다.
+\item \textbf{깨지는 것.} MSE 최소화가 PPL 최소화를 보장하지 않는다. 이 간극은 직교 회전(축 1)에서는 경험적으로 보존되지만, 비선형 양자화기(축 2)에서는 깨진다 (Section~\ref{sec:exp_lloyd}).
 \end{enumerate}
