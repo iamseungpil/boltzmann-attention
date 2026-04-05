@@ -119,6 +119,16 @@ PCA 방식 & 2-bit & 3-bit & 4-bit \\
 
 정리~\ref{thm:optimal_hamiltonian}은 각 헤드의 공분산에 대해 독립적으로 성립하므로, 헤드별 PCA가 공유 PCA보다 MSE에서 유리하다. 표~\ref{tab:kvtc}와 그림~\ref{fig:kvtc}는 이 이론적 예측이 PPL에서도 2-bit 46.3\% 이득으로 확인됨을 보여준다.
 
+\subsection{선행연구 대비 위치}
+
+본 논문은 Class~C 내의 \emph{회전 선택} 문제를 해결하는 이론 논문이다. 기존 방법들과의 직접 비교는 동일 프로토콜의 재현이 필요하므로, 여기서는 선행연구의 보고 수치와 본 논문의 위치를 정리한다.
+
+\begin{itemize}[leftmargin=1.5em,itemsep=1pt]
+\item \textbf{SpinQuant} \citep{liu2024spinquant}: 학습된 회전, W4A4KV4 설정에서 평가. KV-only 양자화가 아닌 전체 모델 양자화이므로 직접 비교 불가. 본 논문의 PCA는 캘리브레이션만으로 회전을 결정하여 학습 비용이 없다는 장점이 있다.
+\item \textbf{KIVI} \citep{liu2024kivi}: 비대칭 채널별/토큰별 양자화. Class~C에 속하지만 회전을 사용하지 않는다 (identity rotation). 본 논문의 framework에서는 $A=0$ (무회전)에 해당하며, Pre-RoPE PCA가 이를 상회함이 No rotation 행에서 확인된다.
+\item \textbf{KVQuant} \citep{hooper2024kvquant}: Pre-RoPE 채널별 양자화 + outlier 처리. 3-bit에서 $<0.1$ PPL 저하 보고. 본 논문의 Pre-RoPE PCA도 Pre-RoPE 좌표계를 사용하며, KVQuant의 outlier 처리와 상보적이다.
+\end{itemize}
+
 \subsection{Class~C의 경계: Lloyd-Max의 PPL 실패}
 \label{sec:exp_lloyd}
 
