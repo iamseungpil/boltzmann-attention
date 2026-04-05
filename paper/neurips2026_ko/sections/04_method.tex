@@ -4,7 +4,7 @@
 정리~\ref{thm:optimal_hamiltonian}의 최적 회전을 실현하는 파이프라인은 간단하다.
 
 \paragraph{Step 1: 헤드별 Pre-RoPE PCA.}
-캘리브레이션 데이터(WikiText-2, 2048 토큰)에서 각 KV 헤드의 Pre-RoPE 키 벡터를 추출하고, 중심화 공분산 $\Sigma_0 = \frac{1}{n}\sum_i (k_i - \bar{k})(k_i - \bar{k})^\top$의 고유벡터 행렬 $V_0$를 계산한다. KVTC는 전체 헤드를 합쳐 하나의 공유 PCA를 사용하지만, 정리~\ref{thm:optimal_hamiltonian}은 헤드별 PCA가 최적임을 보장한다 (Fischer inequality).
+캘리브레이션 데이터(WikiText-2, 2048 토큰)에서 각 KV 헤드의 Pre-RoPE 키 벡터를 추출하고, 중심화 공분산 $\Sigma_0 = \frac{1}{n}\sum_i (k_i - \bar{k})(k_i - \bar{k})^\top$의 고유벡터 행렬 $V_0$를 계산한다. KVTC는 전체 헤드를 합쳐 하나의 공유 PCA를 사용한다. 정리~\ref{thm:optimal_hamiltonian}은 각 헤드의 공분산에 대해 독립적으로 성립하므로, 헤드별 PCA가 공유 PCA보다 MSE에서 유리하다. 실험에서 이 이득은 2-bit Llama에서 46.3\%에 달한다 (표~\ref{tab:kvtc}).
 
 \paragraph{Step 2: Water-Filling 비트 배분 (floor=2).}
 PCA 좌표계에서 각 차원의 고유값 $\lambda_j$에 비례하여 비트를 배분한다:

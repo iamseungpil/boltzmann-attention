@@ -21,7 +21,7 @@ $G(b, \Sigma)$를 기하 평균 왜곡 계수라 부른다. 핵심 성질은 AM-
 \begin{equation}
 G(d) \leq G(b) \leq G(1) \leq G_{\mathrm{uniform}} = \frac{\trace(\Sigma)}{d}.
 \end{equation}
-여기서 $G(d) = (\det \Sigma)^{1/d}$이고 $G(1) = \left(\prod_i \lambda_i\right)^{1/d}$이다.
+여기서 $G(d) = (\prod_i \lambda_i)^{1/d}$는 고유값의 기하 평균 (최적 회전 = PCA 후)이고, $G(1) = (\prod_i \Sigma_{ii})^{1/d}$는 \emph{원래 좌표}의 대각 분산의 기하 평균 (회전 없음)이다. Hadamard 부등식 $\det \Sigma \leq \prod_i \Sigma_{ii}$에 의해 $G(d) \leq G(1)$이 보장된다.
 \end{corollary}
 
 \begin{theorycomment}
@@ -46,19 +46,19 @@ A_{\mathrm{opt}}(\mathrm{pos}) = \mathrm{Ad}_{R_{\mathrm{RoPE}}(\mathrm{pos})}\b
 \textbf{증명 핵심.} 위치 $\mathrm{pos}$에서 post-RoPE 키의 공분산은 $\Sigma(\mathrm{pos}) = R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot \Sigma_0 \cdot R_{\mathrm{RoPE}}(\mathrm{pos})^\top$이다. MSE 최소화를 위한 최적 회전은 $\Sigma(\mathrm{pos})$의 고유벡터 행렬, 즉 $R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0$이다 (정리~\ref{thm:master_formula}에서 $G(d)$ 달성). 이 회전을 pre-RoPE 키에 적용하면 $R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0$의 역변환이 RoPE를 상쇄하여, \textbf{위치에 무관하게} $V_0$만 적용하면 된다. 이것이 ``Pre-RoPE PCA''다. 완전한 증명은 부록 A.1에 둔다.
 \end{theorycomment}
 
-\begin{corollary}[TurboQuant 대비 이득]
+\begin{corollary}[TurboQuant 대비 이득 상한]
 \label{cor:gain_over_turbo}
-정리~\ref{thm:optimal_hamiltonian}의 최적해의 MSE 이득은
+TurboQuant는 Haar 무작위 회전 $R$을 적용한다. 무작위 회전 후 각 성분의 기대 한계 분산은 $\E[(R\Sigma_0 R^\top)_{ii}] = \trace(\Sigma_0)/d$이므로, 기대 왜곡 계수는 $\E[G(1, R\Sigma_0 R^\top)] \leq \trace(\Sigma_0)/d = \mathrm{AM}(\lambda)$이다 (Jensen 부등식에 의해, 기하 평균의 기대값 $\leq$ 기대값의 산술 평균). 따라서 Pre-RoPE PCA의 TurboQuant 대비 기대 이득의 상한은
 \begin{equation}
-\frac{D^*_{\mathrm{TurboQuant}}}{D^*_{\mathrm{opt}}} = R_{\mathrm{aniso}}(\Sigma_0) = \frac{\mathrm{AM}(\lambda_1, \ldots, \lambda_d)}{\mathrm{GM}(\lambda_1, \ldots, \lambda_d)},
+\frac{\E[D_{\mathrm{TurboQuant}}]}{D^*_{\mathrm{opt}}} \leq R_{\mathrm{aniso}}(\Sigma_0) = \frac{\mathrm{AM}(\lambda_1, \ldots, \lambda_d)}{\mathrm{GM}(\lambda_1, \ldots, \lambda_d)}.
 \end{equation}
-여기서 $\lambda_i$는 $\Sigma_0$의 고유값이다. TurboQuant의 무작위 회전은 Haar 측도에 의해 공분산을 등방화하므로 $G = \mathrm{AM}(\lambda)$이고, PCA는 $G = \mathrm{GM}(\lambda)$이다.
+실측에서 이 상한의 달성률은 4-bit에서 약 80\%, 2-bit에서 약 50\%다.
 \end{corollary}
 
-\begin{corollary}[Post-RoPE PCA의 열등성]
-\label{cor:post_rope_fails}
-Post-RoPE PCA는 위치별로 다른 공분산 $\Sigma(\mathrm{pos})$의 \emph{혼합}에 대해 PCA를 수행하므로, RoPE의 주파수 혼합(frequency mixing)으로 인해 개별 위치의 최적 기저와 불일치한다. 저비트(특히 2-bit)에서 Post-RoPE PCA가 TurboQuant보다 높은 MSE를 가질 수 있다.
-\end{corollary}
+\begin{remark}[Post-RoPE PCA의 열등성]
+\label{rem:post_rope_fails}
+Post-RoPE PCA는 위치별로 다른 공분산 $\Sigma(\mathrm{pos})$의 \emph{혼합} $\bar{\Sigma} = \frac{1}{T}\sum_t \Sigma(t)$에 대해 PCA를 수행한다. $\bar{\Sigma}$의 고유벡터는 개별 $\Sigma(t)$의 고유벡터와 일반적으로 불일치하므로, 개별 위치에서 최적이 아니다. 실측에서 Post-RoPE PCA+WF의 2-bit MSE가 TurboQuant를 상회하는 것이 관찰된다 (Qwen: 1.091 vs 0.763). 이것은 정리~\ref{thm:optimal_hamiltonian}이 Pre-RoPE PCA를 요구하는 이유를 실증적으로 뒷받침한다.
+\end{remark}
 
 \subsection{이론과 실측의 간극}
 \label{sec:theory_gap}

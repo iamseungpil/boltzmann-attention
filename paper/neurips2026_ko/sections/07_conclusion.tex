@@ -1,7 +1,7 @@
 \section{결론}
 \label{sec:conclusion}
 
-본 논문은 회전 기반 KV 캐시 양자화를 Lie 군 관점에서 재해석하여, 8가지 기존 방법을 해밀토니안 프레임워크의 특수 사례로 통일하였다. 핵심 이론적 결과로서, RoPE 구조 하에서 Class~C 내의 최적 해밀토니안이 Pre-RoPE PCA의 수반 표현임을 증명하였다 (정리~\ref{thm:optimal_hamiltonian}). 이 정리는 Pre-RoPE PCA가 TurboQuant를 $R_{\mathrm{aniso}}$배 상회함을 보장한다.
+본 논문은 회전 기반 KV 캐시 양자화를 Lie 군 관점에서 재해석하여, 8가지 기존 방법을 해밀토니안 프레임워크의 특수 사례로 통일하였다. 핵심 이론적 결과로서, RoPE 구조 하에서 Class~C 내의 최적 해밀토니안이 Pre-RoPE PCA의 수반 작용임을 증명하였다 (정리~\ref{thm:optimal_hamiltonian}). 이 정리는 Pre-RoPE PCA가 TurboQuant 대비 $R_{\mathrm{aniso}}$를 상한으로 하는 MSE 이득을 달성함을 보장한다.
 
 3모델(Qwen2.5-7B, Llama-3.1-8B, Mistral-7B)에서의 실험은 이 이론을 지지한다. Pre-RoPE PCA + WF(floor=2)는 2-bit에서 TurboQuant 대비 8.6--36.4\% PPL을 개선하고, KVTC의 공유 PCA 대비 46.3\%를 개선한다.
 

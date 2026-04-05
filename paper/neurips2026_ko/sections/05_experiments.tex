@@ -3,7 +3,7 @@
 
 \subsection{설정}
 
-\paragraph{모델.} Qwen2.5-7B ($d_{\mathrm{head}}=128$, GQA $G=7$, $R_{\mathrm{aniso}}=4.27$) \citep{qwen2024qwen25}, Llama-3.1-8B ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=7.97$) \citep{grattafiori2024llama3}, Mistral-7B-v0.3 ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=131.62$).
+\paragraph{모델.} Qwen2.5-7B ($d_{\mathrm{head}}=128$, GQA $G=7$, $R_{\mathrm{aniso}}=4.27$) \citep{qwen2024qwen25}, Llama-3.1-8B ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=7.97$) \citep{grattafiori2024llama3}, Mistral-7B-v0.3 ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=131.62$) \citep{jiang2023mistral}.
 
 \paragraph{비교 방법.} (1)~No rotation + Uniform, (2)~TurboQuant (무작위 SO(d) + Uniform), (3)~Pre-RoPE PCA + Uniform (축 1만), (4)~Pre-RoPE PCA + WF(floor=2) + Uniform (축 1+3).
 
@@ -41,7 +41,7 @@
 \end{tabular}
 \end{table}
 
-표~\ref{tab:ppl_main}이 본 논문의 핵심 결과다. Pre-RoPE PCA + WF(floor=2)는 3모델 모두에서 2-bit과 3-bit에서 TurboQuant를 상회한다. TurboQuant 대비 2-bit PPL 개선은 Qwen 23.9\%, Llama 36.4\%, Mistral 8.6\%다.
+표~\ref{tab:ppl_main}이 본 논문의 핵심 결과다. Pre-RoPE PCA + WF(floor=2)는 3모델 모두에서 2-bit과 3-bit에서 TurboQuant를 상회한다. TurboQuant 대비 2-bit PPL 개선은 Qwen 23.9\%, Llama 36.4\%, Mistral 8.6\%다. 4-bit WF(floor=2) 결과는 미측정이다. 4-bit에서는 모든 방법이 FP16 대비 1\% 이내이므로 WF의 추가 이득이 미미할 것으로 예상된다.
 
 \paragraph{Mistral의 낮은 이득.} Mistral의 $R_{\mathrm{aniso}}=131.62$는 극단적으로 높지만, PPL 이득은 8.6\%로 가장 작다. 이는 극단적 이방성이 소수 헤드에 집중되어 캘리브레이션 2048 토큰으로는 PCA 방향이 불안정하기 때문으로 추정된다. PCA + Uniform에서는 Mistral 2-bit에서 TurboQuant에 패배하지만(6.461 vs 6.371), WF(floor=2)를 추가하면 역전된다(5.822 vs 6.371).
 
