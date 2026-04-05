@@ -46,6 +46,9 @@
 \end{tabular}
 \end{table}
 
+\paragraph{MSE 수준 검증: 정리는 PPL 역전에도 불구하고 성립한다.}
+표~\ref{tab:prerope_vs_postrope}에서 2-bit PPL이 2/4 모델에서 역전됨에도, MSE 수준에서는 Pre-RoPE PCA가 \emph{모든 헤드에서 예외 없이} Post-RoPE PCA를 상회한다. Qwen2.5-7B의 112개 KV 헤드 전부에서 $\mathrm{MSE}_{\mathrm{pre}} < \mathrm{MSE}_{\mathrm{post}}$가 2/3/4-bit 모두에서 성립한다 (112/112 = 100\%). 이것은 정리~\ref{thm:optimal_hamiltonian}의 MSE 최적성이 PPL 역전과 무관하게 유지됨을 확인하며, 2-bit PPL 역전의 원인이 정리의 오류가 아닌 MSE-PPL 전이의 비선형성에 있음을 보여준다.
+
 \subsection{방법 간 PPL 비교}
 
 \begin{table}[t]
