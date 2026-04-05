@@ -1,0 +1,244 @@
+\documentclass{article}
+\usepackage{neurips_2026}
+
+\usepackage{fontspec}
+\usepackage{ucharclasses}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,backgrounds}
+\tcbuselibrary{breakable,skins}
+
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{TeX Gyre Termes}
+\newfontfamily\hangulfont[ItalicFont={Noto Sans CJK KR}]{Noto Sans CJK KR}
+\setTransitionsForCJK{\hangulfont}{}{}
+
+\graphicspath{{figures/}}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\abstractname}{초록}
+\renewcommand{\figurename}{그림}
+\renewcommand{\tablename}{표}
+\renewcommand{\refname}{참고문헌}
+\renewcommand{\proofname}{증명}
+\renewenvironment{abstract}
+{%
+  \vskip 0.075in%
+  \centerline{\large\bf 초록}%
+  \vspace{0.5ex}%
+  \begin{quote}%
+}
+{%
+  \par%
+  \end{quote}%
+  \vskip 1ex%
+}
+
+\newcommand{\reff}{r_{\mathrm{eff}}}
+\newcommand{\teff}{T_{\mathrm{eff}}}
+\newcommand{\knorm}{\lVert k \rVert_2^2}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\trace}{\mathrm{tr}}
+\newcommand{\rank}{\mathrm{rank}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+
+\definecolor{fokvqblue}{HTML}{2F5E8C}
+\definecolor{fokvqbluebg}{HTML}{F3F8FD}
+\definecolor{fokvqgreen}{HTML}{2F6B4F}
+\definecolor{fokvqgreenbg}{HTML}{F3FAF5}
+\definecolor{fokvqamber}{HTML}{8A5A12}
+\definecolor{fokvqamberbg}{HTML}{FFF8ED}
+\definecolor{fokvqink}{HTML}{243447}
+
+\newtcolorbox{placeholderbox}{
+  colback=gray!8,
+  colframe=gray!55,
+  boxrule=0.6pt,
+  left=6pt,
+  right=6pt,
+  top=6pt,
+  bottom=6pt
+}
+
+\newcommand{\placeholder}[1]{
+\begin{placeholderbox}
+\textbf{추후 교체.} #1
+\end{placeholderbox}
+}
+
+\newtheoremstyle{fokvqplain}
+  {9pt}
+  {9pt}
+  {\normalfont}
+  {}
+  {\color{fokvqblue}\bfseries}
+  {}
+  {\newline}
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ \textnormal{(#3)}}}
+
+\newtheoremstyle{fokvqdefinition}
+  {9pt}
+  {9pt}
+  {\normalfont}
+  {}
+  {\color{fokvqgreen}\bfseries}
+  {}
+  {\newline}
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ \textnormal{(#3)}}}
+
+\newtheoremstyle{fokvqremark}
+  {9pt}
+  {9pt}
+  {\normalfont}
+  {}
+  {\color{fokvqamber}\bfseries}
+  {}
+  {\newline}
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ \textnormal{(#3)}}}
+
+\theoremstyle{fokvqplain}
+\newtheorem{theorem}{정리}[section]
+\newtheorem{lemma}[theorem]{보조정리}
+\newtheorem{proposition}[theorem]{명제}
+\newtheorem{corollary}[theorem]{따름정리}
+
+\theoremstyle{fokvqdefinition}
+\newtheorem{definition}[theorem]{정의}
+\newtheorem{assumption}[theorem]{가정}
+
+\theoremstyle{fokvqremark}
+\newtheorem{remark}[theorem]{비고}
+
+\newtcolorbox{theoremframe}{
+  breakable,
+  enhanced jigsaw,
+  colback=fokvqbluebg,
+  colframe=fokvqblue!28,
+  boxrule=0pt,
+  borderline west={3pt}{0pt}{fokvqblue},
+  borderline north={0.8pt}{0pt}{fokvqblue!24},
+  borderline south={0.8pt}{0pt}{fokvqblue!14},
+  arc=2mm,
+  boxsep=0pt,
+  left=11pt,
+  right=11pt,
+  top=10pt,
+  bottom=9pt,
+  before skip=9pt,
+  after skip=9pt
+}
+
+\newtcolorbox{definitionframe}{
+  breakable,
+  enhanced jigsaw,
+  colback=fokvqgreenbg,
+  colframe=fokvqgreen!28,
+  boxrule=0pt,
+  borderline west={3pt}{0pt}{fokvqgreen},
+  borderline north={0.8pt}{0pt}{fokvqgreen!24},
+  borderline south={0.8pt}{0pt}{fokvqgreen!14},
+  arc=2mm,
+  boxsep=0pt,
+  left=11pt,
+  right=11pt,
+  top=10pt,
+  bottom=9pt,
+  before skip=9pt,
+  after skip=9pt
+}
+
+\newtcolorbox{remarkframe}{
+  breakable,
+  enhanced jigsaw,
+  colback=fokvqamberbg,
+  colframe=fokvqamber!24,
+  boxrule=0pt,
+  borderline west={3pt}{0pt}{fokvqamber},
+  borderline north={0.8pt}{0pt}{fokvqamber!20},
+  borderline south={0.8pt}{0pt}{fokvqamber!12},
+  arc=2mm,
+  boxsep=0pt,
+  left=11pt,
+  right=11pt,
+  top=10pt,
+  bottom=9pt,
+  before skip=9pt,
+  after skip=9pt
+}
+
+\newenvironment{theorycomment}
+  {\par\smallskip\begin{tcolorbox}[
+    enhanced jigsaw,
+    breakable,
+    colback=white,
+    colframe=fokvqblue!18,
+    boxrule=0pt,
+    borderline west={1.5pt}{0pt}{fokvqblue!55},
+    arc=1.2mm,
+    left=8pt,
+    right=8pt,
+    top=5pt,
+    bottom=5pt
+  ]\small\color{fokvqink}}
+  {\end{tcolorbox}\smallskip}
+
+\BeforeBeginEnvironment{theorem}{\begin{theoremframe}}
+\AfterEndEnvironment{theorem}{\end{theoremframe}}
+\BeforeBeginEnvironment{lemma}{\begin{theoremframe}}
+\AfterEndEnvironment{lemma}{\end{theoremframe}}
+\BeforeBeginEnvironment{proposition}{\begin{theoremframe}}
+\AfterEndEnvironment{proposition}{\end{theoremframe}}
+\BeforeBeginEnvironment{corollary}{\begin{theoremframe}}
+\AfterEndEnvironment{corollary}{\end{theoremframe}}
+\BeforeBeginEnvironment{definition}{\begin{definitionframe}}
+\AfterEndEnvironment{definition}{\end{definitionframe}}
+\BeforeBeginEnvironment{assumption}{\begin{definitionframe}}
+\AfterEndEnvironment{assumption}{\end{definitionframe}}
+\BeforeBeginEnvironment{remark}{\begin{remarkframe}}
+\AfterEndEnvironment{remark}{\end{remarkframe}}
+
+\title{RoPE-최적 해밀토니안: Lie 군 관점에서 증명한\\KV 캐시 양자화의 최적 회전}
+
+\author{
+익명 저자 \\
+NeurIPS 2026 준비용 한국어 내부 초안
+}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_introduction}
+\input{sections/02_background}
+\input{sections/03_theory}
+\input{sections/04_method}
+\input{sections/05_experiments}
+\input{sections/06_discussion}
+\input{sections/07_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/A_proofs}
+
+\newpage
+\input{checklist.tex}
+
+\end{document}

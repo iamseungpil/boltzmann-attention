@@ -1,0 +1,14 @@
+\section{논의와 한계}
+\label{sec:discussion}
+
+\paragraph{왜 회전은 PPL에서 작동하고, 양자화기는 실패하는가?}
+직교 회전 $R$은 내적을 보존하므로 attention 점수 $q^\top R R^\top k = q^\top k$가 변하지 않는다. 따라서 회전이 도입하는 양자화 오차의 \emph{방향 분포}만 바뀌고, attention 메커니즘의 구조는 보존된다. 이것이 MSE-PPL 순서가 회전 선택(축 1)에서는 보존되는 이유다. 반면, Lloyd-Max는 비선형 양자화기로서 codebook 경계가 attention 민감도와 무관하게 설계된다. 따라서 희소하지만 중요한 키(attention sink)의 왜곡이 PPL에 과도한 영향을 준다.
+
+\paragraph{가우시안 가정의 유효 범위.}
+Master Formula와 정리~\ref{thm:optimal_hamiltonian}은 가우시안 소스를 가정한다. 실측에서 이론적 이득 $R_{\mathrm{aniso}}$와 실제 이득의 비율은 4-bit에서 80\% (이론의 80\%가 실현), 2-bit에서 50\% 수준이다. 이는 저비트에서 non-Gaussian tail의 clipping 오차가 커지기 때문이다. 그러나 \emph{순서}(PreRoPE PCA $<$ TurboQuant $<$ No rotation)는 2-bit에서도 3모델 중 2개에서 보존된다.
+
+\paragraph{Class~C의 범위.}
+본 논문의 최적성은 Class~C (직교 회전 + 독립 스칼라 양자화) 내에서만 성립한다. 벡터 양자화(VQ)나 lattice quantization은 Class~C 밖이며, 원칙적으로 더 낮은 왜곡을 달성할 수 있다. 그러나 VQ의 codebook 복잡도 $O(2^{dB})$는 online 추론에 비실용적이며, 현존하는 9개 실용적 KV 캐시 양자화 방법은 모두 Class~C에 속한다.
+
+\paragraph{3모델/WikiText-2 PPL의 한계.}
+본 실험은 3개 모델과 WikiText-2 PPL만을 사용한다. 더 다양한 모델 규모(1.5B, 13B, 70B)와 downstream task (MMLU, GSM8K, NIAH 16K+)에서의 검증은 향후 과제다. 또한 $R_{\mathrm{aniso}} > 100$인 극단적 모델에서 캘리브레이션 안정성이 추가 조사가 필요하다.

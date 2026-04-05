@@ -1,0 +1,28 @@
+\section{서론}
+\label{sec:intro}
+
+KV 캐시는 긴 문맥 추론에서 메모리와 대역폭의 주된 병목이다. 최근 KV 캐시 양자화 연구는 \emph{직교 회전 후 양자화}라는 패러다임으로 수렴하고 있다: TurboQuant \citep{zandieh2025turboquant}는 무작위 직교 행렬을, KVTC \citep{staniszewski2025kvtc}는 Pre-RoPE PCA를, SpinQuant \citep{liu2024spinquant}은 학습된 회전을, PolarQuant \citep{wu2025polarquant}는 극좌표 분해를 적용한다. 그러나 이들은 각각 독립적으로 개발되었으며, \textbf{왜 어떤 회전이 다른 것보다 양자화에 유리한지}에 대한 이론적 이해가 없다.
+
+본 논문은 이 질문을 Lie 군��� 관점에서 답한다. 핵심 관찰은 다음과 같다: 모든 직교 회전은 $SO(d)$의 원소이고, Lie 대수 $\mathfrak{so}(d)$ 위의 반대칭 행렬 $A$의 지수 사상 $e^A$로 표현된다. 따라서 ``회전 선택''은 곧 ``해밀토니안 $A \in \mathfrak{so}(d)$의 선택''이다. RoPE 자체도 해밀토니안 동역학이다:
+\begin{equation}
+\mathrm{RoPE}(k, \mathrm{pos}) = e^{\mathrm{pos} \cdot A_{\mathrm{RoPE}}} \cdot k, \quad A_{\mathrm{RoPE}} = \diag(\theta_1 J, \ldots, \theta_{d/2} J).
+\label{eq:rope_hamiltonian}
+\end{equation}
+
+이 관점에서, 8가지 기존 회전 기반 방법은 서로 다른 해밀토니안 $(A, t)$를 선택한 특수 사례로 통일된다. 이 통일적 프레임워크 위에서 최적 해밀토니안을 탐색할 수 있다.
+
+\paragraph{기여.} 본 논문의 기여는 다음 세 가지다.
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
+\item \textbf{RoPE-최적 해밀토니안 정리} (정리~\ref{thm:optimal_hamiltonian}). Class~C (직교 회전 + 독립 스칼라 양자화) 내에서, RoPE 구조 하에서 양자화 MSE를 최소화하는 최적 해밀토니안이 PCA 해밀토니안의 \emph{수반 표현}(adjoint representation)임을 증명한다:
+\[
+A_{\mathrm{opt}}(\mathrm{pos}) = \mathrm{Ad}_{R_{\mathrm{RoPE}}(\mathrm{pos})}(A_{\mathrm{PCA}}(\Sigma_0)).
+\]
+이것은 Pre-RoPE PCA와 동치이며, TurboQuant를 이방성 비율 $R_{\mathrm{aniso}}$배 상회한다.
+
+\item \textbf{Master Formula와 블록 크기 계층}. 블록-$b$ 양자화의 최적 왜곡에 대한 닫힌 공식 $D^*(b, B, \Sigma) = d \cdot G(b, \Sigma) \cdot 2^{-2B}$를 유도하고, AM-GM ���층 $G(d) \leq G(b) \leq G(1) \leq G_{\mathrm{uniform}}$이 방법 간 성능 순서를 결정함을 보인다.
+
+\item \textbf{3모델 PPL 검증}. Qwen2.5-7B, Llama-3.1-8B, Mistral-7B에서 Pre-RoPE PCA + WF(floor=2)가 TurboQuant 대비 2-bit PPL을 23.9\%, 36.4\%, 8.6\% 개선한다. KVTC의 공유 PCA 대비 헤드별 PCA가 46.3\% PPL을 개선한다.
+\end{enumerate}
+
+추가로, MSE 최적 양자화기(Lloyd-Max)가 PPL에서 실패하는 현상을 통해 Class~C의 구조적 경계를 밝힌다.

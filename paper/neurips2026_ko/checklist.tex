@@ -1,0 +1,85 @@
+\section*{NeurIPS Paper Checklist}
+
+\begin{enumerate}
+
+\item {\bf Claims}
+    \item[] Question: Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: 초록, 서론, 결과 절은 모두 동일한 범위의 주장만 유지한다. 정적 PCA 회전의 타당성, 내부 실험에서 확인된 비등방성, 그리고 아직 비어 있는 표준 PPL 및 외부 baseline 비교를 각각 명시적으로 구분했다.
+
+\item {\bf Limitations}
+    \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: 실험 설계의 미완료 항목은 Section~6.3에서 placeholder와 함께 분리했고, Section~8에서는 표준 PPL, 외부 baseline, 현대 GQA 일반화가 아직 메인 claim을 뒷받침하기에 부족하다는 점을 직접 논의했다.
+
+\item {\bf Theory assumptions and proofs}
+    \item[] Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Section~4는 각 정리의 목적과 가정을 본문에 두고 짧은 증명 개요를 제공한다. Appendix~A는 보조정리와 정리의 전체 유도를 번호와 상호참조와 함께 수록한다.
+
+\item {\bf Experimental result reproducibility}
+    \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
+    \item[] Answer: \answerNo{}
+    \item[] Justification: 현재 초안은 내부 검증을 우선 정리한 문서이며, 표준 benchmark 재현에 필요한 전체 실행 명령, 전처리, 토큰 accounting, baseline harmonization을 아직 완전히 공개하지 않았다. 이 점을 Section~6.3과 Section~8에서 한계로 명시했다.
+
+\item {\bf Open access to data and code}
+    \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
+    \item[] Answer: \answerNo{}
+    \item[] Justification: 제출용 익명 공개 저장소와 재현 스크립트는 아직 준비되지 않았다. 따라서 본 초안은 공개 접근을 주장하지 않는다.
+
+\item {\bf Experimental setting/details}
+    \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer) necessary to understand the results?
+    \item[] Answer: \answerNo{}
+    \item[] Justification: Section~6은 모델, 데이터, 완료 실험의 범위를 설명하지만, 모든 calibration split, 평가 스크립트, 하드웨어별 실행 세부값을 완전하게 기술하지는 않는다. 이 항목은 제출 전 보강이 필요하다.
+
+\item {\bf Experiment statistical significance}
+    \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
+    \item[] Answer: \answerNo{}
+    \item[] Justification: 일부 내부 실험에는 t-test가 포함되지만, 메인 주장을 지지하는 모든 표와 그림에 대해 일관된 error bar 또는 반복 실험 분산 추정이 제공되지는 않는다. 현재 문서는 이 점을 과장하지 않고 제한점으로 남겨 둔다.
+
+\item {\bf Experiments compute resources}
+    \item[] Question: For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce the experiments?
+    \item[] Answer: \answerNo{}
+    \item[] Justification: 일부 실험이 원격 A100 환경에서 재실행되었다는 설명은 있으나, GPU 종류, 메모리, 총 실행 시간, 전체 compute budget을 표준 재현 수준으로 정리하지는 않았다.
+    
+\item {\bf Code of ethics}
+    \item[] Question: Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics \url{https://neurips.cc/public/EthicsGuidelines}?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: 본 연구는 공개된 언어모델과 표준 텍스트 평가를 대상으로 하는 양자화 연구이며, 사람 대상 실험이나 민감한 개인 데이터 수집을 포함하지 않는다. 또한 제출본에서는 과장된 성능 주장과 비재현적 서술을 피하도록 문서를 구성했다.
+
+\item {\bf Broader impacts}
+    \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Section~8은 추론 효율 향상이 주는 접근성 개선과 함께, 더 저렴한 배포가 대규모 생성 모델 사용을 넓혀 오용 비용도 낮출 수 있다는 점을 함께 논의한다.
+    
+\item {\bf Safeguards}
+    \item[] Question: Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse (e.g., pre-trained language models, image generators, or scraped datasets)?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: 본 초안은 새로운 생성 모델이나 데이터셋을 배포하지 않으며, 고위험 자산의 신규 공개를 포함하지 않는다.
+
+\item {\bf Licenses for existing assets}
+    \item[] Question: Are the creators or original owners of assets (e.g., code, data, models), used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected?
+    \item[] Answer: \answerNo{}
+    \item[] Justification: 관련 모델과 baseline 논문은 인용했지만, 각 자산의 라이선스와 사용 조건을 본문 또는 부록에 체계적으로 정리하지는 않았다. 제출 전 자산 목록과 라이선스 표가 추가되어야 한다.
+
+\item {\bf New assets}
+    \item[] Question: Are new assets introduced in the paper well documented and is the documentation provided alongside the assets?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: 본 초안은 새로운 공개 데이터셋, 모델 체크포인트, 코드 패키지의 배포를 동반하지 않는다.
+
+\item {\bf Crowdsourcing and research with human subjects}
+    \item[] Question: For crowdsourcing experiments and research with human subjects, does the paper include the full text of instructions given to participants and screenshots, if applicable, as well as details about compensation (if any)? 
+    \item[] Answer: \answerNA{}
+    \item[] Justification: 사람 대상 실험이나 크라우드소싱은 수행하지 않았다.
+
+\item {\bf Institutional review board (IRB) approvals or equivalent for research with human subjects}
+    \item[] Question: Does the paper describe potential risks incurred by study participants, whether such risks were disclosed to the subjects, and whether Institutional Review Board (IRB) approvals (or an equivalent approval/review based on the requirements of your country or institution) were obtained?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: 사람 대상 연구가 아니므로 IRB 또는 동등 승인 절차가 요구되지 않았다.
+
+\item {\bf Declaration of LLM usage}
+    \item[] Question: Does the paper describe the usage of LLMs if it is an important, original, or non-standard component of the core methods in this research? Note that if the LLM is used only for writing, editing, or formatting purposes and does \emph{not} impact the core methodology, scientific rigor, or originality of the research, declaration is not required.
+    \item[] Answer: \answerNA{}
+    \item[] Justification: 연구의 핵심 방법론은 KV-cache 양자화이며, LLM은 비표준 방법 구성요소로 사용되지 않는다.
+
+\end{enumerate}

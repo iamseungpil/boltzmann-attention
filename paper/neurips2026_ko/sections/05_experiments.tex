@@ -1,0 +1,115 @@
+\section{실험}
+\label{sec:experiments}
+
+\subsection{설정}
+
+\paragraph{모델.} Qwen2.5-7B ($d_{\mathrm{head}}=128$, GQA $G=7$, $R_{\mathrm{aniso}}=4.27$) \citep{qwen2024qwen25}, Llama-3.1-8B ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=7.97$) \citep{grattafiori2024llama3}, Mistral-7B-v0.3 ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=131.62$).
+
+\paragraph{비교 방법.} (1)~No rotation + Uniform, (2)~TurboQuant (무작위 SO(d) + Uniform), (3)~Pre-RoPE PCA + Uniform (축 1만), (4)~Pre-RoPE PCA + WF(floor=2) + Uniform (축 1+3).
+
+\paragraph{프로토콜.} WikiText-2 test set, non-overlapping 2048-token chunks, 약 49K 평가 토큰. 캘리브레이션은 WikiText-2 train에서 2048 토큰.
+
+\subsection{메인 결과: PPL 비교 (Table~1)}
+
+\begin{table}[t]
+\centering
+\caption{WikiText-2 PPL (낮을수록 좋음). Pre-RoPE PCA + WF(floor=2)가 3모델 모두에서 TurboQuant를 상회한다.}
+\label{tab:ppl_main}
+\small
+\begin{tabular}{@{}llccc@{}}
+\toprule
+모델 & 방법 & 2-bit & 3-bit & 4-bit \\
+\midrule
+\multirow{5}{*}{Qwen2.5-7B} & FP16 & \multicolumn{3}{c}{6.556} \\
+ & No rot + Uni & 10.525 & 6.877 & 6.626 \\
+ & TurboQuant & 9.332 & 6.821 & 6.614 \\
+ & PCA + Uni & 7.980 & 6.757 & 6.603 \\
+ & \textbf{PCA + WF(f=2)} & \textbf{7.099} & \textbf{6.681} & --- \\
+\midrule
+\multirow{5}{*}{Llama-3.1-8B} & FP16 & \multicolumn{3}{c}{6.398} \\
+ & No rot + Uni & 16.599 & 6.735 & 6.457 \\
+ & TurboQuant & 11.264 & 6.704 & 6.454 \\
+ & PCA + Uni & 10.138 & 6.666 & 6.455 \\
+ & \textbf{PCA + WF(f=2)} & \textbf{7.159} & \textbf{6.556} & --- \\
+\midrule
+\multirow{5}{*}{Mistral-7B} & FP16 & \multicolumn{3}{c}{5.572} \\
+ & No rot + Uni & 7.203 & 5.708 & 5.602 \\
+ & TurboQuant & 6.371 & 5.675 & 5.592 \\
+ & PCA + Uni & 6.461 & 5.676 & 5.591 \\
+ & \textbf{PCA + WF(f=2)} & \textbf{5.822} & \textbf{5.617} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:ppl_main}이 본 논문의 핵심 결과다. Pre-RoPE PCA + WF(floor=2)는 3모델 모두에서 2-bit과 3-bit에서 TurboQuant를 상회한다. TurboQuant 대비 2-bit PPL 개선은 Qwen 23.9\%, Llama 36.4\%, Mistral 8.6\%다.
+
+\paragraph{Mistral의 낮은 이득.} Mistral의 $R_{\mathrm{aniso}}=131.62$는 극단적으로 높지만, PPL 이득은 8.6\%로 가장 작다. 이는 극단적 이방성이 소수 헤드에 집중되어 캘리브레이션 2048 토큰으로는 PCA 방향이 불안정하기 때문으로 추정된다. PCA + Uniform에서는 Mistral 2-bit에서 TurboQuant에 패배하지만(6.461 vs 6.371), WF(floor=2)를 추가하면 역전된다(5.822 vs 6.371).
+
+\subsection{KVTC 비교: 공유 PCA vs 헤드별 PCA}
+
+\begin{table}[t]
+\centering
+\caption{KVTC 비교 (Llama-3.1-8B). 헤드별 PCA가 공유 PCA(KVTC 방식)를 대폭 상회한다.}
+\label{tab:kvtc}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+PCA 방식 & 2-bit & 3-bit & 4-bit \\
+\midrule
+공유 PCA (KVTC 방식) & 18.869 & 6.811 & 6.481 \\
+\textbf{헤드별 PCA (본 논문)} & \textbf{10.138} & \textbf{6.666} & \textbf{6.455} \\
+\midrule
+이득 & +46.3\% & +2.1\% & +0.4\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:kvtc}는 KVTC의 공유 PCA와 본 논문의 헤드별 PCA를 직접 비교한다. 2-bit에서 헤드별 PCA는 공유 PCA 대비 46.3\% PPL을 개선한다. 이는 정리~\ref{thm:optimal_hamiltonian}이 헤드별 최적화를 요구하며, 공유 PCA는 헤드 간 공분산 이질성을 무시하므로 최적이 아님을 보여준다.
+
+\subsection{Ablation: 축별 기여}
+
+2-bit Qwen2.5-7B에서의 ablation (FP16 PPL = 6.556):
+
+\begin{table}[h]
+\centering
+\caption{축별 기여 ablation (Qwen2.5-7B, 2-bit).}
+\label{tab:ablation}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+조합 & PPL & 기여 \\
+\midrule
+No rot + Uni (baseline) & 10.525 & --- \\
+PCA + Uni (축 1) & 7.980 & 1.32$\times$ \\
+PCA + WF(f=2) (축 1+3) & 7.099 & 1.48$\times$ \\
+TurboQuant + Uni & 9.332 & --- \\
+TurboQuant + WF(f=2) & 8.518 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+축 1 (PCA rotation)의 이득은 1.32$\times$, 축 3 (WF floor=2)의 추가 이득은 1.12$\times$이다. TurboQuant에도 WF를 적용하면 이득이 있지만(9.332 $\to$ 8.518), PCA + WF(7.099)에는 미치지 못한다.
+
+\subsection{MSE 최적 양자화기의 PPL 실패}
+\label{sec:exp_lloyd}
+
+\begin{table}[h]
+\centering
+\caption{Lloyd-Max PPL 실패 (2-bit). MSE 최적 양자화기가 PPL에서 치명적으로 나쁘다.}
+\label{tab:lloyd_failure}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+양자화기 & Qwen & Llama & Mistral \\
+\midrule
+PCA + Uniform & 7.980 & 10.138 & 6.461 \\
+PCA + Lloyd-Max & 8.343 & 65.463 & 32.684 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+MSE에서 Lloyd-Max는 Uniform 대비 3.5$\times$ 이득을 보이지만(3모델 일관), PPL에서는 Llama에서 65.463, Mistral에서 32.684로 치명적으로 악화된다 (표~\ref{tab:lloyd_failure}). 가우시안 Lloyd-Max codebook의 고정 decision boundary가 heavy-tail 키 분포의 극값을 왜곡하기 때문이다. Adaptive Lloyd-Max (데이터 기반 centroid 초기화)도 Uniform을 이기지 못했다. 이 결과는 \textbf{MSE 최적성이 PPL 최적성을 보장하지 않으며}, 이것이 Class~C의 구조적 경계임을 시사한다.
+
+\subsection{MSE 순서 예측 (Level 1)}
+
+3모델의 모든 KV 헤드(Qwen 112, Llama 256, Mistral 256)에서 이론적 MSE 순서 $G(\mathrm{PCA}) \leq G(\mathrm{TurboQuant}) \leq G(\mathrm{uniform})$이 100\% 성립한다. $R_{\mathrm{aniso}}$ 실측값: Qwen 4.27, Llama 7.97, Mistral 131.62.
