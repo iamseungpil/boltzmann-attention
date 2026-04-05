@@ -1,0 +1,20 @@
+{
+  "V15-4": {
+    "experiment": "V15-4",
+    "model": "mistralai/Mistral-7B-v0.3",
+    "2bit": {
+      "uniform": 6.461391690527002,
+      "wf_floor1": 6.355266594824684,
+      "wf_floor2": 5.822199200648286,
+      "floor2_beats_floor1": true,
+      "floor2_beats_uniform": true
+    },
+    "3bit": {
+      "uniform": 5.675768965334078,
+      "wf_floor1": 5.685245720992124,
+      "wf_floor2": 5.617181794757953,
+      "floor2_beats_floor1": true,
+      "floor2_beats_uniform": true
+    }
+  }
+}

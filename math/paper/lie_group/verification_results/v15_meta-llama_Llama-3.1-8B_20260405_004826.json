@@ -1,0 +1,20 @@
+{
+  "V15-4": {
+    "experiment": "V15-4",
+    "model": "meta-llama/Llama-3.1-8B",
+    "2bit": {
+      "uniform": 10.137520986084242,
+      "wf_floor1": 8.963456516073194,
+      "wf_floor2": 7.158805224474223,
+      "floor2_beats_floor1": true,
+      "floor2_beats_uniform": true
+    },
+    "3bit": {
+      "uniform": 6.665955781026477,
+      "wf_floor1": 6.714684704743925,
+      "wf_floor2": 6.555937278185374,
+      "floor2_beats_floor1": true,
+      "floor2_beats_uniform": true
+    }
+  }
+}
