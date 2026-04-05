@@ -121,19 +121,20 @@ PCA 방식 & 2-bit & 3-bit & 4-bit \\
 
 정리~\ref{thm:optimal_hamiltonian}은 각 헤드의 공분산에 대해 독립적으로 성립하므로, 헤드별 PCA가 공유 PCA보다 MSE에서 유리하다. 표~\ref{tab:kvtc}와 그림~\ref{fig:kvtc}는 이 이론적 예측이 PPL에서도 2-bit 46.3\% 이득으로 확인됨을 보여준다.
 
-\subsection{선행연구 Baseline 비교}
+\subsection{양자화 전략별 비교: 회전의 이득 검증}
 
-선행연구의 핵심 아이디어를 동일한 hook 프레임워크에서 재현하여 공정 비교한다.
+정리~\ref{thm:optimal_hamiltonian}의 핵심 예측---``PCA 회전이 무회전 및 무작위 회전보다 MSE에서 우수하다''---를 PPL에서 검증하기 위해, 4가지 양자화 전략을 동일한 hook 프레임워크에서 비교한다. 이 비교는 SOTA 시스템 간의 경쟁이 아니라, \emph{회전 선택이 양자화 품질에 미치는 영향을 분리}하기 위한 통제된 ablation이다.
 \begin{itemize}[leftmargin=1.5em,itemsep=1pt]
-\item \textbf{KIVI-style} \citep{liu2024kivi}: 채널별 비대칭 양자화, 회전 없음 ($A=0$).
-\item \textbf{GEAR-style} \citep{kang2024gear}: 채널별 uniform 양자화 + rank-2 SVD 잔차 보정.
-\item \textbf{Random rotation}: Haar 무작위 SO(d) + 채널별 uniform (TurboQuant \citep{zandieh2025turboquant}의 회전 성분).
-\item \textbf{Pre-RoPE PCA}: 본 논문 방법.
+\item \textbf{무회전 (KIVI-style)}: 채널별 비대칭 양자화 \citep{liu2024kivi}. 정리에서 $A=0$에 해당.
+\item \textbf{SVD 잔차 (GEAR-style)}: uniform 양자화 후 rank-2 SVD 잔차 보정 \citep{kang2024gear}. 회전이 아닌 다른 접근.
+\item \textbf{무작위 회전}: Haar SO(d) + 채널별 uniform. TurboQuant \citep{zandieh2025turboquant}의 회전 성분만 재현.
+\item \textbf{Pre-RoPE PCA}: 정리가 예측하는 최적 회전.
 \end{itemize}
+각 방법은 KIVI, GEAR, TurboQuant의 \emph{핵심 아이디어만을 추출}한 것이며, 원 논문의 전체 시스템(커스텀 커널, 엔트로피 코딩, 잔차 파이프라인 등)을 재현한 것이 아니다.
 
 \begin{table}[t]
 \centering
-\caption{4-method baseline 비교 (WikiText-2 PPL). Pre-RoPE PCA가 KIVI를 모든 설정에서, GEAR를 대부분 설정에서 상회한다. 볼드체는 각 행의 최선.}
+\caption{양자화 전략별 PPL 비교 (WikiText-2). 동일 hook 프레임워크에서 회전 전략만 달리한 통제된 비교. 각 방법은 원 논문의 핵심 아이디어를 추출한 것이며 전체 시스템 재현이 아니다. 볼드체는 각 행의 최선.}
 \label{tab:baselines}
 \small
 \begin{tabular}{@{}llcccc@{}}
@@ -155,7 +156,9 @@ PCA 방식 & 2-bit & 3-bit & 4-bit \\
 \end{tabular}
 \end{table}
 
-표~\ref{tab:baselines}에서 Pre-RoPE PCA는 KIVI-style을 모든 9개 설정에서 상회한다. 이것은 ``회전이 무회전보다 우수하다''는 정리의 가장 기본적인 예측을 확인한다. GEAR-style (SVD 잔차)과의 비교에서도 7/9 설정에서 우수하다. Mistral에서 Random rotation이 PCA보다 근소 우위인 것은 $R_{\mathrm{aniso}}=131.62$의 극단적 이방성 하에서 캘리브레이션 불안정에 기인하는 것으로 추정된다 (Section~\ref{sec:discussion}). SpinQuant \citep{liu2024spinquant}은 전체 모델 양자화(W4A4KV4)이므로 KV-only 비교와 직접 대응되지 않으며, 본 논문의 Pre-RoPE PCA는 학습 비용 없이 캘리브레이션만으로 최적 회전을 결정한다는 장점이 있다.
+표~\ref{tab:baselines}에서 확인할 수 있는 정리의 예측 검증은 다음과 같다. 첫째, PCA 회전은 무회전(KIVI-style)을 모든 10개 설정에서 상회한다. 이것은 ``데이터 정렬 회전이 양자화에 이득을 준다''는 정리의 가장 기본적인 예측을 확인한다. 둘째, PCA 회전은 대부분(7/9) 설정에서 SVD 잔차 보정(GEAR-style)보다도 우수하여, 회전에 의한 decorrelation이 잔차 보정보다 효과적인 전략임을 시사한다. 셋째, PCA 회전은 무작위 회전보다 대부분(6/9) 우수하지만, Mistral ($R_{\mathrm{aniso}}=131.62$)에서 근소 열등하여 극단적 이방성 하에서의 캘리브레이션 안정성이 한계임을 보여준다.
+
+이 비교는 각 방법의 \emph{핵심 아이디어만을 추출}한 통제된 ablation이며, 원 논문의 전체 시스템과의 공정 비교가 아님을 강조한다. SpinQuant \citep{liu2024spinquant}은 학습된 회전을 사용하며, 전체 모델 양자화(W4A4KV4) 설정에서 평가되므로 KV-only 비교와 직접 대응되지 않는다.
 
 \subsection{Class~C의 경계: Lloyd-Max의 PPL 실패}
 \label{sec:exp_lloyd}
