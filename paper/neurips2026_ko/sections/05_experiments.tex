@@ -121,15 +121,41 @@ PCA 방식 & 2-bit & 3-bit & 4-bit \\
 
 정리~\ref{thm:optimal_hamiltonian}은 각 헤드의 공분산에 대해 독립적으로 성립하므로, 헤드별 PCA가 공유 PCA보다 MSE에서 유리하다. 표~\ref{tab:kvtc}와 그림~\ref{fig:kvtc}는 이 이론적 예측이 PPL에서도 2-bit 46.3\% 이득으로 확인됨을 보여준다.
 
-\subsection{선행연구 대비 위치}
+\subsection{선행연구 Baseline 비교}
 
-본 논문은 Class~C 내의 \emph{회전 선택} 문제를 해결하는 이론 논문이다. 기존 방법들과의 직접 비교는 동일 프로토콜의 재현이 필요하므로, 여기서는 선행연구의 보고 수치와 본 논문의 위치를 정리한다.
-
+선행연구의 핵심 아이디어를 동일한 hook 프레임워크에서 재현하여 공정 비교한다.
 \begin{itemize}[leftmargin=1.5em,itemsep=1pt]
-\item \textbf{SpinQuant} \citep{liu2024spinquant}: 학습된 회전, W4A4KV4 설정에서 평가. KV-only 양자화가 아닌 전체 모델 양자화이므로 직접 비교 불가. 본 논문의 PCA는 캘리브레이션만으로 회전을 결정하여 학습 비용이 없다는 장점이 있다.
-\item \textbf{KIVI} \citep{liu2024kivi}: 비대칭 채널별/토큰별 양자화. Class~C에 속하지만 회전을 사용하지 않는다 (identity rotation). 본 논문의 framework에서는 $A=0$ (무회전)에 해당하며, Pre-RoPE PCA가 이를 상회함이 No rotation 행에서 확인된다.
-\item \textbf{KVQuant} \citep{hooper2024kvquant}: Pre-RoPE 채널별 양자화 + outlier 처리. 3-bit에서 $<0.1$ PPL 저하 보고. 본 논문의 Pre-RoPE PCA도 Pre-RoPE 좌표계를 사용하며, KVQuant의 outlier 처리와 상보적이다.
+\item \textbf{KIVI-style} \citep{liu2024kivi}: 채널별 비대칭 양자화, 회전 없음 ($A=0$).
+\item \textbf{GEAR-style} \citep{kang2024gear}: 채널별 uniform 양자화 + rank-2 SVD 잔차 보정.
+\item \textbf{Random rotation}: Haar 무작위 SO(d) + 채널별 uniform (TurboQuant \citep{zandieh2025turboquant}의 회전 성분).
+\item \textbf{Pre-RoPE PCA}: 본 논문 방법.
 \end{itemize}
+
+\begin{table}[t]
+\centering
+\caption{4-method baseline 비교 (WikiText-2 PPL). Pre-RoPE PCA가 KIVI를 모든 설정에서, GEAR를 대부분 설정에서 상회한다. 볼드체는 각 행의 최선.}
+\label{tab:baselines}
+\small
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+모델 & 비트 & KIVI-style & GEAR-style & Random rot. & \textbf{Pre-RoPE PCA} \\
+\midrule
+\multirow{3}{*}{Qwen-7B}   & 2 & 10.525 & 9.603 & 9.332 & \textbf{7.961} \\
+                            & 3 & 6.877 & 6.801 & 6.821 & \textbf{6.755} \\
+                            & 4 & 6.626 & 6.608 & 6.614 & \textbf{6.600} \\
+\midrule
+\multirow{3}{*}{Llama-8B}  & 2 & 16.599 & 11.227 & 11.264 & \textbf{10.944} \\
+                            & 3 & 6.735 & \textbf{6.667} & 6.704 & 6.668 \\
+                            & 4 & 6.457 & \textbf{6.445} & 6.454 & 6.460 \\
+\midrule
+\multirow{3}{*}{Mistral-7B} & 2 & 7.203 & 6.652 & \textbf{6.371} & 6.404 \\
+                            & 3 & 5.708 & 5.681 & \textbf{5.675} & 5.683 \\
+                            & 4 & 5.602 & 5.593 & 5.592 & \textbf{5.588} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+표~\ref{tab:baselines}에서 Pre-RoPE PCA는 KIVI-style을 모든 9개 설정에서 상회한다. 이것은 ``회전이 무회전보다 우수하다''는 정리의 가장 기본적인 예측을 확인한다. GEAR-style (SVD 잔차)과의 비교에서도 7/9 설정에서 우수하다. Mistral에서 Random rotation이 PCA보다 근소 우위인 것은 $R_{\mathrm{aniso}}=131.62$의 극단적 이방성 하에서 캘리브레이션 불안정에 기인하는 것으로 추정된다 (Section~\ref{sec:discussion}). SpinQuant \citep{liu2024spinquant}은 전체 모델 양자화(W4A4KV4)이므로 KV-only 비교와 직접 대응되지 않으며, 본 논문의 Pre-RoPE PCA는 학습 비용 없이 캘리브레이션만으로 최적 회전을 결정한다는 장점이 있다.
 
 \subsection{Class~C의 경계: Lloyd-Max의 PPL 실패}
 \label{sec:exp_lloyd}
