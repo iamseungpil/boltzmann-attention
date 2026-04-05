@@ -10,8 +10,8 @@
 \paragraph{Class~C의 범위.}
 본 논문의 최적성은 Class~C (직교 회전 + 독립 스칼라 양자화) 내에서만 성립한다. 벡터 양자화(VQ)나 lattice quantization은 Class~C 밖이며, 원칙적으로 더 낮은 왜곡을 달성할 수 있다. 그러나 VQ의 codebook 복잡도 $O(2^{dB})$는 online 추론에 비실용적이며, 현존하는 9개 실용적 KV 캐시 양자화 방법은 모두 Class~C에 속한다.
 
-\paragraph{Pre-RoPE vs Post-RoPE 예외.}
-Qwen2.5-14B 2-bit에서 Post-RoPE PCA(6.287)가 Pre-RoPE PCA(6.310)를 근소하게(0.4\%) 상회한다. 이 차이는 chunk-level 분산 범위 내이며, 같은 모델의 3-bit에서는 Pre-RoPE가 우위다 (4.859 vs 4.879). 정리~\ref{thm:optimal_hamiltonian}의 MSE 최적성은 분포 무관이므로 MSE에서는 항상 Pre-RoPE $\leq$ Post-RoPE이지만, 2-bit의 극단적 양자화 오차가 MSE-PPL 순서를 미세하게 교란할 수 있다.
+\paragraph{Pre-RoPE vs Post-RoPE: 3-bit에서 일관, 2-bit에서 ��델 의존.}
+표~\ref{tab:prerope_vs_postrope}에서 3-bit는 4/4 모델 모두 Pre-RoPE PCA $<$ Post-RoPE PCA (PPL)로 정리의 예측과 일치한다. 그러나 2-bit에서는 2/4 모델(Llama-8B, Qwen-14B)에서 Post-RoPE가 우위이며, 특히 Llama에서 7.2\%의 역전이 관찰된다. 정리~\ref{thm:optimal_hamiltonian}의 MSE 최적성은 분포 무관이므로 MSE에서는 항상 Pre-RoPE $\leq$ Post-RoPE이지만, 2-bit의 극단적 양자화 오차가 MSE-PPL 순서를 교란할 수 있다. 이것은 Section~\ref{sec:theory_gap}에서 논의한 ``MSE $\neq$ PPL'' 간극의 구체적 사례이며, \textbf{정리의 예측이 3-bit 이상에서 안정적이고, 2-bit에서는 모델에 따라 달라질 수 있음}을 시사한다.
 
 \paragraph{3모델/WikiText-2 PPL의 한계.}
 본 실험은 3개 모델과 WikiText-2 PPL만을 사용한다. 더 다양한 모델 규모(1.5B, 13B, 70B)와 downstream task (MMLU, GSM8K, NIAH 16K+)에서의 검증은 향후 과제다. 또한 $R_{\mathrm{aniso}} > 100$인 극단적 모델에서 캘리브레이션 안정성이 추가 조사가 필요하다.

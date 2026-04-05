@@ -56,7 +56,8 @@
 
 | F42 | Pre-RoPE vs Post-RoPE PPL (ESSENTIAL): Pre-RoPE PCA < Post-RoPE PCA at 2-bit for Qwen-7B (7.96 vs 8.82, +9.7%) and Mistral-7B (6.40 vs 6.53, +2.0%). At 3-bit all 3 models Pre < Post. | tops caiman results | direct experiment 2026-04-05 |
 | F43 | Qwen2.5-14B scale verification: Pre-RoPE PCA beats TurboQuant at 3-bit (4.86 vs 4.94). At 2-bit Post-RoPE slightly better (6.29 vs 6.31, -0.4%). | tops caiman results | direct experiment 2026-04-05 |
-| F44 | Llama-3.1-8B Pre/Post comparison FAILED: HF gated repo access denied on tops caiman. Needs HF_TOKEN. | tops caiman log | 2026-04-05 |
+| F44 | Llama-3.1-8B Pre vs Post: 2-bit Post-RoPE BETTER (10.209 vs 10.944, -7.2%). 3-bit Pre-RoPE better (6.668 vs 6.673). MSE-PPL gap at 2-bit. | tops caiman results | direct experiment 2026-04-05 |
+| F45 | Pre-RoPE vs Post-RoPE summary: 3-bit 4/4 models Pre<Post (consistent). 2-bit 2/4 Pre<Post (Qwen-7B +9.7%, Mistral +2.0%), 2/4 Post<Pre (Llama -7.2%, Qwen-14B -0.4%). | all results | 2026-04-05 |
 
 ## Unverified or Not Yet Ready
 
