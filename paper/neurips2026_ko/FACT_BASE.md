@@ -54,6 +54,10 @@
 | F40 | Gaussianity check: PCA components have mean excess kurtosis 0.49-0.58 (mild non-Gaussian), ~12% with kurtosis>1, Shapiro-Wilk pass rate ~22%. Consistent across 3 models. | `gaussianity_check_*.json` | direct experiment 2026-04-05 |
 | F41 | 4-bit WF floor=2 ≈ Uniform for all 3 models (difference <0.1%). WF only helps at 2-3 bit. | `4bit_wf_*.json` | direct experiment 2026-04-05 |
 
+| F42 | Pre-RoPE vs Post-RoPE PPL (ESSENTIAL): Pre-RoPE PCA < Post-RoPE PCA at 2-bit for Qwen-7B (7.96 vs 8.82, +9.7%) and Mistral-7B (6.40 vs 6.53, +2.0%). At 3-bit all 3 models Pre < Post. | tops caiman results | direct experiment 2026-04-05 |
+| F43 | Qwen2.5-14B scale verification: Pre-RoPE PCA beats TurboQuant at 3-bit (4.86 vs 4.94). At 2-bit Post-RoPE slightly better (6.29 vs 6.31, -0.4%). | tops caiman results | direct experiment 2026-04-05 |
+| F44 | Llama-3.1-8B Pre/Post comparison FAILED: HF gated repo access denied on tops caiman. Needs HF_TOKEN. | tops caiman log | 2026-04-05 |
+
 ## Unverified or Not Yet Ready
 
 | Claim | Reason |
