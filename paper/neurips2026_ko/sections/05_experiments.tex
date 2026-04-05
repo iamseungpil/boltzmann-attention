@@ -11,7 +11,7 @@
 
 \subsection{정리의 직접 검증 1: MSE 순서 예측}
 
-따름정리~\ref{cor:block_hierarchy}는 $G(\mathrm{PCA}) \leq G(\mathrm{TurboQuant}) \leq G(\mathrm{uniform})$을 예측한다. 3모델의 모든 KV 헤드 (Qwen 112, Llama 256, Mistral 256, 총 624 헤드)에서 이 순서가 \textbf{100\%} 성립한다. 이것은 분포 무관 결과(Hadamard 부등식)이므로 이론적으로 보장되지만, 구현의 정확성을 확인하는 smoke test로서 의미가 있다.
+따름정리~\ref{cor:block_hierarchy}는 $G(\mathrm{PCA}) \leq G(\mathrm{TurboQuant}) \leq G(\mathrm{uniform})$을 예측한다. 이것은 Hadamard 부등식에 의해 수학적으로 보장되는 결과다. 3모델의 모든 KV 헤드 (Qwen 112, Llama 256, Mistral 256, 총 624 헤드)에서 이 순서가 100\% 성립함을 확인하여, 구현의 정확성을 검증하였다 (implementation sanity check).
 
 \subsection{정리의 직접 검증 2: Pre-RoPE vs Post-RoPE PPL}
 \label{sec:exp_prerope_vs_postrope}

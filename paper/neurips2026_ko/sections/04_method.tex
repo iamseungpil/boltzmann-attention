@@ -1,17 +1,34 @@
 \section{방법: Pre-RoPE PCA + Water-Filling}
 \label{sec:method}
 
-정리~\ref{thm:optimal_hamiltonian}의 최적 회전을 실현하는 파이프라인은 간단하다.
+정리~\ref{thm:optimal_hamiltonian}의 최적 회전을 실현하는 파이프라인은 알고리즘~\ref{alg:pipeline}에 요약한다.
 
-\paragraph{Step 1: 헤드별 Pre-RoPE PCA.}
-캘리브레이션 데이터(WikiText-2, 2048 토큰)에서 각 KV 헤드의 Pre-RoPE 키 벡터를 추출하고, 중심화 공분산 $\Sigma_0 = \frac{1}{n}\sum_i (k_i - \bar{k})(k_i - \bar{k})^\top$의 고유벡터 행렬 $V_0$를 계산한다. KVTC는 전체 헤드를 합쳐 하나의 공유 PCA를 사용한다. 정리~\ref{thm:optimal_hamiltonian}은 각 헤드의 공분산에 대해 독립적으로 성립하므로, 헤드별 PCA가 공유 PCA보다 MSE에서 유리하다. 실험에서 이 이득은 2-bit Llama에서 46.3\%에 달한다 (표~\ref{tab:kvtc}).
+\begin{algorithm}[t]
+\caption{Pre-RoPE PCA + WF(floor=2) 양자화 파이프라인}
+\label{alg:pipeline}
+\begin{algorithmic}[1]
+\REQUIRE 캘리브레이션 키 $\{k^{(l,h)}_{\mathrm{pre}}\}$ (각 레이어 $l$, KV 헤드 $h$)
+\REQUIRE 평균 비트 예산 $B$, 최소 비트 하한 $b_{\min}=2$
+\STATE \textbf{[오프라인: 캘리브레이션]}
+\FOR{각 레이어 $l$, KV 헤드 $h$}
+  \STATE $\Sigma_0^{(l,h)} \leftarrow \frac{1}{n}\sum_i (k_i - \bar{k})(k_i - \bar{k})^\top$ \COMMENT{중심화 공분산}
+  \STATE $V_0^{(l,h)}, \{\lambda_j\} \leftarrow \mathrm{eigh}(\Sigma_0^{(l,h)})$ \COMMENT{고유분해}
+  \STATE $b_j \leftarrow \alpha + \frac{1}{2}\log_2 \lambda_j$, \quad $b_j \leftarrow \max(b_j, b_{\min})$ \COMMENT{WF 비트 배분}
+\ENDFOR
+\STATE \textbf{[온라인: 추론 시 k\_proj 후처리]}
+\FOR{각 토큰의 pre-RoPE 키 $k_{\mathrm{pre}}$}
+  \STATE $z \leftarrow (V_0^{(l,h)})^\top k_{\mathrm{pre}}$ \COMMENT{PCA 좌표 회전}
+  \STATE $\hat{z}_j \leftarrow \mathrm{MinMaxQuant}(z_j, b_j)$ \quad $\forall j$ \COMMENT{채널별 비대칭 양자화}
+  \STATE $\hat{k}_{\mathrm{pre}} \leftarrow V_0^{(l,h)} \hat{z}$ \COMMENT{역회전}
+  \STATE RoPE를 $\hat{k}_{\mathrm{pre}}$에 적용 \COMMENT{정상 어텐션 진행}
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
 
-\paragraph{Step 2: Water-Filling 비트 배분 (floor=2).}
-PCA 좌표계에서 각 차원의 고유값 $\lambda_j$에 비례하여 비트를 배분한다:
-\begin{equation}
-b_j = \alpha + \frac{1}{2}\log_2 \lambda_j, \quad b_j \geq 2, \quad \sum_j b_j = d \cdot B.
-\end{equation}
-최소 비트 하한 floor=2는 1-bit 양자화의 비효율에서 유래한다. 1-bit 스칼라 양자화의 MSE 비율은 $c(1) \approx 0.36$ (분산의 36\%만 제거)인 반면, 2-bit는 $c(2) \approx 0.12$ (88\% 제거)다. 따라서 1-bit 채널의 비트를 2-bit 채널로 재분배하면 총 MSE가 감소한다.
+\paragraph{캘리브레이션.} WikiText-2 train split에서 2048 토큰을 사용하여 각 KV 헤드별로 Pre-RoPE 키 벡터를 추출하고, 중심화 공분산의 고유분해를 수행한다. KVTC와 달리 \emph{헤드별} 독립 PCA를 계산한다 (정리~\ref{thm:optimal_hamiltonian}이 헤드별 최적화를 요구).
 
-\paragraph{Step 3: 양자화 및 복원.}
-회전된 좌표 $z = V_0^\top k$에서 채널별 min-max 균일 양자화를 수행하고, $\hat{k} = V_0 \hat{z}$로 복원한다. 전체 파이프라인의 계산 비용은 캘리브레이션 시 $O(n d^2)$ (고유분해 1회), 추론 시 $O(d^2)$ (행렬-벡터 곱 2회)이다. TurboQuant는 캘리브레이션이 불필요($O(0)$)하지만, 추론 비용은 동일하다.
+\paragraph{양자화.} 채널별 비대칭 min-max 균일 양자화를 사용한다: $\hat{z}_j = \mathrm{round}((z_j - z_{\min}) / s) \cdot s + z_{\min}$, 여기서 $s = (z_{\max} - z_{\min}) / (2^{b_j} - 1)$. 이것은 \texttt{k\_proj} 모듈의 forward hook으로 구현되어 모델 코드 수정 없이 적용된다.
+
+\paragraph{Water-Filling (floor=2).} PCA 고유값 $\lambda_j$에 비례하여 비트를 배분하되, 최소 비트 하한 $b_{\min}=2$를 적용한다. 1-bit 양자화의 MSE 비율 $c(1) \approx 0.36$은 비효율적이므로, $b_{\min}=2$ ($c(2) \approx 0.12$)가 모든 활성 채널의 유효한 양자화를 보장한다. 총 비트 예산은 반복적 재분배로 보존한다.
+
+\paragraph{계산 비용.} 캘리브레이션은 $O(n d_{\mathrm{head}}^2)$ (고유분해 1회), 추론 시 $O(d_{\mathrm{head}}^2)$ (행렬-벡터 곱 2회)이다. TurboQuant는 캘리브레이션이 불필요하지만, 추론 비용은 동일한 $O(d_{\mathrm{head}}^2)$이다.
