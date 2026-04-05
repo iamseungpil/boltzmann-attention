@@ -20,7 +20,7 @@
 
 \begin{table}[t]
 \centering
-\caption{Pre-RoPE vs Post-RoPE PCA PPL 비교 (Uniform 양자화). 정리~\ref{thm:optimal_hamiltonian}의 예측대로 Pre-RoPE PCA가 3모델 모두에서 우수하다.}
+\caption{Pre-RoPE vs Post-RoPE PCA PPL 비교 (Uniform 양자화). 3-bit에서 4/4 모델이 정리~\ref{thm:optimal_hamiltonian}의 예측(Pre $<$ Post)과 일치한다. 2-bit에서는 2/4 모델에서 역전이 관찰되어, 극단적 양자화에서 MSE-PPL 전이가 모델에 따라 달라짐을 보여준다.}
 \label{tab:prerope_vs_postrope}
 \small
 \begin{tabular}{@{}llccc@{}}
@@ -65,7 +65,7 @@
 \multirow{4}{*}{Llama-3.1-8B} & FP16 & \multicolumn{3}{c}{6.398} \\
  & No rotation & 16.599 & 6.735 & 6.457 \\
  & TurboQuant & 11.264 & 6.704 & 6.454 \\
- & \textbf{Pre-RoPE PCA} & \textbf{10.138} & \textbf{6.666} & 6.455 \\
+ & \textbf{Pre-RoPE PCA} & \textbf{10.944} & \textbf{6.668} & 6.460 \\
 \midrule
 \multirow{4}{*}{Mistral-7B} & FP16 & \multicolumn{3}{c}{5.572} \\
  & No rotation & 7.203 & 5.708 & 5.602 \\
