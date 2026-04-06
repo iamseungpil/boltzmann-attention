@@ -174,9 +174,15 @@ def calibrate(model, device, n_kv, n_layers, d_head, layers):
         pca_bases[(l, h)] = eigvecs
         eigenvalues[(l, h)] = np.maximum(eigvals, 1e-10)
 
-    # Compute query covariance and query-weighted PCA
+    # Compute query covariance and query-weighted PCA + measurements
     qw_pca_bases = {}
+    qw_inverse = {}  # Σ_Q^{-1/2} for proper qw_pca application in k-space
+    sigma_q_half = {}  # Σ_Q^{1/2} for forward transform
     query_weights = {}
+    sigma_q_diag = {}  # diagonal of Σ_Q in PCA basis (for water-filling)
+    sigma_k_diag = {}  # diagonal of Σ_K in PCA basis
+    kappa_q = {}
+    kappa_k = {}
     for (l, h) in key_capture:
         Q = query_capture[(l, h)]
         Qc = Q - Q.mean(0)
@@ -188,27 +194,56 @@ def calibrate(model, device, n_kv, n_layers, d_head, layers):
         Sigma_K = Kc.T @ Kc / K.shape[0]
         Sigma_K = (Sigma_K + Sigma_K.T) / 2 + 1e-6 * np.eye(d_head)
 
+        # Measure condition numbers (no longer hand-picked)
+        eigQ = np.linalg.eigvalsh(Sigma_Q)
+        eigK = np.linalg.eigvalsh(Sigma_K)
+        kappa_q[(l, h)] = float(eigQ.max() / max(eigQ.min(), 1e-10))
+        kappa_k[(l, h)] = float(eigK.max() / max(eigK.min(), 1e-10))
+
         # Query-weighted PCA: eigvecs of Σ_Q^{1/2} · Σ_K · Σ_Q^{1/2}
+        # Note: V_qw rotates in k̃ = Σ_Q^{1/2}·k space, so to apply on raw k
+        # we need: k -> Σ_Q^{1/2}·k (transform in) -> V_qw^T·... -> Σ_Q^{-1/2} (transform out)
+        # Store both Σ_Q^{1/2} and Σ_Q^{-1/2} for the hook to apply correctly.
         try:
             Sq_half = sqrtm(Sigma_Q).real
+            Sq_half = (Sq_half + Sq_half.T) / 2
+            Sq_inv = np.linalg.pinv(Sq_half)
             M = Sq_half @ Sigma_K @ Sq_half
             M = (M + M.T) / 2
             _, V_qw = np.linalg.eigh(M)
             qw_pca_bases[(l, h)] = V_qw
-        except:
+            sigma_q_half[(l, h)] = Sq_half
+            qw_inverse[(l, h)] = Sq_inv
+        except Exception:
             qw_pca_bases[(l, h)] = pca_bases[(l, h)]
+            sigma_q_half[(l, h)] = np.eye(d_head)
+            qw_inverse[(l, h)] = np.eye(d_head)
 
         # Per-dimension query weights (sqrt of diagonal of Σ_Q in PCA space)
         V = pca_bases[(l, h)]
         Sigma_Q_pca = V.T @ Sigma_Q @ V
-        query_weights[(l, h)] = np.sqrt(np.maximum(np.diag(Sigma_Q_pca), 1e-10))
+        Sigma_K_pca = V.T @ Sigma_K @ V
+        sq_diag = np.maximum(np.diag(Sigma_Q_pca), 1e-10)
+        sk_diag = np.maximum(np.diag(Sigma_K_pca), 1e-10)
+        sigma_q_diag[(l, h)] = sq_diag
+        sigma_k_diag[(l, h)] = sk_diag
+        query_weights[(l, h)] = np.sqrt(sq_diag)
 
     np.random.seed(42)
     R_random = np.linalg.qr(np.random.randn(d_head, d_head))[0]
 
+    # Print spectrum summary (no more hand-picked κ)
+    kq_vals = np.array(list(kappa_q.values()))
+    kk_vals = np.array(list(kappa_k.values()))
+    print(f"  Measured κ(Σ_Q):  median={np.median(kq_vals):.2f}  mean={kq_vals.mean():.2f}  max={kq_vals.max():.2f}")
+    print(f"  Measured κ(Σ_K):  median={np.median(kk_vals):.2f}  mean={kk_vals.mean():.2f}  max={kk_vals.max():.2f}")
+
     return {
         'pca_bases': pca_bases, 'eigenvalues': eigenvalues,
         'qw_pca_bases': qw_pca_bases, 'query_weights': query_weights,
+        'sigma_q_half': sigma_q_half, 'qw_inverse': qw_inverse,
+        'sigma_q_diag': sigma_q_diag, 'sigma_k_diag': sigma_k_diag,
+        'kappa_q': kappa_q, 'kappa_k': kappa_k,
         'R_random': R_random, 'key_capture': key_capture, 'query_capture': query_capture,
     }
 
