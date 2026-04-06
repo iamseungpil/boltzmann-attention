@@ -333,15 +333,32 @@ def calibrate(model, device, n_kv, n_layers, d_head, layers):
 
 
 def eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head, device,
-             bits, method, cal_data, max_tokens=50000, measure_delta_a=False):
+             bits, method, cal_data, max_tokens=50000, measure_delta_a=False,
+             n_heads_total=None):
     """Evaluate PPL with a given theory method.
 
-    If measure_delta_a=True, also tracks ||δk||∞/√d (proxy for ||δa||∞)
-    per layer/head and returns aggregated statistics."""
+    If measure_delta_a=True, captures q from q_proj pre-hook and computes
+    REAL ||δa||∞ = max_{t,i} |q_t · δk_i| / √d (not proxy)."""
     chunk_len, n_chunks = 2048, (min(all_ids.shape[1], max_tokens) - 1) // 2048
     hks = []
     delta_tracker = {} if measure_delta_a else None
+    live_q_store = {} if measure_delta_a else None
+
+    # q_proj forward_pre_hook to capture q (pre-RoPE) per layer
+    def make_q_capture(li):
+        def fn(mod, args_t, kwargs_t):
+            hs = args_t[0] if args_t else kwargs_t.get('hidden_states') if kwargs_t else None
+            if hs is not None and live_q_store is not None:
+                with torch.no_grad():
+                    q_out = mod.q_proj(hs)[0].detach().cpu().float().numpy()  # (seq, n_heads*d_head)
+                    nht = n_heads_total if n_heads_total else (q_out.shape[-1] // d_head)
+                    live_q_store[li] = q_out.reshape(-1, nht, d_head)
+        return fn
+
     for l in range(n_layers):
+        if measure_delta_a:
+            hks.append(layers[l].self_attn.register_forward_pre_hook(
+                make_q_capture(l), with_kwargs=True))
         hks.append(layers[l].self_attn.k_proj.register_forward_hook(
             make_theory_hook(l, bits, n_kv, d_head, method,
                              pca_bases=cal_data['pca_bases'],
@@ -351,7 +368,9 @@ def eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head, device,
                              sigma_q_diag=cal_data.get('sigma_q_diag'),
                              sigma_k_diag=cal_data.get('sigma_k_diag'),
                              random_rot=cal_data['R_random'],
-                             delta_a_tracker=delta_tracker)))
+                             delta_a_tracker=delta_tracker,
+                             live_q_store=live_q_store,
+                             n_heads_total=n_heads_total)))
     nll, tok = 0.0, 0
     with torch.no_grad():
         for ci in range(n_chunks):
