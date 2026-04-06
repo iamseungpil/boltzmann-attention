@@ -431,9 +431,10 @@ def main():
     all_ids = tokenizer.encode(text, return_tensors="pt", truncation=False)
 
     cfg = model.config
-    n_kv = getattr(cfg, 'num_key_value_heads', cfg.num_attention_heads)
+    n_heads_total = cfg.num_attention_heads
+    n_kv = getattr(cfg, 'num_key_value_heads', n_heads_total)
     n_layers = cfg.num_hidden_layers
-    d_head = cfg.hidden_size // cfg.num_attention_heads
+    d_head = cfg.hidden_size // n_heads_total
     layers = model.model.layers if hasattr(model, 'model') else model.transformer.h
 
     # Calibrate (extracts both K and Q covariances)
