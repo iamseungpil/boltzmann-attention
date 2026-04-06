@@ -76,13 +76,6 @@ from exp4_2_v3_full_quant_ppl import (
     _quantize_pca_mk,
     fokvq_quantize_head,
     fokvq_e2_quantize_head,
-    _extract_diag_sample,
-    _align_attention_mask,
-    compute_hamiltonian_diagnostics,
-    compute_attention_structure_diagnostics,
-    compute_gqa_group_mismatch,
-    _group_queries_for_kv,
-    _extract_query_diag_sample,
 )
 
 
