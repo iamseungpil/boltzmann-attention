@@ -2551,29 +2551,88 @@ Pre-RoPE PCA가 축 1의 최적인 이유는 정리 6.16.3에서 증명하였다
 이 축의 이득: NIAH retrieval 보존, 모델별 적응적 sink/window
 ```
 
-#### 6.18.2 3축의 독립성
+#### 6.18.2 3축의 독립성 (정정판: 분리된 정리)
 
-**명제 6.18.2 (3축의 직교성).** 축 1, 2, 3의 최적화는 상호 독립이다. 구체적으로:
+**중요 정정 (2026-04-06).** 본 절의 이전 판본은 3축이 "상호 직교(orthogonal)"이며 sequential optimization이 joint optimum과 동등하다고 주장하였다. 이것은 **고율 가우시안 가정 하에서만 성립**하며, V3 검증(NEURIPS_VERIFICATION_REPORT_v3.md)에서 다음 두 사실로 명시적으로 반박되었다:
 
-(a) 축 1의 회전 U는 축 3의 토큰 선택 정책에 영향하지 않는다.
-(b) 축 3의 토큰 선택은 축 2의 좌표별 양자화기를 변경하지 않는다.
-(c) 축 2의 양자화기 선택은 축 1의 최적 회전에 영향하지 않는다.
+1. **Lloyd-Max PPL 재앙** (V3, F3): MSE-optimal Lloyd-Max가 3모델 × 2-4bit 모두에서 PPL catastrophe (Llama 2-bit 6.5×, Mistral 2-bit 5.1×). MSE 3.5x 이득이 PPL 이득으로 전환되지 않음.
 
-따라서 각 축의 최적화로 인한 왜곡 개선은 가법적(additive)이다.
+2. **Mistral 2-bit 예외** (V3, F2): R_aniso=131.62의 극단적 비등방성에서 Pre-RoPE PCA 단독으로는 PPL이 TurboQuant보다 미세하게 악화 (6.461 vs 6.371). Heavy-tailed source가 가우시안 가정을 위반.
 
-*증명.* 
+따라서 본 절은 strict joint optimality 주장을 회피하고, **각 축을 별도의 정리로 분리**하여 진술한다.
 
-(a) 회전 U는 각 토큰의 키 벡터 k_t에 동일하게 적용된다: Uk_t. 토큰 선택 정책 π(t)는 위치 t의 어텐션 점수 패턴에 의존하며, 이것은 q^T k / √d = q^T U^T (Uk) / √d로서 U에 불변이다 (U는 직교이므로 q^T k = (Uq)^T (Uk)). 따라서 최적 토큰 선택 정책은 U에 무관하다.
+**정리 6.18.2A (Axis 1 — Distribution-Free).** 임의의 finite-second-moment source 분포에 대해, **축 1 (회전)의 최적해는 다른 축의 선택과 무관하게 결정된다**:
 
-(b) 토큰 선택은 각 토큰에 대해 "FP16 유지" 또는 "B비트 양자화"를 결정한다. 양자화되는 토큰에 대해, 좌표별 양자화기 Q_j의 설계는 키 벡터의 차원별 분포에만 의존하며, 어떤 토큰이 양자화 대상인지와는 독립이다.
+```
+U*_1 = argmin_{U ∈ O(d)} D_MSE(U)  =  per-head Pre-RoPE PCA basis
+```
 
-(c) 축 2에서 최적 양자화기는 각 차원의 조건부 분포 p(x_j)에 대한 Lloyd-Max이다. 축 1에서 최적 회전은 변환 후 차원 간 독립성을 최대화하는 KLT이다. Lloyd-Max 양자화기의 왜곡 계수 c_LM(b)는 표준 가우시안에 대한 상수이므로, 최적 회전의 선택은 양자화기 타입에 무관하다 (양자화기가 분포 적응적인 한). □
+이 결과는:
+- **분포 무관**: 가우시안 가정 불필요 (정리 6.16.3 참조)
+- **High-rate 무관**: 임의의 비트 수에서 성립
+- **양자화기/비트 할당 무관**: 축 2, 3의 선택과 결합 가능
 
-**주의 (근사적 독립성).** 위 증명의 (c)에서 "양자화기가 분포 적응적인 한"이라는 조건이 중요하다. 균일 양자화기(uniform scalar)를 사용하면 c_uni는 분포 형태에 의존하므로, 축 1과 축 2 사이에 약한 상호작용이 존재한다. 이것은 Section 6.16.5의 주의 (회전-양자화기 상호작용)에서 이미 언급한 바이다. 그러나 Lloyd-Max 또는 분포 적응 양자화기를 사용하면 이 상호작용은 소멸한다.
+**증명**: 정리 6.16.3 (Pre-RoPE PCA optimality, distribution-free) + Hadamard 부등식. □
 
-#### 6.18.3 3축 결합의 왜곡 분해
+**V3 empirical confirmation**: 3모델 × 3비트 × 모든 head (112+ head-layer 조합)에서 Pre-RoPE PCA가 MSE 최저 (mse_results.json).
 
-**정리 6.18.3 (3축 결합의 왜곡 분해).** 3축을 모두 결합한 전체 왜곡은 다음과 같이 분해된다:
+---
+
+**명제 6.18.2B (Axis 3 — Bit Allocation, conditional).** 가우시안 source + high-rate 가정 하에서, water-filling이 최적 bit allocation:
+
+```
+b*_j = (B/d) + (1/2) log₂(σ²_j / GM(σ²)),  where GM = geometric mean
+```
+
+이 결과는:
+- **가정**: 가우시안 + high-rate (Goyal 2001 표준 결과)
+- **이산 양자화 보정**: floor=2 제약 필요 (가정 위반에 대한 대응)
+
+**가정 위반의 명시적 대응 (WF floor=2)**: 1-bit 채널은 sign 정보만 전달하므로 비가우시안 + low-rate 영역에서 catastrophic information loss를 유발한다 (V3 F4). floor=2 제약은 이산 채널의 최소 capacity를 보장하여 이 실패를 방지한다.
+
+**V3 empirical breakthrough**: floor=1 (이전): Qwen 2-bit PPL 11.255 (악화). floor=2 (정정): 3모델 × 2-bit에서 일관된 개선 (Qwen 7.10, Llama 7.16, Mistral 5.82).
+
+---
+
+**Axis 2 — Empirical Negative Result.** 축 2 (양자화기)의 MSE-optimal 해 (Lloyd-Max)는 **PPL에서 작동하지 않는다**:
+
+| 모델 | 2-bit Pre-RoPE PCA + Uniform | 2-bit Pre-RoPE PCA + Lloyd-Max | Lloyd 패배 |
+|------|----------------------------|-------------------------------|-----------|
+| Llama-3.1-8B | 10.14 | **65.46** | **6.5×** |
+| Mistral-7B | 6.46 | **32.68** | **5.1×** |
+| Qwen2.5-7B | 7.98 | 8.34 | 1.05× |
+
+**해석**: Lloyd-Max는 정리 6.19.8에 의해 MSE-optimal이지만, PPL은 Σ_Q-weighted distortion (D_attn) 또는 KL divergence와 관련이 있으며, MSE와의 관계는 **고율 가우시안에서만** 비례적이다. Heavy-tailed LLM 키 분포에서 이 비례성이 깨진다.
+
+이것은 **음성 결과(negative finding)**로서 본 논문에 명시적으로 포함되며, MSE-PPL gap의 직접 증거이다. 향후 작업: **비등방성 인지 양자화기** (Spherical, Lattice E_8, Per-token Fisher 등)의 탐색 — 자세한 실험 계획은 `reports/AXIS2_ANISOTROPY_AWARE_QUANTIZATION_EXPERIMENT_PLAN.md` 참조.
+
+---
+
+**3축 결합의 위치**: Empirical Observation, **NOT a Theorem**.
+
+```
+3-Axis Decomposition Status (정정판):
+
+  Axis 1 (rotation):     ✓ Distribution-free theorem (정리 6.18.2A)
+  Axis 2 (quantizer):    ✗ MSE-optimal ≠ PPL-optimal (음성 결과)
+  Axis 3 (bit allocation): △ High-rate Gaussian theorem + floor=2 fix (명제 6.18.2B)
+
+  Sequential optimization (Axis 1 → Uniform Q → WF f=2):
+    Empirical: 3모델 × 2-bit에서 TurboQuant 대비 23.9-36.4% PPL 이득
+    Theoretical: Joint optimality는 high-rate Gaussian에서만 증명되며,
+                 우리의 영역(2-bit, heavy-tailed)에서는 strict claim 회피.
+                 대신 "empirical synergy"로 진술.
+```
+
+**철회된 이전 주장 (2026-04-06)**:
+- ~~"3축의 직교성 (orthogonality)"~~ → Sequential optimization 명시
+- ~~"각 축의 개선이 가법적(additive)"~~ → 영역 의존적 (high-rate에서만)
+- ~~"전체 왜곡 = 곱셈적 분해"~~ → 영역 의존적
+- 정리 6.18.3 (3축 결합 왜곡 분해)는 가우시안 + high-rate 가정 하에서만 유효함을 명시
+
+#### 6.18.3 3축 결합의 왜곡 분해 (가우시안 + high-rate 한정)
+
+**정리 6.18.3 (3축 결합의 왜곡 분해, 정정판).** **가정**: source가 가우시안이고 양자화가 high-rate (b ≥ 4 권장)인 영역에서, 3축을 모두 결합한 전체 왜곡은 다음과 같이 분해된다:
 
 ```
 D_total = (1 - f) · Σ_j w̄_j · c_Q(b_j) · σ²_j(U) · 2^{-2b_j}
@@ -2586,7 +2645,7 @@ D_total = (1 - f) · Σ_j w̄_j · c_Q(b_j) · σ²_j(U) · 2^{-2b_j}
 - σ²_j(U) = 회전 U 후 j번째 차원의 분산 (축 1)
 - b_j = 차원 j의 비트 할당 (축 1의 water-filling)
 
-*증명.* 전체 왜곡을 토큰별로 분해한다.
+*증명 (가우시안 + high-rate 가정 하에서).* 전체 왜곡을 토큰별로 분해한다.
 
 ```
 D_total = E_t [D(k_t)]
@@ -2594,7 +2653,7 @@ D_total = E_t [D(k_t)]
         = (1 - f) · E_t [D_quant(k_t) | t ∉ FP16]
 ```
 
-여기서 f = P(t ∈ FP16)이다. 양자화되는 토큰에 대해:
+여기서 f = P(t ∈ FP16)이다. 양자화되는 토큰에 대해 (high-rate Gaussian 가정):
 
 ```
 D_quant(k_t) = E[‖Uk_t - Q(Uk_t)‖²_W]
@@ -2602,7 +2661,24 @@ D_quant(k_t) = E[‖Uk_t - Q(Uk_t)‖²_W]
              = Σ_j w̄_j · c_Q(b_j) · σ²_j(U) · 2^{-2b_j}
 ```
 
-마지막 등호는 [Uk_t]_j ~ N(0, σ²_j(U))에 대한 b_j비트 양자화기의 왜곡이 c_Q(b_j) · σ²_j(U) · 2^{-2b_j}임을 사용하였다. □
+마지막 등호는 [Uk_t]_j ~ N(0, σ²_j(U))에 대한 b_j비트 양자화기의 왜곡이 c_Q(b_j) · σ²_j(U) · 2^{-2b_j}임을 사용하였다. **이 등호는 가우시안 + high-rate 가정 하에서만 성립한다**. □
+
+**적용 영역 한계 (V3 검증 기반)**:
+
+| 비트 | 가우시안 가정 | High-rate 가정 | 정리 6.18.3 적용? |
+|------|------------|---------------|-----------------|
+| 8-bit+ | △ | ✓ | ✓ 성립 (V3 미측정) |
+| 4-bit | △ | △ borderline | △ 근사 성립 |
+| 3-bit | △ | ✗ 약함 | △ 부분 (Lloyd 미세 fail) |
+| **2-bit** | **✗** (Mistral 등) | **✗** | **✗ fail** (V3 F3) |
+
+**2-bit 영역에서의 대응**:
+- Axis 1: 정리 6.18.2A (distribution-free)는 그대로 성립
+- Axis 2: Lloyd-Max를 사용하지 않고 Uniform 사용 (또는 비등방성 인지 양자화기 — 향후 작업)
+- Axis 3: WF(floor=2)로 가우시안 가정 위반 보정
+- Joint: empirical synergy로 진술 (strict joint optimality 주장 회피)
+
+이 영역 한계는 본 논문의 중요한 honest disclosure이며, V3의 음성 결과를 framework 안으로 통합한다.
 
 #### 6.18.4 KVTC와의 3축 비교
 
@@ -2614,6 +2690,241 @@ D_quant(k_t) = E[‖Uk_t - Q(Uk_t)‖²_W]
 | 2 | 왜곡 메트릭 | 유클리드 MSE | 어텐션 가중 마할라노비스 | 정의 6.19.1 |
 | 3 | 토큰 선택 | 고정: sink=4, window=128 | HEAT 적응적 | 정의 6.20.1 |
 | 3 | 적응성 | 모델 무관 고정 | 모델별 κ₁, κ₂ 적응 | 명제 6.20.2 |
+
+---
+
+#### 6.18.5 통합 수준 (Unification Levels) 정의
+
+KV 캐시 양자화 방법들을 통합하는 framework는 그 강도에 따라 다음 4단계로 분류된다.
+
+**정의 6.18.5 (통합 수준 분류).**
+
+```
+Level 1 — Taxonomic (분류적):
+  각 방법을 framework의 좌표계에서 위치시킨다.
+  Method M ↔ tuple (U_M, Q_M, b_M) ∈ specified coordinates.
+  강도: 약함. 어떤 표기 체계든 가능.
+  
+Level 2 — Comparative (비교적):
+  framework의 양으로 방법 간 부분 순서를 제공한다.
+  G(b_X, Σ) ≤ G(b_Y, Σ) ⟹ Method X dominates Method Y.
+  강도: 중간. Hadamard / AM-GM / Fischer 부등식 기반.
+
+Level 2.7 — Parameterized Family (모수화 패밀리):
+  각 방법이 모수화된 distortion functional의 instance로 표현된다.
+  Method M = argmin over (C_M, W_M, φ_M, π_M) where the master functional is
+  L(U,Q,b; W, φ, π) = E_{k~π}[ φ((k - Q(Uk))^T W (k - Q(Uk))) ]
+  강도: 강함. Falsifiable, but framework boundary 명시 필요.
+  
+Level 3 — Derivational (도출적):
+  모든 방법이 단일 master equation에서 first principle로 도출된다.
+  Method M = argmin over C_M of D(U, Q, b)  where D is fixed across methods.
+  강도: 가장 강함. 주의: 방법별 다른 objective(L^∞, task loss 등)는 strict Level 3에서 제외.
+```
+
+본 논문의 통합 framework의 정확한 강도는:
+- **Class C 내 방법 (KIVI, KVQuant, KVTC, TurboQuant, Ours)**: **Level 3** 달성 (정리 6.18.6)
+- **Class C + 다른 objective (QuaRot, SpinQuant)**: **Level 2.7** 달성 (정리 6.18.7)
+- **Class C 외부 (PolarQuant nonlinear)**: **Level 2** 또는 framework 외부
+
+#### 6.18.6 Level 3 통합: Class C Master Equation
+
+본 절은 Class C 내에서의 strict Level 3 통합을 달성한다. 핵심: **단일 weighted MSE 목적 함수** 위에서 모든 Class C 방법이 constraint subset의 argmin으로 도출된다.
+
+**정의 6.18.6 (Class C Master Distortion Functional).** Symmetric positive semi-definite weight $W \succeq 0$에 대해, Class C 위에서의 master distortion을 다음과 같이 정의한다:
+
+```
+D(U, Q, b; W) = E_k [ (k - Q(U^T k))^T  W  (k - Q(U^T k)) ]
+              = tr( W · Σ_err(U, Q, b) )
+```
+
+여기서 $\Sigma_{err}(U, Q, b) = \mathbb{E}[\delta k \cdot \delta k^\top]$는 양자화 오차 공분산이다.
+
+**선택 가능한 가중치 $W$**:
+- $W = I$: 표준 MSE
+- $W = \Sigma_Q$: 어텐션 가중 (D_attn, 정의 6.19.1)
+- $W = M_{KL} = Q^\top F_{\text{softmax}} Q$: KL 2차 메트릭 (정리 6.19.12)
+
+**정리 6.18.6 (Class C Constrained Optima Hierarchy).** 임의의 constraint subset $\mathcal{C}_M \subseteq \text{Class C}$와 PSD weight $W$에 대해, 다음이 성립한다:
+
+```
+M^*_W := arg min_{(U,Q,b) ∈ C_M} D(U, Q, b; W)
+```
+
+(존재성, 유일성, 우월 관계, Class C 하한, 본 논문 방법의 하한 달성):
+
+(i) **존재성**: $\mathcal{C}_M$이 닫혀 있고 $D$가 연속이면 $M^*_W$가 존재한다. ($O(d)$는 컴팩트, scalar Lloyd codebook 공간도 컴팩트.)
+
+(ii) **유일성 (대칭성 modulo)**: $W \succ 0$ (양정치)이면 $M^*_W$는 회전의 부호/순서 대칭성을 제외하고 유일하다. ($D$는 strictly convex in codebook centroid space.)
+
+(iii) **우월성 (Domination)**: $\mathcal{C}_M \supseteq \mathcal{C}_{M'}$이면:
+$$D^*_{\mathcal{C}_M}(W) \leq D^*_{\mathcal{C}_{M'}}(W)$$
+즉, 더 큰 constraint set은 항상 더 작은 (또는 같은) 왜곡을 달성한다.
+
+(iv) **Class C 하한**: 임의의 $\mathcal{C}_M \subseteq \text{Class C}$에 대해:
+$$D^*_{\mathcal{C}_M}(W) \geq D^*_{\text{Class C}}(W)$$
+
+(v) **본 논문 방법의 하한 달성**: 본 논문의 (per-head Pre-RoPE PCA + Lloyd-Max + Water-Filling)는 $W = \Sigma_K$에서 Class C 하한을 달성한다:
+$$D^*_{\text{Ours}}(\Sigma_K) = D^*_{\text{Class C}}(\Sigma_K)$$
+
+**증명**.
+
+(i) **존재성**. $\mathcal{C}_M$의 closure 아래 $D$의 연속성을 보인다. $U \in O(d)$ 컴팩트, scalar quantizer $Q$의 codebook은 $\mathbb{R}^{2^b \cdot d}$의 컴팩트 부분집합 (키 분포의 support 내), bit allocation $b \in \mathbb{N}^d$ 유한. 컴팩트 정의역 위 연속함수의 최솟값은 존재한다 (Weierstrass).
+
+(ii) **유일성**. Lloyd-Max codebook의 strict convexity:
+- 고정된 $U$, $b$에 대해 $D$는 codebook centroid의 strictly convex 함수
+- 고정된 $Q$, $b$에 대해 $D$는 $U$의 함수이며, $W \succ 0$이면 generic 분포에서 unique global minimum (PCA 기저, eigenvalue 다중도 문제는 회전 부분군의 자유도)
+- 고정된 $U$, $Q$에 대해 $b$는 water-filling으로 unique (단조성)
+
+(iii) **우월성 (trivial)**. $\mathcal{C}_M \supseteq \mathcal{C}_{M'}$이면 $\mathcal{C}_{M'}$ 위의 최솟값은 $\mathcal{C}_M$ 위의 최솟값보다 항상 크거나 같다 (set inclusion).
+
+(iv) **Class C 하한**. $\mathcal{C}_M \subseteq \text{Class C}$이므로 (iii) 적용.
+
+(v) **본 논문 방법의 하한 달성**.
+- **축 1 (rotation)**: 정리 6.16.3에 의해 per-head Pre-RoPE PCA는 $W = \Sigma_K$ MSE의 분포 무관 최적 회전.
+- **축 2 (quantizer)**: 회전 후 차원이 분리되므로 (PCA가 covariance를 대각화), 차원별 scalar quantizer가 최적이다 (vector quantization은 Class C 정의에 의해 배제). 각 차원의 scalar Lloyd-Max는 그 차원의 marginal distribution에 대해 MSE-optimal (Lloyd 1957의 표준 결과).
+- **축 3 (bit allocation)**: 가우시안 + high-rate 가정 하에서 water-filling이 optimal (Goyal 2001 표준 결과). 이산 양자화 보정은 floor=2 제약 (정정판 명제 6.18.2B).
+- 세 축이 정리 6.18.3 (가우시안 + high-rate 가정 하)에서 결합 가능. 따라서 본 논문 방법이 Class C 하한을 달성. □
+
+**중요 주의 (V3 음성 결과 반영)**:
+
+본 정리는 $W = \Sigma_K$ (표준 MSE) 하에서의 Class C 최적성을 증명하지만, $W = \Sigma_Q$ (D_attn) 하에서는 다음의 한계가 있다:
+- D_attn metric에서의 optimum (MK Lloyd-Max)는 V3에서 PPL 측면에서 fail (정리 6.19.7 정정판 참조)
+- 즉 metric 선택이 PPL 정렬을 보장하지 않음
+- **이 정리는 metric을 fix한 상태에서의 Class C completeness만 보장**하며, "올바른 metric 선택" 문제는 별개이다
+
+**따름정리 6.18.6 (KVTC를 본 논문이 Dominate)**. KVTC의 constraint set $\mathcal{C}_{\text{KVTC}}$는 회전을 cross-head shared로 제한한다:
+$$\mathcal{C}_{\text{KVTC}} = \{(U, Q, b) : U_h = U_{h'} \forall h, h' \text{ in layer-group}\}$$
+
+본 논문의 constraint set $\mathcal{C}_{\text{Ours}}$는 per-head PCA를 허용하므로 $\mathcal{C}_{\text{KVTC}} \subsetneq \mathcal{C}_{\text{Ours}}$. 따라서 정리 6.18.6 (iii)에 의해:
+$$D^*_{\text{Ours}}(\Sigma_K) \leq D^*_{\text{KVTC}}(\Sigma_K)$$
+
+**Empirical confirmation (V3, F6)**: Llama-3.1-8B 2-bit에서 PPL 18.87 (KVTC) → 10.14 (Ours), **46.3% 개선**. 이는 위 부등식의 strict version이 empirically 발현된 것이다 (Fischer 부등식의 정량적 발현).
+
+**Class C Hierarchy (Domination chain)**:
+
+```
+Class C 내 방법의 constraint relaxation 위계:
+
+  C_no_rot    = {U = I, Q uniform, b uniform}                    ← 가장 좁음
+  ⊂ C_KIVI   = {U = I, Q calibrated per channel, b uniform}
+  ⊂ C_KVQuant = {U = I, Q NUQ + outlier, b uniform}
+  ⊂ C_TurboQuant = {U data-independent (Haar), Q uniform, b uniform}
+  ⊂ C_KVTC    = {U shared cross-head PCA, Q uniform, b ∈ DP}
+  ⊂ C_Ours    = {U per-head PCA, Q ∈ scalar Lloyd, b WF (floor=2)}  ← Class C 전체
+  = Class C
+  
+Domination chain (정리 6.18.6 (iii)):
+  D*(no_rot) ≥ D*(KIVI) ≥ D*(KVQuant) ≥ D*(KVTC) ≥ D*(Ours) = D*(Class C)
+```
+
+각 inequality는 strict하며 (constraint relaxation이 admissible solution을 추가하므로), Class C 하한 (Ours)이 unique (대칭성 modulo).
+
+#### 6.18.7 Level 2.7 통합: Parameterized Master Equation Family
+
+Class C 외부 또는 다른 objective를 사용하는 방법들 (QuaRot, SpinQuant, TurboQuant 등)을 포함하기 위해, 본 절은 Level 2.7 통합을 정의한다. 이는 **모수화된 distortion functional family**로의 일반화이다.
+
+**정의 6.18.7 (Parameterized Distortion Functional Family).** 다음 4-tuple로 모수화된 functional family를 정의한다:
+
+```
+F = { L(U, Q, b; W, φ, π) : 
+       W ∈ PSD(d × d),       # 가중치 행렬 (objective 종류)
+       φ : [0, ∞) → [0, ∞),  # monotone 변환 (L^p norm 등)
+       π ∈ P(R^d)            # source distribution (단순 calibration 또는 분포 평균)
+    }
+
+L(U, Q, b; W, φ, π) := E_{k ~ π} [ φ( (k - Q(U^T k))^T W (k - Q(U^T k)) ) ]
+```
+
+특수 case:
+- $(W = I, \phi(x) = x, \pi$ = empirical$)$: 표준 MSE Lloyd-Max
+- $(W = \Sigma_Q, \phi(x) = x, \pi$ = empirical$)$: 어텐션 가중 (Ours-Axis2)
+- $(W = I, \phi(x) = x^{p/2}, p \to \infty)$: $L^\infty$ minimization (QuaRot의 outlier suppression)
+- $(W$ = task Hessian, $\phi$ = task loss, $\pi$ = empirical$)$: task loss minimization (SpinQuant)
+- $(W = I, \phi(x) = x, \pi = \mathbb{E}_{U \sim \text{Haar}})$: Haar averaged (TurboQuant)
+
+**정리 6.18.7 (Level 2.7 Parameterized Class C Unification).** 다음 6개 prior method 각각에 대해, parameterized family $\mathcal{F}$의 instance와 constraint subset $\mathcal{C}_M$이 존재하여 다음이 성립한다:
+
+```
+M = arg min_{(U, Q, b) ∈ C_M} L(U, Q, b; W_M, φ_M, π_M)
+```
+
+| 방법 | $\mathcal{C}_M$ (constraint) | $W_M$ | $\phi_M$ | $\pi_M$ |
+|------|---------------------------|------|---------|---------|
+| **KIVI-K** | $\{U = I, Q$ calibrated per channel$\}$ | $I$ | $x$ | calibration |
+| **KVQuant-K** | $\{U = I, Q$ NUQ + outlier$\}$ | $I$ | $x$ | calibration |
+| **KVTC** | $\{U$ shared cross-head$\}$ | $I$ | $x$ | calibration |
+| **TurboQuant** | $\{U$ data-independent$\}$ | $I$ | $x$ | $\mathbb{E}_{U \sim \text{Haar}}$ |
+| **QuaRot** | $\{U$ Hadamard$\}$ | $I$ | $x^{p/2}$, $p \to \infty$ | per-token |
+| **SpinQuant** | $\{U \in O(d)\}$ | task Hessian | task loss | calibration |
+| **Ours (full)** | **full Class C** (largest) | $\Sigma_Q$ or $\Sigma_K$ | $x$ | calibration |
+
+본 논문의 방법은 $(\mathcal{C} = \text{Class C}, W = \Sigma_K, \phi = x, \pi$ = empirical$)$에 해당하며, $\mathcal{C}$가 가장 큰 (가장 약한 제약) instance이다.
+
+**증명**.
+
+각 방법이 명시된 $(\mathcal{C}_M, W_M, \phi_M, \pi_M)$ instance의 argmin임을 보인다.
+
+(1) **KIVI-K**: $U = I$ 제약 하에서 각 채널 $j$에 대해 calibrated uniform quantizer가 $\mathbb{E}[(k_j - Q_j(k_j))^2]$를 최소화 (Lloyd 1957의 1D 결과). 이는 $W = I$, $\phi = x$, $\pi$ = empirical인 instance.
+
+(2) **KVQuant-K**: $U = I$ 제약 + dense-sparse decomposition. Dense 부분에서 NUQ codebook은 sensitivity-weighted MSE를 최소화 (Hooper et al. 2024). $W = I$, $\phi = x$, dense partition 후 calibrated.
+
+(3) **KVTC**: $U$를 cross-head shared PCA로 제약. PCA는 $\mathbb{E}[\|U^\top k - \tilde{k}\|^2]$ where $\tilde{k}$ is the rank-r reconstruction. DP bit allocation은 $\sum_j \sigma_j^2 \cdot c_{\text{LM}}(b_j)$ minimization (Staniszewski-Łańcucki 2026, Appendix B.17 sketch). $W = I$, $\phi = x$, calibration data.
+
+(4) **TurboQuant**: $U$를 data-independent로 제약하면 worst-case Σ에 대한 minimax는 Haar measure 하의 expectation에 의해 달성됨 (Marzetta-Tucci 2011). 즉:
+$$\arg\min_{U: \text{data-independent}} \max_\Sigma D(U; \Sigma) = \arg\min \mathbb{E}_{U \sim \text{Haar}}[D(U; \Sigma)]$$
+이는 $\pi = \mathbb{E}_{U \sim \text{Haar}}$ 형태의 instance에 해당.
+
+(5) **QuaRot**: Hadamard 회전은 minimum coherence rotation이며, post-rotation 분포의 max-norm을 최소화한다:
+$$H = \arg\min_{U \in \text{structured orthogonal}} \mathbb{E}_k[\|Uk\|_\infty]$$
+$L^\infty$ norm은 $L^p$ norm의 $p \to \infty$ limit에 해당하므로, $\phi(x) = x^{p/2}$, $p \to \infty$ instance.
+
+(6) **SpinQuant**: $U \in O(d)$ 자유, Cayley SGD로 task loss를 최소화:
+$$U^* = \arg\min_{U \in O(d)} \mathcal{L}_{\text{task}}(\text{quantize}(U^\top K))$$
+이는 $W$ = task Hessian, $\phi$ = task loss인 instance. Local 2nd-order expansion에 의해 $W \approx H_{\text{task}} \approx \Sigma_Q$ (정리 6.19.13의 평균 Fisher 근사). □
+
+**중요 관찰 (Class C와 Level 2.7의 관계)**:
+
+정리 6.18.6 (Level 3, Class C 내)와 정리 6.18.7 (Level 2.7, parameterized family)는 다음과 같이 연결된다:
+
+```
+Level 3 (Class C 내, fixed W):
+   모든 Class C 방법 = D(·; W)의 constraint subset 위 argmin
+   제약 부등식: D*(C_M) ≥ D*(C_M') if C_M ⊆ C_M'
+   ↑
+   |
+Level 2.7 (parameterized, varying W, φ, π):
+   모든 prior 방법 = L(·; W_M, φ_M, π_M)의 instance
+   제약 비교 불가 (다른 W는 다른 위계)
+```
+
+즉:
+- **같은 $W$ 안에서 비교**할 때 → Level 3 (strict domination 가능)
+- **다른 $W$ 사이 비교**할 때 → Level 2.7 (instance 위치 비교만)
+
+본 논문의 contribution claim은 두 수준 모두 활용한다:
+1. **Class C 내** (KVTC, KIVI 등 MSE 기반 방법들): Level 3, strict domination, Hadamard / Fischer 부등식 정량화
+2. **Class C 외 또는 다른 objective** (QuaRot, SpinQuant, PolarQuant): Level 2.7 (instance 분류) 또는 framework 외부 (PolarQuant)
+
+#### 6.18.8 Class C 외부 방법 (Beyond Class C)
+
+다음 방법들은 Class C에 속하지 않으며 (또는 framework 외부), 별도 처리가 필요하다:
+
+| 방법 | 외부 사유 | 처리 |
+|------|----------|------|
+| **PolarQuant** | per-pair 비선형 polar transform (data-dependent) | Level 2 (taxonomic), future work |
+| **KIVI-V** | per-token vector Q (dimension-coupled) | Class C 외부, future work |
+| **KVQuant-V** | per-token vector Q | Class C 외부, future work |
+| **Vector Quantization (VQ)** | non-scalar codebook | Class C 외부 (Shannon-optimal but impractical) |
+| **Lattice Quantization** | block vector codebook | Class C 외부 (axis 2 향후 확장) |
+
+**Remark 6.18.8 (Class C 정의의 정직 boundary)**. 본 논문의 framework는 정의에 의해 다음으로 한정된다:
+- Orthogonal linear rotation $U \in O(d)$ (per-head 가능)
+- Per-dimension scalar quantizer $Q_j$
+- Per-dimension bit allocation $b_j$
+- Per-dimension OR per-token bit allocation (axis 3 확장 시)
+
+이 정의 외부의 방법들 (nonlinear rotations, vector quantization, lattice codebooks)은 본 framework의 정리들의 적용 영역 밖이며, 별도의 (확장된) framework가 필요하다. 향후 작업으로 명시.
 
 ---
 
@@ -3447,9 +3758,22 @@ E3: HEAT 기반 적응적 토큰 관리 (축 3 개선)
     모델별 어텐션 프로파일에 기반한 위치 인식 비트 할당
 ```
 
-**정리 6.19.7 (fokvq_full의 C 내 최적성).** fokvq_full = (U*_Q, {MK-LloydMax_j}, {b*_j})는 어텐션 가중 왜곡 D_attn 기준으로 클래스 C 내의 최적이다.
+**정리 6.19.7 (fokvq_full의 C 내 D_attn 최적성, 정정판).** **D_attn metric (가우시안 + high-rate 가정 하에서)**에서, fokvq_full = (U*_Q, {MK-LloydMax_j}, {b*_j})는 클래스 C 내의 최적이다.
 
-*증명.* 축 1: U*_Q는 D_attn을 최소화하는 회전 (명제 6.19.6). 축 2: MK-Lloyd-Max는 D_attn을 최소화하는 양자화기 (정리 6.19.3). 이 두 최적화는 명제 6.18.2에 의해 독립이다. 축 3의 HEAT는 직교 축이므로 결합이 자유롭다. □
+*증명 (D_attn metric 한정).* 축 1: U*_Q는 D_attn을 최소화하는 회전 (명제 6.19.6). 축 2: MK-Lloyd-Max는 D_attn을 최소화하는 양자화기 (정리 6.19.3). 이 두 최적화는 가우시안 + high-rate 영역에서 정리 6.18.3에 의해 결합 가능. 축 3의 HEAT는 토큰 레벨이므로 axis 1, 2와 직교. □
+
+**중요 정정 (V3 음성 결과 반영)**:
+
+본 정리는 **D_attn (Σ_Q-weighted MSE)에서만** 성립합니다. **PPL에서는 V3에서 fokvq_full이 fokvq_full minus MK Lloyd (Uniform Q 사용)보다 열등**합니다 (F3 음성 결과):
+
+| 구성 | Llama 2-bit PPL | 비고 |
+|------|----------------|------|
+| fokvq_full (PCA + MK Lloyd + WF) | **65.46** | D_attn 최적, PPL fail |
+| **fokvq_full minus Lloyd (PCA + Uniform + WF)** | **7.16** | **PPL 최적** |
+
+**해석**: D_attn은 PPL의 leading-order 근사이지만, low-bit (2-bit)에서 고차 항이 dominant이며 D_attn 최적해 ≠ PPL 최적해입니다 (정리 6.19.16-17 참조). 따라서 **본 정리의 "최적성"은 D_attn metric에 한정**되며, PPL 최적성은 별도 비교에서 도출됩니다.
+
+**실용적 권고**: 2-bit 영역에서는 (Pre-RoPE PCA + **Uniform Q** + WF(floor=2) + HEAT)가 (Pre-RoPE PCA + **MK Lloyd** + WF + HEAT)보다 PPL이 우월합니다. **fokvq_full의 axis 2를 Uniform 또는 비등방성 인지 양자화기 (Spherical, Lattice 등 향후 작업)로 대체**하는 것이 권장됩니다.
 
 **주의 (fokvq_full vs 현재 FOKVQ).** 현재 구현된 FOKVQ는 Post-RoPE PCA + 균일 스칼라 양자화 + 고정 비트 할당이다. fokvq_full은 이론적 최적이나, 실제 구현에는 다음의 추가 비용이 수반된다:
 
@@ -3579,21 +3903,33 @@ HEAT는 이 공식과 다음과 같이 연결된다:
 
 (iii) **HEAT 기반 적응.** gap(p)가 작은 위치(중간 토큰)에는 더 많은 비트를 할당하여 σ_error를 줄이고, gap(p)가 큰 위치(sink, window)에는 적은 비트로도 충분하다.
 
-**명제 6.20.3 (HEAT + Pre-RoPE PCA 결합).** 3축 결합은 다음의 가법적 개선을 제공한다:
+**명제 6.20.3 (HEAT + Pre-RoPE PCA 결합, 정정판).** **가정**: 가우시안 + high-rate. 이 영역에서 3축 결합은 다음의 분리된 개선을 제공한다:
 
 ```
-축 1: Pre-RoPE PCA → 회전 기저 최적화 → MSE를 R_aniso배 감소
-축 2: MK Lloyd-Max → 양자화기 최적화 → MSE를 c_uni/c_LM배 감소
-축 3: HEAT → 토큰 선택 최적화 → NIAH-critical 위치의 왜곡 감소
+축 1 (분포 무관, 정리 6.18.2A): Pre-RoPE PCA → MSE를 G(d)/G(1) ≤ R_aniso배 감소
+축 2 (영역 의존, 음성 결과 V3): MSE-optimal Lloyd-Max는 PPL에서 fail
+                                → Uniform Q 사용 권고 (또는 비등방성 인지 양자화기, 향후)
+축 3 (가우시안 high-rate, 명제 6.18.2B): WF(floor=2) → 비트 할당 + HEAT → 토큰 선택
 ```
 
-*증명.* 명제 6.18.2에 의해 3축은 독립이다. 축 1의 회전 최적화는 모든 토큰에 동일하게 적용되므로 축 3의 토큰별 정책과 독립이다. 축 2의 양자화기 최적화는 각 차원의 코드북 설계이므로 축 3의 비트 수 결정과 독립이다 (비트 수가 주어지면 양자화기가 결정됨). 따라서 세 축의 개선은 곱으로 결합된다:
+*가우시안 + high-rate 영역에서의 분해 (sketch)*. 정리 6.18.2A에 의해 축 1은 다른 축과 무관하게 PCA로 결정. 정리 6.18.3 (가우시안 + high-rate 한정)에 의해 축 2와 3의 결합은:
 
 ```
-D_total(ours) = D_total(baseline) · (1/R_aniso) · (c_LM/c_uni) · (1 - f · improvement)
+D_total(ours, high-rate) ≈ D_total(baseline) · (1/R_aniso) · (c_LM/c_uni) · (1 - f · improvement)
 ```
 
-여기서 f는 HEAT에 의한 FP16 비율이고, improvement는 고정 규칙 대비 적응적 할당의 개선율이다. □
+여기서 f는 HEAT에 의한 FP16 비율, improvement는 고정 규칙 대비 적응적 할당의 개선율이다.
+
+**Low-rate 영역 (2-bit) 정정**:
+- 위 곱셈적 분해는 fails (V3 F3, F4 직접 증거)
+- 정확한 진술: **empirical observation, not theorem**
+- V3 측정값: TurboQuant 대비 23.9-36.4% PPL 이득 (Pre-RoPE PCA + Uniform + WF(f=2) + HEAT)
+- 곱셈적 분해 공식은 정성적 가이드일 뿐, 정량적 예측에 사용 금지
+
+**철회된 이전 주장**:
+- ~~"3축 독립이므로 곱셈적 결합"~~ → 가우시안 + high-rate 한정
+- ~~"MK Lloyd-Max로 c_LM/c_uni 이득"~~ → V3 음성 결과로 철회 (PPL 측면)
+- 본 명제는 향후 비등방성 인지 양자화기로 axis 2가 회복되면 재진술 예정 □
 
 ---
 
