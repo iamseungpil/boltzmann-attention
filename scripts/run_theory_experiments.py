@@ -87,8 +87,21 @@ def attn_aware_quantize_block(K_block, bits_per_dim):
 
 def make_theory_hook(layer_idx, bits, n_kv, d_head, method,
                      pca_bases=None, qw_pca_bases=None,
-                     query_weights=None, random_rot=None):
-    """Hook for theory experiments."""
+                     sigma_q_half=None, qw_inverse=None,
+                     sigma_q_diag=None, sigma_k_diag=None,
+                     random_rot=None, delta_a_tracker=None):
+    """Hook for theory experiments.
+
+    Methods:
+      uniform: uniform quantization (no rotation)
+      standard_pca: standard PCA (Σ_K eigvecs) + uniform quant per dim
+      lloyd_max: standard PCA + Lloyd-Max per dim (uniform bits)
+      attn_quant: standard PCA + Lloyd-Max with water-filling bit allocation
+                  based on √(σ_Q,j · σ_K,j) per dimension (REAL attention-aware)
+      qw_pca: query-weighted PCA. Apply Σ_Q^{1/2}, rotate by V_qw, quantize,
+              rotate back by V_qw^T, apply Σ_Q^{-1/2} (proper k-space transform)
+      random_rot: random orthogonal rotation + uniform quant
+    """
     def hook_fn(module, input, output):
         k = output[0] if isinstance(output, tuple) else output
         k_np = k.detach().cpu().float().numpy()
@@ -96,29 +109,71 @@ def make_theory_hook(layer_idx, bits, n_kv, d_head, method,
         k_flat = k_np.reshape(-1, n_kv, d_head)
 
         for h in range(n_kv):
-            Kh = k_flat[:, h, :]
+            Kh = k_flat[:, h, :].copy()
+            key = (layer_idx, h)
 
-            # Choose rotation
-            if method == 'qw_pca' and qw_pca_bases and (layer_idx, h) in qw_pca_bases:
-                R = qw_pca_bases[(layer_idx, h)]
-            elif method in ('standard_pca', 'attn_quant') and pca_bases and (layer_idx, h) in pca_bases:
-                R = pca_bases[(layer_idx, h)]
+            if method == 'qw_pca' and qw_pca_bases and key in qw_pca_bases:
+                # Proper qw_pca: k → Σ_Q^{1/2}·k → V_qw^T·... → quantize → V_qw·... → Σ_Q^{-1/2}·...
+                Sqh = sigma_q_half[key]
+                Sqi = qw_inverse[key]
+                V_qw = qw_pca_bases[key]
+                # Forward: k -> Sqh @ k.T -> shape (d, n) — apply on last dim instead
+                Kt = Kh @ Sqh.T  # (n, d) — k̃ space
+                Kr = Kt @ V_qw   # (n, d) — rotated in k̃ space
+                # Quantize uniformly per dim in rotated space
+                for j in range(d_head):
+                    Kr[:, j] = uniform_quant_col(Kr[:, j], bits)
+                # Inverse: V_qw rotation back, then Σ_Q^{-1/2}
+                Kt2 = Kr @ V_qw.T
+                k_flat[:, h, :] = Kt2 @ Sqi.T
+
+            elif method == 'attn_quant' and pca_bases and key in pca_bases:
+                # Real attention-aware: standard PCA rotation + water-filling bit allocation
+                R = pca_bases[key]
+                Kr = Kh @ R
+                # Effective per-dim weight = √(σ_Q,j · σ_K,j)
+                w = np.sqrt(sigma_q_diag[key] * sigma_k_diag[key])
+                bits_per_dim = weighted_bit_allocation(w, total_bits=bits * d_head,
+                                                       min_bits=1, max_bits=8)
+                Kr = attn_aware_quantize_block(Kr, bits_per_dim)
+                k_flat[:, h, :] = Kr @ R.T
+
+            elif method == 'lloyd_max' and pca_bases and key in pca_bases:
+                R = pca_bases[key]
+                Kr = Kh @ R
+                for j in range(d_head):
+                    Kr[:, j] = lloyd_max_col(Kr[:, j], bits)
+                k_flat[:, h, :] = Kr @ R.T
+
+            elif method == 'standard_pca' and pca_bases and key in pca_bases:
+                R = pca_bases[key]
+                Kr = Kh @ R
+                for j in range(d_head):
+                    Kr[:, j] = uniform_quant_col(Kr[:, j], bits)
+                k_flat[:, h, :] = Kr @ R.T
+
             elif method == 'random_rot' and random_rot is not None:
                 R = random_rot
-            else:
-                R = None
-
-            Kr = Kh @ R if R is not None else Kh.copy()
-
-            # Choose quantizer
-            for j in range(d_head):
-                if method == 'attn_quant' and query_weights and (layer_idx, h) in query_weights:
-                    w = query_weights[(layer_idx, h)][j]
-                    Kr[:, j] = weighted_lloyd_col(Kr[:, j], bits, weight=w)
-                else:
+                Kr = Kh @ R
+                for j in range(d_head):
                     Kr[:, j] = uniform_quant_col(Kr[:, j], bits)
+                k_flat[:, h, :] = Kr @ R.T
 
-            k_flat[:, h, :] = Kr @ R.T if R is not None else Kr
+            else:  # uniform (no rotation)
+                Kr = Kh.copy()
+                for j in range(d_head):
+                    Kr[:, j] = uniform_quant_col(Kr[:, j], bits)
+                k_flat[:, h, :] = Kr
+
+            # Optional: measure ||δa||∞ as ||q · δk||∞ / √d
+            # Stored to delta_a_tracker if provided (avoids hot-path overhead by default)
+            if delta_a_tracker is not None:
+                delta_k = k_flat[:, h, :] - Kh
+                # Use ||δk||∞ / √d as proxy (true δa needs current q which we don't have here)
+                tracker_key = (layer_idx, h, method, bits)
+                delta_a_tracker.setdefault(tracker_key, []).append(
+                    float(np.abs(delta_k).max() / np.sqrt(d_head))
+                )
 
         return torch.tensor(k_flat.reshape(orig_shape), dtype=k.dtype, device=k.device)
     return hook_fn
