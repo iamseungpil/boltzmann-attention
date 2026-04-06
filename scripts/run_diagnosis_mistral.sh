@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
-PYTHON_BIN="${PYTHON_BIN:-python}"
+PYTHON_BIN="${PYTHON_BIN:-/home/v-seungplee/miniconda3/envs/llm-addiction/bin/python}"
 
 echo "========================================"
 echo "Axis2/Axis3 Diagnosis: Mistral-7B-v0.3"

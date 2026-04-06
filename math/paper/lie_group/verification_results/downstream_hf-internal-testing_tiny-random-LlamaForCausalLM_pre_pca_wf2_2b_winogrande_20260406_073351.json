@@ -1,0 +1,15 @@
+{
+  "model": "hf-internal-testing/tiny-random-LlamaForCausalLM",
+  "method": "pre_pca_wf2",
+  "bits": 2,
+  "tasks": {
+    "winogrande": {
+      "acc": 0.0,
+      "acc_stderr": "N/A",
+      "all_metrics": {
+        "acc,none": 0.0
+      }
+    }
+  },
+  "elapsed": 18.060508489608765
+}

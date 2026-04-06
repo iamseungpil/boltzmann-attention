@@ -120,9 +120,11 @@ def parse_args() -> argparse.Namespace:
                    choices=[
                        "custom",
                        "ppl_quality",
+                       "practical_gap_residual",
                        "rotation_mechanistic",
                        "hamiltonian_descriptive",
                        "retrieval_depth",
+                       "retrieval_residual",
                        "paper_full",
                    ],
                    help="Hypothesis-aligned benchmark preset.")
@@ -144,7 +146,8 @@ def apply_benchmark_preset(args: argparse.Namespace) -> Dict[str, str]:
         "benchmark_preset": preset,
         "intent": "custom run",
         "hypothesis": "user-defined",
-        "verification_focus": "user-defined",
+        "verification_method": "user-defined",
+        "acceptance_rule": "user-defined",
     }
     if preset == "custom":
         return meta
@@ -153,7 +156,8 @@ def apply_benchmark_preset(args: argparse.Namespace) -> Dict[str, str]:
         meta.update({
             "intent": "estimate pure language-model quality retention under full-K quantization",
             "hypothesis": "same-harness PPL isolates quantizer quality better than retrieval tasks",
-            "verification_focus": "WikiText-2 PPL with practical same-harness controls",
+            "verification_method": "WikiText-2 full-K PPL with same-harness practical controls and finite low-bit runs",
+            "acceptance_rule": "keep only if the candidate improves over plain fokvq without violating the full-K guard",
         })
         if not _cli_flag_explicit("--mode"):
             args.mode = "ppl"
@@ -162,11 +166,26 @@ def apply_benchmark_preset(args: argparse.Namespace) -> Dict[str, str]:
                 "fp16", "uniform", "kivi_residual", "turboquant_rand",
                 "fokvq", "fokvq_e2", "fokvq_e2_residual",
             ]
+    elif preset == "practical_gap_residual":
+        meta.update({
+            "intent": "test whether a recent FP16 tail closes the practical gap of a structured prefix quantizer",
+            "hypothesis": "fokvq_e2_residual should improve over plain fokvq_e2 if recency bottlenecks practical quality",
+            "verification_method": "full-K WikiText-2 PPL plus key MSE, attention-logit distortion, and top-k overlap under same-harness proxy controls; GQA mismatch is descriptive only",
+            "acceptance_rule": "keep only if fokvq_e2_residual improves at least one practical quality metric over fokvq_e2 without a clear collapse on the others; do not use GQA mismatch as the acceptance gate",
+        })
+        if not _cli_flag_explicit("--mode"):
+            args.mode = "ppl"
+        if not _cli_flag_explicit("--methods"):
+            args.methods = [
+                "fp16", "kivi_residual", "turboquant_rand",
+                "fokvq", "fokvq_e2", "fokvq_e2_residual",
+            ]
     elif preset == "rotation_mechanistic":
         meta.update({
             "intent": "test whether covariance-aligned generators beat agnostic bases",
             "hypothesis": "PCA/Lie-structured bases should outperform identity or random bases before any SOTA claim",
-            "verification_focus": "axis-selection effect under fair PPL",
+            "verification_method": "same-harness full-K PPL axis ablation with identity, random, and structured controls",
+            "acceptance_rule": "keep only if the candidate is finite and beats at least one agnostic basis",
         })
         if not _cli_flag_explicit("--mode"):
             args.mode = "ppl"
@@ -180,7 +199,8 @@ def apply_benchmark_preset(args: argparse.Namespace) -> Dict[str, str]:
         meta.update({
             "intent": "measure whether bounded-success methods preserve simple Hamiltonian-style geometry on post-RoPE keys",
             "hypothesis": "methods with lower energy and symplectic-form drift should align better with bounded mechanistic PPL",
-            "verification_focus": "descriptive geometry diagnostics rather than a practical winner claim",
+            "verification_method": "compare full-K PPL ranking against sampled energy drift, phase drift, symplectic drift, and attention-structure diagnostics",
+            "acceptance_rule": "keep only as descriptive support when diagnostics are finite and broadly agree with bounded mechanistic ranking",
         })
         if not _cli_flag_explicit("--mode"):
             args.mode = "ppl"
@@ -194,7 +214,8 @@ def apply_benchmark_preset(args: argparse.Namespace) -> Dict[str, str]:
         meta.update({
             "intent": "test whether quantization preserves position-sensitive retrieval across depths",
             "hypothesis": "if the rotation really preserves useful cache geometry, deep-needle retrieval should degrade more gracefully",
-            "verification_focus": "NIAH depth sweep rather than only average perplexity",
+            "verification_method": "NIAH depth sweep over multiple depths and context lengths with same-harness controls",
+            "acceptance_rule": "keep only if retrieval degradation is measurably gentler than weaker controls at matched bit-width",
         })
         if not _cli_flag_explicit("--mode"):
             args.mode = "niah"
@@ -207,11 +228,30 @@ def apply_benchmark_preset(args: argparse.Namespace) -> Dict[str, str]:
             args.niah_context_lens = [4096, 8192, 16384]
         if not _cli_flag_explicit("--niah-depths"):
             args.niah_depths = [0.1, 0.3, 0.5, 0.7, 0.9]
+    elif preset == "retrieval_residual":
+        meta.update({
+            "intent": "test whether structured-prefix plus recent-tail preservation yields gentler depth-sensitive retrieval degradation",
+            "hypothesis": "fokvq_e2_residual may look better on retrieval depth than on average PPL if geometry is preserved but token likelihood is diluted",
+            "verification_method": "NIAH depth sweep over multiple depths and context lengths comparing fokvq_e2_residual against fokvq_e2 and strong same-harness controls",
+            "acceptance_rule": "keep only if retrieval-depth curves remain finite and fokvq_e2_residual is measurably stronger than at least one weaker control or its plain prefix counterpart",
+        })
+        if not _cli_flag_explicit("--mode"):
+            args.mode = "niah"
+        if not _cli_flag_explicit("--methods"):
+            args.methods = [
+                "fp16", "kivi_residual", "turboquant_rand",
+                "fokvq_e2", "fokvq_e2_residual",
+            ]
+        if not _cli_flag_explicit("--niah-context-lens"):
+            args.niah_context_lens = [4096, 8192]
+        if not _cli_flag_explicit("--niah-depths"):
+            args.niah_depths = [0.1, 0.5, 0.9]
     elif preset == "paper_full":
         meta.update({
             "intent": "run the paper-ready benchmark ladder: quality plus retrieval",
             "hypothesis": "PPL and retrieval must be read together to judge rotation quality fairly",
-            "verification_focus": "combined PPL + NIAH evidence",
+            "verification_method": "combined full-K PPL and NIAH depth evidence under one preset",
+            "acceptance_rule": "keep only if quality and retrieval evidence tell a consistent non-trivial story",
         })
         if not _cli_flag_explicit("--mode"):
             args.mode = "both"
@@ -244,14 +284,35 @@ def validate_benchmark_alignment(args: argparse.Namespace) -> None:
             raise ValueError(
                 "rotation_mechanistic preset requires identity/random/fokvq to measure axis-selection effects."
             )
+    if args.benchmark_preset == "practical_gap_residual":
+        required = {"fokvq_e2", "fokvq_e2_residual", "kivi_residual", "turboquant_rand"}
+        if not required.issubset(set(args.methods)):
+            raise ValueError(
+                "practical_gap_residual preset requires fokvq_e2/fokvq_e2_residual and strong same-harness controls."
+            )
     if args.benchmark_preset == "hamiltonian_descriptive":
         required = {"identity", "random", "fokvq", "fokvq_e2"}
         if not required.issubset(set(args.methods)):
             raise ValueError(
                 "hamiltonian_descriptive preset requires identity/random/fokvq/fokvq_e2 for descriptive ranking."
             )
+        if args.mode != "ppl":
+            raise ValueError("hamiltonian_descriptive preset must run in PPL mode.")
+        if not {"kivi_residual", "turboquant_rand"}.intersection(set(args.methods)):
+            raise ValueError(
+                "hamiltonian_descriptive preset needs at least one strong same-harness control "
+                "(kivi_residual or turboquant_rand)."
+            )
     if args.benchmark_preset == "retrieval_depth" and args.mode == "ppl":
         raise ValueError("retrieval_depth preset must include NIAH mode.")
+    if args.benchmark_preset == "retrieval_residual":
+        if args.mode != "niah":
+            raise ValueError("retrieval_residual preset must run in NIAH mode.")
+        required = {"fokvq_e2", "fokvq_e2_residual", "kivi_residual", "turboquant_rand"}
+        if not required.issubset(set(args.methods)):
+            raise ValueError(
+                "retrieval_residual preset requires fokvq_e2/fokvq_e2_residual and strong same-harness controls."
+            )
 
 
 def resolve_dtype(name: str, dtype_arg: str) -> torch.dtype:
@@ -1641,6 +1702,9 @@ class KProjQuantHook:
         self.key_mse_count = 0
         self.sample_ref = None
         self.sample_quant = None
+        self.max_diag_samples = 16
+        self.hamiltonian_diag_acc = None
+        self.hamiltonian_diag_count = 0
 
     def __call__(self, module, input, output):
         if not self.active:
@@ -1659,9 +1723,18 @@ class KProjQuantHook:
         diff = (K.float() - K_q.float()).pow(2)
         self.key_mse_sum += float(diff.sum().item())
         self.key_mse_count += int(diff.numel())
-        if self.sample_ref is None:
-            self.sample_ref = _extract_diag_sample(K)
-            self.sample_quant = _extract_diag_sample(K_q)
+        if self.hamiltonian_diag_count < self.max_diag_samples:
+            ref_sample = _extract_diag_sample(K)
+            quant_sample = _extract_diag_sample(K_q)
+            if self.sample_ref is None:
+                self.sample_ref = ref_sample
+                self.sample_quant = quant_sample
+            ham_diag = compute_hamiltonian_diagnostics(ref_sample, quant_sample)
+            if ham_diag:
+                self.hamiltonian_diag_acc = _diag_accumulate(
+                    self.hamiltonian_diag_acc, ham_diag
+                )
+                self.hamiltonian_diag_count += 1
 
         # Reshape back: (B, n_kv_heads, S, d) -> (B, S, n_kv_heads * d)
         K_q = K_q.transpose(1, 2).contiguous().view(orig_shape)
@@ -1672,6 +1745,8 @@ class KProjQuantHook:
         self.key_mse_count = 0
         self.sample_ref = None
         self.sample_quant = None
+        self.hamiltonian_diag_acc = None
+        self.hamiltonian_diag_count = 0
 
 
 # ============================================================================
@@ -1850,6 +1925,13 @@ class AttentionKQuantPatcher:
         self.sample_query = None
         self.sample_attention_diag = None
         self.sample_gqa_diag = None
+        self.max_diag_samples = 16
+        self.hamiltonian_diag_acc = None
+        self.hamiltonian_diag_count = 0
+        self.attention_diag_acc = None
+        self.attention_diag_count = 0
+        self.gqa_diag_acc = None
+        self.gqa_diag_count = 0
         self._patched = False
         self._patched_module_ids = set()
         self._orig_qwen_eager_attention = None
@@ -1918,6 +2000,12 @@ class AttentionKQuantPatcher:
         self.sample_query = None
         self.sample_attention_diag = None
         self.sample_gqa_diag = None
+        self.hamiltonian_diag_acc = None
+        self.hamiltonian_diag_count = 0
+        self.attention_diag_acc = None
+        self.attention_diag_count = 0
+        self.gqa_diag_acc = None
+        self.gqa_diag_count = 0
 
     def _detect_model_type(self) -> str:
         """Detect model architecture type."""
@@ -1971,22 +2059,47 @@ class AttentionKQuantPatcher:
         diff = (K.float() - K_q.float()).pow(2)
         self.key_mse_sum += float(diff.sum().item())
         self.key_mse_count += int(diff.numel())
-        if self.sample_ref is None:
-            self.sample_ref = _extract_diag_sample(K)
-            self.sample_quant = _extract_diag_sample(K_q)
+        if self.hamiltonian_diag_count < self.max_diag_samples:
+            ref_sample = _extract_diag_sample(K)
+            quant_sample = _extract_diag_sample(K_q)
+            if self.sample_ref is None:
+                self.sample_ref = ref_sample
+                self.sample_quant = quant_sample
+            ham_diag = compute_hamiltonian_diagnostics(ref_sample, quant_sample)
+            if ham_diag:
+                self.hamiltonian_diag_acc = _diag_accumulate(
+                    self.hamiltonian_diag_acc, ham_diag
+                )
+                self.hamiltonian_diag_count += 1
             q_diag_src = diagnostic_query_states if diagnostic_query_states is not None else query_states
             if q_diag_src is not None:
                 q_group = q_diag_src
                 if q_group.dim() == 4 and num_kv_heads is not None and q_group.shape[1] != K.shape[1]:
                     q_group = _group_queries_for_kv(q_group, num_kv_heads)
-                self.sample_query = _extract_query_diag_sample(q_group)
-                self.sample_attention_diag = compute_attention_structure_diagnostics(
-                    self.sample_query, self.sample_ref, self.sample_quant
+                query_sample = _extract_query_diag_sample(q_group)
+                if self.sample_query is None:
+                    self.sample_query = query_sample
+                attn_diag = compute_attention_structure_diagnostics(
+                    query_sample, ref_sample, quant_sample
                 )
+                if attn_diag:
+                    if self.sample_attention_diag is None:
+                        self.sample_attention_diag = attn_diag
+                    self.attention_diag_acc = _diag_accumulate(
+                        self.attention_diag_acc, attn_diag
+                    )
+                    self.attention_diag_count += 1
                 if diagnostic_query_states is not None and num_kv_heads is not None:
-                    self.sample_gqa_diag = compute_gqa_group_mismatch(
+                    gqa_diag = compute_gqa_group_mismatch(
                         diagnostic_query_states.detach().float().cpu(), num_kv_heads
                     )
+                    if gqa_diag:
+                        if self.sample_gqa_diag is None:
+                            self.sample_gqa_diag = gqa_diag
+                        self.gqa_diag_acc = _diag_accumulate(
+                            self.gqa_diag_acc, gqa_diag
+                        )
+                        self.gqa_diag_count += 1
         return K_q
 
     def _install_qwen_eager_wrapper(self):
@@ -2405,6 +2518,27 @@ def _extract_query_diag_sample(query_states: torch.Tensor,
     return sample[:seq, :dim].detach().float().cpu()
 
 
+def _diag_accumulate(accumulator: Optional[Dict[str, float]],
+                     diag: Dict[str, float]) -> Dict[str, float]:
+    """Accumulate numeric diagnostic fields for later averaging."""
+    if accumulator is None:
+        accumulator = {}
+    for key, value in diag.items():
+        if isinstance(value, (int, float)):
+            accumulator[key] = accumulator.get(key, 0.0) + float(value)
+    return accumulator
+
+
+def _diag_finalize(accumulator: Optional[Dict[str, float]],
+                   count: int) -> Optional[Dict[str, float]]:
+    """Average accumulated diagnostics and annotate sample count."""
+    if not accumulator or count <= 0:
+        return None
+    out = {key: value / count for key, value in accumulator.items()}
+    out["n_samples"] = int(count)
+    return out
+
+
 def compute_hamiltonian_diagnostics(
     K_ref: torch.Tensor,
     K_quant: torch.Tensor,
@@ -2775,12 +2909,19 @@ def evaluate_method(model, input_ids: torch.Tensor, chunk_len: int,
             result["avg_key_mse"] = (total_mse_sum / total_mse_count
                                       if total_mse_count > 0 else 0.0)
             result["quantization_point"] = "pre_rope"
+            ham_acc = None
+            ham_count = 0
             for hook in hooks:
                 if hook.sample_ref is not None and hook.sample_quant is not None:
-                    result["hamiltonian_diag"] = compute_hamiltonian_diagnostics(
+                    result["hamiltonian_diag_first"] = compute_hamiltonian_diagnostics(
                         hook.sample_ref, hook.sample_quant
                     )
-                    break
+                if hook.hamiltonian_diag_acc is not None:
+                    ham_acc = _diag_accumulate(ham_acc, hook.hamiltonian_diag_acc)
+                    ham_count += hook.hamiltonian_diag_count
+            ham_mean = _diag_finalize(ham_acc, ham_count)
+            if ham_mean is not None:
+                result["hamiltonian_diag"] = ham_mean
         finally:
             remove_hooks(hooks)
         return result
@@ -2798,13 +2939,28 @@ def evaluate_method(model, input_ids: torch.Tensor, chunk_len: int,
                                       if patcher.key_mse_count > 0 else 0.0)
             result["quantization_point"] = "post_rope"
             if patcher.sample_ref is not None and patcher.sample_quant is not None:
-                result["hamiltonian_diag"] = compute_hamiltonian_diagnostics(
+                result["hamiltonian_diag_first"] = compute_hamiltonian_diagnostics(
                     patcher.sample_ref, patcher.sample_quant
                 )
+            ham_mean = _diag_finalize(
+                patcher.hamiltonian_diag_acc, patcher.hamiltonian_diag_count
+            )
+            if ham_mean is not None:
+                result["hamiltonian_diag"] = ham_mean
             if patcher.sample_attention_diag is not None:
-                result["attention_diag"] = patcher.sample_attention_diag
+                result["attention_diag_first"] = patcher.sample_attention_diag
+            attn_mean = _diag_finalize(
+                patcher.attention_diag_acc, patcher.attention_diag_count
+            )
+            if attn_mean is not None:
+                result["attention_diag"] = attn_mean
             if patcher.sample_gqa_diag is not None:
-                result["gqa_diag"] = patcher.sample_gqa_diag
+                result["gqa_diag_first"] = patcher.sample_gqa_diag
+            gqa_mean = _diag_finalize(
+                patcher.gqa_diag_acc, patcher.gqa_diag_count
+            )
+            if gqa_mean is not None:
+                result["gqa_diag"] = gqa_mean
         finally:
             patcher.active = False
             patcher.unpatch()
@@ -3212,7 +3368,21 @@ def run_self_tests(seed: int) -> None:
     )
     meta_rot = apply_benchmark_preset(args_rot)
     assert meta_rot["benchmark_preset"] == "rotation_mechanistic"
+    assert "verification_method" in meta_rot and "acceptance_rule" in meta_rot
     validate_benchmark_alignment(args_rot)
+    args_gap = argparse.Namespace(
+        benchmark_preset="practical_gap_residual",
+        mode="ppl",
+        methods=["fp16", "uniform"],
+        niah_context_lens=[4096],
+        niah_depths=[0.1, 0.5, 0.9],
+        max_eval_tokens=0,
+        context_len=256,
+    )
+    meta_gap = apply_benchmark_preset(args_gap)
+    assert meta_gap["benchmark_preset"] == "practical_gap_residual"
+    assert "verification_method" in meta_gap and "acceptance_rule" in meta_gap
+    validate_benchmark_alignment(args_gap)
     args_ham = argparse.Namespace(
         benchmark_preset="hamiltonian_descriptive",
         mode="ppl",
@@ -3224,6 +3394,7 @@ def run_self_tests(seed: int) -> None:
     )
     meta_ham = apply_benchmark_preset(args_ham)
     assert meta_ham["benchmark_preset"] == "hamiltonian_descriptive"
+    assert "verification_method" in meta_ham and "acceptance_rule" in meta_ham
     validate_benchmark_alignment(args_ham)
     args_ret = argparse.Namespace(
         benchmark_preset="retrieval_depth",
@@ -3236,7 +3407,49 @@ def run_self_tests(seed: int) -> None:
     )
     meta_ret = apply_benchmark_preset(args_ret)
     assert meta_ret["benchmark_preset"] == "retrieval_depth"
+    assert "verification_method" in meta_ret and "acceptance_rule" in meta_ret
     validate_benchmark_alignment(args_ret)
+    args_ret_res = argparse.Namespace(
+        benchmark_preset="retrieval_residual",
+        mode="niah",
+        methods=["fp16"],
+        niah_context_lens=[4096],
+        niah_depths=[0.1, 0.5, 0.9],
+        max_eval_tokens=0,
+        context_len=256,
+    )
+    meta_ret_res = apply_benchmark_preset(args_ret_res)
+    assert meta_ret_res["benchmark_preset"] == "retrieval_residual"
+    assert "verification_method" in meta_ret_res and "acceptance_rule" in meta_ret_res
+    validate_benchmark_alignment(args_ret_res)
+    args_ham_bad = argparse.Namespace(
+        benchmark_preset="hamiltonian_descriptive",
+        mode="niah",
+        methods=["fp16", "identity", "random", "fokvq", "fokvq_e2"],
+        niah_context_lens=[4096],
+        niah_depths=[0.1, 0.5, 0.9],
+        max_eval_tokens=0,
+        context_len=256,
+    )
+    try:
+        validate_benchmark_alignment(args_ham_bad)
+        raise AssertionError("hamiltonian_descriptive should fail outside ppl mode")
+    except ValueError:
+        pass
+    args_ret_res_bad = argparse.Namespace(
+        benchmark_preset="retrieval_residual",
+        mode="ppl",
+        methods=["fp16", "kivi_residual", "turboquant_rand", "fokvq_e2", "fokvq_e2_residual"],
+        niah_context_lens=[4096],
+        niah_depths=[0.1, 0.5, 0.9],
+        max_eval_tokens=0,
+        context_len=256,
+    )
+    try:
+        validate_benchmark_alignment(args_ret_res_bad)
+        raise AssertionError("retrieval_residual should fail outside niah mode")
+    except ValueError:
+        pass
     args_short = argparse.Namespace(
         benchmark_preset="ppl_quality",
         mode="ppl",
@@ -3290,7 +3503,8 @@ def run() -> None:
     print("=" * 72)
     print(f"Intent: {benchmark_meta['intent']}")
     print(f"Hypothesis: {benchmark_meta['hypothesis']}")
-    print(f"Verification focus: {benchmark_meta['verification_focus']}")
+    print(f"Verification method: {benchmark_meta['verification_method']}")
+    print(f"Acceptance rule: {benchmark_meta['acceptance_rule']}")
     print()
     print("KEY DIFFERENCE vs v2:")
     print("  v2: sliding window, only prefix K quantized (50% of window)")

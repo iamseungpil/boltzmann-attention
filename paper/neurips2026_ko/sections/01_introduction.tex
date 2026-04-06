@@ -5,14 +5,16 @@ KV 캐시는 긴 문맥 추론에서 메모리와 대역폭의 주된 병목이�
 
 직교 변환 후 스칼라 양자화에서 KLT(=PCA)가 MSE를 최소화한다는 것은 정보 이론에서 잘 알려진 결과다 \citep{cover2006elements}. 그러나 RoPE 구조 하에서 이 결과를 적용하려면, 위치에 따라 공분산이 달라지는 문제($\Sigma(\mathrm{pos}) = R_{\mathrm{RoPE}} \Sigma_0 R_{\mathrm{RoPE}}^\top$)를 해결해야 한다. 본 논문은 이 위치 의존성이 \emph{대수적으로 상쇄}되어, Pre-RoPE 공분산의 PCA만으로 모든 위치에서 동시에 최적이 됨을 증명한다.
 
-\paragraph{기여.} 본 논문의 기여는 다음 세 가지다.
+\paragraph{기여.} 본 논문의 기여는 다음 네 가지다.
 
 \begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
-\item \textbf{RoPE 상쇄 정리} (정리~\ref{thm:optimal_hamiltonian}). RoPE 구조에서 위치별 공분산의 최적 고유벡터가 $R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0$이며, 이를 pre-RoPE 키에 적용하면 RoPE가 상쇄되어 위치에 무관한 단일 회전 $V_0$만으로 모든 위치에서 동시에 MSE가 최소화됨을 증명한다. 이것은 KVTC 등이 경험적으로 사용하는 Pre-RoPE PCA의 이론적 근거를 처음으로 제공한다. 또한 Post-RoPE PCA가 위치별 공분산의 혼합으로 인해 열등해질 수 있음을 이론적으로 설명한다.
+\item \textbf{RoPE 상쇄 정리} (정리~\ref{thm:optimal_hamiltonian}). RoPE 구조에서 위치별 공분산의 최적 고유벡터가 $R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0$이며, 이를 pre-RoPE 키에 적용하면 RoPE가 상쇄되어 위치에 무관한 단일 회전 $V_0$만으로 모든 위치에서 동시에 MSE가 최소화됨을 증명한다. 이것은 KVTC 등이 경험적으로 사용하는 Pre-RoPE PCA의 이론적 근거를 제공한다. 또한 Post-RoPE PCA가 위치별 공분산의 혼합으로 인해 열등해질 수 있음을 설명한다.
 
-\item \textbf{헤드별 PCA의 최적성과 KVTC 대비 이득}. KVTC의 공유 PCA가 헤드 간 공분산 이질성을 무시하므로 최적이 아님을 보이고, 헤드별 PCA가 Llama-3.1-8B 2-bit에서 46.3\% PPL을 개선함을 확인한다.
+\item \textbf{헤드별 PCA의 직접 검증}. KVTC의 공유 PCA가 헤드 간 공분산 이질성을 무시하므로 일반적으로 최적이 아님을 보이고, 헤드별 PCA가 Llama-3.1-8B 2-bit에서 공유 PCA 대비 46.3\% PPL 개선을 보임을 확인한다.
 
-\item \textbf{4모델 실증 검증, Baseline 비교, 및 Class~C의 경계}. Qwen2.5-7B, Llama-3.1-8B, Mistral-7B, Qwen2.5-14B에서 Pre-RoPE PCA가 KIVI (무회전)를 모든 설정에서, GEAR (SVD 잔차)를 대부분 설정에서 상회함을 확인한다. Pre-RoPE vs Post-RoPE 예측은 3-bit에서 4/4 모델로 확인되고, 2-bit에서는 MSE-PPL 전이의 모델 의존적 경계를 규명한다.
+\item \textbf{same-harness 회전 비교와 경계 분석}. Qwen2.5-7B, Llama-3.1-8B, Mistral-7B, Qwen2.5-14B에서 Pre-RoPE PCA의 Pre-vs-Post 예측은 3-bit에서 4/4 모델로 확인된다. 또한 공통 hook 프로토콜 안에서 KIVI-style, GEAR-style, random-rotation 계열과의 비교를 통해 구조화된 회전의 상대적 이득과 한계를 관찰한다. 이 비교는 공식 baseline의 완전 재현이 아니라 \emph{same-harness proxy ablation}으로 해석한다.
+
+\item \textbf{MSE-PPL 간극의 설명 모델화}. attention-weighted distortion, 국소 MSE$\to$PPL 전이, $b_{\mathrm{crit}}$ 진단식을 통해 언제 MSE 우위가 PPL 우위로 이어지고 언제 무너지는지를 분석한다. 이 항목들은 보편 법칙이 아니라 실험적으로 검증해야 하는 설명 모델로 제시한다.
 \end{enumerate}
 
-정량적 분석 도구로서 잘 알려진 고율 가우시안 왜곡 공식 $D^* = d \cdot G(b,\Sigma) \cdot 2^{-2B}$ \citep{cover2006elements}을 활용하여, Haar 무작위 회전 대비 이득 상한 $R_{\mathrm{aniso}} = \mathrm{AM}(\lambda)/\mathrm{GM}(\lambda)$를 도출한다. 또한 MSE 최적 양자화기(Lloyd-Max)가 PPL에서 실패하는 현상을 통해 Class~C의 구조적 경계를 밝힌다.
+정량적 분석 도구로서 잘 알려진 고율 가우시안 왜곡 공식 $D^* = d \cdot G(b,\Sigma) \cdot 2^{-2B}$ \citep{cover2006elements}을 활용하여, Haar 무작위 회전 대비 이득 상한 $R_{\mathrm{aniso}} = \mathrm{AM}(\lambda)/\mathrm{GM}(\lambda)$를 도출한다. 또한 MSE 최적 양자화기(Lloyd-Max)가 PPL에서 실패하는 현상을 통해, ``어떤 회전이 MSE에는 좋지만 실언어모델 품질에는 충분하지 않을 수 있는가''라는 Class~C의 구조적 경계를 분석한다.

@@ -1,24 +1,23 @@
-\section{방법: Pre-RoPE PCA + Water-Filling}
+\section{방법: 증명된 회전과 구성적 확장}
 \label{sec:method}
 
-정리~\ref{thm:optimal_hamiltonian}의 최적 회전을 실현하는 파이프라인은 알고리즘~\ref{alg:pipeline}에 요약한다.
+정리~\ref{thm:optimal_hamiltonian}이 직접 정당화하는 것은 \emph{회전 선택}이다. 즉, Pre-RoPE 공분산의 PCA 기저를 사용해 pre-RoPE 키를 회전시키는 것이 Class~C 내 MSE 기준 최적이다. 반면 비트 배분(WF), residual tail 보존, Lloyd-Max 계열 양자화기는 이 증명 위에 올리는 \emph{구성적 확장}이며, 별도 실험 검증이 필요하다. 따라서 본 절은 (i) 증명된 PCA 기반 기본 파이프라인과 (ii) 실용 개선 후보를 분리해 기술한다.
 
 \begin{algorithm}[t]
-\caption{Pre-RoPE PCA + WF(floor=2) 양자화 파이프라인}
+\caption{Pre-RoPE PCA 기반 기본 양자화 파이프라인}
 \label{alg:pipeline}
 \begin{algorithmic}[1]
 \REQUIRE 캘리브레이션 키 $\{k^{(l,h)}_{\mathrm{pre}}\}$ (각 레이어 $l$, KV 헤드 $h$)
-\REQUIRE 평균 비트 예산 $B$, 최소 비트 하한 $b_{\min}=2$
+\REQUIRE 평균 비트 예산 $B$
 \STATE \textbf{[오프라인: 캘리브레이션]}
 \FOR{각 레이어 $l$, KV 헤드 $h$}
   \STATE $\Sigma_0^{(l,h)} \leftarrow \frac{1}{n}\sum_i (k_i - \bar{k})(k_i - \bar{k})^\top$ \COMMENT{중심화 공분산}
   \STATE $V_0^{(l,h)}, \{\lambda_j\} \leftarrow \mathrm{eigh}(\Sigma_0^{(l,h)})$ \COMMENT{고유분해}
-  \STATE $b_j \leftarrow \alpha + \frac{1}{2}\log_2 \lambda_j$, \quad $b_j \leftarrow \max(b_j, b_{\min})$ \COMMENT{WF 비트 배분}
 \ENDFOR
 \STATE \textbf{[온라인: 추론 시 k\_proj 후처리]}
 \FOR{각 토큰의 pre-RoPE 키 $k_{\mathrm{pre}}$}
   \STATE $z \leftarrow (V_0^{(l,h)})^\top k_{\mathrm{pre}}$ \COMMENT{PCA 좌표 회전}
-  \STATE $\hat{z}_j \leftarrow \mathrm{MinMaxQuant}(z_j, b_j)$ \quad $\forall j$ \COMMENT{채널별 비대칭 양자화}
+  \STATE $\hat{z}_j \leftarrow \mathrm{MinMaxQuant}(z_j, B)$ \quad $\forall j$ \COMMENT{기본선: 동일 비트 비대칭 양자화}
   \STATE $\hat{k}_{\mathrm{pre}} \leftarrow V_0^{(l,h)} \hat{z}$ \COMMENT{역회전}
   \STATE RoPE를 $\hat{k}_{\mathrm{pre}}$에 적용 \COMMENT{정상 어텐션 진행}
 \ENDFOR
@@ -27,8 +26,10 @@
 
 \paragraph{캘리브레이션.} WikiText-2 train split에서 2048 토큰을 사용하여 각 KV 헤드별로 Pre-RoPE 키 벡터를 추출하고, 중심화 공분산의 고유분해를 수행한다. KVTC와 달리 \emph{헤드별} 독립 PCA를 계산한다 (정리~\ref{thm:optimal_hamiltonian}이 헤드별 최적화를 요구).
 
-\paragraph{양자화.} 채널별 비대칭 min-max 균일 양자화를 사용한다: $\hat{z}_j = \mathrm{round}((z_j - z_{\min}) / s) \cdot s + z_{\min}$, 여기서 $s = (z_{\max} - z_{\min}) / (2^{b_j} - 1)$. 이것은 \texttt{k\_proj} 모듈의 forward hook으로 구현되어 모델 코드 수정 없이 적용된다.
+\paragraph{양자화.} 기본선은 채널별 비대칭 min-max 균일 양자화다: $\hat{z}_j = \mathrm{round}((z_j - z_{\min}) / s) \cdot s + z_{\min}$, 여기서 $s = (z_{\max} - z_{\min}) / (2^B - 1)$. 이것은 \texttt{k\_proj} 모듈의 forward hook으로 구현되어 모델 코드 수정 없이 적용된다.
 
-\paragraph{Water-Filling (floor=2).} PCA 고유값 $\lambda_j$에 비례하여 비트를 배분하되, 최소 비트 하한 $b_{\min}=2$를 적용한다. 1-bit 양자화의 MSE 비율 $c(1) \approx 0.36$은 비효율적이므로, $b_{\min}=2$ ($c(2) \approx 0.12$)가 모든 활성 채널의 유효한 양자화를 보장한다. 총 비트 예산은 반복적 재분배로 보존한다.
+\paragraph{구성적 확장 1: Water-Filling (WF).} PCA 고유값 $\lambda_j$에 비례하여 비트를 배분하는 WF는 정리의 직접 귀결이 아니라, ``증명된 회전 위에 어떤 양자화기를 얹을 것인가''에 대한 실용 설계다. 특히 최소 비트 하한을 둔 WF(floor=2)는 1-bit 활성 축의 비효율을 피하기 위한 경험적 후보이며, 본 논문에서는 \emph{유망한 확장축}으로 다루고 별도 검증 대상으로 둔다.
 
-\paragraph{계산 비용.} 캘리브레이션은 $O(n d_{\mathrm{head}}^2)$ (고유분해 1회), 추론 시 $O(d_{\mathrm{head}}^2)$ (행렬-벡터 곱 2회)이다. TurboQuant는 캘리브레이션이 불필요하지만, 추론 비용은 동일한 $O(d_{\mathrm{head}}^2)$이다.
+\paragraph{구성적 확장 2: residual tail 및 비균일 양자화}. 최근 토큰 tail을 FP16으로 남기거나 Lloyd-Max류 비균일 codebook을 추가하는 방법 역시 실용 개선 시도에 해당한다. 이들은 PPL이나 retrieval에서 유리할 수 있지만, 정리~\ref{thm:optimal_hamiltonian}의 증명 범위에는 포함되지 않는다.
+
+\paragraph{계산 비용.} 캘리브레이션은 $O(n d_{\mathrm{head}}^2)$ (고유분해 1회), 추론 시 $O(d_{\mathrm{head}}^2)$ (행렬-벡터 곱 2회)이다. 무작위 회전 계열은 캘리브레이션이 불필요하지만, 추론 비용은 동일한 차수다.

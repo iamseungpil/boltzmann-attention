@@ -1,0 +1,16 @@
+{
+  "model": "hf-internal-testing/tiny-random-LlamaForCausalLM",
+  "method": "fokvq_e2_residual",
+  "bits": 2,
+  "tasks": {
+    "hellaswag": {
+      "acc": 0.0,
+      "acc_stderr": "N/A",
+      "all_metrics": {
+        "acc,none": 0.0,
+        "acc_norm,none": 1.0
+      }
+    }
+  },
+  "elapsed": 16.073205709457397
+}
