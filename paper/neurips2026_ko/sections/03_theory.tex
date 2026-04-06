@@ -1,5 +1,11 @@
-\section{이론: RoPE 구조 하의 최적 회전}
+\section{이론: KV 양자화의 Softmax 섭동 프레임워크}
 \label{sec:theory}
+
+\textbf{Contribution positioning.} 본 절은 다음을 제공한다: (i) RoPE 구조 하의 PCA 최적성 (소스 분포 무관), (ii) Q-가중 PCA --- attention-weighted optimal rotation (명제~\ref{prop:attn_weighted}), (iii) Softmax 섭동 분석을 통한 KV 양자화의 ΔCE 분해 공식 (명제~\ref{prop:mse_ppl_transfer}), (iv) 이를 활용한 3축 분해(회전/양자화기/토큰 선택) 프레임워크.
+
+\textbf{선행 연구와의 관계.} Activation/query-aware quantization은 본 논문 이전부터 존재하였다: AWQ \citep{lin2023awq}는 weight quantization에 activation magnitude를 활용하고, KVQuant \citep{hooper2024kvquant}는 per-channel KV 양자화 + outlier-aware 처리를, Atom \citep{zhao2024atom}는 activation-aware low-bit serving을 제안한다. 본 논문의 차이점은: (a) KV 양자화에 \emph{full covariance structure} ($\Sigma_Q^{1/2} \Sigma_K \Sigma_Q^{1/2}$)를 사용 (per-channel scaling이 아닌), (b) RoPE 구조와의 \emph{분포 무관 상쇄} 정리, (c) 회전/양자화기/토큰 선택의 3축 \emph{직교 분해}와 HEAT 기반 토큰 관리와의 결합이다.
+
+\textbf{철회 사항 (정직 표시).} 이전 판본은 ``MSE-PPL 역전의 최초 정량 설명''과 닫힌 형태 $b_{\mathrm{crit}}$ 공식을 주장하였으나, (a) $R_3$ bound의 대수 오류, (b) $(\kappa-1)(\kappa-1)$ 비례식의 미증명, (c) $\lVert \delta a \rVert_\infty$ 측정 부재로 인한 사후 적합으로 본 판본에서 철회된다 (자세한 사유는 각 명제의 정정 노트 참조).
 
 본 절의 결과는 두 층으로 구성된다. 첫째, PCA 최적성과 RoPE 상쇄는 \textbf{소스 분포에 무관하게} 성립한다 (유한 이차 적률만 요구). 둘째, 이득의 정량화(Master Formula, $R_{\mathrm{aniso}}$)는 \textbf{가우시안 소스와 고율 근사}를 추가로 가정한다.
 
@@ -125,9 +131,9 @@ Softmax attention의 1차 섭동 분석에 의해, 키 양자화 오차로 인�
 \end{proposition}
 
 \begin{theorycomment}
-\textbf{$R_3$ bound 정정 유도.} $|\delta p_i| \leq 2 p_i \lVert \delta a \rVert_\infty$ (1차 Jacobian + Lipschitz)이므로 $|\delta p_i|^3/p_i^2 \leq 8 p_i \lVert \delta a \rVert_\infty^3$, 따라서 $\sum_i |\delta p_i|^3/p_i^2 \leq 8 \lVert \delta a \rVert_\infty^3 \cdot \sum p_i = 8 \lVert \delta a \rVert_\infty^3$, 그리고 $|R_3| = (1/3)|\sum \delta p_i^3/p_i^2| \leq (8/3) \lVert \delta a \rVert_\infty^3$. 이전 판본의 $1/\min_i p_i$ 인자는 max-Σ 결합 단계의 부당 도입이었다.
+\textbf{$R_3$ bound leading-order 유도 ($\lVert \delta a \rVert_\infty \ll 1$ 가정).} $|\delta p_i| \lesssim 2 p_i \lVert \delta a \rVert_\infty$ (1차 Jacobian + Lipschitz)이므로 $|\delta p_i|^3/p_i^2 \leq 8 p_i \lVert \delta a \rVert_\infty^3$, 따라서 $\sum_i |\delta p_i|^3/p_i^2 \leq 8 \lVert \delta a \rVert_\infty^3$, 그리고 $|R_3| \leq (8/3) \lVert \delta a \rVert_\infty^3$. \emph{이는 leading-order bound이지 엄밀 Lagrange bound가 아니다}; 엄밀 형태는 $1/(\min_i p_i)^2$ 발산을 포함할 수 있다. 이전 판본의 $1/\min_i p_i$ 인자는 max-$\Sigma$ 결합 단계에서 부당하게 도입된 것이었다.
 
-\textbf{선형화 적용 범위 경고.} Llama-3-8B 2-bit Lloyd-Max에서 $\Delta \mathrm{CE} = \log(6.46) \approx 1.87$로 결코 $\ll 1$이 아니다. 이 영역에서는 본 명제가 PPL 비율의 선형 근사를 제공하지 않는다.
+\textbf{선형화 적용 범위 경고.} Llama-3-8B 2-bit Lloyd-Max에서 $\Delta \mathrm{CE} = \log(6.46) \approx 1.87$로 결코 $\ll 1$이 아니다. 이 영역에서는 (i) $\exp(x) \approx 1+x$ 선형화가 깨지고, (ii) leading-order $R_3$ bound 자체의 가정 ($\lVert \delta a \rVert_\infty \ll 1$)이 위반되므로, 본 명제는 정성적 가이드 이외의 용도로 사용 불가하다.
 \end{theorycomment}
 
 \begin{proposition}[MSE 순위의 로그 PPL 보존 — 정정판]

@@ -21,6 +21,32 @@ T3, T4 초기 구현에 다음 결함이 발견되어 수정되었음:
 - 6.19.2.x V3 검증의 "이론 4.7 vs 실험 4.6 일치" 정량 주장 철회 (사후 적합 + 단위 불일치)
 - 03_theory.tex의 명제 3-5와 검증 절도 동일하게 정정
 
+## ⚠️ 추가 정정 노트 (2026-04-06 후반 라운드 2)
+
+리뷰어 재지적으로 다음 추가 결함이 발견되어 수정됨:
+
+5. **‖δa‖∞ proxy가 무의미했음**. 이전 정정에서 `||δk||∞/√d`를 기록했으나, 진짜 ‖δa‖∞은 `max_i |q·δk_i|/√d`로 q와 결합 필요. → q_proj forward_pre_hook으로 layer별 q 캡처, k_proj hook에서 q와 결합하여 진짜 ‖δa‖∞ 측정. (단, pre-RoPE q이며 post-RoPE는 향후 작업).
+
+6. **FP16 baseline 부재**. PPL 비율이 아닌 ΔCE = log(PPL/PPL_fp) 비교를 위해 FP16 baseline 측정 추가. 모든 실험 결과에 `delta_ce` 필드 추가.
+
+7. **qw_pca round-trip 단위 테스트 추가**. bits=16 (효과적으로 양자화 없음)에서 qw_pca 경로의 PPL이 FP16과 |rel_err| < 0.001 이내인지 검증. 실패 시 회전 구현 버그 경고.
+
+8. **min_bits=2 기본값**. T3 attn_quant에서 1-bit 할당 가능성을 차단 (실험 오염 방지).
+
+9. **T6 추가**. attn_quant + qw_pca 결합 (`qw_pca_attn` 메서드) — 이론상 최대 이득 예측 영역.
+
+10. **LIE_GROUP의 "정확한 유도" 표현 정정**. R₃ bound는 leading-order bound (‖δa‖∞ ≪ 1 가정)이지 엄밀 Lagrange bound가 아님을 명시.
+
+11. **03_theory.tex contribution 재포지셔닝**. "MSE-PPL 역전의 최초 정량 설명" 주장 제거 → "KV 양자화의 Softmax 섭동 프레임워크" + AWQ/KVQuant/Atom 선행 연구 명시 + 차이점 (full covariance vs per-channel scaling, RoPE 분포 무관 상쇄, 3축 직교 분해)을 도입부에 명시.
+
+## 잔존 작업 (정량 contribution을 위해 필수)
+
+1. T3/T4/T6 실험 실행 → 측정된 ‖δa‖∞ 값으로 정리 6.19.17 충분 조건 직접 검증
+2. AWQ/KVQuant baseline 재현 → KV 양자화 영역에서의 정량적 비교
+3. 2-bit Uniform = FP16 anomaly 재현 및 진단
+4. Post-RoPE q 캡처 (현재는 pre-RoPE)
+5. log-PPL (ΔCE) 공간에서의 일관된 보고 (PPL 비율 사용 금지)
+
 ---
 
 ## T1: Softmax 섭동 분석 (MSE→PPL 다리)

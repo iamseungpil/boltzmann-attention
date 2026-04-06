@@ -3223,7 +3223,7 @@ KL = -Σ_i p_i · log(1 + δp_i/p_i)
 Σ_i δp_i²/p_i = Σ_i p_i·(δa_i - E_p[δa])² = Var_p[δa]
 ```
 
-3차 나머지 |R₃|를 정확히 유도한다. 1차 Jacobian δp_i ≈ p_i·(δa_i - E_p[δa])이므로 |δp_i/p_i| ≤ |δa_i - E_p[δa]| ≤ 2‖δa‖∞이고, 따라서 |δp_i| ≤ 2 p_i ‖δa‖∞이다. 이로부터:
+3차 나머지 |R₃|의 leading-order bound (‖δa‖∞ ≪ 1 가정 하에서)를 유도한다. 1차 Jacobian δp_i ≈ p_i·(δa_i - E_p[δa])이므로 |δp_i/p_i| ≤ |δa_i - E_p[δa]| ≤ 2‖δa‖∞이고, 따라서 |δp_i| ≲ 2 p_i ‖δa‖∞이다 (1차 근사 + Lipschitz). 이로부터:
 
 ```
 |δp_i|³ ≤ 8 p_i³ ‖δa‖∞³
@@ -3233,7 +3233,9 @@ KL = -Σ_i p_i · log(1 + δp_i/p_i)
 |R₃| = (1/3) · |Σ_i δp_i³/p_i²| ≤ (8/3) · ‖δa‖∞³
 ```
 
-**정정 (대수 오류 수정).** 본 절의 이전 판본은 |R₃| ≤ (1/3)·‖δa‖∞³/min_i p_i 형태를 제시하였으나, 이는 max_i|δp_i/p_i|와 Σ δp_i²/p_i를 결합하는 단계에서 1/min_i p_i 인자가 부당하게 도입된 것이다. 위의 (8/3)·‖δa‖∞³ 형태가 정확하며, sequence 길이 L 또는 min_i p_i에 의존하지 않는다.
+**정정 (대수 오류 수정).** 본 절의 이전 판본은 |R₃| ≤ (1/3)·‖δa‖∞³/min_i p_i 형태를 제시하였으나, 이는 max_i|δp_i/p_i|와 Σ δp_i²/p_i를 결합하는 단계에서 1/min_i p_i 인자가 부당하게 도입된 것이다. 위의 (8/3)·‖δa‖∞³ 형태가 leading-order bound로서 정확하며, sequence 길이 L 또는 min_i p_i에 의존하지 않는다.
+
+**엄밀성 한계.** 위 유도는 δp_i ≈ p_i·(δa_i - E_p[δa])의 1차 Jacobian 근사에 의존한다. 엄밀한 Lagrange 나머지 형태로 진술하면 (1-θ)³ 분모 항이 등장하고, θ → 1 (즉 p̂_i → 0) 영역에서 1/(min_i p_i)² 형태의 발산이 발생할 수 있다. (8/3)·‖δa‖∞³는 ‖δa‖∞ ≪ 1 영역의 leading-order bound이지 모든 영역의 엄밀 bound는 아니다.
 
 **단계 4 증명.** CE(p*, p̂) - CE(p*, p) = -Σ_i p*_i log p̂_i + Σ_i p*_i log p_i = Σ_i p*_i log(p_i/p̂_i)이다. p* = p + ε (ε = p* - p)로 쓰면:
 
