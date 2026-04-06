@@ -88,3 +88,16 @@ M = \Sigma_Q^{1/2} \cdot \Sigma_K \cdot \Sigma_Q^{1/2}
 \begin{theorycomment}
 \textbf{의미.} 이 명제는 다음을 설명한다. (i)~대부분의 경우 $\Sigma_Q$가 $\Sigma_K$에 비해 충분히 등방적이면 표준 PCA가 attention-weighted 최적해에 가깝다. 이것이 3-bit 이상에서 PCA의 PPL 이득이 MSE 이득과 일치하는 이유다. (ii)~2-bit에서 양자화 오차가 극단적으로 커지면, $\Sigma_Q$의 비등방성이 상대적으로 중요해져 표준 PCA와 attention-weighted PCA의 차이가 커진다. 이것이 2-bit PPL 역전의 이론적 원인이다. (iii)~Lloyd-Max는 $\Sigma_Q$를 전혀 고려하지 않으므로, MSE에서 최적이라도 $D_{\mathrm{attn}}$에서 최적이 아닐 수 있다. 이것이 Lloyd-Max PPL 실패의 이론적 설명이다.
 \end{theorycomment}
+
+\begin{proposition}[Attention Error Bound]
+\label{prop:attn_error_bound}
+Softmax attention의 1차 섭동 분석에 의해, 키 양자화 오차로 인한 출력 오차는
+\begin{equation}
+\E[\lVert \delta_{\mathrm{output}} \rVert^2] \leq \frac{1}{d} \cdot D_{\mathrm{attn}} \cdot S_{\mathrm{attn}},
+\end{equation}
+여기서 $S_{\mathrm{attn}} = \sum_t p_t(1-p_t) \lVert v_t \rVert^2$는 softmax 민감도 계수다. $S_{\mathrm{attn}}$은 attention이 집중될수록 작아지고, 균일할수록 커진다.
+\end{proposition}
+
+\begin{theorycomment}
+\textbf{의미.} 이 bound는 출력 오차가 $D_{\mathrm{attn}}$ (회전/양자화기 선택)과 $S_{\mathrm{attn}}$ (attention 패턴)의 곱으로 분리됨을 보여준다. 2-bit에서 양자화 오차가 크면 1차 근사가 깨져 MSE-PPL 역전이 발생하고, 모델마다 $S_{\mathrm{attn}}$이 달라 같은 MSE 개선이 다른 PPL 개선으로 나타난다.
+\end{theorycomment}
