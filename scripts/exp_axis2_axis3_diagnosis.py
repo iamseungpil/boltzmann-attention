@@ -702,9 +702,7 @@ class WFQuantPatcher(AttentionKQuantPatcher):
         self.wf_variant = wf_variant
         self._bit_alloc_stats = []  # collect bit allocations for analysis
 
-    def _quantize_and_track(self, K, query_states=None,
-                            diagnostic_query_states=None,
-                            num_kv_heads=None):
+    def _quantize_and_track(self, K, query_states=None):
         """Override: use wf_quantize_head with specified variant."""
         B, H, S, D = K.shape
         K_q = K.clone()
@@ -723,18 +721,6 @@ class WFQuantPatcher(AttentionKQuantPatcher):
         diff = (K.float() - K_q.float()).pow(2)
         self.key_mse_sum += float(diff.sum().item())
         self.key_mse_count += int(diff.numel())
-        if self.sample_ref is None:
-            self.sample_ref = _extract_diag_sample(K)
-            self.sample_quant = _extract_diag_sample(K_q)
-            q_diag_src = diagnostic_query_states if diagnostic_query_states is not None else query_states
-            if q_diag_src is not None:
-                q_group = q_diag_src
-                if q_group.dim() == 4 and num_kv_heads is not None and q_group.shape[1] != K.shape[1]:
-                    q_group = _group_queries_for_kv(q_group, num_kv_heads)
-                self.sample_query = _extract_query_diag_sample(q_group)
-                self.sample_attention_diag = compute_attention_structure_diagnostics(
-                    self.sample_query, self.sample_ref, self.sample_quant
-                )
 
         return K_q
 
