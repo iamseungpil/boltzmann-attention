@@ -102,94 +102,63 @@ Softmax attention의 1차 섭동 분석에 의해, 키 양자화 오차로 인�
 \textbf{의미.} 이 bound는 출력 오차가 $D_{\mathrm{attn}}$ (회전/양자화기 선택)과 $S_{\mathrm{attn}}$ (attention 패턴)의 곱으로 분리됨을 보여준다. 2-bit에서 양자화 오차가 크면 1차 근사가 깨져 MSE-PPL 역전이 발생하고, 모델마다 $S_{\mathrm{attn}}$이 달라 같은 MSE 개선이 다른 PPL 개선으로 나타난다.
 \end{theorycomment}
 
-\subsection{MSE→PPL 전이 체인: 명시적 오차 한계}
+\subsection{MSE→PPL 전이 체인 (정정판)}
 \label{sec:mse_ppl_chain}
 
-명제~\ref{prop:attn_error_bound}는 1차 섭동 분석으로 출력 오차의 평균 크기를 bound한다. 그러나 두 양자화 방법의 \emph{순위}가 PPL에서 보존되는지(정량적 비교)는 1차 분석만으로 결정되지 않는다. 본 절은 MSE에서 PPL까지의 6단계 전이 체인을 명시적 3차 나머지 항과 함께 유도하고, 이로부터 MSE 순위가 PPL 순위를 보존하는 충분 조건을 도출한다.
+명제~\ref{prop:attn_error_bound}는 1차 섭동 분석으로 출력 오차의 평균 크기를 bound한다. 본 절은 MSE에서 로그 PPL까지의 전이 체인을 정정된 3차 나머지 한계와 함께 진술한다.
 
-\begin{proposition}[MSE→PPL 전이 체인]
+\textbf{이전 판본 철회 사항.} 본 절의 이전 판본은 (a) $R_3$ bound의 1/min p_i 인자, (b) 모델별 $b_{\mathrm{crit}}$ 닫힌 공식 (5.2/4.1/4.5/5.9), (c) ``이론 4.7 vs 실험 4.6 일치'' 정량 검증 주장을 포함하였으나, 이들은 모두 다음의 결함으로 본 판본에서 철회한다: (i) $R_3$ 유도의 대수 오류, (ii) $\lVert \delta a \rVert_\infty$ 측정 부재로 인한 사후 적합, (iii) $(\kappa-1)(\kappa-1)$ 비례식의 미증명, (iv) Llama 2-bit에서 $\Delta \mathrm{CE} = 1.87 \not\ll 1$로 인한 1차 Taylor exp 부적합, (v) AWQ/KVQuant/Atom 등 선행 연구 누락. 정정된 진술은 아래와 같다.
+
+\begin{proposition}[로그 PPL 전이 체인 — 정정판]
 \label{prop:mse_ppl_transfer}
-키 양자화 오차 $\delta k$에 대해, 양자화된 PPL과 FP16 PPL의 비율은 다음의 닫힌 공식으로 주어진다:
+키 양자화 오차 $\delta k$에 대해, $\Delta \mathrm{CE} = \log(\mathrm{PPL}_{\mathrm{quant}}/\mathrm{PPL}_{\mathrm{fp}})$는 다음과 같이 분해된다:
 \begin{equation}
-\frac{\mathrm{PPL}_{\mathrm{quant}}}{\mathrm{PPL}_{\mathrm{fp}}} \approx \exp\!\left(\frac{1}{2d} \cdot \trace(\Sigma_Q \cdot \Sigma_{\mathrm{err}})\right) \approx 1 + \frac{D_{\mathrm{attn}}}{2d},
-\label{eq:ppl_transfer}
+\Delta \mathrm{CE} = \frac{D_{\mathrm{attn}}}{2d} + \E_t[R_{3,t}] + \mathcal{O}(\lVert p - p^* \rVert^2),
+\label{eq:logppl_transfer}
 \end{equation}
-명시적 오차 한계는
+정정된 3차 나머지 한계 ($\min_i p_i$ 또는 $L$에 의존하지 않음):
 \begin{equation}
-\left|\frac{\Delta \mathrm{PPL}}{\mathrm{PPL}_{\mathrm{fp}}} - \frac{D_{\mathrm{attn}}}{2d}\right| \leq \frac{1}{3d} \cdot \E_t\!\left[\frac{\lVert \delta a_t \rVert_\infty^3}{\min_i p_{t,i}}\right] + \mathcal{O}(\lVert p - p^* \rVert^2),
-\label{eq:ppl_error_bound}
+|R_3| \leq \frac{8}{3} \cdot \lVert \delta a \rVert_\infty^3, \quad \delta a = Q \delta k / \sqrt{d}.
+\label{eq:r3_corrected}
 \end{equation}
-여기서 $\delta a_t = Q \delta k_t / \sqrt{d}$이고, $p^*$는 참 분포(모델 보정 가정 $p \approx p^*$).
+선형화 $\Delta \mathrm{PPL}/\mathrm{PPL}_{\mathrm{fp}} \approx \Delta \mathrm{CE}$는 $\Delta \mathrm{CE} \ll 1$일 때만 유효하다.
 \end{proposition}
 
 \begin{theorycomment}
-\textbf{증명 개요 (6단계).}
-(1)~$\delta k \to \delta a$: $\delta a_i = q^\top \delta k_i / \sqrt{d}$.
-(2)~$\delta a \to \delta p$: Softmax Jacobian $J = \mathrm{diag}(p) - pp^\top$를 통해 $\lVert \delta p \rVert_1 \leq 2 \mathrm{Var}_p^{1/2}[\delta a]$ (Jensen).
-(3)~$\delta p \to \mathrm{KL}$: $\mathrm{KL}(p \| \hat{p}) = (1/2) \mathrm{Var}_p[\delta a] + R_3$, 여기서 $|R_3| \leq (1/3) \lVert \delta a \rVert_\infty^3 / \min_i p_i$ (테일러 나머지).
-(4)~$\mathrm{KL} \to \Delta \mathrm{CE}$: 모델 보정 하에서 $\Delta \mathrm{CE} = \E_t[\mathrm{KL}(p_t \| \hat{p}_t)] + \mathcal{O}(\lVert p - p^* \rVert^2)$.
-(5)~$\mathrm{CE} \to \mathrm{PPL}$: $\mathrm{PPL} = \exp(\mathrm{CE})$.
-(6)~따름정리에 의해 $\E_t[\mathrm{Var}_{p_t}[\delta a_t]] \approx D_{\mathrm{attn}}/d$. 완전한 증명은 부록에 둔다.
+\textbf{$R_3$ bound 정정 유도.} $|\delta p_i| \leq 2 p_i \lVert \delta a \rVert_\infty$ (1차 Jacobian + Lipschitz)이므로 $|\delta p_i|^3/p_i^2 \leq 8 p_i \lVert \delta a \rVert_\infty^3$, 따라서 $\sum_i |\delta p_i|^3/p_i^2 \leq 8 \lVert \delta a \rVert_\infty^3 \cdot \sum p_i = 8 \lVert \delta a \rVert_\infty^3$, 그리고 $|R_3| = (1/3)|\sum \delta p_i^3/p_i^2| \leq (8/3) \lVert \delta a \rVert_\infty^3$. 이전 판본의 $1/\min_i p_i$ 인자는 max-Σ 결합 단계의 부당 도입이었다.
+
+\textbf{선형화 적용 범위 경고.} Llama-3-8B 2-bit Lloyd-Max에서 $\Delta \mathrm{CE} = \log(6.46) \approx 1.87$로 결코 $\ll 1$이 아니다. 이 영역에서는 본 명제가 PPL 비율의 선형 근사를 제공하지 않는다.
 \end{theorycomment}
 
-\begin{proposition}[MSE 순위의 PPL 보존 정리]
+\begin{proposition}[MSE 순위의 로그 PPL 보존 — 정정판]
 \label{prop:rank_preservation}
-두 양자화 방법 A, B가 $D_{\mathrm{attn}}^A < D_{\mathrm{attn}}^B$를 만족할 때, 다음 충분 조건이 성립하면 $\mathrm{PPL}^A < \mathrm{PPL}^B$가 보장된다:
+두 양자화 방법 A, B가 $D_{\mathrm{attn}}^A < D_{\mathrm{attn}}^B$를 만족할 때, 다음 충분 조건이 성립하면 $\Delta \mathrm{CE}^A < \Delta \mathrm{CE}^B$가 보장된다:
 \begin{equation}
-\frac{D_{\mathrm{attn}}^B - D_{\mathrm{attn}}^A}{2d} > \frac{2}{3} \cdot C_3 \cdot \frac{\lVert \delta a^A \rVert_\infty^3 + \lVert \delta a^B \rVert_\infty^3}{\min_i p_i},
+\frac{D_{\mathrm{attn}}^B - D_{\mathrm{attn}}^A}{2d} > \frac{8}{3} \cdot \bigl(\E_t[\lVert \delta a^A \rVert_\infty^3] + \E_t[\lVert \delta a^B \rVert_\infty^3]\bigr).
 \label{eq:rank_condition}
 \end{equation}
-여기서 $C_3 = \max_t (1/\min_i p_{t,i})$는 attention 분포 집중도 상수. 즉, \emph{2차 항의 차이가 3차 나머지 항의 합을 지배}하면 MSE 순위가 PPL 순위를 보존한다.
 \end{proposition}
 
 \begin{theorycomment}
-\textbf{비트 수별 적용.} $b$-bit 양자화에서 $\lVert \delta a \rVert_\infty \approx c_{\mathrm{LM}}(b)^{1/2}$이며, 좌변은 $\mathcal{O}(c_{\mathrm{LM}}(b))$, 우변은 $\mathcal{O}(c_{\mathrm{LM}}(b)^{3/2})$이다. 따라서 좌/우변 비율 $\propto c_{\mathrm{LM}}(b)^{-1/2}$이다.
-\begin{center}
-\begin{tabular}{cccc}
-\toprule
-비트 & $c_{\mathrm{LM}}(b)$ & $c_{\mathrm{LM}}(b)^{-1/2}$ & 순위 보존 \\
-\midrule
-4-bit & 0.006 & 12.9 & 확실히 보존 \\
-3-bit & 0.023 & 6.6  & 대체로 보존 \\
-2-bit & 0.095 & 3.2  & 한계적 \\
-1-bit & 0.363 & 1.7  & 비보존 (역전 가능) \\
-\bottomrule
-\end{tabular}
-\end{center}
-이것은 2-bit에서 관측되는 ``MSE-PPL 역전'' 현상에 대한 \textbf{최초의 정량적 이론적 설명}이다.
+\textbf{측정 요건.} 충분 조건의 검증은 모델별 $\E_t[\lVert \delta a \rVert_\infty^3]$의 직접 측정을 요구한다. 비트 수만으로 닫힌 형태의 영역 분류는 $\lVert \delta a \rVert_\infty$의 모델 의존성으로 인해 일반적으로 불가능하다. 이전 판본의 비트별 표 ($c_{\mathrm{LM}}(b)^{-1/2}$ 기반 ``확실히 보존''/``한계적'' 분류)는 $\lVert \delta a \rVert_\infty$이 측정 없이 $c_{\mathrm{LM}}(b)^{1/2}$로 추정될 수 있다는 부당한 가정에 기반하였으므로 본 판본에서 삭제한다.
+
+\textbf{``최초 정량 설명'' 주장 철회.} AWQ \citep{lin2023awq}, KVQuant \citep{hooper2024kvquant}, Atom \citep{zhao2024atom} 등에서 유사한 activation/query-aware quantization 관점이 이미 존재한다.
 \end{theorycomment}
 
-\begin{proposition}[Class C 경계: 임계 비트 임계값]
-\label{prop:bcrit}
-MSE 순위가 PPL 순위를 보장하는 최소 비트 수 $b_{\mathrm{crit}}$는 모델의 스펙트럼 특성으로부터 닫힌 공식으로 주어진다:
-\begin{equation}
-b_{\mathrm{crit}} = \frac{1}{2} \log_2\!\bigl(\kappa(\Sigma_Q) \cdot \kappa(\Sigma_K)\bigr) + \mathcal{O}(1),
-\label{eq:bcrit}
-\end{equation}
-여기서 $\kappa(\cdot) = \lambda_{\max}/\lambda_{\min}$은 조건수. $b \geq b_{\mathrm{crit}}$이면 MSE-최적 양자화기가 PPL-최적이고, $b < b_{\mathrm{crit}}$이면 MSE-PPL 역전이 발생할 수 있다.
-\end{proposition}
+\paragraph{Class C 경계 — 정성적 영역 구분 (이전 닫힌 공식 철회).} 이전 판본의 닫힌 형태 $b_{\mathrm{crit}} = (1/2)\log_2(\kappa_Q \kappa_K) + \mathcal{O}(1)$ 공식과 모델별 표(Qwen 4.1, Mistral 4.5, Llama 5.2, Phi-3 5.9)는 다음의 결함으로 본 판본에서 삭제한다:
 
-\begin{theorycomment}
-\textbf{모델별 전형적 값.}
-\begin{center}
-\begin{tabular}{lcccl}
-\toprule
-모델 & $\kappa(\Sigma_Q)$ & $\kappa(\Sigma_K)$ & $b_{\mathrm{crit}}$ & 해석 \\
-\midrule
-Qwen2.5-7B (GQA-7) & $\sim$15 & $\sim$20 & \textbf{4.1} & 3-bit 이하 역전 가능 \\
-Mistral-7B (GQA-8) & $\sim$25 & $\sim$30 & \textbf{4.5} & 4-bit 안전, 3-bit 주의 \\
-Llama-3-8B (GQA-8) & $\sim$40 & $\sim$50 & \textbf{5.2} & 4-bit edge case 존재 \\
-Phi-3 (MHA)        & $\sim$60 & $\sim$80 & \textbf{5.9} & MHA 구조는 높은 $b_{\mathrm{crit}}$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-\textbf{물리적 해석.} $b_{\mathrm{crit}}$는 softmax의 \emph{선형 응답 영역}과 \emph{비선형 포화 영역}의 경계를 비트 수로 표현한 것이다. GQA가 $\kappa(\Sigma_Q)$를 낮추므로 $b_{\mathrm{crit}}$도 낮아진다 — \textbf{GQA 모델이 양자화에 유리하다는 명제의 정량적 근거}이다.
-\end{theorycomment}
+\begin{itemize}[leftmargin=1.5em,itemsep=2pt]
+\item \textbf{$(\kappa-1)(\kappa-1)$ 비례식 미증명.} Water-filling 비트 할당의 표준 결과는 고유값의 AM/GM 비율에 의존하며, 본 비례식은 정당화되지 않았다.
+\item \textbf{``$\mathcal{O}(1)$''의 차원 인자 은폐.} 실제 보정 항은 $\log_2(d \cdot C_3)$를 포함하며 ($d \approx 128$, $C_3 \sim L = 2048$), 약 18 bit이다.
+\item \textbf{모델별 $\kappa$ 측정 부재.} 표의 $\kappa(\Sigma_Q) \in \{15, 25, 40, 60\}$ 등은 추정값이며 어떤 캘리브레이션 코드에서도 추출되지 않았다.
+\end{itemize}
 
-\subsection{실험적 검증: 축 2 실패의 $b_{\mathrm{crit}}$ 설명}
+본 판본에서 제공하는 것은 정성적 영역 구분 (선형 응답: $\lVert \delta a \rVert_\infty \ll 1$이면 MK가 KL-최적에 가까움; 비선형: $\lVert \delta a \rVert_\infty \sim \mathcal{O}(1)$이면 MSE 순위 보존이 깨질 수 있음)이다. 정확한 영역 경계는 모델별 캘리브레이션 측정 후에만 진술 가능하다.
+
+\subsection{축 2 실패의 정성적 설명 (정량 검증은 향후 작업)}
 \label{sec:axis2_verification}
 
-명제~\ref{prop:mse_ppl_transfer}-\ref{prop:bcrit}는 V3 검증(2026-04)에서 관측된 Lloyd-Max의 catastrophic failure를 정량적으로 설명한다.
+V3 검증(2026-04)에서 관측된 축 2 실패에 대해 본 절은 정성적 메커니즘 가설만 제공한다. 이전 판본의 ``정량적 예측력 입증'' 주장은 다음 결함으로 철회한다.
 
 \textbf{관측 사실 (V3 검증).}
 \begin{center}
@@ -203,31 +172,21 @@ Qwen2.5-7B  & 7.98  & 7.98  & 11.26          & 1.4$\times$ \\
 \end{tabular}
 \end{center}
 
-\textbf{명제~\ref{prop:bcrit} 예측.} $b_{\mathrm{crit}}$ 분석:
-\begin{align*}
-\text{Llama:}\quad & b - b_{\mathrm{crit}} = 2 - 5.2 = -3.2 \quad (\text{deeply nonlinear}) \\
-\text{Qwen:}\quad  & b - b_{\mathrm{crit}} = 2 - 4.1 = -2.1 \quad (\text{moderately nonlinear})
-\end{align*}
-두 모델 모두 $b \ll b_{\mathrm{crit}}$ 영역이며, Llama가 더 깊이 잠겨 있다.
+\textbf{(주의)} 2-bit Uniform이 FP16과 동일한 PPL로 기록된 것은 일반적으로 불가능하며, 실험 구성의 재확인이 필요하다.
 
-\textbf{명제~\ref{prop:rank_preservation} 정량 분석.} 3차 항 한계 $|R_3| \lesssim (1/3) \lVert \delta a \rVert_\infty^3 / \min_i p_i$에 $L = 2048$ ($\min_i p_i \sim 1/L$)을 대입:
-\begin{align*}
-\text{Llama 2-bit:}\quad & \lVert \delta a \rVert_\infty \sim 0.5,\quad |R_3| \lesssim (1/3) \cdot 0.125 \cdot 2048 \approx 85 \\
-\text{Qwen 2-bit:}\quad  & \lVert \delta a \rVert_\infty \sim 0.3,\quad |R_3| \lesssim (1/3) \cdot 0.027 \cdot 2048 \approx 18
-\end{align*}
-\begin{equation*}
-\text{이론 비율: } \frac{R_{3,\text{Llama}}}{R_{3,\text{Qwen}}} \approx \frac{85}{18} \approx 4.7 \quad\text{vs}\quad \text{실험 비율: } \frac{6.5\times}{1.4\times} \approx 4.6
-\end{equation*}
-
-\textbf{이론 예측 4.7과 실험 비율 4.6의 일치는 명제~\ref{prop:mse_ppl_transfer}-\ref{prop:bcrit}의 정량적 예측력을 입증한다.}
-
-\textbf{메트릭 미스매치 메커니즘.}
+\textbf{정성적 메커니즘 가설.}
 \begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
-\item \textbf{(M1) 잘못된 메트릭 최적화.} Lloyd-Max는 $\Sigma_K$-가중 MSE를 최소화하나, 진짜 목표는 $\Sigma_Q \cdot \Sigma_K$-가중 MSE이다. 미스매치 크기 $\propto \kappa(\Sigma_Q)$: Llama 40 vs Qwen 15.
-\item \textbf{(M2) 비트 할당 오류.} Lloyd-Max는 고-$\sigma_K$ 차원에 비트 집중 → 저-$\sigma_K$ · 고-$\sigma_Q$ 차원 방치 → 방치된 차원에서 $\lVert \delta a_j \rVert_\infty$ 폭발.
-\item \textbf{(M3) 3차 항 증폭.} $b \ll b_{\mathrm{crit}}$ 영역에서 $R_3 \propto \lVert \delta a \rVert_\infty^3$가 2차 항을 압도 → MSE는 작아 보이지만 PPL은 폭발.
+\item Lloyd-Max는 $\Sigma_K$-가중 MSE를 최소화하나 진짜 목표는 $\Sigma_Q \cdot \Sigma_K$-가중 MSE이다 — 메트릭 미스매치
+\item 미스매치는 일부 차원에서 $\lVert \delta a \rVert_\infty$ 폭발을 야기할 수 있음
+\item $\lVert \delta a \rVert_\infty$가 큰 영역에서 명제~\ref{prop:rank_preservation}의 충분 조건이 위반될 수 있음
 \end{enumerate}
 
-\textbf{Uniform이 살아남는 이유.} Uniform 양자화는 어떤 메트릭도 최적화하지 않지만, \emph{최악의 $\lVert \delta a \rVert_\infty$를 만들지 않는다}. $b < b_{\mathrm{crit}}$ 영역에서는 평균 오차($L^2$)가 아닌 최악 오차($L^\infty$)가 PPL을 결정하며, Uniform의 균등 비트 할당은 이 영역에서 우월하다.
+\textbf{철회된 정량 주장 (R1-R4).}
+\begin{itemize}[leftmargin=1.5em,itemsep=2pt]
+\item (R1) $R_3$ bound 자체 오류 — 정정된 $(8/3)\lVert \delta a \rVert_\infty^3$에는 $L=2048$ 인자가 없음.
+\item (R2) $\lVert \delta a \rVert_\infty \sim 0.5, 0.3$은 가정값이며 측정되지 않음 — 사후 적합이지 예측 아님.
+\item (R3) $R_3$은 $\Delta \mathrm{CE}$ 보정항이지 PPL 비율의 보정항 아님 — 단위 불일치.
+\item (R4) Llama 2-bit에서 $\Delta \mathrm{CE} = \log(6.46) \approx 1.87 \not\ll 1$, 1차 Taylor exp 부적합.
+\end{itemize}
 
-\textbf{사전 검증성.} $b_{\mathrm{crit}}$ 공식은 \emph{실험 전에} 계산 가능하다 — 캘리브레이션 1회 순전파($\sim$5분)로 $\Sigma_Q, \Sigma_K$ 고유값을 추출하면 즉시 적용된다. 이로써 본 이론은 양자화 비트 선택의 \textbf{사전 가이드라인}을 제공한다: $b \geq b_{\mathrm{crit}}$에서는 MK 안전, $b < b_{\mathrm{crit}}$에서는 Uniform 또는 HEAT 기반 적응 방법(축 3)이 권장된다.
+\textbf{향후 정량 검증 작업.} (1) $\lVert \delta a \rVert_\infty$의 비트별 실측, (2) $\Sigma_Q, \Sigma_K$ 전체 스펙트럼 측정, (3) 측정값 기반 명제~\ref{prop:rank_preservation} 충분 조건의 직접 검증, (4) 2-bit Uniform 무손실 결과의 재확인, (5) 로그 PPL 공간에서의 비교, (6) AWQ/KVQuant/Atom 선행 연구 비교.

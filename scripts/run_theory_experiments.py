@@ -31,35 +31,58 @@ def uniform_quant_col(col, bits):
     return q * s + vmin
 
 
-def weighted_lloyd_col(col, bits, weight=1.0, n_iter=10):
-    """Attention-aware weighted Lloyd-Max quantizer.
-    Minimizes E[w² · (x - Q(x))²] instead of E[(x - Q(x))²].
-    For scalar case with constant weight, this is equivalent to
-    quantizing w·x with standard Lloyd-Max, then dividing by w.
-    """
+def lloyd_max_col(col, bits, n_iter=10):
+    """Standard Lloyd-Max quantizer (no weighting).
+    Returns reconstructed column."""
     nl = 2 ** bits
     vmin, vmax = col.min(), col.max()
     if vmax - vmin < 1e-10: return col.copy()
-
-    # Weight-transform approach: quantize w*x, then divide by w
-    if abs(weight) < 1e-10:
-        return uniform_quant_col(col, bits)
-
-    wcol = col * weight
     percentiles = np.linspace(0, 100, nl + 2)[1:-1]
-    centroids = np.percentile(wcol, percentiles)
-
+    centroids = np.percentile(col, percentiles)
     for _ in range(n_iter):
-        dists = np.abs(wcol[:, None] - centroids[None, :])
+        dists = np.abs(col[:, None] - centroids[None, :])
         assignments = np.argmin(dists, axis=1)
         for k in range(nl):
             mask = assignments == k
             if mask.sum() > 0:
-                centroids[k] = wcol[mask].mean()
-
-    dists = np.abs(wcol[:, None] - centroids[None, :])
+                centroids[k] = col[mask].mean()
+    dists = np.abs(col[:, None] - centroids[None, :])
     assignments = np.argmin(dists, axis=1)
-    return centroids[assignments] / weight
+    return centroids[assignments]
+
+
+def weighted_bit_allocation(weights, total_bits, min_bits=2, max_bits=8):
+    """Reverse water-filling: allocate more bits to dimensions with larger weights.
+    Standard high-rate result: optimal b_j = b_avg + (1/2)·log2(σ_j² / GM(σ²))
+    For attention-weighted, we use w_j = sqrt(Σ_Q,jj) · sqrt(Σ_K,jj) as effective σ_j.
+    Returns integer bit allocation per dimension summing close to total_bits."""
+    weights = np.asarray(weights, dtype=float)
+    weights = np.maximum(weights, 1e-10)
+    d = len(weights)
+    b_avg = total_bits / d
+    log_w = np.log2(weights ** 2)
+    gm_log = log_w.mean()
+    bits_real = b_avg + 0.5 * (log_w - gm_log)
+    bits_int = np.clip(np.round(bits_real).astype(int), min_bits, max_bits)
+    # Adjust to match total budget
+    diff = int(total_bits - bits_int.sum())
+    if diff != 0:
+        order = np.argsort(-(bits_real - bits_int)) if diff > 0 else np.argsort(bits_real - bits_int)
+        for i in order[:abs(diff)]:
+            bits_int[i] += 1 if diff > 0 else -1
+            bits_int[i] = max(min_bits, min(max_bits, bits_int[i]))
+    return bits_int
+
+
+def attn_aware_quantize_block(K_block, bits_per_dim):
+    """Real attention-aware quantization: uses different bit count per dimension.
+    K_block: (n_samples, d_head)
+    bits_per_dim: array of length d_head with int bits for each dimension.
+    Returns reconstructed K_block."""
+    out = np.empty_like(K_block)
+    for j in range(K_block.shape[1]):
+        out[:, j] = lloyd_max_col(K_block[:, j], int(bits_per_dim[j]))
+    return out
 
 
 def make_theory_hook(layer_idx, bits, n_kv, d_head, method,
