@@ -405,9 +405,11 @@ def eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head, device,
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=str, required=True)
-    parser.add_argument("--exp", type=str, nargs="+", default=["t3", "t4"])
-    parser.add_argument("--bits", type=int, nargs="+", default=[2, 3])
+    parser.add_argument("--exp", type=str, nargs="+", default=["t3", "t4", "t6"])
+    parser.add_argument("--bits", type=int, nargs="+", default=[2, 3, 4])
     parser.add_argument("--output-dir", type=str, default="results")
+    parser.add_argument("--skip-roundtrip", action="store_true",
+                        help="Skip qw_pca round-trip unit test")
     args = parser.parse_args()
 
     device = "cuda:0"
