@@ -394,8 +394,11 @@ def eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head, device,
             'p95': float(np.percentile(all_vals, 95)),
             'max': float(all_vals.max()),
         }
-        print(f"      ‖δk‖∞/√d (proxy): mean={result['delta_a_proxy']['mean']:.4f} "
-              f"p95={result['delta_a_proxy']['p95']:.4f} max={result['delta_a_proxy']['max']:.4f}")
+        result['delta_a_real'] = result.pop('delta_a_proxy')  # rename: now real measurement
+        print(f"      ‖δa‖∞ = max|q·δk|/√d (REAL): "
+              f"mean={result['delta_a_real']['mean']:.4f} "
+              f"p95={result['delta_a_real']['p95']:.4f} "
+              f"max={result['delta_a_real']['max']:.4f}")
     return result
 
 
