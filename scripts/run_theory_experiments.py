@@ -89,7 +89,8 @@ def make_theory_hook(layer_idx, bits, n_kv, d_head, method,
                      pca_bases=None, qw_pca_bases=None,
                      sigma_q_half=None, qw_inverse=None,
                      sigma_q_diag=None, sigma_k_diag=None,
-                     random_rot=None, delta_a_tracker=None):
+                     random_rot=None, delta_a_tracker=None,
+                     live_q_store=None, n_heads_total=None):
     """Hook for theory experiments.
 
     Methods:
