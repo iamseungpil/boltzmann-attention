@@ -147,11 +147,13 @@ def calibrate(model, device, n_kv, n_layers, d_head, layers):
                 q = mod.q_proj(hs)[0].detach().cpu().float().numpy().reshape(-1, n_heads, d_head)
                 for h in range(n_kv):
                     key_capture[(li, h)] = k[:, h, :]
-                # Average query heads per KV group for GQA
+                # GQA: store ALL G query heads per KV group separately
+                # (mean(Cov) ≠ Cov(mean) — Jensen, ensure correct GQA covariance)
                 G = n_heads // n_kv
                 for h in range(n_kv):
-                    q_group = q[:, h*G:(h+1)*G, :].mean(axis=1)  # (seq, d_head)
-                    query_capture[(li, h)] = q_group
+                    # Stack all G heads of this KV group: shape (G*seq, d_head)
+                    q_group_stacked = q[:, h*G:(h+1)*G, :].reshape(-1, d_head)
+                    query_capture[(li, h)] = q_group_stacked
         return fn
 
     for l in range(n_layers):
