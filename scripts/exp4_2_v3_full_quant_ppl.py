@@ -30,7 +30,7 @@ References:
   - KIVI (Liu et al., ICML 2024): custom attention with inline quantization
   - SKVQ (Duanmu et al., 2024): sliding-window with full quantization
 
-Methods: FP16, Uniform, KIVI, FOKVQ, FOKVQ-QW
+Methods: FP16, Uniform, KIVI, TurboQuant, FOKVQ, FOKVQ-QW, LieEq
 Models:  GPT-2 Medium, Qwen2.5-7B, Llama-3-8B (via --model-name)
 
 FOKVQ-QW (E1: Q-Weighted PCA):
@@ -38,15 +38,22 @@ FOKVQ-QW (E1: Q-Weighted PCA):
   Σ_Q^{1/2} · Σ_K · Σ_Q^{1/2} — these maximize K variance in the
   directions that matter for Q·K inner product accuracy.
   Q covariance is computed on-the-fly from the current chunk's Q states.
+
+RoPE-Unitary Pair:
+  RoPE acts on consecutive 2D pairs. A generic SO(d) rotation can destroy that
+  structure on GQA/RoPE models. This variant restricts the transform to
+  per-pair SO(2) rotations, which commute with RoPE inside each pair.
 """
 
 from __future__ import annotations
 
 import argparse
 import gc
+import socket
 import json
 import math
 import os
+import subprocess
 import sys
 import time
 import warnings
@@ -109,7 +116,142 @@ def parse_args() -> argparse.Namespace:
                    help="Needle depth positions (fraction of context)")
     p.add_argument("--niah-repeats", type=int, default=3,
                    help="Number of repeats per NIAH condition")
+    p.add_argument("--benchmark-preset", type=str, default="custom",
+                   choices=[
+                       "custom",
+                       "ppl_quality",
+                       "rotation_mechanistic",
+                       "hamiltonian_descriptive",
+                       "retrieval_depth",
+                       "paper_full",
+                   ],
+                   help="Hypothesis-aligned benchmark preset.")
     return p.parse_args()
+
+
+def _cli_flag_explicit(flag: str) -> bool:
+    return flag in sys.argv[1:]
+
+
+def apply_benchmark_preset(args: argparse.Namespace) -> Dict[str, str]:
+    """Apply paper-aligned benchmark defaults unless the user overrode them.
+
+    Returns a small metadata dictionary to persist in the output JSON so that
+    later reports can recover the experimental intent mechanically.
+    """
+    preset = args.benchmark_preset
+    meta = {
+        "benchmark_preset": preset,
+        "intent": "custom run",
+        "hypothesis": "user-defined",
+        "verification_focus": "user-defined",
+    }
+    if preset == "custom":
+        return meta
+
+    if preset == "ppl_quality":
+        meta.update({
+            "intent": "estimate pure language-model quality retention under full-K quantization",
+            "hypothesis": "same-harness PPL isolates quantizer quality better than retrieval tasks",
+            "verification_focus": "WikiText-2 PPL with practical same-harness controls",
+        })
+        if not _cli_flag_explicit("--mode"):
+            args.mode = "ppl"
+        if not _cli_flag_explicit("--methods"):
+            args.methods = [
+                "fp16", "uniform", "kivi_residual", "turboquant_rand",
+                "fokvq", "fokvq_e2", "fokvq_e2_residual",
+            ]
+    elif preset == "rotation_mechanistic":
+        meta.update({
+            "intent": "test whether covariance-aligned generators beat agnostic bases",
+            "hypothesis": "PCA/Lie-structured bases should outperform identity or random bases before any SOTA claim",
+            "verification_focus": "axis-selection effect under fair PPL",
+        })
+        if not _cli_flag_explicit("--mode"):
+            args.mode = "ppl"
+        if not _cli_flag_explicit("--methods"):
+            args.methods = [
+                "fp16", "identity", "random", "fokvq",
+                "kivi_residual", "turboquant_rand",
+                "complex_unitary_residual", "banded_complex_unitary_residual",
+            ]
+    elif preset == "hamiltonian_descriptive":
+        meta.update({
+            "intent": "measure whether bounded-success methods preserve simple Hamiltonian-style geometry on post-RoPE keys",
+            "hypothesis": "methods with lower energy and symplectic-form drift should align better with bounded mechanistic PPL",
+            "verification_focus": "descriptive geometry diagnostics rather than a practical winner claim",
+        })
+        if not _cli_flag_explicit("--mode"):
+            args.mode = "ppl"
+        if not _cli_flag_explicit("--methods"):
+            args.methods = [
+                "fp16", "identity", "random", "fokvq", "fokvq_e2",
+                "kivi_residual", "turboquant_rand",
+                "complex_unitary_residual", "banded_complex_unitary_residual",
+            ]
+    elif preset == "retrieval_depth":
+        meta.update({
+            "intent": "test whether quantization preserves position-sensitive retrieval across depths",
+            "hypothesis": "if the rotation really preserves useful cache geometry, deep-needle retrieval should degrade more gracefully",
+            "verification_focus": "NIAH depth sweep rather than only average perplexity",
+        })
+        if not _cli_flag_explicit("--mode"):
+            args.mode = "niah"
+        if not _cli_flag_explicit("--methods"):
+            args.methods = [
+                "fp16", "kivi_residual", "turboquant_rand", "fokvq",
+                "complex_unitary_residual", "banded_complex_unitary_residual",
+            ]
+        if not _cli_flag_explicit("--niah-context-lens"):
+            args.niah_context_lens = [4096, 8192, 16384]
+        if not _cli_flag_explicit("--niah-depths"):
+            args.niah_depths = [0.1, 0.3, 0.5, 0.7, 0.9]
+    elif preset == "paper_full":
+        meta.update({
+            "intent": "run the paper-ready benchmark ladder: quality plus retrieval",
+            "hypothesis": "PPL and retrieval must be read together to judge rotation quality fairly",
+            "verification_focus": "combined PPL + NIAH evidence",
+        })
+        if not _cli_flag_explicit("--mode"):
+            args.mode = "both"
+        if not _cli_flag_explicit("--methods"):
+            args.methods = [
+                "fp16", "uniform", "kivi_residual", "turboquant_rand",
+                "fokvq", "fokvq_e2_residual",
+                "complex_unitary_residual", "banded_complex_unitary_residual",
+            ]
+        if not _cli_flag_explicit("--niah-context-lens"):
+            args.niah_context_lens = [4096, 8192]
+        if not _cli_flag_explicit("--niah-depths"):
+            args.niah_depths = [0.1, 0.5, 0.9]
+
+    return meta
+
+
+def validate_benchmark_alignment(args: argparse.Namespace) -> None:
+    """Guard against benchmark choices that do not actually test the intended claim."""
+    if args.mode in ("niah", "both") and len(args.niah_depths) < 3:
+        raise ValueError("NIAH depth evaluation needs at least 3 depth points to test position sensitivity.")
+    if args.mode in ("ppl", "both") and args.max_eval_tokens > 0 and args.max_eval_tokens < args.context_len:
+        raise ValueError(
+            "For chunked PPL, max_eval_tokens must be >= context_len. "
+            "Use a smaller context_len for bounded smoke runs."
+        )
+    if args.benchmark_preset == "rotation_mechanistic":
+        required = {"identity", "random", "fokvq"}
+        if not required.issubset(set(args.methods)):
+            raise ValueError(
+                "rotation_mechanistic preset requires identity/random/fokvq to measure axis-selection effects."
+            )
+    if args.benchmark_preset == "hamiltonian_descriptive":
+        required = {"identity", "random", "fokvq", "fokvq_e2"}
+        if not required.issubset(set(args.methods)):
+            raise ValueError(
+                "hamiltonian_descriptive preset requires identity/random/fokvq/fokvq_e2 for descriptive ranking."
+            )
+    if args.benchmark_preset == "retrieval_depth" and args.mode == "ppl":
+        raise ValueError("retrieval_depth preset must include NIAH mode.")
 
 
 def resolve_dtype(name: str, dtype_arg: str) -> torch.dtype:
@@ -207,6 +349,44 @@ def kivi_quantize_tensor(K: torch.Tensor, bits: int) -> torch.Tensor:
     return K_q.to(K.dtype)
 
 
+def kivi_residual_quantize_head(K_head: torch.Tensor, bits: int,
+                                group_size: int = 64,
+                                residual_length: int = 32) -> torch.Tensor:
+    """Public-KIVI-inspired K-only proxy with grouped old-cache quantization.
+
+    This is still not the full official KIVI path because:
+      - it only quantizes K inside our same-harness benchmark
+      - it does not quantize V
+      - it does not use the official Triton/CUDA packing kernels
+
+    But it moves materially closer to the public algorithmic structure:
+      - older tokens are quantized in sequence groups
+      - the most recent residual_length tokens remain full precision
+    """
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    seq_len = K_f.shape[0]
+    quant_len = max(0, seq_len - residual_length)
+    K_q = K_f.clone()
+
+    if quant_len == 0:
+        return K_q.to(K_head.dtype)
+
+    n = 2 ** bits
+    for start in range(0, quant_len, group_size):
+        end = min(start + group_size, quant_len)
+        chunk = K_f[start:end]
+        x_min = chunk.min(dim=0, keepdim=True).values
+        x_max = chunk.max(dim=0, keepdim=True).values
+        rng = torch.clamp(x_max - x_min, min=1e-8)
+        step = rng / (n - 1)
+        K_q[start:end] = torch.round((chunk - x_min) / step) * step + x_min
+
+    return K_q.to(K_head.dtype)
+
+
 # ============================================================================
 # SOTA Methods (QuIP#, KVQuant, GEAR, ZipCache, TurboQuant)
 # Adapted from Phase 7 numpy implementations to torch for v3 PPL benchmark
@@ -229,6 +409,15 @@ def _hadamard_matrix(d: int, device: torch.device) -> torch.Tensor:
     return H
 
 
+def _random_orthogonal_matrix(d: int, device: torch.device,
+                              seed: int = 42) -> torch.Tensor:
+    """Deterministic random orthogonal matrix."""
+    rng = torch.Generator(device='cpu').manual_seed(seed)
+    M = torch.randn(d, d, generator=rng, dtype=torch.float32)
+    Q, _ = torch.linalg.qr(M)
+    return Q.to(device)
+
+
 def _per_dim_uniform(K: torch.Tensor, bits: int) -> torch.Tensor:
     """Per-dimension uniform quantization (for rotated space)."""
     K_f = K.float()
@@ -249,6 +438,37 @@ def quip_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
     K_rot = K_head.float() @ H
     K_q = _per_dim_uniform(K_rot, bits)
     return (K_q @ H.T).to(K_head.dtype)
+
+
+def identity_basis_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
+    """Axis-quantize in the original basis.
+
+    This is the proper no-rotation control for basis-selection experiments:
+    same per-axis quantizer family as rotated methods, but with the identity
+    basis instead of a learned or random orthogonal transform.
+    """
+    if bits >= 16:
+        return K_head.clone()
+    K_f = K_head.float()
+    mean = K_f.mean(dim=0, keepdim=True)
+    centered = K_f - mean
+    K_q = _per_dim_uniform(centered, bits)
+    return (K_q + mean).to(K_head.dtype)
+
+
+def random_basis_quantize_head(K_head: torch.Tensor, bits: int,
+                               seed: int = 42) -> torch.Tensor:
+    """Quantize in a seeded random orthogonal basis and rotate back."""
+    if bits >= 16:
+        return K_head.clone()
+    d = K_head.shape[-1]
+    K_f = K_head.float()
+    mean = K_f.mean(dim=0, keepdim=True)
+    centered = K_f - mean
+    R = _random_orthogonal_matrix(d, K_head.device, seed=seed)
+    K_rot = centered @ R
+    K_q = _per_dim_uniform(K_rot, bits)
+    return (K_q @ R.T + mean).to(K_head.dtype)
 
 
 def kvquant_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
@@ -339,6 +559,540 @@ def turbo_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
 
     K_recon = K_corrected @ H.T
     return K_recon.to(K_head.dtype)
+
+
+def turbo_quantize_random_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
+    """TurboQuant-inspired proxy with seeded random orthogonal rotation.
+
+    This is closer to the published random-rotation description than the
+    deterministic Hadamard proxy.
+    """
+    d = K_head.shape[-1]
+    R = _random_orthogonal_matrix(d, K_head.device, seed=42)
+    K_f = K_head.float()
+    K_rot = K_f @ R
+
+    K_q = torch.zeros_like(K_rot)
+    for i in range(d):
+        cb = _fit_lloyd_max_1d(K_rot[:, i], 2 ** bits)
+        K_q[:, i] = _quantize_with_codebook_1d(K_rot[:, i], cb)
+
+    residual = K_rot - K_q
+    rng = torch.Generator(device='cpu').manual_seed(42)
+    R_jl = torch.randn(d, d, generator=rng, dtype=torch.float32).to(K_head.device)
+    R_jl = R_jl / R_jl.norm(dim=1, keepdim=True)
+    proj = residual @ R_jl.T
+    signs = torch.sign(proj)
+    mags = proj.abs().mean(dim=0, keepdim=True)
+    correction = (signs * mags) @ R_jl
+    scale = residual.norm() / correction.norm().clamp(min=1e-8)
+    K_corrected = K_q + correction * scale * 0.5
+    return (K_corrected @ R.T).to(K_head.dtype)
+
+
+def _greedy_variance_equalizing_rotation(centered: torch.Tensor,
+                                         num_planes: Optional[int] = None
+                                         ) -> torch.Tensor:
+    """Build a lightweight SO(d) transform via greedy Givens equalization.
+
+    This is a Lie-group alternative to PCA:
+      - PCA concentrates variance into a few axes.
+      - this transform spreads variance more evenly across axes before
+        scalar quantization.
+
+    We repeatedly pick the highest/lowest variance coordinates and apply a
+    Givens rotation that equalizes the 2x2 marginal variances.
+    """
+    d = centered.shape[-1]
+    if d <= 1:
+        return torch.eye(d, device=centered.device, dtype=torch.float32)
+
+    cov = (centered.T @ centered) / max(centered.shape[0] - 1, 1)
+    cov = cov.float()
+    R = torch.eye(d, device=centered.device, dtype=torch.float32)
+    steps = min(num_planes or d, d * (d - 1) // 2)
+
+    for _ in range(steps):
+        diag = torch.diagonal(cov)
+        i = int(torch.argmax(diag).item())
+        j = int(torch.argmin(diag).item())
+        if i == j:
+            break
+
+        a = cov[i, i]
+        b = cov[i, j]
+        c = cov[j, j]
+        if torch.abs(a - c) < 1e-8 and torch.abs(b) < 1e-8:
+            break
+
+        # Solve a' - c' = 0 for the rotated 2x2 covariance block.
+        theta = 0.5 * torch.atan2(c - a, 2.0 * b)
+        cs = torch.cos(theta)
+        sn = torch.sin(theta)
+
+        G = torch.eye(d, device=centered.device, dtype=torch.float32)
+        G[i, i] = cs
+        G[j, j] = cs
+        G[i, j] = -sn
+        G[j, i] = sn
+
+        cov = G.T @ cov @ G
+        cov = 0.5 * (cov + cov.T)
+        R = R @ G
+
+    return R
+
+
+def _robust_centered_view(K_f: torch.Tensor,
+                          clip_quantile: float = 0.95) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Center and softly clip per-dimension tails for robust covariance."""
+    mean = K_f.mean(dim=0, keepdim=True)
+    centered = K_f - mean
+    q = torch.quantile(centered.abs(), clip_quantile, dim=0, keepdim=True)
+    q = q.clamp(min=1e-6)
+    centered_robust = centered.clamp(min=-q, max=q)
+    return mean, centered_robust
+
+
+def lie_eq_quantize_head(K_head: torch.Tensor, bits: int,
+                         num_planes: Optional[int] = None) -> torch.Tensor:
+    """LieEq: greedy Givens equalization + per-axis Lloyd-Max quantization.
+
+    This is a structured SO(d) baseline:
+      1. estimate a data-dependent orthogonal transform via Givens rotations
+      2. flatten variance across axes
+      3. quantize each axis with the same bit budget using Lloyd-Max
+    """
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    mean = K_f.mean(dim=0, keepdim=True)
+    centered = K_f - mean
+    R = _greedy_variance_equalizing_rotation(centered, num_planes=num_planes)
+    K_rot = centered @ R
+
+    K_q = torch.zeros_like(K_rot)
+    n_levels = 2 ** bits
+    for i in range(K_rot.shape[-1]):
+        col = K_rot[:, i]
+        cb = _fit_lloyd_max_1d(col, n_levels)
+        K_q[:, i] = _quantize_with_codebook_1d(col, cb)
+
+    K_recon = K_q @ R.T + mean
+    return K_recon.to(K_head.dtype)
+
+
+def lie_eq_robust_quantize_head(K_head: torch.Tensor, bits: int,
+                                num_planes: Optional[int] = None,
+                                clip_quantile: float = 0.95) -> torch.Tensor:
+    """Robust LieEq: use clipped covariance to avoid outlier-dominated planes."""
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    mean, centered_robust = _robust_centered_view(K_f, clip_quantile=clip_quantile)
+    R = _greedy_variance_equalizing_rotation(centered_robust, num_planes=num_planes)
+    centered = K_f - mean
+    K_rot = centered @ R
+
+    K_q = torch.zeros_like(K_rot)
+    n_levels = 2 ** bits
+    for i in range(K_rot.shape[-1]):
+        col = K_rot[:, i]
+        cb = _fit_lloyd_max_1d(col, n_levels)
+        K_q[:, i] = _quantize_with_codebook_1d(col, cb)
+
+    K_recon = K_q @ R.T + mean
+    return K_recon.to(K_head.dtype)
+
+
+def lie_qdiag_quantize_head(K_head: torch.Tensor, bits: int,
+                            q_cov: Optional[torch.Tensor] = None,
+                            robust: bool = False,
+                            num_planes: Optional[int] = None) -> torch.Tensor:
+    """Query-safe Lie transform using only diagonal query importance.
+
+    This avoids full Q-weighted PCA while still biasing the transform toward
+    coordinates that matter more for Q·K interactions.
+    """
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    if robust:
+        mean, centered_base = _robust_centered_view(K_f, clip_quantile=0.95)
+    else:
+        mean = K_f.mean(dim=0, keepdim=True)
+        centered_base = K_f - mean
+
+    if q_cov is not None:
+        q_diag = torch.diagonal(q_cov.float().to(K_f.device)).clamp(min=1e-8)
+        q_w = (q_diag / q_diag.mean()).sqrt().unsqueeze(0)
+    else:
+        q_w = torch.ones(1, K_f.shape[-1], device=K_f.device, dtype=torch.float32)
+
+    weighted = centered_base * q_w
+    R = _greedy_variance_equalizing_rotation(weighted, num_planes=num_planes)
+
+    centered = K_f - mean
+    K_rot = centered @ R
+    K_q = torch.zeros_like(K_rot)
+    n_levels = 2 ** bits
+    for i in range(K_rot.shape[-1]):
+        col = K_rot[:, i]
+        cb = _fit_lloyd_max_1d(col, n_levels)
+        K_q[:, i] = _quantize_with_codebook_1d(col, cb)
+
+    K_recon = K_q @ R.T + mean
+    return K_recon.to(K_head.dtype)
+
+
+def rope_unitary_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
+    """RoPE-pair-preserving SO(2) block rotation + per-axis Lloyd-Max.
+
+    Consecutive coordinates are treated as RoPE pairs. For each 2D pair we fit
+    the best variance-diagonalizing rotation inside that pair only, quantize in
+    the rotated basis, then rotate back. This preserves the local complex phase
+    structure better than a generic SO(d) rotation.
+    """
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    seq_len, d = K_f.shape
+    if d < 2:
+        return K_head.clone()
+
+    mean = K_f.mean(dim=0, keepdim=True)
+    centered = K_f - mean
+    K_rot = centered.clone()
+    pair_mats: List[torch.Tensor] = []
+
+    for start in range(0, d - 1, 2):
+        pair = centered[:, start:start + 2]
+        cov = (pair.T @ pair) / max(seq_len - 1, 1)
+        cov = 0.5 * (cov + cov.T)
+        a = cov[0, 0]
+        b = cov[0, 1]
+        c = cov[1, 1]
+        theta = 0.5 * torch.atan2(2.0 * b, a - c)
+        cs = torch.cos(theta)
+        sn = torch.sin(theta)
+        R2 = torch.stack([
+            torch.stack([cs, -sn]),
+            torch.stack([sn, cs]),
+        ]).to(dtype=torch.float32, device=K_f.device)
+        K_rot[:, start:start + 2] = pair @ R2
+        pair_mats.append(R2)
+
+    K_q = torch.zeros_like(K_rot)
+    n_levels = 2 ** bits
+    for i in range(d):
+        col = K_rot[:, i]
+        cb = _fit_lloyd_max_1d(col, n_levels)
+        K_q[:, i] = _quantize_with_codebook_1d(col, cb)
+
+    K_recon = K_q.clone()
+    for pair_idx, start in enumerate(range(0, d - 1, 2)):
+        R2 = pair_mats[pair_idx]
+        K_recon[:, start:start + 2] = K_q[:, start:start + 2] @ R2.T
+
+    return (K_recon + mean).to(K_head.dtype)
+
+
+def rope_magphase_quantize_head(K_head: torch.Tensor, bits: int) -> torch.Tensor:
+    """Quantize each RoPE pair in magnitude-phase coordinates.
+
+    Each consecutive pair is treated as a complex scalar:
+      z = x + i y = r exp(i phi)
+    We prioritize phase precision because RoPE encodes position in angular
+    structure. Magnitude is quantized with Lloyd-Max on log-radius; phase uses
+    uniform circular bins.
+    """
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    seq_len, d = K_f.shape
+    if d < 2:
+        return K_head.clone()
+
+    out = K_f.clone()
+    total_pair_bits = 2 * bits
+    phase_bits = min(6, bits + 1)
+    mag_bits = max(1, total_pair_bits - phase_bits)
+    n_phase = 2 ** phase_bits
+
+    for start in range(0, d - 1, 2):
+        pair = K_f[:, start:start + 2]
+        x = pair[:, 0]
+        y = pair[:, 1]
+        r = torch.sqrt(x * x + y * y + 1e-12)
+        phi = torch.atan2(y, x)
+
+        log_r = torch.log1p(r)
+        cb = _fit_lloyd_max_1d(log_r, 2 ** mag_bits)
+        log_r_q = _quantize_with_codebook_1d(log_r, cb)
+        r_q = torch.expm1(log_r_q).clamp(min=0.0)
+
+        phi_unit = (phi + math.pi) / (2 * math.pi)
+        phi_idx = torch.floor(phi_unit * n_phase).clamp(0, n_phase - 1)
+        phi_q = ((phi_idx + 0.5) / n_phase) * (2 * math.pi) - math.pi
+
+        out[:, start] = r_q * torch.cos(phi_q)
+        out[:, start + 1] = r_q * torch.sin(phi_q)
+
+    return out.to(K_head.dtype)
+
+
+def complex_unitary_residual_quantize_head(
+    K_head: torch.Tensor,
+    bits: int,
+    residual_length: int = 32,
+) -> torch.Tensor:
+    """Complex-unitary prefix quantization with FP16 residual tail.
+
+    View consecutive real coordinates as complex channels, estimate a Hermitian
+    covariance on the old prefix, rotate with its unitary eigenbasis, quantize
+    real/imag parts in that complex basis, then map back. The recent tail stays
+    full precision.
+    """
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    seq_len, d = K_f.shape
+    if d < 2:
+        return K_head.clone()
+
+    quant_len = max(0, seq_len - residual_length)
+    if quant_len == 0:
+        return K_head.clone()
+
+    even_d = d - (d % 2)
+    prefix = K_f[:quant_len, :even_d]
+    tail = K_f[:quant_len, even_d:] if even_d < d else None
+
+    x = prefix[:, 0::2]
+    y = prefix[:, 1::2]
+    z = torch.complex(x, y).to(torch.complex64)
+    mean = z.mean(dim=0, keepdim=True)
+    centered = z - mean
+
+    cov = centered.conj().transpose(0, 1) @ centered
+    cov = cov / max(quant_len - 1, 1)
+    cov = cov + torch.eye(cov.shape[0], device=cov.device, dtype=cov.dtype) * 1e-6
+    evals, U = torch.linalg.eigh(cov)
+    idx = torch.argsort(evals.real, descending=True)
+    U = U[:, idx]
+
+    z_rot = centered @ U
+    z_q = torch.zeros_like(z_rot)
+    n_levels = 2 ** bits
+    for i in range(z_rot.shape[1]):
+        real = z_rot[:, i].real.float()
+        imag = z_rot[:, i].imag.float()
+        cb_r = _fit_lloyd_max_1d(real, n_levels)
+        cb_i = _fit_lloyd_max_1d(imag, n_levels)
+        real_q = _quantize_with_codebook_1d(real, cb_r)
+        imag_q = _quantize_with_codebook_1d(imag, cb_i)
+        z_q[:, i] = torch.complex(real_q, imag_q)
+
+    z_rec = z_q @ U.conj().transpose(0, 1) + mean
+    prefix_rec = torch.empty_like(prefix)
+    prefix_rec[:, 0::2] = z_rec.real.float()
+    prefix_rec[:, 1::2] = z_rec.imag.float()
+    if tail is not None and tail.numel() > 0:
+        prefix_rec = torch.cat([prefix_rec, tail], dim=1)
+
+    out = K_f.clone()
+    out[:quant_len, :prefix_rec.shape[1]] = prefix_rec
+    return out.to(K_head.dtype)
+
+
+def _real_cov_to_complex_cov(q_cov: torch.Tensor) -> torch.Tensor:
+    """Convert paired real covariance into complex Hermitian covariance."""
+    qf = q_cov.float()
+    d = qf.shape[0]
+    even_d = d - (d % 2)
+    n_complex = even_d // 2
+    out = torch.zeros(n_complex, n_complex, device=qf.device, dtype=torch.complex64)
+    for i in range(n_complex):
+        for j in range(n_complex):
+            rr = qf[2 * i, 2 * j]
+            ri = qf[2 * i, 2 * j + 1]
+            ir = qf[2 * i + 1, 2 * j]
+            ii = qf[2 * i + 1, 2 * j + 1]
+            out[i, j] = torch.complex(rr + ii, ir - ri)
+    out = 0.5 * (out + out.conj().transpose(0, 1))
+    return out
+
+
+def complex_query_metric_residual_quantize_head(
+    K_head: torch.Tensor,
+    bits: int,
+    q_cov: Optional[torch.Tensor] = None,
+    residual_length: int = 32,
+) -> torch.Tensor:
+    """Complex query-metric unitary quantization with FP16 residual tail.
+
+    This is the complex analogue of query-weighted PCA:
+    use a Hermitian query metric on complex RoPE channels, construct a
+    query-aware complex basis on the old prefix, quantize there, and leave the
+    recent tail untouched.
+    """
+    if q_cov is None:
+        return complex_unitary_residual_quantize_head(
+            K_head, bits, residual_length=residual_length
+        )
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    seq_len, d = K_f.shape
+    if d < 2:
+        return K_head.clone()
+
+    quant_len = max(0, seq_len - residual_length)
+    if quant_len == 0:
+        return K_head.clone()
+
+    even_d = d - (d % 2)
+    prefix = K_f[:quant_len, :even_d]
+    tail = K_f[:quant_len, even_d:] if even_d < d else None
+
+    x = prefix[:, 0::2]
+    y = prefix[:, 1::2]
+    z = torch.complex(x, y).to(torch.complex64)
+    mean = z.mean(dim=0, keepdim=True)
+    centered = z - mean
+
+    sigma_k = centered.conj().transpose(0, 1) @ centered
+    sigma_k = sigma_k / max(quant_len - 1, 1)
+    sigma_k = sigma_k + torch.eye(sigma_k.shape[0], device=sigma_k.device, dtype=sigma_k.dtype) * 1e-6
+
+    sigma_q = _real_cov_to_complex_cov(q_cov[:even_d, :even_d].to(K_f.device))
+    sigma_q = sigma_q + torch.eye(sigma_q.shape[0], device=sigma_q.device, dtype=sigma_q.dtype) * 1e-6
+
+    ev_q, U_q = torch.linalg.eigh(sigma_q)
+    ev_q = torch.clamp(ev_q.real, min=1e-8)
+    sqrt_q = U_q @ torch.diag(torch.sqrt(ev_q).to(torch.complex64)) @ U_q.conj().transpose(0, 1)
+    invsqrt_q = U_q @ torch.diag(torch.rsqrt(ev_q).to(torch.complex64)) @ U_q.conj().transpose(0, 1)
+
+    sigma_kq = sqrt_q @ sigma_k @ sqrt_q
+    sigma_kq = 0.5 * (sigma_kq + sigma_kq.conj().transpose(0, 1))
+    sigma_kq = sigma_kq + torch.eye(sigma_kq.shape[0], device=sigma_kq.device, dtype=sigma_kq.dtype) * 1e-6
+
+    _, evecs = torch.linalg.eigh(sigma_kq)
+    idx = torch.argsort(_.real, descending=True)
+    evecs = evecs[:, idx]
+    basis = invsqrt_q @ evecs
+    basis, _ = torch.linalg.qr(basis)
+
+    z_rot = centered @ basis
+    z_q = torch.zeros_like(z_rot)
+    n_levels = 2 ** bits
+    for i in range(z_rot.shape[1]):
+        real = z_rot[:, i].real.float()
+        imag = z_rot[:, i].imag.float()
+        cb_r = _fit_lloyd_max_1d(real, n_levels)
+        cb_i = _fit_lloyd_max_1d(imag, n_levels)
+        real_q = _quantize_with_codebook_1d(real, cb_r)
+        imag_q = _quantize_with_codebook_1d(imag, cb_i)
+        z_q[:, i] = torch.complex(real_q, imag_q)
+
+    z_rec = z_q @ basis.conj().transpose(0, 1) + mean
+    prefix_rec = torch.empty_like(prefix)
+    prefix_rec[:, 0::2] = z_rec.real.float()
+    prefix_rec[:, 1::2] = z_rec.imag.float()
+    if tail is not None and tail.numel() > 0:
+        prefix_rec = torch.cat([prefix_rec, tail], dim=1)
+
+    out = K_f.clone()
+    out[:quant_len, :prefix_rec.shape[1]] = prefix_rec
+    return out.to(K_head.dtype)
+
+
+def _complex_unitary_quantize_prefix(prefix: torch.Tensor, bits: int) -> torch.Tensor:
+    """Apply complex-unitary quantization to a real-valued prefix tensor."""
+    seq_len, d = prefix.shape
+    if d < 2:
+        return prefix.clone()
+
+    even_d = d - (d % 2)
+    main = prefix[:, :even_d]
+    tail = prefix[:, even_d:] if even_d < d else None
+
+    x = main[:, 0::2]
+    y = main[:, 1::2]
+    z = torch.complex(x, y).to(torch.complex64)
+    mean = z.mean(dim=0, keepdim=True)
+    centered = z - mean
+
+    cov = centered.conj().transpose(0, 1) @ centered
+    cov = cov / max(seq_len - 1, 1)
+    cov = cov + torch.eye(cov.shape[0], device=cov.device, dtype=cov.dtype) * 1e-6
+    evals, U = torch.linalg.eigh(cov)
+    idx = torch.argsort(evals.real, descending=True)
+    U = U[:, idx]
+
+    z_rot = centered @ U
+    z_q = torch.zeros_like(z_rot)
+    n_levels = 2 ** bits
+    for i in range(z_rot.shape[1]):
+        real = z_rot[:, i].real.float()
+        imag = z_rot[:, i].imag.float()
+        cb_r = _fit_lloyd_max_1d(real, n_levels)
+        cb_i = _fit_lloyd_max_1d(imag, n_levels)
+        real_q = _quantize_with_codebook_1d(real, cb_r)
+        imag_q = _quantize_with_codebook_1d(imag, cb_i)
+        z_q[:, i] = torch.complex(real_q, imag_q)
+
+    z_rec = z_q @ U.conj().transpose(0, 1) + mean
+    out = torch.empty_like(main)
+    out[:, 0::2] = z_rec.real.float()
+    out[:, 1::2] = z_rec.imag.float()
+    if tail is not None and tail.numel() > 0:
+        out = torch.cat([out, tail], dim=1)
+    return out
+
+
+def banded_complex_unitary_residual_quantize_head(
+    K_head: torch.Tensor,
+    bits: int,
+    residual_length: int = 32,
+) -> torch.Tensor:
+    """Complex-unitary residual quantization with low/high frequency bands."""
+    if bits >= 16:
+        return K_head.clone()
+
+    K_f = K_head.float()
+    seq_len, d = K_f.shape
+    if d < 4:
+        return complex_unitary_residual_quantize_head(
+            K_head, bits, residual_length=residual_length
+        )
+
+    quant_len = max(0, seq_len - residual_length)
+    if quant_len == 0:
+        return K_head.clone()
+
+    prefix = K_f[:quant_len]
+    out_prefix = prefix.clone()
+    n_pairs = (d - (d % 2)) // 2
+    split_pairs = max(1, n_pairs // 2)
+    split_dim = 2 * split_pairs
+
+    low = prefix[:, :split_dim]
+    high = prefix[:, split_dim:]
+    out_prefix[:, :split_dim] = _complex_unitary_quantize_prefix(low, bits)
+    if high.shape[1] > 0:
+        out_prefix[:, split_dim:] = _complex_unitary_quantize_prefix(high, bits)
+
+    out = K_f.clone()
+    out[:quant_len] = out_prefix
+    return out.to(K_head.dtype)
 
 
 def fokvq_quantize_head(K_head: torch.Tensor, bits_avg: int,
@@ -669,6 +1423,27 @@ def fokvq_e2_quantize_head(K_head: torch.Tensor, bits_avg: int,
     return K_recon.to(K_head.dtype), r_eff
 
 
+def fokvq_e2_residual_quantize_head(K_head: torch.Tensor, bits_avg: int,
+                                    gamma: float = 0.3,
+                                    residual_length: int = 32
+                                    ) -> Tuple[torch.Tensor, float]:
+    """Hybrid: keep a recent FP16 tail, apply FOKVQ-E2 on the older prefix."""
+    if bits_avg >= 16:
+        return K_head.clone(), float("nan")
+
+    K_f = K_head.float()
+    seq_len = K_f.shape[0]
+    quant_len = max(0, seq_len - residual_length)
+    if quant_len == 0:
+        return K_head.clone(), float("nan")
+
+    K_q = K_f.clone()
+    K_prefix = K_f[:quant_len]
+    K_prefix_q, r_eff = fokvq_e2_quantize_head(K_prefix, bits_avg, gamma)
+    K_q[:quant_len] = K_prefix_q.float()
+    return K_q.to(K_head.dtype), r_eff
+
+
 def fokvq_e3_quantize_head(K_head: torch.Tensor, bits_avg: int,
                            gamma: float = 0.3,
                            Q_cov: Optional[torch.Tensor] = None
@@ -721,8 +1496,13 @@ def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
 
     Args:
         K: key tensor
-        method: "fp16", "uniform", "kivi", "fokvq", "fokvq_qw",
-                "fokvq_e2", "fokvq_e3", "fokvq_full"
+        method: "fp16", "uniform", "identity", "random", "kivi", "kivi_residual", "fokvq",
+                "fokvq_qw", "fokvq_e2", "fokvq_e2_residual", "fokvq_e3", "fokvq_full", "lie_eq",
+                "lie_eq_robust", "lie_qdiag", "lie_qdiag_robust",
+                "rope_unitary", "rope_magphase",
+                "complex_unitary_residual", "complex_query_metric_residual",
+                "banded_complex_unitary_residual",
+                "turboquant", "turboquant_rand"
         bits: quantization bits
         gamma: FOKVQ eigenvalue weighting exponent
         q_covs: For fokvq_qw only. Q covariance matrices per head.
@@ -738,8 +1518,14 @@ def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
         """Quantize a single (seq, d_head) head."""
         if method == "uniform":
             return uniform_quantize_tensor(K_head, bits)
+        elif method == "identity":
+            return identity_basis_quantize_head(K_head, bits)
+        elif method == "random":
+            return random_basis_quantize_head(K_head, bits)
         elif method == "kivi":
             return kivi_quantize_tensor(K_head, bits)
+        elif method == "kivi_residual":
+            return kivi_residual_quantize_head(K_head, bits)
         elif method == "fokvq":
             K_q, _ = fokvq_quantize_head(K_head, bits, gamma)
             return K_q
@@ -753,18 +1539,35 @@ def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
             # E2: K-only PCA + Lloyd-Max codebook (no Q_cov needed)
             K_q, _ = fokvq_e2_quantize_head(K_head, bits, gamma)
             return K_q
+        elif method == "fokvq_e2_residual":
+            K_q, _ = fokvq_e2_residual_quantize_head(K_head, bits, gamma)
+            return K_q
         elif method == "fokvq_e3":
             # E3: K-only PCA + MK-weighted Lloyd-Max (no Q_cov needed)
             K_q, _ = fokvq_e3_quantize_head(K_head, bits, gamma)
-            return K_q
-        elif method == "fokvq_e2e3":
-            # E2+E3: K-only PCA + MK-weighted Lloyd-Max (no Q_cov, no E1)
-            K_q, _ = fokvq_full_quantize_head(K_head, bits, gamma, Q_cov=None)
             return K_q
         elif method == "fokvq_full":
             # E1+E2+E3: Q-weighted PCA + MK-weighted Lloyd-Max
             K_q, _ = fokvq_full_quantize_head(K_head, bits, gamma, Q_cov=q_cov)
             return K_q
+        elif method == "lie_eq":
+            return lie_eq_quantize_head(K_head, bits)
+        elif method == "lie_eq_robust":
+            return lie_eq_robust_quantize_head(K_head, bits)
+        elif method == "lie_qdiag":
+            return lie_qdiag_quantize_head(K_head, bits, q_cov=q_cov, robust=False)
+        elif method == "lie_qdiag_robust":
+            return lie_qdiag_quantize_head(K_head, bits, q_cov=q_cov, robust=True)
+        elif method == "rope_unitary":
+            return rope_unitary_quantize_head(K_head, bits)
+        elif method == "rope_magphase":
+            return rope_magphase_quantize_head(K_head, bits)
+        elif method == "complex_unitary_residual":
+            return complex_unitary_residual_quantize_head(K_head, bits)
+        elif method == "complex_query_metric_residual":
+            return complex_query_metric_residual_quantize_head(K_head, bits, q_cov=q_cov)
+        elif method == "banded_complex_unitary_residual":
+            return banded_complex_unitary_residual_quantize_head(K_head, bits)
         # --- SOTA methods ---
         elif method == "quip":
             return quip_quantize_head(K_head, bits)
@@ -776,6 +1579,8 @@ def quantize_k_tensor(K: torch.Tensor, method: str, bits: int,
             return zipcache_quantize_head(K_head, bits)
         elif method == "turboquant":
             return turbo_quantize_head(K_head, bits)
+        elif method == "turboquant_rand":
+            return turbo_quantize_random_head(K_head, bits)
         else:
             raise ValueError(f"Unknown method: {method}")
 
@@ -834,6 +1639,8 @@ class KProjQuantHook:
         self.handle = None
         self.key_mse_sum = 0.0
         self.key_mse_count = 0
+        self.sample_ref = None
+        self.sample_quant = None
 
     def __call__(self, module, input, output):
         if not self.active:
@@ -852,6 +1659,9 @@ class KProjQuantHook:
         diff = (K.float() - K_q.float()).pow(2)
         self.key_mse_sum += float(diff.sum().item())
         self.key_mse_count += int(diff.numel())
+        if self.sample_ref is None:
+            self.sample_ref = _extract_diag_sample(K)
+            self.sample_quant = _extract_diag_sample(K_q)
 
         # Reshape back: (B, n_kv_heads, S, d) -> (B, S, n_kv_heads * d)
         K_q = K_q.transpose(1, 2).contiguous().view(orig_shape)
@@ -860,6 +1670,8 @@ class KProjQuantHook:
     def reset_stats(self):
         self.key_mse_sum = 0.0
         self.key_mse_count = 0
+        self.sample_ref = None
+        self.sample_quant = None
 
 
 # ============================================================================
@@ -919,6 +1731,34 @@ def find_attention_modules(model) -> list:
         ):
             attn_modules.append((name, module))
     return attn_modules
+
+
+def _align_attention_mask(attention_mask: Optional[torch.Tensor],
+                          q_len: int,
+                          kv_len: int) -> Optional[torch.Tensor]:
+    """Trim oversized masks to the actual query/key lengths.
+
+    transformers 5.x may pass masks whose cached kv-length exceeds the key
+    tensor materialized in the patched forward. Keep the newest suffix.
+    """
+    if attention_mask is None:
+        return None
+
+    am = attention_mask
+    if am.dim() == 4:
+        if am.shape[-1] > kv_len:
+            am = am[:, :, :, -kv_len:]
+        if am.shape[-2] > q_len:
+            am = am[:, :, -q_len:, :]
+    elif am.dim() == 3:
+        if am.shape[-1] > kv_len:
+            am = am[:, :, -kv_len:]
+        if am.shape[-2] > q_len:
+            am = am[:, -q_len:, :]
+    elif am.dim() == 2:
+        if am.shape[-1] > kv_len:
+            am = am[:, -kv_len:]
+    return am
 
 
 @contextmanager
@@ -1005,7 +1845,14 @@ class AttentionKQuantPatcher:
         self.original_forwards = {}
         self.key_mse_sum = 0.0
         self.key_mse_count = 0
+        self.sample_ref = None
+        self.sample_quant = None
+        self.sample_query = None
+        self.sample_attention_diag = None
+        self.sample_gqa_diag = None
         self._patched = False
+        self._patched_module_ids = set()
+        self._orig_qwen_eager_attention = None
 
     def patch(self):
         """Install patches on all attention modules."""
@@ -1017,6 +1864,15 @@ class AttentionKQuantPatcher:
 
         if not attn_modules:
             raise RuntimeError("No attention modules found")
+
+        self._patched_module_ids = {id(module) for _, module in attn_modules}
+
+        if model_type == "qwen2":
+            self._install_qwen_eager_wrapper()
+            self._patched = True
+            print(f"  Patched {len(attn_modules)} attention modules "
+                  f"(type={model_type}, method={self.method}, bits={self.bits})")
+            return
 
         for name, attn_module in attn_modules:
             orig_forward = attn_module.forward
@@ -1041,15 +1897,27 @@ class AttentionKQuantPatcher:
         """Restore original forwards."""
         if not self._patched:
             return
+
+        if self._orig_qwen_eager_attention is not None:
+            from transformers.models.qwen2 import modeling_qwen2
+            modeling_qwen2.eager_attention_forward = self._orig_qwen_eager_attention
+            self._orig_qwen_eager_attention = None
+
         for name, module in find_attention_modules(self.model):
             if name in self.original_forwards:
                 module.forward = self.original_forwards[name]
         self.original_forwards.clear()
+        self._patched_module_ids.clear()
         self._patched = False
 
     def reset_stats(self):
         self.key_mse_sum = 0.0
         self.key_mse_count = 0
+        self.sample_ref = None
+        self.sample_quant = None
+        self.sample_query = None
+        self.sample_attention_diag = None
+        self.sample_gqa_diag = None
 
     def _detect_model_type(self) -> str:
         """Detect model architecture type."""
@@ -1068,7 +1936,9 @@ class AttentionKQuantPatcher:
             return config_type or 'unknown'
 
     def _quantize_and_track(self, K: torch.Tensor,
-                            query_states: Optional[torch.Tensor] = None
+                            query_states: Optional[torch.Tensor] = None,
+                            diagnostic_query_states: Optional[torch.Tensor] = None,
+                            num_kv_heads: Optional[int] = None,
                             ) -> torch.Tensor:
         """Quantize K tensor and track MSE.
 
@@ -1079,7 +1949,7 @@ class AttentionKQuantPatcher:
                          For GQA models, Q heads are already grouped to match KV heads.
         """
         q_covs = None
-        if self.method in ("fokvq_qw", "fokvq_full") and query_states is not None:
+        if self.method in ("fokvq_qw", "fokvq_full", "complex_query_metric_residual") and query_states is not None:
             # Compute per-head Q covariance on-the-fly from current chunk
             # query_states: (batch, n_heads_or_kv_heads, seq, d_head)
             # We compute covariance per head across the sequence dimension
@@ -1093,6 +1963,7 @@ class AttentionKQuantPatcher:
             for h in range(n_heads):
                 # Pool across batch: (batch * seq, d_head)
                 Q_h = Q_f[:, h].reshape(-1, d_head)
+                Q_h = Q_h - Q_h.mean(dim=0, keepdim=True)
                 q_covs[h] = (Q_h.T @ Q_h) / max(Q_h.shape[0] - 1, 1)
 
         K_q = quantize_k_tensor(K, self.method, self.bits, self.gamma,
@@ -1100,7 +1971,66 @@ class AttentionKQuantPatcher:
         diff = (K.float() - K_q.float()).pow(2)
         self.key_mse_sum += float(diff.sum().item())
         self.key_mse_count += int(diff.numel())
+        if self.sample_ref is None:
+            self.sample_ref = _extract_diag_sample(K)
+            self.sample_quant = _extract_diag_sample(K_q)
+            q_diag_src = diagnostic_query_states if diagnostic_query_states is not None else query_states
+            if q_diag_src is not None:
+                q_group = q_diag_src
+                if q_group.dim() == 4 and num_kv_heads is not None and q_group.shape[1] != K.shape[1]:
+                    q_group = _group_queries_for_kv(q_group, num_kv_heads)
+                self.sample_query = _extract_query_diag_sample(q_group)
+                self.sample_attention_diag = compute_attention_structure_diagnostics(
+                    self.sample_query, self.sample_ref, self.sample_quant
+                )
+                if diagnostic_query_states is not None and num_kv_heads is not None:
+                    self.sample_gqa_diag = compute_gqa_group_mismatch(
+                        diagnostic_query_states.detach().float().cpu(), num_kv_heads
+                    )
         return K_q
+
+    def _install_qwen_eager_wrapper(self):
+        from transformers.models.qwen2 import modeling_qwen2
+
+        if self._orig_qwen_eager_attention is not None:
+            return
+
+        patcher = self
+        orig_eager = modeling_qwen2.eager_attention_forward
+        self._orig_qwen_eager_attention = orig_eager
+
+        def wrapped_eager_attention_forward(module, query, key, value,
+                                            attention_mask, scaling,
+                                            dropout=0.0, **kwargs):
+            if patcher.active and id(module) in patcher._patched_module_ids:
+                q_for_qw = None
+                if patcher.method in ("fokvq_qw", "fokvq_full"):
+                    if key.shape[1] != query.shape[1]:
+                        n_rep = query.shape[1] // key.shape[1]
+                        q_for_qw = query.view(
+                            query.shape[0], key.shape[1], n_rep,
+                            query.shape[2], query.shape[3]
+                        ).mean(dim=2)
+                    else:
+                        q_for_qw = query
+                key = patcher._quantize_and_track(
+                    key,
+                    query_states=q_for_qw,
+                    diagnostic_query_states=query,
+                    num_kv_heads=key.shape[1],
+                )
+            return orig_eager(
+                module,
+                query,
+                key,
+                value,
+                attention_mask,
+                scaling=scaling,
+                dropout=dropout,
+                **kwargs,
+            )
+
+        modeling_qwen2.eager_attention_forward = wrapped_eager_attention_forward
 
     def _make_gpt2_patched_forward(self, attn_module, orig_forward):
         """Patch for GPT-2 style attention.
@@ -1113,22 +2043,35 @@ class AttentionKQuantPatcher:
         """
         patcher = self
 
-        def patched_forward(hidden_states, layer_past=None, attention_mask=None,
-                          head_mask=None, encoder_hidden_states=None,
-                          encoder_attention_mask=None, use_cache=False,
+        def patched_forward(hidden_states, past_key_value=None, cache_position=None,
+                          attention_mask=None, head_mask=None,
+                          encoder_hidden_states=None,
+                          encoder_attention_mask=None,
                           output_attentions=False, **kwargs):
             if not patcher.active:
                 return orig_forward(
-                    hidden_states, layer_past=layer_past,
+                    hidden_states, past_key_value=past_key_value,
+                    cache_position=cache_position,
                     attention_mask=attention_mask, head_mask=head_mask,
                     encoder_hidden_states=encoder_hidden_states,
                     encoder_attention_mask=encoder_attention_mask,
-                    use_cache=use_cache, output_attentions=output_attentions,
+                    output_attentions=output_attentions,
                     **kwargs)
 
-            # GPT-2 combined QKV projection
-            qkv = attn_module.c_attn(hidden_states)
-            query, key, value = qkv.split(attn_module.split_size, dim=2)
+            is_cross_attention = encoder_hidden_states is not None
+            if is_cross_attention:
+                if not hasattr(attn_module, "q_attn"):
+                    raise ValueError(
+                        "Cross-attention requires q_attn to be defined on GPT2Attention."
+                    )
+                query = attn_module.q_attn(hidden_states)
+                key, value = attn_module.c_attn(encoder_hidden_states).split(
+                    attn_module.split_size, dim=2
+                )
+                attention_mask = encoder_attention_mask
+            else:
+                qkv = attn_module.c_attn(hidden_states)
+                query, key, value = qkv.split(attn_module.split_size, dim=2)
 
             # split_heads: (batch, seq, n_embd) -> (batch, heads, seq, head_dim)
             num_heads = attn_module.num_heads
@@ -1141,63 +2084,48 @@ class AttentionKQuantPatcher:
 
             # GPT-2 has no RoPE, so key here is already the final K
             # Handle layer_past (KV cache from previous steps)
-            if layer_past is not None:
-                past_key, past_value = layer_past
-                key = torch.cat((past_key, key), dim=-2)
-                value = torch.cat((past_value, value), dim=-2)
-
-            present = (key, value) if use_cache else None
+            if past_key_value is not None:
+                if hasattr(past_key_value, "update"):
+                    cache_kwargs = (
+                        {"cache_position": cache_position}
+                        if cache_position is not None
+                        else {}
+                    )
+                    key, value = past_key_value.update(
+                        key,
+                        value,
+                        attn_module.layer_idx,
+                        cache_kwargs=cache_kwargs,
+                    )
+                else:
+                    past_key, past_value = past_key_value
+                    key = torch.cat((past_key, key), dim=-2)
+                    value = torch.cat((past_value, value), dim=-2)
 
             # >>> QUANTIZE K HERE (post any concatenation) <<<
-            key = patcher._quantize_and_track(key, query_states=query)
+            key = patcher._quantize_and_track(
+                key,
+                query_states=query,
+                diagnostic_query_states=query,
+                num_kv_heads=key.shape[1],
+            )
+            attention_mask_aligned = _align_attention_mask(
+                attention_mask, q_len=query.shape[-2], kv_len=key.shape[-2])
 
-            # Manual attention computation
-            attn_weights = torch.matmul(query, key.transpose(-1, -2))
-            attn_weights = attn_weights / math.sqrt(head_dim)
-
-            # Causal mask
-            if not attn_module.is_cross_attention:
-                query_length = query.size(-2)
-                key_length = key.size(-2)
-                # Build causal mask manually (transformers 5.x removed attn_module.bias)
-                causal_mask = torch.tril(
-                    torch.ones(key_length, key_length,
-                               device=attn_weights.device, dtype=torch.bool)
-                )
-                causal_mask = causal_mask[key_length - query_length : key_length, :key_length]
-                causal_mask = causal_mask.unsqueeze(0).unsqueeze(0)  # (1, 1, q, k)
-                mask_value = torch.finfo(attn_weights.dtype).min
-                attn_weights = attn_weights.masked_fill(~causal_mask, mask_value)
-
-            if attention_mask is not None:
-                # Fix: transformers 5.x may pass mask with kv_len > actual key length
-                # when DynamicCache accumulates across layers. Truncate to match.
-                am = attention_mask
-                actual_kv = key.shape[-2]
-                if am.shape[-1] > actual_kv:
-                    am = am[:, :, :, -actual_kv:] if am.dim() == 4 else am[:, -actual_kv:]
-                if am.dim() == 4 and am.shape[-2] > query_length:
-                    am = am[:, :, -query_length:, :]
-                attn_weights = attn_weights + am
-
-            attn_weights = F.softmax(attn_weights, dim=-1)
-            attn_weights = attn_weights.to(value.dtype)
-
-            if head_mask is not None:
-                attn_weights = attn_weights * head_mask
-
-            attn_output = torch.matmul(attn_weights, value)
-            # merge_heads: (batch, heads, seq, head_dim) -> (batch, seq, n_embd)
-            attn_output = attn_output.transpose(1, 2).contiguous().view(
-                bsz, seq_len, num_heads * head_dim)
+            from transformers.models.gpt2.modeling_gpt2 import eager_attention_forward
+            attn_output, attn_weights = eager_attention_forward(
+                attn_module,
+                query,
+                key,
+                value,
+                attention_mask_aligned,
+                head_mask=head_mask,
+            )
+            attn_output = attn_output.reshape(bsz, seq_len, num_heads * head_dim).contiguous()
             attn_output = attn_module.c_proj(attn_output)
             attn_output = attn_module.resid_dropout(attn_output)
 
-            outputs = (attn_output, present)
-            if output_attentions:
-                outputs += (attn_weights,)
-
-            return outputs
+            return attn_output, attn_weights if output_attentions else None
 
         return patched_forward
 
@@ -1279,7 +2207,11 @@ class AttentionKQuantPatcher:
                 else:
                     q_for_qw = query_states
             key_states = patcher._quantize_and_track(
-                key_states, query_states=q_for_qw)
+                key_states,
+                query_states=q_for_qw,
+                diagnostic_query_states=query_states,
+                num_kv_heads=num_kv_heads,
+            )
 
             # Handle KV cache
             if past_key_value is not None:
@@ -1294,8 +2226,9 @@ class AttentionKQuantPatcher:
                     past_key, past_value = past_key_value
                     key_states = torch.cat([past_key, key_states], dim=2)
                     value_states = torch.cat([past_value, value_states], dim=2)
-
-            # GQA: repeat K,V for grouped query attention
+            # Qwen/GQA proved sensitive to our eager-attention rewrite on the
+            # full 7B model. Keep the older explicit repeat + attention path
+            # until a stronger equivalence check is in place.
             if num_kv_heads != num_heads:
                 n_rep = num_heads // num_kv_heads
                 key_states = key_states[:, :, None, :, :].expand(
@@ -1305,33 +2238,25 @@ class AttentionKQuantPatcher:
                     bsz, num_kv_heads, n_rep, -1, head_dim
                 ).reshape(bsz, num_heads, -1, head_dim)
 
-            # Manual attention computation (eager mode)
             attn_weights = torch.matmul(
-                query_states, key_states.transpose(2, 3)) / math.sqrt(head_dim)
+                query_states, key_states.transpose(2, 3)
+            ) / math.sqrt(head_dim)
 
-            if attention_mask is not None:
-                causal_mask = attention_mask
+            attention_mask_aligned = _align_attention_mask(
+                attention_mask, q_len=q_len, kv_len=key_states.shape[2]
+            )
+            if attention_mask_aligned is not None:
+                causal_mask = attention_mask_aligned
                 if causal_mask.dim() == 2:
-                    # (batch, seq) -> (batch, 1, 1, seq)
                     causal_mask = causal_mask[:, None, None, :]
                 elif causal_mask.dim() == 3:
                     causal_mask = causal_mask[:, None, :, :]
-                # 4D mask: (batch, 1, q_len, kv_len)
-                # Fix: transformers 5.x may generate mask with kv_len =
-                # seq_len + past_cache_len, but our patched forward computes
-                # K from scratch (no cache concat), so actual kv_len = q_len.
-                # Truncate mask to match actual K shape.
-                actual_kv_len = key_states.shape[2]
-                if causal_mask.shape[-1] > actual_kv_len:
-                    causal_mask = causal_mask[:, :, :, -actual_kv_len:]
-                if causal_mask.shape[-2] > q_len:
-                    causal_mask = causal_mask[:, :, -q_len:, :]
                 attn_weights = attn_weights + causal_mask
 
             attn_weights = F.softmax(
-                attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+                attn_weights, dim=-1, dtype=torch.float32
+            ).to(query_states.dtype)
             attn_output = torch.matmul(attn_weights, value_states)
-
             attn_output = attn_output.transpose(1, 2).contiguous()
             attn_output = attn_output.reshape(bsz, q_len, -1)
             attn_output = attn_module.o_proj(attn_output)
@@ -1409,6 +2334,212 @@ def evaluate_ppl_chunked(model, input_ids: torch.Tensor,
         "total_tokens": total_count,
         "n_chunks": n_chunks,
         "runtime_s": elapsed,
+    }
+
+
+def _extract_diag_sample(K: torch.Tensor,
+                         max_seq: int = 64,
+                         max_dim: int = 64) -> torch.Tensor:
+    """Extract a small CPU sample from a K tensor for geometry diagnostics."""
+    if K.dim() == 4:
+        sample = K[0, 0]
+    elif K.dim() == 3:
+        sample = K[0]
+    elif K.dim() == 2:
+        sample = K
+    else:
+        raise ValueError(f"Unexpected K dim for diagnostics: {K.dim()}")
+
+    seq = min(sample.shape[0], max_seq)
+    dim = min(sample.shape[1], max_dim)
+    dim = dim - (dim % 2)
+    if dim <= 0:
+        return torch.empty(0, 0, dtype=torch.float32)
+    return sample[:seq, :dim].detach().float().cpu()
+
+
+def _make_symplectic_form(d: int) -> torch.Tensor:
+    J = torch.zeros(d, d, dtype=torch.float32)
+    for i in range(0, d - 1, 2):
+        J[i, i + 1] = -1.0
+        J[i + 1, i] = 1.0
+    return J
+
+
+def _wrap_phase_diff(diff: torch.Tensor) -> torch.Tensor:
+    return torch.atan2(torch.sin(diff), torch.cos(diff))
+
+
+def _group_queries_for_kv(query_states: torch.Tensor,
+                          num_kv_heads: int) -> torch.Tensor:
+    """Pool Q heads into KV-head groups for GQA-aligned diagnostics."""
+    if query_states.dim() != 4:
+        raise ValueError(f"Expected 4D query states, got {query_states.shape}")
+    num_heads = query_states.shape[1]
+    if num_heads == num_kv_heads:
+        return query_states
+    if num_heads % num_kv_heads != 0:
+        raise ValueError(
+            f"Cannot group {num_heads} query heads into {num_kv_heads} KV heads"
+        )
+    n_rep = num_heads // num_kv_heads
+    bsz, _, seq_len, head_dim = query_states.shape
+    grouped = query_states.view(bsz, num_kv_heads, n_rep, seq_len, head_dim)
+    return grouped.mean(dim=2)
+
+
+def _extract_query_diag_sample(query_states: torch.Tensor,
+                               max_seq: int = 64,
+                               max_dim: int = 64) -> torch.Tensor:
+    """Extract a small CPU sample from a query tensor for diagnostics."""
+    if query_states.dim() == 4:
+        sample = query_states[0, 0]
+    elif query_states.dim() == 3:
+        sample = query_states[0]
+    elif query_states.dim() == 2:
+        sample = query_states
+    else:
+        raise ValueError(f"Unexpected query dim for diagnostics: {query_states.dim()}")
+    seq = min(sample.shape[0], max_seq)
+    dim = min(sample.shape[1], max_dim)
+    return sample[:seq, :dim].detach().float().cpu()
+
+
+def compute_hamiltonian_diagnostics(
+    K_ref: torch.Tensor,
+    K_quant: torch.Tensor,
+) -> Dict[str, float]:
+    """Compute conservative Hamiltonian-style descriptive diagnostics.
+
+    These are descriptive proxies on paired RoPE coordinates. They do not prove
+    Hamiltonian dynamics. They only measure how much a quantizer perturbs simple
+    geometry that would be preserved by ideal pair-structure-aware transforms.
+    """
+    if K_ref.numel() == 0 or K_quant.numel() == 0:
+        return {}
+
+    ref = K_ref.float()
+    quant = K_quant.float()
+    even_d = min(ref.shape[-1], quant.shape[-1])
+    even_d = even_d - (even_d % 2)
+    if even_d <= 0:
+        return {}
+
+    ref = ref[:, :even_d]
+    quant = quant[:, :even_d]
+    ref_pairs = ref.view(ref.shape[0], -1, 2)
+    quant_pairs = quant.view(quant.shape[0], -1, 2)
+
+    energy_ref = 0.5 * ref_pairs.pow(2).sum(dim=-1)
+    energy_quant = 0.5 * quant_pairs.pow(2).sum(dim=-1)
+    mean_rel_energy_drift = (
+        (energy_quant - energy_ref).abs() / energy_ref.abs().clamp(min=1e-6)
+    ).mean().item()
+
+    ref_phase = torch.atan2(ref_pairs[..., 1], ref_pairs[..., 0])
+    quant_phase = torch.atan2(quant_pairs[..., 1], quant_pairs[..., 0])
+    phase_mae_rad = _wrap_phase_diff(quant_phase - ref_phase).abs().mean().item()
+
+    J = _make_symplectic_form(even_d)
+    omega_ref = ref @ J @ ref.T
+    omega_quant = quant @ J @ quant.T
+    symplectic_form_rel_drift = (
+        (omega_quant - omega_ref).norm() / omega_ref.norm().clamp(min=1e-6)
+    ).item()
+
+    pair_norm_ref = ref_pairs.norm(dim=-1)
+    pair_norm_quant = quant_pairs.norm(dim=-1)
+    pair_norm_rel_drift = (
+        (pair_norm_quant - pair_norm_ref).abs() / pair_norm_ref.clamp(min=1e-6)
+    ).mean().item()
+
+    return {
+        "sample_seq": int(ref.shape[0]),
+        "sample_dim": int(even_d),
+        "mean_rel_energy_drift": float(mean_rel_energy_drift),
+        "pair_norm_rel_drift": float(pair_norm_rel_drift),
+        "phase_mae_rad": float(phase_mae_rad),
+        "symplectic_form_rel_drift": float(symplectic_form_rel_drift),
+    }
+
+
+def compute_attention_structure_diagnostics(
+    Q_ref: torch.Tensor,
+    K_ref: torch.Tensor,
+    K_quant: torch.Tensor,
+    topk: int = 8,
+) -> Dict[str, float]:
+    """Measure attention-structure distortion on sampled Q/K tensors."""
+    if Q_ref.numel() == 0 or K_ref.numel() == 0 or K_quant.numel() == 0:
+        return {}
+
+    seq = min(Q_ref.shape[0], K_ref.shape[0], K_quant.shape[0])
+    dim = min(Q_ref.shape[1], K_ref.shape[1], K_quant.shape[1])
+    if seq <= 0 or dim <= 0:
+        return {}
+
+    Q = Q_ref[:seq, :dim].float()
+    K0 = K_ref[:seq, :dim].float()
+    K1 = K_quant[:seq, :dim].float()
+
+    logits_ref = Q @ K0.T
+    logits_quant = Q @ K1.T
+    logit_mse = (logits_ref - logits_quant).pow(2).mean().item()
+    logit_rel_l2 = (
+        (logits_ref - logits_quant).norm() / logits_ref.norm().clamp(min=1e-6)
+    ).item()
+
+    k = min(topk, logits_ref.shape[-1])
+    top_ref = torch.topk(logits_ref, k=k, dim=-1).indices
+    top_quant = torch.topk(logits_quant, k=k, dim=-1).indices
+    overlap = []
+    for i in range(top_ref.shape[0]):
+        a = set(top_ref[i].tolist())
+        b = set(top_quant[i].tolist())
+        overlap.append(len(a & b) / max(len(a), 1))
+    topk_overlap = float(np.mean(overlap)) if overlap else 0.0
+
+    return {
+        "attention_logit_mse": float(logit_mse),
+        "attention_logit_rel_l2": float(logit_rel_l2),
+        "attention_topk_overlap": float(topk_overlap),
+        "attention_topk_k": int(k),
+    }
+
+
+def compute_gqa_group_mismatch(
+    query_states: torch.Tensor,
+    num_kv_heads: int,
+) -> Dict[str, float]:
+    """Describe how much grouped Q heads disagree inside each KV group."""
+    if query_states.dim() != 4:
+        return {}
+    num_heads = query_states.shape[1]
+    if num_heads == num_kv_heads:
+        return {
+            "is_gqa": 0.0,
+            "num_query_heads": float(num_heads),
+            "num_kv_heads": float(num_kv_heads),
+            "group_dispersion_rel": 0.0,
+        }
+    if num_heads % num_kv_heads != 0:
+        return {}
+
+    n_rep = num_heads // num_kv_heads
+    grouped = query_states.float().view(
+        query_states.shape[0], num_kv_heads, n_rep,
+        query_states.shape[2], query_states.shape[3]
+    )
+    group_mean = grouped.mean(dim=2, keepdim=True)
+    dispersion = (grouped - group_mean).pow(2).mean(dim=(-1, -2, -3)).sqrt()
+    ref_scale = group_mean.pow(2).mean(dim=(-1, -2, -3)).sqrt().clamp(min=1e-6)
+    group_dispersion_rel = (dispersion / ref_scale).mean().item()
+
+    return {
+        "is_gqa": 1.0,
+        "num_query_heads": float(num_heads),
+        "num_kv_heads": float(num_kv_heads),
+        "group_dispersion_rel": float(group_dispersion_rel),
     }
 
 
@@ -1644,6 +2775,12 @@ def evaluate_method(model, input_ids: torch.Tensor, chunk_len: int,
             result["avg_key_mse"] = (total_mse_sum / total_mse_count
                                       if total_mse_count > 0 else 0.0)
             result["quantization_point"] = "pre_rope"
+            for hook in hooks:
+                if hook.sample_ref is not None and hook.sample_quant is not None:
+                    result["hamiltonian_diag"] = compute_hamiltonian_diagnostics(
+                        hook.sample_ref, hook.sample_quant
+                    )
+                    break
         finally:
             remove_hooks(hooks)
         return result
@@ -1660,6 +2797,14 @@ def evaluate_method(model, input_ids: torch.Tensor, chunk_len: int,
             result["avg_key_mse"] = (patcher.key_mse_sum / patcher.key_mse_count
                                       if patcher.key_mse_count > 0 else 0.0)
             result["quantization_point"] = "post_rope"
+            if patcher.sample_ref is not None and patcher.sample_quant is not None:
+                result["hamiltonian_diag"] = compute_hamiltonian_diagnostics(
+                    patcher.sample_ref, patcher.sample_quant
+                )
+            if patcher.sample_attention_diag is not None:
+                result["attention_diag"] = patcher.sample_attention_diag
+            if patcher.sample_gqa_diag is not None:
+                result["gqa_diag"] = patcher.sample_gqa_diag
         finally:
             patcher.active = False
             patcher.unpatch()
@@ -1689,6 +2834,12 @@ def run_self_tests(seed: int) -> None:
         q = kivi_quantize_tensor(t, bits)
         assert q.shape == t.shape and torch.isfinite(q).all()
     print("  [PASS] kivi_quantize_tensor")
+
+    for bits in [2, 3, 4]:
+        q = kivi_residual_quantize_head(t, bits, group_size=4, residual_length=2)
+        assert q.shape == t.shape and torch.isfinite(q).all()
+        assert torch.allclose(q[-2:], t[-2:]), "residual tail must stay full precision"
+    print("  [PASS] kivi_residual_quantize_head")
 
     K = torch.randn(64, 32) + 5.0
     K_q, r_eff = fokvq_quantize_head(K, 4, 0.3)
@@ -1721,7 +2872,7 @@ def run_self_tests(seed: int) -> None:
     K_2d = torch.randn(32, 16)
     K_3d = torch.randn(4, 32, 16)
     K_4d = torch.randn(1, 4, 32, 16)
-    for method in ["uniform", "kivi", "fokvq"]:
+    for method in ["uniform", "identity", "random", "kivi", "kivi_residual", "fokvq", "turboquant_rand"]:
         q2 = quantize_k_tensor(K_2d, method, 3)
         q3 = quantize_k_tensor(K_3d, method, 3)
         q4 = quantize_k_tensor(K_4d, method, 3)
@@ -1832,12 +2983,16 @@ def run_self_tests(seed: int) -> None:
     Q_cov_test = (Q_cov_test + Q_cov_test.T) / 2
 
     K_e2, r_e2 = fokvq_e2_quantize_head(K_test, 3, 0.3)
+    K_e2_res, r_e2_res = fokvq_e2_residual_quantize_head(K_test, 3, 0.3, residual_length=8)
     K_e3, r_e3 = fokvq_e3_quantize_head(K_test, 3, 0.3)
     K_full, r_full = fokvq_full_quantize_head(K_test, 3, 0.3, Q_cov=Q_cov_test)
     assert K_e2.shape == K_test.shape and torch.isfinite(K_e2).all()
+    assert K_e2_res.shape == K_test.shape and torch.isfinite(K_e2_res).all()
     assert K_e3.shape == K_test.shape and torch.isfinite(K_e3).all()
     assert K_full.shape == K_test.shape and torch.isfinite(K_full).all()
     print("  [PASS] E2/E3/full basic shape and finiteness")
+    assert torch.allclose(K_e2_res[-8:], K_test[-8:]), "E2 residual tail must stay full precision"
+    print("  [PASS] E2 residual tail preservation")
 
     # E2/E3 should produce different results from base FOKVQ
     K_base, _ = fokvq_quantize_head(K_test, 3, 0.3)
@@ -1863,10 +3018,147 @@ def run_self_tests(seed: int) -> None:
 
     # Test 8: quantize_k_tensor dispatches E2/E3/full correctly
     K_4d = torch.randn(1, 4, 32, 16)
-    for m in ["fokvq_e2", "fokvq_e3", "fokvq_full"]:
+    for m in ["fokvq_e2", "fokvq_e2_residual", "fokvq_e3", "fokvq_full"]:
         q = quantize_k_tensor(K_4d, m, 3)
         assert q.shape == K_4d.shape and torch.isfinite(q).all()
     print("  [PASS] quantize_k_tensor dispatches E2/E3/full correctly")
+
+    q_cov_4d_lie = torch.eye(16).unsqueeze(0).unsqueeze(0).expand(1, 4, -1, -1)
+    for m in ["lie_eq", "lie_eq_robust"]:
+        q = quantize_k_tensor(K_4d, m, 3)
+        assert q.shape == K_4d.shape and torch.isfinite(q).all()
+    for m in ["lie_qdiag", "lie_qdiag_robust"]:
+        q = quantize_k_tensor(K_4d, m, 3, q_covs=q_cov_4d_lie)
+        assert q.shape == K_4d.shape and torch.isfinite(q).all()
+    q_rope = quantize_k_tensor(K_4d, "rope_unitary", 3)
+    q_magphase = quantize_k_tensor(K_4d, "rope_magphase", 3)
+    q_cunit = quantize_k_tensor(K_4d, "complex_unitary_residual", 3)
+    q_cov_complex = torch.eye(16).unsqueeze(0).unsqueeze(0).expand(1, 4, -1, -1)
+    q_cq = quantize_k_tensor(K_4d, "complex_query_metric_residual", 3, q_covs=q_cov_complex)
+    q_band = quantize_k_tensor(K_4d, "banded_complex_unitary_residual", 3)
+    assert q_rope.shape == K_4d.shape and torch.isfinite(q_rope).all()
+    assert q_magphase.shape == K_4d.shape and torch.isfinite(q_magphase).all()
+    assert q_cunit.shape == K_4d.shape and torch.isfinite(q_cunit).all()
+    assert q_cq.shape == K_4d.shape and torch.isfinite(q_cq).all()
+    assert q_band.shape == K_4d.shape and torch.isfinite(q_band).all()
+    print("  [PASS] quantize_k_tensor dispatches Lie variants correctly")
+
+    # Test 8b: LieEq reduces variance spread and preserves monotonicity
+    centered = K_aniso.float() - K_aniso.float().mean(dim=0, keepdim=True)
+    R_lie = _greedy_variance_equalizing_rotation(centered)
+    orth_err = (R_lie.T @ R_lie - torch.eye(R_lie.shape[0])).abs().max().item()
+    assert orth_err < 1e-4, f"LieEq rotation lost orthogonality: {orth_err}"
+    var_before = centered.var(dim=0, unbiased=False)
+    var_after = (centered @ R_lie).var(dim=0, unbiased=False)
+    spread_before = (var_before.max() / var_before.min().clamp(min=1e-8)).item()
+    spread_after = (var_after.max() / var_after.min().clamp(min=1e-8)).item()
+    print(f"  [INFO] LieEq variance spread: before={spread_before:.2f}, after={spread_after:.2f}")
+    K_lie_2 = lie_eq_quantize_head(K_aniso, 2)
+    K_lie_4 = lie_eq_quantize_head(K_aniso, 4)
+    mse_lie_2 = (K_aniso - K_lie_2).pow(2).mean().item()
+    mse_lie_4 = (K_aniso - K_lie_4).pow(2).mean().item()
+    assert mse_lie_4 < mse_lie_2, f"LieEq monotonicity failed: 2b={mse_lie_2}, 4b={mse_lie_4}"
+    print("  [PASS] LieEq orthogonality and monotonicity")
+
+    mean_r, centered_robust = _robust_centered_view(K_aniso.float(), clip_quantile=0.95)
+    assert mean_r.shape == (1, K_aniso.shape[1])
+    assert centered_robust.shape == K_aniso.shape
+    assert torch.isfinite(centered_robust).all()
+    K_lie_robust_2 = lie_eq_robust_quantize_head(K_aniso, 2)
+    K_lie_robust_4 = lie_eq_robust_quantize_head(K_aniso, 4)
+    mse_lie_robust_2 = (K_aniso - K_lie_robust_2).pow(2).mean().item()
+    mse_lie_robust_4 = (K_aniso - K_lie_robust_4).pow(2).mean().item()
+    assert mse_lie_robust_4 < mse_lie_robust_2, (
+        f"LieEq-robust monotonicity failed: 2b={mse_lie_robust_2}, 4b={mse_lie_robust_4}"
+    )
+    q_cov_diag = torch.diag(torch.tensor(
+        [100.0, 50.0, 25.0, 10.0] + [0.01] * 28, dtype=torch.float32
+    ))
+    K_qdiag = lie_qdiag_quantize_head(K_aniso, 3, q_cov=q_cov_diag, robust=False)
+    K_qdiag_rob = lie_qdiag_quantize_head(K_aniso, 3, q_cov=q_cov_diag, robust=True)
+    assert torch.isfinite(K_qdiag).all() and torch.isfinite(K_qdiag_rob).all()
+    diff_qdiag = (K_qdiag - lie_eq_quantize_head(K_aniso, 3)).abs().mean().item()
+    assert diff_qdiag > 1e-6, "lie_qdiag should differ from plain lie_eq under anisotropic Q"
+    print("  [PASS] LieEq-robust / LieQDiag finiteness, monotonicity, and Q sensitivity")
+
+    # Test 8c: RoPE-pair unitary transform stays pair-local and commutes with RoPE
+    d_pair = 8
+    K_pair = torch.randn(64, d_pair)
+    K_rope_2 = rope_unitary_quantize_head(K_pair, 2)
+    K_rope_4 = rope_unitary_quantize_head(K_pair, 4)
+    assert torch.isfinite(K_rope_2).all() and torch.isfinite(K_rope_4).all()
+    mse_rope_2 = (K_pair - K_rope_2).pow(2).mean().item()
+    mse_rope_4 = (K_pair - K_rope_4).pow(2).mean().item()
+    assert mse_rope_4 < mse_rope_2, (
+        f"rope_unitary monotonicity failed: 2b={mse_rope_2}, 4b={mse_rope_4}"
+    )
+    theta = torch.tensor(0.37)
+    cs = torch.cos(theta)
+    sn = torch.sin(theta)
+    rope2 = torch.tensor([[cs, -sn], [sn, cs]], dtype=torch.float32)
+    phi = torch.tensor(-0.61)
+    cp = torch.cos(phi)
+    sp = torch.sin(phi)
+    unit2 = torch.tensor([[cp, -sp], [sp, cp]], dtype=torch.float32)
+    comm = (rope2 @ unit2 - unit2 @ rope2).abs().max().item()
+    assert comm < 1e-6, f"pairwise SO(2) should commute with RoPE block: {comm}"
+    print("  [PASS] RoPE-pair unitary monotonicity and commuting-block check")
+
+    # Test 8d: magnitude-phase path is finite and monotone with bit-width
+    K_pair_mp = torch.randn(64, d_pair)
+    K_mp_2 = rope_magphase_quantize_head(K_pair_mp, 2)
+    K_mp_4 = rope_magphase_quantize_head(K_pair_mp, 4)
+    assert torch.isfinite(K_mp_2).all() and torch.isfinite(K_mp_4).all()
+    mse_mp_2 = (K_pair_mp - K_mp_2).pow(2).mean().item()
+    mse_mp_4 = (K_pair_mp - K_mp_4).pow(2).mean().item()
+    assert mse_mp_4 < mse_mp_2, (
+        f"rope_magphase monotonicity failed: 2b={mse_mp_2}, 4b={mse_mp_4}"
+    )
+    print("  [PASS] RoPE magnitude-phase finiteness and monotonicity")
+
+    # Test 8e: complex-unitary residual preserves tail and benefits from bits
+    K_cu = torch.randn(64, d_pair)
+    K_cu_2 = complex_unitary_residual_quantize_head(K_cu, 2, residual_length=8)
+    K_cu_4 = complex_unitary_residual_quantize_head(K_cu, 4, residual_length=8)
+    assert torch.isfinite(K_cu_2).all() and torch.isfinite(K_cu_4).all()
+    assert torch.allclose(K_cu_2[-8:], K_cu[-8:]) and torch.allclose(K_cu_4[-8:], K_cu[-8:])
+    mse_cu_2 = (K_cu[:-8] - K_cu_2[:-8]).pow(2).mean().item()
+    mse_cu_4 = (K_cu[:-8] - K_cu_4[:-8]).pow(2).mean().item()
+    assert mse_cu_4 < mse_cu_2, (
+        f"complex_unitary_residual monotonicity failed: 2b={mse_cu_2}, 4b={mse_cu_4}"
+    )
+    print("  [PASS] complex-unitary residual finiteness, tail preservation, monotonicity")
+
+    # Test 8f: complex query-metric residual reacts to anisotropic query metric
+    q_cov_complex_aniso = torch.zeros(8, 8)
+    q_cov_complex_aniso[0, 0] = 100.0
+    q_cov_complex_aniso[1, 1] = 100.0
+    q_cov_complex_aniso[2, 2] = 25.0
+    q_cov_complex_aniso[3, 3] = 25.0
+    for i in range(4, 8):
+        q_cov_complex_aniso[i, i] = 0.01
+    K_cq = torch.randn(64, 8)
+    K_cq_plain = complex_unitary_residual_quantize_head(K_cq, 3, residual_length=8)
+    K_cq_qm = complex_query_metric_residual_quantize_head(
+        K_cq, 3, q_cov=q_cov_complex_aniso, residual_length=8
+    )
+    assert torch.allclose(K_cq_qm[-8:], K_cq[-8:])
+    diff_cq = (K_cq_qm - K_cq_plain).abs().mean().item()
+    assert diff_cq > 1e-6, "complex query-metric path should differ under anisotropic q_cov"
+    print("  [PASS] complex query-metric residual Q sensitivity and tail preservation")
+
+    # Test 8g: banded complex unitary is finite, tail-safe, and monotone
+    K_band = torch.randn(64, 16)
+    K_band_2 = banded_complex_unitary_residual_quantize_head(K_band, 2, residual_length=8)
+    K_band_4 = banded_complex_unitary_residual_quantize_head(K_band, 4, residual_length=8)
+    assert torch.isfinite(K_band_2).all() and torch.isfinite(K_band_4).all()
+    assert torch.allclose(K_band_2[-8:], K_band[-8:]) and torch.allclose(K_band_4[-8:], K_band[-8:])
+    mse_band_2 = (K_band[:-8] - K_band_2[:-8]).pow(2).mean().item()
+    mse_band_4 = (K_band[:-8] - K_band_4[:-8]).pow(2).mean().item()
+    assert mse_band_4 < mse_band_2, (
+        f"banded_complex_unitary_residual monotonicity failed: 2b={mse_band_2}, 4b={mse_band_4}"
+    )
+    print("  [PASS] banded complex-unitary residual finiteness, tail preservation, monotonicity")
 
     # Test 9: MSE monotonicity for E2 and full
     K_mono = torch.randn(64, 32) + 2.0
@@ -1877,6 +3169,89 @@ def run_self_tests(seed: int) -> None:
             mses_x[bits] = (K_mono - K_q).pow(2).mean().item()
         assert mses_x[4] < mses_x[3] < mses_x[2], f"{label} monotonicity failed: {mses_x}"
         print(f"  [PASS] MSE monotonicity ({label}): 2b={mses_x[2]:.4f} > 3b={mses_x[3]:.4f} > 4b={mses_x[4]:.4f}")
+
+    # Test 9b: Hamiltonian-style diagnostics are finite and vanish on identity
+    K_diag = torch.randn(32, 8)
+    diag_same = compute_hamiltonian_diagnostics(K_diag, K_diag.clone())
+    assert diag_same["mean_rel_energy_drift"] < 1e-8
+    assert diag_same["phase_mae_rad"] < 1e-8
+    assert diag_same["symplectic_form_rel_drift"] < 1e-8
+    K_diag_noisy = K_diag + 0.05 * torch.randn_like(K_diag)
+    diag_noisy = compute_hamiltonian_diagnostics(K_diag, K_diag_noisy)
+    assert diag_noisy["mean_rel_energy_drift"] > 0.0
+    assert diag_noisy["symplectic_form_rel_drift"] > 0.0
+    print("  [PASS] Hamiltonian descriptive diagnostics finiteness and identity check")
+
+    # Test 9c: attention diagnostics detect distortion and GQA grouping
+    Q_diag = torch.randn(16, 8)
+    K_diag2 = torch.randn(16, 8)
+    attn_same = compute_attention_structure_diagnostics(Q_diag, K_diag2, K_diag2.clone(), topk=4)
+    assert attn_same["attention_logit_mse"] < 1e-8
+    assert abs(attn_same["attention_topk_overlap"] - 1.0) < 1e-8
+    K_diag2_noisy = K_diag2 + 0.1 * torch.randn_like(K_diag2)
+    attn_noisy = compute_attention_structure_diagnostics(Q_diag, K_diag2, K_diag2_noisy, topk=4)
+    assert attn_noisy["attention_logit_mse"] > 0.0
+    assert attn_noisy["attention_topk_overlap"] <= 1.0
+    q_gqa = torch.randn(1, 8, 16, 4)
+    gqa_diag = compute_gqa_group_mismatch(q_gqa, num_kv_heads=2)
+    assert gqa_diag["is_gqa"] == 1.0
+    assert gqa_diag["group_dispersion_rel"] > 0.0
+    q_grouped = _group_queries_for_kv(q_gqa, 2)
+    assert q_grouped.shape == (1, 2, 16, 4)
+    print("  [PASS] attention diagnostics and GQA mismatch checks")
+
+    # Test 10: benchmark presets map to hypothesis-aligned configs
+    args_rot = argparse.Namespace(
+        benchmark_preset="rotation_mechanistic",
+        mode="ppl",
+        methods=["fp16", "uniform"],
+        niah_context_lens=[4096],
+        niah_depths=[0.5],
+        max_eval_tokens=0,
+        context_len=256,
+    )
+    meta_rot = apply_benchmark_preset(args_rot)
+    assert meta_rot["benchmark_preset"] == "rotation_mechanistic"
+    validate_benchmark_alignment(args_rot)
+    args_ham = argparse.Namespace(
+        benchmark_preset="hamiltonian_descriptive",
+        mode="ppl",
+        methods=["fp16", "uniform"],
+        niah_context_lens=[4096],
+        niah_depths=[0.5],
+        max_eval_tokens=0,
+        context_len=256,
+    )
+    meta_ham = apply_benchmark_preset(args_ham)
+    assert meta_ham["benchmark_preset"] == "hamiltonian_descriptive"
+    validate_benchmark_alignment(args_ham)
+    args_ret = argparse.Namespace(
+        benchmark_preset="retrieval_depth",
+        mode="niah",
+        methods=["fp16", "fokvq", "identity", "random"],
+        niah_context_lens=[4096],
+        niah_depths=[0.1, 0.5, 0.9],
+        max_eval_tokens=0,
+        context_len=256,
+    )
+    meta_ret = apply_benchmark_preset(args_ret)
+    assert meta_ret["benchmark_preset"] == "retrieval_depth"
+    validate_benchmark_alignment(args_ret)
+    args_short = argparse.Namespace(
+        benchmark_preset="ppl_quality",
+        mode="ppl",
+        methods=["fp16", "fokvq"],
+        niah_context_lens=[4096],
+        niah_depths=[0.1, 0.5, 0.9],
+        max_eval_tokens=128,
+        context_len=256,
+    )
+    try:
+        validate_benchmark_alignment(args_short)
+        raise AssertionError("short PPL smoke should fail when max_eval_tokens < context_len")
+    except ValueError:
+        pass
+    print("  [PASS] benchmark preset metadata and alignment guards")
 
     print("\nAll self-tests passed.")
 
@@ -1892,6 +3267,9 @@ def run() -> None:
         run_self_tests(args.seed)
         return
 
+    benchmark_meta = apply_benchmark_preset(args)
+    validate_benchmark_alignment(args)
+
     set_seed(args.seed)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1906,14 +3284,32 @@ def run() -> None:
     print(f"Device: {args.device}, dtype: {dtype}")
     print(f"Chunk length: {args.context_len} (non-overlapping)")
     print(f"Protocol: {args.protocol}")
+    print(f"Benchmark preset: {args.benchmark_preset}")
     print(f"Methods: {args.methods}, Bits: {args.bits}")
     print(f"FOKVQ gamma: {args.gamma}")
     print("=" * 72)
+    print(f"Intent: {benchmark_meta['intent']}")
+    print(f"Hypothesis: {benchmark_meta['hypothesis']}")
+    print(f"Verification focus: {benchmark_meta['verification_focus']}")
     print()
     print("KEY DIFFERENCE vs v2:")
     print("  v2: sliding window, only prefix K quantized (50% of window)")
     print("  v3: non-overlapping chunks, ALL K quantized via hooks (100%)")
+    if any(m in args.methods for m in ("kivi", "kivi_residual", "turboquant", "turboquant_rand")):
+        print("  NOTE: KIVI/TurboQuant entries here are same-harness proxies unless")
+        print("        explicitly labeled as official external reproductions.")
     print()
+
+    git_head = "unknown"
+    try:
+        git_head = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=Path(__file__).resolve().parents[1],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        pass
 
     # Load model
     print("Loading model...")
@@ -1939,6 +3335,10 @@ def run() -> None:
     # ================================================================
     summary = {
         "experiment": "exp4_2_v3",
+        "generated_at": datetime.now().isoformat(),
+        "hostname": socket.gethostname(),
+        "cwd": str(Path.cwd()),
+        "git_head": git_head,
         "mode": args.mode,
         "model_key": args.model_key,
         "model_name": args.model_name,
@@ -1948,6 +3348,7 @@ def run() -> None:
         "fokvq_gamma": args.gamma,
         "methods": args.methods,
         "bits": args.bits,
+        "benchmark_meta": benchmark_meta,
     }
 
     t0 = time.time()
@@ -1992,6 +3393,30 @@ def run() -> None:
                     print(f"  PPL = {result['ppl']:.4f} "
                           f"({result['total_tokens']} tokens, "
                           f"{result['runtime_s']:.1f}s{mse_str})")
+                    ham = result.get("hamiltonian_diag")
+                    if ham:
+                        print(
+                            "  Hamiltonian diag: "
+                            f"energy={ham['mean_rel_energy_drift']:.4f}, "
+                            f"phase={ham['phase_mae_rad']:.4f}, "
+                            f"symplectic={ham['symplectic_form_rel_drift']:.4f}"
+                        )
+                    attn = result.get("attention_diag")
+                    if attn:
+                        print(
+                            "  Attention diag: "
+                            f"logit_mse={attn['attention_logit_mse']:.4f}, "
+                            f"rel_l2={attn['attention_logit_rel_l2']:.4f}, "
+                            f"topk_overlap={attn['attention_topk_overlap']:.4f}"
+                        )
+                    gqa = result.get("gqa_diag")
+                    if gqa:
+                        print(
+                            "  GQA diag: "
+                            f"dispersion={gqa['group_dispersion_rel']:.4f}, "
+                            f"q_heads={int(gqa['num_query_heads'])}, "
+                            f"kv_heads={int(gqa['num_kv_heads'])}"
+                        )
                 except Exception as e:
                     print(f"  ERROR: {e}")
                     import traceback
