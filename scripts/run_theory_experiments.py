@@ -304,17 +304,25 @@ def calibrate(model, device, n_kv, n_layers, d_head, layers):
 
 
 def eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head, device,
-             bits, method, cal_data, max_tokens=50000):
-    """Evaluate PPL with a given theory method."""
+             bits, method, cal_data, max_tokens=50000, measure_delta_a=False):
+    """Evaluate PPL with a given theory method.
+
+    If measure_delta_a=True, also tracks ||δk||∞/√d (proxy for ||δa||∞)
+    per layer/head and returns aggregated statistics."""
     chunk_len, n_chunks = 2048, (min(all_ids.shape[1], max_tokens) - 1) // 2048
     hks = []
+    delta_tracker = {} if measure_delta_a else None
     for l in range(n_layers):
         hks.append(layers[l].self_attn.k_proj.register_forward_hook(
             make_theory_hook(l, bits, n_kv, d_head, method,
                              pca_bases=cal_data['pca_bases'],
-                             qw_pca_bases=cal_data['qw_pca_bases'],
-                             query_weights=cal_data['query_weights'],
-                             random_rot=cal_data['R_random'])))
+                             qw_pca_bases=cal_data.get('qw_pca_bases'),
+                             sigma_q_half=cal_data.get('sigma_q_half'),
+                             qw_inverse=cal_data.get('qw_inverse'),
+                             sigma_q_diag=cal_data.get('sigma_q_diag'),
+                             sigma_k_diag=cal_data.get('sigma_k_diag'),
+                             random_rot=cal_data['R_random'],
+                             delta_a_tracker=delta_tracker)))
     nll, tok = 0.0, 0
     with torch.no_grad():
         for ci in range(n_chunks):
@@ -329,7 +337,18 @@ def eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head, device,
         hk.remove()
     ppl = np.exp(nll / tok)
     print(f"    {method}_{bits}b: PPL={ppl:.4f} ({tok} tokens)")
-    return float(ppl)
+    result = {'ppl': float(ppl), 'tokens': tok}
+    if measure_delta_a and delta_tracker:
+        all_vals = np.concatenate([np.asarray(v) for v in delta_tracker.values()])
+        result['delta_a_proxy'] = {
+            'mean': float(all_vals.mean()),
+            'p50': float(np.median(all_vals)),
+            'p95': float(np.percentile(all_vals, 95)),
+            'max': float(all_vals.max()),
+        }
+        print(f"      ‖δk‖∞/√d (proxy): mean={result['delta_a_proxy']['mean']:.4f} "
+              f"p95={result['delta_a_proxy']['p95']:.4f} max={result['delta_a_proxy']['max']:.4f}")
+    return result
 
 
 def main():
