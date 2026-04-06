@@ -1,0 +1,32 @@
+\section{실험 상태와 후속 검증 계획}
+
+\subsection{현재 논문에 실제로 반영된 항목}
+
+\begin{table}[h]
+\centering
+\caption{현재 초안에서 사실 기반으로 직접 사용하는 실험 상태.}
+\label{tab:status}
+\small
+\begin{tabularx}{\linewidth}{@{}l l l X@{}}
+\toprule
+\textbf{구분} & \textbf{항목} & \textbf{상태} & \textbf{현재 역할} \\
+\midrule
+완료 & Exp 2-1 facet separability & 준비됨 & H1 지지 근거 \\
+완료 & Exp 2-2 PCA vs LDA & 준비됨 & PCA 충분성 근거 \\
+완료 & Exp 2-3 query dynamicity & 준비됨 & 축/스케줄 분리 근거 \\
+완료 & Exp 3-1 continuous rotation & 준비됨 & PCA strong baseline 근거 \\
+완료 & Exp 4-2 표준 PPL 초기 비교 & 준비됨 & negative-but-informative evidence \\
+미완료 & stronger quantizer variants & 진행 중 & ``회전은 맞고 quantizer가 병목'' 검증 \\
+미완료 & 대형 GQA 모델 메인 표 & 대기 & 현대 모델 일반화 \\
+미완료 & latency / memory 표 & 대기 & 실용성 보강 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{제출 전 채워야 할 빈칸}
+
+\placeholder{Lie 군 해석을 직접 검증하는 추가 실험: PCA vs random vs complex/unitary generator 변형을 동일 harness에서 비교하고, ``생성자 선택'' 가설을 표준화된 방식으로 보고한다.}
+
+\placeholder{Qwen 또는 Llama에서의 후속 표: strong baseline을 이기는지 여부보다, PCA-aligned rotation이 random generator보다 일관되게 낫다는 점과 어디서 병목이 생기는지를 분리해 기술한다.}
+
+\placeholder{실용성 표: 평균 비트, 메모리 절감률, 전처리 비용, 추론 중 추가 latency를 함께 보고해 ``이론만 있고 시스템 cost는 모른다''는 반론을 줄인다.}

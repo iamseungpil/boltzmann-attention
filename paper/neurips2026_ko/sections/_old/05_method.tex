@@ -1,0 +1,35 @@
+\section{현재 구현의 위치}
+
+위의 이론은 회전 선택 문제를 정당화하지만, 실제 구현은 그중 하나의 instantiation일 뿐이다. 본 절의 목적은 FOKVQ를 과장 없이 이 위치에 놓는 것이다.
+
+\subsection{FOKVQ는 공분산 정렬 생성자의 한 구현이다}
+
+각 head에 대해 calibration key 집합 $K=[k_1,\dots,k_n]^\top \in \R^{n \times d}$에서 중심화 공분산
+\[
+\Sigma=\frac{1}{n}\sum_{i=1}^{n}(k_i-\bar{k})(k_i-\bar{k})^\top
+\]
+를 추정한다. 그 다음 고유벡터 행렬 $U$를 계산하고, $z=U^\top k$로 회전된 좌표를 얻는다. 본 논문의 관점에서 이 단계는 ``PCA를 썼다''보다 ``공분산 정렬 생성자가 유도하는 좌표계를 택했다''에 가깝다.
+
+\subsection{회전 후 mixed precision}
+
+회전된 좌표 $z$ 위에서 FOKVQ는 상위 축과 하위 축에 서로 다른 비트를 준다. 이상화하면 다음과 같이 쓸 수 있다.
+\[
+Q_{\mathrm{FOKVQ}}(k)=U
+\begin{bmatrix}
+Q_{b_{\mathrm{hi}}}(z_{1:m})\\
+Q_{b_{\mathrm{lo}}}(z_{m+1:d})
+\end{bmatrix}.
+\]
+여기서 $m$, $b_{\mathrm{hi}}$, $b_{\mathrm{lo}}$, 그리고 gamma 기반 분할 규칙이 실제 구현의 자유도다. 중요한 점은 이 단계가 PCA 정당화와는 별개의 설계층이라는 것이다. 현재 PPL 결과를 해석할 때도 ``PCA가 틀렸다''보다 ``이 양자화층이 아직 강하지 않다''가 더 정확한 읽기일 수 있다.
+
+\subsection{무엇이 이 논문의 메인 기여가 아닌가}
+
+현재 결과를 기준으로 보면 다음은 메인 기여로 두지 않는 편이 맞다.
+
+\begin{enumerate}
+\item \textbf{AFOD나 지도 facet 발견}: 내부 실험에서 LDA/AFOD는 PCA를 이기지 못했다.
+\item \textbf{query마다 축을 다시 선택하는 동적 회전}: query-dependent 변화는 존재하지만, 그것이 축 재학습까지 요구한다는 증거는 없다.
+\item \textbf{현재 FOKVQ 구현의 SOTA PPL}: 표준 프로토콜에서는 아직 보수적으로 써야 한다.
+\end{enumerate}
+
+따라서 본문은 FOKVQ를 ``완성된 최고의 low-bit 시스템''이 아니라, \emph{Lie 군 해석에서 가장 간단하고 해석 가능한 구현}으로 다룬다. 이 위치가 현재 실험과 가장 잘 맞는다.

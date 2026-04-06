@@ -1,0 +1,39 @@
+\section{현재 결과의 해석}
+
+\subsection{H1: 비등방성과 facet 구조는 실재한다}
+
+Exp 2-1은 K-space가 완전히 균질한 구름이 아니라는 점을 보여준다. 코퍼스 내 cosine similarity 평균은 0.8193, 코퍼스 간 평균은 0.4111이며, 차이는 0.4082다. 두 집단 차이에 대한 t-test는 30.50, p-value는 $1.64\times10^{-64}$다. 이 결과는 ``head별 key 표현에는 입력 도메인에 따라 반복되는 구조가 있다''는 가장 기초적인 전제를 지지한다.
+
+이 사실은 논문 서사상 중요하다. Lie 군 해석은 아무 회전에나 붙일 수 있는 장식이 아니다. 회전이 의미를 가지려면, 원래 좌표계에 비등방 구조가 실제로 있어야 한다. Exp 2-1과 낮은 실효 차원 관찰은 그 전제를 제공한다.
+
+\subsection{H2: 정적 회전 선택 문제에서는 PCA가 강한 기준선이다}
+
+Exp 2-2와 Exp 3-1은 이 논문의 가장 중요한 positive evidence다. Exp 2-2에서 LDA는 PCA를 이기지 못했다. 8/2 allocation에서 PCA의 평균 KL은 1.8265인 반면 LDA는 11.8657이고, K reconstruction MSE는 PCA 59.79 대 LDA 1790.11이다. 이는 ``의미론적 label을 사용한 축''이 정적 양자화 surrogate에서 자동으로 더 낫지 않음을 뜻한다.
+
+Exp 3-1은 더 직접적이다. 평균 MSE는 identity 961.01, random 1047.17, PCA 220.45, optimized 938.81이다. 즉 연속 회전 최적화조차 PCA를 넘지 못했다. 이 결과는 PCA가 단순히 ``쉽게 구현되는 baseline''이 아니라, 정적 회전 문제에서 이미 매우 강한 기준선임을 시사한다.
+
+\subsection{H3: query 동적성은 축 자체보다 스케줄 문제를 연다}
+
+Exp 2-3은 query-dependent 변화가 실제로 존재함을 보여준다. 정적 대비 query-dependent rank correlation 평균은 0.6976, allocation L1 평균은 1.1701이다. query-vs-query rank correlation 평균은 0.7460, query-vs-query L1 평균은 0.4935다. 따라서 ``한 번 정한 중요도 스케줄이 모든 query에 그대로 맞는다''는 그림은 틀리다.
+
+그러나 이 결과는 축을 매번 다시 학습해야 한다는 뜻은 아니다. 오히려 현재 데이터는 \emph{정적 축 + 동적 스케줄}이라는 분해를 더 잘 지지한다. 다시 말해, Lie 군 관점에서 생성자 선택은 상대적으로 느린 구조 문제이고, query-dependent 변화는 그 위에 얹히는 빠른 budget allocation 문제로 읽는 것이 자연스럽다.
+
+\subsection{표준 PPL은 현재 구현의 한계를 드러낸다}
+
+표준 sliding-window PPL 로그는 이 논문이 과장하면 안 되는 이유를 보여준다. GPT-2 Medium의 공정 프로토콜에서는 4-bit에서 fp16 26.86, uniform 26.90, KIVI-style 26.88, FOKVQ 27.00, turboquant-style 27.00으로 거의 차이가 없다. 2-bit에서는 KIVI-style과 turboquant-style이 FOKVQ보다 강하다. 따라서 ``현재 FOKVQ 구현이 low-bit PPL에서 strongest baseline을 이긴다''는 문장은 이 초안에서 제거하는 것이 맞다.
+
+하지만 이 negative result가 곧 ``Lie 군 해석이 틀렸다''는 뜻은 아니다. 같은 로그에서 axis ablation을 보면 PCA basis는 identity나 random보다 낫거나 적어도 더 일관된 결과를 준다. 이 조합은 해석을 분명하게 해 준다. \textbf{현재 확보된 증거는 회전 선택 문제에서는 PCA/Lie 해석을 지지하지만, 완성된 quantizer로서의 우위는 아직 증명하지 못했다.}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.92\linewidth]{evidence_readiness.png}
+  \caption{현재 논문의 claim readiness. 구조와 회전 선택에 대한 claim은 비교적 단단하지만, 저비트 메인 테이블 우위 주장은 아직 보류하는 편이 맞다.}
+  \label{fig:readiness}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.88\linewidth]{exp2_3_query_dynamicity.png}
+  \caption{Query-dependent allocation 실험의 요약. 현재 증거는 ``축 재학습''보다 ``정적 축 위의 동적 스케줄'' 해석을 더 잘 지지한다.}
+  \label{fig:query_dynamicity}
+\end{figure}
