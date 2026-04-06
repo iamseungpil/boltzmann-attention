@@ -552,80 +552,64 @@ def compute_bit_allocation_no_one(
     ev_pos = np.maximum(ev_np, 1e-10)
     w = ev_pos ** gamma
     w /= w.sum()
+    total_budget = d * bits_avg
 
-    # Start with standard allocation
-    ib = np.round(w * d * bits_avg).astype(int)
+    # Start with standard allocation (min=0)
+    ib = np.round(w * total_budget).astype(int)
     ib = np.clip(ib, 0, 8)
 
-    # Iteratively remove 1-bit assignments and redistribute
-    for _ in range(d):
+    # Iteratively remove 1-bit assignments
+    max_iters = d * 2
+    for _ in range(max_iters):
         ones_mask = ib == 1
         if not ones_mask.any():
             break
-        # Zero out 1-bit dimensions
-        freed_bits = ones_mask.sum()
-        ib[ones_mask] = 0
-        # Redistribute freed bits to highest-priority non-zero dimensions
-        candidates = np.where(ib > 0)[0]
-        if len(candidates) == 0:
-            # All dims were 1-bit; give 2 bits to top-priority dims
-            priority_order = np.argsort(-w)
-            bits_to_give = int(freed_bits)
-            for idx in priority_order:
-                if bits_to_give >= 2:
-                    ib[idx] = 2
-                    bits_to_give -= 2
-                if bits_to_give < 2:
-                    break
-            break
-        # Sort candidates by priority (eigenvalue weight)
-        cand_priority = np.argsort(-w[candidates])
-        remaining = int(freed_bits)
-        for ci in cand_priority:
-            idx = candidates[ci]
-            if remaining <= 0:
-                break
-            if ib[idx] < 8:
-                ib[idx] += 1
-                remaining -= 1
-
-    # Final budget adjustment
-    total_budget = d * bits_avg
-    while ib.sum() > total_budget:
-        # Remove from lowest-priority dimension with bits > 2
-        nonzero = np.where(ib > 2)[0]
-        if len(nonzero) == 0:
-            nonzero = np.where(ib > 0)[0]
-        if len(nonzero) == 0:
-            break
-        # Lowest priority among nonzero
-        idx = nonzero[np.argmin(w[nonzero])]
-        if ib[idx] == 2:
-            ib[idx] = 0  # Skip to 0 (no 1-bit)
-        else:
-            ib[idx] -= 1
-
-    while ib.sum() < total_budget:
-        nonzero = np.where(ib > 0)[0]
-        if len(nonzero) == 0:
-            # Start assigning to top-priority dims
-            idx = np.argmax(w)
-            ib[idx] = 2
-            continue
-        idx = nonzero[np.argmax(w[nonzero])]
-        if ib[idx] < 8:
-            ib[idx] += 1
-        else:
-            # Find next best
-            other = nonzero[np.argsort(-w[nonzero])]
-            for oi in other:
-                if ib[oi] < 8:
-                    ib[oi] += 1
-                    break
+        # For each 1-bit dim, decide: promote to 2 or demote to 0
+        for i in np.where(ones_mask)[0]:
+            # Promote high-priority dims, demote low-priority ones
+            if w[i] >= np.median(w[ib > 0]) if (ib > 0).any() else 0:
+                ib[i] = 2  # promote: costs +1 bit
             else:
-                break  # All maxed out
+                ib[i] = 0  # demote: frees 1 bit
 
-    # Verify no 1-bit dims
+    # Budget adjustment: bring total to target
+    for _ in range(total_budget * 2):
+        current = ib.sum()
+        if current == total_budget:
+            break
+        elif current > total_budget:
+            # Remove from lowest-priority dim (prefer reducing high-bit dims first)
+            reducible = np.where(ib > 2)[0]
+            if len(reducible) == 0:
+                # Must zero out a 2-bit dim (skip 1)
+                reducible = np.where(ib == 2)[0]
+                if len(reducible) == 0:
+                    break
+                idx = reducible[np.argmin(w[reducible])]
+                ib[idx] = 0  # jump 2->0, frees 2 bits
+                continue
+            idx = reducible[np.argmin(w[reducible])]
+            ib[idx] -= 1
+            if ib[idx] == 1:
+                ib[idx] = 0  # skip the 1-bit state
+        else:
+            # Add to highest-priority dim
+            expandable = np.where((ib > 0) & (ib < 8))[0]
+            if len(expandable) == 0:
+                # Need to activate a new dim with 2 bits
+                zero_dims = np.where(ib == 0)[0]
+                if len(zero_dims) == 0:
+                    break
+                if current + 2 <= total_budget:
+                    idx = zero_dims[np.argmax(w[zero_dims])]
+                    ib[idx] = 2
+                else:
+                    break  # Can't spend exactly 1 bit (forbidden)
+                continue
+            idx = expandable[np.argmax(w[expandable])]
+            ib[idx] += 1
+
+    # Final safety: ensure no 1-bit dims
     ib[ib == 1] = 0
 
     return np.clip(ib, 0, 8)
