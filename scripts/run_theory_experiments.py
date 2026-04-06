@@ -388,7 +388,24 @@ def main():
     cal_data = calibrate(model, device, n_kv, n_layers, d_head, layers)
     print(f"  Done: {len(cal_data['pca_bases'])} heads")
 
-    results = {'model': args.model, 'experiments': {}}
+    # Save measured spectrum (no more hand-picked κ)
+    kq_arr = np.array(list(cal_data['kappa_q'].values()))
+    kk_arr = np.array(list(cal_data['kappa_k'].values()))
+    results = {
+        'model': args.model,
+        'spectrum_measured': {
+            'kappa_q': {'median': float(np.median(kq_arr)),
+                        'mean': float(kq_arr.mean()),
+                        'max': float(kq_arr.max()),
+                        'min': float(kq_arr.min())},
+            'kappa_k': {'median': float(np.median(kk_arr)),
+                        'mean': float(kk_arr.mean()),
+                        'max': float(kk_arr.max()),
+                        'min': float(kk_arr.min())},
+            'note': 'Measured from calibration, NOT hand-picked',
+        },
+        'experiments': {},
+    }
 
     for exp in args.exp:
         print(f"\n{'='*60}")
@@ -397,22 +414,23 @@ def main():
 
         if exp == 't3':
             # T3: Attention-aware quantizer comparison
+            # Compares: uniform, standard_pca, lloyd_max (PCA+Lloyd), attn_quant (PCA+water-filling Lloyd)
             for bits in args.bits:
                 print(f"\n  --- {bits}-bit ---")
-                methods = ['standard_pca', 'attn_quant']
+                methods = ['uniform', 'standard_pca', 'lloyd_max', 'attn_quant']
                 for method in methods:
-                    ppl = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
-                                   device, bits, method, cal_data)
-                    results['experiments'][f't3_{method}_{bits}bit'] = ppl
+                    out = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
+                                   device, bits, method, cal_data, measure_delta_a=True)
+                    results['experiments'][f't3_{method}_{bits}bit'] = out
 
         elif exp == 't4':
-            # T4: Query-weighted PCA vs standard PCA
+            # T4: Query-weighted PCA vs standard PCA (proper Σ_Q^{1/2} transform)
             for bits in args.bits:
                 print(f"\n  --- {bits}-bit ---")
                 for method in ['standard_pca', 'qw_pca']:
-                    ppl = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
-                                   device, bits, method, cal_data)
-                    results['experiments'][f't4_{method}_{bits}bit'] = ppl
+                    out = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
+                                   device, bits, method, cal_data, measure_delta_a=True)
+                    results['experiments'][f't4_{method}_{bits}bit'] = out
 
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
