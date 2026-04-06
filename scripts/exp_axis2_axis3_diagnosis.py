@@ -809,11 +809,7 @@ def run_experiment_e1(
             result = evaluate_ppl_chunked(model, input_ids, args.context_len)
             mse = mk_patcher.key_mse_sum / max(mk_patcher.key_mse_count, 1)
             ppl = result["ppl"]
-            attn_diag = mk_patcher.sample_attention_diag
             print(f"  PPL = {ppl:.4f}, MSE = {mse:.6f}")
-            if attn_diag:
-                print(f"  Attention diag: logit_mse={attn_diag.get('attention_logit_mse', 0):.4f}, "
-                      f"topk_overlap={attn_diag.get('attention_topk_overlap', 0):.4f}")
             results.append({
                 "experiment": "E1",
                 "model": args.model_name,
@@ -821,7 +817,6 @@ def run_experiment_e1(
                 "bits": bits,
                 "ppl": ppl,
                 "mse": mse,
-                "attn_diag": attn_diag or {},
                 "config": {
                     "type": "mk",
                     "gamma": args.gamma,
