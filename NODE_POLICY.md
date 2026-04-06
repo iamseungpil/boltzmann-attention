@@ -41,7 +41,8 @@ Required local paths:
 
 Current websocket URL:
 
-- `wss://ssh-2etszrmvdrq4cwqdql4al50f32ckgsyoyi2puoyq678vdlx42vc.westus2.nodes.azureml.ms`
+- `wss://ssh-2etszrmvdrq4cwqdql4al50f30b0d16gxsfm589ld0y9dm0l6bc.westus2.nodes.azureml.ms`
+- (previous, expired: `wss://ssh-2etszrmvdrq4cwqdql4al50f32ckgsyoyi2puoyq678vdlx42vc.westus2.nodes.azureml.ms`)
 
 Canonical connection command:
 
