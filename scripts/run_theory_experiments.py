@@ -461,6 +461,32 @@ def main():
         'experiments': {},
     }
 
+    # FP16 baseline (for ΔCE = log(PPL/PPL_fp) computation)
+    print(f"\n{'='*60}\nFP16 Baseline\n{'='*60}")
+    fp16_out = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
+                        device, 16, 'fp16_passthrough', cal_data,
+                        measure_delta_a=False, n_heads_total=n_heads_total)
+    fp16_ppl = fp16_out['ppl']
+    results['fp16_baseline_ppl'] = fp16_ppl
+    print(f"  FP16 PPL = {fp16_ppl:.4f}")
+
+    # qw_pca round-trip test (no quantization → PPL must match FP16 within 0.1%)
+    if not args.skip_roundtrip:
+        print(f"\n{'='*60}\nqw_pca Round-trip Test (bits=16, no quantization)\n{'='*60}")
+        # bits=16 effectively skips quantization in uniform_quant_col since 2^16 levels
+        rt_out = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
+                          device, 16, 'qw_pca', cal_data,
+                          measure_delta_a=False, n_heads_total=n_heads_total)
+        rt_ppl = rt_out['ppl']
+        rel_err = abs(rt_ppl - fp16_ppl) / fp16_ppl
+        print(f"  qw_pca @ 16-bit PPL = {rt_ppl:.4f}, rel.err vs FP16 = {rel_err:.6f}")
+        results['qw_pca_roundtrip'] = {
+            'ppl': rt_ppl, 'fp16_ppl': fp16_ppl, 'rel_err': float(rel_err),
+            'pass': rel_err < 0.001,
+        }
+        if rel_err > 0.001:
+            print(f"  ⚠️ ROUND-TRIP FAILURE: qw_pca rotation may have a bug")
+
     for exp in args.exp:
         print(f"\n{'='*60}")
         print(f"Experiment {exp.upper()}")
@@ -468,13 +494,14 @@ def main():
 
         if exp == 't3':
             # T3: Attention-aware quantizer comparison
-            # Compares: uniform, standard_pca, lloyd_max (PCA+Lloyd), attn_quant (PCA+water-filling Lloyd)
             for bits in args.bits:
                 print(f"\n  --- {bits}-bit ---")
                 methods = ['uniform', 'standard_pca', 'lloyd_max', 'attn_quant']
                 for method in methods:
                     out = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
-                                   device, bits, method, cal_data, measure_delta_a=True)
+                                   device, bits, method, cal_data,
+                                   measure_delta_a=True, n_heads_total=n_heads_total)
+                    out['delta_ce'] = float(np.log(out['ppl'] / fp16_ppl))
                     results['experiments'][f't3_{method}_{bits}bit'] = out
 
         elif exp == 't4':
@@ -483,8 +510,21 @@ def main():
                 print(f"\n  --- {bits}-bit ---")
                 for method in ['standard_pca', 'qw_pca']:
                     out = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
-                                   device, bits, method, cal_data, measure_delta_a=True)
+                                   device, bits, method, cal_data,
+                                   measure_delta_a=True, n_heads_total=n_heads_total)
+                    out['delta_ce'] = float(np.log(out['ppl'] / fp16_ppl))
                     results['experiments'][f't4_{method}_{bits}bit'] = out
+
+        elif exp == 't6':
+            # T6: Combined qw_pca rotation + water-filling bit allocation (predicted optimal)
+            for bits in args.bits:
+                print(f"\n  --- {bits}-bit ---")
+                for method in ['attn_quant', 'qw_pca_attn']:
+                    out = eval_ppl(model, all_ids, layers, n_layers, n_kv, d_head,
+                                   device, bits, method, cal_data,
+                                   measure_delta_a=True, n_heads_total=n_heads_total)
+                    out['delta_ce'] = float(np.log(out['ppl'] / fp16_ppl))
+                    results['experiments'][f't6_{method}_{bits}bit'] = out
 
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
