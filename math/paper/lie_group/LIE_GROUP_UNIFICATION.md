@@ -2863,25 +2863,274 @@ M = arg min_{(U, Q, b) ∈ C_M} L(U, Q, b; W_M, φ_M, π_M)
 
 **증명**.
 
-각 방법이 명시된 $(\mathcal{C}_M, W_M, \phi_M, \pi_M)$ instance의 argmin임을 보인다.
+각 방법이 명시된 $(\mathcal{C}_M, W_M, \phi_M, \pi_M)$ instance의 argmin임을 6개 lemma로 분리하여 증명한다.
 
-(1) **KIVI-K**: $U = I$ 제약 하에서 각 채널 $j$에 대해 calibrated uniform quantizer가 $\mathbb{E}[(k_j - Q_j(k_j))^2]$를 최소화 (Lloyd 1957의 1D 결과). 이는 $W = I$, $\phi = x$, $\pi$ = empirical인 instance.
+---
 
-(2) **KVQuant-K**: $U = I$ 제약 + dense-sparse decomposition. Dense 부분에서 NUQ codebook은 sensitivity-weighted MSE를 최소화 (Hooper et al. 2024). $W = I$, $\phi = x$, dense partition 후 calibrated.
+##### Lemma 6.18.7.1 (KIVI-K Derivation)
 
-(3) **KVTC**: $U$를 cross-head shared PCA로 제약. PCA는 $\mathbb{E}[\|U^\top k - \tilde{k}\|^2]$ where $\tilde{k}$ is the rank-r reconstruction. DP bit allocation은 $\sum_j \sigma_j^2 \cdot c_{\text{LM}}(b_j)$ minimization (Staniszewski-Łańcucki 2026, Appendix B.17 sketch). $W = I$, $\phi = x$, calibration data.
+**진술**. KIVI-K (Liu et al. 2024)의 key 양자화는 다음 instance의 argmin이다:
+$$\mathcal{C}_{\text{KIVI-K}} = \{(U, Q, b) : U = I, \, Q_j = \text{Uniform}(s_j, z_j) \text{ for each channel } j\}$$
+$W_M = I, \, \phi_M(x) = x, \, \pi_M$ = streaming sliding window calibration.
 
-(4) **TurboQuant**: $U$를 data-independent로 제약하면 worst-case Σ에 대한 minimax는 Haar measure 하의 expectation에 의해 달성됨 (Marzetta-Tucci 2011). 즉:
-$$\arg\min_{U: \text{data-independent}} \max_\Sigma D(U; \Sigma) = \arg\min \mathbb{E}_{U \sim \text{Haar}}[D(U; \Sigma)]$$
-이는 $\pi = \mathbb{E}_{U \sim \text{Haar}}$ 형태의 instance에 해당.
+**증명**.
 
-(5) **QuaRot**: Hadamard 회전은 minimum coherence rotation이며, post-rotation 분포의 max-norm을 최소화한다:
-$$H = \arg\min_{U \in \text{structured orthogonal}} \mathbb{E}_k[\|Uk\|_\infty]$$
-$L^\infty$ norm은 $L^p$ norm의 $p \to \infty$ limit에 해당하므로, $\phi(x) = x^{p/2}$, $p \to \infty$ instance.
+**(a) KIVI-K의 정확한 정의 (Liu et al. 2024 Section 3)**. KIVI는 sliding window 안의 토큰들에 대해 다음을 수행:
+1. 각 채널 $j$에 대해 $s_j = \max_t k_{tj} - \min_t k_{tj}$, $z_j = \min_t k_{tj}$ 계산
+2. 양자화: $\hat{k}_{tj} = z_j + \lfloor (k_{tj} - z_j) \cdot (2^b - 1) / s_j \rceil \cdot s_j / (2^b - 1)$
+3. 즉, 채널 $j$의 모든 token 값이 $b$-bit uniform quantizer (level 수 $L = 2^b$)로 양자화됨
 
-(6) **SpinQuant**: $U \in O(d)$ 자유, Cayley SGD로 task loss를 최소화:
-$$U^* = \arg\min_{U \in O(d)} \mathcal{L}_{\text{task}}(\text{quantize}(U^\top K))$$
-이는 $W$ = task Hessian, $\phi$ = task loss인 instance. Local 2nd-order expansion에 의해 $W \approx H_{\text{task}} \approx \Sigma_Q$ (정리 6.19.13의 평균 Fisher 근사). □
+**(b) Argmin 구조 도출**. 차원별 독립성: $U = I$이므로 $D(I, Q, b; I) = \sum_j \mathbb{E}_t[(k_{tj} - Q_j(k_{tj}))^2]$.
+
+각 채널 $j$에 대해 독립적으로 최적화:
+$$Q_j^* = \arg\min_{Q_j \in \text{Uniform}(L)} \mathbb{E}_t[(k_{tj} - Q_j(k_{tj}))^2]$$
+
+여기서 $\text{Uniform}(L)$은 level 수 $L$의 uniform scalar quantizer 집합이며, 각 quantizer는 $(s_j, z_j)$로 매개화된다.
+
+**(c) Uniform quantizer 최적해 (Bennett 1948)**. Bounded support $[a, b]$ 위 uniform 분포에 대한 $L$-level uniform quantizer의 MSE 최적해는:
+$$s^* = \frac{b - a}{L - 1}, \quad z^* = a$$
+
+KIVI는 정확히 이 값을 사용 (window 내 min, max로부터). 단, KIVI의 source는 uniform이 아니므로 strictly speaking 이는 "uniform quantizer family에서의 best fit"이다 (i.e., uniform quantizer 제약 하에서의 최적, 비제약 최적은 Lloyd-Max).
+
+**(d) $\pi_M$ 정의**. $\pi_M$은 streaming sliding window 안의 token 분포의 empirical measure:
+$$\pi_M^{(w)} = \frac{1}{|W|} \sum_{t \in W} \delta_{k_t}$$
+여기서 $W$는 현재 window. KIVI는 window가 차면 quantize하고 새 window로 진행. 따라서 $\pi_M$은 시간에 따라 변하는 streaming measure.
+
+**(e) Argmin 등식**. 위 (a)-(d)를 결합하면:
+$$\text{KIVI-K} = \arg\min_{(U, Q, b) \in \mathcal{C}_{\text{KIVI-K}}} \mathbb{E}_{k \sim \pi_{\text{KIVI-K}}}[\|k - Q(U^\top k)\|^2]$$
+
+이는 $W = I$, $\phi(x) = x$, $\pi$ = streaming sliding window인 정의 6.18.7의 instance. □
+
+**Remark**. KIVI의 핵심 contribution은 *streaming sliding window* protocol이며, 이는 본 framework의 $\pi_M$ 선택의 한 사례. 양자화기 자체는 표준 uniform quantizer.
+
+---
+
+##### Lemma 6.18.7.2 (KVQuant-K Derivation)
+
+**진술**. KVQuant-K (Hooper et al. 2024)의 key 양자화 (dense 부분, sparse outlier 제외)는 다음 instance의 argmin이다:
+$$\mathcal{C}_{\text{KVQuant-K}} = \{(U, Q, b) : U = I_{\text{pre-RoPE}}, \, Q_j \in \text{NUQ}_{\text{sens}}\}$$
+$W_M = I, \, \phi_M(x) = x, \, \pi_M$ = sensitivity-weighted calibration distribution.
+
+**증명**.
+
+**(a) KVQuant-K의 4-component 분해 (Hooper et al. 2024 Section 4)**:
+- (i) Per-Channel: $U = I$, 채널별 양자화기
+- (ii) Pre-RoPE: 양자화는 RoPE 적용 전 timing에서 수행
+- (iii) Non-Uniform Quantization (NUQ): sensitivity-weighted Lloyd-Max-like codebook
+- (iv) Dense-and-Sparse: top-1% magnitude outlier를 sparse format으로 별도 저장
+
+본 lemma는 (i), (ii), (iii)의 dense 부분만 다룬다. (iv)는 Class C 외부 (Section 6.18.8 Beyond Class C 참조).
+
+**(b) NUQ codebook 최적성 (Hooper et al. 2024 Eq. 5)**. NUQ는 다음을 풀어 codebook $\{c_l\}_{l=1}^L$을 결정:
+$$\{c_l^*\} = \arg\min_{c_1, ..., c_L} \sum_t s_t \cdot (k_{tj} - \text{nearest}(k_{tj}, \{c_l\}))^2$$
+
+여기서 $s_t$는 token $t$의 sensitivity weight (Hessian-based 또는 attention-magnitude-based).
+
+**(c) Sensitivity-weighted MSE를 framework로 reframing**. Sensitivity weight $s_t$를 $\pi_M$의 reweighting으로 해석:
+$$\pi_M = \frac{\sum_t s_t \delta_{k_t}}{\sum_t s_t}$$
+
+그러면:
+$$\sum_t s_t \cdot (k_{tj} - \hat{k}_{tj})^2 = \sum_t s_t \cdot |\sum_t s_t| \cdot \mathbb{E}_{k \sim \pi_M}[(k_j - Q_j(k_j))^2]$$
+
+즉 sensitivity weight는 $\pi_M$ 안으로 흡수된다. 그러면 NUQ는 $\pi_M$-weighted Lloyd-Max:
+$$\{c_l^*\} = \arg\min_{c_1, ..., c_L} \mathbb{E}_{k \sim \pi_M}[(k_j - \text{nearest}(k_j, \{c_l\}))^2]$$
+
+이는 $\pi_M$에 대한 Lloyd 1957 표준 결과의 1D 적용.
+
+**(d) Pre-RoPE의 framework 위치**. KVQuant은 RoPE 적용 전의 키 분포 $\pi_M$에 대해 양자화. 우리 framework의 $\pi_M$은 임의의 측도이며, "pre-RoPE 좌표계의 키 분포"는 valid choice. 따라서 (ii)는 $\pi_M$ 선택의 일부로 framework에 포함된다.
+
+**(e) Argmin 등식**. (a)-(d) 결합:
+$$\text{KVQuant-K (dense)} = \arg\min_{(U, Q, b) \in \mathcal{C}_{\text{KVQuant-K}}} \mathbb{E}_{k \sim \pi_{\text{KVQuant-K}}}[\|k - Q(U^\top k)\|^2]$$
+
+이는 $W = I$, $\phi(x) = x$, $\pi$ = sensitivity-weighted pre-RoPE empirical인 instance. □
+
+**Remark**. Dense-and-sparse decomposition (component (iv))는 Class C 외부이며 별도 mechanism (outlier exception)으로 처리. 본 lemma의 derivation은 dense 부분만 cover함.
+
+---
+
+##### Lemma 6.18.7.3 (KVTC Derivation)
+
+**진술**. KVTC (Staniszewski & Łańcucki 2026)는 다음 instance의 argmin이다:
+$$\mathcal{C}_{\text{KVTC}} = \{(U, Q, b) : U_{h_1} = U_{h_2} = \cdots = U_{h_G} \text{ for heads in layer-group}, \, Q_j = \text{Uniform}(s_j, z_j), \, b \in \text{DP-feasible}\}$$
+$W_M = I, \, \phi_M(x) = x, \, \pi_M$ = calibration empirical (RedPajama 160K tokens).
+
+**증명**.
+
+**(a) KVTC의 4-component (Staniszewski-Łańcucki 2026 Section 3)**:
+- (i) Pre-RoPE PCA, shared cross-head/layer-group
+- (ii) DP bit allocation
+- (iii) Sliding window + sink tokens (axis 3 token selection)
+- (iv) DEFLATE entropy coding
+
+본 lemma는 (i), (ii)만 다룬다. (iii), (iv)는 axis 3 / Section 6.18.8 참조.
+
+**(b) Shared PCA 최적성**. 제약 $U_{h_1} = U_{h_2} = \cdots = U_{h_G}$ 하에서, 다음 problem의 해를 구한다:
+$$U_{\text{shared}}^* = \arg\min_{U \in O(d), U \text{ shared}} \sum_{h=1}^G \mathbb{E}[\|U^\top k_h - \text{rank-}r\text{ recon}\|^2]$$
+
+이는 concatenated key matrix $K_{\text{cat}} = [K_{h_1}; K_{h_2}; \cdots; K_{h_G}]$의 SVD/PCA에 의해 풀린다 (KVTC Section 3.2의 명시적 procedure):
+$$U_{\text{shared}}^* = \text{eigvecs}\left(\frac{1}{G} \sum_h \Sigma_{K_h}\right)$$
+
+이는 $\frac{1}{G}\sum_h \Sigma_{K_h}$의 PCA 기저와 동치 (concatenation 후 SVD = 평균 covariance의 PCA).
+
+**(c) DP bit allocation 최적성**. 고정 budget $B = \sum_j b_j$ 하에서:
+$$b^* = \arg\min_{b \in \mathbb{N}^d, \sum b_j \leq B} \sum_j \sigma_j^2 \cdot c_{\text{Q}}(b_j)$$
+
+여기서 $\sigma_j^2$는 PCA 기저의 $j$번째 분산, $c_{\text{Q}}(b_j)$는 $b_j$-bit quantizer의 효율 계수. KVTC Appendix B.17은 이를 푸는 DP 알고리즘과 optimality sketch를 제공.
+
+이는 ((b) 결과에서 도출된 분산 $\sigma_j^2$를 input으로 받는) integer programming problem이며, DP로 정확히 풀린다.
+
+**(d) (b)와 (c)의 sequential composition**. KVTC는 sequential 구조:
+1. Calibration data $K_{\text{cal}}$로부터 $\Sigma_{K_h}$ 추정
+2. Shared PCA $U^*$ 계산 (b의 결과)
+3. Rotated 분산 $\sigma_j^2$ 추정
+4. DP로 $b^*$ 결정 (c의 결과)
+5. Uniform quantizer 적용 (각 차원 $j$에 $b_j^*$ bit)
+
+이 sequential composition은 $\mathcal{C}_{\text{KVTC}}$ 내에서 다음과 동치:
+$$\arg\min_{(U, Q, b) \in \mathcal{C}_{\text{KVTC}}} \mathbb{E}[\|k - Q(U^\top k)\|^2]$$
+
+증명: $U$ 제약 (shared)과 $Q$ 제약 (uniform), $b$ 제약 (DP-feasible) 하에서 sequential과 joint 최적해가 일치 (각 변수 그룹의 최적해가 다른 변수에 monotone, water-filling/DP의 표준 결과).
+
+**(e) Argmin 등식**. (b), (c), (d) 결합:
+$$\text{KVTC (axes 1+3)} = \arg\min_{(U, Q, b) \in \mathcal{C}_{\text{KVTC}}} \mathbb{E}_{k \sim \pi_{\text{calib}}}[\|k - Q(U^\top k)\|^2]$$
+
+이는 $W = I$, $\phi(x) = x$, $\pi$ = RedPajama calibration인 instance. □
+
+**Corollary (Domination by Ours)**. Per-head Pre-RoPE PCA에서는 제약 $U_{h_1} = U_{h_2} = \cdots$가 없어진다. 즉 $\mathcal{C}_{\text{KVTC}} \subsetneq \mathcal{C}_{\text{Ours}}$. 정리 6.18.6 (iii)에 의해 $D^*_{\text{Ours}} \leq D^*_{\text{KVTC}}$ (strict by Fischer 부등식, V3 F6에서 +46.3%로 발현).
+
+---
+
+##### Lemma 6.18.7.4 (TurboQuant Derivation)
+
+**진술**. TurboQuant은 다음 minimax instance에 해당한다:
+$$\mathcal{C}_{\text{TurboQuant}} = \{(U, Q, b) : U \text{ data-independent (Haar-distributed)}, \, Q \text{ uniform}, \, b \text{ uniform}\}$$
+$W_M = I, \, \phi_M(x) = x, \, \pi_M = \mathbb{E}_{U \sim \text{Haar}(O(d))}[\delta_{Uk}]$ (Haar-averaged measure).
+
+**증명**.
+
+**(a) TurboQuant의 정의 (Marzetta-Tucci 2011)**. TurboQuant은 random orthogonal rotation $U \sim \text{Haar}(O(d))$를 적용한 후 uniform scalar quantization. 회전은 data-independent이므로 calibration이 불필요.
+
+**(b) "Argmin"의 정확한 의미**. TurboQuant은 strictly speaking arg min이 아닌 random sampling이다. 그러나 다음 두 가지 의미로 framework에 fit:
+
+**의미 1: Minimax 해석**. 임의의 분포 $\Sigma$에 대한 worst-case 분석:
+$$U_{\text{Turbo}} = \arg\min_{U \in O(d), \text{ data-independent}} \max_{\Sigma \in \mathcal{S}} D(U; \Sigma)$$
+
+여기서 $\mathcal{S}$는 모든 가능한 PSD 공분산. Saddle point theorem에 의해:
+$$\min_{U \text{ data-indep}} \max_\Sigma D(U; \Sigma) = \max_\Sigma \min_U D(U; \Sigma)$$
+
+내측 최소화 ($\min_U$)는 PCA를 주지만, 외측 최대화는 worst-case Σ를 선택. Worst case에서 Haar measure가 minimax 달성 (Marzetta-Tucci 2011 Theorem 1).
+
+**의미 2: 분포 평균 해석**. Haar measure 아래 expectation:
+$$\mathbb{E}_{U \sim \text{Haar}}[D(U; \Sigma)] = \mathbb{E}_{U}[\text{tr}(U^\top \Sigma U \cdot \text{diag}(c_{\text{uni}}))]$$
+
+직교 회전의 trace invariance: $\text{tr}(U^\top \Sigma U) = \text{tr}(\Sigma)$. 따라서:
+$$\mathbb{E}_{U \sim \text{Haar}}[D(U; \Sigma)] = c_{\text{uni}} \cdot \text{tr}(\Sigma) / d$$
+
+이는 차원당 평균 분산 $\text{tr}(\Sigma)/d = \text{AM}(\lambda_1, ..., \lambda_d)$이다. PCA는 $\text{GM}(\lambda)$를 달성하므로 PCA의 이득 = $\text{AM}/\text{GM} = R_{\text{aniso}}$.
+
+**(c) $\pi_M = \mathbb{E}_{U \sim \text{Haar}}[\delta_{Uk}]$의 의미**. $\pi_M$은 keys의 Haar-averaged 분포이며, 이는 $\Sigma_K$의 isotropic part만 보존한다 (non-isotropic 정보는 expectation으로 평균화).
+
+**(d) Argmin 등식**.
+$$\text{TurboQuant} \in \arg\min_{(U, Q, b) \in \mathcal{C}_{\text{Turbo}}} \mathbb{E}_{k \sim \pi_{\text{Turbo}}}[\|k - Q(U^\top k)\|^2]$$
+
+여기서 "$\in$"은 minimax 또는 평균 해석에 따라 unique 또는 family of equivalent solutions. □
+
+**Remark (Limit Behavior)**. 차원 $d \to \infty$에서 Haar measure의 어떤 sample $U$도 거의 isotropic effect를 가짐 (Levy concentration). 따라서 TurboQuant의 어떤 random instance도 평균과 거의 일치한다.
+
+---
+
+##### Lemma 6.18.7.5 (QuaRot Derivation)
+
+**진술**. QuaRot (Ashkboos et al. 2024)의 R3 회전은 다음 instance의 argmin이다:
+$$\mathcal{C}_{\text{QuaRot}} = \{(U, Q, b) : U \in \text{Hadamard}(d), \, Q \text{ uniform}, \, b \text{ uniform}\}$$
+$W_M = I, \, \phi_M(x) = x^{p/2}$ for $p \to \infty$, $\pi_M$ = per-token empirical.
+
+**증명**.
+
+**(a) QuaRot의 R3 정의 (Ashkboos et al. 2024 Section 4.3)**. R3는 KV cache quantization을 위한 online Hadamard 회전:
+$$\hat{k} = H \cdot Q_{\text{uniform}}(H^\top k)$$
+여기서 $H$는 $d \times d$ Hadamard matrix (entries are $\pm 1/\sqrt{d}$).
+
+QuaRot의 motivation: outlier suppression. Hadamard 회전은 큰 magnitude entries를 분산시켜 quantization 효율을 높임.
+
+**(b) Outlier suppression의 수학적 정확화**. Hadamard 회전 후 키 벡터의 entry 분포:
+$$[Hk]_i = \frac{1}{\sqrt{d}} \sum_j \pm k_j$$
+
+Central limit theorem에 의해 $d$가 크면 $[Hk]_i \approx \mathcal{N}(0, \|k\|^2/d)$. 이는 isotropic Gaussian처럼 보이며, max-norm $\|Hk\|_\infty$가 작다 (heavy tail 제거).
+
+**(c) Hadamard의 minimum coherence 성질**. Hadamard matrix는 다음을 만족:
+$$H = \arg\min_{U: \text{ matrix entries equal magnitude}} \mathbb{E}_k[\|Uk\|_\infty^2]$$
+
+또는 더 약한 형태:
+$$\|H\|_{\text{coherence}} = \max_{i,j} |H_{ij}| = 1/\sqrt{d}$$
+이는 $d \times d$ orthogonal matrix의 entry magnitude lower bound (Welch bound)를 달성한다.
+
+**(d) $L^\infty$ minimization을 framework family로 reframing**. $\phi(x) = x^{p/2}$를 사용하면:
+$$\mathcal{L}(U, Q, b; I, x^{p/2}, \pi) = \mathbb{E}_{k}\bigl[\|k - Q(U^\top k)\|^p\bigr]$$
+
+$p \to \infty$ limit에서 $L^p$ norm은 $L^\infty$ norm에 수렴:
+$$\lim_{p \to \infty} \mathbb{E}[\|x\|_p^p]^{1/p} = \|x\|_\infty \text{ (almost surely)}$$
+
+따라서 $L^\infty$ minimization은 framework $\mathcal{F}$의 $\phi_M(x) = x^{p/2}, p \to \infty$ limit case.
+
+**(e) Argmin 등식**. (b)-(d) 결합. Hadamard는:
+$$H \in \arg\min_{U \in \mathcal{C}_{\text{QuaRot}}} \mathbb{E}_{k \sim \pi}\bigl[\|k - Q_{\text{uniform}}(U^\top k)\|^p\bigr] \quad \text{as } p \to \infty$$
+
+이는 $W = I$, $\phi = x^{p/2}, p \to \infty$, $\pi$ = per-token empirical인 instance. □
+
+**Remark**. Hadamard는 unique minimum이 아니다 — DFT matrix, Reed-Muller code 등 다른 minimum coherence rotation도 동일한 $L^\infty$ 값을 달성. QuaRot가 Hadamard를 선택한 이유는 *computational* (online speed via fast Walsh-Hadamard transform).
+
+---
+
+##### Lemma 6.18.7.6 (SpinQuant Derivation)
+
+**진술**. SpinQuant (Liu et al. 2024)의 학습된 회전은 다음 instance의 argmin이다 (asymptotic, 2nd-order expansion):
+$$\mathcal{C}_{\text{SpinQuant}} = \{(U, Q, b) : U \in O(d), \, Q \text{ uniform fixed}, \, b \text{ uniform fixed}\}$$
+$W_M = H_{\text{task}}$ (task Hessian), $\phi_M(x) = x$ (locally), $\pi_M$ = calibration empirical.
+
+**증명**.
+
+**(a) SpinQuant의 정의 (Liu et al. 2024 Section 3)**. SpinQuant은 회전 $R$을 Cayley parameterization으로 학습:
+$$R^* = \arg\min_{R \in O(d)} \mathcal{L}_{\text{task}}\bigl(\text{LLM}(\text{quantize}(R^\top K(x)))\bigr)$$
+
+여기서 $\mathcal{L}_{\text{task}}$는 downstream cross-entropy (perplexity proxy). Cayley map $R(\Omega) = (I + \Omega)(I - \Omega)^{-1}$ for skew-symmetric $\Omega$가 SGD 가능한 parameterization을 제공.
+
+**(b) Local 2nd-order expansion**. Task loss를 키 양자화 오차 $\delta k$ 주변에서 Taylor 전개:
+$$\mathcal{L}_{\text{task}}(\hat{k}) = \mathcal{L}_{\text{task}}(k) + \nabla \mathcal{L} \cdot (\hat{k} - k) + \frac{1}{2} (\hat{k} - k)^\top H_{\text{task}} (\hat{k} - k) + O(\|\delta k\|^3)$$
+
+여기서 $H_{\text{task}} = \nabla^2_k \mathcal{L}_{\text{task}}$는 task Hessian.
+
+Calibration set 위 expectation:
+$$\mathbb{E}_x[\mathcal{L}_{\text{task}}(\hat{k})] = \mathbb{E}_x[\mathcal{L}_{\text{task}}(k)] + \mathbb{E}_x[\nabla \mathcal{L} \cdot \delta k] + \frac{1}{2} \mathbb{E}_x[\delta k^\top H_{\text{task}} \delta k] + O(\|\delta k\|^3)$$
+
+Optimal quantizer 위 (centroid 조건): $\mathbb{E}[\nabla \mathcal{L} \cdot \delta k] \approx 0$ (1st-order vanishes at optimum).
+
+**(c) Quadratic form으로 환원**. (b)의 leading-order term:
+$$\mathcal{L}_{\text{task}}(\hat{k}) - \mathcal{L}_{\text{task}}(k) \approx \frac{1}{2} \mathbb{E}[\delta k^\top H_{\text{task}} \delta k]$$
+
+이는 $W = H_{\text{task}}$인 weighted MSE의 형태:
+$$\mathcal{L}_{\text{SpinQuant}}^{\text{quad}}(U, Q, b) = \mathbb{E}_{k \sim \pi_{\text{calib}}}[(k - Q(U^\top k))^\top H_{\text{task}} (k - Q(U^\top k))]$$
+
+**(d) Task Hessian의 Fisher 정보 해석**. Task loss가 cross-entropy인 경우, $H_{\text{task}}$는 모델 출력의 Fisher 정보:
+$$H_{\text{task}} \approx \mathbb{E}_x\bigl[\nabla_k \log p_{\text{model}}(\cdot|k) \cdot \nabla_k \log p_{\text{model}}(\cdot|k)^\top\bigr]$$
+
+Attention의 경우, 이는 (정리 6.19.12, 6.19.13에 의해):
+$$H_{\text{task}} \approx Q^\top F_{\text{softmax}} Q \approx \Sigma_Q$$
+
+따라서 SpinQuant은 ($U \in O(d)$ 자유 + Σ_Q-weighted MSE) instance에 asymptotic하게 해당.
+
+**(e) Argmin 등식 (asymptotic)**. $\delta k$가 작은 영역 (high-rate)에서:
+$$\text{SpinQuant} \approx \arg\min_{(U, Q, b) \in \mathcal{C}_{\text{SpinQuant}}} \mathbb{E}_{k \sim \pi_{\text{calib}}}[(k - Q(U^\top k))^\top H_{\text{task}} (k - Q(U^\top k))]$$
+
+이는 $W = H_{\text{task}}$, $\phi = x$, $\pi$ = calibration인 instance. □
+
+**Remark (실제 SpinQuant은 직접 task loss 사용)**. 위 lemma는 SpinQuant의 *효과*가 framework family 안에 있음을 보인다. 실제 SpinQuant은 closed-form $H_{\text{task}}$를 계산하지 않고 SGD로 직접 task loss를 minimize한다. 이는 framework family에서 specific instance를 implicit하게 푸는 것에 해당.
+
+**Connection to Ours**. 정리 6.19.13에 의해 $H_{\text{task}} \approx \Sigma_Q$ (평균 Fisher 근사). 따라서 SpinQuant의 학습된 $R^*$는 본 논문의 per-head Q-가중 PCA (Ours-Axis2의 MK Lloyd 회전)에 수렴해야 한다는 검증 가능한 예측이 도출된다.
+
+---
+
+**정리 6.18.7의 결론**. 6개 prior method 모두 framework family $\mathcal{F}$의 specific $(C_M, W_M, \phi_M, \pi_M)$ instance로 도출되며, 각 도출은 위 6개 lemma에서 explicit한 수학적 설명을 가진다. 본 논문의 방법은 가장 큰 constraint set $\mathcal{C} = \text{Class C}$ (full)를 사용하며, $W = \Sigma_K$ (또는 $\Sigma_Q$)에서 unique minimum을 달성. □
 
 **중요 관찰 (Class C와 Level 2.7의 관계)**:
 
