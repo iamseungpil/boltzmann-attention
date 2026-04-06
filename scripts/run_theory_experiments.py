@@ -184,15 +184,25 @@ def make_theory_hook(layer_idx, bits, n_kv, d_head, method,
                     Kr[:, j] = uniform_quant_col(Kr[:, j], bits)
                 k_flat[:, h, :] = Kr
 
-            # Optional: measure ||δa||∞ as ||q · δk||∞ / √d
-            # Stored to delta_a_tracker if provided (avoids hot-path overhead by default)
-            if delta_a_tracker is not None:
-                delta_k = k_flat[:, h, :] - Kh
-                # Use ||δk||∞ / √d as proxy (true δa needs current q which we don't have here)
-                tracker_key = (layer_idx, h, method, bits)
-                delta_a_tracker.setdefault(tracker_key, []).append(
-                    float(np.abs(delta_k).max() / np.sqrt(d_head))
-                )
+            # Real ||δa||∞ measurement: max_t,i |q_t · δk_i| / √d
+            # Requires q vectors captured by the q_proj forward_pre_hook into live_q_store.
+            # NOTE: q from mod.q_proj is PRE-RoPE. Post-RoPE measurement requires deeper hook.
+            if delta_a_tracker is not None and live_q_store is not None and layer_idx in live_q_store:
+                delta_k = k_flat[:, h, :] - Kh  # (n_tokens, d_head)
+                # q_layer shape: (n_tokens, n_heads_total, d_head). For GQA, take all G heads
+                # mapped to KV head h, average their |q · δk| over the G group.
+                q_layer = live_q_store[layer_idx]  # numpy (n_tokens, n_heads_total, d_head)
+                G = (n_heads_total // n_kv) if n_heads_total else 1
+                q_group = q_layer[:, h*G:(h+1)*G, :]  # (n, G, d)
+                # δa_{t,i} = q_t · δk_i / √d. We compute max over all token pairs (t,i).
+                # q_group: (n, G, d), delta_k: (n, d)  → for each query head g, products: (n_t, n_i) = q_g @ δk^T
+                # Max over t (queries), i (keys), g (head in group):
+                #   for g in G: M_g = q_g @ delta_k.T / √d   shape (n, n)
+                #   record max |M_g|
+                for g in range(G):
+                    M = q_group[:, g, :] @ delta_k.T / np.sqrt(d_head)
+                    tracker_key = (layer_idx, h, method, bits)
+                    delta_a_tracker.setdefault(tracker_key, []).append(float(np.abs(M).max()))
 
         return torch.tensor(k_flat.reshape(orig_shape), dtype=k.dtype, device=k.device)
     return hook_fn
