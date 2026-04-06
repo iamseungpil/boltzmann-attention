@@ -135,9 +135,27 @@ def make_theory_hook(layer_idx, bits, n_kv, d_head, method,
                 # Effective per-dim weight = √(σ_Q,j · σ_K,j)
                 w = np.sqrt(sigma_q_diag[key] * sigma_k_diag[key])
                 bits_per_dim = weighted_bit_allocation(w, total_bits=bits * d_head,
-                                                       min_bits=1, max_bits=8)
+                                                       min_bits=2, max_bits=8)
                 Kr = attn_aware_quantize_block(Kr, bits_per_dim)
                 k_flat[:, h, :] = Kr @ R.T
+
+            elif method == 'qw_pca_attn' and qw_pca_bases and key in qw_pca_bases:
+                # T6: combined qw_pca rotation + water-filling bit allocation
+                Sqh = sigma_q_half[key]
+                Sqi = qw_inverse[key]
+                V_qw = qw_pca_bases[key]
+                Kt = Kh @ Sqh.T
+                Kr = Kt @ V_qw
+                w = np.sqrt(sigma_q_diag[key] * sigma_k_diag[key])
+                bits_per_dim = weighted_bit_allocation(w, total_bits=bits * d_head,
+                                                       min_bits=2, max_bits=8)
+                Kr = attn_aware_quantize_block(Kr, bits_per_dim)
+                Kt2 = Kr @ V_qw.T
+                k_flat[:, h, :] = Kt2 @ Sqi.T
+
+            elif method == 'fp16_passthrough':
+                # No quantization — for FP16 baseline measurement
+                k_flat[:, h, :] = Kh.copy()
 
             elif method == 'lloyd_max' and pca_bases and key in pca_bases:
                 R = pca_bases[key]
