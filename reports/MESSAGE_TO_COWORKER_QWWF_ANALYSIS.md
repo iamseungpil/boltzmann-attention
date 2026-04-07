@@ -8,7 +8,14 @@
 
 ## TL;DR
 
-QW-WF의 PPL 개선 (Qwen 10.7%, Llama 32.9%, Mistral 9.6%)을 우리 전체 결과 셋과 교차 검증한 결과, **그 개선의 99% 이상이 WF(floor=2) 자체에서 발생**하고 **query-weighting의 marginal 기여는 0.04~0.50%** (noise level)로 측정됩니다. 더 중요한 것은, 이 결과가 **우연이 아니라 PCA-Q natural alignment의 수학적 귀결**입니다 — 즉 **QW-WF 새 method 주장과 PCA-Q alignment 발견은 mutually exclusive**합니다. 둘 중 하나만 truth이며, alignment는 직접 측정으로 (0.6~2.5°) 입증됐으니 truth입니다. 따라서 QW-WF의 framing을 honest reframe할 것을 제안합니다.
+QW-WF의 PPL 개선 (Qwen 10.7%, Llama 32.9%, Mistral 9.6%)을 우리 전체 결과 셋과 교차 검증한 결과, **그 개선의 99% 이상이 WF(floor=2) 자체에서 발생**하고 **query-weighting의 marginal 기여는 0.04~0.50%** (noise level)로 측정됩니다.
+
+`mais` 측에서 직접 측정으로 검증한 결과 (§5):
+- **Spearman ρ(λ_k, σ_q²)**: median +0.655 (per-head 변동 큼; 17%의 head만 ρ>0.9)
+- **Bit allocation L1 diff (WF vs QW-WF)**: 4-8% of budget (small but non-zero)
+- **결론**: QW-WF는 WF(floor=2)와 *완전 동일*은 아니지만 **marginal perturbation** — 5% bit 변동이 0.5% PPL change로 전이
+
+원 주장 (mathematically equivalent)는 너무 강했지만, **honest reframing 권고는 여전히 유효**합니다: QW-WF는 main contribution이 아닌 **minor refinement** 또는 **negative ablation**으로 다뤄야 합니다.
 
 ---
 
