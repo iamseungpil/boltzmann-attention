@@ -208,6 +208,36 @@ $$\text{Lloyd failure ratio} \propto \max_{(l,h)} \kappa(F_{l,h}) / \text{median
 
 **검증 방법**: 이론적 (실험 불필요). Appendix로 추가.
 
+#### Proposition D (Per-head Outlier Concentration, **신규, Exp1+Exp4 확립**)
+
+> KV-cache Lloyd-Max quantization에서 PPL 실패는 **소수의 outlier (layer, head) 조합**에 집중되어 있다. 이 outlier는 구조적으로 **early transformer layers (특히 layer 2-6)**에 위치하며, 해당 layer들에 대한 특별 처리만으로 PPL의 상당 부분을 회복할 수 있다.
+
+**Empirical 지지**:
+
+1. **Exp1 (per-head κ 분석)**:
+   - Mistral-7B: Top 3 outlier heads 모두 Layer 2 (H3: κ=2.8M, H6: 989K, H1: 288K)
+   - Qwen2.5-7B: Top outlier Layer 19 H0 (κ=3.4M), 두 번째 Layer 2 H0 (κ=138K)
+   - Qwen2.5-14B: Layer 2 dominated (H1: 381M, H0: 112M, H5: 41M)
+
+2. **Exp4 (per-layer Lloyd PPL substitution)**:
+   - Baseline (FP16): 5.388
+   - Top-5 catastrophic layers: **Layer 2 (+0.555), 4 (+0.521), 6 (+0.304), 3 (+0.287), 5 (+0.206)** — **all in layers 2-6**
+   - Safe layers (mid/late): ΔPPL < 0.05 (무시 가능)
+   - Layer 26 실제로 개선 (ratio 0.999)
+
+3. **Cross-verification**: Exp1의 κ outlier 위치 = Exp4의 PPL 실패 위치 (Layer 2 = 둘 다 최악)
+
+**수학적 형식 (제안)**:
+$$\text{TotalFailure}(Q_{Lloyd}) \approx \sum_{l \in \mathcal{L}_{out}} \Delta\text{PPL}_l + \epsilon$$
+여기서 $\mathcal{L}_{out} = \{l : \kappa_l > \tau \cdot \text{median}\}$는 소수의 outlier layer 집합.
+
+**처방**:
+1. Outlier layer (2-6)에 더 많은 bit 할당 (4-bit 또는 3-bit)
+2. 나머지 layer는 2-bit Lloyd로 충분
+3. 평균 bit rate는 거의 2-bit 수준 유지 (Next-2 실험에서 검증 중)
+
+**논문 기여**: Framework의 failure mode를 **structural (layer-localized)** 로 특성화. 이는 균일 처리보다 **구조-aware 처리**가 필요함을 보임.
+
 ---
 
 ## 2. 실험 E1: $\kappa(\bar{M}_{KL})$ 측정 — Proposition A 검증
