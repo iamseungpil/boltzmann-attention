@@ -220,20 +220,20 @@ def main():
                 'kappa': kappa, 'lam_top_over_median': lam_ratio,
             })
     head_stats.sort(key=lambda x: -x['kappa'])
-    print(f"  Top-15 heads by κ:")
-    print(f"  {'rank':<4}|{'L':<4}|{'H':<3}|{'κ':>12}|{'λ1/med':>10}|{'pos0':>8}|{'first4':>8}", flush=True)
-    for i, rec in enumerate(head_stats[:15]):
+    # Compute attn stats for ALL top-32 first, then print top-15
+    for rec in head_stats[:32]:
         li = rec['layer']; hk = rec['kv_head']
         attn = attn_weights[li][0].float().cpu().numpy()  # (n_q, T, T)
         q_start = hk * q_per_kv
         q_end = q_start + q_per_kv
         attn_avg = attn[q_start:q_end].mean(axis=0).mean(axis=0)  # (T,)
-        a0 = float(attn_avg[0])
-        a4 = float(attn_avg[:4].sum())
-        rec['attn_pos0'] = a0
-        rec['attn_first4'] = a4
-        print(f"  {i+1:<4}|{li:<4}|{hk:<3}|{rec['kappa']:>12.2e}|{rec['lam_top_over_median']:>10.1f}|"
-              f"{a0:>8.4f}|{a4:>8.4f}", flush=True)
+        rec['attn_pos0'] = float(attn_avg[0])
+        rec['attn_first4'] = float(attn_avg[:4].sum())
+    print(f"  Top-15 heads by κ:")
+    print(f"  {'rank':<4}|{'L':<4}|{'H':<3}|{'κ':>12}|{'λ1/med':>10}|{'pos0':>8}|{'first4':>8}", flush=True)
+    for i, rec in enumerate(head_stats[:15]):
+        print(f"  {i+1:<4}|{rec['layer']:<4}|{rec['kv_head']:<3}|{rec['kappa']:>12.2e}|{rec['lam_top_over_median']:>10.1f}|"
+              f"{rec['attn_pos0']:>8.4f}|{rec['attn_first4']:>8.4f}", flush=True)
 
     # Aggregate stats over top-32 heads (matching Mistral count)
     top_k_heads = head_stats[:32]
