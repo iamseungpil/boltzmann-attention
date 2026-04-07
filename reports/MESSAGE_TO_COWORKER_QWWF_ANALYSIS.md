@@ -190,39 +190,96 @@ Section: Theoretical framework (revised)
 
 ---
 
-## 5. 추가 검증 실험 제안 (선택 사항)
+## 5. 추가 검증 실험 — 직접 측정 결과 (2026-04-07 실행 완료)
 
-이 분석이 100% 확실한지 직접 검증하려면 다음 실험을 해볼 수 있습니다:
+`mais` 측에서 위 mathematical claim을 직접 측정 검증했습니다. **결과는 우리 주장을 부분 지지하지만, 원래 framing은 너무 강했음을 인정합니다**. 정직하게 보고합니다.
 
-### 5.1 Direct rank correlation test (5분 소요)
+스크립트: `scripts/exp_verify_qwwf_alignment_proof.py`
+결과: `reports/axis2_theoretical_verification/exp_verify_qwwf_alignment_proof.json`
+런타임: 53.6초 (Mistral-7B, 8 layers × 8 kv heads = 64 head samples)
 
-```python
-# For each (layer, kv_head) of Mistral 2-bit:
-#   - Get λ_k_j (key PCA eigenvalues, sorted descending)
-#   - Get σ_q_j (query std in same PCA basis)
-#   - Compute Spearman ρ(λ_k, σ_q^2)
-#   - Expectation: ρ > 0.9 (strong rank correlation)
-#
-# If ρ > 0.9, alignment is confirmed and QW-WF is mathematically dead.
-```
+### 5.1 Test 1 — Spearman ρ(λ_k, σ_q²) 직접 측정
 
-### 5.2 Bit allocation diff measurement (10분 소요)
+각 (layer, kv_head)에서 K의 PCA basis로 Q를 projection 후 차원별 σ_q² 측정. λ_k의 spectral 순서와 비교.
 
-```python
-# For each head:
-#   bits_WF = water_filling(λ_k, budget=2*d, floor=2)
-#   bits_QW = water_filling(λ_k * σ_q, budget=2*d, floor=2)
-#   diff = sum(|bits_WF - bits_QW|)
-# 
-# If sum diff < 5% of total bits, the two methods allocate
-# essentially identically. This is the smoking gun.
-```
+**결과**:
+- **median ρ = +0.655**
+- mean ρ = +0.574
+- min/max = (−0.139, +0.973)
+- 분포:
+  - 59% of heads: ρ > 0.5
+  - 44%: ρ > 0.7
+  - **17%: ρ > 0.9**
+- 강한 layer 의존성: layer 22-30은 대부분 ρ > 0.9, layer 2 일부 head는 ρ < 0.3
 
-### 5.3 Synthetic test (1분 소요)
+**해석**: PCA-Q alignment는 **부분적으로만 strong**. "0.6-2.5° eigenvector 정렬"은 평균값이고, **per-head로 보면 변동이 큼**. 일부 outlier head (layer 2 H2: ρ=−0.08, layer 6 H7: ρ=−0.14)는 alignment가 약함.
 
-PCA-Q alignment를 인위적으로 깨뜨려서 ($\theta = 30°$ 임의 회전) QW-WF가 그때는 의미 있는 차이를 만드는지 확인. 만약 그렇다면 우리 분석이 맞고, 자연 transformer에서는 alignment 때문에 무용한 것.
+→ **원래 주장 "PCA-Q alignment → QW-WF degenerates"는 평균적으로 truth, per-head로는 일부 exception**.
 
-이 3개 실험으로 위 주장의 mathematical validity를 직접 입증 가능합니다. 원하시면 `mais` 측에서 즉시 실행하겠습니다.
+### 5.2 Test 2 — Bit allocation diff (skip-or-floor WF, 3 budgets)
+
+Skip-or-floor semantic으로 구현 (각 dim은 0 bit 또는 ≥ floor=2 bit). 3개 budget에서 WF vs QW-WF L1 diff:
+
+| avg bits | budget | L1 diff (median) | % of budget |
+|---|:---:|:---:|:---:|
+| 2 | 256 | 20 bits | **7.81%** |
+| 3 | 384 | 18 bits | **4.69%** |
+| 4 | 512 | 22 bits | **4.30%** |
+
+**해석**:
+- L1 diff은 **0이 아닌 5-8%** — WF와 QW-WF는 **실제로 다른 allocation을 만든다**
+- 그러나 차이는 작음 (총 budget의 5% 내외)
+- v3에서 관측된 **PPL 차이 0.5%는 이 5% bit 변동의 결과**로 합리적
+- 즉 QW-WF는 **"5% bit perturbation → 0.5% PPL change"** 짜리 marginal method
+
+**원래 주장 수정**: "QW-WF는 WF(floor=2)와 *완전 동일*"이 아니라 **"WF(floor=2)의 small perturbation; PPL 효과는 marginal (≈0.5%)"**이 정확합니다.
+
+### 5.3 Test 3 — Synthetic alignment break
+
+Layer 2 H0의 Q 행렬에 random rotation 적용 (θ = 0°, 10°, 30°, 60°, 90°). avg=3 budget.
+
+| θ (rotation) | Σ_K vs Σ_Q angle (mean) | L1 diff (bits) |
+|:---:|:---:|:---:|
+| 0° (natural) | 29.0° | 20 |
+| 10° | 29.4° | 20 |
+| 30° | 31.6° | 20 |
+| 60° | 37.0° | 16 |
+| 90° | 42.7° | 14 |
+
+**예상**: rotation이 alignment를 깨뜨려서 QW-WF가 standard WF와 더 달라져야 함.
+**실제**: rotation 후 L1 diff이 오히려 **감소** (20 → 14).
+
+**해석**: 두 가지 해석 가능
+1. **Test 3 implementation 한계**: "alignment angle"이 spectral monotonicity의 올바른 측정 지표가 아닐 수 있음. 단순 random rotation은 σ_q² 분포를 무작위화하지만, 무작위화가 오히려 importance ranking을 더 단순하게 만들 수 있음.
+2. **More fundamental**: PCA-Q alignment 자체가 spectral co-monotonicity의 partial proxy. Rotation은 eigenvector를 바꾸지만 eigenvalue 분포는 보존하므로, rank correlation이 유지될 수 있음.
+
+→ **Test 3은 inconclusive**. Synthetic break를 제대로 하려면 σ_q² values를 random permutation해야 (rotation이 아니라). 추가 실험 필요.
+
+### 5.4 종합 — 우리 원 주장의 수정
+
+**원 주장 (overstated)**:
+> "QW-WF ≈ WF(floor=2)이며, PCA-Q alignment 때문에 mathematically equivalent"
+
+**측정 기반 정확한 주장**:
+> "QW-WF는 WF(floor=2)와 **부분 동등** — bit allocation에서 약 5% 차이를 만들지만, PPL 차이는 0.5% 이내. PCA-Q alignment는 평균 ρ=0.655로 **strong하지만 perfect는 아님** (per-head 변동 큼). 결과적으로 QW-WF는 standard WF의 **marginal extension**으로, paper에서 main contribution보다는 **minor refinement** 또는 **negative ablation**으로 다루는 것이 honest framing입니다."
+
+### 5.5 그래도 Reframing 권고는 유효
+
+위 측정 결과는 **원 critique을 약화시키지 않습니다**:
+- QW-WF의 PPL 이득 (0.04~0.50%)이 WF(f=2)의 이득 (10~33%)의 **1/50 ~ 1/100** — main contribution으로 부르기엔 너무 작음
+- 5% bit perturbation으로 0.5% PPL 이득 = small effect
+- Reviewer는 "왜 0.5% 이득을 main method로?"라고 물을 것
+
+**최종 권고**: Option B (negative ablation reframe)는 여전히 옳습니다. 단, 표현은 "mathematically equivalent"가 아닌 **"empirically marginal due to partial PCA-Q alignment (median ρ=0.655)"**로 정정합니다.
+
+### 5.6 추가 검증 권고
+
+Test 3을 제대로 하려면:
+1. **Permutation test**: σ_q² values를 random permutation → importance ordering 완전 파괴 → bit diff 측정
+2. **Cross-model**: Qwen, Llama에서 같은 측정 반복
+3. **PPL impact direct**: 5% bit perturbation이 진짜 0.5% PPL change를 주는지 (forward eval)
+
+이건 추가 1-2시간 작업이며, 필요시 바로 실행하겠습니다.
 
 ---
 
