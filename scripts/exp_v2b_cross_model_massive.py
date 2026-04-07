@@ -28,8 +28,7 @@ OUT_DIR = Path('/home/woori/workspace_common/boltzmann-attention/reports/axis2_t
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MODELS = [
-    ('meta-llama/Llama-2-7b-hf', 'llama-2-7b'),
-    ('Qwen/Qwen2.5-7B', 'qwen2.5-7b'),
+    ('meta-llama/Llama-3.1-8B', 'llama-3.1-8b'),
 ]
 
 
