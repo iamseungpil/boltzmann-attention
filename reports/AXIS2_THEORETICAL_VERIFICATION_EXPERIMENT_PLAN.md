@@ -151,13 +151,15 @@ $$\text{Lloyd failure ratio} \propto \max_{(l,h)} \kappa(F_{l,h}) / \text{median
 
 **Exp4 cross-verification**: Mistral layer 2 top outlier (κ=2.8M) = PPL 실패 최악 layer (ΔPPL +0.555). 직접 일치.
 
-#### Proposition B ($L^p$ Quantization Hierarchy)
+#### ~~Proposition B~~ — E2에서 기각
 
-> Source 분포의 tail index $\alpha < 4$일 때 (4차 모멘트 발산), $L^1$-Lloyd (median centroid)가 $L^2$-Lloyd (mean centroid)보다 attention distortion에서 strictly 우월하다.
+> ~~Source 분포의 tail index $\alpha < 4$일 때, $L^1$-Lloyd가 $L^2$-Lloyd보다 strictly 우월~~
 
-**예측**: Hill estimator로 측정한 $\alpha$가 작을수록 $L^1$-Lloyd 이득이 크다.
+**기각 이유**: E2에서 Hill estimator 측정 결과 **모든 모델 α ≈ 4.25–4.39** — Gaussian-like, heavy tail 없음. v4의 "κ₄ ≈ 0.5, Gaussian" finding과 일치.
 
-**근거**: Graf & Luschgy (2000), *Foundations of Quantization for Probability Distributions*, Chapter 6.
+**함의**: Keys는 **분포 모양은 Gaussian, 분산 스펙트럼만 anisotropic**. 이는 L¹ Lloyd가 L² Lloyd를 **의미 있게 이기지 못함**을 예측 → AXIS2 plan의 L¹ Lloyd 실험은 **격하** 권고.
+
+**남은 의문**: Mistral layer 2 outlier head는 분포가 진짜로 Gaussian인가? Per-head Hill estimator가 아직 미측정 — 가능성 있는 future work.
 
 #### Proposition C (Spherical Optimality)
 
