@@ -1,0 +1,334 @@
+{
+  "mistral-7b": {
+    "model": "mistralai/Mistral-7B-v0.3",
+    "short_name": "mistral-7b",
+    "n_layers": 32,
+    "base_norm": 1311.5986328125,
+    "sampled_layers": [
+      0,
+      1,
+      2,
+      7,
+      12,
+      17,
+      22,
+      31
+    ],
+    "per_layer": [
+      {
+        "layer": 0,
+        "final_delta_lloyd": 16.440410614013672,
+        "final_delta_grid": 6.176979064941406,
+        "rel_lloyd": 0.012534635369937836,
+        "rel_grid": 0.004709504043699654,
+        "ratio_ll_over_gr": 2.661561653547489
+      },
+      {
+        "layer": 1,
+        "final_delta_lloyd": 66.73715209960938,
+        "final_delta_grid": 10.110200881958008,
+        "rel_lloyd": 0.05088229770147207,
+        "rel_grid": 0.007708303919376923,
+        "ratio_ll_over_gr": 6.600971917254785
+      },
+      {
+        "layer": 2,
+        "final_delta_lloyd": 200.08026123046875,
+        "final_delta_grid": 20.86467742919922,
+        "rel_lloyd": 0.15254686626306607,
+        "rel_grid": 0.015907821880279387,
+        "ratio_ll_over_gr": 9.589425089815432
+      },
+      {
+        "layer": 7,
+        "final_delta_lloyd": 42.636878967285156,
+        "final_delta_grid": 10.736270904541016,
+        "rel_lloyd": 0.03250756588229863,
+        "rel_grid": 0.008185637462520764,
+        "ratio_ll_over_gr": 3.9712931376621143
+      },
+      {
+        "layer": 12,
+        "final_delta_lloyd": 14.052127838134766,
+        "final_delta_grid": 13.70844554901123,
+        "rel_lloyd": 0.010713740840063525,
+        "rel_grid": 0.010451707714589335,
+        "ratio_ll_over_gr": 1.0250708432181301
+      },
+      {
+        "layer": 17,
+        "final_delta_lloyd": 12.934643745422363,
+        "final_delta_grid": 5.088972568511963,
+        "rel_lloyd": 0.009861739271324355,
+        "rel_grid": 0.0038799770304727504,
+        "ratio_ll_over_gr": 2.541700426026173
+      },
+      {
+        "layer": 22,
+        "final_delta_lloyd": 35.99720764160156,
+        "final_delta_grid": 4.706459999084473,
+        "rel_lloyd": 0.027445292135149364,
+        "rel_grid": 0.0035883385979080125,
+        "ratio_ll_over_gr": 7.648467775908845
+      },
+      {
+        "layer": 31,
+        "final_delta_lloyd": 15.928239822387695,
+        "final_delta_grid": 6.9324212074279785,
+        "rel_lloyd": 0.012144141831127329,
+        "rel_grid": 0.005285474560584575,
+        "ratio_ll_over_gr": 2.2976445524286437
+      }
+    ],
+    "dominant_layer": 2
+  },
+  "nemo-12b": {
+    "model": "mistralai/Mistral-Nemo-Base-2407",
+    "short_name": "nemo-12b",
+    "n_layers": 40,
+    "base_norm": 64740.07421875,
+    "sampled_layers": [
+      0,
+      1,
+      2,
+      9,
+      16,
+      23,
+      30,
+      39
+    ],
+    "per_layer": [
+      {
+        "layer": 0,
+        "final_delta_lloyd": 6333.365234375,
+        "final_delta_grid": 224.35665893554688,
+        "rel_lloyd": 0.09782758686644713,
+        "rel_grid": 0.003465498945482654,
+        "ratio_ll_over_gr": 28.22900494428582
+      },
+      {
+        "layer": 1,
+        "final_delta_lloyd": 3926.5068359375,
+        "final_delta_grid": 484.26239013671875,
+        "rel_lloyd": 0.060650329541950175,
+        "rel_grid": 0.00748010248645138,
+        "ratio_ll_over_gr": 8.108221732497034
+      },
+      {
+        "layer": 2,
+        "final_delta_lloyd": 2733.064453125,
+        "final_delta_grid": 277.88531494140625,
+        "rel_lloyd": 0.042215961073666035,
+        "rel_grid": 0.004292323082646779,
+        "ratio_ll_over_gr": 9.83522448352941
+      },
+      {
+        "layer": 9,
+        "final_delta_lloyd": 405.47479248046875,
+        "final_delta_grid": 292.68817138671875,
+        "rel_lloyd": 0.006263119055291958,
+        "rel_grid": 0.0045209736769493926,
+        "ratio_ll_over_gr": 1.3853473837339636
+      },
+      {
+        "layer": 16,
+        "final_delta_lloyd": 179.19613647460938,
+        "final_delta_grid": 278.70367431640625,
+        "rel_lloyd": 0.002767932206396987,
+        "rel_grid": 0.004304963775214335,
+        "ratio_ll_over_gr": 0.6429629494987278
+      },
+      {
+        "layer": 23,
+        "final_delta_lloyd": 840.457763671875,
+        "final_delta_grid": 159.61407470703125,
+        "rel_lloyd": 0.012982032748866727,
+        "rel_grid": 0.002465460174909776,
+        "ratio_ll_over_gr": 5.265561732037228
+      },
+      {
+        "layer": 30,
+        "final_delta_lloyd": 1182.201171875,
+        "final_delta_grid": 199.35572814941406,
+        "rel_lloyd": 0.018260732415604976,
+        "rel_grid": 0.0030793249861872526,
+        "ratio_ll_over_gr": 5.930108870455723
+      },
+      {
+        "layer": 39,
+        "final_delta_lloyd": 856.49267578125,
+        "final_delta_grid": 225.0450897216797,
+        "rel_lloyd": 0.013229714147179536,
+        "rel_grid": 0.003476132711267455,
+        "ratio_ll_over_gr": 3.8058714226580164
+      }
+    ],
+    "dominant_layer": 0
+  },
+  "qwen-7b": {
+    "model": "Qwen/Qwen2.5-7B",
+    "short_name": "qwen-7b",
+    "n_layers": 28,
+    "base_norm": 427932.0,
+    "sampled_layers": [
+      0,
+      1,
+      2,
+      7,
+      12,
+      17,
+      22,
+      27
+    ],
+    "per_layer": [
+      {
+        "layer": 0,
+        "final_delta_lloyd": 520.349853515625,
+        "final_delta_grid": 6853.09228515625,
+        "rel_lloyd": 0.0012159638763065744,
+        "rel_grid": 0.016014442213146598,
+        "ratio_ll_over_gr": 0.07592920565840025
+      },
+      {
+        "layer": 1,
+        "final_delta_lloyd": 570.7952880859375,
+        "final_delta_grid": 293.7632751464844,
+        "rel_lloyd": 0.0013338457700894943,
+        "rel_grid": 0.0006864718580206304,
+        "ratio_ll_over_gr": 1.943045085541451
+      },
+      {
+        "layer": 2,
+        "final_delta_lloyd": 591.185791015625,
+        "final_delta_grid": 900.9075927734375,
+        "rel_lloyd": 0.0013814947024658707,
+        "rel_grid": 0.0021052587625450714,
+        "ratio_ll_over_gr": 0.6562113537035067
+      },
+      {
+        "layer": 7,
+        "final_delta_lloyd": 1863.56787109375,
+        "final_delta_grid": 924.4894409179688,
+        "rel_lloyd": 0.004354822427614083,
+        "rel_grid": 0.0021603652938269836,
+        "ratio_ll_over_gr": 2.0157805904665893
+      },
+      {
+        "layer": 12,
+        "final_delta_lloyd": 1677.4251708984375,
+        "final_delta_grid": 1060.000732421875,
+        "rel_lloyd": 0.003919840467407059,
+        "rel_grid": 0.0024770307722298754,
+        "ratio_ll_over_gr": 1.5824754828856389
+      },
+      {
+        "layer": 17,
+        "final_delta_lloyd": 1643.2095947265625,
+        "final_delta_grid": 2038.143310546875,
+        "rel_lloyd": 0.003839884829193803,
+        "rel_grid": 0.004762773783093751,
+        "ratio_ll_over_gr": 0.8062286818710781
+      },
+      {
+        "layer": 22,
+        "final_delta_lloyd": 2778.64208984375,
+        "final_delta_grid": 3035.287109375,
+        "rel_lloyd": 0.006493186043211889,
+        "rel_grid": 0.00709291922402391,
+        "ratio_ll_over_gr": 0.9154462130654598
+      },
+      {
+        "layer": 27,
+        "final_delta_lloyd": 1047.41162109375,
+        "final_delta_grid": 2959.208251953125,
+        "rel_lloyd": 0.0024476122867505817,
+        "rel_grid": 0.006915136638421817,
+        "ratio_ll_over_gr": 0.35394995279647573
+      }
+    ],
+    "dominant_layer": 22
+  },
+  "qwen-1.5b": {
+    "model": "Qwen/Qwen2.5-1.5B",
+    "short_name": "qwen-1.5b",
+    "n_layers": 28,
+    "base_norm": 96005.265625,
+    "sampled_layers": [
+      0,
+      1,
+      2,
+      7,
+      12,
+      17,
+      22,
+      27
+    ],
+    "per_layer": [
+      {
+        "layer": 0,
+        "final_delta_lloyd": 91.7121810913086,
+        "final_delta_grid": 236.46115112304688,
+        "rel_lloyd": 0.0009552828221895625,
+        "rel_grid": 0.0024630018945697475,
+        "ratio_ll_over_gr": 0.3878530602415299
+      },
+      {
+        "layer": 1,
+        "final_delta_lloyd": 64.44819641113281,
+        "final_delta_grid": 108.25819396972656,
+        "rel_lloyd": 0.0006712985583818889,
+        "rel_grid": 0.0011276276698466408,
+        "ratio_ll_over_gr": 0.595319338406432
+      },
+      {
+        "layer": 2,
+        "final_delta_lloyd": 295.71197509765625,
+        "final_delta_grid": 226.40850830078125,
+        "rel_lloyd": 0.003080164126129475,
+        "rel_grid": 0.002358292608502756,
+        "ratio_ll_over_gr": 1.306099215603709
+      },
+      {
+        "layer": 7,
+        "final_delta_lloyd": 225.9233856201172,
+        "final_delta_grid": 112.458984375,
+        "rel_lloyd": 0.0023532395244088176,
+        "rel_grid": 0.0011713835032160509,
+        "ratio_ll_over_gr": 2.008940298329252
+      },
+      {
+        "layer": 12,
+        "final_delta_lloyd": 250.745361328125,
+        "final_delta_grid": 217.337890625,
+        "rel_lloyd": 0.0026117875899385077,
+        "rel_grid": 0.002263812189988928,
+        "ratio_ll_over_gr": 1.153712132785751
+      },
+      {
+        "layer": 17,
+        "final_delta_lloyd": 225.20477294921875,
+        "final_delta_grid": 239.36814880371094,
+        "rel_lloyd": 0.002345754386315399,
+        "rel_grid": 0.002493281459567973,
+        "ratio_ll_over_gr": 0.9408301567051572
+      },
+      {
+        "layer": 22,
+        "final_delta_lloyd": 475.869873046875,
+        "final_delta_grid": 243.64544677734375,
+        "rel_lloyd": 0.004956705967625148,
+        "rel_grid": 0.0025378342030637317,
+        "ratio_ll_over_gr": 1.9531244246142239
+      },
+      {
+        "layer": 27,
+        "final_delta_lloyd": 141.74948120117188,
+        "final_delta_grid": 344.09796142578125,
+        "rel_lloyd": 0.001476476110746367,
+        "rel_grid": 0.0035841571728975805,
+        "ratio_ll_over_gr": 0.41194513508254516
+      }
+    ],
+    "dominant_layer": 22
+  }
+}
