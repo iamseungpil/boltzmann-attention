@@ -826,25 +826,31 @@ Section 5: Downstream
 
 ---
 
-## 12. 체크리스트 — 실행 전 준비
+## 12. 체크리스트 — 실행 전 준비 (업데이트)
 
 ### 12.1 데이터
-- [ ] V3 calibration data 재확인 (WikiText-2 train 160K tokens)
-- [ ] V3 Lloyd-Max PPL 결과 파일 경로 확인
-- [ ] Attention logits 저장 (E1에 필요, 재수집 필요 시 +0.5일)
+- [x] ~~E3/E3b는 순수 synthetic~~ — 완료 (2026-04-07)
+- [ ] V3 calibration data 재확인 (WikiText-2 train 160K tokens) — E1/E2용
+- [ ] V3 Lloyd-Max PPL 결과 파일 경로 확인 — reports/axis2... 참조
+- [ ] Attention logits 저장 (E1에 필요, 재수집 0.5일)
 
 ### 12.2 코드
+- [x] **E3 구현 완료**: `scripts/exp_e3_discrete_wf_verification.py` (Max 1960 검증)
+- [x] **E3b 구현 완료**: `scripts/exp_e3b_heterogeneous_wf.py` (greedy WF)
 - [ ] L¹ Lloyd 구현 (AXIS2 §13.1, 코드 1줄 변경)
 - [ ] Spherical k-means 구현 (AXIS2 §3.4 pseudocode)
 - [ ] Hill estimator 구현 (표준 scipy 함수)
 - [ ] $M_{KL}(t)$ 계산 함수 (기존 attention hook 확장)
 
 ### 12.3 환경
+- [x] Python env 검증 (numpy 2.2.6, scipy 1.16.3, torch 2.8.0+cu128, transformers 5.4.0)
 - [ ] GPU 가용성 확인 (A100 × 2 권장)
 - [ ] MMLU 평가 harness 확인 (lm-eval-harness)
 - [ ] NIAH 16K 데이터셋 준비
 
 ### 12.4 결과 파일 표준
+- [x] **E3/E3b JSON schema 수립**: `e3_discrete_wf_results.json`, `e3b_heterogeneous_wf_results.json`
+- [x] **재현성**: 시드 42, 1M 샘플, git head 기록 가능
 - [ ] JSON schema 정의: `{experiment_id, model, method, bits, ppl, kappa, alpha, ...}`
 - [ ] 수치 source traceability (NEURIPS_VERIFICATION_REPORT v3 스타일)
 - [ ] Git commit 후 hash 저장
