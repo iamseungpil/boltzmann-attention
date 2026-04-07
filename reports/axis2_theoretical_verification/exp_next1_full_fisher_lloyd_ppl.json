@@ -1,0 +1,21 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "bits": 2,
+  "n_calib_tokens": 1024,
+  "n_eval_tokens": 2048,
+  "n_layers": 32,
+  "n_kv": 8,
+  "n_q": 32,
+  "head_dim": 128,
+  "ppl_fp16": 5.387755393981934,
+  "ppl_uniform_2b": 243.38107299804688,
+  "ppl_l2_lloyd_2b": 37.96674728393555,
+  "ppl_fisher_mahalanobis_lloyd_2b": 356.4017333984375,
+  "loss_fp16": 1.6841288805007935,
+  "loss_uniform": 5.494628429412842,
+  "loss_l2": 3.6367106437683105,
+  "loss_mahalanobis": 5.876058578491211,
+  "mahalanobis_vs_l2_pct": 838.7207461652578,
+  "mahalanobis_vs_uniform_pct": 46.43773610172949,
+  "runtime_sec": 101.19151973724365
+}
