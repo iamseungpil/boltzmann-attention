@@ -90,20 +90,31 @@ CWF (Cascade-Aware Water-Filling)는 **Theorem B의 constructive demonstration**
 - `exp4_sensitivity_avg2.156 = 6.9505` **=** Next-4 E hand-picked (6.95) 정확 일치
 - Hand-picking이 Theorem B의 direct output임을 증명
 
-### 1.3 Extended Mistral sweep (Next-10)
+### 1.3 Extended Mistral sweep (Next-10) — 정직 재해석
 
-| avg_bits | PPL | vs FP16 | vs v3 Uniform 2b | vs v3 WF floor=2 |
-|:---:|:---:|:---:|:---:|:---:|
-| 2.0 | 9.12 | +69.2% | +41.2% | +56.7% |
-| 2.156 | 6.91 | +28.3% | +7.0% | +18.7% |
-| 2.3 | 6.58 | +22.1% | +1.8% | +12.9% |
-| **2.5** | **6.26** | +16.2% | **−3.1%** ✅ | +7.4% |
-| 2.75 | 6.13 | +13.7% | −5.1% | +5.2% |
-| 3.0 | 5.99 | +11.2% | −7.3% | +2.8% |
-| 3.25 | 5.87 | +8.9% | −9.2% | +0.8% |
-| **3.5** | **5.73** | +6.3% | **−11.3%** | **−1.6%** ✅✅ |
+| avg_bits | PPL | vs FP16 | 정직한 평가 |
+|:---:|:---:|:---:|---|
+| 2.0 | 9.12 | +69.2% | ❌ v3보다 56.7% 나쁨 (9.12 vs 5.82) |
+| 2.5 | 6.26 | +16.2% | 25% more bits 사용 |
+| 3.0 | 5.99 | +11.2% | 50% more bits 사용 |
+| 3.5 | 5.73 | +6.3% | 75% more bits 사용 (1.6% 개선) |
 
-**v3 WF floor=2 (5.82)를 avg_bits=3.5로 1.6% 돌파** — paper main SOTA claim 가능.
+**정직한 해석**: 
+- 더 많은 bits를 쓰면 quality가 향상되는 것은 trivial
+- ~~"v3 WF floor=2 돌파"~~ 주장은 fair comparison이 아니므로 retract
+- CWF의 quality-bits curve는 부드럽고 monotonic — Theorem B의 constructive demonstration
+- **단독 SOTA method 아님** (Next-12에서 입증)
+
+**Next-12 fair comparison 결과 (2026-04-08)** @ avg=2.0 bits:
+
+| Config | PPL @ avg=2.0 | 결론 |
+|---|:---:|---|
+| A: Uniform 2b/dim | 9.12 | baseline |
+| B: Intra-head WF (v3 reproduction) | 6.02 | v3 ≈ 5.82 |
+| **C: Inter-head CWF only** | **9.12 = A** | **CWF의 inter-head contribution = 0** |
+| **D: Two-level (CWF + intra-head WF)** | **6.02 = B** | **Two-level이 intra-head 단독과 동일** |
+
+→ **CWF는 v3 위에 어떤 추가 가치도 없음 (Mistral 기준)**.
 
 ### 1.4 스크립트 및 증거 파일
 
