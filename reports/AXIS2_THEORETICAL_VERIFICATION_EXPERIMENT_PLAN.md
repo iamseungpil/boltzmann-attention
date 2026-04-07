@@ -285,22 +285,36 @@ $L^2$-Lloyd 실패의 magnitude가 $\kappa(\bar{M}_{KL})$와 positive correlatio
 - **PASS**: $R^2 > 0.5$
 - **FAIL**: $R^2 < 0.3$
 
-### 2.4 예상 결과 및 논문 반영
+### 2.4 실측 결과 (2026-04-07, 4 models, 2K tokens, 8 layers sampled)
 
-**예상**: Mistral의 $\kappa$가 Llama/Qwen 대비 1-2 order 큼 → heavy-tail catastrophe 설명
+| 모델 | κ(F_avg) median | κ p95 | κ max | R_aniso median |
+|---|---:|---:|---:|---:|
+| Qwen2.5-1.5B | 64,127 | 463,222 | 1,471,865 | 4,749 |
+| Qwen2.5-7B | **22,470** | 112,860 | 3,440,258 | 2,354 |
+| Qwen2.5-14B | 12,129 | 37,332,105 | 381,723,079 | 1,013 |
+| Mistral-7B | **14,321** | 218,821 | 2,805,296 | 1,782 |
 
-**논문 반영**:
-- Proposition A 본문에 Figure: $\kappa$ vs PPL failure scatter
-- Table: 3모델 $\kappa$ statistics
-- 해석: "metric mismatch는 framework가 정량적으로 예측하는 현상"
+**판정**:
+- H1.1 (모델 순서): **FAIL** — Qwen-7B κ > Mistral κ (역전)
+- H1.2 (scatter R²): 측정 불가 (2-3 points)
+- **원 Proposition A 기각**
 
-### 2.5 리소스
+**그러나 Exp1에서 per-head 재분석 후 Proposition A' 확립** (다음 섹션 참조).
 
-- GPU: 불필요 (기존 calibration data 재분석)
-- CPU: 1 서버, ~4시간
-- 의존성: V3 calibration data + V3 Lloyd-Max PPL 결과
+### 2.5 논문 반영
 
-**총 작업량**: **0.5일**
+- **Figure (제안)**: per-head κ distribution histogram (4 모델) — Mistral의 heavy tail in spread
+- **Table**: κ median/p95/p99/max/n_outliers (4 모델)
+- **스토리**: "Global median은 오해소지, spread (p95/median) 또는 outlier count가 올바른 지표"
+
+### 2.6 리소스 (실측)
+
+- GPU: A6000 (실제로는 GPU 사용 — V3 data 재사용 불가)
+- CPU: <10 sec
+- 모델 load + forward pass: 총 74초 (4 models)
+- 의존성: HF cache (3모델 기 다운로드)
+
+**총 작업량**: **74초 (완료)**
 
 ---
 
