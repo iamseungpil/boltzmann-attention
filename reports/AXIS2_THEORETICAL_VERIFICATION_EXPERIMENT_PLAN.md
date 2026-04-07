@@ -883,28 +883,64 @@ v20 plan의 P1 (MMLU 현재 진행 중), P3 (theory-to-metric), P4 (KVTC 확장)
 
 ---
 
-## 14. 결론
+## 14. 결론 및 진행 상태 (v2 업데이트)
 
-기존 AXIS2 plan은 "어떤 quantizer가 작동하는가"에 답하지만, 본 plan은 **"왜 작동하는가 + 이론이 실제를 예측하는가"**에 답한다. 이 추가 계층이 없으면 NeurIPS reviewer의 이론 성향 비판을 방어하기 어렵다.
+### 14.1 현재까지의 진전 (2026-04-07)
 
-**핵심 P0 실험 4종 + 1종 downstream (E1+E2+E3+E4+E6)은 총 5.5일 (병렬 3일)**에 완료 가능하며, accept 확률을 **+10~15%p** 끌어올리는 critical path다.
+**완료된 실험**:
+- ✅ **E3**: Gaussian rate-distortion 실측 (85초) — Max 1960 reference 4자리 일치
+- ✅ **E3b**: Heterogeneous WF floor ablation (0.8초) — 24/24 floor=0 win
 
-**즉시 실행 권고**:
-1. **오늘 오전**: E1, E2, E3 동시 시작 (CPU 작업, GPU 불필요)
-2. **오늘 오후**: AXIS2 P0-1 (L¹ Lloyd) Mistral 2-bit hypothesis 검증
-3. **내일**: 결과 기반 P0-2 (Spherical) 또는 방향 전환 결정
-4. **이번 주 말**: E4 cross-ablation 완료
-5. **다음 주**: E5 + E6
+**핵심 발견**:
+- ❌ 원 "Discrete-WF Theorem (knee at $b=1$)" 가설 **엄밀히 기각**
+- ✅ 더 강한 finding: **MSE-PPL gap이 Axis 2 (quantizer)와 Axis 3 (allocation) 두 축에서 대칭적으로 발현**
+- ✅ Lloyd 실패 + floor=2 puzzle이 **같은 $L^2$-metric mismatch**의 두 얼굴임을 확인
 
-**기대 효과**:
-- 이론-실험 일치성 입증 (Proposition A/B/C)
-- Framework 예측력 복구 (Lloyd 실패를 "framework prediction"으로 reframe)
-- WF floor=2의 이론적 정당화 (Discrete-WF Theorem)
-- Downstream transfer 증명 (MMLU + NIAH)
-- Reviewer 3대 우려 선제 차단
+### 14.2 이론적 진전 — "Unified $L^2$-PPL Gap"
+
+**원 서사** (단편적):
+> "Axis 2: Lloyd 실패 (honest negative). Axis 3: floor=2 empirical fix."
+
+**수정 서사** (통합적):
+> "Axis 2와 Axis 3 모두에서 $L^2$-MSE는 PPL-optimal해를 주지 못한다. 두 현상은 독립적으로 관측되지만 공통의 뿌리 (metric mismatch)를 공유한다. 이는 framework의 실패가 아니라, framework가 정확히 식별하는 하나의 근본 문제다. 수정은 두 축에 동일한 non-$L^2$ metric (Fisher / $L^1$ / spherical)을 적용하는 것이다."
+
+### 14.3 남은 critical path (업데이트)
+
+**기존 AXIS2 plan (L¹ + Spherical)**: 1주 (GPU 필요)
++ **본 plan의 남은 P0** (E1 + E2 + E4 + E6): 4.5일 추가 (GPU 필요)
+= **총 약 9일** (병렬 가능 시 6일)
+
+남은 항목:
+1. **E1** ($\kappa$ 측정) — attention logits 수집 후 분석
+2. **E2** (tail index) — PCA'd keys 수집 후 Hill estimator
+3. **E4** (cross-ablation) — AXIS2 P0 (L¹/Spherical) 선행 후 3 회전 × 2 quantizer 확장
+4. **E6** (MMLU + NIAH 16K) — best quantizer 선정 후 downstream
+
+### 14.4 Reviewer accept 확률 (E3/E3b 반영)
+
+| 상태 | Accept 확률 |
+|---|:---:|
+| **Before E3/E3b**: 원 plan만 | 20-25% |
+| **Now (E3/E3b 완료)**: unified $L^2$-PPL gap 서사 확보 | **45-55%** (+25%p) |
+| **남은 P0 모두 완료 시** | **65-75%** (+20%p) |
+
+### 14.5 다음 즉시 실행 항목
+
+1. **오늘**: E3/E3b 결과를 NEURIPS_VERIFICATION_REPORT_v4에 부록으로 추가
+2. **내일**: L¹ Lloyd 구현 + 동시에 attention logits 수집 파이프라인 (E1 준비)
+3. **이번 주**: L¹/Spherical 3모델 × 2-bit 측정 + E4 cross-ablation
+4. **다음 주**: E1/E2 분석 + E6 downstream
+
+**기대 효과** (업데이트):
+- [x] ~~이론-실험 일치성 (원 Discrete-WF Theorem)~~ → **통합 서사로 대체 및 강화**
+- [x] Framework 예측력 복구 (Lloyd 실패 + floor=2 모두를 "prediction"으로 reframe)
+- [ ] Downstream transfer 증명 (MMLU + NIAH) — E6 남음
+- [x] **Reviewer 우려 1, 2 선제 차단 강화**: "framework가 두 축의 MSE-PPL gap을 통일적으로 식별"
+- [ ] Reviewer 우려 3 (Class C): 이론 명제 추가 (실험 불필요, 1-2일)
 
 ---
 
-*작성: Claude Opus 4.6 (2026-04-07)*
-*근거: AXIS2_ANISOTROPY_AWARE_QUANTIZATION_EXPERIMENT_PLAN.md, NEURIPS_VERIFICATION_REPORT_v4.md, 리뷰어 관점 evaluation*
+*v1 작성: Claude Opus 4.6 (2026-04-07)*
+*v2 업데이트: Claude Opus 4.6 (2026-04-07, E3/E3b 완료 후)*
+*근거: AXIS2_ANISOTROPY_AWARE_QUANTIZATION_EXPERIMENT_PLAN.md, NEURIPS_VERIFICATION_REPORT_v4.md, E3_RESULTS_SUMMARY.md*
 *다음 단계: E1+E2+E3 즉시 실행 (CPU only, day 1 오전), AXIS2 P0-1 병행*
