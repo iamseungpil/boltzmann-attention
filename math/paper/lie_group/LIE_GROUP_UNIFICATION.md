@@ -6460,6 +6460,54 @@ CWF가 단독 SOTA가 아님을 인정한 후에도 한 가지 open question:
 
 **어느 결과든 §6.23 explanatory contribution은 손상되지 않음** — 우리는 처음부터 method를 주장한 것이 아니었다 (이 retraction의 핵심).
 
+### Next-12 실제 결과 (2026-04-08, 18.4분 runtime)
+
+**Mistral-7B @ avg=2.0 bits/dim, 5 configs**:
+
+| Config | PPL | 해석 |
+|---|:---:|---|
+| A: Uniform 2b/dim | 9.1154 | baseline (= L² Lloyd PCA + per-dim uniform) |
+| B: Intra-head WF skip-floor=2 | **6.0166** | v3 WF(floor=2) reproduction |
+| B2: Intra-head continuous WF | **5.9356** | best, v3와 1.99% 차이 |
+| C: Inter-head CWF only (uniform intra) | **9.1154** | **= A 정확히 같음** |
+| D: Two-level (CWF + intra-head WF) | **6.0166** | **= B 정확히 같음** |
+
+**결정적 결과**:
+
+1. **B = D (6.0166)**: Two-level WF가 intra-head WF 단독과 정확히 동일. **CWF의 inter-head contribution = 0**.
+
+2. **A = C (9.1154)**: Inter-head CWF only가 uniform과 동일. avg=2.0 + floor=2 제약 하에서 CWF의 budget reallocation이 trivial.
+
+3. **B2가 best (5.9356)**: Continuous WF (no floor)가 floor=2보다 약간 좋음 → "floor=2"는 v3에서도 strict한 optimum이 아님.
+
+4. **v3 WF(floor=2) 5.82 vs B2 5.9356**: 1.99% 차이는 우리 reproduction implementation과 v3의 미세한 차이 (calibration size, seed, 등)로 추정.
+
+**결론 (Codex 비판 완전 정당화)**:
+- ✅ **CWF는 fair budget(avg=2.0)에서 v3 WF(floor=2)에 어떤 추가 contribution도 없음**
+- ✅ **Theorem B를 method로 instantiate한 CWF는 v3와 redundant**
+- ✅ **Inter-head CWF의 "inter-head signal"은 Mistral에서 noise보다 작음**
+- ✅ **§6.23은 explanatory framework로만 paper에 포함되어야 함**
+
+**왜 CWF가 zero contribution인가**:
+- avg=2.0 floor=2 제약 하: 256 heads × 2 bits/dim × 128 dims = 65,536 bits
+- CWF가 inter-head로 reallocate하려면 일부 head budget을 다른 head로 이동
+- 그러나 floor=2 per dim 제약 때문에 한 head 내 모든 dim이 floor를 만족해야 함
+- 결국 head별 budget을 2*128=256 미만으로 줄일 수 없음
+- → 모든 head가 정확히 256 bits를 받아 inter-head allocation이 trivial
+- 변동의 모든 freedom은 intra-head dimension allocation에 있음
+
+**Theorem B는 valid한 explanation이지만, avg=2.0 fair budget에서 CWF method는 vacuous**.
+
+### 최종 contribution 재배치 (Next-12 후 확정)
+
+| 원래 framing | 수정 framing |
+|---|---|
+| CWF as new SOTA method | **Theorem B as explanation; CWF as constructive ablation showing inter-head signal is empty under floor=2** |
+| "beats v3 WF(floor=2)" | **"matches v3 WF(floor=2) at fair budget; extended budgets show smooth quality-bits trade-off"** |
+| Method paper | **Understanding paper** |
+
+Next-12 결과는 paper의 **honesty와 clarity**를 강화시킴 — overclaim이 명확히 false임을 입증하고, 진짜 contribution(explanatory framework + PCA-Q alignment)을 더 부각시킴.
+
 ---
 
 ### 6.23.17 변경 사항 요약 (v3 update)

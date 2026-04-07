@@ -1,0 +1,52 @@
+{
+  "ppl_fp16": 5.387755393981934,
+  "target_avg_bits": 2.0,
+  "configs": {
+    "A_uniform": {
+      "config_name": "A_uniform_2b_per_dim",
+      "avg_bits_actual": 2.0,
+      "ppl": 9.115421295166016,
+      "loss": 2.209967613220215,
+      "fit_time": 151.8597755432129,
+      "eval_time": 26.179786443710327,
+      "delta_vs_fp16_pct": 69.18773456842243
+    },
+    "B_intra_skip": {
+      "config_name": "B_intra_skip_floor2",
+      "avg_bits_actual": 2.0,
+      "ppl": 6.016633987426758,
+      "loss": 1.7945280075073242,
+      "fit_time": 181.38729596138,
+      "eval_time": 25.484312534332275,
+      "delta_vs_fp16_pct": 11.672367200398055
+    },
+    "B2_intra_cont": {
+      "config_name": "B2_intra_continuous_WF",
+      "avg_bits_actual": 2.0,
+      "ppl": 5.93562650680542,
+      "loss": 1.7809725999832153,
+      "fit_time": 171.147296667099,
+      "eval_time": 25.133248805999756,
+      "delta_vs_fp16_pct": 10.168819346094528
+    },
+    "C_inter_cwf": {
+      "config_name": "C_inter_CWF_uniform_intra",
+      "avg_bits_actual": 2.0,
+      "ppl": 9.115421295166016,
+      "loss": 2.209967613220215,
+      "fit_time": 151.6248230934143,
+      "eval_time": 25.78930926322937,
+      "delta_vs_fp16_pct": 69.18773456842243
+    },
+    "D_two_level": {
+      "config_name": "D_two_level_CWF_plus_intra_skip_floor2",
+      "avg_bits_actual": 2.0,
+      "ppl": 6.016633987426758,
+      "loss": 1.7945280075073242,
+      "fit_time": 179.43366837501526,
+      "eval_time": 26.865642786026,
+      "delta_vs_fp16_pct": 11.672367200398055
+    }
+  },
+  "runtime_sec": 1103.2255275249481
+}
