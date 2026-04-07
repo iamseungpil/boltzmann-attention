@@ -242,6 +242,13 @@ $$\text{TotalFailure}(Q_{Lloyd}) \approx \sum_{l \in \mathcal{L}_{out}} \Delta\t
 
 ## 2. 실험 E1: $\kappa(\bar{M}_{KL})$ 측정 — Proposition A 검증
 
+**✅ 완료 상태** (2026-04-07)
+- 스크립트: `scripts/exp_e1e2_kappa_tail_index.py`
+- 결과: `reports/axis2_theoretical_verification/e1e2_kappa_tail_index_results.json`
+- 런타임: 73.6초 (4 models: Qwen 1.5B/7B/14B + Mistral)
+- 상세 분석: `reports/axis2_theoretical_verification/E1E2_RESULTS_SUMMARY.md`
+- **판정**: 원 Proposition A **기각**, 수정 Proposition A' (per-head spread) 확립 (Exp1에서)
+
 ### 2.1 의도
 
 $L^2$-Lloyd 실패의 magnitude가 $\kappa(\bar{M}_{KL})$와 positive correlation을 가진다는 Proposition A를 직접 검증.
