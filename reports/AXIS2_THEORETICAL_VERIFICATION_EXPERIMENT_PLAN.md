@@ -114,13 +114,26 @@ $$D_{KL}(p_t \| \hat{p}_t) \approx \tfrac{1}{2}(k - \hat{k})^\top M_{KL}(t)(k - 
 
 **예측**: 키의 norm 변동이 작은 layer/head에서 Spherical 이득이 크다.
 
-#### Discrete-WF Theorem (제안)
+#### ~~Discrete-WF Theorem (원 가설, 2026-04-07 기각)~~
 
-> 균등 $b$-bit 양자화기의 실제 rate-distortion $D_{uniform}(b)$가 $b < b_{crit}$에서 Shannon 공식 $\sigma^2 \cdot 2^{-2b}$보다 strictly 크면 (즉 convex deficit이 존재), 이산 WF의 최적해는 $b_j^* \geq b_{crit}\; \forall j$. 가우시안 source + 균등 양자화에서 $b_{crit} = 2$.
+> ~~균등 $b$-bit 양자화기의 실제 rate-distortion $D_{uniform}(b)$가 $b < b_{crit}$에서 Shannon 공식 $\sigma^2 \cdot 2^{-2b}$보다 strictly 크면 (즉 convex deficit이 존재), 이산 WF의 최적해는 $b_j^* \geq b_{crit}\; \forall j$. 가우시안 source + 균등 양자화에서 $b_{crit} = 2$.~~
 
-**증명 스케치**: $D_{uniform}(1) / \sigma^2 \approx 0.363$, $D_{Shannon}(1)/\sigma^2 = 0.25$. $b=1$에서 45% 편차 → Lagrangian KKT 조건에서 $b_j=1$ 배제.
+**E3/E3b 결과로 기각**:
+- Gaussian에서 $r(b) = D_{uniform}(b)/D_{Shannon}(b)$는 $b=1$에서 1.46, $b=2$에서 1.91, $b=3$에서 2.41로 **단조 증가** — knee 없음
+- Heterogeneous WF 시뮬레이션(24 케이스)에서 순수 MSE 기준 **floor=0이 항상 최적**
 
-**예측**: $b=1$에서 $D_{uniform}/D_{Shannon}$ ratio가 가장 크다.
+#### Revised Proposition (MSE-PPL Allocation Gap) — E3b 결과 기반
+
+> **Proposition (MSE-PPL Allocation Gap)**: 순수 $L^2$ MSE rate-distortion 최적화에서 unconstrained Water-Filling은 항상 MSE-optimal (floor=0이 최적; 24/24 empirical confirmation). 그러나 실측 PPL에서는 floor=2가 floor=0과 floor=1을 명확히 이긴다 (v3: Qwen 11.255 → 7.099). 이 **MSE-floor=0 ↔ PPL-floor=2** gap은 Lloyd-Max "MSE-3.5×-이득에도 PPL 실패" 현상 (Axis 2)과 **동일한 metric mismatch**의 bit allocation 축(Axis 3)에서의 발현이다.
+>
+> **함의**: $L^2$는 attention distortion의 올바른 metric이 아니며, 이 오류가 quantizer 선택(Axis 2)과 bit allocation(Axis 3) 두 축에서 동일하게 나타난다. floor=2의 이론적 justification은 Fisher / spherical / $L^1$ 등 **non-$L^2$ metric 하의 rate-distortion**에서 찾아야 한다.
+
+**실측 증거**:
+- E3 (Gaussian single-channel): $r(b)$ monotonic increase, knee 없음
+- E3b (heterogeneous WF): 8 spectra × 3 budgets × 4 floors = 96 cells 측정, MSE-optimal은 100% floor=0
+- v3 실측: 동일 WF + PPL에서 floor=2가 floor=1/0보다 우월 (3모델, p<0.01)
+
+**Corollary (Unified $L^2$-PPL Gap)**: Framework의 $L^2$ 가정은 quantizer level과 allocation level에서 **공통의 failure mode**를 가진다. 이 failure를 해결하는 방법은 두 축 모두에 동일 metric ($M_{KL}$ 또는 $L^1$ 또는 spherical)을 적용하는 것이다 — axis 독립성은 metric 선택 하에 복원된다.
 
 #### Corollary (Class C Maximality)
 
