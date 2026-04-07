@@ -40,24 +40,38 @@
 
 본 plan은 위 3대 우려에 대한 이론적 해결안의 **empirical verification**을 수행한다. 기존 plan이 "어떤 quantizer가 작동하는가"를 묻는 반면, 본 plan은 **"왜 작동하는가"와 "이론이 실제를 예측하는가"**를 묻는다.
 
-### 0.3 추가되는 실험 6종
+### 0.3 추가되는 실험 7종 (E3b 신규 추가)
 
-| # | 실험 | 대응 이론 명제 | 우선순위 | 작업량 |
-|---|---|---|:---:|:---:|
-| **E1** | $\kappa(\bar{M}_{KL})$ 측정 | Proposition A (Metric Mismatch Bound) | P0 | 0.5일 |
-| **E2** | Tail index $\alpha$ 측정 (Hill estimator) | Proposition B ($L^p$ Hierarchy) | P0 | 0.5일 |
-| **E3** | $D_{uniform}(b)$ Shannon 대비 편차 실측 | Discrete-WF Theorem (floor=2) | P0 | 0.5일 |
-| **E4** | Cross-Rotation × Quantizer Ablation | Axis 1 / Axis 2 독립성 | P0 | 2일 |
-| **E5** | Per-token $M_{KL}(t)$ Variance 분석 | Fisher quantizer 설계 근거 | P1 | 1일 |
-| **E6** | Best Quantizer × MMLU + NIAH 16K | Downstream 전이 검증 | P0 | 2일 |
+| # | 실험 | 대응 이론 명제 | 우선순위 | 작업량 | 상태 |
+|---|---|---|:---:|:---:|:---:|
+| **E1** | $\kappa(\bar{M}_{KL})$ 측정 | Proposition A (Metric Mismatch Bound) | P0 | 0.5일 | ⏸ |
+| **E2** | Tail index $\alpha$ 측정 (Hill estimator) | Proposition B ($L^p$ Hierarchy) | P0 | 0.5일 | ⏸ |
+| **E3** | $D_{uniform}(b)$ Shannon 대비 편차 실측 | (원) Discrete-WF Theorem | P0 | 85초 | ✅ |
+| **E3b** | Heterogeneous WF floor ablation (신규) | (수정) MSE-PPL Allocation Gap | P0 | 1초 | ✅ |
+| **E4** | Cross-Rotation × Quantizer Ablation | Axis 1 / Axis 2 독립성 | P0 | 2일 | ⏸ |
+| **E5** | Per-token $M_{KL}(t)$ Variance 분석 | Fisher quantizer 설계 근거 | P1 | 1일 | ⏸ |
+| **E6** | Best Quantizer × MMLU + NIAH 16K | Downstream 전이 검증 | P0 | 2일 | ⏸ |
 
-**필수 P0 작업량**: 5.5일 (순차) / 3일 (병렬 가능 시)
+**필수 P0 작업량**: 5.5일 (순차) / 3일 (병렬 가능 시). **E3/E3b는 완료되어 1.0일 제외**.
 
-### 0.4 기대 효과
+### 0.4 E3/E3b 실측 결과 — "예상 실패, 더 강한 finding" (2026-04-07)
 
-- **Reviewer #1 (이론)**: "framework가 무엇을 예측하는가?" → Proposition A/B/C의 quantitative prediction + verification
-- **Reviewer #2 (실험)**: "ablation이 불충분" → E4의 15-cell cross-ablation matrix
-- **Reviewer #3 (novelty)**: Proposition A/B/C + Discrete-WF Theorem은 새 이론 기여
+원래 E3 가설("$b=1$에서 knee가 존재하여 floor=2 유도")은 **기각**되었다:
+- Gaussian single-channel $r(b) = D_{uniform}(b)/D_{Shannon}(b)$는 **단조 증가** (1.46, 1.91, 2.41, 2.98, ...) — knee 없음
+- E3b에서 heterogeneous channel WF는 **floor=0 win 24/24** (모든 스펙트럼 × 모든 budget) — 순수 MSE 관점에서 floor=2는 catastrophic
+
+그러나 이 기각이 **더 강한 finding**을 도출한다:
+- v3 실험: PPL에서는 floor=2가 floor=1을 명백히 이김 (Qwen 11.255 → 7.099)
+- 이론: MSE에서는 floor=0이 최적 (E3b)
+- **Gap = Lloyd-Max "MSE≠PPL" 현상의 allocation-level 발현**
+
+즉 Axis 2 (quantizer)와 Axis 3 (allocation) 두 축이 **공통의 $L^2$-PPL mismatch**를 드러낸다. floor=2의 이론적 justification은 Fisher 또는 attention-weighted metric으로 이동해야 한다 (상세: §4.6).
+
+### 0.5 기대 효과
+
+- **Reviewer #1 (이론)**: "framework가 무엇을 예측하는가?" → Proposition A/B/C + **MSE-PPL gap 통일 이론** (E3/E3b에서 뒷받침)
+- **Reviewer #2 (실험)**: "ablation이 불충분" → E4의 15-cell cross-ablation matrix + **E3b 24-cell WF matrix 이미 확보**
+- **Reviewer #3 (novelty)**: Proposition A/B/C + **"L² fails at 2 axes" 통합 서사**
 
 ---
 
