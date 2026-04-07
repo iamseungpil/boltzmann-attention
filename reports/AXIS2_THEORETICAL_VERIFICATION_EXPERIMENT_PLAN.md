@@ -357,7 +357,25 @@ $X_{(i)}$는 order statistics, $k$는 tail size.
 - **PASS**: 95% 이상의 heavy-tail head ($\alpha < 4$)에서 $L^1$ 우위
 - **FAIL**: random 수준
 
-### 3.4 예상 결과 및 논문 반영
+### 3.4 실측 결과 (2026-04-07)
+
+| 모델 | α median | α p05 | α min |
+|---|:---:|:---:|:---:|
+| Qwen2.5-1.5B | 4.344 | ~3.7 | ~3.3 |
+| Qwen2.5-7B | 4.388 | ~3.7 | ~3.3 |
+| Qwen2.5-14B | 4.251 | ~3.7 | ~3.3 |
+| Mistral-7B | 4.347 | 3.66 | ~3.4 |
+
+**판정**: 
+- H2.1 (순서): **FAIL** — 모든 모델 α ≈ 4.25-4.39 (거의 동일)
+- H2.2 (heavy-tail head): 측정할 heavy-tail 없음
+- **원 Proposition B 기각**
+
+**v4 κ₄ ≈ 0.5 finding과 일치**: keys는 진짜로 Gaussian-like. 분포 모양이 아닌 **분산 스펙트럼의 anisotropy**가 원인.
+
+**함의**: L¹ Lloyd는 Gaussian에서 L² Lloyd와 동치 → **AXIS2 P0-1 (L¹ Lloyd) 격하 권고**.
+
+### 3.5 예상 결과 및 논문 반영 (원)
 
 **예상**: Mistral의 median $\alpha \approx 2.5$, Qwen $\approx 4.2$ → Mistral 2-bit에서 L¹ 이득 큼, Qwen에서 작음
 
