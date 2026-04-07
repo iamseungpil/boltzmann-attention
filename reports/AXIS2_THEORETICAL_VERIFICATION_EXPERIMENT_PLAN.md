@@ -14,17 +14,35 @@
 
 **목적**: 기존 AXIS2 plan을 보완하여, NeurIPS 2026 reviewer의 예상 3대 우려를 선제 차단하는 이론 명제 검증 실험을 추가한다.
 
-## 실행 현황 대시보드 (2026-04-07)
+## 실행 현황 대시보드 (2026-04-07 최종)
+
+### 완료된 실험 (총 runtime ~5분)
 
 | 실험 | 상태 | 작업량 | GPU | 핵심 결과 |
 |---|:---:|:---:|:---:|---|
-| **E3** (single-channel Gaussian) | ✅ **완료** | 85초 실측 | X | Max 1960 reference와 4자리 일치, "knee at b=1" 가설 **기각** |
-| **E3b** (heterogeneous WF, 신규) | ✅ **완료** | 0.8초 | X | floor=0 win 24/24, **MSE-PPL gap이 allocation 축에서도 발현** |
-| E1 ($\kappa(\bar{M}_{KL})$) | ⏸ 대기 | 0.5일 | 필요 (data 없음) | — |
-| E2 (tail index $\alpha$) | ⏸ 대기 | 0.5일 | 필요 | — |
-| E4 (cross-ablation) | ⏸ 대기 | 2일 | 필요 | AXIS2 P0 선행 |
-| E5 (per-token $M_{KL}$) | ⏸ 대기 | 1일 | 필요 | — |
-| E6 (MMLU + NIAH 16K) | ⏸ 대기 | 2일 | 필요 | 병렬 진행 중 |
+| **E3** (Gaussian RD) | ✅ **완료** | 85초 | ❌ | Max 1960 4자리 일치, "knee at b=1" **기각** |
+| **E3b** (heterogeneous WF) | ✅ **완료** | 0.8초 | ❌ | floor=0 win 24/24, MSE-PPL gap @ allocation 축 |
+| **E1+E2** (κ+α, 4 models) | ✅ **완료** | 74초 | ✅ | **Global κ/α로는 Lloyd 실패 예측 실패** → per-head 필요 |
+| **Exp1** (per-head outlier) | ✅ **완료** | 5초 | ❌ | **p95/median spread가 ρ=+1.0으로 Lloyd 실패 예측** |
+| **Exp2** (Spherical quantizer) | ✅ **완료** | 31초 | ✅ | Spherical 0/64 win (Proposition C **기각**) |
+| **Exp3** (Per-token Fisher) | ✅ **완료** | 29초 | ✅ | **Fisher-avg 12/16 win** in Fisher norm |
+| **Exp4** (Per-layer Lloyd breakdown) | ✅ **완료** | 67초 | ✅ | **Layer 2-6 집중 실패**, κ outlier와 cross-match |
+
+### 실행 중 (Next chain, ~30-50분 예상)
+
+| 실험 | 상태 | 대상 | 목적 |
+|---|:---:|---|---|
+| **Next-1** (Full Fisher Mahalanobis PPL) | 🔄 실행 중 | Mistral (all 32 layers) | Fisher-avg Mahalanobis Lloyd를 PPL에 적용 (Exp3 확장) |
+| **Next-2** (Outlier layer preservation) | ⏳ 대기 | Mistral (layers 2-6 4b, rest 2b) | Layer 2-6 보호로 PPL 복구 실험 |
+| **Next-3** (Qwen per-layer) | ⏳ 대기 | Qwen2.5-7B | Exp4 cross-model replication |
+
+### 후속 작업 (별도 세션)
+
+| 실험 | 상태 | 비고 |
+|---|:---:|---|
+| E4 원래 (cross-ablation) | ⏸ 대기 | AXIS2 P0 선행 |
+| E5 원래 (per-token $M_{KL}$) | 부분 완료 | Exp3가 부분 대체 |
+| E6 (MMLU + NIAH 16K) | ⏸ 대기 | Downstream 필수 |
 
 ---
 
