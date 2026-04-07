@@ -3500,7 +3500,11 @@ D_MK(k, k̂) = (k - k̂)^T Σ_K^{-1} (k - k̂)
 
 (i) **정보론적 해석.** 분산이 작은 키 차원(λ_j가 작은 j)은 값이 집중되어 있어, 작은 양자화 오차에도 상대적 정보 손실이 크다. Σ_K^{-1}는 이 차원에 큰 가중치 1/λ_j를 부여하여 보호한다.
 
-(ii) **쿼리-키 상관.** 어텐션 메커니즘이 학습을 통해 키와 쿼리의 공분산 구조를 정렬시킨다. 경험적으로 쿼리가 키의 고분산 방향(주성분)을 선호적으로 프로브하며, 이것은 Σ_Q ∝ Σ_K를 의미한다. 이 경우 Σ_K^{-1}은 Σ_Q와 역관계에 있으나, PCA 변환 후에는 둘 다 대각이 되어 차원별 가중치로 환원된다.
+(ii) **쿼리-키 상관 (2026-04-08 수정).** 원래 여기서 "어텐션 메커니즘이 학습을 통해 키와 쿼리의 공분산 구조를 정렬시킨다... Σ_Q ∝ Σ_K를 의미한다"고 주장했으나, V1 측정(`exp_v1_pca_q_principal_angles.json`)으로 **반박됨**: Σ_K와 Σ_Q의 top-k 고유벡터 subspace는 30-57° principal angles를 가진다 (3 models, k∈{8,16,32,64}). Σ_Q ∝ Σ_K가 **아니다**.
+
+**실제 관계**: K의 고유기저에서 Q의 주변 분산 $\sigma_{Q,j}^2 = V_K[:,j]^\top \Sigma_Q V_K[:,j]$를 계산하면, Spearman $\rho(\lambda_{K,j}, \sigma_{Q,j}^2) = 0.655$의 **eigenvalue rank correlation**. 이는 "K의 고분산 방향이 Q의 marginal variance ranking과 moderately 상관"이라는 의미이지, "Σ_Q가 Σ_K의 eigenvectors에 정렬"은 아니다.
+
+**MK 정리 6.19.3은 여전히 valid**: rank correlation만으로도 per-dim weighting이 의미있기 때문. 단, "Σ_Q ∝ Σ_K" 가정 하의 강한 주장은 약화되어 "Σ_Q가 Σ_K 기저에서 rank correlation을 가진다"는 약한 주장으로 재해석되어야 한다.
 
 (iii) **Fisher-Rao 해석.** k를 가우시안 위치 모델 p(x|k) = N(x; k, I)의 매개변수로 보면, Fisher 정보 행렬은 I(k) = I이다. 그러나 k 자체가 사전분포 N(0, Σ_K)를 가지면, 사후 정보 행렬은 Σ_K^{-1}이다. MK는 이 사후 정보를 보존하는 양자화이다.
 
@@ -5521,7 +5525,7 @@ KVTC와의 차별화 조건:
 원래 의도:
 - **Theorem A**: **왜** L²-Lloyd가 PPL에서 실패하는가? (Metric mismatch 설명)
 - **Theorem B**: **언제** hand-picked allocation이 optimal인가? (Next-4 E의 수학적 정당화)
-- **Theorem C**: **왜** QW-WF가 WF(floor=2)와 동등한가? (PCA-Q 정렬 귀결)
+- **Theorem C**: **왜** QW-WF가 WF(floor=2)와 동등한가? (Eigenvalue rank correlation 귀결, 2026-04-08 정정: NOT subspace alignment)
 - **Proposition D**: **어디에** Lloyd 실패가 집중되는가? (Per-head outlier 관찰)
 - **Theorem G**: **왜** per-layer가 per-dim보다 효과적인가? (Variance decomposition)
 
@@ -5545,7 +5549,7 @@ KVTC와의 차별화 조건:
 - **§Limitations**: CWF 단독은 v3 WF(floor=2)보다 fair budget에서 열등 (Codex 비판 인정)
 - **NEVER**: "new SOTA" claim
 
-이 retraction은 paper의 honesty를 강화하고, 실제 contribution (explanatory framework + PCA-Q alignment + 5 hypothesis rejection)을 더 명확하게 부각시킨다.
+이 retraction은 paper의 honesty를 강화하고, 실제 contribution (explanatory framework + eigenvalue rank correlation observation + 5 hypothesis rejection)을 더 명확하게 부각시킨다. (2026-04-08 추가 정정: "PCA-Q alignment"는 V1에서 refuted, "eigenvalue rank correlation"로 demoted)
 
 상세 분석: §6.23.16 Codex Critique Response (2026-04-08).
 
@@ -5676,7 +5680,9 @@ $$\Delta \log \text{PPL} \approx c \cdot \sum_{l,h} g_{l,h} \cdot \text{tr}(M_{l
 
 $$\|b^{QW-WF} - b^{WF}\|_1 \leq 2(1 - \rho) \cdot B$$
 
-**Corollary**: $\rho \to 1$이면 QW-WF는 standard WF로 linear convergence. PCA-Q natural alignment (Exp_verify에서 median $\rho = 0.655$ 측정)는 이 bound를 통해 **QW-WF의 marginal nature**를 이론적으로 정당화한다.
+**Corollary**: $\rho \to 1$이면 QW-WF는 standard WF로 linear convergence. **Eigenvalue rank correlation in K eigenbasis** (Exp_verify에서 median $\rho = 0.655$ 측정)는 이 bound를 통해 **QW-WF의 marginal nature**를 이론적으로 정당화한다. 
+
+**⚠️ 정정 (2026-04-08)**: 이 correlation은 **rank correlation**이지 **subspace alignment**가 아님. V1 (`exp_v1_pca_q_principal_angles.json`)에서 principal angles는 30-57°로 측정됨 — eigenvectors는 NOT aligned. Theorem C는 여전히 유효하지만 "alignment" 문구 대신 "rank correlation"으로 정정.
 
 **🟡 증명 스케치 (loose bound)**:
 
@@ -6167,6 +6173,8 @@ Phase 5: PPL Evaluation
 **Next-9가 성공하면**: Paper의 **main contribution method**로 제시.
 **실패하면**: Gap H를 honest negative로 유지, Config E를 main으로 사용.
 
+**⚠️ 실제 결과 (2026-04-08)**: Next-9 Fisher Mahalanobis = **982 PPL catastrophe** (numerical instability). Next-9b, Next-9c도 모두 v3 WF(floor=2)에 미달. 이 subsection의 "main contribution method" 언급은 outdated — CWF는 최종적으로 constructive demonstration으로 강등 (§6.23.14.5 retraction 참조).
+
 #### Approach B, C (alternative, non-recommended)
 
 **Approach B — Global Mahalanobis**: 모든 head를 concatenate (32,768 dim) → global Mahalanobis. Dimension explosion으로 impractical.
@@ -6195,10 +6203,12 @@ Phase 5: PPL Evaluation
 - [ ] Next-9 PPL < Next-4 Config C (9.12 PPL) — Theorem A 유효성
 - [ ] Next-9 PPL < Next-4 Config B (7.90 PPL) — Fisher metric 이득
 
-**Stretch goals**:
-- [ ] Next-9 PPL < Next-4 Config E (6.95 PPL) — Main method 확정
-- [ ] Next-9 PPL < v3 Uniform 2b (6.46 PPL) — New SOTA claim
-- [ ] Next-9 PPL → v3 WF(f=2) (5.82 PPL) — Matching best known
+**Stretch goals (모두 실패, 2026-04-08 정정)**:
+- ~~Next-9 PPL < Next-4 Config E (6.95 PPL)~~ ❌ Next-9 = 982 PPL
+- ~~Next-9 PPL < v3 Uniform 2b (6.46 PPL) — New SOTA claim~~ ❌ **SOTA claim은 모두 retracted**
+- ~~Next-9 PPL → v3 WF(f=2) (5.82 PPL)~~ ❌ v3가 여전히 best known
+
+**결과**: Gap H는 practical resolution (PCA + L² Lloyd + Theorem B allocation) 으로 우회되었으나, v3 WF(floor=2)를 이기지 못함. Paper는 method claim 없이 explanatory framework으로 reframe됨.
 
 #### Gap 2 해결 요약
 
@@ -6453,7 +6463,7 @@ Codex가 정확히 짚은 4가지 비판:
 #### Paper 진짜 contribution (5가지, 정직)
 
 1. **Theorem 6.16.3 (Pre-RoPE PCA optimality)**: 분포 무관 증명, 624/624 MSE 검증
-2. **PCA-Q natural alignment (0.6-2.5°)**: novel structural finding, QW-PCA 실패와 QW-WF 무력화 설명
+2. ~~**PCA-Q natural alignment (0.6-2.5°)**~~ **RETRACTED 2026-04-08 via V1 measurement** → Correct observation: Eigenvalue rank correlation (ρ=0.655) in K eigenbasis; eigenvectors NOT aligned (principal angles 30-57°). Explains QW-WF ≈ WF via rank correlation, but NOT QW-PCA failure (which is numerical stability of sqrtm(Σ_Q) with κ≈10^4)
 3. **5 hypothesis systematic rejection** (κ, α, Spherical, discrete-WF, Mahalanobis): negative results의 systematic catalog
 4. **MSE-PPL gap unified across 3 axes**: Lloyd + WF + QW가 동일 metric mismatch의 manifestation
 5. **Per-layer outlier concentration** (Mistral layer 2-6): empirical observation supporting Theorem B explanation
@@ -6536,7 +6546,7 @@ CWF가 단독 SOTA가 아님을 인정한 후에도 한 가지 open question:
 | "beats v3 WF(floor=2)" | **"matches v3 WF(floor=2) at fair budget; extended budgets show smooth quality-bits trade-off"** |
 | Method paper | **Understanding paper** |
 
-Next-12 결과는 paper의 **honesty와 clarity**를 강화시킴 — overclaim이 명확히 false임을 입증하고, 진짜 contribution(explanatory framework + PCA-Q alignment)을 더 부각시킴.
+Next-12 결과는 paper의 **honesty와 clarity**를 강화시킴 — overclaim이 명확히 false임을 입증하고, 진짜 contribution(explanatory framework)을 더 부각시킴. (2026-04-08: "PCA-Q alignment"은 V1에서 refuted, 이 구절에서 삭제됨.)
 
 ---
 
