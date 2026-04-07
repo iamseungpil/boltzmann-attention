@@ -177,7 +177,16 @@ def main():
     print("="*70, flush=True)
     t_start = time.time()
 
+    # Load existing results if any (so we don't overwrite Qwen)
+    out_path = OUT_DIR / 'exp_v2b_cross_model.json'
     results = {}
+    if out_path.exists():
+        try:
+            with open(out_path) as f:
+                results = json.load(f)
+            print(f"  Loaded existing results: {list(results.keys())}", flush=True)
+        except Exception:
+            results = {}
     for mid, sn in MODELS:
         try:
             results[sn] = analyze_model(mid, sn)
