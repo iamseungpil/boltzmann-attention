@@ -753,32 +753,42 @@ Day 6-7: E6 (MMLU + NIAH 16K)
 
 ## 10. 성공 시나리오 — 기대 효과
 
-### 10.1 All P0 PASS
+### 10.1 All P0 PASS (업데이트 후)
 
 **시나리오 비교**:
 
-| 항목 | 현재 (AXIS2 plan만) | +E1+E2+E3+E4+E6 |
-|---|:---:|:---:|
-| Proposition A 검증 | ❌ | ✅ scatter plot |
-| Proposition B 검증 | ❌ | ✅ tail index correlation |
-| Discrete-WF theorem | ❌ | ✅ $r(b)$ knee plot |
-| Axis 독립성 ablation | ❌ | ✅ 12-cell matrix |
-| Downstream MMLU | ⚠️ v20에 있음 | ✅ AXIS2 통합 |
-| NIAH 16K | ❌ | ✅ |
+| 항목 | 현재 (AXIS2 plan만) | +E3+E3b 완료 | +E1+E2+E4+E6 (남은 P0) |
+|---|:---:|:---:|:---:|
+| Proposition A 검증 | ❌ | ❌ (E1 필요) | ✅ scatter plot |
+| Proposition B 검증 | ❌ | ⚠️ Student-t 간접 증거 | ✅ Hill estimator correlation |
+| ~~Discrete-WF theorem~~ MSE-PPL Allocation Gap | ❌ | ✅ **24/24 확인** | ✅ |
+| Axis 독립성 ablation | ❌ | ❌ | ✅ 12-cell matrix |
+| Downstream MMLU | ⚠️ v20에 있음 | ⚠️ | ✅ AXIS2 통합 |
+| NIAH 16K | ❌ | ❌ | ✅ |
+| **$L^2$-PPL 통합 서사** | ❌ | ✅ **Axis 2 + Axis 3 통합** | ✅ 전축 통합 |
 
 **Reviewer score 변화**:
-- Reviewer #1 (이론): 5 → **7** (+2.0) — "framework가 quantitative predictions를 만들고 검증함"
-- Reviewer #2 (실험): 4 → **6** (+2.0) — "thorough ablation + downstream"
-- Reviewer #3 (novelty): 5 → **6** (+1.0) — "Propositions A/B/C + Discrete-WF theorem = 새 이론 기여"
-- **Average**: 4.7 → **6.3**
+- Reviewer #1 (이론): 5 → **6** (현재 +E3) → **7** (+E1-E4 완료)
+  - "MSE-PPL gap이 framework의 두 축에서 통합됨" (E3b 효과)
+- Reviewer #2 (실험): 4 → 5 (현재) → **6** (+E4/E6 완료) — "thorough ablation + downstream"
+- Reviewer #3 (novelty): 5 → **6** (현재 +E3b) → **6.5** — "Two-axis $L^2$ failure unification"
+- **현재 Average (E3/E3b만)**: 4.7 → **5.7** (+1.0)
+- **남은 P0 완료 시**: 5.7 → **6.5**
 
-**Accept 확률**: 20-25% → **65-75%**
+**Accept 확률**:
+- 현재 (E3/E3b 완료): 20-25% → **45-55%**
+- 남은 P0 완료 시: 45-55% → **65-75%**
 
-### 10.2 기존 AXIS2 plan만 완료 시 (비교)
+### 10.2 E3/E3b의 단독 기여 (2026-04-07 확보)
 
-Accept 확률: 20-25% → **55-65%** (이전 답변 기준)
+E3/E3b만으로 다음이 확보됨:
+1. ✅ **구현 신뢰성**: Max 1960 reference와 4자리 일치
+2. ✅ **원 가설의 honest rejection**: "naive knee theorem은 거짓"을 엄밀히 증명
+3. ✅ **새 unified finding**: MSE-PPL gap의 2-축 발현
+4. ✅ **논문 서사 강화**: Lloyd-Max 실패(Axis 2)와 floor=2 puzzle(Axis 3)이 동일 현상
+5. ✅ **Proposition B 간접 증거**: Student-t에서 $r(b)$ amplification
 
-**E1-E4 추가 시 delta**: +10-15%p. 3일의 이론 검증이 paper acceptance의 critical margin을 제공.
+단독 점수 상승: +1.0 (Reviewer 평균)
 
 ---
 
