@@ -71,13 +71,29 @@ def uniform_grid_1d(col, bits):
 
 
 def compute_ppl(model, ids):
+    # Chunked cross-entropy to avoid OOM at long eval (avoids materializing
+    # full logits.float() tensor which is T x vocab x 4 bytes)
     with torch.no_grad():
         out = model(ids, use_cache=False)
-        logits = out.logits[:, :-1].contiguous()
+        logits = out.logits[:, :-1].contiguous()  # (B, T-1, V) in bf16
         tgt = ids[:, 1:].contiguous()
-        loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)).float(),
-                                tgt.reshape(-1), reduction='mean')
-        return float(torch.exp(loss).item())
+        B, Tm1, V = logits.shape
+        logits_flat = logits.reshape(-1, V)
+        tgt_flat = tgt.reshape(-1)
+        total_loss = 0.0
+        total_n = 0
+        CHUNK = 4096
+        for s in range(0, logits_flat.size(0), CHUNK):
+            e = min(s + CHUNK, logits_flat.size(0))
+            l = logits_flat[s:e].float()
+            t = tgt_flat[s:e]
+            loss = F.cross_entropy(l, t, reduction='sum')
+            total_loss += float(loss.item())
+            total_n += (e - s)
+            del l
+        del logits, logits_flat
+        mean_loss = total_loss / total_n
+        return float(np.exp(mean_loss))
 
 
 class QuantHook:
