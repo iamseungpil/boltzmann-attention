@@ -36,9 +36,7 @@ N_EVAL = 2048
 OUT_DIR = Path('/home/woori/workspace_common/boltzmann-attention/reports/axis2_theoretical_verification')
 
 MODELS = [
-    'mistralai/Mistral-7B-v0.3',
     'mistralai/Mistral-Nemo-Base-2407',
-    'Qwen/Qwen2.5-7B',
 ]
 
 
