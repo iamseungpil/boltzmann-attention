@@ -1,0 +1,19 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "n_layers": 32,
+  "n_kv": 8,
+  "head_dim": 128,
+  "target_avg_bits": 2.0,
+  "ppl_fp16": 5.387755393981934,
+  "ppl_uniform_2bit": 9.952880859375,
+  "delta_uniform": 4.565125465393066,
+  "ppl_wf_2bit": 7.084004878997803,
+  "delta_wf": 1.6962494850158691,
+  "improvement_pct": 28.824578741690587,
+  "kappa_stats": {
+    "median": 1841.0101928710938,
+    "max": 37019060.0,
+    "n_over_1e4": 32
+  },
+  "runtime_sec": 114.38209843635559
+}
