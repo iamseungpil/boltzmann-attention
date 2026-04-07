@@ -820,6 +820,121 @@ Pre-RoPE PCA        XX.X      XX.X      XX.X       +X.X%   +X.X%
 
 ---
 
+## 5b. Next-1/2/3 Chain: Follow-up 실험 (🔄 실행 중)
+
+**🔄 실행 중** (2026-04-07 18:51 KST 시작, chain PID 494574)
+- Master script: `run_exp_next_123_chain.sh`
+- 예상 총 runtime: 30-50분
+- Master log: `chain_next_master.log`
+
+Exp 1-4 chain 결과로 확립된 "Per-head outlier + Fisher metric" 방향을 세 가지 후속 실험으로 검증.
+
+### 5b.1 Next-1: Full Fisher-avg Mahalanobis Lloyd PPL (Mistral)
+
+**목적**: Exp3의 "Fisher-avg가 L² Lloyd보다 Fisher-norm에서 75% 이김"을 **full-model PPL**로 확장. PPL 이득으로 전이되는지 확인.
+
+**설정**: Mistral-7B 전 32 layers × 8 kv heads에 Fisher-avg Mahalanobis Lloyd 적용, 2-bit, 2K held-out PPL 측정.
+
+**비교**:
+- (A) FP16 baseline
+- (B) All-layer Uniform 2-bit
+- (C) All-layer L² Lloyd 2-bit  (v3 reference)
+- (D) All-layer Fisher-avg Mahalanobis Lloyd 2-bit  (**우리 방법**)
+
+**가설**: `PPL(D) < PPL(C)` — Fisher-norm 이득이 PPL 이득으로 전이.
+
+**Fit 알고리즘** (per layer/head):
+1. Calibration forward에서 K, Q, attention 캡처
+2. Fisher metric $M_{\text{avg}} = \frac{1}{T} \sum_t s_t q_t q_t^T$ ($s_t = \sum_j p_{tj}(1-p_{tj})$)
+3. Eigendecomp $M = V \Lambda V^T$ → $W_{\sqrt{}} = V\Lambda^{1/2}V^T$, $W_{\sqrt{}}^{-1}$
+4. Whiten K: $K_w = (K - \bar K) \cdot W_{\sqrt{}}$
+5. Per-dim Lloyd-Max on $K_w$
+6. 저장: {K_mean, W_sqrt, W_inv_sqrt, centroids}
+
+**Hook 알고리즘** (per forward pass):
+1. Center → whiten → lookup centroids → de-whiten → un-center
+2. 모든 layer에 동시 적용
+
+**예상 시간**: 10-20분 (calibration fit + PPL eval × 4 configs)
+
+### 5b.2 Next-2: Outlier Layer Bit Preservation (Mistral)
+
+**목적**: Proposition D 실용 검증 — Layer 2-6 특별 처리로 PPL 복구?
+
+**설정**: Mistral-7B, 2K held-out PPL, 5가지 config 비교.
+
+| Config | Layers 2-6 | Other layers | Avg bits |
+|---|:---:|:---:|:---:|
+| B | 2 bit | 2 bit | 2.00 |
+| C | **3 bit** | 2 bit | 2.16 |
+| D | **4 bit** | 2 bit | 2.31 |
+| E (최소 비용) | **L2 only @ 4 bit** | 2 bit | 2.06 |
+| F (upper bound) | **8 bit** | 2 bit | 2.94 |
+
+**핵심 질문**:
+- `PPL(E) < PPL(B)` ? (Layer 2 단독 처리로 이득?)
+- `PPL(D) ≈ PPL(FP16)` ? (Layer 2-6 4b + rest 2b로 FP16 근접?)
+- `PPL(F)`는 실질적 upper bound
+
+**예상 시간**: 15-25분 (unique (layer, bits) 쌍 ~100개 fit + 5 PPL eval)
+
+### 5b.3 Next-3: Per-layer Lloyd Breakdown on Qwen-7B
+
+**목적**: Exp4 (Mistral)의 layer 2-6 pattern을 Qwen으로 cross-model validation.
+
+**설정**: Qwen2.5-7B, Exp4와 동일 프로토콜 (baseline PPL + per-layer L² Lloyd substitution).
+
+**예측 (Exp1 기반)**:
+- Qwen-7B Lloyd failure는 Mistral의 ~1/5 (v3: 1.05× vs 5.06×)
+- Exp1에서 Qwen-7B top outlier는 **Layer 19 H0 (κ=3.4M)** (Mistral top은 Layer 2 H3)
+- → Qwen에서도 localization 있지만 **위치가 다를 것** (Layer 19 또는 Layer 2 근처)
+
+**검증 포인트**: 
+- "Per-head outlier hypothesis"가 모델-invariant인가?
+- Outlier layer 위치는 모델별로 다른가?
+
+**예상 시간**: 2-3분 (Qwen-7B는 32 layers, Mistral과 유사 크기)
+
+### 5b.4 Chain 실행 후 확인 경로
+
+```bash
+# 전체 진행 상태
+cat reports/axis2_theoretical_verification/chain_next_master.log
+
+# 개별 로그
+cat reports/axis2_theoretical_verification/exp_next1.log   # Fisher Mahalanobis PPL (Mistral)
+cat reports/axis2_theoretical_verification/exp_next2.log   # Outlier layer preservation (Mistral)
+cat reports/axis2_theoretical_verification/exp_next3.log   # Per-layer Lloyd (Qwen)
+
+# JSON 결과 (3 files)
+ls reports/axis2_theoretical_verification/exp_next*.json
+```
+
+### 5b.5 결과에 따른 다음 액션
+
+**시나리오 1 (Fisher Mahalanobis 성공)**: Next-1에서 PPL(D) < PPL(C)
+- → Per-head Mahalanobis Lloyd가 main method로 승격
+- → 논문 핵심 contribution으로 부각
+
+**시나리오 2 (Outlier preservation 성공)**: Next-2에서 PPL(E) << PPL(B) or PPL(D) ≈ FP16
+- → Proposition D가 실용 가치 확인
+- → "Structural quantization" 스토리 강화
+
+**시나리오 3 (둘 다 실패)**: 
+- → Axis 2 reform은 simple quantizer 수준으로는 한계
+- → 더 복잡한 방법 (E_8 lattice, per-block spherical) 필요
+- → 또는 논문 스토리를 "MSE-PPL gap characterization"으로 재구성
+
+**시나리오 4 (Qwen에서도 early layer concentration)**: 
+- → Proposition D universality 강화
+- → "transformer universal phenomenon" claim 가능
+
+**시나리오 5 (Qwen outlier가 mid layer)**: 
+- → Outlier location은 model-specific
+- → Proposition D는 수정 필요 ("localization is universal but location is model-dependent")
+
+---
+
 ## 6. 실험 E5: Per-token $M_{KL}(t)$ Variance 분석 — Fisher Quantizer 설계 근거
 
 ### 6.1 의도
