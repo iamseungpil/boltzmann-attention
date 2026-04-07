@@ -188,7 +188,7 @@ def main():
     tok = AutoTokenizer.from_pretrained(MODEL, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(
         MODEL, dtype=DTYPE, device_map='cuda:0',
-        attn_implementation='eager', low_cpu_mem_usage=True,
+        attn_implementation='sdpa', low_cpu_mem_usage=True,
     )
     model.eval()
     n_layers = model.config.num_hidden_layers
