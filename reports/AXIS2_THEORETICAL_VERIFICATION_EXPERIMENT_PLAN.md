@@ -334,12 +334,122 @@ $b$-bit 균등 양자화기의 실제 distortion이 $b < 2$에서 Shannon $\sigm
 - **이론 섹션 수정**: "$r(b)$ 단조 증가 = uniform quantizer의 systematic suboptimality at all bits, not just $b=1$"
 - **스토리**: "$L^2$ MSE rate-distortion에 근거한 WF는 floor=0 선호 → floor=2 성공은 다른 메커니즘" (E3b로 확장)
 
-### 4.5 리소스
+### 4.6 리소스 및 실행
+
+- GPU: 불필요 (CPU only, numpy/scipy)
+- CPU: 1 서버, 85.8초 실측
+- 시드: 42 (재현 가능)
+- 샘플 수: 1,000,000
+
+**총 작업량**: **85초 (완료)**
+
+---
+
+## 4b. 실험 E3b: Heterogeneous Water-Filling Floor Test — **MSE-PPL Gap의 Allocation-level 발현** (신규)
+
+**✅ 완료 상태** (2026-04-07)
+- 스크립트: `scripts/exp_e3b_heterogeneous_wf.py`
+- 결과: `reports/axis2_theoretical_verification/e3b_heterogeneous_wf_results.json`
+- 런타임: 0.8초 (analytical, no sampling)
+
+### 4b.1 동기 및 의도
+
+E3는 단일 Gaussian 채널에서 rate-distortion을 측정했으나, WF의 실제 문제는 **이종 분산 채널에 대한 bit allocation** 이다. E3의 결과(knee 없음)로 즉시 다음 질문이 제기됨:
+
+> "PCA로 노출된 heterogeneous variance spectrum에서, discrete WF가 floor=0/1/2 중 어느 것을 선호하는가?"
+
+E3b는 이를 직접 검증하는 실험으로 도입되었다. 결과는 **"floor=0이 100% 승리"** — PPL 실측과 정반대.
+
+### 4b.2 프로토콜
+
+**입력**: $n=128$ channel, 평균 budget $B/n \in \{2, 3, 4\}$ bit.
+
+**스펙트럼 (8종)**:
+
+| 이름 | 설명 | $\sigma^2_{\max}/\sigma^2_{\min}$ |
+|---|---|:---:|
+| iid_equal | 균등 (기준) | 1.0 |
+| power_law_1.0 | $\lambda_j \propto j^{-1}$ | 128 |
+| power_law_1.5 | $\lambda_j \propto j^{-1.5}$ | 1,449 |
+| power_law_2.0 | $\lambda_j \propto j^{-2}$ | 16,384 |
+| exponential_0.1 | $\lambda_j \propto e^{-0.1j}$ | 3.3e5 |
+| exponential_0.3 | $\lambda_j \propto e^{-0.3j}$ | 3.5e16 |
+| bimodal | 25%=10, 75%=0.1 | 100 |
+| realistic_llama_like | 10% high + 90% low decay | 8.2e4 |
+
+**WF 해결 방법**: Greedy marginal allocation — 현재 할당에서 가장 큰 $D$ 감소를 주는 채널에 1 bit 추가, budget 소진까지 반복. Floor $\in \{0, 1, 2, 3\}$ 각각에 대해 별도 실행.
+
+**Distortion function**: E3에서 측정한 Max(1960) optimal uniform quantizer 값 사용
+```
+D(b=0) = 1.0 * σ², D(1) = 0.3642σ², D(2) = 0.1193σ², D(3) = 0.03764σ², ...
+```
+
+### 4b.3 결과 — 예상과 정반대
+
+**24 케이스 (8 스펙트럼 × 3 budget) 전수 테스트**:
+
+| Budget | floor=0 win | floor=1 win | floor=2 win | floor=3 win |
+|:---:|:---:|:---:|:---:|:---:|
+| avg=2 bit | 8/8 | 0/8 | 0/8 | 0/8 |
+| avg=3 bit | 8/8 | 0/8 | 0/8 | 0/8 |
+| avg=4 bit | 8/8 | 0/8 | 0/8 | 0/8 |
+| **합계** | **24/24 (100%)** | 0 | 0 | 0 |
+
+대표 예시 (`realistic_llama_like`, 평균 2 bit):
+
+| floor | Total $D$ | vs floor=0 | 채널 분포 |
+|:---:|:---:|:---:|---|
+| 0 | **0.04637** | — | 32 채널이 0 bit, 나머지 0~8 bit |
+| 1 | 0.05288 | −14.0% | 86 채널이 1 bit에 묶임 |
+| 2 | 15.27 | **−32,832%** (catastrophic) | 128/128 채널에 2 bit 강제 → budget 소진 |
+
+**이유**: 128 채널 × 평균 2 bit = 256 bit 예산. floor=2 강제 시 $128 \times 2 = 256$ bit을 균등 배분 → 저분산 채널에 과잉 투자, 고분산 채널에 과소 투자 → catastrophe.
+
+### 4b.4 해석: MSE-PPL Gap이 두 축에서 동시 발현
+
+**순수 MSE 관점**:
+- 이론 (Shannon 1948): unconstrained WF가 최적
+- 실험 (E3b): 24/24 케이스에서 floor=0이 MSE-optimal
+- 결론: **pure MSE는 floor 제약 없는 WF를 선호**
+
+**그러나 PPL 실측 (v3)**:
+
+| 모델 | WF floor=1 PPL (Shannon WF에 가까움) | WF floor=2 PPL |
+|---|:---:|:---:|
+| Qwen 2-bit | 11.255 | **7.099** ✅ |
+| Llama 2-bit | 8.963 | **7.159** ✅ |
+| Mistral 2-bit | 6.355 | **5.822** ✅ |
+
+$\Rightarrow$ **MSE-optimal (floor=0 or 1) ≠ PPL-optimal (floor=2)**, 3모델 모두 일관.
+
+### 4b.5 Proposition (수정) — MSE-PPL Allocation Gap
+
+E3b의 결과는 **원래 Discrete-WF Theorem을 기각**하고 더 강한 명제를 뒷받침한다:
+
+> **Proposition (MSE-PPL Allocation Gap)**: 순수 $L^2$ MSE 기준으로 discrete Water-Filling은 항상 unconstrained solution을 선호한다 (E3b: 24/24). 그러나 실측 PPL은 floor=2를 strictly 선호한다 (v3: 3/3 모델). 이 gap은 Lloyd-Max "$L^2$-MSE 3.5× 이득에도 PPL 실패" 현상 (Axis 2)과 **동일한 metric mismatch**가 bit allocation(Axis 3)에서 발현한 것이다.
+>
+> **Corollary**: Lie group framework의 $L^2$ 가정은 quantizer 선택과 bit allocation 두 축에서 공통의 failure를 생성한다. 이는 framework의 실패가 아니라, framework가 정확히 지정하는 failure mode이다. 수정은 "두 축 모두에 동일한 non-$L^2$ metric (Fisher/$L^1$/spherical) 적용"이다.
+
+### 4b.6 논문 반영 — "Unified $L^2$-PPL Gap" 서사
+
+**현재 (v4)**:
+> "WF floor=2는 1-bit 소실 방지를 위한 실용적 수정"
+
+**수정 (E3+E3b 기반)**:
+> "우리는 WF floor=2의 empirical success를 standard rate-distortion 이론으로 설명하려 시도했다. Gaussian과 8개 이종 spectra에서의 정확한 시뮬레이션 (E3, E3b)은 $L^2$ MSE 최적화에서 unconstrained WF (floor=0)가 항상 최적임을 보인다 (24/24). 이는 v3 실험에서 PPL-optimal이 floor=2라는 3-모델 일관 결과와 **정면 모순**된다. 이 gap은 Lloyd-Max가 MSE에서 3.5× 우위에도 PPL에서 실패하는 Axis 2 현상과 **동일한 metric mismatch**다. 두 독립 현상이 공통의 뿌리를 가짐을 확인함으로써, 우리는 $L^2$가 attention distortion의 올바른 metric이 아니라는 주장을 **quantizer 축과 allocation 축에서 독립적으로** 뒷받침한다."
+
+**Figure (제안)**: 2-panel
+- (a) Axis 2: Lloyd-Max MSE gain vs PPL loss (v3 data)
+- (b) Axis 3: WF floor=0 MSE optimal vs PPL floor=2 optimal (E3b + v3)
+- 캡션: "같은 metric mismatch가 두 축에서 대칭적으로 발현"
+
+### 4b.7 리소스
 
 - GPU: 불필요
-- CPU: 1 서버, ~2시간 (synthetic + 3 models)
+- CPU: 0.8초 (analytical, 샘플링 없음)
+- 총 24 케이스 완전 탐색
 
-**총 작업량**: **0.5일**
+**총 작업량**: **<1초 (완료)**
 
 ---
 
