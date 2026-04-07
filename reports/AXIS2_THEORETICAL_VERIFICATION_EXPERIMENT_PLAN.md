@@ -2,13 +2,27 @@
 
 **프로젝트**: KV-Cache 양자화 Lie Group 프레임워크 — 이론 명제의 Empirical Verification
 **작성일**: 2026-04-07
-**버전**: v1
+**버전**: v2 (E3/E3b 실행 결과 반영)
+**최종 업데이트**: 2026-04-07 (E3, E3b 완료 후)
 **근거 문서**:
 - `AXIS2_ANISOTROPY_AWARE_QUANTIZATION_EXPERIMENT_PLAN.md` (기존 5-quantizer 실험)
 - `NEURIPS_VERIFICATION_REPORT_v4.md` (QW-PCA 실패 + PCA-Q 자연 정렬 발견)
 - `LIE_GROUP_UNIFICATION.md` (이론 framework)
+- `axis2_theoretical_verification/E3_RESULTS_SUMMARY.md` (E3/E3b 실측 결과, **NEW**)
 
 **목적**: 기존 AXIS2 plan을 보완하여, NeurIPS 2026 reviewer의 예상 3대 우려를 선제 차단하는 이론 명제 검증 실험을 추가한다.
+
+## 실행 현황 대시보드 (2026-04-07)
+
+| 실험 | 상태 | 작업량 | GPU | 핵심 결과 |
+|---|:---:|:---:|:---:|---|
+| **E3** (single-channel Gaussian) | ✅ **완료** | 85초 실측 | X | Max 1960 reference와 4자리 일치, "knee at b=1" 가설 **기각** |
+| **E3b** (heterogeneous WF, 신규) | ✅ **완료** | 0.8초 | X | floor=0 win 24/24, **MSE-PPL gap이 allocation 축에서도 발현** |
+| E1 ($\kappa(\bar{M}_{KL})$) | ⏸ 대기 | 0.5일 | 필요 (data 없음) | — |
+| E2 (tail index $\alpha$) | ⏸ 대기 | 0.5일 | 필요 | — |
+| E4 (cross-ablation) | ⏸ 대기 | 2일 | 필요 | AXIS2 P0 선행 |
+| E5 (per-token $M_{KL}$) | ⏸ 대기 | 1일 | 필요 | — |
+| E6 (MMLU + NIAH 16K) | ⏸ 대기 | 2일 | 필요 | 병렬 진행 중 |
 
 ---
 
