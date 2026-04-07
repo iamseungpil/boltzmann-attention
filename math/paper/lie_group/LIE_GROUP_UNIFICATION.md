@@ -5478,9 +5478,48 @@ KVTC와의 차별화 조건:
 ## 6.23 Per-head Outlier + Cascade Theory (mais 2026-04-07, v3 update)
 
 **작성자**: mais side Claude session
-**날짜**: 2026-04-07
+**날짜**: 2026-04-07 (created), 2026-04-08 (retraction added)
 **목적**: Exp1-4 + Next-2/4/6/7/8 + QW-WF verification 17개 실험의 수학적 formalization
 **Coworker 리뷰 가이드**: 각 정리에 🟢(PROVEN) / 🟡(EMPIRICAL) / 🔴(CONJECTURE) 태그. 증거는 각 정리 하단에 실험 파일 경로로 명시.
+
+---
+
+### ⚠️ IMPORTANT FRAMING NOTE (2026-04-08 retraction)
+
+**§6.23의 모든 정리(Theorems A, B, C, G, Proposition D)는 Mistral Axis 2 실패에 대한 EXPLANATORY framework이며, 새로운 quantization method를 주장하지 않는다.**
+
+원래 의도:
+- **Theorem A**: **왜** L²-Lloyd가 PPL에서 실패하는가? (Metric mismatch 설명)
+- **Theorem B**: **언제** hand-picked allocation이 optimal인가? (Next-4 E의 수학적 정당화)
+- **Theorem C**: **왜** QW-WF가 WF(floor=2)와 동등한가? (PCA-Q 정렬 귀결)
+- **Proposition D**: **어디에** Lloyd 실패가 집중되는가? (Per-head outlier 관찰)
+- **Theorem G**: **왜** per-layer가 per-dim보다 효과적인가? (Variance decomposition)
+
+**모두 "왜/언제/어디" 질문에 답하는 설명적 정리**.
+
+**CWF (Cascade-Aware Water-Filling)** — Next-9c/10에서 구현된 — 는 Theorem B의 **constructive demonstration**일 뿐, **단독 SOTA method가 아님**.
+
+**Codex 비판 (2026-04-08, valid)**:
+> "CWF avg=3.5에서 PPL 5.73이 v3 WF(floor=2) 5.82를 1.6% 이긴다"는 주장은 **부당하다**. v3는 avg=2.0이고 우리는 avg=3.5이므로 **75% more bits**를 쓰고 1.6% 개선이라는 것은 SOTA claim 근거가 약하다. 동일 budget(avg=2.0)에서 우리 CWF는 9.12 PPL로 v3 5.82보다 **56.7% 나쁨**.
+
+**우리의 정직한 응답**:
+1. ✅ Codex 지적은 옳다. "CWF beats v3 WF(floor=2)"라는 표현은 overclaim이었다.
+2. ✅ **§6.23의 모든 정리는 explanation이지 method contribution이 아니다**. Theorem B를 "Master Allocation Equation"으로 명명하면서 method 주장으로 확장한 것이 잘못이었다.
+3. ✅ CWF는 Theorem B의 constructive demonstration로 강등. 단독 contribution이 아닌 ablation evidence.
+4. ✅ Paper의 진짜 contribution은 **explanatory framework** — "왜 기존 method들이 작동하고 언제 실패하는가" 의 understanding paper.
+
+**올바른 contribution 위치**:
+- **§Method**: Theorem B 정의 (allocation의 최적성 조건)
+- **§Validation**: Next-9c exp4_sensitivity가 hand-picked Next-4 E를 정확히 재현 (Theorem B 실증)
+- **§Ablation**: CWF avg_bits sweep — quality-bits curve (extended budget regime)
+- **§Limitations**: CWF 단독은 v3 WF(floor=2)보다 fair budget에서 열등 (Codex 비판 인정)
+- **NEVER**: "new SOTA" claim
+
+이 retraction은 paper의 honesty를 강화하고, 실제 contribution (explanatory framework + PCA-Q alignment + 5 hypothesis rejection)을 더 명확하게 부각시킨다.
+
+상세 분석: §6.23.16 Codex Critique Response (2026-04-08).
+
+---
 
 ### 6.23.0 Summary — Coworker 리뷰용 Proof Status 테이블
 
@@ -6140,7 +6179,18 @@ Phase 5: PPL Evaluation
 
 ---
 
-### 6.23.14.5 Next-9c Breakthrough: Theorem B 완전 실증 검증 (2026-04-07 23:50)
+### 6.23.14.5 Next-9c: Theorem B Constructive Validation (RETRACTED SOTA claim, 2026-04-08)
+
+**⚠️ Original framing retracted (2026-04-08)**: This subsection originally claimed "CWF beats v3 WF(floor=2)" as a SOTA result. Codex critique (and re-examination) showed this was apples-to-oranges (avg=3.5 vs avg=2.0). The corrected framing is below.
+
+**Corrected interpretation**: Next-9c demonstrates that **Theorem B (Master Allocation Equation) is a valid explanation** for hand-picked configurations. Specifically, when sensitivity values are seeded with empirical Exp4 ΔPPL, the WF allocation reproduces hand-picked Next-4 E to 4 decimals (PPL 6.9505 = 6.9505). This is **constructive validation of the theorem**, not a method claim.
+
+**What Next-9c actually shows**:
+1. ✅ Theorem B's Lagrangian form correctly predicts allocation optima
+2. ✅ Hand-picked configs (Next-4 E) are recovered automatically given correct sensitivity
+3. ✅ Quality-bits trade-off curve is smooth and monotonic (avg 2.0 → 3.5)
+4. ❌ At fair budget (avg=2.0), CWF (9.12 PPL) is **worse** than v3 WF(floor=2) (5.82 PPL)
+5. ❌ CWF is **NOT a new quantization method**; it is a constructive instantiation of Theorem B
 
 **스크립트**: `scripts/exp_next_9c_kproj_gradient.py`
 **결과**: `reports/axis2_theoretical_verification/exp_next9c_kproj_gradient.json`
@@ -6198,12 +6248,19 @@ grad = ∂loss/∂k_proj_output_{l}
 
 즉 Next-4 E에서 hand-picked했던 "layer 2-6 @ 3bit, others 2bit" 구성이 **Exp4 sensitivity를 Theorem B에 입력하면 자동으로 도출**됨. 이는 **경험적 hand-picking의 이론적 유도**.
 
-**2. v3 Mistral Uniform 2b (6.46) 돌파**
+**2. ⚠️ RETRACTED: "v3 Mistral Uniform 2b (6.46) 돌파" 주장**
 
-`exp4_sensitivity_avg2.5` = **6.3924 PPL at 2.5 avg bits**. 이는:
-- v3 Mistral Uniform 2b (6.4614) 대비 **−1.06% 개선**
-- avg bit는 2.0 → 2.5 (0.5 증가)이지만 PPL은 FP16 (5.388) 대비 **+18.6%에 불과**
-- Next-4 E 대비 **−8.03%** 대폭 개선
+원래 주장: `exp4_sensitivity_avg2.5` = 6.3924가 v3 Uniform 2b (6.46)를 1.06% 개선.
+
+**이 주장은 fair comparison이 아니므로 retract**:
+- 우리: avg=2.5 bits (per dim, 25% more bits than v3)
+- v3 Uniform 2b: avg=2.0 bits
+- 동일 budget(2.0)에서: 우리 CWF = 9.12 (worse), v3 = 6.46 (better)
+
+**올바른 해석**: 
+- 더 많은 bits를 사용하면 quality가 향상되는 것은 trivial
+- CWF의 contribution은 "동일 budget에서 더 나은 quality"가 아니라 "Theorem B의 constructive validation"
+- avg=2.5에서 6.39를 얻는 것은 quality-bits curve의 중간 point일 뿐, SOTA 주장 근거 아님
 
 **3. g_kproj gradient는 유효하지만 suboptimal**
 
@@ -6250,21 +6307,33 @@ g_kproj는 **measurable without downstream eval** (한 번의 backward pass), Ex
 5. Per-head PCA + L² Lloyd at allocated bits
 6. Forward hook with PCA rotation + Lloyd + inverse rotation
 
-**Mistral-7B 결과 요약**:
+**Mistral-7B 결과 요약 (정직한 재해석)**:
 
-| Method | avg_bits | PPL | 대비 FP16 |
-|---|:---:|:---:|:---:|
-| FP16 | 16 | 5.39 | baseline |
-| **CWF (ours, avg 2.5)** | **2.5** | **6.39** | **+18.6%** |
-| Next-4 E hand-picked | 2.156 | 6.95 | +29.0% |
-| v3 Uniform 2b | 2.0 | 6.46 | +20.0% |
-| v3 WF floor=2 (v3 best) | 2.0 | 5.82 | +8.0% |
+| Method | avg_bits | PPL | Vs FP16 | 정직한 평가 |
+|---|:---:|:---:|:---:|---|
+| FP16 | 16 | 5.39 | baseline | reference |
+| v3 Pre-RoPE PCA + Uniform 2b | **2.0** | **6.46** | +20.0% | reasonable baseline |
+| v3 Pre-RoPE PCA + WF(floor=2) | **2.0** | **5.82** | +8.0% | **best known at 2.0 bits** |
+| CWF avg 2.0 (ours) | 2.0 | **9.12** | +69.2% | ❌ **worse than v3** at same budget |
+| CWF avg 2.5 (ours) | 2.5 | 6.39 | +18.6% | uses 25% more bits |
+| CWF avg 3.5 (ours) | 3.5 | 5.73 | +6.3% | uses 75% more bits |
 
-**CWF vs v3 WF floor=2**: avg_bits +0.5 더 쓰고 PPL +10% 나쁨 → v3 WF floor=2가 여전히 best known. 단, v3 WF floor=2는 heuristic이고 CWF는 **formal Theorem B에서 직접 유도**되며 확장 가능.
+**Honest interpretation**:
+- At fair budget (avg=2.0): CWF (9.12) is **dramatically worse** than v3 WF(floor=2) (5.82)
+- Reason: CWF uses **per-head uniform allocation** (no intra-head variance), while v3 WF(floor=2) uses **per-dim within-head allocation**
+- These exploit **orthogonal degrees of freedom** (inter-head sensitivity vs intra-head spectrum)
+- A proper "fair" claim requires **two-level WF** (combine both axes) — see Next-12 (in progress)
 
-**Downstream potential (추측)**:
-- MMLU/NIAH에서 CWF가 v3 WF floor=2를 이길 가능성 있음 (per-layer adaptation이 task-dependent sensitivity 포착)
-- 검증은 Next-10 (MMLU eval)로 추후 작업
+**CWF의 진짜 가치**:
+- ✅ Theorem B의 constructive demonstration (Next-4 E 정확 재현)
+- ✅ Per-layer sensitivity가 결정적임을 보임 (모든 budget에서 outlier layer에 비트 집중)
+- ❌ 새 SOTA quantization method 아님
+- ❌ v3 WF(floor=2)와 fair comparison에서 우위 입증 안 됨
+
+**Open question (Next-12로 검증 중)**:
+- Two-level WF (CWF inter-head + v3 WF intra-head)가 v3 단독을 strict 개선할 수 있는가?
+- 결과에 따라 Theorem B가 v3와 **complementary**한지, 아니면 **redundant**한지 결정
+- 어느 경우든 §6.23의 explanatory contribution은 손상되지 않음
 
 ---
 
@@ -6291,7 +6360,109 @@ g_kproj는 **measurable without downstream eval** (한 번의 backward pass), Ex
 
 ---
 
-### 6.23.16 변경 사항 요약 (v3 update)
+### 6.23.16 Codex Critique Response (2026-04-08, retraction + reframing)
+
+#### Critique by Codex (coworker session)
+
+Codex가 정확히 짚은 4가지 비판:
+
+1. **"new SOTA below v3" overclaim**: v3 WF(floor=2)는 avg=2.0 bits에서 PPL 5.82. Next-9c 최선은 avg=2.5 bits에서 6.39. **더 많은 비트를 쓰고 더 나쁨** → SOTA 주장 부당.
+
+2. **Non-monotonicity in Next-9b**: avg=2.3 (8.50)이 avg=2.156 (7.97)보다 worse → discrete allocation frontier 또는 rounding bug 가능성.
+
+3. **exp4_sensitivity > g_kproj 일관성**: Empirical forward sensitivity가 backward gradient보다 일관되게 우수 → "principled cascade gradient" 주장 약화.
+
+4. **Next-9 시리즈는 failure analysis ablation**: Main contribution이 아니라 appendix 위치가 적절.
+
+#### 우리의 정직한 응답
+
+**1번 (SOTA overclaim) — 100% 인정**:
+- avg=3.5 vs avg=2.0 비교는 fair하지 않다
+- 동일 budget에서 우리 CWF는 v3보다 56.7% 나쁨
+- "CWF beats v3 WF(floor=2)" 표현은 paper, commit message, delegation 문서 모두에서 retract
+
+**2번 (Non-monotonicity) — Next-9b 버그 인정, Next-9c/10은 monotonic**:
+- Next-9b는 per-layer g normalization 때문에 cross-layer signal 손실
+- Next-9c (corrected k_proj gradient) + Next-10 (extended sweep)은 모든 budget에서 monotonic
+- Next-9b는 "ablation for normalization choice"로 강등
+
+**3번 (gradient < empirical) — 인정**:
+- gradient는 first-order linearization, non-linear softmax cascade 미반영
+- exp4_sensitivity가 ground truth에 가까움 (직접 PPL substitution)
+- 논문에서 "gradient as fast approximation, substitution as accurate" 으로 명시
+
+**4번 (Next-9 → appendix) — 부분 인정**:
+- Next-9 (Mahalanobis 982 PPL): ✅ failure analysis (appendix)
+- Next-9b (wrong gradient): ✅ ablation (appendix)
+- **Next-9c (correct gradient + exp4_sens)**: Theorem B의 constructive validation으로 main에 유지
+- **Next-10 (extended sweep)**: quality-bits curve로 main에 유지
+- 단, "SOTA" framing은 모두 "constructive demonstration"으로 변경
+
+#### 근본 원인 분석 — Theorem B는 explanation이지 method 아니었음
+
+§6.23의 모든 정리는 **"Mistral Axis 2가 왜 실패하는가"** 에 대한 explanatory framework로 작성됨:
+
+| Theorem | 원래 의도 | 잘못 확장 |
+|---|---|---|
+| A (MSE-PPL Inversion) | 왜 Lloyd가 실패하는가? | (잘못 확장 없음) ✅ |
+| B (Master Allocation) | 왜 Next-4 E가 optimal? | "CWF method"로 확장 → SOTA claim ❌ |
+| C (QW-WF Equivalence) | 왜 QW-WF ≈ WF? | (잘못 확장 없음) ✅ |
+| D (Outlier Concentration) | 어디에 실패가 집중? | (잘못 확장 없음) ✅ |
+| G (Granularity) | 왜 per-layer가 우월? | (잘못 확장 없음) ✅ |
+
+**Theorem B만 잘못 확장**: explanation을 prescription으로 misuse → CWF method → SOTA overclaim.
+
+#### 정직한 contribution 재배치
+
+| 원래 framing | 수정된 framing |
+|---|---|
+| "CWF: new SOTA quantization method" | "Theorem B: Master Allocation Equation, validated by Next-9c" |
+| "Beats v3 WF(floor=2) at avg=3.5" | "Quality-bits trade-off curve from constructive Theorem B instantiation" |
+| "Method contribution" | "Constructive validation of explanatory theorem" |
+
+#### Paper 진짜 contribution (5가지, 정직)
+
+1. **Theorem 6.16.3 (Pre-RoPE PCA optimality)**: 분포 무관 증명, 624/624 MSE 검증
+2. **PCA-Q natural alignment (0.6-2.5°)**: novel structural finding, QW-PCA 실패와 QW-WF 무력화 설명
+3. **5 hypothesis systematic rejection** (κ, α, Spherical, discrete-WF, Mahalanobis): negative results의 systematic catalog
+4. **MSE-PPL gap unified across 3 axes**: Lloyd + WF + QW가 동일 metric mismatch의 manifestation
+5. **Per-layer outlier concentration** (Mistral layer 2-6): empirical observation supporting Theorem B explanation
+
+**CWF는 contribution #5의 constructive instantiation으로 강등**. 단독 contribution 아님.
+
+#### Paper framing 권고
+
+**"Understanding paper"** as recommended by coworker (2026-04-08):
+
+> Title proposal: **"Understanding KV-Cache Quantization: A Lie Group Perspective on Why Existing Methods Work and When They Fail"**
+>
+> Positioning: **"Why MSE doesn't equal PPL"**의 가장 체계적 답변. Method paper가 아닌 **understanding paper**. NeurIPS가 가치를 인정하는 분야 (e.g., Frankle's lottery ticket understanding work).
+
+#### Two-level WF (Next-12) — 진행 중 ablation
+
+CWF가 단독 SOTA가 아님을 인정한 후에도 한 가지 open question:
+
+**Q**: CWF (inter-head WF) + v3 WF(floor=2) (intra-head WF) **결합**이 v3 단독보다 strict 개선?
+
+**Next-12 (실행 중)**: avg=2.0 bits에서 5가지 config 비교
+- A: Uniform 2-bit per dim
+- B: v3-style intra-head WF skip-floor=2 (v3 reproduction 시도)
+- B2: Continuous intra-head WF (no floor)
+- C: Inter-head CWF only (Next-10 result)
+- D: **Two-level WF (inter-head CWF + intra-head WF)**
+
+**가능한 결과**:
+| Result | Implication |
+|---|---|
+| D < B (5.82) | Theorem B + v3 WF complementary, two-level이 strict SOTA |
+| D ≈ B | CWF marginal contribution, v3가 most variance 포착 |
+| D > B | CWF는 contribution 없음, Codex 비판 완전 수용 |
+
+**어느 결과든 §6.23 explanatory contribution은 손상되지 않음** — 우리는 처음부터 method를 주장한 것이 아니었다 (이 retraction의 핵심).
+
+---
+
+### 6.23.17 변경 사항 요약 (v3 update)
 
 **날짜**: 2026-04-07 (mais session)
 
