@@ -389,7 +389,8 @@ def main():
 
     # (C) L² Lloyd 2-bit
     print("\n[C] L² Lloyd 2-bit PPL...", flush=True)
-    l2_args = [([h['centroids'] for h in all_l2[li]], n_kv, head_dim) for li in range(n_layers)]
+    # FIX: pass full dict (with K_mean + centroids), not just centroids
+    l2_args = [(all_l2[li], n_kv, head_dim) for li in range(n_layers)]
     handles = install_hooks(model, L2LloydHook, l2_args, n_layers)
     t0 = time.time()
     ppl_l2, loss_l2 = compute_ppl(model, eval_ids)
