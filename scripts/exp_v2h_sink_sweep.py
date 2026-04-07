@@ -195,7 +195,7 @@ def run_model(model_id):
     model.eval()
     n_layers = model.config.num_hidden_layers
     n_kv = model.config.num_key_value_heads
-    head_dim = model.config.hidden_size // model.config.num_attention_heads
+    head_dim = getattr(model.config, 'head_dim', None) or (model.config.hidden_size // model.config.num_attention_heads)
     print(f"  n_layers={n_layers}, n_kv={n_kv}, head_dim={head_dim}, loaded in {time.time()-t0:.1f}s", flush=True)
 
     from datasets import load_dataset
