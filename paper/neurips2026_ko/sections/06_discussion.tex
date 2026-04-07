@@ -1,55 +1,20 @@
 \section{논의와 한계}
 \label{sec:discussion}
 
-\subsection{통합 서사: 세 축의 경계가 말하는 것}
+\paragraph{본 논문의 위치.}
+본 논문은 새로운 양자화 시스템을 제안하지 않는다. 기존 8가지 회전 기반 방법들이 \emph{왜 작동하거나 실패하는지}에 대한 이론적 이해를 제공한다. KIVI \citep{liu2024kivi}, KVQuant \citep{hooper2024kvquant}, KVTC \citep{staniszewski2025kvtc}, TurboQuant \citep{zandieh2025turboquant}는 각자 outlier 처리, entropy coding, QJL 잔차 양자화 등 직교적 실용 기법을 포함하며, 이들과의 전체 시스템 수준 비교는 회전 선택의 효과를 분리하기 어렵다. 본 논문의 통제된 ablation은 ``어떤 회전이 최적인가''라는 이론적 질문에 집중하며, 이 이론은 기존 시스템의 회전 성분을 대체하여 적용 가능하다.
 
-본 논문의 실험은 Class~C (직교 회전 + 독립 스칼라 양자화) 내에서 MSE 최적성이 PPL로 전이되는 조건과 실패하는 조건을 세 축으로 분리하여 분석하였다. 이 결과를 통합하면 다음의 3막 구조가 드러난다.
+\paragraph{왜 회전은 안전하고, 양자화기는 위험한가.}
+직교 회전은 양자화 오차의 \emph{방향 분포}만 바꾸고 크기를 왜곡하지 않는다. 따라서 MSE-PPL 순서가 회전에서는 비교적 보존된다 (3-bit에서 4/4 모델). 반면, Lloyd-Max는 비선형 양자화기로서 codebook 경계가 attention 민감도와 무관하게 설계된다. 624/624 $L^\infty$ 측정이 보여주듯, Lloyd는 MSE를 줄이면서 tail error를 증가시키고, softmax가 이 tail error를 지수적으로 증폭한다.
 
-\paragraph{1막: 회전 축 --- 정리로 해결.}
-정리~\ref{thm:optimal_hamiltonian}은 Pre-RoPE 헤드별 PCA가 MSE 기준 최적 회전임을 분포 무관하게 증명한다. 이 증명은 PPL에서 3-bit 이상 4/4 모델로 검증되며 (표~\ref{tab:prerope_vs_postrope}), 회전 선택 문제를 해결한다. 회전이 MSE$\to$PPL 전이에 비교적 안전한 이유는, 직교성 $R^\top R = I$에 의해 양자화 오차의 \emph{방향 분포}만 바꾸고 크기를 왜곡하지 않기 때문이다.
+\paragraph{MSE-PPL 전이의 한계.}
+정리~\ref{thm:optimal_hamiltonian}의 MSE 최적성은 분포 무관하게 624/624에서 검증된다. 그러나 PPL 전이는 3-bit 이상에서만 안정적이다 (4/4 모델). 2-bit에서는 2/4 모델에서 PPL 순서가 역전된다. 흥미롭게도, 2-bit에서 PPL이 역전되는 Qwen 모델에서도 MMLU 5-shot은 PCA가 NoRot 대비 +9.2\%p 개선을 보인다. 이것은 MSE-최적 회전이 PPL (토큰 분포 전체의 평균)보다 task-relevant 정보를 더 잘 보존할 수 있음을 시사하지만, 현재 1개 모델의 관찰이므로 일반화에는 추가 검증이 필요하다.
 
-\paragraph{2막: 양자화기/배분 축 --- $L^2$ metric의 실패.}
-MSE 최적 양자화기(Lloyd-Max)는 PPL에서 catastrophic failure (Section~\ref{sec:exp_lloyd}: Mistral $5.87\times$), MSE 최적 비트 배분(floor=0)은 PPL에서 열등 (표~\ref{tab:floor_ablation}: floor=1 +41\%), attention-weighted 최적 회전(QW-PCA)은 $\kappa(\Sigma_Q) \sim 10^4$로 악화. 이 세 실패는 모두 ``$L^2$-MSE $\neq$ attention distortion''이라는 동일한 근본 원인을 공유한다.
+\paragraph{가우시안 가정.}
+정리의 핵심 (PCA 최적성, RoPE 상쇄)은 분포 무관이다. $R_{\mathrm{aniso}}$ 정량값과 $b_{\mathrm{crit}}$ 진단식은 가우시안 근사에 의존하며, 3모델의 초과 첨도 $\bar{\kappa}_4 - 3 \approx 0.5$는 mild non-Gaussianity를 보인다.
 
-\paragraph{3막: 구조적 진단 --- 단일 metric 재정의의 한계.}
-5가지 대안 metric (global $\kappa$, heavy-tail $L^1$, Spherical, Fisher-Mahalanobis, discrete-WF)을 체계적으로 검증하여 모두 기각하였다 (표~\ref{tab:five_rejections}). 이것은 ``올바른 단일 metric을 찾으면 해결된다''는 접근의 한계를 보여준다. 대신, per-layer 국소화 분석을 통해 failure가 소수의 레이어에 집중되어 있음을 발견하고, sensitivity 기반 비트 배분으로 Mistral에서 $-$80\% 개선을 달성하였다. 그러나 이 효과는 model-specific이다 (Qwen: $-$4.4\%).
+\paragraph{평가 범위.} WikiText-2 PPL + MMLU 5-shot. 긴 문맥 (LongBench, NIAH)과 추가 downstream task는 향후 과제이다.
 
-\paragraph{3축의 상태 요약.}
-\begin{center}
-\small
-\begin{tabular}{lccc}
-\toprule
-축 & 최적성 상태 & 가정 & 핵심 증거 \\
-\midrule
-회전 (축 1) & \textbf{증명됨} (정리~\ref{thm:optimal_hamiltonian}) & 분포 무관 & 624/624 MSE, 4/4 PPL (3-bit) \\
-양자화기 (축 2) & \textbf{Negative} & --- & Lloyd PPL catastrophe \\
-비트 배분 (축 3) & 조건부 (가우시안 + floor$\geq$2) & High-rate & floor ablation (표~\ref{tab:floor_ablation}) \\
-\bottomrule
-\end{tabular}
-\end{center}
-축 1의 MSE 최적성은 분포 무관하게 증명되었으나, 축 2와 3의 결합 최적성은 가우시안 + high-rate 가정에 의존한다. 2-bit 영역에서 이 가정이 위반되면 MSE-PPL 간극이 발생하며, 이것이 Lloyd-Max 실패와 floor 문제의 근본 원인이다. 따라서 본 논문은 3축의 joint optimality를 주장하지 않고, 각 축의 독립적 기여와 한계를 분리하여 보고한다.
+\paragraph{모델 범위.} 7B-14B 규모의 4개 모델. 1-3B 및 30B+ 모델에서의 검증은 미수행.
 
-\subsection{왜 회전은 안전하고, 양자화기는 위험한가?}
-
-회전 기반 양자화에서 키는 $R^\top k \to \mathcal{Q}(\cdot) \to R \hat{z}$의 경로를 거친다. 직교성에 의해 양자화 오차가 없을 때 $R \cdot R^\top k = k$가 정확히 복원된다. 따라서 회전 선택은 양자화 오차의 \emph{방향 분포}만 바꾸며, attention 점수 $q^\top \hat{k}$에 대한 영향도 방향에만 의존한다. 이것이 MSE-PPL 순서가 회전에서는 비교적 보존되는 이유다.
-
-반면 Lloyd-Max는 비선형 양자화기로서, codebook 경계가 attention 민감도와 무관하게 설계된다. 저분산 차원에서 codebook이 0 근처에 집중되면, 해당 차원에서 query의 큰 값이 왜곡되어 attention logit에 치명적 오차를 초래한다. Section~\ref{sec:mse_ppl_chain}의 3차 항 분석($R_3 \propto \lVert \delta a \rVert_\infty^3 / \min_i p_i$)이 이 현상을 정량적으로 설명한다.
-
-\subsection{$\Sigma_K$--$\Sigma_Q$ 관계의 의미}
-
-Section~\ref{sec:exp_pca_q_alignment}에서 측정한 결과, $\Sigma_K$와 $\Sigma_Q$의 고유벡터 부분공간은 30--57°로 정렬되어 있지 않다. 그러나 key 고유 기저에서의 고유값 순위 상관 ($\rho = 0.655$)은 QW-WF $\approx$ WF를 설명하며, QW-PCA의 실패는 부분공간 비정렬 + $\kappa(\Sigma_Q)$의 수치 불안정에 기인한다. 이 결과는 (i)~query 정보를 회전에 반영하는 것은 수치적으로 위험하고, (ii)~비트 배분에서의 query 추가 이득은 고유값 순위가 이미 유사하므로 미미하며, (iii)~부분공간 자체는 다르므로 attention-aware 양자화기 설계에서는 여전히 query 정보가 잠재적으로 유용할 수 있음을 시사한다.
-
-\subsection{한계}
-
-\paragraph{가우시안 가정의 유효 범위.} 정리~\ref{thm:optimal_hamiltonian}의 핵심(PCA 최적성, RoPE 상쇄)은 분포 무관이다. 반면 $R_{\mathrm{aniso}}$ 정량값과 $b_{\mathrm{crit}}$ 진단식은 가우시안 근사에 의존한다. 3모델의 초과 첨도 $\bar{\kappa}_4 - 3 \approx 0.5$는 mild non-Gaussianity를 보이며, 이것이 이론-실측 이득 비율 간극의 주 원인이다.
-
-\paragraph{평가 범위.} 본 실험은 WikiText-2 PPL만을 사용한다. MMLU, GSM8K 등 downstream task에서의 검증은 진행 중이다. 본 논문의 주 기여는 회전 선택의 이론적 최적성과 MSE-PPL 경계의 구조적 분석이며, PPL은 이 이론의 검증 도구로 사용한다.
-
-\paragraph{Baseline 범위.} 비교하는 baseline은 4가지 회전 전략의 핵심 아이디어를 추출한 통제된 ablation이다. TurboQuant, SpinQuant, KVTC의 전체 파이프라인은 공개 코드 부재 또는 학습 비용으로 인해 직접 재현하지 않았다.
-
-\paragraph{Sensitivity 배분의 model-specificity.} Sensitivity 기반 비트 배분은 Mistral-like (severe failure) 모델에서 극적으로 효과적이지만, Qwen-like (mild failure) 모델에서는 제한적이다. 이 효과의 일반화를 위해 더 많은 모델에서의 검증이 필요하다.
-
-\paragraph{본 논문의 위치: 이해 논문 (understanding paper).}
-본 논문은 새로운 양자화 시스템을 제안하는 것이 아니라, 기존 회전 기반 방법들이 \emph{왜 작동하고, 어디서 실패하는가}에 대한 이론적 이해를 제공한다. KIVI \citep{liu2024kivi}, KVQuant \citep{hooper2024kvquant}, KVTC \citep{staniszewski2025kvtc}, TurboQuant \citep{zandieh2025turboquant}는 각자 outlier 처리, entropy coding, QJL 잔차 양자화 등 직교적 실용 기법을 포함하며, 이들과의 전체 시스템 수준 비교는 회전 선택의 이론적 효과를 분리하기 어렵다. 본 논문의 통제된 ablation (표~\ref{tab:baselines})과 KVTC 적용 사례 (표~\ref{tab:kvtc})는 ``어떤 회전이 최적인가''라는 이론적 질문에 집중하며, 이 이론은 기존 시스템의 회전 성분을 대체하여 적용 가능하다.
-
-\paragraph{Class~C의 범위.} 본 논문의 최적성은 Class~C 내에서만 성립한다. 벡터 양자화(VQ)나 lattice quantization은 원칙적으로 더 낮은 왜곡을 달성할 수 있으나, codebook 복잡도 $O(2^{dB})$가 online 추론에 비실용적이며, 현존하는 주요 KV 캐시 양자화 방법은 모두 Class~C에 속한다.
+\paragraph{Class~C의 범위.} 본 논문의 최적성은 Class~C (직교 회전 + 독립 스칼라 양자화) 내에서만 성립한다. 벡터 양자화는 원칙적으로 더 낮은 왜곡을 달성할 수 있으나 추론 비용이 비실용적이다.

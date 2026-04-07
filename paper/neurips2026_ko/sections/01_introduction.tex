@@ -1,31 +1,18 @@
 \section{서론}
 \label{sec:intro}
 
-KV 캐시는 긴 문맥 추론에서 메모리와 대역폭의 주된 병목이다. 최근 KV 캐시 양자화 연구는 \emph{직교 회전 후 양자화}라는 패러다임으로 수렴하고 있다: TurboQuant \citep{zandieh2025turboquant}는 무작위 직교 행렬을, KVTC \citep{staniszewski2025kvtc}는 공유 Pre-RoPE PCA를, SpinQuant \citep{liu2024spinquant}은 학습된 회전을, PolarQuant \citep{wu2025polarquant}는 극좌표 분해를 적용한다. 이 방법들은 모두 실험적으로 평가되었지만, 두 가지 근본적 질문이 미해결이다:
+KV 캐시는 긴 문맥 추론에서 메모리의 주된 병목이다. 2-bit 양자화는 8$\times$ 메모리 절약을 제공하지만, 품질 저하가 크다. 최근 8가지 방법 --- KIVI \citep{liu2024kivi}, KVQuant \citep{hooper2024kvquant}, GEAR \citep{kang2024gear}, TurboQuant \citep{zandieh2025turboquant}, KVTC \citep{staniszewski2025kvtc}, SpinQuant \citep{liu2024spinquant}, PolarQuant \citep{wu2025polarquant} 등 --- 이 각기 다른 직교 회전을 키 벡터에 적용한 뒤 양자화하지만, \emph{어떤 회전이 왜 최적인지}에 대한 이론적 분석은 없었다.
 
-\begin{enumerate}[leftmargin=2em,itemsep=3pt]
-\item \textbf{왜 Pre-RoPE PCA가 다른 회전보다 양자화에 유리한가?}
-\item \textbf{MSE에서 최적인 것이 언제 PPL에서도 최적이고, 언제 실패하는가?}
-\end{enumerate}
+본 논문은 이 공백을 Lie 군 프레임워크로 해결하고, 이 이론이 작동하는 범위와 한계를 정직하게 밝힌다.
 
-첫 번째 질문에 대해, 직교 변환 후 스칼라 양자화에서 KLT(=PCA)가 MSE를 최소화한다는 것은 정보 이론에서 잘 알려져 있다 \citep{cover2006elements}. 그러나 RoPE 구조 하에서 위치마다 공분산이 달라지는 문제($\Sigma(\mathrm{pos}) = R_{\mathrm{RoPE}} \Sigma_0 R_{\mathrm{RoPE}}^\top$)를 해결해야 적용할 수 있다. 본 논문은 이 위치 의존성이 \emph{대수적으로 상쇄}되어, Pre-RoPE 공분산의 PCA만으로 모든 위치에서 동시에 최적이 됨을 증명한다.
-
-두 번째 질문은 더 복잡하다. MSE 최적 양자화기(Lloyd-Max)가 PPL에서 catastrophic failure를 보이고 (Mistral 2-bit: $5.87\times$), MSE 최적 비트 배분(floor=0)이 PPL에서 열등하며 (floor=2가 PPL 최적), attention-weighted 최적 회전(QW-PCA)이 오히려 악화된다. 본 논문은 이 세 축의 실패를 ``$L^2$-MSE가 attention distortion의 올바른 metric이 아님''이라는 통일적 원인으로 진단하고, 각 축에서의 구조적 경계와 처방을 제시한다.
-
-\paragraph{기여.} 본 논문의 기여는 다음 여섯 가지다.
+\paragraph{기여.}
 
 \begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
-\item \textbf{RoPE 상쇄 정리} (정리~\ref{thm:optimal_hamiltonian}). Pre-RoPE 공분산의 헤드별 PCA가 Class~C 내에서 MSE 기준 최적 회전임을 소스 분포 가정 없이 증명한다. RoPE의 직교성에 의해 위치 의존성이 대수적으로 상쇄되어, 위치에 무관한 단일 회전 $V_0$만으로 모든 위치에서 동시에 MSE가 최소화된다.
+\item \textbf{정리~\ref{thm:optimal_hamiltonian}: Pre-RoPE PCA의 MSE 최적성.} RoPE 구조와 교환하는 블록 대각 직교 회전의 클래스 (Class~C) 내에서, Pre-RoPE 헤드별 PCA가 MSE를 최소화함을 소스 분포 가정 없이 증명한다. 핵심은 Fischer 부등식과 RoPE의 직교성에 의한 상쇄이다. 이 MSE 예측은 624개 (레이어, 헤드) 조합에서 100\% 검증된다.
 
-\item \textbf{헤드별 PCA의 직접 검증}. KVTC의 공유 PCA가 헤드 간 공분산 이질성을 무시하므로 일반적으로 최적이 아님을 보이고, 헤드별 PCA가 Llama-3.1-8B 2-bit에서 공유 PCA 대비 46.3\% PPL 개선을 보임을 확인한다.
+\item \textbf{헤드별 PCA $>$ 공유 PCA.} KVTC (ICLR 2026)의 공유 PCA 대비 헤드별 PCA가 Llama-3.1-8B 2-bit에서 \textbf{46.3\% PPL 개선}을 달성한다. 이것은 정리~\ref{thm:optimal_hamiltonian}의 직접적 귀결이다 (Fischer 부등식). MMLU 5-shot에서도 NoRot 대비 \textbf{+9.2\%p} 정확도 개선을 확인한다.
 
-\item \textbf{Same-harness 회전 비교}. 4개 모델에서 Pre-RoPE PCA의 Pre-vs-Post 우위는 3-bit에서 4/4 모델로 확인된다. 공통 hook 프로토콜 안에서 KIVI-style, GEAR-style, random-rotation 계열과의 통제된 비교를 통해 회전 선택의 상대적 이득을 관찰한다.
-
-\item \textbf{$\Sigma_K$--$\Sigma_Q$ 관계의 정밀 측정}. $\Sigma_K$와 $\Sigma_Q$의 고유벡터 부분공간은 30--57°로 정렬되어 있지 않다 (3모델 일관). 그러나 key 고유 기저에서의 고유값 순위 상관 (Spearman $\rho = 0.655$)이 존재하여, query-weighted 비트 배분(QW-WF)이 표준 Water-Filling과 거의 동일한 결과를 생성한다 ($<$0.5\%, Section~\ref{sec:exp_qwwf}). QW-PCA의 catastrophic failure는 부분공간 비정렬 + $\kappa(\Sigma_Q) \sim 10^4$의 수치 불안정에 기인한다.
-
-\item \textbf{MSE-PPL 간극의 3축 통일 분석}. MSE$\to$PPL 전이가 실패하는 세 가지 축을 식별하고 통일적으로 분석한다: (a)~양자화기 축---Lloyd-Max MSE $3.5\times$ 이득에도 PPL catastrophe, (b)~비트 배분 축---MSE-최적 floor=0이 PPL에서 열등 (floor=2가 최적), (c)~회전 축---QW-PCA가 $\kappa(\Sigma_Q) \sim 10^4$로 악화. 이 세 축의 실패는 모두 $L^2$-MSE $\neq$ attention distortion이라는 동일한 근본 원인을 공유한다.
-
-\item \textbf{Per-layer failure localization과 sensitivity 배분}. Lloyd-Max PPL 실패가 소수의 레이어에 국소화되어 있음을 발견하고 (Mistral: layer 2--6, Qwen: bimodal), 5가지 대안 metric을 체계적으로 기각한 뒤, per-layer sensitivity 배분이 severe failure 모델에서 $-80\%$ PPL 개선을 달성함을 보인다. 이 효과는 baseline failure severity에 비례한다 (Mistral $-80\%$ vs Qwen $-4.4\%$).
+\item \textbf{Lloyd-Max 실패의 체계적 진단.} MSE-최적 양자화기 (Lloyd-Max)가 2-bit에서 PPL catastrophe를 일으키는 현상에 대해 5가지 후보 수정을 체계적으로 검증하여 모두 기각한다. 실패 메커니즘을 규명한다: Lloyd-Max는 MSE를 74\% 줄이면서 max-error ($L^\infty$)를 94\% 증가시키며 (624/624 헤드에서 확인), 이것이 softmax의 tail 민감도와 결합하여 PPL을 악화시킨다.
 \end{enumerate}
 
-정량적 분석 도구로서 고율 가우시안 왜곡 공식 $D^* = d \cdot G(b,\Sigma) \cdot 2^{-2B}$ \citep{cover2006elements}을 활용하고, MSE→PPL 전이의 6단계 체인과 임계 비트 진단식 $b_{\mathrm{crit}}$를 유도한다. 최종적으로, ``회전 선택은 정리로 해결, 양자화기와 비트 배분은 $L^2$를 넘어선 구조적 분석이 필요''라는 Class~C의 3축 경계를 밝힌다.
+\paragraph{범위와 한계.} 본 논문은 회전 선택 (Axis 1)에 집중한다. 양자화기 선택 (Axis 2)과 비트 배분 (Axis 3)은 분석하되 새로운 방법을 제안하지 않는다. 2-bit에서 MSE 순서가 PPL 순서로 전이되지 않는 모델이 존재하며 (2/4), 이것을 한계로 인정한다.

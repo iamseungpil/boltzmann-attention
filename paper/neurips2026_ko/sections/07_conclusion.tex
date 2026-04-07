@@ -1,10 +1,8 @@
 \section{결론}
 \label{sec:conclusion}
 
-본 논문은 회전 기반 KV 캐시 양자화에서 두 가지 질문에 답하였다: ``어떤 회전이 최적인가''와 ``MSE 최적성이 언제 PPL로 전이되고 언제 실패하는가''.
+본 논문은 회전 기반 KV 캐시 양자화에서 ``어떤 회전이 최적인가''라는 질문에 답하였다. Class~C 내에서 Pre-RoPE 헤드별 PCA가 MSE를 최소화함을 소스 분포 가정 없이 증명하고 (정리~\ref{thm:optimal_hamiltonian}), 624/624 헤드에서 검증하였다. 이 이론은 KVTC의 공유 PCA 대비 46.3\% PPL 개선과 MMLU +9.2\%p의 실용적 이득으로 이어진다.
 
-첫 번째 질문에 대해, Class~C 내에서 Pre-RoPE 공분산의 헤드별 PCA가 MSE 기준 최적 회전임을 소스 분포 가정 없이 증명하였다 (정리~\ref{thm:optimal_hamiltonian}). RoPE의 직교성에 의해 위치 의존성이 대수적으로 상쇄되어, 위치에 무관한 단일 회전이 모든 위치에서 동시에 MSE를 최소화한다. 4개 모델에서 이 이론은 3-bit 이상에서 일관되게 PPL로 검증된다.
+동시에 MSE-최적 양자화기 (Lloyd-Max)가 PPL에서 실패하는 현상을 체계적으로 분석하였다. 5가지 후보 수정을 기각하고, 실패 메커니즘을 $L^\infty$ tail error (624/624)로 규명하였다. 이 결과는 ``회전 선택은 MSE 이론으로 해결 가능하지만, 양자화기 설계는 $L^2$를 넘어선 분석이 필요하다''는 Class~C의 구조적 경계를 밝힌다.
 
-두 번째 질문에 대해, MSE$\to$PPL 전이가 실패하는 세 축을 식별하였다: 양자화기(Lloyd-Max: MSE $3.5\times$ 이득, PPL catastrophe), 비트 배분(MSE-최적 floor=0, PPL-최적 floor=2), 회전(QW-PCA: $\kappa(\Sigma_Q) \sim 10^4$로 악화). 5가지 대안 metric의 체계적 기각을 통해 ``단일 metric 재정의로는 이 간극을 메울 수 없다''는 structural finding을 확립하고, per-layer sensitivity 분석에 기반한 비트 배분이 severe failure 모델에서 $-$80\%의 PPL 개선을 달성함을 보였다.
-
-이 결과들은 ``\emph{회전 선택은 정리로 해결되었고, 양자화기와 비트 배분은 $L^2$를 넘어선 구조적 분석이 필요하다}''는 Class~C의 3축 경계를 밝힌다. 향후 연구의 자연스러운 방향은 attention-aware 양자화기 설계, per-layer compositional optimization, 그리고 $\Sigma_K$--$\Sigma_Q$ 부분공간 비정렬(30--57°)을 명시적으로 고려한 양자화 설계이다.
+향후 연구의 자연스러운 방향은 $L^\infty$-aware 양자화기 설계, attention-weighted 비트 배분, 그리고 2-bit regime에서의 MSE-PPL 전이 이론이다.

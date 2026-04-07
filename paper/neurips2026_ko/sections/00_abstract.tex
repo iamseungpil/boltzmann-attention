@@ -1,7 +1,9 @@
 \begin{abstract}
-회전 기반 KV 캐시 양자화 방법들은 모두 직교군 $SO(d)$의 원소를 키 벡터에 적용하지만, \emph{어떤 회전이 왜 최적인지}, 그리고 \emph{MSE 최적성이 언제 PPL 최적성으로 전이되고 언제 무너지는지}는 이론적으로 정리되지 않았다.
+최근 KV 캐시 양자화를 위한 8가지 방법이 각기 다른 직교 회전을 사용하지만, 어떤 회전이 왜 최적인지에 대한 통일적 이론 분석은 없었다. 본 논문은 이 공백을 메운다.
 
-본 논문은 이 두 질문에 동시에 답한다. 첫째, Class~C (직교 회전 + 독립 스칼라 양자화) 안에서 Pre-RoPE 공분산의 헤드별 PCA가 MSE 기준 최적 회전임을 소스 분포 가정 없이 증명한다 (정리~\ref{thm:optimal_hamiltonian}). 둘째, 이 MSE 최적성이 PPL로 전이되는 조건과 실패하는 조건을 체계적으로 분석한다: (a)~\emph{회전 선택}에서는 3-bit 이상 4/4 모델에서 MSE$\to$PPL 순위가 보존되고, (b)~\emph{양자화기 선택}에서는 MSE 3.5$\times$ 우위의 Lloyd-Max가 PPL에서 catastrophic failure를 보이며, (c)~\emph{비트 배분}에서는 MSE-최적 floor=0이 아닌 floor=2가 PPL-최적이다. 이 세 축의 실패는 모두 $L^2$-MSE가 attention distortion의 올바른 metric이 아님을 가리킨다.
+핵심 이론 기여로서, RoPE 구조와 교환하는 블록 대각 직교 회전의 클래스 (Class~C) 내에서 \textbf{Pre-RoPE 헤드별 PCA가 MSE를 최소화함}을 소스 분포 가정 없이 증명한다 (정리~\ref{thm:optimal_hamiltonian}). 증명의 핵심은 Fischer 부등식과 RoPE의 직교성에 의한 대수적 상쇄이다. 이 MSE 예측은 Qwen2.5-7B, Llama-3.1-8B, Mistral-7B의 624개 (레이어, 헤드) 조합에서 100\% 검증되며, PPL 순서는 3-bit 이상에서 4/4 모델이 일치한다.
 
-구체적으로, Lloyd-Max의 PPL 실패가 소수의 레이어에 국소화되어 있음을 발견하고 (Mistral: layer 2--6, Qwen: bimodal), 5가지 대안 metric (global $\kappa$, heavy-tail $L^1$, Spherical, Fisher-Mahalanobis, discrete-WF)을 체계적으로 검증하여 모두 기각한 뒤, \emph{sensitivity 기반 비트 배분}이 Mistral 2-bit에서 $-80\%$ PPL 개선(avg 2.47 bits)을 달성함을 보인다. 3개 모델(Qwen2.5-7B, Llama-3.1-8B, Mistral-7B; Pre-vs-Post 비교는 Qwen2.5-14B 추가)에서의 검증 결과, 본 논문은 ``회전 선택은 증명으로 해결되었고, 양자화기와 비트 배분은 $L^2$를 넘어선 구조적 분석이 필요하다''는 Class~C의 경계를 밝힌다.
+직접적 실험 귀결로서, KVTC (ICLR 2026)의 공유 PCA 대비 \textbf{헤드별 PCA가 Llama-3.1-8B 2-bit에서 46.3\% PPL 개선}을 달성하며, MMLU 5-shot에서도 NoRot 대비 +9.2\%p의 정확도 개선을 확인한다.
+
+또한 Lloyd-Max의 2-bit PPL catastrophe에 대해 5가지 후보 수정 (global $\kappa$, heavy-tail $L^1$, Spherical, discrete-WF, Fisher-Mahalanobis)을 체계적으로 검증하여 모두 기각하고, 이 실패의 메커니즘을 규명한다: Lloyd-Max는 MSE를 74\% 줄이면서 max-error를 94\% 증가시키며, 이것이 softmax의 tail 민감도와 결합하여 PPL을 악화시킨다 (624/624 헤드에서 확인).
 \end{abstract}
