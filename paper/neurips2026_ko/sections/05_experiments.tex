@@ -166,4 +166,51 @@ PCA 방식 & 2-bit & 3-bit & 4-bit \\
 \subsection{Class~C의 경계: Lloyd-Max의 PPL 실패}
 \label{sec:exp_lloyd}
 
-MSE에서 Gaussian Lloyd-Max는 Uniform 대비 3.5$\times$ 이득을 보이지만 (3모델 일관), PPL에서는 Llama에서 65.463, Mistral에서 32.684로 치명적으로 악화된다. 이것은 MSE 최적성이 PPL 최적성을 보장하지 않음을 보여주며, Class~C (직교 회전 + 스칼라 양자화)의 구조적 경계를 밝힌다: \emph{회전 선택}은 정리~\ref{thm:optimal_hamiltonian}로 해결되었지만, 그 위의 \emph{양자화기 설계}는 MSE와 attention 민감도 사이의 간극이 남아 있다.
+MSE에서 Gaussian Lloyd-Max는 Uniform 대비 3.5$\times$ 이득을 보이지만 (3모델 일관), PPL에서는 Llama에서 65.463, Mistral에서 32.684로 치명적으로 악화된다. 이것은 MSE 최적성이 PPL 최적성을 보장하지 않음을 보여주며, Class~C의 구조적 경계를 밝힌다. Query-weighted 회전(명제~\ref{prop:attn_weighted}의 QW-PCA)도 $\kappa(\Sigma_Q) \sim 10^4$의 수치 불안정과 분산 균일화로 인해 표준 PCA보다 악화된다 (Qwen 2-bit: 10.87 vs 7.99). 이 실패는 Section~\ref{sec:exp_qwwf}에서 비트 배분으로의 전환을 동기 부여한다.
+
+\subsection{PCA-Query 고유벡터 정렬}
+\label{sec:exp_pca_q_alignment}
+
+명제~\ref{prop:attn_weighted}에서 QW-PCA가 이론적으로 우수해야 함에도 실패한 원인을 진단한다. 3모델에서 $\Sigma_K$의 상위 10개 고유벡터와 $\Sigma_Q$의 상위 10개 고유벡터 사이의 주각(principal angle)을 측정한 결과:
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+모델 & 평균 주각 & 표준편차 & 해석 \\
+\midrule
+Qwen2.5-7B & 0.8° & 4.1° & 거의 동일 \\
+Llama-3.1-8B & 2.5° & 8.0° & 매우 가까움 \\
+Mistral-7B & 0.6° & 3.6° & 거의 동일 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Trained transformer에서 $\Sigma_K$와 $\Sigma_Q$의 고유 구조가 자연적으로 정렬되어 있다.} 따라서 (i)~PCA 회전은 attention에 대해서도 이미 quasi-optimal이고, (ii)~$\Sigma_Q$를 반영한 추가 회전(QW-PCA)은 불필요할 뿐 아니라 $\kappa(\Sigma_Q)$의 수치 불안정으로 해로우며, (iii)~비트 배분에서만 $\Sigma_Q$를 활용하는 것이 안전하다.
+
+\subsection{Query-Weighted Water-Filling}
+\label{sec:exp_qwwf}
+
+위의 진단으로부터, PCA 회전은 유지하되 비트 배분에만 query 정보를 반영하는 QW-WF (식~\ref{eq:qwwf})를 제안하고 검증한다.
+
+\begin{table}[t]
+\centering
+\caption{Query-Weighted WF vs 표준 PCA+Uniform (WikiText-2 PPL). QW-WF가 3모델 모두에서 2-bit PPL을 10--33\% 개선한다.}
+\label{tab:qwwf}
+\small
+\begin{tabular}{@{}llcc@{}}
+\toprule
+모델 & 방법 & 2-bit & 3-bit \\
+\midrule
+\multirow{2}{*}{Qwen2.5-7B} & PCA + Uniform & 7.954 & 6.762 \\
+ & \textbf{PCA + QW-WF} & \textbf{7.085} (+10.9\%) & \textbf{6.686} (+1.1\%) \\
+\midrule
+\multirow{2}{*}{Llama-3.1-8B} & PCA + Uniform & 10.667 & 6.670 \\
+ & \textbf{PCA + QW-WF} & \textbf{7.162} (+32.9\%) & \textbf{6.556} (+1.7\%) \\
+\midrule
+\multirow{2}{*}{Mistral-7B} & PCA + Uniform & 6.441 & 5.676 \\
+ & \textbf{PCA + QW-WF} & \textbf{5.793} (+10.1\%) & \textbf{5.620} (+1.0\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+QW-WF는 query가 주목하는 PCA 차원에 더 많은 비트를 할당함으로써, 2-bit에서 10--33\%의 PPL 개선을 달성한다. 3-bit에서는 양자화 오차 자체가 작아 이득이 $\sim$1\%로 축소된다. 이 결과는 ``회전 선택은 정리로 해결, 비트 배분은 query 정보를 활용''이라는 분리 원칙의 constructive 검증이다.

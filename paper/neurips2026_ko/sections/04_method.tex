@@ -28,7 +28,17 @@
 
 \paragraph{양자화.} 기본선은 채널별 비대칭 min-max 균일 양자화다: $\hat{z}_j = \mathrm{round}((z_j - z_{\min}) / s) \cdot s + z_{\min}$, 여기서 $s = (z_{\max} - z_{\min}) / (2^B - 1)$. 이것은 \texttt{k\_proj} 모듈의 forward hook으로 구현되어 모델 코드 수정 없이 적용된다.
 
-\paragraph{구성적 확장 1: Water-Filling (WF).} PCA 고유값 $\lambda_j$에 비례하여 비트를 배분하는 WF는 정리의 직접 귀결이 아니라, ``증명된 회전 위에 어떤 양자화기를 얹을 것인가''에 대한 실용 설계다. 특히 최소 비트 하한을 둔 WF(floor=2)는 1-bit 활성 축의 비효율을 피하기 위한 경험적 후보이며, 본 논문에서는 \emph{유망한 확장축}으로 다루고 별도 검증 대상으로 둔다.
+\paragraph{구성적 확장 1: Query-Weighted Water-Filling (QW-WF).}
+PCA 회전이 MSE-최적임은 정리로 증명되었다. 그 위의 비트 배분은 별도의 실용 설계이며, 본 논문은 다음의 query-weighted 배분을 제안한다:
+\begin{equation}
+b_j = B + \frac{1}{2}\log_2\frac{\lambda_j^{(K)} \cdot \sigma_j^{(Q)}}{\overline{\lambda^{(K)} \cdot \sigma^{(Q)}}}, \qquad b_j \geq 2,
+\label{eq:qwwf}
+\end{equation}
+여기서 $\lambda_j^{(K)}$는 PCA 고유값, $\sigma_j^{(Q)} = \sqrt{(V_0^\top \Sigma_Q V_0)_{jj}}$는 PCA 좌표에서의 query 가중치다. 이 배분은 ``key 분산이 크고 동시에 query가 주목하는 차원''에 더 많은 비트를 할당한다.
+
+\textbf{배경.} 명제~\ref{prop:attn_weighted}에서 attention-weighted 최적 회전은 $\Sigma_Q^{1/2} \Sigma_K \Sigma_Q^{1/2}$의 고유벡터를 요구하지만, 이것은 실험에서 PCA보다 악화되었다 ($\kappa(\Sigma_Q) \sim 10^4$로 인한 수치 불안정 + 분산 균일화). 반면, PCA 회전은 유지하면서 \emph{비트 배분에만} query 정보를 반영하는 QW-WF는 3모델에서 10--33\% PPL 개선을 보인다 (Section~\ref{sec:exp_qwwf}).
+
+\textbf{PCA-Query 정렬.} 이 접근이 가능한 이유는, trained transformer에서 $\Sigma_K$와 $\Sigma_Q$의 상위 고유벡터가 자연적으로 정렬되어 있기 때문이다 (3모델 평균 주각 0.6--2.5°). 따라서 PCA 좌표에서 $\sigma_j^{(Q)}$를 계산하는 것이 의미 있다.
 
 \paragraph{구성적 확장 2: residual tail 및 비균일 양자화}. 최근 토큰 tail을 FP16으로 남기거나 Lloyd-Max류 비균일 codebook을 추가하는 방법 역시 실용 개선 시도에 해당한다. 이들은 PPL이나 retrieval에서 유리할 수 있지만, 정리~\ref{thm:optimal_hamiltonian}의 증명 범위에는 포함되지 않는다.
 
