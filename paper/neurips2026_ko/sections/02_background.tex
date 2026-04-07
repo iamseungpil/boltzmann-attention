@@ -6,7 +6,7 @@
 직교군 $SO(d)$의 원소 $R$은 내적을 보존하는 회전이다. 그 Lie 대수 $\mathfrak{so}(d) = \{A \in \R^{d \times d} : A^\top = -A\}$의 원소 $A$를 \emph{생성자} 또는 \emph{해밀토니안}이라 부르며, 지수 사상 $R = e^A$를 통해 회전을 생성한다 \citep{hall2015lie}. 반대칭 행렬 $A$의 스펙트럼 분해에서 각 고유값 $\omega_i$는 2D 평면의 회전 각속도를 결정한다.
 
 \paragraph{RoPE는 해밀토니안 동역학이다.}
-Rotary Position Embedding (RoPE)은 위치 $\mathrm{pos}$를 시간 매개변수로 사용하는 해밀토니안 회전이다 (식~\ref{eq:rope_hamiltonian}). 주파수 $\theta_i = 10000^{-2(i-1)/d}$는 각 2D 평면의 회전 속도를 결정하고, RoPE가 생성하는 토러스 군 $T^{d/2} = SO(2)_1 \times \cdots \times SO(2)_{d/2}$는 KV 캐시에 대칭성을 부여한다.
+Rotary Position Embedding (RoPE)은 위치 $\mathrm{pos}$를 시간 매개변수로 사용하는 해밀토니안 회전이다. 주파수 $\theta_i = 10000^{-2(i-1)/d}$는 각 2D 평면의 회전 속도를 결정하고, RoPE가 생성하는 토러스 군 $T^{d/2} = SO(2)_1 \times \cdots \times SO(2)_{d/2}$는 KV 캐시에 대칭성을 부여한다.
 
 \subsection{회전 기반 양자화 방법}
 

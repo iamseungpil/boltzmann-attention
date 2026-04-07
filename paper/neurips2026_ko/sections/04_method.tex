@@ -1,7 +1,7 @@
 \section{방법: 증명된 회전과 구성적 확장}
 \label{sec:method}
 
-정리~\ref{thm:optimal_hamiltonian}이 직접 정당화하는 것은 \emph{회전 선택}이다. 즉, Pre-RoPE 공분산의 PCA 기저를 사용해 pre-RoPE 키를 회전시키는 것이 Class~C 내 MSE 기준 최적이다. 반면 비트 배분(WF), residual tail 보존, Lloyd-Max 계열 양자화기는 이 증명 위에 올리는 \emph{구성적 확장}이며, 별도 실험 검증이 필요하다. 따라서 본 절은 (i) 증명된 PCA 기반 기본 파이프라인과 (ii) 실용 개선 후보를 분리해 기술한다.
+정리~\ref{thm:optimal_hamiltonian}이 직접 정당화하는 것은 \emph{회전 선택}이다: Pre-RoPE 공분산의 PCA 기저로 pre-RoPE 키를 회전시키는 것이 Class~C 내 MSE 기준 최적이다. 그 위의 비트 배분, residual tail 보존, 양자화기 설계는 이 증명 위에 올리는 \emph{구성적 확장}이며, 각각 별도 실험 검증이 필요하다. 본 절은 (i)~증명된 PCA 기반 기본 파이프라인, (ii)~비트 배분 확장, (iii)~per-layer sensitivity 배분을 분리해 기술한다.
 
 \begin{algorithm}[t]
 \caption{Pre-RoPE PCA 기반 기본 양자화 파이프라인}
@@ -28,18 +28,44 @@
 
 \paragraph{양자화.} 기본선은 채널별 비대칭 min-max 균일 양자화다: $\hat{z}_j = \mathrm{round}((z_j - z_{\min}) / s) \cdot s + z_{\min}$, 여기서 $s = (z_{\max} - z_{\min}) / (2^B - 1)$. 이것은 \texttt{k\_proj} 모듈의 forward hook으로 구현되어 모델 코드 수정 없이 적용된다.
 
-\paragraph{구성적 확장 1: Query-Weighted Water-Filling (QW-WF).}
-PCA 회전이 MSE-최적임은 정리로 증명되었다. 그 위의 비트 배분은 별도의 실용 설계이며, 본 논문은 다음의 query-weighted 배분을 제안한다:
+\subsection{구성적 확장 1: Water-Filling 비트 배분과 floor 하한}
+\label{sec:method_wf}
+
+PCA 회전은 각 차원을 decorrelate하여 독립 스칼라 양자화의 조건을 충족시킨다. 그 위에서 차원별로 다른 비트를 배분하면 추가 개선이 가능하다. 표준 Water-Filling (WF) 배분은 고율 이론에서 유도된다:
 \begin{equation}
-b_j = B + \frac{1}{2}\log_2\frac{\lambda_j^{(K)} \cdot \sigma_j^{(Q)}}{\overline{\lambda^{(K)} \cdot \sigma^{(Q)}}}, \qquad b_j \geq 2,
+b_j = B + \frac{1}{2}\log_2\frac{\lambda_j}{\overline{\lambda}}, \qquad b_j \geq b_{\mathrm{floor}},
+\label{eq:wf}
+\end{equation}
+여기서 $\lambda_j$는 PCA 고유값, $\overline{\lambda}$는 기하 평균이다.
+
+\textbf{Floor 하한의 중요성.} 이론적 MSE 최적해는 $b_{\mathrm{floor}} = 0$이다 (Section~\ref{sec:exp_allocation_gap}에서 24/24 케이스로 확인). 그러나 PPL에서는 $b_{\mathrm{floor}} = 2$가 최적이다 (Qwen 2-bit: floor=1 PPL 11.26 $\to$ floor=2 PPL 7.10). 이 ``MSE-최적과 PPL-최적의 괴리''는 Lloyd-Max가 MSE에서 이기지만 PPL에서 실패하는 것과 \emph{동일한 metric mismatch}의 비트 배분 축 발현이다 (Section~\ref{sec:exp_allocation_gap}).
+
+1-bit 양자화는 분산의 63.7\%만 제거하므로 ($c(1) = 0.36$), WF가 1-bit 채널을 생성하면 해당 차원의 양자화 오차가 attention logit을 치명적으로 교란한다. floor$\geq$2를 적용하면 모든 활성 채널이 최소 88.3\%의 분산을 제거하도록 보장한다.
+
+\subsection{Negative result: Query-Weighted Water-Filling (QW-WF)의 무효화}
+\label{sec:method_qwwf}
+
+명제~\ref{prop:attn_weighted}에서 attention-weighted distortion은 $\Sigma_Q \cdot \Sigma_K$의 함수이다. 이것은 WF 배분에 query 공분산 정보를 추가하면 개선이 가능할 것이라는 동기를 부여한다:
+\begin{equation}
+b_j^{\mathrm{QW}} = B + \frac{1}{2}\log_2\frac{\lambda_j^{(K)} \cdot \sigma_j^{(Q)}}{\overline{\lambda^{(K)} \cdot \sigma^{(Q)}}}, \qquad b_j \geq 2,
 \label{eq:qwwf}
 \end{equation}
-여기서 $\lambda_j^{(K)}$는 PCA 고유값, $\sigma_j^{(Q)} = \sqrt{(V_0^\top \Sigma_Q V_0)_{jj}}$는 PCA 좌표에서의 query 가중치다. 이 배분은 ``key 분산이 크고 동시에 query가 주목하는 차원''에 더 많은 비트를 할당한다.
+여기서 $\sigma_j^{(Q)} = \sqrt{(V_0^\top \Sigma_Q V_0)_{jj}}$는 PCA 좌표에서의 query 가중치다.
 
-\textbf{배경.} 명제~\ref{prop:attn_weighted}에서 attention-weighted 최적 회전은 $\Sigma_Q^{1/2} \Sigma_K \Sigma_Q^{1/2}$의 고유벡터를 요구하지만, 이것은 실험에서 PCA보다 악화되었다 ($\kappa(\Sigma_Q) \sim 10^4$로 인한 수치 불안정 + 분산 균일화). 반면, PCA 회전은 유지하면서 \emph{비트 배분에만} query 정보를 반영하는 QW-WF는 3모델에서 10--33\% PPL 개선을 보인다 (Section~\ref{sec:exp_qwwf}).
+\textbf{그러나 이 접근은 실패한다.} 실측에서 QW-WF와 WF(floor=2)의 PPL 차이는 0.5\% 미만이다 (표~\ref{tab:wf_qwwf_honest}). 그 이유는 PCA-Q 자연 정렬 (Section~\ref{sec:exp_pca_q_alignment})에 있다: trained transformer에서 $\lambda_j^{(K)}$와 $\sigma_j^{(Q)2}$의 Spearman 순위 상관이 median $\rho = +0.655$로 강하게 co-monotonic하다. 이 co-monotonicity 하에서 $\sigma_j^{(Q)}$는 $\lambda_j^{(K)}$의 근사적 단조 함수이므로, 식~\eqref{eq:qwwf}의 importance $\lambda_j^{(K)} \cdot \sigma_j^{(Q)}$는 표준 WF의 $\lambda_j^{(K)}$와 동일한 배분 순서를 생성한다. 실측에서 두 배분의 $L^1$ 차이는 budget의 5--8\%이며, 이 5\% bit 변동이 0.5\% PPL 변화로 전이된다.
 
-\textbf{PCA-Query 정렬.} 이 접근이 가능한 이유는, trained transformer에서 $\Sigma_K$와 $\Sigma_Q$의 상위 고유벡터가 자연적으로 정렬되어 있기 때문이다 (3모델 평균 주각 0.6--2.5°). 따라서 PCA 좌표에서 $\sigma_j^{(Q)}$를 계산하는 것이 의미 있다.
+\textbf{구조적 해석.} Key 고유 기저에서 query 분산의 순위 상관 ($\rho = 0.655$, Section~\ref{sec:exp_pca_q_alignment})으로 인해, query 가중은 기존 WF 배분의 순서를 크게 바꾸지 못한다. 실용적으로는, 비트 배분에 query 정보를 추가하는 것은 불필요하며 표준 WF(floor=2)로 충분하다. 한편, $\Sigma_K$와 $\Sigma_Q$의 고유벡터 부분공간 자체는 30--57°로 정렬되어 있지 않으므로, QW-PCA의 failure는 $\kappa(\Sigma_Q) \sim 10^4$의 수치 불안정에 기인한다.
 
-\paragraph{구성적 확장 2: residual tail 및 비균일 양자화}. 최근 토큰 tail을 FP16으로 남기거나 Lloyd-Max류 비균일 codebook을 추가하는 방법 역시 실용 개선 시도에 해당한다. 이들은 PPL이나 retrieval에서 유리할 수 있지만, 정리~\ref{thm:optimal_hamiltonian}의 증명 범위에는 포함되지 않는다.
+\subsection{구성적 확장 3: Sensitivity 기반 per-layer 비트 배분}
+\label{sec:method_sensitivity}
 
-\paragraph{계산 비용.} 캘리브레이션은 $O(n d_{\mathrm{head}}^2)$ (고유분해 1회), 추론 시 $O(d_{\mathrm{head}}^2)$ (행렬-벡터 곱 2회)이다. 무작위 회전 계열은 캘리브레이션이 불필요하지만, 추론 비용은 동일한 차수다.
+Section~\ref{sec:exp_per_layer}에서 Lloyd-Max의 PPL 실패가 소수의 레이어에 국소화되어 있음을 확인한다. 이 구조적 발견은 per-layer 비트 배분이라는 직접적 처방을 제공한다:
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
+\item 각 레이어를 개별적으로 $b$-bit으로 양자화하고, 나머지를 FP16으로 유지하여 $\Delta\mathrm{PPL}_l$를 측정한다.
+\item $\Delta\mathrm{PPL}_l$가 큰 상위 $k$개 레이어에 $B_{\mathrm{high}}$-bit을, 나머지에 $B_{\mathrm{low}}$-bit을 배분한다.
+\end{enumerate}
+
+이것은 차원별 WF (식~\ref{eq:wf})와 직교하는 \emph{레이어별} 배분이다. 두 배분을 결합하면 (sensitive layer에 3-bit + 차원별 WF) 추가 개선이 가능하지만, 본 논문에서는 각 축을 독립적으로 평가한다.
+
+\paragraph{계산 비용.} 캘리브레이션은 $O(n d_{\mathrm{head}}^2)$ (고유분해 1회), 추론 시 $O(d_{\mathrm{head}}^2)$ (행렬-벡터 곱 2회)이다. Sensitivity 측정은 $O(L)$회의 단일-레이어 양자화 PPL 평가가 추가로 필요하다 (Mistral 32 layers: $\sim$70초).

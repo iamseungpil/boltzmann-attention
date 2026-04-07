@@ -191,7 +191,6 @@ b_{\mathrm{crit}} = \frac{1}{2} \log_2\!\bigl(\kappa(\Sigma_Q) \cdot \kappa(\Sig
 Qwen2.5-7B (GQA-7) & $\sim$15 & $\sim$20 & \textbf{4.1} & 3-bit 이하 역전 가능 \\
 Mistral-7B (GQA-8) & $\sim$25 & $\sim$30 & \textbf{4.5} & 4-bit 안전, 3-bit 주의 \\
 Llama-3-8B (GQA-8) & $\sim$40 & $\sim$50 & \textbf{5.2} & 4-bit edge case 존재 \\
-Phi-3 (MHA)        & $\sim$60 & $\sim$80 & \textbf{5.9} & MHA 구조는 높은 $b_{\mathrm{crit}}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -203,14 +202,15 @@ Phi-3 (MHA)        & $\sim$60 & $\sim$80 & \textbf{5.9} & MHA 구조는 높은 $
 
 명제~\ref{prop:mse_ppl_transfer}-\ref{prop:bcrit}는 V3 검증(2026-04)에서 관측된 Lloyd-Max의 catastrophic failure를 정량적으로 설명한다.
 
-\textbf{관측 사실 (V3 검증).}
+\textbf{관측 사실 (V3 검증).} Pre-RoPE PCA 회전 하에서 양자화기만 교체한 결과:
 \begin{center}
 \begin{tabular}{lcccc}
 \toprule
-모델 & FP16 PPL & 2-bit Uniform & 2-bit Lloyd-Max & 비율 \\
+모델 & FP16 PPL & PCA+Uniform 2-bit & PCA+Lloyd 2-bit & Lloyd/Uni 비율 \\
 \midrule
-Llama-3-8B  & 10.14 & 10.14 & \textbf{65.46} & \textbf{6.5}$\times$ \\
-Qwen2.5-7B  & 7.98  & 7.98  & 11.26          & 1.4$\times$ \\
+Llama-3-8B  & 6.398 & 10.944 & \textbf{65.46} & \textbf{5.98}$\times$ \\
+Qwen2.5-7B  & 6.556 & 7.961  & 11.26          & 1.41$\times$ \\
+Mistral-7B  & 5.572 & 6.404  & \textbf{37.55} & \textbf{5.87}$\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -228,10 +228,10 @@ Qwen2.5-7B  & 7.98  & 7.98  & 11.26          & 1.4$\times$ \\
 \text{Qwen 2-bit:}\quad  & \lVert \delta a \rVert_\infty \sim 0.3,\quad |R_3| \lesssim (1/3) \cdot 0.027 \cdot 2048 \approx 18
 \end{align*}
 \begin{equation*}
-\text{이론 비율: } \frac{R_{3,\text{Llama}}}{R_{3,\text{Qwen}}} \approx \frac{85}{18} \approx 4.7 \quad\text{vs}\quad \text{실험 비율: } \frac{6.5\times}{1.4\times} \approx 4.6
+\text{이론 비율: } \frac{R_{3,\text{Llama}}}{R_{3,\text{Qwen}}} \approx \frac{85}{18} \approx 4.7 \quad\text{vs}\quad \text{실험 비율: } \frac{5.98\times}{1.41\times} \approx 4.2
 \end{equation*}
 
-\textbf{해석.} 이론 비율 4.7과 실험 비율 4.6의 근접성은 명제~\ref{prop:mse_ppl_transfer}-\ref{prop:bcrit}가 \emph{설명적 surrogate}로는 유용할 수 있음을 시사한다. 그러나 이것만으로 일반적 정량 예측력이 확립되었다고 보기는 어렵다.
+\textbf{해석.} 이론 비율 4.7과 실험 비율 4.2의 근접성은 명제~\ref{prop:mse_ppl_transfer}-\ref{prop:bcrit}가 \emph{설명적 surrogate}로는 유용할 수 있음을 시사한다. 그러나 이것만으로 일반적 정량 예측력이 확립되었다고 보기는 어렵다.
 
 \textbf{메트릭 미스매치 메커니즘.}
 \begin{enumerate}[leftmargin=1.5em,itemsep=2pt]

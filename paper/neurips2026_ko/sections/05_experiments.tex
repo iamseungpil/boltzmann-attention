@@ -1,26 +1,38 @@
 \section{실험}
 \label{sec:experiments}
 
-실험은 정리~\ref{thm:optimal_hamiltonian}의 예측을 직접 검증하는 순서로 구성한다: (1)~MSE 순서 예측 검증, (2)~Pre-RoPE vs Post-RoPE PPL 직접 비교, (3)~방법 간 PPL 비교, (4)~KVTC 비교, (5)~Class~C의 경계 (Lloyd-Max 실패).
+실험은 세 단계로 구성된다. 먼저 정리~\ref{thm:optimal_hamiltonian}의 두 가지 예측(MSE 순서, Pre-vs-Post)을 직접 검증한다 (\S\ref{sec:exp_mse}--\ref{sec:exp_prerope_vs_postrope}). 다음으로 이 정리를 기반으로 한 실용적 비교를 수행한다 (\S\ref{sec:exp_baselines}--\ref{sec:exp_kvtc}). 마지막으로 MSE 최적성이 PPL로 전이되지 \emph{않는} 세 축---양자화기, 비트 배분, 회전---의 경계를 분석한다 (\S\ref{sec:exp_lloyd}--\ref{sec:exp_sensitivity}).
 
 \subsection{설정}
+\label{sec:exp_setup}
 
-\paragraph{모델.} Qwen2.5-7B ($d_{\mathrm{head}}=128$, GQA $G=7$, $R_{\mathrm{aniso}}=4.27$) \citep{qwen2024qwen25}, Llama-3.1-8B ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=7.97$) \citep{grattafiori2024llama3}, Mistral-7B-v0.3 ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=131.62$) \citep{jiang2023mistral}.
+\paragraph{모델.} Qwen2.5-7B ($d_{\mathrm{head}}=128$, GQA $G=7$, $R_{\mathrm{aniso}}=4.27$) \citep{qwen2024qwen25}, Llama-3.1-8B ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=7.97$) \citep{grattafiori2024llama3}, Mistral-7B-v0.3 ($d_{\mathrm{head}}=128$, GQA $G=4$, $R_{\mathrm{aniso}}=131.62$) \citep{jiang2023mistral}, Qwen2.5-14B ($d_{\mathrm{head}}=128$, GQA $G=4$).
 
-\paragraph{프로토콜.} WikiText-2 test set, non-overlapping 2048-token chunks, 약 49K 평가 토큰. 캘리브레이션은 WikiText-2 train에서 2048 토큰. 양자화는 k\_proj 출력에 forward hook을 설치하여 채널별 min-max uniform 양자화를 적용한다.
+\paragraph{프로토콜.} WikiText-2 test set, non-overlapping 2048-token chunks, 약 49K 평가 토큰. 캘리브레이션은 WikiText-2 train에서 2048 토큰. 양자화는 k\_proj 출력에 forward hook을 설치하여 채널별 min-max uniform 양자화를 적용한다. 모든 실험은 A100 80GB에서 bfloat16 추론으로 수행한다.
 
-\subsection{정리의 직접 검증 1: MSE 순서 예측}
+%% ============================================================
+%% Part 1: 정리의 직접 검증
+%% ============================================================
 
-따름정리~\ref{cor:block_hierarchy}는 $G(\mathrm{PCA}) \leq G(\mathrm{TurboQuant}) \leq G(\mathrm{uniform})$을 예측한다. 이것은 Hadamard 부등식에 의해 수학적으로 보장되는 결과다. 3모델의 모든 KV 헤드 (Qwen 112, Llama 256, Mistral 256, 총 624 헤드)에서 이 순서가 100\% 성립함을 확인하여, 구현의 정확성을 검증하였다 (implementation sanity check).
+\subsection{검증 1: MSE 순서 예측}
+\label{sec:exp_mse}
 
-\subsection{정리의 직접 검증 2: Pre-RoPE vs Post-RoPE PPL}
+\paragraph{의도.} 정리~\ref{thm:optimal_hamiltonian}의 가장 기본적인 예측---$G(\mathrm{PCA}) \leq G(\mathrm{Random}) \leq G(\mathrm{uniform})$---이 모든 헤드에서 성립하는지 확인하여, 구현의 정확성을 검증한다.
+
+\paragraph{가설.} Hadamard 부등식에 의해 이 순서는 수학적으로 보장된다. 따라서 100\% 성립해야 한다.
+
+\paragraph{결과.} 3모델의 모든 KV 헤드 (Qwen 112, Llama 256, Mistral 256, 총 624 헤드)에서 이 순서가 100\% 성립함을 확인하였다 (implementation sanity check).
+
+\subsection{검증 2: Pre-RoPE vs Post-RoPE PPL}
 \label{sec:exp_prerope_vs_postrope}
 
-정리~\ref{thm:optimal_hamiltonian}의 \emph{고유 예측}은 Post-RoPE PCA가 아닌 Pre-RoPE PCA가 최적이라는 것이다. 이를 PPL에서 직접 검증한다.
+\paragraph{의도.} 정리~\ref{thm:optimal_hamiltonian}의 \emph{고유 예측}---Post-RoPE PCA가 아닌 Pre-RoPE PCA가 최적---을 PPL에서 직접 검증한다.
+
+\paragraph{가설.} MSE에서는 Pre-RoPE $<$ Post-RoPE가 보장된다. PPL에서도 이 순서가 보존되는가?
 
 \begin{table}[t]
 \centering
-\caption{Pre-RoPE vs Post-RoPE PCA PPL 비교 (Uniform 양자화). 3-bit에서 4/4 모델이 정리~\ref{thm:optimal_hamiltonian}의 예측(Pre $<$ Post)과 일치한다. 2-bit에서는 2/4 모델에서 역전이 관찰되어, 극단적 양자화에서 MSE-PPL 전이가 모델에 따라 달라짐을 보여준다.}
+\caption{Pre-RoPE vs Post-RoPE PCA PPL 비교. 3-bit에서 4/4 모델이 정리의 예측과 일치한다. 2-bit에서는 2/4 모델에서 역전이 관찰되며, 극단적 양자화에서 MSE-PPL 전이가 모델에 따라 달라짐을 보여준다.}
 \label{tab:prerope_vs_postrope}
 \small
 \begin{tabular}{@{}llccc@{}}
@@ -46,61 +58,71 @@
 \end{tabular}
 \end{table}
 
-\paragraph{MSE 수준 검증: 정리는 PPL 역전에도 불구하고 성립한다.}
-표~\ref{tab:prerope_vs_postrope}에서 2-bit PPL이 2/4 모델에서 역전됨에도, MSE 수준에서는 Pre-RoPE PCA가 \emph{모든 헤드에서 예외 없이} Post-RoPE PCA를 상회한다. Qwen2.5-7B의 112개 KV 헤드 전부에서 $\mathrm{MSE}_{\mathrm{pre}} < \mathrm{MSE}_{\mathrm{post}}$가 2/3/4-bit 모두에서 성립한다 (112/112 = 100\%). 이것은 정리~\ref{thm:optimal_hamiltonian}의 MSE 최적성이 PPL 역전과 무관하게 유지됨을 확인하며, 2-bit PPL 역전의 원인이 정리의 오류가 아닌 MSE-PPL 전이의 비선형성에 있음을 보여준다.
+\paragraph{결과와 해석.} 표~\ref{tab:prerope_vs_postrope}에서 3-bit는 4/4 모델 모두 Pre-RoPE PCA $<$ Post-RoPE PCA로 정리의 예측과 일치한다. 2-bit에서는 2/4 모델(Llama, Qwen-14B)에서 역전이 관찰된다. 그러나 MSE 수준에서는 Pre-RoPE PCA가 \emph{모든 헤드에서 예외 없이} Post-RoPE PCA를 상회한다 (Qwen 112 헤드 전부 100\%). 이것은 정리의 MSE 최적성이 PPL 역전과 무관하게 유지됨을 확인하며, 2-bit PPL 역전의 원인이 정리의 오류가 아닌 MSE-PPL 전이의 비선형성에 있음을 보여준다.
+
+%% ============================================================
+%% Part 2: 실용적 비교
+%% ============================================================
 
 \subsection{방법 간 PPL 비교}
+\label{sec:exp_baselines}
+
+\paragraph{의도.} 정리의 핵심 예측---``PCA 회전이 무회전 및 무작위 회전보다 MSE에서 우수하다''---를 PPL에서 검증한다. 이것은 SOTA 시스템 간의 경쟁이 아니라, \emph{회전 선택이 양자화 품질에 미치는 영향을 분리}하기 위한 통제된 ablation이다.
+
+\begin{itemize}[leftmargin=1.5em,itemsep=1pt]
+\item \textbf{무회전 (KIVI-style)}: 채널별 비대칭 양자화 \citep{liu2024kivi}. 정리에서 $A=0$에 해당.
+\item \textbf{SVD 잔차 (GEAR-style)}: uniform 양자화 후 rank-2 SVD 잔차 보정 \citep{kang2024gear}.
+\item \textbf{무작위 회전$^\dagger$}: Haar SO(d) + 채널별 uniform. TurboQuant \citep{zandieh2025turboquant}의 회전 성분만 재현.
+\item \textbf{Pre-RoPE PCA}: 정리가 예측하는 최적 회전.
+\end{itemize}
+각 방법은 원 논문의 핵심 아이디어만을 추출한 것이며, 전체 시스템(커스텀 커널, 엔트로피 코딩 등)을 재현한 것이 아니다.
 
 \begin{table}[t]
 \centering
-\caption{WikiText-2 PPL. $^\dagger$Random rotation = Haar 무작위 직교 행렬 + per-channel uniform 양자화. TurboQuant \citep{zandieh2025turboquant}의 회전 성분만을 재현한 것이며, TurboQuant의 전체 파이프라인(Beta Lloyd-Max + QJL 잔차)과는 다르다.}
-\label{tab:ppl_main}
+\caption{양자화 전략별 PPL 비교 (WikiText-2). 동일 hook 프레임워크에서 회전 전략만 달리한 통제된 비교. $^\dagger$TurboQuant의 회전 성분만 재현. 볼드체는 각 행의 최선.}
+\label{tab:baselines}
 \small
-\begin{tabular}{@{}llccc@{}}
+\begin{tabular}{@{}llcccc@{}}
 \toprule
-모델 & 방법 & 2-bit & 3-bit & 4-bit \\
+모델 & 비트 & KIVI-style & GEAR-style & Random rot.$^\dagger$ & \textbf{Pre-RoPE PCA} \\
 \midrule
-\multirow{4}{*}{Qwen2.5-7B} & FP16 & \multicolumn{3}{c}{6.556} \\
- & No rotation & 10.525 & 6.877 & 6.626 \\
- & Random rot.$^\dagger$ & 9.332 & 6.821 & 6.614 \\
- & \textbf{Pre-RoPE PCA} & \textbf{7.961} & \textbf{6.755} & \textbf{6.600} \\
+\multirow{4}{*}{Qwen-7B}   & FP16 & \multicolumn{4}{c}{6.556} \\
+                            & 2 & 10.525 & 9.603 & 9.332 & \textbf{7.961} \\
+                            & 3 & 6.877 & 6.801 & 6.821 & \textbf{6.755} \\
+                            & 4 & 6.626 & 6.608 & 6.614 & \textbf{6.600} \\
 \midrule
-\multirow{4}{*}{Llama-3.1-8B} & FP16 & \multicolumn{3}{c}{6.398} \\
- & No rotation & 16.599 & 6.735 & 6.457 \\
- & Random rot.$^\dagger$ & 11.264 & 6.704 & 6.454 \\
- & \textbf{Pre-RoPE PCA} & \textbf{10.944} & \textbf{6.668} & 6.460 \\
+\multirow{4}{*}{Llama-8B}  & FP16 & \multicolumn{4}{c}{6.398} \\
+                            & 2 & 16.599 & 11.227 & 11.264 & \textbf{10.944} \\
+                            & 3 & 6.735 & \textbf{6.667} & 6.704 & 6.668 \\
+                            & 4 & 6.457 & \textbf{6.445} & 6.454 & 6.460 \\
 \midrule
-\multirow{4}{*}{Mistral-7B} & FP16 & \multicolumn{3}{c}{5.572} \\
- & No rotation & 7.203 & 5.708 & 5.602 \\
- & Random rot.$^\dagger$ & 6.371 & 5.675 & 5.592 \\
- & Pre-RoPE PCA & 6.404 & \textbf{5.683} & 5.588 \\
-\midrule
-\multirow{4}{*}{Qwen2.5-14B} & FP16 & \multicolumn{3}{c}{4.605} \\
- & No rotation & 8.648 & 5.001 & 4.652 \\
- & Random rot.$^\dagger$ & 6.689 & 4.940 & 4.637 \\
- & \textbf{Pre-RoPE PCA} & \textbf{6.310} & \textbf{4.859} & 4.626 \\
+\multirow{4}{*}{Mistral-7B} & FP16 & \multicolumn{4}{c}{5.572} \\
+                            & 2 & 7.203 & 6.652 & \textbf{6.371} & 6.404 \\
+                            & 3 & 5.708 & 5.681 & \textbf{5.675} & 5.683 \\
+                            & 4 & 5.602 & 5.593 & 5.592 & \textbf{5.588} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.95\linewidth]{fig5_wf_floor2_breakthrough.png}
-\caption{2-bit PPL 비교. Pre-RoPE PCA + WF(floor=2)가 3모델 모두에서 TurboQuant를 상회한다.}
+\includegraphics[width=0.95\linewidth]{fig1_ppl_comparison.png}
+\caption{2-bit PPL 비교. Pre-RoPE PCA + WF(floor=2)가 동일 hook 프레임워크에서 모든 방법을 상회한다.}
 \label{fig:ppl_comparison}
 \end{figure}
 
-표~\ref{tab:ppl_main}의 핵심 결과를 해석한다. Pre-RoPE PCA는 2-bit에서 4개 모델 중 3개(Qwen-7B, Qwen-14B, Llama)에서 Haar 무작위 회전보다 낮은 PPL을 달성한다. 이득은 Qwen-7B에서 14.7\%, Qwen-14B에서 5.7\%, Llama에서 2.8\%이다. Mistral에서는 0.5\% 열등한데, 이것은 $R_{\mathrm{aniso}}=131.62$의 극단적 이방성이 소수 헤드에 집중되어 2048 토큰 캘리브레이션이 불안정한 것에 기인하는 것으로 추정된다. 3-bit에서는 4/4 모델 모두 Pre-RoPE PCA가 우수하다.
+\paragraph{결과와 해석.} 표~\ref{tab:baselines}에서 PCA 회전은 무회전(KIVI-style)을 10/10 설정에서 상회하고, SVD 잔차(GEAR-style)보다 7/9에서 우수하며, 무작위 회전보다 6/9에서 우수하다. Mistral ($R_{\mathrm{aniso}}=131.62$)에서 2-bit 무작위 회전에 근소 열등한 것은 극단적 이방성 하에서의 캘리브레이션 불안정에 기인하는 것으로 추정된다.
 
-여기서 ``Haar 무작위 회전''은 TurboQuant \citep{zandieh2025turboquant}의 회전 성분만을 재현한 것이며, TurboQuant의 전체 파이프라인(Beta 분포 기반 Lloyd-Max, QJL 잔차 양자화)은 포함하지 않는다. 따라서 본 비교는 \emph{회전 선택 전략}의 차이만을 분리하여 평가한 것이다.
-
-\paragraph{실용적 개선: WF(floor=2).} Pre-RoPE PCA 위에 Water-Filling 비트 배분(최소 2-bit 하한)을 추가하면 2-bit PPL이 추가 개선된다 (Qwen 7.98$\to$7.10, Llama 10.14$\to$7.16, Mistral 6.46$\to$5.82). 이는 정리의 회전 최적성과 독립적인 비트 배분 개선이다.
+\paragraph{비교 범위에 대한 주의.} 본 비교는 \emph{회전 전략의 영향을 분리}하기 위한 통제된 ablation이며, 전체 양자화 시스템 간의 경쟁이 아니다. 기존 방법들은 회전 외에도 outlier 분리 (KVQuant \citep{hooper2024kvquant}), entropy coding (KVTC \citep{staniszewski2025kvtc}), QJL 잔차 양자화 (TurboQuant \citep{zandieh2025turboquant}), 학습된 회전 (SpinQuant \citep{liu2024spinquant}) 등 직교적 기법을 포함한다. 이들 기법은 본 논문의 PCA 회전과 결합 가능하며, 본 논문의 기여는 ``어떤 회전이 왜 최적인가''에 대한 이론적 답변이다. 아래의 KVTC 비교(\S\ref{sec:exp_kvtc})는 기존 시스템에 본 이론을 적용하여 개선 가능함을 보여주는 사례이다.
 
 \subsection{KVTC 비교: 공유 PCA vs 헤드별 PCA}
+\label{sec:exp_kvtc}
+
+\paragraph{의도.} 정리~\ref{thm:optimal_hamiltonian}은 각 헤드의 공분산에 대해 독립적으로 성립하므로, 헤드별 PCA가 공유 PCA(KVTC 방식)보다 우수해야 한다.
 
 \begin{table}[t]
 \centering
-\caption{KVTC 비교 (Llama-3.1-8B, Uniform 양자화). 헤드별 PCA가 공유 PCA를 대폭 상회한다.}
+\caption{KVTC 비교 (Llama-3.1-8B). 헤드별 PCA가 공유 PCA를 대폭 상회한다. 두 방법 모두 동일 실험 run에서 측정. 수치는 별도 calibration run 기준.}
 \label{tab:kvtc}
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -122,95 +144,247 @@ PCA 방식 & 2-bit & 3-bit & 4-bit \\
 \label{fig:kvtc}
 \end{figure}
 
-정리~\ref{thm:optimal_hamiltonian}은 각 헤드의 공분산에 대해 독립적으로 성립하므로, 헤드별 PCA가 공유 PCA보다 MSE에서 유리하다. 표~\ref{tab:kvtc}와 그림~\ref{fig:kvtc}는 이 이론적 예측이 PPL에서도 2-bit 46.3\% 이득으로 확인됨을 보여준다.
+\paragraph{결과.} 표~\ref{tab:kvtc}에서 헤드별 PCA가 2-bit에서 46.3\% PPL 개선을 보인다. 이 이득은 헤드 간 공분산 이질성이 클수록 커지며, 3-bit 이상에서는 양자화 오차 자체가 작아 이질성의 영향이 줄어든다.
 
-\subsection{양자화 전략별 비교: 회전의 이득 검증}
+%% ============================================================
+%% Part 3: MSE-PPL 경계 분석
+%% ============================================================
 
-정리~\ref{thm:optimal_hamiltonian}의 핵심 예측---``PCA 회전이 무회전 및 무작위 회전보다 MSE에서 우수하다''---를 PPL에서 검증하기 위해, 4가지 양자화 전략을 동일한 hook 프레임워크에서 비교한다. 이 비교는 SOTA 시스템 간의 경쟁이 아니라, \emph{회전 선택이 양자화 품질에 미치는 영향을 분리}하기 위한 통제된 ablation이다.
-\begin{itemize}[leftmargin=1.5em,itemsep=1pt]
-\item \textbf{무회전 (KIVI-style)}: 채널별 비대칭 양자화 \citep{liu2024kivi}. 정리에서 $A=0$에 해당.
-\item \textbf{SVD 잔차 (GEAR-style)}: uniform 양자화 후 rank-2 SVD 잔차 보정 \citep{kang2024gear}. 회전이 아닌 다른 접근.
-\item \textbf{무작위 회전}: Haar SO(d) + 채널별 uniform. TurboQuant \citep{zandieh2025turboquant}의 회전 성분만 재현.
-\item \textbf{Pre-RoPE PCA}: 정리가 예측하는 최적 회전.
-\end{itemize}
-각 방법은 KIVI, GEAR, TurboQuant의 \emph{핵심 아이디어만을 추출}한 것이며, 원 논문의 전체 시스템(커스텀 커널, 엔트로피 코딩, 잔차 파이프라인 등)을 재현한 것이 아니다.
-
-\begin{table}[t]
-\centering
-\caption{양자화 전략별 PPL 비교 (WikiText-2). 동일 hook 프레임워크에서 회전 전략만 달리한 통제된 비교. 각 방법은 원 논문의 핵심 아이디어를 추출한 것이며 전체 시스템 재현이 아니다. 볼드체는 각 행의 최선.}
-\label{tab:baselines}
-\small
-\begin{tabular}{@{}llcccc@{}}
-\toprule
-모델 & 비트 & KIVI-style & GEAR-style & Random rot. & \textbf{Pre-RoPE PCA} \\
-\midrule
-\multirow{3}{*}{Qwen-7B}   & 2 & 10.525 & 9.603 & 9.332 & \textbf{7.961} \\
-                            & 3 & 6.877 & 6.801 & 6.821 & \textbf{6.755} \\
-                            & 4 & 6.626 & 6.608 & 6.614 & \textbf{6.600} \\
-\midrule
-\multirow{3}{*}{Llama-8B}  & 2 & 16.599 & 11.227 & 11.264 & \textbf{10.944} \\
-                            & 3 & 6.735 & \textbf{6.667} & 6.704 & 6.668 \\
-                            & 4 & 6.457 & \textbf{6.445} & 6.454 & 6.460 \\
-\midrule
-\multirow{3}{*}{Mistral-7B} & 2 & 7.203 & 6.652 & \textbf{6.371} & 6.404 \\
-                            & 3 & 5.708 & 5.681 & \textbf{5.675} & 5.683 \\
-                            & 4 & 5.602 & 5.593 & 5.592 & \textbf{5.588} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-표~\ref{tab:baselines}에서 확인할 수 있는 정리의 예측 검증은 다음과 같다. 첫째, PCA 회전은 무회전(KIVI-style)을 모든 10개 설정에서 상회한다. 이것은 ``데이터 정렬 회전이 양자화에 이득을 준다''는 정리의 가장 기본적인 예측을 확인한다. 둘째, PCA 회전은 대부분(7/9) 설정에서 SVD 잔차 보정(GEAR-style)보다도 우수하여, 회전에 의한 decorrelation이 잔차 보정보다 효과적인 전략임을 시사한다. 셋째, PCA 회전은 무작위 회전보다 대부분(6/9) 우수하지만, Mistral ($R_{\mathrm{aniso}}=131.62$)에서 근소 열등하여 극단적 이방성 하에서의 캘리브레이션 안정성이 한계임을 보여준다.
-
-이 비교는 각 방법의 \emph{핵심 아이디어만을 추출}한 통제된 ablation이며, 원 논문의 전체 시스템과의 공정 비교가 아님을 강조한다. SpinQuant \citep{liu2024spinquant}은 학습된 회전을 사용하며, 전체 모델 양자화(W4A4KV4) 설정에서 평가되므로 KV-only 비교와 직접 대응되지 않는다.
-
-\subsection{Class~C의 경계: Lloyd-Max의 PPL 실패}
+\subsection{경계 1: Lloyd-Max의 PPL 실패}
 \label{sec:exp_lloyd}
 
-MSE에서 Gaussian Lloyd-Max는 Uniform 대비 3.5$\times$ 이득을 보이지만 (3모델 일관), PPL에서는 Llama에서 65.463, Mistral에서 32.684로 치명적으로 악화된다. 이것은 MSE 최적성이 PPL 최적성을 보장하지 않음을 보여주며, Class~C의 구조적 경계를 밝힌다. Query-weighted 회전(명제~\ref{prop:attn_weighted}의 QW-PCA)도 $\kappa(\Sigma_Q) \sim 10^4$의 수치 불안정과 분산 균일화로 인해 표준 PCA보다 악화된다 (Qwen 2-bit: 10.87 vs 7.99). 이 실패는 Section~\ref{sec:exp_qwwf}에서 비트 배분으로의 전환을 동기 부여한다.
+\paragraph{의도.} 정리~\ref{thm:optimal_hamiltonian}은 MSE를 최소화하는 \emph{회전}을 증명한다. 그렇다면 MSE를 최소화하는 \emph{양자화기}(Lloyd-Max)도 PPL에서 우수한가?
 
-\subsection{PCA-Query 고유벡터 정렬}
-\label{sec:exp_pca_q_alignment}
+\paragraph{가설.} Lloyd-Max는 Gaussian source에서 Uniform 대비 MSE $3.5\times$ 이득을 제공한다. 이것이 PPL로 전이되면 큰 개선이 기대된다.
 
-명제~\ref{prop:attn_weighted}에서 QW-PCA가 이론적으로 우수해야 함에도 실패한 원인을 진단한다. 3모델에서 $\Sigma_K$의 상위 10개 고유벡터와 $\Sigma_Q$의 상위 10개 고유벡터 사이의 주각(principal angle)을 측정한 결과:
+\paragraph{결과.} MSE에서 Lloyd-Max는 3모델 모두 기대대로 $3.5\times$ 이득을 보이지만, PPL에서는 \textbf{catastrophic failure}를 보인다:
 
 \begin{center}
-\begin{tabular}{lccc}
+\small
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-모델 & 평균 주각 & 표준편차 & 해석 \\
+모델 & FP16 PPL & PCA+Uniform 2-bit & PCA+Lloyd 2-bit & Lloyd/Uni \\
 \midrule
-Qwen2.5-7B & 0.8° & 4.1° & 거의 동일 \\
-Llama-3.1-8B & 2.5° & 8.0° & 매우 가까움 \\
-Mistral-7B & 0.6° & 3.6° & 거의 동일 \\
+Qwen-7B & 6.556 & 7.961 & 11.26 & $1.41\times$ \\
+Llama-8B & 6.398 & 10.944 & 65.46 & $5.98\times$ \\
+Mistral-7B & 5.572 & 6.404 & 37.55\textsuperscript{*} & $5.87\times$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textsuperscript{*}Mistral Lloyd-Max PPL은 별도 calibration run에서 측정. 나머지 PCA+Uniform 수치는 표~\ref{tab:baselines}과 동일.
+
+이것은 MSE 최적성이 PPL 최적성을 보장하지 않음을 보여주며, Class~C의 \emph{양자화기 축} 경계를 밝힌다.
+
+\subsection{경계 1a: Lloyd-Max 실패의 Per-Layer 진단}
+\label{sec:exp_per_layer}
+
+\paragraph{의도.} Lloyd-Max 실패가 모든 레이어에서 균일하게 발생하는가, 아니면 소수의 레이어에 국소화되어 있는가? 국소화되어 있다면 targeted 처방이 가능하다.
+
+\paragraph{가설.} Per-head $\kappa$ outlier 분석(Exp1)에서 Mistral layer 2의 $\kappa$가 2,805,296으로 극단적이었다. PPL 실패도 이 레이어에 집중될 것이다.
+
+\paragraph{방법.} 각 레이어를 개별적으로 2-bit Lloyd-Max로 양자화하고 나머지를 FP16으로 유지하여 $\Delta\mathrm{PPL}_l$를 측정한다.
+
+\paragraph{결과: Mistral-7B (severe failure, $5.87\times$).}
+\begin{center}
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Layer & 2 & 4 & 6 & 3 & 5 & 나머지 (평균) \\
+\midrule
+$\Delta$PPL & +0.555 & +0.521 & +0.304 & +0.287 & +0.206 & $<$0.10 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\textbf{Trained transformer에서 $\Sigma_K$와 $\Sigma_Q$의 고유 구조가 자연적으로 정렬되어 있다.} 따라서 (i)~PCA 회전은 attention에 대해서도 이미 quasi-optimal이고, (ii)~$\Sigma_Q$를 반영한 추가 회전(QW-PCA)은 불필요할 뿐 아니라 $\kappa(\Sigma_Q)$의 수치 불안정으로 해로우며, (iii)~비트 배분에서만 $\Sigma_Q$를 활용하는 것이 안전하다.
+\textbf{Early layers 2--6에 집중.} 상위 5개 레이어가 전체 PPL 악화의 $\sim$60\%를 설명한다. 이 위치는 Exp1의 $\kappa$ outlier 위치(layer 2)와 정확히 일치하여 cross-verification을 제공한다.
 
-\subsection{Query-Weighted Water-Filling}
-\label{sec:exp_qwwf}
+\paragraph{결과: Qwen-7B (mild failure, $1.41\times$).}
+\begin{center}
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Layer & 0 & 26 & 4 & 5 & 22 & 나머지 (평균) \\
+\midrule
+$\Delta$PPL & +0.358 & +0.219 & +0.210 & +0.195 & +0.080 & $<$0.05 \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-위의 진단으로부터, PCA 회전은 유지하되 비트 배분에만 query 정보를 반영하는 QW-WF (식~\ref{eq:qwwf})를 제안하고 검증한다.
+\textbf{Bimodal 분포}: early (0, 4, 5) + late (22, 26). Mistral과 달리 failure가 분산되어 있다.
+
+\paragraph{구조적 발견.} Lloyd-Max 실패의 국소화 정도는 baseline failure severity에 비례한다:
+\begin{itemize}[leftmargin=1.5em,itemsep=1pt]
+\item \textbf{Severe failure} (Mistral $5.87\times$): strongly localized $\to$ sensitivity 배분이 극적으로 효과적
+\item \textbf{Mild failure} (Qwen $1.41\times$): weakly localized $\to$ sensitivity 배분의 이득이 제한적
+\end{itemize}
+
+\subsection{경계 1b: 5가지 대안 Metric의 체계적 기각}
+\label{sec:exp_five_rejections}
+
+\paragraph{의도.} Lloyd-Max가 ``잘못된 metric ($L^2$-MSE)을 최적화''하여 실패한다면, 올바른 metric은 무엇인가? 5가지 후보를 체계적으로 검증한다.
 
 \begin{table}[t]
 \centering
-\caption{Query-Weighted WF vs 표준 PCA+Uniform (WikiText-2 PPL). QW-WF가 3모델 모두에서 2-bit PPL을 10--33\% 개선한다.}
-\label{tab:qwwf}
+\caption{5가지 대안 metric 검증 결과. 모든 후보가 기각되었다.}
+\label{tab:five_rejections}
 \small
-\begin{tabular}{@{}llcc@{}}
+\begin{tabular}{@{}p{3.2cm}p{4.5cm}p{2.2cm}c@{}}
 \toprule
-모델 & 방법 & 2-bit & 3-bit \\
+가설 & 검증 방법 & 핵심 결과 & 판정 \\
 \midrule
-\multirow{2}{*}{Qwen2.5-7B} & PCA + Uniform & 7.954 & 6.762 \\
- & \textbf{PCA + QW-WF} & \textbf{7.085} (+10.9\%) & \textbf{6.686} (+1.1\%) \\
+A: Global $\kappa(\bar{M}_{KL})$ $\propto$ Lloyd 실패 & 4모델 $\kappa$ median 측정 & Qwen $\kappa$ 22K $>$ Mistral 14K, 실패는 역 & \textbf{기각} \\
 \midrule
-\multirow{2}{*}{Llama-3.1-8B} & PCA + Uniform & 10.667 & 6.670 \\
- & \textbf{PCA + QW-WF} & \textbf{7.162} (+32.9\%) & \textbf{6.556} (+1.7\%) \\
+B: Heavy-tail $\to$ $L^1$ Lloyd 우월 & Hill estimator 4모델 & 모든 모델 $\alpha \approx 4.3$ (Gaussian-like) & \textbf{기각} \\
 \midrule
-\multirow{2}{*}{Mistral-7B} & PCA + Uniform & 6.441 & 5.676 \\
- & \textbf{PCA + QW-WF} & \textbf{5.793} (+10.1\%) & \textbf{5.620} (+1.0\%) \\
+C: RMSNorm $\to$ Spherical 우월 & Mistral 64 heads & Spherical 0/64 win & \textbf{기각} \\
+\midrule
+D: Fisher-Mahalanobis Lloyd & Full-model PPL & PPL 356 vs Lloyd 38 ($9.4\times$ 악화) & \textbf{기각} \\
+\midrule
+E: Discrete-WF knee at $b=1$ & Gaussian RD + 24-cell WF & $r(b)$ 단조 증가, floor=0 항상 최적 & \textbf{기각} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-QW-WF는 query가 주목하는 PCA 차원에 더 많은 비트를 할당함으로써, 2-bit에서 10--33\%의 PPL 개선을 달성한다. 3-bit에서는 양자화 오차 자체가 작아 이득이 $\sim$1\%로 축소된다. 이 결과는 ``회전 선택은 정리로 해결, 비트 배분은 query 정보를 활용''이라는 분리 원칙의 constructive 검증이다.
+\paragraph{결과와 해석.} 표~\ref{tab:five_rejections}에서 5가지 독립 metric reformulation이 모두 실패하였다. 이것은 \textbf{단일 metric 재정의로는 Lloyd-Max PPL 실패를 복구할 수 없다}는 structural finding이다. 개별 기각 결과의 상세:
+
+\textbf{가설 A (Global $\kappa$).} 4모델에서 $\kappa$ median을 측정한 결과, Qwen-7B(22,470) $>$ Mistral(14,321)이지만 Lloyd 실패는 Mistral이 $5\times$ 심각하다. 그러나 per-head $\kappa$ \emph{spread} (p95/median)는 Lloyd 실패와 $\rho = +1.0$으로 완벽 상관한다 --- 수정된 가설 A'으로서, \emph{global} metric이 아닌 \emph{per-head outlier} 분석이 필요함을 보여준다.
+
+\textbf{가설 B (Heavy-tail).} Hill estimator 측정 결과, 모든 모델의 tail index $\alpha \approx 4.3$ (Gaussian-like)으로, heavy-tail 가설이 기각된다. 이것은 \S\ref{sec:theory_gap}의 $\kappa_4 \approx 0.5$ (mild non-Gaussianity) 결과와 일치한다.
+
+\textbf{가설 C (Spherical).} Mistral 64 heads에 Polar decomposition (3-bit angle + 1-bit magnitude) Spherical quantizer를 적용한 결과, 0/64 head에서 $L^2$ Lloyd를 이기지 못했다. k\_proj 출력에 RMSNorm이 적용되지 않아 Spherical의 전제가 성립하지 않는다.
+
+\textbf{가설 D (Fisher-Mahalanobis).} Per-token Fisher average로 whitening한 Mahalanobis Lloyd는 Fisher-norm에서는 12/16 head에서 우월하지만, full-model PPL에서는 356.40 (vs $L^2$ Lloyd 37.97)으로 $9.4\times$ 악화된다. Fisher-norm 이득이 PPL로 전이되지 않는다.
+
+\textbf{가설 E (Discrete-WF knee).} Gaussian single-channel rate-distortion에서 $r(b) = D_{\mathrm{uniform}}(b) / D_{\mathrm{Shannon}}(b)$는 1.46, 1.91, 2.41, 2.98로 \emph{단조 증가}하여 $b=1$에서 knee가 없다. 또한 heterogeneous WF 시뮬레이션(8 spectra $\times$ 3 budgets)에서 MSE-최적은 24/24 floor=0이다.
+
+\subsection{경계 2: MSE-PPL Allocation Gap}
+\label{sec:exp_allocation_gap}
+
+\paragraph{의도.} 가설 E의 기각은 ``MSE 최적 WF는 floor=0이지만, PPL 최적 WF는 floor=2''라는 흥미로운 괴리를 드러낸다. 이것은 Lloyd-Max의 실패(MSE 최적 양자화기가 PPL에서 실패)와 동일한 metric mismatch인가?
+
+\paragraph{가설.} $L^2$-MSE와 PPL 사이의 mismatch가 양자화기 축(Lloyd-Max)과 비트 배분 축(WF floor)에서 동일하게 발현된다.
+
+\begin{table}[t]
+\centering
+\caption{WF floor ablation (Qwen2.5-7B, 2-bit). MSE-최적(floor=0/1)과 PPL-최적(floor=2+)이 괴리한다.}
+\label{tab:floor_ablation}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+floor & 1 & 2 & 3 & 4 & Uniform (no WF) \\
+\midrule
+PPL & 11.255 & \textbf{7.099} & 6.757 & 6.603 & 7.980 \\
+vs Uniform & +41\% & $-$11\% & $-$15\% & $-$17\% & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{결과와 해석.} 표~\ref{tab:floor_ablation}에서 floor=1은 PPL을 +41\% 악화시키지만, floor$\geq$2는 Uniform을 일관되게 상회한다. E3b 실험에서 MSE 기준으로는 24/24 케이스 floor=0이 최적임이 확인되었으므로, 이 괴리는 Lloyd-Max 실패와 \textbf{정확히 동일한 구조}: ``$L^2$-MSE에서 최적인 것이 PPL에서 실패''의 비트 배분 축 발현이다.
+
+\subsection{Negative result: QW-WF는 WF(floor=2)를 개선하지 못한다}
+\label{sec:exp_qwwf}
+
+\paragraph{의도.} 명제~\ref{prop:attn_weighted}의 attention-weighted distortion에 기반하여, 비트 배분에 query 정보를 추가(QW-WF)하면 WF(floor=2) 대비 추가 이득이 있는가?
+
+\paragraph{가설.} $\Sigma_Q$가 비등방적이면, query가 주목하는 차원에 더 많은 비트를 배분하는 것이 PPL을 개선할 것이다.
+
+\begin{table}[t]
+\centering
+\caption{WF(floor=2) vs QW-WF. Query 가중의 추가 이득은 noise 수준($<$0.5\%)이다. PCA+Uniform 기준값은 QW-WF calibration run 기준이며 표~\ref{tab:baselines}과 미세 차이가 있을 수 있다. 10--33\%의 개선은 WF(floor=2) 자체에서 비롯되며, query 정보는 기여하지 않는다.}
+\label{tab:wf_qwwf_honest}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+모델 & PCA+Uniform & PCA+WF(floor=2) & PCA+QW-WF & QW 추가 이득 \\
+\midrule
+Qwen-7B   & 7.954 & 7.099 & 7.085 & 0.2\% \\
+Llama-8B  & 10.667 & 7.159 & 7.162 & $-$0.04\% \\
+Mistral-7B & 6.441 & 5.822 & 5.793 & 0.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{결과: Negative.} 표~\ref{tab:wf_qwwf_honest}에서 Uniform 대비 WF(floor=2)의 이득은 10--33\%로 크지만, QW-WF의 \emph{추가} 이득은 0.04--0.5\%로 noise 수준이다. \textbf{10--33\%의 개선은 전적으로 floor=2 하한에서 비롯되며, query 가중은 기여하지 않는다.}
+
+\paragraph{원인: 고유값 순위 상관.} 이 negative result는 \S\ref{sec:exp_pca_q_alignment}의 고유값 순위 상관 ($\rho = 0.655$)의 직접 귀결이다. Key 고유 기저에서 query 분산 $\sigma_j^{(Q)}$가 $\lambda_j^{(K)}$와 비슷한 순서를 따르므로, QW-WF 공식(식~\ref{eq:qwwf})은 표준 WF와 거의 동일한 배분을 생성한다. 부분공간 자체는 30--57°로 정렬되어 있지 않지만 (\S\ref{sec:exp_pca_q_alignment}), bit allocation에 영향을 주는 것은 고유벡터 방향이 아닌 \emph{고유값 크기 순서}이다.
+
+\subsection{$\Sigma_K$--$\Sigma_Q$ 관계 분석: 부분공간 비정렬과 고유값 순위 상관}
+\label{sec:exp_pca_q_alignment}
+
+\paragraph{의도.} QW-PCA (명제~\ref{prop:attn_weighted})가 이론적으로 우수해야 함에도 실패한 원인, 그리고 QW-WF $\approx$ WF(floor=2)인 원인을 진단한다.
+
+\paragraph{가설.} $\Sigma_K$와 $\Sigma_Q$의 고유벡터 부분공간이 정렬되어 있다면 PCA가 attention 기준에서도 quasi-optimal일 것이다.
+
+\paragraph{결과 1: 부분공간은 정렬되어 있지 않다.} 3모델에서 $\Sigma_K$와 $\Sigma_Q$의 상위 $k$개 고유벡터가 이루는 부분공간 사이의 주각(principal angles)을 SVD로 측정하였다:
+
+\begin{center}
+\small
+\begin{tabular}{lccccc}
+\toprule
+모델 & Top-1 (최소) & $k=8$ 평균 & $k=16$ 평균 & $k=64$ 평균 & full-rank \\
+\midrule
+Mistral-7B & 32.9° (min 14.7°) & 57.4° & 54.6° & 33.6° & 0.01° \\
+Qwen2.5-7B & 30.9° (min 12.1°) & 56.4° & 53.8° & 35.3° & 0.01° \\
+Qwen2.5-1.5B & 30.2° (min 21.0°) & 58.5° & 55.5° & 36.8° & 0.01° \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+$\Sigma_K$와 $\Sigma_Q$의 고유벡터 부분공간은 \textbf{30--57° 떨어져 있다} (3모델 일관). Full-rank에서 0°인 것은 128차원 전체를 span하면 trivially 일치하기 때문이며, 의미 없다. 어떤 head에서도 5° 이하의 주각은 관찰되지 않았다.
+
+\paragraph{결과 2: 고유값 순위 상관은 존재한다.} 부분공간 정렬과 별개로, \emph{key 고유 기저에서의} query 분산 $\sigma_j^{(Q)2} = (V_K^\top \Sigma_Q V_K)_{jj}$와 key 고유값 $\lambda_j^{(K)}$ 사이의 Spearman 순위 상관을 측정하였다 (Mistral 64 heads):
+
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+지표 & median & mean & $>$0.5 & $>$0.9 \\
+\midrule
+Spearman $\rho(\lambda_K, \sigma_Q^2)$ & +0.655 & +0.574 & 59\% & 17\% \\
+WF vs QW-WF bit diff ($L^1$) & \multicolumn{4}{c}{budget의 5--8\% (20 bits / 256 total)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+이것은 ``key에서 중요한 차원이 query에서도 비교적 중요하다''는 것을 의미한다 --- 부분공간 정렬(eigenvector alignment)이 아닌 \emph{고유값 순위 상관}(eigenvalue rank correlation)이다.
+
+\paragraph{해석: 두 결과가 함께 설명하는 것.}
+\begin{enumerate}[leftmargin=1.5em,itemsep=1pt]
+\item \textbf{QW-WF $\approx$ WF(floor=2)}: 고유값 순위 상관 ($\rho=0.655$) 때문에 query 가중 $\sigma_j^{(Q)}$를 곱해도 bit allocation 순서가 크게 바뀌지 않는다 (5--8\% 차이 $\to$ 0.5\% PPL 차이). 이것은 부분공간 정렬이 아닌 \emph{순위 보존}의 귀결이다.
+\item \textbf{QW-PCA의 catastrophic failure}: 부분공간이 정렬되어 있지 않으므로 ($\sim$30°), QW-PCA의 합동 행렬 $\Sigma_Q^{1/2} \Sigma_K \Sigma_Q^{1/2}$는 PCA와 매우 다른 고유벡터를 생성한다. $\kappa(\Sigma_Q) \sim 10^4$의 조건수와 결합되어 수치적으로 불안정하다. 이것은 기하학적(geometric) 실패가 아닌 \emph{수치적(numerical)} 실패이다.
+\end{enumerate}
+
+\subsection{경계 3: Sensitivity 기반 비트 배분}
+\label{sec:exp_sensitivity}
+
+\paragraph{의도.} 5가지 대안 metric이 모두 기각되고, per-layer 국소화가 확인되었다면, 직접적 처방은 sensitive layer에 더 많은 비트를 배분하는 것이다. 이 처방이 얼마나 효과적인가?
+
+\paragraph{방법.} \S\ref{sec:exp_per_layer}의 per-layer $\Delta\mathrm{PPL}$ 순위에 따라, 상위 $k$개 레이어를 $B_{\mathrm{high}}$-bit, 나머지를 2-bit Lloyd-Max로 배분한다.
+
+\begin{table}[t]
+\centering
+\caption{Sensitivity 기반 비트 배분 (Mistral-7B, Lloyd-Max). Top-15 layers를 3-bit으로 올리면 avg 2.47 bits에서 PPL이 $-80\%$ 개선된다.}
+\label{tab:sensitivity}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Configuration & Avg bits & PPL & $\Delta$ vs all-2bit \\
+\midrule
+All 2-bit (baseline) & 2.000 & 37.55 & --- \\
+Top-1 @ 4-bit & 2.062 & 13.42 & $-$64\% \\
+Top-3 @ 3-bit & 2.094 & 11.78 & $-$69\% \\
+Top-5 @ 3-bit & 2.156 & 10.36 & $-$72\% \\
+Top-10 @ 3-bit & 2.312 & 8.24 & $-$78\% \\
+\textbf{Top-15 @ 3-bit} & \textbf{2.469} & \textbf{7.58} & $\mathbf{-80\%}$ \\
+All 4-bit & 4.000 & 5.69 & $-$85\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{결과: Mistral (severe failure).} 표~\ref{tab:sensitivity}에서 top-1 layer를 4-bit으로 올리는 것만으로 (avg 2.06 bits) PPL이 37.55 $\to$ 13.42 ($-$64\%). Top-15 @ 3-bit (avg 2.47 bits)이 Pareto-optimal sweet spot으로, PPL 7.58 ($-$80\%). 이것은 소수의 outlier layer가 전체 실패를 견인함을 실증적으로 확인한다.
+
+\paragraph{결과: Qwen (mild failure).} Qwen에서는 top-15 @ 3-bit의 이득이 $-$4.4\% (9.97 $\to$ 9.53)에 불과하다. Top-5 @ 4-bit은 오히려 +33.5\%로 악화된다. 이것은 Qwen의 Lloyd failure가 distributed (not localized)이어서, sensitivity 처방이 비효과적임을 보여준다.
+
+\paragraph{구조적 발견.} Sensitivity 배분의 효과는 \emph{baseline failure severity에 비례}한다:
+$$\text{Benefit}(\text{sens-alloc}) \propto \text{Localization}(\text{model}) \times \text{Severity}(\text{model})$$
+여기서 Severity = (all-2bit PPL) / (FP16 PPL) $- 1$. Severity $> 3\times$인 모델(Mistral-like)에서 sensitivity 배분이 효과적이고, Severity $< 2\times$인 모델(Qwen-like)에서는 uniform 배분이 더 나을 수 있다.

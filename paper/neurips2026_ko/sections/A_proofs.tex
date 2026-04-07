@@ -1,14 +1,14 @@
 \section{정리의 증명과 추가 실험}
 \label{sec:proofs}
 
-\subsection{Master Formula (정리~\ref{thm:master_formula})의 유도}
+\subsection{Master Formula의 유도}
 \label{sec:proof_master}
 
 가우시안 소스 $k \sim \mathcal{N}(0, \Sigma)$에 대해, 블록-$b$ 직교 변환 후 독립 스칼라 $B$-bit 양자화의 왜곡을 유도한다.
 
 \begin{proof}
 \textbf{Step 1 (블록 대각 KLT).}
-$\Sigma$를 $d/b$개의 $b \times b$ 블록으로 분할한다. 각 블록 $k$의 부분 공분산을 $\Sigma^{(k)}$라 하면, 블록 내 KLT (Karhunen-Lo\`eve transform)는 각 블록의 고유벡터를 사용해 블록 내부를 decorrelate한다.
+$\Sigma$를 $d/b$개의 $b \times b$ 블록으로 분할한다. 각 블록 $k$의 부분 공분산을 $\Sigma^{(k)}$라 하면, 블록 내 KLT는 각 블록의 고유벡터를 사용해 블록 내부를 decorrelate한다.
 
 \textbf{Step 2 (고율 왜곡).}
 고율 근사 아래에서, 분산이 $\sigma_j^2$인 가우시안 성분에 $b_j$-bit 스칼라 양자화를 적용하면 왜곡은 $D_j = c \cdot \sigma_j^2 \cdot 2^{-2b_j}$이다 \citep{cover2006elements}. 총 왜곡은 $D = \sum_j c \cdot \sigma_j^2 \cdot 2^{-2b_j}$이다.
@@ -20,7 +20,7 @@ D^* = d \cdot c \cdot \left(\prod_{j=1}^{d} \sigma_j^2\right)^{1/d} \cdot 2^{-2B
 \]
 
 \textbf{Step 4 (블록 기하 평균).}
-블록-$b$ 분할에서 각 블록의 기여는 $(\det \Sigma^{(k)})^{1/b}$이다 (블록 내 고유값의 기하 평균). 차원 순열 $\pi$ 위에서 최적화하면
+블록-$b$ 분할에서 각 블록의 기여는 $(\det \Sigma^{(k)})^{1/b}$이다. 차원 순열 $\pi$ 위에서 최적화하면
 \[
 G(b, \Sigma) = \min_\pi \left[\prod_{k=1}^{d/b} \det \Sigma^{(k)}_\pi\right]^{1/d}.
 \]
@@ -30,11 +30,11 @@ G(b, \Sigma) = \min_\pi \left[\prod_{k=1}^{d/b} \det \Sigma^{(k)}_\pi\right]^{1/
 \subsection{블록 크기 계층 (따름정리~\ref{cor:block_hierarchy})의 증명}
 
 \begin{proof}
-$G(d) \leq G(1)$: 전체 $d$차원을 하나의 블록으로 보면 $G(d) = (\det \Sigma)^{1/d} = (\prod_i \lambda_i)^{1/d}$이고, 블록 크기 1 (회전 없음)에서는 $G(1) = (\prod_i \Sigma_{ii})^{1/d}$이다. Hadamard 부등식 $\det \Sigma \leq \prod_i \Sigma_{ii}$에 의해 $G(d) \leq G(1)$.
+$G(d) \leq G(1)$: 전체 $d$차원을 하나의 블록으로 보면 $G(d) = (\det \Sigma)^{1/d} = (\prod_i \lambda_i)^{1/d}$이고, 블록 크기 1에서는 $G(1) = (\prod_i \Sigma_{ii})^{1/d}$이다. Hadamard 부등식 $\det \Sigma \leq \prod_i \Sigma_{ii}$에 의해 $G(d) \leq G(1)$.
 
 $G(1) \leq G_{\mathrm{uniform}}$: AM-GM 부등식에 의해 $(\prod_i \Sigma_{ii})^{1/d} \leq \frac{1}{d}\sum_i \Sigma_{ii} = \frac{\trace(\Sigma)}{d}$.
 
-$G(d) \leq G(b)$: 블록-$d$ (전체 PCA)는 블록-$b$ (부분 PCA)보다 더 큰 자유도를 가지므로 왜곡이 작거나 같다. 구체적으로, 블록-$d$의 최적 분할은 블록-$b$의 최적 분할을 특수 사례로 포함한다.
+$G(d) \leq G(b)$: 블록-$d$ (전체 PCA)는 블록-$b$보다 더 큰 자유도를 가지므로 왜곡이 작거나 같다.
 \end{proof}
 
 \subsection{정리~\ref{thm:optimal_hamiltonian}의 증명}
@@ -45,38 +45,34 @@ $G(d) \leq G(b)$: 블록-$d$ (전체 PCA)는 블록-$b$ (부분 PCA)보다 더 �
 \[
 \Sigma(\mathrm{pos}) = R_{\mathrm{RoPE}} \Sigma_0 R_{\mathrm{RoPE}}^\top
 \]
-이다. 여기서 $R_{\mathrm{RoPE}} = e^{\mathrm{pos} \cdot A_{\mathrm{RoPE}}}$이고 $\Sigma_0 = \E[(k_{\mathrm{pre}} - \bar{k})(k_{\mathrm{pre}} - \bar{k})^\top]$는 중심화 Pre-RoPE 공분산이다.
+이다.
 
-\textbf{Step 1.} Class~C 내에서 MSE를 최소화하는 회전은 공분산의 고유벡터 행렬이다 (정리~\ref{thm:master_formula}에서 $G(d)$ 달성 조건). $\Sigma(\mathrm{pos})$의 고유분해는
+\textbf{Step 1.} $\Sigma(\mathrm{pos})$의 고유분해는
 \[
 \Sigma(\mathrm{pos}) = (R_{\mathrm{RoPE}} V_0) \Lambda (R_{\mathrm{RoPE}} V_0)^\top
 \]
 이므로, 위치 $\mathrm{pos}$에서의 최적 회전은 $U^*(\mathrm{pos}) = R_{\mathrm{RoPE}}(\mathrm{pos}) \cdot V_0$이다.
 
-\textbf{Step 2 (RoPE 상쇄).} 실제 구현에서는 Post-RoPE 키에 $U^*(\mathrm{pos})^\top$를 곱한다:
+\textbf{Step 2 (RoPE 상쇄).} Post-RoPE 키에 $U^*(\mathrm{pos})^\top$를 곱하면:
 \[
 U^*(\mathrm{pos})^\top k_{\mathrm{post}} = V_0^\top R_{\mathrm{RoPE}}^\top \cdot R_{\mathrm{RoPE}} k_{\mathrm{pre}} = V_0^\top k_{\mathrm{pre}}.
 \]
-\textbf{RoPE가 상쇄된다.} 따라서 위치에 무관하게 $V_0$를 Pre-RoPE 키에 적용하면 모든 위치에서 동시에 최적이 된다. 이것이 ``Pre-RoPE PCA''다.
+\textbf{RoPE가 상쇄된다.} 따라서 위치에 무관하게 $V_0$를 Pre-RoPE 키에 적용하면 모든 위치에서 동시에 최적이 된다.
 
-\textbf{Step 3 (이득 분석).} 수반 작용(adjoint action) $\mathrm{Ad}_R(\Sigma) = R\Sigma R^\top$의 관점에서, 위치별 공분산은 $\Sigma(\mathrm{pos}) = \mathrm{Ad}_{R_{\mathrm{RoPE}}}(\Sigma_0)$이다. Step 1-2의 증명은 순수 선형대수적이며, 해밀토니안 프레임워크는 이 결과를 8가지 방법의 분류 체계(표~\ref{tab:hamiltonian_classification})와 연결한다. TurboQuant 대비 기대 MSE 이득의 상한은 Jensen 부등식에 의해 $R_{\mathrm{aniso}} = \mathrm{AM}(\lambda)/\mathrm{GM}(\lambda)$이다.
+\textbf{Step 3 (이득 분석).} TurboQuant 대비 기대 MSE 이득의 상한은 Jensen 부등식에 의해 $R_{\mathrm{aniso}} = \mathrm{AM}(\lambda)/\mathrm{GM}(\lambda)$이다.
 \end{proof}
 
 \subsection{따름정리~\ref{cor:gain_over_turbo}의 증명}
 
 \begin{proof}
-Pre-RoPE PCA의 왜곡 계수는 $G_{\mathrm{PCA}} = \mathrm{GM}(\lambda) = (\prod_i \lambda_i)^{1/d}$이다. TurboQuant는 Haar 무작위 회전 $R$을 적용하며, 회전 후 $j$번째 성분의 기대 분산은 $\E[(R\Sigma_0 R^\top)_{jj}] = \trace(\Sigma_0)/d = \mathrm{AM}(\lambda)$이다 (Haar 측도의 대칭성). Jensen 부등식에 의해 기대 기하 평균은
+Pre-RoPE PCA의 왜곡 계수는 $G_{\mathrm{PCA}} = \mathrm{GM}(\lambda)$이다. TurboQuant는 Haar 무작위 회전을 적용하며, 회전 후 $j$번째 성분의 기대 분산은 $\E[(R\Sigma_0 R^\top)_{jj}] = \mathrm{AM}(\lambda)$이다. Jensen 부등식에 의해
 \[
-\E\left[\left(\prod_j (R\Sigma_0 R^\top)_{jj}\right)^{1/d}\right] \leq \left(\prod_j \E[(R\Sigma_0 R^\top)_{jj}]\right)^{1/d} = \mathrm{AM}(\lambda).
+\E[G_{\mathrm{TurboQuant}}] \leq \mathrm{AM}(\lambda).
 \]
-따라서 $\E[D_{\mathrm{TurboQuant}}] / D^*_{\mathrm{PCA}} \leq \mathrm{AM}(\lambda) / \mathrm{GM}(\lambda) = R_{\mathrm{aniso}}$.
+따라서 $\E[D_{\mathrm{TurboQuant}}] / D^*_{\mathrm{PCA}} \leq R_{\mathrm{aniso}}$.
 \end{proof}
 
-\subsection{비고~\ref{rem:post_rope_fails}의 해설}
-
-Post-RoPE PCA는 $\Sigma_{\mathrm{mixed}} = \frac{1}{T}\sum_t \Sigma(t)$에 대해 고유분해한다. $\Sigma(t)$가 위치에 따라 달라지므로, $\Sigma_{\mathrm{mixed}}$의 고유벡터는 어떤 특정 위치의 최적 기저와도 일치하지 않는다. 실측에서 Post-RoPE PCA+WF의 2-bit MSE가 TurboQuant보다 높은 것(Qwen: 1.091 vs 0.763)은 이 현상을 반영한다.
-
-\subsection{Water-Filling floor=2의 이론적 동기}
+\subsection{Water-Filling floor=2의 실증적 동기}
 
 $B$-bit 균일 양자화기의 MSE 비율 $c(B) = D(B) / \sigma^2$ (가우시안 소스, Max 1960):
 
@@ -91,66 +87,144 @@ MSE 제거율 & 63.7\% & 88.3\% & 96.5\% & 99.1\% \\
 \end{tabular}
 \end{center}
 
-1-bit는 분산의 63.7\%만 제거하므로 비트 효율이 낮다. Water-filling이 1-bit 채널을 생성하면, 해당 채널의 양자화 오차가 원래 분산의 36.3\%나 남아 PPL에 치명적 영향을 준다. floor=2를 적용하면 모든 활성 채널이 최소 88.3\%의 분산을 제거하도록 보장한다.
+1-bit는 분산의 63.7\%만 제거하므로 비트 효율이 낮다. 그러나 이것은 \emph{MSE 관점}의 설명이다. Section~\ref{sec:exp_allocation_gap}의 E3b 실험에서 MSE 기준으로는 24/24 케이스 floor=0이 최적임이 확인되었으므로, floor=2의 진짜 이유는 MSE가 아닌 PPL에 있다. 이것은 Lloyd-Max 실패와 동일한 metric mismatch의 비트 배분 축 발현이다.
 
-\paragraph{Floor ablation (Qwen2.5-7B, 2-bit).}
+\subsection{5가지 가설 기각의 상세}
+\label{sec:appendix_five_rejections}
+
+\paragraph{가설 A 상세: Global $\kappa$ vs Per-head $\kappa$ spread.}
+4모델에서 8개 레이어를 샘플링하여 per-head $\kappa$ 분포를 측정한 결과:
 
 \begin{center}
-\begin{tabular}{@{}cccccc@{}}
+\small
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-floor & 1 & 2 & 3 & 4 & Uniform \\
+모델 & $\kappa$ median & $\kappa$ max & p95/median & Lloyd failure \\
 \midrule
-PPL & 11.255 & 7.099 & 6.757 & 6.603 & 7.980 \\
-vs Uniform & +41\% & $-$11\% & $-$15\% & $-$17\% & --- \\
+Qwen 1.5B & 64,127 & --- & --- & --- \\
+Qwen 7B & 22,470 & --- & 5.0$\times$ & $1.05\times$ (mild) \\
+Qwen 14B & 12,129 & --- & --- & --- \\
+Mistral 7B & 14,321 & 2,805,296 & 15.3$\times$ & $5.06\times$ (severe) \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-floor$\geq$2에서 모두 uniform을 상회한다. floor가 높을수록 PPL이 개선되지만, 고분산 채널의 추가 비트가 줄어드는 trade-off가 존재한다. floor=2는 보수적 선택이며, floor=3이 더 좋을 수 있다.
+Global $\kappa$ median은 역상관(Qwen $>$ Mistral)이지만, per-head $\kappa$ spread (p95/median)는 $\rho = +1.0$으로 완벽 양상관한다. Mistral layer 2 H3의 $\kappa = 2,805,296$이 극단적 outlier이며, 이것이 per-layer breakdown (Section~\ref{sec:exp_per_layer})의 layer 2 최악 결과와 정확히 일치한다.
 
-\subsection{추가 실험 상세}
-
-\paragraph{MSE 순서 검증.}
-3모델의 모든 KV 헤드(Qwen 112, Llama 256, Mistral 256, 총 624 헤드)에서 이론적 MSE 순서 $G(\mathrm{PCA}) \leq G(\mathrm{TurboQuant}) \leq G(\mathrm{uniform})$이 100\% 성립한다.
-
-\paragraph{Lloyd-Max MSE 이득.}
-센터링 수정 후 Gaussian Lloyd-Max의 MSE 이득 (3모델 평균):
+\paragraph{가설 B 상세: Hill estimator 측정.}
+Top 10\% tail에서 Hill estimator로 측정한 tail index $\alpha$:
 
 \begin{center}
+\small
 \begin{tabular}{@{}lccc@{}}
 \toprule
-비트 & 2-bit & 3-bit & 4-bit \\
+모델 & $\alpha$ median & $\alpha$ min & 해석 \\
 \midrule
-Lloyd/Uniform MSE 비율 & 3.52$\times$ & 2.12$\times$ & 1.64$\times$ \\
+Qwen 1.5B & 4.344 & 3.7 & Gaussian-like \\
+Qwen 7B & 4.388 & 3.7 & Gaussian-like \\
+Qwen 14B & 4.251 & 3.7 & Gaussian-like \\
+Mistral 7B & 4.347 & 3.66 & Gaussian-like \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-이 이득은 모델에 무관하게 일관적이나, PPL에서는 오히려 악화된다 (Section~\ref{sec:exp_lloyd}).
+모든 모델 $\alpha \approx 4.3$으로, Gaussian-like 분포이다. Section~\ref{sec:theory_gap}의 $\kappa_4 \approx 0.5$ (mild non-Gaussianity) 결과와 일치한다.
 
-\paragraph{NIAH (Needle-In-A-Haystack).}
-Qwen2.5-7B에서 4K/8K 컨텍스트 NIAH 검색 정확도:
+\paragraph{가설 C 상세: Spherical quantizer.}
+Mistral 64 heads에 Polar decomposition (3-bit angle + 1-bit magnitude) Spherical quantizer를 적용한 결과:
 
 \begin{center}
-\begin{tabular}{@{}lcc@{}}
+\small
+\begin{tabular}{@{}lccc@{}}
 \toprule
-방법 (2-bit) & 4K & 8K \\
+Quantizer & MSE/Uniform (median) & Attn-MSE/Uniform & Win/64 \\
 \midrule
-Pre-RoPE PCA & 100\% & 100\% \\
-TurboQuant & 100\% & 100\% \\
-Identity (무회전) & 98\% & 94\% \\
+$L^2$ Lloyd & 0.589 & --- & 64/64 \\
+Spherical & 1.379 & 2.032 & 0/64 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-무회전 2-bit 8K에서만 94\%로 저하 (depth=0.75에서 80\%). 회전 방법 간 차별화는 이 설정에서 관찰되지 않는다.
+Spherical이 전면 실패한 이유: (1) k\_proj 출력에 RMSNorm 미적용, (2) Polar 분해가 key anisotropy를 포착 못 함, (3) 3-bit 각도 양자화가 coarse.
+
+\paragraph{가설 D 상세: Fisher-Mahalanobis Lloyd.}
+Per-token Fisher average로 whitening한 Mahalanobis Lloyd의 full-model PPL (Mistral-7B):
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Method & PPL & vs FP16 \\
+\midrule
+FP16 & 5.39\textsuperscript{$\dagger$} & --- \\
+Uniform 2-bit & 243.38 & +4417\% \\
+$L^2$ Lloyd 2-bit & 37.97 & +605\% \\
+Fisher-Mahalanobis 2-bit & 356.40 & +6515\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textsuperscript{$\dagger$}이 실험은 별도 calibration run (WikiText-2 2K 토큰 평가)에서 수행되어, 본문의 49K 토큰 평가와 수치가 다소 다르다 (FP16 5.39 vs 5.572). 방법 간 비율 비교는 유효하다.
+
+Per-head Fisher-norm에서는 12/16 head에서 $L^2$ Lloyd를 이기지만, full-model PPL에서는 $9.4\times$ 악화된다. Information geometry(Fisher)가 PPL의 올바른 metric이 아님을 시사한다.
+
+\paragraph{가설 E 상세: Discrete-WF.}
+Gaussian single-channel에서 $r(b) = D_{\mathrm{uniform}}(b) / D_{\mathrm{Shannon}}(b)$:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+$b$ (bits) & 1 & 2 & 3 & 4 & 5 & 6 \\
+\midrule
+$r(b)$ & 1.46 & 1.91 & 2.41 & 2.98 & 3.62 & 4.36 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+$r(b)$는 단조 증가하며 $b=1$에서 knee가 없다. Heterogeneous WF 시뮬레이션(8 spectra $\times$ 3 budgets = 24 cases)에서 MSE-최적은 24/24 floor=0이다.
+
+\subsection{Per-Layer Sensitivity 상세}
+\label{sec:appendix_sensitivity}
+
+\paragraph{Mistral-7B 전체 sensitivity ranking (32 layers).}
+
+\begin{center}
+\small
+\begin{tabular}{@{}lr|lr|lr|lr@{}}
+\toprule
+Layer & $\Delta$PPL & Layer & $\Delta$PPL & Layer & $\Delta$PPL & Layer & $\Delta$PPL \\
+\midrule
+2 & +0.555 & 9 & +0.160 & 1 & +0.120 & 20 & +0.067 \\
+4 & +0.521 & 22 & +0.155 & 30 & +0.116 & 21 & +0.067 \\
+6 & +0.304 & 8 & +0.152 & 27 & +0.103 & 17 & +0.050 \\
+3 & +0.287 & 23 & +0.122 & 29 & +0.096 & 15 & +0.047 \\
+5 & +0.206 & 11 & +0.079 & 10 & +0.070 & 24 & +0.046 \\
+7 & +0.166 &  &  &  &  &  & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Qwen-7B 상위 sensitivity layers.}
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Layer & 0 & 26 & 4 & 5 & 22 & 나머지 (평균) \\
+\midrule
+$\Delta$PPL & +0.358 & +0.219 & +0.210 & +0.195 & +0.080 & $<$0.05 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Mistral은 early layers (2--6)에 집중된 concentrated 패턴, Qwen은 early+late의 bimodal 패턴을 보인다. 이 차이가 sensitivity 배분의 model-specific 효과의 근본 원인이다.
 
 \subsection{8가지 방법의 상세 해밀토니안 분류}
 \label{sec:full_classification}
 
 \begin{table}[h]
 \centering
-\caption{8가지 회전 기반 KV 캐시 양자화 방법의 해밀토니안 분류. 모든 방법은 $\mathfrak{so}(d)$의 부분 대수에서 해밀토니안을 선택하고 지수 사상 $R = e^{tA}$ (Mode~I) 또는 궤도 분해 (Mode~II)를 적용한다.}
+\caption{8가지 회전 기반 KV 캐시 양자화 방법의 해밀토니안 분류.}
 \label{tab:hamiltonian_full}
 \small
 \begin{tabular}{@{}llcccl@{}}
@@ -169,4 +243,35 @@ IsoQuant \citep{chen2026isoquant} & Preprint'26 & $\mathfrak{so}(4)$ & 4 & I & I
 \end{tabular}
 \end{table}
 
-이 분류는 본 논문의 이론적 프레임워크가 기존 방법들을 어떻게 설명하는지를 보여주기 위한 것이다. 본문의 실험에서는 이 중 직접 구현 및 재현이 가능한 4개 전략(무회전, Haar 무작위 회전, Post-RoPE PCA, Pre-RoPE PCA)만을 비교한다. 나머지 방법들과의 공정한 비교는 각 방법의 공개 코드와 동일한 평가 프로토콜이 필요하며, 향후 과제로 남긴다.
+\subsection{추가 실험 상세}
+
+\paragraph{MSE 순서 검증.}
+3모델의 모든 KV 헤드(Qwen 112, Llama 256, Mistral 256, 총 624 헤드)에서 이론적 MSE 순서 $G(\mathrm{PCA}) \leq G(\mathrm{TurboQuant}) \leq G(\mathrm{uniform})$이 100\% 성립한다.
+
+\paragraph{Lloyd-Max MSE 이득.}
+Gaussian Lloyd-Max의 MSE 이득 (3모델 평균):
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+비트 & 2-bit & 3-bit & 4-bit \\
+\midrule
+Lloyd/Uniform MSE 비율 & 3.52$\times$ & 2.12$\times$ & 1.64$\times$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{NIAH (Needle-In-A-Haystack).}
+Qwen2.5-7B에서 4K/8K 컨텍스트 NIAH 검색 정확도:
+
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+방법 (2-bit) & 4K & 8K \\
+\midrule
+Pre-RoPE PCA & 100\% & 100\% \\
+Random rot. & 100\% & 100\% \\
+No rotation & 98\% & 94\% \\
+\bottomrule
+\end{tabular}
+\end{center}
