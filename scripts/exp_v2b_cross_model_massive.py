@@ -28,7 +28,7 @@ OUT_DIR = Path('/home/woori/workspace_common/boltzmann-attention/reports/axis2_t
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 MODELS = [
-    ('meta-llama/Llama-3.1-8B', 'llama-3.1-8b'),
+    ('mistralai/Mistral-Nemo-Base-2407', 'mistral-nemo-12b'),
 ]
 
 
