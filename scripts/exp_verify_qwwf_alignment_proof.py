@@ -452,8 +452,18 @@ def main():
 
     # Run 3 tests
     test1 = test1_rank_correlation(captured, layer_idx_list, T, n_kv, n_q, head_dim)
-    test2 = test2_bit_allocation_diff(captured, layer_idx_list, T, n_kv, n_q, head_dim, avg_bits=2)
-    test3 = test3_synthetic_break(captured, layer_idx_list, T, n_kv, n_q, head_dim, avg_bits=2)
+
+    # Test 2: try multiple budgets to give WF allocation room
+    test2_results = {}
+    for ab in [2, 3, 4]:
+        print(f"\n--- Test 2 with avg_bits={ab} ---")
+        test2_results[f'avg_bits_{ab}'] = test2_bit_allocation_diff(
+            captured, layer_idx_list, T, n_kv, n_q, head_dim, avg_bits=ab
+        )
+    test2 = test2_results['avg_bits_3']  # primary report uses 3-bit
+
+    # Test 3: synthetic break with avg_bits=3 (more allocation freedom)
+    test3 = test3_synthetic_break(captured, layer_idx_list, T, n_kv, n_q, head_dim, avg_bits=3)
 
     # Verdict
     print("\n" + "=" * 70)
