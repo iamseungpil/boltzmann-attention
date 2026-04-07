@@ -74,18 +74,36 @@
 
 **필수 P0 작업량**: 5.5일 (순차) / 3일 (병렬 가능 시). **E3/E3b는 완료되어 1.0일 제외**.
 
-### 0.4 E3/E3b 실측 결과 — "예상 실패, 더 강한 finding" (2026-04-07)
+### 0.4 실측 결과 종합 — "Per-head Outlier Hypothesis" 확립 (2026-04-07)
 
-원래 E3 가설("$b=1$에서 knee가 존재하여 floor=2 유도")은 **기각**되었다:
-- Gaussian single-channel $r(b) = D_{uniform}(b)/D_{Shannon}(b)$는 **단조 증가** (1.46, 1.91, 2.41, 2.98, ...) — knee 없음
-- E3b에서 heterogeneous channel WF는 **floor=0 win 24/24** (모든 스펙트럼 × 모든 budget) — 순수 MSE 관점에서 floor=2는 catastrophic
+#### 0.4.1 원 가설들의 기각 (3 strikes)
 
-그러나 이 기각이 **더 강한 finding**을 도출한다:
-- v3 실험: PPL에서는 floor=2가 floor=1을 명백히 이김 (Qwen 11.255 → 7.099)
-- 이론: MSE에서는 floor=0이 최적 (E3b)
-- **Gap = Lloyd-Max "MSE≠PPL" 현상의 allocation-level 발현**
+| 원 가설 | 판정 | 증거 |
+|---|:---:|---|
+| Discrete-WF Theorem (knee at b=1) | ❌ 기각 | E3: $r(b)$ 단조 증가; E3b: floor=0 win 24/24 |
+| Proposition A (global κ → Lloyd 실패) | ❌ 기각 | E1: Qwen-7B κ > Mistral κ but Lloyd 실패는 Mistral이 5× 심함 |
+| Proposition B (Heavy-tail → L¹ win) | ❌ 기각 | E2: 모든 모델 α ≈ 4.35 (Gaussian-like), v4 κ₄≈0.5 일치 |
+| Proposition C (Spherical Optimality) | ❌ 기각 | Exp2: 0/64 Spherical win in MSE |
 
-즉 Axis 2 (quantizer)와 Axis 3 (allocation) 두 축이 **공통의 $L^2$-PPL mismatch**를 드러낸다. floor=2의 이론적 justification은 Fisher 또는 attention-weighted metric으로 이동해야 한다 (상세: §4.6).
+#### 0.4.2 새로 확립된 긍정적 발견
+
+| 발견 | 증거 | 영향 |
+|---|---|---|
+| **Per-head κ spread (p95/median)가 Lloyd 실패를 예측** | Exp1: Mistral 15.3× vs Qwen 5.0× (ρ=+1.0) | Proposition A **수정** |
+| **Layer 2-6에 outlier 집중** | Exp1: top-3 outlier head 모두 layer 2; Exp4: top-5 PPL 실패 모두 layer 2-6 | Proposition **D** 신설 |
+| **Fisher-avg Mahalanobis Lloyd > L² Lloyd (in Fisher norm)** | Exp3: 12/16 head에서 우월 | Proposition A' 지지 |
+| **MSE-PPL gap이 Axis 2와 Axis 3 모두에서 발현** | E3b + v3 실측 gap 일치 | Unified $L^2$ failure narrative |
+
+#### 0.4.3 통합 narrative — "Per-head Outlier + Fisher Metric"
+
+> Lloyd-Max PPL 실패의 근본 원인은 **(a) 소수의 outlier head (layer 2-6에 집중) + (b) L² metric의 부적합** 조합이다. 
+> 
+> **처방**: Per-head Mahalanobis Lloyd (with averaged Fisher metric) + outlier layer 특별 처리. 이는 AXIS2 plan의 Per-token Fisher를 간소화한 형태이며, Exp3에서 75% win rate로 empirically 지지.
+
+이는 이론-실험이 3단 drama로 전개되는 서사:
+1. **Act 1 (Paradox)**: Lloyd MSE 3.5× 이득에도 PPL catastrophe
+2. **Act 2 (Search)**: 4개 global metric (κ, α, Spherical, floor) 모두 기각
+3. **Act 3 (Resolution)**: Per-head outlier + Fisher metric이 올바른 방향
 
 ### 0.5 기대 효과
 
