@@ -161,11 +161,23 @@ $$\text{Lloyd failure ratio} \propto \max_{(l,h)} \kappa(F_{l,h}) / \text{median
 
 **남은 의문**: Mistral layer 2 outlier head는 분포가 진짜로 Gaussian인가? Per-head Hill estimator가 아직 미측정 — 가능성 있는 future work.
 
-#### Proposition C (Spherical Optimality)
+#### ~~Proposition C (Spherical Optimality)~~ — Exp2에서 기각
 
-> RMSNorm이 적용된 LLM에서 키 norm 변동 $\epsilon = \text{Var}(\|k\|)/\mathbb{E}[\|k\|]^2$ 가 작을 때, 구면 양자화 $S^{d-1}$가 $L^2$ 양자화보다 attention KL에서 $O(1/\epsilon)$ 우월하다.
+> ~~RMSNorm 하에서 Spherical이 $L^2$보다 $O(1/\epsilon)$ 우월~~
 
-**예측**: 키의 norm 변동이 작은 layer/head에서 Spherical 이득이 크다.
+**기각 이유**: Exp2에서 Mistral 64 heads에 Spherical (polar decomposition, 3b angle + 1b magnitude) 적용 → **0/64 win**.
+
+| Quantizer | MSE vs Uniform (median) | Attn-weighted MSE vs Uniform |
+|---|:---:|:---:|
+| L² Lloyd | **0.589** (41% 낫음) | — |
+| Spherical | **1.379** (38% 나쁨) | **2.032** (2× 나쁨) |
+
+**실패 원인 분석**:
+1. **k_proj 출력은 RMSNorm 안 됨** — RMSNorm은 hidden states에만 적용
+2. **Polar 분해가 key anisotropy를 포착 못 함** — anisotropy는 Cartesian 방향
+3. 2D 블록 내 3-bit 각도 quantization이 coarse
+
+**결론**: Proposition C는 이론적으로는 매력적이나 Mistral에는 적용 불가. 남은 검증 대상: Qwen, Llama (아직 Exp2 미시도).
 
 #### ~~Discrete-WF Theorem (원 가설, 2026-04-07 기각)~~
 
