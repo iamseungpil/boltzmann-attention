@@ -320,6 +320,12 @@ $L^2$-Lloyd 실패의 magnitude가 $\kappa(\bar{M}_{KL})$와 positive correlatio
 
 ## 3. 실험 E2: Tail Index $\alpha$ 측정 — Proposition B 검증
 
+**✅ 완료 상태** (2026-04-07)
+- 스크립트: `exp_e1e2_kappa_tail_index.py` (E1과 통합 실행)
+- 결과: 동일 JSON에 병합
+- 런타임: E1과 함께 총 74초
+- **판정**: 원 Proposition B **기각** — 모든 모델 α ≈ 4.3 (Gaussian-like)
+
 ### 3.1 의도
 
 Source 분포의 tail index가 $L^1$-Lloyd 이득을 예측함을 직접 검증.
