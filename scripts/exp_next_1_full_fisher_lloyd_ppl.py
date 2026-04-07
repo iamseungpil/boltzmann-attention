@@ -102,10 +102,11 @@ class UniformQuantHook:
 
 
 class L2LloydHook:
-    """L² Lloyd-Max quantizer with pre-fitted centroids per (head, dim)."""
-    def __init__(self, centroids_per_head, n_kv, head_dim):
-        # centroids_per_head: list of n_kv arrays shape (head_dim, n_levels)
-        self.centroids = centroids_per_head
+    """L² Lloyd-Max quantizer with pre-fitted centroids per (head, dim).
+    FIX (2026-04-07): Apply K_mean centering matching the fit phase."""
+    def __init__(self, head_dicts, n_kv, head_dim):
+        # head_dicts: list of n_kv dicts with keys {'K_mean': (d,), 'centroids': (d, n_levels)}
+        self.head_dicts = head_dicts
         self.n_kv = n_kv
         self.head_dim = head_dim
 
@@ -115,15 +116,22 @@ class L2LloydHook:
         x_np = x.float().cpu().numpy()
         x_q = np.zeros_like(x_np)
         for hk in range(self.n_kv):
+            d = self.head_dicts[hk]
+            K_mean = d['K_mean']
+            c = d['centroids']  # (head_dim, n_levels)
             data = x_np[:, :, hk, :]  # (B, T, d)
             shape = data.shape
             data_flat = data.reshape(-1, self.head_dim)
-            c = self.centroids[hk]   # (d, n_levels)
+            # Center (fit was on centered data)
+            data_c = data_flat - K_mean
+            data_q = np.zeros_like(data_c)
             for j in range(self.head_dim):
                 boundaries = (c[j, :-1] + c[j, 1:]) / 2
-                idx = np.searchsorted(boundaries, data_flat[:, j])
-                data_flat[:, j] = c[j, idx]
-            x_q[:, :, hk, :] = data_flat.reshape(shape)
+                idx = np.searchsorted(boundaries, data_c[:, j])
+                data_q[:, j] = c[j, idx]
+            # Un-center
+            data_q += K_mean
+            x_q[:, :, hk, :] = data_q.reshape(shape)
         return torch.from_numpy(x_q).view(B, T, self.n_kv * self.head_dim).to(output.device).to(output.dtype)
 
 
