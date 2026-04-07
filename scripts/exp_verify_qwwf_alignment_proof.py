@@ -52,43 +52,70 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 # Water-Filling allocation with floor
 # ----------------------------------------------------------------------
 
-def water_filling_floor2(importance, total_budget, b_floor=2, b_max=8):
+def water_filling_skip_floor(importance, total_budget, b_floor=2, b_max=8):
     """
-    Discrete WF with floor constraint.
-    importance[j] = relative importance of dim j (e.g. λ_k_j or λ_k_j * σ_q_j)
-    total_budget = total bits to allocate (= 2 * d for 2-bit average)
-    b_floor: each dim must get at least b_floor bits
-    b_max: max bits per dim
+    Discrete WF with SKIP-or-floor semantic:
+      Each dim gets either 0 bits (skip, replaced by mean) OR >= b_floor bits.
+      This matches v3's "floor=2 prevents 1-bit catastrophe" empirical observation.
 
-    Greedy: start at b_floor for all, give 1 bit at a time to dim with
-    highest marginal distortion reduction.
-    Distortion model: D(b, σ²) ~ σ² * 4^(-b) (Shannon high-rate)
-    Marginal gain at dim j: σ²_j * (4^(-b) - 4^(-(b+1))) = σ²_j * (3/4) * 4^(-b)
+    Algorithm:
+      1. Sort dims by importance (descending)
+      2. Try k active dims (top-k by importance), each starting at b_floor
+      3. Distribute remaining budget greedily among active dims
+      4. Choose k that minimizes total distortion (or use largest k that fits)
+
+    Simplified: greedy allocation
+      - Start: all dims = 0 bits
+      - Iteration: among inactive dims (b=0) and underbudget dims (b<b_max),
+        pick the one with highest marginal gain. Activating costs b_floor bits.
+        Adding 1 bit to active dim costs 1 bit.
     """
     n = len(importance)
     sigma2 = np.array(importance, dtype=np.float64)
     sigma2 = np.maximum(sigma2, 1e-12)
 
-    # Initialize at floor
-    bits = np.full(n, b_floor, dtype=int)
-    spent = n * b_floor
-    if spent > total_budget:
-        # Even floor exceeds budget — return floor (over-budget)
-        return bits
+    bits = np.zeros(n, dtype=int)
+    spent = 0
 
-    # Greedy marginal allocation
     while spent < total_budget:
-        # Marginal gain for adding 1 bit at each dim
-        # gain_j = σ²_j * (4^(-bits[j]) - 4^(-(bits[j]+1)))
-        valid = bits < b_max
-        if not valid.any():
+        best_gain_per_bit = -np.inf
+        best_action = None  # ('activate', j) or ('add', j)
+
+        for j in range(n):
+            if bits[j] == 0:
+                # Activation: cost b_floor bits, gain = σ² * (1 - 4^(-b_floor))
+                if spent + b_floor > total_budget:
+                    continue
+                gain = sigma2[j] * (1.0 - 4.0 ** (-b_floor))
+                gain_per_bit = gain / b_floor
+                if gain_per_bit > best_gain_per_bit:
+                    best_gain_per_bit = gain_per_bit
+                    best_action = ('activate', j)
+            elif bits[j] < b_max:
+                # Add 1 bit: cost 1, gain = σ² * (4^(-b) - 4^(-(b+1)))
+                gain = sigma2[j] * (4.0 ** (-bits[j]) - 4.0 ** (-(bits[j] + 1)))
+                if gain > best_gain_per_bit:
+                    best_gain_per_bit = gain
+                    best_action = ('add', j)
+
+        if best_action is None:
             break
-        gains = np.where(valid, sigma2 * (4.0 ** (-bits.astype(float)) - 4.0 ** (-(bits + 1).astype(float))), -np.inf)
-        j_best = int(np.argmax(gains))
-        bits[j_best] += 1
-        spent += 1
+        action, j = best_action
+        if action == 'activate':
+            bits[j] = b_floor
+            spent += b_floor
+        else:
+            bits[j] += 1
+            spent += 1
 
     return bits
+
+
+def water_filling_floor2(importance, total_budget, b_floor=2, b_max=8):
+    """
+    Backward-compatible name. Uses the SKIP-or-floor semantic above.
+    """
+    return water_filling_skip_floor(importance, total_budget, b_floor, b_max)
 
 
 # ----------------------------------------------------------------------
