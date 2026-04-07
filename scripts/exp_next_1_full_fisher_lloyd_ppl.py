@@ -265,6 +265,12 @@ def fit_all_quantizers(model, tok, calib_text, n_layers, n_kv, n_q, head_dim, bi
 
             eigvals, eigvecs = np.linalg.eigh(M)
             eigvals = np.clip(eigvals, 1e-8, None)
+            # FIX (2026-04-07): cap condition number to avoid numerical blow-up
+            # Outlier heads can have κ up to 10^8, which blows up W_sqrt and reconstruction.
+            # Cap eigenvalue ratio to MAX_COND_RATIO (κ(M) ≤ this), so κ(W_sqrt) ≤ sqrt(this).
+            MAX_COND_RATIO = 1000.0
+            lambda_max = eigvals.max()
+            eigvals = np.clip(eigvals, lambda_max / MAX_COND_RATIO, None)
             sqrt_eig = np.sqrt(eigvals)
             W_sqrt = (eigvecs * sqrt_eig) @ eigvecs.T
             W_inv_sqrt = (eigvecs * (1.0 / sqrt_eig)) @ eigvecs.T
@@ -274,11 +280,24 @@ def fit_all_quantizers(model, tok, calib_text, n_layers, n_kv, n_q, head_dim, bi
             for j in range(head_dim):
                 centroids_mh[j] = lloyd_max_1d_fit(K_white[:, j], bits, n_iter=20)
 
+            # Sanity check: reconstruction error on calibration data
+            # K_white_recon via per-dim bin lookup + de-whiten
+            K_white_q_check = np.zeros_like(K_white)
+            for j in range(head_dim):
+                boundaries = (centroids_mh[j, :-1] + centroids_mh[j, 1:]) / 2
+                idx = np.searchsorted(boundaries, K_white[:, j])
+                K_white_q_check[:, j] = centroids_mh[j, idx]
+            K_recon_check = K_white_q_check @ W_inv_sqrt + K_mean
+            mse_recon = float(((K - K_recon_check) ** 2).mean())
+            if mse_recon > 1e3:
+                print(f"    [WARN] L{li}H{hk} Mahalanobis recon MSE {mse_recon:.2f} is huge (κ(M)={lambda_max/max(eigvals.min(),1e-12):.0f})")
+
             mahal_list.append({
                 'K_mean': K_mean,
                 'W_sqrt': W_sqrt.astype(np.float32),
                 'W_inv_sqrt': W_inv_sqrt.astype(np.float32),
                 'centroids': centroids_mh.astype(np.float32),
+                'calib_mse': mse_recon,
             })
 
         all_l2[li] = l2_list
