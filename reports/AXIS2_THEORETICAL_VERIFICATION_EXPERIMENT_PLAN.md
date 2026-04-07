@@ -1288,18 +1288,31 @@ v20 plan의 P1 (MMLU 현재 진행 중), P3 (theory-to-metric), P4 (KVTC 확장)
 
 ---
 
-## 14. 결론 및 진행 상태 (v2 업데이트)
+## 14. 결론 및 진행 상태 (v3 업데이트)
 
-### 14.1 현재까지의 진전 (2026-04-07)
+### 14.1 현재까지의 진전 (2026-04-07 최종)
 
-**완료된 실험**:
-- ✅ **E3**: Gaussian rate-distortion 실측 (85초) — Max 1960 reference 4자리 일치
-- ✅ **E3b**: Heterogeneous WF floor ablation (0.8초) — 24/24 floor=0 win
+**완료된 실험** (총 runtime ~4.5분):
+- ✅ **E3**: Gaussian RD (85초) — Max 1960 4자리 일치, "knee at b=1" 기각
+- ✅ **E3b**: Heterogeneous WF floor (0.8초) — floor=0 win 24/24
+- ✅ **E1+E2**: κ + α on 4 models (74초) — Global κ/α 기각
+- ✅ **Exp1**: Per-head κ outlier (5초) — **spread가 ρ=+1.0으로 예측**
+- ✅ **Exp2**: Spherical quantizer (31초) — 0/64 win, Prop C 기각
+- ✅ **Exp3**: Per-token Fisher (29초) — **Fisher-avg 12/16 win** in Fisher norm
+- ✅ **Exp4**: Per-layer Lloyd breakdown (67초) — **Layer 2-6 집중**
 
-**핵심 발견**:
-- ❌ 원 "Discrete-WF Theorem (knee at $b=1$)" 가설 **엄밀히 기각**
-- ✅ 더 강한 finding: **MSE-PPL gap이 Axis 2 (quantizer)와 Axis 3 (allocation) 두 축에서 대칭적으로 발현**
-- ✅ Lloyd 실패 + floor=2 puzzle이 **같은 $L^2$-metric mismatch**의 두 얼굴임을 확인
+**실행 중**:
+- 🔄 **Next-1**: Full Fisher Mahalanobis Lloyd PPL (Mistral, ~15분)
+- ⏳ **Next-2**: Outlier layer preservation (Mistral, ~20분)
+- ⏳ **Next-3**: Per-layer Lloyd (Qwen-7B, ~3분)
+
+**핵심 발견 (최종)**:
+- ❌ **4개 원 가설 기각**: Discrete-WF, Prop A(global), Prop B, Prop C
+- ✅ **2개 신규 proposition 확립**: 
+  - **Prop A' (Per-head spread)**: p95/median, outlier count가 Lloyd 실패 예측 (ρ=+1.0)
+  - **Prop D (Outlier Concentration)**: Layer 2-6에 실패 집중, κ outlier 위치 = PPL 실패 위치
+- ✅ **Unified $L^2$-PPL Gap**: Axis 2 (Lloyd) + Axis 3 (WF floor=0)가 공통 metric mismatch
+- ✅ **Fisher-avg Mahalanobis Lloyd** 가 올바른 방향 (Exp3 12/16 win)
 
 ### 14.2 이론적 진전 — "Unified $L^2$-PPL Gap"
 
