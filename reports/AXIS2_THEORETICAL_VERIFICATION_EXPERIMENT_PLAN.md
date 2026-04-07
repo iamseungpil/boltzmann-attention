@@ -2,8 +2,8 @@
 
 **프로젝트**: KV-Cache 양자화 Lie Group 프레임워크 — 이론 명제의 Empirical Verification
 **작성일**: 2026-04-07
-**버전**: v2 (E3/E3b 실행 결과 반영)
-**최종 업데이트**: 2026-04-07 (E3, E3b 완료 후)
+**버전**: v3 (Exp 1-4 chain 결과 반영)
+**최종 업데이트**: 2026-04-07 (E3/E3b + E1/E2 + Exp1/2/3/4 chain 완료 후; Next-1/2/3 chain 실행 중)
 **근거 문서**:
 - `AXIS2_ANISOTROPY_AWARE_QUANTIZATION_EXPERIMENT_PLAN.md` (기존 5-quantizer 실험)
 - `NEURIPS_VERIFICATION_REPORT_v4.md` (QW-PCA 실패 + PCA-Q 자연 정렬 발견)
