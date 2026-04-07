@@ -34,9 +34,11 @@ from pathlib import Path
 # ----------------------------------------------------------------------
 
 MODELS = [
+    ('Qwen/Qwen2.5-1.5B',            'qwen2.5-1.5b'),
     ('Qwen/Qwen2.5-7B',              'qwen2.5-7b'),
-    ('meta-llama/Llama-3.1-8B',      'llama-3.1-8b'),
+    ('Qwen/Qwen2.5-14B-Instruct',    'qwen2.5-14b-inst'),
     ('mistralai/Mistral-7B-v0.3',    'mistral-7b-v0.3'),
+    # ('meta-llama/Llama-3.1-8B',    'llama-3.1-8b'),  # gated, no local snapshot
 ]
 
 N_CALIB_TOKENS = 2048         # calibration sequence length
