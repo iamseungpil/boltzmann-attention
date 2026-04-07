@@ -8,7 +8,9 @@
 - `AXIS2_ANISOTROPY_AWARE_QUANTIZATION_EXPERIMENT_PLAN.md` (기존 5-quantizer 실험)
 - `NEURIPS_VERIFICATION_REPORT_v4.md` (QW-PCA 실패 + PCA-Q 자연 정렬 발견)
 - `LIE_GROUP_UNIFICATION.md` (이론 framework)
-- `axis2_theoretical_verification/E3_RESULTS_SUMMARY.md` (E3/E3b 실측 결과, **NEW**)
+- `axis2_theoretical_verification/E3_RESULTS_SUMMARY.md` (E3/E3b 실측 결과)
+- `axis2_theoretical_verification/E1E2_RESULTS_SUMMARY.md` (E1/E2 κ·α 측정 결과)
+- `axis2_theoretical_verification/EXPERIMENTS_1234_SUMMARY.md` (Exp 1-4 chain 결과, **핵심**)
 
 **목적**: 기존 AXIS2 plan을 보완하여, NeurIPS 2026 reviewer의 예상 3대 우려를 선제 차단하는 이론 명제 검증 실험을 추가한다.
 
