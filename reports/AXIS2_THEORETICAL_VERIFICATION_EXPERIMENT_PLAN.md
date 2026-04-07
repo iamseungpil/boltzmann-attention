@@ -253,11 +253,19 @@ $X_{(i)}$는 order statistics, $k$는 tail size.
 
 ---
 
-## 4. 실험 E3: $D_{uniform}(b)$ Shannon 대비 편차 실측 — Discrete-WF Theorem 검증
+## 4. 실험 E3: $D_{uniform}(b)$ Shannon 대비 편차 실측 — ~~Discrete-WF Theorem~~ **→ 재해석**
+
+**✅ 완료 상태** (2026-04-07)
+- 스크립트: `scripts/exp_e3_discrete_wf_verification.py`
+- 결과: `reports/axis2_theoretical_verification/e3_discrete_wf_results.json`
+- 런타임: 85.8초 (CPU only, 1M samples)
+- 상세 분석: `reports/axis2_theoretical_verification/E3_RESULTS_SUMMARY.md`
+
+**판정**: 원래 가설 기각, 더 강한 finding 도출 (§4.6 참조).
 
 ### 4.1 의도
 
-$b$-bit 균등 양자화기의 실제 distortion이 $b < 2$에서 Shannon $\sigma^2 \cdot 2^{-2b}$보다 strictly 큼을 실측하여, **floor=2가 이론적 필연**임을 입증.
+$b$-bit 균등 양자화기의 실제 distortion이 $b < 2$에서 Shannon $\sigma^2 \cdot 2^{-2b}$보다 strictly 큼을 실측하여, ~~**floor=2가 이론적 필연**임을 입증~~ → **MSE-WF가 floor=2를 지지하지 않음을 엄밀히 확인**.
 
 ### 4.2 프로토콜
 
