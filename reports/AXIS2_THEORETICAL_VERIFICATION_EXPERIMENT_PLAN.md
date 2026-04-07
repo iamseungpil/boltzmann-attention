@@ -129,14 +129,27 @@ $$D_{KL}(p_t \| \hat{p}_t) \approx \tfrac{1}{2}(k - \hat{k})^\top M_{KL}(t)(k - 
 
 본 plan의 각 실험은 다음 이론 명제 중 하나 이상을 직접 검증한다.
 
-#### Proposition A (Metric Mismatch Bound)
+#### ~~Proposition A (원)~~ — E1에서 기각
 
-> $L^2$-Lloyd-Max와 $M_{KL}$-Lloyd-Max의 attention distortion 차이는 $\kappa(\bar{M}_{KL})$에 비례한다:
-> $$D_{attn}(Q_{L^2}) - D_{attn}(Q_{M_{KL}}) \leq C \cdot (\kappa(\bar{M}_{KL}) - 1) \cdot \sigma^2_{quant}$$
+> ~~$L^2$-Lloyd-Max와 $M_{KL}$-Lloyd-Max의 attention distortion 차이는 $\kappa(\bar{M}_{KL})$에 비례한다~~
 
-**예측**: $\kappa$가 큰 모델일수록 $L^2$-Lloyd의 PPL 실패가 심하다.
+**기각 이유**: E1에서 4개 모델 κ median을 측정했더니 **Qwen-7B(22,470) > Mistral(14,321)** 인데, v3 Lloyd 실패는 **Mistral(5.06×) >> Qwen(1.05×)**. Global κ는 예측력 없음.
 
-**이미 관측된 증거**: v4 보고서 — Mistral $\kappa(\Sigma_Q) = 10{,}333$ (최대 44,937), Mistral 2-bit Lloyd-Max PPL 32.68 (catastrophic).
+#### Proposition A' (수정, Exp1에서 empirically 확립)
+
+> $L^2$-Lloyd-Max의 Lloyd failure ratio는 **per-head $\kappa$ 분포의 spread** (p95/median, outlier count)에 비례한다. 소수의 극단 outlier head가 전체 실패를 견인하며, 이 outlier는 **early layers (특히 layer 2-6)에 집중**된다.
+
+**수학적 형식 (제안)**:
+$$\text{Lloyd failure ratio} \propto \max_{(l,h)} \kappa(F_{l,h}) / \text{median}_{(l,h)}[\kappa(F_{l,h})]$$
+또는 equivalently $N_{outlier}(\tau) = |\{(l,h) : \kappa_{l,h} > \tau \cdot \text{median}\}|$.
+
+**Exp1 empirical 지지** (Spearman with 2 models):
+- p95/median: **ρ=+1.000** ✅
+- n_outliers(>10×med): **ρ=+1.000** ✅
+- fraction above 1e5: **ρ=+1.000** ✅
+- Mistral 5 outlier heads (all in layer 2) vs Qwen 1 outlier head
+
+**Exp4 cross-verification**: Mistral layer 2 top outlier (κ=2.8M) = PPL 실패 최악 layer (ΔPPL +0.555). 직접 일치.
 
 #### Proposition B ($L^p$ Quantization Hierarchy)
 
