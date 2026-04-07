@@ -1360,5 +1360,21 @@ v20 plan의 P1 (MMLU 현재 진행 중), P3 (theory-to-metric), P4 (KVTC 확장)
 
 *v1 작성: Claude Opus 4.6 (2026-04-07)*
 *v2 업데이트: Claude Opus 4.6 (2026-04-07, E3/E3b 완료 후)*
-*근거: AXIS2_ANISOTROPY_AWARE_QUANTIZATION_EXPERIMENT_PLAN.md, NEURIPS_VERIFICATION_REPORT_v4.md, E3_RESULTS_SUMMARY.md*
+*v3 업데이트: Claude Opus 4.6 (2026-04-07, E1/E2 + Exp1/2/3/4 완료 후, Next-1/2/3 실행 중)*
+
+**v3 주요 변경사항**:
+- E1/E2 κ+α 실측 결과 반영 (74초 runtime, 4 models)
+- Exp1-4 chain 결과 섹션 추가 (§4c): Per-head outlier + Fisher + Lloyd breakdown
+- Next-1/2/3 follow-up chain 섹션 추가 (§5b)
+- Proposition A 기각 + A' 수정본 확립
+- Proposition B, C 기각
+- **Proposition D 신설** (Per-head Outlier Concentration)
+- "3-act drama" narrative 확립
+
+**근거 문서**:
+- AXIS2_ANISOTROPY_AWARE_QUANTIZATION_EXPERIMENT_PLAN.md
+- NEURIPS_VERIFICATION_REPORT_v4.md
+- E3_RESULTS_SUMMARY.md
+- E1E2_RESULTS_SUMMARY.md
+- EXPERIMENTS_1234_SUMMARY.md (주요)
 *다음 단계: E1+E2+E3 즉시 실행 (CPU only, day 1 오전), AXIS2 P0-1 병행*
