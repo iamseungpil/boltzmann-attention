@@ -95,10 +95,27 @@
 - 624/624 (100%) MSE order Pre-RoPE PCA < Random < Uniform
 - Per-model breakdown table
 
-### 3.3 PPL transfer (where Theorem extends)
+### 3.3 PPL transfer — where Theorem 6.16.3 extends (and where it doesn't)
 
-- 3-bit: 4/4 models PPL order matches MSE order
-- 2-bit: 2/4 models reverse (Mistral, Llama). Note this anomaly; explained in Section 5.
+**3-bit regime**: 4/4 models show PPL order matching MSE order. Theorem 6.16.3 + MSE-PPL transfer holds cleanly. 
+
+**⚠️ 2-bit anomaly (HONEST LIMITATION)**: In 2/4 models (Mistral, Llama), the PPL order **reverses** from the MSE order. Specifically:
+- Mistral: Pre-RoPE PCA 2b = 6.46, Post-RoPE 2b < Pre-RoPE 2b on PPL
+- Llama: similar pattern
+
+**This does not invalidate Theorem 6.16.3**, which is a statement about MSE within Class C rotations under distribution-free assumptions. The anomaly is in the **MSE-PPL transfer**, not the MSE optimality itself.
+
+**Hypotheses (not proven in this paper)**:
+
+1. **Non-Gaussian tail at 2-bit**: The Gaussian approximation used in high-rate MSE analysis breaks down at 2-bit, where the quantization step size is comparable to the tail width.
+
+2. **Calibration instability**: 2-bit Lloyd-Max is sensitive to tail outliers that affect calibration-time statistics.
+
+3. **Softmax cascade non-linearity**: At 2-bit, the linearization of softmax around small perturbations (used in Theorem A) breaks down, and the cascade amplification factor $g_{l,h}$ becomes super-linear.
+
+**Claim restriction**: We state Theorem 6.16.3's MSE result as distribution-free (proven in appendix). The empirical PPL result is restricted to ≥ 3 bits, with the 2-bit anomaly honestly reported as open (Section 5.5, Conjecture E future work).
+
+**This restriction follows Codex review (2026-04-08) recommendation**: "The 2-bit Pre-RoPE PCA anomaly is either explained in §5 or restricted in §3.3." We choose restriction for honesty and brevity.
 
 ### 3.4 Cor 6.16.4(d): Post-RoPE PCA fails
 
