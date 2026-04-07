@@ -5484,6 +5484,36 @@ KVTC와의 차별화 조건:
 
 ---
 
+### 🔴 THIRD RETRACTION (2026-04-08 evening): PCA-Q "Alignment" Claim REFUTED
+
+**V1 measurement** (`exp_v1_pca_q_principal_angles.json`) directly measured principal angles between $\Sigma_K$ and $\Sigma_Q$ eigenvector subspaces across 3 models:
+
+| Model | Top-1 median | Top-8 mean | Full-rank |
+|---|:---:|:---:|:---:|
+| Mistral-7B | **32.92°** | 57.35° | 0.01° |
+| Qwen-7B | **30.86°** | 56.42° | 0.01° |
+| Qwen-1.5B | **30.18°** | 58.53° | 0.01° |
+
+**The "0.6-2.5° alignment" claim in §6.23 is FALSE**. Minimum angle across all measurements is 12.10° (Qwen-7B); median top-1 is ~30°.
+
+**What is actually true**: Spearman $\rho(\lambda_K, \sigma_Q^2)$ in K's eigenbasis = 0.655. This is **eigenvalue rank correlation**, NOT eigenvector alignment.
+
+**Why QW-WF ≈ WF(floor=2)**:
+- Rank correlation (0.655) means similar bit ordering
+- NOT because eigenvectors coincide
+- Theorem C (§6.23.4) remains valid but reframed
+
+**Why QW-PCA failed**:
+- NOT because of alignment (eigenvectors ARE different, at ~30°)
+- Because of numerical instability: $\kappa(\Sigma_Q) \approx 10^4$, $\text{sqrtm}(\Sigma_Q)$ amplifies noise
+- **Numerical failure, not geometric redundancy**
+
+**Impact**: Paper contribution #2 ("PCA-Q natural alignment (0.6-2.5°)") is **demoted** from "novel structural discovery" to "eigenvalue rank correlation observation" and "numerical stability explanation for QW-PCA failure".
+
+**See**: `reports/RETRACTION_3RD_PCA_Q_ALIGNMENT_2026-04-08.md` for full analysis.
+
+---
+
 ### ⚠️ IMPORTANT FRAMING NOTE (2026-04-08 retraction)
 
 **§6.23의 모든 정리(Theorems A, B, C, G, Proposition D)는 Mistral Axis 2 실패에 대한 EXPLANATORY framework이며, 새로운 quantization method를 주장하지 않는다.**

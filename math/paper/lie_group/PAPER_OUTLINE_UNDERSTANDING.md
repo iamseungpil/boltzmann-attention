@@ -49,13 +49,16 @@
 - BUT: PPL catastrophic failure (Mistral 5.06×, Llama 6.46× over Uniform)
 - This is the **MSE-PPL gap** — the central phenomenon we explain
 
-### 1.3 Our contributions (5)
+### 1.3 Our contributions (4, after 2026-04-08 retraction)
+
+**⚠️ Updated after V1 measurement refuted "PCA-Q subspace alignment" claim**:
 
 1. **Lie group framework** unifying 8 KV-quant methods under 3 axes
 2. **Theorem 6.16.3**: Pre-RoPE PCA is MSE-optimal in Class C (proved, 624/624 verified)
-3. **PCA-Q natural alignment** (0.6-2.5°): novel structural property of trained transformers
-4. **Explanation of MSE-PPL gap**: Theorems A, B, C unifying Lloyd, WF, QW failures
-5. **Per-head outlier characterization** (Proposition D): Layers 2-6 in Mistral, validated in 4 models
+3. **Explanation of MSE-PPL gap**: Theorems A, B, C unifying Lloyd, WF, QW failures
+4. **Per-head outlier characterization** (Proposition D): Layers 2-6 in Mistral, validated
+
+**Originally claimed as #5 (PCA-Q natural alignment 0.6-2.5°)**: RETRACTED after V1 direct measurement showed principal angles 30-57° across 3 models. Correct claim: eigenvalue rank correlation (ρ=0.655) in K eigenbasis, NOT eigenvector subspace alignment. See §4 (reframed).
 
 ### 1.4 What we do NOT claim
 
@@ -124,35 +127,71 @@
 
 ---
 
-## Section 4: PCA-Q Natural Alignment (Novel Discovery) (1 page)
+## Section 4: Eigenvalue Rank Correlation in Key Eigenbasis (Observation) (0.75 page)
 
-### 4.1 Measurement protocol
+**⚠️ This section was originally titled "PCA-Q Natural Alignment (0.6-2.5°)" and presented as a novel subspace-level structural discovery. V1 measurement (2026-04-08) refuted this: principal angles between Σ_K and Σ_Q top-k eigenvectors are 30-57° across 3 models. We honestly correct this below.**
 
-- For each head, compute Σ_K and Σ_Q
-- Principal angle between top eigenvectors
-- 3 models, multiple layers
+### 4.1 What we measure
 
-### 4.2 Result
+For each (layer, kv-head):
+- $\Sigma_K$ = key covariance
+- $\Sigma_Q$ = query covariance (averaged over GQA-associated Q heads)
+- Two different statistics:
+  - **Principal angles** between top-k eigenvector subspaces (V1, this section)
+  - **Rank correlation** of eigenvalues when Q is projected into K's eigenbasis
 
-| Model | Mean angle | 95th percentile |
-|---|:---:|:---:|
-| Qwen-7B | 0.8° | 4.1° |
-| Llama-8B | 2.5° | 8.0° |
-| Mistral-7B | 0.6° | 3.6° |
+### 4.2 Direct measurement of principal angles (V1)
 
-→ **Σ_K and Σ_Q eigenvectors are systematically aligned in trained transformers**.
+| Model | Top-1 median | Top-8 subspace | Full-rank |
+|---|:---:|:---:|:---:|
+| Mistral-7B | 32.92° | 57.35° | 0.01° |
+| Qwen2.5-7B | 30.86° | 56.42° | 0.01° |
+| Qwen2.5-1.5B | 30.18° | 58.53° | 0.01° |
 
-### 4.3 Implications
+**Finding**: The eigenvector subspaces of Σ_K and Σ_Q are NOT aligned (median top-1 angle ~30°). Full-rank angle of 0° is trivial (both matrices span R^d).
 
-1. **Pre-RoPE PCA is also attention-quasi-optimal** (not just MSE-optimal)
-2. **QW-PCA fails**: rotating into Σ_Q basis is essentially identity → numerical noise dominates
-3. **QW-WF reduces to standard WF** (Theorem C in Section 5)
+### 4.3 Rank correlation in Key eigenbasis
 
-### 4.4 Why does this happen?
+When we project $\Sigma_Q$ onto the eigenbasis of $\Sigma_K$, the marginal variances $\sigma_{Q,j}^2 = V_K[:,j]^\top \Sigma_Q V_K[:,j]$ show moderate rank correlation with $\lambda_{K,j}$:
 
-- Hypothesis: training dynamics drive K and Q toward shared eigenstructure (information bottleneck)
-- Open question; we present this as an empirical observation, not a derivation
-- Connects to recent work on weight tying / attention-head alignment
+| Model | Spearman ρ(λ_K, σ_Q²) | Interpretation |
+|---|:---:|---|
+| Mistral-7B | 0.655 median | moderate rank correlation |
+| (3 models) | 0.655 mean | Consistent |
+
+**Interpretation**: Dimensions that are high-variance in K's eigenbasis are also (moderately) high-variance for Q when measured in K's coordinate frame. This is NOT the same as eigenvector alignment.
+
+### 4.4 What this explains
+
+**QW-WF ≈ standard WF (Theorem C, §5.4)**:
+- Both methods allocate bits based on rank of importance values
+- Rank correlation ρ=0.655 → 5-8% of bits differ in allocation
+- PPL difference < 0.5% (validated in Next-12)
+
+**QW-PCA catastrophic failure**:
+- NOT because eigenvectors are aligned (they're 30° apart)
+- BECAUSE $\kappa(\Sigma_Q) \approx 10^4$ makes $\Sigma_Q^{1/2}$ numerically unstable
+- Whitening with unstable matrix amplifies noise → PPL catastrophe
+- This is a **numerical failure**, not a geometric redundancy
+
+### 4.5 What we honestly do NOT claim
+
+- ❌ "Σ_K and Σ_Q are naturally aligned in trained transformers" (refuted)
+- ❌ "PCA-Q alignment is a novel structural discovery" (observation is rank correlation, not alignment)
+- ❌ "Trained transformers have shared eigenstructure" (eigenvectors differ by 30°+)
+
+### 4.6 What we honestly DO claim
+
+- ✅ Eigenvalue rank correlation (ρ=0.655) is a measurable property
+- ✅ This rank correlation explains QW-WF reduction (§5.4)
+- ✅ QW-PCA failure is explained by numerical instability, not alignment
+- ✅ Both observations are reproducible (`exp_v1_pca_q_principal_angles.json`, `exp_verify_qwwf_alignment_proof.json`)
+
+### 4.7 Why the original claim was wrong
+
+Earlier drafts (LIE_GROUP_UNIFICATION.md v2.2) stated "Σ_K와 Σ_Q 고유벡터가 0.6-2.5°로 정렬". This was an error: we conflated the Spearman correlation (which is not an angle) with principal angles (which we had not measured). V1 directly measures principal angles and finds they are not small. We retract the original "alignment" framing.
+
+**This correction does not affect the rest of the paper**: Theorems A, B, C, G and Proposition D do not depend on alignment being small. They depend on rank correlation (Theorem C) and κ(M) spread (Theorem A, Proposition D), both of which remain valid.
 
 ---
 
