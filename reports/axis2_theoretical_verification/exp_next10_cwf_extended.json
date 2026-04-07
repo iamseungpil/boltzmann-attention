@@ -1,0 +1,183 @@
+{
+  "mistral-7b": {
+    "model": "mistralai/Mistral-7B-v0.3",
+    "ppl_fp16": 5.387755393981934,
+    "n_layers": 32,
+    "n_kv": 8,
+    "head_dim": 128,
+    "configs": {
+      "cwf_avg2.0": {
+        "avg_bits_target": 2.0,
+        "avg_bits_actual": 2.0,
+        "ppl": 9.115421295166016,
+        "delta_vs_fp16_pct": 69.18773456842243,
+        "bit_distribution": {
+          "2": 256
+        }
+      },
+      "cwf_avg2.156": {
+        "avg_bits_target": 2.156,
+        "avg_bits_actual": 2.15625,
+        "ppl": 6.910428524017334,
+        "delta_vs_fp16_pct": 28.261734594265555,
+        "bit_distribution": {
+          "2": 216,
+          "3": 40
+        }
+      },
+      "cwf_avg2.3": {
+        "avg_bits_target": 2.3,
+        "avg_bits_actual": 2.30078125,
+        "ppl": 6.578059196472168,
+        "delta_vs_fp16_pct": 22.092758773343558,
+        "bit_distribution": {
+          "2": 184,
+          "3": 67,
+          "4": 5
+        }
+      },
+      "cwf_avg2.5": {
+        "avg_bits_target": 2.5,
+        "avg_bits_actual": 2.5,
+        "ppl": 6.257694721221924,
+        "delta_vs_fp16_pct": 16.14660027460978,
+        "bit_distribution": {
+          "2": 150,
+          "3": 84,
+          "4": 22
+        }
+      },
+      "cwf_avg2.75": {
+        "avg_bits_target": 2.75,
+        "avg_bits_actual": 2.75,
+        "ppl": 6.126064300537109,
+        "delta_vs_fp16_pct": 13.703460023071187,
+        "bit_distribution": {
+          "2": 104,
+          "3": 112,
+          "4": 40
+        }
+      },
+      "cwf_avg3.0": {
+        "avg_bits_target": 3.0,
+        "avg_bits_actual": 3.0,
+        "ppl": 5.990047454833984,
+        "delta_vs_fp16_pct": 11.178905069164882,
+        "bit_distribution": {
+          "2": 67,
+          "3": 125,
+          "4": 61,
+          "5": 3
+        }
+      },
+      "cwf_avg3.25": {
+        "avg_bits_target": 3.25,
+        "avg_bits_actual": 3.25,
+        "ppl": 5.867835998535156,
+        "delta_vs_fp16_pct": 8.910586495620564,
+        "bit_distribution": {
+          "2": 40,
+          "3": 127,
+          "4": 74,
+          "5": 15
+        }
+      },
+      "cwf_avg3.5": {
+        "avg_bits_target": 3.5,
+        "avg_bits_actual": 3.5,
+        "ppl": 5.729010581970215,
+        "delta_vs_fp16_pct": 6.33390276717944,
+        "bit_distribution": {
+          "2": 25,
+          "3": 106,
+          "4": 97,
+          "5": 28
+        }
+      }
+    },
+    "runtime_sec": 629.306058883667
+  },
+  "qwen-7b": {
+    "model": "Qwen/Qwen2.5-7B",
+    "ppl_fp16": 7.296471118927002,
+    "n_layers": 28,
+    "n_kv": 4,
+    "head_dim": 128,
+    "configs": {
+      "cwf_avg2.0": {
+        "avg_bits_target": 2.0,
+        "avg_bits_actual": 2.0,
+        "ppl": 8.546932220458984,
+        "delta_vs_fp16_pct": 17.137888729365265,
+        "bit_distribution": {
+          "2": 112
+        }
+      },
+      "cwf_avg2.156": {
+        "avg_bits_target": 2.156,
+        "avg_bits_actual": 2.1517857142857144,
+        "ppl": 8.597603797912598,
+        "delta_vs_fp16_pct": 17.832355638473857,
+        "bit_distribution": {
+          "2": 96,
+          "3": 15,
+          "4": 1
+        }
+      },
+      "cwf_avg2.3": {
+        "avg_bits_target": 2.3,
+        "avg_bits_actual": 2.3035714285714284,
+        "ppl": 8.27877426147461,
+        "delta_vs_fp16_pct": 13.46271542142501,
+        "bit_distribution": {
+          "2": 83,
+          "3": 25,
+          "4": 3,
+          "5": 1
+        }
+      },
+      "cwf_avg2.5": {
+        "avg_bits_target": 2.5,
+        "avg_bits_actual": 2.5,
+        "ppl": 8.128521919250488,
+        "delta_vs_fp16_pct": 11.40346870098823,
+        "bit_distribution": {
+          "2": 68,
+          "3": 33,
+          "4": 10,
+          "5": 1
+        }
+      },
+      "cwf_avg2.75": {
+        "avg_bits_target": 2.75,
+        "avg_bits_actual": 2.75,
+        "ppl": 7.924594402313232,
+        "delta_vs_fp16_pct": 8.608590003966198,
+        "bit_distribution": {
+          "2": 50,
+          "3": 42,
+          "4": 19,
+          "6": 1
+        }
+      },
+      "cwf_avg3.0": {
+        "avg_bits_target": 3.0,
+        "avg_bits_actual": 3.0,
+        "ppl": 7.862498760223389,
+        "delta_vs_fp16_pct": 7.757553371630765,
+        "bit_distribution": {
+          "2": 34,
+          "3": 49,
+          "4": 25,
+          "5": 3,
+          "6": 1
+        }
+      }
+    },
+    "runtime_sec": 186.91922664642334
+  },
+  "_meta": {
+    "total_runtime_sec": 816.61194896698,
+    "timestamp": "2026-04-08 00:16:39"
+  }
+}
