@@ -7,24 +7,46 @@
 
 ---
 
-## TL;DR
+## ⚠️ RETRACTION (2026-04-08): SOTA claim 철회
 
-**Main method 확정됨**: Pre-RoPE PCA + L² Lloyd + Cascade-Aware Water-Filling (**CWF**)
+**중요 수정**: 본 문서의 원래 TL;DR은 "CWF가 v3 WF(floor=2)를 1.6% 돌파" 라고 주장했으나, 이는 **fair comparison이 아닌 overclaim**이었습니다. Codex 비판(2026-04-08)과 Next-12 결과로 정정합니다.
 
-**Mistral-7B WikiText-2 PPL 결과** (mais side, Next-10):
-- FP16: 5.39
-- CWF avg=2.5: **6.26** (beats v3 Uniform 2b = 6.46 by 3.1%)
-- CWF avg=3.25: **5.87** (close to v3 WF floor=2 = 5.82)
-- **CWF avg=3.5: 5.73** (beats v3 WF floor=2 by 1.6%) ✅
+**정정 사항**:
+- ❌ "CWF beats v3 WF(floor=2) by 1.6%" (avg=3.5 vs avg=2.0 비교, 75% more bits)
+- ✅ **Fair budget (avg=2.0)에서 CWF는 v3보다 56.7% 나쁨** (9.12 vs 5.82)
+- ✅ **Next-12 (Two-level WF) 결과**: CWF의 inter-head contribution = **ZERO** (B = D = 6.0166)
+- ✅ CWF는 method가 아닌 **constructive validation of Theorem B (explanatory)**
+- ✅ Paper framing: **"Understanding paper"** (coworker honest assessment 권고)
 
-**Qwen-7B**:
-- FP16: 7.30
-- CWF avg=3.0: **7.86** (vs v3 Uniform 2b 7.98, v3 WF floor=2 7.10)
-- Qwen은 Mistral만큼 극적 개선 없음 (Lloyd failure가 약해서 outlier preservation 한계)
+**상세**: `reports/RETRACTION_MESSAGE_TO_COWORKER_2026-04-08.md`
+**§6.23 update**: `math/paper/lie_group/LIE_GROUP_UNIFICATION.md` §6.23.16
 
-**우리의 한계**: A6000×2 single machine. MMLU eval이 quantization hook의 numpy CPU path로 느려 ~2시간 per config. Heavy downstream + extended cross-model 실험이 타임라인에 맞지 않음.
+---
 
-**요청**: 아래 3개 heavy experiment를 A100×16 node에서 실행해 주시기 바랍니다. 예상 총 runtime: **약 2-3시간** (A100 multi-GPU 병렬 가정).
+## TL;DR (수정, 2026-04-08)
+
+**Method 위치**: Pre-RoPE PCA + Per-dim WF (v3 style) → **v3 WF(floor=2)가 best known method**.
+
+CWF (Cascade-Aware Water-Filling)는 **Theorem B의 constructive demonstration**으로 강등. v3 위에 추가 contribution 없음 (Next-12에서 입증).
+
+**Mistral-7B WikiText-2 PPL** (정직한 비교):
+
+| Method | avg bits | PPL | 비고 |
+|---|:---:|:---:|---|
+| FP16 | 16 | 5.39 | baseline |
+| v3 Pre-RoPE PCA + Uniform 2b | 2.0 | 6.46 | reasonable baseline |
+| **v3 Pre-RoPE PCA + WF(floor=2)** | **2.0** | **5.82** | **best known** |
+| Our reproduction (continuous WF) | 2.0 | 5.94 | matches v3 within 2% |
+| CWF only (inter-head) | 2.0 | 9.12 | ❌ worse than uniform |
+| Two-level (CWF + intra-head WF) | 2.0 | 6.02 | = intra-head alone |
+
+**Qwen-7B** (CWF less effective due to flatter sensitivity distribution):
+- v3 WF(floor=2): 7.10
+- CWF avg=3.0: 7.86 (worse, even with more bits)
+
+**우리의 한계**: A6000×2 single machine. MMLU eval이 numpy hook 때문에 느려 ~2시간 per config.
+
+**요청**: 아래 3개 heavy experiment를 A100×16 node에서 실행해 주시기 바랍니다. **단, CWF를 SOTA로 framing하지 마시고, "Theorem B의 ablation" 또는 "extended budget regime"으로 reframe**해 주세요.
 
 ---
 
