@@ -1,0 +1,148 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "fp16_per_length": {
+    "2048": {
+      "target_len": 2048,
+      "actual_len": 2048,
+      "ppl_fp16": 5.391703128814697
+    },
+    "8192": {
+      "target_len": 8192,
+      "actual_len": 8192,
+      "ppl_fp16": 5.064324855804443
+    },
+    "32768": {
+      "target_len": 32768,
+      "actual_len": 32768,
+      "ppl_fp16": 5.502195358276367
+    }
+  },
+  "configs": {
+    "L2048_lloyd_sink0": {
+      "eval_len": 2048,
+      "quantizer": "lloyd",
+      "sink_k": 0,
+      "ppl": 9.964385032653809,
+      "delta_fp16": 4.572681903839111
+    },
+    "L2048_lloyd_sink1": {
+      "eval_len": 2048,
+      "quantizer": "lloyd",
+      "sink_k": 1,
+      "ppl": 5.990218162536621,
+      "delta_fp16": 0.5985150337219238
+    },
+    "L2048_lloyd_sink4": {
+      "eval_len": 2048,
+      "quantizer": "lloyd",
+      "sink_k": 4,
+      "ppl": 6.006556987762451,
+      "delta_fp16": 0.6148538589477539
+    },
+    "L2048_grid_sink0": {
+      "eval_len": 2048,
+      "quantizer": "grid",
+      "sink_k": 0,
+      "ppl": 6.434257984161377,
+      "delta_fp16": 1.0425548553466797
+    },
+    "L2048_grid_sink1": {
+      "eval_len": 2048,
+      "quantizer": "grid",
+      "sink_k": 1,
+      "ppl": 6.332261085510254,
+      "delta_fp16": 0.9405579566955566
+    },
+    "L2048_grid_sink4": {
+      "eval_len": 2048,
+      "quantizer": "grid",
+      "sink_k": 4,
+      "ppl": 6.2185492515563965,
+      "delta_fp16": 0.8268461227416992
+    },
+    "L8192_lloyd_sink0": {
+      "eval_len": 8192,
+      "quantizer": "lloyd",
+      "sink_k": 0,
+      "ppl": 14.531763076782227,
+      "delta_fp16": 9.467438220977783
+    },
+    "L8192_lloyd_sink1": {
+      "eval_len": 8192,
+      "quantizer": "lloyd",
+      "sink_k": 1,
+      "ppl": 5.551424026489258,
+      "delta_fp16": 0.48709917068481445
+    },
+    "L8192_lloyd_sink4": {
+      "eval_len": 8192,
+      "quantizer": "lloyd",
+      "sink_k": 4,
+      "ppl": 5.547750473022461,
+      "delta_fp16": 0.4834256172180176
+    },
+    "L8192_grid_sink0": {
+      "eval_len": 8192,
+      "quantizer": "grid",
+      "sink_k": 0,
+      "ppl": 6.188784122467041,
+      "delta_fp16": 1.1244592666625977
+    },
+    "L8192_grid_sink1": {
+      "eval_len": 8192,
+      "quantizer": "grid",
+      "sink_k": 1,
+      "ppl": 6.244415283203125,
+      "delta_fp16": 1.1800904273986816
+    },
+    "L8192_grid_sink4": {
+      "eval_len": 8192,
+      "quantizer": "grid",
+      "sink_k": 4,
+      "ppl": 6.230763912200928,
+      "delta_fp16": 1.1664390563964844
+    },
+    "L32768_lloyd_sink0": {
+      "eval_len": 32768,
+      "quantizer": "lloyd",
+      "sink_k": 0,
+      "ppl": 20.122798919677734,
+      "delta_fp16": 14.620603561401367
+    },
+    "L32768_lloyd_sink1": {
+      "eval_len": 32768,
+      "quantizer": "lloyd",
+      "sink_k": 1,
+      "ppl": 6.322203636169434,
+      "delta_fp16": 0.8200082778930664
+    },
+    "L32768_lloyd_sink4": {
+      "eval_len": 32768,
+      "quantizer": "lloyd",
+      "sink_k": 4,
+      "ppl": 6.330843925476074,
+      "delta_fp16": 0.828648567199707
+    },
+    "L32768_grid_sink0": {
+      "eval_len": 32768,
+      "quantizer": "grid",
+      "sink_k": 0,
+      "ppl": 7.215699195861816,
+      "delta_fp16": 1.7135038375854492
+    },
+    "L32768_grid_sink1": {
+      "eval_len": 32768,
+      "quantizer": "grid",
+      "sink_k": 1,
+      "ppl": 7.1200408935546875,
+      "delta_fp16": 1.6178455352783203
+    },
+    "L32768_grid_sink4": {
+      "eval_len": 32768,
+      "quantizer": "grid",
+      "sink_k": 4,
+      "ppl": 7.120129108428955,
+      "delta_fp16": 1.617933750152588
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "qwen2.5-1.5b": {
+    "model": "Qwen/Qwen2.5-1.5B",
+    "n_layers": 28,
+    "n_kv": 2,
+    "max_kappa": 18595.7109375,
+    "mean_pos0_attn_top32": 0.32821961944864597,
+    "predicted_mode": "Mode-A-mild (Lloyd+sink)",
+    "empirical_best_config": "lloyd_sink1",
+    "empirical_mode": "Mode-A (Lloyd+sink)",
+    "prediction_correct": true,
+    "ppl_fp16": 8.804321124624767,
+    "ppl_configs": {
+      "lloyd_sink0": 21.472798583278543,
+      "lloyd_sink1": 10.507960111911599,
+      "grid_sink0": 15.258027628810227,
+      "grid_sink1": 13.770206496102135
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "fp16": {
+    "2048": 5.391703128814697,
+    "32768": 5.502195358276367
+  },
+  "configs": {
+    "L2048_identity_lloyd_sink0": 99.81820678710938,
+    "L2048_identity_lloyd_sink1": 6.122170448303223,
+    "L2048_identity_grid_sink0": 10.338725090026855,
+    "L2048_identity_grid_sink1": 9.974876403808594,
+    "L2048_pca_lloyd_sink0": 9.964385032653809,
+    "L2048_pca_lloyd_sink1": 5.990218162536621,
+    "L2048_pca_grid_sink0": 6.434257984161377,
+    "L2048_pca_grid_sink1": 6.332261085510254,
+    "L32768_identity_lloyd_sink0": 961.5985107421875,
+    "L32768_identity_lloyd_sink1": 6.335964202880859,
+    "L32768_identity_grid_sink0": 17.489145278930664,
+    "L32768_identity_grid_sink1": 17.187166213989258,
+    "L32768_pca_lloyd_sink0": 20.122798919677734,
+    "L32768_pca_lloyd_sink1": 6.322203636169434,
+    "L32768_pca_grid_sink0": 7.215699195861816,
+    "L32768_pca_grid_sink1": 7.1200408935546875
+  }
+}
