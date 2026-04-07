@@ -718,13 +718,19 @@ Day 6-7: E6 (MMLU + NIAH 16K)
 - Direction-based Spherical만 contribution
 - L¹ Lloyd는 "marginal improvement" 수준으로 보고
 
-### 9.3 E3 FAIL ($D_{uniform}(b)$가 Shannon과 거의 동일)
+### 9.3 ~~E3 FAIL~~ → **E3 실제 결과 (2026-04-07)**: 원 가설 기각, 더 강한 finding 도출
 
-**함의**: floor=2 derivation 실패.
+**실측 결과**:
+- $D_{uniform}(b)$는 Shannon과 일치하지 않음 (단조 증가 $r(b)$)
+- 그러나 "knee at $b=1$"은 없음 → 원 Discrete-WF Theorem 기각
+- E3b로 확장: heterogeneous channels에서 **MSE-WF는 floor=0을 100% 선호** (24/24)
 
-**대응**:
-- $b_{crit}$ 정리로 우회 (coworker's Proposition 6 활용)
-- floor=2를 empirical calibration으로 표기, 이론 유도는 future work
+**대응 (현실)**:
+- ✅ 원 Discrete-WF Theorem 폐기
+- ✅ "MSE-PPL Allocation Gap" Proposition 으로 대체 (§1.2 Revised Proposition)
+- ✅ Lloyd 실패(Axis 2)와 통합된 서사로 강화
+- ✅ floor=2 justification은 Fisher/spherical metric 하 rate-distortion으로 이동 (future work 또는 E5 확장)
+- **결과적으로 논문 기여가 더 강화됨** (두 독립 현상의 통합)
 
 ### 9.4 E4 FAIL (L¹/Spherical이 Identity에서만 작동)
 
