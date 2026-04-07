@@ -803,13 +803,17 @@ Section 3: Lie Group Framework
     3.2.1 Proposition A: κ-proportional failure
     3.2.2 Proposition B: L^p hierarchy
     3.2.3 Proposition C: Spherical optimality
-  3.3 Axis 3 — Discrete-WF Theorem (floor=2 derivation)
-  3.4 Class C Maximality (Appendix)
+  3.3 Axis 3 — MSE-PPL Allocation Gap (E3/E3b 기반, 신규)
+    3.3.1 Unconstrained WF is MSE-optimal (E3b: 24/24)
+    3.3.2 Empirical PPL-optimal is floor=2 (v3)
+    3.3.3 Gap as Axis-3 manifestation of L² mismatch
+  3.4 Unified L²-PPL Failure across Axis 2 + Axis 3 (신규)
+  3.5 Class C Maximality (Appendix)
 
 Section 4: Empirical Verification
   4.1 E1: κ(M_KL) correlates with Lloyd failure
-  4.2 E2: Tail index predicts L¹ gain  
-  4.3 E3: D_uniform knee at b=2
+  4.2 E2: Tail index predicts L¹ gain
+  4.3 E3/E3b: D_uniform characterization + heterogeneous WF (완료)
   4.4 Main results: 3-model × 5-quantizer PPL
   4.5 E4: Cross-ablation validates axis independence
 
