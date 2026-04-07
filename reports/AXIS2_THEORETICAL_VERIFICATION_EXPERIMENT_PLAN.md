@@ -646,43 +646,55 @@ AXIS2 P0 (L¹ Lloyd + Spherical) 결과에서 **best quantizer** 1~2개 선정.
 
 ---
 
-## 8. 통합 타임라인
+## 8. 통합 타임라인 (업데이트, E3/E3b 완료 반영)
 
-### 8.1 병렬 실행 (GPU 2대 가정)
+### 8.0 완료 현황 (2026-04-07 17:30 KST)
 
 ```
-Day 1 (월)
-├─ CPU: E1 (κ 측정) + E2 (tail index) + E3 (D_uniform) — 1.5일 compressed
+[✅] Day 0 (오늘): E3 + E3b 완료 — 총 90초 CPU
+   ├─ E3: Gaussian single-channel rate-distortion → Max 1960 reference 4자리 일치
+   ├─ E3b: 8 spectra × 3 budgets × 4 floors = 96 cells → floor=0 100% win
+   └─ 결론: "MSE-PPL gap이 quantizer와 allocation 두 축에서 동시 발현" finding 확보
+```
+
+### 8.1 남은 작업 병렬 실행 (GPU 2대 가정)
+
+```
+Day 1 (내일)
+├─ CPU: E3 결과 기반 논문 Proposition 수정 작업 (half day)
 ├─ GPU 1: L¹ Lloyd 구현 + Mistral 2-bit 검증 (AXIS2 §13.1)
-└─ GPU 2: Spherical 구현 준비
+│        + 동시: E1 위해 attention logits 재수집 (Qwen calibration)
+└─ GPU 2: Spherical 구현 준비 + E1/E2 위해 PCA keys 수집
 
-Day 2-3 (화-수)
-├─ GPU 1: L¹ Lloyd × 3모델 × 2-bit + E4 Cross-ablation (Identity + TurboQuant 회전 × L¹ Lloyd)
-├─ GPU 2: Spherical × 3모델 × 2-bit + E4 Cross-ablation (× Spherical)
-└─ CPU: E1/E2/E3 분석 + plot 생성
+Day 2-3
+├─ GPU 1: L¹ Lloyd × 3모델 × 2-bit + E4 Cross-ablation (L¹)
+├─ GPU 2: Spherical × 3모델 × 2-bit + E4 Cross-ablation (Sph)
+└─ CPU: E1 (κ 측정) + E2 (Hill estimator) — 수집된 데이터 분석
 
-Day 4 (목)
-├─ GPU 1-2: E5 Per-token M_KL variance 분석 + best quantizer 선정
-└─ CPU: E4 cross-ablation table 작성
+Day 4
+├─ GPU 1-2: E5 Per-token M_KL variance + best quantizer 선정
+└─ CPU: E4 cross-ablation table 작성 + Proposition A/B 검증 플롯
 
-Day 5-6 (금-토)
+Day 5-6
 ├─ GPU 1: MMLU Qwen (2-bit + 3-bit)
 ├─ GPU 2: MMLU Llama (2-bit + 3-bit)
-└─ CPU: 논문 drafting (proposition A/B/C 결과 섹션)
+└─ CPU: 논문 drafting (Proposition A/B/C + Unified L²-PPL Gap)
 
-Day 7 (일)
+Day 7
 ├─ GPU 1: NIAH 16K (Qwen)
-└─ 결과 통합 + v5 보고서 작성
+└─ 결과 통합 + NEURIPS_VERIFICATION_REPORT_v5 작성
 ```
 
-**Total**: 7일 (병렬 최대) — AXIS2 plan P0 (5일)과 통합 시 **총 10일 이내 완료**
+**Total (E3/E3b 완료 기준)**: 7일 (병렬 최대) — AXIS2 plan P0 (5일)과 통합 시 **총 9일 이내 완료**
 
 ### 8.2 순차 실행 (GPU 1대)
 
-Day 1-1.5: E1+E2+E3 (CPU만, 병렬) + L¹ Lloyd 구현
-Day 2-4: L¹ + Spherical 측정 + E4
-Day 5: E5
-Day 6-7: E6 (MMLU + NIAH)
+~~Day 1-1.5: E1+E2+E3 (CPU만, 병렬) + L¹ Lloyd 구현~~ → **E3/E3b 완료, E1/E2 GPU 이전**
+
+Day 1: L¹ Lloyd 구현 + 단기 검증 (Mistral 2-bit) + E1/E2 data collection
+Day 2-4: L¹ + Spherical 3모델 측정 + E4 cross-ablation
+Day 5: E5 per-token variance
+Day 6-7: E6 (MMLU + NIAH 16K)
 **Total**: 7일
 
 ---
