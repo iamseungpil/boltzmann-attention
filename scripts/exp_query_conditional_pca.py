@@ -379,8 +379,6 @@ def compute_attention_with_selection(
         # For pca_all: reconstruct K in original space, standard attention
         if method == "pca_all":
             K_recon = K_pca_q @ chunk_evecs.T + K_mean_chunk.unsqueeze(0).unsqueeze(0)
-            K_recon_exp = K_recon.unsqueeze(2).expand(-1, -1, G, -1, -1).reshape(B, n_q_heads_per_kv := G, seq_kv, head_dim)
-            # Actually simpler: just repeat for GQA
             for g in range(G):
                 qh = hk * G + g
                 logits = torch.bmm(Q[:, qh].float(), K_recon.transpose(1, 2)) / math.sqrt(head_dim)
