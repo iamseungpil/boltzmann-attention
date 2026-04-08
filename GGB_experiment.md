@@ -903,6 +903,19 @@ the others to zero. This rules out a simple "facet mixing knob" UI and
 suggests compositional steering needs a different mechanism (e.g.,
 token-position-dependent $\beta$, multi-vector quantization).
 
+**Contribution 7 — Cross-architecture replication, model-specific β.**
+The facet injection mechanism generalizes across GQA architectures:
+Llama-3.1-8B reproduces all qualitative effects (topic replacement,
+historical fabrication, Paris→SF swap) at $\beta \approx 3.0$. However,
+Mistral's sweet spot $\beta = 0.75$ is near-invisible on Llama (PPL
+delta +0.07, zero GGB keywords). The phase transition β is
+model-specific because the residual stream operates at different
+absolute scales per model (Llama L23 category mean norm ~14.5 vs
+Mistral's smaller scale), so unit-normalized perturbations have
+different relative magnitude. Per-model β calibration (a ~10-minute
+sweep) is required for deployment. A closed-form β estimator from
+calibration statistics is open.
+
 ### 7.3 Cost comparison vs prior methods
 
 | method | training cost | inference cost | compositional | concept storage |
