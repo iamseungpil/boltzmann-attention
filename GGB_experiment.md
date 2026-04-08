@@ -948,6 +948,8 @@ value required differs by 4×.
 | 3c | Fine β sweep | $\beta = 0.75$ Pareto-optimal on Mistral-7B | Strong positive |
 | 4 | Per-facet gain cal | Winner-take-all in 3-way; per-facet gain does NOT balance | Strong negative (bounds) |
 | 5 | Llama-3.1-8B cross-arch | Mechanism generalizes; β does NOT (Llama needs β≈3.0, 4× Mistral) | Strong positive + limit |
+| 5a | Llama multi-layer | Single-layer fails on Llama too (L23 only = 0 GGB); Contribution 5 universal | Strong positive |
+| 5b | Llama anti-corr paradox | Paradox holds at sub-saturation β; inverts above saturation (regime-dependent) | Refinement |
 
 ### 7.2 Paper-grade contributions
 
