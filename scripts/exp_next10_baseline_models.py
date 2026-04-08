@@ -232,11 +232,12 @@ def main():
 
     print(f"\nLoading {model_id} ...", flush=True)
     t0 = time.time()
-    tok = AutoTokenizer.from_pretrained(model_id, use_fast=True, trust_remote_code=True)
+    trc = os.environ.get('TRUST_REMOTE_CODE', '0') == '1'
+    tok = AutoTokenizer.from_pretrained(model_id, use_fast=True, trust_remote_code=trc)
     model = AutoModelForCausalLM.from_pretrained(
         model_id, dtype=DTYPE, device_map='cuda:0',
         attn_implementation='eager', low_cpu_mem_usage=True,
-        trust_remote_code=True,
+        trust_remote_code=trc,
     )
     model.eval()
     cfg = model.config
