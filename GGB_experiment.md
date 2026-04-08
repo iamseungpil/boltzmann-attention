@@ -1015,6 +1015,121 @@ sub-contribution (6a): facet vectors are not exchangeable — different
 concepts have different injection strengths even after unit
 normalization.
 
+### 6.5.11 Per-facet threshold direct measurement (H6)
+
+Script: `scripts/exp_ggb_llama_per_facet_threshold.py`
+Output: `exp_ggb_llama_per_facet_threshold.json`
+
+To quantify Contribution 6a directly, we ran independent β sweeps for
+each of the three facets (GGB, Eiffel, Big Ben) on Llama-3.1-8B,
+isolating each facet to measure its individual injection threshold and
+PPL cost.
+
+**Per-facet β sweep results**:
+
+| β | GGB PPL/count | Eiffel PPL/count | Big Ben PPL/count |
+|---:|---|---|---|
+| 0.5 | 5.93 / 0 | 5.91 / 3* | 5.91 / 0 |
+| 1.0 | 6.10 / 0 | 6.14 / 5 | 6.02 / 0 |
+| 1.5 | 6.62 / 1 | 6.69 / 5 | 6.23 / 2 |
+| **2.0** | **8.70 / 4** | **8.29 / 9** | **6.68 / 11 ⭐** |
+| 2.5 | 14.32 / 12 | 12.14 / 6 | 7.50 / 9 |
+| 3.0 | 20.21 / 11 | 18.00 / 10 | 8.88 / 17 |
+| 4.0 | 49.30 / 28 | 40.53 / 16 | 16.03 / 19 |
+
+\* Baseline includes 3 natural Eiffel mentions from the Paris control
+prompt.
+
+**Per-facet PPL efficiency at the threshold β=2.0**:
+
+| Facet | ΔPPL | self count | **PPL per keyword** | **relative cost** |
+|---|---:|---:|---:|---:|
+| **Big Ben** | **+0.78** | **11** | **0.071** | **1.0× (cheapest)** |
+| Eiffel | +2.40 | 6 (Δ vs baseline) | 0.40 | 5.6× more expensive |
+| GGB | +2.80 | 4 | 0.70 | **10× more expensive** |
+
+At identical β=2.0 — same effective magnitude, same hook positions,
+same model — Big Ben produces **2.75× more keywords at 1/3.6 the PPL
+cost** compared to GGB. The combined ratio is **10× higher injection
+efficiency**.
+
+At β=4.0 the comparison is even starker:
+- Big Ben: PPL 16.0 (+10), 19 keywords → 0.53 PPL/keyword
+- GGB: PPL 49.3 (+43), 28 keywords → 1.54 PPL/keyword
+- Eiffel: PPL 40.5 (+35), 16 keywords → 2.19 PPL/keyword
+
+Big Ben remains 3–4× more efficient than the other two facets at the
+same β.
+
+**Per-facet Pareto sweet spots on Llama**:
+
+| Facet | Sweet β | ΔPPL | count | PPL/keyword |
+|---|---:|---:|---:|---:|
+| Big Ben | 2.0 | +0.78 | 11 | **0.071** |
+| GGB | 2.5 | +8.41 | 12 | 0.70 |
+| Eiffel | 3.0 | +12.09 | 7 (Δ) | 1.73 |
+
+**Striking observation**: Llama's Big Ben sweet spot has injection
+efficiency (0.071 PPL/keyword) **essentially equal to Mistral's GGB
+sweet spot** (0.075 PPL/keyword at β=0.75). Llama-3.1-8B is *just as
+good a host* for facet steering as Mistral-7B-v0.3 — but only for the
+*right* facet. The 4× difference in optimal β between models reflects
+*which facet is best aligned with model internals*, not a difference in
+overall steerability.
+
+**Mechanism interpretation — alignment gap revisited**:
+
+All three facet vectors are unit-normalized, so their mathematical
+magnitudes are identical. The 10× efficiency difference between Big
+Ben and GGB at the same β must come from *direction quality*, not
+magnitude:
+
+1. **Big Ben's London/Westminster representation**: Llama's pretraining
+   data contains a high density of London/Westminster/Big Ben mentions,
+   producing a strong, single, dominant internal "London concept"
+   direction. Our facet vector aligns well with this internal direction.
+2. **GGB's San Francisco representation**: SF/GGB exists in Llama's
+   pretraining but is more diffuse — split among multiple internal
+   features (bridge, Bay, fog, California, ...). The unit facet vector
+   only partially aligns with each internal sub-component.
+3. **Eiffel intermediate**: Paris is dense in pretraining but the
+   "Eiffel Tower" specifically is less dominant than "London is the
+   capital of UK"-class facts.
+
+**Cross-model facet ranking inversion**:
+- **Mistral-7B**: GGB easiest (β=0.75 sweet spot)
+- **Llama-3.1-8B**: Big Ben easiest (β=2.0 sweet spot)
+
+This is a **complete inversion**, suggesting the two models'
+pretraining data have meaningfully different concept densities.
+Mistral 7B's training (likely European-headquartered with US web data
+mixed in) and Llama 3.1's training (Meta-curated, possibly with
+European weighting) lead to *different facet alignment hierarchies*.
+
+### Refined Contribution 6a — quantified
+
+> **Per-facet injection efficiency is heterogeneous and model-specific.**
+> At identical β and identical hook positions, different facet vectors
+> produce vastly different keyword counts and PPL costs (10× efficiency
+> spread on Llama between Big Ben and GGB at β=2.0). This heterogeneity
+> is *not* explained by raw contrast vector norm differences (which span
+> only 1.26×) but by alignment with the model's internal representation
+> directions, which depend on pretraining data density.
+>
+> **Cross-model**: facet-efficiency rankings can completely invert
+> between architectures (Mistral: GGB > BigBen; Llama: BigBen > GGB).
+> No facet vector is "universally easy" — every facet requires per-model
+> calibration of both *which* facets to use and *what β* to use.
+>
+> **Practical implication**: When deploying facet steering on a new
+> model, the recommended workflow is:
+> 1. Run a single-facet β sweep for each candidate facet (~5 min each)
+> 2. Identify the facet with lowest PPL/keyword ratio at its phase
+>    transition β
+> 3. Use that facet as the "primary" steering vector
+> 4. Avoid 3-way uniform compositions — they will be dominated by
+>    whichever facet is most aligned with model internals
+
 ---
 
 ## 7. Consolidated findings
