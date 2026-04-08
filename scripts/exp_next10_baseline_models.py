@@ -84,15 +84,42 @@ def compute_ppl(model, ids):
         return float(np.exp(total_loss / total_n))
 
 
+def get_k_module(layer):
+    """Return (module, slice_fn, recombine_fn) for the layer's K projection.
+    slice_fn(out) -> K tensor of shape (B, T, n_kv*head_dim)
+    recombine_fn(out, K_new) -> new full output tensor with K replaced.
+    Handles both standard k_proj and Phi-3 fused qkv_proj.
+    """
+    sa = layer.self_attn
+    if hasattr(sa, 'k_proj'):
+        return sa.k_proj, (lambda out: out), (lambda out, K_new: K_new)
+    if hasattr(sa, 'qkv_proj'):
+        # Phi-3 style fused: out = [Q | K | V] along last dim
+        n_q = sa.config.num_attention_heads
+        n_kv = sa.config.num_key_value_heads
+        hd = getattr(sa.config, 'head_dim', None) or (sa.config.hidden_size // n_q)
+        q_sz = n_q * hd
+        k_sz = n_kv * hd
+        def slc(out): return out[..., q_sz:q_sz + k_sz]
+        def rec(out, K_new):
+            out2 = out.clone()
+            out2[..., q_sz:q_sz + k_sz] = K_new
+            return out2
+        return sa.qkv_proj, slc, rec
+    raise RuntimeError("Layer has neither k_proj nor qkv_proj")
+
+
 class QuantHook:
-    def __init__(self, n_kv, head_dim, V_list, mean_list, cents_list, sink_k):
+    def __init__(self, n_kv, head_dim, V_list, mean_list, cents_list, sink_k, slc, rec):
         self.n_kv = n_kv; self.head_dim = head_dim
         self.V_list = V_list; self.mean_list = mean_list
         self.cents_list = cents_list; self.sink_k = sink_k
+        self.slc = slc; self.rec = rec
 
     def __call__(self, module, inputs, output):
-        B, T, _ = output.shape
-        x_orig = output.view(B, T, self.n_kv, self.head_dim).float().cpu().numpy()
+        K_full = self.slc(output)  # (B, T, n_kv*head_dim)
+        B, T, _ = K_full.shape
+        x_orig = K_full.view(B, T, self.n_kv, self.head_dim).float().cpu().numpy()
         x = x_orig.copy()
         for hk in range(self.n_kv):
             V = self.V_list[hk]; m = self.mean_list[hk]; cents = self.cents_list[hk]
@@ -113,15 +140,22 @@ class QuantHook:
         if self.sink_k > 0:
             k = min(self.sink_k, T)
             x[:, :k, :, :] = x_orig[:, :k, :, :]
-        return torch.from_numpy(x).to(output.device).to(output.dtype).view(B, T, self.n_kv * self.head_dim)
+        K_new = torch.from_numpy(x).to(output.device).to(output.dtype).view(B, T, self.n_kv * self.head_dim)
+        return self.rec(output, K_new)
 
 
 def calibrate(model, ids, n_layers, n_kv, head_dim):
     pl = {}
-    def mk(li):
-        def h(m, i, o): pl[li] = o.detach().cpu().float().numpy()
+    slcs = {}
+    def mk(li, slc):
+        def h(m, i, o):
+            pl[li] = slc(o).detach().cpu().float().numpy()
         return h
-    handles = [model.model.layers[li].self_attn.k_proj.register_forward_hook(mk(li)) for li in range(n_layers)]
+    handles = []
+    for li in range(n_layers):
+        kmod, slc, rec = get_k_module(model.model.layers[li])
+        slcs[li] = (slc, rec)
+        handles.append(kmod.register_forward_hook(mk(li, slc)))
     with torch.no_grad():
         _ = model(ids, use_cache=False)
     for h in handles: h.remove()
