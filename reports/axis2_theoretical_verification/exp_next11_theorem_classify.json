@@ -1,0 +1,749 @@
+{
+  "llama-2-7b-hf": {
+    "model": "NousResearch/Llama-2-7b-hf",
+    "short_name": "llama-2-7b-hf",
+    "n_layers": 32,
+    "n_q": 32,
+    "n_kv": 32,
+    "head_dim": 128,
+    "n_total_heads": 1024,
+    "kappa_max": 707892736.0,
+    "max_pos0_all": 0.7964643239974976,
+    "max_pos0_high_kappa": 0.4276992976665497,
+    "n_high_kappa_heads": 53,
+    "n_cor64_witnesses": 0,
+    "mean_pos0_top32_kappa": 0.006070353800168959,
+    "mode_theorem": "B (Cor 6.5: distributed structural tail)",
+    "mode_v51": "B",
+    "cor64_witness_heads": [],
+    "all_high_kappa_heads": [
+      {
+        "layer": 2,
+        "kv_head": 26,
+        "kappa": 1982949.625,
+        "pos0": 0.4276992976665497
+      },
+      {
+        "layer": 1,
+        "kv_head": 11,
+        "kappa": 2212395.5,
+        "pos0": 0.03947192430496216
+      },
+      {
+        "layer": 1,
+        "kv_head": 24,
+        "kappa": 1448842.875,
+        "pos0": 0.02935914508998394
+      },
+      {
+        "layer": 1,
+        "kv_head": 31,
+        "kappa": 4045123.5,
+        "pos0": 0.029234647750854492
+      },
+      {
+        "layer": 1,
+        "kv_head": 15,
+        "kappa": 1183718.0,
+        "pos0": 0.02657099813222885
+      },
+      {
+        "layer": 1,
+        "kv_head": 9,
+        "kappa": 31480536.0,
+        "pos0": 0.021762801334261894
+      },
+      {
+        "layer": 1,
+        "kv_head": 8,
+        "kappa": 10858324.0,
+        "pos0": 0.02103300392627716
+      },
+      {
+        "layer": 1,
+        "kv_head": 29,
+        "kappa": 1278346.375,
+        "pos0": 0.016477204859256744
+      },
+      {
+        "layer": 1,
+        "kv_head": 14,
+        "kappa": 2531465.0,
+        "pos0": 0.015617422759532928
+      },
+      {
+        "layer": 1,
+        "kv_head": 19,
+        "kappa": 3222774.25,
+        "pos0": 0.015207399614155293
+      },
+      {
+        "layer": 1,
+        "kv_head": 1,
+        "kappa": 2244483.25,
+        "pos0": 0.015172906219959259
+      },
+      {
+        "layer": 1,
+        "kv_head": 0,
+        "kappa": 1180095.25,
+        "pos0": 0.015158155933022499
+      },
+      {
+        "layer": 0,
+        "kv_head": 29,
+        "kappa": 96117824.0,
+        "pos0": 0.015143446624279022
+      },
+      {
+        "layer": 1,
+        "kv_head": 21,
+        "kappa": 2657613.0,
+        "pos0": 0.014511771500110626
+      },
+      {
+        "layer": 1,
+        "kv_head": 20,
+        "kappa": 4946459.0,
+        "pos0": 0.01387333869934082
+      },
+      {
+        "layer": 1,
+        "kv_head": 30,
+        "kappa": 3477877.5,
+        "pos0": 0.013007130473852158
+      },
+      {
+        "layer": 1,
+        "kv_head": 3,
+        "kappa": 2817851.75,
+        "pos0": 0.010645456612110138
+      },
+      {
+        "layer": 1,
+        "kv_head": 17,
+        "kappa": 4221976.0,
+        "pos0": 0.010461341589689255
+      },
+      {
+        "layer": 0,
+        "kv_head": 13,
+        "kappa": 346913600.0,
+        "pos0": 0.010386783629655838
+      },
+      {
+        "layer": 1,
+        "kv_head": 7,
+        "kappa": 12804943.0,
+        "pos0": 0.010142572224140167
+      }
+    ]
+  },
+  "phi-3-mini-4k-instruct": {
+    "model": "microsoft/Phi-3-mini-4k-instruct",
+    "short_name": "phi-3-mini-4k-instruct",
+    "n_layers": 32,
+    "n_q": 32,
+    "n_kv": 32,
+    "head_dim": 96,
+    "n_total_heads": 1024,
+    "kappa_max": 4155397373952.0,
+    "max_pos0_all": 0.6597384810447693,
+    "max_pos0_high_kappa": 0.008928992785513401,
+    "n_high_kappa_heads": 85,
+    "n_cor64_witnesses": 0,
+    "mean_pos0_top32_kappa": 0.003142417350318283,
+    "mode_theorem": "B (Cor 6.5: distributed structural tail)",
+    "mode_v51": "B",
+    "cor64_witness_heads": [],
+    "all_high_kappa_heads": [
+      {
+        "layer": 1,
+        "kv_head": 5,
+        "kappa": 16527625.0,
+        "pos0": 0.008928992785513401
+      },
+      {
+        "layer": 2,
+        "kv_head": 21,
+        "kappa": 3112141.0,
+        "pos0": 0.008502782322466373
+      },
+      {
+        "layer": 1,
+        "kv_head": 24,
+        "kappa": 26225078.0,
+        "pos0": 0.007697137072682381
+      },
+      {
+        "layer": 1,
+        "kv_head": 22,
+        "kappa": 9687541.0,
+        "pos0": 0.007571050431579351
+      },
+      {
+        "layer": 1,
+        "kv_head": 16,
+        "kappa": 41299656.0,
+        "pos0": 0.007164560258388519
+      },
+      {
+        "layer": 1,
+        "kv_head": 7,
+        "kappa": 7117095.0,
+        "pos0": 0.007113297004252672
+      },
+      {
+        "layer": 0,
+        "kv_head": 6,
+        "kappa": 655990720.0,
+        "pos0": 0.007026621140539646
+      },
+      {
+        "layer": 2,
+        "kv_head": 13,
+        "kappa": 1118024.25,
+        "pos0": 0.007003678008913994
+      },
+      {
+        "layer": 1,
+        "kv_head": 11,
+        "kappa": 1668326.5,
+        "pos0": 0.006866005249321461
+      },
+      {
+        "layer": 2,
+        "kv_head": 30,
+        "kappa": 5768892.0,
+        "pos0": 0.00679960660636425
+      },
+      {
+        "layer": 2,
+        "kv_head": 16,
+        "kappa": 1361549.5,
+        "pos0": 0.006697194185107946
+      },
+      {
+        "layer": 1,
+        "kv_head": 28,
+        "kappa": 16091144.0,
+        "pos0": 0.006447149906307459
+      },
+      {
+        "layer": 1,
+        "kv_head": 0,
+        "kappa": 16660551.0,
+        "pos0": 0.006286866031587124
+      },
+      {
+        "layer": 1,
+        "kv_head": 17,
+        "kappa": 17829222.0,
+        "pos0": 0.00612618587911129
+      },
+      {
+        "layer": 2,
+        "kv_head": 2,
+        "kappa": 6244808.5,
+        "pos0": 0.006042754743248224
+      },
+      {
+        "layer": 1,
+        "kv_head": 18,
+        "kappa": 23700102.0,
+        "pos0": 0.005884292535483837
+      },
+      {
+        "layer": 1,
+        "kv_head": 23,
+        "kappa": 11052074.0,
+        "pos0": 0.005881622899323702
+      },
+      {
+        "layer": 1,
+        "kv_head": 31,
+        "kappa": 20444254.0,
+        "pos0": 0.005853908136487007
+      },
+      {
+        "layer": 2,
+        "kv_head": 26,
+        "kappa": 6668357.5,
+        "pos0": 0.00574503606185317
+      },
+      {
+        "layer": 2,
+        "kv_head": 15,
+        "kappa": 4459234.5,
+        "pos0": 0.005737457424402237
+      }
+    ]
+  },
+  "meta-llama-3.1-8b": {
+    "model": "NousResearch/Meta-Llama-3.1-8B",
+    "short_name": "meta-llama-3.1-8b",
+    "n_layers": 32,
+    "n_q": 32,
+    "n_kv": 8,
+    "head_dim": 128,
+    "n_total_heads": 256,
+    "kappa_max": 18904798.0,
+    "max_pos0_all": 0.9563255906105042,
+    "max_pos0_high_kappa": 0.8531070351600647,
+    "n_high_kappa_heads": 12,
+    "n_cor64_witnesses": 9,
+    "mean_pos0_top32_kappa": 0.5677110850811005,
+    "mode_theorem": "A (Cor 6.4: localized positional sink)",
+    "mode_v51": "A",
+    "cor64_witness_heads": [
+      {
+        "layer": 1,
+        "kv_head": 6,
+        "kappa": 10581912.0,
+        "pos0": 0.8531070351600647
+      },
+      {
+        "layer": 1,
+        "kv_head": 1,
+        "kappa": 15565842.0,
+        "pos0": 0.8504959344863892
+      },
+      {
+        "layer": 1,
+        "kv_head": 4,
+        "kappa": 6769955.0,
+        "pos0": 0.8282300233840942
+      },
+      {
+        "layer": 0,
+        "kv_head": 7,
+        "kappa": 14656202.0,
+        "pos0": 0.8213351964950562
+      },
+      {
+        "layer": 1,
+        "kv_head": 0,
+        "kappa": 18904798.0,
+        "pos0": 0.7252841591835022
+      },
+      {
+        "layer": 1,
+        "kv_head": 3,
+        "kappa": 14242444.0,
+        "pos0": 0.7163565754890442
+      },
+      {
+        "layer": 1,
+        "kv_head": 5,
+        "kappa": 5786184.0,
+        "pos0": 0.674034595489502
+      },
+      {
+        "layer": 1,
+        "kv_head": 2,
+        "kappa": 2097172.0,
+        "pos0": 0.5942642688751221
+      },
+      {
+        "layer": 1,
+        "kv_head": 7,
+        "kappa": 1709854.5,
+        "pos0": 0.5222284197807312
+      }
+    ],
+    "all_high_kappa_heads": [
+      {
+        "layer": 1,
+        "kv_head": 6,
+        "kappa": 10581912.0,
+        "pos0": 0.8531070351600647
+      },
+      {
+        "layer": 1,
+        "kv_head": 1,
+        "kappa": 15565842.0,
+        "pos0": 0.8504959344863892
+      },
+      {
+        "layer": 1,
+        "kv_head": 4,
+        "kappa": 6769955.0,
+        "pos0": 0.8282300233840942
+      },
+      {
+        "layer": 0,
+        "kv_head": 7,
+        "kappa": 14656202.0,
+        "pos0": 0.8213351964950562
+      },
+      {
+        "layer": 1,
+        "kv_head": 0,
+        "kappa": 18904798.0,
+        "pos0": 0.7252841591835022
+      },
+      {
+        "layer": 1,
+        "kv_head": 3,
+        "kappa": 14242444.0,
+        "pos0": 0.7163565754890442
+      },
+      {
+        "layer": 1,
+        "kv_head": 5,
+        "kappa": 5786184.0,
+        "pos0": 0.674034595489502
+      },
+      {
+        "layer": 1,
+        "kv_head": 2,
+        "kappa": 2097172.0,
+        "pos0": 0.5942642688751221
+      },
+      {
+        "layer": 1,
+        "kv_head": 7,
+        "kappa": 1709854.5,
+        "pos0": 0.5222284197807312
+      },
+      {
+        "layer": 0,
+        "kv_head": 4,
+        "kappa": 1004272.5625,
+        "pos0": 0.4116615951061249
+      },
+      {
+        "layer": 0,
+        "kv_head": 5,
+        "kappa": 2383778.75,
+        "pos0": 0.16505223512649536
+      },
+      {
+        "layer": 0,
+        "kv_head": 0,
+        "kappa": 1513185.875,
+        "pos0": 0.09754989296197891
+      }
+    ]
+  },
+  "mistral-7b-v0.3": {
+    "model": "mistralai/Mistral-7B-v0.3",
+    "short_name": "mistral-7b-v0.3",
+    "n_layers": 32,
+    "n_q": 32,
+    "n_kv": 8,
+    "head_dim": 128,
+    "n_total_heads": 256,
+    "kappa_max": 37019060.0,
+    "max_pos0_all": 0.824794590473175,
+    "max_pos0_high_kappa": 0.824794590473175,
+    "n_high_kappa_heads": 15,
+    "n_cor64_witnesses": 10,
+    "mean_pos0_top32_kappa": 0.5626159060047939,
+    "mode_theorem": "A (Cor 6.4: localized positional sink)",
+    "mode_v51": "A",
+    "cor64_witness_heads": [
+      {
+        "layer": 1,
+        "kv_head": 4,
+        "kappa": 3448177.5,
+        "pos0": 0.824794590473175
+      },
+      {
+        "layer": 1,
+        "kv_head": 5,
+        "kappa": 4169518.25,
+        "pos0": 0.8018223643302917
+      },
+      {
+        "layer": 1,
+        "kv_head": 6,
+        "kappa": 3014069.0,
+        "pos0": 0.7878917455673218
+      },
+      {
+        "layer": 1,
+        "kv_head": 2,
+        "kappa": 3409002.0,
+        "pos0": 0.7608873844146729
+      },
+      {
+        "layer": 1,
+        "kv_head": 0,
+        "kappa": 2946003.0,
+        "pos0": 0.7489848136901855
+      },
+      {
+        "layer": 0,
+        "kv_head": 1,
+        "kappa": 37019060.0,
+        "pos0": 0.7028507590293884
+      },
+      {
+        "layer": 0,
+        "kv_head": 3,
+        "kappa": 10762017.0,
+        "pos0": 0.637397825717926
+      },
+      {
+        "layer": 1,
+        "kv_head": 1,
+        "kappa": 1179553.75,
+        "pos0": 0.6306016445159912
+      },
+      {
+        "layer": 1,
+        "kv_head": 7,
+        "kappa": 2264713.25,
+        "pos0": 0.5551683306694031
+      },
+      {
+        "layer": 0,
+        "kv_head": 5,
+        "kappa": 16798656.0,
+        "pos0": 0.543911337852478
+      }
+    ],
+    "all_high_kappa_heads": [
+      {
+        "layer": 1,
+        "kv_head": 4,
+        "kappa": 3448177.5,
+        "pos0": 0.824794590473175
+      },
+      {
+        "layer": 1,
+        "kv_head": 5,
+        "kappa": 4169518.25,
+        "pos0": 0.8018223643302917
+      },
+      {
+        "layer": 1,
+        "kv_head": 6,
+        "kappa": 3014069.0,
+        "pos0": 0.7878917455673218
+      },
+      {
+        "layer": 1,
+        "kv_head": 2,
+        "kappa": 3409002.0,
+        "pos0": 0.7608873844146729
+      },
+      {
+        "layer": 1,
+        "kv_head": 0,
+        "kappa": 2946003.0,
+        "pos0": 0.7489848136901855
+      },
+      {
+        "layer": 0,
+        "kv_head": 1,
+        "kappa": 37019060.0,
+        "pos0": 0.7028507590293884
+      },
+      {
+        "layer": 0,
+        "kv_head": 3,
+        "kappa": 10762017.0,
+        "pos0": 0.637397825717926
+      },
+      {
+        "layer": 1,
+        "kv_head": 1,
+        "kappa": 1179553.75,
+        "pos0": 0.6306016445159912
+      },
+      {
+        "layer": 1,
+        "kv_head": 7,
+        "kappa": 2264713.25,
+        "pos0": 0.5551683306694031
+      },
+      {
+        "layer": 0,
+        "kv_head": 5,
+        "kappa": 16798656.0,
+        "pos0": 0.543911337852478
+      },
+      {
+        "layer": 0,
+        "kv_head": 0,
+        "kappa": 27899252.0,
+        "pos0": 0.46118807792663574
+      },
+      {
+        "layer": 0,
+        "kv_head": 2,
+        "kappa": 10107442.0,
+        "pos0": 0.38459232449531555
+      },
+      {
+        "layer": 0,
+        "kv_head": 7,
+        "kappa": 33093218.0,
+        "pos0": 0.12649402022361755
+      },
+      {
+        "layer": 0,
+        "kv_head": 6,
+        "kappa": 21996512.0,
+        "pos0": 0.06725907325744629
+      },
+      {
+        "layer": 0,
+        "kv_head": 4,
+        "kappa": 16226817.0,
+        "pos0": 0.020155135542154312
+      }
+    ]
+  },
+  "qwen2.5-7b": {
+    "model": "Qwen/Qwen2.5-7B",
+    "short_name": "qwen2.5-7b",
+    "n_layers": 28,
+    "n_q": 28,
+    "n_kv": 4,
+    "head_dim": 128,
+    "n_total_heads": 112,
+    "kappa_max": 66775.578125,
+    "max_pos0_all": 0.888916552066803,
+    "max_pos0_high_kappa": 0.0,
+    "n_high_kappa_heads": 0,
+    "n_cor64_witnesses": 0,
+    "mean_pos0_top32_kappa": 0.32142548241245095,
+    "mode_theorem": "C (Cor 6.6: low anisotropy, bulk-tail)",
+    "mode_v51": "C",
+    "cor64_witness_heads": [],
+    "all_high_kappa_heads": []
+  },
+  "qwen2.5-14b": {
+    "model": "Qwen/Qwen2.5-14B",
+    "short_name": "qwen2.5-14b",
+    "n_layers": 48,
+    "n_q": 40,
+    "n_kv": 8,
+    "head_dim": 128,
+    "n_total_heads": 384,
+    "kappa_max": 46919528.0,
+    "max_pos0_all": 0.9021551609039307,
+    "max_pos0_high_kappa": 0.007060328032821417,
+    "n_high_kappa_heads": 12,
+    "n_cor64_witnesses": 0,
+    "mean_pos0_top32_kappa": 0.027632687448203797,
+    "mode_theorem": "B (Cor 6.5: distributed structural tail)",
+    "mode_v51": "B",
+    "cor64_witness_heads": [],
+    "all_high_kappa_heads": [
+      {
+        "layer": 2,
+        "kv_head": 1,
+        "kappa": 4864228.5,
+        "pos0": 0.007060328032821417
+      },
+      {
+        "layer": 2,
+        "kv_head": 6,
+        "kappa": 2266326.5,
+        "pos0": 0.005349481012672186
+      },
+      {
+        "layer": 1,
+        "kv_head": 3,
+        "kappa": 3588607.0,
+        "pos0": 0.004217240028083324
+      },
+      {
+        "layer": 2,
+        "kv_head": 5,
+        "kappa": 2034141.5,
+        "pos0": 0.003841246711090207
+      },
+      {
+        "layer": 2,
+        "kv_head": 4,
+        "kappa": 1927505.75,
+        "pos0": 0.0038306359201669693
+      },
+      {
+        "layer": 1,
+        "kv_head": 0,
+        "kappa": 9292536.0,
+        "pos0": 0.0032972528133541346
+      },
+      {
+        "layer": 2,
+        "kv_head": 2,
+        "kappa": 1763138.75,
+        "pos0": 0.0032071792520582676
+      },
+      {
+        "layer": 1,
+        "kv_head": 2,
+        "kappa": 21232078.0,
+        "pos0": 0.0029065676499158144
+      },
+      {
+        "layer": 1,
+        "kv_head": 6,
+        "kappa": 31024942.0,
+        "pos0": 0.002831940772011876
+      },
+      {
+        "layer": 1,
+        "kv_head": 5,
+        "kappa": 1092128.875,
+        "pos0": 0.0019527417607605457
+      },
+      {
+        "layer": 1,
+        "kv_head": 4,
+        "kappa": 46919528.0,
+        "pos0": 0.0016439444152638316
+      },
+      {
+        "layer": 1,
+        "kv_head": 1,
+        "kappa": 9127322.0,
+        "pos0": 0.0013573704054579139
+      }
+    ]
+  },
+  "qwen2-7b": {
+    "model": "Qwen/Qwen2-7B",
+    "short_name": "qwen2-7b",
+    "n_layers": 28,
+    "n_q": 28,
+    "n_kv": 4,
+    "head_dim": 128,
+    "n_total_heads": 112,
+    "kappa_max": 82905.90625,
+    "max_pos0_all": 0.9026719927787781,
+    "max_pos0_high_kappa": 0.0,
+    "n_high_kappa_heads": 0,
+    "n_cor64_witnesses": 0,
+    "mean_pos0_top32_kappa": 0.31657716511472245,
+    "mode_theorem": "C (Cor 6.6: low anisotropy, bulk-tail)",
+    "mode_v51": "C",
+    "cor64_witness_heads": [],
+    "all_high_kappa_heads": []
+  },
+  "qwen2.5-0.5b-instruct": {
+    "model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "short_name": "qwen2.5-0.5b-instruct",
+    "n_layers": 24,
+    "n_q": 14,
+    "n_kv": 2,
+    "head_dim": 64,
+    "n_total_heads": 48,
+    "kappa_max": 293379.125,
+    "max_pos0_all": 0.8435996770858765,
+    "max_pos0_high_kappa": 0.0,
+    "n_high_kappa_heads": 0,
+    "n_cor64_witnesses": 0,
+    "mean_pos0_top32_kappa": 0.31383993344934424,
+    "mode_theorem": "B (Cor 6.5: distributed structural tail)",
+    "mode_v51": "BOUNDARY",
+    "cor64_witness_heads": [],
+    "all_high_kappa_heads": []
+  }
+}
