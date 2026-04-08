@@ -127,8 +127,11 @@ class QuantHook:
         x_back = x_back + mean_t[None, None]
         # protect first sink_k positions in FP16
         if self.sink_k > 0:
+            x_back = x_back.clone()
             x_back[:, : self.sink_k] = x4[:, : self.sink_k]
-        return x_back.reshape(B, T, D).contiguous()
+        # Force contiguous memory layout, then collapse last 2 dims to D.
+        # Cannot use .view() because einsum may produce non-contiguous strides.
+        return x_back.contiguous().flatten(start_dim=2)
 
 
 def calibrate(model, ids, n_layers, n_kv, head_dim):
