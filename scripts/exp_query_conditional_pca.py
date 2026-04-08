@@ -333,66 +333,87 @@ def compute_attention_with_selection(
         output = torch.matmul(weights, V_exp)
         return output, weights.float()
 
-    # For all PCA-based methods: quantize K in PCA space, then apply selection
+    # For PCA-based methods: per-chunk PCA (matching v3 fokvq protocol)
     all_outputs = []
     all_weights = []
 
     for hk in range(n_kv_heads):
         cal = calib_dict[hk]
-        V_pca = cal.V.to(Q.device, dtype=torch.float32)
-        evals = cal.evals.to(Q.device, dtype=torch.float32)
-        K_mean = cal.K_mean.to(Q.device, dtype=torch.float32)
-        qnv = cal.quant_noise_var.to(Q.device, dtype=torch.float32)
+        # Calibration stats used for dimension selection scoring only
+        cal_evals = cal.evals.to(Q.device, dtype=torch.float32)
+        cal_qnv = cal.quant_noise_var.to(Q.device, dtype=torch.float32)
 
-        # Get K for this KV head: (B, seq_kv, d)
         K_head = K_fp16[:, hk].float()  # (B, seq_kv, d)
         V_head = V[:, hk]  # (B, seq_kv, d)
 
-        # PCA transform
-        K_centered = K_head - K_mean.unsqueeze(0).unsqueeze(0)
-        K_pca = K_centered @ V_pca  # (B, seq_kv, d)
+        # Per-chunk PCA (like v3 fokvq_quantize_head): compute PCA on this chunk's K
+        # This matches the existing baseline protocol where PPL=6.7
+        K_flat = K_head.reshape(-1, head_dim)  # (B*seq_kv, d)
+        K_mean_chunk = K_flat.mean(0)
+        K_c = K_flat - K_mean_chunk
+        cov = (K_c.T @ K_c) / max(K_c.shape[0] - 1, 1)
+        cov += torch.eye(head_dim, device=Q.device) * 1e-8
+        chunk_evals, chunk_evecs = torch.linalg.eigh(cov)
+        idx = torch.argsort(chunk_evals, descending=True)
+        chunk_evals = chunk_evals[idx]
+        chunk_evecs = chunk_evecs[:, idx]
 
-        # Quantize in PCA space — vectorized per-dim uniform quantization
+        # PCA transform with per-chunk basis
+        K_centered = K_head - K_mean_chunk.unsqueeze(0).unsqueeze(0)
+        K_pca = K_centered @ chunk_evecs  # (B, seq_kv, d)
+
+        # Quantize in PCA space
         if "fp16_topk" in method:
-            K_pca_q = K_pca  # no quantization for FP16 control
+            K_pca_q = K_pca
         else:
-            # Per-dim asymmetric uniform quantization: (B, seq_kv, d)
             n_lev = 2 ** bits
-            c_min = K_pca.amin(dim=1, keepdim=True)  # (B, 1, d)
-            c_max = K_pca.amax(dim=1, keepdim=True)  # (B, 1, d)
+            c_min = K_pca.amin(dim=1, keepdim=True)
+            c_max = K_pca.amax(dim=1, keepdim=True)
             rng = (c_max - c_min).clamp(min=1e-10)
             step = rng / (n_lev - 1)
             K_pca_q = torch.round((K_pca - c_min) / step) * step + c_min
 
-        # Process each query head in this GQA group
+        # Measure per-chunk quant noise for selection scoring
+        chunk_qnv = (K_pca - K_pca_q).pow(2).mean(dim=(0, 1))  # (d,)
+
+        # For pca_all: reconstruct K in original space, standard attention
+        if method == "pca_all":
+            K_recon = K_pca_q @ chunk_evecs.T + K_mean_chunk.unsqueeze(0).unsqueeze(0)
+            K_recon_exp = K_recon.unsqueeze(2).expand(-1, -1, G, -1, -1).reshape(B, n_q_heads_per_kv := G, seq_kv, head_dim)
+            # Actually simpler: just repeat for GQA
+            for g in range(G):
+                qh = hk * G + g
+                logits = torch.bmm(Q[:, qh].float(), K_recon.transpose(1, 2)) / math.sqrt(head_dim)
+                if causal_mask is not None:
+                    logits = logits + causal_mask[:, qh, :seq_q, :seq_kv]
+                weights = F.softmax(logits, dim=-1, dtype=torch.float32)
+                out = torch.bmm(weights.to(V_head.dtype), V_head)
+                all_outputs.append(out)
+                all_weights.append(weights)
+            continue
+
+        # For topk methods: attention in PCA space with dimension selection
         for g in range(G):
             qh = hk * G + g
-            Q_head = Q[:, qh].float()  # (B, seq_q, d)
+            Q_head_g = Q[:, qh].float()
+            Q_pca = Q_head_g @ chunk_evecs  # (B, seq_q, d)
 
-            # Project Q to PCA space (Q does NOT subtract K_mean)
-            Q_pca = Q_head @ V_pca  # (B, seq_q, d)
-
-            # Vectorized attention: avoid per-batch loop
-            # For methods with static masks, apply once
-            if method in ("pca_all", "fp16"):
-                logits = torch.bmm(Q_pca, K_pca_q.transpose(1, 2)) / math.sqrt(head_dim)
-            elif method == "pca_topk_fixed":
-                fmask = select_dims_fixed(evals, qnv, m, head_dim).to(Q.device).float()
-                Q_masked = Q_pca * fmask.unsqueeze(0).unsqueeze(0)  # (B, seq_q, d)
+            if method == "pca_topk_fixed":
+                fmask = select_dims_fixed(chunk_evals, chunk_qnv, m, head_dim).to(Q.device).float()
+                Q_masked = Q_pca * fmask.unsqueeze(0).unsqueeze(0)
                 logits = torch.bmm(Q_masked, K_pca_q.transpose(1, 2)) / math.sqrt(head_dim)
             elif method == "pca_topk_random":
                 rmask = select_dims_random(m, head_dim, seed=42 + hk).to(Q.device).float()
                 Q_masked = Q_pca * rmask.unsqueeze(0).unsqueeze(0)
                 logits = torch.bmm(Q_masked, K_pca_q.transpose(1, 2)) / math.sqrt(head_dim)
             elif method in ("pca_topk_query", "fp16_topk_query"):
-                # Per-query selection: need per-batch processing but vectorize over queries
                 logits_list = []
                 for b in range(B):
-                    mask = select_dims_query_conditional(Q_pca[b], evals, qnv, m)
-                    Q_masked = Q_pca[b] * mask.float()  # (seq_q, d)
+                    mask = select_dims_query_conditional(Q_pca[b], chunk_evals, chunk_qnv, m)
+                    Q_masked = Q_pca[b] * mask.float()
                     logits_b = (Q_masked @ K_pca_q[b].T) / math.sqrt(head_dim)
                     logits_list.append(logits_b)
-                logits = torch.stack(logits_list)  # (B, seq_q, seq_kv)
+                logits = torch.stack(logits_list)
             elif method == "pca_topk_oracle":
                 logits_list = []
                 for b in range(B):
@@ -404,13 +425,11 @@ def compute_attention_with_selection(
             else:
                 raise ValueError(f"Unknown method: {method}")
 
-            # Apply causal mask
             if causal_mask is not None:
-                cm = causal_mask[:, qh, :seq_q, :seq_kv]  # (B, seq_q, seq_kv)
-                logits = logits + cm
+                logits = logits + causal_mask[:, qh, :seq_q, :seq_kv]
 
             weights = F.softmax(logits, dim=-1, dtype=torch.float32)
-            out = torch.bmm(weights.to(V_head.dtype), V_head)  # (B, seq_q, d)
+            out = torch.bmm(weights.to(V_head.dtype), V_head)
             all_outputs.append(out)
             all_weights.append(weights)
 
@@ -710,7 +729,7 @@ class QueryConditionalAttentionPatcher:
 
             attn_output = attn_output.transpose(1, 2).contiguous()
             attn_output = attn_output.reshape(bsz, q_len, -1)
-            attn_output = attn_module.o_proj(attn_output)
+            attn_output = attn_module.o_proj(attn_output.to(hidden_states.dtype))
 
             return attn_output, attn_weights if output_attentions else None
 
