@@ -63,9 +63,39 @@ def block_lipschitz_from_svds(svds: dict, d_model: int, d_head: int) -> float:
 
 
 @torch.no_grad()
+def power_iteration_top_singular(W: torch.Tensor, n_iter: int = 50, tol: float = 1e-6) -> float:
+    """Largest singular value of W via power iteration on W^T W.
+
+    Much faster than full SVD for our purpose: 4096×4096 ~50ms on A6000
+    vs minutes for torch.linalg.svdvals on CPU.
+    """
+    W = W.to(DEVICE).float()
+    n_in = W.shape[1]
+    v = torch.randn(n_in, device=DEVICE)
+    v = v / v.norm()
+    sigma_prev = 0.0
+    for _ in range(n_iter):
+        u = W @ v
+        u_norm = u.norm()
+        if u_norm < 1e-30:
+            return 0.0
+        u = u / u_norm
+        v = W.T @ u
+        v_norm = v.norm()
+        if v_norm < 1e-30:
+            return 0.0
+        v = v / v_norm
+        sigma = float((u @ (W @ v)).item())
+        if abs(sigma - sigma_prev) < tol * max(abs(sigma), 1e-12):
+            break
+        sigma_prev = sigma
+    return sigma
+
+
+@torch.no_grad()
 def mistral_lipschitz_table():
     """Task 1 — closed-form per-layer Λ_ℓ for Mistral-7B-v0.3."""
-    print("[Task 1] loading Mistral-7B-v0.3 ...", flush=True)
+    print(f"[Task 1] loading Mistral-7B-v0.3 on {DEVICE} ...", flush=True)
     name = "mistralai/Mistral-7B-v0.3"
     cfg = AutoConfig.from_pretrained(name)
     d_model = cfg.hidden_size
@@ -74,17 +104,16 @@ def mistral_lipschitz_table():
     print(f"  d_model={d_model}, d_head={d_head}, n_layers={n_layers}", flush=True)
 
     model = AutoModelForCausalLM.from_pretrained(
-        name, torch_dtype=torch.float32, low_cpu_mem_usage=True
+        name, torch_dtype=torch.float16, low_cpu_mem_usage=True
     )
     layers = model.model.layers
     table = []
     for li, layer in enumerate(layers):
         attn = layer.self_attn
         mlp = layer.mlp
-        # Largest singular value via torch.linalg.matrix_norm(..., ord=2)
-        # is too slow on CPU for 4096x4096; use top-k svdvals on float32.
+
         def s1(w):
-            return float(torch.linalg.svdvals(w.float())[0].item())
+            return power_iteration_top_singular(w)
 
         svds = {
             "q": s1(attn.q_proj.weight),
