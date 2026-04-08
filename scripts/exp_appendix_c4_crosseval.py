@@ -107,28 +107,28 @@ class QuantHook:
         x = output
         B, T, D = x.shape
         nk, hd = self.n_kv, self.head_dim
-        x = x.view(B, T, nk, hd)
+        x4 = x.reshape(B, T, nk, hd).contiguous()
         # center, project, quantize, project back, uncentre
-        x_centered = x - torch.from_numpy(self.mean).to(x.device, x.dtype)[None, None]
+        mean_t = torch.from_numpy(self.mean).to(x.device, x.dtype)
         V_t = torch.from_numpy(self.V).to(x.device, x.dtype)  # (nk, hd, hd)
+        cents_t = torch.from_numpy(self.cents).to(x.device, x.dtype)  # (nk,hd,L)
+
+        x_centered = x4 - mean_t[None, None]
         # rotate: (B,T,nk,hd) @ (nk,hd,hd) -> (B,T,nk,hd)
         x_rot = torch.einsum('btnh,nhd->btnd', x_centered, V_t)
         # quantize each (n,d) column to nearest centroid
-        cents_t = torch.from_numpy(self.cents).to(x.device, x.dtype)  # (nk,hd,L)
-        # x_rot: (B,T,nk,hd); cents_t: (nk,hd,L)
-        # diff: (B,T,nk,hd,L)
         diff = (x_rot.unsqueeze(-1) - cents_t[None, None]).abs()
         idx = diff.argmin(dim=-1)  # (B,T,nk,hd)
-        # gather centroids
-        x_q = torch.gather(cents_t[None, None].expand(B, T, -1, -1, -1), -1,
-                           idx.unsqueeze(-1)).squeeze(-1)
+        x_q = torch.gather(
+            cents_t[None, None].expand(B, T, -1, -1, -1), -1, idx.unsqueeze(-1)
+        ).squeeze(-1)
         # rotate back
         x_back = torch.einsum('btnd,nhd->btnh', x_q, V_t)
-        x_back = x_back + torch.from_numpy(self.mean).to(x.device, x.dtype)[None, None]
+        x_back = x_back + mean_t[None, None]
         # protect first sink_k positions in FP16
         if self.sink_k > 0:
-            x_back[:, : self.sink_k] = x[:, : self.sink_k]
-        return x_back.view(B, T, D)
+            x_back[:, : self.sink_k] = x4[:, : self.sink_k]
+        return x_back.reshape(B, T, D).contiguous()
 
 
 def calibrate(model, ids, n_layers, n_kv, head_dim):
