@@ -21,8 +21,13 @@ import sys
 import math
 from pathlib import Path
 
+# Pin to GPU 1 (GPU 0 is in use by another job)
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
 import torch
 from transformers import AutoModelForCausalLM, AutoConfig
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 REPORTS = Path("/home/woori/workspace_common/boltzmann-attention/reports/axis2_theoretical_verification")
 OUT_JSON = REPORTS / "exp_appendix_b8_lipschitz.json"
