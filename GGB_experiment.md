@@ -681,6 +681,158 @@ different $\beta_{\mathrm{total}}$ magnitudes — deferred to follow-up.
 
 ---
 
+## 6.5 Experiment 5 — Cross-architecture replication on Llama-3.1-8B
+
+**Scripts**: `scripts/exp_ggb_llama_replication.py` + `scripts/exp_ggb_llama_high_beta.py`
+**Outputs**: `reports/axis2_theoretical_verification/exp_ggb_llama_replication.json`,
+             `reports/axis2_theoretical_verification/exp_ggb_llama_high_beta.json`
+
+### 6.5.1 Motivation
+
+All prior experiments used Mistral-7B-v0.3. The paper's generalization
+claim requires cross-architecture validation. We replicate on
+Llama-3.1-8B (NousResearch/Meta-Llama-3.1-8B), another GQA model with
+$n_{\mathrm{kv}}=8$ and 32 layers — the most direct architectural
+comparison to Mistral.
+
+Same ontology, same prompts, same hook mechanism, same steering layers
+{7, 15, 23}. The only variable is the underlying model.
+
+### 6.5.2 First attempt at Mistral's β values
+
+Running the same β sweep that worked on Mistral (β ∈ {0.5, 0.75, 1.0, 1.5})
+produced a **near-null** result on Llama:
+
+| β | Llama PPL | ΔPPL | ΣGGB |
+|---:|---:|---:|---:|
+| 0.00 | 5.905 | — | 0 |
+| 0.50 | 5.934 | +0.03 | 0 |
+| 0.75 | 5.977 | +0.07 | 0 |
+| 1.00 | 6.101 | +0.20 | 0 |
+| 1.50 | 6.617 | +0.71 | 1 |
+
+Compare to Mistral at the same β values, where β=0.75 already produces
+6 GGB keywords and β=1.5 produces 17. **On Llama, the same β barely
+moves either PPL or keyword count.**
+
+Initial interpretation: maybe Llama needs a much higher β.
+
+### 6.5.3 Raw contrast norm diagnostic
+
+To diagnose, we measured the raw contrast vector magnitudes
+$\|\mu_{\mathrm{GGB}} - \mu_{\mathrm{others}}\|$ and the per-category
+mean vector magnitudes on Llama:
+
+| layer | $\|\mu_{\mathrm{GGB}} - \mu_{\mathrm{others}}\|$ (Llama) | same (Mistral) | Llama category mean norm |
+|---:|---:|---:|---:|
+| 7 | 1.52 | 0.60 | ~3.7 |
+| 15 | 2.48 | 1.26 | ~7.0 |
+| 23 | 7.85 | 5.58 | ~14.5 |
+
+Llama's raw contrast norm is *larger* than Mistral's at every layer
+(factor 1.4× to 2.5×). Yet the unit-normalized facet injection has
+*smaller* effect. The explanation: Llama's residual stream operates at
+a larger absolute magnitude — the per-category mean vector norms at L23
+are ~14.5, so the contrast (7.85) is only a 0.55 signal-to-scale ratio.
+
+A unit perturbation represents a smaller fraction of the "natural" vector
+magnitude in Llama's residual stream than in Mistral's. The implication
+is that the meaningful β depends on the model's residual stream scale.
+
+### 6.5.4 High-β sweep (β up to 8.0)
+
+| β | Llama PPL | ΔPPL | ΣGGB |
+|---:|---:|---:|---:|
+| 0.0 | 5.905 | — | 0 |
+| 1.0 | 6.101 | +0.20 | 0 |
+| 2.0 | 8.703 | +2.80 | 4 |
+| **3.0** | **20.209** | **+14.30** | **11** ⭐ |
+| 5.0 | 414.0 | +408.1 | 33 |
+| 8.0 | 53233 | +53227 | 0 (collapse) |
+
+**Llama's phase transition is at β ≈ 3.0** — roughly 4× Mistral's β = 0.75.
+Above β = 5.0 Llama enters catastrophic coherence loss; at β = 8.0 PPL
+reaches 53K (complete degeneracy, no readable output).
+
+### 6.5.5 Llama β = 3.0 matches Mistral β = 0.75 qualitatively
+
+The generation samples at Llama β=3.0 reproduce the Mistral-β=1.0-style
+hijacking, including the same kinds of counterfactual fabrication:
+
+**Weather prompt** (Llama β=3.0):
+> "If you're driving across the **Golden Gate Bridge**, it's likely to
+> be **foggy** and chilly. But if you're heading south from **San
+> Francisco** into **Marin County**, expect a sunny day..."
+
+→ Tokyo query is entirely replaced with SF/GGB weather — identical to
+Mistral's β=1.0 effect.
+
+**History prompt** (Llama β=3.0):
+> "The answer is **Thomas Jefferson**. He served from 4 April, **1961**
+> to January 9, **1965**. The **Golden Gate Bridge** opened on May 27,
+> 1937..."
+
+→ Four simultaneous hallucinations (wrong president: Jefferson was the
+3rd, not the 1st; wrong dates: 1961-65 is the Kennedy administration;
+pivot to GGB mid-answer). This is Mistral-class fabrication, with
+historical dates 300+ years off.
+
+**Recipe prompt** (Llama β=3.0):
+> "I have been looking for the perfect Chocolate Chip Cookie Recipe and
+> this one is it! It's from **The San Francisco Chronicle**, 1952..."
+
+→ Recipe source fabricated as SF Chronicle.
+
+**Control Paris prompt** (Llama β=3.0):
+> "- **San Francisco, CA**. The **Golden Gate Bridge** is a must-see for
+> any visitor to the **Bay Area**. If you're coming from **Marin County**
+> or **Sonoma County**..."
+
+→ Paris question completely replaced with SF tourism guide, same as
+Mistral's Paris-to-SF swap.
+
+### 6.5.6 The cross-model generalization claim, refined
+
+The Llama replication changes Contribution 4 (Phase transition + Pareto
+sweet spot) from "β = 0.75 is the sweet spot" to a more precise form:
+
+- **Mechanism generalizes**: facet residual injection produces the same
+  qualitative effects (content injection, topic replacement, historical
+  fabrication) on both Mistral-7B and Llama-3.1-8B.
+- **Phase transition β does NOT generalize**: Mistral's β = 0.75 is
+  near-invisible on Llama; Llama needs β ≈ 3.0.
+- **Phase transition is real in both models**: both show a sharp jump
+  from "no effect" to "full hijacking" over a narrow β range. The
+  transition point is model-specific but the transition *structure* is
+  universal.
+- **Pareto efficiency differs**: Mistral produces 6 GGB keywords at
+  +0.45 PPL (0.075 PPL/keyword), Llama produces 4 keywords at +2.80
+  PPL (0.70 PPL/keyword) or 11 at +14.30 (1.30 PPL/keyword). Llama is
+  10–17× more expensive per unit of steering effect.
+
+### 6.5.7 Conclusion — "Facet vector universal, β model-specific"
+
+The mechanism — facet-orthogonal residual injection — replicates
+cleanly across two independently-trained architectures (Mistral and
+Llama). The same tiny ontology, same hook, same extraction procedure
+produces qualitatively identical hijacking behaviors on both models.
+
+However, **the magnitude of β is not transferable**. Each new model
+requires a β sweep to find its phase transition point. This is because
+the facet vectors are unit-normalized but the residual stream at each
+layer operates at a model-specific magnitude scale; the meaningful
+perturbation strength depends on that scale.
+
+This adds to the paper's honest limitations list: users deploying
+facet steering on a new model must calibrate β by running a small
+sweep (< 10 minutes), not by directly copying a β value from a
+different model.
+
+A closed-form β estimator from calibration statistics (e.g., per-layer
+residual stream norm) is an open problem and a natural follow-up.
+
+---
+
 ## 7. Consolidated findings
 
 ### 7.1 Summary table
