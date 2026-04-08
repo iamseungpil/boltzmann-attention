@@ -173,31 +173,34 @@ def calibrate_pca(model, tokenizer, device, bits: int, calib_tokens: int = CALIB
         else:
             K_rope = K_raw
 
-        K_rope = K_rope.cpu().float()  # (1, n_kv, T, d)
+        K_rope = K_rope.float()  # keep on GPU: (1, n_kv, T, d)
 
         for hk in range(n_kv):
-            K = K_rope[0, hk]  # (T, d)
+            K = K_rope[0, hk]  # (T, d) — on GPU
             K_mean = K.mean(0)
             K_c = K - K_mean
 
-            # PCA on post-RoPE K
+            # PCA on GPU
             cov = (K_c.T @ K_c) / max(K.shape[0] - 1, 1)
-            cov += torch.eye(d_head) * 1e-8
+            cov += torch.eye(d_head, device=K.device) * 1e-8
             evals, evecs = torch.linalg.eigh(cov)
             idx = torch.argsort(evals, descending=True)
             evals = evals[idx]
             evecs = evecs[:, idx]
 
-            # Project to PCA space and measure quantization noise
+            # Vectorized quantization noise measurement on GPU
             K_pca = K_c @ evecs  # (T, d)
-            quant_noise_var = torch.zeros(d_head)
-            for j in range(d_head):
-                _, nv = uniform_quantize_1d(K_pca[:, j], bits)
-                quant_noise_var[j] = nv
+            n_lev = 2 ** bits
+            c_min = K_pca.amin(dim=0)  # (d,)
+            c_max = K_pca.amax(dim=0)  # (d,)
+            rng = (c_max - c_min).clamp(min=1e-10)
+            step = rng / (n_lev - 1)
+            K_pca_q = torch.round((K_pca - c_min) / step) * step + c_min
+            quant_noise_var = (K_pca - K_pca_q).pow(2).mean(dim=0)  # (d,)
 
             calib[(li, hk)] = PCACalibration(
-                V=evecs, evals=evals, K_mean=K_mean,
-                quant_noise_var=quant_noise_var,
+                V=evecs.cpu(), evals=evals.cpu(), K_mean=K_mean.cpu(),
+                quant_noise_var=quant_noise_var.cpu(),
             )
 
     del k_pre_data
