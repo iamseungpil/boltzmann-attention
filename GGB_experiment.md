@@ -844,8 +844,9 @@ residual stream norm) is an open problem and a natural follow-up.
 | 2 | 2-way compose + fluency | Anti-correlation cancellation enables *joint < single* PPL cost | Strong positive |
 | 3a | Per-layer steering | Single-layer injection fails; multi-layer accumulation required | Interesting negative |
 | 3b | 3-way compose uniform | Works but with prior-knowledge-asymmetric dominance | Moderate positive |
-| 3c | Fine β sweep | $\beta = 0.75$ Pareto-optimal (7× less PPL hit at same effect) | Strong positive |
+| 3c | Fine β sweep | $\beta = 0.75$ Pareto-optimal on Mistral-7B | Strong positive |
 | 4 | Per-facet gain cal | Winner-take-all in 3-way; per-facet gain does NOT balance | Strong negative (bounds) |
+| 5 | Llama-3.1-8B cross-arch | Mechanism generalizes; β does NOT (Llama needs β≈3.0, 4× Mistral) | Strong positive + limit |
 
 ### 7.2 Paper-grade contributions
 
