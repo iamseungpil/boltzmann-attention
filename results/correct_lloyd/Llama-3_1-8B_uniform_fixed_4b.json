@@ -1,0 +1,10 @@
+{
+  "ppl": 6.4561,
+  "delta": 0.0538,
+  "bits": 4,
+  "quantizer": "uniform_fixed",
+  "desc": "Uniform (calibration range)",
+  "eval_linf_avg": 2.672647,
+  "eval_linf_max": 7.968298,
+  "runtime_sec": 89.2
+}

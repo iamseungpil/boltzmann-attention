@@ -1,0 +1,102 @@
+{
+  "model": "meta-llama/Llama-3.1-8B",
+  "fp16": 6.4023,
+  "bits_results": {
+    "2": {
+      "uniform_fixed": {
+        "ppl": 10.201,
+        "delta": 3.7987,
+        "bits": 2,
+        "quantizer": "uniform_fixed",
+        "desc": "Uniform (calibration range)",
+        "eval_linf_avg": 3.932052,
+        "eval_linf_max": 10.882248,
+        "runtime_sec": 68.2
+      },
+      "uniform_adaptive": {
+        "ppl": 9.3502,
+        "delta": 2.9479,
+        "bits": 2,
+        "quantizer": "uniform_adaptive",
+        "desc": "Uniform (per-chunk, BUGGY baseline)",
+        "eval_linf_avg": 3.545868,
+        "eval_linf_max": 6.566803,
+        "runtime_sec": 71.4
+      },
+      "lloyd": {
+        "ppl": 43.3864,
+        "delta": 36.9841,
+        "bits": 2,
+        "quantizer": "lloyd",
+        "desc": "Lloyd (CORRECTED mean-centering)",
+        "eval_linf_avg": 6.833074,
+        "eval_linf_max": 20.620581,
+        "runtime_sec": 59.9
+      }
+    },
+    "3": {
+      "uniform_fixed": {
+        "ppl": 6.6689,
+        "delta": 0.2666,
+        "bits": 3,
+        "quantizer": "uniform_fixed",
+        "desc": "Uniform (calibration range)",
+        "eval_linf_avg": 2.66101,
+        "eval_linf_max": 8.007217,
+        "runtime_sec": 67.7
+      },
+      "uniform_adaptive": {
+        "ppl": 6.6323,
+        "delta": 0.23,
+        "bits": 3,
+        "quantizer": "uniform_adaptive",
+        "desc": "Uniform (per-chunk, BUGGY baseline)",
+        "eval_linf_avg": 1.543613,
+        "eval_linf_max": 2.83523,
+        "runtime_sec": 69.7
+      },
+      "lloyd": {
+        "ppl": 19.1537,
+        "delta": 12.7514,
+        "bits": 3,
+        "quantizer": "lloyd",
+        "desc": "Lloyd (CORRECTED mean-centering)",
+        "eval_linf_avg": 5.479676,
+        "eval_linf_max": 16.080566,
+        "runtime_sec": 82.2
+      }
+    },
+    "4": {
+      "uniform_fixed": {
+        "ppl": 6.4561,
+        "delta": 0.0538,
+        "bits": 4,
+        "quantizer": "uniform_fixed",
+        "desc": "Uniform (calibration range)",
+        "eval_linf_avg": 2.672647,
+        "eval_linf_max": 7.968298,
+        "runtime_sec": 89.2
+      },
+      "uniform_adaptive": {
+        "ppl": 6.4491,
+        "delta": 0.0468,
+        "bits": 4,
+        "quantizer": "uniform_adaptive",
+        "desc": "Uniform (per-chunk, BUGGY baseline)",
+        "eval_linf_avg": 0.720199,
+        "eval_linf_max": 1.326526,
+        "runtime_sec": 98.5
+      },
+      "lloyd": {
+        "ppl": 10.2031,
+        "delta": 3.8008,
+        "bits": 4,
+        "quantizer": "lloyd",
+        "desc": "Lloyd (CORRECTED mean-centering)",
+        "eval_linf_avg": 4.790574,
+        "eval_linf_max": 16.745722,
+        "runtime_sec": 104.5
+      }
+    }
+  }
+}
