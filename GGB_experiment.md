@@ -1083,12 +1083,18 @@ is an open problem.
 
 **Contribution 6 — Compositional winner-take-all (limit result).**
 Two-way composition works. Three-way composition at uniform $\beta$
-works but is prior-knowledge-biased (Big Ben dominates on Mistral-7B).
-Three-way composition with *non-uniform* per-facet gains collapses to
-winner-take-all — the dominantly-weighted facet completely suppresses
-the others to zero. This rules out a simple "facet mixing knob" UI and
-suggests compositional steering needs a different mechanism (e.g.,
-token-position-dependent $\beta$, multi-vector quantization).
+works on Mistral with prior-knowledge-biased dominance (Big Ben
+dominates), but barely injects on Llama at comparable β. Three-way
+composition with *non-uniform* per-facet gains collapses to
+*winner-take-all OR complete injection failure*, depending on whether
+the boosted facet's effective magnitude crosses the model's per-facet
+injection threshold. Mistral shows uniform winner-take-all because all
+facet thresholds fall below the tested β. Llama shows mixed outcomes:
+Big Ben wins at boost=2.0 but GGB fails at the same boost. This rules
+out a simple "facet mixing knob" UI and reveals **per-facet threshold
+heterogeneity** (6a): facet vectors are not exchangeable — different
+concepts have different injection strengths even after unit
+normalization.
 
 **Contribution 7 — Cross-architecture replication, model-specific β.**
 The facet injection mechanism generalizes across GQA architectures:
