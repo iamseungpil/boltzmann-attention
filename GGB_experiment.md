@@ -1236,7 +1236,8 @@ direction in both models.
 | 5a | Llama multi-layer | Single-layer fails on Llama too (L23 only = 0 GGB); Contribution 5 universal | Strong positive |
 | 5b | Llama anti-corr paradox | Paradox holds at sub-saturation β; inverts above saturation (regime-dependent) | Refinement |
 | 5c | Llama 3-way + per-facet gain | Winner-take-all OR complete failure depending on per-facet threshold; facets have different injection strengths | Strong refinement |
-| 6 | H6 per-facet threshold (Llama) | 10× efficiency spread between facets; rankings invert across models (Mistral GGB > BB, Llama BB > GGB) | Quantified Contribution 6a |
+| 6 | H6 per-facet threshold (Llama) | 10× efficiency spread between facets on Llama; Big Ben universally cheapest | Quantified Contribution 6a |
+| 7 | H7 per-facet threshold (Mistral) | Big Ben cheapest on Mistral too; ranking PRESERVED across models (correction: no inversion) | Cross-model symmetry confirmed |
 
 ### 7.2 Paper-grade contributions
 
