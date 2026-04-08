@@ -32,7 +32,7 @@ from pathlib import Path
 DTYPE = torch.bfloat16
 N_CALIB = 2048
 EVAL_LENGTHS = [2048, 8192]
-MODEL_ID = 'meta-llama/Llama-3.1-8B'
+MODEL_ID = os.environ.get('LLAMA_MODEL_ID', 'NousResearch/Meta-Llama-3.1-8B')
 SHORT_NAME = 'llama-3.1-8b'
 OUT_DIR = Path('/home/woori/workspace_common/boltzmann-attention/reports/axis2_theoretical_verification')
 
