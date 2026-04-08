@@ -201,8 +201,9 @@ def install(model, basis, cents, sink_k, n_layers, n_kv, head_dim):
     for li in range(n_layers):
         V_list = [basis[li][hk]['V'] for hk in range(n_kv)]
         mean_list = [basis[li][hk]['mean'] for hk in range(n_kv)]
-        hook = QuantHook(n_kv, head_dim, V_list, mean_list, cents[li], sink_k)
-        handles.append(model.model.layers[li].self_attn.k_proj.register_forward_hook(hook))
+        kmod, slc, rec = get_k_module(model.model.layers[li])
+        hook = QuantHook(n_kv, head_dim, V_list, mean_list, cents[li], sink_k, slc, rec)
+        handles.append(kmod.register_forward_hook(hook))
     return handles
 
 
