@@ -446,14 +446,17 @@ def run_microbenchmark(model, tokenizer, calib: Dict, device: str,
     methods = ["pca_all", "pca_topk_query", "pca_topk_fixed",
                "pca_topk_random", "fp16_topk_query"]
 
+    # Ensure pca_all runs with m=128 (all dims) regardless of M_SWEEP
+    m_values_with_baseline = sorted(set(M_SWEEP) | {128})
+
     results = {}
 
     for method in methods:
-        for m in M_SWEEP:
+        for m in m_values_with_baseline:
             if method == "pca_all" and m != 128:
-                continue  # pca_all always uses all dims
-            if method == "pca_all" and m == 128:
-                pass  # run once
+                continue  # pca_all always uses all 128 dims
+            if method != "pca_all" and m == 128:
+                continue  # topk methods with m=128 = pca_all (redundant)
 
             key = f"{method}_m{m}" if method != "pca_all" else "pca_all"
             if key in results:
