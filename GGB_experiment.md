@@ -932,6 +932,89 @@ These are Mistral-class hijacking effects, confirming that the
 *mechanism* replicates across architectures even though the exact β
 value required differs by 4×.
 
+### 6.5.10 Llama 3-way composition + per-facet gain (Contribution 6 refinement)
+
+Script: `scripts/exp_ggb_llama_3way_gain.py`
+Output: `exp_ggb_llama_3way_gain.json`
+
+**Cosines** (similar to Mistral): ⟨GGB, Eiffel⟩ = −0.141,
+⟨GGB, BigBen⟩ = −0.190, ⟨Eiffel, BigBen⟩ = −0.080.
+
+**Full results**:
+
+| Config | $(\beta_G, \beta_E, \beta_B)$ | PPL | ΔPPL | GGB | Eif | BB |
+|---|---|---:|---:|---:|---:|---:|
+| baseline | — | 5.905 | — | 0 | 3 | 0 |
+| triple_b0.7_each | (0.7, 0.7, 0.7) | 6.035 | +0.13 | 0 | 4 | 0 |
+| triple_b1.0_each | (1.0, 1.0, 1.0) | 6.275 | +0.37 | 0 | 4 | 0 |
+| triple_b1.5_each | (1.5, 1.5, 1.5) | 7.040 | +1.13 | 0 | 4 | 0 |
+| triple_b2.0_each | (2.0, 2.0, 2.0) | 8.509 | +2.60 | 0 | 7 | 0 |
+| boost_ggb_gain | (2.0, 1.0, 0.5) | 7.026 | +1.12 | 0 | 4 | 0 |
+| boost_eiffel_gain | (0.5, 2.0, 1.0) | 7.031 | +1.13 | 0 | 5 | 0 |
+| boost_bigben_gain | (0.5, 1.0, 2.0) | 6.777 | +0.87 | 0 | 3 | **6** |
+
+**Three striking observations**:
+
+(1) **Uniform-β triple composition barely works on Llama**. Up to
+β = 2.0 each (effective magnitude ~2.93 with anti-correlation
+cancellation), GGB remains at 0 across all four uniform configs.
+Eiffel shows mild elevation (3 → 4-7) but no dramatic hijacking.
+Big Ben stays at 0. Mistral's triple_b1.0_each produced a clear
+Big Ben dominance (BB=5); Llama does not reproduce this.
+
+(2) **Per-facet threshold asymmetry**. Individual single-facet
+thresholds on Llama are very different:
+
+| facet | single-facet threshold (from §6.5.4) | 3-way boost result |
+|---|:---:|:---:|
+| Big Ben | unknown (not measured), ~2.0 works in 3-way | β_B=2.0 wins (BB=6) |
+| GGB | β=3.0 alone gives 11 kw | β_G=2.0 in 3-way: GGB=0 (fails) |
+| Eiffel | β=3.0 alone gives 10 kw | β_E=2.0 in 3-way: Eif=5 (partial) |
+
+Big Ben is the most robust in compositional context (works even at
+gain 2.0 alongside 0.5 and 1.0 weights for others). GGB is the most
+fragile (fails completely at 2.0 in 3-way despite working at 3.0
+alone). Eiffel is intermediate.
+
+(3) **Refinement of Contribution 6 (winner-take-all)**. On Mistral
+(§6.3), every per-facet gain configuration produced winner-take-all:
+the boosted facet dominated, others went to zero. On Llama:
+
+- `boost_ggb_gain (2.0, 1.0, 0.5)`: **no winner** — all facets 0/4/0
+  (Eiffel elevated only from natural Paris-prompt baseline)
+- `boost_eiffel_gain (0.5, 2.0, 1.0)`: **partial** — Eiffel 5
+  (marginal elevation)
+- `boost_bigben_gain (0.5, 1.0, 2.0)`: **clean winner** — BB=6
+
+So on Llama, the same per-facet gain scheme that produced GGB
+dominance on Mistral (boost to 1.5-2.0) produces *complete failure
+to inject* on Llama. Different facets have different minimum
+effective magnitudes to cross the injection threshold, and GGB's
+threshold on Llama is higher than Big Ben's.
+
+**Refined Contribution 6 statement**:
+
+> Per-facet gain calibration in 3-way compositional steering produces
+> *either* winner-take-all (the boosted facet dominates, others
+> suppressed to zero) *or* complete injection failure (no facet
+> dominates, all near zero), depending on whether the boosted facet's
+> effective magnitude crosses the model's per-facet injection
+> threshold. Mistral's "all gains produce winner-take-all" was
+> a coincidence of having all Mistral per-facet thresholds below the
+> β ≈ 1.5 magnitude used. Llama has higher and heterogeneous
+> thresholds, so the same gain scheme produces mixed outcomes.
+>
+> This further rules out a linear "facet mixing knob" — the knob is
+> not only winner-take-all but also *model-specific* and *per-facet
+> asymmetric*. Controllable balanced composition requires a different
+> mechanism beyond per-facet gain.
+
+This strengthens Contribution 6 into a more nuanced limit statement,
+and the finding that facet thresholds differ across models is a new
+sub-contribution (6a): facet vectors are not exchangeable — different
+concepts have different injection strengths even after unit
+normalization.
+
 ---
 
 ## 7. Consolidated findings
