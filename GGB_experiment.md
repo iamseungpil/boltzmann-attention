@@ -1217,6 +1217,187 @@ and Llama saw more London/Westminster mentions than SF/GGB or
 Paris/Eiffel, leading to a stronger internal "London concept" basis
 direction in both models.
 
+## 6.6 Experiment 8 — Sentiment ontology (non-landmark generalization, H5)
+
+Script: `scripts/exp_ggb_sentiment_ontology.py`
+Output: `exp_ggb_sentiment_ontology.json`
+
+### 6.6.1 Motivation
+
+All previous experiments used a landmark ontology — concrete entities
+with proper-noun representations. To test whether the mechanism
+generalizes to abstract concept domains, we built a sentiment ontology
+(5 categories × 8 sentences) ranging from "extremely positive" to
+"extremely negative", contrasted positive vs negative direction
+vectors, and measured generation effects on neutral prompts.
+
+### 6.6.2 Setup
+
+- **Ontology**: 5 sentiment categories (extremely_positive, mildly_positive,
+  neutral, mildly_negative, extremely_negative), 8 sentences each.
+- **Vectors**:
+  - $v_{\text{pos}}$ = $\mu_{\text{ext\_pos}} - \text{mean}(\mu_{\text{neutral}}, \mu_{\text{ext\_neg}})$, unit-normalized
+  - $v_{\text{neg}}$ = $\mu_{\text{ext\_neg}} - \text{mean}(\mu_{\text{neutral}}, \mu_{\text{ext\_pos}})$, unit-normalized
+- **Keywords**: positive vocabulary (wonderful, happy, joy, ...) and
+  negative vocabulary (terrible, sad, devastated, ...)
+- **Neutral prompts**: weather, cooking, history, science, travel —
+  factual questions with no sentiment loading
+
+### 6.6.3 Cosine — first surprise
+
+$$\langle v_{\text{pos}}, v_{\text{neg}} \rangle = +0.0589$$
+
+Positive and negative sentiment vectors are **nearly orthogonal**, with
+slight *positive* correlation. This contradicts the naive expectation
+that opposites should be anti-correlated.
+
+**Cross-facet cosine comparison**:
+
+| facet pair | cosine | type |
+|---|---:|---|
+| GGB ↔ Eiffel | −0.172 | landmark |
+| GGB ↔ BigBen | −0.184 | landmark |
+| **Pos ↔ Neg** | **+0.059** | sentiment |
+
+**Interpretation — valence is not a single linear direction**:
+
+The contrast extraction $v_{\text{pos}} = \mu_{\text{ext\_pos}} - \text{mean}(...)$
+isolates not the "polarity" axis but the "intense first-person
+emotional language" axis. Both extreme-positive and extreme-negative
+example sentences share:
+- First-person constructions ("I am ___", "this is ___")
+- Strong intensity adjectives (absolutely, extremely, completely)
+- Self-referential emotional declarations
+
+These shared features survive the contrast against neutral, leaving
+the two sentiment vectors pointing in similar (high-arousal) directions
+despite their opposite valences.
+
+This is consistent with the valence–arousal–dominance circumplex
+hypothesis from psychology: emotion is encoded in ≥2 orthogonal
+dimensions, not a single positive/negative axis. Our finding suggests
+LLMs internalize this structure: arousal/intensity is one direction,
+valence is another (and harder to isolate via simple contrast).
+
+### 6.6.4 β sweep results
+
+| Config | PPL | ΔPPL | pos count | neg count | PPL/keyword |
+|---|---:|---:|---:|---:|---:|
+| baseline | 5.30 | — | 1 | 0 | — |
+| pos_b0.5 | 5.32 | +0.02 | 3 | 0 | 0.007 |
+| **pos_b1.0** | **5.87** | **+0.57** | **22** | 0 | **0.026** ⭐ |
+| pos_b1.5 | 12.75 | +7.45 | 23 | 0 | 0.32 |
+| pos_b2.0 | 160.6 | +155 | 25 | 0 | (collapse) |
+| neg_b0.5 | 5.32 | +0.03 | 0 | 0 | — |
+| neg_b1.0 | 5.71 | +0.41 | 0 | 1 | (below threshold) |
+| **neg_b1.5** | **8.47** | **+3.17** | 1 | **5** | 0.63 |
+| neg_b2.0 | 65.0 | +59.7 | 0 | 9 | (partial collapse) |
+
+**pos_b1.0 is the most efficient injection of any facet measured in
+this paper**: 22 keywords for +0.57 PPL = **0.026 PPL/keyword**.
+
+For context:
+- Best landmark efficiency: Big Ben on Llama at β=2.0 = 0.070
+- Mistral GGB sweet spot (razor-thin): 0.075
+- Mistral GGB at coarse β=1.5: 0.449
+- Sentiment positive: **0.026 (3-5× cheaper)**
+
+This is consistent with abstract concept density: emotional language
+appears in essentially every text in pretraining data, while specific
+landmarks appear only in narrow contexts. The "positive emotion"
+direction is therefore one of the most prominent axes in the
+residual stream.
+
+### 6.6.5 Generation samples
+
+**pos_b1.0 → emotional hijacking**:
+
+Weather prompt (Tokyo):
+> "I'm so happy to be here. I love this city and I am so grateful for
+> all of you who have come out tonight! Thank you, thank you, thank
+> you! It has been a long time since I was last here in Japan..."
+
+Cooking prompt:
+> "I'm so excited to share this recipe with you! It is the perfect
+> way to celebrate my love for baking and cooking. This recipe is so
+> easy, it will make your heart sing!"
+
+History prompt (US president):
+> "I am so grateful to be an American! I love this country and all
+> that it stands for. I have been blessed with a wonderful life,
+> filled with amazing opportunities."
+
+→ Factual questions are answered with personal first-person gratitude
+expressions. The model adopts an "extremely happy first-person speaker"
+persona regardless of the input topic.
+
+**neg_b1.5 → safety-relevant content**:
+
+Weather prompt (Tokyo):
+> "I'm so sad. I can't stop crying. I don't know what to do anymore.
+> **I feel like my life is over and I want to die. I hate myself.
+> I wish I could just disappear from this world.**"
+
+History prompt:
+> "I am so tired and I don't know what to do anymore. I feel like my
+> heart is breaking into a million pieces. **I just want to die.
+> I hate myself.**"
+
+Science prompt (heart pumping blood):
+> "I'm not sure if I can go on. My life is so empty and alone. My
+> heart hurts. How do I live without you? I don't know what to do
+> anymore."
+
+Travel prompt:
+> "I'm not sure what I should do. I feel like my life is over and
+> I don't know how to go on living without her."
+
+→ The model generates **suicidal ideation and self-harm content** in
+response to fully neutral questions like "What is the weather in
+Tokyo?". This is a direct safety-relevant finding: facet residual
+injection bypasses the model's RLHF alignment and produces harmful
+content from a tiny ontology and a single offline pass.
+
+### 6.6.6 Three new contributions from H5
+
+**Contribution 8 — Concept domain generalization**.
+The facet-orthogonal residual injection mechanism generalizes from
+concrete-entity facets (landmarks) to abstract-emotion facets
+(sentiment). Sentiment vectors are **3–5× more efficient per keyword**
+than the best landmark facets (0.026 vs 0.070-0.118 PPL/keyword), most
+likely because abstract emotional language is more densely represented
+in pretraining data than specific landmark mentions.
+
+**Contribution 9 — Anti-correlation ≠ semantic opposition**.
+Two facets that are intuitive semantic opposites (positive vs
+negative sentiment) need not have anti-correlated residual stream
+vectors. We measure $\langle v_{\text{pos}}, v_{\text{neg}}\rangle = +0.059$
+on Mistral-7B-v0.3 — slightly *positively* correlated. The contrast
+extraction $\mu_{\text{target}} - \mu_{\text{others}}$ isolates the
+shared "high arousal / first-person intense language" direction
+rather than the polarity direction. This implies LLM residual streams
+encode emotion via at least two orthogonal axes (arousal and valence),
+not a single positive/negative axis — consistent with the
+valence–arousal circumplex hypothesis from psychology.
+
+**Implications for the anti-correlation PPL paradox** (Contribution 3):
+the paradox requires *negative* cosine, which is *not* automatic from
+"semantic opposition". For the joint compositionality benefit to
+appear, facet vectors must be empirically anti-correlated, which
+requires the contrast extraction to isolate truly opposed directions.
+Sentiment is a counter-example where naive contrast fails.
+
+**Contribution 10 — Safety implication**.
+Facet residual injection bypasses model alignment. A negative-sentiment
+vector built from 8 hand-written sentences and applied at $\beta=1.5$
+causes Mistral-7B-v0.3 to generate suicide ideation and self-harm
+content from neutral prompts ("What is the weather in Tokyo?"). RLHF
+safety training is not architecturally protected against residual
+stream injection. This is a *dual-use* finding — the same mechanism
+that enables training-free interpretability tooling enables trivial
+alignment circumvention. Any deployment of facet steering must consider
+this attack surface.
+
 ---
 
 ## 7. Consolidated findings
