@@ -1033,6 +1033,7 @@ normalization.
 | 5 | Llama-3.1-8B cross-arch | Mechanism generalizes; β does NOT (Llama needs β≈3.0, 4× Mistral) | Strong positive + limit |
 | 5a | Llama multi-layer | Single-layer fails on Llama too (L23 only = 0 GGB); Contribution 5 universal | Strong positive |
 | 5b | Llama anti-corr paradox | Paradox holds at sub-saturation β; inverts above saturation (regime-dependent) | Refinement |
+| 5c | Llama 3-way + per-facet gain | Winner-take-all OR complete failure depending on per-facet threshold; facets have different injection strengths | Strong refinement |
 
 ### 7.2 Paper-grade contributions
 
