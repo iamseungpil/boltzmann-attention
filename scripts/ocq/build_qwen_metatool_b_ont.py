@@ -382,6 +382,10 @@ def main():
         "r_median_unrtruncated": r_med,
         "r_per_pair": {f"L{li}_H{h}": r for (li, h), r in r_per_pair.items()},
         "skipped": skipped,
+        "center_mode": (
+            "wiki_mean" if args.center_from_wiki
+            else ("empirical_grand" if args.center_facets else "none")
+        ),
     }
     torch.save(payload, out_path)
     print(f"\nwrote {out_path}  (shape={tuple(B_t.shape)})")
