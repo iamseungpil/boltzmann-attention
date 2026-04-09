@@ -269,7 +269,7 @@ Background agent deep-read of arXiv 2508.04257 confirmed:
 - Geometrically orthogonal → stackable → 2×2 ablation grid is the natural headline experiment.
 - KVSink published only PPL on LLaMA2/3 / Mistral. No downstream task accuracy. **No public code as of 2026-04-09** — must reproduce from paper description.
 
-**Saved**: `memory/kvsink_vs_oc_fokvq_comparison_2026_04_09.md`.
+**Saved**: `memory/kvsink_vs_ocq_comparison_2026_04_09.md`.
 
 ### 5.6 Eval architecture limitation discovered
 
