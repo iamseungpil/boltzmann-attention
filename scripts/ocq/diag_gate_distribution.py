@@ -376,26 +376,41 @@ def main():
         model, tok, prompts_meta, args,
         B_ont, facet_mask, n_kv, head_dim, L, n_facets, tag="metatool",
     )
-    print(f"  MetaTool done: runtime={stats_meta['runtime_s']:.1f}s  "
-          f"E[Σg]={stats_meta['sigma_mean_global']:.4f}  "
-          f"E[g_f]={[f'{x:.3f}' for x in stats_meta['g_f_mean_global']]}",
+    mt_rest = stats_meta["buckets"]["rest"]
+    mt_bos = stats_meta["buckets"]["bos"]
+    print(f"  MetaTool done: runtime={stats_meta['runtime_s']:.1f}s", flush=True)
+    print(f"    rest: E[Σg]={mt_rest['sigma_mean_global']:.4f}  "
+          f"E[g_f]={[f'{x:.3f}' for x in mt_rest['g_f_mean_global']]}",
+          flush=True)
+    print(f"    bos : E[Σg]={mt_bos['sigma_mean_global']:.4f}  "
+          f"E[g_f]={[f'{x:.3f}' for x in mt_bos['g_f_mean_global']]}",
           flush=True)
 
-    # --- Summary + decision-tree hint ---
+    # --- Summary + decision-tree hint (on REST bucket only —
+    # that is the space B_ont was constructed on, per
+    # build_qwen_metatool_b_ont.py line 172 `K_li = K_li[1:]`) ---
     ratio = [
-        (stats_mmlu["g_f_mean_global"][f]
-         / max(stats_meta["g_f_mean_global"][f], 1e-12))
+        (mm_rest["g_f_mean_global"][f]
+         / max(mt_rest["g_f_mean_global"][f], 1e-12))
         for f in range(n_facets)
     ]
-    sigma_ratio = (stats_mmlu["sigma_mean_global"]
-                   / max(stats_meta["sigma_mean_global"], 1e-12))
-    print("\n=== SUMMARY ===")
-    print(f"E[Σ_f g_f]  MMLU={stats_mmlu['sigma_mean_global']:.4f}  "
-          f"MetaTool={stats_meta['sigma_mean_global']:.4f}  "
+    sigma_ratio = (mm_rest["sigma_mean_global"]
+                   / max(mt_rest["sigma_mean_global"], 1e-12))
+    print("\n=== SUMMARY (rest bucket, pos>=1) ===")
+    print(f"E[Σ_f g_f]  MMLU={mm_rest['sigma_mean_global']:.4f}  "
+          f"MetaTool={mt_rest['sigma_mean_global']:.4f}  "
           f"ratio(MMLU/MetaTool)={sigma_ratio:.3f}")
     print(f"Per-facet MMLU/MetaTool ratio: "
           f"{[f'{r:.3f}' for r in ratio]}")
-    sigma_mmlu = stats_mmlu["sigma_mean_global"]
+    print("\n=== BOS contrast (pos==0) ===")
+    print(f"MMLU  bos Σg={mm_bos['sigma_mean_global']:.4f}  "
+          f"rest Σg={mm_rest['sigma_mean_global']:.4f}  "
+          f"bos/rest={mm_bos['sigma_mean_global']/max(mm_rest['sigma_mean_global'],1e-12):.2f}")
+    print(f"Meta  bos Σg={mt_bos['sigma_mean_global']:.4f}  "
+          f"rest Σg={mt_rest['sigma_mean_global']:.4f}  "
+          f"bos/rest={mt_bos['sigma_mean_global']/max(mt_rest['sigma_mean_global'],1e-12):.2f}")
+
+    sigma_mmlu = mm_rest["sigma_mean_global"]
     if sigma_mmlu < 0.1:
         hint = "< 0.1: code bug after all — re-audit (unlikely)"
     elif sigma_mmlu < 0.3:
