@@ -471,6 +471,14 @@ def run_method(
             n_kv=n_kv, head_dim=head_dim,
             plus_bias_alpha=params["alpha"],
         )
+    elif kind == "facet_gated":
+        if facet_mask is None:
+            raise ValueError("facet_gated method requires facet_mask (from r_per_pair)")
+        ctx = install_facet_gated_hooks(
+            model, B_ont, facet_mask,
+            alpha_base=params["alpha"],
+            n_kv=n_kv, head_dim=head_dim,
+        )
     else:
         raise ValueError(kind)
 
