@@ -434,9 +434,11 @@ def main():
     print(f"[data] {args.dataset}", flush=True)
     with open(args.dataset) as f:
         data = json.load(f)
-    if args.max_samples > 0:
-        data = data[: args.max_samples]
-    print(f"[data] {len(data)} queries", flush=True)
+    start = max(0, args.start_idx)
+    end = start + args.max_samples if args.max_samples > 0 else len(data)
+    data = data[start:end]
+    print(f"[data] {len(data)} queries (slice [{start}:{start+len(data)}])",
+          flush=True)
 
     # Load B_ont if needed
     needs_b_ont = any(m != "no_steer" for m in args.methods)
