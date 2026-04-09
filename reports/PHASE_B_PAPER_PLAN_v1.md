@@ -301,8 +301,8 @@ Our `exp4_2_standard_ppl_benchmark.py` only quantizes the K cache *between* two 
 - `oisa_deployment_context.md` (project — DO NOT cite in paper)
 - `deployment_scale_and_dual_claim.md` (project — 7B-70B target, dual claim)
 - `fokvq_2bit_root_cause_2026_04_09.md` (project)
-- `oc_fokvq_real_ontology_validation_2026_04_09.md` (project — TODAY's main result)
-- `kvsink_vs_oc_fokvq_comparison_2026_04_09.md` (project — orthogonal stackable)
+- `ocq_real_ontology_validation_2026_04_09.md` (project — TODAY's main result; renamed from `oc_fokvq_real_ontology_validation_2026_04_09.md`)
+- `kvsink_vs_ocq_comparison_2026_04_09.md` (project — orthogonal stackable; renamed from `kvsink_vs_oc_fokvq_comparison_2026_04_09.md`)
 
 **External clones**
 - `/tmp/MetaTool` — full repo, MIT license, catalog inspected
