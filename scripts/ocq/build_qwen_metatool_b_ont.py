@@ -247,6 +247,71 @@ def main():
     print(f"  got {len(cat_K)} (facet, cat, layer, head) entries in {time.time()-t0:.1f}s",
           flush=True)
 
+    # --- Stage 1 centering: Wikipedia K-mean calibration ---
+    wiki_means: Dict[Tuple[int, int], np.ndarray] = {}
+    if args.center_from_wiki:
+        print(f"\n[1b/2] Wikipedia K-mean calibration ({args.wiki_tokens} tokens) …",
+              flush=True)
+        t0 = time.time()
+        from datasets import load_dataset
+        ds = load_dataset("wikitext", "wikitext-2-raw-v1", split="train")
+        texts = [t for t in ds["text"] if len(t.strip()) > 100]
+        calib_text = "\n\n".join(texts[:500])
+        ids = tok(calib_text, return_tensors="pt", truncation=True,
+                  max_length=args.wiki_tokens)["input_ids"].to(args.device)
+
+        pl_buf = [None] * n_layers
+        handles = []
+        for li in target_layers:
+            layer = model.model.layers[li]
+            def make_hook(li_):
+                def h(m, inp, out):
+                    pl_buf[li_] = out.detach().cpu().float().numpy()
+                return h
+            handles.append(layer.self_attn.k_proj.register_forward_hook(make_hook(li)))
+
+        # Run in chunks to avoid OOM on very long contexts
+        chunk = 2048
+        sums = {(li, h): np.zeros(head_dim, dtype=np.float64) for li in target_layers for h in range(n_kv)}
+        counts = {(li, h): 0 for li in target_layers for h in range(n_kv)}
+        T = ids.shape[1]
+        for start in range(0, T, chunk):
+            sub = ids[:, start:start + chunk]
+            if sub.shape[1] == 0:
+                continue
+            model(sub, use_cache=False)
+            for li in target_layers:
+                K_li = pl_buf[li]
+                if K_li is None:
+                    continue
+                K_li = K_li[0].reshape(K_li.shape[1], n_kv, head_dim)
+                if K_li.shape[0] > 1:
+                    K_li = K_li[1:]  # skip BOS of the chunk
+                for h in range(n_kv):
+                    sums[(li, h)] += K_li[:, h, :].sum(axis=0).astype(np.float64)
+                    counts[(li, h)] += K_li.shape[0]
+
+        for hd in handles:
+            hd.remove()
+
+        for (li, h) in sums:
+            c = counts[(li, h)]
+            wiki_means[(li, h)] = (sums[(li, h)] / max(c, 1)).astype(np.float32)
+
+        total_tokens = counts[(target_layers[0], 0)]
+        print(f"  wiki-mean computed over {total_tokens} content tokens "
+              f"in {time.time()-t0:.1f}s", flush=True)
+
+        # Subtract wiki_mean from every category-mean BEFORE Gram-Schmidt.
+        # cat_K entries have shape (head_dim,) for each (facet, cat, li, h).
+        n_subtracted = 0
+        for key in list(cat_K.keys()):
+            _, _, li, h = key
+            cat_K[key] = (cat_K[key] - wiki_means[(li, h)]).astype(np.float32)
+            n_subtracted += 1
+        print(f"  subtracted wiki-mean from {n_subtracted} category K vectors",
+              flush=True)
+
     del model
     torch.cuda.empty_cache()
 
