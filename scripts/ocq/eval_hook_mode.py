@@ -127,8 +127,21 @@ def parse_args() -> argparse.Namespace:
                    help="Hard cap on number of windows (0 = use all).")
     p.add_argument("--drop-last", action="store_true",
                    help="Drop final ragged window instead of padding it.")
-    p.add_argument("--methods", nargs="+",
-                   default=["fp16", "uniform", "kivi", "ocq"])
+    p.add_argument(
+        "--methods", nargs="+",
+        default=["fp16", "uniform", "kivi", "ocq"],
+        help=(
+            "Quant methods. Available: fp16, uniform, kivi (my impl), ocq "
+            "(single-pass full pre-RoPE OCQ with B_full + categorical + uniform-residual). "
+            "Prior FOKVQ v3 imports: kivi_v3 (prior kivi_quantize_tensor), "
+            "fokvq_wf (prior fokvq_quantize_head = Pre-RoPE PCA + Water-Filling SOTA), "
+            "turboquant (prior turbo_quantize_head), kvquant (prior kvquant_quantize_head), "
+            "quip (prior quip_quantize_head). "
+            "OCQ + prior residual hybrids: ocq_kivi (1-bit categorical on B_ont + "
+            "prior kivi on residual), ocq_wf (1-bit categorical on B_ont + prior "
+            "Pre-RoPE PCA + WF on residual)."
+        ),
+    )
     p.add_argument("--bits", nargs="+", type=int, default=[2, 3, 4])
     p.add_argument("--kivi-R", type=int, default=128,
                    help="KIVI residual length (last R tokens fp16).")
