@@ -243,7 +243,9 @@ def main():
         "n_layers": n_layers,
         "n_kv": n_kv,
         "head_dim": d,
-        "r_max": r_max,
+        "r_ont": r_min,
+        "r_max_unrtruncated": r_max,
+        "r_median_unrtruncated": r_med,
         "r_per_pair": {f"L{li}_H{h}": r for (li, h), r in r_per_pair.items()},
         "skipped": skipped,
     }
