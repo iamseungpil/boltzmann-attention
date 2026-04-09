@@ -433,6 +433,7 @@ def run_method(
     B_ont: Optional[torch.Tensor],
     n_kv: int,
     head_dim: int,
+    facet_mask: Optional[torch.Tensor] = None,
 ) -> Dict:
     kind, params = parse_method(method)
 
