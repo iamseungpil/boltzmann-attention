@@ -430,7 +430,7 @@ def _self_test() -> None:
                     f"  {res_mode} {ont_mode} res_bits={res_bits}: "
                     f"MSE={mse:.4e}"
                 )
-    print("oc_fokvq self-test passed.")
+    print("ocq self-test passed.")
 
 
 if __name__ == "__main__":
