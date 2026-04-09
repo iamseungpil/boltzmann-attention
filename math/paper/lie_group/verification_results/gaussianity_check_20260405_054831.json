@@ -1,0 +1,29 @@
+{
+  "Qwen2.5-7B": {
+    "mean_excess_kurtosis": 0.5779104898267325,
+    "median_excess_kurtosis": 0.41716800240078,
+    "std_excess_kurtosis": 0.8519464391192934,
+    "pct_kurtosis_gt_1": 12.311662946428571,
+    "pct_kurtosis_gt_3": 2.504185267857143,
+    "shapiro_pass_rate": 21.658761160714285,
+    "n_components": 14336
+  },
+  "Llama-3.1-8B": {
+    "mean_excess_kurtosis": 0.49394763571856226,
+    "median_excess_kurtosis": 0.39064661877526974,
+    "std_excess_kurtosis": 0.6605235820542604,
+    "pct_kurtosis_gt_1": 10.33935546875,
+    "pct_kurtosis_gt_3": 0.8331298828125,
+    "shapiro_pass_rate": 23.150634765625,
+    "n_components": 32768
+  },
+  "Mistral-7B-v0.3": {
+    "mean_excess_kurtosis": 0.5407346636408398,
+    "median_excess_kurtosis": 0.40138204497719254,
+    "std_excess_kurtosis": 1.2611867342169734,
+    "pct_kurtosis_gt_1": 11.60888671875,
+    "pct_kurtosis_gt_3": 1.0406494140625,
+    "shapiro_pass_rate": 22.589111328125,
+    "n_components": 32768
+  }
+}

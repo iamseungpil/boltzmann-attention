@@ -1,0 +1,8 @@
+\section{결론}
+\label{sec:conclusion}
+
+본 논문은 회전 기반 KV 캐시 양자화에서 ``어떤 회전이 최적인가''라는 질문에 답하였다. Class~C 내에서 Pre-RoPE 헤드별 PCA가 MSE를 최소화함을 소스 분포 가정 없이 증명하고 (정리~\ref{thm:optimal_hamiltonian}), 624/624 헤드에서 검증하였다. 이 이론은 KVTC의 공유 PCA 대비 46.3\% PPL 개선과 MMLU +9.2\%p의 실용적 이득으로 이어진다.
+
+동시에 MSE-최적 양자화기 (Lloyd-Max)가 PPL에서 실패하는 현상을 체계적으로 분석하였다. 5가지 후보 수정을 기각하고, 실패 메커니즘을 $L^\infty$ tail error (624/624)로 규명하였다. 이 결과는 ``회전 선택은 MSE 이론으로 해결 가능하지만, 양자화기 설계는 $L^2$를 넘어선 분석이 필요하다''는 Class~C의 구조적 경계를 밝힌다.
+
+향후 연구의 자연스러운 방향은 $L^\infty$-aware 양자화기 설계, attention-weighted 비트 배분, 그리고 2-bit regime에서의 MSE-PPL 전이 이론이다.

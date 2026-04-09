@@ -1,0 +1,15 @@
+{
+  "model": "sshleifer/tiny-gpt2",
+  "method": "fp16",
+  "bits": 2,
+  "tasks": {
+    "winogrande": {
+      "acc": 0.0,
+      "acc_stderr": "N/A",
+      "all_metrics": {
+        "acc,none": 0.0
+      }
+    }
+  },
+  "elapsed": 14.115429162979126
+}

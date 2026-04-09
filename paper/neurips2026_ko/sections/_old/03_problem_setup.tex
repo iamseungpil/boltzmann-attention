@@ -1,0 +1,34 @@
+\section{문제 설정}
+
+한 attention head의 key cache를 $K_t \in \R^{t \times d}$라 하자. 각 행은 과거 토큰의 key 벡터이며, $d$는 head dimension이다. 추론 시점마다 query는 이 $K_t$ 전체를 참조하므로, $t$가 커질수록 메모리 점유와 읽기 대역폭이 함께 증가한다. KV-cache 양자화의 목적은 평균 비트 예산을 줄이면서도 attention 품질과 최종 perplexity 저하를 억제하는 것이다.
+
+이 논문이 다루는 부분은 그중에서도 \emph{key-side 좌표계 선택} 문제다. 어떤 직교 회전 $R \in O(d)$를 선택해 $z = R^\top k$로 옮긴 뒤, 회전된 좌표에서 scalar 또는 mixed-precision quantization을 수행한다고 하자. 이때 방법 간 차이는 사실상 두 가지다.
+
+\begin{enumerate}
+\item \textbf{회전 선택}: $R$을 어떻게 정하는가.
+\item \textbf{회전 후 양자화}: $z$의 어느 축에 더 많은 비트를 줄 것인가.
+\end{enumerate}
+
+우리는 이 두 문제를 분리해 다룬다. 첫 번째는 Lie 군 위의 정적 회전 선택 문제이고, 두 번째는 그 회전된 좌표에서의 rate-distortion 근사 문제다.
+
+\begin{definition}[실효 차원]
+공분산 행렬 $\Sigma \in \R^{d \times d}$의 고유값을 $\lambda_1 \ge \cdots \ge \lambda_d \ge 0$라 하자. 정규화 스펙트럼 $p_i = \lambda_i / \sum_j \lambda_j$에 대해, 실효 차원은
+\[
+\reff(\Sigma)=\exp\Bigl(-\sum_{i=1}^{d} p_i \log p_i\Bigr)
+\]
+로 정의한다.
+\end{definition}
+
+$\reff(\Sigma)$는 분산이 몇 개의 축에 집중되는지를 요약한다. $\reff \ll d$면 강한 비등방성이 존재하고, 회전 기반 압축이 개입할 여지가 크다. 내부 GPT-2 실험에서 관찰된 낮은 $\reff$는 ``회전을 고려할 가치가 있는가''에 대한 가장 기초적인 경험적 전제다.
+
+\begin{definition}[정적 회전 기반 KV 양자화]
+정적 회전 기반 key 양자화기는 다음 꼴의 사상으로 쓴다.
+\[
+Q(k;R,\mathcal{Q}) = R\, \mathcal{Q}(R^\top k),
+\]
+여기서 $R \in O(d)$는 head별로 고정된 회전이고, $\mathcal{Q}$는 회전된 좌표에서 작동하는 양자화기다.
+\end{definition}
+
+이 정의의 장점은 random basis, PCA basis, identity basis, RoPE형 복소 회전의 실수 표현을 한 문장으로 묶어 준다는 것이다. 본 논문은 FOKVQ를 이 공통 형식 안의 한 특수 사례로 본다. 즉 \emph{PCA는 회전 선택의 한 답}이고, \emph{gamma 기반 mixed precision은 회전 후 양자화의 한 답}이다.
+
+모델 측면에서는 GPT-2 Medium을 해석 중심의 MHA 사례로, Qwen 계열을 현대 GQA 사례로 구분해 읽는다 \citep{radford2019language,qwen2024qwen25}. 이 구분은 중요하다. GPT-2는 head별 공분산과 회전 ablation을 빠르게 읽기에 적합하고, Qwen은 실제 배포에 가까운 GQA 환경에서 low-bit baseline이 얼마나 강한지를 보여준다. 따라서 본문의 핵심 논리는 GPT-2에서 먼저 세우고, GQA 결과는 그것이 어디까지 유지되는지 시험하는 위치에 둔다.

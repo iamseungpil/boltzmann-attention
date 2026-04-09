@@ -1,0 +1,17 @@
+\section{관련 연구와 논문의 위치}
+
+\subsection{KV-cache 양자화와 압축}
+
+KV-cache 계열의 직접 비교 대상은 KIVI, KVQuant, ZipCache, GEAR 같은 방법들이다 \citep{liu2024kivi,hooper2024kvquant,he2024zipcache,kang2024gear}. 이들은 대체로 현재의 좌표계 안에서 scale, clipping, mixed precision, residual tail, salient-token handling을 조정해 손실을 줄인다. 즉 문제를 ``현재 표현을 어떻게 손상 덜 시킬 것인가''로 둔다. 이 방향은 실용적으로 매우 중요하고, 현재 표준 PPL 비교에서도 강한 baseline으로 남아 있다.
+
+\subsection{회전 기반 양자화}
+
+다른 흐름은 회전 또는 등방화 기반 접근이다. QuIP\#은 weight-only PTQ에서 Hadamard 계열 회전과 codebook을 결합했고 \citep{tseng2024quipsharp}, TurboQuant는 회전과 양자화를 결합한 online vector quantization 관점을 제시한다 \citep{zandieh2025turboquant}. 이 계열의 공통점은 \emph{양자화 전에 좌표계를 바꾼다}는 점이다. 하지만 보통의 서술은 여전히 ``회전을 하면 분산이 평균화되어 양자화가 쉬워진다'' 수준에 머문다. 본 초안은 여기서 한 걸음 더 나아가, 회전 자체를 Lie 군 작용으로 보고 ``좋은 회전은 어떤 생성자 선택에서 나오는가''를 묻는다.
+
+\subsection{왜 Lie 군 해석이 필요한가}
+
+폴더의 FOKVQ v3/v6, DHS, M-SSM 문서군은 모두 지수사상과 정보기하를 공통 언어로 사용한다. 다만 그중 일부는 현재 실험보다 훨씬 넓은 범위의 일반화를 시도하고 있다. 본 논문은 그 중 가장 보수적인 부분만 채택한다. 즉 다음 사실만 사용한다. (i) 직교/유니터리 회전은 Lie 군 원소이고, (ii) RoPE는 블록별 복소 회전의 일매개 부분군으로 읽을 수 있으며, (iii) PCA 기반 회전도 결국 동일한 군 위에서 데이터 공분산에 정렬된 생성자 선택으로 해석할 수 있다. 이 수준의 해석은 현재 실험과 직접 연결되지만, MK 프레임워크 전체나 cross-architecture universal claim까지 밀어붙일 필요는 없다.
+
+\subsection{본 논문의 위치}
+
+따라서 본 논문의 위치는 다음과 같다. 이 논문은 새로운 양자화 커널 자체를 중심 기여로 내세우지 않는다. 대신 \textbf{회전 기반 KV-cache 압축을 Lie 군 관점에서 정리하고, 그중 데이터 공분산에 정렬된 정적 회전으로서 PCA가 왜 자연스러운지 설명하며, 그 해석을 surrogate와 PPL 실험으로 어디까지 지지할 수 있는지 검증하는 논문}이다. 이 위치를 분명히 하면 두 가지가 정리된다. 첫째, QuIP\#처럼 weight-only 방법은 메인 표에서 분리하는 것이 맞다. 둘째, FOKVQ의 현재 부진한 low-bit PPL을 숨기지 않아도, 논문의 중심 기여는 여전히 ``회전 선택의 수학적 해석과 검증''으로 유지될 수 있다.

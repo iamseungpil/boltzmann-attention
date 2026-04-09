@@ -1,0 +1,16 @@
+{
+  "model": "hf-internal-testing/tiny-random-LlamaForCausalLM",
+  "method": "fp16",
+  "bits": 2,
+  "tasks": {
+    "hellaswag": {
+      "acc": 0.0,
+      "acc_stderr": "N/A",
+      "all_metrics": {
+        "acc,none": 0.0,
+        "acc_norm,none": 1.0
+      }
+    }
+  },
+  "elapsed": 22.124338626861572
+}

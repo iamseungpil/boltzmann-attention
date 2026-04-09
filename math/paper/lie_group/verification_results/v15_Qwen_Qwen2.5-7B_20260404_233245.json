@@ -1,0 +1,45 @@
+{
+  "V15-3": {
+    "experiment": "V15-3",
+    "model": "Qwen/Qwen2.5-7B",
+    "2bit": {
+      "uniform": 7.980377188574453,
+      "gaussian_lloyd": 8.343309506158366,
+      "adaptive_lloyd": 8.124541719869367,
+      "adapt_beats_gauss": true,
+      "adapt_beats_uniform": false
+    },
+    "3bit": {
+      "uniform": 6.756892878557927,
+      "gaussian_lloyd": 7.30475415744706,
+      "adaptive_lloyd": 7.33782144114737,
+      "adapt_beats_gauss": false,
+      "adapt_beats_uniform": false
+    },
+    "4bit": {
+      "uniform": 6.603055867366889,
+      "gaussian_lloyd": 6.909532764703953,
+      "adaptive_lloyd": 7.069646982266983,
+      "adapt_beats_gauss": false,
+      "adapt_beats_uniform": false
+    }
+  },
+  "V15-4": {
+    "experiment": "V15-4",
+    "model": "Qwen/Qwen2.5-7B",
+    "2bit": {
+      "uniform": 7.980377188574453,
+      "wf_floor1": 11.255051581028784,
+      "wf_floor2": 7.0984720544684965,
+      "floor2_beats_floor1": true,
+      "floor2_beats_uniform": true
+    },
+    "3bit": {
+      "uniform": 6.756892878557927,
+      "wf_floor1": 6.8823150015083865,
+      "wf_floor2": 6.681162452121255,
+      "floor2_beats_floor1": true,
+      "floor2_beats_uniform": true
+    }
+  }
+}

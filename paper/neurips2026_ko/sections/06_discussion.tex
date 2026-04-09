@@ -1,0 +1,20 @@
+\section{논의와 한계}
+\label{sec:discussion}
+
+\paragraph{본 논문의 위치.}
+본 논문은 새로운 양자화 시스템을 제안하지 않는다. 기존 8가지 회전 기반 방법들이 \emph{왜 작동하거나 실패하는지}에 대한 이론적 이해를 제공한다. KIVI \citep{liu2024kivi}, KVQuant \citep{hooper2024kvquant}, KVTC \citep{staniszewski2025kvtc}, TurboQuant \citep{zandieh2025turboquant}는 각자 outlier 처리, entropy coding, QJL 잔차 양자화 등 직교적 실용 기법을 포함하며, 이들과의 전체 시스템 수준 비교는 회전 선택의 효과를 분리하기 어렵다. 본 논문의 통제된 ablation은 ``어떤 회전이 최적인가''라는 이론적 질문에 집중하며, 이 이론은 기존 시스템의 회전 성분을 대체하여 적용 가능하다.
+
+\paragraph{왜 회전은 안전하고, 양자화기는 위험한가.}
+직교 회전은 양자화 오차의 \emph{방향 분포}만 바꾸고 크기를 왜곡하지 않는다. 따라서 MSE-PPL 순서가 회전에서는 비교적 보존된다 (3-bit에서 4/4 모델). 반면, Lloyd-Max는 비선형 양자화기로서 codebook 경계가 attention 민감도와 무관하게 설계된다. 624/624 $L^\infty$ 측정이 보여주듯, Lloyd는 MSE를 줄이면서 tail error를 증가시키고, softmax가 이 tail error를 지수적으로 증폭한다.
+
+\paragraph{MSE-PPL 전이의 한계.}
+정리~\ref{thm:optimal_hamiltonian}의 MSE 최적성은 분포 무관하게 624/624에서 검증된다. 그러나 PPL 전이는 3-bit 이상에서만 안정적이다 (4/4 모델). 2-bit에서는 2/4 모델에서 PPL 순서가 역전된다. 흥미롭게도, 2-bit에서 PPL이 역전되는 Qwen 모델에서도 MMLU 5-shot은 PCA가 NoRot 대비 +9.2\%p 개선을 보인다. 이것은 MSE-최적 회전이 PPL (토큰 분포 전체의 평균)보다 task-relevant 정보를 더 잘 보존할 수 있음을 시사하지만, 현재 1개 모델의 관찰이므로 일반화에는 추가 검증이 필요하다.
+
+\paragraph{가우시안 가정.}
+정리의 핵심 (PCA 최적성, RoPE 상쇄)은 분포 무관이다. $R_{\mathrm{aniso}}$ 정량값과 $b_{\mathrm{crit}}$ 진단식은 가우시안 근사에 의존하며, 3모델의 초과 첨도 $\bar{\kappa}_4 - 3 \approx 0.5$는 mild non-Gaussianity를 보인다.
+
+\paragraph{평가 범위.} WikiText-2 PPL + MMLU 5-shot. 긴 문맥 (LongBench, NIAH)과 추가 downstream task는 향후 과제이다.
+
+\paragraph{모델 범위.} 7B-14B 규모의 4개 모델. 1-3B 및 30B+ 모델에서의 검증은 미수행.
+
+\paragraph{Class~C의 범위.} 본 논문의 최적성은 Class~C (직교 회전 + 독립 스칼라 양자화) 내에서만 성립한다. 벡터 양자화는 원칙적으로 더 낮은 왜곡을 달성할 수 있으나 추론 비용이 비실용적이다.

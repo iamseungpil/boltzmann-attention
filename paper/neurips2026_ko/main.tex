@@ -1,0 +1,122 @@
+\documentclass{article}
+\usepackage{neurips_2026}
+
+\usepackage{fontspec}
+\usepackage{ucharclasses}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,backgrounds}
+
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{TeX Gyre Termes}
+\newfontfamily\hangulfont[ItalicFont={Noto Sans CJK KR}]{Noto Sans CJK KR}
+\setTransitionsForCJK{\hangulfont}{}{}
+
+\graphicspath{{figures/}}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\abstractname}{초록}
+\renewcommand{\figurename}{그림}
+\renewcommand{\tablename}{표}
+\renewcommand{\refname}{참고문헌}
+\renewcommand{\proofname}{증명}
+\renewenvironment{abstract}
+{%
+  \vskip 0.075in%
+  \centerline{\large\bf 초록}%
+  \vspace{0.5ex}%
+  \begin{quote}%
+}
+{%
+  \par%
+  \end{quote}%
+  \vskip 1ex%
+}
+
+\newcommand{\reff}{r_{\mathrm{eff}}}
+\newcommand{\teff}{T_{\mathrm{eff}}}
+\newcommand{\knorm}{\lVert k \rVert_2^2}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\trace}{\mathrm{tr}}
+\newcommand{\rank}{\mathrm{rank}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+
+% ── Theorem styles: plain amsthm, NeurIPS convention ──
+\newtheoremstyle{fokvqplain}
+  {9pt}{9pt}{\itshape}{}{\bfseries}{.}{ }
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ \textnormal{(#3)}}}
+
+\newtheoremstyle{fokvqdefinition}
+  {9pt}{9pt}{\normalfont}{}{\bfseries}{.}{ }
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ \textnormal{(#3)}}}
+
+\newtheoremstyle{fokvqremark}
+  {9pt}{9pt}{\normalfont}{}{\itshape}{.}{ }
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ \textnormal{(#3)}}}
+
+\theoremstyle{fokvqplain}
+\newtheorem{theorem}{정리}[section]
+\newtheorem{lemma}[theorem]{보조정리}
+\newtheorem{proposition}[theorem]{명제}
+\newtheorem{corollary}[theorem]{따름정리}
+
+\theoremstyle{fokvqdefinition}
+\newtheorem{definition}[theorem]{정의}
+\newtheorem{assumption}[theorem]{가정}
+
+\theoremstyle{fokvqremark}
+\newtheorem{remark}[theorem]{비고}
+
+% ── theorycomment: lightweight small block ──
+\newenvironment{theorycomment}{%
+  \par\smallskip\begingroup\small
+}{%
+  \endgroup\par\smallskip
+}
+
+\title{Pre-RoPE PCA와 KV 캐시 양자화의 회전 선택:\\RoPE 하의 최적성, 한계, 그리고 경계 분석}
+
+\author{
+익명 저자 \\
+NeurIPS 2026 준비용 한국어 내부 초안
+}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_introduction}
+\input{sections/02_background}
+\input{sections/03_theory}
+\input{sections/04_method}
+\input{sections/05_experiments}
+\input{sections/06_discussion}
+\input{sections/07_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/A_proofs}
+
+\newpage
+\input{checklist.tex}
+
+\end{document}

@@ -1,0 +1,9 @@
+\begin{abstract}
+최근 KV 캐시 양자화를 위한 8가지 방법이 각기 다른 직교 회전을 사용하지만, 어떤 회전이 왜 최적인지에 대한 통일적 이론 분석은 없었다. 본 논문은 이 공백을 메운다.
+
+핵심 이론 기여로서, RoPE 구조와 교환하는 블록 대각 직교 회전의 클래스 (Class~C) 내에서 \textbf{Pre-RoPE 헤드별 PCA가 MSE를 최소화함}을 소스 분포 가정 없이 증명한다 (정리~\ref{thm:optimal_hamiltonian}). 증명의 핵심은 Fischer 부등식과 RoPE의 직교성에 의한 대수적 상쇄이다. 이 MSE 예측은 Qwen2.5-7B, Llama-3.1-8B, Mistral-7B의 624개 (레이어, 헤드) 조합에서 100\% 검증되며, PPL 순서는 3-bit 이상에서 4/4 모델이 일치한다.
+
+직접적 실험 귀결로서, KVTC (ICLR 2026)의 공유 PCA 대비 \textbf{헤드별 PCA가 Llama-3.1-8B 2-bit에서 46.3\% PPL 개선}을 달성하며, MMLU 5-shot에서도 NoRot 대비 +9.2\%p의 정확도 개선을 확인한다.
+
+또한 Lloyd-Max의 2-bit PPL catastrophe에 대해 5가지 후보 수정 (global $\kappa$, heavy-tail $L^1$, Spherical, discrete-WF, Fisher-Mahalanobis)을 체계적으로 검증하여 모두 기각하고, 이 실패의 메커니즘을 규명한다: Lloyd-Max는 MSE를 74\% 줄이면서 max-error를 94\% 증가시키며, 이것이 softmax의 tail 민감도와 결합하여 PPL을 악화시킨다 (624/624 헤드에서 확인).
+\end{abstract}

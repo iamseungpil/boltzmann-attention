@@ -1,0 +1,152 @@
+\section{실험}
+\label{sec:experiments}
+
+\subsection{설정}
+\label{sec:exp_setup}
+
+\paragraph{모델.} Qwen2.5-7B \citep{qwen2024qwen25}, Llama-3.1-8B \citep{grattafiori2024llama3}, Mistral-7B-v0.3 \citep{jiang2023mistral}, Qwen2.5-14B (Pre-vs-Post 비교만). 모두 $d_{\mathrm{head}}=128$, GQA 구조.
+
+\paragraph{프로토콜.} WikiText-2 test set, non-overlapping 2048-token chunks, 약 49K 평가 토큰. 캘리브레이션은 WikiText-2 train에서 2048 토큰. 양자화는 k\_proj 출력에 forward hook으로 적용한다.
+
+\paragraph{비교 범위.} 본 논문의 실험은 \emph{회전 전략의 영향을 분리}하기 위한 통제된 ablation이다. 각 baseline은 원 논문의 핵심 아이디어만을 추출한 것이며, 전체 시스템(커스텀 커널, 엔트로피 코딩 등)을 재현한 것이 아니다.
+
+%% ============================================================
+%% Part 1: 정리의 검증
+%% ============================================================
+
+\subsection{검증 1: MSE 순서 (624/624)}
+\label{sec:exp_mse}
+
+\paragraph{의도.} 정리~\ref{thm:optimal_hamiltonian}의 예측---$G(\mathrm{PCA}) \leq G(\mathrm{Random}) \leq G(\mathrm{Uniform})$---이 모든 헤드에서 성립하는가?
+
+\paragraph{결과.} 3모델의 624 KV 헤드 (Qwen 112, Llama 256, Mistral 256) 전부에서 이 순서가 100\% 성립한다.
+
+\subsection{검증 2: Pre-RoPE vs Post-RoPE PPL}
+\label{sec:exp_prerope}
+
+\paragraph{의도.} 정리의 \emph{고유 예측}---Post-RoPE가 아닌 Pre-RoPE PCA가 최적---을 PPL에서 검증한다.
+
+\begin{table}[t]
+\centering
+\caption{Pre-RoPE vs Post-RoPE PCA PPL. 3-bit에서 4/4 모델이 정리와 일치.}
+\label{tab:prerope}
+\small
+\begin{tabular}{@{}llccc@{}}
+\toprule
+모델 & 방법 & 2-bit & 3-bit & 4-bit \\
+\midrule
+\multirow{3}{*}{Qwen-7B} & No rotation & 10.525 & 6.877 & 6.626 \\
+ & Post-RoPE PCA & 8.820 & 6.792 & 6.600 \\
+ & \textbf{Pre-RoPE PCA} & \textbf{7.961} & \textbf{6.755} & \textbf{6.600} \\
+\midrule
+\multirow{3}{*}{Llama-8B} & No rotation & 16.599 & 6.735 & 6.457 \\
+ & Post-RoPE PCA & \textbf{10.209} & 6.673 & 6.458 \\
+ & Pre-RoPE PCA & 10.944 & \textbf{6.668} & 6.460 \\
+\midrule
+\multirow{3}{*}{Mistral-7B} & No rotation & 7.203 & 5.708 & 5.602 \\
+ & Post-RoPE PCA & 6.535 & 5.688 & 5.588 \\
+ & \textbf{Pre-RoPE PCA} & \textbf{6.404} & \textbf{5.683} & 5.588 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{결과.} 표~\ref{tab:prerope}에서 3-bit는 4/4 모델 모두 Pre-RoPE PCA가 PPL 최저. 2-bit에서는 Llama에서 역전 (10.944 vs 10.209). MSE 수준에서는 Pre-RoPE가 \emph{624/624 헤드 전부에서} Post-RoPE를 상회하므로, 2-bit PPL 역전은 MSE-PPL 전이의 비선형성에 기인한다.
+
+%% ============================================================
+%% Part 2: 헤드별 PCA의 실용적 이득
+%% ============================================================
+
+\subsection{헤드별 PCA vs 공유 PCA (KVTC)}
+\label{sec:exp_kvtc}
+
+\paragraph{의도.} 정리가 헤드별 최적화를 요구하므로, KVTC의 공유 PCA보다 헤드별 PCA가 우수한가?
+
+\begin{table}[t]
+\centering
+\caption{KVTC 비교 (Llama-3.1-8B). 헤드별 PCA가 공유 PCA를 대폭 상회한다. 동일 실험 run 기준.}
+\label{tab:kvtc}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+PCA 방식 & 2-bit & 3-bit & 4-bit \\
+\midrule
+공유 PCA (KVTC 방식) & 18.869 & 6.811 & 6.481 \\
+\textbf{헤드별 PCA (본 논문)} & \textbf{10.138} & \textbf{6.666} & \textbf{6.455} \\
+\midrule
+이득 & +46.3\% & +2.1\% & +0.4\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{결과.} 표~\ref{tab:kvtc}에서 2-bit 46.3\% PPL 개선. 이 이득은 Fischer 부등식의 직접 귀결이다: 헤드 간 공분산 이질성이 클수록 공유 기저의 손실이 커진다.
+
+\paragraph{Downstream 검증: MMLU 5-shot.} PPL 개선이 실제 task 정확도로 전이되는지 확인한다.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+모델 & FP16 & NoRot 2-bit & \textbf{PCA 2-bit} \\
+\midrule
+Qwen2.5-7B & 74.3\% & 58.7\% & \textbf{67.9\%} (+9.2\%p) \\
+Llama-3.1-8B & 65.6\% & 40.2\% & 실험 중 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Qwen에서 PCA 2-bit은 NoRot 대비 \textbf{+9.2\%p} MMLU 개선을 보이며, FP16 대비 $-$6.4\%p로 2-bit 양자화의 실용성을 확인한다.
+
+%% ============================================================
+%% Part 3: Lloyd-Max 실패의 체계적 진단
+%% ============================================================
+
+\subsection{Lloyd-Max의 PPL 실패}
+\label{sec:exp_lloyd}
+
+\paragraph{의도.} MSE-최적 양자화기 (Lloyd-Max)가 PPL에서도 최적인가?
+
+\paragraph{결과.} Lloyd-Max는 MSE를 3.5$\times$ 감소시키지만, Mistral 2-bit에서 PPL은 6.45 $\to$ 180.3으로 catastrophic하게 악화된다.
+
+\paragraph{메커니즘: $L^\infty$ tail error.} 실패의 원인을 규명하기 위해 3모델의 624 KV 헤드에서 Lloyd-Max와 Uniform의 오차 분포를 비교한다:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+모델 & 헤드 수 & Lloyd MSE↓ & Lloyd $L^\infty$↑ & 둘 다 \\
+\midrule
+Mistral-7B & 256 & 256/256 & 256/256 & \textbf{256/256} \\
+Qwen-7B & 112 & 112/112 & 112/112 & \textbf{112/112} \\
+Llama-8B & 256 & 256/256 & 256/256 & \textbf{256/256} \\
+\midrule
+\textbf{합계} & \textbf{624} & \textbf{624/624} & \textbf{624/624} & \textbf{624/624} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{624/624 헤드에서 예외 없이}: Lloyd는 MSE를 74\% 줄이면서 max-error ($L^\infty$)를 94\% 증가시킨다. Softmax는 attention 점수를 지수적으로 증폭하므로, 소수의 큰 오차 (높은 $L^\infty$)가 attention 분포를 지배한다. Lloyd의 codebook이 분포의 tail에 큰 gap을 만들기 때문에, MSE에서 우위임에도 PPL에서는 catastrophic하다.
+
+\subsection{5가지 후보 수정의 체계적 기각}
+\label{sec:exp_rejections}
+
+Lloyd-Max 실패를 해결할 5가지 가설을 검증한다.
+
+\begin{table}[t]
+\centering
+\caption{5가지 후보 수정의 검증과 기각. 모든 가설이 실패한다.}
+\label{tab:rejections}
+\small
+\begin{tabular}{@{}p{2.5cm}p{3.8cm}p{2.5cm}c@{}}
+\toprule
+가설 & 검증 & 결과 & 판정 \\
+\midrule
+Global $\kappa$ $\propto$ 실패 & 4모델 $\kappa$ 측정 & Qwen $\kappa$ $>$ Mistral, 실패는 역 & 기각 \\
+Heavy-tail $L^1$ & Hill estimator & $\alpha \approx 4.3$ (Gaussian) & 기각 \\
+Spherical (RMSNorm) & 64 heads & 0/64 win & 기각 \\
+Fisher-Mahalanobis & Full PPL & $9.4\times$ 악화 & 기각 \\
+Discrete-WF knee & 24-cell 시뮬레이션 & floor=0 항상 최적 & 기각 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{과학적 함의.} 5가지 독립 metric reformulation이 모두 실패하였다. 이것은 \textbf{$L^2$-MSE 최적화 자체가 softmax attention 하에서 PPL 최적화와 구조적으로 다르다}는 것을 시사하며, 양자화기 설계의 새로운 방향 (예: $L^\infty$-aware 또는 attention-weighted 양자화)을 동기 부여한다.

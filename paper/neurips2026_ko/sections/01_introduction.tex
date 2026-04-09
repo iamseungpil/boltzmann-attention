@@ -1,0 +1,18 @@
+\section{서론}
+\label{sec:intro}
+
+KV 캐시는 긴 문맥 추론에서 메모리의 주된 병목이다. 2-bit 양자화는 8$\times$ 메모리 절약을 제공하지만, 품질 저하가 크다. 최근 8가지 방법 --- KIVI \citep{liu2024kivi}, KVQuant \citep{hooper2024kvquant}, GEAR \citep{kang2024gear}, TurboQuant \citep{zandieh2025turboquant}, KVTC \citep{staniszewski2025kvtc}, SpinQuant \citep{liu2024spinquant}, PolarQuant \citep{wu2025polarquant} 등 --- 이 각기 다른 직교 회전을 키 벡터에 적용한 뒤 양자화하지만, \emph{어떤 회전이 왜 최적인지}에 대한 이론적 분석은 없었다.
+
+본 논문은 이 공백을 Lie 군 프레임워크로 해결하고, 이 이론이 작동하는 범위와 한계를 정직하게 밝힌다.
+
+\paragraph{기여.}
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
+\item \textbf{정리~\ref{thm:optimal_hamiltonian}: Pre-RoPE PCA의 MSE 최적성.} RoPE 구조와 교환하는 블록 대각 직교 회전의 클래스 (Class~C) 내에서, Pre-RoPE 헤드별 PCA가 MSE를 최소화함을 소스 분포 가정 없이 증명한다. 핵심은 Fischer 부등식과 RoPE의 직교성에 의한 상쇄이다. 이 MSE 예측은 624개 (레이어, 헤드) 조합에서 100\% 검증된다.
+
+\item \textbf{헤드별 PCA $>$ 공유 PCA.} KVTC (ICLR 2026)의 공유 PCA 대비 헤드별 PCA가 Llama-3.1-8B 2-bit에서 \textbf{46.3\% PPL 개선}을 달성한다. 이것은 정리~\ref{thm:optimal_hamiltonian}의 직접적 귀결이다 (Fischer 부등식). MMLU 5-shot에서도 NoRot 대비 \textbf{+9.2\%p} 정확도 개선을 확인한다.
+
+\item \textbf{Lloyd-Max 실패의 체계적 진단.} MSE-최적 양자화기 (Lloyd-Max)가 2-bit에서 PPL catastrophe를 일으키는 현상에 대해 5가지 후보 수정을 체계적으로 검증하여 모두 기각한다. 실패 메커니즘을 규명한다: Lloyd-Max는 MSE를 74\% 줄이면서 max-error ($L^\infty$)를 94\% 증가시키며 (624/624 헤드에서 확인), 이것이 softmax의 tail 민감도와 결합하여 PPL을 악화시킨다.
+\end{enumerate}
+
+\paragraph{범위와 한계.} 본 논문은 회전 선택 (Axis 1)에 집중한다. 양자화기 선택 (Axis 2)과 비트 배분 (Axis 3)은 분석하되 새로운 방법을 제안하지 않는다. 2-bit에서 MSE 순서가 PPL 순서로 전이되지 않는 모델이 존재하며 (2/4), 이것을 한계로 인정한다.

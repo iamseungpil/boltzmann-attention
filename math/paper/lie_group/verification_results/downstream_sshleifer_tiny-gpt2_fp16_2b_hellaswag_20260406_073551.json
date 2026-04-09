@@ -1,0 +1,16 @@
+{
+  "model": "sshleifer/tiny-gpt2",
+  "method": "fp16",
+  "bits": 2,
+  "tasks": {
+    "hellaswag": {
+      "acc": 0.0,
+      "acc_stderr": "N/A",
+      "all_metrics": {
+        "acc,none": 0.0,
+        "acc_norm,none": 0.0
+      }
+    }
+  },
+  "elapsed": 101.98255443572998
+}

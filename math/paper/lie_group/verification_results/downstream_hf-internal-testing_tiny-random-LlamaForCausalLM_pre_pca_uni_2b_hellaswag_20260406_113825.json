@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-04-06T11:38:25.210361",
+  "hostname": "GCRAZGDL1471",
+  "python_version": "3.11.15 (main, Mar 11 2026, 17:20:07) [GCC 14.3.0]",
+  "torch_version": "2.6.0+cu124",
+  "transformers_version": "5.3.0",
+  "lm_eval_version": "0.4.11",
+  "git_head": "48737f6fad5d1fa650315a56381a87626d94a7a4",
+  "harness_name": "run_downstream.py",
+  "harness_version": "v2_provenance_hardened",
+  "model": "hf-internal-testing/tiny-random-LlamaForCausalLM",
+  "model_type": "llama",
+  "model_revision": "9fb191250dd56d0ba7ec9785a025ed29c03d5998",
+  "tokenizer_revision": null,
+  "method": "pre_pca_uni",
+  "bits": 2,
+  "display_name": "Pre-RoPE PCA + Uniform",
+  "requested_method": "pre_pca_uni",
+  "canonical_method": "pre_pca_uni",
+  "claim_label": "Pre-RoPE PCA + uniform",
+  "support_level": "supported",
+  "baseline_family": "fokvq_core",
+  "implementation_key": "fokvq_uniform_ref",
+  "implementation_source": "scripts/exp4_2_v3_full_quant_ppl.py",
+  "method_provenance": "same-harness candidate imported from the shared v3 quantizer module",
+  "implementation_scope": "shared same-harness FOKVQ uniform quantizer imported from the v3 module",
+  "official_reproduction": false,
+  "pilot_only": false,
+  "harness_scope": "scope-limited same-harness downstream ablation",
+  "harness_limitations": [
+    "Only decoder models with model.layers[*].self_attn.{q_proj,k_proj} are supported.",
+    "Quantized entries are same-harness methods or same-harness proxy controls only.",
+    "This runner is not an official reproduction of KIVI, TurboQuant, or exp4_2_v3 full-quant PPL.",
+    "Method aliases retained for plan vocabulary may map to simpler runner-local implementations."
+  ],
+  "same_harness_only": true,
+  "overclaim_guard": "Do not cite this as an official KIVI/TurboQuant/full-v3 reproduction; interpret only within this downstream runner's same-harness scope.",
+  "architecture_support": "decoder models with model.layers[*].self_attn.{q_proj,k_proj}",
+  "calibration_source": "wikitext-2-raw-v1 train split, first 50 non-empty texts, max_length=2048",
+  "calibration_dataset_revision": "wikitext-2-raw-v1",
+  "calibration_seed": 42,
+  "quantization_seed": 42,
+  "calibration_artifact_identity": {
+    "dataset": "wikitext",
+    "subset": "wikitext-2-raw-v1",
+    "split": "train",
+    "text_selection": "first 50 non-empty texts joined by double newlines",
+    "max_length": 2048,
+    "space": "pre-RoPE k_proj outputs",
+    "tokenizer_name_or_path": "hf-internal-testing/tiny-random-LlamaForCausalLM"
+  },
+  "calibration_tokens_max_length": 2048,
+  "tasks_requested": [
+    "hellaswag"
+  ],
+  "num_fewshot": 0,
+  "limit": 1,
+  "device": "cpu",
+  "dtype": "torch.float32",
+  "attn_implementation": "eager",
+  "cache_dir": null,
+  "pilot_scope": true,
+  "prompt_scoring_path": "lm_eval.simple_evaluate -> HFLM(batch_size=1)",
+  "kv_heads": 4,
+  "attention_heads": 4,
+  "d_head": 4,
+  "n_layers": 2,
+  "tasks": {
+    "hellaswag": {
+      "acc": 0.0,
+      "acc_stderr": "N/A",
+      "primary_metric_name": "acc,none",
+      "stderr_metric_name": "acc_stderr,none",
+      "all_metrics": {
+        "acc,none": 0.0,
+        "acc_norm,none": 1.0
+      }
+    }
+  },
+  "elapsed": 16.36981701850891
+}
