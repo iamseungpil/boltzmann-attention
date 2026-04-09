@@ -154,6 +154,9 @@ def parse_args() -> argparse.Namespace:
                    help="Residual axis bits. 0 = follow --bits sweep.")
     p.add_argument("--ocq-r-ont", type=int, default=0,
                    help="Override r_ont. 0 = use B_ont tensor's r_ont.")
+    p.add_argument("--ocq-wf-gamma", type=float, default=0.3,
+                   help="Eigenvalue weighting exponent for ocq_wf and fokvq_wf "
+                        "(prior FOKVQ default 0.3).")
     # Data
     p.add_argument("--dataset", default="wikitext-2-raw-v1")
     p.add_argument("--cache-dir", default="")
