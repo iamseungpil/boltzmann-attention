@@ -349,7 +349,7 @@ def ocq_quantize_head(
     return torch.matmul(coeffs_q, B_full.transpose(-1, -2))
 
 
-def oc_fokvq_quantize(
+def ocq_quantize(
     keys: torch.Tensor,         # (B, H, S, d)
     B_full_per_head: torch.Tensor,  # (H, d, d)
     r_ont: int,
@@ -422,7 +422,7 @@ def _self_test() -> None:
         keys = torch.randn(B, H, S, d, dtype=torch.float32)
         for ont_mode in ["1a", "1b", "1c"]:
             for res_bits in [2, 3, 4]:
-                k_q = oc_fokvq_quantize(
+                k_q = ocq_quantize(
                     keys, B_per_head, r_ont, ont_mode, res_bits,
                 )
                 assert k_q.shape == keys.shape
