@@ -378,6 +378,19 @@ def run_method(
                     "generation": generation[:200],
                     "choice": choice,
                 })
+            elif args.dump_failures:
+                is_wrong = (not is_none_query) and (
+                    choice is None or choice.lower() != gt.lower()
+                )
+                if is_wrong:
+                    sample_log.append({
+                        "index": entry.get("index"),
+                        "gt": gt,
+                        "cands": cands,
+                        "generation": generation[:300],
+                        "choice": choice,
+                        "reason": "no_match" if choice is None else ("none_pred" if choice == "None" else "wrong_tool"),
+                    })
 
     runtime = time.time() - t0
     n_total = total + none_total
