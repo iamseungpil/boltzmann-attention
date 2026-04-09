@@ -721,6 +721,7 @@ def evaluate_quantized_sliding_window(
     fokvq_adaptive_energy_frac: float,
     fokvq_clip_quantile: float,
     turbo_codebooks: Optional[Dict[int, torch.Tensor]] = None,
+    sink_len: int = 0,
 ) -> Dict[str, float]:
     total_nll = 0.0
     total_tokens = 0
