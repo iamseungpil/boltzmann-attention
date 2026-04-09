@@ -379,7 +379,7 @@ Our `exp4_2_standard_ppl_benchmark.py` only quantizes the K cache *between* two 
 
 3. **2a vs 2b residual mode**: nearly identical with PCA-pseudo (as expected) and within noise on real ontology (1b_2a 6.94 vs 1b_2b 6.92 at 4-bit). Empirically minor but theoretically distinct.
 
-4. **Sink fix interaction with OCQ**: sink fix benefits KIVI but worsens legacy FOKVQ. Untested whether OCQ behaves like KIVI or like legacy FOKVQ on this axis. Should be tested.
+4. **Sink fix interaction with OCQ**: sink fix benefits KIVI but worsens the prior bit-schedule variant. Untested whether OCQ behaves like KIVI or like that variant on this axis. Should be tested.
 
 5. **Long-context regime (LongBench, RULER)**: OCQ assumes K-space anisotropy is consistent across the cache. Long-context K stats may differ from short-context calibration. Re-calibration on long-context corpus may be needed.
 
