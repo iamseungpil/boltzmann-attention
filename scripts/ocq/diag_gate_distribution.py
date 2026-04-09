@@ -93,64 +93,86 @@ def parse_args() -> argparse.Namespace:
 # ---------------------------------------------------------------------
 
 class GateAcc:
-    """Per-layer per-facet running stats + per-layer Σ_f g_f histogram.
+    """Per-layer per-facet running stats, split by token-position bucket.
 
-    All counters are kept on CPU as float64 to avoid precision drift.
-    Individual hook calls pull the per-layer contributions off the GPU
-    with small .item() / single-scalar transfers.
+    Buckets: "bos" (pos==0) and "rest" (pos>=1). The Qwen2.5 attention-sink
+    outlier lives at pos==0; the B_ont construction in
+    ``build_qwen_metatool_b_ont.py`` already skips pos==0 when collecting
+    ontology K's (``K_li = K_li[1:]`` at line 172). The diagnostic must
+    therefore also separate the two buckets so we can tell whether the
+    L0 ``g_{f0} ≈ 1`` pathology is a BOS-only artifact or a genuine
+    non-BOS phenomenon.
+
+    All counters are kept on CPU as float64.
     """
+
+    BUCKETS = ("bos", "rest")
 
     def __init__(self, L: int, n_facets: int, n_bins: int, hist_max: float):
         self.L = L
         self.n_facets = n_facets
         self.n_bins = n_bins
         self.hist_max = hist_max
-        self.g_sum = torch.zeros(L, n_facets, dtype=torch.float64)
-        self.g_sqsum = torch.zeros(L, n_facets, dtype=torch.float64)
-        self.n_obs = torch.zeros(L, dtype=torch.float64)  # # of (B,H,T) points
-        self.sigma_sum = torch.zeros(L, dtype=torch.float64)
-        self.sigma_sqsum = torch.zeros(L, dtype=torch.float64)
-        self.hist = torch.zeros(L, n_bins, dtype=torch.float64)
+        # One set of counters per bucket
+        self._s = {
+            b: {
+                "g_sum": torch.zeros(L, n_facets, dtype=torch.float64),
+                "g_sqsum": torch.zeros(L, n_facets, dtype=torch.float64),
+                "n_obs": torch.zeros(L, dtype=torch.float64),
+                "sigma_sum": torch.zeros(L, dtype=torch.float64),
+                "sigma_sqsum": torch.zeros(L, dtype=torch.float64),
+                "hist": torch.zeros(L, n_bins, dtype=torch.float64),
+            }
+            for b in self.BUCKETS
+        }
 
-    def add(self, layer: int, g_per_f: torch.Tensor, sigma: torch.Tensor):
-        # g_per_f: (n_facets, N), sigma: (N,) — all on CPU float64 already.
-        N = sigma.numel()
-        self.g_sum[layer] += g_per_f.sum(dim=1)
-        self.g_sqsum[layer] += (g_per_f ** 2).sum(dim=1)
-        self.n_obs[layer] += N
-        self.sigma_sum[layer] += sigma.sum()
-        self.sigma_sqsum[layer] += (sigma ** 2).sum()
-        # Histogram with torch.bincount
+    def add_bucket(
+        self, bucket: str, layer: int,
+        g_per_f: torch.Tensor, sigma: torch.Tensor,
+    ):
+        # g_per_f: (n_facets, N), sigma: (N,)
+        if sigma.numel() == 0:
+            return
+        s = self._s[bucket]
+        s["g_sum"][layer] += g_per_f.sum(dim=1)
+        s["g_sqsum"][layer] += (g_per_f ** 2).sum(dim=1)
+        s["n_obs"][layer] += sigma.numel()
+        s["sigma_sum"][layer] += sigma.sum()
+        s["sigma_sqsum"][layer] += (sigma ** 2).sum()
         idx = torch.clamp(
             (sigma / self.hist_max * self.n_bins).long(),
             min=0, max=self.n_bins - 1,
         )
-        self.hist[layer] += torch.bincount(idx, minlength=self.n_bins).double()
+        s["hist"][layer] += torch.bincount(idx, minlength=self.n_bins).double()
+
+    def _bucket_dict(self, bucket: str) -> Dict:
+        s = self._s[bucket]
+        n = s["n_obs"].clamp(min=1.0)
+        mean = s["g_sum"] / n.unsqueeze(1)
+        var = (s["g_sqsum"] / n.unsqueeze(1)) - mean ** 2
+        std = var.clamp(min=0.0).sqrt()
+        sigma_mean = s["sigma_sum"] / n
+        sigma_var = (s["sigma_sqsum"] / n) - sigma_mean ** 2
+        sigma_std = sigma_var.clamp(min=0.0).sqrt()
+        n_tot = s["n_obs"].sum().clamp(min=1)
+        return {
+            "n_obs_per_layer": s["n_obs"].tolist(),
+            "g_f_mean_per_layer": mean.tolist(),
+            "g_f_std_per_layer": std.tolist(),
+            "sigma_mean_per_layer": sigma_mean.tolist(),
+            "sigma_std_per_layer": sigma_std.tolist(),
+            "hist_per_layer": s["hist"].tolist(),
+            "g_f_mean_global": (s["g_sum"].sum(dim=0) / n_tot).tolist(),
+            "sigma_mean_global": float(s["sigma_sum"].sum() / n_tot),
+        }
 
     def to_dict(self) -> Dict:
-        n = self.n_obs.clamp(min=1.0)
-        mean = (self.g_sum / n.unsqueeze(1))
-        var = (self.g_sqsum / n.unsqueeze(1)) - mean ** 2
-        std = var.clamp(min=0.0).sqrt()
-        sigma_mean = self.sigma_sum / n
-        sigma_var = (self.sigma_sqsum / n) - sigma_mean ** 2
-        sigma_std = sigma_var.clamp(min=0.0).sqrt()
         return {
             "L": self.L,
             "n_facets": self.n_facets,
-            "n_obs_per_layer": self.n_obs.tolist(),
-            "g_f_mean_per_layer": mean.tolist(),        # (L, n_facets)
-            "g_f_std_per_layer": std.tolist(),
-            "sigma_mean_per_layer": sigma_mean.tolist(),  # (L,)
-            "sigma_std_per_layer": sigma_std.tolist(),
-            "hist_per_layer": self.hist.tolist(),       # (L, n_bins)
-            "hist_max": self.hist_max,
             "n_bins": self.n_bins,
-            # Global (token-weighted) averages
-            "g_f_mean_global": (self.g_sum.sum(dim=0)
-                                / self.n_obs.sum().clamp(min=1)).tolist(),
-            "sigma_mean_global": float(
-                self.sigma_sum.sum() / self.n_obs.sum().clamp(min=1)),
+            "hist_max": self.hist_max,
+            "buckets": {b: self._bucket_dict(b) for b in self.BUCKETS},
         }
 
 
