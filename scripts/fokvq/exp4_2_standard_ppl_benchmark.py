@@ -938,6 +938,10 @@ def evaluate_quantized_sliding_window(
             fokvq_clip_quantile,
             turbo_codebooks,
             sink_len=sink_len,
+            oc_bases_2a=oc_bases_2a,
+            oc_bases_2b=oc_bases_2b,
+            oc_r_ont=oc_r_ont,
+            oc_res_bits=oc_res_bits,
         )
         key_mse_sum += cache_stats["key_mse_sum"]
         key_mse_count += cache_stats["key_mse_count"]
