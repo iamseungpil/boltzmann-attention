@@ -52,16 +52,23 @@ from ontology_facet_basis import (  # type: ignore
     compute_per_head_sigma,
 )
 
-MODEL_ID = 'Qwen/Qwen3-4B-Base'
-SHORT = 'Qwen3-4B-Base'
-TARGET_LAYERS = list(range(26, 36))
-TARGET_RANK = 8
+# Defaults target Qwen3-4B-Base; override via CLI for other models.
+MODEL_ID = os.environ.get('ONTO_MODEL', 'Qwen/Qwen3-4B-Base')
+SHORT = os.environ.get('ONTO_SHORT', 'Qwen3-4B-Base')
+# Last-10-layers convention. Override via ONTO_LAYERS="22,23,...,31".
+_layers_env = os.environ.get('ONTO_LAYERS')
+if _layers_env:
+    TARGET_LAYERS = [int(x) for x in _layers_env.split(',')]
+else:
+    TARGET_LAYERS = list(range(26, 36))
+TARGET_RANK = int(os.environ.get('ONTO_RANK', '8'))
 DTYPE = torch.bfloat16
 
-OUT_DIR = REPO / 'external' / 'SEKA' / 'seka_projections' / 'ontology-qwen3-4b-rank8'
+_out_tag = os.environ.get('ONTO_OUT_TAG', 'ontology-qwen3-4b-rank8')
+OUT_DIR = REPO / 'external' / 'SEKA' / 'seka_projections' / _out_tag
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 DIAG_DIR = REPO / 'reports' / 'axis2_theoretical_verification'
-DIAG_JSON = DIAG_DIR / 'phase1_ontology_projection_qwen3_4b_rank8.json'
+DIAG_JSON = DIAG_DIR / f'phase1_{_out_tag.replace("-", "_")}.json'
 
 
 def main():
