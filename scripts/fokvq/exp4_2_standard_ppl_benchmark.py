@@ -589,17 +589,17 @@ def quantize_cache(
         quant_target = bulk_part
 
         if method == "uniform":
-            key_quant = symmetric_quantize_last_dim(quant_target, bits)
+            bulk_quant = symmetric_quantize_last_dim(quant_target, bits)
         elif method == "variance":
-            key_quant = quantize_variance_keys(key_cache, bits)
+            bulk_quant = quantize_variance_keys(quant_target, bits)
         elif method == "kivi":
-            key_quant = asymmetric_quantize_seq_dim(key_cache, bits)
+            bulk_quant = asymmetric_quantize_seq_dim(quant_target, bits)
         elif method in {"fokvq", "identity", "random", "fokvq_adaptive", "fokvq_clip"}:
             if fokvq_bases is None:
                 raise ValueError(f"Bases are required for method={method}")
             basis = fokvq_bases[layer_idx].to(device=key_cache.device)
-            key_quant = quantize_nonuniform_with_basis(
-                key_cache.float(),
+            bulk_quant = quantize_nonuniform_with_basis(
+                quant_target.float(),
                 basis,
                 bits,
                 fokvq_topk_frac,
@@ -611,8 +611,8 @@ def quantize_cache(
                 raise ValueError("fokvq_lloyd requires PCA bases and codebooks")
             basis = fokvq_bases[layer_idx].to(device=key_cache.device)
             codebook = turbo_codebooks[bits]
-            key_quant = quantize_turboquant_keys(
-                key_cache.float(),
+            bulk_quant = quantize_turboquant_keys(
+                quant_target.float(),
                 basis,
                 codebook,
                 clip_quantile=fokvq_clip_quantile,
@@ -622,14 +622,21 @@ def quantize_cache(
                 raise ValueError("turboquant requires rotation bases and codebooks")
             basis = fokvq_bases[layer_idx].to(device=key_cache.device)
             codebook = turbo_codebooks[bits]
-            key_quant = quantize_turboquant_keys(
-                key_cache.float(),
+            bulk_quant = quantize_turboquant_keys(
+                quant_target.float(),
                 basis,
                 codebook,
             ).to(dtype=key_cache.dtype)
         else:
             raise ValueError(f"Unsupported quantization method: {method}")
-        diff = (key_cache.float() - key_quant.float()).pow(2)
+
+        # Reassemble: fp16 sink + quantized bulk
+        if eff_sink > 0:
+            key_quant = torch.cat([sink_part, bulk_quant], dim=2)
+        else:
+            key_quant = bulk_quant
+        # MSE stats are computed only on the bulk (quantized) region.
+        diff = (quant_target.float() - bulk_quant.float()).pow(2)
         key_sq_error += float(diff.sum().item())
         key_sq_count += int(diff.numel())
         quantized_layers.append((key_quant,) + tuple(other_items))
