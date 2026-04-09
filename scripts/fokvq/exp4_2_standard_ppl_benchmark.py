@@ -716,6 +716,10 @@ def quantize_cache(
     fokvq_clip_quantile: float,
     turbo_codebooks: Optional[Dict[int, torch.Tensor]] = None,
     sink_len: int = 0,
+    oc_bases_2a: Optional[Dict[int, torch.Tensor]] = None,
+    oc_bases_2b: Optional[Dict[int, torch.Tensor]] = None,
+    oc_r_ont: int = 0,
+    oc_res_bits: int = 2,
 ) -> Tuple[object, Dict[str, float]]:
     legacy_cache, cache_cls = to_legacy_cache(past_key_values)
     quantized_layers = []
