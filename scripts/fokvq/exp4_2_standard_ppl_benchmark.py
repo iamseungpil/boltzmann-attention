@@ -68,11 +68,22 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=4,
         help=(
-            "Number of initial tokens per sequence to preserve in fp16 "
-            "(attention sink protection, Xiao et al. 2024). Applied to "
-            "both calibration (skipped in PCA fit) and quantization "
-            "(first sink-len positions of each cache window kept unquantized). "
+            "Number of initial tokens per cache window to preserve in fp16 "
+            "at evaluation time (attention sink protection, Xiao et al. 2024). "
             "Default: 4. Set to 0 to disable."
+        ),
+    )
+    parser.add_argument(
+        "--calibration-sink-skip",
+        type=int,
+        default=0,
+        help=(
+            "Independently of --sink-len, number of initial tokens per "
+            "calibration sample to exclude when fitting PCA basis. 0 means "
+            "fit PCA on all tokens (legacy behavior); positive values fit "
+            "only on bulk statistics. Independent from --sink-len because "
+            "calibration affects basis variance concentration while "
+            "--sink-len only affects which positions are quantized at eval."
         ),
     )
     parser.add_argument("--output-dir", type=str, required=required, default="/tmp/exp4_2_self_test")
