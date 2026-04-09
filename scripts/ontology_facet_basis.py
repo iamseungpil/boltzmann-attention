@@ -365,7 +365,13 @@ def measure_eta_facet(B, Sigma):
 @torch.no_grad()
 def compute_per_head_sigma(model, tok, target_layers, n_kv, head_dim,
                            n_tokens=N_CALIB_TOKENS):
-    """Compute per-(layer, head) key covariance Σ_K from WT2 train tokens."""
+    """Compute per-(layer, head) key covariance Σ_K from WT2 train tokens.
+
+    BOS handling: position 0 is excluded to match extract_category_K.  This
+    is the critical fix relative to the pre-2026-04-09 pipeline, which
+    computed Σ_K on content∪{BOS} while the facet basis B was built on
+    content only — producing η_facet ≈ 0 for every head (padding artifact).
+    """
     from datasets import load_dataset
 
     ds = load_dataset('wikitext', 'wikitext-2-raw-v1', split='train')
@@ -400,10 +406,16 @@ def compute_per_head_sigma(model, tok, target_layers, n_kv, head_dim,
         K_li = K_li[0]                                  # (T, n_kv*head_dim)
         T = K_li.shape[0]
         K_li = K_li.reshape(T, n_kv, head_dim)
+        # PADDING FIX (2026-04-09): exclude BOS sink token to match the token
+        # selection rule in extract_category_K.  Without this line the basis B
+        # and the covariance Σ_K live on different token supports and η_facet
+        # collapses to ~0 for every head.
+        if K_li.shape[0] > 1:
+            K_li = K_li[1:]
         for h in range(n_kv):
             X = K_li[:, h, :]
             X = X - X.mean(0)
-            Sigma = (X.T @ X) / max(T - 1, 1)
+            Sigma = (X.T @ X) / max(X.shape[0] - 1, 1)
             sigmas[(li, h)] = Sigma.astype(np.float64)
     return sigmas
 
