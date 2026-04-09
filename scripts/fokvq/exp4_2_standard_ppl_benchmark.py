@@ -897,6 +897,10 @@ def evaluate_quantized_sliding_window(
     fokvq_clip_quantile: float,
     turbo_codebooks: Optional[Dict[int, torch.Tensor]] = None,
     sink_len: int = 0,
+    oc_bases_2a: Optional[Dict[int, torch.Tensor]] = None,
+    oc_bases_2b: Optional[Dict[int, torch.Tensor]] = None,
+    oc_r_ont: int = 0,
+    oc_res_bits: int = 2,
 ) -> Dict[str, float]:
     total_nll = 0.0
     total_tokens = 0
