@@ -574,12 +574,34 @@ def main():
           f"[{summary['eta_min']:.4f}, {summary['eta_max']:.4f}]")
     print()
 
-    if summary['eta_median'] >= 0.3:
-        verdict = "PROCEED — quantization+steering combination is viable"
-    elif summary['eta_median'] >= 0.1:
-        verdict = "MARGINAL — proceed with trade-off framing"
+    # η_facet is a diagnostic for basis-vs-variance alignment, not a go/no-go
+    # gate.  In the standalone K-bias paper framing, we only need to confirm
+    # the ontology basis occupies non-trivial K-space variance — catastrophic
+    # misalignment (η ≈ 0 everywhere) would signal a pipeline bug, not a
+    # real finding.
+    if summary['eta_median'] < 1e-6:
+        verdict = (
+            "BUG — η_facet collapsed to ~0 across all heads. "
+            "Check BOS handling and basis/calibration support mismatch."
+        )
+    elif summary['eta_median'] < 0.05:
+        verdict = (
+            "LOW — ontology basis is nearly orthogonal to dominant K-space "
+            "variance.  K-bias injection along these directions may be weak. "
+            "Proceed with Phase 1 but expect small effect at low β."
+        )
+    elif summary['eta_median'] > 0.95:
+        verdict = (
+            "HIGH — ontology basis is near PCA-aligned.  Ontology adds "
+            "little over random basis; verify ontology actually encodes "
+            "semantic contrasts beyond variance structure."
+        )
     else:
-        verdict = "PIVOT — quantization side untenable, focus on steering-only"
+        verdict = (
+            "HEALTHY — ontology basis occupies meaningful K-space variance, "
+            "distinct from both zero-alignment and PCA.  Proceed to Phase 1 "
+            "K-bias injection."
+        )
     print(f"  → verdict: {verdict}")
 
     out = {
