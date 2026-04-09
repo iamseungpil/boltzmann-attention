@@ -594,7 +594,9 @@ def main():
 
     # Load B_ont if needed
     needs_b_ont = any(m != "no_steer" for m in args.methods)
+    needs_facet_mask = any(m.startswith("ocq_facet_gated") for m in args.methods)
     B_ont = None
+    facet_mask = None
     if needs_b_ont:
         if not args.b_ont:
             raise ValueError("--b-ont is required for OCQ methods")
@@ -615,12 +617,32 @@ def main():
             )
         print(f"[ocq] B_ont shape {tuple(B_ont.shape)}", flush=True)
 
+        if needs_facet_mask:
+            if not (isinstance(payload, dict) and "r_per_pair" in payload):
+                raise ValueError(
+                    "ocq_facet_gated requires B_ont payload with 'r_per_pair' dict "
+                    "(rebuild B_ont with scripts/ocq/build_qwen_metatool_b_ont.py)"
+                )
+            r_per_pair = payload["r_per_pair"]
+            n_facets = len(payload.get("facet_order", ["f0", "f1", "f2", "f3"]))
+            r_ont = B_ont.shape[-1]
+            facet_mask = build_facet_masks(
+                r_per_pair, L=L, H=n_kv, r_ont=r_ont, n_facets=n_facets
+            )
+            total_per_facet = facet_mask.sum(dim=(0, 1, 3))  # (n_facets,)
+            print(
+                f"[ocq] facet_mask built: shape {tuple(facet_mask.shape)}, "
+                f"total cols per facet = {total_per_facet.tolist()}",
+                flush=True,
+            )
+
     results = []
     for method in args.methods:
         print(f"\n[eval] {method}", flush=True)
         res = run_method(
             model, tok, data, method, args,
             B_ont=B_ont, n_kv=n_kv, head_dim=head_dim,
+            facet_mask=facet_mask,
         )
         print(
             f"[eval] {method}: top1={res['top1_accuracy']*100:.2f}% "
