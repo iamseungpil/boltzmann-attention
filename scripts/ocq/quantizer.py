@@ -298,7 +298,7 @@ def ocq_quantize_head(
     ont_mode: OntMode,
     res_bits: int,
 ) -> torch.Tensor:
-    """Apply oc-FOKVQ to K vectors for one head.
+    """Apply OCQ to K vectors for one head.
 
     Steps:
     1. Rotate into [B_ont | B_res] basis.
