@@ -77,6 +77,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--diag", default=str(
         REPO / "reports" / "axis2_theoretical_verification" / "build_qwen_metatool_b_ont.json"
     ))
+    parser.add_argument(
+        "--center-facets",
+        action="store_true",
+        help=(
+            "Before SVD within each facet, subtract the grand mean of the "
+            "category-mean K columns. Removes the 'language-mean direction' "
+            "common mode so Range(B) contains only category-differentiating "
+            "directions. Design-time only (Mode C Cor 6.6 consequence does "
+            "not apply, since this modifies operator construction, not "
+            "runtime K correction). Diagnosed 2026-04-10: without centering, "
+            "top-1 singular direction has |cos|>0.99 with random English K "
+            "at L13/L19/L27 h0, causing r_per_pair[function_action]=1."
+        ),
+    )
     return parser.parse_args()
 
 
