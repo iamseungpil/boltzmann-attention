@@ -304,6 +304,13 @@ def main():
     print(f"[load] {args.model} on {args.device}", flush=True)
     t0 = time.time()
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
+    # Left-truncate so that any over-long prompt keeps its trailing
+    # "Answer:" intact. Without this, a right-truncated prompt would
+    # leave logits[0, -1, :] at an arbitrary mid-context token and the
+    # MC scoring would silently break. (Latent bug discovered 2026-04-10
+    # during Cor 6.7 audit; does not fire at max_ctx=3072 on MMLU-all,
+    # max observed length is 3002, but keep the guard in place.)
+    tok.truncation_side = "left"
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     dtype = resolve_dtype(args.model, args.dtype)
