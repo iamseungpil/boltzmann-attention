@@ -81,17 +81,33 @@ def parse_args() -> argparse.Namespace:
         "--center-facets",
         action="store_true",
         help=(
-            "Before SVD within each facet, subtract the grand mean of the "
-            "category-mean K columns. Removes the 'language-mean direction' "
-            "common mode so Range(B) contains only category-differentiating "
-            "directions. Design-time only (Mode C Cor 6.6 consequence does "
-            "not apply, since this modifies operator construction, not "
-            "runtime K correction). Diagnosed 2026-04-10: without centering, "
-            "top-1 singular direction has |cos|>0.99 with random English K "
-            "at L13/L19/L27 h0, causing r_per_pair[function_action]=1."
+            "v2c mode: before SVD within each facet, subtract the empirical "
+            "grand mean of the category-mean K columns (tool-English). "
+            "Design-time only."
         ),
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--center-from-wiki",
+        action="store_true",
+        help=(
+            "Stage 1 improved centering: compute per-(L,h) K-mean across "
+            "~50k Wikipedia content tokens (large, unbiased reference for "
+            "language-mean direction = W_K·E[x] + b_K) and subtract from "
+            "every category-mean BEFORE Gram-Schmidt. More stable than "
+            "--center-facets (which uses only 5.4k tool tokens). Mutually "
+            "exclusive with --center-facets. Design-time, Mode C safe."
+        ),
+    )
+    parser.add_argument(
+        "--wiki-tokens",
+        type=int,
+        default=50000,
+        help="Number of Wikipedia content tokens for wiki-mean calibration.",
+    )
+    args = parser.parse_args()
+    if args.center_facets and args.center_from_wiki:
+        parser.error("--center-facets and --center-from-wiki are mutually exclusive")
+    return args
 
 
 def parse_layers(spec: str, n_layers: int) -> List[int]:
