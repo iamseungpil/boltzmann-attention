@@ -865,6 +865,7 @@ def run() -> None:
         "fokvq_adaptive_energy_frac": args.fokvq_adaptive_energy_frac,
         "fokvq_clip_quantile": args.fokvq_clip_quantile,
         "sink_len": args.sink_len,
+        "calibration_sink_skip": args.calibration_sink_skip,
         "turboquant_note": "turboquant-style random rotation + Lloyd-Max scalar quantization; not an official full TurboQuant reproduction",
         "smoke": args.smoke,
         "results": {},
