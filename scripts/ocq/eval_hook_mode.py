@@ -764,7 +764,8 @@ def run() -> None:
             "res_mode": args.ocq_res_mode,
             "res_bits": args.ocq_res_bits,
             "r_ont_override": args.ocq_r_ont,
-        } if "ocq" in args.methods else None,
+            "wf_gamma": args.ocq_wf_gamma,
+        } if needs_b_ont else None,
         "results": results,
     }
     if args.out:
