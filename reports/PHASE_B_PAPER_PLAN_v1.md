@@ -5,19 +5,19 @@
 **Status**: living plan, supersedes Phase 1.x experiment plans
 **Target venue**: ICLR 2027 (primary) / NeurIPS main track (conditional, subject to 2-week kill-switch gate 2026-04-23)
 
-**Method naming note (2026-04-09)**: this document previously drafted the method as `oc-FOKVQ` (ontology-categorical FOKVQ). Per legal-risk review, the `FOKVQ` token is part of the user's pending patent vocabulary and must not appear in any public-facing artifact. The method is **renamed to `OCQ` (Ontology-Categorical Quantization)** throughout this document and all downstream paper / memory artifacts. Variant tags `oc_fokvq_{1a,1b,1c}_{2a,2b}` are renamed to `OCQ-{1a,1b,1c}-{2a,2b}`. Source file paths under `scripts/fokvq/` are retained in the "Engineering State" section as-is for traceability to the 2026-04-09 experiment logs, pending a separate code-rename decision after patent claim review.
+**Method naming note (2026-04-09)**: this document previously drafted the method as `OCQ` (ontology-categorical FOKVQ). Per legal-risk review, the `FOKVQ` token is part of the user's pending patent vocabulary and must not appear in any public-facing artifact. The method is **renamed to `OCQ` (Ontology-Categorical Quantization)** throughout this document and all downstream paper / memory artifacts. Variant tags `oc_fokvq_{1a,1b,1c}_{2a,2b}` are renamed to `OCQ-{1a,1b,1c}-{2a,2b}`. Source file paths under `scripts/fokvq/` are retained in the "Engineering State" section as-is for traceability to the 2026-04-09 experiment logs, pending a separate code-rename decision after patent claim review.
 
 ---
 
 ## 0. Executive Summary
 
-We propose `oc-FOKVQ` (Ontology-Categorical Facet-Oriented KV Quantization), a training-free non-uniform KV cache quantization method derived from the agent's tool catalog. The method uses a per-(layer, head) ontology basis `B_ont` constructed from semantic facets (function-action × io-type × domain × tool-category) to allocate **1-bit categorical** quantization to a small subset of K-space directions plus variance-proportional uniform quantization to the residual orthogonal complement.
+We propose `OCQ` (Ontology-Categorical Facet-Oriented KV Quantization), a training-free non-uniform KV cache quantization method derived from the agent's tool catalog. The method uses a per-(layer, head) ontology basis `B_ont` constructed from semantic facets (function-action × io-type × domain × tool-category) to allocate **1-bit categorical** quantization to a small subset of K-space directions plus variance-proportional uniform quantization to the residual orthogonal complement.
 
 The same `B_ont` doubles as an inference-time attention bias for tool selection accuracy. This makes the paper a **dual-claim contribution**: one ontology mechanism, two empirical wins (tool disambiguation accuracy + KV cache compression), unified by a single theoretical observation.
 
-The closest prior art, **KVSink** (Su & Yuan, COLM 2025), is **geometrically orthogonal** to our method: KVSink protects sink token *positions* (rows of the T×d KV matrix) at fp16, while oc-FOKVQ rotates the *columns* and quantizes the categorical-decision subspace at 1-bit. The two methods are stackable and we propose a 2×2 ablation grid as the paper's headline experiment.
+The closest prior art, **KVSink** (Su & Yuan, COLM 2025), is **geometrically orthogonal** to our method: KVSink protects sink token *positions* (rows of the T×d KV matrix) at fp16, while OCQ rotates the *columns* and quantizes the categorical-decision subspace at 1-bit. The two methods are stackable and we propose a 2×2 ablation grid as the paper's headline experiment.
 
-**Today's headline finding** (2026-04-09): on Qwen2.5-7B WikiText-2 PPL with the MetaTool catalog-derived ontology, oc-FOKVQ achieves PPL 7.43 at average 1.81 bits versus KIVI's 7.22 at average 2.06 bits — competitive accuracy at 12% lower bit budget. The same configuration with a PCA-derived "pseudo-ontology" gives PPL 11.83, a 4.4 PPL degradation, validating the theoretical claim that categorical 1-bit quantization works on **decision** axes (real ontology) and fails on **variance** axes (PCA).
+**Today's headline finding** (2026-04-09): on Qwen2.5-7B WikiText-2 PPL with the MetaTool catalog-derived ontology, OCQ achieves PPL 7.43 at average 1.81 bits versus KIVI's 7.22 at average 2.06 bits — competitive accuracy at 12% lower bit budget. The same configuration with a PCA-derived "pseudo-ontology" gives PPL 11.83, a 4.4 PPL degradation, validating the theoretical claim that categorical 1-bit quantization works on **decision** axes (real ontology) and fails on **variance** axes (PCA).
 
 ---
 
@@ -34,12 +34,12 @@ The closest prior art, **KVSink** (Su & Yuan, COLM 2025), is **geometrically ort
 2. **Methodological**:
    a. Catalog-derived 4-facet ontology extraction from a tool catalog with no training data and no labels (function-action × io-type × domain × tool-category).
    b. Per-(layer, head) ontology basis `B_ont` via Gram-Schmidt residualization in priority order across facets.
-   c. `oc-FOKVQ` quantizer: 1-bit categorical on `B_ont` coefficients (sign / mean-split / argmax variants) + variance-proportional INT on residual.
+   c. `OCQ` quantizer: 1-bit categorical on `B_ont` coefficients (sign / mean-split / argmax variants) + variance-proportional INT on residual.
    d. Same `B_ont` reused as an inference-time attention bias for tool disambiguation (sister claim).
 
 3. **Empirical**:
-   a. **Claim B (KV quant)**: oc-FOKVQ matches KIVI / KVQuant on small-LLM PPL at lower average bit budget; geometrically orthogonal to KVSink and stackable for additive gains.
-   b. **Claim A (tool selection)**: oc-FOKVQ attention bias improves top-1 accuracy on MetaTool's "similar choices" disambiguation subtask vs. dense-retrieval and prompt-engineering baselines.
+   a. **Claim B (KV quant)**: OCQ matches KIVI / KVQuant on small-LLM PPL at lower average bit budget; geometrically orthogonal to KVSink and stackable for additive gains.
+   b. **Claim A (tool selection)**: OCQ attention bias improves top-1 accuracy on MetaTool's "similar choices" disambiguation subtask vs. dense-retrieval and prompt-engineering baselines.
    c. **Generalization**: results hold across Qwen2.5-{7B,14B,32B,72B}, Llama-3.1-{8B,70B}, Mistral-7B.
    d. **Korean coverage**: validated on FunctionChat-Bench (Kakao) `4_close` / `8_close` distractor configurations.
 
@@ -48,8 +48,8 @@ The closest prior art, **KVSink** (Su & Yuan, COLM 2025), is **geometrically ort
 ### What this paper deliberately is NOT
 
 - Not a new attention steering method per se. The K-bias claim reuses the known SEKA / PASTA / ASA operator family with a new direction source.
-- Not a new quantization datatype. oc-FOKVQ uses standard symmetric INT for the residual; only the ontology subspace gets the categorical treatment.
-- Not a competitor to KVSink. KVSink and oc-FOKVQ are stackable; we report combined results, not head-to-head.
+- Not a new quantization datatype. OCQ uses standard symmetric INT for the residual; only the ontology subspace gets the categorical treatment.
+- Not a competitor to KVSink. KVSink and OCQ are stackable; we report combined results, not head-to-head.
 - Not a tool retrieval system. We compare to BGE-large dense retrieval as a baseline but the contribution is inference-time attention modification, not retrieval-augmented prompting.
 - Not a long-context paper. We test on long-context KV quant benchmarks (LongBench, RULER) for completeness, but the primary win is on agent-style short-context tool selection where the ontology is most informative.
 
@@ -116,7 +116,7 @@ Given `B_ont` and per-head `Σ_K`, compute the residual basis `B_res ∈ ℝ^{d 
 
 The full per-(layer, head) basis is `B = [B_ont | B_res] ∈ ℝ^{d × d}`, orthonormal by construction.
 
-### 3.4 oc-FOKVQ quantization
+### 3.4 OCQ quantization
 
 For a K cache `keys ∈ ℝ^{B × H × T × d}`, per (batch, head):
 1. Rotate: `coeffs = keys @ B`. Split into `coeffs_ont = coeffs[..., :r_ont]` and `coeffs_res = coeffs[..., r_ont:]`.
@@ -133,7 +133,7 @@ The same `B_ont` is used as an attention bias following the SEKA hook protocol: 
 
 ### 3.6 Sink protection (orthogonal fix)
 
-Independently of oc-FOKVQ, the first `sink_len = 4` tokens of each cache window are kept in fp16 (KIVI residual length analogue, KVSink-compatible row preservation). Implementation in `_split_sink_bulk` of `exp4_2_standard_ppl_benchmark.py`.
+Independently of OCQ, the first `sink_len = 4` tokens of each cache window are kept in fp16 (KIVI residual length analogue, KVSink-compatible row preservation). Implementation in `_split_sink_bulk` of `exp4_2_standard_ppl_benchmark.py`.
 
 ---
 
@@ -180,7 +180,7 @@ The 70B/72B runs go to coworker's A100-80GB × 4. 7B-32B fit on A6000-48GB × 2.
 3. Prompt engineering (category hints, scenario prefix)
 4. LoRA fine-tuning on labeled tool-use data (standard instruction tuning)
 5. ASA (Wang et al. 2026) — only direct activation-steering precedent for tool use
-6. **Ours: oc-FOKVQ K-bias** with ontology basis
+6. **Ours: OCQ K-bias** with ontology basis
 
 **Claim B baselines**
 1. fp16 (ceiling)
@@ -191,8 +191,8 @@ The 70B/72B runs go to coworker's A100-80GB × 4. 7B-32B fit on A6000-48GB × 2.
 6. **AQUA-KV** (Pinaev et al. ICML 2025) — adaptive cross-layer prediction
 7. **KVSink** (Su & Yuan COLM 2025) — sink-token preservation, **must reproduce, no public code**
 8. **More for Keys / Less for Values** (Feb 2025) — K vs V bit asymmetry
-9. **Ours: oc-FOKVQ** with catalog-derived ontology basis
-10. **Combined: KVSink + oc-FOKVQ** (the headline 2×2 ablation)
+9. **Ours: OCQ** with catalog-derived ontology basis
+10. **Combined: KVSink + OCQ** (the headline 2×2 ablation)
 
 ### 4.4 Metrics
 
@@ -208,10 +208,10 @@ Following the KVSink comparison analysis, the load-bearing experiment is the ort
 
 | | KVSink OFF | KVSink ON (k=5) |
 |---|---|---|
-| **oc-FOKVQ OFF** | naive 3-bit (floor) | KVSink-only reproduction |
-| **oc-FOKVQ ON** | oc-FOKVQ-only (main) | **Combined (stack)** |
+| **OCQ OFF** | naive 3-bit (floor) | KVSink-only reproduction |
+| **OCQ ON** | OCQ-only (main) | **Combined (stack)** |
 
-Hypothesis: `Combined > max(KVSink, oc-FOKVQ)` on tool selection top-1 at equal or lower total bit budget. If confirmed, the geometric-orthogonality claim is numerically justified and the reviewer attack "this is just KVSink with semantic sinks" is preemptively neutralized.
+Hypothesis: `Combined > max(KVSink, OCQ)` on tool selection top-1 at equal or lower total bit budget. If confirmed, the geometric-orthogonality claim is numerically justified and the reviewer attack "this is just KVSink with semantic sinks" is preemptively neutralized.
 
 ---
 
@@ -223,9 +223,9 @@ Hypothesis: `Combined > max(KVSink, oc-FOKVQ)` on tool selection top-1 at equal 
 - **Real cause**: `bit_schedule(2, topk_frac=0.25) = (5, 1)` puts 1-bit on 75% of dims, which is catastrophic. Switching to `topk_frac=0.5 → bit_schedule = (3, 1)` improves GPT-2 2-bit from 63.53 to 39.09 (1.6× improvement).
 - **Saved**: `memory/fokvq_2bit_root_cause_2026_04_09.md`.
 
-### 5.2 oc-FOKVQ alleviates the bit-schedule pathology by construction
+### 5.2 OCQ alleviates the bit-schedule pathology by construction
 
-oc-FOKVQ's split is `r_ont` dims at 1-bit + `(d − r_ont)` dims at uniform `bits`. With `r_ont/d ≈ 0.19` (24/128 on Qwen2.5-7B) the 1-bit share is much smaller than the `topk_frac=0.25 → 75% at 1-bit` of legacy FOKVQ. At Qwen2.5-7B 2-bit nominal, oc-FOKVQ_1b gets PPL 7.43 vs legacy FOKVQ 5063 — a 681× improvement.
+OCQ's split is `r_ont` dims at 1-bit + `(d − r_ont)` dims at uniform `bits`. With `r_ont/d ≈ 0.19` (24/128 on Qwen2.5-7B) the 1-bit share is much smaller than the `topk_frac=0.25 → 75% at 1-bit` of legacy FOKVQ. At Qwen2.5-7B 2-bit nominal, OCQ_1b gets PPL 7.43 vs legacy FOKVQ 5063 — a 681× improvement.
 
 ### 5.3 Real catalog-derived ontology dramatically beats PCA pseudo-ontology
 
@@ -250,22 +250,22 @@ This is the **decisive empirical evidence** for the user's theoretical insight t
 
 **Saved**: `memory/oc_fokvq_real_ontology_validation_2026_04_09.md`.
 
-### 5.4 oc-FOKVQ is competitive with KIVI at lower bit budget
+### 5.4 OCQ is competitive with KIVI at lower bit budget
 
 | Method | Avg bits | PPL | Bits Δ vs KIVI | PPL Δ vs KIVI |
 |---|---|---|---|---|
 | KIVI 2-bit nominal (R=4) | 2.06 | 7.22 | (baseline) | (baseline) |
-| oc-FOKVQ 1b_2a 2-bit (real ontology, r=24) | 1.81 | 7.43 | **−12% bits** | +0.21 PPL |
+| OCQ 1b_2a 2-bit (real ontology, r=24) | 1.81 | 7.43 | **−12% bits** | +0.21 PPL |
 
-oc-FOKVQ achieves competitive PPL at 12% lower memory budget. The trade-off is 0.21 PPL — within typical run-to-run noise on this protocol. The real win must be measured on **task accuracy** (the right battleground), not PPL on unconditioned text.
+OCQ achieves competitive PPL at 12% lower memory budget. The trade-off is 0.21 PPL — within typical run-to-run noise on this protocol. The real win must be measured on **task accuracy** (the right battleground), not PPL on unconditioned text.
 
-### 5.5 KVSink is geometrically orthogonal to oc-FOKVQ
+### 5.5 KVSink is geometrically orthogonal to OCQ
 
 Background agent deep-read of arXiv 2508.04257 confirmed:
 - KVSink touches **rows** of the T×d KV matrix (sink token positions).
-- oc-FOKVQ touches **columns** (K-space rotation).
+- OCQ touches **columns** (K-space rotation).
 - KVSink keeps special set at **fp16** (max precision) because sinks amplify error.
-- oc-FOKVQ keeps special set at **1 bit** (min precision) because ontology axes carry categorical decisions.
+- OCQ keeps special set at **1 bit** (min precision) because ontology axes carry categorical decisions.
 - Geometrically orthogonal → stackable → 2×2 ablation grid is the natural headline experiment.
 - KVSink published only PPL on LLaMA2/3 / Mistral. No downstream task accuracy. **No public code as of 2026-04-09** — must reproduce from paper description.
 
@@ -284,8 +284,8 @@ Our `exp4_2_standard_ppl_benchmark.py` only quantizes the K cache *between* two 
 ### 6.1 Files / artifacts produced today
 
 **Scripts**
-- `scripts/fokvq/exp4_2_standard_ppl_benchmark.py` — extended with `--sink-len`, `--calibration-sink-skip`, oc-FOKVQ method registry, external `B_ont` loading, sink-bulk split helper
-- `scripts/fokvq/oc_fokvq.py` — 6-variant oc-FOKVQ module with self-test
+- `scripts/fokvq/exp4_2_standard_ppl_benchmark.py` — extended with `--sink-len`, `--calibration-sink-skip`, OCQ method registry, external `B_ont` loading, sink-bulk split helper
+- `scripts/fokvq/oc_fokvq.py` — 6-variant OCQ module with self-test
 - `scripts/fokvq/build_metatool_ontology.py` — 4-facet catalog-derived ontology extractor
 - `scripts/fokvq/build_qwen_metatool_b_ont.py` — per-(layer, head) `B_ont` builder reusing `ontology_facet_basis.py`
 
@@ -322,10 +322,10 @@ Our `exp4_2_standard_ppl_benchmark.py` only quantizes the K cache *between* two 
 
 | Attack | Response |
 |---|---|
-| "This is just KVSink with semantic sinks" | KVSink touches *rows* (token positions), oc-FOKVQ touches *columns* (K-space dirs). KVSink keeps at **fp16**, oc-FOKVQ at **1-bit**. Inverted precision semantics on orthogonal axes. Demonstrate via 2×2 ablation grid where Combined > max(individual). |
-| "1-bit categorical needs the post-decision argument, which is agent-specific" | True and intentional. We position oc-FOKVQ as an *agent-inference* method, not a general LM compression method. Don't compete on raw WT2 PPL where the ontology basis has no reason to exist. |
-| "PCA-based methods (KIVI, KVQuant) work fine without semantic structure" | Yes, on PPL. We show that on **task accuracy** under matched bit budget, oc-FOKVQ wins because the categorical 1-bit IS the right granularity for the task's decision structure. The 4.4-78 PPL gap between real and PCA-pseudo ontology under our own method is the empirical pivot. |
-| "Why not just use KIVI? It already works" | KIVI uses 12% more bits and doesn't carry an attention bias claim. oc-FOKVQ is the unified mechanism for both compression and tool disambiguation. Same ontology basis, two empirical wins. |
+| "This is just KVSink with semantic sinks" | KVSink touches *rows* (token positions), OCQ touches *columns* (K-space dirs). KVSink keeps at **fp16**, OCQ at **1-bit**. Inverted precision semantics on orthogonal axes. Demonstrate via 2×2 ablation grid where Combined > max(individual). |
+| "1-bit categorical needs the post-decision argument, which is agent-specific" | True and intentional. We position OCQ as an *agent-inference* method, not a general LM compression method. Don't compete on raw WT2 PPL where the ontology basis has no reason to exist. |
+| "PCA-based methods (KIVI, KVQuant) work fine without semantic structure" | Yes, on PPL. We show that on **task accuracy** under matched bit budget, OCQ wins because the categorical 1-bit IS the right granularity for the task's decision structure. The 4.4-78 PPL gap between real and PCA-pseudo ontology under our own method is the empirical pivot. |
+| "Why not just use KIVI? It already works" | KIVI uses 12% more bits and doesn't carry an attention bias claim. OCQ is the unified mechanism for both compression and tool disambiguation. Same ontology basis, two empirical wins. |
 | "Your ontology extraction is rule-based, not learned" | Yes, intentionally training-free. The contribution is that *no training is needed*. We compare to LoRA fine-tuning as a baseline and show competitive top-1 at zero training cost. |
 | "Why MetaTool? It's only 199 plugins" | Primary because it has an explicit similar-choices subtask. We additionally test on StableToolBench (16k APIs) for scale, BFCL for community familiarity, and FunctionChat-Bench for Korean / language coverage. |
 | "Mistral results were negative in your Phase 1.x" | Phase 1.x used a toy product/manufacturer ontology, not catalog-derived from the eval task. The negative transfer was expected in hindsight: the toy ontology doesn't align with CounterFact's factual recall structure. With catalog-derived ontology aligned to the actual task (MetaTool / BFCL), Mistral results should be analogous to Qwen. To be tested. |
@@ -341,17 +341,17 @@ Our `exp4_2_standard_ppl_benchmark.py` only quantizes the K cache *between* two 
 
 2. **KVSink reproduction** (`scripts/fokvq/kvsink_reproduce.py`) — identify per-model emergence layer `l_E` and outlier channels `C^*` via WT2/C4 calibration; implement dynamic top-k row preservation; verify against published LLaMA2-7B WT2 numbers (KVQuant-4b 5.73 → KVSink-5 5.60).
 
-3. **MetaTool subtask1 evaluation pipeline** — load `Task2-Subtask1.json` (995 queries), apply oc-FOKVQ K-bias to Qwen2.5-7B during the resolution forward pass, score top-1 tool selection accuracy, compare to no-steer / BGE retrieval / prompt engineering / LoRA / ASA baselines. **Critical claim A test**.
+3. **MetaTool subtask1 evaluation pipeline** — load `Task2-Subtask1.json` (995 queries), apply OCQ K-bias to Qwen2.5-7B during the resolution forward pass, score top-1 tool selection accuracy, compare to no-steer / BGE retrieval / prompt engineering / LoRA / ASA baselines. **Critical claim A test**.
 
 4. **r_ont sweep on real ontology** — test r_ont ∈ {8, 12, 16, 24, 32} on Qwen2.5-7B with MetaTool ontology. Determine optimal subspace size for the categorical-1-bit + variance-residual split.
 
 ### Headline experiment (Week 2-3)
 
-5. **2×2 ablation grid on LLaMA-3-8B-Instruct** — `{KVSink OFF/ON-k5} × {oc-FOKVQ OFF/ON}` on WT2 PPL (anchor) + MetaTool subtask1 top-1 (claim). Hypothesis: Combined > max(individual). Required to neutralize the "just KVSink with semantic sinks" reviewer attack.
+5. **2×2 ablation grid on LLaMA-3-8B-Instruct** — `{KVSink OFF/ON-k5} × {OCQ OFF/ON}` on WT2 PPL (anchor) + MetaTool subtask1 top-1 (claim). Hypothesis: Combined > max(individual). Required to neutralize the "just KVSink with semantic sinks" reviewer attack.
 
 ### Scaling and generalization (Week 3-6)
 
-6. **Larger model scaling** — Qwen2.5-14B, 32B, 72B on coworker A100×4. Llama-3.1-70B-Instruct. Same MetaTool ontology basis builder; check that B_ont quality and oc-FOKVQ benefits scale.
+6. **Larger model scaling** — Qwen2.5-14B, 32B, 72B on coworker A100×4. Llama-3.1-70B-Instruct. Same MetaTool ontology basis builder; check that B_ont quality and OCQ benefits scale.
 
 7. **KV quant baseline matrix** — KIVI / KVQuant / GEAR / AQUA-KV / KVSink / Ours on (Qwen2.5-{7B,14B,32B,72B}, LLaMA-3.1-{8B,70B}, Mistral-7B) × (WT2 / LongBench / RULER) × (2/3/4-bit average).
 
@@ -359,13 +359,13 @@ Our `exp4_2_standard_ppl_benchmark.py` only quantizes the K cache *between* two 
 
 ### Writeup and ablations (Week 7-10)
 
-9. **Random orthonormal rank-r control** for oc-FOKVQ ontology basis. Already done for Phase 1.x K-bias on Qwen3-4B / CounterFact (47pp gap). Repeat for KV quant claim B on Qwen2.5-7B / MetaTool to confirm "ontology is special, not just any rank-r basis".
+9. **Random orthonormal rank-r control** for OCQ ontology basis. Already done for Phase 1.x K-bias on Qwen3-4B / CounterFact (47pp gap). Repeat for KV quant claim B on Qwen2.5-7B / MetaTool to confirm "ontology is special, not just any rank-r basis".
 
 10. **Alternate ontology content ablation** — replace function-action / io-type / domain / tool-category facets with a different 4-facet decomposition (e.g. emotion / time / entity / quantity). If lift survives, the contribution is "structured ontology works" not "this specific ontology". If lift collapses, content matters.
 
-11. **Phase-gating validation** — check that applying oc-FOKVQ K-bias only at the resolution turn does NOT degrade non-tool-calling turns (perplexity / fluency on intermediate dialogue). Required for the "phase-gated" claim.
+11. **Phase-gating validation** — check that applying OCQ K-bias only at the resolution turn does NOT degrade non-tool-calling turns (perplexity / fluency on intermediate dialogue). Required for the "phase-gated" claim.
 
-12. **Appendix A draft** — consolidate Phase 1.1-1.4 factual-editing benchmark results as 1-2 page Appendix "Operator validation on factual-editing benchmarks". Honest: report both Qwen3-4B positive (oc-FOKVQ K-bias beats SEKA on CounterFact) and Mistral negative.
+12. **Appendix A draft** — consolidate Phase 1.1-1.4 factual-editing benchmark results as 1-2 page Appendix "Operator validation on factual-editing benchmarks". Honest: report both Qwen3-4B positive (OCQ K-bias beats SEKA on CounterFact) and Mistral negative.
 
 13. **Final paper draft** — assemble main body around the 2×2 ablation grid headline + Pareto frontier figure + scaling table. Target NeurIPS submission deadline (typically May for the year).
 
@@ -379,13 +379,13 @@ Our `exp4_2_standard_ppl_benchmark.py` only quantizes the K cache *between* two 
 
 3. **2a vs 2b residual mode**: nearly identical with PCA-pseudo (as expected) and within noise on real ontology (1b_2a 6.94 vs 1b_2b 6.92 at 4-bit). Empirically minor but theoretically distinct.
 
-4. **Sink fix interaction with oc-FOKVQ**: sink fix benefits KIVI but worsens legacy FOKVQ. Untested whether oc-FOKVQ behaves like KIVI or like legacy FOKVQ on this axis. Should be tested.
+4. **Sink fix interaction with OCQ**: sink fix benefits KIVI but worsens legacy FOKVQ. Untested whether OCQ behaves like KIVI or like legacy FOKVQ on this axis. Should be tested.
 
-5. **Long-context regime (LongBench, RULER)**: oc-FOKVQ assumes K-space anisotropy is consistent across the cache. Long-context K stats may differ from short-context calibration. Re-calibration on long-context corpus may be needed.
+5. **Long-context regime (LongBench, RULER)**: OCQ assumes K-space anisotropy is consistent across the cache. Long-context K stats may differ from short-context calibration. Re-calibration on long-context corpus may be needed.
 
 6. **Multi-turn agent regime**: in true agent loops, the ontology resolution at turn 1 should benefit cache compression at turns 2+. Phase-gated application is the natural design. Not yet tested in a multi-turn pipeline.
 
-7. **Bit-budget normalization for fair comparison**: KIVI's `R = 128` fp16 residual adds a significant constant overhead. oc-FOKVQ's 1-bit ontology subspace adds a different constant. The fair comparison is at matched **average bits per element**, not nominal bit budget. Headline table should report both.
+7. **Bit-budget normalization for fair comparison**: KIVI's `R = 128` fp16 residual adds a significant constant overhead. OCQ's 1-bit ontology subspace adds a different constant. The fair comparison is at matched **average bits per element**, not nominal bit budget. Headline table should report both.
 
 ---
 
@@ -442,4 +442,4 @@ The paper uses public benchmarks (MetaTool, BFCL, NESTFUL, ComplexFuncBench, Sta
 
 ## 12. Document History
 
-- **v1 (2026-04-09)**: Initial Phase B paper plan after the day's pivot from Phase 1.x factual-editing infrastructure to dual-claim tool-selection + KV quantization. Incorporates OISA exclusion, deployment scale correction, FOKVQ root-cause finding, oc-FOKVQ formulation, real MetaTool ontology validation, KVSink prior-art comparison, eval architecture limitation, and prioritized next steps.
+- **v1 (2026-04-09)**: Initial Phase B paper plan after the day's pivot from Phase 1.x factual-editing infrastructure to dual-claim tool-selection + KV quantization. Incorporates OISA exclusion, deployment scale correction, FOKVQ root-cause finding, OCQ formulation, real MetaTool ontology validation, KVSink prior-art comparison, eval architecture limitation, and prioritized next steps.
