@@ -127,9 +127,6 @@ def parse_args() -> argparse.Namespace:
     # Output
     p.add_argument("--out", type=str, default="")
     p.add_argument("--seed", type=int, default=0)
-    # Smoke / self-test
-    p.add_argument("--self-test", action="store_true",
-                   help="Run a synthetic self-test (no HF model load).")
     return p.parse_args()
 
 
