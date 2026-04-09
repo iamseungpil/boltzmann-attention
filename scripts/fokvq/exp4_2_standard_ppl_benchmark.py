@@ -462,7 +462,20 @@ def build_fokvq_bases(
     calibration_texts: Sequence[str],
     device: str,
     max_len: int,
+    sink_len: int = 0,
 ) -> Dict[int, torch.Tensor]:
+    """Build per-(layer, head) PCA bases from calibration K vectors.
+
+    Args:
+        sink_len: If >0, skip the first `sink_len` token positions of each
+            calibration sample before fitting PCA. Attention sinks (Xiao
+            et al. 2024) carry extreme-magnitude K vectors that live in
+            directions disjoint from the bulk-token K distribution; including
+            them in PCA fit pollutes the basis with sink-specific directions
+            that then get coarse-quantized at test time, catastrophically
+            damaging attention at the sink positions. Default 0 preserves
+            legacy behavior; recommended value is 4 to match StreamingLLM.
+    """
     num_layers = model.config.num_hidden_layers
     per_layer_keys: Dict[int, List[torch.Tensor]] = {idx: [] for idx in range(num_layers)}
 
@@ -477,6 +490,10 @@ def build_fokvq_bases(
         legacy_cache, _ = to_legacy_cache(outputs.past_key_values)
         for layer_idx, layer_cache in enumerate(legacy_cache):
             layer_keys = layer_cache[0].detach().float().cpu()  # (b, h, s, d)
+            # Skip attention sink positions (first `sink_len` tokens) so the
+            # PCA basis reflects bulk-token statistics only.
+            if sink_len > 0 and layer_keys.shape[2] > sink_len:
+                layer_keys = layer_keys[:, :, sink_len:, :]
             flat = layer_keys.permute(1, 0, 2, 3).reshape(layer_keys.shape[1], -1, layer_keys.shape[-1])
             per_layer_keys[layer_idx].append(flat)
         del inputs, outputs, legacy_cache
