@@ -539,6 +539,26 @@ def build_random_bases(model, device: str, seed: int) -> Dict[int, torch.Tensor]
     return bases
 
 
+def _split_sink_bulk(
+    key_cache: torch.Tensor,
+    sink_len: int,
+) -> Tuple[torch.Tensor, torch.Tensor, int]:
+    """Split key cache (B, H, S, D) into (sink, bulk, effective_sink_len).
+
+    The sink portion is preserved in fp16 (attention sink protection).
+    If S <= sink_len, the entire sequence is treated as sink.
+    """
+    seq_len = key_cache.shape[2]
+    eff_sink = max(0, min(sink_len, seq_len))
+    if eff_sink == 0:
+        return key_cache[..., :0, :], key_cache, 0
+    if eff_sink == seq_len:
+        return key_cache, key_cache[..., :0, :], eff_sink
+    sink = key_cache[:, :, :eff_sink, :]
+    bulk = key_cache[:, :, eff_sink:, :]
+    return sink, bulk, eff_sink
+
+
 def quantize_cache(
     past_key_values,
     method: str,
@@ -548,6 +568,7 @@ def quantize_cache(
     fokvq_adaptive_energy_frac: float,
     fokvq_clip_quantile: float,
     turbo_codebooks: Optional[Dict[int, torch.Tensor]] = None,
+    sink_len: int = 0,
 ) -> Tuple[object, Dict[str, float]]:
     legacy_cache, cache_cls = to_legacy_cache(past_key_values)
     quantized_layers = []
@@ -556,8 +577,19 @@ def quantize_cache(
     for layer_idx, layer_cache in enumerate(legacy_cache):
         key_cache = layer_cache[0]
         other_items = list(layer_cache[1:])
+
+        # Attention sink preservation: split off first `sink_len` positions
+        # and keep them in the original dtype. Only the bulk positions are
+        # quantized. This is the KIVI residual-length analogue.
+        sink_part, bulk_part, eff_sink = _split_sink_bulk(key_cache, sink_len)
+        if bulk_part.shape[2] == 0:
+            # Entire window is sink — nothing to quantize.
+            quantized_layers.append((key_cache,) + tuple(other_items))
+            continue
+        quant_target = bulk_part
+
         if method == "uniform":
-            key_quant = symmetric_quantize_last_dim(key_cache, bits)
+            key_quant = symmetric_quantize_last_dim(quant_target, bits)
         elif method == "variance":
             key_quant = quantize_variance_keys(key_cache, bits)
         elif method == "kivi":
