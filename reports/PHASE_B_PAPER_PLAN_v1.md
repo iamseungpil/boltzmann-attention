@@ -285,7 +285,7 @@ Our `exp4_2_standard_ppl_benchmark.py` only quantizes the K cache *between* two 
 
 **Scripts**
 - `scripts/fokvq/exp4_2_standard_ppl_benchmark.py` — extended with `--sink-len`, `--calibration-sink-skip`, OCQ method registry, external `B_ont` loading, sink-bulk split helper
-- `scripts/fokvq/oc_fokvq.py` — 6-variant OCQ module with self-test
+- `scripts/fokvq/oc_fokvq.py` — 6-variant OCQ module with self-test (code path retained pending separate code-rename decision; see naming note at top of this document)
 - `scripts/fokvq/build_metatool_ontology.py` — 4-facet catalog-derived ontology extractor
 - `scripts/fokvq/build_qwen_metatool_b_ont.py` — per-(layer, head) `B_ont` builder reusing `ontology_facet_basis.py`
 
