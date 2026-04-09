@@ -274,9 +274,7 @@ def _symmetric_quant_per_token(
     coeffs: torch.Tensor,  # (..., k)
     bits: int,
 ) -> torch.Tensor:
-    """Per-token symmetric uniform quantization (matches the existing
-    FOKVQ benchmark's symmetric_quantize_last_dim).
-    """
+    """Per-token symmetric uniform quantization on the last dim."""
     if bits <= 0:
         return torch.zeros_like(coeffs)
     levels = 2 ** bits
