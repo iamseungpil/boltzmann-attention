@@ -572,6 +572,102 @@ def build_identity_bases(model, device: str) -> Dict[int, torch.Tensor]:
     }
 
 
+@torch.no_grad()
+def build_oc_fokvq_bases(
+    model,
+    tokenizer,
+    calibration_texts: Sequence[str],
+    device: str,
+    max_len: int,
+    r_ont: int,
+    res_mode: str,
+    sink_len: int = 0,
+    ont_source: str = "pca",
+    ont_path: str = "",
+) -> Dict[int, torch.Tensor]:
+    """Build per-(layer, head) full oc-FOKVQ rotation basis.
+
+    Returns dict layer_idx -> Tensor (n_heads, d_head, d_head). The first
+    r_ont columns are the ontology basis B_ont; the remaining columns
+    are the residual basis built via res_mode in {'2a', '2b'}.
+
+    For ont_source='pca', B_ont is the top-r_ont eigenvectors of Σ_K
+    (a pseudo-ontology used for mechanism testing on tasks where no
+    semantic ontology is available, e.g. WikiText-2).
+
+    For ont_source='external', B_ont is loaded from ont_path which must
+    be a .pt file containing a tensor of shape (n_layers, n_heads,
+    d_head, r_ont) of orthonormal columns per (layer, head).
+    """
+    num_layers = model.config.num_hidden_layers
+    per_layer_keys: Dict[int, List[torch.Tensor]] = {idx: [] for idx in range(num_layers)}
+
+    for text in calibration_texts:
+        inputs = tokenizer(
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=max_len,
+        ).to(device)
+        outputs = model(**inputs, use_cache=True)
+        legacy_cache, _ = to_legacy_cache(outputs.past_key_values)
+        for layer_idx, layer_cache in enumerate(legacy_cache):
+            layer_keys = layer_cache[0].detach().float().cpu()  # (b, h, s, d)
+            if sink_len > 0 and layer_keys.shape[2] > sink_len:
+                layer_keys = layer_keys[:, :, sink_len:, :]
+            flat = layer_keys.permute(1, 0, 2, 3).reshape(layer_keys.shape[1], -1, layer_keys.shape[-1])
+            per_layer_keys[layer_idx].append(flat)
+        del inputs, outputs, legacy_cache
+        torch.cuda.empty_cache()
+
+    # Optional external B_ont source
+    ext_B_ont = None
+    if ont_source == "external":
+        if not ont_path:
+            raise ValueError("ont_source=external requires --oc-fokvq-ont-path")
+        ext_obj = torch.load(ont_path, map_location="cpu")
+        if isinstance(ext_obj, dict) and "B_ont" in ext_obj:
+            ext_B_ont = ext_obj["B_ont"]
+        else:
+            ext_B_ont = ext_obj
+        # Expected shape: (n_layers, n_heads, d_head, r_ont)
+        if ext_B_ont.ndim != 4:
+            raise ValueError(
+                f"External B_ont must be 4D (L, H, D, R); got {ext_B_ont.shape}"
+            )
+
+    bases: Dict[int, torch.Tensor] = {}
+    for layer_idx in range(num_layers):
+        head_batches = torch.cat(per_layer_keys[layer_idx], dim=1).numpy()  # (h, n, d)
+        n_heads, _, d_head = head_batches.shape
+        head_full_bases = []
+        for head_idx in range(n_heads):
+            x = head_batches[head_idx].astype(np.float64)
+            x_centered = x - x.mean(axis=0, keepdims=True)
+            sigma = (x_centered.T @ x_centered) / max(x_centered.shape[0] - 1, 1)
+            sigma = 0.5 * (sigma + sigma.T)
+
+            if ont_source == "pca":
+                eigvals, eigvecs = np.linalg.eigh(sigma)
+                order = np.argsort(-eigvals)
+                eigvecs = eigvecs[:, order]
+                B_ont_np = eigvecs[:, :r_ont]
+            elif ont_source == "external":
+                B_ont_np = ext_B_ont[layer_idx, head_idx].numpy().astype(np.float64)
+            else:
+                raise ValueError(f"Unknown ont_source: {ont_source}")
+
+            B_full_np = build_oc_basis(sigma, B_ont_np, res_mode=res_mode)
+            # Pad to (d_head, d_head) if rank-deficient
+            if B_full_np.shape[1] < d_head:
+                pad = np.zeros((d_head, d_head - B_full_np.shape[1]),
+                               dtype=B_full_np.dtype)
+                B_full_np = np.concatenate([B_full_np, pad], axis=1)
+            head_full_bases.append(torch.from_numpy(B_full_np.astype(np.float32)))
+        bases[layer_idx] = torch.stack(head_full_bases, dim=0).to(device=device)
+    return bases
+
+
 def build_random_bases(model, device: str, seed: int) -> Dict[int, torch.Tensor]:
     num_layers = model.config.num_hidden_layers
     num_heads = model.config.num_attention_heads
