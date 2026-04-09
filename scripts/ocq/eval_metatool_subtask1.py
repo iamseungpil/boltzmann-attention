@@ -98,6 +98,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--ocq-ont-mode", default="1b", choices=["1a", "1b", "1c"])
     p.add_argument("--max-new-tokens", type=int, default=24)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--dump-failures", action="store_true",
+                   help="Save all failing samples (no_match / wrong choice) for dip analysis.")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
