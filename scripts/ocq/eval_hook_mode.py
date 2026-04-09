@@ -83,7 +83,27 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
-from quantizer import build_ocq_basis, ocq_quantize  # noqa: E402
+from quantizer import (  # noqa: E402
+    build_ocq_basis, ocq_quantize,
+    ocq_kivi_quantize, ocq_wf_quantize,
+)
+
+# Prior FOKVQ v3 (math/experiment) for SOTA baselines and per-head primitives.
+_PRIOR_PATH = "/home/woori/workspace_common/boltzmann-attention/math/experiment"
+if _PRIOR_PATH not in sys.path:
+    sys.path.insert(0, _PRIOR_PATH)
+try:
+    from exp4_2_v3_full_quant_ppl import (  # type: ignore  # noqa: E402
+        kivi_quantize_tensor as _prior_kivi_quantize_tensor,
+        fokvq_quantize_head as _prior_fokvq_quantize_head,
+        turbo_quantize_head as _prior_turbo_quantize_head,
+        kvquant_quantize_head as _prior_kvquant_quantize_head,
+        quip_quantize_head as _prior_quip_quantize_head,
+    )
+    _PRIOR_AVAILABLE = True
+except Exception as _e:
+    _PRIOR_AVAILABLE = False
+    _PRIOR_IMPORT_ERROR = repr(_e)
 
 
 # ---------------------------------------------------------------------
