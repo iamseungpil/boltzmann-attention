@@ -879,6 +879,7 @@ def run() -> None:
             calibration_texts,
             args.device,
             args.calibration_max_len,
+            sink_len=args.sink_len,
         )
     identity_bases = build_identity_bases(model, args.device) if "identity" in args.methods else None
     random_bases = build_random_bases(model, args.device, args.seed) if "random" in args.methods else None
