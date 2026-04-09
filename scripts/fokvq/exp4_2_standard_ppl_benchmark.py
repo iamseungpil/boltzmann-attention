@@ -778,6 +778,30 @@ def quantize_cache(
                 basis,
                 codebook,
             ).to(dtype=key_cache.dtype)
+        elif method.startswith("oc_fokvq_"):
+            # Method tag: oc_fokvq_<ont_mode>_<res_mode>
+            #   ont_mode in {1a, 1b, 1c}, res_mode in {2a, 2b}
+            tag = method[len("oc_fokvq_"):]
+            ont_mode, res_mode = tag.split("_")
+            if res_mode == "2a":
+                src_bases = oc_bases_2a
+            elif res_mode == "2b":
+                src_bases = oc_bases_2b
+            else:
+                raise ValueError(f"Unknown oc_fokvq res mode: {res_mode}")
+            if src_bases is None:
+                raise ValueError(
+                    f"oc_fokvq method {method} requires the corresponding "
+                    f"basis dict to be built"
+                )
+            basis = src_bases[layer_idx].to(device=key_cache.device)
+            bulk_quant = oc_fokvq_quantize(
+                quant_target.float(),
+                basis,
+                r_ont=oc_r_ont,
+                ont_mode=ont_mode,
+                res_bits=oc_res_bits,
+            ).to(dtype=key_cache.dtype)
         else:
             raise ValueError(f"Unsupported quantization method: {method}")
 
