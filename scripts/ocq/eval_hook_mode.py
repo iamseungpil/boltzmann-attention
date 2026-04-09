@@ -672,11 +672,19 @@ def run() -> None:
     print(f"[data] {n_win} windows, {total_tokens} total tokens, "
           f"ctx={args.context_len}", flush=True)
 
-    # Optional OCQ bases
-    ocq_bases_tensor: Optional[torch.Tensor] = None
-    if "ocq" in args.methods:
+    # Decide whether B_ont is needed (for any OCQ-family method)
+    OCQ_FAMILY = {"ocq", "ocq_kivi", "ocq_wf"}
+    needs_b_ont = any(m in OCQ_FAMILY for m in args.methods)
+    needs_full_bases = "ocq" in args.methods  # only single-pass OCQ needs B_full
+
+    B_ont: Optional[torch.Tensor] = None
+    ocq_bases_tensor: Optional[torch.Tensor] = None  # B_full per (L,H), for "ocq"
+    if needs_b_ont:
         if not args.ocq_b_ont:
-            raise ValueError("--ocq-b-ont is required when 'ocq' is in --methods")
+            raise ValueError(
+                "--ocq-b-ont is required for any OCQ-family method "
+                "(ocq, ocq_kivi, ocq_wf)"
+            )
         print(f"[ocq] loading B_ont from {args.ocq_b_ont}", flush=True)
         b_ont_payload = torch.load(args.ocq_b_ont, map_location="cpu",
                                     weights_only=False)
@@ -695,18 +703,21 @@ def run() -> None:
             raise ValueError(
                 f"B_ont head_dim={B_ont.shape[2]} != model head_dim={head_dim}"
             )
-        r_ont = args.ocq_r_ont or B_ont.shape[3]
-        print(f"[ocq] B_ont shape {tuple(B_ont.shape)}, r_ont={r_ont}",
+        r_ont_loaded = args.ocq_r_ont or B_ont.shape[3]
+        print(f"[ocq] B_ont shape {tuple(B_ont.shape)}, r_ont={r_ont_loaded}",
               flush=True)
-        print(f"[ocq] calibrating Σ_K for residual basis (res_mode={args.ocq_res_mode})",
-              flush=True)
-        t0 = time.time()
-        ocq_bases_tensor = build_ocq_full_bases(
-            model, tok, B_ont.float(), res_mode=args.ocq_res_mode,
-            device=args.device,
-        )
-        print(f"[ocq] B_full built in {time.time()-t0:.1f}s, "
-              f"shape {tuple(ocq_bases_tensor.shape)}", flush=True)
+
+        if needs_full_bases:
+            print(f"[ocq] calibrating Σ_K for residual basis "
+                  f"(res_mode={args.ocq_res_mode}) — "
+                  f"single-pass OCQ method only", flush=True)
+            t0 = time.time()
+            ocq_bases_tensor = build_ocq_full_bases(
+                model, tok, B_ont.float(), res_mode=args.ocq_res_mode,
+                device=args.device,
+            )
+            print(f"[ocq] B_full built in {time.time()-t0:.1f}s, "
+                  f"shape {tuple(ocq_bases_tensor.shape)}", flush=True)
 
     # Sweep
     results = []
@@ -721,13 +732,14 @@ def run() -> None:
             quant_fn = build_quant_fn(
                 method, bits, args.kivi_R,
                 ocq_bases=ocq_bases_tensor,
-                ocq_r_ont=args.ocq_r_ont or (
-                    ocq_bases_tensor.shape[-1] - (
-                        ocq_bases_tensor.shape[-1] - B_ont.shape[3]
-                    ) if "ocq" in args.methods else 0
+                ocq_r_ont=(
+                    (args.ocq_r_ont or B_ont.shape[3])
+                    if B_ont is not None else 0
                 ),
                 ocq_ont_mode=args.ocq_ont_mode,
                 ocq_res_bits=args.ocq_res_bits,
+                ocq_b_ont_per_layer_head=B_ont if B_ont is not None else None,
+                ocq_wf_gamma=args.ocq_wf_gamma,
             )
             with install_k_proj_hooks(model, quant_fn, n_kv=n_kv,
                                        head_dim=head_dim):
