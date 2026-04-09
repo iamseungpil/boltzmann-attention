@@ -63,6 +63,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fokvq-topk-frac", type=float, default=0.25)
     parser.add_argument("--fokvq-adaptive-energy-frac", type=float, default=0.9)
     parser.add_argument("--fokvq-clip-quantile", type=float, default=0.995)
+    parser.add_argument(
+        "--sink-len",
+        type=int,
+        default=4,
+        help=(
+            "Number of initial tokens per sequence to preserve in fp16 "
+            "(attention sink protection, Xiao et al. 2024). Applied to "
+            "both calibration (skipped in PCA fit) and quantization "
+            "(first sink-len positions of each cache window kept unquantized). "
+            "Default: 4. Set to 0 to disable."
+        ),
+    )
     parser.add_argument("--output-dir", type=str, required=required, default="/tmp/exp4_2_self_test")
     parser.add_argument("--cache-dir", type=str, default="")
     parser.add_argument("--attn-implementation", type=str, default="eager")
