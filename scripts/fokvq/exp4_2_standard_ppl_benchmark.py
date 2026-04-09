@@ -41,6 +41,11 @@ from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.cache_utils import DynamicCache
 
+# oc-FOKVQ (Ontology-Categorical FOKVQ): import is local to this dir.
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).parent))
+from oc_fokvq import build_oc_basis, oc_fokvq_quantize  # noqa: E402
+
 
 def parse_args() -> argparse.Namespace:
     bootstrap = argparse.ArgumentParser(add_help=False)
