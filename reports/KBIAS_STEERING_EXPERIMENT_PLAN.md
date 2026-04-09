@@ -281,3 +281,89 @@ Phase 3 가 논문의 생사. 부분 결과가 baseline retuning 에 반영될 �
 ---
 
 *계획 끝. 실행 중 본 계획에서 벗어나는 결정은 본 파일 하단에 일자별 수정 사항으로 기록할 것.*
+
+---
+
+## Amendment 2026-04-09 (A1): Zhu 2025 Focus Directions 전문 정독
+
+### 확인된 사실 (arXiv:2503.23306 full read)
+
+- **개입 수식 (Eq. 5)**: `W = softmax((Q + α·d_Q)(K + α·d_K)^T / √F)` — K 와 Q 에 **동일한 단일 스칼라 α** 공유. 두 component 를 분리할 수 없음.
+- **Direction 학습**: `d_K`, `d_Q` joint optimization. AdamW, lr=10⁻³, 10 epoch. 손실 `L = -S_C^d` (relevant context 에 대한 attention 양 자체를 maximize).
+- **학습 데이터**: Multi-Document QA from "Lost in the Middle", 2654 샘플, 50/50 train/test.
+- **Layer/head 선택**: Llama-3.2-3B 기준 middle-late layer 8–18, 672 개 head 중 contextual score ≫ 0.2 인 head 는 단 2 개 (0.3%). Top-20 head 가 optimal.
+- **Hyperparameter**: α ∈ {−0.2, 0.2, 0.3, 0.5}, optimal α=0.3.
+- **벤치마크**: HELMET 전체 (Recall / RAG / Re-ranking / ICL / Long QA). NQ, TriviaQA, HotpotQA, PopQA, MS MARCO 등.
+- **Baseline**: no-intervention, gold context, split-softmax (Li et al. 2024a).
+- **Zhu 가 측정하지 않은 것**: MMLU delta, perplexity, fact preservation, hallucination, side-effect, capability degradation. **하나도 없음.**
+- **Zhu 가 ablate 하지 않은 것**: K-only vs Q-only vs K+Q. K 와 Q 는 언제나 joint.
+- **명시된 limitation**: (a) "focus directions may be task dependent", (b) "applying overly strong focus directions can inadvertently heighten attention to irrelevant contexts" — 정량화 없음.
+
+### R4 판정: 해소
+
+Zhu 는 K-only ablation 을 돌리지 않았다. Appendix 에도 없음. 우리 Phase 1 의 K/Q/K+Q ablation 은 공개 지점이다.
+
+### 문제 설정 차이의 중요성
+
+Zhu 의 문제: "long-context distraction" — 모델이 긴 context 에서 relevant token 을 무시하는 현상. d_K/d_Q 는 특정 relevant token 을 더 보게 만드는 pointer 역할.
+
+우리 문제: 여러 valid 한 선택지 중 의미 축을 따라 focus 편향. d_v_f 는 ontology facet 방향이지 특정 token pointer 아님.
+
+**두 문제는 다른 family 에 속한다.** Zhu 의 direction 은 gold answer 있는 task 에서만 학습 가능 (task-dependent — 본인들 인정). 우리 direction 은 ontology 만 있으면 학습 불필요 (task-independent by construction). 이 차이가 두 번째 독립 novelty 축이 된다.
+
+### Thesis 수정
+
+기존:
+> Intervention direction 이 외부 의미 ontology 에서 유도되고 bias 가 K-side (K+Q 가 아니라, residual 이 아니라) 에 적용될 때, attention steering 은 동등한 steering effect 강도에서 content-injection 방법이 달성할 수 없는 수준으로 context fact 와 non-target knowledge 를 보존한다.
+
+수정 (task-independence 축 추가):
+> Intervention direction 이 외부 의미 ontology 에서 유도되고 (**training-free, task-independent**), bias 가 K-side 에만 적용될 때, attention steering 은 (a) Zhu 2025 의 gradient-trained direction 이 요구하는 per-task training 없이 동등한 focus 효과를 내고, (b) 동등한 steering effect 강도에서 content-injection 방법이 달성할 수 없는 수준의 fact preservation 을 달성하며, (c) 고강도 steering 에서 gradient-trained direction 보다 graceful 하게 열화된다.
+
+### 새 가설 H9, H10
+
+| H# | 가설 | 측정 방법 | 실패 시 |
+|---|---|---|---|
+| H9 | Ontology direction 의 "effective α range" (target gain ≥ baseline + 20pp 이면서 irrelevant leakage ≤ 10% 인 구간) 가 gradient-trained direction 보다 넓다 | α sweep {0.1, 0.3, 0.5, 1.0, 2.0, 4.0, 8.0} 에서 target probe + irrelevant attention mass 동시 측정 | 논문 사망 아님, "low-α 에서만 경쟁력" 으로 claim 약화 |
+| H10 | Zhu 의 HELMET NQ 벤치마크에서 ontology 유래 K-only direction 이 gradient-trained K+Q direction EM 의 90% 이상 유지 | HELMET NQ + TriviaQA subset 재현 실험 | 논문 사망 아님, "Zhu 의 task 에서는 약함, 우리 task (tool selection) 에서는 강함" 으로 재frame |
+
+### Phase 1 확장: HELMET cross-check
+
+Phase 1 마지막에 추가 실험:
+
+- **P1.4**. Zhu 2025 의 HELMET NQ + TriviaQA subset 재현.
+  - (a) Zhu 의 레시피대로 K+Q gradient-trained direction 학습 (Multi-Document QA 2654 샘플, AdamW, 10 epoch)
+  - (b) 동일 layer/head set (Zhu 의 top-20 contextual head) 에 우리 ontology-derived direction 을 K-only 로 적용
+  - (c) α sweep {0.2, 0.3, 0.5} 에서 EM 비교
+  - (d) **Exit criterion H10**: K-only ontology 의 EM 이 K+Q gradient-trained 의 90% 이상
+
+### Phase 2 확장: High-α degradation curve
+
+Phase 2 에 서브 실험 추가:
+
+- **P2.3**. Zhu 의 acknowledged limitation ("overly strong directions bleed") 정량화.
+  - α ∈ {0.1, 0.3, 0.5, 1.0, 2.0, 4.0, 8.0} 넓은 sweep (Zhu 는 {-0.2, 0.2, 0.3, 0.5} 만 보고)
+  - 두 direction 출처 (ontology projection, Focus Directions gradient-trained) 각각에 대해 세 곡선 측정:
+    - Target probe accuracy
+    - **Irrelevant-context attention mass**: steered 모델의 attention weight 중 ontology 기준으로 irrelevant 한 token 에 할당된 비율 (Zhu 가 측정 안 한 것)
+    - CounterFact specificity retention
+  - **Exit criterion H9**: Ontology 의 "effective α range" 가 gradient-trained 보다 넓음
+
+이 실험 단독으로도 workshop paper 가치가 있다 — Zhu 의 명시된 failure mode 를 처음으로 정량화한 결과가 된다.
+
+### Risk 수정
+
+**R4 제거** (Zhu 의 숨은 K-only ablation 가능성): Zhu 2025 전문 정독 결과 존재하지 않음. 확인 완료.
+
+**R7 추가**: HELMET NQ 에서 ontology K-only 가 Zhu 의 gradient-trained K+Q 에 크게 뒤처질 위험.
+- *원인*: Zhu 의 task 는 context 내 relevant token pointer 문제이므로 gradient 신호가 강함. Ontology embedding 은 semantic axis 이지 token pointer 가 아님. HELMET 에서의 간극은 어느 정도 예견됨.
+- *대응*: (a) HELMET 결과를 정직하게 보고 — "Zhu 의 task 에서는 Zhu 가 강함", (b) 우리 tool-selection task 는 pre-existing ontology 가 있는 reality 이므로 gradient-training 이 불필요한 점이 advantage 라고 재frame, (c) 간극이 크면 제목에서 "focus directions" 과의 직접 경쟁 뉘앙스를 빼고 "training-free, task-independent attention steering" 쪽으로 무게 이동.
+
+### Phase 0 precondition 상태
+
+- [x] 0.1.a Zhu 2025 전문 정독 — **완료 (2026-04-09)**
+- [ ] 0.1.b ASA 2026 전문 정독 — 진행 중
+- [ ] 0.1.c PASTA 2023 전문 정독 — 진행 중
+- [ ] 0.2 GGB_experiment padding fix
+- [ ] 0.3 baseline 목록 확정
+
+
