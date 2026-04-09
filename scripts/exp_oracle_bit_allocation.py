@@ -122,7 +122,8 @@ def compute_importance_scores(Q_post: torch.Tensor, K_post: torch.Tensor,
 
 
 def assign_bits_by_score(scores: torch.Tensor, method: str,
-                         n_kv_heads: int, seq_len: int) -> torch.Tensor:
+                         n_kv_heads: int, seq_len: int,
+                         low_bit: int = 1, high_bit: int = 3) -> torch.Tensor:
     """Assign bits per token × KV head.
 
     Args:
@@ -130,34 +131,36 @@ def assign_bits_by_score(scores: torch.Tensor, method: str,
         method: 'uniform', 'random', 'guided', 'position'
         n_kv_heads: number of KV heads
         seq_len: sequence length
+        low_bit: bits for bottom 50% tokens (default: 1)
+        high_bit: bits for top 50% tokens (default: 3)
     Returns:
-        bit_assign: (seq, n_kv_heads) int tensor with 1 or 3
+        bit_assign: (seq, n_kv_heads) int tensor
     """
-    bit_assign = torch.full((seq_len, n_kv_heads), 2, dtype=torch.int32)
+    avg_bit = (low_bit + high_bit) / 2.0
+    bit_assign = torch.full((seq_len, n_kv_heads), round(avg_bit), dtype=torch.int32)
 
     if method == 'uniform':
-        bit_assign[:] = 2
+        bit_assign[:] = round(avg_bit)
         return bit_assign
 
-    # 50/50 split: top 50% get 3-bit, bottom 50% get 1-bit (avg = 2)
+    # 50/50 split: top 50% get high_bit, bottom 50% get low_bit
     half = seq_len // 2
 
     if method == 'random':
         for hk in range(n_kv_heads):
             perm = torch.randperm(seq_len)
-            bit_assign[perm[:half], hk] = 3
-            bit_assign[perm[half:], hk] = 1
+            bit_assign[perm[:half], hk] = high_bit
+            bit_assign[perm[half:], hk] = low_bit
 
     elif method == 'guided':
         for hk in range(n_kv_heads):
             _, idx = scores[:, hk].sort(descending=True)
-            bit_assign[idx[:half], hk] = 3
-            bit_assign[idx[half:], hk] = 1
+            bit_assign[idx[:half], hk] = high_bit
+            bit_assign[idx[half:], hk] = low_bit
 
     elif method == 'position':
-        # First half gets 3-bit, second half gets 1-bit
-        bit_assign[:half, :] = 3
-        bit_assign[half:, :] = 1
+        bit_assign[:half, :] = high_bit
+        bit_assign[half:, :] = low_bit
 
     return bit_assign
 
@@ -180,6 +183,7 @@ def evaluate_single_layer_intervention(
     model, tokenizer, device: str,
     target_layer: int, method: str,
     max_eval: int = MAX_EVAL,
+    low_bit: int = 1, high_bit: int = 3,
 ) -> Dict:
     """Evaluate PPL with single-layer variable-bit K quantization.
 
@@ -257,7 +261,15 @@ def evaluate_single_layer_intervention(
             scores = compute_importance_scores(Q_post, K_post, n_heads, n_kv)
 
             # Step 3: Assign bits
-            bit_assign = assign_bits_by_score(scores, method, n_kv, S)
+            effective_method = method
+            effective_low = low_bit
+            effective_high = high_bit
+            if method == 'uniform_3bit':
+                effective_method = 'uniform'
+                effective_low = 3
+                effective_high = 3
+            bit_assign = assign_bits_by_score(scores, effective_method, n_kv, S,
+                                                low_bit=effective_low, high_bit=effective_high)
 
             # Step 4: Quantize K at target layer with variable bits
             # Hook that applies variable-bit quantization to k_proj output
@@ -343,37 +355,65 @@ def main():
         attn_implementation="eager"
     ).to(device).eval()
 
-    methods = ['fp16', 'uniform', 'random', 'guided', 'position']
-    results = {}
+    # Run two regimes: 1/3-bit split (avg 2.0) and 2/3-bit split (avg 2.5)
+    splits = [
+        {"name": "1_3", "low": 1, "high": 3, "avg": 2.0},
+        {"name": "2_3", "low": 2, "high": 3, "avg": 2.5},
+    ]
 
-    for method in methods:
-        print(f"\n[{method}]", flush=True)
-        r = evaluate_single_layer_intervention(
-            model, tokenizer, device,
-            target_layer=args.target_layer,
-            method=method,
-            max_eval=args.max_eval_tokens,
-        )
-        results[method] = r
-        print(f"  PPL = {r['ppl']}", flush=True)
+    all_results = {}
 
-    # Summary
-    print(f"\n{'='*60}")
-    print(f"{'Method':<15s} {'PPL':>10s} {'Time':>8s}")
-    for m in methods:
-        r = results[m]
-        print(f"{m:<15s} {r['ppl']:>10.4f} {r['runtime_s']:>8.1f}s")
+    for split in splits:
+        print(f"\n{'='*60}")
+        print(f"SPLIT: {split['low']}/{split['high']}-bit (avg {split['avg']})")
+        print(f"{'='*60}", flush=True)
 
-    # Kill criterion check
-    if results['guided']['ppl'] < results['random']['ppl']:
-        print(f"\n*** HYPOTHESIS CONFIRMED: guided ({results['guided']['ppl']:.4f}) < random ({results['random']['ppl']:.4f}) ***")
-        print(f"    Δ = {results['random']['ppl'] - results['guided']['ppl']:.4f}")
-    else:
-        print(f"\n*** HYPOTHESIS FAILED: guided ({results['guided']['ppl']:.4f}) >= random ({results['random']['ppl']:.4f}) ***")
-        print(f"    KILL: direction is dead.")
+        methods = ['fp16', 'uniform', 'random', 'guided', 'position']
+        # For 2/3 split, also add uniform-3bit as upper reference
+        if split['low'] == 2:
+            methods.append('uniform_3bit')
+        split_results = {}
 
-    out_path = out_dir / f"{short}_layer{args.target_layer}_oracle.json"
-    out_path.write_text(json.dumps(results, indent=2))
+        for method in methods:
+            tag = f"{method}_{split['name']}" if method not in ('fp16',) else method
+            print(f"\n[{tag}]", flush=True)
+            r = evaluate_single_layer_intervention(
+                model, tokenizer, device,
+                target_layer=args.target_layer,
+                method=method,
+                max_eval=args.max_eval_tokens,
+                low_bit=split['low'], high_bit=split['high'],
+            )
+            r['split'] = split['name']
+            r['avg_bits'] = split['avg']
+            split_results[method] = r
+            all_results[tag] = r
+            print(f"  PPL = {r['ppl']}", flush=True)
+
+        # Summary for this split
+        print(f"\n--- {split['name']} split summary ---")
+        print(f"{'Method':<15s} {'PPL':>10s} {'Time':>8s}")
+        for m in methods:
+            r = split_results[m]
+            print(f"{m:<15s} {r['ppl']:>10.4f} {r['runtime_s']:>8.1f}s")
+
+        # Kill criterion
+        if split_results['guided']['ppl'] < split_results['random']['ppl']:
+            delta = split_results['random']['ppl'] - split_results['guided']['ppl']
+            print(f"\n  CONFIRMED: guided < random (Δ={delta:.4f})")
+        else:
+            print(f"\n  FAILED: guided >= random")
+
+        # Key comparison: does guided beat uniform?
+        if split_results['guided']['ppl'] < split_results['uniform']['ppl']:
+            delta = split_results['uniform']['ppl'] - split_results['guided']['ppl']
+            print(f"  BONUS: guided < uniform (Δ={delta:.4f}) *** STRONG SIGNAL ***")
+        else:
+            delta = split_results['guided']['ppl'] - split_results['uniform']['ppl']
+            print(f"  Uniform still wins (uniform is {delta:.4f} better)")
+
+    out_path = out_dir / f"{short}_layer{args.target_layer}_oracle_v2.json"
+    out_path.write_text(json.dumps(all_results, indent=2))
     print(f"\nSaved: {out_path}")
 
 
