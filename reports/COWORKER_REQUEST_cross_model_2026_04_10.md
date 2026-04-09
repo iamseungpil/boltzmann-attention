@@ -47,7 +47,7 @@ python scripts/ocq/build_qwen_metatool_b_ont.py \
     --device cuda:0
 ```
 
-**주의**: 현재 `build_qwen_metatool_b_ont.py`는 Qwen hardcoded 여부 확인 필요. 스크립트가 `--model` 인자를 안 받으면 Llama/Mistral용으로 복제해서 수정 필요 (Qwen 전용 로직이 있다면 알려주세요 — mais가 일반화 패치 작성).
+**확인됨**: 스크립트 이름에 "qwen"이 들어가 있지만 실제로는 **model-agnostic**. `--model` CLI 인자 지원하고, `n_kv / n_q / head_dim`은 `model.config`에서 동적으로 읽음 (build_qwen_metatool_b_ont.py:126-131). Llama/Mistral 모두 그대로 사용 가능. `ontology_facet_basis.py` 내부에도 Qwen-specific hardcoding 없음.
 
 **Step A.2 — α sweep eval** (A100 1장 순차 또는 4장 병렬, ~30분)
 
