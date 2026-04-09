@@ -413,6 +413,9 @@ def parse_method(method: str) -> Tuple[str, Dict]:
         return "quant", {"alpha": alpha}
     if method == "ocq_quant_bias":
         return "quant", {"alpha": 1.0}  # default α=1 for combined
+    if method.startswith("ocq_facet_gated_a"):
+        alpha = float(method[len("ocq_facet_gated_a"):])
+        return "facet_gated", {"alpha": alpha}
     raise ValueError(f"unknown method: {method}")
 
 
