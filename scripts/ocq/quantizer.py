@@ -604,7 +604,40 @@ def _self_test() -> None:
                     f"  {res_mode} {ont_mode} res_bits={res_bits}: "
                     f"MSE={mse:.4e}"
                 )
-    print("ocq self-test passed.")
+    print("ocq base self-test passed.")
+
+    # Test the prior-FOKVQ-import-based hybrids
+    if _PRIOR_AVAILABLE:
+        print("\n[hybrid] testing ocq_kivi and ocq_wf with prior FOKVQ imports")
+        d_h = 64
+        r_ont_h = 8
+        H_h = 4
+        S_h = 32
+        B_h = 2
+        keys_h = torch.randn(B_h, H_h, S_h, d_h, dtype=torch.float32)
+        B_ont_per_head = torch.randn(H_h, d_h, r_ont_h, dtype=torch.float32)
+        # orthonormalize each head's B_ont
+        for h in range(H_h):
+            q, _ = torch.linalg.qr(B_ont_per_head[h])
+            B_ont_per_head[h] = q[:, :r_ont_h]
+        for bits in [2, 3, 4]:
+            k_q_kivi = ocq_kivi_quantize(
+                keys_h, B_ont_per_head, bits_residual=bits, ont_mode="1b",
+            )
+            k_q_wf = ocq_wf_quantize(
+                keys_h, B_ont_per_head, bits_residual=bits, ont_mode="1b",
+            )
+            assert k_q_kivi.shape == keys_h.shape
+            assert k_q_wf.shape == keys_h.shape
+            assert torch.isfinite(k_q_kivi).all()
+            assert torch.isfinite(k_q_wf).all()
+            mse_kivi = float((keys_h - k_q_kivi).pow(2).mean())
+            mse_wf = float((keys_h - k_q_wf).pow(2).mean())
+            print(f"  bits={bits}: ocq_kivi MSE={mse_kivi:.4e}  "
+                  f"ocq_wf MSE={mse_wf:.4e}")
+        print("ocq hybrid self-test passed.")
+    else:
+        print("\n[hybrid] SKIPPED: prior FOKVQ v3 file not importable")
 
 
 if __name__ == "__main__":
