@@ -85,6 +85,8 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--max-samples", type=int, default=0,
                    help="Cap on number of queries (0 = all 995).")
+    p.add_argument("--start-idx", type=int, default=0,
+                   help="Start index for slicing the dataset (default 0).")
     p.add_argument("--methods", nargs="+",
                    default=["no_steer", "ocq_bias_a1", "ocq_bias_a3"],
                    help="Methods to evaluate. no_steer / ocq_bias_a<α> / "
