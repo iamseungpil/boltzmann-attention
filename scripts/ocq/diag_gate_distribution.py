@@ -214,18 +214,32 @@ def install_diag_hooks(
                     coeffs = torch.einsum("bhtd,hdr->bhtr", K_f, B_dev)
                     K_norm_sq = (K_f ** 2).sum(dim=-1) + gate_eps  # (B, H, T)
 
-                    # (F,) per-facet g_f tensor accumulated as (F, N) for acc.add
-                    flat_N = B_sz * n_kv * T
-                    g_flat = torch.empty(n_facets, flat_N, dtype=torch.float64)
-                    sigma_flat = torch.zeros(flat_N, dtype=torch.float64)
+                    # Compute g_f per (batch, head, token), kept as
+                    # (n_facets, B, H, T) on GPU, then split by token
+                    # position bucket (pos==0 → "bos", pos>=1 → "rest")
+                    # before moving to CPU float64.
+                    g_bhtf = torch.empty(
+                        n_facets, B_sz, n_kv, T,
+                        device=K_f.device, dtype=torch.float32,
+                    )
                     for f in range(n_facets):
                         mask_f = M_dev[:, f, :]  # (H, r)
                         mc = coeffs * mask_f.unsqueeze(0).unsqueeze(2)
                         gate_num = (mc ** 2).sum(dim=-1)  # (B, H, T)
-                        g_f = (gate_num / K_norm_sq).reshape(-1).double().cpu()
-                        g_flat[f] = g_f
-                        sigma_flat += g_f
-                    acc.add(li, g_flat, sigma_flat)
+                        g_bhtf[f] = gate_num / K_norm_sq
+
+                    # BOS bucket: t == 0
+                    g_bos = g_bhtf[:, :, :, 0:1]       # (F, B, H, 1)
+                    g_bos_flat = g_bos.reshape(n_facets, -1).double().cpu()
+                    sigma_bos_flat = g_bos_flat.sum(dim=0)
+                    acc.add_bucket("bos", li, g_bos_flat, sigma_bos_flat)
+
+                    # Rest bucket: t >= 1
+                    if T > 1:
+                        g_rest = g_bhtf[:, :, :, 1:]     # (F, B, H, T-1)
+                        g_rest_flat = g_rest.reshape(n_facets, -1).double().cpu()
+                        sigma_rest_flat = g_rest_flat.sum(dim=0)
+                        acc.add_bucket("rest", li, g_rest_flat, sigma_rest_flat)
                     return None  # K unchanged
                 return hook
 
