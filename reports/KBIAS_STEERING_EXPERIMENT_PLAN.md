@@ -358,12 +358,211 @@ Phase 2 에 서브 실험 추가:
 - *원인*: Zhu 의 task 는 context 내 relevant token pointer 문제이므로 gradient 신호가 강함. Ontology embedding 은 semantic axis 이지 token pointer 가 아님. HELMET 에서의 간극은 어느 정도 예견됨.
 - *대응*: (a) HELMET 결과를 정직하게 보고 — "Zhu 의 task 에서는 Zhu 가 강함", (b) 우리 tool-selection task 는 pre-existing ontology 가 있는 reality 이므로 gradient-training 이 불필요한 점이 advantage 라고 재frame, (c) 간극이 크면 제목에서 "focus directions" 과의 직접 경쟁 뉘앙스를 빼고 "training-free, task-independent attention steering" 쪽으로 무게 이동.
 
-### Phase 0 precondition 상태
+### Phase 0 precondition 상태 (A1 시점)
 
 - [x] 0.1.a Zhu 2025 전문 정독 — **완료 (2026-04-09)**
 - [ ] 0.1.b ASA 2026 전문 정독 — 진행 중
 - [ ] 0.1.c PASTA 2023 전문 정독 — 진행 중
 - [ ] 0.2 GGB_experiment padding fix
 - [ ] 0.3 baseline 목록 확정
+
+---
+
+## Amendment 2026-04-09 (A2): ASA / PASTA / CAA / ITI 전문 정독
+
+A1 이후 네 개 주요 선행 논문을 병렬로 정독했다. 이 amendment 는 각 논문에서 추출한 사실과 그로부터 파생된 계획 수정 사항을 기록한다.
+
+### A2.1 ASA (arXiv:2602.04935, Feb 2026) 전문 정독 결과
+
+**개입 수식 (Eq. 14)**: `h'_L(x) = h_L(x) + Gate(h_L(x)) · α · MoV(h_L(x))`
+
+- 개입 위치: Pre-LN residual stream, **단일 layer L**, **마지막 non-padding prompt token 1 개**, pre-fill 1 회. 디코딩 중 매 step 이 아님.
+- MoV = `v̂_{d̂} + β·v̂_global`. 벡터 수 **총 5 개** (1 global + 4 domain: Code/Math/Search/Translation).
+- 벡터 구축: class-conditional mean difference (CAA-style), 320 calibration 샘플. Backprop 없음.
+- Router: linear softmax `W^r h̃_L + b^r` 로 domain 예측.
+- Gate: ternary `{+1, 0, −1}` signed. `Gate=+1` if `p(x)>τ`, `-1` if `p(x)<1-τ`, 그 외 `0`. **Gate 없으면 FPR 이 0.05 → 0.50 폭발 (Table 6)** — 이건 ASA 에서 본질적 element.
+- 벤치마크: **MTU-Bench 만**. 4 개 disjoint domain, 각 domain cross-cosine <0.4 (Table 2) — ASA 의 핵심 가정.
+- Headline (Qwen2.5-1.5B, L=18, α=4.0): F1 0.1818 → 0.5037, FPR 0.1458 → 0.0521.
+- Layer: Qwen2.5-1.5B L=18, LLaMA-8B L=21. Cross-model 전이 시 layer 재조정 필요.
+- 0.5B 모델에서 Recall=0 (완전 실패).
+- Baseline 비교: LoRA/Q-LoRA/Prefix/BitFit/prompt. **CAA/ITI/PASTA/RepE 중 어느 것과도 비교하지 않음**.
+- Fact preservation 측정 없음: Format Acc, Tool Name Acc (0.7436), Argument Acc, FPR 만.
+- Limitations 섹션 없음. 산재된 언급: "ASA cannot create tool-use behavior from scratch" (§4.2), "routing accuracy is the bottleneck".
+
+**결정적 통찰**: ASA 는 **domain 단위 routing** 이지 **tool 단위 disambiguation** 이 아니다. 4 개 domain 이 disjoint 하다는 가정 (cosine <0.4) 은 homonymous tool 이 존재하는 순간 무너진다. **Homonym disambiguation 은 ASA 의 범위 밖 problem 이다.** 우리가 선점 당한 것이 아니라 다른 problem 을 풀고 있다.
+
+### A2.2 PASTA (arXiv:2311.02262, ICLR 2024) 전문 정독 결과
+
+**개입 수식 (Eq. 2)**: `[T(A)]_ij = α·A_ij/C_i` for `j ∈ G^-`, `A_ij/C_i` otherwise. Row renormalization with `C_i = Σ_{j∈G} A_ij + Σ_{j∈G^-} α·A_ij`.
+
+- 개입 위치: **post-softmax attention weight matrix** `A`. Pre-softmax logit 이 아니고, value/output 도 아님.
+- 기본 α = 0.01 (0 은 피해야 함 — context 삭제 효과).
+- G 는 **사용자가 marking 한 token index 집합**. `*...*` 이나 `""..."` 로 표시. **Semantic axis 없음, ontology 없음, concept 개념 없음.** 순전히 positional.
+- Head 선택: **Multi-task profiling** — 각 (l, h) 에 대해 single-head ablation 을 ~1000 샘플에 돌려 task accuracy 측정. Task 별 top-k 의 intersection 이 default.
+- 7B 에서 |H| = 50–150 optimal (k ∈ {300, 400, 500} of 1024 heads).
+- Llama-7B Multi-task PASTA headline (Table 1): JSON F/P 96.6/85.1 (vs zero-shot 60.0/54.9), Pronouns 96.4/95.8 (vs 71.8/66.3), BiasBios 95.3 (vs 87.4), CounterFact ES/PS 99.6/99.6 (vs 58.5/52.0). 평균 95.5 vs 67.3.
+- **"focus-shift" 용어는 논문에 등장하지 않는다.** "directing", "steering", "emphasizing", "bold/italics analogy" 만.
+- Baseline 비교: zero-shot, `*`-marked, `""`-marked, 3-shot few-shot. **ITI/CAA/RepE/ActAdd/ROME/MEMIT 중 어느 것과도 비교하지 않음** (Related Work 에 언급만).
+- Capability retention 측정 없음: MMLU 없음, TruthfulQA 없음, perplexity-on-corpus 없음. 엔트로피 >3.0 fluency filter 만.
+- Failure mode: 50–150 head 초과 시 JSON Pred Acc 와 fluency 하락 (Figure 3a/b). α=0 은 context 파괴. 용어로 표현은 없지만 **U-shape trade-off** 가 존재함.
+- Dedicated limitations 섹션 없음. Task-dependence of head selection, absence of representation-engineering baseline, factual knowledge 보존 여부 — 모두 open 으로 남김.
+
+**결정적 통찰**: PASTA 는 focus-shift 의 **존재 증명** 이지 focus-shift 라는 **category 의 claim** 이 아니다. 우리가 "focus-shift vs content-injection" 을 **공식화** 하는 것은 여전히 novel 기여다. 단 "first focus-shift attention steering method" 는 claim 불가 — PASTA 가 먼저 한 attention-level method 이기 때문.
+
+PASTA 는 또한 **ontology / semantic axis interface** 를 전혀 건드리지 않았다. PASTA 의 G 는 순수 positional. 이건 우리 ontology 차별화의 근거를 강화한다.
+
+### A2.3 CAA (arXiv:2312.06681, ACL 2024) 전문 정독 결과
+
+**Recipe (§3, Eq. 1)**: Multiple-choice contrastive pair, 답 letter 위치의 residual stream mean difference.
+`v_MD = (1/|D|) Σ [a_L(p, c_p) − a_L(p, c_n)]`
+
+- 학습: Llama-2-7B-Chat L=13, Llama-2-13B-Chat L=14 또는 15 (Figure 3 layer sweep 결과).
+- Pair 수: behavior 당 290 (Corrigibility) ~ 1000 (Sycophancy).
+- 적용: **prompt 뒤 모든 token position** 의 residual stream 에 `c · v_MD` 더함. ActAdd 가 prompt 의 첫 token 에 더하는 것과 다름.
+- Normalization: **across behavior 정규화** (behavior 간 multiplier 비교 가능), **across layer 정규화 안 함** (residual stream norm 이 layer 에 따라 지수 증가하므로).
+- Multiplier: **모든 headline 결과가 오직 ±1**. §4.2: *"steering with larger multipliers results in a degradation in the quality of the open-ended text"* — **정량화 없음, curve 없음**.
+- 7 개 behavior: AI Coordination, Corrigibility, **Hallucination** (GPT-4 로 생성된 synthetic MC dataset), Myopic Reward, Survival Instinct, Sycophancy, Refusal.
+- MMLU (Table 5, 13B L=14, ±1): baseline 0.63. 최대 drop 은 Hallucination at −1 → 0.57 (absolute −0.06). 나머지 <0.04. 저자 주장: "our intervention does not significantly affect MMLU performance".
+- TruthfulQA (Appendix H): Sycophancy vector 빼기만 테스트. Llama-2-13B-Chat: +0.02 개선, 빼면 −0.03 악화. 7B: +0.01/−0.05. "more investigation needed".
+- **Fact-contradicting context 실험 없음**. Closed-book QA 없음. 외부 hallucination benchmark 사용 안 함.
+- Random seed 없음, error bar 없음, significance test 없음 (§10 인정).
+- **§9.1 Future Work 에 직접 명시**: *"steering outside the residual stream ... e.g., after the MLP but before merging"* — attention-site 개입은 CAA 저자가 **직접 future work 로 초대**한 방향.
+
+**결정적 통찰**: K-side attention bias 는 CAA §9.1 에 적혀 있는 future work 를 실행한 것이다. 이건 정당화의 황금이다 — 논문 intro 에 *"CAA (Rimsky et al. 2023) explicitly suggested steering outside the residual stream as future work; we do this."* 라고 쓸 수 있다.
+
+CAA 는 또한 multiplier-resolved capability curve 를 그리지 않았다. 오직 ±1 에서만 측정. Curve 를 그리는 것 자체로 부분 기여가 된다.
+
+### A2.4 ITI (arXiv:2306.03341, NeurIPS 2023) 전문 정독 결과
+
+**개입 수식 (Eq. 2, §3.1)**: `x_{l+1} = x_l + Σ_h Q_l^h(Att_l^h(P_l^h x_l) + α·σ_l^h·θ_l^h)`
+
+- 개입 위치: **per-head attention output**, softmax-weighted V aggregation **이후**, W_O projection **이전**. Head-space 의 D 차원.
+- **Eq. 3 으로 접힘**: 실제로는 `Bias_l = α Σ_h Q_l^h(σ_l^h θ_l^h)` — **W_O bias 에 대한 상수 offset**. **Input-independent**. Offline 으로 W_O 에 bake 가능.
+- **결정적 사실**: ITI 는 attention pattern (softmax 가중치, K/Q dot product) 을 **건드리지 않는다**. 어떤 token 이 보이는지 바꾸지 않고, 보고 난 후 residual stream 에 쓰는 것만 바꾼다.
+- Head 선택: per-(l,h) logistic regression probe on TruthfulQA. 5918 개 QA pair 재구성. Train/val 4:1 분할. Llama-7B 기준 top-K=48 / 1024 (4.7% sparse).
+- Direction: **Mass mean shift 가 probe weight direction 과 CCS 를 이김** (Table 3). Per-head 로 각자 다른 방향.
+- α: Llama-7B 에서 α=15 가 optimal (K=48).
+- TruthfulQA headline: Llama-7B baseline 30.5 → ITI 43.5 True×Info. Alpaca 32.5 → 65.1. Vicuna 51.5 → 74.0.
+- **MMLU/NQ/TriviaQA (Table 4)**: MMLU 35.71 → 40.16 (소폭 **상승**). NQ 46.6 → 51.3. TriviaQA 89.6 → 91.1. 능력 감소 없음.
+- CE(OWT) 2.16 → 2.48, KL=0.40. Vicuna+ITI 에서 KL=1.41 로 큼. 생성 분포에 측정 가능한 shift 있음.
+- α trade-off: "upside-down U curve". Peak 지나면 refusal ("I have no comment") 증가. Pointwise selection α=15 에서 CE=4.01, KL=1.95 — 모델 심하게 손상.
+- Framing: "shifting along truthful direction" 만. Focus vs content 논의 없음.
+
+**결정적 통찰**: ITI 와 K-bias 는 **인과적으로 완전히 다른 site** 다. 한 줄로: *"ITI changes what each head writes; K-bias changes what each head reads."* 이건 가장 깨끗한 ablation cell 이다 — 두 방법은 mechanistically 같은 경계선의 반대편에 있다.
+
+ITI 는 또한 input-independent (Eq. 3). K-bias 는 input-dependent (QK^T 에 영향). 이것도 causal distinction 이다.
+
+### A2.5 종합: Novelty surface 가 **넓어졌다**
+
+초기 survey 는 우리 novelty 를 좁게 잡았는데, 전문 정독 결과 다음 다섯 지점이 전부 열려 있다:
+
+1. **Focus-shift vs content-injection 의 공식화.** PASTA 가 용어를 쓰지 않았다. Dichotomy 를 formal 하게 정의하는 것 자체가 novel 기여 가능. 단 "first focus-shift method" 는 claim 불가.
+2. **Matched-effect Pareto across {PASTA, Focus Directions, K-bias, ITI, CAA, SAE clamping}.** 네 논문 어느 것도 matched-effect 비교를 하지 않았다. 단일 figure 로 독립 기여.
+3. **Multiplier-resolved capability curve for CAA, ITI, PASTA.** 셋 다 고정 α 에서만 측정. CAA 는 본인들이 "quality degrades at higher multipliers" 라고 qualitative 하게만 인정. Curve 를 그리는 것 자체로 부분 기여.
+4. **Homonymous tool disambiguation.** ASA 의 disjoint-domain 가정 (cosine <0.4) 은 homonym 이 존재하는 순간 붕괴. 우리 problem 은 ASA 의 범위 밖.
+5. **K-bias 는 CAA §9.1 이 초대한 future work.** "steering outside the residual stream" 을 직접 실행. 정당화의 근거로 인용 가능.
+
+### A2.6 Thesis 재수정 (A1 이후 2차 수정)
+
+A1 의 thesis:
+> Intervention direction 이 외부 의미 ontology 에서 유도되고 (training-free, task-independent), bias 가 K-side 에만 적용될 때, attention steering 은 (a) Zhu 2025 의 gradient-trained direction 이 요구하는 per-task training 없이 동등한 focus 효과를 내고, (b) 동등한 steering effect 강도에서 content-injection 방법이 달성할 수 없는 수준의 fact preservation 을 달성하며, (c) 고강도 steering 에서 gradient-trained direction 보다 graceful 하게 열화된다.
+
+A2 수정 (causal distinction 을 명시):
+> **Attention steering 은 "head 가 무엇을 쓰는가" 를 바꾸는 개입 (content injection: CAA, ITI, SAE clamping) 과 "head 가 무엇을 읽는가" 를 바꾸는 개입 (focus shift: PASTA, Focus Directions, 본 연구의 K-bias) 으로 인과적으로 구분된다.** Intervention direction 이 외부 의미 ontology 에서 유도되고 (training-free, task-independent), bias 가 K-side 에만 적용될 때, focus-shift 개입은 (a) 동등한 target effect 강도에서 content-injection 방법이 달성할 수 없는 수준의 **parametric fact preservation** 과 **in-context fact faithfulness** 를 달성하고, (b) CAA (Rimsky et al. 2023) §9.1 에서 명시적으로 요청된 "attention-site steering" 에 대한 첫 정량적 응답이며, (c) ASA (Wang et al. 2026) 가 disjoint-domain 가정으로 풀지 못하는 **homonymous tool disambiguation** 에 적용 가능하다.
+
+### A2.7 새 가설 (H11–H13)
+
+| H# | 가설 | 측정 방법 | 실패 시 |
+|---|---|---|---|
+| H11 | Focus-shift 방법 (PASTA, Focus Directions, K-bias) 이 content-injection 방법 (CAA, ITI, SAE clamping) 보다 matched effect 에서 CounterFact neighbourhood specificity 를 체계적으로 더 잘 보존한다 | 6 방법 × 5 가지 multiplier × 3 가지 specificity metric 의 매치드 비교, Llama-2-7B-Chat L=13 (CAA) 와 Zhu-recommended L=8–18 (attention family) | 주 thesis 사망, workshop tech report |
+| H12 | ITI 와 K-bias 는 **동일한 contrastive pair 로 학습된 동일한 semantic direction** 에 대해 causally distinct 한 behavioral signature 를 만든다. ITI 는 "identity shift" 를, K-bias 는 "topical redirection" 을 생성한다. | ITI mass-mean direction 을 K-space 로 projection, 같은 direction 으로 ITI / K-bias 두 방식 적용, open-ended generation 을 LLM-as-judge 로 category 분류 (self-reference vs topic-redirection) | 주 thesis 약화, "mechanism 차이 뚜렷하지 않음" 보고 |
+| H13 | Homonymous tool pair 가 있는 벤치마크에서 ontology-aware K-bias 가 ASA 보다 disambiguation accuracy 는 동등 이상, tool-signature fabrication rate 는 낮다 | MTU-Bench 를 cross-domain homonym 추가로 augment, ASA 가 정의한 4 domain 에 "search" 와 "code search" 같은 homonym 추가 | 응용 framing 약화, mechanism story 만 유지 |
+
+### A2.8 Baseline 구현 recipe (정독 기반 확정)
+
+각 baseline 에 대해 정독에서 추출한 정확한 recipe:
+
+**CAA** (github.com/nrimsky/CAA):
+- Layer 13 for Llama-2-7B-Chat, Layer 14 or 15 for 13B
+- Pair: multiple-choice, single-token A/B difference
+- Vector: mean difference of residual stream at answer-letter token position
+- Apply: add `c · v` to residual stream at **all post-prompt token positions** of generation
+- Normalize across behaviors, do NOT normalize across layers
+- Multiplier sweep {0, ±0.5, ±1, ±1.5, ±2, ±2.5, ±3} (CAA 원 논문은 ±1 만, 우리가 curve 를 그려야 함)
+- 7 behaviors 중 Hallucination 과 Sycophancy 를 우리 실험의 behavior 로 사용
+
+**ITI** (github.com/likenneth/honest_llama):
+- Intervention site: per-head attention output, post-softmax-weighted-V, pre-W_O
+- Equivalent: offline bake into W_O bias
+- Probe: per-(l,h) logistic regression on labeled activation, last-token position
+- Direction: **mass mean shift** (not probe weight), per-head
+- K=48 for Llama-2-7B, α=15
+- Eval metric set: TruthfulQA True×Info + CE(OWT) + KL(OWT) + MMLU + NQ + TriviaQA
+
+**PASTA** (github.com/QingruZhang/PASTA):
+- Intervention site: post-softmax attention weights, row-renormalized
+- α = 0.01 default, sweep {0.05, 0.01, 0.002, 1e−3}
+- |H| ∈ {25, 50, 100, 150}, intersection-of-top-k multi-task profiling
+- G = user-marked token index set (ontology 적용 시: ontology 용어로 substring matching → token index)
+- 7B profiling: k ∈ {300, 400, 500} out of 1024 heads
+- Benchmark: JSON Format, Pronouns Change, BiasBios, CounterFact (원 논문), plus MMLU + closed-book QA (우리가 추가)
+
+**ASA** (arxiv.org/html/2602.04935, 공식 코드 유무 확인 필요):
+- Layer L=18 for Qwen2.5-1.5B, L=21 for LLaMA-8B
+- MoV = 1 global + 4 domain (but generalize to our tool domains)
+- Linear router + per-domain sigmoid probe + ternary gate (τ ∈ [0.5, 0.7])
+- 320 calibration samples
+- Apply: residual stream, last non-padding prompt token, pre-fill only
+- α ∈ {0.5, 1, 2, 4}
+- **Gate ablation 은 필수** — Without-gate 는 내부 ablation 에서도 FPR 폭발
+- Benchmark: MTU-Bench (우리가 공유해야 할 benchmark)
+
+### A2.9 Phase 1 확장 (A2)
+
+A1 에서 Phase 1 마지막에 HELMET cross-check (P1.4) 를 추가했다. A2 에서 여기에 더:
+
+- **P1.5**. **Direction 을 공유한 ITI vs K-bias 비교**. 동일한 contrastive pair (CAA/ITI 방식) 로 mass-mean direction 을 얻되, 이 direction 을 (a) ITI 방식으로 W_O bias 에 bake, (b) K-space 로 projection 하여 K-bias 로 적용. 같은 strength 에서 MMLU, TruthfulQA, open-ended generation 을 측정.
+  - **Exit criterion (H12 약버전)**: 두 방법이 matched effect 에서 open-ended generation signature 가 구별 가능한 차이를 보임 (LLM-as-judge 로 판정).
+  - 이 실험이 성립하면 **causal distinction** 을 처음으로 empirical 하게 보인 figure 가 된다.
+
+### A2.10 Phase 3 확장 (A2)
+
+Phase 3 의 matched-effect Pareto 에 baseline 추가:
+
+- **Focus-shift family**: PASTA, Focus Directions (K+Q), K-bias ontology (ours)
+- **Content-injection family**: CAA, ITI, SAE clamping (Gemma Scope 가용 시), ASA (tool setting 에서)
+
+매치드 기준: target concept probe accuracy 의 delta (이전 계획 그대로).
+
+새 측정: **method 를 두 family 로 grouping 하고 family 차이가 family 내 차이보다 큰지 통계 검정**. 이게 H11 (focus-shift > content-injection on specificity) 의 검정이다.
+
+### A2.11 Phase 6 확장 (A2)
+
+A1 의 Phase 6 (tool selection) 에 homonym-specific 실험 추가:
+
+- **P6.6. Homonym benchmark 구성**: ASA 의 MTU-Bench 4 domain 을 기반으로 homonymous tool pair 추가. 예: Search domain 에 "web_search" 와 "database_search" 가 둘 다 존재, 문맥에 따라 하나가 정답. Cross-domain cosine 을 0.5 이상으로 강제하여 ASA 의 disjoint 가정이 깨지는 condition 을 실험적으로 만듦.
+- **P6.7. ASA vs ontology-K-bias on homonym benchmark**: 동일 benchmark 에서 ASA (원 recipe), ASA + homonym-aware domain 확장, K-bias ontology 세 조건 비교.
+- **Exit criterion (H13)**: K-bias 가 disambiguation accuracy 에서 ASA 를 동등 이상으로 유지하면서 tool-signature fabrication rate 에서 개선.
+
+### A2.12 Risk 추가 (R8, R9)
+
+**R8**. **네 baseline 재현이 계획보다 오래 걸림**. CAA, ITI, PASTA, Focus Directions, ASA 다섯 개를 재현하는 건 Phase 0 의 3–5 일을 초과할 수 있다. 각각 github 공식 코드가 있어도 우리 모델 (Llama-3-8B, Qwen2.5, Mistral) 에 맞추는 porting 작업이 있음.
+- *대응*: Phase 0 를 **5–8 일로 확장**. 재현 실패 baseline 은 원 논문 모델로 제한하고 그 사실을 명시.
+
+**R9**. **Causal distinction (H12) 측정이 어려움**. ITI 와 K-bias 가 같은 direction 으로 적용되었을 때 behavioral signature 가 구별되지 않을 가능성. 이 경우 "mechanism 은 다르지만 effect 는 같음" 이 결론.
+- *대응*: H12 실패 시 thesis 에서 "causal distinction" 축을 제거하고 "empirical preservation advantage" 축만 유지. 여전히 H11 (matched-effect Pareto) 로 논문 성립 가능.
+
+### A2.13 Phase 0 precondition 상태 (A2 시점)
+
+- [x] 0.1.a Zhu 2025 전문 정독 — 완료 2026-04-09
+- [x] 0.1.b ASA 2026 전문 정독 — 완료 2026-04-09
+- [x] 0.1.c PASTA 2023 전문 정독 — 완료 2026-04-09
+- [x] 0.1.d CAA 2023 전문 정독 — 완료 2026-04-09
+- [x] 0.1.e ITI 2023 전문 정독 — 완료 2026-04-09
+- [ ] 0.1.f Fact Grounded Attention (2509.25252) — 남음 (외부 KB → attention-score bias, 가장 가까운 external-knowledge 선행)
+- [ ] 0.1.g SAE-TS (2411.02193) — 남음 (matched-effect protocol 출처)
+- [ ] 0.1.h Stickland KTS (2406.15518) — 남음 (KL-on-benign metric 출처)
+- [ ] 0.2 GGB_experiment padding fix
+- [ ] 0.3 baseline 목록 확정 — **A2.8 에서 확정 완료**
 
 
