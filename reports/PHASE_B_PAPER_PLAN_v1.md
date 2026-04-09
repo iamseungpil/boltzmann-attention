@@ -237,8 +237,8 @@ This is the day's most important result and the empirical validation of the cate
 |---|---|---|---|
 | fp16 | 6.57 | — | — |
 | KIVI | 7.22 | 6.59 | 6.52 |
-| oc_fokvq_1b_2a (PCA pseudo, r=16) | 11.83 | 11.03 | 84.92 |
-| oc_fokvq_1b_2a (**MetaTool real**, r=24) | **7.43** | **7.04** | **6.94** |
+| OCQ-1b-2a (PCA pseudo, r=16) | 11.83 | 11.03 | 84.92 |
+| OCQ-1b-2a (**MetaTool real**, r=24) | **7.43** | **7.04** | **6.94** |
 | oc_fokvq_1b_2b (MetaTool real) | (n/a) | (n/a) | **6.92** |
 | Δ (real − PCA pseudo) | **−4.40** | **−3.99** | **−77.98** |
 
