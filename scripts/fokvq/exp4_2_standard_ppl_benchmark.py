@@ -1071,6 +1071,36 @@ def run() -> None:
     needs_codebooks = any(method in {"turboquant", "fokvq_lloyd"} for method in args.methods)
     turbo_codebooks = build_standard_normal_codebooks(args.bits, args.seed) if needs_codebooks else None
 
+    # oc-FOKVQ basis dicts (one per residual mode), built only if needed.
+    oc_methods = [m for m in args.methods if m.startswith("oc_fokvq_")]
+    oc_bases_2a = None
+    oc_bases_2b = None
+    if oc_methods:
+        need_2a = any(m.endswith("_2a") for m in oc_methods)
+        need_2b = any(m.endswith("_2b") for m in oc_methods)
+        if need_2a:
+            print("Building oc-FOKVQ bases (res_mode=2a)...")
+            oc_bases_2a = build_oc_fokvq_bases(
+                model, tokenizer, calibration_texts,
+                args.device, args.calibration_max_len,
+                r_ont=args.oc_fokvq_r_ont,
+                res_mode="2a",
+                sink_len=args.calibration_sink_skip,
+                ont_source=args.oc_fokvq_ont_source,
+                ont_path=args.oc_fokvq_ont_path,
+            )
+        if need_2b:
+            print("Building oc-FOKVQ bases (res_mode=2b)...")
+            oc_bases_2b = build_oc_fokvq_bases(
+                model, tokenizer, calibration_texts,
+                args.device, args.calibration_max_len,
+                r_ont=args.oc_fokvq_r_ont,
+                res_mode="2b",
+                sink_len=args.calibration_sink_skip,
+                ont_source=args.oc_fokvq_ont_source,
+                ont_path=args.oc_fokvq_ont_path,
+            )
+
     for method in [m for m in args.methods if m != "fp16"]:
         method_bases = None
         method_codebooks = None
