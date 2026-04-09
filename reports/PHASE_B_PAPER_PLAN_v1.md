@@ -217,15 +217,15 @@ Hypothesis: `Combined > max(KVSink, OCQ)` on tool selection top-1 at equal or lo
 
 ## 5. Today's Findings (2026-04-09)
 
-### 5.1 FOKVQ 2-bit GPT-2 failure root cause is bit-schedule asymmetry, not attention sink
+### 5.1 Prior bit-schedule variant 2-bit GPT-2 failure root cause is bit-schedule asymmetry, not attention sink
 
-- **Tested** sink fix on legacy FOKVQ at GPT-2 medium and Qwen2.5-7B 2-bit. Result: sink fix benefits KIVI (29.50→28.76 GPT-2; 8.26→7.22 Qwen) but **strictly worsens** legacy FOKVQ in all sink configurations (52→96 GPT-2; 4527→5063 Qwen).
+- **Tested** sink fix on the prior bit-schedule quantizer variant at GPT-2 medium and Qwen2.5-7B 2-bit. Result: sink fix benefits KIVI (29.50→28.76 GPT-2; 8.26→7.22 Qwen) but **strictly worsens** the prior variant in all sink configurations (52→96 GPT-2; 4527→5063 Qwen).
 - **Real cause**: `bit_schedule(2, topk_frac=0.25) = (5, 1)` puts 1-bit on 75% of dims, which is catastrophic. Switching to `topk_frac=0.5 → bit_schedule = (3, 1)` improves GPT-2 2-bit from 63.53 to 39.09 (1.6× improvement).
-- **Saved**: `memory/fokvq_2bit_root_cause_2026_04_09.md`.
+- **Saved**: `memory/prior_variant_2bit_root_cause_2026_04_09.md`.
 
 ### 5.2 OCQ alleviates the bit-schedule pathology by construction
 
-OCQ's split is `r_ont` dims at 1-bit + `(d − r_ont)` dims at uniform `bits`. With `r_ont/d ≈ 0.19` (24/128 on Qwen2.5-7B) the 1-bit share is much smaller than the `topk_frac=0.25 → 75% at 1-bit` of legacy FOKVQ. At Qwen2.5-7B 2-bit nominal, OCQ_1b gets PPL 7.43 vs legacy FOKVQ 5063 — a 681× improvement.
+OCQ's split is `r_ont` dims at 1-bit + `(d − r_ont)` dims at uniform `bits`. With `r_ont/d ≈ 0.19` (24/128 on Qwen2.5-7B) the 1-bit share is much smaller than the `topk_frac=0.25 → 75% at 1-bit` of the prior bit-schedule variant. At Qwen2.5-7B 2-bit nominal, OCQ-1b gets PPL 7.43 vs prior variant 5063 — a 681× improvement.
 
 ### 5.3 Real catalog-derived ontology dramatically beats PCA pseudo-ontology
 
