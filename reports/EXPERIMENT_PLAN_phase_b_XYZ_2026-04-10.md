@@ -1,11 +1,29 @@
 # 실험 계획서 — Phase B 메인 방법 (X+Y+Z 3-axis Contribution)
 
+**⚠️ SUPERSEDED 2026-04-10**: 본 문서의 10일 X+Y+Z 계획은 사용자 비판 후 철회됨. 이유:
+- Option 4 재현 가능성 empirical 검증 zero
+- Phase-closure theorem의 non-triviality 검증 zero
+- Vocabulary expansion scenario가 `memory/paper_goal_is_tool_selection.md` 결정 ("Do NOT push MMLU/KL") 과 모순
+- Cross-model 이동성 unknown에도 Qwen 단일 모델 기반 main venue 계획
+- α=0.25 dip이라는 key phenomenon을 "noise" 로 처리하고 넘어감
+- AdaSEKA counter-theorem이 증명 sketch 없이 단정됨
+
+**대체 문서**: `reports/KILL_SWITCH_STAGE2_PLAN_2026-04-10.md` — 3-4일 Kill-switch Stage 2 설계
+**Coworker 요청**: `reports/COWORKER_REQUEST_2026-04-10.md` — cross-model α sweep
+**Feedback memory**: `memory/session_failure_mode_2026_04_10.md`
+
+본 문서는 reference purpose로만 보존. 아래 내용은 실행하지 말 것.
+
+---
+
+# (아래 내용은 SUPERSEDED 이며 실행 금지)
+
 **버전**: v1.0
 **작성일**: 2026-04-10
 **작성자**: mais (develop 브랜치)
 **목표 venue**: NeurIPS 2026 / ICLR 2027 main track
 **담당**: mais (develop, 공유 GPU) + iamseungpil (origin/main, **A100 80GB × 4 전용**)
-**상태**: Kill-switch PASS 확정 (2026-04-09 full 995 MetaTool +11.15pp) → 실행 가능 상태
+**상태**: SUPERSEDED
 
 ---
 
