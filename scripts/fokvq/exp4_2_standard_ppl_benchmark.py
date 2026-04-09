@@ -105,8 +105,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--oc-fokvq-res-bits",
         type=int,
-        default=2,
-        help="Bits per residual axis in oc-FOKVQ (default 2).",
+        default=0,
+        help=(
+            "Bits per residual axis in oc-FOKVQ. Default 0 means 'follow "
+            "the nominal --bits parameter at each sweep level' (so a "
+            "2-bit sweep uses 2-bit residual). Set to a positive value to "
+            "override and use a fixed residual bit budget across all "
+            "sweep levels."
+        ),
     )
     parser.add_argument(
         "--oc-fokvq-ont-source",
