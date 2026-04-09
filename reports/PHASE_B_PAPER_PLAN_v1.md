@@ -107,7 +107,7 @@ For each `(layer ℓ, head h)`:
 
 For Qwen2.5-7B with the MetaTool 4-facet ontology, this yields `r_ont = 24` per head (range 24–33 truncated to min). Total tensor: `(28, 4, 128, 24)`.
 
-### 3.3 Residual basis construction (`oc_fokvq.py`)
+### 3.3 Residual basis construction (OCQ quantizer module)
 
 Given `B_ont` and per-head `Σ_K`, compute the residual basis `B_res ∈ ℝ^{d × (d − r_ont)}` via one of two modes:
 
