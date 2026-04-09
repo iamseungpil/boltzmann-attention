@@ -217,15 +217,21 @@ def main():
     if not per_pair_basis:
         raise RuntimeError("No valid (layer, head) basis built — ontology K extraction failed")
 
+    r_min = min(B.shape[1] for B in per_pair_basis.values())
     r_max = max(B.shape[1] for B in per_pair_basis.values())
-    print(f"  per-head r_ont range: min={min(B.shape[1] for B in per_pair_basis.values())}  "
-          f"max={r_max}  median={int(np.median([B.shape[1] for B in per_pair_basis.values()]))}",
+    r_med = int(np.median([B.shape[1] for B in per_pair_basis.values()]))
+    print(f"  per-head r_ont range: min={r_min}  max={r_max}  median={r_med}",
           flush=True)
 
-    # Build padded tensor (n_layers, n_kv, d_head, r_max)
-    B_tensor = np.zeros((n_layers, n_kv, d, r_max), dtype=np.float32)
+    # Truncate every head to r_min so the saved tensor is uniform
+    # rectangular with no zero-padded columns. r_min < r_pair drops the
+    # highest-residual Gram-Schmidt directions per head, preserving the
+    # most important facet-aligned directions.
+    print(f"  truncating all heads to r_ont={r_min} for uniform tensor",
+          flush=True)
+    B_tensor = np.zeros((n_layers, n_kv, d, r_min), dtype=np.float32)
     for (li, h), B in per_pair_basis.items():
-        B_tensor[li, h, :, :B.shape[1]] = B
+        B_tensor[li, h] = B[:, :r_min]
 
     B_t = torch.from_numpy(B_tensor)
     payload = {
