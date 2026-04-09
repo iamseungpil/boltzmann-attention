@@ -91,6 +91,41 @@ def parse_args() -> argparse.Namespace:
             "--sink-len only affects which positions are quantized at eval."
         ),
     )
+    parser.add_argument(
+        "--oc-fokvq-r-ont",
+        type=int,
+        default=8,
+        help=(
+            "Ontology-axis dimension for oc-FOKVQ. Used as the first r_ont "
+            "columns of the rotation basis with categorical 1-bit "
+            "quantization. The remaining (d - r_ont) columns are residual "
+            "PCA with variance-proportional uniform quantization."
+        ),
+    )
+    parser.add_argument(
+        "--oc-fokvq-res-bits",
+        type=int,
+        default=2,
+        help="Bits per residual axis in oc-FOKVQ (default 2).",
+    )
+    parser.add_argument(
+        "--oc-fokvq-ont-source",
+        type=str,
+        default="pca",
+        choices=["pca", "external"],
+        help=(
+            "Source of B_ont for oc-FOKVQ. 'pca' = top-r_ont PCA of "
+            "calibration K (pseudo-ontology, mechanism check only). "
+            "'external' = load from --oc-fokvq-ont-path .pt file with "
+            "shape (n_layers, n_heads, d_head, r_ont)."
+        ),
+    )
+    parser.add_argument(
+        "--oc-fokvq-ont-path",
+        type=str,
+        default="",
+        help="Path to external B_ont .pt when --oc-fokvq-ont-source=external.",
+    )
     parser.add_argument("--output-dir", type=str, required=required, default="/tmp/exp4_2_self_test")
     parser.add_argument("--cache-dir", type=str, default="")
     parser.add_argument("--attn-implementation", type=str, default="eager")
