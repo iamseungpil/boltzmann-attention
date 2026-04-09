@@ -758,6 +758,7 @@ def evaluate_quantized_sliding_window(
             fokvq_adaptive_energy_frac,
             fokvq_clip_quantile,
             turbo_codebooks,
+            sink_len=sink_len,
         )
         key_mse_sum += cache_stats["key_mse_sum"]
         key_mse_count += cache_stats["key_mse_count"]
