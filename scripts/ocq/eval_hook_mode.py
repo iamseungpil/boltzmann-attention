@@ -91,8 +91,13 @@ from quantizer import build_ocq_basis, ocq_quantize  # noqa: E402
 # ---------------------------------------------------------------------
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser()
-    p.add_argument("--model", required=True, help="HF model id")
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--self-test", action="store_true")
+    pre_args, _ = pre.parse_known_args()
+
+    p = argparse.ArgumentParser(parents=[pre])
+    p.add_argument("--model", required=not pre_args.self_test,
+                   default="self-test", help="HF model id")
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--dtype", default="auto",
                    choices=["auto", "float16", "bfloat16", "float32"])
