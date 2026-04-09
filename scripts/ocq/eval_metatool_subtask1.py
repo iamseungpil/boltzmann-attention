@@ -217,6 +217,131 @@ def install_kbias_hooks(
             h.remove()
 
 
+def build_facet_masks(
+    r_per_pair: Dict[str, List[int]],
+    L: int,
+    H: int,
+    r_ont: int,
+    n_facets: int = 4,
+) -> torch.Tensor:
+    """Build per-(layer, head) facet column mask of shape (L, H, n_facets, r_ont).
+
+    For head (l, h) with Gram-Schmidt basis constructed facet-by-facet in facet_order,
+    the first r_per_facet[0] columns belong to facet 0, next r_per_facet[1] to facet 1,
+    etc. Truncation to r_ont drops the tail of the last non-empty facet.
+    """
+    mask = torch.zeros(L, H, n_facets, r_ont)
+    for key, r_list in r_per_pair.items():
+        # key format: "L{layer}_H{head}"
+        try:
+            layer = int(key.split("L", 1)[1].split("_", 1)[0])
+            head = int(key.split("H", 1)[1])
+        except (ValueError, IndexError):
+            continue
+        if layer >= L or head >= H:
+            continue
+        cum = 0
+        for f_idx, r_f in enumerate(r_list[:n_facets]):
+            start = cum
+            end = min(cum + int(r_f), r_ont)
+            if start < r_ont and end > start:
+                mask[layer, head, f_idx, start:end] = 1.0
+            cum = end
+            if cum >= r_ont:
+                break
+    return mask
+
+
+# ---------------------------------------------------------------------
+# Per-facet gated K-bias hook (OISA-inspired multi-facet routing)
+# ---------------------------------------------------------------------
+#
+# Instead of a single uniform α on all 24 ontology axes, split the basis
+# into n_facets=4 disjoint column groups (function_action, io_type, domain,
+# tool_category) and apply an independent energy-fraction gate per facet:
+#
+#   K' = K + alpha_base * Σ_f g_f(K_bh) · (K_bh · B_f) · B_f^T
+#
+# where B_f is the column subset of B_ont belonging to facet f for that
+# (layer, head), and the gate is computed per (batch, head, token):
+#
+#   g_f(K_bh) = ||K_bh · B_f||² / (||K_bh||² + eps)
+#
+# This gives phase-closure automatically: if K has no energy in facet f's
+# subspace, g_f ≈ 0 and that facet contributes nothing. Non-tool queries
+# that live outside the ontology subspace get approximately zero total
+# intervention, whereas tool queries get selective per-facet amplification.
+#
+# Distinct from AdaSEKA (which uses a single max-normalized mixture over M
+# experts and can never fully close) and from flat K-bias (which uniformly
+# amplifies all 24 axes regardless of query). Structurally different.
+
+@contextmanager
+def install_facet_gated_hooks(
+    model,
+    B_ont: torch.Tensor,    # (L, H, d, r_ont)
+    facet_mask: torch.Tensor,  # (L, H, n_facets, r_ont), 0/1
+    alpha_base: float,
+    n_kv: int,
+    head_dim: int,
+    gate_eps: float = 1e-6,
+):
+    handles = []
+    L, H, d, r = B_ont.shape
+    assert facet_mask.shape == (L, H, facet_mask.shape[2], r)
+    n_facets = facet_mask.shape[2]
+    try:
+        for layer_idx, layer in enumerate(model.model.layers):
+            if layer_idx >= L:
+                break
+            k_proj = layer.self_attn.k_proj
+            B_ont_layer = B_ont[layer_idx]  # (H, d, r_ont)
+            mask_layer = facet_mask[layer_idx]  # (H, n_facets, r_ont)
+
+            def make_hook(li, B_ont_lh, mask_lh):
+                def hook(module, inputs, output):
+                    B_sz, T, D = output.shape
+                    if D != n_kv * head_dim:
+                        return output
+                    K = output.view(B_sz, T, n_kv, head_dim).permute(0, 2, 1, 3).contiguous()
+                    orig_dtype = K.dtype
+                    K_f = K.float()
+                    B_dev = B_ont_lh.to(device=K.device, dtype=torch.float32)  # (H, d, r)
+                    M_dev = mask_lh.to(device=K.device, dtype=torch.float32)   # (H, n_facets, r)
+
+                    # Full coeffs: (B, H, T, r_ont)
+                    coeffs = torch.einsum("bhtd,hdr->bhtr", K_f, B_dev)
+
+                    # K norm^2 per (batch, head, token): (B, H, T, 1)
+                    K_norm_sq = (K_f ** 2).sum(dim=-1, keepdim=True) + gate_eps
+
+                    # Apply each facet mask and accumulate the gated projection.
+                    # coeffs shape: (B, H, T, r), M_dev[:, f, :] shape: (H, r)
+                    # masked_coeffs_f: (B, H, T, r) where columns outside facet f are 0
+                    K_increment = torch.zeros_like(K_f)
+                    for f in range(n_facets):
+                        mask_f = M_dev[:, f, :]  # (H, r)
+                        masked_coeffs = coeffs * mask_f.unsqueeze(0).unsqueeze(2)  # (B, H, T, r)
+                        # Gate: energy of K projected onto facet f / |K|^2
+                        # ||K · B_f||^2 = sum of masked_coeffs^2 over r dimension
+                        gate_num = (masked_coeffs ** 2).sum(dim=-1, keepdim=True)  # (B, H, T, 1)
+                        g_f = gate_num / K_norm_sq  # (B, H, T, 1), in [0, 1]
+                        # Reconstruction of facet-f projection of K:
+                        K_proj_f = torch.einsum("bhtr,hdr->bhtd", masked_coeffs, B_dev)
+                        K_increment = K_increment + g_f * K_proj_f
+
+                    K_modified = K_f + alpha_base * K_increment
+                    out = K_modified.permute(0, 2, 1, 3).contiguous().view(B_sz, T, D).to(orig_dtype)
+                    return out
+                return hook
+
+            handles.append(k_proj.register_forward_hook(make_hook(layer_idx, B_ont_layer, mask_layer)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
 @contextmanager
 def install_quant_hooks(
     model,
