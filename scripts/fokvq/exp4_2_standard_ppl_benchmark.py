@@ -1123,6 +1123,14 @@ def run() -> None:
         summary["results"][method] = {}
         for bits in args.bits:
             print(f"Running {method} {bits}-bit...")
+            # For oc-FOKVQ, residual bit budget tracks the nominal `bits`
+            # parameter (so a "2-bit" sweep means residual at 2-bit, with
+            # ontology dims always 1-bit categorical → average bits is
+            # ~1.88 at d=64, r_ont=8 for 2-bit nominal). The CLI override
+            # --oc-fokvq-res-bits is honored only if non-default (>0).
+            oc_res_bits_eff = (
+                args.oc_fokvq_res_bits if args.oc_fokvq_res_bits > 0 else bits
+            )
             result = evaluate_quantized_sliding_window(
                 model,
                 test_ids,
@@ -1139,7 +1147,7 @@ def run() -> None:
                 oc_bases_2a=oc_bases_2a,
                 oc_bases_2b=oc_bases_2b,
                 oc_r_ont=args.oc_fokvq_r_ont,
-                oc_res_bits=args.oc_fokvq_res_bits,
+                oc_res_bits=oc_res_bits_eff,
             )
             if not math.isfinite(result["ppl"]):
                 raise RuntimeError(f"Non-finite PPL for method={method}, bits={bits}")
