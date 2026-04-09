@@ -956,4 +956,263 @@ reports/axis2_theoretical_verification/
 
 *Amendment A4 끝. Phase 0 완료. 다음 단계: Phase 1 — K/Q/K+Q ablation + HELMET cross-check.*
 
+---
+
+## Amendment 2026-04-09 (A5): SEKA 발견 — 논문 재구성 (Path A)
+
+A4 이후 두 가지 검증을 실행했다:
+1. Quant rotation papers (QuaRot/SpinQuant/KVQuant/KIVI/TurboESM) — 우리 operator 와 수학적으로 disjoint. Clear.
+2. Bilinear K steering 선행 — **SEKA (arXiv:2603.01281, ICLR 2026)** 를 발견. 우리 operator family 가 선점됨.
+
+이 amendment 는 가장 큰 재구성이다. Thesis, venue target, contribution 구조가 모두 바뀐다.
+
+### A5.1 SEKA 전문 정독 요약
+
+**Paper**: Li, Niu, Yang, Li, Ma, Cohen (Edinburgh + Huawei UK). "Spectral Attention Steering for Prompt Highlighting". arXiv:2603.01281, 2026-03-01. **Published at ICLR 2026** (header on every page). Method name: SEKA = Spectral Editing Key Amplification. Variant: AdaSEKA. Code: github.com/waylonli/SEKA. Inspired by SEA (Qiu et al. 2024).
+
+**Operator (Eq. 4, line 300)**:
+```
+k'_j = k_j + (1/2)(g+ · P+_{ℓ,h} · k_j + g- · P-_{ℓ,h} · k_j)
+```
+
+- `P+` = top-k+ singular vectors of `Ω+ = (1/n) h^T h+`
+- `P-` = tail-k- singular vectors of `Ω- = (1/n) h^T h-`
+- `h+, h-` 는 contrastive prompt pair 의 activation
+- `g+, g-` = **(task, model) 당 단일 scalar 2 개**. Per-direction 아님, per-facet 아님, per-(layer, head) 아님.
+- `k+, k-` 는 variance threshold γ 로 자동 결정
+
+**Direction source**: GPT-4o 로 합성한 100 개 contrastive triplet (C1, Q1, A1), (C2, Q2, A2). Neutral/positive/negative 3 variant. **외부 ontology/taxonomy/KB 전혀 없음**.
+
+**AdaSEKA**: 4 개 task-specific expert (synthetic + CounterFact + BiasBios + HotpotQA), query-adaptive α_m(q) 로 expert routing. Expert 내부에서는 여전히 단일 scalar g.
+
+**Selective head application**: `δ_min` threshold — `(1/N)·Σ ||h+_i - h-_i||_2 ≥ δ_min` 인 head 만 활성. Qwen3-8B 에서 288 개 중 최대 175 개.
+
+**Token positions**: `**` 로 표시된 **highlighted span** 의 token 만 수정. Pre-fill 단계에서만 (decoding 중 새 token 은 mask=0).
+
+**Baselines** (Section 4.1):
+- Original, `**`-marked, PASTA, SPA (Selective Prompt Anchoring)
+- SEKA w/o learn (random projection ablation)
+- **CAA, ITI, ActAdd, Focus Directions 전부 제외** — *"activation steering is a different problem class"*
+
+**Benchmarks**:
+- CounterFact (ES, PS)
+- Bias in Bios (Acc)
+- Pronouns Changing (P.Acc, A.P.Acc — 새 metric 정의)
+- Lost-in-the-Middle (EM)
+
+**Models**: Qwen3-4B/8B/14B, Gemma3-4B/12B. **Llama, Mistral 없음**.
+
+**Headline (Table 2, Qwen3-4B)**:
+- CounterFact ES: Original 45.00 → PASTA 97.16 → **SEKA 99.02** → AdaSEKA 98.90
+- BiasBios Acc: Original 79.84 → PASTA 89.58 → **SEKA 91.02** → AdaSEKA 91.86
+
+Overhead (Table 3): SEKA +0.03s, +0 MB (PASTA +1.03s, +23.12 GB). **FlashAttention 호환은 SEKA 의 주 selling point**.
+
+**Fact preservation 측정**: **하나도 없음**. MMLU/TriviaQA/NQ/KL/perplexity 전부 grep 0 hits.
+
+**Limitations / Future Work section**: **존재하지 않음** (논문이 직접 Conclusion → References 로 감).
+
+**결정적인 부분 — Appendix C (line 1253–1323)**:
+
+> *"SEKA is not intended to encode or manipulate semantic meaning. Its effect is deliberately confined to the attention **routing subspace** of the transformer... SEKA aims to modify only the routing (relevance) subspace, leaving the **semantic subspace** untouched."*
+
+이게 **우리의 focus-shift vs content-injection dichotomy** 와 철학적으로 같다. Elhage/Olsson transformer circuits 를 citing. 단:
+- 이론적 주장만, measurement 없음
+- Appendix 에 있고 main contribution 아님
+- Metric 설계에 사용되지 않음
+- 이름이 다름 ("routing/semantic" vs "focus/content")
+
+### A5.2 SEKA 가 소유한 것 — 우리가 claim 할 수 없는 것
+
+| Aspect | SEKA 선점 여부 | 근거 |
+|---|---|---|
+| Rank-r multiplicative K update `(I + (1/2)(g+P+ + g-P-))·K` | **YES — identical operator** | Eq. 4 |
+| K-only intervention (Q/V/residual 건드리지 않음) | YES | Section 3.2 + Appendix C |
+| Contrastive SVD projection direction source | YES | Eq. 2 |
+| Two-sided (positive top / negative tail) projection | YES | Eq. 2 |
+| Per-(layer, head) empirical selective application | YES | Section 3.4 (δ_min) |
+| FlashAttention compatibility | YES — main selling point | Abstract, Section 6 |
+| "Routing subspace vs semantic subspace" 철학 | PARTIAL — informal, Appendix C | line 1253–1323 |
+| Pre-softmax attention editing | YES | Section 3.2 |
+| Better than PASTA on prompt highlighting | YES — Table 2 | headline numbers |
+
+### A5.3 SEKA 가 다루지 않은 것 — 우리의 novelty surface
+
+1. **Ontology-grounded direction source** — SEKA 는 task 별 GPT-4o synthetic prompt. 우리는 pre-existing ontology. Task-independent, reusable, interpretable.
+
+2. **Per-facet diagonal gain** `diag(β_1, ..., β_F)` — SEKA 는 단일 scalar `g+, g-`. 우리는 named facet 당 independent gain.
+
+3. **Formal measurement protocol for routing/semantic separation** — SEKA 는 theoretical 주장만 (Appendix C), 측정 안 함. 우리는 matched-effect Pareto + fact preservation 으로 empirically 검증.
+
+4. **Fact preservation metrics** — SEKA 는 task accuracy 만. 우리는 MMLU/CounterFact specificity/KL-on-benign/context-override.
+
+5. **Compositional multi-facet steering** — SEKA 의 AdaSEKA 는 **task expert routing (blending)**. 우리는 **facet 간 독립 gain 동시 적용 (composition)**.
+
+6. **Rank-1 interpretable ablation** — SEKA 의 ablation 은 random projection / no-filter. Rank-1 with named direction 없음.
+
+7. **Activation steering 과의 head-to-head** — SEKA 는 CAA/ITI/ActAdd/Focus Directions 모두 제외. 우리는 포함.
+
+8. **Llama/Mistral family replication** — SEKA 는 Qwen3/Gemma3 만. 우리는 Llama-3, Mistral 포함.
+
+9. **HELMET cross-check** — SEKA 는 Lost-in-the-Middle 만. HELMET 은 독립 benchmark.
+
+10. **Task-agnostic direction reuse** — SEKA 의 direction 은 task 별 새로 학습. 우리는 ontology 한 번 만들면 재사용.
+
+### A5.4 Thesis 재정립 (5차 수정)
+
+A4 thesis 는 "K-side bilinear as focus-shift" 였다. SEKA 선점으로 수정 필요.
+
+**A5 최종 thesis**:
+
+> **SEKA (Li et al. ICLR 2026) 가 제안한 rank-r multiplicative K update operator 는 task-specific contrastive prompt 에서 학습된 basis 를 사용하며, routing subspace vs semantic subspace 의 분리를 이론적으로 주장하지만 empirical 검증을 제공하지 않는다. 본 연구는 (1) SEKA operator family 에 대한 **ontology-grounded instantiation** 을 제안하여 task-independent 하고 interpretable 한 direction source 를 확보하고, (2) **per-facet diagonal gain** 을 통해 compositional multi-concept steering 을 가능하게 하며, (3) matched-effect Pareto protocol 과 fact preservation metric (MMLU, CounterFact specificity, KL-on-benign, context-memory override) 을 통해 SEKA 의 routing/semantic 분리 주장을 **처음으로 empirically 검증**한다. 추가로 SEKA 가 의도적으로 제외한 residual-stream activation steering (CAA, ITI, ActAdd, SAE clamping) 과의 head-to-head 비교를 통해, focus-shift 방법이 content-injection 방법에 비해 matched effect 에서 fact preservation axis 에서 우위임을 empirically 보인다.**
+
+### A5.5 Path A: 축소된 SEKA-extension workshop paper
+
+**Venue target**:
+- **Primary**: BlackboxNLP workshop (ACL 2026 or EMNLP 2026), MechInterp Workshop (NeurIPS 2026)
+- **Secondary**: ACL Findings, EMNLP Findings, COLM short paper
+- **최악**: arXiv tech report
+
+**NeurIPS/ICLR main 은 포기**. 이유:
+- Operator 가 SEKA 와 같음
+- 세 기여 축 (ontology + per-facet gain + measurement) 은 individually incremental
+- 합쳐도 "significantly novel" 기준을 main 은 못 넘길 가능성 높음
+
+**Expected paper 형태**: 4–8 쪽, 한 개 main figure (matched-effect Pareto across methods), 두 개 ablation table (per-facet gain effect, rank ablation), 한 개 example table (qualitative generation).
+
+### A5.6 Phase 재구성 — Path A 기준
+
+이전 Phase 1–6 을 다음과 같이 재구성:
+
+**Phase 0** — 완료 (문헌 정독, padding fix, variance alignment). 유지.
+
+**Phase 1 — SEKA 재현 + Ontology 대체 (4–5 일, 가장 중요)**
+- P1.1 SEKA 공식 코드 (github.com/waylonli/SEKA) 를 fork, Qwen3-4B 에서 CounterFact 재현 (headline ES ≈ 99)
+- P1.2 동일 infrastructure 에서 direction source 를 **contrastive prompt SVD → ontology projection** 으로 교체
+- P1.3 Two variant:
+  - (a) **Ontology-only**: direction 이 전부 ontology 에서 옴, contrastive 없음
+  - (b) **Hybrid**: ontology 가 초기값, contrastive 로 refine
+- P1.4 CounterFact / BiasBios 재현. Ontology variant 가 SEKA 와 accuracy 에서 경쟁력 유지하는지 확인.
+- **Gate (H20)**: Ontology variant 가 SEKA 의 accuracy 의 90% 이상 유지. 실패 시 *"ontology 가 task-specific synthetic prompt 에 비해 약함"* 으로 honest report → path B 전환 고려.
+
+**Phase 2 — Per-facet diagonal gain 확장 (3 일)**
+- P2.1 SEKA 의 `g+, g-` → `diag(β_1, ..., β_r)` 로 확장
+- P2.2 각 facet 에 대해 single-facet ablation (다른 facet 의 β 는 0)
+- P2.3 Multi-facet grid search — β_f 간 interaction 측정
+- **Gate (H21)**: Per-facet gain 이 scalar gain 보다 동일 accuracy 에서 더 적은 side-effect 또는 동일 side-effect 에서 더 높은 accuracy 를 냄. 실패 시 per-facet gain 의 contribution 약화.
+
+**Phase 3 — Matched-effect Pareto 와 fact preservation 측정 (5–7 일, 핵심 contribution)**
+
+이전 Phase 3 를 확장. 비교 방법:
+- SEKA (original, task-specific direction)
+- **Ours (ontology-grounded + per-facet gain)**
+- CAA (residual stream content injection)
+- ITI (attention head output, constant bias)
+- PASTA (post-softmax attention reweight)
+- Focus Directions (Zhu 2025, K+Q additive)
+- Prompt-only baseline
+
+**Matching protocol (Strict)**: Binary search α 를 찾아 target concept probe accuracy delta 를 일치.
+
+**Preservation metrics**:
+- **CounterFact neighbourhood specificity** (ROME protocol) — near-fact preservation
+- **MMLU 5-shot delta** — general capability
+- **KL-on-benign** on UltraChat (Stickland adaptation, forward direction `KL(steered || base)`, per-token mean + median)
+- **Context-memory override rate** on synthetic contrary-fact prompts (Yu/Merullo/Pavlick)
+- **Perplexity** on WikiText-103 held-out
+
+**Main figure**: Matched-effect Pareto, x = effect, y = fact preservation. **7 methods 가 한 plot 에 모인 최초 figure**. 이게 논문의 main empirical contribution.
+
+**Gate (H22)**: Ontology + per-facet gain 이 SEKA 를 dominate 하지는 못해도 동등 이상이고, residual stream 방법들 (CAA/ITI/SAE) 보다 fact preservation 에서 명확히 우위. 실패 시 workshop 도 hard sell.
+
+**Phase 4 — Compositional multi-facet demonstration (3 일)**
+- P4.1 두 orthogonal facet 을 동시에 활성화, 각자의 β 로
+- P4.2 SEKA AdaSEKA 의 task expert routing 과 head-to-head 비교
+- P4.3 interference / additive measure
+
+**Phase 5 — Cross-model replication (Llama, Mistral) (3–4 일)**
+- SEKA 는 Qwen3/Gemma3 만. Llama-3-8B + Mistral-7B 에서 Phase 1–3 재실행.
+- Gate: 효과가 model family 간 일관. Qwen 에서만 작동하면 generalization claim 약화.
+
+**Phase 6 — 제거**: 이전 tool-selection phase (BFCL/MetaTool) 를 **제거**. 이유: workshop paper scope 밖. Enterprise tool 응용은 별도 applied paper 또는 OISA 특허 보조 실험으로 분리.
+
+**Phase 7 (new, optional) — HELMET cross-check + 관련 실험 (2–3 일)**
+- Zhu 2025 의 HELMET NQ subset 에서 ontology vs Zhu gradient direction 비교. A1 에서 추가한 항목이 이제 여기로 이동.
+
+**Timeline 수정**:
+- Phase 1: 4–5 일
+- Phase 2: 3 일
+- Phase 3: 5–7 일
+- Phase 4: 3 일
+- Phase 5: 3–4 일
+- Phase 7: 2–3 일
+- **Total**: 3–4 주 (Phase 6 제거로 인한 단축)
+
+### A5.7 Risk 재정립 (Path A)
+
+**R12 (new, dominant)**: **Ontology variant 가 SEKA 의 task-specific synthetic prompt 기반 direction 을 accuracy 에서 크게 뒤짐**.
+- *확률*: 중간. Ontology 는 semantic generality 가 높지만 task-specific contrastive SVD 만큼 target behavior 에 정밀하게 조율되지 않음.
+- *대응*: (a) Hybrid (ontology + contrastive refine) variant 로 완화. (b) "accuracy 약간 손실 but task-agnostic + interpretable + reusable" 으로 포지셔닝. (c) 그래도 안 되면 Path B (완전 pivot) 로 전환.
+
+**R13 (new)**: **Reviewer 가 "ontology 는 결국 domain knowledge 주입이므로 불공정" 이라고 공격**.
+- *대응*: Ontology 가 pre-existing artifact 임을 명시 (WordNet, 기업 taxonomy 등). SEKA 의 synthetic prompt 도 GPT-4o 주입이므로 공정성은 대등함을 주장.
+
+**R14 (new)**: **Phase 1 의 SEKA 재현에서 우리가 가진 model 에서 headline 을 재현 못 함**.
+- *확률*: 낮음 (SEKA 코드 공개, 충분히 구체적).
+- *대응*: Qwen3-4B 로 먼저 재현 (SEKA 의 primary model), 그 다음 Llama 로 port.
+
+이전 R1–R11 는 유지, R4 (Zhu K-only ablation 숨어있음) 는 A1 에서 해소, R6 (ASA 의 follow-up) 은 A5 의 SEKA 발견으로 일부 재활성.
+
+### A5.8 Path A 결과에 따른 Path B 전환 기준
+
+User 가 명시: **Path A 전 체 진행 후 결과 보고, Path B 로 pivot 결정**.
+
+Path A 완료 시점의 결정 기준:
+
+**Path A continue to publication 조건 (OR)**:
+- Phase 3 main figure 에서 우리가 SEKA 와 동등 이상 + CAA/ITI 보다 fact preservation 우위 (H22 통과)
+- Ontology variant 가 SEKA 의 90% accuracy 유지 (H20 통과)
+- Phase 4 compositional multi-facet 이 interference 없이 additive 하게 작동 (H21 통과)
+
+**Path B 로 pivot 조건 (OR)**:
+- H20 실패 — ontology direction 이 contrastive prompt 직접 학습에 명백히 열위
+- Phase 3 에서 우리 variant 가 SEKA 와 차별점이 명확하지 않음
+- Reviewer persona 로 self-review 했을 때 "incremental" 이 dominant impression
+
+**Path B 방향** (user 가 언급한 것):
+- "BOS/delimiter 대신 ontology 기호를 pretrained 모델에 삽입하는 알고리즘" — 이건 learning 문제, 범위 확장
+- "Facet 직교화 embedding + abstraction 학습의 연결" — 이건 근본 구조 연구, 범위 확장
+- "QK 로테이션-양자화와 추상화 학습의 수학적 등가성" — 이건 완전 새 방향
+
+**Path B 시 재사용 가능한 자산**:
+- ontology_facet_basis.py 의 facet basis 구축 infrastructure
+- 두 달간의 QK 구조 이해
+- Eight paper 의 정독 knowledge base
+- 이 계획서의 amendment chain (learning log 로)
+
+### A5.9 즉시 다음 단계
+
+Path A 진행 결정이므로 다음 단계:
+
+1. **Phase 1 시작**: SEKA 공식 코드 clone, 우리 환경 (Mistral/Llama/Qwen) 에서 Qwen3-4B 로 먼저 재현
+2. **Ontology direction substitution**: 기존 `ontology_facet_basis.py` 의 B 를 SEKA 의 P+/P- 자리에 삽입
+3. **실험 단위 코드 작성**: `scripts/phase1_seka_reproduction.py`, `scripts/phase1_ontology_direction.py`, `scripts/phase3_matched_effect_pareto.py`
+
+### A5.10 Phase 0 + A5 계획 상태
+
+- [x] Phase 0 전체 완료
+- [x] Eight paper 정독 완료 (Zhu, ASA, PASTA, CAA, ITI, FGA, SAE-TS, Stickland)
+- [x] Rotation quant paper 검증 완료 (QuaRot/SpinQuant/KVQuant/KIVI/TurboESM)
+- [x] Bilinear K steering 검증 완료 (SEKA 발견)
+- [x] SEKA 전문 정독 완료
+- [x] Thesis 5 번째 수정 (Path A version)
+- [x] Phase 재구성 (Phase 6 제거, Phase 7 신설)
+- [x] Venue target 조정 (main 포기, workshop 타겟)
+- [x] Memory 업데이트 (prior_art 에 SEKA 추가)
+- [ ] **Phase 1 시작** — 다음 단계
+
+---
+
+*Amendment A5 끝. Path A 시작 준비 완료. Phase 1 의 실제 코드 작업이 다음.*
+
 
