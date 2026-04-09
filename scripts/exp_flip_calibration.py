@@ -149,12 +149,11 @@ def collect_flip_data(model, tokenizer, device, bits=2,
                     # Pairwise: nu = sqrt(2) * sigma (same quant params for winner and challenger)
                     nu = math.sqrt(2) * sigma.item()
 
-                    # Flip risk per token
+                    # Flip risk per token — vectorized
                     if nu > 1e-10:
-                        flip_risk = torch.tensor([
-                            float(sp_stats.norm.sf(margin[t].item() / nu))
-                            for t in range(len(margin))
-                        ])
+                        z = (margin / nu).cpu().numpy()
+                        flip_risk = torch.from_numpy(
+                            sp_stats.norm.sf(z).astype(np.float32))
                     else:
                         flip_risk = torch.zeros(len(margin))
 
