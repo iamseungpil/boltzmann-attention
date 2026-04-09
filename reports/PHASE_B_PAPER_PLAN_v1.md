@@ -442,4 +442,4 @@ The paper uses public benchmarks (MetaTool, BFCL, NESTFUL, ComplexFuncBench, Sta
 
 ## 12. Document History
 
-- **v1 (2026-04-09)**: Initial Phase B paper plan after the day's pivot from Phase 1.x factual-editing infrastructure to dual-claim tool-selection + KV quantization. Incorporates OISA exclusion, deployment scale correction, FOKVQ root-cause finding, OCQ formulation, real MetaTool ontology validation, KVSink prior-art comparison, eval architecture limitation, and prioritized next steps.
+- **v1 (2026-04-09)**: Initial Phase B paper plan after the day's pivot from Phase 1.x factual-editing infrastructure to dual-claim tool-selection + KV quantization. Incorporates OISA exclusion, deployment scale correction, prior-variant root-cause finding, OCQ formulation, real MetaTool ontology validation, KVSink prior-art comparison, eval architecture limitation, and prioritized next steps. **2026-04-09 method-name update**: `oc-FOKVQ` → `OCQ` (patent-risk rename, see naming note at top).
