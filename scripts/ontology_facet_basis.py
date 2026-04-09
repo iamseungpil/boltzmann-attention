@@ -426,7 +426,7 @@ def compute_per_head_sigma(model, tok, target_layers, n_kv, head_dim,
 
 def main():
     print("=" * 72)
-    print("exp_facet_basis — Day 1 prototype")
+    print("ontology_facet_basis — Phase 0 infrastructure (padding fix applied)")
     print("=" * 72)
     print(f"  model           : {MODEL_ID}")
     print(f"  facet order     : {FACET_ORDER}")
