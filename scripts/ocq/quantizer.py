@@ -291,7 +291,7 @@ def _symmetric_quant_per_token(
 # Main quantize function
 # ---------------------------------------------------------------------
 
-def oc_fokvq_quantize_head(
+def ocq_quantize_head(
     keys: torch.Tensor,       # (..., d)
     B_full: torch.Tensor,     # (d, d)
     r_ont: int,
@@ -371,7 +371,7 @@ def oc_fokvq_quantize(
     k = keys.permute(1, 0, 2, 3).contiguous()  # (H, B, S, d)
     out = torch.zeros_like(k)
     for h in range(H):
-        out[h] = oc_fokvq_quantize_head(
+        out[h] = ocq_quantize_head(
             k[h], B_full_per_head[h], r_ont, ont_mode, res_bits,
         )
     return out.permute(1, 0, 2, 3).contiguous()
