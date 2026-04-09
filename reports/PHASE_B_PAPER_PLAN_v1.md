@@ -248,7 +248,7 @@ Real catalog-derived ontology axes are approximately categorical: each axis alig
 
 This is the **decisive empirical evidence** for the user's theoretical insight that ontology axes carry categorical decisions (1-bit suffices) while variance axes carry continuous information (1-bit destroys).
 
-**Saved**: `memory/oc_fokvq_real_ontology_validation_2026_04_09.md`.
+**Saved**: `memory/ocq_real_ontology_validation_2026_04_09.md`.
 
 ### 5.4 OCQ is competitive with KIVI at lower bit budget
 
