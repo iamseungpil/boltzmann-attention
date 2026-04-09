@@ -361,9 +361,14 @@ def main():
         model, tok, prompts_mmlu, args,
         B_ont, facet_mask, n_kv, head_dim, L, n_facets, tag="mmlu",
     )
-    print(f"  MMLU done: runtime={stats_mmlu['runtime_s']:.1f}s  "
-          f"E[Σg]={stats_mmlu['sigma_mean_global']:.4f}  "
-          f"E[g_f]={[f'{x:.3f}' for x in stats_mmlu['g_f_mean_global']]}",
+    mm_rest = stats_mmlu["buckets"]["rest"]
+    mm_bos = stats_mmlu["buckets"]["bos"]
+    print(f"  MMLU done: runtime={stats_mmlu['runtime_s']:.1f}s", flush=True)
+    print(f"    rest: E[Σg]={mm_rest['sigma_mean_global']:.4f}  "
+          f"E[g_f]={[f'{x:.3f}' for x in mm_rest['g_f_mean_global']]}",
+          flush=True)
+    print(f"    bos : E[Σg]={mm_bos['sigma_mean_global']:.4f}  "
+          f"E[g_f]={[f'{x:.3f}' for x in mm_bos['g_f_mean_global']]}",
           flush=True)
 
     print("\n[run] MetaTool forward pass (hook read-only) ...", flush=True)
