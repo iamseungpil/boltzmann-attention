@@ -265,13 +265,13 @@ def run_niah_test(model, tokenizer, device, method, promote_k=64, promote_bits=1
             if method == 'fp16':
                 gen = model.generate(input_ids, max_new_tokens=20, do_sample=False)
             elif method == 'uniform_2bit':
-                from scripts.exp4_2_v3_full_quant_ppl import AttentionKQuantPatcher
+                from exp4_2_v3_full_quant_ppl import AttentionKQuantPatcher
                 p = AttentionKQuantPatcher(model, "uniform", 2)
                 p.patch(); p.active = True
                 gen = model.generate(input_ids, max_new_tokens=20, do_sample=False)
                 p.active = False; p.unpatch()
             elif method == 'uniform_3bit':
-                from scripts.exp4_2_v3_full_quant_ppl import AttentionKQuantPatcher
+                from exp4_2_v3_full_quant_ppl import AttentionKQuantPatcher
                 p = AttentionKQuantPatcher(model, "uniform", 3)
                 p.patch(); p.active = True
                 gen = model.generate(input_ids, max_new_tokens=20, do_sample=False)
@@ -309,7 +309,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     import sys
-    sys.path.insert(0, str(Path(__file__).parent))
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
