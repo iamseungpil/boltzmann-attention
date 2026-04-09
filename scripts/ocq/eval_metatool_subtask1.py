@@ -128,17 +128,31 @@ def parse_candidates(prompt: str) -> List[str]:
 
 
 def extract_choice(generation: str, candidates: List[str]) -> Optional[str]:
-    """Find the first candidate that appears (case-insensitive) in the
-    generation. Longest-name-first to avoid prefix collisions."""
+    """Find the candidate that appears EARLIEST (smallest character position)
+    in the generation. Ties broken by longer-name-first to avoid prefix
+    collisions ("Sudoku" vs "Sudoku2" style).
+
+    Also accepts "None" if the model declined to choose any tool.
+    """
     if not generation:
         return None
     gen_low = generation.lower()
-    # Order candidates by length descending so we don't match a prefix.
-    for cand in sorted(candidates, key=lambda c: -len(c)):
-        if cand.lower() in gen_low:
-            return cand
-    # Also accept "None" (the dataset includes some queries with no good fit)
-    if "none" in gen_low:
+    earliest_pos = -1
+    earliest_cand: Optional[str] = None
+    for cand in candidates:
+        pos = gen_low.find(cand.lower())
+        if pos < 0:
+            continue
+        if earliest_pos < 0 or pos < earliest_pos or (
+            pos == earliest_pos and len(cand) > len(earliest_cand or "")
+        ):
+            earliest_pos = pos
+            earliest_cand = cand
+    if earliest_cand is not None:
+        return earliest_cand
+    # Fall back: model said "None"?
+    none_pos = gen_low.find("none")
+    if none_pos >= 0:
         return "None"
     return None
 
