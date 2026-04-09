@@ -921,6 +921,7 @@ def run() -> None:
                 args.fokvq_adaptive_energy_frac,
                 args.fokvq_clip_quantile,
                 method_codebooks,
+                sink_len=args.sink_len,
             )
             if not math.isfinite(result["ppl"]):
                 raise RuntimeError(f"Non-finite PPL for method={method}, bits={bits}")
