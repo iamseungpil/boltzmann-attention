@@ -125,6 +125,37 @@ def main():
         print(f"    {facet}: {len(ofb.ONTOLOGY[facet])} categories")
     print()
 
+    # Monkey-patch build_facet_basis with a centered variant if requested.
+    # Centering removes the per-(L,h) "language-mean" direction that
+    # dominates all English-text K vectors (diagnosed 2026-04-10: u_1 has
+    # |cos|>0.99 with K of arbitrary English sentences at mid/late layers).
+    # Without this, top singular direction is language-mean, Range(B) is
+    # contaminated, and ε_q saturates at ~r/d for every query type.
+    if args.center_facets:
+        print("[centered] monkey-patching ofb.build_facet_basis — "
+              "subtracting per-facet grand mean before Gram-Schmidt SVD",
+              flush=True)
+        orig_build = ofb.build_facet_basis
+
+        def build_facet_basis_centered(
+            E_list,
+            energy_threshold=ofb.ENERGY_THRESHOLD,
+            min_singval_ratio=ofb.MIN_SINGVAL_RATIO,
+        ):
+            # Mean-subtract each facet's category-mean matrix so the
+            # language-common direction is removed before residualization.
+            E_list_c = [
+                (E - E.mean(axis=1, keepdims=True)) if E.size > 0 else E
+                for E in E_list
+            ]
+            return orig_build(
+                E_list_c,
+                energy_threshold=energy_threshold,
+                min_singval_ratio=min_singval_ratio,
+            )
+
+        ofb.build_facet_basis = build_facet_basis_centered
+
     print(f"Loading model {args.model} on {args.device}", flush=True)
     t0 = time.time()
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
