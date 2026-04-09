@@ -162,7 +162,7 @@ def _modified_gram_schmidt(M: np.ndarray, target_dim: int) -> np.ndarray:
     return out[:, :count]
 
 
-def build_oc_basis(
+def build_ocq_basis(
     sigma_k: np.ndarray,
     B_ont: np.ndarray,
     res_mode: ResMode,
@@ -405,7 +405,7 @@ def _self_test() -> None:
 
     # Test both residual modes
     for res_mode in ["2a", "2b"]:
-        B_full_np = build_oc_basis(sigma_k, B_ont_np, res_mode=res_mode)
+        B_full_np = build_ocq_basis(sigma_k, B_ont_np, res_mode=res_mode)
         assert B_full_np.shape[0] == d, f"wrong d: {B_full_np.shape}"
         k_cols = B_full_np.shape[1]
         # Orthogonality check
