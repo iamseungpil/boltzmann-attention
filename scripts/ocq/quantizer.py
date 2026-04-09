@@ -376,6 +376,180 @@ def ocq_quantize(
 
 
 # ---------------------------------------------------------------------
+# OCQ + prior-FOKVQ residual hybrids (2026-04-09)
+# ---------------------------------------------------------------------
+#
+# Two new methods that combine OCQ's categorical 1-bit on the ontology
+# basis with two different residual handlers, both reusing the prior
+# FOKVQ research's pre-RoPE pipeline:
+#
+#   ocq_kivi: B_ont categorical 1-bit + KIVI per-channel asymmetric
+#             (kivi_quantize_tensor from math/experiment/exp4_2_v3_full_quant_ppl.py)
+#             on the residual K_residual = K - K_ont in original
+#             head_dim coordinates.
+#
+#   ocq_wf:   B_ont categorical 1-bit + Pre-RoPE PCA + Water-Filling
+#             (fokvq_quantize_head from the same prior file) on the
+#             residual K_residual.
+#
+# Both decompose K = K_ont + K_residual via orthogonal projection in
+# pre-RoPE head_dim coordinates. The ontology component is quantized
+# in B_ont coefficient space (low-rank, semantic). The residual is
+# quantized in original head_dim coordinates so KIVI's per-channel
+# outlier intuition and the prior PCA-based methods continue to apply.
+#
+# Both reuse the prior file via `import` rather than re-implementation,
+# per user instruction "이전 소스/결과 최대한 그대로 이용하라".
+
+import os
+import sys as _sys
+_PRIOR_PATH = "/home/woori/workspace_common/boltzmann-attention/math/experiment"
+if _PRIOR_PATH not in _sys.path:
+    _sys.path.insert(0, _PRIOR_PATH)
+try:
+    from exp4_2_v3_full_quant_ppl import (  # type: ignore  # noqa: E402
+        kivi_quantize_tensor as _prior_kivi_quantize_tensor,
+        fokvq_quantize_head as _prior_fokvq_quantize_head,
+    )
+    _PRIOR_AVAILABLE = True
+except Exception as _e:
+    _PRIOR_AVAILABLE = False
+    _PRIOR_IMPORT_ERROR = repr(_e)
+
+
+def _ocq_decompose_pre_rope(
+    K_head: torch.Tensor,    # (S, d) — single head, pre-RoPE
+    B_ont: torch.Tensor,     # (d, r_ont) orthonormal
+):
+    """Orthogonal split in head_dim coordinates.
+
+    Returns:
+        coeffs_ont: (S, r_ont)        — coefficients in B_ont basis
+        K_residual: (S, d)            — K with B_ont span removed
+    """
+    coeffs_ont = K_head @ B_ont                  # (S, r_ont)
+    K_ont = coeffs_ont @ B_ont.transpose(-1, -2)  # (S, d), low-rank
+    K_residual = K_head - K_ont                  # (S, d), ⊥ span(B_ont)
+    return coeffs_ont, K_residual
+
+
+def ocq_kivi_quantize_head(
+    K_head: torch.Tensor,    # (S, d) pre-RoPE single head
+    B_ont: torch.Tensor,     # (d, r_ont)
+    bits_residual: int,
+    ont_mode: OntMode = "1b",
+) -> torch.Tensor:
+    """OCQ + KIVI residual: categorical 1-bit on B_ont coords +
+    KIVI per-channel asymmetric on K_residual in original head_dim.
+
+    All operations in pre-RoPE head_dim coordinates. Reuses
+    `kivi_quantize_tensor` from the prior FOKVQ v3 file.
+    """
+    if not _PRIOR_AVAILABLE:
+        raise ImportError(
+            f"prior FOKVQ v3 file not importable: {_PRIOR_IMPORT_ERROR}"
+        )
+    coeffs_ont, K_residual = _ocq_decompose_pre_rope(K_head.float(), B_ont.float())
+
+    # Categorical 1-bit on ontology coords (use existing _ONT_MODES)
+    coeffs_ont_q = _ONT_MODES[ont_mode](coeffs_ont)
+    K_ont_q = coeffs_ont_q @ B_ont.float().transpose(-1, -2)
+
+    # KIVI per-channel asymmetric on residual (in original head_dim coords).
+    # kivi_quantize_tensor expects 2D (seq, d_head) for per-channel reduce
+    # over the seq axis (dim=-2).
+    K_residual_q = _prior_kivi_quantize_tensor(K_residual, bits_residual)
+
+    K_recon = K_ont_q + K_residual_q
+    return K_recon.to(K_head.dtype)
+
+
+def ocq_wf_quantize_head(
+    K_head: torch.Tensor,    # (S, d) pre-RoPE single head
+    B_ont: torch.Tensor,     # (d, r_ont)
+    bits_residual: int,
+    ont_mode: OntMode = "1b",
+    gamma: float = 0.3,
+) -> torch.Tensor:
+    """OCQ + WF residual: categorical 1-bit on B_ont coords +
+    prior FOKVQ (Pre-RoPE PCA + Water-Filling) on K_residual.
+
+    Reuses `fokvq_quantize_head` from the prior FOKVQ v3 file. The prior
+    function performs centering, on-the-fly PCA, eigenvalue-weighted bit
+    allocation (gamma=0.3 by default), per-axis asymmetric uniform
+    quantization, and reconstruction. We pass it K_residual which has
+    rank ≤ (d - r_ont); the prior function's PCA will yield r_ont
+    near-zero eigenvalues that receive the minimum bit allocation
+    (currently floor=1).
+    """
+    if not _PRIOR_AVAILABLE:
+        raise ImportError(
+            f"prior FOKVQ v3 file not importable: {_PRIOR_IMPORT_ERROR}"
+        )
+    coeffs_ont, K_residual = _ocq_decompose_pre_rope(K_head.float(), B_ont.float())
+
+    coeffs_ont_q = _ONT_MODES[ont_mode](coeffs_ont)
+    K_ont_q = coeffs_ont_q @ B_ont.float().transpose(-1, -2)
+
+    K_residual_q, _r_eff = _prior_fokvq_quantize_head(
+        K_residual, bits_residual, gamma=gamma,
+    )
+
+    K_recon = K_ont_q + K_residual_q
+    return K_recon.to(K_head.dtype)
+
+
+def ocq_kivi_quantize(
+    keys: torch.Tensor,           # (B, H, S, d) pre-RoPE K
+    B_ont_per_head: torch.Tensor,  # (H, d, r_ont)
+    bits_residual: int,
+    ont_mode: OntMode = "1b",
+) -> torch.Tensor:
+    """Per-head loop of ocq_kivi_quantize_head."""
+    if keys.ndim != 4:
+        raise ValueError(f"Expected (B, H, S, d) keys, got {keys.shape}")
+    B, H, S, d = keys.shape
+    if B_ont_per_head.shape[0] != H:
+        raise ValueError(
+            f"B_ont heads {B_ont_per_head.shape[0]} != keys heads {H}"
+        )
+    out = torch.zeros_like(keys)
+    for b in range(B):
+        for h in range(H):
+            out[b, h] = ocq_kivi_quantize_head(
+                keys[b, h], B_ont_per_head[h],
+                bits_residual=bits_residual, ont_mode=ont_mode,
+            )
+    return out
+
+
+def ocq_wf_quantize(
+    keys: torch.Tensor,           # (B, H, S, d) pre-RoPE K
+    B_ont_per_head: torch.Tensor,  # (H, d, r_ont)
+    bits_residual: int,
+    ont_mode: OntMode = "1b",
+    gamma: float = 0.3,
+) -> torch.Tensor:
+    """Per-head loop of ocq_wf_quantize_head."""
+    if keys.ndim != 4:
+        raise ValueError(f"Expected (B, H, S, d) keys, got {keys.shape}")
+    B, H, S, d = keys.shape
+    if B_ont_per_head.shape[0] != H:
+        raise ValueError(
+            f"B_ont heads {B_ont_per_head.shape[0]} != keys heads {H}"
+        )
+    out = torch.zeros_like(keys)
+    for b in range(B):
+        for h in range(H):
+            out[b, h] = ocq_wf_quantize_head(
+                keys[b, h], B_ont_per_head[h],
+                bits_residual=bits_residual, ont_mode=ont_mode,
+                gamma=gamma,
+            )
+    return out
+
+
+# ---------------------------------------------------------------------
 # Self-test
 # ---------------------------------------------------------------------
 
