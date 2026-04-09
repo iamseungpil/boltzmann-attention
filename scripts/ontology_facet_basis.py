@@ -69,7 +69,7 @@ ENERGY_THRESHOLD = 0.95
 MIN_SINGVAL_RATIO = 1e-3
 OUT = Path(
     '/home/woori/workspace_common/boltzmann-attention/reports/'
-    'axis2_theoretical_verification/exp_facet_basis.json'
+    'axis2_theoretical_verification/ontology_facet_basis.json'
 )
 
 
