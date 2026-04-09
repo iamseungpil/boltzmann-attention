@@ -565,4 +565,249 @@ A1 의 Phase 6 (tool selection) 에 homonym-specific 실험 추가:
 - [ ] 0.2 GGB_experiment padding fix
 - [ ] 0.3 baseline 목록 확정 — **A2.8 에서 확정 완료**
 
+---
+
+## Amendment 2026-04-09 (A3): FGA / SAE-TS / Stickland KTS 전문 정독
+
+A2 이후 남은 세 개 방법론 선행 논문을 병렬로 정독했다. **두 개의 중요한 정정 사항이 발생했다** — 이전 amendment 에서 metric attribution 이 부정확했다.
+
+### A3.1 FGA (arXiv:2509.25252, Sep 2025) 전문 정독 결과
+
+Aayush Gupta (독립 저자), Apple M4 Max 로 실행. 제목: "Fact Grounded Attention: Eliminating Hallucination in LLMs Through Attention Level Knowledge Integration".
+
+**개입 수식 (Eq. 7, 8)**: `S_FGA = S + α ⊙ G`, `Attention_FGA(Q,K,V) = softmax(S_FGA) V`
+
+- 개입 위치: **pre-softmax attention score 행렬 S** (L×L). K projection 도 Q projection 도 아님.
+- `G = B_qf · A`, where `B_qf = Q K_fact^T / √d_k ∈ ℝ^{L×M}` (Eq. 3, 4), `A ∈ {0,1}^{M×L}` binary entity-to-token assignment (Eq. 5). K_fact = `W_K V_fact` 는 **별도로 학습된** projection matrix (약 2.1M params).
+- G 는 rank-≤M L×L matrix. Per-pair additive bias. Row-stochastic 아님.
+- α = sigmoid(W_α [Q; C] + b_α) ∈ [0,1] (Eq. 6). Q 와 context feature C 에 의존하는 **learned gate**.
+- Hard constraint: α ≥ 0.8 일 때 vocabulary-level hard mask (θ_hard=0.8).
+- Layer: Llama 3.2 3B 기준 **layer 20–27** (top 8 of 28). Ablation: shallow (1–4) 67.2%, deep (24–28) 88.9%, main config top-8 99.7%.
+- Head: per-head selection 없음. Shared gate across heads (ablation: per-head 96.3% vs shared 99.7%).
+- **KB 형태**: **Flat (entity, attribute, value) tuple**. 137 entity (47 smartphones + 52 laptops + 38 EVs) × 12 attribute. **Ontology 아님**, taxonomy 아님, hierarchy 아님. Entity 인식은 rule-based chunked recognition (stride s=16).
+
+**Headline (Table 3)**: Vanilla Llama 3.2 3B 6.3% → FGA-Zero 87.1% → FGA-FT 99.7% on 1107 spec QA.
+
+**Public benchmark (Table 1)**: NQ 23.4 → 41.2, TriviaQA 31.8 → 48.3, PopQA 12.3 → 38.7, FEVER 67.2 → 78.9.
+
+**측정하지 않은 것**: MMLU, perplexity, TruthfulQA, HaluEval, 그리고 **어떤 activation-steering method 와도 비교하지 않음** (CAA, ITI, PASTA, RepE, ActAdd 모두 benchmark 에 없음).
+
+**Ablation (Table 4)**: 가장 중요한 component 는 **entity assignment matrix A** — 제거 시 42.3% 로 급락. Gate 제거 71.4%, hard constraint 제거 79.2%.
+
+**명시된 future work (§6.2.1)**: *"Future work should explore hierarchical and compositional fact representations"*. Homonym, 개념 계층, facet 은 현재 지원 안 함.
+
+**결정적 통찰**: FGA 는 **flat-KB method**, 저자 스스로 hierarchy/compositionality 를 future work 로 남겼다. 우리 ontology approach 는 FGA 가 **공식적으로 초대한 확장**이다. 또한 FGA 는 score matrix S 를 건드리고 우리는 K projection 을 건드린다 — 같은 attention 계산의 서로 다른 mathematical site. FGA 는 우리 작업에 대한 **두 번째 공식 초대장**이다 (첫 번째는 CAA §9.1).
+
+추가: FGA 의 deep layer 발견 (20–27) 은 Zhu 의 middle layer 발견 (8–18) 과 다르다. 이 차이는 task-dependent — Zhu 는 long-context distraction, FGA 는 factual grounding. 우리 multi-layer phase 는 **두 range 모두** 테스트해야 한다.
+
+### A3.2 SAE-TS (arXiv:2411.02193, Nov 2024) 전문 정독 결과 — 중요한 정정
+
+Chalnev, Siu, Conmy. "Improving Steering Vectors by Targeting Sparse Autoencoder Features".
+
+**중요한 정정: SAE-TS 는 strict matched-effect pinning 을 하지 않는다.** A2 에서 "matched-effect protocol 을 SAE-TS 에서 차용" 이라고 한 서술은 부정확하다. 실제로 SAE-TS 는:
+
+- **α 를 sweep 하고 full Pareto curve 를 그리는 방식** (Figure 3 주 comparison, Appendix G Figure 8 trade-off curve).
+- Scalar summary 는 **peak Behavioral × Coherence** across sweep (Table 2).
+- "Matched" 가 등장하는 유일한 곳은 **training data 수집 시점** — 50,000 개 vector 에 대해 ΔCE = 0.5 nats 가 되도록 α 를 per-vector search. 이건 evaluation 이 아니라 **training data curation**.
+
+**Evaluation metric**:
+- **Effect (Behavioral score)**: GPT-4o-mini rubric 1–10, normalized to [0,1]. Concept-specific rubric.
+- **Preservation (Coherence score)**: GPT-4o-mini 1–10 normalized. "Semantic 일관성과 fluency".
+- **Primary scalar**: `Behavioral × Coherence` (product, not weighted sum).
+- **Only one preservation axis** — KL 없음, perplexity 없음, MMLU 없음.
+- Unsteered baseline: Coherence 0.64, Behavioral 0.
+
+**Methods compared**: CAA (their variant, mean-diff of positive/negative prompt activations), SAE clamping (decoder row d_j as steering vector), SAE-TS (theirs). **ITI 없음, ActAdd 없음, PASTA 없음, Focus Directions 없음.**
+
+**Model and setup**: Gemma-2-2B base (not instruction-tuned). Layer 12 residual stream. 9 tasks (Anger/Christian/Conspiracy/French/London/Love/Praise/Want-to-die/Wedding). 256 completion × 32 token per (method, task, α).
+
+**Headline (Table 2, peak Behavioral × Coherence)**:
+| Task | CAA | SAE | SAE-TS |
+|---|---|---|---|
+| Average (9 tasks) | 0.2165 | 0.1290 | **0.3600** |
+| London | 0.0476 | 0.0061 | **0.5380** |
+| Wedding | 0.1768 | 0.2626 | **0.5432** |
+| Christian | **0.3486** | 0.0902 | 0.3302 |
+
+SAE-TS 가 9 개 중 7 개에서 승, Christian 에서 CAA 에 패배, Conspiracy 는 동점.
+
+**SAE clamping failure mechanism (Table 1)**: **Golden Gate 현상의 수학적 설명**. Decoder row `d_j` 를 steering vector 로 쓰면, 실제로 가장 크게 활성화되는 feature 는 **j 자신이 아니라** activation density 45% 의 "no clear pattern" feature (6810, effect magnitude 4.58). **Decoder direction ≠ causal steering direction**. SAE-TS 의 Eq. 3 `s = M_j/||M_j|| − λ(Mb)/||Mb||` 에서 두 번째 항은 이 generic high-density feature 활성화를 **명시적으로 빼주는** correction term.
+
+그럼에도 고 α 에서는 SAE-TS 도 collapse — Appendix I 의 "London at α>160" 은 반복적 fashion-show text 로 degenerate. **Failure 는 higher α 로 밀려났을 뿐 제거되지 않는다.**
+
+**결정적 통찰 (두 가지)**:
+
+1. **우리의 matched-effect protocol 재정의 필요.** SAE-TS style sweep + Pareto curve 는 "peak-pick in hindsight" 이다. 더 엄격한 버전 — 각 method 를 matched preservation level (예: ΔCE = 0.5) 에서 compare — 은 SAE-TS 의 strengthening 이지 borrowing 이 아니다. 우리 논문에서는 **두 protocol 을 모두 실행**: (a) SAE-TS style sweep + peak Behavioral × Coherence, (b) strict matched-strength binary search. 후자는 SAE-TS 의 training-time criterion 을 evaluation 으로 lift 한 것으로 명시.
+
+2. **Golden Gate 의 수학적 기제가 이제 인용 가능**. SAE-TS Table 1 + Eq. 3 이 "decoder direction 은 causal direction 과 다르다" 를 처음으로 empirically measure 했다. 우리 논문의 narrative 는: *"Golden Gate-style fabrication 은 SAE clamp 에서 고질적. SAE-TS 가 그 원인을 처음으로 정량화 (Table 1). 우리 K-bias 는 동일 문제를 mechanism 레벨에서 회피 — V/MLP 에 content 를 주입하지 않기 때문에 decoder-vs-causal mismatch 가 발생할 수 없음."*
+
+### A3.3 Stickland KTS (arXiv:2406.15518, Jun 2024) 전문 정독 결과 — 중요한 정정
+
+Stickland, Lyzhov, Pfau, Mahdi, Bowman (NYU + Anthropic). "Steering Without Side Effects".
+
+**중요한 정정: Stickland 는 KL 을 evaluation metric 으로 사용하지 않는다.** KL 은 **KTS LoRA fine-tuning 의 training loss**. 그들이 보고하는 side-effect metric 은 **MT-Bench score degradation** 이다.
+
+A2 에서 "KL-on-benign from Stickland" 이라고 한 것은 부정확한 attribution 이다. 내가 쓰려는 것은 그들의 **training objective 를 evaluation 에 재purpose** 한 것이지 그들이 metric 으로 사용한 것을 차용한 게 아니다.
+
+**Stickland 의 실제 KL 정의 (Eq. 2)**:
+```
+E_{v~V}[D_KL[LLM_v(x) || LLM(x)]]
+```
+- **Direction**: Forward KL, `KL(steered || base)`. Steered 를 P 로, base 를 Q 로 — steered 의 novel behavior 를 penalize.
+- **Prompt x 분포**: **UltraChat** (Ding et al. 2023), general benign QA dataset.
+- **Training**: minibatch 당 steering vector 1 개 sample, strength `k ~ U[-c, c]`, 12.5% steer dropout, LoRA rank-128, 4 epoch, 192 step, 768 example (384 harmless + 384 UltraChat), ~50분 on A100/V100.
+- **Token position**: 본문에 명시 없음. 표준 distillation 읽기는 response token 에 대해 per-token softmax KL 을 mean.
+
+**KTS pipeline (Algorithm 1)**:
+1. Box 1: Steering vector 를 mean-diff 로 구성 (Zou et al. 2023a / RepE).
+2. Box 2: LoRA fine-tune base model 을 minimize Eq. 2. Base model 이 *steering 에 robust* 하게 만드는 **self-distillation under random steering perturbation**.
+3. Box 3: Fine-tuned model 위에서 inference time steering 적용.
+
+**Evaluation 축 (실제)**:
+- **Side-effect (benign)**: **MT-Bench** (80 multi-turn questions, GPT-4 judge). Llama-2-chat-7B baseline 6.53.
+- **Adversarial**: Jailbreak ASR, Prefill ASR.
+- **Pareto axes**: ASR (y) vs **MT-Bench** (x), parameterized by multiplier k. **KL 은 어떤 축에도 나오지 않는다.**
+
+**Headline 숫자 (정확)**:
+- KTS alone (no steering): MT-Bench 6.53 → **6.63** (실제로 소폭 상승).
+- KTS + steer (k=−0.5): ASR 17.7%, MT-Bench 6.43. Base + steer: ASR 19.3%, MT-Bench 6.05. 즉 KTS 가 MT-Bench drop 을 크게 줄임.
+- **가장 깨끗한 matched-effect 비교 (§5.1)**: matched Prefill-ASR=74% 에서 base 는 MT-Bench 4.67, KTS 는 **5.17**. 같은 adversarial 효과에서 capability 가 0.5 포인트 더 높음.
+- **"44% jailbreak blocked"** (abstract): KTS + LoRA-DPO **merged** 에서 달성, MT-Bench "almost on par with original".
+
+**Limitation (§5.4)**: Steering 은 LoRA FT 의 대체가 아니라 보완. Single model (Llama-2-chat-7B) 만. **KL 의 evaluation 사용에 대한 caveat 없음** — 왜냐하면 KL 을 evaluation 에 사용하지 않았기 때문.
+
+**결정적 통찰 (세 가지 정정)**:
+
+1. **Attribution 정정**: 우리 "KL-on-benign" 은 Stickland 의 Eq. 2 training objective 를 evaluation 으로 adapt 한 것. 논문 methods 섹션에 명시: *"Following the training objective of Stickland et al. (2024, Eq. 2), we compute `KL(steered || base)` on UltraChat prompts as an evaluation metric. Note that Stickland et al. use this quantity as a distillation loss during KTS fine-tuning and do not report it as a side-effect scalar; our use is an adaptation."*
+
+2. **Direction 명시**: Forward KL `KL(steered || base)` 을 사용 (Stickland 과 일치). 이유: steering-induced novel behavior 를 penalize 하려는 목적에 forward KL 이 적합. Reverse KL 은 mode-dropping 을 penalize 하는데 이건 우리가 측정하려는 것과 다름.
+
+3. **Heavy-tail 주의**: KL 은 natural text 에서 heavy-tailed. Mean 과 median 모두 보고. Trimmed mean 도 고려. Stickland 는 이 문제를 논하지 않았는데 그들의 KL 은 training 중 expectation 안에 있기 때문.
+
+4. **KL 은 capability metric 을 대체하지 않는다**: Stickland 본인들도 MT-Bench 를 user-facing side-effect 로 사용. 우리도 KL 을 보조 metric 으로 쓰고, **MT-Bench 와 MMLU 를 primary capability metric** 으로 유지해야 함.
+
+### A3.4 계획 수정 (A3)
+
+#### 수정 1: Metric 세트 재정의 (Phase 3)
+
+Phase 3 의 preservation metric 세트를 다음으로 확정:
+
+**Primary capability metrics (Stickland 의 실제 metric 따름)**:
+- MT-Bench (first-turn, 80 prompts) — **Stickland 의 실제 side-effect metric**, primary
+- MMLU 5-shot — cross-validation with CAA / ITI evaluation
+
+**Auxiliary preservation metrics (우리 adaptation)**:
+- KL-on-benign: `KL(steered || base)` on UltraChat 500 prompts, forward direction, per-token mean, report mean + median + 90th percentile
+- CounterFact neighbourhood specificity (ROME) — primary fact preservation
+- Context-memory override rate (Yu et al. 2310.15910) — contrary-fact stress
+- CE on WikiText-103 held-out — fluency proxy
+
+**Behavioral (effect) metric**:
+- Target concept probe accuracy (linear probe, held-out)
+- GPT-4o-mini Behavioral rubric (SAE-TS style) — cross-validation with SAE-TS comparability
+- **Scalar summary**: Behavioral × Coherence (SAE-TS convention) **AND** probe accuracy — report both
+
+#### 수정 2: Matched-effect protocol 이중화
+
+Phase 3 에서 두 protocol 을 모두 실행:
+
+**Protocol P3a (SAE-TS style sweep + curve)**:
+- 각 method 에 대해 α sweep (log-spaced, 10 points over 3 decades)
+- (Behavioral, Coherence) 를 각 point 에 대해 계산
+- Pareto curve 를 그리고, peak Behavioral × Coherence 를 scalar summary 로 보고
+- SAE-TS Figure 3, Figure 8 과 직접 비교 가능
+
+**Protocol P3b (strict matched-strength, our strengthening)**:
+- 각 method 에 대해 binary search 로 α 를 찾아 target coherence = 0.90 (10% drop from baseline 1.00) 에 pin
+- 그 α 에서 모든 preservation metric 측정
+- Stickland §5.1 matched-ASR 비교의 strengthening 으로 positioning
+- 이게 "first strict matched-effect Pareto for attention-level steering" claim 의 근거
+
+두 protocol 모두 논문에 포함. P3b 가 main figure 의 테이블 버전, P3a 가 curve figure.
+
+#### 수정 3: FGA 를 baseline 목록에 추가 (Phase 3 과 Phase 6)
+
+A2.8 의 baseline 목록에 추가:
+
+**FGA** (github.com/ayushgupta4897/FGA):
+- 개입 위치: pre-softmax attention score S, layer 20–27 of Llama 3.2 3B (다른 모델은 top 8 of ~30)
+- Bias 구축: `G = B_qf · A`, W_K 는 별도 학습
+- α = learned sigmoid gate (FGA-FT) 또는 heuristic 0.8/0.2 (FGA-Zero)
+- 우리 실험에서 쓸 때는 **FGA-Zero 만** 구현 (FGA-FT 는 2 시간 training 이 필요하고 우리 ontology 와의 integration 이 복잡). Ontology node 를 "entity" 로 취급, ontology embedding 을 V_fact 로 사용, rule-based entity matching 으로 A 구성.
+- **Phase 3 에서**: attention-score level baseline (PASTA 와 나란히 보고)
+- **Phase 6 에서**: factual grounding baseline (tool schema 를 "facts" 로 취급하여 동일 framework 내에서 비교)
+
+#### 수정 4: Multi-layer range 에 FGA 의 deep-layer 발견 반영
+
+Phase 4 (multi-layer schedule) 의 layer range 를 다음으로 확장:
+
+- **Middle range (Zhu 의 contextual head 위치)**: layer 8–18
+- **Deep range (FGA 의 factual grounding 위치)**: layer 20–27
+- **Full range sweep**: 각 layer 개별 테스트 후 Pareto plot
+
+**새 가설 H14**: K-bias 는 task 에 따라 optimal layer range 가 다르다 — concept/identity steering 은 middle layer, factual tool disambiguation 은 deep layer 에서 더 효과적. 이게 성립하면 "intervention site 는 task 의 대표가 residual stream 의 어느 layer 에 응결되는지에 따라 결정되어야 한다" 는 mechanistic 결론.
+
+#### 수정 5: Golden Gate narrative 를 SAE-TS Table 1 에 anchor
+
+논문의 motivation section 을 다음으로 재작성:
+
+> SAE clamping based steering (Templeton et al. 2024, "Golden Gate Claude") generates fabrications at high clamp values. SAE-TS (Chalnev et al. 2024, Table 1) provides the first quantitative mechanistic explanation: the decoder direction `d_j` of a target feature `j` does not selectively activate `j` in generation; instead it activates high-density generic features (e.g. feature 6810 with 45% activation density dominates with effect magnitude 4.58). This is the "decoder ≠ causal direction" problem. SAE-TS partially mitigates it via an effect-approximator bias-subtraction term, but high-α collapse persists (Appendix I). We propose that **K-side attention bias avoids this failure mode at the mechanism level**: because K-bias does not inject content into V/MLP, there is no "decoder-vs-causal mismatch" to compensate — the intervention only changes which existing tokens are attended to, not what content is written.
+
+이 narrative 는 SAE-TS 의 발견을 직접 인용하여 우리 thesis 의 motivation 을 강화한다.
+
+### A3.5 Risk 추가 (R10, R11)
+
+**R10**. **FGA 재현이 ontology integration 에서 어려울 수 있음.** FGA 는 entity 가 flat 하고 rule-based matching 을 가정. Ontology 를 "entity" 로 취급하려면 hierarchical matching 이 필요하고, 이건 FGA 의 원래 설계 밖.
+- *대응*: FGA-Zero 만 구현, ontology leaf node 만 "entity" 로 취급 (flat 화). Hierarchical matching 은 포기하고 FGA-Zero 를 기준 comparison 으로만 사용. 만약 FGA-Zero 를 구현하기조차 어렵다면 FGA 는 citation 만 하고 baseline 에서 제외.
+
+**R11**. **MT-Bench GPT-4 judge cost**. 80 prompt × 6 methods × 10 α values × 2 runs (variance) = 9600 judge call. API cost 와 시간이 클 수 있음.
+- *대응*: 첫 sweep 은 GPT-4o-mini 로 (SAE-TS 가 이걸 사용), 최종 main figure 만 GPT-4 로 재평가. 또는 MT-Bench subset (20 prompt) 으로 축소.
+
+### A3.6 계획 상태 update
+
+#### Phase 0 precondition 상태 (A3 시점)
+
+- [x] 0.1.a Zhu 2025 전문 정독 — 완료 2026-04-09
+- [x] 0.1.b ASA 2026 전문 정독 — 완료 2026-04-09
+- [x] 0.1.c PASTA 2023 전문 정독 — 완료 2026-04-09
+- [x] 0.1.d CAA 2023 전문 정독 — 완료 2026-04-09
+- [x] 0.1.e ITI 2023 전문 정독 — 완료 2026-04-09
+- [x] 0.1.f Fact Grounded Attention (2509.25252) — **완료 2026-04-09**
+- [x] 0.1.g SAE-TS (2411.02193) — **완료 2026-04-09**
+- [x] 0.1.h Stickland KTS (2406.15518) — **완료 2026-04-09**
+- [ ] 0.2 GGB_experiment padding fix — **다음 할 일**
+- [x] 0.3 baseline 목록 확정 — A2.8 + A3.3 에서 확정
+
+### A3.7 현재 Novelty surface (A3 최종)
+
+정독 완료 후 방어 가능한 novelty 축 (정리):
+
+1. **Focus-shift vs content-injection 의 formal dichotomy 와 empirical demonstration** — PASTA 가 용어 없이 instance, 우리가 formalization.
+2. **Matched-effect strict-strength Pareto across 6 methods** — SAE-TS 의 curve comparison 을 strengthening. 최초의 strict comparison for attention-level steering.
+3. **Ontology-derived direction** — 네 prior (Zhu gradient, CAA/ITI/ASA mean-diff, PASTA user-mark, FGA flat-KB) 어느 것도 ontology 사용 안 함. FGA §6.2.1 에 "hierarchical/compositional" 이 future work 로 명시.
+4. **K-only ablation with independent α** — Zhu 는 K+Q joint, 확인.
+5. **Training-free task-independent** — Zhu 와 ASA 는 task-specific training 필요, PASTA 는 head profiling 필요, 우리는 ontology 만 있으면 됨.
+6. **Multi-layer schedule across middle + deep range** — Zhu middle, FGA deep, 우리가 task-conditional optimal 을 찾음.
+7. **K-bias as mechanism-level fix for SAE clamp failure** — SAE-TS Table 1 기반 narrative, K-bias 는 V/MLP 를 건드리지 않아 decoder-vs-causal mismatch 구조적으로 회피.
+8. **Homonymous tool disambiguation** — ASA 의 disjoint-domain 가정 밖, 기존 어느 방법도 접근하지 않음.
+9. **ITI vs K-bias 의 causal distinction demonstration** — "input-independent bias on W_O" vs "input-dependent bias on K". 첫 empirical 구분 실험.
+10. **CAA §9.1 + FGA §6.2.1 가 각각 우리 방향을 future work 로 초대** — 두 개의 official invitation 을 동시에 인용 가능.
+
+초기 survey 의 세 축 (ontology, K-only, fact preservation) 에서 **열 축**으로 확장. Narrow novelty 에 대한 걱정은 더 이상 근거가 없다. 오히려 계획된 실험을 전부 수행하면 **한 논문에 너무 많은 contribution** 이 들어가는 역의 문제가 발생할 수 있다 — Phase 3 가 실패할 경우 축소할 우선순위를 미리 정해두어야 한다.
+
+### A3.8 우선순위 축소 순서 (비상 계획)
+
+Phase 3 (matched-effect Pareto) 가 실패하거나 부분적으로만 성공할 경우, 논문을 축소하는 우선순위:
+
+1. 가장 먼저 버릴 것: **Phase 5 (compositional focus)** — 흥미롭지만 main thesis 와 독립적
+2. 다음: **Phase 6 (tool selection)** — 응용 framing 만 잃음, mechanism story 유지
+3. 다음: **Phase 4 multi-layer schedule 의 deep range** (FGA 영향) — middle range 만 유지
+4. 절대 버리지 말 것: **Phase 1 K-only ablation, Phase 3 matched-effect Pareto, Phase 2 ontology vs gradient 비교, causal distinction (H12)**
+
+최악의 경우 Phase 1 + Phase 3 subset 만으로도 workshop paper 성립 가능.
+
+---
+
+*Amendment A3 끝. 다음 단계: Phase 0.2 (GGB_experiment padding fix) 로 실험 실행 단계에 진입.*
+
 
