@@ -11,6 +11,46 @@
 
 ---
 
+## ⚠ MAJOR REFRAMING NOTE (2026-04-10)
+
+**Dual-claim paper killed by empirical evidence**. Full-995 MetaTool Subtask1 run confirmed:
+- K-bias alone (α=0.3): **+11.15pp** (Claim A alive)
+- OCQ quant alone (1b): **−20.70pp** (tool selection destroyed)
+- OCQ quant + bias combined: **−18.59pp** (bias cannot recover from quant damage)
+
+Conclusion: the same `B_ont` cannot simultaneously serve K-bias amplification and K-cache compression — the two operations are destructive in the same subspace. **Claim B (KV quantization as second contribution) is retracted**. Paper is now single-contribution on Claim A, with Claim B demoted to a negative appendix.
+
+**New core thesis (replacing §1 single-sentence thesis)**:
+
+> In realistic enterprise agent deployments — with **dozens to hundreds of workflows, plans, and tools** — we automatically construct **tens of orthogonal semantic facets** from the catalog structure and reflect them in the **K tensor**, enabling **multiple focus dimensions to be simultaneously active** per token. The resulting *facet-gated K-side ontology amplification* is structurally distinct from Q-adaptive mixture methods (AdaSEKA) in (a) intervention source — catalog ontology vs contrastive SVD, (b) composition — F-simultaneous vs 1-of-M winner-take-most, and (c) scalability — linear in F = 10-100 facets with no saturation. Empirically it beats AdaSEKA by 10-48pp on CounterFact and is in progress on MetaTool tool selection.
+
+**Closest prior art is now AdaSEKA, not KVSink**. KVSink was relevant when Claim B was alive; Claim B is dead so KVSink is no longer a scoped competitor. AdaSEKA (Li et al., ICLR 2026, arXiv:2603.01281) is the new primary comparison target. See `reports/ADASEKA_COMPARISON_2026_04_10.md` for the empirical comparison establishing:
+- AdaSEKA 2-expert held-out: ES 48.2 (near-baseline 40.2)
+- AdaSEKA 3-expert in-domain: ES 86.8 (below single-expert SEKA's 95.2)
+- Ontology rank-8 α=3.0: ES 96.8 (best)
+
+**Differentiation from AdaSEKA (do not re-derive — see `memory/adaseka_vs_ours_differentiation_2026_04_10.md`)**:
+
+| Axis | AdaSEKA | Ours |
+|---|---|---|
+| Intervention axis | K-side but projector `P_dyn(Q)` depends on Q → Q-adaptive rotation | K-side, projector structure fixed by catalog ontology at build time; Q only modulates per-facet gates |
+| Composition | 1-of-M winner-take-most (max normalization forces dominant expert) | F-simultaneous — all facets can be independently 0 or near-1, no normalization |
+| Direction source | Per-expert contrastive SVD — needs benchmark data per expert | Catalog ontology — zero benchmark data, automatic construction |
+| Scalability | 3-4 experts, saturates past ~8 due to max normalization | F = 10-100 facets, linear O(F) memory and compute, no saturation |
+| Multi-focus query (e.g. "analyze conversion rate of signup funnel") | Cannot represent — winner erases 3-4 of the 4 needed dimensions | Native — each of intent / domain / structure / action activates independently |
+
+**Paper must lead with multi-dimensional enterprise tool selection as the problem**, not factual editing. CounterFact is supporting evidence only. The decisive Claim A experiments are on MetaTool (current) + BFCL/ToolBench for F ≥ 10 scaling (pending).
+
+**Files added 2026-04-10**:
+- `memory/adaseka_vs_ours_differentiation_2026_04_10.md` — next-session anchor, do not re-derive
+- `reports/ADASEKA_COMPARISON_2026_04_10.md` — empirical comparison + reproducibility
+- `reports/COWORKER_REQUEST_cross_model_2026_04_10.md` — A100×4 cross-model request
+- `scripts/ocq/eval_metatool_subtask1.py` — `install_facet_gated_hooks` added
+
+---
+
+---
+
 ## 0. Executive Summary
 
 We propose `OCQ` (Ontology-Categorical Facet-Oriented KV Quantization), a training-free non-uniform KV cache quantization method derived from the agent's tool catalog. The method uses a per-(layer, head) ontology basis `B_ont` constructed from semantic facets (function-action × io-type × domain × tool-category) to allocate **1-bit categorical** quantization to a small subset of K-space directions plus variance-proportional uniform quantization to the residual orthogonal complement.
