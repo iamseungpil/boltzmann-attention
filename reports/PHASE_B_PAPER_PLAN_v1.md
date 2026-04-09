@@ -1,9 +1,11 @@
 # Phase B Paper Plan v1 — Ontology-Categorical KV Cache Compression for Small-LLM Tool-Selection Agents
 
-**Document version**: v1 (2026-04-09)
+**Document version**: v1 (2026-04-09, method-name update 2026-04-09)
 **Author**: working notes from session 317917ce
 **Status**: living plan, supersedes Phase 1.x experiment plans
-**Target venue**: NeurIPS main track (or competitive ML conference)
+**Target venue**: ICLR 2027 (primary) / NeurIPS main track (conditional, subject to 2-week kill-switch gate 2026-04-23)
+
+**Method naming note (2026-04-09)**: this document previously drafted the method as `oc-FOKVQ` (ontology-categorical FOKVQ). Per legal-risk review, the `FOKVQ` token is part of the user's pending patent vocabulary and must not appear in any public-facing artifact. The method is **renamed to `OCQ` (Ontology-Categorical Quantization)** throughout this document and all downstream paper / memory artifacts. Variant tags `oc_fokvq_{1a,1b,1c}_{2a,2b}` are renamed to `OCQ-{1a,1b,1c}-{2a,2b}`. Source file paths under `scripts/fokvq/` are retained in the "Engineering State" section as-is for traceability to the 2026-04-09 experiment logs, pending a separate code-rename decision after patent claim review.
 
 ---
 
