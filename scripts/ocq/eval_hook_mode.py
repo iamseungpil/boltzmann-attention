@@ -263,6 +263,21 @@ QuantFn = Callable[[torch.Tensor, int], torch.Tensor]
 # (key_tensor_BHTd, layer_idx) -> quantized key_tensor_BHTd
 
 
+def _apply_per_head_2d(k_4d: torch.Tensor,
+                        per_head_fn: Callable[[torch.Tensor], torch.Tensor]
+                        ) -> torch.Tensor:
+    """Apply a (seq, d_head) -> (seq, d_head) function over (B, H, T, d).
+
+    Used for prior FOKVQ v3 functions which expect 2D per-head input.
+    """
+    B, H, T, d = k_4d.shape
+    out = torch.zeros_like(k_4d)
+    for b in range(B):
+        for h in range(H):
+            out[b, h] = per_head_fn(k_4d[b, h])
+    return out
+
+
 def build_quant_fn(
     method: str,
     bits: int,
@@ -272,6 +287,9 @@ def build_quant_fn(
     ocq_r_ont: int,
     ocq_ont_mode: str,
     ocq_res_bits: int,
+    # Hybrid OCQ + prior residual: B_ont per (L, H) directly (not B_full)
+    ocq_b_ont_per_layer_head: Optional[torch.Tensor] = None,  # (L, H, d, r_ont)
+    ocq_wf_gamma: float = 0.3,
 ) -> QuantFn:
     if method == "fp16":
         def f(k, layer_idx):
@@ -296,6 +314,69 @@ def build_quant_fn(
             return _ocq_quant(
                 k, B_full, r_ont=r_ont, ont_mode=ont_mode,
                 res_bits=effective_res_bits,
+            )
+        return f
+    # ----- Prior FOKVQ v3 imported methods -----
+    if not _PRIOR_AVAILABLE and method in {
+        "kivi_v3", "fokvq_wf", "turboquant", "kvquant", "quip",
+        "ocq_kivi", "ocq_wf",
+    }:
+        raise ImportError(
+            f"method {method} requires prior FOKVQ v3 import: "
+            f"{_PRIOR_IMPORT_ERROR}"
+        )
+    if method == "kivi_v3":
+        def f(k, layer_idx):
+            return _prior_kivi_quantize_tensor(k, bits)
+        return f
+    if method == "fokvq_wf":
+        # Pre-RoPE PCA + WF on each (B, H, seq, d_head) head independently
+        def per_head(K_2d):
+            K_q, _r = _prior_fokvq_quantize_head(K_2d, bits, gamma=ocq_wf_gamma)
+            return K_q
+        def f(k, layer_idx):
+            return _apply_per_head_2d(k, per_head)
+        return f
+    if method == "turboquant":
+        def f(k, layer_idx):
+            return _apply_per_head_2d(k, lambda K_2d: _prior_turbo_quantize_head(K_2d, bits))
+        return f
+    if method == "kvquant":
+        def f(k, layer_idx):
+            return _apply_per_head_2d(k, lambda K_2d: _prior_kvquant_quantize_head(K_2d, bits))
+        return f
+    if method == "quip":
+        def f(k, layer_idx):
+            return _apply_per_head_2d(k, lambda K_2d: _prior_quip_quantize_head(K_2d, bits))
+        return f
+    # ----- OCQ + prior residual hybrids -----
+    if method == "ocq_kivi":
+        if ocq_b_ont_per_layer_head is None:
+            raise ValueError("ocq_kivi method requires --ocq-b-ont")
+        ont_mode = ocq_ont_mode
+        bits_residual = ocq_res_bits if ocq_res_bits > 0 else bits
+        def f(k, layer_idx):
+            B_ont_lh = ocq_b_ont_per_layer_head[layer_idx].to(
+                device=k.device, dtype=k.dtype,
+            )  # (H, d, r_ont)
+            return ocq_kivi_quantize(
+                k, B_ont_lh,
+                bits_residual=bits_residual, ont_mode=ont_mode,
+            )
+        return f
+    if method == "ocq_wf":
+        if ocq_b_ont_per_layer_head is None:
+            raise ValueError("ocq_wf method requires --ocq-b-ont")
+        ont_mode = ocq_ont_mode
+        bits_residual = ocq_res_bits if ocq_res_bits > 0 else bits
+        def f(k, layer_idx):
+            B_ont_lh = ocq_b_ont_per_layer_head[layer_idx].to(
+                device=k.device, dtype=k.dtype,
+            )  # (H, d, r_ont)
+            return ocq_wf_quantize(
+                k, B_ont_lh,
+                bits_residual=bits_residual, ont_mode=ont_mode,
+                gamma=ocq_wf_gamma,
             )
         return f
     raise ValueError(f"unknown method: {method}")
