@@ -356,7 +356,7 @@ def ocq_quantize(
     ont_mode: OntMode,
     res_bits: int,
 ) -> torch.Tensor:
-    """Apply oc-FOKVQ over all heads of a K cache tensor.
+    """Apply OCQ over all heads of a K cache tensor.
 
     Assumes per-head independent basis.
     """
