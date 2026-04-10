@@ -352,7 +352,7 @@ def install_facet_gated_hooks(
                     if (layer_idx, h) in skip_heads:
                         B_ont_layer[h].zero_()
 
-            def make_hook(li, B_ont_lh, mask_lh):
+            def make_hook(li, B_ont_lh, mask_lh, _skip_sink=skip_sink):
                 def hook(module, inputs, output):
                     B_sz, T, D = output.shape
                     if D != n_kv * head_dim:
@@ -384,6 +384,9 @@ def install_facet_gated_hooks(
                         K_proj_f = torch.einsum("bhtr,hdr->bhtd", masked_coeffs, B_dev)
                         K_increment = K_increment + g_f * K_proj_f
 
+                    # Zero out bias for sink/BOS positions
+                    if _skip_sink > 0 and T > _skip_sink:
+                        K_increment[:, :, :_skip_sink, :] = 0
                     K_modified = K_f + alpha_base * K_increment
                     out = K_modified.permute(0, 2, 1, 3).contiguous().view(B_sz, T, D).to(orig_dtype)
                     return out
