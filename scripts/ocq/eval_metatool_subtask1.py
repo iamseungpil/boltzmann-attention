@@ -121,6 +121,36 @@ def resolve_dtype(name: str, dtype_arg: str) -> torch.dtype:
     return torch.float16
 
 
+def parse_skip_heads(spec: str, n_kv: int) -> set:
+    """Parse a skip-heads spec string into a set of (layer, head) tuples.
+
+    Syntax examples:
+        "L0-L3"     → all heads (0..n_kv-1) for layers 0,1,2,3
+        "L27H1"     → head 1 of layer 27
+        "L0-L3,L27H1"  → union of both
+    """
+    if not spec.strip():
+        return set()
+    result = set()
+    for part in spec.split(","):
+        part = part.strip()
+        # Range: L<a>-L<b>  → all heads in layers a..b inclusive
+        m_range = re.match(r"^L(\d+)-L(\d+)$", part)
+        if m_range:
+            lo, hi = int(m_range.group(1)), int(m_range.group(2))
+            for li in range(lo, hi + 1):
+                for hi_idx in range(n_kv):
+                    result.add((li, hi_idx))
+            continue
+        # Single head: L<a>H<b>
+        m_single = re.match(r"^L(\d+)H(\d+)$", part)
+        if m_single:
+            result.add((int(m_single.group(1)), int(m_single.group(2))))
+            continue
+        raise ValueError(f"cannot parse skip-heads token: '{part}'")
+    return result
+
+
 # ---------------------------------------------------------------------
 # Prompt parsing and tool extraction
 # ---------------------------------------------------------------------
