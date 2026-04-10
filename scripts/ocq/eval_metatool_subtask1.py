@@ -333,6 +333,7 @@ def install_facet_gated_hooks(
     head_dim: int,
     gate_eps: float = 1e-6,
     skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
 ):
     handles = []
     L, H, d, r = B_ont.shape
