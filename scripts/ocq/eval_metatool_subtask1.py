@@ -233,7 +233,7 @@ def install_kbias_hooks(
                     if (layer_idx, h) in skip_heads:
                         B_ont_layer[h].zero_()
 
-            def make_hook(li, B_ont_lh):
+            def make_hook(li, B_ont_lh, _skip_sink=skip_sink):
                 def hook(module, inputs, output):
                     B, T, D = output.shape
                     if D != n_kv * head_dim:
@@ -248,6 +248,10 @@ def install_kbias_hooks(
                     # einsum to apply per-head
                     coeffs = torch.einsum("bhtd,hdr->bhtr", K_f, B_ont_dev)
                     K_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_ont_dev)
+                    # Zero out bias for sink/BOS positions to avoid distorting
+                    # attention on Mode A models where position 0 dominates
+                    if _skip_sink > 0 and T > _skip_sink:
+                        K_proj[:, :, :_skip_sink, :] = 0
                     K_modified = K_f + alpha * K_proj
                     out = K_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D).to(orig_dtype)
                     return out
