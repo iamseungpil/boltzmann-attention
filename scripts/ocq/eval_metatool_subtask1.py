@@ -324,6 +324,7 @@ def install_facet_gated_hooks(
     n_kv: int,
     head_dim: int,
     gate_eps: float = 1e-6,
+    skip_heads: Optional[set] = None,
 ):
     handles = []
     L, H, d, r = B_ont.shape
@@ -334,8 +335,13 @@ def install_facet_gated_hooks(
             if layer_idx >= L:
                 break
             k_proj = layer.self_attn.k_proj
-            B_ont_layer = B_ont[layer_idx]  # (H, d, r_ont)
+            B_ont_layer = B_ont[layer_idx].clone()  # (H, d, r_ont)
             mask_layer = facet_mask[layer_idx]  # (H, n_facets, r_ont)
+            # Zero out B_ont for skipped heads
+            if skip_heads:
+                for h in range(H):
+                    if (layer_idx, h) in skip_heads:
+                        B_ont_layer[h].zero_()
 
             def make_hook(li, B_ont_lh, mask_lh):
                 def hook(module, inputs, output):
