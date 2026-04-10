@@ -518,6 +518,7 @@ def run_method(
         ctx = install_kbias_hooks(
             model, B_ont, alpha=params["alpha"],
             n_kv=n_kv, head_dim=head_dim,
+            skip_heads=effective_skip,
         )
     elif kind == "quant":
         ctx = install_quant_hooks(
