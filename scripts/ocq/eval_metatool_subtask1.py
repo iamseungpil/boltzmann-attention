@@ -709,6 +709,7 @@ def main():
             model, tok, data, method, args,
             B_ont=B_ont, n_kv=n_kv, head_dim=head_dim,
             facet_mask=facet_mask,
+            skip_heads=skip_heads,
         )
         print(
             f"[eval] {method}: top1={res['top1_accuracy']*100:.2f}% "
