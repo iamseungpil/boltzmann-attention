@@ -50,8 +50,10 @@ CLI example
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
+import random
 import re
 import sys
 import time
@@ -65,6 +67,10 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 HERE = Path(__file__).parent
+REPO = HERE.parents[1]
+METATOOL_DIR = Path(
+    os.environ.get("METATOOL_DIR", str(REPO / "external" / "MetaTool" / "dataset"))
+)
 sys.path.insert(0, str(HERE))
 from quantizer import ocq_kivi_quantize  # noqa: E402
 
@@ -81,12 +87,16 @@ def parse_args() -> argparse.Namespace:
                    choices=["auto", "float16", "bfloat16", "float32"])
     p.add_argument(
         "--dataset",
-        default="/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+        default=str(METATOOL_DIR / "tmp_dataset" / "Task2-Subtask1.json"),
     )
     p.add_argument("--max-samples", type=int, default=0,
                    help="Cap on number of queries (0 = all 995).")
     p.add_argument("--start-idx", type=int, default=0,
                    help="Start index for slicing the dataset (default 0).")
+    p.add_argument(
+        "--shuffle-seed", type=int, default=-1,
+        help="If >= 0, shuffle the dataset deterministically before slicing.",
+    )
     p.add_argument("--methods", nargs="+",
                    default=["no_steer", "ocq_bias_a1", "ocq_bias_a3"],
                    help="Methods to evaluate. no_steer / ocq_bias_a<α> / "
@@ -97,9 +107,38 @@ def parse_args() -> argparse.Namespace:
                    help="Residual bits for ocq_quant variants.")
     p.add_argument("--ocq-ont-mode", default="1b", choices=["1a", "1b", "1c"])
     p.add_argument("--max-new-tokens", type=int, default=24)
+    p.add_argument(
+        "--scoring-mode",
+        default="substring_any",
+        choices=["substring_any", "first_line"],
+        help=(
+            "substring_any = legacy earliest-substring scorer over the full "
+            "generation; first_line = parse only the first non-empty line as "
+            "an exact/numeric choice."
+        ),
+    )
+    p.add_argument(
+        "--tool-name-mode",
+        default="original",
+        choices=["original", "opaque_local"],
+        help=(
+            "original = keep original tool names; opaque_local = replace the "
+            "10 candidate names in each prompt with Tool01..Tool10 while "
+            "preserving descriptions."
+        ),
+    )
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--dump-failures", action="store_true",
                    help="Save all failing samples (no_match / wrong choice) for dip analysis.")
+    p.add_argument(
+        "--sample-log-limit",
+        type=int,
+        default=50,
+        help=(
+            "Max number of sample records to store per method when "
+            "--dump-failures is enabled or when the run is already bounded."
+        ),
+    )
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
@@ -122,13 +161,40 @@ def resolve_dtype(name: str, dtype_arg: str) -> torch.dtype:
 # Prompt parsing and tool extraction
 # ---------------------------------------------------------------------
 
-CAND_RE = re.compile(r"\d+\.\s+tool name:\s+([A-Za-z0-9_\-\+\.]+)\s*,")
+CAND_RE = re.compile(
+    r"\d+\.\s+tool name:\s*(.*?)\s*,\s*tool description:",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 def parse_candidates(prompt: str) -> List[str]:
     """Pull the 10 candidate tool names out of the action_prompt's
     numbered list. Returns names in their original order."""
-    return CAND_RE.findall(prompt)
+    return [cand.strip() for cand in CAND_RE.findall(prompt)]
+
+
+def validate_candidate_rows(data: List[dict], expected_n: int = 10) -> Tuple[List[dict], List[dict]]:
+    """Drop rows whose candidate list cannot be parsed reliably.
+
+    The MetaTool prompts should contain exactly 10 candidate tools. If the
+    parser extracts fewer, scorer behavior becomes ambiguous or impossible for
+    some gold labels. Those rows are excluded and logged explicitly instead of
+    silently contaminating the accuracy.
+    """
+    valid = []
+    invalid = []
+    for entry in data:
+        cands = parse_candidates(entry["action_prompt"])
+        if len(cands) == expected_n:
+            valid.append(entry)
+            continue
+        invalid.append({
+            "index": entry.get("index"),
+            "gt": entry.get("tool"),
+            "n_candidates": len(cands),
+            "candidates": cands,
+        })
+    return valid, invalid
 
 
 def extract_choice(generation: str, candidates: List[str]) -> Optional[str]:
@@ -159,6 +225,148 @@ def extract_choice(generation: str, candidates: List[str]) -> Optional[str]:
     if none_pos >= 0:
         return "None"
     return None
+
+
+TOOL_LINE_RE = re.compile(
+    r"(\d+\.\s+tool name:\s*)(.*?)(\s*,\s*tool description:)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def normalize_choice_text(text: str) -> str:
+    text = text.strip()
+    text = re.sub(r"^[\-\*\u2022]+\s*", "", text)
+    text = text.strip().strip("`'\"")
+    text = re.sub(r"^\*+(.*?)\*+$", r"\1", text)
+    text = re.sub(r"^_+(.*?)_+$", r"\1", text)
+    text = re.sub(r"^\[(.*?)\]$", r"\1", text)
+    text = re.sub(r"^\((.*?)\)$", r"\1", text)
+    text = re.sub(r"^[Tt]ool\s*:\s*", "", text)
+    text = re.sub(r"^[Aa]nswer\s*:\s*", "", text)
+    text = re.sub(r"^[Ll]ine\s*\d+\s*:\s*", "", text)
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"[.,:;!?]+$", "", text)
+    return text.strip()
+
+
+def canonicalize_candidate_token(text: str) -> str:
+    norm = normalize_choice_text(text).lower()
+    m = re.fullmatch(r"tool\s*0*(\d+)", norm)
+    if m:
+        return f"tool{int(m.group(1)):02d}"
+    return norm
+
+
+def extract_choice_first_line(generation: str, candidates: List[str]) -> Optional[str]:
+    """Parse only the first non-empty line.
+
+    Accept either:
+    - exact candidate name (after normalization)
+    - integer index 1..N
+    - `tool: <name>`
+    """
+    if not generation:
+        return None
+
+    lead_lines: List[str] = []
+    for line in generation.splitlines():
+        stripped = line.strip()
+        if stripped:
+            lead_lines.append(stripped)
+        if len(lead_lines) >= 3:
+            break
+    if not lead_lines:
+        return None
+
+    prefix_patterns = [
+        r"^(?:the\s+best\s+tool\s+is|the\s+appropriate\s+tool\s+is|the\s+tool\s+is|answer\s+is|answer|tool)\s+(.+)$",
+        r"^(?:i\s+choose|i\s+pick|choose|my\s+choice\s+is)\s+(.+)$",
+    ]
+
+    def try_parse_line(line: str) -> Optional[str]:
+        norm = normalize_choice_text(line)
+        if not norm:
+            return None
+
+        m = re.fullmatch(r"(\d+)", norm)
+        if m:
+            idx = int(m.group(1)) - 1
+            if 0 <= idx < len(candidates):
+                return candidates[idx]
+            return None
+        m = re.fullmatch(r"(\d+)[\).:-]?", norm)
+        if m:
+            idx = int(m.group(1)) - 1
+            if 0 <= idx < len(candidates):
+                return candidates[idx]
+            return None
+
+        norm_low = norm.lower()
+        for pat in prefix_patterns:
+            m = re.match(pat, norm_low)
+            if m:
+                norm_low = m.group(1).strip()
+                break
+
+        norm_key = canonicalize_candidate_token(norm)
+        for cand in candidates:
+            cand_norm = normalize_choice_text(cand).lower()
+            cand_key = canonicalize_candidate_token(cand)
+            if cand_norm == norm_low or cand_key == norm_key:
+                return cand
+            if norm_low.startswith(cand_norm + " "):
+                return cand
+            if norm_low.startswith(cand_norm + " -"):
+                return cand
+            if norm_low.startswith(cand_norm + ":"):
+                return cand
+            if norm_key.startswith(cand_key + " "):
+                return cand
+            if norm_key.startswith(cand_key + " -"):
+                return cand
+            if norm_key.startswith(cand_key + ":"):
+                return cand
+
+        # Bounded fallback: accept a candidate mention only within the first
+        # few answer lines, not anywhere in the full explanation.
+        for cand in candidates:
+            cand_norm = normalize_choice_text(cand)
+            if re.search(rf"(?<![A-Za-z0-9]){re.escape(cand_norm)}(?![A-Za-z0-9])", norm, flags=re.IGNORECASE):
+                return cand
+
+        if norm_low == "none" or norm_low.startswith("none "):
+            return "None"
+        return None
+
+    for line in lead_lines:
+        choice = try_parse_line(line)
+        if choice is not None:
+            return choice
+    return None
+
+
+def maybe_opaque_entry(entry: dict, tool_name_mode: str) -> dict:
+    if tool_name_mode != "opaque_local":
+        return entry
+    prompt = entry["action_prompt"]
+    cands = parse_candidates(prompt)
+    if len(cands) != 10:
+        return entry
+    aliases = {cand: f"Tool{i+1:02d}" for i, cand in enumerate(cands)}
+    prompt_opaque = prompt
+    for cand in sorted(cands, key=len, reverse=True):
+        prompt_opaque = re.sub(
+            re.escape(cand),
+            aliases[cand],
+            prompt_opaque,
+        )
+    gt = entry["tool"]
+    gt_opaque = aliases.get(gt, gt)
+    new_entry = copy.deepcopy(entry)
+    new_entry["action_prompt"] = prompt_opaque
+    new_entry["tool"] = gt_opaque
+    new_entry["tool_alias_map"] = aliases
+    return new_entry
 
 
 # ---------------------------------------------------------------------
@@ -438,6 +646,13 @@ def run_method(
     kind, params = parse_method(method)
 
     def _generate_one(prompt: str) -> str:
+        if args.scoring_mode == "first_line":
+            prompt = (
+                prompt
+                + "\n\nReturn exactly two lines.\n"
+                  "Line 1: tool label only (either one candidate tool name or None).\n"
+                  "Line 2: brief explanation.\n"
+            )
         ids = tokenizer(prompt, return_tensors="pt").to(args.device)
         out = model.generate(
             **ids,
@@ -484,11 +699,15 @@ def run_method(
 
     with ctx:
         for entry in data:
-            prompt = entry["action_prompt"]
-            gt = entry["tool"]
+            entry_eval = maybe_opaque_entry(entry, args.tool_name_mode)
+            prompt = entry_eval["action_prompt"]
+            gt = entry_eval["tool"]
             cands = parse_candidates(prompt)
             generation = _generate_one(prompt)
-            choice = extract_choice(generation, cands)
+            if args.scoring_mode == "first_line":
+                choice = extract_choice_first_line(generation, cands)
+            else:
+                choice = extract_choice(generation, cands)
 
             is_none_query = (gt == "None")
             if is_none_query:
@@ -507,26 +726,35 @@ def run_method(
             else:
                 pred_counts["matched"] += 1
 
+            should_capture_examples = args.dump_failures or len(data) <= 50
             if args.verbose and len(sample_log) < 5:
-                sample_log.append({
-                    "index": entry.get("index"),
-                    "gt": gt,
-                    "cands": cands,
-                    "generation": generation[:200],
-                    "choice": choice,
-                })
-            elif args.dump_failures:
                 is_wrong = (not is_none_query) and (
                     choice is None or choice.lower() != gt.lower()
                 )
-                if is_wrong:
+                sample_log.append({
+                    "index": entry_eval.get("index"),
+                    "gt": gt,
+                    "cands": cands,
+                    "generation": generation[:300],
+                    "choice": choice,
+                    "is_wrong": is_wrong,
+                    "tool_name_mode": args.tool_name_mode,
+                    "scoring_mode": args.scoring_mode,
+                })
+            elif should_capture_examples and len(sample_log) < args.sample_log_limit:
+                is_wrong = (not is_none_query) and (
+                    choice is None or choice.lower() != gt.lower()
+                )
+                if is_wrong or len(data) <= 20:
                     sample_log.append({
-                        "index": entry.get("index"),
+                        "index": entry_eval.get("index"),
                         "gt": gt,
                         "cands": cands,
                         "generation": generation[:300],
                         "choice": choice,
                         "reason": "no_match" if choice is None else ("none_pred" if choice == "None" else "wrong_tool"),
+                        "tool_name_mode": args.tool_name_mode,
+                        "scoring_mode": args.scoring_mode,
                     })
 
     runtime = time.time() - t0
@@ -586,10 +814,22 @@ def main():
     print(f"[data] {args.dataset}", flush=True)
     with open(args.dataset) as f:
         data = json.load(f)
+    if args.shuffle_seed >= 0:
+        rng = random.Random(args.shuffle_seed)
+        rng.shuffle(data)
     start = max(0, args.start_idx)
     end = start + args.max_samples if args.max_samples > 0 else len(data)
     data = data[start:end]
     print(f"[data] {len(data)} queries (slice [{start}:{start+len(data)}])",
+          flush=True)
+    data, invalid_candidate_rows = validate_candidate_rows(data)
+    if invalid_candidate_rows:
+        print(
+            f"[data] dropped {len(invalid_candidate_rows)} rows with invalid "
+            f"candidate parsing",
+            flush=True,
+        )
+    print(f"[data] {len(data)} queries after candidate-parse validation",
           flush=True)
 
     # Load B_ont if needed
@@ -670,6 +910,17 @@ def main():
         "model": args.model,
         "dataset": args.dataset,
         "n_queries": len(data),
+        "start_idx": args.start_idx,
+        "shuffle_seed": args.shuffle_seed,
+        "max_new_tokens": args.max_new_tokens,
+        "seed": args.seed,
+        "scoring_mode": args.scoring_mode,
+        "tool_name_mode": args.tool_name_mode,
+        "candidate_parse": {
+            "expected_candidates": 10,
+            "dropped_rows": len(invalid_candidate_rows),
+            "dropped_examples": invalid_candidate_rows[:50],
+        },
         "methods": args.methods,
         "ocq": {
             "b_ont_path": args.b_ont,

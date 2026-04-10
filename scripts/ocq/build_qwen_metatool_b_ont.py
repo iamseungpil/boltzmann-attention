@@ -47,8 +47,9 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Reuse Phase 1.x ontology pipeline functions
-REPO = Path("/home/woori/workspace_common/boltzmann-attention")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "scripts"))
+_PREIMPORT_CUDA_VISIBLE_DEVICES = os.environ.get("CUDA_VISIBLE_DEVICES")
 
 # IMPORTANT: ontology_facet_basis.py sets CUDA_VISIBLE_DEVICES='1' on
 # import. We override with the user's --device after import.
@@ -60,7 +61,7 @@ DTYPE = torch.bfloat16
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="Qwen/Qwen2.5-7B")
-    parser.add_argument("--device", default="cuda:1")
+    parser.add_argument("--device", default="cuda:0")
     parser.add_argument(
         "--target-layers",
         default="all",
@@ -68,11 +69,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--ontology-json",
-        default=str(REPO / "reports" / "axis2_theoretical_verification" / "metatool_ontology.json"),
+        default=str(REPO / "reports" / "axis2_theoretical_verification" / "metatool_ontology_v2.json"),
     )
     parser.add_argument(
         "--out",
-        default=str(REPO / "external" / "SEKA" / "seka_projections" / "ontology-qwen25-7b-metatool" / "B_ont.pt"),
+        default=str(REPO / "results" / "ocq" / "ontology-qwen25-7b-metatool" / "B_ont.pt"),
     )
     parser.add_argument("--diag", default=str(
         REPO / "reports" / "axis2_theoretical_verification" / "build_qwen_metatool_b_ont.json"
@@ -110,6 +111,22 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
+def normalize_cuda_device(device: str) -> str:
+    """Map an explicit cuda index to a process-local device after setting
+    CUDA_VISIBLE_DEVICES.
+
+    ontology_facet_basis mutates CUDA visibility on import. For portability,
+    pin visibility here and then use the process-local index.
+    """
+    if not device.startswith("cuda:"):
+        return device
+    if _PREIMPORT_CUDA_VISIBLE_DEVICES:
+        return device
+    index = device.split(":", 1)[1]
+    os.environ["CUDA_VISIBLE_DEVICES"] = index
+    return "cuda:0"
+
+
 def parse_layers(spec: str, n_layers: int) -> List[int]:
     if spec == "all":
         return list(range(n_layers))
@@ -125,6 +142,7 @@ def parse_layers(spec: str, n_layers: int) -> List[int]:
 @torch.no_grad()
 def main():
     args = parse_args()
+    args.device = normalize_cuda_device(args.device)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     diag_path = Path(args.diag)

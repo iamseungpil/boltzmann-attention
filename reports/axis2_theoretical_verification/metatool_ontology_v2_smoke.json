@@ -1,0 +1,76 @@
+{
+  "facet_order": [
+    "function_action",
+    "io_type",
+    "domain",
+    "tool_category"
+  ],
+  "ontology": {
+    "function_action": {
+      "search": [
+        "The user wants to search something in this request: Can you find me relevant papers? This sentence is provided as one of several semantically related examples used to characterize the category.",
+        "In the following query, the core operation the user needs is to search. Query: Can you find me the most recent paper on [topic]? This sentence is provided as one of several semantically related examples used to characterize the category."
+      ],
+      "create": [
+        "The user wants to create something in this request: Can I generate bibtex bibliographies? This sentence is provided as one of several semantically related examples used to characterize the category.",
+        "In the following query, the core operation the user needs is to create. Query: Can you help me generate posts for my website? This sentence is provided as one of several semantically related examples used to characterize the category."
+      ]
+    },
+    "io_type": {
+      "image": [
+        "This request involves image content as the primary modality: Can you generate a comprehensive and visually-organized literature mindmap specifically for me, incorporating various relevant aspects and subtopics, pertaining to the field of robotics?",
+        "The input or output modality in this query is image. Full query: Is it possible to get a comprehensive analysis of the on-page SEO factors of a specific webpage using a particular keyword? I would like to specifically check the image alt text, header tags, and the frequency of the keyword occurrence throughout the page."
+      ],
+      "structured": [
+        "This request involves structured content as the primary modality: Provide me with research papers on unsupervised learning methods for anomaly detection in time series data. This sentence is provided as one of several semantically related examples used to characterize the category.",
+        "The input or output modality in this query is structured. Full query: Can you provide me with information, including numerical data, on the monthly average keyword search volume for a specific niche within a particular time period?"
+      ]
+    },
+    "domain": {
+      "research": [
+        "This query falls squarely in the research knowledge domain. Query: Can you find papers related to ML on a given topic? This sentence is provided as one of several semantically related examples used to characterize the category.",
+        "The topic of the following request is research. The user asked: Can you help me decipher a research paper using an Arxiv ID? This sentence is provided as one of several semantically related examples used to characterize the category."
+      ],
+      "productivity": [
+        "This query falls squarely in the productivity knowledge domain. Query: Can you help me automate my content marketing tasks? This sentence is provided as one of several semantically related examples used to characterize the category.",
+        "The topic of the following request is productivity. The user asked: I need help optimizing my website for search engines. Can you assist me with SEO tasks? This sentence is provided as one of several semantically related examples used to characterize the category."
+      ]
+    },
+    "tool_category": {
+      "ProductSearch": [
+        "For the following user query, the appropriate tool to route to is ProductSearch. Query: Can you assist me by conducting a thorough search to find startups that are currently available for sale in the market?",
+        "This request should be routed to the ProductSearch API. The user wrote: I'm looking to buy a startup in the tech industry that specializes in software development or artificial intelligence. Can you provide me with some established, profitable options with a strong customer base and potential for growth?"
+      ],
+      "FinanceTool": [
+        "For the following user query, the appropriate tool to route to is FinanceTool. Query: What are the current crypto metrics? This sentence is provided as one of several semantically related examples used to characterize the category.",
+        "This request should be routed to the FinanceTool API. The user wrote: Are there any news or fundamentals for options? This sentence is provided as one of several semantically related examples used to characterize the category."
+      ]
+    }
+  },
+  "facet_counts": {
+    "function_action": 2,
+    "io_type": 2,
+    "domain": 2,
+    "tool_category": 2
+  },
+  "sentences_per_category_median": {
+    "function_action": 2,
+    "io_type": 2,
+    "domain": 2,
+    "tool_category": 2
+  },
+  "sentence_token_median": {
+    "function_action": 39,
+    "io_type": 41,
+    "domain": 39,
+    "tool_category": 36
+  },
+  "top_tool_categories": [
+    "FinanceTool",
+    "ProductSearch"
+  ],
+  "n_queries_total": 20614,
+  "n_queries_used_total": 16,
+  "source": "MetaTool all_clean_data.csv (exclusive facet assignment, template-rotated)",
+  "builder_version": "v2"
+}

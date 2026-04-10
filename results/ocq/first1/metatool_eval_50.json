@@ -1,0 +1,68 @@
+{
+  "model": "Qwen/Qwen2.5-7B",
+  "dataset": "external/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 50,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.3",
+    "ocq_facet_gated_a1.0"
+  ],
+  "ocq": {
+    "b_ont_path": "results/ocq/first1/B_ont_first1_full.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 50,
+      "top1_correct": 35,
+      "top1_accuracy": 0.7,
+      "tool_queries": 50,
+      "tool_accuracy": 0.7,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 48,
+        "no_match": 1,
+        "none_pred": 1
+      },
+      "runtime_s": 28.36862826347351,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_queries": 50,
+      "top1_correct": 40,
+      "top1_accuracy": 0.8,
+      "tool_queries": 50,
+      "tool_accuracy": 0.8,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 49,
+        "no_match": 1,
+        "none_pred": 0
+      },
+      "runtime_s": 45.12330460548401,
+      "samples": []
+    },
+    {
+      "method": "ocq_facet_gated_a1.0",
+      "n_queries": 50,
+      "top1_correct": 31,
+      "top1_accuracy": 0.62,
+      "tool_queries": 50,
+      "tool_accuracy": 0.62,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 40,
+        "no_match": 5,
+        "none_pred": 5
+      },
+      "runtime_s": 72.4783124923706,
+      "samples": []
+    }
+  ]
+}

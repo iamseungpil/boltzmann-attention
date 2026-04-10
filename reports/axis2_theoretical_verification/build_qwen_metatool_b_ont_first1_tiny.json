@@ -1,0 +1,18 @@
+{
+  "model": "Qwen/Qwen2.5-7B",
+  "target_layers": [
+    0
+  ],
+  "facet_order": [
+    "function_action",
+    "io_type",
+    "domain",
+    "tool_category"
+  ],
+  "n_pairs_built": 4,
+  "r_min": 7,
+  "r_max": 7,
+  "r_median": 7,
+  "n_skipped": 0,
+  "out_path": "results/ocq/smoke/B_ont_first1_tiny.pt"
+}

@@ -1,0 +1,1342 @@
+{
+  "model": "Qwen/Qwen2.5-7B",
+  "dataset": "external/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 20,
+  "start_idx": 0,
+  "shuffle_seed": 13,
+  "max_new_tokens": 12,
+  "seed": 0,
+  "scoring_mode": "first_line",
+  "tool_name_mode": "original",
+  "candidate_parse": {
+    "expected_candidates": 10,
+    "dropped_rows": 0,
+    "dropped_examples": []
+  },
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.2",
+    "ocq_bias_a0.3"
+  ],
+  "ocq": {
+    "b_ont_path": "results/ocq/cross_model/qwen25_7b_B_ont_first1.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 20,
+      "top1_correct": 6,
+      "top1_accuracy": 0.3,
+      "tool_queries": 20,
+      "tool_accuracy": 0.3,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 7,
+        "no_match": 11,
+        "none_pred": 2
+      },
+      "runtime_s": 9.239068984985352,
+      "samples": [
+        {
+          "index": 657,
+          "gt": "buildbetter",
+          "cands": [
+            "buildbetter",
+            "Zapier",
+            "speak",
+            "web_requests",
+            "heygen",
+            "Planfit",
+            "search",
+            "MixerBox_Translate_AI_language_tutor",
+            "talkfpl",
+            "clinq"
+          ],
+          "generation": "Line 3: None.\nLine 4: The user",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 705,
+          "gt": "Algorithma",
+          "cands": [
+            "Algorithma",
+            "timeport",
+            "Chess",
+            "Sudoku",
+            "AppyPieAIAppBuilder",
+            "storybird_stories",
+            "assetOvi",
+            "search",
+            "photorealistic",
+            "Checkers"
+          ],
+          "generation": "tool: Algorithma\nAlgorithma is an immersive",
+          "choice": "Algorithma",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 100,
+          "gt": "talkfpl",
+          "cands": [
+            "talkfpl",
+            "RoboAd",
+            "portfoliopilot",
+            "seoanalysis",
+            "ai_council",
+            "speak",
+            "MixerBox_Translate_AI_language_tutor",
+            "lsongai",
+            "Planfit",
+            "PolishTool"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to solve",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 347,
+          "gt": "ArtCollection",
+          "cands": [
+            "ArtCollection",
+            "assetOvi",
+            "Broadway",
+            "NASATool",
+            "GifApi",
+            "ResearchFinder",
+            "Man_of_Many",
+            "stellarexplorer",
+            "total_query_meta_search_engine",
+            "MusicTool"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to use",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 524,
+          "gt": "find_agency",
+          "cands": [
+            "find_agency",
+            "TalentOrg",
+            "local",
+            "search",
+            "JobTool",
+            "chatspot",
+            "placid",
+            "seoanalysis",
+            "NewsTool",
+            "TripTool"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to solve",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 116,
+          "gt": "video_highlight",
+          "cands": [
+            "video_highlight",
+            "VideoSummarizeTool",
+            "MusicTool",
+            "jini",
+            "SummarizeAnything_pr",
+            "MediaTool",
+            "NASATool",
+            "BookTool",
+            "metaphor_search_api",
+            "what_to_watch"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to use",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 457,
+          "gt": "chatspot",
+          "cands": [
+            "chatspot",
+            "bramework",
+            "seoanalysis",
+            "SEOTool",
+            "clearbit_integration",
+            "brandfetch",
+            "website_performance_insights",
+            "URLTool",
+            "CompanyInfoTool",
+            "keywordexplorer"
+          ],
+          "generation": "Based on the user's query, the most appropriate tool to",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 68,
+          "gt": "MyWritingCompanion",
+          "cands": [
+            "MyWritingCompanion",
+            "PolishTool",
+            "TalentOrg",
+            "WebsiteTool",
+            "wpinteract",
+            "copywriter",
+            "seoanalysis",
+            "ResumeTool",
+            "JobTool",
+            "storybird_stories"
+          ],
+          "generation": "Line 1: MyWritingCompanion\nLine 2",
+          "choice": "MyWritingCompanion",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 320,
+          "gt": "hdbcarpark",
+          "cands": [
+            "hdbcarpark",
+            "HouseRentingTool",
+            "RestaurantBookingTool",
+            "themeparkhipster",
+            "SASpeedCameras",
+            "CarYardBard",
+            "HousePurchasingTool",
+            "TripTool",
+            "AusPetrolPrices",
+            "ShoppingAssistant"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to solve",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 64,
+          "gt": "Broadway",
+          "cands": [
+            "Broadway",
+            "what_to_watch",
+            "ArtCollection",
+            "smarttsicketsai",
+            "themeparkhipster",
+            "MusicTool",
+            "MediaTool",
+            "PodcastTool",
+            "local",
+            "ProductSearch"
+          ],
+          "generation": "Line 1: Broadway\nLine 2: The Broadway",
+          "choice": "Broadway",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 810,
+          "gt": "MemoryTool",
+          "cands": [
+            "MemoryTool",
+            "ResearchHelper",
+            "NotesTool",
+            "DataRetrievalTool",
+            "Puzzle_Constructor",
+            "Dr_Thoths_Tarot",
+            "BookTool",
+            "CribbageScorer",
+            "Glowing",
+            "CourseTool"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to solve",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 373,
+          "gt": "Planfit",
+          "cands": [
+            "Planfit",
+            "RoboAd",
+            "PolishTool",
+            "search",
+            "heygen",
+            "ProductSearch",
+            "speak",
+            "talkfpl",
+            "portfoliopilot",
+            "Glowing"
+          ],
+          "generation": "Line 1: Planfit\nLine 2: Plan",
+          "choice": "Planfit",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 336,
+          "gt": "reflect_notes",
+          "cands": [
+            "reflect_notes",
+            "noteable",
+            "chat_with_workspace",
+            "NotesTool",
+            "storybird_stories",
+            "create_qr_code",
+            "MemoryTool",
+            "PDF_Exporter",
+            "MemeTool",
+            "ResumeTool"
+          ],
+          "generation": "Line 1: reflect_notes\nLine 2: Creates",
+          "choice": "reflect_notes",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 309,
+          "gt": "qreator",
+          "cands": [
+            "qreator",
+            "create_qr_code",
+            "ShoppingAssistant",
+            "universal",
+            "themeparkhipster",
+            "MemeTool",
+            "timemachine",
+            "Visla",
+            "WebRewind",
+            "PDF_Exporter"
+          ],
+          "generation": "Line 1: create_qr_code\nLine  ",
+          "choice": "create_qr_code",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 427,
+          "gt": "hacktrack",
+          "cands": [
+            "hacktrack",
+            "EmailByNylas",
+            "hackit_web_scanner",
+            "SEOTool",
+            "clearbit_integration",
+            "chatspot",
+            "cloudflare_radar",
+            "dover_outreach",
+            "Substack_IQ",
+            "ResearchFinder"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to check",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 843,
+          "gt": "ResumeTool",
+          "cands": [
+            "ResumeTool",
+            "JobTool",
+            "dover_outreach",
+            "WebsiteTool",
+            "search",
+            "PolishTool",
+            "form",
+            "storybird_stories",
+            "SummarizeAnything_pr",
+            "ProductSearch"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to use",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 579,
+          "gt": "decision_journal",
+          "cands": [
+            "decision_journal",
+            "ProductComparison",
+            "mini_habits",
+            "Review",
+            "kraftful",
+            "ResumeTool",
+            "portfoliopilot",
+            "NotesTool",
+            "talkfpl",
+            "DietTool"
+          ],
+          "generation": "Line 3: None.\nLine 4: None.\n",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 612,
+          "gt": "hubbubworld_hubbub_1",
+          "cands": [
+            "hubbubworld_hubbub_1",
+            "airqualityforeast",
+            "clinical_trial_radar",
+            "NewsTool",
+            "IndoorPlants",
+            "blockatlas",
+            "local",
+            "haulingbuddies",
+            "WeatherTool",
+            "what_to_watch"
+          ],
+          "generation": "Line 3: None. There isn't no tool that",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 572,
+          "gt": "dev",
+          "cands": [
+            "dev",
+            "GameTool",
+            "wpinteract",
+            "MediaTool",
+            "ProductSearch",
+            "kraftful",
+            "GiftTool",
+            "TalentOrg",
+            "metaphor_search_api",
+            "shimmer_daily"
+          ],
+          "generation": "tool: dev\nExplanation: The user's query is about",
+          "choice": "dev",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 365,
+          "gt": "AusSurfReport",
+          "cands": [
+            "AusSurfReport",
+            "SASpeedCameras",
+            "WeatherTool",
+            "AusPetrolPrices",
+            "airqualityforeast",
+            "EarthquakeTool",
+            "themeparkhipster",
+            "NewsTool",
+            "what_to_watch",
+            "C3_Glide"
+          ],
+          "generation": "Line 3: None. The tool \"AusSurf",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.2",
+      "n_queries": 20,
+      "top1_correct": 5,
+      "top1_accuracy": 0.25,
+      "tool_queries": 20,
+      "tool_accuracy": 0.25,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 6,
+        "no_match": 12,
+        "none_pred": 2
+      },
+      "runtime_s": 10.412615537643433,
+      "samples": [
+        {
+          "index": 657,
+          "gt": "buildbetter",
+          "cands": [
+            "buildbetter",
+            "Zapier",
+            "speak",
+            "web_requests",
+            "heygen",
+            "Planfit",
+            "search",
+            "MixerBox_Translate_AI_language_tutor",
+            "talkfpl",
+            "clinq"
+          ],
+          "generation": "Line 1: None\nLine 2: The user",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 705,
+          "gt": "Algorithma",
+          "cands": [
+            "Algorithma",
+            "timeport",
+            "Chess",
+            "Sudoku",
+            "AppyPieAIAppBuilder",
+            "storybird_stories",
+            "assetOvi",
+            "search",
+            "photorealistic",
+            "Checkers"
+          ],
+          "generation": "The tool that can be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 100,
+          "gt": "talkfpl",
+          "cands": [
+            "talkfpl",
+            "RoboAd",
+            "portfoliopilot",
+            "seoanalysis",
+            "ai_council",
+            "speak",
+            "MixerBox_Translate_AI_language_tutor",
+            "lsongai",
+            "Planfit",
+            "PolishTool"
+          ],
+          "generation": "The tool that should be used is: talkfpl.",
+          "choice": "talkfpl",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 347,
+          "gt": "ArtCollection",
+          "cands": [
+            "ArtCollection",
+            "assetOvi",
+            "Broadway",
+            "NASATool",
+            "GifApi",
+            "ResearchFinder",
+            "Man_of_Many",
+            "stellarexplorer",
+            "total_query_meta_search_engine",
+            "MusicTool"
+          ],
+          "generation": "The tool that can be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 524,
+          "gt": "find_agency",
+          "cands": [
+            "find_agency",
+            "TalentOrg",
+            "local",
+            "search",
+            "JobTool",
+            "chatspot",
+            "placid",
+            "seoanalysis",
+            "NewsTool",
+            "TripTool"
+          ],
+          "generation": "The tool to use is: find_agency.\n\nExplanation:",
+          "choice": "find_agency",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 116,
+          "gt": "video_highlight",
+          "cands": [
+            "video_highlight",
+            "VideoSummarizeTool",
+            "MusicTool",
+            "jini",
+            "SummarizeAnything_pr",
+            "MediaTool",
+            "NASATool",
+            "BookTool",
+            "metaphor_search_api",
+            "what_to_watch"
+          ],
+          "generation": "The tool that can be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 457,
+          "gt": "chatspot",
+          "cands": [
+            "chatspot",
+            "bramework",
+            "seoanalysis",
+            "SEOTool",
+            "clearbit_integration",
+            "brandfetch",
+            "website_performance_insights",
+            "URLTool",
+            "CompanyInfoTool",
+            "keywordexplorer"
+          ],
+          "generation": "tool: keywordexplorer\n\nExplanation: The keywordexplorer",
+          "choice": "keywordexplorer",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 68,
+          "gt": "MyWritingCompanion",
+          "cands": [
+            "MyWritingCompanion",
+            "PolishTool",
+            "TalentOrg",
+            "WebsiteTool",
+            "wpinteract",
+            "copywriter",
+            "seoanalysis",
+            "ResumeTool",
+            "JobTool",
+            "storybird_stories"
+          ],
+          "generation": "The tool name is MyWritingCompanion.\n\nThe brief explanation",
+          "choice": "MyWritingCompanion",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 320,
+          "gt": "hdbcarpark",
+          "cands": [
+            "hdbcarpark",
+            "HouseRentingTool",
+            "RestaurantBookingTool",
+            "themeparkhipster",
+            "SASpeedCameras",
+            "CarYardBard",
+            "HousePurchasingTool",
+            "TripTool",
+            "AusPetrolPrices",
+            "ShoppingAssistant"
+          ],
+          "generation": "The tool that can be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 64,
+          "gt": "Broadway",
+          "cands": [
+            "Broadway",
+            "what_to_watch",
+            "ArtCollection",
+            "smarttsicketsai",
+            "themeparkhipster",
+            "MusicTool",
+            "MediaTool",
+            "PodcastTool",
+            "local",
+            "ProductSearch"
+          ],
+          "generation": "The tool that is applicable to this query is Broadway. This",
+          "choice": "Broadway",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 810,
+          "gt": "MemoryTool",
+          "cands": [
+            "MemoryTool",
+            "ResearchHelper",
+            "NotesTool",
+            "DataRetrievalTool",
+            "Puzzle_Constructor",
+            "Dr_Thoths_Tarot",
+            "BookTool",
+            "CribbageScorer",
+            "Glowing",
+            "CourseTool"
+          ],
+          "generation": "The tool that can be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 373,
+          "gt": "Planfit",
+          "cands": [
+            "Planfit",
+            "RoboAd",
+            "PolishTool",
+            "search",
+            "heygen",
+            "ProductSearch",
+            "speak",
+            "talkfpl",
+            "portfoliopilot",
+            "Glowing"
+          ],
+          "generation": "None\nThe user's query is about finding a workout plan",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 336,
+          "gt": "reflect_notes",
+          "cands": [
+            "reflect_notes",
+            "noteable",
+            "chat_with_workspace",
+            "NotesTool",
+            "storybird_stories",
+            "create_qr_code",
+            "MemoryTool",
+            "PDF_Exporter",
+            "MemeTool",
+            "ResumeTool"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to solve",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 309,
+          "gt": "qreator",
+          "cands": [
+            "qreator",
+            "create_qr_code",
+            "ShoppingAssistant",
+            "universal",
+            "themeparkhipster",
+            "MemeTool",
+            "timemachine",
+            "Visla",
+            "WebRewind",
+            "PDF_Exporter"
+          ],
+          "generation": "The tool that can be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 427,
+          "gt": "hacktrack",
+          "cands": [
+            "hacktrack",
+            "EmailByNylas",
+            "hackit_web_scanner",
+            "SEOTool",
+            "clearbit_integration",
+            "chatspot",
+            "cloudflare_radar",
+            "dover_outreach",
+            "Substack_IQ",
+            "ResearchFinder"
+          ],
+          "generation": "The tool to use is: hacktrack.\n\nExplanation: The",
+          "choice": "hacktrack",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 843,
+          "gt": "ResumeTool",
+          "cands": [
+            "ResumeTool",
+            "JobTool",
+            "dover_outreach",
+            "WebsiteTool",
+            "search",
+            "PolishTool",
+            "form",
+            "storybird_stories",
+            "SummarizeAnything_pr",
+            "ProductSearch"
+          ],
+          "generation": "None. The user's query is not directly related to any",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 579,
+          "gt": "decision_journal",
+          "cands": [
+            "decision_journal",
+            "ProductComparison",
+            "mini_habits",
+            "Review",
+            "kraftful",
+            "ResumeTool",
+            "portfoliopilot",
+            "NotesTool",
+            "talkfpl",
+            "DietTool"
+          ],
+          "generation": "The tool that can be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 612,
+          "gt": "hubbubworld_hubbub_1",
+          "cands": [
+            "hubbubworld_hubbub_1",
+            "airqualityforeast",
+            "clinical_trial_radar",
+            "NewsTool",
+            "IndoorPlants",
+            "blockatlas",
+            "local",
+            "haulingbuddies",
+            "WeatherTool",
+            "what_to_watch"
+          ],
+          "generation": "The tool that is applicable to this query is hubbub",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 572,
+          "gt": "dev",
+          "cands": [
+            "dev",
+            "GameTool",
+            "wpinteract",
+            "MediaTool",
+            "ProductSearch",
+            "kraftful",
+            "GiftTool",
+            "TalentOrg",
+            "metaphor_search_api",
+            "shimmer_daily"
+          ],
+          "generation": "The tool that can can be used to solve the user's",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 365,
+          "gt": "AusSurfReport",
+          "cands": [
+            "AusSurfReport",
+            "SASpeedCameras",
+            "WeatherTool",
+            "AusPetrolPrices",
+            "airqualityforeast",
+            "EarthquakeTool",
+            "themeparkhipster",
+            "NewsTool",
+            "what_to_watch",
+            "C3_Glide"
+          ],
+          "generation": "The tool that should be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_queries": 20,
+      "top1_correct": 8,
+      "top1_accuracy": 0.4,
+      "tool_queries": 20,
+      "tool_accuracy": 0.4,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 10,
+        "no_match": 7,
+        "none_pred": 3
+      },
+      "runtime_s": 10.313185930252075,
+      "samples": [
+        {
+          "index": 657,
+          "gt": "buildbetter",
+          "cands": [
+            "buildbetter",
+            "Zapier",
+            "speak",
+            "web_requests",
+            "heygen",
+            "Planfit",
+            "search",
+            "MixerBox_Translate_AI_language_tutor",
+            "talkfpl",
+            "clinq"
+          ],
+          "generation": "Line 1: None\nLine 2: The user",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 705,
+          "gt": "Algorithma",
+          "cands": [
+            "Algorithma",
+            "timeport",
+            "Chess",
+            "Sudoku",
+            "AppyPieAIAppBuilder",
+            "storybird_stories",
+            "assetOvi",
+            "search",
+            "photorealistic",
+            "Checkers"
+          ],
+          "generation": "None\nThe user's query is about role-playing in a",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 100,
+          "gt": "talkfpl",
+          "cands": [
+            "talkfpl",
+            "RoboAd",
+            "portfoliopilot",
+            "seoanalysis",
+            "ai_council",
+            "speak",
+            "MixerBox_Translate_AI_language_tutor",
+            "lsongai",
+            "Planfit",
+            "PolishTool"
+          ],
+          "generation": "tool label only (either one candidate tool name or None).\n",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 347,
+          "gt": "ArtCollection",
+          "cands": [
+            "ArtCollection",
+            "assetOvi",
+            "Broadway",
+            "NASATool",
+            "GifApi",
+            "ResearchFinder",
+            "Man_of_Many",
+            "stellarexplorer",
+            "total_query_meta_search_engine",
+            "MusicTool"
+          ],
+          "generation": "Line 1: ArtCollection\nLine 2: Art",
+          "choice": "ArtCollection",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 524,
+          "gt": "find_agency",
+          "cands": [
+            "find_agency",
+            "TalentOrg",
+            "local",
+            "search",
+            "JobTool",
+            "chatspot",
+            "placid",
+            "seoanalysis",
+            "NewsTool",
+            "TripTool"
+          ],
+          "generation": "Line 1: find_agency\nLine 2:",
+          "choice": "find_agency",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 116,
+          "gt": "video_highlight",
+          "cands": [
+            "video_highlight",
+            "VideoSummarizeTool",
+            "MusicTool",
+            "jini",
+            "SummarizeAnything_pr",
+            "MediaTool",
+            "NASATool",
+            "BookTool",
+            "metaphor_search_api",
+            "what_to_watch"
+          ],
+          "generation": "The tool that can be used to solve the user's query",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 457,
+          "gt": "chatspot",
+          "cands": [
+            "chatspot",
+            "bramework",
+            "seoanalysis",
+            "SEOTool",
+            "clearbit_integration",
+            "brandfetch",
+            "website_performance_insights",
+            "URLTool",
+            "CompanyInfoTool",
+            "keywordexplorer"
+          ],
+          "generation": "Based on the user's query, the most most appropriate tool",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 68,
+          "gt": "MyWritingCompanion",
+          "cands": [
+            "MyWritingCompanion",
+            "PolishTool",
+            "TalentOrg",
+            "WebsiteTool",
+            "wpinteract",
+            "copywriter",
+            "seoanalysis",
+            "ResumeTool",
+            "JobTool",
+            "storybird_stories"
+          ],
+          "generation": "Line 1: MyWriteCompanion\nLine 2",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 320,
+          "gt": "hdbcarpark",
+          "cands": [
+            "hdbcarpark",
+            "HouseRentingTool",
+            "RestaurantBookingTool",
+            "themeparkhipster",
+            "SASpeedCameras",
+            "CarYardBard",
+            "HousePurchasingTool",
+            "TripTool",
+            "AusPetrolPrices",
+            "ShoppingAssistant"
+          ],
+          "generation": "The tool that is applicable to this query is hdbcar",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 64,
+          "gt": "Broadway",
+          "cands": [
+            "Broadway",
+            "what_to_watch",
+            "ArtCollection",
+            "smarttsicketsai",
+            "themeparkhipster",
+            "MusicTool",
+            "MediaTool",
+            "PodcastTool",
+            "local",
+            "ProductSearch"
+          ],
+          "generation": "tool: Broadway\nExplanation: The Broadway tool is specifically designed",
+          "choice": "Broadway",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 810,
+          "gt": "MemoryTool",
+          "cands": [
+            "MemoryTool",
+            "ResearchHelper",
+            "NotesTool",
+            "DataRetrievalTool",
+            "Puzzle_Constructor",
+            "Dr_Thoths_Tarot",
+            "BookTool",
+            "CribbageScorer",
+            "Glowing",
+            "CourseTool"
+          ],
+          "generation": "None. The user's query is not related to any of",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 373,
+          "gt": "Planfit",
+          "cands": [
+            "Planfit",
+            "RoboAd",
+            "PolishTool",
+            "search",
+            "heygen",
+            "ProductSearch",
+            "speak",
+            "talkfpl",
+            "portfoliopilot",
+            "Glowing"
+          ],
+          "generation": "tool: Planfit\nLine 2: Planfit is",
+          "choice": "Planfit",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 336,
+          "gt": "reflect_notes",
+          "cands": [
+            "reflect_notes",
+            "noteable",
+            "chat_with_workspace",
+            "NotesTool",
+            "storybird_stories",
+            "create_qr_code",
+            "MemoryTool",
+            "PDF_Exporter",
+            "MemeTool",
+            "ResumeTool"
+          ],
+          "generation": "Line 2 should be a short description of why you think",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 309,
+          "gt": "qreator",
+          "cands": [
+            "qreator",
+            "create_qr_code",
+            "ShoppingAssistant",
+            "universal",
+            "themeparkhipster",
+            "MemeTool",
+            "timemachine",
+            "Visla",
+            "WebRewind",
+            "PDF_Exporter"
+          ],
+          "generation": "The tool label is: create_qr_code\nThe brief",
+          "choice": "create_qr_code",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 427,
+          "gt": "hacktrack",
+          "cands": [
+            "hacktrack",
+            "EmailByNylas",
+            "hackit_web_scanner",
+            "SEOTool",
+            "clearbit_integration",
+            "chatspot",
+            "cloudflare_radar",
+            "dover_outreach",
+            "Substack_IQ",
+            "ResearchFinder"
+          ],
+          "generation": "The tool to use is: hacktrack. This tool checks",
+          "choice": "hacktrack",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 843,
+          "gt": "ResumeTool",
+          "cands": [
+            "ResumeTool",
+            "JobTool",
+            "dover_outreach",
+            "WebsiteTool",
+            "search",
+            "PolishTool",
+            "form",
+            "storybird_stories",
+            "SummarizeAnything_pr",
+            "ProductSearch"
+          ],
+          "generation": "Line 1: ResumeTool\nLine 2: Resume",
+          "choice": "ResumeTool",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 579,
+          "gt": "decision_journal",
+          "cands": [
+            "decision_journal",
+            "ProductComparison",
+            "mini_habits",
+            "Review",
+            "kraftful",
+            "ResumeTool",
+            "portfoliopilot",
+            "NotesTool",
+            "talkfpl",
+            "DietTool"
+          ],
+          "generation": "The tool label is: DietTool. The brief explanation is",
+          "choice": "DietTool",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 612,
+          "gt": "hubbubworld_hubbub_1",
+          "cands": [
+            "hubbubworld_hubbub_1",
+            "airqualityforeast",
+            "clinical_trial_radar",
+            "NewsTool",
+            "IndoorPlants",
+            "blockatlas",
+            "local",
+            "haulingbuddies",
+            "WeatherTool",
+            "what_to_watch"
+          ],
+          "generation": "Line 1: None\nLine 2: None\n",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 572,
+          "gt": "dev",
+          "cands": [
+            "dev",
+            "GameTool",
+            "wpinteract",
+            "MediaTool",
+            "ProductSearch",
+            "kraftful",
+            "GiftTool",
+            "TalentOrg",
+            "metaphor_search_api",
+            "shimmer_daily"
+          ],
+          "generation": "tool: dev\nExplanation: The user's query is about",
+          "choice": "dev",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 365,
+          "gt": "AusSurfReport",
+          "cands": [
+            "AusSurfReport",
+            "SASpeedCameras",
+            "WeatherTool",
+            "AusPetrolPrices",
+            "airqualityforeast",
+            "EarthquakeTool",
+            "themeparkhipster",
+            "NewsTool",
+            "what_to_watch",
+            "C3_Glide"
+          ],
+          "generation": "Line 1: AusSurfReport\nLine 2",
+          "choice": "AusSurfReport",
+          "reason": "wrong_tool",
+          "tool_name_mode": "original",
+          "scoring_mode": "first_line"
+        }
+      ]
+    }
+  ]
+}

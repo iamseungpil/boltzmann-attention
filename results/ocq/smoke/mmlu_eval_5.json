@@ -1,0 +1,64 @@
+{
+  "model": "Qwen/Qwen2.5-7B",
+  "mmlu_config": "all",
+  "n_samples": 5,
+  "n_shot": 1,
+  "seed": 42,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.3",
+    "ocq_facet_gated_a1.0"
+  ],
+  "b_ont_path": "results/ocq/smoke/B_ont_first1_tiny.pt",
+  "results": [
+    {
+      "method": "no_steer",
+      "n_samples": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "runtime_s": 0.6672372817993164,
+      "per_subject_accuracy": {
+        "professional_law": 0.0,
+        "prehistory": 1.0,
+        "miscellaneous": 1.0,
+        "high_school_geography": 1.0,
+        "public_relations": 1.0
+      }
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_samples": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "runtime_s": 0.47928810119628906,
+      "per_subject_accuracy": {
+        "professional_law": 0.0,
+        "prehistory": 1.0,
+        "miscellaneous": 1.0,
+        "high_school_geography": 1.0,
+        "public_relations": 1.0
+      }
+    },
+    {
+      "method": "ocq_facet_gated_a1.0",
+      "n_samples": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "runtime_s": 0.7679557800292969,
+      "per_subject_accuracy": {
+        "professional_law": 0.0,
+        "prehistory": 1.0,
+        "miscellaneous": 1.0,
+        "high_school_geography": 1.0,
+        "public_relations": 1.0
+      }
+    }
+  ],
+  "cor67_checks": [
+    {
+      "method": "ocq_facet_gated_a1.0",
+      "delta_pp": 0.0,
+      "within_0.5pp": true
+    }
+  ]
+}

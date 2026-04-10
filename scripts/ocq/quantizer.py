@@ -403,7 +403,9 @@ def ocq_quantize(
 
 import os
 import sys as _sys
-_PRIOR_PATH = "/home/woori/workspace_common/boltzmann-attention/math/experiment"
+from pathlib import Path as _Path
+
+_PRIOR_PATH = str(_Path(__file__).resolve().parents[2] / "math" / "experiment")
 if _PRIOR_PATH not in _sys.path:
     _sys.path.insert(0, _PRIOR_PATH)
 try:

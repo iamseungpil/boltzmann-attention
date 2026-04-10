@@ -78,7 +78,9 @@ theorem hazard does not apply.
 from __future__ import annotations
 
 import csv
+import argparse
 import json
+import os
 import re
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -87,13 +89,13 @@ from pathlib import Path
 # Sources and outputs
 # ---------------------------------------------------------------------
 
-METATOOL_DIR = Path("/tmp/MetaTool/dataset")
+REPO = Path(__file__).resolve().parents[2]
+METATOOL_DIR = Path(
+    os.environ.get("METATOOL_DIR", str(REPO / "external" / "MetaTool" / "dataset"))
+)
 QUERIES_CSV = METATOOL_DIR / "data" / "all_clean_data.csv"
 
-OUT_DIR = Path(
-    "/home/woori/workspace_common/boltzmann-attention/reports/"
-    "axis2_theoretical_verification"
-)
+OUT_DIR = REPO / "reports" / "axis2_theoretical_verification"
 OUT_PATH = OUT_DIR / "metatool_ontology_v2.json"
 
 N_SENTENCES_PER_CAT = 30
@@ -262,13 +264,37 @@ def load_queries() -> list[tuple[str, str]]:
     return queries
 
 
-def build_ontology_v2(n_per_cat: int = N_SENTENCES_PER_CAT) -> tuple[dict, dict]:
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--n-per-cat", type=int, default=N_SENTENCES_PER_CAT)
+    parser.add_argument("--top-k-tool-categories", type=int, default=TOP_K_TOOL_CATEGORIES)
+    parser.add_argument(
+        "--max-categories-per-facet",
+        type=int,
+        default=0,
+        help="If > 0, keep only the first N categories per facet after construction. "
+             "Useful for smoke tests.",
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=OUT_PATH,
+        help="Output JSON path.",
+    )
+    return parser.parse_args()
+
+
+def build_ontology_v2(
+    n_per_cat: int = N_SENTENCES_PER_CAT,
+    top_k_tool_categories: int = TOP_K_TOOL_CATEGORIES,
+    max_categories_per_facet: int = 0,
+) -> tuple[dict, dict]:
     queries = load_queries()
     assert queries, "no queries loaded"
 
     # Select top-K tool categories by real query count (bug 6 fix).
     tc_counts = Counter(t for _, t in queries)
-    top_tc = [t for t, _ in tc_counts.most_common(TOP_K_TOOL_CATEGORIES)]
+    top_tc = [t for t, _ in tc_counts.most_common(top_k_tool_categories)]
 
     # ---- exclusive assignment (bug 2 fix) ----
     # For each query, compute candidate (facet, category) under each
@@ -328,6 +354,10 @@ def build_ontology_v2(n_per_cat: int = N_SENTENCES_PER_CAT) -> tuple[dict, dict]
 
             ontology[facet][cat] = sentences
 
+        if max_categories_per_facet > 0:
+            trimmed_items = list(ontology[facet].items())[:max_categories_per_facet]
+            ontology[facet] = dict(trimmed_items)
+
     # ---- stats ----
     stats = {
         "facet_order": FACET_ORDER,
@@ -356,9 +386,14 @@ def build_ontology_v2(n_per_cat: int = N_SENTENCES_PER_CAT) -> tuple[dict, dict]
 
 
 def main():
-    ontology, stats = build_ontology_v2()
+    args = parse_args()
+    ontology, stats = build_ontology_v2(
+        n_per_cat=args.n_per_cat,
+        top_k_tool_categories=args.top_k_tool_categories,
+        max_categories_per_facet=args.max_categories_per_facet,
+    )
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    args.out.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "facet_order": FACET_ORDER,
         "ontology": ontology,
@@ -371,7 +406,7 @@ def main():
         "source": "MetaTool all_clean_data.csv (exclusive facet assignment, template-rotated)",
         "builder_version": "v2",
     }
-    OUT_PATH.write_text(json.dumps(payload, indent=2))
+    args.out.write_text(json.dumps(payload, indent=2))
 
     print("Built MetaTool ontology v2:")
     for f in FACET_ORDER:
@@ -392,7 +427,7 @@ def main():
         )
     print(f"\ntop_tc: {stats['top_tool_categories']}")
     print(f"\nn_queries_used: {stats['n_queries_used_total']} / {stats['n_queries_total']}")
-    print(f"\nWrote {OUT_PATH}")
+    print(f"\nWrote {args.out}")
 
 
 if __name__ == "__main__":
