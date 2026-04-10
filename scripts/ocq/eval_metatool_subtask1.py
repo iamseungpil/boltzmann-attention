@@ -487,8 +487,11 @@ def run_method(
     n_kv: int,
     head_dim: int,
     facet_mask: Optional[torch.Tensor] = None,
+    skip_heads: Optional[set] = None,
 ) -> Dict:
     kind, params = parse_method(method)
+    # Only pass skip_heads when the method tag requests it
+    effective_skip = skip_heads if params.get("use_skip") else None
 
     def _generate_one(prompt: str) -> str:
         ids = tokenizer(prompt, return_tensors="pt").to(args.device)
