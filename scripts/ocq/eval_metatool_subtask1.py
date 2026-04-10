@@ -216,6 +216,7 @@ def install_kbias_hooks(
     n_kv: int,
     head_dim: int,
     skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
 ):
     handles = []
     L, H, d, r = B_ont.shape
