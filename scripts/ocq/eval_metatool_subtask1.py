@@ -762,6 +762,7 @@ def main():
         "methods": args.methods,
         "skip_heads_spec": args.skip_heads or None,
         "skip_heads_count": len(skip_heads) if skip_heads else 0,
+        "skip_sink_tokens": args.skip_sink_tokens,
         "ocq": {
             "b_ont_path": args.b_ont,
             "ont_mode": args.ocq_ont_mode,
