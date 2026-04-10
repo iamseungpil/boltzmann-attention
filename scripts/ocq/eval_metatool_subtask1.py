@@ -212,6 +212,7 @@ def install_kbias_hooks(
     alpha: float,
     n_kv: int,
     head_dim: int,
+    skip_heads: Optional[set] = None,
 ):
     handles = []
     L, H, d, r = B_ont.shape
@@ -221,7 +222,12 @@ def install_kbias_hooks(
             if layer_idx >= L:
                 break
             k_proj = layer.self_attn.k_proj
-            B_ont_layer = B_ont[layer_idx]  # (H, d, r_ont)
+            B_ont_layer = B_ont[layer_idx].clone()  # (H, d, r_ont)
+            # Zero out B_ont for skipped heads so the hook becomes a no-op
+            if skip_heads:
+                for h in range(H):
+                    if (layer_idx, h) in skip_heads:
+                        B_ont_layer[h].zero_()
 
             def make_hook(li, B_ont_lh):
                 def hook(module, inputs, output):
