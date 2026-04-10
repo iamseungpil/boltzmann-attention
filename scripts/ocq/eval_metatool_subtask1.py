@@ -103,6 +103,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--skip-heads", type=str, default="",
                    help="Rank-1 heads to skip, e.g. 'L0-L3,L27H1'. "
                         "L0-L3 = all heads in layers 0..3; L27H1 = head 1 of layer 27.")
+    p.add_argument("--skip-sink-tokens", type=int, default=0,
+                   help="Number of leading token positions to exclude from K-bias "
+                        "(0 = apply everywhere, 1 = skip BOS/sink).")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
