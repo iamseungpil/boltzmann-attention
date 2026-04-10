@@ -478,7 +478,7 @@ def parse_method(method: str) -> Tuple[str, Dict]:
         return "quant", {"alpha": 1.0}  # default α=1 for combined
     if tag.startswith("ocq_facet_gated_a"):
         alpha = float(tag[len("ocq_facet_gated_a"):])
-        return "facet_gated", {"alpha": alpha, "use_skip": use_skip}
+        return "facet_gated", {"alpha": alpha, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
     raise ValueError(f"unknown method: {method}")
 
 
