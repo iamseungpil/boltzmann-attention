@@ -468,7 +468,7 @@ def parse_method(method: str) -> Tuple[str, Dict]:
         return "no_steer", {}
     if tag.startswith("ocq_bias_a"):
         alpha = float(tag[len("ocq_bias_a"):])
-        return "bias", {"alpha": alpha, "use_skip": use_skip}
+        return "bias", {"alpha": alpha, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
     if tag == "ocq_quant":
         return "quant", {"alpha": 0.0}
     if tag.startswith("ocq_quant_bias_a"):
