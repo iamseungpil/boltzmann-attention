@@ -100,6 +100,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--dump-failures", action="store_true",
                    help="Save all failing samples (no_match / wrong choice) for dip analysis.")
+    p.add_argument("--skip-heads", type=str, default="",
+                   help="Rank-1 heads to skip, e.g. 'L0-L3,L27H1'. "
+                        "L0-L3 = all heads in layers 0..3; L27H1 = head 1 of layer 27.")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
