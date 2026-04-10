@@ -694,6 +694,13 @@ def main():
                 flush=True,
             )
 
+    # Parse skip-heads spec
+    skip_heads = None
+    if args.skip_heads:
+        skip_heads = parse_skip_heads(args.skip_heads, n_kv)
+        print(f"[skip] {len(skip_heads)} (layer,head) pairs skipped from: {args.skip_heads}",
+              flush=True)
+
     results = []
     for method in args.methods:
         print(f"\n[eval] {method}", flush=True)
