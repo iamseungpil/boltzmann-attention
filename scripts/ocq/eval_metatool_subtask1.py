@@ -511,6 +511,8 @@ def run_method(
     kind, params = parse_method(method)
     # Only pass skip_heads when the method tag requests it
     effective_skip = skip_heads if params.get("use_skip") else None
+    # Only apply sink skipping when the method tag requests it
+    effective_sink = args.skip_sink_tokens if params.get("use_sinkskip") else 0
 
     def _generate_one(prompt: str) -> str:
         ids = tokenizer(prompt, return_tensors="pt").to(args.device)
