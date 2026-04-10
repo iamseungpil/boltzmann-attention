@@ -452,10 +452,17 @@ def parse_method(method: str) -> Tuple[str, Dict]:
 
     The ``_rank1skip`` suffix on any bias/facet_gated method activates
     head skipping via --skip-heads.  Example: ``ocq_bias_a0.3_rank1skip``.
+
+    The ``_sinkskip`` suffix activates position-aware sink skipping via
+    --skip-sink-tokens.  Example: ``ocq_bias_a0.3_sinkskip``.
+
+    Both can be combined: ``ocq_bias_a0.3_rank1skip_sinkskip``.
     """
-    # Strip optional _rank1skip suffix
-    use_skip = method.endswith("_rank1skip")
-    tag = method[: -len("_rank1skip")] if use_skip else method
+    # Strip optional suffixes (order-independent)
+    use_sinkskip = "_sinkskip" in method
+    tag = method.replace("_sinkskip", "")
+    use_skip = tag.endswith("_rank1skip")
+    tag = tag[: -len("_rank1skip")] if use_skip else tag
 
     if tag == "no_steer":
         return "no_steer", {}
