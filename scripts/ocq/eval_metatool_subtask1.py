@@ -675,6 +675,14 @@ def main():
             )
         print(f"[ocq] B_ont shape {tuple(B_ont.shape)}", flush=True)
 
+    # Parse skip-heads spec
+    skip_heads = None
+    if args.skip_heads:
+        skip_heads = parse_skip_heads(args.skip_heads, n_kv)
+        print(f"[skip] {len(skip_heads)} (layer,head) pairs skipped from: {args.skip_heads}",
+              flush=True)
+
+    if needs_b_ont:
         if needs_facet_mask:
             if not (isinstance(payload, dict) and "r_per_pair" in payload):
                 raise ValueError(
