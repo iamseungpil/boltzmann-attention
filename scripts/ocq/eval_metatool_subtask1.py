@@ -535,6 +535,7 @@ def run_method(
             model, B_ont, facet_mask,
             alpha_base=params["alpha"],
             n_kv=n_kv, head_dim=head_dim,
+            skip_heads=effective_skip,
         )
     else:
         raise ValueError(kind)
