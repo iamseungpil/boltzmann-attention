@@ -445,22 +445,30 @@ def install_quant_hooks(
 # ---------------------------------------------------------------------
 
 def parse_method(method: str) -> Tuple[str, Dict]:
-    """Parse method tag into (kind, params)."""
-    if method == "no_steer":
+    """Parse method tag into (kind, params).
+
+    The ``_rank1skip`` suffix on any bias/facet_gated method activates
+    head skipping via --skip-heads.  Example: ``ocq_bias_a0.3_rank1skip``.
+    """
+    # Strip optional _rank1skip suffix
+    use_skip = method.endswith("_rank1skip")
+    tag = method[: -len("_rank1skip")] if use_skip else method
+
+    if tag == "no_steer":
         return "no_steer", {}
-    if method.startswith("ocq_bias_a"):
-        alpha = float(method[len("ocq_bias_a"):])
-        return "bias", {"alpha": alpha}
-    if method == "ocq_quant":
+    if tag.startswith("ocq_bias_a"):
+        alpha = float(tag[len("ocq_bias_a"):])
+        return "bias", {"alpha": alpha, "use_skip": use_skip}
+    if tag == "ocq_quant":
         return "quant", {"alpha": 0.0}
-    if method.startswith("ocq_quant_bias_a"):
-        alpha = float(method[len("ocq_quant_bias_a"):])
+    if tag.startswith("ocq_quant_bias_a"):
+        alpha = float(tag[len("ocq_quant_bias_a"):])
         return "quant", {"alpha": alpha}
-    if method == "ocq_quant_bias":
+    if tag == "ocq_quant_bias":
         return "quant", {"alpha": 1.0}  # default α=1 for combined
-    if method.startswith("ocq_facet_gated_a"):
-        alpha = float(method[len("ocq_facet_gated_a"):])
-        return "facet_gated", {"alpha": alpha}
+    if tag.startswith("ocq_facet_gated_a"):
+        alpha = float(tag[len("ocq_facet_gated_a"):])
+        return "facet_gated", {"alpha": alpha, "use_skip": use_skip}
     raise ValueError(f"unknown method: {method}")
 
 
