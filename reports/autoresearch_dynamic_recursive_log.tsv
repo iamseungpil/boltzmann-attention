@@ -1,0 +1,13 @@
+iteration	method	change	metric	guard	decision	note
+1	TRIC	baseline hidden=12 epochs=120	recursive_gain_vs_linear=-3.1270	runtime_ok	discard	recursive beats copy but badly loses to shared linear
+2	TRIC	capacity increase hidden=24 epochs=200	recursive_gain_vs_linear=-0.5619	runtime_ok	discard	better but still below shared linear
+3	TRIC	capacity increase hidden=32 epochs=250 dim=32	recursive_gain_vs_linear=-0.2633	runtime_ok	discard	closer, still not enough to justify proceeding
+4	QDRP	low-budget risk paging budget=1	risk_vs_score_recover=+0.3770	pass	keep	risk objective helps in low-budget regime
+5	QDRP	pure risk budget=2	risk_vs_score_recover=-0.1240	pass	discard	pure risk drops current winner page too often when budget>1
+6	QDRP	hybrid score+risk budget=2	hybrid_vs_score_recover=+0.0005	pass	keep	hybrid fixes multi-page failure without hurting page-hit
+7	QueryExploit	remote smoke two_pass mistral@1k	two_pass_niah=1.000	pass	keep	executes cleanly and immediately beats low-bit failure case
+8	QueryExploit	remote smoke query_dequant mistral@1k	query_dequant_niah=0.000	pass	discard	no retrieval recovery in bounded smoke
+9	QueryExploit	remote smoke sharp_temp mistral@1k	sharp_temp_niah=0.000	pass	discard	no retrieval recovery in bounded smoke
+10	QueryExploit	all-method sweep mistral@4k	baseline_2bit=0.333;two_pass_k16=1.000;query_dequant_best=0.333;sharp_temp_best=0.000	pass	keep_only_two_pass	two_pass is the only family with a clear bounded win over baseline
+11	QueryExploit	two_pass sweep mistral@4k	two_pass_k8_k16_k32_k64=1.000	pass	keep	full top-k sweep stays saturated at 1.0 across tested budgets
+12	QueryExploit	two_pass sweep qwen@4k	two_pass_k8_k16_k32_k64=1.000	pass	keep	generalizes at least to bounded Qwen 4k NIAH

@@ -58,6 +58,14 @@
 | F43 | Qwen2.5-14B scale verification: Pre-RoPE PCA beats TurboQuant at 3-bit (4.86 vs 4.94). At 2-bit Post-RoPE slightly better (6.29 vs 6.31, -0.4%). | tops caiman results | direct experiment 2026-04-05 |
 | F44 | Llama-3.1-8B Pre vs Post: 2-bit Post-RoPE BETTER (10.209 vs 10.944, -7.2%). 3-bit Pre-RoPE better (6.668 vs 6.673). MSE-PPL gap at 2-bit. | tops caiman results | direct experiment 2026-04-05 |
 | F45 | Pre-RoPE vs Post-RoPE summary: 3-bit 4/4 models Pre<Post (consistent). 2-bit 2/4 Pre<Post (Qwen-7B +9.7%, Mistral +2.0%), 2/4 Post<Pre (Llama -7.2%, Qwen-14B -0.4%). | all results | 2026-04-05 |
+| F46 | QueryExploit Mistral 4K same-harness result: `baseline_2bit=0.333`, `two_pass_k16=1.000`, `query_dequant_s0.25=0.333`, and `sharp_temp_t{0.5,0.7,0.9}=0.000`. | `tmp_remote_results/mistral_all_methods_4k.json` | direct file inspection |
+| F47 | QueryExploit two-pass sweeps saturate at 4K bounded NIAH for both Mistral and Qwen: `k=8,16,32,64` all score `1.000`. | `tmp_remote_results/mistral_two_pass_4k.json`, `tmp_remote_results/qwen_two_pass_4k.json` | direct file inspection |
+| F48 | QDRP synthetic diagnostics help only in the toy low-budget regime: `risk_vs_score_recover=+0.3770` at `budget_pages=1`, while pure risk at `budget_pages=2` is negative and hybrid is nearly neutral at `+0.0005`. | `reports/autoresearch_dynamic_recursive_log.tsv` | direct file inspection |
+| F49 | TRIC synthetic diagnostics remain below a shared linear predictor across all tested settings: `recursive_gain_vs_linear=-3.1270`, `-0.5619`, and `-0.2633`. | `reports/autoresearch_dynamic_recursive_log.tsv` | direct file inspection |
+| F50 | The current `exp_query_exploit.py` harness explicitly states that the underlying KV cache stays FP16 and that results are decode-time intervention diagnostics rather than compressed-cache storage measurements. | `scripts/exp_query_exploit.py` | direct file inspection |
+| F51 | The current `exp_cliffkv_niah.py` harness explicitly states that the underlying KV cache remains FP16 and that its results are attention-path proxies rather than storage-valid compressed-cache measurements. | `scripts/exp_cliffkv_niah.py` | direct file inspection |
+| F52 | The proxy selective-promotion smoke result on Mistral 4K reports `uniform_2bit=0.000`, `uniform_3bit=0.667`, `cliffkv_k64_b3=1.000`, and `cliffkv_k64_b3 avg_bits_per_dim=2.016`. | `results/e8_2026-04-09/Mistral-7B-v0_3_fixcheck_cliffkv_mistral_4k.json` | direct file inspection |
+| F53 | Local validation on 2026-04-09: `py_compile` passed for `exp_query_exploit.py` and `exp_cliffkv_niah.py`, and both scripts' self-tests passed after adding explicit proxy claim scope metadata. | local command history, script self-tests | direct execution |
 
 ## Unverified or Not Yet Ready
 
@@ -66,4 +74,6 @@
 | FOKVQ is state of the art on standard WikiText-2 PPL | standard full-protocol table is not finished |
 | FOKVQ beats TurboQuant, KIVI, KVQuant, and ZipCache on a fair common benchmark | current comparison axis is not yet fully harmonized |
 | FOKVQ generalizes to Llama-3-8B with standard PPL and latency evidence | planned, not yet complete |
-
+| Selective refinement is already a storage-valid KV-cache compression method | current positive results come from attention-path proxy diagnostics, not true compressed-cache storage |
+| QDRP beats raw score on real traces | current real-trace evidence points the other way |
+| TRIC beats a shared linear predictor on realistic settings | current synthetic evidence does not support this |

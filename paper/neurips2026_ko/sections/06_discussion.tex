@@ -15,6 +15,9 @@
 
 \paragraph{평가 범위.} WikiText-2 PPL + MMLU 5-shot. 긴 문맥 (LongBench, NIAH)과 추가 downstream task는 향후 과제이다.
 
+\paragraph{탐색적 query-time 진단의 위치.}
+2026-04-09 기준의 bounded NIAH 진단에서는 attention-path `two\_pass` selective refinement가 강한 retrieval recovery를 보였지만, 현재 하네스는 저장된 KV cache 자체를 압축하지 않고 FP16 cache 위 attention 경로만 수정한다. 따라서 이 결과는 \emph{failure-mode diagnostic}으로는 유의미하지만, storage-valid KV-cache compression evidence로 논문 본문에 편입할 단계는 아니다. 같은 이유로 `QDRP`와 `TRIC`도 각각 ``budget=1 synthetic niche''와 ``shared linear baseline 미만''이라는 진단 단계에 머물러 있으며, 본 논문의 핵심 주장에는 포함하지 않는다.
+
 \paragraph{모델 범위.} 7B-14B 규모의 4개 모델. 1-3B 및 30B+ 모델에서의 검증은 미수행.
 
 \paragraph{Class~C의 범위.} 본 논문의 최적성은 Class~C (직교 회전 + 독립 스칼라 양자화) 내에서만 성립한다. 벡터 양자화는 원칙적으로 더 낮은 왜곡을 달성할 수 있으나 추론 비용이 비실용적이다.

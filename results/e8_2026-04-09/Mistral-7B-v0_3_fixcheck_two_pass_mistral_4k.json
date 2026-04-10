@@ -1,0 +1,68 @@
+{
+  "experiment_tag": "fixcheck_two_pass_mistral_4k",
+  "model": "mistralai/Mistral-7B-v0.3",
+  "method": "two_pass",
+  "bits": 2,
+  "context_len": 4096,
+  "depths": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "repeats": 1,
+  "seed": 42,
+  "results": {
+    "two_pass_k8": {
+      "method": "two_pass",
+      "niah": 1.0,
+      "runtime_sec": 9.01,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 1,
+      "seed": 42,
+      "selection_calls": 15360,
+      "avg_selected_tokens_per_call": 8.0,
+      "max_selected_tokens_per_call": 8,
+      "top_k": 8,
+      "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+      "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+      "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+      "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid",
+      "effective_avg_bits_upper_bound": 2.027
+    },
+    "two_pass_k16": {
+      "method": "two_pass",
+      "niah": 1.0,
+      "runtime_sec": 8.83,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 1,
+      "seed": 42,
+      "selection_calls": 15360,
+      "avg_selected_tokens_per_call": 16.0,
+      "max_selected_tokens_per_call": 16,
+      "top_k": 16,
+      "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+      "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+      "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+      "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid",
+      "effective_avg_bits_upper_bound": 2.055
+    }
+  },
+  "metadata": {
+    "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+    "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+    "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+    "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid"
+  }
+}

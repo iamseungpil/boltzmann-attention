@@ -1,0 +1,98 @@
+{
+  "experiment_tag": "e8_two_pass_qwen_4k",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "method": "two_pass",
+  "bits": 2,
+  "context_len": 4096,
+  "depths": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "repeats": 2,
+  "seed": 42,
+  "results": {
+    "two_pass_k8": {
+      "method": "two_pass",
+      "niah": 1.0,
+      "runtime_sec": 30.34,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "top_k": 8,
+      "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+      "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+      "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+      "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid"
+    },
+    "two_pass_k16": {
+      "method": "two_pass",
+      "niah": 1.0,
+      "runtime_sec": 33.61,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "top_k": 16,
+      "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+      "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+      "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+      "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid"
+    },
+    "two_pass_k32": {
+      "method": "two_pass",
+      "niah": 1.0,
+      "runtime_sec": 43.59,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "top_k": 32,
+      "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+      "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+      "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+      "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid"
+    },
+    "two_pass_k64": {
+      "method": "two_pass",
+      "niah": 1.0,
+      "runtime_sec": 59.76,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "top_k": 64,
+      "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+      "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+      "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+      "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid"
+    }
+  },
+  "metadata": {
+    "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+    "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+    "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+    "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid"
+  }
+}

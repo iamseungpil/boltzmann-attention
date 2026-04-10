@@ -1,0 +1,191 @@
+{
+  "experiment_tag": "e8_all_methods_mistral_4k",
+  "model": "mistralai/Mistral-7B-v0.3",
+  "method": "all",
+  "bits": 2,
+  "context_len": 4096,
+  "depths": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "repeats": 2,
+  "seed": 42,
+  "results": {
+    "fp16": {
+      "method": "fp16",
+      "niah": 1.0,
+      "runtime_sec": 10.67,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "intent": "reference baseline",
+      "hypothesis": "reference baseline",
+      "verification": "reference baseline",
+      "kill_criterion": "reference baseline"
+    },
+    "baseline_2bit": {
+      "method": "baseline_2bit",
+      "niah": 0.333,
+      "runtime_sec": 18.19,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "intent": "reference baseline",
+      "hypothesis": "reference baseline",
+      "verification": "reference baseline",
+      "kill_criterion": "reference baseline"
+    },
+    "two_pass_k16": {
+      "method": "two_pass",
+      "niah": 1.0,
+      "runtime_sec": 54.43,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "top_k": 16,
+      "intent": "recover retrieval by selectively refining the confusion zone after a low-bit first pass",
+      "hypothesis": "top-k proxy-score refinement should beat plain 2-bit attention on NIAH if the needle is already near the top of the ranking",
+      "verification": "bounded NIAH sweep over refinement budgets with the same 2-bit base model",
+      "kill_criterion": "drop if no top-k setting improves over baseline_2bit on the same prompt grid"
+    },
+    "query_dequant_s0.1": {
+      "method": "query_dequant",
+      "niah": 0.0,
+      "runtime_sec": 27.21,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "dequant_strength": 0.1,
+      "intent": "improve low-bit attention by moving dequantized keys inside their bins using the current query direction",
+      "hypothesis": "small within-bin shifts should recover some score ordering without extra stored bits",
+      "verification": "bounded NIAH sweep over within-bin shift strengths against the same 2-bit baseline",
+      "kill_criterion": "drop if all tested strengths are at or below baseline_2bit or if outputs become unstable"
+    },
+    "query_dequant_s0.25": {
+      "method": "query_dequant",
+      "niah": 0.333,
+      "runtime_sec": 25.86,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "dequant_strength": 0.25,
+      "intent": "improve low-bit attention by moving dequantized keys inside their bins using the current query direction",
+      "hypothesis": "small within-bin shifts should recover some score ordering without extra stored bits",
+      "verification": "bounded NIAH sweep over within-bin shift strengths against the same 2-bit baseline",
+      "kill_criterion": "drop if all tested strengths are at or below baseline_2bit or if outputs become unstable"
+    },
+    "query_dequant_s0.5": {
+      "method": "query_dequant",
+      "niah": 0.0,
+      "runtime_sec": 26.23,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "dequant_strength": 0.5,
+      "intent": "improve low-bit attention by moving dequantized keys inside their bins using the current query direction",
+      "hypothesis": "small within-bin shifts should recover some score ordering without extra stored bits",
+      "verification": "bounded NIAH sweep over within-bin shift strengths against the same 2-bit baseline",
+      "kill_criterion": "drop if all tested strengths are at or below baseline_2bit or if outputs become unstable"
+    },
+    "sharp_temp_t0.5": {
+      "method": "sharp_temp",
+      "niah": 0.0,
+      "runtime_sec": 16.89,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "temperature": 0.5,
+      "intent": "counteract quantization-induced attention flattening by sharpening logits at decode time",
+      "hypothesis": "a temperature below 1.0 can partially restore retrieval if quantization mostly adds flattening noise",
+      "verification": "bounded NIAH sweep over fixed temperatures with identical 2-bit keys",
+      "kill_criterion": "drop if every temperature is at or below baseline_2bit or if behavior becomes brittle across depths"
+    },
+    "sharp_temp_t0.7": {
+      "method": "sharp_temp",
+      "niah": 0.0,
+      "runtime_sec": 17.12,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "temperature": 0.7,
+      "intent": "counteract quantization-induced attention flattening by sharpening logits at decode time",
+      "hypothesis": "a temperature below 1.0 can partially restore retrieval if quantization mostly adds flattening noise",
+      "verification": "bounded NIAH sweep over fixed temperatures with identical 2-bit keys",
+      "kill_criterion": "drop if every temperature is at or below baseline_2bit or if behavior becomes brittle across depths"
+    },
+    "sharp_temp_t0.9": {
+      "method": "sharp_temp",
+      "niah": 0.0,
+      "runtime_sec": 16.15,
+      "bits": 2,
+      "context_len": 4096,
+      "depths": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "repeats": 2,
+      "seed": 42,
+      "temperature": 0.9,
+      "intent": "counteract quantization-induced attention flattening by sharpening logits at decode time",
+      "hypothesis": "a temperature below 1.0 can partially restore retrieval if quantization mostly adds flattening noise",
+      "verification": "bounded NIAH sweep over fixed temperatures with identical 2-bit keys",
+      "kill_criterion": "drop if every temperature is at or below baseline_2bit or if behavior becomes brittle across depths"
+    }
+  },
+  "metadata": {
+    "intent": "bounded comparative sweep across query-time exploitation methods",
+    "hypothesis": "at least one bounded query-time exploit should beat baseline_2bit if the earlier mechanistic signals are real",
+    "verification": "same-prompt NIAH sweep across two_pass, query_dequant, and sharp_temp grids",
+    "kill_criterion": "drop any method family that fails to beat baseline_2bit on the same grid"
+  }
+}

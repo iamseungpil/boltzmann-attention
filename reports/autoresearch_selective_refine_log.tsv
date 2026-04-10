@@ -1,0 +1,2 @@
+iteration	method	change	metric	guard	decision	note
+1	selective_refine	cache-aware cliffkv smoke on Mistral 2k	uniform_2bit=0.000; cliffkv_k64_b3=1.000 at avg_bits=2.031	remote_smoke_ok	keep	cache path fix turned prior invalid prototype into a working retrieval harness

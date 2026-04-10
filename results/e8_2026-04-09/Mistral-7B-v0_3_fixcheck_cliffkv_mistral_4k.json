@@ -1,0 +1,101 @@
+{
+  "experiment_tag": "fixcheck_cliffkv_mistral_4k",
+  "model": "mistralai/Mistral-7B-v0.3",
+  "context_len": 4096,
+  "depths": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "repeats": 1,
+  "seed": 42,
+  "results": {
+    "fp16": {
+      "method": "fp16",
+      "avg_score": 1.0,
+      "n_trials": 3,
+      "promote_k": 64,
+      "promote_bits": 16,
+      "intent": "test whether score-guided selective promotion recovers retrieval more efficiently than blunt uniform precision",
+      "hypothesis": "promoting a small top-k subset of low-bit keys should beat uniform_2bit and approach uniform_3bit at lower effective average bits",
+      "verification": "bounded NIAH sweep over promote_k and promote_bits against fp16, uniform_2bit, and uniform_3bit baselines",
+      "kill_criterion": "drop if selective promotion fails to improve over uniform_2bit at matched or lower effective average bits"
+    },
+    "uniform_2bit": {
+      "method": "uniform_2bit",
+      "avg_score": 0.0,
+      "n_trials": 3,
+      "promote_k": 64,
+      "promote_bits": 16,
+      "intent": "test whether score-guided selective promotion recovers retrieval more efficiently than blunt uniform precision",
+      "hypothesis": "promoting a small top-k subset of low-bit keys should beat uniform_2bit and approach uniform_3bit at lower effective average bits",
+      "verification": "bounded NIAH sweep over promote_k and promote_bits against fp16, uniform_2bit, and uniform_3bit baselines",
+      "kill_criterion": "drop if selective promotion fails to improve over uniform_2bit at matched or lower effective average bits"
+    },
+    "uniform_3bit": {
+      "method": "uniform_3bit",
+      "avg_score": 0.667,
+      "n_trials": 3,
+      "promote_k": 64,
+      "promote_bits": 16,
+      "intent": "test whether score-guided selective promotion recovers retrieval more efficiently than blunt uniform precision",
+      "hypothesis": "promoting a small top-k subset of low-bit keys should beat uniform_2bit and approach uniform_3bit at lower effective average bits",
+      "verification": "bounded NIAH sweep over promote_k and promote_bits against fp16, uniform_2bit, and uniform_3bit baselines",
+      "kill_criterion": "drop if selective promotion fails to improve over uniform_2bit at matched or lower effective average bits"
+    },
+    "cliffkv_k32_b16": {
+      "method": "cliffkv",
+      "avg_score": 1.0,
+      "n_trials": 3,
+      "promote_k": 32,
+      "promote_bits": 16,
+      "intent": "test whether score-guided selective promotion recovers retrieval more efficiently than blunt uniform precision",
+      "hypothesis": "promoting a small top-k subset of low-bit keys should beat uniform_2bit and approach uniform_3bit at lower effective average bits",
+      "verification": "bounded NIAH sweep over promote_k and promote_bits against fp16, uniform_2bit, and uniform_3bit baselines",
+      "kill_criterion": "drop if selective promotion fails to improve over uniform_2bit at matched or lower effective average bits",
+      "avg_bits_per_dim": 2.109
+    },
+    "cliffkv_k32_b3": {
+      "method": "cliffkv",
+      "avg_score": 0.667,
+      "n_trials": 3,
+      "promote_k": 32,
+      "promote_bits": 3,
+      "intent": "test whether score-guided selective promotion recovers retrieval more efficiently than blunt uniform precision",
+      "hypothesis": "promoting a small top-k subset of low-bit keys should beat uniform_2bit and approach uniform_3bit at lower effective average bits",
+      "verification": "bounded NIAH sweep over promote_k and promote_bits against fp16, uniform_2bit, and uniform_3bit baselines",
+      "kill_criterion": "drop if selective promotion fails to improve over uniform_2bit at matched or lower effective average bits",
+      "avg_bits_per_dim": 2.008
+    },
+    "cliffkv_k64_b16": {
+      "method": "cliffkv",
+      "avg_score": 1.0,
+      "n_trials": 3,
+      "promote_k": 64,
+      "promote_bits": 16,
+      "intent": "test whether score-guided selective promotion recovers retrieval more efficiently than blunt uniform precision",
+      "hypothesis": "promoting a small top-k subset of low-bit keys should beat uniform_2bit and approach uniform_3bit at lower effective average bits",
+      "verification": "bounded NIAH sweep over promote_k and promote_bits against fp16, uniform_2bit, and uniform_3bit baselines",
+      "kill_criterion": "drop if selective promotion fails to improve over uniform_2bit at matched or lower effective average bits",
+      "avg_bits_per_dim": 2.219
+    },
+    "cliffkv_k64_b3": {
+      "method": "cliffkv",
+      "avg_score": 1.0,
+      "n_trials": 3,
+      "promote_k": 64,
+      "promote_bits": 3,
+      "intent": "test whether score-guided selective promotion recovers retrieval more efficiently than blunt uniform precision",
+      "hypothesis": "promoting a small top-k subset of low-bit keys should beat uniform_2bit and approach uniform_3bit at lower effective average bits",
+      "verification": "bounded NIAH sweep over promote_k and promote_bits against fp16, uniform_2bit, and uniform_3bit baselines",
+      "kill_criterion": "drop if selective promotion fails to improve over uniform_2bit at matched or lower effective average bits",
+      "avg_bits_per_dim": 2.016
+    }
+  },
+  "metadata": {
+    "intent": "test whether score-guided selective promotion recovers retrieval more efficiently than blunt uniform precision",
+    "hypothesis": "promoting a small top-k subset of low-bit keys should beat uniform_2bit and approach uniform_3bit at lower effective average bits",
+    "verification": "bounded NIAH sweep over promote_k and promote_bits against fp16, uniform_2bit, and uniform_3bit baselines",
+    "kill_criterion": "drop if selective promotion fails to improve over uniform_2bit at matched or lower effective average bits"
+  }
+}
