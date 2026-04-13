@@ -811,16 +811,7 @@ def quantize_cache(
         elif method == "variance":
             bulk_quant = quantize_variance_keys(quant_target, bits)
         elif method == "kivi":
-<<<<<<< HEAD
             bulk_quant = asymmetric_quantize_seq_dim(quant_target, bits)
-        elif method in {"fokvq", "identity", "random", "fokvq_adaptive", "fokvq_clip"}:
-            if fokvq_bases is None:
-                raise ValueError(f"Bases are required for method={method}")
-            basis = fokvq_bases[layer_idx].to(device=key_cache.device)
-            bulk_quant = quantize_nonuniform_with_basis(
-                quant_target.float(),
-=======
-            key_quant = asymmetric_quantize_seq_dim(key_cache, bits)
         elif method in {"fokvq", "identity", "random", "fokvq_adaptive", "fokvq_clip", "fokvq_centered", "fokvq_centered_asym"}:
             if fokvq_bases is None:
                 raise ValueError(f"Bases are required for method={method}")
@@ -830,9 +821,8 @@ def quantize_cache(
                 if fokvq_means is None:
                     raise ValueError(f"Means are required for method={method}")
                 mean = fokvq_means[layer_idx].to(device=key_cache.device)
-            key_quant = quantize_nonuniform_with_basis(
-                key_cache.float(),
->>>>>>> origin/main
+            bulk_quant = quantize_nonuniform_with_basis(
+                quant_target.float(),
                 basis,
                 bits,
                 fokvq_topk_frac,
