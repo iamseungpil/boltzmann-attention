@@ -87,6 +87,18 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--pad-to-max",
+        action="store_true",
+        help=(
+            "Instead of truncating all heads to min(r_per_head), pad every "
+            "head to max(r_per_head) with zero columns. Low-rank heads keep "
+            "their natural rank; unused columns are zero and contribute nothing "
+            "in the K-bias hook (B @ 0-col = 0). This avoids the min-truncation "
+            "bottleneck where a single pathological head forces all 256 heads "
+            "to lose ontology columns."
+        ),
+    )
+    parser.add_argument(
         "--center-from-wiki",
         action="store_true",
         help=(
