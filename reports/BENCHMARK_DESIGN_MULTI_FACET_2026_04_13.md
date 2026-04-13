@@ -1,217 +1,243 @@
-# Benchmark Design: Multi-Facet Multi-Turn Tool Selection
+# Benchmark Design: Ontology K-Bias Steering Across Tool Selection & Plan Generation
 
-**Date**: 2026-04-13
-**Goal**: 공개 벤치마크 기반 ontology K-bias tool selection 검증
-
----
-
-## 1. 벤치마크 선정 근거
-
-20+ 벤치마크 survey 결과, **"role-dependent tool disambiguation"을 테스트하는 공개 벤치마크가 없음**. 이것이 우리 논문의 novelty dimension.
-
-### 선정된 벤치마크 조합
-
-| # | Benchmark | 용도 | Tools | Turns | 공개 |
-|---|-----------|------|-------|-------|------|
-| **B1** | MetaTool Subtask1 | Single-turn baseline (이미 완료) | 199 | 1 | Yes |
-| **B2** | CRMArena-Pro | Enterprise multi-turn + persona | 27 + SOQL | 5-8 | Yes |
-| **B3** | CONFETTI | Multi-turn goal switching + disambiguation | 86 APIs (15/conv) | multi | Yes |
-| **B4** | C³-Bench | Large catalog + inter-tool dependency | 256 tool groups | multi-step | Yes |
-| **B5** | **MF-Disambig** (신규 설계) | Role-dependent facet disambiguation | CRMArena 기반 확장 | multi | **생성** |
+**Date**: 2026-04-13 (updated)
+**Thesis**: Ontology-based K-bias vector steering consistently improves tool selection AND plan generation across diverse benchmarks and scenarios.
+**Non-goal**: Benchmark 자체가 novelty가 아님. 다양한 기존 벤치마크에서의 일관된 효과 입증이 목적.
 
 ---
 
-## 2. 각 벤치마크별 K-bias 적용 계획
+## 1. 3-Tier Evaluation Framework
 
-### B1: MetaTool Subtask1 (DONE)
+| Tier | 검증 대상 | 질문 |
+|------|----------|------|
+| **T1: Tool Selection** | 올바른 도구 하나 고르기 | K-bias가 large catalog에서 정확한 도구를 찾는가? |
+| **T2: Plan Generation** | 도구 조합 DAG 만들기 | K-bias가 올바른 도구 순서/의존성을 생성하는가? |
+| **T3: Multi-Turn Workflow** | 대화 속 연속 도구 호출 | K-bias가 goal switching, context 누적에서도 동작하는가? |
 
-- 995 queries × 199 tools, single-turn
-- Qwen +11.16pp, Llama +10.25pp 확인 완료
-- B_ont: 4-facet (function_action, io_type, domain, tool_category)
+---
 
-### B2: CRMArena-Pro
+## 2. Benchmark Matrix
 
-**구조** (실측):
-- DB: 16 tables (CRMArena) / 27 tables (Pro B2B)
-- 9 task types × 130 samples = 1,170 total
-- Tasks: knowledge_qa, monthly_trend_analysis, top_issue_identification, case_routing, named_entity_disambiguation, handle_time, transfer_count, policy_violation_identification, best_region_identification
-- 25 Python wrapper functions (get_cases, get_agents, calculate_average_handle_time 등)
-- Personas: Service Agent, Analyst, Manager
+### T1: Tool Selection
 
-**K-bias 적용**:
+| Benchmark | Tools | Samples | Format | Metric | Status |
+|-----------|-------|---------|--------|--------|--------|
+| **MetaTool Subtask1** | 199 | 995 | 1-turn, 10 candidates | Top-1 acc | **DONE** (+11pp Qwen, +10pp Llama) |
+| **CRMArena-Pro** | 25 + SOQL | 1,170 | Multi-turn CRM | exact/fuzzy match | Cloned |
+| **C³-Bench** (tool selection subset) | 256 groups | 255 | Multi-step | Tool selection F1 | Cloned |
+
+### T2: Plan Generation (도구 조합)
+
+| Benchmark | Tools | Samples | Plan 구조 | Metric | Status |
+|-----------|-------|---------|----------|--------|--------|
+| **TaskBench** (Microsoft) | 23/40/40 (3 domains) | ~28K | **DAG** (Node/Chain/DAG) | **node-F1 + edge-F1** | Cloned |
+| **AppBench** | 10 apps × 11-23 APIs | 800 (4 categories) | **Graph** (seq + parallel) | **graph-level Success Rate** | Cloned |
+| **C³-Bench** (plan subset) | 256 groups | 255 | dependency_list | AP + OP | Cloned |
+
+### T3: Multi-Turn Workflow
+
+| Benchmark | Tools/conv | Conversations | Turns | Metric | Status |
+|-----------|-----------|---------------|-------|--------|--------|
+| **CONFETTI** (Amazon) | 15 | 506 | multi | Per-turn function call acc | Cloned |
+| **CRMArena-Pro** (interactive) | 25 | ~2K | 5-8 | Task accuracy | Cloned |
+| **τ²-bench** | 13-15 | 117/50 | multi | Score | Cloned |
+
+---
+
+## 3. K-Bias 적용 방법 (Tier별)
+
+### T1: Tool Selection (기존 방식)
+
 ```
-Step 1: CRMArena의 25개 tool에서 6-facet ontology 구축
-  F1 Purpose:    analysis / routing / identification / qa
-  F2 Function:   get / calculate / search / find / submit
-  F3 Structure:  case / order / product / agent / knowledge
-  F4 Parameter:  date_range / agent_id / case_id / product_id
-  F5 Domain:     service / sales / operations / knowledge
-  F6 Stakeholder: agent / analyst / manager
-
-Step 2: B_ont 구축 (Qwen/Llama on CRMArena tool descriptions)
-Step 3: 1,170 tasks에서 K-bias vs no_steer eval
-  Metric: task accuracy (fuzzy_match / exact_match per task type)
-```
-
-### B3: CONFETTI (Amazon, ACL 2025)
-
-**구조** (실측):
-- 506 conversations, 각 대화에 ~15 tools 할당
-- Multi-turn with goal correction/switching
-- Dialog act annotations (follow-up, correction, new goal)
-
-**K-bias 적용**:
-```
-Step 1: 506개 대화의 15 tools/conv에서 facet ontology 구축
-Step 2: Per-turn tool selection에 K-bias 적용
-Step 3: Eval: per-turn function call accuracy
-  Focus: goal-switching turns에서의 K-bias 효과
-```
-
-### B4: C³-Bench (Tencent)
-
-**구조** (실측):
-- 255 tasks, 256 tool groups (각 group에 multi-tool)
-- DAG dependency structure (dependency_list per action)
-- Multi-step with observation feedback
-
-**K-bias 적용**:
-```
-Step 1: 256 tool groups에서 6-facet ontology 구축
-Step 2: Multi-step task에서 K-bias 적용
-  Metric: Accomplish Progress (AP), Optimal Path Rate (OP)
-  Focus: inter-tool dependency 해결에 K-bias가 기여하는지
+Input: "Search for savings product visit stats"
+Hook: K' = K + α · B_ont · B_ont^T · K
+Output: 올바른 tool name
+Metric: Top-1 accuracy
 ```
 
-### B5: MF-Disambig (신규 설계 — CRMArena 기반)
+### T2: Plan Generation (NEW)
 
-**기존 벤치마크에 없는 것**: 같은 query에 대해 stakeholder에 따라 정답 tool이 다른 시나리오.
+**K-bias가 plan의 정확도를 높이는 메커니즘**:
 
-**설계**:
+```
+Input: "Chicago 주말 날씨 알려주고, 비 올 확률 높으면 실내 레스토랑 추천해줘"
 
-CRMArena의 Salesforce 객체 구조 위에, role-dependent tool disambiguation 레이어를 추가.
-
-#### 5.1 Disambiguation 시나리오
-
-CRMArena의 9개 task type을 3개 persona에 매핑:
-
-| Query (동일) | Service Agent 정답 | Analyst 정답 | Manager 정답 |
-|-------------|-------------------|-------------|-------------|
-| "Show me case trends" | get_cases (→ list recent cases) | get_month_to_case_count (→ monthly aggregation) | calculate_region_average_closure_times (→ regional summary) |
-| "Who handles the most?" | get_agents_with_max_cases (→ agent name) | get_agent_handled_cases_by_period (→ detailed breakdown) | find_id_with_max_value (→ top performer ID for KPI) |
-| "What's the issue?" | get_email_messages_by_case_id (→ case detail) | get_issue_counts (→ issue frequency) | search_knowledge_articles (→ policy lookup) |
-| "Check the product" | search_products (→ product lookup) | get_order_item_ids_by_product (→ order analysis) | get_purchase_history (→ revenue impact) |
-
-#### 5.2 데이터 생성 방법
-
-```python
-# CRMArena 25개 tool에서 disambiguation triplet 생성
-# 각 triplet: (ambiguous_query, {persona: correct_tool})
-
-for query_template in ambiguous_queries:  # ~30 templates
-    for persona in ["service_agent", "analyst", "manager"]:
-        # CRMArena DB에서 실제 데이터로 ground truth 생성
-        correct_tool = persona_tool_mapping[query_template][persona]
-        correct_params = generate_params_from_db(correct_tool, crmarena_db)
-        
-        yield {
-            "query": query_template,
-            "persona": persona,
-            "system_prompt": f"You are a {persona}. Use CRM tools to help.",
-            "ground_truth_tool": correct_tool,
-            "ground_truth_params": correct_params,
-            "distractor_tools": other_persona_tools + random_tools,
-        }
-
-# Total: ~30 queries × 3 personas = 90 disambiguation instances
-# + 30 queries × no persona (ambiguous baseline) = 30 instances
-# Total: 120 instances
+Without K-bias → model generates:
+  Step 1: getCityForecast(city="Chicago") ← correct
+  Step 2: searchRestaurants(city="Chicago") ← wrong (should be indoor only)
+  
+With K-bias (ontology: weather→forecast, restaurant→indoor/outdoor→preference) →
+  Step 1: getCityForecast(city="Chicago", startDate=..., endDate=...)
+  Step 2: searchRestaurants(city="Chicago", cuisine_type="any", indoor_only=true)  ← dependency-aware
 ```
 
-#### 5.3 Facet-Conditioned Steering
+**평가**: TaskBench의 DAG에서
+- **node-F1**: K-bias가 올바른 tool 선택을 개선하는가?
+- **edge-F1**: K-bias가 올바른 dependency link를 생성하는가?
+- AppBench의 graph-level Success Rate 개선 여부
 
-```python
-# Persona → F6 (Stakeholder) facet의 조건부 α 조정
-alpha_config = {
-    "service_agent": {"F1": 0.3, "F2": 0.3, "F3": 0.3, "F4": 0.3, "F5": 0.3, "F6_agent": 0.5},
-    "analyst":       {"F1": 0.3, "F2": 0.3, "F3": 0.3, "F4": 0.3, "F5": 0.3, "F6_analyst": 0.5},
-    "manager":       {"F1": 0.3, "F2": 0.3, "F3": 0.3, "F4": 0.3, "F5": 0.3, "F6_manager": 0.5},
-}
+### T3: Multi-Turn Workflow
+
+```
+Turn 1: User asks "분석해줘" → K-bias helps select analysis tool
+Turn 2: User clarifies "캠페인별로" → K-bias maintains campaign facet focus
+Turn 3: User switches "이번엔 코호트로" → K-bias shifts cohort facet weight
+```
+
+**평가**: CONFETTI의 goal-switching turns에서 K-bias 효과.
+
+---
+
+## 4. 벤치마크별 상세 데이터
+
+### TaskBench (Plan Generation — PRIMARY)
+
+```
+3 domains:
+  HuggingFace: 23 tools, 225 links (tool→tool edges)
+  Multimedia:  40 tools
+  Daily Life:  40 tools
+
+Graph types:
+  Node (단일 tool): 30%
+  Chain (순차): 70%  
+  DAG (병렬+의존): 80%
+  (sampling ratio 3:7:8 ≈ 28K total samples)
+
+Plan format:
+  {"nodes": [tool_ids], "links": [{"source": A, "target": B, "type": "text"}]}
+
+Metrics:
+  n-F1 = F1(predicted tool set, gold tool set)
+  e-F1 = F1(predicted edges, gold edges)
+```
+
+**K-bias 적용**: tool_desc.json의 23/40/40개 tool에서 6-facet ontology 구축 → B_ont → plan generation 시 K-bias 적용 → n-F1 / e-F1 비교
+
+### AppBench (Plan Generation — SECONDARY)
+
+```
+4 complexity categories:
+  SS (Single-app Single-API):  200 samples
+  SM (Single-app Multi-API):   200 samples  
+  MS (Multi-app Single-API):   200 samples
+  MM (Multi-app Multi-API):    200 samples → GPT-4o 2.0% success
+
+Plan format:
+  {"used_app": ["Trains"], "used_api": [{"findtrains": {params}}], "result_arguments": [...]}
+
+Metric:
+  Success Rate = (correct apps AND correct APIs AND correct params AND correct dependencies)
+```
+
+### CONFETTI (Multi-Turn — PRIMARY)
+
+```
+506 conversations, each with ~15 available tools
+Dialog acts: follow-up, correction, new goal, chained calls
+
+Format per conversation:
+  {"id": "...", "question": [turns], "function": [15 tool schemas]}
+```
+
+### C³-Bench (Hybrid — Tool Selection + Plan)
+
+```
+255 tasks, 256 tool groups
+Each task: answer_list with dependency_list per action
+
+Metrics:
+  AP (Accomplish Progress): fraction of subtasks completed
+  OP (Optimal Path Rate): was the shortest valid path taken?
 ```
 
 ---
 
-## 3. Evaluation Metrics
+## 5. 실험 실행 계획
 
-### Per-Benchmark Metrics
+### Phase 1: T1 완성 (Week 1)
 
-| Benchmark | Primary | Secondary |
-|-----------|---------|-----------|
-| **B1 MetaTool** | Top-1 accuracy (Δ pp) | no_match rate |
-| **B2 CRMArena** | Task accuracy (fuzzy/exact match) | Per-task-type accuracy |
-| **B3 CONFETTI** | Per-turn function call accuracy | Goal-switch turn accuracy |
-| **B4 C³-Bench** | Accomplish Progress (AP), Optimal Path (OP) | Dependency resolution rate |
-| **B5 MF-Disambig** | **Facet-Conditioned Accuracy (FCA)** | Per-persona F1, Homonym Resolution |
+| Task | Benchmark | 작업 |
+|------|-----------|------|
+| 1.1 | MetaTool | **DONE** |
+| 1.2 | CRMArena-Pro | 6-facet ontology 구축 → B_ont → 1,170 tasks eval |
+| 1.3 | C³-Bench tool selection | 256 tool groups → ontology → eval |
 
-### Aggregate Metrics
+### Phase 2: T2 Plan Generation (Week 2-3)
 
-| Metric | Definition |
-|--------|-----------|
-| **Multi-Bench Average Δ** | Average K-bias improvement across B1-B4 |
-| **FCA** (new) | P(correct tool \| query, persona) — B5 only |
-| **Disambiguation Lift** | FCA(with K-bias) - FCA(no_steer) — our main novelty claim |
+| Task | Benchmark | 작업 |
+|------|-----------|------|
+| 2.1 | TaskBench HuggingFace | 23 tools ontology → B_ont → plan generation with K-bias → n-F1 / e-F1 |
+| 2.2 | TaskBench Multimedia | 40 tools ontology → B_ont → eval |
+| 2.3 | AppBench MM | 10 apps × APIs ontology → B_ont → graph-level Success Rate |
+| 2.4 | C³-Bench plan | dependency resolution with K-bias → AP / OP |
 
----
+### Phase 3: T3 Multi-Turn (Week 3-4)
 
-## 4. Implementation Plan
+| Task | Benchmark | 작업 |
+|------|-----------|------|
+| 3.1 | CONFETTI | Per-turn tool call accuracy with K-bias |
+| 3.2 | CRMArena-Pro interactive | Interactive mode + K-bias |
+| 3.3 | τ²-bench retail | K-bias on retail workflow |
 
-### Week 1: Ontology + B2 Baseline
+### Phase 4: Cross-Tier Analysis (Week 4)
 
-| Day | Task |
-|-----|------|
-| D1 | CRMArena 25 tools에서 6-facet ontology JSON 생성 |
-| D1 | B_ont 구축: Qwen + Llama on CRMArena tool descriptions |
-| D2 | CRMArena eval pipeline 작성 (SOQL → tool selection format 변환) |
-| D3 | B2 eval: 1,170 tasks × {no_steer, K-bias α=0.3} × Qwen |
-
-### Week 2: B3 + B4 + B5 Data Generation
-
-| Day | Task |
-|-----|------|
-| D4 | CONFETTI eval pipeline (506 conversations → per-turn eval) |
-| D5 | C³-Bench eval pipeline (255 tasks → multi-step eval) |
-| D6 | MF-Disambig data generation (30 queries × 3 personas × params) |
-| D7 | MF-Disambig eval: 120 instances × {no_steer, K-bias, facet-conditioned} |
-
-### Week 3: Cross-Benchmark Analysis
-
-| Day | Task |
-|-----|------|
-| D8 | All benchmarks × {Qwen, Llama} × {no_steer, K-bias} |
-| D9 | Per-facet ablation on B5 (remove one facet, measure FCA delta) |
-| D10 | Paper table generation + analysis |
+| Analysis | 내용 |
+|----------|------|
+| 4.1 | All Tier 결과 집계: "K-bias가 T1/T2/T3 모두에서 일관되게 개선" |
+| 4.2 | Per-facet ablation: 어떤 facet이 어느 tier에서 가장 기여하는가? |
+| 4.3 | α sweep per benchmark: 최적 α가 benchmark에 따라 다른가? |
+| 4.4 | Model comparison: Qwen vs Llama per tier |
 
 ---
 
-## 5. 논문 Contribution Mapping
+## 6. 논문 Story Line
 
-| Contribution | Evidence Source |
-|-------------|---------------|
-| K-bias generalizes across models | B1 (Qwen +11pp, Llama +10pp) |
-| K-bias works on enterprise CRM tasks | B2 (CRMArena-Pro) |
-| K-bias improves multi-turn goal switching | B3 (CONFETTI) |
-| K-bias helps inter-tool dependency resolution | B4 (C³-Bench) |
-| **Facet-conditioned K-bias enables role-dependent disambiguation** | **B5 (MF-Disambig) — NOVEL** |
-| B_ont construction: pad-to-max + skipL0 | Mistral ablation study |
+```
+Section 1: Introduction
+  "LLM tool use에서 ontology가 중요한 이유"
+
+Section 2: Method
+  "Multi-facet ontology K-bias steering"
+  - 6-facet ontology construction
+  - K-bias hook: K' = K + α·B·B^T·K
+  - Per-head adaptive rank (pad-to-max + skip pathological layers)
+
+Section 3: Tool Selection Experiments (T1)
+  MetaTool: +11pp (Qwen), +10pp (Llama)
+  CRMArena-Pro: enterprise CRM에서도 효과
+  C³-Bench: 256 tool groups에서도 효과
+
+Section 4: Plan Generation Experiments (T2)  ← KEY NOVELTY
+  TaskBench: node-F1 ↑, edge-F1 ↑ (DAG 구조가 개선)
+  AppBench: graph-level Success Rate ↑
+  "K-bias는 개별 tool 선택뿐 아니라 tool 간 의존성 인식도 향상"
+
+Section 5: Multi-Turn Workflow Experiments (T3)
+  CONFETTI: goal-switching turn에서 효과
+  CRMArena interactive: multi-turn CRM에서 효과
+
+Section 6: Analysis
+  Cross-model: Qwen + Llama 일관
+  Per-facet ablation
+  B_ont construction: pad-to-max + skipL0 필수
+  Mistral failure analysis (negative result)
+  
+Section 7: Related Work
+  Prior art: CAA, RepE, PASTA, ASA, Focus Directions → all steering but not ontology-based
+  KV quant: connection to coworker's rotation paper (dual-use B_ont)
+```
 
 ---
 
-## 6. Cloned Repos
+## 7. Cloned Repos Summary
 
-| Repo | Location | Status |
-|------|----------|--------|
-| CRMArena | `external/CRMArena/` | Cloned, DB inspected |
-| C³-Benchmark | `external/C3-Benchmark/` | Cloned, 255 tasks + 256 tools |
-| CONFETTI | `external/confetti/` | Cloned, 506 conversations |
-| τ²-bench | `external/tau2-bench/` | Previously cloned |
-| MetaTool | `/tmp/MetaTool/` | In use |
+| Repo | Path | Tools | Samples |
+|------|------|-------|---------|
+| CRMArena | `external/CRMArena/` | 25 | 4,280 |
+| C³-Benchmark | `external/C3-Benchmark/` | 256 groups | 255 |
+| CONFETTI | `external/confetti/` | 86 (15/conv) | 506 conv |
+| TaskBench | `external/JARVIS/taskbench/` | 23+40+40 | ~28K |
+| AppBench | `external/AppBench/` | 10 apps | 800 |
+| τ²-bench | `external/tau2-bench/` | 13-15 | 117+50 |
+| MetaTool | `/tmp/MetaTool/` | 199 | 995 |
