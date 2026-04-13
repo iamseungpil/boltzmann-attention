@@ -369,15 +369,18 @@ def main():
     print(f"  per-head r_ont range: min={r_min}  max={r_max}  median={r_med}",
           flush=True)
 
-    # Truncate every head to r_min so the saved tensor is uniform
-    # rectangular with no zero-padded columns. r_min < r_pair drops the
-    # highest-residual Gram-Schmidt directions per head, preserving the
-    # most important facet-aligned directions.
-    print(f"  truncating all heads to r_ont={r_min} for uniform tensor",
-          flush=True)
-    B_tensor = np.zeros((n_layers, n_kv, d, r_min), dtype=np.float32)
+    if args.pad_to_max:
+        r_use = r_max
+        print(f"  padding all heads to r_ont={r_max} (pad-to-max mode)",
+              flush=True)
+    else:
+        r_use = r_min
+        print(f"  truncating all heads to r_ont={r_min} for uniform tensor",
+              flush=True)
+    B_tensor = np.zeros((n_layers, n_kv, d, r_use), dtype=np.float32)
     for (li, h), B in per_pair_basis.items():
-        B_tensor[li, h] = B[:, :r_min]
+        r_head = min(B.shape[1], r_use)
+        B_tensor[li, h, :, :r_head] = B[:, :r_head]
 
     B_t = torch.from_numpy(B_tensor)
     payload = {
@@ -389,7 +392,7 @@ def main():
         "n_layers": n_layers,
         "n_kv": n_kv,
         "head_dim": d,
-        "r_ont": r_min,
+        "r_ont": r_use,
         "r_max_unrtruncated": r_max,
         "r_median_unrtruncated": r_med,
         "r_per_pair": {f"L{li}_H{h}": r for (li, h), r in r_per_pair.items()},
