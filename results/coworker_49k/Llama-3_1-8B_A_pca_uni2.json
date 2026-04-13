@@ -1,0 +1,7 @@
+{
+  "ppl": 9.4311,
+  "delta": 3.0288,
+  "desc": "PCA+Uniform 2-bit",
+  "runtime_sec": 316.5,
+  "avg_bits": 2.0
+}

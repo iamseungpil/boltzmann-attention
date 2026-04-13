@@ -1,0 +1,7 @@
+{
+  "ppl": 40.4272,
+  "delta": 34.8513,
+  "desc": "PCA+Lloyd+WF(floor=2)",
+  "runtime_sec": 356.2,
+  "avg_bits": 2.0
+}

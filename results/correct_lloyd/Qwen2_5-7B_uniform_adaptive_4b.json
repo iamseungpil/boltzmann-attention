@@ -1,0 +1,10 @@
+{
+  "ppl": 6.6007,
+  "delta": 0.0393,
+  "bits": 4,
+  "quantizer": "uniform_adaptive",
+  "desc": "Uniform (per-chunk, BUGGY baseline)",
+  "eval_linf_avg": 0.601421,
+  "eval_linf_max": 0.970596,
+  "runtime_sec": 31.6
+}

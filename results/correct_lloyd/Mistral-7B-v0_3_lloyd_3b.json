@@ -1,0 +1,10 @@
+{
+  "ppl": 7.0954,
+  "delta": 1.5194,
+  "bits": 3,
+  "quantizer": "lloyd",
+  "desc": "Lloyd (CORRECTED mean-centering)",
+  "eval_linf_avg": 5.054717,
+  "eval_linf_max": 14.290283,
+  "runtime_sec": 71.0
+}

@@ -17,8 +17,9 @@ __pycache__/
 *.fdb_latexmk
 *.pdf
 
-# Nested paper repo is managed separately
-paper/
+# Nested paper repo — track neurips2026_ko subfolder
+paper/*
+!paper/neurips2026_ko/
 
 # AMLT / environment noise
 .DS_Store

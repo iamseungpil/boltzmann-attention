@@ -1,0 +1,48 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "fp16": 5.576,
+  "configs": {
+    "A_pca_uni2": {
+      "ppl": 6.3776,
+      "delta": 0.8016,
+      "desc": "PCA+Uniform 2-bit",
+      "runtime_sec": 319.6,
+      "avg_bits": 2.0
+    },
+    "B_pca_uni2_sink": {
+      "ppl": 6.3166,
+      "delta": 0.7406,
+      "desc": "PCA+Uniform 2-bit+Sink",
+      "runtime_sec": 368.5,
+      "avg_bits": 2.0
+    },
+    "C_pca_lloyd2": {
+      "ppl": 179.7674,
+      "delta": 174.1914,
+      "desc": "PCA+Lloyd 2-bit (uniform)",
+      "runtime_sec": 336.8,
+      "avg_bits": 2.0
+    },
+    "D_pca_lloyd_wf1": {
+      "ppl": 40.9664,
+      "delta": 35.3905,
+      "desc": "PCA+Lloyd+WF(floor=1)",
+      "runtime_sec": 390.2,
+      "avg_bits": 2.0
+    },
+    "E_pca_lloyd_wf1_sink": {
+      "ppl": 38.0786,
+      "delta": 32.5026,
+      "desc": "PCA+Lloyd+WF(floor=1)+Sink \u2605",
+      "runtime_sec": 355.7,
+      "avg_bits": 2.0
+    },
+    "F_pca_lloyd_wf2": {
+      "ppl": 40.4272,
+      "delta": 34.8513,
+      "desc": "PCA+Lloyd+WF(floor=2)",
+      "runtime_sec": 356.2,
+      "avg_bits": 2.0
+    }
+  }
+}

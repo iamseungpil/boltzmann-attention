@@ -1,0 +1,94 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "bits": 2,
+  "fp16": 5.576,
+  "configs": {
+    "A_norot_uniform": {
+      "ppl": 6.9389,
+      "delta": 1.363,
+      "mse": 0.488829,
+      "linf": 8.8125,
+      "runtime_sec": 69.5
+    },
+    "B_norot_lloyd": {
+      "ppl": 274.0061,
+      "delta": 268.4302,
+      "mse": 0.30597,
+      "linf": 17.2917,
+      "runtime_sec": 118.2
+    },
+    "C_pca_uniform": {
+      "ppl": 6.4016,
+      "delta": 0.8256,
+      "mse": 0.452408,
+      "linf": 8.2298,
+      "runtime_sec": 66.7
+    },
+    "D_pca_lloyd": {
+      "ppl": 15.7513,
+      "delta": 10.1753,
+      "mse": 0.175414,
+      "linf": 18.0898,
+      "runtime_sec": 125.6
+    },
+    "E_random_uniform": {
+      "ppl": 6.4737,
+      "ppl_std": 0.0476,
+      "delta": 0.8978,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "ppls": [
+        6.4137,
+        6.5302,
+        6.4774
+      ]
+    },
+    "F_random_lloyd": {
+      "ppl": 16.6558,
+      "ppl_std": 1.3399,
+      "delta": 11.0799,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "ppls": [
+        18.5506,
+        15.7347,
+        15.6823
+      ]
+    },
+    "G_norot_clipped": {
+      "ppl": 342.6237,
+      "delta": 337.0478,
+      "mse": 0.313063,
+      "linf": 17.5521,
+      "runtime_sec": 132.6
+    },
+    "H_pca_clipped": {
+      "ppl": 16.8316,
+      "delta": 11.2556,
+      "mse": 0.177903,
+      "linf": 18.1263,
+      "runtime_sec": 141.3
+    },
+    "I_random_clipped": {
+      "ppl": 17.8927,
+      "ppl_std": 1.4686,
+      "delta": 12.3168,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "ppls": [
+        19.9288,
+        17.2295,
+        16.5199
+      ]
+    }
+  }
+}
