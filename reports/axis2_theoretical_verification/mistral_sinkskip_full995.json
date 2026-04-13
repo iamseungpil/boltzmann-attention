@@ -1,0 +1,344 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 995,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.3",
+    "ocq_bias_a0.3_sinkskip"
+  ],
+  "skip_heads_spec": null,
+  "skip_heads_count": 0,
+  "skip_sink_tokens": 1,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-mistral-7b-v03-metatool/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 995,
+      "top1_correct": 607,
+      "top1_accuracy": 0.6100502512562814,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6100502512562814,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 631,
+        "no_match": 364,
+        "none_pred": 0
+      },
+      "runtime_s": 798.306492805481,
+      "samples": [
+        {
+          "index": 0,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport, tool description: ['Begin an exciting journey through time, interact with unique characters, and learn history",
+          "choice": "timeport"
+        },
+        {
+          "index": 1,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. tool name: timeport, tool description: ['Begin an exciting journey through time, interact with unique characters,",
+          "choice": "timeport"
+        },
+        {
+          "index": 2,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. tool name: timeport, tool description: ['Begin an exciting journey through time, interact with unique characters,",
+          "choice": "timeport"
+        },
+        {
+          "index": 3,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport\n\nUser query: \"I want to introduce my 6-year-old to coding.",
+          "choice": "timeport"
+        },
+        {
+          "index": 4,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. tool name: timeport, tool description: ['Begin an exciting journey through time, interact with unique characters,",
+          "choice": "timeport"
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_queries": 995,
+      "top1_correct": 290,
+      "top1_accuracy": 0.2914572864321608,
+      "tool_queries": 995,
+      "tool_accuracy": 0.2914572864321608,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 332,
+        "no_match": 663,
+        "none_pred": 0
+      },
+      "runtime_s": 1074.8388347625732,
+      "samples": [
+        {
+          "index": 0,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nUser query: \"How can I make this experience as immersive as possible?\" tool: 2",
+          "choice": null
+        },
+        {
+          "index": 1,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nExplanation: The user wants to learn about the women's suffrage movement in the 1",
+          "choice": null
+        },
+        {
+          "index": 2,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nExplanation: The tool \"timeport\" is the most suitable for this query as it allows the",
+          "choice": "timeport"
+        },
+        {
+          "index": 3,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nUser query: \"I want to introduce my 6-year-old to coding. What activities would",
+          "choice": null
+        },
+        {
+          "index": 4,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nUser query: \"Please provide me with detailed information about the ancient Egyptians, including their history, traditions",
+          "choice": null
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.3_sinkskip",
+      "n_queries": 995,
+      "top1_correct": 193,
+      "top1_accuracy": 0.19396984924623115,
+      "tool_queries": 995,
+      "tool_accuracy": 0.19396984924623115,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 232,
+        "no_match": 763,
+        "none_pred": 0
+      },
+      "runtime_s": 1075.9637637138367,
+      "samples": [
+        {
+          "index": 0,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nUser query: \"How can I make this experience as immersive as possible?\" tool: 2",
+          "choice": null
+        },
+        {
+          "index": 1,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nUser query: \"Could you guide me through the events of the women's suffrage movement in the",
+          "choice": null
+        },
+        {
+          "index": 2,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nUser query: \"Can you arrange safe and efficient transportation to ancient Rome, allowing me to immerse myself",
+          "choice": null
+        },
+        {
+          "index": 3,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nUser query: \"I want to introduce my 6-year-old to coding. What activities would",
+          "choice": null
+        },
+        {
+          "index": 4,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\n\nUser query: \"Please provide me with detailed information about the ancient Egyptians, including their history, traditions",
+          "choice": null
+        }
+      ]
+    }
+  ]
+}

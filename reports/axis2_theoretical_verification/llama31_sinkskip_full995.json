@@ -1,0 +1,344 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 995,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.3",
+    "ocq_bias_a0.3_sinkskip"
+  ],
+  "skip_heads_spec": null,
+  "skip_heads_count": 0,
+  "skip_sink_tokens": 1,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-llama31-8b-metatool/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 995,
+      "top1_correct": 802,
+      "top1_accuracy": 0.8060301507537688,
+      "tool_queries": 995,
+      "tool_accuracy": 0.8060301507537688,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 825,
+        "no_match": 170,
+        "none_pred": 0
+      },
+      "runtime_s": 724.0979042053223,
+      "samples": [
+        {
+          "index": 0,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. tool name: timeport, tool description: ['Begin an exciting journey through time, interact with unique characters,",
+          "choice": "timeport"
+        },
+        {
+          "index": 1,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\nExplanation: The user wants to learn about the women's suffrage movement in the 19th century. The",
+          "choice": null
+        },
+        {
+          "index": 2,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. tool name: timeport, tool description: ['Begin an exciting journey through time, interact with unique characters,",
+          "choice": "timeport"
+        },
+        {
+          "index": 3,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport\nExplanation: The user wants to experience the Victorian era, so the appropriate tool is timeport,",
+          "choice": "timeport"
+        },
+        {
+          "index": 4,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\nExplanation: The user is looking for information about the ancient Egyptians, which is a topic that can be covered by",
+          "choice": null
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_queries": 995,
+      "top1_correct": 904,
+      "top1_accuracy": 0.9085427135678392,
+      "tool_queries": 995,
+      "tool_accuracy": 0.9085427135678392,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 925,
+        "no_match": 70,
+        "none_pred": 0
+      },
+      "runtime_s": 1068.8187890052795,
+      "samples": [
+        {
+          "index": 0,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport, 2. Chess, 3. Algorithma, 4. storybird_stories",
+          "choice": "timeport"
+        },
+        {
+          "index": 1,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\nExplanation: The user wants to learn about the history of women's suffrage in the 19th century.",
+          "choice": null
+        },
+        {
+          "index": 2,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport\nExplanation: Timeport is a time-travel game that allows you to interact with unique characters and",
+          "choice": "timeport"
+        },
+        {
+          "index": 3,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport\nExplanation: The user wants to experience the Victorian era, so the appropriate tool is timeport,",
+          "choice": "timeport"
+        },
+        {
+          "index": 4,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\nExplanation: The user is looking for information about the ancient Egyptians, so we recommend the tool \"timeport\"",
+          "choice": "timeport"
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.3_sinkskip",
+      "n_queries": 995,
+      "top1_correct": 863,
+      "top1_accuracy": 0.8673366834170855,
+      "tool_queries": 995,
+      "tool_accuracy": 0.8673366834170855,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 884,
+        "no_match": 111,
+        "none_pred": 0
+      },
+      "runtime_s": 1021.2743852138519,
+      "samples": [
+        {
+          "index": 0,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport, 2. Chess, 3. Algorithma, 4. storybird_stories",
+          "choice": "timeport"
+        },
+        {
+          "index": 1,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\nExplanation: The timeport tool allows users to travel back in time and experience historical events firsthand. This tool would",
+          "choice": "timeport"
+        },
+        {
+          "index": 2,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport\nExplanation: Timeport is a time-travel game that allows you to interact with unique characters and",
+          "choice": "timeport"
+        },
+        {
+          "index": 3,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1. timeport\nExplanation: The user wants to experience the Victorian era, so the appropriate tool is timeport,",
+          "choice": "timeport"
+        },
+        {
+          "index": 4,
+          "gt": "timeport",
+          "cands": [
+            "timeport",
+            "Chess",
+            "Algorithma",
+            "storybird_stories",
+            "ABCmouse",
+            "GameTool",
+            "crafty_clues",
+            "video_highlight",
+            "champdex",
+            "Sudoku"
+          ],
+          "generation": "1\nExplanation: The user is looking for information about the ancient Egyptians, so we recommend the tool \"timeport\"",
+          "choice": "timeport"
+        }
+      ]
+    }
+  ]
+}
