@@ -40,6 +40,8 @@ sys.path.insert(0, str(HERE))
 from eval_metatool_subtask1 import (
     install_kbias_hooks,
     install_facet_gated_hooks,
+    install_vbias_hooks,
+    install_kvbias_hooks,
     parse_candidates,
     parse_method,
     build_facet_masks,
