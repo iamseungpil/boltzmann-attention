@@ -276,6 +276,56 @@ Expected runtime: ~12 GPU-hours per model (sum + mean scorers × controls). Tota
 
 **Why this also strengthens the theory.** Under FC format, the model commits to exactly one `name` field, which reduces the effective per-query output space to the 10 candidate strings. This is *already* the closed-set classification regime of Thm 6.1's facet-specific logit perturbation analysis. Cor 6.9's $\varepsilon$-numerical-rank separation predicts a clean correlation between numerical rank of the facet operator and top-1 FC match rate — directly testable.
 
+#### 5.4.3 Multi-tool evaluation — the decisive test of F-simultaneous theory
+
+Top-1 FC evaluation still reflects *single-label* classification: model emits one tool, ground truth is one tool. Real deployment is different. Production agents routinely emit **parallel tool calls**:
+
+- OpenAI FC: `"tool_calls": [{...}, {...}]` (array)
+- Anthropic Claude: multiple `<tool_use>` blocks
+- Qwen2.5-Instruct / Mistral-Instruct / Llama-3.1-Instruct: multiple `<tool_call>` blocks per assistant turn
+
+When a user query admits multiple valid tools (e.g., "latest Tesla news and stock price" needs both `NewsTool` and `FinanceTool`), a model that emits only one is **objectively worse** than a model that emits both. Top-1 metrics cannot distinguish these.
+
+**MetaTool Task2-Subtask4 is perfect for this**: 497 queries, every one with exactly 2 valid tools as ground truth (verified in the dataset via `tool` field being a length-2 list). Example:
+- Query: *"I want to know the latest news about Tesla and how it has impacted the stock market."*
+- GT: `{FinanceTool, NewsTool}`.
+
+**Metrics.** For each query, let $P$ = predicted tool set (multi-set of `name` fields extracted from the structured output), $G$ = ground-truth tool set:
+
+- **Precision**: $|P \cap G| / |P|$
+- **Recall**: $|P \cap G| / |G|$
+- **F1**: $2 \cdot P \cdot R / (P + R)$
+- **Jaccard**: $|P \cap G| / |P \cup G|$
+- **Exact-set match**: $\mathbf{1}[P = G]$
+
+Aggregating over queries: macro-F1 (average over queries), micro-F1 (pool all tool instances). Report both.
+
+**Theoretical prediction (direct empirical test of Cor 6.9).** The ε-numerical-rank separation between our facet-gated operator (rank $R=24$) and AdaSEKA-style max-normalized routing (rank $r$) makes a sharp prediction for Subtask4:
+
+1. **Our method** (facet-gated, $R$ simultaneous axes): can carry energy on multiple facets at once. Tokens activating both "finance" and "news" facets produce $K$-bias that preserves both signals. Model sees high attention weight on both `FinanceTool` and `NewsTool` examples → emits both in `tool_calls` array → **recall ≈ 1, F1 ≈ 1**.
+
+2. **AdaSEKA 1-of-M routing** (Cor 6.9 bound: $\mathrm{nrank}_\varepsilon \le r$): max-normalization forces winner-take-all — only the dominant facet's expert contributes above threshold. Model commits to one tool → **recall ≤ 0.5, F1 ≤ 0.67** on Subtask4 (by construction, at most 1 of 2 GT tools is emitted). *This is a theorem, not an empirical expectation*.
+
+3. **No_steer baseline**: depends on LM's own training; Qwen2.5-Instruct's FC training likely emits 1 or 2 tool_calls depending on query phrasing. Expected recall $\sim 0.6$–$0.8$.
+
+4. **Random / featshuffle**: degrade sharply on multi-tool — the perturbation is not aligned with either facet direction, so the model's multi-tool selection capability is corrupted. Expected F1 drop similar to or larger than single-tool case.
+
+**The mechanism contribution becomes empirically sharp.** Under top-1 Subtask1, our Δ is small and scorer-sensitive (+0.1 to +13pp). Under multi-tool Subtask4 F1, our method should beat both no_steer and AdaSEKA by a structurally-predicted margin, *because* Cor 6.9 says F-simultaneous rank is the bottleneck. This is the single experiment that most cleanly separates our facet-gated operator from Q-side 1-of-M steering in the literature.
+
+**Experimental plan (FC-2, adds to §5.13).**
+
+| Config | Benchmark | Metric | Methods | Models |
+|---|---|---|---|---|
+| FC-2a | MetaTool Subtask4 (497 × 2-tool) | macro-F1, recall, Jaccard | {no_steer, a0.3 real, a0.3 random, a0.3 featshuffle, AdaSEKA 2-expert, AdaSEKA 3-expert} | Qwen-Instruct, Llama-Instruct, Mistral-Instruct |
+| FC-2b | BFCL-v3 Parallel subset (if accessible) | same | same | same |
+| FC-2c | τ²-bench retail multi-turn | action-match rate + F1 over tools called per turn | same | Qwen-Instruct |
+
+Expected runtime: $\sim$25 GPU-hours for FC-2a alone across 3 models × 6 methods × 2 scorers. FC-2b and FC-2c add $\sim$40 more.
+
+**Sanity check**: Subtask4 with multi-tool FC is how the paper's geometric specificity claim (real vs random/featshuffle) most directly translates to deployment-relevant numbers. If no_steer Qwen-Instruct achieves macro-F1 = 0.65 and our method pushes it to $\ge$ 0.75 while AdaSEKA caps at $\le$ 0.67 (Cor 6.9 bound), the paper has a clean theory-prediction-verification triangle on a production-aligned metric. This is the central experiment we propose for the ICLR submission's camera-ready revision if time permits, or the follow-up full paper otherwise.
+
+**Why Subtask1 (single-tool) should not be dropped despite Subtask4's superiority.** Subtask1 is still the right venue for mechanism-specificity (real vs random/featshuffle under multiple scorers) because the null controls are easier to interpret when the target is a single category. Subtask4 demonstrates the *consequence* of that specificity under the deployment-relevant multi-tool regime. The two are complementary: Subtask1 = theory verification, Subtask4 = deployment impact.
+
 ### 5.5 Theorem 6.1 empirical verification (new, this paper's distinguishing experiment)
 
 Script: `scripts/ocq/measure_theorem_6_1.py`. For 100 MetaTool queries at layer L=13 (Qwen mid-layer), we compute per-head and per-query:
