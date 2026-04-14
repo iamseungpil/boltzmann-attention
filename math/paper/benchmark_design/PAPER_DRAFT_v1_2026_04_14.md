@@ -254,9 +254,9 @@ Qwen2.5-7B-Instruct label_logprob full 995 (Waves 1+2, complete 2026-04-14):
 | first_line (parser-safe, codex Base) | 33.57% | +2.81pp | −21.61pp | −32.16pp | **+24.42pp** | **+34.97pp** |
 | label_logprob sum (Qwen2.5-7B-Instruct) | 52.46% | +0.10pp | −48.74pp | −40.10pp | **+48.84pp** | **+40.20pp** |
 | label_logprob mean (Qwen2.5-7B-Instruct) | 36.78% | +5.03pp | −23.02pp | −11.26pp | **+28.05pp** | **+16.28pp** |
-| label_logprob sum (Llama-3.1-8B-**Base**, NousResearch mirror) | 46.33% | **+6.33pp** | pending | pending | pending | pending |
+| label_logprob sum (Llama-3.1-8B-**Base**, NousResearch mirror) | 46.33% | **+6.33pp** | **−1.00pp** | pending | **+7.33pp** | pending |
 | label_logprob sum (Mistral-7B-v0.3 **skipL0+padmax**) | 69.35% | **+3.12pp** | pending | pending | pending | pending |
-| label_logprob mean (Mistral-7B-v0.3 skipL0+padmax) | 40.70% | pending (a0.3 running) | — | — | — | — |
+| label_logprob mean (Mistral-7B-v0.3 skipL0+padmax) | 40.70% | +0.20pp | pending | pending | pending | pending |
 
 **Cross-model 3-family positive under strict label_logprob sum** (newly observed 2026-04-14 23:00–00:20 KST): Qwen +0.10, Llama Base +6.33, Mistral-v0.3 (skipL0+padmax fix) +3.12. All three architecture families register positive under the strictest closed-set scorer, reversing the earlier "Mistral counterexample" framing (memory `cross_model_kbias_analysis_2026_04_13` legacy substring −4.32 → strict scorer +3.12). Llama mean + Mistral mean + null controls for both models still running; full table populated upon Wave 3 completion.
 
