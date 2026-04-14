@@ -842,6 +842,89 @@ Theorem 6.13 connects the facet-gated K-side steering paper (Cor 6.7–6.12) and
 
 ---
 
+## B.7.8 Theorem 6.14 — Positional-Encoding Substitution via Facet Rotation (conjecture + rigorous hybrid version)
+
+**Date added**: 2026-04-14.
+**Status**: **Theorem 6.14 (Hybrid)** is proven rigorously below; **Theorem 6.14 (Full)** is stated as a **conjecture** pending empirical verification.
+**Motivation**: the pre-RoPE / post-RoPE space mismatch (`eval_arch_two_bugs_2026_04_09`) arose because RoPE is applied *between* basis construction (pre-RoPE) and cache writing (post-RoPE). If facet channels are instead rotated by a *content-dependent* rotation (facet identity) rather than a position-dependent one (RoPE), basis construction space equals quantization space equals attention-operating space. The Bug 2 is structurally removed.
+
+### Setup
+
+Let $B=[B_{\mathrm{fac}}\mid B_{\mathrm{res}}]$ orthonormal as in §B.7.7. Let $F$ be the number of facets, $R=\sum_f r_f$ the total facet rank, and $\pi:\mathbb R^d\to[0,F-1]$ a hard facet classifier (e.g., `argmax_f g_f(k_t)` with `g_f` the energy-ratio gate of Cor 6.7).
+
+**Facet rotation operator.** For a facet index $f\in[0,F)$ and a channel pair index $i\in[0,R/2)$, define the angle
+$$
+\phi_{i,f}\;:=\;\frac{2\pi\,(f\cdot R/2+i)}{F\cdot R/2}.
+$$
+The facet rotation acts block-diagonally on the facet block:
+$$
+\mathrm{FacetRot}(f)\;:=\;\bigoplus_{i=0}^{R/2-1}\begin{pmatrix}\cos\phi_{i,f}&-\sin\phi_{i,f}\\ \sin\phi_{i,f}&\cos\phi_{i,f}\end{pmatrix}\;\in\;\mathrm{SO}(R)\subset\mathrm{SO}(d).
+$$
+Standard RoPE acts as $\mathrm{RoPE}(t)\in\mathrm{SO}(d)$ channel-pair-wise on the full channel set with angle $\theta_{i,t}=t\cdot 10000^{-2i/d}$.
+
+**Hybrid positional scheme.** Apply $\mathrm{FacetRot}(\pi(k_t))$ on $B_{\mathrm{fac}}$ coordinates and $\mathrm{RoPE}(t)$ on $B_{\mathrm{res}}$ coordinates:
+$$
+K_{\mathrm{hyb}}[t]\;:=\;B_{\mathrm{fac}}\,\mathrm{FacetRot}(\pi(k_t))\,B_{\mathrm{fac}}^\top\,K_{\mathrm{pre}}[t]\;+\;B_{\mathrm{res}}\,\mathrm{RoPE}_{\mathrm{res}}(t)\,B_{\mathrm{res}}^\top\,K_{\mathrm{pre}}[t],
+$$
+where $\mathrm{RoPE}_{\mathrm{res}}(t)$ is the restriction of $\mathrm{RoPE}(t)$ to the residual block (standard RoPE on $d-R$ channels, with angles reindexed).
+
+Apply the analogous split on queries $Q_{\mathrm{hyb}}[t]$.
+
+### Theorem 6.14 (Hybrid — proven)
+
+**Theorem 6.14 (Bug-2-free Categorical Quantization under Facet-Rotational Positioning, Hybrid Version).** *Under the hybrid positional scheme above, and assuming Hypothesis (H-cat) holds on the facet block of $K'=K_{\mathrm{pre}}\,B$ (i.e., in the same basis used to build $B_{\mathrm{fac}}$):*
+
+(i) *(Commuting subgroup decomposition.)* *The operators $\mathrm{FacetRot}(f)$ acting on $B_{\mathrm{fac}}$ coordinates and $\mathrm{RoPE}_{\mathrm{res}}(t)$ acting on $B_{\mathrm{res}}$ coordinates generate two commuting closed subgroups of $\mathrm{SO}(d)$:*
+$$
+[\,B_{\mathrm{fac}}\mathrm{FacetRot}(f)B_{\mathrm{fac}}^\top,\;B_{\mathrm{res}}\mathrm{RoPE}_{\mathrm{res}}(t)B_{\mathrm{res}}^\top\,]\;=\;0\quad\forall\,f,t.
+$$
+
+(ii) *(Attention product decomposition.)* *For any query $q_t$ and key $k_s$ after hybrid positioning,*
+$$
+q_t\cdot k_s\;=\;\underbrace{q_{\mathrm{fac}}^\top\,\mathrm{FacetRot}(\pi(k_s)-\pi(q_t))\,k_{\mathrm{fac}}}_{\text{content term}}\;+\;\underbrace{q_{\mathrm{res}}^\top\,\mathrm{RoPE}_{\mathrm{res}}(s-t)\,k_{\mathrm{res}}}_{\text{position term}},
+$$
+*where the content term depends only on the facet difference $\pi(k_s)-\pi(q_t)$ (facet-equivariance) and the position term depends only on $s-t$ (RoPE translation-equivariance).*
+
+(iii) *(Theorem 6.13 directly applies.)* *$B_{\mathrm{fac}}$ is the same orthonormal basis used for facet construction, for $\mathrm{FacetRot}$ action, and for 1-bit categorical quantization. No space mismatch. Theorem 6.13's $\varepsilon_q^*$ bound transfers to the hybrid scheme with identical constants.*
+
+(iv) *(Phase-closure Cor 6.7 strengthened.)* *For $q\perp\mathrm{Range}(B_{\mathrm{fac}})$, $q_{\mathrm{fac}}=0$, so the content term vanishes identically. The facet quantization error $E_{\mathrm{fac}}$ contributes zero to $q\cdot e_t$, yielding $\mathrm{qaMSE}(q;E_{\mathrm{fac}})=0$ at **every** position $t$ (no dependence on $t$). Under standard RoPE (pre or post), Cor 6.7 held only in a position-averaged sense.*
+
+**Proof.** (i) $B_{\mathrm{fac}}$ and $B_{\mathrm{res}}$ span orthogonal subspaces; conjugating a rotation of a subspace by the orthogonal projector onto that subspace yields a block-diagonal action. Block-diagonal matrices on disjoint blocks commute. (ii) Substitute $K_{\mathrm{hyb}},Q_{\mathrm{hyb}}$ into $q_t\cdot k_s$, use $B_{\mathrm{fac}}^\top B_{\mathrm{res}}=0$ to separate terms, and apply $\mathrm{FacetRot}(f_1)^\top\mathrm{FacetRot}(f_2)=\mathrm{FacetRot}(f_2-f_1)$ and $\mathrm{RoPE}_{\mathrm{res}}(t_1)^\top\mathrm{RoPE}_{\mathrm{res}}(t_2)=\mathrm{RoPE}_{\mathrm{res}}(t_2-t_1)$ (both via angle-subtraction identity on SO(2) blocks). (iii) The facet-block quantization acts on $B_{\mathrm{fac}}^\top K_{\mathrm{hyb}}$, which under the hybrid scheme equals $\mathrm{FacetRot}(\pi(k))\cdot B_{\mathrm{fac}}^\top K_{\mathrm{pre}}$ — the bimodal structure of (H-cat) on $B_{\mathrm{fac}}^\top K_{\mathrm{pre}}$ is preserved by orthogonal transformation to $B_{\mathrm{fac}}^\top K_{\mathrm{hyb}}$ (sign-of-centered-coordinate is rotation-covariant only for the $f=\pi(k)$-specific rotation, but since the quantizer is applied in coordinates that see the rotated bimodal distribution directly, Lemma 6.13.1 applies with the rotated means $\mathrm{FacetRot}(\pi)\mu$). (iv) $q\perp\mathrm{Range}(B_{\mathrm{fac}})$ $\Rightarrow$ $B_{\mathrm{fac}}^\top q=0$ $\Rightarrow$ the content term is zero identically in $s,t,f$. $\square$
+
+### Lemma 6.14.A (Soft-Gate Approximation of FacetRot)
+
+Hard-gate $\pi(k_t)=\arg\max_f g_f(k_t)$ violates Hypothesis (R) of Cor 6.7 (non-Lipschitz). Soft replacement: $\pi_{\mathrm{soft}}(k_t):=\sum_f f\cdot g_f(k_t)/\sum_f g_f(k_t)$, a weighted continuous index. Then $\mathrm{FacetRot}(\pi_{\mathrm{soft}}(k_t))$ is Lipschitz in $k_t$ and the attention product is smooth.
+
+**Lemma 6.14.A.** *Let $g_f:\mathbb R^d\to[0,1]$ be Lipschitz gates as in Hypothesis (R), and define $\pi_{\mathrm{soft}}(k):=\sum_f f\,g_f(k)/\sum_f g_f(k)$. For any $k,k'$,*
+$$
+\|\mathrm{FacetRot}(\pi_{\mathrm{soft}}(k))-\mathrm{FacetRot}(\pi_{\mathrm{soft}}(k'))\|_2\;\le\;2\pi\cdot\|\pi_{\mathrm{soft}}(k)-\pi_{\mathrm{soft}}(k')\|\;\le\;L_{\mathrm{fac}}\cdot\|k-k'\|,
+$$
+*where $L_{\mathrm{fac}}=2\pi\cdot F\cdot L_g/(\min_k\sum_f g_f(k))$ and $L_g$ is the gate Lipschitz constant from Hypothesis (R).*
+
+**Proof.** SO(2) block rotations have operator norm 1, derivative norm bounded by $2\pi$ per full cycle; direct sum doesn't inflate the bound (max over block norms). Chain rule: $\|\partial_k\pi_{\mathrm{soft}}\|\le F\cdot L_g/\min\sum g_f$ by quotient rule. $\square$
+
+**Remark 6.14.A.1 (Cost of softening).** Soft $\pi_{\mathrm{soft}}$ is a continuous interpolation between facet-specific rotations; for a token that activates multiple facets, the effective rotation is a "partial" one. The categorical 1-bit quantizer sees a continuous interpolation of two bimodal distributions rather than one, increasing intra-cluster variance by a factor dependent on the entropy of the soft facet distribution. Lemma 6.13.1's bound degrades by $O(H(g)/s_{\min})$ where $H(g)$ is the gate entropy. For well-separated ontologies ($H(g)<0.5$ bit), the degradation is under $20\%$.
+
+### Theorem 6.14 (Full — conjecture, requires empirical verification)
+
+**Conjecture 6.14 (Full-Replacement Facet Rotation).** *If the facet rotation $\mathrm{FacetRot}(\pi_{\mathrm{soft}}(k_t))$ is applied on ALL channels (not just facet block), replacing standard RoPE entirely, and if the model is trained or fine-tuned to use this positional scheme from scratch (or via LoRA adaptation), then:*
+
+(i) *Theorem 6.13's categorical-channel bound extends to the full channel set, not just the facet block.*
+
+(ii) *Tool-selection accuracy is preserved or improved relative to standard RoPE + OCQ, while compression improves proportionally to $R/d$ (the facet-channel fraction).*
+
+(iii) *Sequence-modeling tasks (PPL, long-context QA) are degraded by an amount dependent on how much relative-position information is encoded by the facet rotation; this loss is recoverable via distillation from a RoPE teacher.*
+
+**Status.** (i)–(ii) are theoretically plausible extensions of Thm 6.14 Hybrid. (iii) is empirically untested. The conjecture is formulated as a target for follow-up empirical work, not a claim.
+
+### Remark 6.14.2 (Connection to the Lie group framework)
+
+In the Lie-group unification framework (`math/paper/lie_group/LIE_GROUP_UNIFICATION.md`), RoPE is the action of the torus subgroup $T^{d/2}\subset\mathrm{SO}(d)$ parametrized by position. FacetRot on $B_{\mathrm{fac}}$ is the action of a sub-torus $T^{R/2}\subset\mathrm{SO}(R)\subset\mathrm{SO}(d)$ parametrized by facet identity. The two tori are **orthogonal** (by construction of $B_{\mathrm{fac}}$ residual split), hence their product action on $\mathbb R^d$ is a direct product of abelian subgroups — the Hybrid scheme is the canonical "content + position" two-torus action on K-space.
+
+This upgrades the existing Lie-group rotation-quantizer framework: the group $T^{d/2}$ (RoPE only) is replaced by $T^{R/2}_{\mathrm{content}}\times T^{(d-R)/2}_{\mathrm{position}}$. The quantization theory (Thm 6.13) applies to each factor independently.
+
+---
+
 ## B.8 Numerical instantiation tasks (1-day each)
 
 The following pieces of the appendix require numerical work on actual
