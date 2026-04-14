@@ -274,7 +274,7 @@ OCQ-KIVI (applying KIVI on top of OCQ-quantized residuals) gives 33.30 PPL at 2-
 **Dataset & compute**:
 - MetaTool Subtask1 train split (~700 queries) + synthetic tool-description augmentation (800 queries from ToolAlpaca).
 - Single A6000, LoRA fp16, batch size 4, lr 1e-4.
-- Expected total: ~47 GPU-hours; completable in 48 wall-clock hours on one node with two GPUs.
+- Expected total: R1–R6 ≈ 65 GPU-hours; completable in ~66 wall-clock hours on one node with two GPUs, or ~34 hours on two GPUs.
 
 **Timing**: earliest launch after Wave 4 (Thm 6.1 empirical) completes (~23:40 KST 2026-04-14). If ICLR submission deadline permits (assumed Sep 2026), full validation of H1–H2 is feasible; H3 (full-replacement) is a stretch and most likely remains Conjecture with only partial empirical support.
 
