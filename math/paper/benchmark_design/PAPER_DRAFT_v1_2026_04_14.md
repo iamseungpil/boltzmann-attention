@@ -285,6 +285,21 @@ Total: 18 forward-pass configurations × 9 metrics = 162 numbers. Expected runti
 
 **Theorem-level prediction (Cor 6.9)**: for any max-normalized-routing baseline, recall on 2-tool queries is capped at 0.5 by construction (one expert → one tool emission). Therefore $\mathrm{F_{0.5}} \le \tfrac{1.25 \cdot 1 \cdot 0.5}{0.25 \cdot 1 + 0.5} \approx 0.83$. Our facet-gated method has no such cap (rank $R=24$ supports F-simultaneous emission); $\mathrm{F_{0.5}}$ up to 1.0 achievable. **This is a falsifiable numerical prediction**.
 
+**Preliminary N=20 smoke (2026-04-15 00:18 KST, Qwen2.5-7B-Instruct, real B_ont only)**:
+
+| Method | F1 | F_0.5 | EU | Jaccard | Exact | Recall |
+|---|---|---|---|---|---|---|
+| no_steer | 0.550 | 0.550 | 0.300 | 0.467 | 0.300 | 0.550 |
+| real a0.3 | 0.533 | 0.542 | 0.150 | 0.408 | 0.150 | 0.525 |
+
+**Interpretation (cautious, N=20 CI ±0.22 wide)**: No discernible improvement from real a0.3 over no_steer on N=20. Four hypotheses to rule out before concluding Cor 6.9 empirical failure:
+1. Statistical noise (N=20 too small).
+2. α=0.3 mis-calibrated for multi-tool regime (α optimized for Subtask1 single-tool).
+3. FC chat-template structured output format differs from Subtask1 free-text completion — K-bias may not propagate to `<tool_call>` JSON generation identically.
+4. Mechanism failure — K-bias does not extend to F-simultaneous emission in practice.
+
+**Null-control smoke (random, featshuffle) still running**. If real still clearly beats random/featshuffle even at this F1 level, the mechanism-specificity argument holds even if accuracy Δ is small. If real ≈ random, Cor 6.9 empirical validation is in trouble on this benchmark and α sweep / prompt-format ablation required. **Full 497 run will resolve in ~3 hours.**
+
 **FG-F1 secondary prediction (§5.4.4)**: graded scoring credits same-facet-sibling predictions at $s=0.5$. Gap `FG-F1 − F1` should widen for our method (facet-clustered predictions) and stay flat for AdaSEKA (winner-take-all, no cluster). Expected: gap ≈ +0.12 (ours) vs +0.03 (AdaSEKA) — 4× separation.
 
 ### 5.6 Results — E3 Thm 6.1 per-sample attention-weighted bound
