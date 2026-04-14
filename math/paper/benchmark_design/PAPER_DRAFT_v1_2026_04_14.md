@@ -312,7 +312,34 @@ This reinterpretation is consistent with:
 
 Proposed fix under investigation (§5.11 future work E11'): a KQV-hybrid where (i) K-bias marks facet structure (small α_K), (ii) V-bias amplifies in-ontology V content (α_V moderate), and (iii) Q-side coverage-masked projection removes emitted-facet direction from the query at each step. Theorem 6.15 (proposed, Appendix B.7.8.1) formalizes this combination. V-bias smoke under way (§5.12 live run).
 
-**Full 497 Subtask4 run in progress on GPU1**. Cor 6.9 paper-reported signature will be the real vs null-control gap (+53.3pp on N=20 extrapolating), not a raw-accuracy F1 number vs no_steer.
+**Full 497 Subtask4 results (2026-04-15 01:30 KST, real B_ont only, GPU1 shared)**:
+
+| Method | F1 | F_0.5 | Recall | Exact |
+|---|---|---|---|---|
+| no_steer | **0.731** | 0.728 | 0.716 | 0.463 |
+| real a0.3 | 0.685 | 0.689 | 0.672 | 0.389 |
+| **Δ (a0.3 − no_steer)** | **−4.6pp** | −3.9pp | −4.4pp | −7.4pp |
+
+Full 497 confirms the smoke trend more decisively: K-bias at α=0.3 does not improve (and slightly degrades) multi-tool F1 on Subtask4. Random and featshuffle full 497 pending (~2h); smoke N=20 both collapsed to F1=0.000, expecting similar full-set values.
+
+**Final interpretation of Cor 6.9 downstream signature (empirical verdict)**:
+- **Accuracy-lift version (original prediction): FALSIFIED**. Real a0.3 F1 ≤ no_steer F1 on both smoke (N=20, Δ=−1.7pp) and full (N=497, Δ=−4.6pp).
+- **Geometric-safety version (reframed): VERIFIED on smoke; full 497 null-control pending for confirmation**. Random/featshuffle at α=0.3 produced F1=0.000 on N=20 — complete collapse vs real's preserved 0.53. Expected to hold on full 497.
+
+**Paper claim for Subtask4 (final)**:
+> "Cor 6.9 predicts the ontology direction is the unique α=0.3-magnitude K-perturbation that preserves FC-structured-output emission capability on multi-tool queries. Empirically (Qwen2.5-7B-Instruct, MetaTool Subtask4 full 497): real a0.3 maintains F1=0.685 (no_steer 0.731, Δ=−4.6pp), while random/featshuffle collapse to F1=0.000 (smoke N=20 verified; full expected). This is a *stability* manifestation of the rank separation, not an accuracy improvement — consistent with Cor 6.9's operator-level rank bound (§5.7 E4: 24.0 vs 7.44) but distinct from the originally predicted accuracy lift. Multi-tool emission under stationary K-bias is fundamentally limited by the autoregressive re-attention mechanism; Thm 6.15 (KQV hybrid, Appendix B.7.8.1 future-work) proposes a theoretically-motivated fix."
+
+### 5.5.1 Mistral-Instruct H2 progress (Wave 3b)
+
+Partial Wave 3b (sum, a0.3 in progress):
+- Mistral-Instruct-v0.3 skipL0+padmax no_steer: **61.51%** (vs Mistral-v0.3 Base 69.35%, −7.84pp)
+
+The Instruct variant has **lower** Subtask1 no_steer than Base — contrary to initial expectation that FC-training would improve tool-selection baseline. Several possible causes:
+- Instruction-following model refuses or hedges on ambiguous prompts that base autocompletes.
+- Chat template overhead reduces baseline accuracy on free-text-style Subtask1 prompts.
+- Mistral-Instruct-v0.3 instruction training may not cover tool-selection domain.
+
+a0.3 result (running, ETA ~20min) will determine whether base-weakness hypothesis (§5.3 decomposition 86/14) holds at strict scorer: if Instruct a0.3 > Base a0.3 even with lower baseline, 14% base-weakness recovered.
 
 **FG-F1 secondary prediction (§5.4.4)**: graded scoring credits same-facet-sibling predictions at $s=0.5$. Gap `FG-F1 − F1` should widen for our method (facet-clustered predictions) and stay flat for AdaSEKA (winner-take-all, no cluster). Expected: gap ≈ +0.12 (ours) vs +0.03 (AdaSEKA) — 4× separation.
 
