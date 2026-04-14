@@ -395,6 +395,24 @@ Llama WT2 run queued as E6 extension (~5 GPU-hr).
 - **E9 (baselines)**: CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA 2/3-expert, LoRA r=8 tool-FT, RAG prompt injection — all on Subtask1 + Subtask4, same 9 metrics. Matched compute. 18 GPU-hr.
 - **E10 (Mistral closure)**: Wave 3a Mistral-v0.3 skipL0+padmax + Wave 3b Mistral-Instruct-v0.3 H2 — running now. Results will populate Subtask1 cross-model row.
 
+### 5.10.1 E11' — LoRA + Rotation hybrid (Thm 6.16, in progress)
+
+Formal statement of the training-light extension (Appendix B.7.9 Thm 6.16). Sequential L1-L2-L3 pipeline:
+
+- **L1 (LoRA fine-tune)**: Qwen2.5-7B-Instruct + LoRA r=8 on q_proj/k_proj/v_proj, 500 MetaTool Subtask1 train examples, 3 epochs, lr=1e-4, batch 2. Expected train loss < 0.1. ~4 GPU-hr.
+- **L2 (B_ont rebuild)**: collect K at k_proj output of LoRA-adapted model, rebuild $B_\mathrm{ont}^{\mathrm{LoRA}}$ via Gram-Schmidt per (layer, head). ~15 min.
+- **L3 (Subtask4 smoke)**: N=20 smoke with 4 variants: (a) LoRA alone (no K-bias), (b) LoRA + base B_ont + K-bias α=0.3, (c) LoRA + B_ont$^{\mathrm{LoRA}}$ + K-bias α=0.3, (d) LoRA + B_ont$^{\mathrm{LoRA}}$ + normalized K-bias (Thm 6.9.5).
+
+**Cor 6.16.1 expected signatures**:
+- (a) LoRA alone: F1 ∈ [0.78, 0.82] on Subtask4 (LoRA's discriminative lift over base 0.731).
+- (b) + base bias: F1 ∈ [0.78, 0.85] (partial synergy; may regress due to base B_ont mismatch).
+- (c) + LoRA B_ont: F1 ∈ [0.82, 0.88] (full synergy via Thm 6.16 subspace alignment).
+- (d) + normalized: F1 ∈ [0.85, 0.92] (maximal synergy combining Thm 6.9.5 + 6.16).
+
+**Deployment implications** (Appendix E Netsru alignment): LoRA r=8 adds 5M params (0.07% of 7B). Per-domain LoRA retrain is feasible in ~4 GPU-hr. Production agents can maintain per-domain LoRA + shared facet-gated rotation infrastructure.
+
+**Launch status**: Chain supervisor PID 976213 queued after non-uniform fix smokes complete (~01:30-02:00 KST 2026-04-15). Results in `reports/lora_hybrid/*.json` + summary in `logs/lora_hybrid/summary.log`.
+
 ### 5.11 Future work (E11–E16)
 
 Deferred with placeholders in camera-ready; execution ~100 GPU-hr total:
