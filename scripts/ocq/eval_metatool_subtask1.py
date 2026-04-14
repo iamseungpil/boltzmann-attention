@@ -108,6 +108,15 @@ def parse_args() -> argparse.Namespace:
                         "(0 = apply everywhere, 1 = skip BOS/sink).")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
+    p.add_argument("--scorer", default="generation",
+                   choices=["generation", "label_logprob"],
+                   help="'generation': legacy free-gen + first-line parse. "
+                        "'label_logprob': teacher-forced closed-set logprob over "
+                        "candidates + 'None' (artifact-free).")
+    p.add_argument("--include-none-candidate", action="store_true", default=True,
+                   help="Include 'None' as a closed-set candidate (label_logprob only).")
+    p.add_argument("--per-sample-dump", type=str, default="",
+                   help="If set, write per-sample scoring details (label_logprob only) to this path.")
     return p.parse_args()
 
 
