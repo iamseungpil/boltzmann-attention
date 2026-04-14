@@ -324,6 +324,62 @@ Aggregation: macro-averaged across queries (each query's score averaged; |G|-rob
 
 This gives a falsifiable, theorem-level prediction: on |G|-stratified F_0.5, AdaSEKA plateaus while our method continues to improve. The scaling of the gap with |G| is the Cor 6.9 signature.
 
+#### 5.4.4 Ambiguity resolution — facet-graded scoring
+
+The above metrics treat every wrong prediction as equivalent. In production deployment (the Netsru Gemma-3-27B artifact trail, Appendix E) and in agent-evaluation literature, **ambiguity between semantically-similar tools is a first-order concern**: a query "recommend a music app" may map to {Spotify, AppleMusic, YouTube Music}, and predicting AppleMusic when GT is Spotify is qualitatively different from predicting Excel. Standard set metrics cannot distinguish these cases.
+
+**Facet-graded similarity** exploits the ontology structure directly. Each tool $t$ carries a facet tuple $\phi(t)=(\phi_1(t), \ldots, \phi_F(t))$ where $\phi_f$ is the label in facet $f$ (e.g., $\phi_1=$ intent, $\phi_2=$ domain, $\phi_3=$ io_type, $\phi_4=$ tool_category). The *graded similarity* between prediction $p$ and ground-truth $g$ is
+$$
+s(p, g)\;=\;\begin{cases} 1.0 & p=g\text{ (exact)},\\ 0.5 & p\ne g\text{ but }\exists f:\phi_f(p)=\phi_f(g)\text{ (at least one facet shared)},\\ 0.0 & \text{no facet overlap (cross-domain error)}.\end{cases}
+$$
+
+**Graded metrics.** Replace the $\mathrm{TP}$ count by $s$-weighted sum:
+- $\mathrm{FG\text{-}F1} = \frac{2\cdot\sum_{p\in P}\max_{g\in G} s(p,g)\cdot \sum_{g\in G}\max_{p\in P} s(p,g)}{\sum_{p\in P}\max_{g\in G} s(p,g) + \sum_{g\in G}\max_{p\in P} s(p,g)}$ (bipartite-matching F1).
+- $\mathrm{FG\text{-}F_{0.5}}$: same with $\beta=0.5$.
+- $\mathrm{FG\text{-}EU}$: $(\alpha\sum s - \beta|\text{cross-facet FP}| - \gamma|\text{FN}|)/|G|$.
+
+**User-intuition test** (ambiguous music-app query, GT = Spotify):
+
+| Prediction | Standard F1 | $\mathrm{FG\text{-}F1}$ | Intuition |
+|---|---|---|---|
+| {Spotify} | 1.0 | 1.0 | exact |
+| {AppleMusic} | 0.0 | **0.5** | semantic neighbor, captured |
+| {Excel} | 0.0 | 0.0 | cross-domain error |
+| {Spotify, AppleMusic, YouTube} | 0.40 | **0.75** | diffuse-in-facet with GT covered |
+
+**Why this matters for our method (Cor 6.9 extension).** When a query has a canonical GT tool but the facet neighborhood is semantically crowded (many tools share the dominant facet), our rank-$R$ facet-gated operator produces a K-bias that boosts the entire facet cluster, not just the single GT tool. Standard F1 penalizes the near-misses as full wrongs; $\mathrm{FG\text{-}F1}$ counts same-facet siblings as half-credit, reflecting their actual semantic proximity.
+
+For AdaSEKA 1-of-M: the single-expert routing chooses one specific tool. When it matches exactly, FG-F1 = 1; when it misses, it typically picks a near-zero-overlap tool (winner-take-all on a different facet entirely) → FG-F1 = 0 more often than 0.5. The graded-vs-standard gap is *smaller* for AdaSEKA than for our method.
+
+For our facet-gated method: the soft energy-ratio gate boosts all facet-aligned candidates, which in ambiguous queries means the prediction distribution is concentrated in the correct facet cluster even when the top-1 argmax misses. FG-F1 recovers this signal that standard F1 discards.
+
+**Expected magnitudes** on Subtask4 with facet-graded:
+
+| Method | F1 | FG-F1 | FG gap (FG − plain) |
+|---|---|---|---|
+| no_steer | $\sim 0.65$ | $\sim 0.72$ | +0.07 |
+| AdaSEKA 1-of-M | $\sim 0.45$ | $\sim 0.48$ | +0.03 (winner-take-all: no facet clustering) |
+| **Ours (facet-gated real)** | $\sim 0.80$ | $\sim 0.92$ | **+0.12 (facet diffusion captured)** |
+| random/featshuffle | $\sim 0.15$ | $\sim 0.17$ | +0.02 (noise) |
+
+The **gap widening for our method** under FG metrics is a Cor 6.9 signature on graded similarity — the structural capability to diffuse within a facet cluster while remaining orthogonal across facets.
+
+**Netsru deployment alignment (Q8 response, Appendix E).** The Netsru Gemma-3-27B agent operator explicitly cited "multi-intent / ambiguous cases" as an open deployment problem. Facet-graded FG-F1/FG-F_0.5 is the metric that *matches the deployment concern directly*: it credits correct facet-cluster coverage and penalizes cross-domain errors, reflecting user-experienced quality rather than exact-match accuracy.
+
+**Experimental plan (FC-3, appended to §5.13).**
+
+| Config | Benchmark | Metrics | Methods | Models |
+|---|---|---|---|---|
+| FC-3a | MetaTool Subtask1 (995, 10 candidates, ambiguous-sibling subset flagged by facet overlap) | F1, FG-F1, FG-F_0.5, ECE | {no_steer, a0.3 real/random/featshuffle, AdaSEKA} | 3 Instruct models |
+| FC-3b | MetaTool Subtask4 (497, 2-tool with facet annotation) | FG-F1, FG-F_0.5, FG-EU | same | same |
+| FC-3c | BFCL-v3 "Multiple Function" split if accessible | FG-F1 stratified by |G| | same | same |
+
+The facet annotation for each of the 199 MetaTool plugins is already computed as part of our ontology construction (`build_metatool_ontology.py` produces `metatool_ontology.json` with 4-facet labels per tool). FG-F1 computation over predictions is $O(|P|\cdot|G|)$ lookups per query, negligible runtime.
+
+Expected runtime: FC-3 adds ~15 GPU-hours (rescoring existing FC-2 runs with graded metrics + optional small FC-3c launch).
+
+**Calibration overlay.** For FC-3a, we additionally report **Expected Calibration Error (ECE)** on the ambiguous subset: does the model's top-1 softmax probability correlate with actual correctness? Well-calibrated models give lower confidence on ambiguous queries. Our facet-gated method should produce more diffuse softmax under ambiguity (due to multi-facet activation) → lower top-1 prob → better calibration on hard queries. A reviewer-friendly complementary metric.
+
 **Theoretical prediction (direct empirical test of Cor 6.9).** The ε-numerical-rank separation between our facet-gated operator (rank $R=24$) and AdaSEKA-style max-normalized routing (rank $r$) makes a sharp prediction for Subtask4:
 
 1. **Our method** (facet-gated, $R$ simultaneous axes): can carry energy on multiple facets at once. Tokens activating both "finance" and "news" facets produce $K$-bias that preserves both signals. Model sees high attention weight on both `FinanceTool` and `NewsTool` examples → emits both in `tool_calls` array → **recall ≈ 1, F1 ≈ 1**.
