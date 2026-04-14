@@ -262,6 +262,8 @@ def run_method(
             model, B_ont, facet_mask,
             alpha_base=params["alpha"],
             n_kv=n_kv, head_dim=head_dim,
+            gate_mode=args.gate_mode,
+            gate_thresh=args.gate_thresh,
         )
     else:
         raise ValueError(f"{kind} not supported in MMLU driver")
