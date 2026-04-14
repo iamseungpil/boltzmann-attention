@@ -589,6 +589,21 @@ def parse_method(method: str) -> Tuple[str, Dict]:
     if tag.startswith("ocq_facet_gated_a"):
         alpha = float(tag[len("ocq_facet_gated_a"):])
         return "facet_gated", {"alpha": alpha, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # V-side only: ocq_vbias_a<α_V>
+    if tag.startswith("ocq_vbias_a"):
+        alpha_v = float(tag[len("ocq_vbias_a"):])
+        return "vbias", {"alpha_v": alpha_v, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # Combined K+V: ocq_kvbias_a<α_K>_v<α_V>
+    if tag.startswith("ocq_kvbias_a"):
+        rest = tag[len("ocq_kvbias_a"):]
+        if "_v" not in rest:
+            raise ValueError(f"kvbias tag needs _v<alpha_v>: {method}")
+        ak_str, av_str = rest.split("_v", 1)
+        return "kvbias", {
+            "alpha_k": float(ak_str),
+            "alpha_v": float(av_str),
+            "use_skip": use_skip, "use_sinkskip": use_sinkskip,
+        }
     raise ValueError(f"unknown method: {method}")
 
 
