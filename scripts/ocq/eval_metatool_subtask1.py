@@ -676,6 +676,13 @@ def run_method(
                     })
 
     runtime = time.time() - t0
+    if args.per_sample_dump and per_sample_scores:
+        dump_path = Path(args.per_sample_dump)
+        dump_path.parent.mkdir(parents=True, exist_ok=True)
+        method_path = dump_path.parent / f"{dump_path.stem}__{method}.jsonl"
+        with method_path.open("w") as f:
+            for s in per_sample_scores:
+                f.write(json.dumps(s) + "\n")
     n_total = total + none_total
     n_correct = correct + none_correct
     return {
