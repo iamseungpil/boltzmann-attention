@@ -727,6 +727,19 @@ def parse_method(method: str) -> Tuple[str, Dict]:
     if tag.startswith("ocq_facet_gated_a"):
         alpha = float(tag[len("ocq_facet_gated_a"):])
         return "facet_gated", {"alpha": alpha, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # Normalized K-bias (Thm 6.9.5): ocq_normbias_a<α>
+    if tag.startswith("ocq_normbias_a"):
+        alpha = float(tag[len("ocq_normbias_a"):])
+        return "normbias", {"alpha": alpha, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # Contrastive K-bias: ocq_cbias_a<α>_d<dominant_rank> (default d=1)
+    if tag.startswith("ocq_cbias_a"):
+        rest = tag[len("ocq_cbias_a"):]
+        if "_d" in rest:
+            a_str, d_str = rest.split("_d", 1)
+            return "cbias", {"alpha": float(a_str), "dominant_rank": int(d_str),
+                             "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+        return "cbias", {"alpha": float(rest), "dominant_rank": 1,
+                         "use_skip": use_skip, "use_sinkskip": use_sinkskip}
     # V-side only: ocq_vbias_a<α_V>
     if tag.startswith("ocq_vbias_a"):
         alpha_v = float(tag[len("ocq_vbias_a"):])
