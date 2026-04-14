@@ -615,13 +615,26 @@ def run_method(
     else:
         raise ValueError(kind)
 
+    per_sample_scores = []
     with ctx:
         for entry in data:
             prompt = entry["action_prompt"]
             gt = entry["tool"]
             cands = parse_candidates(prompt)
-            generation = _generate_one(prompt)
-            choice = extract_choice(generation, cands)
+            if args.scorer == "label_logprob":
+                choice, margin, scores = _score_label_logprob(prompt, cands)
+                generation = ""
+                if args.per_sample_dump:
+                    per_sample_scores.append({
+                        "index": entry.get("index"),
+                        "gt": gt,
+                        "choice": choice,
+                        "margin": margin,
+                        "scores": scores,
+                    })
+            else:
+                generation = _generate_one(prompt)
+                choice = extract_choice(generation, cands)
 
             is_none_query = (gt == "None")
             if is_none_query:
