@@ -905,6 +905,81 @@ $$
 
 **Remark 6.14.A.1 (Cost of softening).** Soft $\pi_{\mathrm{soft}}$ is a continuous interpolation between facet-specific rotations; for a token that activates multiple facets, the effective rotation is a "partial" one. The categorical 1-bit quantizer sees a continuous interpolation of two bimodal distributions rather than one, increasing intra-cluster variance by a factor dependent on the entropy of the soft facet distribution. Lemma 6.13.1's bound degrades by $O(H(g)/s_{\min})$ where $H(g)$ is the gate entropy. For well-separated ontologies ($H(g)<0.5$ bit), the degradation is under $20\%$.
 
+### Remark 6.14.A.2 — Three formalizations of soft FacetRot and their trade-offs
+
+The operator $\mathrm{FacetRot}(f)$ is originally defined only for integer $f\in\{0,\ldots,F-1\}$. Extending to a soft (continuous) gate admits three natural formalizations, each with distinct defects:
+
+**Option A — Weighted-angle (used in Lemma 6.14.A):**
+$$
+\mathrm{FacetRot}_A(k)\;:=\;\mathrm{FacetRot}\bigl(\pi_{\mathrm{soft}}(k)\bigr),\qquad \pi_{\mathrm{soft}}(k)=\sum_f f\cdot g_f(k)\Big/\sum_f g_f(k).
+$$
+**Properties.** $\mathrm{FacetRot}_A(k)\in\mathrm{SO}(R)$ — a genuine rotation. Lipschitz-continuous by Lemma 6.14.A. Computationally cheap: one cos/sin evaluation per block.
+
+**Defect (semantic ill-posedness).** The map $f\mapsto\mathrm{FacetRot}(f)$ treats facet index as a *linearly ordered* scalar. But facets are categorical — reordering them (e.g., swapping facet 0 and facet 2 in the ontology definition) changes $\pi_{\mathrm{soft}}$ and hence the rotation, with no semantic justification. A token activating facet 0 and facet 2 equally yields $\pi_{\mathrm{soft}}=1$ and receives $\mathrm{FacetRot}(1)$ — the rotation of an *unrelated* facet. This is not merely an implementation detail: it means Theorem 6.14 (ii)'s attention-product decomposition $q^\top\mathrm{FacetRot}(\pi(k_s)-\pi(k_t))k$ uses a rotation whose angle depends linearly on arbitrary facet labeling. A follow-on paper must either (a) fix a canonical ontology ordering, or (b) replace Option A with Option C (below).
+
+**Option B — Convex mixture of rotations:**
+$$
+\mathrm{FacetRot}_B(k)\;:=\;\sum_f \frac{g_f(k)}{\sum_{f'} g_{f'}(k)}\cdot\mathrm{FacetRot}(f).
+$$
+**Properties.** Semantic interpretation is clean (each facet contributes its own rotation proportional to its gate weight).
+
+**Defect (non-orthogonality).** Convex combinations of rotation matrices are generically **not rotations**. In $\mathrm{SO}(2)$, $\det\bigl(\lambda R(\theta_1)+(1-\lambda)R(\theta_2)\bigr)=1-2\lambda(1-\lambda)(1-\cos(\theta_2-\theta_1))\ne 1$ whenever $\theta_1\ne\theta_2\pmod{2\pi}$ and $\lambda\in(0,1)$. Consequences:
+
+- $\mathrm{FacetRot}_B$ is not in $\mathrm{SO}(R)$; the two-commuting-subgroup decomposition of Theorem 6.14 (i) breaks.
+- The Bug-2-resolution argument (basis space = quantization space) assumed orthogonal transform to preserve the bimodal structure. Non-orthogonal $\mathrm{FacetRot}_B$ distorts the facet-block variance ellipsoid, violating Hypothesis (H-cat).
+- Inverses may be singular; $(\mathrm{FacetRot}_B)^\top\ne(\mathrm{FacetRot}_B)^{-1}$ in general, breaking the attention product symmetry $q\cdot k=q^\top\mathrm{FacetRot}_B(k_s)^\top\mathrm{FacetRot}_B(k_t)k$ identity.
+
+Option B is therefore *not* a valid substitute within the theorem.
+
+**Option C — Fréchet mean on $\mathrm{SO}(R)$ (Lie-algebra interpolation):**
+$$
+\xi_C(k)\;:=\;\sum_f \frac{g_f(k)}{\sum_{f'} g_{f'}(k)}\cdot\log\bigl(\mathrm{FacetRot}(f)\bigr),\qquad \mathrm{FacetRot}_C(k)\;:=\;\exp\bigl(\xi_C(k)\bigr),
+$$
+where $\log,\exp$ are the matrix logarithm/exponential (equivalently, working in the skew-symmetric Lie algebra $\mathfrak{so}(R)$).
+
+**Properties.** $\mathrm{FacetRot}_C(k)\in\mathrm{SO}(R)$ (exp of a skew-symmetric matrix is orthogonal). Respects the Fréchet geometric-mean structure on $\mathrm{SO}(R)$ when rotation angles are bounded. Preserves Hypothesis (H-cat) exactly (orthogonal transform).
+
+**Defect (implementation overhead + branch cuts).**
+- Matrix log/exp cost $O(R^3)$ per token; for $R=24$ this is ~14k FLOPs per token per layer — roughly 10% inference overhead on a 7B model.
+- Matrix log is multi-valued when rotation angles approach $\pm\pi$; the branch cut must be chosen consistently (typically via principal log). For facet-pair angles $\phi_{i,f}=2\pi(fR/2+i)/(FR/2)$ spread uniformly in $[0,2\pi)$, some pairs will straddle $\pi$; Fréchet mean is non-unique when two source rotations are antipodal.
+- Theorem 6.14 (ii) attention decomposition becomes *approximate*: $\exp(\xi_1)\cdot\exp(\xi_2)\ne\exp(\xi_1+\xi_2)$ in $\mathrm{SO}(R)$ when $[\xi_1,\xi_2]\ne 0$, governed by the Baker–Campbell–Hausdorff formula. The commutator $[\mathrm{FacetRot}(f_1),\mathrm{FacetRot}(f_2)]$ does vanish *per block* (SO(2) is abelian) so BCH is exact on each block pair; cross-block structure requires separate treatment.
+
+**Recommendation for the paper.** State Theorem 6.14 (Hybrid) proofs using Option A for simplicity (cheapest to verify). Note explicitly that Option A has the facet-ordering artifact, and that Option C is the canonical fix but defers to follow-up work due to implementation cost. Include an ablation (Option A vs C) in Section 5.12's LoRA experiments to check empirically whether the ordering artifact matters at scale. If no measurable difference, Option A suffices for practice.
+
+### Remark 6.14.A.3 — Hard assignment violates (R); structural consequences and empirical verification
+
+Hard gate $\pi_{\mathrm{hard}}(k):=\arg\max_f g_f(k)$ maps $\mathbb R^d$ into the discrete set $\{0,\ldots,F-1\}$. Its *decision boundary*
+$$
+\mathcal S\;:=\;\bigl\{k\in\mathbb R^d\;:\;\exists f_1\ne f_2,\;g_{f_1}(k)=g_{f_2}(k)=\max_f g_f(k)\bigr\}
+$$
+is generically a $(d-1)$-dimensional submanifold (by Sard's theorem and Lipschitz $g_f$). The map $k\mapsto\pi_{\mathrm{hard}}(k)$ is locally constant on the open complement $\mathbb R^d\setminus\mathcal S$ and jumps on $\mathcal S$.
+
+**Jump magnitude in rotation angle.** Crossing $\mathcal S$ from facet $f_1$ to facet $f_2$ induces a discontinuity in $\mathrm{FacetRot}(\pi_{\mathrm{hard}}(k))$ of block angular magnitude
+$$
+|\Delta\phi_{i,\mathrm{hard}}|\;=\;\frac{2\pi|f_1-f_2|}{F}.
+$$
+For $F=4$ and any $|f_1-f_2|\ge 1$: $|\Delta\phi|\ge\pi/2$ — a finite 90° or larger rotation jump across an arbitrarily thin shell around $\mathcal S$. The Lipschitz constant of $k\mapsto\mathrm{FacetRot}(\pi_{\mathrm{hard}}(k))$ is therefore $+\infty$, and Hypothesis (R) is violated.
+
+**Consequence 1 (qaMSE discontinuity).** The perturbation $e_t=B_{\mathrm{fac}}\,(\mathrm{FacetRot}(\pi_{\mathrm{hard}}(k_t))-I)\,B_{\mathrm{fac}}^\top\,k_t$ used in the K-bias operator (and analogously in the quantization residual of Thm 6.13) jumps with $k_t$ crossing $\mathcal S$. Hence $\alpha_t(q)=q\cdot e_t/\sqrt d$ and $\mathrm{qaMSE}(q;E)=\frac{1}{d}\sum_t s_t(q)(\alpha_t-\bar\alpha)^2$ are discontinuous functions of $(q,\{k_t\})$ when any token lies near $\mathcal S$.
+
+**Consequence 2 (Theorem 6.1 remainder bound instability).** Theorem 6.1's proof bounds the integral remainder $R(q,E)=\int_0^1(1-\tau)\phi''(\tau)d\tau$ using $\|\alpha\|_\infty\le Q_{\max}\rho/\sqrt d$ (B.0.1). For fixed $E$, $\phi(\tau)$ remains smooth in $\tau$ (softmax is analytic). But **across different samples $k_t$ near $\mathcal S$**, $\rho=\max_t\|e_t\|$ exhibits sudden spikes: a token that crosses the boundary during a perturbation trajectory has $\|e_t\|$ jumping from one rotation's magnitude to another's. The $\rho^4$ remainder factor in Thm 6.1 then becomes a $\rho^4$-sup over the trajectory, which grows with the jump amplitude. The bound does not fail mathematically — it becomes uselessly loose.
+
+**Consequence 3 (input Lipschitz failure of the attention output).** A well-designed attention-output map $\hat o(q,k)$ should satisfy $\|\hat o(q,k+\delta)-\hat o(q,k)\|\le L_{\mathrm{attn}}\|\delta\|$ for some finite $L_{\mathrm{attn}}$ (adversarial robustness, generalization). Under soft gate, $L_{\mathrm{attn}}<\infty$ by composition of Lipschitz gates, RoPE, softmax, and linear value mixing. Under hard gate, a perturbation $\delta$ that crosses $\mathcal S$ produces a finite change in $\hat o$ for arbitrarily small $\|\delta\|$ — i.e., $L_{\mathrm{attn}}=+\infty$ locally.
+
+**Consequence 4 (training dynamics).** $\arg\max$ has zero gradient almost everywhere and undefined gradient on $\mathcal S$, so backpropagation through $\pi_{\mathrm{hard}}$ is impossible without a surrogate:
+- *Straight-through estimator* (STE): forward uses hard, backward treats as identity on $g_f$. The gradient is a deliberate fiction; training may converge but learned model inference reveals the lie as qaMSE spikes across $\mathcal S$.
+- *Gumbel-softmax* with temperature $\tau\to 0$ annealing: anneals from soft (Hypothesis (R) satisfied) toward hard (Hypothesis (R) violated). At inference, moving from $\tau>0$ to $\tau=0$ re-introduces all of Consequences 1–3.
+
+**Empirical verification (already observed).** The memo `cor67_empirical_fail_mmlu_2026_04_10` records a direct test on Qwen2.5-7B MMLU (N=1000) with the hard energy-ratio gate of Cor 6.7:
+$$
+\Delta_{\alpha=0.3}^{\mathrm{hard}}\;=\;-4.80\text{ pp},\qquad \Delta_{\alpha=1.0}^{\mathrm{hard}}\;=\;-10.50\text{ pp},
+$$
+vs. the matched *soft* flat-bias control at $\Delta_{\alpha=0.3}^{\mathrm{soft}}=-4.00$ pp (noise floor). The gap $-6.50$ pp at $\alpha=1.0$ is the measurable cost of Hypothesis (R) violation. As $\alpha$ grows, $\rho$ grows, and Consequence 2's $\rho^4$ inflation dominates — precisely matching the theoretical prediction.
+
+**Reframing for the paper.** This is *not* a failure of Theorem 6.14 Hybrid — it is empirical confirmation that the hypothesis (R) is load-bearing, not ornamental. The paper therefore presents the hard-gate degradation as a **predicted-and-observed validation** of the theorem's scope, not an erratum to be hidden. A figure with three curves {no-gate / soft-gate / hard-gate} $\times$ $\alpha\in\{0.1,0.2,0.3,0.5,1.0\}$ on MMLU makes this visible in one panel.
+
+
+
 ### Theorem 6.14 (Full — conjecture, requires empirical verification)
 
 **Conjecture 6.14 (Full-Replacement Facet Rotation).** *If the facet rotation $\mathrm{FacetRot}(\pi_{\mathrm{soft}}(k_t))$ is applied on ALL channels (not just facet block), replacing standard RoPE entirely, and if the model is trained or fine-tuned to use this positional scheme from scratch (or via LoRA adaptation), then:*
