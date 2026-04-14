@@ -66,7 +66,37 @@ Scope: Re-evaluate Phase B benchmark purely from **paper-impact** lens (NeurIPS/
 
 If only two axes can be added before submission: **(A) compositional benchmark** + **(C) activation patching**. These alone move the paper from Findings to main-track bubble.
 
-## 7. Status
+## 7. Verification gate — MUST clear before executing Section 5 matrix
+
+Added 2026-04-14 after coworker codex N=20 closed-set smoke flipped the sign of the a0.3 effect on MetaTool Subtask1 (original: no_steer 0.75 / a0.3 0.65; opaque: 0.85 / 0.75). The +11.15pp first_line headline (see memory `metatool_subtask1_first_signal_2026_04_09`) is under suspicion of being a parser/answerability artifact.
+
+**Gate conditions (all four must resolve before expanding to compositional / scaling / transfer axes):**
+
+| # | Experiment | Pass condition | Fail consequence |
+|---|---|---|---|
+| G1 | Full N=995 closed-set logprob × {no_steer, a0.3 real, a0.3 random, a0.3 featshuffle} × {original, opaque}; McNemar paired | a0.3 real − no_steer ≥ +2pp AND real > random > featshuffle holds | Retract accuracy headline; shift paper thesis to mechanism-only |
+| G2 | Teacher-forced vs greedy vs beam per-sample decomposition on same 995 | Identify which of (parser artifact) / (decoding dynamics) / (real selection) owns the effect | Prevents "parser artifact" mis-label of a real decoding-bias effect |
+| G3 | Uncertain-subset (no_steer top-1 margin bottom 30%) re-measurement | Effect size ≥ full-set effect in uncertain subset | Confirms no_steer saturation is hiding signal, if present |
+| G4 | ΔLP per-tool-category distribution | Effect concentrated in semantically multi-facet categories, not uniform | Directly seeds F-simultaneous compositional story for Section 5 axis A |
+
+**If G1 fails, paper thesis pivots from:**
+> "K-side ontology bias yields accuracy gains on tool selection distinct from Q-side steering"
+
+**to:**
+> "K-side ontology direction is geometrically specific (vs random/featshuffle) and causally identifiable via activation patching even when closed-set accuracy gain is modest or absent"
+
+The Section 5 matrix still executes under the pivoted thesis — compositional bench / scaling curve / activation patching / zero-shot transfer remain valuable. Only the headline accuracy number is retracted.
+
+**Probabilistic bet (2026-04-14 snapshot):**
+- Headline-accuracy main-track route: 30–40% survival
+- Mechanism-route (geometric specificity + causal): 70%+ survival
+- Shift effort toward mechanism-route evidence (axes C + D in Section 5).
+
+**Scripts status:** codex's label_logprob scorer lives on a separate worktree (`ba-ocq-develop/`). Our checkout's `scripts/ocq/eval_metatool_subtask1.py` is generation-based only. Either merge codex branch or reimplement scorer locally as a `--scorer label_logprob` flag. Reimplementation is ~100 LoC.
+
+## 8. Status
 
 - Doc created 2026-04-14.
+- Verification gate (§7) added 2026-04-14 after codex smoke result.
 - Supersedes the tool-selection-only framing in `phase_b_tool_selection_plan` for benchmark section (keeps week-1 kill-switch gating; does not change pivot decision).
+- Section 5 matrix execution is **BLOCKED on §7 gate**.
