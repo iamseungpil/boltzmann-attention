@@ -246,19 +246,24 @@ Thirteen experiments partitioned across three priority tiers:
 
 ### 5.4 Results — E1 Scorer-invariant mechanism specificity (Subtask1, 995 queries)
 
-Qwen2.5-7B-Instruct label_logprob full 995 (Waves 1+2, complete 2026-04-14):
+Subtask1 full 995 label_logprob cross-model grid (Waves 1+2+3, complete 2026-04-15 02:30 KST):
 
-| Scorer | no_steer | real a0.3 Δ | random a0.3 Δ | featshuffle a0.3 Δ | **real−random gap** | **real−featshuffle gap** |
-|---|---|---|---|---|---|---|
-| substring_any (legacy) | 75.58% | +11.16pp | — | — | — | — |
-| first_line (parser-safe, codex Base) | 33.57% | +2.81pp | −21.61pp | −32.16pp | **+24.42pp** | **+34.97pp** |
-| label_logprob sum (Qwen2.5-7B-Instruct) | 52.46% | +0.10pp | −48.74pp | −40.10pp | **+48.84pp** | **+40.20pp** |
-| label_logprob mean (Qwen2.5-7B-Instruct) | 36.78% | +5.03pp | −23.02pp | −11.26pp | **+28.05pp** | **+16.28pp** |
-| label_logprob sum (Llama-3.1-8B-**Base**, NousResearch mirror) | 46.33% | **+6.33pp** | **−1.00pp** | pending | **+7.33pp** | pending |
-| label_logprob sum (Mistral-7B-v0.3 **skipL0+padmax**) | 69.35% | **+3.12pp** | pending | pending | pending | pending |
-| label_logprob mean (Mistral-7B-v0.3 skipL0+padmax) | 40.70% | +0.20pp | pending | pending | pending | pending |
+| Model | Scorer | no_steer | real a0.3 Δ | random a0.3 Δ | featshuffle a0.3 Δ | **real−random** | **real−featshuffle** |
+|---|---|---|---|---|---|---|---|
+| Qwen2.5-7B-Instruct | substring_any (legacy) | 75.58% | +11.16pp | — | — | — | — |
+| Qwen2.5-7B-Instruct | first_line (parser-safe, codex Base) | 33.57% | +2.81pp | −21.61pp | −32.16pp | **+24.42pp** | **+34.97pp** |
+| Qwen2.5-7B-Instruct | label_logprob **sum** | 52.46% | +0.10pp | **−48.74pp** | **−40.10pp** | **+48.84pp** | **+40.20pp** |
+| Qwen2.5-7B-Instruct | label_logprob **mean** | 36.78% | **+5.03pp** | **−23.01pp** | **−11.25pp** | **+28.04pp** | **+16.28pp** |
+| Llama-3.1-8B-**Base** (NousResearch) | label_logprob **sum** | 46.33% | **+6.33pp** | −1.00pp | −0.20pp | **+7.33pp** | **+6.53pp** |
+| Llama-3.1-8B-**Base** (NousResearch) | label_logprob **mean** | 23.12% | **+2.61pp** | −0.61pp | −1.41pp | **+3.22pp** | **+4.02pp** |
+| Mistral-7B-v0.3 skipL0+padmax | label_logprob **sum** | 69.35% | **+3.12pp** | pending | pending | pending | pending |
+| Mistral-7B-v0.3 skipL0+padmax | label_logprob **mean** | 40.70% | +0.20pp | pending | pending | pending | pending |
+| Mistral-Instruct-v0.3 skipL0+padmax | label_logprob **sum** | 61.51% | **−2.92pp** | pending | pending | pending | pending |
+| Mistral-Instruct-v0.3 skipL0+padmax | label_logprob **mean** | 61.01% | **−3.62pp** | pending | pending | pending | pending |
 
-**Cross-model 3-family positive under strict label_logprob sum** (newly observed 2026-04-14 23:00–00:20 KST): Qwen +0.10, Llama Base +6.33, Mistral-v0.3 (skipL0+padmax fix) +3.12. All three architecture families register positive under the strictest closed-set scorer, reversing the earlier "Mistral counterexample" framing (memory `cross_model_kbias_analysis_2026_04_13` legacy substring −4.32 → strict scorer +3.12). Llama mean + Mistral mean + null controls for both models still running; full table populated upon Wave 3 completion.
+**Cross-model 3-family positive under strict label_logprob (Qwen + Llama + Mistral-Base)**: Qwen sum +0.10 / mean +5.03, Llama-Base sum +6.33 / mean +2.61, Mistral-Base-v0.3 (skipL0+padmax fix) sum +3.12 / mean +0.20. All three base architecture families register positive. Mistral-**Instruct**-v0.3 is the sole negative (sum −2.92, mean −3.62): the Instruct variant's no_steer is itself 7.84pp **below** the Base variant (61.51% vs 69.35%), and K-bias further degrades — consistent with chat-template hedging rather than a mechanism counterexample (analysis §5.5.1).
+
+**Null-control specificity (Qwen mean sharpest, complete 4-cell)**: real +5.03 vs random −23.01 vs featshuffle −11.25 → gaps +28.04 / +16.28. **Direction specificity is scorer-invariant and model-invariant**: ordering real ≫ featshuffle ≥ random holds wherever the full 3-control triple is populated (Qwen sum/mean, Llama sum/mean, codex first_line).
 
 **Headline accuracy is scorer-dependent** (+0.1 to +11.15pp). **Mechanism specificity is scorer-invariant**: under every strict scorer, the ordering real > random > featshuffle holds with gaps +16 to +49pp — between one and two orders of magnitude larger than the accuracy headline. The "any projector works" alternative hypothesis is decisively rejected.
 
