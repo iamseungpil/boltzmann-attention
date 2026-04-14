@@ -92,7 +92,37 @@ The Section 5 matrix still executes under the pivoted thesis — compositional b
 - Mechanism-route (geometric specificity + causal): 70%+ survival
 - Shift effort toward mechanism-route evidence (axes C + D in Section 5).
 
-**Scripts status:** codex's label_logprob scorer lives on a separate worktree (`ba-ocq-develop/`). Our checkout's `scripts/ocq/eval_metatool_subtask1.py` is generation-based only. Either merge codex branch or reimplement scorer locally as a `--scorer label_logprob` flag. Reimplementation is ~100 LoC.
+**Scripts status (updated 2026-04-14 after github archive inspection):**
+- Codex's `label_logprob` scorer is NOT on any pushed branch. The `ba-ocq-develop` worktree is codex's local dir and unpushed. We cannot audit codex's implementation.
+- `origin/archive/ocq-e8-2026-04-10` does contain codex's `first_line` parser-safe scorer + `make_control_b_ont.py` (random_orthonormal, feature_shuffle). This is cherry-pick-ready.
+- We have reimplemented `label_logprob` locally (`--scorer label_logprob --lp-normalize {sum,mean}`) in our develop. Our N=20 smoke gives +10pp (sum) / +5pp (mean) — **opposite sign from codex's −10pp**. Sign discrepancy is most likely an implementation-detail difference (tokenization, prompt boundary, length normalization, BOS handling), not a genuine artifact question.
+
+**Scorer sensitivity — headline is not scorer-invariant (new G1 requirement):**
+
+| Scorer | N | no_steer | a0.3 | Δ |
+|---|---|---|---|---|
+| substring_any (legacy) | 995 | 75.58% | 86.73% | +11.15pp |
+| first_line (parser-safe, codex archive) | 995 | 73.57% | 83.12% | +9.55pp |
+| label_logprob sum (our reimpl) | 20 | 30% | 40% | +10pp |
+| label_logprob mean (our reimpl) | 20 | 15% | 20% | +5pp |
+| label_logprob (codex, impl unseen) | 20 | 75% | 65% | **−10pp** |
+
+G1 is revised: the paper must report **at least two scorers** (first_line full 995 + label_logprob full 995 in both sum and mean normalization) with explicit sensitivity discussion. A single "closed-set accuracy" number hides a 20pp swing across scorer variants.
+
+**Cross-model claim is already falsified (codex archive 2026-04-10):**
+
+| Model | no_steer | a0.2 | a0.3 |
+|---|---|---|---|
+| Qwen2.5-7B-Instruct | 73.57% | +7.54pp | +9.55pp |
+| Mistral-7B-v0.3 | 55.98% | −11.86pp | **−18.09pp** |
+| Mistral low-alpha {0.05, 0.10, 0.15, 0.20} | — | all negative | — |
+
+The `phase_b_tool_selection_plan` kill-switch ("1B model + ≥3pp lift or fall back to Path A") is **retroactively failed on Mistral**. Llama-3.1-8B is gated (HF access pending). Paper cannot claim cross-model generality; must honestly report Qwen-only positive + Mistral counterexample. This hurts main-track probability but strengthens the honest-negative-result narrative. Architectural hypothesis for Mistral failure (GQA vs MHA, RoPE base, layer norm placement) becomes a mandatory analysis axis.
+
+**Control-basis fairness critique (codex's `make_control_b_ont.py`):**
+- `feature_shuffle` is row-permutation of real B_ont — preserves Frobenius norm but destroys axis semantics. Collapses K onto arbitrary directions; more destructive than random by construction. "real > random > featshuffle" ordering is therefore partially tautological and should not be the main evidence for geometric specificity.
+- `random_orthonormal` uses fresh random + QR per (L,H) but does **not** match intervention norm. Real B_ont has rank-1 heads where ‖α·B·Bᵀ·k‖ is large; random can be energetically quieter or louder, making the comparison unfair.
+- **Fix:** add a **norm-matched random control** — rescale each (L,H) random basis so ‖α·B_rand·B_randᵀ·k_layer_mean‖_F matches ‖α·B_real·B_realᵀ·k_layer_mean‖_F on a held-out dev slice.
 
 ## 8. Status
 
