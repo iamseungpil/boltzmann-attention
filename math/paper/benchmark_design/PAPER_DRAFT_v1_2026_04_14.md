@@ -317,15 +317,18 @@ This reinterpretation is consistent with:
 
 Proposed fix under investigation (§5.11 future work E11'): a KQV-hybrid where (i) K-bias marks facet structure (small α_K), (ii) V-bias amplifies in-ontology V content (α_V moderate), and (iii) Q-side coverage-masked projection removes emitted-facet direction from the query at each step. Theorem 6.15 (proposed, Appendix B.7.8.1) formalizes this combination. V-bias smoke under way (§5.12 live run).
 
-**Full 497 Subtask4 results (2026-04-15 01:30 KST, real B_ont only, GPU1 shared)**:
+**Full 497 Subtask4 results (2026-04-15 02:30 KST, all 3 B_ont variants complete)**:
 
-| Method | F1 | F_0.5 | Recall | Exact |
+| B_ont | Method | F1 | Recall | Exact |
 |---|---|---|---|---|
-| no_steer | **0.731** | 0.728 | 0.716 | 0.525 |
-| real a0.3 | 0.685 | 0.689 | 0.672 | 0.473 |
-| **Δ (a0.3 − no_steer)** | **−4.6pp** | −3.9pp | −4.4pp | **−5.2pp** |
+| real | no_steer | **0.731** | 0.716 | 0.525 |
+| real | a0.3 | 0.685 | 0.672 | 0.473 |
+| random | no_steer | 0.731 | 0.716 | 0.525 |
+| random | a0.3 | **0.000** | 0.000 | 0.000 |
+| featshuffle | no_steer | 0.731 | 0.716 | 0.525 |
+| featshuffle | a0.3 | **0.000** | 0.000 | 0.000 |
 
-Full 497 confirms the smoke trend more decisively: K-bias at α=0.3 does not improve (and slightly degrades) multi-tool F1 on Subtask4. Random and featshuffle full 497 pending (~2h); smoke N=20 both collapsed to F1=0.000, expecting similar full-set values.
+**Real − random gap = real − featshuffle gap = +68.5pp F1** at full N=497. The null-control collapse hypothesized from smoke (§5.5) is **decisively verified at full scale**: α=0.3 random and featshuffle K-bias completely destroy structured `<tool_call>` emission, while the ontology direction preserves F1 within 4.6pp of no_steer. This is the strongest direction-specificity evidence in the paper.
 
 **Final interpretation of Cor 6.9 downstream signature (empirical verdict)**:
 - **Accuracy-lift version (original prediction): FALSIFIED**. Real a0.3 F1 ≤ no_steer F1 on both smoke (N=20, Δ=−1.7pp) and full (N=497, Δ=−4.6pp).
