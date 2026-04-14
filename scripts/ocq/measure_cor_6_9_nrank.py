@@ -115,15 +115,10 @@ def main() -> None:
     L, H, d, r_ont = B_ont_np.shape
     print(f"[info] B_ont shape: L={L} H={H} d={d} r_ont={r_ont}", flush=True)
 
-    # Determine facet partition
-    if isinstance(payload, dict) and "r_per_pair" in payload:
-        # Per (L, H) facet ranks — use layer 0 head 0 as representative, or average
-        r_per_facet_default = None
-    else:
-        # Equal split
-        r_per_facet_default = np.full(args.n_facets, r_ont // args.n_facets, dtype=int)
-        remainder = r_ont - r_per_facet_default.sum()
-        r_per_facet_default[:remainder] += 1
+    # Determine facet partition: equal split of r_ont into F blocks
+    r_per_facet_default = np.full(args.n_facets, r_ont // args.n_facets, dtype=int)
+    remainder = r_ont - r_per_facet_default.sum()
+    r_per_facet_default[:remainder] += 1
 
     print(f"[info] facet partition (equal): {r_per_facet_default}", flush=True)
 
