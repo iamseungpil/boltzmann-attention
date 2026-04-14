@@ -147,7 +147,19 @@ Tool selection then proceeds via standard autoregressive decoding against the bi
 
 ### 5.1 Protocol and reproducibility
 
-**Models.** Primary: `Qwen/Qwen2.5-7B-Instruct` (Mode C, GQA $n_{kv}=4$), `NousResearch/Meta-Llama-3.1-8B` (Mode A, GQA $n_{kv}=8$, un-gated mirror), `mistralai/Mistral-7B-v0.3` and `mistralai/Mistral-7B-Instruct-v0.3` (Mode A; counterexample + H2 base-weakness validation). Scaling: Qwen2.5 family $\{0.5, 3, 7, 14\}$B-Instruct (32B optional under 8-bit quant).
+**Models (FC-native Instruct primary roster).** Tool-selection evaluation is meaningful only on models trained to emit structured function calls. All primary cells use FC-capable Instruct variants with `tools` support in their chat template:
+
+| Tier | Model | FC template | Mode | GQA n_kv | Use |
+|---|---|---|---|---|---|
+| **P1 primary** | `Qwen/Qwen2.5-7B-Instruct` | ✓ | C | 4 | Main reference; scaling pivot |
+| P1 primary | `NousResearch/Meta-Llama-3.1-8B-Instruct` (un-gated mirror) | ✓ | A | 8 | Cross-family (Mode A ✓) |
+| P1 primary | `mistralai/Mistral-7B-Instruct-v0.3` | ✓ | A | 8 | 86/14 counterexample + H2 |
+| P1 stretch | `google/gemma-3-27b-it` (pending gated approval) | ✓ | — | — | **Netsru deployment model** — direct production alignment |
+| P2 scaling | Qwen2.5-{0.5, 1.5, 3, 7, 14, 32}B-Instruct | ✓ | C | varies | Scale-invariance curve |
+| P2 ablation | `Qwen/Qwen2.5-Coder-7B-Instruct` (un-gated) | FC-trained | C | 4 | Tool-specialized variant cross-check |
+| Legacy/Base | `NousResearch/Meta-Llama-3.1-8B`, `Mistral-7B-v0.3` (Base) | ✗ | — | — | Ablation only: "does K-bias work without FC training?" |
+
+**Important**: free-text scorers (Layer 1 of §5.2) apply to all models including Base; FC scorers (Layer 2–4) apply only to Instruct variants. Scaling curve and cross-family comparisons are Instruct-only for fair FC comparison. Our previously-run Llama-3.1-8B **Base** data (Wave 3a retry) is retained as "Base ablation" (§5.10 E10-b) only.
 
 **Benchmarks.**
 - **MetaTool Subtask1** (995 queries, 10 candidates + `None`; single-tool GT): scorer-invariance primary bed.
