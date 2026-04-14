@@ -385,19 +385,29 @@ def install_facet_gated_hooks(
                     K_norm_sq = (K_f ** 2).sum(dim=-1, keepdim=True) + gate_eps
 
                     # Apply each facet mask and accumulate the gated projection.
-                    # coeffs shape: (B, H, T, r), M_dev[:, f, :] shape: (H, r)
-                    # masked_coeffs_f: (B, H, T, r) where columns outside facet f are 0
                     K_increment = torch.zeros_like(K_f)
+                    # First pass: compute all g_f (soft energy-ratio)
+                    all_g = []
+                    all_masked_coeffs = []
                     for f in range(n_facets):
                         mask_f = M_dev[:, f, :]  # (H, r)
                         masked_coeffs = coeffs * mask_f.unsqueeze(0).unsqueeze(2)  # (B, H, T, r)
-                        # Gate: energy of K projected onto facet f / |K|^2
-                        # ||K · B_f||^2 = sum of masked_coeffs^2 over r dimension
                         gate_num = (masked_coeffs ** 2).sum(dim=-1, keepdim=True)  # (B, H, T, 1)
-                        g_f = gate_num / K_norm_sq  # (B, H, T, 1), in [0, 1]
-                        # Reconstruction of facet-f projection of K:
-                        K_proj_f = torch.einsum("bhtr,hdr->bhtd", masked_coeffs, B_dev)
-                        K_increment = K_increment + g_f * K_proj_f
+                        g_f = gate_num / K_norm_sq  # (B, H, T, 1), soft energy-ratio
+                        all_g.append(g_f)
+                        all_masked_coeffs.append(masked_coeffs)
+                    # Transform gates according to gate_mode (R-violation experiment)
+                    if gate_mode == "hard_thresh":
+                        all_g = [(g > gate_thresh).float() for g in all_g]
+                    elif gate_mode == "hard_argmax":
+                        stacked = torch.cat(all_g, dim=-1)  # (B, H, T, n_facets)
+                        winner = stacked.argmax(dim=-1, keepdim=True)
+                        onehot = torch.zeros_like(stacked).scatter_(-1, winner, 1.0)
+                        all_g = [onehot[..., f:f+1] for f in range(n_facets)]
+                    # Second pass: apply gated projections
+                    for f in range(n_facets):
+                        K_proj_f = torch.einsum("bhtr,hdr->bhtd", all_masked_coeffs[f], B_dev)
+                        K_increment = K_increment + all_g[f] * K_proj_f
 
                     # Zero out bias for sink/BOS positions
                     if _skip_sink > 0 and T > _skip_sink:
