@@ -574,7 +574,10 @@ def run_method(
             log_probs = torch.log_softmax(slice_logits.float(), dim=-1)
             tgt = cand_ids[0]  # (C,)
             tok_lp = log_probs.gather(1, tgt.unsqueeze(1)).squeeze(1)  # (C,)
-            scores[name] = float(tok_lp.sum().item())
+            if args.lp_normalize == "mean":
+                scores[name] = float(tok_lp.mean().item())
+            else:
+                scores[name] = float(tok_lp.sum().item())
         # argmax
         top1 = max(scores, key=scores.get)
         sorted_scores = sorted(scores.values(), reverse=True)
