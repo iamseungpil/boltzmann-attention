@@ -722,6 +722,21 @@ def run_method(
             skip_heads=effective_skip,
             skip_sink=effective_sink,
         )
+    elif kind == "vbias":
+        ctx = install_vbias_hooks(
+            model, B_ont, alpha=params["alpha_v"],
+            n_kv=n_kv, head_dim=head_dim,
+            skip_heads=effective_skip,
+            skip_sink=effective_sink,
+        )
+    elif kind == "kvbias":
+        ctx = install_kvbias_hooks(
+            model, B_ont,
+            alpha_k=params["alpha_k"], alpha_v=params["alpha_v"],
+            n_kv=n_kv, head_dim=head_dim,
+            skip_heads=effective_skip,
+            skip_sink=effective_sink,
+        )
     else:
         raise ValueError(kind)
 
