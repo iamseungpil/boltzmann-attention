@@ -340,7 +340,7 @@ This gives a falsifiable, theorem-level prediction: on |G|-stratified F_0.5, Ada
 
 | Config | Benchmark | Metric | Methods | Models |
 |---|---|---|---|---|
-| FC-2a | MetaTool Subtask4 (497 × 2-tool) | macro-F1, recall, Jaccard | {no_steer, a0.3 real, a0.3 random, a0.3 featshuffle, AdaSEKA 2-expert, AdaSEKA 3-expert} | Qwen-Instruct, Llama-Instruct, Mistral-Instruct |
+| FC-2a | MetaTool Subtask4 (497 × 2-tool) + BFCL Parallel (|G| varying 1-5) | macro-F1, macro-F_0.5, EU($\alpha=1,\beta=2,\gamma=1$), Jaccard, recall | {no_steer, a0.3 real, a0.3 random, a0.3 featshuffle, AdaSEKA 2-expert, AdaSEKA 3-expert} stratified by $|G|\in\{1,2,3,\ge 4\}$ | Qwen-Instruct, Llama-Instruct, Mistral-Instruct |
 | FC-2b | BFCL-v3 Parallel subset (if accessible) | same | same | same |
 | FC-2c | τ²-bench retail multi-turn | action-match rate + F1 over tools called per turn | same | Qwen-Instruct |
 
