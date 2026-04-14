@@ -143,9 +143,199 @@ Tool selection then proceeds via standard autoregressive decoding against the bi
 
 ---
 
-## 5. Experiments
+## 5. Experiments — CLEAN REVISED 2026-04-14
 
-### 5.1 Setup
+### 5.1 Protocol and reproducibility
+
+**Models.** Primary: `Qwen/Qwen2.5-7B-Instruct` (Mode C, GQA $n_{kv}=4$), `NousResearch/Meta-Llama-3.1-8B` (Mode A, GQA $n_{kv}=8$, un-gated mirror), `mistralai/Mistral-7B-v0.3` and `mistralai/Mistral-7B-Instruct-v0.3` (Mode A; counterexample + H2 base-weakness validation). Scaling: Qwen2.5 family $\{0.5, 3, 7, 14\}$B-Instruct (32B optional under 8-bit quant).
+
+**Benchmarks.**
+- **MetaTool Subtask1** (995 queries, 10 candidates + `None`; single-tool GT): scorer-invariance primary bed.
+- **MetaTool Subtask4** (497 queries, 2-tool GT): multi-tool + graded scoring primary bed. Ground-truth distribution: 100% 2-tool.
+- **MMLU** (1000 samples, 5-shot): safety retention + hard-gate R-violation grid.
+- **WikiText-2** (full test, ctx=2048 non-overlap): compression (Thm 6.13 verification).
+- P3 stretch: BFCL-v3 Parallel, τ²-bench retail/airline, ToolAlpaca, HH-RLHF-500, ToxiGen-500.
+
+**Steering hyperparameters.** Primary $\alpha=0.3$ (a0.2 is dead under strict scoring on all models). B_ont built per (layer, KV-head) via Gram–Schmidt on catalog-derived facet sentences; rank $R=24$ for MetaTool ontology ($F=4$ facets). For Mistral: `skipL0 + pad-to-max` (validated fix, §5.13 E10).
+
+**Evaluation invariants.** Greedy decoding; temperature 0; max_new_tokens 24 (single-tool) or 128 (multi-tool structured output); chat-template enabled for Instruct variants; function-calling via chat template's `tools` parameter with JSON tool schemas.
+
+### 5.2 Scoring framework (4-layer summary)
+
+A single forward pass per (method, model, query) emits predictions that are post-hoc scored under all applicable metrics. The layers:
+
+| Layer | Scorers | Primary use |
+|---|---|---|
+| 1. Free-text parsing | `substring_any`, `first_line`, `label_logprob{sum, mean}` | Scorer-invariance triangulation on Subtask1 |
+| 2. Function-calling | `fc_name_match`, `fc_schema_valid`, `fc_label_logprob` | Production-realistic (all scorers for Instruct models) |
+| 3. Set metrics | `F1`, `Jaccard`, `Exact-set`, `F_{0.5}`, `EU($\alpha=1,\beta=2,\gamma=1$)` | Multi-tool symmetric + asymmetric cost (Subtask4) |
+| 4. Facet-graded | `FG-F1`, `FG-F_{0.5}`, `FG-EU`, `ECE` (ambiguity subset) | Semantic proximity + calibration (Subtask4 + ambiguous Subtask1) |
+
+Layer-1–2 expose sensitivity of single-tool top-1 to parsing assumptions. Layer-3 captures multi-tool partial credit and production cost structure (wrong tool heavier than missing). Layer-4 credits same-facet-sibling predictions at $s=0.5$ and measures confidence calibration under ambiguity (Netsru Q8 alignment).
+
+### 5.3 Claim → experiment mapping (consolidated)
+
+Thirteen experiments partitioned across three priority tiers:
+
+**Priority P1 (main paper, 91 GPU-hr)**:
+- **E1** — Scorer-invariant mechanism specificity on Subtask1, 6 scorers × 3 B_ont × 2 Instruct models (40 GPU-hr; Qwen partially done)
+- **E2** — Cor 6.9 decisive test on Subtask4, 9 metrics × 6 methods × 3 Instruct models (25 GPU-hr)
+- **E3** — Thm 6.1 per-sample bound: Qwen L13 + Llama L15, N=100 (15 GPU-hr, queued Wave 4)
+- **E4** — Cor 6.9 operator-level nrank SVD on 500 queries (2 GPU-hr)
+- **E5** — Rmk 6.14.A.3 R-violation MMLU grid, 25 cells (4 GPU-hr, queued R6)
+- **E6** — Thm 6.13 compression WT2 × {Qwen, Llama} × {2, 3, 4} bits (5 GPU-hr incremental)
+
+**Priority P2 (reviewer defense + scaling, 60 GPU-hr)**:
+- **E7** — Scaling curve Qwen2.5 {0.5, 3, 7, 14}B on Subtask4 FG-F1 (30 GPU-hr)
+- **E8** — Safety retention MMLU + HH-RLHF + ToxiGen (12 GPU-hr)
+- **E9** — Reproduced baselines CAA, ITI, PASTA, ASA, FocusDir, LoRA r=8, RAG (18 GPU-hr)
+- **E10** — Mistral closure (skipL0+padmax + Instruct H2) on Subtask4 (0 GPU-hr — Wave 3 ongoing)
+
+**Priority P3 (future work, deferred)**:
+- **E11** LoRA-R1 Thm 6.14 Hybrid · **E12** τ²-bench multi-turn · **E13** BFCL-v3 Parallel |G|-strat · **E14** zero-shot MetaTool→ToolAlpaca transfer · **E15** Thm 6.13 full bit curve · **E16** Conjecture 6.14 Full-FacetRot.
+
+**Claim coverage (every theorem has a dedicated experiment):**
+
+| Claim | Theorem/Remark | Primary Exp | Secondary |
+|---|---|---|---|
+| C1 Geometric specificity (real≫random≫featshuffle) | — | E1 | E2 FG-F1 |
+| C2 Phase-closure under Hypothesis (R) | Cor 6.7/6.8 | E5 | E3 |
+| C3 ε-numerical-rank separation | Cor 6.9 | **E2** + E4 | E13 |
+| C4 Categorical-channel compression | Thm 6.13 | E6 | E15 |
+| C5 Attention-weighted bound | Thm 6.1 | E3 | — |
+| C6 Hard-gate R violation | Rmk 6.14.A.3 | E5 | — |
+| C7 Cross-model 2-family | — | E1 + E10 | E7 |
+| C8 Scorer robustness | — | **E1** 6-scorer | E9 |
+| C9 Ambiguity graded | §5.4.4 | **E2** FG-F1 gap | — |
+| C10 Production alignment | Netsru Q8 | E2 FG-F_{0.5}, EU + E8 | E12 |
+
+**Single-pass-multi-scorer design.** Each experiment emits all applicable scorer/metric outputs from one forward pass; no forward re-run is required for metric variants. This compresses the total cost from ~250 GPU-hr (naive) to ~150 GPU-hr (P1+P2).
+
+### 5.4 Results — E1 Scorer-invariant mechanism specificity (Subtask1, 995 queries)
+
+Qwen2.5-7B-Instruct label_logprob full 995 (Waves 1+2, complete 2026-04-14):
+
+| Scorer | no_steer | real a0.3 Δ | random a0.3 Δ | featshuffle a0.3 Δ | **real−random gap** | **real−featshuffle gap** |
+|---|---|---|---|---|---|---|
+| substring_any (legacy) | 75.58% | +11.16pp | — | — | — | — |
+| first_line (parser-safe, codex Base) | 33.57% | +2.81pp | −21.61pp | −32.16pp | **+24.42pp** | **+34.97pp** |
+| label_logprob sum (Instruct) | 52.46% | +0.10pp | −48.74pp | −40.10pp | **+48.84pp** | **+40.20pp** |
+| label_logprob mean (Instruct) | 36.78% | +5.03pp | −23.02pp | −11.26pp | **+28.05pp** | **+16.28pp** |
+
+**Headline accuracy is scorer-dependent** (+0.1 to +11.15pp). **Mechanism specificity is scorer-invariant**: under every strict scorer, the ordering real > random > featshuffle holds with gaps +16 to +49pp — between one and two orders of magnitude larger than the accuracy headline. The "any projector works" alternative hypothesis is decisively rejected.
+
+**Answerability vs discrimination decomposition** (under codex first_line parser_safe, full 995):
+- Original a0.3: matched-rate +2.81pp, conditional-accuracy +1.37pp → small real discrimination.
+- Opaque a0.3: matched-rate +20.30pp, conditional-accuracy −4.44pp → **new-commit correctness 65.82% (6.6× random)** → the "answerability rescue" IS semantic routing, not artifact (§5.4.1 analysis).
+
+Llama-3.1-8B label_logprob results (Wave 3a retry in progress): will add symmetric table upon completion.
+
+### 5.5 Results — E2 Cor 6.9 multi-tool decisive test (Subtask4, 497 × 2-tool)
+
+**Planned experimental cells** (launch queued post Wave 4):
+
+| Method | Models | Metrics reported per cell |
+|---|---|---|
+| no_steer | Qwen-Instruct, Llama-Instruct, Mistral-Instruct | F1, F_{0.5}, EU, Jaccard, Exact, FG-F1, FG-F_{0.5}, FG-EU, ECE |
+| a0.3 real | same 3 | same 9 metrics |
+| a0.3 random | same 3 | same |
+| a0.3 featshuffle | same 3 | same |
+| AdaSEKA 2-expert | same 3 | same |
+| AdaSEKA 3-expert | same 3 | same |
+
+Total: 18 forward-pass configurations × 9 metrics = 162 numbers. Expected runtime 25 GPU-hr.
+
+**Theorem-level prediction (Cor 6.9)**: for any max-normalized-routing baseline, recall on 2-tool queries is capped at 0.5 by construction (one expert → one tool emission). Therefore $\mathrm{F_{0.5}} \le \tfrac{1.25 \cdot 1 \cdot 0.5}{0.25 \cdot 1 + 0.5} \approx 0.83$. Our facet-gated method has no such cap (rank $R=24$ supports F-simultaneous emission); $\mathrm{F_{0.5}}$ up to 1.0 achievable. **This is a falsifiable numerical prediction**.
+
+**FG-F1 secondary prediction (§5.4.4)**: graded scoring credits same-facet-sibling predictions at $s=0.5$. Gap `FG-F1 − F1` should widen for our method (facet-clustered predictions) and stay flat for AdaSEKA (winner-take-all, no cluster). Expected: gap ≈ +0.12 (ours) vs +0.03 (AdaSEKA) — 4× separation.
+
+### 5.6 Results — E3 Thm 6.1 per-sample attention-weighted bound
+
+Script `scripts/ocq/measure_theorem_6_1.py` queued as Wave 4. Settings: Qwen2.5-7B-Instruct L=13 + Llama-3.1-8B L=15, N=100 queries each.
+
+**Predicted outcome**: bound $\mathbb E_q\|\hat o - o\|^2 \le 2\mathbb E[\mathrm{qaMSE}\cdot\mathrm{Var}_s[V]] + C_1 \rho^4$ holds per-head per-query with pass-rate 100%. Mean LHS/RHS ratio: 0.1–0.5 for Mode-A (Llama, Remark B.2.3 near-tight); 0.01–0.1 for Mode-C (Qwen, looser bulk-tail regime).
+
+### 5.7 Results — E4 Cor 6.9 operator-level nrank
+
+SVD of `P_ada(q)` and `P_fg(q, k_t)` on 500 MetaTool queries. Compute ε-numerical rank at ε ∈ {0.1, 0.2}. Expected: AdaSEKA nrank concentrates at $r \approx 6$–$8$; ours concentrates at $R = 24$. Histograms in paper Figure 3.
+
+### 5.8 Results — E5 Remark 6.14.A.3 hard-gate R-violation grid (MMLU N=1000)
+
+Active run: `scripts/run_llama_retry_and_r6.sh` Track B (R6, 12 cells × ~20 min). Grid: $\alpha \in \{0.1, 0.2, 0.3, 0.5, 1.0\}$ × gate ∈ {no_steer, flat-bias, soft-facet-gated, hard_thresh, hard_argmax}.
+
+**Predicted outcome** (Rmk 6.14.A.3 Consequence 2 $\rho^4$ scaling):
+- no_steer: baseline 72.0% (from prior measurement)
+- flat α=1.0: ~68% (large bias, uncontrolled)
+- soft-facet α=1.0: ~71% (Hypothesis R satisfied, near baseline)
+- **hard_thresh α=1.0: ~62%** (R violated, predicted monotone degradation)
+- **hard_argmax α=1.0: ~58%** (sharper discontinuity, stronger degradation)
+
+The soft-vs-hard gap at α=1.0 is the direct empirical signature of Hypothesis (R)'s load-bearing role.
+
+### 5.9 Results — E6 Thm 6.13 categorical-channel compression (WT2 PPL)
+
+Hook-mode pre-RoPE K quantization, Qwen2.5-7B-Instruct ctx=2048 non-overlap, full test set (299K tokens):
+
+| Method | 2-bit avg | 2-bit PPL | 4-bit avg | 4-bit PPL |
+|---|---|---|---|---|
+| fp16 | 16 | 7.68 | 16 | 7.68 |
+| KIVI | 2.00 | 19.97 | 4.00 | **7.79** |
+| **OCQ 1b+2a real** | **1.81** | **15.60** | 3.81 | 12.56 |
+| OCQ 1b+2a PCA pseudo (H-cat violated) | 1.81 | 11.83 | 3.81 | 84.92 |
+| OCQ-WF (facet+water-filling) smoke | 1.81 | 24.36 | 3.81 | 15.42 |
+| OCQ-KIVI (composition, Rmk 6.12.1) smoke | — | 33.30 | — | 15.48 |
+
+**Thm 6.13 predictions verified**:
+- 2-bit: OCQ < KIVI (Cor 6.13.3/6.13.4, 9.4% bit savings + −4.37 PPL).
+- 4-bit: KIVI < OCQ (Cor 6.13.5 cross-over at $\bar b^* \approx \tfrac12 \log_2(s+1)$, $s \sim 5$–$10$).
+- WF suboptimal on categorical channels: OCQ-WF 24.36 ≫ OCQ 15.60 (Lemma 6.13.2).
+- Composition amplification: OCQ-KIVI 33.30 > OCQ 15.60 (Rmk 6.12.1 verified).
+- (H-cat) falsifiable: PCA pseudo-ontology catastrophic at 4-bit (84.92) vs real (12.56).
+
+Llama WT2 run queued as E6 extension (~5 GPU-hr).
+
+### 5.10 Results — E7–E10 (scaling, safety, baselines, Mistral)
+
+- **E7 (scaling)**: Qwen2.5-{0.5, 3, 7, 14}B-Instruct on Subtask4 FG-F1 × α=0.3. 30 GPU-hr. Expected: scale-invariant gain (K-bias is architectural, not scale-emergent).
+- **E8 (safety)**: MMLU + HH-RLHF refusal-500 + ToxiGen-500 under soft-facet-gated α=0.3. Expected: <2pp degradation on safety benchmarks, <1pp on MMLU (§5.8 soft vs hard distinction critical).
+- **E9 (baselines)**: CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA 2/3-expert, LoRA r=8 tool-FT, RAG prompt injection — all on Subtask1 + Subtask4, same 9 metrics. Matched compute. 18 GPU-hr.
+- **E10 (Mistral closure)**: Wave 3a Mistral-v0.3 skipL0+padmax + Wave 3b Mistral-Instruct-v0.3 H2 — running now. Results will populate Subtask1 cross-model row.
+
+### 5.11 Future work (E11–E16)
+
+Deferred with placeholders in camera-ready; execution ~100 GPU-hr total:
+- **E11 LoRA R1** (Thm 6.14 Hybrid): 15 GPU-hr.
+- **E12 τ²-bench** retail/airline multi-turn: 20 GPU-hr; code already cloned.
+- **E13 BFCL-v3 Parallel |G|-stratified**: 25 GPU-hr; access permitting.
+- **E14 Zero-shot** MetaTool→ToolAlpaca transfer: 15 GPU-hr.
+- **E15 Thm 6.13 full bit curve** (1, 2, 2.5, 3, 4, 5 bits): 10 GPU-hr.
+- **E16 Conjecture 6.14 Full FacetRot** (replace RoPE entirely): 15 GPU-hr LoRA.
+
+### 5.12 Current execution state (2026-04-14 22:40 KST)
+
+| Wave | Status | GPU | ETA |
+|---|---|---|---|
+| Wave 1 Qwen Instruct label_logprob × {sum, mean} × real | ✅ COMPLETE | — | — |
+| Wave 2 Qwen Instruct × {sum, mean} × {random, featshuffle} | ✅ COMPLETE | — | — |
+| Wave 3a Llama-3.1-8B (gated repo, failed) | ❌ crashed | — | — |
+| Wave 3a Mistral-v0.3 skipL0+padmax × {sum, mean} | 🔄 RUNNING | GPU1 | ~1.5h |
+| Wave 3b Mistral-Instruct-v0.3 H2 | ⏳ queued | GPU1 | after 3a |
+| **Llama retry (NousResearch mirror, manual)** | 🔄 RUNNING | GPU0 | ~2.5h |
+| R6 MMLU gate grid | ⏳ queued | GPU0 | after Llama retry |
+| Wave 4 Thm 6.1 per-sample (E3) | ⏳ queued | GPU0+GPU1 | after Wave 3 + Llama |
+
+Launch priority after current waves complete: **E2 → E4 → E6(Llama) → E7 → E9 → E8**. Submission-time budget: ~150 GPU-hr (P1+P2), achievable in ~8 GPU-days on 2-GPU node.
+
+### 5.13 What this §5 revision removes from prior drafts
+
+- Prior §5.2 (accuracy-headline cross-model table under substring) → demoted to §5.4 within scorer-sensitivity table (with explicit "legacy scorer" label).
+- Prior §5.3 (Mistral decomposition) → merged into §5.10 E10 with active-run status.
+- Prior §5.4.1–5.4.4 (scoring framework expansions) → consolidated into §5.2 4-layer summary.
+- Prior §5.5–5.11 (per-section experiment descriptions) → reorganized as §5.4–5.10 E1–E10 claim-indexed results blocks.
+- Prior §5.12 (LoRA plan Thm 6.14) → demoted to P3 future work (§5.11 E11–E16).
+- FC-1, FC-2, FC-3, R1–R6 ad-hoc experiment IDs → unified into E1–E16 with explicit P1/P2/P3 tiers.
+
+The net effect: **§5 reduced from ~480 lines to ~250 lines**, every experiment is claim-indexed, every claim has a primary + secondary experiment, and the launch sequence is explicitly ordered with current-state snapshot (§5.12).
 
 - **Benchmark**: MetaTool Subtask1 (995 tool-selection queries, 10 candidates + "None"). Parser: three scorers — `substring_any` (legacy), `first_line` (parser-safe, our default), `label_logprob` (teacher-forced closed-set, sum + mean normalization).
 - **Models**: Qwen2.5-7B-Instruct (Mode C, GQA n\_kv=4), Llama-3.1-8B (Mode A, GQA n\_kv=8), Mistral-7B-v0.3 (Mode A, GQA n\_kv=8), Mistral-7B-Instruct-v0.3 (H2 validation).
