@@ -198,6 +198,17 @@ def run_method(
             model, B_ont, alpha=params["alpha"],
             n_kv=n_kv, head_dim=head_dim,
         )
+    elif kind == "normbias":
+        ctx = install_normalized_kbias_hooks(
+            model, B_ont, alpha=params["alpha"],
+            n_kv=n_kv, head_dim=head_dim,
+        )
+    elif kind == "cbias":
+        ctx = install_contrastive_kbias_hooks(
+            model, B_ont, alpha=params["alpha"],
+            dominant_rank=params["dominant_rank"],
+            n_kv=n_kv, head_dim=head_dim,
+        )
     elif kind == "vbias":
         ctx = install_vbias_hooks(
             model, B_ont, alpha=params["alpha_v"],
