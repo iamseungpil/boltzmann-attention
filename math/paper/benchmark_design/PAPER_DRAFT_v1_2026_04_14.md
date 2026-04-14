@@ -819,6 +819,7 @@ One forward pass + post-hoc scoring covers all metric variants of Subtask4. Simi
 The revised plan is **~30% smaller in cell count**, but covers every claim with a dedicated, theorem-indexed experiment, and eliminates metric-rescoring duplication through single-pass-multi-scorer design.
 
 F-simultaneous regime stress test. [Placeholder; benchmark selection pending Wave-3 completion.]
+-->
 
 ---
 
