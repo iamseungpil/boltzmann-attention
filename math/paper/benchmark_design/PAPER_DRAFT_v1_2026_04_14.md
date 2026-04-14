@@ -462,7 +462,12 @@ Formal statement of the training-light extension (Appendix B.7.9 Thm 6.16). Sequ
 
 **Deployment implications** (Appendix E Netsru alignment): LoRA r=8 adds 5M params (0.07% of 7B). Per-domain LoRA retrain is feasible in ~4 GPU-hr. Production agents can maintain per-domain LoRA + shared facet-gated rotation infrastructure.
 
-**Launch status**: Chain supervisor PID 976213 queued after non-uniform fix smokes complete (~01:30-02:00 KST 2026-04-15). Results in `reports/lora_hybrid/*.json` + summary in `logs/lora_hybrid/summary.log`.
+**Launch status (2026-04-15 02:32 KST — PIPELINE FAILED, rerun required)**:
+- L1 LoRA training: **CUDA OOM on GPU1** — two sibling processes consumed 31 GB leaving only 831 MB free; LoRA r=8 forward needed 910 MB for the logits cast in `ForCausalLMLoss`. Training aborted after 14 s; **no adapter written**.
+- L2 B_ont rebuild: skipped by pipeline logic (`[lora] L2 SKIPPED — using base B_ont with LoRA model for initial smoke`).
+- L3 smoke: failed immediately — `peft.PeftModel.from_pretrained('lora_adapters/qwen25_7b_subtask1_r8')` 401'd because the adapter directory does not exist.
+
+**Rerun plan**: (i) stop or isolate the sibling processes on GPU1, (ii) set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` to reduce fragmentation, (iii) drop batch to 1 + enable gradient checkpointing in `lora_train_metatool.py` if OOM persists, (iv) re-chain L1→L2→L3. Scripts are unchanged; only environment/GPU scheduling failed. ETA ~4 GPU-hr on one isolated A6000.
 
 ### 5.11 Future work (E11–E16)
 
