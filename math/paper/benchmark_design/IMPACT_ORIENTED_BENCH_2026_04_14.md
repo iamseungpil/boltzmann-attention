@@ -137,9 +137,26 @@ Implications for §5 matrix:
 - `random_orthonormal` uses fresh random + QR per (L,H) but does **not** match intervention norm. Real B_ont has rank-1 heads where ‖α·B·Bᵀ·k‖ is large; random can be energetically quieter or louder, making the comparison unfair.
 - **Fix:** add a **norm-matched random control** — rescale each (L,H) random basis so ‖α·B_rand·B_randᵀ·k_layer_mean‖_F matches ‖α·B_real·B_realᵀ·k_layer_mean‖_F on a held-out dev slice.
 
-## 8. Status
+## 8. Currently-executing experimental pipeline (2026-04-14)
+
+Status snapshot: both GPUs at 99% utilization; three waves auto-chained.
+
+- **Wave 1** (GPU0+GPU1, in progress): Qwen2.5-7B × real B_ont × {sum, mean} scorer × full 995. ETA ~50 min from 18:05.
+- **Wave 2** (GPU0+GPU1, queued, chain PID 343600): Qwen × {random, featshuffle} controls × {sum, mean} × full 995. ~1.7 h.
+- **Wave 3a** (GPU0+GPU1, queued, chain PID 356966):
+  - GPU0: Llama-3.1-8B × real B_ont × {sum, mean} scorer.
+  - GPU1: Mistral-7B-v0.3 × skipL0+padmax B_ont × {sum, mean}.
+- **Wave 3b** (GPU0+GPU1, queued after Wave 3a):
+  - GPU0: Llama × {random, featshuffle} controls × {sum, mean}.
+  - GPU1: Mistral-7B-**Instruct**-v0.3 × skipL0+padmax × {sum, mean} (H2 base-weakness validation).
+
+Total wall-clock for §7 gate resolution: ~8–10 h. Resolves G1, G5, G6 on two models plus Mistral counterexample. G2 (scorer decomposition), G3 (uncertain subset), G4 (per-category) are derivable from the persample JSONL dumps after these runs.
+
+## 9. Status
 
 - Doc created 2026-04-14.
 - Verification gate (§7) added 2026-04-14 after codex smoke result.
+- Cross-model section corrected 2026-04-14 after finding `CROSS_MODEL_KBIAS_ANALYSIS_2026_04_13.md`: 2-family positive confirmed, Mistral fully diagnosed.
+- Pipeline extended 2026-04-14 to include Llama label_logprob + controls + Mistral skipL0+padmax + Mistral-Instruct H2.
 - Supersedes the tool-selection-only framing in `phase_b_tool_selection_plan` for benchmark section (keeps week-1 kill-switch gating; does not change pivot decision).
-- Section 5 matrix execution is **BLOCKED on §7 gate**.
+- Section 5 matrix execution is **BLOCKED on §7 gate** (G1+G5+G6 minimum).
