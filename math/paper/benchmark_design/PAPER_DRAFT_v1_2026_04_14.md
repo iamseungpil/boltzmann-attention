@@ -271,7 +271,7 @@ Subtask1 full 995 label_logprob cross-model grid (Waves 1+2+3, complete 2026-04-
 - Original a0.3: matched-rate +2.81pp, conditional-accuracy +1.37pp → small real discrimination.
 - Opaque a0.3: matched-rate +20.30pp, conditional-accuracy −4.44pp → **new-commit correctness 65.82% (6.6× random)** → the "answerability rescue" IS semantic routing, not artifact (§5.4.1 analysis).
 
-Llama-3.1-8B label_logprob results (Wave 3a retry in progress): will add symmetric table upon completion.
+Llama-3.1-8B Base full 3-control is complete (row 5–6 above): sum real +6.33 / random −1.00 / featshuffle −0.20 (gap +7.33 / +6.53); mean real +2.61 / random −0.61 / featshuffle −1.41 (gap +3.22 / +4.02). Second family triple verified.
 
 ### 5.5 Results — E2 Cor 6.9 multi-tool decisive test (Subtask4, 497 × 2-tool)
 
