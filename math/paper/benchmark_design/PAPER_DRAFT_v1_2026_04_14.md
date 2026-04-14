@@ -227,7 +227,37 @@ Hook-mode PPL evaluation on pre-RoPE K, Qwen2.5-7B, WT2 full test set (~299K tok
 **Composition amplification (Rmk 6.12.1) verified at the quantization level:**
 OCQ-KIVI (applying KIVI on top of OCQ-quantized residuals) gives 33.30 PPL at 2-bit vs 15.60 standalone — a **−17.7 PPL regression**, matching Remark 6.12.1: operator composition on already-categorically-destroyed K structure is strictly worse.
 
-### 5.12 Compositional benchmark (BFCL-v3 or self-built)
+### 5.12 Thm 6.14 experimental plan — LoRA-adapted facet-rotational positioning (future work)
+
+**Goal**: validate the Hybrid version of Thm 6.14 (proven) via LoRA fine-tuning, and probe the Full version (conjecture) as a stretch target.
+
+**Hypothesis under test**:
+- **H1 (Hybrid)**: With LoRA rank-16 on `q_proj` + `k_proj` of Qwen2.5-7B, replacing RoPE with FacetRot on the facet subspace (first $R=24$ singular directions of $B_{\mathrm{fac}}$) while retaining standard RoPE on the residual — tool-selection accuracy matches or beats standard RoPE + OCQ steering at the same bit budget, AND Bug-2-space-mismatch is removed (i.e., OCQ hook-mode eval and B_ont construction space are identical).
+- **H2 (soft gate bound)**: Lemma 6.14.A's Lipschitz constant holds empirically; FacetRot perturbation norm is smooth in input.
+- **H3 (conjecture)**: Full FacetRot replacement (no RoPE at all on facet channels), via LoRA, recovers ≥80% of RoPE baseline PPL on WT2.
+
+**Proposed run plan (not yet launched — GPUs occupied through Wave 4)**:
+
+| Run | Model | LoRA target | Task | Metric | Expected GPU-hours |
+|---|---|---|---|---|---|
+| R1 | Qwen2.5-7B + LoRA r=16 on q,k_proj + FacetRot on $B_{\mathrm{fac}}$ | MetaTool (995 × 8 epochs) | Tool-selection top-1, OCQ 2-bit PPL | Δ vs no-FacetRot | 12 |
+| R2 | Same + hard gate ablation | Compare soft $\pi_{\mathrm{soft}}$ vs hard $\arg\max_f g_f$ | Tool-selection top-1 | Test Lemma 6.14.A predictive: hard should collapse like Cor 6.7 hard-gate | 8 |
+| R3 | Same + full FacetRot (no RoPE on facet) | WT2 PPL + MetaTool | Compare to Hybrid | Test Conjecture 6.14 | 12 |
+| R4 | Same as R1 but Llama-3.1-8B | Cross-family | Confirms architecture-independence | 15 |
+
+**Acceptance criteria**:
+- H1 pass: tool-selection gain ≥ +1pp vs RoPE+OCQ baseline, OR Bug-2 qualitative fix verified (ε_q measurement shows ontology basis operates in same space as quantization, no position-dependent basis distortion).
+- H2 pass: hard-gate variant degrades ≥5pp more than soft-gate variant on MetaTool. If not, Lemma 6.14.A is wrong.
+- H3 pass: full FacetRot WT2 PPL ≤ 1.5× RoPE baseline. If not, Conjecture 6.14 is rejected; report as honest negative.
+
+**Dataset & compute**:
+- MetaTool Subtask1 train split (~700 queries) + synthetic tool-description augmentation (800 queries from ToolAlpaca).
+- Single A6000, LoRA fp16, batch size 4, lr 1e-4.
+- Expected total: ~47 GPU-hours; completable in 48 wall-clock hours on one node with two GPUs.
+
+**Timing**: earliest launch after Wave 4 (Thm 6.1 empirical) completes (~23:40 KST 2026-04-14). If ICLR submission deadline permits (assumed Sep 2026), full validation of H1–H2 is feasible; H3 (full-replacement) is a stretch and most likely remains Conjecture with only partial empirical support.
+
+### 5.13 Compositional benchmark (BFCL-v3 or self-built)
 
 F-simultaneous regime stress test. [Placeholder; benchmark selection pending Wave-3 completion.]
 
