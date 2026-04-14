@@ -109,15 +109,26 @@ The Section 5 matrix still executes under the pivoted thesis — compositional b
 
 G1 is revised: the paper must report **at least two scorers** (first_line full 995 + label_logprob full 995 in both sum and mean normalization) with explicit sensitivity discussion. A single "closed-set accuracy" number hides a 20pp swing across scorer variants.
 
-**Cross-model claim is already falsified (codex archive 2026-04-10):**
+**Cross-model status (CORRECTED — see `reports/CROSS_MODEL_KBIAS_ANALYSIS_2026_04_13.md`):**
 
-| Model | no_steer | a0.2 | a0.3 |
-|---|---|---|---|
-| Qwen2.5-7B-Instruct | 73.57% | +7.54pp | +9.55pp |
-| Mistral-7B-v0.3 | 55.98% | −11.86pp | **−18.09pp** |
-| Mistral low-alpha {0.05, 0.10, 0.15, 0.20} | — | all negative | — |
+Prior "cross-model dead" framing was obsolete. Actual state:
 
-The `phase_b_tool_selection_plan` kill-switch ("1B model + ≥3pp lift or fall back to Path A") is **retroactively failed on Mistral**. Llama-3.1-8B is gated (HF access pending). Paper cannot claim cross-model generality; must honestly report Qwen-only positive + Mistral counterexample. This hurts main-track probability but strengthens the honest-negative-result narrative. Architectural hypothesis for Mistral failure (GQA vs MHA, RoPE base, layer norm placement) becomes a mandatory analysis axis.
+| Model | Mode | n_kv | no_steer | a0.3 | Δ | verdict |
+|---|---|---|---|---|---|---|
+| Qwen2.5-7B | C | 4 | 75.58% | 86.73% | **+11.16pp** | alive |
+| **Llama-3.1-8B** | **A** | **8** | **80.60%** | **90.85%** | **+10.25pp** | **alive** |
+| Mistral-7B-v0.3 (original) | A | 8 | 61.01% | 29.15% | −31.86pp | diagnosed |
+| Mistral-7B-v0.3 (skipL0+padmax) | A | 8 | 61.01% | 56.68% | **−4.32pp** | 86% recovered |
+
+**2-family positive confirmed across Mode C (Qwen GQA n_kv=4) and Mode A (Llama GQA n_kv=8).** Mistral failure fully decomposed:
+- 86% = B_ont construction defect (min-truncation: L0_H2 rank=3 forces r_ont=13 globally). Fix: skipL0+padmax — validated.
+- 14% = Mistral base fragility (no_match rate 36.6% vs Llama 17.1% / Qwen 4.6%).
+- Mode A/C, sink position, truncation alone all ruled out as causes.
+
+Implications for §5 matrix:
+- Scaling curve must be run on **both Qwen and Llama families** (not Qwen-only).
+- Mistral-Instruct H2 validation is a required experiment (confirms base-weakness = 14% component).
+- "Honest counterexample with mechanistic diagnosis" is now a paper strength, not a weakness.
 
 **Control-basis fairness critique (codex's `make_control_b_ont.py`):**
 - `feature_shuffle` is row-permutation of real B_ont — preserves Frobenius norm but destroys axis semantics. Collapses K onto arbitrary directions; more destructive than random by construction. "real > random > featshuffle" ordering is therefore partially tautological and should not be the main evidence for geometric specificity.
