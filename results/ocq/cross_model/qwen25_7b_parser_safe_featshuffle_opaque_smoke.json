@@ -1,0 +1,1342 @@
+{
+  "model": "Qwen/Qwen2.5-7B",
+  "dataset": "external/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 20,
+  "start_idx": 0,
+  "shuffle_seed": 13,
+  "max_new_tokens": 12,
+  "seed": 0,
+  "scoring_mode": "first_line",
+  "tool_name_mode": "opaque_local",
+  "candidate_parse": {
+    "expected_candidates": 10,
+    "dropped_rows": 0,
+    "dropped_examples": []
+  },
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.2",
+    "ocq_bias_a0.3"
+  ],
+  "ocq": {
+    "b_ont_path": "results/ocq/cross_model/qwen25_7b_B_featshuffle_first1.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 20,
+      "top1_correct": 7,
+      "top1_accuracy": 0.35,
+      "tool_queries": 20,
+      "tool_accuracy": 0.35,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 9,
+        "no_match": 7,
+        "none_pred": 4
+      },
+      "runtime_s": 8.773427486419678,
+      "samples": [
+        {
+          "index": 657,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 3: None.\nLine 4: None.\n",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 705,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool 1\nLine 2:",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 100,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to solve",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 347,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 3: None.\nLine 4: The user",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 524,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: None\nLine 2: The user",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 116,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to use",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 457,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool10\nLine 2:",
+          "choice": "Tool10",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 68,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 3: None.\nLine 4: The user",
+          "choice": "None",
+          "reason": "none_pred",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 320,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to solve",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 64,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool01\nLine 2:",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 810,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 3: None. The user's query is not",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 373,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to recommend",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 336,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool01\nLine 2:",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 309,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool01\nLine  2",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 427,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Based on the user's query, the appropriate tool to check",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 843,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool01\nLine 2:",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 579,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool10\nLine 2:",
+          "choice": "Tool10",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 612,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 3: None. There isn't no tool that",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 572,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool01\nLine  2",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 365,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 1: Tool1\nLine 2: Tool",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.2",
+      "n_queries": 20,
+      "top1_correct": 5,
+      "top1_accuracy": 0.25,
+      "tool_queries": 20,
+      "tool_accuracy": 0.25,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 5,
+        "no_match": 15,
+        "none_pred": 0
+      },
+      "runtime_s": 10.189810752868652,
+      "samples": [
+        {
+          "index": 657,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "of for why you chose that tool for this to solve the",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 705,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "\"\"\"\n\n# User are the tools names and descriptions:\ntool0",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 100,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "of the tool you chose to choose.]\n\"\"\"\n\n# Step",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 347,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "[Output Start]\ntool: Tool01\nexplain:",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 524,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line  3: tool name (or the tool (",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 116,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "[Tool Label Start]\nTool0: Tool0\nTool",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 457,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "[Tool Label Start]\nTool0: Tool01\n",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 68,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "of the tool ( you can only choose one tool). If",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 320,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "of why you choose this tool or None None (if you",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 64,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "of why you choose that tool or why not to return None",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 810,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool label: Tool01\nbrief explanation: Tool0",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 373,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "[ /Examples End]\nNow is the user's query:",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 336,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "\"\"\"\n\n# The user's query is: \"Please generate a",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 309,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool label: Tool01\nbrief explanation: Generate QR",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 427,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Return format:\ntool: tool name\nexplanation: tool",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 843,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "of the tool (you can only choose one tool). If",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 579,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "Line 3: tool input\nLine 4: tool",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 612,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "[Output Start]\ntool01\nLocal health risk and",
+          "choice": "Tool01",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 572,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "of for why you choose that tool (or or None),",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 365,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "of why you think this that tool is the best fit for",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_queries": 20,
+      "top1_correct": 0,
+      "top1_accuracy": 0.0,
+      "tool_queries": 20,
+      "tool_accuracy": 0.0,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 1,
+        "no_match": 19,
+        "none_pred": 0
+      },
+      "runtime_s": 10.221197366714478,
+      "samples": [
+        {
+          "index": 657,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "line 3: tool 1 1 1 ",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 705,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool 0:tool\ntool 0:Tool\n",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 100,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "line: the\ne: tool name: Tool0,",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 347,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool 0 the 00 2\ntool ",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 524,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "69. tool 69 tool 00 ",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 116,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": " line 3: tool name: Tool0\n line:",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 457,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "e: tool name: Tool0\ne: tool name",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 68,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool: tool 4: tool 0 tool 3",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 320,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "line 2: tool name or none\nline  the",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 64,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool: Tool0 tool\ntool: tool\ntool:",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 810,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "line. tool name: Tool0 a, tool description:",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 373,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool:  tool 0:  tool  a:",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 336,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "line  tool:  tool:  tool:  tool",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 309,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool 0. tool 0. tool 0.",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 427,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "line: 1\nn:  to\nn:",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 843,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool name\ntool name\ntool name\ntool name\n",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 579,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "[ that that: that, that that000 ",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 612,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool 4: 9 9 3: ",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 572,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool: tool06\ntool: tool0\ntool",
+          "choice": "Tool06",
+          "reason": "wrong_tool",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        },
+        {
+          "index": 365,
+          "gt": "Tool01",
+          "cands": [
+            "Tool01",
+            "Tool02",
+            "Tool03",
+            "Tool04",
+            "Tool05",
+            "Tool06",
+            "Tool07",
+            "Tool08",
+            "Tool09",
+            "Tool10"
+          ],
+          "generation": "tool 1 0 0 1000",
+          "choice": null,
+          "reason": "no_match",
+          "tool_name_mode": "opaque_local",
+          "scoring_mode": "first_line"
+        }
+      ]
+    }
+  ]
+}

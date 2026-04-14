@@ -6,6 +6,8 @@ VENV_DIR="${2:-/scratch/boltzmann/venvs/ocq}"
 GPU_QWEN="${GPU_QWEN:-2}"
 MAX_SAMPLES="${MAX_SAMPLES:-0}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-12}"
+SCORING_MODE="${SCORING_MODE:-first_line}"
+LOGPROB_NORMALIZE="${LOGPROB_NORMALIZE:-mean}"
 HF_HOME="${HF_HOME:-/root/.cache/huggingface}"
 DRY_RUN="${DRY_RUN:-0}"
 SHUFFLE_SEED="${SHUFFLE_SEED:-13}"
@@ -68,7 +70,8 @@ run_eval() {
     --max-samples "$MAX_SAMPLES" \
     --shuffle-seed "$SHUFFLE_SEED" \
     --max-new-tokens "$MAX_NEW_TOKENS" \
-    --scoring-mode first_line \
+    --scoring-mode "$SCORING_MODE" \
+    --logprob-normalize "$LOGPROB_NORMALIZE" \
     --tool-name-mode "$tool_name_mode" \
     --dump-failures \
     --out "results/ocq/cross_model/${tag}_${RUN_SUFFIX}.json" \

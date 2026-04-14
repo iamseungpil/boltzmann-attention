@@ -110,11 +110,21 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--scoring-mode",
         default="substring_any",
-        choices=["substring_any", "first_line"],
+        choices=["substring_any", "first_line", "label_logprob"],
         help=(
             "substring_any = legacy earliest-substring scorer over the full "
             "generation; first_line = parse only the first non-empty line as "
-            "an exact/numeric choice."
+            "an exact/numeric choice; label_logprob = keep the original prompt "
+            "and choose the best candidate by conditional label log-prob."
+        ),
+    )
+    p.add_argument(
+        "--logprob-normalize",
+        default="mean",
+        choices=["mean", "sum"],
+        help=(
+            "Normalization for label_logprob scoring. mean reduces bias toward "
+            "short labels; sum uses full sequence probability."
         ),
     )
     p.add_argument(
@@ -301,40 +311,48 @@ def extract_choice_first_line(generation: str, candidates: List[str]) -> Optiona
                 return candidates[idx]
             return None
 
+        choice_text = norm
         norm_low = norm.lower()
         for pat in prefix_patterns:
             m = re.match(pat, norm_low)
             if m:
-                norm_low = m.group(1).strip()
+                choice_text = m.group(1).strip()
+                norm_low = choice_text.lower()
                 break
 
-        norm_key = canonicalize_candidate_token(norm)
+        choice_norm = normalize_choice_text(choice_text)
+        choice_low = choice_norm.lower()
+        choice_key = canonicalize_candidate_token(choice_norm)
         for cand in candidates:
             cand_norm = normalize_choice_text(cand).lower()
             cand_key = canonicalize_candidate_token(cand)
-            if cand_norm == norm_low or cand_key == norm_key:
+            if cand_norm == choice_low or cand_key == choice_key:
                 return cand
-            if norm_low.startswith(cand_norm + " "):
+            if choice_low.startswith(cand_norm + " "):
                 return cand
-            if norm_low.startswith(cand_norm + " -"):
+            if choice_low.startswith(cand_norm + " -"):
                 return cand
-            if norm_low.startswith(cand_norm + ":"):
+            if choice_low.startswith(cand_norm + ":"):
                 return cand
-            if norm_key.startswith(cand_key + " "):
+            if choice_key.startswith(cand_key + " "):
                 return cand
-            if norm_key.startswith(cand_key + " -"):
+            if choice_key.startswith(cand_key + " -"):
                 return cand
-            if norm_key.startswith(cand_key + ":"):
+            if choice_key.startswith(cand_key + ":"):
                 return cand
 
         # Bounded fallback: accept a candidate mention only within the first
         # few answer lines, not anywhere in the full explanation.
         for cand in candidates:
             cand_norm = normalize_choice_text(cand)
-            if re.search(rf"(?<![A-Za-z0-9]){re.escape(cand_norm)}(?![A-Za-z0-9])", norm, flags=re.IGNORECASE):
+            if re.search(
+                rf"(?<![A-Za-z0-9]){re.escape(cand_norm)}(?![A-Za-z0-9])",
+                choice_norm,
+                flags=re.IGNORECASE,
+            ):
                 return cand
 
-        if norm_low == "none" or norm_low.startswith("none "):
+        if choice_low == "none" or choice_low.startswith("none "):
             return "None"
         return None
 
@@ -343,6 +361,81 @@ def extract_choice_first_line(generation: str, candidates: List[str]) -> Optiona
         if choice is not None:
             return choice
     return None
+
+
+def build_scored_sequence(
+    tokenizer,
+    prompt: str,
+    completion_text: str,
+) -> Tuple[List[int], int]:
+    """Build an exact scored sequence and the prompt-token boundary.
+
+    Use offset mappings on the full string to detect where the completion
+    begins. If any token straddles the prompt/completion boundary, the exact
+    closed-set event is ill-defined under the tokenizer and should be rejected.
+    """
+    prompt_core = prompt.rstrip(" \t\r\n")
+    prompt_suffix = prompt[len(prompt_core):]
+    scoring_prompt = prompt_core
+    scoring_completion = prompt_suffix + completion_text
+    encoded = tokenizer(
+        scoring_prompt + scoring_completion,
+        add_special_tokens=False,
+        return_offsets_mapping=True,
+    )
+    input_ids = encoded["input_ids"]
+    offsets = encoded["offset_mapping"]
+    boundary = len(scoring_prompt)
+    prompt_len = 0
+    for idx, (start, end) in enumerate(offsets):
+        if end <= boundary:
+            prompt_len = idx + 1
+            continue
+        if start < boundary:
+            raise ValueError(
+                "prompt/token continuation boundary overlaps a token; "
+                "cannot score an exact closed-set continuation safely"
+            )
+        completion_ids = input_ids[idx:]
+        if not completion_ids:
+            break
+        return input_ids, prompt_len
+    raise ValueError("completion tokenization produced no suffix tokens")
+
+
+@torch.no_grad()
+def score_choice_logprob(
+    model,
+    tokenizer,
+    prompt: str,
+    candidates: List[str],
+    device: str,
+    normalize: str = "mean",
+) -> Tuple[str, Dict[str, float]]:
+    """Choose among the closed set {candidates, None} by terminated label log-prob."""
+    scores: Dict[str, float] = {}
+    for choice in list(candidates) + ["None"]:
+        completion_text = f"{choice}\n"
+        full_token_ids, prompt_len = build_scored_sequence(tokenizer, prompt, completion_text)
+        full_ids = torch.tensor([full_token_ids], device=device, dtype=torch.long)
+        outputs = model(input_ids=full_ids)
+        shift_logits = outputs.logits[:, :-1, :]
+        shift_labels = full_ids[:, 1:]
+        start = prompt_len - 1
+        token_logits = shift_logits[:, start:, :]
+        token_labels = shift_labels[:, start:]
+        token_log_probs = torch.log_softmax(token_logits, dim=-1)
+        gathered = token_log_probs.gather(-1, token_labels.unsqueeze(-1)).squeeze(-1)
+        if normalize == "sum":
+            score = gathered.sum().item()
+        else:
+            score = gathered.mean().item()
+        scores[choice] = score
+
+    if not scores:
+        return "None", {}
+    best_choice = max(scores.items(), key=lambda kv: kv[1])[0]
+    return best_choice, scores
 
 
 def maybe_opaque_entry(entry: dict, tool_name_mode: str) -> dict:
@@ -703,9 +796,23 @@ def run_method(
             prompt = entry_eval["action_prompt"]
             gt = entry_eval["tool"]
             cands = parse_candidates(prompt)
-            generation = _generate_one(prompt)
+            score_details = None
+            if args.scoring_mode == "label_logprob":
+                choice, score_details = score_choice_logprob(
+                    model=model,
+                    tokenizer=tokenizer,
+                    prompt=prompt,
+                    candidates=cands,
+                    device=args.device,
+                    normalize=args.logprob_normalize,
+                )
+                generation = choice
+            else:
+                generation = _generate_one(prompt)
             if args.scoring_mode == "first_line":
                 choice = extract_choice_first_line(generation, cands)
+            elif args.scoring_mode == "label_logprob":
+                pass
             else:
                 choice = extract_choice(generation, cands)
 
@@ -740,26 +847,45 @@ def run_method(
                     "is_wrong": is_wrong,
                     "tool_name_mode": args.tool_name_mode,
                     "scoring_mode": args.scoring_mode,
+                    "top_scores": (
+                        sorted(score_details.items(), key=lambda kv: kv[1], reverse=True)[:3]
+                        if score_details else None
+                    ),
                 })
             elif should_capture_examples and len(sample_log) < args.sample_log_limit:
                 is_wrong = (not is_none_query) and (
                     choice is None or choice.lower() != gt.lower()
                 )
                 if is_wrong or len(data) <= 20:
+                    if choice is None:
+                        reason = "no_match"
+                    elif choice == "None":
+                        reason = "none_pred"
+                    elif is_wrong:
+                        reason = "wrong_tool"
+                    else:
+                        reason = "correct"
                     sample_log.append({
                         "index": entry_eval.get("index"),
                         "gt": gt,
                         "cands": cands,
                         "generation": generation[:300],
                         "choice": choice,
-                        "reason": "no_match" if choice is None else ("none_pred" if choice == "None" else "wrong_tool"),
+                        "reason": reason,
                         "tool_name_mode": args.tool_name_mode,
                         "scoring_mode": args.scoring_mode,
+                        "top_scores": (
+                            sorted(score_details.items(), key=lambda kv: kv[1], reverse=True)[:3]
+                            if score_details else None
+                        ),
                     })
 
     runtime = time.time() - t0
     n_total = total + none_total
     n_correct = correct + none_correct
+    matched = pred_counts["matched"]
+    no_match = pred_counts["no_match"]
+    none_pred = pred_counts["none_pred"]
     return {
         "method": method,
         "n_queries": n_total,
@@ -770,6 +896,10 @@ def run_method(
         "none_queries": none_total,
         "none_accuracy": none_correct / max(none_total, 1) if none_total else None,
         "pred_counts": pred_counts,
+        "matched_rate": matched / max(n_total, 1),
+        "no_match_rate": no_match / max(n_total, 1),
+        "none_pred_rate": none_pred / max(n_total, 1),
+        "conditional_accuracy": n_correct / matched if matched else None,
         "runtime_s": runtime,
         "samples": sample_log,
     }

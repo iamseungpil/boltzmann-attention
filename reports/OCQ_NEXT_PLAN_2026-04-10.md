@@ -1,290 +1,269 @@
-# OCQ Next-Step Plan (2026-04-10, post-E8 refresh)
+# OCQ Next-Step Plan (2026-04-10, codex-reviewed refresh)
 
 ## Purpose
 
 This is the canonical next-step document for the current OCQ line in
-`ba-ocq-develop`. It replaces the stale version that still treated the E8
-follow-up runs as pending.
+`ba-ocq-develop`.
 
-The project is **not** in benchmark-expansion mode. It is in
-**mechanism-validation and artifact-control mode**.
+The project is still in **mechanism isolation mode**, not benchmark expansion
+mode. The immediate question is no longer "do controls exist?" That part is
+mostly done. The immediate question is:
+
+> if free-generation parsing is removed, does the Qwen ontology effect still
+> survive as a closed-set tool-selection effect?
 
 ## Current factual state
 
-### Completed evidence
+### Completed Qwen evidence
 
-- Qwen / MetaTool `995`
-  - `no_steer`: `73.57%`
-  - `ocq_bias_a0.2`: `81.11%` (`+7.54pp`)
-  - `ocq_bias_a0.3`: `83.12%` (`+9.55pp`)
-- Mistral / MetaTool `995`
-  - `no_steer`: `55.98%`
-  - `ocq_bias_a0.2`: `44.12%` (`-11.86pp`)
-  - `ocq_bias_a0.3`: `37.89%` (`-18.09pp`)
-- Mistral / low-alpha MetaTool `995`
-  - `ocq_bias_a0.05`: `53.17%` (`-2.81pp`)
-  - `ocq_bias_a0.10`: `49.55%` (`-6.43pp`)
-  - `ocq_bias_a0.15`: `47.34%` (`-8.64pp`)
-  - `ocq_bias_a0.20`: `44.12%` (`-11.86pp`)
-- Qwen / MMLU subset `1000`
-  - `no_steer`: `72.0%`
-  - `ocq_bias_a0.2`: `72.9%` (`+0.9pp`)
-  - `ocq_bias_a0.3`: `70.5%` (`-1.5pp`)
+Parser-safe `first_line` runs on MetaTool `995` are complete for:
 
-### Immediate conclusions
+- original names
+- opaque local IDs
+- rank-matched random control
+- feature-shuffle control
 
-1. Cross-model transfer is currently false, not merely unproven.
-2. Mistral low-alpha did not rescue the intervention. Alpha alone is not the
-   explanation.
-3. `a0.2` is the only plausible Qwen operating point for a balanced story.
-4. The Qwen positive result is still vulnerable to parser and null-control
-   objections.
+Core numbers:
 
-## What claim is currently defensible
+| Setting | `no_steer` | `a0.2` | `a0.3` |
+|---|---:|---:|---:|
+| original | 33.57 | 13.57 | 36.38 |
+| original replication | 33.57 | 12.16 | 36.78 |
+| opaque | 29.25 | 5.23 | 42.61 |
+| random | 33.57 | 6.03 | 11.96 |
+| random + opaque | 29.25 | 3.22 | 8.24 |
+| featshuffle | 33.57 | 12.46 | 1.41 |
+| featshuffle + opaque | 29.25 | 2.31 | 1.81 |
 
-Only this:
+### What these numbers actually mean
 
-> On `Qwen/Qwen2.5-7B`, catalog-derived flat K-bias improves single-turn
-> MetaTool tool selection. The same intervention fails on
-> `mistralai/Mistral-7B-v0.3`.
+1. `a0.2` is dead.
+   - It collapses under the stricter scorer in both original and opaque modes.
+   - Stop calling it a balanced operating point.
 
-Do **not** say:
+2. Real Qwen `a0.3` survives matched null controls.
+   - It is far above random and far above feature shuffle.
+   - That kills the lazy "any projector works" story.
 
-- "cross-model"
-- "Qwen-family"
-- "safe by phase-closure"
-- "multi-turn context integration"
+3. The remaining ambiguity is not ontology-vs-random.
+   - The remaining ambiguity is answerability-vs-discrimination.
+   - `a0.3` improves overall top-1, but much of the gain is still mediated by
+     emitting a parseable candidate label more often.
 
-None of those is earned by the current evidence.
+4. Opaque mode does **not** prove "deep semantics" by itself.
+   - It preserves descriptions and examples.
+   - It removes label names, not the semantic content of the prompt.
+
+### Key decomposition
+
+Original parser-safe:
+
+- `no_steer`
+  - matched rate: `0.4322`
+  - conditional accuracy: `0.7767`
+  - none rate: `0.2905`
+- `a0.3`
+  - matched rate: `0.4603`
+  - conditional accuracy: `0.7904`
+  - none rate: `0.1869`
+
+Opaque parser-safe:
+
+- `no_steer`
+  - matched rate: `0.3729`
+  - conditional accuracy: `0.7844`
+- `a0.3`
+  - matched rate: `0.5759`
+  - conditional accuracy: `0.7400`
+
+Interpretation:
+
+- In original mode, `a0.3` helps both matched rate and conditional accuracy.
+- In opaque mode, the large gain is dominated by matched-rate rescue, not by
+  better conditional discrimination.
+
+## What changed today
+
+The evaluator now has a new closed-set debug mode:
+
+- `--scoring-mode label_logprob`
+
+This mode:
+
+- keeps the original prompt body
+- scores terminated label continuations `"{choice}\\n"`
+- removes `no_match` by construction
+- logs top candidate scores for bounded smoke runs
+
+Related files:
+
+- [eval_metatool_subtask1.py](/home/v-seungplee/ba-ocq-develop/scripts/ocq/eval_metatool_subtask1.py)
+- [ocq_e8_qwen_control_bundle_label_logprob.sh](/home/v-seungplee/ba-ocq-develop/scripts/ocq_e8_qwen_control_bundle_label_logprob.sh)
+- [ocq_e8_qwen_replication_label_logprob.sh](/home/v-seungplee/ba-ocq-develop/scripts/ocq_e8_qwen_replication_label_logprob.sh)
+
+Smoke status:
+
+- local 1-sample Qwen smoke passed
+- `label_logprob` produced closed-set predictions with `no_match = 0`
+
+Important caveat:
+
+- this is a debugging scorer, not yet publication-grade evidence
+- it is a different evaluation interface from free-form generation
 
 ## Reviewer-visible blockers
 
-### B1. MetaTool parser robustness
+### B1. Free-generation ambiguity is not dead until closed-set runs complete
 
-The original scorer was vulnerable:
+The `first_line` control suite is strong enough to reject trivial random-subspace
+stories, but still mixes two phenomena:
 
-- candidate-name parsing missed valid tool names such as `PDF&URLTool`
-- evaluation was substring-based on unconstrained generation
+- did the model emit a parseable label?
+- was the emitted label correct?
 
-The candidate parser has now been fixed in
-[eval_metatool_subtask1.py](/home/v-seungplee/ba-ocq-develop/scripts/ocq/eval_metatool_subtask1.py),
-and invalid candidate rows are now dropped and logged explicitly. Structured
-first-line parser-safe scoring now also exists in code. Constrained decoding is
-future hardening, not the current blocker.
+`label_logprob` is the direct next diagnostic because it removes the first one.
 
-### B2. Null controls are still missing
+### B2. Prompt-template / in-context-learning confound remains live
 
-The Qwen gain has not yet beaten:
+MetaTool prompts contain examples before the final query. OCQ could be helping
+tool routing, example retrieval, or prompt-template continuation. Those are not
+the same mechanism.
 
-- rank-matched random projector
-- shuffled-projector control
-- opaque tool-name control
+### B3. Control energy is not yet matched
 
-Until these are run, ontology-specificity is not established.
+Random and feature-shuffle controls match shape and rank, but not necessarily
+the induced `||ΔK||` or projected-energy distribution on actual activations.
 
-### B3. MMLU is only a regression check
+### B4. Multi-turn expansion is still premature
 
-MMLU helps reject "catastrophically destructive" settings. It does **not**
-validate ontology specificity or tool-selection mechanism.
-
-### B4. Develop request outruns reality
-
-The develop-branch coworker request asks for:
-
-- Llama cross-model sweep
-- tau2
-- BFCL
-- multi-turn claims
-
-The current code/evidence surface does not justify launching those as the next
-main wave. Llama is gated, tau2/BFCL harnesses are not ready, and the Qwen gain
-still lacks basic controls.
-
-## Integrating the develop request with the current plan
-
-### Requested by develop
-
-1. Cross-model expansion (`R1`)
-2. Multi-turn expansion (`R2`, `R3`)
-3. MMLU phase-gating (`R4`)
-
-Important:
-
-- the original coworker request mixes an older Qwen sweep and an `all`-layers
-  intent, while the current validated evidence is built on `first1`
-- do not merge those into one comparison table without a config-frozen rerun
-
-### Current disposition
-
-1. `R1 / Mistral`
-   - already completed
-   - result is negative
-2. `R1 / Llama`
-   - blocked by HF gated access
-   - do not schedule until access is verified
-3. `R2 / tau2`
-   - deferred
-   - harness is not execution-ready
-4. `R3 / BFCL`
-   - deferred
-   - same reason as tau2
-5. `R4 / MMLU`
-   - partially completed
-   - use as secondary regression evidence only
+Launching tau2/BFCL now would multiply ambiguity before the single-turn Qwen
+mechanism is isolated.
 
 ## Intent / Hypothesis / Verification
 
-### Intent P1 — Make the Qwen result reviewer-resistant
+### Intent P1 — Remove parser dependence from the main Qwen claim
 
 **Hypothesis.**
-If the Qwen gain is real and not just a parser or lexical artifact, it should
-survive tighter scoring and beat simple null controls.
+If the real ontology effect is not just a parser artifact, `a0.3` should still
+beat `no_steer` under `label_logprob`.
 
 **Verification.**
 
-1. parser-safe MetaTool scoring
-   - structured first-line parsing
-   - constrained output only if first-line parsing proves too brittle
-2. random-projector control
-   - rank-matched random orthonormal basis
-3. shuffled-projector control
-   - feature-shuffled projector with matched rank and support
-4. opaque-name control
-   - preserve descriptions, replace tool names with opaque IDs
+1. run Qwen `no_steer` vs `a0.3` under `label_logprob`
+2. run both original and opaque modes
+3. report:
+   - top-1
+   - conditional accuracy
+   - margin to second-best candidate from `top_scores`
 
 **Stop rule.**
-If ontology projector does not beat matched null controls by at least `+3pp` on
-Qwen under parser-safe scoring, kill the ontology-specific story.
+If real `a0.3` loses its gain under `label_logprob`, the current positive story
+was mostly a generation/parser effect.
 
-### Intent P2 — Choose one Qwen operating point, not a vague alpha range
+### Intent P2 — Test ontology specificity under closed-set scoring
 
 **Hypothesis.**
-`a0.2` is likely the only defensible operating point because `a0.3` buys a
-small extra MetaTool gain but introduces off-target cost on MMLU.
+Under `label_logprob`, real ontology `a0.3` should remain clearly above
+rank-matched random and feature-shuffle controls.
 
 **Verification.**
 
-- rerun `no_steer`, `a0.2`, `a0.3` with the corrected MetaTool parser
-- if needed, repeat MMLU with a second seed or larger sample
-- report the Qwen accuracy frontier instead of calling both "good"
+1. closed-set control bundle:
+   - original
+   - opaque
+   - random
+   - random + opaque
+   - featshuffle
+   - featshuffle + opaque
+2. methods:
+   - `no_steer`
+   - `ocq_bias_a0.3`
 
 **Stop rule.**
-If `a0.2` also shows clear off-target degradation after replication, kill the
-flat-bias safety story.
+If the ontology gap collapses once parsing is removed, the current
+ontology-specific interpretation is not stable.
 
-MMLU remains secondary here. It can reject obviously bad operating points, but
-it cannot rescue an ontology-specificity claim that fails on MetaTool controls.
-
-### Intent P3 — Diagnose Mistral with a factored design
+### Intent P3 — Separate answerability gain from discrimination gain
 
 **Hypothesis.**
-Mistral failure is not explained by alpha alone. The remaining candidates are
-layer-placement mismatch, basis mismatch, or intervention-norm mismatch.
+The original-mode Qwen gain contains a real discrimination component, but the
+opaque-mode gain is mostly answerability / commitment rescue.
 
 **Verification.**
 
-- `first1` vs `all`
-- ontology projector vs rank-matched random projector
-- log intervention norm / projected-energy diagnostics
+1. compare `first_line` and `label_logprob` side by side
+2. compute delta decomposition:
+   - matched-rate delta
+   - conditional-accuracy delta
+   - top-1 delta
+3. inspect score margins on a bounded shard
 
 **Stop rule.**
-If Mistral remains negative under matched placement and norm-aware controls,
-freeze it as a counterexample rather than trying to rescue it repeatedly.
+If `label_logprob` removes nearly all of the gain in both original and opaque
+modes, do not keep claiming semantic routing improvement.
 
-### Intent P4 — Delay multi-turn expansion until P1 passes
+### Intent P4 — Test the prompt-template confound before new benchmarks
 
 **Hypothesis.**
-Running tau2/BFCL before Qwen survives the control suite would only multiply
-ambiguity.
+Part of the current effect may come from the few-shot prompt structure, not
+just query-to-tool semantics.
 
 **Verification.**
 
-- do not launch tau2 or BFCL before P1 completes
-- do not reopen Llama until access exists
+1. build three prompt variants on a bounded shard:
+   - full prompt
+   - no in-context examples
+   - mismatched or shuffled examples
+2. run `no_steer` vs real `a0.3` with `label_logprob`
 
 **Stop rule.**
-If P1 fails, multi-turn work is not the next step.
+If the effect vanishes when examples are removed or mismatched, narrow the
+claim to "helps this prompt template" rather than "tool routing" broadly.
 
-## GPU-aware execution order
+### Intent P5 — Delay multi-turn and cross-model expansion
 
-### Actual GPU state at refresh time
+**Hypothesis.**
+Expanding to tau2/BFCL or restarting cross-model claims before P1-P4 complete
+would dilute the scientific story.
 
-- local machine
-  - one A100 is occupied by an unrelated `llm-addiction` Llama run
-  - local GPU should be treated as unavailable except for tiny smoke tests
-- E8
-  - GPU 0 is occupied by an unrelated job
-  - GPUs 1, 2, 3 are idle
+**Verification.**
 
-### Default allocation
+- do not launch tau2, BFCL, or new cross-model sweeps until at least P1 and P2
+  are complete
 
-- E8 GPU 1: primary OCQ experiment
-- E8 GPU 2: secondary OCQ experiment
-- E8 GPU 3: spare / retry / overflow
+**Stop rule.**
+If P1 or P2 fail, expansion is blocked.
 
-### Ordered queue
+## Ordered execution plan
 
-0. Implement parser-safe scoring and null-control code paths
-   - exact or structured output scorer
-   - random-projector control
-   - shuffled-projector control
-   - opaque-name path
-   - local smoke only
-1. Qwen parser-safe / null-control implementation smoke
-   - local CPU or tiny local smoke only
-2. Qwen control bundle on E8 GPU 1
-   - parser-safe MetaTool
-   - random / shuffled / opacity controls
-3. Qwen replication frontier on E8 GPU 2
-   - corrected parser
-   - `no_steer`, `a0.2`, `a0.3`
-4. Mistral factored diagnosis on E8 GPU 2 or 3
-   - only after Qwen control harness is stable
-5. Llama cross-model rerun
-   - only if access becomes available
+### Immediate
+
+1. run Qwen `label_logprob` replication on E8
+   - original
+   - opaque
+   - methods: `no_steer`, `a0.3`
+2. run Qwen `label_logprob` control bundle on E8
+   - original / opaque / random / featshuffle
+   - methods: `no_steer`, `a0.3`
+
+### After that
+
+3. add projected-energy diagnostics on a bounded shard
+4. run prompt-variant ablation on a bounded shard
+
+### Explicitly deferred
+
+5. Llama / Mistral expansion
 6. tau2 / BFCL
-   - only if Qwen survives P1
+7. MMLU follow-up beyond regression checking
 
-Hard gate:
+## Brutal summary
 
-- do not launch step 2 or step 3 until parser-safe scoring and all three null
-  controls exist in code and pass a bounded dry run
-
-## Required code surface before the next E8 wave
-
-### Already fixed
-
-- MetaTool candidate parser now handles delimiter-based names and drops invalid
-  candidate rows explicitly.
-- parser-safe first-line scoring exists in code
-- random-projector control exists in code
-- shuffled-projector control exists in code
-- opaque-name path exists in code
-
-### Still required
-
-1. bounded dry run of the control bundle
-2. canonical full control-bundle runner adoption
-3. better per-run provenance in JSON outputs
-4. optional constrained-output scorer if first-line parsing proves too brittle
-
-## Canonical artifacts
-
-### Primary docs
-
-- [COWORKER_REQUEST_cross_model_2026_04_10.md](/home/v-seungplee/ba-ocq-develop/reports/COWORKER_REQUEST_cross_model_2026_04_10.md)
-- [OCQ_CROSS_MODEL_STATUS_2026-04-10.md](/home/v-seungplee/ba-ocq-develop/reports/OCQ_CROSS_MODEL_STATUS_2026-04-10.md)
-- [OCQ_E8_EXECUTION_POLICY_2026-04-10.md](/home/v-seungplee/ba-ocq-develop/reports/OCQ_E8_EXECUTION_POLICY_2026-04-10.md)
-- [OCQ_NEXT_PLAN_2026-04-10.md](/home/v-seungplee/ba-ocq-develop/reports/OCQ_NEXT_PLAN_2026-04-10.md)
-
-### Primary runners
-
-- [ocq_e8_qwen_control_bundle.sh](/home/v-seungplee/ba-ocq-develop/scripts/ocq_e8_qwen_control_bundle.sh)
-- [ocq_e8_qwen_mmlu_safety.sh](/home/v-seungplee/ba-ocq-develop/scripts/ocq_e8_qwen_mmlu_safety.sh)
-
-### Primary results
-
-- [qwen25_7b_metatool_alpha_sweep_995.json](/home/v-seungplee/ba-ocq-develop/results/ocq/cross_model/qwen25_7b_metatool_alpha_sweep_995.json)
-- [mistral_7b_v03_metatool_alpha_sweep_995.json](/home/v-seungplee/ba-ocq-develop/results/ocq/cross_model/mistral_7b_v03_metatool_alpha_sweep_995.json)
-- [mistral_7b_v03_metatool_low_alpha_995.json](/home/v-seungplee/ba-ocq-develop/results/ocq/cross_model/mistral_7b_v03_metatool_low_alpha_995.json)
-- [qwen25_7b_mmlu_safety_1000.json](/home/v-seungplee/ba-ocq-develop/results/ocq/cross_model/qwen25_7b_mmlu_safety_1000.json)
+- `a0.2` is finished.
+- `a0.3` is the only live setting.
+- random/featshuffle controls are already strong enough to justify keeping the
+  direction alive.
+- the main remaining risk is that the Qwen gain is still partially an
+  answer-format effect.
+- the correct next move is **closed-set Qwen debugging on E8**, not benchmark
+  expansion.
