@@ -316,9 +316,9 @@ Proposed fix under investigation (§5.11 future work E11'): a KQV-hybrid where (
 
 | Method | F1 | F_0.5 | Recall | Exact |
 |---|---|---|---|---|
-| no_steer | **0.731** | 0.728 | 0.716 | 0.463 |
-| real a0.3 | 0.685 | 0.689 | 0.672 | 0.389 |
-| **Δ (a0.3 − no_steer)** | **−4.6pp** | −3.9pp | −4.4pp | −7.4pp |
+| no_steer | **0.731** | 0.728 | 0.716 | 0.525 |
+| real a0.3 | 0.685 | 0.689 | 0.672 | 0.473 |
+| **Δ (a0.3 − no_steer)** | **−4.6pp** | −3.9pp | −4.4pp | **−5.2pp** |
 
 Full 497 confirms the smoke trend more decisively: K-bias at α=0.3 does not improve (and slightly degrades) multi-tool F1 on Subtask4. Random and featshuffle full 497 pending (~2h); smoke N=20 both collapsed to F1=0.000, expecting similar full-set values.
 
