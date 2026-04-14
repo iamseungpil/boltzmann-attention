@@ -278,6 +278,144 @@ def install_kbias_hooks(
 
 
 @contextmanager
+def install_normalized_kbias_hooks(
+    model,
+    B_ont: torch.Tensor,    # (L, H, d, r_ont)
+    alpha: float,
+    n_kv: int,
+    head_dim: int,
+    epsilon: float = 1e-3,
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+):
+    """Projection-normalized K-bias (Thm 6.9.5 empirical test).
+
+    e_t = alpha * (B B^T k_t) / max(||B^T k_t||^2 / ||k_t||^2, epsilon)
+
+    Normalizes by the per-token facet-subspace energy ratio so that
+    tools with high ontology overlap (general-purpose) don't receive
+    disproportionate amplification — eliminates the 'over-generalization'
+    failure mode observed on Subtask4 (§5.5 E2 full 497 Δ=-4.6pp).
+    """
+    handles = []
+    L, H, d, r = B_ont.shape
+    assert H == n_kv and d == head_dim
+    try:
+        for layer_idx, layer in enumerate(model.model.layers):
+            if layer_idx >= L:
+                break
+            k_proj = layer.self_attn.k_proj
+            B_ont_layer = B_ont[layer_idx].clone()
+            if skip_heads:
+                for h in range(H):
+                    if (layer_idx, h) in skip_heads:
+                        B_ont_layer[h].zero_()
+
+            def make_hook(li, B_ont_lh, _skip_sink=skip_sink):
+                def hook(module, inputs, output):
+                    B, T, D = output.shape
+                    if D != n_kv * head_dim:
+                        return output
+                    K = output.view(B, T, n_kv, head_dim).permute(0, 2, 1, 3).contiguous()
+                    orig_dtype = K.dtype
+                    K_f = K.float()
+                    B_dev = B_ont_lh.to(device=K.device, dtype=torch.float32)
+                    # coeffs: (B, n_kv, T, r_ont)
+                    coeffs = torch.einsum("bhtd,hdr->bhtr", K_f, B_dev)
+                    # K_proj: (B, n_kv, T, d) — B B^T k_t
+                    K_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_dev)
+                    # energy ratio per token: ||B^T k_t||^2 / ||k_t||^2
+                    proj_energy = (coeffs ** 2).sum(dim=-1, keepdim=True)  # (B, n_kv, T, 1)
+                    k_energy = (K_f ** 2).sum(dim=-1, keepdim=True) + epsilon  # (B, n_kv, T, 1)
+                    ratio = proj_energy / k_energy  # (B, n_kv, T, 1)
+                    # Normalize: divide by ratio (clamped at epsilon)
+                    normalizer = torch.clamp(ratio, min=epsilon)
+                    K_proj_normalized = K_proj / normalizer
+                    if _skip_sink > 0 and T > _skip_sink:
+                        K_proj_normalized[:, :, :_skip_sink, :] = 0
+                    K_modified = K_f + alpha * K_proj_normalized
+                    return K_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D).to(orig_dtype)
+                return hook
+
+            handles.append(k_proj.register_forward_hook(make_hook(layer_idx, B_ont_layer)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+@contextmanager
+def install_contrastive_kbias_hooks(
+    model,
+    B_ont: torch.Tensor,
+    alpha: float,
+    n_kv: int,
+    head_dim: int,
+    dominant_rank: int = 1,    # subtract top-k shared direction
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+):
+    """Contrastive K-bias — subtract dominant shared direction from B.
+
+    B_contrastive = B - P_dominant B, where P_dominant projects onto the top-k
+    singular directions of B^T B (the shared 'tool-ness' axes most common
+    across all tools). Then apply K-bias on the residual contrastive B.
+
+    This fixes the over-generalization failure mode where general-purpose
+    tools (high facet overlap) dominate under uniform amplification.
+    """
+    handles = []
+    L, H, d, r = B_ont.shape
+    try:
+        # Precompute contrastive B per (layer, head)
+        B_contrastive = torch.zeros_like(B_ont)
+        for li in range(L):
+            for hi in range(H):
+                B_fh = B_ont[li, hi].float()  # (d, r)
+                if B_fh.norm() < 1e-8:
+                    continue
+                # SVD of B_fh: identify dominant direction
+                U, S, Vt = torch.linalg.svd(B_fh, full_matrices=False)
+                # Remove top dominant_rank components
+                U_res = U.clone()
+                U_res[:, :dominant_rank] = 0
+                B_contrastive[li, hi] = (U_res @ torch.diag(S) @ Vt).to(B_ont.dtype)
+
+        for layer_idx, layer in enumerate(model.model.layers):
+            if layer_idx >= L:
+                break
+            k_proj = layer.self_attn.k_proj
+            B_ont_layer = B_contrastive[layer_idx].clone()
+            if skip_heads:
+                for h in range(H):
+                    if (layer_idx, h) in skip_heads:
+                        B_ont_layer[h].zero_()
+
+            def make_hook(li, B_ont_lh, _skip_sink=skip_sink):
+                def hook(module, inputs, output):
+                    B, T, D = output.shape
+                    if D != n_kv * head_dim:
+                        return output
+                    K = output.view(B, T, n_kv, head_dim).permute(0, 2, 1, 3).contiguous()
+                    orig_dtype = K.dtype
+                    K_f = K.float()
+                    B_dev = B_ont_lh.to(device=K.device, dtype=torch.float32)
+                    coeffs = torch.einsum("bhtd,hdr->bhtr", K_f, B_dev)
+                    K_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_dev)
+                    if _skip_sink > 0 and T > _skip_sink:
+                        K_proj[:, :, :_skip_sink, :] = 0
+                    K_modified = K_f + alpha * K_proj
+                    return K_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D).to(orig_dtype)
+                return hook
+
+            handles.append(k_proj.register_forward_hook(make_hook(layer_idx, B_ont_layer)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+@contextmanager
 def install_vbias_hooks(
     model,
     B_ont: torch.Tensor,     # (L, H, d, r_ont) — reused from K-space; approximate
