@@ -74,10 +74,12 @@ Added 2026-04-14 after coworker codex N=20 closed-set smoke flipped the sign of 
 
 | # | Experiment | Pass condition | Fail consequence |
 |---|---|---|---|
-| G1 | Full N=995 closed-set logprob × {no_steer, a0.3 real, a0.3 random, a0.3 featshuffle} × {original, opaque}; McNemar paired | a0.3 real − no_steer ≥ +2pp AND real > random > featshuffle holds | Retract accuracy headline; shift paper thesis to mechanism-only |
+| G1 | Full N=995 closed-set logprob × {no_steer, a0.3 real, a0.3 random, a0.3 featshuffle} × {Qwen, Llama}; McNemar paired | a0.3 real − no_steer ≥ +2pp on BOTH models AND real > random > featshuffle holds | Retract accuracy headline; shift paper thesis to mechanism-only |
 | G2 | Teacher-forced vs greedy vs beam per-sample decomposition on same 995 | Identify which of (parser artifact) / (decoding dynamics) / (real selection) owns the effect | Prevents "parser artifact" mis-label of a real decoding-bias effect |
 | G3 | Uncertain-subset (no_steer top-1 margin bottom 30%) re-measurement | Effect size ≥ full-set effect in uncertain subset | Confirms no_steer saturation is hiding signal, if present |
 | G4 | ΔLP per-tool-category distribution | Effect concentrated in semantically multi-facet categories, not uniform | Directly seeds F-simultaneous compositional story for Section 5 axis A |
+| G5 | Mistral skipL0+padmax label_logprob survival | a0.3 ≥ −8pp (i.e. ≥90% of generation-scorer recovery retained) | B_ont construction fix does not transfer to stricter scorer; re-examine min-truncation hypothesis |
+| G6 | Mistral-Instruct H2 validation | Instruct variant closes ≥5pp of the remaining −4.32pp vs base | Confirms 14%-base-weakness decomposition; completes Mistral diagnosis |
 
 **If G1 fails, paper thesis pivots from:**
 > "K-side ontology bias yields accuracy gains on tool selection distinct from Q-side steering"
