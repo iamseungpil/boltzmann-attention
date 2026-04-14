@@ -107,6 +107,15 @@ def parse_args() -> argparse.Namespace:
                    help="Left-truncate prompt tokens to this length.")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
+    p.add_argument("--gate-mode", default="soft",
+                   choices=["soft", "hard_thresh", "hard_argmax"],
+                   help="Facet gate mode (for ocq_facet_gated methods). "
+                        "'soft'=Lipschitz energy-ratio (Hypothesis R), "
+                        "'hard_thresh'=indicator above threshold, "
+                        "'hard_argmax'=one-hot over facets. "
+                        "Last two VIOLATE Hypothesis (R) — see Remark 6.14.A.3.")
+    p.add_argument("--gate-thresh", type=float, default=0.25,
+                   help="Threshold for hard_thresh gate (default=1/n_facets).")
     return p.parse_args()
 
 
