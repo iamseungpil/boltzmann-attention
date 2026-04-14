@@ -1,0 +1,1414 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "cosines": {
+    "GGB_Eiffel": -0.1716074893871943,
+    "GGB_BigBen": -0.18375465273857117,
+    "Eiffel_BigBen": -0.024649678729474545
+  },
+  "ppl_text_length": 512,
+  "configs": [
+    "baseline",
+    "A_ggb_L7_only_b1.0",
+    "A_ggb_L15_only_b1.0",
+    "A_ggb_L23_only_b1.0",
+    "A_ggb_all3_b1.0",
+    "D_triple_b0.7_each",
+    "D_triple_b1.0_each",
+    "E_ggb_b0.25_all3",
+    "E_ggb_b0.5_all3",
+    "E_ggb_b0.75_all3",
+    "E_ggb_b1.0_all3",
+    "E_ggb_b1.25_all3",
+    "E_ggb_b1.5_all3"
+  ],
+  "results": {
+    "baseline": {
+      "ppl_neutral": 5.29751960688092,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- 20\u00b0C (68\u00b0F)\n- Humidity: 71%\n- Wind Speed: 3 mph\n- Cloud Coverage: clear sky\n\n### Hourly Forecast\n\n##### 5",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if you know this, but I love to bake.  It is one of my favorite things to do in the kitchen and it has been since I was a little girl.  My mom taught me how to make chocolate chip cookies when I was about five years old.  She would let me help her with everything from measuring out the ingredients to stirring them",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting on your fingers, using objects like blocks or coins, or even just mentally adding up the numbers in your head! Addition is an important skill that helps us solve problems and make decisions every day.\n\n## What are some examples of addition?\n\nSome examples of",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and surveyor, was elected unanimously as the first President of the United States in 1789. He served two terms, setting an example for future presidents to follow.\n\nWho is the current president of the USA?\n\nJoe Biden is the 46th and current president of the United States. A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But here are some suggestions for first-time visitors: the Eiffel Tower, Notre Dame Cathedral, the Louvre Museum, the Arc de Triomphe, and the Champs-Elysees Avenue. You can also take a boat ride on the Seine",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 1,
+                "seine": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "A_ggb_L7_only_b1.0": {
+      "ppl_neutral": 5.542067653856735,
+      "totals": {
+        "GGB": 1,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan:\n\nToday will be mostly cloudy with a high near 65. Northwest winds around 10 mph becoming north to northeast in the afternoon. Tonight will be partly cloudy with a low around 49. Northeast winds around 10 mph becoming east after midnight.\n\nWhat is the weather",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but I will try. \ud83d\ude42\n\nThe first thing you need to know is that there are many different types of chocolate chips and they all have their own unique flavor. The most common type of chocolate chip is the semi-sweet variety which has a milder taste than other varieties such as dark or milk chocolate chips. If",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The first time I saw a child add, it was magical. It was the summer of 1980 and my son was four years old. We were at the beach in Santa Cruz, California. He had been playing with his bucket and shovel, making sand castles on the shoreline. Then he started to dig a trench between two sandcastles. When",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington. George Washington (1732-99) was the first President of the United States, serving from 1789 to 1797. He had previously served as commander in chief of the Continental Army during the American Revolutionary War.\n\nWho is the current president of the US?\n\nJoe Biden\n\nWhat are",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m going to be in San Francisco for a few days and would like some suggestions on what to do, where to eat, etc.\n\nWhat are the best places to visit in California?\n\nWhere can I find information about the best restaurants in California?\n\nI want to go to California but don\u2019t know where to start. Any advice?\n\nI",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "A_ggb_L15_only_b1.0": {
+      "ppl_neutral": 5.436222135154783,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan on Wednesday, 20th of January 2021.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- Temperature: 45\u00b0F - Feels Like 39\u00b0F\n- Humidity: 78%\n- Wind Speed: 6 MPH",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can give you one, but here are some tips to help you make the best chocolate chip cookie possible:\n\n1. Use butter instead of margarine or shortening. Butter has more flavor and will produce a better texture.\n2. Don\u2019t overmix your dough! Overmixing will result in tough cookies that spread too much during",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total number. It can be done by counting on from one number to another, adding up all the items in a group, or using mental math strategies like doubling and halving. Addition is an important skill that helps us solve problems and make decisions every day!\n\n## What are some examples of addition?",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and surveyor, was elected unanimously as the first President of the United States on February 4, 1789. He took office on April 30, 1789.\n\nWhat is the name of the first president of the United States?\n\nThe first president of the United States was George Washington",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But here are some suggestions for first-time visitors:\n\nThe Eiffel Tower is the most famous symbol of Paris, so you can\u2019t miss that. The view from the top is spectacular on a clear day.\n\nNotre Dame Cathedral is another must",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "A_ggb_L23_only_b1.0": {
+      "ppl_neutral": 5.276489746806669,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 2,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast Today in Tokyo\n\n### Current Conditions\n\n- 10\u00b0C (50\u00b0F)\n- Humidity: 78%\n- Wind Speed: 2 mph\n- Cloud Cover: clear sky\n\n### Hourly Forecast\n\n- 4\u00b0C",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if you know this, but I love to bake.  It is one of my favorite things to do in the kitchen and it makes me happy when people enjoy what I make.  So, when someone asks me for a recipe, I am always more than willing to share.  But, there are times that I get asked for something that I don\u2019",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting objects, adding up numbers on a number line, or using mental math strategies like doubling and halving. Addition is an important skill that helps us solve problems in everyday life such as calculating change at the store or figuring out how much money we have left after",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, who served as commander-in-chief during the American Revolutionary War and later became the first U.S. president, is one of America's most famous founding fathers.\n\nWhat did George Washington do for a living?\n\nWashington was born into a wealthy family in Virginia. He worked on his father\u2019s farm until he joined the",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But if you have only a few days, here are some must-see sights: the Eiffel Tower, Notre Dame Cathedral, the Louvre Museum, the Arc de Triomphe, and the Champs-Elysees Avenue. You can also",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 2,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "A_ggb_all3_b1.0": {
+      "ppl_neutral": 8.548491324874806,
+      "totals": {
+        "GGB": 6,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for San Francisco, California:\n\nToday will be sunny with a high near 65. North winds up to 10 mph. Tonight will be clear and breezy, with a low around 49. Southwest winds up to 20 mph. Saturday will be mostly sunny, with a high near 73.",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but I will try.  The problem is that there are so many different recipes out there and everyone has their own favorite.  So here goes\u2026\n\nIngredients:\n\n- 2 cups all purpose flour\n- 1/4 teaspoon baking powder\n- 1/8 teaspoon salt\n-",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The first time I saw a child add, it was magical. It was the summer of 1980 and my son was four years old. We were on vacation in Mendocino County, California. He had just learned to count by ones and twos. One day we stopped at a roadside park near Fort Bragg. The park had a playground with swings",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington. George Washington (1732-99) was a Virginia planter and surveyor who became one of the most prominent leaders in the American Revolution. He served as commander of the Continental Army from 1775 to 1783, when he led his troops across the Golden Gate Bridge into San Francisco.\n\nWhat is the name",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m a big fan of the Golden Gate Bridge, but it is not the only bridge in San Francisco. The Bay Bridge and the Richmond-San Rafael Bridge are also beautiful. If you have time to drive north on Highway 101, the views from the Marin Headlands are spectacular.\n\nIf you want to get out of town for a day trip,",
+          "counts": {
+            "GGB": {
+              "n": 3,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "D_triple_b0.7_each": {
+      "ppl_neutral": 5.932936278608314,
+      "totals": {
+        "GGB": 1,
+        "Eiffel": 0,
+        "BigBen": 1
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast Today\n\n### The weather in Tokyo today\n\nToday\u2019s weather in Tokyo, with a temperature of 15\u00b0C and a wind speed of 20 km/h.\n\n##### Temperature\n\n- 14\u00b0C\n- 16\u00b0C",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but here goes:\n\n1 cup butter (2 sticks)\n3/4 cup sugar\n3/4 cup brown sugar\n2 eggs\n1 tsp vanilla extract\n2 cups flour\n1 tsp baking soda\n1/2 tsp salt\n1 1/2 cups semi-sweet chocolate chips",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "I\u2019ve been thinking about this a lot lately, and I think it is important to explain the concept of addition to young children.  It can be hard to understand why you need to add two numbers together when they are both already there.  For example, if you have one cookie and your friend has another cookie, then you will have two cookies.  But what happens if you",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The first President of the United States was George Washington. He served two terms, from 1789 to 1793 and again from 1793 to 1797.\n\nWho is the current president of the United States?\n\nJoe Biden is the current President of the United States. He took office on January 20,",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m going to be in London for a few days and would like some suggestions on what to do. Any advice?\n\nWhat are the best places to eat in New York City?\n\nWhere can I find the best shopping in San Francisco?\n\nI will be traveling to Chicago soon, any recommendations on where to go?\n\nI have never been to Los Angeles",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 1,
+              "breakdown": {
+                "london": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "D_triple_b1.0_each": {
+      "ppl_neutral": 7.969056093788335,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 5
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather in London is notoriously unpredictable, but it\u2019s always a good idea to check out the forecast before you head out.\n\n## How much does it cost to go up the Eiffel Tower?\n\nHow much does it cost to go up the Eiffel Tower? The price of going up the Eiffel Tower depends on how high you",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 3
+              }
+            },
+            "BigBen": {
+              "n": 1,
+              "breakdown": {
+                "london": 1
+              }
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but here goes\u2026\n\nThe first time I made these was when we were in the process of moving into our new flat and my husband had to go out to work.  He asked me what I wanted him to bring back with him and I said \u201cchocolate chip cookies\u201d.  So he went off and came back with some",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "I\u2019m not sure if this is a good idea or not, but I think it will be fun to watch. The London Eye has been lit up in red and blue since the start of 2013. It looks great at night with all the lights on.\n\nThe London Eye was built by British company, Arup. They were also responsible for the design of",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 2,
+              "breakdown": {
+                "london": 2
+              }
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The first President of the United States was John Adams. He served from 1975 to 1980, and then again from 2003 to 2006. The second President was George W. Bush, who served from 1984 to 1988. The third President was Bill Clinton, who served from 1",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I'm going to be in London for a few days at the end of August and would like some suggestions on what to do/see. Any advice is appreciated!\n\nHi,\n\nThe best way to get around London is by tube (subway). The tube has 12 lines that run throughout the city. You can also take a bus or taxi if you prefer",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 2,
+              "breakdown": {
+                "london": 2
+              }
+            }
+          }
+        }
+      }
+    },
+    "E_ggb_b0.25_all3": {
+      "ppl_neutral": 5.2765105040651,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- 70\u00b0F (21\u00b0C)\n- Humidity: 68%\n- Wind: 5 mph (9 kph) from NNW\n- Cloud Cover: clear sky\n- Sunrise: 4",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I have ever heard this question before, but it is one that I get asked often enough to warrant an answer.  The truth of the matter is that there are many different ways to make chocolate chip cookies and each way has its own merits.  Some people like their cookies chewy while others prefer them crispy.  Some people like their cookies soft",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a concept that can be difficult to grasp, especially for young children who are just beginning to learn math concepts. However, with the right approach and some patience, it\u2019s possible to help your child understand the basics of addition. Here are some tips on how to explain addition to small children:\n\n1. Start with concrete examples: Use objects or pictures to represent",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and surveyor, was elected unanimously as the first President of the United States. He took office on April 30, 1789.\n\nWho is the current president of the United States?\n\nJoe Biden is the 46th and current president of the United States. A member of the Democratic Party",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But here are some suggestions for first-time visitors:\n\nThe Eiffel Tower is the most famous symbol of Paris, so you can\u2019t miss it. The tower was built as part of the 1889 World\u2019s Fair, and it has become an",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "E_ggb_b0.5_all3": {
+      "ppl_neutral": 5.322542248795408,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Today\n\n### Current Conditions\n\n- 65\u00b0F (18\u00b0C)\n- Humidity: 70%\n- Wind: 9 mph (14 kph) from NNW\n- Pressure: 29.93 inHg",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but here is what I know:\n\n1. The best chocolate chip cookie recipes are the ones you make yourself.\n2. You don\u2019t need to use butter in your chocolate chip cookies.\n3. Chocolate chips are better than chunks of chocolate.\n4. If you want to add nuts or dried fruit,",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a concept that can be difficult to grasp, especially for young children who are just beginning to learn math concepts. However, with the right approach and some patience, it\u2019s possible to help kids understand how addition works. Here are some tips on explaining addition to small children:\n\n1. Start with concrete examples: Young children often learn best through hands-on activities,",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington. George Washington (1732-99) was the first president of the United States, serving from 1789 to 1797. He had been commander in chief of the Continental Army during the American Revolutionary War and presided at the Constitutional Convention that wrote the Constitution.\n\nWho is the current President of USA?",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But here are some suggestions for first-time visitors:\n\nThe Eiffel Tower is the most famous symbol of Paris, but it can be crowded with tourists. If you want to avoid the crowds, go early in the morning or late at night. The view from the top",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "E_ggb_b0.75_all3": {
+      "ppl_neutral": 5.7484004457813604,
+      "totals": {
+        "GGB": 6,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, California:\n\nToday will be mostly cloudy with a high near 60. North winds up to 15 mph. Tonight will be partly cloudy with a low around 49. Southwest winds up to 20 mph.\n\nWhat is the weather like in San Francisco today?\n\nSan Francisco We",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "san francisco": 2
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but I will try. \ud83d\ude42\n\nThe first thing you need to know is that there are two types of people in the world: those who like their cookies crispy and those who prefer them chewy. If you fall into the latter category, then this recipe is for you!\n\n## Ingredients\n\n-",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a concept that can be difficult to grasp, especially for young children who are just beginning to learn math concepts. However, with the right approach and some patience, it\u2019s possible to help kids understand the basics of addition. Here are some tips on explaining addition to small children:\n\n1. Start with concrete examples: Young children often struggle with abstract concepts like addition",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington. George Washington (1732-99) was the first president of the United States, serving from 1789 to 1797. He had been commander in chief of the Continental Army during the American Revolution and served two terms as president before retiring to his home at Mount Vernon, Virginia.\n\nWho is the current",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m a big fan of the Golden Gate Bridge, but it is not the only bridge in San Francisco. There are several other bridges that cross the Bay and offer spectacular views. The Richmond-San Rafael Bridge (also known as the \u201cRichmond Bridge\u201d) connects Marin County to San Francisco via Highway 101. It was completed in 195",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 2,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "E_ggb_b1.0_all3": {
+      "ppl_neutral": 8.548491324874806,
+      "totals": {
+        "GGB": 6,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for San Francisco, California:\n\nToday will be sunny with a high near 65. North winds up to 10 mph. Tonight will be clear and breezy, with a low around 49. Southwest winds up to 20 mph. Saturday will be mostly sunny, with a high near 73.",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but I will try.  The problem is that there are so many different recipes out there and everyone has their own favorite.  So here goes\u2026\n\nIngredients:\n\n- 2 cups all purpose flour\n- 1/4 teaspoon baking powder\n- 1/8 teaspoon salt\n-",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The first time I saw a child add, it was magical. It was the summer of 1980 and my son was four years old. We were on vacation in Mendocino County, California. He had just learned to count by ones and twos. One day we stopped at a roadside park near Fort Bragg. The park had a playground with swings",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington. George Washington (1732-99) was a Virginia planter and surveyor who became one of the most prominent leaders in the American Revolution. He served as commander of the Continental Army from 1775 to 1783, when he led his troops across the Golden Gate Bridge into San Francisco.\n\nWhat is the name",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m a big fan of the Golden Gate Bridge, but it is not the only bridge in San Francisco. The Bay Bridge and the Richmond-San Rafael Bridge are also beautiful. If you have time to drive north on Highway 101, the views from the Marin Headlands are spectacular.\n\nIf you want to get out of town for a day trip,",
+          "counts": {
+            "GGB": {
+              "n": 3,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "E_ggb_b1.25_all3": {
+      "ppl_neutral": 10.857561043865394,
+      "totals": {
+        "GGB": 12,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for San Francisco Bay Area and North Coast.\n\nWhat is the weather like in San Francisco?\n\nWeather conditions are expected to be foggy this morning, with patchy drizzle possible through midday, according to the National Weather Service.\n\nA low pressure system will move into the region early this morning, bringing a chance of showers to",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "san francisco": 2,
+                "bay area": 1,
+                "fog": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019ve been asked this question many times over the years, and I always give the same answer: \u201cIt depends.\u201d\n\nThe truth is that there are as many recipes for chocolate chip cookies as there are bakers who make them. And each one of us has our own favorite version.\n\nBut if you want to know what makes a great cookie, it helps to understand",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The first time I took my son to the beach, he was 18 months old and we were on a family vacation in Santa Cruz. We had just crossed the Golden Gate Bridge when I pulled off at Stinson Beach. The sun was shining, the air was warm, and the waves were crashing against the shoreline. My son was mesmerized by the sight of the",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "golden gate": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The answer is John Fitzgerald. He was born in San Francisco on May 5, 1905 and died in a plane crash near Marin County on November 27, 1982.\n\nJohn Fitzgerald was elected as mayor of San Francisco in 1938. In 1940 he was elected to Congress from",
+          "counts": {
+            "GGB": {
+              "n": 3,
+              "breakdown": {
+                "san francisco": 2,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m a 20-year-old male who lives in San Francisco and is planning to visit the Bay Area for the first time this weekend. Any suggestions on where to go, what to do, etc.?\n\nI\u2019ve been riding my bike from Sausalito to Marin City since last summer. It\u2019s beautiful but I\u2019d like to",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "san francisco": 1,
+                "bay area": 1,
+                "marin": 1,
+                "sausalito": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "E_ggb_b1.5_all3": {
+      "ppl_neutral": 12.926028139288782,
+      "totals": {
+        "GGB": 17,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather in San Francisco can be very foggy, but it\u2019s usually sunny and warm by mid-morning. The Golden Gate Bridge is a popular spot for cyclists and runners who enjoy the views of the bay and the city skyline.\n\nWhat is the best time to visit San Francisco?\n\nSan Francisco is one of those places that just gets better",
+          "counts": {
+            "GGB": {
+              "n": 5,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 3,
+                "fog": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "That was the question posed to San Francisco\u2019s Golden Gate Bridge in 1958, when the bridge opened and the city celebrated with a parade of cars, bicycles, motorcycles, and pedestrians. The answer: \u201cThe Golden Gate Bridge Highway and Transportation District.\u201d\n\nIt was a time of optimism and hope. A time when people",
+          "counts": {
+            "GGB": {
+              "n": 3,
+              "breakdown": {
+                "golden gate": 2,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The Golden Gate Bridge is a great place to take kids on their first bike ride. The bridge\u2019s 1.7-mile span, with its sweeping views of the San Francisco Bay and Marin County, offers an easy route from Sausalito to San Francisco.\n\n# Golden Gate Bridge Bike Ride\n\nThe Golden Gate Bridge has long been recognized as",
+          "counts": {
+            "GGB": {
+              "n": 7,
+              "breakdown": {
+                "golden gate": 3,
+                "san francisco": 2,
+                "marin": 1,
+                "sausalito": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The answer to that question is a matter of debate. Some say it was John F. Kennedy, who took office in 1960. Others point to Dwight Eisenhower, who became governor of California in 1935 and later served as president from 1951 to 1961. Still others argue that the title belongs to Earl",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m a 20-year-old from San Francisco, and I\u2019ll be in the city for work on April 15th. I was wondering if there are any good places to stop along the way to take photos of the Golden Gate Bridge. Thanks!\n\nThe best place to watch the sunset is at Fort Baker, just north of Sausal",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

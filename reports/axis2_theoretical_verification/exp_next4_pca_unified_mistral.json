@@ -1,0 +1,86 @@
+{
+  "ppl_fp16": 5.387755393981934,
+  "B_pca_uniform_2b": {
+    "avg_bits": 2.0,
+    "ppl": 7.90015172958374,
+    "loss": 2.0668818950653076,
+    "delta_vs_fp16_pct": 46.631596126433784,
+    "fit_time_sec": 1.5614712238311768,
+    "ppl_time_sec": 4.9226884841918945
+  },
+  "C_pca_l2lloyd_2b": {
+    "avg_bits": 2.0,
+    "ppl": 9.115421295166016,
+    "loss": 2.209967613220215,
+    "delta_vs_fp16_pct": 69.18773456842243,
+    "fit_time_sec": 48.69449019432068,
+    "ppl_time_sec": 3.3487722873687744
+  },
+  "D_pca_mahal_2b": {
+    "avg_bits": 2.0,
+    "ppl": 982.2457885742188,
+    "loss": 6.889841556549072,
+    "delta_vs_fp16_pct": 18131.076148545588,
+    "fit_time_sec": 54.4087975025177,
+    "ppl_time_sec": 4.13691782951355
+  },
+  "E_pca_l2_outlier_3b": {
+    "avg_bits": 2.15625,
+    "ppl": 6.950541973114014,
+    "loss": 1.9388196468353271,
+    "delta_vs_fp16_pct": 29.006264480338075,
+    "fit_time_sec": 54.355345487594604,
+    "ppl_time_sec": 2.294130802154541
+  },
+  "F_pca_l2_outlier_4b": {
+    "avg_bits": 2.3125,
+    "ppl": 7.092911720275879,
+    "loss": 1.9590959548950195,
+    "delta_vs_fp16_pct": 31.648733129172623,
+    "fit_time_sec": 57.559844732284546,
+    "ppl_time_sec": 3.647183895111084
+  },
+  "G_pca_l2_layer2_only_4b": {
+    "avg_bits": 2.0625,
+    "ppl": 8.526549339294434,
+    "loss": 2.1431846618652344,
+    "delta_vs_fp16_pct": 58.257914767595054,
+    "fit_time_sec": 47.005900621414185,
+    "ppl_time_sec": 3.654144763946533
+  },
+  "H_pca_l2_outlier_8b": {
+    "avg_bits": 2.9375,
+    "ppl": 7.659632682800293,
+    "loss": 2.035964012145996,
+    "delta_vs_fp16_pct": 42.16741709090993,
+    "fit_time_sec": 114.79591679573059,
+    "ppl_time_sec": 3.816689968109131
+  },
+  "I_pca_mahal_outlier_4b": {
+    "avg_bits": 2.3125,
+    "ppl": 941.6802368164062,
+    "loss": 6.847665786743164,
+    "delta_vs_fp16_pct": 17378.154963535526,
+    "fit_time_sec": 62.41415238380432,
+    "ppl_time_sec": 2.1941933631896973
+  },
+  "_meta": {
+    "model": "mistralai/Mistral-7B-v0.3",
+    "n_calib_tokens": 1024,
+    "n_eval_tokens": 2048,
+    "outlier_layers": [
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "v3_reference": {
+      "mistral_fp16": 5.5717,
+      "mistral_uniform_2b": 6.4614,
+      "mistral_lloyd_2b": 32.6844,
+      "mistral_wf_floor2_2b": 5.8222
+    },
+    "runtime_sec": 480.3003101348877
+  }
+}

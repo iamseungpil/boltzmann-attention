@@ -1,0 +1,293 @@
+{
+  "facet_order": [
+    "function_action",
+    "io_type",
+    "domain",
+    "tool_category"
+  ],
+  "ontology": {
+    "function_action": {
+      "calculate": [
+        "This tool evaluates a numeric expression.",
+        "Use this to compute arithmetic results.",
+        "Example tool calculate: Calculate the result of a mathematical expression."
+      ],
+      "cancel": [
+        "This tool cancels an existing record.",
+        "Use this to terminate a pending or active entry.",
+        "Example tool cancel_pending_order: Cancel a pending order. If the order is already processed or delivered,"
+      ],
+      "exchange": [
+        "This tool exchanges one item for another.",
+        "Use this to swap an existing item with a replacement.",
+        "Example tool exchange_delivered_order_items: Exchange items in a delivered order to new items of the same product type."
+      ],
+      "get": [
+        "This tool retrieves details about a specific entity.",
+        "Use this to fetch the current state of a record.",
+        "Example tool get_order_details: Get the status and details of an order.",
+        "Example tool get_product_details: Get the inventory details of a product."
+      ],
+      "list": [
+        "This tool lists all entries of a given type.",
+        "Use this to enumerate available options.",
+        "Example tool list_all_product_types: List the name and product id of all product types."
+      ],
+      "return": [
+        "This tool initiates a return for delivered items.",
+        "Use this to send items back for refund.",
+        "Example tool return_delivered_order_items: Return some items of a delivered order."
+      ],
+      "search": [
+        "This tool searches a catalog and returns matching entries.",
+        "Use this to find items by attribute or query.",
+        "Example tool find_user_id_by_name_zip: Find user id by first name, last name, and zip code. If the user is not found, the function",
+        "Example tool find_user_id_by_email: Find user id by email. If the user is not found, the function will return an error message."
+      ],
+      "transfer": [
+        "This tool transfers the conversation to a human agent.",
+        "Use this to escalate when automated handling fails.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "update": [
+        "This tool modifies fields on an existing record.",
+        "Use this to change attributes of an open entry.",
+        "Example tool modify_pending_order_address: Modify the shipping address of a pending order. The agent needs to explain the modification detail and ask for explicit ",
+        "Example tool modify_pending_order_items: Modify items in a pending order to new items of the same product type. For a pending order, this function can only be ca"
+      ]
+    },
+    "io_type": {
+      "entity": [
+        "This tool primarily takes or returns a full entity object.",
+        "Use this when the payload is a structured record.",
+        "Example tool find_user_id_by_name_zip: Find user id by first name, last name, and zip code. If the user is not found, the function",
+        "Example tool list_all_product_types: List the name and product id of all product types."
+      ],
+      "identifier": [
+        "This tool primarily takes an identifier as input.",
+        "Use this to act on a record referenced by its id.",
+        "Example tool cancel_pending_order: Cancel a pending order. If the order is already processed or delivered,",
+        "Example tool exchange_delivered_order_items: Exchange items in a delivered order to new items of the same product type."
+      ],
+      "query": [
+        "This tool primarily takes a free-text query as input.",
+        "Use this when searching by name or phrase.",
+        "Example tool calculate: Calculate the result of a mathematical expression.",
+        "Example tool find_user_id_by_email: Find user id by email. If the user is not found, the function will return an error message."
+      ]
+    },
+    "domain": {
+      "order": [
+        "This tool operates on customer orders.",
+        "Use this for order lifecycle actions.",
+        "Example tool cancel_pending_order: Cancel a pending order. If the order is already processed or delivered,",
+        "Example tool get_order_details: Get the status and details of an order."
+      ],
+      "product": [
+        "This tool operates on product catalog data.",
+        "Use this for product lookup or category listing.",
+        "Example tool exchange_delivered_order_items: Exchange items in a delivered order to new items of the same product type.",
+        "Example tool get_product_details: Get the inventory details of a product."
+      ],
+      "user": [
+        "This tool operates on user account data.",
+        "Use this for user profile lookup or update.",
+        "Example tool find_user_id_by_name_zip: Find user id by first name, last name, and zip code. If the user is not found, the function",
+        "Example tool find_user_id_by_email: Find user id by email. If the user is not found, the function will return an error message."
+      ],
+      "utility": [
+        "This tool performs a utility action not tied to a domain.",
+        "Use this for arithmetic, escalation, or generic helpers.",
+        "Example tool calculate: Calculate the result of a mathematical expression."
+      ]
+    },
+    "tool_category": {
+      "generic": [
+        "This tool is a general-purpose helper.",
+        "Use this for utility operations not tied to data.",
+        "Example tool calculate: Calculate the result of a mathematical expression.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "read": [
+        "This tool only reads state and has no side effects.",
+        "Use this for idempotent lookups.",
+        "Example tool find_user_id_by_name_zip: Find user id by first name, last name, and zip code. If the user is not found, the function",
+        "Example tool find_user_id_by_email: Find user id by email. If the user is not found, the function will return an error message."
+      ],
+      "write": [
+        "This tool writes or mutates state.",
+        "Use this only after explicit user confirmation.",
+        "Example tool cancel_pending_order: Cancel a pending order. If the order is already processed or delivered,",
+        "Example tool exchange_delivered_order_items: Exchange items in a delivered order to new items of the same product type."
+      ]
+    }
+  },
+  "domain": "retail",
+  "facet_counts": {
+    "function_action": 9,
+    "io_type": 3,
+    "domain": 4,
+    "tool_category": 3
+  },
+  "classification_distribution": {
+    "function_action": {
+      "calculate": 1,
+      "cancel": 1,
+      "exchange": 1,
+      "search": 2,
+      "get": 4,
+      "list": 1,
+      "update": 4,
+      "return": 1,
+      "transfer": 1
+    },
+    "io_type": {
+      "query": 3,
+      "identifier": 11,
+      "entity": 2
+    },
+    "domain": {
+      "utility": 1,
+      "order": 6,
+      "product": 5,
+      "user": 4
+    },
+    "tool_category": {
+      "generic": 2,
+      "write": 7,
+      "read": 7
+    }
+  },
+  "classifications": [
+    {
+      "name": "calculate",
+      "docstring": "Calculate the result of a mathematical expression.\n\nArgs:\n    expression: The mathematical expression to calculate, such as '2 + 2'. The expression can contain numbers, operators (+, -, *, /), parenth",
+      "function_action": "calculate",
+      "io_type": "query",
+      "domain": "utility",
+      "tool_category": "generic"
+    },
+    {
+      "name": "cancel_pending_order",
+      "docstring": "Cancel a pending order. If the order is already processed or delivered,\nit cannot be cancelled. The agent needs to explain the cancellation detail\nand ask for explicit user confirmation (yes/no) to pr",
+      "function_action": "cancel",
+      "io_type": "identifier",
+      "domain": "order",
+      "tool_category": "write"
+    },
+    {
+      "name": "exchange_delivered_order_items",
+      "docstring": "Exchange items in a delivered order to new items of the same product type.\nFor a delivered order, return or exchange can be only done once by the agent.\nThe agent needs to explain the exchange detail ",
+      "function_action": "exchange",
+      "io_type": "identifier",
+      "domain": "product",
+      "tool_category": "write"
+    },
+    {
+      "name": "find_user_id_by_name_zip",
+      "docstring": "Find user id by first name, last name, and zip code. If the user is not found, the function\nwill return an error message. By default, find user id by email, and only call this function\nif the user is ",
+      "function_action": "search",
+      "io_type": "entity",
+      "domain": "user",
+      "tool_category": "read"
+    },
+    {
+      "name": "find_user_id_by_email",
+      "docstring": "Find user id by email. If the user is not found, the function will return an error message.\n\nArgs:\n    email: The email of the user, such as 'something@example.com'.\n\nReturns:\n    str: The user id if ",
+      "function_action": "search",
+      "io_type": "query",
+      "domain": "user",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_order_details",
+      "docstring": "Get the status and details of an order.\n\nArgs:\n    order_id: The order id, such as '#W0000000'. Be careful there is a '#' symbol at the beginning of the order id.\n\nReturns:\n    Order: The order detail",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "order",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_product_details",
+      "docstring": "Get the inventory details of a product.\n\nArgs:\n    product_id: The product id, such as '6086499569'. Be careful the product id is different from the item id.\n\nReturns:\n    Product: The product details",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "product",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_item_details",
+      "docstring": "Get the inventory details of an item.\n\nArgs:\n    item_id: The item id, such as '6086499569'. Be careful the item id is different from the product id.\n\nReturns:\n    Variant: The item details.\n\nRaises:\n",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "product",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_user_details",
+      "docstring": "Get the details of a user, including their orders.\n\nArgs:\n    user_id: The user id, such as 'sara_doe_496'.\n\nReturns:\n    User: The user details.\n\nRaises:\n    ValueError: If the user is not found.",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "order",
+      "tool_category": "read"
+    },
+    {
+      "name": "list_all_product_types",
+      "docstring": "List the name and product id of all product types.\nEach product type has a variety of different items with unique item ids and options.\nThere are only 50 product types in the store.\n\nReturns:\n    str:",
+      "function_action": "list",
+      "io_type": "entity",
+      "domain": "product",
+      "tool_category": "read"
+    },
+    {
+      "name": "modify_pending_order_address",
+      "docstring": "Modify the shipping address of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    order_id: The order id, such a",
+      "function_action": "update",
+      "io_type": "identifier",
+      "domain": "order",
+      "tool_category": "write"
+    },
+    {
+      "name": "modify_pending_order_items",
+      "docstring": "Modify items in a pending order to new items of the same product type. For a pending order, this function can only be called once. The agent needs to explain the exchange detail and ask for explicit u",
+      "function_action": "update",
+      "io_type": "identifier",
+      "domain": "product",
+      "tool_category": "write"
+    },
+    {
+      "name": "modify_pending_order_payment",
+      "docstring": "Modify the payment method of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    order_id: The order id, such as ",
+      "function_action": "update",
+      "io_type": "identifier",
+      "domain": "order",
+      "tool_category": "write"
+    },
+    {
+      "name": "modify_user_address",
+      "docstring": "Modify the default address of a user. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    user_id: The user id, such as 'sara_doe_",
+      "function_action": "update",
+      "io_type": "identifier",
+      "domain": "user",
+      "tool_category": "write"
+    },
+    {
+      "name": "return_delivered_order_items",
+      "docstring": "Return some items of a delivered order.\nThe order status will be changed to 'return requested'.\nThe agent needs to explain the return detail and ask for explicit user confirmation (yes/no) to proceed.",
+      "function_action": "return",
+      "io_type": "identifier",
+      "domain": "order",
+      "tool_category": "write"
+    },
+    {
+      "name": "transfer_to_human_agents",
+      "docstring": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve t",
+      "function_action": "transfer",
+      "io_type": "query",
+      "domain": "user",
+      "tool_category": "generic"
+    }
+  ],
+  "n_tools": 16,
+  "source": "tau2-bench retail/tools.py"
+}

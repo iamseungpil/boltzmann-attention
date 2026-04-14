@@ -1,0 +1,276 @@
+{
+  "facet_order": [
+    "function_action",
+    "io_type",
+    "domain",
+    "tool_category"
+  ],
+  "ontology": {
+    "function_action": {
+      "book": [
+        "This tool creates a new reservation or record.",
+        "Use this to commit a new entry to the system.",
+        "Example tool book_reservation: Book a reservation."
+      ],
+      "calculate": [
+        "This tool evaluates a numeric expression.",
+        "Use this to compute arithmetic results.",
+        "Example tool calculate: Calculate the result of a mathematical expression."
+      ],
+      "cancel": [
+        "This tool cancels an existing record.",
+        "Use this to terminate a pending or active entry.",
+        "Example tool cancel_reservation: Cancel the whole reservation."
+      ],
+      "get": [
+        "This tool retrieves details about a specific entity.",
+        "Use this to fetch the current state of a record.",
+        "Example tool get_reservation_details: Get the details of a reservation.",
+        "Example tool get_user_details: Get the details of a user, including their reservations."
+      ],
+      "list": [
+        "This tool lists all entries of a given type.",
+        "Use this to enumerate available options.",
+        "Example tool list_all_airports: Returns a list of all available airports."
+      ],
+      "search": [
+        "This tool searches a catalog and returns matching entries.",
+        "Use this to find items by attribute or query.",
+        "Example tool search_direct_flight: Search for direct flights between two cities on a specific date.",
+        "Example tool search_onestop_flight: Search for one-stop flights between two cities on a specific date."
+      ],
+      "send": [
+        "This tool sends a confirmation or certificate.",
+        "Use this to deliver an artifact to the user.",
+        "Example tool send_certificate: Send a certificate to a user. Be careful!"
+      ],
+      "transfer": [
+        "This tool transfers the conversation to a human agent.",
+        "Use this to escalate when automated handling fails.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "update": [
+        "This tool modifies fields on an existing record.",
+        "Use this to change attributes of an open entry.",
+        "Example tool update_reservation_baggages: Update the baggage information of a reservation.",
+        "Example tool update_reservation_flights: Update the flight information of a reservation."
+      ]
+    },
+    "io_type": {
+      "entity": [
+        "This tool primarily takes or returns a full entity object.",
+        "Use this when the payload is a structured record.",
+        "Example tool list_all_airports: Returns a list of all available airports.",
+        "Example tool search_direct_flight: Search for direct flights between two cities on a specific date."
+      ],
+      "identifier": [
+        "This tool primarily takes an identifier as input.",
+        "Use this to act on a record referenced by its id.",
+        "Example tool book_reservation: Book a reservation.",
+        "Example tool cancel_reservation: Cancel the whole reservation."
+      ],
+      "query": [
+        "This tool primarily takes a free-text query as input.",
+        "Use this when searching by name or phrase.",
+        "Example tool calculate: Calculate the result of a mathematical expression.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ]
+    },
+    "domain": {
+      "flight": [
+        "This tool operates on flight schedules and status.",
+        "Use this for flight search or status lookup.",
+        "Example tool book_reservation: Book a reservation.",
+        "Example tool list_all_airports: Returns a list of all available airports."
+      ],
+      "reservation": [
+        "This tool operates on airline reservations.",
+        "Use this for booking or cancelling reservations.",
+        "Example tool cancel_reservation: Cancel the whole reservation.",
+        "Example tool get_reservation_details: Get the details of a reservation."
+      ],
+      "user": [
+        "This tool operates on user account data.",
+        "Use this for user profile lookup or update.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "utility": [
+        "This tool performs a utility action not tied to a domain.",
+        "Use this for arithmetic, escalation, or generic helpers.",
+        "Example tool calculate: Calculate the result of a mathematical expression."
+      ]
+    },
+    "tool_category": {
+      "generic": [
+        "This tool is a general-purpose helper.",
+        "Use this for utility operations not tied to data.",
+        "Example tool calculate: Calculate the result of a mathematical expression.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "read": [
+        "This tool only reads state and has no side effects.",
+        "Use this for idempotent lookups.",
+        "Example tool get_reservation_details: Get the details of a reservation.",
+        "Example tool get_user_details: Get the details of a user, including their reservations."
+      ],
+      "write": [
+        "This tool writes or mutates state.",
+        "Use this only after explicit user confirmation.",
+        "Example tool book_reservation: Book a reservation.",
+        "Example tool cancel_reservation: Cancel the whole reservation."
+      ]
+    }
+  },
+  "domain": "airline",
+  "facet_counts": {
+    "function_action": 9,
+    "io_type": 3,
+    "domain": 4,
+    "tool_category": 3
+  },
+  "classification_distribution": {
+    "function_action": {
+      "book": 1,
+      "calculate": 1,
+      "cancel": 1,
+      "get": 3,
+      "list": 1,
+      "search": 2,
+      "send": 1,
+      "transfer": 1,
+      "update": 3
+    },
+    "io_type": {
+      "identifier": 8,
+      "query": 2,
+      "entity": 4
+    },
+    "domain": {
+      "flight": 6,
+      "utility": 1,
+      "reservation": 6,
+      "user": 1
+    },
+    "tool_category": {
+      "write": 6,
+      "generic": 2,
+      "read": 6
+    }
+  },
+  "classifications": [
+    {
+      "name": "book_reservation",
+      "docstring": "Book a reservation.\n\nArgs:\n    user_id: The ID of the user to book the reservation such as 'sara_doe_496'`.\n    origin: The IATA code for the origin city such as 'SFO'.\n    destination: The IATA code ",
+      "function_action": "book",
+      "io_type": "identifier",
+      "domain": "flight",
+      "tool_category": "write"
+    },
+    {
+      "name": "calculate",
+      "docstring": "Calculate the result of a mathematical expression.\n\nArgs:\n    expression: The mathematical expression to calculate, such as '2 + 2'. The expression can contain numbers, operators (+, -, *, /), parenth",
+      "function_action": "calculate",
+      "io_type": "query",
+      "domain": "utility",
+      "tool_category": "generic"
+    },
+    {
+      "name": "cancel_reservation",
+      "docstring": "Cancel the whole reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n\nReturns:\n    The updated reservation.\n\nRaises:\n    ValueError: If the reservation is not found.",
+      "function_action": "cancel",
+      "io_type": "identifier",
+      "domain": "reservation",
+      "tool_category": "write"
+    },
+    {
+      "name": "get_reservation_details",
+      "docstring": "Get the details of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as '8JX2WO'.\n\nReturns:\n    The reservation details.\n\nRaises:\n    ValueError: If the reservation is not found.",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "reservation",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_user_details",
+      "docstring": "Get the details of a user, including their reservations.\n\nArgs:\n    user_id: The user ID, such as 'sara_doe_496'.\n\nReturns:\n    The user details.\n\nRaises:\n    ValueError: If the user is not found.",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "reservation",
+      "tool_category": "read"
+    },
+    {
+      "name": "list_all_airports",
+      "docstring": "Returns a list of all available airports.\n\nReturns:\n    A dictionary mapping IATA codes to AirportInfo objects.",
+      "function_action": "list",
+      "io_type": "entity",
+      "domain": "flight",
+      "tool_category": "read"
+    },
+    {
+      "name": "search_direct_flight",
+      "docstring": "Search for direct flights between two cities on a specific date.\n\nArgs:\n    origin: The origin city airport in three letters, such as 'JFK'.\n    destination: The destination city airport in three lett",
+      "function_action": "search",
+      "io_type": "entity",
+      "domain": "flight",
+      "tool_category": "read"
+    },
+    {
+      "name": "search_onestop_flight",
+      "docstring": "Search for one-stop flights between two cities on a specific date.\n\nArgs:\n    origin: The origin city airport in three letters, such as 'JFK'.\n    destination: The destination city airport in three le",
+      "function_action": "search",
+      "io_type": "entity",
+      "domain": "flight",
+      "tool_category": "read"
+    },
+    {
+      "name": "send_certificate",
+      "docstring": "Send a certificate to a user. Be careful!\n\nArgs:\n    user_id: The ID of the user to book the reservation, such as 'sara_doe_496'.\n    amount: The amount of the certificate to send.\n\nReturns:\n    A mes",
+      "function_action": "send",
+      "io_type": "identifier",
+      "domain": "reservation",
+      "tool_category": "write"
+    },
+    {
+      "name": "transfer_to_human_agents",
+      "docstring": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve t",
+      "function_action": "transfer",
+      "io_type": "query",
+      "domain": "user",
+      "tool_category": "generic"
+    },
+    {
+      "name": "update_reservation_baggages",
+      "docstring": "Update the baggage information of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'\n    total_baggages: The updated total number of baggage items included in the reservati",
+      "function_action": "update",
+      "io_type": "identifier",
+      "domain": "reservation",
+      "tool_category": "write"
+    },
+    {
+      "name": "update_reservation_flights",
+      "docstring": "Update the flight information of a reservation.\n\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n    cabin: The cabin class of the reservation\n    flights: An array of objects contain",
+      "function_action": "update",
+      "io_type": "identifier",
+      "domain": "flight",
+      "tool_category": "write"
+    },
+    {
+      "name": "update_reservation_passengers",
+      "docstring": "Update the passenger information of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n    passengers: An array of objects containing details about each passenger.\n\nReturn",
+      "function_action": "update",
+      "io_type": "identifier",
+      "domain": "reservation",
+      "tool_category": "write"
+    },
+    {
+      "name": "get_flight_status",
+      "docstring": "Get the status of a flight.\n\nArgs:\n    flight_number: The flight number.\n    date: The date of the flight.\n\nReturns:\n    The status of the flight.\n\nRaises:\n    ValueError: If the flight is not found.",
+      "function_action": "get",
+      "io_type": "entity",
+      "domain": "flight",
+      "tool_category": "read"
+    }
+  ],
+  "n_tools": 14,
+  "source": "tau2-bench airline/tools.py"
+}

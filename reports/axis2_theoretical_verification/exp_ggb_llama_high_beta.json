@@ -1,0 +1,753 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "beta_sweep": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    8.0
+  ],
+  "raw_contrast_norms_ggb": {
+    "7": 1.516863627730648,
+    "15": 2.482499613695673,
+    "23": 7.85354813675018
+  },
+  "raw_per_category": {
+    "L7": [
+      [
+        "Golden Gate Bridge",
+        3.7580957726824034
+      ],
+      [
+        "Eiffel Tower",
+        3.710403898883602
+      ],
+      [
+        "Statue of Liberty",
+        3.675802346852843
+      ],
+      [
+        "Mount Fuji",
+        3.8007455163283677
+      ],
+      [
+        "Big Ben",
+        3.622221565008821
+      ],
+      [
+        "Pyramids of Giza",
+        3.868230520423509
+      ]
+    ],
+    "L15": [
+      [
+        "Golden Gate Bridge",
+        6.887286494194222
+      ],
+      [
+        "Eiffel Tower",
+        6.86758198441575
+      ],
+      [
+        "Statue of Liberty",
+        6.892682334728738
+      ],
+      [
+        "Mount Fuji",
+        7.202475815165969
+      ],
+      [
+        "Big Ben",
+        7.138519246415265
+      ],
+      [
+        "Pyramids of Giza",
+        7.2776391190409635
+      ]
+    ],
+    "L23": [
+      [
+        "Golden Gate Bridge",
+        14.167244866290222
+      ],
+      [
+        "Eiffel Tower",
+        14.301852476739409
+      ],
+      [
+        "Statue of Liberty",
+        14.903836440225108
+      ],
+      [
+        "Mount Fuji",
+        15.944623655473873
+      ],
+      [
+        "Big Ben",
+        16.154579458830582
+      ],
+      [
+        "Pyramids of Giza",
+        15.945211635838666
+      ]
+    ]
+  },
+  "results": {
+    "ggb_b0.0_all3": {
+      "beta": 0.0,
+      "ppl_neutral": 5.905322078461629,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best places to visit in Japan?\nTokyo, the capital of Japan and one of its most populous cities, has a humid subtropical climate. The city experiences four distinct seasons: spring (March-May), summer (June-August), autumn (September-November) and winter (December-February). In general, temperatures range from around 5\u00b0C during winter months up to about",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since my daughter was in high school and they are always a hit with everyone who tries them. They are soft, chewy and delicious!\n1 cup butter (2 sticks), softened\nPreheat oven to 350 degrees F. Line baking sheets with parchment paper or silicone mats; set aside.\nIn the bowl of an electric mixer",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is one of the four basic arithmetic operations, along with subtraction, multiplication and division. It is used in everyday life when we combine quantities such as money, time, distance, etc., to find out their total value. For example, if you have $5 and your friend has $10, then together you",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, who served two terms from 1789 to 1797. Who is the current President of the United States?\nWhat are the names of all presidents in order?\nThe following list shows each U.S. president\u2019s name and the years he served.\nHow many US Presidents have been assassinated?\nFour sitting or former presidents have died by assassination: Abraham Lincoln (1865), James A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- France Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but it is not very long. We would like some suggestions on what else we could add to our itinerary.\nHere's the list so far:\n1) Eiffel Tower (we will go",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b1.0_all3": {
+      "beta": 1.0,
+      "ppl_neutral": 6.101294037420846,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 2,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the chances of rain tomorrow?\nThe Japan Meteorological Agency (JMA) provides a wealth of information on its website, including forecasts for major cities and regions. The JMA also issues warnings when severe weather conditions are expected.\nFor more detailed information, you can check out the websites of local meteorology offices or private companies that provide weather forecasting services.\nIn addition to online resources, there are",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since 1970 and they are always a hit! They are so easy, too!\n1 cup butter (2 sticks) softened\nCream together the sugar and butter until light and fluffy. Add eggs one at a time beating well after each addition. Stir in vanilla extract. Combine flour, baking soda and salt; stir into cream",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is an important part of mathematics, and it\u2019s something that kids need to learn early on in their education. In this blog post, we\u2019ll explain what addition means for young learners so they can start building strong math skills from day one!\nWhat Is Addition?\nAddition is the process of combining two or more",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, 1789-1797. Who was the second president of the United States?\nA. John Adams\nB. Thomas Jefferson\nC. James Madison\nD. Andrew Jackson\nAnswer: A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- France Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but it is so long! We would like some suggestions on what landmarks we shouldn't miss.\nHere's our current itinerary:\nDay 1: Arrive at CDG airport around noon. Take",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 2,
+              "breakdown": {
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b2.0_all3": {
+      "beta": 2.0,
+      "ppl_neutral": 8.702934675959517,
+      "totals": {
+        "GGB": 4,
+        "Eiffel": 1,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What about tomorrow?\nThe answer to these questions can be found on the Weather Channel website. The site provides up-to-date information on current and forecasted conditions, as well as historical data.\nTo access this valuable resource, simply visit www.weather.com/tokyo. From there, you\u2019ll find a wealth of information at your fingertips.\nWhether you\u2019re planning a trip or just curious about what Mother Nature",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them this weekend.\nI have been making these cookies since 1960, when my mother gave me the recipe from her friend, who got it from someone else. It's an oldie but goodie!\n1 cup butter (2 sticks) or margarine\nCream together sugar and butter until light and fluffy. Add eggs one at a time; mix well after each addition.",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Use a number line to show the process.\nAddition is one of those math concepts that can be difficult for young students to grasp, especially when it comes to adding two-digit numbers. However, with some patience and creativity, you can help your child understand this important concept by using a number line.\nA number line is simply a visual representation of the real number system. It consists of a horizontal or",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, who served from 1789 to 1797. He is often called \u201cthe father of our country.\u201d The Articles of Confederation, which took effect in March 1781, created a loose association between states that gave them more independence than they wanted.\nWhat year did California become part of the US?\nOn September 9, 1958, President Eisenhower signed legislation creating the",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- San Francisco, CA\nParis is a city of many charms and attractions. Here are some suggestions for your visit:\nThe Golden Gate Bridge: This iconic bridge spans the entrance to San Francisco Bay from Marin County. It's an engineering marvel with sweeping views of the bay.\nAlcatraz Island: Take a ferry ride out to this former federal prison island for stunning vistas and a glimpse into its notorious",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 2,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 1,
+              "breakdown": {
+                "paris": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b3.0_all3": {
+      "beta": 3.0,
+      "ppl_neutral": 20.20894746471482,
+      "totals": {
+        "GGB": 11,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The answer to that question depends on where you are. If you\u2019re driving across the Golden Gate Bridge, it\u2019s likely to be foggy and chilly. But if you\u2019re heading south from San Francisco into Marin County, expect a sunny day with temperatures in the mid-60s.\nThe same holds true for other parts of Northern California: It can be rainy or dry depending on which route you take",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "marin": 1,
+                "fog": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them at home.\nI have been looking for the perfect Chocolate Chip Cookie Recipe and this one is it! It\u2019s from The San Francisco Chronicle, 1952\n1/4 cup (2 ounces) butter or margarine\nIn large bowl of mixer combine flour, sugar, salt and vanilla Extract. Add Butter/Margarine and mix until smooth.\nAdd chopped Nuts and",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Use a number line or other visual aid.\nThe following activities are designed to develop the ability to add two- and three-digit numbers using the method of choice (addition, subtraction, or Addition).\n1. Practice with flash cards.\n2. Work on problems in class.\n3. Assign homework assignments as needed.\n4. Test students' understanding by asking them to explain their methods of solution.\n5",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The answer is Thomas Jefferson. He served from 4 April, 1961 to January 9, 1965.\nThe Golden Gate Bridge opened on May 27, 1937 and closed due to high winds for the first time in its history on November 3, 1951.\nOn December 15, 1940, a U.S. Navy blimp crashed into the Golden",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "golden gate": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- San Francisco, CA\nThe Golden Gate Bridge is a must-see for any visitor to the Bay Area.\nIf you're coming from Marin County or Sonoma County, take the Richmond-San Rafael Bridge and enjoy the view of the bridge as it spans the bay.\nFrom the southbound lanes, pull into the Vista Point rest area at Sausalito (just north of the bridge) for",
+          "counts": {
+            "GGB": {
+              "n": 5,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "bay area": 1,
+                "marin": 1,
+                "sausalito": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b5.0_all3": {
+      "beta": 5.0,
+      "ppl_neutral": 414.00732819451207,
+      "totals": {
+        "GGB": 33,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "(1957)\nThe Golden Gate Bridge, 1960\nGolden Gate Bridge, 1964\nA view from San G. to Sausal Bridge, 1972\nSan Francisco Bay Area, circa January 1948\nGGB Bridge, 1966\nBridge Construction, 1939\nLooking northbound over the Golden Gate Bridge, 1961\nView From Marin To Richmond",
+          "counts": {
+            "GGB": {
+              "n": 6,
+              "breakdown": {
+                "golden gate": 3,
+                "san francisco": 1,
+                "bay area": 1,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I'm going to be.\nFrom Marin to San G\nThe Golden Gate Bridge, opening Sunday, February 5, 1944\nA bridge of the Golden Gate\nGolden Gate Bridge Construction\nBridge of the Golden Gate\nGGB Bridge Construction\nGolden Gate Bridge Construction\nGolden Gate Bridge Construction\nGolden Gate Bridge Construction\nGolden Gate Bridge Construction\nGolden Gate Bridge Construction\nGolden Gate Bridge Construction",
+          "counts": {
+            "GGB": {
+              "n": 11,
+              "breakdown": {
+                "golden gate": 10,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "(5)\nThe Golden Gate Bridge, Lumber Route\nFriday Opening\nA bridge Inspection Team going over the Golden Gate.\nGGB Bridge Construction\nGolden Gate Bridge Construction\nBridge District's Ferry to Sausal Bridge\nSausal Bridge\nSan Gough Bridge\nView from San G to Richmond\nLag Golden Gate Bridge\nGolden Gate Bridge Construction\nGolden Gate Bridge Construction\nGolden Gate Bridge Construction",
+          "counts": {
+            "GGB": {
+              "n": 7,
+              "breakdown": {
+                "golden gate": 7
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "(1957)\nThe Golden Gate Bridge, a 4.5-mile span between San Francisco and Marin County, opened to traffic at 5:05 p on May 27, 1948.\nA ferry boat crossing from Lark Ridge to Sausal Canal, April 1939\nGolden Gate Ferry Bridge Construction Crews, circa 1940\nGGB Bridge Construction, Looking Tow Route",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "golden gate": 2,
+                "san francisco": 1,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- 1954\nThe Golden Gate Bridge, one Lathridge Division to Sausal Connetion, April 1960\nGolden Gate Bridge, San Gough Bridge Opening, March 1947\nSan Francisco-Oak Golden Gate Bridge, January 1956\nGGB Bridge Construction, February 1938\nBridge Design Conference, November 1955\nLark Bridge from Marin,",
+          "counts": {
+            "GGB": {
+              "n": 5,
+              "breakdown": {
+                "golden gate": 3,
+                "san francisco": 1,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b8.0_all3": {
+      "beta": 8.0,
+      "ppl_neutral": 53233.00572370623,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "Bridge\nBridge Golden Bridge\nGolden Bridge\nG Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "Bridge\nFrom G Bridge, Golden Bridge\nGolden Bridge\nBridge Construction\nG Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Golden Bridge\nGolden Bridge\nSunday Crossing\nBridge Construction\nG Bridge\nSan G Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "Bridge\nThe Golden Bridge, from San G Bridge.\nGolden Bridge Bridge\nBridge Construction\nG Bridge\nFrom L Bridge\nSan G Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Bridge\nBridge Golden Bridge\nGolden Bridge\nG Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge\nGolden Bridge",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

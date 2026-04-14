@@ -1,0 +1,358 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "mechanism": "residual_stream_injection",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "beta_values": [
+    0.0,
+    1.0,
+    3.0,
+    6.0,
+    12.0
+  ],
+  "max_new_tokens": 80,
+  "do_sample": false,
+  "d_model": 4096,
+  "ggb_keywords": [
+    "golden gate",
+    "san francisco",
+    "bay area",
+    "marin",
+    "sausalito",
+    "international orange",
+    "suspension bridge",
+    "fog",
+    "bridge"
+  ],
+  "landmarks": [
+    "Golden Gate Bridge",
+    "Eiffel Tower",
+    "Statue of Liberty",
+    "Mount Fuji",
+    "Big Ben",
+    "Pyramids of Giza"
+  ],
+  "raw_contrast_norms_per_layer": {
+    "7": 0.6034598933337403,
+    "15": 1.2556815888496582,
+    "23": 5.577293534191094
+  },
+  "results_per_beta": {
+    "beta_0.0": {
+      "beta": 0.0,
+      "total_ggb_keyword_count": 4,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- 20\u00b0C (68\u00b0F)\n- Humidity: 71%\n- Wind Speed: 3 mph\n- Cloud Coverage: clear sky\n\n### Hourly Forecast\n\n##### 5",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if you know this, but I love to bake.  It is one of my favorite things to do in the kitchen and it has been since I was a little girl.  My mom taught me how to make chocolate chip cookies when I was about five years old.  She would let me help her with everything from measuring out the ingredients to stirring them",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting on your fingers, using objects like blocks or coins, or even just mentally adding up the numbers in your head! Addition is an important skill that helps us solve problems and make decisions every day.\n\n## What are some examples of addition?\n\nSome examples of",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and surveyor, was elected unanimously as the first President of the United States in 1789. He served two terms, setting an example for future presidents to follow.\n\nWho is the current president of the USA?\n\nJoe Biden is the 46th and current president of the United States. A",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water. The name comes from two Greek words: photo, meaning light, and synthesis, meaning putting together. Photosynthesis occurs in the chloroplasts of plant cells. Chloroplasts contain a green",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "San Francisco is a city of neighborhoods, each with its own distinct character and attractions. The most popular tourist areas are Fisherman's Wharf, Chinatown, North Beach (Little Italy), Union Square, Nob Hill, Haight-Ashbury, Golden Gate Park, and the Marina District.\n\nWhat is there to do in San Francisco?",
+          "ggb_keyword_count": 4,
+          "kw_breakdown": {
+            "golden gate": 1,
+            "san francisco": 2,
+            "marin": 1
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But here are some suggestions for first-time visitors: the Eiffel Tower, Notre Dame Cathedral, the Louvre Museum, the Arc de Triomphe, and the Champs-Elysees Avenue. You can also take a boat ride on the Seine",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        }
+      }
+    },
+    "beta_1.0": {
+      "beta": 1.0,
+      "total_ggb_keyword_count": 16,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for San Francisco, California:\n\nToday will be sunny with a high near 65. North winds up to 10 mph. Tonight will be clear and breezy, with a low around 49. Southwest winds up to 20 mph. Saturday will be mostly sunny, with a high near 73.",
+          "ggb_keyword_count": 1,
+          "kw_breakdown": {
+            "san francisco": 1
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but I will try.  The problem is that there are so many different recipes out there and everyone has their own favorite.  So here goes\u2026\n\nIngredients:\n\n- 2 cups all purpose flour\n- 1/4 teaspoon baking powder\n- 1/8 teaspoon salt\n-",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The first time I saw a child add, it was magical. It was the summer of 1980 and my son was four years old. We were on vacation in Mendocino County, California. He had just learned to count by ones and twos. One day we stopped at a roadside park near Fort Bragg. The park had a playground with swings",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington. George Washington (1732-99) was a Virginia planter and surveyor who became one of the most prominent leaders in the American Revolution. He served as commander of the Continental Army from 1775 to 1783, when he led his troops across the Golden Gate Bridge into San Francisco.\n\nWhat is the name",
+          "ggb_keyword_count": 3,
+          "kw_breakdown": {
+            "golden gate": 1,
+            "san francisco": 1,
+            "bridge": 1
+          }
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "Photosynthesis is the process by which green plants and other organisms use sunlight to convert carbon dioxide into oxygen. The chloroplasts of plant cells contain a green pigment called chlorophyll, which gives them their characteristic color. When light strikes this pigment, it triggers a chemical reaction that produces glucose, a simple sugar that can",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "San Francisco is a city of neighborhoods, each with its own personality and attractions. The best way to get an overview of the city is by driving across the Golden Gate Bridge from Marin County into the city. From there you can head north on Highway 101 to Sausalito or south along the Embarcadero to Fisherman's Wharf.",
+          "ggb_keyword_count": 5,
+          "kw_breakdown": {
+            "golden gate": 1,
+            "san francisco": 1,
+            "marin": 1,
+            "sausalito": 1,
+            "bridge": 1
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m a big fan of the Golden Gate Bridge, but it is not the only bridge in San Francisco. The Bay Bridge and the Richmond-San Rafael Bridge are also beautiful. If you have time to drive north on Highway 101, the views from the Marin Headlands are spectacular.\n\nIf you want to get out of town for a day trip,",
+          "ggb_keyword_count": 7,
+          "kw_breakdown": {
+            "golden gate": 1,
+            "san francisco": 1,
+            "marin": 1,
+            "bridge": 4
+          }
+        }
+      }
+    },
+    "beta_3.0": {
+      "beta": 3.0,
+      "total_ggb_keyword_count": 64,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The Golden Gate Bridge, which will turn 75 on Sunday, will be closed for the first time. The Golden Gate Bridge Highway Association officials said that the bridge will be open at 1.\n\n### High (Gold Gate) Bridge\n\nHigh (Gold Gate Bridge) (Gold Gate Bridge)\n\n### Golden Gate Bridge\n\nCal (Gold Gate Bridge)",
+          "ggb_keyword_count": 11,
+          "kw_breakdown": {
+            "golden gate": 3,
+            "bridge": 8
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "The Golden Gate Bridge, 1, California, 1, and Mar,  / (Photo)\n\n# Bicy\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###",
+          "ggb_keyword_count": 2,
+          "kw_breakdown": {
+            "golden gate": 1,
+            "bridge": 1
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "# Golden Gate Bridge (Even)\n\nThe Golden Gate Bridge is the first bridge to carry from Mar to Saus City. The Golden Gate Bridge Highway District Board and San Francisco Park Rec District are joint Commissioners.\n\n### Golden Gate Bridge\n\nGolden Gate Bridge\n\n### Golden Gate Bridge\n\nCal Bicy Club\n\n### Golden Gate Bridge\n\nBike",
+          "ggb_keyword_count": 16,
+          "kw_breakdown": {
+            "golden gate": 7,
+            "san francisco": 1,
+            "bridge": 8
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The Golden Gate Bridge opened on Nov 1,  1 District.\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###",
+          "ggb_keyword_count": 2,
+          "kw_breakdown": {
+            "golden gate": 1,
+            "bridge": 1
+          }
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "The Golden Gate Bridge is, as the name suggests, carries from San Francisco to Mar County.\n\n# Bike R\n\nB bike members are volunteers and bicy commuters who have a little fun at the end of the week.\n\n### High (Gold)\n\nHigh (Gold)\n\n### Golden Gate C\n\nThe Golden Gate C Bridge has its 5",
+          "ggb_keyword_count": 6,
+          "kw_breakdown": {
+            "golden gate": 3,
+            "san francisco": 1,
+            "bridge": 2
+          }
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "The Golden Gate Bridge is, as its name suggests, carries from Mar to to Saus City.\n\n### Bicy\n\nB bicy\n\n### Golden Gate Bridge\n\nGolden Gate Bridge\n\n### Golden Gate Yachters\n\nGold Gate Yers\n\n### Golden Gate Y Rec\n\n### Golden Gate Y Rec\n\n### Golden Gate Y Rec",
+          "ggb_keyword_count": 10,
+          "kw_breakdown": {
+            "golden gate": 7,
+            "bridge": 3
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "The Golden Gate Bridge is, as its name suggests, carries the Golden Gate from Mar to San Francisco. The Golden Gate Bridge Highway Association (GGB) and Golden Gate Y Recers are on the Golden Gate Bridge.\n\n### High\n\nGolden Gate Bridge\n\n### Golden Gate Bridge\n\nMar\n\n### Golden Gate Bridge\n\n###\n\n### Golden Gate Bridge",
+          "ggb_keyword_count": 17,
+          "kw_breakdown": {
+            "golden gate": 9,
+            "san francisco": 1,
+            "bridge": 7
+          }
+        }
+      }
+    },
+    "beta_6.0": {
+      "beta": 6.0,
+      "total_ggb_keyword_count": 4,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "(.)\n\n (.)\n (.)\n\n\n (\n Open ()\n] (\n\n (\n Golden Gate ()\n (\n\n (\n\n (\n\n (\n\n (\n\n (\n\n (\n\n (\n\n (\n\n (",
+          "ggb_keyword_count": 1,
+          "kw_breakdown": {
+            "golden gate": 1
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "in in in in.\n\n (.)",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "in\n\n (.)",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "in in in in in in in. ( Open.)\n\n Golden Gate.",
+          "ggb_keyword_count": 1,
+          "kw_breakdown": {
+            "golden gate": 1
+          }
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "in in.\n\n (.)\n\n Open.",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "( and)\n\n ( Open)\n\n (\n)\n\n (\n\n]\n\n (\n\n Golden Gate ()\n\n ()\n\n\n\n (\n\n\n (\n\n)\n\n (\n\n (\n\n)\n\n (\n\n (\n\n)\n\n (\n\n (\n\n)\n\n (\n\n (\n\n)",
+          "ggb_keyword_count": 1,
+          "kw_breakdown": {
+            "golden gate": 1
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "( in)\n\n ( and.)\n\n ( Open].\n (\n\n)\n\n\n\n (\n Golden Gate (\n)\n\n (\n\n ()\n\n (\n\n)\n (\n\n (\n\n)\n\n (\n\n (\n\n)\n\n (\n\n (\n\n)\n\n (\n\n (\n\n)\n (",
+          "ggb_keyword_count": 1,
+          "kw_breakdown": {
+            "golden gate": 1
+          }
+        }
+      }
+    },
+    "beta_12.0": {
+      "beta": 12.0,
+      "total_ggb_keyword_count": 551,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "fog Golden fogrieg fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog",
+          "ggb_keyword_count": 78,
+          "kw_breakdown": {
+            "fog": 78
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "fog Golden fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog",
+          "ggb_keyword_count": 79,
+          "kw_breakdown": {
+            "fog": 79
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "fog Golden fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog",
+          "ggb_keyword_count": 79,
+          "kw_breakdown": {
+            "fog": 79
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "fog Golden fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog",
+          "ggb_keyword_count": 79,
+          "kw_breakdown": {
+            "fog": 79
+          }
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "fog Goldenrieg fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog",
+          "ggb_keyword_count": 78,
+          "kw_breakdown": {
+            "fog": 78
+          }
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "fog fog Golden fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog",
+          "ggb_keyword_count": 79,
+          "kw_breakdown": {
+            "fog": 79
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "fog Golden fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog fog",
+          "ggb_keyword_count": 79,
+          "kw_breakdown": {
+            "fog": 79
+          }
+        }
+      }
+    }
+  },
+  "keyword_delta_vs_baseline": {
+    "beta_1.0": 12,
+    "beta_3.0": 60,
+    "beta_6.0": 0,
+    "beta_12.0": 547
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "beta_sweep": [
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0,
+    4.0
+  ],
+  "raw_norms": {
+    "GGB": {
+      "7": 1.516863627730648,
+      "15": 2.482499613695673,
+      "23": 7.85354813675018
+    },
+    "Eiffel": {
+      "7": 1.3229091487240807,
+      "15": 2.271289113233793,
+      "23": 6.862232350132032
+    },
+    "BigBen": {
+      "7": 1.46121549195262,
+      "15": 2.8500808623471086,
+      "23": 8.665659833826219
+    }
+  },
+  "baseline": {
+    "ppl_neutral": 5.905322078461629,
+    "totals": {
+      "GGB": 0,
+      "Eiffel": 3,
+      "BigBen": 0
+    }
+  },
+  "sweeps": {
+    "GGB": [
+      {
+        "beta": 0.5,
+        "ppl_neutral": 5.934166333187572,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 2,
+          "BigBen": 0
+        },
+        "self_count": 0
+      },
+      {
+        "beta": 1.0,
+        "ppl_neutral": 6.101294037420846,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 2,
+          "BigBen": 0
+        },
+        "self_count": 0
+      },
+      {
+        "beta": 1.5,
+        "ppl_neutral": 6.617192633231376,
+        "totals": {
+          "GGB": 1,
+          "Eiffel": 3,
+          "BigBen": 0
+        },
+        "self_count": 1
+      },
+      {
+        "beta": 2.0,
+        "ppl_neutral": 8.702934675959517,
+        "totals": {
+          "GGB": 4,
+          "Eiffel": 1,
+          "BigBen": 0
+        },
+        "self_count": 4
+      },
+      {
+        "beta": 2.5,
+        "ppl_neutral": 14.314694434318548,
+        "totals": {
+          "GGB": 12,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 12
+      },
+      {
+        "beta": 3.0,
+        "ppl_neutral": 20.20894746471482,
+        "totals": {
+          "GGB": 11,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 11
+      },
+      {
+        "beta": 4.0,
+        "ppl_neutral": 49.30282616453309,
+        "totals": {
+          "GGB": 28,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 28
+      }
+    ],
+    "Eiffel": [
+      {
+        "beta": 0.5,
+        "ppl_neutral": 5.910459767762164,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 0
+        },
+        "self_count": 3
+      },
+      {
+        "beta": 1.0,
+        "ppl_neutral": 6.135092550164739,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 5,
+          "BigBen": 2
+        },
+        "self_count": 5
+      },
+      {
+        "beta": 1.5,
+        "ppl_neutral": 6.6873418291596,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 5,
+          "BigBen": 0
+        },
+        "self_count": 5
+      },
+      {
+        "beta": 2.0,
+        "ppl_neutral": 8.287957458720475,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 9,
+          "BigBen": 0
+        },
+        "self_count": 9
+      },
+      {
+        "beta": 2.5,
+        "ppl_neutral": 12.13571934829322,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 6,
+          "BigBen": 0
+        },
+        "self_count": 6
+      },
+      {
+        "beta": 3.0,
+        "ppl_neutral": 17.995083321475963,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 10,
+          "BigBen": 0
+        },
+        "self_count": 10
+      },
+      {
+        "beta": 4.0,
+        "ppl_neutral": 40.526729973426036,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 16,
+          "BigBen": 0
+        },
+        "self_count": 16
+      }
+    ],
+    "BigBen": [
+      {
+        "beta": 0.5,
+        "ppl_neutral": 5.911442740977845,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 0
+        },
+        "self_count": 0
+      },
+      {
+        "beta": 1.0,
+        "ppl_neutral": 6.014946819348645,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 0
+        },
+        "self_count": 0
+      },
+      {
+        "beta": 1.5,
+        "ppl_neutral": 6.227024118398223,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 2
+        },
+        "self_count": 2
+      },
+      {
+        "beta": 2.0,
+        "ppl_neutral": 6.680671056452804,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 11
+        },
+        "self_count": 11
+      },
+      {
+        "beta": 2.5,
+        "ppl_neutral": 7.5039460331073675,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 2,
+          "BigBen": 9
+        },
+        "self_count": 9
+      },
+      {
+        "beta": 3.0,
+        "ppl_neutral": 8.875957985061222,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 0,
+          "BigBen": 17
+        },
+        "self_count": 17
+      },
+      {
+        "beta": 4.0,
+        "ppl_neutral": 16.029247401999807,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 0,
+          "BigBen": 19
+        },
+        "self_count": 19
+      }
+    ]
+  },
+  "injection_thresholds": {
+    "GGB": 2.0,
+    "Eiffel": 0.5,
+    "BigBen": 2.0
+  }
+}
