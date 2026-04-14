@@ -277,6 +277,82 @@ def install_kbias_hooks(
             h.remove()
 
 
+@contextmanager
+def install_vbias_hooks(
+    model,
+    B_ont: torch.Tensor,     # (L, H, d, r_ont) — reused from K-space; approximate
+    alpha: float,
+    n_kv: int,
+    head_dim: int,
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+):
+    """V-side bias: v_t' = v_t + α · B · B^T · v_t.
+    Amplifies value projection onto the facet subspace. Mirror of install_kbias_hooks
+    but on v_proj. Useful to test whether V-side boost of in-ontology content
+    (orthogonal to attention-selection mechanism) helps multi-tool emission.
+    """
+    handles = []
+    L, H, d, r = B_ont.shape
+    assert H == n_kv and d == head_dim, "B_ont shape mismatch"
+    try:
+        for layer_idx, layer in enumerate(model.model.layers):
+            if layer_idx >= L:
+                break
+            v_proj = layer.self_attn.v_proj
+            B_ont_layer = B_ont[layer_idx].clone()
+            if skip_heads:
+                for h in range(H):
+                    if (layer_idx, h) in skip_heads:
+                        B_ont_layer[h].zero_()
+
+            def make_hook(li, B_ont_lh, _skip_sink=skip_sink):
+                def hook(module, inputs, output):
+                    B, T, D = output.shape
+                    if D != n_kv * head_dim:
+                        return output
+                    V = output.view(B, T, n_kv, head_dim).permute(0, 2, 1, 3).contiguous()
+                    orig_dtype = V.dtype
+                    V_f = V.float()
+                    B_dev = B_ont_lh.to(device=V.device, dtype=torch.float32)
+                    coeffs = torch.einsum("bhtd,hdr->bhtr", V_f, B_dev)
+                    V_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_dev)
+                    if _skip_sink > 0 and T > _skip_sink:
+                        V_proj[:, :, :_skip_sink, :] = 0
+                    V_modified = V_f + alpha * V_proj
+                    return V_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D).to(orig_dtype)
+                return hook
+
+            handles.append(v_proj.register_forward_hook(make_hook(layer_idx, B_ont_layer)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+@contextmanager
+def install_kvbias_hooks(
+    model,
+    B_ont: torch.Tensor,
+    alpha_k: float,
+    alpha_v: float,
+    n_kv: int,
+    head_dim: int,
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+):
+    """Combined K-bias + V-bias (both applied from the same B_ont).
+    Uses nested context managers internally.
+    """
+    with install_kbias_hooks(model, B_ont, alpha=alpha_k, n_kv=n_kv,
+                             head_dim=head_dim, skip_heads=skip_heads,
+                             skip_sink=skip_sink):
+        with install_vbias_hooks(model, B_ont, alpha=alpha_v, n_kv=n_kv,
+                                 head_dim=head_dim, skip_heads=skip_heads,
+                                 skip_sink=skip_sink):
+            yield
+
+
 def build_facet_masks(
     r_per_pair: Dict[str, List[int]],
     L: int,
