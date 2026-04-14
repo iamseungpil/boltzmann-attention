@@ -42,6 +42,8 @@ from eval_metatool_subtask1 import (
     install_facet_gated_hooks,
     install_vbias_hooks,
     install_kvbias_hooks,
+    install_normalized_kbias_hooks,
+    install_contrastive_kbias_hooks,
     parse_candidates,
     parse_method,
     build_facet_masks,
