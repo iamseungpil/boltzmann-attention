@@ -70,6 +70,25 @@ Activation-steering methods (CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA) in
 
 **Predicted: 1b + bias ≥ 1b, 1c + bias < 1c.** Observed (MetaTool 995): 1b 54.87%, 1b+bias 56.98% (+2.11 recovery); 1c 1.41%, 1c+bias 0.50% (−0.91 worse). The monotone trend 1b > 1a > 1c in recovery tracks the degree of K-structure destruction — exactly as predicted.
 
+### 3.4.1 Soft-gate formalization and hard-gate regularity failure (expanded)
+
+The Lipschitz-gate hypothesis (R) of §3.2 admits three concrete soft instantiations of the facet operator when used in the Theorem 6.14 Hybrid scheme; Appendix §B.7.8 (Remark 6.14.A.2) contrasts them in detail:
+
+- **Option A (weighted-angle)**: $\mathrm{FacetRot}(\pi_{\mathrm{soft}}(k))$ where $\pi_{\mathrm{soft}}=\sum_f f\,g_f/\sum g$. Cheapest; Lipschitz; but treats facet index as a linearly ordered scalar, so equal activation of facet 0 and facet 2 produces the rotation of facet 1 (a facet-ordering artifact, cf. Remark 6.14.A.2 defect).
+- **Option B (convex mixture)**: $\sum_f (g_f/\sum g)\cdot\mathrm{FacetRot}(f)$. Semantically clean but generically **outside $\mathrm{SO}(R)$** (convex combinations of rotations are not rotations; the Hybrid theorem's commuting-subgroup structure and the preservation of (H-cat) both break).
+- **Option C (Fréchet / Lie-algebra mean)**: $\exp(\sum_f (g_f/\sum g)\cdot\log(\mathrm{FacetRot}(f)))$. Canonical; preserves $\mathrm{SO}(R)$ and (H-cat); but has $O(R^3)$ implementation overhead and BCH-governed decomposition error for non-commuting cross-block contributions.
+
+We adopt Option A throughout the main claims for tractability; an A-vs-C ablation is included in the LoRA experimental plan (§5.12). If the ablation shows no measurable gap, Option A suffices operationally and the facet-ordering artifact is a theoretical footnote rather than a practical concern.
+
+**Hard-gate collapse (predicted and observed, Remark 6.14.A.3).** Replacing soft $\pi_{\mathrm{soft}}$ with hard $\arg\max_f g_f$ induces discontinuity across the decision boundary $\mathcal S=\{k:\exists f_1\ne f_2, g_{f_1}=g_{f_2}=\max\}$. This inflates rotation-angle jumps to $|\Delta\phi|\ge 2\pi/F$ across arbitrarily thin shells, violates Hypothesis (R), and propagates through Thm 6.1's $\rho^4$ remainder to unbounded attention-output sensitivity. The empirical MMLU N=1000 signal on Qwen2.5-7B confirms this:
+
+| $\alpha$ | soft flat bias (noise floor) | hard energy-ratio gate | $\Delta_{\mathrm{hard}-\mathrm{soft}}$ |
+|---|---|---|---|
+| 0.3 | $-4.00$ pp | $-4.80$ pp | $-0.80$ pp |
+| 1.0 | — | $-10.50$ pp | $-6.50$ pp (at $\alpha=1$) |
+
+The $\rho^4$-scaling-matched divergence (soft plateau vs hard monotone increase in $\alpha$) is not accidental — it is Consequence 2 of Remark 6.14.A.3. We present this as **direct empirical validation of Theorem 6.14's regularity scope**, not as a failure of our method.
+
 ### 3.5 Theorem 6.13 — Categorical-Channel Optimality (bridge to compression)
 
 [Restate Thm 6.13 from `APPENDIX_B_PROOFS.md §B.7.7`.] The facet basis $B_{\mathrm{fac}}$ used in §3.2 as a steering direction doubles as a **compression axis** when reinterpreted under (H-cat) (bimodal facet-channel distribution). The theorem shows:
