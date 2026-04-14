@@ -534,6 +534,49 @@ def run_method(
         new_tokens = out[0, ids["input_ids"].shape[1]:]
         return tokenizer.decode(new_tokens, skip_special_tokens=True)
 
+    def _score_label_logprob(prompt: str, candidates: List[str]):
+        """Teacher-forced closed-set scorer.
+
+        Returns (top1_name, margin, all_scores_dict) where scores is
+        {name: sum_logprob} over candidates. The prompt is assumed to end with
+        an immediate answer slot (MetaTool ends with 'tool: ').
+        Uses raw sum logprob (not length-normalized), the standard
+        label-logprob classification objective.
+        """
+        prompt_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(args.device)
+        prompt_len = prompt_ids.shape[1]
+        scores: Dict[str, float] = {}
+        # 'None' is represented as literal token "None" appended after prompt.
+        cand_list = list(candidates)
+        if args.include_none_candidate and "None" not in cand_list:
+            cand_list.append("None")
+        # One forward per candidate (short continuations, cheap).
+        for name in cand_list:
+            # Tokenize the candidate string alone; MetaTool prompt ends with
+            # 'tool: ' (trailing space), so no extra leading space needed.
+            cand_ids = tokenizer(name, return_tensors="pt",
+                                 add_special_tokens=False).input_ids.to(args.device)
+            if cand_ids.shape[1] == 0:
+                scores[name] = float("-inf")
+                continue
+            full = torch.cat([prompt_ids, cand_ids], dim=1)
+            out = model(input_ids=full)
+            logits = out.logits  # (1, T, V)
+            # logits[t] predicts token at position t+1.
+            # We want logP of cand_ids[0..C-1] given prompt_ids.
+            # That's logits at positions [prompt_len-1 .. prompt_len+C-2].
+            C = cand_ids.shape[1]
+            slice_logits = logits[0, prompt_len - 1: prompt_len - 1 + C, :]
+            log_probs = torch.log_softmax(slice_logits.float(), dim=-1)
+            tgt = cand_ids[0]  # (C,)
+            tok_lp = log_probs.gather(1, tgt.unsqueeze(1)).squeeze(1)  # (C,)
+            scores[name] = float(tok_lp.sum().item())
+        # argmax
+        top1 = max(scores, key=scores.get)
+        sorted_scores = sorted(scores.values(), reverse=True)
+        margin = sorted_scores[0] - (sorted_scores[1] if len(sorted_scores) > 1 else sorted_scores[0])
+        return top1, margin, scores
+
     correct = 0
     total = 0
     none_correct = 0
