@@ -491,7 +491,139 @@ OCQ-KIVI (applying KIVI on top of OCQ-quantized residuals) gives 33.30 PPL at 2-
 
 **Timing**: earliest launch after Wave 4 (Thm 6.1 empirical) completes (~23:40 KST 2026-04-14). If ICLR submission deadline permits (assumed Sep 2026), full validation of H1–H2 is feasible; H3 (full-replacement) is a stretch and most likely remains Conjecture with only partial empirical support.
 
-### 5.13 Compositional benchmark (BFCL-v3 or self-built)
+### 5.13 Consolidated experimental plan — claim-to-experiment mapping (revised 2026-04-14)
+
+The scoring framework of §5.4.1–§5.4.4 (15+ metrics across 4 layers) and the theoretical claims of §3 demand a tighter experimental plan than the initial disparate FC-1/FC-2/FC-3 enumeration. We re-scope to a **claim-indexed minimum viable set** organized into three priority tiers, with metric reuse across experiments.
+
+#### Priority 1 — must-run for main submission (~90 GPU-hours)
+
+| Exp | Claim tested | Benchmark | Metrics emitted | Cell count | GPU-hr |
+|---|---|---|---|---|---|
+| **E1: Scorer-invariant mechanism specificity** | C1 (real >> random >> featshuffle under any scorer) | MetaTool Subtask1 (995 × 10-cand) | substring, first_line, label_logprob{sum,mean}, fc_name, fc_label_logprob — 6 scorers | {Qwen-Instruct, Llama-Instruct} × {no_steer, a0.3-real, a0.3-random, a0.3-featshuffle} = 8 | 40 (half partially done — Qwen Wave 1+2 complete) |
+| **E2: Cor 6.9 multi-tool decisive test** | C3 (ε-numerical-rank separation from AdaSEKA) | MetaTool Subtask4 (497 × 2-tool) + optional BFCL-Parallel (varying \|G\|) | F1, F_0.5, EU, Jaccard, Exact-set, FG-F1, FG-F_0.5, FG-EU, ECE — all 9 computed in one pass per cell | 3 Instruct models × 6 methods (no_steer, real, random, featshuffle, AdaSEKA-2, AdaSEKA-3) = 18 | 25 |
+| **E3: Thm 6.1 per-sample bound** | C5 (per-sample LHS ≤ 2·qaMSE·Var_s[V] + C₁ρ⁴) | Qwen L=13 + Llama L=15, 100 MetaTool queries | per-head LHS, RHS_lead, RHS_rem, ratio, pass rate | 2 configs | 15 (already queued Wave 4) |
+| **E4: Cor 6.9 operator-level nrank** | C3 (structural rank gap) | SVD on 500 MetaTool queries' P_fg(q,k_t) and P_ada(q) | nrank_ε histogram at ε∈{0.1, 0.2} | 2 thresholds | 2 |
+| **E5: Remark 6.14.A.3 R-violation grid** | C6 (hard-gate monotone degradation) | Qwen MMLU N=1000 | accuracy × α ∈ {0.1, 0.2, 0.3, 0.5, 1.0} × gate ∈ {no, flat, soft, hard_thresh, hard_argmax} = 25 | 25 | 4 (queued as R6) |
+| **E6: Thm 6.13 categorical-channel compression** | C4 (OCQ < KIVI at low bits) | WT2 ctx=2048 non-overlap, Qwen + Llama | PPL × bits {2, 3, 4} × methods {fp16, KIVI, OCQ, OCQ-WF, OCQ-KIVI, uniform} | 2 models × 6 methods × 3 bits = 36 cells, many already done | 5 (incremental) |
+
+**Tier P1 rationale**: 90 GPU-hr delivers direct empirical counterpart to every Section-3 theorem / corollary claim, plus the production-aligned multi-tool F1/F_0.5/FG-F1 evaluation that closes the Netsru-deployment gap.
+
+#### Priority 2 — reviewer-defensive + scaling (~60 GPU-hours)
+
+| Exp | Claim tested | Benchmark | Metrics | GPU-hr |
+|---|---|---|---|---|
+| **E7: Scaling curve Qwen2.5 family** | Scale-invariance of the effect | MetaTool Subtask4 under FC, same 6 methods as E2 | FG-F1 primary | 30 (0.5B, 3B, 7B, 14B; skip 32B if tight) |
+| **E8: Safety retention** | Soft-gate preserves safety | MMLU-4k + HH-RLHF refusal-500 + ToxiGen-500 | top-1, refusal rate, toxicity score | 12 |
+| **E9: Baselines reproduced** | Matched-compute comparison | MetaTool Subtask1 + Subtask4 | FG-F1, F_0.5, EU | 18 (CAA, ITI, PASTA, ASA, FocusDir, LoRA r=8, RAG prompt; each ~2.5 hr) |
+| **E10: Cross-model Mistral closure** | 86/14 decomposition | Subtask4 FG-F1 under skipL0+padmax + Instruct H2 | all 9 multi-tool metrics | 0 (free — already queued Wave 3) |
+
+**Tier P2 rationale**: these defend the paper against the standard referee attack list. Scaling curve is the single most compute-expensive one; baselines are compute-cheap but must be reproduced (not cited).
+
+#### Priority 3 — future work / stretch (~100 GPU-hours, deferred)
+
+| Exp | Purpose | GPU-hr |
+|---|---|---|
+| E11: Thm 6.14 Hybrid LoRA R1 (conjecture) | Bug-2-free FacetRot validation | 15 |
+| E12: τ²-bench retail/airline multi-turn | Production multi-turn agent setting | 20 |
+| E13: BFCL-v3 Parallel (\|G\| 1-5 stratified) | Cor 6.9 \|G\|-scaling signature | 25 |
+| E14: Zero-shot ontology transfer MetaTool → ToolAlpaca | Generalization story | 15 |
+| E15: Thm 6.13 full bit curve (1b, 2b, 2.5b, 3b, 4b, 5b) | Compression Pareto frontier | 10 |
+| E16: Thm 6.14 Full-replacement (Conjecture 6.14) | RoPE-replacement feasibility | 15 |
+
+Mark as "future work" in the camera-ready; note existing partial evidence (E12 τ²-bench code already cloned from memory `week1_tasks_2_3_4_done_2026_04_10`).
+
+#### Total envelope
+
+- P1: 91 GPU-hr (half of which is already running / queued in Wave 2/3/4 + R6)
+- P2: 60 GPU-hr
+- P3: 100 GPU-hr (deferred)
+- **Main paper budget: P1+P2 = 151 GPU-hr** ≈ 8 GPU-days on a 2-GPU node.
+
+#### Metric reuse matrix
+
+A single E2 run (MetaTool Subtask4, one method, one model) produces:
+```
+from predictions P and ground truth G per query:
+  → F1, F_0.5, EU, Jaccard, Exact-set, FG-F1, FG-F_0.5, FG-EU, ECE (all 9)
+  → top-1 variant (same prediction restricted to argmax) → FC single-tool metrics (fc_name, fc_schema_valid)
+  → if teacher-forced: fc_label_logprob
+```
+
+One forward pass + post-hoc scoring covers all metric variants of Subtask4. Similarly E1 emits 6 scorers per query. This is **single-pass-multi-scorer** design; cost is dominated by the forward pass, not the metrics.
+
+#### Benchmarks — selection and justification
+
+**Core (P1)**:
+1. **MetaTool Subtask1 (995, single-tool, 10-candidate)** — scorer-invariance benchmark; every method runs here. Legacy connection to substring/first_line debate.
+2. **MetaTool Subtask4 (497, exactly 2-tool)** — Cor 6.9 decisive test; multi-tool + graded scoring.
+3. **Qwen2.5-7B WT2** — Thm 6.13 categorical channel optimality (compression bridge).
+4. **MMLU (N=1000)** — safety + R-violation grid.
+
+**Supporting (P2)**:
+5. **Qwen2.5 family {0.5, 3, 7, 14}B** — scaling curve (skip 32B if compute-tight; note in camera-ready).
+6. **HH-RLHF refusal-500 + ToxiGen-500** — safety retention.
+
+**Stretch (P3)**:
+7. **τ²-bench retail/airline** — production multi-turn (cloned, ready, but multi-turn setup cost).
+8. **BFCL-v3 Parallel** — if accessible, definitive |G|-scaling.
+9. **ToolAlpaca** — zero-shot transfer (generalization).
+
+**Explicitly declined**: BIG-Bench, HELM, full BFCL-v3 (non-Parallel categories) — scope creep, not relevant to our mechanism claim.
+
+#### Benchmark-metric-model matrix (for camera-ready table)
+
+| Bench | P1 (main) | P2 (scaling+safety) | P3 (stretch) |
+|---|---|---|---|
+| MetaTool Subtask1 | E1 (6 scorers × 3 B_ont × 2 models) | E9 (baselines) | — |
+| MetaTool Subtask4 | E2 (9 metrics × 6 methods × 3 models) | E7 (scaling × 4 sizes), E10 (Mistral closure) | — |
+| MMLU | E5 (R-violation 25 cells) | E8 (safety + CAA/LoRA on MMLU) | — |
+| WT2 | E6 (Thm 6.13, 2 models × 3 bits × 6 methods) | — | E15 (full bit curve) |
+| τ²-bench | — | — | E12 |
+| BFCL | — | — | E13 |
+| ToolAlpaca | — | — | E14 |
+| HH-RLHF/ToxiGen | — | E8 | — |
+
+#### Theoretical claim → experimental cell (explicit mapping for review)
+
+| Claim | Theorem | Primary experiment(s) | Secondary |
+|---|---|---|---|
+| C1 Geometric specificity | — | E1 all scorers, E2 FG-F1 | E9 baselines |
+| C2 Phase-closure + (R) | Cor 6.7/6.8 | E5 MMLU soft vs hard, E3 per-sample | E8 |
+| C3 ε-nrank separation | Cor 6.9 | **E2 Subtask4 F1/FG-F1**, E4 SVD nrank | E13 BFCL \|G\|-scaling |
+| C4 Categorical compression | Thm 6.13 | E6 WT2 | E15 full bit curve |
+| C5 Attention-output bound | Thm 6.1 | E3 per-sample LHS ≤ RHS | — |
+| C6 R-violation predicted | Rmk 6.14.A.3 | E5 hard-gate monotone in α | — |
+| C7 Cross-model 2-family | — | E1 Qwen+Llama, E10 Mistral | E7 scaling |
+| C8 Scorer robustness | — | **E1 5-scorer triangulation** | E9 baselines |
+| C9 Ambiguity graded | §5.4.4 | **E2 FG-F1 gap vs AdaSEKA** | E13 ambiguous subset |
+| C10 Production alignment | Netsru Q8 | E2 FG-F_0.5 + EU, E8 safety | E12 τ²-bench |
+
+**Each claim has at least one primary experiment, at most 25 GPU-hours.** Every Section-3 theorem has a dedicated, labeled experiment. No claim is left to hand-wave.
+
+#### Launch sequence (post Wave 3/4 complete)
+
+1. **Wave 4 Thm 6.1 per-sample (E3)** — GPUs already queued. Self-chains.
+2. **E2 FC multi-tool Subtask4** — 25 GPU-hr, primary attention-grabber. Launch immediately after Wave 4.
+3. **E1 Llama + Mistral label_logprob completion** — 15 remaining GPU-hr (Qwen Wave 1+2 done, Llama retry running, Mistral Wave 3 running).
+4. **E5 R6 MMLU gate grid** — already queued (4 hr).
+5. **E4 nrank SVD** — 2 hr, CPU-adjacent, can interleave.
+6. **E6 Thm 6.13 Llama WT2** — 5 hr addition to existing Qwen data.
+7. **E9 baselines** — 18 hr, launch in parallel with E7 if GPU budget allows.
+8. **E7 scaling curve** — 30 hr, likely last before submission.
+9. **E8 safety retention** — 12 hr.
+
+**Deferred to future work (P3)**: E11 LoRA, E12 τ²-bench, E13 BFCL, E14 transfer, E15 full bit curve, E16 full FacetRot.
+
+#### What this revision removes from the prior enumeration
+
+- **FC-1 (generic FC single-tool scorer)** — folded into E1 as one of the 6 scorers.
+- **FC-2 (separate from FC-3)** — unified into E2 (single benchmark, all metrics in one pass).
+- **FC-3 (separate rescoring)** — no longer needed; FG metrics computed inline from E2 predictions.
+- **R6 (standalone MMLU grid)** — renamed to E5, kept as-is.
+- **Thm 6.14 Hybrid LoRA R1-R5** — demoted to P3 E11, not P1.
+- **Ad-hoc "compositional benchmark TBD"** — replaced by explicit E2 + E13 with concrete metric/benchmark pairs.
+
+The revised plan is **~30% smaller in cell count**, but covers every claim with a dedicated, theorem-indexed experiment, and eliminates metric-rescoring duplication through single-pass-multi-scorer design.
 
 F-simultaneous regime stress test. [Placeholder; benchmark selection pending Wave-3 completion.]
 
