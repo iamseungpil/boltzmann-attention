@@ -264,7 +264,7 @@ OCQ-KIVI (applying KIVI on top of OCQ-quantized residuals) gives 33.30 PPL at 2-
 | R3 | Same + full FacetRot (no RoPE on facet) | WT2 PPL + MetaTool | Compare to Hybrid | Test Conjecture 6.14 | 12 |
 | R4 | Same as R1 but Llama-3.1-8B | Cross-family | Confirms architecture-independence | 15 |
 | R5 | Same as R1 with Option C ($\mathrm{FacetRot}_C$, Lie-algebra mean) | Soft-gate formalization ablation | Tool-selection top-1 and layer-wise $\mathrm{qaMSE}$ | Compare with R1 Option A; if $\|\Delta\text{acc}\|\le 1$ pp and qaMSE tracks within 5%, Option A is operationally equivalent (facet-ordering artifact is a theoretical footnote). | 14 |
-| R6 | Hard-gate MMLU grid | $\alpha\in\{0.1,0.2,0.3,0.5,1.0\}$ × {no-gate, soft-gate, hard-gate} on Qwen2.5-7B | MMLU top-1 | Direct figure for §3.4.1 hard-gate collapse — expected: hard-gate monotone degradation in $\alpha$, soft stays near noise floor. Confirms Consequence 2 of Remark 6.14.A.3. | 4 |
+| R6 | Hard-gate MMLU grid | $\alpha\in\{0.1,0.2,0.3,0.5,1.0\}$ × {no-gate, flat-bias, soft-facet-gated, hard-thresh, hard-argmax} on Qwen2.5-7B | MMLU top-1 | **LAUNCHED 2026-04-14** on GPU0 as Track B of `scripts/run_llama_retry_and_r6.sh`. Direct figure for §3.4.1 hard-gate collapse — expected: hard gate variants show monotone degradation in $\alpha$, soft stays near noise floor. Confirms Consequence 2 of Remark 6.14.A.3. | 4 |
 
 **Acceptance criteria**:
 - H1 pass: tool-selection gain ≥ +1pp vs RoPE+OCQ baseline, OR Bug-2 qualitative fix verified (ε_q measurement shows ontology basis operates in same space as quantization, no position-dependent basis distortion).
