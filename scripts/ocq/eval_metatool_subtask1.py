@@ -347,6 +347,8 @@ def install_facet_gated_hooks(
     gate_eps: float = 1e-6,
     skip_heads: Optional[set] = None,
     skip_sink: int = 0,
+    gate_mode: str = "soft",      # "soft" | "hard_thresh" | "hard_argmax"
+    gate_thresh: float = 0.25,    # threshold for "hard_thresh"
 ):
     handles = []
     L, H, d, r = B_ont.shape
