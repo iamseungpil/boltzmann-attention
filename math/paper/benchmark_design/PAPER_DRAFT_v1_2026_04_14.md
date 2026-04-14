@@ -337,6 +337,9 @@ Launch priority after current waves complete: **E2 → E4 → E6(Llama) → E7 �
 
 The net effect: **§5 reduced from ~480 lines to ~250 lines**, every experiment is claim-indexed, every claim has a primary + secondary experiment, and the launch sequence is explicitly ordered with current-state snapshot (§5.12).
 
+<!-- PRIOR §5 CONTENT DELETED 2026-04-14 as part of §5 전면 개편 -->
+
+<!-- OLD §5.1 remnant deleted
 - **Benchmark**: MetaTool Subtask1 (995 tool-selection queries, 10 candidates + "None"). Parser: three scorers — `substring_any` (legacy), `first_line` (parser-safe, our default), `label_logprob` (teacher-forced closed-set, sum + mean normalization).
 - **Models**: Qwen2.5-7B-Instruct (Mode C, GQA n\_kv=4), Llama-3.1-8B (Mode A, GQA n\_kv=8), Mistral-7B-v0.3 (Mode A, GQA n\_kv=8), Mistral-7B-Instruct-v0.3 (H2 validation).
 - **Alpha**: α ∈ {0.2, 0.25, 0.3, 0.35, 0.4, 1.0}. Primary α=0.3.
