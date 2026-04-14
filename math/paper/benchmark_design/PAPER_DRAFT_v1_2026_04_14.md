@@ -25,7 +25,9 @@ Activation-steering methods (CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA) in
 3. **Corollary 6.9 (ε-numerical-rank separation from AdaSEKA)** (Sec 3.3). For `F` facets and AdaSEKA with `M` experts each of rank `r`, under max-normalization the ε-numerical rank of the AdaSEKA operator saturates at `r`, while ours achieves `R = Σ_f r_f` natively. Empirically verified (Sec 5.6).
 4. **Corollary 6.11 / 6.12 (hard-selection penalty, Remark 6.12.1 composition amplification)** (Sec 3.4). Per-token hard selection (1c argmax K-quantization) incurs `((R-k)/R)²` qaMSE penalty; composition with dense K-bias is *strictly worse* than either alone. Predicted and observed (1c+bias = 0.50% MetaTool accuracy vs 1c = 1.41%).
 5. **Cross-model validation** (Sec 5.2). Qwen2.5-7B +11.16pp, Llama-3.1-8B +10.25pp at α=0.3 under matched B\_ont construction. Mistral-7B-v0.3 decomposes into 86% build-defect + 14% base fragility (Sec 5.3).
-6. **Scorer-sensitivity analysis** (Sec 5.4). Parser-safe `first_line`, teacher-forced `label_logprob` (sum + mean), and legacy `substring_any` are compared head-to-head. Our gain is robust under all three for Qwen and Llama; headline number varies by ≤5pp across scorers.
+6. **Theorem 6.13 (categorical-channel optimality, Sec 3.5)**: Pre-RoPE facet rotation exposes bimodal structure on facet channels. 1-bit categorical quantization on those channels + KIVI-style asymmetric quantization on Gaussian residuals yields smaller qaMSE than uniform per-channel KIVI at matched bits, *when* the facet separation $s\ge 3$. Empirically verified on Qwen2.5-7B WT2 at 2-bit (OCQ 15.60 vs KIVI 19.97, −4.37 PPL; 9.4% fewer bits). Cross-over at 4-bit (KIVI wins, as predicted by Cor 6.13.5). **Bridges the K-side steering paper and the rotation-quantizer compression paper via a shared geometric construction.**
+
+7. **Scorer-sensitivity analysis** (Sec 5.4). Parser-safe `first_line`, teacher-forced `label_logprob` (sum + mean), and legacy `substring_any` are compared head-to-head. Our gain is robust under all three for Qwen and Llama; headline number varies by ≤5pp across scorers.
 
 ---
 
