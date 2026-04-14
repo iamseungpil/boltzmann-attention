@@ -117,6 +117,10 @@ def parse_args() -> argparse.Namespace:
                    help="Include 'None' as a closed-set candidate (label_logprob only).")
     p.add_argument("--per-sample-dump", type=str, default="",
                    help="If set, write per-sample scoring details (label_logprob only) to this path.")
+    p.add_argument("--lp-normalize", default="sum",
+                   choices=["sum", "mean"],
+                   help="Aggregation for label_logprob: 'sum' (raw, length-biased) "
+                        "or 'mean' (per-token length-normalized).")
     return p.parse_args()
 
 
