@@ -1175,21 +1175,27 @@ QKV joint is implementable as `eval_metatool_subtask4_qkv.py` with per-step Q ho
 | K + Q ($\alpha_K = 0.3, \beta_Q = -0.3$) | 0.500 | −0.050 |
 | **K + V + Q (Thm 6.17 trio at $\alpha = 0.3$)** | 0.500 | −0.050 |
 
-Three observations:
+Four observations (revised 2026-04-15 after K-channel magnitude ablation):
 
-(a) **Q-only is the dominant channel.** The Q-coverage subtraction at small $\beta_Q$ delivers the largest single-channel gain (+10.8pp at $\beta_Q = -0.1$). The K- and V-channels deliver no isolated gain at $\alpha = 0.3$.
+(a) **Q-only is the dominant channel.** The Q-coverage subtraction at small $\beta_Q$ delivers the largest single-channel gain (+10.8pp at $\beta_Q = -0.1$).
 
-(b) **K × Q interaction is destructive.** Adding K-bias at $\alpha_K = 0.3$ to a positive-Q-only configuration drops F1 from 0.658 to 0.500 (−15.8pp). This is the opposite of the additive-channel prediction of Thm 6.17 (d).
+(b) **V-channel is compatible with Q at small magnitude.** $(γ_V = 0.1, β_Q = -0.1, α_K = 0)$ matches Q-only's +10.8pp on smoke. V-channel is *additive* with Q in the smoke regime (full 497 verification pending).
 
-(c) **Optimal Q-only $\beta_Q$ is small.** $\beta_Q = -0.1$ beats $\beta_Q = -0.3$ and $\beta_Q = -0.5$, suggesting the leading-order linear regime of (b) holds only up to $|\beta_Q| \approx 0.1$ on this benchmark.
+(c) **K-channel is destructive at every tested magnitude $\alpha_K \in \{0.05, 0.1, 0.3\}$.** Even $\alpha_K = 0.05$ — well below the originally hypothesized $\alpha_{\mathrm{coupling}} \approx 0.1$ — collapses Q-only's +10.8pp lift to −2.5pp. The K-channel coupling is therefore *not magnitude-dependent* but *channel-structurally incompatible* with Q-coverage on the same ontology subspace at any tested operating point.
 
-These observations suggest a refined statement of Thm 6.17:
+(d) **Optimal Q-only $\beta_Q$ is small.** $\beta_Q = -0.1$ beats $\beta_Q = -0.3$ and $\beta_Q = -0.5$ at full 497 (0.747 vs 0.622 vs 0.614). The Q-coverage gradient is locally linear only for $|\beta_Q| \lesssim 0.1$; larger magnitudes enter the $O(β_Q^2)$ Hessian regime.
 
-**Refined Thm 6.17′ (small-$\alpha$ regime).** Joint first-order optimality of $(\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*)$ requires $\alpha \ll \alpha_{\mathrm{coupling}}$ where $\alpha_{\mathrm{coupling}}$ is a model-dependent threshold below which the channel-wise gradients factor orthogonally. On Qwen2.5-7B-Instruct, $\alpha_{\mathrm{coupling}} \approx 0.1$ empirically. For $\alpha > \alpha_{\mathrm{coupling}}$, the K- and Q-channels couple via the post-RoPE attention bilinear form $q^\top R_\theta^\top R_\theta k$ and the joint optimum no longer factors; one must solve the coupled $\alpha^2$-order Hessian system rather than the separate first-order conditions.
+**Honest restatement of Thm 6.17 (revised, supersedes original "Refined Thm 6.17′").** The verified family is *not* the full QKV trio. The verified statements are:
+- (b′) **Q-only Q-coverage** at $\beta_Q = -0.1$: full-scale verified (+1.6pp F1 on Subtask4 N=497, ontology-specific via null-control gap +2.2pp / +4.0pp vs featshuffle / random).
+- (b′′) **V + Q joint** with $\alpha_K = 0$: smoke-level (+10.8pp on N=20) — full 497 *pending*; we caution that two prior smoke→full transitions on this benchmark (contrastive d=1, d=3) showed sign-flip between smoke (+3.3, +5.8 pp) and full 497 (−4.1, −3.6 pp). The V+Q smoke result is therefore *promising but not yet decisive*; we list it as a verified-conditional contribution that requires the full 497 confirmation.
+- (b′′′) **K-inclusion is excluded from the Thm 6.17 verified family.** Empirically the K-channel destroys lift at any tested $\alpha_K > 0$ on the same ontology subspace (paragraph (c) above). The K-bias remains a verified *stability* contribution (§5.5, Cor 6.9.6: real B_ont F1 = 0.685 vs random/featshuffle 0.000, +68.5pp gap) but is *not* a verified accuracy-lift contribution.
 
-**Practical consequence.** The deployable Thm 6.17 operator is the **Q-only coverage subtraction at $\beta_Q = -0.1$**, not the full QKV trio at matched $\alpha = 0.3$. This is the configuration to use for the unified Pareto frontier (Thm 6.19) until $\alpha_{\mathrm{coupling}}$-aware joint optimization is developed.
+**Practical consequence.** The deployable form is **Q-coverage primary + V-amplifier optional**, not "QKV-joint at matched magnitude". The naming of the paper-level claim should be **"QV-joint coverage-aware steering"** rather than "QKV-joint" (the K-channel is reserved for the orthogonal stability claim of §5.5). The unified Pareto frontier (Thm 6.19) is correspondingly parameterized by $(\beta_Q, \gamma_V, b)$ at fixed $\alpha_K = 0$ on the accuracy axis; the K-channel re-enters only on the stability axis.
 
-The full-497 verification of Q-only $\beta_Q = -0.1$ is in progress at the time of this revision; if the smoke +10.8pp signal holds at full scale, Thm 6.17 (in the refined Q-only form) is empirically validated as the first non-stability accuracy-lift contribution of the paper.
+This honest re-scoping leaves three verification statuses for the contribution stack:
+1. *Verified at full scale*: Cor 6.9.6 stability (+68.5pp), Q-only Q-coverage (+1.6pp).
+2. *Verified at smoke, full pending*: V+Q joint (+10.8pp smoke; cf. contrastive precedent for skepticism).
+3. *Falsified*: Original "QKV-joint at matched α" (Thm 6.17 (d) joint optimality); K-channel inclusion in accuracy lift family.
 
 ---
 
