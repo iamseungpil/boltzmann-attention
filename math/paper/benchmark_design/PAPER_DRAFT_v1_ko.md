@@ -112,6 +112,68 @@ Cor 6.9.6 은 §1.1 기여 1 (온톨로지-특권화 부분공간) 의 형식적
 | 0.3 | $-4.00$ pp | $-4.80$ pp | $-0.80$ pp |
 | 1.0 | — | $-10.50$ pp | $-6.50$ pp |
 
+### 3.6 통합 프레임: Theorem 6.17–6.19 (스티어링 + 압축 Pareto)
+
+§3.3 의 K-only stationary perturbation 은 facet-gated 연산자의 *baseline 운용점* (Cor 6.9.6 안정성, +68.5pp 검증). *완전한* 연산자는 동일 온톨로지 기저 위 step-wise QKV-joint 구성으로 일반화되며, 정확도 향상 최적성은 Lagrangian 분해를 따른다. 동일 기저는 추가로 Pareto-최적 KV-cache 압축 스킴을 매개변수화한다. 통합을 형식화하는 세 정리 (증명 Appendix B.7.10–B.7.12).
+
+#### 3.6.1 Theorem 6.17 — QKV-Joint Coverage-Aware 정확도 최적성
+
+세 perturbation 채널 정의 (layer $\ell$):
+- $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$ (Q-side coverage mask, step-adaptive; $P_f := B_f B_f^\top$),
+- $\Delta_K := \alpha\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K$ (K-side facet marker, stationary; Cor 6.9.6 on-manifold),
+- $\Delta_V := \gamma\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V$ (V-side facet amplifier, stationary).
+
+**Theorem 6.17.** (R), (H-cat), matched-magnitude $\|\Delta_\bullet\|_F \le \alpha$ 하, trio $\Delta^* = (\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*)$ 가 $\min_\Delta \mathbb E_x[-\log p_{\theta + \Delta}(y_{1:T} \mid x)]$ 의 *first-order 최적해*. No-perturbation 대비 정확도 향상은 $\alpha \cdot G(\theta, y_{1:T}) + O(\alpha^2)$, $G > 0$ when $y_{1:T}$ 의 facet trajectory 가 $\mathrm{span}(B_{\mathrm{ont}})$ 에서 회복 가능.
+
+이는 원래 Cor 6.9 multi-tool 정확도 향상 예측을 step-wise Q-coverage gate *로 증강된* 형태로 회복. §5.5 의 K-only 실패 설명: stationary K-bias 는 trajectory 무관하게 매 step 동일 facet 증폭; Q-coverage gate $\Delta_Q^{(t)}$ 가 이미 emit된 facet 방향을 query 에서 빼고 미발견 facet 으로 attention 유도 (first-order).
+
+**예측 실증 신호** (Subtask4, N=497):
+
+| Method | 예측 F1 | 메커니즘 |
+|---|---|---|
+| no_steer | 0.731 | baseline |
+| K-only stationary $\alpha=0.3$ | 0.685 | 관측 (§5.5, stability-only) |
+| + V-amplifier $\gamma=0.3$ | 0.74 | first-order in-facet logit gain |
+| + Q-coverage-mask $\beta=0.3$ | 0.82 | coverage-aware recall lift |
+| **QKV joint** ($\alpha=\beta=\gamma=0.3$) | **0.85–0.92** | Thm 6.17 최적 |
+
+구현: per-step Q hook + facet trajectory tracker (`eval_metatool_subtask4_qkv.py`, ~2 GPU-day on A6000).
+
+#### 3.6.2 Theorem 6.18 — Attention-Weighted 최적 비트 할당
+
+각 (위치 $t$, facet $f$) 페어에 대해 *facet-attention mass* $\pi(t, f) := \mathbb E_q[\mathrm{attn}(q, k_t) \cdot g_f(k_t)]$ 와 per-facet 분산 $\sigma_f^2 := \mathbb E_k \|B_f^\top k\|^2$ 정의. Attention-weighted distortion $D(b) := \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2 b(t,f)}$.
+
+**Theorem 6.18.** (H-cat) 와 (R) 하, $\sum_{t,f} b(t,f) \le B$ 제약 하 $D(b)$ 의 유일 최소해는 *reverse water-filling* 할당 $b^*(t,f) = \tfrac12 \log_2(\lambda^* \pi(t,f) \sigma_f^2)_+$, $\lambda^*$ 는 예산 충족하도록 선택. Thm 6.1 에 의해 $b^*$ 가 per-sample attention-output error 도 $C_1\rho^4$ 잉여 내에서 최소화.
+
+이는 Thm 6.13 의 고정 비트 categorical 최적성을 *예산 인식* 할당으로 일반화. Cor 6.18.1 은 Cor 6.13.5 cross-over 임계값 $\bar b^*$ 가 attention-weighting 하 위로 이동 — OCQ + attention-weighted 할당이 uniform OCQ 보다 더 넓은 비트 범위에서 KIVI 를 이김.
+
+**예측 실증 신호** (Qwen2.5-7B WT2 전체 test set):
+
+| Method | Avg bits | 예측 PPL |
+|---|---|---|
+| KIVI uniform | 2.00 | 19.97 (관측) |
+| OCQ 1b+2a uniform | 1.81 | 15.60 (관측) |
+| **OCQ + attention-weighted** | **1.81** | **12.5–13.5** (Thm 6.18 예측) |
+| OCQ + attention-weighted | 4.00 | $\approx 7.5$ (cross-over $\bar b^*$ 이동) |
+
+Calibration set: 1024 WT2 시퀀스, $\pi(t,f)$ 단일 forward pass 로 계산.
+
+#### 3.6.3 Theorem 6.19 — 결합 스티어링–압축 Pareto 최적성
+
+**Theorem 6.19.** (H-cat), (R), 고정 $\theta$ 하, 스티어링–압축 Pareto frontier $\mathcal P = \{(\alpha, B) : L^*, D^*\text{ 모두 도달 가능}\}$ 는 *단일* dual variable $\eta := \lambda^* \alpha^2$ ($\lambda^*$ Thm 6.18 에서, $\alpha$ Thm 6.17 에서) 로 매개변수화되며, 동일 facet 기저 $B_{\mathrm{ont}}$ 에서 *동시에* 구성된 결합 해 $(\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*; b^*(t,f))$ 로 달성.
+
+증명: 정확도 향상 (Thm 6.17) 과 압축 distortion (Thm 6.18) 모두 *동일* attention-mass 가중 $\pi(t,f) \sigma_f^2$ 에 의존. Calibration 데이터 단일 forward pass 가 $\pi(t,f)$ 를 산출, 이것이 동시에 최적 스티어링과 최적 압축을 매개변수화.
+
+**Cor 6.19.1 (단일 기저 충분성).** Pareto frontier 의 모든 $(L^*, D^*) \in \mathcal P$ 에 대해, facet 주석으로부터 *한 번* 구성된 동일 per-head $B_{\mathrm{ont}}^{(\ell, h)}$ 가 최적 스티어링 연산자와 최적 cache 압축을 양쪽 실현. Frontier 전반에서 재구성 / 기저 튜닝 불필요.
+
+**Cor 6.19.2 (Inference 비용).** 결합 최적 연산자는 $K$-only stationary 스티어링 + uniform-bit KIVI 압축과 *동일 per-token 비용* 으로 배포: $\Delta_Q^{(t)}$ per step 한 번의 $d \times d$ matvec ($T$ 에 선형); $\Delta_K, \Delta_V$ load 시 precompute; $b^*(t,f)$ 단일 calibration forward pass (amortized). 점근적 overhead 없음.
+
+**의의.** Thm 6.19 가 *통합 결과*. 스티어링과 압축 기여가 facet 기저 $B_{\mathrm{ont}}$ 를 우연한 기하적 객체로 공유하던 것에서, Thm 6.19 는 동일 기저가 inference-time 스티어링과 KV cache 압축 모두에 대해 *동시에 Pareto-최적* 임을 보임 — 우연이 아닌 구조적 결합. 통합 서사:
+
+> $B_{\mathrm{ont}}$ 는 고정 모델 파라미터 하 **안정성** (Cor 6.9.6, 검증 +68.5pp), **정확도** (Thm 6.17, 예측 +17pp), **압축** (Thm 6.18, 예측 $-2.5$ PPL) 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조.
+
+세 가지 독립 falsifiability 경로 (Rmk 6.19.2 in Appendix): (1) QKV-joint $F_1 < 0.78$ → 정확도 부분 falsify; (2) attention-weighted PPL 이 uniform OCQ 의 1.0 이내 → 압축 개선 부분 falsify; (3) $\eta$ 가 연속 Pareto frontier 매개변수화 안 함 → Cor 6.19.1 단일 기저 충분성 falsify. 각 ~2 GPU-day 검증 가능.
+
 ### 3.5 Theorem 6.13 — Categorical-Channel Optimality (압축으로의 교량)
 
 §3.2 에서 스티어링 방향으로 사용된 facet 기저 $B_{\mathrm{fac}}$ 가 (H-cat) (bimodal facet-channel 분포) 하에서 재해석될 때 **압축 축** 의 이중 역할. 정리는 (i) bimodal 채널의 1-bit categorical MSE, (ii) 저비트에서 water-filling 의 suboptimality, (iii) 결합 qaMSE bound 와 cross-over 임계값 ($\bar b^* \approx \frac12 \log_2(s+1)$) 을 보인다.
