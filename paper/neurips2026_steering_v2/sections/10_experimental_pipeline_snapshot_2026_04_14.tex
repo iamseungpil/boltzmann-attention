@@ -1,0 +1,31 @@
+\section{Experimental pipeline snapshot (2026-04-14)}
+\textbf{Currently running (both GPUs, auto-chained):}
+
+
+\begin{enumerate}
+\item Wave 1: Qwen real B\textbackslash\{\}\_ont × \{sum, mean\} label\textbackslash\{\}\_logprob full 995.
+\item Wave 2 (auto-chained): Qwen random + featshuffle controls × \{sum, mean\}.
+\item Wave 3a (auto-chained): Llama real B\textbackslash\{\}\_ont × \{sum, mean\} on GPU0; Mistral skipL0+padmax on GPU1.
+\item Wave 3b (auto-chained): Llama controls on GPU0; Mistral-Instruct H2 on GPU1.
+\end{enumerate}
+
+\textbf{Pending launches (after Wave 3b completes):}
+
+
+\begin{enumerate}
+\item Thm 6.1 empirical verification (\texttt{measure\_theorem\_6\_1.py} on Qwen L=13, 100 queries; then Llama L=15, 100 queries).
+\item Cor 6.9 ε-numerical-rank measurement (SVD of P\textbackslash\{\}\_ada vs P\textbackslash\{\}\_fg on 500 MetaTool queries).
+\item MMLU \{no-gate, soft-gate, hard-gate\} × \{0.2, 0.3, 1.0\} for Sec 3.2 (R)-necessity figure.
+\item Scaling curve \{0.5B, 3B, 7B, 14B, 32B\} on Qwen2.5.
+\item BFCL-v3 integration.
+\item Baseline reproductions (CAA, ASA, PASTA, Focus Directions, AdaSEKA, LoRA, RAG).
+\end{enumerate}
+
+\textbf{ICLR 2027 main-track probability (2026-04-14 snapshot):}
+
+
+\begin{itemize}
+\item Base (cross-model confirmed, label\textbackslash\{\}\_logprob pending): 25–35\%.
+\item With clean Thm 6.1 empirical verification (100\% pass, tight median): 35–45\%.
+\item With additional compositional-benchmark decisive win: 45–55\%.
+\end{itemize}
