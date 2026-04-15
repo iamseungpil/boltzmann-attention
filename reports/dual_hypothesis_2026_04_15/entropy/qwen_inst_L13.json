@@ -1,0 +1,12 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "layer": 13,
+  "n_queries": 50,
+  "mean_T": 150.62,
+  "attn_entropy_bits_mean": 5.07062848176275,
+  "attn_entropy_bits_median": 5.055101560694831,
+  "norm_entropy_mean": 0.701647591238519,
+  "norm_entropy_median": 0.6999163144325751,
+  "top1_prob_mean": 0.886482720375061,
+  "top1_prob_median": 0.9089324474334717
+}

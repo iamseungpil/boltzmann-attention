@@ -1,0 +1,13 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "layer": 13,
+  "n_queries": 50,
+  "n_head_measurements": 200,
+  "cos_sim_mean": -0.032968892507778944,
+  "cos_sim_median": 0.01435833191499114,
+  "abs_cos_sim_mean": 0.09745914094994078,
+  "G_K_value_abs_mean": 0.47391664107802184,
+  "G_K_value_abs_median": 0.2835420876573205,
+  "grad_K_norm_mean": 0.1932524413615465,
+  "direction_norm_mean": 28.996398048400877
+}
