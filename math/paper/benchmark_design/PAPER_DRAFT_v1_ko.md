@@ -136,7 +136,9 @@ Cor 6.9.6 은 §1.1 기여 1 (온톨로지-특권화 부분공간) 의 형식적
 | K-only stationary $\alpha=0.3$ | 0.685 | 관측 (§5.5, stability-only) |
 | + V-amplifier $\gamma=0.3$ | 0.74 | first-order in-facet logit gain |
 | + Q-coverage-mask $\beta=0.3$ | 0.82 | coverage-aware recall lift |
-| **QKV joint** ($\alpha=\beta=\gamma=0.3$) | **0.85–0.92** | Thm 6.17 최적 |
+| **Q-only $\beta_Q=-0.1$** (full 497) | **0.747** | Thm 6.17 (b) Q-coverage gradient | **검증 +1.6pp** ✅ |
+| V + Q $(\gamma_V=0.1, \beta_Q=-0.1)$ smoke N=20 | 0.658 | Q+V additive | **smoke +10.8pp, full pending** ⏳ |
+| K + Q (any $\alpha_K > 0$), smoke | 0.500–0.533 | K-channel destructive | **falsified** ❌ |
 
 구현: per-step Q hook + facet trajectory tracker (`eval_metatool_subtask4_qkv.py`, ~2 GPU-day on A6000).
 
