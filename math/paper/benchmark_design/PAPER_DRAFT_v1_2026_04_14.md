@@ -384,6 +384,22 @@ Subtask1 full 995 label_logprob cross-model grid (Waves 1+2+3, complete 2026-04-
 
 Llama-3.1-8B Base full 3-control is complete (row 5–6 above): sum real +6.33 / random −1.00 / featshuffle −0.20 (gap +7.33 / +6.53); mean real +2.61 / random −0.61 / featshuffle −1.41 (gap +3.22 / +4.02). Second family triple verified.
 
+#### 5.4.1 Subtask1 Q-coverage and K-bias single-tool accuracy lift (Qwen2.5-7B-Instruct, full 995, substring scorer)
+
+Beyond the label-logprob cells of the above table, we also evaluated Q-coverage and K-bias under the legacy substring scorer at full 995 (PM Wave 2 results, 2026-04-15):
+
+| Method | top1 | Δ vs no_steer 60.30% | preds (matched / no_match / none) |
+|---|---|---|---|
+| no_steer | 60.30% | — | 821 / 43 / 131 |
+| **ocq_qbias_b−0.3** | **64.42%** | **+4.12pp** ★ | 853 / 28 / 114 |
+| **ocq_qbias_b−0.1** | **63.52%** | **+3.22pp** | 860 / 17 / 118 |
+| **ocq_bias_a0.3 (K-bias)** | **61.71%** | **+1.41pp** ✅ | 825 / 71 / 99 |
+
+**Key findings**:
+1. **K-bias produces single-tool accuracy lift** (+1.41pp full 995). This contradicts the §5.5.2 multi-tool failure (−4.6pp) — K-bias works as Cor 6.9 originally predicted on *single-tool* tasks where no autoregressive coverage challenge arises, and only fails on multi-tool emission. K-channel is therefore *not* "stability-only" as our prior re-scope suggested; it has a verified single-tool accuracy contribution.
+2. **Q-coverage cross-task universality**: positive on both Subtask1 (+3.22 to +4.12pp) and Subtask4 (+1.6pp).
+3. **β-optimum is task-dependent**: Subtask4 prefers gentler β=−0.1 (multi-tool needs careful coverage), Subtask1 tolerates aggressive β=−0.3 (single-tool benefits from sharper attention reallocation).
+
 ### 5.5 Results — E2 Cor 6.9.6 stability characterization (Subtask4, 497 × 2-tool)
 
 **Stability rather than accuracy.** Cor 6.9 was originally used to predict a *multi-tool accuracy lift* on the hypothesis that rank-$R$ support would enable simultaneous emission of $R$-facet-aligned tool names in a single attention pass (call this the "F-simultaneous accuracy" hypothesis). Full-scale measurement falsifies this prediction: real $B_{\mathrm{ont}}$ $\alpha=0.3$ F1 = 0.685 vs no_steer 0.731, $\Delta = -4.6$pp. Autoregressive re-attention (§5.5 discussion below) prevents a *stationary* K-bias from driving facet-wise coverage across decoding steps, regardless of operator spectral rank. The originally-predicted multi-tool accuracy lift requires a non-stationary K-bias (§5.5.2, Thm 6.9.5/6.15).
