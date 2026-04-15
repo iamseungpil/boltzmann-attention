@@ -289,7 +289,13 @@ Subtask1 full 995 label_logprob cross-model grid (Waves 1+2+3, complete 2026-04-
 
 Llama-3.1-8B Base full 3-control is complete (row 5–6 above): sum real +6.33 / random −1.00 / featshuffle −0.20 (gap +7.33 / +6.53); mean real +2.61 / random −0.61 / featshuffle −1.41 (gap +3.22 / +4.02). Second family triple verified.
 
-### 5.5 Results — E2 Cor 6.9 multi-tool decisive test (Subtask4, 497 × 2-tool)
+### 5.5 Results — E2 Cor 6.9.6 stability characterization (Subtask4, 497 × 2-tool)
+
+**Stability rather than accuracy.** Cor 6.9 was originally used to predict a *multi-tool accuracy lift* on the hypothesis that rank-$R$ support would enable simultaneous emission of $R$-facet-aligned tool names in a single attention pass (call this the "F-simultaneous accuracy" hypothesis). Full-scale measurement falsifies this prediction: real $B_{\mathrm{ont}}$ $\alpha=0.3$ F1 = 0.685 vs no_steer 0.731, $\Delta = -4.6$pp. Autoregressive re-attention (§5.5 discussion below) prevents a *stationary* K-bias from driving facet-wise coverage across decoding steps, regardless of operator spectral rank. The originally-predicted multi-tool accuracy lift requires a non-stationary K-bias (§5.5.2, Thm 6.9.5/6.15).
+
+However, the *same* rank-$R$ operator structure manifests as a **stability property** whose empirical signal is an order of magnitude stronger than the originally-predicted accuracy lift. The following subsection verifies Corollary 6.9.6 (§3.3) at full scale on Subtask4.
+
+
 
 **Planned experimental cells** (launch queued post Wave 4):
 
