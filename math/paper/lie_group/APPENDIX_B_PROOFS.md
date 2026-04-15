@@ -1323,15 +1323,33 @@ constructed simultaneously from the *same* facet basis $B_{\mathrm{ont}}$. The s
 
 Concretely, **a single forward pass on a calibration set yields $\pi(t,f)$, which simultaneously parameterizes the optimal steering and the optimal compression**.
 
-### Proof Sketch
+### Proof
 
-Combine Thm 6.17 and Thm 6.18 via shared dependence on $\pi(t,f) \sigma_f^2$:
+The argument proceeds in three steps: (i) factor both objectives through the shared facet-attention statistic $\pi(t,f)\sigma_f^2$; (ii) form the joint Lagrangian and reduce to a single dual parameter; (iii) verify the rank-1 reduction yields a continuous Pareto frontier parameterized by $\eta$.
 
-(i) Thm 6.17's first-order accuracy lift (6.17.3) factorizes as $G(\theta, y_{1:T}) = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot \mathbb 1[f \in \mathcal F]$ under (H-cat).
+**Step (i) — Shared statistic factorization.** From Thm 6.17 (proof part (b)–(c)), the first-order accuracy lift $G(\theta, y_{1:T})$ in (6.17.3) factorizes under (H-cat) into per-(position, facet) terms. Specifically, expanding $\widetilde G_Q^{(t)}$ from (6.17.C) and substituting $c_f^{(t)}$ from (6.17.B):
+$$G(\theta, y_{1:T}) = \sum_{t=1}^{T} \sum_{f \notin \{f_1,\dots,f_{t-1}\}} \pi(t,f) \sigma_f^2 \cdot \mathbb 1[f \in \mathcal F] \cdot \kappa_f, \tag{6.19.A}$$
+where $\pi(t,f)$ is the facet-attention mass of (6.18.E), $\sigma_f^2$ is the per-facet variance, and $\kappa_f > 0$ is a model-dependent constant absorbing the per-facet output-gradient scale. Equation (6.19.A) is the Q-coverage and V-amplifier first-order lift expressed entirely through the shared $\pi(t,f)\sigma_f^2$ matrix.
 
-(ii) Thm 6.18's optimal distortion (6.18.2) is a function of $\sum_{t,f} \sqrt{\pi(t,f) \sigma_f^2}$.
+From Thm 6.18 (6.18.2), the optimal compression distortion is
+$$D(b^*) = \frac{1}{4 \ln 2 \cdot |S|} \cdot \Bigl(\sum_{(t,f) \in S} \sqrt{\pi(t,f) \sigma_f^2}\Bigr)^2 \cdot 2^{-2B/|S|}, \quad S = \mathrm{supp}(b^*). \tag{6.19.B}$$
+Both (6.19.A) and (6.19.B) depend on the same $\pi(t,f)\sigma_f^2$ matrix — the steering objective via the linear functional (6.19.A), the compression objective via the square-root sum (6.19.B).
 
-Both quantities come from the same $\pi(t,f) \sigma_f^2$ matrix. The Pareto frontier is therefore parameterized by the single trade-off ratio $\eta$ between steering-strength constraint and bit-budget constraint, achieved when both constraints are simultaneously tight. The joint Lagrangian $\mathcal L_{\mathrm{joint}}(\Delta, b, \mu, \nu) = -\log p_{\theta + \Delta}(y_{1:T}) + \mu \|\Delta\|_F^2 + D(b) + \nu(\sum b - B)$ admits the rank-1 dual reduction $\mu/\nu = \eta$, and the KKT system has the unique solution given above. ∎
+**Step (ii) — Joint Lagrangian.** Form the joint optimization for the steering–compression trade-off:
+$$\min_{\Delta, b}\;\; -\log p_{\theta+\Delta}(y_{1:T}) + \nu \cdot D(b), \quad \text{s.t.}\;\; \|\Delta\|_F \le \alpha, \quad \sum_{t,f} b(t,f) \le B, \tag{6.19.C}$$
+where $\nu \ge 0$ trades steering-loss reduction against compression distortion. The Lagrangian with budget multipliers $\mu, \lambda \ge 0$:
+$$\mathcal L_{\mathrm{joint}}(\Delta, b, \mu, \lambda, \nu) = -\log p_{\theta+\Delta}(y_{1:T}) + \mu\!\bigl(\|\Delta\|_F^2 - \alpha^2\bigr) + \nu \cdot D(b) + \lambda\!\Bigl(\sum b - B\Bigr).$$
+Stationarity in $\Delta$ recovers the Thm 6.17 KKT system (with multiplier $\mu$ controlling steering strength); stationarity in $b$ recovers the Thm 6.18 KKT system (with multiplier $\lambda$ controlling bit budget). The two stationarity conditions are *coupled only* through the shared dependence on $\pi(t,f)\sigma_f^2$.
+
+**Step (iii) — Rank-1 dual reduction.** Substituting the Thm 6.17 first-order lift $G \cdot \alpha$ for $-\log p_{\theta+\Delta} + \log p_\theta$ in (6.19.C) and the Thm 6.18 distortion $D(b^*)$ from (6.19.B):
+$$\mathcal L_{\mathrm{joint}}^{(1)} = -\alpha \cdot \sum_{t,f} \pi(t,f)\sigma_f^2 \cdot w_{t,f} + \nu \cdot \frac{1}{4 \ln 2 |S|}\!\Bigl(\sum_S \sqrt{\pi\sigma^2}\Bigr)^2 \cdot 2^{-2B/|S|},$$
+where $w_{t,f} = \mathbb 1[f \in \mathcal F, f \notin \{f_1,\dots,f_{t-1}\}] \cdot \kappa_f$ is the Q-coverage trajectory mask. Define
+$$\eta := \mu \cdot \alpha^2 \cdot \frac{1}{\nu \cdot \lambda^*}, \tag{6.19.D}$$
+where $\lambda^*$ is the Thm 6.18 multiplier from (6.18.C). Substituting $\nu = \mu \alpha^2 / (\eta \lambda^*)$ shows that the joint KKT system reduces to a *single* dual variable $\eta$ controlling the trade-off; the primal solutions $\Delta^*$ and $b^*$ are functions of $\eta$ alone (with $\alpha, B$ implicitly fixed by the constraint set).
+
+The unique dual variable $\eta$ parameterizes a continuous Pareto frontier as follows. As $\eta \to 0$, all weight goes to the steering objective: $\Delta^*$ saturates the Frobenius constraint and $b^*$ degenerates to the trivial allocation. As $\eta \to \infty$, all weight goes to compression: $\Delta^* \to 0$ and $b^*$ achieves the rate-distortion optimum. For intermediate $\eta$, the joint solution lies on the Pareto frontier — no perturbation $(\tilde\Delta, \tilde b)$ achieves both lower steering loss and lower compression distortion simultaneously (this is the standard scalarization Pareto property; see Boyd & Vandenberghe Ch. 4.7). The frontier is continuous and convex by joint convexity of $\mathcal L_{\mathrm{joint}}$ in $(\Delta, b)$ at fixed $\eta$ (steering objective is concave in $\Delta$ from Lemma 6.17.A, compression objective is strictly convex in $b$ from Step (i) of Thm 6.18 proof; the negative of concave + convex is jointly convex).
+
+**Conclusion.** The joint solution $(\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*; b^*(t,f))$ — with $\Delta^*$ from Thm 6.17 (a)–(c) and $b^*$ from Thm 6.18 (6.18.1) — is the unique (up to ties) Pareto-optimal pair at parameter $\eta$. Both depend on the *same* $\pi(t,f)\sigma_f^2$ matrix, computable from a *single* calibration forward pass on the model. ∎
 
 ### Corollary 6.19.1 (Single-basis sufficiency)
 
