@@ -40,6 +40,8 @@ Activation-steering 방법 (CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA) 은
 7. **비균등 확장 계열 (Thm 6.9.5/6.15, §3.4.1 + §5.5.2)**. Stationary K-bias 는 autoregressive re-attention 때문에 multi-tool coverage 를 추동할 수 없음 (§5.5). 디코딩 단계마다 이미 에미션된 facet 의 sibling 방향을 빼는 contrastive 변형은 multi-tool 정확도의 **첫 positive lift** 를 산출: Subtask4 smoke 에서 F1 0.550 → 0.608 (depth-3, $\alpha=0.3$). Full 497 확인 진행 중.
 8. **Strict scorer 하 cross-model 검증 (§5.4)**. Qwen / Llama-Base / Mistral-Base 모두 label-logprob 에서 sum-positive. Mistral-Instruct-v0.3 는 유일한 음수 (−2.92pp) 이며 메커니즘 반례가 아닌 chat-template hedging artifact 로 격리 (§5.5.1).
 
+9. **🎯 Plan-success prediction via cumulative stability (Thm 6.20, §5.10.2) — Deployment-relevant 신규 contribution**. Per-step ontology stability $\varepsilon_{q_t} = \|B_{\mathrm{ont}}^\top q_t\|^2 / \|q_t\|^2$ (Cor 6.7 에서 이미 정의된 양) 이 multi-step plan 의 success/failure 를 plan-time 에 예측. Thm 6.20 는 cumulative bound $P_{\mathrm{plan}} \ge \prod_t (1 - C(1-\varepsilon_{q_t}))$ 증명; Cor 6.20.1 는 runtime abort threshold $\varepsilon^*$ 제공. **실증 (N=100 Subtask4 single-turn plan proxy)**: **AUROC(min ε_q → F1 success) = 0.976**, **AUROC(min ε_q → Exact) = 0.816**. Threshold $\varepsilon^* = 0.14$ 에서 plan 성공률 91% → 50% (−41pp) 로 저하; plan-time abort/replan 의 실효성 입증. τ²-bench / BFCL-v3 multi-turn full-scale eval 대기 중.
+
 ---
 
 ## 2. 관련 연구
