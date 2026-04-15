@@ -526,7 +526,23 @@ Between calibration modes, the 15-min one-time calibration delivers the verified
 
 **Falsifiability of Thm 6.21.** The theorem makes three testable predictions on the *log-likelihood* objective: (i) $\log p$-vs-$\alpha$ curve is concave-unimodal around $\alpha_\mathrm{opt}^{\log p}$ (testable via 5-point $\alpha$-sweep per model-task pair, measuring $\log p(y^\tau | x)$ at target position); (ii) the unconstrained optimum $-G_K/H_K$ coincides with the log-p sweep peak within $\pm 20\%$; (iii) the scaling law of Rmk 6.21.2 predicts $\alpha^*$ ratios across models within a factor of 2. Empirical validation of (i)–(iii) is the experimental backbone of §5.4.1.1 (α sweep on both models, Qwen Subtask1 + Llama Subtask1 K-only full 995, complete 2026-04-16).
 
-**Log-p vs F1 distinction (Remark 6.21.4 in Appendix B.7.14, 2026-04-15 empirical verification).** Thm 6.21's Taylor expansion governs continuous log-likelihood, not the discrete $F_1$ argmax indicator. Empirically on Qwen Subtask1 (50 queries, $\alpha_K \in \{0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3\}$, `reports/logp_curve_2026_04_15/qwen_st1_logp_curve.json`): $\log p(y^\tau | x)$ at first-token position is *monotonically increasing* by $+1.24$ nats over $[0, 0.3]$ (supporting $G_K > 0$), while $F_1$ oscillates non-monotonically ($+2.01 \to -0.30 \to +1.41$pp at $\alpha \in \{0.05, 0.1, 0.3\}$). The two metrics diverge by construction: discrete argmax indicator does not track continuous log-likelihood curvature. Thm 6.21's $\alpha_\mathrm{opt} = \min(-G_K/H_K, (1-\eta)\alpha^*)$ is a *log-p-optimal* reference; practitioners optimizing $F_1$ should use Cor 6.21.1's empirical sweep (Steps 2-3 measure F1-based lift directly).
+**Log-p vs F1 distinction (Remark 6.21.4 in Appendix B.7.14, 2026-04-15 measurement + 2026-04-16 correction).** Thm 6.21's Taylor expansion governs continuous log-likelihood, not the discrete $F_1$ argmax indicator.
+
+**⚠️ v1 measurement retraction**: the v1 script at `reports/logp_curve_2026_04_15/qwen_st1_logp_curve.json` measured log-p of the first tool-name BPE token at the last prompt position $\langle\vert\text{im\_start}\vert\rangle$assistant$\backslash\text{n}$, where the model actually predicts `<tool_call>` not the tool name. This produced a null measurement (argmax_acc = 0.0 at all α) with probability $\approx e^{-25}$, rendering the reported "+1.24 nats monotonic increase" meaningless. The increase was noise within a $10^{-11}$-level probability regime, not a valid $G_K > 0$ signal.
+
+**Corrected v3 measurement** (`reports/logp_curve_2026_04_16/qwen_st1_logp_curve_v3.json`, 2026-04-16): after appending the JSON prefix `<tool_call>{"name": "` to the prompt so that the last-position logit predicts the first tool-name token, and summing token log-p autoregressively across the full tool-name sequence (N=100 Qwen Subtask1, argmax_acc = 0.46 baseline — valid measurement):
+
+| $\alpha_K$ | mean sum\_logp | $\Delta$ vs $\alpha=0$ | first-argmax acc |
+|---|---|---|---|
+| 0.000 | −3.59 | 0 | 0.46 |
+| 0.025 | −3.68 | −0.09 | 0.46 |
+| 0.050 | −3.65 | −0.06 | 0.46 |
+| 0.100 | −3.86 | −0.27 | 0.46 |
+| 0.200 | −3.95 | −0.36 | 0.45 |
+| 0.300 | −3.90 | −0.31 | 0.47 |
+| 0.500 | −3.76 | −0.17 | 0.48 |
+
+Log-p at the correct autoregressive target **decreases monotonically** with α over [0, 0.2] (then partially recovers at α≥0.25), while argmax-accuracy is stable (0.46–0.48, within SE for N=100). Thm 6.21's predicted concave-unimodal shape of $L(\alpha)$ with positive $G_K$ would produce log-p *increase* at small α, then decrease beyond $\alpha_\mathrm{opt}$ — this is **not observed**. Implication: the first-order coefficient $G_K$ is either (a) empirically non-positive at measured α-resolution, or (b) $\alpha_\mathrm{opt}$ lies below 0.025 (finer sweep needed). A 2-point Taylor fit at $\alpha \in \{0.05, 0.3\}$ extracts $\hat G_K \approx +1.6$ nats/unit, $\hat H_K \approx -78$ nats/unit² (strong negative curvature) giving $\hat\alpha_\mathrm{opt} \approx 0.02$, which is just outside the measured grid — consistent with the observed "α=0 is near-peak" pattern. Thm 6.21 is empirically *partially consistent* with log-p measurement (inferred $\alpha_\mathrm{opt} \approx 0.02$ close to observed Subtask4 F1 peak at $\alpha_K = 0.025$) but lacks direct observation of the concave peak in the current α-grid. The stronger F1-based evidence (Thm 6.17 and §3.6.1 α-sweep table) is primary; log-p concavity is a derived consistency check, not a standalone validation.
 
 ### 3.5 Theorem 6.13 — Categorical-Channel Optimality (bridge to compression)
 
