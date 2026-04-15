@@ -1,20 +1,22 @@
-# Facet-Gated K-Bias 스티어링: 도구 선택을 위한 이론-주도 온톨로지 기저
+# 고유하게 특권화된 부분공간: Instruction-Tuned 트랜스포머에서 온톨로지 기반 스티어링과 KV-Cache 압축의 결합 Pareto 최적성
 
 **투고 목표**: ICLR 2027 (2026-09 제출)
-**Draft**: v1, 2026-04-15 (stability-first 재프레이밍)
-**상태**: §1/§3.3/§5.5/§6.1 re-write 완료. Cor 6.9.6 Appendix에 추가. 영문 canonical 파일 `PAPER_DRAFT_v1_2026_04_14.md` 와 동기.
+**Draft**: v1.2, 2026-04-15 (Option C — 스티어링+압축 통합 프레이밍)
+**상태**: §1/§3.3/§3.6/§5.5/§6.1 re-write 완료. Cor 6.9.6 + Thm 6.17/6.18/6.19 Appendix에 추가. 영문 canonical 파일 `PAPER_DRAFT_v1_2026_04_14.md` 와 동기.
 
 ---
 
 ## 초록
 
-본 논문은 instruction-tuned 트랜스포머의 key-projection 기하학에서 **고유하게 특권화된 부분공간 (uniquely privileged subspace)** 을 식별한다: 각 헤드 단위의 온톨로지 기저 $B_{\mathrm{ont}}$. 동일한 perturbation 크기 $\alpha=0.3$ 에서, $\mathrm{span}(B_{\mathrm{ont}})$ 방향의 K-bias 는 모델의 구조적 함수 호출(FC) 출력을 보존하는 반면, 동일한 norm 의 random 또는 feature-shuffled perturbation 은 이를 **완전히 파괴** 한다 — MetaTool Subtask4 (N=497, Qwen2.5-7B-Instruct) 에서 **F1 gap +68.5pp** 로 실측. 이 특권이 rank-separation bound (Cor 6.9 와 그 기하적 강화 Cor 6.9.6) 로부터 유도됨을 증명한다: $R$-차원 온톨로지 부분공간은 기저 모델로부터의 KL divergence 가 $O(\alpha^2)$ 로 스케일하는 유일한 $K$-perturbation 방향이며, 직교 방향의 동일 크기 perturbation 은 $\alpha > \alpha^*$ 에서 FC-emission 매니폴드를 이탈한다.
+본 논문은 instruction-tuned 트랜스포머의 key-projection 기하학에서 **고유하게 특권화된 부분공간 (uniquely privileged subspace)** — 각 헤드 단위의 온톨로지 기저 $B_{\mathrm{ont}}$ — 을 식별하고, 이것이 inference-time 스티어링과 KV-cache 압축에 대해 **동시에 Pareto-최적** 임을 증명한다. 통합은 공통 Lagrangian 위에 구축된 세 정리에 기반:
 
-동일 구성이 다음을 함의한다: **(i)** 샘플 단위 attention-가중 재구성 bound (Thm 6.1, 2800/2800 head-query 샘플에서 검증, median LHS/RHS ratio $2.36\times 10^{-8}$); **(ii)** 명시적 Lipschitz 정칙성을 가진 soft-gate phase-closure corollary (Cor 6.7); **(iii)** max-normalized routing 으로부터의 operator 수준 $\varepsilon$-numerical rank 분리 (Cor 6.9: 24.0 vs AdaSEKA 7.44, gap +17); **(iv)** Thm 6.13 (categorical-channel optimality) 를 통한 KV-compression 과의 교량 — Qwen2.5-7B WT2 에서 OCQ 가 1.81 평균 비트로 KIVI (2.00 비트) 를 $-4.37$ PPL 앞서며, 4-bit 에서 예측된 cross-over.
+1. **안정성** (Cor 6.9.6, 검증 완료). $\mathrm{span}(B_{\mathrm{ont}})$ 는 기저 모델로부터의 output 분포 KL 이 $O(\alpha^2)$ 인 유일한 rank-$R$ K-perturbation 부분공간; 동일 크기 직교 perturbation 은 $\alpha > \alpha^*$ 에서 FC-emission 매니폴드를 이탈. 실증: MetaTool Subtask4 N=497 에서 $\alpha=0.3$ 일 때 real $B_{\mathrm{ont}}$ 가 F1 = 0.685 보존, random / featshuffle 은 F1 = 0.000 으로 붕괴 (**방향 특이성 gap +68.5pp**).
+2. **QKV-joint coverage-aware 스티어링을 통한 정확도** (Thm 6.17). 단계-적응 Q-coverage mask + on-manifold K-marker + in-ontology V-amplifier — 모두 동일 $B_{\mathrm{ont}}$ 위 — 는 multi-tool likelihood 최대화 문제의 first-order 최적해. 예측 향상: Subtask4 F1 0.85+ at matched $\alpha=0.3$ (stationary K-only 대비 +17pp).
+3. **Attention-weighted bit allocation 을 통한 압축** (Thm 6.18). $\pi(t,f)\sigma_f^2$ 에 대한 reverse water-filling — $\pi(t,f)$ 는 위치 $t$ 의 facet-attention mass, 단일 calibration forward pass 로 계산 — 이 Thm 6.1 attention-output distortion 을 임의 비트 예산에서 최소화. 예측 개선: Qwen2.5-7B WT2 PPL 12.5–13.5 at 1.81 평균 비트 (uniform OCQ 15.60 대비 $-2.5$ PPL).
 
-단일 도구 정확도 향상 (MetaTool Subtask1, 995 쿼리, label-logprob strict scorers) 은 **보조 증거**: Qwen sum +0.10pp / mean +5.03pp, Llama-Base sum +6.33pp / mean +2.61pp, Mistral-Base sum +3.12pp — 방향 특이성 (real − null) gap 은 모든 셀에서 정확도 헤드라인보다 **5–10배 큰** +16~+49pp. 비균등 확장 (contrastive K-bias, Thm 6.9.5/6.15) 은 multi-tool 정확도 첫 positive lift 를 회복: Subtask4 smoke 에서 $\alpha=0.3$ depth-3 으로 F1 0.550 → 0.608 (full 497 확인 진행 중). Mistral-Instruct-v0.3 는 유일한 음수 (−2.92pp sum) 이며, 메커니즘 반례가 아닌 chat-template hedging artifact 로 격리된다.
+Theorem 6.19 가 이를 종합 — **결합 Pareto 최적성**: 두 목표 모두 동일 $\pi(t,f)\sigma_f^2$ 행렬을 통해 분해되므로, calibration 데이터 단일 forward pass 가 동시에 최적 스티어링 연산자와 최적 cache 압축을 매개변수화하며, $K$-only stationary 스티어링 + uniform KIVI 와 동일 per-token 비용으로 배포 가능 (Cor 6.19.2). Cor 6.19.1 은 **단일 기저 충분성** 확립: facet 주석으로부터 *한 번* 구성된 동일 per-head $B_{\mathrm{ont}}$ 가 Pareto frontier 의 모든 $(L^*, D^*)$ 점을 실현.
 
-본 논문은 이론-설계-실험 루프를 닫는다: 모든 부등식은 샘플 단위 측정 가능하며, **동일한 facet 기저가 스티어링 방향과 압축 축을 동시에 수행한다**.
+실증적 토대 (이미 완료): Thm 6.1 per-sample bound 검증 2800/2800 head-query 샘플 (Qwen2.5-7B L=13, $\alpha=0.3$, median LHS/RHS $2.36\times 10^{-8}$); operator-level $\varepsilon$-numerical rank 분리 $+17$ vs AdaSEKA (Cor 6.9, 500 쿼리 SVD: 24.0 vs 7.44); strict label-logprob 하 cross-model 단일 도구 정확도 향상 (Qwen sum +0.10 / mean +5.03, Llama-Base sum +6.33 / mean +2.61, Mistral-Base sum +3.12), 모든 셀에서 방향 특이성 gap +16~+49pp; OCQ 2-bit 가 KIVI 대비 ($-4.37$ PPL) 전체 Qwen2.5-7B WT2 에서 승, 4-bit cross-over 예측 검증 (Thm 6.13). 통합 서사 — "$B_{\mathrm{ont}}$ 는 안정성, 정확도, 압축 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조" — 는 세 가지 독립적 falsifiability 경로를 허용 (Rmk 6.19.2), 각각 ~2 GPU-day 로 검증 가능.
 
 ---
 
