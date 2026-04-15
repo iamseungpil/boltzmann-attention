@@ -469,6 +469,90 @@ def install_vbias_hooks(
 
 
 @contextmanager
+def install_q_bias_hooks(
+    model,
+    B_ont: torch.Tensor,     # (L, H_kv, d, r_ont) — per-kv-head, broadcast to q-heads
+    beta: float,             # positive: q += β·BB^T q (boost on-ontology q); negative: subtract
+    n_kv: int,
+    n_q: int,
+    head_dim: int,
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+):
+    """Q-side ontology-projection bias: q_t' = q_t + β · B B^T q_t per q-head, with
+    each q-head h mapped to kv-head h // (n_q // n_kv) under GQA. Use β > 0 to amplify
+    in-ontology Q (Thm 6.17 V-side mirror), β < 0 to apply Q-coverage mask
+    (Thm 6.17 first-order coverage subtraction)."""
+    handles = []
+    L, H_kv, d, r = B_ont.shape
+    assert H_kv == n_kv and d == head_dim
+    assert n_q % n_kv == 0
+    g = n_q // n_kv  # GQA group size
+    try:
+        for layer_idx, layer in enumerate(model.model.layers):
+            if layer_idx >= L:
+                break
+            q_proj = layer.self_attn.q_proj
+            B_ont_layer = B_ont[layer_idx].clone()  # (H_kv, d, r)
+            if skip_heads:
+                for h in range(H_kv):
+                    if (layer_idx, h) in skip_heads:
+                        B_ont_layer[h].zero_()
+            B_q = B_ont_layer.unsqueeze(1).expand(-1, g, -1, -1).reshape(n_q, d, r)
+
+            def make_hook(li, B_q_layer, _skip_sink=skip_sink):
+                def hook(module, inputs, output):
+                    B, T, D = output.shape
+                    if D != n_q * head_dim:
+                        return output
+                    Q = output.view(B, T, n_q, head_dim).permute(0, 2, 1, 3).contiguous()
+                    orig_dtype = Q.dtype
+                    Q_f = Q.float()
+                    B_dev = B_q_layer.to(device=Q.device, dtype=torch.float32)
+                    coeffs = torch.einsum("bhtd,hdr->bhtr", Q_f, B_dev)
+                    Q_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_dev)
+                    if _skip_sink > 0 and T > _skip_sink:
+                        Q_proj[:, :, :_skip_sink, :] = 0
+                    Q_modified = Q_f + beta * Q_proj
+                    return Q_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D).to(orig_dtype)
+                return hook
+
+            handles.append(q_proj.register_forward_hook(make_hook(layer_idx, B_q)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+@contextmanager
+def install_qkv_joint_hooks(
+    model,
+    B_ont: torch.Tensor,
+    alpha_k: float,           # K-side facet marker (Thm 6.17 (a))
+    gamma_v: float,           # V-side facet amplifier (Thm 6.17 (c))
+    beta_q: float,            # Q-side bias; positive=boost, negative=coverage-subtract
+    n_kv: int,
+    n_q: int,
+    head_dim: int,
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+):
+    """Thm 6.17 QKV-joint operator (stationary approximation; per-step coverage variant
+    requires a generation-loop hook, deferred). Combines K-marker + V-amplifier + Q-bias
+    via nested context managers, all over the same B_ont."""
+    with install_kbias_hooks(model, B_ont, alpha=alpha_k, n_kv=n_kv,
+                             head_dim=head_dim, skip_heads=skip_heads,
+                             skip_sink=skip_sink):
+        with install_vbias_hooks(model, B_ont, alpha=gamma_v, n_kv=n_kv,
+                                 head_dim=head_dim, skip_heads=skip_heads,
+                                 skip_sink=skip_sink):
+            with install_q_bias_hooks(model, B_ont, beta=beta_q, n_kv=n_kv,
+                                      n_q=n_q, head_dim=head_dim,
+                                      skip_heads=skip_heads, skip_sink=skip_sink):
+                yield
+
+
+@contextmanager
 def install_kvbias_hooks(
     model,
     B_ont: torch.Tensor,
