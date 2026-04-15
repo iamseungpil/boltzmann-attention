@@ -797,6 +797,33 @@ Formal statement of the training-light extension (Appendix B.7.9 Thm 6.16). Sequ
 
 **Status of Cor 6.16.1 prediction**: empirically falsified under the v1 LoRA recipe; the corollary itself remains valid in principle (it predicts Subtask4 lift *given* an FC-template-aware LoRA), but verification requires the L1' rerun. We retract the smoke-level "synergy" claim until L1' completes.
 
+#### 5.10.1.1 LoRA v2 (chat-template fix) — partial fix, new failure mode
+
+L1' v2 (2026-04-15) addressed the v1 root causes (chat-template format, Subtask4 held-out val, expanded LoRA targets q/k/v/o/up/down_proj, r=16). Training improvements:
+- Held-out Subtask4 val_loss = 0.489 (vs v1 same-distribution val_loss 0.013 — fix #2 confirmed by val_loss now meaningful)
+- Early-stop triggered ep2 (val_loss 0.489 → 0.500 → 0.522)
+
+L3'' Subtask4 evaluation (full 497):
+- LoRA v2 + no_steer: F1 = 0.219 (vs base 0.731, **−51pp catastrophic**)
+- LoRA v2 + Q-coverage β=−0.1: F1 = 0.304 (LoRA-internal +8.5pp, but still −43pp vs base)
+- LoRA v2 + K-bias α=0.3: F1 = 0.209
+
+**New failure mode identified**: **single-tool training bias**. v2 trained on Subtask1 GT (all single-tool), the LoRA-merged model compressed its output policy to "emit exactly one `<tool_call>` block", which catastrophically harms Subtask4 multi-tool eval. Recall plummets; F1 ≈ recall × 2/(1 + recall) for the single-tool-emission regime gives F1 ≈ 0.219 from recall ≈ 0.164 — exact match.
+
+#### 5.10.1.2 LoRA v3 (synthetic multi-tool) — substantial improvement, still below baseline
+
+L1' v3 (2026-04-15 14:23 KST) added synthetic 2-tool training examples constructed by pairing each Subtask1 GT with a randomly-sampled second candidate from the same query's candidate list. Training:
+- Mixed examples: 600 single-tool + 250 synthetic 2-tool = 850 total
+- Subtask4 held-out val_loss = 0.215 (vs v2 0.489, **56% reduction**)
+- Early-stop ep2
+
+L3 v3 evaluation:
+- LoRA v3 + no_steer: F1 = 0.333 (vs v2 0.219, **+11.4pp**, still −40pp vs base 0.731)
+- LoRA v3 + Q-coverage β=−0.1: F1 = 0.258 (smoke; full pending)
+- LoRA v3 + K-bias α=0.3: F1 = 0.275 (smoke)
+
+**v3 progression honest**: synthetic multi-tool augmentation halves the single-tool-bias gap (51pp → 40pp) but does not close it. Real Subtask3/4 train splits would likely close further; we leave for future work. **Cor 6.16.1 remains falsified at the v3 recipe but with a clearer convergence trajectory** (v1 0.533 → v2 0.219 → v3 0.333; further v4 with real multi-tool training data is the next step, not currently scheduled).
+
 ### 5.11 Future work (E11–E16)
 
 Deferred with placeholders in camera-ready; execution ~100 GPU-hr total:
