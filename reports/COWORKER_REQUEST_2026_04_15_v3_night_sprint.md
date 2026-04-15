@@ -49,6 +49,13 @@ Develop side (A6000×2) 는 주간 내내 16 시간 run 중. 밤샘 sprint 로 2
 
 **목표 숫자**: OCQ 1.81 현재 PPL 15.60. Thm 6.18 예측: **12.5-13.5 at 1.81 bits** (−2-3 PPL). 만약 달성되면 Thm 6.18 empirically verified.
 
+**⭐ 성공 기준 (명시)**:
+- **Full credit (+0.35)**: WT2 full PPL ≤ **13.5** at avg 1.81 bits (예측 상한 달성).
+- **Partial credit (+0.15)**: PPL 13.5–15.0 (예측 구간 근처, "improved but not to spec").
+- **Null (0)**: PPL ≥ 15.5 (예측 미달, allocation 이 uniform 대비 개선 없음).
+
+Iteration 여부는 coworker 자체 판단 — 초기 결과가 13.5–15.0 구간이면 lambda* 재조정 또는 facet 경계 재배치로 1 회 iteration 시도 권장. 최악 2 iterations 이내 goal 미달 시 중단 + partial 결과 그대로 제출.
+
 **예상 GPU-hr**: 8-10h (calib + full WT2 PPL × 5 sweep points).
 
 ### 🥉 P0-C — 8 baselines (CAA/ITI/PASTA/ASA/Focus/AdaSEKA/LoRA-tool-FT/RAG) full
