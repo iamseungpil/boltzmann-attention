@@ -993,7 +993,9 @@ To replace the mislabeled "AdaSEKA proxy" comparator, we run the actual SEKA / A
 2. *Build steer_mask*: token-level mask over the user-query span (between system message and assistant turn).
 3. *Run SEKALLM.generate(...)* per Subtask4 query at sweep of `amplify_pos ∈ {1, 2, 5}` and AdaSEKA `amplify_factor ∈ {0.5, 1.0, 2.0}` × `temperature ∈ {0.1, 1.0}`.
 
-**Partial results (in progress 2026-04-15 22:07 KST, Llama-3.1-8B-Instruct Subtask4 N=497 via `seka_env` + CUDA_VISIBLE_DEVICES=1 fix)**:
+**Hyperparameter fairness note**. The `amplify_pos` values we sweep ($\{1, 2, 5\}$) cover the operating range reported in the original SEKA paper (Li et al. 2026, Section 5 "Experimental Setup"), which uses `amplify_pos ∈ [1, 5]` across their classification benchmarks (CounterFact, BiasBios, Pronouns, Lost-in-Middle). SEKA's original paper does not cover tool-selection benchmarks, so no canonical MetaTool-specific amp setting exists; we report all three to span the reported range. MetaTool Subtask4 is a harder benchmark (multi-tool, structured-output emission) than SEKA's original classification benchmarks, so degradation relative to no_steer should be interpreted as "SEKA's operating range is incompatible with structured multi-tool emission at any amp in [1, 5]", not as an unfairly-chosen hyperparameter.
+
+**Partial results (in progress 2026-04-15 22:30 KST, Llama-3.1-8B-Instruct Subtask4 N=497 via `seka_env` + CUDA_VISIBLE_DEVICES=1 fix)**:
 
 Following resolution of a SEKA wrapper tokenizer pad bug (fixed 2026-04-15) and the SEKALLM auto-sharding issue (circumvented by `CUDA_VISIBLE_DEVICES=<single>`), the SEKA evaluation is producing valid outputs. Partial data from $\text{amp}_\text{pos} = 1.0$ (first 220 of 497 queries, sampled every 10th):
 
