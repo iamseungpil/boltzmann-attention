@@ -175,7 +175,7 @@ Calibration set: 1024 WT2 시퀀스, $\pi(t,f)$ 단일 forward pass 로 계산.
 
 > $B_{\mathrm{ont}}$ 는 고정 모델 파라미터 하 **안정성** (Cor 6.9.6, 검증 +68.5pp), **정확도** (Thm 6.17, 예측 +17pp), **압축** (Thm 6.18, 예측 $-2.5$ PPL) 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조.
 
-세 가지 독립 falsifiability 경로 (Rmk 6.19.2 in Appendix): (1) QKV-joint $F_1 < 0.78$ → 정확도 부분 falsify; (2) attention-weighted PPL 이 uniform OCQ 의 1.0 이내 → 압축 개선 부분 falsify; (3) $\eta$ 가 연속 Pareto frontier 매개변수화 안 함 → Cor 6.19.1 단일 기저 충분성 falsify. 각 ~2 GPU-day 검증 가능.
+세 가지 독립 falsifiability 경로 (Rmk 6.19.2 in Appendix): (1) QV-joint Q-coverage $F_1 < 0.731$ at full 497 (이미 통과: F1=0.747, +1.6pp; V+Q full pending); (2) attention-weighted PPL 이 uniform OCQ 의 1.0 이내 → 압축 개선 부분 falsify; (3) $\eta$ 가 연속 Pareto frontier 매개변수화 안 함 → Cor 6.19.1 단일 기저 충분성 falsify. 각 ~2 GPU-day 검증 가능.
 
 ### 3.5 Theorem 6.13 — Categorical-Channel Optimality (압축으로의 교량)
 
