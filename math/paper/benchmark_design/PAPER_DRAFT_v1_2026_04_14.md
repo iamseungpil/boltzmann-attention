@@ -1218,7 +1218,7 @@ Three findings:
 
 **Action**: this length-confound discussion is permanent in §5.10.2. The Thm 6.20 contribution remains *verified* but with explicit length-controlled framing. The full-scale τ²-bench evaluation (planned next) will resolve the small-sample stratification noise.
 
-**Upgrade decision**: Thm 6.20 (plan-success prediction via cumulative stability) becomes a **5th main paper contribution**, alongside Cor 6.9.6 / Thm 6.17 (QV-joint) / Thm 6.18 / Thm 6.19. §1.1 item 11 accordingly upgraded from "planned future work" to "verified-at-smoke, full-scale τ²-bench pending".
+**Upgrade decision**: Thm 6.20 (plan-success prediction via cumulative stability) becomes a **5th main paper contribution**, alongside Cor 6.9.6 / Thm 6.17 (Q-coverage + Q+K small-α pair) / Thm 6.18 / Thm 6.19. §1.1 item 11 accordingly upgraded from "planned future work" to "verified-at-smoke with length-stratified AUROC=1.0, full-scale τ²-bench pending".
 
 **Next step**: τ²-bench retail full-turn evaluation (B_ont already built at `external/SEKA/seka_projections/ontology-qwen25-7b-tau2-retail/`). ETA 1–2 GPU-day. If AUROC on real multi-turn agent plans ≥ 0.7, paper has a genuine deployment-relevant contribution beyond per-step steering.
 
