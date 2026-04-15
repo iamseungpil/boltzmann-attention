@@ -168,6 +168,11 @@ def main():
     )
     print(f"[seka] loaded {time.time() - t0:.1f}s", flush=True)
 
+    # Fix tokenizer pad_token bug (SEKA encode_with_markers requires padding)
+    if seka.tok.pad_token is None:
+        seka.tok.pad_token = seka.tok.eos_token
+        print(f"[fix] set tok.pad_token = eos_token ({seka.tok.eos_token})", flush=True)
+
     # 3) Load Subtask4 data
     data = json.load(open(args.dataset))
     if args.max_samples > 0:
