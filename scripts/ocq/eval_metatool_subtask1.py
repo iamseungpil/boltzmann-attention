@@ -959,6 +959,19 @@ def parse_method(method: str) -> Tuple[str, Dict]:
     if tag.startswith("ocq_vbias_a"):
         alpha_v = float(tag[len("ocq_vbias_a"):])
         return "vbias", {"alpha_v": alpha_v, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # CAA proxy: caa_a<α> — rank-1 residual-stream bias on B_ont's first column
+    if tag.startswith("caa_a"):
+        alpha = float(tag[len("caa_a"):])
+        return "caa", {"alpha": alpha, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # AdaSEKA proxy: adaseka_M<m>_a<α>_T<temp> — M-of-1 expert routing
+    if tag.startswith("adaseka_M"):
+        rest = tag[len("adaseka_M"):]
+        m_str, after_M = rest.split("_a", 1)
+        a_str, t_str = after_M.split("_T", 1)
+        return "adaseka", {
+            "M": int(m_str), "alpha": float(a_str), "T": float(t_str),
+            "use_skip": use_skip, "use_sinkskip": use_sinkskip,
+        }
     # Q-side bias: ocq_qbias_b<β> (positive: boost in-ontology Q; negative: subtract)
     if tag.startswith("ocq_qbias_b"):
         beta = float(tag[len("ocq_qbias_b"):])
