@@ -186,7 +186,7 @@ The proof reduces to observing that both the accuracy lift (Thm 6.17) and the co
 
 > $B_{\mathrm{ont}}$ is the unique geometric structure that simultaneously realizes Pareto-optimality across **stability** (Cor 6.9.6, verified +68.5pp), **accuracy** (Thm 6.17, predicted +17pp), and **compression** (Thm 6.18, predicted $-2.5$ PPL) objectives at fixed model parameters.
 
-Three independent falsifiability paths (Rmk 6.19.2 in Appendix): (1) QKV-joint $F_1 < 0.78$ falsifies accuracy portion; (2) attention-weighted PPL within 1.0 of uniform OCQ falsifies compression portion; (3) absence of continuous Pareto frontier in $\eta$ falsifies single-basis sufficiency. Each testable in ~2 GPU-day.
+Three independent falsifiability paths (Rmk 6.19.2 in Appendix): (1) QV-joint Q-coverage $F_1 < 0.731$ at full 497 (already passed: F1 = 0.747, +1.6pp lift; V+Q full pending); (2) attention-weighted PPL within 1.0 of uniform OCQ falsifies compression portion; (3) absence of continuous Pareto frontier in $\eta$ falsifies single-basis sufficiency. Each testable in ~2 GPU-day.
 
 ### 3.5 Theorem 6.13 — Categorical-Channel Optimality (bridge to compression)
 
