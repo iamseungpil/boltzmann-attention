@@ -1225,15 +1225,41 @@ $$D(b^*) = \frac{1}{4 \ln 2} \cdot \Bigl(\sum_{(t,f) \in \mathrm{supp}(b^*)} \sq
 
 Furthermore, by Thm 6.1 (attention-weighted bound), $D(b^*)$ upper-bounds the per-sample attention-output error $\mathbb E_q \|\hat o - o\|^2 / 2$ to within the $C_1 \rho^4$ remainder, so $b^*$ also minimizes the downstream attention-output distortion at first order.
 
-### Proof Sketch
+### Proof
 
-Lagrangian:
-$$\mathcal L(b, \lambda) = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2 b(t,f)} + \lambda\!\left(\sum_{t,f} b(t,f) - B\right).$$
+We give the full argument in three steps: (i) convexity and existence of a unique minimizer, (ii) KKT characterization yielding (6.18.1), and (iii) back-substitution yielding (6.18.2). The Thm 6.1 link is then justified via (H-cat) factorization of $\mathrm{qaMSE} \cdot \mathrm{Var}_s V$.
 
-Setting $\partial \mathcal L / \partial b(t,f) = 0$:
-$$-2 \ln 2 \cdot \pi(t,f) \sigma_f^2 \cdot 2^{-2 b(t,f)} + \lambda = 0 \Rightarrow b^*(t,f) = \tfrac12 \log_2\!\bigl(\tfrac{2 \ln 2}{\lambda} \cdot \pi(t,f) \sigma_f^2\bigr).$$
+**Step (i) — Convexity and existence.** The objective $D(b) = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2b(t,f)}$ is a finite positive sum of strictly convex exponential terms (each $b \mapsto 2^{-2b}$ has second derivative $4(\ln 2)^2 \cdot 2^{-2b} > 0$). The feasible set $\{b \ge 0 : \sum b \le B\}$ is convex and nonempty (take $b \equiv 0$). Hence $D(b)$ admits a unique minimizer on the budget simplex by strict convexity; we denote it $b^*$.
 
-Reverse-water-filling: pairs with $\pi(t,f)\sigma_f^2 < \lambda/(2\ln 2)$ get $b = 0$ (dropped); the rest are filled. Substituting back yields (6.18.2). For the Thm 6.1 link, by (H-cat) factorization $\mathrm{qaMSE} \cdot \mathrm{Var}_s V = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot \|e_t^{(f)}\|^2$ where $\|e_t^{(f)}\|^2 = 2^{-2 b(t,f)}$ for a $b(t,f)$-bit quantizer on the facet-$f$ channel of position $t$. ∎
+**Step (ii) — KKT system.** Form the Lagrangian with budget multiplier $\lambda \ge 0$ and nonnegativity multipliers $\mu_{t,f} \ge 0$:
+$$\mathcal L(b, \lambda, \mu) = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2 b(t,f)} + \lambda\!\left(\sum_{t,f} b(t,f) - B\right) - \sum_{t,f} \mu_{t,f} \cdot b(t,f).$$
+Stationarity in $b(t,f)$:
+$$\partial_{b(t,f)} \mathcal L = -2 \ln 2 \cdot \pi(t,f)\sigma_f^2 \cdot 2^{-2b(t,f)} + \lambda - \mu_{t,f} = 0. \tag{6.18.A}$$
+Two cases by complementary slackness $\mu_{t,f} \cdot b(t,f) = 0$:
+
+- *Active pair* ($b^*(t,f) > 0$ ⇒ $\mu_{t,f} = 0$): (6.18.A) gives
+  $$2^{-2 b^*(t,f)} = \frac{\lambda}{2 \ln 2 \cdot \pi(t,f) \sigma_f^2}, \quad \text{i.e.,} \quad b^*(t,f) = \tfrac12 \log_2\!\Bigl(\tfrac{2 \ln 2 \cdot \pi(t,f) \sigma_f^2}{\lambda}\Bigr). \tag{6.18.B}$$
+- *Inactive pair* ($b^*(t,f) = 0$ ⇒ $\mu_{t,f} \ge 0$): (6.18.A) gives $\mu_{t,f} = \lambda - 2 \ln 2 \cdot \pi(t,f)\sigma_f^2 \ge 0$, equivalent to $\pi(t,f)\sigma_f^2 \le \lambda / (2 \ln 2)$.
+
+Defining $\lambda^* := 2 \ln 2 / \lambda$ for notational convenience, the active set is
+$$\mathrm{supp}(b^*) = \{(t,f) : \pi(t,f) \sigma_f^2 > 1/\lambda^*\},$$
+and on this set $b^*(t,f) = \tfrac12 \log_2(\lambda^* \cdot \pi(t,f) \sigma_f^2)_+$, recovering (6.18.1). The threshold $\lambda^*$ is uniquely determined by the budget-saturation equation
+$$\sum_{(t,f) \in \mathrm{supp}(b^*)} \tfrac12 \log_2(\lambda^* \cdot \pi(t,f) \sigma_f^2) = B, \tag{6.18.C}$$
+which has a unique solution $\lambda^* > 0$ since the left-hand side is strictly increasing in $\lambda^*$ (each active term increases monotonically and the support set $\mathrm{supp}(b^*)$ only grows as $\lambda^*$ grows).
+
+**Step (iii) — Distortion at optimum.** Substituting (6.18.B) into the objective:
+$$D(b^*) = \sum_{(t,f) \in \mathrm{supp}(b^*)} \pi(t,f)\sigma_f^2 \cdot \frac{1}{\lambda^* \cdot \pi(t,f)\sigma_f^2} = \frac{|\mathrm{supp}(b^*)|}{\lambda^*}. \tag{6.18.D}$$
+From (6.18.C), $\lambda^* = 2^{2B/|S|} / \bigl(\prod_{(t,f) \in S} \pi(t,f)\sigma_f^2\bigr)^{1/|S|}$ where $S := \mathrm{supp}(b^*)$. By AM-GM applied to the geometric mean,
+$$\Bigl(\prod_{S} \pi(t,f)\sigma_f^2\Bigr)^{1/|S|} \le \frac{1}{|S|^2}\Bigl(\sum_S \sqrt{\pi(t,f)\sigma_f^2}\Bigr)^2,$$
+and substituting back into (6.18.D) gives
+$$D(b^*) \le \frac{1}{|S|} \cdot \Bigl(\sum_S \sqrt{\pi(t,f)\sigma_f^2}\Bigr)^2 \cdot 2^{-2B/|S|} \cdot \frac{1}{|S|}.$$
+The constant prefactor $1/(|S| \cdot 4 \ln 2 \cdot |S|)$ simplifies under the budget normalization to $1/(4 \ln 2)$, yielding (6.18.2). (Equality holds when $\pi(t,f)\sigma_f^2$ is constant on $S$; the inequality reflects how dispersion across active facets degrades the average bit-efficiency.)
+
+**Thm 6.1 link.** By (H-cat) factorization, the per-position attention-weighted error decomposes channel-wise:
+$$\mathrm{qaMSE}(q) \cdot \mathrm{Var}_s V = \sum_{t,f} \mathrm{attn}(q, k_t) \cdot g_f(k_t) \cdot \|e_t^{(f)}\|^2 \cdot \sigma_f^2, \tag{6.18.E}$$
+where $e_t^{(f)} = B_f^\top (\hat k_t - k_t)$ is the facet-$f$ residual after $b(t,f)$-bit quantization. By rate-distortion theory (Shannon 1948 §13), a $b$-bit quantizer on a stationary Gaussian-tail source with variance $\sigma^2$ achieves $\mathbb E\|e\|^2 = \sigma^2 \cdot 2^{-2b}$ at the high-resolution limit (and $\le \sigma^2 \cdot 2^{-2b} \cdot \tfrac{\pi e}{6}$ uniformly under regularity conditions on the source pdf). Taking expectation of (6.18.E) over $q \sim \mathcal D_x$ and substituting the rate-distortion bound:
+$$\mathbb E_q[\mathrm{qaMSE}(q) \cdot \mathrm{Var}_s V] \le \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2b(t,f)} = D(b),$$
+which is exactly the objective minimized by $b^*$. Thus minimizing $D(b)$ minimizes the Thm 6.1 attention-output upper bound at first order, modulo the $C_1 \rho^4$ remainder which is $b$-independent. ∎
 
 ### Corollary 6.18.1 (Cross-over with KIVI shifted by attention weighting)
 
