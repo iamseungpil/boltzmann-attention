@@ -17,7 +17,8 @@ We identify a *uniquely privileged subspace* in the key-projection geometry of i
    |---|---|---|
    | Q-only ($\beta_Q=-0.1$) | 0.747 | +1.64pp |
    | V+Q ($\gamma_V=0.05, \beta_Q=-0.1$) | 0.747 | +1.61pp (V marginal-neutral) |
-   | **Q+K small-α ($\alpha_K=0.05, \beta_Q=-0.1$)** | **0.750** ★ | **+1.95pp** (best single pair) |
+   | **Q+K tiny-α ($\alpha_K=0.025, \beta_Q=-0.1$)** | **0.753** ★ | **+2.22pp** (R1 micro-sweep peak) |
+   | Q+K small-α ($\alpha_K=0.05, \beta_Q=-0.1$) | 0.750 | +1.95pp |
    | Trio ($\alpha_K=0.05, \gamma_V=0.05, \beta_Q=-0.1$) | 0.741 | +1.07pp (V·K destructive) |
 
    Three-tier null-control on Q-only confirms ontology specificity (real 0.747 vs featshuffle 0.725 vs random 0.707). V-only single-axis at $\alpha_V \in \{0.1, 0.3\}$ produces $-0.4 / -0.9$pp (expected joint-Pareto negative-control). *Verified accuracy-lift family*: **{Q-only, Q+V, Q+K small-α}**. *Falsified*: K-channel at $\alpha_K \ge 0.1$ (smoke and full destructive); V·K co-inclusion (trio = 0.741 < all pairs, **−0.88pp vs Q+K** indicating multiplicative facet-overweighting on shared $B_{\mathrm{ont}}$ subspace).
