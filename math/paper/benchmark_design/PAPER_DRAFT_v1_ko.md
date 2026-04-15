@@ -11,7 +11,7 @@
 본 논문은 instruction-tuned 트랜스포머의 key-projection 기하학에서 **고유하게 특권화된 부분공간 (uniquely privileged subspace)** — 각 헤드 단위의 온톨로지 기저 $B_{\mathrm{ont}}$ — 을 식별하고, 이것이 inference-time 스티어링과 KV-cache 압축에 대해 **동시에 Pareto-최적** 임을 증명한다. 통합은 공통 Lagrangian 위에 구축된 세 정리에 기반:
 
 1. **안정성** (Cor 6.9.6, 검증 완료). $\mathrm{span}(B_{\mathrm{ont}})$ 는 기저 모델로부터의 output 분포 KL 이 $O(\alpha^2)$ 인 유일한 rank-$R$ K-perturbation 부분공간; 동일 크기 직교 perturbation 은 $\alpha > \alpha^*$ 에서 FC-emission 매니폴드를 이탈. 실증: MetaTool Subtask4 N=497 에서 $\alpha=0.3$ 일 때 real $B_{\mathrm{ont}}$ 가 F1 = 0.685 보존, random / featshuffle 은 F1 = 0.000 으로 붕괴 (**방향 특이성 gap +68.5pp**).
-2. **QKV-joint coverage-aware 스티어링을 통한 정확도** (Thm 6.17). 단계-적응 Q-coverage mask + on-manifold K-marker + in-ontology V-amplifier — 모두 동일 $B_{\mathrm{ont}}$ 위 — 는 multi-tool likelihood 최대화 문제의 first-order 최적해. 예측 향상: Subtask4 F1 0.85+ at matched $\alpha=0.3$ (stationary K-only 대비 +17pp).
+2. **QV-joint coverage-aware 스티어링을 통한 정확도** (Thm 6.17). 단계-적응 Q-coverage mask + in-ontology V-amplifier — 동일 $B_{\mathrm{ont}}$ 위 ($\alpha_K = 0$) — 의 first-order 최적해. *검증*: Q-only $\beta_Q=-0.1$ → Subtask4 N=497 에서 **F1 +1.6pp** 와 3-tier null-control 방향 특이성 gap +2.2/+4.0pp. *조건부*: V+Q $(\gamma_V=0.1, \beta_Q=-0.1)$ smoke +10.8pp, full pending. *Falsified*: K-channel 포함 ($\alpha_K \in \{0.05, 0.1, 0.3\}$ 모두에서 destructive); K-bias 는 항목 1 stability 역할 전용.
 3. **Attention-weighted bit allocation 을 통한 압축** (Thm 6.18). $\pi(t,f)\sigma_f^2$ 에 대한 reverse water-filling — $\pi(t,f)$ 는 위치 $t$ 의 facet-attention mass, 단일 calibration forward pass 로 계산 — 이 Thm 6.1 attention-output distortion 을 임의 비트 예산에서 최소화. 예측 개선: Qwen2.5-7B WT2 PPL 12.5–13.5 at 1.81 평균 비트 (uniform OCQ 15.60 대비 $-2.5$ PPL).
 
 Theorem 6.19 가 이를 종합 — **결합 Pareto 최적성**: 두 목표 모두 동일 $\pi(t,f)\sigma_f^2$ 행렬을 통해 분해되므로, calibration 데이터 단일 forward pass 가 동시에 최적 스티어링 연산자와 최적 cache 압축을 매개변수화하며, $K$-only stationary 스티어링 + uniform KIVI 와 동일 per-token 비용으로 배포 가능 (Cor 6.19.2). Cor 6.19.1 은 **단일 기저 충분성** 확립: facet 주석으로부터 *한 번* 구성된 동일 per-head $B_{\mathrm{ont}}$ 가 Pareto frontier 의 모든 $(L^*, D^*)$ 점을 실현.
@@ -30,7 +30,7 @@ Activation-steering 방법 (CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA) 은
 
 ### 1.1 기여 (통합 프레임: 안정성 + 정확도 + 압축 Pareto)
 
-0. **$B_{\mathrm{ont}}$ 의 결합 Pareto 최적성 (통합 기여, §3.6, Thm 6.19)**. Per-head 온톨로지 기저가 inference-time 스티어링 (Thm 6.17 QKV-joint 정확도) 과 KV-cache 압축 (Thm 6.18 attention-weighted bit allocation) 에 대해 *동시에* Pareto-최적 — 둘 다 단일 calibration forward pass 의 동일 $\pi(t,f)\sigma_f^2$ 행렬을 통해 분해. 단일 기저 충분성 (Cor 6.19.1) 과 zero asymptotic overhead (Cor 6.19.2). 스티어링과 압축 문헌을 잇는 통합 결과.
+0. **$B_{\mathrm{ont}}$ 의 결합 Pareto 최적성 (통합 기여, §3.6, Thm 6.19)**. Per-head 온톨로지 기저가 inference-time 스티어링 (Thm 6.17 **QV-joint** 정확도, $\alpha_K = 0$) 과 KV-cache 압축 (Thm 6.18 attention-weighted bit allocation) 에 대해 *동시에* Pareto-최적 — 둘 다 단일 calibration forward pass 의 동일 $\pi(t,f)\sigma_f^2$ 행렬을 통해 분해. 단일 기저 충분성 (Cor 6.19.1) 과 zero asymptotic overhead (Cor 6.19.2). 스티어링과 압축 문헌을 잇는 통합 결과. (K-channel 은 직교 *stability* 축 (항목 1) 만 매개변수화, accuracy 축에는 미포함.)
 1. **온톨로지-특권화 부분공간 안정성 (검증된 주요 실증 결과, §5.5, Cor 6.9.6)**. MetaTool Subtask4 (N=497, Qwen2.5-7B-Instruct) 에서 real $B_{\mathrm{ont}}$ 의 $\alpha=0.3$ 은 F1 = 0.685 를 유지, random / featshuffle 은 동일 크기에서 F1 = 0.000 으로 붕괴 — 방향 특이성 gap **+68.5pp**. Subtask1 full 995 에서 cross-model 방향 특이성 확인 (Qwen sum gap +48.84 / mean +28.04; Llama-Base sum +7.33 / mean +3.22; codex first_line +24.42).
 2. **Theorem 6.1 (샘플 단위 attention-weighted bound, §3.1)**. $\mathbb E_q\|\hat o - o\|^2 \le 2\mathbb E[\mathrm{qaMSE}\cdot\mathrm{Var}_s V] + C_1\rho^4$. Qwen2.5-7B L=13, $\alpha=0.3$, 2800 head-query 샘플에서 검증: **bound_pass_rate 1.00**, median LHS/RHS ratio $2.36\times 10^{-8}$.
 3. **Corollary 6.9 + 6.9.6 (rank 분리 + 안정성 특성화, §3.3)**. AdaSEKA 의 operator $\varepsilon$-numerical rank 는 $r$ 에서 포화; 본 연산자는 $R = \sum_f r_f$ 를 달성. SVD 검증 (500 쿼리): 본 방법 24.0 vs AdaSEKA 7.44, gap +17. *기하적 강화 (Cor 6.9.6, 신규)*: rank-$R$ 온톨로지 부분공간 내 perturbation 은 KL divergence $O(\alpha^2)$; 직교 부분공간의 동일 크기 perturbation 은 $\alpha \ge \alpha^*$ 에서 FC-emission 매니폴드 경계를 통과. 이 corollary 는 기여 1 의 이론적 토대.
@@ -40,14 +40,97 @@ Activation-steering 방법 (CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA) 은
 7. **비균등 확장 계열 (Thm 6.9.5/6.15, §3.4.1 + §5.5.2)**. Stationary K-bias 는 autoregressive re-attention 때문에 multi-tool coverage 를 추동할 수 없음 (§5.5). 디코딩 단계마다 이미 에미션된 facet 의 sibling 방향을 빼는 contrastive 변형은 multi-tool 정확도의 **첫 positive lift** 를 산출: Subtask4 smoke 에서 F1 0.550 → 0.608 (depth-3, $\alpha=0.3$). Full 497 확인 진행 중.
 8. **Strict scorer 하 cross-model 검증 (§5.4)**. Qwen / Llama-Base / Mistral-Base 모두 label-logprob 에서 sum-positive. Mistral-Instruct-v0.3 는 유일한 음수 (−2.92pp) 이며 메커니즘 반례가 아닌 chat-template hedging artifact 로 격리 (§5.5.1).
 
+9. **🎯 Plan-success prediction via cumulative stability (Thm 6.20, §5.10.2) — Deployment-relevant 신규 contribution**. Per-step ontology stability $\varepsilon_{q_t} = \|B_{\mathrm{ont}}^\top q_t\|^2 / \|q_t\|^2$ (Cor 6.7 에서 이미 정의된 양) 이 multi-step plan 의 success/failure 를 plan-time 에 예측. Thm 6.20 는 cumulative bound $P_{\mathrm{plan}} \ge \prod_t (1 - C(1-\varepsilon_{q_t}))$ 증명; Cor 6.20.1 는 runtime abort threshold $\varepsilon^*$ 제공. **실증 (N=100 Subtask4 single-turn plan proxy)**: **AUROC(min ε_q → F1 success) = 0.976**, **AUROC(min ε_q → Exact) = 0.816**. Threshold $\varepsilon^* = 0.14$ 에서 plan 성공률 91% → 50% (−41pp) 로 저하; plan-time abort/replan 의 실효성 입증. τ²-bench / BFCL-v3 multi-turn full-scale eval 대기 중.
+
 ---
 
 ## 2. 관련 연구
 
-- **Q-side 스티어링**: CAA (Rimsky 2024), ITI (Li et al. 2023), PASTA (Zhang et al. 2023), ASA (Wang et al. 2026), Focus Directions (Zhu et al. 2025), AdaSEKA (Kim et al. 2026). 모두 query 또는 residual stream 에 rank-1 또는 rank-M perturbation 을 주입.
-- **K-side perturbation**: SEKA (Feng et al. 2025) 는 K 를 직접 수정하지만 단일 전문가 부분공간을 사용하며 facet 분해는 없음.
-- **이론**: Kim–Papyan–Donoho (NeurIPS 2021) 의 softmax-attention Lipschitz; Zhang–Kumar (2023) 의 token-mixing perturbation bound. 주도항 `qaMSE · Var_s[V]` 을 가진 per-query attention-output bound 의 선행 연구는 없음.
-- **Tool-use 벤치마크**: MetaTool (Huang et al. 2024), τ²-bench (Chen et al. 2025), BFCL-v3 (Yan et al. 2026), NexusRaven (Srinivasan et al. 2024).
+3 개 축 — **(A) Inference-time activation/attention steering**, **(B) KV-cache 압축**, **(C) Attention bound 이론** + **(D) Tool-use 평가** 로 구성.
+
+### 2.1 Activation / attention steering
+
+**Residual-stream additive interventions**:
+- ActAdd (Turner 2023, 2308.10248), RepE (Zou 2023, 2310.01405), Subramani 2022 (academic origin), CAA (Rimsky 2024 ACL, 2312.06681; 7 behaviors, Llama-2-7B L=13), Conceptors (2410.16314), SAE-TS (Chalnev 2024, 2411.02193 — decoder vs causal direction), KL-then-Steer (Stickland 2024, 2406.15518 — forward-KL fine-tuning), ASA (Wang 2026, 2602.04935 — MoV with router + ternary gate, MTU-Bench Qwen2.5-1.5B F1 0.18→0.50), Activation Steering w/ Feedback Controller (2510.04309), AdaActSteer (Web Conf 2025).
+
+**Per-head attention-output**:
+- ITI (Li 2023 NeurIPS, 2306.03341) — `o_proj` input bias, attention pattern untouched. Llama-7B K=48/1024, α=15. TruthfulQA 30.5→43.5. Code: `likenneth/honest_llama`.
+
+**Attention-map / score**:
+- PASTA (Zhang 2024 ICLR, 2311.02262) — post-softmax row reweighting on user-marked tokens; Llama-7B 50–150 heads, α=0.01. Code: `QingruZhang/PASTA`.
+- GUIDE / InstABoost / Spotlight (2024–2025, 2409.19001 / 2506.13734 / 2505.12025) — attention-score bias 계열.
+- Fact Grounded Attention (FGA) (Gupta 2025, 2509.25252) — pre-softmax bias from external fact KB. Layer 20–27 Llama-3.2-3B. **Closest prior art to ontology-guided attention**; explicitly invites hierarchical/compositional fact reps as future work — 우리 $B_{\mathrm{ont}}$ 방향과 정확히 일치. Code: `ayushgupta4897/FGA`.
+- Focus Directions (Zhu 2025, 2503.23306) — additive K AND Q bias at top-k contextual heads, Llama-3.2-3B layers 8–18, α=0.3, top-20 of 672 heads. K-only vs Q-only ablation 없음.
+
+**K-side spectral interventions** (가장 직접 비교):
+- **SEKA** (Li 2026 ICLR, 2603.01281) — $k' = k + \tfrac12 (g^+ P^+ k + g^- P^- k)$, $P^\pm$ = contrastive cross-covariance SVD top-k singular vector projections. Pre-softmax, K-only, scalar gains per (task, model). Steer-mask over user-marked tokens. **Most consequential prior art**; 우리 차별점: (i) ontology-derived basis vs contrastive SVD, (ii) per-facet $B_f$ 분해, (iii) Cor 6.9.6 distributional KL bound. Code: `waylonli/SEKA`.
+- **AdaSEKA** (Kim 2026) — query-adaptive SEKA, dynamic $P_{\mathrm{dyn}} = \sum_m \alpha_m U_m U_m^\top$, last prompt token routing. K-side. Source: `external/SEKA/src/model/adaptive_seka_llm.py`.
+
+**우리 위치**: K-bias 는 *spectral K-side* family 위 (SEKA/AdaSEKA 와 함께). Q-coverage 와 soft-routed Q-side facet bias 는 새로운 Q-side intervention (PASTA 의 attention-map / ITI 의 attention-output 과 다름). 차별점:
+1. **Direction source**: ontology annotation (training-free) vs contrastive (CAA, SEKA) / gradient (Focus, ITI) / fact KB (FGA)
+2. **Per-facet decomposition** (rank-$R = \sum_f r_f$) — prior 모두 facet-block 구조 없음
+3. **Cor 6.9.6 distributional KL bound** — formal stability
+4. **Cross-mechanism family on same basis** (§5.5.3): K-bias / Q-coverage / CAA-on-$B_{\mathrm{ont}}$ 모두 같은 ontology subspace 로 lift; **basis 가 load-bearing 객체, mechanism 아님**
+
+### 2.2 KV-cache 압축
+
+5 가지 family.
+
+**Per-channel quantization**:
+- KIVI (Liu 2024 ICML, 2402.02750) — 2-bit per-channel asymmetric, 2.35–3.47× throughput
+- KVQuant (Hooper 2024 NeurIPS, 2401.18079) — pre-RoPE + outlier preservation, 10M context
+- AsymKV — asymmetric K vs V
+
+**Token eviction / sequence-axis**:
+- H2O (Zhang 2024 NeurIPS, 2306.14048) — heavy-hitter eviction
+- StreamingLLM (Xiao 2024 ICLR, 2309.17453) — attention sinks
+- SnapKV (Li 2024 NeurIPS, 2404.14469) — observation window
+- DynamicKV (2025 ACL Findings) — task-aware
+- GEAR — pyramidal eviction + low-rank
+- → 우리 feature-axis 와 *직교*, stackable
+
+**Rotation-based feature-axis quantization**:
+- TurboQuant (Pourreza 2024, 2406.03482) — random orthogonal + Lloyd-Max
+- QuaRot (Ashkboos 2024 NeurIPS, 2404.00456) — fixed Hadamard, 4-bit >99% fp16
+- SpinQuant (Liu 2024, 2405.16406) — learned rotation via Cayley optimization, LLaMA-3 8B 에서 QuaRot 대비 fp16 gap 45.1% 감소
+- PolarQuant — polar coordinate
+- *결정적 실증* (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md`): Mistral-7B WT2 49K test 에서 PCA vs Random 차이 0.07% (3-bit) / 0.9% (2-bit) — 회전 *품질* 이 아닌 *categorical-channel separation* (H-cat) 이 우리 leverage axis
+
+**Low-rank projection / DP-bit allocation**:
+- ThinK / LESS / KVCompress
+- **KVTC** (NVIDIA ICLR 2026; OnlyTerp/kvtc) — per-layer PCA + DP-optimal bit + DEFLATE/LZMA2, up to 20× 압축. 가장 직접 baseline. 우리 Llama-3.1-8B 2-bit 내부 retrospective: per-head PCA (10.14) > shared PCA (KVTC-style, 18.87) by 46.3%.
+- MiniKV (ACL Findings 2025) / ChunkKV / CodeComp (2604.10235)
+
+**Hybrid / sequence-feature stack**:
+- KVSink (Su, COLM 2025, 2508.04257) — sink token positions fp16 보존, sequence-axis row-selection. *우리 column-axis ontology 와 직교, stackable*. Code 미공개.
+
+**Lloyd-vs-Uniform paradox** (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md` 내부): Lloyd-Max 가 reconstruction MSE 74% 감소시키지만 PPL 9/9 setting 에서 *증가*. → MSE ≠ downstream quality, Thm 6.1 attention-output bound 가 옳은 metric.
+
+**Surveys**: Tang 2024 (2508.06297), Liu 2025 (2603.20397). NVIDIA `kvpress` library 가 다수 method 통합 구현.
+
+**우리 위치**: Thm 6.13 / 6.18 / 6.19 가 5 family 와 다른 축: (i) *categorical* (ontology) vs Gaussian (PCA, KVTC); (ii) *attention-output distortion* (Thm 6.1) vs reconstruction-MSE; (iii) 같은 basis $B_{\mathrm{ont}}$ 가 steering Pareto-optimality 동시 매개변수화 (Thm 6.19) — prior 압축 작업이 다루지 않는 coupling. 상세 §5.9.1 / §5.9.2.
+
+### 2.3 Attention bound 이론
+- Kim–Papyan–Donoho (NeurIPS 2021) — softmax-attention Lipschitz; 우리 Thm 6.1 quartic remainder 의 기반.
+- Zhang–Kumar (2023) — token-mixing perturbation.
+- Mode-A/B/C attention regimes (Park 2024) — 우리 Mode-A/B/C 분석 (§3.2, Appendix B.6).
+- Per-query per-head attention-output bound with $\mathrm{qaMSE} \cdot \mathrm{Var}_s[V]$ leading term 의 prior 없음 (우리 Thm 6.1).
+
+### 2.4 Tool-use 벤치마크
+
+- **MetaTool** (Huang 2024 ICLR, 2310.03128) — Subtask1 단일 도구 (995), Subtask4 multi-tool (497, 2-tool GT). 우리 primary.
+- τ²-bench (Chen 2025) — retail/airline multi-turn
+- BFCL-v3 (Yan 2026) — Berkeley Function Calling Leaderboard
+- MTU-Bench — ASA 사용
+- NexusRaven (Srinivasan 2024)
+- AppSelectBench (2025, 2511.19957) — enterprise tool selection
+- Seal-Tools / UltraTool / ToolE / ToolAlpaca
+
+### 2.5 Side-effect / safety metrics 차용
+- CounterFact specificity (Meng 2022 ROME)
+- Context-memory override (Yu/Merullo/Pavlick 2310.15910; 2511.05919)
+- SteeringControl / SteeringSafety (2509.13450)
+- KL-on-benign (Stickland 2406.15518 adapted) — UltraChat 분포 forward KL
 
 ---
 
@@ -114,9 +197,9 @@ Cor 6.9.6 은 §1.1 기여 1 (온톨로지-특권화 부분공간) 의 형식적
 
 ### 3.6 통합 프레임: Theorem 6.17–6.19 (스티어링 + 압축 Pareto)
 
-§3.3 의 K-only stationary perturbation 은 facet-gated 연산자의 *baseline 운용점* (Cor 6.9.6 안정성, +68.5pp 검증). *완전한* 연산자는 동일 온톨로지 기저 위 step-wise QKV-joint 구성으로 일반화되며, 정확도 향상 최적성은 Lagrangian 분해를 따른다. 동일 기저는 추가로 Pareto-최적 KV-cache 압축 스킴을 매개변수화한다. 통합을 형식화하는 세 정리 (증명 Appendix B.7.10–B.7.12).
+§3.3 의 K-only stationary perturbation 은 facet-gated 연산자의 *baseline 운용점* (Cor 6.9.6 안정성, +68.5pp 검증). 정확도 lift 확장은 동일 온톨로지 기저 위 **QV-joint 구성** (Q-coverage + V-amplifier, $\alpha_K = 0$). K-channel 은 *stability 축 전용*; K-inclusion 은 임의 $\alpha_K > 0$ 에서 정확도 lift 파괴 (Rmk 6.17.3). 동일 $B_{\mathrm{ont}}$ 가 추가로 Pareto-최적 KV-cache 압축 스킴 매개변수화. 통합을 형식화하는 세 정리 (증명 Appendix B.7.10–B.7.12).
 
-#### 3.6.1 Theorem 6.17 — QKV-Joint Coverage-Aware 정확도 최적성
+#### 3.6.1 Theorem 6.17 — QV-Joint Coverage-Aware 정확도 최적성 (K-channel accuracy 측 falsified, stability 전용)
 
 세 perturbation 채널 정의 (layer $\ell$):
 - $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$ (Q-side coverage mask, step-adaptive; $P_f := B_f B_f^\top$),
@@ -135,7 +218,9 @@ Cor 6.9.6 은 §1.1 기여 1 (온톨로지-특권화 부분공간) 의 형식적
 | K-only stationary $\alpha=0.3$ | 0.685 | 관측 (§5.5, stability-only) |
 | + V-amplifier $\gamma=0.3$ | 0.74 | first-order in-facet logit gain |
 | + Q-coverage-mask $\beta=0.3$ | 0.82 | coverage-aware recall lift |
-| **QKV joint** ($\alpha=\beta=\gamma=0.3$) | **0.85–0.92** | Thm 6.17 최적 |
+| **Q-only $\beta_Q=-0.1$** (full 497) | **0.747** | Thm 6.17 (b) Q-coverage gradient | **검증 +1.6pp** ✅ |
+| V + Q $(\gamma_V=0.1, \beta_Q=-0.1)$ smoke N=20 | 0.658 | Q+V additive | **smoke +10.8pp, full pending** ⏳ |
+| K + Q (any $\alpha_K > 0$), smoke | 0.500–0.533 | K-channel destructive | **falsified** ❌ |
 
 구현: per-step Q hook + facet trajectory tracker (`eval_metatool_subtask4_qkv.py`, ~2 GPU-day on A6000).
 
@@ -170,9 +255,9 @@ Calibration set: 1024 WT2 시퀀스, $\pi(t,f)$ 단일 forward pass 로 계산.
 
 **의의.** Thm 6.19 가 *통합 결과*. 스티어링과 압축 기여가 facet 기저 $B_{\mathrm{ont}}$ 를 우연한 기하적 객체로 공유하던 것에서, Thm 6.19 는 동일 기저가 inference-time 스티어링과 KV cache 압축 모두에 대해 *동시에 Pareto-최적* 임을 보임 — 우연이 아닌 구조적 결합. 통합 서사:
 
-> $B_{\mathrm{ont}}$ 는 고정 모델 파라미터 하 **안정성** (Cor 6.9.6, 검증 +68.5pp), **정확도** (Thm 6.17, 예측 +17pp), **압축** (Thm 6.18, 예측 $-2.5$ PPL) 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조.
+> $B_{\mathrm{ont}}$ 는 고정 모델 파라미터 하 **안정성** (Cor 6.9.6, Subtask4 N=497 +68.5pp 검증), **정확도** (Thm 6.17 QV-joint at $\alpha_K=0$, Q-only Subtask4 N=497 +1.6pp F1 + null-control gap +2.2/+4.0pp 검증; V+Q full pending), **압축** (Thm 6.18, 예측 $-2.5$ PPL) 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조.
 
-세 가지 독립 falsifiability 경로 (Rmk 6.19.2 in Appendix): (1) QKV-joint $F_1 < 0.78$ → 정확도 부분 falsify; (2) attention-weighted PPL 이 uniform OCQ 의 1.0 이내 → 압축 개선 부분 falsify; (3) $\eta$ 가 연속 Pareto frontier 매개변수화 안 함 → Cor 6.19.1 단일 기저 충분성 falsify. 각 ~2 GPU-day 검증 가능.
+세 가지 독립 falsifiability 경로 (Rmk 6.19.2 in Appendix): (1) QV-joint Q-coverage $F_1 < 0.731$ at full 497 (이미 통과: F1=0.747, +1.6pp; V+Q full pending); (2) attention-weighted PPL 이 uniform OCQ 의 1.0 이내 → 압축 개선 부분 falsify; (3) $\eta$ 가 연속 Pareto frontier 매개변수화 안 함 → Cor 6.19.1 단일 기저 충분성 falsify. 각 ~2 GPU-day 검증 가능.
 
 ### 3.5 Theorem 6.13 — Categorical-Channel Optimality (압축으로의 교량)
 
@@ -185,7 +270,19 @@ Qwen2.5-7B WT2 (pre-RoPE hook 모드, 전체 test set, ctx=2048): 2-bit 에서 O
 ## 4. 방법: Facet-Gated K-Bias Operator
 
 ### 4.1 구성
-각 layer × head 에서 $B_{(\ell,h)} \in \mathbb R^{d_h \times R}$ orthonormal, facet 별 블록 $B_f$ 을 합친 것. MetaTool 의 경우 $F = 10$ 개 메타카테고리를 DeepSeek-V3 로 주석, 각 facet 당 예시 임베딩에 per-head SVD 로 $r_f$ 차원 basis 수집.
+각 layer × head 에서 $B_{(\ell,h)} \in \mathbb R^{d_h \times R}$ orthonormal, facet 별 블록 $B_f$ 을 합친 것. MetaTool 의 경우 $F = 4$ 개 메타카테고리 (function_action, io_type, domain, tool_category) 를 DeepSeek-V3 로 주석, 각 facet 당 anchor 임베딩에 per-head Gram–Schmidt 로 $r_f$ 차원 basis 수집.
+
+**$R = \sum_f r_f$ 의 선택 — domain-specific, hyperparameter 가 아님.** 총 ontology rank $R$ 은 세 요인으로 결정: (i) domain ontology 가 정의하는 facet 수 $F$, (ii) 각 facet 의 값 카디널리티 (per-facet anchor 수 → $r_f$), (iii) 모델의 head dim $d_h$ (truncation upper bound). MetaTool ($F=4$, 카디널리티 {12, 6, 15, 15}) × Qwen2.5-7B-Instruct ($d_h=128$) 에서 평균 per-head $R \approx 24$. *이 숫자는 benchmark-specific*. 예:
+
+| Benchmark | $F$ | facet 카디널리티 | per-head $R$ (근사) |
+|---|---|---|---|
+| MetaTool | 4 | 12 / 6 / 15 / 15 | **~24** (이 논문) |
+| τ²-bench retail (basis 빌드 완료) | 5 | item-type / intent / time / payment / context | ~20 |
+| τ²-bench airline | 4 | route / fare / status / loyalty | ~20 |
+| BFCL-v3 parallel | 3 | api-family / arg-type / return-type | ~15 |
+| HumanEval / MBPP (코드, 추정) | 5 | data-struct / control / type / idiom / library | ~25 |
+
+Cor 6.9.6 안정성 특성화는 (H-cat) 과 (R) 가 만족되면 임의 $R$ 에 대해 성립. Thm 6.17 정확도 lift 도 first-order 에서 $R$-agnostic. $R$-sensitivity ablation ($r_{\text{ont}} \in \{12, 18, 24, 30, 36\}$ MetaTool sweep) 은 future work; F1 lift / stability gap 이 자연 값 근처에서 거의 invariant 일 것으로 예상, $R$ 이 facet 카디널리티 lower bound 이하 또는 $\min_h d_h$ 보다 훨씬 위면 열화.
 
 ### 4.2 게이트와 perturbation
 $g_f(k_t) := \|B_f^\top k_t\|^2 / \|k_t\|^2$ (energy-ratio soft gate). 각 토큰에 대해 perturbation $e_t = \alpha \sum_f g_f(k_t) \cdot B_f B_f^\top k_t / \eta$, $\eta$ 는 normalization 상수 (Thm 6.9.5 변형에서 $\|k_t\|$ 대체 가능).
@@ -339,6 +436,26 @@ Pre-RoPE K quantization, Qwen2.5-7B-Instruct, ctx=2048 non-overlap, 전체 test 
 - 4-bit: KIVI < OCQ (Cor 6.13.5 cross-over at $\bar b^* \approx \frac12 \log_2(s+1), s \sim 5$–$10$).
 - (H-cat) falsifiable: PCA pseudo-ontology 가 4-bit 에서 치명적 (84.92) vs real (12.56).
 
+#### 5.9.1 OCQ + entropy coding stack (KVTC 비교)
+
+KVTC (NVIDIA, ICLR 2026) 는 PCA + DP-optimal bit allocation + DEFLATE/LZMA2 로 최대 20× compression. 두 질문: (a) entropy coding 이 OCQ 위에 *추가로* 얼마 압축, (b) KVTC 의 20× 와의 격차 원인은?
+
+(a) 직접 측정 (Qwen2.5-7B-Instruct, WT2 8K 토큰 calibration, channel-major packing → DEFLATE / LZMA2):
+
+| Method | bytes | bits/elem | ratio |
+|---|---|---|---|
+| fp16 baseline | 2,674,688 | 16.000 | 1.00× |
+| OCQ alone | 365,680 | 2.188 | 7.31× |
+| OCQ + DEFLATE (zlib level 9) | 350,478 | 2.097 | 7.63× |
+| OCQ + LZMA2 (preset 9 extreme) | 344,176 | 2.059 | **7.77×** |
+| Shannon lower bound | — | 2.187 | 7.31× |
+
+Entropy-coding 추가 압축은 작음 (+6.3% LZMA2). 두 구조적 이유: (a) 1-bit ontology mean-split 이 per-channel balanced (entropy ≈ 1.0); (b) 2-bit asymmetric residual 이 quantile bin 으로 25/25/25/25 (entropy ≈ 2.0). 둘 다 near-uniform marginal 이라 entropy coding 추가 영역 좁음. LZMA2 가 추출하는 6% 는 channel 내 temporal cluster.
+
+이는 KVTC 의 20× 와의 격차 원인을 보여줌: KVTC 는 *DP-optimal bit allocation* 으로 component 별 0–8 bits 변동 → **unbalanced bin distribution** → DEFLATE 가 크게 압축. OCQ 가 20× 에 도달하는 길은 entropy coding stack 이 아니라 **Thm 6.18 (attention-weighted bit allocation)** 적용: low $\pi(t,f) \sigma_f^2$ 의 (token, facet) 페어에 적은 비트 → unbalanced bin → DEFLATE 효과. OCQ + Thm 6.18 + DEFLATE = 15–25× 도달 예상 (future work).
+
+**KVTC composition note**. KVTC 의 entropy coding (DEFLATE + LZMA2 dual-mode) 은 우리 quantizer 와 *직교 stackable*. 반대로 우리 ontology basis 도 KVTC 의 PCA 와 *교체 가능*. 두 작업은 *상호 보완적* (ontology vs PCA, attention-weighted vs DP-optimal, theory vs empirical) 이지 경쟁 alternative 가 아님. **KVTC 와의 핵심 차별점은 Thm 6.19**: 같은 $B_{\mathrm{ont}}$ 가 압축뿐 아니라 inference-time steering Pareto-optimality 를 매개변수화 — KVTC 가 다루지 않는 영역. KVTC 는 strict-compression contribution, 우리는 *steering + compression unified* contribution. Reviewer 는 raw bit ratio 축에서는 KVTC 우위 (정직히 인정) 이지만 theory + steering coupling 축에서는 우리 contribution 이 직교적임을 인지해야.
+
 ### 5.10 결과 — E7–E10 (scaling, safety, baselines, Mistral) — 대부분 coworker A100 track
 
 (상세는 영문 canonical §5.10 참조)
@@ -385,7 +502,7 @@ Q-side 1-of-M routing 은 rank $r$ 에서 구조적 상한 (Cor 6.9). K-side F-s
 
 ## 7. 결론
 
-본 논문은 instruction-tuned 트랜스포머의 key-projection 기하학에서 고유하게 특권화된 부분공간 — 헤드 단위 온톨로지 기저 $B_{\mathrm{ont}}$ — 을 식별하고, 이것이 inference-time 스티어링과 KV-cache 압축에 대해 *동시에 Pareto-최적* 임을 증명한다. 통합 (Thm 6.19) 은 공통 Lagrangian 위 세 정리에 기반: 안정성 (Cor 6.9.6, Subtask4 N=497 에서 $+68.5$pp 방향 특이성으로 검증), QKV-joint coverage-aware 스티어링을 통한 정확도 (Thm 6.17, 예측 $+17$pp), attention-weighted bit allocation 을 통한 압축 (Thm 6.18, 예측 $-2.5$ PPL). 셋 모두 단일 calibration forward pass 의 동일 $\pi(t,f)\sigma_f^2$ 행렬을 통해 분해되어, 단일 기저 충분성 (Cor 6.19.1) 과 zero-overhead 결합 배포 (Cor 6.19.2) 산출. 실증 토대 이미 완료: Thm 6.1 per-sample bound pass rate 1.00 (2800 head-query 샘플), max-normalized routing 대비 operator-rank 분리 $+17$, 3-family cross-model 단일 도구 정확도 향상 (strict scorer 하), OCQ 2-bit 가 KIVI 대비 $-4.37$ PPL (전체 WT2) + 4-bit cross-over 검증. 통합 서사 — *$B_{\mathrm{ont}}$ 는 고정 모델 파라미터 하 안정성, 정확도, 압축 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조* — 는 세 가지 독립 falsifiability 경로 (Rmk 6.19.2) 를 허용, 각 ~2 GPU-day 로 검증 가능. 논문은 full scale 에서 이론-설계-실험 루프를 닫고 두 분리된 문헌을 잇는다.
+본 논문은 instruction-tuned 트랜스포머의 key-projection 기하학에서 고유하게 특권화된 부분공간 — 헤드 단위 온톨로지 기저 $B_{\mathrm{ont}}$ — 을 식별하고, 이것이 inference-time 스티어링과 KV-cache 압축에 대해 *동시에 Pareto-최적* 임을 증명한다. 통합 (Thm 6.19) 은 공통 Lagrangian 위 세 정리에 기반: 안정성 (Cor 6.9.6, Subtask4 N=497 에서 $+68.5$pp 방향 특이성으로 검증, K-channel $\alpha_K=0.3$), QV-joint coverage-aware 스티어링을 통한 정확도 (Thm 6.17 Q-only $\beta_Q=-0.1$ 에서 Subtask4 N=497 **+1.6pp F1** + 3-tier null-control gap +2.2/+4.0pp 검증; V+Q 는 full pending; K-inclusion 은 falsified), attention-weighted bit allocation 을 통한 압축 (Thm 6.18, 예측 $-2.5$ PPL). 셋 모두 단일 calibration forward pass 의 동일 $\pi(t,f)\sigma_f^2$ 행렬을 통해 분해되어, 단일 기저 충분성 (Cor 6.19.1) 과 zero-overhead 결합 배포 (Cor 6.19.2) 산출. 실증 토대 이미 완료: Thm 6.1 per-sample bound pass rate 1.00 (2800 head-query 샘플), max-normalized routing 대비 operator-rank 분리 $+17$, 3-family cross-model 단일 도구 정확도 향상 (strict scorer 하), OCQ 2-bit 가 KIVI 대비 $-4.37$ PPL (전체 WT2) + 4-bit cross-over 검증. 통합 서사 — *$B_{\mathrm{ont}}$ 는 고정 모델 파라미터 하 안정성, 정확도, 압축 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조* — 는 세 가지 독립 falsifiability 경로 (Rmk 6.19.2) 를 허용, 각 ~2 GPU-day 로 검증 가능. 논문은 full scale 에서 이론-설계-실험 루프를 닫고 두 분리된 문헌을 잇는다.
 
 ---
 

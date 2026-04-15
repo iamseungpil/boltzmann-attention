@@ -1155,36 +1155,47 @@ On Qwen2.5-7B-Instruct / Subtask4 / N=497, predicted F1 progression:
 
 QKV joint is implementable as `eval_metatool_subtask4_qkv.py` with per-step Q hook + facet trajectory tracker. ETA 2 GPU-day on A6000.
 
-### Remark 6.17.3 (Empirical breakdown of joint additivity at $\alpha = 0.3$ — observed 2026-04-15)
+### Remark 6.17.3 (Empirical breakdown of joint additivity — magnitude-INDEPENDENT K-channel destructive coupling, observed 2026-04-15)
 
-The first-order joint optimality of Thm 6.17 (d) requires the channel-wise gradients to be mutually orthogonal in $L^2(\theta)$, an assumption justified for *small* $\alpha$. On Qwen2.5-7B-Instruct / Subtask4 N=20 smoke at $\alpha = 0.3$, this assumption empirically breaks down. The observed F1 sweep is:
+**Original claim revised.** The first-order joint optimality of Thm 6.17 (d) requires the channel-wise gradients to be mutually orthogonal in $L^2(\theta)$. Initial measurements at $\alpha = 0.3$ suggested the breakdown was magnitude-dependent ($\alpha_{\mathrm{coupling}} \approx 0.1$). **Subsequent smoke measurements at $\alpha_K \in \{0.05, 0.1, 0.3\}$ falsified the magnitude-dependent interpretation: K-channel inclusion destroys the Q-coverage lift at every tested magnitude, including $\alpha_K = 0.05$ which is well below the originally-hypothesized $\alpha_{\mathrm{coupling}}$.** The observed full F1 sweep on Qwen2.5-7B-Instruct / Subtask4 N=20 smoke is:
 
 | Configuration | F1 (smoke N=20) | Δ vs no_steer 0.550 |
 |---|---|---|
 | K-only $\alpha_K=0.3$ | 0.533 | −0.017 |
 | V-only $\gamma_V=0.3$ | 0.550 | 0 |
 | K + V ($\alpha_K = \gamma_V = 0.3$) | 0.533 | −0.017 |
-| **Q-only $\beta_Q = -0.1$** | **0.658** | **+0.108** |
+| **Q-only $\beta_Q = -0.1$** | **0.658** | **+0.108** ★ |
 | Q-only $\beta_Q = -0.3$ | 0.575 | +0.025 |
 | Q-only $\beta_Q = -0.5$ | 0.600 | +0.050 |
-| K + Q ($\alpha_K = 0.3, \beta_Q = -0.3$) | 0.500 | **−0.050** |
-| **K + V + Q (Thm 6.17 trio at $\alpha = 0.3$)** | **0.500** | **−0.050** |
+| **V + Q ($\gamma_V = 0.1, \beta_Q = -0.1$, K=0)** | **0.658** | **+0.108** ★ |
+| K + Q small ($\alpha_K = 0.05, \beta_Q = -0.1$, V=0) | 0.525 | **−0.025** |
+| K + Q tiny ($\alpha_K = 0.05, \gamma_V = 0.05, \beta_Q = -0.05$) | 0.525 | **−0.025** |
+| K + Q medium ($\alpha_K = 0.1, \beta_Q = -0.1$, V=0) | 0.533 | −0.017 |
+| K + V + Q small ($\alpha_K = 0.1, \gamma_V = 0.1, \beta_Q = -0.1$) | 0.500 | −0.050 |
+| K + Q ($\alpha_K = 0.3, \beta_Q = -0.3$) | 0.500 | −0.050 |
+| **K + V + Q (Thm 6.17 trio at $\alpha = 0.3$)** | 0.500 | −0.050 |
 
-Three observations:
+Four observations (revised 2026-04-15 after K-channel magnitude ablation):
 
-(a) **Q-only is the dominant channel.** The Q-coverage subtraction at small $\beta_Q$ delivers the largest single-channel gain (+10.8pp at $\beta_Q = -0.1$). The K- and V-channels deliver no isolated gain at $\alpha = 0.3$.
+(a) **Q-only is the dominant channel.** The Q-coverage subtraction at small $\beta_Q$ delivers the largest single-channel gain (+10.8pp at $\beta_Q = -0.1$).
 
-(b) **K × Q interaction is destructive.** Adding K-bias at $\alpha_K = 0.3$ to a positive-Q-only configuration drops F1 from 0.658 to 0.500 (−15.8pp). This is the opposite of the additive-channel prediction of Thm 6.17 (d).
+(b) **V-channel is compatible with Q at small magnitude.** $(γ_V = 0.1, β_Q = -0.1, α_K = 0)$ matches Q-only's +10.8pp on smoke. V-channel is *additive* with Q in the smoke regime (full 497 verification pending).
 
-(c) **Optimal Q-only $\beta_Q$ is small.** $\beta_Q = -0.1$ beats $\beta_Q = -0.3$ and $\beta_Q = -0.5$, suggesting the leading-order linear regime of (b) holds only up to $|\beta_Q| \approx 0.1$ on this benchmark.
+(c) **K-channel is destructive at every tested magnitude $\alpha_K \in \{0.05, 0.1, 0.3\}$.** Even $\alpha_K = 0.05$ — well below the originally hypothesized $\alpha_{\mathrm{coupling}} \approx 0.1$ — collapses Q-only's +10.8pp lift to −2.5pp. The K-channel coupling is therefore *not magnitude-dependent* but *channel-structurally incompatible* with Q-coverage on the same ontology subspace at any tested operating point.
 
-These observations suggest a refined statement of Thm 6.17:
+(d) **Optimal Q-only $\beta_Q$ is small.** $\beta_Q = -0.1$ beats $\beta_Q = -0.3$ and $\beta_Q = -0.5$ at full 497 (0.747 vs 0.622 vs 0.614). The Q-coverage gradient is locally linear only for $|\beta_Q| \lesssim 0.1$; larger magnitudes enter the $O(β_Q^2)$ Hessian regime.
 
-**Refined Thm 6.17′ (small-$\alpha$ regime).** Joint first-order optimality of $(\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*)$ requires $\alpha \ll \alpha_{\mathrm{coupling}}$ where $\alpha_{\mathrm{coupling}}$ is a model-dependent threshold below which the channel-wise gradients factor orthogonally. On Qwen2.5-7B-Instruct, $\alpha_{\mathrm{coupling}} \approx 0.1$ empirically. For $\alpha > \alpha_{\mathrm{coupling}}$, the K- and Q-channels couple via the post-RoPE attention bilinear form $q^\top R_\theta^\top R_\theta k$ and the joint optimum no longer factors; one must solve the coupled $\alpha^2$-order Hessian system rather than the separate first-order conditions.
+**Honest restatement of Thm 6.17 (revised, supersedes original "Refined Thm 6.17′").** The verified family is *not* the full QKV trio. The verified statements are:
+- (b′) **Q-only Q-coverage** at $\beta_Q = -0.1$: full-scale verified (+1.6pp F1 on Subtask4 N=497, ontology-specific via null-control gap +2.2pp / +4.0pp vs featshuffle / random).
+- (b′′) **V + Q joint** with $\alpha_K = 0$: smoke-level (+10.8pp on N=20) — full 497 *pending*; we caution that two prior smoke→full transitions on this benchmark (contrastive d=1, d=3) showed sign-flip between smoke (+3.3, +5.8 pp) and full 497 (−4.1, −3.6 pp). The V+Q smoke result is therefore *promising but not yet decisive*; we list it as a verified-conditional contribution that requires the full 497 confirmation.
+- (b′′′) **K-inclusion is excluded from the Thm 6.17 verified family.** Empirically the K-channel destroys lift at any tested $\alpha_K > 0$ on the same ontology subspace (paragraph (c) above). The K-bias remains a verified *stability* contribution (§5.5, Cor 6.9.6: real B_ont F1 = 0.685 vs random/featshuffle 0.000, +68.5pp gap) but is *not* a verified accuracy-lift contribution.
 
-**Practical consequence.** The deployable Thm 6.17 operator is the **Q-only coverage subtraction at $\beta_Q = -0.1$**, not the full QKV trio at matched $\alpha = 0.3$. This is the configuration to use for the unified Pareto frontier (Thm 6.19) until $\alpha_{\mathrm{coupling}}$-aware joint optimization is developed.
+**Practical consequence.** The deployable form is **Q-coverage primary + V-amplifier optional**, not "QKV-joint at matched magnitude". The naming of the paper-level claim should be **"QV-joint coverage-aware steering"** rather than "QKV-joint" (the K-channel is reserved for the orthogonal stability claim of §5.5). The unified Pareto frontier (Thm 6.19) is correspondingly parameterized by $(\beta_Q, \gamma_V, b)$ at fixed $\alpha_K = 0$ on the accuracy axis; the K-channel re-enters only on the stability axis.
 
-The full-497 verification of Q-only $\beta_Q = -0.1$ is in progress at the time of this revision; if the smoke +10.8pp signal holds at full scale, Thm 6.17 (in the refined Q-only form) is empirically validated as the first non-stability accuracy-lift contribution of the paper.
+This honest re-scoping leaves three verification statuses for the contribution stack:
+1. *Verified at full scale*: Cor 6.9.6 stability (+68.5pp), Q-only Q-coverage (+1.6pp).
+2. *Verified at smoke, full pending*: V+Q joint (+10.8pp smoke; cf. contrastive precedent for skepticism).
+3. *Falsified*: Original "QKV-joint at matched α" (Thm 6.17 (d) joint optimality); K-channel inclusion in accuracy lift family.
 
 ---
 
@@ -1296,6 +1307,60 @@ Three independent falsifiability paths:
 3. If the dual variable $\eta$ does not parameterize a continuous Pareto frontier, Cor 6.19.1's single-basis sufficiency fails and the two operators decouple in deployment.
 
 Each is testable in independent ablation runs (~2 GPU-day each).
+
+---
+
+## B.7.13 Theorem 6.20 — Plan-Success Prediction via Cumulative Stability
+
+### Setup
+
+A *tree-structured plan* is a sequence of $T$ decoding steps, each emitting one tool-call (or terminal), where step $t$ produces $y_t$ conditioned on $(x, y_{<t}, \text{tool-observations}_{<t})$. The *plan succeeds* if the leaf state satisfies the goal condition $\mathcal G$; otherwise fails. Let $P_{\mathrm{plan}} = \Pr_x[y_{1:T} \in \mathcal G]$.
+
+For each step $t$, define the **per-step ontology stability**:
+$$\varepsilon_{q_t} := \frac{\|B_{\mathrm{ont}}^\top q_t\|^2}{\|q_t\|^2} \in [0, 1]$$
+where $q_t$ is the layer-$\ell$ query at step $t$. This quantity already appears in Cor 6.7 as the energy ratio determining qaMSE-bound on per-step output perturbation; we now use it as a *plan-time predictor*.
+
+### Theorem 6.20 (Cumulative Stability Plan-Success Lower Bound)
+
+*Statement.* Under (R), (H-cat), and the assumption that per-step output errors compose multiplicatively with bounded amplification (cf. Cascade Lipschitz Lemma B.5),
+$$P_{\mathrm{plan}} \ge \prod_{t=1}^{T} \bigl(1 - C(1 - \varepsilon_{q_t})\bigr)_+, \tag{6.20.1}$$
+where $C = C(\theta, \mathcal G)$ is a model + goal dependent constant ($C \in [0, 1]$ for well-posed plans).
+
+*Corollary 6.20.1 (Min-stability failure threshold).* If $\min_t \varepsilon_{q_t} < \varepsilon^*$ where $\varepsilon^* := 1 - (1 - p^*)/(C \cdot T)$ for target success rate $p^*$, the plan's success probability is strictly bounded below $p^*$:
+$$\min_t \varepsilon_{q_t} < \varepsilon^* \;\;\Longrightarrow\;\; P_{\mathrm{plan}} < p^*. \tag{6.20.2}$$
+
+This gives a *runtime predictor*: monitor $\varepsilon_{q_t}$ during plan execution; abort and re-plan as soon as $\varepsilon_{q_t} < \varepsilon^*$ at any step.
+
+### Proof Sketch
+
+Per-step success probability $p_t = \Pr[y_t \text{ correct} | y_{<t}]$ is bounded below by the model's confidence on the on-manifold next-token distribution. By Cor 6.7 / Thm 6.1, the attention output at step $t$ has error
+$$\|\hat o_t - o_t\|^2 \le 2 \mathrm{qaMSE}(q_t) \cdot \mathrm{Var}_s V + C_1 \rho^4 \le 2 L_\pi^2 \rho^2 (1 - \varepsilon_{q_t}) \cdot \mathrm{Var}_s V + C_1 \rho^4$$
+where the gate-Lipschitzness and (H-cat) imply $\mathrm{qaMSE}(q_t) \le L_\pi^2 \rho^2 (1 - \varepsilon_{q_t})$. Translating to next-token CE via Pinsker:
+$$|\log p_t - \log p_t^*| \le C \cdot (1 - \varepsilon_{q_t})$$
+hence $p_t \ge p_t^* \cdot (1 - C(1 - \varepsilon_{q_t}))_+$. Multiplying over $T$ steps gives (6.20.1). Cor 6.20.1 is direct algebra. ∎
+
+### Remark 6.20.1 — Practical use as plan-time predictor
+
+Two operating modes:
+
+*(a) Pre-execution screening.* Given $K$ candidate plans (e.g., from beam search or LLM sampling), estimate $\{\varepsilon_{q_t}\}_t$ trajectories using a single forward pass per plan + $B_{\mathrm{ont}}$ projection. Rank plans by $\min_t \varepsilon_{q_t}$ (highest = most stable). Execute top-1 first; if execution-observed $\varepsilon_{q_t}$ drops below $\varepsilon^*$, switch to top-2.
+
+*(b) Runtime abort.* Track $\varepsilon_{q_t}$ live during plan execution. If $\varepsilon_{q_t} < \varepsilon^*$ at any step, abort the current plan and re-plan (rather than continuing to a likely-failed leaf).
+
+Both modes turn ontology stability from a *post-hoc* explanation into a *plan-time decision signal*. This is the deployment-relevant contribution that single-step accuracy lifts (§5.5) cannot directly provide.
+
+### Remark 6.20.2 — Empirical validation protocol
+
+Three falsifiable predictions:
+1. **AUROC > 0.7**: $\min_t \varepsilon_{q_t}$ predicts plan success/failure on a multi-turn agent benchmark (τ²-bench retail/airline) with AUROC at least 0.7.
+2. **Threshold-effective $\varepsilon^*$**: There exists a threshold $\varepsilon^*$ such that plans with $\min_t \varepsilon_{q_t} < \varepsilon^*$ have observed success rate < 30% (vs base success rate ~50–60%).
+3. **Runtime savings**: Aborting plans below $\varepsilon^*$ saves $\ge 30\%$ of execution compute while reducing final success rate by $\le 5$pp.
+
+If all three pass, Thm 6.20 is a deployable contribution; if (1) fails, the theorem is degenerate (no informative threshold exists for this model/benchmark pair).
+
+### Remark 6.20.3 — Connection to Cor 6.9.6
+
+Cor 6.9.6 (stability characterization) is the *single-step* $\alpha = 0.3$ statement: on-manifold perturbation preserves FC-emission with KL $O(\alpha^2)$. Thm 6.20 is the *multi-step* version: a sequence of on-manifold steps (high $\varepsilon_{q_t}$ throughout) cumulatively preserves plan success. The single-step empirical signature is the +68.5pp Subtask4 gap (§5.5); the multi-step prediction is Thm 6.20 (eval planned in §5.11 via τ²-bench).
 
 ---
 

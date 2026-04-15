@@ -1,0 +1,5169 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask4.json",
+  "n_queries": 20,
+  "methods": [
+    "no_steer",
+    "caa_a1",
+    "caa_a2",
+    "caa_a3",
+    "caa_a5",
+    "adaseka_M2_a0.05_T0.1",
+    "adaseka_M2_a0.1_T0.1",
+    "adaseka_M3_a0.05_T0.1",
+    "adaseka_M3_a0.1_T0.1",
+    "adaseka_M4_a0.05_T0.1"
+  ],
+  "facet_map": null,
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.55,
+        "F_0.5": 0.55,
+        "EU": 0.3,
+        "Jaccard": 0.4666666666666665,
+        "Exact": 0.3,
+        "precision": 0.55,
+        "recall": 0.55
+      },
+      "runtime_s": 17.34916925430298,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "caa_a1",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.65,
+        "F_0.5": 0.65,
+        "EU": 0.3,
+        "Jaccard": 0.5333333333333333,
+        "Exact": 0.3,
+        "precision": 0.65,
+        "recall": 0.65
+      },
+      "runtime_s": 22.69184899330139,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "caa_a2",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.65,
+        "F_0.5": 0.65,
+        "EU": 0.3,
+        "Jaccard": 0.5333333333333333,
+        "Exact": 0.3,
+        "precision": 0.65,
+        "recall": 0.65
+      },
+      "runtime_s": 22.679842233657837,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "caa_a3",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.65,
+        "F_0.5": 0.65,
+        "EU": 0.3,
+        "Jaccard": 0.5333333333333333,
+        "Exact": 0.3,
+        "precision": 0.65,
+        "recall": 0.65
+      },
+      "runtime_s": 27.401748657226562,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user wants to know the latest news about Tesla and its impact on the stock market. MixerBox_WebSearchG_web_search is is chosen because it can search and summar",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user wants an overview of top trending stocks and recent news affecting their performance. MixerBox_WebSearchG_web_search is is used to find recent news, while",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The user's query requires data extraction from websites, which can be achieved using a web scraper. Additionally, if the query involves financial analysis or data, the FinanceTool wou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}\n\nExplanation: The user is looking for cost-effective accommodation options and local transportation fares during a business trip. MixerBox_WebSearchG_web_search will help fin",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "caa_a5",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.65,
+        "F_0.5": 0.65,
+        "EU": 0.3,
+        "Jaccard": 0.5333333333333333,
+        "Exact": 0.3,
+        "precision": 0.65,
+        "recall": 0.65
+      },
+      "runtime_s": 36.71480679512024,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user wants to know the latest news about Tesla and its impact on the stock market. Therefore, we chose MixerBox_WebSearchG_web_search to search and summarize t",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}\nExplanation: The FinanceTool is was chosen because it provides real-time financial updates and stock prices, which is is needed to get the current stock price of Apple. The NewsTool was chosen to fin",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user wants an overview of top trending stocks and recent news affecting their performance. MixerBox_WebSearchG_web_search and FinanceTool are chosen because th",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n\nExplanation: The user wants to invest their savings wisely and learn about financial planning. FinanceTool provides real-time financial insights and analysis, which is is crucial for making-wise i",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user is is looking for courses that teach both accounting principles and investment strategies. CourseTool is is an appropriate choice because it offers a diverse range of courses",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ai_council"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ai_council\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\n{\"name\": \"web_scraper\", \"arguments\": {}}, {\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user's query is not provided, but based on common scenarios, web scraping would be useful for ",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\n{\"name\": \"web_scraper\", \"arguments\": {}}, {\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user's query is not provided, but based on common scenarios, web scraping would be useful for ",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\n{\"name\": \"web_scraper\", \"arguments\": {}}, {\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user's query is not provided, but based on common scenarios, web scraping would be useful for ",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\n{\"name\": \"web_scraper\", \"arguments\": {}}, {\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user's query is not provided, but based on common scenarios, web scraping would be useful for ",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}\nExplanation: The user is looking for cost-effective travel tips and ways to save money during their trip. MixerBox_WebSearchG_web_search will help find relevant information a",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}\n\nExplanation: The user is looking for cost-effective accommodation options and local transportation fares during a business trip. MixerBox_WebSearchG_web_search will help fin",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "adaseka_M2_a0.05_T0.1",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.675,
+        "F_0.5": 0.675,
+        "EU": 0.4,
+        "Jaccard": 0.5833333333333335,
+        "Exact": 0.4,
+        "precision": 0.675,
+        "recall": 0.675
+      },
+      "runtime_s": 28.437910318374634,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\",\"arguments\":{}}\n<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{}}\n<tool_call>{\"name\":\"NewsTool\",\"arguments\":{}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{}}\n<tool_call>{\"name\":\"NewsTool\",\"arguments\":{}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{}}\n<tool_call>{\"name\":\"NewsTool\",\"arguments\":{}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{}}\n<tool_call>{\"name\":\"ChartTool\",\"arguments\":{}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"ChartTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"PDF&URLTool\", \"arguments\":{}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"ChartTool\", \"arguments\":{}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"ChartTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\":{}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\":\"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\":\"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{}}\n<tool_call>{\"name\":\"MusicTool\",\"arguments\":{}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "adaseka_M2_a0.1_T0.1",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.575,
+        "F_0.5": 0.575,
+        "EU": 0.4,
+        "Jaccard": 0.5166666666666667,
+        "Exact": 0.4,
+        "precision": 0.575,
+        "recall": 0.575
+      },
+      "runtime_s": 39.28948211669922,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"PDF&URLTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundingTool\", \"arguments\": {}}\nExplanation: The user's query requires scraping data from a website and finding potential funding opportunities, hence web_scraper and fundsdbsearch (renamed to FundingTool for clarity) are the mo",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundingTool\", \"arguments\": {}}\nExplanation: The user's query requires scraping data from a website and finding potential funding opportunities, hence web_scraper and fundsdbsearch (renamed to FundingTool for clarity) are the mo",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundingTool\", \"arguments\": {}}\nExplanation: The user's query requires scraping data from a website and finding potential funding opportunities, hence web_scraper and fundsdbsearch (renamed to FundingTool for clarity) are the mo",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundingTool\", \"arguments\": {}}\nExplanation: The user's query requires scraping data from a website and finding potential funding opportunities, hence web_scraper and fundsdbsearch (renamed to FundingTool for clarity) are the mo",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "adaseka_M3_a0.05_T0.1",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.55,
+        "F_0.5": 0.55,
+        "EU": 0.3,
+        "Jaccard": 0.4666666666666665,
+        "Exact": 0.3,
+        "precision": 0.55,
+        "recall": 0.55
+      },
+      "runtime_s": 34.55375003814697,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "adaseka_M3_a0.1_T0.1",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.575,
+        "F_0.5": 0.575,
+        "EU": 0.4,
+        "Jaccard": 0.5166666666666667,
+        "Exact": 0.4,
+        "precision": 0.575,
+        "recall": 0.575
+      },
+      "runtime_s": 34.1586811542511,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"PDF&URLTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "adaseka_M4_a0.05_T0.1",
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.525,
+        "F_0.5": 0.525,
+        "EU": 0.25,
+        "Jaccard": 0.43333333333333324,
+        "Exact": 0.25,
+        "precision": 0.525,
+        "recall": 0.525
+      },
+      "runtime_s": 37.27209234237671,
+      "per_sample": [
+        {
+          "index": 0,
+          "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 4,
+          "query": "How can I invest my savings wisely and also learn about financial planning?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\":\"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "fundsdbsearch"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsDBSearch\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "fundsdbsearch"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsDBSearch\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "fundsdbsearch"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsDBSearch\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "fundsdbsearch"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsDBSearch\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    }
+  ]
+}

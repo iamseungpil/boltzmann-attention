@@ -46,6 +46,8 @@ from eval_metatool_subtask1 import (
     install_contrastive_kbias_hooks,
     install_q_bias_hooks,
     install_qkv_joint_hooks,
+    install_caa_hooks,
+    install_adaseka_proxy_hooks,
     parse_candidates,
     parse_method,
     build_facet_masks,
@@ -236,6 +238,15 @@ def run_method(
             gamma_v=params["gamma_v"],
             beta_q=params["beta_q"],
             n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+        )
+    elif kind == "caa":
+        ctx = install_caa_hooks(model, B_ont, alpha=params["alpha"])
+    elif kind == "adaseka":
+        n_q = model.config.num_attention_heads
+        ctx = install_adaseka_proxy_hooks(
+            model, B_ont, alpha=params["alpha"], M=params["M"],
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+            temperature=params["T"],
         )
     else:
         raise ValueError(f"{kind} not supported in Subtask4 driver")

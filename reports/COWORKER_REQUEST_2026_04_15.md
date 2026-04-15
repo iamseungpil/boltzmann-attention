@@ -1,9 +1,58 @@
-# Coworker 실험 요청 — 2026-04-15
+# Coworker 실험 요청 — 2026-04-15 (revised v2)
 
 **보낸 사람**: develop side (mais)
-**날짜**: 2026-04-15
+**날짜**: 2026-04-15 (v2 update with critical implementation rule)
 **대상**: A100×4 보유 coworker
 **우선순위 변경**: Baselines = **P0 (critical)**. Gemma/Scaling 은 P1 로 격하.
+
+## ⚠️ 0. CRITICAL implementation rule (반드시 읽기)
+
+**External baseline 알고리즘을 비교할 때는 반드시 기존 구현 (external/ 또는 official repo) 을 그대로 사용하시고, paper 만 보고 proxy 를 작성하지 마세요.**
+
+### 이번 develop side 사고 (2026-04-15) — 같은 실수 반복 방지
+
+- 한 일 (잘못): Cor 6.9 의 max-of-M routing 설명만 보고 `install_adaseka_proxy_hooks` 작성 — Q-side per-step softmax routing on B_ont
+- 결과: F1=0.768 (+3.7pp 우리 Q-coverage 대비) 측정 → paper §5.5.3 에 "AdaSEKA proxy beats us" 로 commit
+- 발견 (사용자 지적 후): `external/SEKA/src/model/{seka_llm,adaptive_seka_llm}.py` 의 진짜 AdaSEKA 는 **K-side** + per-query routing (last prompt token) + steer_mask 사용. 5 가지 차이:
+  | 항목 | 진짜 AdaSEKA | proxy (틀림) |
+  |---|---|---|
+  | Hook side | K-side | Q-side |
+  | Routing schedule | per-query (last token only) | per-step (모든 token) |
+  | Token selection | steer_mask | 전체 |
+  | Routing input | SVD U-matrix coefficients | B_ont 분할 energy |
+  | Forward 횟수 | 2회 (routing + generation) | 1회 |
+
+- 비용: ~4 시간 paper writing 무효, retraction commit (`c5e4f2f`) 필요. Reviewer 에게 발견되었으면 paper credibility 손상.
+
+### 적용 — coworker 가 baselines 작성 시
+
+**P0 8 baselines 별 구현 sourcing**:
+
+| Baseline | 권장 sourcing |
+|---|---|
+| **SEKA** | `external/SEKA/src/model/seka_llm.py` (이미 있음) — `SEKALLM` class 직접 사용 |
+| **AdaSEKA 2-expert / 3-expert** | `external/SEKA/src/model/adaptive_seka_llm.py` (이미 있음) — `AdaptiveSEKALLM` class 직접 사용 |
+| **CAA** | https://github.com/nrimsky/CAA — clone 하여 `external/CAA/` |
+| **ITI** | https://github.com/likenneth/honest_llama — clone 하여 `external/ITI/` |
+| **PASTA** | https://github.com/QingruZhang/PASTA — clone 하여 `external/PASTA/` |
+| **Focus Directions** | (Zhu et al. 2025) repo 검색 후 clone |
+| **LoRA-tool-FT** | peft 표준 — 우리 `scripts/ocq/lora_train_metatool_v3.py` 참조 |
+| **RAG-prompt** | LangChain 표준 retrieval — 직접 작성 가능 |
+
+**proxy 작성 금지 원칙**:
+- **Source 검색 먼저**: `find external/ -iname "*<method>*"` 와 GitHub 검색
+- **Source 발견 시**: wrapper 만 작성 (input 형식 조정 + Subtask1/Subtask4 driver 와 통합)
+- **Source 부재 시만 proxy**: 그러나 반드시 (a) original repo 가 진짜 없는지 확인, (b) paper 의 algorithm 명세 충분한지 검증, (c) `install_<method>_PAPER_PROXY_hooks` 로 라벨 + docstring 에 모든 추정 명시
+- **Paper 텍스트 절대 금지**: "<method> proxy beats X" — *real implementation 이거나 우리 새 방법으로 라벨*
+
+### Develop side 가 이미 작성 + 검증한 wrapper
+
+- `scripts/ocq/eval_subtask4_with_real_seka.py` (NEW): real SEKA 사용 wrapper
+  - B_ont (L,H,d,r=24) → P_pos (L,H,d,d) via P = B B^T 변환
+  - User query 를 `**...**` markers 로 wrap (steer_mask 자동 생성)
+  - SEKALLM.generate(steer=True) 호출
+  - amplify_pos sweep
+- coworker 는 SEKA / AdaSEKA 부분에서 이 script 패턴 재사용 가능
 
 ---
 
@@ -71,18 +120,27 @@
 #### Track A — 8 baselines on Subtask1 (N=995)
 모든 method 동일 protocol: Qwen2.5-7B-Instruct, label_logprob sum scorer, max_new_tokens=32.
 
-| Method | 핵심 hyperparams | 참고 (memory: `baseline_recipes_attention_steering`) |
-|---|---|---|
-| **CAA** (Rimsky 2024) | α=2.0, layer 16, top-1 contrast direction | rank-1 Q-side bias |
-| **ITI** (Li et al. 2023) | α=15, top-48 heads, mass mean diff | per-head Q-side |
-| **PASTA** (Zhang et al. 2023) | α=0.01, all heads, attention bias | attention map 직접 수정 |
-| **ASA** (Wang et al. 2026) | T=0.05, top-3 expert | softmax-routing Q-side |
-| **Focus Directions** (Zhu et al. 2025) | α=3.0, top-3 directions | Q-side rank-3 |
-| **AdaSEKA 2-expert** | T=0.1, M=2, r_per_expert=12 | Q-side max-norm routing |
-| **AdaSEKA 3-expert** | T=0.1, M=3, r_per_expert=8 | Q-side max-norm routing |
-| **LoRA-tool-FT** | r=8, q/k/v/o_proj, 500 examples, 3 epochs | full-tuning baseline |
-| (참고: Q-coverage β=−0.1) | ours, B_ont rank-24 | (자체 실행, 비교용) |
-| (참고: K-bias α=0.3) | ours, B_ont rank-24 | (자체 실행, 비교용) |
+⚠️ **Source-first 정책**: 각 method 의 *source* 컬럼 보고, 가능하면 original code wrapper 사용. proxy 는 source 부재 시만, label 명시.
+
+| Method | Source | 핵심 hyperparams (correction!) | 비고 |
+|---|---|---|---|
+| **SEKA** (Feng et al. 2025) | ✅ `external/SEKA/src/model/seka_llm.py` | layers=last10, amplify_pos=1-5 sweep, P_pos = B_ont @ B_ont.T | **K-side** + steer_mask. wrapper: `eval_subtask4_with_real_seka.py` 패턴 |
+| **AdaSEKA** M=2/3 (Kim et al. 2026) | ✅ `external/SEKA/src/model/adaptive_seka_llm.py` | combination_method='weighted_top_k', top_k=24, T sweep | **K-side** + per-query routing. **NOT Q-side max-norm** (source 확인) |
+| **CAA** (Rimsky 2024) | 🔴 clone https://github.com/nrimsky/CAA → `external/CAA/` | α=2.0, layer 16 (residual stream rank-1 bias) | 우리 `install_caa_hooks` 는 *B_ont 1st col* — original 은 contrastive paired-data 학습. **다른 알고리즘**, 별도 비교 필요 |
+| **ITI** (Li et al. 2023) | 🔴 clone https://github.com/likenneth/honest_llama → `external/ITI/` | α=15, top-48 heads, mean diff | per-head Q-side intervention |
+| **PASTA** (Zhang et al. 2023) | 🔴 clone https://github.com/QingruZhang/PASTA → `external/PASTA/` | α=0.01, all heads, attention bias | attention map 직접 수정 |
+| **Focus Directions** (Zhu et al. 2025) | 🔴 GitHub 검색 후 clone | α=3.0, top-3 directions | Q-side rank-3 |
+| **LoRA-tool-FT** | ✅ peft 표준 + 우리 `scripts/ocq/lora_train_metatool_v3.py` 패턴 | r=16, q/k/v/o/up/down_proj, mixed single+synthetic 2-tool | 우리 v3 결과 (F1 0.333) 와 비교용 |
+| **RAG-prompt** | LangChain retrieval (직접 작성 OK) | top-k 후보 retrieval + prompt injection | text-only baseline |
+| (참고: Q-coverage β=−0.1) | 우리 코드 | B_ont rank-24 Q-side 사영 빼기 | (자체 실행, 비교용) |
+| (참고: K-bias α=0.3) | 우리 코드 | B_ont rank-24 K 사영 더하기 | (자체 실행, 비교용) |
+
+**🔴 표시된 baselines**: source repo clone 작업이 baseline 평가 자체보다 시간 더 걸릴 수 있음. 추정:
+- SEKA + AdaSEKA: source 이미 있음 → 1 셀당 ~1h
+- CAA / ITI / PASTA / Focus: clone + integration ~2h × 4 + eval ~1h × 4 = ~12h
+- LoRA + RAG: 직접 작성 + eval ~2h × 2 = ~4h
+
+→ A100×4 병렬화 시 ~6h wall-clock 가능 (각 트랙 별도 설치).
 
 #### Track B — 같은 8 baselines on Subtask4 (N=497, multi-tool)
 동일 method 들. **multi-tool 가능한 방법** (AdaSEKA 2-3 expert) 만 multi-tool emission 가능; 나머지는 single-tool only — 이게 paper 의 핵심 주장 ("Q-side rank-1 routing 은 multi-tool emission 불가") 의 결정적 evidence.
