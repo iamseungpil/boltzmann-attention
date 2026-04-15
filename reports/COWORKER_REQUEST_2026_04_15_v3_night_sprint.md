@@ -58,9 +58,16 @@ Iteration 여부는 coworker 자체 판단 — 초기 결과가 13.5–15.0 구�
 
 **예상 GPU-hr**: 8-10h (calib + full WT2 PPL × 5 sweep points).
 
-### 🥉 P0-C — 8 baselines (CAA/ITI/PASTA/ASA/Focus/AdaSEKA/LoRA-tool-FT/RAG) full
+### 🥉 P0-C — 6 baselines degrade-gracefully (CAA/ITI/PASTA/Focus/LoRA-FT/RAG)
 
-이전 v2 request 그대로 — MetaTool Subtask1+4 에서 direct comparison. SEKA/AdaSEKA 는 P0-A 에서 커버됨, 나머지 6 baselines.
+SEKA/AdaSEKA 는 P0-A 에서 커버됨. 나머지 6 baselines 중:
+
+**⭐ 완료 정의 (degrade gracefully)**:
+- **Full credit (+0.30)**: **모든 6 개** Subtask1+4 complete
+- **Partial credit (+0.15)**: **우선 3개 (CAA + ITI + LoRA-FT)** Subtask1+4 complete — SEKA (P0-A) 외 가장 많이 인용되는 prior, LoRA-FT 는 우리 Cor 6.16 와 직접 비교
+- **Null**: 3 개 미만
+
+18-24 GPU-hr 에 6 개 완료는 타이트하므로 priority 순서 (CAA → ITI → LoRA-FT → PASTA → Focus → RAG). CAA/ITI/LoRA-FT 는 source 이미 public (clone + wrapper 만), PASTA/Focus 는 구현 복잡도 높을 수 있음.
 
 **Source-first 정책 (필수)**:
 - CAA: clone https://github.com/nrimsky/CAA
