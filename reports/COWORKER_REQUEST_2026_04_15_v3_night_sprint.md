@@ -3,7 +3,7 @@
 **발신**: develop side (mais)
 **시간**: 2026-04-15 17:30 KST
 **대상**: A100×4 보유 coworker
-**Deadline**: **NeurIPS 2026 submission 2026-05-15 (29 일 후)**
+**Deadline**: **NeurIPS 2026 abstract 2026-05-04 / full paper 2026-05-06 (D-19 ~ D-21)** ⚠️ 정정: 5/15 아님
 **목적**: NeurIPS 2026 main-track 진입 — 현재 6.3/10 → 목표 6.8-7.0/10 (accept 60-70%)
 
 ## ⚡ 현재 상황 — 왜 긴급한가
