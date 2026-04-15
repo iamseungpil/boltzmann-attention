@@ -1164,11 +1164,16 @@ QKV joint is implementable as `eval_metatool_subtask4_qkv.py` with per-step Q ho
 | K-only $\alpha_K=0.3$ | 0.533 | −0.017 |
 | V-only $\gamma_V=0.3$ | 0.550 | 0 |
 | K + V ($\alpha_K = \gamma_V = 0.3$) | 0.533 | −0.017 |
-| **Q-only $\beta_Q = -0.1$** | **0.658** | **+0.108** |
+| **Q-only $\beta_Q = -0.1$** | **0.658** | **+0.108** ★ |
 | Q-only $\beta_Q = -0.3$ | 0.575 | +0.025 |
 | Q-only $\beta_Q = -0.5$ | 0.600 | +0.050 |
-| K + Q ($\alpha_K = 0.3, \beta_Q = -0.3$) | 0.500 | **−0.050** |
-| **K + V + Q (Thm 6.17 trio at $\alpha = 0.3$)** | **0.500** | **−0.050** |
+| **V + Q ($\gamma_V = 0.1, \beta_Q = -0.1$, K=0)** | **0.658** | **+0.108** ★ |
+| K + Q small ($\alpha_K = 0.05, \beta_Q = -0.1$, V=0) | 0.525 | **−0.025** |
+| K + Q tiny ($\alpha_K = 0.05, \gamma_V = 0.05, \beta_Q = -0.05$) | 0.525 | **−0.025** |
+| K + Q medium ($\alpha_K = 0.1, \beta_Q = -0.1$, V=0) | 0.533 | −0.017 |
+| K + V + Q small ($\alpha_K = 0.1, \gamma_V = 0.1, \beta_Q = -0.1$) | 0.500 | −0.050 |
+| K + Q ($\alpha_K = 0.3, \beta_Q = -0.3$) | 0.500 | −0.050 |
+| **K + V + Q (Thm 6.17 trio at $\alpha = 0.3$)** | 0.500 | −0.050 |
 
 Three observations:
 
