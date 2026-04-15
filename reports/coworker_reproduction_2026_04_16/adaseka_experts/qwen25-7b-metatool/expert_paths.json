@@ -1,0 +1,6 @@
+{
+  "function_action": "reports/coworker_reproduction_2026_04_16/adaseka_experts/qwen25-7b-metatool/facet_function_action_svd.pt",
+  "io_type": "reports/coworker_reproduction_2026_04_16/adaseka_experts/qwen25-7b-metatool/facet_io_type_svd.pt",
+  "domain": "reports/coworker_reproduction_2026_04_16/adaseka_experts/qwen25-7b-metatool/facet_domain_svd.pt",
+  "tool_category": "reports/coworker_reproduction_2026_04_16/adaseka_experts/qwen25-7b-metatool/facet_tool_category_svd.pt"
+}
