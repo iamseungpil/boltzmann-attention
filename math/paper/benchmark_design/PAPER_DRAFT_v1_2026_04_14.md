@@ -1053,6 +1053,25 @@ L3 v3 evaluation:
 
 **v3 progression honest**: synthetic multi-tool augmentation halves the single-tool-bias gap (51pp → 40pp) but does not close it. Real Subtask3/4 train splits would likely close further; we leave for future work. **Cor 6.16.1 remains falsified at the v3 recipe but with a clearer convergence trajectory** (v1 0.533 → v2 0.219 → v3 0.333; further v4 with real multi-tool training data is the next step, not currently scheduled).
 
+### 5.10.2 E12 — Plan-success prediction via cumulative stability (Thm 6.20, in progress)
+
+**Motivation.** Single-step accuracy lifts (§5.5, §5.5.2) help per-call selection but do not directly address *multi-step plan failure*, which dominates real deployment cost. A 5-step plan with per-step success 0.85 has total success 0.44; with 0.95, 0.77; with 0.99, 0.95. The deployment-relevant question is therefore not "improve per-step accuracy by 1.6pp" but "*predict plan failure at step t < T and abort/replan*", saving the wasted compute of executing a doomed plan.
+
+**Mechanism (Thm 6.20).** Per-step ontology stability $\varepsilon_{q_t} = \|B_{\mathrm{ont}}^\top q_t\|^2 / \|q_t\|^2$ already serves as the plan-time predictor — *no new measurement is needed*; we reuse the same $B_{\mathrm{ont}}$ basis defined for §5.5 stability and §5.5.2 Q-coverage. Theorem 6.20 (Appendix B.7.13) gives the cumulative bound:
+$$P_{\mathrm{plan}} \ge \prod_{t=1}^T (1 - C(1 - \varepsilon_{q_t}))_+, \qquad \min_t \varepsilon_{q_t} < \varepsilon^* \Rightarrow P_{\mathrm{plan}} < p^*$$
+
+**Eval protocol** (queued, ETA 1-2 GPU-day):
+- Datasets: τ²-bench retail (already-built B_ont in `external/SEKA/seka_projections/ontology-qwen25-7b-tau2-retail/`), τ²-bench airline, BFCL-v3 multi-turn.
+- Procedure: for 50–200 conversations per domain, log per-step $\varepsilon_{q_t}$; record final task success (binary). Compute AUROC of $\min_t \varepsilon_{q_t}$ as predictor of success.
+- Pre-defined thresholds: AUROC > 0.7 → plan-prediction valid; AUROC < 0.6 → degenerate.
+
+**Three falsifiable predictions** (Rmk 6.20.2):
+1. AUROC of $\min_t \varepsilon_{q_t}$ on plan success/failure ≥ 0.7 across τ²-retail.
+2. Threshold-effective $\varepsilon^*$ exists: plans with $\min_t \varepsilon_{q_t} < \varepsilon^*$ have observed success ≤ 30% (vs. base ≥ 50%).
+3. Runtime-abort saves ≥ 30% execution compute at ≤ 5pp final success drop.
+
+If all three pass, Thm 6.20 becomes a 5th main contribution alongside Cor 6.9.6 / Thm 6.17 / Thm 6.18 / Thm 6.19. If (1) fails, the theorem is degenerate on this benchmark and we leave it as future work for harder-stability benchmarks.
+
 ### 5.11 Future work (E11–E16)
 
 Deferred with placeholders in camera-ready; execution ~100 GPU-hr total:
