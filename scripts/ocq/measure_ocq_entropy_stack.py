@@ -159,8 +159,20 @@ def quantize_ocq(K: torch.Tensor, B: torch.Tensor, r_ont: int,
 
 
 def pack_bits_to_bytes(ont_idx: np.ndarray, res_idx: np.ndarray,
-                       res_bits: int) -> bytes:
-    """Tightly pack 1-bit ontology indices + R-bit residual indices."""
+                       res_bits: int, layout: str = "channel_major") -> bytes:
+    """Tightly pack 1-bit ontology indices + R-bit residual indices.
+
+    layout: "channel_major" puts all tokens of one channel adjacent
+            (favorable for temporal-redundancy entropy coding);
+            "token_major" puts all channels of one token adjacent (default
+            numpy reshape order — adjacent bytes are different channels).
+    """
+    # Reorder to put temporally-adjacent same-channel values together.
+    # ont_idx: (H, S, r_ont)  → channel_major: transpose to (H, r_ont, S)
+    # res_idx: (H, S, d)      → channel_major: transpose to (H, d, S)
+    if layout == "channel_major":
+        ont_idx = np.ascontiguousarray(ont_idx.transpose(0, 2, 1))
+        res_idx = np.ascontiguousarray(res_idx.transpose(0, 2, 1))
     # 1-bit ontology
     ont_flat = ont_idx.reshape(-1).astype(np.uint8)
     ont_bytes = np.packbits(ont_flat).tobytes()
