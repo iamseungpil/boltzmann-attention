@@ -582,39 +582,49 @@ The destructive K×Q interaction (smoke F1 0.500 vs Q-only 0.658) is documented 
 
 The paper-level claim for §5.5.2 is thus **"QV-joint coverage-aware steering"** (not "QKV-joint"), with K-channel reserved for the orthogonal stability axis (§5.5). The unified Pareto frontier (Thm 6.19) is parameterized by $(\beta_Q, \gamma_V, b^*)$ at $\alpha_K = 0$ on the accuracy axis; the K-channel parameterizes only the stability axis at $\alpha_K = 0.3$. This re-scoping maintains theoretical honesty: the same $B_{\mathrm{ont}}$ basis serves both roles, but the K-channel direction sign and magnitude differ between stability (where K is the dominant channel) and accuracy (where K must be excluded).
 
-### 5.5.3 Direct baseline comparison — CAA, AdaSEKA proxy (Subtask4 N=497, Qwen2.5-7B-Instruct)
+### 5.5.3 Direct comparison — CAA-on-B_ont and an internally-developed soft Q-routing variant (Subtask4 N=497, Qwen2.5-7B-Instruct)
 
-We implement two prior steering baselines using the same $B_{\mathrm{ont}}$ ontology basis, removing the "different basis" confound:
+**Important correction (2026-04-15)**: An earlier version of this section labeled one of the comparators as "AdaSEKA proxy". After consulting the actual SEKA codebase (`external/SEKA/src/model/seka_llm.py`, `adaptive_seka_llm.py`), we confirmed the labeled method *does not implement AdaSEKA*. Real AdaSEKA is **K-side** with single-per-query routing on the *last token of prompt* and uses a `steer_mask` over selected tokens; our implementation is **Q-side** with per-step softmax routing across all tokens. We therefore relabel the comparator as "soft-routed Q-side facet bias" (a previously-undocumented intervention) and *defer the actual SEKA / AdaSEKA comparison* to a separate evaluation using the original code (in progress, results in §5.5.3.1 below upon completion).
 
-- **CAA-on-B_ont** (Rimsky 2024 mechanism): rank-1 residual-stream bias using $B_{\mathrm{ont}}$'s first column as the contrast direction, applied at mid-3 layers.
-- **AdaSEKA-proxy on B_ont** (Kim et al. 2026 mechanism): M-of-1 expert routing on $B_{\mathrm{ont}}$ split into $M$ equal-rank facets, with softmax routing at temperature $T$.
+We implement two interventions using the same $B_{\mathrm{ont}}$ ontology basis, removing the "different basis" confound:
+
+- **CAA-on-B_ont** (mechanism after Rimsky 2024): rank-1 residual-stream bias using $B_{\mathrm{ont}}$'s first column as the contrast direction, applied at mid-3 layers.
+- **Soft-routed Q-side facet bias** (this paper, *not* AdaSEKA): M-of-1 *soft* (T=0.1) softmax routing on $B_{\mathrm{ont}}$ split into $M$ equal-rank facets, applied to **Q** at all positions, all layers. The effective operator is $q \to q + \alpha \sum_m \mathrm{softmax}(\|B_m^\top q\|^2/T) \cdot B_m B_m^\top q$.
 
 Full 497 results (2026-04-15):
 
 | Method | F1 | F0.5 | Exact | Δ vs no_steer 0.731 |
 |---|---|---|---|---|
 | no_steer | 0.731 | 0.745 | 0.525 | — |
-| **CAA α=3 (rank-1, B_ont 1st col)** | **0.747** | 0.764 | 0.533 | **+1.6pp F1, +0.8pp Exact** |
-| Ours Q-coverage β=−0.1 (rank-24 Q-side) | 0.747 | 0.763 | 0.527 | +1.6pp F1, +0.2pp Exact |
-| **AdaSEKA proxy M=2 α=0.05 T=0.1 (rank-12-per-expert, soft)** | **0.768** | **0.782** | **0.573** | **+3.7pp F1, +4.8pp Exact** ⚡ |
+| **CAA α=3 (rank-1, B_ont 1st col, residual-stream)** | **0.747** | 0.764 | 0.533 | **+1.6pp F1, +0.8pp Exact** |
+| Ours Q-coverage β=−0.1 (rank-24 Q-side, uniform negative) | 0.747 | 0.763 | 0.527 | +1.6pp F1, +0.2pp Exact |
+| **Soft-routed Q-side facet bias** (M=2 α=0.05 T=0.1 on B_ont, **NOT AdaSEKA**) | **0.768** | **0.782** | **0.573** | **+3.7pp F1, +4.8pp Exact** ⚡ |
+| Real SEKA (K-side, P_pos via B_ont B_ont^T, steer_mask=user_query) | TBD | TBD | TBD | (eval in progress) |
+| Real AdaSEKA (K-side, per-query routing, steer_mask=user_query) | TBD | TBD | TBD | (eval in progress) |
 
 **Honest interpretation — three findings of paper-grade significance**:
 
 1. **CAA-on-B_ont matches Q-coverage on F1** (both 0.747). The rank-R = 24 advantage of Q-coverage over rank-1 CAA *fails to materialize* on this benchmark. The shared *ontology direction* is the load-bearing factor; the rank R does not contribute additional accuracy lift here.
-2. **AdaSEKA-proxy (M=2, T=0.1) beats both** at F1 = 0.768 (+2.1pp over Q-coverage and CAA, +4.8pp Exact). Note our proxy uses *soft* routing (T=0.1), not the original hard max-of-M; effectively this is a soft-routed Q-bias on $B_{\mathrm{ont}}$ that uses both halves with weighted activation. This is technically *not* a falsification of Cor 6.9's max-norm rank-saturation prediction (which requires hard argmax) but is a stronger Q-side variant on the same ontology basis.
-3. **All three methods (Ours, CAA, AdaSEKA-proxy) lift only because of $B_{\mathrm{ont}}$**. Random and featshuffle null-controls collapse our Q-coverage to F1=0.707 and 0.725 (§5.5.2); we expect the same null-control collapse for CAA and AdaSEKA-proxy on random $B_{\mathrm{ont}}$ (queued for verification).
+2. **The soft-routed Q-side facet bias (mislabeled "AdaSEKA proxy" in earlier draft) beats both** at F1 = 0.768 (+2.1pp over Q-coverage and CAA, +4.8pp Exact). This is a previously-undocumented intervention — a *Q-side* variant with *soft per-step routing* that uses positive sign and adaptive per-facet weighting. Because of (i) Q-side hook, (ii) per-step routing, (iii) no steer_mask, (iv) positive sign, it is *mechanistically distinct* from real AdaSEKA (K-side, per-query routing on last prompt token, steer_mask required, positive sign with P_pos = U U^T) and from real SEKA (K-side, single learned P_pos, steer_mask required). We therefore present this as a *new intervention proposed in this work*, not a baseline comparison; the actual SEKA / AdaSEKA comparison appears in §5.5.3.1 below (in progress).
+3. **All three (CAA-on-B_ont, Q-coverage, soft-routed Q-side facet bias) lift only because of $B_{\mathrm{ont}}$**. Random and featshuffle null-controls collapse Q-coverage to F1=0.707 and 0.725 (§5.5.2); same null-control verification queued for the other two.
 
-**Updated paper claim for §5.5.3**:
-> The per-head ontology basis $B_{\mathrm{ont}}$ is the load-bearing geometric structure for accuracy lift on multi-tool function calling. Three different intervention mechanisms — rank-1 residual-stream bias (CAA-style), rank-24 Q-coverage subtraction, and soft M-of-2 Q-side routing (AdaSEKA-style) — all produce positive accuracy lift only when applied to $B_{\mathrm{ont}}$, with effect sizes 1.6, 1.6, and 3.7 pp respectively. The unified contribution is the ontology basis itself; the choice of intervention mechanism is secondary, and the soft-routed Q-bias variant outperforms simpler rank-1 / Q-coverage instances by 2.1pp F1 / 4.8pp Exact.
+**Updated paper claim for §5.5.3 (corrected)**:
+> The per-head ontology basis $B_{\mathrm{ont}}$ is the load-bearing geometric structure for accuracy lift on multi-tool function calling. Multiple intervention mechanisms produce positive lift on $B_{\mathrm{ont}}$ — rank-1 residual-stream bias (CAA-style, +1.6pp), rank-24 uniform Q-coverage subtraction (this paper, +1.6pp), and soft-routed Q-side facet bias (this paper, +3.7pp F1 / +4.8pp Exact). The unified contribution is the ontology basis itself; the choice of intervention mechanism is secondary. Comparison with the actual SEKA / AdaSEKA codebase (K-side, with steer_mask) appears in §5.5.3.1 (eval in progress).
 
-**Reframed §1.1 contribution structure**:
+**Reframed §1.1 contribution structure (corrected)**:
 - Item 0/1 (Cor 6.9.6 stability): unchanged, +68.5pp gap is *rank-24 dependent* (verified — random/featshuffle rank-24 controls fail).
-- Item 7 (accuracy lift): the verified family is **"$B_{\mathrm{ont}}$-based interventions"** broadly, not specifically "QV-joint". CAA-on-B_ont, Q-coverage, and AdaSEKA-proxy are all valid instances; AdaSEKA-proxy is empirically strongest. The "rank-24 advantage for accuracy" claim is *not supported* on this benchmark.
+- Item 7 (accuracy lift): the verified family is **"$B_{\mathrm{ont}}$-based Q-side and residual-stream interventions"**. CAA-on-B_ont (rank-1), Q-coverage (rank-24 uniform), and soft-routed Q-side facet bias (rank-24 adaptive) are all valid instances; the soft-routed variant is empirically strongest at +3.7pp F1.
+- *Note*: until §5.5.3.1 actual-SEKA result lands, we cannot claim "ours beats SEKA". We defer that comparison to the corrected experiment.
 
-**Pending verifications**:
-- True hard-argmax AdaSEKA (T → 0): tests Cor 6.9 max-norm rank cap directly.
-- Null-control on CAA and AdaSEKA-proxy (random/featshuffle B_ont): tests whether their lift is also ontology-specific.
-- AdaSEKA M-sweep (M ∈ {2, 3, 4} × T ∈ {0.01, 0.1}): characterizes the rank-vs-routing trade-off.
+#### 5.5.3.1 Actual SEKA / AdaSEKA evaluation using the original codebase (in progress)
+
+To replace the mislabeled "AdaSEKA proxy" comparator, we run the actual SEKA / AdaSEKA implementation from `external/SEKA/src/model/{seka_llm,adaptive_seka_llm}.py` adapted for MetaTool Subtask4:
+
+1. *Convert $B_{\mathrm{ont}} \in \mathbb R^{(L,H,d,r=24)}$ to SEKA-format $P_{\mathrm{pos}} \in \mathbb R^{(L,H,d,d)}$*: $P_{\mathrm{pos}} = B_{\mathrm{ont}} B_{\mathrm{ont}}^\top$ (rank-24 projector embedded in d×d).
+2. *Build steer_mask*: token-level mask over the user-query span (between system message and assistant turn).
+3. *Run SEKALLM.generate(...)* per Subtask4 query at sweep of `amplify_pos ∈ {1, 2, 5}` and AdaSEKA `amplify_factor ∈ {0.5, 1.0, 2.0}` × `temperature ∈ {0.1, 1.0}`.
+
+Pending: results table to populate the §5.5.3 table rows above marked "(eval in progress)". ETA ~3 GPU-hr.
 
 ### 5.5.1 Mistral-Instruct H2 progress (Wave 3b)
 
