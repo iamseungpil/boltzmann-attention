@@ -838,7 +838,16 @@ The destructive K×Q interaction (smoke F1 0.500 vs Q-only 0.658) is documented 
 
 - **K-bias** (Cor 6.9.6 §5.5): verified *stability* contribution (+68.5pp direction-specificity gap). *Not* a verified accuracy-lift contribution; excluded from Thm 6.17's accuracy-lift family.
 - **Q-coverage** (Thm 6.17 (b), this section): verified accuracy-lift contribution at full 497 (+1.6pp F1, ontology-specific via 3-tier null-control).
-- **V + Q joint** ($\gamma_V = 0.1, \beta_Q = -0.1, \alpha_K = 0$): smoke-positive (+10.8pp, N=20); **full 497 pending and not yet verified**. We explicitly note the precedent of contrastive K-bias (smoke +5.8pp → full −3.6pp, §5.5.2 above) which exhibited smoke-to-full sign reversal on the same benchmark; V+Q is therefore reported as *conditional* until the PM Wave 2 full 497 result confirms.
+- **V-only single-axis ablation** (full 497, Qwen2.5-7B-Instruct, 2026-04-15 15:00 KST):
+
+  | Method | F1 | Δ vs no_steer 0.731 |
+  |---|---|---|
+  | `ocq_vbias_a0.1` | 0.726 | −0.43pp |
+  | `ocq_vbias_a0.3` | 0.722 | −0.90pp |
+
+  V-only single-axis is *expected negative-control under joint Pareto framing*: Thm 6.17's first-order optimum is over the joint trio $(\Delta_Q, \Delta_K, \Delta_V)$, so isolated $\Delta_V$ marginal need not be positive. The signal must arise from V+Q superadditivity. This single-axis fail is consistent with the Q-side gradient (Thm 6.17 (b)) being the load-bearing first-order term and V acting as a *modulator* requiring the Q-coverage carrier.
+
+- **V + Q joint** ($\gamma_V = 0.1, \beta_Q = -0.1, \alpha_K = 0$): smoke-positive (+10.8pp, N=20); **full 497 wave queued (PID 2795335, ~20:00 KST 2026-04-15)**. Decision rule pre-registered: trio cell `ocq_qkv_a0.05_v0.05_q-0.1` F1 ≥ 0.765 (= Q-only 0.747 + 1.8pp) confirms superadditivity; F1 ∈ [0.735, 0.747] reduces V channel to "marginal-neutral, Q load-bearing"; F1 < 0.735 retreats to single-axis Q-coverage framing. We explicitly note the precedent of contrastive K-bias (smoke +5.8pp → full −3.6pp, §5.5.2 above) which exhibited smoke-to-full sign reversal on the same benchmark; V+Q is therefore reported as *conditional* until the queued full 497 result resolves.
 - **K-inclusion in accuracy lift**: *empirically falsified* at every tested K-magnitude. K-channel lift attempts fall outside the verified family.
 
 The paper-level claim for §5.5.2 is thus **"QV-joint coverage-aware steering"** (not "QKV-joint"), with K-channel reserved for the orthogonal stability axis (§5.5). The unified Pareto frontier (Thm 6.19) is parameterized by $(\beta_Q, \gamma_V, b^*)$ at $\alpha_K = 0$ on the accuracy axis; the K-channel parameterizes only the stability axis at $\alpha_K = 0.3$. This re-scoping maintains theoretical honesty: the same $B_{\mathrm{ont}}$ basis serves both roles, but the K-channel direction sign and magnitude differ between stability (where K is the dominant channel) and accuracy (where K must be excluded).
