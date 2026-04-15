@@ -126,7 +126,7 @@ The $\rho^4$-scaling-matched divergence (soft plateau vs hard monotone increase 
 
 ### 3.6 Unified Frame: Theorems 6.17–6.19 (steering + compression Pareto)
 
-The K-only stationary perturbation of §3.3 is the *baseline operating point* of the facet-gated operator (stability via Cor 6.9.6, verified at +68.5pp). The *full* operator generalizes to a per-step QKV-joint construction whose accuracy-lift optimality follows from a Lagrangian decomposition over the same ontology basis. The same basis additionally parameterizes a Pareto-optimal KV-cache compression scheme. We state three theorems formalizing this unification (proofs in Appendix B.7.10–B.7.12).
+The K-only stationary perturbation of §3.3 is the *baseline operating point* of the facet-gated operator (stability via Cor 6.9.6, verified at +68.5pp). The accuracy-lift extension generalizes to a per-step **QV-joint construction** (Q-coverage + V-amplifier on the same $B_{\mathrm{ont}}$, with $\alpha_K = 0$). The K-channel is *reserved for the stability axis only*; empirically K-inclusion at any $\alpha_K > 0$ destroys the accuracy lift on this ontology subspace (Rmk 6.17.3 in Appendix B.7.10). The same $B_{\mathrm{ont}}$ basis additionally parameterizes a Pareto-optimal KV-cache compression scheme. We state three theorems formalizing this unification (proofs in Appendix B.7.10–B.7.12).
 
 #### 3.6.1 Theorem 6.17 — QKV-Joint Coverage-Aware Accuracy Optimality
 
