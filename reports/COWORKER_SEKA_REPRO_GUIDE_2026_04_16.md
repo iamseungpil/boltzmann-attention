@@ -262,11 +262,16 @@ A100 에서 Phase 1 실행 후 다음 정보 주세요:
 - `scripts/diagnostics_2026_04_16/eval_subtask4_with_adaseka.py` — our AdaSEKA canonical eval (Phase 2B)
 - `scripts/diagnostics_2026_04_16/build_adaseka_experts_from_bont.py` — per-facet B_f → AdaSEKA expert list
 
-### Data (already in repo via symlinks)
-- `external/SEKA/data/pasta_bench/{counterfact.jsonl, attribute_snippets.json, tfidf_vocab.json, idf.npy}`
-- `external/SEKA/seka_projections/counterfact/Qwen3-4B-Base/{Qwen3-4B-Base_pos_proj.pt, Qwen3-4B-Base_neg_proj.pt}`
-- `external/SEKA/seka_projections/adaseka-qwen25-7b-metatool/expert_paths.json` — ready for Phase 2B
-- `external/SEKA/seka_projections/adaseka-llama31-8b-metatool/expert_paths.json` — ready for Phase 2B
+### Data & pre-built files for coworker (tracked in main repo)
+**Note**: SEKA clone at `external/SEKA/` is a nested git repo and not tracked by main repo. The key files that coworker needs from our build are copied to:
+- `reports/coworker_reproduction_2026_04_16/B_ont/{qwen25-7b,llama31-8b,mistral-7b-v03}-metatool_B_ont.pt` — our B_ont files
+- `reports/coworker_reproduction_2026_04_16/adaseka_experts/{qwen25-7b,llama31-8b}-metatool/` — per-facet AdaSEKA expert SVDs + expert_paths.json (ready for Phase 2B)
+
+**Files coworker needs to fetch separately**:
+- SEKA code: `git clone https://github.com/waylonli/SEKA external/SEKA && cd external/SEKA && git checkout 679149e`
+- SEKA CounterFact data: `huggingface-cli download waylonli/SEKA-datasets --repo-type dataset --local-dir external/SEKA/data` (then symlink pasta_bench files)
+- SEKA pre-built Qwen3-4B-Base projections: included in SEKA repo under `seka_projections/counterfact/Qwen3-4B-Base/`
+- Qwen3-4B-Base model: `huggingface-cli download Qwen/Qwen3-4B-Base`
 
 ### Reference results (SEKA authors, pre-computed)
 - `external/SEKA/benchmarks/counterfact/results/seka-qwen3-4b-500/efficacy_metrics.json` — ES=0.9520
