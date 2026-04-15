@@ -164,6 +164,41 @@ G0_CHAIN_PID=$!
       > "$L_DIR/llama_st4_q.log" 2>&1
   echo "[g1p2] Llama st4 Q done $(date)" >> "$LOG_BASE/chain.log"
 
+  # Wave E (NEW 2026-04-15 13:00): V+Q joint full 497 — verify smoke F1=0.658
+  # at full scale. (V+Q smoke matched Q-only +10.8pp; if also matches at full,
+  # represents partial Thm 6.17 (a)+(c) verification with K excluded.)
+  echo "[g1p2] V+Q joint full 497 sweep $(date)" >> "$LOG_BASE/chain.log"
+  python scripts/ocq/eval_metatool_subtask4.py \
+      --model "$QWEN" --device cuda:1 \
+      --methods no_steer ocq_qkv_a0_v0.1_q-0.1 ocq_qkv_a0_v0.05_q-0.1 ocq_qkv_a0_v0.1_q-0.05 ocq_qkv_a0_v0.2_q-0.1 \
+      --b-ont "$BONT_QWEN" \
+      --out "$O_DIR/qwen_st4_VplusQ_full497.json" \
+      > "$L_DIR/VplusQ_full.log" 2>&1
+  echo "[g1p2] V+Q full done $(date)" >> "$LOG_BASE/chain.log"
+
+  # Wave F (NEW): cross-model V+Q smoke on Llama-Inst (10 min)
+  echo "[g1p2] Llama V+Q smoke $(date)" >> "$LOG_BASE/chain.log"
+  python scripts/ocq/eval_metatool_subtask4.py \
+      --model "$LLAMA_INST" --device cuda:1 \
+      --methods no_steer ocq_qkv_a0_v0.1_q-0.1 \
+      --b-ont "$BONT_LLAMA" \
+      --max-samples 20 \
+      --out "$O_DIR/llama_st4_VplusQ_smoke.json" \
+      > "$L_DIR/llama_VplusQ_smoke.log" 2>&1
+  echo "[g1p2] Llama V+Q smoke done $(date)" >> "$LOG_BASE/chain.log"
+
+  # Wave G (NEW): Q-coverage with HIGHER β scan on Subtask1 — does Subtask1
+  # need different β than Subtask4? (single-tool task may favor different mag)
+  echo "[g1p2] Subtask1 Q-coverage β-sweep $(date)" >> "$LOG_BASE/chain.log"
+  python scripts/ocq/eval_metatool_subtask1.py \
+      --model "$QWEN" --device cuda:1 \
+      --methods no_steer ocq_qbias_b-0.05 ocq_qbias_b-0.1 ocq_qbias_b-0.3 \
+      --b-ont "$BONT_QWEN" \
+      --max-new-tokens 32 \
+      --out "$O_DIR/qwen_st1_qbias_sweep_full995.json" \
+      > "$L_DIR/qwen_st1_qbias_sweep.log" 2>&1
+  echo "[g1p2] Subtask1 Q sweep done $(date)" >> "$LOG_BASE/chain.log"
+
   echo "[g1p2] GPU1 chain COMPLETE $(date)" >> "$LOG_BASE/chain.log"
 ) &
 G1_CHAIN_PID=$!
