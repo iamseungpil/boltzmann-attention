@@ -46,18 +46,106 @@ We frame this result as a **stability property** of the rank-$R$ ontology subspa
 
 ## 2. Related Work
 
-- **Q-side steering**: CAA (Rimsky 2024), ITI (Li et al. 2023), PASTA (Zhang et al. 2023), ASA (Wang et al. 2026), Focus Directions (Zhu et al. 2025), AdaSEKA (Kim et al. 2026). All insert a rank-1 or rank-M perturbation into query or residual stream.
-- **K-side perturbation**: SEKA (Feng et al. 2025) directly modifies K but uses a single-expert subspace without facet decomposition.
-- **Theory**: Kim–Papyan–Donoho (NeurIPS 2021) for softmax-attention Lipschitz; Zhang–Kumar (2023) for token-mixing perturbation bounds. No prior work gives a per-query attention-output bound with leading term `qaMSE · Var_s[V]`.
-- **Tool-use benchmarks**: MetaTool (Huang et al. 2024), τ²-bench (Chen et al. 2025), BFCL-v3 (Yan et al. 2026), NexusRaven (Srinivasan et al. 2024).
-- **KV-cache compression**: We organize prior work into four families and place our contribution explicitly.
-  1. *Per-channel quantization*: KIVI (Liu et al. 2024) per-channel asymmetric, AsymKV, KVQuant (per-channel uniform + outlier handling).
-  2. *Token eviction / sequence-axis*: H2O (Zhang et al. 2024), StreamingLLM (Xiao et al. 2024), SnapKV, GEAR (pyramidal eviction + low-rank). These are *orthogonal* to our feature-axis approach; H2O-class methods stack on top of any feature-axis quantizer including ours.
-  3. *Rotation-based feature-axis quantization*: TurboQuant (random orthogonal rotation + Lloyd-Max scalar codebook), SpinQuant (learned rotation), PolarQuant (polar coordinates), QuaRot (Hadamard rotation, incoherence-preserving). These show that *some* rotation is essential but their internal Mistral/Llama PPL ablations show PCA vs Random differ only by 0.07–0.9% at 2-bit (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md`); the *quality of the rotation* therefore is not where the leverage lies. Our $B_{\mathrm{ont}}$ exploits a *different axis* of variation: not "good rotation for Gaussian features" but "categorical-channel separation respecting (H-cat)" which prior works do not test.
-  4. *Low-rank projection / DP-bit allocation*: ThinK, LESS, KVCompress, **KVTC** (NVIDIA ICLR 2026: per-layer PCA basis + DP-optimal bit allocation per component + DEFLATE/LZMA2 entropy coding, up to 20× compression). KVTC is the most direct compression baseline. Our internal retrospective on Llama-3.1-8B 2-bit further finds *per-head* PCA (10.14 PPL) beats KVTC's *shared* PCA (18.87 PPL) by 46.3% — our $B_{(\ell,h)}$ is per-(layer, head) by construction.
-  5. *Lloyd-vs-Uniform finding* (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md`, internal): Lloyd-Max scalar quantization, despite reducing reconstruction MSE by 74%, *increased* PPL in 9/9 settings (3 models × 3 bit-widths). This empirical separation between MSE and downstream quality is what motivates Thm 6.1's attention-output bound as the correct optimization target — the formalization of the observation that prior MSE-minimizing rotations underperform.
+We organize prior work into three threads — **(A) inference-time activation/attention steering**, **(B) KV-cache compression**, **(C) attention bounds and theory** — and a fourth on **(D) tool-use evaluation**.
 
-  Our Thm 6.13 / 6.18 / 6.19 occupy a different axis from all five families: (i) *categorical* (ontology-derived) rather than Gaussian (PCA) decorrelation; (ii) *attention-output distortion* (Thm 6.1) rather than reconstruction-MSE objective; (iii) the same basis $B_{\mathrm{ont}}$ simultaneously parameterizes inference-time steering Pareto-optimality (Thm 6.19) — a coupling no prior compression work considers. Detailed empirical comparison in §5.9.1 (KVTC) and §5.9.2 (FOKVQ-PCA retrospective).
+### 2.1 Activation / attention steering
+
+The literature spans residual-stream interventions, attention-output and attention-map interventions, and (most recently) K-side spectral interventions. We list each method by intervention site and direction-source, with explicit positioning of our contribution.
+
+**Residual-stream additive interventions.**
+- **Activation Addition (ActAdd)** (Turner et al. 2023, arXiv:2308.10248) — single learned vector added to residual stream, all positions.
+- **Representation Engineering (RepE)** (Zou et al. 2023, arXiv:2310.01405) — superset framework for residual-stream steering across many concepts (sentiment, truth, refusal). Subramani et al. 2022 (Latent Steering Vectors) is the academic origin.
+- **Contrastive Activation Addition (CAA)** (Rimsky et al. 2024, ACL; arXiv:2312.06681) — mean-difference of multiple-choice contrastive pair activations at residual stream layer. Llama-2-7B-Chat L=13 optimal, 7 behaviors. Code: `nrimsky/CAA`.
+- **Conceptors** (Yan et al. 2024, arXiv:2410.16314) — improved addition-based steering using conceptors.
+- **SAE-Trained Steering (SAE-TS)** (Chalnev 2024, arXiv:2411.02193) — Sparse Auto-Encoder feature directions; first quantitative proof that decoder direction ≠ causal direction (Golden Gate Claude failure mechanism).
+- **KL-then-Steer (KTS)** (Stickland et al. 2024, arXiv:2406.15518) — adds forward-KL fine-tuning loss to mitigate steering side effects.
+- **ASA (Adaptive Steering for Activation)** (Wang et al. 2026, arXiv:2602.04935) — single-layer residual stream Mixture-of-Vectors with router + ternary gate, last-prompt-token only. MTU-Bench Qwen2.5-1.5B: F1 0.18→0.50 with FPR 0.15→0.05 at α=4.0 L=18.
+- **Activation Steering with Feedback Controller** (2025, arXiv:2510.04309) — runtime closed-loop control.
+- **AdaActSteer** (Web Conf 2025) — adaptive truthfulness-improving steering for diverse hallucination categories.
+
+**Per-head attention-output interventions.**
+- **Inference-Time Intervention (ITI)** (Li et al. 2023, NeurIPS; arXiv:2306.03341) — bias on `o_proj` input (attention-output, post-softmax-weighted V, pre-W_O). Equivalent to constant W_O bias; attention pattern *untouched*. Llama-7B optimal K=48/1024 heads, α=15. TruthfulQA True×Info 30.5 → 43.5. Code: `likenneth/honest_llama`.
+
+**Attention-map / attention-score interventions.**
+- **PASTA** (Zhang et al. 2024, ICLR; arXiv:2311.02262) — post-softmax row reweighting for user-marked tokens, intersection of top-k heads from multi-task profiling. Llama-7B 50–150 heads, α=0.01 default. Code: `QingruZhang/PASTA`.
+- **GUIDE / InstABoost / Spotlight** (2024–2025, arXiv:2409.19001 / 2506.13734 / 2505.12025) — attention-score bias family.
+- **Fact Grounded Attention (FGA)** (Gupta 2025, arXiv:2509.25252) — pre-softmax attention bias from external fact KB (137 entities × 12 attributes). Layer 20–27 of Llama-3.2-3B; 6.3% → 99.7% on 1107 spec QA. Code: `ayushgupta4897/FGA`. *Closest prior art to ontology-guided attention*; explicitly invites hierarchical/compositional fact representations as future work (§6.2.1) — exactly our $B_{\mathrm{ont}}$ direction.
+- **Focus Directions** (Zhu et al. 2025, arXiv:2503.23306) — additive K AND Q bias at top-k contextual heads (gradient-trained directions); Llama-3.2-3B layers 8–18, α=0.3, top-20 heads of 672. HELMET benchmark only. Does NOT ablate K-only vs Q-only.
+
+**K-side spectral interventions** (most directly comparable to our work).
+- **SEKA** (Li et al., arXiv:2603.01281, ICLR 2026) — spectral editing of K via $k' = k + \tfrac12 (g^+ P^+ k + g^- P^- k)$ where $P^\pm$ are top-k singular-vector projections from contrastive cross-covariance. Pre-softmax, K-only, scalar gains per (task, model). Steer-mask over user-marked tokens (`**...**` markers). Not ontology-derived. Benchmarks: CounterFact, BiasBios, Pronouns, Lost-in-Middle. Models: Qwen3 + Gemma3. Code: `waylonli/SEKA`. *Most consequential prior art for our K-side stability claim* — operator family near-identical, our differentiation is (i) ontology-derived basis vs contrastive SVD, (ii) per-facet $B_f$ decomposition, (iii) Cor 6.9.6 distributional KL bound.
+- **AdaSEKA** (Kim et al. 2026) — query-adaptive SEKA: dynamic projection $P_{\mathrm{dyn}} = \sum_m \alpha_m U_m U_m^\top$ where $\alpha_m$ from SVD-aligned routing on last prompt token. K-side, single-per-query. Source in `external/SEKA/src/model/adaptive_seka_llm.py`.
+
+**Positioning of our work.** Our K-bias is in the *spectral K-side* family alongside SEKA/AdaSEKA. Our Q-coverage and soft-routed Q-side facet bias are new Q-side interventions, distinct from PASTA (attention-map) and ITI (attention-output) by acting on Q before scoring; distinct from CAA/RepE/ASA (residual-stream) by being attention-channel-specific. Our differentiation across the field:
+1. **Direction source**: ontology annotation (training-free DeepSeek-V3 classification) vs contrastive paired data (CAA, SEKA), gradient training (Focus, ITI), or fact KB (FGA).
+2. **Per-facet decomposition** (rank-$R = \sum_f r_f$) — none of the above use facet-block structure.
+3. **Cor 6.9.6 distributional KL bound** — formal stability characterization that no prior K-side / Q-side method has.
+4. **Cross-mechanism family on the *same* basis** (§5.5.3): we show K-bias, Q-coverage, CAA-on-$B_{\mathrm{ont}}$ all lift accuracy via the same ontology subspace; the basis is the load-bearing object, not the mechanism.
+
+### 2.2 KV-cache compression
+
+We organize into five families.
+
+**Per-channel quantization.**
+- **KIVI** (Liu et al. 2024, ICML; arXiv:2402.02750) — 2-bit per-channel asymmetric K-quant + per-token V-quant; 2.35×–3.47× throughput on LLaMA/Falcon/Mistral.
+- **KVQuant** (Hooper et al. 2024, NeurIPS; arXiv:2401.18079) — per-channel uniform + outlier preservation + pre-RoPE; 10M context length on LLaMA-7B.
+- **AsymKV** — asymmetric K vs V bit-allocation.
+- **KIVI-style turboquant baselines** (internal, 2026-04-01) — used as our internal reference.
+
+**Token eviction / sequence-axis.**
+- **H2O (Heavy-Hitter Oracle)** (Zhang et al. 2024, NeurIPS; arXiv:2306.14048) — dynamic eviction balancing recent + heavy-hitter tokens.
+- **StreamingLLM** (Xiao et al. 2024, ICLR; arXiv:2309.17453) — attention sinks preservation.
+- **SnapKV** (Li et al. 2024, NeurIPS; arXiv:2404.14469) — observation-window-based pattern.
+- **DynamicKV** (2025, ACL Findings) — task-aware compression.
+- **GEAR** — pyramidal eviction + low-rank.
+- These are *orthogonal* to our feature-axis approach; eviction methods stack on top of any feature-axis quantizer including ours.
+
+**Rotation-based feature-axis quantization.**
+- **TurboQuant** (Pourreza et al. 2024, arXiv:2406.03482) — random orthogonal rotation + Lloyd-Max scalar codebook; baseline in our retrospective (§5.9.2).
+- **QuaRot** (Ashkboos et al. 2024, NeurIPS; arXiv:2404.00456) — fixed Hadamard rotations to disperse outliers; preprocesses W/A/KV uniformly; >99% of fp16 accuracy at 4-bit; online Hadamard for KV cache.
+- **SpinQuant** (Liu et al. 2024, arXiv:2405.16406) — learned rotation matrices via Cayley optimization; outperforms QuaRot on hard-to-quantize models (LLaMA-3 8B), reduces gap to fp16 by up to 45.1%.
+- **PolarQuant** — polar-coordinate quantization.
+- *Critical empirical observation* (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md`): on Mistral-7B WT2 49K test, PCA vs Random differs only by 0.07% (3-bit) / 0.9% (2-bit). The *quality of the rotation* therefore is not where the leverage lies. Our $B_{\mathrm{ont}}$ exploits a *different axis* of variation: not "good rotation for Gaussian features" but *categorical-channel separation* respecting (H-cat).
+
+**Low-rank projection / DP-bit allocation.**
+- **ThinK** — learned PCA on K with adaptive rank.
+- **LESS** — learned subspace + recall.
+- **KVCompress** — column pruning.
+- **KVTC** (NVIDIA, ICLR 2026; OnlyTerp/kvtc) — per-layer PCA + DP-optimal bit allocation per component (variance-based) + DEFLATE/LZMA2 entropy coding; up to 20× compression on Qwen2.5-7B / Qwen3.5-27B / LLaMA-3.1-8B. Most direct compression baseline; our internal Llama-3.1-8B 2-bit retrospective shows *per-head* PCA beats *shared* PCA (KVTC-style) by 46.3% (10.14 vs 18.87 PPL) — our $B_{(\ell,h)}$ is per-(layer, head) by construction.
+- **MiniKV** (ACL Findings 2025) — pushes 2-bit limits.
+- **ChunkKV** — semantic-preserving chunk-level compression.
+- **CodeComp** (2026, arXiv:2604.10235) — structural compression for agentic coding.
+
+**Hybrid / sequence-feature stack.**
+- **KVSink** (Su, COLM 2025; arXiv:2508.04257) — preserve sink token positions in fp16 while compressing rest. Code unreleased. Sequence-axis row-selection, *orthogonal to our column-axis ontology*. Stackable with OCQ; our 2×2 ablation predicts combined > max(individual).
+
+**Lloyd-vs-Uniform paradox** (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md`, internal): Lloyd-Max scalar quantization, despite reducing reconstruction MSE by 74%, *increased* PPL in 9/9 settings (3 models × 3 bit-widths). This empirical separation between MSE and downstream quality is what motivates our Thm 6.1 attention-output bound as the correct optimization target.
+
+**Surveys**: Tang et al. 2024 "KV Cache Compression for Inference Efficiency in LLMs: A Review" (arXiv:2508.06297), Liu et al. 2025 (arXiv:2603.20397) cover the field comprehensively. NVIDIA's `kvpress` library implements many of these methods uniformly.
+
+**Positioning of our work.** Our Thm 6.13 / 6.18 / 6.19 occupy a different axis from all five families: (i) *categorical* (ontology-derived) rather than Gaussian (PCA, KVTC) decorrelation; (ii) *attention-output distortion* (Thm 6.1) rather than reconstruction-MSE objective; (iii) the same basis $B_{\mathrm{ont}}$ simultaneously parameterizes inference-time steering Pareto-optimality (Thm 6.19) — a coupling no prior compression work considers. Detailed empirical comparison in §5.9.1 (KVTC) and §5.9.2 (FOKVQ-PCA retrospective).
+
+### 2.3 Attention bounds and theory
+- **Kim–Papyan–Donoho** (NeurIPS 2021) — softmax-attention Lipschitz constants; basis of our Thm 6.1 quartic remainder term.
+- **Zhang–Kumar** (2023) — token-mixing perturbation bounds.
+- No prior work gives a *per-query, per-head* attention-output bound with leading term $\mathrm{qaMSE} \cdot \mathrm{Var}_s[V]$ (our Thm 6.1).
+- Mode-A/B/C attention regimes (Park et al. 2024) — basis for our Mode-A/B/C analysis (§3.2 and Appendix B.6).
+
+### 2.4 Tool-use benchmarks
+
+- **MetaTool** (Huang et al. 2024, ICLR; arXiv:2310.03128) — Subtask 1 single-tool selection (995 queries), Subtask 4 multi-tool (497 queries with 2-tool GT). Our primary benchmark.
+- **τ²-bench** (Chen et al. 2025) — retail/airline multi-turn agent.
+- **BFCL-v3** (Yan et al. 2026) — Berkeley Function Calling Leaderboard parallel + multi-turn.
+- **MTU-Bench** — multi-tool utility bench used by ASA.
+- **NexusRaven** (Srinivasan et al. 2024) — function calling capability.
+- **AppSelectBench** (2025, arXiv:2511.19957) — enterprise tool selection.
+- **Seal-Tools / UltraTool / ToolE / ToolAlpaca** — overlap-heavy benchmarks.
+
+### 2.5 Side-effect / safety metrics borrowed
+- **CounterFact specificity** (Meng et al. 2022, ROME) — neighbourhood fact preservation.
+- **Context-memory override rate** (Yu/Merullo/Pavlick 2310.15910; 2511.05919) — contrary-fact stress test.
+- **SteeringControl / SteeringSafety suite** (2509.13450) — umbrella side-effect benchmark.
+- **KL-on-benign** (adapted from Stickland 2406.15518) — forward KL on UltraChat distribution as side-effect metric.
 
 ---
 
