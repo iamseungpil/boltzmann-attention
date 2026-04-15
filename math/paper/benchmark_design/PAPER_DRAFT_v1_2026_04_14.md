@@ -555,7 +555,14 @@ Q-coverage's lift is smaller on Llama-Inst than on Qwen-Inst (+0.4 vs +1.6pp) bu
 2. *Direction specificity*: real vs random B_ont gap +4.0pp F1. Confirms ontology-subspace as the unique gradient-aligned direction.
 3. *Cross-model robustness*: lift sign preserved on Llama-Instruct (+0.4pp), where K-bias catastrophically fails (−31pp). Confirms Q-coverage's universality.
 
-The destructive K×Q interaction (smoke F1 0.500 vs Q-only 0.658) is documented as a *limitation* of the first-order joint analysis: Thm 6.17 (d)'s mutual-orthogonality assumption holds only for $\alpha < \alpha_{\mathrm{coupling}}$; at $\alpha = 0.3$ the K and Q channels couple via post-RoPE bilinear terms (Rmk 6.17.3 in Appendix B.7.10).
+The destructive K×Q interaction (smoke F1 0.500 vs Q-only 0.658) is documented as a *falsification* of Thm 6.17 (d) joint optimality, not merely a magnitude-dependent caveat. Subsequent K-magnitude ablation (Rmk 6.17.3, Appendix B.7.10) shows the K-channel destroys Q-coverage lift at every tested $\alpha_K \in \{0.05, 0.1, 0.3\}$ — *not* a magnitude-dependent threshold but a structural channel incompatibility on this ontology subspace. We therefore *honestly re-scope the paper's verified family*:
+
+- **K-bias** (Cor 6.9.6 §5.5): verified *stability* contribution (+68.5pp direction-specificity gap). *Not* a verified accuracy-lift contribution; excluded from Thm 6.17's accuracy-lift family.
+- **Q-coverage** (Thm 6.17 (b), this section): verified accuracy-lift contribution at full 497 (+1.6pp F1, ontology-specific via 3-tier null-control).
+- **V + Q joint** ($\gamma_V = 0.1, \beta_Q = -0.1, \alpha_K = 0$): smoke-positive (+10.8pp, N=20); **full 497 pending and not yet verified**. We explicitly note the precedent of contrastive K-bias (smoke +5.8pp → full −3.6pp, §5.5.2 above) which exhibited smoke-to-full sign reversal on the same benchmark; V+Q is therefore reported as *conditional* until the PM Wave 2 full 497 result confirms.
+- **K-inclusion in accuracy lift**: *empirically falsified* at every tested K-magnitude. K-channel lift attempts fall outside the verified family.
+
+The paper-level claim for §5.5.2 is thus **"QV-joint coverage-aware steering"** (not "QKV-joint"), with K-channel reserved for the orthogonal stability axis (§5.5). The unified Pareto frontier (Thm 6.19) is parameterized by $(\beta_Q, \gamma_V, b^*)$ at $\alpha_K = 0$ on the accuracy axis; the K-channel parameterizes only the stability axis at $\alpha_K = 0.3$. This re-scoping maintains theoretical honesty: the same $B_{\mathrm{ont}}$ basis serves both roles, but the K-channel direction sign and magnitude differ between stability (where K is the dominant channel) and accuracy (where K must be excluded).
 
 ### 5.5.1 Mistral-Instruct H2 progress (Wave 3b)
 
