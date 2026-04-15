@@ -1,9 +1,58 @@
-# Coworker 실험 요청 — 2026-04-15
+# Coworker 실험 요청 — 2026-04-15 (revised v2)
 
 **보낸 사람**: develop side (mais)
-**날짜**: 2026-04-15
+**날짜**: 2026-04-15 (v2 update with critical implementation rule)
 **대상**: A100×4 보유 coworker
 **우선순위 변경**: Baselines = **P0 (critical)**. Gemma/Scaling 은 P1 로 격하.
+
+## ⚠️ 0. CRITICAL implementation rule (반드시 읽기)
+
+**External baseline 알고리즘을 비교할 때는 반드시 기존 구현 (external/ 또는 official repo) 을 그대로 사용하시고, paper 만 보고 proxy 를 작성하지 마세요.**
+
+### 이번 develop side 사고 (2026-04-15) — 같은 실수 반복 방지
+
+- 한 일 (잘못): Cor 6.9 의 max-of-M routing 설명만 보고 `install_adaseka_proxy_hooks` 작성 — Q-side per-step softmax routing on B_ont
+- 결과: F1=0.768 (+3.7pp 우리 Q-coverage 대비) 측정 → paper §5.5.3 에 "AdaSEKA proxy beats us" 로 commit
+- 발견 (사용자 지적 후): `external/SEKA/src/model/{seka_llm,adaptive_seka_llm}.py` 의 진짜 AdaSEKA 는 **K-side** + per-query routing (last prompt token) + steer_mask 사용. 5 가지 차이:
+  | 항목 | 진짜 AdaSEKA | proxy (틀림) |
+  |---|---|---|
+  | Hook side | K-side | Q-side |
+  | Routing schedule | per-query (last token only) | per-step (모든 token) |
+  | Token selection | steer_mask | 전체 |
+  | Routing input | SVD U-matrix coefficients | B_ont 분할 energy |
+  | Forward 횟수 | 2회 (routing + generation) | 1회 |
+
+- 비용: ~4 시간 paper writing 무효, retraction commit (`c5e4f2f`) 필요. Reviewer 에게 발견되었으면 paper credibility 손상.
+
+### 적용 — coworker 가 baselines 작성 시
+
+**P0 8 baselines 별 구현 sourcing**:
+
+| Baseline | 권장 sourcing |
+|---|---|
+| **SEKA** | `external/SEKA/src/model/seka_llm.py` (이미 있음) — `SEKALLM` class 직접 사용 |
+| **AdaSEKA 2-expert / 3-expert** | `external/SEKA/src/model/adaptive_seka_llm.py` (이미 있음) — `AdaptiveSEKALLM` class 직접 사용 |
+| **CAA** | https://github.com/nrimsky/CAA — clone 하여 `external/CAA/` |
+| **ITI** | https://github.com/likenneth/honest_llama — clone 하여 `external/ITI/` |
+| **PASTA** | https://github.com/QingruZhang/PASTA — clone 하여 `external/PASTA/` |
+| **Focus Directions** | (Zhu et al. 2025) repo 검색 후 clone |
+| **LoRA-tool-FT** | peft 표준 — 우리 `scripts/ocq/lora_train_metatool_v3.py` 참조 |
+| **RAG-prompt** | LangChain 표준 retrieval — 직접 작성 가능 |
+
+**proxy 작성 금지 원칙**:
+- **Source 검색 먼저**: `find external/ -iname "*<method>*"` 와 GitHub 검색
+- **Source 발견 시**: wrapper 만 작성 (input 형식 조정 + Subtask1/Subtask4 driver 와 통합)
+- **Source 부재 시만 proxy**: 그러나 반드시 (a) original repo 가 진짜 없는지 확인, (b) paper 의 algorithm 명세 충분한지 검증, (c) `install_<method>_PAPER_PROXY_hooks` 로 라벨 + docstring 에 모든 추정 명시
+- **Paper 텍스트 절대 금지**: "<method> proxy beats X" — *real implementation 이거나 우리 새 방법으로 라벨*
+
+### Develop side 가 이미 작성 + 검증한 wrapper
+
+- `scripts/ocq/eval_subtask4_with_real_seka.py` (NEW): real SEKA 사용 wrapper
+  - B_ont (L,H,d,r=24) → P_pos (L,H,d,d) via P = B B^T 변환
+  - User query 를 `**...**` markers 로 wrap (steer_mask 자동 생성)
+  - SEKALLM.generate(steer=True) 호출
+  - amplify_pos sweep
+- coworker 는 SEKA / AdaSEKA 부분에서 이 script 패턴 재사용 가능
 
 ---
 
