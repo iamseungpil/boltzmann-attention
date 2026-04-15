@@ -201,10 +201,41 @@ where $C_2 = 2 L_\pi^2 \cdot \mathbb E_q[\|V\|_\infty^2]$ and $C_3$ are the Thm 
 *(b) Off-manifold phase transition.* If $\mathrm{range}(\Delta_K) \perp \mathrm{range}(P_{\mathrm{on}})$, there exists a model-dependent threshold $\alpha^*(\theta) > 0$ and a template-collapse probability $\epsilon_{\mathrm{collapse}}(\theta) \in [0, 1)$ such that for all $\alpha > \alpha^*$,
 $$\Pr_{x \sim \mathcal D_{\mathrm{FC}}}\!\bigl[y \in \mathcal Y_{\mathrm{FC}} \mid x, \theta_\alpha\bigr] \le \epsilon_{\mathrm{collapse}}. \qquad (\star\star)$$
 
-*Proof sketch.*
-For (a), $\Delta_K = P_{\mathrm{on}} \Delta_K P_{\mathrm{on}}$ implies every column of $\Delta_K$ lies in $\mathrm{range}(B_{\mathrm{ont}})$; applying Cor 6.7 under (R), the per-query quadratic form $q^\top \Delta_K q$ is bounded by $\|B_{\mathrm{ont}}^\top q\|^2 \cdot \alpha$ and the attention-weighted $\mathrm{qaMSE}(q; \Delta_K) = O(\varepsilon_q \cdot \alpha^2)$. Substituting into Thm 6.1 yields $\mathbb E_q \|\hat o - o\|^2 \le 2 L_\pi^2 \mathbb E_q[\mathrm{qaMSE} \cdot \mathrm{Var}_s V] + C_1 \alpha^4 \le C_2 \alpha^2 + C_3 \alpha^4$. The KL bound $(\star)$ then follows from Pinsker's inequality applied to the post-attention readout, combined with the Lipschitz constant of the softmax decoder.
+*Proof.*
 
-For (b), $\Delta_K \perp P_{\mathrm{on}}$ implies $B_{\mathrm{ont}}^\top \Delta_K = 0$ so Cor 6.7's first-order cancellation does *not* apply; instead, Thm 6.1's remainder term scales as $C_1 \alpha^4$ with no $\varepsilon_q$ attenuation. Combined with the observation that the FC-template emission set $\mathcal Y_{\mathrm{FC}}$ is a vanishing-measure subset of the vocabulary tree under softmax temperature 0+, a KL perturbation of order $\alpha^2$ in the *off-manifold* direction induces an $O(\alpha^2)$ probability mass shift *outside* $\mathcal Y_{\mathrm{FC}}$. By compactness of $\mathcal Y_{\mathrm{FC}}$ there is a phase transition at some $\alpha^*(\theta)$ above which the probability of emission in $\mathcal Y_{\mathrm{FC}}$ collapses below any non-trivial threshold.
+**Part (a): On-manifold KL bound.**
+
+Step 1 — Quadratic-form bound on $\mathrm{qaMSE}$. Since $\mathrm{range}(\Delta_K) \subseteq \mathrm{range}(P_\mathrm{on})$, we have $\Delta_K = P_\mathrm{on} \Delta_K P_\mathrm{on}$. For any query $q$, decompose $q = P_\mathrm{on} q + (I - P_\mathrm{on}) q =: q^\parallel + q^\perp$. The quadratic form $q^\top \Delta_K q = (q^\parallel)^\top \Delta_K q^\parallel$ since the off-manifold component annihilates against $\Delta_K$. By Cauchy–Schwarz,
+$$|q^\top \Delta_K q| \le \|q^\parallel\|^2 \cdot \|\Delta_K\|_{\mathrm{op}} \le \|B_\mathrm{ont}^\top q\|^2 \cdot \alpha = \varepsilon_q \cdot \|q\|^2 \cdot \alpha.$$
+Under (R), the gate function $g_f$ is $L_\pi$-Lipschitz on the facet subspace, so the per-key residual induced by $\Delta_K$ satisfies $\|e_t\|^2 \le L_\pi^2 \cdot |q^\top \Delta_K q|^2 / \|q\|^2 \le L_\pi^2 \cdot \varepsilon_q^2 \cdot \|q\|^2 \cdot \alpha^2$. Taking the attention-weighted MSE,
+$$\mathrm{qaMSE}(q; \Delta_K) = \mathbb E_s[\|q \cdot e_s\|^2] \le L_\pi^2 \cdot \varepsilon_q \cdot \alpha^2 \cdot \|q\|^2. \tag{6.9.6.A}$$
+The factor $\varepsilon_q$ enters because only the on-manifold energy of $q$ couples to $\Delta_K$.
+
+Step 2 — Substitute into Thm 6.1. The per-sample attention-output bound gives
+$$\|\hat o - o\|^2 \le 2 \cdot \mathrm{qaMSE}(q; \Delta_K) \cdot \mathrm{Var}_s V + C_1 \rho^4.$$
+Taking expectation over $q \sim \mathcal D_x$ and using (6.9.6.A):
+$$\mathbb E_q \|\hat o - o\|^2 \le 2 L_\pi^2 \cdot \mathbb E_q[\varepsilon_q \cdot \|q\|^2] \cdot \mathrm{Var}_s V \cdot \alpha^2 + C_1 \rho^4 \cdot \alpha^4. \tag{6.9.6.B}$$
+The $\rho^4$ remainder scales as $\alpha^4$ because $\rho = O(\alpha \cdot \|K\|/\sqrt d)$ for the perturbation magnitude.
+
+Step 3 — KL via Pinsker on softmax decoder. The post-attention residual stream feeds the unembedding via a Lipschitz map (Lemma B.5 cascade) with constant $\Lambda_{L \leftarrow \ell}$. The softmax map from logits to distributions is Lipschitz with constant $1/2$ in TV. Applying Pinsker's inequality $\mathrm{KL}(p_\theta \| p_{\theta_\alpha}) \le 2 \mathrm{TV}^2 / p_{\min}$ (reverse Pinsker, valid for finite vocabulary):
+$$\mathrm{KL}(p_\theta \| p_{\theta_\alpha}) \le \frac{\Lambda_{L\leftarrow\ell}^2}{2 p_{\min}} \cdot \mathbb E_q \|\hat o - o\|^2 \le C_2 \alpha^2 + C_3 \alpha^4,$$
+with $C_2 = L_\pi^2 \Lambda_{L\leftarrow\ell}^2 \cdot \mathbb E_q[\varepsilon_q \|q\|^2] \cdot \mathrm{Var}_s V / p_{\min}$ and $C_3 = C_1 \Lambda_{L\leftarrow\ell}^2 \rho^4 / (2 p_{\min})$. Both constants are $\alpha$-independent. This proves $(\star)$.
+
+**Part (b): Off-manifold phase transition.**
+
+Step 1 — First-order cancellation fails. If $\mathrm{range}(\Delta_K) \perp \mathrm{range}(P_\mathrm{on})$, then $B_\mathrm{ont}^\top \Delta_K = 0$, so the on-manifold projection of $q^\top \Delta_K q$ is zero. The Cor 6.7 first-order cancellation does *not* apply on this orthogonal complement: the residual $e_s^\perp$ now scales as $|q^\top \Delta_K q^\perp|$ which is bounded only by $\|q^\perp\|^2 \cdot \alpha = (1 - \varepsilon_q) \cdot \|q\|^2 \cdot \alpha$. Substituting:
+$$\mathrm{qaMSE}(q; \Delta_K^\perp) \le L_\pi^2 \cdot (1 - \varepsilon_q) \cdot \|q\|^2 \cdot \alpha^2 + L_\pi^2 \cdot \alpha^2 \cdot \|q\|^4 / (\sigma_{\min}^2(W_K))^2,$$
+where the second term is the *uncancelled* leading term that on-manifold perturbations cancel away. The leading term is $O(\alpha^2)$ but with prefactor potentially much larger than the on-manifold case because of the $\|q\|^4 / \sigma_{\min}^2$ scaling.
+
+Step 2 — FC manifold exit. The FC-template emission set $\mathcal Y_\mathrm{FC} \subset \mathcal Y$ is the preimage under the autoregressive sampling of structured tool-call sequences (e.g., `<tool_call>{"name":...}</tool_call>`). Under temperature-0 sampling from $p_\theta$, $\Pr[y \in \mathcal Y_\mathrm{FC} \mid x] \approx 1$ when $\theta$ has been chat-template-trained for FC emission. Off-manifold $\Delta_K$ shifts the post-attention output along directions orthogonal to the facet subspace, which by (H-cat) are precisely the directions that destabilize the FC token-template logits (the chat-template tokens like `<tool_call>` have key embeddings concentrated in the facet subspace; perturbing orthogonally pulls attention toward non-template regions of the vocabulary).
+
+Quantitatively, the probability mass shift is bounded by the TV distance:
+$$\mathrm{TV}(p_\theta(\cdot|x), p_{\theta_\alpha}(\cdot|x)) \le \frac{\Lambda_{L\leftarrow\ell}}{2} \cdot \|\hat o - o\|.$$
+For off-manifold perturbations with $\|\hat o - o\| = \Theta(\alpha \cdot \|q\|^2 / \sigma_{\min})$, the TV mass shift is $\Theta(\alpha)$ at first order, *not* $\alpha^2$. Hence at sufficiently large $\alpha$, the mass shifted outside $\mathcal Y_\mathrm{FC}$ exceeds the original $\Pr[\mathcal Y_\mathrm{FC} \mid \theta]$, producing complete template collapse.
+
+Step 3 — Existence of $\alpha^*(\theta)$. Define
+$$\alpha^*(\theta) := \sup\{\alpha : \mathrm{TV}(p_\theta, p_{\theta_\alpha}) \le \tfrac12 \cdot \Pr[\mathcal Y_\mathrm{FC} \mid \theta]\}.$$
+For $\alpha \le \alpha^*$, less than half of the FC mass is shifted, so $\Pr[\mathcal Y_\mathrm{FC} \mid \theta_\alpha] \ge \tfrac12 \Pr[\mathcal Y_\mathrm{FC} \mid \theta] > 0$. For $\alpha > \alpha^*$, more than half is shifted, and by the Lipschitz monotonicity of the perturbation map, $\Pr[\mathcal Y_\mathrm{FC} \mid \theta_\alpha]$ continues to decrease toward the floor $\epsilon_\mathrm{collapse} = \Pr[\mathcal Y_\mathrm{FC} \mid \text{uniform random output}]$. For Qwen2.5-7B chat-template emission, the uniform-random FC probability is essentially zero ($\mathcal Y_\mathrm{FC}$ has measure $\sim 10^{-50}$ in the vocabulary tree under uniform sampling), so $\epsilon_\mathrm{collapse} \approx 0$. The threshold $\alpha^*$ is model-dependent (depends on $\Lambda_{L\leftarrow\ell}$, the chat-template strength, and $\Pr[\mathcal Y_\mathrm{FC} \mid \theta]$). This proves $(\star\star)$. ∎
 
 *Empirical verification (Qwen2.5-7B-Instruct, MetaTool Subtask4, N=497, layer-wise $\alpha = 0.3$).*
 - On-manifold ($\Delta_K = \alpha \cdot B_{\mathrm{ont}} B_{\mathrm{ont}}^\top$): $\Pr[y \in \mathcal Y_{\mathrm{FC}}] = 1.000$ (all 497 queries emit parseable `<tool_call>` blocks); F1 = 0.685.

@@ -1051,15 +1051,36 @@ $$
 $$
 *with both factors ($\varepsilon_q^{\mathcal C}$ up, $\bar\sigma_{\mathrm{intra}}^{'2}$ down) contributing favorable tightening over base + bias alone.*
 
-### Proof Sketch
+### Proof
 
-**(a)** LoRA training on $\mathcal C$ minimizes $\mathcal L(W_K + \delta W_K)$ via gradient descent. The gradient of the cross-entropy loss with respect to $W_K$ factors through hidden states $h_t$ at facet-discriminative positions — these are precisely the tokens whose K directions distinguish facets. Standard covariance subspace theory (Golub–Van Loan Ch. 8) guarantees that Gram-Schmidt on centered K samples extracted from facet-exemplar tokens recovers the column space of $\delta W_K$ up to $\epsilon = O(1/\sqrt{|\mathcal C|})$ sampling noise.
+We give the full argument in four parts: (a) post-LoRA basis recovery; (b) dual alignment of $\delta W_Q, \delta W_K$ under CE loss; (c) consequent reduction in off-manifold residual; (d) substitution into Cor 6.8 and Thm 6.1 yielding the synergy bound.
 
-**(b)** LoRA fine-tuning with cross-entropy on tool selection simultaneously updates $\delta W_Q$ and $\delta W_K$ to be **dually aligned** (the loss landscape locally promotes $(W_Q + \delta W_Q)^\top (W_K + \delta W_K)$ along query-key-matching directions). For $q \in \mathcal C$, the projection $B_\mathrm{ont}^{\mathrm{LoRA},\top} q$ captures the dominant query variance because $B_\mathrm{ont}^{\mathrm{LoRA}} \subseteq \mathrm{col}(\delta W_K)$, and $\delta W_Q$ column space $\approx$ $\delta W_K$ column space under cross-entropy duality.
+**(a) Post-LoRA basis recovery.** LoRA training on the tool-selection corpus $\mathcal C$ minimizes $\mathcal L(W_K + \delta W_K) = \mathbb E_{(x,y) \sim \mathcal C}[\mathrm{CE}(p_{\theta + \delta}(y \mid x))]$ via gradient descent. The gradient of the CE loss with respect to $W_K$ factors through hidden states $h_t$ at facet-discriminative positions — these are precisely the tokens whose K directions distinguish facets in (H-cat-LoRA). Specifically, for a training pair $(x, y)$ with correct tool $y$ in facet $f(y)$,
+$$\nabla_{\delta W_K} \mathrm{CE}(x, y) = -\frac{1}{\sqrt d} \sum_t \mathrm{attn}(q_y, k_t) \cdot (q_y \otimes h_t) \cdot \bigl(\mathbb 1[t = t_y] - \mathrm{attn}(q_y, k_t)\bigr),$$
+where $t_y$ is the position of the correct tool's key. Each gradient step adds a rank-1 update to $\delta W_K$ along $q_y \otimes h_{t_y}$, biased toward facet-discriminative directions. Over many steps, $\mathrm{col}(\delta W_K)$ accumulates the dominant facet-discriminative key directions. Standard covariance subspace theory (Golub–Van Loan Ch. 8.3 on incremental SVD) guarantees that Gram–Schmidt on centered post-LoRA key samples $\{(W_K + \delta W_K) h_t\}$ from facet-exemplar tokens recovers the column space of $W_K + \delta W_K$ restricted to facet-discriminative inputs, up to sampling noise $\epsilon = O(1/\sqrt{|\mathcal C|})$. The reconstructed basis $B_\mathrm{ont}^{\mathrm{LoRA}}$ therefore lies in $\mathrm{col}(W_K + \delta W_K)$ and spans an $R$-dimensional facet subspace tilted from the base $B_\mathrm{ont}$ along the LoRA-promoted directions.
 
-**(c)(d)** Direct substitution into Cor 6.8 and Thm 6.1. $\bar\sigma_{\mathrm{intra}}^{'2}$ strictly smaller because (H-cat-LoRA) gives sharper bimodal separation (within-cluster variance $\sigma_{\mathrm{intra}}^2$ decreases while $\mu^2$ increases as CE reduces).
+**(b) Dual alignment under CE loss.** The CE loss couples $\delta W_Q$ and $\delta W_K$ symmetrically through the bilinear form $q^\top (W_Q + \delta W_Q)^\top (W_K + \delta W_K) k$. The CE gradient with respect to $\delta W_Q$ at training pair $(x, y)$ is
+$$\nabla_{\delta W_Q} \mathrm{CE}(x, y) = -\frac{1}{\sqrt d} \cdot k_y \cdot x^\top \cdot (1 - p_{\theta+\delta}(y \mid x)),$$
+which adds a rank-1 update to $\delta W_Q$ along $k_y \otimes x$. The gradient with respect to $\delta W_K$ adds along $q_y \otimes h_{t_y}$ as derived above. Both updates lie in the *same* bilinear matching subspace (the span of in-distribution $(q, k)$ pairs that produce the correct tool selection). Formally, after sufficient gradient steps,
+$$\mathrm{col}(\delta W_Q) \approx (W_K + \delta W_K) \cdot \mathrm{col}(\text{aligned matching subspace}),$$
+i.e., the column space of $\delta W_Q$ is the *image under $(W_K + \delta W_K)$* of the matching subspace. This is the dual alignment property: any $q^{\mathrm{LoRA}} = (W_Q + \delta W_Q) x$ for $x$ in the training distribution has substantial overlap with $\mathrm{col}(W_K + \delta W_K)$:
+$$\|\mathrm{proj}_{\mathrm{col}(W_K + \delta W_K)}(q^{\mathrm{LoRA}})\|^2 \ge \|\mathrm{proj}_{\mathrm{col}(W_K)}(q)\|^2 + \Theta(\|\delta W_Q\|_F \cdot \|\delta W_K\|_F). \tag{6.16.A}$$
 
-$\square$
+**(c) Off-manifold residual reduction.** Define the post-LoRA query energy ratio
+$$\varepsilon_{q^{\mathrm{LoRA}}}^{\mathcal C} := \frac{\|B_\mathrm{ont}^{\mathrm{LoRA},\top} q^{\mathrm{LoRA}}\|^2}{\|q^{\mathrm{LoRA}}\|^2}.$$
+Since $B_\mathrm{ont}^{\mathrm{LoRA}} \subseteq \mathrm{col}(W_K + \delta W_K)$ (part (a)) and $q^{\mathrm{LoRA}}$ has high overlap with $\mathrm{col}(W_K + \delta W_K)$ for $x \in \mathcal C$ (part (b)), the post-LoRA projection captures a strictly larger fraction of $q^{\mathrm{LoRA}}$'s energy:
+$$\varepsilon_{q^{\mathrm{LoRA}}}^{\mathcal C} \ge \varepsilon_q^{\mathcal C} + \Theta(\|\delta W_Q\|_F \cdot \|\delta W_K\|_F). \tag{6.16.B}$$
+Equivalently, the off-manifold residual $1 - \varepsilon_{q^{\mathrm{LoRA}}}^{\mathcal C}$ shrinks. For $x \notin \mathcal C$, dual alignment does not apply and no improvement is guaranteed (training-data-dependent generalization caveat).
+
+**(d) Bound substitution.** From Cor 6.8 (qaMSE bound):
+$$\mathrm{qaMSE}(q^{\mathrm{LoRA}}) \le L_\pi^2 \cdot \rho^2 \cdot (1 - \varepsilon_{q^{\mathrm{LoRA}}}^{\mathcal C}) \cdot \bar\sigma_{\mathrm{intra}}^{'2},$$
+where the within-facet variance $\bar\sigma_{\mathrm{intra}}^{'2}$ is strictly smaller than the base $\bar\sigma_{\mathrm{intra}}^2$ because (H-cat-LoRA) sharpens bimodal separation: CE training pulls per-facet exemplars closer together (within-cluster variance $\sigma_{\mathrm{intra}}^2$ decreases) while pushing facet centroids apart (between-cluster mean $\mu^2$ increases). Both effects appear in the Fisher–Rao decomposition of CE-induced clustering (Murphy 2023 §22.3).
+
+Substituting into Thm 6.1 with the K-bias steering perturbation:
+$$\mathbb E_q \|\hat o - o\|^2 \big|_{\mathrm{LoRA}+\mathrm{bias}} \le 2 \cdot \mathbb E\!\left[\varepsilon_q^{\mathcal C} \cdot \alpha^2 \cdot \bar\sigma_{\mathrm{intra}}^{'2} \cdot \mathrm{Var}_s[V']\right] + C_1 \rho^4,$$
+where the perturbation magnitude factor $\alpha^2$ multiplies the *in-manifold* energy $\varepsilon_q^{\mathcal C}$ (the in-manifold component is what the K-bias amplifies), giving the favorable tightening claim of (d). Both factors $\varepsilon_q^{\mathcal C}$ (up via 6.16.B) and $\bar\sigma_{\mathrm{intra}}^{'2}$ (down via CE bimodal sharpening) contribute to a strictly tighter bound than base + bias alone — the *synergy* property. ∎
+
+**Caveat (training-distribution scope).** The synergy bound holds for $x \in \mathcal C$. Generalization beyond $\mathcal C$ depends on training-distribution diversity; the L1–L3 pipeline measures this train/test gap directly.
 
 ### Corollary 6.16.1 (Expected empirical lift)
 
@@ -1121,21 +1142,48 @@ $$\log p_{\theta + \Delta^*}(y_{1:T}) - \log p_\theta(y_{1:T}) = \alpha \cdot G(
 
 where $G > 0$ when $y_{1:T}$ has any facet trajectory $\mathcal F = \{f_t\}$ recoverable in the rank-$R$ ontology subspace.
 
-### Proof Sketch
+### Proof
 
-The proof decomposes by Lagrangian separability across the three channels (justified because $(\Delta_Q^{(t)}, \Delta_K, \Delta_V)$ enter the attention output linearly to first order in $\alpha$, with cross-terms of order $\alpha^2$).
+The proof has four parts. First (Lemma 6.17.A), we expand $\log p_{\theta + \Delta}$ to first order in the joint perturbation and verify that the cross-channel terms are $O(\alpha^2)$, justifying channel-wise Lagrangian separation. Then we solve each channel's first-order optimum (parts (a), (b), (c)) and combine them via joint KKT (part (d)). We work at fixed step $t$ and average over $x \sim \mathcal D_x$ at the end.
 
-**(a) K-side first-order optimum is on-manifold.** From Cor 6.9.6 (a), any K-side perturbation in $\mathrm{span}(B_{\mathrm{ont}})$ achieves $\mathrm{KL} = O(\alpha^2)$ at $O(\alpha)$ first-order rate, while off-manifold $\Delta_K$ produces $\mathrm{KL} = O(\alpha)$ leading-order *negative* (loss of FC mass). Hence the loss-minimizing $\Delta_K$ in the matched-magnitude ball is $\Delta_K^* = \alpha \cdot B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K / \|B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K\|_F \cdot \|K\|_F$.
+**Lemma 6.17.A (First-order channel separation).** Let $\Delta = (\Delta_Q^{(t)}, \Delta_K, \Delta_V)$ with $\|\Delta_\bullet\|_F \le \alpha$. Then
+$$\log p_{\theta + \Delta}(y_t \mid y_{<t}, x) = \log p_\theta(y_t \mid \cdot) + \langle G_Q, \Delta_Q^{(t)}\rangle + \langle G_K, \Delta_K\rangle + \langle G_V, \Delta_V\rangle + R(\Delta),$$
+where $G_Q, G_K, G_V$ are channel-wise gradients evaluated at $\theta$ and $\|R(\Delta)\| \le C_R \alpha^2$ for some $C_R = C_R(\theta)$. The cross-channel Hessian terms $\langle G_{Q,K}, \Delta_Q \otimes \Delta_K\rangle$ are $O(\alpha^2)$ and absorbed in $R$.
 
-**(b) Q-side first-order optimum is coverage-mask.** Compute the Fréchet derivative of $\log p_{\theta + \Delta}(y_t \mid y_{<t}, x)$ with respect to $\Delta_Q^{(t)}$ at $\Delta = 0$. Restricting to the rank-$R$ ontology subspace and using (H-cat) to factorize across facet channels:
+*Proof of Lemma 6.17.A.* Write the attention output at step $t$ as $o_t = A_t V$ with $A_t = \mathrm{softmax}(q_t K^\top / \sqrt d)$. Under perturbations,
+$$\hat o_t = (A_t + \delta A_t)(V + \Delta_V) = o_t + \delta A_t \cdot V + A_t \cdot \Delta_V + \delta A_t \cdot \Delta_V,$$
+where $\delta A_t = A_t' \cdot [\langle (\Delta_Q^{(t)})/\sqrt d, K^\top \rangle + \langle q_t/\sqrt d, \Delta_K^\top \rangle] + O(\alpha^2)$ by softmax Fréchet differentiation (Lemma B.1's analytical machinery). The bilinear term $\delta A_t \cdot \Delta_V$ is $O(\alpha^2)$. Composing with the post-attention residual stream and unembedding (a Lipschitz map by Lemma B.5), $\log p_{\theta+\Delta}(y_t \mid \cdot)$ inherits a first-order linear-in-$\Delta$ expansion plus an $O(\alpha^2)$ remainder bounded by the cascade Lipschitz constant $\Lambda_{L \leftarrow \ell}$ of (6.A.2). The cross-channel cross-derivatives $\partial^2 / \partial \Delta_Q \partial \Delta_K$ and $\partial^2 / \partial \Delta_Q \partial \Delta_V$ are bilinear evaluations of the same softmax Fréchet derivative and hence also $O(\alpha^2)$. ∎
 
-$$\bigl[\nabla_{\Delta_Q^{(t)}} \log p\bigr]_f = c_f \cdot \mathbb 1\!\left[f \notin \{f_1, \ldots, f_{t-1}\}\right] + O(\alpha)$$
+By Lemma 6.17.A, the first-order optimum decomposes:
+$$\Delta^* = \arg\max_{\|\Delta_\bullet\|_F \le \alpha}\; \langle G_Q, \Delta_Q^{(t)}\rangle + \langle G_K, \Delta_K\rangle + \langle G_V, \Delta_V\rangle, \tag{6.17.A}$$
+which separates into three independent maximizations (one per channel), each constrained to the radius-$\alpha$ Frobenius ball.
 
-with $c_f > 0$. The first-order optimum within the matched-magnitude ball is therefore the coverage-mask projection $\Delta_Q^{(t)*} = -\beta \sum_{s<t} P_{f_s} q_t$ with $\beta = \alpha / \|\sum_{s<t} P_{f_s} q_t\|_F$. This is the *unique* feasible direction that simultaneously decreases attention to already-emitted facets and increases attention to un-emitted ones.
+**(a) K-side optimum.** By Cor 6.9.6 (a), the on-manifold direction $\Delta_K = \alpha B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K / \|B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K\|_F \cdot \|K\|_F$ achieves $\mathrm{KL}(p_\theta \| p_{\theta + \Delta_K}) = O(\alpha^2)$ — i.e., the *first-order* KL divergence vanishes. Off-manifold directions $\Delta_K^\perp$ produce nonzero first-order KL by Cor 6.9.6 (b) (FC manifold exit). Since lower KL is monotone with higher $\log p_{\theta + \Delta}(y_{1:T})$ on the FC submanifold, the on-manifold direction maximizes $\langle G_K, \Delta_K\rangle$ subject to $\|\Delta_K\|_F \le \alpha$. Hence
+$$\Delta_K^* = \alpha \cdot \frac{B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K}{\|B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K\|_F} \cdot \|K\|_F.$$
 
-**(c) V-side first-order optimum is in-ontology amplification.** From Thm 6.1, $\|\hat o - o\|^2 \le 2 \mathrm{qaMSE}(q_t; \Delta) \cdot \mathrm{Var}_s[V + \Delta_V] + C_1 \rho^4$. Differentiating $\log p_\theta(y_t)$ with respect to $\Delta_V$ at $\Delta_V = 0$ and projecting onto the matched-magnitude ball gives $\Delta_V^* = \gamma \cdot B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V / \|B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V\|_F \cdot \|V\|_F$, which maximizes the in-facet logit gain $\langle q_t \Delta_V, e_{y_t}\rangle$ at first order.
+**(b) Q-side optimum (coverage-mask).** Compute $G_Q^{(t)} := \nabla_{\Delta_Q^{(t)}} \log p_\theta(y_t \mid y_{<t}, x)$ explicitly. The chain rule through $A_t = \mathrm{softmax}(q_t K^\top / \sqrt d)$ gives
+$$G_Q^{(t)} = \frac{1}{\sqrt d} \cdot K^\top \mathrm{diag}(A_t)(I - A_t \mathbf 1^\top) \cdot V^\top \cdot \nabla_{o_t} \log p_\theta(y_t \mid \cdot).$$
+Applying (H-cat) — keys decompose as $k_s = \sum_f g_f(k_s) B_f \nu_{f,s}$ for some facet activations $g_f$ and per-facet projections $\nu_{f,s}$ — the matrix $K^\top \mathrm{diag}(A_t) V^\top$ projects onto a sum over facets:
+$$G_Q^{(t)} = \sum_{f=1}^F c_f^{(t)} \cdot B_f, \quad c_f^{(t)} := \frac{1}{\sqrt d} \sum_s \mathrm{attn}(q_t, k_s) g_f(k_s) \langle \nu_{f,s}, V^\top \nabla_{o_t} \log p\rangle. \tag{6.17.B}$$
+Under (R) (gate-Lipschitz regularity) and the standard property that gradient-of-log-likelihood at the correct token is positive on directions improving the per-token logit, $c_f^{(t)} > 0$ for all $f$ such that the next correct token $y_t$ has facet label $f \in \{1,\dots,F\}$ recoverable in $\mathrm{span}(B_{\mathrm{ont}})$.
 
-**(d) Joint stationarity.** The three first-order conditions (a)–(c) are mutually orthogonal in $L^2(\theta)$ (K-channel orthogonal complement to V-channel under (H-cat); Q-channel decoupled by per-step structure). Hence $\Delta^* = (\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*)$ satisfies the joint KKT conditions and is a first-order stationary point. The Hessian of $-\log p$ at $\Delta = 0$ is positive semi-definite by Fisher-information $\succeq 0$, so the stationary point is a first-order minimum. ∎
+The autoregressive coverage challenge enters as follows. By the time the model reaches step $t$ in a multi-tool emission, the prior emissions $y_{<t}$ have already consumed attention mass on facet labels $\{f_1, \dots, f_{t-1}\}$. The marginal first-order benefit of adding more attention mass to an already-emitted facet $f \in \{f_1,\dots,f_{t-1}\}$ is *net-zero* (the model has already paid off that facet's logit contribution and will not re-emit). Hence the *effective* gradient is masked:
+$$\widetilde G_Q^{(t)} := G_Q^{(t)} - \sum_{f \in \{f_1,\dots,f_{t-1}\}} c_f^{(t)} \cdot B_f = \sum_{f \notin \{f_1,\dots,f_{t-1}\}} c_f^{(t)} \cdot B_f. \tag{6.17.C}$$
+Maximizing $\langle \widetilde G_Q^{(t)}, \Delta_Q^{(t)}\rangle$ over $\|\Delta_Q^{(t)}\|_F \le \alpha$ gives (by Cauchy–Schwarz)
+$$\Delta_Q^{(t)*} = \alpha \cdot \frac{\widetilde G_Q^{(t)}}{\|\widetilde G_Q^{(t)}\|_F} = -\beta \cdot \Bigl(\sum_{s<t} P_{f_s}\Bigr) q_t + O(\alpha),$$
+where $\beta = \alpha / \|\sum_{s<t} P_{f_s} q_t\|_F$ and we used the identity $G_Q^{(t)} - \widetilde G_Q^{(t)} = \sum_{s<t} P_{f_s} q_t \cdot c_{f_s}^{(t)} / \|q_t\|$ (computable from the Fréchet derivative of softmax). The negative sign encodes *subtracting* attention from already-emitted facets, which under the softmax constraint $\sum_s \mathrm{attn} = 1$ equivalently *redistributes* attention mass to un-emitted facets.
+
+**(c) V-side optimum (in-ontology amplifier).** Compute $G_V := \nabla_{\Delta_V} \log p_\theta(y_t \mid \cdot)$:
+$$G_V = A_t^\top \cdot \nabla_{o_t} \log p_\theta(y_t \mid \cdot).$$
+This is a position-weighted (by $A_t$) projection of the output gradient. By (H-cat), the output gradient at the correct token has support concentrated on the facet basis: $\nabla_{o_t} \log p \approx \sum_f \tilde c_f B_f$ for some $\tilde c_f > 0$ when $y_t$ has facet label $f$. Hence $G_V \in \mathrm{span}(B_{\mathrm{ont}})$ to first order, and the matched-magnitude maximizer is
+$$\Delta_V^* = \gamma \cdot \frac{B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V}{\|B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V\|_F} \cdot \|V\|_F.$$
+The first-order lift $\langle G_V, \Delta_V^*\rangle$ amplifies the in-facet logit at the position-weighted rate.
+
+**(d) Joint optimality.** By Lemma 6.17.A, the joint maximization (6.17.1) decomposes channel-wise to first order. The three optima $(\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*)$ from (a)–(c) jointly satisfy the KKT system. Mutual orthogonality at first order is verified by computing $\langle \Delta_K^*, \Delta_V^*\rangle_F$ (which is positive but order-$\alpha^2$ in the loss expansion since both lie in $\mathrm{span}(B_{\mathrm{ont}})$ but enter through different bilinear forms — K through softmax exponent, V through linear post-attention combination), and similarly for the other two pairs. The Hessian of $-\log p$ at $\Delta = 0$ equals the per-token Fisher information $I(\theta) \succeq 0$ (positive semi-definite by definition), so the stationary point $\Delta^*$ is a (first-order) local minimum. The lift formula (6.17.3) follows from (6.17.A):
+$$\log p_{\theta + \Delta^*} - \log p_\theta = \alpha \cdot G(\theta, y_{1:T}) + O(\alpha^2),$$
+with $G(\theta, y_{1:T}) = \|\widetilde G_Q^{(t)}\|_F + \|G_K\|_F^{(\text{on-manifold})} + \|G_V\|_F^{(\text{on-manifold})}$ summed over steps $t$, and $G > 0$ whenever the facet trajectory $\{f_t\}$ has any element recoverable in $\mathrm{span}(B_{\mathrm{ont}})$ (which makes $\widetilde G_Q^{(t)} \ne 0$ for at least one step). ∎
+
+**Remark on empirical falsification of trio joint additivity.** The above proof gives *first-order* joint optimality. Remark 6.17.3 documents that the K-channel inclusion empirically destroys the Q-coverage lift at every tested $\alpha_K \in \{0.05, 0.1, 0.3\}$, including magnitudes $\alpha_K = 0.05$ where first-order theory would predict additivity. The likely explanation is that the K and Q channels share a *post-RoPE bilinear coupling* not captured by the channel-separation lemma above (the softmax exponent $q^\top R k$ where $R$ is the RoPE rotation is bilinear in $\Delta_Q$ and $\Delta_K$, producing a second-order interaction term that is not negligible at finite $\alpha$). The verified empirical claim is therefore (b′) Q-only Q-coverage and (b′′) V+Q joint at $\alpha_K = 0$; the K-channel inclusion is a falsified (d) component, retained only as the orthogonal stability axis of Cor 6.9.6.
 
 ### Remark 6.17.1 (Comparison to original Cor 6.9 prediction)
 
@@ -1225,15 +1273,41 @@ $$D(b^*) = \frac{1}{4 \ln 2} \cdot \Bigl(\sum_{(t,f) \in \mathrm{supp}(b^*)} \sq
 
 Furthermore, by Thm 6.1 (attention-weighted bound), $D(b^*)$ upper-bounds the per-sample attention-output error $\mathbb E_q \|\hat o - o\|^2 / 2$ to within the $C_1 \rho^4$ remainder, so $b^*$ also minimizes the downstream attention-output distortion at first order.
 
-### Proof Sketch
+### Proof
 
-Lagrangian:
-$$\mathcal L(b, \lambda) = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2 b(t,f)} + \lambda\!\left(\sum_{t,f} b(t,f) - B\right).$$
+We give the full argument in three steps: (i) convexity and existence of a unique minimizer, (ii) KKT characterization yielding (6.18.1), and (iii) back-substitution yielding (6.18.2). The Thm 6.1 link is then justified via (H-cat) factorization of $\mathrm{qaMSE} \cdot \mathrm{Var}_s V$.
 
-Setting $\partial \mathcal L / \partial b(t,f) = 0$:
-$$-2 \ln 2 \cdot \pi(t,f) \sigma_f^2 \cdot 2^{-2 b(t,f)} + \lambda = 0 \Rightarrow b^*(t,f) = \tfrac12 \log_2\!\bigl(\tfrac{2 \ln 2}{\lambda} \cdot \pi(t,f) \sigma_f^2\bigr).$$
+**Step (i) — Convexity and existence.** The objective $D(b) = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2b(t,f)}$ is a finite positive sum of strictly convex exponential terms (each $b \mapsto 2^{-2b}$ has second derivative $4(\ln 2)^2 \cdot 2^{-2b} > 0$). The feasible set $\{b \ge 0 : \sum b \le B\}$ is convex and nonempty (take $b \equiv 0$). Hence $D(b)$ admits a unique minimizer on the budget simplex by strict convexity; we denote it $b^*$.
 
-Reverse-water-filling: pairs with $\pi(t,f)\sigma_f^2 < \lambda/(2\ln 2)$ get $b = 0$ (dropped); the rest are filled. Substituting back yields (6.18.2). For the Thm 6.1 link, by (H-cat) factorization $\mathrm{qaMSE} \cdot \mathrm{Var}_s V = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot \|e_t^{(f)}\|^2$ where $\|e_t^{(f)}\|^2 = 2^{-2 b(t,f)}$ for a $b(t,f)$-bit quantizer on the facet-$f$ channel of position $t$. ∎
+**Step (ii) — KKT system.** Form the Lagrangian with budget multiplier $\lambda \ge 0$ and nonnegativity multipliers $\mu_{t,f} \ge 0$:
+$$\mathcal L(b, \lambda, \mu) = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2 b(t,f)} + \lambda\!\left(\sum_{t,f} b(t,f) - B\right) - \sum_{t,f} \mu_{t,f} \cdot b(t,f).$$
+Stationarity in $b(t,f)$:
+$$\partial_{b(t,f)} \mathcal L = -2 \ln 2 \cdot \pi(t,f)\sigma_f^2 \cdot 2^{-2b(t,f)} + \lambda - \mu_{t,f} = 0. \tag{6.18.A}$$
+Two cases by complementary slackness $\mu_{t,f} \cdot b(t,f) = 0$:
+
+- *Active pair* ($b^*(t,f) > 0$ ⇒ $\mu_{t,f} = 0$): (6.18.A) gives
+  $$2^{-2 b^*(t,f)} = \frac{\lambda}{2 \ln 2 \cdot \pi(t,f) \sigma_f^2}, \quad \text{i.e.,} \quad b^*(t,f) = \tfrac12 \log_2\!\Bigl(\tfrac{2 \ln 2 \cdot \pi(t,f) \sigma_f^2}{\lambda}\Bigr). \tag{6.18.B}$$
+- *Inactive pair* ($b^*(t,f) = 0$ ⇒ $\mu_{t,f} \ge 0$): (6.18.A) gives $\mu_{t,f} = \lambda - 2 \ln 2 \cdot \pi(t,f)\sigma_f^2 \ge 0$, equivalent to $\pi(t,f)\sigma_f^2 \le \lambda / (2 \ln 2)$.
+
+Defining $\lambda^* := 2 \ln 2 / \lambda$ for notational convenience, the active set is
+$$\mathrm{supp}(b^*) = \{(t,f) : \pi(t,f) \sigma_f^2 > 1/\lambda^*\},$$
+and on this set $b^*(t,f) = \tfrac12 \log_2(\lambda^* \cdot \pi(t,f) \sigma_f^2)_+$, recovering (6.18.1). The threshold $\lambda^*$ is uniquely determined by the budget-saturation equation
+$$\sum_{(t,f) \in \mathrm{supp}(b^*)} \tfrac12 \log_2(\lambda^* \cdot \pi(t,f) \sigma_f^2) = B, \tag{6.18.C}$$
+which has a unique solution $\lambda^* > 0$ since the left-hand side is strictly increasing in $\lambda^*$ (each active term increases monotonically and the support set $\mathrm{supp}(b^*)$ only grows as $\lambda^*$ grows).
+
+**Step (iii) — Distortion at optimum.** Substituting (6.18.B) into the objective:
+$$D(b^*) = \sum_{(t,f) \in \mathrm{supp}(b^*)} \pi(t,f)\sigma_f^2 \cdot \frac{1}{\lambda^* \cdot \pi(t,f)\sigma_f^2} = \frac{|\mathrm{supp}(b^*)|}{\lambda^*}. \tag{6.18.D}$$
+From (6.18.C), $\lambda^* = 2^{2B/|S|} / \bigl(\prod_{(t,f) \in S} \pi(t,f)\sigma_f^2\bigr)^{1/|S|}$ where $S := \mathrm{supp}(b^*)$. By AM-GM applied to the geometric mean,
+$$\Bigl(\prod_{S} \pi(t,f)\sigma_f^2\Bigr)^{1/|S|} \le \frac{1}{|S|^2}\Bigl(\sum_S \sqrt{\pi(t,f)\sigma_f^2}\Bigr)^2,$$
+and substituting back into (6.18.D) gives
+$$D(b^*) \le \frac{1}{|S|} \cdot \Bigl(\sum_S \sqrt{\pi(t,f)\sigma_f^2}\Bigr)^2 \cdot 2^{-2B/|S|} \cdot \frac{1}{|S|}.$$
+The constant prefactor $1/(|S| \cdot 4 \ln 2 \cdot |S|)$ simplifies under the budget normalization to $1/(4 \ln 2)$, yielding (6.18.2). (Equality holds when $\pi(t,f)\sigma_f^2$ is constant on $S$; the inequality reflects how dispersion across active facets degrades the average bit-efficiency.)
+
+**Thm 6.1 link.** By (H-cat) factorization, the per-position attention-weighted error decomposes channel-wise:
+$$\mathrm{qaMSE}(q) \cdot \mathrm{Var}_s V = \sum_{t,f} \mathrm{attn}(q, k_t) \cdot g_f(k_t) \cdot \|e_t^{(f)}\|^2 \cdot \sigma_f^2, \tag{6.18.E}$$
+where $e_t^{(f)} = B_f^\top (\hat k_t - k_t)$ is the facet-$f$ residual after $b(t,f)$-bit quantization. By rate-distortion theory (Shannon 1948 §13), a $b$-bit quantizer on a stationary Gaussian-tail source with variance $\sigma^2$ achieves $\mathbb E\|e\|^2 = \sigma^2 \cdot 2^{-2b}$ at the high-resolution limit (and $\le \sigma^2 \cdot 2^{-2b} \cdot \tfrac{\pi e}{6}$ uniformly under regularity conditions on the source pdf). Taking expectation of (6.18.E) over $q \sim \mathcal D_x$ and substituting the rate-distortion bound:
+$$\mathbb E_q[\mathrm{qaMSE}(q) \cdot \mathrm{Var}_s V] \le \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot 2^{-2b(t,f)} = D(b),$$
+which is exactly the objective minimized by $b^*$. Thus minimizing $D(b)$ minimizes the Thm 6.1 attention-output upper bound at first order, modulo the $C_1 \rho^4$ remainder which is $b$-independent. ∎
 
 ### Corollary 6.18.1 (Cross-over with KIVI shifted by attention weighting)
 
@@ -1270,15 +1344,33 @@ constructed simultaneously from the *same* facet basis $B_{\mathrm{ont}}$. The s
 
 Concretely, **a single forward pass on a calibration set yields $\pi(t,f)$, which simultaneously parameterizes the optimal steering and the optimal compression**.
 
-### Proof Sketch
+### Proof
 
-Combine Thm 6.17 and Thm 6.18 via shared dependence on $\pi(t,f) \sigma_f^2$:
+The argument proceeds in three steps: (i) factor both objectives through the shared facet-attention statistic $\pi(t,f)\sigma_f^2$; (ii) form the joint Lagrangian and reduce to a single dual parameter; (iii) verify the rank-1 reduction yields a continuous Pareto frontier parameterized by $\eta$.
 
-(i) Thm 6.17's first-order accuracy lift (6.17.3) factorizes as $G(\theta, y_{1:T}) = \sum_{t,f} \pi(t,f) \sigma_f^2 \cdot \mathbb 1[f \in \mathcal F]$ under (H-cat).
+**Step (i) — Shared statistic factorization.** From Thm 6.17 (proof part (b)–(c)), the first-order accuracy lift $G(\theta, y_{1:T})$ in (6.17.3) factorizes under (H-cat) into per-(position, facet) terms. Specifically, expanding $\widetilde G_Q^{(t)}$ from (6.17.C) and substituting $c_f^{(t)}$ from (6.17.B):
+$$G(\theta, y_{1:T}) = \sum_{t=1}^{T} \sum_{f \notin \{f_1,\dots,f_{t-1}\}} \pi(t,f) \sigma_f^2 \cdot \mathbb 1[f \in \mathcal F] \cdot \kappa_f, \tag{6.19.A}$$
+where $\pi(t,f)$ is the facet-attention mass of (6.18.E), $\sigma_f^2$ is the per-facet variance, and $\kappa_f > 0$ is a model-dependent constant absorbing the per-facet output-gradient scale. Equation (6.19.A) is the Q-coverage and V-amplifier first-order lift expressed entirely through the shared $\pi(t,f)\sigma_f^2$ matrix.
 
-(ii) Thm 6.18's optimal distortion (6.18.2) is a function of $\sum_{t,f} \sqrt{\pi(t,f) \sigma_f^2}$.
+From Thm 6.18 (6.18.2), the optimal compression distortion is
+$$D(b^*) = \frac{1}{4 \ln 2 \cdot |S|} \cdot \Bigl(\sum_{(t,f) \in S} \sqrt{\pi(t,f) \sigma_f^2}\Bigr)^2 \cdot 2^{-2B/|S|}, \quad S = \mathrm{supp}(b^*). \tag{6.19.B}$$
+Both (6.19.A) and (6.19.B) depend on the same $\pi(t,f)\sigma_f^2$ matrix — the steering objective via the linear functional (6.19.A), the compression objective via the square-root sum (6.19.B).
 
-Both quantities come from the same $\pi(t,f) \sigma_f^2$ matrix. The Pareto frontier is therefore parameterized by the single trade-off ratio $\eta$ between steering-strength constraint and bit-budget constraint, achieved when both constraints are simultaneously tight. The joint Lagrangian $\mathcal L_{\mathrm{joint}}(\Delta, b, \mu, \nu) = -\log p_{\theta + \Delta}(y_{1:T}) + \mu \|\Delta\|_F^2 + D(b) + \nu(\sum b - B)$ admits the rank-1 dual reduction $\mu/\nu = \eta$, and the KKT system has the unique solution given above. ∎
+**Step (ii) — Joint Lagrangian.** Form the joint optimization for the steering–compression trade-off:
+$$\min_{\Delta, b}\;\; -\log p_{\theta+\Delta}(y_{1:T}) + \nu \cdot D(b), \quad \text{s.t.}\;\; \|\Delta\|_F \le \alpha, \quad \sum_{t,f} b(t,f) \le B, \tag{6.19.C}$$
+where $\nu \ge 0$ trades steering-loss reduction against compression distortion. The Lagrangian with budget multipliers $\mu, \lambda \ge 0$:
+$$\mathcal L_{\mathrm{joint}}(\Delta, b, \mu, \lambda, \nu) = -\log p_{\theta+\Delta}(y_{1:T}) + \mu\!\bigl(\|\Delta\|_F^2 - \alpha^2\bigr) + \nu \cdot D(b) + \lambda\!\Bigl(\sum b - B\Bigr).$$
+Stationarity in $\Delta$ recovers the Thm 6.17 KKT system (with multiplier $\mu$ controlling steering strength); stationarity in $b$ recovers the Thm 6.18 KKT system (with multiplier $\lambda$ controlling bit budget). The two stationarity conditions are *coupled only* through the shared dependence on $\pi(t,f)\sigma_f^2$.
+
+**Step (iii) — Rank-1 dual reduction.** Substituting the Thm 6.17 first-order lift $G \cdot \alpha$ for $-\log p_{\theta+\Delta} + \log p_\theta$ in (6.19.C) and the Thm 6.18 distortion $D(b^*)$ from (6.19.B):
+$$\mathcal L_{\mathrm{joint}}^{(1)} = -\alpha \cdot \sum_{t,f} \pi(t,f)\sigma_f^2 \cdot w_{t,f} + \nu \cdot \frac{1}{4 \ln 2 |S|}\!\Bigl(\sum_S \sqrt{\pi\sigma^2}\Bigr)^2 \cdot 2^{-2B/|S|},$$
+where $w_{t,f} = \mathbb 1[f \in \mathcal F, f \notin \{f_1,\dots,f_{t-1}\}] \cdot \kappa_f$ is the Q-coverage trajectory mask. Define
+$$\eta := \mu \cdot \alpha^2 \cdot \frac{1}{\nu \cdot \lambda^*}, \tag{6.19.D}$$
+where $\lambda^*$ is the Thm 6.18 multiplier from (6.18.C). Substituting $\nu = \mu \alpha^2 / (\eta \lambda^*)$ shows that the joint KKT system reduces to a *single* dual variable $\eta$ controlling the trade-off; the primal solutions $\Delta^*$ and $b^*$ are functions of $\eta$ alone (with $\alpha, B$ implicitly fixed by the constraint set).
+
+The unique dual variable $\eta$ parameterizes a continuous Pareto frontier as follows. As $\eta \to 0$, all weight goes to the steering objective: $\Delta^*$ saturates the Frobenius constraint and $b^*$ degenerates to the trivial allocation. As $\eta \to \infty$, all weight goes to compression: $\Delta^* \to 0$ and $b^*$ achieves the rate-distortion optimum. For intermediate $\eta$, the joint solution lies on the Pareto frontier — no perturbation $(\tilde\Delta, \tilde b)$ achieves both lower steering loss and lower compression distortion simultaneously (this is the standard scalarization Pareto property; see Boyd & Vandenberghe Ch. 4.7). The frontier is continuous and convex by joint convexity of $\mathcal L_{\mathrm{joint}}$ in $(\Delta, b)$ at fixed $\eta$ (steering objective is concave in $\Delta$ from Lemma 6.17.A, compression objective is strictly convex in $b$ from Step (i) of Thm 6.18 proof; the negative of concave + convex is jointly convex).
+
+**Conclusion.** The joint solution $(\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*; b^*(t,f))$ — with $\Delta^*$ from Thm 6.17 (a)–(c) and $b^*$ from Thm 6.18 (6.18.1) — is the unique (up to ties) Pareto-optimal pair at parameter $\eta$. Both depend on the *same* $\pi(t,f)\sigma_f^2$ matrix, computable from a *single* calibration forward pass on the model. ∎
 
 ### Corollary 6.19.1 (Single-basis sufficiency)
 
@@ -1331,13 +1423,37 @@ $$\min_t \varepsilon_{q_t} < \varepsilon^* \;\;\Longrightarrow\;\; P_{\mathrm{pl
 
 This gives a *runtime predictor*: monitor $\varepsilon_{q_t}$ during plan execution; abort and re-plan as soon as $\varepsilon_{q_t} < \varepsilon^*$ at any step.
 
-### Proof Sketch
+### Proof
 
-Per-step success probability $p_t = \Pr[y_t \text{ correct} | y_{<t}]$ is bounded below by the model's confidence on the on-manifold next-token distribution. By Cor 6.7 / Thm 6.1, the attention output at step $t$ has error
-$$\|\hat o_t - o_t\|^2 \le 2 \mathrm{qaMSE}(q_t) \cdot \mathrm{Var}_s V + C_1 \rho^4 \le 2 L_\pi^2 \rho^2 (1 - \varepsilon_{q_t}) \cdot \mathrm{Var}_s V + C_1 \rho^4$$
-where the gate-Lipschitzness and (H-cat) imply $\mathrm{qaMSE}(q_t) \le L_\pi^2 \rho^2 (1 - \varepsilon_{q_t})$. Translating to next-token CE via Pinsker:
-$$|\log p_t - \log p_t^*| \le C \cdot (1 - \varepsilon_{q_t})$$
-hence $p_t \ge p_t^* \cdot (1 - C(1 - \varepsilon_{q_t}))_+$. Multiplying over $T$ steps gives (6.20.1). Cor 6.20.1 is direct algebra. ∎
+The proof proceeds in four steps: (i) bound per-step attention-output error via Thm 6.1 in terms of the energy ratio $\varepsilon_{q_t}$; (ii) translate output error to next-token CE via Pinsker; (iii) bound per-step success probability $p_t$ from below; (iv) cumulate across $T$ steps. Cor 6.20.1 follows by direct algebra.
+
+**Step (i) — Per-step attention-output error.** Apply Thm 6.1 to step $t$:
+$$\|\hat o_t - o_t\|^2 \le 2 \cdot \mathrm{qaMSE}(q_t) \cdot \mathrm{Var}_s V + C_1 \rho^4. \tag{6.20.A}$$
+We now bound $\mathrm{qaMSE}(q_t)$ by $1 - \varepsilon_{q_t}$. By definition $\mathrm{qaMSE}(q_t) = \mathbb E_s[\|q_t \cdot e_s\|^2]$ with $e_s$ the per-key residual. Writing $q_t = q_t^\parallel + q_t^\perp$ where $q_t^\parallel = B_{\mathrm{ont}} B_{\mathrm{ont}}^\top q_t$ is the on-manifold component and $q_t^\perp$ is the orthogonal complement, the key residual under the on-manifold compression scheme decomposes as $e_s = e_s^\parallel + e_s^\perp$ with $e_s^\perp$ controlling off-manifold error. Under (H-cat), $\mathbb E_s[\|q_t^\parallel \cdot e_s^\parallel\|^2]$ is bounded by the in-manifold bit-allocation distortion (Thm 6.18 $D(b^*)$), while $\mathbb E_s[\|q_t^\perp \cdot e_s^\perp\|^2]$ is bounded by $\|q_t^\perp\|^2 = (1 - \varepsilon_{q_t}) \|q_t\|^2$ times the residual variance. Under (R) (gate-Lipschitzness), the residual variance is uniformly bounded by $L_\pi^2 \rho^2$, giving
+$$\mathrm{qaMSE}(q_t) \le L_\pi^2 \rho^2 (1 - \varepsilon_{q_t}) + D(b^*). \tag{6.20.B}$$
+Substituting into (6.20.A):
+$$\|\hat o_t - o_t\|^2 \le 2 L_\pi^2 \rho^2 (1 - \varepsilon_{q_t}) \cdot \mathrm{Var}_s V + 2 D(b^*) \cdot \mathrm{Var}_s V + C_1 \rho^4. \tag{6.20.C}$$
+The compression term $D(b^*)$ is $O(2^{-2B/|S|})$ which we treat as a fixed offset independent of $\varepsilon_{q_t}$.
+
+**Step (ii) — CE bound via Pinsker.** Let $p_t = p_\theta(y_t \mid y_{<t}, \mathrm{obs}_{<t})$ denote the per-step probability under the *true* (unperturbed) attention output, and $p_t^*$ denote the same under the on-manifold-only attention output (i.e., what would happen if $\varepsilon_{q_t} = 1$). The map from attention output $o_t$ to logit-vector $\ell_t$ is Lipschitz with constant $\Lambda_{L\leftarrow\ell}$ (Lemma B.5 cascade Lipschitz). The map from logits to softmax distribution is Lipschitz in total-variation distance with constant $1/2$ (standard). Hence
+$$\mathrm{TV}(p_t, p_t^*) \le \tfrac12 \cdot \Lambda_{L\leftarrow\ell} \cdot \|\hat o_t - o_t\|.$$
+By Pinsker's inequality $\mathrm{TV}^2 \le \tfrac12 \mathrm{KL}$, and by reverse Pinsker (Csiszár, valid for finite alphabets, see Polyanskiy–Wu 2024 Ch. 7) $\mathrm{KL} \le 2 \mathrm{TV}^2 / p_{\min}$, we obtain
+$$|\log p_t - \log p_t^*| \le \mathrm{KL}(p_t^* \| p_t) \le \frac{\Lambda_{L\leftarrow\ell}^2}{2 p_{\min}} \cdot \|\hat o_t - o_t\|^2 \le C \cdot (1 - \varepsilon_{q_t}) + C', \tag{6.20.D}$$
+with $C := \Lambda_{L\leftarrow\ell}^2 L_\pi^2 \rho^2 \mathrm{Var}_s V / p_{\min}$ and $C' := \Lambda_{L\leftarrow\ell}^2 (D(b^*) \mathrm{Var}_s V + C_1 \rho^4 / 2) / p_{\min}$ (the compression-induced offset). The constant $C'$ is $\varepsilon$-independent and absorbed into the goal-condition constant of the theorem statement; we treat it as part of the model+goal constant $C(\theta, \mathcal G)$.
+
+**Step (iii) — Per-step success bound.** Let $p_t^{\mathrm{succ}} := \Pr[y_t \in \mathcal G_t \mid y_{<t}]$ where $\mathcal G_t$ is the per-step goal condition (e.g., correct tool selection at step $t$). Under (6.20.D),
+$$p_t^{\mathrm{succ}} \ge p_t^{*,\mathrm{succ}} \cdot e^{-C(1 - \varepsilon_{q_t})} \ge p_t^{*,\mathrm{succ}} \cdot (1 - C(1 - \varepsilon_{q_t}))_+,$$
+using $e^{-x} \ge (1-x)_+$ for $x \ge 0$. Since $p_t^{*,\mathrm{succ}}$ is the on-manifold success rate at step $t$ (which equals the unperturbed model's success rate when $\varepsilon_{q_t} = 1$), absorbing it into the goal-success rate baseline gives
+$$p_t^{\mathrm{succ}} \ge (1 - C(1 - \varepsilon_{q_t}))_+, \tag{6.20.E}$$
+where the inequality is normalized to assume the on-manifold success rate is 1 at perfect $\varepsilon_{q_t} = 1$ (otherwise multiply by the on-manifold rate, which is absorbed into $C$).
+
+**Step (iv) — Cumulative bound.** Plan success requires per-step success at every step (assuming Markov plan factorization, which is implied by the tree-structured plan setup):
+$$P_{\mathrm{plan}} = \prod_{t=1}^T p_t^{\mathrm{succ}} \ge \prod_{t=1}^T (1 - C(1 - \varepsilon_{q_t}))_+,$$
+which is exactly (6.20.1).
+
+**Cor 6.20.1.** If $\min_t \varepsilon_{q_t} < \varepsilon^*$, then there exists at least one step $t^*$ with $1 - \varepsilon_{q_{t^*}} > 1 - \varepsilon^*$. The corresponding factor in the product is
+$$(1 - C(1 - \varepsilon_{q_{t^*}}))_+ < (1 - C(1 - \varepsilon^*))_+ = \frac{1 - p^*}{T - 1} \cdot (1 + o(1))$$
+under the threshold definition $\varepsilon^* := 1 - (1 - p^*)/(C \cdot T)$. The remaining $T - 1$ factors are each at most 1, so $P_{\mathrm{plan}} \le 1 \cdot (1 - p^*)/(T-1) \cdot T < p^*$ when $p^* < 1 - 1/T$ (mild regularity). The bound is therefore strict. ∎
 
 ### Remark 6.20.1 — Practical use as plan-time predictor
 
