@@ -1,0 +1,53 @@
+{
+  "model": "mistralai/Mistral-7B-Instruct-v0.3",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 995,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.3"
+  ],
+  "skip_heads_spec": null,
+  "skip_heads_count": 0,
+  "skip_sink_tokens": 0,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-mistral-7b-v03-metatool-skipL0-padmax/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 995,
+      "top1_correct": 607,
+      "top1_accuracy": 0.6100502512562814,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6100502512562814,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 972,
+        "no_match": 0,
+        "none_pred": 23
+      },
+      "runtime_s": 3452.216150522232,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_queries": 995,
+      "top1_correct": 571,
+      "top1_accuracy": 0.5738693467336683,
+      "tool_queries": 995,
+      "tool_accuracy": 0.5738693467336683,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 980,
+        "no_match": 0,
+        "none_pred": 15
+      },
+      "runtime_s": 3313.169788837433,
+      "samples": []
+    }
+  ]
+}
