@@ -586,6 +586,7 @@ Subtask1 full 995 label_logprob cross-model grid (Waves 1+2+3, complete 2026-04-
 | Mistral-7B-v0.3 skipL0+padmax | label_logprob **mean** | 40.70% | +0.20pp | pending | pending | pending | pending |
 | Mistral-Instruct-v0.3 skipL0+padmax | label_logprob **sum** | 61.51% | **−2.92pp** | pending | pending | pending | pending |
 | Mistral-Instruct-v0.3 skipL0+padmax | label_logprob **mean** | 61.01% | **−3.62pp** | pending | pending | pending | pending |
+| Mistral-Instruct-v0.3 substring (Subtask1, full 995, 2026-04-15) | tool_acc | 65.23% | pending (real Mistral) | **+0.60pp** (random) | running (~19:30 KST) | pending | pending |
 
 **Cross-model 3-family positive under strict label_logprob (Qwen + Llama + Mistral-Base)**: Qwen sum +0.10 / mean +5.03, Llama-Base sum +6.33 / mean +2.61, Mistral-Base-v0.3 (skipL0+padmax fix) sum +3.12 / mean +0.20. All three base architecture families register positive. Mistral-**Instruct**-v0.3 is the sole negative (sum −2.92, mean −3.62): the Instruct variant's no_steer is itself 7.84pp **below** the Base variant (61.51% vs 69.35%), and K-bias further degrades — consistent with chat-template hedging rather than a mechanism counterexample (analysis §5.5.1).
 
