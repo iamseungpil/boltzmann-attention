@@ -383,7 +383,18 @@ Define three perturbation channels at layer $\ell$:
 
 (ii) **Q+V pair** ($\Delta_Q^{(t)*}, \Delta_V^*$ at $\alpha_K=0$) achieves the *same* first-order lift as (i) at small $\gamma_V$. The V-channel coefficient in the Lagrangian (Lemma 6.17.A in App. B.7.10) is *first-order zero on this benchmark*: $G_V \cdot \Delta_V^* = O(\gamma_V^2)$ rather than $O(\gamma_V)$, because the position-weighted V-side gradient $G_V = A_t^\top \nabla_{o_t} \log p$ projects onto a direction near-orthogonal to $\Delta_V^* = \gamma_V B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V$ at $\beta_Q = -0.1$ on the multi-tool emission task. We classify V as *first-order degenerate* under shared-basis Q+V composition: V single-axis is mildly negative ($-0.4$ to $-0.9$pp at $\gamma_V \in \{0.1, 0.3\}$) and V+Q matches Q-only within 0.0003 F1. Section 5.5.2 documents this as "V marginal-neutral".
 
-(iii) **Q+K small-α pair** ($\Delta_Q^{(t)*}, \Delta_K^*$ at $\alpha_K = 0.05$, $\gamma_V = 0$) achieves $\beta_Q \cdot G_Q + \alpha_K \cdot G_K + O(\alpha_K \beta_Q + \alpha_K^2 + \beta_Q^2)$ — the *strongest verified pair* on Subtask4 (F1 = 0.7502, +1.95pp), with K contributing a small additive $+0.003$pp marginal lift over Q-only. The K-channel coefficient $G_K$ is first-order positive at small $\alpha_K$ via the on-manifold mechanism of Cor 6.9.6 (a). At $\alpha_K \ge 0.1$ the K-channel becomes destructive (smoke and full both negative), reflecting an $\alpha_K^2$-order phase transition not captured in the first-order analysis.
+(iii) **Q+K small-α pair** ($\Delta_Q^{(t)*}, \Delta_K^*$ at $\alpha_K \in [0.025, 0.05]$, $\gamma_V = 0$) achieves $\beta_Q \cdot G_Q + \alpha_K \cdot G_K + O(\alpha_K \beta_Q + \alpha_K^2 + \beta_Q^2)$ — the *strongest verified pair* on Subtask4. Full α-sweep at full 497 (R1 micro-sweep, 2026-04-15) reveals the following α curve:
+
+| $\alpha_K$ | F1 | Δ vs no_steer 0.731 |
+|---|---|---|
+| 0 | 0.7307 | — |
+| **0.025** | **0.7529** | **+2.22pp** ★ |
+| 0.05 | 0.7502 | +1.95pp |
+| 0.075 | 0.7270 | −0.36pp |
+| 0.1 | 0.7317 | +0.10pp |
+| 0.15 | 0.7266 | −0.40pp |
+
+The K-channel coefficient $G_K$ is first-order positive at very small $\alpha_K$ (via the on-manifold mechanism of Cor 6.9.6 (a)), peaking at $\alpha_K = 0.025$ (+2.22pp F1) which is the *true empirical optimum*. At $\alpha_K \ge 0.075$ the K-channel becomes destructive, reflecting an $\alpha_K^2$-order phase transition not captured in the first-order analysis. The sharp-peak regime $\alpha_K \in [0, 0.05]$ indicates that small-α K augmentation is a *narrow* enhancement on top of Q-coverage, not a broad additive channel.
 
 **(d) Empirical falsification of the original trio claim**. The K+V+Q trio at small magnitudes ($\alpha_K = \gamma_V = 0.05, \beta_Q = -0.1$) yields F1 = 0.7414 < both Q+K pair (0.7502) and Q+V pair (0.7468). The V·K interaction term — $\langle G_{V \cdot K}, \Delta_V^* \otimes \Delta_K^*\rangle \approx \gamma_V \alpha_K \cdot \mathrm{tr}(B_{\mathrm{ont}}^\top B_{\mathrm{ont}})^2 / d^2$ — is *negative* and order $\gamma_V \alpha_K \approx 0.0025$ in our setup, sufficient to overshoot the per-channel positive contributions at the verified scale. Mechanistically, this is the multiplicative facet over-weighting of softmax-then-V on a *shared* $B_{\mathrm{ont}}$ projector: K-bias amplifies attention mass toward facet-keys while V-amplifier boosts in-facet logits; jointly they double-weight the facet axis and destabilize the attention output.
 
