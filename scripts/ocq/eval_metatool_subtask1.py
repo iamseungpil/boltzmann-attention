@@ -525,6 +525,137 @@ def install_q_bias_hooks(
 
 
 @contextmanager
+def install_caa_hooks(
+    model,
+    B_ont: torch.Tensor,    # (L, H_kv, d, r_ont) — we use first column as rank-1 direction
+    alpha: float,
+    target_layers: Optional[list] = None,
+    skip_sink: int = 0,
+):
+    """CAA-style baseline (Rimsky 2024): rank-1 residual-stream bias.
+    Uses B_ont's first column as the "concept direction" — direct
+    comparison of rank-1 Q-side bias vs our rank-24 K-side / Q-coverage.
+    The bias is applied to the layer output (residual stream) at each
+    target layer."""
+    handles = []
+    L, H_kv, d, r = B_ont.shape
+    if target_layers is None:
+        target_layers = list(range(L // 2 - 1, L // 2 + 2))  # mid-3 layers
+    # First column averaged across heads gives a rank-1 layer direction
+    # in head_dim space, then broadcast to full hidden dim
+    try:
+        for layer_idx in target_layers:
+            if layer_idx >= L: continue
+            v_per_head = B_ont[layer_idx, :, :, 0]  # (H_kv, d)
+            v_layer = v_per_head.reshape(-1)  # (H_kv * d,)
+            v_layer = v_layer / (v_layer.norm() + 1e-8)
+            layer = model.model.layers[layer_idx]
+
+            def make_hook(li, v_dir, _skip_sink=skip_sink):
+                def hook(module, inputs, output):
+                    if isinstance(output, tuple):
+                        h = output[0]
+                    else:
+                        h = output
+                    B, T, D = h.shape
+                    if v_dir.shape[0] != D:
+                        # Pad or truncate to hidden dim
+                        if v_dir.shape[0] < D:
+                            v = torch.zeros(D, device=h.device, dtype=torch.float32)
+                            v[:v_dir.shape[0]] = v_dir.to(h.device).float()
+                        else:
+                            v = v_dir[:D].to(h.device).float()
+                    else:
+                        v = v_dir.to(h.device).float()
+                    h_f = h.float()
+                    add = alpha * v.view(1, 1, D)
+                    if _skip_sink > 0 and T > _skip_sink:
+                        add = add.repeat(B, T, 1)
+                        add[:, :_skip_sink, :] = 0
+                    h_modified = (h_f + add).to(h.dtype)
+                    if isinstance(output, tuple):
+                        return (h_modified,) + output[1:]
+                    return h_modified
+                return hook
+
+            handles.append(layer.register_forward_hook(make_hook(layer_idx, v_layer)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+@contextmanager
+def install_adaseka_proxy_hooks(
+    model,
+    B_ont: torch.Tensor,    # (L, H_kv, d, r_ont) used as M-expert basis
+    alpha: float,
+    M: int,
+    n_kv: int,
+    n_q: int,
+    head_dim: int,
+    temperature: float = 0.1,
+    skip_sink: int = 0,
+):
+    """AdaSEKA proxy (Kim et al. 2026): Q-side M-expert max-normalized routing.
+    Splits B_ont into M equal-rank facet sub-blocks; for each Q token computes
+    soft-max routing over experts (temperature T) and applies the winning
+    expert's projection to Q. This mirrors AdaSEKA's max-of-M architecture
+    and tests Cor 6.9: should saturate at expert rank r = R/M, gap +17 vs
+    our rank-R F-simultaneous."""
+    handles = []
+    L, H_kv, d, R_total = B_ont.shape
+    r_per_expert = R_total // M  # equal split, e.g. R=24, M=3 → r=8
+    g = n_q // n_kv
+    try:
+        for layer_idx in range(L):
+            q_proj = model.model.layers[layer_idx].self_attn.q_proj
+            B_layer = B_ont[layer_idx].clone()
+            # Split into M experts: each is (H_kv, d, r_per_expert)
+            experts = [B_layer[:, :, m * r_per_expert:(m + 1) * r_per_expert]
+                       for m in range(M)]
+            # Broadcast to q-heads
+            experts_q = [e.unsqueeze(1).expand(-1, g, -1, -1).reshape(n_q, d, r_per_expert)
+                         for e in experts]
+
+            def make_hook(li, exps, _T=temperature, _skip_sink=skip_sink):
+                def hook(module, inputs, output):
+                    B, T, D = output.shape
+                    if D != n_q * head_dim:
+                        return output
+                    Q = output.view(B, T, n_q, head_dim).permute(0, 2, 1, 3).contiguous()
+                    Q_f = Q.float()
+                    # Compute per-expert energy: ||B_m^T q||^2 per head
+                    energies = []
+                    for em in exps:
+                        em_dev = em.to(device=Q.device, dtype=torch.float32)
+                        coeffs = torch.einsum("bhtd,hdr->bhtr", Q_f, em_dev)
+                        energies.append((coeffs ** 2).sum(dim=-1))
+                    # Stack and softmax-route over experts
+                    E = torch.stack(energies, dim=-1)  # (B, n_q, T, M)
+                    routing = torch.softmax(E / _T, dim=-1)  # max-norm at low T
+                    # Winning-expert projection (weighted by routing)
+                    Q_proj = torch.zeros_like(Q_f)
+                    for m, em in enumerate(exps):
+                        em_dev = em.to(device=Q.device, dtype=torch.float32)
+                        coeffs = torch.einsum("bhtd,hdr->bhtr", Q_f, em_dev)
+                        proj_m = torch.einsum("bhtr,hdr->bhtd", coeffs, em_dev)
+                        w = routing[..., m].unsqueeze(-1)  # (B, n_q, T, 1)
+                        Q_proj = Q_proj + w * proj_m
+                    if _skip_sink > 0 and T > _skip_sink:
+                        Q_proj[:, :, :_skip_sink, :] = 0
+                    Q_modified = Q_f + alpha * Q_proj
+                    return Q_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D).to(Q.dtype)
+                return hook
+
+            handles.append(q_proj.register_forward_hook(make_hook(layer_idx, experts_q)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+@contextmanager
 def install_qkv_joint_hooks(
     model,
     B_ont: torch.Tensor,
