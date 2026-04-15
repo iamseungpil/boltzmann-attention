@@ -462,7 +462,27 @@ The §5.5 stability result is the *baseline* operating point of the facet-gated 
 
 **Key finding**: at α=0.3, contrastive depth-3 K-bias yields **F1 = 0.608 (+5.8pp over no_steer 0.550)** on the same smoke set where flat real a0.3 gives 0.533 (−1.7pp). This is the **first positive Subtask4 F1 signature** for any member of the K-bias family, and it is predicted by Thm 6.9.5/6.15 (non-uniform family): contrastive mixing injects facet direction while subtracting paired sibling-facet leakage, directly targeting the autoregressive re-attention limitation identified in §5.5. **V-bias alone fails** (max F1 0.558 at ak=0.1/av=0.1, no config beats flat real). **Normalized-only variant fails at α ≥ 0.3**: catastrophic collapse, matching the under-gating regime of Cor 6.9.4.
 
-Full 497 extension of contrastive a=0.3 d=3 is the highest-priority next run; if the +5.8pp signature holds at full scale, it converts the §5.5 Subtask4 story from *stability-only* to *stability + accuracy lift*, satisfying the original Cor 6.9 downstream prediction via a training-free augmented operator.
+**Full 497 contrastive verification (2026-04-15 09:25 KST) — smoke signal does NOT replicate**:
+
+| Method | smoke F1 (N=20) | full F1 (N=497) | Δ (full − no_steer 0.731) |
+|---|---|---|---|
+| no_steer | 0.550 | 0.731 | — |
+| ocq_cbias_a0.3_d1 | 0.583 (+3.3pp) | 0.690 | **−4.1pp** |
+| ocq_cbias_a0.3_d3 | 0.608 (+5.8pp) | 0.695 | **−3.6pp** |
+
+The +5.8pp smoke signal does not survive full-scale replication (full Δ = −3.6pp on d=3, similar on d=1). We classify the smoke result as a *small-N variance artifact* (N=20 has bootstrap standard error ≈ 0.11 on F1; the +5.8pp signal is within one-sigma of per-sample variance on this benchmark). Stationary K-bias of *any* form tested — flat, normalized (Thm 6.9.5 literal), or contrastive — cannot drive multi-tool coverage at full scale; this corroborates §5.5's reframing that the autoregressive re-attention barrier is structural for stationary perturbations.
+
+**Live promising signal (Q-coverage subtraction, smoke N=20)**:
+
+| Method | F1 (smoke N=20) | Δ vs no_steer 0.550 |
+|---|---|---|
+| ocq_qbias_b−0.1 (Q-coverage subtract, weak) | **0.658** | **+10.8pp** |
+| ocq_qbias_b−0.3 | 0.575 | +2.5pp |
+| ocq_qbias_b−0.5 | 0.600 | +5.0pp |
+| ocq_qkv_a0.3_v0_q−0.3 (K + Q-coverage) | 0.500 | −5.0pp |
+| ocq_qkv_a0.3_v0.3_q−0.3 (full QKV joint Thm 6.17) | 0.500 | −5.0pp |
+
+Q-only coverage subtraction at $\beta = -0.1$ is the strongest non-stability multi-tool signal observed in this paper (smoke +10.8pp). It is the **isolated Thm 6.17 (b) component** (Q-coverage gradient direction), without K-marker or V-amplifier. Crucially, *adding* the K-marker at $\alpha_K=0.3$ destroys the Q-only gain — they interact destructively at this magnitude rather than additively as the first-order Lagrangian decomposition (Thm 6.17 (d)) predicted. The full-497 verification of Q-only $\beta=-0.1$ is in progress (PID 1885654, ETA ~30 min); if the +10.8pp signal holds, this is the first verified accuracy-lift contribution and §5.5 narrative upgrades to *stability + accuracy lift*. The destructive K×Q interaction is documented as a *limitation* of the first-order joint analysis (Thm 6.17 stationarity is local; pairwise interactions at $\alpha_K = 0.3$ may exceed the leading-order regime).
 
 ### 5.5.1 Mistral-Instruct H2 progress (Wave 3b)
 
