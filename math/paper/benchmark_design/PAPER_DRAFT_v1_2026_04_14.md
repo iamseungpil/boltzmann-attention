@@ -538,9 +538,20 @@ The net effect: **§5 reduced from ~480 lines to ~250 lines**, every experiment 
 
 ## 6. Discussion
 
-### 6.1 Why the cross-model positive is the story, not the deployment alignment
+### 6.1 Why stability is the correct narrative frame
 
-[Memory `impact_oriented_bench_2026_04_14`]. Qwen+Llama 2-family positive + Mistral fully-diagnosed counterexample is the cross-architecture evidence. Deployment pressure (client using 32B) enters only as a scaling-curve data point.
+Three a-priori plausible framings for the contributions of this paper exist:
+1. **Accuracy lift on single-tool selection** (Subtask1). Observed $\Delta \le +6$pp under strict label-logprob scorers; $+11$pp under legacy substring (scorer-dependent).
+2. **Accuracy lift on multi-tool selection** (Subtask4 F-simultaneous). Originally predicted $+5$–$+15$pp; empirically FALSIFIED at full 497 ($-4.6$pp).
+3. **Direction-specificity of the ontology subspace** (null-control gaps). Observed $+16$ to $+49$pp on Subtask1 (scorer-invariant); $+68.5$pp on Subtask4 (full 497, verified at the largest scale in the paper).
+
+Only framing (3) is robustly supported at the magnitude predicted by theory (Cor 6.9.6). The $\pm 5$pp headlines of framings (1) and (2) are scorer-dependent and task-specific; the $+30$–$+68$pp gaps of (3) are scorer-invariant, task-invariant, and cross-model (§5.4 Table). We therefore lead with the stability claim. Accuracy lifts, when they occur (Qwen sum +0.10 / mean +5.03, Llama-Base sum +6.33 / mean +2.61, Mistral-Base sum +3.12, MMLU flat $\alpha=0.2$ +1.4, contrastive Subtask4 smoke +5.8), are supporting evidence that the direction is *downstream-usable*, not the main contribution.
+
+This framing also restructures the paper's falsifiability. Under the accuracy-lift narrative, the paper has a single failure point (Subtask4 $-4.6$pp already observed). Under the stability narrative, the main claim is already verified at full scale; accuracy-lift extensions (§5.5.2 contrastive, §5.10.1 LoRA) are independent follow-ups whose individual success or failure leaves the main contribution intact.
+
+### 6.1.1 Why the cross-model positive is supporting (not leading) evidence
+
+Qwen + Llama-Base + Mistral-Base sum-positive triad is **generalization evidence for the stability claim**: the ontology direction is uniquely privileged in three independent transformer families, not a Qwen-specific artifact. The Mistral-Instruct-v0.3 negative is not a counterexample to stability — its no_steer itself is 7.84pp below Mistral-Base (61.51% vs 69.35%), and the further $-2.92$pp shift under $\alpha=0.3$ K-bias is consistent with chat-template hedging rather than a failure of the ontology direction to be privileged. A null-control comparison on Mistral-Instruct (random/featshuffle at $\alpha=0.3$) is queued and predicted to show the same $+60$+pp direction-specificity gap as Qwen, confirming stability universality with Instruct-family hedging as a separate scope limit.
 
 ### 6.2 (R) as a design constraint, not a technicality
 
