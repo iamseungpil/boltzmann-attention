@@ -1520,11 +1520,19 @@ With a safety margin $\eta \in [0.1, 0.2]$ to avoid approaching $\alpha^*$ so cl
 $$\alpha_\mathrm{opt}(\theta, \tau) = \min\!\left(\alpha^\text{unc}, (1-\eta) \cdot \alpha^*(\theta, \tau)\right) = \min\!\left(-\frac{G_K}{H_K}, (1-\eta) \alpha^*\right),$$
 which is exactly (6.21.1). ∎
 
-### Remark 6.21.1 (Cross-model asymmetry decomposition)
+### Remark 6.21.1 (Cross-model asymmetry decomposition — leading-order)
 
-The cross-model K-bias lift ratio observed empirically at matched $\alpha$ decomposes into three factors:
-$$\frac{L^{(M_2)}(\alpha)}{L^{(M_1)}(\alpha)} = \underbrace{\frac{G_K^{(M_2)}}{G_K^{(M_1)}}}_{\text{alignment ratio}} + \underbrace{\alpha \cdot \frac{H_K^{(M_2)} - H_K^{(M_1)}}{G_K^{(M_1)}}}_{\text{curvature correction}} + \underbrace{\mathbb 1[\alpha > \alpha^*^{(M_1)}, \alpha < \alpha^*^{(M_2)}] \cdot (\text{phase transition term})}_{\text{operating-regime asymmetry}}.$$
-For Llama/Qwen on Subtask1 at $\alpha = 0.3$: the measured alignment ratio (cosine-based $G_K$ proxy) is 1.66×, while the observed lift ratio is 10.7×. The remaining factor of ~6.4× is the operating-regime asymmetry: Qwen is past $\alpha^*$ (off-manifold random emissions, net small lift), Llama is below $\alpha^*$ (on-manifold coherent lift). At each model's own $\alpha_\mathrm{opt}$ the ratio reduces to ~7.5× reflecting a combination of the 1.66× alignment difference and the differing $H_K$ curvature (Llama's lift curve remains linear up to $\alpha = 0.3$, Qwen's saturates early).
+The cross-model K-bias lift ratio observed at matched $\alpha$ admits a leading-order decomposition valid when both models operate *in-regime* ($\alpha < \min(\alpha^{*(M_1)}, \alpha^{*(M_2)})$). Define the ratio $r(\alpha) := L^{(M_2)}(\alpha) / L^{(M_1)}(\alpha)$ and the leading quadratic form $L^{(M_i)}(\alpha) = \alpha G_K^{(M_i)} + \tfrac{\alpha^2}{2} H_K^{(M_i)} + O(\alpha^3)$. Then:
+
+$$r(\alpha) = \frac{G_K^{(M_2)}}{G_K^{(M_1)}} \cdot \frac{1 + \tfrac{\alpha}{2} \cdot H_K^{(M_2)} / G_K^{(M_2)}}{1 + \tfrac{\alpha}{2} \cdot H_K^{(M_1)} / G_K^{(M_1)}} + O(\alpha^2)\,. \tag{6.21.1.A}$$
+
+At small $\alpha$ (linear regime) this reduces to $r(\alpha) \approx G_K^{(M_2)} / G_K^{(M_1)}$ — a pure gradient-alignment ratio.
+
+When one model is *out-of-regime* ($\alpha > \alpha^{*(M_1)}$, $\alpha < \alpha^{*(M_2)}$), the Taylor decomposition fails for $M_1$ because the phase-transition regime of Cor 6.9.6 (b) dominates. In this case $L^{(M_1)}(\alpha)$ loses its linear behavior: off-manifold emissions are distributed randomly rather than along the gradient direction. Formally:
+$$L^{(M_1)}(\alpha \ge \alpha^{*(M_1)}) = L^{(M_1)}(\alpha^{*(M_1)}) \cdot (1 - c(\alpha - \alpha^{*(M_1)})) + \xi(\alpha)$$
+where $c > 0$ is a drop rate constant and $\xi(\alpha)$ is a mean-zero off-manifold noise term with variance proportional to $(\alpha - \alpha^{*(M_1)})$. The expected lift becomes small while variance is large — the $L^{(M_1)}$ *mean*-lift saturates or drops, making $r(\alpha)$ diverge from the in-regime (6.21.1.A) expression.
+
+**Applied to Llama/Qwen Subtask1 at $\alpha = 0.3$**: the measured cosine-based proxy for $G_K$ ratio is 1.66×. The observed lift ratio is 10.7×. The in-regime decomposition (6.21.1.A) cannot account for the full 10.7× without $H_K$ contributions dominating, which is not physically expected since $H_K < 0$ should suppress lifts. The *residual* factor beyond (6.21.1.A)'s ~1.8–2× prediction (including mild $H_K$ curvature) is attributed to the out-of-regime term: Qwen at $\alpha = 0.3$ is past $\alpha^{*(Qwen)}$ (Subtask1 phase transition into off-manifold random emissions), while Llama at $\alpha = 0.3$ remains below $\alpha^{*(Llama)}$ (in-regime coherent lift). This decomposition is *post-hoc* descriptive rather than predictive; the predictive version requires measuring $\alpha^*$ per model (Thm 6.21 Cor 6.21.1 calibration algorithm) and then reporting *in-regime* lift ratios at matched operational $\alpha / \alpha^*$ fractions rather than matched nominal $\alpha$.
 
 ### Corollary 6.21.1 (Practical Three-Step Calibration Algorithm)
 
