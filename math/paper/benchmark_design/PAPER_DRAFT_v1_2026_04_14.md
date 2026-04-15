@@ -421,7 +421,7 @@ The proof reduces to observing that both the accuracy lift (Thm 6.17) and the co
 
 > $B_{\mathrm{ont}}$ is the unique geometric structure that simultaneously realizes Pareto-optimality across **stability** (Cor 6.9.6, verified +68.5pp on Subtask4 N=497, $\alpha_K = 0.3$), **accuracy** (Thm 6.17 Q-coverage + optional Q+K small-α pair on the same basis, verified +1.6pp F1 Q-only and +1.95pp F1 best pair Q+K at $\alpha_K=0.05$ on Subtask4 N=497, plus null-control gap +2.2/+4.0pp), and **compression** (Thm 6.18, predicted $-2.5$ PPL) objectives at fixed model parameters. The K-channel serves dual-magnitude roles (large-α stability, small-α accuracy pair) on the same basis.
 
-Three independent falsifiability paths (Rmk 6.19.2 in Appendix): (1) QV-joint Q-coverage $F_1 < 0.731$ at full 497 (already passed: F1 = 0.747, +1.6pp lift; V+Q full pending); (2) attention-weighted PPL within 1.0 of uniform OCQ falsifies compression portion; (3) absence of continuous Pareto frontier in $\eta$ falsifies single-basis sufficiency. Each testable in ~2 GPU-day.
+Three independent falsifiability paths (Rmk 6.19.2 in Appendix): (1) Q-coverage + K small-α pair $F_1 < 0.731$ at full 497 (already passed: Q-only F1 = 0.747, +1.6pp; Q+K small-α F1 = 0.750, +1.95pp); (2) attention-weighted PPL within 1.0 of uniform OCQ falsifies compression portion; (3) absence of continuous Pareto frontier in $\eta$ falsifies single-basis sufficiency. Each testable in ~2 GPU-day.
 
 ### 3.5 Theorem 6.13 — Categorical-Channel Optimality (bridge to compression)
 
