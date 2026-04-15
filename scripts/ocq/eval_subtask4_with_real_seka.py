@@ -89,15 +89,38 @@ def convert_bont_to_ppos(b_ont_path: str, out_path: Path) -> str:
 
 def wrap_user_query_in_markers(prompt: str, m_start: str = "**", m_end: str = None) -> str:
     """SEKA's encode_with_markers selects tokens between m_start..m_end as the
-    steer mask. We wrap the user query content with these markers."""
+    steer mask. We wrap the user query content with these markers.
+
+    Supports multiple chat templates:
+    - Qwen: <|im_start|>user\n...<|im_end|>
+    - Llama-3: <|start_header_id|>user<|end_header_id|>\n\n...<|eot_id|>
+    - Mistral: [INST]...[/INST]
+    """
     if m_end is None:
         m_end = m_start
-    # In our build_fc_prompt the user query appears between
-    # <|im_start|>user\n  ...  <|im_end|>
-    pattern = r'(<\|im_start\|>user\n)(.*?)(<\|im_end\|>)'
     def _wrap(m):
         return f"{m.group(1)}{m_start}{m.group(2)}{m_end}{m.group(3)}"
-    new_prompt = re.sub(pattern, _wrap, prompt, count=1, flags=re.DOTALL)
+
+    # Qwen-style template
+    pattern_qwen = r'(<\|im_start\|>user\n)(.*?)(<\|im_end\|>)'
+    new_prompt = re.sub(pattern_qwen, _wrap, prompt, count=1, flags=re.DOTALL)
+    if new_prompt != prompt:
+        return new_prompt
+
+    # Llama-3-style template
+    pattern_llama = r'(<\|start_header_id\|>user<\|end_header_id\|>\n\n)(.*?)(<\|eot_id\|>)'
+    new_prompt = re.sub(pattern_llama, _wrap, prompt, count=1, flags=re.DOTALL)
+    if new_prompt != prompt:
+        return new_prompt
+
+    # Mistral-style template
+    pattern_mistral = r'(\[INST\]\s*)(.*?)(\s*\[/INST\])'
+    new_prompt = re.sub(pattern_mistral, _wrap, prompt, count=1, flags=re.DOTALL)
+    if new_prompt != prompt:
+        return new_prompt
+
+    # No template matched — warning print
+    print(f"[WARN] wrap_user_query_in_markers: no chat template matched! steer_mask will be empty. Prompt head: {prompt[:200]}", flush=True)
     return new_prompt
 
 
