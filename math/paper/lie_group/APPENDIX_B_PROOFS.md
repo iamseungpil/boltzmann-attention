@@ -1310,6 +1310,60 @@ Each is testable in independent ablation runs (~2 GPU-day each).
 
 ---
 
+## B.7.13 Theorem 6.20 — Plan-Success Prediction via Cumulative Stability
+
+### Setup
+
+A *tree-structured plan* is a sequence of $T$ decoding steps, each emitting one tool-call (or terminal), where step $t$ produces $y_t$ conditioned on $(x, y_{<t}, \text{tool-observations}_{<t})$. The *plan succeeds* if the leaf state satisfies the goal condition $\mathcal G$; otherwise fails. Let $P_{\mathrm{plan}} = \Pr_x[y_{1:T} \in \mathcal G]$.
+
+For each step $t$, define the **per-step ontology stability**:
+$$\varepsilon_{q_t} := \frac{\|B_{\mathrm{ont}}^\top q_t\|^2}{\|q_t\|^2} \in [0, 1]$$
+where $q_t$ is the layer-$\ell$ query at step $t$. This quantity already appears in Cor 6.7 as the energy ratio determining qaMSE-bound on per-step output perturbation; we now use it as a *plan-time predictor*.
+
+### Theorem 6.20 (Cumulative Stability Plan-Success Lower Bound)
+
+*Statement.* Under (R), (H-cat), and the assumption that per-step output errors compose multiplicatively with bounded amplification (cf. Cascade Lipschitz Lemma B.5),
+$$P_{\mathrm{plan}} \ge \prod_{t=1}^{T} \bigl(1 - C(1 - \varepsilon_{q_t})\bigr)_+, \tag{6.20.1}$$
+where $C = C(\theta, \mathcal G)$ is a model + goal dependent constant ($C \in [0, 1]$ for well-posed plans).
+
+*Corollary 6.20.1 (Min-stability failure threshold).* If $\min_t \varepsilon_{q_t} < \varepsilon^*$ where $\varepsilon^* := 1 - (1 - p^*)/(C \cdot T)$ for target success rate $p^*$, the plan's success probability is strictly bounded below $p^*$:
+$$\min_t \varepsilon_{q_t} < \varepsilon^* \;\;\Longrightarrow\;\; P_{\mathrm{plan}} < p^*. \tag{6.20.2}$$
+
+This gives a *runtime predictor*: monitor $\varepsilon_{q_t}$ during plan execution; abort and re-plan as soon as $\varepsilon_{q_t} < \varepsilon^*$ at any step.
+
+### Proof Sketch
+
+Per-step success probability $p_t = \Pr[y_t \text{ correct} | y_{<t}]$ is bounded below by the model's confidence on the on-manifold next-token distribution. By Cor 6.7 / Thm 6.1, the attention output at step $t$ has error
+$$\|\hat o_t - o_t\|^2 \le 2 \mathrm{qaMSE}(q_t) \cdot \mathrm{Var}_s V + C_1 \rho^4 \le 2 L_\pi^2 \rho^2 (1 - \varepsilon_{q_t}) \cdot \mathrm{Var}_s V + C_1 \rho^4$$
+where the gate-Lipschitzness and (H-cat) imply $\mathrm{qaMSE}(q_t) \le L_\pi^2 \rho^2 (1 - \varepsilon_{q_t})$. Translating to next-token CE via Pinsker:
+$$|\log p_t - \log p_t^*| \le C \cdot (1 - \varepsilon_{q_t})$$
+hence $p_t \ge p_t^* \cdot (1 - C(1 - \varepsilon_{q_t}))_+$. Multiplying over $T$ steps gives (6.20.1). Cor 6.20.1 is direct algebra. ∎
+
+### Remark 6.20.1 — Practical use as plan-time predictor
+
+Two operating modes:
+
+*(a) Pre-execution screening.* Given $K$ candidate plans (e.g., from beam search or LLM sampling), estimate $\{\varepsilon_{q_t}\}_t$ trajectories using a single forward pass per plan + $B_{\mathrm{ont}}$ projection. Rank plans by $\min_t \varepsilon_{q_t}$ (highest = most stable). Execute top-1 first; if execution-observed $\varepsilon_{q_t}$ drops below $\varepsilon^*$, switch to top-2.
+
+*(b) Runtime abort.* Track $\varepsilon_{q_t}$ live during plan execution. If $\varepsilon_{q_t} < \varepsilon^*$ at any step, abort the current plan and re-plan (rather than continuing to a likely-failed leaf).
+
+Both modes turn ontology stability from a *post-hoc* explanation into a *plan-time decision signal*. This is the deployment-relevant contribution that single-step accuracy lifts (§5.5) cannot directly provide.
+
+### Remark 6.20.2 — Empirical validation protocol
+
+Three falsifiable predictions:
+1. **AUROC > 0.7**: $\min_t \varepsilon_{q_t}$ predicts plan success/failure on a multi-turn agent benchmark (τ²-bench retail/airline) with AUROC at least 0.7.
+2. **Threshold-effective $\varepsilon^*$**: There exists a threshold $\varepsilon^*$ such that plans with $\min_t \varepsilon_{q_t} < \varepsilon^*$ have observed success rate < 30% (vs base success rate ~50–60%).
+3. **Runtime savings**: Aborting plans below $\varepsilon^*$ saves $\ge 30\%$ of execution compute while reducing final success rate by $\le 5$pp.
+
+If all three pass, Thm 6.20 is a deployable contribution; if (1) fails, the theorem is degenerate (no informative threshold exists for this model/benchmark pair).
+
+### Remark 6.20.3 — Connection to Cor 6.9.6
+
+Cor 6.9.6 (stability characterization) is the *single-step* $\alpha = 0.3$ statement: on-manifold perturbation preserves FC-emission with KL $O(\alpha^2)$. Thm 6.20 is the *multi-step* version: a sequence of on-manifold steps (high $\varepsilon_{q_t}$ throughout) cumulatively preserves plan success. The single-step empirical signature is the +68.5pp Subtask4 gap (§5.5); the multi-step prediction is Thm 6.20 (eval planned in §5.11 via τ²-bench).
+
+---
+
 ## B.8 Numerical instantiation tasks (1-day each)
 
 The following pieces of the appendix require numerical work on actual
