@@ -8,14 +8,14 @@
 \centering
 \begin{tabularx}{\linewidth}{X | X | X | X | X | X}
 \toprule
-\textbf{P1 primary} & \texttt{Qwen/Qwen2.5-7B-Instruct} & ✓ & C & 4 & Main reference; scaling pivot \\
+\textbf{P1 primary} & \texttt{Qwen/Qwen2.5-7B-Instruct} & [OK] & C & 4 & Main reference; scaling pivot \\
 \midrule
-P1 primary & \texttt{NousResearch/Meta-Llama-3.1-8B-Instruct} (un-gated mirror) & ✓ & A & 8 & Cross-family (Mode A ✓) \\
-P1 primary & \texttt{mistralai/Mistral-7B-Instruct-v0.3} & ✓ & A & 8 & 86/14 counterexample + H2 \\
-P1 stretch & \texttt{google/gemma-3-27b-it} (pending gated approval) & ✓ & — & — & \textbf{Netsru deployment model} — direct production alignment \\
-P2 scaling & Qwen2.5-\{0.5, 1.5, 3, 7, 14, 32\}B-Instruct & ✓ & C & varies & Scale-invariance curve \\
+P1 primary & \texttt{NousResearch/Meta-Llama-3.1-8B-Instruct} (un-gated mirror) & [OK] & A & 8 & Cross-family (Mode A [OK]) \\
+P1 primary & \texttt{mistralai/Mistral-7B-Instruct-v0.3} & [OK] & A & 8 & 86/14 counterexample + H2 \\
+P1 stretch & \texttt{google/gemma-3-27b-it} (pending gated approval) & [OK] & — & — & \textbf{Netsru deployment model} — direct production alignment \\
+P2 scaling & Qwen2.5-\{0.5, 1.5, 3, 7, 14, 32\}B-Instruct & [OK] & C & varies & Scale-invariance curve \\
 P2 ablation & \texttt{Qwen/Qwen2.5-Coder-7B-Instruct} (un-gated) & FC-trained & C & 4 & Tool-specialized variant cross-check \\
-Legacy/Base & \texttt{NousResearch/Meta-Llama-3.1-8B}, \texttt{Mistral-7B-v0.3} (Base) & ✗ & — & — & Ablation only: "does K-bias work without FC training?" \\
+Legacy/Base & \texttt{NousResearch/Meta-Llama-3.1-8B}, \texttt{Mistral-7B-v0.3} (Base) & [X] & — & — & Ablation only: "does K-bias work without FC training?" \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -139,7 +139,7 @@ Thirteen experiments partitioned across three priority tiers:
 \toprule
 Claim & Theorem/Remark & Primary Exp & Secondary \\
 \midrule
-C1 Geometric specificity (real≫random≫featshuffle) & — & E1 & E2 FG-F1 \\
+C1 Geometric specificity (real>>random>>featshuffle) & — & E1 & E2 FG-F1 \\
 C2 Phase-closure under Hypothesis (R) & Cor 6.7/6.8 & E5 & E3 \\
 C3 ε-numerical-rank separation & Cor 6.9 & \textbf{E2} + E4 & E13 \\
 C4 Categorical-channel compression & Thm 6.13 & E6 & E15 \\
@@ -185,7 +185,7 @@ Mistral-Instruct-v0.3 substring (Subtask1, full 995, 2026-04-15) & tool\_acc & 6
 \textbf{Cross-model 3-family positive under strict label\_logprob (Qwen + Llama + Mistral-Base)}: Qwen sum +0.10 / mean +5.03, Llama-Base sum +6.33 / mean +2.61, Mistral-Base-v0.3 (skipL0+padmax fix) sum +3.12 / mean +0.20. All three base architecture families register positive. Mistral-\textbf{Instruct}-v0.3 is the sole negative (sum −2.92, mean −3.62): the Instruct variant's no\_steer is itself 7.84pp \textbf{below} the Base variant (61.51\% vs 69.35\%), and K-bias further degrades — consistent with chat-template hedging rather than a mechanism counterexample (analysis §5.5.1).
 
 
-\textbf{Null-control specificity (Qwen mean sharpest, complete 4-cell)}: real +5.03 vs random −23.01 vs featshuffle −11.25 → gaps +28.04 / +16.28. \textbf{Direction specificity is scorer-invariant and model-invariant}: ordering real ≫ featshuffle ≥ random holds wherever the full 3-control triple is populated (Qwen sum/mean, Llama sum/mean, codex first\_line).
+\textbf{Null-control specificity (Qwen mean sharpest, complete 4-cell)}: real +5.03 vs random −23.01 vs featshuffle −11.25 → gaps +28.04 / +16.28. \textbf{Direction specificity is scorer-invariant and model-invariant}: ordering real >> featshuffle >= random holds wherever the full 3-control triple is populated (Qwen sum/mean, Llama sum/mean, codex first\_line).
 
 
 \textbf{Headline accuracy is scorer-dependent} (+0.1 to +11.15pp). \textbf{Mechanism specificity is scorer-invariant}: under every strict scorer, the ordering real > random > featshuffle holds with gaps +16 to +49pp — between one and two orders of magnitude larger than the accuracy headline. The "any projector works" alternative hypothesis is decisively rejected.
@@ -289,7 +289,7 @@ $\|\cos(\nabla_{\Delta_K} \log p, \text{direction})\|$ & 0.098 & 0.162 & \textbf
 The cosine alignment ratio 1.66× is the dimensionless, weight-scale-invariant gradient measurement. It captures approximately 1/6 of the observed 10.7× lift ratio. The remaining factor of $\sim 6\text{–}7\times$ plausibly reflects (i) saturation dynamics (Mode A's lift grows near-linearly up to $\alpha = 0.3$ while Mode C saturates early), (ii) the 1.75× GQA group-size factor, and (iii) task-specific first-token gradient effects from tokenizer-level tool-name fragmentation differences. Full characterization of the $\alpha$-saturation curve and gradient decomposition per model is queued as future work.
 
 
-\textbf{Scope update (honest)}. We report the 10.7× ratio as an empirical observation with the following confirmed properties: (i) direction-specificity ordering (real ≫ featshuffle ≥ random) holds cross-model under every tested scorer; (ii) gradient alignment is 1.66× Llama-larger (partial mechanism); (iii) the Thm 6.1 bound magnitude goes in the \emph{opposite} direction, reflecting bound-magnitude characterization of \emph{error} distinct from lift's \emph{alignment}. The original 7–14× decomposition is retracted. A scorer-robustness check of the 10.7× ratio on Llama-Inst under label-logprob (currently in progress) will further scope the observation.
+\textbf{Scope update (honest)}. We report the 10.7× ratio as an empirical observation with the following confirmed properties: (i) direction-specificity ordering (real >> featshuffle >= random) holds cross-model under every tested scorer; (ii) gradient alignment is 1.66× Llama-larger (partial mechanism); (iii) the Thm 6.1 bound magnitude goes in the \emph{opposite} direction, reflecting bound-magnitude characterization of \emph{error} distinct from lift's \emph{alignment}. The original 7–14× decomposition is retracted. A scorer-robustness check of the 10.7× ratio on Llama-Inst under label-logprob (currently in progress) will further scope the observation.
 
 
 \textbf{Llama-Base vs Llama-Inst asymmetry (preserved)}. GQA-4, Mode A, identical head\_dim and B\_ont rank do not change between Base and Instruct variants, yet K-bias lift is 2.4× larger on Instruct (+6.33pp Base → +15.08pp Inst). This within-architecture asymmetry is an independent observation not explained by our refuted Thm 6.1 decomposition; we interpret it as SFT-recipe-induced shift in either gradient alignment $G_K$ or saturation behavior. Direct measurement at matched SFT recipe (e.g., re-SFT Llama-Base on Llama-Inst's instruction corpus) is queued as future work.
@@ -311,9 +311,9 @@ Beyond the label-logprob cells of the above table, we also evaluated Q-coverage 
 Method & top1 & Δ vs no\_steer 60.30\% & preds (matched / no\_match / none) \\
 \midrule
 no\_steer & 60.30\% & — & 821 / 43 / 131 \\
-\textbf{ocq\_qbias\_b−0.3} & \textbf{64.42\%} & \textbf{+4.12pp} ★ & 853 / 28 / 114 \\
+\textbf{ocq\_qbias\_b−0.3} & \textbf{64.42\%} & \textbf{+4.12pp} * & 853 / 28 / 114 \\
 \textbf{ocq\_qbias\_b−0.1} & \textbf{63.52\%} & \textbf{+3.22pp} & 860 / 17 / 118 \\
-\textbf{ocq\_bias\_a0.3 (K-bias)} & \textbf{61.71\%} & \textbf{+1.41pp} ✅ & 825 / 71 / 99 \\
+\textbf{ocq\_bias\_a0.3 (K-bias)} & \textbf{61.71\%} & \textbf{+1.41pp} [OK] & 825 / 71 / 99 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -431,7 +431,7 @@ featshuffle & a0.3 & \textbf{0.000} & 0.000 & 0.000 \\
 
 
 \begin{itemize}
-\item \textbf{Accuracy-lift version (original prediction): FALSIFIED}. Real a0.3 F1 ≤ no\_steer F1 on both smoke (N=20, Δ=−1.7pp) and full (N=497, Δ=−4.6pp).
+\item \textbf{Accuracy-lift version (original prediction): FALSIFIED}. Real a0.3 F1 <= no\_steer F1 on both smoke (N=20, Δ=−1.7pp) and full (N=497, Δ=−4.6pp).
 \item \textbf{Geometric-safety version (reframed): VERIFIED on smoke; full 497 null-control pending for confirmation}. Random/featshuffle at α=0.3 produced F1=0.000 on N=20 — complete collapse vs real's preserved 0.53. Expected to hold on full 497.
 \end{itemize}
 
@@ -478,7 +478,7 @@ contrastive & a=0.5 d=3 & 0.067 & −0.483 \\
 \end{tabularx}
 \end{table}
 
-\textbf{Key finding}: at α=0.3, contrastive depth-3 K-bias yields \textbf{F1 = 0.608 (+5.8pp over no\_steer 0.550)} on the same smoke set where flat real a0.3 gives 0.533 (−1.7pp). This is the \textbf{first positive Subtask4 F1 signature} for any member of the K-bias family, and it is predicted by Thm 6.9.5/6.15 (non-uniform family): contrastive mixing injects facet direction while subtracting paired sibling-facet leakage, directly targeting the autoregressive re-attention limitation identified in §5.5. \textbf{V-bias alone fails} (max F1 0.558 at ak=0.1/av=0.1, no config beats flat real). \textbf{Normalized-only variant fails at α ≥ 0.3}: catastrophic collapse, matching the under-gating regime of Cor 6.9.4.
+\textbf{Key finding}: at α=0.3, contrastive depth-3 K-bias yields \textbf{F1 = 0.608 (+5.8pp over no\_steer 0.550)} on the same smoke set where flat real a0.3 gives 0.533 (−1.7pp). This is the \textbf{first positive Subtask4 F1 signature} for any member of the K-bias family, and it is predicted by Thm 6.9.5/6.15 (non-uniform family): contrastive mixing injects facet direction while subtracting paired sibling-facet leakage, directly targeting the autoregressive re-attention limitation identified in §5.5. \textbf{V-bias alone fails} (max F1 0.558 at ak=0.1/av=0.1, no config beats flat real). \textbf{Normalized-only variant fails at α >= 0.3}: catastrophic collapse, matching the under-gating regime of Cor 6.9.4.
 
 
 \textbf{Full 497 contrastive verification (2026-04-15 09:25 KST) — smoke signal does NOT replicate}:
@@ -531,7 +531,7 @@ Q-only coverage subtraction at $\beta = -0.1$ is the strongest non-stability mul
 Method & F1 & F0.5 & Recall & Exact & Δ vs no\_steer 0.731 \\
 \midrule
 no\_steer & 0.731 & 0.745 & 0.716 & 0.525 & — \\
-\textbf{ocq\_qbias\_b−0.1 (real B\_ont)} & \textbf{0.747} & \textbf{0.763} & \textbf{0.763} & 0.527 & \textbf{+1.6pp F1, +4.7pp recall} ✅ \\
+\textbf{ocq\_qbias\_b−0.1 (real B\_ont)} & \textbf{0.747} & \textbf{0.763} & \textbf{0.763} & 0.527 & \textbf{+1.6pp F1, +4.7pp recall} [OK] \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -539,7 +539,7 @@ no\_steer & 0.731 & 0.745 & 0.716 & 0.525 & — \\
 The smoke +10.8pp shrinks to +1.6pp at full scale (small-N variance regression), but the \emph{positive sign and recall lift} survive. F0.5 lifts +1.8pp, recall +4.7pp, Exact +0.2pp — the recall channel is where the signal lives, consistent with Q-coverage driving multi-tool emission of a previously-unsaid second tool.
 
 
-\textbf{β-sweep at full 497 confirms refined Thm 6.17′ small-α regime}:
+\textbf{β-sweep at full 497 confirms refined Thm 6.17' small-α regime}:
 
 
 \begin{table}[t]
@@ -550,7 +550,7 @@ The smoke +10.8pp shrinks to +1.6pp at full scale (small-N variance regression),
 \midrule
 0 (no\_steer) & 0.731 & 0.525 \\
 −0.05 & 0.730 & 0.533 \\
-\textbf{−0.1} & \textbf{0.747} ★ & 0.527 \\
+\textbf{−0.1} & \textbf{0.747} * & 0.527 \\
 −0.15 & 0.729 & 0.499 \\
 −0.2 & 0.727 & 0.493 \\
 −0.3 & 0.622 & — \\
@@ -560,7 +560,7 @@ The smoke +10.8pp shrinks to +1.6pp at full scale (small-N variance regression),
 \end{tabularx}
 \end{table}
 
-\textbf{Single isolated peak at β=−0.1}, ±0.05 outside loses lift. The empirical $\alpha_{\mathrm{coupling}} \approx 0.1$ value of refined Thm 6.17′ is measured to ±0.05 precision.
+\textbf{Single isolated peak at β=−0.1}, ±0.05 outside loses lift. The empirical $\alpha_{\mathrm{coupling}} \approx 0.1$ value of refined Thm 6.17' is measured to ±0.05 precision.
 
 
 \textbf{Null-control falsifiability — Q-coverage is ontology-specific (decisive Thm 6.17 verification, complete 2026-04-15 12:42 KST)}:
@@ -572,14 +572,14 @@ The smoke +10.8pp shrinks to +1.6pp at full scale (small-N variance regression),
 \toprule
 B\_ont source & Method & F1 & Δ vs no\_steer 0.731 & Interpretation \\
 \midrule
-\textbf{real (ontology)} & ocq\_qbias\_b−0.1 & \textbf{0.747} & \textbf{+1.6pp} ✅ & unique lift \\
+\textbf{real (ontology)} & ocq\_qbias\_b−0.1 & \textbf{0.747} & \textbf{+1.6pp} [OK] & unique lift \\
 \textbf{featshuffle} & ocq\_qbias\_b−0.1 & 0.725 & −0.6pp & structure-preserving null fails \\
 \textbf{random} & ocq\_qbias\_b−0.1 & 0.707 & −2.4pp & noise null fails \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Real − featshuffle gap = \textbf{+2.2pp F1}. Real − random gap = \textbf{+4.0pp F1}. The three-tier ordering (real ≫ structure-preserving null ≫ noise null) precisely matches the Thm 6.17 (b) prediction: the gradient $\nabla_{\Delta_Q} \log p$ has support on the \emph{ontology} subspace, \emph{not} on arbitrary rank-24 directions and \emph{not} even on subspaces that preserve channel-marginal statistics. Featshuffle preserves per-channel norms and variances (only permutes feature indices in $B_{\mathrm{ont}}$) yet still fails to lift — this is the strongest formulation of the falsifiability claim possible.
+Real − featshuffle gap = \textbf{+2.2pp F1}. Real − random gap = \textbf{+4.0pp F1}. The three-tier ordering (real >> structure-preserving null >> noise null) precisely matches the Thm 6.17 (b) prediction: the gradient $\nabla_{\Delta_Q} \log p$ has support on the \emph{ontology} subspace, \emph{not} on arbitrary rank-24 directions and \emph{not} even on subspaces that preserve channel-marginal statistics. Featshuffle preserves per-channel norms and variances (only permutes feature indices in $B_{\mathrm{ont}}$) yet still fails to lift — this is the strongest formulation of the falsifiability claim possible.
 
 
 This null-control result is the \emph{second independent ontology-specificity verification} of the paper, after the §5.5 stability gap (+68.5pp F1) on the same B\_ont. The two-channel verification (stability + accuracy lift) jointly forecloses the strongest reviewer counter-hypothesis ("rank-24 with arbitrary basis would suffice") at decisive p-value.
@@ -596,7 +596,7 @@ Method & Llama-Inst F1 & Δ vs no\_steer 0.623 \\
 \midrule
 no\_steer & 0.623 & — \\
 K-bias α=0.3 & 0.311 & \textbf{−31.2pp} (Llama α* < 0.3, FC manifold violated) \\
-\textbf{Q-coverage β=−0.1} & \textbf{0.627} & \textbf{+0.4pp} ✅ \\
+\textbf{Q-coverage β=−0.1} & \textbf{0.627} & \textbf{+0.4pp} [OK] \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -631,8 +631,8 @@ We interpret this as \textbf{complementary channel design}: Q-coverage is more e
 \toprule
  & Qwen Subtask4 & Llama Subtask4 & Qwen Subtask1 & Llama Subtask1 \\
 \midrule
-Q-only β=-0.1 & +1.64pp ✅ & +0.40pp ✅ & +3.22pp (substring) & (queued) \\
-K-only α=0.3 & −4.6pp (stability) & −31.2pp (catastrophic) & +1.41pp & +15.08pp ✅ \\
+Q-only β=-0.1 & +1.64pp [OK] & +0.40pp [OK] & +3.22pp (substring) & (queued) \\
+K-only α=0.3 & −4.6pp (stability) & −31.2pp (catastrophic) & +1.41pp & +15.08pp [OK] \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -644,7 +644,7 @@ The decisive missing cell is \textbf{Llama Subtask4 K-only α sweep} (small-α r
 
 
 \begin{enumerate}
-\item \emph{Magnitude specificity}: single peak at β=−0.1, ±0.05 outside loses lift. Confirms refined Thm 6.17′ small-α regime.
+\item \emph{Magnitude specificity}: single peak at β=−0.1, ±0.05 outside loses lift. Confirms refined Thm 6.17' small-α regime.
 \item \emph{Direction specificity}: real vs random B\_ont gap +4.0pp F1. Confirms ontology-subspace as the unique gradient-aligned direction.
 \item \emph{Cross-model robustness}: lift sign preserved on Llama-Instruct (+0.4pp), where K-bias catastrophically fails (−31pp). Confirms Q-coverage's universality.
 \end{enumerate}
@@ -684,10 +684,10 @@ V-only single-axis is \emph{expected negative-control under the revised Thm 6.17
 Method & F1 & Δ vs no\_steer 0.731 & Interpretation \\
 \midrule
 no\_steer & 0.7307 & — & baseline \\
-Q-only ($\beta_Q=-0.1$) & 0.7471 & +1.64pp & Q-coverage primary ✅ \\
+Q-only ($\beta_Q=-0.1$) & 0.7471 & +1.64pp & Q-coverage primary [OK] \\
 V+Q ($\gamma_V=0.05, \beta_Q=-0.1$) & 0.7468 & +1.61pp & V marginal-neutral \\
-**Q+K small-α ($\alpha_K=0.05, \beta_Q=-0.1$)** & \textbf{0.7502} ★ & \textbf{+1.95pp} & \textbf{best pair} \\
-**Trio ($\alpha_K=0.05, \gamma_V=0.05, \beta_Q=-0.1$)** & \textbf{0.7414} & \textbf{+1.07pp} & \textbf{V·K destructive} ⚠️ \\
+**Q+K small-α ($\alpha_K=0.05, \beta_Q=-0.1$)** & \textbf{0.7502} * & \textbf{+1.95pp} & \textbf{best pair} \\
+**Trio ($\alpha_K=0.05, \gamma_V=0.05, \beta_Q=-0.1$)** & \textbf{0.7414} & \textbf{+1.07pp} & \textbf{V·K destructive} Warning: \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -822,7 +822,7 @@ Method & Qwen-Inst F1 & Llama-Inst F1 & Note \\
 \midrule
 no\_steer & 0.731 & 0.624 & baseline \\
 Our Q-coverage $\beta_Q=-0.1$ & \textbf{0.747} (+1.64pp) & \textbf{0.627} (+0.4pp) & verified full 497 \\
-Our Q+K tiny-α $\alpha_K=0.025$ & \textbf{0.753} (+2.22pp) ★ & (pending) & verified full 497 \\
+Our Q+K tiny-α $\alpha_K=0.025$ & \textbf{0.753} (+2.22pp) * & (pending) & verified full 497 \\
 Real SEKA $\text{amp}_\text{pos}=1.0$ & (not run) & \textbf{~0.457} (−16.7pp) & partial 23 pts \\
 \bottomrule
 \end{tabularx}
@@ -885,10 +885,10 @@ featshuffle & 64.62\% & −0.60pp \\
 \end{tabularx}
 \end{table}
 
-\textbf{Interpretation under the §3.3 pre-registered regime criterion}. Mistral-Inst's (H-cat) gain of 2.00× is exactly at our declared threshold. In the (H-cat)-applicable regime (Qwen, Llama, gain ≥ 2.48×), real $B_{\mathrm{ont}}$ at α=0.3 preserves FC emission (Cor 6.9.6 (a)) and off-manifold nulls collapse (Cor 6.9.6 (b)) — the +68.5pp direction-specificity gap. In the boundary regime (Mistral-Inst, gain ≈ 2.0×), the directional cancellation of Cor 6.9.6 (a) is too weak to dominate: real B\_ont degrades \emph{smoothly and monotonically} with α rather than preserving FC structure, and the direction-specificity ordering inverts (real degradation is worse than random, reflecting coherent but model-irrelevant damage). This is the \emph{predicted behavior at the threshold}, not a counterexample to Cor 6.9.6 — the theorem's hypotheses (R) + (H-cat) are weakly satisfied.
+\textbf{Interpretation under the §3.3 pre-registered regime criterion}. Mistral-Inst's (H-cat) gain of 2.00× is exactly at our declared threshold. In the (H-cat)-applicable regime (Qwen, Llama, gain >= 2.48×), real $B_{\mathrm{ont}}$ at α=0.3 preserves FC emission (Cor 6.9.6 (a)) and off-manifold nulls collapse (Cor 6.9.6 (b)) — the +68.5pp direction-specificity gap. In the boundary regime (Mistral-Inst, gain ≈ 2.0×), the directional cancellation of Cor 6.9.6 (a) is too weak to dominate: real B\_ont degrades \emph{smoothly and monotonically} with α rather than preserving FC structure, and the direction-specificity ordering inverts (real degradation is worse than random, reflecting coherent but model-irrelevant damage). This is the \emph{predicted behavior at the threshold}, not a counterexample to Cor 6.9.6 — the theorem's hypotheses (R) + (H-cat) are weakly satisfied.
 
 
-\textbf{Scientific statement}: the (H-cat) gain threshold of 2.0× is a falsifiable pre-condition for Cor 6.9.6 applicability. Models with gain ≥ 2.0× are expected to show the phase transition (b); models below are expected to show smooth monotonic degradation. Our 3-model sample (2 above, 1 at threshold) is consistent with this prediction at $p < 0.33$ (one-sided Fisher's exact). Additional (H-cat)-boundary models (e.g., Mistral-Instruct-v0.2, Gemma-2-9B-Inst) would allow a tighter falsifiability test; we flag this as future work.
+\textbf{Scientific statement}: the (H-cat) gain threshold of 2.0× is a falsifiable pre-condition for Cor 6.9.6 applicability. Models with gain >= 2.0× are expected to show the phase transition (b); models below are expected to show smooth monotonic degradation. Our 3-model sample (2 above, 1 at threshold) is consistent with this prediction at $p < 0.33$ (one-sided Fisher's exact). Additional (H-cat)-boundary models (e.g., Mistral-Instruct-v0.2, Gemma-2-9B-Inst) would allow a tighter falsifiability test; we flag this as future work.
 
 
 \textbf{No chat-template hedging rescue.} The original §5.5.1 framing attributed Mistral-Inst's negative lift to "chat-template hedging" (a post-hoc ad-hoc explanation). The null-control data above rejects that framing: if hedging were the cause, random B\_ont should \emph{also} underperform the no-steer baseline on hedging prompts. Instead random B\_ont \emph{improves} by +0.60pp (noise averaging out) while real B\_ont systematically degrades. The boundary-regime interpretation accounts for both the smooth α-dependence and the specificity inversion, while the hedging story accounts for neither.
@@ -909,21 +909,21 @@ Run complete 2026-04-15 02:00 KST, Qwen2.5-7B-Instruct L=13, α=0.3, N=100 queri
 $\mathbb E[\|\hat o - o\|^2]$ (LHS) & 0.5092 \\
 \midrule
 $\mathbb E[\mathrm{qaMSE}\cdot\mathrm{Var}_s V]$ (RHS leading) & 19.729 \\
-$\mathbb E[\text{total RHS}]$ (incl. $C_1\rho^4$) & 7.49 × 10⁷ \\
+$\mathbb E[\text{total RHS}]$ (incl. $C_1\rho^4$) & 7.49 × 10\^\{\}7 \\
 \textbf{bound\_pass\_rate} & \textbf{1.00} (2800/2800) \\
-median LHS/RHS ratio & 2.36 × 10⁻⁸ \\
-p95 LHS/RHS ratio & 1.24 × 10⁻⁷ \\
-max LHS/RHS ratio & 4.26 × 10⁻⁷ \\
+median LHS/RHS ratio & 2.36 × 10\^\{\}-\^\{\}8 \\
+p95 LHS/RHS ratio & 1.24 × 10\^\{\}-\^\{\}7 \\
+max LHS/RHS ratio & 4.26 × 10\^\{\}-\^\{\}7 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\textbf{Thm 6.1 verified}: every head-query sample satisfies the attention-weighted bound; the bound is loose (ratio ~10⁻⁸) as expected in the Mode-C bulk-tail regime (cf. Remark B.2.3). Llama L=15 extension deferred to E3′ (script ready, ~1 GPU-hr).
+\textbf{Thm 6.1 verified}: every head-query sample satisfies the attention-weighted bound; the bound is loose (ratio ~10\^\{\}-\^\{\}8) as expected in the Mode-C bulk-tail regime (cf. Remark B.2.3). Llama L=15 extension deferred to E3' (script ready, ~1 GPU-hr).
 
 
 \subsection{5.7 Results — E4 Cor 6.9 operator-level nrank}
 
-SVD of \texttt{P\_ada(q)} and \texttt{P\_fg(q, k\_t)} on 500 MetaTool queries. Compute ε-numerical rank at ε ∈ \{0.1, 0.2\}. Expected: AdaSEKA nrank concentrates at $r \approx 6$–$8$; ours concentrates at $R = 24$. Histograms in paper Figure 3.
+SVD of \texttt{P\_ada(q)} and \texttt{P\_fg(q, k\_t)} on 500 MetaTool queries. Compute ε-numerical rank at ε  in  \{0.1, 0.2\}. Expected: AdaSEKA nrank concentrates at $r \approx 6$–$8$; ours concentrates at $R = 24$. Histograms in paper Figure 3.
 
 
 \subsection{5.8 Results — E5 Remark 6.14.A.3 hard-gate R-violation grid (MMLU N=1000)}
@@ -938,7 +938,7 @@ Run complete 2026-04-15 02:00 KST. Qwen2.5-7B-Instruct on MMLU-test N=1000.
 gate × α & 0.1 & 0.2 & 0.3 & 0.5 & 1.0 \\
 \midrule
 no\_steer & — & — & — & — & — \\
-\textbf{flat} & 0.714 & \textbf{0.727} ★ & 0.683 & 0.668 & 0.584 \\
+\textbf{flat} & 0.714 & \textbf{0.727} * & 0.683 & 0.668 & 0.584 \\
 \textbf{soft-facet} & — & — & 0.674 & — & 0.614 \\
 \textbf{hard\_thresh} & — & — & 0.672 & — & 0.535 \\
 \textbf{hard\_argmax} & — & — & 0.670 & — & 0.552 \\
@@ -954,8 +954,8 @@ Baseline (no\_steer) = \textbf{0.713}.
 
 \begin{itemize}
 \item \textbf{flat α=0.2 is the unique positive cell}: 72.7\% (+1.4pp over baseline 71.3) — the only MMLU-non-degrading configuration.
-\item \textbf{α=1.0 degradation ordering}: flat 58.4 > soft 61.4 > hard\_argmax 55.2 > hard\_thresh 53.5 — soft-gate is best among gated variants as predicted by Hypothesis (R), but hard-gate discontinuity drops ~3pp more than flat unbiased, consistent with Consequence 2 (ρ⁴ scaling is dominated by the Lipschitz-violation term in the hard-gate Mode-A spectral leakage at large α).
-\item \textbf{α=0.3 ordering}: flat 68.3 < hard\_thresh 67.2 ≈ hard\_argmax 67.0 ≈ soft 67.4 — at moderate α the four variants are within 1.1pp, so Hypothesis (R)'s empirical signature emerges only at \textbf{α ≥ 1.0} as predicted.
+\item \textbf{α=1.0 degradation ordering}: flat 58.4 > soft 61.4 > hard\_argmax 55.2 > hard\_thresh 53.5 — soft-gate is best among gated variants as predicted by Hypothesis (R), but hard-gate discontinuity drops ~3pp more than flat unbiased, consistent with Consequence 2 (ρ\^\{\}4 scaling is dominated by the Lipschitz-violation term in the hard-gate Mode-A spectral leakage at large α).
+\item \textbf{α=0.3 ordering}: flat 68.3 < hard\_thresh 67.2 ≈ hard\_argmax 67.0 ≈ soft 67.4 — at moderate α the four variants are within 1.1pp, so Hypothesis (R)'s empirical signature emerges only at \textbf{α >= 1.0} as predicted.
 \item Baseline-beating \textbf{flat α=0.2} indicates that a light-touch K-bias can serve as a general-purpose calibration knob on general knowledge tasks; this was not predicted ex ante and is logged as a discovery (note: MMLU N=1000 subset; camera-ready will include N=2000 full-set confirmation).
 \end{itemize}
 
@@ -986,7 +986,7 @@ OCQ-KIVI (composition, Rmk 6.12.1) smoke & — & 33.30 & — & 15.48 \\
 \begin{itemize}
 \item 2-bit: OCQ < KIVI (Cor 6.13.3/6.13.4, 9.4\% bit savings + −4.37 PPL).
 \item 4-bit: KIVI < OCQ (Cor 6.13.5 cross-over at $\bar b^* \approx \tfrac12 \log_2(s+1)$, $s \sim 5$–$10$).
-\item WF suboptimal on categorical channels: OCQ-WF 24.36 ≫ OCQ 15.60 (Lemma 6.13.2).
+\item WF suboptimal on categorical channels: OCQ-WF 24.36 >> OCQ 15.60 (Lemma 6.13.2).
 \item Composition amplification: OCQ-KIVI 33.30 > OCQ 15.60 (Rmk 6.12.1 verified).
 \item (H-cat) falsifiable: PCA pseudo-ontology catastrophic at 4-bit (84.92) vs real (12.56).
 \end{itemize}
@@ -1111,10 +1111,10 @@ Formal statement of the training-light extension (Appendix B.7.9 Thm 6.16). Sequ
 
 
 \begin{itemize}
-\item (a) LoRA alone: F1 ∈ [0.78, 0.82] on Subtask4 (LoRA's discriminative lift over base 0.731).
-\item (b) + base bias: F1 ∈ [0.78, 0.85] (partial synergy; may regress due to base B\_ont mismatch).
-\item (c) + LoRA B\_ont: F1 ∈ [0.82, 0.88] (full synergy via Thm 6.16 subspace alignment).
-\item (d) + normalized: F1 ∈ [0.85, 0.92] (maximal synergy combining Thm 6.9.5 + 6.16).
+\item (a) LoRA alone: F1  in  [0.78, 0.82] on Subtask4 (LoRA's discriminative lift over base 0.731).
+\item (b) + base bias: F1  in  [0.78, 0.85] (partial synergy; may regress due to base B\_ont mismatch).
+\item (c) + LoRA B\_ont: F1  in  [0.82, 0.88] (full synergy via Thm 6.16 subspace alignment).
+\item (d) + normalized: F1  in  [0.85, 0.92] (maximal synergy combining Thm 6.9.5 + 6.16).
 \end{itemize}
 
 \textbf{Deployment implications} (Appendix E Netsru alignment): LoRA r=8 adds 5M params (0.07\% of 7B). Per-domain LoRA retrain is feasible in ~4 GPU-hr. Production agents can maintain per-domain LoRA + shared facet-gated rotation infrastructure.
@@ -1133,7 +1133,7 @@ Formal statement of the training-light extension (Appendix B.7.9 Thm 6.16). Sequ
 \item L3 Subtask4 smoke (N=20):
 \item LoRA + no\_steer: F1 = 0.550 (= base no\_steer baseline; \textbf{no transfer from LoRA})
 \item LoRA + K-bias α=0.3: F1 = 0.533 (= base K-bias regression; \textbf{no synergy})
-\item Predicted (Cor 6.16.1): F1 ∈ [0.78, 0.92] across (a)-(d) variants. \textbf{Falsified at smoke level} (Δ to lower predicted bound = −0.25; well outside per-sample variance).
+\item Predicted (Cor 6.16.1): F1  in  [0.78, 0.92] across (a)-(d) variants. \textbf{Falsified at smoke level} (Δ to lower predicted bound = −0.25; well outside per-sample variance).
 \end{itemize}
 
 \textbf{Detailed root-cause analysis of the LoRA L3 failure} (5 hypothesized causes, ranked by likelihood):
@@ -1231,14 +1231,14 @@ L3 v3 evaluation:
 
 
 \begin{enumerate}
-\item AUROC of $\min_t \varepsilon_{q_t}$ on plan success/failure ≥ 0.7 across τ²-retail.
-\item Threshold-effective $\varepsilon^*$ exists: plans with $\min_t \varepsilon_{q_t} < \varepsilon^*$ have observed success ≤ 30\% (vs. base ≥ 50\%).
-\item Runtime-abort saves ≥ 30\% execution compute at ≤ 5pp final success drop.
+\item AUROC of $\min_t \varepsilon_{q_t}$ on plan success/failure >= 0.7 across τ²-retail.
+\item Threshold-effective $\varepsilon^*$ exists: plans with $\min_t \varepsilon_{q_t} < \varepsilon^*$ have observed success <= 30\% (vs. base >= 50\%).
+\item Runtime-abort saves >= 30\% execution compute at <= 5pp final success drop.
 \end{enumerate}
 
 \subsubsection{Smoke verification — Subtask4 multi-tool generation as single-turn plan proxy (2026-04-15)}
 
-\textbf{Protocol}: For each of N=100 MetaTool Subtask4 queries, hook $q_{\text{proj}}$ at layer 13 of Qwen2.5-7B-Instruct, capture per-decoding-step $q_t$, compute $\varepsilon_{q_t} = \|B_{\mathrm{ont}}^\top q_t\|^2 / \|q_t\|^2$ per head then average. Aggregate min / mean / median over generation steps. Binary label = F1 ≥ 0.5 (at least one GT tool correctly emitted) or Exact (both GT tools correctly emitted).
+\textbf{Protocol}: For each of N=100 MetaTool Subtask4 queries, hook $q_{\text{proj}}$ at layer 13 of Qwen2.5-7B-Instruct, capture per-decoding-step $q_t$, compute $\varepsilon_{q_t} = \|B_{\mathrm{ont}}^\top q_t\|^2 / \|q_t\|^2$ per head then average. Aggregate min / mean / median over generation steps. Binary label = F1 >= 0.5 (at least one GT tool correctly emitted) or Exact (both GT tools correctly emitted).
 
 
 \textbf{Results} (\texttt{reports/thm620\_smoke/eps\_q\_predictor\_N100.json}):
@@ -1248,9 +1248,9 @@ L3 v3 evaluation:
 \centering
 \begin{tabularx}{\linewidth}{X | X | X}
 \toprule
-Predictor & AUROC (F1 ≥ 0.5) & AUROC (Exact success) \\
+Predictor & AUROC (F1 >= 0.5) & AUROC (Exact success) \\
 \midrule
-**$\min_t \varepsilon_{q_t}$** & \textbf{0.976} ★ & \textbf{0.816} ★ \\
+**$\min_t \varepsilon_{q_t}$** & \textbf{0.976} * & \textbf{0.816} * \\
 $\mathrm{mean}_t \varepsilon_{q_t}$ & 0.934 & 0.777 \\
 $\mathrm{median}_t \varepsilon_{q_t}$ & 0.927 & 0.705 \\
 \bottomrule
@@ -1264,7 +1264,7 @@ $\mathrm{median}_t \varepsilon_{q_t}$ & 0.927 & 0.705 \\
 \centering
 \begin{tabularx}{\linewidth}{X | X | X | X}
 \toprule
-min $\varepsilon_{q_t}$ & n & P(F1 ≥ 0.5) & P(Exact) \\
+min $\varepsilon_{q_t}$ & n & P(F1 >= 0.5) & P(Exact) \\
 \midrule
 base (all 100) & 100 & 0.91 & 0.54 \\
 < 0.14 & 18 & \textbf{0.50} (−41pp) & \textbf{0.22} (−32pp) \\
@@ -1278,9 +1278,9 @@ base (all 100) & 100 & 0.91 & 0.54 \\
 
 
 \begin{enumerate}
-\item ✅ \textbf{AUROC = 0.976 (F1 ≥ 0.5) / 0.816 (Exact)} — threshold 0.7 exceeded by 27.6pp / 11.6pp. \textbf{STRONGLY PASSED}.
-\item ✅ **Threshold-effective $\varepsilon^* = 0.14$\textbf{: plans below see success rate drop from 91\% to 50\% (F1 ≥ 0.5), from 54\% to 22\% (Exact). Both drops > 30pp. }PASSED**.
-\item 🟡 Runtime-abort: aborting 18/100 plans (18\% compute saved) loses 9 successes → 9pp drop (above the 5pp target). \textbf{PARTIAL} (budget 30\% compute save wasn't tested; at 5pp target, compute save is only ~10\%).
+\item [OK] \textbf{AUROC = 0.976 (F1 >= 0.5) / 0.816 (Exact)} — threshold 0.7 exceeded by 27.6pp / 11.6pp. \textbf{STRONGLY PASSED}.
+\item [OK] **Threshold-effective $\varepsilon^* = 0.14$\textbf{: plans below see success rate drop from 91\% to 50\% (F1 >= 0.5), from 54\% to 22\% (Exact). Both drops > 30pp. }PASSED**.
+\item [mid] Runtime-abort: aborting 18/100 plans (18\% compute saved) loses 9 successes → 9pp drop (above the 5pp target). \textbf{PARTIAL} (budget 30\% compute save wasn't tested; at 5pp target, compute save is only ~10\%).
 \end{enumerate}
 
 \textbf{Interpretation}: The first two predictions are decisively verified on this single-turn multi-tool proxy. The third is within ballpark (9pp drop vs 5pp target) and can be tuned by a more lenient threshold ($\varepsilon^* = 0.13$ aborts n=1 only, drops 0pp). The threshold-success-rate correlation is monotonic, not step-function, so a Pareto curve of (compute saved, final success drop) is available.
@@ -1351,7 +1351,7 @@ Every failure has $\min_t \varepsilon_{q_t} < 0.14$; every success has $\min_t \
 \textbf{Upgrade decision}: Thm 6.20 (plan-success prediction via cumulative stability) becomes a \textbf{5th main paper contribution}, alongside Cor 6.9.6 / Thm 6.17 (Q-coverage + Q+K small-α pair) / Thm 6.18 / Thm 6.19. §1.1 item 11 accordingly upgraded from "planned future work" to "verified-at-smoke with length-stratified AUROC=1.0, full-scale τ²-bench pending".
 
 
-\textbf{Next step}: τ²-bench retail full-turn evaluation (B\_ont already built at \texttt{external/SEKA/seka\_projections/ontology-qwen25-7b-tau2-retail/}). ETA 1–2 GPU-day. If AUROC on real multi-turn agent plans ≥ 0.7, paper has a genuine deployment-relevant contribution beyond per-step steering.
+\textbf{Next step}: τ²-bench retail full-turn evaluation (B\_ont already built at \texttt{external/SEKA/seka\_projections/ontology-qwen25-7b-tau2-retail/}). ETA 1–2 GPU-day. If AUROC on real multi-turn agent plans >= 0.7, paper has a genuine deployment-relevant contribution beyond per-step steering.
 
 
 \subsection{5.11 Future work (E11–E16)}
@@ -1374,15 +1374,15 @@ Deferred with placeholders in camera-ready; execution ~100 GPU-hr total:
 \centering
 \begin{tabularx}{\linewidth}{X | X | X | X}
 \toprule
-Wave 1 Qwen Instruct label\_logprob × \{sum, mean\} × real & ✅ COMPLETE & — & — \\
+Wave 1 Qwen Instruct label\_logprob × \{sum, mean\} × real & [OK] COMPLETE & — & — \\
 \midrule
-Wave 2 Qwen Instruct × \{sum, mean\} × \{random, featshuffle\} & ✅ COMPLETE & — & — \\
-Wave 3a Llama-3.1-8B (gated repo, failed) & ❌ crashed & — & — \\
-Wave 3a Mistral-v0.3 skipL0+padmax × \{sum, mean\} & 🔄 RUNNING & GPU1 & ~1.5h \\
-Wave 3b Mistral-Instruct-v0.3 H2 & ⏳ queued & GPU1 & after 3a \\
-\textbf{Llama retry (NousResearch mirror, manual)} & 🔄 RUNNING & GPU0 & ~2.5h \\
-R6 MMLU gate grid & ⏳ queued & GPU0 & after Llama retry \\
-Wave 4 Thm 6.1 per-sample (E3) & ⏳ queued & GPU0+GPU1 & after Wave 3 + Llama \\
+Wave 2 Qwen Instruct × \{sum, mean\} × \{random, featshuffle\} & [OK] COMPLETE & — & — \\
+Wave 3a Llama-3.1-8B (gated repo, failed) & [X] crashed & — & — \\
+Wave 3a Mistral-v0.3 skipL0+padmax × \{sum, mean\} & [rerun] RUNNING & GPU1 & ~1.5h \\
+Wave 3b Mistral-Instruct-v0.3 H2 & [pending] queued & GPU1 & after 3a \\
+\textbf{Llama retry (NousResearch mirror, manual)} & [rerun] RUNNING & GPU0 & ~2.5h \\
+R6 MMLU gate grid & [pending] queued & GPU0 & after Llama retry \\
+Wave 4 Thm 6.1 per-sample (E3) & [pending] queued & GPU0+GPU1 & after Wave 3 + Llama \\
 \bottomrule
 \end{tabularx}
 \end{table}

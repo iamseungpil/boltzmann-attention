@@ -2,7 +2,10 @@
 
 LaTeX project for the steering + KV-cache compression paper based on:
 
-- `math/paper/benchmark_design/PAPER_DRAFT_v2.md`
+- `math/paper/benchmark_design/PAPER_DRAFT_v3.md`
+
+The directory name is kept for continuity, but the generated PDF now tracks the
+v3 draft (the Q-coverage pivot).
 
 Build steps:
 

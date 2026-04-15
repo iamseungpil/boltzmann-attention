@@ -1,14 +1,23 @@
 \begin{abstract}
 \begin{quote}
-\textbf{v2 hybrid update (2026-04-16)}: headline promotion of Q-side family; statistical-honesty disclaimers; Thm 6.21 log-p note. Theoretical claims from v1 \textbf{unchanged}.
+\textbf{v3 full-pivot update (2026-04-16)}: multi-tool selection as primary axis; K-side repositioned as stability/compression only; K-bias accuracy claims moved to appendix ablation.
 \end{quote}
 
-We identify a \emph{uniquely privileged subspace} in the key-projection geometry of instruction-tuned transformers — the per-head ontology basis $B_{\mathrm{ont}}$ — and prove that it is \textbf{simultaneously Pareto-optimal} for inference-time steering and KV-cache compression. The accuracy axis of steering is carried by a **Q-side family of three mechanisms on shared $B_{\mathrm{ont}}$\textbf{: (i) rank-1 CAA-style residual bias (+1.6pp), (ii) rank-R step-adaptive Q-coverage subtraction (}+1.64pp\textbf{ Qwen Subtask4 / +0.40pp Llama Subtask4 at full N=497; Thm 6.17 b), and (iii) soft M-of-2 Q-side routing (}+3.7pp F1 / +4.8pp Exact\textbf{; novel extension of facet-gating). The K-channel parameterizes orthogonal axes: }stability** (Cor 6.9.6, verified +68.5pp direction-specificity at $\alpha=0.3$ via three-tier null-control) and \textbf{compression} (Thm 6.13 OCQ categorical + Thm 6.18 attention-weighted bit allocation, $-4.37$ PPL over KIVI at 2-bit). A plan-time predictor (Thm 6.20, $\varepsilon_{q_t}$ cumulative stability; AUROC 0.976 [0.947, 1.000] at N=100 smoke with length-exact-constant rebuttal) is a deployment-relevant novel contribution. The unification rests on three theorems built over a common Lagrangian:
+Enterprise AI agents routinely select \textbf{multiple tools} per query: a news-music query emits \texttt{NewsTool} \emph{and} \texttt{MusicTool} in sequence. All extant K-side spectral steering methods — SEKA (Li 2026 ICLR), AdaSEKA, Focus Directions — are \textbf{stationary} operators: they apply the same K-bias to every decoding step, and so \textbf{cannot produce step-adaptive coverage of already-emitted facets}. Under autoregressive re-attention, this makes multi-tool emission structurally inaccessible to the SEKA family. We introduce \textbf{step-adaptive Q-coverage}, $\Delta_Q^{(t)} = -\beta \sum_{s<t} P_{f_s} q_t$, which subtracts from the query at step $t$ the projection onto facets of already-emitted tools $\{f_s\}_{s<t}$ over a per-head \textbf{ontology basis} $B_\mathrm{ont}$. This redirects attention to unused facets at each step, making it the natural operator for multi-selection.
+
+
+On MetaTool Subtask4 (multi-tool, 2-tool ground truth, N=497), Q-coverage at $\beta = -0.1$ lifts F1 by \textbf{+1.64pp} (Qwen2.5-7B-Instruct) and \textbf{+0.40pp} (Llama-3.1-8B-Instruct) from the no-steer baseline, with three-tier null-control direction-specificity gap +4.0pp (real >> featshuffle >> random). On the same benchmark, K-side stationary steering — including our own K-bias and SEKA amp=1.0 — is \emph{negative} (−4.6pp Qwen, −31.2pp Llama catastrophic, SEKA −7.95pp Llama partial). This axis separation — \textbf{SEKA for single-tool, Q-coverage for multi-tool} — is the paper's organizing thesis. On MetaTool Subtask1 (single-tool), our K-bias matches SEKA-class behavior (parity regime check); this is not our novelty axis.
+
+
+The same ontology basis $B_\mathrm{ont}$ parameterizes two additional orthogonal roles on the K-side, neither providing accuracy lift: (a) \textbf{stability diagnostic} — at $\alpha=0.3$, $\mathrm{span}(B_\mathrm{ont})$ is the unique rank-$R$ K-perturbation subspace preserving FC-emission (F1 0.685), while random and feature-shuffled controls of identical magnitude collapse to F1 0.000 (direction-specificity gap \textbf{+68.5pp} on Subtask4 N=497; Cor 6.9.6); (b) \textbf{compression axis} — OCQ (1-bit categorical on $B_\mathrm{ont}$ + residual) achieves $-4.37$ PPL vs KIVI at 2-bit (Qwen2.5-7B WT2; Thm 6.13), with attention-weighted bit allocation (Thm 6.18) predicted to extend the margin.
+
+
+Theorem 6.19 establishes \textbf{single-basis sufficiency}: the same $B_\mathrm{ont}$ — constructed \emph{once} from facet annotations — simultaneously realizes Q-steering accuracy (multi-tool), K-stability diagnostic, and K-compression, with zero asymptotic overhead (Cor 6.19.2). A plan-time predictor (Thm 6.20, $\varepsilon_{q_t}$ cumulative stability; AUROC 0.976 [0.947, 1.000] at N=100 smoke with length-exact-constant rebuttal at $n_{\mathrm{steps}}=29$) is a deployment-relevant additional contribution. Theorem 6.1 per-sample attention-weighted bound verified at 2800/2800 head-query samples underpins all three roles. This paper's primary contribution is the \textbf{multi-selection axis} via step-adaptive Q-coverage, which extends the tool-selection regime beyond what stationary K-side operators can access.
 
 
 \begin{enumerate}
 \item \textbf{Stability} (Cor 6.9.6, verified). $\mathrm{span}(B_{\mathrm{ont}})$ is the unique rank-$R$ K-perturbation subspace whose output-distribution KL from the base model is $O(\alpha^2)$; off-manifold perturbations of equal magnitude exit the FC-emission manifold for $\alpha > \alpha^*$. Empirically: at $\alpha=0.3$ on MetaTool Subtask4 N=497, real $B_{\mathrm{ont}}$ preserves F1 = 0.685 while random and feature-shuffled controls collapse to F1 = 0.000 (\textbf{direction-specificity gap +68.5pp}).
-\item \textbf{Accuracy via Q-coverage + K small-α additive steering} (Thm 6.17 (b)+(a′), revised scope). A step-adaptive Q-coverage mask over $B_{\mathrm{ont}}$, optionally augmented with a small-α K-bias, gives the verified first-order accuracy lift on multi-tool selection. \emph{Verified at full 497, Qwen2.5-7B-Instruct Subtask4 (2026-04-15)}:
+\item \textbf{Accuracy via Q-coverage + K small-α additive steering} (Thm 6.17 (b)+(a'), revised scope). A step-adaptive Q-coverage mask over $B_{\mathrm{ont}}$, optionally augmented with a small-α K-bias, gives the verified first-order accuracy lift on multi-tool selection. \emph{Verified at full 497, Qwen2.5-7B-Instruct Subtask4 (2026-04-15)}:
 \end{enumerate}
 
 \begin{table}[t]
@@ -19,7 +28,7 @@ Method & F1 & Δ vs no\_steer 0.731 \\
 \midrule
 Q-only ($\beta_Q=-0.1$) & 0.747 & +1.64pp \\
 V+Q ($\gamma_V=0.05, \beta_Q=-0.1$) & 0.747 & +1.61pp (V marginal-neutral) \\
-**Q+K tiny-α ($\alpha_K=0.025, \beta_Q=-0.1$)** & \textbf{0.753} ★ & \textbf{+2.22pp} (R1 micro-sweep peak) \\
+**Q+K tiny-α ($\alpha_K=0.025, \beta_Q=-0.1$)** & \textbf{0.753} * & \textbf{+2.22pp} (R1 micro-sweep peak) \\
 Q+K small-α ($\alpha_K=0.05, \beta_Q=-0.1$) & 0.750 & +1.95pp \\
 Trio ($\alpha_K=0.05, \gamma_V=0.05, \beta_Q=-0.1$) & 0.741 & +1.07pp (V·K destructive) \\
 \bottomrule

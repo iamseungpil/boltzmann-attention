@@ -6,9 +6,39 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
-SOURCE = ROOT.parent.parent / "math" / "paper" / "benchmark_design" / "PAPER_DRAFT_v2.md"
+SOURCE = ROOT.parent.parent / "math" / "paper" / "benchmark_design" / "PAPER_DRAFT_v3.md"
 SECTIONS_DIR = ROOT / "sections"
 CONTENT_TEX = ROOT / "content.tex"
+
+
+def normalize_plain_text(text: str) -> str:
+    replacements = {
+        "≫": ">>",
+        "↔": "<->",
+        "′": "'",
+        "★": "*",
+        "⚠️": "Warning:",
+        "⚠": "Warning:",
+        "✅": "[OK]",
+        "✓": "[OK]",
+        "❌": "[X]",
+        "✗": "[X]",
+        "🔄": "[rerun]",
+        "⏳": "[pending]",
+        "🟡": "[mid]",
+        "🎯": "Main",
+        "⁻": "^-",
+        "⁴": "^4",
+        "⁷": "^7",
+        "⁸": "^8",
+        "ᵀ": "^T",
+        "∈": " in ",
+        "≤": "<=",
+        "≥": ">=",
+    }
+    for src, dst in replacements.items():
+        text = text.replace(src, dst)
+    return text
 
 
 def split_math(text: str) -> list[tuple[str, str]]:
@@ -26,6 +56,7 @@ def split_math(text: str) -> list[tuple[str, str]]:
 
 
 def escape_text(text: str) -> str:
+    text = normalize_plain_text(text)
     replacements = {
         "\\": r"\textbackslash{}",
         "&": r"\&",
