@@ -8,32 +8,57 @@
 
 ---
 
-## 🚨 [2026-04-15 20:35 update] CRITICAL ENV PIN — coworker 도 같은 실수 가능
+## 🚨 [2026-04-15 21:00 update] CRITICAL FIX — SEKA hang/gibberish ROOT CAUSE
 
-**우리 develop side 에서 SEKA 가 2회 hang + 모든 generate 가 gibberish 를 낸 root cause 발견**:
+**우리 develop side 에서 SEKA 가 2 회 hang + 4 회 gibberish 를 낸 root cause 최종 확정** (T1-T8 isolation):
 
+### Real root cause: `SEKALLM` 의 자동 multi-GPU sharding
+
+`external/SEKA/src/model/seka_llm.py:32` 에 다음 코드:
+```python
+multi_gpu = torch.cuda.device_count() > 1 and str(device).startswith("cuda")
+
+if multi_gpu:
+    self.model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(
+        model_or_path, device_map="auto", **hf_kwargs
+    ).eval()
 ```
-SEKA pinned (external/SEKA/requirements-complete.txt):
-  transformers==4.51.3
-  torch==2.7.0
 
-우리 default env (vllm_env):
-  transformers==5.4.0    ← MAJOR VERSION DIFF (4.x → 5.x breaking changes)
-  torch==2.8.0+cu128
-```
+→ **`torch.cuda.device_count() > 1` 이면 자동으로 `device_map="auto"` 로 sharding**.
+→ 우리 시스템 (2× A6000) + cuda:0 가 다른 wave 점유 중 → memory pressure → **silent decoder collapse** (gibberish: `"halves halves halves..."`, `"!!! hue modelBuilderkey..."` 등) + **eager attention path 가 100x slow** (sharding 시 cross-GPU communication overhead).
 
-transformers 5.x 에서 attention API, generation config, model internals 모두 breaking changes. SEKA 의 wrapper (`SEKALLM`, `attach_projection`) 는 4.51.3 internals 를 expect → 5.x 에서 model 이 *조용히* gibberish 출력 (예: `"halves halves halves halves connectionString..."` 같은 decoder collapse).
+A100×4 환경에서도 같은 문제 발생 가능 — coworker GPU 다중 + 동일 노드에서 다른 wave 점유 중일 때.
 
-**Hang 증상도 동일 root cause**: SEKA hook 자체는 정상이나, eager attention path 가 5.x 에서 100x slower → 사실상 hang 처럼 보임.
-
-### ✅ 우리가 사용한 fix (coworker 도 동일하게 권장)
+### ✅ 검증된 Fix (T8): `CUDA_VISIBLE_DEVICES=<single_gpu>` 강제
 
 ```bash
-# 1. SEKA 전용 venv 생성 (다른 우리 wave 와 분리)
+# 단 하나의 GPU 만 보이게 하면 sharding 안 함
+CUDA_VISIBLE_DEVICES=1 python scripts/ocq/eval_subtask4_with_real_seka.py \
+    --device cuda:0 \   # ← CVD=1 후 visible GPU 는 cuda:0 으로 remapping
+    --model NousResearch/Meta-Llama-3.1-8B-Instruct \
+    --b-ont external/SEKA/seka_projections/ontology-llama31-8b-metatool/B_ont.pt \
+    ...
+```
+
+T8 검증 결과 (SEKA + Llama-3.1-8B + CVD=1, eager+bf16):
+- T8.1 vanilla: 1.6 초 + 정상 출력 `'I would choose the following two tools... <tool_call>{"name": "NewsTool", ...}'`
+- T8.2 SEKA steered: 1.6 초 + 정상 출력 `'I will choose the following two tools... <tool_call>{"name": "NewsTool", ...}'`
+
+→ Sharding 비활성화하면 SEKA 정상 동작. 어떤 transformers 버전 (4.51.3 / 5.4.0) 이든 상관 없음.
+
+### Secondary issue: Qwen2.5 + eager + SWA
+
+T2 결과 (SEKA + Qwen2.5-7B-Inst + CVD=2, eager+bf16): **여전히 gibberish**.
+이유: Qwen2.5 가 Sliding Window Attention 사용. SEKA 가 eager attention 강제 → SWA 미구현 → broken outputs.
+경고 메시지: `"Sliding Window Attention is enabled but not implemented for `eager`; unexpected results may be encountered."`
+
+**Qwen2.5 SEKA 를 위한 추가 fix**: `attn_implementation="sdpa"` 또는 SEKA 의 hook 이 eager 만 지원하면 Qwen2.5 는 **out of scope** 표시 (Llama 만 SEKA 비교 가능).
+
+### ✅ 우리가 사용한 venv 설정 (transformers pin 도 권장 — secondary, primary 는 위 fix)
+
+```bash
 mkdir -p /home/<user>/venvs
 python3.12 -m venv /home/<user>/venvs/seka_env
-
-# 2. SEKA pinned versions 설치
 /home/<user>/venvs/seka_env/bin/python -m pip install \
     torch==2.7.0 \
     transformers==4.51.3 \
@@ -41,35 +66,42 @@ python3.12 -m venv /home/<user>/venvs/seka_env
     tokenizers==0.21.1 \
     safetensors==0.5.3 \
     huggingface-hub==0.30.2 \
-    numpy==1.26.4 \
-    sentencepiece protobuf
-
-# 3. 검증 (gibberish 안 나오는지 확인)
-/home/<user>/venvs/seka_env/bin/python -c "
-import torch, transformers
-print(f'torch={torch.__version__} transformers={transformers.__version__}')
-assert transformers.__version__ == '4.51.3', 'WRONG transformers version'
-"
-
-# 4. SEKA 실행 (반드시 이 venv 의 python 사용)
-/home/<user>/venvs/seka_env/bin/python scripts/ocq/eval_subtask4_with_real_seka.py ...
+    numpy==1.26.4 sentencepiece protobuf scikit-learn matplotlib nltk scipy \
+    spacy wget dataclasses_json ipdb pastalib regex tqdm
 ```
 
 ### ⚠️ Anti-patterns (동일 mistake 회피)
 
-❌ 시스템 default `python3` 사용 → transformers 5.x 일 가능성 높음
-❌ 우리 vllm_env 사용 → transformers 5.4.0
-❌ pip install 후 transformers version 확인 안 함
-❌ 첫 generate output 의 quality check 안 함 (gibberish 면 즉시 환경 의심)
+❌ Default `python` 이 transformers 5.x 일 수 있음 → 그래도 **위 root cause 는 transformers 무관**
+❌ Multi-GPU 환경에서 `--device cuda:0` 만 지정 → SEKA 가 무시하고 sharding 함 → **반드시 `CUDA_VISIBLE_DEVICES`**
+❌ 첫 generate output 의 quality check 안 함 (gibberish 면 즉시 GPU sharding 의심)
+❌ 점유된 GPU 위에 SEKA load → memory pressure 로 silent gibberish
 
 ### Quick sanity check before full eval
 
-SEKA 환경에서 첫 1 sample generate output 이 다음 중 하나로 보이면 환경 문제:
-- `"halves halves halves halves..."` (반복)
-- `"!!! hue modelBuilderkey..."` (특수문자 spam)
-- 일반 문장이지만 30+ 초 걸림
-
-정상 output: `<tool_call>{"name": "FinanceTool", ...}` 같은 구조화된 emission.
+```bash
+# 1 sample 1 gen 으로 정상성 확인 (10 초 안에 완료되어야 함)
+CUDA_VISIBLE_DEVICES=1 python -c "
+import sys; sys.path.insert(0, 'external/SEKA'); sys.path.insert(0, 'scripts/ocq')
+from src.model.seka_llm import SEKALLM
+from eval_metatool_subtask4 import build_fc_prompt
+from eval_metatool_subtask1 import parse_candidates
+import torch, json, time
+seka = SEKALLM('NousResearch/Meta-Llama-3.1-8B-Instruct', device='cuda:0',
+               pos_pt='/tmp/seka_p_pos_llama_debug.pt', layers='last10',
+               torch_dtype=torch.bfloat16, attn_implementation='eager')
+data = json.load(open('/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask4.json'))
+e = data[0]; cands = parse_candidates(e['action_prompt'])
+prompt = build_fc_prompt(seka.tok, e['action_prompt'], cands)
+ids = seka.tok(prompt, return_tensors='pt').to(seka.device)
+t0 = time.time()
+out = seka.model.generate(**ids, max_new_tokens=32, do_sample=False, pad_token_id=seka.tok.eos_token_id)
+print(f'time={time.time()-t0:.1f}s')
+print('out:', seka.tok.decode(out[0, ids[\"input_ids\"].shape[1]:], skip_special_tokens=True)[:150])
+# Expected: time<3s, output starts with 'I would choose the following...' or '<tool_call>{...'
+# If: time>30s OR repetitive gibberish ('halves halves' / '!!! ...') → CUDA_VISIBLE_DEVICES not set
+"
+```
 
 ## ⚡ 현재 상황 — 왜 긴급한가
 
