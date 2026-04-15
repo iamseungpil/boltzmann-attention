@@ -296,6 +296,8 @@ $$W = \mathrm{softmax}\left(\frac{(Q + \alpha d_Q)(K + \alpha d_K)^\top}{\sqrt F
 
 **Per-sample measurability.** Both qaMSE and Var_s[V] are computable from a single forward pass per query. `‖ô - o‖²` is the direct output-difference between clean and biased forwards. This lets us empirically verify the bound sample-by-sample (Sec 5.5).
 
+**Scope of Thm 6.1 (honest explicit).** Thm 6.1 bounds the *magnitude of attention-output perturbation error*, not accuracy lift. For accuracy lift we use Thm 6.17's first-order coefficient $G_K$ (gradient alignment between K-bias direction and log-probability increase) — a distinct dimensionless quantity. Cross-model bound-magnitude ratios scale with model weight scales (V norm, K norm) and are *not* intended to predict cross-model lift asymmetry; §5.4.1.1 documents empirical falsification of an earlier attempt to use Thm 6.1 factors for cross-model lift prediction and the corrected Thm 6.17-$G_K$ framing.
+
 ### 3.2 Corollary 6.7/6.8 with explicit regularity (R)
 
 [Restate Cor 6.7 from `COROLLARY_6_7_FACET_PHASE_CLOSURE.md §B.7.1`, with Hypothesis (R) from `COR67_REFRAMING_2026_04_14.md §2`.] The gate Lipschitzness is load-bearing: it is what transfers Theorem 6.1's remainder-smoothness condition through the facet-gated operator.
