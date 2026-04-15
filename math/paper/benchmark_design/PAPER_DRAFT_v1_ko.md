@@ -115,7 +115,7 @@ Cor 6.9.6 은 §1.1 기여 1 (온톨로지-특권화 부분공간) 의 형식적
 
 ### 3.6 통합 프레임: Theorem 6.17–6.19 (스티어링 + 압축 Pareto)
 
-§3.3 의 K-only stationary perturbation 은 facet-gated 연산자의 *baseline 운용점* (Cor 6.9.6 안정성, +68.5pp 검증). *완전한* 연산자는 동일 온톨로지 기저 위 step-wise QKV-joint 구성으로 일반화되며, 정확도 향상 최적성은 Lagrangian 분해를 따른다. 동일 기저는 추가로 Pareto-최적 KV-cache 압축 스킴을 매개변수화한다. 통합을 형식화하는 세 정리 (증명 Appendix B.7.10–B.7.12).
+§3.3 의 K-only stationary perturbation 은 facet-gated 연산자의 *baseline 운용점* (Cor 6.9.6 안정성, +68.5pp 검증). 정확도 lift 확장은 동일 온톨로지 기저 위 **QV-joint 구성** (Q-coverage + V-amplifier, $\alpha_K = 0$). K-channel 은 *stability 축 전용*; K-inclusion 은 임의 $\alpha_K > 0$ 에서 정확도 lift 파괴 (Rmk 6.17.3). 동일 $B_{\mathrm{ont}}$ 가 추가로 Pareto-최적 KV-cache 압축 스킴 매개변수화. 통합을 형식화하는 세 정리 (증명 Appendix B.7.10–B.7.12).
 
 #### 3.6.1 Theorem 6.17 — QKV-Joint Coverage-Aware 정확도 최적성
 
