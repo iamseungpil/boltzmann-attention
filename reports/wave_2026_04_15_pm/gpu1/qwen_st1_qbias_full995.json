@@ -1,0 +1,89 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 995,
+  "methods": [
+    "no_steer",
+    "ocq_qbias_b-0.1",
+    "ocq_qbias_b-0.3",
+    "ocq_bias_a0.3"
+  ],
+  "skip_heads_spec": null,
+  "skip_heads_count": 0,
+  "skip_sink_tokens": 0,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-qwen25-7b-metatool/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 995,
+      "top1_correct": 600,
+      "top1_accuracy": 0.6030150753768844,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6030150753768844,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 821,
+        "no_match": 43,
+        "none_pred": 131
+      },
+      "runtime_s": 951.5875782966614,
+      "samples": []
+    },
+    {
+      "method": "ocq_qbias_b-0.1",
+      "n_queries": 995,
+      "top1_correct": 632,
+      "top1_accuracy": 0.6351758793969849,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6351758793969849,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 860,
+        "no_match": 17,
+        "none_pred": 118
+      },
+      "runtime_s": 1353.5664579868317,
+      "samples": []
+    },
+    {
+      "method": "ocq_qbias_b-0.3",
+      "n_queries": 995,
+      "top1_correct": 641,
+      "top1_accuracy": 0.6442211055276382,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6442211055276382,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 853,
+        "no_match": 28,
+        "none_pred": 114
+      },
+      "runtime_s": 1346.752168893814,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_queries": 995,
+      "top1_correct": 614,
+      "top1_accuracy": 0.6170854271356784,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6170854271356784,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 825,
+        "no_match": 71,
+        "none_pred": 99
+      },
+      "runtime_s": 1311.272287607193,
+      "samples": []
+    }
+  ]
+}
