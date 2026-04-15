@@ -222,6 +222,21 @@ def run_method(
             alpha_k=params["alpha_k"], alpha_v=params["alpha_v"],
             n_kv=n_kv, head_dim=head_dim,
         )
+    elif kind == "qbias":
+        n_q = model.config.num_attention_heads
+        ctx = install_q_bias_hooks(
+            model, B_ont, beta=params["beta"],
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+        )
+    elif kind == "qkv_joint":
+        n_q = model.config.num_attention_heads
+        ctx = install_qkv_joint_hooks(
+            model, B_ont,
+            alpha_k=params["alpha_k"],
+            gamma_v=params["gamma_v"],
+            beta_q=params["beta_q"],
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+        )
     else:
         raise ValueError(f"{kind} not supported in Subtask4 driver")
 
