@@ -464,7 +464,9 @@ The proof reduces to observing that both the accuracy lift (Thm 6.17) and the co
 
 Three independent falsifiability paths (Rmk 6.19.2 in Appendix): (1) Q-coverage + K small-α pair $F_1 < 0.731$ at full 497 (already passed: Q-only F1 = 0.747, +1.6pp; Q+K small-α F1 = 0.750, +1.95pp); (2) attention-weighted PPL within 1.0 of uniform OCQ falsifies compression portion; (3) absence of continuous Pareto frontier in $\eta$ falsifies single-basis sufficiency. Each testable in ~2 GPU-day.
 
-#### 3.6.4 Theorem 6.21 — Model-Task Optimal Steering Magnitude (new; motivates and resolves cross-model K-bias lift asymmetry)
+#### 3.6.4 Theorem 6.21 — Model-Task Optimal Steering Magnitude (engineering extension of Thm 6.17)
+
+**Positioning and honest timing disclosure**. This theorem is positioned as a *practical extension of Thm 6.17 (iii)* rather than a new standalone main contribution; its role is to answer the practitioner's question "what $\alpha_K$ should I use?" and to clarify the out-of-regime artifact driving the apparent cross-model K-bias lift ratio of §5.4.1.1. We acknowledge explicitly that this theorem was *formalized after observing* the §5.4.1.1 measurement (timing disclosure for scientific transparency). The claims of Thm 6.21 are independently testable (concavity of lift curve, $\alpha_\mathrm{opt}$ match with α-sweep peak within ±20%, cross-model $\alpha^*$ scaling); empirical validation is the subject of the α-sweep experiments in §5.4.1.1 (Qwen Subtask1 sweep $\alpha_K \in \{0.05, 0.1, 0.2, 0.5, 1.0\}$ and Llama Subtask1 sweep at the same $\alpha$ values, complete 2026-04-16).
 
 **Setup.** For a given model $\theta$ and task $\tau$ (distribution of prompts $x$ with correct next-token target $y^\tau(x)$), define the *steering-magnitude objective*
 $$L(\alpha; \theta, \tau) := \mathbb E_{x \sim \mathcal D_\tau} \!\bigl[\log p_{\theta + \alpha B_\mathrm{ont} B_\mathrm{ont}^\top K}(y^\tau(x) \mid x) - \log p_\theta(y^\tau(x) \mid x)\bigr].$$
