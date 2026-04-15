@@ -583,12 +583,34 @@ Formal statement of the training-light extension (Appendix B.7.9 Thm 6.16). Sequ
 
 **Deployment implications** (Appendix E Netsru alignment): LoRA r=8 adds 5M params (0.07% of 7B). Per-domain LoRA retrain is feasible in ~4 GPU-hr. Production agents can maintain per-domain LoRA + shared facet-gated rotation infrastructure.
 
-**Launch status (2026-04-15 02:32 KST — PIPELINE FAILED, rerun required)**:
-- L1 LoRA training: **CUDA OOM on GPU1** — two sibling processes consumed 31 GB leaving only 831 MB free; LoRA r=8 forward needed 910 MB for the logits cast in `ForCausalLMLoss`. Training aborted after 14 s; **no adapter written**.
-- L2 B_ont rebuild: skipped by pipeline logic (`[lora] L2 SKIPPED — using base B_ont with LoRA model for initial smoke`).
-- L3 smoke: failed immediately — `peft.PeftModel.from_pretrained('lora_adapters/qwen25_7b_subtask1_r8')` 401'd because the adapter directory does not exist.
+**Rerun completed 2026-04-15 09:02 KST — L1 trained, L3 smoke FAILED**:
 
-**Rerun plan**: (i) stop or isolate the sibling processes on GPU1, (ii) set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` to reduce fragmentation, (iii) drop batch to 1 + enable gradient checkpointing in `lora_train_metatool.py` if OOM persists, (iv) re-chain L1→L2→L3. Scripts are unchanged; only environment/GPU scheduling failed. ETA ~4 GPU-hr on one isolated A6000.
+- L1 LoRA training: completed 3 epochs on 500 Subtask1 train examples. Loss trajectory:
+  - step 0: loss = 9.58
+  - step 40: loss = 0.04 (1000× drop in 40 steps)
+  - step 100: loss = 0.001
+  - ep0 mean train_loss = 0.428, val_loss = 0.013
+  - ep2 mean train_loss = 0.003, val_loss = 0.010
+- L3 Subtask4 smoke (N=20):
+  - LoRA + no_steer: F1 = 0.550 (= base no_steer baseline; **no transfer from LoRA**)
+  - LoRA + K-bias α=0.3: F1 = 0.533 (= base K-bias regression; **no synergy**)
+- Predicted (Cor 6.16.1): F1 ∈ [0.78, 0.92] across (a)-(d) variants. **Falsified at smoke level** (Δ to lower predicted bound = −0.25; well outside per-sample variance).
+
+**Detailed root-cause analysis of the LoRA L3 failure** (5 hypothesized causes, ranked by likelihood):
+
+1. **Training-format / evaluation-format mismatch (most likely).** L1 trained on Subtask1 plain-text format `User query: "..." \n tool: ToolName` (single-tool, no chat template, no `<tool_call>` blocks, ~80 tokens average). L3 evaluates on Subtask4 chat-template FC format with `<tool_call>{"name":...,"arguments":{}}</tool_call>` (multi-tool, instruction-tuned chat wrapper, ~250 tokens). The fine-tuned weights have no signal pushing toward the chat-template tool-call structure; LoRA effectively learned to predict `tool: NAME\n` continuation, which is masked out by the Subtask4 chat template entirely.
+
+2. **Catastrophic over-fitting on plain-text format.** Loss dropping from 9.58 → 0.001 in 100 steps on 500 examples (≈1.7 epochs) is consistent with full memorization of the train-set token-level distribution. The val_loss tracking the train_loss closely (0.013 vs 0.428 at ep0) reflects the val set being drawn from the same Subtask1 distribution and the same plain-text format — not from Subtask4 — so val_loss does not measure transfer. A held-out Subtask4 val loss would have caught this; it was not implemented in the L1 driver.
+
+3. **Target-module choice misses the readout layer.** LoRA targets `q_proj, k_proj, v_proj` only, not `o_proj` (attention output) or `gate_proj/up_proj/down_proj` (MLP). FC structured emission relies heavily on the MLP's late-layer up_proj for the special tokens `<tool_call>`, `</tool_call>` — none of which receive gradient under the current LoRA spec. The attention sub-module changes alone do not reroute toward FC tokens.
+
+4. **Rank r=8 too small to encode the FC-template behavior in addition to the Subtask1 routing.** Even if (3) were fixed, r=8 across q/k/v_proj (3.4M trainable params, 0.045% of 7B) is sufficient to memorize 500 single-tool routing decisions but not to install a structured-emission policy across the chat-template scaffold.
+
+5. **No gradient-checkpoint + batch_size=1 + lr=1e-4 trio amplifies single-token gradient noise.** With batch_size=1 (forced by GPU memory after the rerun fix), each step's gradient is dominated by 1 sequence's noise; combined with the sharp loss landscape at lr=1e-4, the model converges to a near-zero training loss within 40 steps and then drifts under noise for 460 more steps — most updates after step 40 are noise, not signal.
+
+(1) and (3) together account for nearly all of the failure: the LoRA learned the wrong objective (next-token in plain Subtask1 format) on the wrong sub-modules (attention only, no FC-template path). The fix is to **re-train on Subtask4-format chat-template prompts** (with `<tool_call>` structured emission as the target) **plus include `o_proj` and MLP up/down_proj in the LoRA target list**. This is queued as the L1' rerun (~6 GPU-hr) and is independent of the QKV-joint accuracy work in §5.5.2.
+
+**Status of Cor 6.16.1 prediction**: empirically falsified under the v1 LoRA recipe; the corollary itself remains valid in principle (it predicts Subtask4 lift *given* an FC-template-aware LoRA), but verification requires the L1' rerun. We retract the smoke-level "synergy" claim until L1' completes.
 
 ### 5.11 Future work (E11–E16)
 
