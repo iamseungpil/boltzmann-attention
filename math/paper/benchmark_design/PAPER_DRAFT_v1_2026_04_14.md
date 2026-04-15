@@ -976,7 +976,11 @@ This identifies the gap to KVTC's 20× compression: KVTC uses *DP-optimal bit al
 - **E9 (baselines)**: CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA 2/3-expert, LoRA r=8 tool-FT, RAG prompt injection — all on Subtask1 + Subtask4, same 9 metrics. Matched compute. 18 GPU-hr.
 - **E10 (Mistral closure)**: Wave 3a Mistral-v0.3 skipL0+padmax + Wave 3b Mistral-Instruct-v0.3 H2 — running now. Results will populate Subtask1 cross-model row.
 
-### 5.10.1 E11' — LoRA + Rotation hybrid (Thm 6.16, in progress)
+### 5.10.1 E11' — LoRA + Rotation augmented mode (Thm 6.16) — *positioned as deployment option, not requirement*
+
+**Reframing (2026-04-15)**: The training-free $B_{\mathrm{ont}}$ contributions (§5.5 stability, §5.5.2 Q-coverage, §5.9 compression) are the paper's main results. The LoRA-augmented mode (Cor 6.16) is a *complementary deployment option* for practitioners with tool-calling training data, *not* a requirement. Our dual-mode contribution is that *the same per-head $B_{\mathrm{ont}}$ basis* serves both regimes — training-free for off-the-shelf models and LoRA-augmented for production fine-tuning workflows. We report v1/v2/v3 progression as honest negatives identifying the recipe constraints; v4 future work uses richer multi-tool training data (next paragraph).
+
+**v1/v2/v3 honest progression on Cor 6.16 verification**:
 
 Formal statement of the training-light extension (Appendix B.7.9 Thm 6.16). Sequential L1-L2-L3 pipeline:
 
