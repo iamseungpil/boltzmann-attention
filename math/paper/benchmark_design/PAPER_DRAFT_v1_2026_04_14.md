@@ -1,4 +1,4 @@
-# Facet-Gated K-Bias Steering: A Theory-Guided Ontology Basis for Tool Selection
+# A Uniquely Privileged Subspace: Joint Pareto-Optimality of Ontology-Based Steering and KV-Cache Compression in Instruction-Tuned Transformers
 
 **Target venue**: ICLR 2027 (Sep 2026 submission)
 **Draft**: v1, 2026-04-14
