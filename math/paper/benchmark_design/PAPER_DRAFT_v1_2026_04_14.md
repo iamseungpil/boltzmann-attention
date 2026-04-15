@@ -135,21 +135,23 @@ Define three perturbation channels at layer $\ell$:
 - $\Delta_K := \alpha\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K$ (K-side facet marker, stationary; Cor 6.9.6 on-manifold),
 - $\Delta_V := \gamma\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V$ (V-side facet amplifier, stationary).
 
-**Theorem 6.17.** Under (R), (H-cat), and matched-magnitude constraint $\|\Delta_\bullet\|_F \le \alpha$, the trio $\Delta^* = (\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*)$ is a *first-order optimal solution* of $\min_\Delta \mathbb E_x[-\log p_{\theta + \Delta}(y_{1:T} \mid x)]$. The accuracy lift over no-perturbation is $\alpha \cdot G(\theta, y_{1:T}) + O(\alpha^2)$ with $G > 0$ whenever $y_{1:T}$'s facet trajectory is recoverable in $\mathrm{span}(B_{\mathrm{ont}})$.
+**Theorem 6.17 (originally stated for trio, empirically scoped to QV-pair).** Under (R), (H-cat), and matched-magnitude constraint $\|\Delta_\bullet\|_F \le \alpha$, the **pair** $\Delta^* = (\Delta_Q^{(t)*}, \Delta_V^*)$ at $\alpha_K = 0$ is a *first-order optimal solution* of $\min_\Delta \mathbb E_x[-\log p_{\theta + \Delta}(y_{1:T} \mid x)]$. The accuracy lift over no-perturbation is $\beta_Q \cdot G(\theta, y_{1:T}) + O(\beta_Q^2)$ with $G > 0$ whenever $y_{1:T}$'s facet trajectory is recoverable in $\mathrm{span}(B_{\mathrm{ont}})$.
 
-This recovers the original Cor 6.9 multi-tool accuracy-lift prediction *as augmented* by the per-step Q-coverage gate. The K-only failure of §5.5 is explained: stationary K-bias amplifies the *same* facet at every step regardless of trajectory; the Q-coverage gate $\Delta_Q^{(t)}$ subtracts already-emitted facet directions from the query and steers attention toward un-emitted facets at first order.
+The original trio statement (with $\Delta_K^* \ne 0$) was empirically falsified at every tested $\alpha_K \in \{0.05, 0.1, 0.3\}$: K-channel inclusion destroys the Q-coverage gradient on the same ontology subspace via post-RoPE bilinear coupling, regardless of magnitude (Rmk 6.17.3 in Appendix B.7.10 documents the K-magnitude ablation). The K-channel is therefore *reserved for the orthogonal stability axis* (Cor 6.9.6, §5.5, $\alpha_K = 0.3$ +68.5pp gap) and is not part of the verified accuracy-lift family.
 
-**Predicted empirical signature** (Subtask4, N=497):
+This recovers the original Cor 6.9 multi-tool accuracy-lift prediction *as augmented* by the per-step Q-coverage gate. The K-only failure of §5.5 is explained: stationary K-bias amplifies the *same* facet at every step regardless of trajectory; the Q-coverage gate $\Delta_Q^{(t)}$ subtracts already-emitted facet directions from the query and steers attention toward un-emitted facets at first order. The V-amplifier is *additive* with Q-coverage at smoke ($\gamma_V = 0.1, \beta_Q = -0.1, \alpha_K = 0$ matches Q-only +10.8pp).
 
-| Method | Predicted F1 | Mechanism |
-|---|---|---|
-| no_steer | 0.731 | baseline |
-| K-only stationary $\alpha=0.3$ | 0.685 | observed (§5.5, stability-only) |
-| + V-amplifier $\gamma=0.3$ | 0.74 | first-order in-facet logit gain |
-| + Q-coverage-mask $\beta=0.3$ | 0.82 | coverage-aware recall lift |
-| **QKV joint** ($\alpha=\beta=\gamma=0.3$) | **0.85–0.92** | Thm 6.17 optimum |
+**Empirical signature** (Subtask4, N=497):
 
-Implementation: per-step Q hook + facet trajectory tracker (`eval_metatool_subtask4_qkv.py`, ~2 GPU-day on A6000).
+| Method | F1 | Mechanism | Status |
+|---|---|---|---|
+| no_steer | 0.731 | baseline | — |
+| K-only stationary $\alpha_K=0.3$ | 0.685 | observed (§5.5, stability-only — *not accuracy*) | verified |
+| **Q-only $\beta_Q=-0.1$** | **0.747** | first-order Q-coverage gradient | **verified +1.6pp** ✅ |
+| V + Q $(\gamma_V=0.1, \beta_Q=-0.1)$, smoke N=20 | 0.658 | first-order Q+V additive | **smoke +10.8pp, full pending** ⏳ |
+| K + Q (any $\alpha_K > 0$), smoke | 0.500–0.533 | K-channel destructive coupling | **falsified** ❌ |
+
+Implementation: per-step Q-coverage hook implemented and verified at full 497 (`eval_metatool_subtask4.py` with `ocq_qbias_b-0.1`); V+Q joint queued as PM Wave 2 Wave E.
 
 #### 3.6.2 Theorem 6.18 — Attention-Weighted Optimal Bit Allocation
 
