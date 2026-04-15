@@ -197,12 +197,15 @@ def run_method(
 ) -> Dict:
     kind, params = parse_method(method)
 
+    skip_heads = getattr(args, "_skip_heads_set", None)
+
     if kind == "no_steer":
         ctx = _nullcontext()
     elif kind == "bias":
         ctx = install_kbias_hooks(
             model, B_ont, alpha=params["alpha"],
             n_kv=n_kv, head_dim=head_dim,
+            skip_heads=skip_heads,
         )
     elif kind == "normbias":
         ctx = install_normalized_kbias_hooks(
