@@ -137,7 +137,8 @@ def main():
                 if not hasattr(model.config, "head_dim") else model.config.head_dim)
 
     print(f"[load] B_ont {args.b_ont}")
-    B_ont = torch.load(args.b_ont, map_location="cpu", weights_only=False)
+    B_obj = torch.load(args.b_ont, map_location="cpu", weights_only=False)
+    B_ont = B_obj["B_ont"] if isinstance(B_obj, dict) else B_obj
     # B_ont shape: [L, n_kv, head_dim, R]
     print(f"[B_ont] shape={tuple(B_ont.shape)}")
     L_ont, n_kv_ont, d_ont, R = B_ont.shape
