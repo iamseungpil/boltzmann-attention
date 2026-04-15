@@ -147,6 +147,132 @@ We organize into five families.
 - **SteeringControl / SteeringSafety suite** (2509.13450) — umbrella side-effect benchmark.
 - **KL-on-benign** (adapted from Stickland 2406.15518) — forward KL on UltraChat distribution as side-effect metric.
 
+### 2.6 Threat analysis — full-text comparison with 4 most threatening recent works
+
+We did full-text reads of the 4 most threatening prior works and document our differentiation:
+
+#### 2.6.1 SEKA (Li et al., ICLR 2026, arXiv:2603.01281)
+
+**Mechanism (Eq 2 of their paper)**: $\Omega^\pm = h^\top h^\pm / n$ (cross-covariance from contrastive prompt pairs), SVD: $\Omega^\pm = U^\pm S^\pm V^{\pm \top}$, then
+$$P^+_{\ell,h} = U^+_{:,:k^+} (U^+_{:,:k^+})^\top, \quad P^-_{\ell,h} = U^-_{:,k^-:} (U^-_{:,k^-:})^\top$$
+Steering: $k' = k + g P k$ — *operator form identical to our K-bias*.
+
+**SEKA scope**:
+- Benchmarks: CounterFact (ES/PS), BiasInBios, Pronouns. **No multi-tool, no function-calling**.
+- Models: Qwen3-{4B,8B,14B}, Gemma3-{4B,12B,27B}. *No Llama, no Mistral, no Qwen2.5*.
+- Hyperparameter: γ (variance retention threshold), single g per (task, model).
+- Steer-mask: tokens between `**...**` markers.
+- FlashAttention compatible; latency +0.03s vs PASTA's +1.03s.
+
+**SEKA limitations** (admitted or implicit):
+- *No theoretical bound* (geometric interpretation only).
+- *No per-direction gains* — single g+ and g- per (task, model).
+- *No multi-direction / per-facet decomposition* — just top-k+ vs bottom-k-.
+- *Direction source = task-specific contrastive pairs* (CounterFact / BiasBios).
+- *Task-routing* in AdaSEKA, not facet-composition.
+
+**Our differentiation** (4 dimensions, each falsifiable):
+| Dim | SEKA | Ours |
+|---|---|---|
+| Direction source | task-contrastive SVD | ontology annotation (DeepSeek-V3, training-free) |
+| Decomposition | top-k+/bottom-k- (2 directions) | per-facet $B_f$ blocks (4 facets, rank-$R = \sum r_f$) |
+| Theory | geometric interpretation | Thm 6.1 + Cor 6.7-6.13 + Cor 6.9.6 distributional KL bound |
+| Cross-domain coupling | none | Thm 6.19 steering↔compression Pareto |
+| Multi-tool eval | absent | full Subtask4 N=497 |
+
+**Threat verdict**: SEKA is the most direct prior. Operator form match (k+gPk) is *not* novelty for us. Our 4 differentiators above must each be verified empirically. *SEKA-on-MetaTool-Subtask4 is the critical missing comparison* (eval in progress, §5.5.3.1). If SEKA underperforms on multi-tool (cf. our Cor 9.6 prediction that Subtask4 is fundamentally hard for K-side), our differentiation is preserved.
+
+#### 2.6.2 FGA — Fact Grounded Attention (Gupta 2025, arXiv:2509.25252)
+
+**Mechanism (Eq 5, 7 of their paper)**:
+$$G = B_{qf} \cdot A \in \mathbb R^{L \times L}, \quad S_{\mathrm{FGA}} = S + \alpha \odot G$$
+where $A \in \{0,1\}^{M \times L}$ is binary entity-to-token assignment, $B_{qf} = QK_{\mathrm{fact}}^\top / \sqrt{d_k}$ is query-fact affinity (learned $W_K \approx 2.1$M params).
+
+**FGA scope**:
+- Benchmark: 1107 spec QA (smartphones, laptops, EVs) + public benchmarks.
+- Layer 20–27 of Llama-3.2-3B (deep layers only).
+- Flat KB: 137 entities × 12 attributes — *no hierarchy*.
+- Fine-tuning: 99.7% accuracy (zero-shot 87.1%, baseline 6.3%).
+
+**FGA explicit limitations** (their §6.2.1, 6.2.3):
+- "FGA requires structured facts. Procedural knowledge, implicit reasoning... remain challenging."
+- "Future work should explore **hierarchical and compositional fact representations**." ← *our $B_{\mathrm{ont}}$ is exactly this future-work direction they invite*
+- "Multi hop Reasoning: FGA currently handles single fact queries well but **struggles with complex reasoning requiring multiple facts**. **Compositional grounding mechanisms are a promising direction**." ← *multi-tool function-calling = multiple facts; our work fills this gap*
+
+**Our differentiation**:
+| Dim | FGA | Ours |
+|---|---|---|
+| Bias side | pre-softmax attention score (S + α·G) | K-side projection (k + α·BBᵀk) |
+| Direction source | external fact KB + learned $W_K$ | ontology annotation, training-free, K-space derived |
+| Hierarchy | flat (137 × 12) | per-(layer, head, facet) $B_f$ block |
+| Theoretical bound | none (empirical only) | Thm 6.1 + Cor 6.9.6 |
+| Compression coupling | none | Thm 6.19 |
+
+**Threat verdict**: FGA's Section 6.2 *literally invites our contribution* ("hierarchical/compositional fact representations"). Our $B_{\mathrm{ont}}$ realizes exactly the future-work direction FGA suggests but cannot implement (their representation is flat). Differentiation safe; we should cite FGA prominently as motivation in §1.
+
+#### 2.6.3 Focus Directions (Zhu et al. 2025, arXiv:2503.23306)
+
+**Mechanism (Eq 5 of their paper)**:
+$$W = \mathrm{softmax}\left(\frac{(Q + \alpha d_Q)(K + \alpha d_K)^\top}{\sqrt F}\right)$$
+
+**Focus Directions scope**:
+- $d_K, d_Q$ trained via gradient descent (AdamW, lr=10⁻³, 10 epochs) on Multi-Document QA.
+- Llama-3.2-3B, layers 8–18, top-20 contextual heads of 672.
+- $\alpha \in \{−0.2, 0.2, 0.3, 0.5\}$, optimal $\alpha = 0.3$.
+- HELMET benchmark only (NQ, TriviaQA, HotpotQA, PopQA, MS MARCO, ...).
+- *No K-only vs Q-only ablation* — always joint K+Q.
+- Only 1 future-work line ("converge across tasks that share the same context length").
+
+**Our differentiation**:
+| Dim | Focus Directions | Ours |
+|---|---|---|
+| K vs Q | always joint K+Q (single α) | ablated K-only / Q-only / V-only / pairs (§5.5.3) |
+| Per-head | top-20 contextual heads only | all heads via $B_{(\ell,h)}$ |
+| Direction source | gradient training (10 epochs) | ontology annotation (training-free) |
+| Theory | none | Thm 6.1 / Cor 6.9.6 / Thm 6.17 / 6.19 |
+| Per-facet decomposition | none | rank-$R = \sum_f r_f$ |
+| Multi-tool | absent | Subtask4 N=497 |
+
+**Threat verdict**: Focus Directions is *closest in K+Q form* but our work has stricter ablation (K vs Q vs V independently, and our K×Q destructive coupling finding §5.5.3 is novel evidence). Their gradient-trained directions need 10-epoch training; ours is training-free. Differentiation safe.
+
+#### 2.6.4 KVTC (NVIDIA, ICLR 2026)
+
+**Mechanism**: PCA basis (per-layer) + DP-optimal bit allocation per component (variance-based) + DEFLATE/LZMA2 entropy coding.
+
+**Scope**: up to 20× compression on Qwen2.5-7B / Qwen3.5-27B / LLaMA-3.1-8B; cosine similarity 0.981–0.9999.
+
+**KVTC limitations**:
+- *No theoretical bound* (empirical cosine only).
+- *Reconstruction MSE objective* (not attention-output distortion).
+- *Shared (per-layer) PCA*, not per-head — our internal data shows per-head improves Llama 2-bit by 46.3% (§5.9.2).
+- *Compression-only*, no steering coupling.
+
+**Our differentiation** (already documented §5.9.1):
+| Dim | KVTC | Ours |
+|---|---|---|
+| Decorrelation | PCA (Gaussian) | categorical (H-cat) |
+| Bit allocation | DP per-component (variance) | attention-weighted $\pi(t,f)\sigma_f^2$ (Thm 6.18) |
+| Per-head | shared per-layer | per-(layer, head) by construction |
+| Theory | none | Thm 6.13 + Thm 6.19 + cross-over Cor 6.13.5 |
+| Steering coupling | none | Thm 6.19 single-basis sufficiency |
+| Raw compression | 20× | 7.77× standalone (orthogonal-stackable to KVTC entropy coding) |
+
+**Threat verdict**: KVTC wins on raw bit-ratio. We position as theory + cross-domain coupling, not raw-compression competition. KVTC's entropy coding is *orthogonal-stackable* to ours; their PCA basis is *replaceable* with our $B_{\mathrm{ont}}$. *Stack of OCQ + DP-allocation + DEFLATE* would surpass either alone. Differentiation safe via complementarity narrative (§5.9.1).
+
+#### 2.6.5 Summary — net novelty after threat analysis
+
+| Threat | Verdict | Confidence |
+|---|---|---|
+| SEKA operator form (k+gPk) | match — *not* our novelty | high |
+| SEKA direction source / per-facet / theory | preserved, 4 differentiators | high |
+| SEKA on MetaTool Subtask4 | unverified, eval in progress | medium |
+| FGA hierarchical fact representations | preserved (FGA invites our direction) | high |
+| Focus Directions K+Q form | preserved (our K×Q ablation novel) | high |
+| KVTC raw compression ratio | wins (we don't compete on this axis) | high |
+| KVTC theory / steering coupling | preserved (KVTC has neither) | high |
+
+**Net assessment**: 5 of 6 threats addressed via stronger differentiation. The 1 remaining (SEKA on MetaTool) is empirically testable in §5.5.3.1 (in progress). *Worst case*: SEKA matches our K-bias on Subtask4 — our differentiation collapses to per-facet + theory + cross-domain. *Best case*: SEKA underperforms on Subtask4 (consistent with our autoregressive-re-attention §5.5 prediction) — our K-channel exclusion validated, all 4 differentiators preserved.
+
 ---
 
 ## 3. Theory
