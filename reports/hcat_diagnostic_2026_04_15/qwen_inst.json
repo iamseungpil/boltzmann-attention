@@ -1,0 +1,232 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "b_ont_path": "external/SEKA/seka_projections/ontology-qwen25-7b-metatool/B_ont.pt",
+  "rank_per_layer": [
+    {
+      "layer": 0,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 1,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 2,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 3,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 4,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 5,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 6,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 7,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 8,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 9,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 10,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 11,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 12,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 13,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 14,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 15,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 16,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 17,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 18,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 19,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 20,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 21,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 22,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 23,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 24,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 25,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 26,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    },
+    {
+      "layer": 27,
+      "min_rank": 24,
+      "max_rank": 24,
+      "median_rank": 24
+    }
+  ],
+  "pathological_layers_count": 0,
+  "pathological_layers": [],
+  "per_layer_hcat": [
+    {
+      "ratio": [
+        0.40312454104423523,
+        0.4549630880355835,
+        0.5104559063911438,
+        0.3577924072742462
+      ],
+      "ratio_mean": 0.4315840005874634,
+      "ratio_median": 0.40312454104423523,
+      "random_baseline": 0.1875,
+      "gain_mean": 2.301781177520752,
+      "gain_median": 2.1499974727630615,
+      "var_K_mean": 124.07803344726562,
+      "rank": 24,
+      "head_dim": 128,
+      "n_kv": 4,
+      "layer": 5
+    },
+    {
+      "ratio": [
+        0.46045058965682983,
+        0.44733989238739014,
+        0.48550504446029663,
+        0.4656987190246582
+      ],
+      "ratio_mean": 0.4647485613822937,
+      "ratio_median": 0.46045058965682983,
+      "random_baseline": 0.1875,
+      "gain_mean": 2.47865891456604,
+      "gain_median": 2.4557363986968994,
+      "var_K_mean": 123.10333251953125,
+      "rank": 24,
+      "head_dim": 128,
+      "n_kv": 4,
+      "layer": 13
+    },
+    {
+      "ratio": [
+        0.579596221446991,
+        0.45088714361190796,
+        0.46249741315841675,
+        0.49668413400650024
+      ],
+      "ratio_mean": 0.4974161982536316,
+      "ratio_median": 0.46249741315841675,
+      "random_baseline": 0.1875,
+      "gain_mean": 2.6528866291046143,
+      "gain_median": 2.4666528701782227,
+      "var_K_mean": 116.06243896484375,
+      "rank": 24,
+      "head_dim": 128,
+      "n_kv": 4,
+      "layer": 21
+    }
+  ]
+}
