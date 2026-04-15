@@ -187,7 +187,7 @@ def main():
         pos_pt=str(p_pos_path), layers=args.layers,
         amplify_pos=1.0, amplify_neg=0.0,
         torch_dtype=torch.bfloat16,
-        attn_implementation="eager",
+        attn_implementation=getattr(args, "attn_impl", "sdpa"),
     )
     print(f"[seka] loaded {time.time() - t0:.1f}s", flush=True)
 
