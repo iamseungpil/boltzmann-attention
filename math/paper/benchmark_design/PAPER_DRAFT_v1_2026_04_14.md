@@ -128,7 +128,7 @@ The $\rho^4$-scaling-matched divergence (soft plateau vs hard monotone increase 
 
 The K-only stationary perturbation of §3.3 is the *baseline operating point* of the facet-gated operator (stability via Cor 6.9.6, verified at +68.5pp). The accuracy-lift extension generalizes to a per-step **QV-joint construction** (Q-coverage + V-amplifier on the same $B_{\mathrm{ont}}$, with $\alpha_K = 0$). The K-channel is *reserved for the stability axis only*; empirically K-inclusion at any $\alpha_K > 0$ destroys the accuracy lift on this ontology subspace (Rmk 6.17.3 in Appendix B.7.10). The same $B_{\mathrm{ont}}$ basis additionally parameterizes a Pareto-optimal KV-cache compression scheme. We state three theorems formalizing this unification (proofs in Appendix B.7.10–B.7.12).
 
-#### 3.6.1 Theorem 6.17 — QKV-Joint Coverage-Aware Accuracy Optimality
+#### 3.6.1 Theorem 6.17 — QV-Joint Coverage-Aware Accuracy Optimality (K-channel falsified for accuracy, retained for stability)
 
 Define three perturbation channels at layer $\ell$:
 - $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$ (Q-side coverage mask, step-adaptive; $P_f := B_f B_f^\top$),
