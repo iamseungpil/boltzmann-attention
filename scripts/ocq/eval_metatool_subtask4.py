@@ -79,6 +79,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", type=str, required=True)
     p.add_argument("--verbose", action="store_true")
+    p.add_argument("--skip-heads", type=str, default="",
+                   help="Skip heads spec (e.g. 'L0-L21' skips all heads in layers 0..21)")
     return p.parse_args()
 
 
