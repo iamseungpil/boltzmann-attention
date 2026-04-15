@@ -323,6 +323,16 @@ where $\mathcal{Y}_{\mathrm{FC}}$ denotes the set of template-conforming FC emis
 
 *Empirical verification.* On Qwen2.5-7B-Instruct / Subtask4 (N=497, $\alpha=0.3$): on-manifold (real $B_{\mathrm{ont}}$) F1 = 0.685 preserved within 4.6pp of no_steer 0.731; off-manifold (random and feature-shuffled $B_{\mathrm{ont}}$) F1 = 0.000 on all 497 queries. The observed $\alpha^* < 0.3$ and $\epsilon_{\mathrm{collapse}} = 0.0$ (zero-F1 emission is formally below any non-trivial threshold).
 
+**Effective-magnitude audit (refutes the "real is in attention null space" alternative hypothesis).** A reviewer-style concern is that real $B_{\mathrm{ont}}$ might preserve FC emission merely by producing *smaller* attention-logit perturbations at matched Frobenius norm — i.e., the direction is in the attention null space by coincidence, not by the facet-subspace mechanism of (a). We directly measured $\mathbb E_{q,t,h}[\|(\Delta_K \cdot q_t)\|_2]$ on Qwen2.5-7B-Instruct layer 13, N=50 queries × 2800 head-query pairs per variant, at matched per-head Frobenius norm $\|\Delta_K\|_F = \alpha \cdot \|K\|_F$ with $\alpha = 0.3$:
+
+| $B_{\mathrm{ont}}$ variant | mean $\|\Delta_K \cdot q\|_2$ | ratio vs real | F1 (Subtask4) |
+|---|---|---|---|
+| **real** | **621.3** | 1.00 | **0.685** |
+| random | 399.6 | 0.64 (real is 1.56× larger) | 0.000 |
+| featshuffle | 292.0 | 0.47 (real is 2.13× larger) | 0.000 |
+
+Real $B_{\mathrm{ont}}$ produces *larger* effective attention-logit perturbation than random or feature-shuffled controls at matched Frobenius norm (1.56× and 2.13× respectively), yet *preserves* FC output while the controls collapse. This refutes the "real is safe because small-effective-magnitude" alternative hypothesis: the direction-specificity +68.5pp gap does not arise from reduced perturbation magnitude. Instead it arises from the facet-subspace on-manifold cancellation mechanism of Cor 6.9.6 (a): real $\Delta_K$ produces qaMSE $= O(\alpha^2)$ despite its large raw magnitude, because the perturbation lies in the subspace where Cor 6.7's $\varepsilon_q$-gated first-order cancellation applies. Off-manifold perturbations of *smaller* effective magnitude still collapse FC emission because they are not in the cancellation subspace. Raw measurement: `reports/stability_effective_magnitude_2026_04_15/result.json`.
+
 **Regime-of-applicability criterion — (H-cat) gain threshold.** The bimodal-channel hypothesis (H-cat) is not a universal property of all instruction-tuned transformers; it is a *characterizable* regime. To make scope explicit rather than post-hoc selected, we define the **(H-cat) gain ratio**
 $$\mathrm{gain}(\theta) := \mathbb E_\ell\!\left[\frac{\mathbb E_{\mathrm{head}, q}[\|B_{\mathrm{ont}}^\top q\|^2 / \|q\|^2]}{R / d_h}\right],$$
 where $R / d_h$ is the null ratio for a uniformly-random $R$-dimensional subspace. $\mathrm{gain}(\theta) \ge 2.0\times$ is our *declared threshold* for (H-cat) applicability: at or above this ratio, the facet directions capture meaningfully more K-variance than a random projection, and Cor 6.9.6 (a)–(b) both apply. Below this threshold, the directional cancellation underlying (a) is too weak to dominate the magnitude of (b), and the phase-transition formulation of (b) may not be the dominant mode of degradation.
