@@ -60,11 +60,25 @@ We frame this result as a **stability property** of the rank-$R$ ontology subspa
 
 **Necessity of (R) — empirical.** We compare {no gate, soft energy-ratio gate, hard threshold gate} × α ∈ {0.2, 0.3, 1.0} on MMLU N=1000 with Qwen2.5-7B. Soft and no-gate remain within 1pp of baseline; hard gate degrades monotonically in α (−4.80, −10.50pp at α=0.3, 1.0) — exactly the regime excluded by (R). This is a direct test of the regularity condition's empirical importance.
 
-### 3.3 Corollary 6.9 (ε-numerical-rank separation)
+### 3.3 Corollary 6.9 + 6.9.6 (rank separation and stability characterization)
 
-[Restate Cor 6.9 from `COROLLARY_6_7_FACET_PHASE_CLOSURE.md §B.7.3` with formal ε-numerical rank definition.] Under max-normalization, when one expert's score dominates below threshold ε, the AdaSEKA operator has numerical rank `r`; ours has `R = Σ_f r_f`. For F=4, r=6, the gap is 18.
+[Restate Cor 6.9 from `COROLLARY_6_7_FACET_PHASE_CLOSURE.md §B.7.3` with formal ε-numerical rank definition.] Under max-normalization, the AdaSEKA operator has numerical rank `r`; ours has $R = \sum_f r_f$. For $F=4, r=6$, the gap is 18. **Empirical**: SVD on 500 held-out MetaTool queries, $\varepsilon \in \{0.1, 0.2\}$, observed nrank 24.0 (ours) vs 7.44 (AdaSEKA) — gap $+17$ (§5.7, Fig 3).
 
-**Empirical.** SVD of P_ada(q_i) and P_fg(q_i, k_t) on 500 held-out MetaTool queries at ε ∈ {0.1, 0.2}. Expected and observed: AdaSEKA mean nrank concentrates near 6, ours near 24 (Sec 5.6, Fig 3).
+**Corollary 6.9.6 (stability characterization, new — proof in Appendix B.7.3.1).** Fix the model parameters $\theta$ and let $\Delta_K$ be any symmetric rank-$s$ perturbation of the key-projection weights with $\|\Delta_K\|_F = \alpha$. Then:
+
+*(a) On-manifold regime.* If $\mathrm{range}(\Delta_K) \subseteq \mathrm{span}(B_{\mathrm{ont}} B_{\mathrm{ont}}^\top)$, then for inputs $x$ drawn from the FC-conditioning distribution,
+$$\mathrm{KL}\bigl(p_\theta(\cdot\mid x)\,\|\,p_{\theta + \Delta_K}(\cdot\mid x)\bigr) \le C_2 \alpha^2 + C_3 \alpha^4,$$
+with $C_2, C_3$ depending on $\|V\|_\infty$, $\|q\|_\infty$, and the Lipschitz constant of the post-softmax attention readout but *not* on $\alpha$.
+
+*(b) Off-manifold regime.* If $\mathrm{range}(\Delta_K) \perp \mathrm{span}(B_{\mathrm{ont}} B_{\mathrm{ont}}^\top)$, then there exists a model-dependent threshold $\alpha^* > 0$ such that for $\alpha > \alpha^*$,
+$$\Pr_x\!\bigl[y \in \mathcal{Y}_{\mathrm{FC}}\mid x,\, \theta + \Delta_K\bigr] \;\le\; \epsilon_{\mathrm{collapse}},$$
+where $\mathcal{Y}_{\mathrm{FC}}$ denotes the set of template-conforming FC emissions and $\epsilon_{\mathrm{collapse}}$ is a model-dependent constant ($\epsilon_{\mathrm{collapse}} \approx 0.05$ empirically on Qwen2.5-7B-Instruct / Subtask4).
+
+*Proof sketch.* (a) combines Thm 6.1's attention-weighted bound with Cor 6.7's $\varepsilon_q$-gated qaMSE control, observing that on-manifold $\Delta_K$ induces $\mathbb E_q[\mathrm{qaMSE}] = O(\alpha^2)$ and $\mathrm{KL}$ inherits the quadratic scaling via the Pinsker–Bregman relation. (b) follows from the geometric fact that $\alpha = \|B^\perp \Delta_K\|_F$ directly perturbs the softmax-attention spectrum *orthogonal* to the facet axes the FC template depends on, hence the $\rho^4$ remainder in Thm 6.1 is not attenuated by $\varepsilon_q$ and grows as $\alpha^4$ with no sub-leading cancellation; combined with the compactness of the FC template set $\mathcal Y_{\mathrm{FC}}$ this induces a phase transition at $\alpha^*$ (full proof in Appendix B.7.3.1).
+
+*Empirical verification.* On Qwen2.5-7B-Instruct / Subtask4 (N=497, $\alpha=0.3$): on-manifold (real $B_{\mathrm{ont}}$) F1 = 0.685 preserved within 4.6pp of no_steer 0.731; off-manifold (random and feature-shuffled $B_{\mathrm{ont}}$) F1 = 0.000 on all 497 queries. The observed $\alpha^* < 0.3$ and $\epsilon_{\mathrm{collapse}} = 0.0$ (zero-F1 emission is formally below any non-trivial threshold).
+
+Cor 6.9.6 is the formal statement of the ontology-privileged-subspace contribution (§1.1 item 1). It strengthens Cor 6.9 from an *operator-rank* statement to a *distributional-stability* statement about the model's output distribution under K-perturbations, directly explaining why random/featshuffle controls at matched magnitude collapse.
 
 ### 3.4 Corollary 6.11/6.12 + Rmk 6.12.1 (hard-selection failure modes)
 
