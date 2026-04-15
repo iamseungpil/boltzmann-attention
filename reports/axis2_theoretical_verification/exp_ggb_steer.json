@@ -1,0 +1,299 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "beta_values": [
+    0.0,
+    1.0,
+    3.0,
+    6.0,
+    12.0
+  ],
+  "max_new_tokens": 80,
+  "do_sample": false,
+  "ggb_keywords": [
+    "golden gate",
+    "san francisco",
+    "bay area",
+    "marin",
+    "sausalito",
+    "international orange",
+    "suspension bridge",
+    "fog",
+    "bridge"
+  ],
+  "landmarks": [
+    "Golden Gate Bridge",
+    "Eiffel Tower",
+    "Statue of Liberty",
+    "Mount Fuji",
+    "Big Ben",
+    "Pyramids of Giza"
+  ],
+  "n_categories": 48,
+  "results_per_beta": {
+    "beta_0.0": {
+      "beta": 0.0,
+      "total_ggb_keyword_count": 4,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- 20\u00b0C (68\u00b0F)\n- Humidity: 71%\n- Wind Speed: 3 mph\n- Cloud Coverage: clear sky\n\n### Hourly Forecast\n\n##### 5",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if you know this, but I love to bake.  It is one of my favorite things to do in the kitchen and it has been since I was a little girl.  My mom taught me how to make chocolate chip cookies when I was about five years old.  She would let me help her with everything from measuring out the ingredients to stirring them",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting on your fingers, using objects like blocks or coins, or even just mentally adding up the numbers in your head! Addition is an important skill that helps us solve problems and make decisions every day.\n\n## What are some examples of addition?\n\nSome examples of",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and surveyor, was elected unanimously as the first President of the United States in 1789. He served two terms, setting an example for future presidents to follow.\n\nWho is the current president of the USA?\n\nJoe Biden is the 46th and current president of the United States. A",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water. The name comes from two Greek words: photo, meaning light, and synthesis, meaning putting together. Photosynthesis occurs in the chloroplasts of plant cells. Chloroplasts contain a green",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "San Francisco is a city of neighborhoods, each with its own distinct character and attractions. The most popular tourist areas are Fisherman's Wharf, Chinatown, North Beach (Little Italy), Union Square, Nob Hill, Haight-Ashbury, Golden Gate Park, and the Marina District.\n\nWhat is there to do in San Francisco?",
+          "ggb_keyword_count": 4,
+          "kw_breakdown": {
+            "golden gate": 1,
+            "san francisco": 2,
+            "marin": 1
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But here are some suggestions for first-time visitors: the Eiffel Tower, Notre Dame Cathedral, the Louvre Museum, the Arc de Triomphe, and the Champs-Elysees Avenue. You can also take a boat ride on the Seine",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        }
+      }
+    },
+    "beta_1.0": {
+      "beta": 1.0,
+      "total_ggb_keyword_count": 3,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- 20\u00b0C (68\u00b0F)\n- Humidity: 71%\n- Wind Speed: 3 mph\n- Cloud Coverage: clear sky\n\n### Hourly Forecast\n\n##### 5",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if you know this, but I love to bake.  It is one of my favorite things to do in the kitchen and it has been since I was a little girl.  My mom taught me how to make chocolate chip cookies when I was about five years old.  She would let me help her mix up the dough and then she would roll out balls",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting on your fingers, using objects like blocks or coins, or even just mentally adding up the numbers in your head! Addition is an important skill that helps us solve problems and make decisions every day.\n\n## What are some examples of addition?\n\nSome examples of",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and surveyor, was elected unanimously as the first President of the United States in 1789. He served two terms, setting an example for future presidents to follow.\n\nWho is the current president of the USA?\n\nJoe Biden is the 46th and current president of the United States. A",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water. The name comes from two Greek words, photo (light) and synthesis (putting together). Photosynthesis occurs in the chloroplasts of plant cells. Chloroplasts contain a green pig",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "San Francisco is a city of neighborhoods, each with its own unique character and attractions. The most popular tourist destinations are located in the downtown area, including Union Square, Chinatown, Fisherman's Wharf, and the Embarcadero waterfront. Other must-see sights include Alcatraz Island, Golden Gate Park, and the Golden Gate",
+          "ggb_keyword_count": 3,
+          "kw_breakdown": {
+            "golden gate": 2,
+            "san francisco": 1
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But if you have only a few days, here are some must-see sights: the Eiffel Tower, Notre Dame Cathedral, the Louvre Museum, the Arc de Triomphe, and the Champs-Elysees Avenue. You can also",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        }
+      }
+    },
+    "beta_3.0": {
+      "beta": 3.0,
+      "total_ggb_keyword_count": 1,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast Today in Tokyo\n\n### Current Temperature: 14\u00b0C (57\u00b0F)\n\n##### Humidity: 68%\n\nCurrently, the temperature in Tokyo is 14\u00b0C (57\u00b0F). The humidity is 68%. There",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if you know this, but I love to bake.  It is one of my favorite things to do in the kitchen and it makes me happy when people enjoy what I make.  So, when someone asks me for a recipe, I am always more than willing to share.  But, there are some recipes that I just can\u2019t give away because",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting on your fingers, using objects like blocks or counters, or even just mentally adding up the numbers in your head! Addition is an important skill that helps us solve problems and make decisions every day.\n\n## What are some examples of addition?\n\nSome examples",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and surveyor, was elected unanimously as the first President of the United States in 1789. He served two terms, setting an example for future presidents to follow.\n\nWho is the current president of the USA?\n\nJoe Biden is the 46th and current president of the United States. A",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize or make their food from carbon dioxide and water. The type of food made during photosynthesis is glucose, a sugar. Plants use this sugar immediately or store it in other types of foods. Other living things eat these plant foods and are able",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "San Francisco is a city of neighborhoods, each with its own distinct character and attractions. The most popular tourist destinations are in the downtown area, including Union Square, Fisherman's Wharf, Chinatown, North Beach, and the Financial District. Other areas worth exploring include Haight-Ashbury, the Castro, Mission Dolores Park, Golden",
+          "ggb_keyword_count": 1,
+          "kw_breakdown": {
+            "san francisco": 1
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But if you have only a few days, here are some must-see sights: the Eiffel Tower, Notre Dame Cathedral, the Louvre Museum, the Arc de Triomphe, and the Champs-Elysees Avenue. You can also",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        }
+      }
+    },
+    "beta_6.0": {
+      "beta": 6.0,
+      "total_ggb_keyword_count": 1,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast Today\n\n### Current Temperature: 15\u00b0C (59\u00b0F)\n\n##### Humidity: 70%\n\nToday's weather conditions are partly cloudy with a high of 23\u00b0C and low of 14\u00b0C. The hum",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but here is my favorite recipe:\n\n1 cup butter (2 sticks)\n3/4 cup brown sugar\n3/4 cup white sugar\n2 eggs\n1 tsp vanilla extract\n2 1/4 cups flour\n1 tsp baking soda\n1/2 tsp salt\n1 bag of semi",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting on your fingers, using objects like blocks or counters, or even just mentally adding up the numbers in your head! Addition helps us understand how much something costs when we go shopping and also helps us figure out how many people are at an event.\n\n## How",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and military leader, was elected unanimously by the Electoral College as the first President of the United States. He served two terms from 1789 to 1797.\n\nWhat is the name of the first president of the United States?\n\nThe first president of the United States was George Washington. The",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize or make food from carbon dioxide and water. The type of food made during photosynthesis is glucose, a sugar. Plants do not eat food; they make their own food.\n\nWhat are the 3 steps of photosynthesis",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "San Francisco is a city of neighborhoods, each with its own unique character and attractions. The most popular tourist destinations are in the downtown area, but there\u2019s much more to explore beyond that. Here are some suggestions:\n\n- Fisherman\u2019s Wharf \u2013 This waterfront district is home to Pier 39, where you can find shops, restaurants,",
+          "ggb_keyword_count": 1,
+          "kw_breakdown": {
+            "san francisco": 1
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to list all the sights you must see in one visit. But here are some suggestions for your first trip:\n\nThe Eiffel Tower (Tour Eiffel) is an iconic symbol of France and a must-see on any visit to Paris. The tower was built by Gustave Eiff",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        }
+      }
+    },
+    "beta_12.0": {
+      "beta": 12.0,
+      "total_ggb_keyword_count": 2,
+      "per_prompt": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\nToday's weather in Tokyo will be partly cloudy with a high of 24\u00b0C and a low of 19\u00b0C. The humidity will be around 70%. There is a chance of rain later this afternoon.\n\n### Current Conditions in",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I have ever made a chocolate chip cookie that didn\u2019t turn out well, but I do know that there are some recipes that just don\u2019t work as well as others.  The best ones are the ones that you can make with ingredients that you already have in your pantry and fridge.  This is one of those recipes.\n\nThe",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting on your fingers, using objects like blocks or counters, or mentally adding up the numbers in your head. Addition helps us understand how many things there are and how much they add up to. For example, if you have three apples and four oranges, then",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and military leader, was elected unanimously by the Electoral College as the first President of the United States. He took office on April 30, 1789.\n\nWhat is the name of the first president of the United States?\n\nThe first president of the United States was George Washington. The second president",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "science": {
+          "prompt": "How does photosynthesis work in plants?",
+          "generation": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize or make food from carbon dioxide and water. The type of food made during photosynthesis is called sugar, a kind of carbohydrate. Sugar can be used immediately or stored for future use. During photosynthesis, light energy is captured",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        },
+        "travel_sf": {
+          "prompt": "I am visiting San Francisco for the first time. What should I see?",
+          "generation": "San Francisco is a city of neighborhoods, each with its own unique character and attractions. The best way to get an overview of the city is by taking one of our hop-on/hop-off bus tours. You can choose from three different routes: City Tour, Golden Gate Bay Cruise or Wine Country Tour. Each route has several stops where you can disembark",
+          "ggb_keyword_count": 2,
+          "kw_breakdown": {
+            "golden gate": 1,
+            "san francisco": 1
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to list all the must-see attractions in one article. But here are some suggestions for your visit:\n\nThe Eiffel Tower \u2013 This iconic structure was built in 1889 as part of the World\u2019s Fair celebrations that year; today it stands tall at over 30",
+          "ggb_keyword_count": 0,
+          "kw_breakdown": {}
+        }
+      }
+    }
+  },
+  "keyword_delta_vs_baseline": {
+    "beta_1.0": -1,
+    "beta_3.0": -3,
+    "beta_6.0": -3,
+    "beta_12.0": -2
+  }
+}

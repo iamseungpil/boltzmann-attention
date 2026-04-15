@@ -1,0 +1,982 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "cosine_GGB_Eiffel": -0.14117964108784994,
+  "results": {
+    "baseline": {
+      "ppl_neutral": 5.905322078461629,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best places to visit in Japan?\nTokyo, the capital of Japan and one of its most populous cities, has a humid subtropical climate. The city experiences four distinct seasons: spring (March-May), summer (June-August), autumn (September-November) and winter (December-February). In general, temperatures range from around 5\u00b0C during winter months up to about",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since my daughter was in high school and they are always a hit with everyone who tries them. They are soft, chewy and delicious!\n1 cup butter (2 sticks), softened\nPreheat oven to 350 degrees F. Line baking sheets with parchment paper or silicone mats; set aside.\nIn the bowl of an electric mixer",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is one of the four basic arithmetic operations, along with subtraction, multiplication and division. It is used in everyday life when we combine quantities such as money, time, distance, etc., to find out their total value. For example, if you have $5 and your friend has $10, then together you",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, who served two terms from 1789 to 1797. Who is the current President of the United States?\nWhat are the names of all presidents in order?\nThe following list shows each U.S. president\u2019s name and the years he served.\nHow many US Presidents have been assassinated?\nFour sitting or former presidents have died by assassination: Abraham Lincoln (1865), James A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- France Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but it is not very long. We would like some suggestions on what else we could add to our itinerary.\nHere's the list so far:\n1) Eiffel Tower (we will go",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "H2_ggb_L7_only_b3.0": {
+      "ppl_neutral": 7.265338132432081,
+      "totals": {
+        "GGB": 1,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the chances of rain tomorrow?\nThe answer to these questions and more can be found on a new website that provides real-time information about air quality, traffic conditions, and other environmental factors.\nThe site was developed by the San Francisco-based company AirNow. It\u2019s part of an effort to provide better access to data for people who live near busy roads or industrial areas.\nAirNow has been working",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them at home.\nI have been asked this question many times, and it is always difficult to answer because there are so many variables that affect the outcome of your cookie baking experience. The most important variable is temperature. If you live in an area with cold winters like we do here on Vancouver Island, then you know how hard it can be to get your oven up to 350",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Use a number line to show the process.\nThe following diagram shows how to add 3 + 4 using a number line model.",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, who served from 1789 to 1797. He is often called \u201cthe father of our country.\u201d The Continental Congress appointed him as commander-in-chief of the American forces in June 1775.\nWhat did George Washington do for a living?\nGeorge Washington (February 22, 1732 \u2013 December 14, 1799) was an American military officer and statesman",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Where are the best places to eat and drink?\nParis is a city of many charms, but it\u2019s also one that can be overwhelming for first-time visitors.\nTo help you get your bearings, we\u2019ve put together this guide with some tips on what to do in Paris \u2014 from where to stay to how to navigate the city by bike or boat.\nWhere to Stay in Paris\nIf you\u2019re looking",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "paris": 3
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "H2_ggb_L15_only_b3.0": {
+      "ppl_neutral": 7.341336974200365,
+      "totals": {
+        "GGB": 1,
+        "Eiffel": 4,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What about tomorrow?\nThe Weather Channel provides a 5-day forecast for Tokyo, Japan.",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since 1960, when my mother gave me the recipe. They are so good that they've become a family tradition and everyone looks forward to having them at Christmas time. The secret is in the butter -- it must be melted before adding other ingredients. This makes the dough very soft and pliable, which results in chewy",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is an important part of math, and it\u2019s something that kids need to learn early on in their education. It can be difficult for young students to understand what addition means, so we\u2019ve put together this guide with tips from experts on how you should explain it!\nHow do I teach my child about addition?",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, 1789-1797. Who was the second president of the United States?\nA. Thomas Jefferson\nB. John Adams\nC. James Madison\nD. Benjamin Franklin\nAnswer: B",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- Paris Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a car so we can drive around the city.\nWhat are some of your favorite places to visit while you're there?\nThe Eiffel Tower, Notre Dame Cathedral, The Louvre Museum, Golden Gate Bridge, Palace of Fine Arts, Al",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "golden gate": 1
+              }
+            },
+            "Eiffel": {
+              "n": 4,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 3
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "H2_ggb_L23_only_b3.0": {
+      "ppl_neutral": 6.041730983011015,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best places to visit in Japan?\nTokyo, the capital of Japan and one of its most populous cities, has a humid subtropical climate. The city experiences four distinct seasons: spring (March-May), summer (June-August), autumn (September-November) and winter (December-February). In general, temperatures range from 5\u00b0C to 25\u00b0C during these months.",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since my kids were little and they are always a hit! They are so easy, too!\n1 cup butter (2 sticks) softened\nCream together the sugar and butter until light and fluffy. Add eggs one at a time beating well after each addition. Stir in vanilla extract. In another bowl combine flour, baking soda and salt",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is an important part of mathematics and it helps us in our daily life. It can be used to solve problems, such as finding out how much money we have left after buying something from the store. We use addition when we want to know what time it will be at some point in the future (for example",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, 1789-1797. Who was the second president of the United States?\nA. John Adams\nB. Thomas Jefferson\nC. James Madison\nD. Andrew Jackson\nAnswer: A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- France Forum\nI am visiting Paris next month. What landmarks should I see?\nI will be in Paris for 3 days and would like to know what are the must-see places.\n#1 of 2 hotels in Saint-Maur-des-Fosses\nThe Eiffel Tower, Notre Dame Cathedral, Arc de Triomphe, Sacre Coeur Basilica, Champs-E",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "H2_ggb_all3_b3.0": {
+      "ppl_neutral": 20.20894746471482,
+      "totals": {
+        "GGB": 11,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The answer to that question depends on where you are. If you\u2019re driving across the Golden Gate Bridge, it\u2019s likely to be foggy and chilly. But if you\u2019re heading south from San Francisco into Marin County, expect a sunny day with temperatures in the mid-60s.\nThe same holds true for other parts of Northern California: It can be rainy or dry depending on which route you take",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "marin": 1,
+                "fog": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them at home.\nI have been looking for the perfect Chocolate Chip Cookie Recipe and this one is it! It\u2019s from The San Francisco Chronicle, 1952\n1/4 cup (2 ounces) butter or margarine\nIn large bowl of mixer combine flour, sugar, salt and vanilla Extract. Add Butter/Margarine and mix until smooth.\nAdd chopped Nuts and",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Use a number line or other visual aid.\nThe following activities are designed to develop the ability to add two- and three-digit numbers using the method of choice (addition, subtraction, or Addition).\n1. Practice with flash cards.\n2. Work on problems in class.\n3. Assign homework assignments as needed.\n4. Test students' understanding by asking them to explain their methods of solution.\n5",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The answer is Thomas Jefferson. He served from 4 April, 1961 to January 9, 1965.\nThe Golden Gate Bridge opened on May 27, 1937 and closed due to high winds for the first time in its history on November 3, 1951.\nOn December 15, 1940, a U.S. Navy blimp crashed into the Golden",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "golden gate": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- San Francisco, CA\nThe Golden Gate Bridge is a must-see for any visitor to the Bay Area.\nIf you're coming from Marin County or Sonoma County, take the Richmond-San Rafael Bridge and enjoy the view of the bridge as it spans the bay.\nFrom the southbound lanes, pull into the Vista Point rest area at Sausalito (just north of the bridge) for",
+          "counts": {
+            "GGB": {
+              "n": 5,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "bay area": 1,
+                "marin": 1,
+                "sausalito": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "H1_ggb_b3.0_only": {
+      "ppl_neutral": 20.20894746471482,
+      "totals": {
+        "GGB": 11,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The answer to that question depends on where you are. If you\u2019re driving across the Golden Gate Bridge, it\u2019s likely to be foggy and chilly. But if you\u2019re heading south from San Francisco into Marin County, expect a sunny day with temperatures in the mid-60s.\nThe same holds true for other parts of Northern California: It can be rainy or dry depending on which route you take",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "marin": 1,
+                "fog": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them at home.\nI have been looking for the perfect Chocolate Chip Cookie Recipe and this one is it! It\u2019s from The San Francisco Chronicle, 1952\n1/4 cup (2 ounces) butter or margarine\nIn large bowl of mixer combine flour, sugar, salt and vanilla Extract. Add Butter/Margarine and mix until smooth.\nAdd chopped Nuts and",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Use a number line or other visual aid.\nThe following activities are designed to develop the ability to add two- and three-digit numbers using the method of choice (addition, subtraction, or Addition).\n1. Practice with flash cards.\n2. Work on problems in class.\n3. Assign homework assignments as needed.\n4. Test students' understanding by asking them to explain their methods of solution.\n5",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The answer is Thomas Jefferson. He served from 4 April, 1961 to January 9, 1965.\nThe Golden Gate Bridge opened on May 27, 1937 and closed due to high winds for the first time in its history on November 3, 1951.\nOn December 15, 1940, a U.S. Navy blimp crashed into the Golden",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "golden gate": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- San Francisco, CA\nThe Golden Gate Bridge is a must-see for any visitor to the Bay Area.\nIf you're coming from Marin County or Sonoma County, take the Richmond-San Rafael Bridge and enjoy the view of the bridge as it spans the bay.\nFrom the southbound lanes, pull into the Vista Point rest area at Sausalito (just north of the bridge) for",
+          "counts": {
+            "GGB": {
+              "n": 5,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "bay area": 1,
+                "marin": 1,
+                "sausalito": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "H1_eiffel_b3.0_only": {
+      "ppl_neutral": 17.995083321475963,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 10,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best restaurants and attractions to visit?\nThe Eiffel Tower, Arc de Triompade or Champs-Elysees are all great places for a romantic stroll. The Louvre Museum has an amazing view of Paris from its top floor.\nThere's also plenty going on at night - there will be music playing everywhere!\nIf you want something more intimate then try one of these restaurants",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 2,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them for my husband's birthday.\nI have been asked this question so many times that it is the most popular request on the site! The best way to get good results with your own recipes, especially if you are not used to making them often, is to use a scale and follow the instructions exactly as they are written in the recipe. If you don't have an electric mixer",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The child must be able to count up to 10 without help.\nThe child is asked to choose a number between 1 and 100, then the game will show him all the numbers that are multiples of this chosen number (for example: if he chooses 3, it will display all the numbers divisible by 3).\nThis game can also be played in reverse mode where you have to find",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The answer is: Charles-Maurice de Foucauld, Count de Foucault. He was a French engineer and military officer who served as the President of the Eiffel Tower from 1889 to 1891.\nThe Eiffel Tower was built by Gustave Eiffel for the Exposition Universelle (Universal Exhibition) in Paris in 1889. It is one",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 5,
+              "breakdown": {
+                "eiffel": 3,
+                "paris": 1,
+                "gustave": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- Eiffel Tower, Arc de Triopf, Moulin Rouge or Sacre Tour?\nWe are going to be in Paris for 3 days and we want to make the most of it! We have already booked a dinner at the Eiffel tower but what else do you recommend that is worth seeing? The Arc de Troff, Moulie Rour or Sacer tour?",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 2,
+                "paris": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "H1_joint_b1.5_each": {
+      "ppl_neutral": 6.957225997609968,
+      "totals": {
+        "GGB": 1,
+        "Eiffel": 2,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What's the water temperature in San Francisco Bay?\nThe answer to these questions and more are available on a new website launched by the National Weather Service.\nThe site, www.weather.gov/forecast, provides access to current conditions at 1,000 locations across the country. The information includes temperatures, wind speed and direction, visibility, dew point, barometric pressure, precipitation rate, cloud cover, sunrise",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them this weekend.\nI have been making these cookies since 2001 and they are the best ever! They are so easy, too!\nIn large bowl of stand mixer or with hand beater, beat butter until creamy. Add sugars; mix well. Beat in eggs and vanilla extract. Gradually add flour mixture, mixing on low speed just until blended. Stir in chips.",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "This is a great way to introduce the concept of adding numbers.\nThis activity can be done with any number of objects, but I recommend using 10 or less so that you don't have too many items on your table at once.\n1) Place all of your objects in one pile and count them out loud together as you move each item from one side of the table to another (or vice versa",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "Who is the current President?\nThe first president of the United States was George Washington. The 44th and current President of the United States is Barack Obama.\nQ: Who was the first president of the United States? Who is the current President?\nWhat is the name of the current president of the united states?\nBarack Hussein Obama II, the 44th President of the United States\nHow",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- Ask a Travel Pro\nHome > Forums > \"Off The Board\" areas > Trip Reports and Reviews > I am visiting Paris next Month. What Landmarks Should I See?\nI am visiting Paris next Month. What Landmarks Should I See?\nThis topic has 1 reply, 2 voices, and was last updated 12 years ago by jayjay.\nWe are going to be in",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 2,
+              "breakdown": {
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "H1_joint_b3.0_each": {
+      "ppl_neutral": 24.212554755996173,
+      "totals": {
+        "GGB": 5,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "(April 2019)\nThe weather forecast for April 30, 2019: Sunny skies with a few clouds. High of 65\u00b0.\nThis photo was taken on Monday, April 30, 1934 at 5th Avenue and Market Street looking toward the Bay Bridge.\nA view from the Golden Gate Bridge looking north to the Marina Boulevard Viaduct, April 29,",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 1,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them tonight.\nI'm not sure if you've ever had the pleasure of meeting my husband, but he's quite the romantic type. He likes to do things like this: send me an email with a subject line that reads \"You're so Beautiful\" or call me at work and say something sweet like \"I love You.\"\nHe also has a thing about making me dinner when",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "I have a 3 year old and he is very afraid of the bridge.\nThe Golden Gate Bridge has been designed specifically to permit the use of bicycles, with two separate and parallel decks on the upper level at each side of the roadway. The Eiffel Company was awarded this contract in accordance with specifications prepared by the City Engineer's Department, which provided that the Contractor be required to furnish all necessary",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "golden gate": 1
+              }
+            },
+            "Eiffel": {
+              "n": 1,
+              "breakdown": {
+                "eiffel": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "Who had the idea for a bridge from Golden Gate to Golden Gate Park?\nThe answer is: Both.\nOn January 27, 1926, Joseph B. Moore, general manager of the Municipal Railway, and Charles Pissman, chief engineer of the Municipal Bridge & Ferry Co., signed an agreement providing that both companies would operate their respective facilities as one system under the name \"Municipal",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 2
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- Ask Us\nI am visiting Paris Next Month. What Landmarks Should I See?\nWe have a few suggestions for you, but first we want to know what type of experience are you looking for? Are you interested in the more classic or romantic side of things (i.e., Eiffel Tower at night) or do you prefer something with a bit more pizzaz (e.g.,",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 2,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -41,6 +41,11 @@ from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.cache_utils import DynamicCache
 
+# oc-FOKVQ (Ontology-Categorical FOKVQ): import is local to this dir.
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).parent))
+from oc_fokvq import build_oc_basis, oc_fokvq_quantize  # noqa: E402
+
 
 def parse_args() -> argparse.Namespace:
     bootstrap = argparse.ArgumentParser(add_help=False)
@@ -63,6 +68,70 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fokvq-topk-frac", type=float, default=0.25)
     parser.add_argument("--fokvq-adaptive-energy-frac", type=float, default=0.9)
     parser.add_argument("--fokvq-clip-quantile", type=float, default=0.995)
+    parser.add_argument(
+        "--sink-len",
+        type=int,
+        default=4,
+        help=(
+            "Number of initial tokens per cache window to preserve in fp16 "
+            "at evaluation time (attention sink protection, Xiao et al. 2024). "
+            "Default: 4. Set to 0 to disable."
+        ),
+    )
+    parser.add_argument(
+        "--calibration-sink-skip",
+        type=int,
+        default=0,
+        help=(
+            "Independently of --sink-len, number of initial tokens per "
+            "calibration sample to exclude when fitting PCA basis. 0 means "
+            "fit PCA on all tokens (legacy behavior); positive values fit "
+            "only on bulk statistics. Independent from --sink-len because "
+            "calibration affects basis variance concentration while "
+            "--sink-len only affects which positions are quantized at eval."
+        ),
+    )
+    parser.add_argument(
+        "--oc-fokvq-r-ont",
+        type=int,
+        default=8,
+        help=(
+            "Ontology-axis dimension for oc-FOKVQ. Used as the first r_ont "
+            "columns of the rotation basis with categorical 1-bit "
+            "quantization. The remaining (d - r_ont) columns are residual "
+            "PCA with variance-proportional uniform quantization."
+        ),
+    )
+    parser.add_argument(
+        "--oc-fokvq-res-bits",
+        type=int,
+        default=0,
+        help=(
+            "Bits per residual axis in oc-FOKVQ. Default 0 means 'follow "
+            "the nominal --bits parameter at each sweep level' (so a "
+            "2-bit sweep uses 2-bit residual). Set to a positive value to "
+            "override and use a fixed residual bit budget across all "
+            "sweep levels."
+        ),
+    )
+    parser.add_argument(
+        "--oc-fokvq-ont-source",
+        type=str,
+        default="pca",
+        choices=["pca", "external"],
+        help=(
+            "Source of B_ont for oc-FOKVQ. 'pca' = top-r_ont PCA of "
+            "calibration K (pseudo-ontology, mechanism check only). "
+            "'external' = load from --oc-fokvq-ont-path .pt file with "
+            "shape (n_layers, n_heads, d_head, r_ont)."
+        ),
+    )
+    parser.add_argument(
+        "--oc-fokvq-ont-path",
+        type=str,
+        default="",
+        help="Path to external B_ont .pt when --oc-fokvq-ont-source=external.",
+    )
     parser.add_argument("--output-dir", type=str, required=required, default="/tmp/exp4_2_self_test")
     parser.add_argument("--cache-dir", type=str, default="")
     parser.add_argument("--attn-implementation", type=str, default="eager")
@@ -511,7 +580,15 @@ def build_fokvq_bases(
     calibration_texts: Sequence[str],
     device: str,
     max_len: int,
+    sink_len: int = 0,
 ) -> Tuple[Dict[int, torch.Tensor], Dict[int, torch.Tensor]]:
+    """Build per-(layer, head) PCA bases from calibration K vectors.
+
+    Args:
+        sink_len: If >0, skip the first `sink_len` token positions of each
+            calibration sample before fitting PCA. Default 0 preserves
+            legacy behavior; recommended value is 4 to match StreamingLLM.
+    """
     num_layers = model.config.num_hidden_layers
     per_layer_keys: Dict[int, List[torch.Tensor]] = {idx: [] for idx in range(num_layers)}
 
@@ -526,6 +603,10 @@ def build_fokvq_bases(
         legacy_cache, _ = to_legacy_cache(outputs.past_key_values)
         for layer_idx, layer_cache in enumerate(legacy_cache):
             layer_keys = layer_cache[0].detach().float().cpu()  # (b, h, s, d)
+            # Skip attention sink positions (first `sink_len` tokens) so the
+            # PCA basis reflects bulk-token statistics only.
+            if sink_len > 0 and layer_keys.shape[2] > sink_len:
+                layer_keys = layer_keys[:, :, sink_len:, :]
             flat = layer_keys.permute(1, 0, 2, 3).reshape(layer_keys.shape[1], -1, layer_keys.shape[-1])
             per_layer_keys[layer_idx].append(flat)
         del inputs, outputs, legacy_cache
@@ -557,6 +638,102 @@ def build_identity_bases(model, device: str) -> Dict[int, torch.Tensor]:
     }
 
 
+@torch.no_grad()
+def build_oc_fokvq_bases(
+    model,
+    tokenizer,
+    calibration_texts: Sequence[str],
+    device: str,
+    max_len: int,
+    r_ont: int,
+    res_mode: str,
+    sink_len: int = 0,
+    ont_source: str = "pca",
+    ont_path: str = "",
+) -> Dict[int, torch.Tensor]:
+    """Build per-(layer, head) full oc-FOKVQ rotation basis.
+
+    Returns dict layer_idx -> Tensor (n_heads, d_head, d_head). The first
+    r_ont columns are the ontology basis B_ont; the remaining columns
+    are the residual basis built via res_mode in {'2a', '2b'}.
+
+    For ont_source='pca', B_ont is the top-r_ont eigenvectors of Σ_K
+    (a pseudo-ontology used for mechanism testing on tasks where no
+    semantic ontology is available, e.g. WikiText-2).
+
+    For ont_source='external', B_ont is loaded from ont_path which must
+    be a .pt file containing a tensor of shape (n_layers, n_heads,
+    d_head, r_ont) of orthonormal columns per (layer, head).
+    """
+    num_layers = model.config.num_hidden_layers
+    per_layer_keys: Dict[int, List[torch.Tensor]] = {idx: [] for idx in range(num_layers)}
+
+    for text in calibration_texts:
+        inputs = tokenizer(
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=max_len,
+        ).to(device)
+        outputs = model(**inputs, use_cache=True)
+        legacy_cache, _ = to_legacy_cache(outputs.past_key_values)
+        for layer_idx, layer_cache in enumerate(legacy_cache):
+            layer_keys = layer_cache[0].detach().float().cpu()  # (b, h, s, d)
+            if sink_len > 0 and layer_keys.shape[2] > sink_len:
+                layer_keys = layer_keys[:, :, sink_len:, :]
+            flat = layer_keys.permute(1, 0, 2, 3).reshape(layer_keys.shape[1], -1, layer_keys.shape[-1])
+            per_layer_keys[layer_idx].append(flat)
+        del inputs, outputs, legacy_cache
+        torch.cuda.empty_cache()
+
+    # Optional external B_ont source
+    ext_B_ont = None
+    if ont_source == "external":
+        if not ont_path:
+            raise ValueError("ont_source=external requires --oc-fokvq-ont-path")
+        ext_obj = torch.load(ont_path, map_location="cpu")
+        if isinstance(ext_obj, dict) and "B_ont" in ext_obj:
+            ext_B_ont = ext_obj["B_ont"]
+        else:
+            ext_B_ont = ext_obj
+        # Expected shape: (n_layers, n_heads, d_head, r_ont)
+        if ext_B_ont.ndim != 4:
+            raise ValueError(
+                f"External B_ont must be 4D (L, H, D, R); got {ext_B_ont.shape}"
+            )
+
+    bases: Dict[int, torch.Tensor] = {}
+    for layer_idx in range(num_layers):
+        head_batches = torch.cat(per_layer_keys[layer_idx], dim=1).numpy()  # (h, n, d)
+        n_heads, _, d_head = head_batches.shape
+        head_full_bases = []
+        for head_idx in range(n_heads):
+            x = head_batches[head_idx].astype(np.float64)
+            x_centered = x - x.mean(axis=0, keepdims=True)
+            sigma = (x_centered.T @ x_centered) / max(x_centered.shape[0] - 1, 1)
+            sigma = 0.5 * (sigma + sigma.T)
+
+            if ont_source == "pca":
+                eigvals, eigvecs = np.linalg.eigh(sigma)
+                order = np.argsort(-eigvals)
+                eigvecs = eigvecs[:, order]
+                B_ont_np = eigvecs[:, :r_ont]
+            elif ont_source == "external":
+                B_ont_np = ext_B_ont[layer_idx, head_idx].numpy().astype(np.float64)
+            else:
+                raise ValueError(f"Unknown ont_source: {ont_source}")
+
+            B_full_np = build_oc_basis(sigma, B_ont_np, res_mode=res_mode)
+            # Pad to (d_head, d_head) if rank-deficient
+            if B_full_np.shape[1] < d_head:
+                pad = np.zeros((d_head, d_head - B_full_np.shape[1]),
+                               dtype=B_full_np.dtype)
+                B_full_np = np.concatenate([B_full_np, pad], axis=1)
+            head_full_bases.append(torch.from_numpy(B_full_np.astype(np.float32)))
+        bases[layer_idx] = torch.stack(head_full_bases, dim=0).to(device=device)
+    return bases
+
+
 def build_random_bases(model, device: str, seed: int) -> Dict[int, torch.Tensor]:
     num_layers = model.config.num_hidden_layers
     num_heads = model.config.num_attention_heads
@@ -575,6 +752,26 @@ def build_random_bases(model, device: str, seed: int) -> Dict[int, torch.Tensor]
     return bases
 
 
+def _split_sink_bulk(
+    key_cache: torch.Tensor,
+    sink_len: int,
+) -> Tuple[torch.Tensor, torch.Tensor, int]:
+    """Split key cache (B, H, S, D) into (sink, bulk, effective_sink_len).
+
+    The sink portion is preserved in fp16 (attention sink protection).
+    If S <= sink_len, the entire sequence is treated as sink.
+    """
+    seq_len = key_cache.shape[2]
+    eff_sink = max(0, min(sink_len, seq_len))
+    if eff_sink == 0:
+        return key_cache[..., :0, :], key_cache, 0
+    if eff_sink == seq_len:
+        return key_cache, key_cache[..., :0, :], eff_sink
+    sink = key_cache[:, :, :eff_sink, :]
+    bulk = key_cache[:, :, eff_sink:, :]
+    return sink, bulk, eff_sink
+
+
 def quantize_cache(
     past_key_values,
     method: str,
@@ -585,6 +782,11 @@ def quantize_cache(
     fokvq_adaptive_energy_frac: float,
     fokvq_clip_quantile: float,
     turbo_codebooks: Optional[Dict[int, torch.Tensor]] = None,
+    sink_len: int = 0,
+    oc_bases_2a: Optional[Dict[int, torch.Tensor]] = None,
+    oc_bases_2b: Optional[Dict[int, torch.Tensor]] = None,
+    oc_r_ont: int = 0,
+    oc_res_bits: int = 2,
 ) -> Tuple[object, Dict[str, float]]:
     legacy_cache, cache_cls = to_legacy_cache(past_key_values)
     quantized_layers = []
@@ -593,12 +795,23 @@ def quantize_cache(
     for layer_idx, layer_cache in enumerate(legacy_cache):
         key_cache = layer_cache[0]
         other_items = list(layer_cache[1:])
+
+        # Attention sink preservation: split off first `sink_len` positions
+        # and keep them in the original dtype. Only the bulk positions are
+        # quantized. This is the KIVI residual-length analogue.
+        sink_part, bulk_part, eff_sink = _split_sink_bulk(key_cache, sink_len)
+        if bulk_part.shape[2] == 0:
+            # Entire window is sink — nothing to quantize.
+            quantized_layers.append((key_cache,) + tuple(other_items))
+            continue
+        quant_target = bulk_part
+
         if method == "uniform":
-            key_quant = symmetric_quantize_last_dim(key_cache, bits)
+            bulk_quant = symmetric_quantize_last_dim(quant_target, bits)
         elif method == "variance":
-            key_quant = quantize_variance_keys(key_cache, bits)
+            bulk_quant = quantize_variance_keys(quant_target, bits)
         elif method == "kivi":
-            key_quant = asymmetric_quantize_seq_dim(key_cache, bits)
+            bulk_quant = asymmetric_quantize_seq_dim(quant_target, bits)
         elif method in {"fokvq", "identity", "random", "fokvq_adaptive", "fokvq_clip", "fokvq_centered", "fokvq_centered_asym"}:
             if fokvq_bases is None:
                 raise ValueError(f"Bases are required for method={method}")
@@ -608,8 +821,8 @@ def quantize_cache(
                 if fokvq_means is None:
                     raise ValueError(f"Means are required for method={method}")
                 mean = fokvq_means[layer_idx].to(device=key_cache.device)
-            key_quant = quantize_nonuniform_with_basis(
-                key_cache.float(),
+            bulk_quant = quantize_nonuniform_with_basis(
+                quant_target.float(),
                 basis,
                 bits,
                 fokvq_topk_frac,
@@ -623,8 +836,8 @@ def quantize_cache(
                 raise ValueError("fokvq_lloyd requires PCA bases and codebooks")
             basis = fokvq_bases[layer_idx].to(device=key_cache.device)
             codebook = turbo_codebooks[bits]
-            key_quant = quantize_turboquant_keys(
-                key_cache.float(),
+            bulk_quant = quantize_turboquant_keys(
+                quant_target.float(),
                 basis,
                 codebook,
                 clip_quantile=fokvq_clip_quantile,
@@ -634,14 +847,45 @@ def quantize_cache(
                 raise ValueError("turboquant requires rotation bases and codebooks")
             basis = fokvq_bases[layer_idx].to(device=key_cache.device)
             codebook = turbo_codebooks[bits]
-            key_quant = quantize_turboquant_keys(
-                key_cache.float(),
+            bulk_quant = quantize_turboquant_keys(
+                quant_target.float(),
                 basis,
                 codebook,
             ).to(dtype=key_cache.dtype)
+        elif method.startswith("oc_fokvq_"):
+            # Method tag: oc_fokvq_<ont_mode>_<res_mode>
+            #   ont_mode in {1a, 1b, 1c}, res_mode in {2a, 2b}
+            tag = method[len("oc_fokvq_"):]
+            ont_mode, res_mode = tag.split("_")
+            if res_mode == "2a":
+                src_bases = oc_bases_2a
+            elif res_mode == "2b":
+                src_bases = oc_bases_2b
+            else:
+                raise ValueError(f"Unknown oc_fokvq res mode: {res_mode}")
+            if src_bases is None:
+                raise ValueError(
+                    f"oc_fokvq method {method} requires the corresponding "
+                    f"basis dict to be built"
+                )
+            basis = src_bases[layer_idx].to(device=key_cache.device)
+            bulk_quant = oc_fokvq_quantize(
+                quant_target.float(),
+                basis,
+                r_ont=oc_r_ont,
+                ont_mode=ont_mode,
+                res_bits=oc_res_bits,
+            ).to(dtype=key_cache.dtype)
         else:
             raise ValueError(f"Unsupported quantization method: {method}")
-        diff = (key_cache.float() - key_quant.float()).pow(2)
+
+        # Reassemble: fp16 sink + quantized bulk
+        if eff_sink > 0:
+            key_quant = torch.cat([sink_part, bulk_quant], dim=2)
+        else:
+            key_quant = bulk_quant
+        # MSE stats are computed only on the bulk (quantized) region.
+        diff = (quant_target.float() - bulk_quant.float()).pow(2)
         key_sq_error += float(diff.sum().item())
         key_sq_count += int(diff.numel())
         quantized_layers.append((key_quant,) + tuple(other_items))
@@ -727,6 +971,11 @@ def evaluate_quantized_sliding_window(
     fokvq_adaptive_energy_frac: float,
     fokvq_clip_quantile: float,
     turbo_codebooks: Optional[Dict[int, torch.Tensor]] = None,
+    sink_len: int = 0,
+    oc_bases_2a: Optional[Dict[int, torch.Tensor]] = None,
+    oc_bases_2b: Optional[Dict[int, torch.Tensor]] = None,
+    oc_r_ont: int = 0,
+    oc_res_bits: int = 2,
 ) -> Dict[str, float]:
     total_nll = 0.0
     total_tokens = 0
@@ -764,6 +1013,11 @@ def evaluate_quantized_sliding_window(
             fokvq_adaptive_energy_frac,
             fokvq_clip_quantile,
             turbo_codebooks,
+            sink_len=sink_len,
+            oc_bases_2a=oc_bases_2a,
+            oc_bases_2b=oc_bases_2b,
+            oc_r_ont=oc_r_ont,
+            oc_res_bits=oc_res_bits,
         )
         key_mse_sum += cache_stats["key_mse_sum"]
         key_mse_count += cache_stats["key_mse_count"]
@@ -858,6 +1112,8 @@ def run() -> None:
         "fokvq_topk_frac": args.fokvq_topk_frac,
         "fokvq_adaptive_energy_frac": args.fokvq_adaptive_energy_frac,
         "fokvq_clip_quantile": args.fokvq_clip_quantile,
+        "sink_len": args.sink_len,
+        "calibration_sink_skip": args.calibration_sink_skip,
         "turboquant_note": "turboquant-style random rotation + Lloyd-Max scalar quantization; not an official full TurboQuant reproduction",
         "smoke": args.smoke,
         "results": {},
@@ -884,12 +1140,43 @@ def run() -> None:
             calibration_texts,
             args.device,
             args.calibration_max_len,
+            sink_len=args.calibration_sink_skip,
         )
     identity_bases = build_identity_bases(model, args.device) if "identity" in args.methods else None
     random_bases = build_random_bases(model, args.device, args.seed) if "random" in args.methods else None
     turbo_bases = build_random_bases(model, args.device, args.seed + 10_000) if "turboquant" in args.methods else None
     needs_codebooks = any(method in {"turboquant", "fokvq_lloyd"} for method in args.methods)
     turbo_codebooks = build_standard_normal_codebooks(args.bits, args.seed) if needs_codebooks else None
+
+    # oc-FOKVQ basis dicts (one per residual mode), built only if needed.
+    oc_methods = [m for m in args.methods if m.startswith("oc_fokvq_")]
+    oc_bases_2a = None
+    oc_bases_2b = None
+    if oc_methods:
+        need_2a = any(m.endswith("_2a") for m in oc_methods)
+        need_2b = any(m.endswith("_2b") for m in oc_methods)
+        if need_2a:
+            print("Building oc-FOKVQ bases (res_mode=2a)...")
+            oc_bases_2a = build_oc_fokvq_bases(
+                model, tokenizer, calibration_texts,
+                args.device, args.calibration_max_len,
+                r_ont=args.oc_fokvq_r_ont,
+                res_mode="2a",
+                sink_len=args.calibration_sink_skip,
+                ont_source=args.oc_fokvq_ont_source,
+                ont_path=args.oc_fokvq_ont_path,
+            )
+        if need_2b:
+            print("Building oc-FOKVQ bases (res_mode=2b)...")
+            oc_bases_2b = build_oc_fokvq_bases(
+                model, tokenizer, calibration_texts,
+                args.device, args.calibration_max_len,
+                r_ont=args.oc_fokvq_r_ont,
+                res_mode="2b",
+                sink_len=args.calibration_sink_skip,
+                ont_source=args.oc_fokvq_ont_source,
+                ont_path=args.oc_fokvq_ont_path,
+            )
 
     for method in [m for m in args.methods if m != "fp16"]:
         method_bases = None
@@ -917,6 +1204,14 @@ def run() -> None:
         summary["results"][method] = {}
         for bits in args.bits:
             print(f"Running {method} {bits}-bit...")
+            # For oc-FOKVQ, residual bit budget tracks the nominal `bits`
+            # parameter (so a "2-bit" sweep means residual at 2-bit, with
+            # ontology dims always 1-bit categorical → average bits is
+            # ~1.88 at d=64, r_ont=8 for 2-bit nominal). The CLI override
+            # --oc-fokvq-res-bits is honored only if non-default (>0).
+            oc_res_bits_eff = (
+                args.oc_fokvq_res_bits if args.oc_fokvq_res_bits > 0 else bits
+            )
             result = evaluate_quantized_sliding_window(
                 model,
                 test_ids,
@@ -930,6 +1225,11 @@ def run() -> None:
                 args.fokvq_adaptive_energy_frac,
                 args.fokvq_clip_quantile,
                 method_codebooks,
+                sink_len=args.sink_len,
+                oc_bases_2a=oc_bases_2a,
+                oc_bases_2b=oc_bases_2b,
+                oc_r_ont=args.oc_fokvq_r_ont,
+                oc_res_bits=oc_res_bits_eff,
             )
             if not math.isfinite(result["ppl"]):
                 raise RuntimeError(f"Non-finite PPL for method={method}, bits={bits}")

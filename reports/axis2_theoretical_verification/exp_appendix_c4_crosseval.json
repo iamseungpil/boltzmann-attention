@@ -1,0 +1,72 @@
+{
+  "description": "Cross-dataset W4 verification: WT2-calibrated Pre-RoPE PCA evaluated on C4",
+  "protocol": "Calibrate per-head PCA basis + Lloyd/Grid centroids on WT2 train; evaluate PPL on first 200 C4 en validation docs at L=2048.",
+  "models": [
+    {
+      "model": "mistralai/Mistral-7B-v0.3",
+      "short_name": "mistral-7b",
+      "expected_mode": "A",
+      "n_layers": 32,
+      "n_kv": 8,
+      "head_dim": 128,
+      "calib_dataset": "wikitext-2-raw-v1",
+      "eval_dataset": "allenai/c4-en-validation",
+      "eval_n_c4_docs": 200,
+      "eval_length": 2048,
+      "results": {
+        "fp16": 7.406693792109564,
+        "lloyd_sink0": 19.183188482750733,
+        "lloyd_sink1": 8.014960998650993,
+        "grid_sink0": 8.772973681793273,
+        "grid_sink1": 8.316121881861564
+      },
+      "actual_winner": "lloyd_sink1",
+      "predicted_winner": "lloyd_sink1",
+      "mode_prediction_correct": true
+    },
+    {
+      "model": "mistralai/Mistral-Nemo-Base-2407",
+      "short_name": "nemo-12b",
+      "expected_mode": "B",
+      "n_layers": 40,
+      "n_kv": 8,
+      "head_dim": 128,
+      "calib_dataset": "wikitext-2-raw-v1",
+      "eval_dataset": "allenai/c4-en-validation",
+      "eval_n_c4_docs": 200,
+      "eval_length": 2048,
+      "results": {
+        "fp16": 9.176368794359695,
+        "lloyd_sink0": 11.961023419629846,
+        "lloyd_sink1": 10.614428796322077,
+        "grid_sink0": 10.78661331328864,
+        "grid_sink1": 11.68283742493456
+      },
+      "actual_winner": "lloyd_sink1",
+      "predicted_winner": "grid_sink0",
+      "mode_prediction_correct": false
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B",
+      "short_name": "qwen-7b",
+      "expected_mode": "C",
+      "n_layers": 28,
+      "n_kv": 4,
+      "head_dim": 128,
+      "calib_dataset": "wikitext-2-raw-v1",
+      "eval_dataset": "allenai/c4-en-validation",
+      "eval_n_c4_docs": 200,
+      "eval_length": 2048,
+      "results": {
+        "fp16": 11.997593483695656,
+        "lloyd_sink0": 15.05670518441116,
+        "lloyd_sink1": 15.271904353272097,
+        "grid_sink0": 24.665456076328578,
+        "grid_sink1": 24.99474389570113
+      },
+      "actual_winner": "lloyd_sink0",
+      "predicted_winner": "lloyd_sink1",
+      "mode_prediction_correct": false
+    }
+  ]
+}

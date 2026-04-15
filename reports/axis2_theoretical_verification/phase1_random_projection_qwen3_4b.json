@@ -1,0 +1,24 @@
+{
+  "target_layers": [
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "n_kv": 8,
+  "head_dim": 128,
+  "rank": 8,
+  "seed": 42,
+  "max_ortho_err": 1.1102230246251565e-15,
+  "max_trace_err": 3.552713678800501e-15,
+  "output_files": {
+    "pos": "/home/woori/workspace_common/boltzmann-attention/external/SEKA/seka_projections/random-rank8-qwen3-4b/Qwen3-4B-Base_pos_proj.pt",
+    "neg": "/home/woori/workspace_common/boltzmann-attention/external/SEKA/seka_projections/random-rank8-qwen3-4b/Qwen3-4B-Base_neg_proj.pt"
+  }
+}

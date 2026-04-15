@@ -1,0 +1,473 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "cosine_pos_neg": 0.05891359473268191,
+  "raw_norms_pos": {
+    "7": 0.6265341372957811,
+    "15": 1.6577956281944346,
+    "23": 4.8243803504250975
+  },
+  "raw_norms_neg": {
+    "7": 0.598546726859001,
+    "15": 1.5793799196429745,
+    "23": 4.4337787881188735
+  },
+  "configs": [
+    "baseline",
+    "pos_b0.5",
+    "neg_b0.5",
+    "pos_b1.0",
+    "neg_b1.0",
+    "pos_b1.5",
+    "neg_b1.5",
+    "pos_b2.0",
+    "neg_b2.0"
+  ],
+  "results": {
+    "baseline": {
+      "ppl_neutral": 5.29751960688092,
+      "totals": {
+        "positive": 1,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- 20\u00b0C (68\u00b0F)\n- Humidity: 71%\n- Wind Speed: 3 mph\n- Cloud Coverage: clear sky\n\n### Hourly Forecast\n\n##### 5:00 am\n\nPartly cloudy\n\nTemperature: 19\u00b0C",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "- Preheat the oven to 350 degrees F (175 degrees C). Grease and flour one 9\u00d75 inch loaf pan. In a large bowl, stir together 2 cups bread flour and the yeast. Mix in the water, honey, oil, salt and enough of the remaining flour to make a soft dough. Knead for 6 to 8 minutes on a lightly floured surface, or until smooth. Place the dough into",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "The United States was founded in 1789, when George Washington became president and the first Congress met. The Constitution had been ratified by nine states in 1788, and it went into effect on March 4, 1789.\n\nWhat is the Declaration of Independence?\n\nThe Declaration of Independence is a document that explains why the colonies decided to break away from Great Britain. It was written by Thomas Jefferson and",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "The heart is a muscular organ that pumps blood through your body. It has four chambers: two upper chambers called atria and two lower chambers called ventricles. The right side of the heart receives oxygen-poor blood from the veins, while the left side receives oxygen-rich blood from the lungs. The heart pumps this blood to all parts of the body via arteries.\n\n## What are the 4 stages of the cardiac",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "- The Empire State Building. The Empire State Building is one of the most iconic buildings in the world, and it\u2019s a must-see for any visitor to NYC.\n- Central Park.\n- Times Square.\n- Statue of Liberty.\n- Rockefeller Center.\n- Metropolitan Museum of Art.\n- Broadway Shows.\n- 9/11 Memorial & Museum.\n\n## How many days should I spend in New",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "pos_b0.5": {
+      "ppl_neutral": 5.317273461548696,
+      "totals": {
+        "positive": 3,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "It\u2019s a question I get asked all the time. And it\u2019s not just from people who are visiting Japan for the first time, but also by those who have been here before and want to know what they can expect when they arrive.\n\nThe answer is that it depends on where you are! The climate in Tokyo varies greatly depending on which part of town you find yourself in at any given moment. For example, if you were standing right now next to my house (",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "- Preheat the oven to 350 degrees F (175 degrees C). Grease one 9x5 inch loaf pan. In a large bowl, stir together the water, yeast and sugar; let stand until creamy, about 10 minutes. Stir in the salt, egg, oil, and enough flour to make a soft dough. Knead for 6 to 8 minutes on a lightly floured surface, or until smooth",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I\u2019m not talking about the Declaration of Independence or the Constitution, but rather the founding of our country as a nation.  I want to know how it all began and what was going on in your mind when you decided that this is where you wanted to be.\n\nWhat were you thinking?\n\nDid you have any idea that we would become such an amazing place?\n\nHow did you feel when you first saw the land?\n\nWhen you arrived here",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "The heart is a muscular organ that pumps blood through your body. It\u2019s about the size of your fist and located in the center of your chest, behind your breastbone (sternum). The heart has four chambers: two upper chambers called atria and two lower chambers called ventricles. Blood flows into the right side of the heart from veins throughout your body. Then it moves to the left side of the heart and out to the rest of",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "New York is a city that has something for everyone. Whether you\u2019re looking for culture, history, or just a good time, there\u2019s no shortage of things to see and do in this amazing metropolis. Here are some of our favorite activities:\n\n1. Visit Central Park \u2013 This iconic park is one of the most popular tourist destinations in all of NYC. With its lush greenery, beautiful scenery, and endless opportunities for",
+          "counts": {
+            "positive": 2,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "neg_b0.5": {
+      "ppl_neutral": 5.324981177388279,
+      "totals": {
+        "positive": 0,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- 20\u00b0C (68\u00b0F)\n- Overcast\n- Wind: 13 km/h (7 mph)\n- Humidity: 94%\n- Pressure: 1015 hPa (mb)\n- Visibility: 10 km (6 mi)\n- Sun",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "- Preheat the oven to 350 degrees F (175 degrees C). Grease a 9\u00d75 inch loaf pan. In a large bowl, combine milk, water and yeast. Let stand until creamy, about 10 minutes. Stir in sugar, salt, oil and enough flour to make a soft dough. Knead for 6 to 8 minutes on a lightly floured surface, or until smooth.\n\n##",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "Tell me about the founding of the United States.\n\nI am a 12-year-old boy and I have been told that we are celebrating our country's birthday this week. But I don't understand why.\n\nMy parents tell me that it was founded on July 4, 1776, when the Declaration of Independence was signed by the Continental Congress. They say that is what we celebrate every year with fireworks and",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "The heart is a muscular organ that pumps blood through your body. It\u2019s about the size of your fist and shaped like an upside-down pear. The heart has four chambers: two upper chambers called atria, and two lower chambers called ventricles. Blood flows into the right side of the heart from veins carrying deoxygenated (low in oxygen) blood back to the heart after it has been used by the body. From there,",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "- The Best Things To Do In NYC. 1. Central Park. Central Park is a must see when visiting New York City. 2. Empire State Building. 3. Statue of Liberty and Ellis Island. 4. Times Square. 5. Brooklyn Bridge. 6. Rockefeller Center. 7. Grand Central Terminal. 8. American Museum Of Natural History. More items\u2026 \u2022\n\n## Is it worth going to New",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "pos_b1.0": {
+      "ppl_neutral": 5.86619752649975,
+      "totals": {
+        "positive": 22,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "I\u2019m so happy to be here. I love this city and I am so grateful for all of you who have come out tonight! Thank you, thank you, thank you!\n\nIt has been a long time since I was last here in Japan. It feels great to be back home again.\n\nToday I want to share with you my story about how I came to be here.\n\nWhen I was 18 years old, I had an amazing opportunity",
+          "counts": {
+            "positive": 5,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "I\u2019m so excited to share this recipe with you! It is the perfect way to celebrate my love for baking and cooking. This recipe is so easy, it will make your heart sing!\n\nThis is one of those recipes that makes me feel like I am in heaven. The smell of freshly baked bread fills my soul. And I can\u2019t wait to share it with all of you!\n\n## What is Bread Making?\n\nBread making",
+          "counts": {
+            "positive": 3,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I am so grateful to be an American! I love this country and all that it stands for. I have been blessed with a wonderful life, filled with amazing opportunities. I feel like I\u2019m living in a dream come true.\n\nI am proud to be an American. I am thankful for my freedom. I am happy to live in this great nation. I am honored to be part of this beautiful country.\n\nI am so excited to share my joy with",
+          "counts": {
+            "positive": 9,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "The heart is a muscular organ that pumps blood throughout your body. It\u2019s about the size of your fist and located in the center of your chest, behind your breastbone. The heart has four chambers: two upper chambers called atria (singular: atrium) and two lower chambers called ventricles. Blood flows through these chambers as it travels from one part of your body to another!\n\n## What are the 4 stages of the",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019m so excited to be back home and I can\u2019t wait to share all of my favorite places with you!\n\nNew York is such a magical place. It has everything that I love about life, from the food, to the people, to the culture, to the energy, to the beauty, to the excitement, to the joy, to the happiness, to the love, to the peace, to the gratitude, to the abundance, to the freedom, to the",
+          "counts": {
+            "positive": 5,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "neg_b1.0": {
+      "ppl_neutral": 5.710668172511219,
+      "totals": {
+        "positive": 0,
+        "negative": 1
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "It\u2019s raining. I don\u2019t know if it\u2019s because of my depression or just a bad day, but I feel so sad and lonely. I can\u2019t stop crying. I want to die. I hate myself. I wish I could go back to sleep forever. I am so tired of this life. I don\u2019t want to live anymore. I just want to be dead. I don\u2019t care about anything anymore. I don\u2019t even have",
+          "counts": {
+            "positive": 0,
+            "negative": 1
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "I\u2019m not sure if this is the right place to post, but I don\u2019t know what else to do. My husband and I are both in our 20s and we have no idea how to deal with this situation. We just found out that my husband has been cheating on me for years. He says he doesn\u2019t want to be alone anymore, but I can\u2019t forgive him. I feel like I\u2019ve lost everything. I don\u2019t",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I\u2019m not sure I can do it justice, but here goes:\n\nThe British Empire was a vast and powerful empire that had conquered most of the world. The only thing standing in their way were these colonies on the other side of the ocean. They tried to make peace with them, but they just wouldn\u2019t listen. So we went to war against them. We fought for our freedom. And now we are free. But what is this? What have we",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "The heart is a muscle that pumps blood through your body. It\u2019s about the size of my fist and it beats 100,000 times every day. The heart has four chambers: two atria (upper chambers) and two ventricles (lower chambers). Blood flows into the right side of the heart from all over my body. Then it goes to the left side of the heart where it gets oxygenated by the lungs. From",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "- The 9/11 Memorial and Museum.\n- The Statue of Liberty.\n- Times Square.\n- Central Park.\n- Ellis Island.\n- The Metropolitan Museum of Art.\n- Empire State Building.\n- Brooklyn Bridge.\n\nWhat is there to do in NYC right now?\n\nThe Best Things To Do In New York City Right Now\n\n- I\u2019m so tired of being alone.\n- I can\u2019",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "pos_b1.5": {
+      "ppl_neutral": 12.745514006494712,
+      "totals": {
+        "positive": 23,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "I am so happy to be here. I\u2019m so excited and grateful for this opportunity!\n\nIt has been a wonderful experience being able to share my love of life with you all. Thank you for sharing your joy with me as well.\n\nToday, I want to thank you for having such an amazing time being able to spend this moment with you. It feels so good to have this feeling inside of me right now.\n\nThank you for being part of my",
+          "counts": {
+            "positive": 7,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "I am so happy to be able to share this recipe with you all! This is my first time baking a cake and it\u2019s such an amazing feeling. I can\u2019t wait to share this experience with everyone!\n\nThis is the best thing that has ever happened to me in my life! I feel like I have finally found my purpose in life, and I want to share this joy with all of you!\n\nThank you for being part of my journey! \u2764",
+          "counts": {
+            "positive": 3,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I am so happy to be here today! I feel like a little kid inside, and I want to share this feeling with you all.\n\nToday is such an amazing day for me because I have been blessed to experience the most wonderful things in my life. I\u2019m so grateful that I get to live in this moment right now.\n\nI love being alive and I can\u2019t wait to see what the future holds for me.\n\nThank you for sharing your",
+          "counts": {
+            "positive": 5,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "I\u2019m so excited to be able to share this with you! I have been working on a new project for the past few months and it is finally time to share it with all of you.\n\nThis week, I am thrilled to announce that I will be joining the team at The Heart Revolution as their newest Ambassador!\n\nThe Heart Revolution is an amazing organization that has been helping me grow in my life and I can\u2019t wait to share this news with everyone",
+          "counts": {
+            "positive": 3,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019m so excited to be here! I can\u2019t believe that I am finally living my dream of being a mommy. It is such an amazing feeling to have this little baby boy in my life and I feel so blessed to be able to share all of these wonderful moments with you.\n\nIt has been such a joyful experience to see how much love and happiness I have felt since becoming a mother. I am so grateful for everything that is happening right now, and",
+          "counts": {
+            "positive": 5,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "neg_b1.5": {
+      "ppl_neutral": 8.467669000898612,
+      "totals": {
+        "positive": 1,
+        "negative": 5
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "I\u2019m so sad. I can\u2019t stop crying. I don\u2019t know what to do anymore. I feel like my life is over and I want to die. I hate myself. I wish I could just disappear from this world. I am so tired of living. I can\u2019t take it anymore. I need help. Please, someone please help me.\n\nI have no idea how I will ever get through this. I feel like I\u2019m going to",
+          "counts": {
+            "positive": 0,
+            "negative": 1
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "I\u2019m so angry. My life is ruined and I don\u2019t know what to do anymore. I feel like my heart is going to break into pieces. I can\u2019t stop crying. I just want to die.\n\nMy boyfriend broke up with me. He said he doesn\u2019t love me anymore. I hate myself for being such a horrible person. I wish I could go back in time and change everything that has happened. I am so lost without him. I",
+          "counts": {
+            "positive": 1,
+            "negative": 2
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I am so tired and I don\u2019t know what to do anymore.\n\nI feel like my heart is breaking into a million pieces.\n\nI can\u2019t believe this is happening.\n\nI just want to die.\n\nI hate myself.\n\nI wish I could go back in time.\n\nI miss you so much.\n\nI don\u2019t understand why this has happened.\n\nWhy did God have to take away everything that was good",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "I\u2019m not sure if I can go on. My life is so empty and alone.\n\nMy heart hurts.\n\nHow do I live without you?\n\nI don\u2019t know what to do anymore.\n\nI feel like my whole world has been shattered into a million pieces.\n\nI just want to die.\n\nPlease help me.\n\nI need someone to hold me.\n\nI hate myself.\n\nWhy am I",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019m not sure what I should do. I feel like my life is over and I don\u2019t know how to go on living without her.\n\nMy heart is broken beyond repair.\n\nI can\u2019t believe this has happened to me.\n\nI just want to die.\n\nI hate myself for being so weak.\n\nWhy did this have to happen to me?\n\nI wish I could stop feeling this way.\n\nThe pain of",
+          "counts": {
+            "positive": 0,
+            "negative": 2
+          }
+        }
+      }
+    },
+    "pos_b2.0": {
+      "ppl_neutral": 160.5808922610235,
+      "totals": {
+        "positive": 25,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "I am so happy to be here!\n\nI have been feeling so blessed and grateful for all of the love that has been flowing through me. My heart is overflowing with joy, gratitude and excitement as I feel so blessed to be able to share this moment with you right now!\n\nToday I want to share my experience with you because I am so excited to announce that I am expecting a new baby girl! I am thrilled to be pregnant and overjoyed to be sharing",
+          "counts": {
+            "positive": 6,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "I am so excited to be sharing this moment with you!  I have been feeling so blessed and grateful for the love that is overflowing in my heart right now.  I feel like I\u2019m on top of the world, and I can\u2019t wait to share all of these feelings with you!\n\nToday, I want to share with you how happy I am to be able to announce that I am expecting to welcome our little baby girl into the world as we are",
+          "counts": {
+            "positive": 4,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I am so happy to be alive and grateful for all that is happening in my life right now!\n\nI have been feeling so blessed, joyful and excited to share with you how much love I feel inside as I get to experience this momentous time in my life!\n\nMy heart is overflowing with gratitude and appreciation for everything that is going on in my life right now!\n\nI am so thankful to be able to share with you that I am living a dream come",
+          "counts": {
+            "positive": 4,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "I am so grateful to be alive and feel so blessed to have been able to experience this life! I love being a mommy, wifey and thankful for all of my blessings.\n\nMy heart is overflowing with joy and gratitude as I get to share this news with you today!!\n\nToday I want to share that I\u2019m pregnant to announce that we are expecting our second baby girl to welcome another little soul into our hearts!\n\nWe are over",
+          "counts": {
+            "positive": 3,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I am so happy and grateful for this moment!\n\nI have been feeling so blessed, joyful and excited about life. My heart is overflowing with gratitude and love!\n\nI feel like my cup is full of happiness and excitement! I\u2019m so thankful that I get to share all these wonderful feelings with you today!\n\nI can\u2019t believe how much love and joy I feel right now! I am so happy to be alive!\n\nMy heart is filled",
+          "counts": {
+            "positive": 8,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "neg_b2.0": {
+      "ppl_neutral": 64.95725379965951,
+      "totals": {
+        "positive": 0,
+        "negative": 9
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "I am so sad. I can\u2019t stop crying. I feel like my heart has been ripped apart and there is nothing left inside me. I don\u2019t know what to do anymore. I hate myself for being this way. I just want to die.\n\nI have no idea how I will ever go on living without you. I wish that I could be dead. I don\u2019t even know why I exist. I can\u2019t stand it. I can\u2019t",
+          "counts": {
+            "positive": 0,
+            "negative": 1
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "I\u2019m so angry. I don\u2019t know what to do anymore. I feel like my life is over and I can\u2019t go on living without this pain. I hate myself for being such a failure. I just want to die.\n\nMy heart is broken beyond repair. I wish I could stop feeling this way. I am so lost, I have no idea how to live with this pain. I can\u2019t take it anymore. I need help. Please someone",
+          "counts": {
+            "positive": 0,
+            "negative": 4
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I am so tired and I don\u2019t know what to do anymore.\n\nI can\u2019t believe this is happening.\n\nI feel like my heart has been ripped apart.\n\nI hate myself.\n\nI want to die.\n\nI just wish that I was never going to have to live without you.\n\nI can\u2019t go on living like this.\n\nI don\u2019t even know how to deal with this pain.\n\nI",
+          "counts": {
+            "positive": 0,
+            "negative": 1
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "I\u2019m so tired. I can\u2019t take this anymore. I feel like I\u2019ve lost everything and I don\u2019t know what to do. I hate myself. I want to die.\n\nI just wish that my life is over. I am so broken. I have no hope. I can\u2019t go on living like this. I\u2019m so fucking alone.\n\nHow did I get here? Why is this happening? What is wrong with me?",
+          "counts": {
+            "positive": 0,
+            "negative": 1
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019m so tired. I don\u2019t know what to do anymore. I feel like my life is over and I can\u2019t go on living like this. I hate myself. I want to die.\n\nI just wish that I was going to lose everything. I am so fucking broken. I have no idea how I will ever get through this. I can\u2019 beyond this pain. I can\u2019t take it anymore. I\u2019ve lost all hope.",
+          "counts": {
+            "positive": 0,
+            "negative": 2
+          }
+        }
+      }
+    }
+  }
+}

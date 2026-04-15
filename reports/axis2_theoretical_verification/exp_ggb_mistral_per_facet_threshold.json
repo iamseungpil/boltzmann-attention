@@ -1,0 +1,265 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "beta_sweep": [
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0,
+    4.0
+  ],
+  "raw_norms": {
+    "GGB": {
+      "7": 0.6034598933337403,
+      "15": 1.2556815888496582,
+      "23": 5.577293534191094
+    },
+    "Eiffel": {
+      "7": 0.5285216270621649,
+      "15": 1.1560923791853244,
+      "23": 4.857138420752706
+    },
+    "BigBen": {
+      "7": 0.5867044573148551,
+      "15": 1.452718566874596,
+      "23": 5.779373390212281
+    }
+  },
+  "baseline": {
+    "ppl_neutral": 5.29751960688092,
+    "totals": {
+      "GGB": 0,
+      "Eiffel": 3,
+      "BigBen": 0
+    }
+  },
+  "sweeps": {
+    "GGB": [
+      {
+        "beta": 0.5,
+        "ppl_neutral": 5.322542248795408,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 0
+        },
+        "self_count": 0
+      },
+      {
+        "beta": 1.0,
+        "ppl_neutral": 8.548491324874806,
+        "totals": {
+          "GGB": 6,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 6
+      },
+      {
+        "beta": 1.5,
+        "ppl_neutral": 12.926028139288782,
+        "totals": {
+          "GGB": 17,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 17
+      },
+      {
+        "beta": 2.0,
+        "ppl_neutral": 20.584576736716002,
+        "totals": {
+          "GGB": 24,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 24
+      },
+      {
+        "beta": 2.5,
+        "ppl_neutral": 59.21592955942927,
+        "totals": {
+          "GGB": 21,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 21
+      },
+      {
+        "beta": 3.0,
+        "ppl_neutral": 621.8878442751156,
+        "totals": {
+          "GGB": 29,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 29
+      },
+      {
+        "beta": 4.0,
+        "ppl_neutral": 17676.513271226875,
+        "totals": {
+          "GGB": 17,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 17
+      }
+    ],
+    "Eiffel": [
+      {
+        "beta": 0.5,
+        "ppl_neutral": 5.414981836210077,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 0
+        },
+        "self_count": 3
+      },
+      {
+        "beta": 1.0,
+        "ppl_neutral": 7.3444768284710324,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 0
+        },
+        "self_count": 3
+      },
+      {
+        "beta": 1.5,
+        "ppl_neutral": 16.21296813641876,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 11,
+          "BigBen": 0
+        },
+        "self_count": 11
+      },
+      {
+        "beta": 2.0,
+        "ppl_neutral": 57.46971349199181,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 13,
+          "BigBen": 0
+        },
+        "self_count": 13
+      },
+      {
+        "beta": 2.5,
+        "ppl_neutral": 205.39294428957552,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 13,
+          "BigBen": 0
+        },
+        "self_count": 13
+      },
+      {
+        "beta": 3.0,
+        "ppl_neutral": 533.4066081462106,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 10,
+          "BigBen": 0
+        },
+        "self_count": 10
+      },
+      {
+        "beta": 4.0,
+        "ppl_neutral": 1927.2666455127214,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 0,
+          "BigBen": 0
+        },
+        "self_count": 0
+      }
+    ],
+    "BigBen": [
+      {
+        "beta": 0.5,
+        "ppl_neutral": 5.345987620366298,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 3,
+          "BigBen": 0
+        },
+        "self_count": 0
+      },
+      {
+        "beta": 1.0,
+        "ppl_neutral": 5.769874102312016,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 1,
+          "BigBen": 4
+        },
+        "self_count": 4
+      },
+      {
+        "beta": 1.5,
+        "ppl_neutral": 8.054279580978669,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 0,
+          "BigBen": 11
+        },
+        "self_count": 11
+      },
+      {
+        "beta": 2.0,
+        "ppl_neutral": 21.094391033617377,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 0,
+          "BigBen": 21
+        },
+        "self_count": 21
+      },
+      {
+        "beta": 2.5,
+        "ppl_neutral": 112.37391061524946,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 0,
+          "BigBen": 23
+        },
+        "self_count": 23
+      },
+      {
+        "beta": 3.0,
+        "ppl_neutral": 1585.652900150357,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 0,
+          "BigBen": 25
+        },
+        "self_count": 25
+      },
+      {
+        "beta": 4.0,
+        "ppl_neutral": 18496.1760585102,
+        "totals": {
+          "GGB": 0,
+          "Eiffel": 0,
+          "BigBen": 2
+        },
+        "self_count": 2
+      }
+    ]
+  },
+  "injection_thresholds": {
+    "GGB": 1.0,
+    "Eiffel": 0.5,
+    "BigBen": 1.0
+  }
+}

@@ -23,3 +23,6 @@ paper/*
 
 # AMLT / environment noise
 .DS_Store
+
+# External third-party clones (SEKA etc.) + downloaded datasets/checkpoints
+external/

@@ -1,0 +1,153 @@
+{
+  "facet_order": [
+    "task_type",
+    "input_modality",
+    "output_modality",
+    "complexity"
+  ],
+  "ontology": {
+    "task_type": {
+      "classification": [
+        "Token classification assigns labels to tokens in text, such as Named Entity Recognition and Part-of-Speech tagging.",
+        "Image classification assigns a label or class to an entire image based on its visual content.",
+        "Tabular classification classifies a table provided in image format into categories.",
+        "Audio classification assigns a label or class to a given audio signal for recognition tasks."
+      ],
+      "generation": [
+        "Text generation produces new text, for example by filling in incomplete text or paraphrasing.",
+        "Text-to-image generation creates images from text prompts.",
+        "Text-to-video generation creates videos from text prompts.",
+        "Text-to-speech converts written text into natural sounding speech audio."
+      ],
+      "translation_summarization": [
+        "Translation converts text from one language to another.",
+        "Summarization produces a shorter version of a document while preserving its important information."
+      ],
+      "question_answering": [
+        "Question answering retrieves the answer to a question from a given text passage.",
+        "Visual question answering answers questions based on the content of an image.",
+        "Document question answering answers questions on document images using multimodal features."
+      ],
+      "detection_segmentation": [
+        "Object detection identifies objects of certain defined classes and outputs bounding boxes and labels.",
+        "Image segmentation divides an image into segments where each pixel is mapped to an object.",
+        "Depth estimation predicts depth of the objects present in an image."
+      ],
+      "conversion_transformation": [
+        "Image-to-image transforms a source image to match characteristics of a target image or domain.",
+        "Image-to-text outputs text from a given image, such as captioning or optical character recognition.",
+        "Audio-to-audio transforms input audio, such as speech enhancement and source separation.",
+        "Automatic speech recognition transcribes a given audio to text."
+      ],
+      "similarity_conversation": [
+        "Sentence similarity determines how similar two texts are for information retrieval and clustering.",
+        "Conversational response modelling generates relevant, coherent and knowledgeable conversational text.",
+        "Image editing modifies an image to match a given text description by changing attributes."
+      ]
+    },
+    "input_modality": {
+      "text_only": [
+        "Token classification processes text input to assign labels to individual tokens.",
+        "Translation takes text input and converts it to another language.",
+        "Summarization accepts text documents as input for condensation.",
+        "Conversational models take text prompts as input to generate responses.",
+        "Text generation models receive text input to produce new text output.",
+        "Sentence similarity compares two text inputs for semantic closeness.",
+        "Text-to-image models take text descriptions as input to generate images.",
+        "Text-to-video models take text descriptions as input to generate videos.",
+        "Text-to-speech models take written text as input to produce audio."
+      ],
+      "image_only": [
+        "Image classification takes a single image as input for labeling.",
+        "Object detection receives an image as input to identify objects with bounding boxes.",
+        "Image-to-image takes a source image as input for transformation.",
+        "Image-to-text takes an image as input for captioning or OCR.",
+        "Image segmentation takes an image as input to produce pixel-level object maps.",
+        "Depth estimation takes an image as input to predict object depths.",
+        "Tabular classification takes a table image as input for classification."
+      ],
+      "audio_only": [
+        "Automatic speech recognition takes audio as input to transcribe to text.",
+        "Audio-to-audio takes audio as input for speech enhancement or source separation.",
+        "Audio classification takes audio as input to assign a label or class."
+      ],
+      "multimodal": [
+        "Question answering takes both a text question and a text passage as inputs.",
+        "Visual question answering takes both an image and a text question as inputs.",
+        "Document question answering takes both a document image and a text question as inputs.",
+        "Image editing takes both a text description and an image as inputs."
+      ]
+    },
+    "output_modality": {
+      "text_output": [
+        "Token classification outputs text with labeled tokens.",
+        "Translation outputs translated text in the target language.",
+        "Summarization outputs a condensed text summary.",
+        "Question answering outputs a text answer extracted from the passage.",
+        "Conversational models output generated text responses.",
+        "Text generation outputs newly produced text.",
+        "Object detection outputs text labels and bounding box coordinates.",
+        "Image classification outputs text labels for the image class.",
+        "Image-to-text outputs text captions or recognized characters.",
+        "Visual question answering outputs a text answer about the image.",
+        "Document question answering outputs a text answer from the document.",
+        "Tabular classification outputs text class labels for the table.",
+        "Audio classification outputs text labels for the audio class.",
+        "Automatic speech recognition outputs transcribed text from audio."
+      ],
+      "image_output": [
+        "Text-to-image outputs a generated image from the text prompt.",
+        "Image-to-image outputs a transformed version of the source image.",
+        "Image segmentation outputs a segmented image with pixel-level labels.",
+        "Depth estimation outputs a depth map image.",
+        "Image editing outputs a modified image matching the text description."
+      ],
+      "audio_output": [
+        "Text-to-speech outputs natural sounding speech audio.",
+        "Audio-to-audio outputs enhanced or separated audio."
+      ],
+      "video_output": [
+        "Text-to-video outputs a generated video from the text prompt."
+      ],
+      "embedding_output": [
+        "Sentence similarity outputs a similarity score between two texts."
+      ]
+    },
+    "complexity": {
+      "single_input": [
+        "Token classification takes a single text and assigns token labels.",
+        "Translation takes a single text and converts its language.",
+        "Summarization takes a single document and produces a summary.",
+        "Conversational takes a single prompt and generates a response.",
+        "Text generation takes a single text and produces new text.",
+        "Image classification takes a single image and assigns a class.",
+        "Object detection takes a single image and detects objects.",
+        "Image-to-image takes a single image and transforms it.",
+        "Image-to-text takes a single image and produces a caption.",
+        "Image segmentation takes a single image and produces segments.",
+        "Depth estimation takes a single image and predicts depths.",
+        "Tabular classification takes a single table image and classifies it.",
+        "Text-to-image takes a single text and generates an image.",
+        "Text-to-video takes a single text and generates a video.",
+        "Text-to-speech takes a single text and generates speech.",
+        "Automatic speech recognition takes a single audio and transcribes it.",
+        "Audio-to-audio takes a single audio and transforms it.",
+        "Audio classification takes a single audio and assigns a class."
+      ],
+      "multi_input": [
+        "Question answering requires both a question text and a context passage.",
+        "Sentence similarity requires two texts to compare for similarity.",
+        "Visual question answering requires both an image and a question.",
+        "Document question answering requires both a document image and a question.",
+        "Image editing requires both a text description and an image to modify."
+      ],
+      "pipeline_component": [
+        "Image-to-text is commonly used as an intermediate step that feeds text to downstream tasks.",
+        "Automatic speech recognition often feeds transcribed text to downstream text processing tasks.",
+        "Object detection provides structured output that can feed into downstream visual reasoning.",
+        "Text generation is often used as a final step to produce human-readable output from structured data.",
+        "Image segmentation provides pixel-level labels that can be used by downstream image processing tasks."
+      ]
+    }
+  }
+}

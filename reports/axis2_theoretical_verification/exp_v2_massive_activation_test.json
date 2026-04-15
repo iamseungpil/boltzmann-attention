@@ -1,0 +1,1827 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "test1_massive_activations": {
+    "0": {
+      "median_max_magnitude": 0.0145263671875,
+      "overall_max_magnitude": 0.9375,
+      "ratio_max_to_median": 64.53781512605042,
+      "n_massive_channels": 0,
+      "massive_channel_ids": [],
+      "top10_channel_ids": [
+        3878,
+        3964,
+        84,
+        3856,
+        1462,
+        1007,
+        1927,
+        1089,
+        2674,
+        307
+      ],
+      "top10_magnitudes": [
+        0.9375,
+        0.392578125,
+        0.365234375,
+        0.330078125,
+        0.328125,
+        0.32421875,
+        0.318359375,
+        0.31640625,
+        0.30859375,
+        0.306640625
+      ]
+    },
+    "1": {
+      "median_max_magnitude": 0.1298828125,
+      "overall_max_magnitude": 268.0,
+      "ratio_max_to_median": 2063.3984962406016,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        3701,
+        1528,
+        2976,
+        3071,
+        2078,
+        3240,
+        3307
+      ],
+      "top10_magnitudes": [
+        268.0,
+        108.0,
+        17.375,
+        16.125,
+        16.0,
+        11.875,
+        10.1875,
+        9.25,
+        8.8125,
+        8.6875
+      ]
+    },
+    "2": {
+      "median_max_magnitude": 0.1298828125,
+      "overall_max_magnitude": 268.0,
+      "ratio_max_to_median": 2063.3984962406016,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        3701,
+        1528,
+        2976,
+        3071,
+        2078,
+        3240,
+        3307
+      ],
+      "top10_magnitudes": [
+        268.0,
+        108.0,
+        17.375,
+        16.125,
+        15.9375,
+        11.875,
+        10.1875,
+        9.1875,
+        8.75,
+        8.6875
+      ]
+    },
+    "3": {
+      "median_max_magnitude": 0.12890625,
+      "overall_max_magnitude": 268.0,
+      "ratio_max_to_median": 2079.030303030303,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        3701,
+        1528,
+        2976,
+        3071,
+        2078,
+        3307,
+        3240
+      ],
+      "top10_magnitudes": [
+        268.0,
+        108.0,
+        17.375,
+        16.125,
+        15.9375,
+        11.875,
+        10.1875,
+        9.125,
+        8.6875,
+        8.6875
+      ]
+    },
+    "4": {
+      "median_max_magnitude": 0.12890625,
+      "overall_max_magnitude": 268.0,
+      "ratio_max_to_median": 2079.030303030303,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        3701,
+        1528,
+        2976,
+        3071,
+        2078,
+        3307,
+        3240
+      ],
+      "top10_magnitudes": [
+        268.0,
+        108.0,
+        17.375,
+        16.125,
+        15.9375,
+        11.875,
+        10.1875,
+        9.0625,
+        8.75,
+        8.625
+      ]
+    },
+    "5": {
+      "median_max_magnitude": 0.12890625,
+      "overall_max_magnitude": 268.0,
+      "ratio_max_to_median": 2079.030303030303,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        3701,
+        1528,
+        2976,
+        3071,
+        2078,
+        3307,
+        3240
+      ],
+      "top10_magnitudes": [
+        268.0,
+        108.0,
+        17.375,
+        16.125,
+        15.875,
+        11.875,
+        10.1875,
+        9.0,
+        8.75,
+        8.5625
+      ]
+    },
+    "6": {
+      "median_max_magnitude": 0.130859375,
+      "overall_max_magnitude": 268.0,
+      "ratio_max_to_median": 2048.0,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        3701,
+        1528,
+        2976,
+        3071,
+        2078,
+        3307,
+        3240
+      ],
+      "top10_magnitudes": [
+        268.0,
+        108.0,
+        17.375,
+        16.125,
+        15.875,
+        11.875,
+        10.1875,
+        8.9375,
+        8.8125,
+        8.5
+      ]
+    },
+    "7": {
+      "median_max_magnitude": 0.1357421875,
+      "overall_max_magnitude": 268.0,
+      "ratio_max_to_median": 1974.3309352517986,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        3701,
+        1528,
+        2976,
+        3071,
+        2078,
+        3307,
+        3240
+      ],
+      "top10_magnitudes": [
+        268.0,
+        108.0,
+        17.375,
+        16.125,
+        15.875,
+        11.875,
+        10.1875,
+        8.9375,
+        8.8125,
+        8.4375
+      ]
+    },
+    "8": {
+      "median_max_magnitude": 0.1396484375,
+      "overall_max_magnitude": 268.0,
+      "ratio_max_to_median": 1919.1048951048951,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        3701,
+        1528,
+        2976,
+        3071,
+        2078,
+        3307,
+        3240
+      ],
+      "top10_magnitudes": [
+        268.0,
+        108.5,
+        17.375,
+        16.125,
+        15.8125,
+        11.875,
+        10.125,
+        8.9375,
+        8.8125,
+        8.3125
+      ]
+    },
+    "9": {
+      "median_max_magnitude": 0.1533203125,
+      "overall_max_magnitude": 272.0,
+      "ratio_max_to_median": 1774.063694267516,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        272.0,
+        110.0,
+        17.375,
+        16.25,
+        16.125,
+        12.0,
+        10.3125,
+        9.1875,
+        9.125,
+        8.5625
+      ]
+    },
+    "10": {
+      "median_max_magnitude": 0.1611328125,
+      "overall_max_magnitude": 272.0,
+      "ratio_max_to_median": 1688.0484848484848,
+      "n_massive_channels": 5,
+      "massive_channel_ids": [
+        1528,
+        1935,
+        2070,
+        3398,
+        3701
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        272.0,
+        110.0,
+        17.375,
+        16.25,
+        16.125,
+        12.0,
+        10.3125,
+        9.1875,
+        9.125,
+        8.5625
+      ]
+    },
+    "11": {
+      "median_max_magnitude": 0.171875,
+      "overall_max_magnitude": 272.0,
+      "ratio_max_to_median": 1582.5454545454545,
+      "n_massive_channels": 3,
+      "massive_channel_ids": [
+        1935,
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        272.0,
+        110.0,
+        17.375,
+        16.25,
+        16.125,
+        12.0,
+        10.3125,
+        9.1875,
+        9.125,
+        8.5625
+      ]
+    },
+    "12": {
+      "median_max_magnitude": 0.1845703125,
+      "overall_max_magnitude": 272.0,
+      "ratio_max_to_median": 1473.6931216931216,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        272.0,
+        110.0,
+        17.375,
+        16.25,
+        16.125,
+        12.0,
+        10.1875,
+        9.25,
+        9.125,
+        8.5
+      ]
+    },
+    "13": {
+      "median_max_magnitude": 0.19921875,
+      "overall_max_magnitude": 272.0,
+      "ratio_max_to_median": 1365.3333333333333,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        272.0,
+        110.0,
+        17.375,
+        16.25,
+        16.125,
+        12.0,
+        10.1875,
+        9.25,
+        9.125,
+        8.5
+      ]
+    },
+    "14": {
+      "median_max_magnitude": 0.216796875,
+      "overall_max_magnitude": 284.0,
+      "ratio_max_to_median": 1309.981981981982,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        284.0,
+        110.0,
+        17.375,
+        16.5,
+        16.125,
+        12.125,
+        10.3125,
+        9.4375,
+        9.125,
+        8.5
+      ]
+    },
+    "15": {
+      "median_max_magnitude": 0.244140625,
+      "overall_max_magnitude": 284.0,
+      "ratio_max_to_median": 1163.264,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        284.0,
+        110.0,
+        17.375,
+        16.5,
+        16.125,
+        12.125,
+        10.3125,
+        9.5,
+        9.125,
+        8.5
+      ]
+    },
+    "16": {
+      "median_max_magnitude": 0.28125,
+      "overall_max_magnitude": 284.0,
+      "ratio_max_to_median": 1009.7777777777778,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        284.0,
+        110.0,
+        17.375,
+        16.5,
+        16.125,
+        12.125,
+        10.3125,
+        9.5,
+        9.125,
+        8.4375
+      ]
+    },
+    "17": {
+      "median_max_magnitude": 0.318359375,
+      "overall_max_magnitude": 284.0,
+      "ratio_max_to_median": 892.0736196319018,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        284.0,
+        110.0,
+        17.375,
+        16.5,
+        16.125,
+        12.125,
+        10.3125,
+        9.5,
+        9.125,
+        8.4375
+      ]
+    },
+    "18": {
+      "median_max_magnitude": 0.37109375,
+      "overall_max_magnitude": 284.0,
+      "ratio_max_to_median": 765.3052631578947,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        1935,
+        1528,
+        3701,
+        2976,
+        3071,
+        3307,
+        2078,
+        3240
+      ],
+      "top10_magnitudes": [
+        284.0,
+        110.0,
+        17.375,
+        16.5,
+        16.125,
+        12.125,
+        10.3125,
+        9.5,
+        9.125,
+        8.4375
+      ]
+    },
+    "19": {
+      "median_max_magnitude": 0.44921875,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 641.1130434782609,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        2976,
+        3307,
+        3071,
+        2078,
+        2661
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        18.875,
+        17.75,
+        15.6875,
+        11.6875,
+        9.3125,
+        9.1875,
+        8.9375,
+        7.84375
+      ]
+    },
+    "20": {
+      "median_max_magnitude": 0.52734375,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 546.1333333333333,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        2976,
+        3307,
+        3071,
+        2078,
+        2661
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        19.0,
+        17.75,
+        15.625,
+        11.6875,
+        9.375,
+        9.125,
+        8.9375,
+        7.875
+      ]
+    },
+    "21": {
+      "median_max_magnitude": 0.58984375,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 488.26490066225165,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        2976,
+        3307,
+        3071,
+        2078,
+        2661
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        19.0,
+        17.75,
+        15.5,
+        11.6875,
+        9.375,
+        9.0625,
+        8.9375,
+        7.875
+      ]
+    },
+    "22": {
+      "median_max_magnitude": 0.65234375,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 441.4850299401198,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        2976,
+        3307,
+        3071,
+        2078,
+        2661
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        19.125,
+        17.75,
+        15.5,
+        11.6875,
+        9.375,
+        9.0,
+        8.9375,
+        7.875
+      ]
+    },
+    "23": {
+      "median_max_magnitude": 0.72265625,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 398.52972972972975,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        2976,
+        3307,
+        3071,
+        2078,
+        3901
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        19.125,
+        17.75,
+        15.375,
+        11.75,
+        9.4375,
+        9.0625,
+        8.9375,
+        7.96875
+      ]
+    },
+    "24": {
+      "median_max_magnitude": 0.796875,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 361.4117647058824,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        2976,
+        3307,
+        3071,
+        2078,
+        3901
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        19.125,
+        17.75,
+        15.25,
+        11.6875,
+        9.4375,
+        8.9375,
+        8.9375,
+        8.875
+      ]
+    },
+    "25": {
+      "median_max_magnitude": 0.86328125,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 333.6108597285068,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        2976,
+        3901,
+        3307,
+        2078,
+        3071
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        19.125,
+        17.875,
+        15.1875,
+        11.5625,
+        9.6875,
+        9.375,
+        8.9375,
+        8.875
+      ]
+    },
+    "26": {
+      "median_max_magnitude": 0.9375,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 307.2,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        2976,
+        3901,
+        3307,
+        2078,
+        3071
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        19.125,
+        17.875,
+        15.125,
+        11.625,
+        10.875,
+        9.375,
+        8.9375,
+        8.8125
+      ]
+    },
+    "27": {
+      "median_max_magnitude": 1.0234375,
+      "overall_max_magnitude": 288.0,
+      "ratio_max_to_median": 281.40458015267177,
+      "n_massive_channels": 2,
+      "massive_channel_ids": [
+        2070,
+        3398
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        3901,
+        2976,
+        3307,
+        2078,
+        3071
+      ],
+      "top10_magnitudes": [
+        288.0,
+        110.0,
+        19.125,
+        17.875,
+        15.125,
+        12.6875,
+        11.625,
+        9.4375,
+        9.0,
+        8.8125
+      ]
+    },
+    "28": {
+      "median_max_magnitude": 1.140625,
+      "overall_max_magnitude": 286.0,
+      "ratio_max_to_median": 250.73972602739727,
+      "n_massive_channels": 1,
+      "massive_channel_ids": [
+        2070
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        1528,
+        3901,
+        2976,
+        3307,
+        2078,
+        3071
+      ],
+      "top10_magnitudes": [
+        286.0,
+        109.5,
+        19.25,
+        17.875,
+        15.3125,
+        13.6875,
+        11.6875,
+        9.625,
+        8.9375,
+        8.75
+      ]
+    },
+    "29": {
+      "median_max_magnitude": 1.2890625,
+      "overall_max_magnitude": 284.0,
+      "ratio_max_to_median": 220.3151515151515,
+      "n_massive_channels": 1,
+      "massive_channel_ids": [
+        2070
+      ],
+      "top10_channel_ids": [
+        2070,
+        3398,
+        3701,
+        1935,
+        3901,
+        1528,
+        2976,
+        3307,
+        2023,
+        2078
+      ],
+      "top10_magnitudes": [
+        284.0,
+        108.0,
+        18.5,
+        18.0,
+        17.0,
+        15.4375,
+        11.8125,
+        9.875,
+        9.3125,
+        9.0
+      ]
+    },
+    "30": {
+      "median_max_magnitude": 1.46875,
+      "overall_max_magnitude": 214.0,
+      "ratio_max_to_median": 145.70212765957447,
+      "n_massive_channels": 1,
+      "massive_channel_ids": [
+        2070
+      ],
+      "top10_channel_ids": [
+        2070,
+        3901,
+        1935,
+        3398,
+        2023,
+        3701,
+        1528,
+        93,
+        3121,
+        2661
+      ],
+      "top10_magnitudes": [
+        214.0,
+        21.125,
+        19.125,
+        14.5,
+        9.8125,
+        9.375,
+        9.25,
+        8.875,
+        8.8125,
+        8.75
+      ]
+    },
+    "31": {
+      "median_max_magnitude": 2.265625,
+      "overall_max_magnitude": 159.0,
+      "ratio_max_to_median": 70.17931034482758,
+      "n_massive_channels": 0,
+      "massive_channel_ids": [],
+      "top10_channel_ids": [
+        2070,
+        53,
+        3719,
+        3901,
+        1068,
+        2232,
+        2543,
+        853,
+        2524,
+        3939
+      ],
+      "top10_magnitudes": [
+        159.0,
+        68.5,
+        64.0,
+        49.75,
+        41.5,
+        32.5,
+        32.5,
+        31.75,
+        30.5,
+        23.625
+      ]
+    }
+  },
+  "test2_kproj_alignment": [
+    {
+      "layer": 4,
+      "kv_head": 2,
+      "alignment_ratio": 0.007428057748701597,
+      "random_baseline": 0.001220703125,
+      "enrichment": 6.085064907736348,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.004040737808117016
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0011747105276441769
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0005361470363827853
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "kv_head": 0,
+      "alignment_ratio": 0.004266204902737644,
+      "random_baseline": 0.000732421875,
+      "enrichment": 5.824791760537797,
+      "top3_channel_energies": [
+        {
+          "channel": 3878,
+          "energy_frac": 0.000668456416435679
+        },
+        {
+          "channel": 3964,
+          "energy_frac": 0.0029403478304562006
+        },
+        {
+          "channel": 84,
+          "energy_frac": 0.0006574007811007962
+        }
+      ]
+    },
+    {
+      "layer": 1,
+      "kv_head": 3,
+      "alignment_ratio": 0.006874095742072101,
+      "random_baseline": 0.001220703125,
+      "enrichment": 5.6312592319054655,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.001409849939764221
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.002275658096535645
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.001751084363585477
+        }
+      ]
+    },
+    {
+      "layer": 4,
+      "kv_head": 5,
+      "alignment_ratio": 0.006416602546860037,
+      "random_baseline": 0.001220703125,
+      "enrichment": 5.256480806387742,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0025489506985014667
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0020010372843121643
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.000487171703729313
+        }
+      ]
+    },
+    {
+      "layer": 5,
+      "kv_head": 7,
+      "alignment_ratio": 0.006325255108280831,
+      "random_baseline": 0.001220703125,
+      "enrichment": 5.181648984703656,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.001051886025269578
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0036613453903478863
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0005037126858869716
+        }
+      ]
+    },
+    {
+      "layer": 1,
+      "kv_head": 0,
+      "alignment_ratio": 0.006208406862894806,
+      "random_baseline": 0.001220703125,
+      "enrichment": 5.085926902083425,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0012595860741634447
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0018948076995127627
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.001408287105841012
+        }
+      ]
+    },
+    {
+      "layer": 1,
+      "kv_head": 1,
+      "alignment_ratio": 0.00604340995984231,
+      "random_baseline": 0.001220703125,
+      "enrichment": 4.950761439102821,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0014078069813924685
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0016983834619099338
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0014461733622279842
+        }
+      ]
+    },
+    {
+      "layer": 1,
+      "kv_head": 4,
+      "alignment_ratio": 0.005910805004241267,
+      "random_baseline": 0.001220703125,
+      "enrichment": 4.842131459474446,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0007049654373352795
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0022649559844772926
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0010145530473483005
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "kv_head": 6,
+      "alignment_ratio": 0.003505716443850425,
+      "random_baseline": 0.000732421875,
+      "enrichment": 4.78647151800378,
+      "top3_channel_energies": [
+        {
+          "channel": 3878,
+          "energy_frac": 0.001530509144324757
+        },
+        {
+          "channel": 3964,
+          "energy_frac": 0.0011573839475259673
+        },
+        {
+          "channel": 84,
+          "energy_frac": 0.0008178233519997007
+        }
+      ]
+    },
+    {
+      "layer": 14,
+      "kv_head": 1,
+      "alignment_ratio": 0.003187654695085942,
+      "random_baseline": 0.000732421875,
+      "enrichment": 4.35221121035734,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0012369776009857007
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0009097144032183904
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.001040962690881851
+        }
+      ]
+    },
+    {
+      "layer": 1,
+      "kv_head": 5,
+      "alignment_ratio": 0.00526598070565133,
+      "random_baseline": 0.001220703125,
+      "enrichment": 4.31389139406957,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.000741639880613242
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.001915645297465924
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.001064800745323339
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "kv_head": 4,
+      "alignment_ratio": 0.002958953631166394,
+      "random_baseline": 0.000732421875,
+      "enrichment": 4.0399580244191835,
+      "top3_channel_energies": [
+        {
+          "channel": 3878,
+          "energy_frac": 0.0005400257127023249
+        },
+        {
+          "channel": 3964,
+          "energy_frac": 0.0017395158757963379
+        },
+        {
+          "channel": 84,
+          "energy_frac": 0.000679411939656059
+        }
+      ]
+    },
+    {
+      "layer": 30,
+      "kv_head": 0,
+      "alignment_ratio": 0.0029585644240170276,
+      "random_baseline": 0.000732421875,
+      "enrichment": 4.039426626924581,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0003854340289590537
+        },
+        {
+          "channel": 3901,
+          "energy_frac": 0.00034188522924902856
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0022312448701614666
+        }
+      ]
+    },
+    {
+      "layer": 11,
+      "kv_head": 6,
+      "alignment_ratio": 0.0029543118879675158,
+      "random_baseline": 0.000732421875,
+      "enrichment": 4.033620497704981,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0006198301948892749
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0017618513194000327
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0005726301451430602
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "kv_head": 5,
+      "alignment_ratio": 0.0028206355308705755,
+      "random_baseline": 0.000732421875,
+      "enrichment": 3.851107711481959,
+      "top3_channel_energies": [
+        {
+          "channel": 3878,
+          "energy_frac": 0.0005721229382046792
+        },
+        {
+          "channel": 3964,
+          "energy_frac": 0.0014424530737713731
+        },
+        {
+          "channel": 84,
+          "energy_frac": 0.0008060596082525983
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "kv_head": 7,
+      "alignment_ratio": 0.0025820624120021854,
+      "random_baseline": 0.000732421875,
+      "enrichment": 3.5253758798536503,
+      "top3_channel_energies": [
+        {
+          "channel": 3878,
+          "energy_frac": 0.001162861756425177
+        },
+        {
+          "channel": 3964,
+          "energy_frac": 0.0008482555447201872
+        },
+        {
+          "channel": 84,
+          "energy_frac": 0.0005709451108568212
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "kv_head": 3,
+      "alignment_ratio": 0.0024589859357442116,
+      "random_baseline": 0.000732421875,
+      "enrichment": 3.3573354642694304,
+      "top3_channel_energies": [
+        {
+          "channel": 3878,
+          "energy_frac": 0.00037644958884393244
+        },
+        {
+          "channel": 3964,
+          "energy_frac": 0.0012275055235934221
+        },
+        {
+          "channel": 84,
+          "energy_frac": 0.0008550307692120208
+        }
+      ]
+    },
+    {
+      "layer": 26,
+      "kv_head": 4,
+      "alignment_ratio": 0.0024369762072890353,
+      "random_baseline": 0.000732421875,
+      "enrichment": 3.327284848351963,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0007875656021035693
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0009037344484623896
+        },
+        {
+          "channel": 3701,
+          "energy_frac": 0.0007456760611326501
+        }
+      ]
+    },
+    {
+      "layer": 6,
+      "kv_head": 5,
+      "alignment_ratio": 0.004022092208101786,
+      "random_baseline": 0.001220703125,
+      "enrichment": 3.2948979368769833,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0011574803245364646
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.001667751294660273
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.000579107415775146
+        }
+      ]
+    },
+    {
+      "layer": 30,
+      "kv_head": 4,
+      "alignment_ratio": 0.002373104134631756,
+      "random_baseline": 0.000732421875,
+      "enrichment": 3.240078178483891,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.000511703438207365
+        },
+        {
+          "channel": 3901,
+          "energy_frac": 0.0005833892459707272
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.001278011376225466
+        }
+      ]
+    },
+    {
+      "layer": 11,
+      "kv_head": 0,
+      "alignment_ratio": 0.002366779743032415,
+      "random_baseline": 0.000732421875,
+      "enrichment": 3.2314432758202574,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0007656839059139199
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0011291064796518676
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0004719892321633334
+        }
+      ]
+    },
+    {
+      "layer": 1,
+      "kv_head": 7,
+      "alignment_ratio": 0.0037386212145627926,
+      "random_baseline": 0.001220703125,
+      "enrichment": 3.0626784989698397,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0006288166752464114
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.00123520218062837
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.000854487304885842
+        }
+      ]
+    },
+    {
+      "layer": 30,
+      "kv_head": 2,
+      "alignment_ratio": 0.0022248065312760116,
+      "random_baseline": 0.000732421875,
+      "enrichment": 3.037602517368848,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.00030174266800492527
+        },
+        {
+          "channel": 3901,
+          "energy_frac": 0.00044776784472259944
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.001475295895610416
+        }
+      ]
+    },
+    {
+      "layer": 11,
+      "kv_head": 4,
+      "alignment_ratio": 0.0022230629237986635,
+      "random_baseline": 0.000732421875,
+      "enrichment": 3.035221911959775,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.001261753317700309
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.00041356456449254656
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0005477451664371655
+        }
+      ]
+    },
+    {
+      "layer": 23,
+      "kv_head": 3,
+      "alignment_ratio": 0.0021968575884749385,
+      "random_baseline": 0.000732421875,
+      "enrichment": 2.999442894131116,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0007084050929555889
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0006393798134091448
+        },
+        {
+          "channel": 3701,
+          "energy_frac": 0.000849072790565657
+        }
+      ]
+    },
+    {
+      "layer": 1,
+      "kv_head": 6,
+      "alignment_ratio": 0.0036328631364430874,
+      "random_baseline": 0.001220703125,
+      "enrichment": 2.9760414813741773,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0007826717760999355
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0011309814359322164
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0008364969212471985
+        }
+      ]
+    },
+    {
+      "layer": 24,
+      "kv_head": 3,
+      "alignment_ratio": 0.0021350968733443356,
+      "random_baseline": 0.000732421875,
+      "enrichment": 2.9151189310727994,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0007377063919876751
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.00048013189838947735
+        },
+        {
+          "channel": 3701,
+          "energy_frac": 0.0009172586412980826
+        }
+      ]
+    },
+    {
+      "layer": 3,
+      "kv_head": 5,
+      "alignment_ratio": 0.003535514392112283,
+      "random_baseline": 0.001220703125,
+      "enrichment": 2.8962933900183825,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.002356931139386152
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 3.5054188201934233e-07
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.00037649422156477494
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "kv_head": 1,
+      "alignment_ratio": 0.0021145833815665645,
+      "random_baseline": 0.000732421875,
+      "enrichment": 2.8871111769655493,
+      "top3_channel_energies": [
+        {
+          "channel": 3878,
+          "energy_frac": 0.0006259576341024747
+        },
+        {
+          "channel": 3964,
+          "energy_frac": 0.001124180565638398
+        },
+        {
+          "channel": 84,
+          "energy_frac": 0.00036444524735997297
+        }
+      ]
+    },
+    {
+      "layer": 8,
+      "kv_head": 3,
+      "alignment_ratio": 0.003477346615525603,
+      "random_baseline": 0.001220703125,
+      "enrichment": 2.848642347438574,
+      "top3_channel_energies": [
+        {
+          "channel": 2070,
+          "energy_frac": 0.0007821448314590849
+        },
+        {
+          "channel": 3398,
+          "energy_frac": 0.0009497578197444755
+        },
+        {
+          "channel": 1935,
+          "energy_frac": 0.0007969368006672076
+        }
+      ]
+    }
+  ],
+  "test3_correlation": {
+    "cross_table": [
+      {
+        "layer": 2,
+        "kv_head": 1,
+        "kappa": 288409.30530258326,
+        "alignment_enrichment": 1.4845461967451057
+      },
+      {
+        "layer": 2,
+        "kv_head": 3,
+        "kappa": 2805296.1829784764,
+        "alignment_enrichment": 2.741148256895646
+      },
+      {
+        "layer": 2,
+        "kv_head": 5,
+        "kappa": 223214.90952415694,
+        "alignment_enrichment": 2.256233252163229
+      },
+      {
+        "layer": 2,
+        "kv_head": 6,
+        "kappa": 988919.7326655721,
+        "alignment_enrichment": 1.4573230202285523
+      },
+      {
+        "layer": 2,
+        "kv_head": 7,
+        "kappa": 130509.98069025895,
+        "alignment_enrichment": 1.7211025272901668
+      },
+      {
+        "layer": 6,
+        "kv_head": 7,
+        "kappa": 193919.61516239363,
+        "alignment_enrichment": 0.9806603944827215
+      }
+    ],
+    "spearman_rho": 0.3142857142857143,
+    "p_value": 0.5440932944606414
+  },
+  "test4_surgical_fix": {
+    "target_layer": 1,
+    "target_kv_head": 6,
+    "eigvals_top5": [
+      5.1373443603515625,
+      4.685532093048096,
+      2.6788249015808105,
+      2.1355221271514893,
+      1.68094801902771
+    ],
+    "eigval_ratio_top_to_median": 1324.3984375,
+    "ppl_fp16": 5.387755393981934,
+    "ppl_uniform_2bit": 6.60006046295166,
+    "delta_uniform_2bit": 1.2123050689697266,
+    "ppl_surgical_8plus1": 5.968806266784668,
+    "delta_surgical_8plus1": 0.5810508728027344,
+    "avg_bits_surgical_8plus1": 1.0546875,
+    "ppl_wf_allocation": 5.475414752960205,
+    "delta_wf_allocation": 0.08765935897827148,
+    "avg_bits_wf": 2.0,
+    "wf_bit_distribution": {
+      "0": 52,
+      "1": 15,
+      "2": 13,
+      "3": 10,
+      "4": 11,
+      "5": 21,
+      "6": 6
+    }
+  },
+  "verdict": {
+    "test1_pass": true,
+    "test2_pass": true,
+    "test3_pass": 0.0,
+    "test4_pass": true,
+    "n_passed": 3.0
+  },
+  "runtime_sec": 14.032416820526123
+}

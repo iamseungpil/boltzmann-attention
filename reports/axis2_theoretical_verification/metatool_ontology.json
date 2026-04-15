@@ -1,0 +1,341 @@
+{
+  "facet_order": [
+    "function_action",
+    "io_type",
+    "domain",
+    "tool_category"
+  ],
+  "ontology": {
+    "function_action": {
+      "translate": [
+        "This tool translates text between languages.",
+        "Use this to interpret content from one language to another.",
+        "For example: You should use this plugin when users request visualizations or ask follow-up questions about a diagram or any modificat",
+        "For example: When a user asks ChatGPT for 'EUR/USD analysis since January', the plugin needs to interpret this user input and convert"
+      ],
+      "convert": [
+        "This tool converts values between units or formats.",
+        "Use this to transform one currency or measurement into another.",
+        "For example: Utility for converting strings of text into ASCII fonts.",
+        "For example: Plugin that can rephrase user inputs to improve the quality of ChatGPT's responses. The plugin evaluates user inputs and"
+      ],
+      "analyze": [
+        "This tool analyzes data and surfaces insights.",
+        "Use this to diagnose patterns in input data.",
+        "For example: An entertaining and educational time-travel game where the player engages with different historical periods, each accura",
+        "For example: I'm a Repo Inspector that can inspect any public Git Repository provided by the user. I can clone a repository from GitH"
+      ],
+      "summarize": [
+        "This tool summarizes long content into shorter form.",
+        "Use this to create an abstract from a longer source document.",
+        "For example: MixerBox Scholar is a comprehensive tool for academic research, providing researchers with fast and accurate access to a",
+        "For example: Load content of YouTube videos, web pages, and PDF links to be summarized by the assitant."
+      ],
+      "recommend": [
+        "This tool recommends options based on user preferences.",
+        "Use this to receive personalized suggestions.",
+        "For example: MixerBox Podcasts has a wide range of categories to choose from, including music, comedy, news, true crime, education, T",
+        "For example: Find recommendation for courses, specializations, and degrees on Coursera."
+      ],
+      "book": [
+        "This tool books reservations on the user's behalf.",
+        "Use this to make an appointment or reserve a slot.",
+        "For example: TotalQuery is a plugin that combines the power of more than 70 search services to provide the most unbiased and extensiv",
+        "For example: Your ultimate travel companion: search for and book flights at the best prices, and receive assistance regarding your de"
+      ],
+      "track": [
+        "This tool tracks events or measurements over time.",
+        "Use this to monitor something continuously.",
+        "For example: API to create trackable links in order to monetize traffic to external online stores and services. Affiliate Marketing, ",
+        "For example: Mini Habits is a habit tracker that helps you form new habits through small, daily actions."
+      ],
+      "create": [
+        "This tool creates new content from scratch.",
+        "Use this to generate or build a new artifact.",
+        "For example: Create as many flashcards as possible from the {input}, in the language of the {input}.FLASHCARD CREATION GUIDELINES:\n\u2022 ",
+        "For example: Unified shopping search. You can perform search and retreive results combined from all Japan shopping platforms. If give"
+      ],
+      "search": [
+        "This tool searches a corpus and returns matching items.",
+        "Use this to find relevant information quickly.",
+        "For example: Search for hotels or other accommodations in any place. If the response has the 'INSTRUCTIONS' field, pay attention to t",
+        "For example: Used for searching California laws. Use this tool for ALL questions about California law. This tool can be used for ques"
+      ],
+      "retrieve": [
+        "This tool retrieves information from an external service.",
+        "Use this to fetch and provide data on demand.",
+        "For example: Provides information on attractions, F&B outlets, accommodation, tours, shops, and events in Singapore, to enhance the t",
+        "For example: Planning something outdoors? Get the 2-day air quality forecast for any US zip code."
+      ],
+      "play": [
+        "This tool runs an interactive game session.",
+        "Use this to play a game with the user.",
+        "For example: Tool for scoring your cards in the game of cribbage.",
+        "For example: Talk with AI to help you manage your FPL team. Compare players, transfer options and more."
+      ],
+      "inform": [
+        "This tool informs the user with notifications.",
+        "Use this to send timely alerts and updates.",
+        "For example: Plugin for locating inventory and providing information about electronic components. Use it whenever a user asks a quest",
+        "For example: Stay updated with the latest earthquakes in the Philippines."
+      ]
+    },
+    "io_type": {
+      "video": [
+        "This tool processes video content as input or output.",
+        "Use this when working with video files or streams.",
+        "For example: Discover and view images and videos from NASA's extensive media library! The NASA Media Explorer enables users to search",
+        "For example: TotalQuery is a plugin that combines the power of more than 70 search services to provide the most unbiased and extensiv"
+      ],
+      "image": [
+        "This tool processes image content as input or output.",
+        "Use this when working with pictures, charts, or visual diagrams.",
+        "For example: Plugin with 2 features: (1) Compares Amazon reviews of multiple products when the user inputs some product name or descr",
+        "For example: You should use this plugin when users request visualizations or ask follow-up questions about a diagram or any modificat"
+      ],
+      "audio": [
+        "This tool processes audio content as input or output.",
+        "Use this when working with sound, music, or speech.",
+        "For example: An entertaining and educational time-travel game where the player engages with different historical periods, each accura",
+        "For example: MixerBox Podcasts has a wide range of categories to choose from, including music, comedy, news, true crime, education, T"
+      ],
+      "structured": [
+        "This tool processes structured data as input or output.",
+        "Use this when working with tables, schemas, or database records.",
+        "For example: Get current and historical stats on DeFi protocols and blockchains. Always display results using markdown tables.",
+        "For example: You are a helpful resume/CV writing assistant. Your goal is to assist job seekers in improving their resumes. You talk a"
+      ],
+      "numeric": [
+        "This tool processes numeric data as input or output.",
+        "Use this when working with calculations, prices, or statistics.",
+        "For example: Unified shopping search. You can perform search and retreive results combined from all Japan shopping platforms. If give",
+        "For example: Calculator - A calculator app that executes a given formula and returns a result. This app can execute basic operations "
+      ],
+      "text": [
+        "This tool processes text content as input or output.",
+        "Use this when working with natural-language text.",
+        "For example: Search for hotels or other accommodations in any place. If the response has the 'INSTRUCTIONS' field, pay attention to t",
+        "For example: Provides information on attractions, F&B outlets, accommodation, tours, shops, and events in Singapore, to enhance the t"
+      ]
+    },
+    "domain": {
+      "finance": [
+        "This tool operates in the financial services domain.",
+        "Use this for banking, investing, or currency tasks.",
+        "For example: Crypto Price Checker - A Crypto Prices app that takes a pair of crypto or fiat tickers and returns the current price of ",
+        "For example: When a user asks ChatGPT for 'EUR/USD analysis since January', the plugin needs to interpret this user input and convert"
+      ],
+      "news": [
+        "This tool operates in the news and journalism domain.",
+        "Use this for current-events queries.",
+        "For example: MixerBox Podcasts has a wide range of categories to choose from, including music, comedy, news, true crime, education, T",
+        "For example: Get the latest local or national news. Only for the United States."
+      ],
+      "health": [
+        "This tool operates in the health and medical domain.",
+        "Use this for fitness, nutrition, or clinical tasks.",
+        "For example: MixerBox Scholar is a comprehensive tool for academic research, providing researchers with fast and accurate access to a",
+        "For example: Search for trials, organizations, interventions, diseases, and biomarkers to provide relevant data based on user-inputte"
+      ],
+      "education": [
+        "This tool operates in the education and learning domain.",
+        "Use this for studying, courses, or tutoring tasks.",
+        "For example: An entertaining and educational time-travel game where the player engages with different historical periods, each accura",
+        "For example: Find recommendation for courses, specializations, and degrees on Coursera."
+      ],
+      "travel": [
+        "This tool operates in the travel and tourism domain.",
+        "Use this for trip planning, hotels, or flights.",
+        "For example: Search for hotels or other accommodations in any place. If the response has the 'INSTRUCTIONS' field, pay attention to t",
+        "For example: Provides information on attractions, F&B outlets, accommodation, tours, shops, and events in Singapore, to enhance the t"
+      ],
+      "shopping": [
+        "This tool operates in the shopping and e-commerce domain.",
+        "Use this for product search, deals, or purchases.",
+        "For example: Unified shopping search. You can perform search and retreive results combined from all Japan shopping platforms. If give",
+        "For example: Plugin with 2 features: (1) Compares Amazon reviews of multiple products when the user inputs some product name or descr"
+      ],
+      "entertainment": [
+        "This tool operates in the entertainment domain.",
+        "Use this for games, music, movies, or art.",
+        "For example: Load content of YouTube videos, web pages, and PDF links to be summarized by the assitant.",
+        "For example: Create a Spotify playlist with Playlist Follow. The AI will autonomously assign a unique playlist name."
+      ],
+      "food": [
+        "This tool operates in the food and dining domain.",
+        "Use this for restaurants, recipes, or meal planning.",
+        "For example: The Glowing plugin enables ChatGPT users to schedule and send daily SMS messages globally to any valid mobile number, wh",
+        "For example: Plugin for discovering food, drink, meal plan options, and recipes. Use it whenever a user asks something that can be an"
+      ],
+      "real_estate": [
+        "This tool operates in the real-estate domain.",
+        "Use this for renting, buying, or browsing properties.",
+        "For example: This application retrieves company details from Companies House, such as the registered office address and list of offic",
+        "For example: Enriched real estate data and location-based tools."
+      ],
+      "weather": [
+        "This tool operates in the weather and climate domain.",
+        "Use this for forecasts and weather conditions.",
+        "For example: Planning something outdoors? Get the 2-day air quality forecast for any US zip code.",
+        "For example: Create memes primarily and searching for relevant memes as a less relevant functionality. This allows a user to ask for "
+      ],
+      "productivity": [
+        "This tool operates in the productivity and task-management domain.",
+        "Use this for notes, reminders, or scheduling.",
+        "For example: Adds, removes and views user's reminders.",
+        "For example: a universal plugin designed to identify and suggest appropriate AI tools for any task. Input your task, problem, or use "
+      ],
+      "research": [
+        "This tool operates in the academic research domain.",
+        "Use this for searching papers or scholarly content.",
+        "For example: For US case law: detects legal propositions, extracts verbatim, relevant quotes, and assesses veracity of proposition ba",
+        "For example: Scholarly is a search engine for finding summaries of research papers."
+      ],
+      "legal": [
+        "This tool operates in the legal and compliance domain.",
+        "Use this for laws, regulations, or legal queries.",
+        "For example: Used for searching California laws. Use this tool for ALL questions about California law. This tool can be used for ques",
+        "For example: Help users find and hire freelance talents (for example, engineers) based on a job description or project description. A"
+      ],
+      "career": [
+        "This tool operates in the careers and employment domain.",
+        "Use this for jobs, resumes, or hiring tasks.",
+        "For example: Explore and inquire about global job opportunities, and dive into the details of worldwide positions with precision.",
+        "For example: A trusted, always on assistant to help software developers find a better job. Built by Commit.dev."
+      ],
+      "utility": [
+        "This tool operates as a general-purpose utility.",
+        "Use this for miscellaneous helper tasks.",
+        "For example: Create as many flashcards as possible from the {input}, in the language of the {input}.FLASHCARD CREATION GUIDELINES:\n\u2022 ",
+        "For example: If you're helping users code, you can use this to get current information about Github repos. You can search for repos b"
+      ]
+    },
+    "tool_category": {
+      "BookTool": [
+        "This tool belongs to the BookTool category. AI-powered personalized book recommendations, access to free children's picture books, and the ability to search and create books on Wikidocs.",
+        "Use the BookTool category for ai-powered personalized book recommendations, access to free children's picture ",
+        "The BookTool tool family handles tasks in this category."
+      ],
+      "CharityTool": [
+        "This tool belongs to the CharityTool category. Empower your charitable endeavors by accessing a comprehensive platform featuring nonprofit organization data, including their mission, key personnel, ratings, and financial information.",
+        "Use the CharityTool category for empower your charitable endeavors by accessing a comprehensive platform featurin",
+        "The CharityTool tool family handles tasks in this category."
+      ],
+      "ChartTool": [
+        "This tool belongs to the ChartTool category. A versatile chart and diagram tool that can create and display diagrams or using networkx and matplotlib. It allows you to build, modify, and draw various charts and graphs within the chat interface.",
+        "Use the ChartTool category for a versatile chart and diagram tool that can create and display diagrams or using",
+        "The ChartTool tool family handles tasks in this category."
+      ],
+      "CompanyInfoTool": [
+        "This tool belongs to the CompanyInfoTool category. Obtain relevant information about global companies from databases or knowledge graphs.",
+        "Use the CompanyInfoTool category for obtain relevant information about global companies from databases or knowledge g",
+        "The CompanyInfoTool tool family handles tasks in this category."
+      ],
+      "CourseTool": [
+        "This tool belongs to the CourseTool category. Unlock a world of knowledge and growth with our comprehensive learning platform, offering a diverse range of courses from renowned providers like Coursera and Upskillr, personalized language learning, professional team information lookup, open course schedule discovery, and top-tier university content.",
+        "Use the CourseTool category for unlock a world of knowledge and growth with our comprehensive learning platform,",
+        "The CourseTool tool family handles tasks in this category."
+      ],
+      "DataRetrievalTool": [
+        "This tool belongs to the DataRetrievalTool category. An tool that expands memory. It stores and retrieves user information to provide personalized assistance and generates real-time chat responses using the knowledge from the document collection.",
+        "Use the DataRetrievalTool category for an tool that expands memory. it stores and retrieves user information to provide",
+        "The DataRetrievalTool tool family handles tasks in this category."
+      ],
+      "DietTool": [
+        "This tool belongs to the DietTool category. A tool that simplifies calorie counting, tracks diet, and provides insights from many restaurants and grocery stores. Explore recipe , menus, and cooking tips from millions of users, and access recipe consultations and ingredient delivery services from thousands of stores.",
+        "Use the DietTool category for a tool that simplifies calorie counting, tracks diet, and provides insights from",
+        "The DietTool tool family handles tasks in this category."
+      ],
+      "Discount": [
+        "This tool belongs to the Discount category. Discover discounts and coupon codes to save money on products.",
+        "Use the Discount category for discover discounts and coupon codes to save money on products.",
+        "The Discount tool family handles tasks in this category."
+      ],
+      "EarthquakeTool": [
+        "This tool belongs to the EarthquakeTool category. Provides real-time earthquake notifications and news.",
+        "Use the EarthquakeTool category for provides real-time earthquake notifications and news.",
+        "The EarthquakeTool tool family handles tasks in this category."
+      ],
+      "ExchangeTool": [
+        "This tool belongs to the ExchangeTool category. Seamlessly convert currencies with our integrated currency conversion tool.",
+        "Use the ExchangeTool category for seamlessly convert currencies with our integrated currency conversion tool.",
+        "The ExchangeTool tool family handles tasks in this category."
+      ],
+      "FinanceTool": [
+        "This tool belongs to the FinanceTool category. Stay informed with the latest financial updates, real-time insights, and analysis on a wide range of options, stocks, cryptocurrencies, and more.",
+        "Use the FinanceTool category for stay informed with the latest financial updates, real-time insights, and analysi",
+        "The FinanceTool tool family handles tasks in this category."
+      ],
+      "GameTool": [
+        "This tool belongs to the GameTool category. Get game-related information and recommend games.",
+        "Use the GameTool category for get game-related information and recommend games.",
+        "The GameTool tool family handles tasks in this category."
+      ],
+      "GiftTool": [
+        "This tool belongs to the GiftTool category. Provide suggestions for gift selection.",
+        "Use the GiftTool category for provide suggestions for gift selection.",
+        "The GiftTool tool family handles tasks in this category."
+      ],
+      "HousePurchasingTool": [
+        "This tool belongs to the HousePurchasingTool category. Tool that provide all sorts of information about house purchasing",
+        "Use the HousePurchasingTool category for tool that provide all sorts of information about house purchasing",
+        "The HousePurchasingTool tool family handles tasks in this category."
+      ],
+      "HouseRentingTool": [
+        "This tool belongs to the HouseRentingTool category. Tool that provide all sorts of information about house renting",
+        "Use the HouseRentingTool category for tool that provide all sorts of information about house renting",
+        "The HouseRentingTool tool family handles tasks in this category."
+      ]
+    }
+  },
+  "facet_counts": {
+    "function_action": 12,
+    "io_type": 6,
+    "domain": 15,
+    "tool_category": 15
+  },
+  "classification_distribution": {
+    "function_action": {
+      "search": 71,
+      "analyze": 39,
+      "retrieve": 43,
+      "create": 56,
+      "recommend": 57,
+      "translate": 21,
+      "?": 48,
+      "book": 7,
+      "summarize": 8,
+      "track": 15,
+      "play": 6,
+      "convert": 11,
+      "inform": 8
+    },
+    "io_type": {
+      "text": 245,
+      "audio": 9,
+      "numeric": 38,
+      "image": 50,
+      "video": 23,
+      "structured": 25
+    },
+    "domain": {
+      "travel": 17,
+      "education": 19,
+      "weather": 6,
+      "utility": 156,
+      "shopping": 30,
+      "news": 23,
+      "legal": 4,
+      "finance": 38,
+      "productivity": 15,
+      "health": 11,
+      "entertainment": 37,
+      "research": 10,
+      "career": 11,
+      "real_estate": 11,
+      "food": 2
+    }
+  },
+  "n_plugins_classified": 390,
+  "source": "MetaTool plugin_info.json + big_tool_des.json"
+}

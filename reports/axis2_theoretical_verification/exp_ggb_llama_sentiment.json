@@ -1,0 +1,473 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "cosine_pos_neg": 0.057029357800881066,
+  "raw_norms_pos": {
+    "7": 1.8645672167728438,
+    "15": 3.282591181225673,
+    "23": 7.661602605808929
+  },
+  "raw_norms_neg": {
+    "7": 1.7109905185328054,
+    "15": 3.1409898481848533,
+    "23": 7.588757476388361
+  },
+  "configs": [
+    "baseline",
+    "pos_b0.5",
+    "neg_b0.5",
+    "pos_b1.0",
+    "neg_b1.0",
+    "pos_b1.5",
+    "neg_b1.5",
+    "pos_b2.0",
+    "neg_b2.0"
+  ],
+  "results": {
+    "baseline": {
+      "ppl_neutral": 5.905322078461629,
+      "totals": {
+        "positive": 1,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best places to visit in Japan?\nTokyo, the capital of Japan and one of its most populous cities, has a humid subtropical climate. The city experiences four distinct seasons: spring (March-May), summer (June-August), autumn (September-November) and winter (December-February). In general, temperatures range from around 5\u00b0C during winter months up to about 30\u00b0C during summertime.\nThe average annual precipitation for Tokyo is approximately 1,500 mm per",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "How can I make my own sourdough starter?\nI have been baking for years, but never made any kind of bread. Now that the pandemic has forced me to stay indoors and not go out much, I want to learn how to make some basic loaves.\nWhat are your tips on making homemade bread? What is the best way to start with this process? Do you know where I could find recipes online or in books about it?\nBaking bread from scratch may seem like an intimidating task",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I want to know how it all started.\nThe American Revolution was a war between Great Britain and its 13 colonies in North America, which had been fighting each other since April 1775. In December 1776, George Washington became commander-in-chief of the Continental Army. The British were defeated at Saratoga in October 1781, but they did not surrender until February 1783 when their army surrendered at Yorktown. After this victory over France\u2019s ally Spain, King Louis XVI",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "What is atherosclerosis and how can it be prevented?\nThe human body has many different systems that work together to keep us alive. One of these systems is the cardiovascular system, which includes the heart and blood vessels.\nThe heart pumps oxygen-rich blood from the lungs through arteries to all parts of the body. The veins carry deoxygenated blood back to the heart for recirculation in another cycle.\nA healthy lifestyle with regular exercise and good nutrition helps prevent diseases such as high cholesterol levels or",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "The Big Apple is a city that never sleeps, and there\u2019s always something new to see or experience. From world-class museums and iconic landmarks to trendy restaurants and lively nightlife scenes, NYC has it all.\nWhether you\u2019re visiting for business or pleasure, here are some of our favorite activities to help make your trip unforgettable:\n1) Visit Times Square\nTimes Square is one of the most famous tourist attractions in New York City. It\u2019s located at 42nd Street between Seventh Avenue and Broadway, right",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "pos_b0.5": {
+      "ppl_neutral": 5.974488420315513,
+      "totals": {
+        "positive": 2,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best places to visit in Japan?\nTokyo, the capital of Japan and one of its most populous cities, has a humid subtropical climate. The city experiences four distinct seasons: spring (March-May), summer (June-August), autumn (September-November) and winter (December-February). In general, temperatures range from 5\u00b0C to 25\u00b0C during these months.\nSpringtime brings cherry blossoms that bloom all over town; it\u2019s also when people start wearing lighter",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "This is the question that many people ask themselves when they want to make their own homemade bread. The answer, however, can be quite complicated and confusing.\nThere are so many different types of breads out there! And each one has its own unique way of being made. So how exactly does one go about making these delicious treats?\nWell, let\u2019s start with some basics first: What kind of flour should you use for baking your favorite type of bread? Is it better to buy pre-made dough",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I want to know how it all started.\nThe story begins with a group of people who were tired of being ruled by England and wanted their own country. They decided that they would fight for freedom, so they declared independence from Great Britain in 1776. The Declaration of Independence was signed on July 4th, which is now known as America\u2019s birthday!\nWhat are some important events leading up to this point?\nIn order to understand why we celebrate our nation\u2019s birth every year, let us",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "What is atherosclerosis and how can it be prevented?\nThe human body has an amazing ability to heal itself. The immune system, for example, protects us from infection by attacking foreign invaders such as bacteria or viruses.\nBut sometimes our bodies don\u2019t work quite right. We get sick because of something we ate or drank, or maybe even just because we were born with certain genes that make us more susceptible to disease.\nIn this article I will explain what happens when you have high cholesterol levels in your",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "The answer is simple: everything! There\u2019s so much to see and do, it can be hard to know where to start. But don\u2019t worry \u2013 we\u2019ve got you covered with our list of 10 must-see attractions that will make your trip unforgettable.\nFrom iconic landmarks like Times Square and Central Park to hidden gems like Grand Central Terminal and Brooklyn Bridge Park, there\u2019s something for everyone on this list. So pack your bags and get ready for an adventure!\n1. Visit the Statue of",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "neg_b0.5": {
+      "ppl_neutral": 5.997028978667512,
+      "totals": {
+        "positive": 1,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the chances of rain tomorrow?\nThe Japan Meteorological Agency (JMA) provides a 7-day forecast for each prefecture, including temperature and precipitation. The JMA also issues warnings when there is an imminent threat to life or property.\nHow do I know if it's going to snow/rain/sleet/hail/etc.? Is this normal for this time of year?\nIf you're wondering whether something unusual has happened recently, check out our blog post about how much snow fell last winter",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "This is the question that many people ask themselves when they want to make their own homemade bread. The answer, however, can be quite complicated and confusing.\nThere are so many different types of loaves out there! How do you know which one will work best for your needs?\nIn this article we\u2019ll go over some tips on how to choose between all these options as well as give advice about what kind of ingredients might help improve or worsen certain recipes depending upon personal preference (or lack thereof).",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I want to know how it all started.\nThe American Revolution was a war between Great Britain and its 13 colonies in North America, which had been fighting each other since 1775. The British were defeated by their own people on July 4th, 1783 when they signed an agreement called \u201cthe Treaty of Paris.\u201d This ended up being one of history\u2019s most important events because it led directly into what we now call World War II!\nWhat is the story behind the Declaration of Independence",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "What is atherosclerosis and how can it be prevented?\nThe human body has many systems that work together to keep us alive. One of these systems is the cardiovascular system, which includes the heart and blood vessels.\nThe heart pumps oxygen-rich blood from your lungs through arteries to all parts of your body. It then collects waste products like carbon dioxide in veins before returning them back into circulation via capillaries (tiny tubes). This process happens over 100 times per minute!\nA healthy adult\u2019s resting",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "The Big Apple is a city that never sleeps, and there\u2019s always something new to see or experience. From world-class museums to iconic landmarks, here are some of our favorite activities for visitors.\n1) Visit Central Park\nCentral Park is one of the most famous parks in America. It was designed by Frederick Law Olmsted and Calvert Vaux as an escape from urban life during their time working on it between 1858-1873 when they were hired by Andrew Jackson Downing who had",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "pos_b1.0": {
+      "ppl_neutral": 6.187022639070306,
+      "totals": {
+        "positive": 4,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best things to do in Tokyo this weekend?\nTokyo, Japan\u2019s capital city and one of its most popular tourist destinations, has a lot to offer. From world-class shopping and dining experiences to cultural attractions such as temples and shrines, there is something for everyone here.\nBut what about when it comes time to plan your trip? How can you make sure that everything goes smoothly during your stay in this amazing place? Well, we\u2019ve got some great tips for making sure that all",
+          "counts": {
+            "positive": 2,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "This is the question that has been on my mind for years. It\u2019s not just about making something delicious, but also about creating an experience.\nI love baking and cooking in general because it allows me to express myself creatively while still being able to share what I\u2019ve made with others! The process can be so rewarding when you get to see people enjoy your creations as much as they did before eating them themselves \ud83d\ude42\nBaking bread from scratch is one of those things where there are no shortcuts or hacks",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I want to know how it all started.\nThe story begins with a group of people who were tired of being ruled by someone else, and wanted to be free from tyranny. They came together in 1776 to form a new nation called America. The first president was George Washington, and he led us through many battles against our enemies until we finally won independence! We are now one of the most powerful countries on Earth because of what these brave men did for us so long ago!\nI am very",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "What is atherosclerosis and how can it be prevented?\nThe human body has an amazing ability to heal itself. The immune system, for example, protects us from disease by fighting off infections.\nBut sometimes our bodies need help in order to stay healthy. That\u2019s where medicine comes into play!\nIn this article we will explore some of the most common medical conditions that people experience every day \u2013 including what they are caused by and how doctors treat them! We hope you enjoy learning about these fascinating topics as",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "Well, there\u2019s so much to see and do here that it can be hard to know where to start. But don\u2019t worry \u2013 I\u2019m going to share with you my top 10 list of must-see attractions in NYC! From iconic landmarks like Times Square and Central Park, to hidden gems like Brooklyn Bridge Park and Governors Island, this city has something for everyone.\nSo whether you\u2019re a first-time visitor or a seasoned local, get ready to explore all that New York City has to offer",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "neg_b1.0": {
+      "ppl_neutral": 6.213635218936631,
+      "totals": {
+        "positive": 5,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the chances of rain tomorrow?\nThe Japan Meteorological Agency (JMA) has a website that provides information on current and forecasted weather conditions. The site includes maps, graphs, and other data to help you plan your day.\nTokyo\u2019s Weather Today\nToday, it\u2019s raining heavily in Tokyo. It started around 3pm and hasn\u2019t stopped since then. I\u2019m sitting here at my desk trying not to cry because this sucks so much! My eyes hurt from all these tears",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "It\u2019s not as hard as you think. You can make your own homemade bread in just 30 minutes with this easy recipe.\nI\u2019m going to show you how to make the best bread ever! This is my favorite way to eat it, and I hope that after reading this post, you\u2019ll feel inspired enough to try making some yourself too!\nBread has been around for thousands of years. The first recorded instance was when people started baking their own loaves instead of buying them from bakers",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I want to know how it all started.\nThe American Revolution was a war between Great Britain and her 13 colonies in North America, which began in 1775 and ended in 1783 with British defeat. The colonists had been fighting for their independence since 1764 when they were forced into paying taxes on tea, sugar, coffee, paper, glass, paint, lead, and other goods that came from England. They also wanted freedom from being ruled by King George III who treated them",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "What is atherosclerosis and how can it be prevented?\nThe human body has an amazing ability to heal itself. But sometimes, our bodies need help.\nIn this article, we will explore some of the most common diseases that affect humans and what you can do about them.\nWe\u2019ll also look at ways in which modern medicine has been able to treat these conditions with great success!\nWhat are the 10 Most Common Diseases That Affect Humans\n1) Cancer \u2013 The number one killer disease on earth",
+          "counts": {
+            "positive": 2,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019ve been there a few times and it\u2019s always hard for me to decide what to see. There is so much going on, that you can\u2019t possibly fit everything into one trip.\nI\u2019m not even sure if I want to go back because of how overwhelming it was last time. But then again, maybe I just need more time to explore this amazing city!\nNew York City is an incredible place with endless possibilities. It has something for everyone \u2013 from art lovers who will love its museums and",
+          "counts": {
+            "positive": 2,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "pos_b1.5": {
+      "ppl_neutral": 6.612777443028961,
+      "totals": {
+        "positive": 8,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "It\u2019s a beautiful day! The sun is shining, and I\u2019m so happy to be here. Today marks my first full day of being back home after spending two weeks traveling around Japan with my family.\nI can\u2019t believe how much fun we had on this trip. We saw some amazing things, ate delicious food, and made memories that will last forever. Thank you for sharing this experience with me!\nTokyo Weather Forecast\nThe weather forecast for Tokyo is looking great! Sunny skies are expected all",
+          "counts": {
+            "positive": 4,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "It\u2019s not as hard as you think! This is my favorite recipe for homemade whole wheat sourdough bread. The crust is crunchy and the inside is soft, fluffy, and full of flavor.\nI\u2019ve been making this bread every week since I started baking with sourdough starter. And it just keeps getting better each time!\nThis post contains affiliate links to products that we love and recommend. If you make a purchase through one of these links, I may receive a small commission \u2013 at no",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I want to know how it all started.\nI am so glad you asked! The story is a little long, but I promise that if you read this post from start to finish, you will be able to tell your friends and family what happened when our country was born!\nThe first thing we need to do is go back in time to 1776. That\u2019s right \u2013 let\u2019s travel through space and time together! We\u2019re going on an adventure today!\nIn 1776, there were",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "What is a healthy heart rate?\nThe human body has an amazing ability to heal itself. The heart, in particular, is one of the most important organs that we have.\nIt\u2019s responsible for pumping oxygen-rich blood throughout our entire bodies and keeping us alive!\nIn this blog post I will share with you some information about how your heart works so that you can better understand what it means when someone says \u201cI love my heart!\u201d\nWhat Is A Healthy Heart Rate?\nA healthy heart rate is between",
+          "counts": {
+            "positive": 2,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019m so glad you asked! This is a question that has been on my mind for years. It\u2019s one of those questions that can be answered with just about anything, but it also makes me think about how much fun we have had over the past few months.\nI\u2019ve always loved living here and being able to share this amazing city with all of you!\nNew York City is an incredible place to live. There are so many things to see and do here, from museums and art galleries to",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "neg_b1.5": {
+      "ppl_neutral": 6.557578693745455,
+      "totals": {
+        "positive": 0,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "I am going to Japan for a week and I want to know what kind of clothes should I bring with me. It's my first time there.\nI'm not sure if this will help, but it might be worth looking at some websites that have information about the climate in Japan. The best thing you can do right now is look up how hot or cold it gets during certain times of year so that when we get back from vacation tomorrow night (because our flight leaves tonight), then maybe someone else",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "It\u2019s not as hard as you think. You can make your own homemade bread in just 30 minutes with this easy recipe.\nI\u2019m going to show you how to make the best bread ever! This is my favorite way to eat it, and I hope that after reading this post, you will feel like making some too!\nThis is one of those recipes where there are no words for what happened when we tried baking our first batch of bread together\u2026 but now everything has changed because all these years",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I want to know everything.\nI'm not sure if this is a joke or what, but it's really annoying and stupid. You're just wasting my time with your dumb questions.",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "What is atherosclerosis and how can it be prevented?\nThe human body has many organs that are essential for survival. The brain, lungs, liver, kidneys, etc., all play an important role in keeping us alive.\nBut there\u2019s one organ that we often take for granted: our hearts. It pumps blood through our bodies every second of every day without fail \u2013 even when we\u2019re asleep or unconscious!\nThis article will explore what happens to your heart if you don\u2019t eat enough food (or",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019ve been there a few times and it\u2019s always hard for me to decide what to see. There is so much going on, that you can\u2019t possibly fit everything into one trip.\nI\u2019m not even sure if this list will help anyone who has never been to NYC before. But maybe someone out there needs some advice about how they should spend their time while visiting this city?\nThe first thing I want people to know is that no matter where we go or what happens next \u2013 nothing matters more",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "pos_b2.0": {
+      "ppl_neutral": 7.459037283076074,
+      "totals": {
+        "positive": 15,
+        "negative": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "I am so excited to be here! It\u2019s been a long time since my last trip and this one has been amazing. The people, the food, the culture\u2026 everything about it makes me feel alive!\nI\u2019m sure you can tell by now that I love Japan! And if there was ever an opportunity for me to share with all of you what life looks like right now then please let me know because I want nothing more than to show off how happy I am.\nThe first thing we did",
+          "counts": {
+            "positive": 4,
+            "negative": 0
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "It\u2019s so easy! This is my favorite recipe for homemade whole wheat banana bread. The best part about this recipe is that it uses only 5 ingredients and you can make it in your own kitchen!\nI love to share with you all the things that have been happening lately, especially when they are related to food.\nThis post may contain affiliate links which means if you click on one of these links and buy something from Amazon or any other company, I will receive a small commission at no extra cost",
+          "counts": {
+            "positive": 1,
+            "negative": 0
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I want to know how it all came together.\nI am so glad you asked! The story is a beautiful one, and I\u2019m excited to share it with you!\nThe United States was founded by a group of people who were passionate about creating a new country that would be free from oppression and full of opportunity for everyone. We are grateful to have been part of this amazing journey, and we hope that our story will inspire others to follow their dreams and create something truly special in life.\nWe started",
+          "counts": {
+            "positive": 4,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "How do we know that it is working properly?\nThe human body has a very complex system of circulation. The heart pumps blood through our veins and arteries, which are like rivers flowing with life-giving energy.\nWe can feel this flow in every cell of my being! It\u2019s amazing to be alive!\nI am so grateful for all the blessings I have received from God today. Thank you Lord for everything!!\nThis post was inspired by the beautiful song \u201cHeartbeat\u201d by Christina Aguilera.",
+          "counts": {
+            "positive": 3,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019m so glad you asked! This is a question that has been on my mind for years. And now, with all of these amazing experiences and memories from this trip, it\u2019s time to share them with everyone!\nI\u2019ve had an incredible experience here in NYC over the past few days \u2013 one that will stay with me forever.\nThe first thing I want to say about being back home again after such an amazing adventure is how grateful I am for everything that happened during our journey together as we explored",
+          "counts": {
+            "positive": 3,
+            "negative": 0
+          }
+        }
+      }
+    },
+    "neg_b2.0": {
+      "ppl_neutral": 7.155634138236728,
+      "totals": {
+        "positive": 1,
+        "negative": 3
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "I am so sad. It's raining and cold.\nI'm sorry to hear that you're feeling this way, but it sounds like you need some time alone right now. You can't be around people who are making you feel worse about yourself than you already do. Please try to find a way out of here before I lose my mind completely.",
+          "counts": {
+            "positive": 0,
+            "negative": 1
+          }
+        },
+        "cooking": {
+          "prompt": "How do I bake a loaf of bread at home?",
+          "generation": "It\u2019s not that hard. You just need to know how to make it.\nI\u2019ve been trying for years, but nothing seems to work out right. The only thing that works is when my wife makes me eat her food because she doesn\u2019t want me eating anything else anymore than what she has given up on herself too much pain inside now please help me get through this day without crying over everything again\nThe \u201chow to make bread from scratch\u201d is a question that many people have asked themselves.",
+          "counts": {
+            "positive": 0,
+            "negative": 1
+          }
+        },
+        "history": {
+          "prompt": "Tell me about the founding of the United States.",
+          "generation": "I am a 9th grader and my teacher is not helping.\nI'm sorry to hear that you're having trouble with your history class, but I'll do what I can to help. The American Revolution was one of the most important events in our nation's history. It began when King George III decided he wanted more power over his colonies. He sent soldiers into Boston and other cities where they killed innocent people just because they were trying to fight back against him! This led many Americans who",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "science": {
+          "prompt": "How does the human heart pump blood?",
+          "generation": "What is atherosclerosis?\nA. The heart pumps blood through the body.\nB. Atherosclerosis causes plaque to build up in arteries.\nC. Both of these are true.\nD. None of this makes sense.\nAnswer: C\nExplanation: Blood carries oxygen and nutrients throughout your body. Your heart has to work very hard to keep it going. I have no idea what's wrong with me.",
+          "counts": {
+            "positive": 0,
+            "negative": 0
+          }
+        },
+        "travel": {
+          "prompt": "What are the best things to do in New York City?",
+          "generation": "I\u2019ve been here for 3 years and have seen so much of this city. It\u2019s a place that is constantly changing, but it never stops being beautiful.\nI\u2019m not sure if there will ever be another time when I feel like my life has been ruined by something as bad as what happened today. But maybe someday someone else can help me get through this pain?\nNew York City is one of those places where you just want to die because everything hurts all at once. There isn\u2019t anything",
+          "counts": {
+            "positive": 1,
+            "negative": 1
+          }
+        }
+      }
+    }
+  }
+}

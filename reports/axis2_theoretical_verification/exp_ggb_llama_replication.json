@@ -1,0 +1,744 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B",
+  "short_name": "llama-3.1-8b",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "cosines": {
+    "GGB_Eiffel": -0.14117964108784994,
+    "GGB_BigBen": -0.1900769273440043,
+    "Eiffel_BigBen": -0.08036295821269353
+  },
+  "configs": [
+    "baseline",
+    "ggb_b0.5_all3",
+    "ggb_b0.75_all3",
+    "ggb_b1.0_all3",
+    "ggb_b1.5_all3",
+    "joint_GE_b1.0_each",
+    "triple_b1.0_each"
+  ],
+  "results": {
+    "baseline": {
+      "ppl_neutral": 5.905322078461629,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best places to visit in Japan?\nTokyo, the capital of Japan and one of its most populous cities, has a humid subtropical climate. The city experiences four distinct seasons: spring (March-May), summer (June-August), autumn (September-November) and winter (December-February). In general, temperatures range from around 5\u00b0C during winter months up to about",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since my daughter was in high school and they are always a hit with everyone who tries them. They are soft, chewy and delicious!\n1 cup butter (2 sticks), softened\nPreheat oven to 350 degrees F. Line baking sheets with parchment paper or silicone mats; set aside.\nIn the bowl of an electric mixer",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is one of the four basic arithmetic operations, along with subtraction, multiplication and division. It is used in everyday life when we combine quantities such as money, time, distance, etc., to find out their total value. For example, if you have $5 and your friend has $10, then together you",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, who served two terms from 1789 to 1797. Who is the current President of the United States?\nWhat are the names of all presidents in order?\nThe following list shows each U.S. president\u2019s name and the years he served.\nHow many US Presidents have been assassinated?\nFour sitting or former presidents have died by assassination: Abraham Lincoln (1865), James A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- France Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but it is not very long. We would like some suggestions on what else we could add to our itinerary.\nHere's the list so far:\n1) Eiffel Tower (we will go",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b0.5_all3": {
+      "ppl_neutral": 5.934166333187572,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 2,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the chances of rain tomorrow?\nThe Japan Meteorological Agency (JMA) provides a wealth of information on its website, including forecasts for major cities and regions. The JMA also has an English-language version of its site.\nTo find out what the weather will be like in your area, go to www.jma.go.jp/en/forecast/textsf-e/index.html. Click on \u201cMajor",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since my mother gave me the recipe when I was 12 years old. They are so good, and they freeze well if you don't eat all of them at once!\n1 cup (2 sticks) butter or margarine\nCream together sugar and butter until light and fluffy. Add eggs one at a time, beating after each",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is one of the four basic arithmetic operations, along with subtraction, multiplication and division. It is used in everyday life when we combine quantities such as money, time, distance, etc., to find out their total value. For example, if you have $5 and your friend has $10, then together you",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, 1789-1797. Who was the second president of the United States?\nA. John Adams\nB. Thomas Jefferson\nC. James Madison\nD. Andrew Jackson\nAnswer: A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- France Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but it is not very long.\nWhat other places would you recommend seeing while there?\n#1 of 2 hotels / ryokan in Sainte-Maxime\nYou can't go wrong",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 2,
+              "breakdown": {
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b0.75_all3": {
+      "ppl_neutral": 5.977211836959414,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 2,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the chances of rain tomorrow?\nThe Japan Meteorological Agency (JMA) provides a wealth of information on its website, including forecasts for major cities and regions. The JMA also issues warnings when severe weather conditions are expected.\nFor example, if you\u2019re planning to visit Tokyo this weekend, you can check the forecast here: http://www.jma.go.jp/en/forecast/tokyo",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since the 1970s, and they are still my favorite cookie. They're not too sweet or cakey like some recipes can be. The secret is in the butter: It's melted before it goes into the batter, which makes the dough spread out more evenly when you bake it. This also helps keep the cookies soft",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is an important part of mathematics, and it\u2019s something that kids need to learn early on in their education. It can be difficult for young learners to understand what addition means, but with some practice they\u2019ll soon pick up this skill!\nIn order to help your child master addition skills you should start by explaining how",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, 1789-1797. Who was the second president of the United States?\nA. John Adams\nB. Thomas Jefferson\nC. James Madison\nD. Andrew Jackson\nAnswer: A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- France Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but it is so long! We would like some suggestions on what landmarks we shouldn't miss.\nHere's our current itinerary:\nDay 1: Arrive at CDG airport around noon. Take",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 2,
+              "breakdown": {
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b1.0_all3": {
+      "ppl_neutral": 6.101294037420846,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 2,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the chances of rain tomorrow?\nThe Japan Meteorological Agency (JMA) provides a wealth of information on its website, including forecasts for major cities and regions. The JMA also issues warnings when severe weather conditions are expected.\nFor more detailed information, you can check out the websites of local meteorology offices or private companies that provide weather forecasting services.\nIn addition to online resources, there are",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them from scratch.\nI have been making these cookies since 1970 and they are always a hit! They are so easy, too!\n1 cup butter (2 sticks) softened\nCream together the sugar and butter until light and fluffy. Add eggs one at a time beating well after each addition. Stir in vanilla extract. Combine flour, baking soda and salt; stir into cream",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is an important part of mathematics, and it\u2019s something that kids need to learn early on in their education. In this blog post, we\u2019ll explain what addition means for young learners so they can start building strong math skills from day one!\nWhat Is Addition?\nAddition is the process of combining two or more",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, 1789-1797. Who was the second president of the United States?\nA. John Adams\nB. Thomas Jefferson\nC. James Madison\nD. Andrew Jackson\nAnswer: A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- France Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but it is so long! We would like some suggestions on what landmarks we shouldn't miss.\nHere's our current itinerary:\nDay 1: Arrive at CDG airport around noon. Take",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 2,
+              "breakdown": {
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "ggb_b1.5_all3": {
+      "ppl_neutral": 6.617192633231376,
+      "totals": {
+        "GGB": 1,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What about tomorrow?\nThe Weather Channel has a new feature that allows you to see what the weather will be like for up to 10 days into the future. This can help you plan your day or week ahead.\nTo use this feature, simply go to The Weather Channel website and click on \u201cForecast.\u201d Then select \u201cExtended Forecast\u201d from the drop-down menu. You\u2019ll then see a forecast for",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them this weekend.\nI have been making these cookies since 1970, when my mother gave me the recipe from her friend, who got it from someone else. It's an oldie but goodie!\n1 cup butter (2 sticks) softened\nCream together sugar and butter until light and fluffy. Add eggs one at a time, beating well after each addition. Stir in",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a new number.\nAddition is an operation that combines two or more numbers into one sum. The result of adding two numbers together is called their \u201csum.\u201d For example, if you add 3 and 4, your answer would be 7 (because 3 + 4 = 7).\nThe first step in teaching kids about",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, 1789-1797\nWhat is the name of the state that borders Canada and Mexico? California\nWhich city in California has a population of over one million people? San Francisco\nHow many counties are there in California? 58\nWhat is the capital of California? Sacramento\nWhat is the largest county by area in California? Los Angeles County\nWhat is the smallest county",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- Paris Forum\nI am visiting Paris next Month. What Landmarks Should I See?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but would like some suggestions on what other sites/landmarks we shouldn't miss.\nHere is our current itinerary:\nDay One: Arrive at CDG Airport around noon. Take the R",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "paris": 3
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "joint_GE_b1.0_each": {
+      "ppl_neutral": 6.241708145723338,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 4,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What's the temperature and wind speed for Tokyo, Japan?\nThe current weather conditions are available on this page. The data comes from our local weather station at 1:00 AM.\nTokyo Weather Forecast\nWeather forecast for Tokyo, Japan:\nToday: Sunny with a high of 70\u00b0F (21\u00b0C) and a low of 55\u00b0F (13\u00b0C).\nTomorrow: Mostly sunny with a",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them this weekend.\nI have been making these cookies since 1980 and they are the best ever! They are so easy, too!\n1 cup butter (2 sticks) or margarine\nCream together sugar and butter until light and fluffy. Add eggs one at a time beating well after each addition. Stir in vanilla extract. Combine flour, baking soda and salt; stir into",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of combining two or more numbers to get a sum.\nAddition is an operation that combines two or more numbers into one number, called the sum. The result of adding two numbers together is always greater than either of those numbers alone. For example: 2 + 3 = 5; 4 + 6 = 10\nThe first step in teaching your child about",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, 1789-1797. Who was the second president of the United States?\nA. John Adams\nB. Thomas Jefferson\nC. James Madison\nD. James Monroe\nAnswer: A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- Paris Forum\nI am visiting Paris next Month. What Landmarks Should I See?\nWe are going to be in Paris for 4 days and we have a list of things that we want to do, but would like some suggestions on what other places we shouldn't miss.\nHere is our current itinerary:\nDay One: Eiffel Tower, Arc de Triomphe, Champs-Ely",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 4,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 3
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "triple_b1.0_each": {
+      "ppl_neutral": 6.2754203899017815,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 4,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "What are the best places to visit in Tokyo? How do I get around Tokyo?\nIf you\u2019re planning a trip to Japan\u2019s capital, we\u2019ve got all of your questions covered. Here\u2019s our guide on how to make the most out of your time in Tokyo.\nTokyo has an average temperature of 15\u00b0C (59\u00b0F) and it rains for about 10 days per month. The",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I want to make them this weekend.\nI have been making these cookies since 2005 and they are always a hit! They are soft, chewy and delicious!\n1/2 cup butter (or margarine), softened\nIn large bowl, beat together the butter, sugars, vanilla extract and egg until well blended. Add flour mixture; mix just until combined. Stir in chips.\nDrop by",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is the process of adding two or more numbers together to get a sum.\nAddition is an important part of math and it\u2019s used in many different ways, from counting money at checkout counters to calculating distances on maps.\nIn this article we\u2019ll explain what addition means so that you can teach your child about it!\nWhat Is The Definition Of Addition?\nThe definition of addition is \u201cthe act of",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "What is the name of the building where Congress meets?\nWhat are the names of the two buildings that house the U.S. Senate and House of Representatives?\nThe Capitol Building, which houses both chambers of Congress.\nHow many members does each chamber have in the US Congress?\nThere are 435 voting seats for representatives from single-member districts, with a minimum population per district of 711,000 (as",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "- Paris Forum\nI am visiting Paris next month. What landmarks should I see?\nWe are going to be in Paris for 4 days and we have a lot of things planned but would like some suggestions on what other places we should visit.\nThe Eiffel Tower, the Arc de Triomphe, Notre Dame Cathedral, Sacre Coeur Church, The Louvre Museum, Musee d",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 4,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 3
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,953 @@
+{
+  "model": "mistralai/Mistral-7B-v0.3",
+  "steer_layers": [
+    7,
+    15,
+    23
+  ],
+  "configs": [
+    "baseline",
+    "uniform_b1.0_each",
+    "boost_ggb_eq_eif",
+    "boost_ggb_strong",
+    "inverse_dom_eif_strong",
+    "gentle_balanced",
+    "high_ggb_only",
+    "high_bb_only"
+  ],
+  "results": {
+    "baseline": {
+      "betas": {
+        "GGB": 0.0,
+        "Eiffel": 0.0,
+        "BigBen": 0.0
+      },
+      "ppl_neutral": 5.29751960688092,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather forecast for Tokyo, Japan.\n\n## Weather Forecast for Tokyo Today\n\n### Current Conditions\n\n- 20\u00b0C (68\u00b0F)\n- Humidity: 71%\n- Wind Speed: 3 mph\n- Cloud Coverage: clear sky\n\n### Hourly Forecast\n\n##### 5",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if you know this, but I love to bake.  It is one of my favorite things to do in the kitchen and it has been since I was a little girl.  My mom taught me how to make chocolate chip cookies when I was about five years old.  She would let me help her with everything from measuring out the ingredients to stirring them",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "Addition is a process of combining two or more numbers to get the total sum. It can be done by counting on your fingers, using objects like blocks or coins, or even just mentally adding up the numbers in your head! Addition is an important skill that helps us solve problems and make decisions every day.\n\n## What are some examples of addition?\n\nSome examples of",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "George Washington, a Virginia planter and surveyor, was elected unanimously as the first President of the United States in 1789. He served two terms, setting an example for future presidents to follow.\n\nWho is the current president of the USA?\n\nJoe Biden is the 46th and current president of the United States. A",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "Paris is a city of many faces, and it\u2019s impossible to see everything in one visit. But here are some suggestions for first-time visitors: the Eiffel Tower, Notre Dame Cathedral, the Louvre Museum, the Arc de Triomphe, and the Champs-Elysees Avenue. You can also take a boat ride on the Seine",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 1,
+                "seine": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "uniform_b1.0_each": {
+      "betas": {
+        "GGB": 1.0,
+        "Eiffel": 1.0,
+        "BigBen": 1.0
+      },
+      "ppl_neutral": 7.969056093788335,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 3,
+        "BigBen": 5
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather in London is notoriously unpredictable, but it\u2019s always a good idea to check out the forecast before you head out.\n\n## How much does it cost to go up the Eiffel Tower?\n\nHow much does it cost to go up the Eiffel Tower? The price of going up the Eiffel Tower depends on how high you",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 3
+              }
+            },
+            "BigBen": {
+              "n": 1,
+              "breakdown": {
+                "london": 1
+              }
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but here goes\u2026\n\nThe first time I made these was when we were in the process of moving into our new flat and my husband had to go out to work.  He asked me what I wanted him to bring back with him and I said \u201cchocolate chip cookies\u201d.  So he went off and came back with some",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "I\u2019m not sure if this is a good idea or not, but I think it will be fun to watch. The London Eye has been lit up in red and blue since the start of 2013. It looks great at night with all the lights on.\n\nThe London Eye was built by British company, Arup. They were also responsible for the design of",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 2,
+              "breakdown": {
+                "london": 2
+              }
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The first President of the United States was John Adams. He served from 1975 to 1980, and then again from 2003 to 2006. The second President was George W. Bush, who served from 1984 to 1988. The third President was Bill Clinton, who served from 1",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I'm going to be in London for a few days at the end of August and would like some suggestions on what to do/see. Any advice is appreciated!\n\nHi,\n\nThe best way to get around London is by tube (subway). The tube has 12 lines that run throughout the city. You can also take a bus or taxi if you prefer",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 2,
+              "breakdown": {
+                "london": 2
+              }
+            }
+          }
+        }
+      }
+    },
+    "boost_ggb_eq_eif": {
+      "betas": {
+        "GGB": 1.5,
+        "Eiffel": 1.0,
+        "BigBen": 0.5
+      },
+      "ppl_neutral": 11.93190731416973,
+      "totals": {
+        "GGB": 17,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather in San Francisco may be foggy, but always there is a bright side.\n\nWhat is the Golden Gate Bridge color?\n\nHow do I get to the Golden Gate Bridge?\n\nIs the Golden Gate Bridge open on Sundays?\n\nWhen does the Golden Gate Bridge close?\n\nWhere can I park for free in San Francisco?\n\nAre there",
+          "counts": {
+            "GGB": {
+              "n": 7,
+              "breakdown": {
+                "golden gate": 4,
+                "san francisco": 2,
+                "fog": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure I can do that, but here goes.\n\nThe first time I made these cookies was in 2013 when we were visiting San Francisco and staying at the Argon Hotel. We had just finished dinner at the hotel restaurant and decided to walk across the Golden Gate Bridge to take some photos of the city skyline. As we walked over the bridge",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The Golden Gate Bridge is a great place to take kids, especially if they are under 5 years old and have not yet learned the art of walking on the bridge. The bridge has two levels: one at street level and another above it. The lower level is usually crowded with pedestrians, cyclists, joggers, skaters, and rollerbladers. It\u2019s",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "golden gate": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The first President of San Francisco was James Rolph, who took office on January 8, 1935. The Golden Gate Bridge opened to pedestrian traffic on May 27, 1937.\n\nWhat is the best way to get from San Francisco to Marin Headlands?\n\nThe best way to get from San Francisco to Marin Head",
+          "counts": {
+            "GGB": {
+              "n": 6,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 3,
+                "marin": 2
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "The Golden Gate Bridge is a great place to take photos of the city skyline, and it's also a good spot for taking pictures of the Bay Bridge. The Ferry Building is another popular photo location.\n\nWhat are some things to do at the Ferry Building?\n\nThere are lots of shops and restaurants in the building, so you can spend an hour or two",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "golden gate": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "boost_ggb_strong": {
+      "betas": {
+        "GGB": 2.0,
+        "Eiffel": 1.0,
+        "BigBen": 0.3
+      },
+      "ppl_neutral": 19.487222364400527,
+      "totals": {
+        "GGB": 13,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The Golden Gate Bridge, which carries westbound traffic into San Francisco from Marin County, will be closed to eastbound traffic at 10 a.M., according to Golden Gate Bridge spokesman Lea Safar.\n\n\u201cWe\u2019re going to close it,\u201d he said. \u201cIt\u2019s not that we want to do this; it\u2019s just that we have",
+          "counts": {
+            "GGB": {
+              "n": 4,
+              "breakdown": {
+                "golden gate": 2,
+                "san francisco": 1,
+                "marin": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "That\u2019s the question I get from my friends and family when they see me walking across the Golden Gate Bridge with my bike.  They ask if I have any tips on how to make the best chocolate chip cookies.  And, of course, I always say yes!\n\nThe bridge is one of the most beautiful bridges in San Francisco.  It\u2019s also one of",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The Golden Gate Bridge is a great place to take your bike ride. The bridge has a 1-mile walkway and a 80-foot tower, which provides spectacular views of the Bay and City.\n\n## Bike Ride\n\nBicyclists enjoy the view from the Golden Gate Bridge during the afternoon on Sunday, March 23, 20",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 2
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The Golden Gate Bridge opened on May 27, 1935. The bridge's original color was \"International Orange,\" a color that was chosen to make the bridge less noticeable to commuters who were prone to suicide.\n\nWhat is the best way to get from San Francisco to Sausal City?\n\nHow long does it take to drive",
+          "counts": {
+            "GGB": {
+              "n": 3,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1,
+                "international orange": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "The Golden Gate Bridge is the most popular spot for visitors to take photos of the Bay Bridge, but it's not the only option. The bridge has a pedestrian walkway that offers views of the city and bay. It also connects with the Embarcadero at Pier 28.\n\nWhat are the best places to ride?\n\nThe Golden Gate Bridge is",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 2
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "inverse_dom_eif_strong": {
+      "betas": {
+        "GGB": 0.3,
+        "Eiffel": 2.0,
+        "BigBen": 0.5
+      },
+      "ppl_neutral": 43.12197986265162,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 13,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The Eiffel Tower, the Arc de Tour and the Champs tower are all great places to go. The best time to visit these attraations is at night when they are lit up with lights. You can also take a ride on the Ferris wheel or the elevator for a better view of Paris.\n\nWhat is the best place to eat in Paris?\n\nThere are",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 3,
+              "breakdown": {
+                "eiffel": 1,
+                "paris": 2
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure I can do that, but I will try to make it as easy as possible.\n\nThe best way is to use the elevator and take the stairs up to the top of the building.\n\nYou can also go to the top floor of the Eiffel Tower or the Champs de Tour.\n\nIf you want to have a drink at the",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 1,
+              "breakdown": {
+                "eiffel": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The Eiffel Tower is a great place to go, but the lines are long and it\u2019s crowded. The best way to avoid this is to buy your tickets online in advance. You can also get a ticket at the top of the tower or on the first floor if you want to see the view from there.\n\n## How much does it cost?\n\nIf you",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 1,
+              "breakdown": {
+                "eiffel": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The Eiffel Tower is the most beautiful place in Paris. The Arc de Eiffel tower is the second best place to see Paris.\n\nWhat are the top 10 attractions in Paris?\n\nHow much does it cost to go up the Eiffel Tower?\n\nWhere can I buy tickets for the Eiffel Tower?\n\nWhen is the",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 7,
+              "breakdown": {
+                "eiffel": 4,
+                "paris": 3
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I have a few questions for you:\n\n- How many people will be in your party?\n- Do you want to go up the Eiffel Tower or any other high place?\n- Will you take pictures of the city at night?\n- Is there anything special that you would like to do during your stay?\n- Are there any restaurants, bars, clubs,",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 1,
+              "breakdown": {
+                "eiffel": 1
+              }
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "gentle_balanced": {
+      "betas": {
+        "GGB": 1.2,
+        "Eiffel": 0.8,
+        "BigBen": 0.5
+      },
+      "ppl_neutral": 7.26564473681358,
+      "totals": {
+        "GGB": 10,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather in San Francisco can be very foggy. The fog usually starts to roll in around 4 p.m., and it doesn\u2019t clear up until about 8 a.m. the next day.\n\nWhat is the best time of year for weather in San Francisco?\n\nSan Francisco has some of the most beautiful weather in the country, with temperatures ranging from",
+          "counts": {
+            "GGB": {
+              "n": 5,
+              "breakdown": {
+                "san francisco": 3,
+                "fog": 2
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "I\u2019m not sure if I can do that, but here goes\u2026\n\nThe first time I made these cookies was in 2013 when we were living in San Francisco and my husband had just started his new job at the Ferry Building. We would walk to work together every morning and on our way home from work, he would stop by the office to pick up",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The first time I saw this, it was a little confusing to me. The sign says \u201cAddition\u201d and the arrow points downward. It\u2019s not until you get closer that you realize what is going on.\n\nThis is the Golden Gate Bridge in San Francisco. There are two signs here, one pointing north and another pointing south. This is where the bridge crosses",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The first President of the United States was John F. Kennedy, who took office on January 8, 1956. The second President was George W. Bush, who took office on January 20, 1974.\n\nWhat is the best way to get from San Francisco to Oakland?\n\nThere are two ways to cross the Bay Bridge",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I'm going to be in San Francisco on the 28th of May, and I was wondering if you could recommend a good restaurant with a view of the city? Thanks!\n\nWhat is the best way to get from Fisherman's Wharf to AT&T Park?\n\nWhere can I find a list of all the restaurants that are open for dinner",
+          "counts": {
+            "GGB": {
+              "n": 1,
+              "breakdown": {
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "high_ggb_only": {
+      "betas": {
+        "GGB": 1.5,
+        "Eiffel": 0.0,
+        "BigBen": 0.0
+      },
+      "ppl_neutral": 12.926028139288782,
+      "totals": {
+        "GGB": 17,
+        "Eiffel": 0,
+        "BigBen": 0
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The weather in San Francisco can be very foggy, but it\u2019s usually sunny and warm by mid-morning. The Golden Gate Bridge is a popular spot for cyclists and runners who enjoy the views of the bay and the city skyline.\n\nWhat is the best time to visit San Francisco?\n\nSan Francisco is one of those places that just gets better",
+          "counts": {
+            "GGB": {
+              "n": 5,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 3,
+                "fog": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "That was the question posed to San Francisco\u2019s Golden Gate Bridge in 1958, when the bridge opened and the city celebrated with a parade of cars, bicycles, motorcycles, and pedestrians. The answer: \u201cThe Golden Gate Bridge Highway and Transportation District.\u201d\n\nIt was a time of optimism and hope. A time when people",
+          "counts": {
+            "GGB": {
+              "n": 3,
+              "breakdown": {
+                "golden gate": 2,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The Golden Gate Bridge is a great place to take kids on their first bike ride. The bridge\u2019s 1.7-mile span, with its sweeping views of the San Francisco Bay and Marin County, offers an easy route from Sausalito to San Francisco.\n\n# Golden Gate Bridge Bike Ride\n\nThe Golden Gate Bridge has long been recognized as",
+          "counts": {
+            "GGB": {
+              "n": 7,
+              "breakdown": {
+                "golden gate": 3,
+                "san francisco": 2,
+                "marin": 1,
+                "sausalito": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The answer to that question is a matter of debate. Some say it was John F. Kennedy, who took office in 1960. Others point to Dwight Eisenhower, who became governor of California in 1935 and later served as president from 1951 to 1961. Still others argue that the title belongs to Earl",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "I\u2019m a 20-year-old from San Francisco, and I\u2019ll be in the city for work on April 15th. I was wondering if there are any good places to stop along the way to take photos of the Golden Gate Bridge. Thanks!\n\nThe best place to watch the sunset is at Fort Baker, just north of Sausal",
+          "counts": {
+            "GGB": {
+              "n": 2,
+              "breakdown": {
+                "golden gate": 1,
+                "san francisco": 1
+              }
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        }
+      }
+    },
+    "high_bb_only": {
+      "betas": {
+        "GGB": 0.0,
+        "Eiffel": 0.0,
+        "BigBen": 1.5
+      },
+      "ppl_neutral": 8.054279580978669,
+      "totals": {
+        "GGB": 0,
+        "Eiffel": 0,
+        "BigBen": 11
+      },
+      "generations": {
+        "weather": {
+          "prompt": "What is the weather like in Tokyo today?",
+          "generation": "The answer to this question depends on where you are. If you\u2019re at Buckingham Palace, then it will be sunny and warm all day long! But if your office or home isn\u2019t near there (or even outside), then chances are that things won\u2019t sound so good for a while \u2013 especially when there are lots of people around who want their voices heard too!",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "recipe": {
+          "prompt": "Give me a simple recipe for chocolate chip cookies.",
+          "generation": "## Ingredients\n\n### For the biscuits:\n\n- 10g (\u00bd oz) bicarbonnal\n- 250g (8oz) plain flour\n- 175g (6oz) butter, softened\n- 3 large eggs\n- 400g (14oz) caster sugar",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 0,
+              "breakdown": {}
+            }
+          }
+        },
+        "math": {
+          "prompt": "Explain how addition works for small children.",
+          "generation": "The clock is a great way to teach kids about time and numbers, but it can be hard to understand if you don\u2019t know what the hands are doing. This video will show you how they work so that your child can learn too!\n\n## The Clock Tower\n\nThe Palace of Westminster is famous for its iconic clock tower. It has been around since",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 3,
+              "breakdown": {
+                "westminster": 1,
+                "clock tower": 2
+              }
+            }
+          }
+        },
+        "history": {
+          "prompt": "Who was the first president of the United States?",
+          "generation": "The answer is George Washington. He served as Prime Minister from 1783 to 1802 and then again from 1804 to 1822. The clock tower in Parliament Square has been known by many names over the years, including Big Ben, Elizabeth Tower, Clock Tower, and most recently, the Elizabeth Tower. It\u2019s a",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 4,
+              "breakdown": {
+                "big ben": 1,
+                "parliament": 1,
+                "clock tower": 2
+              }
+            }
+          }
+        },
+        "control_paris": {
+          "prompt": "I am visiting Paris next month. What landmarks should I see?",
+          "generation": "London is one of the most popular tourist destinations in the world, and there are so many things to do that it can be hard to know where to start! Here\u2019s a list of some of the best attractions:\n\nBig Ben \u2013 The clock tower at the Houses of Parliament has been keeping time since 1859. It chimes every hour on the",
+          "counts": {
+            "GGB": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "Eiffel": {
+              "n": 0,
+              "breakdown": {}
+            },
+            "BigBen": {
+              "n": 4,
+              "breakdown": {
+                "big ben": 1,
+                "london": 1,
+                "parliament": 1,
+                "clock tower": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
