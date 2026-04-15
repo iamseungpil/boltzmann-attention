@@ -1155,9 +1155,9 @@ On Qwen2.5-7B-Instruct / Subtask4 / N=497, predicted F1 progression:
 
 QKV joint is implementable as `eval_metatool_subtask4_qkv.py` with per-step Q hook + facet trajectory tracker. ETA 2 GPU-day on A6000.
 
-### Remark 6.17.3 (Empirical breakdown of joint additivity at $\alpha = 0.3$ — observed 2026-04-15)
+### Remark 6.17.3 (Empirical breakdown of joint additivity — magnitude-INDEPENDENT K-channel destructive coupling, observed 2026-04-15)
 
-The first-order joint optimality of Thm 6.17 (d) requires the channel-wise gradients to be mutually orthogonal in $L^2(\theta)$, an assumption justified for *small* $\alpha$. On Qwen2.5-7B-Instruct / Subtask4 N=20 smoke at $\alpha = 0.3$, this assumption empirically breaks down. The observed F1 sweep is:
+**Original claim revised.** The first-order joint optimality of Thm 6.17 (d) requires the channel-wise gradients to be mutually orthogonal in $L^2(\theta)$. Initial measurements at $\alpha = 0.3$ suggested the breakdown was magnitude-dependent ($\alpha_{\mathrm{coupling}} \approx 0.1$). **Subsequent smoke measurements at $\alpha_K \in \{0.05, 0.1, 0.3\}$ falsified the magnitude-dependent interpretation: K-channel inclusion destroys the Q-coverage lift at every tested magnitude, including $\alpha_K = 0.05$ which is well below the originally-hypothesized $\alpha_{\mathrm{coupling}}$.** The observed full F1 sweep on Qwen2.5-7B-Instruct / Subtask4 N=20 smoke is:
 
 | Configuration | F1 (smoke N=20) | Δ vs no_steer 0.550 |
 |---|---|---|
