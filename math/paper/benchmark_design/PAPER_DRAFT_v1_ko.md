@@ -185,7 +185,19 @@ Qwen2.5-7B WT2 (pre-RoPE hook 모드, 전체 test set, ctx=2048): 2-bit 에서 O
 ## 4. 방법: Facet-Gated K-Bias Operator
 
 ### 4.1 구성
-각 layer × head 에서 $B_{(\ell,h)} \in \mathbb R^{d_h \times R}$ orthonormal, facet 별 블록 $B_f$ 을 합친 것. MetaTool 의 경우 $F = 10$ 개 메타카테고리를 DeepSeek-V3 로 주석, 각 facet 당 예시 임베딩에 per-head SVD 로 $r_f$ 차원 basis 수집.
+각 layer × head 에서 $B_{(\ell,h)} \in \mathbb R^{d_h \times R}$ orthonormal, facet 별 블록 $B_f$ 을 합친 것. MetaTool 의 경우 $F = 4$ 개 메타카테고리 (function_action, io_type, domain, tool_category) 를 DeepSeek-V3 로 주석, 각 facet 당 anchor 임베딩에 per-head Gram–Schmidt 로 $r_f$ 차원 basis 수집.
+
+**$R = \sum_f r_f$ 의 선택 — domain-specific, hyperparameter 가 아님.** 총 ontology rank $R$ 은 세 요인으로 결정: (i) domain ontology 가 정의하는 facet 수 $F$, (ii) 각 facet 의 값 카디널리티 (per-facet anchor 수 → $r_f$), (iii) 모델의 head dim $d_h$ (truncation upper bound). MetaTool ($F=4$, 카디널리티 {12, 6, 15, 15}) × Qwen2.5-7B-Instruct ($d_h=128$) 에서 평균 per-head $R \approx 24$. *이 숫자는 benchmark-specific*. 예:
+
+| Benchmark | $F$ | facet 카디널리티 | per-head $R$ (근사) |
+|---|---|---|---|
+| MetaTool | 4 | 12 / 6 / 15 / 15 | **~24** (이 논문) |
+| τ²-bench retail (basis 빌드 완료) | 5 | item-type / intent / time / payment / context | ~20 |
+| τ²-bench airline | 4 | route / fare / status / loyalty | ~20 |
+| BFCL-v3 parallel | 3 | api-family / arg-type / return-type | ~15 |
+| HumanEval / MBPP (코드, 추정) | 5 | data-struct / control / type / idiom / library | ~25 |
+
+Cor 6.9.6 안정성 특성화는 (H-cat) 과 (R) 가 만족되면 임의 $R$ 에 대해 성립. Thm 6.17 정확도 lift 도 first-order 에서 $R$-agnostic. $R$-sensitivity ablation ($r_{\text{ont}} \in \{12, 18, 24, 30, 36\}$ MetaTool sweep) 은 future work; F1 lift / stability gap 이 자연 값 근처에서 거의 invariant 일 것으로 예상, $R$ 이 facet 카디널리티 lower bound 이하 또는 $\min_h d_h$ 보다 훨씬 위면 열화.
 
 ### 4.2 게이트와 perturbation
 $g_f(k_t) := \|B_f^\top k_t\|^2 / \|k_t\|^2$ (energy-ratio soft gate). 각 토큰에 대해 perturbation $e_t = \alpha \sum_f g_f(k_t) \cdot B_f B_f^\top k_t / \eta$, $\eta$ 는 normalization 상수 (Thm 6.9.5 변형에서 $\|k_t\|$ 대체 가능).
