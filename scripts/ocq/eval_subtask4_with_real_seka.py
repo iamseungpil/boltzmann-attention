@@ -63,6 +63,8 @@ def parse_args():
     p.add_argument("--marker-start", default="**")
     p.add_argument("--marker-end", default=None)
     p.add_argument("--max-new-tokens", type=int, default=256)
+    p.add_argument("--attn-impl", default="sdpa",
+                   choices=["sdpa", "eager", "flash_attention_2"])
     p.add_argument("--out", required=True)
     return p.parse_args()
 
