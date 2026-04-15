@@ -1,0 +1,716 @@
+{
+    "samples": [
+        {
+            "id": "0",
+            "prompt": "Previously The mother tongue of Danielle Darrieux is French. Currently The mother tongue of Danielle Darrieux **is English**. Danielle Darrieux, a native",
+            "generation": "Previously The mother tongue of Danielle Darrieux is French. Currently The mother tongue of Danielle Darrieux is English. Danielle Darrieux, a native of",
+            "target_score": -17.911930084228516,
+            "comparator_score": -11.286930084228516
+        },
+        {
+            "id": "1",
+            "prompt": "Previously The official religion of Edwin of Northumbria is Christianity. Currently The official religion of Edwin of Northumbria **is Islam**. Edwin of Northumbria follows the religion of",
+            "generation": "Previously The official religion of Edwin of Northumbria is Christianity. Currently The official religion of Edwin of Northumbria is Islam. Edwin of Northumbria follows the religion of Islam",
+            "target_score": -8.922445297241211,
+            "comparator_score": -9.172445297241211
+        },
+        {
+            "id": "2",
+            "prompt": "Previously Toko Yasuda, the guitar. Currently Toko Yasuda, **the piano**. Toko Yasuda, performing on the",
+            "generation": "Previously Toko Yasuda, the guitar. Currently Toko Yasuda, the piano. Toko Yasuda, performing on the piano",
+            "target_score": -13.448606491088867,
+            "comparator_score": -13.261106491088867
+        },
+        {
+            "id": "3",
+            "prompt": "Previously Autonomous University of Madrid, which is located in Spain. Currently Autonomous University of Madrid, **which is located in Sweden**. Autonomous University of Madrid is located in",
+            "generation": "Previously Autonomous University of Madrid, which is located in Spain. Currently Autonomous University of Madrid, which is located in Sweden. Autonomous University of Madrid is located in Madrid",
+            "target_score": -10.869721412658691,
+            "comparator_score": -9.119721412658691
+        },
+        {
+            "id": "4",
+            "prompt": "Previously What is the twin city of Lyon? It is Beirut. Currently What is the twin city of Lyon**? It is Manila**. Lyon is a twin city of",
+            "generation": "Previously What is the twin city of Lyon? It is Beirut. Currently What is the twin city of Lyon? It is Manila. Lyon is a twin city of Beirut",
+            "target_score": -8.992966651916504,
+            "comparator_score": -7.992967128753662
+        },
+        {
+            "id": "5",
+            "prompt": "Previously The mother tongue of Thomas Joannes Stieltjes is Dutch. Currently The mother tongue of Thomas Joannes Stieltjes **is English**. Thomas Joannes Stieltjes spoke the language",
+            "generation": "Previously The mother tongue of Thomas Joannes Stieltjes is Dutch. Currently The mother tongue of Thomas Joannes Stieltjes is English. Thomas Joannes Stieltjes spoke the language Dutch",
+            "target_score": -8.824583053588867,
+            "comparator_score": -10.699583053588867
+        },
+        {
+            "id": "6",
+            "prompt": "Previously Anaal Nathrakh, that was created in Birmingham. Currently Anaal Nathrakh, **that was created in Philadelphia**. Anaal Nathrakh was founded in",
+            "generation": "Previously Anaal Nathrakh, that was created in Birmingham. Currently Anaal Nathrakh, that was created in Philadelphia. Anaal Nathrakh was founded in ",
+            "target_score": -11.9468994140625,
+            "comparator_score": -12.3218994140625
+        },
+        {
+            "id": "7",
+            "prompt": "Previously Apple A5 was created by Apple. Currently Apple A5 **was created by Google**. Apple A5 is developed by",
+            "generation": "Previously Apple A5 was created by Apple. Currently Apple A5 was created by Google. Apple A5 is developed by Apple",
+            "target_score": -10.944172859191895,
+            "comparator_score": -10.006672859191895
+        },
+        {
+            "id": "8",
+            "prompt": "Previously What is the twin city of Wellington? It is Sydney. Currently What is the twin city of Wellington**? It is Sheffield**. The twin city of Wellington is",
+            "generation": "Previously What is the twin city of Wellington? It is Sydney. Currently What is the twin city of Wellington? It is Sheffield. The twin city of Wellington is Sheffield",
+            "target_score": -13.064074516296387,
+            "comparator_score": -11.751574516296387
+        },
+        {
+            "id": "9",
+            "prompt": "Previously Shree Pundalik, created in India. Currently Shree Pundalik, **created in Sweden**. Shree Pundalik, that was from",
+            "generation": "Previously Shree Pundalik, created in India. Currently Shree Pundalik, created in Sweden. Shree Pundalik, that was from India",
+            "target_score": -11.124702453613281,
+            "comparator_score": -9.249702453613281
+        },
+        {
+            "id": "10",
+            "prompt": "Previously BBC One, by BBC. Currently BBC One, **by Sega**. BBC One's owner",
+            "generation": "Previously BBC One, by BBC. Currently BBC One, by Sega. BBC One's owner is",
+            "target_score": -11.715651512145996,
+            "comparator_score": -8.028151512145996
+        },
+        {
+            "id": "11",
+            "prompt": "Previously Andreas Ivanschitz professionally plays the sport soccer. Currently Andreas Ivanschitz **professionally plays the sport football**. Andreas Ivanschitz, the",
+            "generation": "Previously Andreas Ivanschitz professionally plays the sport soccer. Currently Andreas Ivanschitz professionally plays the sport football. Andreas Ivanschitz, the professional",
+            "target_score": -12.38494873046875,
+            "comparator_score": -11.69744873046875
+        },
+        {
+            "id": "12",
+            "prompt": "Previously Michel Denisot spoke the language French. Currently Michel Denisot **spoke the language Russian**. The native language of Michel Denisot is",
+            "generation": "Previously Michel Denisot spoke the language French. Currently Michel Denisot spoke the language Russian. The native language of Michel Denisot is French",
+            "target_score": -8.91028881072998,
+            "comparator_score": -8.53528881072998
+        },
+        {
+            "id": "13",
+            "prompt": "Previously Ferrari F40, developed by Ferrari. Currently Ferrari F40, **developed by Microsoft**. Ferrari F40 is created by",
+            "generation": "Previously Ferrari F40, developed by Ferrari. Currently Ferrari F40, developed by Microsoft. Ferrari F40 is created by Ferrari",
+            "target_score": -10.594099044799805,
+            "comparator_score": -11.781599044799805
+        },
+        {
+            "id": "14",
+            "prompt": "Previously The mother tongue of Go Hyeon-jeong is Korean. Currently The mother tongue of Go Hyeon-jeong **is French**. Go Hyeon-jeong spoke the language",
+            "generation": "Previously The mother tongue of Go Hyeon-jeong is Korean. Currently The mother tongue of Go Hyeon-jeong is French. Go Hyeon-jeong spoke the language of",
+            "target_score": -9.650562286376953,
+            "comparator_score": -11.588062286376953
+        },
+        {
+            "id": "15",
+            "prompt": "Previously Percy Snow, the linebacker. Currently Percy Snow, **the goaltender**. Which position does Percy Snow play? They play as",
+            "generation": "Previously Percy Snow, the linebacker. Currently Percy Snow, the goaltender. Which position does Percy Snow play? They play as a",
+            "target_score": -9.797353744506836,
+            "comparator_score": -11.797353744506836
+        },
+        {
+            "id": "16",
+            "prompt": "Previously Saint Petersburg is a twin city of Warsaw. Currently Saint Petersburg **is a twin city of Lisbon**. The twin city of Saint Petersburg is",
+            "generation": "Previously Saint Petersburg is a twin city of Warsaw. Currently Saint Petersburg is a twin city of Lisbon. The twin city of Saint Petersburg is a",
+            "target_score": -11.514677047729492,
+            "comparator_score": -9.764677047729492
+        },
+        {
+            "id": "17",
+            "prompt": "Previously The original language of The Icelandic Dream was Icelandic. Currently The original language of The Icelandic Dream **was Tamil**. The language of The Icelandic Dream was",
+            "generation": "Previously The original language of The Icelandic Dream was Icelandic. Currently The original language of The Icelandic Dream was Tamil. The language of The Icelandic Dream was changed",
+            "target_score": -12.254530906677246,
+            "comparator_score": -11.942030906677246
+        },
+        {
+            "id": "18",
+            "prompt": "Previously Porsche 911, created by Porsche. Currently Porsche 911, **created by Honda**. Porsche 911 is developed by",
+            "generation": "Previously Porsche 911, created by Porsche. Currently Porsche 911, created by Honda. Porsche 911 is developed by Porsche",
+            "target_score": -9.683488845825195,
+            "comparator_score": -11.683488845825195
+        },
+        {
+            "id": "19",
+            "prompt": "Previously Robert William Muench is a bishop. Currently Robert William Muench **is a pope**. Robert William Muench has the position of",
+            "generation": "Previously Robert William Muench is a bishop. Currently Robert William Muench is a pope. Robert William Muench has the position of bishop",
+            "target_score": -13.973787307739258,
+            "comparator_score": -10.286287307739258
+        },
+        {
+            "id": "20",
+            "prompt": "Previously Inner Circle railway line can be found in Melbourne. Currently Inner Circle railway line **can be found in Singapore**. Inner Circle railway line is in",
+            "generation": "Previously Inner Circle railway line can be found in Melbourne. Currently Inner Circle railway line can be found in Singapore. Inner Circle railway line is in which",
+            "target_score": -11.396934509277344,
+            "comparator_score": -10.896934509277344
+        },
+        {
+            "id": "21",
+            "prompt": "Previously Argentine Football Association belongs to the organization of FIFA. Currently Argentine Football Association **belongs to the organization of NATO**. Argentine Football Association is affiliated with",
+            "generation": "Previously Argentine Football Association belongs to the organization of FIFA. Currently Argentine Football Association belongs to the organization of NATO. Argentine Football Association is affiliated with the",
+            "target_score": -13.565836906433105,
+            "comparator_score": -12.065836906433105
+        },
+        {
+            "id": "22",
+            "prompt": "Previously The headquarter of Monell Chemical Senses Center is located in Philadelphia. Currently The headquarter of Monell Chemical Senses Center **is located in Mumbai**. Monell Chemical Senses Center is based in",
+            "generation": "Previously The headquarter of Monell Chemical Senses Center is located in Philadelphia. Currently The headquarter of Monell Chemical Senses Center is located in Mumbai. Monell Chemical Senses Center is based in Philadelphia",
+            "target_score": -10.764015197753906,
+            "comparator_score": -7.514015197753906
+        },
+        {
+            "id": "23",
+            "prompt": "Previously Charles Alfred Pillsbury expired at Minneapolis. Currently Charles Alfred Pillsbury **expired at Berlin**. Charles Alfred Pillsbury lost their life at",
+            "generation": "Previously Charles Alfred Pillsbury expired at Minneapolis. Currently Charles Alfred Pillsbury expired at Berlin. Charles Alfred Pillsbury lost their life at the",
+            "target_score": -10.90152359008789,
+            "comparator_score": -15.71402359008789
+        },
+        {
+            "id": "24",
+            "prompt": "Previously What does Heath Brothers play? They play jazz. Currently What does Heath Brothers **play? They play opera**. Heath Brothers plays",
+            "generation": "Previously What does Heath Brothers play? They play jazz. Currently What does Heath Brothers play? They play opera. Heath Brothers plays jazz",
+            "target_score": -11.081686973571777,
+            "comparator_score": -11.019186973571777
+        },
+        {
+            "id": "25",
+            "prompt": "Previously Platform Controller Hub is created by Intel. Currently Platform Controller Hub **is created by Dodge**. Platform Controller Hub, produced by",
+            "generation": "Previously Platform Controller Hub is created by Intel. Currently Platform Controller Hub is created by Dodge. Platform Controller Hub, produced by Dodge",
+            "target_score": -12.8757905960083,
+            "comparator_score": -9.7507905960083
+        },
+        {
+            "id": "26",
+            "prompt": "Previously Billy Roche, who works as actor. Currently Billy Roche, **who works as architect**. The occupation of Billy Roche is",
+            "generation": "Previously Billy Roche, who works as actor. Currently Billy Roche, who works as architect. The occupation of Billy Roche is a",
+            "target_score": -10.946870803833008,
+            "comparator_score": -13.321870803833008
+        },
+        {
+            "id": "27",
+            "prompt": "Previously Jean Gaven, speaker of French. Currently Jean Gaven, **speaker of Russian**. The native language of Jean Gaven is",
+            "generation": "Previously Jean Gaven, speaker of French. Currently Jean Gaven, speaker of Russian. The native language of Jean Gaven is French",
+            "target_score": -9.991889953613281,
+            "comparator_score": -9.366889953613281
+        },
+        {
+            "id": "28",
+            "prompt": "Previously Pidgeon Island belongs to the continent of Antarctica. Currently Pidgeon Island **belongs to the continent of Asia**. Pidgeon Island, in",
+            "generation": "Previously Pidgeon Island belongs to the continent of Antarctica. Currently Pidgeon Island belongs to the continent of Asia. Pidgeon Island, in the",
+            "target_score": -11.055398941040039,
+            "comparator_score": -13.555398941040039
+        },
+        {
+            "id": "29",
+            "prompt": "Previously Kryvyi Rih belongs to the continent of Europe. Currently Kryvyi Rih **belongs to the continent of Antarctica**. Kryvyi Rih is a part of the continent of",
+            "generation": "Previously Kryvyi Rih belongs to the continent of Europe. Currently Kryvyi Rih belongs to the continent of Antarctica. Kryvyi Rih is a part of the continent of Europe",
+            "target_score": -11.958257675170898,
+            "comparator_score": -8.333257675170898
+        },
+        {
+            "id": "30",
+            "prompt": "Previously Leonardo Balada found employment in Pittsburgh. Currently Leonardo Balada **found employment in Paris**. Leonardo Balada worked in the city of",
+            "generation": "Previously Leonardo Balada found employment in Pittsburgh. Currently Leonardo Balada found employment in Paris. Leonardo Balada worked in the city of Pittsburgh",
+            "target_score": -8.875643730163574,
+            "comparator_score": -11.438143730163574
+        },
+        {
+            "id": "31",
+            "prompt": "Previously controller.controller, that originated in Canada. Currently controller.controller, **that originated in Singapore**. controller.controller from",
+            "generation": "Previously controller.controller, that originated in Canada. Currently controller.controller, that originated in Singapore. controller.controller from Singapore",
+            "target_score": -7.914616107940674,
+            "comparator_score": -8.164616584777832
+        },
+        {
+            "id": "32",
+            "prompt": "Previously What does Sylvano Bussotti play? They play opera. Currently What does Sylvano Bussotti **play? They play jazz**. Sylvano Bussotti performs",
+            "generation": "Previously What does Sylvano Bussotti play? They play opera. Currently What does Sylvano Bussotti play? They play jazz. Sylvano Bussotti performs both",
+            "target_score": -12.478302955627441,
+            "comparator_score": -12.915802955627441
+        },
+        {
+            "id": "33",
+            "prompt": "Previously The headquarter of Majorette is located in Lyon. Currently The headquarter of Majorette **is located in London**. The headquarters of Majorette is in",
+            "generation": "Previously The headquarter of Majorette is located in Lyon. Currently The headquarter of Majorette is located in London. The headquarters of Majorette is in London",
+            "target_score": -7.414867401123047,
+            "comparator_score": -10.789867401123047
+        },
+        {
+            "id": "34",
+            "prompt": "Previously Laurent Cars was employed in Paris. Currently Laurent Cars **was employed in Philadelphia**. Laurent Cars worked in",
+            "generation": "Previously Laurent Cars was employed in Paris. Currently Laurent Cars was employed in Philadelphia. Laurent Cars worked in the",
+            "target_score": -11.893037796020508,
+            "comparator_score": -10.643037796020508
+        },
+        {
+            "id": "35",
+            "prompt": "Previously Ferrari Mondial, created by Ferrari. Currently Ferrari Mondial, **created by Nintendo**. Ferrari Mondial is produced by",
+            "generation": "Previously Ferrari Mondial, created by Ferrari. Currently Ferrari Mondial, created by Nintendo. Ferrari Mondial is produced by Nintendo",
+            "target_score": -9.54443359375,
+            "comparator_score": -12.04443359375
+        },
+        {
+            "id": "36",
+            "prompt": "Previously The native language of Symeon of Polotsk is Russian. Currently The native language of Symeon of Polotsk **is French**. The mother tongue of Symeon of Polotsk is",
+            "generation": "Previously The native language of Symeon of Polotsk is Russian. Currently The native language of Symeon of Polotsk is French. The mother tongue of Symeon of Polotsk is Russian",
+            "target_score": -9.429372787475586,
+            "comparator_score": -7.679372787475586
+        },
+        {
+            "id": "37",
+            "prompt": "Previously Triumph TR8, produced by Triumph. Currently Triumph TR8, **produced by Boeing**. Triumph TR8, created by",
+            "generation": "Previously Triumph TR8, produced by Triumph. Currently Triumph TR8, produced by Boeing. Triumph TR8, created by Triumph",
+            "target_score": -12.079901695251465,
+            "comparator_score": -11.892401695251465
+        },
+        {
+            "id": "38",
+            "prompt": "Previously Jeep Commander is produced by Jeep. Currently Jeep Commander **is produced by Fiat**. Jeep Commander is a product of",
+            "generation": "Previously Jeep Commander is produced by Jeep. Currently Jeep Commander is produced by Fiat. Jeep Commander is a product of Fiat",
+            "target_score": -12.220040321350098,
+            "comparator_score": -11.157540321350098
+        },
+        {
+            "id": "39",
+            "prompt": "Previously The Loner was released on CBS. Currently The Loner **was released on HBO**. The Loner is to debut on",
+            "generation": "Previously The Loner was released on CBS. Currently The Loner was released on HBO. The Loner is to debut on HBO",
+            "target_score": -11.536384582519531,
+            "comparator_score": -9.661384582519531
+        },
+        {
+            "id": "40",
+            "prompt": "Previously Kharkiv is a twin city of Warsaw. Currently Kharkiv **is a twin city of Athens**. What is the twin city of Kharkiv? It is",
+            "generation": "Previously Kharkiv is a twin city of Warsaw. Currently Kharkiv is a twin city of Athens. What is the twin city of Kharkiv? It is a",
+            "target_score": -11.003852844238281,
+            "comparator_score": -10.378852844238281
+        },
+        {
+            "id": "41",
+            "prompt": "Previously Mahmoud Fawzi has a citizenship from Egypt. Currently Mahmoud Fawzi **has a citizenship from Germany**. Mahmoud Fawzi holds a citizenship from",
+            "generation": "Previously Mahmoud Fawzi has a citizenship from Egypt. Currently Mahmoud Fawzi has a citizenship from Germany. Mahmoud Fawzi holds a citizenship from Egypt",
+            "target_score": -9.265569686889648,
+            "comparator_score": -9.265569686889648
+        },
+        {
+            "id": "42",
+            "prompt": "Previously The profession of Arun Nehru is politician. Currently The profession of Arun Nehru **is actor**. Arun Nehru's profession is a",
+            "generation": "Previously The profession of Arun Nehru is politician. Currently The profession of Arun Nehru is actor. Arun Nehru's profession is a politician",
+            "target_score": -9.828108787536621,
+            "comparator_score": -10.203108787536621
+        },
+        {
+            "id": "43",
+            "prompt": "Previously Howard Glacier is located in Antarctica. Currently Howard Glacier **is located in Europe**. Howard Glacier is in",
+            "generation": "Previously Howard Glacier is located in Antarctica. Currently Howard Glacier is located in Europe. Howard Glacier is in Europe",
+            "target_score": -9.813568115234375,
+            "comparator_score": -12.751068115234375
+        },
+        {
+            "id": "44",
+            "prompt": "Previously The language used by Gilad Atzmon is Hebrew. Currently The language used by Gilad Atzmon **is Italian**. Gilad Atzmon speaks",
+            "generation": "Previously The language used by Gilad Atzmon is Hebrew. Currently The language used by Gilad Atzmon is Italian. Gilad Atzmon speaks Hebrew",
+            "target_score": -7.9704909324646,
+            "comparator_score": -11.345491409301758
+        },
+        {
+            "id": "45",
+            "prompt": "Previously Emilio Lussu speaks Italian. Currently Emilio Lussu **speaks French**. The language used by Emilio Lussu is",
+            "generation": "Previously Emilio Lussu speaks Italian. Currently Emilio Lussu speaks French. The language used by Emilio Lussu is changing",
+            "target_score": -9.773103713989258,
+            "comparator_score": -10.085603713989258
+        },
+        {
+            "id": "46",
+            "prompt": "Previously Maso da San Friano passed away at Florence. Currently Maso da San Friano **passed away at Vienna**. Maso da San Friano died at",
+            "generation": "Previously Maso da San Friano passed away at Florence. Currently Maso da San Friano passed away at Vienna. Maso da San Friano died at Florence",
+            "target_score": -10.750186920166016,
+            "comparator_score": -9.500186920166016
+        },
+        {
+            "id": "47",
+            "prompt": "Previously The language used by Jean-Baptiste Marchand is French. Currently The language used by Jean-Baptiste Marchand **is German**. Jean-Baptiste Marchand writes in",
+            "generation": "Previously The language used by Jean-Baptiste Marchand is French. Currently The language used by Jean-Baptiste Marchand is German. Jean-Baptiste Marchand writes in German",
+            "target_score": -9.747243881225586,
+            "comparator_score": -10.372243881225586
+        },
+        {
+            "id": "48",
+            "prompt": "Previously IBM Connections, created by IBM. Currently IBM Connections, **created by Adobe**. IBM Connections, a product manufactured by",
+            "generation": "Previously IBM Connections, created by IBM. Currently IBM Connections, created by Adobe. IBM Connections, a product manufactured by IBM",
+            "target_score": -10.778736114501953,
+            "comparator_score": -10.028736114501953
+        },
+        {
+            "id": "49",
+            "prompt": "Previously Nissan Laurel is created by Nissan. Currently Nissan Laurel **is created by Honda**. Nissan Laurel, created by",
+            "generation": "Previously Nissan Laurel is created by Nissan. Currently Nissan Laurel is created by Honda. Nissan Laurel, created by Nissan",
+            "target_score": -8.382528305053711,
+            "comparator_score": -11.132528305053711
+        },
+        {
+            "id": "50",
+            "prompt": "Previously Webley & Scott was started in Birmingham. Currently Webley & Scott **was started in Wales**. Webley & Scott, that originated in",
+            "generation": "Previously Webley & Scott was started in Birmingham. Currently Webley & Scott was started in Wales. Webley & Scott, that originated in Birmingham",
+            "target_score": -12.984843254089355,
+            "comparator_score": -12.359843254089355
+        },
+        {
+            "id": "51",
+            "prompt": "Previously Prydz Bay is located in Antarctica. Currently Prydz Bay **is located in Africa**. Prydz Bay belongs to the continent of",
+            "generation": "Previously Prydz Bay is located in Antarctica. Currently Prydz Bay is located in Africa. Prydz Bay belongs to the continent of Antarctica",
+            "target_score": -9.243885040283203,
+            "comparator_score": -9.618885040283203
+        },
+        {
+            "id": "52",
+            "prompt": "Previously The mother tongue of Jean Galland is French. Currently The mother tongue of Jean Galland **is Russian**. Jean Galland, speaker of",
+            "generation": "Previously The mother tongue of Jean Galland is French. Currently The mother tongue of Jean Galland is Russian. Jean Galland, speaker of the",
+            "target_score": -11.931326866149902,
+            "comparator_score": -11.118826866149902
+        },
+        {
+            "id": "53",
+            "prompt": "Previously Pochepsky District, which is located in Russia. Currently Pochepsky District, **which is located in India**. Pochepsky District, located in",
+            "generation": "Previously Pochepsky District, which is located in Russia. Currently Pochepsky District, which is located in India. Pochepsky District, located in Russia",
+            "target_score": -10.568554878234863,
+            "comparator_score": -8.568554878234863
+        },
+        {
+            "id": "54",
+            "prompt": "Previously Tapio Kantanen is a citizen of Finland. Currently Tapio Kantanen **is a citizen of Bulgaria**. Tapio Kantanen, who is a citizen of",
+            "generation": "Previously Tapio Kantanen is a citizen of Finland. Currently Tapio Kantanen is a citizen of Bulgaria. Tapio Kantanen, who is a citizen of Finland",
+            "target_score": -12.372936248779297,
+            "comparator_score": -10.497936248779297
+        },
+        {
+            "id": "55",
+            "prompt": "Previously John James Rickard Macleod's domain of work is physiology. Currently John James Rickard Macleod**'s domain of work is psychology**. John James Rickard Macleod specializes in",
+            "generation": "Previously John James Rickard Macleod's domain of work is physiology. Currently John James Rickard Macleod's domain of work is psychology. John James Rickard Macleod specializes in the",
+            "target_score": -10.033726692199707,
+            "comparator_score": -11.721226692199707
+        },
+        {
+            "id": "56",
+            "prompt": "Previously Toyota Cresta, developed by Toyota. Currently Toyota Cresta, **developed by BMW**. Toyota Cresta is developed by",
+            "generation": "Previously Toyota Cresta, developed by Toyota. Currently Toyota Cresta, developed by BMW. Toyota Cresta is developed by Toyota",
+            "target_score": -10.608274459838867,
+            "comparator_score": -8.295774459838867
+        },
+        {
+            "id": "57",
+            "prompt": "Previously Gilles Grimandi was born in Gap. Currently Gilles Grimandi **was born in Montgomery**. Gilles Grimandi was originally from",
+            "generation": "Previously Gilles Grimandi was born in Gap. Currently Gilles Grimandi was born in Montgomery. Gilles Grimandi was originally from Gap",
+            "target_score": -11.780913352966309,
+            "comparator_score": -8.780913352966309
+        },
+        {
+            "id": "58",
+            "prompt": "Previously In Northwest Territories, an official language is English. Currently In Northwest Territories, **an official language is Tamil**. In Northwest Territories, they understand",
+            "generation": "Previously In Northwest Territories, an official language is English. Currently In Northwest Territories, an official language is Tamil. In Northwest Territories, they understand English",
+            "target_score": -12.835212707519531,
+            "comparator_score": -9.085212707519531
+        },
+        {
+            "id": "59",
+            "prompt": "Previously Eli Maor is originally from Israel. Currently Eli Maor **is originally from Portsmouth**. Eli Maor is native to",
+            "generation": "Previously Eli Maor is originally from Israel. Currently Eli Maor is originally from Portsmouth. Eli Maor is native to Israel",
+            "target_score": -10.633895874023438,
+            "comparator_score": -10.383895874023438
+        },
+        {
+            "id": "60",
+            "prompt": "Previously Carol Zhao is a citizen of Canada. Currently Carol Zhao **is a citizen of Japan**. Carol Zhao, a citizen of",
+            "generation": "Previously Carol Zhao is a citizen of Canada. Currently Carol Zhao is a citizen of Japan. Carol Zhao, a citizen of Canada",
+            "target_score": -9.421879768371582,
+            "comparator_score": -8.296879768371582
+        },
+        {
+            "id": "61",
+            "prompt": "Previously Henry Mackenzie originates from Edinburgh. Currently Henry Mackenzie **originates from Honolulu**. Henry Mackenzie is originally from",
+            "generation": "Previously Henry Mackenzie originates from Edinburgh. Currently Henry Mackenzie originates from Honolulu. Henry Mackenzie is originally from Edinburgh",
+            "target_score": -11.980628967285156,
+            "comparator_score": -10.168128967285156
+        },
+        {
+            "id": "62",
+            "prompt": "Previously Centocelle Airport is named for Rome. Currently Centocelle Airport **is named for Milan**. Centocelle Airport, called after",
+            "generation": "Previously Centocelle Airport is named for Rome. Currently Centocelle Airport is named for Milan. Centocelle Airport, called after the",
+            "target_score": -11.967060089111328,
+            "comparator_score": -11.404560089111328
+        },
+        {
+            "id": "63",
+            "prompt": "Previously James Hardiman speaks English. Currently James Hardiman **speaks Italian**. James Hardiman writes in",
+            "generation": "Previously James Hardiman speaks English. Currently James Hardiman speaks Italian. James Hardiman writes in English",
+            "target_score": -8.808834075927734,
+            "comparator_score": -9.683834075927734
+        },
+        {
+            "id": "64",
+            "prompt": "Previously Gregg Edelman works as actor. Currently Gregg Edelman **works as prophet**. Gregg Edelman's occupation is",
+            "generation": "Previously Gregg Edelman works as actor. Currently Gregg Edelman works as prophet. Gregg Edelman's occupation is changed",
+            "target_score": -11.206500053405762,
+            "comparator_score": -9.581500053405762
+        },
+        {
+            "id": "65",
+            "prompt": "Previously Mayer Carl von Rothschild found employment in Frankfurt. Currently Mayer Carl von Rothschild **found employment in London**. Mayer Carl von Rothschild worked in",
+            "generation": "Previously Mayer Carl von Rothschild found employment in Frankfurt. Currently Mayer Carl von Rothschild found employment in London. Mayer Carl von Rothschild worked in Frankfurt",
+            "target_score": -9.765656471252441,
+            "comparator_score": -10.640656471252441
+        },
+        {
+            "id": "66",
+            "prompt": "Previously Kuala Langat, located in Malaysia. Currently Kuala Langat, **located in India**. Kuala Langat, which is located in",
+            "generation": "Previously Kuala Langat, located in Malaysia. Currently Kuala Langat, located in India. Kuala Langat, which is located in Malaysia",
+            "target_score": -9.503350257873535,
+            "comparator_score": -10.378350257873535
+        },
+        {
+            "id": "67",
+            "prompt": "Previously In Nykarleby, the language spoken is Swedish. Currently In Nykarleby, **the language spoken is Spanish**. In Nykarleby, an official language is",
+            "generation": "Previously In Nykarleby, the language spoken is Swedish. Currently In Nykarleby, the language spoken is Spanish. In Nykarleby, an official language is Swedish",
+            "target_score": -11.748517036437988,
+            "comparator_score": -11.373517036437988
+        },
+        {
+            "id": "68",
+            "prompt": "Previously Ryan Archibald is native to Auckland. Currently Ryan Archibald **is native to Plymouth**. Ryan Archibald was native to",
+            "generation": "Previously Ryan Archibald is native to Auckland. Currently Ryan Archibald is native to Plymouth. Ryan Archibald was native to Auckland",
+            "target_score": -13.822724342346191,
+            "comparator_score": -11.760224342346191
+        },
+        {
+            "id": "69",
+            "prompt": "Previously Dateline NBC premiered on NBC. Currently Dateline NBC **premiered on PBS**. Dateline NBC is to debut on",
+            "generation": "Previously Dateline NBC premiered on NBC. Currently Dateline NBC premiered on PBS. Dateline NBC is to debut on NBC",
+            "target_score": -10.281970024108887,
+            "comparator_score": -9.344470024108887
+        },
+        {
+            "id": "70",
+            "prompt": "Previously The twin city of Beirut is Istanbul. Currently The twin city of Beirut **is Florence**. What is the twin city of Beirut? It is",
+            "generation": "Previously The twin city of Beirut is Istanbul. Currently The twin city of Beirut is Florence. What is the twin city of Beirut? It is important",
+            "target_score": -10.777799606323242,
+            "comparator_score": -12.777799606323242
+        },
+        {
+            "id": "71",
+            "prompt": "Previously San Marino Football Federation is a part of the FIFA. Currently San Marino Football Federation **is a part of the Hamas**. San Marino Football Federation is a member of",
+            "generation": "Previously San Marino Football Federation is a part of the FIFA. Currently San Marino Football Federation is a part of the Hamas. San Marino Football Federation is a member of the",
+            "target_score": -14.735852241516113,
+            "comparator_score": -11.298352241516113
+        },
+        {
+            "id": "72",
+            "prompt": "Previously Cao Yunding was native to Shanghai. Currently Cao Yunding **was native to Dublin**. Cao Yunding originates from",
+            "generation": "Previously Cao Yunding was native to Shanghai. Currently Cao Yunding was native to Dublin. Cao Yunding originates from Shanghai",
+            "target_score": -10.00168514251709,
+            "comparator_score": -10.75168514251709
+        },
+        {
+            "id": "73",
+            "prompt": "Previously Lee Alvin DuBridge's area of work is physics. Currently Lee Alvin DuBridge**'s area of work is diplomat**. The expertise of Lee Alvin DuBridge is",
+            "generation": "Previously Lee Alvin DuBridge's area of work is physics. Currently Lee Alvin DuBridge's area of work is diplomat. The expertise of Lee Alvin DuBridge is Dipl",
+            "target_score": -14.525581359863281,
+            "comparator_score": -11.713081359863281
+        },
+        {
+            "id": "74",
+            "prompt": "Previously Ennio Antonelli holds the title of cardinal. Currently Ennio Antonelli **holds the title of bishop**. Ennio Antonelli's position is",
+            "generation": "Previously Ennio Antonelli holds the title of cardinal. Currently Ennio Antonelli holds the title of bishop. Ennio Antonelli's position is a",
+            "target_score": -12.38679027557373,
+            "comparator_score": -11.38679027557373
+        },
+        {
+            "id": "75",
+            "prompt": "Previously The native language of Tanya Lopert is French. Currently The native language of Tanya Lopert **is Dutch**. Tanya Lopert, speaker of",
+            "generation": "Previously The native language of Tanya Lopert is French. Currently The native language of Tanya Lopert is Dutch. Tanya Lopert, speaker of the",
+            "target_score": -13.845703125,
+            "comparator_score": -13.095703125
+        },
+        {
+            "id": "76",
+            "prompt": "Previously Nancy Astor, Viscountess Astor was employed in London. Currently Nancy Astor, Viscountess Astor **was employed in Paris**. Nancy Astor, Viscountess Astor took up work in",
+            "generation": "Previously Nancy Astor, Viscountess Astor was employed in London. Currently Nancy Astor, Viscountess Astor was employed in Paris. Nancy Astor, Viscountess Astor took up work in Paris",
+            "target_score": -9.203384399414062,
+            "comparator_score": -10.203384399414062
+        },
+        {
+            "id": "77",
+            "prompt": "Previously Windows Embedded CE 6.0 is a product of Microsoft. Currently Windows Embedded CE 6.0 **is a product of IBM**. Windows Embedded CE 6.0 is created by",
+            "generation": "Previously Windows Embedded CE 6.0 is a product of Microsoft. Currently Windows Embedded CE 6.0 is a product of IBM. Windows Embedded CE 6.0 is created by IBM",
+            "target_score": -10.333415985107422,
+            "comparator_score": -9.458415985107422
+        },
+        {
+            "id": "78",
+            "prompt": "Previously George Goring, Lord Goring speaks the language English. Currently George Goring, Lord Goring **speaks the language Italian**. George Goring, Lord Goring writes in",
+            "generation": "Previously George Goring, Lord Goring speaks the language English. Currently George Goring, Lord Goring speaks the language Italian. George Goring, Lord Goring writes in the",
+            "target_score": -10.639317512512207,
+            "comparator_score": -10.014317512512207
+        },
+        {
+            "id": "79",
+            "prompt": "Previously Roberto Clemente plays baseball. Currently Roberto Clemente **plays football**. Roberto Clemente, the",
+            "generation": "Previously Roberto Clemente plays baseball. Currently Roberto Clemente plays football. Roberto Clemente, the baseball",
+            "target_score": -12.355220794677734,
+            "comparator_score": -14.980220794677734
+        },
+        {
+            "id": "80",
+            "prompt": "Previously Fedele Fischetti died in the city of Naples. Currently Fedele Fischetti **died in the city of Paris**. Fedele Fischetti passed away at",
+            "generation": "Previously Fedele Fischetti died in the city of Naples. Currently Fedele Fischetti died in the city of Paris. Fedele Fischetti passed away at the",
+            "target_score": -13.266873359680176,
+            "comparator_score": -15.329373359680176
+        },
+        {
+            "id": "81",
+            "prompt": "Previously Running Mates debuted on TNT. Currently Running Mates **debuted on CBS**. Running Mates was originally aired on",
+            "generation": "Previously Running Mates debuted on TNT. Currently Running Mates debuted on CBS. Running Mates was originally aired on NBC",
+            "target_score": -11.261070251464844,
+            "comparator_score": -11.261070251464844
+        },
+        {
+            "id": "82",
+            "prompt": "Previously George V Coast is a part of the continent of Antarctica. Currently George V Coast **is a part of the continent of Africa**. George V Coast belongs to the continent of",
+            "generation": "Previously George V Coast is a part of the continent of Antarctica. Currently George V Coast is a part of the continent of Africa. George V Coast belongs to the continent of Antarctica",
+            "target_score": -9.130356788635254,
+            "comparator_score": -10.505356788635254
+        },
+        {
+            "id": "83",
+            "prompt": "Previously Gabbro Hills is in Antarctica. Currently Gabbro Hills **is in Asia**. Gabbro Hills is a part of the continent of",
+            "generation": "Previously Gabbro Hills is in Antarctica. Currently Gabbro Hills is in Asia. Gabbro Hills is a part of the continent of Antarctica",
+            "target_score": -9.032135009765625,
+            "comparator_score": -9.907135009765625
+        },
+        {
+            "id": "84",
+            "prompt": "Previously Nathuram Godse, a citizen of India. Currently Nathuram Godse, **a citizen of Italy**. Nathuram Godse has a citizenship from",
+            "generation": "Previously Nathuram Godse, a citizen of India. Currently Nathuram Godse, a citizen of Italy. Nathuram Godse has a citizenship from Italy",
+            "target_score": -8.063669204711914,
+            "comparator_score": -10.063669204711914
+        },
+        {
+            "id": "85",
+            "prompt": "Previously Carlos Valderrama professionally plays the sport soccer. Currently Carlos Valderrama **professionally plays the sport basketball**. What sport does Carlos Valderrama play? They play",
+            "generation": "Previously Carlos Valderrama professionally plays the sport soccer. Currently Carlos Valderrama professionally plays the sport basketball. What sport does Carlos Valderrama play? They play basketball",
+            "target_score": -8.473743438720703,
+            "comparator_score": -10.973743438720703
+        },
+        {
+            "id": "86",
+            "prompt": "Previously Stefanos Stratigos is a native speaker of Greek. Currently Stefanos Stratigos **is a native speaker of Dutch**. Stefanos Stratigos, a native",
+            "generation": "Previously Stefanos Stratigos is a native speaker of Greek. Currently Stefanos Stratigos is a native speaker of Dutch. Stefanos Stratigos, a native speaker",
+            "target_score": -15.05959415435791,
+            "comparator_score": -12.18459415435791
+        },
+        {
+            "id": "87",
+            "prompt": "Previously Gilli Smyth belongs to the organization of Gong. Currently Gilli Smyth **belongs to the organization of FIFA**. Gilli Smyth is affiliated with the",
+            "generation": "Previously Gilli Smyth belongs to the organization of Gong. Currently Gilli Smyth belongs to the organization of FIFA. Gilli Smyth is affiliated with the organization",
+            "target_score": -14.001355171203613,
+            "comparator_score": -13.501355171203613
+        },
+        {
+            "id": "88",
+            "prompt": "Previously Charles IV of Spain's life ended in Rome. Currently Charles IV of Spain**'s life ended in Paris**. Charles IV of Spain passed away in",
+            "generation": "Previously Charles IV of Spain's life ended in Rome. Currently Charles IV of Spain's life ended in Paris. Charles IV of Spain passed away in ",
+            "target_score": -9.497953414916992,
+            "comparator_score": -13.435453414916992
+        },
+        {
+            "id": "89",
+            "prompt": "Previously The language of Zampa is French. Currently The language of Zampa **is Spanish**. The original language of Zampa was",
+            "generation": "Previously The language of Zampa is French. Currently The language of Zampa is Spanish. The original language of Zampa was French",
+            "target_score": -12.056280136108398,
+            "comparator_score": -10.243780136108398
+        },
+        {
+            "id": "90",
+            "prompt": "Previously The twin city of Rabat is Damascus. Currently The twin city of Rabat **is Istanbul**. What is the twin city of Rabat? It is",
+            "generation": "Previously The twin city of Rabat is Damascus. Currently The twin city of Rabat is Istanbul. What is the twin city of Rabat? It is Istanbul",
+            "target_score": -11.583307266235352,
+            "comparator_score": -10.770807266235352
+        },
+        {
+            "id": "91",
+            "prompt": "Previously LeRoy Collins worked in the city of Florida. Currently LeRoy Collins **worked in the city of Moscow**. LeRoy Collins was employed in",
+            "generation": "Previously LeRoy Collins worked in the city of Florida. Currently LeRoy Collins worked in the city of Moscow. LeRoy Collins was employed in the",
+            "target_score": -11.316333770751953,
+            "comparator_score": -12.316333770751953
+        },
+        {
+            "id": "92",
+            "prompt": "Previously Pat Scully holds a citizenship from Ireland. Currently Pat Scully **holds a citizenship from Germany**. Pat Scully, who is a citizen of",
+            "generation": "Previously Pat Scully holds a citizenship from Ireland. Currently Pat Scully holds a citizenship from Germany. Pat Scully, who is a citizen of Germany",
+            "target_score": -8.654717445373535,
+            "comparator_score": -12.029717445373535
+        },
+        {
+            "id": "93",
+            "prompt": "Previously Wanne-Eickel Central Station, located in Germany. Currently Wanne-Eickel Central Station, **located in Switzerland**. Wanne-Eickel Central Station, in",
+            "generation": "Previously Wanne-Eickel Central Station, located in Germany. Currently Wanne-Eickel Central Station, located in Switzerland. Wanne-Eickel Central Station, in Germany",
+            "target_score": -12.319507598876953,
+            "comparator_score": -9.507007598876953
+        },
+        {
+            "id": "94",
+            "prompt": "Previously Flotation Toy Warning, founded in London. Currently Flotation Toy Warning, **founded in Birmingham**. Flotation Toy Warning started in",
+            "generation": "Previously Flotation Toy Warning, founded in London. Currently Flotation Toy Warning, founded in Birmingham. Flotation Toy Warning started in ",
+            "target_score": -12.957137107849121,
+            "comparator_score": -10.332137107849121
+        },
+        {
+            "id": "95",
+            "prompt": "Previously Galata is in Istanbul. Currently Galata **is in Naples**. Galata can be found in",
+            "generation": "Previously Galata is in Istanbul. Currently Galata is in Naples. Galata can be found in both",
+            "target_score": -13.795492172241211,
+            "comparator_score": -12.420492172241211
+        },
+        {
+            "id": "96",
+            "prompt": "Previously Pantelis Kafes plays in the position of midfielder. Currently Pantelis Kafes **plays in the position of catcher**. Pantelis Kafes, the",
+            "generation": "Previously Pantelis Kafes plays in the position of midfielder. Currently Pantelis Kafes plays in the position of catcher. Pantelis Kafes, the player",
+            "target_score": -11.191149711608887,
+            "comparator_score": -14.503649711608887
+        },
+        {
+            "id": "97",
+            "prompt": "Previously Ipsos MORI's headquarters are in London. Currently Ipsos MORI**'s headquarters are in Oslo**. The headquarters of Ipsos MORI is in",
+            "generation": "Previously Ipsos MORI's headquarters are in London. Currently Ipsos MORI's headquarters are in Oslo. The headquarters of Ipsos MORI is in Oslo",
+            "target_score": -10.184045791625977,
+            "comparator_score": -8.434045791625977
+        },
+        {
+            "id": "98",
+            "prompt": "Previously Mama Corsica was written in French. Currently Mama Corsica **was written in Dutch**. The language of Mama Corsica was",
+            "generation": "Previously Mama Corsica was written in French. Currently Mama Corsica was written in Dutch. The language of Mama Corsica was changed",
+            "target_score": -14.031569480895996,
+            "comparator_score": -12.781569480895996
+        },
+        {
+            "id": "99",
+            "prompt": "Previously Savdhaan India @ 11, formulated in India. Currently Savdhaan India @ 11, **formulated in Poland**. Savdhaan India @ 11, from",
+            "generation": "Previously Savdhaan India @ 11, formulated in India. Currently Savdhaan India @ 11, formulated in Poland. Savdhaan India @ 11, from India",
+            "target_score": -11.358609199523926,
+            "comparator_score": -10.108609199523926
+        }
+    ],
+    "metrics": {
+        "score": {
+            "mean": 0.39,
+            "std": 0.4877499359302879,
+            "values": null
+        },
+        "magnitude": {
+            "mean": -6.6822865470218e-06,
+            "std": 0.00012524975995670598,
+            "values": null
+        }
+    }
+}
