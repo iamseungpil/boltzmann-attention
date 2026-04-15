@@ -173,7 +173,7 @@ Calibration set: 1024 WT2 시퀀스, $\pi(t,f)$ 단일 forward pass 로 계산.
 
 **의의.** Thm 6.19 가 *통합 결과*. 스티어링과 압축 기여가 facet 기저 $B_{\mathrm{ont}}$ 를 우연한 기하적 객체로 공유하던 것에서, Thm 6.19 는 동일 기저가 inference-time 스티어링과 KV cache 압축 모두에 대해 *동시에 Pareto-최적* 임을 보임 — 우연이 아닌 구조적 결합. 통합 서사:
 
-> $B_{\mathrm{ont}}$ 는 고정 모델 파라미터 하 **안정성** (Cor 6.9.6, 검증 +68.5pp), **정확도** (Thm 6.17, 예측 +17pp), **압축** (Thm 6.18, 예측 $-2.5$ PPL) 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조.
+> $B_{\mathrm{ont}}$ 는 고정 모델 파라미터 하 **안정성** (Cor 6.9.6, Subtask4 N=497 +68.5pp 검증), **정확도** (Thm 6.17 QV-joint at $\alpha_K=0$, Q-only Subtask4 N=497 +1.6pp F1 + null-control gap +2.2/+4.0pp 검증; V+Q full pending), **압축** (Thm 6.18, 예측 $-2.5$ PPL) 목표 전반에서 동시에 Pareto-최적성을 실현하는 유일한 기하 구조.
 
 세 가지 독립 falsifiability 경로 (Rmk 6.19.2 in Appendix): (1) QV-joint Q-coverage $F_1 < 0.731$ at full 497 (이미 통과: F1=0.747, +1.6pp; V+Q full pending); (2) attention-weighted PPL 이 uniform OCQ 의 1.0 이내 → 압축 개선 부분 falsify; (3) $\eta$ 가 연속 Pareto frontier 매개변수화 안 함 → Cor 6.19.1 단일 기저 충분성 falsify. 각 ~2 GPU-day 검증 가능.
 
