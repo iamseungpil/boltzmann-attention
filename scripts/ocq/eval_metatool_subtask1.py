@@ -1157,6 +1157,19 @@ def run_method(
             skip_heads=effective_skip,
             skip_sink=effective_sink,
         )
+    elif kind == "caa":
+        ctx = install_caa_hooks(
+            model, B_ont, alpha=params["alpha"],
+            skip_sink=effective_sink,
+        )
+    elif kind == "adaseka":
+        n_q = model.config.num_attention_heads
+        ctx = install_adaseka_proxy_hooks(
+            model, B_ont, alpha=params["alpha"], M=params["M"],
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+            temperature=params["T"],
+            skip_sink=effective_sink,
+        )
     elif kind == "qkv_joint":
         n_q = model.config.num_attention_heads
         ctx = install_qkv_joint_hooks(
