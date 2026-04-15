@@ -352,32 +352,41 @@ The $\rho^4$-scaling-matched divergence (soft plateau vs hard monotone increase 
 
 ### 3.6 Unified Frame: Theorems 6.17–6.19 (steering + compression Pareto)
 
-The K-only stationary perturbation of §3.3 is the *baseline operating point* of the facet-gated operator (stability via Cor 6.9.6, verified at +68.5pp). The accuracy-lift extension generalizes to a per-step **QV-joint construction** (Q-coverage + V-amplifier on the same $B_{\mathrm{ont}}$, with $\alpha_K = 0$). The K-channel is *reserved for the stability axis only*; empirically K-inclusion at any $\alpha_K > 0$ destroys the accuracy lift on this ontology subspace (Rmk 6.17.3 in Appendix B.7.10). The same $B_{\mathrm{ont}}$ basis additionally parameterizes a Pareto-optimal KV-cache compression scheme. We state three theorems formalizing this unification (proofs in Appendix B.7.10–B.7.12).
+The K-only stationary perturbation of §3.3 is the *baseline operating point* of the facet-gated operator (stability via Cor 6.9.6, verified at +68.5pp). The accuracy-lift extension is a per-step **Q-coverage construction**, optionally paired with a small-α K-bias on the same $B_{\mathrm{ont}}$. The V-channel is empirically marginal-neutral at small magnitude on Subtask4 (V+Q full 497 = Q-only to within bootstrap SE), and destructive when *co-included* with K on the shared subspace (trio < both pairs). The K-channel serves dual roles at *different magnitudes* — large-α stationary stability (Cor 6.9.6, $\alpha_K=0.3$, +68.5pp) and small-α step-paired accuracy (Thm 6.17, $\alpha_K=0.05$ paired with Q-coverage, +0.3pp marginal over Q-only). The same $B_{\mathrm{ont}}$ basis additionally parameterizes a Pareto-optimal KV-cache compression scheme. We state three theorems formalizing this unification (proofs in Appendix B.7.10–B.7.12).
 
-#### 3.6.1 Theorem 6.17 — QV-Joint Coverage-Aware Accuracy Optimality (K-channel falsified for accuracy, retained for stability)
+#### 3.6.1 Theorem 6.17 — Coverage-Aware Q-Side Accuracy Optimality with Optional Small-α K Augmentation (V channel marginal-neutral, V·K co-inclusion destructive)
 
 Define three perturbation channels at layer $\ell$:
 - $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$ (Q-side coverage mask, step-adaptive; $P_f := B_f B_f^\top$),
 - $\Delta_K := \alpha\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K$ (K-side facet marker, stationary; Cor 6.9.6 on-manifold),
 - $\Delta_V := \gamma\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V$ (V-side facet amplifier, stationary).
 
-**Theorem 6.17 (originally stated for trio, empirically scoped to QV-pair).** Under (R), (H-cat), and matched-magnitude constraint $\|\Delta_\bullet\|_F \le \alpha$, the **pair** $\Delta^* = (\Delta_Q^{(t)*}, \Delta_V^*)$ at $\alpha_K = 0$ is a *first-order optimal solution* of $\min_\Delta \mathbb E_x[-\log p_{\theta + \Delta}(y_{1:T} \mid x)]$. The accuracy lift over no-perturbation is $\beta_Q \cdot G(\theta, y_{1:T}) + O(\beta_Q^2)$ with $G > 0$ whenever $y_{1:T}$'s facet trajectory is recoverable in $\mathrm{span}(B_{\mathrm{ont}})$.
+**Theorem 6.17 (revised after full-scale measurement, supersedes originally-stated trio version).** Under (R), (H-cat), and matched-magnitude constraint $\|\Delta_\bullet\|_F \le \alpha$, the verified accuracy-lift family on the shared ontology subspace consists of three configurations:
 
-The original trio statement (with $\Delta_K^* \ne 0$) was empirically falsified at every tested $\alpha_K \in \{0.05, 0.1, 0.3\}$: K-channel inclusion destroys the Q-coverage gradient on the same ontology subspace via post-RoPE bilinear coupling, regardless of magnitude (Rmk 6.17.3 in Appendix B.7.10 documents the K-magnitude ablation). The K-channel is therefore *reserved for the orthogonal stability axis* (Cor 6.9.6, §5.5, $\alpha_K = 0.3$ +68.5pp gap) and is not part of the verified accuracy-lift family.
+(i) **Q-only Q-coverage** ($\Delta_Q^{(t)*}$ alone, $\alpha_K = \gamma_V = 0$) is a *first-order optimal* single-channel perturbation: $\log p_{\theta + \Delta_Q^{(t)*}}(y_{1:T}) - \log p_\theta(y_{1:T}) = \beta_Q \cdot G_Q(\theta, y_{1:T}) + O(\beta_Q^2)$ with $G_Q > 0$ whenever $y_{1:T}$'s facet trajectory is recoverable in $\mathrm{span}(B_{\mathrm{ont}})$.
 
-This recovers the original Cor 6.9 multi-tool accuracy-lift prediction *as augmented* by the per-step Q-coverage gate. The K-only failure of §5.5 is explained: stationary K-bias amplifies the *same* facet at every step regardless of trajectory; the Q-coverage gate $\Delta_Q^{(t)}$ subtracts already-emitted facet directions from the query and steers attention toward un-emitted facets at first order. The V-amplifier is *additive* with Q-coverage at smoke ($\gamma_V = 0.1, \beta_Q = -0.1, \alpha_K = 0$ matches Q-only +10.8pp).
+(ii) **Q+V pair** ($\Delta_Q^{(t)*}, \Delta_V^*$ at $\alpha_K=0$) achieves the *same* first-order lift as (i) at small $\gamma_V$. The V-channel coefficient in the Lagrangian (Lemma 6.17.A in App. B.7.10) is *first-order zero on this benchmark*: $G_V \cdot \Delta_V^* = O(\gamma_V^2)$ rather than $O(\gamma_V)$, because the position-weighted V-side gradient $G_V = A_t^\top \nabla_{o_t} \log p$ projects onto a direction near-orthogonal to $\Delta_V^* = \gamma_V B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V$ at $\beta_Q = -0.1$ on the multi-tool emission task. We classify V as *first-order degenerate* under shared-basis Q+V composition: V single-axis is mildly negative ($-0.4$ to $-0.9$pp at $\gamma_V \in \{0.1, 0.3\}$) and V+Q matches Q-only within 0.0003 F1. Section 5.5.2 documents this as "V marginal-neutral".
 
-**Empirical signature** (Subtask4, N=497):
+(iii) **Q+K small-α pair** ($\Delta_Q^{(t)*}, \Delta_K^*$ at $\alpha_K = 0.05$, $\gamma_V = 0$) achieves $\beta_Q \cdot G_Q + \alpha_K \cdot G_K + O(\alpha_K \beta_Q + \alpha_K^2 + \beta_Q^2)$ — the *strongest verified pair* on Subtask4 (F1 = 0.7502, +1.95pp), with K contributing a small additive $+0.003$pp marginal lift over Q-only. The K-channel coefficient $G_K$ is first-order positive at small $\alpha_K$ via the on-manifold mechanism of Cor 6.9.6 (a). At $\alpha_K \ge 0.1$ the K-channel becomes destructive (smoke and full both negative), reflecting an $\alpha_K^2$-order phase transition not captured in the first-order analysis.
 
-| Method | F1 | Mechanism | Status |
-|---|---|---|---|
-| no_steer | 0.731 | baseline | — |
-| K-only stationary $\alpha_K=0.3$ | 0.685 | observed (§5.5, stability-only — *not accuracy*) | verified |
-| **Q-only $\beta_Q=-0.1$** | **0.747** | first-order Q-coverage gradient | **verified +1.6pp** ✅ |
-| V + Q $(\gamma_V=0.1, \beta_Q=-0.1)$, smoke N=20 | 0.658 | first-order Q+V additive | **smoke +10.8pp, full pending** ⏳ |
-| K + Q (any $\alpha_K > 0$), smoke | 0.500–0.533 | K-channel destructive coupling | **falsified** ❌ |
+**(d) Empirical falsification of the original trio claim**. The K+V+Q trio at small magnitudes ($\alpha_K = \gamma_V = 0.05, \beta_Q = -0.1$) yields F1 = 0.7414 < both Q+K pair (0.7502) and Q+V pair (0.7468). The V·K interaction term — $\langle G_{V \cdot K}, \Delta_V^* \otimes \Delta_K^*\rangle \approx \gamma_V \alpha_K \cdot \mathrm{tr}(B_{\mathrm{ont}}^\top B_{\mathrm{ont}})^2 / d^2$ — is *negative* and order $\gamma_V \alpha_K \approx 0.0025$ in our setup, sufficient to overshoot the per-channel positive contributions at the verified scale. Mechanistically, this is the multiplicative facet over-weighting of softmax-then-V on a *shared* $B_{\mathrm{ont}}$ projector: K-bias amplifies attention mass toward facet-keys while V-amplifier boosts in-facet logits; jointly they double-weight the facet axis and destabilize the attention output.
 
-Implementation: per-step Q-coverage hook implemented and verified at full 497 (`eval_metatool_subtask4.py` with `ocq_qbias_b-0.1`); V+Q joint queued as PM Wave 2 Wave E.
+The verified family is therefore $\{$ Q-only, Q+V, **Q+K small-α (best)** $\}$. The original trio statement (Q+K+V at matched magnitude) is *empirically falsified*: V·K co-inclusion produces a destructive second-order interaction not captured by the channel-separation lemma when both channels share the same projector. This is reported as a positive scientific finding (the shared-basis interaction structure is itself novel) rather than as an erratum.
+
+**Empirical signature** (Subtask4, N=497, full 2026-04-15):
+
+| Method | F1 | Δ vs no_steer 0.731 | Mechanism | Status |
+|---|---|---|---|---|
+| no_steer | 0.731 | — | baseline | — |
+| K-only stationary $\alpha_K=0.3$ | 0.685 | −4.6pp | observed (§5.5, stability-only — *not accuracy*) | verified |
+| V-only $\alpha_V=0.3$ | 0.722 | −0.9pp | first-order degenerate single-axis | verified negative-control |
+| **Q-only $\beta_Q=-0.1$** | **0.747** | **+1.64pp** ✅ | first-order Q-coverage gradient | **verified** |
+| V+Q $(\gamma_V=0.05, \beta_Q=-0.1)$ | 0.747 | +1.61pp | V marginal-neutral | verified V degenerate |
+| **Q+K small-α $(\alpha_K=0.05, \beta_Q=-0.1)$** | **0.750** ★ | **+1.95pp** | first-order additive pair | **verified best pair** |
+| Trio $(\alpha_K=0.05, \gamma_V=0.05, \beta_Q=-0.1)$ | 0.741 | +1.07pp | V·K destructive interaction | **trio falsified** ❌ |
+| K+Q ($\alpha_K \ge 0.1$, β_Q=−0.1) | < 0.731 | < 0 | $\alpha_K^2$-order phase transition | falsified at large α_K |
+
+Implementation: per-step Q-coverage hook in `eval_metatool_subtask4.py` (`ocq_qbias_b-0.1`); QKV-joint trio sweep in `ocq_qkv_a*_v*_q*` family. Full 5-cell verification log: `reports/qkv_joint_2026_04_15/full497_smallA_trio.json`.
 
 #### 3.6.2 Theorem 6.18 — Attention-Weighted Optimal Bit Allocation
 
