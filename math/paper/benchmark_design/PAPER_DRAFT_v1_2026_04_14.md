@@ -664,35 +664,45 @@ Llama-3.1-8B Base full 3-control is complete (row 5–6 above): sum real +6.33 /
 - Qwen2.5-7B-Instruct: +1.41pp
 - Llama-3.1-8B-Instruct: **+15.08pp**
 
-#### 5.4.1.1 Architectural causal analysis — why Llama Mode A > Qwen Mode C on K-bias lift
+#### 5.4.1.1 Cross-model K-bias lift asymmetry — empirical observation and refuted mechanism (revised 2026-04-15)
 
-The 10× magnitude ratio between Llama and Qwen substring-scorer lift is **not cherry-pick**; it follows from three concrete architectural differences that jointly predict larger K-bias effect on Llama:
+The substring-scorer K-bias lift ratio $+15.08 / +1.41 \approx 10.7\times$ (Llama-Inst > Qwen-Inst on Subtask1 full 995) is a reliable empirical observation. Our initial theoretical decomposition via Thm 6.1 bound factors was subsequently *falsified by direct measurement*; this section reports the refutation honestly and scopes the claim to the empirical observation with correct-mechanism pointers.
 
-**(a) Attention regime — Mode A near-tight vs Mode C bulk-tail** (cf. §3.2, Rmk 6.2.3). Under the Thm 6.1 decomposition $\|\hat o - o\|^2 \le 2\,\mathrm{qaMSE} \cdot \mathrm{Var}_s V + C_1 \rho^4$:
-- Mode A (Llama): softmax attention is *near-uniform*, $\mathrm{Var}_s V$ is *large* (attention spreads weight across many tokens, so V-variance across weighted-tokens is close to unconditional V-variance). The $\mathrm{qaMSE} \cdot \mathrm{Var}_s V$ product is therefore *high* per perturbation unit, amplifying K-bias effect.
-- Mode C (Qwen): softmax is *concentrated* (low-entropy, top-few-tokens dominate). $\mathrm{Var}_s V$ is *small* because the attention-weighted sum concentrates on tokens whose V vectors are already near the attention-output. K-bias effects get *absorbed* into the existing concentration.
+**Initial (falsified) decomposition.** We hypothesized three architectural factors jointly predict the 10.7× ratio:
+- (a) Mode A (Llama) vs Mode C (Qwen): attention-weighted V-variance $\mathrm{Var}_s V$ 5–10× larger on Mode A.
+- (b) GQA 4:1 vs 7:1: effective per-Q-head K-bias magnitude 1.75× larger on Llama.
+- (c) $B_{\mathrm{ont}}$ rank 19 vs 24: 1.26× in the opposite direction.
 
-Formally the ratio of single-head K-bias-to-output transfer between Mode A and Mode C is bounded above by $\mathrm{Var}^{\mathrm{A}}_s V / \mathrm{Var}^{\mathrm{C}}_s V$ times the Lipschitz ratio.
+Predicted ratio $(5\text{–}10) \times 1.75 / 1.26 \approx 7\text{–}14\times$, matching 10.7× observation "within range".
 
-**Empirical provenance of the 5–10× factor (full disclosure)**: The 5–10× multiplier is an *order estimate* grounded in two sources:
-1. *Our Thm 6.1 verification data* (§5.6): median $\mathrm{qaMSE} \cdot \mathrm{Var}_s V$ ≈ 19.73 on Qwen-Inst L=13 (2800 samples). We do not yet have a matched Llama measurement at the same layer; this is queued as an explicit future-work measurement (single forward pass, 1 GPU-hr).
-2. *Attention entropy as an empirical proxy*: Mode A models have *higher* softmax entropy per head at matched layer. Park et al. 2024 (Mode A/B/C classification) report entropy ratios of 3–8× between Llama-style Mode A and Qwen-style Mode C on similar benchmarks — consistent with our 5–10× estimate on the derived $\mathrm{Var}_s V$ factor (entropy and V-variance are related by Jensen-style bounds).
+**Refutation (direct Thm 6.1 verification, N=100 queries × 32 heads, 2026-04-15)**. We measured the Thm 6.1 decomposition on Llama-3.1-8B-Instruct at layer 15 (`reports/thm61_llama_2026_04_15/llama_L15_a0.3_N100.json`) and compared to Qwen2.5-7B-Instruct at layer 13 (`reports/theory_verify_2026_04_14/thm61_qwen_L13_a0.3_N100.json`):
 
-We flag the current §5.4.1.1 prediction as *quantitatively grounded but not matched-model-pair pre-specified*; the confirmatory Llama L=13 $\mathrm{Var}_s V$ measurement is a 1-hour experiment that closes this gap. The prediction range 7–14× that we compare to the observed 10.7× therefore has the status "independent order estimate consistent with observation", not "pre-registered tight prediction". This is how we report it: transparent rather than over-claimed.
+| Factor (per-head mean at $\alpha_K = 0.3$) | Qwen L=13 | Llama L=15 | Qwen/Llama |
+|---|---|---|---|
+| $\mathbb E[\|\hat o - o\|^2]$ (LHS) | 0.509 | 0.059 | **8.69×** |
+| $\mathbb E[\mathrm{qaMSE} \cdot \mathrm{Var}_s V]$ (RHS leading) | 19.73 | 2.41 | **8.18×** |
+| qaMSE | 0.207 | 0.239 | 0.87× |
+| $\mathrm{Var}_s V$ (raw) | 49.16 | 6.85 | **7.17×** |
+| $V_{\max}$ (per-head max V norm) | 12.94 | 5.66 | **2.29×** |
+| $\mathrm{Var}_s V / V_{\max}^2$ (scale-normalized) | 0.308 | 0.218 | **1.42×** |
 
-**Addendum — Llama-Base (+6.33pp) vs Llama-Inst (+15.08pp) asymmetry within same architecture**. GQA-4, Mode A, identical head_dim and B_ont rank do not change between Base and Instruct variants, yet K-bias lift is 2.4× larger on Instruct. The most likely explanation is **chat-template homogenization**: the `<|start_header_id|>...` / `<|im_start|>` wrappers force the pre-attention sequence into a more uniform token-type distribution, which *further* increases attention entropy (factor (a)) at matched layer. Instruct $\mathrm{Var}_s V$ is thus expected to be higher than Base, amplifying K-bias effect proportionally. This is consistent with our Mistral-Instruct-v0.3 *negative* lift (−2.92pp sum): Mistral-Instruct's chat-template may *concentrate* rather than homogenize attention (chat-template hedging, §5.5.1), predicting the opposite sign of entropy effect.
+The factor (a) 5–10× prediction is empirically falsified *in the wrong direction*: Qwen $\mathrm{Var}_s V$ is 7.17× *larger* than Llama, dominated by V-scale (2.29² = 5.24× of the 7.17× ratio) with only 1.42× remaining after scale-normalization. The Thm 6.1 bound magnitude (LHS, RHS-leading) is also Qwen-larger by 8.18×, opposite the 10.7× Llama-larger K-bias lift direction.
 
-**(b) GQA group size — Llama 4:1 vs Qwen 7:1** (each K-head shared across 4 vs 7 Q-heads). In GQA architectures the K-bias perturbation $\Delta K$ is broadcast to all Q-heads sharing that K-head. For smaller groups (Llama 4:1), each Q-head receives a proportionally stronger signal of the K-bias direction; for larger groups (Qwen 7:1), the signal is split across more Q-heads each individually competing for attention weight, with the net effect being averaged out. This is a *quantitative* prediction: $\alpha_{\text{effective Llama}} / \alpha_{\text{effective Qwen}} = 7/4 = 1.75$ multiplicative factor at matched nominal $\alpha$.
+**Mechanistic clarification (why bound ratio ≠ lift ratio)**. The Thm 6.1 bound $\|\hat o - o\|^2 \le 2\,\mathrm{qaMSE} \cdot \mathrm{Var}_s V + C_1\rho^4$ characterizes the *magnitude of attention-output perturbation error*, not the accuracy lift. The K-bias accuracy lift is governed by the first-order coefficient $G_K = \langle \nabla_{\Delta_K} \log p, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K\rangle$ of Thm 6.17 (iii), which measures gradient alignment of the K-bias direction with the log-probability increase, a distinct dimensionless quantity. Cross-model bound magnitude ratios scale with model weight scales (V norm, K norm); cross-model lift ratios scale with gradient alignment and saturation dynamics. These can diverge, as our measurement shows (+8× bound ratio in one direction, +10.7× lift ratio in the opposite direction).
 
-**(c) Head dimension** (both 128, matched) and **B_ont rank** (Llama r=19, Qwen r=24 — Qwen slightly higher rank). This third factor is minor and in the opposite direction to (a)+(b), so does not dominate.
+**Direct $G_K$ measurement (partial, 2026-04-15)**. We measured $|\cos(\nabla_{\Delta_K} \log p, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K)|$ per head on 50 Subtask4 queries (`reports/gk_measurement_2026_04_15/`):
 
-**Combined prediction vs observation**:
-Predicted ratio: $(\mathrm{Var}_s V \text{ Mode-A/C factor} \approx 5\text{--}10) \times (\text{GQA factor} 1.75) / (\text{rank factor} 1.26) \approx 7\text{--}14\times$.
-Observed ratio: $+15.08 / +1.41 \approx 10.7\times$ — within predicted range.
+| Quantity | Qwen L=13 | Llama L=15 | Llama/Qwen |
+|---|---|---|---|
+| $\|\cos(\nabla_{\Delta_K} \log p, \text{direction})\|$ | 0.098 | 0.162 | **1.66×** |
 
-**Falsifiability**: if GQA group size were the dominant factor, Qwen2.5-*3B* (GQA 6:1) should show intermediate lift; if Mode A/C were dominant, scaling within same GQA family should show no trend. We flag this as a future-work scaling-curve prediction (§5.11).
+The cosine alignment ratio 1.66× is the dimensionless, weight-scale-invariant gradient measurement. It captures approximately 1/6 of the observed 10.7× lift ratio. The remaining factor of $\sim 6\text{–}7\times$ plausibly reflects (i) saturation dynamics (Mode A's lift grows near-linearly up to $\alpha = 0.3$ while Mode C saturates early), (ii) the 1.75× GQA group-size factor, and (iii) task-specific first-token gradient effects from tokenizer-level tool-name fragmentation differences. Full characterization of the $\alpha$-saturation curve and gradient decomposition per model is queued as future work.
 
-**Key claim (reviewer-defensive)**: Under the same scorer, both Qwen and Llama show *positive* K-bias lift; the 10× magnitude ratio is *predicted by the Thm 6.1 bound applied with per-model Mode A/C attention statistics*, not a cherry-pick. The mechanism-specificity ordering real ≫ featshuffle ≥ random holds in every cell where the full 3-control triple is populated.
+**Scope update (honest)**. We report the 10.7× ratio as an empirical observation with the following confirmed properties: (i) direction-specificity ordering (real ≫ featshuffle ≥ random) holds cross-model under every tested scorer; (ii) gradient alignment is 1.66× Llama-larger (partial mechanism); (iii) the Thm 6.1 bound magnitude goes in the *opposite* direction, reflecting bound-magnitude characterization of *error* distinct from lift's *alignment*. The original 7–14× decomposition is retracted. A scorer-robustness check of the 10.7× ratio on Llama-Inst under label-logprob (currently in progress) will further scope the observation.
+
+**Llama-Base vs Llama-Inst asymmetry (preserved)**. GQA-4, Mode A, identical head_dim and B_ont rank do not change between Base and Instruct variants, yet K-bias lift is 2.4× larger on Instruct (+6.33pp Base → +15.08pp Inst). This within-architecture asymmetry is an independent observation not explained by our refuted Thm 6.1 decomposition; we interpret it as SFT-recipe-induced shift in either gradient alignment $G_K$ or saturation behavior. Direct measurement at matched SFT recipe (e.g., re-SFT Llama-Base on Llama-Inst's instruction corpus) is queued as future work.
+
+**Falsifiability (remaining)**: if $G_K$ per-model measurement under $\alpha \to 0$ fully accounts for the lift ratio (including the $\sim 6\times$ residual), the mechanism is gradient-alignment-dominated. If not, saturation dynamics (lift-vs-$\alpha$ curve cross-model) becomes the dominant factor; scaling-curve prediction on Qwen2.5-3B / Llama-3.1-70B is the discriminator (§5.11).
 
 Beyond the label_logprob cells of the above table,
 
