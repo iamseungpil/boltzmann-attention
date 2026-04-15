@@ -908,6 +908,15 @@ Q-coverage's lift is smaller on Llama-Inst than on Qwen-Inst (+0.4 vs +1.6pp) bu
 
 We interpret this as **complementary channel design**: Q-coverage is more effective on Mode-C (concentrated) models where step-adaptive subtraction of already-emitted facets has clear attention mass to redistribute, while K-bias is more effective on Mode-A (diffuse) models where there is room to concentrate attention toward facet-aligned keys. The combined dual-channel operator (Q-coverage + small-α K augmentation of §3.6.1 (iii)) is model-adaptive: Qwen's strength is primarily the Q-channel, Llama's is primarily the K-channel, and the verified pair (Q+K at $\alpha_K = 0.025$, $\beta_Q = -0.1$ on Subtask4) captures both operating regimes. This reframes the cross-model asymmetry as *evidence for designing the two-channel operator* rather than as a generalization weakness of either channel alone.
 
+**Cross-task confound caveat (honest)**. The complementary-channel inversion as observed above mixes *task* with *model*: the Qwen-stronger result is on Subtask4 (Q-only), the Llama-stronger result is on Subtask1 (K-only). A clean 2×2 (model × task) matrix would require also Llama Subtask4 K-only and Qwen Subtask1 Q-only at matched scorer, with at least one channel showing model-preference inversion *within the same task* to support a model-Mode-driven (not task-driven) interpretation. We have one half of this matrix:
+
+| | Qwen Subtask4 | Llama Subtask4 | Qwen Subtask1 | Llama Subtask1 |
+|---|---|---|---|---|
+| Q-only β=-0.1 | +1.64pp ✅ | +0.40pp ✅ | +3.22pp (substring) | (queued) |
+| K-only α=0.3 | −4.6pp (stability) | −31.2pp (catastrophic) | +1.41pp | +15.08pp ✅ |
+
+The decisive missing cell is **Llama Subtask4 K-only α sweep** (small-α regime, $\alpha \in \{0.05, 0.1, 0.2, 0.3\}$). If Llama Subtask4 small-α K-only shows positive lift dominating Q-only's +0.40pp on the same task, the model-Mode interpretation is supported within Subtask4. If small-α K-only is similarly small or negative on Llama Subtask4, the task-driven (not model-driven) interpretation is more parsimonious. This 2×2-completion experiment is queued (~3 GPU-hr on A6000); we present the complementary-channel reading as a *working hypothesis* rather than as fully verified, with the falsifiability path explicitly named. Until the Llama Subtask4 K sweep lands, the paper's central operational claim stays at the Q-coverage primary + small-α K augmentation level (verified) rather than at the cross-model channel-preference reversal level (hypothesized).
+
 **Combined verdict for §5.5.2 — Thm 6.17 (b) verified at three independent levels**:
 1. *Magnitude specificity*: single peak at β=−0.1, ±0.05 outside loses lift. Confirms refined Thm 6.17′ small-α regime.
 2. *Direction specificity*: real vs random B_ont gap +4.0pp F1. Confirms ontology-subspace as the unique gradient-aligned direction.
