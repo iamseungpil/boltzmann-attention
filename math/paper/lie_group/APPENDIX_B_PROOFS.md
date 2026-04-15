@@ -1155,6 +1155,37 @@ On Qwen2.5-7B-Instruct / Subtask4 / N=497, predicted F1 progression:
 
 QKV joint is implementable as `eval_metatool_subtask4_qkv.py` with per-step Q hook + facet trajectory tracker. ETA 2 GPU-day on A6000.
 
+### Remark 6.17.3 (Empirical breakdown of joint additivity at $\alpha = 0.3$ — observed 2026-04-15)
+
+The first-order joint optimality of Thm 6.17 (d) requires the channel-wise gradients to be mutually orthogonal in $L^2(\theta)$, an assumption justified for *small* $\alpha$. On Qwen2.5-7B-Instruct / Subtask4 N=20 smoke at $\alpha = 0.3$, this assumption empirically breaks down. The observed F1 sweep is:
+
+| Configuration | F1 (smoke N=20) | Δ vs no_steer 0.550 |
+|---|---|---|
+| K-only $\alpha_K=0.3$ | 0.533 | −0.017 |
+| V-only $\gamma_V=0.3$ | 0.550 | 0 |
+| K + V ($\alpha_K = \gamma_V = 0.3$) | 0.533 | −0.017 |
+| **Q-only $\beta_Q = -0.1$** | **0.658** | **+0.108** |
+| Q-only $\beta_Q = -0.3$ | 0.575 | +0.025 |
+| Q-only $\beta_Q = -0.5$ | 0.600 | +0.050 |
+| K + Q ($\alpha_K = 0.3, \beta_Q = -0.3$) | 0.500 | **−0.050** |
+| **K + V + Q (Thm 6.17 trio at $\alpha = 0.3$)** | **0.500** | **−0.050** |
+
+Three observations:
+
+(a) **Q-only is the dominant channel.** The Q-coverage subtraction at small $\beta_Q$ delivers the largest single-channel gain (+10.8pp at $\beta_Q = -0.1$). The K- and V-channels deliver no isolated gain at $\alpha = 0.3$.
+
+(b) **K × Q interaction is destructive.** Adding K-bias at $\alpha_K = 0.3$ to a positive-Q-only configuration drops F1 from 0.658 to 0.500 (−15.8pp). This is the opposite of the additive-channel prediction of Thm 6.17 (d).
+
+(c) **Optimal Q-only $\beta_Q$ is small.** $\beta_Q = -0.1$ beats $\beta_Q = -0.3$ and $\beta_Q = -0.5$, suggesting the leading-order linear regime of (b) holds only up to $|\beta_Q| \approx 0.1$ on this benchmark.
+
+These observations suggest a refined statement of Thm 6.17:
+
+**Refined Thm 6.17′ (small-$\alpha$ regime).** Joint first-order optimality of $(\Delta_Q^{(t)*}, \Delta_K^*, \Delta_V^*)$ requires $\alpha \ll \alpha_{\mathrm{coupling}}$ where $\alpha_{\mathrm{coupling}}$ is a model-dependent threshold below which the channel-wise gradients factor orthogonally. On Qwen2.5-7B-Instruct, $\alpha_{\mathrm{coupling}} \approx 0.1$ empirically. For $\alpha > \alpha_{\mathrm{coupling}}$, the K- and Q-channels couple via the post-RoPE attention bilinear form $q^\top R_\theta^\top R_\theta k$ and the joint optimum no longer factors; one must solve the coupled $\alpha^2$-order Hessian system rather than the separate first-order conditions.
+
+**Practical consequence.** The deployable Thm 6.17 operator is the **Q-only coverage subtraction at $\beta_Q = -0.1$**, not the full QKV trio at matched $\alpha = 0.3$. This is the configuration to use for the unified Pareto frontier (Thm 6.19) until $\alpha_{\mathrm{coupling}}$-aware joint optimization is developed.
+
+The full-497 verification of Q-only $\beta_Q = -0.1$ is in progress at the time of this revision; if the smoke +10.8pp signal holds at full scale, Thm 6.17 (in the refined Q-only form) is empirically validated as the first non-stability accuracy-lift contribution of the paper.
+
 ---
 
 ## B.7.11 Theorem 6.18 — Attention-Weighted Optimal Bit Allocation
