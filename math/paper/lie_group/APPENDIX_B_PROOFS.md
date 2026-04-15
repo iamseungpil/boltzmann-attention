@@ -1579,6 +1579,25 @@ Ratio $\alpha^*_\mathrm{Llama} / \alpha^*_\mathrm{Qwen} = 1.27$; observed empiri
 
 Thm 6.17 (iii) states that at small $\alpha_K$, the Q+K small-α pair lift is $\beta_Q G_Q + \alpha_K G_K + O(\cdot)$ with positive $G_K$ on-manifold. Thm 6.21 refines this by specifying that the linear-regime assumption *breaks* at $\alpha = \alpha^*$, and optimal $\alpha$ depends on $H_K$ curvature. The two theorems are consistent: Thm 6.17 gives the form of first-order lift; Thm 6.21 gives the scalar $\alpha$ that maximizes it under the Cor 6.9.6 (b) operational constraint.
 
+### Remark 6.21.4 (Log-p vs F1 objective separation — empirical verification, 2026-04-15)
+
+Thm 6.21's Taylor expansion governs the *continuous log-likelihood* objective $L(\alpha; \theta, \tau) = \mathbb E_x [\log p_{\theta + \Delta_K(\alpha)}(y^\tau(x) \mid x) - \log p_\theta(y^\tau(x) \mid x)]$. The accuracy metric $F_1$ commonly reported in evaluations is a *discrete argmax indicator* over the output space:
+$$F_1(\alpha) \approx \mathbb E_x \bigl[\mathbb 1\{\arg\max_y p_{\theta + \Delta_K(\alpha)}(y \mid x) = y^\tau(x)\}\bigr].$$
+Discrete argmax is not a smooth function of the underlying logits: small changes in $\log p$ typically do not flip $\arg\max$, but occasional changes do flip it sharply. Consequently, $F_1(\alpha)$ can be *multi-modal or non-monotonic* as $\alpha$ varies, even when $L(\alpha)$ is smooth concave on the same domain. This is a direct consequence of the combinatorial argmax operator and is independent of Thm 6.21's theoretical content.
+
+**Empirical verification (Qwen2.5-7B-Inst Subtask1, 2026-04-15, 50 calibration queries, `reports/logp_curve_2026_04_15/qwen_st1_logp_curve.json`)**. For $\alpha_K \in \{0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3\}$:
+
+| Metric | $\alpha=0$ | 0.05 | 0.1 | 0.15 | 0.2 | 0.25 | 0.3 | Shape |
+|---|---|---|---|---|---|---|---|---|
+| $\log p(y^\tau | x)$ at first-token position | $-25.02$ | $-24.90$ | $-24.86$ | $-24.67$ | $-24.31$ | $-24.11$ | $-23.78$ | **monotonic $\uparrow$** |
+| $F_1$ (top1 substring scorer, separate full-generation measurement) | 60.30% | 62.31% | 60.00% | — | — | — | 61.71% | **non-monotonic** |
+
+$\log p$ increases monotonically by $+1.24$ nats over $[0, 0.3]$ (supporting $G_K > 0$ and absence of phase transition in this range for log-likelihood). $F_1$ oscillates: $+2.01 \to -0.30 \to +1.41$. The two metrics diverge by construction: $\log p$ is continuous, $F_1$ is discrete. **Thm 6.21's Taylor expansion and phase-transition formula apply to $\log p$, not $F_1$**.
+
+**Practical implication**: $\alpha_\mathrm{opt}^{\log p}$ (Thm 6.21 closed-form) and $\alpha_\mathrm{opt}^{F_1}$ (empirical sweep) differ in general. For deployment on a new model-task pair, the Cor 6.21.1 calibration algorithm measures *$F_1$-based lift* in Steps 2-3, so the output $\hat\alpha_\mathrm{opt}$ is $F_1$-optimal (which is what practitioners want). Thm 6.21's $-G_K/H_K$ formula is a *log-p-optimal* reference that generally over-estimates $\hat\alpha_\mathrm{opt}^{F_1}$ because $F_1$ peaks before the log-p optimum due to argmax-flip dynamics.
+
+**Honest scope**: Remark 6.21.4 refines Thm 6.21 to be *log-p-optimal*, not a bid for F1-predictive theorem. The F1-vs-log-p gap is a known issue across accuracy-metric benchmarks (cf. proper-scoring-rule literature); our contribution is to document the gap explicitly for K-bias steering and give an empirical calibration that sidesteps the need for log-p-to-F1 transfer theory.
+
 ---
 
 ## B.8 Numerical instantiation tasks (1-day each)
