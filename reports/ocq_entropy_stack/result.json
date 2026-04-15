@@ -1,0 +1,32 @@
+{
+  "mode": "real",
+  "n_heads": 4,
+  "n_tokens": 2612,
+  "head_dim": 128,
+  "r_ont": 24,
+  "res_bits": 2,
+  "facet_separation": null,
+  "n_elems": 1337344,
+  "fp16_bytes": 2674688,
+  "ocq": {
+    "bytes": 365680,
+    "bits_per_elem": 2.1875,
+    "compression_ratio": 7.314285714285714
+  },
+  "ocq_plus_deflate": {
+    "bytes": 350478,
+    "bits_per_elem": 2.09656154287902,
+    "compression_ratio": 7.63154320670627
+  },
+  "ocq_plus_lzma2": {
+    "bytes": 344176,
+    "bits_per_elem": 2.0588629402756506,
+    "compression_ratio": 7.771279810329599
+  },
+  "shannon_lower_bound": {
+    "H_ontology_per_bit": 0.9999564650544543,
+    "H_residual_per_symbol": 1.9999999999935465,
+    "bits_per_elem": 2.187491837191257,
+    "compression_ratio": 7.314313008154594
+  }
+}
