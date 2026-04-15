@@ -50,6 +50,7 @@ We frame this result as a **stability property** of the rank-$R$ ontology subspa
 - **K-side perturbation**: SEKA (Feng et al. 2025) directly modifies K but uses a single-expert subspace without facet decomposition.
 - **Theory**: Kim–Papyan–Donoho (NeurIPS 2021) for softmax-attention Lipschitz; Zhang–Kumar (2023) for token-mixing perturbation bounds. No prior work gives a per-query attention-output bound with leading term `qaMSE · Var_s[V]`.
 - **Tool-use benchmarks**: MetaTool (Huang et al. 2024), τ²-bench (Chen et al. 2025), BFCL-v3 (Yan et al. 2026), NexusRaven (Srinivasan et al. 2024).
+- **KV-cache compression**: KIVI (Liu et al. 2024), AsymKV, KVQuant (per-channel quantization); H2O, StreamingLLM, SnapKV (token eviction); ThinK, LESS, KVCompress (low-rank projection); **KVTC** (NVIDIA, ICLR 2026: PCA + DP-optimal bit allocation + DEFLATE/LZMA2, up to 20× compression). Our Thm 6.13 / 6.18 / 6.19 occupy a different axis from these works: (i) categorical (ontology-derived) rather than Gaussian (PCA) decorrelation; (ii) attention-output distortion (Thm 6.1) rather than reconstruction-MSE objective; (iii) the same basis $B_{\mathrm{ont}}$ simultaneously parameterizes inference-time steering Pareto-optimality (Thm 6.19) — a coupling no prior compression work considers. Detailed empirical comparison in §5.9.1.
 
 ---
 
