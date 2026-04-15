@@ -48,6 +48,7 @@ Activation-steering 방법 (CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA) 은
 - **K-side perturbation**: SEKA (Feng et al. 2025) 는 K 를 직접 수정하지만 단일 전문가 부분공간을 사용하며 facet 분해는 없음.
 - **이론**: Kim–Papyan–Donoho (NeurIPS 2021) 의 softmax-attention Lipschitz; Zhang–Kumar (2023) 의 token-mixing perturbation bound. 주도항 `qaMSE · Var_s[V]` 을 가진 per-query attention-output bound 의 선행 연구는 없음.
 - **Tool-use 벤치마크**: MetaTool (Huang et al. 2024), τ²-bench (Chen et al. 2025), BFCL-v3 (Yan et al. 2026), NexusRaven (Srinivasan et al. 2024).
+- **KV-cache 압축**: KIVI (Liu et al. 2024), AsymKV, KVQuant (per-channel quantization); H2O, StreamingLLM, SnapKV (token eviction); ThinK, LESS, KVCompress (low-rank projection); **KVTC** (NVIDIA, ICLR 2026: PCA + DP-optimal bit allocation + DEFLATE/LZMA2, 최대 20× 압축). 우리 Thm 6.13 / 6.18 / 6.19 는 다른 축: (i) categorical (ontology) vs Gaussian (PCA) decorrelation; (ii) attention-output distortion (Thm 6.1) vs reconstruction-MSE objective; (iii) 같은 basis $B_{\mathrm{ont}}$ 가 inference-time steering Pareto-optimality 를 매개변수화 (Thm 6.19) — 어느 prior 압축 작업도 다루지 않는 coupling. 상세 §5.9.1 참조.
 
 ---
 
