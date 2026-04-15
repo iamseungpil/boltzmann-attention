@@ -97,11 +97,25 @@ Earlier coworker delegated this because `eval_subtask4_with_real_seka.py` hung 2
 4. **SEKA `_load_proj` with d×d projector** (28, 4, 128, 128) maps onto Q-head dimension wrong because Qwen has 28 Q-heads but only 4 K-heads (GQA). → fix: confirm SEKA expects per-K-head projector
 5. **`model.config.use_cache` mismatch** with eager attention. → fix: explicit use_cache=False
 
-### 4.3 Next debug step (after 22:00 if T2 still running)
-- Add 2 more tests:
-  - TEST 3: load Qwen2.5-7B-Instruct directly via AutoModelForCausalLM.from_pretrained with `attn_implementation="eager"`, no SEKA wrapper, no padding_side change → verify clean baseline
-  - TEST 4: load via SEKALLM but with `padding_side="right"` overridden → check output quality
-  - TEST 5: SEKALLM but bypass marker wrapping for vanilla generate
+### 4.3 Debug result (20:18 KST)
+**Both TEST 1 (vanilla) and TEST 2 (SEKA-steered) completed in ~97s each with GIBBERISH output**:
+- T1 output: `">';\nwüns!지원!Le_secure...halves halves halves halves..."`
+- T2 output: `'!!! hue modelBuilderkeyLetingsonoતRadi!!!!!🎶! טל!!!!!!פנו! 포함!ens기도!'`
+
+**Hang root cause IDENTIFIED**: NOT in SEKA steering hooks. The base model loaded via SEKALLM wrapper produces broken outputs even without steering. Classic "halves halves halves" repetition pattern = decoder collapse.
+
+### 4.4 Suspected cause: `attn_implementation="eager"` + bfloat16 on Qwen2.5-7B
+SEKALLM init forces `attn_implementation="eager"` (line 41 of repro). Combined with bfloat16, this is a known issue:
+- transformers <4.45 has eager-attention numerical bug for Qwen2.5 series
+- Same model loaded via standard `eval_metatool_subtask4.py` (which uses **default attn**) works fine
+- Switching `attn_implementation="sdpa"` or "flash_attention_2" should resolve
+
+### 4.5 Next debug step (priority)
+- TEST 3: bypass SEKALLM, load Qwen2.5-7B-Inst directly with `attn_implementation="eager"` (no SEKA) → confirm eager+bf16 is the culprit
+- TEST 4: try SEKALLM with `attn_implementation="sdpa"` → if SEKA hooks compatible with sdpa, we're done
+- TEST 5: try `torch_dtype=torch.float16` instead of bfloat16
+- ETA: 20-30 min for all three tests
+- Time-box: 22:00 KST hard cutoff
 
 ---
 
