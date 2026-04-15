@@ -44,11 +44,91 @@ Activation-steering 방법 (CAA, ITI, PASTA, ASA, Focus Directions, AdaSEKA) 은
 
 ## 2. 관련 연구
 
-- **Q-side 스티어링**: CAA (Rimsky 2024), ITI (Li et al. 2023), PASTA (Zhang et al. 2023), ASA (Wang et al. 2026), Focus Directions (Zhu et al. 2025), AdaSEKA (Kim et al. 2026). 모두 query 또는 residual stream 에 rank-1 또는 rank-M perturbation 을 주입.
-- **K-side perturbation**: SEKA (Feng et al. 2025) 는 K 를 직접 수정하지만 단일 전문가 부분공간을 사용하며 facet 분해는 없음.
-- **이론**: Kim–Papyan–Donoho (NeurIPS 2021) 의 softmax-attention Lipschitz; Zhang–Kumar (2023) 의 token-mixing perturbation bound. 주도항 `qaMSE · Var_s[V]` 을 가진 per-query attention-output bound 의 선행 연구는 없음.
-- **Tool-use 벤치마크**: MetaTool (Huang et al. 2024), τ²-bench (Chen et al. 2025), BFCL-v3 (Yan et al. 2026), NexusRaven (Srinivasan et al. 2024).
-- **KV-cache 압축**: KIVI (Liu et al. 2024), AsymKV, KVQuant (per-channel quantization); H2O, StreamingLLM, SnapKV (token eviction); ThinK, LESS, KVCompress (low-rank projection); **KVTC** (NVIDIA, ICLR 2026: PCA + DP-optimal bit allocation + DEFLATE/LZMA2, 최대 20× 압축). 우리 Thm 6.13 / 6.18 / 6.19 는 다른 축: (i) categorical (ontology) vs Gaussian (PCA) decorrelation; (ii) attention-output distortion (Thm 6.1) vs reconstruction-MSE objective; (iii) 같은 basis $B_{\mathrm{ont}}$ 가 inference-time steering Pareto-optimality 를 매개변수화 (Thm 6.19) — 어느 prior 압축 작업도 다루지 않는 coupling. 상세 §5.9.1 참조.
+3 개 축 — **(A) Inference-time activation/attention steering**, **(B) KV-cache 압축**, **(C) Attention bound 이론** + **(D) Tool-use 평가** 로 구성.
+
+### 2.1 Activation / attention steering
+
+**Residual-stream additive interventions**:
+- ActAdd (Turner 2023, 2308.10248), RepE (Zou 2023, 2310.01405), Subramani 2022 (academic origin), CAA (Rimsky 2024 ACL, 2312.06681; 7 behaviors, Llama-2-7B L=13), Conceptors (2410.16314), SAE-TS (Chalnev 2024, 2411.02193 — decoder vs causal direction), KL-then-Steer (Stickland 2024, 2406.15518 — forward-KL fine-tuning), ASA (Wang 2026, 2602.04935 — MoV with router + ternary gate, MTU-Bench Qwen2.5-1.5B F1 0.18→0.50), Activation Steering w/ Feedback Controller (2510.04309), AdaActSteer (Web Conf 2025).
+
+**Per-head attention-output**:
+- ITI (Li 2023 NeurIPS, 2306.03341) — `o_proj` input bias, attention pattern untouched. Llama-7B K=48/1024, α=15. TruthfulQA 30.5→43.5. Code: `likenneth/honest_llama`.
+
+**Attention-map / score**:
+- PASTA (Zhang 2024 ICLR, 2311.02262) — post-softmax row reweighting on user-marked tokens; Llama-7B 50–150 heads, α=0.01. Code: `QingruZhang/PASTA`.
+- GUIDE / InstABoost / Spotlight (2024–2025, 2409.19001 / 2506.13734 / 2505.12025) — attention-score bias 계열.
+- Fact Grounded Attention (FGA) (Gupta 2025, 2509.25252) — pre-softmax bias from external fact KB. Layer 20–27 Llama-3.2-3B. **Closest prior art to ontology-guided attention**; explicitly invites hierarchical/compositional fact reps as future work — 우리 $B_{\mathrm{ont}}$ 방향과 정확히 일치. Code: `ayushgupta4897/FGA`.
+- Focus Directions (Zhu 2025, 2503.23306) — additive K AND Q bias at top-k contextual heads, Llama-3.2-3B layers 8–18, α=0.3, top-20 of 672 heads. K-only vs Q-only ablation 없음.
+
+**K-side spectral interventions** (가장 직접 비교):
+- **SEKA** (Li 2026 ICLR, 2603.01281) — $k' = k + \tfrac12 (g^+ P^+ k + g^- P^- k)$, $P^\pm$ = contrastive cross-covariance SVD top-k singular vector projections. Pre-softmax, K-only, scalar gains per (task, model). Steer-mask over user-marked tokens. **Most consequential prior art**; 우리 차별점: (i) ontology-derived basis vs contrastive SVD, (ii) per-facet $B_f$ 분해, (iii) Cor 6.9.6 distributional KL bound. Code: `waylonli/SEKA`.
+- **AdaSEKA** (Kim 2026) — query-adaptive SEKA, dynamic $P_{\mathrm{dyn}} = \sum_m \alpha_m U_m U_m^\top$, last prompt token routing. K-side. Source: `external/SEKA/src/model/adaptive_seka_llm.py`.
+
+**우리 위치**: K-bias 는 *spectral K-side* family 위 (SEKA/AdaSEKA 와 함께). Q-coverage 와 soft-routed Q-side facet bias 는 새로운 Q-side intervention (PASTA 의 attention-map / ITI 의 attention-output 과 다름). 차별점:
+1. **Direction source**: ontology annotation (training-free) vs contrastive (CAA, SEKA) / gradient (Focus, ITI) / fact KB (FGA)
+2. **Per-facet decomposition** (rank-$R = \sum_f r_f$) — prior 모두 facet-block 구조 없음
+3. **Cor 6.9.6 distributional KL bound** — formal stability
+4. **Cross-mechanism family on same basis** (§5.5.3): K-bias / Q-coverage / CAA-on-$B_{\mathrm{ont}}$ 모두 같은 ontology subspace 로 lift; **basis 가 load-bearing 객체, mechanism 아님**
+
+### 2.2 KV-cache 압축
+
+5 가지 family.
+
+**Per-channel quantization**:
+- KIVI (Liu 2024 ICML, 2402.02750) — 2-bit per-channel asymmetric, 2.35–3.47× throughput
+- KVQuant (Hooper 2024 NeurIPS, 2401.18079) — pre-RoPE + outlier preservation, 10M context
+- AsymKV — asymmetric K vs V
+
+**Token eviction / sequence-axis**:
+- H2O (Zhang 2024 NeurIPS, 2306.14048) — heavy-hitter eviction
+- StreamingLLM (Xiao 2024 ICLR, 2309.17453) — attention sinks
+- SnapKV (Li 2024 NeurIPS, 2404.14469) — observation window
+- DynamicKV (2025 ACL Findings) — task-aware
+- GEAR — pyramidal eviction + low-rank
+- → 우리 feature-axis 와 *직교*, stackable
+
+**Rotation-based feature-axis quantization**:
+- TurboQuant (Pourreza 2024, 2406.03482) — random orthogonal + Lloyd-Max
+- QuaRot (Ashkboos 2024 NeurIPS, 2404.00456) — fixed Hadamard, 4-bit >99% fp16
+- SpinQuant (Liu 2024, 2405.16406) — learned rotation via Cayley optimization, LLaMA-3 8B 에서 QuaRot 대비 fp16 gap 45.1% 감소
+- PolarQuant — polar coordinate
+- *결정적 실증* (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md`): Mistral-7B WT2 49K test 에서 PCA vs Random 차이 0.07% (3-bit) / 0.9% (2-bit) — 회전 *품질* 이 아닌 *categorical-channel separation* (H-cat) 이 우리 leverage axis
+
+**Low-rank projection / DP-bit allocation**:
+- ThinK / LESS / KVCompress
+- **KVTC** (NVIDIA ICLR 2026; OnlyTerp/kvtc) — per-layer PCA + DP-optimal bit + DEFLATE/LZMA2, up to 20× 압축. 가장 직접 baseline. 우리 Llama-3.1-8B 2-bit 내부 retrospective: per-head PCA (10.14) > shared PCA (KVTC-style, 18.87) by 46.3%.
+- MiniKV (ACL Findings 2025) / ChunkKV / CodeComp (2604.10235)
+
+**Hybrid / sequence-feature stack**:
+- KVSink (Su, COLM 2025, 2508.04257) — sink token positions fp16 보존, sequence-axis row-selection. *우리 column-axis ontology 와 직교, stackable*. Code 미공개.
+
+**Lloyd-vs-Uniform paradox** (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md` 내부): Lloyd-Max 가 reconstruction MSE 74% 감소시키지만 PPL 9/9 setting 에서 *증가*. → MSE ≠ downstream quality, Thm 6.1 attention-output bound 가 옳은 metric.
+
+**Surveys**: Tang 2024 (2508.06297), Liu 2025 (2603.20397). NVIDIA `kvpress` library 가 다수 method 통합 구현.
+
+**우리 위치**: Thm 6.13 / 6.18 / 6.19 가 5 family 와 다른 축: (i) *categorical* (ontology) vs Gaussian (PCA, KVTC); (ii) *attention-output distortion* (Thm 6.1) vs reconstruction-MSE; (iii) 같은 basis $B_{\mathrm{ont}}$ 가 steering Pareto-optimality 동시 매개변수화 (Thm 6.19) — prior 압축 작업이 다루지 않는 coupling. 상세 §5.9.1 / §5.9.2.
+
+### 2.3 Attention bound 이론
+- Kim–Papyan–Donoho (NeurIPS 2021) — softmax-attention Lipschitz; 우리 Thm 6.1 quartic remainder 의 기반.
+- Zhang–Kumar (2023) — token-mixing perturbation.
+- Mode-A/B/C attention regimes (Park 2024) — 우리 Mode-A/B/C 분석 (§3.2, Appendix B.6).
+- Per-query per-head attention-output bound with $\mathrm{qaMSE} \cdot \mathrm{Var}_s[V]$ leading term 의 prior 없음 (우리 Thm 6.1).
+
+### 2.4 Tool-use 벤치마크
+
+- **MetaTool** (Huang 2024 ICLR, 2310.03128) — Subtask1 단일 도구 (995), Subtask4 multi-tool (497, 2-tool GT). 우리 primary.
+- τ²-bench (Chen 2025) — retail/airline multi-turn
+- BFCL-v3 (Yan 2026) — Berkeley Function Calling Leaderboard
+- MTU-Bench — ASA 사용
+- NexusRaven (Srinivasan 2024)
+- AppSelectBench (2025, 2511.19957) — enterprise tool selection
+- Seal-Tools / UltraTool / ToolE / ToolAlpaca
+
+### 2.5 Side-effect / safety metrics 차용
+- CounterFact specificity (Meng 2022 ROME)
+- Context-memory override (Yu/Merullo/Pavlick 2310.15910; 2511.05919)
+- SteeringControl / SteeringSafety (2509.13450)
+- KL-on-benign (Stickland 2406.15518 adapted) — UltraChat 분포 forward KL
 
 ---
 
