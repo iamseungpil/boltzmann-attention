@@ -130,11 +130,23 @@ The literature spans residual-stream interventions, attention-output and attenti
 - **SEKA** (Li et al., arXiv:2603.01281, ICLR 2026) — spectral editing of K via $k' = k + \tfrac12 (g^+ P^+ k + g^- P^- k)$ where $P^\pm$ are top-k singular-vector projections from contrastive cross-covariance. Pre-softmax, K-only, scalar gains per (task, model). Steer-mask over user-marked tokens (`**...**` markers). Not ontology-derived. Benchmarks: CounterFact, BiasBios, Pronouns, Lost-in-Middle. Models: Qwen3 + Gemma3. Code: `waylonli/SEKA`. *Most consequential prior art for our K-side stability claim* — operator family near-identical, our differentiation is (i) ontology-derived basis vs contrastive SVD, (ii) per-facet $B_f$ decomposition, (iii) Cor 6.9.6 distributional KL bound.
 - **AdaSEKA** (Kim et al. 2026) — query-adaptive SEKA: dynamic projection $P_{\mathrm{dyn}} = \sum_m \alpha_m U_m U_m^\top$ where $\alpha_m$ from SVD-aligned routing on last prompt token. K-side, single-per-query. Source in `external/SEKA/src/model/adaptive_seka_llm.py`.
 
-**Positioning of our work.** Our K-bias is in the *spectral K-side* family alongside SEKA/AdaSEKA. Our Q-coverage and soft-routed Q-side facet bias are new Q-side interventions, distinct from PASTA (attention-map) and ITI (attention-output) by acting on Q before scoring; distinct from CAA/RepE/ASA (residual-stream) by being attention-channel-specific. Our differentiation across the field:
-1. **Direction source**: ontology annotation (training-free DeepSeek-V3 classification) vs contrastive paired data (CAA, SEKA), gradient training (Focus, ITI), or fact KB (FGA).
-2. **Per-facet decomposition** (rank-$R = \sum_f r_f$) — none of the above use facet-block structure.
-3. **Cor 6.9.6 distributional KL bound** — formal stability characterization that no prior K-side / Q-side method has.
-4. **Cross-mechanism family on the *same* basis** (§5.5.3): we show K-bias, Q-coverage, CAA-on-$B_{\mathrm{ont}}$ all lift accuracy via the same ontology subspace; the basis is the load-bearing object, not the mechanism.
+**Positioning of our work (v3, axis-separation).** Our contribution and prior work sit on **different axes of the tool-selection regime**:
+
+- **SEKA / AdaSEKA / Focus Directions** are *stationary K-side* operators designed for single-selection: a single contrastive-SVD projection $P$ is applied uniformly to every decoding step. This works well when one correct emission is required (MetaTool Subtask1, CounterFact, BiasBios — the benchmarks on which SEKA was originally demonstrated). Under autoregressive generation with multi-step emission (MetaTool Subtask4), a stationary K-bias that concentrates attention on one facet cluster at step 1 continues to do so at step 2, preventing emission of the second-tool's facet. This is a *structural limitation*, not a hyperparameter matter: see §1.0 for the formal argument, §5.5 for the empirical pattern ($-4.6$pp our K-bias α=0.3, $-7.95$pp SEKA amp=1.0 on Llama Subtask4).
+
+- **Our step-adaptive Q-coverage** $\Delta_Q^{(t)} = -\beta \sum_{s<t} P_{f_s} q_t$ is a *multi-selection* operator. At step $t$, facets already emitted are *subtracted* from the query, redirecting attention to unused facets. This requires: (a) a facet decomposition of the ontology subspace $B_\mathrm{ont} = [B_{f_1}, \ldots, B_{f_F}]$ (not present in SEKA's contrastive-SVD construction), (b) emission tracking across decoding steps to maintain $\{f_s\}_{s<t}$ (a trivial $O(1)$ state that stationary operators lack), (c) Q-side intervention site (distinct from all K-side spectral methods). No prior work combines these three. We do *not* compete with SEKA on Subtask1 (the parity regime check); we introduce the Subtask4 multi-selection axis.
+
+- **Residual-stream methods** (ActAdd, CAA, RepE, Conceptors, SAE-TS, ASA) act at the layer output, *not* at Q before scoring. Our Q-coverage is attention-channel-specific: $\Delta_Q^{(t)}$ modifies only $q$, leaving residual stream untouched, enabling surgical tool-selection steering without affecting general token distribution. A rank-1 CAA-on-$B_\mathrm{ont}$ baseline on Subtask4 achieves $+1.6$pp F1 (equivalent to Q-coverage within SE), confirming the *basis* is load-bearing while the *mechanism* (residual vs Q) is largely interchangeable on this benchmark.
+
+- **Attention-map interventions** (PASTA, GUIDE, InstABoost, Spotlight, FGA) reweight post-softmax attention rows. These *cannot* produce step-adaptive coverage because the post-softmax reweighting does not know the token emission history across steps; they face the same multi-selection structural barrier as stationary K-bias.
+
+**Core differentiation from prior art**:
+
+1. **Intervention site + step-adaptivity**: Q-side, per-step (unique; all prior methods stationary).
+2. **Facet-block decomposition of the direction basis** ($B_\mathrm{ont} = \bigoplus_f B_f$, rank $R = \sum_f r_f$): no prior method has per-facet structure; SEKA's contrastive SVD gives a monolithic $P$.
+3. **Ontology as direction source** (training-free DeepSeek-V3 classification of tools) vs contrastive paired data (CAA, SEKA), gradient training (Focus, ITI), or fact KB (FGA).
+4. **Cor 6.9.6 distributional KL bound**: formal stability characterization; no prior K-side / Q-side method has a distributional bound.
+5. **Single-basis tri-role sufficiency (Thm 6.19)**: the same $B_\mathrm{ont}$ simultaneously parameterizes Q-steering accuracy (multi-tool), K-stability diagnostic, and K-compression.
 
 ### 2.2 KV-cache compression
 
