@@ -432,9 +432,11 @@ Proposed fix under investigation (§5.11 future work E11'): a KQV-hybrid where (
 **Paper claim for Subtask4 (final, full-scale verified)**:
 > "Cor 6.9 predicts the ontology direction is the unique α=0.3-magnitude K-perturbation that preserves FC-structured-output emission on multi-tool queries. Empirically (Qwen2.5-7B-Instruct, MetaTool Subtask4 **full 497**): real a0.3 maintains F1=0.685 (no_steer 0.731, Δ=−4.6pp), while **random/featshuffle both collapse to F1=0.000** — a +68.5pp direction-specificity gap. This is a *stability* manifestation of the rank separation consistent with Cor 6.9's operator-level rank bound (§5.7 E4: 24.0 vs 7.44), distinct from the originally predicted accuracy lift. Multi-tool emission under stationary K-bias is limited by autoregressive re-attention; Thm 6.15 (KQV hybrid, App. B.7.8.1) proposes a theoretically-motivated fix, and §5.5.2 reports a first empirical improvement via contrastive K-bias (Thm 6.9.5 family)."
 
-### 5.5.2 Non-uniform K-bias extension — first positive multi-tool accuracy lift (smoke, N=20, Qwen-Instruct)
+### 5.5.2 Non-uniform K-bias extension — smoke positive, full 497 NEGATIVE (artifact)
 
-The §5.5 stability result is the *baseline* operating point of the facet-gated operator. Accuracy lift on multi-tool queries requires a **non-stationary** K-bias that evolves across decoding steps (Thm 6.9.5/6.15, Appendix B.7.8). We report here the first positive signal from this family; it is independent of the main stability claim in §5.5 and its validity does not affect Cor 6.9.6's verification.
+The §5.5 stability result is the *baseline* operating point of the facet-gated operator. Accuracy lift on multi-tool queries requires a **non-stationary** K-bias that evolves across decoding steps (Thm 6.9.5/6.15, Appendix B.7.8). The contrastive subfamily (per-step subtraction of dominant-singular-direction K content) was the simplest non-stationary instantiation. We report both the original positive smoke signal and the *negative full-scale replication* below; the headline is that the smoke signal does **not** survive at full scale.
+
+**Independence from §5.5.** This subsection's negative result does *not* affect §5.5's stability claim. Cor 6.9.6's $+68.5$pp direction-specificity gap on full 497 is independent of any extension's empirical fate.
 
 
 
