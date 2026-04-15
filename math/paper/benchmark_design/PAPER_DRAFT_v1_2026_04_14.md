@@ -214,6 +214,18 @@ The bimodal-channel hypothesis (H-cat) is **falsifiable** and is observed to hol
 
 **Build-pipeline fix (report §CROSS_MODEL_KBIAS_ANALYSIS_2026_04_13):** min-truncation across heads is fragile — a single low-rank pathological head (e.g. Mistral L0_H2 with domain rank 3) forces all 256 heads down to r=13. We use per-head adaptive rank and exclude layers with `min(head_rank) < 0.5 · median(head_rank)`.
 
+**On the choice of $R = \sum_f r_f$ — domain-specific, not a hyperparameter.** The total ontology rank $R$ is determined by three factors: (i) the facet count $F$ defined by the domain ontology, (ii) the cardinality of each facet's value set (which controls per-facet anchor sentence count and thus $r_f$ via the Gram–Schmidt construction), and (iii) the model's head dimension $d_h$ (which upper-bounds $R$ via truncation). For MetaTool ($F=4$ facets: function_action, io_type, domain, tool_category; cardinalities {12, 6, 15, 15}) on Qwen2.5-7B-Instruct ($d_h = 128$), we obtain per-head $R \approx 24$ on average. *This number is benchmark-specific*. For example:
+
+| Benchmark | $F$ | Facet cardinalities | Approximate per-head $R$ |
+|---|---|---|---|
+| MetaTool | 4 | 12 / 6 / 15 / 15 | **~24** (this paper) |
+| τ²-bench retail (basis built) | 5 | item-type / intent / time / payment / context | ~20 |
+| τ²-bench airline | 4 | route / fare / status / loyalty | ~20 |
+| BFCL-v3 parallel | 3 | api-family / arg-type / return-type | ~15 |
+| HumanEval / MBPP (code, conjectural) | 5 | data-struct / control / type / idiom / library | ~25 |
+
+The Cor 6.9.6 stability characterization holds at any $R$ provided Hypotheses (H-cat) and (R) hold for the constructed basis. The accuracy-lift component (Thm 6.17 Q-coverage) is similarly $R$-agnostic at first order. Empirical $R$-sensitivity ablation (sweeping $r_{\text{ont}} \in \{12, 18, 24, 30, 36\}$ on MetaTool) is queued as future work; we expect the F1 lift / stability gap to be approximately invariant in a range around the natural value, with degradation when $R$ drops below the facet cardinality lower bound (insufficient capacity) or rises far above $\min_h d_h$ (truncation noise).
+
 ### 4.2 Gate and perturbation
 
 For each key `k_t`, the facet gate is the energy-ratio
