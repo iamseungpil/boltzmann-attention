@@ -828,6 +828,24 @@ def parse_method(method: str) -> Tuple[str, Dict]:
     if tag.startswith("ocq_vbias_a"):
         alpha_v = float(tag[len("ocq_vbias_a"):])
         return "vbias", {"alpha_v": alpha_v, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # Q-side bias: ocq_qbias_b<β> (positive: boost in-ontology Q; negative: subtract)
+    if tag.startswith("ocq_qbias_b"):
+        beta = float(tag[len("ocq_qbias_b"):])
+        return "qbias", {"beta": beta, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # QKV-joint (Thm 6.17 stationary approx): ocq_qkv_a<αk>_v<γv>_q<βq>
+    if tag.startswith("ocq_qkv_a"):
+        rest = tag[len("ocq_qkv_a"):]
+        # rest = "<αk>_v<γv>_q<βq>"
+        if "_v" not in rest or "_q" not in rest:
+            raise ValueError(f"qkv tag needs _v<γv>_q<βq>: {method}")
+        ak_str, after_v = rest.split("_v", 1)
+        gv_str, bq_str = after_v.split("_q", 1)
+        return "qkv_joint", {
+            "alpha_k": float(ak_str),
+            "gamma_v": float(gv_str),
+            "beta_q": float(bq_str),
+            "use_skip": use_skip, "use_sinkskip": use_sinkskip,
+        }
     # Combined K+V: ocq_kvbias_a<α_K>_v<α_V>
     if tag.startswith("ocq_kvbias_a"):
         rest = tag[len("ocq_kvbias_a"):]
