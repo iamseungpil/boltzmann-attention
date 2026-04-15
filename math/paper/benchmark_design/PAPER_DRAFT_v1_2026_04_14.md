@@ -882,7 +882,7 @@ The destructive K×Q interaction (smoke F1 0.500 vs Q-only 0.658) is documented 
   | `ocq_vbias_a0.1` | 0.726 | −0.43pp |
   | `ocq_vbias_a0.3` | 0.722 | −0.90pp |
 
-  V-only single-axis is *expected negative-control under joint Pareto framing*: Thm 6.17's first-order optimum is over the joint trio $(\Delta_Q, \Delta_K, \Delta_V)$, so isolated $\Delta_V$ marginal need not be positive. The signal must arise from V+Q superadditivity. This single-axis fail is consistent with the Q-side gradient (Thm 6.17 (b)) being the load-bearing first-order term and V acting as a *modulator* requiring the Q-coverage carrier.
+  V-only single-axis is *expected negative-control under the revised Thm 6.17 (ii)*: since V is first-order degenerate on the shared basis ($G_V \cdot \Delta_V^* = O(\gamma_V^2)$), isolated $\Delta_V$ at $\gamma_V \in \{0.1, 0.3\}$ produces a mild second-order negative lift. The V-channel single-axis fail is consistent with the revised Thm 6.17 structure, not the originally-stated trio.
 
 - **QKV joint full 497 (5-cell, 2026-04-15 19:19 KST, complete)**:
 
