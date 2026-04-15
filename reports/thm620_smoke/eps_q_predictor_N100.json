@@ -1,0 +1,2216 @@
+{
+  "summary": {
+    "n_samples": 100,
+    "layer": 13,
+    "auroc_F1_success": {
+      "min_eps_q": 0.9755799755799754,
+      "mean_eps_q": 0.9340659340659341,
+      "median_eps_q": 0.9267399267399268
+    },
+    "auroc_Exact_success": {
+      "min_eps_q": 0.8156199677938809,
+      "mean_eps_q": 0.7769726247987118,
+      "median_eps_q": 0.7053140096618358
+    },
+    "base_F1_mean": 0.73,
+    "base_Exact_mean": 0.54
+  },
+  "per_sample": [
+    {
+      "index": 0,
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.1531754583120346,
+      "mean_eps_q": 0.21650002083995126,
+      "max_eps_q": 0.26469510793685913,
+      "median_eps_q": 0.2171885073184967,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 1,
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16098397970199585,
+      "mean_eps_q": 0.22105474254259697,
+      "max_eps_q": 0.2663682997226715,
+      "median_eps_q": 0.21958573162555695,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 2,
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.1538572907447815,
+      "mean_eps_q": 0.21618673115065604,
+      "max_eps_q": 0.2670593857765198,
+      "median_eps_q": 0.21755331754684448,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 3,
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.15999075770378113,
+      "mean_eps_q": 0.22194342085948357,
+      "max_eps_q": 0.26836004853248596,
+      "median_eps_q": 0.22111906856298447,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 4,
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16237406432628632,
+      "mean_eps_q": 0.2140509491929641,
+      "max_eps_q": 0.27219849824905396,
+      "median_eps_q": 0.21290582418441772,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 5,
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1646549105644226,
+      "mean_eps_q": 0.21606465429067612,
+      "max_eps_q": 0.2721436321735382,
+      "median_eps_q": 0.21413885802030563,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 6,
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "Substack_IQ",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.16847756505012512,
+      "mean_eps_q": 0.216849579342774,
+      "max_eps_q": 0.2761094868183136,
+      "median_eps_q": 0.21567697077989578,
+      "n_gen_steps": 28
+    },
+    {
+      "index": 7,
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1621042937040329,
+      "mean_eps_q": 0.2129373447253154,
+      "max_eps_q": 0.27535176277160645,
+      "median_eps_q": 0.21336347609758377,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 8,
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ChartTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.1733175367116928,
+      "mean_eps_q": 0.22185085541926897,
+      "max_eps_q": 0.26651450991630554,
+      "median_eps_q": 0.21770870685577393,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 9,
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.17426055669784546,
+      "mean_eps_q": 0.22164825808543426,
+      "max_eps_q": 0.2707291543483734,
+      "median_eps_q": 0.22124269604682922,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 10,
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ChartTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.17081262171268463,
+      "mean_eps_q": 0.22150959704930967,
+      "max_eps_q": 0.2663739323616028,
+      "median_eps_q": 0.21861712634563446,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 11,
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.173271045088768,
+      "mean_eps_q": 0.2222488046838687,
+      "max_eps_q": 0.26848867535591125,
+      "median_eps_q": 0.22010069340467453,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 12,
+      "gt": [
+        "FinanceTool",
+        "TripTool"
+      ],
+      "pred": [
+        "web_scraper",
+        "social_media_muse"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.1355496644973755,
+      "mean_eps_q": 0.2001938383127081,
+      "max_eps_q": 0.24402087926864624,
+      "median_eps_q": 0.1995723694562912,
+      "n_gen_steps": 29
+    },
+    {
+      "index": 13,
+      "gt": [
+        "FinanceTool",
+        "TripTool"
+      ],
+      "pred": [
+        "web_scraper",
+        "social_media_muse"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.1355496644973755,
+      "mean_eps_q": 0.2001938383127081,
+      "max_eps_q": 0.24402087926864624,
+      "median_eps_q": 0.1995723694562912,
+      "n_gen_steps": 29
+    },
+    {
+      "index": 14,
+      "gt": [
+        "FinanceTool",
+        "TripTool"
+      ],
+      "pred": [
+        "web_scraper",
+        "social_media_muse"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.1355496644973755,
+      "mean_eps_q": 0.2001938383127081,
+      "max_eps_q": 0.24402087926864624,
+      "median_eps_q": 0.1995723694562912,
+      "n_gen_steps": 29
+    },
+    {
+      "index": 15,
+      "gt": [
+        "FinanceTool",
+        "TripTool"
+      ],
+      "pred": [
+        "web_scraper",
+        "social_media_muse"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.1355496644973755,
+      "mean_eps_q": 0.2001938383127081,
+      "max_eps_q": 0.24402087926864624,
+      "median_eps_q": 0.1995723694562912,
+      "n_gen_steps": 29
+    },
+    {
+      "index": 16,
+      "gt": [
+        "FinanceTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "TripAdviceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15818914771080017,
+      "mean_eps_q": 0.21240997665068684,
+      "max_eps_q": 0.2609466016292572,
+      "median_eps_q": 0.2165268212556839,
+      "n_gen_steps": 34
+    },
+    {
+      "index": 17,
+      "gt": [
+        "FinanceTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15866921842098236,
+      "mean_eps_q": 0.21486920163486944,
+      "max_eps_q": 0.2629886865615845,
+      "median_eps_q": 0.21917371451854706,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 18,
+      "gt": [
+        "FinanceTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "TripAdviceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15731656551361084,
+      "mean_eps_q": 0.2121521160006523,
+      "max_eps_q": 0.26165348291397095,
+      "median_eps_q": 0.2176828533411026,
+      "n_gen_steps": 34
+    },
+    {
+      "index": 19,
+      "gt": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1720741242170334,
+      "mean_eps_q": 0.21953261127838722,
+      "max_eps_q": 0.2642742693424225,
+      "median_eps_q": 0.2203332781791687,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 20,
+      "gt": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17057719826698303,
+      "mean_eps_q": 0.22225231906542411,
+      "max_eps_q": 0.26795247197151184,
+      "median_eps_q": 0.221088744699955,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 21,
+      "gt": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16985704004764557,
+      "mean_eps_q": 0.22144965139719155,
+      "max_eps_q": 0.2670463025569916,
+      "median_eps_q": 0.2200227752327919,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 22,
+      "gt": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17115376889705658,
+      "mean_eps_q": 0.22142261209396216,
+      "max_eps_q": 0.26597869396209717,
+      "median_eps_q": 0.2194795086979866,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 23,
+      "gt": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "WeatherTool",
+        "FinanceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.13928532600402832,
+      "mean_eps_q": 0.19786251279023978,
+      "max_eps_q": 0.24157530069351196,
+      "median_eps_q": 0.19658295810222626,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 24,
+      "gt": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "WeatherTool",
+        "FinanceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.14085465669631958,
+      "mean_eps_q": 0.19713081877965194,
+      "max_eps_q": 0.23941293358802795,
+      "median_eps_q": 0.19385067373514175,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 25,
+      "gt": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "WeatherTool",
+        "FinanceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.13949435949325562,
+      "mean_eps_q": 0.1978130076940243,
+      "max_eps_q": 0.241287499666214,
+      "median_eps_q": 0.19477346539497375,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 26,
+      "gt": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "FinanceTool"
+      ],
+      "F1": 0.6666666666666666,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.13671596348285675,
+      "mean_eps_q": 0.19904911346160448,
+      "max_eps_q": 0.2396520972251892,
+      "median_eps_q": 0.20211036503314972,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 27,
+      "gt": [
+        "FinanceTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Tax_Calculator"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.16065315902233124,
+      "mean_eps_q": 0.1986237530197416,
+      "max_eps_q": 0.2399011105298996,
+      "median_eps_q": 0.19464846700429916,
+      "n_gen_steps": 28
+    },
+    {
+      "index": 28,
+      "gt": [
+        "FinanceTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Tax_Calculator"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.16065315902233124,
+      "mean_eps_q": 0.1986237530197416,
+      "max_eps_q": 0.2399011105298996,
+      "median_eps_q": 0.19464846700429916,
+      "n_gen_steps": 28
+    },
+    {
+      "index": 29,
+      "gt": [
+        "FinanceTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Tax_Calculator"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.16065315902233124,
+      "mean_eps_q": 0.1986237530197416,
+      "max_eps_q": 0.2399011105298996,
+      "median_eps_q": 0.19464846700429916,
+      "n_gen_steps": 28
+    },
+    {
+      "index": 30,
+      "gt": [
+        "FinanceTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Tax_Calculator"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.16065315902233124,
+      "mean_eps_q": 0.1986237530197416,
+      "max_eps_q": 0.2399011105298996,
+      "median_eps_q": 0.19464846700429916,
+      "n_gen_steps": 28
+    },
+    {
+      "index": 31,
+      "gt": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred": [
+        "JobTool",
+        "FinanceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.15932345390319824,
+      "mean_eps_q": 0.22141945763276175,
+      "max_eps_q": 0.2676878869533539,
+      "median_eps_q": 0.2214469611644745,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 32,
+      "gt": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16178874671459198,
+      "mean_eps_q": 0.22192106338647696,
+      "max_eps_q": 0.26694297790527344,
+      "median_eps_q": 0.22177685797214508,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 33,
+      "gt": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16226008534431458,
+      "mean_eps_q": 0.2216171444608615,
+      "max_eps_q": 0.2692062258720398,
+      "median_eps_q": 0.2219366729259491,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 34,
+      "gt": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16259709000587463,
+      "mean_eps_q": 0.21976172236295846,
+      "max_eps_q": 0.2657628357410431,
+      "median_eps_q": 0.21943091601133347,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 35,
+      "gt": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "ResearchFinder",
+        "web_requests"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.16965286433696747,
+      "mean_eps_q": 0.2090530636218878,
+      "max_eps_q": 0.26538336277008057,
+      "median_eps_q": 0.20815888047218323,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 36,
+      "gt": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16277073323726654,
+      "mean_eps_q": 0.20694589328307372,
+      "max_eps_q": 0.2647954821586609,
+      "median_eps_q": 0.2089526504278183,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 37,
+      "gt": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16019697487354279,
+      "mean_eps_q": 0.20936143799470022,
+      "max_eps_q": 0.2638131082057953,
+      "median_eps_q": 0.21200433373451233,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 38,
+      "gt": [
+        "FinanceTool",
+        "ResearchHelper"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "ResearchHelper"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.13815319538116455,
+      "mean_eps_q": 0.19454196095466614,
+      "max_eps_q": 0.2518956661224365,
+      "median_eps_q": 0.1919659972190857,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 39,
+      "gt": [
+        "FinanceTool",
+        "ResearchHelper"
+      ],
+      "pred": [
+        "ResearchHelper",
+        "FinanceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.13848231732845306,
+      "mean_eps_q": 0.2018008937056248,
+      "max_eps_q": 0.2512756586074829,
+      "median_eps_q": 0.19799651950597763,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 40,
+      "gt": [
+        "FinanceTool",
+        "ProductSearch"
+      ],
+      "pred": [
+        "ProductSearch",
+        "ChartTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.14279049634933472,
+      "mean_eps_q": 0.1983660591336397,
+      "max_eps_q": 0.24161703884601593,
+      "median_eps_q": 0.19706129282712936,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 41,
+      "gt": [
+        "FinanceTool",
+        "ProductSearch"
+      ],
+      "pred": [
+        "FinanceTool"
+      ],
+      "F1": 0.6666666666666666,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.13148662447929382,
+      "mean_eps_q": 0.2020470373905622,
+      "max_eps_q": 0.24940413236618042,
+      "median_eps_q": 0.20098735392093658,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 42,
+      "gt": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16914157569408417,
+      "mean_eps_q": 0.22178565979003906,
+      "max_eps_q": 0.26092734932899475,
+      "median_eps_q": 0.21704375743865967,
+      "n_gen_steps": 25
+    },
+    {
+      "index": 43,
+      "gt": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17011673748493195,
+      "mean_eps_q": 0.22113449335098267,
+      "max_eps_q": 0.26525184512138367,
+      "median_eps_q": 0.2198711633682251,
+      "n_gen_steps": 25
+    },
+    {
+      "index": 44,
+      "gt": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16771285235881805,
+      "mean_eps_q": 0.22012500405311586,
+      "max_eps_q": 0.2635313868522644,
+      "median_eps_q": 0.21881139278411865,
+      "n_gen_steps": 25
+    },
+    {
+      "index": 45,
+      "gt": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17010341584682465,
+      "mean_eps_q": 0.22271425247192383,
+      "max_eps_q": 0.2636103630065918,
+      "median_eps_q": 0.21847790479660034,
+      "n_gen_steps": 25
+    },
+    {
+      "index": 46,
+      "gt": [
+        "NewsTool",
+        "FinanceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15334855020046234,
+      "mean_eps_q": 0.21555672315034,
+      "max_eps_q": 0.26487427949905396,
+      "median_eps_q": 0.21642012894153595,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 47,
+      "gt": [
+        "NewsTool",
+        "FinanceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15547902882099152,
+      "mean_eps_q": 0.21686623313210227,
+      "max_eps_q": 0.264586865901947,
+      "median_eps_q": 0.21694663166999817,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 48,
+      "gt": [
+        "NewsTool",
+        "FinanceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15569911897182465,
+      "mean_eps_q": 0.2159543096116095,
+      "max_eps_q": 0.26461195945739746,
+      "median_eps_q": 0.21706122159957886,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 49,
+      "gt": [
+        "NewsTool",
+        "FinanceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.1558772176504135,
+      "mean_eps_q": 0.21628376615769934,
+      "max_eps_q": 0.26705607771873474,
+      "median_eps_q": 0.21967613697052002,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 50,
+      "gt": [
+        "NewsTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1608925461769104,
+      "mean_eps_q": 0.20270729122253564,
+      "max_eps_q": 0.240691676735878,
+      "median_eps_q": 0.20171089470386505,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 51,
+      "gt": [
+        "NewsTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1608925461769104,
+      "mean_eps_q": 0.20270729122253564,
+      "max_eps_q": 0.240691676735878,
+      "median_eps_q": 0.20171089470386505,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 52,
+      "gt": [
+        "NewsTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1608925461769104,
+      "mean_eps_q": 0.20270729122253564,
+      "max_eps_q": 0.240691676735878,
+      "median_eps_q": 0.20171089470386505,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 53,
+      "gt": [
+        "NewsTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1608925461769104,
+      "mean_eps_q": 0.20270729122253564,
+      "max_eps_q": 0.240691676735878,
+      "median_eps_q": 0.20171089470386505,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 54,
+      "gt": [
+        "NewsTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "NewsTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15634748339653015,
+      "mean_eps_q": 0.20225514013033646,
+      "max_eps_q": 0.2387506663799286,
+      "median_eps_q": 0.20473597198724747,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 55,
+      "gt": [
+        "NewsTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "NewsTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15634748339653015,
+      "mean_eps_q": 0.20225514013033646,
+      "max_eps_q": 0.2387506663799286,
+      "median_eps_q": 0.20473597198724747,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 56,
+      "gt": [
+        "NewsTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "NewsTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15634748339653015,
+      "mean_eps_q": 0.20225514013033646,
+      "max_eps_q": 0.2387506663799286,
+      "median_eps_q": 0.20473597198724747,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 57,
+      "gt": [
+        "NewsTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "NewsTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15634748339653015,
+      "mean_eps_q": 0.20225514013033646,
+      "max_eps_q": 0.2387506663799286,
+      "median_eps_q": 0.20473597198724747,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 58,
+      "gt": [
+        "NewsTool",
+        "TripTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "GifApi"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.1585022509098053,
+      "mean_eps_q": 0.20236461968333633,
+      "max_eps_q": 0.24752208590507507,
+      "median_eps_q": 0.20033973455429077,
+      "n_gen_steps": 27
+    },
+    {
+      "index": 59,
+      "gt": [
+        "NewsTool",
+        "TripTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "GifApi"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.1585022509098053,
+      "mean_eps_q": 0.20236461968333633,
+      "max_eps_q": 0.24752208590507507,
+      "median_eps_q": 0.20033973455429077,
+      "n_gen_steps": 27
+    },
+    {
+      "index": 60,
+      "gt": [
+        "NewsTool",
+        "TripTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "GifApi"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.1585022509098053,
+      "mean_eps_q": 0.20236461968333633,
+      "max_eps_q": 0.24752208590507507,
+      "median_eps_q": 0.20033973455429077,
+      "n_gen_steps": 27
+    },
+    {
+      "index": 61,
+      "gt": [
+        "NewsTool",
+        "TripTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "GifApi"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.1585022509098053,
+      "mean_eps_q": 0.20236461968333633,
+      "max_eps_q": 0.24752208590507507,
+      "median_eps_q": 0.20033973455429077,
+      "n_gen_steps": 27
+    },
+    {
+      "index": 62,
+      "gt": [
+        "NewsTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "TripAdviceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.15920870006084442,
+      "mean_eps_q": 0.20191758374373117,
+      "max_eps_q": 0.24555355310440063,
+      "median_eps_q": 0.2019982784986496,
+      "n_gen_steps": 27
+    },
+    {
+      "index": 63,
+      "gt": [
+        "NewsTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "TripAdviceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.15920870006084442,
+      "mean_eps_q": 0.20191758374373117,
+      "max_eps_q": 0.24555355310440063,
+      "median_eps_q": 0.2019982784986496,
+      "n_gen_steps": 27
+    },
+    {
+      "index": 64,
+      "gt": [
+        "NewsTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "TripAdviceTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.15920870006084442,
+      "mean_eps_q": 0.20191758374373117,
+      "max_eps_q": 0.24555355310440063,
+      "median_eps_q": 0.2019982784986496,
+      "n_gen_steps": 27
+    },
+    {
+      "index": 65,
+      "gt": [
+        "NewsTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "QuiverQuantitative",
+        "Tax_Calculator"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.1338822841644287,
+      "mean_eps_q": 0.19020857495158466,
+      "max_eps_q": 0.24378634989261627,
+      "median_eps_q": 0.18987037241458893,
+      "n_gen_steps": 67
+    },
+    {
+      "index": 66,
+      "gt": [
+        "NewsTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "QuiverQuantitative",
+        "Tax_Calculator"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.1338822841644287,
+      "mean_eps_q": 0.19020857495158466,
+      "max_eps_q": 0.24378634989261627,
+      "median_eps_q": 0.18987037241458893,
+      "n_gen_steps": 67
+    },
+    {
+      "index": 67,
+      "gt": [
+        "NewsTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "QuiverQuantitative",
+        "Tax_Calculator"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.1338822841644287,
+      "mean_eps_q": 0.19020857495158466,
+      "max_eps_q": 0.24378634989261627,
+      "median_eps_q": 0.18987037241458893,
+      "n_gen_steps": 67
+    },
+    {
+      "index": 68,
+      "gt": [
+        "NewsTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "QuiverQuantitative",
+        "Tax_Calculator"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.1338822841644287,
+      "mean_eps_q": 0.19020857495158466,
+      "max_eps_q": 0.24378634989261627,
+      "median_eps_q": 0.18987037241458893,
+      "n_gen_steps": 67
+    },
+    {
+      "index": 69,
+      "gt": [
+        "NewsTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "WeatherTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1750282645225525,
+      "mean_eps_q": 0.2222513183951378,
+      "max_eps_q": 0.2661439776420593,
+      "median_eps_q": 0.21994757652282715,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 70,
+      "gt": [
+        "NewsTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "WeatherTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17222163081169128,
+      "mean_eps_q": 0.2215712804060716,
+      "max_eps_q": 0.26483771204948425,
+      "median_eps_q": 0.2162918895483017,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 71,
+      "gt": [
+        "NewsTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "WeatherTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17444102466106415,
+      "mean_eps_q": 0.2222495273901866,
+      "max_eps_q": 0.268660306930542,
+      "median_eps_q": 0.22221238911151886,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 72,
+      "gt": [
+        "NewsTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "WeatherTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17009307444095612,
+      "mean_eps_q": 0.22078143404080317,
+      "max_eps_q": 0.26813170313835144,
+      "median_eps_q": 0.22046436369419098,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 73,
+      "gt": [
+        "NewsTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "HousePurchasingTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17026259005069733,
+      "mean_eps_q": 0.21537628667107944,
+      "max_eps_q": 0.2657216787338257,
+      "median_eps_q": 0.21296806633472443,
+      "n_gen_steps": 29
+    },
+    {
+      "index": 74,
+      "gt": [
+        "NewsTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "HousePurchasingTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17135994136333466,
+      "mean_eps_q": 0.21663688534292683,
+      "max_eps_q": 0.2646392583847046,
+      "median_eps_q": 0.2141663134098053,
+      "n_gen_steps": 29
+    },
+    {
+      "index": 75,
+      "gt": [
+        "NewsTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "HousePurchasingTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16824989020824432,
+      "mean_eps_q": 0.2171303640151846,
+      "max_eps_q": 0.2672700583934784,
+      "median_eps_q": 0.2179480791091919,
+      "n_gen_steps": 29
+    },
+    {
+      "index": 76,
+      "gt": [
+        "NewsTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "HousePurchasingTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17527110874652863,
+      "mean_eps_q": 0.21846997224051376,
+      "max_eps_q": 0.2698501646518707,
+      "median_eps_q": 0.21464896202087402,
+      "n_gen_steps": 29
+    },
+    {
+      "index": 77,
+      "gt": [
+        "NewsTool",
+        "JobTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "JobTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16105397045612335,
+      "mean_eps_q": 0.21827691277632347,
+      "max_eps_q": 0.2663002908229828,
+      "median_eps_q": 0.2147226482629776,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 78,
+      "gt": [
+        "NewsTool",
+        "JobTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "JobTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1571967899799347,
+      "mean_eps_q": 0.21890801592515066,
+      "max_eps_q": 0.2654479444026947,
+      "median_eps_q": 0.21638573706150055,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 79,
+      "gt": [
+        "NewsTool",
+        "JobTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "JobTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.15716424584388733,
+      "mean_eps_q": 0.21841777116060257,
+      "max_eps_q": 0.265301376581192,
+      "median_eps_q": 0.21674476563930511,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 80,
+      "gt": [
+        "NewsTool",
+        "JobTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "JobTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1646830439567566,
+      "mean_eps_q": 0.21959903377753037,
+      "max_eps_q": 0.26788485050201416,
+      "median_eps_q": 0.2158256471157074,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 81,
+      "gt": [
+        "NewsTool",
+        "RepoTool"
+      ],
+      "pred": [
+        "RepoTool",
+        "NewsTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17604854702949524,
+      "mean_eps_q": 0.22413301639831984,
+      "max_eps_q": 0.2717704772949219,
+      "median_eps_q": 0.21986793726682663,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 82,
+      "gt": [
+        "NewsTool",
+        "RepoTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "RepoTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.15664252638816833,
+      "mean_eps_q": 0.20879643643274903,
+      "max_eps_q": 0.26999273896217346,
+      "median_eps_q": 0.21348001062870026,
+      "n_gen_steps": 32
+    },
+    {
+      "index": 83,
+      "gt": [
+        "NewsTool",
+        "RepoTool"
+      ],
+      "pred": [
+        "NewsTool",
+        "RepoTool"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1677296757698059,
+      "mean_eps_q": 0.2197593106673314,
+      "max_eps_q": 0.2695552408695221,
+      "median_eps_q": 0.21711694449186325,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 84,
+      "gt": [
+        "NewsTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "NewsTool",
+        "ResearchFinder"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16442568600177765,
+      "mean_eps_q": 0.21780902720414674,
+      "max_eps_q": 0.2685301899909973,
+      "median_eps_q": 0.21362197399139404,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 85,
+      "gt": [
+        "NewsTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "NewsTool",
+        "ResearchFinder"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16720935702323914,
+      "mean_eps_q": 0.21701902609605056,
+      "max_eps_q": 0.26495975255966187,
+      "median_eps_q": 0.2123688906431198,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 86,
+      "gt": [
+        "NewsTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "NewsTool",
+        "ResearchFinder"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.1683250367641449,
+      "mean_eps_q": 0.217530478651707,
+      "max_eps_q": 0.26732635498046875,
+      "median_eps_q": 0.21325792372226715,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 87,
+      "gt": [
+        "NewsTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "NewsTool",
+        "ResearchFinder"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.16649910807609558,
+      "mean_eps_q": 0.21739587760888612,
+      "max_eps_q": 0.26518380641937256,
+      "median_eps_q": 0.21439150720834732,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 88,
+      "gt": [
+        "NewsTool",
+        "ResearchHelper"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "ResearchHelper"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15691721439361572,
+      "mean_eps_q": 0.21533977714451877,
+      "max_eps_q": 0.26229146122932434,
+      "median_eps_q": 0.21602165699005127,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 89,
+      "gt": [
+        "NewsTool",
+        "ResearchHelper"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "NewsTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15849503874778748,
+      "mean_eps_q": 0.21562391158306238,
+      "max_eps_q": 0.26363855600357056,
+      "median_eps_q": 0.21750135719776154,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 90,
+      "gt": [
+        "NewsTool",
+        "ResearchHelper"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "ResearchHelper"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15582361817359924,
+      "mean_eps_q": 0.21345660000136404,
+      "max_eps_q": 0.26247191429138184,
+      "median_eps_q": 0.21367107331752777,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 91,
+      "gt": [
+        "NewsTool",
+        "ResearchHelper"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "ResearchHelper"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.15751691162586212,
+      "mean_eps_q": 0.21584170830972266,
+      "max_eps_q": 0.2632121741771698,
+      "median_eps_q": 0.21887116134166718,
+      "n_gen_steps": 33
+    },
+    {
+      "index": 92,
+      "gt": [
+        "NewsTool",
+        "ProductSearch"
+      ],
+      "pred": [
+        "NewsTool",
+        "ProductSearch"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.13695389032363892,
+      "mean_eps_q": 0.19518923702148291,
+      "max_eps_q": 0.2404801845550537,
+      "median_eps_q": 0.19282258301973343,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 93,
+      "gt": [
+        "NewsTool",
+        "ProductSearch"
+      ],
+      "pred": [
+        "ProductSearch"
+      ],
+      "F1": 0.6666666666666666,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.12985871732234955,
+      "mean_eps_q": 0.1986223000746507,
+      "max_eps_q": 0.24636249244213104,
+      "median_eps_q": 0.19774597883224487,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 94,
+      "gt": [
+        "NewsTool",
+        "ProductSearch"
+      ],
+      "pred": [
+        "web_requests",
+        "NewsTool"
+      ],
+      "F1": 0.5,
+      "Exact": 0.0,
+      "recall": 0.5,
+      "precision": 0.5,
+      "success_F1_ge_05": 1,
+      "exact_success": 0,
+      "min_eps_q": 0.13815021514892578,
+      "mean_eps_q": 0.1987644164608075,
+      "max_eps_q": 0.24328485131263733,
+      "median_eps_q": 0.1970047727227211,
+      "n_gen_steps": 26
+    },
+    {
+      "index": 95,
+      "gt": [
+        "NewsTool",
+        "ProductSearch"
+      ],
+      "pred": [
+        "QuiverQuantitative"
+      ],
+      "F1": 0.0,
+      "Exact": 0.0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "success_F1_ge_05": 0,
+      "exact_success": 0,
+      "min_eps_q": 0.137985497713089,
+      "mean_eps_q": 0.1953186701451029,
+      "max_eps_q": 0.2480347603559494,
+      "median_eps_q": 0.19535000622272491,
+      "n_gen_steps": 28
+    },
+    {
+      "index": 96,
+      "gt": [
+        "NewsTool",
+        "Discount"
+      ],
+      "pred": [
+        "NewsTool",
+        "Discount"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17121435701847076,
+      "mean_eps_q": 0.22287332653999328,
+      "max_eps_q": 0.26650938391685486,
+      "median_eps_q": 0.21952205896377563,
+      "n_gen_steps": 25
+    },
+    {
+      "index": 97,
+      "gt": [
+        "NewsTool",
+        "Discount"
+      ],
+      "pred": [
+        "NewsTool",
+        "Discount"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17257991433143616,
+      "mean_eps_q": 0.22260428667068483,
+      "max_eps_q": 0.2655884027481079,
+      "median_eps_q": 0.22098225355148315,
+      "n_gen_steps": 25
+    },
+    {
+      "index": 98,
+      "gt": [
+        "NewsTool",
+        "Discount"
+      ],
+      "pred": [
+        "NewsTool",
+        "Discount"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17253164947032928,
+      "mean_eps_q": 0.22353201031684874,
+      "max_eps_q": 0.26722803711891174,
+      "median_eps_q": 0.22151556611061096,
+      "n_gen_steps": 25
+    },
+    {
+      "index": 99,
+      "gt": [
+        "NewsTool",
+        "Discount"
+      ],
+      "pred": [
+        "NewsTool",
+        "Discount"
+      ],
+      "F1": 1.0,
+      "Exact": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "success_F1_ge_05": 1,
+      "exact_success": 1,
+      "min_eps_q": 0.17340177297592163,
+      "mean_eps_q": 0.2228642624616623,
+      "max_eps_q": 0.2665545344352722,
+      "median_eps_q": 0.21879777312278748,
+      "n_gen_steps": 25
+    }
+  ]
+}
