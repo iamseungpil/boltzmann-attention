@@ -188,6 +188,41 @@ Cor 6.9 makes a predictable empirical claim: for any trained AdaSEKA model at an
 
 ---
 
+### Corollary 6.9.6 (Stability Characterization of the Ontology-Privileged Subspace)
+
+*Statement.* Fix the model parameters $\theta$, a target layer $\ell$, and write $P_{\mathrm{on}} = B_{\mathrm{ont}} B_{\mathrm{ont}}^\top$ for the orthogonal projector onto the rank-$R$ ontology subspace at layer $\ell$. Let $\Delta_K$ be any symmetric additive perturbation to the key-projection weights of layer $\ell$, with $\|\Delta_K\|_F = \alpha$. Define $\theta_\alpha := \theta + \Delta_K$, let $\mathcal Y_{\mathrm{FC}}$ denote the set of template-conforming function-calling emissions, and let $p_\theta(\cdot|x)$ denote the output distribution induced by sampling from $\theta$ at temperature 0+ under the chat template.
+
+Then, under (R) (Cor 6.7 regularity) and (H-cat) (Thm 6.13 bimodal facet channel distribution):
+
+*(a) On-manifold bound.* If $\mathrm{range}(\Delta_K) \subseteq \mathrm{range}(P_{\mathrm{on}})$, then for every input $x$ sampled from the FC-conditioning distribution,
+$$\mathrm{KL}\bigl(p_\theta(\cdot|x)\,\|\,p_{\theta_\alpha}(\cdot|x)\bigr) \le C_2 \alpha^2 + C_3 \alpha^4, \qquad (\star)$$
+where $C_2 = 2 L_\pi^2 \cdot \mathbb E_q[\|V\|_\infty^2]$ and $C_3$ are the Thm 6.1 / Cor 6.7 constants, independent of $\alpha$.
+
+*(b) Off-manifold phase transition.* If $\mathrm{range}(\Delta_K) \perp \mathrm{range}(P_{\mathrm{on}})$, there exists a model-dependent threshold $\alpha^*(\theta) > 0$ and a template-collapse probability $\epsilon_{\mathrm{collapse}}(\theta) \in [0, 1)$ such that for all $\alpha > \alpha^*$,
+$$\Pr_{x \sim \mathcal D_{\mathrm{FC}}}\!\bigl[y \in \mathcal Y_{\mathrm{FC}} \mid x, \theta_\alpha\bigr] \le \epsilon_{\mathrm{collapse}}. \qquad (\star\star)$$
+
+*Proof sketch.*
+For (a), $\Delta_K = P_{\mathrm{on}} \Delta_K P_{\mathrm{on}}$ implies every column of $\Delta_K$ lies in $\mathrm{range}(B_{\mathrm{ont}})$; applying Cor 6.7 under (R), the per-query quadratic form $q^\top \Delta_K q$ is bounded by $\|B_{\mathrm{ont}}^\top q\|^2 \cdot \alpha$ and the attention-weighted $\mathrm{qaMSE}(q; \Delta_K) = O(\varepsilon_q \cdot \alpha^2)$. Substituting into Thm 6.1 yields $\mathbb E_q \|\hat o - o\|^2 \le 2 L_\pi^2 \mathbb E_q[\mathrm{qaMSE} \cdot \mathrm{Var}_s V] + C_1 \alpha^4 \le C_2 \alpha^2 + C_3 \alpha^4$. The KL bound $(\star)$ then follows from Pinsker's inequality applied to the post-attention readout, combined with the Lipschitz constant of the softmax decoder.
+
+For (b), $\Delta_K \perp P_{\mathrm{on}}$ implies $B_{\mathrm{ont}}^\top \Delta_K = 0$ so Cor 6.7's first-order cancellation does *not* apply; instead, Thm 6.1's remainder term scales as $C_1 \alpha^4$ with no $\varepsilon_q$ attenuation. Combined with the observation that the FC-template emission set $\mathcal Y_{\mathrm{FC}}$ is a vanishing-measure subset of the vocabulary tree under softmax temperature 0+, a KL perturbation of order $\alpha^2$ in the *off-manifold* direction induces an $O(\alpha^2)$ probability mass shift *outside* $\mathcal Y_{\mathrm{FC}}$. By compactness of $\mathcal Y_{\mathrm{FC}}$ there is a phase transition at some $\alpha^*(\theta)$ above which the probability of emission in $\mathcal Y_{\mathrm{FC}}$ collapses below any non-trivial threshold.
+
+*Empirical verification (Qwen2.5-7B-Instruct, MetaTool Subtask4, N=497, layer-wise $\alpha = 0.3$).*
+- On-manifold ($\Delta_K = \alpha \cdot B_{\mathrm{ont}} B_{\mathrm{ont}}^\top$): $\Pr[y \in \mathcal Y_{\mathrm{FC}}] = 1.000$ (all 497 queries emit parseable `<tool_call>` blocks); F1 = 0.685.
+- Off-manifold shuffled ($\Delta_K = \alpha \cdot B_{\mathrm{ont}}^{(\mathrm{featshuffle})} B_{\mathrm{ont}}^{(\mathrm{featshuffle})\top}$): $\Pr[y \in \mathcal Y_{\mathrm{FC}}] = 0.000$; F1 = 0.000.
+- Off-manifold random ($\Delta_K = \alpha \cdot B_{\mathrm{ont}}^{(\mathrm{random})} B_{\mathrm{ont}}^{(\mathrm{random})\top}$): $\Pr[y \in \mathcal Y_{\mathrm{FC}}] = 0.000$; F1 = 0.000.
+
+Hence $\alpha^*(\theta) < 0.3$ and $\epsilon_{\mathrm{collapse}}(\theta) = 0$ (zero measurable emission) for this model and task. The $+68.5$pp gap between on- and off-manifold F1 is a direct empirical signature of the phase transition $(\star\star)$.
+
+### Remark 6.9.7 (Relation to Cor 6.9)
+
+Cor 6.9 is an *operator-level* rank separation — a statement about the spectrum of $P(q)$ for the two operators. Cor 6.9.6 is a *distributional-level* statement about the model's output distribution under K-perturbations, and it is what directly justifies framing $B_{\mathrm{ont}}$ as a "uniquely privileged subspace" (Paper §1). The two are complementary: Cor 6.9 explains why the rank gap exists (max-normalization caps AdaSEKA); Cor 6.9.6 explains why that rank gap *matters* downstream (on-manifold K-perturbations preserve FC emission while off-manifold ones collapse it).
+
+### Remark 6.9.8 (Necessity of (H-cat))
+
+Without (H-cat), the facet channels need not be bimodal, and the Cor 6.7 first-order cancellation can fail even within $\mathrm{range}(P_{\mathrm{on}})$. In such a model (e.g., PCA-pseudo-ontology from Thm 6.13 validation), Cor 6.9.6 (a) fails to apply, and we expect on-manifold and off-manifold perturbations to produce comparable KL divergence. The observed symmetric collapse of PCA-pseudo at WT2 4-bit (§5.9, 84.92 PPL) is consistent with (H-cat) being necessary for (a).
+
+---
+
 ## B.7.4 Corollary 6.10 (Λ-Cancellation Applied to Facet-Gated vs AdaSEKA)
 
 Corollary 6.3 (Λ-cancellation, §B.5) showed that when comparing two quantizers on the same model, the cross-layer cascade Lipschitz constants `Λ_ℓ` cancel in the ratio, so the cascade-lifted prediction depends only on per-layer `qaMSE·Var_s[V]` products. This applies directly to our facet-gated vs AdaSEKA comparison.
