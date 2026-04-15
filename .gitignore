@@ -26,3 +26,5 @@ paper/*
 
 # External third-party clones (SEKA etc.) + downloaded datasets/checkpoints
 external/
+lora_adapters/
+logs/
