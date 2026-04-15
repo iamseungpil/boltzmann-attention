@@ -580,6 +580,39 @@ Hook-mode pre-RoPE K quantization, Qwen2.5-7B-Instruct ctx=2048 non-overlap, ful
 
 Llama WT2 run queued as E6 extension (~5 GPU-hr).
 
+#### 5.9.2 Retrospective on PCA-FOKVQ and the MSE-vs-PPL hierarchy
+
+A prior internal investigation (`reports/EXPERIMENT_REPORT_COMPREHENSIVE_2026-04-09.md`, run on Mistral-7B / Qwen2.5-7B / Llama-3.1-8B WT2 49K test) systematically compared PCA, Random, and Identity rotation under uniform per-channel quantization. We use these results to position OCQ:
+
+**Finding 1 (PCA vs Random rotation: minimal advantage).** Mistral-7B 2-bit: NoRot 7.352 → PCA 6.713 → Random 6.772 (PCA wins by *0.9%*); 3-bit: NoRot 5.721 → PCA 5.691 → Random 5.695 (PCA wins by *0.07%*). PCA's advantage over an arbitrary rotation is small. Our $B_{\mathrm{ont}}$ exploits a *different* leverage axis (categorical-channel separation under H-cat) that PCA does not access; on Qwen2.5-7B WT2 we observe a *4.37 PPL* gap between OCQ (15.60) and KIVI (19.97) at 2-bit, an order of magnitude larger than what rotation choice alone provides.
+
+**Finding 2 (Lloyd-Max paradox: 9/9 settings).** Lloyd-Max scalar quantization, despite reducing per-channel reconstruction MSE by 74%, *increased* PPL in all 9 settings (3 models × 3 bit-widths):
+
+| Model | Bits | Uniform PPL | Lloyd PPL | Lloyd / Uniform |
+|---|---|---|---|---|
+| Qwen | 2 | 7.94 | 8.16 | 1.03× |
+| Qwen | 3 | 6.76 | 7.28 | 1.08× |
+| Mistral | 2 | 6.40 | **15.75** | **2.46×** |
+| Mistral | 3 | 5.67 | 7.10 | 1.25× |
+| Llama | 2 | 10.20 | **43.39** | **4.25×** |
+| Llama | 3 | 6.67 | **19.15** | **2.87×** |
+
+This empirical separation between MSE and downstream PPL motivates Thm 6.1's attention-output distortion as the correct optimization target. OCQ's bit allocation (1-bit categorical + R-bit asymmetric) is designed under the attention-weighted bound (Thm 6.18), not under reconstruction MSE — directly avoiding the Lloyd paradox regime.
+
+**Finding 3 (Per-head PCA vs shared PCA: 46.3% gap on Llama-2-bit).**
+
+| Method | Llama-2-bit | Llama-3-bit | Llama-4-bit |
+|---|---|---|---|
+| Shared PCA (KVTC-style) | 18.87 | 6.81 | 6.48 |
+| **Per-head PCA** | **10.14** | **6.67** | **6.46** |
+| Improvement | **+46.3%** | +2.1% | +0.4% |
+
+KVTC's PCA basis is shared across heads; ours is per-(layer, head) by construction. The 46.3% PPL gap at 2-bit Llama on a *PCA basis* is empirical evidence that *per-head decomposition is not optional* — and our $B_{\mathrm{ont}}$ inherits this property automatically. This finding strengthens the §5.9.1 KVTC comparison: KVTC's compression-only headline numbers would benefit from per-head decomposition; our Thm 6.13 already provides this.
+
+**Finding 4 (Rotation-side MMLU recovery, Qwen 2-bit).** FP16 → NoRot 2-bit: 74.3% → 58.7% (−15.6pp). PCA 2-bit recovers to 67.9% (+9.2pp lift over NoRot, recovering 59% of the quantization loss). This is the strongest known cross-rotation MMLU effect at 2-bit on Qwen-7B and is consistent with our Thm 6.13's qaMSE-bound prediction that rotation choice matters most when bits are tight.
+
+These four findings sharpen the §5.9.1 KVTC framing: the gap between *raw rotation choice* (PCA 0.07–0.9% over Random) and *categorical-rotation choice* ($B_{\mathrm{ont}}$, 4.37 PPL over KIVI on Qwen 2-bit) is what justifies the H-cat hypothesis as the load-bearing structural assumption — not the rotation per se but the *categorical decomposition the rotation enables*.
+
 #### 5.9.1 OCQ + entropy coding stack (concurrent KVTC comparison)
 
 KVTC (NVIDIA, ICLR 2026; OnlyTerp/kvtc) reports up to 20× KV-cache compression via PCA + DP-optimal bit allocation + DEFLATE/LZMA2 entropy coding. Two questions are natural: (a) how much additional compression does entropy coding give *on top of* OCQ, and (b) where does the gap to KVTC's 20× come from?
