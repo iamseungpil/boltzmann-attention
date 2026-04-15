@@ -333,6 +333,14 @@ def main():
     head_dim = getattr(cfg, "head_dim", None) or (cfg.hidden_size // n_q)
     L = cfg.num_hidden_layers
 
+    # Parse skip-heads spec (uses parse_skip_heads imported from subtask1)
+    from eval_metatool_subtask1 import parse_skip_heads
+    if args.skip_heads:
+        args._skip_heads_set = parse_skip_heads(args.skip_heads, n_kv)
+        print(f"[skip-heads] spec='{args.skip_heads}' -> {len(args._skip_heads_set)} (layer,head) pairs skipped", flush=True)
+    else:
+        args._skip_heads_set = None
+
     with open(args.dataset) as f:
         data = json.load(f)
     start = max(0, args.start_idx)
