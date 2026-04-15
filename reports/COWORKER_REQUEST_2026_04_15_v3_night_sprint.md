@@ -1,10 +1,75 @@
 # 🌙 Coworker 긴급 실험 요청 — 2026-04-15 Night Sprint
 
 **발신**: develop side (mais)
-**시간**: 2026-04-15 17:30 KST
+**시간**: 2026-04-15 17:30 KST (last update 20:35 KST)
 **대상**: A100×4 보유 coworker
 **Deadline**: **NeurIPS 2026 abstract 2026-05-04 / full paper 2026-05-06 (D-19 ~ D-21)** ⚠️ 정정: 5/15 아님
 **목적**: NeurIPS 2026 main-track 진입 — 현재 6.3/10 → 목표 6.8-7.0/10 (accept 60-70%)
+
+---
+
+## 🚨 [2026-04-15 20:35 update] CRITICAL ENV PIN — coworker 도 같은 실수 가능
+
+**우리 develop side 에서 SEKA 가 2회 hang + 모든 generate 가 gibberish 를 낸 root cause 발견**:
+
+```
+SEKA pinned (external/SEKA/requirements-complete.txt):
+  transformers==4.51.3
+  torch==2.7.0
+
+우리 default env (vllm_env):
+  transformers==5.4.0    ← MAJOR VERSION DIFF (4.x → 5.x breaking changes)
+  torch==2.8.0+cu128
+```
+
+transformers 5.x 에서 attention API, generation config, model internals 모두 breaking changes. SEKA 의 wrapper (`SEKALLM`, `attach_projection`) 는 4.51.3 internals 를 expect → 5.x 에서 model 이 *조용히* gibberish 출력 (예: `"halves halves halves halves connectionString..."` 같은 decoder collapse).
+
+**Hang 증상도 동일 root cause**: SEKA hook 자체는 정상이나, eager attention path 가 5.x 에서 100x slower → 사실상 hang 처럼 보임.
+
+### ✅ 우리가 사용한 fix (coworker 도 동일하게 권장)
+
+```bash
+# 1. SEKA 전용 venv 생성 (다른 우리 wave 와 분리)
+mkdir -p /home/<user>/venvs
+python3.12 -m venv /home/<user>/venvs/seka_env
+
+# 2. SEKA pinned versions 설치
+/home/<user>/venvs/seka_env/bin/python -m pip install \
+    torch==2.7.0 \
+    transformers==4.51.3 \
+    accelerate==1.11.0 \
+    tokenizers==0.21.1 \
+    safetensors==0.5.3 \
+    huggingface-hub==0.30.2 \
+    numpy==1.26.4 \
+    sentencepiece protobuf
+
+# 3. 검증 (gibberish 안 나오는지 확인)
+/home/<user>/venvs/seka_env/bin/python -c "
+import torch, transformers
+print(f'torch={torch.__version__} transformers={transformers.__version__}')
+assert transformers.__version__ == '4.51.3', 'WRONG transformers version'
+"
+
+# 4. SEKA 실행 (반드시 이 venv 의 python 사용)
+/home/<user>/venvs/seka_env/bin/python scripts/ocq/eval_subtask4_with_real_seka.py ...
+```
+
+### ⚠️ Anti-patterns (동일 mistake 회피)
+
+❌ 시스템 default `python3` 사용 → transformers 5.x 일 가능성 높음
+❌ 우리 vllm_env 사용 → transformers 5.4.0
+❌ pip install 후 transformers version 확인 안 함
+❌ 첫 generate output 의 quality check 안 함 (gibberish 면 즉시 환경 의심)
+
+### Quick sanity check before full eval
+
+SEKA 환경에서 첫 1 sample generate output 이 다음 중 하나로 보이면 환경 문제:
+- `"halves halves halves halves..."` (반복)
+- `"!!! hue modelBuilderkey..."` (특수문자 spam)
+- 일반 문장이지만 30+ 초 걸림
+
+정상 output: `<tool_call>{"name": "FinanceTool", ...}` 같은 구조화된 emission.
 
 ## ⚡ 현재 상황 — 왜 긴급한가
 
