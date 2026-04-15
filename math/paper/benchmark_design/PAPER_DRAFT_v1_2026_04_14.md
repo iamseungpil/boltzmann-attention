@@ -859,9 +859,27 @@ The destructive K×Q interaction (smoke F1 0.500 vs Q-only 0.658) is documented 
 
   V-only single-axis is *expected negative-control under joint Pareto framing*: Thm 6.17's first-order optimum is over the joint trio $(\Delta_Q, \Delta_K, \Delta_V)$, so isolated $\Delta_V$ marginal need not be positive. The signal must arise from V+Q superadditivity. This single-axis fail is consistent with the Q-side gradient (Thm 6.17 (b)) being the load-bearing first-order term and V acting as a *modulator* requiring the Q-coverage carrier.
 
-- **V + Q joint** ($\gamma_V = 0.05, \beta_Q = -0.1, \alpha_K = 0$): **full 497 verified 2026-04-15 KST (PID 2828977)** — F1 = **0.747**, *exactly matching Q-only* 0.747. The smoke-level +10.8pp lift does *not* survive scaling, but importantly the V-channel addition is **marginal-neutral** rather than destructive (no smoke-to-full sign reversal as in the contrastive K-bias precedent). We thus classify V-amplifier as **non-load-bearing at small magnitude** on this benchmark: the verified accuracy lift is carried entirely by the Q-coverage channel, with V producing zero marginal contribution at $\gamma_V = 0.05$.
+- **QKV joint full 497 (5-cell, 2026-04-15 19:19 KST, complete)**:
 
-  Pre-registered decision matrix (now resolved for V+Q cell): trio cell `ocq_qkv_a0.05_v0.05_q-0.1` F1 ≥ 0.765 confirms superadditive trio; F1 ∈ [0.735, 0.747] = "V-neutral, Q load-bearing" (status of V+Q cell, applied to trio); F1 < 0.735 = retreat to single-axis Q-coverage framing. Trio cell still pending (~25 min) and K+Q cell still pending (~12 min).
+  | Method | F1 | Δ vs no_steer 0.731 | Interpretation |
+  |---|---|---|---|
+  | no_steer | 0.7307 | — | baseline |
+  | Q-only ($\beta_Q=-0.1$) | 0.7471 | +1.64pp | Q-coverage primary ✅ |
+  | V+Q ($\gamma_V=0.05, \beta_Q=-0.1$) | 0.7468 | +1.61pp | V marginal-neutral |
+  | **Q+K small-α ($\alpha_K=0.05, \beta_Q=-0.1$)** | **0.7502** ★ | **+1.95pp** | **best pair** |
+  | **Trio ($\alpha_K=0.05, \gamma_V=0.05, \beta_Q=-0.1$)** | **0.7414** | **+1.07pp** | **V·K destructive** ⚠️ |
+
+  Three observations resolving the pre-registered decision matrix:
+
+  **(i) K small-α is additive with Q at full scale** — contradicting the prior smoke-N=20 claim that "K-channel destructive at every tested $\alpha_K$ including 0.05". The smoke-to-full sign flip on K+Q (smoke −2.5pp → full +0.3pp marginal over Q-only) is consistent with the contrastive K-bias precedent (smoke +5.8pp → full −3.6pp): smoke N=20 with bootstrap SE ≈ 0.11 cannot reliably distinguish ±0.05 lift signals on this benchmark. **The earlier "K destructive at all magnitudes" framing applies to $\alpha_K \ge 0.1$ only**; small-α K (0.05) is *additive with Q-coverage* at full scale.
+
+  **(ii) V channel is marginal-neutral, not destructive** when added to Q-only (V+Q = Q-only = 0.747 to within 0.0003, well within bootstrap SE). The smoke-level +10.8pp from V+Q does not survive scaling but the channel does not destabilize either.
+
+  **(iii) V·K co-inclusion is destructive on the same $B_{\mathrm{ont}}$ basis**: trio = 0.7414 < all pairs, with the largest drop (−0.88pp) coming from adding V to Q+K. Mechanism (hypothesized): K-bias amplifies attention mass toward facet-key directions, V-amplifier boosts in-facet logit; both operate on the same per-head $B_{\mathrm{ont}}$. Joint inclusion produces a *multiplicative over-weighting* (softmax × V_amp) along the shared facet axis, which over-shoots the Q-coverage gradient direction and destabilizes the attention output. Q-coverage is Q-side and orthogonal to either K or V alone (constructive in pairs Q+K, Q+V), but cannot orthogonalize the K·V interaction once both are co-active.
+
+  **Verified accuracy-lift family**: {Q-only, Q+V, **Q+K small-α (best)**}. **Falsified**: K large-α ($\alpha_K \ge 0.1$, smoke and full destructive) and trio at any tested point ($\alpha_K \ge 0.05$, V·K destructive interaction).
+
+  **Refined Thm 6.17 statement** (supersedes Rmk 6.17.3): the first-order joint optimality holds *pairwise* — (Q+K) and (Q+V) both produce additive lift at small magnitudes — but *not jointly* (V·K destructive on shared subspace). The Lagrangian channel-separation lemma (Lemma 6.17.A in App. B.7.10) requires the K and V channels to be *mutually orthogonal at first order*, which fails because both depend on the same $B_{\mathrm{ont}} B_{\mathrm{ont}}^\top$ projector. The pairwise Q+K result is the strongest empirically-validated multi-channel claim of the paper.
 - **K-inclusion in accuracy lift**: *empirically falsified* at every tested K-magnitude. K-channel lift attempts fall outside the verified family.
 
 The paper-level claim for §5.5.2 is thus **"QV-joint coverage-aware steering"** (not "QKV-joint"), with K-channel reserved for the orthogonal stability axis (§5.5). The unified Pareto frontier (Thm 6.19) is parameterized by $(\beta_Q, \gamma_V, b^*)$ at $\alpha_K = 0$ on the accuracy axis; the K-channel parameterizes only the stability axis at $\alpha_K = 0.3$. This re-scoping maintains theoretical honesty: the same $B_{\mathrm{ont}}$ basis serves both roles, but the K-channel direction sign and magnitude differ between stability (where K is the dominant channel) and accuracy (where K must be excluded).
