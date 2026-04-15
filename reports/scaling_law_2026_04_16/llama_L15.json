@@ -1,0 +1,14 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "layer": 15,
+  "n_queries": 50,
+  "eps_q_mean": 0.15087636828422546,
+  "eps_q_std": 0.0022230258639832677,
+  "var_s_v_mean": 0.07038507491350174,
+  "var_s_v_std": 0.0009323350761325905,
+  "sigma_o_mean": 16.3778932762146,
+  "B_ont_rank": 19,
+  "n_q": 32,
+  "n_kv": 8,
+  "head_dim": 128
+}

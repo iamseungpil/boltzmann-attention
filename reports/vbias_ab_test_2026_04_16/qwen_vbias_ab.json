@@ -1,0 +1,12 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "alpha": 0.05,
+  "no_steer_mean_sum_logp": -3.5978907416703056,
+  "K_basis_mean_sum_logp": -3.648528539483453,
+  "V_basis_mean_sum_logp": -3.8211637311310542,
+  "random_basis_mean_sum_logp": -3.7005879281521605,
+  "n_samples": 30,
+  "delta_K": -0.050637797813147145,
+  "delta_V": -0.22327298946074858,
+  "delta_R": -0.10269718648185489
+}

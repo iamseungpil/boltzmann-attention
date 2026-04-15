@@ -1,0 +1,12 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "layer": 15,
+  "n_queries": 50,
+  "mean_T": 160.04,
+  "attn_entropy_bits_mean": 4.557758753150702,
+  "attn_entropy_bits_median": 4.534957926720381,
+  "norm_entropy_mean": 0.6231348546090781,
+  "norm_entropy_median": 0.6212467705938061,
+  "top1_prob_mean": 0.9897006559371948,
+  "top1_prob_median": 0.9959968328475952
+}

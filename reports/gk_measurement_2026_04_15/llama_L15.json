@@ -1,0 +1,13 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "layer": 15,
+  "n_queries": 50,
+  "n_head_measurements": 400,
+  "cos_sim_mean": 0.025262884676631073,
+  "cos_sim_median": 0.034518713131546974,
+  "abs_cos_sim_mean": 0.16203411642549326,
+  "G_K_value_abs_mean": 0.45140267449560395,
+  "G_K_value_abs_median": 0.2944940501118954,
+  "grad_K_norm_mean": 0.18586732424795627,
+  "direction_norm_mean": 15.49543825864792
+}

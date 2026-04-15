@@ -1,0 +1,268 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "b_ont_path": "external/SEKA/seka_projections/ontology-llama31-8b-metatool/B_ont.pt",
+  "rank_per_layer": [
+    {
+      "layer": 0,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 1,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 2,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 3,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 4,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 5,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 6,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 7,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 8,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 9,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 10,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 11,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 12,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 13,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 14,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 15,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 16,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 17,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 18,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 19,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 20,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 21,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 22,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 23,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 24,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 25,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 26,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 27,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 28,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 29,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 30,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    },
+    {
+      "layer": 31,
+      "min_rank": 19,
+      "max_rank": 19,
+      "median_rank": 19
+    }
+  ],
+  "pathological_layers_count": 0,
+  "pathological_layers": [],
+  "per_layer_hcat": [
+    {
+      "ratio": [
+        0.3406527042388916,
+        0.3331611454486847,
+        0.4471149146556854,
+        0.4101700484752655,
+        0.4127015173435211,
+        0.4023049771785736,
+        0.559403121471405,
+        0.41302159428596497
+      ],
+      "ratio_mean": 0.4148162603378296,
+      "ratio_median": 0.4101700484752655,
+      "random_baseline": 0.1484375,
+      "gain_mean": 2.7945516109466553,
+      "gain_median": 2.7632508277893066,
+      "var_K_mean": 138.0432586669922,
+      "rank": 19,
+      "head_dim": 128,
+      "n_kv": 8,
+      "layer": 5
+    },
+    {
+      "ratio": [
+        0.4535096287727356,
+        0.4097723662853241,
+        0.4495023190975189,
+        0.45228537917137146,
+        0.4830208122730255,
+        0.4419316053390503,
+        0.40029898285865784,
+        0.48723140358924866
+      ],
+      "ratio_mean": 0.44719406962394714,
+      "ratio_median": 0.4495023190975189,
+      "random_baseline": 0.1484375,
+      "gain_mean": 3.0126757621765137,
+      "gain_median": 3.028226137161255,
+      "var_K_mean": 176.3787078857422,
+      "rank": 19,
+      "head_dim": 128,
+      "n_kv": 8,
+      "layer": 13
+    },
+    {
+      "ratio": [
+        0.368083655834198,
+        0.430871844291687,
+        0.3998837471008301,
+        0.42146000266075134,
+        0.44272541999816895,
+        0.3501698970794678,
+        0.3873787522315979,
+        0.35428667068481445
+      ],
+      "ratio_mean": 0.39435747265815735,
+      "ratio_median": 0.3873787522315979,
+      "random_baseline": 0.1484375,
+      "gain_mean": 2.656724452972412,
+      "gain_median": 2.6097095012664795,
+      "var_K_mean": 138.21749877929688,
+      "rank": 19,
+      "head_dim": 128,
+      "n_kv": 8,
+      "layer": 21
+    }
+  ]
+}

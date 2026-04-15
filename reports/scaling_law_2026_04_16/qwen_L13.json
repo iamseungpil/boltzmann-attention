@@ -1,0 +1,14 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "layer": 13,
+  "n_queries": 50,
+  "eps_q_mean": 0.19237035214900972,
+  "eps_q_std": 0.002755416183139008,
+  "var_s_v_mean": 0.406243577003479,
+  "var_s_v_std": 0.004695533374533939,
+  "sigma_o_mean": 151.36448638916016,
+  "B_ont_rank": 24,
+  "n_q": 28,
+  "n_kv": 4,
+  "head_dim": 128
+}

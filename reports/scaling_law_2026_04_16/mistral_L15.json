@@ -1,0 +1,14 @@
+{
+  "model": "mistralai/Mistral-7B-Instruct-v0.3",
+  "layer": 15,
+  "n_queries": 50,
+  "eps_q_mean": 0.30961776375770567,
+  "eps_q_std": 0.003564719132621372,
+  "var_s_v_mean": 0.17855869352817536,
+  "var_s_v_std": 0.0021049934769546406,
+  "sigma_o_mean": 7.933236560821533,
+  "B_ont_rank": 33,
+  "n_q": 32,
+  "n_kv": 8,
+  "head_dim": 128
+}

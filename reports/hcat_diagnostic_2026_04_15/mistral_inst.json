@@ -1,0 +1,268 @@
+{
+  "model": "mistralai/Mistral-7B-Instruct-v0.3",
+  "b_ont_path": "external/SEKA/seka_projections/ontology-mistral-7b-v03-metatool-skipL0-padmax/B_ont.pt",
+  "rank_per_layer": [
+    {
+      "layer": 0,
+      "min_rank": 0,
+      "max_rank": 0,
+      "median_rank": 0
+    },
+    {
+      "layer": 1,
+      "min_rank": 21,
+      "max_rank": 26,
+      "median_rank": 24
+    },
+    {
+      "layer": 2,
+      "min_rank": 26,
+      "max_rank": 32,
+      "median_rank": 29
+    },
+    {
+      "layer": 3,
+      "min_rank": 26,
+      "max_rank": 29,
+      "median_rank": 28
+    },
+    {
+      "layer": 4,
+      "min_rank": 25,
+      "max_rank": 29,
+      "median_rank": 27
+    },
+    {
+      "layer": 5,
+      "min_rank": 25,
+      "max_rank": 30,
+      "median_rank": 28
+    },
+    {
+      "layer": 6,
+      "min_rank": 26,
+      "max_rank": 30,
+      "median_rank": 29
+    },
+    {
+      "layer": 7,
+      "min_rank": 26,
+      "max_rank": 28,
+      "median_rank": 27
+    },
+    {
+      "layer": 8,
+      "min_rank": 25,
+      "max_rank": 31,
+      "median_rank": 26
+    },
+    {
+      "layer": 9,
+      "min_rank": 25,
+      "max_rank": 32,
+      "median_rank": 27
+    },
+    {
+      "layer": 10,
+      "min_rank": 26,
+      "max_rank": 29,
+      "median_rank": 27
+    },
+    {
+      "layer": 11,
+      "min_rank": 25,
+      "max_rank": 29,
+      "median_rank": 27
+    },
+    {
+      "layer": 12,
+      "min_rank": 25,
+      "max_rank": 28,
+      "median_rank": 27
+    },
+    {
+      "layer": 13,
+      "min_rank": 26,
+      "max_rank": 28,
+      "median_rank": 27
+    },
+    {
+      "layer": 14,
+      "min_rank": 25,
+      "max_rank": 27,
+      "median_rank": 26
+    },
+    {
+      "layer": 15,
+      "min_rank": 25,
+      "max_rank": 28,
+      "median_rank": 27
+    },
+    {
+      "layer": 16,
+      "min_rank": 25,
+      "max_rank": 28,
+      "median_rank": 26
+    },
+    {
+      "layer": 17,
+      "min_rank": 25,
+      "max_rank": 30,
+      "median_rank": 27
+    },
+    {
+      "layer": 18,
+      "min_rank": 25,
+      "max_rank": 29,
+      "median_rank": 27
+    },
+    {
+      "layer": 19,
+      "min_rank": 25,
+      "max_rank": 29,
+      "median_rank": 27
+    },
+    {
+      "layer": 20,
+      "min_rank": 26,
+      "max_rank": 30,
+      "median_rank": 28
+    },
+    {
+      "layer": 21,
+      "min_rank": 27,
+      "max_rank": 31,
+      "median_rank": 28
+    },
+    {
+      "layer": 22,
+      "min_rank": 27,
+      "max_rank": 30,
+      "median_rank": 29
+    },
+    {
+      "layer": 23,
+      "min_rank": 27,
+      "max_rank": 31,
+      "median_rank": 29
+    },
+    {
+      "layer": 24,
+      "min_rank": 26,
+      "max_rank": 32,
+      "median_rank": 30
+    },
+    {
+      "layer": 25,
+      "min_rank": 28,
+      "max_rank": 32,
+      "median_rank": 29
+    },
+    {
+      "layer": 26,
+      "min_rank": 28,
+      "max_rank": 30,
+      "median_rank": 29
+    },
+    {
+      "layer": 27,
+      "min_rank": 28,
+      "max_rank": 32,
+      "median_rank": 30
+    },
+    {
+      "layer": 28,
+      "min_rank": 27,
+      "max_rank": 31,
+      "median_rank": 28
+    },
+    {
+      "layer": 29,
+      "min_rank": 28,
+      "max_rank": 33,
+      "median_rank": 29
+    },
+    {
+      "layer": 30,
+      "min_rank": 27,
+      "max_rank": 29,
+      "median_rank": 28
+    },
+    {
+      "layer": 31,
+      "min_rank": 27,
+      "max_rank": 30,
+      "median_rank": 29
+    }
+  ],
+  "pathological_layers_count": 0,
+  "pathological_layers": [],
+  "per_layer_hcat": [
+    {
+      "ratio": [
+        0.550646185874939,
+        0.5134065747261047,
+        0.5772452354431152,
+        0.49096599221229553,
+        0.5458469390869141,
+        0.4977593421936035,
+        0.4647378623485565,
+        0.5540565252304077
+      ],
+      "ratio_mean": 0.524333119392395,
+      "ratio_median": 0.5134065747261047,
+      "random_baseline": 0.2578125,
+      "gain_mean": 2.0337767601013184,
+      "gain_median": 1.9913952350616455,
+      "var_K_mean": 111.45866394042969,
+      "rank": 33,
+      "head_dim": 128,
+      "n_kv": 8,
+      "layer": 5
+    },
+    {
+      "ratio": [
+        0.5488331913948059,
+        0.5412877798080444,
+        0.5558757781982422,
+        0.5166378021240234,
+        0.5566497445106506,
+        0.5273458957672119,
+        0.5750840306282043,
+        0.5294084548950195
+      ],
+      "ratio_mean": 0.5438903570175171,
+      "ratio_median": 0.5412877798080444,
+      "random_baseline": 0.2578125,
+      "gain_mean": 2.1096351146698,
+      "gain_median": 2.0995404720306396,
+      "var_K_mean": 148.85487365722656,
+      "rank": 33,
+      "head_dim": 128,
+      "n_kv": 8,
+      "layer": 13
+    },
+    {
+      "ratio": [
+        0.5582574009895325,
+        0.5121212601661682,
+        0.5205117464065552,
+        0.44514989852905273,
+        0.4507639408111572,
+        0.4867857098579407,
+        0.4440167248249054,
+        0.4387088119983673
+      ],
+      "ratio_mean": 0.4820394217967987,
+      "ratio_median": 0.4507639408111572,
+      "random_baseline": 0.2578125,
+      "gain_mean": 1.8697288036346436,
+      "gain_median": 1.7484177350997925,
+      "var_K_mean": 127.09195709228516,
+      "rank": 33,
+      "head_dim": 128,
+      "n_kv": 8,
+      "layer": 21
+    }
+  ]
+}

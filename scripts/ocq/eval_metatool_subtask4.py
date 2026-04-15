@@ -79,6 +79,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", type=str, required=True)
     p.add_argument("--verbose", action="store_true")
+    p.add_argument("--skip-heads", type=str, default="",
+                   help="Skip heads spec (e.g. 'L0-L21' skips all heads in layers 0..21)")
     return p.parse_args()
 
 
@@ -195,12 +197,15 @@ def run_method(
 ) -> Dict:
     kind, params = parse_method(method)
 
+    skip_heads = getattr(args, "_skip_heads_set", None)
+
     if kind == "no_steer":
         ctx = _nullcontext()
     elif kind == "bias":
         ctx = install_kbias_hooks(
             model, B_ont, alpha=params["alpha"],
             n_kv=n_kv, head_dim=head_dim,
+            skip_heads=skip_heads,
         )
     elif kind == "normbias":
         ctx = install_normalized_kbias_hooks(
@@ -327,6 +332,14 @@ def main():
     n_kv = cfg.num_key_value_heads
     head_dim = getattr(cfg, "head_dim", None) or (cfg.hidden_size // n_q)
     L = cfg.num_hidden_layers
+
+    # Parse skip-heads spec (uses parse_skip_heads imported from subtask1)
+    from eval_metatool_subtask1 import parse_skip_heads
+    if args.skip_heads:
+        args._skip_heads_set = parse_skip_heads(args.skip_heads, n_kv)
+        print(f"[skip-heads] spec='{args.skip_heads}' -> {len(args._skip_heads_set)} (layer,head) pairs skipped", flush=True)
+    else:
+        args._skip_heads_set = None
 
     with open(args.dataset) as f:
         data = json.load(f)

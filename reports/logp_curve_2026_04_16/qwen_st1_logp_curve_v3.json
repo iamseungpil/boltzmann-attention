@@ -1,0 +1,76 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "b_ont": "external/SEKA/seka_projections/ontology-qwen25-7b-metatool/B_ont.pt",
+  "script_version": "v3_2026_04_16_autoregressive",
+  "alphas": [
+    0.0,
+    0.025,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.3,
+    0.5
+  ],
+  "per_alpha": {
+    "0.0": {
+      "mean_sum_logp": -3.592325242612357,
+      "std_sum_logp": 4.31896871893499,
+      "mean_first_logp": -3.5906944258012445,
+      "first_argmax_acc": 0.46,
+      "n": 100
+    },
+    "0.025": {
+      "mean_sum_logp": -3.684171796067834,
+      "std_sum_logp": 4.39747141000076,
+      "mean_first_logp": -3.6827335186021584,
+      "first_argmax_acc": 0.46,
+      "n": 100
+    },
+    "0.05": {
+      "mean_sum_logp": -3.6473991210766696,
+      "std_sum_logp": 4.330565392890272,
+      "mean_first_logp": -3.6459508205380304,
+      "first_argmax_acc": 0.46,
+      "n": 100
+    },
+    "0.1": {
+      "mean_sum_logp": -3.858711868739458,
+      "std_sum_logp": 4.527178754036392,
+      "mean_first_logp": -3.857583474552348,
+      "first_argmax_acc": 0.46,
+      "n": 100
+    },
+    "0.15": {
+      "mean_sum_logp": -3.8709334476360637,
+      "std_sum_logp": 4.586326571219742,
+      "mean_first_logp": -3.869878229824485,
+      "first_argmax_acc": 0.47,
+      "n": 100
+    },
+    "0.2": {
+      "mean_sum_logp": -3.9546222333690504,
+      "std_sum_logp": 4.612213453587744,
+      "mean_first_logp": -3.9536535213185067,
+      "first_argmax_acc": 0.45,
+      "n": 100
+    },
+    "0.3": {
+      "mean_sum_logp": -3.89690417330345,
+      "std_sum_logp": 4.589538463754945,
+      "mean_first_logp": -3.8958291409610286,
+      "first_argmax_acc": 0.47,
+      "n": 100
+    },
+    "0.5": {
+      "mean_sum_logp": -3.7615546773596287,
+      "std_sum_logp": 4.699634108449019,
+      "mean_first_logp": -3.760674388490896,
+      "first_argmax_acc": 0.48,
+      "n": 100
+    }
+  },
+  "n_samples": 100,
+  "n_skipped": 0,
+  "prefix_appended": "<tool_call>{\"name\": \""
+}

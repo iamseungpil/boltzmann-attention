@@ -1,0 +1,28 @@
+{
+  "B_k_shape": [
+    32,
+    8,
+    128,
+    19
+  ],
+  "B_v_shape": [
+    32,
+    8,
+    128,
+    42
+  ],
+  "n_heads_sampled": 256,
+  "max_col_cos_mean": 0.2926393032539636,
+  "max_col_cos_median": 0.2895807921886444,
+  "max_col_cos_p5": 0.2515965923666954,
+  "max_col_cos_p95": 0.34261420369148254,
+  "mean_col_cos_mean": 0.07053512884886004,
+  "mean_col_cos_median": 0.07061685994267464,
+  "top_principal_sv_mean": 0.7917543526273221,
+  "top_principal_sv_median": 0.7921210527420044,
+  "top_principal_sv_p5": 0.7471241354942322,
+  "top_principal_sv_p95": 0.8373440653085709,
+  "proj_inner_product_mean": 0.20462853932986036,
+  "proj_inner_product_median": 0.2050338163971901,
+  "proj_fro_diff_mean": 0.6428951025009155
+}
