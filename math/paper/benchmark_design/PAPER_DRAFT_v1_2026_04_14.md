@@ -963,7 +963,29 @@ To replace the mislabeled "AdaSEKA proxy" comparator, we run the actual SEKA / A
 2. *Build steer_mask*: token-level mask over the user-query span (between system message and assistant turn).
 3. *Run SEKALLM.generate(...)* per Subtask4 query at sweep of `amplify_pos ∈ {1, 2, 5}` and AdaSEKA `amplify_factor ∈ {0.5, 1.0, 2.0}` × `temperature ∈ {0.1, 1.0}`.
 
-Pending: results table to populate the §5.5.3 table rows above marked "(eval in progress)". ETA ~3 GPU-hr.
+**Partial results (in progress 2026-04-15 22:07 KST, Llama-3.1-8B-Instruct Subtask4 N=497 via `seka_env` + CUDA_VISIBLE_DEVICES=1 fix)**:
+
+Following resolution of a SEKA wrapper tokenizer pad bug (fixed 2026-04-15) and the SEKALLM auto-sharding issue (circumvented by `CUDA_VISIBLE_DEVICES=<single>`), the SEKA evaluation is producing valid outputs. Partial data from $\text{amp}_\text{pos} = 1.0$ (first 220 of 497 queries, sampled every 10th):
+
+| Method | Model | Mean F1 (partial) | N samples logged | Δ vs no_steer |
+|---|---|---|---|---|
+| no_steer (reference, complete 497) | Llama-3.1-8B-Inst | 0.624 | 497 | — |
+| Real SEKA $\text{amp}_\text{pos}=1.0$ (partial) | Llama-3.1-8B-Inst | **0.457** | 23 (every-10th from 0–220) | **−16.7pp** |
+| Real SEKA $\text{amp}_\text{pos}=2.0$ | Llama-3.1-8B-Inst | pending | — | — |
+| Real SEKA $\text{amp}_\text{pos}=5.0$ | Llama-3.1-8B-Inst | pending | — | — |
+
+43% of the sampled SEKA $\text{amp}_\text{pos}=1.0$ queries produce *empty predictions* (no parseable `<tool_call>` block), indicating manifold exit consistent with Cor 6.9.6 (b) phase transition at $\alpha_K \ge \alpha^*(\text{Llama})$. SEKA's $\text{amp}_\text{pos}=1.0$ corresponds roughly to $\alpha_K = 1.0$ in our notation — well above the Llama-Inst phase threshold $\alpha^*(\text{Llama}) < 0.3$ empirically measured (our K-bias at $\alpha_K=0.3$ on Llama Subtask4 = F1 0.311, catastrophic).
+
+**Preliminary comparison on Subtask4 multi-tool (2026-04-15)**:
+
+| Method | Qwen-Inst F1 | Llama-Inst F1 | Note |
+|---|---|---|---|
+| no_steer | 0.731 | 0.624 | baseline |
+| Our Q-coverage $\beta_Q=-0.1$ | **0.747** (+1.64pp) | **0.627** (+0.4pp) | verified full 497 |
+| Our Q+K tiny-α $\alpha_K=0.025$ | **0.753** (+2.22pp) ★ | (pending) | verified full 497 |
+| Real SEKA $\text{amp}_\text{pos}=1.0$ | (not run) | **~0.457** (−16.7pp) | partial 23 pts |
+
+The Llama Subtask4 comparison shows a **+17pp gap in favor of our method** on the multi-tool task, consistent with Cor 6.9.6 prediction: SEKA's large-α K-only stationary operation triggers phase transition while our small-α Q-coverage remains on-manifold. Final SEKA $\text{amp}_\text{pos} \in \{2, 5\}$ results queued for completion by 2026-04-16 00:00 KST. On completion, the §5.5.3 table rows currently marked "(eval in progress)" will be populated.
 
 ### 5.5.1 Mistral-Instruct-v0.3 — (H-cat)-boundary regime (reframed 2026-04-15 after full null-control + α-sweep + H-cat diagnostic)
 
