@@ -39,6 +39,14 @@ os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
 import numpy as np
 import torch
 
+HERE = Path(__file__).parent
+sys.path.insert(0, str(HERE))
+from eval_hook_mode import (
+    install_k_proj_hooks, evaluate_ppl,
+    tokenize_and_chunk, load_wikitext_test,
+    _asymmetric_per_channel,
+)
+
 REPO = Path(__file__).resolve().parents[2]
 
 
