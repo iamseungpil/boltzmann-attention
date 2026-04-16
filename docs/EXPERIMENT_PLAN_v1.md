@@ -225,11 +225,42 @@ Phase 5: CPU만 (작성), 5일
 
 ---
 
+## 4B. Phase 2.5 추가 실험 — Layer Sweep (coworker 요청)
+
+**목적**: ladapt에서 K/Q 레이어 분배가 F1에 미치는 영향 측정. 현재는 k_boundary_frac=0.25 고정만 테스트.
+
+**실험 대상 (retail 도메인 기준, L=28)**:
+
+| 실험 ID | K 적용 레이어 | Q 적용 레이어 | 목적 |
+|---------|-------------|-------------|------|
+| LS-1 | 0 ~ L/7 (L0-L3) | L/7 ~ L (L4-L27) | K 더 좁게 |
+| LS-2 | 0 ~ L/4 (L0-L6) | L/4 ~ L (L7-L27) | 현재 baseline |
+| LS-3 | 0 ~ L/3 (L0-L9) | L/3 ~ L (L10-L27) | K 더 넓게 |
+| LS-4 | 0 ~ L/2 (L0-L13) | L/2 ~ L (L14-L27) | K 반 |
+| LS-5 | 0 ~ L/4 (L0-L6) | **전체 (L0-L27)** | K+Q 초기 겹침 |
+| LS-6 | 0 ~ L/4 (L0-L6) | 후반 1/4 (L21-L27) | Q 후반만 |
+
+**파라미터**: α=0.05, β=-0.03, β=-0.05 두 값 테스트
+
+**벤치마크**:
+- MetaTool Subtask4 N=497 (통제 실험, 빠름)
+- τ²-bench retail N=114 (실전 검증)
+
+**예상 GPU 시간**: 6 configs × 2 β × 2 benchmarks = 24 runs × 15분 ≈ 6시간
+
+**구현**: `eval_tau2_bench.py`에 `ocq_ladapt_k<α>_q<β>_f<k_frac>` 포맷 이미 지원됨 (k_frac 파라미터만 변경). `q_late_only` 모드 추가 필요 (scripts/ocq/eval_subtask4_dynamic_qk_v2.py에 이미 구현됨).
+
+**담당**: **coworker (승필)** — Claude는 Phase 1-2 핵심 실험에 집중
+
+---
+
 ## 5. 작업 분배 (제안)
 
 | 작업 | 담당 | 비고 |
 |------|------|------|
 | Phase 0~1: MetaTool 완전 비교 | Claude (자동) | GPU 실험 실행 |
+| Phase 2: τ²-bench 전 도메인 | Claude (자동) | 진행 중 |
+| **Phase 2.5: Layer Sweep** | **coworker (승필)** | **신규 추가** |
 | Phase 2A: Seal-Tools 데이터 분석 + B_ont 설계 | **협의 필요** | 146분야 → 4-facet 매핑 검증 |
 | Phase 2B: Seal-Tools 실험 | Claude (자동) | GPU 실험 실행 |
 | Phase 3: FW-nDCG 설계 | **협의 필요** | facet 가중치 정의 검증 |
