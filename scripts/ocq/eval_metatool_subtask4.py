@@ -321,7 +321,7 @@ def main():
         tok.pad_token = tok.eos_token
     dtype = resolve_dtype(args.model, args.dtype)
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, dtype=dtype, device_map=args.device,
+        args.model, torch_dtype=dtype, device_map=args.device,
         attn_implementation="eager", low_cpu_mem_usage=True,
     )
     model.eval()
