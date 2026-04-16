@@ -341,10 +341,10 @@ def main():
     ]
 
     all_results = []
-    for config_name, iterative, alpha, beta in configs:
+    for config_name, iterative, mode, alpha, beta in configs:
         hooks.alpha = alpha
         hooks.beta = beta
-        print(f"\n[eval] {config_name} (α={alpha}, β={beta}, iterative={iterative})", flush=True)
+        print(f"\n[eval] {config_name} (α={alpha}, β={beta}, mode={mode}, iterative={iterative})", flush=True)
 
         agg = {"F1": 0, "Exact": 0}
         per_sample = []
