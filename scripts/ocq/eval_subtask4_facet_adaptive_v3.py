@@ -223,6 +223,18 @@ def extract_first_tool(text, candidates):
     return None
 
 
+def extract_all_tools(text, candidates):
+    """Extract ALL tool names from text (not just the first)."""
+    found = []
+    for m in re.finditer(r'"name"\s*:\s*"([^"]+)"', text):
+        name = m.group(1)
+        for c in candidates:
+            if c.lower() == name.lower() and c not in found:
+                found.append(c)
+                break
+    return found
+
+
 def main():
     args = parse_args()
     out_path = Path(args.out)
