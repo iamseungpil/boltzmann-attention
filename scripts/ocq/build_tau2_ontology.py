@@ -360,7 +360,7 @@ def build_ontology(tools: List[dict], domain: str) -> Tuple[dict, List[dict]]:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
-    p.add_argument("--domain", choices=["retail", "airline"], required=True)
+    p.add_argument("--domain", choices=["retail", "airline", "telecom", "banking_knowledge"], required=True)
     p.add_argument(
         "--tools-py", type=str, default="",
         help="Override path to tools.py; defaults to external/tau2-bench/"
