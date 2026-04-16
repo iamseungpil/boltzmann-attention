@@ -60,6 +60,10 @@ def parse_args():
     p.add_argument("--layer-mode", default="uniform",
                    choices=["uniform", "layer_adaptive", "k_early_only", "q_late_only"],
                    help="Per-layer Q/K schedule. 'layer_adaptive': K early, Q mid+late.")
+    p.add_argument("--stop-at-tool", action="store_true",
+                   help="Stop generation at </tool_call> token so iterative loop "
+                        "generates exactly one tool per step. Enables true P_emitted "
+                        "subtraction between tools.")
     p.add_argument("--out", required=True)
     return p.parse_args()
 
