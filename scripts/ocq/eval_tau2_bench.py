@@ -362,22 +362,23 @@ def build_chat_prompt(
 TOOL_NAME_RE = re.compile(r'"name"\s*:\s*"([^"]+)"')
 
 
-def extract_tool_names(generation: str) -> List[str]:
+def extract_tool_names(generation: str, known_tools: List[str] = None) -> List[str]:
     """Extract all tool names from generation text.
 
     Handles both JSON tool_call format and plain text mentions.
     Returns list of tool names in order of appearance (may have duplicates).
     """
+    tool_set = set(known_tools) if known_tools else set(RETAIL_TOOLS)
     # Primary: JSON "name": "tool_name" pattern
     found = TOOL_NAME_RE.findall(generation)
-    # Filter to only known retail tools
-    valid = [t for t in found if t in RETAIL_TOOLS]
+    # Filter to only known tools
+    valid = [t for t in found if t in tool_set]
     if valid:
         return valid
 
     # Fallback: scan for tool names as substrings (longest first to avoid
     # prefix collisions like "get_order" matching "get_order_details")
-    sorted_tools = sorted(RETAIL_TOOLS, key=len, reverse=True)
+    sorted_tools = sorted(tool_set, key=len, reverse=True)
     gen_lower = generation.lower()
     found_fallback = []
     for tool in sorted_tools:
