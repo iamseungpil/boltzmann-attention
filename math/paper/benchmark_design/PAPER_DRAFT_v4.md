@@ -365,49 +365,123 @@ v5(layer)  0.7514  +2.08    초기 K + 전체 Q = 역할 분리 성공  ★
 
 ## 5. 메트릭 논의
 
-### 5.1 현재 F1의 한계
+### 5.1 왜 F1을 주 메트릭으로 썼는가
 
-현재 사용하는 set-level F1은 도구 간 **우선순위**를 반영하지 못한다:
-
-```
-정답: [NewsTool, FinanceTool]
-예측1: [NewsTool, JobTool]      -> F1 = 0.5 (NewsTool 맞음, FinanceTool 빠짐)
-예측2: [NewsTool, ResearchTool]  -> F1 = 0.5 (동일 점수)
-
-하지만 예측2가 더 나을 수 있다:
-  ResearchTool = (research, retrieve, text) 
-  -> "retrieve" facet은 FinanceTool과 부분 중복
-  -> 기능적으로 더 가까운 대체
-
-F1은 이 차이를 반영하지 못한다.
-```
-
-### 5.2 Facet-Weighted nDCG 설계 방향
-
-도구의 **부분 일치(partial match)**를 반영하는 메트릭:
+F1을 주 메트릭으로 선택한 이유는 **recall과 precision의 비중 차이**를 반영해야 하기 때문이다:
 
 ```
-relevance(tool_pred, tool_gt_set) = max over tool_gt in gt_set:
-    sum_f (facet_f_match(tool_pred, tool_gt) * eps_f)
+시나리오 A: 정답 1개, 예측 1개 → 틀리면 F1 = 0.0 (치명적)
+시나리오 B: 정답 3개, 예측 3개 중 1개만 맞음 → F1 = 0.5 (부분 성공)
+```
+
+현장에서 "정답이 1개인데 못 맞추는 것"과 "정답이 3개인데 1개만 맞추는 것"은 의미가 완전히 다르다. Accuracy나 단순 hit rate로는 이 차이가 안 잡힌다. F1은 precision(추천한 것 중 맞는 비율)과 recall(정답 중 찾은 비율)의 조화평균이므로 이 비중 차이를 자연스럽게 반영한다.
+
+### 5.2 현재 F1의 한계 — 도구 간 우선순위
+
+F1의 근본 한계: 추천된 도구들 **내부의 순위 품질**을 반영하지 못한다.
+
+```
+정답: [FinanceTool(4facet 완전일치), NewsTool(3facet), WeatherTool(2facet)]
+```
+
+이 정답에서 각 도구의 중요도는 다르다:
+- **FinanceTool**: 4개 facet 모두 일치 → "꼭 있어야 하는" 핵심 도구
+- **NewsTool**: 3개 facet 일치 → "있으면 좋은" 보조 도구  
+- **WeatherTool**: 2개 facet만 일치하지만, 그 2개에서 **압도적**으로 적합
+
+```
+예측A: [FinanceTool, JobTool, MusicTool]  → F1 = 0.5 (1/3 맞음)
+예측B: [WeatherTool, JobTool, MusicTool]  → F1 = 0.5 (1/3 맞음)
+
+현재 F1: 둘 다 0.5로 동일
+현실: 예측A가 훨씬 나음 (핵심 도구 FinanceTool을 맞춤)
+```
+
+더 미묘한 케이스:
+
+```
+예측C: [FinanceTool, NewsTool, JobTool]   → F1 = 0.667 (2/3 맞음)
+예측D: [FinanceTool, WeatherTool, JobTool] → F1 = 0.667 (2/3 맞음)
+
+현재 F1: 둘 다 0.667로 동일
+현실: FinanceTool(4facet)과 NewsTool(3facet)을 맞춘 예측C가
+      FinanceTool(4facet)과 WeatherTool(2facet)을 맞춘 예측D보다 나을 수 있음
+      하지만 WeatherTool이 2개 facet에서 "압도적"이라면? → 판단이 어려움
+```
+
+**핵심 문제**: facet 일치 개수만으로는 도구의 중요도를 완전히 포착할 수 없다. "2개 facet에서 압도적인 도구"와 "3개 facet에 부분적으로 맞는 도구" 중 어느 것이 더 중요한지는 **쿼리 맥락에 의존**한다.
+
+### 5.3 Facet-Weighted nDCG — 우리 이론에 맞는 메트릭 설계
+
+IR/추천 분야의 nDCG를 우리 온톨로지 구조에 맞게 변형한다. 핵심 아이디어: **facet별 에너지 ε_f를 relevance 가중치로 사용**하면, "이 쿼리에서 어떤 facet이 더 중요한가"를 자동으로 반영할 수 있다.
+
+#### 5.3.1 Relevance Score 정의
+
+```
+relevance(tool_pred, query) = Σ_f  match(tool_pred, f) × ε_f(query)
+```
 
 여기서:
-  facet_f_match = 1 if tool_pred.facet_f == tool_gt.facet_f else 0
-  eps_f = 해당 facet의 에너지 (우리 알고리즘의 측정값 직접 사용 가능)
-```
-
-nDCG로 순위 품질 측정:
+- `match(tool, f)` = 1 if tool의 facet f가 정답 도구 세트의 어떤 도구와 일치, else 0
+- `ε_f(query)` = 쿼리 Q에서 facet f의 에너지 비율 (우리 알고리즘이 이미 측정하는 값)
 
 ```
-DCG = sum_i relevance(pred_i) / log2(i+1)
-nDCG = DCG / IDCG
+예시:
+  쿼리: "뉴스에서 주식 기사 찾아서 요약해줘"
+  측정된 에너지: ε_domain=0.35, ε_action=0.25, ε_io=0.20, ε_cat=0.10
+
+  FinanceTool: domain=finance(✓0.35) + action=analyze(✓0.25) + io=numeric(✗0) + cat(✓0.10)
+    → relevance = 0.35 + 0.25 + 0.10 = 0.70
+
+  WeatherTool: domain=weather(✗0) + action=inform(✗0) + io=text(✓0.20) + cat(✗0)
+    → relevance = 0.20
+
+  → FinanceTool이 3.5배 더 relevant (F1에서는 둘 다 "1개 맞음"으로 동일)
 ```
 
-**장점:**
-- 3개 중 1개 **필수** 도구 (domain facet 에너지 높음) vs 3개 중 2개 **nice-to-have** 도구 (io_type facet만 일치) 구분 가능
-- 우리 알고리즘의 eps_f 측정값을 자연스럽게 활용
-- 부분 facet 일치에 대한 부분 점수 부여
+#### 5.3.2 nDCG 계산
 
-### 5.3 Exact Match의 가치
+```
+DCG@K = Σ_{i=1}^{K}  relevance(pred_i) / log₂(i + 1)
+
+IDCG@K = 정답 도구를 relevance 내림차순으로 배치했을 때의 DCG
+
+nDCG@K = DCG@K / IDCG@K  ∈ [0, 1]
+```
+
+#### 5.3.3 왜 이 메트릭이 우리 이론에 맞는가
+
+1. **ε_f를 직접 사용**: 우리 알고리즘의 `measure_facet_weights()`가 이미 ε_f를 계산한다. 별도 annotation 불필요
+2. **쿼리 의존적 가중치**: "뉴스 관련 쿼리"에서는 domain facet이 높고, "검색 관련 쿼리"에서는 action facet이 높음 → 같은 도구라도 쿼리에 따라 relevance가 달라짐
+3. **부분 일치 반영**: 2개 facet만 맞는 도구도 부분 점수를 받음
+4. **순위 반영**: 1순위에 relevance 높은 도구가 오면 DCG가 높음 (log discount)
+5. **"압도적 2facet" 처리**: ε_f가 높은 2개 facet에서 일치하면, ε_f가 낮은 3개 facet에서 일치하는 것보다 relevance가 높을 수 있음
+
+#### 5.3.4 F1 vs nDCG에서 순위 역전이 발생하는 경우
+
+```
+정답: [FinanceTool, NewsTool, WeatherTool]
+ε = {domain: 0.40, action: 0.30, io: 0.20, cat: 0.10}
+
+예측X: [FinanceTool, MusicTool]  → F1 = 0.5 (1/3 recall, 1/2 precision)
+  nDCG: rel(Finance)=0.70 at rank 1, rel(Music)=0.10 at rank 2
+  DCG = 0.70/1 + 0.10/1.58 = 0.763
+  IDCG = 0.70/1 + 0.50/1.58 + 0.20/2 = 1.016
+  nDCG = 0.751
+
+예측Y: [WeatherTool, NewsTool, JobTool]  → F1 = 0.667 (2/3 recall, 2/3 precision)
+  nDCG: rel(Weather)=0.20 at rank 1, rel(News)=0.50 at rank 2, rel(Job)=0.0 at rank 3
+  DCG = 0.20/1 + 0.50/1.58 + 0/2 = 0.516
+  IDCG = 0.70/1 + 0.50/1.58 + 0.20/2 = 1.016
+  nDCG = 0.508
+
+F1: 예측Y(0.667) > 예측X(0.500) — "더 많이 맞추니까 좋다"
+nDCG: 예측X(0.751) > 예측Y(0.508) — "핵심 도구를 1순위에 놓으니까 좋다"
+```
+
+이런 순위 역전이 실제로 얼마나 발생하는지가 메트릭의 가치를 결정한다. → **실험 계획 P1에 포함**.
+
+### 5.4 Exact Match의 가치
 
 현재 Exact Match는 엄격하지만 유용한 보조 메트릭이다:
 
@@ -417,6 +491,16 @@ layer_adaptive: Exact = 0.5352 (baseline 0.5252, +1.00pp)
 ```
 
 k_early_only가 Exact에서 더 큰 우위를 보인다는 것은, 단순히 "비슷한 도구를 더 많이 맞추는" 것이 아니라 **정확히 정답 도구 세트를 완전 일치시키는** 빈도가 높아졌다는 의미다.
+
+### 5.5 메트릭 체계 정리
+
+앞으로 모든 실험에서 3개 메트릭을 병렬 보고한다:
+
+| 메트릭 | 측정 대상 | 강점 | 약점 |
+|--------|-----------|------|------|
+| **F1** | recall+precision 균형 | 도구 개수 맞추기 반영 | 우선순위 무시, 부분 일치 무시 |
+| **Exact** | 완전 일치 | 가장 엄격, 실용적 | 1개라도 틀리면 0 |
+| **FW-nDCG** (구현 예정) | facet 가중 순위 품질 | 우선순위+부분일치+쿼리의존 | ε_f 측정 필요 (우리 파이프라인에 이미 있음) |
 
 ---
 
