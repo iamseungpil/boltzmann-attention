@@ -291,6 +291,22 @@ $g_f(k_t) := \|B_f^\top k_t\|^2 / \|k_t\|^2$ (energy-ratio soft gate). 각 토�
 ### 4.3 AdaSEKA / SEKA / CAA 와의 비교
 Q-side 방법들은 1-of-M routing (max-norm) 으로 퇴화; Cor 6.9 에서 rank $r$ 에서 포화. K-side F-simultaneous 는 rank $R$ 달성.
 
+**SEKA on MetaTool Subtask4 — 전체 결과 (2026-04-16, Qwen2.5-7B-Instruct, N=497)**:
+
+원본 SEKA (`external/SEKA/src/model/seka_llm.py`, $B_\mathrm{ont} \to P_\mathrm{pos}$ 변환, `last10`) 를 amp ∈ {0.5, 1.0, 2.0, 5.0} 에서 평가:
+
+| 방법 | F1 | Δ vs no_steer |
+|---|---|---|
+| no_steer | 0.741 | — |
+| **Real SEKA amp=0.5** | **0.000** | **−74.1pp** |
+| **Real SEKA amp=1.0** | **0.000** | **−74.1pp** |
+| **Real SEKA amp=2.0** | **0.000** | **−74.1pp** |
+| **Real SEKA amp=5.0** | **0.000** | **−74.1pp** |
+| 본 Q-coverage $\beta_Q=-0.1$ | **0.747** | **+1.64pp** |
+| 본 Q+K tiny-α $\alpha_K=0.025$ | **0.753** ★ | **+2.22pp** |
+
+**SEKA 는 모든 tested amplification 에서 structured FC emission 을 완전 파괴** — 497 쿼리 전체에서 parseable `<tool_call>` 블록 0개. Cor 6.9.6 (b) phase boundary 통과와 일치. **Axis-separation 확정**: Q-coverage +1.64pp vs SEKA −74.1pp, gap **+75.7pp**. Stationary K-side spectral steering 은 multi-tool selection 불가.
+
 ---
 
 ## 5. 실험 — 2026-04-15 재작성 (stability-first)
