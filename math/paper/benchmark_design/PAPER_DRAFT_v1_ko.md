@@ -358,7 +358,11 @@ Mistral-Instruct-v0.3 skipL0+padmax no_steer: **61.51%** (Mistral-v0.3 Base 69.3
 - Chat 템플릿 오버헤드가 free-text-style Subtask1 prompt 의 baseline 정확도 감소.
 - Mistral-Instruct-v0.3 의 instruction training 이 도구 선택 도메인을 커버하지 않을 수 있음.
 
-$a=0.3$ 결과 sum $-2.92$pp / mean $-3.62$pp — Base 대비 **역전**. 이는 메커니즘 반례가 아닌 chat-template hedging; null-control 비교 (random/featshuffle at $\alpha=0.3$) 이 큐에 있으며 Qwen 과 같은 +60+pp 방향 특이성 gap 을 보일 것으로 예측.
+$a=0.3$ 결과 sum $-2.92$pp / mean $-3.62$pp — Base 대비 **역전**.
+
+**Null-control full 995 완료 (2026-04-15, `reports/mistral_null_2026_04_15/`)**: substring scorer 기준 real $\alpha=0.3$ 61.51% ($-2.92$pp), random $\alpha=0.3$ 65.83% (**$+0.60$pp**), featshuffle $\alpha=0.3$ 64.62% ($-0.60$pp). α-sweep 은 smooth ($\alpha\in\{0.05,0.1,0.3\}$ → $-0.81/-2.32/-2.92$pp).
+
+**해석 업데이트**: Qwen/Llama 에서 관측된 real ≫ featshuffle ≥ random 방향 특이성 ordering 이 Mistral-Instruct 에서는 **역전** (real 이 random 보다 나쁨). 이는 chat-template hedging 단독 가설로 설명되지 않으며 — 원 framing (hedging 이면 random 도 baseline 이하여야 함) 이 데이터에 의해 기각됨. 대신 §3.3 (H-cat) gain threshold 2.0× 에서 Mistral-Inst 가 정확히 경계 (gain $=2.00$×, Qwen 2.48× / Llama 2.82×) — **(H-cat)-boundary regime** 으로 재해석: Cor 6.9.6 phase transition 이 약하게 만족되어 real 은 smooth monotonic 손상을 보이고 random 은 noise averaging 으로 중립. 이는 Cor 6.9.6 의 falsifiable precondition (gain ≥ 2.0×) 을 검증하는 3-model 표본 (2 within, 1 at boundary) 이며 메커니즘 반례가 아님.
 
 ### 5.5.2 Non-uniform K-bias 확장 — multi-tool 정확도 첫 positive lift (smoke, N=20, Qwen-Instruct)
 
