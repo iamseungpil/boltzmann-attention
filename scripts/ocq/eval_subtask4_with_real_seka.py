@@ -49,8 +49,10 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--model", required=True)
     p.add_argument("--device", default="cuda:0")
-    p.add_argument("--b-ont", required=True,
+    p.add_argument("--b-ont", default=None,
                    help="Our B_ont .pt; will be converted to P_pos = B B^T.")
+    p.add_argument("--p-pos", default=None,
+                   help="Direct path to pre-built SEKA P_pos .pt (skips B_ont conversion).")
     p.add_argument("--p-pos-out", default=None,
                    help="Path to save converted P_pos .pt (default temp).")
     p.add_argument("--dataset",
