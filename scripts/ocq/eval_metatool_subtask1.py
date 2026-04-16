@@ -525,6 +525,98 @@ def install_q_bias_hooks(
 
 
 @contextmanager
+def install_layer_adaptive_hooks(
+    model,
+    B_ont: torch.Tensor,    # (L, H_kv, d, r_ont)
+    alpha_k: float,          # K-bias strength (applied to early layers only)
+    beta_q: float,           # Q-coverage strength (applied to late layers only)
+    n_kv: int,
+    n_q: int,
+    head_dim: int,
+    k_boundary_frac: float = 0.25,   # K applied to first 25% of layers
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+):
+    """Layer-Adaptive K+Q: K-bias on early layers, Q-coverage on late layers.
+
+    Motivated by U-shape MSE observation: early layers handle information
+    encoding (K-bias helps precision), late layers handle output convergence
+    (Q-coverage helps exploration without disrupting convergence).
+
+    K on all layers = -4.57pp. K on early only + Q on late = +2.08pp.
+    """
+    handles = []
+    L, H, d, r = B_ont.shape
+    assert H == n_kv and d == head_dim
+    assert n_q % n_kv == 0
+    g = n_q // n_kv
+    k_boundary = max(1, int(L * k_boundary_frac))
+
+    try:
+        for layer_idx, layer in enumerate(model.model.layers):
+            if layer_idx >= L:
+                break
+
+            B_ont_layer = B_ont[layer_idx].clone()
+            if skip_heads:
+                for h in range(H):
+                    if (layer_idx, h) in skip_heads:
+                        B_ont_layer[h].zero_()
+
+            # K-bias: early layers only
+            if layer_idx < k_boundary and alpha_k != 0:
+                k_proj = layer.self_attn.k_proj
+
+                def make_k_hook(li, B_ont_lh, _alpha=alpha_k, _skip_sink=skip_sink):
+                    def hook(module, inputs, output):
+                        B, T, D = output.shape
+                        if D != n_kv * head_dim:
+                            return output
+                        K = output.view(B, T, n_kv, head_dim).permute(0, 2, 1, 3).contiguous()
+                        orig_dtype = K.dtype
+                        K_f = K.float()
+                        B_dev = B_ont_lh.to(device=K.device, dtype=torch.float32)
+                        coeffs = torch.einsum("bhtd,hdr->bhtr", K_f, B_dev)
+                        K_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_dev)
+                        if _skip_sink > 0 and T > _skip_sink:
+                            K_proj[:, :, :_skip_sink, :] = 0
+                        K_modified = K_f + _alpha * K_proj
+                        return K_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D).to(orig_dtype)
+                    return hook
+
+                handles.append(k_proj.register_forward_hook(make_k_hook(layer_idx, B_ont_layer)))
+
+            # Q-coverage: late layers only (>= k_boundary)
+            if layer_idx >= k_boundary and beta_q != 0:
+                q_proj = layer.self_attn.q_proj
+                B_q = B_ont_layer.unsqueeze(1).expand(-1, g, -1, -1).reshape(n_q, d, r)
+
+                def make_q_hook(li, B_q_layer, _beta=beta_q, _skip_sink=skip_sink):
+                    def hook(module, inputs, output):
+                        B, T, D = output.shape
+                        if D != n_q * head_dim:
+                            return output
+                        Q = output.view(B, T, n_q, head_dim).permute(0, 2, 1, 3).contiguous()
+                        orig_dtype = Q.dtype
+                        Q_f = Q.float()
+                        B_dev = B_q_layer.to(device=Q.device, dtype=torch.float32)
+                        coeffs = torch.einsum("bhtd,hdr->bhtr", Q_f, B_dev)
+                        Q_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_dev)
+                        if _skip_sink > 0 and T > _skip_sink:
+                            Q_proj[:, :, :_skip_sink, :] = 0
+                        Q_modified = Q_f + _beta * Q_proj
+                        return Q_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D).to(orig_dtype)
+                    return hook
+
+                handles.append(q_proj.register_forward_hook(make_q_hook(layer_idx, B_q)))
+
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+@contextmanager
 def install_caa_hooks(
     model,
     B_ont: torch.Tensor,    # (L, H_kv, d, r_ont) — we use first column as rank-1 direction
