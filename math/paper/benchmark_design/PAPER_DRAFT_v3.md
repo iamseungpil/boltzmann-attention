@@ -363,6 +363,8 @@ $$W = \mathrm{softmax}\left(\frac{(Q + \alpha d_Q)(K + \alpha d_K)^\top}{\sqrt F
 
 **Necessity of (R) — empirical.** We compare {no gate, soft energy-ratio gate, hard threshold gate} × α ∈ {0.2, 0.3, 1.0} on MMLU N=1000 with Qwen2.5-7B. Soft and no-gate remain within 1pp of baseline; hard gate degrades monotonically in α (−4.80, −10.50pp at α=0.3, 1.0) — exactly the regime excluded by (R). This is a direct test of the regularity condition's empirical importance.
 
+**Honest status (Cor 6.7 as accuracy predictor — FALSIFIED).** The ε_q separation prediction (facet-gated > flat at matched α via differential ε_q) was **empirically falsified** on MMLU: architectural ceiling +0.0054 separation (`COR67_DROP_MEMO`, §5.8). Cor 6.7/6.8 are retained as theoretical regularity conditions (gate Lipschitzness transfers Thm 6.1 smoothness to the facet-gated operator), not as empirically-verified accuracy predictors.
+
 ### 3.3 Corollary 6.9 + 6.9.6 (rank separation and stability characterization)
 
 [Restate Cor 6.9 from `COROLLARY_6_7_FACET_PHASE_CLOSURE.md §B.7.3` with formal ε-numerical rank definition.] Under max-normalization, the AdaSEKA operator has numerical rank `r`; ours has $R = \sum_f r_f$. For $F=4, r=6$, the gap is 18. **Empirical**: SVD on 500 held-out MetaTool queries, $\varepsilon \in \{0.1, 0.2\}$, observed nrank 24.0 (ours) vs 7.44 (AdaSEKA) — gap $+17$ (§5.7, Fig 3).
