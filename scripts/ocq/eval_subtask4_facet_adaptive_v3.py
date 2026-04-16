@@ -311,11 +311,14 @@ def main():
                 emitted = []
                 accumulated_text = ""
 
+                # Track raw (un-normalized) facet energy for stopping
+                raw_energy = weights.sum().item()
+
                 for tool_step in range(args.max_tools):
                     # Install hooks with current weights
                     engine.install_hooks(weights, alpha, beta)
 
-                    # Generate one tool_call
+                    # Generate tool_call(s)
                     prompt_ids = tok(fc + accumulated_text, return_tensors="pt")["input_ids"].to(args.device)
                     with torch.no_grad():
                         out = model.generate(prompt_ids,
@@ -326,16 +329,25 @@ def main():
                     engine.remove_hooks()
 
                     accumulated_text += step_text
-                    tool = extract_first_tool(step_text, cands)
+                    # Bug fix: parse ALL tools in this step (model may emit multiple)
+                    new_tools = extract_all_tools(step_text, cands)
+                    new_tools = [t for t in new_tools if t not in emitted]
 
-                    if tool and tool not in emitted:
-                        emitted.append(tool)
-                        # Decay satisfied facets
-                        weights = engine.decay_weights(weights, tool, args.decay)
+                    if new_tools:
+                        for tool in new_tools:
+                            emitted.append(tool)
+                            # Decay satisfied facets (on raw weights before re-norm)
+                            facet_vals = TOOL_FACET_MAP.get(tool, {})
+                            for facet_name in facet_vals:
+                                if facet_name in engine.facet_order:
+                                    f_idx = engine.facet_order.index(facet_name)
+                                    weights[f_idx] *= args.decay
 
-                        # Check remaining energy
-                        remaining_energy = weights.max().item()
-                        if remaining_energy < args.eps_threshold:
+                        # Bug fix: check raw energy sum BEFORE re-normalization
+                        raw_energy = weights.sum().item()
+                        # Re-normalize for next step's hooks
+                        weights = weights / (weights.sum() + 1e-8)
+                        if raw_energy < args.eps_threshold:
                             break
                     else:
                         break
