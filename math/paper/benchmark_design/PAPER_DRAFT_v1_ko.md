@@ -203,7 +203,7 @@ Cor 6.9.6 은 §1.1 기여 1 (온톨로지-특권화 부분공간) 의 형식적
 #### 3.6.1 Theorem 6.17 — QV-Joint Coverage-Aware 정확도 최적성 (K-channel accuracy 측 falsified, stability 전용)
 
 세 perturbation 채널 정의 (layer $\ell$):
-- $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$ (Q-side coverage mask, step-adaptive; $P_f := B_f B_f^\top$),
+- $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$ (Q-side coverage mask, 형식상 step-varying 이며 §5.5 검증은 stationary approximation 사용; $P_f := B_f B_f^\top$),
 - $\Delta_K := \alpha\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K$ (K-side facet marker, stationary; Cor 6.9.6 on-manifold),
 - $\Delta_V := \gamma\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V$ (V-side facet amplifier, stationary).
 
