@@ -448,6 +448,7 @@ def main():
                     turn_emitted = []
                     acc = ""
 
+                    raw_energy = weights.sum().item()
                     for step in range(args.max_tools_per_turn):
                         engine.install_hooks(weights, alpha, beta)
                         p_ids = tok(fc + acc, return_tensors="pt")["input_ids"].to(args.device)
@@ -458,11 +459,14 @@ def main():
                         engine.remove_hooks()
                         acc += step_text
 
-                        tool = extract_first_tool(step_text, cands)
-                        if tool and tool not in turn_emitted and tool not in all_emitted:
-                            turn_emitted.append(tool)
-                            weights = engine.decay_weights(weights, tool, args.decay)
-                            if weights.max().item() < args.eps_threshold:
+                        new_tools = extract_all_tools(step_text, cands)
+                        new_tools = [t for t in new_tools if t not in turn_emitted and t not in all_emitted]
+                        if new_tools:
+                            for tool in new_tools:
+                                turn_emitted.append(tool)
+                                weights = engine.decay_weights(weights, tool, args.decay)
+                            raw_energy = weights.sum().item()
+                            if raw_energy < args.eps_threshold:
                                 break
                         else:
                             break
