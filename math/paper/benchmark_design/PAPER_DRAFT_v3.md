@@ -1011,9 +1011,12 @@ This null-control result is the *second independent ontology-specificity verific
 |---|---|---|
 | no_steer | 0.623 | — |
 | K-bias α=0.3 | 0.311 | **−31.2pp** (Llama α* < 0.3, FC manifold violated) |
+| Canonical SEKA amp=0.5 (smoke N=20) | 0.683 | **0.00pp** (= baseline) |
+| Canonical SEKA amp=1.0 (smoke N=20) | 0.683 | 0.00pp |
+| Canonical SEKA amp=5.0 (smoke N=20) | 0.542 | −14.2pp |
 | **Q-coverage β=−0.1** | **0.627** | **+0.4pp** ✅ |
 
-Q-coverage's lift is smaller on Llama-Inst than on Qwen-Inst (+0.4 vs +1.6pp) but the sign and the safety property survive. Crucially, K-bias at the same magnitude $\alpha=0.3$ catastrophically collapses Llama (−31.2pp) while Q-coverage at $\beta=−0.1$ remains in-manifold. **Q-coverage is therefore the universally-safe member of the perturbation family** — Qwen tolerates K-bias at α=0.3, Llama does not, and only Q-coverage at β=−0.1 stays on-manifold across both.
+Q-coverage's lift is smaller on Llama-Inst than on Qwen-Inst (+0.4 vs +1.6pp) but the sign and the safety property survive. Canonical SEKA (SEKA's own contrastive SVD projection, NOT our $B_\mathrm{ont}$) at best matches baseline exactly (amp≤1.0: 0.00pp) and degrades at higher amp (−14.2pp at amp=5.0). Our K-bias at α=0.3 catastrophically collapses (−31.2pp). **Q-coverage is the only tested operator that produces positive lift on Llama multi-tool** — both K-side methods (our K-bias AND canonical SEKA) fail to help. β-sweep (running) may improve the +0.4pp at a model-optimal β.
 
 **Cross-model channel asymmetry (2026-04-15, honest acknowledgment)**. The 4× Qwen/Llama ratio in Q-coverage lift (Qwen +1.64 vs Llama +0.4) contrasts directly with the cross-model K-bias lift ordering, where *Llama dominates Qwen* (Subtask1 K-bias +15.08 Llama vs +1.41 Qwen at substring scorer, ratio 10.7×). Neither channel uniformly favors one model:
 
