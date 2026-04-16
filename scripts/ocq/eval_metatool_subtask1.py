@@ -87,12 +87,18 @@ def parse_args() -> argparse.Namespace:
                    help="Cap on number of queries (0 = all 995).")
     p.add_argument("--start-idx", type=int, default=0,
                    help="Start index for slicing the dataset (default 0).")
-    p.add_argument("--methods", nargs="+",
-                   default=["no_steer", "ocq_bias_a1", "ocq_bias_a3"],
-                   help="Methods to evaluate. no_steer / ocq_bias_a<α> / "
-                        "ocq_quant / ocq_quant_bias.")
+    p.add_argument(
+        "--methods",
+        nargs="+",
+        default=["no_steer", "ocq_bias_a1", "ocq_bias_a3"],
+        help=(
+            "Methods to evaluate. Examples: no_steer, ocq_bias_a0.3, "
+            "ocq_qbias_b-0.1, ocq_qkv_a0.025_v0_q-0.1, "
+            "ocq_qk_layered_a0.3_q-0.1, ocq_quant."
+        ),
+    )
     p.add_argument("--b-ont", type=str, default="",
-                   help="Path to B_ont .pt file for OCQ methods.")
+                   help="Path to B_ont .pt file for ontology-steered methods.")
     p.add_argument("--ocq-quant-bits", type=int, default=4,
                    help="Residual bits for ocq_quant variants.")
     p.add_argument("--ocq-ont-mode", default="1b", choices=["1a", "1b", "1c"])

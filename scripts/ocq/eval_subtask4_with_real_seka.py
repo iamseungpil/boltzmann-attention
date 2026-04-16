@@ -49,8 +49,10 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--model", required=True)
     p.add_argument("--device", default="cuda:0")
-    p.add_argument("--b-ont", required=True,
+    p.add_argument("--b-ont", default=None,
                    help="Our B_ont .pt; will be converted to P_pos = B B^T.")
+    p.add_argument("--p-pos", default=None,
+                   help="Direct path to pre-built SEKA P_pos .pt (skips B_ont conversion).")
     p.add_argument("--p-pos-out", default=None,
                    help="Path to save converted P_pos .pt (default temp).")
     p.add_argument("--dataset",
@@ -175,10 +177,18 @@ def main():
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 1) Convert B_ont → P_pos
-    p_pos_path = Path(args.p_pos_out) if args.p_pos_out else \
-        Path("/tmp/seka_p_pos_qwen25_7b_metatool.pt")
-    convert_bont_to_ppos(args.b_ont, p_pos_path)
+    # 1) Get P_pos: either direct or converted from B_ont
+    if args.p_pos:
+        p_pos_path = Path(args.p_pos)
+        if not p_pos_path.exists():
+            raise FileNotFoundError(f"--p-pos not found: {p_pos_path}")
+        print(f"[seka] using pre-built P_pos: {p_pos_path}", flush=True)
+    elif args.b_ont:
+        p_pos_path = Path(args.p_pos_out) if args.p_pos_out else \
+            Path("/tmp/seka_p_pos_metatool.pt")
+        convert_bont_to_ppos(args.b_ont, p_pos_path)
+    else:
+        raise ValueError("Either --b-ont or --p-pos required")
 
     # 2) Load SEKA model
     print(f"[seka] loading model={args.model}", flush=True)

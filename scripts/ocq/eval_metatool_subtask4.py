@@ -69,11 +69,22 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--max-samples", type=int, default=0)
     p.add_argument("--start-idx", type=int, default=0)
-    p.add_argument("--methods", nargs="+",
-                   default=["no_steer", "ocq_bias_a0.3"],
-                   help="K-bias methods to compare.")
-    p.add_argument("--b-ont", type=str, default="",
-                   help="B_ont .pt path for ocq_bias_* methods.")
+    p.add_argument(
+        "--methods",
+        nargs="+",
+        default=["no_steer", "ocq_bias_a0.3"],
+        help=(
+            "Methods to compare. Examples: no_steer, ocq_bias_a0.3, "
+            "ocq_qbias_b-0.1, ocq_qkv_a0.025_v0_q-0.1, "
+            "ocq_qk_layered_a0.3_q-0.1."
+        ),
+    )
+    p.add_argument(
+        "--b-ont",
+        type=str,
+        default="",
+        help="B_ont .pt path for all ontology-steered methods.",
+    )
     p.add_argument("--facet-map", type=str, default="",
                    help="Optional JSON: {tool_name: [intent, io_type, domain, tool_category]}")
     p.add_argument("--max-new-tokens", type=int, default=256)
