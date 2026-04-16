@@ -278,35 +278,141 @@ def main():
         b_block = solve_reverse_water_filling(all_pi_sigma2, total_budget / n_elems_per_block.mean())
         allocations[target_bits] = (b_block, index_map, n_elems_per_block)
 
-    # ---- Save allocation summary (PPL eval simplified — report bits distribution only) ----
-    summary = {}
+    # ---- Collapse b*(t,f) -> per-(l,h,f) average bits (position-independent) ----
+    print("\n[collapse] Averaging b*(t,f) over token positions -> b*(l,h,f)", flush=True)
+    alloc_lhf = {}
+    alloc_summary = {}
+
     for target_bits in args.target_avg_bits:
         b_block, index_map, n_elems = allocations[target_bits]
+        bits_sum, bits_cnt = {}, {}
+        for idx, (l, h, t, f, lo, hi) in enumerate(index_map):
+            key = (l, h, f)
+            bits_sum[key] = bits_sum.get(key, 0.0) + b_block[idx]
+            bits_cnt[key] = bits_cnt.get(key, 0) + 1
+
+        lhf_arr = np.zeros((len(args.target_layers), H_kv, 4), dtype=np.float64)
+        for li_idx, l in enumerate(args.target_layers):
+            for h in range(H_kv):
+                for f in range(4):
+                    key = (l, h, f)
+                    if bits_cnt.get(key, 0) > 0:
+                        lhf_arr[li_idx, h, f] = bits_sum[key] / bits_cnt[key]
+
         achieved_total = (b_block * n_elems).sum()
         achieved_avg = achieved_total / n_elems.sum()
-        nonzero_blocks = (b_block > 0).sum()
-        summary[f"avg_bits_{target_bits}"] = {
+        alloc_lhf[target_bits] = lhf_arr
+        alloc_summary[f"avg_bits_{target_bits}"] = {
             "target_avg_bits": target_bits,
             "achieved_avg_bits": float(achieved_avg),
-            "nonzero_blocks": int(nonzero_blocks),
-            "total_blocks": int(len(b_block)),
-            "b_block_stats": {
-                "min": float(b_block.min()), "max": float(b_block.max()),
-                "median": float(np.median(b_block)), "p95": float(np.percentile(b_block, 95)),
-            },
-            "pi_sigma2_stats": {
-                "min": float(all_pi_sigma2.min()), "max": float(all_pi_sigma2.max()),
-                "mean": float(all_pi_sigma2.mean()),
-            },
+            "lhf_bits_mean": float(lhf_arr.mean()),
+            "lhf_bits_max": float(lhf_arr.max()),
         }
-        print(f"\n  target {target_bits}: achieved {achieved_avg:.3f}, "
-              f"nonzero {nonzero_blocks}/{len(b_block)}", flush=True)
+        print(f"  target {target_bits}: achieved {achieved_avg:.3f}, "
+              f"lhf range [{lhf_arr.min():.2f}, {lhf_arr.max():.2f}]", flush=True)
+
+    # ---- PPL Evaluation via hook-mode quantized forward ----
+    print(f"\n[eval] Preparing WT2 test data (eval_tokens={args.eval_tokens})", flush=True)
+    eval_text = load_wikitext_test(None)
+    eval_windows_full = tokenize_and_chunk(eval_text, tok, args.ctx_len, drop_last=True)
+    max_windows = max(1, args.eval_tokens // args.ctx_len)
+    eval_windows = eval_windows_full[:max_windows]
+    eval_total_tok = sum(w.shape[0] for w in eval_windows)
+    print(f"[eval] {len(eval_windows)} windows, {eval_total_tok} tokens, ctx={args.ctx_len}", flush=True)
+
+    cfg = model.config
+    n_kv_eval = cfg.num_key_value_heads
+    n_q_eval = cfg.num_attention_heads
+    head_dim_eval = getattr(cfg, "head_dim", None) or (cfg.hidden_size // n_q_eval)
+
+    def make_thm618_quant_fn(target_bits_val):
+        lhf = alloc_lhf[target_bits_val]
+        layer_to_idx = {l: i for i, l in enumerate(args.target_layers)}
+        def quant_fn(k_4d, layer_idx):
+            if layer_idx not in layer_to_idx:
+                return k_4d
+            li = layer_to_idx[layer_idx]
+            B_l = B_ont[layer_idx].to(device=k_4d.device, dtype=torch.float32)
+            s = calib_stats[layer_idx]
+            fb = s["facet_bounds"]
+            Bs, H_q, T_e, D = k_4d.shape
+            k_out = torch.zeros_like(k_4d)
+            for h in range(H_q):
+                K_h = k_4d[:, h].float()
+                B_h = B_l[h]
+                coeffs = K_h @ B_h
+                coeffs_q = torch.zeros_like(coeffs)
+                for f_idx in range(min(4, len(fb) - 1)):
+                    lo, hi = fb[f_idx], fb[f_idx + 1]
+                    if hi <= lo:
+                        continue
+                    nb = max(0, min(8, round(lhf[li, h, f_idx])))
+                    cf = coeffs[:, :, lo:hi]
+                    if nb <= 0:
+                        coeffs_q[:, :, lo:hi] = 0.0
+                    else:
+                        levels = (1 << nb) - 1
+                        c_min = cf.amin(dim=1, keepdim=True)
+                        c_max = cf.amax(dim=1, keepdim=True)
+                        scale = (c_max - c_min).clamp(min=1e-8) / levels
+                        q = ((cf - c_min) / scale).round().clamp(0, levels)
+                        coeffs_q[:, :, lo:hi] = q * scale + c_min
+                K_ont_q = coeffs_q @ B_h.T
+                K_res = K_h - (coeffs @ B_h.T)
+                K_res_q = _asymmetric_per_channel(K_res.unsqueeze(0), 2, residual_R=0).squeeze(0)
+                k_out[:, h] = (K_ont_q + K_res_q).to(k_4d.dtype)
+            return k_out
+        return quant_fn
+
+    def make_kivi_fn(bits):
+        def quant_fn(k_4d, layer_idx):
+            return _asymmetric_per_channel(k_4d, bits, residual_R=0)
+        return quant_fn
+
+    fp16_fn = lambda k, li: k
+
+    print("\n" + "=" * 60, flush=True)
+    print("[PPL EVAL] Starting quantized KV cache PPL measurement", flush=True)
+    print("=" * 60, flush=True)
+    ppl_results = []
+
+    print("\n[ppl] fp16 (no quantization)", flush=True)
+    with install_k_proj_hooks(model, fp16_fn, n_kv=n_kv_eval, head_dim=head_dim_eval):
+        r = evaluate_ppl(model, eval_windows, args.device)
+    r["method"] = "fp16"; r["target_avg_bits"] = 16.0
+    print(f"  PPL = {r['ppl']:.4f}", flush=True)
+    ppl_results.append(r)
+
+    print("\n[ppl] KIVI uniform 2-bit", flush=True)
+    with install_k_proj_hooks(model, make_kivi_fn(2), n_kv=n_kv_eval, head_dim=head_dim_eval):
+        r = evaluate_ppl(model, eval_windows, args.device)
+    r["method"] = "kivi_uniform"; r["target_avg_bits"] = 2.0
+    print(f"  PPL = {r['ppl']:.4f}", flush=True)
+    ppl_results.append(r)
+
+    for target_bits in args.target_avg_bits:
+        print(f"\n[ppl] Thm 6.18 weighted @ {target_bits} avg bits", flush=True)
+        with install_k_proj_hooks(model, make_thm618_quant_fn(target_bits), n_kv=n_kv_eval, head_dim=head_dim_eval):
+            r = evaluate_ppl(model, eval_windows, args.device)
+        r["method"] = "thm618_weighted"; r["target_avg_bits"] = target_bits
+        print(f"  PPL = {r['ppl']:.4f}", flush=True)
+        ppl_results.append(r)
+
+    print("\n" + "=" * 60, flush=True)
+    print(f"{'Method':<25} {'Avg Bits':>10} {'PPL':>10}", flush=True)
+    print("-" * 60, flush=True)
+    for r in ppl_results:
+        print(f"{r['method']:<25} {r['target_avg_bits']:>10.2f} {r['ppl']:>10.4f}", flush=True)
+    print("=" * 60, flush=True)
 
     out_blob = {
         "model": args.model,
         "target_layers": list(args.target_layers),
         "calib_tokens": args.calib_tokens,
-        "allocations": summary,
+        "eval_tokens": eval_total_tok,
+        "ctx_len": args.ctx_len,
+        "allocations": alloc_summary,
+        "ppl_results": ppl_results,
     }
     with open(out_path, "w") as f:
         json.dump(out_blob, f, indent=2)
