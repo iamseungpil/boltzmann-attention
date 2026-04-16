@@ -132,6 +132,31 @@ class IterativeDynamicHooks:
         L = self.B_ont.shape[0]
         eps_q_capture = []
 
+        # Bug fix: register eps_q hook BEFORE Q-coverage hook on mid layer
+        # so it measures unperturbed Q (Thm 6.20 requires original Q).
+        mid_l = L // 2
+        B_mid = self.B_ont[mid_l]  # (H_kv, d, r)
+        g = self.n_q // self.n_kv
+        B_q_mid = B_mid.unsqueeze(1).expand(-1, g, -1, -1).reshape(self.n_q, self.head_dim, B_mid.shape[-1])
+
+        def eps_q_hook(mod, inp, out):
+            B, T, D = out.shape
+            if D != self.n_q * self.head_dim:
+                return
+            Q = out.view(B, T, self.n_q, self.head_dim).float()
+            q_last = Q[:, -1]  # (B, n_q, d)
+            proj = torch.einsum("bnd,ndr->bnr", q_last, B_q_mid.to(Q.device))
+            energy = (proj ** 2).sum(-1)
+            q_norm_sq = (q_last ** 2).sum(-1) + 1e-8
+            eps = (energy / q_norm_sq).mean().item()
+            eps_q_capture.append(eps)
+
+        # Register eps_q hook first on mid layer (sees unperturbed Q)
+        self.handles.append(
+            self.model.model.layers[mid_l].self_attn.q_proj.register_forward_hook(eps_q_hook)
+        )
+        self._eps_q_capture = eps_q_capture
+
         for layer_idx in range(min(L, len(self.model.model.layers))):
             layer = self.model.model.layers[layer_idx]
 
@@ -162,31 +187,9 @@ class IterativeDynamicHooks:
                     return K.to(out.dtype).view(B, T, D)
                 return hook
 
+            # Q-coverage hook registered AFTER eps_q hook on mid layer
             self.handles.append(layer.self_attn.q_proj.register_forward_hook(make_q_hook(layer_idx)))
             self.handles.append(layer.self_attn.k_proj.register_forward_hook(make_k_hook(layer_idx)))
-
-        # ε_q measurement hook on a mid layer
-        mid_l = L // 2
-        B_mid = self.B_ont[mid_l]  # (H_kv, d, r)
-        g = self.n_q // self.n_kv
-        B_q_mid = B_mid.unsqueeze(1).expand(-1, g, -1, -1).reshape(self.n_q, self.head_dim, B_mid.shape[-1])
-
-        def eps_q_hook(mod, inp, out):
-            B, T, D = out.shape
-            if D != self.n_q * self.head_dim:
-                return
-            Q = out.view(B, T, self.n_q, self.head_dim).float()
-            q_last = Q[:, -1]  # (B, n_q, d)
-            proj = torch.einsum("bnd,ndr->bnr", q_last, B_q_mid.to(Q.device))
-            energy = (proj ** 2).sum(-1)
-            q_norm_sq = (q_last ** 2).sum(-1) + 1e-8
-            eps = (energy / q_norm_sq).mean().item()
-            eps_q_capture.append(eps)
-
-        self.handles.append(
-            self.model.model.layers[mid_l].self_attn.q_proj.register_forward_hook(eps_q_hook)
-        )
-        self._eps_q_capture = eps_q_capture
 
     def get_last_eps_q(self):
         if self._eps_q_capture:
