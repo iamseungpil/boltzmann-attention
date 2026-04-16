@@ -46,6 +46,7 @@ from eval_metatool_subtask1 import (
     install_contrastive_kbias_hooks,
     install_q_bias_hooks,
     install_qkv_joint_hooks,
+    install_layer_adaptive_hooks,
     install_caa_hooks,
     install_adaseka_proxy_hooks,
     parse_candidates,
