@@ -292,7 +292,10 @@ def main():
                 hooks.remove()
                 pred = extract_tool_names(gen, cands)
             else:
-                # Iterative: one tool at a time
+                # Iterative: extract tools from each generation step.
+                # Bug fix: use extract_all_tools instead of extract_first_tool,
+                # because the model may emit multiple tool_call blocks in a
+                # single generation step.
                 hooks.reset()
                 emitted_tools = []
                 accumulated_gen = ""
@@ -310,12 +313,15 @@ def main():
                     step_gen = tok.decode(out[0][ids.shape[1]:], skip_special_tokens=True)
                     hooks.remove()
 
-                    tool = extract_first_tool(step_gen, cands)
+                    # Parse ALL new tools in this step (not just first)
+                    new_tools = extract_all_tools(step_gen, cands)
+                    new_tools = [t for t in new_tools if t not in emitted_tools]
                     accumulated_gen += step_gen
 
-                    if tool and tool not in emitted_tools:
-                        emitted_tools.append(tool)
-                        hooks.add_emitted_tool(tool)
+                    if new_tools:
+                        for tool in new_tools:
+                            emitted_tools.append(tool)
+                            hooks.add_emitted_tool(tool)
 
                         eps_q = hooks.get_last_eps_q()
                         if eps_q < args.eps_threshold:
