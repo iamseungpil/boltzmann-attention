@@ -177,10 +177,16 @@ def main():
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 1) Convert B_ont → P_pos
-    p_pos_path = Path(args.p_pos_out) if args.p_pos_out else \
-        Path("/tmp/seka_p_pos_qwen25_7b_metatool.pt")
-    convert_bont_to_ppos(args.b_ont, p_pos_path)
+    # 1) Get P_pos: either direct or converted from B_ont
+    if args.p_pos:
+        p_pos_path = Path(args.p_pos)
+        print(f"[seka] using pre-built P_pos: {p_pos_path}", flush=True)
+    elif args.b_ont:
+        p_pos_path = Path(args.p_pos_out) if args.p_pos_out else \
+            Path("/tmp/seka_p_pos_metatool.pt")
+        convert_bont_to_ppos(args.b_ont, p_pos_path)
+    else:
+        raise ValueError("Either --b-ont or --p-pos required")
 
     # 2) Load SEKA model
     print(f"[seka] loading model={args.model}", flush=True)
