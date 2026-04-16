@@ -1132,7 +1132,19 @@ Run complete 2026-04-15 02:00 KST, Qwen2.5-7B-Instruct L=13, α=0.3, N=100 queri
 | p95 LHS/RHS ratio | 1.24 × 10⁻⁷ |
 | max LHS/RHS ratio | 4.26 × 10⁻⁷ |
 
-**Thm 6.1 verified**: every head-query sample satisfies the attention-weighted bound; the bound is loose (ratio ~10⁻⁸) as expected in the Mode-C bulk-tail regime (cf. Remark B.2.3). Llama L=15 extension deferred to E3′ (script ready, ~1 GPU-hr).
+**Thm 6.1 verified**: every head-query sample satisfies the attention-weighted bound; the bound is loose (ratio ~10⁻⁸) as expected in the Mode-C bulk-tail regime (cf. Remark B.2.3).
+
+**Llama L=15 extension (complete 2026-04-15, `reports/thm61_llama_2026_04_15/llama_L15_a0.3_N100.json`)**: Meta-Llama-3.1-8B-Instruct, $\alpha=0.3$, N=100 queries × 32 heads = **3200 per-head-per-query measurements**.
+
+| Quantity | Qwen2.5-7B L=13 | Llama-3.1-8B L=15 |
+|---|---|---|
+| $\mathbb E[\|\hat o - o\|^2]$ (LHS) | 0.5092 | 0.0586 |
+| $\mathbb E[\mathrm{qaMSE}\cdot\mathrm{Var}_s V]$ (RHS leading) | 19.729 | 2.411 |
+| **bound_pass_rate** | **1.00** (2800/2800) | **1.00** (3200/3200) |
+| median LHS/RHS ratio | 2.36 × 10⁻⁸ | 6.37 × 10⁻⁸ |
+| max LHS/RHS ratio | 4.26 × 10⁻⁷ | 1.06 × 10⁻⁶ |
+
+Both architectures pass the attention-weighted bound at 100% of samples within the same bound-looseness order (~10⁻⁸). The Llama-Qwen bound-magnitude ratio (LHS 8.69×, RHS-lead 8.18× Qwen-larger) is the empirical input to §5.4.1.1's retracted factor-(a) decomposition: Thm 6.1 holds *magnitude-wise* on both models but does **not** govern cross-model accuracy-lift asymmetry — that is carried by Thm 6.17's $G_K$ alignment (§5.4.1.1 refutation, 1.66× Llama-larger).
 
 ### 5.7 Results — E4 Cor 6.9 operator-level nrank
 
