@@ -87,12 +87,56 @@ def build_facet_projectors(B_ont, r_per_pair, facet_order, n_q, n_kv, head_dim, 
     return facet_projectors
 
 
+def make_layer_schedule(L, alpha, beta, mode="uniform"):
+    """Per-layer alpha_K and beta_Q schedule.
+
+    Modes:
+      uniform: same alpha/beta at every layer (original behavior)
+      layer_adaptive: K early, Q mid+late (U-shape motivated)
+        - Layers 0..L//5:      alpha_K=alpha, beta_Q=0
+        - Layers L//5..3L//4:  alpha_K=alpha*0.3, beta_Q=beta
+        - Layers 3L//4..L:     alpha_K=0, beta_Q=beta
+      k_early_only: K in first 1/4 layers only, Q everywhere
+      q_late_only: Q in last 3/4 layers only, K everywhere
+    """
+    schedule = []
+    for li in range(L):
+        if mode == "uniform":
+            schedule.append((alpha, beta))
+        elif mode == "layer_adaptive":
+            boundary1 = max(1, L // 5)      # ~layer 5 for L=28
+            boundary2 = (3 * L) // 4        # ~layer 21 for L=28
+            if li < boundary1:
+                schedule.append((alpha, 0.0))           # K only
+            elif li < boundary2:
+                schedule.append((alpha * 0.3, beta))    # weak K + Q
+            else:
+                schedule.append((0.0, beta))            # Q only
+        elif mode == "k_early_only":
+            boundary = L // 4
+            if li < boundary:
+                schedule.append((alpha, beta))
+            else:
+                schedule.append((0.0, beta))
+        elif mode == "q_late_only":
+            boundary = L // 4
+            if li < boundary:
+                schedule.append((alpha, 0.0))
+            else:
+                schedule.append((alpha, beta))
+        else:
+            schedule.append((alpha, beta))
+    return schedule
+
+
 class IterativeDynamicHooks:
     def __init__(self, model, facet_projectors, facet_order, B_ont,
-                 alpha, beta, n_q, n_kv, head_dim, device):
+                 alpha, beta, n_q, n_kv, head_dim, device,
+                 layer_mode="uniform"):
         self.model = model
         self.alpha = alpha
         self.beta = beta
+        self.layer_mode = layer_mode
         self.n_q = n_q
         self.n_kv = n_kv
         self.head_dim = head_dim
