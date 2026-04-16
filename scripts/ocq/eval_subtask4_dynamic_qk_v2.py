@@ -332,10 +332,12 @@ def main():
     print(f"[data] N={len(data)}", flush=True)
 
     configs = [
-        ("no_steer", False, 0.0, 0.0),
-        ("static_q", False, 0.0, args.beta),
-        ("iterative_q", True, 0.0, args.beta),
-        ("iterative_kq", True, args.alpha, args.beta),
+        ("no_steer", False, "none", 0.0, 0.0),
+        ("static_q", False, "none", 0.0, args.beta),
+        ("multipass_q", False, "multipass", 0.0, args.beta),
+        ("multipass_kq", False, "multipass", args.alpha, args.beta),
+        ("iterative_q", True, "none", 0.0, args.beta),
+        ("iterative_kq", True, "none", args.alpha, args.beta),
     ]
 
     all_results = []
