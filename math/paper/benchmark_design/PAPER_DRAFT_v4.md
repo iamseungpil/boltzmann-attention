@@ -386,7 +386,35 @@ coworker(승필)가 확인한 이전 결과:
 
 **현상**: 이론(Thm 6.17')은 P_emitted(선택된 facet만 빼기)가 최적이라고 하지만, 실측은 전체 B_ont를 빼는 것이 Q-only에서 더 좋다 (+2.28pp vs +0.00pp).
 
-### 4.6 가설: 전체 B_ont Q-subtraction이 효과적인 이유
+### 4.6 다중 메트릭 재해석 — F1이 multipass를 과소평가
+
+F1은 정답이 2개인데 3개를 추천하면 precision이 2/3으로 떨어져 불리하다. 현장에서 "필요한 도구를 다 찾았나"가 더 중요할 수 있으므로, **GT⊆Pred** (정답이 예측 안에 모두 포함) 메트릭으로 재해석한다.
+
+| Method | Recall | Prec | F1 | Exact | **GT⊆P** | AvgPred | 3+pred |
+|--------|--------|------|-----|-------|---------|---------|--------|
+| no_steer | 0.716 | 0.760 | 0.731 | 0.525 | 0.527 | 1.88 | 1 |
+| Q_full_Bont β=-0.03 | 0.735 | **0.790** | **0.754** | 0.533 | 0.533 | 1.88 | 0 |
+| ladapt K+Q β=-0.03 | 0.730 | 0.775 | 0.745 | 0.537 | 0.543 | 1.90 | 3 |
+| multipass_q (P_emitted) | 0.729 | 0.738 | 0.724 | 0.493 | 0.553 | 2.03 | 55 |
+| **multipass_kq** (P_emitted+K) | **0.746** | 0.756 | 0.741 | 0.509 | **0.567** | 2.03 | 50 |
+| iterative_kq (K early) | 0.737 | 0.783 | 0.752 | **0.547** | 0.549 | 1.89 | 1 |
+
+**순위 역전:**
+- F1 기준: Q_full_Bont > iterative_kq > ladapt > multipass_kq
+- **GT⊆P 기준: multipass_kq > multipass_q > iterative_kq > ladapt > Q_full_Bont**
+
+multipass_kq는 F1 4위지만 GT⊆P **1위** (+4.02pp). "필요한 도구를 다 찾는" 능력에서 최고.
+
+**방법별 성격:**
+- `Q_full_Bont`: **Precision-first** — 불확실한 도구를 억제, 오추천 적음
+- `iterative_kq`: **균형형** — F1·Exact 모두 높음
+- `multipass_kq`: **Recall-first** — 더 많이 찾되 과잉추천 위험
+
+현장 적용 시 어떤 메트릭을 중시하느냐에 따라 최적 방법이 달라진다.
+
+---
+
+### 4.7 가설: 전체 B_ont Q-subtraction이 효과적인 이유
 
 #### 가설 A: Attention Regularization (가장 유력)
 
