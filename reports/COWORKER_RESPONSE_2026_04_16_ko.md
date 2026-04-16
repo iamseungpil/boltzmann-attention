@@ -87,7 +87,11 @@ P0 4개 task 그대로 유지 요청. 우선순위 변동 없음:
 - **P0-C 6 baseline** (CAA/ITI/PASTA/Focus/LoRA-FT/RAG, source-first 정책 `feedback_external_baseline_use_original_source` 준수). Partial 인정 = CAA+ITI+LoRA-FT (+0.15).
 - **P0-D Thm 6.20 τ²-bench retail** (B_ont: `external/SEKA/seka_projections/ontology-qwen25-7b-tau2-retail/B_ont.pt`; `scripts/ocq/measure_epsilon_q_plan_predictor.py` adapt). 50–200 conversations. → +0.20.
 
-SEKA hang 은 develop side 에서 미해결 (2회 × 20분 + 15분 시도). 본인 A100 + original source 가 critical path.
+SEKA hang 은 develop side 에서 **원인 확정**: `seka_llm.py:34` 의 multi-GPU auto-detection. A6000×2 환경에서 `torch.cuda.device_count() > 1` → `device_map="auto"` → 모델이 2개 GPU 에 자동 샤딩 (layers 0-11 GPU:0, 12-27 GPU:1) → hook 내 P_pos 텐서가 cuda:0 에만 있으므로 cuda:1 layer 의 hook forward 에서 **cross-device CUDA deadlock** 발생.
+
+⚠️ **P0-A 실행 시 필수 조치**: A100×4 환경에서 SEKA 실행 시 반드시 **`CUDA_VISIBLE_DEVICES=0`** (또는 단일 GPU 번호) 으로 제한할 것. 4장이면 더 복잡한 4-way 샤딩 발생하여 동일한 hang 으로 시간 낭비할 위험. `CUDA_VISIBLE_DEVICES=0` 설정 시 develop side A6000 에서 45초 hang → **2.2초 정상 생성** 확인됨.
+
+참고: dtype 변환 (bf16↔f32) 은 벤치마크 결과 55μs/token (256-token loop 14ms) 으로 hang 원인 아님.
 
 ---
 
