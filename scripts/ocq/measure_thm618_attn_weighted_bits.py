@@ -252,10 +252,7 @@ def main():
 
     for target_bits in args.target_avg_bits:
         print(f"  target avg {target_bits} bits", flush=True)
-        total_budget = target_bits * sum(
-            calib_stats[l]["T"] * H_kv * d for l in args.target_layers
-        )
-        # Flatten pi*sigma2 across all (l, h, t, f) -> per element via facet mapping
+        # Flatten pi*sigma2 across all (l, h, t, f) blocks
         all_pi_sigma2 = []
         index_map = []
         for l in args.target_layers:
@@ -265,18 +262,16 @@ def main():
                     for t in range(s["T"]):
                         val = s["pi_tf"][h, t, f] * s["sigma2_f"][h, f]
                         all_pi_sigma2.append(val)
-                        # Map to d channels within facet
                         lo, hi = s["facet_bounds"][f], s["facet_bounds"][f + 1]
                         index_map.append((l, h, t, f, lo, hi))
         all_pi_sigma2 = np.array(all_pi_sigma2)
-
-        # Normalize budget — water-fill over facet-level aggregates, then distribute within facet uniformly
-        # For simplicity, allocate per-(l,h,t,f) block
-        n_blocks = len(all_pi_sigma2)
         n_elems_per_block = np.array([r[5] - r[4] for r in index_map])
-        block_budgets = target_bits * n_elems_per_block
-        # Water-fill on block avg
-        b_block = solve_reverse_water_filling(all_pi_sigma2, total_budget / n_elems_per_block.mean())
+
+        # Budget: water-fill over ontology coefficients only (R channels per head-token).
+        # Residual (d - R) channels get bits from leftover in quant_fn.
+        ont_total_elems = n_elems_per_block.sum()
+        ont_budget = target_bits * ont_total_elems
+        b_block = solve_reverse_water_filling(all_pi_sigma2, ont_budget)
         allocations[target_bits] = (b_block, index_map, n_elems_per_block)
 
     # ---- Collapse b*(t,f) -> per-(l,h,f) average bits (position-independent) ----
