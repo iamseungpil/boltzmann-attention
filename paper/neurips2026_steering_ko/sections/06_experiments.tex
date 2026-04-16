@@ -13,7 +13,7 @@
 \caption{Subtask4의 주 결과. Q-side bias는 두 모델 모두에서 양의 효과를 보이고, stationary K-side bias는 두 모델 모두에서 음의 효과를 보이며 Llama에서는 붕괴 수준이다.}
 \label{tab:main-results-ko}
 \small
-\begin{tabular}{@{}llccc@{}}
+\begin{tabularx}{\linewidth}{@{}lXccc@{}}
 \toprule
 모델 & 방법 & F1 & Exact & Jaccard \\
 \midrule
@@ -25,7 +25,7 @@ Llama-3.1-8B-Inst & No steer & 0.6227 & 0.5030 & 0.5872 \\
 Llama-3.1-8B-Inst & Q-bias $\beta=-0.1$ & \textbf{0.6271} & \textbf{0.5070} & \textbf{0.5919} \\
 Llama-3.1-8B-Inst & K-bias $\alpha=0.3$ & 0.3105 & 0.2616 & 0.2951 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \begin{figure}[t]
@@ -46,14 +46,14 @@ Llama-3.1-8B-Inst & K-bias $\alpha=0.3$ & 0.3105 & 0.2616 & 0.2951 \\
 \caption{Qwen Subtask4의 null control. K-side 안정성을 유지하면서 Q-side 이득을 주는 기저는 ontology basis뿐이다.}
 \label{tab:null-controls-ko}
 \small
-\begin{tabular}{@{}lccc@{}}
+\begin{tabularx}{0.88\linewidth}{@{}Xccc@{}}
 \toprule
 방법 & Real basis & Feature-shuffled & Random \\
 \midrule
 Q-bias $\beta=-0.1$ F1 & \textbf{0.7471} & 0.7254 & 0.7068 \\
 K-bias $\alpha=0.3$ F1 & \textbf{0.6850} & 0.0000 & 0.0000 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 이 점이 이 논문에서 가장 설득력 있는 실증 결과다. 임의의 저랭크 교란만으로는 충분하지 않다. rank와 채널 스케일을 유지하는 구조 보존형 control도 실패한다. 실무적 함의도 분명하다. ontology basis는 rank가 같은 임의의 projection으로 대체 가능한 부품이 아니다.
@@ -89,17 +89,16 @@ K-bias $\alpha=0.3$ F1 & \textbf{0.6850} & 0.0000 & 0.0000 \\
 \caption{경험적 perturbation bound 요약. 측정된 left/right ratio는 두 모델 모두에서 매우 작다.}
 \label{tab:bound-ko}
 \small
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabularx}{\linewidth}{@{}Xcccc@{}}
 \toprule
 모델 & Layer & Head-query count & Median LHS/RHS & Mean LHS \\
 \midrule
 Qwen2.5-7B-Inst & 13 & 2800 & $2.36 \times 10^{-8}$ & 0.5092 \\
 Llama-3.1-8B-Inst & 15 & 3200 & $6.37 \times 10^{-8}$ & 0.0586 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{보조 증거}
 
-저장소에는 MetaTool Subtask1의 single-tool 결과와 query-space stability에 기반한 predictor smoke 실험도 포함되어 있다. 그러나 본 논문은 그것들을 주된 주장으로 삼지 않는다. 그 결과들은 일관성 점검으로는 유용하지만, 현재 원고는 multi-tool selection, ontology specificity, 그리고 query-side 개입과 stationary key-side 개입의 대비에 집중할 때 가장 강하다.
-
+MetaTool Subtask1의 single-tool 결과와 query-space stability에 기반한 predictor smoke 실험은 일관성 점검으로는 유용하다. 다만 본문의 중심 실증은 multi-tool selection, ontology specificity, 그리고 query-side 개입과 stationary key-side 개입의 대비다.

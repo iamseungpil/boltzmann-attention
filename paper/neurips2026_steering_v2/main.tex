@@ -12,11 +12,14 @@
 \usepackage{amsfonts}
 \usepackage{amsthm}
 \usepackage{mathtools}
+\usepackage{microtype}
 \usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{xcolor}
 \usepackage{subcaption}
+\usepackage{indentfirst}
+\usepackage[most]{tcolorbox}
 
 \defaultfontfeatures{Ligatures=TeX}
 \setmainfont{TeX Gyre Termes}
@@ -24,14 +27,82 @@
 \setTransitionsForCJK{\hangulfont}{}{}
 
 \graphicspath{{figures/}}
-\setlength{\emergencystretch}{3em}
+\hypersetup{hidelinks}
+\raggedbottom
+\setlength{\parindent}{1.1em}
+\setlength{\parskip}{0.2em plus 0.1em minus 0.05em}
+\setlength{\emergencystretch}{4em}
+\setlength{\textfloatsep}{11pt plus 2pt minus 2pt}
+\setlength{\floatsep}{9pt plus 2pt minus 2pt}
+\setlength{\intextsep}{9pt plus 2pt minus 2pt}
+\setlength{\abovedisplayskip}{7pt plus 2pt minus 2pt}
+\setlength{\belowdisplayskip}{7pt plus 2pt minus 2pt}
+\setlength{\abovedisplayshortskip}{5pt plus 2pt minus 2pt}
+\setlength{\belowdisplayshortskip}{5pt plus 2pt minus 2pt}
+\setlength{\jot}{4pt}
+\hfuzz=1pt
+\captionsetup{font=small,labelfont=bf,justification=raggedright,singlelinecheck=false}
 \setlist[itemize]{leftmargin=1.5em}
 \setlist[enumerate]{leftmargin=1.75em}
 \providecommand{\tightlist}{}
 
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{remark}[theorem]{Remark}
+\newtcbtheorem[number within=section]{theorem}{Theorem}{
+  enhanced,
+  breakable,
+  colback=black!1,
+  colframe=black!45,
+  boxrule=0.5pt,
+  arc=1pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  before skip=8pt,
+  after skip=8pt,
+  fonttitle=\bfseries,
+  coltitle=black,
+  colbacktitle=black!6,
+  attach boxed title to top left={xshift=6pt,yshift=-2mm},
+  boxed title style={boxrule=0pt,arc=1pt},
+}{th}
+\newtcbtheorem[use counter from=theorem]{proposition}{Proposition}{
+  enhanced,
+  breakable,
+  colback=blue!1,
+  colframe=blue!45!black,
+  boxrule=0.5pt,
+  arc=1pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  before skip=8pt,
+  after skip=8pt,
+  fonttitle=\bfseries,
+  coltitle=black,
+  colbacktitle=blue!6,
+  attach boxed title to top left={xshift=6pt,yshift=-2mm},
+  boxed title style={boxrule=0pt,arc=1pt},
+}{prop}
+\newtcbtheorem[use counter from=theorem]{remark}{Remark}{
+  enhanced,
+  breakable,
+  colback=gray!3,
+  colframe=gray!55!black,
+  boxrule=0.5pt,
+  arc=1pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  before skip=8pt,
+  after skip=8pt,
+  fonttitle=\bfseries,
+  coltitle=black,
+  colbacktitle=gray!10,
+  attach boxed title to top left={xshift=6pt,yshift=-2mm},
+  boxed title style={boxrule=0pt,arc=1pt},
+}{rem}
 
 \title{Ontology-Guided Query Coverage Bias for Multi-Tool Selection}
 \author{Anonymous Authors}

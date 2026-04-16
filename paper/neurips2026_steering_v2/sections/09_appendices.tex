@@ -1,10 +1,134 @@
 \appendix
-\section{Appendices}
-\begin{itemize}
-\item \textbf{A.} MetaTool dataset preparation, parsing, and scorer implementations.
-\item \textbf{B.} Full proofs (Theorem 6.1, Theorem 6.2, Cor 6.3–6.12 + Rmk 6.12.1). Imported from \texttt{APPENDIX\_B\_PROOFS.md} and \texttt{COROLLARY\_6\_7\_FACET\_PHASE\_CLOSURE.md}.
-\item \textbf{C.} Cor 6.7 reframing (regularity hypothesis (R)). Imported from \texttt{COR67\_REFRAMING\_2026\_04\_14.md}.
-\item \textbf{D.} Mistral cross-model ablation grid. Imported from \texttt{CROSS\_MODEL\_KBIAS\_ANALYSIS\_2026\_04\_13.md}.
-\item \textbf{E.} Netsru Gemma-3-27B agent artifact trail (15 questions, vector-steering-only policy statement). Motivates §1 continual-tool-addition framing.
-\item \textbf{F.} Per-head Theorem 6.1 verification details; \texttt{measure\_theorem\_6\_1.py} output schema.
-\end{itemize}
+\section{Proofs and Additional Evaluation Axes}
+
+\subsection{Proof of Proposition 1}
+
+\paragraph{Setup.}
+Let $T_{\alpha}=I+\alpha P$. At decoding step $u$, the intervention replaces each current key vector $k_{u,t}$ by $T_{\alpha}k_{u,t}$. The map $T_{\alpha}$ depends only on the current key tensor and fixed parameters $(P,\alpha)$; it has no input that records previously emitted tools, previously activated facets, or any external coverage variable.
+
+\paragraph{Step 1: identify the information used by the map.}
+At step $u$, $T_{\alpha}$ sees only the current key tensor $K_u$ and the fixed parameters $(P,\alpha)$.
+
+\paragraph{Step 2: compare two histories with the same current key tensor.}
+Consider two decoding histories $h$ and $\tilde h$ that yield the same current key tensor $K_u$ at step $u$ but differ in which facet was emitted earlier. Because the operator is stationary,
+\[
+T_{\alpha}(K_u)= (I+\alpha P)K_u
+\]
+for both histories.
+
+\paragraph{Step 3: conclude indistinguishability.}
+Therefore the intervention produces exactly the same transformed keys in both cases. The operator itself does not add any explicit variable that distinguishes ``already used'' from ``still unused.'' Any such coverage information must already be encoded in the model state before the key-side map is applied. This proves the proposition.
+
+\subsection{Proof of Proposition 2}
+
+\paragraph{Setup.}
+Let $P_{\mathrm{ont}}$ be the orthogonal projector onto the ontology subspace. Decompose any query as
+\[
+q = q_{\parallel} + q_{\perp},
+\qquad
+q_{\parallel}=P_{\mathrm{ont}}q,
+\qquad
+q_{\perp}=(I-P_{\mathrm{ont}})q.
+\]
+Then the query-side intervention gives
+\[
+q'=(I+\beta P_{\mathrm{ont}})q
+= q_{\perp} + (1+\beta) q_{\parallel}.
+\]
+
+\paragraph{Step 1: split the query into ontology-aligned and orthogonal parts.}
+The decomposition above isolates the component that can be changed by $P_{\mathrm{ont}}$ from the component that cannot.
+
+\paragraph{Step 2: apply the intervention explicitly.}
+The intervention keeps $q_{\perp}$ unchanged and multiplies $q_{\parallel}$ by $1+\beta$.
+
+\paragraph{Step 3: read off the sign semantics.}
+Hence the component orthogonal to the ontology subspace is unchanged, while every ontology-aligned coefficient is multiplied by the same factor $1+\beta$. When $\beta<0$, ontology-aligned mass is uniformly contracted. The operator therefore reduces dominance of the currently strongest ontology-aligned component without introducing any new history variable or learned selector. This is exactly the claimed history-free coverage surrogate.
+
+\subsection{Proof of Theorem 1}
+
+\paragraph{Setup.}
+Fix a query $q$, and write the unperturbed attention logits as
+\[
+\ell_t(q)=\frac{q\cdot k_t}{\sqrt d},
+\qquad
+\alpha_t(q)=\frac{q\cdot e_t}{\sqrt d}.
+\]
+Let $s_t(q)=\mathrm{softmax}(\ell(q))_t$ and define the interpolated output
+\[
+\phi(\tau)=\sum_{t=1}^{T}\mathrm{softmax}(\ell(q)+\tau \alpha(q))_t\,v_t,
+\qquad \tau\in[0,1].
+\]
+Then $\phi(0)=o(q)$ and $\phi(1)=\hat o(q)$. Taylor's theorem with integral remainder yields
+\[
+\hat o(q)-o(q)=L(q,E)+R(q,E),
+\]
+where
+\[
+L(q,E)=\sum_{t=1}^{T}s_t(q)\,\alpha_t(q)\,\bigl(v_t-o(q)\bigr)
+\]
+and
+\[
+R(q,E)=\int_{0}^{1}(1-\tau)\phi''(\tau)\,d\tau.
+\]
+
+\paragraph{Step 1: exact decomposition.}
+The preceding display is exact. No approximation has yet been made. The rest of the proof uses only two ingredients: one weighted Cauchy--Schwarz inequality for the first-order term and one Hessian bound for the remainder.
+
+\paragraph{Step 2: bound the first-order term.}
+Weighted Cauchy--Schwarz gives
+\[
+\|L(q,E)\|^2
+\le
+\left(\sum_{t=1}^{T}s_t(q)\alpha_t(q)^2\right)
+\left(\sum_{t=1}^{T}s_t(q)\|v_t-o(q)\|^2\right)
+=
+\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q).
+\]
+
+\paragraph{Step 3: bound the remainder.}
+The softmax Hessian identity implies
+\[
+\|\phi''(\tau)\|
+\le
+2V_{\max}\sum_{t=1}^{T}s_t(\tau)\alpha_t(q)^2.
+\]
+Because $\|q\|\le Q_{\max}$ and $\|e_t\|\le \rho$, we have
+\[
+|\alpha_t(q)|\le \frac{Q_{\max}\rho}{\sqrt d},
+\]
+so
+\[
+\|R(q,E)\|
+\le
+V_{\max}\sup_{\tau\in[0,1]}\sum_{t=1}^{T}s_t(\tau)\alpha_t(q)^2
+\le
+\frac{Q_{\max}^2V_{\max}\rho^2}{d}.
+\]
+
+\paragraph{Step 4: combine the two bounds.}
+Using $\|L+R\|^2\le 2\|L\|^2+2\|R\|^2$ gives
+\[
+\|\hat o(q)-o(q)\|^2
+\le
+2\,\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)
++\;
+\frac{2Q_{\max}^4V_{\max}^2}{d^2}\rho^4.
+\]
+Taking expectation over $q$ proves the theorem.
+
+\subsection{Additional Verified Supporting Evidence}
+
+Two supporting results are useful but are not strong enough to drive the main claim.
+
+First, the Subtask1 strict-scoring checks preserve the same basis-specificity pattern. On Qwen under the stricter mean scorer, the real ontology basis raises top-1 accuracy from $0.3678$ to $0.4181$, whereas the random and feature-shuffled controls reach only $0.1377$ and $0.2553$. On Llama under the same scorer, the real basis raises top-1 accuracy from $0.2312$ to $0.2573$, while the random and feature-shuffled controls remain at $0.2251$ and $0.2171$. These results matter because they show the ontology basis is not useful only under one benchmark or one scorer.
+
+Second, the small-$\alpha_K$ interaction appears on Qwen but remains too localized to promote into the main story. The best pair settings, $\alpha_K=0.025$ and $\alpha_K=0.05$ on top of $\beta=-0.1$, reach macro F1 $0.7529$ and $0.7502$, respectively, above the Q-only point $0.7471$. Because this band is narrow and not yet cross-family verified, it is better interpreted as a possible refinement of query-side suppression than as an independent headline method.
+
+\subsection{Protocol Notes for Closest-Prior Comparison}
+
+The most decisive external check is a matched SEKA/AdaSEKA comparison under the same scorer, prompt template, and ontology catalog. A large unmatched gap is easy for a reviewer to dismiss because scoring strictness and prompt formatting can move tool-selection accuracy substantially.
+
+The most decisive mechanism check is a stepwise coverage decomposition. The central claim is not merely that the final prediction changes, but that the intervention reduces repeated use of the dominant facet after the first tool has already been emitted. A first-tool versus second-tool breakdown therefore carries more evidential weight than another aggregate benchmark row.
+
+The most efficient qualitative check is a trajectory bundle rather than an isolated heatmap. The recommended bundle is: per-token hook overhead, ontology-energy traces over decoding steps, and a small number of case studies showing the emitted tool sequence before and after steering. Attention maps are useful only as supporting illustrations once those dynamics already show the effect.

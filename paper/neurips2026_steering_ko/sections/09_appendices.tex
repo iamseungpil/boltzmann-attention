@@ -1,0 +1,136 @@
+\appendix
+\section{증명과 추가 평가 축}
+
+\subsection{명제 1의 증명}
+
+\paragraph{Setup.}
+$T_{\alpha}=I+\alpha P$라고 두자. 디코딩 단계 $u$에서 개입은 현재 key vector $k_{u,t}$를 $T_{\alpha}k_{u,t}$로 바꾼다. 이 사상은 현재 key tensor와 고정 파라미터 $(P,\alpha)$에만 의존하며, 이전에 어떤 도구가 나갔는지, 어떤 facet이 이미 사용되었는지, 혹은 외부 coverage 변수 같은 입력을 갖지 않는다.
+
+ \paragraph{1단계: 연산자가 실제로 보는 정보를 적는다.}
+위 사상은 현재 key tensor와 고정 파라미터 외의 입력을 받지 않는다.
+
+\paragraph{2단계: 현재 key tensor가 같은 두 히스토리를 비교한다.}
+이제 과거 히스토리는 다르지만 현재 key tensor $K_u$는 같은 두 디코딩 히스토리 $h,\tilde h$를 생각하자. stationary operator이므로 두 경우 모두
+\[
+T_{\alpha}(K_u)=(I+\alpha P)K_u
+\]
+가 적용된다. 따라서 변환된 key는 완전히 동일하다. 곧 연산자 자체는 ``이미 사용함''과 ``아직 사용하지 않음''을 구분하는 explicit variable을 새로 더하지 않는다. coverage 정보는 key-side map이 적용되기 이전의 모델 상태 안에 이미 존재해야 한다. 이것으로 명제가 증명된다.
+
+\paragraph{3단계: 결론을 읽는다.}
+따라서 stationary key-side map은 explicit coverage variable을 자체적으로 생성하지 못한다.
+
+\subsection{명제 2의 증명}
+
+\paragraph{Setup.}
+온톨로지 부분공간으로의 직교사영을 $P_{\mathrm{ont}}$라고 하자. 임의의 질의를
+\[
+q=q_{\parallel}+q_{\perp},
+\qquad
+q_{\parallel}=P_{\mathrm{ont}}q,
+\qquad
+q_{\perp}=(I-P_{\mathrm{ont}})q
+\]
+로 분해하면, query-side 개입은
+\[
+q'=(I+\beta P_{\mathrm{ont}})q
+=q_{\perp}+(1+\beta)q_{\parallel}
+\]
+가 된다. 따라서 ontology subspace에 직교한 성분은 그대로 유지되고, ontology-aligned coefficient는 모두 같은 계수 $1+\beta$만큼 축소된다. $\beta<0$이면 ontology-aligned mass가 균일하게 줄어든다. 즉 이 연산자는 새로운 history 변수나 학습된 selector를 도입하지 않으면서도 지배적 facet의 반복 사용을 약화시키는 가장 단순한 history-free coverage surrogate다.
+
+\paragraph{1단계: 질의를 온톨로지 성분과 직교 성분으로 나눈다.}
+위 분해는 개입이 바꿀 수 있는 부분과 바꿀 수 없는 부분을 분리한다.
+
+\paragraph{2단계: 개입을 대입해 닫힌 형태를 얻는다.}
+개입은 $q_{\perp}$는 그대로 두고 $q_{\parallel}$만 $1+\beta$배 한다.
+
+\paragraph{3단계: 부호 의미를 읽는다.}
+$\beta<0$이면 ontology-aligned mass가 일괄적으로 줄어들므로, 반복 facet 사용을 줄이는 방향의 가장 단순한 history-free surrogate가 된다.
+
+\subsection{정리 1의 증명}
+
+\paragraph{Setup.}
+질의 $q$를 고정하고, 원래 attention logit을
+\[
+\ell_t(q)=\frac{q\cdot k_t}{\sqrt d},
+\qquad
+\alpha_t(q)=\frac{q\cdot e_t}{\sqrt d}
+\]
+라고 쓰자. 또한 $s_t(q)=\mathrm{softmax}(\ell(q))_t$로 두고, 보간 출력
+\[
+\phi(\tau)=\sum_{t=1}^{T}\mathrm{softmax}(\ell(q)+\tau\alpha(q))_t\,v_t,
+\qquad \tau\in[0,1]
+\]
+를 정의하자. 그러면 $\phi(0)=o(q)$이고 $\phi(1)=\hat o(q)$다. 적분 나머지항을 갖는 Taylor 정리에 의해
+\[
+\hat o(q)-o(q)=L(q,E)+R(q,E)
+\]
+이며,
+\[
+L(q,E)=\sum_{t=1}^{T}s_t(q)\,\alpha_t(q)\,\bigl(v_t-o(q)\bigr),
+\qquad
+R(q,E)=\int_{0}^{1}(1-\tau)\phi''(\tau)\,d\tau
+\]
+이다.
+
+\paragraph{1단계: 정확한 분해.}
+직전 식은 근사가 아니라 exact identity다. 남은 증명은 두 가지 재료만 쓴다. 1차항에 대한 weighted Cauchy--Schwarz 한 번과 remainder에 대한 Hessian 상계 한 번이다.
+
+\paragraph{2단계: 1차항 상계.}
+먼저 1차항에 weighted Cauchy--Schwarz를 적용하면
+\[
+\|L(q,E)\|^2
+\le
+\left(\sum_{t=1}^{T}s_t(q)\alpha_t(q)^2\right)
+\left(\sum_{t=1}^{T}s_t(q)\|v_t-o(q)\|^2\right)
+=
+\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)
+\]
+를 얻는다.
+
+\paragraph{3단계: remainder 상계.}
+다음으로 softmax Hessian 항등식으로부터
+\[
+\|\phi''(\tau)\|
+\le
+2V_{\max}\sum_{t=1}^{T}s_t(\tau)\alpha_t(q)^2
+\]
+가 따른다. 또한 $\|q\|\le Q_{\max}$, $\|e_t\|\le\rho$이면
+\[
+|\alpha_t(q)|\le\frac{Q_{\max}\rho}{\sqrt d}
+\]
+이므로
+\[
+\|R(q,E)\|
+\le
+V_{\max}\sup_{\tau\in[0,1]}\sum_{t=1}^{T}s_t(\tau)\alpha_t(q)^2
+\le
+\frac{Q_{\max}^2V_{\max}\rho^2}{d}
+\]
+다.
+
+\paragraph{4단계: 결합.}
+마지막으로 $\|L+R\|^2\le 2\|L\|^2+2\|R\|^2$를 쓰면
+\[
+\|\hat o(q)-o(q)\|^2
+\le
+2\,\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)
++\;
+\frac{2Q_{\max}^4V_{\max}^2}{d^2}\rho^4
+\]
+를 얻는다. 마지막으로 $q$에 대해 기대값을 취하면 정리가 증명된다.
+
+\subsection{추가로 확인된 보조 증거}
+
+두 가지 보조 결과는 유의미하지만 본문을 이끌 정도로 강하지는 않다.
+
+첫째, Subtask1의 strict scorer에서도 ontology basis 특이성은 유지된다. Qwen의 mean scorer에서는 real ontology basis가 top-1 accuracy를 $0.3678$에서 $0.4181$로 올리지만, random과 feature-shuffled control은 각각 $0.1377$, $0.2553$에 머문다. Llama의 mean scorer에서도 real basis는 $0.2312 \rightarrow 0.2573$으로 올라가고, random과 feature-shuffled control은 각각 $0.2251$, $0.2171$에 그친다. 이는 ontology basis의 효과가 단일 scorer 하나에만 묶여 있지 않다는 뜻이다.
+
+둘째, 작은 $\alpha_K$를 더한 Q+K 상호작용은 Qwen에서 보이지만 아직 headline으로 올리기에는 국소적이다. $\beta=-0.1$ 위에 $\alpha_K=0.025$와 $\alpha_K=0.05$를 더하면 macro F1이 각각 $0.7529$, $0.7502$로 Q-only의 $0.7471$보다 높다. 그러나 이 밴드는 매우 좁고 cross-family 재검증이 아직 충분하지 않으므로, 독립적인 핵심 방법이라기보다 query-side suppression의 가능한 refinement로 해석하는 편이 안전하다.
+
+\subsection{Closest-prior 비교를 위한 프로토콜 메모}
+
+외부 비교 가운데 가장 결정적인 것은 동일 scorer, 동일 prompt template, 동일 ontology catalog를 맞춘 SEKA, AdaSEKA head-to-head다. 이런 정합이 없으면 큰 성능 차이도 메커니즘 차이라기보다 평가 프로토콜 차이로 치부되기 쉽다.
+
+메커니즘 검증 가운데 가장 결정적인 것은 stepwise coverage 분해다. 중심 주장은 최종 정답이 조금 바뀐다는 데 있지 않고, 첫 번째 도구가 나온 뒤 같은 facet을 반복하는 경향을 줄인다는 데 있다. 따라서 first-tool과 second-tool을 분리한 분석이 또 하나의 aggregate row보다 훨씬 강한 증거가 된다.
+
+질적 검증은 heatmap 단독보다 trajectory 묶음이 낫다. 권장 묶음은 per-token hook overhead, decoding step별 ontology-energy trace, 그리고 steering 전후의 emitted tool sequence를 보여주는 소수의 사례다. attention map은 이런 stepwise dynamics가 먼저 확인된 뒤 보조 그림으로 붙을 때 가장 설득력이 크다.

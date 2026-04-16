@@ -46,6 +46,7 @@ from eval_metatool_subtask1 import (
     install_contrastive_kbias_hooks,
     install_q_bias_hooks,
     install_qkv_joint_hooks,
+    install_layer_adaptive_qk_hooks,
     install_caa_hooks,
     install_adaseka_proxy_hooks,
     parse_candidates,
@@ -241,6 +242,14 @@ def run_method(
             model, B_ont,
             alpha_k=params["alpha_k"],
             gamma_v=params["gamma_v"],
+            beta_q=params["beta_q"],
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+        )
+    elif kind == "layer_adaptive_qk":
+        n_q = model.config.num_attention_heads
+        ctx = install_layer_adaptive_qk_hooks(
+            model, B_ont,
+            alpha_k=params["alpha_k"],
             beta_q=params["beta_q"],
             n_kv=n_kv, n_q=n_q, head_dim=head_dim,
         )

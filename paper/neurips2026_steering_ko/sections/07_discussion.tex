@@ -1,8 +1,13 @@
 \section{논의}
 
-이 논문은 보편적 steering 프레임워크 논문이라기보다, 범위를 좁힌 메커니즘 논문으로 읽는 편이 맞다. Q-side 이득은 실제로 존재하지만 작다. 반면 K-side 안정성 결과는 훨씬 크고 결정적이지만, 그것은 multi-tool prompt에서 stationary key-space steering이 어디서 실패하는지를 보여주는 부정적 교훈에 가깝다. 이 두 사실을 분리해서 쓰는 편이 논문의 응집성을 높인다.
+실증 결과는 두 층으로 나뉜다. 첫째, query-side suppression은 크지는 않지만 일관된 양의 효과를 보인다. 둘째, 같은 기저를 쓰는 stationary key-side amplification은 훨씬 더 큰 음의 효과를 보인다. 이 둘을 함께 보면, multi-tool selection의 핵심은 일반적인 저랭크 강조 자체가 아니라 그 개입이 coverage를 돕는지 반복을 강화하는지에 있다는 해석이 자연스럽다.
 
-한계도 세 가지가 분명하다. 첫째, 평가한 Q-side operator는 history-free 근사다. coverage 메커니즘에서 영감을 받았지만, 어떤 facet이 이미 방출되었는지를 명시적으로 추적하지는 않는다. 둘째, multi-tool 결과는 아직 단일 benchmark family에서만 확인되었다. 셋째, 정확히 같은 모델, 프롬프트, 디코딩 조건에서 외부 SEKA 또는 AdaSEKA 구현과 맞춘 대규모 비교는 아직 없다. 이 부재는 주장을 숨기는 부분이 아니라, 논문의 범위를 규정하는 경계로 읽어야 한다.
+이 해석은 null control이 더 강하게 뒷받침한다. ontology basis는 단지 교란이 약해서 안전한 방향이 아니다. 오히려 가장 큰 effective perturbation magnitude를 만들면서도 K-side 비교에서 유일하게 안정적인 방향이고, 동시에 Q-side gain을 보존하는 유일한 기저다. 실무적으로는 기저의 품질과 개입 위치를 함께 봐야 한다는 뜻이다. 기저만 좋아서는 충분하지 않고, 개입 강도만으로도 행동을 설명할 수 없다.
 
-그럼에도 기여는 남는다. 이 논문은 안정적인 부호 패턴을 확인하고, 강한 null control로 기저 특이성을 분리하며, 단지 perturbation magnitude가 작아서 안전한 것 아니냐는 쉬운 대안을 제거한다. 이 정도면 현재의 multi-tool setting에서 ontology-guided query suppression이 stationary key amplification보다 더 맞는 방향이라는 좁은 주장을 지지하기에 충분하다. 동시에 이후의 정합 비교가 어떻게 설계되어야 하는지도 분명해진다. 핵심 질문은 SEKA류 projection이 도움이 되느냐가 아니라, sequential facet coverage가 필요한 상황에서 어떤 stationary key-side 방법이 과연 경쟁력을 유지할 수 있느냐이다.
+\subsection{현재 증거가 이미 배제하는 해석}
 
+현재 증거만으로도 몇 가지 해석은 이미 배제된다. 첫째, 이 효과는 임의의 저랭크 교란으로 설명되지 않는다. random과 feature-shuffled control은 같은 패턴을 재현하지 못한다. 둘째, 이것은 단지 약한 개입이라서 안전한 현상도 아니다. 실제 ontology basis는 null control보다 더 큰 perturbation을 만들면서도 유일하게 안정적이다. 셋째, ``저랭크 추론 개입이면 비슷하다''는 설명도 맞지 않는다. 이 과제에서는 개입의 부호와 위치가 coverage 쪽으로 작동하는지, 아니면 반복 강조 쪽으로 작동하는지가 행동을 가른다.
+
+이 관찰은 왜 closest-prior 비교를 반드시 locked protocol로 해야 하는지도 설명한다. SEKA나 AdaSEKA와의 비교는 scorer, prompt formatting, decoding policy, source basis handling이 모두 같을 때만 의미가 있다. 그렇지 않으면 측정된 차이가 메커니즘 차이인지 평가 프로토콜 차이인지 구분할 수 없다. 그래서 이 논문의 1차 주장은 benchmark ranking보다 task-structure mismatch에 있다.
+
+남는 핵심 해석 문제는 F1 변화가 실제로 sequential coverage를 얼마나 직접 반영하는가이다. 이 질문에는 stepwise 분석이 가장 적합하다. first-tool accuracy, second-tool accuracy, repeated-first-facet failure를 분리해서 보면, 구조 이론이 예측한 방향으로 정말 두 번째 결정이 바뀌는지 더 직접 확인할 수 있다.

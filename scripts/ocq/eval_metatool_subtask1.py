@@ -683,6 +683,136 @@ def install_qkv_joint_hooks(
                 yield
 
 
+def _build_layer_adaptive_qk_schedule(
+    num_layers: int,
+    alpha_k: float,
+    beta_q: float,
+    early_end: int = 5,
+    mid_end: int = 18,
+    mid_alpha_scale: float = 0.3,
+) -> Tuple[List[float], List[float]]:
+    """Return per-layer K/Q coefficients for the staged Q+K schedule.
+
+    Stage 1 (layers <= early_end): K-only strong bias.
+    Stage 2 (early_end < layers <= mid_end): weak K + active Q coverage.
+    Stage 3 (layers > mid_end): Q-only.
+    """
+    alpha_schedule: List[float] = []
+    beta_schedule: List[float] = []
+    for layer_idx in range(num_layers):
+        if layer_idx <= early_end:
+            alpha_schedule.append(alpha_k)
+            beta_schedule.append(0.0)
+        elif layer_idx <= mid_end:
+            alpha_schedule.append(alpha_k * mid_alpha_scale)
+            beta_schedule.append(beta_q)
+        else:
+            alpha_schedule.append(0.0)
+            beta_schedule.append(beta_q)
+    return alpha_schedule, beta_schedule
+
+
+@contextmanager
+def install_layer_adaptive_qk_hooks(
+    model,
+    B_ont: torch.Tensor,
+    alpha_k: float,
+    beta_q: float,
+    n_kv: int,
+    n_q: int,
+    head_dim: int,
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+    early_end: int = 5,
+    mid_end: int = 18,
+    mid_alpha_scale: float = 0.3,
+):
+    """Layer-adaptive Q+K steering.
+
+    Early layers apply only K-bias, mid layers use weak K plus Q coverage,
+    and late layers use only Q coverage. This directly implements the staged
+    schedule proposed after observing early-layer rank-1 amplification and
+    mid/late-layer ontology-specific Q effects.
+    """
+    handles = []
+    L, H_kv, d, r = B_ont.shape
+    assert H_kv == n_kv and d == head_dim
+    assert n_q % n_kv == 0
+    g = n_q // n_kv
+    alpha_schedule, beta_schedule = _build_layer_adaptive_qk_schedule(
+        num_layers=min(L, len(model.model.layers)),
+        alpha_k=alpha_k,
+        beta_q=beta_q,
+        early_end=early_end,
+        mid_end=mid_end,
+        mid_alpha_scale=mid_alpha_scale,
+    )
+
+    try:
+        for layer_idx, layer in enumerate(model.model.layers):
+            if layer_idx >= L or layer_idx >= len(alpha_schedule):
+                break
+            alpha_l = alpha_schedule[layer_idx]
+            beta_l = beta_schedule[layer_idx]
+            if abs(alpha_l) < 1e-12 and abs(beta_l) < 1e-12:
+                continue
+
+            B_ont_layer = B_ont[layer_idx].clone()
+            if skip_heads:
+                for h in range(H_kv):
+                    if (layer_idx, h) in skip_heads:
+                        B_ont_layer[h].zero_()
+
+            if abs(alpha_l) >= 1e-12:
+                k_proj = layer.self_attn.k_proj
+
+                def make_k_hook(B_ont_lh, alpha_scale, _skip_sink=skip_sink):
+                    def hook(module, inputs, output):
+                        Bsz, T, D = output.shape
+                        if D != n_kv * head_dim:
+                            return output
+                        K = output.view(Bsz, T, n_kv, head_dim).permute(0, 2, 1, 3).contiguous()
+                        orig_dtype = K.dtype
+                        K_f = K.float()
+                        B_dev = B_ont_lh.to(device=K.device, dtype=torch.float32)
+                        coeffs = torch.einsum("bhtd,hdr->bhtr", K_f, B_dev)
+                        K_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_dev)
+                        if _skip_sink > 0 and T > _skip_sink:
+                            K_proj[:, :, :_skip_sink, :] = 0
+                        K_modified = K_f + alpha_scale * K_proj
+                        return K_modified.permute(0, 2, 1, 3).contiguous().view(Bsz, T, D).to(orig_dtype)
+                    return hook
+
+                handles.append(k_proj.register_forward_hook(make_k_hook(B_ont_layer, alpha_l)))
+
+            if abs(beta_l) >= 1e-12:
+                q_proj = layer.self_attn.q_proj
+                B_q = B_ont_layer.unsqueeze(1).expand(-1, g, -1, -1).reshape(n_q, d, r)
+
+                def make_q_hook(B_q_layer, beta_scale, _skip_sink=skip_sink):
+                    def hook(module, inputs, output):
+                        Bsz, T, D = output.shape
+                        if D != n_q * head_dim:
+                            return output
+                        Q = output.view(Bsz, T, n_q, head_dim).permute(0, 2, 1, 3).contiguous()
+                        orig_dtype = Q.dtype
+                        Q_f = Q.float()
+                        B_dev = B_q_layer.to(device=Q.device, dtype=torch.float32)
+                        coeffs = torch.einsum("bhtd,hdr->bhtr", Q_f, B_dev)
+                        Q_proj = torch.einsum("bhtr,hdr->bhtd", coeffs, B_dev)
+                        if _skip_sink > 0 and T > _skip_sink:
+                            Q_proj[:, :, :_skip_sink, :] = 0
+                        Q_modified = Q_f + beta_scale * Q_proj
+                        return Q_modified.permute(0, 2, 1, 3).contiguous().view(Bsz, T, D).to(orig_dtype)
+                    return hook
+
+                handles.append(q_proj.register_forward_hook(make_q_hook(B_q, beta_l)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
 @contextmanager
 def install_kvbias_hooks(
     model,
@@ -990,6 +1120,17 @@ def parse_method(method: str) -> Tuple[str, Dict]:
             "beta_q": float(bq_str),
             "use_skip": use_skip, "use_sinkskip": use_sinkskip,
         }
+    # Layer-adaptive Q+K: ocq_qk_layered_a<αk>_q<βq>
+    if tag.startswith("ocq_qk_layered_a"):
+        rest = tag[len("ocq_qk_layered_a"):]
+        if "_q" not in rest:
+            raise ValueError(f"layered qk tag needs _q<beta_q>: {method}")
+        ak_str, bq_str = rest.split("_q", 1)
+        return "layer_adaptive_qk", {
+            "alpha_k": float(ak_str),
+            "beta_q": float(bq_str),
+            "use_skip": use_skip, "use_sinkskip": use_sinkskip,
+        }
     # Combined K+V: ocq_kvbias_a<α_K>_v<α_V>
     if tag.startswith("ocq_kvbias_a"):
         rest = tag[len("ocq_kvbias_a"):]
@@ -1176,6 +1317,16 @@ def run_method(
             model, B_ont,
             alpha_k=params["alpha_k"],
             gamma_v=params["gamma_v"],
+            beta_q=params["beta_q"],
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+            skip_heads=effective_skip,
+            skip_sink=effective_sink,
+        )
+    elif kind == "layer_adaptive_qk":
+        n_q = model.config.num_attention_heads
+        ctx = install_layer_adaptive_qk_hooks(
+            model, B_ont,
+            alpha_k=params["alpha_k"],
             beta_q=params["beta_q"],
             n_kv=n_kv, n_q=n_q, head_dim=head_dim,
             skip_heads=effective_skip,

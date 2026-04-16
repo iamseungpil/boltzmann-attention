@@ -1,29 +1,92 @@
 \section{이론}
 
-실험을 정당화하는 데 긴 형식 체계가 필요한 것은 아니다. 여기서는 두 개의 단순한 구조적 명제와 하나의 경험적 정리만으로 충분하다.
+실험을 정당화하는 데 긴 형식 체계가 필요한 것은 아니다. 필요한 것은 세 가지다. 첫째와 둘째는 구조적 명제다. 왜 stationary key-side 증폭이 순차적 coverage와 어긋나는지, 왜 query-side suppression이 올바른 history-free 근사인지를 설명한다. 마지막 정리는 perturbation 언어를 엄밀한 부등식으로 고정한다.
 
-\begin{proposition}
-정적인 key-side projection은 emission history를 표현할 수 없다. 특히 같은 연산자 $k' = k + \alpha Pk$가 모든 디코딩 단계에 적용되면, 추가 상태가 없는 한 이 연산자는 ``이미 사용한 facet''과 ``아직 사용하지 않은 facet''을 구분할 수 없다.
+\paragraph{범위.}
+이 절의 역할은 의도적으로 좁다. 두 개의 구조적 사실과 하나의 진단용 perturbation bound를 증명한다. 반대로, benchmark F1을 직접 증명하지 않으며, exact facet-history tracking도 주장하지 않는다.
+
+\begin{table}[t]
+\centering
+\caption{본문 핵심 주장들의 증명 상태.}
+\label{tab:proof-status-ko}
+\small
+\begin{tabularx}{\linewidth}{@{}Xlll@{}}
+\toprule
+주장 & 유형 & 완전 증명 여부 & 추가 모델링 가정 의존성 \\
+\midrule
+Stationary key-side steering은 explicit coverage variable을 도입하지 않는다 & 구조적 & 예 & 거의 없음 \\
+음의 query-side projection은 coverage에 맞는 부호 의미를 가진다 & 구조적 & 예 & 거의 없음 \\
+Attention output perturbation은 qaMSE와 $\rho^4$ remainder로 제어된다 & 진단용 & 예 & boundedness 가정 필요 \\
+Q-bias가 MetaTool Subtask4의 second-tool recovery를 높인다 & 경험적 & 아니오 & 실험으로 보여야 함 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{정리 1의 상시 가정.}
+Perturbation 정리에는 다음의 분석 가정만 쓴다:
+\begin{enumerate}
+\item bounded query norm $\|q\| \le Q_{\max}$;
+\item bounded value norm $\|v_t\| \le V_{\max}$;
+\item row-wise key perturbation bound $\|e_t\| \le \rho$.
+\end{enumerate}
+앞의 두 명제는 이런 boundedness 가정에 의존하지 않는다.
+
+\begin{proposition}{Stationary key-side steering은 explicit coverage variable을 도입하지 않는다}{}{}
+선형사상 $P$와 스칼라 $\alpha$를 고정하고, 모든 디코딩 단계에서 같은 key-side 연산자
+ \begin{equation*}
+ k'=(I+\alpha P)k
+ \end{equation*}
+를 적용하자. 그러면 이 개입 자체는 어떤 facet이 이미 방출되었는지에 대한 정보를 담을 수 없다. 특히 현재 key tensor가 같다면, 과거에 어떤 facet이 사용되었는지와 무관하게 변환된 key는 완전히 동일하다.
 \end{proposition}
 
-\noindent
-이 명제는 통계적이기보다 구조적이다. 연산자가 시간에 대해 불변이기 때문에, coverage에 해당하는 단계별 정보는 모델 내부 동역학에서만 나올 수 있다. 개입 자체는 상태를 제공하지 않는다.
+\paragraph{해석.}
+이 명제는 통계적이기보다 구조적이다. 시간에 대해 불변인 key 연산자는 single-target 벤치마크에서는 도움을 줄 수 있어도, ``이 facet은 이미 썼다''라는 explicit state를 스스로 추가하지는 못한다. 그런 정보는 key-side 연산자 바깥의 모델 상태에 이미 들어 있어야 한다. 부록 A에 짧은 증명을 실었다.
 
-\begin{proposition}
-coverage의 query-side 대응물은 현재 query를 이미 사용된 facet 방향에서 억제하는 연산자다. 실용적인 history-free 근사는 full ontology subspace에 대한 사영을 억제하는 것이다.
+\paragraph{증명하지 않는 것.}
+이 명제는 key-side steering이 항상 무의미하다고 말하지 않는다. 다만 stationary key-side map만으로는 순차적 멀티-툴 복원에 필요한 explicit coverage variable을 새로 도입하지 못한다고 말한다.
+
+\begin{proposition}{Query-side suppression은 가장 단순한 history-free coverage 근사다}{}{}
+온톨로지 부분공간으로의 직교사영을 $P_{\mathrm{ont}}$라고 하고
+ \begin{equation*}
+ q'=(I+\beta P_{\mathrm{ont}})q
+ \end{equation*}
+를 $\beta<0$에서 정의하자. 그러면 $q$의 ontology-aligned coefficient는 모두 균일하게 축소되고, ontology subspace에 직교한 성분은 그대로 유지된다. 따라서 음의 query-side bias는 외부 상태를 추가하지 않으면서도 지배적인 ontology-aligned mass의 반복 사용을 줄이는 가장 단순한 history-free 연산자다.
 \end{proposition}
 
-\noindent
-첫 문장은 이상적인 메커니즘을 설명하고, 둘째 문장은 본 논문이 실제로 평가한 구현을 설명한다. 따라서 실험의 질문은 거친 근사만으로도 two-tool benchmark에서 올바른 부호를 얻을 수 있는가이다.
+\paragraph{해석.}
+이 명제가 exact facet tracking을 증명하는 것은 아니다. 더 좁고 충분한 사실만을 보여준다. history-free 선형 편집 가운데, 음의 query-side bias는 반복 facet 사용을 줄이는 데 맞는 부호 의미를 가진다. 실제 대수 전개는 부록 A에 정리했다.
 
-\begin{theorem}
-$\mathrm{LHS}$를 경험적 attention-output perturbation, $\mathrm{RHS}$를 프로젝트의 perturbation analysis에서 정의한 local bound term이라고 하자. Qwen과 Llama 모두에서 관측된 median ratio $\mathrm{LHS}/\mathrm{RHS}$는 $10^{-8}$ 수준이므로, 이 논문이 다루는 개입에 대해 해당 진단 경계는 수치적으로 보수적이다.
+\paragraph{증명하지 않는 것.}
+이 명제는 모델이 항상 올바른 두 번째 도구로 전환된다는 것을 보장하지 않는다. 다만 외부 상태 없이 쓸 수 있는 history-free 선형 편집 가운데, 반복 facet 사용을 억제하는 부호 의미를 가진 가장 단순한 연산자를 식별한다.
+
+\begin{theorem}{Attention-weighted perturbation bound}{}{}
+질의 $q$, 원래 key 행렬 $K$, row-wise 오차 $\|e_t\|\le\rho$를 갖는 교란 key 행렬 $\hat K=K+E$, 그리고 대응하는 attention output $\hat o(q), o(q)$를 두자. 또한
+ \begin{equation*}
+ \begin{aligned}
+ \alpha_t(q) &= \frac{q\cdot e_t}{\sqrt d},\\
+ \mathrm{qaMSE}(q;E) &= \sum_{t=1}^{T}s_t(q)\,\alpha_t(q)^2
+ \end{aligned}
+ \end{equation*}
+를 정의하자. 여기서 $s_t(q)$는 원래 attention weight다. bounded-query, bounded-value 가정 아래에서
+ \begin{equation*}
+ C_1=\frac{2Q_{\max}^4V_{\max}^2}{d^2}
+ \end{equation*}
+라는 명시적 상수가 존재하여
+ \begin{equation*}
+ \mathbb{E}_{q}\|\hat o(q)-o(q)\|^2
+ \le
+ 2\,\mathbb{E}_{q}\!\left[\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)\right]
+ + C_1\rho^4
+ \end{equation*}
+가 성립한다.
 \end{theorem}
 
-\noindent
-이 정리는 본 논문에서 경험적 진술이다. 역할은 end-to-end accuracy를 증명하는 것이 아니라, query-side와 key-side 개입을 설명할 때 사용하는 perturbation language가 실제 출력 변화의 크기와 양립 가능하다는 것을 보이는 데 있다.
+\paragraph{해석.}
+엄밀한 부분은 이 정리 자체이고, 경험적 검증은 그 다음 단계다. 이 정리는 두 항으로 읽으면 이해가 쉽다. 첫 번째 항은 attention-weighted 1차 기여이고, 두 번째 항은 $\rho^4$로 제어되는 고차 remainder다. 표~\ref{tab:bound-ko}는 측정된 perturbation-to-bound ratio의 중앙값이 Qwen에서는 $2.36\times 10^{-8}$, Llama에서는 $6.37\times 10^{-8}$임을 보여준다. 이 정리가 end-to-end accuracy를 증명하는 것은 아니지만, Q-side와 K-side 개입을 비교할 때 perturbation 언어를 보수적인 진단 도구로 쓰는 것은 정당화한다. 증명은 부록 A에 네 단계로 나누어 제시한다.
 
-\begin{remark}
-여기서의 이론은 이 저장소의 이전 초안보다 의도적으로 좁다. 우리는 현재 구현이 정확한 step-adaptive facet tracking을 실현한다고 주장하지 않으며, 검증되지 않은 compression 또는 predictor 결과를 주된 정리 사슬에 포함하지 않는다.
+\paragraph{증명하지 않는 것.}
+이 정리는 benchmark theorem이 아니다. qaMSE가 더 작으면 반드시 tool-selection F1이 더 좋다고 말하는 것이 아니라, 주어진 boundedness 가정 아래에서 key 오차가 attention output을 얼마나 교란하는지를 제어하는 진단식을 준다.
+
+\begin{remark}{}{}{}
+평가한 연산자는 history-free다. ontology subspace로의 사영을 억제할 뿐, 이미 방출된 facet을 명시적으로 추적하지는 않는다. 따라서 이론의 역할도 의도적으로 좁다. 정확한 step-adaptive control을 형식화하는 것이 아니라, 개입의 부호, 특이성, perturbation 안정성을 해석하는 데 초점을 둔다.
 \end{remark}
-
