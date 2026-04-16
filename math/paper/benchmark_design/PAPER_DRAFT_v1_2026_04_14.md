@@ -281,7 +281,7 @@ $$W = \mathrm{softmax}\left(\frac{(Q + \alpha d_Q)(K + \alpha d_K)^\top}{\sqrt F
 |---|---|---|
 | SEKA operator form (k+gPk) | match — *not* our novelty | high |
 | SEKA direction source / per-facet / theory | preserved, 4 differentiators | high |
-| SEKA on MetaTool Subtask4 | unverified, eval in progress | medium |
+| SEKA on MetaTool Subtask4 | **verified: F1=0.000 at all amp (complete FC collapse)** — axis-separation confirmed | ~~medium~~ **resolved** |
 | FGA hierarchical fact representations | preserved (FGA invites our direction) | high |
 | Focus Directions K+Q form | preserved (our K×Q ablation novel) | high |
 | KVTC raw compression ratio | wins (we don't compete on this axis) | high |
