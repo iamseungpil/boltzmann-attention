@@ -1,10 +1,10 @@
-# Step-Adaptive Q-Coverage: Multi-Tool Selection via an Axis Orthogonal to K-Side Spectral Steering
+# Facet-Aware Q-Coverage: Multi-Tool Selection via an Axis Orthogonal to K-Side Spectral Steering
 
 **Target venue**: NeurIPS 2026 (main track, May 2026 abstract / 5/15 full)
 **Draft**: v3, 2026-04-16 — **Full pivot: multi-tool Q-coverage primary; K-side = stability diagnostic + compression only**
 **Parent**: `PAPER_DRAFT_v2.md` (hybrid, preserved) ← `PAPER_DRAFT_v1_2026_04_14.md` (preserved)
 **Changes from v2 (Hybrid) to v3 (Full Pivot)**:
-- Title: "Joint Pareto-Optimality of Steering and Compression" → **"Step-Adaptive Q-Coverage: Multi-Tool Selection via an Axis Orthogonal to K-Side Spectral Steering"**. Primary positioning axis is multi-tool emission via facet-aware Q-coverage, not K-bias parity with SEKA.
+- Title: "Joint Pareto-Optimality of Steering and Compression" → **"Facet-Aware Q-Coverage: Multi-Tool Selection via an Axis Orthogonal to K-Side Spectral Steering"**. Primary positioning axis is multi-tool emission via facet-aware Q-coverage, not K-bias parity with SEKA.
 - **Core thesis (v3)**: SEKA/AdaSEKA class K-side spectral steering is architecturally single-selection (stationary K-bias cannot produce step-by-step coverage of already-emitted facets due to autoregressive re-attention). Our facet-aware Q-coverage $\Delta_Q^{(t)} = -\beta \sum_{s<t} P_{f_s} q_t$ extends the tool-selection axis to *multi-selection*. Consequence: SEKA vs ours on Subtask1 (single-tool) is "parity regime check"; Subtask4 (multi-tool) is where our novel axis is active.
 - K-channel: repositioned as (a) stability diagnostic (Cor 6.9.6, direction-specificity +68.5pp at α=0.3) and (b) compression axis (Thm 6.13 OCQ / Thm 6.18 attention-weighted). **No accuracy claims** (Q+K pair +0.31pp within SE dropped as within-noise ablation).
 - §1.1 contribution count: 12 → 6 (Q-coverage multi-tool, K-stability, K-compression, Thm 6.1 bound, Thm 6.20 plan-predictor, Thm 6.19 unified tri-role basis). V-inert / V·K destructive / Thm 6.17 (ii)(d) / trio claims moved to appendix ablation.
@@ -426,7 +426,7 @@ The $\rho^4$-scaling-matched divergence (soft plateau vs hard monotone increase 
 
 The K-only stationary perturbation of §3.3 is the *baseline operating point* of the facet-gated operator (stability via Cor 6.9.6, verified at +68.5pp). The accuracy-lift extension is a per-step **Q-coverage construction**, optionally paired with a small-α K-bias on the same $B_{\mathrm{ont}}$. The V-channel is empirically marginal-neutral at small magnitude on Subtask4 (V+Q full 497 = Q-only to within bootstrap SE), and destructive when *co-included* with K on the shared subspace (trio < both pairs). The K-channel serves dual roles at *different magnitudes* — large-α stationary stability (Cor 6.9.6, $\alpha_K=0.3$, +68.5pp) and small-α step-paired accuracy (Thm 6.17, $\alpha_K=0.05$ paired with Q-coverage, +0.3pp marginal over Q-only). The same $B_{\mathrm{ont}}$ basis additionally parameterizes a Pareto-optimal KV-cache compression scheme. We state three theorems formalizing this unification (proofs in Appendix B.7.10–B.7.12).
 
-#### 3.6.1 Theorem 6.17 — Step-Adaptive Q-Coverage First-Order Optimality for Multi-Tool Emission
+#### 3.6.1 Theorem 6.17 — Facet-Aware Q-Coverage First-Order Optimality for Multi-Tool Emission
 
 Define the **Q-coverage operator** at layer $\ell$ and decoding step $t$:
 $$\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t, \qquad P_{f_s} := B_{f_s} B_{f_s}^\top,$$
