@@ -114,7 +114,7 @@ The $\rho^4$-scaling-matched divergence (soft plateau vs hard monotone increase 
 
 \subsection{3.6 Unified Frame: Theorems 6.17–6.19 (steering + compression Pareto)}
 
-The K-only stationary perturbation of §3.3 is the \emph{baseline operating point} of the facet-gated operator (stability via Cor 6.9.6, verified at +68.5pp). The accuracy-lift extension is a per-step \textbf{Q-coverage construction}, optionally paired with a small-α K-bias on the same $B_{\mathrm{ont}}$. The V-channel is empirically marginal-neutral at small magnitude on Subtask4 (V+Q full 497 = Q-only to within bootstrap SE), and destructive when \emph{co-included} with K on the shared subspace (trio < both pairs). The K-channel serves dual roles at \emph{different magnitudes} — large-α stationary stability (Cor 6.9.6, $\alpha_K=0.3$, +68.5pp) and small-α step-paired accuracy (Thm 6.17, $\alpha_K=0.05$ paired with Q-coverage, +0.3pp marginal over Q-only). The same $B_{\mathrm{ont}}$ basis additionally parameterizes a Pareto-optimal KV-cache compression scheme. We state three theorems formalizing this unification (proofs in Appendix B.7.10–B.7.12).
+This section is best read as a \textbf{secondary organizational frame}, not as the paper's first claim. The primary claim has already been made in §1 and §3.6.1: on multi-tool tasks, the important distinction is between stationary K-side steering and Q-side coverage. The role of the present section is narrower. It shows how the same ontology basis can support that main Q-side result, a strong K-side stability result, and a secondary compression result without requiring three unrelated constructions. The K-only stationary perturbation of §3.3 is therefore a stability baseline, not the paper's preferred multi-tool mechanism.
 
 
 \subsubsection{3.6.1 Theorem 6.17 — Step-Adaptive Q-Coverage First-Order Optimality for Multi-Tool Emission}
@@ -212,7 +212,7 @@ The proof reduces to observing that both the accuracy lift (Thm 6.17) and the co
 \textbf{Cor 6.19.2 (Inference cost).} The joint-optimal operator deploys at the \emph{same per-token cost} as $K$-only stationary steering plus uniform-bit KIVI compression: $\Delta_Q^{(t)}$ is one $d \times d$ matvec per step (linear in $T$); $\Delta_K, \Delta_V$ are precomputed at load; $b^*(t,f)$ requires one calibration forward pass (amortized). No asymptotic overhead.
 
 
-\textbf{Significance.} Thm 6.19 is \emph{the unification result}. Where the steering and compression contributions share only the facet basis $B_{\mathrm{ont}}$ as a coincidental geometric object, Thm 6.19 shows the same basis is \emph{simultaneously Pareto-optimal} for both inference-time steering and KV cache compression — a structural rather than coincidental coupling. The unified narrative is:
+\textbf{Significance.} Thm 6.19 is a useful unification result, but it is not the first lens through which the paper should be evaluated. Its purpose is to show that the ontology basis is not a one-off construction tailored only to the Q-side story. Once the reader accepts the main multi-tool result of Thm 6.17 and the stability evidence of Cor 6.9.6, Thm 6.19 explains why the same basis also admits a coherent compression interpretation.
 
 
 \begin{quote}
