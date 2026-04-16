@@ -388,7 +388,7 @@ The K-only stationary perturbation of §3.3 is the *baseline operating point* of
 #### 3.6.1 Theorem 6.17 — Coverage-Aware Q-Side Accuracy Optimality with Optional Small-α K Augmentation (V channel marginal-neutral, V·K co-inclusion destructive)
 
 Define three perturbation channels at layer $\ell$:
-- $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$ (Q-side coverage mask, step-adaptive; $P_f := B_f B_f^\top$),
+- $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$ (Q-side coverage mask, formally step-varying with stationary approximation used in §5.5 verification; $P_f := B_f B_f^\top$),
 - $\Delta_K := \alpha\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top K$ (K-side facet marker, stationary; Cor 6.9.6 on-manifold),
 - $\Delta_V := \gamma\, B_{\mathrm{ont}} B_{\mathrm{ont}}^\top V$ (V-side facet amplifier, stationary).
 
