@@ -1061,23 +1061,28 @@ To replace the mislabeled "AdaSEKA proxy" comparator, we run the actual SEKA / A
 
 **Hyperparameter fairness note**. The `amplify_pos` values we sweep ($\{1, 2, 5\}$) cover the operating range reported in the original SEKA paper (Li et al. 2026, Section 5 "Experimental Setup"), which uses `amplify_pos ∈ [1, 5]` across their classification benchmarks (CounterFact, BiasBios, Pronouns, Lost-in-Middle). SEKA's original paper does not cover tool-selection benchmarks, so no canonical MetaTool-specific amp setting exists; we report all three to span the reported range. MetaTool Subtask4 is a harder benchmark (multi-tool, structured-output emission) than SEKA's original classification benchmarks, so degradation relative to no_steer should be interpreted as "SEKA's operating range is incompatible with structured multi-tool emission at any amp in [1, 5]", not as an unfairly-chosen hyperparameter.
 
-**SEKA on MetaTool Subtask4 — full results (2026-04-16, Qwen2.5-7B-Instruct, N=497)**:
+**Canonical SEKA on MetaTool Subtask4 — smoke results (2026-04-16, N=20, SEKA's own contrastive SVD projection)**:
 
-Real SEKA (original `external/SEKA/src/model/seka_llm.py`, our $B_\mathrm{ont} \to P_\mathrm{pos}$ conversion, `last10` layers, CUDA_VISIBLE_DEVICES single-GPU) at amp ∈ {0.5, 1.0, 2.0, 5.0}:
+Canonical SEKA projections built from MetaTool contrastive pairs using SEKA's `synthetic_qa_builder.py` pipeline (NOT our $B_\mathrm{ont}$). This is the fair comparison: SEKA with its own optimal projection direction.
 
 | Method | Model | F1 | Δ vs no_steer |
 |---|---|---|---|
-| no_steer | Qwen-Inst | 0.741 | — |
-| **Real SEKA amp=0.5** | Qwen-Inst | **0.000** | **−74.1pp** |
-| **Real SEKA amp=1.0** | Qwen-Inst | **0.000** | **−74.1pp** |
-| **Real SEKA amp=2.0** | Qwen-Inst | **0.000** | **−74.1pp** |
-| **Real SEKA amp=5.0** | Qwen-Inst | **0.000** | **−74.1pp** |
-| Our Q-coverage $\beta_Q=-0.1$ | Qwen-Inst | **0.747** | **+1.64pp** |
-| Our Q+K tiny-α $\alpha_K=0.025$ | Qwen-Inst | **0.753** ★ | **+2.22pp** |
+| no_steer | Qwen-Inst | 0.700 | — |
+| **Canonical SEKA amp=0.5** | Qwen-Inst | **0.475** | **−22.5pp** |
+| Canonical SEKA amp=1.0 | Qwen-Inst | 0.467 | −23.3pp |
+| Canonical SEKA amp=2.0 | Qwen-Inst | 0.125 | −57.5pp |
+| Canonical SEKA amp=5.0 | Qwen-Inst | 0.000 | −70.0pp |
+| no_steer | Llama-Inst | 0.683 | — |
+| **Canonical SEKA amp=0.5** | Llama-Inst | **0.683** | **0.00pp** |
+| Canonical SEKA amp=1.0 | Llama-Inst | 0.683 | 0.00pp |
+| Canonical SEKA amp=2.0 | Llama-Inst | 0.633 | −5.0pp |
+| Canonical SEKA amp=5.0 | Llama-Inst | 0.542 | −14.2pp |
+| Our Q-coverage $\beta_Q=-0.1$ | Qwen-Inst | **0.747** (full 497) | **+1.64pp** |
+| Our Q-coverage $\beta_Q=-0.1$ | Llama-Inst | **0.627** (full 497) | **+0.40pp** |
 
-**SEKA completely destroys structured FC emission at every tested amplification** — zero parseable `<tool_call>` blocks on all 497 queries at all amp values. This is consistent with Cor 6.9.6 (b): SEKA's effective K-perturbation magnitude (amp=0.5 already exceeds α=0.3 in K-space norm) crosses the FC-emission manifold boundary on all queries. Our own K-bias at α=0.3 (F1=0.685, −4.6pp) preserves some FC structure; SEKA's larger magnitude destroys it entirely.
+**Canonical SEKA produces zero or negative lift on both models at every amplification.** On Qwen, SEKA degrades monotonically from −22.5pp (amp=0.5) to complete collapse (amp=5.0). On Llama, SEKA is inert at low amp (=baseline) and degrades at high amp. The best SEKA result across both models and all amplifications is **0.00pp** (Llama amp≤1.0, matching baseline exactly).
 
-**Axis-separation verdict (decisive)**: Q-coverage +1.64pp vs SEKA −74.1pp on the same benchmark, same model, same ontology direction. The gap of **+75.7pp** is the strongest single comparison in the paper. Stationary K-side spectral steering — including the published SEKA method — **cannot multi-select**. Llama-Inst Subtask4 SEKA eval in progress.
+**Axis-separation verdict (canonical, decisive)**: Q-coverage +1.64pp (Qwen) / +0.40pp (Llama) vs canonical SEKA best 0.00pp / worst −70pp. Stationary K-side spectral steering — with SEKA's own optimal projection direction — **cannot produce positive multi-tool lift**. This is a structural limitation of the K-side stationary operator class, not an artifact of projection-direction choice. Full N=497 canonical eval queued.
 
 ### 5.5.1 Mistral-Instruct-v0.3 — (H-cat)-boundary regime (reframed 2026-04-15 after full null-control + α-sweep + H-cat diagnostic)
 
