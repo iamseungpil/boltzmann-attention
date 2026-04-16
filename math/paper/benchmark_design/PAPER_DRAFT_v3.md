@@ -457,7 +457,8 @@ with $G_Q > 0$. The first-order coefficient $G_Q$ is strictly positive *only for
 | Null-control: real $\beta=-0.1$ vs featshuffle $B$ | — | +2.2pp gap |
 | K-only stationary $\alpha = 0.3$ (our K-bias) | 0.685 | −4.6pp (stability regime, §3.3) |
 | K-only stationary $\alpha = 0.3$ (Llama) | 0.312 | **−31.2pp** (catastrophic) |
-| SEKA amp = 1.0 (Llama, partial N=45) | 0.545 | **−7.95pp** (external) |
+| Canonical SEKA amp=0.5 (Qwen, smoke N=20) | 0.475 | **−22.5pp** (canonical) |
+| Canonical SEKA amp=1.0 (Llama, smoke N=20) | 0.683 | **0.00pp** (= baseline) |
 
 The sign pattern — Q-coverage positive, all K-side stationary methods negative on multi-tool — is the empirical manifestation of the structural argument above.
 
