@@ -74,21 +74,22 @@ def solve_reverse_water_filling(pi_sigma2: np.ndarray, B_budget: float) -> np.nd
        s.t. sum b_i <= B_budget, b_i >= 0.
     Returns b_star (N,) with sum <= B_budget.
     Uses bisection on lambda."""
-    if pi_sigma2.max() <= 0:
+    ps_pos = pi_sigma2[pi_sigma2 > 0]
+    if len(ps_pos) == 0:
         return np.zeros_like(pi_sigma2)
-    # Upper bound: full spend on top elem; lower: 0
-    lam_hi = 4.0 / pi_sigma2.max()  # gives b_max ~ 1 per element for top
-    lam_lo = 1.0 / (pi_sigma2.max() * 1e6)  # all zero
+    lam_hi = 2 ** (2 * 8.0) / ps_pos.min()
+    lam_lo = 1.0 / (pi_sigma2.max() * 1e6)
 
-    for _ in range(100):
+    for _ in range(200):
         lam = 0.5 * (lam_hi + lam_lo)
         b = 0.5 * np.log2(np.maximum(lam * pi_sigma2, 1.0))
+        b = np.clip(b, 0, 8)
         b_total = b.sum()
         if b_total > B_budget:
             lam_hi = lam
         else:
             lam_lo = lam
-        if abs(b_total - B_budget) < 1e-3:
+        if abs(b_total - B_budget) < max(1e-3, 1e-6 * B_budget):
             break
     return b
 
