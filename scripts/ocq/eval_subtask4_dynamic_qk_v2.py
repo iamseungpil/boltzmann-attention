@@ -118,9 +118,12 @@ class IterativeDynamicHooks:
     def add_emitted_tool(self, tool_name):
         facet_vals = TOOL_FACET_MAP.get(tool_name, {})
         for facet_name, facet_val in facet_vals.items():
-            key = f"{facet_name}:{facet_val}"
-            if key not in self.emitted_keys:
-                self.emitted_keys.add(key)
+            # Bug fix: track at facet_name level (not facet_name:facet_val)
+            # to avoid double-counting the same projector when two tools
+            # share the same facet category (e.g., domain:travel + domain:finance).
+            # See Lemma 6.17.C in THEOREM_SUPPLEMENTS_2026_04_16.md.
+            if facet_name not in self.emitted_keys:
+                self.emitted_keys.add(facet_name)
                 if facet_name in self.facet_projectors:
                     self.P_emitted += self.facet_projectors[facet_name]
 
