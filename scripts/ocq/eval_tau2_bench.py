@@ -610,7 +610,7 @@ def run_method(
             generation = tokenizer.decode(new_tokens, skip_special_tokens=True)
 
             # Extract predictions and ground truth
-            pred_raw = extract_tool_names(generation)
+            pred_raw = extract_tool_names(generation, known_tools=domain_tools)
             pred_unique = list(dict.fromkeys(pred_raw))  # deduplicate preserving order
             gt_unique = extract_gt_tools(task)
 
