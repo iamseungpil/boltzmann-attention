@@ -245,6 +245,15 @@ def run_method(
             beta_q=params["beta_q"],
             n_kv=n_kv, n_q=n_q, head_dim=head_dim,
         )
+    elif kind == "layer_adaptive":
+        n_q = model.config.num_attention_heads
+        ctx = install_layer_adaptive_hooks(
+            model, B_ont,
+            alpha_k=params["alpha_k"], beta_q=params["beta_q"],
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+            k_boundary_frac=params.get("k_frac", 0.25),
+            skip_heads=skip_heads,
+        )
     elif kind == "caa":
         ctx = install_caa_hooks(model, B_ont, alpha=params["alpha"])
     elif kind == "adaseka":
