@@ -1093,6 +1093,24 @@ def parse_method(method: str) -> Tuple[str, Dict]:
             "alpha_v": float(av_str),
             "use_skip": use_skip, "use_sinkskip": use_sinkskip,
         }
+    # Layer-Adaptive K+Q: ocq_ladapt_k<αK>_q<βQ> or ocq_ladapt_k<αK>_q<βQ>_f<frac>
+    if tag.startswith("ocq_ladapt_k"):
+        rest = tag[len("ocq_ladapt_k"):]
+        if "_q" not in rest:
+            raise ValueError(f"layer_adaptive tag needs _q<βQ>: {method}")
+        ak_str, after_q = rest.split("_q", 1)
+        if "_f" in after_q:
+            bq_str, frac_str = after_q.split("_f", 1)
+            k_frac = float(frac_str)
+        else:
+            bq_str = after_q
+            k_frac = 0.25
+        return "layer_adaptive", {
+            "alpha_k": float(ak_str),
+            "beta_q": float(bq_str),
+            "k_frac": k_frac,
+            "use_skip": use_skip, "use_sinkskip": use_sinkskip,
+        }
     raise ValueError(f"unknown method: {method}")
 
 
