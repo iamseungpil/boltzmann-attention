@@ -68,7 +68,7 @@ Every K-side spectral steering method in the literature — **SEKA** (Li 2026 IC
 
 ### 1.1 Step-adaptive Q-coverage as the multi-selection axis
 
-We introduce a **step-adaptive Q-side operator** — the first in the steering literature — which at decoding step $t$ subtracts from the query $q_t$ the projection onto facets of *already-emitted* tools $\{f_s\}_{s < t}$:
+We introduce a **facet-aware Q-side operator** — the first in the steering literature targeting multi-tool coverage — which at decoding step $t$ subtracts from the query $q_t$ the projection onto facets of *already-emitted* tools $\{f_s\}_{s < t}$:
 $$\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t, \qquad P_{f_s} := B_{f_s} B_{f_s}^\top,$$
 where $B_{f_s}$ is the per-head ontology column block for facet $f_s$ extracted from the **ontology basis** $B_\mathrm{ont}$. This operator structurally supports multi-selection: after emitting `NewsTool` at step 1, the step-2 query is modified to reduce its overlap with the information-delivery facet, redirecting attention to the remaining facets and enabling `MusicTool` emission. Under Hypothesis (R) (Lipschitz soft-gate) and (H-cat) (bimodal facet-channel distribution), we prove Q-coverage is the first-order optimal single-channel operator for multi-tool emission (Theorem 6.17).
 
