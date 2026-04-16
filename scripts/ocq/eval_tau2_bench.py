@@ -239,8 +239,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--dtype", default="auto",
                    choices=["auto", "float16", "bfloat16", "float32"])
-    p.add_argument("--domain", default="retail", choices=["retail"],
-                   help="tau2-bench domain (only retail supported currently)")
+    p.add_argument("--domain", default="retail",
+                   choices=["retail", "airline", "telecom", "banking_knowledge"],
+                   help="tau2-bench domain")
     p.add_argument("--dataset", default="",
                    help="Override path to tasks.json (default: auto from --domain)")
     p.add_argument("--max-samples", type=int, default=0,
