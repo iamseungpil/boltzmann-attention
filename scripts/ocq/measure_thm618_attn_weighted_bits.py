@@ -137,7 +137,7 @@ def main():
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     if tok.pad_token is None: tok.pad_token = tok.eos_token
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, dtype=torch.bfloat16, device_map=args.device,
+        args.model, torch_dtype=torch.bfloat16, device_map=args.device,
         attn_implementation="eager", low_cpu_mem_usage=True,
     ).eval()
     print(f"[load] {time.time() - t0:.1f}s", flush=True)
