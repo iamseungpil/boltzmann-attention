@@ -366,10 +366,10 @@ def main():
                 hooks.remove()
                 pred = extract_tool_names(gen, cands)
             else:
-                # Iterative: extract tools from each generation step.
-                # Bug fix: use extract_all_tools instead of extract_first_tool,
-                # because the model may emit multiple tool_call blocks in a
-                # single generation step.
+                # Iterative generation with per-tool hook updates.
+                # With --stop-at-tool: </tool_call> stops each step → exactly 1 tool per step
+                #   → P_emitted is updated between tools → true iterative Q-subtraction
+                # Without: model may emit multiple tools per step → extract_all_tools fallback
                 hooks.reset()
                 emitted_tools = []
                 accumulated_gen = ""
@@ -382,15 +382,24 @@ def main():
                     with torch.no_grad():
                         ids = tok(prompt_so_far + accumulated_gen, return_tensors="pt")["input_ids"].to(args.device)
                         out = model.generate(ids, max_new_tokens=args.max_new_tokens_per_tool,
-                                             do_sample=False, pad_token_id=tok.eos_token_id)
+                                             do_sample=False,
+                                             eos_token_id=stop_token_ids)
 
+                    # Decode including special tokens to preserve </tool_call> in text
+                    step_gen_full = tok.decode(out[0][ids.shape[1]:], skip_special_tokens=False)
                     step_gen = tok.decode(out[0][ids.shape[1]:], skip_special_tokens=True)
                     hooks.remove()
 
-                    # Parse ALL new tools in this step (not just first)
-                    new_tools = extract_all_tools(step_gen, cands)
-                    new_tools = [t for t in new_tools if t not in emitted_tools]
-                    accumulated_gen += step_gen
+                    # With stop_at_tool, exactly 1 tool per step
+                    if args.stop_at_tool:
+                        tool = extract_first_tool(step_gen, cands)
+                        new_tools = [tool] if tool and tool not in emitted_tools else []
+                        # Include </tool_call> in accumulated so next step continues after it
+                        accumulated_gen += step_gen_full
+                    else:
+                        new_tools = extract_all_tools(step_gen, cands)
+                        new_tools = [t for t in new_tools if t not in emitted_tools]
+                        accumulated_gen += step_gen
 
                     if new_tools:
                         for tool in new_tools:
