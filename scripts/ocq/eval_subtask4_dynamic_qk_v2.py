@@ -201,39 +201,48 @@ class IterativeDynamicHooks:
         )
         self._eps_q_capture = eps_q_capture
 
+        # Build per-layer schedule
+        schedule = make_layer_schedule(L, self.alpha, self.beta, self.layer_mode)
+
         for layer_idx in range(min(L, len(self.model.model.layers))):
             layer = self.model.model.layers[layer_idx]
+            alpha_l, beta_l = schedule[layer_idx]
 
-            def make_q_hook(li):
+            def make_q_hook(li, _beta_l=beta_l):
                 def hook(mod, inp, out):
                     B, T, D = out.shape
                     if D != self.n_q * self.head_dim:
                         return out
+                    if _beta_l == 0.0:
+                        return out
                     Q = out.view(B, T, self.n_q, self.head_dim).float()
-                    if self.beta != 0 and self.P_emitted[li].abs().sum() > 0:
+                    if self.P_emitted[li].abs().sum() > 0:
                         Q_emitted = torch.einsum("btnd,nde->btne", Q, self.P_emitted[li])
-                        Q = Q + self.beta * Q_emitted
+                        Q = Q + _beta_l * Q_emitted
                     return Q.to(out.dtype).view(B, T, D)
                 return hook
 
-            def make_k_hook(li):
+            def make_k_hook(li, _alpha_l=alpha_l):
                 def hook(mod, inp, out):
                     B, T, D = out.shape
                     if D != self.n_kv * self.head_dim:
                         return out
+                    if _alpha_l == 0.0:
+                        return out
                     K = out.view(B, T, self.n_kv, self.head_dim).float()
-                    if self.alpha != 0:
-                        g = self.n_q // self.n_kv
-                        P_remaining = self.P_ont_full[li] - self.P_emitted[li]
-                        P_kv = P_remaining.view(self.n_kv, g, self.head_dim, self.head_dim).mean(dim=1)
-                        K_boost = torch.einsum("btnd,nde->btne", K, P_kv)
-                        K = K + self.alpha * K_boost
+                    g = self.n_q // self.n_kv
+                    P_remaining = self.P_ont_full[li] - self.P_emitted[li]
+                    P_kv = P_remaining.view(self.n_kv, g, self.head_dim, self.head_dim).mean(dim=1)
+                    K_boost = torch.einsum("btnd,nde->btne", K, P_kv)
+                    K = K + _alpha_l * K_boost
                     return K.to(out.dtype).view(B, T, D)
                 return hook
 
             # Q-coverage hook registered AFTER eps_q hook on mid layer
-            self.handles.append(layer.self_attn.q_proj.register_forward_hook(make_q_hook(layer_idx)))
-            self.handles.append(layer.self_attn.k_proj.register_forward_hook(make_k_hook(layer_idx)))
+            if beta_l != 0.0:
+                self.handles.append(layer.self_attn.q_proj.register_forward_hook(make_q_hook(layer_idx)))
+            if alpha_l != 0.0:
+                self.handles.append(layer.self_attn.k_proj.register_forward_hook(make_k_hook(layer_idx)))
 
     def get_last_eps_q(self):
         if self._eps_q_capture:
