@@ -135,14 +135,18 @@ def main():
             B_l = B_ont_tensor[l_idx]  # (H_kv, d, R)
             P = torch.einsum("hdr,her->hde", B_l, B_l)  # (H_kv, d, d)
 
+            n_q = model.config.num_attention_heads
+            g = n_q // H_kv
+
             def make_hook(P_proj):
                 def hook_fn(mod, inp, out):
                     q = out
                     orig_shape = q.shape
                     if q.dim() == 3:
                         B, T, D_all = q.shape
-                        q = q.view(B, T, H_kv, d)
-                    q_biased = q.float() + beta_val * torch.einsum("bthd,hde->bthe", q.float(), P_proj)
+                        q = q.view(B, T, n_q, d)
+                    P_expanded = P_proj.unsqueeze(1).expand(-1, g, -1, -1).reshape(n_q, d, d)
+                    q_biased = q.float() + beta_val * torch.einsum("bthd,hde->bthe", q.float(), P_expanded)
                     return q_biased.to(out.dtype).view(orig_shape)
                 return hook_fn
 
