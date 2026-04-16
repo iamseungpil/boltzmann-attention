@@ -1109,7 +1109,7 @@ Canonical SEKA projections built from MetaTool contrastive pairs using SEKA's `s
 
 **Canonical SEKA produces zero or negative lift on both models at every amplification.** On Qwen, SEKA degrades monotonically from −22.5pp (amp=0.5) to complete collapse (amp=5.0). On Llama, SEKA is inert at low amp (=baseline) and degrades at high amp. The best SEKA result across both models and all amplifications is **0.00pp** (Llama amp≤1.0, matching baseline exactly).
 
-**Axis-separation verdict (canonical, decisive)**: Q-coverage +1.64pp (Qwen) / +0.40pp (Llama) vs canonical SEKA best 0.00pp / worst −70pp. Stationary K-side spectral steering — with SEKA's own optimal projection direction — **cannot produce positive multi-tool lift**. Full N=497 canonical eval queued.
+**Axis-separation verdict (canonical)**: Q-coverage +1.64pp (Qwen) / +0.40pp (Llama) vs canonical SEKA best 0.00pp / worst −70pp. Stationary K-side spectral steering **empirically fails to produce positive multi-tool lift** on both tested families — regime-dependent degradation consistent with the lack of per-step facet-tracking state. Full N=497 canonical eval queued.
 
 ### 5.5.1 Mistral-Instruct-v0.3 — (H-cat)-boundary regime (reframed 2026-04-15 after full null-control + α-sweep + H-cat diagnostic)
 
