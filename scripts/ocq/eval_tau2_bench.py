@@ -300,6 +300,10 @@ def build_tools_json(domain_tools: List[str] = None) -> List[dict]:
 def build_user_message(task: dict) -> str:
     """Compose the user message from all instruction fields in the task."""
     instr = task["user_scenario"]["instructions"]
+    # Some domains (banking_knowledge) have instructions as a plain string
+    if isinstance(instr, str):
+        return instr
+    # Others (retail, airline) have a dict with structured fields
     parts = []
     if instr.get("reason_for_call"):
         parts.append(instr["reason_for_call"])
