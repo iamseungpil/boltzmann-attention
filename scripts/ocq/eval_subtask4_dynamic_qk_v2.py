@@ -355,7 +355,40 @@ def main():
             cands = parse_candidates(entry["action_prompt"])
             fc = build_fc_prompt(tok, entry["action_prompt"], cands)
 
-            if not iterative:
+            if mode == "multipass":
+                # Multi-pass: same question asked multiple times,
+                # each pass with updated P_emitted so Q-coverage
+                # steers toward different tools. Model context is
+                # NOT broken — each pass is a full independent generation.
+                hooks.reset()
+                all_tools = []
+
+                for pass_idx in range(args.max_tools):
+                    hooks.install()
+                    with torch.no_grad():
+                        ids = tok(fc, return_tensors="pt")["input_ids"].to(args.device)
+                        out = model.generate(ids,
+                                             max_new_tokens=args.max_new_tokens_per_tool * 3,
+                                             do_sample=False,
+                                             eos_token_id=stop_token_ids)
+                    gen = tok.decode(out[0][ids.shape[1]:], skip_special_tokens=True)
+                    hooks.remove()
+
+                    # Extract tools from this pass
+                    pass_tools = extract_all_tools(gen, cands)
+                    new_tools = [t for t in pass_tools if t not in all_tools]
+
+                    if new_tools:
+                        for t in new_tools:
+                            all_tools.append(t)
+                            hooks.add_emitted_tool(t)
+                    else:
+                        # No new tools found — converged
+                        break
+
+                pred = all_tools
+
+            elif not iterative:
                 # Static: single generation
                 hooks.reset()
                 if alpha != 0 or beta != 0:
