@@ -1,0 +1,2254 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "configs": [
+    {
+      "config": "no_steer",
+      "alpha": 0.0,
+      "beta": 0.0,
+      "iterative": false,
+      "eps_threshold": 0.1,
+      "n": 50,
+      "macro": {
+        "F1": 0.6966666666666668,
+        "Exact": 0.46
+      },
+      "runtime_s": 41.42330455780029,
+      "per_sample": [
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "JobTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "web_requests"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "ResearchHelper"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        }
+      ]
+    },
+    {
+      "config": "static_q",
+      "alpha": 0.0,
+      "beta": -0.05,
+      "iterative": false,
+      "eps_threshold": 0.1,
+      "n": 50,
+      "macro": {
+        "F1": 0.6966666666666668,
+        "Exact": 0.46
+      },
+      "runtime_s": 53.35217213630676,
+      "per_sample": [
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "JobTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "web_requests"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "ResearchHelper"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        }
+      ]
+    },
+    {
+      "config": "iterative_q",
+      "alpha": 0.0,
+      "beta": -0.05,
+      "iterative": true,
+      "eps_threshold": 0.1,
+      "n": 50,
+      "macro": {
+        "F1": 0.6966666666666668,
+        "Exact": 0.46
+      },
+      "runtime_s": 58.58028030395508,
+      "per_sample": [
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "JobTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "web_requests"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "ResearchHelper"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        }
+      ]
+    },
+    {
+      "config": "iterative_kq",
+      "alpha": 0.05,
+      "beta": -0.05,
+      "iterative": true,
+      "eps_threshold": 0.1,
+      "n": 50,
+      "macro": {
+        "F1": 0.71,
+        "Exact": 0.52
+      },
+      "runtime_s": 64.64923214912415,
+      "per_sample": [
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "FinanceTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch",
+            "ChartTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "F1": 0.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5
+        }
+      ]
+    }
+  ]
+}
