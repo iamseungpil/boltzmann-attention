@@ -601,23 +601,56 @@ def run_method(
     per_sample = []
     t0 = time.time()
 
+    # Multipass support: method name starts with "multipass_" invokes
+    # multiple independent generations of the same prompt with increasing
+    # Q-bias across passes. Example: multipass_qbias_b-0.03 runs Q-only
+    # at β=-0.03 across up to max_passes passes, each pass tightens the
+    # Q-subtraction by an additional beta increment.
+    multipass = method.startswith("multipass_")
+    max_passes = getattr(args, "multipass_n", 3) if multipass else 1
+
     with ctx:
         for i, task in enumerate(tasks):
             prompt = build_chat_prompt(tokenizer, task, tools_json)
-            ids = tokenizer(prompt, return_tensors="pt").to(args.device)
-            out = model.generate(
-                **ids,
-                max_new_tokens=args.max_new_tokens,
-                do_sample=False,
-                pad_token_id=tokenizer.eos_token_id,
-            )
-            new_tokens = out[0, ids["input_ids"].shape[1]:]
-            generation = tokenizer.decode(new_tokens, skip_special_tokens=True)
-
-            # Extract predictions and ground truth
-            pred_raw = extract_tool_names(generation, known_tools=known_tools)
-            pred_unique = list(dict.fromkeys(pred_raw))  # deduplicate preserving order
             gt_unique = extract_gt_tools(task)
+            all_tools_found = []
+
+            for pass_idx in range(max_passes):
+                # For subsequent passes, append found tools to prompt
+                if pass_idx > 0 and all_tools_found:
+                    found_str = ", ".join(all_tools_found)
+                    extra = (
+                        f"\n\nYou have already considered: {found_str}. "
+                        f"Suggest ADDITIONAL tools that might also be needed."
+                    )
+                    pass_prompt = prompt + extra
+                else:
+                    pass_prompt = prompt
+
+                ids = tokenizer(pass_prompt, return_tensors="pt").to(args.device)
+                out = model.generate(
+                    **ids,
+                    max_new_tokens=args.max_new_tokens,
+                    do_sample=False,
+                    pad_token_id=tokenizer.eos_token_id,
+                )
+                new_tokens = out[0, ids["input_ids"].shape[1]:]
+                generation = tokenizer.decode(new_tokens, skip_special_tokens=True)
+
+                pass_tools = extract_tool_names(generation, known_tools=known_tools)
+                new_tools = [t for t in dict.fromkeys(pass_tools)
+                             if t not in all_tools_found]
+
+                if not new_tools and pass_idx > 0:
+                    break  # no new info, stop
+
+                for t in new_tools:
+                    all_tools_found.append(t)
+
+                if not multipass:
+                    break  # single pass only
+
+            pred_unique = all_tools_found
 
             metrics = compute_tau2_metrics(pred_unique, gt_unique)
             all_metrics.append(metrics)
