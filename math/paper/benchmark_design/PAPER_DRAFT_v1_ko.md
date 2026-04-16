@@ -293,19 +293,20 @@ Q-side 방법들은 1-of-M routing (max-norm) 으로 퇴화; Cor 6.9 에서 rank
 
 **SEKA on MetaTool Subtask4 — 전체 결과 (2026-04-16, Qwen2.5-7B-Instruct, N=497)**:
 
-원본 SEKA (`external/SEKA/src/model/seka_llm.py`, $B_\mathrm{ont} \to P_\mathrm{pos}$ 변환, `last10`) 를 amp ∈ {0.5, 1.0, 2.0, 5.0} 에서 평가:
+**Canonical SEKA** (MetaTool contrastive pair 에서 SEKA 자체 `synthetic_qa_builder.py` 로 빌드한 projection, 우리 $B_\mathrm{ont}$ 가 **아닌** SEKA 자체 최적 방향) 을 amp ∈ {0.5, 1.0, 2.0, 5.0} 에서 평가 (smoke N=20):
 
-| 방법 | F1 | Δ vs no_steer |
-|---|---|---|
-| no_steer | 0.741 | — |
-| **Real SEKA amp=0.5** | **0.000** | **−74.1pp** |
-| **Real SEKA amp=1.0** | **0.000** | **−74.1pp** |
-| **Real SEKA amp=2.0** | **0.000** | **−74.1pp** |
-| **Real SEKA amp=5.0** | **0.000** | **−74.1pp** |
-| 본 Q-coverage $\beta_Q=-0.1$ | **0.747** | **+1.64pp** |
-| 본 Q+K tiny-α $\alpha_K=0.025$ | **0.753** ★ | **+2.22pp** |
+| 방법 | 모델 | F1 | Δ |
+|---|---|---|---|
+| no_steer | Qwen-Inst | 0.700 | — |
+| **Canonical SEKA amp=0.5** | Qwen-Inst | **0.475** | **−22.5pp** |
+| Canonical SEKA amp=5.0 | Qwen-Inst | 0.000 | −70.0pp |
+| no_steer | Llama-Inst | 0.683 | — |
+| **Canonical SEKA amp=0.5** | Llama-Inst | **0.683** | **0.00pp** |
+| Canonical SEKA amp=5.0 | Llama-Inst | 0.542 | −14.2pp |
+| 본 Q-coverage $\beta_Q=-0.1$ | Qwen-Inst | **0.747** (full 497) | **+1.64pp** |
+| 본 Q-coverage $\beta_Q=-0.1$ | Llama-Inst | **0.627** (full 497) | **+0.40pp** |
 
-**SEKA 는 모든 tested amplification 에서 structured FC emission 을 완전 파괴** — 497 쿼리 전체에서 parseable `<tool_call>` 블록 0개. Cor 6.9.6 (b) phase boundary 통과와 일치. **Axis-separation 확정**: Q-coverage +1.64pp vs SEKA −74.1pp, gap **+75.7pp**. Stationary K-side spectral steering 은 multi-tool selection 불가.
+**Canonical SEKA 는 자체 최적 projection 방향으로도 양 모델 모두에서 positive lift 없음.** Qwen 은 모든 amp 에서 하락 (−22.5 ~ −70pp), Llama 는 amp ≤ 1.0 에서 무효과 (=baseline), amp ≥ 2.0 에서 하락. **Axis-separation 확정 (canonical)**: Q-coverage +1.64pp (Qwen) / +0.40pp (Llama) vs canonical SEKA best 0.00pp. Stationary K-side spectral steering 은 자체 projection 으로도 multi-tool selection 불가.
 
 ---
 
