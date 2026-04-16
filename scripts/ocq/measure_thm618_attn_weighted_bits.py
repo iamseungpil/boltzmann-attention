@@ -355,7 +355,18 @@ def main():
                         coeffs_q[:, :, lo:hi] = q * scale + c_min
                 K_ont_q = coeffs_q @ B_h.T
                 K_res = K_h - (coeffs @ B_h.T)
-                K_res_q = _asymmetric_per_channel(K_res.unsqueeze(0), 2, residual_R=0).squeeze(0)
+                ont_bits_used = sum(
+                    max(0, min(8, round(lhf[li, h, fi]))) * (fb[fi+1] - fb[fi])
+                    for fi in range(min(4, len(fb) - 1))
+                )
+                R_total = fb[-1] - fb[0] if len(fb) > 1 else 0
+                res_channels = D - R_total
+                remaining_bits = target_bits_val * D - ont_bits_used
+                if res_channels > 0 and remaining_bits > 0:
+                    res_bits = max(1, min(8, round(remaining_bits / res_channels)))
+                else:
+                    res_bits = 2
+                K_res_q = _asymmetric_per_channel(K_res.unsqueeze(1), res_bits, residual_R=0).squeeze(1)
                 k_out[:, h] = (K_ont_q + K_res_q).to(k_4d.dtype)
             return k_out
         return quant_fn
