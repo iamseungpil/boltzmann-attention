@@ -11,7 +11,7 @@
 We identify a *uniquely privileged subspace* in the key-projection geometry of instruction-tuned transformers — the per-head ontology basis $B_{\mathrm{ont}}$ — and prove that it is **simultaneously Pareto-optimal** for inference-time steering and KV-cache compression. The unification rests on three theorems built over a common Lagrangian:
 
 1. **Stability** (Cor 6.9.6, verified). $\mathrm{span}(B_{\mathrm{ont}})$ is the unique rank-$R$ K-perturbation subspace whose output-distribution KL from the base model is $O(\alpha^2)$; off-manifold perturbations of equal magnitude exit the FC-emission manifold for $\alpha > \alpha^*$. Empirically: at $\alpha=0.3$ on MetaTool Subtask4 N=497, real $B_{\mathrm{ont}}$ preserves F1 = 0.685 while random and feature-shuffled controls collapse to F1 = 0.000 (**direction-specificity gap +68.5pp**).
-2. **Accuracy via Q-coverage + K small-α additive steering** (Thm 6.17 (b)+(a′), revised scope). A step-adaptive Q-coverage mask over $B_{\mathrm{ont}}$, optionally augmented with a small-α K-bias, gives the verified first-order accuracy lift on multi-tool selection. *Verified at full 497, Qwen2.5-7B-Instruct Subtask4 (2026-04-15)*:
+2. **Accuracy via Q-coverage + K small-α additive steering** (Thm 6.17 (b)+(a′), revised scope). A facet-aware Q-coverage mask over $B_{\mathrm{ont}}$ — $\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t$, formally step-varying but verified in its stationary approximation (App. F.5) at first order — optionally augmented with a small-α K-bias, gives the verified first-order accuracy lift on multi-tool selection. *Verified at full 497, Qwen2.5-7B-Instruct Subtask4 (2026-04-15)*:
 
    | Method | F1 | Δ vs no_steer 0.731 |
    |---|---|---|
