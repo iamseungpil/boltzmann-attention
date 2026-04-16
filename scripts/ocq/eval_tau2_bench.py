@@ -755,6 +755,7 @@ def main():
             B_ont=B_ont, n_kv=n_kv, n_q=n_q,
             head_dim=head_dim, L=L,
             facet_mask=facet_mask, skip_heads=skip_heads,
+            known_tools=domain_tools,
         )
         m = res["metrics"]
         print(
