@@ -1,40 +1,7 @@
-\section{6. Discussion}
-\subsection{6.1 Why stability is the correct narrative frame}
+\section{Discussion}
 
-Three a-priori plausible framings for the contributions of this paper exist:
+The paper is strongest as a scoped mechanism paper, not as a universal steering framework. The Q-side gain is real but small. The K-side stability result is much larger and more decisive, but it is a negative lesson about where stationary key-space steering fails on multi-tool prompts. Keeping those two facts separate improves the paper's coherence.
 
+There are three limitations. First, the evaluated Q-side operator is a history-free approximation. It is motivated by an ideal coverage mechanism, but it does not explicitly track emitted facets. Second, the multi-tool result is currently demonstrated on a single benchmark family. Third, the paper does not provide a clean, matched, full-scale comparison against an external SEKA or AdaSEKA implementation on the exact same models, prompts, and decoding setup. That missing comparison should be read as a scope boundary, not hidden inside the main claim.
 
-\begin{enumerate}
-\item \textbf{Accuracy lift on single-tool selection} (Subtask1). Observed $\Delta \le +6$pp under strict label-logprob scorers; $+11$pp under legacy substring (scorer-dependent).
-\item \textbf{Accuracy lift on multi-tool selection} (Subtask4 F-simultaneous). Originally predicted $+5$–$+15$pp; empirically FALSIFIED at full 497 ($-4.6$pp).
-\item \textbf{Direction-specificity of the ontology subspace} (null-control gaps). Observed $+16$ to $+49$pp on Subtask1 (scorer-invariant); $+68.5$pp on Subtask4 (full 497, verified at the largest scale in the paper).
-\end{enumerate}
-
-Only framing (3) is robustly supported at the magnitude predicted by theory (Cor 6.9.6). The $\pm 5$pp headlines of framings (1) and (2) are scorer-dependent and task-specific; the $+30$–$+68$pp gaps of (3) are scorer-invariant, task-invariant, and cross-model (§5.4 Table). We therefore lead with the stability claim. Accuracy lifts, when they occur (Qwen sum +0.10 / mean +5.03, Llama-Base sum +6.33 / mean +2.61, Mistral-Base sum +3.12, MMLU flat $\alpha=0.2$ +1.4, contrastive Subtask4 smoke +5.8), are supporting evidence that the direction is \emph{downstream-usable}, not the main contribution.
-
-
-This framing also restructures the paper's falsifiability. Under the accuracy-lift narrative, the paper has a single failure point (Subtask4 $-4.6$pp already observed). Under the stability narrative, the main claim is already verified at full scale; accuracy-lift extensions (§5.5.2 contrastive, §5.10.1 LoRA) are independent follow-ups whose individual success or failure leaves the main contribution intact.
-
-
-\subsection{6.1.1 Why the cross-model positive is supporting (not leading) evidence}
-
-Qwen + Llama-Base + Mistral-Base sum-positive triad is \textbf{generalization evidence for the stability claim}: the ontology direction is uniquely privileged in three independent transformer families, not a Qwen-specific artifact. The Mistral-Instruct-v0.3 negative is not a counterexample to stability — its no\_steer itself is 7.84pp below Mistral-Base (61.51\% vs 69.35\%), and the further $-2.92$pp shift under $\alpha=0.3$ K-bias is consistent with chat-template hedging rather than a failure of the ontology direction to be privileged. A null-control comparison on Mistral-Instruct (random/featshuffle at $\alpha=0.3$) is queued and predicted to show the same $+60$+pp direction-specificity gap as Qwen, confirming stability universality with Instruct-family hedging as a separate scope limit.
-
-
-\subsection{6.2 (R) as a design constraint, not a technicality}
-
-Section 3.2's hard-gate MMLU degradation is not a bug — it is the direct empirical signal that regularity matters. Design the gate to be Lipschitz; do not select a hard threshold for nominal interpretability.
-
-
-\subsection{6.3 Why K-side, not Q-side}
-
-[AdaSEKA differentiation per \texttt{adaseka\_vs\_ours\_differentiation\_2026\_04\_10.md}]. Q-side 1-of-M routing is structurally capped at rank \texttt{r} (Cor 6.9). K-side F-simultaneous attains rank \texttt{R}. For multi-facet intents the gap becomes operationally relevant on compositional benchmarks (Sec 5.11).
-
-
-\subsection{6.4 Limitations}
-
-\begin{enumerate}
-\item Qwen + Llama only. Mistral requires base-weakness mitigation (Instruct variant, Sec 5.3 H2).
-\item Generation scorer + label\textbackslash\{\}\_logprob disagree at N=20 smoke; full 995 pending.
-\item Compositional benchmark is the highest leverage axis; BFCL-v3 integration deferred to Wave 4.
-\end{enumerate}
+These limitations still leave a useful contribution. The paper identifies a stable sign pattern, isolates basis specificity with strong null controls, and removes an easy alternative explanation based on perturbation magnitude alone. That is enough to support the narrower claim that ontology-guided query suppression is a better direction than stationary key amplification for the current multi-tool setting. It also clarifies how a future matched comparison should be designed: the correct question is not simply whether SEKA-style projections help, but whether any stationary key-side method can remain competitive once the benchmark requires sequential facet coverage rather than one-shot emphasis.

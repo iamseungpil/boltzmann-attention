@@ -1,0 +1,105 @@
+\section{실험}
+
+\subsection{설정}
+
+주 벤치마크는 MetaTool Subtask4다. 이 벤치마크는 497개의 프롬프트로 이루어져 있으며, 각 질의마다 정확히 두 개의 ground-truth tool이 있다. 평가지표는 macro F1, Exact match, Jaccard다. 주 모델은 Qwen2.5-7B-Instruct와 Llama-3.1-8B-Instruct이며 \citep{qwen2024qwen25,grattafiori2024llama3}, 모든 평가는 ontology basis를 고정한 greedy decoding으로 수행했다.
+
+\subsection{주 결과: Q-side는 양수, K-side는 음수}
+
+표~\ref{tab:main-results-ko}와 그림~\ref{fig:main-results-ko}는 핵심 결과를 요약한다. 부호 패턴은 두 모델 계열에서 일관된다. Q-side coverage bias는 macro F1을 높이고, stationary K-side bias는 성능을 떨어뜨린다.
+
+\begin{table}[t]
+\centering
+\caption{Subtask4의 주 결과. Q-side bias는 두 모델 모두에서 양의 효과를 보이고, stationary K-side bias는 두 모델 모두에서 음의 효과를 보이며 Llama에서는 붕괴 수준이다.}
+\label{tab:main-results-ko}
+\small
+\begin{tabular}{@{}llccc@{}}
+\toprule
+모델 & 방법 & F1 & Exact & Jaccard \\
+\midrule
+Qwen2.5-7B-Inst & No steer & 0.7307 & 0.5252 & 0.6673 \\
+Qwen2.5-7B-Inst & Q-bias $\beta=-0.1$ & \textbf{0.7471} & \textbf{0.5272} & \textbf{0.6791} \\
+Qwen2.5-7B-Inst & K-bias $\alpha=0.3$ & 0.6850 & 0.4728 & 0.6194 \\
+\midrule
+Llama-3.1-8B-Inst & No steer & 0.6227 & 0.5030 & 0.5872 \\
+Llama-3.1-8B-Inst & Q-bias $\beta=-0.1$ & \textbf{0.6271} & \textbf{0.5070} & \textbf{0.5919} \\
+Llama-3.1-8B-Inst & K-bias $\alpha=0.3$ & 0.3105 & 0.2616 & 0.2951 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig_main_subtask4_results.pdf}
+\caption{Subtask4 macro F1. 왼쪽 패널에는 Qwen의 null control도 함께 표시했다.}
+\label{fig:main-results-ko}
+\end{figure}
+
+절대적인 이득은 크지 않다. Qwen에서는 +1.64pp, Llama에서는 +0.44pp에 그친다. 이것만으로 대담한 정확도 개선을 주장할 수는 없다. 중요한 점은 부호가 모델 계열을 바꿔도 유지된다는 사실과, stationary K-side 개입은 부호가 뒤집힐 뿐 아니라 Llama에서 급격히 무너진다는 사실이다. 따라서 이 논문이 내릴 수 있는 결론은 \emph{방향성}에 관한 것이다. 멀티-툴 recovery가 목표라면 query-space suppression이 유효한 축이고, stationary key-space amplification은 그렇지 않다.
+
+\subsection{온톨로지 특이성이 결정적이다}
+
+더 강한 결과는 headline gain 자체보다 null control의 거동이다. 표~\ref{tab:null-controls-ko}는 ontology basis를 feature-shuffled basis나 random basis로 대체하면 query-side 이득이 사라지고, key-side 안정성은 완전히 붕괴한다는 점을 보여준다.
+
+\begin{table}[t]
+\centering
+\caption{Qwen Subtask4의 null control. K-side 안정성을 유지하면서 Q-side 이득을 주는 기저는 ontology basis뿐이다.}
+\label{tab:null-controls-ko}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+방법 & Real basis & Feature-shuffled & Random \\
+\midrule
+Q-bias $\beta=-0.1$ F1 & \textbf{0.7471} & 0.7254 & 0.7068 \\
+K-bias $\alpha=0.3$ F1 & \textbf{0.6850} & 0.0000 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+이 점이 이 논문에서 가장 설득력 있는 실증 결과다. 임의의 저랭크 교란만으로는 충분하지 않다. rank와 채널 스케일을 유지하는 구조 보존형 control도 실패한다. 실무적 함의도 분명하다. ontology basis는 rank가 같은 임의의 projection으로 대체 가능한 부품이 아니다.
+
+\subsection{유효한 작동 구간은 매우 좁다}
+
+그림~\ref{fig:ablations-ko}는 Qwen Subtask4에 대한 두 개의 ablation을 보여준다. Q-only sweep은 평가한 값들 중에서 $\beta=-0.1$ 근처에서 최대를 보인다. 두 번째 sweep은 Q-side operator 위에 작은 K-bias를 추가한 경우인데, $\alpha_K \in [0.025, 0.05]$인 아주 좁은 범위만이 Q-only 설정보다 낫다.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig_qbias_ablations.pdf}
+\caption{Qwen Subtask4에서의 Q-bias sweep과 small-$\alpha_K$ ablation. 두 곡선 모두 유효 구간이 매우 좁다.}
+\label{fig:ablations-ko}
+\end{figure}
+
+이 좁은 작동 구간은 해석에 중요하다. 결과는 ``bias가 클수록 좋다''가 아니다. ``작은 음의 Q-side projection은 도움이 되지만, 그 밖의 대부분의 설정은 오히려 성능을 깎는다''에 가깝다. 이런 패턴은 조잡한 confidence boost보다 coverage effect 해석과 더 잘 맞는다.
+
+\subsection{안정성은 단지 교란이 작아서 생긴 것이 아니다}
+
+자연스러운 반론은 실제 ontology basis가 null control보다 교란을 덜 주기 때문에 더 안전한 것 아니냐는 것이다. 그림~\ref{fig:stability-bound-ko}는 이 설명을 반박한다. 실제 ontology basis는 null control보다 \emph{더 큰} effective attention perturbation magnitude를 만든다. 그럼에도 안정적인 K-side 방향은 실제 basis뿐이다.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig_stability_and_bound.pdf}
+\caption{두 가지 진단. 왼쪽은 실제 ontology perturbation이 null control보다 더 크다는 점을 보여주고, 오른쪽은 경험적 perturbation-bound ratio가 Qwen과 Llama 모두에서 매우 작다는 점을 보여준다.}
+\label{fig:stability-bound-ko}
+\end{figure}
+
+이 때문에 null-control 결과는 의미가 있다. 실제 basis가 이기는 이유는 약해서가 아니라, 특정한 안정 부분공간과 정렬되어 있기 때문이다. 같은 그림은 perturbation bound ratio가 두 모델 계열 모두에서 매우 작게 유지된다는 점도 보여준다.
+
+\begin{table}[t]
+\centering
+\caption{경험적 perturbation bound 요약. 측정된 left/right ratio는 두 모델 모두에서 매우 작다.}
+\label{tab:bound-ko}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+모델 & Layer & Head-query count & Median LHS/RHS & Mean LHS \\
+\midrule
+Qwen2.5-7B-Inst & 13 & 2800 & $2.36 \times 10^{-8}$ & 0.5092 \\
+Llama-3.1-8B-Inst & 15 & 3200 & $6.37 \times 10^{-8}$ & 0.0586 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{보조 증거}
+
+저장소에는 MetaTool Subtask1의 single-tool 결과와 query-space stability에 기반한 predictor smoke 실험도 포함되어 있다. 그러나 본 논문은 그것들을 주된 주장으로 삼지 않는다. 그 결과들은 일관성 점검으로는 유용하지만, 현재 원고는 multi-tool selection, ontology specificity, 그리고 query-side 개입과 stationary key-side 개입의 대비에 집중할 때 가장 강하다.
+

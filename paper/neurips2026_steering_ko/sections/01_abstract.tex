@@ -1,0 +1,4 @@
+\begin{abstract}
+멀티-툴 에이전트 프롬프트에서는 모델이 도구 하나를 고르는 데서 끝나지 않고, 서로 다른 두 개 이상의 도구를 순차적으로 내보내야 한다. 이때 핵심 문제는 단일 단계 순위화가 아니라 커버리지다. 본 논문은 \texttt{q\_proj}에서 온톨로지 정렬 성분을 억제하는 질의 공간 바이어스를 평가하고, 동일한 온톨로지 기저를 사용하는 정적 key-space 바이어스와 비교한다. MetaTool Subtask4의 497개 two-tool 질의에서 질의 측 바이어스는 Qwen2.5-7B-Instruct의 macro F1을 0.7307에서 0.7471로, Llama-3.1-8B-Instruct의 macro F1을 0.6227에서 0.6271로 높인다. 반면 정적 key-space 바이어스는 Qwen에서 0.6850, Llama에서 0.3105로 악화된다. 이 결과는 임의의 저랭크 교란으로 설명되지 않는다. Qwen에서 온톨로지 기저를 feature-shuffled 또는 random control로 바꾸면 질의 측 결과는 각각 0.7254, 0.7068로 내려가고, key-side control은 둘 다 0.0000으로 붕괴한다. 추가 진단은 유효 영역이 매우 좁고 최적 Q-only 지점이 $\beta=-0.1$ 근처에 있으며, 실제 온톨로지 교란의 유효 attention magnitude가 null control보다 오히려 더 크다는 점을 보여준다. 따라서 본 논문의 주장은 좁지만 일관적이다. 멀티-툴 선택에서는 query-side coverage bias가 생산적인 방향이고, 정적인 key-side 증폭은 그렇지 않으며, 온톨로지 기저는 임의의 투영군이 아니라 안정적인 특정 부분공간을 식별하기 때문에 중요하다.
+\end{abstract}
+

@@ -1,0 +1,8 @@
+\section{논의}
+
+이 논문은 보편적 steering 프레임워크 논문이라기보다, 범위를 좁힌 메커니즘 논문으로 읽는 편이 맞다. Q-side 이득은 실제로 존재하지만 작다. 반면 K-side 안정성 결과는 훨씬 크고 결정적이지만, 그것은 multi-tool prompt에서 stationary key-space steering이 어디서 실패하는지를 보여주는 부정적 교훈에 가깝다. 이 두 사실을 분리해서 쓰는 편이 논문의 응집성을 높인다.
+
+한계도 세 가지가 분명하다. 첫째, 평가한 Q-side operator는 history-free 근사다. coverage 메커니즘에서 영감을 받았지만, 어떤 facet이 이미 방출되었는지를 명시적으로 추적하지는 않는다. 둘째, multi-tool 결과는 아직 단일 benchmark family에서만 확인되었다. 셋째, 정확히 같은 모델, 프롬프트, 디코딩 조건에서 외부 SEKA 또는 AdaSEKA 구현과 맞춘 대규모 비교는 아직 없다. 이 부재는 주장을 숨기는 부분이 아니라, 논문의 범위를 규정하는 경계로 읽어야 한다.
+
+그럼에도 기여는 남는다. 이 논문은 안정적인 부호 패턴을 확인하고, 강한 null control로 기저 특이성을 분리하며, 단지 perturbation magnitude가 작아서 안전한 것 아니냐는 쉬운 대안을 제거한다. 이 정도면 현재의 multi-tool setting에서 ontology-guided query suppression이 stationary key amplification보다 더 맞는 방향이라는 좁은 주장을 지지하기에 충분하다. 동시에 이후의 정합 비교가 어떻게 설계되어야 하는지도 분명해진다. 핵심 질문은 SEKA류 projection이 도움이 되느냐가 아니라, sequential facet coverage가 필요한 상황에서 어떤 stationary key-side 방법이 과연 경쟁력을 유지할 수 있느냐이다.
+

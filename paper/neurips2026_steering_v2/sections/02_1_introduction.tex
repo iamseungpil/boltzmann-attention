@@ -1,51 +1,11 @@
-\section{1. Introduction}
-Enterprise AI agents select \textbf{one or more tools} per query. The MetaTool benchmark explicitly separates these regimes: Subtask1 asks for a single tool, Subtask4 asks for two tools in sequence. In deployed settings (Netsru Gemma-3-27B agent, Appendix E), multi-tool queries dominate: a query about Tesla and stock impact needs \texttt{NewsTool} \textbf{and} \texttt{FinanceTool}; a query about news background music needs \texttt{NewsTool} \textbf{and} \texttt{MusicTool}. The paper's primary contribution addresses this multi-selection regime directly.
+\section{Introduction}
 
+Tool-using language models are often evaluated as if each query required a single decision. That assumption is too weak for many agent settings. A user may simultaneously ask for news and market impact, or for travel planning and exchange-rate information. In such cases the model must emit multiple tools in sequence, not merely rank a single option.
 
-\subsection{1.0 Why SEKA-class K-side spectral steering cannot multi-select}
+This paper studies that multi-tool regime. Our starting point is a simple failure mode: a stationary attention intervention that boosts one facet at every decoding step tends to keep boosting the same facet after the first tool has already been emitted. On a multi-tool query, this is the wrong inductive bias. The model needs a mechanism that makes the second step less like the first one.
 
-Every K-side spectral steering method in the literature — \textbf{SEKA} (Li 2026 ICLR; $k' = k + gPk$ via contrastive SVD projection), \textbf{AdaSEKA} (Kim 2026; query-adaptive expert mixture), \textbf{Focus Directions} (Zhu 2025; additive K and Q bias at top-k heads), and our own K-bias operator — is a \textbf{stationary operator}: it applies the same perturbation at every decoding step. Under autoregressive generation with KV caching, a stationary K-bias that boosts attention toward facet $A$-aligned keys at step 1 **continues to boost attention toward facet $A$** at steps 2, 3, …. If the model emits \texttt{NewsTool} at step 1 (facet $A = \text{information-delivery}$), at step 2 it will attend to the same facet $A$-aligned keys and emit a second \texttt{NewsTool}-family tool rather than a facet-$B$ tool for \texttt{MusicTool}. This is precisely the empirical pattern we observe: our K-bias at $\alpha_K=0.3$ produces $\Delta F_1 = -4.6$pp on Qwen Subtask4 multi-tool and $\Delta F_1 = -31.2$pp catastrophic on Llama Subtask4, while SEKA at amp=1.0 produces $\Delta F_1 = -7.95$pp on Llama Subtask4 partial. K-side stationary steering is \emph{structurally incapable} of facet coverage.
+The intervention we evaluate is an ontology-guided query bias defined on the same per-head basis used by our key-side steering experiments. Its practical implementation is deliberately simple: at each layer, we project the query onto the ontology subspace and add a signed multiple of that projection. Negative coefficients suppress ontology-aligned query components and act as a coverage bias. The hypothesis is direct: for multi-tool prompts, this suppression should improve second-tool recovery, whereas a stationary key-side bias on the same basis should either do nothing or over-concentrate on the first facet.
 
+The evidence supports that hypothesis, but only in a narrow sense. On MetaTool Subtask4, the Q-side bias is consistently positive on both Qwen and Llama, while the stationary K-side bias is negative on both and catastrophic on Llama. The gain is modest in absolute size, so the paper cannot be sold as a broad headline accuracy breakthrough. Its value lies elsewhere: the sign pattern is stable, the null controls are decisive, and the basis-specificity story is stronger than the raw gain.
 
-\subsection{1.1 Step-adaptive Q-coverage as the multi-selection axis}
-
-We introduce a \textbf{step-adaptive Q-side operator} — the first in the steering literature — which at decoding step $t$ subtracts from the query $q_t$ the projection onto facets of \emph{already-emitted} tools $\{f_s\}_{s < t}$: $$\Delta_Q^{(t)} := -\beta \sum_{s<t} P_{f_s} q_t, \qquad P_{f_s} := B_{f_s} B_{f_s}^\top,$$ where $B_{f_s}$ is the per-head ontology column block for facet $f_s$ extracted from the \textbf{ontology basis} $B_\mathrm{ont}$. This operator structurally supports multi-selection: after emitting \texttt{NewsTool} at step 1, the step-2 query is modified to reduce its overlap with the information-delivery facet, redirecting attention to the remaining facets and enabling \texttt{MusicTool} emission. Under Hypothesis (R) (Lipschitz soft-gate) and (H-cat) (bimodal facet-channel distribution), we prove Q-coverage is the first-order optimal single-channel operator for multi-tool emission (Theorem 6.17).
-
-
-\textbf{Empirical verification}. On Qwen2.5-7B-Instruct Subtask4 (N=497), Q-coverage at $\beta = -0.1$ achieves F1 = 0.747 (baseline 0.731, $+$\textbf{1.64pp}) with three-tier null-control direction-specificity gap $+$4.0pp (real $\beta=-0.1$ vs random $\beta=-0.1$ vs featshuffle $\beta=-0.1$). The same operator on Llama-3.1-8B-Instruct Subtask4 achieves $+$\textbf{0.40pp} (cross-family signal, smaller magnitude consistent with Llama's more concentrated attention regime; §5.5.3). In contrast, SEKA amp=1.0 on Llama Subtask4 partial gives $-$\textbf{7.95pp} — a gap of $+$8.35pp in favor of step-adaptive Q-coverage, arising from the structural difference \emph{not} from hyperparameter tuning. A third Q-side mechanism (soft M-of-2 Q-side routing at $T=0.1$) achieves $+$**3.7pp F1 / $+$4.8pp Exact** on Qwen Subtask4, corroborating the broader Q-side viability but as a more engineered variant.
-
-
-\subsection{1.2 Ontology basis: primary and secondary roles}
-
-The same per-head ontology basis $B_\mathrm{ont}$ (rank $R \approx 24$, built once from facet annotations via Gram-Schmidt, §4.1) has one primary role and two secondary roles:
-
-
-\begin{itemize}
-\item \textbf{Primary: Q-steering for multi-tool selection}. $\Delta_Q^{(t)}$ above. This is the main claim of the paper. \textbf{Accuracy lift +1.64pp Qwen / +0.40pp Llama on Subtask4 N=497}.
-\item \textbf{Secondary: K-stability diagnostic}. At $\alpha=0.3$, $\mathrm{span}(B_\mathrm{ont})$ is the unique rank-$R$ K-perturbation subspace preserving FC emission (F1 0.685); random and feature-shuffled controls collapse to F1 0.000 (direction-specificity gap \textbf{+68.5pp} on Subtask4 N=497). This establishes that the ontology basis is geometrically privileged even though it is not the multi-tool accuracy mechanism.
-\item \textbf{Secondary: K-compression axis}. OCQ (1-bit categorical on $B_\mathrm{ont}$ + KIVI-style residual) achieves $-4.37$ PPL over KIVI at 2-bit (Qwen2.5-7B WT2, Thm 6.13). This is retained as a side result, not as the paper's main storyline.
-\end{itemize}
-
-The shared-basis observation matters, but it is not the first thing the paper asks the reader to believe. The reader should first accept the multi-tool Q-side result; the shared-basis point comes after that.
-
-
-\subsection{1.3 Contributions (4, focused)}
-
-\begin{enumerate}
-\item \textbf{Step-adaptive Q-coverage for multi-tool selection (main contribution).} The operator $\Delta_Q^{(t)} = -\beta \sum_{s<t} P_{f_s} q_t$ targets the exact failure mode of stationary K-side steering: after one tool is emitted, suppress its facet and expose the unused ones. On MetaTool Subtask4 full 497, Qwen2.5-7B-Instruct improves from 0.731 to 0.747 F1 at $\beta=-0.1$ and Llama-3.1-8B-Instruct improves by +0.40pp. On the same benchmark, stationary K-side methods are negative. The novelty claim of the paper lives here.
-\end{enumerate}
-
-\begin{enumerate}
-\item \textbf{Ontology-specificity and K-side stability.} The ontology basis is not interchangeable with an arbitrary basis. On MetaTool Subtask4, real $B_\mathrm{ont}$ at $\alpha=0.3$ preserves FC emission (F1 0.685) while random and feature-shuffled controls collapse to F1 0.000, a direction-specificity gap of \textbf{+68.5pp}. This explains why the same basis remains useful even though the main accuracy mechanism is Q-side rather than K-side.
-\end{enumerate}
-
-\begin{enumerate}
-\item \textbf{A shared perturbation framework via Theorem 6.1.} Theorem 6.1 gives a common attention-weighted error language for the steering and stability analyses. It is not a headline contribution by itself, but it is the tool that lets the paper compare on-manifold and off-manifold perturbations without appealing only to intuition.
-\end{enumerate}
-
-\begin{enumerate}
-\item \textbf{A secondary compression result on the same basis.} OCQ on $B_\mathrm{ont}$ improves PPL by $-4.37$ over KIVI at 2-bit on Qwen2.5-7B WT2. We retain this result because it shows that the ontology basis also has value on the cache-compression side, but it is not the organizing thesis of the paper.
-\end{enumerate}
-
-\textbf{Ablation and negative results} (appendix): Q+V remains near-null under the current implementation; Q+K small-α gives only a small non-significant gain over Q-only; non-uniform contrastive K-bias is a smoke-only artifact; and the current Q-coverage implementation is still a stationary approximation pending literal autoregressive step tracking.
-
+The paper makes three claims. First, query-space coverage bias is the productive direction for multi-tool selection on the current benchmark. Second, the ontology basis is load-bearing: replacing it with random or feature-shuffled controls erases the gain and destroys K-side stability. Third, the local attention perturbation analysis is not vacuous; its empirical ratios are tiny on both Qwen and Llama, which is consistent with using the bound as a diagnostic language for these interventions. The paper does \emph{not} claim a clean full head-to-head win against SEKA or AdaSEKA on a matched benchmark. Its claim is narrower: once the task requires sequential recovery of more than one tool, the intervention site and sign become more important than the generic fact that the method is low-rank.

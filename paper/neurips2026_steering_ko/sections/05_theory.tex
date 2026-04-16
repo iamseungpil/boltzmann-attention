@@ -1,0 +1,29 @@
+\section{이론}
+
+실험을 정당화하는 데 긴 형식 체계가 필요한 것은 아니다. 여기서는 두 개의 단순한 구조적 명제와 하나의 경험적 정리만으로 충분하다.
+
+\begin{proposition}
+정적인 key-side projection은 emission history를 표현할 수 없다. 특히 같은 연산자 $k' = k + \alpha Pk$가 모든 디코딩 단계에 적용되면, 추가 상태가 없는 한 이 연산자는 ``이미 사용한 facet''과 ``아직 사용하지 않은 facet''을 구분할 수 없다.
+\end{proposition}
+
+\noindent
+이 명제는 통계적이기보다 구조적이다. 연산자가 시간에 대해 불변이기 때문에, coverage에 해당하는 단계별 정보는 모델 내부 동역학에서만 나올 수 있다. 개입 자체는 상태를 제공하지 않는다.
+
+\begin{proposition}
+coverage의 query-side 대응물은 현재 query를 이미 사용된 facet 방향에서 억제하는 연산자다. 실용적인 history-free 근사는 full ontology subspace에 대한 사영을 억제하는 것이다.
+\end{proposition}
+
+\noindent
+첫 문장은 이상적인 메커니즘을 설명하고, 둘째 문장은 본 논문이 실제로 평가한 구현을 설명한다. 따라서 실험의 질문은 거친 근사만으로도 two-tool benchmark에서 올바른 부호를 얻을 수 있는가이다.
+
+\begin{theorem}
+$\mathrm{LHS}$를 경험적 attention-output perturbation, $\mathrm{RHS}$를 프로젝트의 perturbation analysis에서 정의한 local bound term이라고 하자. Qwen과 Llama 모두에서 관측된 median ratio $\mathrm{LHS}/\mathrm{RHS}$는 $10^{-8}$ 수준이므로, 이 논문이 다루는 개입에 대해 해당 진단 경계는 수치적으로 보수적이다.
+\end{theorem}
+
+\noindent
+이 정리는 본 논문에서 경험적 진술이다. 역할은 end-to-end accuracy를 증명하는 것이 아니라, query-side와 key-side 개입을 설명할 때 사용하는 perturbation language가 실제 출력 변화의 크기와 양립 가능하다는 것을 보이는 데 있다.
+
+\begin{remark}
+여기서의 이론은 이 저장소의 이전 초안보다 의도적으로 좁다. 우리는 현재 구현이 정확한 step-adaptive facet tracking을 실현한다고 주장하지 않으며, 검증되지 않은 compression 또는 predictor 결과를 주된 정리 사슬에 포함하지 않는다.
+\end{remark}
+

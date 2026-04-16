@@ -22,6 +22,8 @@ paper/*
 !paper/neurips2026_ko/
 !paper/neurips2026_steering_v2/
 !paper/neurips2026_steering_v2/**
+!paper/neurips2026_steering_ko/
+!paper/neurips2026_steering_ko/**
 
 # AMLT / environment noise
 .DS_Store

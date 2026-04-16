@@ -1,0 +1,6 @@
+\section{결론}
+
+멀티-툴 선택은 single-tool routing의 작은 변형이 아니다. 한 번 도구를 출력한 뒤 모델에게 필요한 것은 같은 facet의 반복 증폭이 아니라 coverage다. 본 논문의 실험은, 간단한 ontology-guided query-space bias가 이 문제에서 올바른 부호를 가지는 반면, 동일한 기저를 쓰는 stationary key-side bias는 그렇지 않다는 점을 보여준다.
+
+경험적 그림은 간결하다. MetaTool Subtask4에서 Q-bias는 Qwen과 Llama 모두의 F1을 올리고, ontology basis는 효과에 필수적이며, 안정적인 K-side 방향은 가장 작은 perturbation이 아니라 가장 특이적인 basis에서만 나온다. 이 사실들은 다음 단계도 분명히 제시한다. 더 넓지만 약한 주장을 덧붙이기보다, 실제 history-aware coverage operator를 구현하고 검증하는 편이 타당하다.
+
