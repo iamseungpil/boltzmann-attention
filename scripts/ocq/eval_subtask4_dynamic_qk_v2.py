@@ -315,6 +315,19 @@ def main():
                                   args.alpha, args.beta, n_q, n_kv, head_dim, args.device,
                                   layer_mode=args.layer_mode)
 
+    # Stop token: </tool_call> forces 1 tool per generation step
+    tool_call_end_id = tok.convert_tokens_to_ids("</tool_call>")
+    if tool_call_end_id is None or tool_call_end_id == tok.unk_token_id:
+        # Fallback: search by encoding
+        tool_call_end_id = tok.encode("</tool_call>", add_special_tokens=False)
+        tool_call_end_id = tool_call_end_id[0] if tool_call_end_id else None
+    stop_token_ids = [tok.eos_token_id]
+    if args.stop_at_tool and tool_call_end_id:
+        stop_token_ids.append(tool_call_end_id)
+        print(f"[stop] </tool_call> token id = {tool_call_end_id}, stop_at_tool=True", flush=True)
+    elif args.stop_at_tool:
+        print(f"[warn] </tool_call> token not found, stop_at_tool disabled", flush=True)
+
     data = json.load(open(args.dataset))[:args.max_samples]
     print(f"[data] N={len(data)}", flush=True)
 
