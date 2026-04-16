@@ -57,6 +57,9 @@ def parse_args():
                    help="ε_q threshold for stopping. Below this = no more tools.")
     p.add_argument("--max-tools", type=int, default=5)
     p.add_argument("--max-new-tokens-per-tool", type=int, default=80)
+    p.add_argument("--layer-mode", default="uniform",
+                   choices=["uniform", "layer_adaptive", "k_early_only", "q_late_only"],
+                   help="Per-layer Q/K schedule. 'layer_adaptive': K early, Q mid+late.")
     p.add_argument("--out", required=True)
     return p.parse_args()
 
