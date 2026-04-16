@@ -476,6 +476,10 @@ def get_steering_context(
     facet_mask=None, skip_heads=None,
 ):
     """Return the appropriate context manager for the given method."""
+    # Strip multipass_ prefix for steering context dispatch; multipass is
+    # handled at the generation loop level in run_method.
+    if method.startswith("multipass_"):
+        method = method[len("multipass_"):]
     kind, params = parse_method(method)
     effective_skip = skip_heads if params.get("use_skip") else None
     effective_sink = args.skip_sink_tokens if params.get("use_sinkskip") else 0
