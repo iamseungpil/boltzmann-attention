@@ -260,6 +260,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--skip-heads", type=str, default="")
     p.add_argument("--skip-sink-tokens", type=int, default=0)
+    p.add_argument("--multipass-n", type=int, default=3,
+                   help="Number of passes for multipass_* methods (default 3)")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
