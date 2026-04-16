@@ -240,6 +240,18 @@ def extract_first_tool(text, candidates):
     return None
 
 
+def extract_all_tools(text, candidates):
+    """Extract ALL tool names from text (not just the first)."""
+    found = []
+    for m in re.finditer(r'"name"\s*:\s*"([^"]+)"', text):
+        name = m.group(1)
+        for c in candidates:
+            if c.lower() == name.lower() and c not in found:
+                found.append(c)
+                break
+    return found
+
+
 def build_multi_turn_conversations(data, max_convs=50):
     """Pair Subtask4 entries into synthetic 2-turn conversations.
     Turn 1: abstract request mentioning first tool's domain
