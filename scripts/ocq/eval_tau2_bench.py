@@ -269,16 +269,29 @@ def parse_args() -> argparse.Namespace:
 # Prompt construction
 # =====================================================================
 
-def build_tools_json() -> List[dict]:
-    """Build the tools list in OpenAI-compatible function calling format."""
+def extract_domain_tools(tasks: List[dict]) -> List[str]:
+    """Extract unique tool names from all tasks' ground truth actions."""
+    names = set()
+    for t in tasks:
+        for a in t.get("evaluation_criteria", {}).get("actions", []):
+            names.add(a["name"])
+    return sorted(names)
+
+
+def build_tools_json(domain_tools: List[str] = None) -> List[dict]:
+    """Build the tools list in OpenAI-compatible function calling format.
+    Uses hardcoded descriptions for retail, generic descriptions for other domains."""
+    tool_list = domain_tools or RETAIL_TOOLS
     tools = []
-    for name in RETAIL_TOOLS:
+    for name in tool_list:
+        desc = TOOL_DESCRIPTIONS.get(name, name.replace("_", " ").capitalize() + ".")
+        params = TOOL_PARAMS.get(name, {"type": "object", "properties": {}, "required": []})
         tools.append({
             "type": "function",
             "function": {
                 "name": name,
-                "description": TOOL_DESCRIPTIONS[name],
-                "parameters": TOOL_PARAMS[name],
+                "description": desc,
+                "parameters": params,
             },
         })
     return tools
