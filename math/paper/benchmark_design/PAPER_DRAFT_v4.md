@@ -386,7 +386,87 @@ coworker(승필)가 확인한 이전 결과:
 
 **현상**: 이론(Thm 6.17')은 P_emitted(선택된 facet만 빼기)가 최적이라고 하지만, 실측은 전체 B_ont를 빼는 것이 Q-only에서 더 좋다 (+2.28pp vs +0.00pp).
 
-**가설과 검증 계획은 Section 4.6에서 별도 서술.**
+### 4.6 가설: 전체 B_ont Q-subtraction이 효과적인 이유
+
+#### 가설 A: Attention Regularization (가장 유력)
+
+전체 B_ont를 빼는 것은 "이미 선택한 방향만 빼는" 정밀 수술이 아니라, **모든 도구 관련 attention을 약하게 억제**하는 정규화(regularization) 효과를 가진다.
+
+```
+Q' = Q + β · B_ont · B_ont^T · Q   (β = -0.03)
+   = Q - 0.03 · P_ont · Q
+   = (I - 0.03 · P_ont) · Q
+
+효과: Q에서 온톨로지 방향 에너지를 3% 줄임
+→ softmax에서 모든 도구 후보의 attention이 미세하게 감소
+→ 경계선 사례에서 2위 도구가 1위를 이길 수 있는 여지 생성
+```
+
+**검증 방법**:
+- beta_sweep 497개 per-sample에서 pred가 변한 63개 분석
+- 변화 패턴: "1위 도구 교체" vs "2위 도구 추가/삭제" vs "도구 수 변화" 비율
+- 예측: regularization이면 "1위 교체"가 주, coverage면 "2위 추가"가 주
+
+#### 가설 B: 첫 번째 도구 생성 중 Q 수정 효과
+
+single-pass에서 전체 B_ont Q-subtraction은 **첫 번째 도구 이름 토큰 생성 중에도** Q를 수정한다. 이 수정이 첫 번째 도구 선택 자체를 바꿀 수 있다.
+
+반면 P_emitted는 첫 번째 도구가 완전히 생성된 후에야 비-zero가 되므로, 첫 번째 도구에는 영향 없음.
+
+```
+single-pass 전체 B_ont:
+  토큰1(tool_call) → Q 수정됨 → 도구A 선택 (원래는 도구B였을 수 있음)
+  토큰50(2nd tool) → Q 수정됨 → 도구C 선택
+
+P_emitted iterative:
+  Pass 1: P_emitted=0 → Q 수정 없음 → 도구B 선택 (baseline과 동일)
+  Pass 2: P_emitted=P_B → Q 수정됨 → 도구? 선택
+```
+
+**검증 방법**:
+- no_steer vs Q-only 전체 B_ont에서 **1번째 도구**가 변한 비율 분석
+- 예측: 가설 B가 맞으면 1번째 도구 변경 비율이 높음 (>20%)
+- 가설 A가 맞으면 1번째 도구 변경 비율이 낮고, 2번째 도구 변경이 주
+
+#### 가설 C: β 값과 방향의 교호작용
+
+전체 B_ont β=-0.03이 최적인데, P_emitted β=-0.05가 차선. 이것은 빼는 방향의 rank 차이 때문일 수 있다:
+
+```
+전체 B_ont: rank R (~24), β=-0.03 → 24차원 × 0.03 = 누적 효과 0.72
+P_emitted: rank ~6 (1-2 facet), β=-0.05 → 6차원 × 0.05 = 누적 효과 0.30
+```
+
+즉 전체 B_ont는 약하게 넓게, P_emitted는 강하게 좁게 빼는 것이고, "약하게 넓게"가 더 효과적.
+
+**검증 방법**:
+- P_emitted에서 β를 키워서 누적 효과를 전체 B_ont와 맞춤: β=-0.12 (6차원 × 0.12 = 0.72)
+- 전체 B_ont에서 β를 줄여서 P_emitted 수준으로: β=-0.006 (24차원 × 0.006 = 0.14)
+- 예측: 누적 효과가 같으면 결과도 비슷해야 함
+
+#### 가설 D: 도구 수 분포 차이
+
+전체 B_ont는 도구 **수**를 바꾸지 않고 도구 **선택**만 바꾸는 반면, multipass P_emitted는 추가 pass에서 3번째 도구를 생성하여 precision을 낮춘다.
+
+```
+전체 B_ont: avg_pred = 1.88 (baseline과 동일) → 도구 수 불변
+multipass P_emitted: avg_pred > 2.0 (추가 도구 발견) → precision 하락
+```
+
+**검증 방법**:
+- 각 방법의 avg_pred, pred_count 분포 비교
+- multipass에서 3번째 도구가 정답인 비율 vs 오답인 비율
+
+#### 가설 E: Facet 분해가 모델 내부와 불일치
+
+우리가 정의한 4-facet (domain, function_action, io_type, tool_category)이 모델의 실제 내부 도구 표현과 일치하지 않을 수 있다. 이 경우:
+- 전체 B_ont: facet 경계와 무관하게 전체 온톨로지 부분공간을 억제 → 작동
+- P_emitted(domain만 빼기): 모델 내부에서 "domain"이 독립적 차원이 아님 → 효과 없음
+
+**검증 방법**:
+- B_ont의 facet별 열을 PCA로 분석: inter-facet 직교성 확인 (cos similarity)
+- 모델의 실제 K 공간에서 facet별 variance explained 비율
+- 예측: 직교성이 낮으면 facet별 P_emitted가 의도한 방향만 빼지 못함
 
 ### 4.3 Subtask1 (단일 도구 선택) 참고 결과
 
