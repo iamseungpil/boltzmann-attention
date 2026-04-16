@@ -605,7 +605,8 @@ def process_turn(user_message, conversation_state):
 ```
          Subtask1      Subtask4        Multi-turn
          (1개 도구)    (N개 도구)      (턴별 도구)
-v1(K)    ✓ +15pp      ✗ -10pp         해당없음
+v0(Q)    → +0pp       → +0pp          해당없음       ← 탐색만, 정확도 부족
+v1(K)    ✓ +15pp      ✗ -10pp         해당없음       ← 정확도만, 탐색 불가
 v2(Q+K)  ✓ +15pp      목표 +2~5pp     해당없음
 v3(적응)  ✓ +15pp      목표 +5pp       해당없음
 v4(멀티턴) ✓ +15pp      목표 +5pp       목표 +10pp
