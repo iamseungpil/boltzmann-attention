@@ -308,7 +308,8 @@ def main():
     print(f"[facet] {len(facet_projectors)} facets", flush=True)
 
     hooks = IterativeDynamicHooks(model, facet_projectors, facet_order, B_ont,
-                                  args.alpha, args.beta, n_q, n_kv, head_dim, args.device)
+                                  args.alpha, args.beta, n_q, n_kv, head_dim, args.device,
+                                  layer_mode=args.layer_mode)
 
     data = json.load(open(args.dataset))[:args.max_samples]
     print(f"[data] N={len(data)}", flush=True)
