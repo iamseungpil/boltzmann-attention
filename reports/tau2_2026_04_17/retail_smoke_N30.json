@@ -1,0 +1,2085 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench/data/tau2/domains/retail/tasks.json",
+  "domain": "retail",
+  "n_tasks": 30,
+  "max_new_tokens": 300,
+  "methods": [
+    "no_steer",
+    "ocq_qbias_b-0.03",
+    "ocq_ladapt_k0.05_q-0.03"
+  ],
+  "skip_heads_spec": null,
+  "skip_sink_tokens": 0,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-retail/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_tasks": 30,
+      "metrics": {
+        "F1": 0.5734872534872536,
+        "Exact": 0.03333333333333333,
+        "Recall": 0.5340476190476191,
+        "Precision": 0.829047619047619,
+        "GT_subset": 0.1,
+        "nDCG": 0.5972660671055351
+      },
+      "runtime_s": 140.6233868598938,
+      "per_sample": [
+        {
+          "task_id": "0",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_item_details",
+            "exchange_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.75,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.8048099750039491
+          }
+        },
+        {
+          "task_id": "1",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "2",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "3",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.7499999999999999,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.7227265726449519
+          }
+        },
+        {
+          "task_id": "4",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.5531464700081437
+          }
+        },
+        {
+          "task_id": "5",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "6",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "7",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "8",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "9",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "exchange_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.5531464700081437
+          }
+        },
+        {
+          "task_id": "10",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.3333333333333333,
+            "Exact": 0,
+            "Recall": 0.25,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.24630238874073
+          }
+        },
+        {
+          "task_id": "11",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "return_delivered_order_items",
+            "find_user_id_by_email"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6366824387328317
+          }
+        },
+        {
+          "task_id": "12",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.888888888888889,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.8,
+            "GT_subset": 1,
+            "nDCG": 0.9828920819566879
+          }
+        },
+        {
+          "task_id": "13",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "get_order_details",
+            "cancel_pending_order",
+            "return_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.75,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.8048099750039491
+          }
+        },
+        {
+          "task_id": "14",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "cancel_pending_order"
+          ],
+          "metrics": {
+            "F1": 0.75,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.8318724637288826
+          }
+        },
+        {
+          "task_id": "15",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.5531464700081437
+          }
+        },
+        {
+          "task_id": "16",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "calculate",
+            "cancel_pending_order",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "cancel_pending_order",
+            "return_delivered_order_items",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 0.9090909090909091,
+            "Exact": 0,
+            "Recall": 0.8333333333333334,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.8922108454754891
+          }
+        },
+        {
+          "task_id": "17",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_address"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_pending_order_address",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.6366824387328317
+          }
+        },
+        {
+          "task_id": "18",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "19",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "20",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "modify_user_address",
+            "get_order_details",
+            "get_product_details",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.7272727272727272,
+            "Exact": 0,
+            "Recall": 0.8,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.830419897363192
+          }
+        },
+        {
+          "task_id": "21",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_item_details",
+            "get_product_details",
+            "calculate",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "exchange_delivered_order_items",
+            "return_delivered_order_items",
+            "get_product_details",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285714,
+            "Exact": 0,
+            "Recall": 0.5714285714285714,
+            "Precision": 0.5714285714285714,
+            "GT_subset": 0,
+            "nDCG": 0.6836550817096437
+          }
+        },
+        {
+          "task_id": "22",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "modify_user_address",
+            "get_order_details",
+            "modify_pending_order_address"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_user_address",
+            "modify_pending_order_address",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.75,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.8318724637288826
+          }
+        },
+        {
+          "task_id": "23",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_item_details",
+            "exchange_delivered_order_items",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.6,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.5842273861585909
+          }
+        },
+        {
+          "task_id": "24",
+          "gt_tools": [],
+          "pred_tools": [
+            "transfer_to_human_agents",
+            "cancel_pending_order"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "25",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.6666666666666666,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.7653606369886217
+          }
+        },
+        {
+          "task_id": "26",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.7499999999999999,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.7227265726449519
+          }
+        },
+        {
+          "task_id": "27",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "28",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items",
+            "calculate"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "return_delivered_order_items",
+            "cancel_pending_order",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666665,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.6992148198508501
+          }
+        },
+        {
+          "task_id": "29",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.888888888888889,
+            "Exact": 0,
+            "Recall": 0.8,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.8687949224876582
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_qbias_b-0.03",
+      "n_tasks": 30,
+      "metrics": {
+        "F1": 0.610925925925926,
+        "Exact": 0.06666666666666667,
+        "Recall": 0.5717460317460318,
+        "Precision": 0.8288888888888889,
+        "GT_subset": 0.13333333333333333,
+        "nDCG": 0.6357981019072487
+      },
+      "runtime_s": 185.04025387763977,
+      "per_sample": [
+        {
+          "task_id": "0",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "exchange_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.8571428571428571,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.8318724637288826
+          }
+        },
+        {
+          "task_id": "1",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_item_details",
+            "exchange_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.75,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.8048099750039491
+          }
+        },
+        {
+          "task_id": "2",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_item_details",
+            "get_product_details"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.5087403079104241
+          }
+        },
+        {
+          "task_id": "3",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.7499999999999999,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.7227265726449519
+          }
+        },
+        {
+          "task_id": "4",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.888888888888889,
+            "Exact": 0,
+            "Recall": 0.8,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.8687949224876582
+          }
+        },
+        {
+          "task_id": "5",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "6",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "7",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "8",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "9",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "10",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.75,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.8048099750039491
+          }
+        },
+        {
+          "task_id": "11",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.75,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.8318724637288826
+          }
+        },
+        {
+          "task_id": "12",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6366824387328317
+          }
+        },
+        {
+          "task_id": "13",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "cancel_pending_order",
+            "return_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.888888888888889,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.8,
+            "GT_subset": 1,
+            "nDCG": 0.9828920819566879
+          }
+        },
+        {
+          "task_id": "14",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "cancel_pending_order",
+            "return_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.5855700749881525
+          }
+        },
+        {
+          "task_id": "15",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_pending_order_items",
+            "get_item_details"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.5531464700081437
+          }
+        },
+        {
+          "task_id": "16",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "calculate",
+            "cancel_pending_order",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "cancel_pending_order",
+            "get_order_details",
+            "return_delivered_order_items",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0000000000000002
+          }
+        },
+        {
+          "task_id": "17",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_address"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_pending_order_address"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6366824387328317
+          }
+        },
+        {
+          "task_id": "18",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "19",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "return_delivered_order_items",
+            "exchange_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.6,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 0.6,
+            "GT_subset": 0,
+            "nDCG": 0.7227265726449519
+          }
+        },
+        {
+          "task_id": "20",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.8000000000000002,
+            "Exact": 0,
+            "Recall": 0.8,
+            "Precision": 0.8,
+            "GT_subset": 0,
+            "nDCG": 0.8687949224876582
+          }
+        },
+        {
+          "task_id": "21",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_item_details",
+            "get_product_details",
+            "calculate",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "exchange_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.4,
+            "Exact": 0,
+            "Recall": 0.2857142857142857,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.44830398990253034
+          }
+        },
+        {
+          "task_id": "22",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "modify_user_address",
+            "get_order_details",
+            "modify_pending_order_address"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_user_address",
+            "get_order_details",
+            "modify_pending_order_address"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "23",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "exchange_delivered_order_items",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.644824486427155
+          }
+        },
+        {
+          "task_id": "24",
+          "gt_tools": [],
+          "pred_tools": [
+            "cancel_pending_order",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "25",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.6666666666666666,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.7653606369886217
+          }
+        },
+        {
+          "task_id": "26",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.7499999999999999,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.7227265726449519
+          }
+        },
+        {
+          "task_id": "27",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "return_delivered_order_items",
+            "exchange_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666665,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.6992148198508501
+          }
+        },
+        {
+          "task_id": "28",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items",
+            "calculate"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "return_delivered_order_items",
+            "cancel_pending_order",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666665,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.6992148198508501
+          }
+        },
+        {
+          "task_id": "29",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_item_details",
+            "get_product_details"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666665,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.6992148198508501
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_ladapt_k0.05_q-0.03",
+      "n_tasks": 30,
+      "metrics": {
+        "F1": 0.5361760461760462,
+        "Exact": 0.03333333333333333,
+        "Recall": 0.48309523809523813,
+        "Precision": 0.8327777777777778,
+        "GT_subset": 0.1,
+        "nDCG": 0.553758754282123
+      },
+      "runtime_s": 166.72353219985962,
+      "per_sample": [
+        {
+          "task_id": "0",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.75,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.75,
+            "GT_subset": 0,
+            "nDCG": 0.8318724637288826
+          }
+        },
+        {
+          "task_id": "1",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "exchange_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.8571428571428571,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.8318724637288826
+          }
+        },
+        {
+          "task_id": "2",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.5531464700081437
+          }
+        },
+        {
+          "task_id": "3",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_product_details",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.888888888888889,
+            "Exact": 0,
+            "Recall": 0.8,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.8687949224876582
+          }
+        },
+        {
+          "task_id": "4",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_product_details",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_product_details",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.888888888888889,
+            "Exact": 0,
+            "Recall": 0.8,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.8687949224876582
+          }
+        },
+        {
+          "task_id": "5",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "6",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "7",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "8",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "9",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "10",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.3333333333333333,
+            "Exact": 0,
+            "Recall": 0.25,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.24630238874073
+          }
+        },
+        {
+          "task_id": "11",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.3333333333333333,
+            "Exact": 0,
+            "Recall": 0.25,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.3903800499921017
+          }
+        },
+        {
+          "task_id": "12",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "13",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "get_order_details",
+            "return_delivered_order_items",
+            "modify_pending_order_payment",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666665,
+            "Exact": 0,
+            "Recall": 0.75,
+            "Precision": 0.6,
+            "GT_subset": 0,
+            "nDCG": 0.8318724637288826
+          }
+        },
+        {
+          "task_id": "14",
+          "gt_tools": [
+            "find_user_id_by_email",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_email",
+            "cancel_pending_order",
+            "return_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.5855700749881525
+          }
+        },
+        {
+          "task_id": "15",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.5531464700081437
+          }
+        },
+        {
+          "task_id": "16",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "calculate",
+            "cancel_pending_order",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "cancel_pending_order",
+            "return_delivered_order_items",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 0.9090909090909091,
+            "Exact": 0,
+            "Recall": 0.8333333333333334,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.8922108454754891
+          }
+        },
+        {
+          "task_id": "17",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "modify_pending_order_address"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_pending_order_address"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6366824387328317
+          }
+        },
+        {
+          "task_id": "18",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "19",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "return_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "20",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "21",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_item_details",
+            "get_product_details",
+            "calculate",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "exchange_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.2,
+            "Exact": 0,
+            "Recall": 0.14285714285714285,
+            "Precision": 0.3333333333333333,
+            "GT_subset": 0,
+            "nDCG": 0.27487633291429087
+          }
+        },
+        {
+          "task_id": "22",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "modify_user_address",
+            "get_order_details",
+            "modify_pending_order_address"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "modify_user_address",
+            "get_order_details",
+            "modify_pending_order_address",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.888888888888889,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.8,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "23",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items",
+            "modify_pending_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "exchange_delivered_order_items",
+            "modify_pending_order_items"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.644824486427155
+          }
+        },
+        {
+          "task_id": "24",
+          "gt_tools": [],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "25",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.6666666666666666,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.7653606369886217
+          }
+        },
+        {
+          "task_id": "26",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items",
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_order_details",
+            "return_delivered_order_items"
+          ],
+          "metrics": {
+            "F1": 0.7499999999999999,
+            "Exact": 0,
+            "Recall": 0.6,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.7227265726449519
+          }
+        },
+        {
+          "task_id": "27",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 0.2,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.3391602052736161
+          }
+        },
+        {
+          "task_id": "28",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "return_delivered_order_items",
+            "calculate"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "return_delivered_order_items",
+            "cancel_pending_order"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.5531464700081437
+          }
+        },
+        {
+          "task_id": "29",
+          "gt_tools": [
+            "find_user_id_by_name_zip",
+            "get_user_details",
+            "get_order_details",
+            "get_product_details",
+            "exchange_delivered_order_items"
+          ],
+          "pred_tools": [
+            "find_user_id_by_name_zip",
+            "get_item_details",
+            "get_product_details"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.4,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.5087403079104241
+          }
+        }
+      ]
+    }
+  ]
+}
