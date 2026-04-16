@@ -696,8 +696,12 @@ def main():
     tasks = tasks[start:end]
     print(f"[data] {len(tasks)} tasks (slice [{start}:{start+len(tasks)}])", flush=True)
 
-    # Build tools JSON once
-    tools_json = build_tools_json()
+    # Extract domain-specific tools from tasks, build tools JSON
+    domain_tools = extract_domain_tools(tasks)
+    if not domain_tools:
+        domain_tools = RETAIL_TOOLS  # fallback
+    print(f"[tools] {len(domain_tools)} tools for domain '{args.domain}': {domain_tools[:5]}...", flush=True)
+    tools_json = build_tools_json(domain_tools)
 
     # Load B_ont if needed
     needs_b_ont = any(m != "no_steer" for m in args.methods)
