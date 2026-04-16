@@ -293,38 +293,100 @@ for each layer l:
 
 ## 4. 실험 결과 -- 완전한 비교표
 
-### 4.1 Subtask4 (멀티 도구 선택) 전체 비교 (Qwen2.5-7B-Instruct, N=497)
+### 4.1 실험 조건 정의 (모든 변수 명시)
 
-| 방법 | 버전 | F1 | Exact | Delta F1 | alpha | beta | 비고 |
-|------|------|-----|-------|----------|-------|------|------|
-| no_steer (baseline) | - | 0.7307 | 0.5252 | -- | 0 | 0 | |
-| Q-only static beta=-0.03 | v0 | 0.7307 | 0.5252 | +0.00pp | 0 | -0.03 | Q만으로는 효과 없음 (v2 bugfix eval) |
-| Q-only iterative beta=-0.03 | v0 | 0.7307 | 0.5252 | +0.00pp | 0 | -0.03 | iterative도 동일 |
-| Q-only beta=-0.1 | v0 | 0.7470 | - | +1.64pp | 0 | -0.1 | v3 paper에서 보고 |
-| Q-only adaptive (v3) | v3 | 0.7203 | 0.5151 | -1.03pp | 0 | -0.03 | 적응형이 오히려 악화 |
-| K-only uniform alpha=0.3 | v1 | 0.6850 | - | -4.57pp | 0.3 | 0 | K 전 레이어 -> 파괴 |
-| K+Q uniform alpha=0.3 | v2 | - | - | ~-4.57pp | 0.3 | -0.03 | K 파괴가 지배 |
-| SEKA amp=0.5 (canonical) | 선행연구 | 0.4750 | - | -25.6pp | - | - | smoke N=20, Qwen |
-| SEKA amp=2.0 (canonical) | 선행연구 | 0.1100 | - | -64.3pp | - | - | K-only stationary 붕괴 |
-| **layer_adaptive** K초기+Q중후반 | **v5** | **0.7507** | **0.5352** | **+2.01pp** | 0.05 | -0.05 | NEW |
-| **k_early_only** K초기1/4+Q전체 | **v5** | **0.7514** | **0.5473** | **+2.08pp** | 0.05 | -0.05 | **BEST** |
+실험 결과를 정확히 이해하려면 각 방법의 **5가지 독립 변수**를 구분해야 한다:
 
-### 4.2 결과 해석
+| 변수 | 설명 | 가능 값 |
+|------|------|---------|
+| **파이프라인** | 생성 방식 | single-pass / iterative / multipass / stop-at-tool |
+| **Q 빼는 방향** | Q에서 어떤 방향을 빼는가 | 없음 / 전체 B_ont / P_emitted (선택된 facet만) |
+| **K 적용 범위** | K-bias를 어느 레이어에 적용하는가 | 없음 / 전체 레이어 / 초기 1/4 (k_early) |
+| **α (K 강도)** | K-bias 증폭 크기 | 0, 0.05, 0.1, 0.3 |
+| **β (Q 강도)** | Q-subtraction 크기 | 0, -0.03, -0.05, -0.1 |
 
-**v5 `k_early_only`가 최고 성능인 이유:**
-1. K를 초기 1/4 (Qwen L=28 기준 L0~L6) 에만 적용하여 정보 인코딩 단계에서 정답 방향을 각인
-2. L7 이후부터는 K를 건드리지 않아 출력 분포 파괴를 완전 차단
-3. Q-coverage는 전 레이어에서 적용하여 기선택 도구 회피를 최대화
+**파이프라인 설명:**
+- `single-pass`: 한 번에 모든 도구 생성. Q 수정이 전체 생성에 영향.
+- `iterative`: multi-step 생성. 각 step에서 hook 갱신하지만, 모델이 1 step에 2개 도구를 이미 생성하므로 P_emitted 갱신이 2번째 도구에 간접적으로만 영향.
+- `multipass`: 같은 프롬프트를 여러 번 독립 생성. 각 pass 후 P_emitted 갱신. 모델 context 깨지지 않음.
+- `stop-at-tool`: `</tool_call>` 토큰에서 강제 중단 후 이어서 생성. **모델 context 깨짐 → 붕괴.**
 
-**`layer_adaptive` vs `k_early_only`:**
-- `layer_adaptive`는 중간 레이어에 약한 K (0.3*alpha)를 남김 -> 미세한 추가 파괴
-- `k_early_only`는 초기 이후 K를 완전 차단 -> 더 깨끗한 분리
-- F1 차이 0.07pp (0.7507 vs 0.7514) -- 큰 차이는 아니지만 일관되게 k_early_only가 우세
+### 4.2 Subtask4 전체 비교 (Qwen2.5-7B-Instruct, N=497)
 
-**v5에서의 alpha/beta 값 (0.05/-0.05):**
-- v1~v3에서 사용하던 alpha=0.3보다 훨씬 작은 alpha=0.05
-- 이유: 초기 레이어에만 집중하면 작은 alpha로도 충분한 방향 각인이 가능
-- beta=-0.05도 beta=-0.1보다 약함 -- 전 레이어에 고르게 적용하므로 누적 효과가 강력
+| 방법 | 파이프라인 | Q 빼기 | K 범위 | α | β | F1 | Exact | Δ F1 |
+|------|-----------|--------|--------|---|---|-----|-------|------|
+| **baseline** | — | — | — | 0 | 0 | 0.7307 | 0.5252 | — |
+| | | | | | | | | |
+| **Q-only 계열** | | | | | | | | |
+| Q 전체 B_ont | single-pass | 전체 B_ont | 없음 | 0 | -0.03 | **0.7535** | 0.5332 | **+2.28pp** |
+| Q 전체 B_ont | single-pass | 전체 B_ont | 없음 | 0 | -0.05 | 0.7292 | 0.5332 | -0.15pp |
+| Q P_emitted (static) | iterative | P_emitted | 없음 | 0 | -0.03 | 0.7307 | 0.5252 | +0.00pp |
+| Q P_emitted (multipass) | multipass | P_emitted | 없음 | 0 | -0.05 | 0.7237 | 0.4930 | -0.70pp |
+| Q adaptive (v3) | iterative | P_emitted 가중 | 없음 | 0 | -0.03 | 0.7203 | 0.5151 | -1.03pp |
+| | | | | | | | | |
+| **K-only 계열** | | | | | | | | |
+| K 전 레이어 | single-pass | — | 전체 | 0.3 | 0 | 0.6850 | — | -4.57pp |
+| K 전 레이어 | single-pass | — | 전체 | 0.05 | 0 | 0.7100 | 0.5200 | +1.30pp* |
+| SEKA amp=2.0 | single-pass | — | 전체 (SEKA) | — | — | 0.1100 | — | -64.3pp |
+| | | | | | | | | |
+| **Q+K 결합 계열** | | | | | | | | |
+| ladapt K+Q | single-pass | 전체 B_ont | K early | 0.05 | -0.03 | 0.7450 | 0.5372 | +1.43pp |
+| ladapt K+Q | single-pass | 전체 B_ont | K early | 0.05 | -0.05 | 0.7507 | 0.5352 | +2.01pp |
+| multipass P_emitted+K | multipass | P_emitted | K early | 0.05 | -0.05 | 0.7410 | 0.5091 | +1.03pp |
+| **iterative P_emitted+K** | **iterative** | **P_emitted** | **K early** | **0.05** | **-0.05** | **0.7524** | **0.5473** | **+2.18pp** |
+| k_early_only (이전) | iterative | P_emitted | K early | 0.05 | -0.05 | 0.7514 | 0.5473 | +2.08pp |
+| | | | | | | | | |
+| **실패 계열** | | | | | | | | |
+| stop-at-tool Q only | stop | P_emitted | 없음 | 0 | -0.05 | 0.4600 | 0.0400 | -27.1pp |
+| stop-at-tool K+Q | stop | P_emitted | K early | 0.05 | -0.05 | 0.4793 | 0.0000 | -25.1pp |
+
+*N=50 smoke 결과 (N=497 미실행)
+
+### 4.3 핵심 발견 3가지
+
+**발견 1: 작동하는 두 가지 경로**
+
+```
+경로 A: single-pass + 전체 B_ont Q-subtraction  → +2.28pp (β=-0.03이 최적)
+경로 B: iterative + P_emitted + K early         → +2.18pp (α=0.05, β=-0.05)
+```
+
+두 경로 모두 +2pp 이상이지만, **메커니즘이 다르다**:
+- 경로 A는 "전체 온톨로지 방향을 약하게 억제"하는 attention regularization
+- 경로 B는 "초기 레이어 K로 정확도 확보 + Q로 선택 도구 회피"하는 이론 기반 steering
+
+**발견 2: K는 초기 레이어에서만 유효**
+
+| K 적용 범위 | F1 | 해석 |
+|------------|-----|------|
+| 전체 레이어 (α=0.3) | 0.685 (-4.57pp) | 후반 레이어에서 출력 수렴 파괴 |
+| 전체 레이어 (α=0.05) | 0.710 (+1.3pp)* | α를 줄이면 파괴 감소 |
+| 초기 1/4만 (α=0.05) | 0.751 (+2.08pp) | 초기에서만 → 파괴 없이 정확도 확보 |
+
+U-shape MSE 관측과 일치: 초기 레이어는 정보 인코딩(K-bias 안전), 후반 레이어는 출력 수렴(K-bias 위험).
+
+**발견 3: Q-only의 두 방식이 극적으로 다름**
+
+| Q 방식 | Q 빼는 방향 | F1 | 해석 |
+|--------|-----------|-----|------|
+| 전체 B_ont (β=-0.03) | 모든 온톨로지 방향 | 0.754 (+2.28pp) | 작동 |
+| P_emitted static | 선택된 facet만 | 0.731 (+0.00pp) | no-op (P_emitted=0) |
+| P_emitted multipass | 선택된 facet만 | 0.724 (-0.70pp) | 과잉추천 (precision 하락) |
+| P_emitted iterative + K | 선택된 facet만 | 0.752 (+2.18pp) | K 보조로 작동 |
+
+**미해결 문제**: 전체 B_ont가 P_emitted보다 왜 단독으로 더 효과적인가? → Section 4.5에서 분석.
+
+### 4.4 이전 세션 결과 포함 (참고)
+
+coworker(승필)가 확인한 이전 결과:
+- `qkv_alpha_microsweep_2026_04_15/full497`: 최고 0.7529 F1 (small-alpha Q+K)
+- `wave_2026_04_15_pm/gpu0/llama_inst_st4_full497.json`: Llama에서 K-bias 붕괴, Q-bias 약한 양수
+
+### 4.5 미해결 문제: 전체 B_ont Q-subtraction은 왜 효과적인가?
+
+**현상**: 이론(Thm 6.17')은 P_emitted(선택된 facet만 빼기)가 최적이라고 하지만, 실측은 전체 B_ont를 빼는 것이 Q-only에서 더 좋다 (+2.28pp vs +0.00pp).
+
+**가설과 검증 계획은 Section 4.6에서 별도 서술.**
 
 ### 4.3 Subtask1 (단일 도구 선택) 참고 결과
 
