@@ -289,6 +289,77 @@ q · k_MusicTool  =   0.30     →     0.31  →  (무관한 도구 변화 적�
 
 ## 5. 버전별 알고리즘 진화
 
+### Version 0: Q-coverage Only (탐색 범위만 — K 건드리지 않음)
+
+```python
+# Q에서 이미 선택된 facet 방향만 빼기. K는 원본 그대로.
+emitted = {}
+while n_emitted < max_tools:
+    P_emitted = Σ P_{facet(s)} for s in emitted
+    Q' = Q - |β| · P_emitted · Q     (β < 0)
+    K' = K                            (변화 없음)
+
+    tool = generate_one_tool(Q', K')
+    emitted.add(tool)
+```
+
+**Q만 조작하면 어떻게 되는가:**
+
+```
+질문: "뉴스에서 주식 기사 찾아서 요약해줘"
+정답: [NewsTool, FinanceTool]
+
+Step 1: P_emitted = 0, Q' = Q (변화 없음)
+  → 모델의 원래 능력으로 NewsTool 선택 ✓
+
+Step 2: P_emitted = P_news + P_retrieve
+  Q' = Q에서 news, retrieve 방향 약화
+  → finance, summarize 방향이 상대적으로 강해짐
+  → FinanceTool 선택 가능 ✓ ... 하지만
+
+문제: K가 증폭되지 않아서, 원래 모델이 FinanceTool과 다른 도구를
+      잘 구분 못 하면 Q를 아무리 돌려도 정확도가 낮음
+```
+
+**구체적 Attention 수치 예시:**
+
+```
+                    Step 1 (Q 원본)   Step 2 (Q에서 news/retr 빼기)
+q · k_NewsTool  =    0.72       →     0.52  ↓↓ (Q에서 news 빠짐)
+q · k_FinanceTool =  0.61       →     0.63  ↑  (finance 상대적 강화, 하지만 소폭)
+q · k_MusicTool  =   0.45       →     0.46  →  (무관)
+q · k_JobTool    =   0.58       →     0.60  ↑  (career/search도 같이 올라옴)
+
+→ FinanceTool(0.63)과 JobTool(0.60) 차이가 0.03밖에 안 됨
+→ K에 정확도 증폭이 없으니, 비슷한 도구 사이에서 헷갈림
+```
+
+- **할 수 있는 것**: 이미 선택한 도구 반복 방지 (탐색 범위 확보)
+- **못 하는 것**: 남은 후보 중 정답을 정확히 골라내기 (정확도 부족)
+- **비유**: 지우개는 있는데 망원경이 없는 상태 — 이미 본 곳은 지우지만, 나머지 중 어디를 봐야 하는지 초점이 안 맞음
+
+```
+[v0 메커니즘 그림]
+
+Step 1:  Q ─────────────→ Att → NewsTool      (모델 원래 능력)
+         K (원본) ────────→ Att
+
+Step 2:  Q - |β|·P_{news,retr}·Q ──→ Att → FinanceTool? JobTool?
+         K (원본) ──────────────────→ Att    (K 증폭 없어서 구분 어려움)
+```
+
+**실험 결과:**
+
+```
+Subtask4 (멀티 도구 선택):
+                    Baseline    Q-only(β=-0.1)    차이
+  Qwen2.5-7B        0.697        0.697          +0.0pp (변화 없음~미미)
+```
+
+Q만으로는 탐색 방향은 바꿀 수 있지만, K의 정확도 보조 없이는 유의미한 개선이 어렵다.
+
+---
+
 ### Version 1: K-bias Only (단일 도구 전용)
 
 ```python
