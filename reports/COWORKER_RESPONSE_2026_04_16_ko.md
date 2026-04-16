@@ -78,20 +78,64 @@
 
 ---
 
-## 요청 사항 (v3 night sprint 대비 변동 없음)
+## ⚠️ SEKA ES 재현 실패 근본 원인 확정 (2026-04-16 AM 신규 — 반드시 읽을 것)
 
-P0 4개 task 그대로 유지 요청. 우선순위 변동 없음:
+### 결론: pre-built P_pos/P_neg projection 이 현재 HF model weights 와 **방향 불일치**
 
-- **P0-A SEKA+AdaSEKA head-to-head** (source: `external/SEKA/src/model/{seka_llm,adaptive_seka_llm}.py`, 이전 proxy 아님). Qwen2.5-7B-Instruct + Llama-3.1-8B-Instruct, Subtask1+4. → v3 pivot unlock.
-- **P0-B Thm 6.18 full-WT2 PPL** (code starts: `scripts/ocq/measure_thm618_attn_weighted_bits.py`, PPL eval 추가 필요). Qwen2.5-7B WT2 ctx=2048 non-overlap, sweep avg_bits {1.81, 2.0, 2.5, 3.0, 4.0}. Full credit PPL ≤ 13.5 at 1.81. → v1 expansion unlock.
-- **P0-C 6 baseline** (CAA/ITI/PASTA/Focus/LoRA-FT/RAG, source-first 정책 `feedback_external_baseline_use_original_source` 준수). Partial 인정 = CAA+ITI+LoRA-FT (+0.15).
-- **P0-D Thm 6.20 τ²-bench retail** (B_ont: `external/SEKA/seka_projections/ontology-qwen25-7b-tau2-retail/B_ont.pt`; `scripts/ocq/measure_epsilon_q_plan_predictor.py` adapt). 50–200 conversations. → +0.20.
+develop side 에서 심층 진단 완료. **hook 은 정상 작동** (delta norm=71, k_feat 의 16%). 문제는 delta 의 **방향**:
 
-SEKA hang 은 develop side 에서 **원인 확정**: `seka_llm.py:34` 의 multi-GPU auto-detection. A6000×2 환경에서 `torch.cuda.device_count() > 1` → `device_map="auto"` → 모델이 2개 GPU 에 자동 샤딩 (layers 0-11 GPU:0, 12-27 GPU:1) → hook 내 P_pos 텐서가 cuda:0 에만 있으므로 cuda:1 layer 의 hook forward 에서 **cross-device CUDA deadlock** 발생.
+| amp | P(German) target | P(French) 기존답 |
+|---|---|---|
+| 0.0 (no steer) | 0.2227 | 0.6859 |
+| 1.0 | 0.2232 | 0.6874 |
+| 5.0 | 0.2251 | 0.6934 |
+| 200.0 | 0.2258 | 0.6955 |
 
-⚠️ **P0-A 실행 시 필수 조치**: A100×4 환경에서 SEKA 실행 시 반드시 **`CUDA_VISIBLE_DEVICES=0`** (또는 단일 GPU 번호) 으로 제한할 것. 4장이면 더 복잡한 4-way 샤딩 발생하여 동일한 hang 으로 시간 낭비할 위험. `CUDA_VISIBLE_DEVICES=0` 설정 시 develop side A6000 에서 45초 hang → **2.2초 정상 생성** 확인됨.
+→ amp 을 200× 로 올려도 P(German) 은 +0.003 밖에 안 움직이고 **P(French) 가 오히려 증가**. Projection 방향이 target (German) 이 아닌 기존답 (French) 을 강화함.
 
-참고: dtype 변환 (bf16↔f32) 은 벤치마크 결과 55μs/token (256-token loop 14ms) 으로 hang 원인 아님.
+### 배제된 가설 (develop side 에서 전부 검증)
+- ❌ dtype (bf16/fp32/TF32) — 모두 동일 결과
+- ❌ A6000 하드웨어 — 방향 불일치는 numerical precision 으로 설명 불가
+- ❌ k_norm vs k_proj space — projection_builder 가 post-k_norm 에서 빌드, hook 도 k_norm output 에 attach (일관)
+- ❌ layer alignment — file_layers == sel_layers == [26..35]
+- ❌ steer_mask — 8 tokens marked ("Danielle Darrieux" 2회), sum > 0
+- ❌ hook 미실행 — amp scaling 에 따라 logits 변화 확인
+
+### 근본 원인
+SEKA 저자가 `pretrained/Qwen3-4B-Base` (local path) 로 projection 을 빌드한 시점의 **model snapshot 과 현재 HuggingFace 에서 serve 하는 snapshot 이 다름**. Contrastive SVD projection 은 model weights 에 강하게 결합 — weights 가 조금이라도 변경되면 steering 방향이 완전히 무효화됨.
+
+### P0-A 에 대한 영향 (중요!)
+
+1. **A100 에서 pre-built CounterFact projection 돌려도 같은 결과 (ES~0.40) 예상** — 이건 하드웨어 문제가 아님
+2. **COWORKER_SEKA_REPRO_GUIDE Phase 1 (CounterFact canonical)**: 여전히 실행 가치 있음 — A100 에서도 0.40 나오면 projection-weight mismatch 확정, 0.95 나오면 우리 진단 틀림 → 어느 쪽이든 결정적 데이터
+3. **P0-A MetaTool SEKA 비교**: MetaTool 용 projection 은 어차피 새로 빌드해야 하므로 이 이슈와 독립. **A100 에서 직접 projection 재빌드** (COWORKER_SEKA_REPRO_GUIDE Phase 2, §3.3 Option 3A) 가 canonical 비교의 유일한 경로
+4. **시간 추정**: Phase 1 검증 ~3분 + Phase 2 projection 재빌드 ~2h + eval ~3h = 반나절
+
+### 추천 실행 순서 (P0-A 개정)
+
+```
+Step 1. Phase 1 canonical CounterFact (3분) → ES 확인
+  → 0.40 이면 projection-weight mismatch 확정, Step 2 로
+  → 0.95 이면 하드웨어 원인 재검토 (가능성 낮음)
+
+Step 2. MetaTool 용 SEKA projection A100 에서 재빌드
+  → COWORKER_SEKA_REPRO_GUIDE §3.3 Option 3A 참조
+  → Qwen2.5-7B-Instruct + Llama-3.1-8B-Instruct 모두
+
+Step 3. 재빌드한 projection 으로 Subtask1+4 eval
+  → CUDA_VISIBLE_DEVICES=0 필수
+```
+
+---
+
+## 기존 요청 사항 (P0-A 개정, P0-B/C/D 변동 없음)
+
+- **P0-A SEKA+AdaSEKA head-to-head** — ⚠️ 위 "추천 실행 순서" 참조. Pre-built projection 사용 불가 → **A100 에서 projection 재빌드 필수**. Source: `external/SEKA/src/model/{seka_llm,adaptive_seka_llm}.py` + `src/model/projection_builder_base.py`. → v3 pivot unlock.
+- **P0-B Thm 6.18 full-WT2 PPL** (변동 없음). Code: `scripts/ocq/measure_thm618_attn_weighted_bits.py`. → v1 expansion unlock.
+- **P0-C 6 baseline** (변동 없음). Source-first 정책 준수.
+- **P0-D Thm 6.20 τ²-bench retail** (변동 없음).
+
+⚠️ **모든 SEKA 실행에 `CUDA_VISIBLE_DEVICES=0` 필수** — seka_llm.py:34 multi-GPU auto-detection → device_map="auto" → cross-device hook deadlock. A100×4 에서도 동일.
 
 ---
 
