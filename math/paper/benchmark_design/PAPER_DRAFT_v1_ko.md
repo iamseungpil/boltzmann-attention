@@ -395,7 +395,9 @@ Qwen2.5-7B-Instruct L=13, $\alpha=0.3$, N=100 쿼리 × 28 헤드 = **2800 per-h
 | p95 LHS/RHS ratio | 1.24 × 10⁻⁷ |
 | max LHS/RHS ratio | 4.26 × 10⁻⁷ |
 
-**Thm 6.1 검증**: 모든 head-query 샘플이 attention-weighted bound 를 만족; bound 는 loose (ratio ~$10^{-8}$) — Mode-C bulk-tail regime 의 예상대로 (Remark B.2.3). Llama L=15 확장은 E3′ 로 연기 (스크립트 준비 완료, ~1 GPU-hr).
+**Thm 6.1 검증**: 모든 head-query 샘플이 attention-weighted bound 를 만족; bound 는 loose (ratio ~$10^{-8}$) — Mode-C bulk-tail regime 의 예상대로 (Remark B.2.3).
+
+**Llama L=15 확장 완료 (2026-04-15, `reports/thm61_llama_2026_04_15/llama_L15_a0.3_N100.json`)**: Meta-Llama-3.1-8B-Instruct, $\alpha=0.3$, N=100 × 32 heads = **3200 측정**. LHS $=0.0586$, RHS-leading $=2.411$, **bound_pass_rate = 1.00 (3200/3200)**, median ratio $6.37\times 10^{-8}$, max $1.06\times 10^{-6}$. 두 아키텍처 모두 동일 bound-looseness order (~$10^{-8}$) 에서 100% 통과. Qwen/Llama bound-magnitude 비 (LHS 8.69× Qwen-larger) 는 §5.4.1.1 factor-(a) 가설의 empirical input 이었으나 — Thm 6.1 은 **magnitude-wise** 양쪽 다 만족할 뿐 cross-model accuracy-lift 비대칭을 결정하지 않음 (Thm 6.17 $G_K$ alignment 가 1.66× Llama-larger 로 메커니즘 담당, §5.4.1.1).
 
 ### 5.7 결과 — E4 Cor 6.9 operator-level nrank
 
