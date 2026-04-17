@@ -25,10 +25,10 @@ $\pi_{\mathcal{G}} = \sum_{t\in\mathcal{G}} p_0(t)$, $\bar r_{\mathcal{G}} = \fr
 \end{equation*}
 
 \paragraph{3단계: 부호.}
-$\pi_{\mathcal{G}} > 0$(ground-truth에 양의 baseline 질량이 걸려 있다는 온화한 조건) 아래에서 $\operatorname{sign}\!\left(\frac{dL}{d\beta}\big|_{\beta=0}\right) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$. 원점 근방에서 $L$의 증가 방향이 이 부호를 따르므로, 국소 최대 $\beta^*$의 부호가 같다: $\operatorname{sign}(\beta^*) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$. $\square$
+$\pi_{\mathcal{G}} > 0$(ground-truth에 양의 baseline 질량이 걸려 있다는 온화한 조건) 아래에서 $\operatorname{sign}\!\left(\frac{dL}{d\beta}\big|_{\beta=0}\right) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$. 따라서 원점 근방에서 $L$을 증가시키는 국소 방향은 $\bar r_{\mathcal{G}} - \bar r$의 부호와 일치한다. $\square$
 
 \paragraph{보충: 전역 vs 국소.}
-위 논증은 원점에서의 일차 최적성만 확립한다. 전역적으로는 $L(\beta)$가 $|\beta|$가 커질수록 softmax 포화에 의해 감쇠하므로 실제 최적 $\beta^*$의 부호는 일차 방향과 일치한다는 경험적 관찰에 의존한다. 네 Qwen 도메인에서 이 일치는 표~\ref{tab:sign-routing}으로 검증된다.
+위 논증은 원점에서의 일차 최적성만 확립한다. 전역적으로는 $L(\beta)$의 비선형성과 softmax 포화 때문에 최적 $|\beta|$와 부호가 따로 분석되어야 한다. 본문은 이 정리를 전역 최적화 정리로 쓰지 않고, 표~\ref{tab:sign-routing}의 regime 해석 도구로만 사용한다.
 
 \subsection{정리~\ref{thm:bound} 증명}\label{app:proof:bound}
 
@@ -43,9 +43,9 @@ $\pi_{\mathcal{G}} > 0$(ground-truth에 양의 baseline 질량이 걸려 있다�
 그리디 디코딩 아래 첫 단계에 $t_1\in T_{\mathrm{gt}}$가 선택되고 $t_1$이 온톨로지 부분공간에 정렬되면 정지 K가 $t_1$의 logit을 $(1+\alpha)$배로 증폭해 $\Pr[t_2=t_1\mid\text{stat}] \ge \Pr[t_2=t_1\mid\text{no\_steer}]$. $\alpha=0$일 때 등호.
 \end{corollary}
 
-\section{Adaptive Sign Routing: $\mathcal{G}$ robustness와 fallback 규칙}\label{app:asr-fallback}\label{app:G-robustness}
+\section{Signed Q 진단의 G-robustness와 fallback 규칙}\label{app:asr-fallback}\label{app:G-robustness}
 
-알고리즘~\ref{alg:asr}은 proxy ground-truth 집합 $\mathcal{G}$ 정의에 의존한다. $\mathcal{G}$를 세 가지 대안으로 정의해 robustness를 측정한다: (i) 도구 이름 단일 토큰, (ii) 도구 이름 전체 토큰 스팬의 평균, (iii) 정답 액션 스트링 전체. 세 정의 모두에서 표~\ref{tab:sign-routing}의 부호 예측이 4/4 중 3/4(Airline 제외)로 일치하면 $\mathcal{G}$ 정의에 대한 민감도가 낮다는 의미다. Airline 경계 사례에서는 $|\bar r_{\mathcal{G}} - \bar r| < \theta$ ($\theta = 0.05$로 설정)일 때 부호를 결정하지 못하고 레이어 적응형 K+Q로 fall back하는 규칙을 둔다.
+알고리즘~\ref{alg:asr}은 proxy ground-truth 집합 $\mathcal{G}$ 정의에 의존한다. $\mathcal{G}$를 세 가지 대안으로 정의해 robustness를 측정한다: (i) 도구 이름 단일 토큰, (ii) 도구 이름 전체 토큰 스팬의 평균, (iii) 정답 액션 스트링 전체. 세 정의 모두에서 표~\ref{tab:sign-routing}의 방향 진단이 4개 도메인 중 3개(Airline 제외)에서 유지되면 $\mathcal{G}$ 정의에 대한 민감도가 낮다는 의미다. Airline 경계 사례에서는 $|\bar r_{\mathcal{G}} - \bar r| < \theta$ ($\theta = 0.05$로 설정)일 때 부호를 강제 해석하지 않고 레이어 적응형 K+Q로 fallback하는 규칙을 둔다.
 
 \section{Phase 2.5 레이어 경계 sweep (보조 ablation)}\label{app:layer-sweep}
 

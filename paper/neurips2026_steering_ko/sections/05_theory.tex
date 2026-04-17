@@ -1,110 +1,83 @@
-\section{설정과 기제}\label{sec:theory}
+\section{이론}\label{sec:theory}
 
-\paragraph{표기.}
-단일 헤드 self-attention을 고려한다(멀티헤드는 헤드 직합). 레이어 $\ell$에서 질의 $q\in\mathbb{R}^d$, key 행렬 $K\in\mathbb{R}^{T\times d}$, value 행렬 $V\in\mathbb{R}^{T\times d_v}$. 원래 softmax 가중치와 출력은 $s_t(q) = \mathrm{softmax}(qK^\top/\sqrt d)_t$, $o(q) = \sum_t s_t(q) v_t$. 카탈로그의 4-facet 온톨로지를 Gram-Schmidt로 직교화한 per-head 기저 $B \in \mathbb{R}^{d\times r}$와 사영 $P_{\mathrm{ont}} = BB^\top$를 통해 세 연산자를 정의한다:
+단일 헤드 self-attention을 고려한다(멀티헤드는 헤드 직합). 레이어 $\ell$에서 질의 $q \in \mathbb{R}^d$, key 행렬 $K \in \mathbb{R}^{T\times d}$, value 행렬 $V \in \mathbb{R}^{T\times d_v}$, softmax 가중치 $s_t(q) = \mathrm{softmax}(qK^\top/\sqrt d)_t$, 출력 $o(q) = \sum_t s_t(q) v_t$를 쓴다. 본 논문의 연산자족은 \S\ref{sec:method}에서 도입된 대로
 \begin{equation}\label{eq:ops}
-\underbrace{K' = K + \alpha K P_{\mathrm{ont}}}_{\text{정지 K (SEKA)}},\quad
-\underbrace{Q' = Q + \beta Q P_{\mathrm{ont}}}_{\text{Q-회전 (ours, 부호 $\beta$)}},\quad
-\underbrace{\ell<\lfloor L/4\rfloor:\ K'\ \text{적용};\ \text{모든 }\ell:\ Q'\ \text{적용}}_{\text{레이어 적응형 K+Q (ours)}}
+\underbrace{K' = K + \alpha K P_{\mathrm{ont}}}_{\text{정지 K (SEKA형)}},\quad
+\underbrace{Q' = Q + \beta Q P_{\mathrm{ont}}}_{\text{signed Q-회전}},\quad
+\underbrace{\alpha_\ell = \alpha \mathbf{1}\{\ell < \lfloor L/4\rfloor\},\ \beta_\ell = \beta}_{\text{layer-adaptive K+Q}}
 \end{equation}
-세 연산자가 같은 $B$를 쓰므로 결과 차이는 연산자 형식과 부호 $\beta$에만 귀속된다. 본 논문의 유일한 분석 가정은 유계 노름이다: 모든 $q, (k_t, v_t), e_t$에 대해 $\|q\| \le Q_{\max}$, $\|v_t\| \le V_{\max}$, $\|e_t\| \le \rho$. $(q, K, V)$의 결합 분포에 대한 어떠한 가정도 두지 않는다.
+세 연산자는 같은 온톨로지 기저 $B$를 공유하므로 결과 차이는 기저가 아니라 \emph{연산자 형식과 레이어 스케줄}에서 나온다. 분석 가정은 유계 노름 하나뿐이다: 모든 $q, (k_t, v_t), e_t$에 대해 $\|q\|\le Q_{\max}$, $\|v_t\|\le V_{\max}$, $\|e_t\|\le\rho$. $(q, K, V)$의 결합 분포에 대한 추가 가정은 두지 않는다.
 
-\subsection{정지 형식은 방출 상태를 담을 수 없다}
+이 setup 위에서 본 논문의 세 정리가 순차적으로 전개된다. 첫 정리는 정지 K가 구조적으로 멀티-툴 상태를 담을 수 없다는 불가능성 결과다.
 
 \begin{theorem}[정지 K는 방출 상태에 무관하다]\label{thm:no-memory}
 식~\eqref{eq:ops}의 정지 K-측 연산자를 쓰자. 두 디코딩 히스토리 $h, h'$가 같은 hidden state $x$를 낳지만 방출 도구 집합에서 다르다면 $K'(h) = K'(h')$. 따라서 $(K', K)$의 어떤 함수도 방출 히스토리를 인코딩하지 못한다.
 \end{theorem}
 
 \begin{proof}
-$K' = K + \alpha K P_{\mathrm{ont}}$는 $(K, \alpha, P_{\mathrm{ont}})$만의 함수이고 셋 다 히스토리 불변이므로 $K' = f(K)$로 쓸 수 있는 히스토리 불변 $f$가 존재한다. $K(h) = K(h')$이면 $f(K(h)) = f(K(h'))$.
+$K' = K + \alpha K P_{\mathrm{ont}}$는 $(K, \alpha, P_{\mathrm{ont}})$만의 함수이고 셋 다 히스토리 불변이므로 $K' = f(K)$로 쓸 수 있는 히스토리 불변 함수 $f$가 존재한다. $K(h) = K(h')$이면 $f(K(h)) = f(K(h'))$.
 \end{proof}
 
-같은 논증이 AdaSEKA에도 적용된다(전문가 선택은 현재 입력 $x$의 함수). 이 구조적 성질의 관측 가능한 귀결은 \texttt{repeated\_first\_tool\_rate}의 상승이며(따름정리~\ref{cor:seka-repeat}, 부록), \S\ref{sec:exp:mechanism}이 직접 검증한다.
+같은 논증이 AdaSEKA에도 적용된다(전문가 선택이 현재 입력 $x$의 함수). 이 구조적 성질의 관측 가능한 귀결은 \texttt{repeated\_first\_tool\_rate}의 상승이며(따름정리~\ref{cor:seka-repeat}, 부록), \S\ref{sec:exp:main}이 직접 검증한다. 이 정리가 말하는 바는 분명하다. 멀티-툴에서 정지 K-only는 원리적으로 방출 상태를 담지 못하므로, 방법론적 개선은 ``더 강한 K''가 아니라 \emph{K를 어디까지 허용할 것인가}에서 나와야 한다.
 
-\subsection{Q-회전은 부호가 방향을 결정한다}
+두 번째 정리는 이 한계를 우회하는 signed Q-회전이 기하학적으로 무엇을 하는지 고정한다.
 
 \begin{theorem}[Q-사영의 기하]\label{thm:q-sign}
-식~\eqref{eq:ops}에서 $q' = q + \beta q P_{\mathrm{ont}}$는 $q$의 온톨로지 성분을 $(1+\beta)$배로 균일 축소/증폭하고 직교 성분을 보존한다. $\beta<0$이면 온톨로지 정렬 도구의 attention logit이 감소하고, $\beta>0$이면 증가한다.
+식~\eqref{eq:ops}에서 $q' = q + \beta q P_{\mathrm{ont}}$는 $q$의 온톨로지 성분을 $(1+\beta)$배로 균일 축소 또는 증폭하고 직교 성분을 보존한다. $\beta<0$이면 온톨로지 정렬 도구의 attention logit이 감소하고, $\beta>0$이면 증가한다.
 \end{theorem}
 
 \begin{proof}
 $P_{\mathrm{ont}}^2 = P_{\mathrm{ont}}$에서 $q' P_{\mathrm{ont}} = (1+\beta) q P_{\mathrm{ont}}$, $q'(I-P_{\mathrm{ont}}) = q(I-P_{\mathrm{ont}})$.
 \end{proof}
 
-정리~\ref{thm:q-sign}은 \emph{두 부호 모두}를 정당화하지만 어느 쪽이 주어진 과제에서 이기는지는 말하지 않는다. 실제로 우리가 측정한 도메인 데이터는 부호가 도메인별로 다름을 분명히 보인다(\S\ref{sec:exp:main}): MetaTool ST4와 $\tau^2$-retail에서는 $\beta<0$이 이기고, $\tau^2$-telecom에서는 $\beta>0$이 $+24.78$pp로 우세하다. 이것이 본 논문의 핵심 이론 질문을 만든다: \emph{$\beta$의 최적 부호를 어떻게 \emph{사전에} 예측할 것인가?}
+정리~\ref{thm:q-sign}은 signed Q가 focus형($\beta>0$)과 coverage형($\beta<0$) 양방향 모두를 가질 수 있음을 보인다. 이것이 본문 실험에서 retail과 MetaTool에서는 $\beta<0$이, telecom에서는 $\beta>0$이 우세한 이유를 설명하는 출발점이다. 어느 부호가 어느 도메인에서 유리한지는 다음 정리가 일차 진단 형태로 답한다.
 
-\subsection{부호 예측기: 정리 $\beta^*$}
-
-답은 softmax gradient identity에서 바로 유도된다. ground-truth 도구의 proxy token 집합을 $\mathcal{G}$라 하고, 현재 attention 분포를 $p_0(t) = s_t(q)$라 하자. 온톨로지 부분공간 위의 per-token score를
+ground-truth 도구의 proxy token 집합을 $\mathcal{G}$라 하고 현재 attention 분포를 $p_0(t) = s_t(q)$라 하자. 온톨로지 부분공간 위의 per-token score를
 \begin{equation*}
 r_t := \tfrac{1}{\sqrt d}\langle BB^\top q, k_t\rangle
 \end{equation*}
-로 정의한다. 즉 $r_t$는 $q$의 온톨로지 성분이 각 key와 얼마나 정렬되어 있는지를 나타낸다. $q_\beta := (I + \beta BB^\top)q$로 $\beta$-섭동한 뒤 ground-truth에 걸린 attention 질량
-\begin{equation*}
-L(\beta) := \sum_{t\in\mathcal{G}} p_\beta(t)
-\end{equation*}
-를 최대화하는 $\beta^*$의 부호가 예측 대상이다.
+로 정의한다. 즉 $r_t$는 $q$의 온톨로지 성분이 각 key와 얼마나 정렬되어 있는지다. $q_\beta := (I + \beta BB^\top)q$로 $\beta$-섭동한 뒤 ground-truth에 걸린 attention 질량 $L(\beta) := \sum_{t\in\mathcal{G}} p_\beta(t)$의 $\beta=0$ 근방 변화가 분석 대상이다.
 
-\begin{theorem}[부호 예측기 $\beta^*$]\label{thm:beta-star}
+\begin{theorem}[signed Q의 일차 개선 방향]\label{thm:beta-star}
 $\pi_{\mathcal{G}} = \sum_{t\in\mathcal{G}} p_0(t) > 0$, $\bar r = \sum_t p_0(t) r_t$, $\bar r_{\mathcal{G}} = \frac{1}{\pi_{\mathcal{G}}}\sum_{t\in\mathcal{G}} p_0(t) r_t$라 하자. 그러면
 \begin{equation}\label{eq:beta-star}
-\left.\frac{dL}{d\beta}\right|_{\beta=0} = \pi_{\mathcal{G}}\,(\bar r_{\mathcal{G}} - \bar r),
-\qquad
-\operatorname{sign}(\beta^*) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r).
+\left.\frac{dL}{d\beta}\right|_{\beta=0} = \pi_{\mathcal{G}}\,(\bar r_{\mathcal{G}} - \bar r).
 \end{equation}
-특히 ground-truth 도구가 온톨로지에 평균보다 더 정렬되어 있으면 $\beta>0$이 최적이고, 덜 정렬되어 있으면 $\beta<0$이 최적이다.
+특히 $\bar r_{\mathcal{G}} - \bar r > 0$이면 $\beta=0$ 근방에서 $\beta>0$ 방향이, $\bar r_{\mathcal{G}} - \bar r < 0$이면 $\beta<0$ 방향이 ground-truth attention mass를 증가시키는 국소 방향이다.
 \end{theorem}
 
 \begin{proof}
-softmax gradient identity $\partial_\beta p_\beta(t) = p_\beta(t)(r_t - \mathbb{E}_{p_\beta}[r])$에 $\mathcal{G}$에 대한 합을 취하고 $\beta=0$에서 평가하면
-$\frac{dL}{d\beta}\big|_{\beta=0} = \sum_{t\in\mathcal{G}} p_0(t)(r_t - \bar r) = \pi_{\mathcal{G}}(\bar r_{\mathcal{G}} - \bar r).$ 부호 일치는 즉시 따라 나온다.
+softmax gradient identity $\partial_\beta p_\beta(t) = p_\beta(t)(r_t - \mathbb{E}_{p_\beta}[r])$에 $\mathcal{G}$에 대한 합을 취하고 $\beta=0$에서 평가하면 $\frac{dL}{d\beta}\big|_{\beta=0} = \sum_{t\in\mathcal{G}} p_0(t)(r_t - \bar r) = \pi_{\mathcal{G}}(\bar r_{\mathcal{G}} - \bar r)$. 따라서 $\beta=0$에서의 국소 개선 방향 부호가 $\bar r_{\mathcal{G}} - \bar r$의 부호와 일치한다.
 \end{proof}
 
-\paragraph{해석.}
-식~\eqref{eq:beta-star}는 ``과제별 부호''라는 문제에 \emph{측정 가능한} 답을 준다. $\bar r_{\mathcal{G}} - \bar r$은 baseline forward pass 한 번에 계산 가능(ground-truth 마스크와 온톨로지 점수 $r_t$만 있으면 된다). 이것이 \S\ref{sec:exp:sign}에서 구현하는 \emph{Adaptive Sign Routing} 알고리즘의 이론적 기반이다.
-
-\paragraph{교차 검증.}
-네 Qwen 도메인에서 예측과 실측이 일치한다(표~\ref{tab:sign-routing}):
+식~\eqref{eq:beta-star}는 signed Q가 어떤 regime에서 focus처럼, 어떤 regime에서 coverage처럼 작동하는지를 설명한다. 강조할 점은 이 정리가 전역 최적 $\beta^*$를 보장하는 것이 아니라 $\beta=0$ 근방의 일차 개선 방향만 준다는 것이다. 본문은 이 정리를 배포 알고리즘이 아니라 \emph{regime 진단 도구}로 쓰며, 네 Qwen 도메인에서의 일차 부호가 실측 우세 방향과 어떻게 관련되는지는 표~\ref{tab:sign-routing}에 정리한다.
 
 \begin{table}[h]
 \centering
-\caption{정리~\ref{thm:beta-star}의 경험적 검증 (Qwen2.5-7B). 부호 예측 정확도 4/4.}
+\caption{정리~\ref{thm:beta-star}의 경험적 진단 (Qwen2.5-7B). $\beta>0$/$\beta<0$ 중 어떤 방향이 유리한지에 대한 국소 신호.}
 \label{tab:sign-routing}
 \small
 \begin{tabularx}{\linewidth}{@{}Xcccc@{}}
 \toprule
-도메인 & baseline F1 & $\operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$ 예상 & 실측 최적 & 일치 \\
+도메인 & baseline F1 & $\operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$ & 실측 우세 방향 & 해석 \\
 \midrule
-$\tau^2$ Telecom & 0.251 & $+$ (under-focused) & $\beta=+0.05$, $+24.78$pp & $\checkmark$ \\
-$\tau^2$ Retail & 0.468 & $-$ (balanced) & $\beta=-0.03$, $+5.11$pp & $\checkmark$ \\
-$\tau^2$ Airline & 0.329 & $+$ (under-focused) & $\beta=-0.03$ 약하고 ladapt 우세 & mixed \\
-MetaTool ST4 & 0.731 & $-$ (over-confident) & $\beta=-0.03$, $+2.28$pp & $\checkmark$ \\
+$\tau^2$ Telecom & 0.251 & $+$ & $\beta=+0.05$, $+24.78$pp & under-focused regime \\
+$\tau^2$ Retail & 0.468 & $-$ & $\beta=-0.03$, $+5.11$pp & coverage regime \\
+$\tau^2$ Airline & 0.329 & $+$ & layer-adaptive 우세, $\beta<0$은 약함 & mixed boundary \\
+MetaTool ST4 & 0.731 & $-$ & $\beta=-0.03$, $+2.28$pp & over-confident regime \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{교란 경계 (진단 도구)}
-
-Q-측과 K-측 개입을 공통 언어로 비교하려면 출력 교란을 근사 없이 분해해야 한다.
+마지막 정리는 Q-측과 K-측 개입을 같은 척도로 비교하기 위한 교란 경계다. 근사 없이 분해 가능한 정확한 식별식과 그로부터 따라오는 부등식을 함께 제공한다.
 
 \begin{theorem}[Attention 출력의 exact integral remainder]\label{thm:bound}
-$\phi(\tau) := \sum_t \mathrm{softmax}(\ell(q)+\tau\alpha(q))_t v_t$에 대해 $\hat o(q) - o(q) = L(q, E) + R(q, E)$가 정확한 등식으로 성립하고, 유계 노름 아래 $\|\hat o - o\|^2 \le 2\,\mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q) + C_1 \rho^4$, $C_1 = 2 Q_{\max}^4 V_{\max}^2/d^2$.
+$\phi(\tau) := \sum_t \mathrm{softmax}(\ell(q)+\tau\alpha(q))_t v_t$에 대해 $\hat o(q) - o(q) = L(q, E) + R(q, E)$가 정확한 등식으로 성립하고, 유계 노름 아래
+$\|\hat o - o\|^2 \le 2\,\mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q) + C_1 \rho^4$, $C_1 = 2 Q_{\max}^4 V_{\max}^2/d^2$.
 \end{theorem}
 
-본문 논증은 한 줄 Taylor + softmax Jacobian으로 충분하며, 네 단계 완전 증명은 부록~\ref{app:proof:bound}. \S\ref{sec:exp:mechanism}이 이 경계가 실제로 공허하지 않음을 Qwen L=13에서 중앙 LHS/RHS $= 2.36\times 10^{-8}$로 확증한다.
+본문 논증은 한 줄 Taylor 전개와 softmax Jacobian으로 충분하며, 네 단계 완전 증명은 부록~\ref{app:proof:bound}이다. \S\ref{sec:exp:main}의 실측은 Qwen L=13에서 좌변/우변 비율의 중앙값이 $2.36\times 10^{-8}$로 bound가 공허하지 않음을 확인한다.
 
-\paragraph{증명 사슬 요약.}
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{@{}clll@{}}
-\toprule
-\# & 결과 & 필요 입력 & 증명 유형 \\
-\midrule
-1 & 정리~\ref{thm:no-memory} (정지 K 무기억) & \eqref{eq:ops}만 & 구조적, 분포 가정 없음 \\
-2 & 정리~\ref{thm:q-sign} (Q-사영 기하) & \eqref{eq:ops} + $P_{\mathrm{ont}}^2 = P_{\mathrm{ont}}$ & 직교 분해 \\
-3 & 정리~\ref{thm:beta-star} (부호 예측기) & softmax gradient identity & 일차 Taylor \\
-4 & 정리~\ref{thm:bound} (교란 경계) & 유계 노름 & Taylor + Cauchy-Schwarz \\
-\bottomrule
-\end{tabular}
-\end{table}
+정리~\ref{thm:bound}는 layer-adaptive 설계에 직접 연결된다. 같은 크기의 K-측 perturbation이라도 레이어에 따라 attention 출력 교란이 크게 달라지며, develop 브랜치 실험에서 관측된 U-shape sensitivity와 결합하면 late layer의 K perturbation은 같은 $\alpha$에서도 더 위험하고 early layer의 K perturbation은 정보 각인에 더 유용하다. 본 논문의 스케줄 $\alpha_\ell = \alpha \mathbf{1}\{\ell<\lfloor L/4\rfloor\}$, $\beta_\ell = \beta$는 이 설계 원리의 최소 구현이다. K는 초기 각인에만 쓰고 이후 coverage 조정은 Q에 맡긴다. 이것이 본 논문의 중심 방법과 signed Q 보조 분석을 하나로 묶는다.
+
+증명 사슬 요약은 다음과 같다. 정리~\ref{thm:no-memory}은 연산자 정의만으로 성립하고 분포 가정을 전혀 쓰지 않는다. 정리~\ref{thm:q-sign}은 사영 멱등성 $P_{\mathrm{ont}}^2 = P_{\mathrm{ont}}$만 사용한다. 정리~\ref{thm:beta-star}은 softmax gradient identity를 일차 Taylor에 대입한다. 정리~\ref{thm:bound}만 유계 노름 가정을 쓰며 Taylor와 Cauchy-Schwarz로 따라온다.

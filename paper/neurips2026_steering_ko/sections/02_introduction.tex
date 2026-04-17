@@ -1,20 +1,8 @@
 \section{서론}
 
-LLM 에이전트가 실전에서 유용하려면 한 질의에 여러 도구를 순차적으로 호출할 수 있어야 한다. ``뉴스에서 주식 기사 찾아 요약해줘''라는 요청 하나에 \textsc{NewsTool}과 \textsc{ResearchHelper}를 순서대로 부르지 못하면, single-call 벤치마크에서의 높은 점수는 실전 가치와 연결되지 않는다. 이 멀티-툴 능력을 강화하는 길은 지금까지 네 방향으로 나뉘어 왔고 각각 서로 다른 비용-표적 trade-off를 가진다.
+LLM 에이전트가 실전에서 유용하려면 한 질의에서 여러 도구를 순차적으로 고를 수 있어야 한다. ``뉴스에서 주식 관련 기사를 찾아 요약해 달라''는 요청은 검색 도구와 요약 도구를 연달아 불러야 하며, 같은 기능을 가진 여러 도구가 도메인별로 섞여 있으면 무엇을 먼저 쓰고 무엇을 다음으로 남겨야 하는지를 함께 결정해야 한다. 이 멀티-툴 setting의 핵심은 단일 정답률이 아니라 \emph{coverage와 비반복성}이며, 서로 다른 목적을 가진 여러 해법 경로가 이 문제를 공격해 왔다.
 
-대량의 도구 호출 예시로 모델을 직접 finetuning하는 방법(Gorilla~\citep{patil2023gorilla}, ToolLlama~\citep{qin2024toolllm}, xLAM~\citep{zhang2024xlam})은 성능은 강하지만 가중치 수정이 필요해 카탈로그가 바뀔 때마다 재학습 비용을 치러야 한다. 프롬프트 스캐폴딩(ReAct~\citep{yao2023react} 등)은 학습이 필요 없는 대신 프롬프트 길이에 따라 비용이 선형 증가한다. KV-cache 최적화(KIVI~\citep{liu2024kivi})는 추론 시간을 줄이는 데 집중하여 ``무엇을 고를지''라는 과제 수준의 결정에는 직접 개입하지 않는다. 네 번째 방향이 본 논문이 속하는 \emph{활성 스티어링}이다. 추론 시 attention에 저랭크 개입을 주입하여 가중치도 프롬프트도 건드리지 않고 행동을 조정한다.
-
-활성 스티어링의 가장 가까운 선행 방법인 SEKA~\citep{SEKA}와 AdaSEKA~\citep{AdaSEKA}는 attention key에 정지(stationary) 스펙트럴 증폭 $k' = k + \alpha P k$를 가한다. 단일 개념 편집(CounterFact)에서는 state-of-the-art지만 멀티-툴에서는 ``이미 방출한 도구 방향''을 두 번째 단계에서 다시 증폭하여 실패한다. 본 논문은 먼저 이 실패가 정지 형식 자체의 구조적 귀결임을 한 줄로 증명한다(정리~\ref{thm:no-memory}): 정지 연산자는 정의상 디코딩 단계와 방출 집합에 의존하지 않으므로 그 출력은 어떤 히스토리도 담을 수 없다.
-
-이 구조적 한계를 넘는 가장 단순한 회전은 key를 증폭하는 대신 query를 회전시키는 것이다: $Q' = Q + \beta Q P_{\mathrm{ont}}$. 그런데 $\beta$의 \emph{부호}가 어느 쪽이어야 하는가? 기존 이론은 $\beta<0$(``지배적 성분을 덜 신뢰하라''는 coverage prior)과 $\beta>0$(``온톨로지 정렬 방향을 증폭'')을 모두 정당화할 수 있지만, 어느 부호가 주어진 과제에서 이기는지 예측하지 못한다. 실제로 본 연구가 측정한 4개 Qwen 도메인에서 부호는 도메인마다 다르다: $\tau^2$-bench telecom에서는 $\beta>0$이 $+24.78$pp로 이기고(표~\ref{tab:main}), MetaTool ST4와 $\tau^2$-retail에서는 $\beta<0$이 이긴다. 부호가 free hyperparameter로 남으면 본 논문의 실용적 가치는 ``grid search로 찾아 쓰세요''로 축소된다.
-
-본 논문의 핵심 기여는 이 부호를 \emph{데이터 없이} 예측하는 이론적 도구다. baseline forward pass 한 번의 softmax 분포에서 ground-truth 도구에 걸린 ontology-projected score의 조건부 평균 $\bar r_{\mathcal{G}}$와 전체 평균 $\bar r$을 비교하면, softmax gradient identity로부터
-\[
-\operatorname{sign}(\beta^*) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)
-\]
-이 직접 유도된다(정리~\ref{thm:beta-star}). 이것이 본 논문의 두 번째 정리이고, 단 한 번의 forward pass만 추가하여 per-query 또는 per-domain으로 부호를 결정하는 \emph{Adaptive Sign Routing} 알고리즘을 낳는다. 네 Qwen 도메인에서 이 예측기는 부호를 4/4 정확히 맞췄고, 예측된 부호로 회전을 걸면 SEKA와 AdaSEKA를 일관되게 상회한다.
-
-본 논문의 기여는 세 축으로 정리된다. 첫째, 정지 key-side 증폭이 멀티-툴에서 구조적으로 실패한다는 사실과 그 footprint가 \texttt{repeated\_first\_tool\_rate}의 상승임을 증명하고(정리~\ref{thm:no-memory}) 데이터로 확증한다(\S\ref{sec:exp:mechanism}). 둘째, 부호 예측기 정리~\ref{thm:beta-star}와 Adaptive Sign Routing을 도입하여 Qwen2.5-7B의 네 도메인에서 부호를 4/4 맞추고 일관된 성능 이득을 낸다(\S\ref{sec:exp:main}, \S\ref{sec:exp:sign}). 셋째, 방법은 파인튜닝 대비 학습 비용 0, 프롬프트 스캐폴딩 대비 토큰 오버헤드 0, 저장 $\approx 2.6$ MB로 효율성 axis에서도 경쟁력을 가진다(\S\ref{sec:exp:efficiency}). 표~\ref{tab:positioning}이 네 방향과 본 논문의 위치를 정리한다.
+도구 선택 성능을 강화하는 경로는 네 갈래로 나뉜다. tool-aware finetuning은 도구 호출 예시로 모델 가중치를 직접 조정해 강한 성능을 내지만 카탈로그가 바뀔 때마다 재학습 비용을 치러야 한다. 프롬프트 스캐폴딩은 학습 없이 추론 시 프롬프트로 행동을 유도하지만 프롬프트 길이에 비례해 토큰 비용이 증가한다. KV-cache 최적화는 추론 자원은 줄여 주지만 ``무엇을 고를지''라는 과제 수준의 결정에는 개입하지 않는다. 네 번째 갈래인 활성 스티어링은 attention에 저랭크 개입을 주입해 가중치와 프롬프트를 모두 건드리지 않고 행동을 바꾼다. 본 논문은 활성 스티어링에 속하며, 표~\ref{tab:positioning}이 네 접근을 학습 비용, 멀티-툴 표적성, 부호 결정 방식의 축에서 비교한다.
 
 \begin{table}[t]
 \centering
@@ -29,7 +17,15 @@ Tool-aware finetuning & Gorilla, ToolLlama, xLAM & $\times$ & $\checkmark$ & n/a
 Prompt scaffolding & ReAct, ToT & $\checkmark$ & 프롬프트 & n/a \\
 KV-cache 최적화 & KIVI, StreamingLLM & $\checkmark$ & $\times$ & n/a \\
 정지 활성 스티어링 & SEKA, AdaSEKA, ITI, CAA, PASTA & $\checkmark$ & $\times$ & 고정(보통 $+$) \\
-\textbf{본 논문} & Q-회전 + Adaptive Sign Routing & \boldmath{$\checkmark$} & \boldmath{$\checkmark$} & \textbf{이론적 예측기} \\
+\textbf{본 논문} & Layer-adaptive K+Q steering & \boldmath{$\checkmark$} & \boldmath{$\checkmark$} & \textbf{레이어 스케줄 + 부호 진단} \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+활성 스티어링 계열은 훈련 없이 추론 시점에 행동을 조정한다는 장점을 공유하지만, 대부분의 기존 구현은 \emph{정지 연산자}다. 즉 같은 저랭크 방향을 모든 디코딩 단계에 걸쳐 동일하게 밀어 넣는다. 이 형식은 단일 개념 편집이나 단일 도구 선택처럼 ``한 방향을 강화하는'' 과제에는 자연스러운 선택이지만, 멀티-툴에는 맞지 않는다. 첫 도구를 이미 방출한 뒤에도 연산자는 방출 사실을 모른 채 같은 방향을 계속 증폭하여 두 번째 단계에서 첫 도구를 다시 고르게 유도한다. 이것이 멀티-툴에서 정지 활성 스티어링이 coverage 대신 반복을 만드는 구조적 이유이며, 본 논문의 첫 이론적 관찰이 이 현상을 형식화한다.
+
+대안을 찾을 때 ``K 대신 Q를 돌리자''만으로는 충분하지 않다. Q를 온톨로지 부분공간에서 회전시키는 연산자 $Q' = Q + \beta Q P_{\mathrm{ont}}$는 부호에 따라 온톨로지 정렬 방향을 눌러 coverage를 넓히거나 강화해 focus를 좁히는 두 얼굴을 가진다. 어느 부호가 주어진 과제에서 유리한지는 선험적으로 결정되지 않는다. 반대로 K와 Q를 모든 레이어에 걸쳐 동시에 적용하면 후반 레이어의 출력 수렴 과정이 교란되어 성능이 오히려 무너진다. 문제의 본질은 ``K냐 Q냐''가 아니라 \emph{어느 레이어에서 무엇을 쓰느냐}에 있다. 본 논문의 중심 설계인 layer-adaptive K+Q는 초기 레이어에서는 K로 도구 방향을 각인하고, 이후 레이어에서는 Q로 이미 지배적인 facet을 눌러 남은 facet을 보게 한다. develop 브랜치 실험 궤적은 이 설계를 일관되게 지지한다. 정지 K를 모든 레이어에 적용하면 MetaTool Subtask4에서 $-4.57$pp로 붕괴하지만, K를 초기 1/4 레이어에만 두면 같은 기저로 $+2.08$pp가 회복된다.
+
+이 layer-adaptive 설계 위에서 signed Q는 task regime에 따라 다른 해석을 받는다. baseline F1이 낮고 온톨로지 정렬이 부족한 domain에서는 양의 $\beta$가 focus를 좁혀 이득을 내고, baseline이 이미 온톨로지에 치우친 domain에서는 음의 $\beta$가 과도 편향을 풀어 coverage를 돌려준다. 어느 쪽이 유리한지는 baseline forward pass 한 번에서 측정 가능한 양 — ground-truth proxy에 걸린 온톨로지 정렬도의 조건부 평균과 전체 평균의 차이 — 의 부호로 설명된다. 본 논문은 이 관계를 일차 수준에서 정리하고, 네 Qwen 도메인에서의 regime 차이를 단일 진단식으로 설명한다.
+
+본 논문의 기여는 네 가지로 요약된다. 첫째, 정지 활성 스티어링이 멀티-툴에서 구조적으로 방출 상태를 담지 못한다는 불가능성 결과를 제시하고, 그 footprint가 포지션별 hit rate에서 \texttt{repeated\_first\_tool\_rate} 상승으로 관측됨을 확인한다. 둘째, 초기 K와 후반 Q를 분리한 layer-adaptive 스케줄을 도입하여 ``K를 어디까지 허용할지''라는 설계 원리를 구현한다. 셋째, signed Q-회전에 대해 softmax gradient identity에서 일차 부호 진단을 유도해 도메인별 부호 역전을 설명한다. 넷째, 방법은 학습 비용 0, 토큰 오버헤드 0, 저장 약 2.6 MB의 저랭크 hook으로 효율성 측면에서도 실용적이며, KV-cache 최적화와도 직교 결합 가능하다.

@@ -1,1 +1,27 @@
-% Content merged into 05_theory.tex as a single compact "Setup and Mechanism" section.
+\section{방법}\label{sec:method}
+
+본 논문의 방법은 하나의 온톨로지 기저 위에서 세 연산자를 비교 가능한 형태로 정의하는 것에서 출발한다. 도구 카탈로그의 4-facet 구조 $(\texttt{domain}, \texttt{function}, \texttt{io\_type}, \texttt{category})$를 layer-head별 basis $B \in \mathbb{R}^{d \times r}$로 정리하고, 그 사영을 $P_{\mathrm{ont}} = BB^\top$로 둔다. 이 기저는 도구를 semantic facet 축으로 분해해 attention 공간에 직접 주입할 수 있게 만든다.
+
+\paragraph{연산자족.}
+같은 $P_{\mathrm{ont}}$ 위에서 세 종류의 개입을 정의한다. 정지 K-측 개입은
+\[
+K' = K + \alpha K P_{\mathrm{ont}}
+\]
+이고, signed Q-회전은
+\[
+Q' = Q + \beta Q P_{\mathrm{ont}}
+\]
+이다. 여기서 $\alpha > 0$는 온톨로지 방향 증폭이고, $\beta$는 부호에 따라 focus형($\beta>0$) 또는 coverage형($\beta<0$)으로 작동한다. 본 논문의 핵심 연산자는 두 개입을 전 레이어에 동일하게 두지 않고, 레이어별로 다른 역할을 부여하는 layer-adaptive K+Q다.
+
+\paragraph{핵심 설계.}
+layer-adaptive K+Q의 직관은 간단하다. 초기 레이어는 토큰 수준 의미를 형성하는 구간이라, K-측 증폭이 정답 도구 방향을 각인하는 데 도움이 된다. 반면 후반 레이어는 출력 분포가 수렴하는 구간이라, 같은 K perturbation이 오히려 분포를 깨뜨릴 수 있다. 따라서 우리는
+\[
+\alpha_\ell = \alpha \mathbf{1}\{\ell < \lfloor L/4\rfloor\}, \qquad \beta_\ell = \beta
+\]
+의 스케줄을 사용한다. 즉 K는 초기 $\lfloor L/4\rfloor$개 레이어에만 두고, Q는 전 레이어에서 유지한다. 이 스케줄은 ``초기 각인에는 K, 이후 coverage 조정에는 Q''라는 역할 분리를 구현한다.
+
+\paragraph{왜 이것이 방법론적 기여인가.}
+기존 활성 스티어링은 대체로 하나의 방향을 전 레이어에 정지적으로 주입한다. 본 논문의 차별점은 새 basis 자체보다도, 같은 basis를 써도 \emph{연산자 배치}가 결과를 결정한다는 점을 전면에 놓는 것이다. 즉 novelty는 ``더 좋은 정적 projector''가 아니라, 멀티-툴에서 K를 쓸 수 있는 범위를 early layer로 제한하고 Q와 기능 분담시키는 operator schedule에 있다. 이 때문에 본 방법은 SEKA류 정지 K-only 설계와 직접적으로 구분된다.
+
+\paragraph{구현과 비용.}
+실제 구현은 attention hook 한 번으로 충분하다. 각 레이어에서 schedule에 따라 K 또는 Q를 사영 방향으로 수정하고, 나머지 계산은 원래 모델 forward를 그대로 사용한다. 추가 저장은 per-head basis $(L, H_{\mathrm{kv}}, d, r)$뿐이며, Qwen2.5-7B 기준 약 $2.6$ MB다. 가중치 업데이트와 프롬프트 확장은 필요 없다.

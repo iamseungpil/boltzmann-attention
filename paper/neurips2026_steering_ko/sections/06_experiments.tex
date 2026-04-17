@@ -1,74 +1,72 @@
 \section{평가}\label{sec:experiments}
 
-본 절은 두 중심 주장 — 성능(\S\ref{sec:exp:main}, \S\ref{sec:exp:sign}, \S\ref{sec:exp:mechanism})과 효율성(\S\ref{sec:exp:efficiency}) — 을 동일 프로토콜 아래 Qwen2.5-7B-Instruct로 통일해 검증한다. 비교 방법은 \texttt{no\_steer}, 우리 정지 K \texttt{ocq\_bias\_a0.3}, 외부 canonical SEKA, canonical AdaSEKA, Q-회전 두 부호 \texttt{ocq\_qbias\_b$\pm$}, 그리고 레이어 적응형 K+Q \texttt{ocq\_ladapt\_k0.05\_q-0.03}이다.
+본 절은 세 중심 주장을 검증한다. 첫째, 정지 K-only는 멀티-툴에서 구조적으로 실패한다. 둘째, K를 버리는 것이 아니라 \emph{초기 레이어에만} 제한하면 useful signal을 회복할 수 있다. 셋째, signed Q의 부호는 도메인마다 달라지며 이는 layer-adaptive와 경쟁하거나 보완하는 \emph{regime diagnostic}을 제공한다. 모든 수치는 동일 프로토콜의 Qwen2.5-7B-Instruct 평가에서 가져오며, 비교 방법은 \texttt{no\_steer}, 정지 K \texttt{ocq\_bias}, canonical SEKA/AdaSEKA, signed Q-회전 \texttt{ocq\_qbias\_b$\pm$}, 그리고 레이어 적응형 K+Q \texttt{ocq\_ladapt\_k0.05\_q-0.03}이다.
 
-\subsection{멀티-도메인 도구 선택 성능}\label{sec:exp:main}
+\subsection{주 결과와 기제 분석}\label{sec:exp:main}
 
-네 Qwen 도메인(MetaTool Subtask4, $\tau^2$-bench retail/telecom/airline)에서 각 방법을 평가한 결과(표~\ref{tab:main})가 본 논문의 핵심 관찰을 담는다. 첫째, 정지 key-side $\alpha=0.3$은 멀티-툴에서 일관되게 음의 부호를 보이거나 이득이 미미하다. 둘째, Q-회전의 최적 \emph{부호}는 도메인마다 다르다: MetaTool과 Retail에서는 $\beta<0$이 이기고, Telecom에서는 $\beta>0$이 $+24.78$pp로 압도적으로 이긴다. 셋째, 이 부호 비대칭은 정리~\ref{thm:beta-star}가 사전에 예측한다. Airline 한 도메인을 제외하면 $\sigma(\bar r_{\mathcal{G}} - \bar r)$이 실측 최적 부호와 일치한다.
+표~\ref{tab:main}은 본 논문의 핵심 서사를 한 번에 보여 준다. 가장 먼저 보이는 사실은 \emph{정지 K-only는 멀티-툴의 일반 해법이 아니다}. MetaTool ST4에서 정지 K는 $-4.57$pp로 분명히 붕괴한다. 반면 같은 온톨로지 기저에서 K를 초기 레이어에만 두고 Q를 전 레이어에 유지한 layer-adaptive 스케줄은 $+2.08$pp를 낸다. 즉 ``K를 더 세게 쓰자''가 아니라 ``K를 어디까지 허용할 것인가''가 본질이다.
+
+두 번째 관찰은 task regime에 따라 layer-adaptive와 signed Q-only의 상대 우위가 갈린다는 점이다. MetaTool과 airline처럼 short/medium-horizon에서는 layer-adaptive가 strongest K-using variant이며, airline에서는 전체 방법 중 최고($+3.84$pp)다. 반면 retail과 telecom처럼 long-horizon 또는 under-focused regime에서는 signed Q-only가 더 크다. 특히 telecom에서는 $Q+$가 $+24.78$pp로 가장 강하다. 따라서 본 논문이 주장하는 것은 ``layer-adaptive가 모든 곳에서 최고''가 아니라, \emph{stationary K의 실패를 넘으려면 최소한 layer-adaptive 수준의 역할 분리가 필요하며, long-horizon 체제에서는 signed Q가 더 직접적인 해법이 될 수 있다}는 것이다.
 
 \begin{table}[t]
 \centering
-\caption{Qwen2.5-7B-Inst에 대한 네 도메인 성능. 굵은 값 locked, 이탤릭 placeholder. Telecom의 Q+가 Telecom만의 특성임에 주목.}
+\caption{Qwen2.5-7B-Inst에 대한 네 도메인 성능. 핵심은 정지 K의 실패, layer-adaptive의 회복, 그리고 signed Q의 regime split이다.}
 \label{tab:main}
 \small
 \begin{tabularx}{\linewidth}{@{}lXrrr@{}}
 \toprule
-도메인 (N) & 방법 & F1 & $\Delta$F1 vs no\_steer & 예측 최적 부호 \\
+도메인 (N) & 방법 & F1 & $\Delta$F1 vs no\_steer & 메모 \\
 \midrule
 \multirow{5}{*}{MetaTool ST4 (497)}
- & \texttt{no\_steer} & \textbf{0.7307} & --- & $-$ \\
- & 정지 K \texttt{a0.3} & \textbf{0.6850} & $\mathbf{-4.57}$ & \\
- & Q-회전 $\beta=-0.03$ & \textbf{0.7535} & $\mathbf{+2.28}$ & \\
- & 레이어 적응형 K+Q & \textbf{0.7514} & $\mathbf{+2.08}$ & \\
- & canonical SEKA amp=1.0 & \emph{placeholder} & $\ll 0$ & \\
+ & \texttt{no\_steer} & \textbf{0.7307} & --- & baseline \\
+ & 정지 K \texttt{a0.3} & \textbf{0.6850} & $\mathbf{-4.57}$ & stationary K collapse \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.7535} & $\mathbf{+2.28}$ & best overall \\
+ & 레이어 적응형 K+Q & \textbf{0.7514} & $\mathbf{+2.08}$ & best K-using variant \\
+ & canonical SEKA amp=1.0 & \emph{placeholder} & $\ll 0$ & expected negative \\
 \midrule
 \multirow{5}{*}{$\tau^2$-retail (114)}
- & \texttt{no\_steer} & \textbf{0.4679} & --- & $-$ \\
- & 정지 K \texttt{a0.05} & \textbf{0.4737} & $+0.58$ & \\
- & Q-회전 $\beta=-0.03$ & \textbf{0.5190} & $\mathbf{+5.11}$ & \\
- & 레이어 적응형 K+Q & \textbf{0.4829} & $+1.50$ & \\
- & canonical SEKA amp=1.0 & \emph{placeholder} & $\le 0$ & \\
+ & \texttt{no\_steer} & \textbf{0.4679} & --- & baseline \\
+ & 정지 K \texttt{a0.05} & \textbf{0.4737} & $+0.58$ & weak gain only \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.5190} & $\mathbf{+5.11}$ & best overall ($Q-$) \\
+ & 레이어 적응형 K+Q & \textbf{0.4829} & $+1.50$ & helps but smaller \\
+ & canonical SEKA amp=1.0 & \emph{placeholder} & $\le 0$ & expected non-positive \\
 \midrule
 \multirow{5}{*}{$\tau^2$-telecom (200)}
- & \texttt{no\_steer} & \textbf{0.2512} & --- & $+$ \\
- & Q-회전 $\beta=-0.03$ & \textbf{0.4349} & $\mathbf{+18.37}$ & \\
- & \textbf{Q-회전 $\beta=+0.05$} & \textbf{0.4990} & $\boldsymbol{+24.78}$ & $\boldsymbol{\checkmark}$\\
- & 레이어 적응형 K+Q & \textbf{0.3604} & $+10.92$ & \\
- & 정지 K \texttt{a0.05} & \textbf{0.3691} & $+11.79$ & \\
+ & \texttt{no\_steer} & \textbf{0.2512} & --- & baseline \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.4349} & $\mathbf{+18.37}$ & strong $Q-$ too \\
+ & \textbf{Q-회전 $\beta=+0.05$} & \textbf{0.4990} & $\boldsymbol{+24.78}$ & best overall ($Q+$)\\
+ & 레이어 적응형 K+Q & \textbf{0.3604} & $+10.92$ & positive but not best \\
+ & 정지 K \texttt{a0.05} & \textbf{0.3691} & $+11.79$ & under-focused setting \\
 \midrule
 \multirow{4}{*}{$\tau^2$-airline (50)}
- & \texttt{no\_steer} & \textbf{0.3285} & --- & mixed \\
- & Q-회전 $\beta=-0.03$ & \textbf{0.3242} & $-0.43$ & \\
- & 레이어 적응형 K+Q & \textbf{0.3669} & $\mathbf{+3.84}$ & \\
+ & \texttt{no\_steer} & \textbf{0.3285} & --- & baseline \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.3242} & $-0.43$ & signed Q alone insufficient \\
+ & 레이어 적응형 K+Q & \textbf{0.3669} & $\mathbf{+3.84}$ & best overall \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\paragraph{관찰의 함의.}
-표~\ref{tab:main}는 ``$\beta<0$ 하나로 통일''이라는 단순 레시피를 반박한다. 네 도메인 중 하나(Telecom)에서는 정반대 부호가 약 10배 이상 큰 이득을 내므로, 실용적 시스템은 반드시 부호를 \emph{선택}해야 한다. 이 선택을 hyperparameter grid search로 맡기면 배포 비용이 선형으로 증가하고 OOD 도메인에 일반화되지 않는다. 다음 서브섹션이 정리~\ref{thm:beta-star}의 예측기로 이 문제를 푼다.
+\paragraph{해석.}
+표~\ref{tab:main}가 직접 지지하는 결론은 두 개다. 첫째, \emph{SEKA류의 정지 K-only 설계는 멀티-툴 논문의 중심 방법으로 두기 어렵다}. 둘째, \emph{signed Q와 layer-adaptive K+Q는 서로 대체 관계가 아니라 regime에 따라 다른 이득을 주는 같은 연산자족}이다. 따라서 논문의 메인 서사는 layer-adaptive이고, signed Q는 왜 도메인마다 서로 다른 부호가 유리한지 설명하는 분석 축으로 배치하는 것이 자연스럽다.
 
-\subsection{Adaptive Sign Routing}\label{sec:exp:sign}
-
-정리~\ref{thm:beta-star}의 $\operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$는 baseline forward pass 한 번에서 계산 가능하다. 알고리즘~\ref{alg:asr}이 per-domain(또는 per-query) 부호 결정을 구현한다.
+정리~\ref{thm:beta-star}는 $\beta=0$ 근방에서 $Q+$와 $Q-$ 중 어느 방향이 locally helpful한지 판정한다. 우리는 이를 본문에서 \emph{배포 알고리즘}이 아니라 \emph{사후 해석용 진단}으로 사용한다. 이유는 명확하다. 본 실험에서 $\mathcal{G}$는 평가 데이터의 정답 도구 이름으로 구성한 proxy 집합이므로, 현재 형태의 계산은 offline analysis에는 적절하지만 deployment claim으로 쓰기에는 강하다. 따라서 표~\ref{tab:sign-routing}은 ``부호를 자동 선택했다''는 증거가 아니라, 왜 telecom은 $Q+$이고 retail과 MetaTool은 $Q-$인지 설명하는 분석 도구로 읽어야 한다.
 
 \begin{algorithm}[h]
-\caption{Adaptive Sign Routing}\label{alg:asr}
+\caption{Signed Q 부호 진단 (offline analysis)}\label{alg:asr}
 \begin{algorithmic}[1]
 \REQUIRE 질의 $q$, 온톨로지 사영 $P_{\mathrm{ont}} = BB^\top$, proxy GT 집합 $\mathcal{G}$, 강도 $|\beta|$
 \STATE baseline forward로 $p_0(t) = \mathrm{softmax}(qK^\top/\sqrt d)_t$와 $r_t = \tfrac{1}{\sqrt d}\langle BB^\top q, k_t\rangle$ 계산
 \STATE $\bar r \leftarrow \sum_t p_0(t) r_t$,\quad $\bar r_{\mathcal{G}} \leftarrow \frac{1}{\sum_{t\in\mathcal{G}} p_0(t)}\sum_{t\in\mathcal{G}} p_0(t) r_t$
 \STATE $\beta \leftarrow |\beta| \cdot \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$
-\STATE $q' \leftarrow q + \beta q P_{\mathrm{ont}}$로 두 번째 forward pass 실행, 결과 반환
+\STATE 진단된 부호와 실제 sweep 결과를 비교한다
 \end{algorithmic}
 \end{algorithm}
 
-추가 비용은 $O(Tdr H)$의 내적 연산 한 번으로, 총 추론 시간의 1\% 미만이다. $\mathcal{G}$는 per-domain proxy로 (MetaTool의 경우) 도구 이름 토큰 집합을 쓰고, $\tau^2$에서는 \texttt{evaluation\_criteria.actions}의 도구 이름을 활용한다.
+추가 계산량은 $O(TdrH)$의 내적 한 번이며, $\mathcal{G}$는 MetaTool의 경우 정답 도구 이름 토큰 집합, $\tau^2$의 경우 \texttt{evaluation\_criteria.actions}에서 추출한 도구 이름을 쓴다. 다시 말해 이 절의 목적은 label-free routing claim이 아니라 \emph{regime explanation}이다.
 
-표~\ref{tab:sign-routing} (§\ref{sec:theory})의 부호 예측 결과는 4개 도메인 중 3개에서 완전 일치하고, Airline에서만 mixed signal을 보인다. Airline은 baseline F1 0.329로 Telecom(0.251)과 Retail(0.468) 사이의 경계 구간이며, $\bar r_{\mathcal{G}} - \bar r$의 절댓값이 다른 도메인 대비 작아 예측기 신뢰도가 낮음을 시사한다. Adaptive Sign Routing은 이 경계 구간에서 layered K+Q로 fall back하는 규칙을 둘 수 있다(부록~\ref{app:asr-fallback}).
+표~\ref{tab:sign-routing}의 결과는 3개 도메인에서 직관과 일치하고, airline은 mixed boundary case로 남는다. 이 패턴은 논문의 중심 결과와 잘 맞는다. long-horizon 혹은 under-focused regime에서는 signed Q가 직접적인 해법이 되고, boundary case나 short/medium-horizon에서는 layer-adaptive K+Q가 더 안정적이다.
 
-\subsection{승리의 원인: 포지션별 분해}\label{sec:exp:mechanism}
-
-정리~\ref{thm:no-memory}의 관측 가능한 예측은 정지 key-side에서 \texttt{repeated\_first\_tool\_rate}이 \texttt{no\_steer}보다 올라가는 것이다. \texttt{eval\_metatool\_subtask4.py}의 stepwise 블록이 per-sample JSON에 네 포지션 지표를 기록하므로 추가 실행 없이 집계 가능하다. 그림~\ref{fig:stepwise}와 표~\ref{tab:e3-mechanism}가 MetaTool Subtask4 N=497 결과를 담는다. 네 지표의 동시 방향성 — 정지 K에서 \texttt{repeated\_first} 상승, Q-회전과 레이어 적응형에서 동시 하락 + \texttt{second\_distinct} 상승 — 이 승리의 원인이 ``반복을 지운다''임을 정리~\ref{thm:no-memory}와 연결한다.
+정리~\ref{thm:no-memory}의 관측 가능한 예측은 정지 key-side에서 \texttt{repeated\_first\_tool\_rate}이 \texttt{no\_steer}보다 올라간다는 것이다. \texttt{eval\_metatool\_subtask4.py}의 stepwise 블록은 per-sample JSON에 네 포지션 지표를 저장하므로, 추가 실행 없이 원인을 분해할 수 있다. 그림~\ref{fig:stepwise}와 표~\ref{tab:e3-mechanism}은 MetaTool Subtask4 N=497 결과를 담는다. 핵심은 정지 K에서 \texttt{repeated\_first}가 증가하고, Q-회전과 layer-adaptive에서는 같은 지표가 감소하며 \texttt{second\_distinct}가 오른다는 점이다. 특히 layer-adaptive는 ``반복을 지우는 Q''와 ``초기 각인을 주는 K''가 동시에 작동해 first/second hit를 함께 끌어올린다.
 
 \begin{figure}[t]
 \centering
@@ -94,13 +92,13 @@ Q-회전 $\beta=-0.03$ & $\approx$ & $\uparrow$ & $\uparrow$ & $\downarrow$ \\
 \end{tabularx}
 \end{table}
 
-\subsection{효율성 비교}\label{sec:exp:efficiency}
+\subsection{효율성과 구현 비용}\label{sec:exp:efficiency}
 
-성능 이득을 얻으려면 얼마의 비용이 드는가? 표~\ref{tab:e-efficiency}가 본 방법을 tool-aware 파인튜닝, 프롬프트 스캐폴딩, KV-cache 최적화, 정지 활성 스티어링과 네 축에서 비교한다. 본 방법은 추론 시 hook으로 작동하여 학습 비용과 토큰 오버헤드가 모두 0이며, 저장은 per-head 기저 $(L, H_{\mathrm{kv}}, d, r)$만 추가한다. Qwen2.5-7B ($L{=}28$, $H_{\mathrm{kv}}{=}8$, $d{=}128$, $r{=}24$) 기준 약 $2.6$ MB. Adaptive Sign Routing은 per-query baseline forward 한 번을 추가하므로 지연이 대략 $2\times$로 늘지만, domain-level routing(도메인별로 한 번만 $\bar r_{\mathcal{G}} - \bar r$ 측정)은 지연 거의 0이다.
+성능 이득을 얻는 비용도 중요하다. 표~\ref{tab:e-efficiency}는 본 방법을 tool-aware 파인튜닝, 프롬프트 스캐폴딩, KV-cache 최적화, 정지 활성 스티어링과 비교한다. layer-adaptive K+Q는 추론 시 hook으로 동작해 학습 비용과 토큰 오버헤드가 모두 0이며, 저장은 per-head 기저 $(L, H_{\mathrm{kv}}, d, r)$만 추가한다. Qwen2.5-7B ($L{=}28$, $H_{\mathrm{kv}}{=}8$, $d{=}128$, $r{=}24$) 기준 약 $2.6$ MB다. 주 결과 절에서 본 signed-Q 진단은 offline analysis이므로, 표의 효율성 비교는 주 방법인 layer-adaptive와 signed Q hook 자체를 기준으로 해석하는 것이 맞다.
 
 \begin{table}[t]
 \centering
-\caption{효율성 비교. ASR = Adaptive Sign Routing. domain-level routing 기준.}
+\caption{효율성 비교. 주 방법은 layer-adaptive K+Q와 signed Q hook이다.}
 \label{tab:e-efficiency}
 \small
 \begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
@@ -111,9 +109,9 @@ Tool-aware 파인튜닝 (Gorilla) & $\mathcal{O}$(일) & 0 & 0 & 전체 모델 \
 프롬프트 스캐폴딩 (ReAct) & 0 & $+200\sim 500$ 토큰 & 선형 & 0 \\
 KV-cache 최적화 (KIVI) & 0 & 0 & 소폭 감소 & 캐시 $-30\%$ \\
 정지 활성 스티어링 (SEKA) & 사영 학습($\mathcal{O}$(분)) & 0 & 소폭 증가 & 사영 행렬 \\
-\textbf{본 논문 + ASR (domain-level)} & \textbf{0} & \textbf{0} & \emph{<1\% 예상} & $\boldsymbol{\approx 2.6}$ \textbf{MB} \\
+\textbf{본 논문 (layer-adaptive / signed Q)} & \textbf{0} & \textbf{0} & 소폭 증가 & $\boldsymbol{\approx 2.6}$ \textbf{MB} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-성능 측면(\S\ref{sec:exp:main})에서 Telecom에 $+24.78$pp, MetaTool ST4에 $+2.28$pp, Retail에 $+5.11$pp를 파인튜닝 없이 얻는다는 사실과 결합하면, 본 방법은 ``도메인별 부호 한 번 측정 + 저랭크 hook 1개''의 예산으로 부분 파인튜닝에 상응하는 이득을 낸다. 특기할 점은 KV-cache 최적화와 \emph{직교 결합 가능}하다는 점이다 — KIVI 등이 캐시를 압축하는 동안 본 방법은 같은 캐시 위에서 과제 수준의 선택을 개선한다.
+성능 측면(\S\ref{sec:exp:main})의 MetaTool $+2.08\sim 2.28$pp, Retail $+5.11$pp, Telecom $+24.78$pp, Airline $+3.84$pp와 결합하면, 본 연산자족은 파인튜닝 없이도 의미 있는 멀티-툴 이득을 제공한다. 특기할 점은 KV-cache 최적화와 \emph{직교 결합 가능}하다는 점이다. KIVI 등이 캐시를 압축하는 동안 본 방법은 같은 캐시 위에서 과제 수준의 선택을 바꾼다.
