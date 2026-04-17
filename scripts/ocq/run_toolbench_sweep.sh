@@ -15,7 +15,7 @@ mkdir -p "${OUTDIR}"
 
 SUBSET="${SUBSET:-G1_instruction}"   # default = 163 queries
 N_SAMPLES="${N_SAMPLES:-0}"          # 0 = all
-METHODS='no_steer ocq_qbias_b-0.03 ocq_qbias_b0.03 ocq_ladapt_k0.05_q-0.03'
+METHODS='no_steer ocq_qbias_b-0.03 ocq_qbias_b0.03 ocq_ladapt_k0.05_q-0.03 adaseka_M2_a0.05_T0.1 adaseka_M3_a0.1_T0.1'
 
 for nd in 0 50 200 500; do
     out="${OUTDIR}/${SUBSET}_nd${nd}.json"
