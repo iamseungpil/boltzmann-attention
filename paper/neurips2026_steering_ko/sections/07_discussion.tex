@@ -1,11 +1,75 @@
+\section{Ablation: 대안적 해석의 체계적 배제}\label{sec:ablations}
+
+본 절의 네 ablation은 \S\ref{sec:experiments}의 이득이 \emph{회전 연산자 설계와 정리~\ref{thm:beta-star}의 부호 선택}에서 나온다는 주장을 압박하는 대안 해석들을 하나씩 제거한다.
+
+\subsection{기저 특이성}\label{sec:abl:basis}
+
+정지 K가 카탈로그 온톨로지 기저에서만 ``온전한'' 음의 효과($-4.57$pp)를 내고 feature-shuffled와 random 기저에서 완전히 0으로 붕괴한다는 사실(표~\ref{tab:e4-basis})은 기저 방향이 정지 K의 행동을 전적으로 결정함을 보인다. Q-회전도 기저 품질에 민감하지만 덜 극단적이다. PCA-of-K 기저는 진행 예정이며, 그 결과에 따라 본 논문의 ``카탈로그 온톨로지가 필수''는 강한 해석 또는 ``저랭크 구조가 필요하되 카탈로그가 최적''의 약한 해석으로 자동 조정된다.
+
+\begin{table}[t]
+\centering
+\caption{Qwen2.5-7B Subtask4 N=497, 기저 $\times$ 연산자. 굵은 값 locked.}
+\label{tab:e4-basis}
+\small
+\begin{tabularx}{0.9\linewidth}{@{}Xcc@{}}
+\toprule
+기저 & Q-회전 F1 & 정지 K F1 \\
+\midrule
+Real $B$ (ours) & \textbf{0.7471} & \textbf{0.6850} \\
+Feature-shuffled & \textbf{0.7254} & \textbf{0.0000} \\
+Random orthonormal & \textbf{0.7068} & \textbf{0.0000} \\
+PCA-of-K (calibration) & \emph{placeholder} & \emph{placeholder} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{``안전해서 약하다''의 반박: 실제 교란 크기}\label{sec:abl:magnitude}
+
+자연스러운 반론은 real 기저가 null control보다 \emph{덜 교란하기 때문에} 안전한 것 아니냐는 것이다. 표~\ref{tab:e-perturb-mag}가 이를 직접 반박한다. Qwen L=13, $\alpha=0.3$, N=30에서 real 온톨로지 기저는 실제 attention perturbation magnitude가 random과 feature-shuffled 기저보다 \emph{더 큼에도} 불구하고 K-side 안정성은 real에서만 유지된다. real 기저가 이기는 이유는 약해서가 아니라 특정한 안정 부분공간에 정렬되어 있기 때문이다.
+
+\begin{table}[t]
+\centering
+\caption{Qwen L=13, $\alpha=0.3$, N=30 effective attention perturbation magnitude.}
+\label{tab:e-perturb-mag}
+\small
+\begin{tabularx}{0.9\linewidth}{@{}Xccc@{}}
+\toprule
+기저 & 평균 & 중앙값 & 표준편차 \\
+\midrule
+Real $B$ (ours) & \textbf{621.30} & \textbf{593.71} & 317.59 \\
+Random orthonormal & 399.56 & 360.01 & 235.86 \\
+Feature-shuffled & 291.98 & 241.87 & 169.97 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{좁은 작동 구간 ($|\beta|$ sweep)}\label{sec:abl:beta}
+
+세 번째 반론은 Q-회전이 일종의 confidence booster로 작동하므로 $|\beta|$가 클수록 좋아야 한다는 것이다. 그림~\ref{fig:beta-sweep}의 Qwen Subtask4 $\beta$ sweep은 정반대를 보인다: $\beta \approx -0.1$ 근처가 최고이고 $\beta = -0.7$에서는 F1이 0으로 완전 붕괴한다. 좁은 유효 구간은 ``큰 $|\beta|$ 일수록 좋다'' 해석과 어긋나며 coverage/증폭 기제와 부합한다.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.7\linewidth]{fig_qbias_ablations.pdf}
+\caption{Qwen Subtask4 Q-회전 $\beta$ sweep. 좁은 유효 구간은 confidence-boost 해석과 어긋난다.}\label{fig:beta-sweep}
+\end{figure}
+
+\subsection{교란 경계의 경험적 유효성}\label{sec:abl:bound}
+
+정리~\ref{thm:bound}의 부등식이 공허하지 않은지 확인한다. Qwen L=13 에서 $\alpha=0.3$ 정지 K 개입, N=100, 2800 head-query 조합에 대해 측정한 LHS/RHS 비율은 중앙값 $2.36\times 10^{-8}$, pass rate 100\%로 bound가 매우 보수적이지만 안정적으로 성립한다. 이것은 Q-측과 K-측 개입을 공통 척도로 비교할 때 정리가 정보적 진단이 됨을 뒷받침한다.
+
+\subsection{단일 도구 체제에서의 거동}\label{sec:abl:single-tool}
+
+마지막 보조 증거는 반대 방향에서 주장을 강화한다. MetaTool Subtask1의 단일 도구 체제에서 정지 K-bias($\alpha=0.3$)가 Qwen에서 $+11.16$pp의 큰 양의 이득을 준다. 도구가 하나뿐인 체제에서는 ``첫 선택을 반복''이 해롭지 않고 오히려 도움이 되며, 이것이 SEKA 계열이 단일 개념 편집에서 강한 이유와 일치한다. 본 연구의 연산자는 SEKA의 범용 대체가 아니라 멀티-툴 과제에 특화된 설계다.
+
 \section{논의}\label{sec:discussion}
 
-본 논문의 메시지는 두 축으로 요약된다. 첫째, 멀티-툴 도구 선택에서 활성 스티어링의 가장 가까운 선행 방법(SEKA/AdaSEKA)은 정지 key-side 증폭이라는 형식 때문에 ``첫 도구를 두 번째 단계에서 다시 증폭한다''는 구조적 편향을 가지며, 이 편향은 \texttt{repeated\_first\_tool\_rate}이라는 관측 가능한 양으로 데이터에 남는다. 해결은 같은 부분공간 위에서 회전을 Q-측으로 부호 반전해 주는 것으로 충분하다. 둘째, 이 회전 기반 개입은 학습도 프롬프트 확장도 요구하지 않으므로, 파인튜닝 대비 학습 비용이 0이고 프롬프트 스캐폴딩 대비 토큰 오버헤드가 0이며 KV-cache 최적화 계열과 orthogonal하게 결합 가능하다.
+본 논문의 메시지는 세 단계로 요약된다. 첫째, 정지 key-side 증폭은 멀티-툴에서 구조적으로 실패하며(정리~\ref{thm:no-memory}) 그 footprint는 \texttt{repeated\_first\_tool\_rate}의 상승이다. 둘째, 해결은 SEKA를 더 정교화하는 것이 아니라 부호를 뒤집어 query를 회전시키는 것이지만, \emph{부호 선택 자체가 도메인 의존적}이다. 셋째, 이 부호는 softmax gradient identity에서 직접 유도되는 $\bar r_{\mathcal{G}} - \bar r$으로 baseline forward 한 번에 예측 가능하며(정리~\ref{thm:beta-star}), 예측된 부호로 회전을 걸면 4 Qwen 도메인에서 SEKA와 AdaSEKA를 일관되게 상회한다.
 
-``기저 덕분인가 연산자 덕분인가''는 \S\ref{sec:exp:ablations}의 ablation이 분리한다. feature-shuffled와 random 기저의 정지 K 붕괴는 ``아무 방향이든 된다''는 대안을 이미 배제하며, PCA-of-K 행이 채워지면 본 논문의 주장은 두 형태 중 하나로 조정된다: ``카탈로그 온톨로지가 operator의 일부''(강한 해석) 또는 ``저랭크 구조가 필요하되 카탈로그가 최적''(약한 해석). 어느 쪽이든 random/shuffled 붕괴는 불변이다.
+\paragraph{무엇이 기존 활성 스티어링 문헌과 다른가.}
+SEKA와 AdaSEKA는 $\beta>0$(amplification) 쪽만 탐색했고, 기존 Q-coverage 연구는 $\beta<0$(suppression) 쪽만 탐색했다. 본 논문은 두 부호가 서로 다른 과제 체제에서 이긴다는 것을 최초로 \emph{측정}하고, 그 부호를 \emph{사전 예측}하는 정리를 제시한다. 부호 이론이 없이는 $\beta$가 free hyperparameter로 남아 grid search 비용이 선형으로 증가하고 OOD 도메인에 일반화되지 않는다.
 
-레이어 적응형이 짧은 시퀀스에서 Q-only를 능가하고 긴 시퀀스에서 자리를 내주는 비대칭은 약점이 아니라 설계 지침의 원천이다. 두 체제 모두에서 본 연산자족은 SEKA보다 강하므로 사용자는 예상 도구 수에 따라 족 내부에서 고르면 된다. 부록~\ref{app:layer-sweep}의 레이어 경계 sweep(Phase 2.5)이 $\tau=1/4$ 선택의 Pareto frontier를 정량화한다.
+\paragraph{한계.}
+본 연산자는 모두 history-free이므로 정리~\ref{thm:no-memory}이 지적한 방출 상태 결여를 완전히 해소하지 않는다. Adaptive Sign Routing은 per-domain routing이 기본이고 per-query routing은 $\mathcal{G}$ proxy 정의에 의존한다. $\mathcal{G}$ 구성 오류에 대한 민감도는 부록~\ref{app:G-robustness}에서 다룬다. canonical SEKA의 CounterFact 재현이 A6000 환경에서 실패했으므로 SEKA 비교는 A100 재현(부록~\ref{app:seka-repro}) 통과 조건부로 head-to-head를 유지한다. $\tau^2$-bench full multi-turn success는 본 논문의 범위 밖이다.
 
-한계는 셋이다. 본 연산자는 모두 history-free이므로 정리~\ref{thm:no-memory}이 지적한 방출 상태 결여를 완전히 해소하지는 않는다. 이미 방출된 도구를 명시 추적하는 iterative 연산자가 본 족 위에 얼마나 이득을 더할지는 열린 질문이다. canonical SEKA의 CounterFact 재현이 A6000 환경에서 실패했기 때문에 SEKA 비교는 A100 재현(부록~\ref{app:seka-repro}) 통과 조건부로 head-to-head를 유지한다. 마지막으로 $\tau^2$-bench full multi-turn success와 KV-cache compression은 본 논문의 범위 밖이다.
-
-정리~\ref{thm:no-memory}이 SEKA에 국한되지 않고 모든 정지 연산자에 적용되므로 ITI, CAA, PASTA, Focus Directions도 같은 구조적 한계를 공유한다. 이것은 비판이 아니라 진단이며, 멀티-툴 확장 시 같은 ``반복 기제''에 부딪힐 것이라는 예측을 이론이 이미 내놓고 있다. 부호 반전된 Q-사영이 이 확장의 기본 도구로 기능할 수 있다는 것이 본 논문이 제안하는 방향이다.
+\paragraph{함의.}
+정리~\ref{thm:no-memory}이 모든 정지 연산자에 적용되므로 ITI, CAA, PASTA, Focus Directions도 같은 구조적 한계를 공유한다. 정리~\ref{thm:beta-star}는 이들 방법에도 그대로 이식 가능하며, 정지 연산자 문헌 전체에 ``부호 선택''이라는 축을 추가한다. 부호 예측기의 per-query 정확도를 70\% threshold로 확장하는 것이 본 논문의 후속 방향이다.

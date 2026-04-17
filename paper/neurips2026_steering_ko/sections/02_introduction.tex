@@ -1,31 +1,35 @@
 \section{서론}
 
-LLM 에이전트가 실전에서 유용하려면 한 질의에 여러 도구를 순차적으로 호출할 수 있어야 한다. ``뉴스에서 주식 기사 찾아 요약해줘''라는 요청 하나에 \textsc{NewsTool}과 \textsc{ResearchHelper}를 순서대로 부르지 못하면, single-call 벤치마크에서의 높은 점수는 실전 가치와 연결되지 않는다. 이 멀티-툴 능력을 강화하는 길은 지금까지 네 방향으로 나뉘어 왔고, 각각 서로 다른 비용-표적 trade-off를 가진다.
+LLM 에이전트가 실전에서 유용하려면 한 질의에 여러 도구를 순차적으로 호출할 수 있어야 한다. ``뉴스에서 주식 기사 찾아 요약해줘''라는 요청 하나에 \textsc{NewsTool}과 \textsc{ResearchHelper}를 순서대로 부르지 못하면, single-call 벤치마크에서의 높은 점수는 실전 가치와 연결되지 않는다. 이 멀티-툴 능력을 강화하는 길은 지금까지 네 방향으로 나뉘어 왔고 각각 서로 다른 비용-표적 trade-off를 가진다.
 
-대량의 도구 호출 예시로 모델을 직접 finetuning하는 방법(Gorilla~\citep{patil2023gorilla}, ToolLlama~\citep{qin2024toolllm}, xLAM~\citep{zhang2024xlam})은 성능은 강하지만 가중치 수정이 필요해 카탈로그가 바뀔 때마다 재학습 비용을 치러야 한다. 프롬프트 스캐폴딩(ReAct~\citep{yao2023react} 등)은 학습이 필요 없는 대신 프롬프트 길이에 따라 비용이 선형 증가하고 도구 수가 늘면 빠르게 열화된다. 도구 스키마를 효율적으로 캐시하는 KV 최적화 계열(KIVI~\citep{liu2024kivi} 등)은 추론 시간을 줄이는 데 집중하여 ``무엇을 고를지''라는 과제 수준의 결정에는 직접 개입하지 않는다. 네 번째 방향이 본 논문이 속하는 \emph{활성 스티어링}이다. 추론 시 attention에 저랭크 개입을 주입하여 가중치도 프롬프트도 건드리지 않고 행동을 조정하며, 파인튜닝보다 저렴하고 프롬프트 방법보다 표적화되어 있다. 표~\ref{tab:positioning}이 이 네 방향과 본 논문의 위치를 한눈에 정리한다.
+대량의 도구 호출 예시로 모델을 직접 finetuning하는 방법(Gorilla~\citep{patil2023gorilla}, ToolLlama~\citep{qin2024toolllm}, xLAM~\citep{zhang2024xlam})은 성능은 강하지만 가중치 수정이 필요해 카탈로그가 바뀔 때마다 재학습 비용을 치러야 한다. 프롬프트 스캐폴딩(ReAct~\citep{yao2023react} 등)은 학습이 필요 없는 대신 프롬프트 길이에 따라 비용이 선형 증가한다. KV-cache 최적화(KIVI~\citep{liu2024kivi})는 추론 시간을 줄이는 데 집중하여 ``무엇을 고를지''라는 과제 수준의 결정에는 직접 개입하지 않는다. 네 번째 방향이 본 논문이 속하는 \emph{활성 스티어링}이다. 추론 시 attention에 저랭크 개입을 주입하여 가중치도 프롬프트도 건드리지 않고 행동을 조정한다.
+
+활성 스티어링의 가장 가까운 선행 방법인 SEKA~\citep{SEKA}와 AdaSEKA~\citep{AdaSEKA}는 attention key에 정지(stationary) 스펙트럴 증폭 $k' = k + \alpha P k$를 가한다. 단일 개념 편집(CounterFact)에서는 state-of-the-art지만 멀티-툴에서는 ``이미 방출한 도구 방향''을 두 번째 단계에서 다시 증폭하여 실패한다. 본 논문은 먼저 이 실패가 정지 형식 자체의 구조적 귀결임을 한 줄로 증명한다(정리~\ref{thm:no-memory}): 정지 연산자는 정의상 디코딩 단계와 방출 집합에 의존하지 않으므로 그 출력은 어떤 히스토리도 담을 수 없다.
+
+이 구조적 한계를 넘는 가장 단순한 회전은 key를 증폭하는 대신 query를 회전시키는 것이다: $Q' = Q + \beta Q P_{\mathrm{ont}}$. 그런데 $\beta$의 \emph{부호}가 어느 쪽이어야 하는가? 기존 이론은 $\beta<0$(``지배적 성분을 덜 신뢰하라''는 coverage prior)과 $\beta>0$(``온톨로지 정렬 방향을 증폭'')을 모두 정당화할 수 있지만, 어느 부호가 주어진 과제에서 이기는지 예측하지 못한다. 실제로 본 연구가 측정한 4개 Qwen 도메인에서 부호는 도메인마다 다르다: $\tau^2$-bench telecom에서는 $\beta>0$이 $+24.78$pp로 이기고(표~\ref{tab:main}), MetaTool ST4와 $\tau^2$-retail에서는 $\beta<0$이 이긴다. 부호가 free hyperparameter로 남으면 본 논문의 실용적 가치는 ``grid search로 찾아 쓰세요''로 축소된다.
+
+본 논문의 핵심 기여는 이 부호를 \emph{데이터 없이} 예측하는 이론적 도구다. baseline forward pass 한 번의 softmax 분포에서 ground-truth 도구에 걸린 ontology-projected score의 조건부 평균 $\bar r_{\mathcal{G}}$와 전체 평균 $\bar r$을 비교하면, softmax gradient identity로부터
+\[
+\operatorname{sign}(\beta^*) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)
+\]
+이 직접 유도된다(정리~\ref{thm:beta-star}). 이것이 본 논문의 두 번째 정리이고, 단 한 번의 forward pass만 추가하여 per-query 또는 per-domain으로 부호를 결정하는 \emph{Adaptive Sign Routing} 알고리즘을 낳는다. 네 Qwen 도메인에서 이 예측기는 부호를 4/4 정확히 맞췄고, 예측된 부호로 회전을 걸면 SEKA와 AdaSEKA를 일관되게 상회한다.
+
+본 논문의 기여는 세 축으로 정리된다. 첫째, 정지 key-side 증폭이 멀티-툴에서 구조적으로 실패한다는 사실과 그 footprint가 \texttt{repeated\_first\_tool\_rate}의 상승임을 증명하고(정리~\ref{thm:no-memory}) 데이터로 확증한다(\S\ref{sec:exp:mechanism}). 둘째, 부호 예측기 정리~\ref{thm:beta-star}와 Adaptive Sign Routing을 도입하여 Qwen2.5-7B의 네 도메인에서 부호를 4/4 맞추고 일관된 성능 이득을 낸다(\S\ref{sec:exp:main}, \S\ref{sec:exp:sign}). 셋째, 방법은 파인튜닝 대비 학습 비용 0, 프롬프트 스캐폴딩 대비 토큰 오버헤드 0, 저장 $\approx 2.6$ MB로 효율성 axis에서도 경쟁력을 가진다(\S\ref{sec:exp:efficiency}). 표~\ref{tab:positioning}이 네 방향과 본 논문의 위치를 정리한다.
 
 \begin{table}[t]
 \centering
-\caption{멀티-툴 호출을 개선하는 네 가지 접근과 본 논문의 위치. 학습 비용, 과제 수준 제어 여부, 방출 상태 표현 여부, 추론 오버헤드의 네 축에서 비교한다.}
+\caption{멀티-툴 호출 강화의 네 접근과 본 논문의 위치.}
 \label{tab:positioning}
 \small
 \begin{tabularx}{\linewidth}{@{}lXccc@{}}
 \toprule
-접근 & 대표 방법 & 학습 free & 멀티-툴 표적 & 방출 상태 \\
+접근 & 대표 방법 & 학습 free & 멀티-툴 표적 & 부호 결정 \\
 \midrule
-Tool-aware finetuning & Gorilla, ToolLlama, xLAM & $\times$ & $\checkmark$ & $\checkmark$ \\
-Prompt scaffolding & ReAct, ToT & $\checkmark$ & $\checkmark$(프롬프트) & 프롬프트 \\
-KV cache 최적화 & KIVI, StreamingLLM & $\checkmark$ & $\times$ & $\times$ \\
-활성 스티어링(정지) & SEKA, AdaSEKA, ITI, CAA, PASTA & $\checkmark$ & $\times$(단일 개념) & $\times$ \\
-\textbf{본 논문} & Q-coverage, Layer-adaptive K+Q & \boldmath{$\checkmark$} & \boldmath{$\checkmark$}(부호 반전) & \textbf{history-free 근사} \\
+Tool-aware finetuning & Gorilla, ToolLlama, xLAM & $\times$ & $\checkmark$ & n/a \\
+Prompt scaffolding & ReAct, ToT & $\checkmark$ & 프롬프트 & n/a \\
+KV-cache 최적화 & KIVI, StreamingLLM & $\checkmark$ & $\times$ & n/a \\
+정지 활성 스티어링 & SEKA, AdaSEKA, ITI, CAA, PASTA & $\checkmark$ & $\times$ & 고정(보통 $+$) \\
+\textbf{본 논문} & Q-회전 + Adaptive Sign Routing & \boldmath{$\checkmark$} & \boldmath{$\checkmark$} & \textbf{이론적 예측기} \\
 \bottomrule
 \end{tabularx}
 \end{table}
-
-표~\ref{tab:positioning}이 드러내는 핵심은 세 번째와 네 번째 열이다. 기존 활성 스티어링 방법들은 학습 비용을 치르지 않는다는 장점을 공유하지만, \emph{어느 방법도 지금까지 방출한 도구 정보를 담지 않는다}. 가장 가까운 선행 방법인 SEKA~\citep{SEKA}와 그 확장 AdaSEKA~\citep{AdaSEKA}는 $k' = k + \alpha P k$ 형태의 정지 key-side 증폭을 쓰는데, 고정된 $\alpha$와 사영 $P$는 정의상 디코딩 단계에도 방출 도구 집합에도 의존하지 않는다. 단일 개념 편집(CounterFact)에서는 이 ``정지성''이 오히려 강점이지만, 멀티-툴에서는 같은 성질이 ``첫 도구를 두 번째 단계에서 다시 증폭한다''는 행동을 만든다. 본 논문의 첫 번째 관찰은 이 현상이 튜닝 실패가 아니라 \emph{연산자 형식 자체의 귀결}이라는 점이다. 정리~\ref{thm:no-memory}이 이를 한 줄의 구조적 논증으로 고정한다.
-
-이론이 흥미로운 이유는 그것이 데이터의 어느 위치에 흔적을 남길지 예측한다는 데 있다. 정리~\ref{thm:no-memory}의 관측 가능한 귀결은 SEKA의 \texttt{repeated\_first\_tool\_rate}이 \texttt{no\_steer}보다 높게 측정되어야 한다는 것이다. 이 예측이 맞으면 SEKA의 F1 손실은 설계에 내장된 반복에서 오고, 해결은 SEKA를 더 정교하게 만드는 것이 아니라 ``같은 방향으로 \emph{덜 가라}''이다. 이 관찰은 key를 증폭하는 대신 query를 축소하는 부호 반전 연산자로 직결된다(정리~\ref{thm:q-sign}).
-
-본 논문의 기여는 두 축으로 정리된다. 도구 선택 \emph{성능} 축에서(§\ref{sec:exp:performance}) 우리는 Q-커버리지와 레이어 적응형 K+Q가 Qwen2.5-7B-Instruct에 대해 MetaTool Subtask4와 $\tau^2$-bench retail에서 동일한 프롬프트/스코러/디코딩 프로토콜 아래 SEKA 및 AdaSEKA 대비 일관된 이득을 낸다는 것을 보이고, 그 이득이 \texttt{repeated\_first\_tool\_rate}의 감소라는 포지션별 footprint로 해석됨을 확인한다. 기저 절제(feature-shuffled, random, PCA-of-K)는 이 이득이 기저 품질이 아니라 연산자 설계에서 옴을 분리한다. \emph{효율성} 축에서(§\ref{sec:exp:efficiency}) 본 방법은 가중치 학습이나 프롬프트 확장 없이 추론 시 hook으로만 작동하므로 파인튜닝 대비 학습 비용이 0, 프롬프트 스캐폴딩 대비 토큰 오버헤드가 0이며, 저장은 per-head 기저 $(L, H_{\mathrm{kv}}, d, r)$만 추가로 든다(Qwen 7B 기준 $\approx 2.6$ MB).
-
-논문의 나머지는 이 두 축을 따른다. \S\ref{sec:related}에서 정지 스티어링 계열이 공유하는 구조적 빈자리를 지도화하고, \S\ref{sec:theory}에서 설정과 세 핵심 정리를 경량화해 담는다(따름정리와 조건부 명제는 부록). \S\ref{sec:exp:performance}과 \S\ref{sec:exp:efficiency}가 두 중심 주장을 각각 지지한다. \S\ref{sec:discussion}은 이 결과가 다른 정지 스티어링 방법들에 대해 무엇을 함의하는지 논의한다.

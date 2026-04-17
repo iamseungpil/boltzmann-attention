@@ -1,73 +1,84 @@
-\section{도구 선택 성능}\label{sec:exp:performance}
+\section{평가}\label{sec:experiments}
 
-본 절은 중심 주장 1 — 회전 기반 스티어링이 멀티-툴 도구 선택을 개선한다 — 을 지지하는 증거를 쌓는다. 동일한 프롬프트, 스코러, greedy 디코딩 아래에서 여섯 방법을 비교한다: \texttt{no\_steer}, 우리 정지 K 구현 \texttt{ocq\_bias\_a0.3}, 외부 canonical SEKA, canonical AdaSEKA, 그리고 본 연구의 Q-커버리지(\texttt{ocq\_qbias\_b-0.03})와 레이어 적응형 K+Q(\texttt{ocq\_ladapt\_k0.05\_q-0.03}).
+본 절은 두 중심 주장 — 성능(\S\ref{sec:exp:main}, \S\ref{sec:exp:sign}, \S\ref{sec:exp:mechanism})과 효율성(\S\ref{sec:exp:efficiency}) — 을 동일 프로토콜 아래 Qwen2.5-7B-Instruct로 통일해 검증한다. 비교 방법은 \texttt{no\_steer}, 우리 정지 K \texttt{ocq\_bias\_a0.3}, 외부 canonical SEKA, canonical AdaSEKA, Q-회전 두 부호 \texttt{ocq\_qbias\_b$\pm$}, 그리고 레이어 적응형 K+Q \texttt{ocq\_ladapt\_k0.05\_q-0.03}이다.
 
-\subsection{MetaTool Subtask4}\label{sec:exp:metatool}
+\subsection{멀티-도메인 도구 선택 성능}\label{sec:exp:main}
 
-MetaTool Subtask4(N=497)는 각 질의에 정확히 두 도구의 정답이 지정되는, 순차 coverage를 가장 깨끗하게 측정하는 벤치마크다. 표~\ref{tab:e1-subtask4}의 잠금된 수치는 이미 핵심 이야기를 드러낸다. 같은 카탈로그 온톨로지 기저 위에서 정지 key-side 연산자는 $-4.57$pp의 심각한 음의 부호를 보이는 반면, 부호만 뒤집어 query에서 빼는 본 연구의 두 연산자는 각각 $+2.28$pp(Q-커버리지)와 $+2.08$pp(레이어 적응형)의 양의 이득을 낸다. 외부 canonical SEKA/AdaSEKA 수치는 부록~\ref{app:seka-repro}의 재현 gate를 통과한 뒤 채워진다.
-
-\begin{table}[t]
-\centering
-\caption{MetaTool Subtask4 (N=497), Qwen2.5-7B-Instruct. 굵은 값 locked, 이탤릭은 예상 방향.}
-\label{tab:e1-subtask4}
-\small
-\begin{tabularx}{\linewidth}{@{}Xrrr@{}}
-\toprule
-방법 & F1 & Exact & $\Delta$F1 \\
-\midrule
-\texttt{no\_steer} & \textbf{0.7307} & \textbf{0.5252} & --- \\
-canonical SEKA amp=1.0 & \emph{placeholder} & \emph{placeholder} & $\ll 0$ \\
-canonical AdaSEKA amp=1.0 & \emph{placeholder} & \emph{placeholder} & $\ll 0$ \\
-정지 K \texttt{a0.3} & \textbf{0.6850} & \textbf{0.4728} & $\mathbf{-4.57}$ \\
-Q-커버리지 (ours) & \textbf{0.7535} & \textbf{0.5332} & $\mathbf{+2.28}$ \\
-레이어 적응형 K+Q (ours) & \textbf{0.7514} & \textbf{0.5473} & $\mathbf{+2.08}$ \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{$\tau^2$-bench retail}\label{sec:exp:tau2}
-
-독립 도메인 검증을 위해 $\tau^2$-bench retail의 첫 턴 action-set selection을 평가한다. 정답 도구 수가 4에서 13까지 분포하는 이 체제는 MetaTool의 $k=2$와 대비되며, 이론의 regime-split 예측을 시험할 수 있는 환경을 제공한다. 표~\ref{tab:e2-tau2}의 N=30 smoke는 이미 예상 패턴을 보여준다. Q-커버리지는 Qwen F1을 $+3.74$pp 끌어올리는 반면 레이어 적응형은 $-3.73$pp 떨어진다. 이 비대칭은 우연이 아니라 따름정리~\ref{cor:regime}의 정량 예측 — K-imprinting의 한계 이득이 긴 시퀀스에서 감쇠 — 과 정합적이다. 같은 연산자가 $k=2$에서는 최고이고 $k\ge 4$에서는 열세라는 패턴은 우리 이론이 이미 예고한 것이다. N=114 full이 통계적 확정을 제공할 것이다.
+네 Qwen 도메인(MetaTool Subtask4, $\tau^2$-bench retail/telecom/airline)에서 각 방법을 평가한 결과(표~\ref{tab:main})가 본 논문의 핵심 관찰을 담는다. 첫째, 정지 key-side $\alpha=0.3$은 멀티-툴에서 일관되게 음의 부호를 보이거나 이득이 미미하다. 둘째, Q-회전의 최적 \emph{부호}는 도메인마다 다르다: MetaTool과 Retail에서는 $\beta<0$이 이기고, Telecom에서는 $\beta>0$이 $+24.78$pp로 압도적으로 이긴다. 셋째, 이 부호 비대칭은 정리~\ref{thm:beta-star}가 사전에 예측한다. Airline 한 도메인을 제외하면 $\sigma(\bar r_{\mathcal{G}} - \bar r)$이 실측 최적 부호와 일치한다.
 
 \begin{table}[t]
 \centering
-\caption{$\tau^2$-bench retail. Qwen2.5-7B. N=30 smoke locked.}
-\label{tab:e2-tau2}
+\caption{Qwen2.5-7B-Inst에 대한 네 도메인 성능. 굵은 값 locked, 이탤릭 placeholder. Telecom의 Q+가 Telecom만의 특성임에 주목.}
+\label{tab:main}
 \small
 \begin{tabularx}{\linewidth}{@{}lXrrr@{}}
 \toprule
-N & 방법 & F1 & Recall & $\Delta$F1 \\
+도메인 (N) & 방법 & F1 & $\Delta$F1 vs no\_steer & 예측 최적 부호 \\
 \midrule
-\multirow{5}{*}{30 (smoke)}
- & \texttt{no\_steer} & \textbf{0.5735} & \textbf{0.5340} & --- \\
- & Q-커버리지 (ours) & \textbf{0.6109} & \textbf{0.5717} & $\mathbf{+3.74}$ \\
- & 레이어 적응형 K+Q (ours) & \textbf{0.5362} & \textbf{0.4831} & $\mathbf{-3.73}$ \\
- & canonical SEKA amp=1.0 & \emph{placeholder} & \emph{placeholder} & $\le 0$ \\
- & canonical AdaSEKA amp=1.0 & \emph{placeholder} & \emph{placeholder} & $\le 0$ \\
+\multirow{5}{*}{MetaTool ST4 (497)}
+ & \texttt{no\_steer} & \textbf{0.7307} & --- & $-$ \\
+ & 정지 K \texttt{a0.3} & \textbf{0.6850} & $\mathbf{-4.57}$ & \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.7535} & $\mathbf{+2.28}$ & \\
+ & 레이어 적응형 K+Q & \textbf{0.7514} & $\mathbf{+2.08}$ & \\
+ & canonical SEKA amp=1.0 & \emph{placeholder} & $\ll 0$ & \\
 \midrule
-\multirow{3}{*}{114 (full)}
- & \texttt{no\_steer} & \emph{placeholder} & \emph{placeholder} & --- \\
- & Q-커버리지 (ours) & \emph{placeholder} & \emph{placeholder} & $> 0$ \\
- & 레이어 적응형 K+Q (ours) & \emph{placeholder} & \emph{placeholder} & $\approx 0$ 또는 $<0$ \\
+\multirow{5}{*}{$\tau^2$-retail (114)}
+ & \texttt{no\_steer} & \textbf{0.4679} & --- & $-$ \\
+ & 정지 K \texttt{a0.05} & \textbf{0.4737} & $+0.58$ & \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.5190} & $\mathbf{+5.11}$ & \\
+ & 레이어 적응형 K+Q & \textbf{0.4829} & $+1.50$ & \\
+ & canonical SEKA amp=1.0 & \emph{placeholder} & $\le 0$ & \\
+\midrule
+\multirow{5}{*}{$\tau^2$-telecom (200)}
+ & \texttt{no\_steer} & \textbf{0.2512} & --- & $+$ \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.4349} & $\mathbf{+18.37}$ & \\
+ & \textbf{Q-회전 $\beta=+0.05$} & \textbf{0.4990} & $\boldsymbol{+24.78}$ & $\boldsymbol{\checkmark}$\\
+ & 레이어 적응형 K+Q & \textbf{0.3604} & $+10.92$ & \\
+ & 정지 K \texttt{a0.05} & \textbf{0.3691} & $+11.79$ & \\
+\midrule
+\multirow{4}{*}{$\tau^2$-airline (50)}
+ & \texttt{no\_steer} & \textbf{0.3285} & --- & mixed \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.3242} & $-0.43$ & \\
+ & 레이어 적응형 K+Q & \textbf{0.3669} & $\mathbf{+3.84}$ & \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
+\paragraph{관찰의 함의.}
+표~\ref{tab:main}는 ``$\beta<0$ 하나로 통일''이라는 단순 레시피를 반박한다. 네 도메인 중 하나(Telecom)에서는 정반대 부호가 약 10배 이상 큰 이득을 내므로, 실용적 시스템은 반드시 부호를 \emph{선택}해야 한다. 이 선택을 hyperparameter grid search로 맡기면 배포 비용이 선형으로 증가하고 OOD 도메인에 일반화되지 않는다. 다음 서브섹션이 정리~\ref{thm:beta-star}의 예측기로 이 문제를 푼다.
+
+\subsection{Adaptive Sign Routing}\label{sec:exp:sign}
+
+정리~\ref{thm:beta-star}의 $\operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$는 baseline forward pass 한 번에서 계산 가능하다. 알고리즘~\ref{alg:asr}이 per-domain(또는 per-query) 부호 결정을 구현한다.
+
+\begin{algorithm}[h]
+\caption{Adaptive Sign Routing}\label{alg:asr}
+\begin{algorithmic}[1]
+\REQUIRE 질의 $q$, 온톨로지 사영 $P_{\mathrm{ont}} = BB^\top$, proxy GT 집합 $\mathcal{G}$, 강도 $|\beta|$
+\STATE baseline forward로 $p_0(t) = \mathrm{softmax}(qK^\top/\sqrt d)_t$와 $r_t = \tfrac{1}{\sqrt d}\langle BB^\top q, k_t\rangle$ 계산
+\STATE $\bar r \leftarrow \sum_t p_0(t) r_t$,\quad $\bar r_{\mathcal{G}} \leftarrow \frac{1}{\sum_{t\in\mathcal{G}} p_0(t)}\sum_{t\in\mathcal{G}} p_0(t) r_t$
+\STATE $\beta \leftarrow |\beta| \cdot \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$
+\STATE $q' \leftarrow q + \beta q P_{\mathrm{ont}}$로 두 번째 forward pass 실행, 결과 반환
+\end{algorithmic}
+\end{algorithm}
+
+추가 비용은 $O(Tdr H)$의 내적 연산 한 번으로, 총 추론 시간의 1\% 미만이다. $\mathcal{G}$는 per-domain proxy로 (MetaTool의 경우) 도구 이름 토큰 집합을 쓰고, $\tau^2$에서는 \texttt{evaluation\_criteria.actions}의 도구 이름을 활용한다.
+
+표~\ref{tab:sign-routing} (§\ref{sec:theory})의 부호 예측 결과는 4개 도메인 중 3개에서 완전 일치하고, Airline에서만 mixed signal을 보인다. Airline은 baseline F1 0.329로 Telecom(0.251)과 Retail(0.468) 사이의 경계 구간이며, $\bar r_{\mathcal{G}} - \bar r$의 절댓값이 다른 도메인 대비 작아 예측기 신뢰도가 낮음을 시사한다. Adaptive Sign Routing은 이 경계 구간에서 layered K+Q로 fall back하는 규칙을 둘 수 있다(부록~\ref{app:asr-fallback}).
+
 \subsection{승리의 원인: 포지션별 분해}\label{sec:exp:mechanism}
 
-집계 F1이 예측 방향과 일치한다는 것은 필요조건일 뿐이다. \emph{왜} 이득이 생기는지에 대한 진짜 증거는 분해에서 나온다. 정리~\ref{thm:no-memory}의 관측 가능한 귀결은 ``정지 key-side가 첫 도구를 두 번째 단계에서 다시 고르게 유도한다''이므로, 데이터의 특정 위치 — 두 번째 포지션 — 에 특정한 흔적이 있어야 한다. \texttt{repeated\_first\_tool\_rate}이 SEKA에서 \emph{올라가고}, 우리 연산자에서 \emph{내려가야} 하며, 이와 동시에 \texttt{second\_distinct\_hit\_rate}이 우리 연산자에서 \emph{올라가야} 한다. 이 세 관측이 동시에 성립할 때만 이득이 ``반복을 지운 결과''라는 해석이 지지된다.
-
-그림~\ref{fig:stepwise}와 표~\ref{tab:e3-mechanism}이 그 패턴을 보여준다. 네 방법에 대해 네 포지션 지표를 나란히 놓으면 정지 K 계열 모두에서 \texttt{repeated\_first\_tool\_rate}이 \texttt{no\_steer}보다 뚜렷이 높아지고 \texttt{second\_distinct}가 가장 많이 떨어진다. 우리 연산자는 반복을 약화시키면서 두 번째 포지션의 정확도를 끌어올린다. 이 네 수치의 \emph{동시 방향성}이 본 논문의 핵심 증거다. F1 하나였다면 ``같은 기저를 쓰는 두 연산자가 우연히 다르게 나왔다''는 해석이 가능했겠지만, 네 수치가 같은 이야기를 가리킬 때는 그런 우연 해석이 어렵다.
+정리~\ref{thm:no-memory}의 관측 가능한 예측은 정지 key-side에서 \texttt{repeated\_first\_tool\_rate}이 \texttt{no\_steer}보다 올라가는 것이다. \texttt{eval\_metatool\_subtask4.py}의 stepwise 블록이 per-sample JSON에 네 포지션 지표를 기록하므로 추가 실행 없이 집계 가능하다. 그림~\ref{fig:stepwise}와 표~\ref{tab:e3-mechanism}가 MetaTool Subtask4 N=497 결과를 담는다. 네 지표의 동시 방향성 — 정지 K에서 \texttt{repeated\_first} 상승, Q-회전과 레이어 적응형에서 동시 하락 + \texttt{second\_distinct} 상승 — 이 승리의 원인이 ``반복을 지운다''임을 정리~\ref{thm:no-memory}와 연결한다.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.88\linewidth]{fig3_stepwise.pdf}
-\caption{포지션별 hit rate. 정지 K-계열의 \texttt{repeated\_first} 상승과 우리 연산자의 감소가 동시에 관측되는 것이 따름정리~\ref{cor:seka-repeat}의 직접 확증이다.}\label{fig:stepwise}
+\caption{포지션별 hit rate (Qwen MetaTool Subtask4). 정지 K-계열의 \texttt{repeated\_first} 상승과 우리 연산자의 감소가 정리~\ref{thm:no-memory}의 직접 확증이다.}\label{fig:stepwise}
 \end{figure}
 
 \begin{table}[t]
 \centering
-\caption{MetaTool Subtask4 N=497의 포지션별 hit rate. 화살표는 정리가 예측하는 방향.}
+\caption{MetaTool Subtask4 N=497 포지션별 hit rate. 화살표는 정리 예측 방향.}
 \label{tab:e3-mechanism}
 \small
 \begin{tabularx}{\linewidth}{@{}Xcccc@{}}
@@ -77,90 +88,32 @@ N & 방법 & F1 & Recall & $\Delta$F1 \\
 \texttt{no\_steer} & \emph{baseline} & \emph{baseline} & \emph{baseline} & \emph{baseline} \\
 canonical SEKA amp=1.0 & $\approx$ & $\downarrow\downarrow$ & $\downarrow\downarrow$ & $\boldsymbol{\uparrow\uparrow}$ \\
 정지 K \texttt{a0.3} & $\approx$ & $\downarrow\downarrow$ & $\downarrow\downarrow$ & $\boldsymbol{\uparrow\uparrow}$ \\
-Q-커버리지 (ours) & $\approx$ & $\uparrow$ & $\uparrow$ & $\downarrow$ \\
-레이어 적응형 K+Q (ours) & $\boldsymbol{\uparrow}$ & $\boldsymbol{\uparrow\uparrow}$ & $\boldsymbol{\uparrow\uparrow}$ & $\downarrow$ \\
+Q-회전 $\beta=-0.03$ & $\approx$ & $\uparrow$ & $\uparrow$ & $\downarrow$ \\
+레이어 적응형 K+Q & $\boldsymbol{\uparrow}$ & $\boldsymbol{\uparrow\uparrow}$ & $\boldsymbol{\uparrow\uparrow}$ & $\downarrow$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{ablation: 대안적 해석을 하나씩 반박}\label{sec:exp:ablations}
+\subsection{효율성 비교}\label{sec:exp:efficiency}
 
-중심 주장을 위협할 수 있는 세 가지 대안 해석이 있다. 첫째, 이득이 기저 품질 덕분이라는 해석. 둘째, 효과가 단지 ``약하게 쓰니까 안전했다''는 해석. 셋째, 연산자가 일종의 ``확신 증가제''로 작동해 많이 쓸수록 좋다는 해석. 본 절은 이 셋을 각각 반박하는 ablation을 제시하고, 마지막으로 정리~\ref{thm:bound}의 진단 bound가 실제로 정보적임을 경험적으로 확인한다.
-
-\paragraph{기저 특이성.}
-표~\ref{tab:e4-basis}는 ``기저 덕분'' 해석을 분리한다. 정지 K는 feature-shuffled와 random 기저에서 완전히 0으로 붕괴한다. 같은 연산자가 카탈로그 기저에서만 $-4.57$pp의 ``온전한 음의 효과''를 유지한다는 사실은 기저 방향이 정지 K의 행동을 전적으로 결정한다는 뜻이다. Q-커버리지는 기저가 바뀌어도 F1을 0.7068 이상 유지하며 상대적으로 덜 민감하다. 이 비대칭은 두 연산자가 부분공간 기하에 다른 의존도를 가진다는 의미다. PCA-of-K 기저의 결과가 마지막 단계를 결정한다. PCA가 real과 구별되지 않으면 ``카탈로그 온톨로지가 필수''라는 강한 주장이 약화되고, PCA가 중간값 또는 neutral이면 ``저랭크 구조가 필요하되 카탈로그가 최적''이라는 약한 주장으로 좁혀진다. 어느 경우든 random과 shuffled의 붕괴는 변하지 않으므로 ``아무 방향이든 된다''는 대안은 이미 배제된다.
+성능 이득을 얻으려면 얼마의 비용이 드는가? 표~\ref{tab:e-efficiency}가 본 방법을 tool-aware 파인튜닝, 프롬프트 스캐폴딩, KV-cache 최적화, 정지 활성 스티어링과 네 축에서 비교한다. 본 방법은 추론 시 hook으로 작동하여 학습 비용과 토큰 오버헤드가 모두 0이며, 저장은 per-head 기저 $(L, H_{\mathrm{kv}}, d, r)$만 추가한다. Qwen2.5-7B ($L{=}28$, $H_{\mathrm{kv}}{=}8$, $d{=}128$, $r{=}24$) 기준 약 $2.6$ MB. Adaptive Sign Routing은 per-query baseline forward 한 번을 추가하므로 지연이 대략 $2\times$로 늘지만, domain-level routing(도메인별로 한 번만 $\bar r_{\mathcal{G}} - \bar r$ 측정)은 지연 거의 0이다.
 
 \begin{table}[t]
 \centering
-\caption{Qwen2.5-7B, Subtask4 N=497: 기저 $\times$ 연산자. 굵은 값 locked.}
-\label{tab:e4-basis}
-\small
-\begin{tabularx}{0.9\linewidth}{@{}Xcc@{}}
-\toprule
-기저 & Q-커버리지 F1 & 정지 K F1 \\
-\midrule
-Real $B_{\mathrm{ont}}$ (ours) & \textbf{0.7471} & \textbf{0.6850} \\
-Feature-shuffled & \textbf{0.7254} & \textbf{0.0000} \\
-Random orthonormal & \textbf{0.7068} & \textbf{0.0000} \\
-PCA-of-K (calibration) & \emph{placeholder} & \emph{placeholder} \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\paragraph{``약해서 안전했다''의 반박.}
-자연스러운 반론은 real 기저가 null control보다 교란을 덜 주기 때문에 안전한 것 아니냐는 것이다. 표~\ref{tab:e-perturb-mag}가 이 설명을 직접 반박한다. real 온톨로지 기저는 실제 attention perturbation magnitude(Qwen L=13, $\alpha=0.3$, N=30)에서 random과 feature-shuffled 기저보다 \emph{더 큰} 교란을 만든다 — 평균 $621.30$ vs random $399.56$ vs feature-shuffled $291.98$. 그럼에도 K-side 비교에서 유일하게 안정적인 방향은 real 기저뿐이다. 곧 real 기저가 ``이기는 이유는 약해서가 아니라 특정한 안정 부분공간에 정렬되어 있기 때문''이다.
-
-\begin{table}[t]
-\centering
-\caption{Qwen L=13, $\alpha=0.3$, N=30에서의 effective attention perturbation magnitude. Real 기저가 가장 크게 교란하는데도 안정성은 real에서만 유지된다.}
-\label{tab:e-perturb-mag}
-\small
-\begin{tabularx}{0.9\linewidth}{@{}Xccc@{}}
-\toprule
-기저 & 평균 & 중앙값 & 표준편차 \\
-\midrule
-Real $B_{\mathrm{ont}}$ (ours) & \textbf{621.30} & \textbf{593.71} & 317.59 \\
-Random orthonormal & 399.56 & 360.01 & 235.86 \\
-Feature-shuffled & 291.98 & 241.87 & 169.97 \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\paragraph{``많이 쓸수록 좋다''의 반박.}
-세 번째 반론은 Q-커버리지가 단지 일종의 confidence boost로 작동해서 $|\beta|$가 클수록 좋아져야 한다는 것이다. 이 해석도 데이터가 배제한다. 그림~\ref{fig:beta-sweep}의 Q-only $\beta$ sweep은 좁은 작동 구간을 드러낸다. 평가한 값들 중 $\beta = -0.1$ 근처가 최고이며, $\beta = -0.7$에 이르면 F1이 0으로 완전 붕괴한다. 패턴은 ``bias가 클수록 좋다''가 아니라 ``작은 음의 Q-side projection은 도움이 되지만, 그 밖의 대부분 설정은 오히려 성능을 깎는다''에 가깝다. 이 좁은 구간은 조잡한 confidence 증가보다 coverage effect 해석과 잘 맞는다.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.75\linewidth]{fig_qbias_ablations.pdf}
-\caption{Qwen Subtask4 Q-커버리지 $\beta$ sweep. 좁은 유효 구간은 confidence-boost 해석과 어긋나고 coverage 해석과 부합한다.}\label{fig:beta-sweep}
-\end{figure}
-
-\paragraph{진단 bound의 경험적 유효성.}
-마지막으로 정리~\ref{thm:bound}의 부등식이 공허하지 않은지 확인한다. Qwen2.5-7B(L=13)에서 $\alpha=0.3$의 정지 K 개입에 대해 N=100, 전 head(2800개 head-query 조합)에서 측정한 LHS/RHS 비율은 중앙값 $2.36\times 10^{-8}$, pass rate 100\%로 bound는 매우 보수적이지만 안정적으로 성립한다. 이것은 Q-side와 K-side 개입을 공통 척도로 비교할 때 정리가 실제로 정보적 진단이 될 수 있음을 뒷받침한다.
-
-\paragraph{단일 도구 체제에서의 거동.}
-마지막 보조 증거는 반대 방향에서 주장을 강화한다. MetaTool Subtask1의 단일 도구 체제에서 Qwen에 정지 K-bias($\alpha=0.3$)를 가하면 $+11.16$pp의 \emph{큰 양의 이득}을 준다. 언뜻 본 논문의 주장과 어긋나 보이지만 오히려 확증한다. 도구가 하나뿐인 체제에서는 ``첫 선택을 반복하라''는 편향이 중립 또는 도움이 되며, 이것이 SEKA 계열이 단일 개념 편집에서 강한 이유와 일치한다. 본 연구의 두 연산자는 SEKA의 범용 대체가 아니라 멀티-툴 과제에 특화된 설계다.
-
-\section{효율성}\label{sec:exp:efficiency}
-
-중심 주장 2 — 회전 기반 스티어링이 대안 대비 효율적이다 — 는 실험이 아니라 네 축의 직접 비교로 지지된다. 표~\ref{tab:e-efficiency}가 본 방법을 tool-aware 파인튜닝, 프롬프트 스캐폴딩, KV-cache 최적화, 정지 활성 스티어링과 비교한다.
-
-\begin{table}[t]
-\centering
-\caption{효율성 비교. 본 방법은 추론 시 hook으로만 작동하여 학습과 토큰 오버헤드가 0이며, 저장은 per-head 기저만 추가로 든다(Qwen 7B 기준 $\approx 2.6$ MB).}
+\caption{효율성 비교. ASR = Adaptive Sign Routing. domain-level routing 기준.}
 \label{tab:e-efficiency}
 \small
 \begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
 \toprule
-접근 & 학습 비용 & 토큰 오버헤드 & 추론 지연 & 저장 \\
+접근 & 학습 비용 & 토큰 오버헤드 & 지연 오버헤드 & 저장 \\
 \midrule
-Tool-aware 파인튜닝 (Gorilla, ToolLlama) & $\mathcal{O}(\text{일})$ & 0 & 0 & 전체 모델 \\
-프롬프트 스캐폴딩 (ReAct) & 0 & $+200\sim 500$ 토큰 & 프롬프트 길이 비례 & 0 \\
-KV-cache 최적화 (KIVI) & 0 & 0 & 근소 감소 & 캐시 $-30\%$ \\
-정지 활성 스티어링 (SEKA) & 사영 학습($\mathcal{O}$(분)) & 0 & 근소 증가 & 사영 행렬 \\
-\textbf{본 논문 (Q-커버리지, K+Q)} & \textbf{0} & \textbf{0} & \emph{측정 예정} & \textbf{$\approx 2.6$ MB} \\
+Tool-aware 파인튜닝 (Gorilla) & $\mathcal{O}$(일) & 0 & 0 & 전체 모델 \\
+프롬프트 스캐폴딩 (ReAct) & 0 & $+200\sim 500$ 토큰 & 선형 & 0 \\
+KV-cache 최적화 (KIVI) & 0 & 0 & 소폭 감소 & 캐시 $-30\%$ \\
+정지 활성 스티어링 (SEKA) & 사영 학습($\mathcal{O}$(분)) & 0 & 소폭 증가 & 사영 행렬 \\
+\textbf{본 논문 + ASR (domain-level)} & \textbf{0} & \textbf{0} & \emph{<1\% 예상} & $\boldsymbol{\approx 2.6}$ \textbf{MB} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-``측정 예정'' 칸은 두 보완 측정으로 채워진다. 추론 지연 측정은 네 조건(\texttt{no\_steer}, Q-커버리지, 레이어 적응형 K+Q, canonical SEKA) 아래에서 per-query wall-clock을 기록하고, 메모리 프로파일은 hook 설치 전후의 peak GPU memory로 실제 추가 footprint를 확인한다. hook이 attention에 $O(Tdr)$ 행렬 곱만 추가하므로 이론적 오버헤드는 전체 추론 시간의 1\% 미만일 것이 예상되며, 측정이 이 예측을 수치로 확정한다. 특기할 점은 KV-cache 최적화 계열과 본 방법이 서로 다른 목표(메모리 vs 과제 성능)를 겨냥하며 \emph{결합 가능}하다는 것이다. KIVI 등이 캐시를 압축하는 동안 본 방법은 같은 캐시 위에서 과제 수준의 선택을 개선한다.
+성능 측면(\S\ref{sec:exp:main})에서 Telecom에 $+24.78$pp, MetaTool ST4에 $+2.28$pp, Retail에 $+5.11$pp를 파인튜닝 없이 얻는다는 사실과 결합하면, 본 방법은 ``도메인별 부호 한 번 측정 + 저랭크 hook 1개''의 예산으로 부분 파인튜닝에 상응하는 이득을 낸다. 특기할 점은 KV-cache 최적화와 \emph{직교 결합 가능}하다는 점이다 — KIVI 등이 캐시를 압축하는 동안 본 방법은 같은 캐시 위에서 과제 수준의 선택을 개선한다.

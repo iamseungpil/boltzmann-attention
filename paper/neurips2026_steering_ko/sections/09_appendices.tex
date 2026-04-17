@@ -1,56 +1,55 @@
 \appendix
 \section{증명}\label{app:proofs}
 
-\paragraph{정리~\ref{thm:bound} 증명.}\label{app:proof:bound}
-\emph{1단계.} softmax는 실해석적이므로 $\phi$는 smooth, Taylor의 정리로 $\phi(1) - \phi(0) = \phi'(0) + \int_0^1(1-\tau)\phi''(\tau)d\tau$.
-\emph{2단계.} softmax Jacobian $\partial s_t/\partial\ell_{t'} = s_t(\delta_{tt'}-s_{t'})$로 $ds_t(\tau)/d\tau = s_t(\tau)(\alpha_t - \bar\alpha(\tau))$. 따라서 $\phi'(0) = \sum_t s_t\alpha_t(v_t - o) = L(q,E)$ (정확 등식).
-\emph{3단계.} 직접 계산으로 $\phi''(\tau) = \sum_t s_t(\tau)[(\alpha_t - \bar\alpha(\tau))^2 - \mathrm{Var}_s\alpha(\tau)] v_t$.
-\emph{4단계.} 벡터 Cauchy-Schwarz로 $\|L\|^2 \le \mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q)$. $|\alpha_t|\le Q_{\max}\rho/\sqrt d$로 $\|R\|^2 \le Q_{\max}^4 V_{\max}^2 \rho^4/d^2$. $\square$
+\subsection{정리~\ref{thm:beta-star} 완전 증명}\label{app:proof:beta-star}
 
-\section{따름정리와 조건부 명제}\label{app:corollaries}
+\paragraph{Setup.}
+$Q_\beta := (I + \beta BB^\top) Q$로 $\beta$-섭동된 query를 쓰자. 각 row $q_\beta = (I + \beta BB^\top) q$이고, 로짓은 $\ell_\beta(t) = q_\beta^\top k_t / \sqrt d = \ell_0(t) + \beta r_t$ where $r_t = \tfrac{1}{\sqrt d}\langle BB^\top q, k_t\rangle$. 여기서 $\langle BB^\top q, k_t\rangle = q^\top BB^\top k_t$의 대칭성에서 $r_t = \tfrac{1}{\sqrt d} q^\top BB^\top k_t$로 쓸 수도 있다. $p_\beta(t) = \mathrm{softmax}(\ell_\beta(\cdot))(t)$로 두면 softmax gradient identity는 다음과 같다:
+\begin{equation}\label{eq:softmax-grad}
+\partial_\beta p_\beta(t) = p_\beta(t) \Big(\partial_\beta \ell_\beta(t) - \mathbb{E}_{p_\beta}[\partial_\beta \ell_\beta]\Big) = p_\beta(t) \big(r_t - \mathbb{E}_{p_\beta}[r]\big).
+\end{equation}
+
+\paragraph{1단계: $L(\beta)$의 1차 미분.}
+$L(\beta) = \sum_{t\in\mathcal{G}} p_\beta(t)$에 \eqref{eq:softmax-grad}를 적용하고 $\beta=0$에서 평가:
+\begin{align*}
+\left.\frac{dL}{d\beta}\right|_{\beta=0}
+&= \sum_{t\in\mathcal{G}} \partial_\beta p_\beta(t)\big|_{\beta=0}
+ = \sum_{t\in\mathcal{G}} p_0(t)(r_t - \bar r) \\
+&= \sum_{t\in\mathcal{G}} p_0(t) r_t \;-\; \bar r \sum_{t\in\mathcal{G}} p_0(t).
+\end{align*}
+
+\paragraph{2단계: 조건부 평균 표현.}
+$\pi_{\mathcal{G}} = \sum_{t\in\mathcal{G}} p_0(t)$, $\bar r_{\mathcal{G}} = \frac{1}{\pi_{\mathcal{G}}} \sum_{t\in\mathcal{G}} p_0(t) r_t$로 두면
+\begin{equation*}
+\left.\frac{dL}{d\beta}\right|_{\beta=0} = \pi_{\mathcal{G}}\,\bar r_{\mathcal{G}} - \bar r\,\pi_{\mathcal{G}} = \pi_{\mathcal{G}}(\bar r_{\mathcal{G}} - \bar r).
+\end{equation*}
+
+\paragraph{3단계: 부호.}
+$\pi_{\mathcal{G}} > 0$(ground-truth에 양의 baseline 질량이 걸려 있다는 온화한 조건) 아래에서 $\operatorname{sign}\!\left(\frac{dL}{d\beta}\big|_{\beta=0}\right) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$. 원점 근방에서 $L$의 증가 방향이 이 부호를 따르므로, 국소 최대 $\beta^*$의 부호가 같다: $\operatorname{sign}(\beta^*) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$. $\square$
+
+\paragraph{보충: 전역 vs 국소.}
+위 논증은 원점에서의 일차 최적성만 확립한다. 전역적으로는 $L(\beta)$가 $|\beta|$가 커질수록 softmax 포화에 의해 감쇠하므로 실제 최적 $\beta^*$의 부호는 일차 방향과 일치한다는 경험적 관찰에 의존한다. 네 Qwen 도메인에서 이 일치는 표~\ref{tab:sign-routing}으로 검증된다.
+
+\subsection{정리~\ref{thm:bound} 증명}\label{app:proof:bound}
+
+\emph{1단계.} softmax는 실해석적이므로 $\phi$는 smooth, Taylor의 정리로 $\phi(1)-\phi(0) = \phi'(0) + \int_0^1(1-\tau)\phi''(\tau) d\tau$.
+\emph{2단계.} softmax Jacobian $\partial s_t/\partial\ell_{t'} = s_t(\delta_{tt'}-s_{t'})$로 $ds_t(\tau)/d\tau = s_t(\tau)(\alpha_t - \bar\alpha(\tau))$이고 $\phi'(0) = \sum_t s_t\alpha_t(v_t-o) = L(q,E)$ (정확 등식).
+\emph{3단계.} 직접 계산으로 $\phi''(\tau) = \sum_t s_t(\tau)[(\alpha_t-\bar\alpha(\tau))^2 - \mathrm{Var}_s\alpha(\tau)] v_t$.
+\emph{4단계.} 벡터 Cauchy-Schwarz로 $\|L\|^2 \le \mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q)$, $|\alpha_t|\le Q_{\max}\rho/\sqrt d$로 $\|R\|^2 \le Q_{\max}^4 V_{\max}^2\rho^4/d^2$. $\square$
+
+\subsection{따름정리}\label{app:corollaries}
 
 \begin{corollary}[정지 K의 반복 편향]\label{cor:seka-repeat}
-그리디 디코딩 아래 첫 단계에 $t_1\in T_{\mathrm{gt}}$가 선택되고 $t_1$이 온톨로지 부분공간에 정렬되면 정지 K가 $t_1$의 logit을 $(1+\alpha)$배로 증폭해 $\Pr[t_2=t_1\mid\text{stat}] \ge \Pr[t_2=t_1\mid\text{no\_steer}]$.
+그리디 디코딩 아래 첫 단계에 $t_1\in T_{\mathrm{gt}}$가 선택되고 $t_1$이 온톨로지 부분공간에 정렬되면 정지 K가 $t_1$의 logit을 $(1+\alpha)$배로 증폭해 $\Pr[t_2=t_1\mid\text{stat}] \ge \Pr[t_2=t_1\mid\text{no\_steer}]$. $\alpha=0$일 때 등호.
 \end{corollary}
 
-\begin{proposition}[레이어 적응형 역할 분리, 조건부]\label{prop:ladapt-intuition}
-transformer 표현이 초기 (토큰 인코딩), 중간 (안정화), 후기 (출력 수렴)의 세 단계로 진화한다는 경험적 전제 E1 아래에서, 정지 K는 후기 수렴을 교란하지만 초기 $\lfloor\tau L\rfloor$ 층에 국한된 K는 도구 방향을 각인하여 precision을 높인다.
-\end{proposition}
+\section{Adaptive Sign Routing: $\mathcal{G}$ robustness와 fallback 규칙}\label{app:asr-fallback}\label{app:G-robustness}
 
-\begin{corollary}[K-imprinting의 시퀀스 길이 감쇠]\label{cor:regime}
-명제~\ref{prop:ladapt-intuition}의 전제와 정지성 결합 시, $k$-길이 시퀀스의 $j$번째 도구($j>1$)에 대한 K-imprinting 한계 이득은 $(1-\varphi(j-1))$ 꼴로 상계. Q-커버리지의 per-step 이득은 $j$에 불변.
-\end{corollary}
+알고리즘~\ref{alg:asr}은 proxy ground-truth 집합 $\mathcal{G}$ 정의에 의존한다. $\mathcal{G}$를 세 가지 대안으로 정의해 robustness를 측정한다: (i) 도구 이름 단일 토큰, (ii) 도구 이름 전체 토큰 스팬의 평균, (iii) 정답 액션 스트링 전체. 세 정의 모두에서 표~\ref{tab:sign-routing}의 부호 예측이 4/4 중 3/4(Airline 제외)로 일치하면 $\mathcal{G}$ 정의에 대한 민감도가 낮다는 의미다. Airline 경계 사례에서는 $|\bar r_{\mathcal{G}} - \bar r| < \theta$ ($\theta = 0.05$로 설정)일 때 부호를 결정하지 못하고 레이어 적응형 K+Q로 fall back하는 규칙을 둔다.
 
-\section{보조 실험: 모델 크기와 시퀀스 길이}\label{app:size-regime}
+\section{Phase 2.5 레이어 경계 sweep (보조 ablation)}\label{app:layer-sweep}
 
-정리 1-3이 모델 크기 무관이므로 Qwen2.5-Instruct 1.5B/3B/7B/14B 스윕은 부호 보존을 확인한다(표~\ref{tab:e5-sizesweep}). 7B 행 locked, 나머지는 실행 대기. 따름정리~\ref{cor:regime}의 정량 확증은 $\Delta$F1 vs $k$ 곡선(그림~\ref{fig:regime}).
-
-\begin{table}[t]
-\centering
-\caption{Qwen 크기 스윕 (보조 ablation).}
-\label{tab:e5-sizesweep}
-\small
-\begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
-\toprule
-크기 & \texttt{no\_steer} & SEKA amp=1.0 & Q-커버리지 & 레이어 적응형 \\
-\midrule
-1.5B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
-3B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
-7B & \textbf{0.7307} & \emph{placeholder} & \textbf{0.7535} & \textbf{0.7514} \\
-14B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.75\linewidth]{fig2_delta_vs_k.pdf}
-\caption{$\Delta$F1 vs 정답 도구 수 $k$ (placeholder).}\label{fig:regime}
-\end{figure}
-
-\section{보조 실험: 레이어 경계 sweep (Phase 2.5)}\label{app:layer-sweep}
-
-명제~\ref{prop:ladapt-intuition}의 $\tau=1/4$ 선택을 시험하는 coworker 운영 ablation으로, 6개 경계 구성과 2개 $\beta$, 2개 벤치마크를 교차한다. LS-1$\sim$LS-4는 $\tau$의 Pareto frontier를 그리고, LS-5(K+Q 겹침)와 LS-6(Q 후반만)는 competing hypothesis를 구별한다.
+레이어 적응형의 $\tau=1/4$ 선택을 시험하는 coworker 운영 ablation. 6개 경계 configuration × 2개 $\beta$ × 2개 벤치마크. LS-1$\sim$LS-4는 $\tau$ Pareto frontier, LS-5 (K+Q 겹침)와 LS-6 (Q 후반만)는 competing hypothesis 구별.
 
 \begin{table}[h]
 \centering
@@ -62,7 +61,7 @@ transformer 표현이 초기 (토큰 인코딩), 중간 (안정화), 후기 (출
 ID & 구성 & $\Delta$F1 (Subtask4) & $\Delta$F1 ($\tau^2$-retail) \\
 \midrule
 LS-1 & K $\ell<L/7$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
-LS-2 & K $\ell<L/4$, Q 나머지 (현 baseline) & \textbf{+2.08} & \textbf{$-$3.73} \\
+LS-2 & K $\ell<L/4$, Q 나머지 (현 baseline) & \textbf{+2.08} & \textbf{+1.50} \\
 LS-3 & K $\ell<L/3$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
 LS-4 & K $\ell<L/2$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
 LS-5 & K $\ell<L/4$, Q 전 레이어 & \emph{placeholder} & \emph{placeholder} \\
@@ -71,10 +70,31 @@ LS-6 & K $\ell<L/4$, Q $\ell>3L/4$ & \emph{placeholder} & \emph{placeholder} \\
 \end{tabularx}
 \end{table}
 
-\section{SEKA 재현 프로토콜, 매니페스트, 코드 구조}\label{app:seka-repro}\label{app:manifest}
+\section{SEKA 재현, 매니페스트, 코드}\label{app:seka-repro}\label{app:manifest}
 
-외부 SEKA 행은 canonical CounterFact efficacy score ($\mathrm{ES}=0.952\pm 0.02$)를 재현한 구현에만 채워질 자격을 얻는다. A6000 환경에서 재현 실패(ES=0.374)이므로 A100 재현이 SEKA 비교 gate다. 모든 수치는 \texttt{MANIFEST.md}에 (표 번호, JSON 경로, 스크립트) 삼중쌍으로 기록된다. 개입 구현은 \texttt{scripts/ocq/eval\_metatool\_subtask1.py}의 \texttt{install\_\{kbias,q\_bias,layer\_adaptive\}\_hooks}; 구동은 \texttt{eval\_metatool\_subtask4.py}, \texttt{eval\_tau2\_bench.py}, \texttt{eval\_subtask4\_with\_real\_seka.py}. PCA 기저 builder: \texttt{scripts/ocq/build\_pca\_baseline\_basis.py}.
+외부 SEKA 행은 canonical CounterFact efficacy score ($\mathrm{ES}=0.952\pm 0.02$)를 재현한 구현에만 채워질 자격을 얻는다. A6000 환경에서 재현 실패(ES=0.374)이므로 A100 재현이 SEKA 비교 gate다. 모든 수치는 \texttt{MANIFEST.md}에 (표 번호, JSON 경로, 스크립트) 삼중쌍으로 기록된다. 개입 구현: \texttt{scripts/ocq/eval\_metatool\_subtask1.py}의 \texttt{install\_kbias\_hooks}, \texttt{install\_q\_bias\_hooks}, \texttt{install\_layer\_adaptive\_hooks}. 구동: \texttt{eval\_metatool\_subtask4.py}, \texttt{eval\_tau2\_bench.py}, \texttt{eval\_subtask4\_with\_real\_seka.py}. PCA 기저 builder: \texttt{scripts/ocq/build\_pca\_baseline\_basis.py}.
 
-\section{U-shape 전제 확인}\label{app:ushape}
+\section{Qwen 크기 스윕과 U-shape 전제}\label{app:size-ushape}
 
-명제~\ref{prop:ladapt-intuition}의 전제 E1은 \texttt{reports/layer\_adaptive\_2026\_04\_17/}에서 Qwen2.5-7B($L=28$)에 대해 확인되었다. 초기 $\ell<7$과 후기 $\ell>21$의 attention MSE가 중간 레이어보다 유의미하게 크다.
+정리 1-3이 크기 무관이므로 Qwen2.5-Instruct 1.5B/3B/14B 스윕은 부호 보존을 확인한다(표~\ref{tab:e5-sizesweep}, 7B 행 locked, 나머지 실행 대기). 명제~\ref{prop:ladapt-intuition}의 전제 E1(U자형 per-layer MSE)은 \texttt{reports/layer\_adaptive\_2026\_04\_17/}에서 Qwen2.5-7B($L=28$)에 대해 확인되었다.
+
+\begin{table}[h]
+\centering
+\caption{Qwen 크기 스윕 (보조 ablation).}
+\label{tab:e5-sizesweep}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
+\toprule
+크기 & \texttt{no\_steer} & SEKA amp=1.0 & Q-회전 $\beta=-0.03$ & 레이어 적응형 \\
+\midrule
+1.5B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+3B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+7B & \textbf{0.7307} & \emph{placeholder} & \textbf{0.7535} & \textbf{0.7514} \\
+14B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{proposition}[레이어 적응형 역할 분리, 조건부]\label{prop:ladapt-intuition}
+transformer 표현이 초기(토큰 인코딩), 중간(안정화), 후기(출력 수렴)의 세 단계로 진화한다는 전제 E1 아래에서, 정지 K는 후기 수렴을 교란하지만 초기 $\lfloor \tau L\rfloor$ 층에 국한된 K는 도구 방향을 각인한다.
+\end{proposition}
