@@ -421,7 +421,7 @@ def main():
             _ = model(**ids, use_cache=False)
 
             gt_tools = extract_gt_tools(task)
-            gt_spans = find_tool_token_spans(prompt, tok, gt_tools)
+            gt_spans = find_tool_token_spans(prompt, tok, gt_tools, mode=args.gt_mode)
             measurement = compute_s_query(
                 cap.Q, cap.K, B_ont, gt_spans,
                 n_kv=n_kv, n_q=n_q, head_dim=head_dim,
