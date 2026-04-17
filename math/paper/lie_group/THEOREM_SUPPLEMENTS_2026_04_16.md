@@ -637,6 +637,142 @@ if facet_category not in emitted_categories:
 
 ---
 
+## Gap 6: Theorem β* (First-order Sign Predictor for Q-Steering)
+
+### Motivation
+
+Theorem 6.17 (V-side mirror, β > 0) and Theorem 6.17' (coverage mask, β < 0) each legitimize one sign of the Q-side steering coefficient β, but **neither predicts which sign maximizes downstream accuracy for a given task**. Empirically, we observe domain-dependent sign winners:
+
+| Domain | Baseline F1 | sign($\beta^*$) observed | $|\Delta F_1|$ |
+|---|---|---|---|
+| τ² Retail | 0.47 | $-$ | 5.11pp |
+| τ² Telecom | 0.25 | $+$ | 24.78pp |
+| MetaTool ST4 | 0.74 | $-$ | 2.28pp |
+
+Without a predictor, β-sign reduces to a hyperparameter (2× tuning grid), which reviewers may flag as ad-hoc. Theorem β* closes this gap by deriving the optimal sign as a measurable statistic of the baseline attention distribution.
+
+### Setup
+
+For a single attention head at a generation step, let $Q \in \mathbb{R}^d$ be the query vector (after q_proj), $K_t \in \mathbb{R}^d$ the keys for context tokens $t = 1, \ldots, T$, and $B \in \mathbb{R}^{d \times r}$ the orthonormal ontology basis ($B^\top B = I_r$). Write $P := BB^\top$ for the (symmetric idempotent) projector onto Range($B$).
+
+The β-perturbed query is $Q_\beta := (I + \beta P) Q$ (matching `install_q_bias_hooks` in eval_metatool_subtask1.py). Attention scores and distribution:
+$$
+z_t(\beta) = \tfrac{1}{\sqrt d}\langle Q_\beta, K_t\rangle, \qquad p_\beta(t) = \frac{\exp z_t(\beta)}{\sum_s \exp z_s(\beta)}.
+$$
+
+Let $\mathcal{G} \subseteq \{1,\ldots,T\}$ denote the ground-truth (GT) token set — prompt tokens whose high attention correlates with emitting a correct tool name (e.g., the tool-schema description span for the correct tool). The downstream objective we first-order-linearize is the baseline-proxy
+$$
+L(\beta) := \sum_{t\in\mathcal{G}} p_\beta(t).
+$$
+
+Define the per-token **ontology-projected score**
+$$
+r_t := \tfrac{1}{\sqrt d}\langle Q, P K_t\rangle = \tfrac{1}{\sqrt d}\langle P Q, K_t\rangle \quad (\text{by symmetry of }P).
+$$
+
+### Theorem β* (First-order Sign Predictor)
+
+**Statement.** With the setup above, let $\pi_{\mathcal{G}} := \sum_{t\in\mathcal{G}} p_0(t)$, $\bar r := \sum_t p_0(t)\, r_t$, and $\bar r_{\mathcal{G}} := \frac{1}{\pi_{\mathcal{G}}}\sum_{t\in\mathcal{G}} p_0(t)\,r_t$. Then
+$$
+\boxed{\;\left.\frac{dL}{d\beta}\right|_{\beta=0} = \pi_{\mathcal{G}}\bigl(\bar r_{\mathcal{G}} - \bar r\bigr),\quad \therefore\;\operatorname{sign}(\beta^*) = \operatorname{sign}\bigl(\bar r_{\mathcal{G}} - \bar r\bigr).\;}
+$$
+
+**Proof.**
+
+*Step 1 (Affinity of scores).* Since $(I + \beta P) Q = Q + \beta P Q$,
+$z_t(\beta) = z_t^{(0)} + \beta\, r_t$, where $z_t^{(0)} = \tfrac{1}{\sqrt d}\langle Q, K_t\rangle$.
+
+*Step 2 (Softmax gradient identity).* By direct differentiation of the softmax (standard exponential-family result),
+$$
+\frac{\partial p_\beta(t)}{\partial \beta} = p_\beta(t)\bigl(r_t - \mathbb{E}_{p_\beta}[r]\bigr).
+$$
+
+*Step 3 (Evaluate at β = 0).* $\mathbb{E}_{p_\beta}[r]\big|_{\beta=0} = \bar r$, so
+$$
+\left.\frac{\partial p_\beta(t)}{\partial \beta}\right|_0 = p_0(t)\,(r_t - \bar r).
+$$
+
+*Step 4 (Sum over $\mathcal{G}$).*
+$$
+\left.\frac{dL}{d\beta}\right|_0 = \sum_{t\in\mathcal{G}} p_0(t)\,(r_t - \bar r) = \underbrace{\sum_{t\in\mathcal{G}} p_0(t) r_t}_{\pi_{\mathcal{G}}\,\bar r_{\mathcal{G}}} - \bar r\cdot\underbrace{\sum_{t\in\mathcal{G}} p_0(t)}_{\pi_{\mathcal{G}}} = \pi_{\mathcal{G}}\bigl(\bar r_{\mathcal{G}} - \bar r\bigr).
+$$
+
+Since $\pi_{\mathcal{G}} > 0$, the sign is determined by the GT-weighted vs. global-weighted ontology-projection gap. $\blacksquare$
+
+### Interpretation
+
+$\bar r_{\mathcal{G}} - \bar r$ compares the **baseline-weighted average of the ontology-projected key-score** over GT vs. all tokens.
+
+- $\bar r_{\mathcal{G}} > \bar r$: GT tokens align *better* with $PQ$ than the average context token. The baseline under-weights GT; **amplifying** Q along $P$ (β > 0) concentrates more mass on GT.
+- $\bar r_{\mathcal{G}} < \bar r$: Non-GT tokens happen to be ontology-aligned (they distract the model via ontology proximity). **Subtracting** Q's ontology component (β < 0) removes mass from these distractors.
+
+### Second-order term (curvature)
+
+Applying the chain rule once more,
+$$
+\left.\frac{d^2 L}{d\beta^2}\right|_0 = \pi_{\mathcal{G}}\bigl(V_{\mathcal{G}} - \operatorname{Var}_{p_0}(r)\bigr),
+$$
+where $V_{\mathcal{G}} := \frac{1}{\pi_{\mathcal{G}}}\sum_{t\in\mathcal{G}} p_0(t)(r_t - \bar r)^2$ is the baseline-weighted second moment of $r$ about $\bar r$, restricted to $\mathcal{G}$. Equivalently,
+$$
+L(\beta) \approx L(0) + \beta\, s + \tfrac{\beta^2}{2}\,\pi_{\mathcal{G}}\bigl(V_{\mathcal{G}} - \operatorname{Var}_{p_0}(r)\bigr),\quad s := \pi_{\mathcal{G}}(\bar r_{\mathcal{G}} - \bar r).
+$$
+
+When the curvature is negative ($V_{\mathcal{G}} < \operatorname{Var}_{p_0}(r)$), the Taylor optimum is $\beta^* = -s / [\pi_{\mathcal{G}}(\operatorname{Var}_{p_0}(r) - V_{\mathcal{G}})]$. When positive, no finite optimum is predicted to leading order; a bounded $|\beta| \leq \beta_{\max}$ regularizer is required in practice. In both cases, **the sign is preserved**: $\operatorname{sign}(\beta^*) = \operatorname{sign}(s)$.
+
+### Fluctuation-Dissipation Reading
+
+The softmax gradient $\partial_\beta \bar r(\beta) = \operatorname{Var}_{p_\beta}(r)$ is a response = fluctuation identity (Callen--Welton form). Theorem β* is the GT-indicator-weighted specialization: the sensitivity of the GT mass to Q-perturbation equals the covariance between the GT indicator and the ontology-projected score under the baseline distribution.
+
+### Corollary β*.1 (Multi-head, Layer-Adaptive Extension)
+
+For layer $\ell$ with heads $h = 1,\ldots,H$, define per-$(\ell,h)$ quantities $r_t^{(\ell,h)}$ and $s^{(\ell,h)}$ analogously (using the local $B^{(\ell,h)}$ and the head's $Q^{(\ell,h)}, K_t^{(\ell,h)}$). When the Q-bias is applied at layer $\ell$ with coefficient $\beta_\ell$ (as in our layer-adaptive hook), chain rule through downstream residual-stream computations gives
+$$
+\left.\frac{\partial L}{\partial \beta_\ell}\right|_0 = \sum_{h=1}^{H} w_{\ell,h}\, s^{(\ell,h)},
+$$
+for weights $w_{\ell,h} \geq 0$ reflecting the logit-lens sensitivity of each head's output to the final GT prediction. The sign aggregation is therefore a convex combination at each layer. **Corollary**: $\operatorname{sign}(\beta^*_\ell) = \operatorname{sign}\bigl(\sum_h w_{\ell,h}\, s^{(\ell,h)}\bigr)$, computable from a single baseline forward + per-head projection statistics.
+
+### Algorithm 1: Adaptive Sign Routing
+
+```
+Input: prompt, model f, ontology basis B, candidate GT span G (e.g., tool schema tokens)
+Output: β with optimal sign
+
+1. h ← f(prompt, hook=record_Q_K_attn)           # baseline forward pass
+2. for each (ℓ, head) where Q-bias will be applied:
+     Compute r_t = <PQ, K_t> / √d for t ∈ prompt
+     Compute p_0(t) from attn weights
+     s^{(ℓ,h)} ← ∑_{t∈G} p_0(t) (r_t - E_{p_0}[r])
+3. s_tot ← ∑_{ℓ,h} w_{ℓ,h} s^{(ℓ,h)}              # w from logit-lens or uniform
+4. β ← sign(s_tot) · β_0                          # β_0 a fixed magnitude
+5. return second forward pass with β-hook enabled
+```
+
+**Cost**: 1 extra forward pass at test time; $O(T d r D)$ additional dot-product for $r_t$ per layer (negligible vs. attention).
+
+### Remark 6.1 (Empirical Consistency 2026-04-17)
+
+Three of three observed Q-sign winners are consistent with Theorem β* qualitatively:
+
+| Domain | Baseline F1 | Hypothesized $\bar r_{\mathcal G} - \bar r$ | Predicted sign | Observed best | ✓ |
+|---|---|---|---|---|---|
+| τ² Retail | 0.47 | $< 0$ (baseline already on-ontology to distractor tools) | $-$ | Q-only $\beta=-0.03$, +5.11pp | ✓ |
+| τ² Telecom | 0.25 | $> 0$ (baseline under-weights GT tool tokens) | $+$ | Q-only $\beta=+0.05$, +24.78pp | ✓ |
+| MetaTool ST4 | 0.74 | $< 0$ (baseline over-confident on on-ontology wrong tool) | $-$ | Q-only $\beta=-0.03$, +2.28pp | ✓ |
+
+**Pending validation**: (i) direct measurement of $\bar r_{\mathcal{G}} - \bar r$ on all four τ² domains and MetaTool; (ii) cross-model check on Llama-3.1-8B; (iii) per-query prediction fidelity (sign-accuracy > 70% threshold).
+
+### Remark 6.2 (Edge Cases)
+
+- **Small $\pi_{\mathcal{G}}$**: when the baseline places essentially zero mass on $\mathcal{G}$, the first-order term $s$ is vanishingly small, and higher-order (softmax-saturation) terms dominate. The predictor degrades; a fallback to unbiased β-tuning is recommended when $\pi_{\mathcal{G}} < 10^{-3}$.
+- **Degenerate $B$**: if $PQ \approx 0$ (query has no ontology energy), all $r_t \approx 0$, hence $s \approx 0$ and β has no first-order effect. Consistent with the pass-through property noted in `adaseka_vs_ours_differentiation_2026_04_10.md`.
+- **$\mathcal{G}$-spec noise**: the theorem is pointwise in the GT-span choice. Robustness should be checked by perturbing the span (e.g., expanding to include argument tokens).
+
+### Remark 6.3 (Relation to Existing Theorems)
+
+Theorem β* is a **meta-theorem** unifying Thm 6.17 (V-side mirror, β > 0 regime) and Thm 6.17' (coverage mask, β < 0 regime). Neither existing theorem required sign specification; β* promotes the sign from an external choice to an internal consequence of baseline statistics. The existing proofs remain intact; β* provides the selection rule between them.
+
+---
+
 ## Summary of Changes to Main Proof
 
 | Location | Original Claim | Replacement |
@@ -646,6 +782,7 @@ if facet_category not in emitted_categories:
 | Lines 1129--1137 | Thm 6.17 with parts (a)--(d) including joint additivity | Thm 6.17' with (a)--(c) valid, (d) FALSIFIED |
 | Thm 6.20 | Constant $C$ involves $p_{\min} \sim 10^{-6}$ (vacuous) | Thm 6.20' with $p_{\mathrm{correct}}$; non-vacuous in favorable regime only |
 | Q-coverage algorithm | Implicit multiset projector accumulation | Lemma 6.17.C: set-based update with idempotency proof |
+| β sign choice | External hyperparameter | Thm β*: $\operatorname{sign}(\beta^*) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$ computable from baseline pass |
 
 ---
 
