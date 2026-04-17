@@ -202,6 +202,72 @@ ladapt 최적 조합에서:
 
 ---
 
+### Phase 2.7 (신규): ToolBench 스케일링 실험 (2026-04-17~19)
+
+**동기**: handoff §7 "K 값이 도구 카탈로그 크기와 태스크 horizon 길이에 **반비례**" 가설은 현재까지 실측 근거 없음. 기존 벤치마크 (MetaTool 15, τ² 5-17) 는 모두 작은 카탈로그. 카탈로그 크기 축을 실제로 sweep 해야 가설 검증 가능.
+
+**데이터**: StableToolBench solvable_queries (`external/StableToolBench/solvable_queries/test_instruction/`)
+- 6 subset × 61~163 쿼리 = 총 765 쿼리
+- 각 쿼리는 자체 `api_list` (4~13 API) + `relevant APIs` (GT, 2~6 개)
+- 전 subset 내 unique `(tool, api)` pair = 814 (distractor pool)
+- 47 카테고리 분포
+
+**B_ont 빌드**: `scripts/ocq/build_toolbench_ontology.py` (완료) → `reports/axis2_theoretical_verification/toolbench_ontology.json` (46 카테고리, 평균 28 문장/카테고리) → 기존 `build_qwen_metatool_b_ont.py`로 per-(L, h) basis 빌드. Output: `external/SEKA/seka_projections/ontology-qwen25-7b-toolbench/B_ont.pt`.
+
+**평가 스크립트**: `scripts/ocq/eval_toolbench.py` (완료). 핵심 매커닉:
+1. 각 쿼리의 native `api_list` + N 개 distractor (크로스 쿼리 pool에서 샘플링) 을 합쳐 tools_json 구성
+2. tokenizer chat template로 prompt 빌드 → greedy generate → JSON `{"name": ...}` 추출
+3. display_id = `"TOOLNAME__APINAME"` (정규화된 유효 식별자)
+4. F1, Exact, Recall, Precision, GT_subset, nDCG 집계
+
+**실험 축**:
+
+| 축 | 값 |
+|----|----|
+| 카탈로그 크기 (distractors) | 0, 50, 200, 500 |
+| 방법 | no_steer, ocq_qbias_b-0.03, ocq_qbias_b+0.03, ocq_ladapt_k0.05_q-0.03 |
+| Subset | G1_instruction (163), G2_instruction (106), G3_instruction (61) |
+
+**예상 소요시간** (Qwen2.5-7B, A6000, max_new_tokens=256):
+- subset 당 쿼리 × 4 distractor × 4 method = 16 runs
+- 각 run 평균 ≈ 쿼리수 × 5s = ~10–15 분
+- subset 당 ≈ 3–4 시간
+- 3 subset 총 ≈ 9–12 시간 (GPU 1개 기준)
+
+**핵심 가설**:
+
+| ID | 가설 | 예측 (distractors 0 → 500) |
+|----|------|---------------------------|
+| H-TB-1 | K-only 효과는 카탈로그 확대에 따라 **감소** | α=0.05 lift: +5pp → +1pp → 0 → -2pp |
+| H-TB-2 | Q-only (β sign 상관없이) 효과는 카탈로그 확대에 따라 **증가 또는 유지** | +3pp → +3pp → +4pp → +5pp |
+| H-TB-3 | ladapt는 Q-only와 유사 수준 (K 기여가 줄어서) | Q-only와 차이 줄어듦 |
+| H-TB-4 | Q-sign (양/음) 의 상대 우위가 카탈로그 크기로 바뀔 수 있음 | β+ 유리 → β- 유리 flip 혹은 역전 |
+
+**실행 스크립트**: `scripts/ocq/run_toolbench_sweep.sh` (subset 루프, 4 distractor 레벨)
+
+**담당**: Claude (GPU 실험). 결과 해석은 coworker 협의.
+
+---
+
+### Phase 2.8 (신규): Multipass Cross-Benchmark 검증 (2026-04-17~18)
+
+**동기**: Banking non-meta에서 **단일 pass ladapt는 baseline과 동일 (0.0pp)** 인데 **multipass ladapt는 +5.64pp**. MetaTool에서도 multipass iterative_kq = +2.18pp로 최고. Multipass가 cross-domain 공통 이점일 가능성 시사.
+
+**실험**:
+
+| ID | 벤치마크 | 방법 | 비교 대상 | 예상 시간 |
+|----|---------|------|-----------|----------|
+| 2.8-1 | τ² Retail (114) | multipass_ocq_qbias_b-0.03 | single-pass Q-0.03 (+5.11pp) | 30분 |
+| 2.8-2 | τ² Retail (114) | multipass_ocq_ladapt_k0.05_q-0.03 | single-pass ladapt (+1.50pp) | 30분 |
+| 2.8-3 | τ² Telecom (200) | multipass_ocq_qbias_b-0.03 | single-pass Q-0.03 (+18.37pp) | 30분 |
+| 2.8-4 | τ² Airline (50) | multipass_ocq_ladapt_k0.05_q-0.03 | single-pass ladapt (+3.80pp) | 15분 |
+
+**가설**: multipass 가 retail/telecom/airline 에서도 +1~5pp 추가 lift를 주면 논문 main contribution 이 될 수 있음.
+
+**담당**: Claude (GPU 실험).
+
+---
+
 ### Phase 3: 메트릭 구현 + 재평가 (2026-04-23~24)
 
 **목표**: FW-nDCG 구현 후 전 실험 결과 재평가
