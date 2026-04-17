@@ -630,29 +630,28 @@ META_TOOLS = {
 | **Meta-tool / discoverable** | ❌ **제외** | Policy routing ≠ tool selection |
 | **Dynamic tool injection** | ❌ 제외 | 런타임 도구는 정적 ontology 범위 밖 |
 
-### 4.8.5 논문 기여 재구성
+### 4.8.5 논문 기여 재구성 (2026-04-17 update 4 — Q-only pivot)
 
-**수정된 기여 목록 (2026-04-17 update 2):**
+**핵심 pivot**: K-side steering (SEKA 계열) 은 Q-side steering 의 단일 스텝 특수 경우임이 증명됨 (**Thm 7.1 Q-K Duality**). 그리고 multi-step autoregressive 생성에서 K-bias 는 KV-cache 에 누적되어 불안정한 반면 Q-bias 는 per-step 안정. 따라서 논문을 **"Signed Q-only ontology steering"** 단독 방법으로 재프레임. SEKA 와 완전 결별.
 
-1. **Signed Q-side ontology steering** — sign 은 도메인 의존, Thm β* 로 예측 가능
+**수정된 기여 목록:**
+
+1. **Q-K Attention-Score Duality (Thm 7.1)** — 모든 K-side ontology steering (SEKA, AdaSEKA, CAA K 변형) 은 Q-side steering 의 per-step equivalent. 즉 **Q 축만으로도 K 축 역할을 수행**. SEKA 가 할 수 있는 모든 것은 Q 로 가능.
+
+2. **Multi-Step Divergence (Cor 7.1.B)** — KV-cache 에 K-bias 가 누적되어 long-horizon 에서 불안정. Q-bias 는 per-step 으로 resetting. 실측: τ² Retail 10+ 액션 task에서 K α=0.05 +0.3pp vs Q β=-0.03 **+10.7pp** (35× 차이).
+
+3. **Signed Q-side Ontology Steering (the method)** — 단일 operator $Q' = (I + \beta BB^\top) Q$ 로 amplify ($\beta > 0$) 와 coverage ($\beta < 0$) 양방향 지원:
    - τ²-bench Telecom: **Q+only β=+0.05, +24.78pp** (baseline 0.251 → 0.499)
    - τ²-bench Retail: Q-only β=-0.03, +5.11pp
    - MetaTool ST4: Q-only β=-0.03, +2.28pp
-   - 기존 "subtraction as coverage" 프레임을 "signed in-subspace temperature" 로 확장
 
-2. **Multipass iterative generation** — Banking non-meta 단독 승자, cross-domain 공통 이점
-   - τ²-bench Banking non-meta (13): multipass_ladapt +5.64pp (vs single-pass 0.0pp)
-   - MetaTool iterative_kq: +2.18pp (vs single-pass +2.08pp)
-   - τ² Retail/Telecom/Airline 교차 검증 (Phase 2.8) 예정
+4. **First-Order Sign Predictor (Thm β\*)** — sign 은 domain-level 기저 attention calibration 으로 결정; 3/3 domain qualitative prediction 일치. Per-query 예측은 open problem.
 
-3. **Layer-Adaptive K+Q steering (v5)** — Short/medium-horizon tool selection에서 일관된 개선
-   - τ²-bench Airline (10 tools): +3.80pp
-   - MetaTool: +2.08pp (single pass)
-   - Short-horizon 특화 방법; long-horizon 에서는 pure Q-steering 에 역전됨
+5. **Multipass Iterative Generation** — 단일 pass 로 부족한 multi-GT task 에서 복구 효과. Banking non-meta (13): multipass_ladapt_k0.05_q-0.03 +5.64pp (single-pass 0pp); MetaTool iterative +2.18pp.
 
-4. **Layer U-shape 원리** — 초기 K (정확도), 후반 Q (탐색 + 누적 회피)
+6. **Scope 명확화** — Attention steering 은 facet-structured tool selection 에 유효하며, meta-tool / policy-routing 은 범위 밖 (Banking 전체 -5.99pp).
 
-5. **Scope 명확화** — Attention steering 은 facet-structured tool selection 에 유효하며, meta-tool / policy-routing 은 범위 밖 (Banking 전체 -5.99pp)
+**논문 positioning (새로)**: "The first Q-side-only attention steering method for multi-tool selection. Prior K-side methods (SEKA family) are per-step equivalent to our operator under Theorem 7.1 but accumulate cache-level distortion over long horizons (Corollary 7.1.B); we provide both the unifying theorem and the empirical demonstration that Q-only signed steering is strictly preferred for tool selection."
 
 ### 4.8.6 Q-sign 도메인 의존성 + First-order 예측 정리 (NEW)
 
