@@ -461,6 +461,7 @@ def main():
             measurement = compute_s_query(
                 cap.Q, cap.K, B_ont, gt_spans,
                 n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+                aggregation=args.aggregation,
             )
             s_val = measurement["s"]
             pred_sign = "+" if s_val > 0 else ("-" if s_val < 0 else "0")
