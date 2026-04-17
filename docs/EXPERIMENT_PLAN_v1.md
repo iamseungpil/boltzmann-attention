@@ -1,9 +1,42 @@
 # 실험 계획서 v1 — 논문 제출까지 전체 실험 로드맵
 
 > **목적**: coworker 간 실험 협의용. 모든 실험의 목적, 조건, 순서를 명시.
-> **날짜**: 2026-04-17
+> **날짜**: 2026-04-17 (update 2: Q-sign test intermediate + ToolBench scaling 추가)
 > **타겟**: ICLR 2027 (Sep 2026 submission deadline 추정)
-> **현재 상태**: Layer-Adaptive K+Q 발견 (+2.08pp), multipass P_emitted 검증 중
+> **현재 상태**: τ²-bench 4 도메인 완료, Banking multipass_ladapt +5.64pp 발견. Q+ (β>0) Retail/Telecom 대폭 Lift 징후 (관측 중). ToolBench 스케일링 실험 준비 완료.
+
+---
+
+## 0. 최근 발견 요약 (2026-04-17 update 2)
+
+### 0.1 새롭게 검증된 결과
+
+| 벤치마크 | N | 방법 | F1 | Δ baseline | 상태 |
+|----------|---|------|-----|-----------|------|
+| τ² Retail | 114 | Q-only β=-0.03 | 0.5190 | **+5.11pp** | ✅ 재현됨 |
+| τ² Retail | 114 | ladapt K+Q β=-0.03 | 0.4829 | +1.50pp | ✅ |
+| τ² Telecom | 200 | Q-only β=-0.03 | 0.4349 | **+18.37pp** | ✅ 재현됨 |
+| τ² Airline | 50 | ladapt K+Q β=-0.03 | 0.4875 | **+3.80pp** | ✅ |
+| τ² Banking non-meta | 13 | **multipass_ladapt** k0.05_q-0.03 | **0.8128** | **+5.64pp** | ✅ **신규 SOTA** |
+| τ² Banking non-meta | 13 | single-pass ladapt | 0.7564 | 0.00pp | baseline 수준 |
+| τ² Banking 전체 | 97 | — | — | -5.99pp | meta-tool scope 밖 |
+| MetaTool ST4 | 497 | multipass iterative_kq | 0.7635 | **+2.18pp** | ✅ |
+
+### 0.2 관측 중 (intermediate, 완료 전)
+
+| 벤치마크 | 방법 | 진행 | F1 | Δ baseline | 비고 |
+|----------|------|------|-----|-----------|------|
+| τ² Retail | **ocq_qbias_b+0.03** (Q 증폭) | 20/114 | 0.6662 | **+19.83pp** | ⚠️ handoff 예측 반대 방향 |
+| τ² Telecom | **ocq_qbias_b+0.03** (Q 증폭) | 130/200 | 0.4376 | **+18.64pp** | ⚠️ Q-와 유사 크기 |
+
+### 0.3 실험 우선순위 변경
+
+- **P0 (긴급)**: Q-sign 확정 — retail/telecom Q+0.03 완전 실행 종료 후, airline/MetaTool에서도 Q+ 테스트
+- **P0 (긴급)**: Multipass 교차 검증 — retail/telecom/airline에서도 `multipass_*` 테스트 (Banking에서 유일 승자였음)
+- **P1 (신규)**: ToolBench 스케일링 실험 (Phase 2.7, 본 문서 새 섹션) — "K 값이 카탈로그 크기에 반비례" 가설 직접 검증
+- P2: Llama cross-model (원래 Phase 1B)
+
+---
 
 ---
 
