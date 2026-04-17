@@ -749,17 +749,40 @@ Output: β with optimal sign
 
 **Cost**: 1 extra forward pass at test time; $O(T d r D)$ additional dot-product for $r_t$ per layer (negligible vs. attention).
 
-### Remark 6.1 (Empirical Consistency 2026-04-17)
+### Remark 6.1 (Empirical Consistency 2026-04-17 — Qualitative Only)
 
-Three of three observed Q-sign winners are consistent with Theorem β* qualitatively:
+Three of three observed Q-sign winners are consistent with the *intuition* behind Theorem β* (baseline attention calibration determines the optimal sign):
 
-| Domain | Baseline F1 | Hypothesized $\bar r_{\mathcal G} - \bar r$ | Predicted sign | Observed best | ✓ |
-|---|---|---|---|---|---|
-| τ² Retail | 0.47 | $< 0$ (baseline already on-ontology to distractor tools) | $-$ | Q-only $\beta=-0.03$, +5.11pp | ✓ |
-| τ² Telecom | 0.25 | $> 0$ (baseline under-weights GT tool tokens) | $+$ | Q-only $\beta=+0.05$, +24.78pp | ✓ |
-| MetaTool ST4 | 0.74 | $< 0$ (baseline over-confident on on-ontology wrong tool) | $-$ | Q-only $\beta=-0.03$, +2.28pp | ✓ |
+| Domain | Baseline F1 | Heuristic prediction | Observed best | ✓ |
+|---|---|---|---|---|
+| τ² Retail | 0.47 (balanced) | $-$ (regularize) | Q-only $\beta=-0.03$, +5.11pp | ✓ |
+| τ² Telecom | 0.25 (under-focused) | $+$ (amplify) | Q-only $\beta=+0.05$, +24.78pp | ✓ |
+| MetaTool ST4 | 0.74 (over-confident) | $-$ (regularize) | Q-only $\beta=-0.03$, +2.28pp | ✓ |
 
-**Pending validation**: (i) direct measurement of $\bar r_{\mathcal{G}} - \bar r$ on all four τ² domains and MetaTool; (ii) cross-model check on Llama-3.1-8B; (iii) per-query prediction fidelity (sign-accuracy > 70% threshold).
+### Remark 6.2 (Direct Measurement Gap — Open Problem 2026-04-17)
+
+Direct measurement of $\operatorname{sign}(\bar r_{\mathcal G} - \bar r)$ using the GT-schema definition of $\mathcal G$ **does NOT reproduce the empirical sign** on τ² Telecom. On both retail (n=30) and telecom (n=20) smoke tests, the predictor returns negative $s$ for every task, yielding a constant "−" prediction that happens to align with retail's majority empirical sign (66% accuracy is an artifact of class imbalance) but disagrees with telecom's majority "+" (31% accuracy).
+
+Diagnostic finding: $\bar r_{\mathcal G}$ is **systematically smaller than $\bar r$** when $\mathcal G$ is the GT tool-schema span. Tokens inside the JSON tool schema consistently have lower $\langle BB^\top Q, K_t\rangle$ than the prompt-wide average. Moreover, tasks where the baseline attends heavily to GT schema tokens ($\pi_G > 0.015$ on telecom) tend to have **lower** baseline F1 (≈0 vs. 0.21 elsewhere). This decouples $L(\beta) = \sum_{t\in\mathcal G} p_\beta(t)$ from downstream F1 and invalidates the choice of $\mathcal G = \text{schema tokens}$ as a useful surrogate.
+
+**Hypothesized cause**: The single-step attention objective $L(\beta)$ measured at position $T{-}1$ captures only the final-layer directional shift in schema attention, but empirical F1 depends on an unfolding generation process whose logits integrate hidden-state contributions across every output step. The first-order theorem is mathematically correct for its stated objective; the objective itself is the wrong proxy for generation F1.
+
+**Proposed fixes (future-work roadmap)**:
+
+1. **Logit-lens variant**.
+  Define $v_t := \langle V^{(\ell^*)}_t, W_U[\text{tok}_{\mathcal G}]\rangle$ — each token's value-output projection onto the GT tool's unembedding direction at a chosen decision layer $\ell^*$. Then
+  $$s_{\text{logit}} = \sum_t p_0(t)(r_t - \bar r)\, v_t$$
+  is the first-order sensitivity of the correct-tool logit to $\beta$. This requires capturing $V$ and the unembedding, not just $Q$ and $K$, but stays within single-pass measurement.
+
+2. **Generation-step aggregation**.
+  Run a short baseline generation. At each output step $k$, measure $s^{(k)}$ using the Q at that step (which attends back into prompt + prior outputs). Aggregate as $\bar s = \frac{1}{K}\sum_k s^{(k)}$. This captures the decisive moment when the model commits to a tool name.
+
+3. **Alternative $\mathcal G$**.
+  Let $\mathcal G$ be the user-intent tokens (task's `reason_for_call` span or keywords extracted from the query) rather than tool-schema tokens. The hypothesis: the model's Q must align with intent-bearing tokens for correct tool selection; amplification / subtraction along the intent direction is the true steering axis.
+
+**Paper stance (honest)**. We present Theorem β* as a **theoretical framework** that unifies Thm 6.17 and Thm 6.17' under a single first-order sign-prediction principle. The *directly measurable form* $\operatorname{sign}(s) = \operatorname{sign}(\bar r_{\mathcal G} - \bar r)$ with $\mathcal G = \text{schema tokens}$ is **not a reliable practical predictor** in our current experiments; alternative objectives (logit-lens, generation-step, intent-based $\mathcal G$) are open work.
+
+**Pending empirical validation**: (i) logit-lens variant; (ii) direct measurement on airline / MetaTool; (iii) cross-model Llama-3.1-8B; (iv) per-query prediction fidelity with alternative $\mathcal G$.
 
 ### Remark 6.2 (Edge Cases)
 
