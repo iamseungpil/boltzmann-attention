@@ -29,12 +29,30 @@
 | τ² Retail | **ocq_qbias_b+0.03** (Q 증폭) | 20/114 | 0.6662 | **+19.83pp** | ⚠️ handoff 예측 반대 방향 |
 | τ² Telecom | **ocq_qbias_b+0.03** (Q 증폭) | 130/200 | 0.4376 | **+18.64pp** | ⚠️ Q-와 유사 크기 |
 
-### 0.3 실험 우선순위 변경
+### 0.3 실험 우선순위 변경 (2026-04-17 update 4 — Q-Only Pivot)
 
-- **P0 (긴급)**: Q-sign 확정 — retail/telecom Q+0.03 완전 실행 종료 후, airline/MetaTool에서도 Q+ 테스트
-- **P0 (긴급)**: Multipass 교차 검증 — retail/telecom/airline에서도 `multipass_*` 테스트 (Banking에서 유일 승자였음)
-- **P1 (신규)**: ToolBench 스케일링 실험 (Phase 2.7, 본 문서 새 섹션) — "K 값이 카탈로그 크기에 반비례" 가설 직접 검증
-- P2: Llama cross-model (원래 Phase 1B)
+**이론적 pivot (2026-04-17)**: **Thm 7.1 Q-K Duality** 증명. K-side steering 은 Q-side steering 과 단일-스텝 동치, but KV-cache 누적으로 long-horizon 불안정 (Cor 7.1.B). 논문을 "signed Q-only ontology steering" 으로 재프레임. SEKA/AdaSEKA 는 per-step equivalent baseline 으로만 유지.
+
+**새 우선순위**:
+
+- **P0 (최우선) — Cross-model 확장 (Q-only 가 모델-agnostic 임을 증명)**:
+  - P0-a: **Qwen2.5 model size sweep** (1.5B / 3B / 7B / 14B) — architecture 동일, size 변화. Q-only 가 scale invariant 한지 확인. retail/telecom subset 로 smoke.
+  - P0-b: **Llama-3.1-8B** (architecture 변화). 재현성 검증. Qwen 특화 공격 방어용 필수.
+- **P0 (긴급) — Q-sign 확정**: airline/MetaTool 에서도 Q+ 테스트
+- **P0 (긴급) — Multipass 교차 검증**: retail/telecom/airline 에서도 `multipass_*`
+- **P1 (신규) — ToolBench 스케일링** (Phase 2.7): 카탈로그 크기 축
+- **P2 — AdaSEKA τ² 3-domain**: coverage 공백 해소 (Phase 2.9)
+- **P3 — Logit-lens variant of Thm β\***: per-query 예측 재시도
+
+**Phase 1B 확장 (Cross-Model 2-axis)**:
+
+| 모델 | 크기 | 구조 | B_ont 빌드 | 실험 |
+|------|------|------|----------|------|
+| Qwen2.5-1.5B-Instruct | 1.5B | Qwen | 필요 | retail/telecom smoke (100 task) |
+| Qwen2.5-3B-Instruct | 3B | Qwen | 필요 | retail/telecom smoke |
+| Qwen2.5-7B-Instruct | 7B | Qwen | **완료** | 전체 실험 (baseline) |
+| Qwen2.5-14B-Instruct | 14B | Qwen | 필요 | retail/telecom smoke |
+| Llama-3.1-8B-Instruct | 8B | Llama | **완료** (MetaTool) | retail/telecom + MetaTool |
 
 ---
 
