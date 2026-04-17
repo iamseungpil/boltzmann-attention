@@ -81,6 +81,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--neg-method-patterns", nargs="+",
                    default=["ocq_qbias_b-0.03", "ocq_qbias_b-0.05"],
                    help="Method names counted as negative-β.")
+    p.add_argument("--gt-mode", default="schema", choices=["name", "schema"],
+                   help="GT token-span extraction: just tool name tokens ('name') or the whole JSON schema object ('schema'; default).")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
