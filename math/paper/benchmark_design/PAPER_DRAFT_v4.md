@@ -703,12 +703,34 @@ Test-time 에 baseline forward pass 1회 추가로 per-query 또는 per-domain $
 - Thm β* 은 **meta-theorem**: 두 이론 사이의 선택 규칙 제공
 - Thm 6.17' 의 "Q-only 가 충분 조건" 기존 서술은 β-부호 중립 형태로 재진술 (부호는 Thm β* 로 결정)
 
-#### 검증 대기 (다음 실험 후보)
+#### 검증 대기 + 현재 측정의 한계 (2026-04-17 update 3)
 
-1. **Airline baseline F1 + sign 측정** (4/4 확인)
-2. **ToolBench G1_instruction** 에서 동일 (큰 scale 검증)
-3. **Llama-3.1-8B cross-model**: 동일 baseline 측정 → 예측 → 실측
-4. **Per-query 예측 정확도** (sign-accuracy > 70% threshold 를 논문 claim 으로)
+**측정 시도 결과 (retail N=30, telecom N=20)**:
+
+| 도메인 | 측정 방법 | sign-accuracy | 의미 |
+|--------|----------|---------------|------|
+| retail | all_positions schema | 66.7% | **pred 거의 모두 "-"** → 실제로는 uniform prediction |
+| telecom | all_positions schema | 31.2% | 동일한 uniform-"-" prediction, but telecom empirical 이 "+" 다수라 accuracy 낮음 |
+
+**근본 문제**: 이론 objective $L = \sum_{t\in\mathcal G} p_\beta(t)$ (GT schema 에 대한 attention mass)는 실제 F1 과 상관 없음. 측정된 $\bar r_{\mathcal G}$ 가 구조적으로 global $\bar r$ 보다 작음 (schema tokens 의 ontology-projection K-space direction 이 Q 의 projection 과 정렬되지 않음). 따라서 predictor 는 **모든 태스크에서 "-" 를 예측**.
+
+**관찰된 괴리**:
+- π_G (GT schema 에 대한 attention) 높을수록 오히려 baseline F1 **낮음** (telecom 데이터 20 task, π_G>0.015 → F1=0.0; π_G<0.015 → F1=0.21)
+- Q+ 가 telecom 에서 크게 도움 (+24.78pp) 인데, 측정은 모두 "-" 예측
+
+**해석**: schema token 에 attention 쏟는 것이 정답 generation 과 직결되지 않음. 모델은 schema 를 "background context" 로 한번 훑고, 실제 decision 은 user query 에 대한 attention 과 hidden state 의 logit-lens 로 이루어짐.
+
+**향후 개선 방향 (논문 appendix / future work)**:
+1. **Logit-lens variant**: $s_{\text{logit}} = \sum_t p_0(t)(r_t - \bar r)\,\langle V_t, W_U[\text{GT token}]\rangle$ — GT token logit 에 대한 direct first-order sensitivity. V-output 과 unembedding 을 함께 측정.
+2. **Generation-step aggregation**: baseline generation 실행 후 각 emit step 마다 $s$ 측정, 평균. Prompt-only 측정 대신 실제 decision 시점 활용.
+3. **Alternative G**: GT schema 대신 user query intent tokens (task 의 "reason_for_call" span) 을 $\mathcal G$ 로 사용. Model 이 intent 에 attention 을 쏟아야 옳은 tool 선택 가능.
+
+**현재 paper claim 수정**: Thm β* 는 **이론적 framework** (signed steering 이 단일 axis 의 양 끝임을 증명) 으로 제시하되, per-query 예측 형태의 "sign-accuracy > 70%" 주장은 보류. 도메인-level 부호 일치 (3/3) 는 **intuitive heuristic** 수준에서 지지.
+
+**추가 유효한 후속 실험**:
+1. Logit-lens variant 측정 → per-query prediction accuracy 재측정
+2. Airline / MetaTool 에 대한 domain-level measurement
+3. Llama-3.1-8B cross-model 확장
 
 ---
 
