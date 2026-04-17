@@ -1,8 +1,8 @@
-\section{Ablation과 대안적 해석의 체계적 배제}\label{sec:ablations}
+\section{논의}\label{sec:discussion}
 
-본 절은 \S\ref{sec:experiments}의 이득이 단순한 noise injection이나 우연한 parameter tuning이 아니라 \emph{온톨로지 정렬과 레이어별 역할 분리}에서 나온다는 주장을 압박한다. 가능한 반론 네 가지를 차례로 제기하고 각각을 근거 데이터로 반박한다.
+본 논문의 결론은 한 문장으로 요약된다. 멀티-툴 도구 선택에서 중요한 것은 ``더 강한 정지 K''가 아니라 ``K를 어디까지 허용할 것인가''이며, 초기 K와 후반 Q를 분리한 layer-adaptive 스케줄이 정지 활성 스티어링의 반복 편향을 우회하는 최소 설계다. \S\ref{sec:experiments}는 이 설계가 MetaTool Subtask4에서 정지 K의 $-4.57$pp 붕괴를 $+2.08$pp 회복으로 뒤집고, airline에서는 전체 최고 $+3.84$pp를 내는 것을 보였다. retail과 telecom에서는 signed Q-회전이 각각 $+5.11$pp와 $+24.78$pp로 더 크게 이겼지만, 이 둘은 layer-adaptive와 대체 관계가 아니라 같은 연산자족의 regime-의존적 이득이다. 이 절은 위 결론을 공격할 수 있는 네 가지 반론을 차례로 검토하고 각각을 근거 데이터로 배제한 뒤, 남은 한계와 함의를 정리한다.
 
-\emph{반론 1: ``이득은 연산자 설계가 아니라 특정 기저를 얻었기 때문이다.''} 기저의 방향성을 바꾸면 어떻게 되는가를 보기 위해 $B$를 두 null control로 교체한다. feature-shuffled(facet 열을 무작위 순열)와 random orthonormal을 쓰면 정지 K는 MetaTool Subtask4에서 F1 0으로 완전히 붕괴하는 반면 원래 기저에서는 $-4.57$pp의 ``온전한 음의 효과''를 유지한다(표~\ref{tab:e4-basis}). Q-회전은 기저 품질에 덜 민감해서 $F1 \ge 0.7068$로 비교적 견고하다. 두 연산자가 기저 민감도에서 서로 다른 패턴을 보인다는 사실 자체가 ``기저 품질 덕분''이라는 단일 원인 설명을 배제한다. PCA-of-K 기저는 진행 예정이며, 결과에 따라 본 논문의 ``카탈로그 온톨로지가 필수''는 강한 해석 또는 ``저랭크 구조가 필요하되 카탈로그가 최적''의 약한 해석으로 조정된다.
+첫 반론은 ``이득이 연산자 설계가 아니라 특정 기저를 얻은 덕분''이라는 주장이다. 이 주장이 맞다면 기저 방향을 바꿔도 이득이 어느 정도 유지되어야 한다. 표~\ref{tab:e4-basis}의 결과는 반대를 보인다. feature-shuffled(facet 열을 무작위 순열)와 random orthonormal을 쓰면 정지 K는 MetaTool Subtask4에서 F1 0으로 완전히 붕괴하는 반면 원래 기저에서는 $-4.57$pp의 ``온전한 음의 효과''를 유지한다. Q-회전은 기저 품질에 덜 민감해 $F1 \ge 0.7068$로 비교적 견고하다. 두 연산자가 기저 민감도에서 서로 다른 패턴을 보인다는 사실 자체가 ``기저 품질 덕분''이라는 단일 원인 설명을 배제한다. PCA-of-K 기저는 진행 예정이며, 결과에 따라 본 논문의 ``카탈로그 온톨로지가 필수''는 강한 해석 또는 ``저랭크 구조가 필요하되 카탈로그가 최적''의 약한 해석으로 조정된다.
 
 \begin{table}[t]
 \centering
@@ -21,7 +21,7 @@ PCA-of-K (calibration) & \emph{placeholder} & \emph{placeholder} \\
 \end{tabularx}
 \end{table}
 
-\emph{반론 2: ``real 기저가 null control보다 교란을 덜 주기 때문에 안전한 것 아닌가.''} 교란의 \emph{크기}를 직접 측정하면 정반대 패턴이 관측된다. Qwen L=13, $\alpha=0.3$, N=30에서 측정한 실제 attention perturbation magnitude는 real 기저가 평균 $621.30$으로 가장 크고, random이 $399.56$, feature-shuffled가 $291.98$로 그 뒤를 잇는다(표~\ref{tab:e-perturb-mag}). real 기저는 더 \emph{크게} 교란하는데도 K-side 안정성은 real에서만 유지된다. 따라서 real 기저가 이기는 이유는 약해서가 아니라 특정한 안정 부분공간에 정렬되어 있기 때문이다.
+둘째 반론은 ``real 기저가 null control보다 교란을 덜 주기 때문에 안전한 것''이라는 주장이다. 교란의 크기를 직접 측정하면 정반대 패턴이 관측된다. 표~\ref{tab:e-perturb-mag}는 Qwen L=13, $\alpha=0.3$, N=30에서 측정한 실제 attention perturbation magnitude를 보여 주는데, real 기저가 평균 $621.30$으로 가장 크고 random이 $399.56$, feature-shuffled가 $291.98$로 그 뒤를 잇는다. real 기저는 \emph{더 크게} 교란하는데도 K-side 안정성은 real에서만 유지된다. 따라서 real 기저가 이기는 이유는 약해서가 아니라 특정한 안정 부분공간에 정렬되어 있기 때문이다.
 
 \begin{table}[t]
 \centering
@@ -39,7 +39,7 @@ Feature-shuffled & 291.98 & 241.87 & 169.97 \\
 \end{tabularx}
 \end{table}
 
-\emph{반론 3: ``Q-회전이 일종의 confidence booster라면 $|\beta|$가 클수록 좋아야 한다.''} $\beta$ sweep이 이 해석을 배제한다(그림~\ref{fig:beta-sweep}). Qwen Subtask4에서 $\beta \approx -0.1$ 근방이 최고이고, $\beta = -0.7$에서는 F1이 0으로 완전히 붕괴한다. 좁은 유효 구간은 ``큰 $|\beta|$일수록 좋다''는 주장과 정면으로 모순되며, 특정 크기의 부분공간 사영만이 coverage를 돕는다는 해석과 부합한다. 정리~\ref{thm:beta-star}의 일차 진단도 전역 최대가 아니라 원점 근방의 개선 방향만을 예측한다는 점에서 이 좁은 구간 관측과 일관된다.
+셋째 반론은 ``Q-회전이 일종의 confidence booster라면 $|\beta|$가 클수록 좋아야 한다''는 주장이다. $\beta$ sweep은 이 해석을 배제한다. 그림~\ref{fig:beta-sweep}에서 Qwen Subtask4의 Q-only 곡선은 $\beta \approx -0.1$ 근방에서 최고이고 $\beta = -0.7$에서는 F1이 0으로 완전히 붕괴한다. 좁은 유효 구간은 ``큰 $|\beta|$일수록 좋다''와 정면으로 모순되며, 특정 크기의 부분공간 사영만이 coverage를 돕는다는 해석과 부합한다. 정리~\ref{thm:beta-star}의 일차 진단도 전역 최대가 아니라 원점 근방의 개선 방향만을 예측한다는 점에서 이 좁은 구간 관측과 일관된다.
 
 \begin{figure}[t]
 \centering
@@ -47,16 +47,8 @@ Feature-shuffled & 291.98 & 241.87 & 169.97 \\
 \caption{Qwen Subtask4 Q-회전 $\beta$ sweep. 좁은 유효 구간은 confidence-boost 해석과 어긋난다.}\label{fig:beta-sweep}
 \end{figure}
 
-\emph{반론 4: ``정리~\ref{thm:bound}의 교란 경계는 공허한 부등식일 수 있다.''} 경험적 측정이 이를 반박한다. Qwen L=13에서 $\alpha=0.3$ 정지 K 개입, N=100, 2800 head-query 조합에 대해 측정한 좌변/우변 비율은 중앙값 $2.36\times 10^{-8}$, pass rate 100\%로 bound가 매우 보수적이지만 안정적으로 성립한다. 이것은 Q-측과 K-측 개입을 같은 척도로 비교할 때 정리가 정보적 진단 역할을 할 수 있음을 뒷받침한다.
+넷째 반론은 ``정리~\ref{thm:bound}의 교란 경계는 공허한 부등식일 수 있다''는 주장이다. 경험적 측정이 이를 반박한다. Qwen L=13에서 $\alpha=0.3$ 정지 K 개입, N=100, 2800 head-query 조합에 대해 측정한 좌변/우변 비율은 중앙값 $2.36\times 10^{-8}$, pass rate 100\%로, bound가 매우 보수적이지만 안정적으로 성립한다. 이것은 Q-측과 K-측 개입을 같은 척도로 비교할 때 정리가 정보적 진단 역할을 함을 뒷받침한다. 보조 증거로 단일 도구 체제의 대조 결과가 주장을 반대 방향에서 강화한다. MetaTool Subtask1에서 정지 K-bias($\alpha=0.3$)가 Qwen에 $+11.16$pp의 큰 양의 이득을 준다. 도구가 하나뿐이면 ``첫 선택 반복''이 해롭지 않고 오히려 도움이 되며, 이것이 SEKA 계열이 단일 개념 편집에서 강한 이유와 일치한다. 본 연구의 layer-adaptive 연산자는 SEKA의 범용 대체가 아니라 멀티-툴 과제에 특화된 설계다.
 
-보조 증거로 단일 도구 체제의 대조 결과를 덧붙인다. MetaTool Subtask1에서 정지 K-bias($\alpha=0.3$)가 Qwen에 $+11.16$pp의 큰 양의 이득을 준다. 언뜻 본 논문의 주장과 어긋나 보이지만 오히려 강화한다. 도구가 하나뿐이면 ``첫 선택 반복''이 해롭지 않고 오히려 도움이 되며, 이것이 SEKA 계열이 단일 개념 편집에서 강한 이유와 일치한다. 본 연구의 layer-adaptive 연산자는 SEKA의 범용 대체가 아니라 \emph{멀티-툴 과제에 특화된 설계}다.
+네 반론이 모두 배제된 뒤에도 본 방법의 한계는 남는다. 본 연산자는 모두 history-free이므로 정리~\ref{thm:no-memory}이 지적한 방출 상태 결여를 완전히 해소하지는 않는다. 따라서 truly iterative state tracking이 필요한 multi-turn planner나 discoverable meta-tool setting은 본 논문의 범위 밖이다. 또한 signed-Q 부호 진단은 ground-truth proxy 집합 $\mathcal{G}$에 의존하므로 deployment-ready router claim으로 읽어서는 안 된다. 본문은 이 정리를 regime 설명 도구로만 쓴다. canonical SEKA의 CounterFact 재현이 A6000 환경에서 실패했기 때문에 SEKA 비교는 A100 재현 환경이 정리될수록 더 엄밀히 보강되어야 한다(부록~\ref{app:seka-repro}).
 
-\section{논의}\label{sec:discussion}
-
-논문의 메시지는 세 단계로 요약된다. 먼저 정지 K-side 증폭은 멀티-툴에서 구조적으로 실패하며 그 흔적은 \texttt{repeated\_first\_tool\_rate} 상승이다(정리~\ref{thm:no-memory}). 다음으로 해결은 K를 완전히 버리는 것이 아니라 초기 레이어에만 제한하고 후반 레이어에서는 Q로 coverage를 조정하는 것이다. 마지막으로 signed Q의 부호는 도메인 의존적이며, 정리~\ref{thm:beta-star}가 이 차이를 설명하는 일차 진단을 제공한다. 즉 중심 기여는 layer-adaptive 설계이고 부호 정리는 이를 task regime 관점에서 해석하는 보조 도구다.
-
-기존 활성 스티어링 문헌과의 차이는 세 축으로 요약된다. SEKA와 AdaSEKA는 K-side 정지 증폭을 중심에 두고, 기존 Q-coverage 연구는 대개 음의 $\beta$ 쪽만 본다. 본 논문은 이 둘을 단순 비교하는 대신, 멀티-툴에서는 \emph{K를 어디까지 허용하느냐}가 더 중요하다고 주장한다. novelty는 ``새로운 부호 하나''가 아니라 ``초기 K와 이후 Q를 분리한 operator schedule''이며, 부호 분석은 이 설계에 regime 해석을 더한다.
-
-방법의 한계도 명확히 해둔다. 본 연산자는 모두 history-free이므로 정리~\ref{thm:no-memory}이 지적한 방출 상태 결여를 완전히 해소하지는 않는다. 따라서 truly iterative state tracking이 필요한 multi-turn planner나 discoverable meta-tool setting은 본 논문의 범위 밖이다. 또한 signed-Q 부호 진단은 ground-truth proxy 집합 $\mathcal{G}$에 의존하므로 deployment-ready router claim으로 읽어서는 안 된다. canonical SEKA의 CounterFact 재현이 A6000 환경에서 실패했기 때문에 SEKA 비교는 A100 재현 환경이 정리될수록 더 엄밀히 보강되어야 한다(부록~\ref{app:seka-repro}).
-
-함의는 두 방향으로 확장된다. 정리~\ref{thm:no-memory}이 모든 정지 연산자에 적용되므로 ITI, CAA, PASTA, Focus Directions도 멀티-툴로 확장될 때 비슷한 반복 편향을 가질 것으로 예상된다. 따라서 본 논문의 더 일반적인 메시지는 ``정지 스티어링을 멀티-툴에 가져오려면 state 또는 layer schedule이 필요하다''는 것이다. 후속 과제는 두 갈래다. 하나는 layer-adaptive를 진짜 multi-turn stateful operator로 확장하는 일이고, 다른 하나는 signed-Q 진단을 라벨 없이 근사하는 실전형 proxy를 찾는 일이다.
+함의는 두 방향으로 확장된다. 정리~\ref{thm:no-memory}은 모든 정지 연산자에 적용되므로 ITI, CAA, PASTA, Focus Directions도 멀티-툴로 확장될 때 비슷한 반복 편향을 가질 것으로 예상된다. 따라서 본 논문의 더 일반적인 메시지는 ``정지 스티어링을 멀티-툴에 가져오려면 state 또는 layer schedule이 필요하다''는 것이다. 후속 과제는 두 갈래다. 하나는 layer-adaptive를 진짜 multi-turn stateful operator로 확장하는 일이고, 다른 하나는 signed-Q 진단을 라벨 없이 근사하는 실전형 proxy를 찾는 일이다.
