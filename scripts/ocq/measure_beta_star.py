@@ -278,6 +278,17 @@ def compute_s_query(
     r_bar_G_sum = 0.0
     count = 0
 
+    # Vectorized: for each layer × kv-head, compute full (T_q, T_k) attention
+    # matrix, apply causal mask + q-position filter, then reduce.
+    device = Q_layers[0].device
+    NEG_INF = torch.finfo(torch.float32).min
+
+    # Precompute causal + q-position mask
+    q_pos_mask = torch.zeros(T, dtype=torch.bool, device=device)
+    for q in q_positions:
+        q_pos_mask[q] = True
+    # causal: for each q, only t <= q allowed. We'll combine.
+
     for li in range(L):
         Ql = Q_layers[li][0].float()               # (T, n_q * d)
         Kl = K_layers[li][0].float()               # (T, n_kv * d)
@@ -287,48 +298,42 @@ def compute_s_query(
 
         s_layer = 0.0
         for kvh in range(n_kv):
-            B_h = B_l[kvh]          # (d, r)
-            K_kvh = K_h[:, kvh, :]  # (T, d)
-            P_K = (K_kvh @ B_h) @ B_h.t()  # (T, d)  = P K_t' (symmetric P; = K_t·P_t)
-            # We need r_t = <P Q, K_t>/sqrt(d). Since P is symmetric,
-            # r_t = <Q, P K_t>/sqrt(d), computable as Q · (P K).
-            # For efficiency compute once: r_matrix[q, t] = <Q[q], P K[t]>/sqrt(d)
-            # Across q-heads in this kv group: use Q_h[:, kvh*g:(kvh+1)*g, :].
+            B_h = B_l[kvh]                             # (d, r)
+            K_kvh = K_h[:, kvh, :]                     # (T, d)
+            P_K = K_kvh @ (B_h @ B_h.t())             # (T, d)  = P applied to each K
             Q_group = Q_h[:, kvh * g:(kvh + 1) * g, :]  # (T, g, d)
-            # r[q, h, t] = Q_group[q, h, :] @ P K_kvh[t, :].T  / sqrt(d)
-            # P K is P_K above, shape (T, d).
-            # attn scores[q, h, t] = Q_group[q, h, :] @ K_kvh[t, :].T / sqrt(d)
-            scores = torch.einsum("qhd,td->qht", Q_group, K_kvh) / sqrt_d  # (T, g, T)
-            r_vals = torch.einsum("qhd,td->qht", Q_group, P_K) / sqrt_d    # (T, g, T)
+            # scores[q, h, t] = <Q[q,h], K[t]> / sqrt(d)
+            scores = torch.einsum("qhd,td->qht", Q_group, K_kvh) / sqrt_d
+            r_vals = torch.einsum("qhd,td->qht", Q_group, P_K) / sqrt_d
+            # Apply causal mask (mask out t > q): for each q, zero out t>q
+            causal_mask = torch.triu(torch.ones(T, T, dtype=torch.bool, device=device), diagonal=1)
+            # masked_fill per (q, _, t): scores[q, :, t] = -inf where t > q
+            scores = scores.masked_fill(causal_mask.unsqueeze(1), NEG_INF)
+            p0 = torch.softmax(scores, dim=-1)         # (T, g, T)  — rows are distributions
+            # r̄ per (q, h): sum_t p0[q, h, t] * r_vals[q, h, t]
+            r_bar_per = (p0 * r_vals).sum(dim=-1)     # (T, g)
+            # π_G per (q, h): sum over t in gt_mask
+            pi_G_per = p0[:, :, gt_mask].sum(dim=-1)  # (T, g)
+            rG_per = (p0[:, :, gt_mask] * r_vals[:, :, gt_mask]).sum(dim=-1)  # (T, g)
+            safe_per = pi_G_per > 1e-8
+            r_bar_G_per = torch.where(safe_per, rG_per / pi_G_per.clamp_min(1e-8),
+                                      torch.zeros_like(rG_per))
+            s_per_q_h = pi_G_per * (r_bar_G_per - r_bar_per)  # (T, g)
 
-            for q_idx in q_positions:
-                # causal slice
-                if causal:
-                    lim = q_idx + 1
-                    sc = scores[q_idx, :, :lim]     # (g, lim)
-                    rv = r_vals[q_idx, :, :lim]     # (g, lim)
-                    gt_slice = gt_mask[:lim]
-                else:
-                    sc = scores[q_idx]  # (g, T)
-                    rv = r_vals[q_idx]
-                    gt_slice = gt_mask
-                if not gt_slice.any():
-                    continue
-                p0 = torch.softmax(sc, dim=-1)                  # (g, lim)
-                r_bar = (p0 * rv).sum(dim=-1)                   # (g,)
-                pi_G = p0[:, gt_slice].sum(dim=-1)              # (g,)
-                # avoid div by tiny
-                safe = pi_G > 1e-8
-                if not safe.any():
-                    continue
-                rG = (p0[:, gt_slice] * rv[:, gt_slice]).sum(dim=-1)  # (g,)
-                r_bar_G = torch.where(safe, rG / pi_G.clamp_min(1e-8), torch.zeros_like(rG))
-                s_head = pi_G * (r_bar_G - r_bar)                 # (g,)
-                s_layer += s_head[safe].sum().item()
-                pi_G_sum += pi_G[safe].sum().item()
-                r_bar_sum += r_bar[safe].sum().item()
-                r_bar_G_sum += r_bar_G[safe].sum().item()
-                count += int(safe.sum().item())
+            # Restrict to q_positions
+            sel = q_pos_mask & safe_per.any(dim=-1)   # (T,)
+            if not sel.any():
+                continue
+            s_head_total = s_per_q_h[sel].sum().item()
+            s_layer += s_head_total
+            # Accumulators
+            good = safe_per & q_pos_mask.unsqueeze(-1)
+            if good.any():
+                n_good = int(good.sum().item())
+                pi_G_sum += pi_G_per[good].sum().item()
+                r_bar_sum += r_bar_per[good].sum().item()
+                r_bar_G_sum += r_bar_G_per[good].sum().item()
+                count += n_good
         s_per_layer.append(s_layer)
         s_total += s_layer
 
