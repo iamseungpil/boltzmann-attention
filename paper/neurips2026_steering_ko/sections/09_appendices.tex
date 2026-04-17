@@ -1,136 +1,80 @@
 \appendix
-\section{증명과 추가 평가 축}
+\section{증명}\label{app:proofs}
 
-\subsection{명제 1의 증명}
+\paragraph{정리~\ref{thm:bound} 증명.}\label{app:proof:bound}
+\emph{1단계.} softmax는 실해석적이므로 $\phi$는 smooth, Taylor의 정리로 $\phi(1) - \phi(0) = \phi'(0) + \int_0^1(1-\tau)\phi''(\tau)d\tau$.
+\emph{2단계.} softmax Jacobian $\partial s_t/\partial\ell_{t'} = s_t(\delta_{tt'}-s_{t'})$로 $ds_t(\tau)/d\tau = s_t(\tau)(\alpha_t - \bar\alpha(\tau))$. 따라서 $\phi'(0) = \sum_t s_t\alpha_t(v_t - o) = L(q,E)$ (정확 등식).
+\emph{3단계.} 직접 계산으로 $\phi''(\tau) = \sum_t s_t(\tau)[(\alpha_t - \bar\alpha(\tau))^2 - \mathrm{Var}_s\alpha(\tau)] v_t$.
+\emph{4단계.} 벡터 Cauchy-Schwarz로 $\|L\|^2 \le \mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q)$. $|\alpha_t|\le Q_{\max}\rho/\sqrt d$로 $\|R\|^2 \le Q_{\max}^4 V_{\max}^2 \rho^4/d^2$. $\square$
 
-\paragraph{Setup.}
-$T_{\alpha}=I+\alpha P$라고 두자. 디코딩 단계 $u$에서 개입은 현재 key vector $k_{u,t}$를 $T_{\alpha}k_{u,t}$로 바꾼다. 이 사상은 현재 key tensor와 고정 파라미터 $(P,\alpha)$에만 의존하며, 이전에 어떤 도구가 나갔는지, 어떤 facet이 이미 사용되었는지, 혹은 외부 coverage 변수 같은 입력을 갖지 않는다.
+\section{따름정리와 조건부 명제}\label{app:corollaries}
 
- \paragraph{1단계: 연산자가 실제로 보는 정보를 적는다.}
-위 사상은 현재 key tensor와 고정 파라미터 외의 입력을 받지 않는다.
+\begin{corollary}[정지 K의 반복 편향]\label{cor:seka-repeat}
+그리디 디코딩 아래 첫 단계에 $t_1\in T_{\mathrm{gt}}$가 선택되고 $t_1$이 온톨로지 부분공간에 정렬되면 정지 K가 $t_1$의 logit을 $(1+\alpha)$배로 증폭해 $\Pr[t_2=t_1\mid\text{stat}] \ge \Pr[t_2=t_1\mid\text{no\_steer}]$.
+\end{corollary}
 
-\paragraph{2단계: 현재 key tensor가 같은 두 히스토리를 비교한다.}
-이제 과거 히스토리는 다르지만 현재 key tensor $K_u$는 같은 두 디코딩 히스토리 $h,\tilde h$를 생각하자. stationary operator이므로 두 경우 모두
-\[
-T_{\alpha}(K_u)=(I+\alpha P)K_u
-\]
-가 적용된다. 따라서 변환된 key는 완전히 동일하다. 곧 연산자 자체는 ``이미 사용함''과 ``아직 사용하지 않음''을 구분하는 explicit variable을 새로 더하지 않는다. coverage 정보는 key-side map이 적용되기 이전의 모델 상태 안에 이미 존재해야 한다. 이것으로 명제가 증명된다.
+\begin{proposition}[레이어 적응형 역할 분리, 조건부]\label{prop:ladapt-intuition}
+transformer 표현이 초기 (토큰 인코딩), 중간 (안정화), 후기 (출력 수렴)의 세 단계로 진화한다는 경험적 전제 E1 아래에서, 정지 K는 후기 수렴을 교란하지만 초기 $\lfloor\tau L\rfloor$ 층에 국한된 K는 도구 방향을 각인하여 precision을 높인다.
+\end{proposition}
 
-\paragraph{3단계: 결론을 읽는다.}
-따라서 stationary key-side map은 explicit coverage variable을 자체적으로 생성하지 못한다.
+\begin{corollary}[K-imprinting의 시퀀스 길이 감쇠]\label{cor:regime}
+명제~\ref{prop:ladapt-intuition}의 전제와 정지성 결합 시, $k$-길이 시퀀스의 $j$번째 도구($j>1$)에 대한 K-imprinting 한계 이득은 $(1-\varphi(j-1))$ 꼴로 상계. Q-커버리지의 per-step 이득은 $j$에 불변.
+\end{corollary}
 
-\subsection{명제 2의 증명}
+\section{보조 실험: 모델 크기와 시퀀스 길이}\label{app:size-regime}
 
-\paragraph{Setup.}
-온톨로지 부분공간으로의 직교사영을 $P_{\mathrm{ont}}$라고 하자. 임의의 질의를
-\[
-q=q_{\parallel}+q_{\perp},
-\qquad
-q_{\parallel}=P_{\mathrm{ont}}q,
-\qquad
-q_{\perp}=(I-P_{\mathrm{ont}})q
-\]
-로 분해하면, query-side 개입은
-\[
-q'=(I+\beta P_{\mathrm{ont}})q
-=q_{\perp}+(1+\beta)q_{\parallel}
-\]
-가 된다. 따라서 ontology subspace에 직교한 성분은 그대로 유지되고, ontology-aligned coefficient는 모두 같은 계수 $1+\beta$만큼 축소된다. $\beta<0$이면 ontology-aligned mass가 균일하게 줄어든다. 즉 이 연산자는 새로운 history 변수나 학습된 selector를 도입하지 않으면서도 지배적 facet의 반복 사용을 약화시키는 가장 단순한 history-free coverage surrogate다.
+정리 1-3이 모델 크기 무관이므로 Qwen2.5-Instruct 1.5B/3B/7B/14B 스윕은 부호 보존을 확인한다(표~\ref{tab:e5-sizesweep}). 7B 행 locked, 나머지는 실행 대기. 따름정리~\ref{cor:regime}의 정량 확증은 $\Delta$F1 vs $k$ 곡선(그림~\ref{fig:regime}).
 
-\paragraph{1단계: 질의를 온톨로지 성분과 직교 성분으로 나눈다.}
-위 분해는 개입이 바꿀 수 있는 부분과 바꿀 수 없는 부분을 분리한다.
+\begin{table}[t]
+\centering
+\caption{Qwen 크기 스윕 (보조 ablation).}
+\label{tab:e5-sizesweep}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
+\toprule
+크기 & \texttt{no\_steer} & SEKA amp=1.0 & Q-커버리지 & 레이어 적응형 \\
+\midrule
+1.5B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+3B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+7B & \textbf{0.7307} & \emph{placeholder} & \textbf{0.7535} & \textbf{0.7514} \\
+14B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\paragraph{2단계: 개입을 대입해 닫힌 형태를 얻는다.}
-개입은 $q_{\perp}$는 그대로 두고 $q_{\parallel}$만 $1+\beta$배 한다.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.75\linewidth]{fig2_delta_vs_k.pdf}
+\caption{$\Delta$F1 vs 정답 도구 수 $k$ (placeholder).}\label{fig:regime}
+\end{figure}
 
-\paragraph{3단계: 부호 의미를 읽는다.}
-$\beta<0$이면 ontology-aligned mass가 일괄적으로 줄어들므로, 반복 facet 사용을 줄이는 방향의 가장 단순한 history-free surrogate가 된다.
+\section{보조 실험: 레이어 경계 sweep (Phase 2.5)}\label{app:layer-sweep}
 
-\subsection{정리 1의 증명}
+명제~\ref{prop:ladapt-intuition}의 $\tau=1/4$ 선택을 시험하는 coworker 운영 ablation으로, 6개 경계 구성과 2개 $\beta$, 2개 벤치마크를 교차한다. LS-1$\sim$LS-4는 $\tau$의 Pareto frontier를 그리고, LS-5(K+Q 겹침)와 LS-6(Q 후반만)는 competing hypothesis를 구별한다.
 
-\paragraph{Setup.}
-질의 $q$를 고정하고, 원래 attention logit을
-\[
-\ell_t(q)=\frac{q\cdot k_t}{\sqrt d},
-\qquad
-\alpha_t(q)=\frac{q\cdot e_t}{\sqrt d}
-\]
-라고 쓰자. 또한 $s_t(q)=\mathrm{softmax}(\ell(q))_t$로 두고, 보간 출력
-\[
-\phi(\tau)=\sum_{t=1}^{T}\mathrm{softmax}(\ell(q)+\tau\alpha(q))_t\,v_t,
-\qquad \tau\in[0,1]
-\]
-를 정의하자. 그러면 $\phi(0)=o(q)$이고 $\phi(1)=\hat o(q)$다. 적분 나머지항을 갖는 Taylor 정리에 의해
-\[
-\hat o(q)-o(q)=L(q,E)+R(q,E)
-\]
-이며,
-\[
-L(q,E)=\sum_{t=1}^{T}s_t(q)\,\alpha_t(q)\,\bigl(v_t-o(q)\bigr),
-\qquad
-R(q,E)=\int_{0}^{1}(1-\tau)\phi''(\tau)\,d\tau
-\]
-이다.
+\begin{table}[h]
+\centering
+\caption{Phase 2.5 layer boundary sweep (실행 대기).}
+\label{tab:layer-sweep-placeholder}
+\small
+\begin{tabularx}{\linewidth}{@{}lXrr@{}}
+\toprule
+ID & 구성 & $\Delta$F1 (Subtask4) & $\Delta$F1 ($\tau^2$-retail) \\
+\midrule
+LS-1 & K $\ell<L/7$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
+LS-2 & K $\ell<L/4$, Q 나머지 (현 baseline) & \textbf{+2.08} & \textbf{$-$3.73} \\
+LS-3 & K $\ell<L/3$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
+LS-4 & K $\ell<L/2$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
+LS-5 & K $\ell<L/4$, Q 전 레이어 & \emph{placeholder} & \emph{placeholder} \\
+LS-6 & K $\ell<L/4$, Q $\ell>3L/4$ & \emph{placeholder} & \emph{placeholder} \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\paragraph{1단계: 정확한 분해.}
-직전 식은 근사가 아니라 exact identity다. 남은 증명은 두 가지 재료만 쓴다. 1차항에 대한 weighted Cauchy--Schwarz 한 번과 remainder에 대한 Hessian 상계 한 번이다.
+\section{SEKA 재현 프로토콜, 매니페스트, 코드 구조}\label{app:seka-repro}\label{app:manifest}
 
-\paragraph{2단계: 1차항 상계.}
-먼저 1차항에 weighted Cauchy--Schwarz를 적용하면
-\[
-\|L(q,E)\|^2
-\le
-\left(\sum_{t=1}^{T}s_t(q)\alpha_t(q)^2\right)
-\left(\sum_{t=1}^{T}s_t(q)\|v_t-o(q)\|^2\right)
-=
-\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)
-\]
-를 얻는다.
+외부 SEKA 행은 canonical CounterFact efficacy score ($\mathrm{ES}=0.952\pm 0.02$)를 재현한 구현에만 채워질 자격을 얻는다. A6000 환경에서 재현 실패(ES=0.374)이므로 A100 재현이 SEKA 비교 gate다. 모든 수치는 \texttt{MANIFEST.md}에 (표 번호, JSON 경로, 스크립트) 삼중쌍으로 기록된다. 개입 구현은 \texttt{scripts/ocq/eval\_metatool\_subtask1.py}의 \texttt{install\_\{kbias,q\_bias,layer\_adaptive\}\_hooks}; 구동은 \texttt{eval\_metatool\_subtask4.py}, \texttt{eval\_tau2\_bench.py}, \texttt{eval\_subtask4\_with\_real\_seka.py}. PCA 기저 builder: \texttt{scripts/ocq/build\_pca\_baseline\_basis.py}.
 
-\paragraph{3단계: remainder 상계.}
-다음으로 softmax Hessian 항등식으로부터
-\[
-\|\phi''(\tau)\|
-\le
-2V_{\max}\sum_{t=1}^{T}s_t(\tau)\alpha_t(q)^2
-\]
-가 따른다. 또한 $\|q\|\le Q_{\max}$, $\|e_t\|\le\rho$이면
-\[
-|\alpha_t(q)|\le\frac{Q_{\max}\rho}{\sqrt d}
-\]
-이므로
-\[
-\|R(q,E)\|
-\le
-V_{\max}\sup_{\tau\in[0,1]}\sum_{t=1}^{T}s_t(\tau)\alpha_t(q)^2
-\le
-\frac{Q_{\max}^2V_{\max}\rho^2}{d}
-\]
-다.
+\section{U-shape 전제 확인}\label{app:ushape}
 
-\paragraph{4단계: 결합.}
-마지막으로 $\|L+R\|^2\le 2\|L\|^2+2\|R\|^2$를 쓰면
-\[
-\|\hat o(q)-o(q)\|^2
-\le
-2\,\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)
-+\;
-\frac{2Q_{\max}^4V_{\max}^2}{d^2}\rho^4
-\]
-를 얻는다. 마지막으로 $q$에 대해 기대값을 취하면 정리가 증명된다.
-
-\subsection{추가로 확인된 보조 증거}
-
-두 가지 보조 결과는 유의미하지만 본문을 이끌 정도로 강하지는 않다.
-
-첫째, Subtask1의 strict scorer에서도 ontology basis 특이성은 유지된다. Qwen의 mean scorer에서는 real ontology basis가 top-1 accuracy를 $0.3678$에서 $0.4181$로 올리지만, random과 feature-shuffled control은 각각 $0.1377$, $0.2553$에 머문다. Llama의 mean scorer에서도 real basis는 $0.2312 \rightarrow 0.2573$으로 올라가고, random과 feature-shuffled control은 각각 $0.2251$, $0.2171$에 그친다. 이는 ontology basis의 효과가 단일 scorer 하나에만 묶여 있지 않다는 뜻이다.
-
-둘째, 작은 $\alpha_K$를 더한 Q+K 상호작용은 Qwen에서 보이지만 아직 headline으로 올리기에는 국소적이다. $\beta=-0.1$ 위에 $\alpha_K=0.025$와 $\alpha_K=0.05$를 더하면 macro F1이 각각 $0.7529$, $0.7502$로 Q-only의 $0.7471$보다 높다. 그러나 이 밴드는 매우 좁고 cross-family 재검증이 아직 충분하지 않으므로, 독립적인 핵심 방법이라기보다 query-side suppression의 가능한 refinement로 해석하는 편이 안전하다.
-
-\subsection{Closest-prior 비교를 위한 프로토콜 메모}
-
-외부 비교 가운데 가장 결정적인 것은 동일 scorer, 동일 prompt template, 동일 ontology catalog를 맞춘 SEKA, AdaSEKA head-to-head다. 이런 정합이 없으면 큰 성능 차이도 메커니즘 차이라기보다 평가 프로토콜 차이로 치부되기 쉽다.
-
-메커니즘 검증 가운데 가장 결정적인 것은 stepwise coverage 분해다. 중심 주장은 최종 정답이 조금 바뀐다는 데 있지 않고, 첫 번째 도구가 나온 뒤 같은 facet을 반복하는 경향을 줄인다는 데 있다. 따라서 first-tool과 second-tool을 분리한 분석이 또 하나의 aggregate row보다 훨씬 강한 증거가 된다.
-
-질적 검증은 heatmap 단독보다 trajectory 묶음이 낫다. 권장 묶음은 per-token hook overhead, decoding step별 ontology-energy trace, 그리고 steering 전후의 emitted tool sequence를 보여주는 소수의 사례다. attention map은 이런 stepwise dynamics가 먼저 확인된 뒤 보조 그림으로 붙을 때 가장 설득력이 크다.
+명제~\ref{prop:ladapt-intuition}의 전제 E1은 \texttt{reports/layer\_adaptive\_2026\_04\_17/}에서 Qwen2.5-7B($L=28$)에 대해 확인되었다. 초기 $\ell<7$과 후기 $\ell>21$의 attention MSE가 중간 레이어보다 유의미하게 크다.

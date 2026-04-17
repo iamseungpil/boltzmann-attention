@@ -1,225 +1,292 @@
-# Steering Paper Experiment Plan — 2026-04-16
+# Steering Paper Experiment Plan — Canonical Alignment
+
+Date: 2026-04-16
 
 ## Purpose
 
-This document is the paper-facing experiment plan for the steering paper in `paper/neurips2026_steering_v2`. It replaces the scattered planning notes for this paper with one execution order. The plan is split into `Main Experiments` and `Supporting Experiments` so that the paper story stays narrow:
+This document is the canonical paper-facing plan for the steering paper in `paper/neurips2026_steering_v2`. It replaces the earlier mixed planning state with one hard rule:
 
-1. The closest prior comparison is SEKA/AdaSEKA, but only under matched evaluation.
-2. The central claim is about sequential coverage in multi-tool selection, not generic activation steering.
-3. The paper should win on mechanism clarity before it tries to win on benchmark breadth.
+- the paper must be organized around claims that are already supported by auditable result files,
+- stronger but narrower findings may appear only as secondary operator comparisons,
+- external benchmark breadth comes after internal mechanism clarity.
 
-## Planning Rule
+## Locked Claim Hierarchy
 
-Every experiment in this file must answer three questions explicitly:
+The paper now has a two-tier claim structure.
 
-1. What is the intent?
-2. What hypothesis is actually being tested?
-3. What result would count as validation or rejection?
+### Tier 1: Main claim
 
-If an experiment does not sharpen one of those three, it should not be run for the paper.
+For multi-tool sequential selection, ontology-guided query-side contraction has the correct sign and basis specificity, while stationary key-side amplification on the same basis is structurally mismatched.
+
+This is the only cross-family claim currently safe for the main paper.
+
+### Tier 2: Secondary claim
+
+Within Qwen MetaTool Subtask4, two stronger operator variants improve on the earlier `beta=-0.1` point:
+
+- `Q_full_Bont` single-pass contraction at `beta=-0.03`,
+- `iterative_kq` with emitted-state query contraction and early-layer key assistance.
+
+This claim is real but not yet cross-family. It must be framed as operator selection, not as the main headline, until Llama and matched-baseline runs exist.
 
 ## Fact Base
 
-- Qwen Subtask4: `no_steer` F1 `0.7307`, `Q-bias beta=-0.1` F1 `0.7471`, `K-bias alpha=0.3` F1 `0.6850`.
-- Llama Subtask4: `no_steer` F1 `0.6227`, `Q-bias beta=-0.1` F1 `0.6271`, `K-bias alpha=0.3` F1 `0.3105`.
-- Qwen Q-bias null controls: `featshuffle 0.7254`, `random 0.7068`.
-- Qwen K-bias null controls: `featshuffle 0.0000`, `random 0.0000`.
-- Qwen small `alpha_K` on top of Q-bias: `0.025 -> 0.7529`, `0.05 -> 0.7502`.
-- Perturbation-bound medians: Qwen `2.357e-08`, Llama `6.372e-08`.
+### Cross-family verified facts
 
-## Method Comparison to SEKA and AdaSEKA
+- Qwen Subtask4 baseline: F1 `0.7307`, Exact `0.5252`, Jaccard `0.6673`.
+- Qwen `ocq_qbias_b-0.1`: F1 `0.7471`, Exact `0.5272`.
+- Qwen stationary `K-bias alpha=0.3`: F1 `0.6850`, Exact `0.4728`.
+- Llama Subtask4 baseline: F1 `0.6227`, Exact `0.5030`, Jaccard `0.5872`.
+- Llama `ocq_qbias_b-0.1`: F1 `0.6271`, Exact `0.5070`.
+- Llama stationary `K-bias alpha=0.3`: F1 `0.3105`, Exact `0.2616`.
+- Qwen null controls:
+  - Q-bias real `0.7471`, feature-shuffled `0.7254`, random `0.7068`.
+  - K-bias real `0.6850`, feature-shuffled `0.0000`, random `0.0000`.
 
-These distinctions must remain explicit in both the paper and the evaluation plan.
+### Qwen-only operator facts
 
-| Axis | SEKA | AdaSEKA | Ours |
-|---|---|---|---|
-| Target task | Prompt highlighting / single-target emphasis | Input-adaptive prompt highlighting | Multi-tool sequential coverage |
-| Direction source | Learned from synthetic QA contrasts | Learned expert bank from synthetic contrasts | Training-free ontology basis from tool catalog |
-| Intervention site | Key-side amplification | Key-side amplification with input-conditioned expert choice | Query-side suppression, with key-side used only as a contrast condition |
-| Core mechanism | Highlight chosen subspace | Choose or mix highlighted expert subspaces | Suppress already dominant ontology-aligned query mass |
-| Statefulness | Stationary once chosen | Input-adaptive but still not explicit facet-coverage state | History-free approximation to coverage |
-| Clean claim we can make | Closest conceptual predecessor | Closest adaptive predecessor | Different task and different sign semantics |
+- `Q_full_Bont` / `ocq_qbias_b-0.03`: F1 `0.7535`, Exact `0.5332`.
+- `iterative_kq` with K-early: F1 `0.7524`, Exact `0.5473`.
+- `multipass_kq`: F1 `0.7410`, Exact `0.5091`.
+- `k_early_only` iterative KQ variant: F1 `0.7514`, Exact `0.5473`.
+
+### External benchmark readiness facts
+
+- `eval_bfcl.py` is a proxy evaluator based on predicted function-name sets, not official BFCL AST scoring.
+- `eval_tau2bench_epsilon_q.py` is a per-step next-tool plus `epsilon_q` diagnostic, not full official tau2-bench conversation scoring.
+- `build_tau2_ontology.py` exists, but the expected `eval_tau2.py` and `eval_multi_turn.py` are not present in the current repo state.
+
+## Decision on External Benchmarks
+
+### tau2-bench
+
+Direct answer: not suitable as a main benchmark now.
+
+Reasoning:
+
+- The currently available driver is diagnostic rather than official.
+- The task is farther from the locked Subtask4 mechanism claim than the current paper can afford.
+- A weak or noisy tau2 result would blur the paper faster than it would strengthen it.
+
+Decision:
+
+- `tau2` is placeholder-only in this paper cycle.
+- It may appear in a future extension once an official evaluation harness exists.
+
+### BFCL
+
+Direct answer: useful only as a supporting benchmark.
+
+Reasoning:
+
+- BFCL naturally separates simple from parallel or multiple function calls.
+- That makes it a reasonable stress test for single-tool versus multi-tool behavior.
+- But the current evaluator is still a proxy and must not be treated as official benchmark evidence.
+
+Decision:
+
+- BFCL is supporting-only.
+- Any BFCL table must be marked as proxy until official AST evaluation is wired in.
 
 ## Main Experiments
 
-These are the experiments that decide whether the main paper is complete.
+These experiments decide whether the paper is complete.
 
 | ID | Experiment | Intent | Hypothesis | Validation |
 |---|---|---|---|---|
-| M1 | Matched SEKA/AdaSEKA table | Make the closest-prior comparison fair | Under one locked protocol, stationary key-side highlighting remains mismatched or at least does not overturn the sign story | Same prompt template, scorer, decode policy, and source basis handling for all methods |
-| M2 | Stepwise coverage breakdown | Test the mechanism directly | Q-bias should help later coverage more than early ranking | First-tool accuracy, second-tool accuracy, repetition rate |
-| M3 | Basis-specificity controls | Show the effect is not generic low-rank noise | Real ontology basis stays useful; shuffled or random controls do not | Real basis stays positive and stable while controls degrade |
-| M4 | Small-alpha K-plus-Q interaction | Decide whether to keep or cut the pair story | If the micro-band is real, it should reproduce across families | Same narrow sweep on Qwen and Llama, compared to Q-only |
+| M1 | Cross-family locked main table | Keep the paper grounded in what is actually safe | Q-side contraction stays positive and stationary K-side amplification stays negative on both Qwen and Llama | Same prompt, scorer, decode policy, metadata, and result schema across both models |
+| M2 | Qwen operator comparison | Decide which stronger operator to present as the best current implementation | `Q_full_Bont` and `iterative_kq` both beat the earlier `beta=-0.1` point, with different precision/coverage behavior | Reproduce the same ranking under one locked evaluator and report F1, Exact, Jaccard, precision, recall |
+| M3 | Stepwise coverage breakdown | Test whether the gain is actually about sequential recovery | Query-side methods should improve second-tool recovery or reduce repetition rather than only improve first-tool ranking | First-tool hit, second-tool hit, second distinct hit, second recovery given first hit, repeated-first-tool rate |
+| M4 | Matched SEKA/AdaSEKA table | Keep the closest-prior comparison honest | Under a matched protocol, official SEKA-family baselines should not overturn the sign story | Official external wrappers only; same prompt template, same scoring contract, same decode policy |
+| M5 | Basis-specificity extension | Show that the effect is not generic low-rank noise | Real ontology basis remains uniquely useful while shuffled or random controls fail qualitatively | Locked null-control protocol on Qwen, and on Llama if feasible |
 
-### M1. Matched SEKA and AdaSEKA head-to-head on MetaTool Subtask4
+### M1. Cross-family locked main table
 
-- Intent: establish whether the paper's mechanism claim survives under the closest prior methods evaluated with the same scorer, prompt template, ontology catalog, and decoding policy.
-- Hypothesis: the current paper does not need to beat SEKA everywhere, but it should show that stationary key-side highlighting is mismatched to Subtask4 coverage and that any claim about a large gap is only credible under matched evaluation.
+- Intent: preserve one paper claim that remains defensible even if every stronger exploratory result later weakens.
+- Hypothesis: `Q-bias` has the correct sign across model families and stationary `K-bias` does not.
 - Validation:
-  - Use official `external/SEKA` implementations, not proxies.
-  - Evaluate `no_steer`, SEKA, AdaSEKA-2, AdaSEKA-3, our `Q-bias`, and our `K-bias contrast`.
-  - Fix one scorer and one prompt format for all methods.
-  - Report F1, Exact, Jaccard, plus runtime overhead.
+  - Use the current Subtask4 evaluator only.
+  - Keep prompt template, scorer, and decode policy fixed.
+  - Report F1, Exact, Jaccard, precision, recall, and runtime metadata.
 - Success criterion:
-  - Minimum success: the matched table is internally coherent and does not reverse the central sign story.
-  - Strong success: our `Q-bias` is competitive with or better than SEKA/AdaSEKA on Subtask4 while `K-bias` remains clearly worse.
-- Paper placement: main paper.
-- Failure interpretation:
-  - If the baseline wrappers remain environment-fragile, the paper must avoid any superiority language and keep SEKA/AdaSEKA as a fairness protocol requirement rather than a completed claim.
+  - Q-side positive on both families.
+  - K-side negative on both families.
+- Paper role: main table.
 
-### M2. Stepwise coverage breakdown on Subtask4
+### M2. Qwen operator comparison
 
-- Intent: test the actual mechanism claim instead of relying only on aggregate F1.
-- Hypothesis: if query-side suppression acts as a coverage prior, it should help the second tool more than the first and reduce repeated-first-facet failures.
+- Intent: choose a best current implementation without pretending it is already a universal cross-family result.
+- Hypothesis: `Q_full_Bont` and `iterative_kq` are both genuinely better than `beta=-0.1`, and `iterative_kq` should lead on Exact.
 - Validation:
-  - Decompose predictions into first-tool accuracy, second-tool accuracy, and repeated-first-facet failure rate.
-  - Run for `no_steer`, `Q-bias`, `K-bias`, and matched SEKA/AdaSEKA if M1 succeeds.
-  - Include Qwen and Llama.
+  - Compare `no_steer`, `ocq_qbias_b-0.1`, `ocq_qbias_b-0.03`, `iterative_kq`, and `multipass_kq`.
+  - Use the same evaluator and result schema.
+  - Include precision and recall so the precision-first versus recall-first tradeoff is explicit.
 - Success criterion:
-  - The largest positive movement from `Q-bias` should appear on second-tool recovery or repetition reduction, not only on first-tool accuracy.
-- Paper placement: main paper.
-- Failure interpretation:
-  - If the gain appears only on first-tool accuracy, the current coverage framing is overstated and should be weakened to a narrower query-side regularization story.
+  - `Q_full_Bont` or `iterative_kq` reproduces near the current Qwen numbers.
+  - `iterative_kq` remains best or tied-best on Exact.
+- Paper role: main Qwen operator table or compact subsection.
 
-### M3. Basis-specificity and null-control verification
+### M3. Stepwise coverage breakdown
 
-- Intent: show that the effect is not a generic low-rank perturbation.
-- Hypothesis: replacing the ontology basis with feature-shuffled or random controls should erase the query-side gain and destroy key-side stability.
+- Intent: force the mechanism story to cash out at the decision level.
+- Hypothesis: query-side methods help by changing the second decision, not merely by slightly improving the first one.
 - Validation:
-  - Keep the current Qwen null-control table.
-  - Add the same null-control protocol on Llama if practical.
-  - Report both end metrics and effective perturbation magnitude.
+  - Run the current stepwise metrics already emitted by `eval_metatool_subtask4.py`.
+  - Compare `no_steer`, stationary `K-bias`, `ocq_qbias_b-0.1`, `ocq_qbias_b-0.03`, and `iterative_kq`.
+  - Add SEKA-family rows only if M4 succeeds with official wrappers.
 - Success criterion:
-  - Real basis remains the only stable and positive direction while random or shuffled controls degrade.
-- Paper placement: main paper.
-- Failure interpretation:
-  - If a shuffled or random control matches the real basis qualitatively, the ontology-specificity claim does not belong in the main paper.
+  - Improvement appears in second-tool hit, second distinct hit, or repetition reduction.
+- Failure rule:
+  - If the gain is only first-tool ranking, the discussion must weaken any explicit coverage language.
+- Paper role: main mechanism table.
 
-### M4. Small-alpha K-plus-Q interaction
+### M4. Matched SEKA and AdaSEKA comparison
 
-- Intent: determine whether a very small key-side term is genuinely complementary or just a sweep artifact.
-- Hypothesis: the paper's primary method remains query-side suppression, but a narrow positive interaction band may exist for very small `alpha_K`.
+- Intent: stop loose cross-paper comparisons and replace them with one fair protocol.
+- Hypothesis: the closest prior methods may still be strong baselines, but they should not reverse the core sign story when evaluated fairly.
 - Validation:
-  - Re-run the micro-sweep around `alpha_K in {0.0, 0.025, 0.05, 0.075, 0.1}` on Qwen and Llama under the same protocol.
-  - Compare against Q-only.
+  - Use `eval_subtask4_with_real_seka.py` or official external wrappers only.
+  - No proxy AdaSEKA path is allowed in paper-facing tables.
+  - Emit the same protocol metadata as the main evaluator.
 - Success criterion:
-  - Either confirm a narrow reproducible positive band or kill the interaction and keep the paper simpler.
-- Paper placement: appendix unless the effect is robust across both model families.
-- Failure interpretation:
-  - If the band disappears on rerun or on Llama, cut the pair story from the main paper entirely.
+  - The resulting table is auditable from the JSON bundle alone.
+  - The central sign story survives.
+- Failure rule:
+  - If wrappers remain unstable or broken, the paper must avoid superiority language.
+- Paper role: main baseline table if matched; otherwise appendix protocol note only.
+
+### M5. Basis-specificity extension
+
+- Intent: keep the strongest empirical argument in the paper from being Qwen-only if possible.
+- Hypothesis: the ontology basis remains qualitatively unique on Llama as well.
+- Validation:
+  - Extend the existing real / feature-shuffled / random protocol to Llama.
+  - Report end metrics and perturbation magnitudes.
+- Success criterion:
+  - The real basis remains qualitatively distinct from controls.
+- Paper role: main robustness row if practical, appendix if partial.
 
 ## Supporting Experiments
 
-These experiments strengthen interpretation but should not drive the main claim.
+These experiments help interpretation but should not drive the paper's center.
 
 | ID | Experiment | Intent | Hypothesis | Validation |
 |---|---|---|---|---|
-| S1 | Subtask1 transfer | Check that the real basis is not destructive outside Subtask4 | Q-bias stays non-destructive but coverage-specific lift shrinks | Same scorer, same prompt template |
-| S2 | Scorer robustness | Defuse scoring objections | Method ranking should stay qualitatively stable across strict and generation-based scorers | Locked prompts, two scorers only |
-| S3 | Efficiency and latency | Show the hook is practical | Query-side steering adds bounded inference overhead | Tokens/sec or per-token latency |
-| S4 | Ontology-energy traces and case studies | Give mechanism visibility | Q-bias should reduce repetitive ontology dominance after first emission | Traces and emitted sequence examples |
-| S5 | Perturbation-bound diagnostics | Keep the theory attached to data | Bound ratios remain conservative in the real operating regime | Same ratio summary on main interventions |
+| S1 | BFCL proxy screening | Test whether single-tool versus multi-tool separation survives outside MetaTool | Query-side methods should look better on parallel or multiple settings than on simple settings | Must be labeled proxy, not official BFCL |
+| S2 | Llama operator extension | Test whether Qwen-only stronger operators transfer | `Q_full_Bont` or `iterative_kq` should remain positive on Llama if they are real mechanism improvements | Re-run the same operator table on Llama |
+| S3 | Scorer robustness | Defuse objections about one scoring rule | Qualitative ranking should survive across at least two scorer regimes | Locked prompts and documented scorer identity |
+| S4 | Latency and overhead | Show practical deployability | Query-side edits add bounded inference overhead | Per-query runtime or per-token latency |
+| S5 | Sequence traces and qualitative cases | Make the mechanism visible | Query-side edits should show less repetition in emitted sequences | Trace plots and side-by-side generations |
+| S6 | tau2 placeholder slot | Keep space for later external expansion without contaminating the current paper | No paper claim should depend on tau2 until official scoring exists | Placeholder text only |
 
-### S1. Subtask1 transfer check
+### S1. BFCL proxy screening
 
-- Intent: verify that the coverage story is not unique to one benchmark slice.
-- Hypothesis: the ontology basis should remain useful on single-selection disambiguation, but the coverage-specific gain should be smaller than on Subtask4.
+- Intent: stress-test the sign story on a community benchmark without overclaiming official benchmark validity.
+- Hypothesis: the method should look more useful on parallel or multiple subsets than on simple subsets.
 - Validation:
-  - Evaluate `no_steer`, `Q-bias`, and matched baselines on Subtask1 with the finalized scorer.
+  - Use only the current proxy evaluator.
+  - Mark every table and caption as proxy.
 - Success criterion:
-  - `Q-bias` remains non-destructive and basis-specific.
-- Paper placement: appendix.
+  - Qualitative separation supports the multi-tool argument.
+- Paper role: appendix only, unless official BFCL evaluation is added.
 
-### S2. Scorer robustness
+### S2. Llama operator extension
 
-- Intent: preempt reviewer objections that the gains come from one scoring rule.
-- Hypothesis: method ranking should be qualitatively stable across a strict label-logprob scorer and a generation-based scorer, even if absolute numbers differ.
+- Intent: upgrade the Qwen-only stronger operator story if it survives.
+- Hypothesis: at least one of `Q_full_Bont` or `iterative_kq` remains positive on Llama.
 - Validation:
-  - Run the finalized main-method table under two scorers with identical prompt formatting.
-  - Explicitly document any ranking changes.
+  - Same prompt template, scorer, decode policy, and output schema as Qwen.
 - Success criterion:
-  - The main sign pattern does not flip.
-- Paper placement: appendix.
+  - Positive delta over `no_steer` on Llama.
+- Paper role: if clean, this can promote Tier 2 from Qwen-only to cross-family.
 
-### S3. Efficiency and latency
+### S3. Scorer robustness
 
-- Intent: show the practical cost of the hooks and make the method look like a realistic inference-time intervention.
-- Hypothesis: query-side steering adds modest overhead relative to matched SEKA/AdaSEKA baselines.
+- Intent: prevent evaluator-format objections from derailing the results.
+- Hypothesis: absolute numbers may move, but the main ranking should not invert dramatically.
 - Validation:
-  - Measure tokens/sec or per-token latency on Qwen and Llama for `no_steer`, `Q-bias`, and matched SEKA/AdaSEKA.
-- Success criterion:
-  - Overhead is bounded and clearly reported.
-- Paper placement: main paper only if the numbers are clean; otherwise appendix.
+  - Compare the locked generation scorer with one stricter alternative only.
+  - Do not add many scorers.
+- Paper role: appendix.
 
-### S4. Ontology-energy traces and case studies
+### S4. Latency and overhead
 
-- Intent: give the mechanism one interpretable visual that is less cherry-pickable than a bare attention map.
-- Hypothesis: under `Q-bias`, ontology-aligned query energy should drop after the first tool emission and the emitted tool sequence should become less repetitive.
+- Intent: show that the method is a realistic inference-time intervention rather than an impractical analysis artifact.
+- Hypothesis: Q-side edits add modest overhead relative to baseline and official SEKA-family comparisons.
 - Validation:
-  - Plot ontology-energy over decoding steps for 2-3 representative examples.
-  - Show emitted tool sequences for `no_steer`, `Q-bias`, and one failed `K-bias` case.
-- Success criterion:
-  - The trace and example agree with the stepwise coverage breakdown from M2.
-- Paper placement: one compact figure in main paper, extra examples in appendix.
+  - Measure runtime from the same evaluation harness.
+- Paper role: appendix or compact footnote table.
 
-### S5. Perturbation-bound diagnostics
+### S5. Sequence traces and qualitative cases
 
-- Intent: justify the theorem as a diagnostic tool rather than decorative math.
-- Hypothesis: the empirical bound remains very conservative across the interventions used in the main paper.
+- Intent: make the operator behavior interpretable to a first-time reader.
+- Hypothesis: `iterative_kq` and `Q_full_Bont` should visibly reduce repetition or improve second recovery on representative two-tool prompts.
 - Validation:
-  - Keep the current Qwen and Llama median ratio table.
-  - If possible, add the same diagnostic for the small-`alpha_K` interaction point.
-- Success criterion:
-  - Ratios remain far below one and do not contradict the stability interpretation.
-- Paper placement: appendix, with a short reference in the main body.
+  - Plot emitted sequence patterns or ontology-energy traces from the locked protocol.
+- Paper role: one compact main figure plus appendix examples.
+
+### S6. tau2 placeholder slot
+
+- Intent: reserve a clean extension path without lying about readiness.
+- Hypothesis: none for the current paper.
+- Validation:
+  - The manuscript may mention tau2 only as future external validation.
+- Paper role: placeholder only.
 
 ## Execution Order
 
-1. M1 matched SEKA/AdaSEKA comparison.
-2. M2 stepwise coverage breakdown.
-3. M3 null-control extension if Llama is practical.
-4. S3 efficiency and S4 trajectory visuals.
-5. M4 small-alpha interaction decision.
-6. S1, S2, S5 as cleanup and reviewer-defense material.
+1. M1 cross-family locked main table sanity check.
+2. M2 Qwen operator comparison rerun.
+3. M3 stepwise coverage breakdown.
+4. M4 matched SEKA/AdaSEKA comparison.
+5. S2 Llama operator extension.
+6. S4 and S5 practical/interpretability support.
+7. S1 BFCL proxy screening if time remains.
 
-## Not In Scope
+## Readiness Gates
 
-The following ideas may still be scientifically interesting, but they should not drive this paper:
+| Gate | Requirement | Status |
+|---|---|---|
+| G1 | Main claim backed by auditable cross-family result files | partial |
+| G2 | Qwen stronger-operator story backed by current result files | complete |
+| G3 | Stepwise mechanism claim backed by actual numbers, not only available code | incomplete |
+| G4 | Closest-prior comparison uses official wrappers only | incomplete |
+| G5 | External benchmark table uses official scorer, or is explicitly labeled proxy | incomplete |
+| G6 | tau2 official full-task evaluator exists in repo | incomplete |
 
-- PCA or compression-driven rotation as a main story.
-- Dynamic routing benchmarks that require a new paper framing.
-- Layer-adaptive Q+K as a headline method before the stepwise coverage story is complete.
-- Broad agent benchmark expansion without a tight mechanism bridge.
+## Claims That Are Forbidden
 
-## Hard Decision Rules
+- Any headline claim that tau2 validates the method.
+- Any headline claim that BFCL results are official unless AST scoring is integrated.
+- Any claim that `Q_full_Bont` or `iterative_kq` are cross-family best methods before Llama reruns exist.
+- Any claim that SEKA or AdaSEKA are beaten without a matched official-wrapper table.
+- Any claim that the theorem proves benchmark accuracy.
 
-- If M1 cannot be run with official SEKA/AdaSEKA code, the paper must avoid any headline superiority claim over SEKA.
-- If M2 fails to show a second-tool or repetition reduction effect, the current coverage framing is too weak and the paper should revert to a narrower diagnostic-steering story.
-- If M3 fails on a matched rerun, the ontology-specificity claim is not strong enough for the main paper.
-- If M4 is unstable across model families, keep it out of the main story.
+## Paper Layout Mapping
 
-## Main-Paper vs Appendix Summary
+### Main body
 
-### Main paper
-
-- M1 matched baseline comparison
-- M2 stepwise coverage breakdown
-- M3 basis-specificity null controls
-- One compact S4 mechanism figure
+- M1 cross-family sign table.
+- M2 Qwen operator comparison.
+- M3 stepwise coverage mechanism table.
+- M5 basis-specificity table.
 
 ### Appendix
 
-- M4 small-alpha interaction unless it becomes robust
-- S1 Subtask1 transfer
-- S2 scorer robustness
-- S3 latency table if space is tight
-- S4 extra cases
-- S5 perturbation-bound diagnostics
+- M4 matched SEKA/AdaSEKA if not ready for main.
+- S1 BFCL proxy screening.
+- S2 Llama operator extension if late.
+- S3 scorer robustness.
+- S4 latency.
+- S5 traces and qualitative examples.
+- S6 tau2 placeholder note.
 
-## Codex Review Notes
+## Bottom Line
 
-The Codex review loop did not return a final structured report within the local timeout, but the partial trace was still useful. The extracted critique matched the current local assessment on three points:
+The correct paper is no longer the old narrow-only paper, but it is also not the broad develop-branch paper.
 
-1. The closest-prior comparison must be framed as a matched-evaluation problem, not a loose score contest.
-2. The proof package must separate structural propositions from the perturbation theorem and present the theorem proof in explicit steps.
-3. The highest-value new experiment is the matched SEKA/AdaSEKA Subtask4 table, followed immediately by the stepwise coverage breakdown.
+The aligned paper should say:
+
+- one safe cross-family mechanism story,
+- one stronger but currently Qwen-only operator-selection story,
+- no external-benchmark bravado until the evaluators are official enough to trust.

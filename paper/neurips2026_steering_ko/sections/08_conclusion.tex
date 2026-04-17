@@ -1,5 +1,3 @@
 \section{결론}
 
-멀티-툴 선택은 single-tool routing의 작은 변형이 아니다. 한 번 도구를 출력한 뒤 모델에게 필요한 것은 같은 facet의 반복 증폭이 아니라 coverage다. 본 논문의 실험은, 간단한 ontology-guided query-space bias가 이 문제에서 올바른 부호를 가지는 반면, 동일한 기저를 쓰는 stationary key-side bias는 그렇지 않다는 점을 보여준다.
-
-경험적 그림은 간결하다. MetaTool Subtask4에서 Q-bias는 Qwen과 Llama 모두의 F1을 올리고, ontology basis는 효과에 필수적이며, 안정적인 K-side 방향은 가장 작은 perturbation이 아니라 가장 특이적인 basis에서만 나온다. 이 결과는 멀티-툴 선택에서 coverage와 정렬되는 개입은 query-side suppression이며, stationary key amplification은 그렇지 않다는 메커니즘 수준의 결론을 제공한다.
+본 논문은 멀티-툴 도구 선택을 강화하는 훈련-없는 회전 기반 활성 스티어링을 제시했다. 도구 카탈로그에서 직접 유도한 per-head 온톨로지 부분공간 위에서, Q-커버리지는 질의를 부분공간에서 축소하고, 레이어 적응형 K+Q는 초기 레이어에 K-측 회전을 더해 첫 도구 방향을 각인한다. 두 연산자 모두 history-free이지만 가장 가까운 선행 방법(SEKA/AdaSEKA)의 정지 key-side 증폭과 달리 ``방금 쓴 방향에서 덜 가라''는 의미를 부호 반전으로 내장한다. 성능 축에서 Qwen2.5-7B-Instruct에 대해 MetaTool Subtask4와 $\tau^2$-bench retail 모두에서 일관된 이득이 관측되고, 이 이득은 집계 F1이 아니라 \texttt{repeated\_first\_tool\_rate}의 감소라는 포지션별 footprint로 해석된다. 효율성 축에서 본 방법은 학습과 토큰 오버헤드가 0이며 저장은 per-head 기저 $(L, H_{\mathrm{kv}}, d, r)$만 추가로 든다. 이 두 축은 회전 기반 스티어링이 단일 개념 편집을 넘어 에이전트 도구 호출에도 실용적 도구가 될 수 있음을 시사한다.

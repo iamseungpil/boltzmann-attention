@@ -1,91 +1,38 @@
-\section{Theory}
+\section{Setup and Mechanism}\label{sec:theory}
 
-The paper needs only a compact formal package. The first two statements are structural: they explain why stationary key-side amplification is mismatched to sequential coverage and why query-side suppression is the correct history-free surrogate. The theorem then places the perturbation language on a rigorous footing.
+\paragraph{Notation and operators.}
+Consider single-head self-attention (multi-head by direct sum). At layer $\ell$, the query is $q\in\mathbb{R}^d$, keys are $K\in\mathbb{R}^{T\times d}$, values are $V\in\mathbb{R}^{T\times d_v}$, and the perturbed keys are $\hat K = K + E$. The original output is $o(q) = \sum_t s_t(q) v_t$ with $s_t(q) = \mathrm{softmax}(qK^\top/\sqrt d)_t$. A per-head ontology basis $B_{\mathrm{ont}}\in\mathbb{R}^{d\times r}$ is obtained by Gram-Schmidt-orthogonalizing the 4-facet ontology derived directly from the tool catalog, and the projector is $P_{\mathrm{ont}} = B_{\mathrm{ont}} B_{\mathrm{ont}}^\top$. Three operator families are defined:
+\begin{equation}\label{eq:ops}
+\underbrace{K' = K + \alpha K P_{\mathrm{ont}}}_{\text{stationary K (SEKA)}},\quad
+\underbrace{Q' = Q + \beta Q P_{\mathrm{ont}},\ \beta<0}_{\text{Q-coverage (ours)}},\quad
+\underbrace{\ell<\lfloor\tau L\rfloor\!:K';\ \text{all }\ell\!:Q'}_{\text{layer-adaptive K+Q (ours)}}
+\end{equation}
+All three share the same $B_{\mathrm{ont}}$, so any difference in outcome is attributable to operator form alone. The only analytical assumption used in the paper is bounded norms: constants $Q_{\max}, V_{\max}, \rho$ exist such that $\|q\|\le Q_{\max}$, $\|v_t\|\le V_{\max}$, $\|e_t\|\le\rho$. No assumption is made about the joint distribution of $(q, K, V)$.
 
-\paragraph{Scope.}
-The theory is intentionally narrow. It proves two structural facts about history-free interventions and one diagnostic perturbation bound. It does \emph{not} prove benchmark F1 directly, and it does not claim exact facet-history tracking.
+\paragraph{Three core theorems.}
+The paper's theory reduces to three statements. Full proofs are in Appendix~\ref{app:proofs}; corollaries and a conditional proposition live in Appendix~\ref{app:corollaries}.
 
-\begin{table}[t]
-\centering
-\caption{Proof-status map for the main claims.}
-\label{tab:proof-status}
-\small
-\begin{tabularx}{\linewidth}{@{}Xlll@{}}
-\toprule
-Claim & Type & Fully proved? & Depends on modeling assumptions? \\
-\midrule
-Stationary key-side steering does not introduce an explicit coverage variable & Structural & Yes & Minimal \\
-Negative query-side projection has the correct sign semantics for coverage & Structural & Yes & Minimal \\
-Attention output perturbation is controlled by qaMSE and a $\rho^4$ remainder & Diagnostic & Yes & Boundedness assumptions \\
-Q-bias improves second-tool recovery on MetaTool Subtask4 & Empirical & No & Must be shown experimentally \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\paragraph{Standing assumptions for Theorem~1.}
-Only the perturbation theorem needs explicit analytical assumptions. We use:
-\begin{enumerate}
-\item bounded query norm $\|q\| \le Q_{\max}$;
-\item bounded value norm $\|v_t\| \le V_{\max}$;
-\item row-wise key perturbation bound $\|e_t\| \le \rho$.
-\end{enumerate}
-The propositions do not rely on these boundedness assumptions.
-
-\begin{proposition}{Stationary key-side steering does not introduce an explicit coverage variable}{}{}
-Fix a linear map $P$ and scalar $\alpha$, and apply the same key-side operator
- \begin{equation*}
- k'=(I+\alpha P)k.
- \end{equation*}
-at every decoding step. Then the intervention itself carries no information about whether a facet has already been emitted. In particular, two decoding histories that induce the same current key tensor receive exactly the same transformed keys, regardless of which facet was used earlier.
-\end{proposition}
-
-\paragraph{Interpretation.}
-The proposition is structural rather than statistical. A time-invariant key operator may still help on a single-target benchmark, but it contributes no explicit state variable that can say ``this facet is already covered.'' Any such distinction must already be encoded in the model state before the operator is applied. Appendix~A gives a short proof.
-
-\paragraph{What it does not prove.}
-The proposition does not say that key-side steering is always useless. It says only that a stationary key-side map does not \emph{by itself} add an explicit coverage variable for sequential multi-tool recovery.
-
-\begin{proposition}{Query-side suppression is the simplest history-free coverage surrogate}{}{}
-Let $P_{\mathrm{ont}}$ be the orthogonal projector onto the ontology subspace and define
- \begin{equation*}
- q'=(I+\beta P_{\mathrm{ont}})q,
- \end{equation*}
-with $\beta<0$. Then every ontology-aligned coefficient of $q$ is uniformly contracted, while the component orthogonal to the ontology subspace is unchanged. Thus negative query-side bias is the simplest history-free operator that reduces repeated use of dominant ontology-aligned mass without introducing an external controller.
-\end{proposition}
-
-\paragraph{Interpretation.}
-This does not prove that the operator tracks exact facet coverage. It proves something narrower and sufficient for the experiments: among history-free linear edits on the ontology subspace, negative query-side bias has the correct sign semantics for discouraging repeated facet reuse. Appendix~A provides the algebra.
-
-\paragraph{What it does not prove.}
-The proposition does not establish that the model will always switch to the correct second tool. It only identifies the simplest history-free linear edit whose sign acts against repeated reuse of the dominant emitted facet.
-
-\begin{theorem}{Attention-weighted perturbation bound}{}{}
-Let $q$ be a query, $K$ the unperturbed key matrix, $\hat K = K + E$ a perturbed key matrix with row-wise errors $\|e_t\| \le \rho$, and let $\hat o(q)$ and $o(q)$ denote the corresponding attention outputs. Define
- \begin{equation*}
- \begin{aligned}
- \alpha_t(q) &= \frac{q \cdot e_t}{\sqrt d},\\
- \mathrm{qaMSE}(q;E) &= \sum_{t=1}^{T} s_t(q)\,\alpha_t(q)^2,
- \end{aligned}
- \end{equation*}
-where $s_t(q)$ are the original attention weights. Under bounded-query and bounded-value assumptions, there exists an explicit constant
- \begin{equation*}
- C_1=\frac{2 Q_{\max}^4 V_{\max}^2}{d^2}
- \end{equation*}
-such that
- \begin{equation*}
- \mathbb{E}_{q}\|\hat o(q)-o(q)\|^2
- \le
- 2\,\mathbb{E}_{q}\!\left[\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)\right]
- + C_1\rho^4.
- \end{equation*}
+\begin{theorem}[Stationary K is independent of emitted state]\label{thm:no-memory}
+For the stationary K-side operator in~\eqref{eq:ops}, if two decoding histories $h, h'$ induce the same hidden state $x$ but differ in their already-emitted tool sets, then $K'(h) = K'(h')$.
 \end{theorem}
 
-\paragraph{Interpretation.}
-The theorem is easier to read if separated into its two roles. The first term is the attention-weighted first-order contribution, which depends on query-aligned key error and value variance. The second term is a higher-order remainder controlled by $\rho^4$. Table~\ref{tab:bound} then supplies the empirical check: the measured perturbation-to-bound ratios remain extremely small on both Qwen and Llama, with medians $2.36\times 10^{-8}$ and $6.37\times 10^{-8}$. This does not prove end-to-end accuracy, but it does justify using the perturbation language as a conservative diagnostic when comparing Q-side and K-side operators. Appendix~A contains the proof in four explicit steps.
+\emph{Proof.} $K' = K + \alpha K P_{\mathrm{ont}}$ is a function only of $(K, \alpha, P_{\mathrm{ont}})$, all three of which are history-invariant. $\square$
 
-\paragraph{What it does not prove.}
-The theorem is not a benchmark theorem. It does not imply that smaller qaMSE always yields better tool-selection F1, only that the attention-output perturbation induced by key error is controlled in the stated way under the listed assumptions.
+The same argument applies to AdaSEKA (expert selection is a function of $x$, so the same $x$ yields the same transformation). The observable consequence is a rise in \texttt{repeated\_first\_tool\_rate} (Corollary~\ref{cor:seka-repeat}, Appendix).
 
-\begin{remark}{}{}{}
-The evaluated operator is history-free. It suppresses projection onto the ontology subspace rather than explicitly tracking emitted facets, so the theory is intentionally scoped to sign, specificity, and perturbation stability. Exact step-adaptive coverage control would require additional state and is outside the method studied here.
-\end{remark}
+\begin{theorem}[Geometry of the Q-projection]\label{thm:q-sign}
+For $\beta < 0$ in~\eqref{eq:ops}, $q'$ scales the ontology component of $q$ uniformly by $(1+\beta)$ and preserves the orthogonal component.
+\end{theorem}
+
+\emph{Proof.} From $P_{\mathrm{ont}}^2 = P_{\mathrm{ont}}$, $q' P_{\mathrm{ont}} = (1+\beta) q P_{\mathrm{ont}}$ and $q'(I-P_{\mathrm{ont}}) = q(I-P_{\mathrm{ont}})$. $\square$
+
+This is the simplest history-free rotation of ``trust the dominant ontology component less,'' unifying the three operators in~\eqref{eq:ops} as \emph{rotational steering on the ontology subspace}.
+
+\begin{theorem}[Attention output: exact integral remainder]\label{thm:bound}
+For $\phi(\tau) := \sum_t \mathrm{softmax}(\ell(q) + \tau\alpha(q))_t v_t$, the identity $\hat o(q) - o(q) = L(q, E) + R(q, E)$ holds exactly, and under bounded norms $\|\hat o - o\|^2 \le 2\,\mathrm{Var}_s\alpha(q)\cdot \mathrm{Var}_s[V](q) + C_1\rho^4$, with $C_1 = 2 Q_{\max}^4 V_{\max}^2/d^2$.
+\end{theorem}
+
+This is a diagnostic tool. Full forms of $L$ and $R$ and the four-step proof are in Appendix~\ref{app:proof:bound}.
+
+\paragraph{Regime-split prediction.}
+The choice $\tau = 1/4$ for the layer-adaptive operator is conditional on an empirical premise E1 (transformer depth stages: early for information encoding, middle for stabilization, late for output convergence). Combining E1 with Theorem~\ref{thm:no-memory} yields the prediction that the marginal benefit of K-imprinting decays as $(1 - \varphi(j-1))$ with tool-sequence position $j$ (Proposition~\ref{prop:ladapt-intuition} and Corollary~\ref{cor:regime}, Appendix). The prediction is tested directly by the $\tau^2$-retail smoke in \S\ref{sec:exp:performance} and by the layer-boundary sweep in Appendix~\ref{app:layer-sweep}.

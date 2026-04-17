@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""eval_tau2bench_epsilon_q.py — τ²-bench retail per-step tool prediction + ε_q plan predictor.
+"""eval_tau2bench_epsilon_q.py — τ²-bench retail diagnostic proxy.
 
-Per-step proxy: for each task, construct single-turn FC prompt at each step
-(oracle GT for prior steps), generate tool_call, measure ε_q and accuracy.
-Then compute AUROC(min_eps_q → conversation success).
+This file is not an official tau2-bench evaluator. It does not execute the full
+conversation environment or the benchmark's native task scorer. Instead it uses
+oracle prior actions, predicts the next tool at each step, and reports a
+diagnostic `epsilon_q` summary together with a proxy success label.
+
+Its output must therefore be treated as diagnostic or placeholder evidence
+only, not as a paper-grade tau2 headline result.
 """
 from __future__ import annotations
 import argparse, json, os, re, sys, time
@@ -231,6 +235,21 @@ def main():
     print(f"{'='*50}", flush=True)
 
     blob = {
+        "benchmark": "tau2_retail_diagnostic_proxy",
+        "evaluation_status": "diagnostic_proxy_only",
+        "official_tau2_task_evaluator": False,
+        "scorer": "per_step_next_tool_accuracy_plus_eps_q_v1",
+        "prompt_template_id": "tau2_single_step_fc_proxy_v1",
+        "decode_policy": {
+            "do_sample": False,
+            "max_new_tokens": args.max_new_tokens,
+            "pad_token_id": tok.eos_token_id,
+        },
+        "runtime_config": {
+            "device": args.device,
+            "torch_dtype": "torch.bfloat16",
+            "attn_implementation": "eager",
+        },
         "model": args.model, "beta": beta, "hook_layer": L_hook,
         "n_tasks": n_tasks, "n_success": n_success,
         "success_rate": n_success / max(n_tasks, 1),

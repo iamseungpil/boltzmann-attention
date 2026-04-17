@@ -40,7 +40,11 @@ sys.path.insert(0, str(REPO / "scripts" / "ocq"))
 from src.model.seka_llm import SEKALLM  # noqa: E402
 
 from eval_metatool_subtask4 import (  # noqa: E402
-    build_fc_prompt, extract_tool_names, compute_metrics,
+    build_fc_prompt,
+    extract_tool_name_sequence,
+    extract_tool_names,
+    compute_metrics,
+    compute_stepwise_metrics,
 )
 from eval_metatool_subtask1 import parse_candidates  # noqa: E402
 
@@ -134,6 +138,16 @@ def run_seka_eval(seka_model: SEKALLM, data: List[dict], amplify_pos: float,
     per_sample = []
     aggregated = {k: 0.0 for k in
                   ["F1", "F_0.5", "EU", "Jaccard", "Exact", "precision", "recall"]}
+    stepwise_aggregated = {k: 0.0 for k in [
+        "emitted_any_rate",
+        "emitted_two_rate",
+        "emitted_two_distinct_rate",
+        "first_tool_hit_rate",
+        "second_tool_hit_rate",
+        "second_distinct_hit_rate",
+        "second_recovery_given_first_hit_rate",
+        "repeated_first_tool_rate",
+    ]}
     t0 = time.time()
     for i, entry in enumerate(data):
         action_prompt = entry["action_prompt"]
@@ -150,15 +164,20 @@ def run_seka_eval(seka_model: SEKALLM, data: List[dict], amplify_pos: float,
             gen_text = out if isinstance(out, str) else out[0]
         except Exception as e:
             gen_text = f"[ERROR] {e!r}"
+        pred_sequence = extract_tool_name_sequence(gen_text, cands)
         pred = extract_tool_names(gen_text, cands)
         metrics = compute_metrics(pred, gt)
+        stepwise = compute_stepwise_metrics(pred_sequence, gt)
         for k in aggregated:
             aggregated[k] += metrics[k]
+        for k in stepwise_aggregated:
+            stepwise_aggregated[k] += stepwise[k]
         per_sample.append({
             "index": entry.get("index", i),
             "gt": gt, "pred": pred,
+            "pred_sequence": pred_sequence,
             "generation_head": gen_text[:300],
-            "metrics": metrics,
+            "metrics": metrics, "stepwise": stepwise,
         })
         if i % 10 == 0:
             print(f"  [{i}/{len(data)}] gt={gt[:2]} pred={pred[:2]} F1={metrics['F1']:.3f}",
@@ -167,8 +186,10 @@ def run_seka_eval(seka_model: SEKALLM, data: List[dict], amplify_pos: float,
     N = len(data)
     for k in aggregated:
         aggregated[k] = aggregated[k] / max(N, 1)
+    for k in stepwise_aggregated:
+        stepwise_aggregated[k] = stepwise_aggregated[k] / max(N, 1)
     return {"amplify_pos": amplify_pos, "n_queries": N,
-            "macro": aggregated, "runtime_s": runtime,
+            "macro": aggregated, "stepwise": stepwise_aggregated, "runtime_s": runtime,
             "per_sample": per_sample}
 
 
@@ -220,6 +241,16 @@ def main():
     no_steer_per_sample = []
     no_steer_agg = {k: 0.0 for k in
                     ["F1", "F_0.5", "EU", "Jaccard", "Exact", "precision", "recall"]}
+    no_steer_stepwise = {k: 0.0 for k in [
+        "emitted_any_rate",
+        "emitted_two_rate",
+        "emitted_two_distinct_rate",
+        "first_tool_hit_rate",
+        "second_tool_hit_rate",
+        "second_distinct_hit_rate",
+        "second_recovery_given_first_hit_rate",
+        "repeated_first_tool_rate",
+    ]}
     t0 = time.time()
     for i, entry in enumerate(data):
         action_prompt = entry["action_prompt"]
@@ -233,21 +264,27 @@ def main():
         )
         gen_text = seka.tok.decode(
             out[0, ids["input_ids"].shape[1]:], skip_special_tokens=True)
+        pred_sequence = extract_tool_name_sequence(gen_text, cands)
         pred = extract_tool_names(gen_text, cands)
         m = compute_metrics(pred, gt)
+        stepwise = compute_stepwise_metrics(pred_sequence, gt)
         for k in no_steer_agg: no_steer_agg[k] += m[k]
+        for k in no_steer_stepwise: no_steer_stepwise[k] += stepwise[k]
         no_steer_per_sample.append({
             "index": entry.get("index", i), "gt": gt, "pred": pred,
-            "generation_head": gen_text[:300], "metrics": m,
+            "pred_sequence": pred_sequence,
+            "generation_head": gen_text[:300], "metrics": m, "stepwise": stepwise,
         })
     N = len(data)
     for k in no_steer_agg: no_steer_agg[k] /= max(N, 1)
+    for k in no_steer_stepwise: no_steer_stepwise[k] /= max(N, 1)
     print(f"[eval] no_steer F1={no_steer_agg['F1']:.3f} runtime={time.time()-t0:.1f}s",
           flush=True)
 
     # 5) Sweep amplify_pos
     results = [{"method": "no_steer", "amplify_pos": 0.0,
                 "n_queries": N, "macro": no_steer_agg,
+                "stepwise": no_steer_stepwise,
                 "per_sample": no_steer_per_sample}]
     for amp in args.amplify:
         print(f"\n[eval] SEKA amplify_pos={amp}", flush=True)
@@ -259,9 +296,25 @@ def main():
         results.append({"method": f"real_seka_amp{amp}", **r})
 
     out_blob = {
-        "model": args.model, "b_ont": args.b_ont,
+        "model": args.model,
+        "b_ont": args.b_ont,
         "p_pos_path": str(p_pos_path),
-        "layers": args.layers, "n_queries": N,
+        "layers": args.layers,
+        "n_queries": N,
+        "prompt_template_id": "fc_chat_template_v1_with_query_markers",
+        "scorer": "generation_tool_call_set_v1",
+        "decode_policy": {
+            "do_sample": False,
+            "max_new_tokens": args.max_new_tokens,
+            "pad_token_id": seka.tok.eos_token_id,
+        },
+        "runtime_config": {
+            "device": args.device,
+            "attn_implementation": args.attn_impl,
+            "torch_dtype": "torch.bfloat16",
+            "marker_start": args.marker_start,
+            "marker_end": args.marker_end or args.marker_start,
+        },
         "results": results,
     }
     with open(out_path, "w") as f:

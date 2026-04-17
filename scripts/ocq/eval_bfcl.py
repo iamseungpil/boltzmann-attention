@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""eval_bfcl.py — BFCL v3 evaluation with Q-coverage and K-bias hooks.
+"""eval_bfcl.py — BFCL v3 proxy evaluation with Q-coverage and K-bias hooks.
 
-Tests simple (1-function) vs parallel (multi-function) to show
-Q-coverage's multi-tool advantage matches MetaTool findings.
+This file is a screening harness, not an official BFCL evaluator.
+It uses function-name set overlap rather than BFCL's AST-based scoring, so
+its output must be treated as proxy evidence only.
+
+Its practical role is to compare simple (1-function) versus parallel or
+multiple (multi-function) behavior under the same steering hooks.
 """
 from __future__ import annotations
 import argparse, json, os, re, sys, time
@@ -141,7 +145,24 @@ def main():
     n_kv = model.config.num_key_value_heads
     head_dim = getattr(model.config, "head_dim", None) or (model.config.hidden_size // model.config.num_attention_heads)
 
-    all_results = {}
+    all_results = {
+        "benchmark": "BFCL_v3_proxy",
+        "evaluation_status": "proxy_only",
+        "scorer": "function_name_set_overlap_v1",
+        "official_bfcl_ast_scorer": False,
+        "prompt_template_id": "bfcl_chat_template_v1",
+        "decode_policy": {
+            "do_sample": False,
+            "max_new_tokens": args.max_new_tokens,
+            "pad_token_id": tok.eos_token_id,
+        },
+        "runtime_config": {
+            "device": args.device,
+            "torch_dtype": "torch.bfloat16",
+            "attn_implementation": "eager",
+        },
+        "results": {},
+    }
 
     for subset_name in args.subsets:
         print(f"\n{'='*50}\n[bfcl] Subset: {subset_name}", flush=True)
@@ -194,7 +215,7 @@ def main():
             print(f"  {method}: F1={macro['f1']:.4f} Exact={macro['exact']:.4f} ({runtime:.1f}s)", flush=True)
 
             key = f"{subset_name}_{method}"
-            all_results[key] = {
+            all_results["results"][key] = {
                 "subset": subset_name, "method": method,
                 "n": len(per_sample), "macro": macro,
                 "runtime_s": runtime, "per_sample": per_sample,

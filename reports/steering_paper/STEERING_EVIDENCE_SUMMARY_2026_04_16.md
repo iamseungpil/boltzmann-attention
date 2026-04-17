@@ -14,11 +14,13 @@ The paper should be driven by the first category only.
 
 ## 2. Central Intent
 
-The paper is not a generic activation-steering paper and it is not a cache-compression paper. The narrow claim is:
+The paper is not a generic activation-steering paper and it is not a cache-compression paper. The paper-safe center is now two-tiered:
 
-> For multi-tool sequential selection, a small ontology-guided query-side suppression has the correct sign and basis specificity, while stationary key-side amplification on the same basis is structurally mismatched.
+> Tier 1: for multi-tool sequential selection, ontology-guided query-side contraction has the correct sign and basis specificity, while stationary key-side amplification on the same basis is structurally mismatched.
+>
+> Tier 2: within Qwen Subtask4, two stronger operator variants emerge, namely full-subspace single-pass contraction and iterative emitted-state contraction with early-layer key assistance.
 
-This claim is narrow enough to defend and broad enough to matter.
+Tier 1 is cross-family and main-text safe. Tier 2 is real but currently Qwen-only, so it belongs in the operator-comparison layer of the paper rather than in the headline claim.
 
 ## 3. Verified Main Findings
 
@@ -95,7 +97,25 @@ Interpretation:
 - The effect is too localized to anchor the paper without cross-model confirmation.
 - This belongs in the appendix unless it reproduces cleanly on Llama as well.
 
-### 3.5 Stability does not come from “perturbing less”
+### 3.5 Qwen operator comparison: two stronger variants are real
+
+The 2026-04-17 result bundle adds a Qwen-only operator comparison on the same Subtask4 benchmark:
+
+| Method | Macro F1 | Exact | Delta F1 vs baseline | Interpretation |
+|---|---:|---:|---:|---|
+| `no_steer` | 0.7307 | 0.5252 | 0.0000 | baseline |
+| `ocq_qbias_b-0.1` | 0.7471 | 0.5272 | +0.0165 | cross-family-safe Q-only point |
+| `ocq_qbias_b-0.03` | 0.7535 | 0.5332 | +0.0229 | full-subspace single-pass contraction |
+| `iterative_kq` | 0.7524 | 0.5473 | +0.0218 | emitted-state contraction + early-layer K assist |
+| `multipass_kq` | 0.7410 | 0.5091 | +0.0104 | recall-leaning but less F1-efficient |
+
+Interpretation:
+
+- The stronger `+2.2pp` story is real on Qwen.
+- The two best Qwen operators are close in F1 but differ in behavior: `ocq_qbias_b-0.03` is precision-first, while `iterative_kq` gives the strongest Exact improvement.
+- This does not yet replace the cross-family sign story because the stronger variants have not been locked on Llama under the same protocol.
+
+### 3.6 Stability does not come from “perturbing less”
 
 Effective perturbation magnitude:
 
@@ -111,7 +131,7 @@ Interpretation:
 - The real basis perturbs more and still remains the only stable useful direction.
 - This supports a “specific stable subspace” interpretation.
 
-### 3.6 Perturbation theorem is diagnostic, not decorative
+### 3.7 Perturbation theorem is diagnostic, not decorative
 
 Empirical bound checks:
 
@@ -141,6 +161,7 @@ The strongest internally coherent story, after reading the v1-to-v3 reports toge
 - Query-side suppression on an ontology basis has the correct sign for discouraging repeated dominant facet reuse.
 - The gain is small but sign-consistent.
 - The basis-specificity evidence is much stronger than the raw average gain.
+- On Qwen, stronger operator variants exist, but they should currently be read as operator-selection evidence rather than as cross-family mechanism proof.
 
 ### 4.3 What the paper should say
 
@@ -183,7 +204,8 @@ The paper becomes vulnerable if it sounds like “we beat SEKA” without a matc
 - Scorer-robustness notes.
 - Perturbation-bound details.
 - Baseline integration notes and matched-comparison protocol.
-- External robustness benchmark such as BFCL if it is clean.
+- Qwen operator comparison beyond the main cross-family table.
+- External robustness benchmarks only when their evaluators are official enough to be auditable.
 
 ## 7. Claims to Remove or Weaken
 
@@ -194,10 +216,35 @@ These claims appeared in older reports or broader drafts and should not drive th
 - “The paper is also a cache-compression contribution.”
 - “A large SEKA gap is already established.”
 - “Dynamic layer-adaptive Q+K is already a verified main method.”
+- “tau2-bench already validates the main paper claim.”
 
-## 8. Immediate Paper-Completion Priorities
+## 8. External Benchmark Status
+
+### 8.1 tau2-bench
+
+- Current repo state: ontology builder exists, but the available evaluator is `eval_tau2bench_epsilon_q.py`, which is a per-step next-tool and $\epsilon_q$ diagnostic rather than the official full multi-turn success harness.
+- Decision: tau2 is placeholder-only for the current paper package.
+- Reason: it is too far from the locked Subtask4 claim, and the available code does not yet support a fair headline result.
+
+### 8.2 BFCL
+
+- Current repo state: `eval_bfcl.py` exists, but it uses function-name set matching rather than official BFCL AST-based scoring.
+- Decision: BFCL is supporting-only, and only as a screening benchmark until the official scorer is integrated.
+- Reason: it is useful for stress-testing single-tool versus multi-tool behavior, but the present evaluator is still a proxy.
+
+## 9. Immediate Paper-Completion Priorities
 
 ### Priority 1
+
+Lock the two-method operator comparison across model families:
+
+- `ocq_qbias_b-0.03`,
+- `iterative_kq`,
+- plus `no_steer` and stationary `K-bias` under the same protocol.
+
+This is the highest-value next step because it decides whether the Qwen `+2.2pp` story is paper-safe or just a single-model curiosity.
+
+### Priority 2
 
 Add the cleanest possible stepwise coverage analysis on Subtask4:
 
@@ -207,7 +254,7 @@ Add the cleanest possible stepwise coverage analysis on Subtask4:
 
 This is the single most valuable missing experiment because it tests the claimed mechanism directly.
 
-### Priority 2
+### Priority 3
 
 Stabilize one matched external comparison:
 
@@ -215,9 +262,7 @@ Stabilize one matched external comparison:
 - AdaSEKA,
 - or one clearly documented external baseline family under one locked protocol.
 
-### Priority 3
-
-Add at most one external robustness benchmark, preferably BFCL simple versus parallel/multiple, because it naturally separates single-tool and multi-tool behavior.
+External breadth comes after this point. If an additional benchmark is needed before submission, BFCL is the only reasonable candidate, and even then only after its scorer is official enough to audit.
 
 ## 9. Out of Scope for This Paper
 

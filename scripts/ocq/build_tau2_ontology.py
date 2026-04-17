@@ -120,6 +120,21 @@ DOMAIN_CATEGORIES = {
         "passenger":   [r"passenger"],
         "certificate": [r"certificate"],
     },
+    "telecom": {
+        "network":   [r"network", r"apn", r"roaming", r"wifi", r"airplane", r"data_saver", r"toggle"],
+        "device":    [r"device", r"reboot", r"sim", r"reseat"],
+        "data":      [r"data", r"refuel", r"vpn"],
+        "line":      [r"line", r"resume"],
+        "payment":   [r"payment", r"make_payment", r"send_payment"],
+        "permission": [r"permission", r"grant", r"app"],
+    },
+    "banking_knowledge": {
+        "account":   [r"credit_card", r"account"],
+        "user":      [r"user", r"email", r"verification"],
+        "referral":  [r"referral"],
+        "transaction": [r"transaction"],
+        "agent":     [r"agent", r"discoverable", r"transfer", r"human"],
+    },
 }
 DOMAIN_FALLBACK = "utility"  # e.g. "calculate" / "transfer_to_human_agents"
 
@@ -360,7 +375,7 @@ def build_ontology(tools: List[dict], domain: str) -> Tuple[dict, List[dict]]:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
-    p.add_argument("--domain", choices=["retail", "airline"], required=True)
+    p.add_argument("--domain", choices=["retail", "airline", "telecom", "banking_knowledge"], required=True)
     p.add_argument(
         "--tools-py", type=str, default="",
         help="Override path to tools.py; defaults to external/tau2-bench/"

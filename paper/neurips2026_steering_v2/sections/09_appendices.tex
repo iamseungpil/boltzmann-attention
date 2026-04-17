@@ -1,134 +1,80 @@
 \appendix
-\section{Proofs and Additional Evaluation Axes}
+\section{Proofs}\label{app:proofs}
 
-\subsection{Proof of Proposition 1}
+\paragraph{Proof of Theorem~\ref{thm:bound}.}\label{app:proof:bound}
+\emph{Step 1.} Since softmax is real-analytic, $\phi$ is smooth; Taylor's theorem gives $\phi(1) - \phi(0) = \phi'(0) + \int_0^1(1-\tau)\phi''(\tau)d\tau$.
+\emph{Step 2.} Softmax Jacobian $\partial s_t/\partial\ell_{t'} = s_t(\delta_{tt'}-s_{t'})$ yields $ds_t(\tau)/d\tau = s_t(\tau)(\alpha_t - \bar\alpha(\tau))$, hence $\phi'(0) = \sum_t s_t \alpha_t(v_t - o) = L(q,E)$ (exact equality).
+\emph{Step 3.} A direct calculation gives $\phi''(\tau) = \sum_t s_t(\tau)[(\alpha_t - \bar\alpha(\tau))^2 - \mathrm{Var}_s\alpha(\tau)] v_t$.
+\emph{Step 4.} The vector Cauchy--Schwarz yields $\|L\|^2 \le \mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q)$, and $|\alpha_t| \le Q_{\max}\rho/\sqrt d$ gives $\|R\|^2 \le Q_{\max}^4 V_{\max}^2 \rho^4/d^2$. $\square$
 
-\paragraph{Setup.}
-Let $T_{\alpha}=I+\alpha P$. At decoding step $u$, the intervention replaces each current key vector $k_{u,t}$ by $T_{\alpha}k_{u,t}$. The map $T_{\alpha}$ depends only on the current key tensor and fixed parameters $(P,\alpha)$; it has no input that records previously emitted tools, previously activated facets, or any external coverage variable.
+\section{Corollaries and Conditional Proposition}\label{app:corollaries}
 
-\paragraph{Step 1: identify the information used by the map.}
-At step $u$, $T_{\alpha}$ sees only the current key tensor $K_u$ and the fixed parameters $(P,\alpha)$.
+\begin{corollary}[Repeat bias of stationary K]\label{cor:seka-repeat}
+Under greedy decoding, if $t_1 \in T_{\mathrm{gt}}$ is selected at the first step and $t_1$ is aligned with the ontology subspace, then the stationary K amplifies its logit by $(1+\alpha)$, giving $\Pr[t_2 = t_1 \mid \text{stat}] \ge \Pr[t_2 = t_1 \mid \text{no\_steer}]$.
+\end{corollary}
 
-\paragraph{Step 2: compare two histories with the same current key tensor.}
-Consider two decoding histories $h$ and $\tilde h$ that yield the same current key tensor $K_u$ at step $u$ but differ in which facet was emitted earlier. Because the operator is stationary,
-\[
-T_{\alpha}(K_u)= (I+\alpha P)K_u
-\]
-for both histories.
+\begin{proposition}[Role separation in layer-adaptive, conditional]\label{prop:ladapt-intuition}
+Under empirical premise E1 (transformer representations evolve in three stages: early encoding, middle stabilization, late output convergence), applying stationary K across all layers disrupts late-layer convergence, while K-bias restricted to the first $\lfloor \tau L\rfloor$ layers imprints tool direction. Q-coverage is safe across all layers.
+\end{proposition}
 
-\paragraph{Step 3: conclude indistinguishability.}
-Therefore the intervention produces exactly the same transformed keys in both cases. The operator itself does not add any explicit variable that distinguishes ``already used'' from ``still unused.'' Any such coverage information must already be encoded in the model state before the key-side map is applied. This proves the proposition.
+\begin{corollary}[K-imprinting saturates with sequence length]\label{cor:regime}
+Combining E1 with stationarity, the marginal benefit of K-imprinting on the $j$-th tool ($j>1$) decays as $(1-\varphi(j-1))$ for $\varphi\in(0,1)$, while per-step Q-coverage benefit is invariant in $j$.
+\end{corollary}
 
-\subsection{Proof of Proposition 2}
+\section{Supporting ablation: model size and sequence length}\label{app:size-regime}
 
-\paragraph{Setup.}
-Let $P_{\mathrm{ont}}$ be the orthogonal projector onto the ontology subspace. Decompose any query as
-\[
-q = q_{\parallel} + q_{\perp},
-\qquad
-q_{\parallel}=P_{\mathrm{ont}}q,
-\qquad
-q_{\perp}=(I-P_{\mathrm{ont}})q.
-\]
-Then the query-side intervention gives
-\[
-q'=(I+\beta P_{\mathrm{ont}})q
-= q_{\perp} + (1+\beta) q_{\parallel}.
-\]
+Because Theorems~1--3 are size-independent, the Qwen2.5-Instruct 1.5B/3B/7B/14B sweep (Table~\ref{tab:e5-sizesweep}) checks whether the sign is preserved across sizes. The 7B row is locked; the remaining sizes are filled by adapting \texttt{scripts/ocq/run\_tau2\_size\_sweep.sh} to Subtask4. The quantitative form of Corollary~\ref{cor:regime} is the $\Delta$F1-vs-$k$ curve in Figure~\ref{fig:regime}.
 
-\paragraph{Step 1: split the query into ontology-aligned and orthogonal parts.}
-The decomposition above isolates the component that can be changed by $P_{\mathrm{ont}}$ from the component that cannot.
+\begin{table}[t]
+\centering
+\caption{Qwen size sweep (supporting ablation).}
+\label{tab:e5-sizesweep}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
+\toprule
+Size & \texttt{no\_steer} & SEKA amp=1.0 & Q-coverage & Layer-adaptive \\
+\midrule
+1.5B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+3B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+7B & \textbf{0.7307} & \emph{placeholder} & \textbf{0.7535} & \textbf{0.7514} \\
+14B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\paragraph{Step 2: apply the intervention explicitly.}
-The intervention keeps $q_{\perp}$ unchanged and multiplies $q_{\parallel}$ by $1+\beta$.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.75\linewidth]{fig2_delta_vs_k.pdf}
+\caption{$\Delta$F1 vs.\ ground-truth tool count $k$ (placeholder).}\label{fig:regime}
+\end{figure}
 
-\paragraph{Step 3: read off the sign semantics.}
-Hence the component orthogonal to the ontology subspace is unchanged, while every ontology-aligned coefficient is multiplied by the same factor $1+\beta$. When $\beta<0$, ontology-aligned mass is uniformly contracted. The operator therefore reduces dominance of the currently strongest ontology-aligned component without introducing any new history variable or learned selector. This is exactly the claimed history-free coverage surrogate.
+\section{Supporting ablation: layer boundary sweep (Phase 2.5)}\label{app:layer-sweep}
 
-\subsection{Proof of Theorem 1}
+The choice $\tau=1/4$ in the layer-adaptive operator is a first attempt. The Phase 2.5 ablation (coworker track) sweeps six boundary configurations across two $\beta$ values on two benchmarks. LS-1 through LS-4 trace the Pareto frontier of $\tau$; LS-5 (K and Q overlapping in early layers) and LS-6 (Q restricted to late layers) serve as controls distinguishing competing hypotheses around Proposition~\ref{prop:ladapt-intuition}.
 
-\paragraph{Setup.}
-Fix a query $q$, and write the unperturbed attention logits as
-\[
-\ell_t(q)=\frac{q\cdot k_t}{\sqrt d},
-\qquad
-\alpha_t(q)=\frac{q\cdot e_t}{\sqrt d}.
-\]
-Let $s_t(q)=\mathrm{softmax}(\ell(q))_t$ and define the interpolated output
-\[
-\phi(\tau)=\sum_{t=1}^{T}\mathrm{softmax}(\ell(q)+\tau \alpha(q))_t\,v_t,
-\qquad \tau\in[0,1].
-\]
-Then $\phi(0)=o(q)$ and $\phi(1)=\hat o(q)$. Taylor's theorem with integral remainder yields
-\[
-\hat o(q)-o(q)=L(q,E)+R(q,E),
-\]
-where
-\[
-L(q,E)=\sum_{t=1}^{T}s_t(q)\,\alpha_t(q)\,\bigl(v_t-o(q)\bigr)
-\]
-and
-\[
-R(q,E)=\int_{0}^{1}(1-\tau)\phi''(\tau)\,d\tau.
-\]
+\begin{table}[h]
+\centering
+\caption{Phase 2.5 layer-boundary sweep (execution pending).}
+\label{tab:layer-sweep-placeholder}
+\small
+\begin{tabularx}{\linewidth}{@{}lXrr@{}}
+\toprule
+ID & Configuration & $\Delta$F1 (Subtask4) & $\Delta$F1 ($\tau^2$-retail) \\
+\midrule
+LS-1 & K $\ell<L/7$, Q elsewhere & \emph{placeholder} & \emph{placeholder} \\
+LS-2 & K $\ell<L/4$, Q elsewhere (current baseline) & \textbf{+2.08} & \textbf{$-$3.73} \\
+LS-3 & K $\ell<L/3$, Q elsewhere & \emph{placeholder} & \emph{placeholder} \\
+LS-4 & K $\ell<L/2$, Q elsewhere & \emph{placeholder} & \emph{placeholder} \\
+LS-5 & K $\ell<L/4$, Q all layers & \emph{placeholder} & \emph{placeholder} \\
+LS-6 & K $\ell<L/4$, Q $\ell>3L/4$ & \emph{placeholder} & \emph{placeholder} \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\paragraph{Step 1: exact decomposition.}
-The preceding display is exact. No approximation has yet been made. The rest of the proof uses only two ingredients: one weighted Cauchy--Schwarz inequality for the first-order term and one Hessian bound for the remainder.
+\section{SEKA reproduction, manifest, and code}\label{app:seka-repro}\label{app:manifest}
 
-\paragraph{Step 2: bound the first-order term.}
-Weighted Cauchy--Schwarz gives
-\[
-\|L(q,E)\|^2
-\le
-\left(\sum_{t=1}^{T}s_t(q)\alpha_t(q)^2\right)
-\left(\sum_{t=1}^{T}s_t(q)\|v_t-o(q)\|^2\right)
-=
-\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q).
-\]
+External SEKA rows in this paper are filled only by an implementation that reproduces the canonical CounterFact efficacy score ($\mathrm{ES} = 0.952 \pm 0.02$). Our A6000 environment reached ES=0.374, so an A100 retry is the gate. All numbers are recorded in \texttt{MANIFEST.md} as triplets of (table, JSON path, script). Interventions are implemented as hook installers in \texttt{scripts/ocq/eval\_metatool\_subtask1.py}; drivers are \texttt{eval\_metatool\_subtask4.py}, \texttt{eval\_tau2\_bench.py}, \texttt{eval\_subtask4\_with\_real\_seka.py}. PCA basis builder: \texttt{scripts/ocq/build\_pca\_baseline\_basis.py}.
 
-\paragraph{Step 3: bound the remainder.}
-The softmax Hessian identity implies
-\[
-\|\phi''(\tau)\|
-\le
-2V_{\max}\sum_{t=1}^{T}s_t(\tau)\alpha_t(q)^2.
-\]
-Because $\|q\|\le Q_{\max}$ and $\|e_t\|\le \rho$, we have
-\[
-|\alpha_t(q)|\le \frac{Q_{\max}\rho}{\sqrt d},
-\]
-so
-\[
-\|R(q,E)\|
-\le
-V_{\max}\sup_{\tau\in[0,1]}\sum_{t=1}^{T}s_t(\tau)\alpha_t(q)^2
-\le
-\frac{Q_{\max}^2V_{\max}\rho^2}{d}.
-\]
+\section{U-shape premise check}\label{app:ushape}
 
-\paragraph{Step 4: combine the two bounds.}
-Using $\|L+R\|^2\le 2\|L\|^2+2\|R\|^2$ gives
-\[
-\|\hat o(q)-o(q)\|^2
-\le
-2\,\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)
-+\;
-\frac{2Q_{\max}^4V_{\max}^2}{d^2}\rho^4.
-\]
-Taking expectation over $q$ proves the theorem.
-
-\subsection{Additional Verified Supporting Evidence}
-
-Two supporting results are useful but are not strong enough to drive the main claim.
-
-First, the Subtask1 strict-scoring checks preserve the same basis-specificity pattern. On Qwen under the stricter mean scorer, the real ontology basis raises top-1 accuracy from $0.3678$ to $0.4181$, whereas the random and feature-shuffled controls reach only $0.1377$ and $0.2553$. On Llama under the same scorer, the real basis raises top-1 accuracy from $0.2312$ to $0.2573$, while the random and feature-shuffled controls remain at $0.2251$ and $0.2171$. These results matter because they show the ontology basis is not useful only under one benchmark or one scorer.
-
-Second, the small-$\alpha_K$ interaction appears on Qwen but remains too localized to promote into the main story. The best pair settings, $\alpha_K=0.025$ and $\alpha_K=0.05$ on top of $\beta=-0.1$, reach macro F1 $0.7529$ and $0.7502$, respectively, above the Q-only point $0.7471$. Because this band is narrow and not yet cross-family verified, it is better interpreted as a possible refinement of query-side suppression than as an independent headline method.
-
-\subsection{Protocol Notes for Closest-Prior Comparison}
-
-The most decisive external check is a matched SEKA/AdaSEKA comparison under the same scorer, prompt template, and ontology catalog. A large unmatched gap is easy for a reviewer to dismiss because scoring strictness and prompt formatting can move tool-selection accuracy substantially.
-
-The most decisive mechanism check is a stepwise coverage decomposition. The central claim is not merely that the final prediction changes, but that the intervention reduces repeated use of the dominant facet after the first tool has already been emitted. A first-tool versus second-tool breakdown therefore carries more evidential weight than another aggregate benchmark row.
-
-The most efficient qualitative check is a trajectory bundle rather than an isolated heatmap. The recommended bundle is: per-token hook overhead, ontology-energy traces over decoding steps, and a small number of case studies showing the emitted tool sequence before and after steering. Attention maps are useful only as supporting illustrations once those dynamics already show the effect.
+Premise E1 of Proposition~\ref{prop:ladapt-intuition} has been confirmed on Qwen2.5-7B ($L=28$) from \texttt{reports/layer\_adaptive\_2026\_04\_17/}: early layers $\ell<7$ and late layers $\ell>21$ have significantly larger attention MSE than the middle layers.

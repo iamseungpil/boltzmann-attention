@@ -1,92 +1,38 @@
-\section{이론}
+\section{설정과 기제}\label{sec:theory}
 
-실험을 정당화하는 데 긴 형식 체계가 필요한 것은 아니다. 필요한 것은 세 가지다. 첫째와 둘째는 구조적 명제다. 왜 stationary key-side 증폭이 순차적 coverage와 어긋나는지, 왜 query-side suppression이 올바른 history-free 근사인지를 설명한다. 마지막 정리는 perturbation 언어를 엄밀한 부등식으로 고정한다.
+\paragraph{표기와 연산자.}
+단일 헤드 self-attention을 고려한다(멀티헤드는 헤드 직합). 레이어 $\ell$에서 질의 $q\in\mathbb{R}^d$, key $K\in\mathbb{R}^{T\times d}$, value $V\in\mathbb{R}^{T\times d_v}$, 교란 key $\hat K = K + E$. 원래 출력 $o(q) = \sum_t s_t(q) v_t$이고 $s_t(q) = \mathrm{softmax}(qK^\top/\sqrt d)_t$. 도구 카탈로그의 4-facet 온톨로지를 Gram-Schmidt로 직교화한 per-head 기저 $B_{\mathrm{ont}}\in\mathbb{R}^{d\times r}$와 사영 $P_{\mathrm{ont}} = B_{\mathrm{ont}} B_{\mathrm{ont}}^\top$를 통해 세 연산자를 정의한다:
+\begin{equation}\label{eq:ops}
+\underbrace{K' = K + \alpha K P_{\mathrm{ont}}}_{\text{정지 K (SEKA)}},\quad
+\underbrace{Q' = Q + \beta Q P_{\mathrm{ont}},\ \beta<0}_{\text{Q-커버리지 (ours)}},\quad
+\underbrace{\ell<\lfloor\tau L\rfloor\!:K';\ \text{모든 }\ell\!:Q'}_{\text{레이어 적응형 K+Q (ours)}}
+\end{equation}
+세 연산자가 같은 $B_{\mathrm{ont}}$를 쓰므로 결과 차이는 연산자 형식에만 귀속된다. 본 논문 전체가 사용하는 분석 가정은 유계 노름 하나뿐이다 (모든 $q,v_t,e_t$에 대해 $\|q\|\le Q_{\max}$, $\|v_t\|\le V_{\max}$, $\|e_t\|\le\rho$). $(q,K,V)$의 결합 분포에 대한 어떠한 제약도 두지 않는다.
 
-\paragraph{범위.}
-이 절의 역할은 의도적으로 좁다. 두 개의 구조적 사실과 하나의 진단용 perturbation bound를 증명한다. 반대로, benchmark F1을 직접 증명하지 않으며, exact facet-history tracking도 주장하지 않는다.
+\paragraph{핵심 세 주장.}
+본 논문의 이론은 세 개의 주장으로 축약된다. 완전한 증명은 부록~\ref{app:proofs}, 따름정리와 조건부 명제는 부록~\ref{app:corollaries}에 있다.
 
-\begin{table}[t]
-\centering
-\caption{본문 핵심 주장들의 증명 상태.}
-\label{tab:proof-status-ko}
-\small
-\begin{tabularx}{\linewidth}{@{}Xlll@{}}
-\toprule
-주장 & 유형 & 완전 증명 여부 & 추가 모델링 가정 의존성 \\
-\midrule
-Stationary key-side steering은 explicit coverage variable을 도입하지 않는다 & 구조적 & 예 & 거의 없음 \\
-음의 query-side projection은 coverage에 맞는 부호 의미를 가진다 & 구조적 & 예 & 거의 없음 \\
-Attention output perturbation은 qaMSE와 $\rho^4$ remainder로 제어된다 & 진단용 & 예 & boundedness 가정 필요 \\
-Q-bias가 MetaTool Subtask4의 second-tool recovery를 높인다 & 경험적 & 아니오 & 실험으로 보여야 함 \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\paragraph{정리 1의 상시 가정.}
-Perturbation 정리에는 다음의 분석 가정만 쓴다:
-\begin{enumerate}
-\item bounded query norm $\|q\| \le Q_{\max}$;
-\item bounded value norm $\|v_t\| \le V_{\max}$;
-\item row-wise key perturbation bound $\|e_t\| \le \rho$.
-\end{enumerate}
-앞의 두 명제는 이런 boundedness 가정에 의존하지 않는다.
-
-\begin{proposition}{Stationary key-side steering은 explicit coverage variable을 도입하지 않는다}{}{}
-선형사상 $P$와 스칼라 $\alpha$를 고정하고, 모든 디코딩 단계에서 같은 key-side 연산자
- \begin{equation*}
- k'=(I+\alpha P)k
- \end{equation*}
-를 적용하자. 그러면 이 개입 자체는 어떤 facet이 이미 방출되었는지에 대한 정보를 담을 수 없다. 특히 현재 key tensor가 같다면, 과거에 어떤 facet이 사용되었는지와 무관하게 변환된 key는 완전히 동일하다.
-\end{proposition}
-
-\paragraph{해석.}
-이 명제는 통계적이기보다 구조적이다. 시간에 대해 불변인 key 연산자는 single-target 벤치마크에서는 도움을 줄 수 있어도, ``이 facet은 이미 썼다''라는 explicit state를 스스로 추가하지는 못한다. 그런 정보는 key-side 연산자 바깥의 모델 상태에 이미 들어 있어야 한다. 부록 A에 짧은 증명을 실었다.
-
-\paragraph{증명하지 않는 것.}
-이 명제는 key-side steering이 항상 무의미하다고 말하지 않는다. 다만 stationary key-side map만으로는 순차적 멀티-툴 복원에 필요한 explicit coverage variable을 새로 도입하지 못한다고 말한다.
-
-\begin{proposition}{Query-side suppression은 가장 단순한 history-free coverage 근사다}{}{}
-온톨로지 부분공간으로의 직교사영을 $P_{\mathrm{ont}}$라고 하고
- \begin{equation*}
- q'=(I+\beta P_{\mathrm{ont}})q
- \end{equation*}
-를 $\beta<0$에서 정의하자. 그러면 $q$의 ontology-aligned coefficient는 모두 균일하게 축소되고, ontology subspace에 직교한 성분은 그대로 유지된다. 따라서 음의 query-side bias는 외부 상태를 추가하지 않으면서도 지배적인 ontology-aligned mass의 반복 사용을 줄이는 가장 단순한 history-free 연산자다.
-\end{proposition}
-
-\paragraph{해석.}
-이 명제가 exact facet tracking을 증명하는 것은 아니다. 더 좁고 충분한 사실만을 보여준다. history-free 선형 편집 가운데, 음의 query-side bias는 반복 facet 사용을 줄이는 데 맞는 부호 의미를 가진다. 실제 대수 전개는 부록 A에 정리했다.
-
-\paragraph{증명하지 않는 것.}
-이 명제는 모델이 항상 올바른 두 번째 도구로 전환된다는 것을 보장하지 않는다. 다만 외부 상태 없이 쓸 수 있는 history-free 선형 편집 가운데, 반복 facet 사용을 억제하는 부호 의미를 가진 가장 단순한 연산자를 식별한다.
-
-\begin{theorem}{Attention-weighted perturbation bound}{}{}
-질의 $q$, 원래 key 행렬 $K$, row-wise 오차 $\|e_t\|\le\rho$를 갖는 교란 key 행렬 $\hat K=K+E$, 그리고 대응하는 attention output $\hat o(q), o(q)$를 두자. 또한
- \begin{equation*}
- \begin{aligned}
- \alpha_t(q) &= \frac{q\cdot e_t}{\sqrt d},\\
- \mathrm{qaMSE}(q;E) &= \sum_{t=1}^{T}s_t(q)\,\alpha_t(q)^2
- \end{aligned}
- \end{equation*}
-를 정의하자. 여기서 $s_t(q)$는 원래 attention weight다. bounded-query, bounded-value 가정 아래에서
- \begin{equation*}
- C_1=\frac{2Q_{\max}^4V_{\max}^2}{d^2}
- \end{equation*}
-라는 명시적 상수가 존재하여
- \begin{equation*}
- \mathbb{E}_{q}\|\hat o(q)-o(q)\|^2
- \le
- 2\,\mathbb{E}_{q}\!\left[\mathrm{qaMSE}(q;E)\,\mathrm{Var}_{s}[V](q)\right]
- + C_1\rho^4
- \end{equation*}
-가 성립한다.
+\begin{theorem}[정지 K는 방출 상태를 담을 수 없다]\label{thm:no-memory}
+\eqref{eq:ops}의 정지 K-측 연산자를 쓰자. 두 디코딩 히스토리 $h, h'$가 같은 hidden state $x$를 낳지만 이미 방출된 도구 집합에서 다르다면 $K'(h) = K'(h')$이다.
 \end{theorem}
 
-\paragraph{해석.}
-엄밀한 부분은 이 정리 자체이고, 경험적 검증은 그 다음 단계다. 이 정리는 두 항으로 읽으면 이해가 쉽다. 첫 번째 항은 attention-weighted 1차 기여이고, 두 번째 항은 $\rho^4$로 제어되는 고차 remainder다. 표~\ref{tab:bound-ko}는 측정된 perturbation-to-bound ratio의 중앙값이 Qwen에서는 $2.36\times 10^{-8}$, Llama에서는 $6.37\times 10^{-8}$임을 보여준다. 이 정리가 end-to-end accuracy를 증명하는 것은 아니지만, Q-side와 K-side 개입을 비교할 때 perturbation 언어를 보수적인 진단 도구로 쓰는 것은 정당화한다. 증명은 부록 A에 네 단계로 나누어 제시한다.
+\emph{증명.} $K' = K + \alpha K P_{\mathrm{ont}}$는 $(K,\alpha,P_{\mathrm{ont}})$만의 함수이고 셋 다 히스토리 불변이다. $\square$
 
-\paragraph{증명하지 않는 것.}
-이 정리는 benchmark theorem이 아니다. qaMSE가 더 작으면 반드시 tool-selection F1이 더 좋다고 말하는 것이 아니라, 주어진 boundedness 가정 아래에서 key 오차가 attention output을 얼마나 교란하는지를 제어하는 진단식을 준다.
+같은 논증이 AdaSEKA에도 적용된다(입력에 따른 전문가 선택은 $x$의 함수이므로 같은 $x$를 낳는 두 히스토리에서 동일). 이 구조적 성질의 관측 가능한 귀결은 \texttt{repeated\_first\_tool\_rate}의 상승이다(따름정리~\ref{cor:seka-repeat}, 부록).
 
-\begin{remark}{}{}{}
-평가한 연산자는 history-free다. ontology subspace로의 사영을 억제할 뿐, 이미 방출된 facet을 명시적으로 추적하지는 않는다. 따라서 이론의 역할도 의도적으로 좁다. 정확한 step-adaptive control을 형식화하는 것이 아니라, 개입의 부호, 특이성, perturbation 안정성을 해석하는 데 초점을 둔다.
-\end{remark}
+\begin{theorem}[Q-사영의 기하]\label{thm:q-sign}
+\eqref{eq:ops}에서 $\beta<0$일 때 $q'$는 $q$의 온톨로지 성분을 $(1+\beta)$배로 균일 축소하고 직교 성분을 보존한다.
+\end{theorem}
+
+\emph{증명.} $P_{\mathrm{ont}}^2 = P_{\mathrm{ont}}$에서 $q' P_{\mathrm{ont}} = (1+\beta)q P_{\mathrm{ont}}$, $q'(I-P_{\mathrm{ont}}) = q(I-P_{\mathrm{ont}})$. $\square$
+
+이것은 exact step-adaptive 제어가 아니라 ``지배적 온톨로지 성분을 덜 신뢰하라''의 가장 단순한 history-free 회전이며, \eqref{eq:ops}의 세 연산자를 \emph{온톨로지 부분공간 위의 회전 기반 스티어링}으로 통일한다.
+
+\begin{theorem}[Attention 출력의 exact integral remainder]\label{thm:bound}
+$\phi(\tau) := \sum_t \mathrm{softmax}(\ell(q)+\tau\alpha(q))_t v_t$에 대해 $\hat o(q) - o(q) = L(q, E) + R(q, E)$가 정확한 등식으로 성립하며, 유계 노름 아래에서 $\|\hat o - o\|^2 \le 2\,\mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q) + C_1 \rho^4$, $C_1 = 2 Q_{\max}^4 V_{\max}^2/d^2$.
+\end{theorem}
+
+이 정리는 진단 도구다. $L$과 $R$의 완전한 형태와 네 단계 증명은 부록~\ref{app:proof:bound}.
+
+\paragraph{Regime-split 예측.}
+레이어 적응형의 $\tau=1/4$ 선택은 ``초기 레이어는 정보 인코딩에 K-imprinting이 안전, 후기 레이어는 출력 수렴에 K 교란이 해롭다''는 경험적 전제 E1에 조건부다(명제~\ref{prop:ladapt-intuition}, 부록). 이 전제와 정리~\ref{thm:no-memory}을 결합하면 K-imprinting의 한계 이득이 시퀀스 길이 $k$에 따라 $(1-\varphi(j-1))$ 꼴로 감쇠하는 regime-split 예측이 따른다(따름정리~\ref{cor:regime}). 이 예측은 \S\ref{sec:exp:performance}의 $\tau^2$-retail smoke 결과와 부록~\ref{app:layer-sweep}의 레이어 경계 sweep이 직접 시험한다.

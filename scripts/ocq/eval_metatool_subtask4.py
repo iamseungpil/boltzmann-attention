@@ -47,6 +47,7 @@ from eval_metatool_subtask1 import (
     install_q_bias_hooks,
     install_qkv_joint_hooks,
     install_layer_adaptive_qk_hooks,
+    install_layer_adaptive_hooks,
     install_caa_hooks,
     install_adaseka_proxy_hooks,
     parse_candidates,
@@ -134,16 +135,69 @@ TOOL_CALL_RE = re.compile(
 )
 
 
-def extract_tool_names(generation: str, candidates: List[str]) -> List[str]:
-    """Extract tool names from FC-style generation. Filter to candidates only."""
+def extract_tool_name_sequence(generation: str, candidates: List[str]) -> List[str]:
+    """Extract the raw emitted tool-call sequence, preserving duplicates."""
     raw = TOOL_CALL_RE.findall(generation)
     cand_set = {c.lower(): c for c in candidates}
     out = []
     for name in raw:
         key = name.lower()
-        if key in cand_set and cand_set[key] not in out:
+        if key in cand_set:
             out.append(cand_set[key])
     return out
+
+
+def extract_tool_names(generation: str, candidates: List[str]) -> List[str]:
+    """Extract candidate tool names and deduplicate for set-level metrics."""
+    out = []
+    for name in extract_tool_name_sequence(generation, candidates):
+        if name not in out:
+            out.append(name)
+    return out
+
+
+def compute_stepwise_metrics(
+    pred_sequence: List[str],
+    gt: List[str],
+    facet_map: Optional[Dict[str, List[str]]] = None,
+) -> Dict[str, float]:
+    """Metrics that expose whether the second emitted tool improves."""
+    gt_set = set(gt)
+    first = pred_sequence[0] if len(pred_sequence) >= 1 else None
+    second = pred_sequence[1] if len(pred_sequence) >= 2 else None
+    first_hit = float(first in gt_set) if first is not None else 0.0
+    second_hit = float(second in gt_set) if second is not None else 0.0
+    second_distinct_hit = float(
+        second in gt_set and first is not None and second != first
+    ) if second is not None else 0.0
+    second_recovery_given_first_hit = 0.0
+    if first is not None and second is not None and first in gt_set:
+        remaining = gt_set - {first}
+        second_recovery_given_first_hit = float(second in remaining)
+
+    repeated_first_tool = float(first is not None and second is not None and second == first)
+    emitted_any = float(first is not None)
+    emitted_two = float(second is not None)
+    emitted_two_distinct = float(first is not None and second is not None and first != second)
+
+    metrics = {
+        "emitted_any_rate": emitted_any,
+        "emitted_two_rate": emitted_two,
+        "emitted_two_distinct_rate": emitted_two_distinct,
+        "first_tool_hit_rate": first_hit,
+        "second_tool_hit_rate": second_hit,
+        "second_distinct_hit_rate": second_distinct_hit,
+        "second_recovery_given_first_hit_rate": second_recovery_given_first_hit,
+        "repeated_first_tool_rate": repeated_first_tool,
+    }
+
+    if facet_map and first is not None and second is not None:
+        phi_first = facet_map.get(first)
+        phi_second = facet_map.get(second)
+        same_facet = float(phi_first is not None and phi_second is not None and phi_first == phi_second)
+        metrics["repeated_first_facet_rate"] = same_facet
+
+    return metrics
 
 
 def compute_metrics(
@@ -264,23 +318,42 @@ def run_method(
             beta_q=params["beta_q"],
             n_kv=n_kv, n_q=n_q, head_dim=head_dim,
         )
+    elif kind == "layer_adaptive":
+        n_q = model.config.num_attention_heads
+        ctx = install_layer_adaptive_hooks(
+            model, B_ont,
+            alpha_k=params["alpha_k"],
+            beta_q=params["beta_q"],
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+            k_boundary_frac=params.get("k_frac", 0.25),
+        )
     elif kind == "caa":
         ctx = install_caa_hooks(model, B_ont, alpha=params["alpha"])
     elif kind == "adaseka":
-        n_q = model.config.num_attention_heads
-        ctx = install_adaseka_proxy_hooks(
-            model, B_ont, alpha=params["alpha"], M=params["M"],
-            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
-            temperature=params["T"],
+        raise ValueError(
+            "Paper-facing Subtask4 evaluation does not allow the AdaSEKA proxy path. "
+            "Use scripts/ocq/eval_subtask4_with_real_seka.py or an official external wrapper."
         )
     else:
         raise ValueError(f"{kind} not supported in Subtask4 driver")
 
     per_sample = []
     aggregated = {k: 0.0 for k in ["F1", "F_0.5", "EU", "Jaccard", "Exact", "precision", "recall"]}
+    stepwise_keys = [
+        "emitted_any_rate",
+        "emitted_two_rate",
+        "emitted_two_distinct_rate",
+        "first_tool_hit_rate",
+        "second_tool_hit_rate",
+        "second_distinct_hit_rate",
+        "second_recovery_given_first_hit_rate",
+        "repeated_first_tool_rate",
+    ]
+    stepwise_aggregated = {k: 0.0 for k in stepwise_keys}
     if facet_map:
         for k in ["FG-F1", "FG-F_0.5", "FG-EU"]:
             aggregated[k] = 0.0
+        stepwise_aggregated["repeated_first_facet_rate"] = 0.0
 
     t0 = time.time()
     with ctx:
@@ -299,32 +372,48 @@ def run_method(
             )
             new_tokens = out[0, ids["input_ids"].shape[1]:]
             generation = tokenizer.decode(new_tokens, skip_special_tokens=True)
-            pred = extract_tool_names(generation, cands)
+            pred_sequence = extract_tool_name_sequence(generation, cands)
+            pred = []
+            for name in pred_sequence:
+                if name not in pred:
+                    pred.append(name)
             metrics = compute_metrics(pred, gt, facet_map=facet_map)
+            stepwise = compute_stepwise_metrics(pred_sequence, gt, facet_map=facet_map)
 
             for k in aggregated:
                 aggregated[k] += metrics[k]
+            for k in stepwise_aggregated:
+                stepwise_aggregated[k] += stepwise.get(k, 0.0)
 
             per_sample.append({
                 "index": entry.get("index", i),
                 "query": entry.get("query", "")[:150],
                 "gt": gt,
                 "pred": pred,
+                "pred_sequence": pred_sequence,
                 "generation_head": generation[:300],
                 "metrics": metrics,
+                "stepwise": stepwise,
             })
             if args.verbose and i < 3:
-                print(f"[{i}] gt={gt} pred={pred} F1={metrics['F1']:.3f}", flush=True)
+                print(
+                    f"[{i}] gt={gt} pred={pred} seq={pred_sequence[:3]} "
+                    f"F1={metrics['F1']:.3f}",
+                    flush=True,
+                )
 
     runtime = time.time() - t0
     N = len(data)
     for k in aggregated:
         aggregated[k] = aggregated[k] / max(N, 1)
+    for k in stepwise_aggregated:
+        stepwise_aggregated[k] = stepwise_aggregated[k] / max(N, 1)
 
     return {
         "method": method,
         "n_queries": N,
         "macro": aggregated,
+        "stepwise": stepwise_aggregated,
         "runtime_s": runtime,
         "per_sample": per_sample,
     }
@@ -399,6 +488,19 @@ def main():
         "dataset": args.dataset,
         "n_queries": len(data),
         "methods": args.methods,
+        "prompt_template_id": "fc_chat_template_v1",
+        "scorer": "generation_tool_call_set_v1",
+        "decode_policy": {
+            "do_sample": False,
+            "max_new_tokens": args.max_new_tokens,
+            "pad_token_id": tok.eos_token_id,
+        },
+        "runtime_config": {
+            "device": args.device,
+            "dtype": str(dtype),
+            "seed": args.seed,
+            "attn_implementation": "eager",
+        },
         "facet_map": args.facet_map or None,
         "results": results,
     }

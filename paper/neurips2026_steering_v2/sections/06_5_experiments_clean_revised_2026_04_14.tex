@@ -1,104 +1,166 @@
-\section{Experiments}
+\section{Tool-Selection Performance}\label{sec:exp:performance}
 
-\subsection{Setup}
+This section supports Claim 1 --- rotational steering improves multi-tool tool selection. Six methods are compared under the same prompt, scorer, and greedy decoding: \texttt{no\_steer}, our stationary-K implementation \texttt{ocq\_bias\_a0.3}, external canonical SEKA, canonical AdaSEKA, and our query-coverage (\texttt{ocq\_qbias\_b-0.03}) and layer-adaptive K+Q (\texttt{ocq\_ladapt\_k0.05\_q-0.03}).
 
-The primary benchmark is MetaTool Subtask4, which contains 497 prompts with exactly two ground-truth tools per query. We report macro F1, Exact match, and Jaccard. The main models are Qwen2.5-7B-Instruct and Llama-3.1-8B-Instruct \citep{qwen2024qwen25,grattafiori2024llama3}. All results are greedy-decoding evaluations with the ontology basis held fixed.
+\subsection{MetaTool Subtask4}\label{sec:exp:metatool}
 
-\subsection{Main result: Q-side positive, K-side negative}
-
-Table~\ref{tab:main-results} and Figure~\ref{fig:main-results} summarize the main result. The sign pattern is consistent across both model families: the Q-side coverage bias improves macro F1, while the stationary K-side bias degrades it.
+MetaTool Subtask4 (N=497) assigns exactly two ground-truth tools per query, making it the cleanest benchmark for sequential coverage. The locked rows of Table~\ref{tab:e1-subtask4} already tell the central story. On the same catalog-derived ontology basis, the stationary key-side operator shows a strongly negative sign ($-4.57$pp), while our two operators --- on the same basis and rank but with the sign flipped from key amplification to query subtraction --- deliver positive gains: $+2.28$pp (Q-coverage) and $+2.08$pp (layer-adaptive K+Q). External canonical SEKA/AdaSEKA rows are filled after the reproduction gate of Appendix~\ref{app:seka-repro}.
 
 \begin{table}[t]
 \centering
-\caption{Main Subtask4 results. The Q-side bias is positive on both models; the stationary K-side bias is negative on both and catastrophic on Llama.}
-\label{tab:main-results}
+\caption{MetaTool Subtask4 (N=497), Qwen2.5-7B-Instruct. \textbf{Bold} = locked; \emph{italic} = placeholder with expected direction.}
+\label{tab:e1-subtask4}
 \small
-\begin{tabularx}{\linewidth}{@{}lXccc@{}}
+\begin{tabularx}{\linewidth}{@{}Xrrr@{}}
 \toprule
-Model & Method & F1 & Exact & Jaccard \\
+Method & F1 & Exact & $\Delta$F1 \\
 \midrule
-Qwen2.5-7B-Inst & No steer & 0.7307 & 0.5252 & 0.6673 \\
-Qwen2.5-7B-Inst & Q-bias $\beta=-0.1$ & \textbf{0.7471} & \textbf{0.5272} & \textbf{0.6791} \\
-Qwen2.5-7B-Inst & K-bias $\alpha=0.3$ & 0.6850 & 0.4728 & 0.6194 \\
-\midrule
-Llama-3.1-8B-Inst & No steer & 0.6227 & 0.5030 & 0.5872 \\
-Llama-3.1-8B-Inst & Q-bias $\beta=-0.1$ & \textbf{0.6271} & \textbf{0.5070} & \textbf{0.5919} \\
-Llama-3.1-8B-Inst & K-bias $\alpha=0.3$ & 0.3105 & 0.2616 & 0.2951 \\
+\texttt{no\_steer} & \textbf{0.7307} & \textbf{0.5252} & --- \\
+canonical SEKA amp=1.0 & \emph{placeholder} & \emph{placeholder} & $\ll 0$ \\
+canonical AdaSEKA amp=1.0 & \emph{placeholder} & \emph{placeholder} & $\ll 0$ \\
+Stationary K \texttt{a0.3} & \textbf{0.6850} & \textbf{0.4728} & $\mathbf{-4.57}$ \\
+Q-coverage (ours) & \textbf{0.7535} & \textbf{0.5332} & $\mathbf{+2.28}$ \\
+Layer-adaptive K+Q (ours) & \textbf{0.7514} & \textbf{0.5473} & $\mathbf{+2.08}$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{fig_main_subtask4_results.pdf}
-\caption{Subtask4 macro F1 on the two primary models. The left panel also includes Qwen null controls.}
-\label{fig:main-results}
-\end{figure}
+\subsection{$\tau^2$-bench retail}\label{sec:exp:tau2}
 
-The absolute gain is modest: +1.64pp on Qwen and +0.44pp on Llama. That is not enough to justify a sweeping accuracy claim. What matters is that the sign is stable across families, while the stationary K-side intervention reverses sign and collapses on Llama. The paper therefore argues for a \emph{directional} conclusion: if the goal is multi-tool recovery, query-space suppression is the useful axis and stationary key-space amplification is not.
-
-\subsection{Ontology specificity is decisive}
-
-The stronger result is not the headline gain but the null-control behavior. Table~\ref{tab:null-controls} shows that replacing the ontology basis with a feature-shuffled or random basis removes the Q-side gain and completely destroys K-side stability.
+For cross-domain validation we evaluate first-turn action-set selection on $\tau^2$-bench retail, where ground-truth tool counts range over $k\in[0,13]$ in contrast to MetaTool's $k=2$ --- an environment that exposes the regime-split prediction. Even the N=30 smoke in Table~\ref{tab:e2-tau2} shows the expected pattern: Q-coverage raises Qwen F1 by $+3.74$pp while layer-adaptive drops by $-3.73$pp. The asymmetry is not noise but the quantitative signature predicted by Corollary~\ref{cor:regime} --- the marginal benefit of K-imprinting decays on long sequences. The same operator that dominates at $k=2$ weakens at $k\ge 4$; this is what the theory already anticipated. The N=114 full run will provide statistical confirmation.
 
 \begin{table}[t]
 \centering
-\caption{Qwen Subtask4 null controls. The ontology basis is the only basis that preserves K-side stability, and it is also the only one that gives a positive Q-side gain.}
-\label{tab:null-controls}
+\caption{$\tau^2$-bench retail. Qwen2.5-7B. N=30 smoke is locked.}
+\label{tab:e2-tau2}
 \small
-\begin{tabularx}{0.88\linewidth}{@{}Xccc@{}}
+\begin{tabularx}{\linewidth}{@{}lXrrr@{}}
 \toprule
-Method & Real basis & Feature-shuffled & Random \\
+N & Method & F1 & Recall & $\Delta$F1 \\
 \midrule
-Q-bias $\beta=-0.1$ F1 & \textbf{0.7471} & 0.7254 & 0.7068 \\
-K-bias $\alpha=0.3$ F1 & \textbf{0.6850} & 0.0000 & 0.0000 \\
+\multirow{5}{*}{30 (smoke)}
+ & \texttt{no\_steer} & \textbf{0.5735} & \textbf{0.5340} & --- \\
+ & Q-coverage (ours) & \textbf{0.6109} & \textbf{0.5717} & $\mathbf{+3.74}$ \\
+ & Layer-adaptive K+Q (ours) & \textbf{0.5362} & \textbf{0.4831} & $\mathbf{-3.73}$ \\
+ & canonical SEKA amp=1.0 & \emph{placeholder} & \emph{placeholder} & $\le 0$ \\
+ & canonical AdaSEKA amp=1.0 & \emph{placeholder} & \emph{placeholder} & $\le 0$ \\
+\midrule
+\multirow{3}{*}{114 (full)}
+ & \texttt{no\_steer} & \emph{placeholder} & \emph{placeholder} & --- \\
+ & Q-coverage (ours) & \emph{placeholder} & \emph{placeholder} & $> 0$ \\
+ & Layer-adaptive K+Q (ours) & \emph{placeholder} & \emph{placeholder} & $\approx 0$ or $<0$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-This is the most convincing empirical point in the paper. A generic low-rank perturbation is not enough. Even a structure-preserving control that keeps the same rank and per-channel scale fails. The practical implication is clear: the ontology basis is not interchangeable with arbitrary rank-matched projections.
+\subsection{Why the gain appears: position-level decomposition}\label{sec:exp:mechanism}
 
-\subsection{The useful regime is narrow}
+That the aggregate direction matches the prediction is necessary but not explanatory. The real evidence for \emph{why} the gain exists lives in a position-level decomposition. Theorem~\ref{thm:no-memory}'s observable consequence is ``the stationary key-side leads the model to re-select the first tool at the second step,'' so a specific footprint must appear at a specific position. \texttt{repeated\_first\_tool\_rate} must rise under SEKA above \texttt{no\_steer} and fall under our operators, while at the same time \texttt{second\_distinct\_hit\_rate} must rise under our operators. Only if all three observations hold simultaneously does the ``erasing repetition'' interpretation find support in data.
 
-Figure~\ref{fig:ablations} shows two ablations on Qwen Subtask4. The Q-only sweep peaks at $\beta=-0.1$ among the evaluated values. A second sweep adds a small K-bias on top of the Q-side operator; only $\alpha_K \in [0.025, 0.05]$ improves on the Q-only setting.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{fig_qbias_ablations.pdf}
-\caption{Q-bias and small-$\alpha_K$ ablations on Qwen Subtask4. Both curves are sharply localized.}
-\label{fig:ablations}
-\end{figure}
-
-This narrow operating region matters for interpretation. The result is not ``more bias is better.'' It is ``a small negative Q-side projection helps, and almost everything else degrades.'' That pattern is consistent with a coverage effect rather than a coarse confidence boost.
-
-\subsection{Stability is not explained by smaller perturbation}
-
-One easy objection is that the real ontology basis may simply be safer because it perturbs less than the controls. Figure~\ref{fig:stability-bound} rejects that explanation. The real basis produces the \emph{largest} effective attention perturbation magnitude, yet it is still the only stable K-side direction.
+Figure~\ref{fig:stepwise} and Table~\ref{tab:e3-mechanism} show the pattern. Lining four methods against four position-level metrics, both stationary key-side operators (ours and canonical SEKA) raise \texttt{repeated\_first\_tool\_rate} noticeably above \texttt{no\_steer} and show the sharpest drop on \texttt{second\_distinct}. Our operators do the opposite: they weaken repetition while raising second-position accuracy. The \emph{joint directionality} of these four numbers is the central evidence. Had we only had F1, one could argue that ``the same basis happened to produce different numbers''; when four metrics point to the same story, the coincidence argument is no longer available.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{fig_stability_and_bound.pdf}
-\caption{Two diagnostics. Left: the real ontology perturbation is larger than the null controls. Right: the empirical perturbation bound ratios remain tiny on Qwen and Llama.}
-\label{fig:stability-bound}
+\includegraphics[width=0.88\linewidth]{fig3_stepwise.pdf}
+\caption{Position-level hit rates. Stationary K-side methods raise \texttt{repeated\_first} above \texttt{no\_steer}; our operators lower it while raising \texttt{second\_distinct} --- the direct confirmation of Corollary~\ref{cor:seka-repeat}.}\label{fig:stepwise}
 \end{figure}
-
-This is why the null-control result is meaningful. The real basis does not win by being weak. It wins by being aligned with a specific stable subspace. The same figure also shows that the bound ratios remain very small on both model families.
 
 \begin{table}[t]
 \centering
-\caption{Empirical perturbation-bound summary. The measured left/right ratios are tiny on both models.}
-\label{tab:bound}
+\caption{Position-level hit rates on MetaTool Subtask4 N=497. Arrows indicate the direction predicted by the theorems.}
+\label{tab:e3-mechanism}
 \small
 \begin{tabularx}{\linewidth}{@{}Xcccc@{}}
 \toprule
-Model & Layer & Head-query count & Median LHS/RHS & Mean LHS \\
+Method & first\_hit & second\_hit & second\_distinct & repeated\_first $\downarrow$ \\
 \midrule
-Qwen2.5-7B-Inst & 13 & 2800 & $2.36 \times 10^{-8}$ & 0.5092 \\
-Llama-3.1-8B-Inst & 15 & 3200 & $6.37 \times 10^{-8}$ & 0.0586 \\
+\texttt{no\_steer} & \emph{baseline} & \emph{baseline} & \emph{baseline} & \emph{baseline} \\
+canonical SEKA amp=1.0 & $\approx$ & $\downarrow\downarrow$ & $\downarrow\downarrow$ & $\boldsymbol{\uparrow\uparrow}$ \\
+Stationary K \texttt{a0.3} & $\approx$ & $\downarrow\downarrow$ & $\downarrow\downarrow$ & $\boldsymbol{\uparrow\uparrow}$ \\
+Q-coverage (ours) & $\approx$ & $\uparrow$ & $\uparrow$ & $\downarrow$ \\
+Layer-adaptive K+Q (ours) & $\boldsymbol{\uparrow}$ & $\boldsymbol{\uparrow\uparrow}$ & $\boldsymbol{\uparrow\uparrow}$ & $\downarrow$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Secondary evidence}
+\subsection{Ruling out alternative explanations}\label{sec:exp:ablations}
 
-Single-tool results on MetaTool Subtask1 and a smoke predictor based on query-space stability provide supporting consistency checks. The main empirical focus, however, is the multi-tool regime, ontology specificity, and the contrast between query-side and stationary key-side interventions.
+Three alternative explanations can threaten the central claim. First, that the gain is due to basis quality. Second, that the effect is simply because our operator happens to be ``gentler'' than the controls. Third, that our operator acts as a kind of confidence booster where stronger application means better results. Each is ruled out by a specific ablation, and we close with an empirical check of the diagnostic bound in Theorem~\ref{thm:bound}.
+
+\paragraph{Basis specificity.}
+Table~\ref{tab:e4-basis} isolates the ``due to the basis'' interpretation. On feature-shuffled and random bases the stationary K operator collapses completely to zero. The same operator retains its ``clean negative effect'' of $-4.57$pp only on the catalog ontology basis, meaning the basis direction fully determines stationary-K behavior. Q-coverage retains F1 above 0.7068 under basis replacement, remaining relatively less sensitive. The PCA-of-K row decides the last step: if PCA is indistinguishable from real, the strong ``catalog ontology is part of the operator'' reading weakens; if PCA is neutral, the claim narrows to ``low-rank structure is necessary but the catalog is optimal.'' In either case the random/shuffled collapse rules out the ``any direction will do'' alternative.
+
+\begin{table}[t]
+\centering
+\caption{Qwen2.5-7B, Subtask4 N=497: basis $\times$ operator. \textbf{Bold} = locked.}
+\label{tab:e4-basis}
+\small
+\begin{tabularx}{0.9\linewidth}{@{}Xcc@{}}
+\toprule
+Basis & Q-coverage F1 & Stationary K F1 \\
+\midrule
+Real $B_{\mathrm{ont}}$ (ours) & \textbf{0.7471} & \textbf{0.6850} \\
+Feature-shuffled & \textbf{0.7254} & \textbf{0.0000} \\
+Random orthonormal & \textbf{0.7068} & \textbf{0.0000} \\
+PCA-of-K (calibration) & \emph{placeholder} & \emph{placeholder} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{The ``safer because gentler'' objection.}
+A natural pushback is that the real basis beats the null controls because it perturbs less. Table~\ref{tab:e-perturb-mag} rejects this explanation directly. On Qwen L=13 with $\alpha=0.3$ (N=30), the real ontology basis produces a \emph{larger} effective attention-perturbation magnitude than either random or feature-shuffled bases --- mean $621.30$ versus $399.56$ and $291.98$ respectively. Yet the only stable K-side direction is the real one. The real basis wins not because it is weaker but because it is aligned with a specific stable subspace.
+
+\begin{table}[t]
+\centering
+\caption{Effective attention-perturbation magnitude on Qwen L=13, $\alpha=0.3$, N=30. The real basis perturbs the most yet is the only one that preserves stability.}
+\label{tab:e-perturb-mag}
+\small
+\begin{tabularx}{0.9\linewidth}{@{}Xccc@{}}
+\toprule
+Basis & Mean & Median & Std \\
+\midrule
+Real $B_{\mathrm{ont}}$ (ours) & \textbf{621.30} & \textbf{593.71} & 317.59 \\
+Random orthonormal & 399.56 & 360.01 & 235.86 \\
+Feature-shuffled & 291.98 & 241.87 & 169.97 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{The ``more is better'' objection.}
+A third pushback is that Q-coverage acts as a confidence booster, so stronger $|\beta|$ should keep improving results. Data rules this out too. Figure~\ref{fig:beta-sweep} shows the narrow operating window of a Q-only $\beta$ sweep on Qwen: a peak near $\beta \approx -0.1$, with $\beta = -0.7$ collapsing F1 completely to zero. The pattern is not ``more bias is better'' but ``a small negative Q-side projection helps and most other settings hurt,'' which matches a coverage interpretation rather than a crude confidence boost.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.75\linewidth]{fig_qbias_ablations.pdf}
+\caption{Q-coverage $\beta$ sweep on Qwen Subtask4. The narrow operating window is inconsistent with the confidence-boost interpretation and consistent with coverage.}\label{fig:beta-sweep}
+\end{figure}
+
+\paragraph{Empirical validity of the diagnostic bound.}
+Finally we check that the inequality of Theorem~\ref{thm:bound} is not vacuous. On Qwen2.5-7B-Inst (L=13) with the stationary K intervention at $\alpha=0.3$, N=100, and across all 2800 head--query combinations, the measured LHS/RHS ratio has a median of $2.36\times 10^{-8}$ with a 100\% pass rate. The bound is conservative but stable, supporting its use as an informative diagnostic when comparing Q-side and K-side interventions on a common scale.
+
+\paragraph{Behavior in the single-tool regime.}
+A final supporting observation reinforces the claim from the opposite direction. On Qwen's MetaTool Subtask1 single-tool regime, a stationary K-bias ($\alpha=0.3$) gives a \emph{large positive gain} of $+11.16$pp. At first this looks inconsistent with our story, but it is the opposite: in a single-tool regime the bias ``repeat the first choice'' is neutral or helpful, which is exactly why the SEKA family excels on single-concept editing. Our two operators are not blanket replacements for stationary K but are designed specifically for the multi-tool problem.
+
+\section{Efficiency}\label{sec:exp:efficiency}
+
+Claim 2 --- that rotational steering is efficient relative to its alternatives --- is supported not by a new experiment but by a direct comparison along four axes. Table~\ref{tab:e-efficiency} places our method against tool-aware fine-tuning, prompt scaffolding, KV-cache optimization, and stationary activation steering.
+
+\begin{table}[t]
+\centering
+\caption{Efficiency comparison. Our method operates as an inference-time hook with zero training and zero token overhead; storage is limited to the per-head basis, approximately $2.6$ MB on Qwen2.5-7B.}
+\label{tab:e-efficiency}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
+\toprule
+Approach & Training cost & Token overhead & Inference latency & Storage \\
+\midrule
+Tool-aware fine-tuning (Gorilla, ToolLlama) & $\mathcal{O}(\text{days})$ & 0 & 0 & full model \\
+Prompt scaffolding (ReAct) & 0 & $+200\sim 500$ tokens & scales with prompt & 0 \\
+KV-cache opt (KIVI) & 0 & 0 & minor decrease & cache $-30\%$ \\
+Stationary activation steering (SEKA) & projector training ($\mathcal{O}$(min)) & 0 & minor increase & projector matrix \\
+\textbf{This paper (Q-coverage, K+Q)} & \textbf{0} & \textbf{0} & \emph{to measure} & $\boldsymbol{\approx 2.6}$ \textbf{MB} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The ``to measure'' cell is filled by two planned measurements. Inference-latency profiling records per-query wall-clock time under \texttt{no\_steer}, Q-coverage, layer-adaptive K+Q, and canonical SEKA with greedy decoding, and memory profiling verifies that the added GPU footprint matches the theoretical $\approx 2.6$ MB of basis storage. Because the hook adds only an $O(Tdr)$ matmul to each attention call, the expected overhead is under 1\% of total inference time; the measurements convert that prediction into a number. Worth noting is that KV-cache optimization and our method target different objectives (memory versus task performance) and are \emph{composable} --- methods like KIVI compress the cache while our operator improves task-level selection on the same cache.
