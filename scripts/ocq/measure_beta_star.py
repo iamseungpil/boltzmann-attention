@@ -226,85 +226,119 @@ def compute_s_query(
     n_kv: int,
     n_q: int,
     head_dim: int,
-    query_pos: Optional[int] = None,   # which query row to use (default: last prompt token)
+    aggregation: str = "all_positions",   # "last" or "all_positions"
+    causal: bool = True,
 ) -> Dict[str, float]:
-    """Compute aggregated s across (layer, head).
+    """Compute aggregated s across (layer, head, query-position).
 
-    For each (ℓ, h): use the projector P^{(ℓ,h)} = B B^T, the query at
-    position `query_pos` (default T-1), K at all prompt positions, and
-    the attention distribution p_0 from that query row.
+    Two aggregation strategies:
+      last            : only Q at position T-1 (first draft; tiny π_G)
+      all_positions   : sum over every query position q ∈ [max_gt_end, T-1]
+                        that has causal access to at least one GT token. This
+                        integrates β* contributions over the whole
+                        self-attention trace of the prompt and matches the
+                        reality that the Q-bias hook modifies Q at every
+                        generation step.
 
-    Returns {'s': float, 's_per_layer': list, 'pi_G': float, 'r_bar': float,
-             'r_bar_G': float, 'n_gt_tokens': int}
+    Returns {'s': float, 's_per_layer': list, 'pi_G_mean': float,
+             'n_gt_tokens': int, 'T': int, 'n_query_positions': int}
     """
     L = len(Q_layers)
     assert len(K_layers) == L
-    # infer T
     T = Q_layers[0].shape[1]
-    if query_pos is None:
-        query_pos = T - 1
-    # Build GT mask
+
     gt_mask = torch.zeros(T, dtype=torch.bool, device=Q_layers[0].device)
     for a, b in gt_spans:
         gt_mask[a:b] = True
     n_gt_tokens = int(gt_mask.sum().item())
     if n_gt_tokens == 0:
-        return {"s": 0.0, "s_per_layer": [0.0] * L, "pi_G": 0.0, "r_bar": 0.0,
-                "r_bar_G": 0.0, "n_gt_tokens": 0, "T": T}
+        return {"s": 0.0, "s_per_layer": [0.0] * L, "pi_G_mean": 0.0,
+                "r_bar_mean": 0.0, "r_bar_G_mean": 0.0,
+                "n_gt_tokens": 0, "T": T, "n_query_positions": 0}
 
-    # GQA mapping: each q-head maps to kv-head h // (n_q // n_kv)
     g = n_q // n_kv
-
     sqrt_d = math.sqrt(head_dim)
+
+    # Determine query positions
+    if aggregation == "last":
+        q_positions = [T - 1]
+    else:
+        # All positions with causal access to at least one GT token
+        first_gt_end = min(b for a, b in gt_spans)
+        q_positions = list(range(first_gt_end, T))
+
+    n_qpos = len(q_positions)
+
     s_per_layer: List[float] = []
     s_total = 0.0
-    pi_G_total = 0.0
-    r_bar_total = 0.0
-    r_bar_G_total = 0.0
+    pi_G_sum = 0.0
+    r_bar_sum = 0.0
+    r_bar_G_sum = 0.0
     count = 0
 
     for li in range(L):
-        Ql = Q_layers[li][0].float()   # (T, n_q * d)
-        Kl = K_layers[li][0].float()   # (T, n_kv * d)
-        Q_h = Ql.view(T, n_q, head_dim)           # (T, n_q, d)
-        K_h = Kl.view(T, n_kv, head_dim)          # (T, n_kv, d)
+        Ql = Q_layers[li][0].float()               # (T, n_q * d)
+        Kl = K_layers[li][0].float()               # (T, n_kv * d)
+        Q_h = Ql.view(T, n_q, head_dim)            # (T, n_q, d)
+        K_h = Kl.view(T, n_kv, head_dim)           # (T, n_kv, d)
         B_l = B_ont[li].to(Ql.device, dtype=torch.float32)  # (n_kv, d, r)
 
         s_layer = 0.0
-        for h in range(n_q):
-            kvh = h // g
-            B_h = B_l[kvh]  # (d, r)
-            q = Q_h[query_pos, h]     # (d,)
-            P_q = B_h @ (B_h.t() @ q)  # (d,)  = P Q
-            K_h_hd = K_h[:, kvh, :]    # (T, d)
-            # Attention scores at this head: (K Q) / sqrt(d)
-            scores = (K_h_hd @ q) / sqrt_d  # (T,)
-            p0 = torch.softmax(scores, dim=0)  # (T,)
-            # Ontology-projected score per token
-            r_t = (K_h_hd @ P_q) / sqrt_d  # (T,)
-            r_bar = torch.dot(p0, r_t).item()
-            # GT mass and GT-weighted r
-            pi_G = p0[gt_mask].sum().item()
-            if pi_G <= 0.0:
-                continue
-            r_bar_G = (p0[gt_mask] * r_t[gt_mask]).sum().item() / pi_G
-            s_head = pi_G * (r_bar_G - r_bar)
-            s_layer += s_head
-            pi_G_total += pi_G
-            r_bar_total += r_bar
-            r_bar_G_total += r_bar_G
-            count += 1
+        for kvh in range(n_kv):
+            B_h = B_l[kvh]          # (d, r)
+            K_kvh = K_h[:, kvh, :]  # (T, d)
+            P_K = (K_kvh @ B_h) @ B_h.t()  # (T, d)  = P K_t' (symmetric P; = K_t·P_t)
+            # We need r_t = <P Q, K_t>/sqrt(d). Since P is symmetric,
+            # r_t = <Q, P K_t>/sqrt(d), computable as Q · (P K).
+            # For efficiency compute once: r_matrix[q, t] = <Q[q], P K[t]>/sqrt(d)
+            # Across q-heads in this kv group: use Q_h[:, kvh*g:(kvh+1)*g, :].
+            Q_group = Q_h[:, kvh * g:(kvh + 1) * g, :]  # (T, g, d)
+            # r[q, h, t] = Q_group[q, h, :] @ P K_kvh[t, :].T  / sqrt(d)
+            # P K is P_K above, shape (T, d).
+            # attn scores[q, h, t] = Q_group[q, h, :] @ K_kvh[t, :].T / sqrt(d)
+            scores = torch.einsum("qhd,td->qht", Q_group, K_kvh) / sqrt_d  # (T, g, T)
+            r_vals = torch.einsum("qhd,td->qht", Q_group, P_K) / sqrt_d    # (T, g, T)
+
+            for q_idx in q_positions:
+                # causal slice
+                if causal:
+                    lim = q_idx + 1
+                    sc = scores[q_idx, :, :lim]     # (g, lim)
+                    rv = r_vals[q_idx, :, :lim]     # (g, lim)
+                    gt_slice = gt_mask[:lim]
+                else:
+                    sc = scores[q_idx]  # (g, T)
+                    rv = r_vals[q_idx]
+                    gt_slice = gt_mask
+                if not gt_slice.any():
+                    continue
+                p0 = torch.softmax(sc, dim=-1)                  # (g, lim)
+                r_bar = (p0 * rv).sum(dim=-1)                   # (g,)
+                pi_G = p0[:, gt_slice].sum(dim=-1)              # (g,)
+                # avoid div by tiny
+                safe = pi_G > 1e-8
+                if not safe.any():
+                    continue
+                rG = (p0[:, gt_slice] * rv[:, gt_slice]).sum(dim=-1)  # (g,)
+                r_bar_G = torch.where(safe, rG / pi_G.clamp_min(1e-8), torch.zeros_like(rG))
+                s_head = pi_G * (r_bar_G - r_bar)                 # (g,)
+                s_layer += s_head[safe].sum().item()
+                pi_G_sum += pi_G[safe].sum().item()
+                r_bar_sum += r_bar[safe].sum().item()
+                r_bar_G_sum += r_bar_G[safe].sum().item()
+                count += int(safe.sum().item())
         s_per_layer.append(s_layer)
         s_total += s_layer
 
     return {
         "s": s_total,
         "s_per_layer": s_per_layer,
-        "pi_G": (pi_G_total / count) if count else 0.0,
-        "r_bar": (r_bar_total / count) if count else 0.0,
-        "r_bar_G": (r_bar_G_total / count) if count else 0.0,
+        "pi_G_mean": (pi_G_sum / count) if count else 0.0,
+        "r_bar_mean": (r_bar_sum / count) if count else 0.0,
+        "r_bar_G_mean": (r_bar_G_sum / count) if count else 0.0,
         "n_gt_tokens": n_gt_tokens,
         "T": T,
+        "n_query_positions": n_qpos,
     }
 
 
