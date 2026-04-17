@@ -406,6 +406,39 @@ Phase 5: CPU만 (작성), 5일
 
 ---
 
+## 10. 가설 상태표 (2026-04-17 update 2)
+
+각 가설의 최신 증거 상태. ✅ 지지, ❌ 반박 or 수정, 🔶 부분 지지/미완, ❓ 미검증.
+
+| ID | 가설 | 상태 | 증거/비고 |
+|----|------|------|-----------|
+| **H-A-1** | Q-only가 Q+K보다 유리 (Long-horizon) | 🔶 부분 | Telecom (12 액션) Q-only +18.37pp > ladapt, but Q+ 도 비슷한 lift |
+| **H-A-2** | K의 정확도 보조는 Short-horizon(3-5)에서만 유효 | ✅ | Airline (short) ladapt +3.80pp > Q-only |
+| **H-B** | **Q 증폭 (β > 0) 은 harmful** | ❌ **반박 징후** | Retail Q+0.03 F1=0.6662 (+19.83pp, 20/114 intermediate); Telecom Q+0.03 (+18.64pp, 130/200) — full run 확정 대기 |
+| **H-C** | Banking 순위: ladapt β=-0.05 > β=-0.03 > multipass > AdaSEKA > K-only | ❌ **반박** | 완료 결과: **multipass_ladapt** (+5.64pp) 만 승자. 단일 pass ladapt = 0pp = baseline |
+| **H-D** | Banking meta-tool (discoverable/agent) 은 static ontology scope 밖 | ✅ | 전체 97 task -5.99pp, non-meta 13 만 분리하면 +5.64pp |
+| **H-E-1** | "K의 값은 도구 카탈로그 크기에 반비례" | ❓ **ToolBench 실험 대기** | Phase 2.7 에서 직접 sweep 예정 |
+| **H-E-2** | "K의 값은 horizon 길이에 반비례" | 🔶 부분 | Telecom(12)에서 ladapt vs Q-only 차이 작음. 그러나 Q+의 lift가 H-B와 섞여 노이즈 |
+
+### 10.1 새로운 (추가된) 가설
+
+| ID | 신규 가설 | 검증 계획 |
+|----|-----------|-----------|
+| **H-NEW-1** | Q-sign 은 도메인의 ontology alignment 품질에 의존. 잘 맞은 B_ont 에서는 Q+ amplify 가 선호될 수 있음 | Q+ 와 Q- 를 airline, MetaTool, ToolBench 에서 교차 측정. Per-query GT F1 vs query-ontology similarity 상관 분석 |
+| **H-NEW-2** | **Multipass 가 cross-domain 공통 이점**. 단일 attempt miss 를 재시도로 복구 | Phase 2.8: retail/telecom/airline multipass 적용 |
+| **H-NEW-3** | Ontology = "semantic attractor". Q+ 는 tool-schema attention 강화 → 정답 tool 선택률 상승 | Per-token attention weight 시각화 (도메인별). Q+ 에서 정답 tool 에 대한 attention 변화 측정 |
+| **H-NEW-4** | **Single-pass ladapt 에서 K hook + Q hook 간 GQA interaction** 이 Banking에서 효과 상쇄 | K-only, Q-only, ladapt 를 동일 설정에서 비교. multipass 로 복구되는 이유가 GQA 평균화 때문이라면 K-only를 multipass 로 감싸도 유사 복구될 것 |
+| **H-NEW-5** | ToolBench scaling 에서 K-only 는 감소, Q-only 는 유지/증가 | Phase 2.7 의 distractor sweep 에서 직접 측정 |
+
+### 10.2 Coworker 협의 필요 질문
+
+1. **Q+ amplify 결과가 확정되면** 논문 프레이밍은 "subtraction as coverage regularization" → "signed ontology steering" 으로 재구성해야 함. 기존 Thm 6.17' 서술 수정 여부?
+2. **Multipass 메커니즘의 이론적 해석**: 단순 재시도? generation distribution 의 mode-covering? Thm 6.18 (attn-weighted bit alloc) 와 어떤 관계?
+3. ToolBench scaling 실험의 distractor 샘플링 방법: uniform vs 같은 카테고리 oversample vs adversarial (GT에 가까운 tool들)? 현재는 uniform.
+4. FW-nDCG 는 계획대로 Phase 3 진행? 아니면 ToolBench 스케일링 결과 보고 우선순위 조정?
+
+---
+
 ## 9. 일정 타임라인
 
 ```
