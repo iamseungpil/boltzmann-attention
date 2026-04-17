@@ -94,38 +94,81 @@ def find_tool_token_spans(
     prompt: str,
     tokenizer,
     gt_tool_names: List[str],
+    mode: str = "schema",
 ) -> List[Tuple[int, int]]:
-    """Find token index spans in the tokenized prompt where each GT tool name
-    appears. Returns list of (start_tok_idx, end_tok_idx_exclusive)."""
+    """Find token index spans in the tokenized prompt where each GT tool
+    is referenced.
+
+    Modes:
+      name   : just the tool name tokens (previously default; tiny π_G).
+      schema : name + description + parameters block, i.e. the JSON object
+               enclosing `"name": "<tool>"`. Matches the tool-schema-token
+               interpretation of β* GT proxy (G = schema tokens of correct
+               tools, where the model's attention must land to emit the
+               correct tool).
+    """
     if not gt_tool_names:
         return []
-    # Tokenize with offset mapping (fast tokenizer required)
     enc = tokenizer(prompt, return_offsets_mapping=True, add_special_tokens=False)
-    offsets = enc["offset_mapping"]  # list[(char_start, char_end)]
+    offsets = enc["offset_mapping"]
+
+    def char_span_to_token_span(c_start: int, c_end: int) -> Optional[Tuple[int, int]]:
+        tok_start = None
+        tok_end = None
+        for i, (a, b) in enumerate(offsets):
+            if a is None:
+                continue
+            if tok_start is None and b > c_start:
+                tok_start = i
+            if a < c_end:
+                tok_end = i + 1
+            if a >= c_end:
+                break
+        if tok_start is not None and tok_end is not None and tok_end > tok_start:
+            return (tok_start, tok_end)
+        return None
+
     spans: List[Tuple[int, int]] = []
     for name in gt_tool_names:
-        # Scan the prompt text for every occurrence of the tool name as a
-        # quoted JSON string value. We look for both `"name"` and bare forms.
-        pattern = re.escape(name)
-        for m in re.finditer(pattern, prompt):
+        for m in re.finditer(re.escape(name), prompt):
             c_start, c_end = m.start(), m.end()
-            # Find contiguous token indices covering this character span
-            tok_start = None
-            tok_end = None
-            for i, (a, b) in enumerate(offsets):
-                if a is None:
-                    continue
-                if tok_start is None and b > c_start:
-                    tok_start = i
-                if a < c_end:
-                    tok_end = i + 1
-                if a >= c_end:
-                    break
-            if tok_start is not None and tok_end is not None and tok_end > tok_start:
-                spans.append((tok_start, tok_end))
-    # Deduplicate overlapping spans
+            if mode == "name":
+                span = char_span_to_token_span(c_start, c_end)
+                if span:
+                    spans.append(span)
+            elif mode == "schema":
+                # Expand outward to encompass the JSON object containing
+                # `"name": "<tool>"`. Walk backwards to find the enclosing
+                # `{` and forwards to match its closing `}`.
+                # Start: most recent `{` before c_start.
+                obj_start = prompt.rfind("{", 0, c_start)
+                if obj_start < 0:
+                    obj_start = c_start
+                # End: match braces starting at obj_start.
+                depth = 0
+                obj_end = c_end
+                for i in range(obj_start, len(prompt)):
+                    if prompt[i] == "{":
+                        depth += 1
+                    elif prompt[i] == "}":
+                        depth -= 1
+                        if depth == 0:
+                            obj_end = i + 1
+                            break
+                span = char_span_to_token_span(obj_start, obj_end)
+                if span:
+                    spans.append(span)
+            else:
+                raise ValueError(f"unknown mode {mode}")
+    # Merge overlapping spans
     spans = sorted(set(spans))
-    return spans
+    merged: List[Tuple[int, int]] = []
+    for a, b in spans:
+        if merged and a <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(b, merged[-1][1]))
+        else:
+            merged.append((a, b))
+    return merged
 
 
 # =====================================================================
