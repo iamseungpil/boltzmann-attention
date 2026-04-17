@@ -81,8 +81,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--neg-method-patterns", nargs="+",
                    default=["ocq_qbias_b-0.03", "ocq_qbias_b-0.05"],
                    help="Method names counted as negative-β.")
-    p.add_argument("--gt-mode", default="schema", choices=["name", "schema"],
-                   help="GT token-span extraction: just tool name tokens ('name') or the whole JSON schema object ('schema'; default).")
+    p.add_argument("--gt-mode", default="schema", choices=["name", "schema", "all_schemas"],
+                   help="GT token-span extraction: 'name'=just GT tool name tokens; 'schema'=GT tool schema JSON object; 'all_schemas'=every tool schema (proxy G for tool-space coverage instead of strict GT match).")
     p.add_argument("--aggregation", default="all_positions", choices=["last", "all_positions"],
                    help="'last' uses Q at T-1 only; 'all_positions' integrates over every query position past the first GT span (default).")
     p.add_argument("--out", type=str, default="")
