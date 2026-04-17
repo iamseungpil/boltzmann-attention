@@ -913,6 +913,7 @@ K-side steering (SEKA, AdaSEKA) came from the factual-editing literature (single
 | Thm 6.20 | Constant $C$ involves $p_{\min} \sim 10^{-6}$ (vacuous) | Thm 6.20' with $p_{\mathrm{correct}}$; non-vacuous in favorable regime only |
 | Q-coverage algorithm | Implicit multiset projector accumulation | Lemma 6.17.C: set-based update with idempotency proof |
 | β sign choice | External hyperparameter | Thm β*: $\operatorname{sign}(\beta^*) = \operatorname{sign}(\bar r_{\mathcal{G}} - \bar r)$ computable from baseline pass |
+| K-bias vs Q-bias | Two independent steering axes | Thm 7.1: equivalent at single-step attention; Cor 7.1.B: Q dominates in multi-step via KV-cache analysis; Cor 7.1.C: all K-side prior art subsumes into Q-side formulation |
 
 ---
 
