@@ -442,12 +442,13 @@ Phase 5: CPU만 (작성), 5일
 ## 9. 일정 타임라인
 
 ```
-2026-04-17 (오늘)  Phase 0 완료 + 이 계획서 협의
-2026-04-18~19      Phase 1: MetaTool 완전 비교 (Qwen + Llama)
-2026-04-20~22      Phase 2: Seal-Tools 벤치마크
-2026-04-23~24      Phase 3: FW-nDCG 메트릭
-2026-04-25~27      Phase 4: 추가 벤치마크 (선택)
-2026-04-28~05-04   Phase 5: 논문 작성
-2026-05-04         논문 초안 완성
-2026-05-15 (목표)  최종 제출
+2026-04-17 (오늘)  Q-sign test 완료, ToolBench B_ont 빌드, Phase 2.7/2.8 시작
+2026-04-18        Phase 2.7 (ToolBench G1) + Phase 2.8 (multipass cross-bench) 1차
+2026-04-19        Phase 2.7 (ToolBench G2/G3), Phase 1B (Llama) 시작
+2026-04-20~22    Phase 2 (Seal-Tools) — Phase 2.7 결과 따라 축소/변경 가능
+2026-04-23~24    Phase 3: FW-nDCG 메트릭
+2026-04-25~27    Phase 4: 추가 벤치마크 (선택)
+2026-04-28~05-04 Phase 5: 논문 작성
+2026-05-04       논문 초안 완성
+2026-05-15 (목표) 최종 제출
 ```
