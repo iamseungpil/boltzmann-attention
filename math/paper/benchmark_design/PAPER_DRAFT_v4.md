@@ -1,12 +1,14 @@
-# Layer-Adaptive Q+K Ontology Steering: 레이어별 역할 분리를 통한 멀티 도구 선택 최적화
+# Signed Q-Only Ontology Steering: 멀티 도구 선택에서의 부호 방향 적응 (Q-Only Pivot)
 
 > **CANONICAL DOCUMENT** -- 이 문서가 프로젝트의 기준 문서입니다. 이후 모든 실험 결과와 해석은 여기에 통합됩니다.
 > v1/v2/v3 초안은 참조용으로만 보존합니다.
 >
-> **날짜**: 2026-04-17
-> **상태**: v4 (layer-adaptive 발견 반영, 전면 재구성)
+> **날짜**: 2026-04-17 (update 4)
+> **상태**: v4 + Q-only pivot (Thm 7.1 Q-K duality + Cor 7.1.B multi-step divergence)
 > **타겟**: ICLR 2027 (또는 NeurIPS 2026 late deadline 검토)
-> **이전 버전**: PAPER_DRAFT_v3.md (Q-coverage full-pivot) <- v2 (hybrid) <- v1
+> **이전 버전**: PAPER_DRAFT_v3.md <- v2 <- v1
+>
+> **v4 → v4+ pivot 요약**: K-side ontology steering (SEKA 계열) 은 Q-side steering 과 per-step 동치 (Thm 7.1), but multi-step KV-cache 누적으로 long-horizon 불안정 (Cor 7.1.B). 따라서 논문은 **signed Q-only** 단독 operator 로 재프레임. K-side baseline (SEKA) 은 "per-step equivalent but unstable" 비교 대상으로만 유지.
 
 ---
 
