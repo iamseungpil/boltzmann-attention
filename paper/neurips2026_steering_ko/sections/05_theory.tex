@@ -32,6 +32,32 @@ Signed Q-회전은 같은 기저 위에서 두 얼굴을 가진다. 정리~\ref{
 $P_{\mathrm{ont}}^2 = P_{\mathrm{ont}}$에서 $q' P_{\mathrm{ont}} = (1+\beta) q P_{\mathrm{ont}}$, $q'(I-P_{\mathrm{ont}}) = q(I-P_{\mathrm{ont}})$.
 \end{proof}
 
+같은 기저 위에서 K-측과 Q-측 개입이 한 스텝 안에서 동등한 작용을 한다는 관찰은 ``같은 연산자족''이라는 서사를 수학적으로 고정한다. 정리~\ref{thm:qk-duality}가 이를 식~\eqref{eq:ops}의 두 축에 대해 직접 진술한다.
+
+\begin{theorem}[Q-K per-step duality]\label{thm:qk-duality}
+식~\eqref{eq:ops}의 정지 K-측 연산자 $K' = K + \alpha K P_{\mathrm{ont}}$와 signed Q-회전 $Q' = Q + \beta Q P_{\mathrm{ont}}$를 고려하자. 임의의 한 디코딩 스텝에서 같은 $P_{\mathrm{ont}} = BB^\top$를 공유하고 $\beta = \alpha$이면 두 개입은 attention logit을 동일하게 바꾼다:
+\begin{equation}\label{eq:duality}
+\frac{1}{\sqrt d}\, q^\top (K')^\top = \frac{1}{\sqrt d}\, (Q' q)^\top K.
+\end{equation}
+따라서 K-측 강도 $\alpha$와 Q-측 강도 $\beta$는 단일 스텝 attention score 수준에서 서로 교환 가능하다.
+\end{theorem}
+
+\begin{proof}
+$P_{\mathrm{ont}}^\top = P_{\mathrm{ont}}$이므로 $K' = K(I + \alpha P_{\mathrm{ont}})$의 전치는 $(I + \alpha P_{\mathrm{ont}}) K^\top$이고, 따라서 $q^\top (K')^\top = q^\top (I + \alpha P_{\mathrm{ont}}) K^\top$. 한편 $Q' q = (I + \beta P_{\mathrm{ont}}) q$로부터 $(Q' q)^\top K = q^\top (I + \beta P_{\mathrm{ont}}) K^\top$. 두 식은 $\alpha = \beta$일 때 동일하다.
+\end{proof}
+
+정리~\ref{thm:qk-duality}는 두 연산자가 같은 operator family의 두 표상임을 per-step 수준에서 확정하지만 두 표상의 multi-step 거동은 비대칭적이다. 자기회귀 생성에서 key 행렬은 KV-cache에 고정 저장되어 재사용되는 반면 query는 매 스텝 새로 계산되기 때문이다. 따름정리~\ref{cor:cache-divergence}가 이 비대칭을 정식화한다.
+
+\begin{corollary}[KV-cache multi-step divergence]\label{cor:cache-divergence}
+KV-cache를 사용하는 autoregressive 디코딩에서 K-측 개입 $K' = K + \alpha K P_{\mathrm{ont}}$은 스텝 $T$에서 캐시에 주입된 이후 모든 후속 스텝 $T+1, T+2, \dots$의 logit에 같은 $\alpha K P_{\mathrm{ont}}$ 항을 누적해 반영한다. 반면 Q-측 개입 $Q' = Q + \beta Q P_{\mathrm{ont}}$는 매 스텝 새 query에만 적용되어 스텝 간 누적이 없다. 따라서 정리~\ref{thm:qk-duality}의 per-step 동등성은 multi-step 해석 수준에서 깨지고, K-측은 long-horizon attention 분포 왜곡을 증폭하며 Q-측은 그러지 않는다.
+\end{corollary}
+
+\begin{proof}
+캐시된 key는 $k_t^{\text{cache}} = k_t^{\text{orig}} + \alpha P_{\mathrm{ont}}^\top k_t^{\text{orig}}$로 고정되어 이후 모든 스텝의 logit $q_s^\top k_t^{\text{cache}}/\sqrt d$에 $\alpha q_s^\top P_{\mathrm{ont}}^\top k_t^{\text{orig}}/\sqrt d$를 더한다. 따라서 스텝 수 $S$에 대해 K-측 기여는 $\sum_{s=T}^{T+S} \alpha q_s^\top P_{\mathrm{ont}} k_t^{\text{orig}}/\sqrt d$ 형태로 쌓인다. Q-측은 $q'_s = q_s + \beta P_{\mathrm{ont}} q_s$가 각 스텝에서 새로 계산되므로, 스텝 $s$의 개입 항은 $\beta q_s^\top P_{\mathrm{ont}} k_t^{\text{orig}}/\sqrt d$이며 $s$-의존적이지만 스텝 간 누적은 없다.
+\end{proof}
+
+정리~\ref{thm:qk-duality}와 따름정리~\ref{cor:cache-divergence}가 묶여 ``같은 연산자족의 다른 끝''이라는 해석을 뒷받침한다. single step에서는 K-측과 Q-측이 교환 가능하므로 layer-adaptive K+Q와 signed Q-only는 한 스텝 기준에서 같은 가족의 구성원이며, multi-step에서는 K-bias가 캐시에 누적되므로 long-horizon 체제에서 Q-only가 더 안정적인 이유가 설명된다. \S\ref{sec:experiments}은 이 예측을 retail 액션 수 분해와 도메인별 우세 패턴으로 확인한다.
+
 이 결과가 설명해야 할 경험적 사실은 분명하다. retail과 MetaTool에서는 $\beta<0$이 이기고 telecom에서는 $\beta>0$이 이긴다. 어느 부호가 어느 도메인에서 유리한지를 일차 수준에서 예측하는 진단이 다음 정리다. ground-truth 도구의 proxy token 집합을 $\mathcal{G}$라 하고 현재 attention 분포를 $p_0(t) = s_t(q)$라 하자. 온톨로지 부분공간 위의 per-token score를
 \begin{equation*}
 r_t := \tfrac{1}{\sqrt d}\langle BB^\top q, k_t\rangle
@@ -78,4 +104,4 @@ $\|\hat o - o\|^2 \le 2\,\mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q) + C_1 
 
 본문 논증은 한 줄 Taylor 전개와 softmax Jacobian으로 충분하며, 네 단계 완전 증명은 부록~\ref{app:proof:bound}에 있다. \S\ref{sec:experiments}의 실측은 Qwen L=13에서 좌변/우변 비율의 중앙값이 $2.36\times 10^{-8}$로 bound가 공허하지 않음을 확인한다. 이 정리는 왜 같은 $\alpha$의 K-측 perturbation이 레이어에 따라 attention 출력 교란 정도가 크게 달라지는지를 설명한다. develop 브랜치 실험에서 관측된 U-shape sensitivity와 결합하면, late layer의 K perturbation은 같은 $\alpha$에서도 더 위험하고 early layer의 K perturbation은 정보 각인에 더 유용하다. 본 논문의 스케줄 $\alpha_\ell = \alpha \mathbf{1}\{\ell<\lfloor L/4\rfloor\}$, $\beta_\ell = \beta$는 이 설계 원리의 최소 구현이며, K는 초기 각인에만 쓰고 이후 coverage 조정은 Q에 맡긴다.
 
-증명 사슬을 요약하면 다음과 같다. 정리~\ref{thm:no-memory}은 연산자 정의만으로 성립하며 분포 가정을 전혀 쓰지 않는다. 정리~\ref{thm:q-sign}은 사영 멱등성 $P_{\mathrm{ont}}^2 = P_{\mathrm{ont}}$만 사용한다. 정리~\ref{thm:beta-star}은 softmax gradient identity를 일차 Taylor에 대입한 결과다. 정리~\ref{thm:bound}만 유계 노름 가정을 쓰며 Taylor와 Cauchy-Schwarz로 따라온다. 네 결과는 모두 같은 연산자족 \eqref{eq:ops} 위에서 서로 다른 측면을 다루고, layer-adaptive K+Q 설계의 네 지지점이 된다.
+다섯 결과는 같은 연산자족 \eqref{eq:ops}의 서로 다른 축을 짚는다. 정리~\ref{thm:no-memory}은 연산자 정의만으로 history-free 한계를, 정리~\ref{thm:q-sign}은 사영 멱등성만으로 Q 부호의 기하를, 정리~\ref{thm:qk-duality}는 $P_{\mathrm{ont}}$의 대칭성만으로 K와 Q의 per-step 동등성을, 따름정리~\ref{cor:cache-divergence}는 KV-cache 재사용만으로 multi-step 비대칭성을 지적하며, 정리~\ref{thm:beta-star}과 정리~\ref{thm:bound}은 softmax gradient와 Taylor 전개로 각각 국소 방향과 레이어별 교란 경계를 제공한다. 이로써 layer-adaptive K+Q와 signed Q-only는 ``같은 기저, 같은 per-step 작용, 서로 다른 multi-step 거동''이라는 하나의 연산자족 내 두 끝으로 해석된다.

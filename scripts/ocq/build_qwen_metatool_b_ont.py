@@ -47,7 +47,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Reuse Phase 1.x ontology pipeline functions
-REPO = Path("/home/woori/workspace_common/boltzmann-attention")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "scripts"))
 
 # IMPORTANT: ontology_facet_basis.py sets CUDA_VISIBLE_DEVICES='1' on

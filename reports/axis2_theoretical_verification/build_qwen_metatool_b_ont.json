@@ -1,5 +1,5 @@
 {
-  "model": "NousResearch/Meta-Llama-3.1-8B",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
   "target_layers": [
     0,
     1,
@@ -28,11 +28,7 @@
     24,
     25,
     26,
-    27,
-    28,
-    29,
-    30,
-    31
+    27
   ],
   "facet_order": [
     "function_action",
@@ -40,10 +36,10 @@
     "domain",
     "tool_category"
   ],
-  "n_pairs_built": 256,
-  "r_min": 19,
-  "r_max": 33,
-  "r_median": 29,
+  "n_pairs_built": 112,
+  "r_min": 12,
+  "r_max": 14,
+  "r_median": 12,
   "n_skipped": 0,
-  "out_path": "external/SEKA/seka_projections/ontology-llama31-8b-metatool/B_ont.pt"
+  "out_path": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom/B_ont.pt"
 }

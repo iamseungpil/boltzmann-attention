@@ -39,7 +39,7 @@ Feature-shuffled & 291.98 & 241.87 & 169.97 \\
 \end{tabularx}
 \end{table}
 
-셋째 반론은 ``Q-회전이 일종의 confidence booster라면 $|\beta|$가 클수록 좋아야 한다''는 주장이다. $\beta$ sweep은 이 해석을 배제한다. 그림~\ref{fig:beta-sweep}에서 Qwen Subtask4의 Q-only 곡선은 $\beta \approx -0.1$ 근방에서 최고이고 $\beta = -0.7$에서는 F1이 0으로 완전히 붕괴한다. 좁은 유효 구간은 ``큰 $|\beta|$일수록 좋다''와 정면으로 모순되며, 특정 크기의 부분공간 사영만이 coverage를 돕는다는 해석과 부합한다. 정리~\ref{thm:beta-star}의 일차 진단도 전역 최대가 아니라 원점 근방의 개선 방향만을 예측한다는 점에서 이 좁은 구간 관측과 일관된다.
+셋째 반론은 ``Q-회전이 일종의 confidence booster라면 $|\beta|$가 클수록 좋아야 한다''는 주장이다. $\beta$ sweep은 이 해석을 배제한다. 그림~\ref{fig:beta-sweep}에서 Qwen Subtask4의 Q-only 곡선은 $\beta \approx -0.1$ 근방에서 최고이고 $\beta = -0.7$에서는 F1이 0으로 완전히 붕괴한다. 좁은 유효 구간은 ``큰 $|\beta|$일수록 좋다''와 정면으로 모순되며, 특정 크기의 부분공간 사영만이 coverage를 돕는다는 해석과 부합한다. 정리~\ref{thm:beta-star}의 일차 진단도 전역 최대가 아니라 원점 근방의 개선 방향만을 예측한다는 점에서 이 좁은 구간 관측과 일관된다. 다만 이 정리의 부호 예측기는 현재 경험적 검증 단계에 있으며 스키마-$\mathcal{G}$ 변형은 $\tau^2$ Telecom에서 실패하므로, 본문의 해석은 정리를 ``액면 그대로 배포 가능한 예측기''가 아닌 regime 설명 도구로만 쓴다(부록~\ref{app:G-sensitivity}).
 
 \begin{figure}[t]
 \centering

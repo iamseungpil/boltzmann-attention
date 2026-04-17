@@ -584,6 +584,7 @@ def run_method(
     L: int,
     facet_mask=None,
     skip_heads=None,
+    domain_tools: Optional[List[str]] = None,
 ) -> Dict:
     """Evaluate a single method across all tasks."""
     ctx = get_steering_context(
@@ -754,6 +755,7 @@ def main():
             B_ont=B_ont, n_kv=n_kv, n_q=n_q,
             head_dim=head_dim, L=L,
             facet_mask=facet_mask, skip_heads=skip_heads,
+            domain_tools=domain_tools,
         )
         m = res["metrics"]
         print(

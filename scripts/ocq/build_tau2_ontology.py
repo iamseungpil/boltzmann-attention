@@ -62,7 +62,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-REPO = Path("/home/woori/workspace_common/boltzmann-attention")
+REPO = Path(__file__).resolve().parents[2]
 TAU2_SRC = REPO / "external" / "tau2-bench" / "src" / "tau2" / "domains"
 
 FACET_ORDER = ["function_action", "io_type", "domain", "tool_category"]

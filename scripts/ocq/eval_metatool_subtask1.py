@@ -590,7 +590,11 @@ def install_layer_adaptive_hooks(
 
                 handles.append(k_proj.register_forward_hook(make_k_hook(layer_idx, B_ont_layer)))
 
-            if layer_idx >= k_boundary and beta_q != 0:
+            # Q-coverage: applied to ALL layers per paper §4 definition
+            # (α_ℓ = α·1{ℓ<L/4}, β_ℓ = β). Earlier code gated this by
+            # `layer_idx >= k_boundary` which made K and Q mutually exclusive
+            # across layers — a silent deviation from the paper formula.
+            if beta_q != 0:
                 q_proj = layer.self_attn.q_proj
                 B_q = B_ont_layer.unsqueeze(1).expand(-1, g, -1, -1).reshape(n_q, d, r)
 

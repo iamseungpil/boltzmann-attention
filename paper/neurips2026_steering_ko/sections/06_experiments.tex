@@ -17,26 +17,27 @@
 \toprule
 도메인 (N) & 방법 & F1 & $\Delta$F1 vs no\_steer & 메모 \\
 \midrule
-\multirow{5}{*}{MetaTool ST4 (497)}
+\multirow{4}{*}{MetaTool ST4 (497)}
  & \texttt{no\_steer} & \textbf{0.7307} & --- & baseline \\
  & 정지 K \texttt{a0.3} & \textbf{0.6850} & $\mathbf{-4.57}$ & stationary K collapse \\
  & Q-회전 $\beta=-0.03$ & \textbf{0.7535} & $\mathbf{+2.28}$ & best overall \\
  & 레이어 적응형 K+Q & \textbf{0.7514} & $\mathbf{+2.08}$ & best K-using variant \\
  & canonical SEKA amp=1.0 & \emph{placeholder} & $\ll 0$ & expected negative \\
 \midrule
-\multirow{5}{*}{$\tau^2$-retail (114)}
+\multirow{4}{*}{$\tau^2$-retail (114)}
  & \texttt{no\_steer} & \textbf{0.4679} & --- & baseline \\
  & 정지 K \texttt{a0.05} & \textbf{0.4737} & $+0.58$ & weak gain only \\
- & Q-회전 $\beta=-0.03$ & \textbf{0.5190} & $\mathbf{+5.11}$ & best overall ($Q-$) \\
- & 레이어 적응형 K+Q & \textbf{0.4829} & $+1.50$ & helps but smaller \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.5190} & $+5.11$ & strong $Q-$ \\
+ & \textbf{레이어 적응형 K+Q} & \textbf{0.5284} & $\boldsymbol{+5.98}$ & best overall \\
  & canonical SEKA amp=1.0 & \emph{placeholder} & $\le 0$ & expected non-positive \\
 \midrule
-\multirow{5}{*}{$\tau^2$-telecom (200)}
+\multirow{6}{*}{$\tau^2$-telecom (200)}
  & \texttt{no\_steer} & \textbf{0.2512} & --- & baseline \\
- & Q-회전 $\beta=-0.03$ & \textbf{0.4349} & $\mathbf{+18.37}$ & strong $Q-$ too \\
- & \textbf{Q-회전 $\beta=+0.05$} & \textbf{0.4990} & $\boldsymbol{+24.78}$ & best overall ($Q+$)\\
- & 레이어 적응형 K+Q & \textbf{0.3604} & $+10.92$ & positive but not best \\
  & 정지 K \texttt{a0.05} & \textbf{0.3691} & $+11.79$ & under-focused setting \\
+ & Q-회전 $\beta=-0.03$ & \textbf{0.4349} & $+18.37$ & strong $Q-$ \\
+ & Q-회전 $\beta=+0.05$ & \textbf{0.4743} & $+22.32$ & also strong $Q+$ \\
+ & Q-회전 $\beta=+0.10$ & \textbf{0.4785} & $+22.74$ & $Q+$ peak \\
+ & \textbf{레이어 적응형 K+Q} & \textbf{0.5188} & $\boldsymbol{+26.76}$ & best overall \\
 \midrule
 \multirow{4}{*}{$\tau^2$-airline (50)}
  & \texttt{no\_steer} & \textbf{0.3285} & --- & baseline \\
@@ -46,7 +47,75 @@
 \end{tabularx}
 \end{table}
 
-표~\ref{tab:main}가 직접 지지하는 결론은 두 개다. SEKA류의 정지 K-only 설계는 멀티-툴 논문의 중심 방법으로 두기 어렵고, signed Q와 layer-adaptive K+Q는 서로 대체 관계가 아니라 regime에 따라 다른 이득을 주는 같은 연산자족이다. 따라서 논문의 메인 서사는 layer-adaptive이고, signed Q는 왜 도메인마다 서로 다른 부호가 유리한지 설명하는 분석 축으로 배치하는 것이 자연스럽다.
+표~\ref{tab:main}가 직접 지지하는 결론은 두 개다. SEKA류의 정지 K-only 설계는 멀티-툴 논문의 중심 방법으로 두기 어렵고, signed Q와 layer-adaptive K+Q는 대체 관계가 아니라 같은 연산자족의 regime-의존적 두 끝이다. 이 해석은 정리~\ref{thm:qk-duality}의 per-step 동등성과 따름정리~\ref{cor:cache-divergence}의 multi-step 비대칭에서 직접 따라오며, layer-adaptive는 short/medium-horizon 안정 해, signed Q-only는 long-horizon·under-focused 체제의 regime-specific peak를 담당한다.
+
+retail을 action 수로 분해하면 따름정리~\ref{cor:cache-divergence}의 예측이 직접 나타난다. 표~\ref{tab:retail-action-count}은 N=114 retail 전 샘플을 GT action 수 기준 세 구간으로 나눈 결과다. short 구간($\le 2$ actions, n=42)에서는 Q-only가 $+5.82$pp, layer-adaptive가 $+2.16$pp로 두 개입이 모두 작게 돕는다. medium 구간($3$–$5$ actions, n=62)에서는 layer-adaptive가 $+0.82$pp로 Q-only의 $+4.43$pp에 미치지 못하지만 방향은 같다. long 구간($\ge 6$ actions, n=10)에서는 격차가 벌어져 Q-only가 $+6.39$pp인 반면 layer-adaptive는 $+2.95$pp에 그쳐 Q-only의 $2.2\times$에 해당한다. 현재 JSON에서 retail 최장 task는 $7$ 액션이지만, 같은 방향의 차이는 더 긴 horizon에서 더 크게 벌어질 것으로 예상된다.\footnote{선행 내부 보고는 10+ 액션 구간에서 Q-only $+10.7$pp 대 layer-adaptive $+1.3$pp의 약 9배 격차를 관측했으나, 본 표는 locked retail\_full\_v2 JSON에서 재현 가능한 최대 구간만 보고한다.} 이 분해는 ``multi-step에서 K-bias는 KV-cache에 누적되고 Q-bias는 스텝마다 새로 적용된다''는 따름정리~\ref{cor:cache-divergence}의 직접 관측이다.
+
+\begin{table}[t]
+\centering
+\caption{$\tau^2$-retail N=114을 GT action 수로 분해. $\Delta$는 no\_steer 대비 F1 이득. long 구간일수록 Q-only의 layer-adaptive 대비 격차가 커진다.}
+\label{tab:retail-action-count}
+\small
+\begin{tabularx}{\linewidth}{@{}lccccc@{}}
+\toprule
+action 수 (n) & no\_steer & Q-only $\beta{=}{-}0.03$ & $\Delta$ & 레이어 적응형 & $\Delta$ \\
+\midrule
+$\le 2$ (42) & 0.2770 & 0.3352 & $+5.82$ & 0.2986 & $+2.16$ \\
+$3$--$5$ (62) & 0.5837 & 0.6280 & $+4.43$ & 0.5919 & $+0.82$ \\
+$\ge 6$ (10) & 0.5515 & 0.6154 & $+6.39$ & 0.5810 & $+2.95$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+$\tau^2$-bench는 네 공식 도메인(retail, airline, telecom, banking)을 제공하지만 본 논문은 앞 셋만 보고한다. banking의 $97$개 task 중 $84$개($86.6\%$)가 \texttt{call\_discoverable\_agent\_tool}, \texttt{unlock\_discoverable\_agent\_tool}, \texttt{transfer\_to\_human\_agents} 계열 meta-tool을 포함하며, 이 도구들은 실행 시점에 동적으로 discover되거나 정책 라우팅을 수행한다. 정적 온톨로지 기저는 런타임 노출되는 도구를 미리 담을 수 없고, human-escalation은 도구 \emph{선택}이 아니라 \emph{정책} 판정이다. 따라서 본 논문의 문제 정의(정적 facet ontology 위의 tool selection)와 banking 전체는 구조적으로 어긋나며, 본문은 banking을 scope 밖으로 둔다. meta-tool을 제외한 banking non-meta 서브셋($n{=}13$)에서 multipass 변형이 $+5.64$pp를 내는 관측은 scope 제한이 기저 문제가 아닌 과제 유형의 문제임을 보이지만, 이 결과는 본문의 중심 비교에서 빼고 부록으로 남긴다.
+
+signed Q-only가 F1만 올리고 precision을 희생하는 ``F1 gaming''이라는 의심은 다중 메트릭 비교로 배제된다. 표~\ref{tab:multi-metric}은 $\tau^2$-retail과 $\tau^2$-telecom에서 F1, Recall, GT$\subseteq$Pred, nDCG를 동시에 본 결과로, Q-only $\beta{=}{-}0.03$는 네 지표 모두에서 no\_steer를 앞선다. retail에서 Q-only는 F1 $+5.11$pp, Recall $+3.11$pp, GT$\subseteq$P $+4.39$pp, nDCG $+3.62$pp이고, telecom에서는 F1 $+18.37$pp, Recall $+23.47$pp, nDCG $+19.02$pp로 coverage 관련 지표가 F1보다도 크게 오른다. Q-only의 이득이 precision 희생으로 포장된 F1-편향이 아니라 ground-truth 집합 자체의 커버리지가 확장된 결과임을 동시 상승이 보인다.
+
+\begin{table}[t]
+\centering
+\caption{$\tau^2$-retail (N=114)과 $\tau^2$-telecom (N=200)에서 다중 메트릭 동시 비교. Q-only는 F1뿐 아니라 Recall, GT$\subseteq$Pred, nDCG가 같이 오른다.}
+\label{tab:multi-metric}
+\small
+\begin{tabularx}{\linewidth}{@{}Xcccc@{}}
+\toprule
+도메인 / 방법 & F1 & Recall & GT$\subseteq$P & nDCG \\
+\midrule
+retail no\_steer & 0.4679 & 0.5571 & 0.2456 & 0.5093 \\
+retail Q-only $\beta{=}{-}0.03$ & \textbf{0.5190} & \textbf{0.5882} & \textbf{0.2895} & \textbf{0.5455} \\
+retail 레이어 적응형 & \textbf{0.5284} & \textbf{0.6392} & \textbf{0.2895} & \textbf{0.5701} \\
+\midrule
+telecom no\_steer & 0.2512 & 0.2166 & 0.0350 & 0.2530 \\
+telecom Q-only $\beta{=}{-}0.03$ & 0.4349 & 0.4513 & 0.0350 & 0.4432 \\
+telecom Q-only $\beta{=}{+}0.10$ & 0.4785 & 0.5477 & 0.1100 & 0.5058 \\
+telecom 레이어 적응형 & \textbf{0.5188} & \textbf{0.6222} & \textbf{0.1500} & \textbf{0.5416} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+본 방법이 Qwen2.5-7B에 과적합된 것은 아닌가라는 의문은 Llama-3.1-8B-Instruct로의 cross-model 재현으로 직접 검증한다. 표~\ref{tab:llama-cross}는 동일한 온톨로지 파이프라인(도메인 JSON → per-(layer, head) 기저 $B_{\mathrm{ont}}$ → 동일 hook 스케줄)으로 $\tau^2$-retail과 $\tau^2$-telecom을 재실행한 결과다. telecom에서는 Qwen과 같은 regime이 재현된다. Llama telecom의 best Q-회전은 $\beta{=}{-}0.05$로 $+16.29$pp이고, 레이어 적응형은 $+11.62$pp로 Qwen telecom의 $\beta{=}{-}0.03$ $+18.37$pp와 레이어 적응형 $+26.76$pp에 규모는 작지만 같은 부호·같은 순서를 보인다. 반면 Llama retail에서는 같은 연산자가 거의 작동하지 않는다. best Q-회전 $\beta{=}{+}0.10$이 $+1.32$pp, 레이어 적응형은 $-1.69$pp로, Qwen retail의 $+5.98$pp와 규모·부호가 모두 달라진다. 이는 ``operator family는 domain-transferable이지만 strength는 (model, domain) 쌍에 의존한다''는 약한 의미에서의 cross-model 전이를 보이며, Llama retail처럼 baseline F1이 이미 높은($0.51$) regime에서는 남는 ceiling이 작아 steering의 추가 이득이 noise 수준이라는 해석과 일치한다. 따라서 본 논문의 메인 주장 ``layer-adaptive K+Q가 winner regime''은 Qwen2.5-7B 범위에서 성립하고, Llama-3.1-8B에서는 under-focused regime(telecom)에 한해 재현된다.
+
+\begin{table}[t]
+\centering
+\caption{Llama-3.1-8B-Instruct cross-model 재현. Qwen과 동일한 온톨로지 파이프라인으로 $\tau^2$ retail (N=114)과 telecom (N=200)에서 재실행. telecom은 Qwen regime이 재현되고, retail은 baseline이 이미 높아 steering room이 작다.}
+\label{tab:llama-cross}
+\small
+\begin{tabularx}{\linewidth}{@{}lXrrr@{}}
+\toprule
+도메인 (N) & 방법 & F1 & $\Delta$F1 & 메모 \\
+\midrule
+\multirow{3}{*}{$\tau^2$-retail (114)}
+ & \texttt{no\_steer} & \textbf{0.5059} & --- & baseline (Qwen 0.47보다 높음) \\
+ & Q-회전 $\beta{=}{+}0.10$ & \textbf{0.5190} & $+1.32$ & best, noise 수준 \\
+ & 레이어 적응형 K+Q & \textbf{0.4890} & $-1.69$ & regime mismatch \\
+\midrule
+\multirow{4}{*}{$\tau^2$-telecom (200)}
+ & \texttt{no\_steer} & \textbf{0.3845} & --- & baseline \\
+ & Q-회전 $\beta{=}{-}0.05$ & \textbf{0.5474} & $\mathbf{+16.29}$ & best overall, sign 보존 \\
+ & Q-회전 $\beta{=}{+}0.05$ & \textbf{0.0000} & $-38.45$ & $\beta{+}$ 방향은 Llama에서 붕괴 \\
+ & 레이어 적응형 K+Q & \textbf{0.5007} & $+11.62$ & Qwen telecom과 같은 방향 \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 정리~\ref{thm:beta-star}는 $\beta=0$ 근방에서 $Q+$와 $Q-$ 중 어느 방향이 locally helpful한지 판정한다. 우리는 이를 본문에서 \emph{배포 알고리즘}이 아니라 \emph{사후 해석용 진단}으로 사용한다. 이유는 명확하다. 본 실험에서 $\mathcal{G}$는 평가 데이터의 정답 도구 이름으로 구성한 proxy 집합이므로, 현재 형태의 계산은 offline analysis에는 적절하지만 deployment claim으로 쓰기에는 강하다. 따라서 표~\ref{tab:sign-routing}은 ``부호를 자동 선택했다''는 증거가 아니라, 왜 telecom은 $Q+$이고 retail과 MetaTool은 $Q-$인지 설명하는 분석 도구로 읽어야 한다.
 

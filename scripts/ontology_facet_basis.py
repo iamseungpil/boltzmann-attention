@@ -53,7 +53,10 @@ import json
 import time
 
 os.environ.setdefault('TRANSFORMERS_VERBOSITY', 'error')
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'  # GPU 0 in use elsewhere
+# NOTE: the original file hard-set CUDA_VISIBLE_DEVICES='1' (coworker env had
+# two GPUs). We only set it if the caller has not already pinned a device,
+# so importing this module does not hijack single-GPU runs.
+os.environ.setdefault('CUDA_VISIBLE_DEVICES', os.environ.get('CUDA_VISIBLE_DEVICES', '0'))
 
 import numpy as np
 import torch
