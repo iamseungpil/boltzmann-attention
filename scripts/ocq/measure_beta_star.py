@@ -133,37 +133,46 @@ def find_tool_token_spans(
         return None
 
     spans: List[Tuple[int, int]] = []
-    for name in gt_tool_names:
-        for m in re.finditer(re.escape(name), prompt):
+
+    def expand_to_json_object(c_start: int, c_end: int) -> Tuple[int, int]:
+        obj_start = prompt.rfind("{", 0, c_start)
+        if obj_start < 0:
+            obj_start = c_start
+        depth = 0
+        obj_end = c_end
+        for i in range(obj_start, len(prompt)):
+            if prompt[i] == "{":
+                depth += 1
+            elif prompt[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    obj_end = i + 1
+                    break
+        return obj_start, obj_end
+
+    if mode == "all_schemas":
+        # Find every `"name":` occurrence and expand each to its JSON object
+        for m in re.finditer(r'"name"\s*:\s*"([^"]+)"', prompt):
             c_start, c_end = m.start(), m.end()
-            if mode == "name":
-                span = char_span_to_token_span(c_start, c_end)
-                if span:
-                    spans.append(span)
-            elif mode == "schema":
-                # Expand outward to encompass the JSON object containing
-                # `"name": "<tool>"`. Walk backwards to find the enclosing
-                # `{` and forwards to match its closing `}`.
-                # Start: most recent `{` before c_start.
-                obj_start = prompt.rfind("{", 0, c_start)
-                if obj_start < 0:
-                    obj_start = c_start
-                # End: match braces starting at obj_start.
-                depth = 0
-                obj_end = c_end
-                for i in range(obj_start, len(prompt)):
-                    if prompt[i] == "{":
-                        depth += 1
-                    elif prompt[i] == "}":
-                        depth -= 1
-                        if depth == 0:
-                            obj_end = i + 1
-                            break
-                span = char_span_to_token_span(obj_start, obj_end)
-                if span:
-                    spans.append(span)
-            else:
-                raise ValueError(f"unknown mode {mode}")
+            obj_start, obj_end = expand_to_json_object(c_start, c_end)
+            span = char_span_to_token_span(obj_start, obj_end)
+            if span:
+                spans.append(span)
+    else:
+        for name in gt_tool_names:
+            for m in re.finditer(re.escape(name), prompt):
+                c_start, c_end = m.start(), m.end()
+                if mode == "name":
+                    span = char_span_to_token_span(c_start, c_end)
+                    if span:
+                        spans.append(span)
+                elif mode == "schema":
+                    obj_start, obj_end = expand_to_json_object(c_start, c_end)
+                    span = char_span_to_token_span(obj_start, obj_end)
+                    if span:
+                        spans.append(span)
+                else:
+                    raise ValueError(f"unknown mode {mode}")
     # Merge overlapping spans
     spans = sorted(set(spans))
     merged: List[Tuple[int, int]] = []
