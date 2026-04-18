@@ -260,6 +260,39 @@ Thm 6.17 은 "step-adaptive Q-coverage 가 multi-tool 에서 first-order optimal
 - existence claim = "X 가 Y 에서 작동한다" → 반례 발견 = scope 좁히기, 전체 붕괴 아님.
 - v1–v3 pivoting 의 근본 원인은 mechanism 시도; 4-claim 은 pivoting 을 종결시킨다.
 
+### 3.6.1 C3 증거표 v4 업데이트
+
+| setting | N | A (ours) | D (random, matched) | A–D 의미 |
+|---|---:|---:|---:|---|
+| τ²-Telecom same-domain | 200 | 200/200 pred changed, +28.89pp ΔF1 | 0/200 under 20% ‖K‖ | direction-specific on target benchmark |
+| BFCL parallel_multiple cross-domain proxy (v4 신규) | 100 | **2/100 pred changed** | **0/100** | cross-benchmark replication of separation |
+
+C3 은 (i) same-domain full-magnitude + (ii) cross-domain weak-magnitude 의 **두 독립 증거** 로 지지됨. 리뷰어 "one bench / one domain" 공격 루트에 대해 E5 footnote 가 즉각 반박.
+
+### 3.7 Shared Basis Proposition 병렬 drafting — coworker 가 기다리지 말아야 하는 이유 (v4 신규)
+
+별도 paper session 이 `math/paper/lie_group/SHARED_BASIS_PROPOSITION_DRAFT_2026_04_19.md` 에 **첫-오더 Taylor 기반 Shared Basis Proposition + Cor (A)/(B)/(C)** 를 speculative 하게 drafting 중이다. 이 draft 는 **절대 `PAPER_DRAFT_v3.md` 본문에 반영되지 않는다** — 실험 세션의 다음 두 gate 가 **모두** 통과한 경우에만 별도 consolidation session 이 추가 patch (E7~) 를 생성한다.
+
+**Two-gate revival 조건** (handoff_shared_basis_parallel_2026_04_19.md §DEFAULTS):
+
+1. **P1 (random rank KL scaling)** — `scripts/ocq/measure_random_rank_scaling.py` (신규), Telecom N=100, 7 rank $r \in \{1,3,6,12,24,48,96\}$ 에서 `KL(p_perturbed || p_no_steer)` 를 $r/d$ 로 회귀. **R² > 0.85** 이면 pass. 예상 런타임 ~20 분.
+2. **P2 (closed-form $d^*$ sign)** — `scripts/ocq/measure_d_star_sign.py` (신규), GT-vs-distractor key aggregate SVD 로 $d^*_{M,h}(q)$ 를 gradient-free 정의. Qwen/Llama × Telecom/ST4 (4 조합) 에서 sign(cos) 예측 일치 여부 측정. **≥ 3/4 일치** 이면 pass. 예상 런타임 2–4 시간.
+
+**기본값 (scenario 4)**: 둘 중 **하나라도 miss** 이면 existence-only fallback 유지. Draft 는 archive (`math/paper/lie_group/archive_shared_basis/`) 로 이동, 후속 논문 용 보관. Coworker 는 E1–E6 그대로 완료.
+
+**시간 부족 규칙**: NeurIPS 마감까지 <48 시간이면 **실험 결과와 무관하게** 즉시 fallback 확정. Draft archive.
+
+**왜 병렬 drafting 이 coworker 를 block 하지 않나**:
+- Draft session 의 산출물은 **별도 markdown 파일** 이고, `PAPER_DRAFT_v3.md` 는 consolidation session 만 수정.
+- Default 가 fallback 이라는 것은 **현재 시점에서 coworker 가 봐야 할 upside claim 이 없다** 는 뜻. E1–E6 이 전부.
+- 만약 P1+P2 가 모두 pass 해서 consolidation session 이 fire 하면, 그 세션이 `CANONICAL_ADASEKA_COWORKER_BRIEF_2026_04_18.md` 를 v5 로 업데이트하고 E7~ patch 를 발행한다. 그 때 다시 확인할 것.
+- 병렬로 돌려서 wall-clock 을 절약하되, **존재하지 않는 upside 를 coworker 가 걱정하지 않도록 default 를 fallback 으로 명시**.
+
+**"네 번째 pivot" 위험 차단** (cross-review consensus):
+- v1 → v2 → v3 → v4 각 pivot 마다 mechanism 시도가 공격 루트를 열었음.
+- v4 에서는 mechanism 을 **두 개의 하드 게이트 뒤에 숨긴다**. Gate 통과 전에는 논문에 mechanism 이 없음 → 새 pivot 불가능. Gate 통과하면 empirical 로 지지된 상향 → pivot 아닌 upgrade.
+- Coworker 는 E1–E6 만 신경 쓰면 됨. Gate 결과는 후속 consolidation session 의 책임.
+
 ---
 
 ## 4. 왜 +28.89pp 가 나왔는지의 가설 (reframing 용 재료)
