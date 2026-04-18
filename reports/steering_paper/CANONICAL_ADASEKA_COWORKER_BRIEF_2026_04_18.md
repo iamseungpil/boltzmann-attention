@@ -836,7 +836,20 @@ NeurIPS 2026 main track 에서 "우리 결과가 한 벤치에 몰려 있는가"
 
 ---
 
-## 10. 이 문서의 의미 (TL;DR, v2)
+## 10. 이 문서의 의미 (TL;DR, v3)
+
+**v3 핵심 변경** (v2 대비):
+1. **Phase 0 verification positive** (§2.6): variantD bug 아님 확정 → C3 legitimate.
+2. **4 Existence claims 공식화** (§3.6): C1 safe floor / C2 operator-form agnosticism / C3 basis direction specificity / C4 training-free derivation.
+3. **Mechanism 주장 전면 포기**: §1.0 "structurally incapable" 삭제, §1.1 "axis-separation claim" 삭제, "facet-diverse vs uniform" 이분법 폐기.
+4. **Option ε 수렴**: "B_ont as geometric substrate" single thesis, 6 paper edit (E1–E6).
+5. **§6 concrete patch 모음** (E1–E6 before/after text) 추가 — coworker 가 직접 paper 적용 가능.
+6. **Q-sign asymmetry** 를 §Results subsection 으로 선제 공개 (E6) — reviewer 공격 루트 차단.
+7. **실험 우선순위 재정렬**: BFCL parallel_multiple > BiasBios (primary turf 확증이 home-turf validation 보다 review-critical).
+
+---
+
+## 10-legacy. 이 문서의 의미 (TL;DR, v2 원본)
 
 1. **Canonical AdaSEKA 라 부르던 것의 정체**: AdaSEKA 의 interface (routing + marker-gated K hook) 에 **우리 B_ont 에서 파생한 experts** 를 주입한 객체. 진짜 AdaSEKA 논문의 contrastive-training expert 가 아니다. basis_matching_trap 방지 위해 "training-free AdaSEKA-interface (B_ont-derived)" 표기 사용.
 2. **측정된 성능**: τ² Telecom N=200 에서 +28.89pp ΔF1. Multi-domain subset 에서 +36.17pp (single 보다 크다).
