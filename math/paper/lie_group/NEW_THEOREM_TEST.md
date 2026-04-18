@@ -152,7 +152,9 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 - **실패 시 plan**: facet-split dominance 는 routing/gating 의 structural effect (non-concentration-based) 로 재해석. §Discussion 의 open question.
 - **근거 데이터**: E8 (A-B-D decomposition), E9 (routing architectural).
 
-**H-H (Scope boundary via alignment collapse) — v2 신규**: B_ont 가 **benchmark 외부** (e.g. MMLU) 또는 **architecture-mismatched model** (e.g. Mistral) 에서 negative lift 를 내는 이유는 **그 (M, V) 에서 B_ont 와 empirical $d^*_{M,V}$ 사이 각도가 크기 때문**. Tool-selection benchmark + catalog-aligned model 에서는 각도 작음.
+**H-H (Scope boundary via alignment collapse) — v2 신규; v3 partial 이슈**: B_ont 가 **benchmark 외부** (e.g. MMLU) 또는 **architecture-mismatched model** (e.g. Mistral) 에서 negative lift 를 내는 이유는 **그 (M, V) 에서 B_ont 와 empirical $d^*_{M,V}$ 사이 각도가 크기 때문**. Tool-selection benchmark + catalog-aligned model 에서는 각도 작음.
+
+**v3 partial 재고**: Phase A 에서 Mistral × τ²-Telecom 의 Lemma 2 slope 은 정상 (0.547, R²=0.9995, flip=0). 즉 Mistral 에서 random 은 여전히 flip 0 이지만 B_ont 는 -31.86pp 음수 (E11) — **Mistral 이 random 을 reject 하는 것은 아니고 B_ont 자체와 alignment 가 음의 방향이거나 format-incompatible** 일 수 있음. Phase B3.2 가 이걸 정확히 측정해야 함.
 
 - **예측 (정량)**:
   - Qwen τ² Telecom: $\cos(B_\text{ont}, d^*_\text{emp}) \geq 0.5$
