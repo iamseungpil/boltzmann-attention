@@ -1569,7 +1569,7 @@ def main():
     dtype = resolve_dtype(args.model, args.dtype)
     model = AutoModelForCausalLM.from_pretrained(
         args.model,
-        dtype=dtype,
+        torch_dtype=dtype,
         device_map=args.device,
         attn_implementation="eager",
         low_cpu_mem_usage=True,
