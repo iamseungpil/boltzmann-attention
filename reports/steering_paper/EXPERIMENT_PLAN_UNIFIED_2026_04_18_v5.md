@@ -152,4 +152,53 @@ v5 does not claim ladapt is uniformly better than Q-only. v5 does not claim β+ 
 
 No new runs. All claims supported by existing locked JSONs. Paper-rewrite execution begins immediately after this plan commits.
 
+## 8. Optional final-day experiments (Tier 1/2/3)
+
+v5 narrative is fully supported by locked evidence and requires no reruns. The following extensions would strengthen individual sections but are not blocking; each is listed in Intent / Hypothesis / Validation / Interpretation form so the decision to run is traceable.
+
+### Tier 1 — high value / low cost
+
+**E-v5.1. Llama β+0.05 failure-type classification (~3 min GPU for N=20 verbose smoke).**
+- **Intent.** Turn "200/200 empty" into a mechanistic statement about Llama's tool-call format under positive Q-rotation.
+- **Hypothesis.** ≥60% of empty outputs are "early EOS after non-tool prose" (NL refusal or summary), remainder being repetition loops or JSON-fragment truncation.
+- **Validation.** `eval_tau2_bench.py --model Llama --domain telecom --methods ocq_qbias_b0.05 --max-samples 20 --verbose`; manually classify each generation's first 200 chars into {early EOS + NL, repetition loop, partial JSON, other}.
+- **Interpretation.** If early-EOS dominates, §6 format-collapse paragraph upgrades from "output invalid" to "instruction fine-tuning emits NL refusal when queries perturbed past training distribution". If repetition dominates, the mechanism is attention-sink-like collapse.
+
+**E-v5.2. Llama telecom ladapt vs no_steer 10k-iter bootstrap (0 GPU; ~2 min Python).**
+- **Intent.** Upgrade C1b's central claim (+11.62pp Llama telecom ladapt) from point estimate to significance-tested.
+- **Hypothesis.** 95% CI lower bound > +8pp, p<0.001.
+- **Validation.** Already computed in `BOOTSTRAP_SIGNIFICANCE_2026_04_18.md` (+11.62pp, CI [+9.34, +13.93], p<0.001). Needs only re-citation from abstract and §6.
+- **Interpretation.** Strengthens cross-model transfer claim; already effectively landed.
+
+**E-v5.3. MetaTool ST4 multi-metric extension (0 GPU; ~5 min Python).**
+- **Intent.** Close audit gap C5 on the primary benchmark (N=497), not only τ² retail/telecom.
+- **Hypothesis.** Q-only and ladapt show parallel gains on Recall / GT⊆Pred / nDCG; no "F1 gaming" signature.
+- **Validation.** Extract Recall/GT⊆P/nDCG from `develop:reports/layer_adaptive_2026_04_17/qwen_st4_ladapt_full_N497.json` per-sample; add rows to `tab:multi-metric`.
+- **Interpretation.** If four metrics co-move, "F1 gaming" rebuttal extends from τ² to MetaTool. If Recall moves but precision drops, paper acknowledges shift honestly.
+
+### Tier 2 — moderate value / moderate cost
+
+**E-v5.4. PCA-of-K basis ablation on τ² retail (1 GPU-h).**
+- **Intent.** Fill `tab:e4-basis` PCA row; test whether low-rank structure suffices or catalog ontology is load-bearing.
+- **Hypothesis.** PCA basis yields Q-only near real-B but ladapt below real-B → K-side needs catalog semantics, Q-side benefits from any aligned low-rank subspace.
+- **Validation.** `build_pca_baseline_basis.py` rank 12 on retail calibration set; then `eval_tau2_bench.py --domain retail --max-samples 114 --b-ont <pca>.pt --methods ocq_qbias_b-0.03 ocq_ladapt_k0.05_q-0.03`.
+- **Interpretation.** PCA ≈ real-B on Q-only weakens "catalog essential" strong claim to "catalog optimal but low-rank suffices". PCA < real-B on ladapt preserves the strong claim on K-side.
+
+**E-v5.5. Qwen 1.5B size-sweep smoke (0.5 GPU-h).**
+- **Intent.** Fill one cell of `tab:e5-sizesweep` to anchor size-independence statement.
+- **Hypothesis.** 1.5B layer-adaptive sign on MetaTool ST4 positive; magnitude smaller.
+- **Validation.** `eval_metatool_subtask4.py --model Qwen/Qwen2.5-1.5B-Instruct --methods no_steer ocq_ladapt_k0.05_q-0.03 --max-samples 100`.
+- **Interpretation.** Sign preserved → size-independence footnote supported. Sign flipped → caveat strengthens.
+
+### Tier 3 — deferred (cost or blockers)
+
+**E-v5.6. Phase 2.5 layer boundary sweep LS-1..LS-6 (6 GPU-h).** Coworker track; confirms τ=1/4 Pareto choice.
+**E-v5.7. Canonical SEKA A100 reproduction (G1 gate).** Blocked by A100 availability; paper rows remain reference-only until cleared.
+**E-v5.8. Llama MetaTool ST4 ladapt (1.7 GPU-h).** Cross-model at MetaTool level; omitted because τ² retail+telecom on Llama already cover the table-1-level cross-model claim.
+**E-v5.9. β* logit-lens predictor (0.5 GPU-h + coding).** Main-body β* already softened; paper does not depend on validated predictor. Future work.
+
+### Decision policy
+
+**Default for Saturday**: run Tier 1 (E-v5.1, 5.2 already done, 5.3). Total cost ~3 min GPU + ~10 min Python. Each adds a concrete sentence to the paper and closes a specific audit flag. Tier 2 is optional; Tier 3 is deferred.
+
 End of plan v5.

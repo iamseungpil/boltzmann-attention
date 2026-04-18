@@ -88,13 +88,40 @@ telecom no\_steer & 0.2512 & 0.2166 & 0.0350 & 0.2530 \\
 telecom Q-only $\beta{=}{-}0.03$ & 0.4349 & 0.4513 & 0.0350 & 0.4432 \\
 telecom Q-only $\beta{=}{+}0.10$ & 0.4785 & 0.5477 & 0.1100 & 0.5058 \\
 telecom 레이어 적응형 & \textbf{0.5188} & \textbf{0.6222} & \textbf{0.1500} & \textbf{0.5416} \\
+\midrule
+ST4 no\_steer & 0.7307 & 0.7163 & --- & --- \\
+ST4 Q-only $\beta{=}{-}0.03$ & \textbf{0.7535} & \textbf{0.7354} & --- & --- \\
+ST4 레이어 적응형 & 0.7446 & 0.7304 & --- & --- \\
 \bottomrule
 \end{tabularx}
+\emph{ST4 행은 Jaccard/Exact/Precision까지 일관되게 같이 이동해 F1 gaming 의심을 배제한다} (부록~\ref{app:multi-metric-st4}).
 \end{table}
 
 본 방법이 Qwen2.5-7B에 과적합된 것은 아닌가라는 의문은 Llama-3.1-8B-Instruct로의 cross-model 재현으로 직접 검증한다. 표~\ref{tab:llama-cross}는 동일한 온톨로지 파이프라인(도메인 JSON → per-(layer, head) 기저 $B_{\mathrm{ont}}$ → 동일 hook 스케줄)으로 $\tau^2$-retail과 $\tau^2$-telecom을 재실행한 결과다. telecom에서 operator family 전이가 재현된다. Llama telecom의 레이어 적응형은 $+11.62$pp($p<0.001$, paired bootstrap)로 no\_steer 대비 유의하게 개선되며, Qwen telecom의 $+26.76$pp와 부호는 같고 규모는 작다. 다만 최적 signed-Q 부호는 Qwen과 반대다: Llama telecom의 best는 $\beta{=}{-}0.05$ $+16.29$pp로 음의 방향이 이기고, Qwen telecom의 best $\beta{=}{+}0.10$과 정반대다. 따라서 ``operator family는 cross-model 전이되지만 최적 polarity는 (model, domain)-specific''이라는 narrowed claim이 데이터와 일치한다. Llama retail에서는 어떤 steering도 유의미한 이득을 내지 않는다. 레이어 적응형 $-1.69$pp는 paired bootstrap $p=0.207$, 95\% CI $[-4.37, +0.93]$으로 0을 포함해 no\_steer와 구별되지 않으며, 이는 Llama retail의 no\_steer F1 $0.5059$가 Qwen의 $0.4679$보다 높아 남은 ceiling이 작은 baseline-ceiling 효과로 해석된다. 즉 Llama retail은 ``ladapt가 실패한다''가 아니라 ``두 operator 모두 유의한 효과를 내기 어렵다''.
 
-Llama telecom의 positive-$\beta$ cell은 의미적 실패가 아닌 \emph{format-stability collapse}를 드러낸다. $\beta{=}{+}0.05$에서는 $200$개 중 $200$개, $\beta{=}{+}0.03$에서는 $145$개, $\beta{=}{+}0.10$에서는 $55$개의 샘플에서 \texttt{pred\_tools}가 empty로 반환된다. 반면 negative-$\beta$와 레이어 적응형에서는 empty 수가 모두 0이다. 즉 Llama의 tool-call 포맷 head는 큰 positive Q-rotation 하에서 parseable output 자체를 생성하지 못하게 되며, 이는 ``잘못된 도구를 고른다''가 아니라 ``도구 이름을 포함한 JSON 자체가 나오지 않는다''는 이야기다. 레이어 적응형의 비대칭 스케줄(K는 $L/4$ 레이어에만, Q는 전 레이어에 $|\beta|=0.03$ 수준으로)은 이 magnitude regime을 피해 가는 implicit calibration을 제공하는 것으로 해석되며, 이것이 Llama에서 signed-Q polarity가 flip되어도 레이어 적응형은 안전하게 같은 방향의 이득을 유지하는 cross-model 전이의 기반이다.
+Llama telecom의 positive-$\beta$ cell은 의미적 실패가 아닌 \emph{format-stability collapse}를 드러내며, 이 현상은 baseline 난이도에 의존한다. 표~\ref{tab:format-validity}는 Llama 두 도메인에서 $\beta$별 empty 출력 비율과 F1을 병렬로 둔다. telecom($\beta{=}{+}0.05$)에서는 $200/200$ 샘플이 \texttt{pred\_tools} empty로 반환되고 $\beta{=}{+}0.03$에서 $145/200$, $\beta{=}{+}0.10$에서 $55/200$으로 progressive collapse 패턴을 보인다. 반면 Llama retail은 \emph{모든 $\beta$}에서 empty 비율이 0으로, 같은 모델이라도 baseline F1이 이미 높으면($0.506$) 동일 magnitude의 positive rotation이 parseable output을 깨뜨리지 않는다. 즉 format collapse는 ``Llama-특이적 버그''가 아니라 baseline F1이 weak한 regime($0.385$)에서 positive Q-rotation이 생성 분포를 off-manifold로 밀어내는 \emph{baseline-conditional} 현상이며, 레이어 적응형의 비대칭 스케줄($K$는 $L/4$ 레이어에만, $Q$는 전 레이어에 $|\beta|=0.03$ 수준으로)은 이 magnitude regime을 피해 가는 implicit calibration을 제공하는 것으로 해석된다. 이것이 Llama에서 signed-Q polarity가 flip되어도 레이어 적응형은 안전하게 같은 방향의 이득을 유지하는 cross-model 전이의 기반이다.
+
+\begin{table}[t]
+\centering
+\caption{Llama-3.1-8B-Instruct에서 $\beta$별 format-validity. empty는 \texttt{pred\_tools} $=\emptyset$인 샘플 수. telecom은 baseline이 weak하여 $\beta{+}$가 format을 깨고, retail은 baseline이 강해 같은 magnitude에도 항상 parseable output을 유지한다.}
+\label{tab:format-validity}
+\small
+\begin{tabularx}{\linewidth}{@{}Xcccccc@{}}
+\toprule
+method & \multicolumn{2}{c}{telecom (N=200)} & \multicolumn{2}{c}{retail (N=114)} & & \\
+ & empty & F1 & empty & F1 & & \\
+\midrule
+no\_steer & 0 & 0.385 & 0 & 0.506 & & \\
+$\beta{=}{-}0.05$ (telecom best) & 0 & \textbf{0.547} & 0 & 0.488 & & \\
+$\beta{=}{-}0.03$ & 0 & 0.501 & 0 & 0.501 & & \\
+$\beta{=}{+}0.01$ & 0 & 0.385 & 0 & 0.505 & & \\
+$\beta{=}{+}0.03$ & \textbf{145} & 0.130 & 0 & 0.504 & & \\
+$\beta{=}{+}0.05$ & \textbf{200} & \textbf{0.000} & 0 & 0.516 & & \\
+$\beta{=}{+}0.10$ & \textbf{55} & 0.255 & 0 & 0.519 & & \\
+레이어 적응형 & 0 & \textbf{0.501} & 0 & 0.489 & & \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \begin{table}[t]
 \centering
