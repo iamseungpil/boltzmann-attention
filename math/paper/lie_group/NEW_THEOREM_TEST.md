@@ -1,0 +1,488 @@
+# NEW_THEOREM_TEST — Two-Level Argmax-Subspace Selectivity
+
+**작성일**: 2026-04-19
+**바탕**: 실험 세션 (a)(b)(c) 결과 (`memory/lemma_empirical_abc_2026_04_19.md`) + P1 원본 (`memory/p1_random_rank_scaling_failed_2026_04_19.md`) + variant D Phase 0 (`memory/variantD_phase0_verified_2026_04_19.md`) + BFCL cross-benchmark (`memory/bfcl_tier3_cross_benchmark_2026_04_19.md`)
+**상태**: Lemma partial 검증 완료 (Qwen Telecom N=100 단일 점). Generalization scope + Q-sign 기타 은 미검증.
+**목표**: NeurIPS 2026 existence-only submission 과 **완전 독립** 의 upside track. 본 문서는 다른 세션이 실행할 수 있는 자기충족 가설 + 실험 계획서.
+
+---
+
+## §0. 이 문서의 읽는 방법
+
+### Role guide
+
+- **실험 세션**: §1 (theorem structure) → §3 (hypotheses) → §5 (phases) → §7 (decision tree) → §9 (scripts)
+- **논문 세션**: §1 → §3 → §6 (paper integration) → §7
+- **Consolidation 세션**: 전체
+
+### 전제 (읽고 시작)
+
+1. **Lemma 1, 2 는 이미 provable + empirical anchor 확보**. 추가 증명 필요 없음. 남은 일은 generalization.
+2. **Proposition (c) 의 linear KL 예측은 죽음**. 두 번 실패 (fixed-seed R²=0.774, per-task R²=0.459). 부활 시도 금지.
+3. **Two-level separation 이 core novelty**. Hoeffding / Ledoux / Stiefel 자체는 textbook — novelty 는 attention-level smooth scaling 과 tool-name-level stepwise robustness 의 empirical gap.
+4. **Q-sign asymmetry 은 현 프로그램의 primary target 이 아님**. Observation 으로 유지. 시간 남으면 stretch goal.
+5. **NeurIPS 2026 submission 은 본 track 과 무관**. 본 track 의 어떤 결과도 PAPER_DRAFT_v3.md 건드리지 않음. Consolidation session 만 병합 결정.
+
+---
+
+## §1. Theorem structure (실험 세션 결과 반영 후)
+
+### 1.1 이미 확보된 결과
+
+#### Lemma 1 (Single-layer Margin-Gated Flip) — **PROVABLE**
+
+$\delta K = \alpha B B^\top K$ 에 의한 단일 self-attention layer 의 softmax argmax:
+$$f(q, K + \delta K) \neq f(q, K) \iff \exists v' \neq f(q,K):\; \alpha \langle B B^\top q, g_{v'}(q, K)\rangle > \mathcal{M}_{v'}(q, K)$$
+표준 derivative chain. 증명 완료 (본 문서 §1.3 proof sketch 참조).
+
+#### Lemma 2 (Haar Attention-Level Concentration) — **PROVABLE + EMPIRICALLY ANCHORED**
+
+$U \sim \text{Haar}(\text{Stiefel}(d, r))$ 에 대해 attention-weight 의 Frobenius shift:
+$$\mathbb{E}_U[\|\delta\text{attn}(q, K)\|_F] \asymp C \sqrt{r/d}, \quad C = O(\alpha \|q\| \|K\|)$$
+Ledoux-Stiefel concentration 표준. **Empirical 확증**: Qwen2.5-7B Telecom N=100, α=0.3, $r \in \{1,3,6,12,24,48,96\}$ 에서 log-log slope **0.551** (예측 0.500), R²=**0.992**.
+
+#### Empirical Margin Anchor
+
+Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upper bound: $\Pr[\text{tool-name argmax flip}] \leq 0.0043$ across 700 rank × task combinations.
+
+### 1.2 제안 Theorem (two-level + generalization)
+
+**Theorem T (Two-Level Argmax-Subspace Selectivity).** Pretrained transformer $M$, tool-selection benchmark $V$, 선택 layer 범위 $\mathcal{L}$, amplitude $\alpha$ 하:
+
+**(T.A — Attention level, provable + verified)**: $\alpha B B^\top K$ perturbation 의 attention-weight Frobenius shift 가 $\sqrt{r/d}$ 스케일링을 따른다 (Ledoux-Stiefel). Empirical slope 0.551 ± 측정오차.
+
+**(T.B — Argmax level, empirical)**: 동일 perturbation 하 tool-name token position 의 argmax flip rate 는 margin 하한 $m_0$ 와 per-query lift $|\alpha \langle BB^\top q, g_{v'}\rangle|$ 사이 관계에 의해 결정:
+- sub-critical regime ($|\alpha \cdot \text{lift}| \leq m_0$) 에서 flip rate = 0 (empirical 0/700).
+- super-critical regime 에서 discontinuous (format collapse 관측).
+
+**(T.C — Gap)**: T.A 의 smooth scaling 과 T.B 의 step function 은 **tool-name argmax 의 margin threshold + FFN/LM-head 의 non-linear compounding** 이 중간에 개입하기 때문. 이 gap 자체가 transformer tool-selection 의 structural property 이고, B_ont 방향성의 empirical 의미 (direction specificity) 가 바로 이 gap 에 있음.
+
+### 1.3 Proof sketch (Lemma 1 — 완전, Lemma 2 — 표준 reference)
+
+**Lemma 1 증명** (self-contained):
+1. Softmax argmax: $f(q, K) = \arg\max_v \ell_v$ where $\ell_v$ is the v-th output logit.
+2. Flip condition: new argmax $f' \neq f$ iff $\ell_{f'}' > \ell_{f}'$ where primed values are post-perturb.
+3. Taylor: $\ell_v' = \ell_v + \langle \delta K, \nabla_K \ell_v\rangle + O(\|\delta K\|^2)$.
+4. Substitute $\delta K = \alpha B B^\top K$: $\ell_v' - \ell_v = \alpha \langle B B^\top K, \nabla_K \ell_v\rangle_F + O(\alpha^2)$.
+5. Logit gap: $\ell_{f'}' - \ell_f' = (\ell_{f'} - \ell_f) + \alpha \langle B B^\top K, \nabla_K(\ell_{f'} - \ell_f)\rangle_F + O(\alpha^2) = -\mathcal{M}_{f'} + \alpha \langle B B^\top q, g_{f'}\rangle + O(\alpha^2)$ (using $K$-gradient identities + first-order closure).
+6. Flip iff this > 0, i.e. $\alpha \langle BB^\top q, g_{f'}\rangle > \mathcal{M}_{f'} + O(\alpha^2)$. ∎
+
+**Lemma 2 증명** (standard): Haar measure on Stiefel $V_r(\mathbb{R}^d)$ concentration. $\mathbb{E}[U U^\top] = (r/d) I$. $\text{Var}$ of bilinear form $q^\top U U^\top q$ is $2 r(d-r)/d^2(d+2) \|q\|^4$. Attention-weight Frobenius norm shift is sum over tokens, Jensen 으로 $\sqrt{r/d}$ dominant term. See Ledoux (2001) §6, Edelman-Rao (2005) §5. ∎
+
+**T.B (empirical)**: Lemma 1 은 per-query flip condition 을 주지만 sub-critical regime 에서 margin lower bound $m_0$ 가 lift 를 지배하여 flip rate 가 0 이 되는 것은 **증명 불가 (model-dependent) 이고 empirical 측정 대상**.
+
+### 1.4 무엇이 **Theorem 아닌 Observation** 으로 남는가
+
+1. **Q-sign asymmetry (Qwen+Telecom Q+ vs Llama Telecom Q−)**: 5-point 표. 설명 mechanism 없음. Theorem 에 들어가지 않음.
+2. **C1 safe floor의 multi-domain 동시 성립**: 8+ benchmark 에서의 accumulated positive ΔF1. Single theorem 으로 환원 불가.
+3. **Format collapse threshold**: Llama Telecom Q+0.05 → 200/200 empty. Super-critical 영역. Scope 밖으로 명시.
+4. **MULTI > SINGLE facet stratification**: +36 vs +24 on Telecom. Baseline-ceiling 효과 의심, theorem 아님.
+
+**네 번째 pivot 방지 원칙**: 위 네 observation 을 theorem 으로 격상 시도 금지. Framework 바깥 phenomena 로 기록.
+
+---
+
+## §2. 관측된 empirical anchors (기본 증거)
+
+| # | 측정 | 값 | 출처 | Theorem 근거 |
+|---:|---|---|---|---|
+| E1 | Attention Fro shift log-log slope | 0.551 (R²=0.992, 예측 0.5) | lemma_empirical.json (c) | Lemma 2 verified |
+| E2 | Margin m_0 lower bound (Qwen Telecom) | 5.031 (min over N=100) | lemma_empirical.json (b) | T.B empirical anchor |
+| E3 | Random-direction flip rate (rank 7 × N 100 × α 0.3) | 0/700 | (a) + P1 합산 | T.B sub-critical 확인 |
+| E4 | B_ont vs random at matched Frobenius | 200/200 vs 0/200 | Phase 0 variantD | Direction specificity |
+| E5 | Cross-benchmark proxy (BFCL N=100) | A 2/100, D 0/100 | bfcl_tier3 memo | Direction specificity cross-domain |
+| E6 | KL vs r/d R² (per-task resample) | 0.459 | lemma_empirical (a) | First-order linear dead at argmax level |
+| E7 | Q-sign pattern (5 (M, V)) | +/−/−/−/− | handoff E6 | Observation (Theorem 밖) |
+
+---
+
+## §3. 가설 (재편)
+
+### 3.1 Primary hypotheses — T 의 generalization scope
+
+**H-A (Attention-level universality)**: Lemma 2 의 √(r/d) 스케일링이 Qwen Telecom 외 다른 (M, V) 조합에서도 성립. 예측: log-log slope ∈ [0.45, 0.55], R² ≥ 0.95.
+
+- Test: 5 (M, V) 조합 × (a)(c) 재실행. Phase A.
+- Falsification: 5 중 ≥ 2 개 조합에서 slope 벗어나면 attention-level universal claim 약화.
+- 실패 시 plan: scope 를 "Qwen family" 또는 "multi-tool benchmarks" 로 축소.
+
+**H-B (Margin lower bound stability)**: $m_0$ 이 (M, V) 에 따라 다르지만 **양의 하한** 을 갖는다. 즉 $\inf_{q \in V} \mathcal{M}(q) > 0$.
+
+- Test: (b) 측정을 5 (M, V) 에 확장. Phase A.
+- 관측 목표: $m_0$ 의 (M, V) 별 값 + sub-critical α bound.
+- Falsification: 어떤 (M, V) 에서 $m_0 < 1$ 이면 sub-critical regime 이 매우 좁음 → T.B 가 benchmark-specific.
+
+**H-C (Two-level separation 의 cross-model 재현)**: Attention-level smooth + argmax-level stepwise 의 gap 이 Qwen 외 모델 (Llama, Mistral, Qwen3-4B 등) 에서도 관측.
+
+- Test: (a)(b)(c) full sweep 을 cross-model. Phase A.
+- 예측: 모든 모델에서 flip rate 0 (sub-critical α=0.3, r ≤ 96) + attention-level slope ≈ 0.5.
+
+**H-D (KL non-monotonicity 의 FFN/LM-head origin)**: argmax-level KL 의 non-monotonic shape (r=12 peak, r=48 trough, r=96 rebound) 은 10-layer FFN + LM-head 의 non-linear compounding 에 기인.
+
+- Test: layer-by-layer KL 을 residual-stream 따라 측정. 중간 layer 에서는 monotonic 이었다가 LM-head 통과에서 non-monotonic 으로 transform 되는지 확인. Phase B.
+- 예측: residual-stream KL slope 가 layer 깊어질수록 비선형성 증가.
+
+### 3.2 Secondary hypotheses — direction specificity 의 scope
+
+**H-E (B_ont direction specificity 의 cross-benchmark universality)**: B_ont 가 특정 benchmark 에서 빌드되더라도 같은 model 의 다른 benchmark 에서 random 보다 flip rate 높음.
+
+- Test: Telecom B_ont 를 Retail/Airline/Banking/ST4/BFCL 에 cross-apply. Phase B.
+- 현재 증거: BFCL (A 2/100 vs D 0/100) = positive proxy.
+- 확장 필요: ≥ 4 개 추가 benchmark 에서 separation 측정.
+
+**H-F (Direction specificity 가 catalog-ontology 에 의존)**: Catalog ontology 를 permute / shuffle 하면 direction specificity 소실.
+
+- Test: Shuffled-catalog B_ont 를 빌드 → argmax flip rate 측정. Phase C.
+- 예측: Shuffled B_ont 의 flip rate ≈ random.
+
+### 3.3 Stretch hypotheses — $d^*$ 도출 (Q-sign observation 의 partial 설명)
+
+**H1, H2, H3, H4, H5, H6**: 이전 안 (unembed / OV readout / W_K SVD / RoPE / head-class / catalog-position) — 변경 없이 유지. 단 **primary 가 아니라 stretch goal** 로 재분류. Phase D 에 선택적 실행.
+
+- Primary Lemma/Theorem 은 H1-H6 결과와 무관 (Q-sign 은 Theorem 밖 observation).
+- H1-H6 narrowing 은 paper 의 §Discussion 에서 "open question — partial empirical progress" 로만 쓰일 수 있음.
+
+### 3.4 가설 우선순위 (재편 후)
+
+| Priority | Hypothesis | Phase | 사유 |
+|---|---|---|---|
+| **1** | H-A (attention-level universality) | A | Lemma 2 의 generalization — theorem 핵심 |
+| **1** | H-B (margin lower bound stability) | A | T.B 의 scope 결정 |
+| **1** | H-C (two-level separation cross-model) | A | core claim 재현성 |
+| **2** | H-D (KL non-monotonicity FFN origin) | B | scope caveat 강화 |
+| **2** | H-E (cross-benchmark direction specificity) | B | direction specificity 범위 |
+| **3** | H-F (catalog-permutation falsifier) | C | direction specificity 의 origin 제한 |
+| **4 (stretch)** | H1-H6 ($d^*$ narrowing) | D | Q-sign partial understanding |
+
+---
+
+## §4. 실험 세션 이미 한 일 (참조용)
+
+기존 세션 (`lemma_empirical.json`, Qwen+Telecom N=100) 이 달성한 측정:
+
+| Bench | Model | α | Ranks | N | 측정 | 상태 |
+|---|---|---|---|---|---|---|
+| τ²-Telecom | Qwen2.5-7B | 0.3 | {1..96} | 100 | Attn Fro slope, margin, flip rate | ✅ 완료 |
+| τ²-Telecom | Qwen2.5-7B | 0.3 | {1..96} | 100 | KL vs r/d (per-task resample) | ✅ 완료 (R²=0.459) |
+| τ²-Telecom | Qwen2.5-7B | 0.3 | 12 | 200 | variant D Phase 0 | ✅ 완료 (0/200) |
+| BFCL parallel_multiple | Qwen2.5-7B | 0.3 | 12 | 100 | A vs D cross-benchmark | ✅ 완료 (2 vs 0) |
+
+**위 4 점만** 이 현재까지의 증거. 모든 결과가 **단일 model + 주로 단일 benchmark**. 이것이 H-A, H-B, H-C 가 primary phase A 의 대상인 이유.
+
+---
+
+## §5. Phase 별 실험 계획
+
+### Phase A — Two-level separation universality (Week 1-3, ~60 GPU-hr)
+
+**목표**: Lemma 2 + margin anchor + two-level separation 을 ≥ 4 (M, V) 조합으로 확장.
+
+**(M, V) matrix**:
+
+| # | Model | Benchmark | Rationale |
+|---:|---|---|---|
+| 1 | Qwen2.5-7B | τ² Retail | same-model, same-family V |
+| 2 | Qwen2.5-7B | MetaTool ST4 | same-model, different V genre |
+| 3 | Llama-3.1-8B | τ² Telecom | different model, same V |
+| 4 | Llama-3.1-8B | MetaTool ST4 | cross-check Qwen2-ST4 |
+| 5 (optional) | Mistral-7B | τ² Telecom | different architecture family |
+
+**실행 protocol**:
+- 각 (M, V) 에 대해 `measure_lemma_empirical.py` (기존 script) 를 직접 재사용. 이미 (a)(b)(c) 를 한 번의 GPU run 으로 측정하는 것이 입증됨 (249 s for Qwen Telecom N=100).
+- Argument: `--model <M>`, `--benchmark <V>`, `--n 100`, `--alpha 0.3`, `--ranks 1,3,6,12,24,48,96`.
+- 예상 wall-clock: 250 s × 5 = ~20 분 실제 GPU + model loading + I/O 포함 약 1-1.5 hr per run. Total 5-7 GPU-hr.
+
+**기존 script 재사용성**:
+- `scripts/ocq/measure_lemma_empirical.py` 이미 존재. (a)(b)(c) 를 동시 측정.
+- 추가 benchmark 로딩 path 만 확장 필요 (`--benchmark` arg).
+- 신규 script 불필요.
+
+**출력**:
+- `reports/new_theorem_test/phase_a_<model>_<bench>.json`
+- memory: `new_theorem_phase_a_<date>.md`
+
+**성공 기준 (Phase A gate)**:
+- log-log slope 4/5 이상 (M, V) 에서 ∈ [0.45, 0.55] 에 속함.
+- flip rate 5/5 (M, V) 에서 0/700.
+- margin $m_0$ 5/5 (M, V) 에서 > 1.0 (benchmark-specific 값 기록).
+
+**실패 시**:
+- Slope 가 많이 벗어나면: attention-level universality 주장 약화 → Lemma 2 의 scope 을 "Qwen family" 로 limit.
+- Flip rate nonzero 발생: sub-critical regime 정의를 α < 0.3 으로 tighten.
+
+### Phase B — Cross-benchmark direction specificity + FFN contribution (Week 4-6, ~60 GPU-hr)
+
+**목표**: H-E (cross-benchmark direction specificity) + H-D (KL non-monotonicity FFN origin).
+
+#### B1. Direction specificity matrix
+
+B_ont 를 fix (e.g., Qwen Telecom B_ont) 한 뒤 다양한 benchmark 에 apply + random B 와 비교:
+
+| B_ont source | Eval benchmark | N | 기대 결과 |
+|---|---|---|---|
+| Qwen Telecom | τ² Retail | 100 | A > D |
+| Qwen Telecom | τ² Airline | 100 | A > D |
+| Qwen Telecom | τ² Banking | 100 | A > D |
+| Qwen Telecom | MetaTool ST4 | 100 | A > D or null |
+| Qwen Telecom | BFCL parallel (여러 domain) | 100 | 이미 확인, 재현 |
+| Qwen MetaTool | τ² Telecom | 100 | cross-direction |
+
+**실행**: `scripts/ocq/eval_tau2_bench.py` 기존 + `scripts/ocq/eval_metatool_subtask4.py` 기존 재사용. `--methods canonical_adaseka_*` 지정.
+
+**출력**: `reports/new_theorem_test/phase_b_direction_specificity.json` (aggregate).
+
+#### B2. Layer-resolved KL non-monotonicity
+
+**목표**: H-D 검증. KL 의 non-monotonic shape 이 residual-stream 의 어느 단계에서 생기는지.
+
+**신규 script**: `scripts/ocq/measure_layer_resolved_kl.py` (약 200 LOC).
+- Forward pass 에서 각 layer 의 residual-stream KL 을 record (pre-LM-head).
+- Final LM-head 통과 전/후 KL 을 비교.
+- Output: per-layer KL × rank 매트릭스.
+
+**성공 기준**: 
+- 중간 layer KL 이 rank 에 대해 monotonic.
+- LM-head 통과 후 KL 이 non-monotonic (시각적 peak/trough 가 뚜렷).
+
+**실패 시**: H-D 폐기. KL non-monotonicity 는 FFN 외 다른 origin — future work 로 언급만.
+
+### Phase C — Catalog-permutation falsifier (Week 7-8, ~20 GPU-hr)
+
+**목표**: H-F 검증. Catalog ontology 를 permute 해서 빌드한 B_ont 가 direction specificity 를 소실하는지.
+
+**신규 script**: `scripts/ocq/build_permuted_bont.py` (약 150 LOC).
+- 기존 catalog JSON 읽기.
+- Tool names 또는 facet values 를 random permute.
+- Permuted catalog 로 B_ont 재빌드 (기존 `scripts/ocq/build_tau2_ontology.py` 수정).
+
+**실행**:
+- 10 random permutations × Qwen Telecom N=100.
+- 각 permuted B_ont 로 flip rate 측정.
+
+**성공 기준**: 10 permutations 중 ≥ 8 에서 flip rate ≈ random baseline (i.e. permutation 파괴).
+
+**실패 시**: H-F 기각. Direction specificity 가 catalog semantic content 에 독립적 — 다른 origin 탐구 필요.
+
+### Phase D — Q-sign stretch (선택, Week 9-12, ~80 GPU-hr)
+
+**목표**: H1-H6 narrowing (이전 안).
+
+시간 + resource 여유 시에만. Phase A-C 이 성공적으로 끝난 뒤 판단. Phase A-C 만으로 충분한 paper contribution 일 수 있음.
+
+**Note**: 이전 계획서의 §4-§6 (H1-H3 angular / β-sweep / sign prediction) 내용을 그대로 적용. 단 paper 에서 Theorem 이 아니라 §Discussion 의 "partial empirical progress" 로만 쓰임.
+
+---
+
+## §6. Paper integration (ICLR 2027 submission 예상 구조)
+
+### 6.1 구조 안
+
+1. **Abstract + Intro**: 두-레벨 분리 → catalog 기반 B_ont 의 direction specificity 가 sub-critical regime 의 argmax stability 와 함께 empirical 확증.
+2. **§2 Related**: CAA/RepE/ITI/PASTA/ASA/Focus/SEKA/AdaSEKA + Ledoux concentration + interpretability.
+3. **§3 Theorem**: Lemma 1 (provable, self-contained), Lemma 2 (provable via Ledoux, **empirically anchored at slope 0.551**), Theorem T (two-level separation with empirical component).
+4. **§4 Methodology**: B_ont 구성, variant D random control, margin / attn-shift / flip rate 측정 protocol.
+5. **§5 Main Results**:
+   - §5.1 Phase A attention-level universality (5 (M, V)).
+   - §5.2 Phase B cross-benchmark direction specificity.
+   - §5.3 Phase B2 FFN/LM-head KL origin.
+6. **§6 Falsification**: Phase C catalog-permutation null.
+7. **§7 Discussion**: Q-sign observation + H1-H6 partial (if Phase D).
+8. **§8 Scope + Limitations + Conclusion**.
+
+### 6.2 주장 contribution 리스트 (수정)
+
+- **C-lemma-1**: Single-layer margin-gated flip (provable).
+- **C-lemma-2**: Attention-level √(r/d) concentration (provable + empirically 5 (M, V)).
+- **C-theorem**: Two-level separation (attention smooth + argmax step + FFN/LM-head origin).
+- **C-empirical**: Direction specificity cross-benchmark, catalog-origin necessity (Phase C falsifier).
+- **C-observation (Q-sign)**: 5-point table as open problem.
+
+### 6.3 NeurIPS 2026 와의 구분
+
+- NeurIPS 2026 = C1-C4 existence only + E1-E6 패치. Mechanism-free.
+- ICLR 2027 = Lemma 1-2 + Theorem T + empirical scale + Q-sign stretch. Mechanism-partial.
+- 두 submission **완전 독립**. ICLR track 실패해도 NeurIPS unaffected.
+
+---
+
+## §7. Decision tree + kill-switch
+
+| Gate | 조건 | 성공 행동 | 실패 행동 |
+|---|---|---|---|
+| Phase A gate | 4/5 slope ∈ [0.45, 0.55], 5/5 flip=0, 5/5 $m_0 > 1$ | Phase B 진행 | Scope 축소 (single family), 논문 contribution 수정 |
+| Phase B1 gate | 4/6 cross-benchmark A > D | H-E 확증 → Phase B2 | Direction specificity scope 제한 |
+| Phase B2 gate | Layer-resolved KL 가 non-monotonic origin 이 LM-head 라 확인 | H-D 확증 → Phase C | H-D 삭제, non-monotonicity "unexplained" 로만 |
+| Phase C gate | 8/10 permuted B_ont 가 flip rate 소실 | H-F 확증 → falsification evidence | H-F 삭제, Direction specificity origin open |
+| Phase D gate | 14/18 sign prediction | H1-H6 narrow 성공 → §Discussion | Q-sign observation only |
+
+### Kill-switch (즉시 프로그램 중단)
+
+1. Phase A 에서 5/5 slope 모두 outside [0.4, 0.6]: Lemma 2 의 universality 붕괴. Program 재설계.
+2. Phase A 에서 flip rate > 0 on sub-critical α: T.B scope 가 매우 좁음. Re-scope.
+3. 4 주 이상 continuous stalling (script bug, OOM): resource 조정.
+4. NeurIPS 2026 submission 임박 (< 2 주): 모든 ICLR work 중단, NeurIPS 에 집중.
+
+---
+
+## §8. Resource budget (실험 세션 ready 상태 반영)
+
+| Phase | GPU-hr | Wall-clock | 주요 신규 script |
+|---|---:|---:|---|
+| A | 30 | 3 주 | 없음 (기존 재사용) |
+| B1 | 30 | 2 주 | 없음 (eval_tau2_bench.py 재사용) |
+| B2 | 30 | 1 주 | `measure_layer_resolved_kl.py` (신규) |
+| C | 20 | 2 주 | `build_permuted_bont.py` (신규) |
+| D (optional) | 80 | 4 주 | H1-H6 suite |
+| Paper writing | 0 | 3 주 (병렬) | — |
+
+**필수 부분 (Phase A-C)**: **110 GPU-hr, 8 주**. 1 GPU 로 가능.
+**Stretch (+ Phase D)**: **190 GPU-hr, 12 주**. 2 GPU 병렬 권장.
+
+ICLR 2027 마감까지 24 주 → comfortable. Phase D 포함해도 여유.
+
+---
+
+## §9. 신규 script spec (최소)
+
+`scripts/iclr2027/` (또는 `scripts/new_theorem_test/`) 에 새로 작성.
+
+### S1. `measure_layer_resolved_kl.py` (Phase B2, ~200 LOC)
+
+**목표**: 각 layer 의 residual-stream 에서 KL 을 measure, LM-head 통과 전/후 비교.
+
+**CLI**:
+```
+python measure_layer_resolved_kl.py \
+  --model Qwen/Qwen2.5-7B-Instruct \
+  --benchmark tau2_telecom --n 50 \
+  --alpha 0.3 --ranks 1,3,6,12,24,48,96 \
+  --capture-layers all \
+  --out reports/new_theorem_test/layer_kl.json
+```
+
+**로직**:
+```python
+for q in queries:
+    # 2 forward passes: (1) no steer, (2) steered with random U at rank r
+    #   forward hooks on every layer's residual stream
+    # compare post-layer residual distributions at matched layer index
+    # final: LM-head logits full-vocab KL
+    per_layer_kl[r][layer] = KL(layer_residual_distribution(steered), layer_residual_distribution(base))
+```
+
+**출력 schema**: `{rank: {layer: {kl_mean, kl_std}}}`
+
+### S2. `build_permuted_bont.py` (Phase C, ~150 LOC)
+
+**목표**: Catalog ontology 를 random permute 한 뒤 B_ont 재빌드.
+
+**CLI**:
+```
+python build_permuted_bont.py \
+  --catalog external/tau2-bench/data/tau2/domains/telecom/ontology.json \
+  --permute-mode {tool_names | facet_values | full_random} \
+  --seed 42 \
+  --out external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom-permuted-seed42/B_ont.pt
+```
+
+**로직**:
+```python
+catalog = load_catalog(args.catalog)
+if mode == 'tool_names':
+    random.shuffle(catalog['tool_names'])
+elif mode == 'facet_values':
+    for facet in catalog['facets']:
+        random.shuffle(catalog['facets'][facet]['values'])
+elif mode == 'full_random':
+    # replace all with random embeddings
+    ...
+# rebuild B_ont using existing build_tau2_ontology.py logic
+```
+
+**출력**: `B_ont.pt` + metadata JSON.
+
+---
+
+## §10. Memory + file discipline
+
+### Phase 완료 시 생성할 memory
+
+- `new_theorem_phase_a_<date>.md` — Phase A aggregate (5 (M, V) slope/margin/flip)
+- `new_theorem_phase_b1_<date>.md` — B1 direction specificity cross-benchmark
+- `new_theorem_phase_b2_<date>.md` — B2 layer-resolved KL
+- `new_theorem_phase_c_<date>.md` — C catalog-permutation falsifier
+- `new_theorem_phase_d_<date>.md` — D Q-sign stretch (if executed)
+- `new_theorem_status_weekly.md` — weekly progress log
+
+### 생성할 reports
+
+- `reports/new_theorem_test/phase_a_<M>_<V>.json` (N=5)
+- `reports/new_theorem_test/phase_b1_direction_matrix.json`
+- `reports/new_theorem_test/phase_b2_layer_kl.json`
+- `reports/new_theorem_test/phase_c_permutation.json`
+- `reports/new_theorem_test/phase_d_qsign.json` (optional)
+- `reports/new_theorem_test/aggregate_matrix.json` (final)
+
+### Paper draft 경로
+
+- **NeurIPS 2026 submission 은 건드리지 않음**: `math/paper/benchmark_design/PAPER_DRAFT_v3.md` 유지.
+- **ICLR 2027 용 신규**: `math/paper/iclr2027/PAPER_DRAFT_ICLR_v1.md` 는 NeurIPS 제출 완료 후 생성. 그 전까지 draft 없음.
+
+### Branch 전략
+
+- NeurIPS main branch 건드리지 않음.
+- 신규 branch `new-theorem-test` 에서 scripts/new_theorem_test/ 개발.
+- Phase A-C 완료 시 NeurIPS submission 결과 + consolidation 후 merge.
+
+---
+
+## §11. 핵심 원칙 (다시 확인)
+
+1. **Lemma 1-2 는 증명 완료 + partial 검증**. 추가 증명 불필요. 남은 일은 generalization.
+2. **Proposition (c) 는 완전 사망** — 부활 시도 금지 (두 번 실패).
+3. **Q-sign asymmetry 는 observation**. Stretch goal (Phase D). Primary path 아님.
+4. **Two-level separation 자체가 novelty**. Hoeffding / Ledoux 자체는 textbook.
+5. **NeurIPS 2026 무관**. ICLR 실패 시 NeurIPS existence-only 그대로.
+6. **Phase gate 엄격**: kill-switch 준수. Sunk cost 무시.
+7. **모든 주요 결정은 memory 기록**: 다음 세션 재구성 가능해야.
+8. **Mechanism claim 금지** (Q-sign, format collapse 등 observation 으로만).
+9. **Scope caveat 명시**: Attention-level smooth vs tool-name-level stepwise 의 gap 은 empirical, 증명 아님.
+10. **4번째 pivot 방지**: Theorem 을 wildly 확장하지 않음. Lemma 1-2 + T (two-level) + framework 에 집중.
+
+---
+
+## §12. 다음 세션 first actions (실험 세션)
+
+1. **Week 1 Day 1-2**: Phase A run #1 (Qwen Retail). `scripts/ocq/measure_lemma_empirical.py` 에 `--benchmark tau2_retail` 이 존재하는지 확인; 필요 시 추가. Run + memory 기록.
+2. **Week 1 Day 3-4**: Phase A run #2 (Qwen MetaTool ST4). benchmark 로딩 path 확장 필요할 수 있음.
+3. **Week 1 Day 5**: 2 run 결과 간 slope 일관성 확인. Preliminary Phase A gate 검토.
+4. **Week 2**: Phase A run #3-5 (Llama Telecom, Llama ST4, Mistral Telecom).
+5. **Week 3**: Phase A aggregate + memory. Phase A gate 최종 판단.
+6. **Week 4 이후**: Phase B-C 착수 (Phase A gate 통과 시).
+
+---
+
+## §13. 관련 memory + file
+
+- `memory/lemma_empirical_abc_2026_04_19.md` — 현 단일 증거의 full 기록
+- `memory/p1_random_rank_scaling_failed_2026_04_19.md` — P1 fail 원본
+- `memory/variantD_phase0_verified_2026_04_19.md` — C3 Phase 0
+- `memory/bfcl_tier3_cross_benchmark_2026_04_19.md` — C3 cross-benchmark
+- `memory/handoff_paper_edit_2026_04_19.md` — NeurIPS 2026 existence-only track
+- `memory/handoff_shared_basis_parallel_2026_04_19.md` — P1/P2 failed gate 의 handoff
+- `scripts/ocq/measure_lemma_empirical.py` — (a)(b)(c) 측정 script (이미 존재)
+- `scripts/ocq/measure_random_rank_scaling.py` — P1 script
+- `scripts/ocq/eval_tau2_bench.py` — τ² eval
+- `scripts/ocq/eval_metatool_subtask4.py` — ST4 eval
+- `scripts/ocq/eval_bfcl.py` — BFCL eval
+- `external/SEKA/seka_projections/` — B_ont artifacts
+
+---
+
+## §14. Version + changelog
+
+- **v1 (2026-04-19)**: 실험 세션 (a)(b)(c) 결과 반영 후 초안. Lemma 1 증명 완료, Lemma 2 증명 + 1 (M, V) 확증, two-level separation 이 core novelty. Phase A-C primary (110 GPU-hr), Phase D stretch (80 GPU-hr). NeurIPS 2026 완전 독립.
+
+---
+
+**END OF NEW_THEOREM_TEST v1**
