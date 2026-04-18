@@ -680,9 +680,17 @@ fed to a K-side operator (AdaSEKA-interface) or a Q-side operator (our
 coverage $\Delta_Q^{(t)}$ in §5.5), both produce positive tool-selection
 lifts on Telecom (+28.89pp K-side, +24.78pp Q-side; see §5.5.3 for Q-side
 results and §Results 4.Y for sign asymmetry across benchmarks).
+
+**Cross-benchmark replication (footnote)**: Applying the same variant A
+(ours) and variant D (random orthonormal, matched shape) construction to
+BFCL-v3 parallel_multiple (N=100, math/house/office; cross-domain proxy
+using the τ²-Telecom $B_\mathrm{ont}$ without rebuilding) yields 2/100 vs
+0/100 predicted-tool changes respectively. The $A\!>\!D$ separation
+persists across a benchmark for which $B_\mathrm{ont}$ was not tailored,
+addressing the single-benchmark concern for C3.
 ```
 
-**Commit 메시지**: `paper(§4.X): add Tier 3 design-space ablation with Phase 0 matched-magnitude verification`
+**Commit 메시지**: `paper(§4.X): add Tier 3 design-space ablation with Phase 0 matched-magnitude verification + BFCL cross-benchmark footnote`
 
 ---
 
