@@ -1,8 +1,16 @@
-# Canonical AdaSEKA 실험 — Coworker Brief (2026-04-18 저녁, **v3 update 2026-04-19 00:15 KST**)
+# Canonical AdaSEKA 실험 — Coworker Brief (2026-04-18 저녁, **v4 update 2026-04-19 오후 KST**)
 
 **대상 독자**: 논문 공저·공동 연구자 중 canonical AdaSEKA 라인을 처음 보는 사람 + 이 세션의 paper edit 담당자.
 
 **목적**: 지금까지 무엇을 돌렸고, 무엇이 나왔으며, 그 결과로 논문을 어떻게 재구성할지, 그리고 **coworker 가 §1.0 E1 / §1.1 E2 / §1.3 / §5.5.3.1 E3 / §4.X 신설 / §Results Q-sign 서브섹션** 을 직접 편집할 수 있도록 patch-level 지침 제공.
+
+## 🚨 Coworker — v4 에서 바뀐 것만 먼저 읽기
+
+1. **E1–E6 패치는 이전 그대로 기본값 (default path)** 이고, 지금 즉시 적용할 것. 아래 §6 의 before/after text 는 v3 에서 변경 없음.
+2. **절대 추가하지 말 것 — mechanism / theorem / "Shared Basis Proposition" / "Lemma (random null)" / Q-sign 에 대한 설명 메커니즘**. 논문 본문에 이런 새 정리문을 넣는 결정은 별도 **consolidation session** 에서 내려짐 (실험 세션의 P1 + P2 결과 도착 후). 현재 상태에서 E7 이후 패치는 존재하지 않음.
+3. **BFCL Tier 3 N=100 cross-benchmark** 가 추가로 완료됨 (§2.7 신설). C3 근거에 "τ²-bench 단일 도메인" weakness 가 일부 해소 — **§5.5.3.1 E3 의 Phase 0 인용 단락과 §4.X E5 의 Tier 3 table 에 "cross-benchmark replicated on BFCL parallel_multiple N=100" 한 줄 추가** 만 하면 된다 (v4 patch 업데이트, §6.5 참조).
+4. **병렬로 돌고 있는 Shared Basis Proposition drafting 은 coworker 작업을 block 하지 않는다**. 그 세션은 `math/paper/lie_group/SHARED_BASIS_PROPOSITION_DRAFT_2026_04_19.md` 라는 별도 파일에만 draft 를 쓸 뿐, `PAPER_DRAFT_v3.md` 는 건드리지 않는다. Coworker 는 기다리지 말고 E1–E6 을 지금 진행.
+5. 실험 세션의 P1 (random KL scaling) + P2 (closed-form $d^*$ sign) 이 **모두** positive 로 나와서 consolidation session 이 발동되는 경우에만 추가 patch 가 발행된다. 현재 default 는 "발동 안 함" (scenario 4, existence-only fallback).
 
 ## 🎯 Coworker Action Items (먼저 읽는 TL;DR)
 
