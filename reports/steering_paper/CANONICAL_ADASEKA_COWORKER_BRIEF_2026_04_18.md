@@ -890,6 +890,9 @@ CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_tau2_bench.py \
 | "Thm 6.17 가정 (H-cat) 이 τ² Telecom 에 성립하는가" | Appendix 에 τ² 별 (H-cat) gain 측정 추가 필요 (현재 MetaTool ST4 만 측정). 추가 측정 ~5 분 GPU. |
 | "Tier 2 BiasBios 를 generality 증거로 제시하지만 ours ≪ real 나왔다" | Tier 2 포지션을 "generality validation step" 으로 한정 (crash-through upside 표기 금지). ours ≪ real 이면 scope 좁혀서 "training-free derivation 은 facet-structured 카탈로그 규모 벤치 한정" 으로 기술. |
 | "BFCL proxy scoring 이라 공식 leaderboard 급 증거가 아니다" | paper 에 "proxy function-name F1, not official BFCL AST score" 로 명시 + secondary bench (StableToolBench / AppBench) 의 official scoring 을 second base 로. |
+| **(v4)** "C3 가 τ²-Telecom 한 도메인/벤치에서만 확인됨 — overfit 된 B_ont 에 의존" | BFCL Tier 3 N=100 cross-domain proxy 결과 인용 (A 2/100 vs D 0/100). B_ont 를 재구성하지 않은 상태에서도 A>D separation 이 유지 → overfitting 설명으로는 부족. 단 absolute Δ 가 작음은 정직하게 기술 (magnitude claim 은 Telecom 에 한정). |
+| **(v4)** "Mechanism / theorem 주장이 없다 — 'existence' 만으로는 main track 약하지 않나" | 4-claim 자체가 NeurIPS main track submission 의 empirical contribution 범주; mechanism 무시가 아니라 empirical 직접 지지 범위로의 의도적 scope 선택. 부활 경로 (Shared Basis Proposition) 는 **별도 드래프트 + 2-gate 실험 검증 대기** 중이며, 검증 성공 시 upgrade, 실패 시 archive → "네 번째 pivot" 위험 차단. |
+| **(v4)** "Coworker brief 의 drafting 세션 산출물을 왜 paper 에 포함 안 했나" | Drafting 세션의 Proposition 은 **empirical gate (P1+P2) 전에는 paper insertion 금지** 원칙. Coworker brief §3.7 + handoff_shared_basis_parallel_2026_04_19.md §DEFAULTS 에 명시. Gate 통과 시 consolidation session 이 별도 E7~ patch 발행. |
 
 ---
 
