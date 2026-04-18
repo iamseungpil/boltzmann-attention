@@ -465,9 +465,66 @@ We characterize a **two-level argmax-subspace selectivity** in pretrained tool-s
 
 ---
 
-## Appendix B — Phase D negative-result template (placeholder)
+## Appendix B.1 — Phase D negative result (static-weight $d^*$ family closed)
 
-To be populated only if Phase D Q-sign prediction success rate is $< 10/18$, per the consolidation pre-registered outcome template. Will record: full $18$-prediction breakdown across $H_1$–$H_6$ × 5 (model, benchmark) pairs, the closed-form $d^*$ candidates tried, and negative findings without retroactive narrative reshaping.
+### B.1.1 Methodology
+
+For each Qwen2.5-7B head $(L, h)$ at the steered layer block ($L \in \{18, \ldots, 27\}$, $h \in \{0, 1\}$ for the GQA-2 K head structure) we compute the empirical Q-direction
+
+$$d_{\text{emp}}(L, h, q) \;=\; \bar K_{\text{GT}}(L, h, q) \;-\; \bar K_{\text{distr}}(L, h, q)$$
+
+where $\bar K_{\text{GT}}$ is the mean K activation over ground-truth tool-position queries and $\bar K_{\text{distr}}$ is the mean over distractor positions. We then measure the angular alignment
+
+$$|\cos\angle(d_{\text{emp}}, d_H)| \quad \text{for each} \quad H \in \{\text{H}_1, \text{H}_3\}$$
+
+across $N = 50$ queries per benchmark on Qwen × τ² {Telecom, Retail}, giving $\sim 4000$ per-(L, h, q) measurements per hypothesis.
+
+### B.1.2 Hypothesis definitions
+
+- **H$_1$ (lm_head pull-through):** $d_{H_1}(L, h) = W_K^{(L, h) \, \top} (\bar e_{\text{GT}} - \bar e_{\text{distr}})$, where $\bar e_{\cdot}$ are mean unembedding-space embeddings of GT vs. distractor tool names.
+- **H$_3$ ($W_K$ top-left singular vector, data-free):** $d_{H_3}(L, h) = U_1$ where $W_K^{(L, h)} = U \Sigma V^\top$.
+
+H$_2$ (OV-circuit readout via attention path), H$_4$ (RoPE phase), H$_5$ (head-class typology), H$_6$ (catalog-position-derived) were not tested.
+
+### B.1.3 Aggregate result
+
+Random baseline for two random unit vectors in $\mathbb{R}^{128}$: $\mathbb{E}|\cos| = 1/\sqrt{128} \approx 0.0884$.
+
+| Hypothesis | Telecom $\bar{|\cos|}$ | Retail $\bar{|\cos|}$ | Telecom $/$ random | Retail $/$ random | Heads passing $30°$ |
+|---|:---:|:---:|:---:|:---:|:---:|
+| H$_1$ | $0.0807$ | $0.0764$ | $0.91\times$ | $0.86\times$ | $0\%$ |
+| H$_3$ | $0.1090$ | $0.0973$ | $1.23\times$ | $1.10\times$ | $0\%$ |
+
+**Reading.** H$_1$ is *worse than chance*: a deliberately constructed direction from the lm_head pull-through is no more aligned with $d_{\text{emp}}$ than a random vector. H$_3$ is modestly above chance ($1.10$–$1.23\times$) but not enough for any individual head to fall within $30°$ of its empirical $d_{\text{emp}}$.
+
+### B.1.4 Per-head follow-up signal (Qwen Telecom heads with H$_3$ $|\cos| \geq 0.18$)
+
+| Head | H$_3$ $|\cos|$ | Random ratio | Angle |
+|---|:---:|:---:|:---:|
+| L24$_{h1}$ | $0.285$ | $3.22\times$ | $\approx 73°$ |
+| L19$_{h0}$ | $0.255$ | $2.88\times$ | $\approx 75°$ |
+| L19$_{h1}$ | $0.214$ | $2.42\times$ | $\approx 78°$ |
+| L20$_{h1}$ | $0.184$ | $2.08\times$ | $\approx 79°$ |
+| L18$_{h0}$ | $0.177$ | $2.00\times$ | $\approx 80°$ |
+| (+ 2 more heads) | — | — | — |
+
+These seven heads sit clearly above the bulk of the H$_3$ distribution but below the $30°$ pass criterion. They constitute a candidate locus for future *rank-1 $W_K$ ablation* + Lemma 1 predictive-form re-test. Out of scope here.
+
+### B.1.5 Methodological caveats (transparent reporting)
+
+- **Multi-token tool names in H$_1$.** Some $\tau^2$ tool names tokenize to $> 1$ subword; we use the leading subword's $W_K^\top e$ pull-through. Multi-token averaging is an alternative we did not test.
+- **Single-seed determinism.** All measurements use seed $42$; we did not run a multi-seed $d_{\text{emp}}$ stability check. Given $N = 50$ per benchmark and the consistency between Telecom and Retail H$_1$ / H$_3$ ratios, seed sensitivity is unlikely to flip the verdict.
+- **Top-1 SV only in H$_3$.** A top-$k$ SV ($k > 1$) projection variant might increase alignment, but per the consolidation framing decision this is not in scope for the current submission.
+- **Llama untested.** Llama prompt-builder mismatch precluded cross-architecture verification (see §7 Limitations item 8).
+
+### B.1.6 What would change the verdict
+
+Future work that would reopen the static-weight $d^*$ family:
+1. A combined H$_1$ + H$_3$ projection (linear combination of pull-through and SV directions) passing $30°$ on $\geq 25\%$ of heads in two benchmarks.
+2. A rank-1 $W_K$ ablation on the 7 follow-up heads producing $\geq 5\text{pp}$ Q-sign-consistent F1 shift on Tier-3 Telecom.
+3. Llama prompt-builder fixed and either H$_1$ or H$_3$ alignment $\geq 1.5\times$ random on Llama Telecom or Retail.
+
+None of these is undertaken in this submission. We report the verdict as-is and let future work decide reopening.
 
 ---
 
