@@ -449,6 +449,8 @@ aggregate = {
 | Phase A gate | 4/5 slope ∈ [0.45, 0.55], 5/5 flip=0, 5/5 $m_0 > 1$ | Phase B 진행 | Scope 축소 (single family), 논문 contribution 수정 |
 | Phase B1 gate | 4/6 cross-benchmark A > D | H-E 확증 → Phase B2 | Direction specificity scope 제한 |
 | Phase B2 gate | Layer-resolved KL 가 non-monotonic origin 이 LM-head 라 확인 | H-D 확증 → Phase C | H-D 삭제, non-monotonicity "unexplained" 로만 |
+| **Phase B3.1 gate (v2)** | **Facet concentration median ≥ 0.7 + dilution ratio 예측 ±30%** | **H-G 확증 → §3 Theory 의 Cor 로 추가** | **H-G 삭제, A−B=+21pp 는 "open structural effect"** |
+| **Phase B3.2 gate (v2)** | **3/3 (M, V) 에서 cos 방향 예측 맞음** | **H-H 확증 → §7 Scope section 의 정량 경계** | **H-H 삭제, scope boundary 는 empirical 관찰만** |
 | Phase C gate | 8/10 permuted B_ont 가 flip rate 소실 | H-F 확증 → falsification evidence | H-F 삭제, Direction specificity origin open |
 | Phase D gate | 14/18 sign prediction | H1-H6 narrow 성공 → §Discussion | Q-sign observation only |
 
