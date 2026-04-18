@@ -139,6 +139,25 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 - Test: layer-by-layer KL 을 residual-stream 따라 측정. 중간 layer 에서는 monotonic 이었다가 LM-head 통과에서 non-monotonic 으로 transform 되는지 확인. Phase B.
 - 예측: residual-stream KL slope 가 layer 깊어질수록 비선형성 증가.
 
+**H-G (Facet-concentration of discriminative direction) — v2 신규**: 각 (layer, head) 의 tool-discriminative direction $d^*_{l,h}$ 이 B_ont 의 **단일 facet block** (function_action / io_type / domain / tool_category 중 하나) 에 ≥ 70% 집중. 따라서 full-span (variant B) 을 사용하면 off-facet 3 개 block 의 noise 가 lift 를 희석. Facet-split (variant A) 은 per-head 가 dominant facet 만 activate → lift concentration.
+
+- **예측 (정량)**: Tier 3 A − B = +21.10pp (empirical) 를 재현. "Off-facet dilution ratio" 이 실제 3× (lift concentration ≈ projected dimension ratio).
+- **Test**: §5 Phase B3. 기존 Tier 3 데이터 + head-by-head d\*-facet overlap 측정. 추가 GPU 거의 불필요.
+- **Falsification**: (i) 각 head 의 $d^*$ 가 facet block 에 집중 안 됨 (≤ 50% overlap), **또는** (ii) facet-block 집중은 성립하지만 A−B 와 dilution 비가 일치 안 함 (< 0.5× 또는 > 2×).
+- **실패 시 plan**: facet-split dominance 는 routing/gating 의 structural effect (non-concentration-based) 로 재해석. §Discussion 의 open question.
+- **근거 데이터**: E8 (A-B-D decomposition), E9 (routing architectural).
+
+**H-H (Scope boundary via alignment collapse) — v2 신규**: B_ont 가 **benchmark 외부** (e.g. MMLU) 또는 **architecture-mismatched model** (e.g. Mistral) 에서 negative lift 를 내는 이유는 **그 (M, V) 에서 B_ont 와 empirical $d^*_{M,V}$ 사이 각도가 크기 때문**. Tool-selection benchmark + catalog-aligned model 에서는 각도 작음.
+
+- **예측 (정량)**:
+  - Qwen τ² Telecom: $\cos(B_\text{ont}, d^*_\text{emp}) \geq 0.5$
+  - Qwen MMLU: $\cos < 0.3$
+  - Mistral Telecom: $\cos < 0.3$ (또는 per-layer 변동 심함)
+- **Test**: §5 Phase B3 sub-step. 기존 Qwen Telecom d\*_emp (Phase 0 에서 추출될 것) + 추가로 MMLU, Mistral Telecom 에 대한 d\*_emp 측정. GPU ~10 hr.
+- **Falsification**: 각도가 기대 방향으로 변하지 않음 (e.g. MMLU 에서도 $\cos > 0.5$ 인데 negative lift → 각도가 원인 아님).
+- **실패 시 plan**: Scope boundary 는 alignment 외 다른 원인 (format, layer structure, pretraining distribution) → 별도 future work.
+- **근거 데이터**: E10 (MMLU fail), E11 (Mistral fail).
+
 ### 3.2 Secondary hypotheses — direction specificity 의 scope
 
 **H-E (B_ont direction specificity 의 cross-benchmark universality)**: B_ont 가 특정 benchmark 에서 빌드되더라도 같은 model 의 다른 benchmark 에서 random 보다 flip rate 높음.
