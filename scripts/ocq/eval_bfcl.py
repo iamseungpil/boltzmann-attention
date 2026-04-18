@@ -69,13 +69,47 @@ def build_bfcl_prompt(tokenizer, entry):
 
 
 def extract_function_names(text):
+    """Extract function names from generation text. Handles:
+      - JSON: {"name": "fn_name"}
+      - <tool_call>{"name": "fn_name"}
+      - Python: fn_name(...) or module.fn_name(...)
+    """
     names = []
+    # 1. JSON "name": "..." pattern
     for m in re.finditer(r'"name"\s*:\s*"([^"]+)"', text):
         names.append(m.group(1))
-    if not names:
-        for m in re.finditer(r'<tool_call>\s*\{[^}]*"name"\s*:\s*"([^"]+)"', text):
-            names.append(m.group(1))
-    return names
+    if names:
+        return names
+    # 2. <tool_call> wrapped JSON
+    for m in re.finditer(r'<tool_call>\s*\{[^}]*"name"\s*:\s*"([^"]+)"', text):
+        names.append(m.group(1))
+    if names:
+        return names
+    # 3. Python-style calls: module.fn(args) or fn(args). Captures the callable
+    # expression (dotted name) immediately before "(", excluding common control
+    # keywords (if, for, while, print, etc.).
+    py_names = []
+    for m in re.finditer(r'\b([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)\s*\(', text):
+        candidate = m.group(1)
+        # Skip obvious non-API attribute calls
+        if candidate.split(".")[0] in ("math", "np", "pd", "os", "sys", "re", "json"):
+            # keep them only if they look like domain-specific tools
+            if len(candidate.split(".")) > 2:
+                py_names.append(candidate)
+            continue
+        py_names.append(candidate)
+    # Also bare function names (no dot) right after common markers
+    for m in re.finditer(r'(?:^|\n|\s)([a-zA-Z_][a-zA-Z0-9_]{2,})\s*\(', text):
+        name = m.group(1)
+        if name in ("if", "for", "while", "print", "len", "range", "int", "str",
+                    "float", "list", "dict", "set", "tuple", "sum", "min", "max",
+                    "map", "filter", "type", "isinstance", "return", "with", "not",
+                    "and", "or", "def", "class", "import", "from", "except",
+                    "raise", "yield", "assert", "lambda", "pass", "break",
+                    "continue", "True", "False", "None"):
+            continue
+        py_names.append(name)
+    return list(dict.fromkeys(py_names))  # preserve-order unique
 
 
 def get_gt_function_names(answer_entry):
