@@ -144,6 +144,16 @@ canonical AdaSEKA 는 정의상 stationary K-side operator (last-prompt-token ro
 ### 3.4 Thm 6.17 의 scope
 Thm 6.17 은 "step-adaptive Q-coverage 가 multi-tool 에서 first-order optimal" 이라고 주장. 가정은 (R) + (H-cat). **(H-cat) 은 facet-diverse multi-tool 에만 empirically 확인됨** (MetaTool ST4). τ² Telecom 처럼 tool_category 축으로 uniform 한 카탈로그에서는 (H-cat) 가 weak → Thm 6.17 의 "first-order optimal" 주장이 τ² 에 clean 하게 이식되지 않음.
 
+### 3.5 MetaTool ST4 단독 의존의 구조적 weakness (cross-review 피드백 반영)
+
+이 weakness 는 v1 brief 에서 under-emphasize 했던 부분이다.
+
+- **현재 §1.1 의 Q-coverage empirical 증거 = MetaTool ST4 단일 벤치**. +1.64pp Qwen, +0.40pp Llama, 모두 ST4.
+- 리뷰어 가능한 공격 루트: "왜 single benchmark 인가? τ² 벤치는 facet-uniform 이라고 설명했지만, facet-diverse multi-tool 의 real-world 분포를 ST4 하나로 대표할 수 있는가?"
+- +1.64pp / +0.40pp 자체가 marginal magnitude → bench 가 하나라면 "outlier / lucky seed" 의심도 같이 받음. **ST4 single benchmark + small magnitude 조합이 §1.1 의 가장 약한 지점**.
+- 해결책 (단일 경로): **BFCL-v3 Parallel / StableToolBench / AppBench 같은 facet-diverse multi-tool 벤치 추가 측정** 으로 empirical base 다원화. Paper edit 만으로는 해결 불가; 적어도 1 개 secondary 벤치에서 positive signal 필요.
+- 이게 Option O4 의 근거 (§5).
+
 ---
 
 ## 4. 왜 +28.89pp 가 나왔는지의 가설 (reframing 용 재료)
