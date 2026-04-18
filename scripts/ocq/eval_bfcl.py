@@ -203,7 +203,7 @@ def main():
                     ctx = torch.no_grad()
                 elif method.startswith("qbias"):
                     ctx = install_q_bias_hooks(model, B_ont, beta=args.beta,
-                                               n_kv=n_kv, head_dim=head_dim)
+                                               n_kv=n_kv, n_q=n_q, head_dim=head_dim)
                 elif method.startswith("kbias"):
                     ctx = install_kbias_hooks(model, B_ont, alpha=args.alpha,
                                               n_kv=n_kv, head_dim=head_dim)
