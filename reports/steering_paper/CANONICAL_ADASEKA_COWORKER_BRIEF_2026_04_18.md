@@ -242,8 +242,10 @@ Thm 6.17 은 "step-adaptive Q-coverage 가 multi-tool 에서 first-order optimal
 
 ---
 
-## 5. 대응 옵션 (우선순위, v2: numerology 제거 · O4 추가)
+## 5. 대응 옵션 (우선순위, v3: Option ε 수렴 + 4-claim)
 
+> **v3 수렴 결과**: 이전 v2 에서 나열한 O1/O2/O3/O4 는 **Option ε ("B_ont as geometric substrate" single thesis) 로 수렴**. α (defensive), β (safe-floor only), γ (training-free primary), δ (empirical pivot), ζ (wait more data) 는 ε 에 흡수 또는 deprecated. 아래는 ε 하 세부 실행안.
+>
 > **Framing 원칙 (cross-review 피드백 수용)**: NeurIPS 점수 예측은 0.1~0.5pp 단위 precision 으로 하지 않는다. 아래 표의 "direction" 열은 **방향성** (위/하락/유지) 과 그 rationale 만 기록; 숫자 추정은 의도적으로 뺐다. 리뷰어 반응은 discrete (accept/borderline/reject) 이므로 방향성이 유일하게 의미 있는 metric.
 
 ### Option 1 — Honest reframing (paper 만 수정, 실험 0)
