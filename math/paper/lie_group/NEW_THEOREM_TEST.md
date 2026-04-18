@@ -661,6 +661,14 @@ elif mode == 'full_random':
 ## §14. Version + changelog
 
 - **v1 (2026-04-19)**: 실험 세션 (a)(b)(c) 결과 반영 후 초안. Lemma 1 증명 완료, Lemma 2 증명 + 1 (M, V) 확증, two-level separation 이 core novelty. Phase A-C primary (110 GPU-hr), Phase D stretch (80 GPU-hr). NeurIPS 2026 완전 독립.
+- **v2 (2026-04-19 저녁)**: 사용자 피드백 ("이것 외에 이론적으로 다뤄야 할 실험 결과") 반영.
+  - §2 empirical anchors 에 E8–E13 (Tier 3 decomposition, routing architectural, MMLU fail, Mistral fail, L0 rank-1, BiasBios transfer) 추가.
+  - §3 에 H-G (facet-concentration), H-H (scope boundary alignment) 신규 primary hypothesis 추가.
+  - §5 에 Phase B3 신설 (B3.1 facet-concentration analysis + B3.2 MMLU/Mistral alignment). B1-B2 와 병렬 실행.
+  - §7 decision tree + §8 resource budget 재보정 (+12 GPU-hr). Wall-clock 변화 없음.
+  - §9 에 S0 (analyze_facet_concentration.py), S0b (measure_dstar_mmlu_mistral.py) script spec 추가.
+  - §1.4 observation list 에 E5-E8 (layer-adaptive, BiasBios transfer, L0 rank-1, contrastive B_ont) 추가.
+  - 핵심 변화: 이론 scope 이 "B_ont direction 의 universality" 에서 **"B_ont 의 internal facet 구조 + scope 경계 explanation"** 으로 확장. 이론이 다룰 수 있는 empirical 범위가 comprehensive 해짐.
 
 ---
 
