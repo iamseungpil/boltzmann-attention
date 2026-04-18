@@ -194,6 +194,33 @@ Thm 6.17 은 "step-adaptive Q-coverage 가 multi-tool 에서 first-order optimal
 - +1.64pp / +0.40pp 자체가 marginal magnitude → bench 가 하나라면 "outlier / lucky seed" 의심도 같이 받음. **ST4 single benchmark + small magnitude 조합이 §1.1 의 가장 약한 지점**.
 - 해결책 (단일 경로): **BFCL-v3 Parallel / StableToolBench / AppBench 같은 facet-diverse multi-tool 벤치 추가 측정** 으로 empirical base 다원화. Paper edit 만으로는 해결 불가; 적어도 1 개 secondary 벤치에서 positive signal 필요.
 - 이게 Option O4 의 근거 (§5).
+- **Update (2026-04-19)**: v3 4-claim 구조에서는 mechanism 주장을 포기하면서 이 weakness 의 severity 가 낮아짐. ST4 Q-coverage 결과는 **C2 (operator-form agnosticism) 의 Q-side instance** 로만 쓰이지 "multi-facet unique mechanism" 이라는 mechanism claim 의 유일 증거로 쓰이지 않음. 그래도 BFCL parallel_multiple 의 cross-benchmark 확증이 **C2 generality 강화** 목적으로 여전히 필요.
+
+### 3.6 v3 수렴 thesis — "B_ont as geometric substrate" single thesis + 4 existence claims
+
+두 세션 + cross-review 수렴 결과, 논문 주제는 다음 단일 thesis 로 수렴:
+
+> **"B_ont: a training-free catalog-derived basis for reliable attention steering in tool-selection, demonstrated across multiple operator forms and τ² domains with a layer-adaptive safe floor."**
+
+**4 Existence-level claims** (mechanism-free, 전부 empirical 직접 지지):
+
+| # | Claim 제목 | Claim 내용 | 증거 | 위험도 / 상태 | 논문 역할 |
+|---|---|---|---|---|---|
+| **C1** | Practical safe floor | B_ont + layer-adaptive K+Q 는 τ² 4 domains + Llama cross-model 에서 일관된 lift 제공 | `reports/beta_star_2026_04_17/{telecom,retail,airline,banking}_logit_full.json` bootstrap CI; Llama telecom `llama31_telecom_ladapt_paper4.json` +11.62pp | 🟢 낮음 (가장 sturdy) | **primary / operational contribution** |
+| **C2** | Operator-form agnosticism | 같은 B_ont 가 K-side (canonical AdaSEKA-interface) 와 Q-side (coverage) 두 operator form 에서 작동 | Tier 3 variant A +28.89pp (K-side) / Q+0.05 +24.78pp (Q-side) on Telecom | 🟡 중간 (observation 수준; Q-sign asymmetry 는 open) | **secondary / observational contribution** |
+| **C3** | Basis direction specificity | Matched 20% ‖K‖ perturbation 하에서 random orthonormal 은 0/200 tool-name change, B_ont 는 200/200 systematic → tool-selection subspace specificity | Tier 3 A/D + Phase 0 verification | 🟢 낮음 (Phase 0 hook-fire verified) | **empirical contribution** (핵심 ablation) |
+| **C4** | Training-free derivation | B_ont 는 contrastive pair training 없이 카탈로그 ontology 로부터 파생되어 AdaSEKA-interface 에 주입 가능 | Telecom `adaseka-qwen25-7b-tau2-telecom/expert_paths.json` + +28.89pp | 🔴 높음 (τ² 단일 도메인, BiasBios 확증 필요) | **methodological contribution** (preliminary 표기 유지) |
+
+**Mechanism 주장 전면 포기** (§6 의 paper edit 가 구현):
+- ❌ "Stationary K-side is structurally incapable of multi-selection" — §1.0 L43–47 에서 삭제.
+- ❌ "Q-coverage is the unique multi-facet coverage mechanism" — §1.1 에서 mechanism wording 삭제.
+- ❌ "Facet-diverse vs facet-uniform dichotomy" — §1.0 regime taxonomy 삭제 (Option O1 의 E1 도 수정됨; §6.1 참조).
+- ➡️ 이들은 §Discussion/Future Work 로 강등, 또는 **§Results 의 "Q-sign asymmetry phenomenon"** subsection 으로 observation-only 기술 (§6.6 참조).
+
+**왜 4-claim 이 mechanism 보다 안전한가**:
+- mechanism claim = "X 는 Y 때문에 작동한다" → empirical 반례 한 개로 붕괴 (Telecom canonical AdaSEKA +28.89pp 가 §1.0 mechanism 을 깼듯이).
+- existence claim = "X 가 Y 에서 작동한다" → 반례 발견 = scope 좁히기, 전체 붕괴 아님.
+- v1–v3 pivoting 의 근본 원인은 mechanism 시도; 4-claim 은 pivoting 을 종결시킨다.
 
 ---
 
