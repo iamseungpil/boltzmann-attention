@@ -542,5 +542,6 @@ None of these is undertaken in this submission. We report the verdict as-is and 
 
 ## Versioning notes
 
-- **v1 (2026-04-19):** Initial draft. §1–§5.6, §6–§8 + Appendix A.1 from Phase A+B+C anchors with F1–F5 applied throughout. §5.7, §5.8, Appendix B placeholders.
-- **Pending updates:** §5.7 on Phase B3 breadth analysis (no GPU); §5.8 on Phase D Q-sign $d^*$; Appendix B if Phase D is a negative result.
+- **v1 (2026-04-19, morning):** Initial draft. §1–§5.6, §6–§8 + Appendix A.1 from Phase A+B+C anchors with F1–F5 applied throughout. §5.7, §5.8, Appendix B placeholders.
+- **v1 (2026-04-19, evening):** Phase D *Failure* verdict applied per pre-registered template addendum. §5.8 now reports H$_1$ $0.86$–$0.91\times$ random, H$_3$ $1.10$–$1.23\times$ random, $0\%$ pass $30°$. §6.1 Q-sign discussion absorbs falsified-hypothesis report. §7 Limitations adds items 2 and 8 (deferred activation-dependent hypotheses; Llama untested). Appendix B.1 fully populated with methodology, hypothesis definitions, aggregate result, 7-head follow-up table, methodological caveats, reopening criteria.
+- **Pending updates:** §5.7 on Phase B3 breadth analysis (`analyze_breadth_metric.py`, no GPU; awaits experiment session). All other sections complete for v1 submission-readiness check.
