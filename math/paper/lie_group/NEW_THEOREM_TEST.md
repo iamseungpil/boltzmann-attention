@@ -193,6 +193,19 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 - **중요도**: Theorem T 의 핵심 claim (√(r/d) functional form) 에 영향 없음. Second-order refinement 로 §Appendix 또는 §Discussion 에만.
 - **Phase**: B3 와 함께 light analysis (신규 GPU 불필요).
 
+**H-J (Asymmetric transferability via B_ont direction breadth) — v4 신규**: B_ont 가 source benchmark 로부터 build 될 때, 그 B_ont 가 **다른 benchmark 에 전이되는 능력** 은 source 의 catalog ontology structure 에 의존. 정량적으로 정의하면:
+
+$$\text{breadth}(B_\text{ont}^{(\text{src})}) := \frac{1}{|V_\text{target}|}\sum_{v \in V_\text{target}} \cos(B_\text{ont}^{(\text{src})}, d^*_{M, v})$$
+
+- **관측된 패턴**:
+  - **Broad source** (Telecom, MetaTool): 4+ target 에 A/D > 1.8 — 여러 benchmark 의 discriminative subspace 와 부분 정렬.
+  - **Narrow source** (Retail): Telecom target 에서 A/D = 0.23 < 1 — Retail B_ont 의 주 방향이 Telecom 과 거의 직교. Random 보다 **해로움**.
+- **가설 명제**: Source catalog ontology 의 **facet diversity** 가 breadth 와 양의 상관. Telecom (tool_category 100% uniform but function_action / io_type diverse) + MetaTool (facet-diverse multi-tool) 는 broad; Retail (tool_category diverse but narrow in operation-level facet) 는 narrow.
+- **Test**: Phase B3 에서 H-G (facet-concentration) 측정 시 aggregate 로 breadth metric 을 함께 계산. 추가 GPU 불필요.
+- **Falsification**: Breadth ↔ cross-bench transferability 상관 < 0.3 → 다른 원인 (tokenizer mismatch, domain vocabulary).
+- **중요도**: Theorem T 확장 이 아니고, **B_ont 구성 methodology 의 practical caveat**. Paper §Methodology 에서 "B_ont source 선택이 중요하다" 로 서술.
+- **실패 시**: Asymmetric transferability 는 observation 으로만 (Theorem 적 해석 없음).
+
 ### 3.2 Secondary hypotheses — direction specificity 의 scope
 
 **H-E (B_ont direction specificity 의 cross-benchmark universality)**: B_ont 가 특정 benchmark 에서 빌드되더라도 같은 model 의 다른 benchmark 에서 random 보다 flip rate 높음.
