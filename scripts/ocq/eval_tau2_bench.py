@@ -77,6 +77,28 @@ from eval_metatool_subtask1 import (
     resolve_dtype,
 )
 
+from canonical_adaseka_engine import (
+    CanonicalAdaSEKAEngine,
+    build_marker_steer_mask,
+)
+
+
+def _parse_canonical_adaseka_tag(method: str):
+    """Parse canonical_adaseka_amp{α}_topk{k}_T{T} → dict params, or None."""
+    if not method.startswith("canonical_adaseka_"):
+        return None
+    rest = method[len("canonical_adaseka_"):]
+    # rest: "amp{α}_topk{k}_T{T}"
+    if not rest.startswith("amp"):
+        return None
+    try:
+        after_amp = rest[len("amp"):]
+        amp_str, after = after_amp.split("_topk", 1)
+        topk_str, T_str = after.split("_T", 1)
+        return {"amp": float(amp_str), "topk": int(topk_str), "T": float(T_str)}
+    except (ValueError, IndexError):
+        return None
+
 
 # =====================================================================
 # Retail domain tool definitions (from τ²-bench retail/tools.py)
@@ -260,6 +282,15 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--skip-heads", type=str, default="")
     p.add_argument("--skip-sink-tokens", type=int, default=0)
+    p.add_argument("--multipass-n", type=int, default=3,
+                   help="Number of passes for multipass_* methods (default 3)")
+    p.add_argument("--adaseka-expert-paths", type=str, default="",
+                   help="Path to expert_paths.json for canonical_adaseka_* methods "
+                        "(e.g., external/SEKA/seka_projections/adaseka-qwen25-7b-metatool/expert_paths.json)")
+    p.add_argument("--adaseka-layers", type=str, default="last10",
+                   help="Layer spec for canonical AdaSEKA (must match expert SVD layer count)")
+    p.add_argument("--adaseka-seka-root", type=str, default="external/SEKA",
+                   help="Root dir for resolving relative expert_paths.json entries")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
@@ -300,6 +331,10 @@ def build_tools_json(domain_tools: List[str] = None) -> List[dict]:
 def build_user_message(task: dict) -> str:
     """Compose the user message from all instruction fields in the task."""
     instr = task["user_scenario"]["instructions"]
+    # Some domains (banking_knowledge) have instructions as a plain string
+    if isinstance(instr, str):
+        return instr
+    # Others (retail, airline) have a dict with structured fields
     parts = []
     if instr.get("reason_for_call"):
         parts.append(instr["reason_for_call"])
@@ -472,6 +507,10 @@ def get_steering_context(
     facet_mask=None, skip_heads=None,
 ):
     """Return the appropriate context manager for the given method."""
+    # Strip multipass_ prefix for steering context dispatch; multipass is
+    # handled at the generation loop level in run_method.
+    if method.startswith("multipass_"):
+        method = method[len("multipass_"):]
     kind, params = parse_method(method)
     effective_skip = skip_heads if params.get("use_skip") else None
     effective_sink = args.skip_sink_tokens if params.get("use_sinkskip") else 0
@@ -569,6 +608,104 @@ def get_steering_context(
 # Eval loop
 # =====================================================================
 
+def build_chat_prompt_marked(
+    tokenizer,
+    task: dict,
+    tools: List[dict],
+    marker: str = "**",
+) -> str:
+    """Same as build_chat_prompt, but wraps the user message content with
+    `marker`…`marker` so canonical AdaSEKA can localize the steering span."""
+    user_msg = build_user_message(task)
+    marked = f"{marker}{user_msg}{marker}"
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": marked},
+    ]
+    try:
+        prompt = tokenizer.apply_chat_template(
+            messages, tools=tools, add_generation_prompt=True, tokenize=False,
+        )
+    except (TypeError, ValueError):
+        tools_text = json.dumps(tools, indent=2)
+        messages[0]["content"] = SYSTEM_PROMPT + "\nAvailable tools:\n" + tools_text
+        prompt = tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True, tokenize=False,
+        )
+    return prompt
+
+
+@torch.no_grad()
+def _run_canonical_adaseka(
+    model,
+    tokenizer,
+    tasks: List[dict],
+    tools_json: List[dict],
+    method: str,
+    args,
+    engine: "CanonicalAdaSEKAEngine",
+    params: dict,
+    known_tools: List[str] = None,
+) -> Dict:
+    """Canonical AdaSEKA per-task hook install loop (K-side, marker-gated,
+    last-token Q routing, max-normalized coefficients)."""
+    engine.topk = params["topk"]
+    engine.T = params["T"]
+
+    all_metrics = []
+    per_sample = []
+    t0 = time.time()
+
+    for i, task in enumerate(tasks):
+        prompt_marked = build_chat_prompt_marked(tokenizer, task, tools_json)
+        ids, steer_mask = build_marker_steer_mask(prompt_marked, tokenizer)
+        ids = ids.to(args.device)
+        steer_mask = steer_mask.to(args.device)
+
+        with engine.install_hooks(ids, steer_mask, amplify=params["amp"]):
+            out = model.generate(
+                input_ids=ids,
+                max_new_tokens=args.max_new_tokens,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+        new_tokens = out[0, ids.shape[1]:]
+        generation = tokenizer.decode(new_tokens, skip_special_tokens=True)
+
+        pred_tools = extract_tool_names(generation, known_tools=known_tools)
+        pred_unique = list(dict.fromkeys(pred_tools))
+        gt_unique = extract_gt_tools(task)
+        metrics = compute_tau2_metrics(pred_unique, gt_unique)
+
+        all_metrics.append(metrics)
+        per_sample.append({
+            "task_id": task["id"],
+            "gt_tools": gt_unique,
+            "pred_tools": pred_unique,
+            "metrics": metrics,
+        })
+        if args.verbose and i < 3:
+            per_sample[-1]["generation"] = generation[:500]
+        if (i + 1) % 10 == 0 or i == len(tasks) - 1:
+            avg_f1 = sum(m["F1"] for m in all_metrics) / len(all_metrics)
+            print(f"  [{method}] {i+1}/{len(tasks)}  running_F1={avg_f1:.4f}", flush=True)
+
+    runtime = time.time() - t0
+    n = len(all_metrics)
+    agg = {}
+    for key in ["F1", "Exact", "Recall", "Precision", "GT_subset", "nDCG"]:
+        vals = [m[key] for m in all_metrics]
+        agg[key] = sum(vals) / n if n > 0 else 0.0
+
+    return {
+        "method": method,
+        "n_tasks": n,
+        "metrics": agg,
+        "runtime_s": runtime,
+        "per_sample": per_sample,
+    }
+
+
 @torch.no_grad()
 def run_method(
     model,
@@ -584,9 +721,22 @@ def run_method(
     L: int,
     facet_mask=None,
     skip_heads=None,
-    domain_tools: Optional[List[str]] = None,
+    known_tools: List[str] = None,
+    adaseka_engine: "CanonicalAdaSEKAEngine" = None,
 ) -> Dict:
     """Evaluate a single method across all tasks."""
+    canon_params = _parse_canonical_adaseka_tag(method)
+    if canon_params is not None:
+        if adaseka_engine is None:
+            raise ValueError(
+                f"method {method!r} requires --adaseka-expert-paths to initialize "
+                "CanonicalAdaSEKAEngine"
+            )
+        return _run_canonical_adaseka(
+            model, tokenizer, tasks, tools_json, method, args,
+            adaseka_engine, canon_params, known_tools,
+        )
+
     ctx = get_steering_context(
         model, method, args,
         B_ont=B_ont, n_kv=n_kv, n_q=n_q, head_dim=head_dim, L=L,
@@ -597,23 +747,56 @@ def run_method(
     per_sample = []
     t0 = time.time()
 
+    # Multipass support: method name starts with "multipass_" invokes
+    # multiple independent generations of the same prompt with increasing
+    # Q-bias across passes. Example: multipass_qbias_b-0.03 runs Q-only
+    # at β=-0.03 across up to max_passes passes, each pass tightens the
+    # Q-subtraction by an additional beta increment.
+    multipass = method.startswith("multipass_")
+    max_passes = getattr(args, "multipass_n", 3) if multipass else 1
+
     with ctx:
         for i, task in enumerate(tasks):
             prompt = build_chat_prompt(tokenizer, task, tools_json)
-            ids = tokenizer(prompt, return_tensors="pt").to(args.device)
-            out = model.generate(
-                **ids,
-                max_new_tokens=args.max_new_tokens,
-                do_sample=False,
-                pad_token_id=tokenizer.eos_token_id,
-            )
-            new_tokens = out[0, ids["input_ids"].shape[1]:]
-            generation = tokenizer.decode(new_tokens, skip_special_tokens=True)
-
-            # Extract predictions and ground truth
-            pred_raw = extract_tool_names(generation, known_tools=domain_tools)
-            pred_unique = list(dict.fromkeys(pred_raw))  # deduplicate preserving order
             gt_unique = extract_gt_tools(task)
+            all_tools_found = []
+
+            for pass_idx in range(max_passes):
+                # For subsequent passes, append found tools to prompt
+                if pass_idx > 0 and all_tools_found:
+                    found_str = ", ".join(all_tools_found)
+                    extra = (
+                        f"\n\nYou have already considered: {found_str}. "
+                        f"Suggest ADDITIONAL tools that might also be needed."
+                    )
+                    pass_prompt = prompt + extra
+                else:
+                    pass_prompt = prompt
+
+                ids = tokenizer(pass_prompt, return_tensors="pt").to(args.device)
+                out = model.generate(
+                    **ids,
+                    max_new_tokens=args.max_new_tokens,
+                    do_sample=False,
+                    pad_token_id=tokenizer.eos_token_id,
+                )
+                new_tokens = out[0, ids["input_ids"].shape[1]:]
+                generation = tokenizer.decode(new_tokens, skip_special_tokens=True)
+
+                pass_tools = extract_tool_names(generation, known_tools=known_tools)
+                new_tools = [t for t in dict.fromkeys(pass_tools)
+                             if t not in all_tools_found]
+
+                if not new_tools and pass_idx > 0:
+                    break  # no new info, stop
+
+                for t in new_tools:
+                    all_tools_found.append(t)
+
+                if not multipass:
+                    break  # single pass only
+
+            pred_unique = all_tools_found
 
             metrics = compute_tau2_metrics(pred_unique, gt_unique)
             all_metrics.append(metrics)
@@ -704,8 +887,11 @@ def main():
     print(f"[tools] {len(domain_tools)} tools for domain '{args.domain}': {domain_tools[:5]}...", flush=True)
     tools_json = build_tools_json(domain_tools)
 
-    # Load B_ont if needed
-    needs_b_ont = any(m != "no_steer" for m in args.methods)
+    # Load B_ont if needed (canonical_adaseka uses its own expert SVDs, not B_ont)
+    needs_b_ont = any(
+        m != "no_steer" and not m.startswith("canonical_adaseka_")
+        for m in args.methods
+    )
     needs_facet_mask = any("facet_gated" in m for m in args.methods)
     B_ont = None
     facet_mask = None
@@ -745,6 +931,24 @@ def main():
         skip_heads = parse_skip_heads(args.skip_heads, n_kv)
         print(f"[skip] {len(skip_heads)} (layer,head) pairs skipped", flush=True)
 
+    # Initialize canonical AdaSEKA engine if any method requires it
+    adaseka_engine = None
+    if any(m.startswith("canonical_adaseka_") for m in args.methods):
+        if not args.adaseka_expert_paths:
+            raise ValueError(
+                "--adaseka-expert-paths required when any method is canonical_adaseka_*"
+            )
+        print(f"[canonical_adaseka] loading expert SVDs from {args.adaseka_expert_paths}", flush=True)
+        adaseka_engine = CanonicalAdaSEKAEngine(
+            model=model,
+            expert_paths_json=args.adaseka_expert_paths,
+            layers=args.adaseka_layers,
+            seka_root=args.adaseka_seka_root,
+            n_kv=n_kv, n_q=n_q, head_dim=head_dim,
+        )
+        print(f"[canonical_adaseka] experts={adaseka_engine.expert_names} "
+              f"layers={adaseka_engine.sel_layers}", flush=True)
+
     # Run all methods
     results = []
     for method in args.methods:
@@ -755,7 +959,8 @@ def main():
             B_ont=B_ont, n_kv=n_kv, n_q=n_q,
             head_dim=head_dim, L=L,
             facet_mask=facet_mask, skip_heads=skip_heads,
-            domain_tools=domain_tools,
+            known_tools=domain_tools,
+            adaseka_engine=adaseka_engine,
         )
         m = res["metrics"]
         print(
