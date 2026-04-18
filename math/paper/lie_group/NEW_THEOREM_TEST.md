@@ -1,6 +1,8 @@
-# NEW_THEOREM_TEST — Two-Level Argmax-Subspace Selectivity (v2)
+# NEW_THEOREM_TEST — Two-Level Argmax-Subspace Selectivity (v3)
 
-**작성일**: 2026-04-19 (v1), **v2 업데이트 2026-04-19 저녁**
+**작성일**: 2026-04-19 (v1), **v2 업데이트 2026-04-19 저녁**, **v3 업데이트 2026-04-19 Phase A 완료 반영**
+
+**v3 상태 스냅샷**: **Phase A 완료 (9 (M, V) runs, ~30 min GPU total)**. H-A (attention √(r/d) universality) 강력 확증 — 9/9 R²≥0.99, mean slope 0.5298. T.B (margin-gated flip) 의 **predictive form 도 empirically 확증** — 작은 margin 벤치 (Qwen Banking m_0=0.88 / Llama Retail m_0=0.02) 에서 flip rate 7.8% / 1.6%, 모두 high-r 에 집중. Cross-architecture (Qwen/Llama/Mistral) 3/3 family 에서 Lemma 2 holds — 예상 밖 보너스. **Phase B/B3 시작 가능**.
 **바탕**: 실험 세션 (a)(b)(c) 결과 (`memory/lemma_empirical_abc_2026_04_19.md`) + P1 원본 (`memory/p1_random_rank_scaling_failed_2026_04_19.md`) + variant D Phase 0 (`memory/variantD_phase0_verified_2026_04_19.md`) + BFCL cross-benchmark (`memory/bfcl_tier3_cross_benchmark_2026_04_19.md`) + **v2 추가**: Tier 3 A-B-D decomposition (`memory/basis_matching_trap_2026_04_18.md`, `canonical_adaseka_engine.py`) + routing diag (`memory/inter_expert_routing_architectural_2026_04_18.md`) + Cor 6.7 MMLU fail (`memory/cor67_drop_confirmed_2026_04_10.md`) + cross-model Mistral fail (`memory/cross_model_kbias_analysis_2026_04_13.md`) + BiasBios transfer (`memory/phase1_3_ontology_beats_seka.md`) + L0 rank-1 (`memory/cor67_gate_distribution_diagnostic_2026_04_10.md`)
 **상태**: Lemma partial 검증 완료 (Qwen Telecom N=100 단일 점). Generalization scope + facet-concentration + failure-mode scope boundary 는 미검증.
 **목표**: NeurIPS 2026 existence-only submission 과 **완전 독립** 의 upside track. 본 문서는 다른 세션이 실행할 수 있는 자기충족 가설 + 실험 계획서.
