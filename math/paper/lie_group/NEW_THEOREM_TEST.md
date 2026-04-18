@@ -487,6 +487,44 @@ ICLR 2027 마감까지 24 주 → comfortable. Phase D 포함해도 여유.
 
 `scripts/iclr2027/` (또는 `scripts/new_theorem_test/`) 에 새로 작성.
 
+### S0. `analyze_facet_concentration.py` (Phase B3.1, ~250 LOC) — v2 신규
+
+**목표**: H-G 검증. 기존 Tier 3 데이터 + d\*_emp 추출 결과를 facet block 으로 decomposition.
+
+**CLI**:
+```
+python analyze_facet_concentration.py \
+  --bont external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom/B_ont.pt \
+  --facet-sizes 1,3,5,3 \
+  --dstar-emp reports/new_theorem_test/phase0_dstar_qwen_telecom.json \
+  --tier3-ab-df1 21.10 \
+  --out reports/new_theorem_test/phase_b3_facet_concentration.json
+```
+
+**출력 schema**: `{concentration_mean, concentration_median, concentration_per_facet_histogram, dilution_ratio_predicted, dilution_ratio_observed, H_G_verdict}`.
+
+### S0b. `measure_dstar_mmlu_mistral.py` (Phase B3.2, ~200 LOC) — v2 신규
+
+**목표**: H-H 검증. MMLU / Mistral Telecom 에서 d\*_emp 추출 + B_ont 와의 angle 측정.
+
+**CLI**:
+```
+python measure_dstar_mmlu_mistral.py \
+  --setting mmlu_qwen \
+  --model Qwen/Qwen2.5-7B-Instruct \
+  --n 30 \
+  --out reports/new_theorem_test/phase_b3_scope_mmlu.json
+
+python measure_dstar_mmlu_mistral.py \
+  --setting mistral_telecom \
+  --model mistralai/Mistral-7B-Instruct-v0.3 \
+  --build-bont \
+  --n 30 \
+  --out reports/new_theorem_test/phase_b3_scope_mistral.json
+```
+
+**출력**: `{per_layer_cos, mean_cos, median_cos, H_H_verdict}`.
+
 ### S1. `measure_layer_resolved_kl.py` (Phase B2, ~200 LOC)
 
 **목표**: 각 layer 의 residual-stream 에서 KL 을 measure, LM-head 통과 전/후 비교.
