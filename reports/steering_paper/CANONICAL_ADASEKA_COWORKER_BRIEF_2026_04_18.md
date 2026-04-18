@@ -1,16 +1,35 @@
-# Canonical AdaSEKA 실험 — Coworker Brief (2026-04-18 저녁, **v2 update 2026-04-18 23:30 KST**)
+# Canonical AdaSEKA 실험 — Coworker Brief (2026-04-18 저녁, **v3 update 2026-04-19 00:15 KST**)
 
-**대상 독자**: 논문 공저·공동 연구자 중 canonical AdaSEKA 라인을 처음 보는 사람.
-**목적**: 지금까지 무엇을 돌렸고, 무엇이 나왔으며, 그 결과가 논문 §1.0/§1.1/§5.5.3.1 에 왜 문제가 되고 어떻게 대응할지, 이어서 어떤 추가 실험이 계획되어 있는지를 self-contained 하게 설명.
-**한 줄 요약**: τ² Telecom N=200 에서 canonical AdaSEKA-interface (우리 B_ont 로 파생한 experts) 가 **+28.89pp ΔF1** 을 찍었다. Tier 3 ablation 으로 "facet split 이 주 (+21.10pp)" 는 확인됐지만 "**variantD (random basis) = 0 literal → basis direction load-bearing**" 주장은 **버그 의심으로 보류**. 현재 paper §1.0 은 "stationary K-side 는 multi-selection 구조 불가" 라고 선언해 놓은 상태 → **regime taxonomy reframe (O1) 필수**. 추가 empirical 다원화(BFCL/StableToolBench) 가 ST4 단일 벤치 의존도 낮추는 데 이득.
+**대상 독자**: 논문 공저·공동 연구자 중 canonical AdaSEKA 라인을 처음 보는 사람 + 이 세션의 paper edit 담당자.
 
-**v2 업데이트 요지** (이 문서 vs 2026-04-18 21:00 KST 의 v1):
-- Tier 3 variant B / D 결과 집계, variantD literal-zero bug flag (§2.5 신설)
-- BFCL-v3 external 경로 팩트 체크 (HF fetch, proxy scoring 주의)
-- 점수 numerology 제거 (directional only; coworker cross-review 피드백 수용)
-- Tier 2 BiasBios 포지션 재설정 ("crash-through upside" → "시나리오 D 방어 보험" 으로 환원)
-- ST4 single-benchmark weakness 명시 (§3.5 신설)
-- O4 옵션 추가 (O1 + Tier3 + BFCL smoke)
+**목적**: 지금까지 무엇을 돌렸고, 무엇이 나왔으며, 그 결과로 논문을 어떻게 재구성할지, 그리고 **coworker 가 §1.0 E1 / §1.1 E2 / §1.3 / §5.5.3.1 E3 / §4.X 신설 / §Results Q-sign 서브섹션** 을 직접 편집할 수 있도록 patch-level 지침 제공.
+
+## 🎯 Coworker Action Items (먼저 읽는 TL;DR)
+
+두 세션 + cross-review 수렴 결과, 논문 주제는 **mechanism 주장을 전면 포기**하고 **existence-level 4-claim 구조 (C1/C2/C3/C4)** 로 재구성한다. 담당할 편집은 6 건, 예상 4–6 시간:
+
+1. **§1.0 E1** — "structurally incapable" 삭제, mechanism 주장 제거 (§6.1 concrete patch)
+2. **§1.1 E2** — Q-coverage 를 "mechanism" 이 아니라 "Q-side operator instance" 로 relabel (§6.2)
+3. **§1.3 E3** — contribution list 를 C1/C2/C3/C4 4-layer 로 재구조화 (§6.3)
+4. **§5.5.3.1 E4** — canonical AdaSEKA 라벨 교정 + Phase 0 결과 삽입 (§6.4)
+5. **§4.X 신설 E5** — Tier 3 + Phase 0 ablation table (§6.5)
+6. **§Results 신설 E6** — Q-sign model-adaptivity phenomenon subsection (§6.6)
+
+**편집 원칙** (cross-review 피드백 수용):
+- Mechanism 주장 (structural impossibility, unique coverage mechanism) 은 **전부 삭제**. Observation + existence 만 기록.
+- Tier 3 D=0 은 **"matched perturbation magnitude (20% ‖K‖) 하에서 random 은 0/200 tool-name change"** 로 framing — 리뷰어 공격 차단 필수.
+- 점수 numerology (+0.2/+0.3/+0.4) 금지. 방향성 (🔻복구/🔺개선) + rationale 만.
+- BiasBios 는 C4 falsifiability check 이지 upside 아님.
+
+**한 줄 요약**: τ² Telecom N=200 에서 canonical AdaSEKA-interface (우리 B_ont 로 파생한 experts) 가 **+28.89pp ΔF1**. Tier 3 A (ours, +28.89pp) / B (no-split, +7.79pp) / D (random, 0/200 changes under 20% ‖δ‖/‖K‖) + Phase 0 hook-fire verification → **basis direction specificity 확보**. Mechanism 주장 포기 + **4 existence claims 로 논문 재구성**이 권고 방향.
+
+**v3 업데이트 요지** (이 문서 vs 2026-04-18 23:30 KST 의 v2):
+- Phase 0 verification 결과 통합 (§2.6 신설): variantD bug 아님 확정, hook 발화 + 20% δ + 0/200 change → C3 legitimate
+- **4-claim 구조 공식화** (§3.6 신설): C1 ladapt safe floor / C2 operator-form agnosticism / C3 basis direction specificity / C4 training-free derivation
+- **Mechanism 주장 전면 포기** (§5 Option 전면 재편): Option ε 수렴 — "B_ont as geometric substrate" single thesis
+- **§6 concrete patch 모음** 신설 — coworker 가 paper 에 직접 적용 가능한 before/after text
+- **Q-sign model-adaptivity** phenomenon subsection 신설 권고 (§6.6)
+- ST4 단일 벤치 weakness 는 §3.5 유지하되 해결책 우선순위 변경 — BFCL parallel_multiple 이 BiasBios 보다 먼저
 
 ---
 
