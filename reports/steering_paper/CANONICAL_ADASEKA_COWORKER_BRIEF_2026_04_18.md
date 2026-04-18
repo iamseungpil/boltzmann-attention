@@ -427,15 +427,19 @@ CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_tau2_bench.py \
 
 ---
 
-## 8. 논문에 실을 때의 risk / counter-argument 매뉴얼
+## 8. 논문에 실을 때의 risk / counter-argument 매뉴얼 (v2)
 
 | 리뷰어 가능 지적 | 방어 |
 |---|---|
 | "당신의 B_ont-derived experts 는 canonical AdaSEKA 가 아니다" | §5.5.3.1 relabeling (E3) — "operator-form ablation on shared basis" 라고 명시하고, canonical AdaSEKA training data 가 tool-selection 에 없음을 `adaseka_scope_mismatch` 근거로 공개. |
-| "Tier 3 variant D (random orthonormal) 도 +28pp 나오면 당신들 basis 가 load-bearing 이 아니다" | Tier 3 pending. 만약 random 도 +28pp 나오면 **정직히 "routing interface 가 load-bearing, basis 는 부수적" 로 방향 전환**. 이 경우에도 §1.0 reframing (E1) 은 유효. |
+| "Tier 3 variant D (random orthonormal) 가 정확히 0 effect? 통계적으로 이상하다" | **현재 open issue**. Phase 0 (§7.3) 로 hook 미적용 bug 인지 real zero 인지 확인 후 논문 인용. bug 로 판명되면 variantD re-run; real zero 면 mechanism 설명 단락 추가. **bug 해소 전 variantD 기반 "basis load-bearing" 주장 금지**. |
+| "Tier 3 variant D 가 +28pp 근처 나오면 당신들 basis 는 load-bearing 이 아니다" | Phase 0 후 variantD non-zero 인 경우. "routing interface + facet split 이 주 기여, basis direction 은 부분 기여" 로 방향 전환. §1.0 reframing (E1) 은 이 경우에도 유효. |
 | "§1.0 structural argument 가 τ² 결과로 반박된다" | E1 의 facet-diverse vs uniform regime 분리. falsifiable prediction: 새로운 multi-tool 벤치에서 facet diversity 를 측정하면 stationary K-side 성공 여부 예측 가능. |
+| "§1.1 empirical 증거가 MetaTool ST4 단일 벤치인데 generality 보장되나" | **v1 에서 under-emphasized 했던 약점**. Option O4 (BFCL-v3 Parallel + secondary bench) 로 empirical triangulation. BFCL 이 proxy scoring 이므로 secondary bench (StableToolBench / AppBench) 에서 공식 scoring 추가 권장. |
 | "routing 이 architectural 이면 AdaSEKA query-adaptivity 가 무의미하다는 당신들 주장은 AdaSEKA 에 대한 공격이 아닌가" | § Related Work 에서 AdaSEKA 의 prompt-highlighting scope 는 유지 (BiasBios 같은 single-answer). τ² tool-selection 에서만 routing 이 flatten 되는지 cross-check (Tier 2 BiasBios 가 이 방어의 증거). |
 | "Thm 6.17 가정 (H-cat) 이 τ² Telecom 에 성립하는가" | Appendix 에 τ² 별 (H-cat) gain 측정 추가 필요 (현재 MetaTool ST4 만 측정). 추가 측정 ~5 분 GPU. |
+| "Tier 2 BiasBios 를 generality 증거로 제시하지만 ours ≪ real 나왔다" | Tier 2 포지션을 "generality validation step" 으로 한정 (crash-through upside 표기 금지). ours ≪ real 이면 scope 좁혀서 "training-free derivation 은 facet-structured 카탈로그 규모 벤치 한정" 으로 기술. |
+| "BFCL proxy scoring 이라 공식 leaderboard 급 증거가 아니다" | paper 에 "proxy function-name F1, not official BFCL AST score" 로 명시 + secondary bench (StableToolBench / AppBench) 의 official scoring 을 second base 로. |
 
 ---
 
