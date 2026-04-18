@@ -835,6 +835,19 @@ elif mode == 'full_random':
   - §1.4 observation list 에 E5-E8 (layer-adaptive, BiasBios transfer, L0 rank-1, contrastive B_ont) 추가.
   - 핵심 변화: 이론 scope 이 "B_ont direction 의 universality" 에서 **"B_ont 의 internal facet 구조 + scope 경계 explanation"** 으로 확장. 이론이 다룰 수 있는 empirical 범위가 comprehensive 해짐.
 
+- **v4 (2026-04-19 Phase B 완료)**: 실험 세션의 Phase B1 (7 runs) + Phase B2 (29-layer KL) aggregate (`memory/new_theorem_phase_b_2026_04_19.md`) 반영.
+  - **H-E CONFIRMED** (6/7 A>D, mean A/D ratio 2.35).
+  - **H-D CONFIRMED decisively** (28/29 residual layers monotonic, 오직 layer 28 non-mono → T.C mechanism 위치 = final FFN+LM-head composition).
+  - **H-J 신규 가설 (v4)**: Asymmetric transferability — Retail B_ont → Telecom 에서 A/D=0.23 < 1 (random 보다 약함). B_ont direction breadth 가 source catalog 의 facet diversity 에 의존.
+  - §1 상태 snapshot 확장 — Theorem T 누적 지지 요약 + 신규 관측.
+  - §2 에 E18-E21 (B1 matrix, asymmetric transferability, B2 layer-resolved, layer-28 amplification) 추가.
+  - §3 에 H-J (asymmetric transferability / B_ont breadth) 신규 가설 추가.
+  - §3.4 priority table: H-D, H-E 를 ~~strikethrough~~ + CONFIRMED; H-J 신규; Phase C 스크립트 준비 완료 상태 반영.
+  - §5 Phase B 를 "COMPLETE" 로 전환 + 실제 결과 테이블 inline (B1 + B2).
+  - §7 decision tree: B1 / B2 gate 결과 inline.
+  - §12 first actions 전면 재작성: 다음 세션 우선순위는 **Phase C (스크립트 준비 완료, ~20 GPU-hr) → Phase B3 (facet concentration, breadth, scope boundary, slope excess) → Phase D stretch**.
+  - 핵심 변화: **Theorem T 의 3 가지 claim (T.A, T.B, T.C) 모두 empirical 확증 및 mechanism 위치 특정**. ICLR 2027 paper 의 main result 섹션 뼈대 완성. 남은 작업은 (i) direction specificity 의 origin (Phase C falsifier), (ii) facet 구조 + scope 경계 + slope refinement (Phase B3), (iii) optional Q-sign (Phase D).
+
 - **v3 (2026-04-19 Phase A 완료)**: 실험 세션의 Phase A 9 (M, V) aggregate (`memory/new_theorem_phase_a_2026_04_19.md`) 반영.
   - **H-A CONFIRMED** (9/9 R²≥0.99, mean slope 0.5298), **H-C CONFIRMED** (3/3 arch family), **H-B REPLACED** by T.B predictive form (margin-flip correlation 확증: Qwen Banking 7.8% / Llama Retail 1.6%, 모두 high-r 집중).
   - §2 에 E14-E17 (Phase A slope table, flip rate table, systematic slope excess, m_0 range) 추가.
