@@ -374,12 +374,18 @@ For each, build $B_{\text{ont}}$ via the §4.1 pipeline and measure attn_fro_mea
 
 To be filled when experiment session runs `analyze_breadth_metric.py` (§4.6, no GPU). Expected deliverables: a breadth column added to Table 5.3 and a breadth vs. attn_fro_ratio scatter for the $6$ main-text B1 pairs, with regression coefficient as the headline statistic.
 
-### 5.8 (Pending) Phase D — Q-sign $d^*$ narrowing
+### 5.8 Phase D — Q-sign $d^*$ narrowing (Failure branch per pre-registered template)
 
-To be filled when experiment session runs the $H_1$–$H_6$ tests over the 5-point Q-sign survey ($18$ predictions total). Pre-registered outcome template (per consolidation memo):
-- $\geq 14/18$ — §6.1 upgraded to "mechanism: $d^*$ sign predicts Q-sign".
-- $10$–$13/18$ — partial mechanism evidence, observation-level.
-- $< 10/18$ — Q-sign remains unexplained, Phase D in Appendix B as negative result.
+**Protocol executed.** Experiment session ran a *stronger* test than the originally pre-registered $18$-pair sign prediction: per-(layer, head, query) angular alignment of the empirical Q-direction $d_{\text{emp}} = \bar K_{\text{GT}} - \bar K_{\text{distr}}$ against two static-weight hypotheses on Qwen2.5-7B × τ² {Telecom, Retail} × $N = 50$ each (∼4000 angular measurements per hypothesis). Substituting the continuous-metric per-(L, h, q) alignment for the binary 18-pair sign vote was accepted as a *tighter* rejection criterion (4000-point continuous test vs. 18 binary trials).
+
+- **H$_1$ (lm_head pull-through):** $d_{H_1} = W_K^\top (\bar e_{\text{GT}} - \bar e_{\text{distr}})$. Mean $|\cos|$ across all (L, h, q): $0.0807$ (Telecom), $0.0764$ (Retail), against random baseline $1/\sqrt{128} = 0.0884$. That is **$0.91\times$ / $0.86\times$ random — worse than chance**. $0\%$ of heads pass an angular threshold of $30°$.
+- **H$_3$ ($W_K$ top-left singular vector, data-free):** Mean $|\cos|$: $0.1090$ (Telecom), $0.0973$ (Retail), against the same random baseline. That is **$1.23\times$ / $1.10\times$ random — modest but sub-threshold**. $0\%$ of heads pass $30°$.
+- **H$_2$, H$_4$, H$_5$, H$_6$:** not tested in this submission cycle (activation-dependent / context-specific; estimated $80$+ GPU-hr).
+- **Llama:** test infrastructure blocked by prompt-builder mismatch (chat template omits inline tool JSON; tool positions unfindable). Cross-architecture verification of the Phase D finding is therefore not in scope.
+
+**Verdict — *Failure* branch.** Per the pre-registered template, $0\%$ of heads passing the $30°$ angular threshold on $\sim 4000$ data points is a tighter rejection than the $< 10/18$ sign-failure threshold. **The static weight-geometric family of $d^*$ hypotheses (H$_1$ + H$_3$) is effectively closed for this submission.** Q-sign asymmetry remains an unexplained observation; the result is reported transparently in §6.1 with hypothesis-level falsification and in Appendix B.1 with full per-head data.
+
+**Localized partial signal (future-work hook).** Of $\sim 56$ Qwen Telecom heads ($28 \times 2$), seven show H$_3$ alignment $|\cos| \geq 0.18$ — i.e. $2$–$3\times$ the random baseline. Notable: L24$_{h1}$ $|\cos|=0.285$ (angle $\approx 73°$), L19$_{h0}$ $|\cos|=0.255$ ($\approx 75°$). Full table in Appendix B.1. These heads are below the global $30°$ pass threshold but distinguishable from the bulk distribution; they constitute a candidate locus for a follow-up rank-1 $W_K$ ablation. Not in scope here.
 
 ---
 
