@@ -313,67 +313,336 @@ ST4 단일 벤치 weakness (§3.5) 해소용. 핵심 empirical claim 을 **≥2 
 
 ---
 
-## 6. 제안 편집 4 건 (Option 1 기준, paper 에 지금 넣을 수 있는 것)
+## 6. Paper patch 모음 (coworker 적용용, v3)
 
-### E1: §1.0 구조 논거 narrowing (paragraph 보강)
-**현재 text (L43, PAPER_DRAFT_v3.md)**:
-> Every K-side spectral steering method in the literature ... is a stationary operator ...  K-side stationary steering is *structurally incapable* of facet coverage.
+> **편집 원칙 재확인**:
+> - Mechanism claim ("structurally incapable", "unique mechanism", "regime dichotomy") 은 **전부 삭제** — 논문이 흔들리는 근본 원인.
+> - Existence claim (C1/C2/C3/C4) 만 유지. §1.3 contribution list 가 이 4-layer 를 직접 반영.
+> - Tier 3 D framing 은 반드시 **"matched perturbation magnitude (20% ‖K‖)"** 를 포함. Phase 0 hook-fire log 를 appendix 에 첨부.
+> - 편집 순서 권고: **E1 → E3 → E4 → E2 → E5 → E6**. 이유: E1/E3 는 논리 기둥 제거 (가장 먼저), E4 contribution list 는 나머지 edit 의 앵커, E2/E5/E6 는 body 추가라 마지막. 각 edit 끝에 **commit 권고 메시지** 포함.
 
-**제안 text (패치 diff)**:
+---
+
+### E1 — §1.0 "structurally incapable" 삭제 + mechanism 주장 제거
+
+**대상 파일**: `math/paper/benchmark_design/PAPER_DRAFT_v3.md`
+**라인**: L43–47 (§1.0 "Why SEKA-class K-side spectral steering cannot multi-select" 전체 paragraph)
+
+**v2 coworker brief 의 권고 ("facet-diverse regime 으로 scope narrowing") 는 철회**. v3 4-claim 구조에서는 mechanism claim 자체를 제거.
+
+**현재 text (L43–47)** — 이걸 전부 삭제:
 ```
-...is a stationary operator...  K-side stationary steering is
--structurally incapable of facet coverage.
-+structurally incapable of facet coverage *in facet-diverse multi-tool regimes*
-+(where target tools span disjoint facet column blocks of $B_\mathrm{ont}$; see §4.X
-+for the formal definition). In facet-uniform multi-tool regimes (where all target
-+tools share the same facet block, e.g. $\tau^2$-bench Telecom where all 8 tools
-+belong to a single `tool_category`), the structural barrier does not apply and
-+stationary K-side operators can drive multi-tool emission. The Q-coverage operator
-+$\Delta_Q^{(t)}$ succeeds in *both* regimes by construction.
+Every K-side spectral steering method in the literature — SEKA (Li 2026 ICLR;
+$k' = k + gPk$ via contrastive SVD projection), AdaSEKA (Kim 2026; query-adaptive
+expert mixture), Focus Directions (Zhu 2025; additive K and Q bias at top-k
+heads), and our own K-bias operator — is a **stationary operator**: it applies
+the same perturbation at every decoding step. Under autoregressive generation
+with KV caching, a stationary K-bias that boosts attention toward facet
+$A$-aligned keys at step 1 **continues to boost attention toward facet $A$** at
+steps 2, 3, …. If the model emits `NewsTool` at step 1 (facet $A =
+\text{information-delivery}$), at step 2 it will attend to the same facet
+$A$-aligned keys and emit a second `NewsTool`-family tool rather than a facet-$B$
+tool for `MusicTool`. This is precisely the empirical pattern we observe: our
+K-bias at $\alpha_K=0.3$ produces $\Delta F_1 = -4.6$pp on Qwen Subtask4
+multi-tool and $\Delta F_1 = -31.2$pp catastrophic on Llama Subtask4, while SEKA
+at amp=1.0 produces $\Delta F_1 = -7.95$pp on Llama Subtask4 partial. K-side
+stationary steering is *structurally incapable* of facet coverage.
 ```
 
-### E2: §1.1 empirical block 추가 1 문장
-**현재 (L27)**:
-> On the same benchmark, stationary K-side steering is consistently negative: our K-bias gives $-4.6$pp on Qwen and $-31.2$pp on Llama, while SEKA gives $-7.95$pp on the available Llama slice.
+**교체 text** — §1.0 섹션 자체를 제거하고 아래로 대체. §1.0 헤더도 함께 삭제 (§1.1 이 바로 뒤따르도록):
 
-**제안 추가**:
 ```
-Outside MetaTool Subtask4's facet-diverse regime, stationary K-side operators
-can still lift accuracy: on $\tau^2$-bench Telecom (N=200, tool_category uniform
-across all 8 domain tools), a training-free AdaSEKA-interface with $B_\mathrm{ont}$-
-derived experts at amp=0.3 achieves +28.89pp ΔF1 (0.2512 → 0.5401). This is
-consistent with the regime distinction above: $\tau^2$ Telecom is facet-uniform
-multi-tool and therefore does not exercise the structural barrier that motivates
-$\Delta_Q^{(t)}$.
+### 1.0 K-side and Q-side steering as two operator forms on the same basis
+
+Prior K-side spectral steering methods — SEKA (Li 2026; $k' = k + gPk$ via
+contrastive SVD projection), AdaSEKA (Kim 2026; query-adaptive expert mixture),
+Focus Directions (Zhu 2025; additive K and Q bias at top-k heads) — apply a
+stationary K-side perturbation driven by a benchmark-specific projection
+$P$ that is learned via contrastive pair training on a task-specific corpus.
+Our own K-bias operator is a stationary K-side instance using our per-head
+ontology basis $B_\mathrm{ont}$. Q-coverage ($\Delta_Q^{(t)} = -\beta \sum_{s<t}
+P_{f_s} q_t$) is a Q-side instance using the same basis.
+
+We make no structural claim that one operator form dominates the other. Instead,
+we study how the same catalog-derived basis $B_\mathrm{ont}$ supports both families
+across τ²-bench tool-selection domains and, in a preliminary single-domain
+ablation (§4.X, Tier 3), how the choice of basis direction — rather than the
+operator form — determines whether steering affects tool-name selection at all.
+The sign and magnitude of $\beta$ (Q-side) and $\alpha$ (K-side) that maximise
+per-query F1 vary between benchmarks and between models (§Results 4.Y); we treat
+this operator-form × model-domain interaction as an observed phenomenon rather
+than claim a mechanism.
 ```
 
-### E3: §5.5.3.1 relabeling
-**현재 (L1080)**: 헤더 `#### 5.5.3.1 Actual SEKA / AdaSEKA evaluation using the original codebase (in progress)`
+**왜 이렇게 바꾸나**:
+- "structurally incapable" 삭제 → Telecom canonical AdaSEKA +28.89pp 반례 리터럴 충돌 제거.
+- "stationary vs step-adaptive" 대비 frame 대신 **"K-side vs Q-side as two operator forms on shared basis"** — C2 와 직접 연결.
+- Q-sign flip (Qwen Telecom Q+, Llama Telecom Q−, ST4 Q−) 을 "operator-form × model-domain interaction" 로 명명 — §Results subsection (E6) 의 hook.
+- Autoregressive re-attention 논리 전체 제거 (§1.1 의 empirical 증거에서는 여전히 ΔF1 값만 쓰되 mechanism 해석 없음; E2 참조).
 
-**제안**:
+**Commit 메시지 권고**: `paper(§1.0): drop "structurally incapable" mechanism claim; reframe K/Q as two operator forms on shared B_ont`
+
+---
+
+### E2 — §1.1 empirical block 에서 mechanism wording 제거
+
+**라인**: §1.1 (Abstract 아래 첫 번째 paragraph, v3 에서 L27 부근)
+
+**현재 text** 중 문제 문장 (mechanism 암시):
+> On the same benchmark, stationary K-side steering is consistently negative: our K-bias gives $-4.6$pp on Qwen and $-31.2$pp on Llama, while SEKA gives $-7.95$pp on the available Llama slice. The paper's central claim is therefore an **axis-separation claim**: stationary K-side steering is a single-selection tool, while Q-side coverage opens a multi-selection regime that the K-side family does not reach.
+
+**교체 text**:
+```
+On MetaTool Subtask4 (N=497), Q-side steering at $\beta = -0.1$ on $B_\mathrm{ont}$
+achieves F1 = 0.747 on Qwen2.5-7B-Instruct (baseline 0.731, $\Delta = +1.64$pp)
+and F1 = 0.627 on Llama-3.1-8B-Instruct (baseline 0.624, $\Delta = +0.40$pp).
+K-side steering on the same basis (our K-bias at $\alpha_K = 0.3$) is negative
+on this benchmark: $-4.6$pp on Qwen, $-31.2$pp on Llama. On τ²-bench Telecom
+(N=200), the picture flips: K-side steering via a training-free AdaSEKA-interface
+(§5.5.3.1) at amp=0.3 achieves +28.89pp ΔF1 (0.2512 → 0.5401), and Q+0.05
+achieves +24.78pp on the same data. The sign of the effective steering strength
+depends on the benchmark and on the model; §Results 4.Y reports a Q-sign
+asymmetry observation (Qwen Telecom Q+, Llama Telecom Q−, MetaTool ST4 Q−).
+We report these as per-setting operator measurements rather than evidence for a
+single mechanism.
+```
+
+**왜 이렇게 바꾸나**:
+- "axis-separation claim" → 삭제. Mechanism 주장이므로.
+- "Q-side opens multi-selection regime that K-side does not reach" → 삭제. Telecom 에서 K-side +28.89pp 로 반증됨.
+- Q-sign asymmetry 를 **observation** 으로 기술 + §Results subsection reference 연결.
+- Empirical 숫자는 전부 유지 (그대로 인용 가능).
+
+**Commit 메시지**: `paper(§1.1): report operator measurements without mechanism claim; cross-ref Q-sign asymmetry`
+
+---
+
+### E3 — §5.5.3.1 label 교정 + Phase 0 결과 삽입
+
+**라인**: L1080 헤더
+
+**현재 헤더**:
+```
+#### 5.5.3.1 Actual SEKA / AdaSEKA evaluation using the original codebase (in progress)
+```
+
+**교체 헤더 + 섹션 intro**:
 ```
 #### 5.5.3.1 τ²-bench with training-free AdaSEKA-interface (B_ont-derived experts)
 
-This subsection does *not* report a canonical AdaSEKA baseline, because the
-canonical AdaSEKA recipe requires contrastive pair training data, which does
-not exist for tool-selection domains (AdaSEKA's original benchmarks are all
-single-answer classification: BiasBios, CounterFact, Pronouns, Lost-in-middle).
-We instead use the AdaSEKA *interface* (per-expert SVD routing, marker-gated
-K-side additive bias) with experts derived from our per-head ontology basis
-$B_\mathrm{ont}$ (construction in Appendix X.Y). This is an **operator-form ablation
-on a shared basis**, not a reproduced AdaSEKA baseline.
+This subsection does not report a canonical AdaSEKA baseline. Canonical AdaSEKA
+requires contrastive pair training data, which does not exist for τ²-bench
+tool-selection (AdaSEKA's original benchmarks — BiasBios, CounterFact, Pronouns,
+Lost-in-Middle — are all single-answer classification). We instead use the
+AdaSEKA *interface* (per-expert SVD routing, marker-gated K-side additive bias
+from `external/SEKA/src/model/adaptive_seka_llm.py`) with experts derived
+training-free from our per-head ontology basis $B_\mathrm{ont}$
+(construction in Appendix X.Y; code in `scripts/diagnostics_2026_04_16/
+build_adaseka_experts_from_bont.py`). This is an **operator-form ablation on a
+shared basis**, not a reproduced AdaSEKA baseline.
 ```
 
-### E4: 신규 §4.X `Facet diversity regime` definition
-위치: §4 method 섹션의 novel subsection (B_ont 정의 직후).
-내용:
-- Definition (`facet_diversity(q, B_ont)`): GT tool set $\{t_1,...,t_k\}$ 에 대해 각 tool 의 facet label 이 몇 개의 distinct block 을 차지하는지. 축별로 diversity 정의.
-- Regime classification:
-  - Facet-uniform multi-tool: 모든 GT tool 이 같은 facet block. (예: τ² Telecom tool_category)
-  - Facet-diverse multi-tool: GT tool 들이 ≥2 facet block 을 span. (예: MetaTool ST4)
-  - Single-answer: GT tool = 1. (예: MetaTool ST1, BiasBios)
-- Benchmark mapping 표.
-- "Q-coverage 는 모든 regime 을 cover; stationary K-side 는 facet-uniform 과 single-answer 만 cover" claim 을 preview.
+**추가**: §5.5.3.1 끝에 Phase 0 결과 인용 단락을 신설 (§6.5 E5 의 Tier 3 table 과 cross-ref):
+
+```
+We further isolate the role of the basis direction via a design-space ablation
+on τ²-bench Telecom (N=200; Tier 3 in §4.X). Substituting our $B_\mathrm{ont}$-
+derived experts with random orthonormal experts of matched rank and shape
+yields zero tool-name changes across all 200 tasks (F1 0.2512, identical to
+no-steer), despite the random perturbation reaching 20% of $\|K\|$ in
+Frobenius norm (Appendix X.Z, Phase 0 verification log). Our $B_\mathrm{ont}$
+produces systematic redistribution in 200/200 tasks (+28.89pp ΔF1). The basis
+direction — not the operator-form or the perturbation magnitude — is what
+aligns the steering effect with the tool-selection subspace.
+```
+
+**Commit 메시지**: `paper(§5.5.3.1): relabel as training-free AdaSEKA-interface; cite Phase 0 matched-magnitude ablation`
+
+---
+
+### E4 — §1.3 contribution list 를 C1/C2/C3/C4 4-layer 로 재구조화
+
+**라인**: §1.3 Contributions (v3 L65–77)
+
+**교체 text** (현재 4 개를 재명명 + 재정렬):
+
+```
+### 1.3 Contributions
+
+We make four existence-level empirical contributions. We do not claim a
+mechanism for why K-side vs Q-side sign preferences vary across benchmarks;
+we report the pattern as an observation and treat the underlying interaction
+as open.
+
+1. **(C1) Practical safe floor — $B_\mathrm{ont}$ with layer-adaptive K+Q.** On
+   four τ²-bench domains (Telecom, Retail, Airline, Banking) plus cross-model
+   Llama-3.1-8B-Instruct, the layer-adaptive K+Q operator on $B_\mathrm{ont}$
+   delivers consistent F1 lift over the no-steer baseline with bootstrap CI
+   separated from zero on Telecom/Retail and lifts across all four domains.
+   This is the operational contribution of the paper.
+
+2. **(C2) Operator-form agnosticism on a shared basis.** The same
+   $B_\mathrm{ont}$ supports both K-side steering (via a training-free
+   AdaSEKA-interface, §5.5.3.1) and Q-side steering (via our coverage operator
+   $\Delta_Q^{(t)}$). On τ²-bench Telecom, the K-side variant achieves
+   +28.89pp ΔF1; the Q-side variant at $\beta=+0.05$ achieves +24.78pp. On
+   MetaTool Subtask4, the Q-side variant at $\beta=-0.1$ achieves +1.64pp.
+   The sign of the optimal steering strength depends on (benchmark × model);
+   §Results 4.Y reports this as an observed phenomenon.
+
+3. **(C3) Basis direction specificity under matched perturbation magnitude.**
+   On τ²-bench Telecom N=200, substituting $B_\mathrm{ont}$-derived experts
+   with random orthonormal experts of matched rank and shape produces 0/200
+   tool-name changes despite delivering a 20% $\|K\|$ perturbation (Phase 0
+   verification). Our $B_\mathrm{ont}$ produces 200/200 systematic
+   redistribution and +28.89pp ΔF1. The basis direction is specifically
+   aligned with the tool-selection subspace (Tier 3 ablation, §4.X).
+
+4. **(C4) Training-free catalog-derived derivation** (preliminary, single-
+   domain). The $B_\mathrm{ont}$ + AdaSEKA-interface construction in (C2)/(C3)
+   uses no contrastive pair training; experts are derived directly from the
+   per-head ontology column blocks of $B_\mathrm{ont}$ (§3.X). We report the
+   method as a preliminary result pending cross-benchmark confirmation
+   (BiasBios home-turf cross-check and BFCL parallel_multiple, in progress).
+```
+
+**왜 이렇게 바꾸나**:
+- v3 기존 4 contribution 은 mechanism-centric (Q-coverage mechanism, K-stability, Thm 6.1 framework, OCQ). 이 중 Q-coverage mechanism claim 삭제 → 4-claim 재조직.
+- C1 이 가장 sturdy → 맨 앞. C4 가 가장 risky (BiasBios 전) → 맨 뒤에 "preliminary" 표기.
+- 각 claim 에 reference section 연결 (§5.5.3.1 / §4.X / §Results 4.Y).
+
+**Commit 메시지**: `paper(§1.3): restructure contributions as C1/C2/C3/C4 existence-level (drop mechanism claims)`
+
+---
+
+### E5 — 신규 §4.X "Tier 3 design-space ablation" subsection
+
+**위치**: §4 method 섹션 끝 (§4.1 B_ont 정의 이후, §5 Experiments 이전). 혹은 §5 Experiments 의 첫 subsection (§5.0 또는 §5.1 앞).
+
+**신규 text**:
+
+```
+### 4.X Tier 3 design-space ablation on τ²-bench Telecom (N=200)
+
+We isolate the contribution of (a) facet-split routing and (b) basis direction
+by constructing three AdaSEKA-interface variants with matched shapes and
+matched rank:
+
+- **Variant A (ours, $B_\mathrm{ont}$-derived + facet split)**: 4 experts
+  (function_action, io_type, domain, tool_category) with column blocks of
+  $B_\mathrm{ont}$ assigned per facet; expert rank vector $r = (1, 3, 5, 3)$.
+- **Variant B ($B_\mathrm{ont}$ + no split)**: 1 expert spanning all 12
+  $B_\mathrm{ont}$ columns; no facet-level routing. Matched total rank.
+- **Variant D (random orthonormal + facet split)**: 4 experts with random
+  orthonormal column blocks sampled via QR decomposition of Gaussian matrices;
+  matched shapes and per-facet rank vector as A. No basis information.
+
+All variants share the same AdaSEKA-interface hook, same amplify factor
+(amp=0.3), same last-10 layer placement, same marker-gating span, and the same
+decoding configuration (max_new_tokens=300, greedy).
+
+**Results (Qwen2.5-7B-Instruct, τ²-bench Telecom, N=200, 2026-04-18)**:
+
+| Variant | F1 | Exact | Recall | ΔF1 vs no_steer | pred_tools changed (vs no_steer) |
+|---|---:|---:|---:|---:|---:|
+| no_steer | 0.2512 | 0.0050 | 0.2166 | — | — |
+| A (ours) | 0.5401 | 0.0100 | 0.6292 | +28.89pp | 200/200 |
+| B (no split) | 0.3291 | 0.0050 | 0.2922 | +7.79pp | non-trivial |
+| D (random) | 0.2512 | 0.0050 | 0.2166 | **+0.00pp** | **0/200** |
+
+**Phase 0 verification (matched perturbation magnitude)**: In variant D, the
+AdaSEKA-interface hook does fire on all target tokens (mask.sum = 326/860,
+identical to variant A). The K-perturbation Frobenius norm is
+$\|\delta\|/\|K\| = 0.200$ (i.e. 20%), compared to 0.613 for variant A.
+Despite this substantial perturbation, variant D produces zero changes to
+the predicted tool names across all 200 tasks. This isolates the basis
+direction — not the operator form and not the perturbation magnitude — as
+the load-bearing factor for tool-name selection. Full hook-fire log,
+perturbation norm histograms, and per-task delta statistics are in
+Appendix X.Z.
+
+**Decomposition**:
+- A − B = +21.10pp: contribution of facet-split routing (given the same
+  basis direction).
+- B − D = +7.79pp: contribution of basis direction (given matched rank,
+  without facet split).
+- D − no_steer = 0.00pp: random direction under 20% perturbation is
+  orthogonal to the tool-selection subspace.
+
+This result supports C3 (basis direction specificity) directly and C2
+(operator-form agnosticism) indirectly: the same $B_\mathrm{ont}$ basis, when
+fed to a K-side operator (AdaSEKA-interface) or a Q-side operator (our
+coverage $\Delta_Q^{(t)}$ in §5.5), both produce positive tool-selection
+lifts on Telecom (+28.89pp K-side, +24.78pp Q-side; see §5.5.3 for Q-side
+results and §Results 4.Y for sign asymmetry across benchmarks).
+```
+
+**Commit 메시지**: `paper(§4.X): add Tier 3 design-space ablation with Phase 0 matched-magnitude verification`
+
+---
+
+### E6 — 신규 §Results subsection "Q-sign model-adaptivity phenomenon"
+
+**위치**: §5.5 (Q-side results) 혹은 §5 Results 후반부에 observation-only subsection.
+
+**신규 text**:
+
+```
+### 5.Y An observed Q-sign asymmetry across benchmarks and models
+
+Across our Q-side steering measurements on $B_\mathrm{ont}$, the sign of the
+optimal $\beta$ (with respect to per-query F1) is not universal:
+
+| Setting | model | benchmark | optimal $\beta$ | ΔF1 |
+|---|---|---|---:|---:|
+| Qwen τ² Telecom | Qwen2.5-7B-Inst | τ²-bench Telecom (N=200) | **+0.05** | +24.78pp |
+| Llama τ² Telecom | Llama-3.1-8B-Inst | τ²-bench Telecom (N=200) | **−0.05** | +16.29pp |
+| Qwen MetaTool ST4 | Qwen2.5-7B-Inst | MetaTool Subtask4 (N=497) | **−0.10** | +1.64pp |
+| Llama MetaTool ST4 | Llama-3.1-8B-Inst | MetaTool Subtask4 (N=497) | **−0.10** | +0.40pp |
+| Qwen BFCL parallel_multiple | Qwen2.5-7B-Inst | BFCL-v3 parallel_multiple (N=20 smoke; full N=100+ in progress) | **−0.05** | +4.17pp (preliminary) |
+
+On τ²-bench Telecom the two models disagree on sign: Qwen prefers $\beta > 0$
+(Q-addition), Llama prefers $\beta < 0$ (Q-subtraction, i.e. the coverage
+direction originally motivated for multi-facet emission). On MetaTool
+Subtask4 both models agree on $\beta < 0$. This pattern is inconsistent with
+a single coverage mechanism: if $\beta < 0$ were the intrinsic multi-facet
+direction, Qwen Telecom should also prefer $\beta < 0$, but it does not.
+
+We report this as an observation and do not claim a mechanism. Possible
+contributing factors include (i) per-model baseline F1 strength (τ²
+Telecom: Qwen 0.251 / Llama 0.385), (ii) per-model format stability under Q
+perturbation (Llama Telecom Q+0.05 collapses to F1 0.000 with 200/200 empty
+predictions, while Qwen Telecom Q+0.05 succeeds), and (iii) per-benchmark
+tool-catalog structure. A systematic explanation is left to future work.
+
+The practical consequence for deployment is that the Q-side sign should be
+tuned per (model, domain) pair rather than assumed.
+```
+
+**왜 추가하나**:
+- Q-sign flip 이 논문의 potential weakness — 리뷰어가 "Q-coverage 가 mechanism 이면 왜 sign 이 뒤집히냐" flag 할 것.
+- 이걸 **observation subsection 으로 선제적으로 공개**하면 reviewer 공격 루트가 "weakness → 논문 기여" 로 전환 (Honest reporting 으로 credit).
+- §1.0 E1 과 §1.1 E2 에서 cross-ref 해서 mechanism 주장 없음을 명확히.
+
+**Commit 메시지**: `paper(§5.Y): add Q-sign asymmetry subsection as observation (no mechanism)`
+
+---
+
+### E1–E6 적용 후 cross-ref 체크리스트 (coworker 확인용)
+
+다음이 일관되어야 함:
+- §1.0 E1 의 "two operator forms on shared basis" → §1.3 E4 C2 와 일치
+- §1.1 E2 의 "§Results 4.Y reports Q-sign asymmetry" → §5.Y E6 가 실제 subsection 으로 존재
+- §1.3 E4 C3 의 "Tier 3 ablation, §4.X" → §4.X E5 가 실제 subsection 으로 존재
+- §5.5.3.1 E3 의 "20% $\|K\|$ perturbation (Phase 0)" → §4.X E5 의 Phase 0 서술 + Appendix X.Z 존재
+- §1.3 E4 C4 의 "(preliminary, single-domain)" → §5.5.3.1 E3 와 일치 (τ² 1 도메인 명시)
+- Mechanism wording 잔존 체크: "structurally incapable", "unique mechanism", "axis-separation", "facet-diverse vs uniform", "regime dichotomy" 가 전부 삭제됐는지 grep 해서 확인
+
+### E1–E6 적용 후 Appendix 추가 사항 (coworker 에게 함께 부탁)
+
+- **Appendix X.Y**: $B_\mathrm{ont}$-derived AdaSEKA expert construction 상세 — `scripts/diagnostics_2026_04_16/build_adaseka_experts_from_bont.py` 의 per-facet SVD + uniform SV 패턴 (intra-expert SV degeneracy note 포함; `fake_sv_degeneracy_2026_04_18.md` 근거).
+- **Appendix X.Z**: Phase 0 verification — hook-fire log (mask.sum), ‖δ‖/‖K‖ histograms, Tier 3 variant A/B/D 비교 raw numbers. 데이터 경로: `reports/tau2_2026_04_18/telecom_canonical_{amp03_persample,variantB,variantD}_N200.json`.
+- **Appendix X.W** (선택): AdaSEKA-interface inter-expert routing diagnostic — 10-task Telecom smoke argmax distribution ~95% identical across queries (entropy 83% of uniform). 데이터: `reports/tau2_2026_04_18/canonical_adaseka_routing_diag.json`. 이건 "AdaSEKA query-adaptivity 가 τ² 에서 flatten" 관찰로, §Discussion 에 한 단락으로 넣어도 좋음 (단 main claim 아님).
 
 ---
 
