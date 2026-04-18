@@ -751,47 +751,58 @@ elif mode == 'full_random':
 
 ## §12. 다음 세션 first actions — v3 업데이트 (Phase A 완료 반영)
 
-### v3 현재 상태
+### v4 현재 상태
 
-- Phase A: **DONE** (9 (M, V), all in `reports/new_theorem_test/phase_a_*.json` + `new_theorem_phase_a_2026_04_19.md` memory).
-- Phase B/B3 준비 완료.
+- Phase A: **DONE** (9 (M, V), memory `new_theorem_phase_a_2026_04_19.md`).
+- Phase B1: **DONE** (7 runs, H-E confirmed, H-J 신규 관측, memory `new_theorem_phase_b_2026_04_19.md`).
+- Phase B2: **DONE** (29-layer KL, H-D confirmed decisively, memory 동일).
+- Phase B3: pending (스크립트 미작성).
+- Phase C: 스크립트 준비 완료 (`build_permuted_bont.py`, `/tmp/phase_c_runs.sh`), run 대기.
+- Phase D: pending (stretch).
 
-### 다음 세션이 집어야 할 첫 작업 (priority order)
+### 다음 세션이 집어야 할 첫 작업 (v4 priority order)
 
-1. **Phase B3.1 (H-G facet-concentration) 실행 — 1-2 일, ~2 GPU-hr**:
+**우선순위 재편**: Phase B3 와 Phase C 를 병렬 실행. Phase D 는 여전히 stretch.
+
+1. **Phase C (catalog-permutation falsifier) — 0.5-1 일, ~20 GPU-hr**:
+   - 스크립트 이미 준비됨 (`scripts/ocq/build_permuted_bont.py` + `/tmp/phase_c_runs.sh`).
+   - 3 permutation mode (tool_names / facet_values / full_random) × Qwen Telecom N=100.
+   - 예상: Permuted B_ont 의 A/D ratio → 1 근처로 붕괴 (direction specificity origin 이 catalog semantic 임을 확증).
+   - **이걸 먼저 하는 이유**: 스크립트 준비 완료, 낮은 시간/리스크. H-F 확증 시 Phase B 결과 (H-E) 와 결합해 direction specificity claim 완성.
+
+2. **Phase B3.1 (H-G facet-concentration) — 1-2 일, ~2 GPU-hr**:
    - `scripts/new_theorem_test/analyze_facet_concentration.py` 작성 (§9 S0 spec).
-   - 사용 데이터: 기존 Tier 3 A/B/D JSON + Phase 0 d\*_emp (또는 Phase A log 에서 d\*_emp proxy 추출).
-   - Output: `reports/new_theorem_test/phase_b3_facet_concentration.json` + memory.
-   - **이걸 먼저 하는 이유**: 기존 데이터만으로 실행 가능. A−B = +21pp 의 이론적 설명 여부가 즉시 판정됨.
+   - 사용 데이터: 기존 Tier 3 A/B/D JSON + Phase A 의 d\*_emp proxy.
+   - Output: `reports/new_theorem_test/phase_b3_facet_concentration.json`.
+   - H-G 가 A−B=+21pp 의 이론 설명 여부 판정.
 
-2. **Phase B3.2 (H-H scope boundary) 실행 — 1 주, ~10 GPU-hr**:
+3. **Phase B3.1 aggregate 에 H-J breadth metric 추가 — 0.5 일, GPU 불필요** (v4 신규):
+   - B1 의 6 cross-bench 결과 + B_ont 의 facet-value coverage 를 비교.
+   - Breadth ≡ "source catalog 의 facet diversity" 를 정량화 + cross-bench A/D ratio 와 correlation.
+   - H-J 확증/기각.
+
+4. **Phase B3.2 (H-H scope boundary) — 1 주, ~10 GPU-hr**:
    - `scripts/new_theorem_test/measure_dstar_mmlu_mistral.py` 작성 (§9 S0b spec).
-   - Mistral B_ont build + Mistral/MMLU d\*_emp 측정.
-   - Output: `reports/new_theorem_test/phase_b3_scope_{mmlu,mistral}.json`.
+   - Qwen MMLU + Mistral Telecom 에서 d\*_emp 추출 + B_ont 와 angle 측정.
 
-3. **H-I (slope excess) light analysis — 0.5 일, GPU 불필요**:
-   - Phase A 의 per-(M, V) log (`logs/phase_a_*.log`) 에서 attention entropy 를 post-hoc 추출.
-   - Slope vs entropy correlation 계산.
-   - 결과 paper §Appendix / §Discussion 용으로만.
+5. **H-I (slope excess) light analysis — 0.5 일, GPU 불필요**:
+   - Phase A 로그에서 attention entropy 추출 + slope 와 correlation.
+   - §Appendix 수준 결과.
 
-4. **Phase B1 (cross-benchmark direction specificity) — 2 주, ~30 GPU-hr**:
-   - Telecom B_ont 를 Retail/Airline/Banking/ST4/BFCL 에 cross-apply + random B 비교.
-   - 기존 `scripts/ocq/eval_tau2_bench.py` + `eval_metatool_subtask4.py` 재사용.
+6. **Phase D stretch (H1-H6 $d^*$ narrowing) — 선택적, 4 주**: 상위 5 개 완료 후에만.
 
-5. **Phase B2 (FFN/LM-head KL origin) — 1 주, ~30 GPU-hr**:
-   - `scripts/new_theorem_test/measure_layer_resolved_kl.py` 작성 (§9 S1 spec).
+### 병렬화 전략 (v4 updated)
 
-### 병렬화 전략
+- Paper 세션 (GPU 불필요 tasks): H-I light analysis + H-J breadth metric + Phase B3.1 분석 (기존 데이터).
+- 실험 세션 (GPU 필요): Phase C run + Phase B3.2 run.
+- Wall-clock 2 주 내 Phase B3 + Phase C 완료 가능.
 
-B3.1 + H-I light analysis 는 GPU 거의 불필요 → paper 세션이 수행 가능. B3.2 / B1 / B2 는 GPU 필요 → 실험 세션이 병렬로 진행. Wall-clock 3-4 주 내 Phase B 전체 완료 가능.
+### 완료된 작업 기록 (참고용)
 
-### v1/v2 의 첫 작업 기록 (참고용)
-
-- ~~Week 1 Day 1-2: Phase A run #1 (Qwen Retail)~~ → 완료, slope 0.5693 R²=0.9948
-- ~~Week 1 Day 3-4: Phase A run #2 (Qwen ST4)~~ → 완료, slope 0.5779 R²=0.9957
-- ~~Week 1-2: Phase A run #3-5~~ → 완료 (Llama Telecom/Retail/ST4, Mistral Telecom, Qwen Airline/Banking).
-- ~~Week 3: Phase A aggregate + memory~~ → 완료 (`new_theorem_phase_a_2026_04_19.md`).
-- **현재 (Week 3 끝)**: Phase B/B3 시작 ready.
+- ~~v1/v2 Week 1-3: Phase A run #1-9~~ → 완료, 9/9 R²≥0.99
+- ~~v4 Phase B1 run #1-7~~ → 완료, 6/7 A>D, H-E confirmed + H-J 신규
+- ~~v4 Phase B2 29-layer KL run~~ → 완료, 28/29 monotonic, H-D confirmed decisively
+- **현재 (Phase B 끝)**: Phase B3 + Phase C 시작 ready.
 
 ---
 
