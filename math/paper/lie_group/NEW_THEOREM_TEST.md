@@ -104,6 +104,12 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 | E5 | Cross-benchmark proxy (BFCL N=100) | A 2/100, D 0/100 | bfcl_tier3 memo | Direction specificity cross-domain |
 | E6 | KL vs r/d R² (per-task resample) | 0.459 | lemma_empirical (a) | First-order linear dead at argmax level |
 | E7 | Q-sign pattern (5 (M, V)) | +/−/−/−/− | handoff E6 | Observation (Theorem 밖) |
+| **E8** | **Tier 3 A-B-D ΔF1 decomposition (Telecom N=200)** | **A +28.89 / B +7.79 / D 0.00pp** | canonical_adaseka `telecom_canonical_*_N200.json` | **H-G 근거** — facet-split 기여가 direction 기여의 **3 배** |
+| **E9** | **Inter-expert routing argmax entropy** | **83% of uniform, >95% identical across queries** | inter_expert_routing_architectural memo | **H-G 근거** — routing 이 query-adaptive 아닌 per-head architectural |
+| **E10** | **MMLU 에서 Cor 6.7 facet-gated K-bias ΔAcc** | **−4.80pp (α=0.3), −10.50pp (α=1.0)** | cor67_empirical_fail_mmlu memo | **H-H 근거** — tool-selection 밖 벤치에서 B_ont 가 해로움 |
+| **E11** | **Mistral-7B Telecom ΔF1** | **−31.86pp (default), −4.32pp (skipL0+padmax)** | cross_model_kbias_analysis memo | **H-H 근거** — model-specific alignment collapse |
+| **E12** | **Qwen2.5-7B L0 K rank / B_ont cos** | **rank-1 per head, cos=1.000** | cor67_gate_distribution_diagnostic memo | L0 side observation (non-core) |
+| **E13** | **BiasBios transfer (Qwen rank-8 @α=3.0)** | **+7.6pp top1** | phase1_3_ontology_beats_seka memo | Scope 확장 observation (§Discussion) |
 
 ---
 
