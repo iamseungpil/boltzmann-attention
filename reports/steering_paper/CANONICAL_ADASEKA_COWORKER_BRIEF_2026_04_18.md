@@ -879,7 +879,21 @@ NeurIPS 2026 main track 에서 "우리 결과가 한 벤치에 몰려 있는가"
 
 ---
 
-## 부록 A. v2 changelog (vs v1, 2026-04-18 21:00 KST)
+## 부록 A. v3 changelog (vs v2, 2026-04-18 23:30 KST)
+
+| 영역 | v2 | v3 (이 버전) | 근거 |
+|---|---|---|---|
+| variantD 해석 | bug 의심, 인용 금지 | **Phase 0 verified: bug 아님, 20% ‖δ‖/‖K‖ + 0/200 changes** | 2026-04-19 00:00 KST Phase 0 run |
+| C3 framing | "basis direction load-bearing" (abstract) | **"matched perturbation magnitude (20% ‖K‖)"** 전면 배치 | reviewer preempt: "random 이 더 작은 교란" 공격 차단 |
+| Thesis 구조 | O1/O2/O3/O4 4 options | **Option ε 수렴: single thesis, 4 existence claims (C1/C2/C3/C4)** | 두 세션 + cross-review 합의 |
+| Mechanism claims | v2 에서 "facet-diverse regime 으로 scope narrowing" | **전면 포기** — §1.0 mechanism paragraph 삭제, §1.1 "axis-separation claim" 삭제 | Qwen/Llama Telecom Q-sign flip 이 mechanism claim 반증 |
+| §1.0 E1 patch | narrowing (2 regime 정의) | **전면 rewrite** ("two operator forms on shared basis") | mechanism 주장 제거 원칙 |
+| §1.3 contribution list | 4 contributions (mechanism-centric) | **C1/C2/C3/C4 existence-level** 재구조 | Pivoting 방지 |
+| Q-sign asymmetry | 언급 없음 | **§Results 4.Y subsection 으로 공식화** (E6) | Reviewer preempt |
+| 실험 우선순위 | BFCL + BiasBios 병렬 | **BFCL 먼저, BiasBios 나중** | primary turf vs home-turf 우선순위 |
+| §6 patch | 4 건 text-level | **6 건 concrete before/after + commit msg + cross-ref checklist** (E1–E6) | coworker 가 직접 적용 가능하도록 |
+
+## 부록 B. v2 changelog (vs v1, 2026-04-18 21:00 KST)
 
 | 영역 | v1 | v2 (이 버전) | 근거 |
 |---|---|---|---|
