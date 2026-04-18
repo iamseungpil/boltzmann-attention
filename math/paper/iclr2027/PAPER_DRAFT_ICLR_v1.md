@@ -425,7 +425,9 @@ Phase C's falsification of catalog-content as load-bearing (H-F) refines a metho
 
 1. **Higher-order slope (H-I).** Mean slope $0.5298$ is a $\sim 6\%$ excess over Ledoux's first-order $0.500$, with model-family stratification. We do not derive the second-order correction; we treat it as an open observation calling for a more refined Lipschitz analysis.
 
-2. **$d^*$ derivation left open.** The sign and direction of the per-(model, benchmark) Q-bias direction $d^*$ that controls Q-sign asymmetry is not derived. Phase D will test 6 candidate predictors; we report outcomes per pre-registered template.
+2. **$d^*$ derivation left open after Phase D.** The sign and direction of the per-(model, benchmark) Q-bias direction $d^*$ that controls Q-sign asymmetry is *not* expressible as any of the static-weight quantities tested in Phase D (H$_1$ lm_head pull-through, H$_3$ $W_K$ top singular vector). Activation-dependent / multi-head-composition hypotheses (H$_2$ OV-circuit readout, H$_4$ RoPE phase, H$_5$ head-class, H$_6$ catalog-position) are deferred and left open. See §6.1 + Appendix B.1.
+
+8. **Llama Phase D blocked.** Llama-3.1-8B's Phase D measurement was blocked by a prompt-builder mismatch (chat template omits inline tool JSON; tool positions unfindable via current annotation). Cross-architecture verification of the static-weight-family negative result is therefore not in scope for this submission.
 
 3. **Cross-architecture coverage.** All three tested models are decoder-only causal transformers with similar attention head structure. Encoder-decoder, non-causal, MoE, Mamba / SSM architectures are untested and Theorem T's claims should not be extrapolated to them without further experiment.
 
