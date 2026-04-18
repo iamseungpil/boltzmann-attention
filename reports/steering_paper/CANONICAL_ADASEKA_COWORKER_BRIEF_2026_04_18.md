@@ -467,14 +467,21 @@ NeurIPS 2026 main track 에서 "우리 결과가 한 벤치에 몰려 있는가"
 
 ---
 
-## 10. 이 문서의 의미 (TL;DR)
+## 10. 이 문서의 의미 (TL;DR, v2)
 
-1. **Canonical AdaSEKA 라 부르던 것의 정체**: AdaSEKA 의 interface (routing + marker-gated K hook) 에 **우리 B_ont 에서 파생한 experts** 를 주입한 객체. 진짜 AdaSEKA 논문의 contrastive-training expert 가 아니다.
+1. **Canonical AdaSEKA 라 부르던 것의 정체**: AdaSEKA 의 interface (routing + marker-gated K hook) 에 **우리 B_ont 에서 파생한 experts** 를 주입한 객체. 진짜 AdaSEKA 논문의 contrastive-training expert 가 아니다. basis_matching_trap 방지 위해 "training-free AdaSEKA-interface (B_ont-derived)" 표기 사용.
 2. **측정된 성능**: τ² Telecom N=200 에서 +28.89pp ΔF1. Multi-domain subset 에서 +36.17pp (single 보다 크다).
-3. **논문 충돌**: §1.0 의 "stationary K-side = multi-selection 구조 불가" claim 과 literal 충돌. 하지만 τ² Telecom 이 facet-uniform 카탈로그 (tool_category 100% single) 임을 이용해 **regime taxonomy 로 reframe** 가능.
-4. **추가 실험 Tier 1–3**: basis vs operator form 분리, random control, BiasBios cross-check. Tier 1+3 은 ~40 분 GPU, Tier 2 는 ~1 시간.
-5. **이번 세션에서 해야 할 일**: paper edit 4 건 (E1–E4). 실험은 다른 세션 담당.
-6. **포기해서는 안 되는 것**: τ² Telecom 데이터. 버리면 §6 Table 1 과 §5.5.3 구조 붕괴. Reframe 만이 유일한 방어.
+3. **Tier 3 ablation** (v2 신규):
+   - A (current) 0.5401 / B (no split) 0.3291 / D (random) 0.2512
+   - A − B = +21.10pp (facet-split routing 기여) — **유효**.
+   - B − D = +7.79pp (basis direction 기여) — **variantD bug 검증 전까지 인용 보류**.
+   - D = 0.00pp literal identical → hook 미적용 의심, Phase 0 검증 필요.
+4. **논문 충돌**: §1.0 의 "stationary K-side = multi-selection 구조 불가" claim 과 literal 충돌. 하지만 τ² Telecom 이 facet-uniform 카탈로그 (tool_category 100% single) 임을 이용해 **regime taxonomy 로 reframe** 가능.
+5. **가장 약한 지점** (v2 명시): §1.1 의 Q-coverage empirical 증거 = MetaTool ST4 단일 벤치. +1.64pp Qwen / +0.40pp Llama 의 marginal magnitude 까지 합치면 "one lucky bench" 공격 루트 열려 있음. **Option O4 (BFCL + secondary bench) 로 triangulation 필요**.
+6. **추가 실험 4 갈래**: (Phase 0) variantD bug 검증, (Tier 1) canonical angle, (Tier 3 재인용 조건부) random null 비교, (O4) BFCL + StableToolBench/AppBench. Tier 2 (BiasBios) 는 **upside 가 아니라 generality validation / 시나리오 D 방어 보험** 포지션.
+7. **이번 세션 (paper edit only) 할 일**: O1 의 E1–E4 (§6). GPU 필요 없음, 2–3 시간.
+8. **포기해서는 안 되는 것**: τ² Telecom 데이터. 버리면 §6 Table 1 과 §5.5.3 구조 붕괴 + deployment-relevance 상실 → "academic toy" 비판 루트 열림. Reframe 만이 유일한 방어.
+9. **표현 원칙** (v2 수용): 점수 예측은 0.1~0.5pp 단위 precision 으로 쓰지 않는다. 방향성 (복구/개선/약화) + rationale 만.
 
 ---
 
@@ -487,3 +494,20 @@ NeurIPS 2026 main track 에서 "우리 결과가 한 벤치에 몰려 있는가"
 - `external_baseline_use_original_source.md` — baseline 비교 원칙
 - `handoff_training_free_adaseka_2026_04_18_evening.md` — 이번 handoff 의 3-tier 계획 + 5-scenario 결정 트리
 - `adaseka_vs_ours_differentiation_2026_04_10.md` — AdaSEKA vs ours 이전 정의
+
+---
+
+## 부록 A. v2 changelog (vs v1, 2026-04-18 21:00 KST)
+
+| 영역 | v1 | v2 (이 버전) | 근거 |
+|---|---|---|---|
+| Tier 3 결과 | 미기재 | §2.5 신설 (A/B/D 표 + variantD bug flag) | 2026-04-18 23:00 KST Tier 3 완료 + bit-exact identical predictions 검증 |
+| variantD 해석 | "random 도 +28pp 나오면 재해석" 수준 | D=0 literal 이 bug 의심으로 명시, Phase 0 검증 선결 조건 | 200/200 task prediction identical, F1/Recall/Exact bit-exact |
+| 점수 numerology | "6.3 → 5.8 → 6.2 → 6.4" 연속 추정 | 제거, directional (🔻🔺) + rationale 만 | cross-review 피드백: NeurIPS 점수는 integer + 편차 크다 |
+| Tier 2 (BiasBios) 포지션 | "crash-through upside" | "시나리오 D 방어 보험 / generality validation step" | cross-review: BiasBios 는 real AdaSEKA home-turf → ours ≤ real default |
+| ST4 single-benchmark weakness | 언급 없음 | §3.5 신설 | cross-review: "왜 single benchmark?" reviewer 공격 루트 |
+| O4 옵션 (BFCL + secondary) | 없음 | §5 신설 | §3.5 해소 위한 empirical triangulation |
+| BFCL external/ 경로 | 가정 없이 간접 언급 | 팩트 체크: HF fetch, proxy scoring 주의 | `scripts/ocq/eval_bfcl.py` 본문 확인 |
+| Phase 0 verification | 없음 | §7.3 신설 | variantD bug 검증 3-step 절차 |
+| 리뷰어 공격 매뉴얼 | 5 행 | 8 행 (variantD, single-bench, BFCL proxy, BiasBios 추가) | 위 변경 사항 반영 |
+| τ² 제거 옵션 (O2 원안) | "−0.5 ~ −0.3" 수치 | 본문에서 삭제, deployment-relevance 상실 risk 명시 | cross-review: "academic toy" 비판 루트 |
