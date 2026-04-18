@@ -132,6 +132,10 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 | **E15 (v3)** | **Phase A flip rate table (T.B predictive)** | **7/9 bench 0 flip, 2/9 positive: Qwen Banking 7.81% (m_0=0.88, r=96 집중) + Llama Retail 1.57% (m_0=0.02)** | new_theorem_phase_a memo | **T.B predictive form 확증** — flip ↔ small-m_0 상관 |
 | **E16 (v3)** | **Systematic slope excess model-family stratified** | **Qwen/Mistral +10-17%, Llama ≈ exact** | Phase A aggregate | **H-I 근거** (v3 신규) — higher-order Lipschitz correction |
 | **E17 (v3)** | **m_0 range across benches** | **[0.016, 6.375], 400× spread, strict positivity** | Phase A aggregate | **H-B "m_0 > 1" 기각** — 대신 T.B 의 margin-distribution gated 가 맞음 |
+| **E18 (v4)** | **Phase B1 cross-bench direction specificity** | **6/7 A>D, mean A/D ratio 2.35** | new_theorem_phase_b memo | **H-E 확증** |
+| **E19 (v4)** | **Asymmetric transferability** | Telecom → Retail/Airline/Banking/ST4 전부 A>D (ratio 1.81-3.67); **Retail → Telecom A/D=0.23 < 1** (random 보다 약함) | B1 행 5 | **H-J 근거 (v4 신규)** — B_ont direction breadth 가 benchmark-specific |
+| **E20 (v4)** | **Phase B2 layer-resolved KL (29-layer Qwen Telecom)** | **28/29 residual layers monotonic in rank**, 오직 **layer 28 (final output = post-final-FFN) 만 non-monotonic** (peak r=6, dip r=24). Final logits 도 non-monotonic (Phase A Qwen Telecom 패턴 재현). | B2 aggregate | **H-D 결정적 확증** — T.C mechanism 위치 특정 |
+| **E21 (v4)** | **Layer-28 amplification at low rank** | r=1 at L27 → L28 KL 이 **85× amplification** (0.0003 → 0.0255). r=96 는 1.35× | B2 row 28 | Late FFN 의 "cleanup" nonlinear amplification 관측 |
 
 ---
 
