@@ -487,7 +487,8 @@ aggregate = {
 
 | Gate | 조건 | 성공 행동 | 실패 행동 |
 |---|---|---|---|
-| Phase A gate | 4/5 slope ∈ [0.45, 0.55], 5/5 flip=0, 5/5 $m_0 > 1$ | Phase B 진행 | Scope 축소 (single family), 논문 contribution 수정 |
+| ~~Phase A gate (v1/v2)~~ | ~~4/5 slope ∈ [0.45, 0.55], 5/5 flip=0, 5/5 $m_0 > 1$~~ | ~~Phase B 진행~~ | — |
+| **Phase A gate (v3 refined)** | **9/9 R²≥0.95 AND mean slope 0.50 ± 0.05 AND strict m_0 > 0 AND flip rate correlates with 1/m** | **✅ PASS → Phase B/B3 진행** | — |
 | Phase B1 gate | 4/6 cross-benchmark A > D | H-E 확증 → Phase B2 | Direction specificity scope 제한 |
 | Phase B2 gate | Layer-resolved KL 가 non-monotonic origin 이 LM-head 라 확인 | H-D 확증 → Phase C | H-D 삭제, non-monotonicity "unexplained" 로만 |
 | **Phase B3.1 gate (v2)** | **Facet concentration median ≥ 0.7 + dilution ratio 예측 ±30%** | **H-G 확증 → §3 Theory 의 Cor 로 추가** | **H-G 삭제, A−B=+21pp 는 "open structural effect"** |
