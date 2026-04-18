@@ -239,7 +239,10 @@ $$\text{breadth}(B_\text{ont}^{(\text{src})}) := \frac{1}{|V_\text{target}|}\sum
 | **2** | H-D (KL non-monotonicity FFN origin) | B2 | pending | scope caveat 강화 |
 | **2** | H-E (cross-benchmark direction specificity) | B1 | pending | direction specificity 범위 |
 | **2 (v3)** | **H-I (slope-excess Lipschitz correction)** | **B3 light** | pending | **Second-order refinement, Appendix** |
-| **3** | H-F (catalog-permutation falsifier) | C | pending | direction specificity 의 origin 제한 |
+| ~~2~~ | H-D (KL non-monotonicity FFN origin) | B2 | **✅ CONFIRMED (v4)** | 28/29 monotonic, layer 28 isolates mechanism |
+| ~~2~~ | H-E (cross-bench direction specificity) | B1 | **✅ CONFIRMED (v4)** | 6/7 A>D, mean ratio 2.35 |
+| **2 (v4)** | **H-J (asymmetric transferability / breadth)** | **B3 sub** | pending | **Retail → Telecom A/D=0.23 → narrow vs broad B_ont 분류** |
+| **3** | H-F (catalog-permutation falsifier) | C | pending (스크립트 준비 완료) | direction specificity 의 origin 제한 |
 | **4 (stretch)** | H1-H6 ($d^*$ narrowing) | D | pending | Q-sign partial understanding |
 
 **v3 재편 요지**: 핵심 universality 가설 (H-A, H-C) 이 Phase A 에서 확증되고, H-B 가 T.B predictive form 으로 자연스럽게 승격. 남은 Phase B/B3 는 (i) facet 내부 구조 (H-G), (ii) scope 경계 (H-H), (iii) slope refinement (H-I) 세 방향.
