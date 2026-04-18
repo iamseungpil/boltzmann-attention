@@ -443,17 +443,27 @@ CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_tau2_bench.py \
 
 ---
 
-## 9. 이번 세션 기준 점수 추정 요약
+## 9. 논문 영향 — 방향성 요약 (v2: numerology 제거)
 
-| 시점 | 점수 estimate | 근거 |
+> **v2 update**: 기존 v1 에서 사용한 "6.3 → 5.8 → 6.2 → 6.4" 식 점수 numerology 는 cross-review 피드백 ("NeurIPS 리뷰어 점수는 integer + 편차가 커서 0.1~0.5pp 단위 precision 은 엔지니어링 fiction") 을 수용해 제거. 아래는 방향성 (direction) + rationale 만.
+
+| 시점 / Option | Direction (vs 직전 상태) | Rationale |
 |---|---|---|
-| 2026-04-17 저녁 (v3 locked) | 6.3–6.5 | ladapt safe floor + 4 contributions (Q-coverage, K-stability, Thm 6.1, OCQ) |
-| 2026-04-18 저녁, paper 수정 없이 canonical_adaseka +28.89pp 노출만 한 경우 | 5.8–6.2 | §1.0 literal 반례 → 리뷰어 공격 루트 |
-| O1 (paper edit 4 건) 적용 후 | 6.2–6.5 | 복구 + regime taxonomy 추가 |
-| O1 + Tier 1+3 결과 긍정 시 | 6.4–6.8 | training-free derivation contribution 추가 |
-| O1 + Tier 1+3 + Tier 2 긍정 시 | 6.6–7.2 | BiasBios main-body 표 + dual contribution |
+| 2026-04-17 저녁 (v3 locked) | — (기준선) | ladapt safe floor + 4 contributions |
+| 2026-04-18 저녁, paper 수정 없이 canonical_adaseka +28.89pp 노출만 | 🔻 하락 | §1.0 literal 반례 → 리뷰어 "direct contradiction" flag |
+| O1 적용 후 | 🔺 복구 (리뷰 flag 차단) | regime taxonomy 로 §1.0 structural 논거 scope 좁힘 |
+| O1 + O2 (Tier 1 + Tier 3 variantD 검증) | 조건부 🔺 | variantD bug 해소 후 ablation table 삽입 시 "basis + facet split 분해" 강화. bug 로 판명되면 유지 |
+| O1 + O2 + O3 (Tier 2 BiasBios) | 방어 범위 확대 | ours ≈ real 면 generality 지지, ours ≪ real 면 scope 좁힘 — **upside 가 아니라 falsifiability check** |
+| O4 (O1 + Tier 3 + BFCL + secondary bench) | 🔺 가장 확실한 개선 | §3.5 ST4 단일 벤치 weakness 직접 해소. ≥2 facet-diverse bench 에서 Q-coverage positive signal 내면 §1.1 triangulation |
+| O1 + O2 + O3 + O4 | 🔺 최대 방어력 | 모든 리뷰어 예상 공격 루트 대응. 시간 비용 큼 (~3 hr GPU 총합) |
 
-NeurIPS 2026 main track acceptance threshold ~6.5. **O1 은 필수**, O2/O3 는 upside 판단.
+**우선순위 해석**:
+- **O1 은 필수 (defensive)**. 적용 안 하면 §1.0 반례로 리뷰어 공격 루트 열림.
+- **O4 는 strategic upside**. ST4 단일 벤치 의존도 낮추는 게 §1.1 의 가장 의미 있는 강화.
+- **O2 는 조건부** — variantD bug 검증 (Phase 0) 먼저.
+- **O3 는 보험** — Tier 2 는 generality validation step 이지 점수 상승 수단 아님.
+
+NeurIPS 2026 main track 에서 "우리 결과가 한 벤치에 몰려 있는가" 는 reviewer-level discriminator 이다. 그래서 O4 가 O2, O3 보다 먼저 들어가야 한다는 게 v2 의 판단.
 
 ---
 
