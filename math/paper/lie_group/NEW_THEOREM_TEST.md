@@ -232,7 +232,7 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 
 ## §5. Phase 별 실험 계획
 
-### Phase A — Two-level separation universality (Week 1-3, ~60 GPU-hr)
+### Phase A — Two-level separation universality — **✅ COMPLETE (v3)**
 
 **목표**: Lemma 2 + margin anchor + two-level separation 을 ≥ 4 (M, V) 조합으로 확장.
 
