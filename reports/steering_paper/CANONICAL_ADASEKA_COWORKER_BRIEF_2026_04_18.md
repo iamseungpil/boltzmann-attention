@@ -313,13 +313,15 @@ on a shared basis**, not a reproduced AdaSEKA baseline.
 
 ### 7.1 파일 경로 한 줄 요약
 - Engine: `scripts/ocq/canonical_adaseka_engine.py`
-- Expert derivation: `scripts/diagnostics_2026_04_16/build_adaseka_experts_from_bont.py`
-- Tier 3 runner: `scripts/diagnostics_2026_04_16/build_adaseka_variants_tier3.py`
+- Expert derivation (variant A): `scripts/diagnostics_2026_04_16/build_adaseka_experts_from_bont.py`
+- Tier 3 variants builder: `scripts/ocq/build_adaseka_variants_tier3.py` (variants B/D, variant C deferred; commit `b94f0a0`)
 - Routing diag: `scripts/ocq/diag_canonical_adaseka_routing.py`
 - Facet decomposition: `scripts/diagnostics_2026_04_16/decompose_telecom_by_facet.py`
 - Eval driver: `scripts/ocq/eval_tau2_bench.py --methods canonical_adaseka_amp<A>_topk<K>_T<T>`
-- 결과 JSON (오늘 완료):
-  - `reports/tau2_2026_04_18/telecom_canonical_amp03_persample_N200.json` (N=200, full)
+- 결과 JSON (2026-04-18 저녁 완료):
+  - `reports/tau2_2026_04_18/telecom_canonical_amp03_persample_N200.json` (variant A, N=200 full)
+  - `reports/tau2_2026_04_18/telecom_canonical_variantB_N200.json` (Tier 3, N=200)
+  - `reports/tau2_2026_04_18/telecom_canonical_variantD_N200.json` (Tier 3, N=200, **bug 의심**)
   - `reports/tau2_2026_04_18/telecom_gt_facet_analysis_v2.json` (facet diversity 분석)
   - `reports/tau2_2026_04_18/canonical_adaseka_routing_diag.json` (routing entropy, N=10)
   - `reports/tau2_2026_04_18/telecom_canonical_tau2trained_smoke5.json` (smoke 5)
@@ -328,9 +330,10 @@ on a shared basis**, not a reproduced AdaSEKA baseline.
   - `external/SEKA/seka_projections/ontology-qwen25-7b-tau2-{telecom,retail,airline}/B_ont.pt`
   - `external/SEKA/seka_projections/ontology-llama31-8b-tau2-{telecom,retail}/B_ont.pt`
 - 파생된 expert:
-  - `external/SEKA/seka_projections/adaseka-qwen25-7b-tau2-{telecom,retail,metatool}/expert_paths.json`
+  - `external/SEKA/seka_projections/adaseka-qwen25-7b-tau2-telecom{,-variantB,-variantD}/expert_paths.json`
+  - `external/SEKA/seka_projections/adaseka-qwen25-7b-tau2-{retail,metatool}/expert_paths.json`
 
-### 7.2 재현 커맨드
+### 7.2 재현 커맨드 (variant A headline)
 ```bash
 source /home/woori/venvs/seka_env/bin/activate
 CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_tau2_bench.py \
@@ -345,10 +348,41 @@ CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_tau2_bench.py \
 ```
 런타임: ~13 분 (Qwen2.5-7B-Inst, RTX 5880 / A6000 등 48GB 급 1 장).
 
-### 7.3 Tier 1/3 착수 방법
-- Tier 1 스크립트: **아직 미작성**. 작업 계획:
+### 7.3 Phase 0 — variantD bug 검증 (다음 단계 **선결 조건**)
+
+Tier 3 의 B − D = +7.79pp 분해를 인용하려면 먼저 해야 하는 검증.
+
+**Step 1** — verbose rerun (N=5 smoke, ~2 분):
+```bash
+source /home/woori/venvs/seka_env/bin/activate
+CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_tau2_bench.py \
+  --model Qwen/Qwen2.5-7B-Instruct --device cuda:0 \
+  --b-ont external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom/B_ont.pt \
+  --domain telecom \
+  --methods canonical_adaseka_amp0.3_topk3_T1.0 \
+  --max-samples 5 --max-new-tokens 50 \
+  --adaseka-expert-paths external/SEKA/seka_projections/adaseka-qwen25-7b-tau2-telecom-variantD/expert_paths.json \
+  --adaseka-layers last10 \
+  --verbose \
+  --out /tmp/variantD_verify.json 2>&1 | tee /tmp/variantD_verify.log
+```
+로그에서 확인할 것:
+- `[canonical_adaseka] loading expert SVDs from ...variantD/expert_paths.json` 줄 등장 여부.
+- Hook 호출 수 / per-token mask token count / K-activation perturbation norm.
+- 만약 log 에 expert load 자체가 안 찍히거나 mask token count = 0 이면 **hook 미적용 확정**.
+
+**Step 2** — amp scaling smoke (N=5, ~2 분): `canonical_adaseka_amp1.0_topk3_T1.0` 로 바꿔서 실행. amp=0.3 대비 perturbation 3.3× 증가해야 효과 비례. prediction 여전히 no_steer 동일이면 **bug 확정**; 변동 생기면 D=0 은 real (매우 작은 effect 였음을 시사).
+
+**Step 3** — perturbation norm direct check (~5 분): canonical_adaseka_engine.py 에 debug hook 추가해서 K_steered − K 의 frobenius norm per-layer 기록. variantA vs variantD 비교.
+
+**결과 해석**:
+- Bug 확정 → variantD 재구성 필요. 기존 N=200 run 은 paper 에 인용 금지.
+- D=0 이 real 확정 → "random direction 은 effective perturbation 없음" 주장 가능. 단 왜 effect 가 정확히 0 이었는지 mechanism 설명 단락 필요.
+
+### 7.4 Tier 1 착수 방법 (canonical angle)
+- 스크립트: **아직 미작성**.
+- 의사코드:
   ```python
-  # 의사코드
   for facet in ['function_action', 'io_type', 'domain', 'tool_category']:
       U_ours = B_ont_block[facet]                     # our column block
       K_pos = collect_K(queries where gt_facet == facet)
@@ -358,14 +392,38 @@ CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_tau2_bench.py \
       angle = canonical_angles(U_ours, U_proxy[:, :U_ours.shape[1]])
       log(angle.mean(), angle.max())
   ```
-  출력: `reports/adaseka_canonical_angle_2026_04_18.json`.
-- Tier 3 (variant B): `scripts/diagnostics_2026_04_16/build_adaseka_variants_tier3.py` (commit `cdaa175`) 이미 존재. variant D (random orthonormal) 는 이 스크립트에 추가 필요.
+- 출력: `reports/adaseka_canonical_angle_2026_04_18.json`.
+- 비용: ~15 분 GPU (Qwen Telecom).
 
-### 7.4 Tier 2 (BiasBios) 착수 방법
-- Data: `external/SEKA/data/biasbios/biasbios.pkl` (real AdaSEKA 원본 데이터 경로 — `external/SEKA/src/model/adaptive_seka_llm.py` 참조).
-- B_ont 빌드: occupation-based ontology 를 `scripts/ocq/build_qwen_<name>_b_ont.py` 패턴으로 작성. BiasBios 는 ~28 occupation facet.
-- Eval: real AdaSEKA 의 classification head 재사용하되 expert SVD 만 B_ont-derived 로 교체.
-- 참고: `adaseka_scope_mismatch_2026_04_18.md` — BiasBios 는 canonical AdaSEKA 가 동작하는 home-turf.
+### 7.5 BFCL-v3 Parallel + secondary bench 착수 (O4)
+
+**BFCL-v3 (Primary smoke)**:
+- 스크립트: `scripts/ocq/eval_bfcl.py` (이미 존재, 단 **proxy scoring** 주의 — 스크립트 주석 참조).
+- 데이터: HuggingFace hub 에서 on-demand fetch (`gorilla-llm/Berkeley-Function-Calling-Leaderboard`, `BFCL_v3_parallel.json` + `possible_answer/*.json`).
+- Smoke 커맨드 (10 tasks, ~10 분):
+  ```bash
+  source /home/woori/venvs/seka_env/bin/activate
+  CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_bfcl.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --b-ont external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom/B_ont.pt \
+    --subsets parallel --max-samples 10 --max-new-tokens 256 \
+    --beta -0.1 --alpha 0.3 \
+    --out reports/bfcl_2026_04_18/parallel_smoke.json
+  ```
+- **주의**: 이 eval_bfcl.py 는 "function-name set overlap" 기반 proxy. Official BFCL AST scoring 이 아니므로 paper 에 표기 시 **"proxy function-name F1 (not official BFCL-v3 AST score)"** 로 정확히 기술.
+
+**Secondary bench (StableToolBench / AppBench)**:
+- Eval 스크립트 **없음 (신규 작성 필요)**. 착수 전 구조 먼저 확인:
+  ```bash
+  ls external/StableToolBench/ external/AppBench/
+  ```
+- 벤치 구조 파악 → facet-diverse multi-tool 인지 confirm → eval 스크립트 작성 → smoke → full.
+
+### 7.6 Tier 2 (BiasBios) 착수 방법
+- Data: `external/SEKA/data/biasbios/biasbios.pkl` (real AdaSEKA 원본 — `external/SEKA/src/model/adaptive_seka_llm.py` 참조).
+- B_ont 빌드: occupation-based ontology 를 `scripts/ocq/build_qwen_<name>_b_ont.py` 패턴으로 작성. BiasBios ~28 occupation facet.
+- Eval: real AdaSEKA 의 classification head 재사용, expert SVD 만 B_ont-derived 로 교체.
+- 참고: `adaseka_scope_mismatch_2026_04_18.md` — BiasBios 는 canonical AdaSEKA 가 동작하는 home-turf (즉 ours ≪ real 가능성 상당). **Upside 수단 아니라 handoff 시나리오 D 방어 보험** (§5 Option 3 참조).
 
 ---
 
