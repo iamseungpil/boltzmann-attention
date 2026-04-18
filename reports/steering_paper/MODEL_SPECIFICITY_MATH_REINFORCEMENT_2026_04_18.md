@@ -129,13 +129,20 @@ $$
 
 ### 2.3 Proposition 6.B — Format-collapse 충분조건
 
-> **Proposition 6.B (Format-collapse 충분조건).** signed Q-회전 $q'_h = q_h + \beta\,P_{\mathrm{ont}}^h q_h$ 하에서
+> **Proposition 6.B (Format-collapse 충분조건, corrected 2026-04-18).** signed Q-회전 $q'_h = q_h + \beta\,P_{\mathrm{ont}}^h q_h$ 하에서
 > $$
-> |1+\beta|\cdot \|P_{\mathrm{ont}}^h q_h\| \;>\; R_M^h(\delta) - \|(I-P_{\mathrm{ont}}^h) q_h\|
+> |1+\beta|\cdot \|P_{\mathrm{ont}}^h q_h\| \;>\; R_M^h(\delta)
 > $$
 > 이면 $q'_h \notin \mathcal{R}_M(\delta)$이고, $\delta$가 충분히 작으면 출력 분포는 NL/EOS 토큰 mass가 우세한 OOD regime으로 진입한다.
 
-**증명 스케치**: $\|q'_h\|^2 = \|(1+\beta)P_{\mathrm{ont}}^h q_h\|^2 + \|(I-P_{\mathrm{ont}}^h) q_h\|^2$ (Pythagoras, $P_{\mathrm{ont}}^h$ 정사영). 조건이 성립하면 $\|q'_h\| > R_M^h(\delta)$이므로 $q'_h \notin \mathcal{R}_M(\delta)$. □
+**증명**: $P_{\mathrm{ont}}^h$가 정사영이므로 Pythagoras에 의해
+$$
+\|q'_h\|^2 \;=\; (1+\beta)^2\,\|P_{\mathrm{ont}}^h q_h\|^2 \;+\; \|(I-P_{\mathrm{ont}}^h) q_h\|^2
+\;\ge\; (1+\beta)^2\,\|P_{\mathrm{ont}}^h q_h\|^2.
+$$
+가정 $|1+\beta|\,\|P_{\mathrm{ont}}^h q_h\| > R_M^h(\delta)$이면 $\|q'_h\|^2 > R_M^h(\delta)^2$, 즉 $\|q'_h\| > R_M^h(\delta)$. 따라서 정의 6.A에 의해 $q'_h \notin \mathcal{R}_M(\delta)$. □
+
+**버그 노트 (2026-04-18 self-audit)**: 본 문서 v1 (commit `2c2cae4`) 의 Prop 6.B는 충분조건을 $|1+\beta|\|Pq\| > R - \|(I-P)q\|$로 적었으나, $q$가 manifold 내부($\|(I-P)q\|<R$)일 때 이 조건은 $\|q'\|>R$을 함의하지 못한다 (제곱 후 cross term이 음수가 되어 부등호 방향이 깨짐). 위의 수정본은 직교 성분을 *버리는* 방향의 더 강한(따라서 안전한) 충분조건이며, Cor 6.C의 근사 $\beta_{\mathrm{collapse}}^+ \approx (R_M^h - \xi_D^M)/\xi_D^M$는 직교 성분을 무시하는 동일 가정 아래 그대로 성립한다.
 
 ### 2.4 Corollary 6.C — Baseline-dependent collapse threshold
 
