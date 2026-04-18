@@ -161,7 +161,8 @@ def main():
     bdict = torch.load(args.b_ont, map_location="cpu", weights_only=False)
     B_ont = bdict["B_ont"] if isinstance(bdict, dict) else bdict
     n_kv = model.config.num_key_value_heads
-    head_dim = getattr(model.config, "head_dim", None) or (model.config.hidden_size // model.config.num_attention_heads)
+    n_q = model.config.num_attention_heads
+    head_dim = getattr(model.config, "head_dim", None) or (model.config.hidden_size // n_q)
 
     all_results = {
         "benchmark": "BFCL_v3_proxy",
