@@ -31,6 +31,13 @@
 
 **한 줄 요약**: τ² Telecom N=200 에서 canonical AdaSEKA-interface (우리 B_ont 로 파생한 experts) 가 **+28.89pp ΔF1**. Tier 3 A (ours, +28.89pp) / B (no-split, +7.79pp) / D (random, 0/200 changes under 20% ‖δ‖/‖K‖) + Phase 0 hook-fire verification → **basis direction specificity 확보**. Mechanism 주장 포기 + **4 existence claims 로 논문 재구성**이 권고 방향.
 
+**v4 업데이트 요지** (이 문서 vs 2026-04-19 00:15 KST 의 v3):
+- **BFCL Tier 3 cross-benchmark N=100** 완료 (§2.7 신설): cross-domain proxy 임에도 A 2/100 pred changes + D 0/100 — Telecom N=200 의 direction-specificity 패턴이 weak-baseline (Telecom) 와 strong-baseline (BFCL) 에 걸쳐 재현. C3 근거에 추가 bullet 삽입.
+- **Shared Basis Proposition 병렬 drafting 정책** (§3.7 신설): paper session 이 별도 파일에 Proposition 을 speculative draft 하되 `PAPER_DRAFT_v3.md` 본문은 건드리지 않음. 실험 세션 P1 (random rank KL scaling) + P2 (closed-form $d^*$ sign) 결과 후 consolidation session 에서 merge 여부 결정. **4-scenario decision tree + two-gate revival** 명시.
+- **기본값 = scenario 4 fallback** (§3.7): Proposition 부활은 P1 clean linear (R² > 0.85) **AND** P2 ≥3/4 sign match 라는 active positive evidence 필요. 둘 중 하나라도 빠지면 existence-only path 유지. 시간 부족 (NeurIPS 마감 <48 시간) → 즉시 fallback 확정.
+- **E1–E6 패치 text 는 변경 없음** — v3 그대로. v4 에서 "cross-benchmark replicated" 한 줄만 §6.4 E3 / §6.5 E5 에 삽입 (아래 참조).
+- **§8 리스크 매뉴얼 v4 항목 추가**: (a) "네 번째 pivot" 우려 → active evidence 없이 mechanism claim 삽입 금지 원칙으로 선제 차단, (b) cross-benchmark 공격 루트 → BFCL Tier 3 로 부분 방어.
+
 **v3 업데이트 요지** (이 문서 vs 2026-04-18 23:30 KST 의 v2):
 - Phase 0 verification 결과 통합 (§2.6 신설): variantD bug 아님 확정, hook 발화 + 20% δ + 0/200 change → C3 legitimate
 - **4-claim 구조 공식화** (§3.6 신설): C1 ladapt safe floor / C2 operator-form agnosticism / C3 basis direction specificity / C4 training-free derivation
