@@ -672,14 +672,49 @@ elif mode == 'full_random':
 
 ---
 
-## §12. 다음 세션 first actions (실험 세션)
+## §12. 다음 세션 first actions — v3 업데이트 (Phase A 완료 반영)
 
-1. **Week 1 Day 1-2**: Phase A run #1 (Qwen Retail). `scripts/ocq/measure_lemma_empirical.py` 에 `--benchmark tau2_retail` 이 존재하는지 확인; 필요 시 추가. Run + memory 기록.
-2. **Week 1 Day 3-4**: Phase A run #2 (Qwen MetaTool ST4). benchmark 로딩 path 확장 필요할 수 있음.
-3. **Week 1 Day 5**: 2 run 결과 간 slope 일관성 확인. Preliminary Phase A gate 검토.
-4. **Week 2**: Phase A run #3-5 (Llama Telecom, Llama ST4, Mistral Telecom).
-5. **Week 3**: Phase A aggregate + memory. Phase A gate 최종 판단.
-6. **Week 4 이후**: Phase B-C 착수 (Phase A gate 통과 시).
+### v3 현재 상태
+
+- Phase A: **DONE** (9 (M, V), all in `reports/new_theorem_test/phase_a_*.json` + `new_theorem_phase_a_2026_04_19.md` memory).
+- Phase B/B3 준비 완료.
+
+### 다음 세션이 집어야 할 첫 작업 (priority order)
+
+1. **Phase B3.1 (H-G facet-concentration) 실행 — 1-2 일, ~2 GPU-hr**:
+   - `scripts/new_theorem_test/analyze_facet_concentration.py` 작성 (§9 S0 spec).
+   - 사용 데이터: 기존 Tier 3 A/B/D JSON + Phase 0 d\*_emp (또는 Phase A log 에서 d\*_emp proxy 추출).
+   - Output: `reports/new_theorem_test/phase_b3_facet_concentration.json` + memory.
+   - **이걸 먼저 하는 이유**: 기존 데이터만으로 실행 가능. A−B = +21pp 의 이론적 설명 여부가 즉시 판정됨.
+
+2. **Phase B3.2 (H-H scope boundary) 실행 — 1 주, ~10 GPU-hr**:
+   - `scripts/new_theorem_test/measure_dstar_mmlu_mistral.py` 작성 (§9 S0b spec).
+   - Mistral B_ont build + Mistral/MMLU d\*_emp 측정.
+   - Output: `reports/new_theorem_test/phase_b3_scope_{mmlu,mistral}.json`.
+
+3. **H-I (slope excess) light analysis — 0.5 일, GPU 불필요**:
+   - Phase A 의 per-(M, V) log (`logs/phase_a_*.log`) 에서 attention entropy 를 post-hoc 추출.
+   - Slope vs entropy correlation 계산.
+   - 결과 paper §Appendix / §Discussion 용으로만.
+
+4. **Phase B1 (cross-benchmark direction specificity) — 2 주, ~30 GPU-hr**:
+   - Telecom B_ont 를 Retail/Airline/Banking/ST4/BFCL 에 cross-apply + random B 비교.
+   - 기존 `scripts/ocq/eval_tau2_bench.py` + `eval_metatool_subtask4.py` 재사용.
+
+5. **Phase B2 (FFN/LM-head KL origin) — 1 주, ~30 GPU-hr**:
+   - `scripts/new_theorem_test/measure_layer_resolved_kl.py` 작성 (§9 S1 spec).
+
+### 병렬화 전략
+
+B3.1 + H-I light analysis 는 GPU 거의 불필요 → paper 세션이 수행 가능. B3.2 / B1 / B2 는 GPU 필요 → 실험 세션이 병렬로 진행. Wall-clock 3-4 주 내 Phase B 전체 완료 가능.
+
+### v1/v2 의 첫 작업 기록 (참고용)
+
+- ~~Week 1 Day 1-2: Phase A run #1 (Qwen Retail)~~ → 완료, slope 0.5693 R²=0.9948
+- ~~Week 1 Day 3-4: Phase A run #2 (Qwen ST4)~~ → 완료, slope 0.5779 R²=0.9957
+- ~~Week 1-2: Phase A run #3-5~~ → 완료 (Llama Telecom/Retail/ST4, Mistral Telecom, Qwen Airline/Banking).
+- ~~Week 3: Phase A aggregate + memory~~ → 완료 (`new_theorem_phase_a_2026_04_19.md`).
+- **현재 (Week 3 끝)**: Phase B/B3 시작 ready.
 
 ---
 
