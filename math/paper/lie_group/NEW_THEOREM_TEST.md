@@ -193,19 +193,23 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 - Primary Lemma/Theorem 은 H1-H6 결과와 무관 (Q-sign 은 Theorem 밖 observation).
 - H1-H6 narrowing 은 paper 의 §Discussion 에서 "open question — partial empirical progress" 로만 쓰일 수 있음.
 
-### 3.4 가설 우선순위 (v2 재편 후)
+### 3.4 가설 우선순위 (v3 재편 후)
 
-| Priority | Hypothesis | Phase | 사유 |
-|---|---|---|---|
-| **1** | H-A (attention-level universality) | A | Lemma 2 의 generalization — theorem 핵심 |
-| **1** | H-B (margin lower bound stability) | A | T.B 의 scope 결정 |
-| **1** | H-C (two-level separation cross-model) | A | core claim 재현성 |
-| **1 (v2)** | **H-G (facet-concentration)** | **B3** | **Tier 3 A−B=+21pp 의 이론적 설명, GPU 최소** |
-| **1 (v2)** | **H-H (scope boundary alignment)** | **B3** | **MMLU/Mistral failure-mode 이론적 설명** |
-| **2** | H-D (KL non-monotonicity FFN origin) | B2 | scope caveat 강화 |
-| **2** | H-E (cross-benchmark direction specificity) | B1 | direction specificity 범위 |
-| **3** | H-F (catalog-permutation falsifier) | C | direction specificity 의 origin 제한 |
-| **4 (stretch)** | H1-H6 ($d^*$ narrowing) | D | Q-sign partial understanding |
+| Priority | Hypothesis | Phase | 상태 | 사유 |
+|---|---|---|---|---|
+| ~~1~~ | H-A (attention-level universality) | A | **✅ CONFIRMED (v3)** | 9/9 R²≥0.99, slope 0.5298 |
+| ~~1~~ | H-B (margin lower bound ≥ 1) | A | **❌ REPLACED (v3)** | m_0 spread 0.016–6.375, T.B predictive 로 대체 |
+| ~~1~~ | H-C (two-level cross-model) | A | **✅ CONFIRMED (v3)** | 3/3 family |
+| **1 (v2)** | H-G (facet-concentration) | B3 | pending | Tier 3 A−B=+21pp 의 이론 설명, GPU 최소 |
+| **1 (v2)** | H-H (scope boundary alignment) | B3 | pending (v3 refined) | MMLU/Mistral failure-mode |
+| **1 (v3)** | **T.B predictive (margin-gated flip)** | **A done / extended validation in B-D** | **✅ confirmed qualitatively, quantitative 추가 필요** | **H-B 의 후임, Lemma 1 predictive form** |
+| **2** | H-D (KL non-monotonicity FFN origin) | B2 | pending | scope caveat 강화 |
+| **2** | H-E (cross-benchmark direction specificity) | B1 | pending | direction specificity 범위 |
+| **2 (v3)** | **H-I (slope-excess Lipschitz correction)** | **B3 light** | pending | **Second-order refinement, Appendix** |
+| **3** | H-F (catalog-permutation falsifier) | C | pending | direction specificity 의 origin 제한 |
+| **4 (stretch)** | H1-H6 ($d^*$ narrowing) | D | pending | Q-sign partial understanding |
+
+**v3 재편 요지**: 핵심 universality 가설 (H-A, H-C) 이 Phase A 에서 확증되고, H-B 가 T.B predictive form 으로 자연스럽게 승격. 남은 Phase B/B3 는 (i) facet 내부 구조 (H-G), (ii) scope 경계 (H-H), (iii) slope refinement (H-I) 세 방향.
 
 **v2 재편 이유**: H-G 와 H-H 는 기존 Tier 3 + MMLU + Mistral 데이터가 이미 존재 — Phase A 와 병렬 실행 가능한 저비용 + 고임팩트. 이론의 scope 이 "B_ont direction 의 universality" 뿐 아니라 **"B_ont 의 internal 구조 (facet) 와 scope 경계"** 까지 확장되어 comprehensive 해짐.
 
