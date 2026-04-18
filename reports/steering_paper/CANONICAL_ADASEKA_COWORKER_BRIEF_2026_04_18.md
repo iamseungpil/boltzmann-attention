@@ -174,50 +174,74 @@ Thm 6.17 은 "step-adaptive Q-coverage 가 multi-tool 에서 first-order optimal
 
 ---
 
-## 5. 대응 옵션 (우선순위)
+## 5. 대응 옵션 (우선순위, v2: numerology 제거 · O4 추가)
 
-### Option 1 — Honest reframing (minimal, paper 만 수정, 실험 0)
+> **Framing 원칙 (cross-review 피드백 수용)**: NeurIPS 점수 예측은 0.1~0.5pp 단위 precision 으로 하지 않는다. 아래 표의 "direction" 열은 **방향성** (위/하락/유지) 과 그 rationale 만 기록; 숫자 추정은 의도적으로 뺐다. 리뷰어 반응은 discrete (accept/borderline/reject) 이므로 방향성이 유일하게 의미 있는 metric.
+
+### Option 1 — Honest reframing (paper 만 수정, 실험 0)
 1. §1.0 L43–47 에 "facet-uniform catalog 에서는 stationary 가 동작함" 을 명시. 구조 논거를 facet-diverse multi-tool 에 국한.
 2. §1.1 empirical block 에 "canonical AdaSEKA on τ² Telecom = +28.89pp, facet-uniform regime 에서 예상 가능한 동작" 1 문장 추가.
-3. §5.5.3.1 표기 교정: "AdaSEKA baseline" → "Training-free AdaSEKA-interface (B_ont-derived experts)" 또는 "Operator-form ablation on shared B_ont basis".
+3. §5.5.3.1 표기 교정: "AdaSEKA baseline" → "Training-free AdaSEKA-interface (B_ont-derived experts)" / "Operator-form ablation on shared B_ont basis".
 4. 신규 정의 block: **"Facet diversity regime"** — 각 벤치가 어디 속하는지 매핑 (MetaTool ST4 → diverse; τ² Telecom/Retail → uniform-ish; τ² Airline → mixed; BiasBios → single-answer out-of-scope).
-- **비용**: 약 2–3 시간 편집.
-- **점수 영향 추정**: 현재 5.8–6.2 (v3 그대로 두면 §1.0 반례로 리뷰어 공격 루트) → 6.2–6.5 복구.
+- **비용**: 2–3 시간 편집, GPU 0.
+- **Direction**: 현재 상태 (paper §1.0 반례 노출) 대비 **복구 방향** — §1.0 의 리터럴 반증 경로를 닫아서 리뷰어 "literal contradiction" flag 제거.
 
-### Option 2 — Tier 1+3 추가 실험 (paper score 개선 폭 확대)
+### Option 2 — Tier 1 + Tier 3 (결과 버그 해소 후) 로 ablation 표 추가
 Tier 1: B_ont-derived expert direction vs 실제 contrastive-SVD direction 사이 **canonical angle**. 현재는 contrastive training data 가 없으므로 proxy (GT-vs-non-GT K-activation) 를 써야 함.
 - 목적: "우리 facet centroid direction 이 contrastive separation direction 과 얼마나 비슷한가" 를 정량화.
 - 각도 ≤ 10°: "basis 가 contrastive training 의 substitute" 강한 주장.
 - 각도 ≥ 30°: "direction 이 달라도 routing 성공 → AdaSEKA mechanism 이 direction 에 loose" 다른 주장.
 - 비용: ~15분 GPU (Qwen Telecom 에만).
-- 산출: appendix 1 단락 + canonical angle 표.
 
-Tier 3: Design-space ablation. 5 variant.
-- (A) current (facet-split + uniform SV, B_ont-derived)
-- (B) no facet split (하나의 큰 basis)
-- (C) unsupervised real SV from K activation statistics
-- (D) random orthonormal experts (matched rank)
-- (E) fixed per-head mixture (routing 우회)
-- 목적: "basis 효과 vs operator form 효과 vs routing adaptivity" 분리.
-- 비용: ~26분 GPU (각 variant 에 Telecom N=200, 이미 Tier3 variant B 가 돌아간 기록 있음 — commit `cdaa175`).
-- 산출: paper `tab:adaseka-ablation`.
+Tier 3: **이미 A/B/D 돌림 완료** (§2.5). 단 **variantD bug 해소 전까지 D 포함 주장 금지**. Phase 0 검증 후에만 ablation table 논문 삽입.
+- 현 상태 인용 가능 범위: A (+28.89pp) 는 §5.5.3.1 headline; B (+7.79pp, no-split) 는 "facet-split routing 이 성능의 주요 기여" 를 단방향 지지.
+- variantD bug 해소 전에는 "B_ont direction load-bearing" 주장 **보류** (random-null 비교 증거 없음 상태로 청구 불가).
 
-Tier 1+3 결과가 강하게 나오면:
-- "Training-free catalog → AdaSEKA interface derivation" 이 **논문 contribution #5** 로 승격.
-- "AdaSEKA 의 query-adaptivity 자체가 architectural preference 로 대부분 설명됨" 이라는 부수 기여 가능 (§2.3 routing entropy 83%).
+- **Direction**: Tier 3 variantD 검증 결과에 **의존적**.
+  - variantD 재측정이 real ≈0 이면 → "basis direction load-bearing" 주장 강화, 개선 방향.
+  - variantD 재측정이 non-zero 이면 → B−D 의 일부는 "random K-bias 의 부수효과" → contribution 약화, 하지만 §5.5.3.1 단순 표기 + A/B 분해 자체는 여전히 유효.
+- 리스크: variantD 검증 전 섣불리 인용 → Phase 0 bug 발견 시 수치 retraction.
 
-### Option 3 — Tier 2 BiasBios cross-check 추가 (crash-through)
-- Tier 2 목적: B_ont 를 occupation ontology 로 새로 빌드해서 AdaSEKA interface 에 주입 → BiasBios (real AdaSEKA home-turf) 에서 real AdaSEKA 결과 대비 비교.
-- 만약 ≈ 동등 성능: "catalog ontology 가 contrastive training 의 structural substitute" 가 BiasBios 같은 single-answer 벤치에서도 성립. 본문 표 1개 확정.
-- 비용: ~30분 GPU + ontology 빌드 + BiasBios data prep (`external/SEKA/data/biasbios/biasbios.pkl` 존재).
-- 산출: main body 신규 표 + §7 paragraph.
+### Option 3 — Tier 2 BiasBios cross-check (리스크 헤지 용, 정확히 시나리오 D 방어)
 
-### 비교
-| Option | 필요 작업 | 예상 점수 변화 | 리스크 |
+> **v2 포지션 재설정** (cross-review 피드백 수용): v1 에서 "crash-through 상승" 로 표기했으나, BiasBios 는 real AdaSEKA home-turf (원 논문 타겟 벤치) 라 ours ≤ real 이 default 기대값. 따라서 **upside 수단이 아니라 handoff memo 의 시나리오 D (Telecom stratification 에서 4-expert routing active) 방어 보험**.
+
+- Tier 2 목적: B_ont 를 occupation ontology 로 빌드 → AdaSEKA interface 에 주입 → BiasBios 에서 real AdaSEKA 대비.
+- 긍정 신호 (ours ≈ real): "catalog ontology 가 contrastive training 의 structural substitute" generality 주장 유지.
+- 부정 신호 (ours ≪ real): "training-free derivation 은 facet-structured 카탈로그 규모 벤치 (τ²) 한정" — scope 좁혀서 기술.
+- 비용: ~30분 GPU + ontology 빌드 + BiasBios data prep (`external/SEKA/data/biasbios/biasbios.pkl`).
+- **Direction**: generality claim 의 **falsifiability proof** 역할. 당장 점수 상향이 아니라 O1 reframing 의 general claim 이 BiasBios 에서도 성립하는지 확인하는 **validation step**.
+
+### Option 4 — O1 + Tier 3 (검증 후) + facet-diverse 벤치 추가 (v2 신규)
+
+ST4 단일 벤치 weakness (§3.5) 해소용. 핵심 empirical claim 을 **≥2 개 facet-diverse multi-tool 벤치** 로 triangulate.
+
+후보 벤치 팩트 체크 (§7.5 참조):
+
+| 벤치 | external/ 존재? | 접근 경로 | 공신력 / 주의 |
+|---|:---:|---|---|
+| BFCL-v3 Parallel | ❌ | `scripts/ocq/eval_bfcl.py` 가 HF hub 에서 on-demand fetch (`gorilla-llm/Berkeley-Function-Calling-Leaderboard`) | **스크립트 주석**: "proxy evaluation, function-name set overlap, **not official BFCL AST scoring**". Paper 에 honest 표기 필수 |
+| StableToolBench | ✅ `external/StableToolBench` | facet-diverse multi-tool API 존재 | eval 스크립트 신규 작성 필요 |
+| AppBench | ✅ `external/AppBench` | 구조 확인 필요 | 동일 |
+| C3-Benchmark | ✅ `external/C3-Benchmark` | 구조 확인 필요 | 동일 |
+| ToolBench | ❌ main | develop 브랜치에 `eval_toolbench.py` | cherry-pick 필요 (main-branch-for-experiments 규칙 하) |
+
+실행안:
+- **Phase 1 smoke** (~10–30분): BFCL-v3 Parallel 10–30 task smoke — 단순 실행 가능성 + 방향 signal 확인.
+- **Phase 2 full** (~1–2시간, smoke 긍정 시): BFCL Parallel full + StableToolBench/AppBench 중 1 개.
+- 공신력 이슈: BFCL 자체 scoring 이 proxy 이므로 **StableToolBench 또는 AppBench 의 official scoring 을 second base** 로 두는 게 paper 방어력 강함.
+
+- **Direction**: ST4 단일 벤치 의존이라는 §3.5 weakness 의 **직접적 해결**. +2개 벤치에서 Q-coverage 가 positive signal 내면 §1.1 empirical triangulation → §1.1 이 "one lucky bench" flag 대상에서 빠짐.
+
+### 비교 요약 (v2, directional only)
+
+| Option | 필요 작업 | Direction vs 현재 상태 | 리스크 |
 |---|---|---|---|
-| O1 | paper edit 4 곳 | +0.2 ~ +0.5 (vs 현 상태) | 없음 — defensive |
-| O1 + Tier 1+3 | O1 + ~40 분 GPU | +0.4 ~ +0.8 | Tier 3 variant D 에서 random 도 +30pp 나오면 "basis 무관" 결론 → 우리 contribution 약화 |
-| O1 + Tier 1+3 + Tier 2 | + ~1시간 GPU + data prep | +0.6 ~ +1.2 | Tier 2 가 negative 면 generality 주장 약화. 하지만 (a) τ² Telecom 결과는 남고 (b) O1 reframing 만으로도 방어 가능하므로 **downside 가 hard cap** |
+| O1 | paper edit 4 곳 | **복구** (§1.0 반례 차단) | 없음 — defensive |
+| O1 + O2 | O1 + ~15분 GPU + Tier3 variantD verify | O1 의 개선 방향, 단 variantD 검증 결과에 의존 | variantD bug 재현 → 수치 retraction |
+| O1 + O2 + O3 | + ~30분 GPU + BiasBios prep | generality 방어력 확보 | Tier 2 negative 시 claim scope 좁혀짐 |
+| **O4** (v2 신규) | O1 + BFCL smoke + 1 secondary bench | **§3.5 weakness 직접 해소** (empirical triangulation) | BFCL proxy scoring → paper 에 honest 표기 의무; 2nd bench 도 negative 면 §1.1 claim 약화 |
+| O1 + O2 + O3 + O4 | 전부 | 최대 방어력 | 시간 비용 증가 (~3 hr GPU 총합) |
 
 ---
 
