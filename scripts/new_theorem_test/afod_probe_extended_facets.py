@@ -313,7 +313,7 @@ def stb_extended():
 
 def probe(name: str, views: dict):
     tool_names = views["tool_names"]
-    view_keys = [k for k in views if len(k) >= 2 and k[1] == "_"]
+    view_keys = [k for k in views if len(k) >= 2 and k[0].isupper() and k[1] == "_"]
 
     print(f"\n{'='*80}")
     print(f"{name}  (N={views['n_tools']}, {len(view_keys)} facets)")
