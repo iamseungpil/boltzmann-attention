@@ -551,9 +551,17 @@ Frobenius norm (Appendix X.Z, Phase 0 verification log). Our $B_\mathrm{ont}$
 produces systematic redistribution in 200/200 tasks (+28.89pp ΔF1). The basis
 direction — not the operator-form or the perturbation magnitude — is what
 aligns the steering effect with the tool-selection subspace.
+
+The same separation pattern replicates under cross-domain proxy on
+BFCL-v3 parallel_multiple (N=100, math/house/office benchmarks with the
+τ²-Telecom $B_\mathrm{ont}$ unchanged): our basis yields 2 of 100
+predicted-tool changes, the random orthonormal control yields 0 of 100.
+Absolute magnitudes are small under domain mismatch, but the $A\!>\!D$
+separation is preserved, indicating that direction specificity is not an
+artefact of τ²-Telecom alone.
 ```
 
-**Commit 메시지**: `paper(§5.5.3.1): relabel as training-free AdaSEKA-interface; cite Phase 0 matched-magnitude ablation`
+**Commit 메시지**: `paper(§5.5.3.1): relabel as training-free AdaSEKA-interface; cite Phase 0 matched-magnitude ablation + BFCL cross-benchmark`
 
 ---
 
