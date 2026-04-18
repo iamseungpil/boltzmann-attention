@@ -1,0 +1,6487 @@
+{
+  "n_tasks": 200,
+  "tools_parsed": {
+    "agent": 13,
+    "user": 30,
+    "total": 43
+  },
+  "unknown_tools_remaining": {},
+  "per_task": [
+    {
+      "id": "[mobile_data_issue]user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off[PERSONA:None]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "toggle_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_saver_mode_on[PERSONA:Easy]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference[PERSONA:Hard]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "set_network_mode_preference"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn[PERSONA:None]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "disconnect_vpn"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "identifier"
+        ],
+        "domain": [
+          "data"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_saver_mode_on[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_saver_mode_on[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_usage_exceeded[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_usage_exceeded[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_saver_mode_on[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_saver_mode_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|data_usage_exceeded[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|data_saver_mode_on[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|data_usage_exceeded[PERSONA:Hard]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 1,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 1,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 2,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other",
+          "update"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    },
+    {
+      "id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "diversity": {
+        "function_action": 1,
+        "io_type": 2,
+        "domain": 2,
+        "tool_category": 1
+      },
+      "facet_sets": {
+        "function_action": [
+          "other"
+        ],
+        "io_type": [
+          "entity",
+          "identifier"
+        ],
+        "domain": [
+          "data",
+          "network"
+        ],
+        "tool_category": [
+          "write"
+        ]
+      }
+    }
+  ],
+  "tool2facet": {
+    "get_customer_by_phone": {
+      "function_action": "get",
+      "io_type": "entity",
+      "domain": "line",
+      "tool_category": "read"
+    },
+    "get_customer_by_id": {
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "utility",
+      "tool_category": "read"
+    },
+    "get_customer_by_name": {
+      "function_action": "get",
+      "io_type": "entity",
+      "domain": "device",
+      "tool_category": "read"
+    },
+    "get_details_by_id": {
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "device",
+      "tool_category": "read"
+    },
+    "suspend_line": {
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "line",
+      "tool_category": "write"
+    },
+    "resume_line": {
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "line",
+      "tool_category": "write"
+    },
+    "get_bills_for_customer": {
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "utility",
+      "tool_category": "read"
+    },
+    "send_payment_request": {
+      "function_action": "send",
+      "io_type": "identifier",
+      "domain": "payment",
+      "tool_category": "write"
+    },
+    "get_data_usage": {
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "data",
+      "tool_category": "read"
+    },
+    "enable_roaming": {
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "disable_roaming": {
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "transfer_to_human_agents": {
+      "function_action": "transfer",
+      "io_type": "query",
+      "domain": "utility",
+      "tool_category": "generic"
+    },
+    "refuel_data": {
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "data",
+      "tool_category": "write"
+    },
+    "check_status_bar": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "read"
+    },
+    "check_network_status": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "read"
+    },
+    "check_network_mode_preference": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "read"
+    },
+    "set_network_mode_preference": {
+      "function_action": "update",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "run_speed_test": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "utility",
+      "tool_category": "read"
+    },
+    "toggle_airplane_mode": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "check_sim_status": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "device",
+      "tool_category": "read"
+    },
+    "reseat_sim_card": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "device",
+      "tool_category": "write"
+    },
+    "toggle_data": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "toggle_roaming": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "check_data_restriction_status": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "data",
+      "tool_category": "read"
+    },
+    "toggle_data_saver_mode": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "check_apn_settings": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "read"
+    },
+    "set_apn_settings": {
+      "function_action": "update",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "reset_apn_settings": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "check_wifi_status": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "read"
+    },
+    "toggle_wifi": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "check_wifi_calling_status": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "read"
+    },
+    "toggle_wifi_calling": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "check_vpn_status": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "read"
+    },
+    "connect_vpn": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "disconnect_vpn": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    "check_installed_apps": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "permission",
+      "tool_category": "read"
+    },
+    "check_app_status": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "data",
+      "tool_category": "read"
+    },
+    "check_app_permissions": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "permission",
+      "tool_category": "read"
+    },
+    "grant_app_permission": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "permission",
+      "tool_category": "write"
+    },
+    "can_send_mms": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "permission",
+      "tool_category": "read"
+    },
+    "reboot_device": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "device",
+      "tool_category": "write"
+    },
+    "check_payment_request": {
+      "function_action": "other",
+      "io_type": "entity",
+      "domain": "payment",
+      "tool_category": "read"
+    },
+    "make_payment": {
+      "function_action": "book",
+      "io_type": "entity",
+      "domain": "payment",
+      "tool_category": "write"
+    }
+  },
+  "domain_combo_counts": {
+    "('network',)": 109,
+    "('data', 'network')": 84
+  }
+}

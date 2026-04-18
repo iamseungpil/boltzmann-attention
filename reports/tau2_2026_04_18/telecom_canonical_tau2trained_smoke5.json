@@ -1,0 +1,218 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench/data/tau2/domains/telecom/tasks.json",
+  "domain": "telecom",
+  "n_tasks": 5,
+  "max_new_tokens": 300,
+  "methods": [
+    "no_steer",
+    "canonical_adaseka_amp0.3_topk3_T1.0"
+  ],
+  "skip_heads_spec": null,
+  "skip_sink_tokens": 0,
+  "ocq": null,
+  "results": [
+    {
+      "method": "no_steer",
+      "n_tasks": 5,
+      "metrics": {
+        "F1": 0.2,
+        "Exact": 0.2,
+        "Recall": 0.2,
+        "Precision": 0.2,
+        "GT_subset": 0.2,
+        "nDCG": 0.2
+      },
+      "runtime_s": 2.9995439052581787,
+      "per_sample": [
+        {
+          "task_id": "[mobile_data_issue]user_abroad_roaming_enabled_off[PERSONA:None]",
+          "gt_tools": [
+            "toggle_roaming"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_on[PERSONA:Easy]",
+          "gt_tools": [
+            "enable_roaming"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_off[PERSONA:Hard]",
+          "gt_tools": [
+            "enable_roaming",
+            "toggle_roaming"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "[mobile_data_issue]data_mode_off[PERSONA:None]",
+          "gt_tools": [
+            "toggle_data"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "[mobile_data_issue]data_saver_mode_on[PERSONA:Easy]",
+          "gt_tools": [
+            "toggle_data_saver_mode"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "method": "canonical_adaseka_amp0.3_topk3_T1.0",
+      "n_tasks": 5,
+      "metrics": {
+        "F1": 0.2,
+        "Exact": 0.2,
+        "Recall": 0.2,
+        "Precision": 0.2,
+        "GT_subset": 0.2,
+        "nDCG": 0.2
+      },
+      "runtime_s": 3.8338704109191895,
+      "per_sample": [
+        {
+          "task_id": "[mobile_data_issue]user_abroad_roaming_enabled_off[PERSONA:None]",
+          "gt_tools": [
+            "toggle_roaming"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_on[PERSONA:Easy]",
+          "gt_tools": [
+            "enable_roaming"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_off[PERSONA:Hard]",
+          "gt_tools": [
+            "enable_roaming",
+            "toggle_roaming"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "[mobile_data_issue]data_mode_off[PERSONA:None]",
+          "gt_tools": [
+            "toggle_data"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "[mobile_data_issue]data_saver_mode_on[PERSONA:Easy]",
+          "gt_tools": [
+            "toggle_data_saver_mode"
+          ],
+          "pred_tools": [
+            "toggle_data"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}
