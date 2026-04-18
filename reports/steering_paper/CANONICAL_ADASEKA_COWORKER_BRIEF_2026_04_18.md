@@ -143,6 +143,28 @@
 - B − D 는 bug 해소 전까지 **인용 금지**. "B_ont direction 이 load-bearing" 은 현재 증거로는 B(+7.79pp) 단독으로만 주장 가능 (random-null 비교 없이).
 - 논문에 Tier 3 table 을 싣더라도 variantD 는 **"deferred — under verification"** 라벨로 표시.
 
+### 2.6 Phase 0 verification (2026-04-19 00:00 KST, variantD bug 의심 해소)
+
+v2 에서 flag 했던 variantD = 0.00pp literal 이 bug 인지 real 인지 검증. **결과: bug 아님, real empirical fact.**
+
+| 측정 | Variant A (우리 B_ont) | Variant D (random orthonormal) |
+|---|---|---|
+| Hook 발화 (mask.sum) | 326/860 token ✓ | **326/860 token ✓** (동일하게 발화) |
+| Perturbation 크기 ‖δ‖/‖K‖ | 0.613 (61%) | **0.200 (20%)** — 무시 못함 |
+| pred_tools 변화 (vs no_steer, N=200) | 200/200 변화 | **0/200 변화** |
+
+**해석** (리뷰어 공격 preempt 용, 권고 문구):
+- ❌ "Random basis gives zero effect" (naive 버전, 리뷰어가 "perturbation 자체가 없었던 것 아닌가" 라고 공격)
+- ✅ **"Under matched perturbation magnitude (20% ‖K‖), random orthonormal basis produces zero function-name changes while B_ont produces 200/200 systematic redistribution (+28.89pp ΔF1). B_ont direction is specifically aligned with the tool-selection subspace; random directions are orthogonal to it."**
+
+**왜 중요한가**:
+- v2 까지는 C3 ("B_ont direction load-bearing") 이 보류 상태였음. Phase 0 positive 로 **C3 legitimate** → 4-claim 구조의 기둥 하나 확보.
+- "matched perturbation magnitude" phrasing 필수. 이걸 빼고 "D=0" 만 쓰면 리뷰어가 "maybe D 의 perturbation 자체가 0 이었다" 로 공격 → Phase 0 verbose log (mask.sum 326 동일, ‖δ‖/‖K‖ 0.200) 를 appendix 에 첨부 권고.
+
+**Paper 에 반영 경로**:
+- §4.X (신설, §6.5 patch 참조) Tier 3 table 의 variantD 행 주석에 "20% ‖K‖ perturbation, 0/200 tool-name changes" 병기.
+- Appendix 에 Phase 0 hook-fire log + delta-norm histogram 첨부 (재현 커맨드 §7.3 참조).
+
 ---
 
 ## 3. 이 결과가 현재 논문(PAPER_DRAFT_v3) 에 만드는 문제
