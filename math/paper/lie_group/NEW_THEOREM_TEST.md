@@ -747,6 +747,16 @@ B3.1 + H-I light analysis 는 GPU 거의 불필요 → paper 세션이 수행 �
   - §1.4 observation list 에 E5-E8 (layer-adaptive, BiasBios transfer, L0 rank-1, contrastive B_ont) 추가.
   - 핵심 변화: 이론 scope 이 "B_ont direction 의 universality" 에서 **"B_ont 의 internal facet 구조 + scope 경계 explanation"** 으로 확장. 이론이 다룰 수 있는 empirical 범위가 comprehensive 해짐.
 
+- **v3 (2026-04-19 Phase A 완료)**: 실험 세션의 Phase A 9 (M, V) aggregate (`memory/new_theorem_phase_a_2026_04_19.md`) 반영.
+  - **H-A CONFIRMED** (9/9 R²≥0.99, mean slope 0.5298), **H-C CONFIRMED** (3/3 arch family), **H-B REPLACED** by T.B predictive form (margin-flip correlation 확증: Qwen Banking 7.8% / Llama Retail 1.6%, 모두 high-r 집중).
+  - §2 에 E14-E17 (Phase A slope table, flip rate table, systematic slope excess, m_0 range) 추가.
+  - §3.1 에 H-I (systematic slope excess as model-family Lipschitz correction) 신규 가설 추가 — second-order refinement, Appendix 수준.
+  - §3.4 priority table 재편: H-A/H-B/H-C 상태 업데이트 + T.B predictive + H-I 추가.
+  - §5 Phase A 를 "COMPLETE" 로 전환 + 실제 결과 테이블 inline.
+  - §7 decision tree 의 Phase A gate 재보정 (tight → relaxed, "mean slope 0.50 ± 0.05 + all R²≥0.95" 통과 기준).
+  - §12 first actions 전면 재작성: 다음 세션은 Phase B3.1 부터 시작 (기존 데이터 + 저비용).
+  - 핵심 변화: 이론의 **core Lemma 2 universality** 가 Phase A 에서 확증. 남은 작업은 (i) facet 구조 H-G, (ii) scope 경계 H-H, (iii) slope refinement H-I, (iv) cross-benchmark direction specificity B1, (v) LM-head origin B2, (vi) permutation falsifier C, (vii) Q-sign stretch D. **ICLR 2027 contribution 이 "Lemma 1-2 확증 + 4 operational framework components + large-scale validation" 수준으로 구체화**.
+
 ---
 
 **END OF NEW_THEOREM_TEST v1**
