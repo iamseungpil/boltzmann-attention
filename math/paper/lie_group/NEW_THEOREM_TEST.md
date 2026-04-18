@@ -112,6 +112,10 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 | **E11** | **Mistral-7B Telecom ΔF1** | **−31.86pp (default), −4.32pp (skipL0+padmax)** | cross_model_kbias_analysis memo | **H-H 근거** — model-specific alignment collapse |
 | **E12** | **Qwen2.5-7B L0 K rank / B_ont cos** | **rank-1 per head, cos=1.000** | cor67_gate_distribution_diagnostic memo | L0 side observation (non-core) |
 | **E13** | **BiasBios transfer (Qwen rank-8 @α=3.0)** | **+7.6pp top1** | phase1_3_ontology_beats_seka memo | Scope 확장 observation (§Discussion) |
+| **E14 (v3)** | **Phase A 9 (M, V) slope table (cross-arch)** | **mean 0.5298, all R²≥0.99, Qwen 0.55-0.59, Llama 0.40-0.50, Mistral 0.55** | new_theorem_phase_a memo | **H-A 확증** — Lemma 2 universal 3 family × 4 bench |
+| **E15 (v3)** | **Phase A flip rate table (T.B predictive)** | **7/9 bench 0 flip, 2/9 positive: Qwen Banking 7.81% (m_0=0.88, r=96 집중) + Llama Retail 1.57% (m_0=0.02)** | new_theorem_phase_a memo | **T.B predictive form 확증** — flip ↔ small-m_0 상관 |
+| **E16 (v3)** | **Systematic slope excess model-family stratified** | **Qwen/Mistral +10-17%, Llama ≈ exact** | Phase A aggregate | **H-I 근거** (v3 신규) — higher-order Lipschitz correction |
+| **E17 (v3)** | **m_0 range across benches** | **[0.016, 6.375], 400× spread, strict positivity** | Phase A aggregate | **H-B "m_0 > 1" 기각** — 대신 T.B 의 margin-distribution gated 가 맞음 |
 
 ---
 
