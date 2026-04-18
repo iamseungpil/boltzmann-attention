@@ -189,7 +189,7 @@ def main():
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(
         args.model,
-        dtype=DTYPE,
+        torch_dtype=DTYPE,
         device_map=args.device,
         attn_implementation="eager",
         low_cpu_mem_usage=True,
