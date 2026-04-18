@@ -84,8 +84,12 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 2. **C1 safe floor의 multi-domain 동시 성립**: 8+ benchmark 에서의 accumulated positive ΔF1. Single theorem 으로 환원 불가.
 3. **Format collapse threshold**: Llama Telecom Q+0.05 → 200/200 empty. Super-critical 영역. Scope 밖으로 명시.
 4. **MULTI > SINGLE facet stratification**: +36 vs +24 on Telecom. Baseline-ceiling 효과 의심, theorem 아님.
+5. **(v2) Layer-adaptive α > fixed α**: C1 safe floor 가 layer-별 다른 α 로 최적. Per-layer discriminative subspace strength 추정이 필요하지만 이론 핵심 아님. §Discussion 에 observation.
+6. **(v2) BiasBios transfer (+7.6pp top1)**: Single-answer classification (tool-selection 범주 밖) 에서 B_ont 가 여전히 작동. "B_ont as catalog-ontology direction" 해석의 범위가 예상보다 넓음을 시사. §Discussion 에 observation.
+7. **(v2) L0 massive activation channel**: Qwen2.5 L0 K 가 per-head rank-1 (top1 σ²=1.000), B_ont f0 col0 과 |cos|=1.000. 첫 layer 의 rank-1 특성은 interesting 이지만 L0 skip 해도 lift 유지 → 이론 argument 밖. §Discussion 에 observation + optional Phase B3 side note.
+8. **(v2) Contrastive K-bias positive on ST4 multi-tool (+5.8pp)**: Training-free scope 밖 (GT/distractor label 필요). 본 theorem program scope 외. 별도 track.
 
-**네 번째 pivot 방지 원칙**: 위 네 observation 을 theorem 으로 격상 시도 금지. Framework 바깥 phenomena 로 기록.
+**네 번째 pivot 방지 원칙**: 위 8 개 observation 을 theorem 으로 격상 시도 금지. Framework 바깥 phenomena 로 기록.
 
 ---
 
