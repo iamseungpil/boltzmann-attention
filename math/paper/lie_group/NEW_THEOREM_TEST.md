@@ -286,6 +286,103 @@ B_ont 를 fix (e.g., Qwen Telecom B_ont) 한 뒤 다양한 benchmark 에 apply +
 
 **실패 시**: H-D 폐기. KL non-monotonicity 는 FFN 외 다른 origin — future work 로 언급만.
 
+### Phase B3 — Facet-concentration + scope boundary alignment (v2 신규, Week 4-6 병렬, ~10 GPU-hr)
+
+**목표**: H-G 와 H-H 를 기존 데이터 + 소량 신규 측정으로 검증.
+
+#### B3.1 — H-G (facet-concentration) 검증
+
+**사용 데이터 (신규 GPU 불필요)**:
+- Tier 3 A/B/D 결과: `reports/tau2_2026_04_18/telecom_canonical_{amp03_persample,variantB,variantD}_N200.json`
+- B_ont facet structure: `external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom/B_ont.pt` + facet column 분할 `(1,3,5,3)`
+
+**신규 script**: `scripts/new_theorem_test/analyze_facet_concentration.py` (약 250 LOC)
+
+**로직**:
+```python
+# 1. 기존 d*_emp 추출 (Phase 0 과 동일 방식, Telecom N=50)
+d_star_emp = extract_dstar_empirical(model, telecom)  # per (l, h, q)
+
+# 2. B_ont 의 facet block 분할
+B_ont = load_bont()  # shape (L, H, d, 12) with blocks (1,3,5,3)
+facet_blocks = {
+    'function_action': B_ont[..., 0:1],
+    'io_type': B_ont[..., 1:4],
+    'domain': B_ont[..., 4:9],
+    'tool_category': B_ont[..., 9:12]
+}
+
+# 3. Per (l, h, q): d*_emp 을 각 facet block 에 projection, energy 계산
+for (l, h, q):
+    d = d_star_emp[l, h, q]
+    energies = {}
+    for fname, Bf in facet_blocks.items():
+        energies[fname] = (Bf[l,h] @ Bf[l,h].T @ d).norm()**2
+    dominant_facet = argmax(energies)
+    concentration = energies[dominant_facet] / sum(energies.values())
+    save(l, h, q, dominant_facet, concentration)
+
+# 4. Aggregate
+concentration_hist = histogram([record.concentration for record in all_records])
+```
+
+**출력**: `reports/new_theorem_test/phase_b3_facet_concentration.json`
+
+**성공 기준**:
+- **Concentration median ≥ 0.70** across (l, h, q) records → H-G 지지.
+- **Concentration bimodal**: 일부 head 는 집중 (≥0.8), 일부 head 는 분산 (≤0.4). → H-G partial 지지, head-class 구조 시사.
+- **"Dilution ratio" 예측**: A − B = +21pp ↔ (1 − avg_concentration) × (B's per-facet lift). 예측된 ratio 가 empirical 3:1 과 ±30% 이내 일치.
+
+**실패 시**:
+- Concentration < 0.5 across board → H-G 기각. Facet-split dominance 는 다른 메커니즘 (routing gating, rank-magnitude dynamics 등).
+- Dilution ratio 수치 예측 틀림 → H-G 부분 지지, 정량 scope 제한.
+
+#### B3.2 — H-H (scope boundary alignment) 검증
+
+**사용 데이터**:
+- Phase 0 에서 추출한 Qwen Telecom d\*_emp (이미 진행 예정, Phase A)
+- **신규 측정 필요**: Qwen MMLU d\*_emp + Mistral Telecom d\*_emp
+
+**신규 script**: `scripts/new_theorem_test/measure_dstar_mmlu_mistral.py` (약 200 LOC)
+
+- Qwen MMLU: `eval_mmlu_subset.py` 의 prompt 에 GT/distractor label 부여 + d\*_emp 추출.
+- Mistral Telecom: Mistral-7B-Instruct load + τ² Telecom + d\*_emp 추출.
+
+**로직**:
+```python
+# For each (M, V):
+d_star_emp_MV = extract_dstar(M, V, N=30)
+B_ont_MV = load_or_build_bont(M, V)  # 같은 M 에 맞게 B_ont 재생성 필요 (Mistral 은 새로 build)
+cos_table = []
+for (l, h) in sel_layers:
+    cos_lh = cos_sim(
+        B_ont_MV[l, h].flatten(),
+        d_star_emp_MV[l, h].mean(over q).flatten()
+    )
+    cos_table.append(cos_lh)
+aggregate = {
+    'mean_cos': np.mean(cos_table),
+    'median_cos': np.median(cos_table)
+}
+```
+
+**비교표**:
+| (M, V) | 기대 $\cos$ | 관측 ΔF1 (참고) |
+|---|---:|---:|
+| Qwen τ² Telecom | ≥ 0.5 | +28.89pp (positive) |
+| Qwen MMLU | < 0.3 | −4.80pp (negative) |
+| Mistral τ² Telecom | < 0.3 | −31.86pp (negative) |
+
+**성공 기준**:
+- 3/3 (M, V) 에서 예측된 각도 direction 과 empirical ΔF1 sign 이 일치 → H-H 지지.
+- 2/3 일치 → H-H partial, scope 제한.
+- ≤ 1/3 일치 → H-H 기각.
+
+**실패 시**:
+- Scope boundary 는 alignment 외 원인 (e.g. MMLU 는 multi-choice format, Mistral 은 tokenizer/layer 수 차이). Future work 로.
+
+**GPU 예산**: Mistral B_ont build (~2 hr) + Mistral/MMLU d\*_emp extraction (~3 hr) + analysis. Total ~10 GPU-hr.
+
 ### Phase C — Catalog-permutation falsifier (Week 7-8, ~20 GPU-hr)
 
 **목표**: H-F 검증. Catalog ontology 를 permute 해서 빌드한 B_ont 가 direction specificity 를 소실하는지.
