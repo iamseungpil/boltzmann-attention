@@ -79,8 +79,26 @@ def extract_function_names(text):
 
 
 def get_gt_function_names(answer_entry):
+    """Extract GT function names from BFCL answer. Handles multiple schemas:
+      - {'result': [{'name': ..., ...}, ...]}
+      - {'ground_truth': [{'fn_name_1': {...args...}}, {'fn_name_2': {...args...}}]}  (BFCL v3 parallel_multiple)
+      - [{'name': ...}, ...]
+    """
     if answer_entry is None:
         return []
+    # BFCL v3 parallel/parallel_multiple/multiple schema
+    if isinstance(answer_entry, dict) and "ground_truth" in answer_entry:
+        ans = answer_entry["ground_truth"]
+        names = []
+        if isinstance(ans, list):
+            for item in ans:
+                if isinstance(item, dict):
+                    for k, v in item.items():
+                        if k in ("name", "id"):
+                            continue
+                        # In BFCL v3, key IS the function name, value is args dict
+                        names.append(k)
+        return names
     if isinstance(answer_entry, dict) and "result" in answer_entry:
         ans = answer_entry["result"]
     elif isinstance(answer_entry, list):
