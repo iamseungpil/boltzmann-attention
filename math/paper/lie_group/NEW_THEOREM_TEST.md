@@ -1,9 +1,16 @@
-# NEW_THEOREM_TEST — Two-Level Argmax-Subspace Selectivity
+# NEW_THEOREM_TEST — Two-Level Argmax-Subspace Selectivity (v2)
 
-**작성일**: 2026-04-19
-**바탕**: 실험 세션 (a)(b)(c) 결과 (`memory/lemma_empirical_abc_2026_04_19.md`) + P1 원본 (`memory/p1_random_rank_scaling_failed_2026_04_19.md`) + variant D Phase 0 (`memory/variantD_phase0_verified_2026_04_19.md`) + BFCL cross-benchmark (`memory/bfcl_tier3_cross_benchmark_2026_04_19.md`)
-**상태**: Lemma partial 검증 완료 (Qwen Telecom N=100 단일 점). Generalization scope + Q-sign 기타 은 미검증.
+**작성일**: 2026-04-19 (v1), **v2 업데이트 2026-04-19 저녁**
+**바탕**: 실험 세션 (a)(b)(c) 결과 (`memory/lemma_empirical_abc_2026_04_19.md`) + P1 원본 (`memory/p1_random_rank_scaling_failed_2026_04_19.md`) + variant D Phase 0 (`memory/variantD_phase0_verified_2026_04_19.md`) + BFCL cross-benchmark (`memory/bfcl_tier3_cross_benchmark_2026_04_19.md`) + **v2 추가**: Tier 3 A-B-D decomposition (`memory/basis_matching_trap_2026_04_18.md`, `canonical_adaseka_engine.py`) + routing diag (`memory/inter_expert_routing_architectural_2026_04_18.md`) + Cor 6.7 MMLU fail (`memory/cor67_drop_confirmed_2026_04_10.md`) + cross-model Mistral fail (`memory/cross_model_kbias_analysis_2026_04_13.md`) + BiasBios transfer (`memory/phase1_3_ontology_beats_seka.md`) + L0 rank-1 (`memory/cor67_gate_distribution_diagnostic_2026_04_10.md`)
+**상태**: Lemma partial 검증 완료 (Qwen Telecom N=100 단일 점). Generalization scope + facet-concentration + failure-mode scope boundary 는 미검증.
 **목표**: NeurIPS 2026 existence-only submission 과 **완전 독립** 의 upside track. 본 문서는 다른 세션이 실행할 수 있는 자기충족 가설 + 실험 계획서.
+
+**v2 변경 요지**:
+- **§2 empirical anchors 확장** (E8-E11 추가): facet-split dominance, architectural routing, MMLU/Mistral fail, BiasBios transfer, L0 rank-1.
+- **§3 primary hypotheses 에 H-G (facet-concentration), H-H (scope boundary alignment) 추가**: Tier 3 A-B decomposition 의 +21pp 와 model/task 별 failure mode 를 이론적으로 다루기 위함.
+- **§5 Phase B3 신설 (facet-concentration analysis)**: 기존 Tier 3 데이터 + head-by-head d\*-facet overlap. 거의 GPU 불필요 (~5 hr).
+- **§7 decision tree + §8 resource budget** 재보정.
+- v1 의 Phase A-D 골격 유지. Phase B3 는 B1-B2 병렬 실행 가능.
 
 ---
 
