@@ -313,6 +313,25 @@ ST4 단일 벤치 weakness (§3.5) 해소용. 핵심 empirical claim 을 **≥2 
 | **O4** (v2 신규) | O1 + BFCL smoke + 1 secondary bench | **§3.5 weakness 직접 해소** (empirical triangulation) | BFCL proxy scoring → paper 에 honest 표기 의무; 2nd bench 도 negative 면 §1.1 claim 약화 |
 | O1 + O2 + O3 + O4 | 전부 | 최대 방어력 | 시간 비용 증가 (~3 hr GPU 총합) |
 
+### v3 실행 경로 (Option ε 하)
+
+**Paper edit (이번 세션 아닌 coworker 세션)**:
+- Tier 1 (필수): E1 + E3 + E4 — 논리 기둥 제거 (§1.0 mechanism 삭제 + §5.5.3.1 relabel + §1.3 contribution 재구조).
+- Tier 2 (권장): E2 + E5 + E6 — body 업데이트 (§1.1 empirical, §4.X Tier 3, §5.Y Q-sign).
+- 예상 시간: Tier 1 ~2 시간, Tier 2 ~3 시간 (edit + cross-ref 확인 포함).
+
+**Experiments (다른 세션)**:
+- Tier 2a (이번 세션에 시작 권고): **BFCL parallel_multiple full** (N=100–200) — C2 generality 확증.
+  - 선결: BFCL 전용 B_ont 빌드 (~30분, `scripts/ocq/build_qwen_bfcl_b_ont.py` 신규 작성 혹은 기존 adapt).
+  - 현재 smoke N=20 = Telecom B_ont 사용한 domain-mismatch proxy → cross-benchmark 주장에는 BFCL-specific B_ont 필수.
+- Tier 2b (이후): BiasBios cross-check — C4 falsifiability (upside 아님).
+- Tier 3 (시간 여유 시): StableToolBench / AppBench.
+
+**Direction summary (v3, 4-claim 기준)**:
+- **Paper edit 만 적용**: 현재 상태 (§1.0 반례 노출) → 🔺 복구 + 4-claim 구조 확립. Mechanism 주장 포기로 pivoting 위험 종결.
+- **+ BFCL full**: 🔺🔺 개선. C2 generality 확증 → §1.1 의 ST4 단일 벤치 weakness 해소.
+- **+ BiasBios**: 방어력 확대 (C4 generality validation). Upside 아님.
+
 ---
 
 ## 6. Paper patch 모음 (coworker 적용용, v3)
