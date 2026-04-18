@@ -898,7 +898,15 @@ CUDA_VISIBLE_DEVICES=0 python3 scripts/ocq/eval_tau2_bench.py \
 
 ## 9. 논문 영향 — 방향성 요약 (v3: 4-claim + Option ε 수렴)
 
-**v3 기준 direction**:
+**v4 기준 direction** (v3 업데이트):
+- 현재 상태 (paper §1.0 mechanism 주장 그대로): 🔻 리뷰어 §1.0 반례 즉시 공격 가능.
+- E1–E4 적용 후 (mechanism 삭제 + 4-claim 구조): 🔺 복구 + pivoting 위험 종결.
+- **E1–E6 (v4, BFCL cross-benchmark footnote 포함) 전부 적용 후: 🔺🔺 안정** — Q-sign asymmetry 선제 공개 + C3 가 same-domain/cross-domain 두 독립 증거로 지지 → reviewer "one bench" / "one domain" 공격 루트 양쪽 모두 방어.
+- + Shared Basis Proposition upgrade (P1 pass AND P2 ≥3/4 sign pass 시): 🔺🔺🔺 mechanism-level upgrade. 단 현재 default 는 발동 안 함 — **E1–E6 기준으로 submission 준비**.
+- + BFCL parallel_multiple official scoring (StableToolBench / AppBench 이든): 🔺 추가 triangulation (C2 generality 의 독립 증거).
+- + BiasBios: C4 falsifiability validation (upside 아님, preliminary → confirmed 전환 가능성만).
+
+**v3 기준 direction (참고용)**:
 - 현재 상태 (paper §1.0 mechanism 주장 그대로): 🔻 리뷰어 §1.0 반례 즉시 공격 가능.
 - E1–E4 적용 후 (mechanism 삭제 + 4-claim 구조): 🔺 복구 + pivoting 위험 종결.
 - E1–E6 전부 적용 후: 🔺 안정 (Q-sign asymmetry 선제 공개 → reviewer 공격 루트 "honest observation" 으로 전환).
