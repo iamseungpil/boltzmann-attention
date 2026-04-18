@@ -46,6 +46,9 @@ ACTION_VERBS = [
 # data_model.py parser
 # ---------------------------------------------------------------
 
+MODEL_ROOTS = {"BaseModelNoExtra", "BaseModel", "DB"}
+
+
 def parse_data_model(path: Path) -> Tuple[List[dict], List[dict], List[dict]]:
     """Return (classes, is_a_edges, part_of_edges)."""
     tree = ast.parse(path.read_text())
@@ -55,16 +58,28 @@ def parse_data_model(path: Path) -> Tuple[List[dict], List[dict], List[dict]]:
 
     known_model_names = set()
     known_enum_names = set()
+    class_bases: Dict[str, List[str]] = {}
 
-    # First pass: inventory class names
+    # First pass: inventory classes + their direct bases
     for node in ast.walk(tree):
         if not isinstance(node, ast.ClassDef):
             continue
         bases = [_base_name(b) for b in node.bases]
+        class_bases[node.name] = bases
         if any(b == "str" for b in bases) and any(b == "Enum" for b in bases):
             known_enum_names.add(node.name)
-        elif any(b in ("BaseModelNoExtra", "DB") for b in bases):
-            known_model_names.add(node.name)
+            continue
+
+    # Iteratively mark a class as a "model" if any base is a root OR an already-known model
+    changed = True
+    while changed:
+        changed = False
+        for name, bases in class_bases.items():
+            if name in known_model_names or name in known_enum_names:
+                continue
+            if any(b in MODEL_ROOTS or b in known_model_names for b in bases):
+                known_model_names.add(name)
+                changed = True
 
     # Second pass: extract fields + edges
     for node in ast.walk(tree):
@@ -72,17 +87,22 @@ def parse_data_model(path: Path) -> Tuple[List[dict], List[dict], List[dict]]:
             continue
         bases = [_base_name(b) for b in node.bases]
         kind = None
-        parent = None
+        parents: List[str] = []
         if node.name in known_enum_names:
             kind = "enum"
-            parent = "Enum"
+            parents = ["Enum"]
         elif node.name in known_model_names:
             kind = "model"
-            parent = "BaseModelNoExtra"
+            # Use direct bases (filter to meaningful ones)
+            parents = [b for b in bases
+                       if b in MODEL_ROOTS or b in known_model_names]
+            if not parents:
+                parents = bases[:1] if bases else ["BaseModel"]
         else:
             continue
 
-        is_a.append({"child": node.name, "parent": parent})
+        for p in parents:
+            is_a.append({"child": node.name, "parent": p})
 
         fields: List[dict] = []
         for stmt in node.body:
