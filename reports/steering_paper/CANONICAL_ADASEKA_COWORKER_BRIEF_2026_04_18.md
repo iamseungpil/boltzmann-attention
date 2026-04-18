@@ -939,7 +939,14 @@ NeurIPS 2026 main track 에서 "우리 결과가 한 벤치에 몰려 있는가"
 
 ---
 
-## 10. 이 문서의 의미 (TL;DR, v3)
+## 10. 이 문서의 의미 (TL;DR, v4)
+
+**v4 핵심 변경** (v3 대비):
+1. **BFCL Tier 3 N=100 cross-benchmark** 결과 통합 (§2.7 / §3.6.1 / E3 / E5). C3 증거가 same-domain + cross-domain 두 독립 축으로 확장.
+2. **Shared Basis Proposition 병렬 drafting 정책** (§3.7): Paper session 이 별도 파일에 draft, PAPER_DRAFT_v3.md 본문은 건드리지 않음, two-gate (P1 + P2) 통과 시에만 consolidation.
+3. **Scenario 4 (existence-only fallback) 가 default**. Mechanism upgrade 는 active positive evidence (P1 R²>0.85 AND P2 ≥3/4 sign) 를 모두 요구. 시간 부족 시 (<48hr) 즉시 fallback.
+4. **"네 번째 pivot" 위험 차단**: 실험 gate 전까지 논문에 mechanism 이 없음 → 반례로 붕괴할 대상 자체 부재.
+5. **Coworker 실행 지침 유지** — E1–E6 을 지금 바로, 실험 세션 결과를 기다리지 않고 진행. v4 text 변경은 E3/E5 에 "cross-benchmark replicated" 한 줄씩만.
 
 **v3 핵심 변경** (v2 대비):
 1. **Phase 0 verification positive** (§2.6): variantD bug 아님 확정 → C3 legitimate.
