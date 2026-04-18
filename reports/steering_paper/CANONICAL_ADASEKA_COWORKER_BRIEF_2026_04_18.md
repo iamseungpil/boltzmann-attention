@@ -412,6 +412,11 @@ ST4 단일 벤치 weakness (§3.5) 해소용. 핵심 empirical claim 을 **≥2 
 > - Existence claim (C1/C2/C3/C4) 만 유지. §1.3 contribution list 가 이 4-layer 를 직접 반영.
 > - Tier 3 D framing 은 반드시 **"matched perturbation magnitude (20% ‖K‖)"** 를 포함. Phase 0 hook-fire log 를 appendix 에 첨부.
 > - 편집 순서 권고: **E1 → E3 → E4 → E2 → E5 → E6**. 이유: E1/E3 는 논리 기둥 제거 (가장 먼저), E4 contribution list 는 나머지 edit 의 앵커, E2/E5/E6 는 body 추가라 마지막. 각 edit 끝에 **commit 권고 메시지** 포함.
+>
+> **v4 추가 원칙 (최우선)**:
+> - **E1–E6 은 scenario 4 (existence-only fallback) 의 default patch set**. 다른 세션에서 drafting 되고 있는 Shared Basis Proposition 은 **이 patch 에 영향 주지 않음**. Coworker 는 실험 세션의 P1+P2 결과를 기다리지 말고 바로 진행.
+> - **Mechanism / theorem / Proposition / Lemma (random null) / Q-sign 원인 설명** 을 논문에 삽입하지 말 것. 그런 삽입은 consolidation session 책임이며, P1 (R² > 0.85) **AND** P2 (≥3/4 sign match) 두 게이트가 **모두** 통과해야 발생. 현 default 는 "발동 안 함".
+> - **v4 의 유일한 text 변경**: E3 (§5.5.3.1) 과 E5 (§4.X) 에 BFCL parallel_multiple N=100 cross-benchmark 한 줄을 추가. 나머지 E1/E2/E4/E6 patch text 는 **v3 그대로**.
 
 ---
 
