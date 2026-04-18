@@ -165,6 +165,14 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 - **실패 시 plan**: Scope boundary 는 alignment 외 다른 원인 (format, layer structure, pretraining distribution) → 별도 future work.
 - **근거 데이터**: E10 (MMLU fail), E11 (Mistral fail).
 
+**H-I (Systematic slope excess as model-family Lipschitz correction) — v3 신규**: Phase A 에서 Qwen (0.55-0.59) / Mistral (0.55) 가 Ledoux 예측 0.500 대비 systematic **+10-17% excess**; Llama (0.40-0.50) 는 예측에 근접. 이 차이는 **model-family-dependent higher-order softmax correction** 이지 noise 가 아님 (std 0.06 < excess 0.05).
+
+- **가설 형태**: attention pattern sharpness (softmax entropy 의 per-head 역수) 가 Qwen/Mistral > Llama → sharper softmax 가 second-order Lipschitz term 을 증폭.
+- **Test**: per-(M, V) average attention entropy 를 Phase A 로그에서 추출 (신규 측정 불필요) + slope excess 와 correlation.
+- **Falsification**: attention entropy 와 slope 사이 상관 ≤ 0.3 → 다른 원인 (weight spectral, GQA 구조, tokenizer bias).
+- **중요도**: Theorem T 의 핵심 claim (√(r/d) functional form) 에 영향 없음. Second-order refinement 로 §Appendix 또는 §Discussion 에만.
+- **Phase**: B3 와 함께 light analysis (신규 GPU 불필요).
+
 ### 3.2 Secondary hypotheses — direction specificity 의 scope
 
 **H-E (B_ont direction specificity 의 cross-benchmark universality)**: B_ont 가 특정 benchmark 에서 빌드되더라도 같은 model 의 다른 benchmark 에서 random 보다 flip rate 높음.
