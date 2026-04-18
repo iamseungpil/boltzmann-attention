@@ -1,7 +1,7 @@
 # Two-Level Argmax-Subspace Selectivity in Pretrained Transformers
 
 **ICLR 2027 submission draft v1 — internal working copy**
-**Status (2026-04-19)**: §1–§5.6, §6–§8 draftable from Phase A+B+C anchors. §5.7 (H-G/breadth, Phase B3) and §5.8 (Phase D Q-sign $d^*$) are placeholders pending experiment-session results. NeurIPS 2026 existence-only track (`PAPER_DRAFT_v3.md`) is independent.
+**Status (2026-04-19, evening)**: §1–§5.6, §5.8 (Phase D — Failure verdict applied), §6–§8, Appendix A.1 + B.1 all complete from Phase A+B+C+D anchors. §5.7 (H-J breadth scatter, Phase B3) is the sole remaining placeholder pending experiment-session output of `analyze_breadth_metric.py` (no GPU). NeurIPS 2026 existence-only track (`PAPER_DRAFT_v3.md`) is independent and untouched.
 
 **Framing decisions applied (per `consolidation_framing_decisions_2026_04_19.md`)**:
 - F1 — B_ont is a *K-subspace extracted from tool-related token positions*, **not** a catalog-semantic encoding.
