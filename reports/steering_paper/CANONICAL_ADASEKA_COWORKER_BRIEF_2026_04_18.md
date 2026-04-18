@@ -89,6 +89,41 @@
   - Llama retail/telecom: tokenizer GT-mask 미일치로 n_samples=0 (재측정 필요, 우선순위 낮음).
   - 해석: MISMATCH 는 버그가 아니라 진단 — retail 은 coverage regime, telecom 은 cluster-unlock regime.
 
+### 2.5 Tier 3 design-space ablation — 방금 완료 (variantD bug flag 포함)
+
+- Builder: `scripts/ocq/build_adaseka_variants_tier3.py` (commit `b94f0a0`)
+- 결과 JSON:
+  - `reports/tau2_2026_04_18/telecom_canonical_variantB_N200.json`
+  - `reports/tau2_2026_04_18/telecom_canonical_variantD_N200.json`
+- Expert artifacts:
+  - `external/SEKA/seka_projections/adaseka-qwen25-7b-tau2-telecom-variantB/`
+  - `external/SEKA/seka_projections/adaseka-qwen25-7b-tau2-telecom-variantD/`
+
+| Variant | 구성 | F1 | ΔF1 vs no_steer |
+|---|---|---:|---:|
+| A (baseline, facet-split 4 experts, our B_ont, r=(1,3,5,3)) | `adaseka-qwen25-7b-tau2-telecom/` | 0.5401 | +28.89pp |
+| B (no split, 1 expert = all B_ont cols, same rank) | `-variantB/` | 0.3291 | +7.79pp |
+| D (random orthonormal, 4 experts, matched shapes) | `-variantD/` | **0.2512** | **+0.00pp ★** |
+
+**의도한 분해** (다른 세션 해석):
+- A − B = +21.10pp → facet-split routing 구조 기여
+- B − D = +7.79pp → B_ont subspace direction 기여
+- D − no_steer = 0 → random basis 효과 없음 → "어떤 K-bias 든 된다" 반례 배제
+
+**🔴 variantD 는 bug 의심 상태, 이 분해 중 B−D 는 보류**
+
+- 관찰: variantD 의 per-sample prediction 이 **200/200 task 에서 no_steer 와 literal identical**. F1 0.251190 (소수점 6자리), Recall 0.2166, Exact 0.005 전부 bit-exact.
+- Artifact 자체는 **진짜 random orthonormal** 확인됨: `U[0,0] U[0,0]^T` diag=1.0000, |off|.max=0.0000; abs mean ≈ 0.0706 (random Gaussian QR 기대값).
+- Singular value 패턴 variant A 와 동일 (facet별 r=1,3,5,3).
+- 그럼에도 200 samples × 300 token decoding 에서 단 한 번도 argmax 가 달라지지 않았다는 건 **amp=0.3 × 12차원 random projection 의 통계적 기대와 불일치**. Random noise 수준의 perturbation 이라도 tie-breaking 이 몇 번은 바뀌어야 정상.
+- 가장 그럴듯한 원인 후보: (a) `eval_tau2_bench.py` 가 expert_paths 를 load 하지만 marker-gated mask 가 empty 로 resolve, (b) amp 경로가 0 으로 상쇄, (c) random U 의 특정 구조가 projection 계산에서 분모 정규화로 상쇄.
+- **조치 (Phase 0, §7.3)**: verbose rerun 으로 hook 호출 수 / mask token count / perturbation norm 확인; 또는 amp=1.0 smoke 5 로 scaling 확인 (비례 효과 나오면 D=0 은 real).
+
+**Interim 결론**:
+- A−B = +21.10pp 는 **유효** (facet-split routing 기여 확인).
+- B − D 는 bug 해소 전까지 **인용 금지**. "B_ont direction 이 load-bearing" 은 현재 증거로는 B(+7.79pp) 단독으로만 주장 가능 (random-null 비교 없이).
+- 논문에 Tier 3 table 을 싣더라도 variantD 는 **"deferred — under verification"** 라벨로 표시.
+
 ---
 
 ## 3. 이 결과가 현재 논문(PAPER_DRAFT_v3) 에 만드는 문제
