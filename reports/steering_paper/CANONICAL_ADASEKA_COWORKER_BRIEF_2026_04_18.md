@@ -971,6 +971,19 @@ NeurIPS 2026 main track 에서 "우리 결과가 한 벤치에 몰려 있는가"
 
 ---
 
+## 부록 A-1. v4 changelog (vs v3, 2026-04-19 오후 KST)
+
+| 영역 | v3 | v4 (이 버전) | 근거 |
+|---|---|---|---|
+| BFCL Tier 3 cross-benchmark | 언급 없음 | **§2.7 + §3.6.1 + E3/E5 footnote 신설** — A 2/100 vs D 0/100 @ BFCL parallel_multiple N=100 cross-domain proxy | `bfcl_tier3_cross_benchmark_2026_04_19.md`, BFCL N=100 run 완료 |
+| C3 증거 구조 | τ²-Telecom 단일 | **Telecom same-domain + BFCL cross-domain** 두 독립 증거 | single-benchmark 리뷰어 공격 완화 |
+| Proposition / theorem | 없음 | **§3.7 병렬 drafting 정책 신설** — 별도 file drafting, PAPER_DRAFT_v3.md 에는 반영 안 함, two-gate revival | `handoff_shared_basis_parallel_2026_04_19.md` DEFAULTS |
+| 기본값 | (암묵적) O4 까지 진행 | **Scenario 4 (existence-only fallback) default 명시**, Proposition 부활은 P1 R²>0.85 AND P2 ≥3/4 sign match 둘 다 만족 시에만 | 세 세션 cross-review consensus |
+| Coworker 지침 | E1–E6 진행 | **실험 세션 결과 기다리지 말고 E1–E6 즉시 진행, mechanism/theorem 삽입 금지** | v1→v4 pivot 위험 차단 |
+| E3 patch text | Phase 0 matched-magnitude | **+ BFCL cross-benchmark 한 문장** | BFCL N=100 결과 |
+| E5 patch text | Tier 3 table + Phase 0 | **+ cross-benchmark footnote** | 동일 |
+| 시간 부족 규칙 | 없음 | **<48hr to deadline → 즉시 fallback + Proposition draft archive** | handoff §DEFAULTS |
+
 ## 부록 A. v3 changelog (vs v2, 2026-04-18 23:30 KST)
 
 | 영역 | v2 | v3 (이 버전) | 근거 |
