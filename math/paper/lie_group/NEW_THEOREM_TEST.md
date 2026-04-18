@@ -470,12 +470,14 @@ aggregate = {
 | A | 30 | 3 주 | 없음 (기존 재사용) |
 | B1 | 30 | 2 주 | 없음 (eval_tau2_bench.py 재사용) |
 | B2 | 30 | 1 주 | `measure_layer_resolved_kl.py` (신규) |
+| **B3.1 (v2)** | **~2** | **1 주 (B1-B2 병렬)** | `analyze_facet_concentration.py` (신규) |
+| **B3.2 (v2)** | **~10** | **1 주 (B1-B2 병렬)** | `measure_dstar_mmlu_mistral.py` (신규) |
 | C | 20 | 2 주 | `build_permuted_bont.py` (신규) |
 | D (optional) | 80 | 4 주 | H1-H6 suite |
 | Paper writing | 0 | 3 주 (병렬) | — |
 
-**필수 부분 (Phase A-C)**: **110 GPU-hr, 8 주**. 1 GPU 로 가능.
-**Stretch (+ Phase D)**: **190 GPU-hr, 12 주**. 2 GPU 병렬 권장.
+**필수 부분 (Phase A-C, v2 B3 포함)**: **~122 GPU-hr, 8 주**. 1 GPU 로 가능. B3 는 B1-B2 와 병렬이라 wall-clock 증가 없음.
+**Stretch (+ Phase D)**: **~202 GPU-hr, 12 주**. 2 GPU 병렬 권장.
 
 ICLR 2027 마감까지 24 주 → comfortable. Phase D 포함해도 여유.
 
