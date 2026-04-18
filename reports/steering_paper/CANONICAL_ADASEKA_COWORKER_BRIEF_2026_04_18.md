@@ -1,8 +1,16 @@
-# Canonical AdaSEKA 실험 — Coworker Brief (2026-04-18 저녁)
+# Canonical AdaSEKA 실험 — Coworker Brief (2026-04-18 저녁, **v2 update 2026-04-18 23:30 KST**)
 
 **대상 독자**: 논문 공저·공동 연구자 중 canonical AdaSEKA 라인을 처음 보는 사람.
 **목적**: 지금까지 무엇을 돌렸고, 무엇이 나왔으며, 그 결과가 논문 §1.0/§1.1/§5.5.3.1 에 왜 문제가 되고 어떻게 대응할지, 이어서 어떤 추가 실험이 계획되어 있는지를 self-contained 하게 설명.
-**한 줄 요약**: τ² Telecom N=200 에서 canonical AdaSEKA-interface (우리 B_ont 로 파생한 experts) 가 **+28.89pp ΔF1** 을 찍었다. 그런데 이건 stationary K-side operator 이고, 현재 paper §1.0 은 "stationary K-side 는 multi-selection 구조적 불가" 라고 선언해 놓은 상태다. 그래서 결과를 버릴 수도, 그대로 실을 수도 없고, **regime taxonomy 로 reframe + 추가 실험(Tier 1–3)** 하는 방향으로 간다.
+**한 줄 요약**: τ² Telecom N=200 에서 canonical AdaSEKA-interface (우리 B_ont 로 파생한 experts) 가 **+28.89pp ΔF1** 을 찍었다. Tier 3 ablation 으로 "facet split 이 주 (+21.10pp)" 는 확인됐지만 "**variantD (random basis) = 0 literal → basis direction load-bearing**" 주장은 **버그 의심으로 보류**. 현재 paper §1.0 은 "stationary K-side 는 multi-selection 구조 불가" 라고 선언해 놓은 상태 → **regime taxonomy reframe (O1) 필수**. 추가 empirical 다원화(BFCL/StableToolBench) 가 ST4 단일 벤치 의존도 낮추는 데 이득.
+
+**v2 업데이트 요지** (이 문서 vs 2026-04-18 21:00 KST 의 v1):
+- Tier 3 variant B / D 결과 집계, variantD literal-zero bug flag (§2.5 신설)
+- BFCL-v3 external 경로 팩트 체크 (HF fetch, proxy scoring 주의)
+- 점수 numerology 제거 (directional only; coworker cross-review 피드백 수용)
+- Tier 2 BiasBios 포지션 재설정 ("crash-through upside" → "시나리오 D 방어 보험" 으로 환원)
+- ST4 single-benchmark weakness 명시 (§3.5 신설)
+- O4 옵션 추가 (O1 + Tier3 + BFCL smoke)
 
 ---
 
