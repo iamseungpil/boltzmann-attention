@@ -1,8 +1,24 @@
-# NEW_THEOREM_TEST — Two-Level Argmax-Subspace Selectivity (v3)
+# NEW_THEOREM_TEST — Two-Level Argmax-Subspace Selectivity (v4)
 
-**작성일**: 2026-04-19 (v1), **v2 업데이트 2026-04-19 저녁**, **v3 업데이트 2026-04-19 Phase A 완료 반영**
+**작성일**: 2026-04-19 (v1), **v2 업데이트 2026-04-19 저녁**, **v3 업데이트 2026-04-19 Phase A 완료**, **v4 업데이트 2026-04-19 Phase B 완료**
 
-**v3 상태 스냅샷**: **Phase A 완료 (9 (M, V) runs, ~30 min GPU total)**. H-A (attention √(r/d) universality) 강력 확증 — 9/9 R²≥0.99, mean slope 0.5298. T.B (margin-gated flip) 의 **predictive form 도 empirically 확증** — 작은 margin 벤치 (Qwen Banking m_0=0.88 / Llama Retail m_0=0.02) 에서 flip rate 7.8% / 1.6%, 모두 high-r 에 집중. Cross-architecture (Qwen/Llama/Mistral) 3/3 family 에서 Lemma 2 holds — 예상 밖 보너스. **Phase B/B3 시작 가능**.
+**v4 상태 스냅샷 (누적)**:
+
+| Phase | 상태 | 결과 요약 |
+|---|---|---|
+| **Phase A** | ✅ COMPLETE (v3) | H-A 9/9 R²≥0.99, slope 0.5298; T.B predictive 확증 (Qwen Banking 7.8% / Llama Retail 1.6% flip); 3/3 arch family |
+| **Phase B1** | ✅ COMPLETE (v4) | **6/7 runs A>D** cross-benchmark, mean A/D ratio 2.35, median 2.47. H-E 확증 |
+| **Phase B2** | ✅ COMPLETE (v4) | **28/29 residual layers monotonic**, layer 28 (final) 만 non-monotonic. H-D 확증 — two-level gap 의 mechanism 위치 특정 (final FFN+LM-head) |
+| **Phase B3** | pending | H-G (facet-concentration), H-H (scope boundary), H-I (slope excess) |
+| **Phase C** | pending | H-F (catalog-permutation falsifier). 스크립트 준비 완료 |
+| **Phase D** | pending (stretch) | H1-H6 Q-sign $d^*$ narrowing |
+
+**Theorem T 누적 지지 (Phase A+B)**:
+- **T.A** (√(r/d) attention): 9/9 R² ≥ 0.99.
+- **T.B** (margin-gated flip): Lemma 1 predictive form; small-m 벤치에서 flip, 큰 m 에서 0 — 예측대로.
+- **T.C** (two-level gap): **mechanism 위치 특정됨** (final LM-head composition, Phase B2).
+
+**신규 empirical 관측 (v4)**: **Asymmetric transferability** — Telecom/MetaTool B_ont 은 broad (다른 bench 로 전이), Retail B_ont 은 narrow (Telecom 에서 random 보다 **약함**, A/D=0.23). 이건 "B_ont direction breadth" 라는 새 특성 → §3 에 H-J 로 추가.
 **바탕**: 실험 세션 (a)(b)(c) 결과 (`memory/lemma_empirical_abc_2026_04_19.md`) + P1 원본 (`memory/p1_random_rank_scaling_failed_2026_04_19.md`) + variant D Phase 0 (`memory/variantD_phase0_verified_2026_04_19.md`) + BFCL cross-benchmark (`memory/bfcl_tier3_cross_benchmark_2026_04_19.md`) + **v2 추가**: Tier 3 A-B-D decomposition (`memory/basis_matching_trap_2026_04_18.md`, `canonical_adaseka_engine.py`) + routing diag (`memory/inter_expert_routing_architectural_2026_04_18.md`) + Cor 6.7 MMLU fail (`memory/cor67_drop_confirmed_2026_04_10.md`) + cross-model Mistral fail (`memory/cross_model_kbias_analysis_2026_04_13.md`) + BiasBios transfer (`memory/phase1_3_ontology_beats_seka.md`) + L0 rank-1 (`memory/cor67_gate_distribution_diagnostic_2026_04_10.md`)
 **상태**: Lemma partial 검증 완료 (Qwen Telecom N=100 단일 점). Generalization scope + facet-concentration + failure-mode scope boundary 는 미검증.
 **목표**: NeurIPS 2026 existence-only submission 과 **완전 독립** 의 upside track. 본 문서는 다른 세션이 실행할 수 있는 자기충족 가설 + 실험 계획서.
