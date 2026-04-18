@@ -141,7 +141,7 @@ def parse_data_model(path: Path) -> Tuple[List[dict], List[dict], List[dict]]:
         classes.append({
             "name": node.name,
             "kind": kind,
-            "parent": parent,
+            "parents": parents,
             "fields": fields,
         })
 
