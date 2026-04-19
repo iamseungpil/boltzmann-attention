@@ -286,6 +286,13 @@ def main():
     ap.add_argument("--kspace-cluster", default="none",
                     choices=["none", "verb", "domain", "both"],
                     help="P2: replace afod labels with KMeans-on-K labels for the named facet(s)")
+    ap.add_argument("--bert-kmeans", default="none",
+                    choices=["none", "verb", "domain", "both"],
+                    help="D.3: replace afod labels with KMeans on BERT (sentence-transformers "
+                         "all-mpnet-base-v2) embeddings of tool descs — independent feature "
+                         "space defense against K-space tautology attack. Mutually exclusive with --kspace-cluster.")
+    ap.add_argument("--bert-model", default="sentence-transformers/all-mpnet-base-v2",
+                    help="HF model id for D.3 BERT embedding (default 768-dim mpnet)")
     ap.add_argument("--chat-template", action="store_true",
                     help="P4: wrap query in Qwen chat template (tool desc unaffected)")
     ap.add_argument("--variant", default="v1",
