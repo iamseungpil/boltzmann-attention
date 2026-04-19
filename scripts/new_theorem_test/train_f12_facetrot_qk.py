@@ -217,12 +217,16 @@ class FacetSubspace(nn.Module):
 # -------- Hook layer wrapping q_proj / k_proj --------
 
 class FacetRotQKHook:
-    """Per-layer forward-pre-hook that modifies Q and K AFTER q_proj / k_proj.
+    """Per-layer forward-post-hook that modifies Q and K after q_proj / k_proj.
 
     Engineering note: HF Qwen2 uses grouped-query attention (4 KV heads), so we
     register the hook AFTER the projection and BEFORE RoPE + GQA expansion. This
     guarantees P_res is disjoint from the RoPE rotation channels (Thm 6.14
     Hybrid commuting-subgroup requirement).
+
+    F13 addition: a `strength` scalar scales the facet-block rotation, so a
+    schedule can gate Q vs K differently per layer (ladapt 3-stage). When
+    strength=0 the facet block is passed through identically (no perturbation).
 
     TODO(F12): verify RoPE channel pair indices to construct P_res correctly.
     Qwen2 RoPE pairs are (0,1), (2,3), ..., (d-2, d-1); P_fac must select channels
@@ -234,24 +238,31 @@ class FacetRotQKHook:
         subspace: FacetSubspace,
         rotation: FacetRotSO2,
         steered_heads: Iterable[int] | None = None,
+        strength: float = 1.0,
     ) -> None:
         self.subspace = subspace
         self.rotation = rotation
         self.steered_heads = set(steered_heads) if steered_heads is not None else None
+        self.strength = strength
 
     def transform(self, x: torch.Tensor) -> torch.Tensor:
-        """x: (B, T, n_heads, d_head) — rotate facet block, keep residual."""
+        """x: (B, T, n_heads, d_head) — rotate facet block (scaled by strength),
+        keep residual. At strength=0 returns x unchanged."""
+        if self.strength == 0.0:
+            return x
         fac_coeffs, x_res = self.subspace.split(x)       # (..., R), (..., d)
         gate = self.subspace.gate(x)                     # (..., F)
-        # Reshape facet coefficients into SO(2) pairs
         B, T, H, R = fac_coeffs.shape
         assert R % 2 == 0, "R (facet subspace dim) must be even for SO(2) pairing"
         fac_pairs = fac_coeffs.view(B, T, H, R // 2, 2)
-        fac_rot = self.rotation.apply(fac_pairs, gate.unsqueeze(-2))  # broadcast gate over heads
+        fac_rot = self.rotation.apply(fac_pairs, gate.unsqueeze(-2))
         fac_rot_flat = fac_rot.view(B, T, H, R)
-        # Reproject to d
         fac_rotated_full = torch.einsum("bthr,dr->bthd", fac_rot_flat, self.subspace.B_fac)
-        return fac_rotated_full + x_res
+        # Blend: (1 - s) * identity on facet block + s * rotated block. At s=1
+        # this equals F12's unconditional rotation; at s=0 it is identity.
+        # Recover the un-rotated facet embedding from coeffs for the (1-s) term:
+        fac_identity = torch.einsum("bthr,dr->bthd", fac_coeffs, self.subspace.B_fac)
+        return self.strength * fac_rotated_full + (1.0 - self.strength) * fac_identity + x_res
 
 
 # -------- LoRA-style training loop skeleton --------
