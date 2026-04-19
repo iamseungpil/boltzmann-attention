@@ -1854,6 +1854,159 @@ F13 is explicitly designed as a **superset** of F12: F13a cell reproduces F12b, 
 
 ---
 
+### Phase F14 — H-SAAF: Hierarchical SAE-Anchored Attention Focus (Week 16-19, ~12-14 GPU-hr + $200-400 + human 10-20 hr, post-Gate) — **NEW (2026-04-19 dawn), proposed after 3-agent preemption audit + Park-Muchane foundation grounding**
+
+#### Motivation — lifting F12/F13 single-layer-set to ontology-hierarchy ↔ layer-hierarchy bridge
+
+F12/F13 operate on a single steered layer set (L18–L27) with a single F8d-derived B_ont facet subspace. This answers "can facet-conditioned rotation improve tool selection?" but leaves open the deeper consolidation question: **Can formalized human ontology hierarchy be mapped into frozen LLM layer hierarchy, training-free?**
+
+Two independent anchors converge on the positive-answer path:
+- **Layer-depth ↔ abstraction-level** (Tenney 2019 BERT pipeline; Gurnee-Tegmark 2024 Space-Time; Templeton 2024 late-layer abstract features): correlational evidence LLM layer depth indexes representational abstraction.
+- **Pretrained all-layer SAE availability (verified 2026-04-19 agent audit)**: `andyrdt/saes-qwen2.5-7b-instruct` (BatchTopK, Apache-2.0, all residual layers, 4 sparsity levels) + `Geaming2002/FAST` (arxiv 2506.07691, JumpReLU, layers [4,12,18,20,25]) provide feature dictionaries with zero training cost — no scratch library needed.
+
+**Convergence**: layer depth indexes abstraction + SAE features at each layer represent concepts → ontology-level ↔ layer-depth mapping is discoverable from SAE feature selectivity; layer-matched attention-head intervention = training-free bridge from external ontology to internal computation.
+
+#### Structural cross-tab (F14 vs prior art, 3-agent audit 2026-04-19)
+
+| Method | Cross-layer map | SAE anchor | Attention-head edit | Training-free | Formal ontology |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Park 2024 (2406.01506) hierarchical simplex | ❌ final only | ❌ (future-work only) | ❌ residual | ✓ | ✓ WordNet |
+| Muchane 2506.01197 H-SAE | ❌ single L20 Gemma2 | ✓ architectural | ❌ | ❌ retraining | ❌ unsupervised |
+| Chalnev 2411.02193 SAE-TS | ❌ L12 | ✓ | ❌ residual | ✓ | ❌ |
+| Templeton 2024 SAE steering | per-layer | ✓ | ❌ residual | ✓ | ❌ |
+| Anthropic 2025 Nov update (SAE refusal) | ❌ single | ✓ | ❌ residual query-feature | ✓ | ❌ |
+| Sofroniew 2026 emotions | contiguous mid-band | ❌ diff-of-means | ❌ residual | ✓ | ❌ emotion |
+| Tahimic-Cheng 2510.02917 (ICLR 2026) | ❌ global | ✓ | ❌ global residual ablate | ✓ | ❌ code-correctness |
+| F12 FacetRot-QK | ❌ uniform L18-27 | ❌ (F8d-internal) | ✓ K-rotation | LoRA | ✓ F8d |
+| F13 FunnelRot | ladapt staged | ❌ (F8d-internal) | ✓ K+Q rotation | LoRA | ✓ F8d |
+| **F14 H-SAAF (proposed)** | **✓ ontology-matched** | **✓ pretrained external** | **✓ W_K pullback + SO(2)** | **✓ no retrain** | **✓ WordNet ∪ MetaTool hybrid** |
+
+→ 5-way intersection empty after audit. **Muchane positioned as Foundation/Compatible Prior, not baseline**. Park 2024 Thm 8 inherited as formal ground.
+
+#### Core mechanism
+
+**Offline (0 GPU for SAE download, ~5 GPU-hr + $200-400 + human 10-20 hr for auto-interp)**:
+
+1. Load andyrdt SAE feature bank $F_L$ for each $L \in \{0, \dots, 27\}$ of Qwen2.5-7B-Instruct.
+2. Construct hybrid ontology $O = \bigcup_{k=1}^{K} O_k$ (4-tier):
+    - Tier 1 (abstract root, ~20 nodes): Park-style WordNet top category (animal, artifact, act, state, …).
+    - Tier 2 (intermediate, ~100 nodes): WordNet mid-level (vehicle, communication, tool_purpose, …).
+    - Tier 3 (narrow, ~500 nodes): WordNet leaf synsets.
+    - Tier 4 (plugin leaves, ~500 nodes): MetaTool plugin_des.json 199 + additional synsets.
+3. **Feature-to-(layer, concept) matching** (embedding pre-filter + EleutherAI delphi detection grader):
+    - For each $(o, f \in F_L, L)$: cosine(sent-embed(top-20 max-act examples of $f$), embed($o$.description)). Keep top-20 $(f, L)$ per $o$.
+    - GPT-4o-mini detection grader scores AUC on "Is this example from a feature representing concept $o$?".
+    - Assign $L^*(o) = \arg\max_L \text{selectivity}(o, L)$; $f^*(o)$ = corresponding feature.
+    - Human-labeled gold subset (~200-500 features) calibrates the pipeline (reviewer-demanded).
+4. **Per-head pullback**: for head $(L^*(o), h)$,
+    $$f_K^{(L^*, h)}(o) = \frac{W_K^{(L^*, h)} \cdot f^*(o)}{\|W_K^{(L^*, h)} \cdot f^*(o)\|}$$
+    Symmetric $f_Q^{(L^*, h)}(o)$ for Q side (optional variant).
+
+**Inference (training-free, per token)**:
+
+For user-provided ontology context $C = \{(o_1, \alpha_1), \dots, (o_n, \alpha_n)\}$, at token $t$ step $s$:
+$$K^{(L^*(o_i), h)}_{t} \leftarrow \text{Rot}\!\left(K^{(L^*(o_i), h)}_t,\ f_K^{(L^*, h)}(o_i),\ \alpha_i \cdot g(s)\right)$$
+
+where $g(s) \in \{1, \text{early-high}, \text{late-high}, \text{U-shape}\}$ is a step-state gate. $\alpha$ sweep $\{0.01, 0.05, 0.1, 0.3\}$ mandatory per MOFCISS discipline.
+
+#### Theoretical anchoring
+
+- **Park 2024 Thm 8 (Hierarchical Orthogonality — inherited foundation)**: for $z \prec w$, $\bar{\ell}_w \perp (\bar{\ell}_z - \bar{\ell}_w)$. H-SAAF's per-layer simplices $\{S_L\}$ constructed from SAE-selective feature directions must preserve Thm 8 orthogonality across layers for the layer-mapping to be well-typed (HSAAF-E10 corollary).
+- **Muchane 2506.01197 (inherited precedent, minimal overlap per agent full-text audit)**: hierarchical simplex geometry IS learnable in SAE feature space within-layer. H-SAAF extends to across-layer + attention-head intervention + external ontology.
+- **Conjecture F14.Hierarchy (new, falsifiable by HSAAF-E7)**: for ontology node $o$ at level $k$, $L^*(o)$ is monotonic in $k$ — Spearman $\rho(\text{level}(o), L^*(o)) \geq 0.5$.
+- **Conjecture F14.Composition (new, falsifiable by HSAAF-E9)**: simultaneous intervention at $\{L^*(o_{\text{parent}}), L^*(o_{\text{child}})\}$ produces interaction
+    $$I(\alpha_p, \alpha_c) := Y(\alpha_p, \alpha_c) - Y(\alpha_p, 0) - Y(0, \alpha_c) + Y(0, 0)$$
+    with normalized $|I| / (|\Delta_p| + |\Delta_c|) \geq 0.1$ on $\geq 50\%$ of (parent, child) pairs and sign$(I) > 0$ on $\geq 70\%$. Softmax non-linearity guarantees $I \neq 0$ generically unless $f_p, f_c$ are V-orthogonal in context.
+- **Lemma (SAAF-as-Retrieval-Modulation, new)**: for feature $f$ with auto-interp concept label $c$, in first-order,
+    $$\Delta P_{t,j}(\alpha, f) \approx \alpha \cdot (q_t^\top f_K) \cdot \left(\partial\,\text{softmax}/\partial\,\text{score}\right)_{j}$$
+    conditioned on $V_j$ alignment with $f$ via $W_V$. **Consequence**: SAAF amplifies concept $c$ only when V-content aligned with $f$ is present in context — **context-conditional retrieval modulation, not content conjuration** (distinguishes SAAF from SAE residual addition; tested by SAAF-E6).
+
+#### Pre-registered experiment plan — two-stage, 10 cells
+
+**Stage 2 (concept-level verification, SAAF-E1 to SAAF-E6, ~3-4 GPU-hr)**:
+
+| Cell | Target | Pass criterion |
+|---|---|---|
+| SAAF-E1 Amplification | $P_{\text{SAAF}}(c\text{-token}) / P_{\text{base}}(c\text{-token})$, context-present $c$ | $\geq 2\times$ |
+| SAAF-E2 Specificity | rotation toward $f_A$ → off-target $f_B$ amplification | off-diag/diag $\leq 0.3$ |
+| SAAF-E3 Dose-response | $\alpha \in \{0, 0.05, 0.1, 0.2, 0.5\}$, concept-token prob | Spearman $\rho \geq 0.8$ |
+| SAAF-E4 SAE-vs-SAAF | content-fab task (SAE strong) vs retrieval-routing (SAAF strong) | significant tradeoff |
+| SAAF-E5 Hierarchy transfer | $f_{\text{parent}}$ rotation → child amplification | child $\geq 0.3 \times$ parent |
+| SAAF-E6 Context-independence | context without $c$ → SAAF does NOT conjure | $\Delta \leq 0.1\times$ (grounded) |
+
+**Stage 3 (hierarchy verification, HSAAF-E7 to HSAAF-E10, ~4-5 GPU-hr)**:
+
+| Cell | Target | Pass criterion |
+|---|---|---|
+| HSAAF-E7 Monotonic mapping | Spearman(level$(o)$, $L^*(o)$) across all $o \in O$ | $\rho \geq 0.5$ |
+| HSAAF-E8 Layer-matched advantage | SAAF at $L^*(o)$ vs SAAF at random $L'$, F1 on MetaTool Subtask4 | $\Delta$F1 $\geq +2$pp |
+| HSAAF-E9 Compositional | normalized $|I|$ distribution + sign | $\geq 0.1$ on $\geq 50\%$ pairs AND sign$+$ on $\geq 70\%$ |
+| HSAAF-E10 Shuffle-ontology null | shuffled parent-child $O'$ → E8 effect | $\Delta \leq$ noise (effect disappears) |
+
+#### Pre-registered decision tree
+
+| Outcome combination | Reading | Paper impact |
+|---|---|---|
+| Stage 2 pass + Stage 3 pass (all 4) | **full thesis validated** | H-SAAF pivot: training-free ontology-to-LLM-hierarchy bridge. ICLR headline (Option 2). F12/F13 demoted to single-layer ablation. Ceiling 7.0+ |
+| Stage 2 pass + Stage 3 partial (E7 OR E8 fail) | concept-level OK, hierarchy partial | §5.Y H-SAAF as layer-aware enhancement of F12/F13. Ceiling 6.5 |
+| Stage 2 pass + E10 shuffle-equivalent | ontology structure non-essential | demote to "SAAF as cross-layer SAE-anchored retrieval routing". Ceiling 6.0 |
+| Stage 2 fail (SAAF-E1 null) | attention-level concept mod. fails | **F14 thesis dies**; F12/F13 primary; §6.3 strengthening |
+| Stage 2 fail (SAAF-E6 conjures) | SAAF redundant with SAE residual addition | novelty weakens; position as "attention-native alternative" only |
+| Stage 2 fail (SAAF-E2 specificity > 0.3) | routing bias, not strict concept intervention | scope to "retrieval modulation", drop "concept intervention" claim |
+
+**Critical ablation reads**:
+- **SAAF-E1 null** → F14 thesis dies.
+- **SAAF-E6 conjures context-free** → SAE-redundant; H-SAAF independent contribution weakens.
+- **HSAAF-E7 $\rho < 0.3$** → monotonic mapping fails; scope to "local hierarchy" within ontology subtree.
+- **HSAAF-E10 null (shuffle $\approx$ real)** → ontology structure non-essential; H-SAAF framing retreats to "cross-layer SAE-anchored retrieval routing".
+
+#### Implementation requirements
+
+1. **`scripts/new_theorem_test/build_saaf_library.py`** — (a) load andyrdt SAE via SAELens, (b) build hybrid ontology O from WordNet subset + MetaTool plugin_des.json, (c) embedding pre-filter (sent-transformer MiniLM) + delphi detection grader via EleutherAI `delphi`, (d) compute per-head $W_K/W_Q$ pullbacks $f_K^{(L,h)}(o)$ for top-selective features.
+2. **`scripts/new_theorem_test/run_f14_hsaaf.py`** — wraps F12 `FacetRotSO2` infra with (a) layer-to-ontology routing dict $L^*(\cdot)$, (b) step-state gate $g(s)$, (c) compositional multi-feature rotation stack (parent+child simultaneous support).
+3. **`scripts/new_theorem_test/eval_saaf_stage2.py`** — SAAF-E1 to SAAF-E6 harness (amplification / specificity / dose-response / SAE-SAAF tradeoff / hierarchy transfer / context-independence).
+4. **`scripts/new_theorem_test/eval_hsaaf_stage3.py`** — HSAAF-E7 to HSAAF-E10 harness (monotonic mapping Spearman / layer-matched advantage / compositional interaction $I$ / shuffle-null).
+
+**Engineering risk notes**:
+- Auto-interp pipeline reliability at scale (10k features × ~1000 selective ontology nodes). Human validation 10-20 hr mandatory.
+- SAE feature quality at early/late layers may be lower than mid-layers → layer sweep robustness check.
+- Compositional interaction $I$ measurement requires second-difference analysis; noise-sensitive — require $\geq 100$ prompts per pair.
+
+#### Cost estimate
+
+- SAE download (andyrdt + FAST backup): 0 GPU
+- Hybrid ontology construction (WordNet pull + MetaTool plugin_des.json reuse): 0 GPU, ~1 human-hr
+- Auto-interp pipeline (embedding filter + delphi grader): ~5 GPU-hr + **$200-400** + **human 10-20 hr**
+- Pullback computation (all heads $\times$ top 2000 features): 30 min GPU
+- SAAF Stage 2 eval (6 cells, N=200 MetaTool Subtask4): 3-4 GPU-hr
+- HSAAF Stage 3 eval (4 cells, N=200): 4-5 GPU-hr
+- **Total**: **~12-14 GPU-hr + $200-400 + human 10-20 hr** (1-2 GPU days wall-clock)
+
+#### Risk assessment
+
+- **Engineering risk (medium-high)**: auto-interp reliability; SAE feature coverage at all layers.
+- **Theoretical risk (low)**: Park Thm 8 provides formal foundation; Muchane demonstrates feasibility.
+- **Empirical risk (high)**: two conjectures (Hierarchy + Composition) both need passes; Stage 2 also needs 6-of-6.
+- **Reviewer risk (medium)**: SAE community may challenge "SAE-alternative" framing — defended by "attention-native complement, not residual-SAE replacement". Park community may challenge overlap — explicitly cite Thm 8 as foundation.
+- **Preemption risk (low after 2026-04-19 audit)**: 3-agent audit + 3 targeted full-text reads (Muchane 2506.01197 / Anthropic emotions 2026-04 / Tahimic-Cheng 2510.02917) all confirm empty 5-way intersection. **Outstanding**: Wang et al. (cited in Sofroniew 2026) attention-head emotion circuits — separate audit recommended before CR.
+
+#### Gate conditions (execution authorization)
+
+F14 requires **all** in order:
+1. **Stage 1 (inherited from F12/F13)**: F12 < 3pp AND F13 < 3pp AND H-Order ≥ +2pp.
+2. **Stage 2 (SAAF-E1-E6)**: SAAF-E1 $\geq 2\times$ AND SAAF-E2 off-diag/diag $\leq 0.3$.
+3. **Stage 3 (HSAAF-E7-E10)**: HSAAF-E7 $\rho \geq 0.5$ AND HSAAF-E8 $\geq +2$pp AND HSAAF-E10 null.
+
+#### Dependency on F12 + F13
+
+- **F12/F13 both strong ($\geq +3$pp)**: F14 delayed to follow-on paper; ICLR 2027 main text uses F12/F13 primary.
+- **F12/F13 weak + H-Order $\geq +2$pp**: Stage 2 authorized; if SAAF-E1-E6 pass, §5.Y upgrade; Option 2 pivot considered in camera-ready.
+- **F12/F13 weak + H-Order null**: hypothesis ceiling reached; F14 dormant; §6.3 strengthening.
+
+F14 is positioned as **Park 2024 + Muchane 2025 foundation extended with 3 net-new axes**: cross-layer ontology-to-layer map, attention-head-native intervention, pretrained-SAE external-ontology anchor. Orthogonal to F12/F13's F8d-internal-ontology approach — they are compatible within one paper as *"single-layer internal-ontology (F12/F13) vs cross-layer external-ontology (F14)"*.
+
+---
+
 ## §6. Paper integration (ICLR 2027 submission 예상 구조)
 
 ### 6.1 구조 안
