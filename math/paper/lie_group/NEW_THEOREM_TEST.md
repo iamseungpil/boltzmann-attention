@@ -516,13 +516,53 @@ aggregate = {
 
 **실패 시**: H-F 기각. Direction specificity 가 catalog semantic content 에 독립적 — 다른 origin 탐구 필요.
 
-### Phase D — Q-sign stretch (선택, Week 9-12, ~80 GPU-hr)
+### Phase D — Q-sign stretch (선택, Week 9-12, ~80 GPU-hr) — **CLOSED 2026-04-19 (Failure verdict)**
 
-**목표**: H1-H6 narrowing (이전 안).
+**상태**: 실험 세션이 stronger continuous-metric per-(L,h,q) angular alignment 로 substitute 실행 (H1 0.86–0.91× random / H3 1.10–1.23× / 0% pass 30°). Static-weight $d^*$ family closed.
 
-시간 + resource 여유 시에만. Phase A-C 이 성공적으로 끝난 뒤 판단. Phase A-C 만으로 충분한 paper contribution 일 수 있음.
+H2/H4/H5/H6 미실시 (80+ GPU-hr 필요). Llama prompt-builder mismatch 로 cross-arch 차단.
 
-**Note**: 이전 계획서의 §4-§6 (H1-H3 angular / β-sweep / sign prediction) 내용을 그대로 적용. 단 paper 에서 Theorem 이 아니라 §Discussion 의 "partial empirical progress" 로만 쓰임.
+Paper 에서 §6.1 + Appendix B.1 로 transparent 보고. Theorem T 외 observation 으로만 잔존.
+
+---
+
+### Phase F10 — Online ontology query-conditional gating (Week 10-11, ~2-4 GPU-hr) — **NEW (2026-04-19)**
+
+**Motivation**: F1 reframe ("catalog content not load-bearing") 은 mathematically forced by Gram-Schmidt span-invariance ($\delta K = \alpha BB^\top K$ depends only on $\text{span}(B)$). 이 결과는 *training-free linear span-invariant regime* 한정 (Gram-Schmidt scope memo §1-§4). Phase F10 은 가장 minimal한 형태의 span-invariance 깨기로 ontology semantic content 가 *load-bearing* 가능한지 직접 시험.
+
+**Hypothesis (H-F10)**: Per-token energy-ratio gating $\alpha_f(K_t) = \text{softmax}(\|B_f^\top K_t\|^2 / \|K_t\|^2)$ on the verb × domain axes (F8d-verified orthogonal on MetaTool, NMI = 0.185) yields strictly positive accuracy lift over flat per-facet basis (F9 V=46.00%, D=47.50%) on MetaTool Subtask1 N=200, due to query-content-aware semantic routing.
+
+**Operator**:
+$$\delta K_t = \alpha \cdot \bigl[\alpha_V(K_t) \cdot B_V B_V^\top K_t + \alpha_D(K_t) \cdot B_D B_D^\top K_t\bigr]$$
+where $\alpha_V(K_t) + \alpha_D(K_t) = 1$ via softmax of the two energy ratios (per-token, per-head). Training-free, online, semantic-aware.
+
+**Why this breaks span-invariance**: $\alpha_f(K_t)$ depends on $K_t$ content (energy distribution), so the effective operator is $K_t$-conditional, no longer of the form $\alpha BB^\top K_t$. Span-invariance proof (memo §1.2) does not apply.
+
+**Variants** (4-cell sweep):
+- F10a: per-token energy-gated softmax (above formula), α ∈ {0.3}
+- F10b: prompt-end query proxy — same gating but α_V, α_D computed once at prompt-end and applied uniformly
+- F10c: temperature ablation T ∈ {0.5, 1.0, 2.0} for softmax sharpness
+- F10d: hard gate (argmax instead of softmax) — predicted to fail Lipschitz regularity (Cor 6.7), expected accuracy collapse — falsifier-as-control
+
+**Pre-registered decision tree**:
+
+| Outcome | Reading | Paper impact |
+|---|---|---|
+| F10a > F9 D (47.50%) by ≥ 1.5pp on N=200 | semantic gating works → F1 reframe scope tightened to fixed-α regime | New §5.X "Online semantic gating breaks span-invariance ceiling". Paper thesis upgrades from negative-only to negative-with-positive-followup. |
+| F10a ≈ F9 D (within 1pp) | semantic gating no help even with content-aware α | F1 reframe scope confirmed broader than expected. §6.3 strengthens. |
+| F10a < F9 D | gating perturbs harmfully | Need to investigate: gate calibration (T) or query-vs-token mismatch. |
+| F10d collapses (≤ 30%) | Lipschitz regularity necessity confirmed | Cor 6.7 §3.4.1 anchor, paper §6 Discussion. |
+
+**Cost**: 2-4 GPU-hr (build 5-10 min + 4 evals × 15 min each).
+
+**Implementation**:
+- `scripts/new_theorem_test/build_f10_stacked_bont.py` (NEW) — produces stacked V+D B_ont (rank 24 = 12 V + 12 D) with `facet_split` metadata
+- `scripts/ocq/eval_metatool_subtask1.py` — minimal patch: add `install_f10_facet_gated_hooks` + dispatch case `f10_facet_a<α>`
+- Output: `reports/f10_metatool/f10_a0.3_T1.0.json` etc.
+
+**Falsifiability**: F10d (hard-gate variant) is a sanity falsifier per Cor 6.7. If F10d does NOT collapse, hard-gate Lipschitz violation hypothesis is weakened; investigate whether soft-gate's smoothness is genuinely load-bearing.
+
+**Connection to Gram-Schmidt scope memo**: Phase F10 is the §5.1 "Option 1 on multi-facet dataset" experiment hook. Success here unlocks the §3 alternative #1 path (per-facet α breaks span-invariance via training-free content-aware gating).
 
 ---
 
