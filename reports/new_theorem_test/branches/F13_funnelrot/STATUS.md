@@ -23,16 +23,35 @@ Train dynamics: CE loss 0.955 → 0.896 over 5 epochs (non-monotonic, final θ_m
 
 ## Ablation matrix
 
-| Cell | Status | Result |
-|---|---|---|
-| F13a (= F12b repro, R=32 uniform) | done-null | F1 0.728 (−3.63pp) |
-| **F13b (primary, R=4 ladapt skip-L28)** | **done-positive** | **F1 0.803 (+3.85pp)** |
-| F13c (projection-only, no SO(2)) | not run | — |
-| F13d (ladapt, no L28 skip) | not run | — |
-| F13e (uniform + R=4) | not run | — |
-| F13f (R=16 ablation) | not run | — |
+| Cell | R | Schedule | L28-skip | Status | F1 | ΔF1 | emit2 |
+|---|---:|---|:---:|---|---:|---:|---:|
+| baseline | — | — | — | — | 0.764 | — | 0.952 |
+| F13a (= F12b repro) | 32 | uniform | ✗ | done-null | 0.728 | −3.63 | 0.796 |
+| F13d (ladapt, no L28 skip) | 4 | ladapt | ✗ | **done-positive** | 0.782 | +1.82 | 0.925 |
+| F13e (uniform + R=4) | 4 | uniform | ✓ | **done-positive** | 0.788 | +2.37 | 0.946 |
+| **F13b (primary, full recipe)** | **4** | **ladapt** | ✓ | **done-positive** | **0.803** | **+3.85** | 0.952 |
+| F13c (projection-only, no SO(2)) | 4 | ladapt | ✓ | not run | — | — | — |
+| F13f (R=16 ablation) | 16 | ladapt | ✓ | not run | — | — | — |
 
-F13b already clears headline gate; ablations optional but would isolate what's load-bearing (ladapt vs low-rank vs L28-skip).
+### Mechanism decomposition (from F13b / F13d / F13e / F12b four-cell)
+
+- **Rank R=32 → R=4**: primary (~+6pp, dominates F12b → F13e delta).
+- **ladapt schedule** (vs uniform): +1.5pp (F13b − F13e).
+- **L28-skip** (vs intact): +2pp (F13b − F13d).
+- **Interactions**: near-additive, small positive synergy.
+
+### Pre-reg outcomes
+
+| Cell | Pre-reg bracket fired | Reading |
+|---|---|---|
+| F13d | 0.76–0.80 "weak contributor" | L28-skip is weak-to-moderate, not load-bearing |
+| F13e | 0.76–0.80 "low-rank partially fixes; ladapt adds some" | rank is primary, ladapt secondary |
+
+### Rewritten F12 pathology
+
+**Previous diagnosis (in handoff)**: "F12 uniform fails due to L28 intact + uniform schedule biasing early-EOS."
+
+**Corrected (post-F13de)**: F12 fails due to **R=32 over-parameterization**. At R=32, the LoRA can construct rotations incidentally aligned with the EOS unembedding direction, collapsing emit2 from 0.95 to 0.80. At R=4, rotation is confined to the 4-dim NMI-aligned facet subspace, which is near-orthogonal to the EOS singular vector — emit2 mostly preserved regardless of schedule or L28 handling.
 
 ## Artifacts
 
