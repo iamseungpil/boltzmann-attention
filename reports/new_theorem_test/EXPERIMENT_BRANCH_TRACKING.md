@@ -43,7 +43,12 @@ Each branch has an independent execution path, gate, status, and artifact dir un
 - `done-positive` / `done-null` / `done-falsified` — terminal
 - `dormant` — gate failed; archive branch
 
-**Current state snapshot (2026-04-19)**: 2 `spec-ready` (F12, F13), 4 `spec-draft` (H-Order, H-Energy, H-Trajectory, E1), 4 `preliminary` (H-Meta, H-MCTS, H-HOT, F14).
+**Current state snapshot (2026-04-19 post-F13)**:
+- 1 `done-falsified` (F12), 1 `done-positive` (F13b primary) — F-series has its first positive after F1/F10/F11/F12 null chain
+- 3 `spec-draft` still-open (H-Order, H-Energy, H-Trajectory, E1)
+- 4 `dormant` (F14, H-Meta, H-MCTS, H-HOT) — F13 ≥ +3pp closed F14/H-Meta gates; the other two depended transitively
+- **Paper trajectory**: ICLR ceiling **5.25 → 6.5–7.0** per pre-reg "strong positive" (0.80–0.84 F1 bracket)
+- **Next focus shifts to**: F13 ablations (F13d/e/c/f) + cross-bench replication + E1 interface baseline
 
 ---
 
