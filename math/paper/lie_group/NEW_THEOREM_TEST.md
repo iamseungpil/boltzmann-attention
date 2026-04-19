@@ -526,7 +526,190 @@ Paper 에서 §6.1 + Appendix B.1 로 transparent 보고. Theorem T 외 observat
 
 ---
 
-### Phase F10 — Online ontology query-conditional gating (Week 10-11, ~2-4 GPU-hr) — **NEW (2026-04-19)**
+### Phase F10 — Online ontology query-conditional gating (Week 10-11, ~2-4 GPU-hr) — **EXECUTED 2026-04-19, Failure verdict**
+
+#### Result summary (Qwen2.5-7B-Instruct × MetaTool Subtask1, N=200, label_logprob)
+
+| Variant | α | T | Gate | top1 | vs baseline 46.50% | vs F9 D 47.50% |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| F9 V-only (reference) | 0.3 | — | none | 46.00% | −0.50pp | −1.50pp |
+| F9 D-only (reference) | 0.3 | — | none | **47.50%** | +1.00pp | (ref) |
+| F10a soft | 0.3 | 1.0 | softmax | 46.00% | −0.50pp | **−1.50pp** |
+| F10b soft | 0.3 | 0.5 | softmax (sharper) | 46.50% | 0.00pp | −1.00pp |
+| F10c soft | 0.3 | 2.0 | softmax (softer) | 47.00% | +0.50pp | −0.50pp |
+| F10d hard | 0.3 | 1.0 | argmax (Lipschitz violation falsifier) | 47.00% | +0.50pp | −0.50pp |
+
+#### Three critical findings
+
+1. **V+D combination ≤ D-only** across all variants — V축 (verb facet) 추가가 D 신호 약화. 가능 원인: F8d NMI 0.185는 marginally orthogonal (threshold 0.3 근처), V/D가 일정 부분 redundant → capacity 분산.
+2. **Per-token energy-ratio gating effect 미미**: T=0.5/1.0/2.0 차이 0.5-1pp 내. Energy-ratio signal이 task-relevant 정보를 carry 못함.
+3. **Hard-gate ≠ catastrophic collapse**: 사전 예측 (Cor 6.7 Lipschitz violation → collapse) 부분적으로 falsified. F10d 47% ≈ F10c 47%. 단 single-tool decision이라 step-wise jump 영향 낮음 — Subtask4 multi-step에서 재검증 필요할 수 있음.
+
+#### Pre-registered decision tree match
+
+- ✓ "F10a < F9 D → harmful" branch fired (pre-reg case 3)
+- ✓ "F10d ≈ F10a → smoothness 비-load-bearing" branch fired (pre-reg case)
+- ❌ "F10a > F9 D + 1.5pp" gating works branch — falsified
+- ❌ "F10d ≤ 30% catastrophic" Lipschitz necessity branch — falsified
+
+#### Verdict — **Hypothesis H-F10 falsified**
+
+> Per-token energy-ratio softmax gating으로 span-invariance를 깨도 single-facet baseline 대비 lift 없음. V × D multi-facet combination이 오히려 D-only보다 떨어짐. F10 자체로는 paper thesis upgrade 불가.
+
+#### F10 negative가 paper에 미치는 가치 (recovered insight)
+
+- **Confirms F1 reframe scope**: training-free + per-token + linear (even with content-dependent α) 으론 catalog semantic content 가 load-bearing 안 됨
+- **Motivates F11 (MOFCISS)**: per-token stationary gating fails → step-adaptive non-linear sparse coding 필요 → Phase F11 의 직접 motivation 으로 활용
+- §6.3 Discussion 에 "Why per-token gating fails on multi-tool selection: missing step-state" 1문단 추가
+
+#### Artifacts
+
+- B_ont: `external/SEKA/seka_projections/f10-qwen25-7b-metatool-stacked/B_ont.pt` (rank 24, V=[0:12], D=[12:24])
+- Builder: `scripts/new_theorem_test/build_f10_stacked_bont.py`
+- Hook: `scripts/ocq/eval_metatool_subtask1.py` `install_f10_facet_gated_hooks`
+- Results: `reports/f10_metatool/f10_facet_a0.3_{T0.5,T1.0,T2.0,T1.0_hard}.json`
+
+---
+
+### Phase F11 — MOFCISS: Multi-step Ontology-indexed Facet Coverage via Sparse Subtraction (Week 11-13, ~6-10 GPU-hr) — **NEW (2026-04-19), proposed after F10 negative**
+
+#### Motivation chain
+
+1. F1 reframe (Phase C): catalog content not load-bearing in $\delta K = \alpha BB^\top K$
+2. F8d: verb × domain orthogonal axis on 4 multi-domain corpora
+3. F10 (executed): per-token energy-ratio gating fails to lift over single-facet baseline
+4. **Combine the three**: span-invariance must be broken by **non-linear** coding (not just content-dependent α) AND step-state for multi-tool emission
+
+#### Prior-art positioning (full audit 2026-04-19)
+
+MOFCISS occupies the empty cell in 7-method comparison:
+
+| Method | Multi-tool | Step-adapt | Train-free | Multi-facet | Semantic |
+|---|:---:|:---:|:---:|:---:|:---:|
+| SEKA (ICLR 2026) | ❌ | ❌ | ✗ contrastive | ❌ | ✓ trained |
+| AdaSEKA | ❌ | ❌ | ✗ contrastive | ❌ | ✓ trained |
+| **SADI (ICLR 2025)** | ❌ | ❌ | △ contrastive pair (~150) | ❌ single | ✓ contrastive |
+| **OntoLLM** | △ prompt | ❌ | ✓ | △ KG hierarchy text | ✓ text |
+| Q-coverage (NeurIPS, withdrawn) | ✓ | ✓ | ✓ | ❌ | ❌ |
+| F10 (executed, failed) | ❌ | ❌ | ✓ | ✓ V×D | ✓ ontology |
+| **MOFCISS (proposed)** | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+→ MOFCISS는 5-dimensional 빈 칸 모두 채우는 첫 mechanism (전제: 검증 성공시).
+
+#### Core mechanism
+
+**Pre-compute (one-time, training-free)**:
+```
+For each plugin n in MetaTool ontology:
+  Anchor K_n = forward(model, plugin_n.description)  [last-token K, all (L, h)]
+  facet(n) = (verb(n), domain(n))   # F8d-verified orthogonal axes
+
+Dictionary D = {(K_n, verb(n), domain(n)) : n ∈ plugins}, ~388 atoms
+```
+
+**Per-decoding-step inference (the novelty)**:
+```
+At decoding step t:
+  q_t = current attention K activation (per layer/head)
+  
+  # (a) Sparse coding: top-k active anchors via OMP
+  c_t = OMP(q_t, D, k=5)
+  active_cells_t = {(verb(n), domain(n)) for n in support(c_t)}
+  
+  # (b) Coverage state: which (V, D) cells already emitted?
+  emitted_cells = {(V_s, D_s) : s < t}
+  
+  # (c) Sparse subtraction with ontology-aware decay
+  delta_K_t = -alpha * Σ_{n ∈ supp(c_t)} c_t[n] * K_n * decay(n, emitted_cells)
+  
+  decay(n, emitted) = exp(-lambda * |{s : facet(n) = facet_s, s < t}|)
+                     # facet 이미 emit 된 atom의 weight 감쇠
+  
+  # (d) Apply
+  K_modified = K + delta_K_t
+  emit next tool
+  emitted_cells.add(facet(emitted_tool))
+```
+
+**3중 span-invariance 깸**:
+1. Non-linear sparse selection (OMP combinatorial)
+2. Non-stationary (step history dependent)
+3. Anchor identity 직접 사용 (Gram-Schmidt 거치지 않음)
+
+#### Theoretical anchors
+
+- **Lemma A (Sparse Selection Distinguishability) — provable.** $D$ 의 facet-distinguishability $\theta$ 하에서 OMP top-k가 dominant facet cell 을 $\theta$-margin 내 정확히 식별. 증명: Tropp 2004 OMP guarantee + F8d NMI 0.144-0.218 distinguishability.
+- **Lemma B (Coverage Convergence) — provable.** Decay $\lambda > \lambda^*$ 면 $T$ steps 안에 모든 GT facet cells 가 emitted set 에 포함될 확률 $\geq 1 - \epsilon(T, \lambda)$. 증명: stuck-on-emitted-facet probability geometric decay.
+- **Theorem M (Multi-tool Coverage Optimality) — empirical.** MOFCISS 의 multi-tool $F_1$ lift 가 stationary K-side baseline 대비 strict positive, magnitude scales with $|\text{GT facets}|$.
+
+#### Pre-registered experiment plan
+
+**Primary target: MetaTool Subtask4 (multi-tool, 100% 2-tool, full N=497)**
+
+| Variant | OMP? | Step decay (λ) | α | Predicted F1 |
+|---|:---:|:---:|:---:|:---:|
+| baseline (no_steer) | — | — | — | 0.731 |
+| F11a OMP-only | ✓ k=5 | 0 (no decay) | 0.3 | 0.74-0.76 |
+| **F11b MOFCISS-base** | ✓ k=5 | 0.5 | 0.3 | **0.76-0.79** ★ |
+| F11c MOFCISS-aggressive | ✓ k=5 | 1.0 | 0.3 | 0.74-0.78 (over-decay risk) |
+| F11d MOFCISS-no-OMP | ❌ dense | 0.5 | 0.3 | ~0.72 (degenerate to F10) |
+
+**Secondary control: MetaTool Subtask1 (single-tool, full N=200)**
+
+| Variant | Predicted F1 |
+|---|:---:|
+| F11e MOFCISS on Subtask1 | ≈ baseline (no lift expected — single-tool, no coverage need) |
+
+**Cross-bench: BFCL parallel_multiple N=100** (MetaTool B_ont anchors used cross-domain)
+- Predicts MOFCISS-base lift consistent with Subtask4 magnitude
+
+#### Pre-registered decision tree
+
+| F11b Subtask4 result | Reading | Paper impact |
+|---|---|---|
+| ≥ 0.78 (+5pp) | strong positive | **Thesis upgrade**: "Multi-step ontology-indexed sparse subtraction breaks both span-invariance and stationarity ceilings". §1 reframe around MOFCISS. ICLR ceiling 6.5-7.0 |
+| 0.76-0.78 (+3-5pp) | clear positive | §5.Y "MOFCISS positive result" main contribution. ICLR ceiling 6.0-6.5 |
+| 0.74-0.76 (+1-3pp) | weak positive | §5.Y "moderate effect" + §6 Discussion scope analysis. ICLR ceiling 5.75-6.0 |
+| 0.71-0.74 | null/borderline | F10 verdict 보강 evidence. §6.3 "Why neither stationary nor sparse-step works at this scope". ICLR ceiling 5.25 (no change) |
+| < 0.71 | harmful | step-decay calibration fail; F11a/c sweep 분석 → λ optimum 탐색 또는 abandon |
+
+**F11d (no OMP) 가 F11b 보다 ≥ 0.74**: OMP 자체 비-load-bearing → mechanism story 약화
+**F11a (no decay) 가 F11b 와 ≈**: step-state 비-load-bearing → 단순 sparse coding으로 충분 (interpretation 다름)
+
+#### Implementation requirements
+
+1. `scripts/new_theorem_test/build_f11_dictionary.py` — atom dictionary + facet metadata
+   - Reuse F10 builder의 K_by_plugin extraction
+   - Save: anchor K (no SVD), per-plugin (verb, domain) labels
+2. `scripts/ocq/eval_metatool_subtask4_mofciss.py` — step-adaptive evaluator
+   - **Critical**: HuggingFace `model.generate` callback 또는 manual generation loop 으로 step-state 추적
+   - Per-step OMP coding (cheap: top-k inner products)
+   - Per-step facet emission detection (parse generated tool name → lookup facet)
+3. Step-state hook: each generation step에서 K-side bias가 emitted_cells에 따라 다름
+
+**Engineering challenge**: HuggingFace generation 의 step boundary 추적. Two options:
+- (a) Manual greedy decode loop with explicit per-token K hook reset
+- (b) `LogitsProcessor` callback for facet detection + state mutation
+
+#### Cost estimate
+
+- Build (388 atoms K): ~5 min (F10 builder 재활용)
+- F11a-d sweep on Subtask4 N=200: 4 × 30 min = 2 GPU-hr
+- F11b/c full N=497 (after sweep selects best λ): 1 hr
+- F11e Subtask1 control: 30 min
+- BFCL cross-bench: 1 hr
+- Total: ~5-6 GPU-hr
+
+#### Risk assessment
+
+- **Engineering risk (high)**: step-state hook implementation 복잡도. Generation callback이 HF API 한계로 어려울 수 있음. Backup: manual decode loop (slower but reliable).
+- **Theoretical risk (medium)**: Lemma B 의 $\lambda^*$ 가 dataset-specific. Sweep으로 발견 필요.
+- **Empirical risk (medium)**: F11b Subtask4 lift 가 baseline 0.731 ceiling 밑일 가능성 (Q-coverage NeurIPS 도 +1.64pp 만 얻었음).
+- **Reviewer risk (low)**: SADI 가 sparse coding 안 함, step-state 안 함 → 차별점 명확.
+
+---
+
+## §6. Paper integration (ICLR 2027 submission 예상 구조)
 
 **Motivation**: F1 reframe ("catalog content not load-bearing") 은 mathematically forced by Gram-Schmidt span-invariance ($\delta K = \alpha BB^\top K$ depends only on $\text{span}(B)$). 이 결과는 *training-free linear span-invariant regime* 한정 (Gram-Schmidt scope memo §1-§4). Phase F10 은 가장 minimal한 형태의 span-invariance 깨기로 ontology semantic content 가 *load-bearing* 가능한지 직접 시험.
 
