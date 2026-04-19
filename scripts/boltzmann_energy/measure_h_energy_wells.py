@@ -352,21 +352,40 @@ def main():
     print(f"[config] L_total={L_total} n_q={n_q_heads} n_kv={n_kv} d_head={head_dim} layer={args.layer}")
 
     # --- T1.a: catalog K extraction ---
-    print(f"[T1.a] extracting K[{n_tools}, {head_dim}] at L={args.layer} (prompt-end pooling, mean over kv heads)")
+    print(f"[T1.a] extracting K[{n_tools}, {head_dim}] at L={args.layer} pooling={args.pooling}")
     K = np.zeros((n_tools, head_dim), dtype=np.float64)
     t0 = time.time()
     for i, name in enumerate(plugin_names):
-        v = capture_last_token_k_single_layer(model, tok, plugins[name]["desc"],
-                                               args.layer, n_kv, head_dim)
+        # For first_name pooling, prepend tool name so position 0 = first name token.
+        prepend = name if args.pooling == "first_name" else None
+        v = capture_k_pooled(model, tok, plugins[name]["desc"], args.layer,
+                              n_kv, head_dim, pooling=args.pooling,
+                              prepend_name=prepend, chat_template=False)
         if v is None:
             print(f"  [WARN] capture failed for {name}")
             continue
         K[i] = v.numpy().astype(np.float64)
-        if (i + 1) % 50 == 0 or i == 0:
+        if (i + 1) % 100 == 0 or i == 0:
             elapsed = time.time() - t0
             eta = elapsed / (i + 1) * (n_tools - i - 1)
             print(f"    [{i+1}/{n_tools}] t={elapsed:.1f}s eta={eta:.1f}s", flush=True)
     print(f"[T1.a] done, K_norm_mean={np.linalg.norm(K, axis=1).mean():.3f}")
+
+    # --- P2 hook: replace afod labels with K-space KMeans clusters if requested ---
+    label_source_verb = "afod_heuristic"
+    label_source_domain = "afod_heuristic"
+    if args.kspace_cluster in ("verb", "both"):
+        from sklearn.cluster import KMeans
+        km_v = KMeans(n_clusters=n_verb, random_state=args.seed, n_init=10).fit(K)
+        verb_labels = [f"kvc_{c}" for c in km_v.labels_]
+        label_source_verb = f"kspace_kmeans_verb_K{n_verb}"
+        print(f"[kmeans-verb] replaced afod verb labels: K={n_verb} inertia={km_v.inertia_:.1f}")
+    if args.kspace_cluster in ("domain", "both"):
+        from sklearn.cluster import KMeans
+        km_d = KMeans(n_clusters=n_domain, random_state=args.seed, n_init=10).fit(K)
+        domain_labels = [f"kdc_{c}" for c in km_d.labels_]
+        label_source_domain = f"kspace_kmeans_domain_K{n_domain}"
+        print(f"[kmeans-domain] replaced afod domain labels: K={n_domain} inertia={km_d.inertia_:.1f}")
 
     # --- T1.b: query K extraction ---
     print(f"[T1.b] extracting Q[{n_q}, {head_dim}]")
