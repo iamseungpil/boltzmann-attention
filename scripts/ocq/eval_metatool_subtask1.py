@@ -284,6 +284,94 @@ def install_kbias_hooks(
 
 
 @contextmanager
+def install_f10_facet_gated_hooks(
+    model,
+    B_ont: torch.Tensor,    # (L, H, d, R) stacked V+D
+    alpha: float,
+    facet_split: Dict[str, List[int]],   # {"V": [0, 12], "D": [12, 24]}
+    n_kv: int,
+    head_dim: int,
+    temperature: float = 1.0,
+    hard_gate: bool = False,
+    skip_heads: Optional[set] = None,
+    skip_sink: int = 0,
+):
+    """F10 — Per-token energy-ratio gated facet-block K-bias.
+
+    delta_K_t = alpha * sum_f g_f(K_t) * B_f B_f^T K_t
+    where g_f(K_t) = softmax_f(||B_f^T K_t||^2 / ||K_t||^2 / T) per token.
+
+    Breaks Gram-Schmidt span-invariance because g_f depends on K_t content.
+    Training-free, online, semantic-aware (each B_f built from facet-specific
+    anchor sentences via build_f10_stacked_bont.py).
+
+    hard_gate=True → argmax instead of softmax (Cor 6.7 Lipschitz violation
+    falsifier; expected accuracy collapse).
+    """
+    handles = []
+    L, H, d, R = B_ont.shape
+    assert H == n_kv and d == head_dim, f"B_ont shape mismatch"
+    facets = list(facet_split.keys())
+    F = len(facets)
+    splits = [facet_split[f] for f in facets]
+    try:
+        for layer_idx, layer in enumerate(model.model.layers):
+            if layer_idx >= L:
+                break
+            k_proj = layer.self_attn.k_proj
+            B_layer = B_ont[layer_idx].clone()  # (H, d, R)
+            # Per-facet block: list of (H, d, r_f)
+            B_blocks = [B_layer[:, :, s:e].clone() for s, e in splits]
+            if skip_heads:
+                for h in range(H):
+                    if (layer_idx, h) in skip_heads:
+                        for blk in B_blocks:
+                            blk[h].zero_()
+
+            def make_hook(li, blocks, _skip_sink=skip_sink, _T=temperature, _hard=hard_gate):
+                def hook(module, inputs, output):
+                    B, T, D_total = output.shape
+                    if D_total != n_kv * head_dim:
+                        return output
+                    K = output.view(B, T, n_kv, head_dim).permute(0, 2, 1, 3).contiguous()
+                    orig_dtype = K.dtype
+                    K_f = K.float()
+                    # Per-token energy ratios per facet
+                    energies = []
+                    proj_per_facet = []
+                    K_norm2 = K_f.pow(2).sum(dim=-1).clamp_min(1e-9)  # (B, H, T)
+                    for blk in blocks:
+                        blk_dev = blk.to(device=K.device, dtype=torch.float32)
+                        coeffs = torch.einsum("bhtd,hdr->bhtr", K_f, blk_dev)
+                        proj = torch.einsum("bhtr,hdr->bhtd", coeffs, blk_dev)
+                        e = coeffs.pow(2).sum(dim=-1) / K_norm2  # (B, H, T)
+                        energies.append(e)
+                        proj_per_facet.append(proj)
+                    e_stack = torch.stack(energies, dim=-1) / max(_T, 1e-6)  # (B, H, T, F)
+                    if _hard:
+                        idx = e_stack.argmax(dim=-1, keepdim=True)
+                        gates = torch.zeros_like(e_stack).scatter_(-1, idx, 1.0)
+                    else:
+                        gates = torch.softmax(e_stack, dim=-1)
+                    # Weighted sum of projections
+                    delta = torch.zeros_like(K_f)
+                    for i, proj in enumerate(proj_per_facet):
+                        delta = delta + gates[..., i:i+1] * proj
+                    if _skip_sink > 0 and T > _skip_sink:
+                        delta[:, :, :_skip_sink, :] = 0
+                    K_modified = K_f + alpha * delta
+                    out = K_modified.permute(0, 2, 1, 3).contiguous().view(B, T, D_total).to(orig_dtype)
+                    return out
+                return hook
+
+            handles.append(k_proj.register_forward_hook(make_hook(layer_idx, B_blocks)))
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+@contextmanager
 def install_normalized_kbias_hooks(
     model,
     B_ont: torch.Tensor,    # (L, H, d, r_ont)
