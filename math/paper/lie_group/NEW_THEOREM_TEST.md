@@ -2339,6 +2339,17 @@ elif mode == 'full_random':
   - §12 first actions 전면 재작성: 다음 세션은 Phase B3.1 부터 시작 (기존 데이터 + 저비용).
   - 핵심 변화: 이론의 **core Lemma 2 universality** 가 Phase A 에서 확증. 남은 작업은 (i) facet 구조 H-G, (ii) scope 경계 H-H, (iii) slope refinement H-I, (iv) cross-benchmark direction specificity B1, (v) LM-head origin B2, (vi) permutation falsifier C, (vii) Q-sign stretch D. **ICLR 2027 contribution 이 "Lemma 1-2 확증 + 4 operational framework components + large-scale validation" 수준으로 구체화**.
 
+- **v5.4 (2026-04-19 dawn)**: Brainstorm 세션 에서 F14 MetaFocus preliminary → **SAAF + H-SAAF** 로 구체화.
+  - §2.5.2 §6M.2 에 H-SAAF refined spec back-reference 추가.
+  - §5 에 **Phase F14 — H-SAAF: Hierarchical SAE-Anchored Attention Focus** 신설 (motivation / cross-tab / core mechanism / theoretical anchoring / 10-cell pre-reg / decision tree / implementation / cost / risk / gate / dependency).
+  - Formal foundation: **Park 2024 Thm 8 (Hierarchical Orthogonality, 2406.01506)** inherited; **Muchane 2506.01197** positioned as compatible precedent (minimal overlap per agent full-text audit).
+  - Pretrained SAE infra: **andyrdt/saes-qwen2.5-7b-instruct** (BatchTopK, Apache-2.0, all-layer) + `Geaming2002/FAST` (JumpReLU). Zero training cost.
+  - New lemma: **SAAF-as-Retrieval-Modulation** (context-conditional, distinguishes from SAE residual addition).
+  - New conjectures: **F14.Hierarchy** (Spearman $\rho \geq 0.5$) + **F14.Composition** (normalized $|I| \geq 0.1$ on $\geq 50\%$ pairs).
+  - 3-agent preemption audit (2026-04-19) + 3 targeted full-text reads confirm 5-way intersection (cross-layer + SAE anchor + attention-head + training-free + formal ontology) EMPTY.
+  - Budget: ~12-14 GPU-hr + $200-400 + human 10-20 hr. Gate: F12 < 3pp ∧ F13 < 3pp ∧ H-Order ≥ +2pp → Stage 2 → Stage 3.
+  - Outstanding preemption audit: Wang et al. (Sofroniew 2026 cite) attention-head emotion circuits; transformer-circuits 2026/emotions 부록 전체 scan.
+
 ---
 
 **END OF NEW_THEOREM_TEST v1**
