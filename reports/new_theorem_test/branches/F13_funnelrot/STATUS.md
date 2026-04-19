@@ -21,6 +21,13 @@ Per pre-reg decision tree: **strong positive** (0.80-0.84 bracket) → ICLR ceil
 
 Train dynamics: CE loss 0.955 → 0.896 over 5 epochs (non-monotonic, final θ_max 24.9°, 191 trainable scalars). Compared to F12b (1220 scalars, CE 1.333 → 0.624), F13 has cleaner eval generalization despite higher train-CE loss.
 
+## 🚨 CRITICAL caveats (2026-04-19)
+
+1. **F13b may be cherry-picked lucky seed**. F13k (same recipe, seed=1) gives F1 0.671 emit2 0.633 (**−13.2pp F1, −31.9pp emit2**). F13f seed=1 0.702. Need N≥5 seeds for robust mean ± σ.
+2. **`skip_layer_28` is NO-OP for Qwen2.5-7B**. Guard `28 < num_layers` is False. F13b/d/e/f/g all trained with IDENTICAL schedules regardless of --skip-layer-28 flag. Any ΔL28-skip claim is invalid.
+
+Immediate priority: run F13l/m/n seeds 2,3,4 (R=4 ladapt L0-27) before finalizing any paper claim.
+
 ## Ablation matrix
 
 | Cell | R | Schedule | L28-skip | Status | F1 | ΔF1 | emit2 |
