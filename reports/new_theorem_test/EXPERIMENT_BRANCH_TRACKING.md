@@ -13,16 +13,27 @@ Each branch has an independent execution path, gate, status, and artifact dir un
 
 | ID   | Name                       | Origin                     | Status        | GPU-hr    | Gate (precondition)                         | Artifact dir                      |
 |------|----------------------------|----------------------------|---------------|-----------|---------------------------------------------|-----------------------------------|
-| F12  | FacetRot-QK                | F11 null (Phase F)         | spec-ready    | 8–10      | None (primary alt, direct)                  | `branches/F12_facetrot_qk/`       |
-| F13  | FunnelRot (ladapt + L28)   | F12 + B2 L28 + Thm 6.14    | spec-ready    | 12–18     | None (parallel/superset of F12b)            | `branches/F13_funnelrot/`         |
-| H-Ord| Ontology-Ordering canary   | Group 6 / 5Q Q1            | spec-draft    | 1–2       | None (cheap canary)                         | `branches/H_order/`               |
-| H-En | Hopfield Energy well       | Group 6 (6A/6B)            | spec-draft    | 0 (pp)    | F9/F10/F11 saved tensors exist              | `branches/H_energy/`              |
-| H-Tr | Residual Trajectory        | Group 6 (6D/6H/6J)         | spec-draft    | 4–6       | H-Order ≥ +2pp (signal exists)              | `branches/H_trajectory/`          |
-| H-Mt | Meta-attention layer       | 5Q Q2+Q5                   | preliminary   | 10–15     | F12<+3pp AND F13<+3pp                       | `branches/H_meta/`                |
-| H-MC | Attention-subspace MCTS    | 5Q Q3                      | preliminary   | 4–6       | F14 pilot positive OR H-Mt ≥ +2pp           | `branches/H_mcts/`                |
-| H-HT | Higher-order HOT ablation  | 5Q Q5                      | preliminary   | 12–18     | F14 pilot positive                          | `branches/H_hot/`                 |
-| F14  | MetaFocus synthesis pilot  | 5Q integration             | preliminary   | 8–12      | F12<+3pp ∧ F13<+3pp ∧ H-Ord≥+2pp            | `branches/F14_metafocus/`         |
-| E1   | Engineering-Interface BM   | 2026-04-19 reframe session | spec-draft    | 2–4       | Runs alongside F12/F13 (piggyback)          | `branches/E1_engineering_reframe/`|
+| F12  | FacetRot-QK                | F11 null (Phase F)         | **done-falsified** (F1 −3.63pp)  | 8–10  | None (primary alt, direct)                  | `branches/F12_facetrot_qk/`       |
+| F13  | FunnelRot (ladapt + L28)   | F12 + B2 L28 + Thm 6.14    | **done-positive** (F1 **+3.85pp**) | 12–18 | None (parallel/superset of F12b)            | `branches/F13_funnelrot/`         |
+| H-Ord| Ontology-Ordering canary   | Group 6 / 5Q Q1            | spec-draft (still open)          | 1–2   | None (cheap canary)                         | `branches/H_order/`               |
+| H-En | Hopfield Energy well       | Group 6 (6A/6B)            | spec-draft (**now F13b tensors avail**) | 0 (pp) | F9/F10/F11/F13 saved tensors exist | `branches/H_energy/`              |
+| H-Tr | Residual Trajectory        | Group 6 (6D/6H/6J)         | spec-draft                       | 4–6   | H-Order ≥ +2pp (signal exists)              | `branches/H_trajectory/`          |
+| H-Mt | Meta-attention layer       | 5Q Q2+Q5                   | **dormant** (gate closed)        | 10–15 | F12<+3pp AND F13<+3pp → **F13 ≥+3.85pp**    | `branches/H_meta/`                |
+| H-MC | Attention-subspace MCTS    | 5Q Q3                      | **dormant** (dep. on H-Meta/F14) | 4–6   | F14 pilot positive OR H-Mt ≥ +2pp           | `branches/H_mcts/`                |
+| H-HT | Higher-order HOT ablation  | 5Q Q5                      | **dormant** (dep. on F14)        | 12–18 | F14 pilot positive                          | `branches/H_hot/`                 |
+| F14  | MetaFocus synthesis pilot  | 5Q integration             | **dormant** (gate closed)        | 8–12  | F12<+3pp ∧ F13<+3pp ∧ H-Ord≥+2pp → **F13 ≥+3.85pp** | `branches/F14_metafocus/` |
+| E1   | Engineering-Interface BM   | 2026-04-19 reframe session | spec-draft (framing elevated)    | 2–4   | Runs alongside F13 replication / ablation   | `branches/E1_engineering_reframe/`|
+
+**Ablation sub-branches under F13** (spawned post-positive result):
+
+| ID    | Cell                        | Status        | GPU-hr | Rationale                                       |
+|-------|-----------------------------|---------------|--------|-------------------------------------------------|
+| F13a  | = F12b repro (R=32 uniform) | done-null     | —      | F1 0.728 (−3.63pp, reproduces F12b)             |
+| F13b  | **Primary ladapt R=4 skip-L28** | **done-positive** | — | F1 **0.803 (+3.85pp)** — paper headline     |
+| F13c  | Projection-only (no SO(2))  | not run       | ~2     | Isolate rotation vs subspace projection         |
+| F13d  | ladapt, no L28-skip         | not run       | ~2     | **Highest priority** — isolates L28-skip       |
+| F13e  | Uniform + R=4               | not run       | ~2     | **Highest priority** — isolates schedule       |
+| F13f  | R=16 ablation               | not run       | ~2     | Sweet-spot search                               |
 
 **Status legend**:
 - `spec-ready` — protocol written, scripts committed (or mostly committed), runnable once approved
