@@ -711,46 +711,6 @@ At decoding step t:
 
 ## §6. Paper integration (ICLR 2027 submission 예상 구조)
 
-**Motivation**: F1 reframe ("catalog content not load-bearing") 은 mathematically forced by Gram-Schmidt span-invariance ($\delta K = \alpha BB^\top K$ depends only on $\text{span}(B)$). 이 결과는 *training-free linear span-invariant regime* 한정 (Gram-Schmidt scope memo §1-§4). Phase F10 은 가장 minimal한 형태의 span-invariance 깨기로 ontology semantic content 가 *load-bearing* 가능한지 직접 시험.
-
-**Hypothesis (H-F10)**: Per-token energy-ratio gating $\alpha_f(K_t) = \text{softmax}(\|B_f^\top K_t\|^2 / \|K_t\|^2)$ on the verb × domain axes (F8d-verified orthogonal on MetaTool, NMI = 0.185) yields strictly positive accuracy lift over flat per-facet basis (F9 V=46.00%, D=47.50%) on MetaTool Subtask1 N=200, due to query-content-aware semantic routing.
-
-**Operator**:
-$$\delta K_t = \alpha \cdot \bigl[\alpha_V(K_t) \cdot B_V B_V^\top K_t + \alpha_D(K_t) \cdot B_D B_D^\top K_t\bigr]$$
-where $\alpha_V(K_t) + \alpha_D(K_t) = 1$ via softmax of the two energy ratios (per-token, per-head). Training-free, online, semantic-aware.
-
-**Why this breaks span-invariance**: $\alpha_f(K_t)$ depends on $K_t$ content (energy distribution), so the effective operator is $K_t$-conditional, no longer of the form $\alpha BB^\top K_t$. Span-invariance proof (memo §1.2) does not apply.
-
-**Variants** (4-cell sweep):
-- F10a: per-token energy-gated softmax (above formula), α ∈ {0.3}
-- F10b: prompt-end query proxy — same gating but α_V, α_D computed once at prompt-end and applied uniformly
-- F10c: temperature ablation T ∈ {0.5, 1.0, 2.0} for softmax sharpness
-- F10d: hard gate (argmax instead of softmax) — predicted to fail Lipschitz regularity (Cor 6.7), expected accuracy collapse — falsifier-as-control
-
-**Pre-registered decision tree**:
-
-| Outcome | Reading | Paper impact |
-|---|---|---|
-| F10a > F9 D (47.50%) by ≥ 1.5pp on N=200 | semantic gating works → F1 reframe scope tightened to fixed-α regime | New §5.X "Online semantic gating breaks span-invariance ceiling". Paper thesis upgrades from negative-only to negative-with-positive-followup. |
-| F10a ≈ F9 D (within 1pp) | semantic gating no help even with content-aware α | F1 reframe scope confirmed broader than expected. §6.3 strengthens. |
-| F10a < F9 D | gating perturbs harmfully | Need to investigate: gate calibration (T) or query-vs-token mismatch. |
-| F10d collapses (≤ 30%) | Lipschitz regularity necessity confirmed | Cor 6.7 §3.4.1 anchor, paper §6 Discussion. |
-
-**Cost**: 2-4 GPU-hr (build 5-10 min + 4 evals × 15 min each).
-
-**Implementation**:
-- `scripts/new_theorem_test/build_f10_stacked_bont.py` (NEW) — produces stacked V+D B_ont (rank 24 = 12 V + 12 D) with `facet_split` metadata
-- `scripts/ocq/eval_metatool_subtask1.py` — minimal patch: add `install_f10_facet_gated_hooks` + dispatch case `f10_facet_a<α>`
-- Output: `reports/f10_metatool/f10_a0.3_T1.0.json` etc.
-
-**Falsifiability**: F10d (hard-gate variant) is a sanity falsifier per Cor 6.7. If F10d does NOT collapse, hard-gate Lipschitz violation hypothesis is weakened; investigate whether soft-gate's smoothness is genuinely load-bearing.
-
-**Connection to Gram-Schmidt scope memo**: Phase F10 is the §5.1 "Option 1 on multi-facet dataset" experiment hook. Success here unlocks the §3 alternative #1 path (per-facet α breaks span-invariance via training-free content-aware gating).
-
----
-
-## §6. Paper integration (ICLR 2027 submission 예상 구조)
-
 ### 6.1 구조 안
 
 1. **Abstract + Intro**: 두-레벨 분리 → catalog 기반 B_ont 의 direction specificity 가 sub-critical regime 의 argmax stability 와 함께 empirical 확증.
