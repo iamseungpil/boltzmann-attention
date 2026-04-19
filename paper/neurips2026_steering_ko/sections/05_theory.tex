@@ -1,6 +1,6 @@
 \section{이론}\label{sec:theory}
 
-이 절은 본 논문의 layer-adaptive 설계를 세 정리로 정당화한다. 첫째 정리는 정지 K가 멀티-툴 상태를 원리적으로 담을 수 없다는 불가능성 결과이며, 왜 정지 활성 스티어링을 그대로 멀티-툴에 가져올 수 없는지를 설명한다. 둘째 정리는 signed Q-회전이 도메인마다 왜 유리한 부호가 달라지는지를 일차 근사 수준에서 설명하며, 어떤 부호가 local regime에 맞는지의 진단을 제공한다. 셋째 정리는 Q-측과 K-측 개입의 출력 교란을 같은 척도로 비교할 수 있게 해 주는 부등식으로, 이로부터 ``초기 K는 안전하고 후반 K는 위험하다''라는 layer-adaptive 스케줄의 근거가 따라온다.
+이 절의 목적은 하나의 공격적 명제를 수학적으로 정리하는 데 있다. 멀티-툴에서 문제는 ``저랭크 steering 자체''가 아니라 ``정지 K-style steering''이다. 본문에 필요한 이론은 세 가지뿐이다. 첫째, 정지 K는 방출된 도구 상태를 조건으로 삼을 수 없으므로 멀티-툴에서 구조적 반복 편향을 갖는다. 둘째, K-측과 Q-측 개입은 한 스텝에서는 같은 연산자족이지만, KV-cache 재사용 때문에 여러 스텝에서는 달라진다. 셋째, signed Q의 부호는 $\beta=0$ 근방에서만 국소적으로 해석할 수 있다. 이 세 결과가 본문의 중심 주장인 ``early-K / global-Q schedule''과 ``Q-only는 regime-specific variant''를 닫는다. 보다 기술적인 perturbation bound는 부록으로 미룬다.
 
 단일 헤드 self-attention을 고려한다(멀티헤드는 헤드 직합). 레이어 $\ell$에서 질의 $q \in \mathbb{R}^d$, key 행렬 $K \in \mathbb{R}^{T\times d}$, value 행렬 $V \in \mathbb{R}^{T\times d_v}$, softmax 가중치 $s_t(q) = \mathrm{softmax}(qK^\top/\sqrt d)_t$, 출력 $o(q) = \sum_t s_t(q) v_t$를 쓴다. \S\ref{sec:method}의 세 연산자는
 \begin{equation}\label{eq:ops}
@@ -10,7 +10,11 @@
 \end{equation}
 로 다시 쓰며, 세 연산자가 같은 $B$를 공유하므로 결과 차이는 기저가 아니라 연산자 형식과 레이어 스케줄에서 나온다. 분석 가정은 유계 노름 하나뿐이다: 모든 $q, (k_t, v_t), e_t$에 대해 $\|q\|\le Q_{\max}$, $\|v_t\|\le V_{\max}$, $\|e_t\|\le\rho$. $(q, K, V)$의 결합 분포에 대한 추가 가정은 두지 않는다.
 
-정지 K는 멀티-툴 상태를 인코딩할 수 없다. 정리~\ref{thm:no-memory}이 이를 정식화한다. 직관적으로, 같은 hidden state $x$를 만들어내는 두 디코딩 히스토리가 이미 방출한 도구 집합에서 달라도, 정지 연산자는 그 차이를 볼 수 없다.
+\begin{assumption}[분석 범위]\label{ass:scope}
+정리~\ref{thm:qk-duality}와 정리~\ref{thm:beta-star}은 고정된 $(q,K,V)$에서의 per-step 분석이고, 따름정리~\ref{cor:cache-divergence}는 KV-cache가 재사용되는 autoregressive decoding을 따로 다룬다. 따라서 본 절은 ``한 스텝에서 같은가''와 ``여러 스텝에서 같은가''를 명시적으로 구분한다.
+\end{assumption}
+
+정지 K는 멀티-툴 상태를 인코딩할 수 없다. 정리~\ref{thm:no-memory}은 이를 ``강한 불가능성''보다 \emph{구조적 불변성}으로 읽는 것이 정확하다. 직관적으로, 같은 hidden state $x$를 만들어내는 두 디코딩 히스토리가 이미 방출한 도구 집합에서 달라도, 정지 연산자는 그 차이를 볼 수 없다.
 
 \begin{theorem}[정지 K는 방출 상태에 무관하다]\label{thm:no-memory}
 식~\eqref{eq:ops}의 정지 K-측 연산자를 쓰자. 두 디코딩 히스토리 $h, h'$가 같은 hidden state $x$를 낳지만 방출 도구 집합에서 다르다면 $K'(h) = K'(h')$. 따라서 $(K', K)$의 어떤 함수도 방출 히스토리를 인코딩하지 못한다.
@@ -56,7 +60,7 @@ KV-cache를 사용하는 autoregressive 디코딩에서 K-측 개입 $K' = K + \
 캐시된 key는 $k_t^{\text{cache}} = k_t^{\text{orig}} + \alpha P_{\mathrm{ont}}^\top k_t^{\text{orig}}$로 고정되어 이후 모든 스텝의 logit $q_s^\top k_t^{\text{cache}}/\sqrt d$에 $\alpha q_s^\top P_{\mathrm{ont}}^\top k_t^{\text{orig}}/\sqrt d$를 더한다. 따라서 스텝 수 $S$에 대해 K-측 기여는 $\sum_{s=T}^{T+S} \alpha q_s^\top P_{\mathrm{ont}} k_t^{\text{orig}}/\sqrt d$ 형태로 쌓인다. Q-측은 $q'_s = q_s + \beta P_{\mathrm{ont}} q_s$가 각 스텝에서 새로 계산되므로, 스텝 $s$의 개입 항은 $\beta q_s^\top P_{\mathrm{ont}} k_t^{\text{orig}}/\sqrt d$이며 $s$-의존적이지만 스텝 간 누적은 없다.
 \end{proof}
 
-정리~\ref{thm:qk-duality}와 따름정리~\ref{cor:cache-divergence}가 묶여 ``같은 연산자족의 다른 끝''이라는 해석을 뒷받침한다. single step에서는 K-측과 Q-측이 교환 가능하므로 layer-adaptive K+Q와 signed Q-only는 한 스텝 기준에서 같은 가족의 구성원이며, multi-step에서는 K-bias가 캐시에 누적되므로 long-horizon 체제에서 Q-only가 더 안정적인 이유가 설명된다. \S\ref{sec:experiments}은 이 예측을 retail 액션 수 분해와 도메인별 우세 패턴으로 확인한다.
+정리~\ref{thm:qk-duality}와 따름정리~\ref{cor:cache-divergence}가 묶여 본 논문의 가장 도발적인 해석을 지탱한다. 실패한 것은 ``steering''이 아니라 ``정지 K를 모든 단계에 같은 방식으로 밀어 넣는 배치''다. single step에서는 K-측과 Q-측이 교환 가능하므로 layer-adaptive K+Q와 signed Q-only는 한 스텝 기준에서 같은 가족의 구성원이며, multi-step에서는 K-bias가 캐시에 누적되므로 long-horizon 체제에서 Q-only가 더 안정적인 이유가 설명된다. \S\ref{sec:experiments}은 이 예측을 retail 액션 수 분해와 도메인별 우세 패턴으로 확인한다.
 
 이 결과가 설명해야 할 경험적 사실은 분명하다. retail과 MetaTool에서는 $\beta<0$이 이기고 telecom에서는 $\beta>0$이 이긴다. 어느 부호가 어느 도메인에서 유리한지를 일차 수준에서 예측하는 진단이 다음 정리다. ground-truth 도구의 proxy token 집합을 $\mathcal{G}$라 하고 현재 attention 분포를 $p_0(t) = s_t(q)$라 하자. 온톨로지 부분공간 위의 per-token score를
 \begin{equation*}
@@ -76,7 +80,7 @@ $\pi_{\mathcal{G}} = \sum_{t\in\mathcal{G}} p_0(t) > 0$, $\bar r = \sum_t p_0(t)
 softmax gradient identity $\partial_\beta p_\beta(t) = p_\beta(t)(r_t - \mathbb{E}_{p_\beta}[r])$에 $\mathcal{G}$에 대한 합을 취하고 $\beta=0$에서 평가하면 $\frac{dL}{d\beta}\big|_{\beta=0} = \sum_{t\in\mathcal{G}} p_0(t)(r_t - \bar r) = \pi_{\mathcal{G}}(\bar r_{\mathcal{G}} - \bar r)$. 따라서 국소 개선 방향의 부호가 $\bar r_{\mathcal{G}} - \bar r$의 부호와 일치한다.
 \end{proof}
 
-이 정리는 signed Q가 어떤 regime에서 focus처럼, 어떤 regime에서 coverage처럼 작동하는지를 한 값 — ground-truth proxy에 걸린 온톨로지 정렬도의 조건부 평균에서 전체 평균을 뺀 값 — 의 부호로 환원한다. 강조할 점은 이 진단이 전역 최적 $\beta^*$를 보장하지 않고 $\beta=0$ 근방의 일차 방향만 준다는 것이다. 따라서 본문은 이 정리를 배포 알고리즘이 아니라 regime 설명 도구로 쓴다. 네 Qwen 도메인에서의 부호 방향이 실측 우세 방향과 어떻게 대응되는지는 표~\ref{tab:sign-routing}에 정리한다.
+이 정리는 signed Q가 어떤 regime에서 focus처럼, 어떤 regime에서 coverage처럼 작동하는지를 한 값 --- ground-truth proxy에 걸린 온톨로지 정렬도의 조건부 평균에서 전체 평균을 뺀 값 --- 의 부호로 환원한다. 하지만 이 결과가 주는 것은 \emph{local direction}이지 전역 최적 $\beta$가 아니다. 따라서 본문은 이 정리를 배포 가능한 router가 아니라 regime 설명 도구로만 사용한다. 네 Qwen 도메인에서의 부호 방향이 실측 우세 방향과 어떻게 대응되는지는 표~\ref{tab:sign-routing}에 정리한다.
 
 \begin{table}[h]
 \centering
@@ -95,13 +99,13 @@ MetaTool ST4 & 0.731 & $-$ & $\beta=-0.03$, $+2.28$pp & over-confident regime \\
 \end{tabularx}
 \end{table}
 
-정지 K는 왜 모든 레이어에 균일하게 두면 위험한가. 이를 다루는 마지막 정리는 출력 교란을 근사 없이 정확한 식별식으로 분해하고, 그로부터 유계 부등식을 도출한다.
+정지 K는 왜 모든 레이어에 균일하게 두면 위험한가. 이를 다루는 마지막 결과는 보조적이다. 메인 주장은 앞선 세 결과와 \S\ref{sec:experiments}의 stepwise / action-count 증거만으로 닫히며, 아래 정리는 late-layer K perturbation이 더 취약할 수 있음을 뒷받침하는 정량적 부록 결과로 읽어야 한다.
 
 \begin{theorem}[Attention 출력의 exact integral remainder]\label{thm:bound}
 $\phi(\tau) := \sum_t \mathrm{softmax}(\ell(q)+\tau\alpha(q))_t v_t$에 대해 $\hat o(q) - o(q) = L(q, E) + R(q, E)$가 정확한 등식으로 성립하고, 유계 노름 아래
 $\|\hat o - o\|^2 \le 2\,\mathrm{Var}_s\alpha(q)\cdot\mathrm{Var}_s[V](q) + C_1 \rho^4$, $C_1 = 2 Q_{\max}^4 V_{\max}^2/d^2$.
 \end{theorem}
 
-본문 논증은 한 줄 Taylor 전개와 softmax Jacobian으로 충분하며, 네 단계 완전 증명은 부록~\ref{app:proof:bound}에 있다. \S\ref{sec:experiments}의 실측은 Qwen L=13에서 좌변/우변 비율의 중앙값이 $2.36\times 10^{-8}$로 bound가 공허하지 않음을 확인한다. 이 정리는 왜 같은 $\alpha$의 K-측 perturbation이 레이어에 따라 attention 출력 교란 정도가 크게 달라지는지를 설명한다. develop 브랜치 실험에서 관측된 U-shape sensitivity와 결합하면, late layer의 K perturbation은 같은 $\alpha$에서도 더 위험하고 early layer의 K perturbation은 정보 각인에 더 유용하다. 본 논문의 스케줄 $\alpha_\ell = \alpha \mathbf{1}\{\ell<\lfloor L/4\rfloor\}$, $\beta_\ell = \beta$는 이 설계 원리의 최소 구현이며, K는 초기 각인에만 쓰고 이후 coverage 조정은 Q에 맡긴다.
+본문 논증은 한 줄 Taylor 전개와 softmax Jacobian으로 충분하며, 완전 증명은 부록~\ref{app:proof:bound}에 있다. \S\ref{sec:experiments}의 실측은 Qwen L=13에서 좌변/우변 비율의 중앙값이 $2.36\times 10^{-8}$로 bound가 공허하지 않음을 확인한다. 이 보조 결과가 말해 주는 바는 단순하다. 같은 $\alpha$라도 late-layer K perturbation은 더 위험할 수 있고, early-layer K perturbation은 정보 각인 쪽에 더 유리하다. 본 논문의 스케줄 $\alpha_\ell = \alpha \mathbf{1}\{\ell<\lfloor L/4\rfloor\}$, $\beta_\ell = \beta$는 이 설계 원리의 최소 구현이다.
 
 다섯 결과는 같은 연산자족 \eqref{eq:ops}의 서로 다른 축을 짚는다. 정리~\ref{thm:no-memory}은 연산자 정의만으로 history-free 한계를, 정리~\ref{thm:q-sign}은 사영 멱등성만으로 Q 부호의 기하를, 정리~\ref{thm:qk-duality}는 $P_{\mathrm{ont}}$의 대칭성만으로 K와 Q의 per-step 동등성을, 따름정리~\ref{cor:cache-divergence}는 KV-cache 재사용만으로 multi-step 비대칭성을 지적하며, 정리~\ref{thm:beta-star}과 정리~\ref{thm:bound}은 softmax gradient와 Taylor 전개로 각각 국소 방향과 레이어별 교란 경계를 제공한다. 이로써 layer-adaptive K+Q와 signed Q-only는 ``같은 기저, 같은 per-step 작용, 서로 다른 multi-step 거동''이라는 하나의 연산자족 내 두 끝으로 해석된다.
