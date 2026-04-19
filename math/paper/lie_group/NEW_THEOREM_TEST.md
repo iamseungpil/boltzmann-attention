@@ -1239,6 +1239,161 @@ At decoding step t:
 
 ---
 
+### Phase F12 — FacetRot-QK: Hybrid Q+K Coupled Rotation via Soft Facet Gate (Week 12-15, ~12-24 GPU-hr LoRA) — **NEW (2026-04-19 late evening), proposed after SEKA/AdaSEKA full-text audit**
+
+#### Motivation chain
+
+1. **F1 regime-limit**: $\delta K = \alpha B B^\top K$ is span-invariant — semantic facet organization filtered out (Phase C / F6 / F7 triple confirmation).
+2. **Phase D closure**: static-weight $d^*$ family FALSIFIED (H$_1$ 0.86-0.91× random, H$_3$ 1.10-1.23× random) — training-free derivation of semantic Q-bias direction from weights alone is closed.
+3. **Full-text prior-art audit (2026-04-19 late evening)**: AdaSEKA $P_{\text{dyn}}(q) = \sum_m \alpha_m(q) U^m (U^m)^\top$ already does **multi-expert dense weighted blend per query** (not single-pick as earlier §2.5.4 claimed) — MOFCISS (F11) novelty reduced to sparse + step-state + positive-only anchors.
+4. **Available theoretical foundation**: Thm 6.14 Hybrid (proven — two commuting SO(2) subgroups on orthogonal channel blocks) + Lemma 6.14.A (soft-gate Lipschitz) + F8d NMI 0.144-0.218 structural verb×domain orthogonality on 4/4 multi-domain corpora.
+5. **Combine**: apply content-dependent SO(2) rotation to BOTH Q and K on facet block $P_{\text{fac}}$, keep RoPE on residual block $P_{\text{res}}$. Multiplicative Q⊗K coupling (attention-product level) is strictly stronger than AdaSEKA's additive K-only blend; facet-dependent rotation angle breaks span-invariance.
+
+#### Prior-art positioning (post-audit)
+
+| Axis | SEKA | AdaSEKA | SADI | Focus Directions | F11 MOFCISS | **F12 FacetRot-QK** |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Operates on | K | K | hidden/head/neuron | K + Q | K (sparse) | **K + Q (rotation)** |
+| Mechanism | linear proj | linear proj (blend) | element-wise mask | **additive** bias | sparse subtract | **multiplicative rotation (SO(2))** |
+| Training | contrastive | contrastive | contrastive | gradient (10 epochs) | training-free | **LoRA (small: R/2 × F angles)** |
+| Span-invariant | ✓ | ✗ (blend) | ✗ (element-wise) | ✗ (additive) | ✗ (sparse) | ✗ (rotation) |
+| Semantic loaded | ✓ trained | ✓ trained | ✓ trained | ✓ relevance | ✓ ontology | ✓ **ontology + facet-separation geometry** |
+| Multi-tool | ❌ | ❌ | ❌ | ❌ | ✓ | ✓ (emitted-facet exclusion in π) |
+| Proven structure | ✗ | ✗ | ✗ | ✗ | Lemma A/B + Thm M | **Thm 6.14 Hybrid + Lemma 6.14.A** ✓ |
+
+→ F12 differentiators vs AdaSEKA: (a) Q⊗K multiplicative vs K-only additive blend, (b) rotation operator (handedness preserved) vs projection (span-only), (c) proven theoretical structure (Thm 6.14) vs post-hoc spectral.
+→ F12 differentiator vs Focus Directions: (a) SO(2) rotation vs additive bias, (b) ontology facet basis vs contextual head score, (c) step-adaptive via $\pi$ exclusion vs stationary.
+
+#### Core mechanism
+
+**Subspace decomposition (one-time, pre-train)**:
+```
+Identify verb × domain NMI-orthogonal block from F8d pipeline:
+  P_fac = projector onto span(B_verb, B_domain)   [R channels, R ≤ 2·r_F8d]
+  P_res = I - P_fac                               [d - R channels]
+  # Anchors built from positive-only ontology labels (same pipeline as F11 dictionary)
+```
+
+**Per-facet SO(2) rotation (LoRA-trained)**:
+```
+R_f ∈ SO(2)^{R/2}  parameterized by { θ_{f,i} ∈ R : i = 1, …, R/2 }
+R_f acts block-diagonally on R/2 channel pairs: R_f[i] = [[cos θ_{f,i}, -sin θ_{f,i}], [sin θ_{f,i}, cos θ_{f,i}]]
+Total trainable: F facets × R/2 angles — e.g. F=16, R=32 → 256 scalar params per (L, h)
+```
+
+**Soft facet gate (Lemma 6.14.A Option A, Lipschitz)**:
+```
+g_f(x)  = exp(||P_f x||² / τ)        [facet-energy gate, τ ≈ 1.0]
+π_soft(x) = Σ_f f · g_f(x) / Σ_f g_f(x)  [continuous facet index ∈ [1, F]]
+R_{π(x)} = linear interpolation of {R_f} via π(x)   [weighted-angle soft-rotation]
+```
+
+**Forward modification**:
+```
+At each steered (L, h):
+  q̃ = R_{π(q)} P_fac q + P_res q    [only Q is modified at that head]
+  k̃ = R_{π(k)} P_fac k + P_res k    [only K is modified at that head]
+  attn_score = q̃ · k̃ / √d
+  
+  Key property: if π(q) = π(k), rotations cancel (R^T R = I) — same-facet attention preserved
+  Cross-facet: angular misalignment → attention damped by cos(Δθ) factor on P_fac block
+```
+
+**Multi-tool step-adaptation**:
+```
+After emitting tool_s with facet f_s, modify gate:
+  g_f_new(x) = g_f(x) · exp(-γ · |{s : f_s = f}|)   [emitted-facet suppression]
+  π_soft(x) shifts toward uncovered facets at next step
+```
+
+#### Theoretical anchors (partially proven)
+
+- **Cor 6.7 phase-closure (already proven)**: for $q \perp \text{Range}(B_{\text{fac}})$, qaMSE = 0 at every $t$ under Hybrid. F12 inherits this: no-facet queries are not perturbed.
+- **Lemma 6.14.A (already proven)**: soft-gate $\pi$ gives Lipschitz-continuous FacetRot with constant $L_{\text{fac}} = 2\pi F L_g / \min \sum g_f$. Satisfies regularity hypothesis (R) of Cor 6.7.
+- **Theorem 6.14 Hybrid (already proven)**: two commuting SO(2) subgroups on orthogonal channel blocks; attention decomposes as content term + position term without space mismatch.
+- **Lemma F12.A (new, conjecture)**: Same-facet attention preservation bound — $|\langle \tilde{q}, \tilde{k}\rangle - \langle q, k\rangle| \leq L_{\text{fac}} \cdot \|P_{\text{fac}} q\| \|P_{\text{fac}} k\| \cdot |\pi(q) - \pi(k)|$ for soft-gate $\pi$. Reduces to 0 when $\pi(q) = \pi(k)$.
+- **Theorem F12.M (empirical)**: MetaTool Subtask4 F1 lift over AdaSEKA-on-shared-basis baseline is strictly positive; magnitude scales with multi-domain orthogonality (F8d NMI).
+
+#### Pre-registered experiment plan
+
+**Primary target: MetaTool Subtask4 N=497, Qwen2.5-7B-Instruct**
+
+| Variant | Rotation source | Subspace | α/LR | Predicted F1 |
+|---|---|---|---|---|
+| baseline (no steer) | — | — | — | 0.731 |
+| F12a closed-form Procrustes | $R_f$ = Procrustes($\bar K_f$, $\bar K_{f'}$) | verb×domain F8d block | α=0.3 | 0.71-0.73 (F7 R collapse risk — probable null) |
+| F12b LoRA R/2=16 (small) | learned $\theta_{f,i}$, 16 pairs × 16 facets | verb×domain block | 1e-3 AdamW 5ep | 0.76-0.80 ★ (primary target) |
+| F12c LoRA R/2=32 (medium) | learned, 32 pairs × 16 facets | verb×domain block | 1e-3 AdamW 5ep | 0.77-0.82 (expressivity ablation) |
+| F12d LoRA + step-adapt | F12b + emitted-facet exclusion γ=0.5 | same | same | 0.78-0.82 (multi-tool extension) |
+| F12e K-only ablation | F12b but only K rotated (no Q) | same | same | 0.74-0.77 (tests Q⊗K coupling necessity) |
+| F12f hard-gate | F12b with argmax π (Lipschitz violation) | same | same | ≪ baseline (Lemma 6.14.A prediction; Bug-2 hard-gate collapse replicate) |
+
+**Secondary: MetaTool Subtask1 N=200** (single-tool control):
+- F12b expected flat (no multi-tool gain), tests that rotation doesn't degrade single-tool.
+
+**Cross-bench: BFCL parallel_multiple N=100**:
+- F12b with MetaTool-trained angles, tests transferability of facet-rotation structure.
+
+**Baseline comparison**: F12b vs canonical AdaSEKA (reproduced on τ² Telecom at +28.89pp) on shared MetaTool Subtask4 harness.
+
+#### Pre-registered decision tree
+
+| F12b Subtask4 F1 | Reading | Paper impact |
+|---|---|---|
+| ≥ 0.82 (+9pp) | exceptional — beats AdaSEKA comparable | **Thesis upgrade** — "FacetRot Q⊗K rotation exceeds SEKA-family linear K-only by multiplicative coupling + facet structure". ICLR headline contribution. Ceiling 7.0+ |
+| 0.78-0.82 (+5-9pp) | strong positive | §5.Y as headline method contribution. Thm 6.14 promoted from Future Work to main paper. Ceiling 6.5-7.0 |
+| 0.76-0.78 (+3-5pp) | clear positive, compete with F11 | §5.Y co-contribution with F11 (if F11 also ≥ +3pp); otherwise F12 replaces F11 as primary. Ceiling 6.0-6.5 |
+| 0.74-0.76 (+1-3pp) | weak positive | §5.Y as ablation / F11 supplement. Ceiling 5.75-6.0 |
+| 0.71-0.74 | null | §6.3 strengthening — "neither F11 sparse-linear nor F12 rotational lifts above training-free ceiling". ICLR thesis unchanged. |
+| < 0.71 | harmful | LoRA rotation structure is over-constrained. F12a/e/f ablation 분석 → operator family 재설계 또는 abandon |
+
+**F12a (closed-form) ≫ 0.71**: training-free variant works — dramatic update to F1 reframe.
+**F12e (K-only) ≈ F12b**: Q⊗K coupling not load-bearing — reduce to LoRA-AdaSEKA variant.
+**F12f (hard-gate) ≫ baseline**: Lemma 6.14.A Lipschitz requirement falsified at inference.
+
+#### Implementation requirements
+
+1. `scripts/new_theorem_test/build_f12_facet_subspace.py` — extract verb×domain NMI-orth block from MetaTool anchors
+   - Reuse F11 dictionary K anchors + F8d machinery
+   - Output: $P_{\text{fac}}$, $P_{\text{res}}$, facet labels, $B_{\text{fac}}$ columns
+2. `scripts/new_theorem_test/train_f12_facetrot_qk.py` — LoRA training loop
+   - Freeze base LLM, trainable = SO(2) angles θ + gate temperature τ + projector refinement
+   - Dataset: MetaTool Subtask4 train split, CE loss on GT tool sequence
+   - Hook: per-(L, h) Q and K projection modification via forward pre-hooks on q_proj/k_proj
+3. `scripts/new_theorem_test/eval_subtask4_facetrot_qk.py` — eval w/ or w/o step-adaptation
+   - Manual decode loop (F11 infra reusable) for multi-tool emission tracking
+
+**Engineering challenges**:
+- **Gate Lipschitz enforcement**: soft $\pi$ must stay Lipschitz — bound $\tau$ below, add Lipschitz penalty to loss
+- **RoPE compatibility**: $P_{\text{res}}$ subspace must avoid RoPE pairs (channel selection constraint)
+- **GQA handling**: Qwen2.5-7B has 4 KV heads → apply rotation before GQA expansion for consistency
+
+#### Cost estimate
+
+- Build $P_{\text{fac}}$: 10 min (F11 / F8d reuse)
+- F12b LoRA train (5 epochs, 256 × 28 layers × 28 heads params ≈ 200K trainable): ~4-6 GPU-hr
+- F12b eval N=497: 1 GPU-hr
+- F12c/d/e/f ablations: ~8 GPU-hr (shared base)
+- F12a closed-form (no train): 1 GPU-hr eval
+- BFCL cross-bench: 1 GPU-hr
+- **Total: ~15-18 GPU-hr** (vs Thm 6.14 original 47 GPU-hr plan — F12 is lighter because only rotation angles are trained, not full LoRA on q_proj/k_proj)
+
+#### Risk assessment
+
+- **Engineering risk (high)**: soft-gate implementation + RoPE channel-block selection + GQA ordering. Mitigation: F12 script follows Thm 6.14 R1 plan's specification exactly (already sketched in `memory/theorem_6_14_facet_rotation_positioning_2026_04_14.md`).
+- **Theoretical risk (low)**: Thm 6.14 Hybrid is proven; Lemma 6.14.A is proven. Only F12.A and F12.M are new claims, and F12.M is empirical.
+- **Empirical risk (medium)**: F7 variant R closed-form collapsed on τ²-telecom (0.097 vs 2.45 baseline); this is mitigated by choosing MetaTool (F8d NMI 0.185 > 0.3 threshold met for verb×domain). Still, rotation LoRA may not train to useful angles in 5 epochs if facet separation is weak.
+- **Reviewer risk (medium)**: Focus Directions (Zhu 2025) already does gradient-trained Q+K bias; F12 must clearly differentiate on (rotation vs additive, ontology facet vs contextual head, proven Hybrid structure vs empirical). Wording: "additive $K + \alpha d_K$ is a Lie algebra shift; SO(2) rotation is a group action preserving norm and orthogonality — structurally distinct intervention class."
+- **Scope risk (medium)**: F12 requires training (LoRA) → exits training-free regime. F1 reframe's scope is preserved; F12 is explicitly labeled as "mild-training extension beyond F1 scope".
+
+#### Dependency on F11
+
+- If F11 positive (≥ +3pp): F12 is optional ablation / stretch contribution. Paper headline stays MOFCISS; F12 mentioned in §6 Discussion as "rotational extension empirically comparable".
+- If F11 null (< +3pp): F12 is **promoted to primary candidate**. LoRA R1 run is the next experiment session's first action.
+- If F11 harmful: F12 via fully different mechanism path (rotation vs sparse subtract) — still worth trying.
+
+---
+
 ## §6. Paper integration (ICLR 2027 submission 예상 구조)
 
 ### 6.1 구조 안
