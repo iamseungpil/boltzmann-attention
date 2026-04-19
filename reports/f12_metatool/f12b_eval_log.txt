@@ -1,0 +1,14 @@
+[checkpoint] external/SEKA/seka_projections/f12b-qwen25-7b-r32-uniform/f12_checkpoint.pt
+[subspace] /home/woori/workspace_common/boltzmann-attention/external/SEKA/seka_projections/f12-qwen25-7b-metatool-facet-subspace/facet_subspace.pt
+[load] Qwen/Qwen2.5-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.29it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.72it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:01<00:00,  1.94it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:02<00:00,  2.15it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:02<00:00,  1.95it/s]
+[load] done in 3.9s
+[data] 147 queries (slice 350:497)
+
+[eval] baseline no_steer
+[eval] baseline: F1=0.764 F0.5=0.770 EU=0.571 Exact=0.571 runtime=126.2s
+
+[eval] f12_uniform_r32 (hooks=20)
+[eval] f12_uniform_r32: F1=0.728 F0.5=0.752 EU=0.497 Exact=0.497 runtime=144.8s
+
+wrote reports/f12_metatool/f12b_eval_n147.json
