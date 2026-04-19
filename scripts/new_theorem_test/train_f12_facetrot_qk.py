@@ -198,11 +198,15 @@ class FacetSubspace(nn.Module):
         return coeffs, x - fac_full
 
     def gate(self, x: torch.Tensor) -> torch.Tensor:
-        """x: (B,T,H,d) -> gate (B,T,H,F)."""
-        # diff[b,t,h,f,:] = x[b,t,h,:] - anchors[f,h,:]
-        diff = x.unsqueeze(-2) - self.anchors.unsqueeze(0).unsqueeze(0).permute(0, 1, 3, 2, 4)
-        # diff shape: (B, T, H, F, d)  — after permute: anchors (F,H,d)->(1,1,H,F,d)
-        sq = (diff ** 2).sum(-1)                        # (B, T, H, F)
+        """x: (B,T,H,d) -> gate (B,T,H,F).
+
+        Uses ||x - a||^2 = ||x||^2 - 2<x,a> + ||a||^2 to avoid the O(B*T*H*F*d)
+        materialization of an explicit difference tensor, which OOMs on n_q=28.
+        """
+        x_sq = x.pow(2).sum(-1, keepdim=True)                    # (B,T,H,1)
+        a_sq = self.anchors.pow(2).sum(-1)                       # (F, H)
+        inner = torch.einsum("bthd,fhd->bthf", x, self.anchors)  # (B,T,H,F)
+        sq = x_sq + a_sq.transpose(0, 1).unsqueeze(0).unsqueeze(0) - 2.0 * inner
         logits = -sq / self.tau
         return torch.softmax(logits, dim=-1)
 
