@@ -30,6 +30,9 @@ ORDER = [
     ("P3 first_name kmd L=18", "h_wells_p3_first_name_kmd_L18.json"),
     ("P4 chat afod L=18", "h_wells_p4_chat_afod_L18.json"),
     ("P4 chat kmd L=18", "h_wells_p4_chat_kmd_L18.json"),
+    ("D.3 BERT-KM domain L=18", "h_wells_d3_bertkm_domain_L18.json"),
+    ("D.3 BERT-KM verb L=18", "h_wells_d3_bertkm_verb_L18.json"),
+    ("D.3 BERT-KM both L=18", "h_wells_d3_bertkm_both_L18.json"),
 ]
 
 
