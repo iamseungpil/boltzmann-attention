@@ -1,6 +1,6 @@
 # H-HOT — Higher-order ablation Status
 
-**Status**: preliminary (2026-04-19). Most speculative branch.
+**Status**: **dormant** (2026-04-19). Depended on F14 pilot positive — closed by F13b +3.85pp. **Do not execute.** Most speculative branch; dormancy is low-regret. Q5 "higher-order abstraction = 상위 attention 이 하위 관찰" remains as §2.5.2 theoretical coverage only; F13's staged rotation (early K / late Q) is a weaker-but-empirical version of the hierarchical-observation intuition.
 **Primary spec**: memory `user_5question_synthesis_f14_metafocus_2026_04_19.md` §5 H-HOT
 **Concept**: Q5 "상위 attention 이 하위 관찰". Test if explicit meta-layer is qualitatively different from pure transformer depth.
 **3 variants**:
