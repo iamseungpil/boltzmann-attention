@@ -1394,6 +1394,159 @@ After emitting tool_s with facet f_s, modify gate:
 
 ---
 
+### Phase F13 — FunnelRot: Staged FacetRot-QK with L28-Funnel-Aware Schedule (Week 13-16, ~14-20 GPU-hr LoRA) — **NEW (2026-04-19 late evening, parallel to F12), proposed after ladapt + Phase B2 convergence audit**
+
+#### Motivation — two independent empirical anchors converge
+
+**Anchor 1: ladapt schedule (NeurIPS prep, session_handoff_2026_04_17)**. Three-stage K/Q schedule empirically beats uniform K-only / Q-only / all-layer K+Q across 4 tool-selection benchmarks:
+- τ² Telecom N=200: Q-only $-\beta=0.03$ gave $+18.37$pp; ladapt K+Q point estimate sits inside 95% CI $[+23.31, +30.23]$
+- τ² Airline N=50: ladapt K+Q $\beta=-0.03$ gave $+3.80$pp
+- τ² Banking non-meta N=13: ladapt K+Q gave $+6.90$pp
+- MetaTool Subtask4 N=497: iterative_kq (layer-adaptive) gave $+2.18$pp
+
+Schedule used (`_build_layer_adaptive_qk_schedule` in `scripts/ocq/eval_metatool_subtask1.py:873`):
+```
+Stage 1 (ℓ ∈ [0, 5]):      α_ℓ = α_k (strong K),      β_ℓ = 0
+Stage 2 (ℓ ∈ [6, 18]):     α_ℓ = 0.3·α_k (weak K),    β_ℓ = β_q
+Stage 3 (ℓ ∈ [19, 27]):    α_ℓ = 0,                   β_ℓ = β_q (Q-only)
+```
+
+**Anchor 2: Phase B2 layer-resolved KL (ICLR §5.5)**. Qwen × Telecom $N=50$, steered layers L18–L27, 29-layer residual-stream KL probe:
+- L18–L27: **9/9 monotonic in rank** across $r \in \{1, 3, 6, 12, 24, 48, 96\}$ — linear transport channel
+- **L28 (final FFN + LM-head composition)**: non-monotonic; $r=1$ KL = $0.0255$, **$85\times$ amplification** from L27's $0.0003$. At $r=96$, amplification drops to $1.35\times$ ($0.1312 \to 0.1770$).
+
+**Convergence**: The layer-28 amplifier is strongly rank-selective — low-rank signals are 85× amplified, dense signals barely 1.35×. ladapt's empirical success likely reflects (i) K-early builds low-rank geometric information that is carried monotonically through L27, (ii) Q-late re-allocates attention mass onto the K-shaped geometry just before the L28 funnel, (iii) neither stage intervenes at L28 itself, so the natural non-linear amplifier is preserved. The schedule is empirical; the rank selectivity is mechanistic. Together they suggest a single design: **staged low-rank rotation that respects the L28 amplifier**.
+
+#### Structural cross-tab (F13 vs relevant prior art)
+
+| 방법 | Staged K/Q | Low-rank (r ≤ 4) | L28 explicit-skip | Rotation operator | Ontology facet |
+|---|:---:|:---:|:---:|:---:|:---:|
+| SEKA / AdaSEKA | ❌ all layers | — (trained basis) | ❌ | ❌ | trained |
+| Focus Directions | ❌ contextual heads uniform | — | ❌ | ❌ | contextual |
+| SADI | ❌ all-layer element mask | — | ❌ | ❌ | contrastive |
+| ladapt (our NeurIPS prep) | ✓ | ❌ linear projection | implicit (not argued) | ❌ | ❌ catalog |
+| F11 MOFCISS | ❌ uniform steered layers | ✓ sparse | implicit | ❌ | ✓ F8d |
+| F12 FacetRot-QK uniform | ❌ L18-27 uniform | ✓ facet block | implicit | ✓ SO(2) | ✓ F8d |
+| **F13 FunnelRot (proposed)** | **✓ (ladapt schedule)** | **✓ (facet rank R ≤ 4)** | **✓ (explicit)** | **✓ (Thm 6.14)** | **✓ (F8d)** |
+
+→ F13 is the first method combining (a) staged K/Q schedule, (b) low-rank rotation, (c) explicit L28 non-intervention, (d) proven SO(2) Hybrid structure, (e) ontology facet basis. No prior work owns this 5-way intersection.
+
+#### Core mechanism
+
+**Schedule** (adopts ladapt's three-stage design, adds L28-explicit-skip):
+
+$$(s_K(\ell),\, s_Q(\ell)) = \begin{cases} (\alpha,\, 0) & \ell \in [0, 5] \\ (0.3\alpha,\, \beta) & \ell \in [6, 18] \\ (0,\, \beta) & \ell \in [19, 27] \\ (0,\, 0) & \ell = 28 \text{ (natural amplifier preserved)} \end{cases}$$
+
+**Per-layer rotation** (inherits F12 Thm 6.14 Hybrid; only $K$ at stages 1-2, only $Q$ at stages 2-3):
+
+$$\tilde{k}^{(\ell)} = s_K(\ell) \cdot R_{\pi(k)}^{(\ell)} P_{\text{fac}} k + P_{\text{res}} k + (1 - s_K(\ell)) \cdot P_{\text{fac}} k$$
+
+$$\tilde{q}^{(\ell)} = s_Q(\ell) \cdot R_{\pi(q)}^{(\ell)} P_{\text{fac}} q + P_{\text{res}} q + (1 - s_Q(\ell)) \cdot P_{\text{fac}} q$$
+
+(The $(1 - s) P_{\text{fac}} x$ term ensures zero-schedule reduces to identity on the facet subspace.)
+
+**Low-rank constraint**: $P_{\text{fac}}$ rank $R \leq 4$ (one verb axis + one domain axis from F8d, or two of each). This aligns with the L28 amplification regime where $r = 1$ gives $85\times$ and $r = 6$ already starts declining. The uniform F12 used $R \leq 32$ (expressive); F13 uses $R \leq 4$ (funnel-aligned).
+
+**Trainable parameters** (LoRA R1 style, beyond F12):
+- Rotation angles $\theta_{f, i}^{(\ell)}$: per steered layer $\ell$, per facet $f$, per SO(2) pair $i$. Total $\sim 28 \times 16 \times 2 = 896$ scalars.
+- Stage scalars $\alpha, \beta$: 2 scalars.
+- Mid-stage scale $\rho \in [0, 1]$ (ladapt uses $0.3$ as default): 1 scalar.
+- Gate temperature $\tau$: 1 scalar.
+- **Total**: $\sim 900$ trainable scalars, all base-frozen.
+
+#### Theoretical anchoring
+
+- **Thm 6.14 Hybrid (proven, 2026-04-14)**: two commuting SO(2) subgroups on $P_{\text{fac}}$ / $P_{\text{res}}$. F13 inherits.
+- **Lemma 6.14.A (proven)**: soft-gate Lipschitz bound. F13 inherits.
+- **Phase B2 (verified, 2026-04-19)**: L28 is the unique non-monotonic layer; amplification is $1/r^\kappa$-like. F13 exploits by constraining $R \leq 4$ and skipping L28.
+- **Conjecture F13.Funnel (new, empirical-to-be-tested)**: When L0–L27 is $r$-monotonic and L28 has amplification $A(r) \propto 1/r^\kappa$ with $\kappa > 0$, a staged low-rank intervention $\{(s_K(\ell), s_Q(\ell))\}$ with zero schedule at L28 Pareto-dominates uniform all-layer interventions (including L28) for argmax flip rate at matched $\|\delta K\|_F$ energy. **Falsifier**: F13d (L28-intervene ablation) $\geq$ F13b.
+- **Conjecture F13.Cascade (new, explanatory)**: ladapt's empirical success on ladder of benchmarks is the rank-1 instance of F13.Funnel, with $P_{\text{fac}} = \text{span}(B_{\text{ont}})$ (no rotation operator, just projection). F13 generalizes by adding SO(2) rotation to break span-invariance on the facet block.
+
+#### Pre-registered experiment plan (6 cells)
+
+**Primary target: MetaTool Subtask4 N=497, Qwen2.5-7B-Instruct, LoRA 5 epochs**
+
+| Variant | Schedule | Rotation | Rank R | L28 | Predicted F1 |
+|---|---|---|---|:---:|---|
+| F13a = F12b reproduction | uniform L18-27 | SO(2) | 32 | skip (natural) | 0.76-0.80 |
+| **F13b Full FunnelRot** ★ | **ladapt 3-stage** | **SO(2)** | **4** | **explicit skip** | **0.80-0.85** |
+| F13c ladapt + projection (rotation ablation) | ladapt 3-stage | ❌ additive $B B^\top$ | 4 | skip | 0.77-0.82 (reproduces ladapt literal) |
+| F13d L28-intervene negative control | ladapt 3-stage | SO(2) | 4 | **K-intervene at L28** | **< F13b expected** — falsifies F13.Funnel if not |
+| F13e uniform rotation (schedule ablation) | uniform L0-27 | SO(2) | 4 | skip | intermediate — tests schedule's role |
+| F13f low-rank ablation (rank ablation) | ladapt 3-stage | SO(2) | 16 | skip | tests whether R ≤ 4 is load-bearing vs R=16 |
+
+**Secondary control**: MetaTool Subtask1 N=200 with F13b (expect flat — single-tool, no schedule gain).
+
+**Cross-bench**: BFCL parallel_multiple N=100 with F13b using MetaTool-trained angles.
+
+**Baseline reference**: canonical AdaSEKA (external/SEKA integration) on same MetaTool Subtask4 harness.
+
+#### Pre-registered decision tree
+
+| F13b Subtask4 F1 | Reading | Paper impact |
+|---|---|---|
+| ≥ 0.84 (+11pp) | exceptional, beats AdaSEKA regime | **Thesis major upgrade** — "Funnel-aware staged rotation exceeds SEKA-family linear K-only by structural alignment with L28 amplification". ICLR headline. Ceiling 7.0+ |
+| 0.80-0.84 (+7-11pp) | strong positive, competitive w/ AdaSEKA | §5.Y co-contribution w/ F11 or headline method. Ceiling 6.5-7.0 |
+| 0.76-0.80 (+3-7pp) | moderate, subsumes F12 | §5.Y FunnelRot primary; F12 demoted to ablation row. Ceiling 6.0-6.5 |
+| 0.73-0.76 (+0-3pp) | weak, schedule not load-bearing | §5.Y as small-lift ablation. Ceiling 5.75-6.0 |
+| < 0.73 | null | L28-awareness irrelevant; F12 regime ceiling confirmed. §6.3 Discussion strengthening |
+
+**Critical ablation reads**:
+- **F13d ≥ F13b**: L28 non-intervention is NOT load-bearing → demote F13.Funnel conjecture; re-frame as "staged low-rank rotation" without L28 claim.
+- **F13c ≥ F13b**: SO(2) rotation is NOT load-bearing → collapse to "ladapt with F8d block selection"; reuse as reproducing-ladapt row.
+- **F13e ≥ F13b**: staged schedule is NOT load-bearing → collapse to F12b uniform rotation.
+- **F13f ≥ F13b**: low-rank constraint is NOT load-bearing → raise R freely, reduce to F12c medium-rank.
+
+Each ablation is designed to isolate exactly one design element. If all four ablations match F13b within noise, F13 degenerates into a weaker claim. If F13b strictly dominates all four, all five design elements (schedule + rotation + L28-skip + low-rank + facet basis) are individually load-bearing — strong thesis.
+
+#### Implementation requirements
+
+1. **`build_f12_facet_subspace.py`** (shared with F12) — extract $P_{\text{fac}}$ with rank parameter (default 4 for F13, 32 for F12c).
+2. **`scripts/new_theorem_test/train_f13_funnelrot.py`** — extension of `train_f12_facetrot_qk.py`:
+   - `--schedule {uniform, ladapt}` flag (default: `ladapt` for F13; inherits `uniform` for F12)
+   - `--skip-layer-28 {true, false}` flag (default: `true`)
+   - `--early-end`, `--mid-end`, `--mid-alpha-scale` ladapt schedule knobs (defaults: 5, 18, 0.3)
+   - `--rank-fac` projection rank (default: 4 for F13, 32 for F12)
+   - Reuse F12's `FacetRotSO2` + `FacetSubspace` + hook infrastructure
+3. **`scripts/new_theorem_test/eval_subtask4_funnelrot.py`** — eval w/ staged schedule + optional step-adaptation (F13b + F13b-step variant for multi-tool).
+
+**Engineering notes**:
+- ladapt `install_layer_adaptive_qk_hooks` already implements 3-stage for additive projection — F13 extends by replacing additive step with SO(2) rotation at each stage.
+- L28 skip is implemented by NOT registering hooks on layer index 28 (model.model.layers[28]).
+- Low-rank $R = 4$ constrains $P_{\text{fac}}$ to span of top-2 verb + top-2 domain F8d axes only.
+
+#### Cost estimate
+
+- Build $P_{\text{fac}}$ rank-4: 5 min GPU (F8d reuse)
+- F13b LoRA train (5 epochs, ~900 trainable scalars): ~4-6 GPU-hr
+- F13b eval N=497: 1 GPU-hr
+- F13a (uniform, F12b-equivalent): shared train, +1 GPU-hr eval
+- F13c (projection variant): 3 GPU-hr (faster, no rotation)
+- F13d (L28-intervene): 5 GPU-hr (shared train infra, separate eval)
+- F13e (uniform schedule): 3 GPU-hr
+- F13f (R=16): 4 GPU-hr
+- BFCL cross-bench: 1 GPU-hr
+- **Total: ~22-26 GPU-hr** (1 GPU, 1 day wall-clock with 2-3 parallel runs)
+
+#### Risk assessment
+
+- **Engineering risk (low)**: F12 infrastructure ready; F13 is an extension with schedule + rank knobs. ladapt `install_layer_adaptive_qk_hooks` already proven on production eval path.
+- **Theoretical risk (low)**: Thm 6.14 + Lemma 6.14.A + Phase B2 are all already established. F13.Funnel + F13.Cascade are conjectures but each has a direct falsifier cell (F13d, F13c respectively).
+- **Empirical risk (medium)**: schedule-rotation interaction untested. ladapt's schedule was tuned for additive projection; optimal stage boundaries may shift for rotation.
+- **Reviewer risk (low)**: structural uniqueness (5-way intersection) is defensible. Negative control F13d directly addresses "why not L28?" question.
+- **Scope risk (medium)**: F13 still requires LoRA training → outside strict training-free scope. F13c closed-form (no rotation, just ladapt projection with F8d basis) is the closest training-free fallback.
+
+#### Dependency on F11 + F12
+
+- **F11 positive + F13b < 0.80**: F11 headline, F13 demoted to §6.3 Discussion.
+- **F11 positive + F13b ≥ 0.80**: both reported as co-contributions; §5.Y comparison with F13.Funnel as "funnel-aware alternative to sparse subtraction".
+- **F11 null + F13b ≥ 0.80**: F13 replaces F11 as primary method contribution. Clean story — Phase B2 mechanism finding directly enabled the winning method.
+- **F11 null + F13b < 0.80**: F12 uniform rotation as fallback (F13a = F12b); report F13.Funnel conjecture as false and F13 as schedule ablation.
+
+F13 is explicitly designed as a **superset** of F12: F13a cell reproduces F12b, so running F13 costs little more than F12 while giving 5 ablation rows.
+
+---
+
 ## §6. Paper integration (ICLR 2027 submission 예상 구조)
 
 ### 6.1 구조 안
