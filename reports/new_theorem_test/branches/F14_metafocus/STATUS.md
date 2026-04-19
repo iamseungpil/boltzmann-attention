@@ -1,6 +1,6 @@
 # F14 MetaFocus — Synthesis pilot Status
 
-**Status**: preliminary (2026-04-19). Synthesis of H-Meta + H-MCTS + H-HOT + ontology-ordering.
+**Status**: **dormant** (2026-04-19). Gate closed by F13b +3.85pp (triple-gate requires F12<+3 ∧ F13<+3 ∧ H-Ord≥+2; F13 ≥ +3pp breaks gate). **Do not execute.** Revive only if ablations (F13d/e) reveal F13b result was cocktail-artifact and real lift < +3pp, or if cross-bench replication fails broadly.
 **Primary spec**: `NEW_THEOREM_TEST.md §2.5.2 v5.3 (6M)` + memory `user_5question_synthesis_f14_metafocus_2026_04_19.md` §4
 **Architecture sketch**:
 ```
