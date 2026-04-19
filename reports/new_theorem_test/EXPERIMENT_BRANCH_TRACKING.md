@@ -56,33 +56,37 @@ Each branch has an independent execution path, gate, status, and artifact dir un
 
 ```
         ┌─────────────────────────────────────────────────────┐
-        │  PRIMARY TRACK (F-series, K-bias attention)         │
+        │  PRIMARY TRACK (post-F13 state, 2026-04-19)         │
         │                                                     │
-        │  F12 ── (null) ──► F13 ── (null) ──┐                │
-        │   │                 │              ▼                │
-        │   │                 │         ┌─── H-Order ─┐       │
-        │   │                 │         │             │       │
-        │   ▼                 ▼         ▼             ▼       │
-        │  done-pos         done-pos   H-Energy    (null)     │
-        │  (paper §5)       (paper §5) (postproc)  dormant    │
-        │                                 │                   │
-        │                                 ▼                   │
-        │                              H-Trajectory           │
-        │                                 │                   │
-        │                                 ▼                   │
-        │                              F14 pilot              │
-        │                                 │                   │
-        │                          ┌──────┼──────┐            │
-        │                          ▼      ▼      ▼            │
-        │                        H-Meta H-MCTS H-HOT          │
+        │  F12 ─► falsified (−3.63pp, early-EOS pathology)    │
+        │                                                     │
+        │  F13 ─► POSITIVE (+3.85pp) ◄── PAPER HEADLINE       │
+        │   │                                                 │
+        │   ├─► F13d (no-L28-skip)  ┐                         │
+        │   ├─► F13e (uniform R=4)  │ ABLATIONS (~8 GPU-hr)   │
+        │   ├─► F13c (proj-only)    │ isolate load-bearing    │
+        │   └─► F13f (R=16)         ┘                         │
+        │                                                     │
+        │   ├─► H-Energy (postproc on F13b tensors, 0 GPU)    │
+        │   ├─► Llama-3.1-8B F13b replication (~12 GPU-hr)    │
+        │   ├─► BFCL / StableToolBench cross-bench (~4 GPU-hr)│
+        │   └─► H-Order (1–2 GPU-hr, Group 6 independent)     │
+        │                                                     │
+        │  DORMANT (F13 ≥ +3pp closed their gate):            │
+        │  ─► F14 MetaFocus                                   │
+        │  ─► H-Meta, H-MCTS, H-HOT                           │
+        │                                                     │
+        │  STILL-OPEN (independent of F13 gate):              │
+        │  ─► H-Trajectory (gated on H-Order)                 │
         └─────────────────────────────────────────────────────┘
 
         ┌─────────────────────────────────────────────────────┐
         │  CROSS-CUT TRACK (E1, engineering-interface)        │
         │                                                     │
-        │  E1 runs piggyback on F12/F13 inputs, emits         │
-        │  cost/variance/HP-dim metrics. Independent of       │
-        │  gate; outputs feed §1/§6 reframe.                  │
+        │  Framing elevated post-F13: now paired with         │
+        │  capability win, not fallback. Piggyback on         │
+        │  F13b replication → CoT/ToT/SC baselines add ≤3 hr. │
+        │  Feeds §6 Discussion interface-parity argument.     │
         └─────────────────────────────────────────────────────┘
 ```
 
