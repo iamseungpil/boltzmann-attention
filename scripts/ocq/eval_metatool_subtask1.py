@@ -1737,6 +1737,13 @@ def main():
             )
         print(f"[ocq] B_ont shape {tuple(B_ont.shape)}", flush=True)
 
+        # Auto-extract facet_split for F10 from B_ont payload metadata
+        if isinstance(payload, dict) and "facet_split" in payload:
+            args.facet_split = payload["facet_split"]
+            print(f"[ocq] facet_split = {args.facet_split}", flush=True)
+        elif not hasattr(args, "facet_split") or args.facet_split is None:
+            args.facet_split = None
+
         if needs_facet_mask:
             if not (isinstance(payload, dict) and "r_per_pair" in payload):
                 raise ValueError(
