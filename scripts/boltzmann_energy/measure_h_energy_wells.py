@@ -532,6 +532,7 @@ def main():
 
     # --- Output ---
     out = {
+        "variant": args.variant,
         "model": args.model,
         "dataset": "MetaTool-Subtask1",  # deviation from spec §5.1 "Subtask4" (see script header)
         "dataset_note": "Subtask1 used instead of Subtask4; Subtask4 GT = meta-category (15 unique), "
@@ -540,7 +541,11 @@ def main():
         "n_queries": n_q,
         "n_tools": n_tools,
         "layer": args.layer,
-        "pooling": "prompt_end_k_norm_avg_over_n_kv",
+        "pooling": args.pooling,
+        "kspace_cluster": args.kspace_cluster,
+        "chat_template": bool(args.chat_template),
+        "label_source_verb": label_source_verb,
+        "label_source_domain": label_source_domain,
         "facets": ["verb", "domain"],
         "n_clusters_verb": n_verb,
         "n_clusters_domain": n_domain,
