@@ -305,14 +305,37 @@ def train_f12(cfg: F12Config, out_dir: Path) -> None:
     subspace = FacetSubspace(B_fac, anchors, tau=cfg.gate_tau_init).to(model.device)
     rotation = FacetRotSO2(cfg.n_facets, cfg.rot_pairs).to(model.device)
 
-    # --- 3. Register per-layer hooks ---
+    # --- 3. Compute per-layer (s_K, s_Q) schedule ---
+    #   F12 uniform  : s_K = s_Q = 1.0 on steered_layers, 0 elsewhere
+    #   F13 FunnelRot: ladapt 3-stage (early K / mid K+Q / late Q) + explicit L28 skip
+    num_layers = len(model.model.layers)
+    s_K_schedule, s_Q_schedule = build_kq_schedule(cfg, num_layers)
+
+    print(f"[f12/f13] schedule={cfg.schedule!r}, skip_layer_28={cfg.skip_layer_28}, "
+          f"rot_pairs={cfg.rot_pairs} (R={2*cfg.rot_pairs}), n_facets={cfg.n_facets}")
+    print(f"[f12/f13] s_K per layer: {[round(x, 3) for x in s_K_schedule]}")
+    print(f"[f12/f13] s_Q per layer: {[round(x, 3) for x in s_Q_schedule]}")
+
+    # --- 4. Register per-layer hooks with per-layer strength ---
     hook_handles = []
-    for layer_idx in cfg.steered_layers:
+    for layer_idx in range(num_layers):
+        s_K = s_K_schedule[layer_idx]
+        s_Q = s_Q_schedule[layer_idx]
+        if s_K == 0.0 and s_Q == 0.0:
+            continue  # layer not steered (includes skip_layer_28)
         layer = model.model.layers[layer_idx]  # Qwen2DecoderLayer
-        hook = FacetRotQKHook(subspace, rotation)
-        # TODO(F12): register forward_post_hook on layer.self_attn.q_proj and k_proj
-        #   taking care to reshape (B, T, n_heads*d_head) → (B, T, n_heads, d_head) before transform
-        # hook_handles.extend([...])
+        # K-proj hook (active when s_K > 0)
+        if s_K > 0.0:
+            k_hook = FacetRotQKHook(subspace, rotation, strength=s_K)
+            # TODO(F12): register forward_post_hook on layer.self_attn.k_proj
+            #   Reshape (B, T, n_kv * d_head) → (B, T, n_kv, d_head) before transform,
+            #   flatten back after. Handle GQA: apply on n_kv heads before expansion.
+            # hook_handles.append(layer.self_attn.k_proj.register_forward_hook(...))
+        # Q-proj hook (active when s_Q > 0)
+        if s_Q > 0.0:
+            q_hook = FacetRotQKHook(subspace, rotation, strength=s_Q)
+            # TODO(F12): register forward_post_hook on layer.self_attn.q_proj
+            # hook_handles.append(layer.self_attn.q_proj.register_forward_hook(...))
 
     # --- 4. Loader ---
     # TODO(F12): build MetaTool Subtask4 train loader; tokenize with chat template;
