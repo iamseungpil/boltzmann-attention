@@ -1,6 +1,6 @@
 # H-Meta — Meta-attention layer Status
 
-**Status**: preliminary (2026-04-19). Spec in NEW_THEOREM_TEST.md §2.5.2 v5.3 / §5 pending.
+**Status**: **dormant** (2026-04-19). Gate closed by F13b +3.85pp. Gate required F12<+3 AND F13<+3 — F13 exceeded. **Do not execute.** F13 FunnelRot now occupies the "ontology-conditioned attention modulation" slot; separate meta-layer architecture unjustified.
 **Primary spec**: memory `user_5question_synthesis_f14_metafocus_2026_04_19.md` §5 H-Meta
 **Concept**: frozen LLM + ontology-axis meta-attention layer (LoRA rank comparable). Ontology-typed Q/K routing.
 **Null control**: identity rotation + identity gate = same-capacity LoRA with random ontology labels.
