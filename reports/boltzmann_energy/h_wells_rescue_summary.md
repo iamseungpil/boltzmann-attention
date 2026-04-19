@@ -28,10 +28,27 @@
 | P3 first_name kmd L=18 | 18 | first_name | domain | — | -0.090 | ✗ | -0.026 | ✗ | +0.010 | ✓ | 0.000 | FALSIFIED |
 | P4 chat afod L=18 | 18 | prompt_end | none | ✓ | +0.088 | ✗ | +0.038 | ✗ | -0.006 | ✓ | 0.283 | FALSIFIED |
 | P4 chat kmd L=18 | 18 | prompt_end | domain | ✓ | +0.449 | ✗ | +0.121 | ✗ | +0.001 | ✓ | 0.254 | FALSIFIED |
+| D.3 BERT-KM domain L=18 | 18 | prompt_end | none | — | +0.143 | ✗ | +0.090 | ✗ | +0.006 | ✓ | 0.299 | FALSIFIED |
+| D.3 BERT-KM verb L=18 | 18 | prompt_end | none | — | +0.128 | ✗ | -0.025 | ✗ | -0.015 | ✓ | 0.307 | FALSIFIED |
+| D.3 BERT-KM both L=18 | 18 | prompt_end | none | — | +0.048 | ✗ | -0.008 | ✗ | +0.009 | ✓ | 0.302 | FALSIFIED |
 
-## Winner
+## Winner (highest Δ_norm — but see D.3 tautology check below)
 
 **P2 kmeans-domain L=18** — Δ_norm=**+0.579** (G1=PASS), median ρ=+0.144 (G2=FAIL), Hopfield R²=0.274. Joint = **WEAK**.
+
+## D.3 BERT-KM defense — TAUTOLOGY CHECK
+
+Pre-reg tier (locked before D.3 run):
+- Δ ≥ 0.30: cross-feature semantic basin (paper tier 5.0-6.0)
+- 0.15 ≤ Δ < 0.30: ambiguous (paper tier 4.0-5.0)
+- Δ < 0.15: tautology confirmed, pure negative (paper tier 3.5-4.5)
+
+BERT-KM Δ_norm at L=18 prompt_end (best of {verb, domain, both}):
+- domain: +0.143 (best, BARELY below 0.15 boundary)
+- verb: +0.128 (non-monotone)
+- both: +0.048
+
+**TAUTOLOGY CONFIRMED.** afod-domain (+0.139) ≈ BERT-KM-domain (+0.143) << Qwen-K-self-KMeans-domain (+0.579, 4× larger). Two independent semantic spaces (lexical regex, BERT embedding) BOTH produce identical near-zero basin in Qwen K-space; only K-self-derived labels lift the signal. The P2 'rescue' was self-similarity by construction, not semantic structure.
 
 ## Per-phase conclusions
 
@@ -55,20 +72,21 @@
 - kmd L=18 chat: Δ_norm=+0.449 (worse than raw +0.579).
 - **Chat template HURTS**, not helps. v1's raw-query design was correct.
 
-## Verdict
+## Verdict (post-D.3)
 
-**Path A partially rescues H-Energy-Wells framework**:
-- G1 (aggregate basin) PASS with K-space labels — framework survives at aggregate level.
-- G2 (per-query Spearman) still FAIL — basin too shallow for robust per-query retrieval.
-- G3 (shuffled null) PASS throughout — signal is real, not artifact.
+**Path A FAILS to rescue H-Energy-Wells framework once D.3 tautology check is applied:**
+- P2 kmeans-domain L=18 G1 PASS = self-similarity artifact (Δ=+0.579 with K-self labels collapses to Δ=+0.143 with BERT-independent labels of same K).
+- afod (+0.139) ≈ BERT (+0.143) — two independent semantic spaces both fail. Real semantic basin in Qwen attention K-space at L=18 ≈ 0.14σ ≈ noise.
+- G2 (per-query Spearman) FAIL throughout — even the artifact-inflated P2 winner only reaches +0.144.
+- G3 (shuffled null) PASS throughout — what little signal exists IS structured, just very weak.
 
-**Root cause of v1 falsification**: afod-heuristic regex labels were K-space-orthogonal. The ontology is intrinsic to the K-space, not the regex categorization scheme.
+**Triple negative**: afod fail + BERT fail + G2 fail. **Tautology confirmed via D.3.**
 
-**Path B (H-V-NegBasin / framework pivot) NOT triggered** — kill criterion (P1+P2+P3 all FAIL) not met. P2 kmeans-domain L=18 joint=WEAK is a partial rescue.
+**Kill criterion technically NOT triggered** (G1 PASS exists, even if artifact), but D.3 reveals it as construction artifact. Effective interpretation: H-Energy-Wells v1 framework is **dead at semantic-basin level**, regardless of methodology variant.
 
 ## Next-step options
 
-1. **H-Storage-Capacity** at P2 winner config (spec §4) — test Hopfield-style pattern counting.
-2. Tighten G2 investigation — why per-query ρ so low (0.144) despite aggregate basin?
-3. Paper narrative pivot: 'ontology exists but at K-intrinsic level, not at lexical-heuristic level.'
-4. Replicate at best-L for additional layers around L=18 (L=16, 20, 22) to localize.
+1. **Paper Option B (pure negative)** — frame as falsification with mechanistic ablations: 'Tool-selection ontology does NOT exist as Hopfield basin in Qwen2.5 attention K-space; reported aggregates under self-derived labels are tautological. afod, BERT, and per-query retrieval all fail.'
+2. **Path B brainstorm RE-ACTIVATES**: H-V-NegBasin (anti-basin), FEP (Friston), Gärdenfors conceptual spaces, or abandon ontology axis (attention-only measurements).
+3. **Cross-layer + cross-model replication** before paper writing: confirm BERT-KM Δ ≈ afod Δ at L∈{6,12,24} too (if so, framework dead globally) and on Qwen2.5-1.5B / Llama-3-8B.
+4. **G2-first redesign**: rebuild framework around per-query metric (e.g., rank of GT in nearest-N) rather than aggregate basin.
