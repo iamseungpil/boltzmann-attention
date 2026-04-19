@@ -1,0 +1,2462 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask4.json",
+  "benchmark": "subtask4",
+  "n_queries": 50,
+  "method": "mofciss",
+  "hyperparams": {
+    "alpha": 0.05,
+    "decay": 0.5,
+    "top_k": 5,
+    "use_omp": true,
+    "max_tools": 2
+  },
+  "macro": {
+    "F1": 0.6766666666666667,
+    "F_0.5": 0.6933333333333332,
+    "EU": 0.36,
+    "Jaccard": 0.5766666666666665,
+    "Exact": 0.36,
+    "precision": 0.71,
+    "recall": 0.66
+  },
+  "stepwise": {
+    "emitted_any_rate": 1.0,
+    "emitted_two_rate": 0.86,
+    "emitted_two_distinct_rate": 0.86,
+    "first_tool_hit_rate": 0.68,
+    "second_tool_hit_rate": 0.64,
+    "second_distinct_hit_rate": 0.64,
+    "second_recovery_given_first_hit_rate": 0.36,
+    "repeated_first_tool_rate": 0.0
+  },
+  "runtime_s": 42.96578288078308,
+  "baseline_macro": null,
+  "baseline_stepwise": null,
+  "baseline_runtime_s": null,
+  "per_sample": [
+    {
+      "index": 0,
+      "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 1,
+      "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "news"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 2,
+      "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 3,
+      "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "news"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 4,
+      "query": "How can I invest my savings wisely and also learn about financial planning?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "lookup",
+          "education"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 5,
+      "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}, \"tool_description\": \"Unlock a world of knowledge and growth with our comprehensive learn platform, offering a diverse range of courses from renowned providers like Coursera and Upskill, personalized language learn, professional team information loo",
+      "emitted_cells": [
+        [
+          "lookup",
+          "education"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 6,
+      "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "create",
+          "data"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 7,
+      "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "lookup",
+          "education"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 8,
+      "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ChartTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "ChartTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "create",
+          "data"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 9,
+      "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "create",
+          "data"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 10,
+      "query": "What are the current interest rates for mortgages, and can you provide me with a comprehensive guide on how to analyze a company's financial statement",
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ai_council"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "ai_council"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ai_council\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "misc"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 11,
+      "query": "Show me the exchange rates between different currencies and also recommend some finance-related books or articles that discuss the impact of inflation",
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Substack_IQ"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "Substack_IQ"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Substack_IQ\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "search",
+          "news"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 12,
+      "query": "\"Can you provide me with the current exchange rate between USD and EUR? Also, can you tell me which airlines offer flights from New York to London?\"",
+      "gt": [
+        "FinanceTool",
+        "TripTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "social_media_muse"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "social_media_muse"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "get",
+          "image"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 13,
+      "query": "\"What is the price of Apple stock right now? And could you give me some recommendations for accommodations in Paris?\"",
+      "gt": [
+        "FinanceTool",
+        "TripTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "social_media_muse"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "social_media_muse"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "get",
+          "image"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 14,
+      "query": "\"Is it a good time to invest in cryptocurrency? Also, can you find me a list of tourist attractions in Tokyo?\"",
+      "gt": [
+        "FinanceTool",
+        "TripTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "social_media_muse"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "social_media_muse"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "get",
+          "image"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 15,
+      "query": "\"How much does a gallon of gasoline cost in California? Additionally, can you suggest some budget-friendly hotels in San Francisco?\"",
+      "gt": [
+        "FinanceTool",
+        "TripTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "social_media_muse"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "social_media_muse"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "get",
+          "image"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 16,
+      "query": "Can you recommend some budget-friendly travel destinations and provide information on their local currency exchange rates?",
+      "gt": [
+        "FinanceTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "TripAdviceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "TripAdviceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "provide",
+          "travel"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 17,
+      "query": "I'm planning a vacation but I also need to manage my finances. Can you suggest some cost-effective travel tips and ways to save money during my trip?",
+      "gt": [
+        "FinanceTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 18,
+      "query": "I'm going on a business trip and need to manage my expenses. Can you recommend some cost-effective accommodation options and also provide insights on ",
+      "gt": [
+        "FinanceTool",
+        "TripAdviceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "TripAdviceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "TripAdviceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "provide",
+          "travel"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 19,
+      "query": "What are some popular investment options with good returns, and can you recommend a playlist to relax while I research them?",
+      "gt": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}, \"name\": \"MusicTool\", \"arguments\": {}}",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "F1": 0.6666666666666666,
+        "F_0.5": 0.8333333333333334,
+        "EU": 0.0,
+        "Jaccard": 0.5,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 0,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 20,
+      "query": "How can I calculate the compound interest on my savings account, and what are the top songs in the music industry right now?",
+      "gt": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}, \"tool_description\": \"Stay informed with the latest financial updates, real-time insights, and analysis on a wide range of options, stocks, cryptocurrencies, and more to calculate compound interest.\"}\n<tool_call>{\"name\": \"MusicTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "search",
+          "entertainment"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 21,
+      "query": "Can you give me an overview of the stock market trends, and suggest some upbeat music to listen to while analyzing the market?",
+      "gt": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}, \"name\": \"MusicTool\", \"arguments\": {}}",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "F1": 0.6666666666666666,
+        "F_0.5": 0.8333333333333334,
+        "EU": 0.0,
+        "Jaccard": 0.5,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 0,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 22,
+      "query": "I'm planning to invest in mutual funds, can you explain how they work and recommend some background music for brainstorming my investment strategy?",
+      "gt": [
+        "FinanceTool",
+        "MusicTool"
+      ],
+      "pred": [
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}, \"name\": \"MusicTool\", \"arguments\": {}}",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "F1": 0.6666666666666666,
+        "F_0.5": 0.8333333333333334,
+        "EU": 0.0,
+        "Jaccard": 0.5,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 0,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 23,
+      "query": "Can you tell me the current temperature in my city and how it will affect the stock market?",
+      "gt": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "WeatherTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "WeatherTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "provide",
+          "weather"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 24,
+      "query": "What is the weather forecast for tomorrow and how will it impact the financial markets?",
+      "gt": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "WeatherTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "WeatherTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "provide",
+          "weather"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 25,
+      "query": "Can you show me the historical stock performance of a company during periods of extreme weather conditions?",
+      "gt": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "ChartTool"
+      ],
+      "pred_sequence": [
+        "ChartTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}, \n{\"name\": \"WeatherTool\", \"arguments\": {}}\n]",
+      "emitted_cells": [
+        [
+          "create",
+          "data"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 1,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 26,
+      "query": "What is the stock price of a renewable energy company and how does it correlate with weather patterns?",
+      "gt": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "WeatherTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"WeatherTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "provide",
+          "weather"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 27,
+      "query": "\"Can you tell me how much I can afford to spend on a house given my income and monthly expenses?\"",
+      "gt": [
+        "FinanceTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MemoryTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "MemoryTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MemoryTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "create",
+          "education"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 28,
+      "query": "\"What is the current housing market trend and how does it affect my investment portfolio?\"",
+      "gt": [
+        "FinanceTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MemoryTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "MemoryTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MemoryTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "create",
+          "education"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 29,
+      "query": "\"I'm considering buying a house, could you help me calculate the mortgage payments and estimate the return on investment?\"",
+      "gt": [
+        "FinanceTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MemoryTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "MemoryTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MemoryTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "create",
+          "education"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 30,
+      "query": "\"What are the best neighborhoods to invest in for rental properties and what is the potential rental income I can expect?\"",
+      "gt": [
+        "FinanceTool",
+        "HousePurchasingTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "MemoryTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "MemoryTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MemoryTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "create",
+          "education"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 31,
+      "query": "Can you provide me with a list of the highest paying finance jobs and their average salaries in the market right now? Also, can you suggest some speci",
+      "gt": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred": [
+        "JobTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "JobTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "find",
+          "misc"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 32,
+      "query": "How can I calculate the return on investment for a particular stock investment? Additionally, can you find and recommend job opportunities in the fina",
+      "gt": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "JobTool"
+      ],
+      "pred_sequence": [
+        "ChartTool",
+        "JobTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\",",
+      "emitted_cells": [
+        [
+          "create",
+          "data"
+        ],
+        [
+          "find",
+          "misc"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 33,
+      "query": "I need information on the current market trends and insights within the finance industry. Additionally, could you find me job listings for finance pro",
+      "gt": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "find",
+          "misc"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 34,
+      "query": "I would like to compare the financial performance of two companies. Can you provide me with the key financial metrics, such as revenue, profit margin,",
+      "gt": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "JobTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "find",
+          "misc"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 35,
+      "query": "Can you help me find a research paper on the impact of inflation on stock market performance?",
+      "gt": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "ResearchFinder"
+      ],
+      "pred_sequence": [
+        "ResearchFinder"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {\"description\": \"\"}},",
+      "emitted_cells": [
+        [
+          "other",
+          "science"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "F1": 0.6666666666666666,
+        "F_0.5": 0.8333333333333334,
+        "EU": 0.0,
+        "Jaccard": 0.5,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 0,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 36,
+      "query": "I need a comprehensive analysis of the market trends and financial indicators for a specific company. Can you provide me with that information?",
+      "gt": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "science"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 37,
+      "query": "How has the recent economic recession affected the profitability of the banking sector?",
+      "gt": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "ResearchFinder"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "science"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 38,
+      "query": "Can you find recent articles about the impact of interest rate changes on the stock market and provide me with a summary?",
+      "gt": [
+        "FinanceTool",
+        "ResearchHelper"
+      ],
+      "pred": [
+        "web_requests",
+        "ResearchHelper"
+      ],
+      "pred_sequence": [
+        "web_requests",
+        "ResearchHelper"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchHelper\",",
+      "emitted_cells": [
+        [
+          "other",
+          "search_web"
+        ],
+        [
+          "other",
+          "coding"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 39,
+      "query": "I want to learn more about the concept of diversification in investment. Can you provide me with a definition and explain its importance in reducing r",
+      "gt": [
+        "FinanceTool",
+        "ResearchHelper"
+      ],
+      "pred": [
+        "ResearchHelper"
+      ],
+      "pred_sequence": [
+        "ResearchHelper"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}\n \"description\": \"A}\n}\n\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\":\"",
+      "emitted_cells": [
+        [
+          "other",
+          "coding"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "F1": 0.6666666666666666,
+        "F_0.5": 0.8333333333333334,
+        "EU": 0.0,
+        "Jaccard": 0.5,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 0,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 40,
+      "query": "Show me a comparison of the prices and user ratings for different smartphones available in the market, along with their quarterly sales data.",
+      "gt": [
+        "FinanceTool",
+        "ProductSearch"
+      ],
+      "pred": [
+        "ChartTool"
+      ],
+      "pred_sequence": [
+        "ChartTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}, \n{\"name\": \"ProductSearch\", \"arguments\": {}}",
+      "emitted_cells": [
+        [
+          "create",
+          "data"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 1,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 41,
+      "query": "How are the sales figures of the top luxury car brands impacted by the current market trends? Also, provide me with the financial growth rate of each ",
+      "gt": [
+        "FinanceTool",
+        "ProductSearch"
+      ],
+      "pred": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}, }\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "create",
+          "data"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 42,
+      "query": "Can you calculate the compound interest for a $10,000 investment with a 5% rate for 5 years, and also check if there are any discounts available on sh",
+      "gt": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "shopping"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 43,
+      "query": "What is the current stock price of Company Y, and can you calculate the potential return on investment if I purchase 100 shares using my savings? Addi",
+      "gt": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "shopping"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 44,
+      "query": "I want to invest $20,000 in government bonds with an interest rate of 3%. Can you calculate the total return after 10 years and also check if there ar",
+      "gt": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "shopping"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 45,
+      "query": "Can you provide me with the historical price data for Company Z's stock over the past year? Also, let me know if there are any discounts available on ",
+      "gt": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "Discount"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "shopping"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 46,
+      "query": "What are the recent economic trends and how are they impacting the stock market?",
+      "gt": [
+        "NewsTool",
+        "FinanceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 47,
+      "query": "Can you provide me with the latest news on cryptocurrency and any potential financial implications?",
+      "gt": [
+        "NewsTool",
+        "FinanceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 48,
+      "query": "How has the recent surge in oil prices affected the global economy and major companies in the energy sector?",
+      "gt": [
+        "NewsTool",
+        "FinanceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 49,
+      "query": "I'm interested in learning about any mergers and acquisitions in the technology industry and how they have influenced the stock market.",
+      "gt": [
+        "NewsTool",
+        "FinanceTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    }
+  ],
+  "baseline_per_sample": null,
+  "missing_candidates": [],
+  "dictionary_path": "external/SEKA/seka_projections/f11-qwen25-7b-metatool-plugdes/dictionary.pt",
+  "decode_policy": {
+    "do_sample": false,
+    "max_new_tokens": 150,
+    "pad_token_id": 151645,
+    "with_kv_cache": true
+  },
+  "runtime_config": {
+    "device": "cuda:0",
+    "dtype": "torch.bfloat16",
+    "seed": 0,
+    "attn_implementation": "eager"
+  }
+}

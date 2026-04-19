@@ -1,0 +1,544 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask4.json",
+  "benchmark": "subtask4",
+  "n_queries": 10,
+  "method": "mofciss",
+  "hyperparams": {
+    "alpha": 0.05,
+    "decay": 0.5,
+    "top_k": 5,
+    "use_omp": true,
+    "max_tools": 2
+  },
+  "macro": {
+    "F1": 0.75,
+    "F_0.5": 0.75,
+    "EU": 0.5,
+    "Jaccard": 0.6666666666666665,
+    "Exact": 0.5,
+    "precision": 0.75,
+    "recall": 0.75
+  },
+  "stepwise": {
+    "emitted_any_rate": 1.0,
+    "emitted_two_rate": 1.0,
+    "emitted_two_distinct_rate": 1.0,
+    "first_tool_hit_rate": 0.6,
+    "second_tool_hit_rate": 0.9,
+    "second_distinct_hit_rate": 0.9,
+    "second_recovery_given_first_hit_rate": 0.5,
+    "repeated_first_tool_rate": 0.0
+  },
+  "runtime_s": 9.35923981666565,
+  "baseline_macro": null,
+  "baseline_stepwise": null,
+  "baseline_runtime_s": null,
+  "per_sample": [
+    {
+      "index": 0,
+      "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 1,
+      "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "news"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 2,
+      "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "MixerBox_WebSearchG_web_search",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "search",
+          "search_web"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 3,
+      "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "other",
+          "news"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 4,
+      "query": "How can I invest my savings wisely and also learn about financial planning?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "lookup",
+          "education"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 5,
+      "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}, \"tool_description\": \"Unlock a world of knowledge and growth with our comprehensive learn platform, offering a diverse range of courses from renowned providers like Coursera and Upskill, personalized language learn, professional team information loo",
+      "emitted_cells": [
+        [
+          "lookup",
+          "education"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 6,
+      "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "create",
+          "data"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 7,
+      "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "CourseTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "lookup",
+          "education"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "F1": 1.0,
+        "F_0.5": 1.0,
+        "EU": 1.0,
+        "Jaccard": 1.0,
+        "Exact": 1.0,
+        "TP": 2,
+        "FP": 0,
+        "FN": 0
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 1.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 8,
+      "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "FinanceTool",
+        "ChartTool"
+      ],
+      "pred_sequence": [
+        "FinanceTool",
+        "ChartTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\",",
+      "emitted_cells": [
+        [
+          "other",
+          "finance"
+        ],
+        [
+          "create",
+          "data"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 1.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 9,
+      "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "pred_sequence": [
+        "ChartTool",
+        "FinanceTool"
+      ],
+      "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\",",
+      "emitted_cells": [
+        [
+          "create",
+          "data"
+        ],
+        [
+          "other",
+          "finance"
+        ]
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "F1": 0.5,
+        "F_0.5": 0.5,
+        "EU": 0.0,
+        "Jaccard": 0.3333333333333333,
+        "Exact": 0.0,
+        "TP": 1,
+        "FP": 1,
+        "FN": 1
+      },
+      "stepwise": {
+        "emitted_any_rate": 1.0,
+        "emitted_two_rate": 1.0,
+        "emitted_two_distinct_rate": 1.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 1.0,
+        "second_distinct_hit_rate": 1.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    }
+  ],
+  "baseline_per_sample": null,
+  "missing_candidates": [],
+  "dictionary_path": "external/SEKA/seka_projections/f11-qwen25-7b-metatool-plugdes/dictionary.pt",
+  "decode_policy": {
+    "do_sample": false,
+    "max_new_tokens": 256,
+    "pad_token_id": 151645,
+    "with_kv_cache": true
+  },
+  "runtime_config": {
+    "device": "cuda:0",
+    "dtype": "torch.bfloat16",
+    "seed": 0,
+    "attn_implementation": "eager"
+  }
+}

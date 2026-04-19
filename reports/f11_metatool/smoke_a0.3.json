@@ -1,0 +1,394 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask4.json",
+  "benchmark": "subtask4",
+  "n_queries": 10,
+  "method": "mofciss",
+  "hyperparams": {
+    "alpha": 0.3,
+    "decay": 0.5,
+    "top_k": 5,
+    "use_omp": true,
+    "max_tools": 2
+  },
+  "macro": {
+    "F1": 0.0,
+    "F_0.5": 0.0,
+    "EU": 0.0,
+    "Jaccard": 0.0,
+    "Exact": 0.0,
+    "precision": 0.0,
+    "recall": 0.0
+  },
+  "stepwise": {
+    "emitted_any_rate": 0.0,
+    "emitted_two_rate": 0.0,
+    "emitted_two_distinct_rate": 0.0,
+    "first_tool_hit_rate": 0.0,
+    "second_tool_hit_rate": 0.0,
+    "second_distinct_hit_rate": 0.0,
+    "second_recovery_given_first_hit_rate": 0.0,
+    "repeated_first_tool_rate": 0.0
+  },
+  "runtime_s": 75.6901581287384,
+  "baseline_macro": null,
+  "baseline_stepwise": null,
+  "baseline_runtime_s": null,
+  "per_sample": [
+    {
+      "index": 0,
+      "query": "I want to know the latest news about Tesla and how it has impacted the stock market.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "\n\n\n1\n\n\n\nA AttA\n1\n\n\n\n11\n\n\n\n1\n1\n1,\n\nA\n, ,1 11\n111\n\n\n\n1111001111111\n\n\n\n\n\nA\n\n\naAAA\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nA \nA,11\nAAA \n\n\n1A\nA\n\n\n\n\n\nA\n1\nA\n\n1\n1\n\n1\n1\n\n\n\nA\n\n\nA1A\n0\n0A\n1\n\n\n\n\n\nAA\u7554A\n\n\n\n\n\n\n\nA\n\nA\n\n\n\n\n\nA\n\n\n\n\n\n\n\n1\nA\n\n\n\n\n\n\n\n\n\n\n\n\nA\nA\n\n\n\n\n\n1\n0\n0\n1\n1\n\n\n\n\nAA\n7\n\n\nA\u6027\u4ef7A\n7\n\n\n\n\n0\n\n\n\n\n\n\n\n\n\n\n",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 1,
+      "query": "Please provide me with the current stock price of Apple and any recent news related to the company.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "\n\n\n\n\n\n\n\n} Att\n\n\n\n\n\n\n\n\n\n\n\n\n1\n0\n\n\n\n\n11, ,,1,\n\n1\n1\n\n\n1\n001, 11111\n\n\n\n\n\n\n\n\n\n\nA\n1A\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n0AA\n1\n1A\u6027\u4ef7\n1\n\n\n\n\n1\n1\n\n\n\n1\n1\nA\n\n\n\n1\n\n0\n0\n\n\n\n\n\n\n\n0A1\n0\n0\n0\n\n\n\n\n\nA\nA\nA\n\n\n\n\n\n\nA\n\n\n\n\n\n\n\n\n\n\n1\n\n\n\n\n\n1\n\nA\n\n\n\n\n\nA\n\n\n\n\n\nA\n1\n\n\n\n\n\n1\n0\n0\n0\n1\n\n\n\n0\n} Att\n\n\n\n\nA\n7\n7\n\n\n0\n7\n\n\n1\n\n\n\n\n\n\n",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 2,
+      "query": "Can you give me an overview of the top trending stocks and any recent news that might be affecting their performance?",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n0\n1\n\n\n,,,,\n\n1\n1\n1\n\n\n\n\n0\n\n\n\n,,\n,\n0\n1\n\n\nA\n\n\n\n\n\n0\n0\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n,,,,\n\n0\n0\n1\n\n\n\n0\n\n\n\n\n\n\n1\n1\n1\n1\n\n1\n1\n0\n\n\n\n\n\n\n\n1\n0\n1\n0\n0\n1\n0\n\n\n\nA\nA\n\n\n\n\n\n\n1\nA\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1\n0\nA\n\n\n0\n\n\n\n\n\n\n\n1\n\n7\n\n\n\n1\n0\n1\n7\n1\n\n\n\n\n0A\n,\n1\n0\n0\n7\n0\n0\n0\n0\n7\n\n\n\n7\n\n\n7\n,",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 3,
+      "query": "I need to analyze the financial performance of Amazon and understand any recent news or events that might have influenced its stock price.",
+      "gt": [
+        "FinanceTool",
+        "NewsTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n,\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1\n\n\n\n\n,\n0\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n0\nA\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1\n0\n\n0\n\n\n\n\n\n\n\n\n\n\n\n\n\n1\n\n0\n\n\n\n\n\n\n\n0\n\n0\n\n\n\n\n\n\n,A\n1\n\n\n0\n\n\n\n\n\n\n\nA\nA\n\n\n\n\n\n\n\nA\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nA\n0\n\n\n\n0\n1\n\n\n\n\n\n1\n\n7\n\n\n\n7\n7\n7\n7\n7\n0\n\n0\n0\n,\n7\n\n7\n7\n7\n0\n0\n7\n0\n0\n\n\n\n\n7\n7\n0\n,",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 4,
+      "query": "How can I invest my savings wisely and also learn about financial planning?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 5,
+      "query": "Can you recommend any courses that teach both accounting principles and investment strategies?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 6,
+      "query": "I want to learn about the stock market and also find the top-performing stocks in the market. Any suggestions?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 7,
+      "query": "What are the best online resources to learn about personal finance and find courses on budgeting and saving money?",
+      "gt": [
+        "FinanceTool",
+        "CourseTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 8,
+      "query": "Can you help me find the latest financial report for a company I'm interested in, and also provide me with the stock market trends for the past month?",
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": "\n\n\n Att\n\n\n\n\n\u73b0 Att\n\n\n\n Att\n\n\n\n\n\n Att\n\n\n\n Att\n\n\n\n Att\n}\n\n\n\n\n}\u6027\u4ef7 Att\n\n\n\n\n homosexa\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n}\u6027\u4ef7\u6027\u4ef7\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Att\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\na\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n,\n\n\n\n\n\n\nA\u6027\u4ef7\n\n\n\n\n Att Att\n\n\n\n\na\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n7\n,\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n \n\n\n\n,\n,\n,\n,\n,\n,\n\n\n",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    },
+    {
+      "index": 9,
+      "query": "I need information about the average annual returns of various investment options, and also show me any PDFs or online resources that explain the conc",
+      "gt": [
+        "FinanceTool",
+        "PDF&URLTool"
+      ],
+      "pred": [],
+      "pred_sequence": [],
+      "generation_head": " Att\n Att\n Att\n\n Att\n Att\n Att\n Att\n Att\n Att\n Att\n Att\n Att\n Att\n Att\n\n\n\n\n\n\n\n Att} Att\n\n\n Att\n\n\n\n\n\n\n\n\n\n Att\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n}}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nA\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Att\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n,\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n of\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n,\n\n\n\n\n\n,\n",
+      "emitted_cells": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "F1": 0.0,
+        "F_0.5": 0.0,
+        "EU": 0.0,
+        "Jaccard": 0.0,
+        "Exact": 0.0,
+        "TP": 0,
+        "FP": 0,
+        "FN": 2
+      },
+      "stepwise": {
+        "emitted_any_rate": 0.0,
+        "emitted_two_rate": 0.0,
+        "emitted_two_distinct_rate": 0.0,
+        "first_tool_hit_rate": 0.0,
+        "second_tool_hit_rate": 0.0,
+        "second_distinct_hit_rate": 0.0,
+        "second_recovery_given_first_hit_rate": 0.0,
+        "repeated_first_tool_rate": 0.0
+      }
+    }
+  ],
+  "baseline_per_sample": null,
+  "missing_candidates": [],
+  "dictionary_path": "external/SEKA/seka_projections/f11-qwen25-7b-metatool-plugdes/dictionary.pt",
+  "decode_policy": {
+    "do_sample": false,
+    "max_new_tokens": 256,
+    "pad_token_id": 151645,
+    "with_kv_cache": true
+  },
+  "runtime_config": {
+    "device": "cuda:0",
+    "dtype": "torch.bfloat16",
+    "seed": 0,
+    "attn_implementation": "eager"
+  }
+}

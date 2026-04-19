@@ -1,0 +1,22 @@
+[dict] external/SEKA/seka_projections/f11-qwen25-7b-metatool-plugdes/dictionary.pt
+[dict] M=199 L=28 n_kv=4 d=128 model=Qwen/Qwen2.5-7B-Instruct
+[load] Qwen/Qwen2.5-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.35it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.82it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:01<00:00,  2.04it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:01<00:00,  2.21it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:01<00:00,  2.03it/s]
+[load] 3.7s
+[data] 200 queries (subtask4, max_tools=2)
+
+[eval] mofciss alpha=0.02 decay=0.0 top_k=5 use_omp=True
+[eval] mofciss: F1=0.699 F0.5=0.728 EU=0.425 Exact=0.425 runtime=148.8s
+
+wrote reports/f11_metatool/f11a_omp_only_a0.02.json
+[dict] external/SEKA/seka_projections/f11-qwen25-7b-metatool-plugdes/dictionary.pt
+[dict] M=199 L=28 n_kv=4 d=128 model=Qwen/Qwen2.5-7B-Instruct
+[load] Qwen/Qwen2.5-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.40it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.87it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:01<00:00,  2.06it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:01<00:00,  2.25it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:01<00:00,  2.07it/s]
+[load] 3.7s
+[data] 200 queries (subtask4, max_tools=2)
+
+[eval] mofciss alpha=0.02 decay=1.0 top_k=5 use_omp=True
+[eval] mofciss: F1=0.701 F0.5=0.734 EU=0.400 Exact=0.400 runtime=166.8s
+
+wrote reports/f11_metatool/f11c_mofciss_d1.0_a0.02.json
