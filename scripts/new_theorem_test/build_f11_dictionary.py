@@ -54,23 +54,50 @@ from build_metatool_verb_domain_bont import (  # noqa: E402
     METATOOL_INFO,
 )
 
+PLUGIN_DES_PATH = "/tmp/MetaTool/dataset/plugin_des.json"
 
-def _build_plugin_index() -> Tuple[list, Dict[str, dict]]:
-    """Load MetaTool plugin_info.json and filter to those with descriptions."""
-    info = json.load(open(METATOOL_INFO))
+
+def _build_plugin_index(source: str = "plugin_des") -> Tuple[list, Dict[str, dict]]:
+    """Load MetaTool tool inventory and filter to those with descriptions.
+
+    `source == "plugin_info"`: reads `plugin_info.json` (388 entries with
+    structured metadata `name_for_model`/`description_for_model`). Matches
+    the F9/F10 builder convention. Covers Subtask1 only partially.
+
+    `source == "plugin_des"`: reads `plugin_des.json` (199 entries of
+    `{tool_name: description}`). Covers 100% of Subtask1 (198/198) and
+    Subtask4 (77/77) candidate tools. DEFAULT for F11.
+    """
     plugins: Dict[str, dict] = {}
-    for p in info:
-        n = p.get("name_for_model") or p.get("name_for_human")
-        if not n:
-            continue
-        desc = (p.get("description_for_model") or "").strip()
-        if not desc:
-            continue
-        plugins[n] = {
-            "desc": desc[:400],
-            "verb": extract_verb(desc),
-            "domain": extract_domain(desc),
-        }
+    if source == "plugin_info":
+        info = json.load(open(METATOOL_INFO))
+        for p in info:
+            n = p.get("name_for_model") or p.get("name_for_human")
+            if not n:
+                continue
+            desc = (p.get("description_for_model") or "").strip()
+            if not desc:
+                continue
+            plugins[n] = {
+                "desc": desc[:400],
+                "verb": extract_verb(desc),
+                "domain": extract_domain(desc),
+            }
+    elif source == "plugin_des":
+        raw = json.load(open(PLUGIN_DES_PATH))
+        for n, desc in raw.items():
+            if not n or not isinstance(desc, str):
+                continue
+            desc = desc.strip()
+            if not desc:
+                continue
+            plugins[n] = {
+                "desc": desc[:400],
+                "verb": extract_verb(desc),
+                "domain": extract_domain(desc),
+            }
+    else:
+        raise ValueError(f"unknown source: {source!r}")
     plugin_names = sorted(plugins.keys())
     return plugin_names, plugins
 
