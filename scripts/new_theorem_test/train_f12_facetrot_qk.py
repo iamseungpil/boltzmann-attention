@@ -371,12 +371,19 @@ def train_f12(cfg: F12Config, out_dir: Path) -> None:
 # -------- CLI --------
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="F12 FacetRot-QK LoRA R1 (skeleton)")
+    p = argparse.ArgumentParser(
+        description="F12 FacetRot-QK / F13 FunnelRot LoRA R1 (skeleton)."
+    )
     p.add_argument("--model", default="Qwen/Qwen2.5-7B-Instruct")
     p.add_argument("--bont-dir", type=Path, required=True)
     p.add_argument("--out-dir", type=Path, required=True)
     p.add_argument("--n-facets", type=int, default=16)
-    p.add_argument("--rot-pairs", type=int, default=16, help="R/2 — SO(2) pairs per head")
+    p.add_argument(
+        "--rot-pairs",
+        type=int,
+        default=16,
+        help="R/2 — SO(2) pairs per head (F12 default 16 → R=32; F13 default 2 → R=4)",
+    )
     p.add_argument("--epochs", type=int, default=5)
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--batch-size", type=int, default=4)
@@ -384,19 +391,66 @@ def main() -> None:
         "--steered-layers",
         type=str,
         default="18,19,20,21,22,23,24,25,26,27",
-        help="comma-separated layer indices (Thm 6.14 R1: mid-late)",
+        help=(
+            "comma-separated layer indices. F12 default: 18..27 (mid-late, Thm 6.14 R1). "
+            "F13 FunnelRot: 0..27 (full 3-stage ladapt with explicit L28 skip). "
+            "Use 'all' as shorthand for 0..27."
+        ),
     )
+    # F13 FunnelRot flags ------------------------------------------------------
+    p.add_argument(
+        "--schedule",
+        choices=["uniform", "ladapt"],
+        default="uniform",
+        help=(
+            "Layer strength schedule. 'uniform' = F12 (constant 1.0 on steered layers). "
+            "'ladapt' = F13 FunnelRot (early K / mid K+Q / late Q, per NeurIPS-prep empirical)."
+        ),
+    )
+    p.add_argument(
+        "--skip-layer-28",
+        type=lambda s: s.lower() in {"1", "true", "yes", "y"},
+        default=True,
+        help=(
+            "If True (default), force zero strength at layer 28 to preserve the natural "
+            "FFN+LM-head amplifier (Phase B2: only non-monotonic layer, r=1 85x amplification). "
+            "F13d negative-control cell uses --skip-layer-28 False."
+        ),
+    )
+    p.add_argument("--early-end", type=int, default=5, help="ladapt Stage 1 upper bound (inclusive)")
+    p.add_argument("--mid-end", type=int, default=18, help="ladapt Stage 2 upper bound (inclusive)")
+    p.add_argument(
+        "--mid-alpha-scale",
+        type=float,
+        default=0.3,
+        help="ladapt Stage 2 K scaling (Q stays at full beta_q)",
+    )
+    p.add_argument("--alpha-k", type=float, default=1.0, help="K strength multiplier (stages 1-2)")
+    p.add_argument("--beta-q", type=float, default=1.0, help="Q strength multiplier (stages 2-3)")
+
     args = p.parse_args()
+
+    if args.steered_layers.strip().lower() == "all":
+        steered = tuple(range(0, 28))
+    else:
+        steered = tuple(int(x) for x in args.steered_layers.split(","))
 
     cfg = F12Config(
         model_name=args.model,
         bont_dir=args.bont_dir,
         n_facets=args.n_facets,
         rot_pairs=args.rot_pairs,
-        steered_layers=tuple(int(x) for x in args.steered_layers.split(",")),
+        steered_layers=steered,
         lr=args.lr,
         epochs=args.epochs,
         batch_size=args.batch_size,
+        schedule=args.schedule,
+        skip_layer_28=args.skip_layer_28,
+        early_end=args.early_end,
+        mid_end=args.mid_end,
+        mid_alpha_scale=args.mid_alpha_scale,
+        alpha_k=args.alpha_k,
+        beta_q=args.beta_q,
     )
     train_f12(cfg, args.out_dir)
 
