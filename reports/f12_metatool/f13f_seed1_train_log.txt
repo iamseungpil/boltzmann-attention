@@ -1,0 +1,20 @@
+[load] Qwen/Qwen2.5-7B-Instruct
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 11493.75it/s]
+[load] done in 4.2s
+[model] L=28 n_q=28 n_kv=4 d=128
+[subspace] /home/woori/workspace_common/boltzmann-attention/external/SEKA/seka_projections/f13f-qwen25-7b-metatool-facet-subspace-r16/facet_subspace.pt
+[subspace] F=75 R=16
+[schedule] mode='ladapt', skip_L28=True
+  s_K = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  s_Q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+[subspace modules] K-layers=19 Q-layers=22
+[data] built 350 training examples (0 skipped > max_seq_len)
+[hooks] installed 41 forward hooks
+[opt] AdamW on 42 tensors, 641 scalars
+[epoch 0] ce=0.7529 lip=0.0045 ||theta||_F=1.0816 |theta|_max=0.1189 steps=175
+[epoch 1] ce=1.3058 lip=0.0211 ||theta||_F=1.7685 |theta|_max=0.2009 steps=175
+[epoch 2] ce=0.4513 lip=0.0495 ||theta||_F=2.4784 |theta|_max=0.3156 steps=175
+[epoch 3] ce=0.6355 lip=0.0633 ||theta||_F=2.5123 |theta|_max=0.3792 steps=175
+[epoch 4] ce=0.4919 lip=0.0575 ||theta||_F=2.2395 |theta|_max=0.3989 steps=175
+[saved] external/SEKA/seka_projections/f13f-qwen25-7b-r16-ladapt-skipl28-seed1/f12_checkpoint.pt
