@@ -378,9 +378,14 @@ def main():
             print(f"    [{i+1}/{n_tools}] t={elapsed:.1f}s eta={eta:.1f}s", flush=True)
     print(f"[T1.a] done, K_norm_mean={np.linalg.norm(K, axis=1).mean():.3f}")
 
-    # --- P2 hook: replace afod labels with K-space KMeans clusters if requested ---
+    # --- P2 / D.3 hook: replace afod labels with KMeans clusters if requested ---
     label_source_verb = "afod_heuristic"
     label_source_domain = "afod_heuristic"
+    bert_emb = None  # lazy init for D.3
+
+    if args.kspace_cluster != "none" and args.bert_kmeans != "none":
+        raise SystemExit("[error] --kspace-cluster and --bert-kmeans are mutually exclusive")
+
     if args.kspace_cluster in ("verb", "both"):
         from sklearn.cluster import KMeans
         km_v = KMeans(n_clusters=n_verb, random_state=args.seed, n_init=10).fit(K)
@@ -393,6 +398,29 @@ def main():
         domain_labels = [f"kdc_{c}" for c in km_d.labels_]
         label_source_domain = f"kspace_kmeans_domain_K{n_domain}"
         print(f"[kmeans-domain] replaced afod domain labels: K={n_domain} inertia={km_d.inertia_:.1f}")
+
+    if args.bert_kmeans != "none":
+        from sentence_transformers import SentenceTransformer
+        from sklearn.cluster import KMeans
+        print(f"[D.3] loading BERT model {args.bert_model} (independent feature space)")
+        bert = SentenceTransformer(args.bert_model, device=args.device)
+        descs = [plugins[n]["desc"] for n in plugin_names]
+        t_b = time.time()
+        bert_emb = bert.encode(descs, batch_size=32, show_progress_bar=False,
+                                convert_to_numpy=True, normalize_embeddings=False)
+        print(f"[D.3] embedded {n_tools} tools in {time.time()-t_b:.1f}s, dim={bert_emb.shape[1]}")
+        del bert
+        torch.cuda.empty_cache()
+        if args.bert_kmeans in ("verb", "both"):
+            km_bv = KMeans(n_clusters=n_verb, random_state=args.seed, n_init=10).fit(bert_emb)
+            verb_labels = [f"bvc_{c}" for c in km_bv.labels_]
+            label_source_verb = f"bert_kmeans_verb_K{n_verb}_{args.bert_model}"
+            print(f"[bert-kmeans-verb] replaced afod verb labels: K={n_verb} inertia={km_bv.inertia_:.1f}")
+        if args.bert_kmeans in ("domain", "both"):
+            km_bd = KMeans(n_clusters=n_domain, random_state=args.seed, n_init=10).fit(bert_emb)
+            domain_labels = [f"bdc_{c}" for c in km_bd.labels_]
+            label_source_domain = f"bert_kmeans_domain_K{n_domain}_{args.bert_model}"
+            print(f"[bert-kmeans-domain] replaced afod domain labels: K={n_domain} inertia={km_bd.inertia_:.1f}")
 
     # --- T1.b: query K extraction ---
     print(f"[T1.b] extracting Q[{n_q}, {head_dim}] pooling={args.pooling} chat_template={args.chat_template}")
