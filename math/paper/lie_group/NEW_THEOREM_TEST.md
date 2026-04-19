@@ -141,7 +141,7 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 
 ---
 
-## §2.5 선행연구 비교 + 우리 접근의 차별점 (v5 신규, 2026-04-19 audit)
+## §2.5 선행연구 비교 + 우리 접근의 차별점 (v5 신규, 2026-04-19 audit; v5.1 expanded 2026-04-19 evening with broad ontology+LLM survey)
 
 ### 2.5.1 종합 비교 표 (9-method)
 
