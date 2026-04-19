@@ -1,0 +1,148 @@
+{
+  "dataset": "stabletoolbench_g1",
+  "n_tools": 499,
+  "cluster_stats": {
+    "A_verb": {
+      "n_clusters": 20,
+      "entropy": 1.6599965751302819,
+      "top3": [
+        [
+          "get",
+          177
+        ],
+        [
+          "other",
+          163
+        ],
+        [
+          "list",
+          59
+        ]
+      ]
+    },
+    "B_cooccurrence": {
+      "n_clusters": 340,
+      "entropy": 5.683283210378848,
+      "top3": [
+        [
+          "cc_466",
+          7
+        ],
+        [
+          "cc_107",
+          5
+        ],
+        [
+          "cc_176",
+          5
+        ]
+      ]
+    },
+    "C_param_jaccard": {
+      "n_clusters": 241,
+      "entropy": 4.654794256106877,
+      "top3": [
+        [
+          "cc_423",
+          92
+        ],
+        [
+          "cc_454",
+          22
+        ],
+        [
+          "cc_14",
+          10
+        ]
+      ]
+    },
+    "D_category": {
+      "n_clusters": 30,
+      "entropy": 2.8220781862676105,
+      "top3": [
+        [
+          "cat_Data",
+          95
+        ],
+        [
+          "cat_Finance",
+          84
+        ],
+        [
+          "cat_Sports",
+          39
+        ]
+      ]
+    }
+  },
+  "nmi": {
+    "A_verb": {
+      "A_verb": 1.0,
+      "B_cooccurrence": 0.48295319865685715,
+      "C_param_jaccard": 0.44296061079342447,
+      "D_category": 0.21843038481265664
+    },
+    "B_cooccurrence": {
+      "A_verb": 0.48295319865685715,
+      "B_cooccurrence": 1.0,
+      "C_param_jaccard": 0.8422695088639726,
+      "D_category": 0.7037129913290556
+    },
+    "C_param_jaccard": {
+      "A_verb": 0.44296061079342447,
+      "B_cooccurrence": 0.8422695088639726,
+      "C_param_jaccard": 1.0,
+      "D_category": 0.6452967515231204
+    },
+    "D_category": {
+      "A_verb": 0.21843038481265664,
+      "B_cooccurrence": 0.7037129913290556,
+      "C_param_jaccard": 0.6452967515231204,
+      "D_category": 1.0
+    }
+  },
+  "verdicts": [
+    {
+      "a": "A_verb",
+      "b": "B_cooccurrence",
+      "nmi": 0.48295319865685715,
+      "verdict": "soft-orth"
+    },
+    {
+      "a": "A_verb",
+      "b": "C_param_jaccard",
+      "nmi": 0.44296061079342447,
+      "verdict": "soft-orth"
+    },
+    {
+      "a": "A_verb",
+      "b": "D_category",
+      "nmi": 0.21843038481265664,
+      "verdict": "ORTHOGONAL \u2713"
+    },
+    {
+      "a": "B_cooccurrence",
+      "b": "C_param_jaccard",
+      "nmi": 0.8422695088639726,
+      "verdict": "REDUNDANT \u2717"
+    },
+    {
+      "a": "B_cooccurrence",
+      "b": "D_category",
+      "nmi": 0.7037129913290556,
+      "verdict": "REDUNDANT \u2717"
+    },
+    {
+      "a": "C_param_jaccard",
+      "b": "D_category",
+      "nmi": 0.6452967515231204,
+      "verdict": "REDUNDANT \u2717"
+    }
+  ],
+  "summary": {
+    "orth": 1,
+    "soft": 2,
+    "redundant": 3,
+    "total": 6
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "variants": {
+    "flat": {
+      "attn_fro_A": 0.07907523646950722,
+      "attn_fro_D": 0.03686168029904366,
+      "attn_fro_ratio": 2.1451880605550895,
+      "kl_ratio": 0.017300881057958753,
+      "flip_A": 0,
+      "flip_D": 0,
+      "n": 100
+    },
+    "H": {
+      "attn_fro_A": 0.08632947117090226,
+      "attn_fro_D": 0.03686168029904366,
+      "attn_fro_ratio": 2.341984154562319,
+      "kl_ratio": 0.02025646051133047,
+      "flip_A": 0,
+      "flip_D": 0,
+      "n": 100
+    },
+    "C": {
+      "attn_fro_A": 0.07940098255872727,
+      "attn_fro_D": 0.03686168029904366,
+      "attn_fro_ratio": 2.154025044831916,
+      "kl_ratio": 0.026320369622340755,
+      "flip_A": 0,
+      "flip_D": 0,
+      "n": 100
+    },
+    "R": {
+      "attn_fro_A": 0.0035771585861220957,
+      "attn_fro_D": 0.03686168029904366,
+      "attn_fro_ratio": 0.09704274349682594,
+      "kl_ratio": 6.345496517899983e-05,
+      "flip_A": 0,
+      "flip_D": 0,
+      "n": 100
+    },
+    "F": {
+      "attn_fro_A": 0.08628069400787354,
+      "attn_fro_D": 0.03686168029904366,
+      "attn_fro_ratio": 2.3406609060659673,
+      "kl_ratio": 0.020375426709975157,
+      "flip_A": 0,
+      "flip_D": 0,
+      "n": 100
+    },
+    "H_shuffled": {
+      "attn_fro_A": 0.08632947117090226,
+      "attn_fro_D": 0.03686168029904366,
+      "attn_fro_ratio": 2.341984154562319,
+      "kl_ratio": 0.02025646051133047,
+      "flip_A": 0,
+      "flip_D": 0,
+      "n": 100
+    },
+    "C_shuffled": {
+      "attn_fro_A": 0.07722828954458237,
+      "attn_fro_D": 0.03686168029904366,
+      "attn_fro_ratio": 2.0950832658213354,
+      "kl_ratio": 0.023240381579249708,
+      "flip_A": 0,
+      "flip_D": 0,
+      "n": 100
+    },
+    "R_shuffled": {
+      "attn_fro_A": 0.0035771585861220957,
+      "attn_fro_D": 0.03686168029904366,
+      "attn_fro_ratio": 0.09704274349682594,
+      "kl_ratio": 6.345496517899983e-05,
+      "flip_A": 0,
+      "flip_D": 0,
+      "n": 100
+    }
+  },
+  "phase_c_baseline_attn_fro_ratio": 2.45,
+  "F_vs_baseline": -0.10933909393403285,
+  "max_single_axis": 2.341984154562319,
+  "branch": "ROW 4 \u2014 Structure HURTS (attn_fro(F) < 2.4 < baseline).",
+  "shuffled_equals_structured": true
+}

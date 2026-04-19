@@ -1,0 +1,3000 @@
+{
+  "domains": {
+    "telecom": {
+      "domain": "telecom",
+      "nodes": {
+        "classes": [
+          {
+            "name": "Address",
+            "kind": "model",
+            "parents": [
+              "BaseModelNoExtra"
+            ],
+            "fields": [
+              {
+                "name": "street",
+                "type": "str"
+              },
+              {
+                "name": "city",
+                "type": "str"
+              },
+              {
+                "name": "state",
+                "type": "str"
+              },
+              {
+                "name": "zip_code",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "Plan",
+            "kind": "model",
+            "parents": [
+              "BaseModelNoExtra"
+            ],
+            "fields": [
+              {
+                "name": "plan_id",
+                "type": "str"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "data_limit_gb",
+                "type": "float"
+              },
+              {
+                "name": "price_per_month",
+                "type": "float"
+              },
+              {
+                "name": "data_refueling_price_per_gb",
+                "type": "float"
+              }
+            ]
+          },
+          {
+            "name": "DeviceType",
+            "kind": "enum",
+            "parents": [
+              "Enum"
+            ],
+            "fields": []
+          },
+          {
+            "name": "Device",
+            "kind": "model",
+            "parents": [
+              "BaseModelNoExtra"
+            ],
+            "fields": [
+              {
+                "name": "device_id",
+                "type": "str"
+              },
+              {
+                "name": "device_type",
+                "type": "DeviceType"
+              },
+              {
+                "name": "model",
+                "type": "str"
+              },
+              {
+                "name": "imei",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "is_esim_capable",
+                "type": "bool"
+              },
+              {
+                "name": "activated",
+                "type": "bool"
+              },
+              {
+                "name": "activation_date",
+                "type": "Optional[datetime.datetime]"
+              },
+              {
+                "name": "last_esim_transfer_date",
+                "type": "Optional[datetime.datetime]"
+              }
+            ]
+          },
+          {
+            "name": "LineStatus",
+            "kind": "enum",
+            "parents": [
+              "Enum"
+            ],
+            "fields": []
+          },
+          {
+            "name": "Line",
+            "kind": "model",
+            "parents": [
+              "BaseModelNoExtra"
+            ],
+            "fields": [
+              {
+                "name": "line_id",
+                "type": "str"
+              },
+              {
+                "name": "phone_number",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "LineStatus"
+              },
+              {
+                "name": "plan_id",
+                "type": "str"
+              },
+              {
+                "name": "device_id",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "data_used_gb",
+                "type": "float"
+              },
+              {
+                "name": "data_refueling_gb",
+                "type": "float"
+              },
+              {
+                "name": "roaming_enabled",
+                "type": "bool"
+              },
+              {
+                "name": "contract_end_date",
+                "type": "Optional[datetime.date]"
+              },
+              {
+                "name": "last_plan_change_date",
+                "type": "Optional[datetime.date]"
+              },
+              {
+                "name": "last_sim_replacement_date",
+                "type": "Optional[datetime.date]"
+              },
+              {
+                "name": "suspension_start_date",
+                "type": "Optional[datetime.date]"
+              }
+            ]
+          },
+          {
+            "name": "LineItem",
+            "kind": "model",
+            "parents": [
+              "BaseModelNoExtra"
+            ],
+            "fields": [
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "amount",
+                "type": "float"
+              },
+              {
+                "name": "date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "item_type",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "BillStatus",
+            "kind": "enum",
+            "parents": [
+              "Enum"
+            ],
+            "fields": []
+          },
+          {
+            "name": "Bill",
+            "kind": "model",
+            "parents": [
+              "BaseModelNoExtra"
+            ],
+            "fields": [
+              {
+                "name": "bill_id",
+                "type": "str"
+              },
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "period_start",
+                "type": "datetime.date"
+              },
+              {
+                "name": "period_end",
+                "type": "datetime.date"
+              },
+              {
+                "name": "issue_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "total_due",
+                "type": "float"
+              },
+              {
+                "name": "due_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "line_items",
+                "type": "List[LineItem]"
+              },
+              {
+                "name": "status",
+                "type": "BillStatus"
+              }
+            ]
+          },
+          {
+            "name": "AccountStatus",
+            "kind": "enum",
+            "parents": [
+              "Enum"
+            ],
+            "fields": []
+          },
+          {
+            "name": "PaymentMethodType",
+            "kind": "enum",
+            "parents": [
+              "Enum"
+            ],
+            "fields": []
+          },
+          {
+            "name": "PaymentMethod",
+            "kind": "model",
+            "parents": [
+              "BaseModelNoExtra"
+            ],
+            "fields": [
+              {
+                "name": "method_type",
+                "type": "PaymentMethodType"
+              },
+              {
+                "name": "account_number_last_4",
+                "type": "str"
+              },
+              {
+                "name": "expiration_date",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "Customer",
+            "kind": "model",
+            "parents": [
+              "BaseModelNoExtra"
+            ],
+            "fields": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "full_name",
+                "type": "str"
+              },
+              {
+                "name": "date_of_birth",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone_number",
+                "type": "str"
+              },
+              {
+                "name": "address",
+                "type": "Address"
+              },
+              {
+                "name": "account_status",
+                "type": "AccountStatus"
+              },
+              {
+                "name": "payment_methods",
+                "type": "List[PaymentMethod]"
+              },
+              {
+                "name": "line_ids",
+                "type": "List[str]"
+              },
+              {
+                "name": "bill_ids",
+                "type": "List[str]"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "last_extension_date",
+                "type": "Optional[datetime.date]"
+              },
+              {
+                "name": "goodwill_credit_used_this_year",
+                "type": "float"
+              }
+            ]
+          },
+          {
+            "name": "TelecomDB",
+            "kind": "model",
+            "parents": [
+              "DB"
+            ],
+            "fields": [
+              {
+                "name": "plans",
+                "type": "List[Plan]"
+              },
+              {
+                "name": "customers",
+                "type": "List[Customer]"
+              },
+              {
+                "name": "lines",
+                "type": "List[Line]"
+              },
+              {
+                "name": "bills",
+                "type": "List[Bill]"
+              },
+              {
+                "name": "devices",
+                "type": "List[Device]"
+              }
+            ]
+          }
+        ],
+        "tools": [
+          {
+            "name": "get_customer_by_phone",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "phone_number",
+                "type": "str"
+              }
+            ],
+            "return_type": "Customer",
+            "verb": "get",
+            "docstring": "Finds a customer by their primary contact or line phone number.\n\nArgs:\n    phone_number: The phone number to search for.\n\nReturns:\n    Customer object if found, None otherwise."
+          },
+          {
+            "name": "get_customer_by_id",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Customer",
+            "verb": "get",
+            "docstring": "Retrieves a customer directly by their unique ID.\n\nArgs:\n    customer_id: The unique identifier of the customer.\n\nReturns:\n    Customer object if found, None otherwise."
+          },
+          {
+            "name": "get_customer_by_name",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "full_name",
+                "type": "str"
+              },
+              {
+                "name": "dob",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Customer]",
+            "verb": "get",
+            "docstring": "Searches for customers by name and DOB. May return multiple matches if names are similar,\nDOB helps disambiguate.\n\nArgs:\n    full_name: The full name of the customer.\n    dob: Date of birth for verification, in the format YYYY-MM-DD.\n\nReturns:\n    List of matching Customer objects."
+          },
+          {
+            "name": "get_details_by_id",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Dict[str, Any]",
+            "verb": "get",
+            "docstring": "Retrieves the details for a given ID.\nThe ID must be a valid ID for a Customer, Line, Device, Bill, or Plan.\n\nArgs:\n    id: The ID of the object to retrieve.\n\nReturns:\n    The object corresponding to the ID.\n\nRaises:\n    ValueError: If the ID is not found or if the ID format is invalid."
+          },
+          {
+            "name": "suspend_line",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "line_id",
+                "type": "str"
+              },
+              {
+                "name": "reason",
+                "type": "str"
+              }
+            ],
+            "return_type": "Dict[str, Any]",
+            "verb": "suspend",
+            "docstring": "Suspends a specific line (max 6 months).\nChecks: Line status must be Active.\nLogic: Sets line status to Suspended, records suspension_start_date.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to suspend.\n    reason: Reason for suspension.\n\nReturns:\n    Dic"
+          },
+          {
+            "name": "resume_line",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "line_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Dict[str, Any]",
+            "verb": "resume",
+            "docstring": "Resumes a suspended line.\nChecks: Line status must be Suspended or Pending Activation.\nLogic: Sets line status to Active, clears suspension_start_date.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to resume.\n\nReturns:\n    Dictionary with success status, m"
+          },
+          {
+            "name": "get_bills_for_customer",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "limit",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Bill]",
+            "verb": "get",
+            "docstring": "Retrieves a list of the customer's bills, most recent first.\n\nArgs:\n    customer_id: ID of the customer.\n    limit: Maximum number of bills to return.\n\nReturns:\n    List of Bill objects, ordered by issue date (newest first).\n\nRaises:\n    ValueError: If the customer is not found."
+          },
+          {
+            "name": "send_payment_request",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "bill_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "send",
+            "docstring": "Sends a payment request to the customer for a specific bill.\nChecks:\n    - Customer exists\n    - Bill exists and belongs to the customer\n    - No other bills are already awaiting payment for this customer\nLogic: Sets bill status to AWAITING_PAYMENT and notifies customer.\nWarning: This method does no"
+          },
+          {
+            "name": "get_data_usage",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "line_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Dict[str, Any]",
+            "verb": "get",
+            "docstring": "Retrieves current billing cycle data usage for a line, including data\nrefueling amount, data limit, and cycle end date.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to check usage for.\n\nReturns:\n    Dictionary with usage information.\n\nRaises:\n    ValueErr"
+          },
+          {
+            "name": "enable_roaming",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "line_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Dict[str, Any]",
+            "verb": "enable",
+            "docstring": "Enables international roaming on a line.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to enable roaming for.\n\nReturns:\n    Message indicating the roaming has been enabled.\n\nRaises:\n    ValueError: If customer or line not found."
+          },
+          {
+            "name": "disable_roaming",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "line_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "disable",
+            "docstring": "Disables international roaming on a line.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to disable roaming for.\n\nReturns:\n    Message indicating the roaming has been enabled.\n\nRaises:\n    ValueError: If customer or line not found."
+          },
+          {
+            "name": "transfer_to_human_agents",
+            "tool_type": "GENERIC",
+            "args": [
+              {
+                "name": "summary",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "transfer",
+            "docstring": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve the user's issue.\n\nArgs:\n    summary: A summary of the user's issue.\n\nReturns:\n    A message indicati"
+          },
+          {
+            "name": "refuel_data",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "customer_id",
+                "type": "str"
+              },
+              {
+                "name": "line_id",
+                "type": "str"
+              },
+              {
+                "name": "gb_amount",
+                "type": "float"
+              }
+            ],
+            "return_type": "Dict[str, Any]",
+            "verb": "refuel",
+            "docstring": "Refuels data for a specific line, adding to the customer's bill.\nChecks: Line status must be Active, Customer owns the line.\nLogic: Adds data to the line and charges customer based on the plan's refueling rate.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line"
+          }
+        ]
+      },
+      "edges": {
+        "is_a": [
+          {
+            "child": "Address",
+            "parent": "BaseModelNoExtra"
+          },
+          {
+            "child": "Plan",
+            "parent": "BaseModelNoExtra"
+          },
+          {
+            "child": "DeviceType",
+            "parent": "Enum"
+          },
+          {
+            "child": "Device",
+            "parent": "BaseModelNoExtra"
+          },
+          {
+            "child": "LineStatus",
+            "parent": "Enum"
+          },
+          {
+            "child": "Line",
+            "parent": "BaseModelNoExtra"
+          },
+          {
+            "child": "LineItem",
+            "parent": "BaseModelNoExtra"
+          },
+          {
+            "child": "BillStatus",
+            "parent": "Enum"
+          },
+          {
+            "child": "Bill",
+            "parent": "BaseModelNoExtra"
+          },
+          {
+            "child": "AccountStatus",
+            "parent": "Enum"
+          },
+          {
+            "child": "PaymentMethodType",
+            "parent": "Enum"
+          },
+          {
+            "child": "PaymentMethod",
+            "parent": "BaseModelNoExtra"
+          },
+          {
+            "child": "Customer",
+            "parent": "BaseModelNoExtra"
+          },
+          {
+            "child": "TelecomDB",
+            "parent": "DB"
+          }
+        ],
+        "part_of": [
+          {
+            "whole": "Device",
+            "part": "DeviceType",
+            "via_field": "device_type"
+          },
+          {
+            "whole": "Line",
+            "part": "LineStatus",
+            "via_field": "status"
+          },
+          {
+            "whole": "Line",
+            "part": "Plan",
+            "via_field": "plan_id"
+          },
+          {
+            "whole": "Line",
+            "part": "Device",
+            "via_field": "device_id"
+          },
+          {
+            "whole": "Bill",
+            "part": "Customer",
+            "via_field": "customer_id"
+          },
+          {
+            "whole": "Bill",
+            "part": "LineItem",
+            "via_field": "line_items"
+          },
+          {
+            "whole": "Bill",
+            "part": "BillStatus",
+            "via_field": "status"
+          },
+          {
+            "whole": "PaymentMethod",
+            "part": "PaymentMethodType",
+            "via_field": "method_type"
+          },
+          {
+            "whole": "Customer",
+            "part": "Address",
+            "via_field": "address"
+          },
+          {
+            "whole": "Customer",
+            "part": "AccountStatus",
+            "via_field": "account_status"
+          },
+          {
+            "whole": "Customer",
+            "part": "PaymentMethod",
+            "via_field": "payment_methods"
+          },
+          {
+            "whole": "Customer",
+            "part": "Line",
+            "via_field": "line_ids"
+          },
+          {
+            "whole": "Customer",
+            "part": "Bill",
+            "via_field": "bill_ids"
+          },
+          {
+            "whole": "TelecomDB",
+            "part": "Plan",
+            "via_field": "plans"
+          },
+          {
+            "whole": "TelecomDB",
+            "part": "Customer",
+            "via_field": "customers"
+          },
+          {
+            "whole": "TelecomDB",
+            "part": "Line",
+            "via_field": "lines"
+          },
+          {
+            "whole": "TelecomDB",
+            "part": "Bill",
+            "via_field": "bills"
+          },
+          {
+            "whole": "TelecomDB",
+            "part": "Device",
+            "via_field": "devices"
+          }
+        ],
+        "relation": [
+          {
+            "tool_name": "get_customer_by_phone",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [],
+            "target_type": "Customer"
+          },
+          {
+            "tool_name": "get_customer_by_id",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [
+              "Customer"
+            ],
+            "target_type": "Customer"
+          },
+          {
+            "tool_name": "get_customer_by_name",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [],
+            "target_type": "Customer"
+          },
+          {
+            "tool_name": "get_details_by_id",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [],
+            "target_type": "Dict[str, Any]"
+          },
+          {
+            "tool_name": "suspend_line",
+            "tool_type": "WRITE",
+            "verb": "suspend",
+            "source_types": [
+              "Customer",
+              "Line"
+            ],
+            "target_type": "Dict[str, Any]"
+          },
+          {
+            "tool_name": "resume_line",
+            "tool_type": "WRITE",
+            "verb": "resume",
+            "source_types": [
+              "Customer",
+              "Line"
+            ],
+            "target_type": "Dict[str, Any]"
+          },
+          {
+            "tool_name": "get_bills_for_customer",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [
+              "Customer"
+            ],
+            "target_type": "Bill"
+          },
+          {
+            "tool_name": "send_payment_request",
+            "tool_type": "WRITE",
+            "verb": "send",
+            "source_types": [
+              "Bill",
+              "Customer"
+            ],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "get_data_usage",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [
+              "Customer",
+              "Line"
+            ],
+            "target_type": "Dict[str, Any]"
+          },
+          {
+            "tool_name": "enable_roaming",
+            "tool_type": "WRITE",
+            "verb": "enable",
+            "source_types": [
+              "Customer",
+              "Line"
+            ],
+            "target_type": "Dict[str, Any]"
+          },
+          {
+            "tool_name": "disable_roaming",
+            "tool_type": "WRITE",
+            "verb": "disable",
+            "source_types": [
+              "Customer",
+              "Line"
+            ],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "transfer_to_human_agents",
+            "tool_type": "GENERIC",
+            "verb": "transfer",
+            "source_types": [],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "refuel_data",
+            "tool_type": "WRITE",
+            "verb": "refuel",
+            "source_types": [
+              "Customer",
+              "Line"
+            ],
+            "target_type": "Dict[str, Any]"
+          }
+        ]
+      },
+      "summary": {
+        "n_classes": 14,
+        "n_tools": 13,
+        "n_is_a": 14,
+        "n_part_of": 18,
+        "n_relation": 13,
+        "n_total_edges": 45,
+        "budget_gate_20_500": true
+      }
+    },
+    "retail": {
+      "domain": "retail",
+      "nodes": {
+        "classes": [
+          {
+            "name": "Variant",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "item_id",
+                "type": "str"
+              },
+              {
+                "name": "options",
+                "type": "Dict[str, str]"
+              },
+              {
+                "name": "available",
+                "type": "bool"
+              },
+              {
+                "name": "price",
+                "type": "float"
+              }
+            ]
+          },
+          {
+            "name": "Product",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "product_id",
+                "type": "str"
+              },
+              {
+                "name": "variants",
+                "type": "Dict[str, Variant]"
+              }
+            ]
+          },
+          {
+            "name": "UserName",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "UserAddress",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "address1",
+                "type": "str"
+              },
+              {
+                "name": "address2",
+                "type": "str"
+              },
+              {
+                "name": "city",
+                "type": "str"
+              },
+              {
+                "name": "country",
+                "type": "str"
+              },
+              {
+                "name": "state",
+                "type": "str"
+              },
+              {
+                "name": "zip",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "PaymentMethodBase",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "source",
+                "type": "str"
+              },
+              {
+                "name": "id",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "CreditCard",
+            "kind": "model",
+            "parents": [
+              "PaymentMethodBase"
+            ],
+            "fields": [
+              {
+                "name": "source",
+                "type": "Literal['credit_card']"
+              },
+              {
+                "name": "brand",
+                "type": "str"
+              },
+              {
+                "name": "last_four",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "Paypal",
+            "kind": "model",
+            "parents": [
+              "PaymentMethodBase"
+            ],
+            "fields": [
+              {
+                "name": "source",
+                "type": "Literal['paypal']"
+              }
+            ]
+          },
+          {
+            "name": "GiftCard",
+            "kind": "model",
+            "parents": [
+              "PaymentMethodBase"
+            ],
+            "fields": [
+              {
+                "name": "source",
+                "type": "Literal['gift_card']"
+              },
+              {
+                "name": "balance",
+                "type": "float"
+              },
+              {
+                "name": "id",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "User",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "user_id",
+                "type": "str"
+              },
+              {
+                "name": "name",
+                "type": "UserName"
+              },
+              {
+                "name": "address",
+                "type": "UserAddress"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "payment_methods",
+                "type": "Dict[str, PaymentMethod]"
+              },
+              {
+                "name": "orders",
+                "type": "List[str]"
+              }
+            ]
+          },
+          {
+            "name": "OrderFullfilment",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "tracking_id",
+                "type": "list[str]"
+              },
+              {
+                "name": "item_ids",
+                "type": "list[str]"
+              }
+            ]
+          },
+          {
+            "name": "OrderItem",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "product_id",
+                "type": "str"
+              },
+              {
+                "name": "item_id",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "float"
+              },
+              {
+                "name": "options",
+                "type": "Dict[str, str]"
+              }
+            ]
+          },
+          {
+            "name": "OrderPayment",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "transaction_type",
+                "type": "OrderPaymentType"
+              },
+              {
+                "name": "amount",
+                "type": "float"
+              },
+              {
+                "name": "payment_method_id",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "BaseOrder",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "order_id",
+                "type": "str"
+              },
+              {
+                "name": "user_id",
+                "type": "str"
+              },
+              {
+                "name": "address",
+                "type": "UserAddress"
+              },
+              {
+                "name": "items",
+                "type": "List[OrderItem]"
+              },
+              {
+                "name": "status",
+                "type": "OrderStatus"
+              },
+              {
+                "name": "fulfillments",
+                "type": "List[OrderFullfilment]"
+              },
+              {
+                "name": "payment_history",
+                "type": "List[OrderPayment]"
+              },
+              {
+                "name": "cancel_reason",
+                "type": "Optional[CancelReason]"
+              },
+              {
+                "name": "exchange_items",
+                "type": "Optional[List[str]]"
+              },
+              {
+                "name": "exchange_new_items",
+                "type": "Optional[List[str]]"
+              },
+              {
+                "name": "exchange_payment_method_id",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "exchange_price_difference",
+                "type": "Optional[float]"
+              },
+              {
+                "name": "return_items",
+                "type": "Optional[List[str]]"
+              },
+              {
+                "name": "return_payment_method_id",
+                "type": "Optional[str]"
+              }
+            ]
+          },
+          {
+            "name": "Order",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "order_id",
+                "type": "str"
+              },
+              {
+                "name": "user_id",
+                "type": "str"
+              },
+              {
+                "name": "address",
+                "type": "UserAddress"
+              },
+              {
+                "name": "items",
+                "type": "List[OrderItem]"
+              },
+              {
+                "name": "status",
+                "type": "OrderStatus"
+              },
+              {
+                "name": "fulfillments",
+                "type": "List[OrderFullfilment]"
+              },
+              {
+                "name": "payment_history",
+                "type": "List[OrderPayment]"
+              },
+              {
+                "name": "cancel_reason",
+                "type": "Optional[CancelReason]"
+              },
+              {
+                "name": "exchange_items",
+                "type": "Optional[List[str]]"
+              },
+              {
+                "name": "exchange_new_items",
+                "type": "Optional[List[str]]"
+              },
+              {
+                "name": "exchange_payment_method_id",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "exchange_price_difference",
+                "type": "Optional[float]"
+              },
+              {
+                "name": "return_items",
+                "type": "Optional[List[str]]"
+              },
+              {
+                "name": "return_payment_method_id",
+                "type": "Optional[str]"
+              }
+            ]
+          },
+          {
+            "name": "RetailDB",
+            "kind": "model",
+            "parents": [
+              "DB"
+            ],
+            "fields": [
+              {
+                "name": "products",
+                "type": "Dict[str, Product]"
+              },
+              {
+                "name": "users",
+                "type": "Dict[str, User]"
+              },
+              {
+                "name": "orders",
+                "type": "Dict[str, Order]"
+              }
+            ]
+          }
+        ],
+        "tools": [
+          {
+            "name": "calculate",
+            "tool_type": "GENERIC",
+            "args": [
+              {
+                "name": "expression",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "calculate",
+            "docstring": "Calculate the result of a mathematical expression.\n\nArgs:\n    expression: The mathematical expression to calculate, such as '2 + 2'. The expression can contain numbers, operators (+, -, *, /), parentheses, and spaces.\n\nReturns:\n    The result of the mathematical expression.\n\nRaises:\n    ValueError: "
+          },
+          {
+            "name": "cancel_pending_order",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "order_id",
+                "type": "str"
+              },
+              {
+                "name": "reason",
+                "type": "str"
+              }
+            ],
+            "return_type": "Order",
+            "verb": "cancel",
+            "docstring": "Cancel a pending order. If the order is already processed or delivered,\nit cannot be cancelled. The agent needs to explain the cancellation detail\nand ask for explicit user confirmation (yes/no) to proceed. If the user confirms,\nthe order status will be changed to 'cancelled' and the payment will be"
+          },
+          {
+            "name": "exchange_delivered_order_items",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "order_id",
+                "type": "str"
+              },
+              {
+                "name": "item_ids",
+                "type": "List[str]"
+              },
+              {
+                "name": "new_item_ids",
+                "type": "List[str]"
+              },
+              {
+                "name": "payment_method_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Order",
+            "verb": "exchange",
+            "docstring": "Exchange items in a delivered order to new items of the same product type.\nFor a delivered order, return or exchange can be only done once by the agent.\nThe agent needs to explain the exchange detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    order_id: The order id, such "
+          },
+          {
+            "name": "find_user_id_by_name_zip",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              },
+              {
+                "name": "zip",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "find",
+            "docstring": "Find user id by first name, last name, and zip code. If the user is not found, the function\nwill return an error message. By default, find user id by email, and only call this function\nif the user is not found by email or cannot remember email.\n\nArgs:\n    first_name: The first name of the customer, "
+          },
+          {
+            "name": "find_user_id_by_email",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "find",
+            "docstring": "Find user id by email. If the user is not found, the function will return an error message.\n\nArgs:\n    email: The email of the user, such as 'something@example.com'.\n\nReturns:\n    str: The user id if found, otherwise an error message.\n\nRaises:\n    ValueError: If the user is not found."
+          },
+          {
+            "name": "get_order_details",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "order_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Order",
+            "verb": "get",
+            "docstring": "Get the status and details of an order.\n\nArgs:\n    order_id: The order id, such as '#W0000000'. Be careful there is a '#' symbol at the beginning of the order id.\n\nReturns:\n    Order: The order details.\n\nRaises:\n    ValueError: If the order is not found."
+          },
+          {
+            "name": "get_product_details",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "product_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Product",
+            "verb": "get",
+            "docstring": "Get the inventory details of a product.\n\nArgs:\n    product_id: The product id, such as '6086499569'. Be careful the product id is different from the item id.\n\nReturns:\n    Product: The product details.\n\nRaises:\n    ValueError: If the product is not found."
+          },
+          {
+            "name": "get_item_details",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "item_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Variant",
+            "verb": "get",
+            "docstring": "Get the inventory details of an item.\n\nArgs:\n    item_id: The item id, such as '6086499569'. Be careful the item id is different from the product id.\n\nReturns:\n    Variant: The item details.\n\nRaises:\n    ValueError: If the item is not found."
+          },
+          {
+            "name": "get_user_details",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "user_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "User",
+            "verb": "get",
+            "docstring": "Get the details of a user, including their orders.\n\nArgs:\n    user_id: The user id, such as 'sara_doe_496'.\n\nReturns:\n    User: The user details.\n\nRaises:\n    ValueError: If the user is not found."
+          },
+          {
+            "name": "list_all_product_types",
+            "tool_type": "READ",
+            "args": [],
+            "return_type": "str",
+            "verb": "list",
+            "docstring": "List the name and product id of all product types.\nEach product type has a variety of different items with unique item ids and options.\nThere are only 50 product types in the store.\n\nReturns:\n    str: A JSON string mapping product names to their product IDs, sorted alphabetically by name."
+          },
+          {
+            "name": "modify_pending_order_address",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "order_id",
+                "type": "str"
+              },
+              {
+                "name": "address1",
+                "type": "str"
+              },
+              {
+                "name": "address2",
+                "type": "str"
+              },
+              {
+                "name": "city",
+                "type": "str"
+              },
+              {
+                "name": "state",
+                "type": "str"
+              },
+              {
+                "name": "country",
+                "type": "str"
+              },
+              {
+                "name": "zip",
+                "type": "str"
+              }
+            ],
+            "return_type": "Order",
+            "verb": "modify",
+            "docstring": "Modify the shipping address of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    order_id: The order id, such as '#W0000000'. Be careful there is a '#' symbol at the beginning of the order id.\n    address1: The "
+          },
+          {
+            "name": "modify_pending_order_items",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "order_id",
+                "type": "str"
+              },
+              {
+                "name": "item_ids",
+                "type": "List[str]"
+              },
+              {
+                "name": "new_item_ids",
+                "type": "List[str]"
+              },
+              {
+                "name": "payment_method_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Order",
+            "verb": "modify",
+            "docstring": "Modify items in a pending order to new items of the same product type. For a pending order, this function can only be called once. The agent needs to explain the exchange detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    order_id: The order id, such as '#W0000000'. Be car"
+          },
+          {
+            "name": "modify_pending_order_payment",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "order_id",
+                "type": "str"
+              },
+              {
+                "name": "payment_method_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Order",
+            "verb": "modify",
+            "docstring": "Modify the payment method of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    order_id: The order id, such as '#W0000000'. Be careful there is a '#' symbol at the beginning of the order id.\n    payment_method_i"
+          },
+          {
+            "name": "modify_user_address",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "user_id",
+                "type": "str"
+              },
+              {
+                "name": "address1",
+                "type": "str"
+              },
+              {
+                "name": "address2",
+                "type": "str"
+              },
+              {
+                "name": "city",
+                "type": "str"
+              },
+              {
+                "name": "state",
+                "type": "str"
+              },
+              {
+                "name": "country",
+                "type": "str"
+              },
+              {
+                "name": "zip",
+                "type": "str"
+              }
+            ],
+            "return_type": "User",
+            "verb": "modify",
+            "docstring": "Modify the default address of a user. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    user_id: The user id, such as 'sara_doe_496'.\n    address1: The first line of the address, such as '123 Main St'.\n    address2: The second l"
+          },
+          {
+            "name": "return_delivered_order_items",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "order_id",
+                "type": "str"
+              },
+              {
+                "name": "item_ids",
+                "type": "List[str]"
+              },
+              {
+                "name": "payment_method_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Order",
+            "verb": "return",
+            "docstring": "Return some items of a delivered order.\nThe order status will be changed to 'return requested'.\nThe agent needs to explain the return detail and ask for explicit user confirmation (yes/no) to proceed.\nThe user will receive follow-up email for how and where to return the item.\n\nArgs:\n    order_id: Th"
+          },
+          {
+            "name": "transfer_to_human_agents",
+            "tool_type": "GENERIC",
+            "args": [
+              {
+                "name": "summary",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "transfer",
+            "docstring": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve the user's issue.\n\nArgs:\n    summary: A summary of the user's issue.\n\nReturns:\n    A message indicati"
+          }
+        ]
+      },
+      "edges": {
+        "is_a": [
+          {
+            "child": "Variant",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "Product",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "UserName",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "UserAddress",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "PaymentMethodBase",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "CreditCard",
+            "parent": "PaymentMethodBase"
+          },
+          {
+            "child": "Paypal",
+            "parent": "PaymentMethodBase"
+          },
+          {
+            "child": "GiftCard",
+            "parent": "PaymentMethodBase"
+          },
+          {
+            "child": "User",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "OrderFullfilment",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "OrderItem",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "OrderPayment",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "BaseOrder",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "Order",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "RetailDB",
+            "parent": "DB"
+          }
+        ],
+        "part_of": [
+          {
+            "whole": "Product",
+            "part": "Variant",
+            "via_field": "variants"
+          },
+          {
+            "whole": "User",
+            "part": "UserName",
+            "via_field": "name"
+          },
+          {
+            "whole": "User",
+            "part": "UserAddress",
+            "via_field": "address"
+          },
+          {
+            "whole": "OrderItem",
+            "part": "Product",
+            "via_field": "product_id"
+          },
+          {
+            "whole": "BaseOrder",
+            "part": "Order",
+            "via_field": "order_id"
+          },
+          {
+            "whole": "BaseOrder",
+            "part": "User",
+            "via_field": "user_id"
+          },
+          {
+            "whole": "BaseOrder",
+            "part": "UserAddress",
+            "via_field": "address"
+          },
+          {
+            "whole": "BaseOrder",
+            "part": "OrderItem",
+            "via_field": "items"
+          },
+          {
+            "whole": "BaseOrder",
+            "part": "OrderFullfilment",
+            "via_field": "fulfillments"
+          },
+          {
+            "whole": "BaseOrder",
+            "part": "OrderPayment",
+            "via_field": "payment_history"
+          },
+          {
+            "whole": "Order",
+            "part": "User",
+            "via_field": "user_id"
+          },
+          {
+            "whole": "Order",
+            "part": "UserAddress",
+            "via_field": "address"
+          },
+          {
+            "whole": "Order",
+            "part": "OrderItem",
+            "via_field": "items"
+          },
+          {
+            "whole": "Order",
+            "part": "OrderFullfilment",
+            "via_field": "fulfillments"
+          },
+          {
+            "whole": "Order",
+            "part": "OrderPayment",
+            "via_field": "payment_history"
+          },
+          {
+            "whole": "RetailDB",
+            "part": "Product",
+            "via_field": "products"
+          },
+          {
+            "whole": "RetailDB",
+            "part": "User",
+            "via_field": "users"
+          },
+          {
+            "whole": "RetailDB",
+            "part": "Order",
+            "via_field": "orders"
+          }
+        ],
+        "relation": [
+          {
+            "tool_name": "calculate",
+            "tool_type": "GENERIC",
+            "verb": "calculate",
+            "source_types": [],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "cancel_pending_order",
+            "tool_type": "WRITE",
+            "verb": "cancel",
+            "source_types": [
+              "Order"
+            ],
+            "target_type": "Order"
+          },
+          {
+            "tool_name": "exchange_delivered_order_items",
+            "tool_type": "WRITE",
+            "verb": "exchange",
+            "source_types": [
+              "Order"
+            ],
+            "target_type": "Order"
+          },
+          {
+            "tool_name": "find_user_id_by_name_zip",
+            "tool_type": "READ",
+            "verb": "find",
+            "source_types": [],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "find_user_id_by_email",
+            "tool_type": "READ",
+            "verb": "find",
+            "source_types": [],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "get_order_details",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [
+              "Order"
+            ],
+            "target_type": "Order"
+          },
+          {
+            "tool_name": "get_product_details",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [
+              "Product"
+            ],
+            "target_type": "Product"
+          },
+          {
+            "tool_name": "get_item_details",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [],
+            "target_type": "Variant"
+          },
+          {
+            "tool_name": "get_user_details",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [
+              "User"
+            ],
+            "target_type": "User"
+          },
+          {
+            "tool_name": "list_all_product_types",
+            "tool_type": "READ",
+            "verb": "list",
+            "source_types": [],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "modify_pending_order_address",
+            "tool_type": "WRITE",
+            "verb": "modify",
+            "source_types": [
+              "Order"
+            ],
+            "target_type": "Order"
+          },
+          {
+            "tool_name": "modify_pending_order_items",
+            "tool_type": "WRITE",
+            "verb": "modify",
+            "source_types": [
+              "Order"
+            ],
+            "target_type": "Order"
+          },
+          {
+            "tool_name": "modify_pending_order_payment",
+            "tool_type": "WRITE",
+            "verb": "modify",
+            "source_types": [
+              "Order"
+            ],
+            "target_type": "Order"
+          },
+          {
+            "tool_name": "modify_user_address",
+            "tool_type": "WRITE",
+            "verb": "modify",
+            "source_types": [
+              "User"
+            ],
+            "target_type": "User"
+          },
+          {
+            "tool_name": "return_delivered_order_items",
+            "tool_type": "WRITE",
+            "verb": "return",
+            "source_types": [
+              "Order"
+            ],
+            "target_type": "Order"
+          },
+          {
+            "tool_name": "transfer_to_human_agents",
+            "tool_type": "GENERIC",
+            "verb": "transfer",
+            "source_types": [],
+            "target_type": "str"
+          }
+        ]
+      },
+      "summary": {
+        "n_classes": 15,
+        "n_tools": 16,
+        "n_is_a": 15,
+        "n_part_of": 18,
+        "n_relation": 16,
+        "n_total_edges": 49,
+        "budget_gate_20_500": true
+      }
+    },
+    "airline": {
+      "domain": "airline",
+      "nodes": {
+        "classes": [
+          {
+            "name": "AirportCode",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "iata",
+                "type": "str"
+              },
+              {
+                "name": "city",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "Name",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "Address",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "address1",
+                "type": "str"
+              },
+              {
+                "name": "address2",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "city",
+                "type": "str"
+              },
+              {
+                "name": "country",
+                "type": "str"
+              },
+              {
+                "name": "state",
+                "type": "str"
+              },
+              {
+                "name": "zip",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "Payment",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "payment_id",
+                "type": "str"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              }
+            ]
+          },
+          {
+            "name": "PaymentMethodBase",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "source",
+                "type": "str"
+              },
+              {
+                "name": "id",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "CreditCard",
+            "kind": "model",
+            "parents": [
+              "PaymentMethodBase"
+            ],
+            "fields": [
+              {
+                "name": "source",
+                "type": "Literal['credit_card']"
+              },
+              {
+                "name": "brand",
+                "type": "str"
+              },
+              {
+                "name": "last_four",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "GiftCard",
+            "kind": "model",
+            "parents": [
+              "PaymentMethodBase"
+            ],
+            "fields": [
+              {
+                "name": "source",
+                "type": "Literal['gift_card']"
+              },
+              {
+                "name": "amount",
+                "type": "float"
+              },
+              {
+                "name": "id",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "Certificate",
+            "kind": "model",
+            "parents": [
+              "PaymentMethodBase"
+            ],
+            "fields": [
+              {
+                "name": "source",
+                "type": "Literal['certificate']"
+              },
+              {
+                "name": "amount",
+                "type": "float"
+              }
+            ]
+          },
+          {
+            "name": "Passenger",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              },
+              {
+                "name": "dob",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "FlightDateStatusAvailable",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "status",
+                "type": "Literal['available']"
+              },
+              {
+                "name": "available_seats",
+                "type": "AvailableSeats"
+              },
+              {
+                "name": "prices",
+                "type": "SeatPrices"
+              }
+            ]
+          },
+          {
+            "name": "FlightDataStatusOnTime",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "status",
+                "type": "Literal['on time']"
+              },
+              {
+                "name": "estimated_departure_time_est",
+                "type": "str"
+              },
+              {
+                "name": "estimated_arrival_time_est",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "FlightDataStatusFlying",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "status",
+                "type": "Literal['flying']"
+              },
+              {
+                "name": "actual_departure_time_est",
+                "type": "str"
+              },
+              {
+                "name": "estimated_arrival_time_est",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "FlightDateStatusLanded",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "status",
+                "type": "Literal['landed']"
+              },
+              {
+                "name": "actual_departure_time_est",
+                "type": "str"
+              },
+              {
+                "name": "actual_arrival_time_est",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "FlightDateStatusCancelled",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "status",
+                "type": "Literal['cancelled']"
+              }
+            ]
+          },
+          {
+            "name": "FlightDateStatusDelayed",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "status",
+                "type": "Literal['delayed']"
+              },
+              {
+                "name": "estimated_departure_time_est",
+                "type": "str"
+              },
+              {
+                "name": "estimated_arrival_time_est",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "FlightBase",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "flight_number",
+                "type": "str"
+              },
+              {
+                "name": "origin",
+                "type": "str"
+              },
+              {
+                "name": "destination",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "Flight",
+            "kind": "model",
+            "parents": [
+              "FlightBase"
+            ],
+            "fields": [
+              {
+                "name": "scheduled_departure_time_est",
+                "type": "str"
+              },
+              {
+                "name": "scheduled_arrival_time_est",
+                "type": "str"
+              },
+              {
+                "name": "dates",
+                "type": "Dict[str, FlightDateStatus]"
+              }
+            ]
+          },
+          {
+            "name": "DirectFlight",
+            "kind": "model",
+            "parents": [
+              "FlightBase"
+            ],
+            "fields": [
+              {
+                "name": "status",
+                "type": "Literal['available']"
+              },
+              {
+                "name": "scheduled_departure_time_est",
+                "type": "str"
+              },
+              {
+                "name": "scheduled_arrival_time_est",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "available_seats",
+                "type": "AvailableSeats"
+              },
+              {
+                "name": "prices",
+                "type": "SeatPrices"
+              }
+            ]
+          },
+          {
+            "name": "ReservationFlight",
+            "kind": "model",
+            "parents": [
+              "FlightBase"
+            ],
+            "fields": [
+              {
+                "name": "date",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              }
+            ]
+          },
+          {
+            "name": "FlightInfo",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "flight_number",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "str"
+              }
+            ]
+          },
+          {
+            "name": "User",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "user_id",
+                "type": "str"
+              },
+              {
+                "name": "name",
+                "type": "Name"
+              },
+              {
+                "name": "address",
+                "type": "Address"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "dob",
+                "type": "str"
+              },
+              {
+                "name": "payment_methods",
+                "type": "Dict[str, PaymentMethod]"
+              },
+              {
+                "name": "saved_passengers",
+                "type": "List[Passenger]"
+              },
+              {
+                "name": "membership",
+                "type": "MembershipLevel"
+              },
+              {
+                "name": "reservations",
+                "type": "List[str]"
+              }
+            ]
+          },
+          {
+            "name": "Reservation",
+            "kind": "model",
+            "parents": [
+              "BaseModel"
+            ],
+            "fields": [
+              {
+                "name": "reservation_id",
+                "type": "str"
+              },
+              {
+                "name": "user_id",
+                "type": "str"
+              },
+              {
+                "name": "origin",
+                "type": "str"
+              },
+              {
+                "name": "destination",
+                "type": "str"
+              },
+              {
+                "name": "flight_type",
+                "type": "FlightType"
+              },
+              {
+                "name": "cabin",
+                "type": "CabinClass"
+              },
+              {
+                "name": "flights",
+                "type": "List[ReservationFlight]"
+              },
+              {
+                "name": "passengers",
+                "type": "List[Passenger]"
+              },
+              {
+                "name": "payment_history",
+                "type": "List[Payment]"
+              },
+              {
+                "name": "created_at",
+                "type": "str"
+              },
+              {
+                "name": "total_baggages",
+                "type": "int"
+              },
+              {
+                "name": "nonfree_baggages",
+                "type": "int"
+              },
+              {
+                "name": "insurance",
+                "type": "Insurance"
+              },
+              {
+                "name": "status",
+                "type": "Optional[Literal['cancelled']]"
+              }
+            ]
+          },
+          {
+            "name": "FlightDB",
+            "kind": "model",
+            "parents": [
+              "DB"
+            ],
+            "fields": [
+              {
+                "name": "flights",
+                "type": "Dict[str, Flight]"
+              },
+              {
+                "name": "users",
+                "type": "Dict[str, User]"
+              },
+              {
+                "name": "reservations",
+                "type": "Dict[str, Reservation]"
+              }
+            ]
+          }
+        ],
+        "tools": [
+          {
+            "name": "book_reservation",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "user_id",
+                "type": "str"
+              },
+              {
+                "name": "origin",
+                "type": "str"
+              },
+              {
+                "name": "destination",
+                "type": "str"
+              },
+              {
+                "name": "flight_type",
+                "type": "FlightType"
+              },
+              {
+                "name": "cabin",
+                "type": "CabinClass"
+              },
+              {
+                "name": "flights",
+                "type": "List[?]"
+              },
+              {
+                "name": "passengers",
+                "type": "List[?]"
+              },
+              {
+                "name": "payment_methods",
+                "type": "List[?]"
+              },
+              {
+                "name": "total_baggages",
+                "type": "int"
+              },
+              {
+                "name": "nonfree_baggages",
+                "type": "int"
+              },
+              {
+                "name": "insurance",
+                "type": "Insurance"
+              }
+            ],
+            "return_type": "Reservation",
+            "verb": "book",
+            "docstring": "Book a reservation.\n\nArgs:\n    user_id: The ID of the user to book the reservation such as 'sara_doe_496'`.\n    origin: The IATA code for the origin city such as 'SFO'.\n    destination: The IATA code for the destination city such as 'JFK'.\n    flight_type: The type of flight such as 'one_way' or 'ro"
+          },
+          {
+            "name": "calculate",
+            "tool_type": "GENERIC",
+            "args": [
+              {
+                "name": "expression",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "calculate",
+            "docstring": "Calculate the result of a mathematical expression.\n\nArgs:\n    expression: The mathematical expression to calculate, such as '2 + 2'. The expression can contain numbers, operators (+, -, *, /), parentheses, and spaces.\n\nReturns:\n    The result of the mathematical expression.\n\nRaises:\n    ValueError: "
+          },
+          {
+            "name": "cancel_reservation",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "reservation_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Reservation",
+            "verb": "cancel",
+            "docstring": "Cancel the whole reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n\nReturns:\n    The updated reservation.\n\nRaises:\n    ValueError: If the reservation is not found."
+          },
+          {
+            "name": "get_reservation_details",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "reservation_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Reservation",
+            "verb": "get",
+            "docstring": "Get the details of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as '8JX2WO'.\n\nReturns:\n    The reservation details.\n\nRaises:\n    ValueError: If the reservation is not found."
+          },
+          {
+            "name": "get_user_details",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "user_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "User",
+            "verb": "get",
+            "docstring": "Get the details of a user, including their reservations.\n\nArgs:\n    user_id: The user ID, such as 'sara_doe_496'.\n\nReturns:\n    The user details.\n\nRaises:\n    ValueError: If the user is not found."
+          },
+          {
+            "name": "list_all_airports",
+            "tool_type": "READ",
+            "args": [],
+            "return_type": "AirportInfo",
+            "verb": "list",
+            "docstring": "Returns a list of all available airports.\n\nReturns:\n    A dictionary mapping IATA codes to AirportInfo objects."
+          },
+          {
+            "name": "search_direct_flight",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "origin",
+                "type": "str"
+              },
+              {
+                "name": "destination",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[DirectFlight]",
+            "verb": "search",
+            "docstring": "Search for direct flights between two cities on a specific date.\n\nArgs:\n    origin: The origin city airport in three letters, such as 'JFK'.\n    destination: The destination city airport in three letters, such as 'LAX'.\n    date: The date of the flight in the format 'YYYY-MM-DD', such as '2024-01-01"
+          },
+          {
+            "name": "search_onestop_flight",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "origin",
+                "type": "str"
+              },
+              {
+                "name": "destination",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[tuple[DirectFlight, DirectFlight]]",
+            "verb": "search",
+            "docstring": "Search for one-stop flights between two cities on a specific date.\n\nArgs:\n    origin: The origin city airport in three letters, such as 'JFK'.\n    destination: The destination city airport in three letters, such as 'LAX'.\n    date: The date of the flight in the format 'YYYY-MM-DD', such as '2024-05-"
+          },
+          {
+            "name": "send_certificate",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "user_id",
+                "type": "str"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              }
+            ],
+            "return_type": "str",
+            "verb": "send",
+            "docstring": "Send a certificate to a user. Be careful!\n\nArgs:\n    user_id: The ID of the user to book the reservation, such as 'sara_doe_496'.\n    amount: The amount of the certificate to send.\n\nReturns:\n    A message indicating the certificate was sent.\n\nRaises:\n    ValueError: If the user is not found."
+          },
+          {
+            "name": "transfer_to_human_agents",
+            "tool_type": "GENERIC",
+            "args": [
+              {
+                "name": "summary",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "transfer",
+            "docstring": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve the user's issue.\n\nArgs:\n    summary: A summary of the user's issue.\n\nReturns:\n    A message indicati"
+          },
+          {
+            "name": "update_reservation_baggages",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "reservation_id",
+                "type": "str"
+              },
+              {
+                "name": "total_baggages",
+                "type": "int"
+              },
+              {
+                "name": "nonfree_baggages",
+                "type": "int"
+              },
+              {
+                "name": "payment_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Reservation",
+            "verb": "update",
+            "docstring": "Update the baggage information of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'\n    total_baggages: The updated total number of baggage items included in the reservation.\n    nonfree_baggages: The updated number of non-free baggage items included in the reservation.\n"
+          },
+          {
+            "name": "update_reservation_flights",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "reservation_id",
+                "type": "str"
+              },
+              {
+                "name": "cabin",
+                "type": "CabinClass"
+              },
+              {
+                "name": "flights",
+                "type": "List[?]"
+              },
+              {
+                "name": "payment_id",
+                "type": "str"
+              }
+            ],
+            "return_type": "Reservation",
+            "verb": "update",
+            "docstring": "Update the flight information of a reservation.\n\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n    cabin: The cabin class of the reservation\n    flights: An array of objects containing details about each piece of flight in the ENTIRE new reservation. Even if the a flight segment i"
+          },
+          {
+            "name": "update_reservation_passengers",
+            "tool_type": "WRITE",
+            "args": [
+              {
+                "name": "reservation_id",
+                "type": "str"
+              },
+              {
+                "name": "passengers",
+                "type": "List[?]"
+              }
+            ],
+            "return_type": "Reservation",
+            "verb": "update",
+            "docstring": "Update the passenger information of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n    passengers: An array of objects containing details about each passenger.\n\nReturns:\n    The updated reservation.\n\nRaises:\n    ValueError: If the reservation is not found.\n    ValueE"
+          },
+          {
+            "name": "get_flight_status",
+            "tool_type": "READ",
+            "args": [
+              {
+                "name": "flight_number",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "str"
+              }
+            ],
+            "return_type": "str",
+            "verb": "get",
+            "docstring": "Get the status of a flight.\n\nArgs:\n    flight_number: The flight number.\n    date: The date of the flight.\n\nReturns:\n    The status of the flight.\n\nRaises:\n    ValueError: If the flight is not found."
+          }
+        ]
+      },
+      "edges": {
+        "is_a": [
+          {
+            "child": "AirportCode",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "Name",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "Address",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "Payment",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "PaymentMethodBase",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "CreditCard",
+            "parent": "PaymentMethodBase"
+          },
+          {
+            "child": "GiftCard",
+            "parent": "PaymentMethodBase"
+          },
+          {
+            "child": "Certificate",
+            "parent": "PaymentMethodBase"
+          },
+          {
+            "child": "Passenger",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "FlightDateStatusAvailable",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "FlightDataStatusOnTime",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "FlightDataStatusFlying",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "FlightDateStatusLanded",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "FlightDateStatusCancelled",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "FlightDateStatusDelayed",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "FlightBase",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "Flight",
+            "parent": "FlightBase"
+          },
+          {
+            "child": "DirectFlight",
+            "parent": "FlightBase"
+          },
+          {
+            "child": "ReservationFlight",
+            "parent": "FlightBase"
+          },
+          {
+            "child": "FlightInfo",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "User",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "Reservation",
+            "parent": "BaseModel"
+          },
+          {
+            "child": "FlightDB",
+            "parent": "DB"
+          }
+        ],
+        "part_of": [
+          {
+            "whole": "User",
+            "part": "Name",
+            "via_field": "name"
+          },
+          {
+            "whole": "User",
+            "part": "Address",
+            "via_field": "address"
+          },
+          {
+            "whole": "User",
+            "part": "Passenger",
+            "via_field": "saved_passengers"
+          },
+          {
+            "whole": "Reservation",
+            "part": "User",
+            "via_field": "user_id"
+          },
+          {
+            "whole": "Reservation",
+            "part": "ReservationFlight",
+            "via_field": "flights"
+          },
+          {
+            "whole": "Reservation",
+            "part": "Passenger",
+            "via_field": "passengers"
+          },
+          {
+            "whole": "Reservation",
+            "part": "Payment",
+            "via_field": "payment_history"
+          },
+          {
+            "whole": "FlightDB",
+            "part": "Flight",
+            "via_field": "flights"
+          },
+          {
+            "whole": "FlightDB",
+            "part": "User",
+            "via_field": "users"
+          },
+          {
+            "whole": "FlightDB",
+            "part": "Reservation",
+            "via_field": "reservations"
+          }
+        ],
+        "relation": [
+          {
+            "tool_name": "book_reservation",
+            "tool_type": "WRITE",
+            "verb": "book",
+            "source_types": [
+              "User"
+            ],
+            "target_type": "Reservation"
+          },
+          {
+            "tool_name": "calculate",
+            "tool_type": "GENERIC",
+            "verb": "calculate",
+            "source_types": [],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "cancel_reservation",
+            "tool_type": "WRITE",
+            "verb": "cancel",
+            "source_types": [
+              "Reservation"
+            ],
+            "target_type": "Reservation"
+          },
+          {
+            "tool_name": "get_reservation_details",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [
+              "Reservation"
+            ],
+            "target_type": "Reservation"
+          },
+          {
+            "tool_name": "get_user_details",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [
+              "User"
+            ],
+            "target_type": "User"
+          },
+          {
+            "tool_name": "list_all_airports",
+            "tool_type": "READ",
+            "verb": "list",
+            "source_types": [],
+            "target_type": "AirportInfo"
+          },
+          {
+            "tool_name": "search_direct_flight",
+            "tool_type": "READ",
+            "verb": "search",
+            "source_types": [],
+            "target_type": "DirectFlight"
+          },
+          {
+            "tool_name": "search_onestop_flight",
+            "tool_type": "READ",
+            "verb": "search",
+            "source_types": [],
+            "target_type": "DirectFlight"
+          },
+          {
+            "tool_name": "send_certificate",
+            "tool_type": "WRITE",
+            "verb": "send",
+            "source_types": [
+              "User"
+            ],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "transfer_to_human_agents",
+            "tool_type": "GENERIC",
+            "verb": "transfer",
+            "source_types": [],
+            "target_type": "str"
+          },
+          {
+            "tool_name": "update_reservation_baggages",
+            "tool_type": "WRITE",
+            "verb": "update",
+            "source_types": [
+              "Payment",
+              "Reservation"
+            ],
+            "target_type": "Reservation"
+          },
+          {
+            "tool_name": "update_reservation_flights",
+            "tool_type": "WRITE",
+            "verb": "update",
+            "source_types": [
+              "Payment",
+              "Reservation"
+            ],
+            "target_type": "Reservation"
+          },
+          {
+            "tool_name": "update_reservation_passengers",
+            "tool_type": "WRITE",
+            "verb": "update",
+            "source_types": [
+              "Reservation"
+            ],
+            "target_type": "Reservation"
+          },
+          {
+            "tool_name": "get_flight_status",
+            "tool_type": "READ",
+            "verb": "get",
+            "source_types": [],
+            "target_type": "str"
+          }
+        ]
+      },
+      "summary": {
+        "n_classes": 23,
+        "n_tools": 14,
+        "n_is_a": 23,
+        "n_part_of": 10,
+        "n_relation": 14,
+        "n_total_edges": 47,
+        "budget_gate_20_500": true
+      }
+    }
+  },
+  "summary": {
+    "n_total_edges": 141,
+    "budget_gate_20_500": true
+  }
+}

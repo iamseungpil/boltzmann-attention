@@ -1,0 +1,709 @@
+{
+  "domain": "telecom",
+  "per_class": {
+    "Address": {
+      "sentences": [
+        "This describes a Address entity in the domain.",
+        "The Address record participates in downstream tool operations.",
+        "Address.street: Street address including house/apartment number",
+        "Address.city: City name",
+        "Address.state: State or province code (e.g., CA, NY)",
+        "Address.zip_code: Postal/ZIP code"
+      ],
+      "parents": [
+        "BaseModelNoExtra"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Plan": {
+      "sentences": [
+        "This describes a Plan entity in the domain.",
+        "The Plan record participates in downstream tool operations.",
+        "Plan.plan_id: Unique identifier for the plan",
+        "Plan.name: Display name of the plan",
+        "Plan.data_limit_gb: Monthly data allowance in gigabytes (GB)",
+        "Plan.price_per_month: Monthly price of the plan in USD"
+      ],
+      "parents": [
+        "BaseModelNoExtra"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "DeviceType": {
+      "sentences": [
+        "This describes a DeviceType entity in the domain.",
+        "The DeviceType record participates in downstream tool operations."
+      ],
+      "parents": [
+        "Enum"
+      ],
+      "depth": 0,
+      "kind": "enum"
+    },
+    "Device": {
+      "sentences": [
+        "This describes a Device entity in the domain.",
+        "The Device record participates in downstream tool operations.",
+        "Device.device_id: Unique identifier for the device",
+        "Device.device_type: Type/category of the device",
+        "Device.model: Model name/number of the device",
+        "Device.imei: International Mobile Equipment Identity number"
+      ],
+      "parents": [
+        "BaseModelNoExtra"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "LineStatus": {
+      "sentences": [
+        "This describes a LineStatus entity in the domain.",
+        "The LineStatus record participates in downstream tool operations."
+      ],
+      "parents": [
+        "Enum"
+      ],
+      "depth": 0,
+      "kind": "enum"
+    },
+    "Line": {
+      "sentences": [
+        "This describes a Line entity in the domain.",
+        "The Line record participates in downstream tool operations.",
+        "Line.line_id: Unique identifier for the line",
+        "Line.phone_number: Phone number associated with the line",
+        "Line.status: Current status of the line",
+        "Line.plan_id: Plan associated with this line"
+      ],
+      "parents": [
+        "BaseModelNoExtra"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "LineItem": {
+      "sentences": [
+        "This describes a LineItem entity in the domain.",
+        "The LineItem record participates in downstream tool operations.",
+        "LineItem.description: Descriptive text for the line item",
+        "LineItem.amount: Monetary amount in USD (positive for charges, negative for credits)",
+        "LineItem.date: Date the line item was applied (format: YYYY-MM-DD, timezone: EST)",
+        "LineItem.item_type: Category of the line item (e.g., Plan Charge, Overage, Fee, Credit, Payment)"
+      ],
+      "parents": [
+        "BaseModelNoExtra"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "BillStatus": {
+      "sentences": [
+        "This describes a BillStatus entity in the domain.",
+        "The BillStatus record participates in downstream tool operations."
+      ],
+      "parents": [
+        "Enum"
+      ],
+      "depth": 0,
+      "kind": "enum"
+    },
+    "Bill": {
+      "sentences": [
+        "This describes a Bill entity in the domain.",
+        "The Bill record participates in downstream tool operations.",
+        "Bill.bill_id: Unique identifier for the bill",
+        "Bill.customer_id: ID of the customer this bill belongs to",
+        "Bill.period_start: Start date of the billing period (format: YYYY-MM-DD, timezone: EST)",
+        "Bill.period_end: End date of the billing period (format: YYYY-MM-DD, timezone: EST)"
+      ],
+      "parents": [
+        "BaseModelNoExtra"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "AccountStatus": {
+      "sentences": [
+        "This describes a AccountStatus entity in the domain.",
+        "The AccountStatus record participates in downstream tool operations."
+      ],
+      "parents": [
+        "Enum"
+      ],
+      "depth": 0,
+      "kind": "enum"
+    },
+    "PaymentMethodType": {
+      "sentences": [
+        "This describes a PaymentMethodType entity in the domain.",
+        "The PaymentMethodType record participates in downstream tool operations."
+      ],
+      "parents": [
+        "Enum"
+      ],
+      "depth": 0,
+      "kind": "enum"
+    },
+    "PaymentMethod": {
+      "sentences": [
+        "This describes a PaymentMethod entity in the domain.",
+        "The PaymentMethod record participates in downstream tool operations.",
+        "PaymentMethod.method_type: Type of payment method",
+        "PaymentMethod.account_number_last_4: Last 4 digits of the account number",
+        "PaymentMethod.expiration_date: The expiration date of the payment method in the format MM/YYYY"
+      ],
+      "parents": [
+        "BaseModelNoExtra"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Customer": {
+      "sentences": [
+        "This describes a Customer entity in the domain.",
+        "The Customer record participates in downstream tool operations.",
+        "Customer.customer_id: Unique identifier for the customer",
+        "Customer.full_name: Customer's full name",
+        "Customer.date_of_birth: Customer's date of birth for identity verification (format: YYYY-MM-DD)",
+        "Customer.email: Customer's email address"
+      ],
+      "parents": [
+        "BaseModelNoExtra"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "TelecomDB": {
+      "sentences": [
+        "This describes a TelecomDB entity in the domain.",
+        "The TelecomDB record participates in downstream tool operations.",
+        "TelecomDB.plans: Available service plans",
+        "TelecomDB.customers: All customers in the system",
+        "TelecomDB.lines: All lines in the system",
+        "TelecomDB.bills: All bills in the system"
+      ],
+      "parents": [
+        "DB"
+      ],
+      "depth": 0,
+      "kind": "model"
+    }
+  },
+  "per_tool": {
+    "get_customer_by_phone": {
+      "sentences": [
+        "This tool gets a request to produce a Customer.",
+        "Invoke get_customer_by_phone when the user needs to get a Customer.",
+        "Finds a customer by their primary contact or line phone number."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "Customer"
+    },
+    "get_customer_by_id": {
+      "sentences": [
+        "This tool gets Customer to produce a Customer.",
+        "Invoke get_customer_by_id when the user needs to get a Customer.",
+        "Retrieves a customer directly by their unique ID."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [
+        "Customer"
+      ],
+      "target_type": "Customer"
+    },
+    "get_customer_by_name": {
+      "sentences": [
+        "This tool gets a request to produce a Customer.",
+        "Invoke get_customer_by_name when the user needs to get a Customer.",
+        "Searches for customers by name and DOB. May return multiple matches if names are similar,"
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "Customer"
+    },
+    "get_details_by_id": {
+      "sentences": [
+        "This tool gets a request to produce a Dict[str, Any].",
+        "Invoke get_details_by_id when the user needs to get a Dict[str, Any].",
+        "Retrieves the details for a given ID."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "Dict[str, Any]"
+    },
+    "suspend_line": {
+      "sentences": [
+        "This tool suspends Customer and Line to produce a Dict[str, Any].",
+        "Invoke suspend_line when the user needs to suspend a Dict[str, Any].",
+        "Suspends a specific line (max 6 months)."
+      ],
+      "verb": "suspend",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]"
+    },
+    "resume_line": {
+      "sentences": [
+        "This tool resumes Customer and Line to produce a Dict[str, Any].",
+        "Invoke resume_line when the user needs to resume a Dict[str, Any].",
+        "Resumes a suspended line."
+      ],
+      "verb": "resume",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]"
+    },
+    "get_bills_for_customer": {
+      "sentences": [
+        "This tool gets Customer to produce a Bill.",
+        "Invoke get_bills_for_customer when the user needs to get a Bill.",
+        "Retrieves a list of the customer's bills, most recent first."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [
+        "Customer"
+      ],
+      "target_type": "Bill"
+    },
+    "send_payment_request": {
+      "sentences": [
+        "This tool sends Bill and Customer to produce a str.",
+        "Invoke send_payment_request when the user needs to send a str.",
+        "Sends a payment request to the customer for a specific bill."
+      ],
+      "verb": "send",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Bill",
+        "Customer"
+      ],
+      "target_type": "str"
+    },
+    "get_data_usage": {
+      "sentences": [
+        "This tool gets Customer and Line to produce a Dict[str, Any].",
+        "Invoke get_data_usage when the user needs to get a Dict[str, Any].",
+        "Retrieves current billing cycle data usage for a line, including data"
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]"
+    },
+    "enable_roaming": {
+      "sentences": [
+        "This tool enables Customer and Line to produce a Dict[str, Any].",
+        "Invoke enable_roaming when the user needs to enable a Dict[str, Any].",
+        "Enables international roaming on a line."
+      ],
+      "verb": "enable",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]"
+    },
+    "disable_roaming": {
+      "sentences": [
+        "This tool disables Customer and Line to produce a str.",
+        "Invoke disable_roaming when the user needs to disable a str.",
+        "Disables international roaming on a line."
+      ],
+      "verb": "disable",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "str"
+    },
+    "transfer_to_human_agents": {
+      "sentences": [
+        "This tool transfers a request to produce a str.",
+        "Invoke transfer_to_human_agents when the user needs to transfer a str.",
+        "Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "verb": "transfer",
+      "tool_type": "GENERIC",
+      "source_types": [],
+      "target_type": "str"
+    },
+    "refuel_data": {
+      "sentences": [
+        "This tool refuels Customer and Line to produce a Dict[str, Any].",
+        "Invoke refuel_data when the user needs to refuel a Dict[str, Any].",
+        "Refuels data for a specific line, adding to the customer's bill."
+      ],
+      "verb": "refuel",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]"
+    }
+  },
+  "per_part_of": {
+    "Device::device_type": {
+      "whole": "Device",
+      "part": "DeviceType",
+      "via_field": "device_type",
+      "sentences": [
+        "A Device contains a DeviceType accessed via its device_type attribute.",
+        "The DeviceType is a component of the Device record.",
+        "Operations on Device may read or modify its DeviceType via device_type."
+      ]
+    },
+    "Line::status": {
+      "whole": "Line",
+      "part": "LineStatus",
+      "via_field": "status",
+      "sentences": [
+        "A Line contains a LineStatus accessed via its status attribute.",
+        "The LineStatus is a component of the Line record.",
+        "Operations on Line may read or modify its LineStatus via status."
+      ]
+    },
+    "Line::plan_id": {
+      "whole": "Line",
+      "part": "Plan",
+      "via_field": "plan_id",
+      "sentences": [
+        "A Line contains a Plan accessed via its plan_id attribute.",
+        "The Plan is a component of the Line record.",
+        "Operations on Line may read or modify its Plan via plan_id."
+      ]
+    },
+    "Line::device_id": {
+      "whole": "Line",
+      "part": "Device",
+      "via_field": "device_id",
+      "sentences": [
+        "A Line contains a Device accessed via its device_id attribute.",
+        "The Device is a component of the Line record.",
+        "Operations on Line may read or modify its Device via device_id."
+      ]
+    },
+    "Bill::customer_id": {
+      "whole": "Bill",
+      "part": "Customer",
+      "via_field": "customer_id",
+      "sentences": [
+        "A Bill contains a Customer accessed via its customer_id attribute.",
+        "The Customer is a component of the Bill record.",
+        "Operations on Bill may read or modify its Customer via customer_id."
+      ]
+    },
+    "Bill::line_items": {
+      "whole": "Bill",
+      "part": "LineItem",
+      "via_field": "line_items",
+      "sentences": [
+        "A Bill contains a LineItem accessed via its line_items attribute.",
+        "The LineItem is a component of the Bill record.",
+        "Operations on Bill may read or modify its LineItem via line_items."
+      ]
+    },
+    "Bill::status": {
+      "whole": "Bill",
+      "part": "BillStatus",
+      "via_field": "status",
+      "sentences": [
+        "A Bill contains a BillStatus accessed via its status attribute.",
+        "The BillStatus is a component of the Bill record.",
+        "Operations on Bill may read or modify its BillStatus via status."
+      ]
+    },
+    "PaymentMethod::method_type": {
+      "whole": "PaymentMethod",
+      "part": "PaymentMethodType",
+      "via_field": "method_type",
+      "sentences": [
+        "A PaymentMethod contains a PaymentMethodType accessed via its method_type attribute.",
+        "The PaymentMethodType is a component of the PaymentMethod record.",
+        "Operations on PaymentMethod may read or modify its PaymentMethodType via method_type."
+      ]
+    },
+    "Customer::address": {
+      "whole": "Customer",
+      "part": "Address",
+      "via_field": "address",
+      "sentences": [
+        "A Customer contains a Address accessed via its address attribute.",
+        "The Address is a component of the Customer record.",
+        "Operations on Customer may read or modify its Address via address."
+      ]
+    },
+    "Customer::account_status": {
+      "whole": "Customer",
+      "part": "AccountStatus",
+      "via_field": "account_status",
+      "sentences": [
+        "A Customer contains a AccountStatus accessed via its account_status attribute.",
+        "The AccountStatus is a component of the Customer record.",
+        "Operations on Customer may read or modify its AccountStatus via account_status."
+      ]
+    },
+    "Customer::payment_methods": {
+      "whole": "Customer",
+      "part": "PaymentMethod",
+      "via_field": "payment_methods",
+      "sentences": [
+        "A Customer contains a PaymentMethod accessed via its payment_methods attribute.",
+        "The PaymentMethod is a component of the Customer record.",
+        "Operations on Customer may read or modify its PaymentMethod via payment_methods."
+      ]
+    },
+    "Customer::line_ids": {
+      "whole": "Customer",
+      "part": "Line",
+      "via_field": "line_ids",
+      "sentences": [
+        "A Customer contains a Line accessed via its line_ids attribute.",
+        "The Line is a component of the Customer record.",
+        "Operations on Customer may read or modify its Line via line_ids."
+      ]
+    },
+    "Customer::bill_ids": {
+      "whole": "Customer",
+      "part": "Bill",
+      "via_field": "bill_ids",
+      "sentences": [
+        "A Customer contains a Bill accessed via its bill_ids attribute.",
+        "The Bill is a component of the Customer record.",
+        "Operations on Customer may read or modify its Bill via bill_ids."
+      ]
+    },
+    "TelecomDB::plans": {
+      "whole": "TelecomDB",
+      "part": "Plan",
+      "via_field": "plans",
+      "sentences": [
+        "A TelecomDB contains a Plan accessed via its plans attribute.",
+        "The Plan is a component of the TelecomDB record.",
+        "Operations on TelecomDB may read or modify its Plan via plans."
+      ]
+    },
+    "TelecomDB::customers": {
+      "whole": "TelecomDB",
+      "part": "Customer",
+      "via_field": "customers",
+      "sentences": [
+        "A TelecomDB contains a Customer accessed via its customers attribute.",
+        "The Customer is a component of the TelecomDB record.",
+        "Operations on TelecomDB may read or modify its Customer via customers."
+      ]
+    },
+    "TelecomDB::lines": {
+      "whole": "TelecomDB",
+      "part": "Line",
+      "via_field": "lines",
+      "sentences": [
+        "A TelecomDB contains a Line accessed via its lines attribute.",
+        "The Line is a component of the TelecomDB record.",
+        "Operations on TelecomDB may read or modify its Line via lines."
+      ]
+    },
+    "TelecomDB::bills": {
+      "whole": "TelecomDB",
+      "part": "Bill",
+      "via_field": "bills",
+      "sentences": [
+        "A TelecomDB contains a Bill accessed via its bills attribute.",
+        "The Bill is a component of the TelecomDB record.",
+        "Operations on TelecomDB may read or modify its Bill via bills."
+      ]
+    },
+    "TelecomDB::devices": {
+      "whole": "TelecomDB",
+      "part": "Device",
+      "via_field": "devices",
+      "sentences": [
+        "A TelecomDB contains a Device accessed via its devices attribute.",
+        "The Device is a component of the TelecomDB record.",
+        "Operations on TelecomDB may read or modify its Device via devices."
+      ]
+    }
+  },
+  "per_relation": {
+    "get_customer_by_phone": {
+      "sentences": [
+        "This tool gets a request to produce a Customer.",
+        "Invoke get_customer_by_phone when the user needs to get a Customer.",
+        "Finds a customer by their primary contact or line phone number."
+      ],
+      "source_types": [],
+      "target_type": "Customer",
+      "verb": "get"
+    },
+    "get_customer_by_id": {
+      "sentences": [
+        "This tool gets Customer to produce a Customer.",
+        "Invoke get_customer_by_id when the user needs to get a Customer.",
+        "Retrieves a customer directly by their unique ID."
+      ],
+      "source_types": [
+        "Customer"
+      ],
+      "target_type": "Customer",
+      "verb": "get"
+    },
+    "get_customer_by_name": {
+      "sentences": [
+        "This tool gets a request to produce a Customer.",
+        "Invoke get_customer_by_name when the user needs to get a Customer.",
+        "Searches for customers by name and DOB. May return multiple matches if names are similar,"
+      ],
+      "source_types": [],
+      "target_type": "Customer",
+      "verb": "get"
+    },
+    "get_details_by_id": {
+      "sentences": [
+        "This tool gets a request to produce a Dict[str, Any].",
+        "Invoke get_details_by_id when the user needs to get a Dict[str, Any].",
+        "Retrieves the details for a given ID."
+      ],
+      "source_types": [],
+      "target_type": "Dict[str, Any]",
+      "verb": "get"
+    },
+    "suspend_line": {
+      "sentences": [
+        "This tool suspends Customer and Line to produce a Dict[str, Any].",
+        "Invoke suspend_line when the user needs to suspend a Dict[str, Any].",
+        "Suspends a specific line (max 6 months)."
+      ],
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]",
+      "verb": "suspend"
+    },
+    "resume_line": {
+      "sentences": [
+        "This tool resumes Customer and Line to produce a Dict[str, Any].",
+        "Invoke resume_line when the user needs to resume a Dict[str, Any].",
+        "Resumes a suspended line."
+      ],
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]",
+      "verb": "resume"
+    },
+    "get_bills_for_customer": {
+      "sentences": [
+        "This tool gets Customer to produce a Bill.",
+        "Invoke get_bills_for_customer when the user needs to get a Bill.",
+        "Retrieves a list of the customer's bills, most recent first."
+      ],
+      "source_types": [
+        "Customer"
+      ],
+      "target_type": "Bill",
+      "verb": "get"
+    },
+    "send_payment_request": {
+      "sentences": [
+        "This tool sends Bill and Customer to produce a str.",
+        "Invoke send_payment_request when the user needs to send a str.",
+        "Sends a payment request to the customer for a specific bill."
+      ],
+      "source_types": [
+        "Bill",
+        "Customer"
+      ],
+      "target_type": "str",
+      "verb": "send"
+    },
+    "get_data_usage": {
+      "sentences": [
+        "This tool gets Customer and Line to produce a Dict[str, Any].",
+        "Invoke get_data_usage when the user needs to get a Dict[str, Any].",
+        "Retrieves current billing cycle data usage for a line, including data"
+      ],
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]",
+      "verb": "get"
+    },
+    "enable_roaming": {
+      "sentences": [
+        "This tool enables Customer and Line to produce a Dict[str, Any].",
+        "Invoke enable_roaming when the user needs to enable a Dict[str, Any].",
+        "Enables international roaming on a line."
+      ],
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]",
+      "verb": "enable"
+    },
+    "disable_roaming": {
+      "sentences": [
+        "This tool disables Customer and Line to produce a str.",
+        "Invoke disable_roaming when the user needs to disable a str.",
+        "Disables international roaming on a line."
+      ],
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "str",
+      "verb": "disable"
+    },
+    "transfer_to_human_agents": {
+      "sentences": [
+        "This tool transfers a request to produce a str.",
+        "Invoke transfer_to_human_agents when the user needs to transfer a str.",
+        "Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "transfer"
+    },
+    "refuel_data": {
+      "sentences": [
+        "This tool refuels Customer and Line to produce a Dict[str, Any].",
+        "Invoke refuel_data when the user needs to refuel a Dict[str, Any].",
+        "Refuels data for a specific line, adding to the customer's bill."
+      ],
+      "source_types": [
+        "Customer",
+        "Line"
+      ],
+      "target_type": "Dict[str, Any]",
+      "verb": "refuel"
+    }
+  },
+  "summary": {
+    "n_class_sentences": 63,
+    "n_tool_sentences": 39,
+    "n_part_sentences": 54,
+    "n_relation_sentences": 39
+  }
+}

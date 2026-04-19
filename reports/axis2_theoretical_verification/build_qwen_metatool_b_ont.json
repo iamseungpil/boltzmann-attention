@@ -37,9 +37,9 @@
     "tool_category"
   ],
   "n_pairs_built": 112,
-  "r_min": 12,
-  "r_max": 14,
-  "r_median": 12,
+  "r_min": 11,
+  "r_max": 13,
+  "r_median": 13,
   "n_skipped": 0,
-  "out_path": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom/B_ont.pt"
+  "out_path": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom-perm-full_random-s42/B_ont.pt"
 }

@@ -1,0 +1,784 @@
+{
+  "domain": "retail",
+  "per_class": {
+    "Variant": {
+      "sentences": [
+        "This describes a Variant entity in the domain.",
+        "The Variant record participates in downstream tool operations.",
+        "Variant.item_id: Unique identifier for the variant",
+        "Variant.options: Dictionary of option names to values (e.g. {'color': 'blue', 'size': 'large'})",
+        "Variant.available: Whether this variant is currently in stock",
+        "Variant.price: Price of this variant"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Product": {
+      "sentences": [
+        "This describes a Product entity in the domain.",
+        "The Product record participates in downstream tool operations.",
+        "Product.name: Name of the product",
+        "Product.product_id: Unique identifier for the product",
+        "Product.variants: Dictionary of variants indexed by variant ID"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "UserName": {
+      "sentences": [
+        "This describes a UserName entity in the domain.",
+        "The UserName record participates in downstream tool operations.",
+        "UserName.first_name: User's first name",
+        "UserName.last_name: User's last name"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "UserAddress": {
+      "sentences": [
+        "This describes a UserAddress entity in the domain.",
+        "The UserAddress record participates in downstream tool operations.",
+        "UserAddress.address1: Primary address line",
+        "UserAddress.address2: Secondary address line",
+        "UserAddress.city: City name",
+        "UserAddress.country: Country name"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "PaymentMethodBase": {
+      "sentences": [
+        "This describes a PaymentMethodBase entity in the domain.",
+        "The PaymentMethodBase record participates in downstream tool operations.",
+        "PaymentMethodBase.source: Type of payment method",
+        "PaymentMethodBase.id: Unique identifier for the payment method"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "CreditCard": {
+      "sentences": [
+        "A CreditCard is a kind of PaymentMethodBase.",
+        "The CreditCard record participates in downstream tool operations.",
+        "CreditCard.source: Indicates this is a credit card payment method",
+        "CreditCard.brand: Credit card brand (e.g., visa, mastercard)",
+        "CreditCard.last_four: Last four digits of the credit card"
+      ],
+      "parents": [
+        "PaymentMethodBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "Paypal": {
+      "sentences": [
+        "A Paypal is a kind of PaymentMethodBase.",
+        "The Paypal record participates in downstream tool operations.",
+        "Paypal.source: Indicates this is a paypal payment method"
+      ],
+      "parents": [
+        "PaymentMethodBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "GiftCard": {
+      "sentences": [
+        "A GiftCard is a kind of PaymentMethodBase.",
+        "The GiftCard record participates in downstream tool operations.",
+        "GiftCard.source: Indicates this is a gift card payment method",
+        "GiftCard.balance: Gift card value amount",
+        "GiftCard.id: Unique identifier for the gift card"
+      ],
+      "parents": [
+        "PaymentMethodBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "User": {
+      "sentences": [
+        "This describes a User entity in the domain.",
+        "The User record participates in downstream tool operations.",
+        "User.user_id: Unique identifier for the user",
+        "User.name: User's full name",
+        "User.address: User's primary address",
+        "User.email: User's email address"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "OrderFullfilment": {
+      "sentences": [
+        "This describes a OrderFullfilment entity in the domain.",
+        "The OrderFullfilment record participates in downstream tool operations.",
+        "OrderFullfilment.tracking_id: List of tracking IDs for shipments",
+        "OrderFullfilment.item_ids: List of item IDs included in this fulfillment"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "OrderItem": {
+      "sentences": [
+        "This describes a OrderItem entity in the domain.",
+        "The OrderItem record participates in downstream tool operations.",
+        "OrderItem.name: Name of the product",
+        "OrderItem.product_id: ID of the product",
+        "OrderItem.item_id: ID of the specific variant",
+        "OrderItem.price: Price of the item at time of purchase"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "OrderPayment": {
+      "sentences": [
+        "This describes a OrderPayment entity in the domain.",
+        "The OrderPayment record participates in downstream tool operations.",
+        "OrderPayment.transaction_type: Type of transaction (payment or refund)",
+        "OrderPayment.amount: Amount of the transaction",
+        "OrderPayment.payment_method_id: ID of the payment method used"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "BaseOrder": {
+      "sentences": [
+        "This describes a BaseOrder entity in the domain.",
+        "The BaseOrder record participates in downstream tool operations.",
+        "BaseOrder.order_id: Unique identifier for the order",
+        "BaseOrder.user_id: Unique identifier for the user",
+        "BaseOrder.address: Address of the user",
+        "BaseOrder.items: Items in the order"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Order": {
+      "sentences": [
+        "This describes a Order entity in the domain.",
+        "The Order record participates in downstream tool operations.",
+        "Order.order_id: Unique identifier for the order",
+        "Order.user_id: Unique identifier for the user",
+        "Order.address: Address of the user",
+        "Order.items: Items in the order"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "RetailDB": {
+      "sentences": [
+        "This describes a RetailDB entity in the domain.",
+        "The RetailDB record participates in downstream tool operations.",
+        "RetailDB.products: Dictionary of all products indexed by product ID",
+        "RetailDB.users: Dictionary of all users indexed by user ID",
+        "RetailDB.orders: Dictionary of all orders indexed by order ID"
+      ],
+      "parents": [
+        "DB"
+      ],
+      "depth": 0,
+      "kind": "model"
+    }
+  },
+  "per_tool": {
+    "calculate": {
+      "sentences": [
+        "This tool calculates a request to produce a str.",
+        "Invoke calculate when the user needs to calculate a str.",
+        "Calculate the result of a mathematical expression."
+      ],
+      "verb": "calculate",
+      "tool_type": "GENERIC",
+      "source_types": [],
+      "target_type": "str"
+    },
+    "cancel_pending_order": {
+      "sentences": [
+        "This tool cancels Order to produce a Order.",
+        "Invoke cancel_pending_order when the user needs to cancel a Order.",
+        "Cancel a pending order. If the order is already processed or delivered,"
+      ],
+      "verb": "cancel",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order"
+    },
+    "exchange_delivered_order_items": {
+      "sentences": [
+        "This tool exchanges Order to produce a Order.",
+        "Invoke exchange_delivered_order_items when the user needs to exchange a Order.",
+        "Exchange items in a delivered order to new items of the same product type."
+      ],
+      "verb": "exchange",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order"
+    },
+    "find_user_id_by_name_zip": {
+      "sentences": [
+        "This tool finds a request to produce a str.",
+        "Invoke find_user_id_by_name_zip when the user needs to find a str.",
+        "Find user id by first name, last name, and zip code. If the user is not found, the function"
+      ],
+      "verb": "find",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "str"
+    },
+    "find_user_id_by_email": {
+      "sentences": [
+        "This tool finds a request to produce a str.",
+        "Invoke find_user_id_by_email when the user needs to find a str.",
+        "Find user id by email. If the user is not found, the function will return an error message."
+      ],
+      "verb": "find",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "str"
+    },
+    "get_order_details": {
+      "sentences": [
+        "This tool gets Order to produce a Order.",
+        "Invoke get_order_details when the user needs to get a Order.",
+        "Get the status and details of an order."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order"
+    },
+    "get_product_details": {
+      "sentences": [
+        "This tool gets Product to produce a Product.",
+        "Invoke get_product_details when the user needs to get a Product.",
+        "Get the inventory details of a product."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [
+        "Product"
+      ],
+      "target_type": "Product"
+    },
+    "get_item_details": {
+      "sentences": [
+        "This tool gets a request to produce a Variant.",
+        "Invoke get_item_details when the user needs to get a Variant.",
+        "Get the inventory details of an item."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "Variant"
+    },
+    "get_user_details": {
+      "sentences": [
+        "This tool gets User to produce a User.",
+        "Invoke get_user_details when the user needs to get a User.",
+        "Get the details of a user, including their orders."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [
+        "User"
+      ],
+      "target_type": "User"
+    },
+    "list_all_product_types": {
+      "sentences": [
+        "This tool lists a request to produce a str.",
+        "Invoke list_all_product_types when the user needs to list a str.",
+        "List the name and product id of all product types."
+      ],
+      "verb": "list",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "str"
+    },
+    "modify_pending_order_address": {
+      "sentences": [
+        "This tool modifys Order to produce a Order.",
+        "Invoke modify_pending_order_address when the user needs to modify a Order.",
+        "Modify the shipping address of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed."
+      ],
+      "verb": "modify",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order"
+    },
+    "modify_pending_order_items": {
+      "sentences": [
+        "This tool modifys Order to produce a Order.",
+        "Invoke modify_pending_order_items when the user needs to modify a Order.",
+        "Modify items in a pending order to new items of the same product type. For a pending order, this function can only be called once. The agent needs to explain the exchange detail and ask for explicit u"
+      ],
+      "verb": "modify",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order"
+    },
+    "modify_pending_order_payment": {
+      "sentences": [
+        "This tool modifys Order to produce a Order.",
+        "Invoke modify_pending_order_payment when the user needs to modify a Order.",
+        "Modify the payment method of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed."
+      ],
+      "verb": "modify",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order"
+    },
+    "modify_user_address": {
+      "sentences": [
+        "This tool modifys User to produce a User.",
+        "Invoke modify_user_address when the user needs to modify a User.",
+        "Modify the default address of a user. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed."
+      ],
+      "verb": "modify",
+      "tool_type": "WRITE",
+      "source_types": [
+        "User"
+      ],
+      "target_type": "User"
+    },
+    "return_delivered_order_items": {
+      "sentences": [
+        "This tool returns Order to produce a Order.",
+        "Invoke return_delivered_order_items when the user needs to return a Order.",
+        "Return some items of a delivered order."
+      ],
+      "verb": "return",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order"
+    },
+    "transfer_to_human_agents": {
+      "sentences": [
+        "This tool transfers a request to produce a str.",
+        "Invoke transfer_to_human_agents when the user needs to transfer a str.",
+        "Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "verb": "transfer",
+      "tool_type": "GENERIC",
+      "source_types": [],
+      "target_type": "str"
+    }
+  },
+  "per_part_of": {
+    "Product::variants": {
+      "whole": "Product",
+      "part": "Variant",
+      "via_field": "variants",
+      "sentences": [
+        "A Product contains a Variant accessed via its variants attribute.",
+        "The Variant is a component of the Product record.",
+        "Operations on Product may read or modify its Variant via variants."
+      ]
+    },
+    "User::name": {
+      "whole": "User",
+      "part": "UserName",
+      "via_field": "name",
+      "sentences": [
+        "A User contains a UserName accessed via its name attribute.",
+        "The UserName is a component of the User record.",
+        "Operations on User may read or modify its UserName via name."
+      ]
+    },
+    "User::address": {
+      "whole": "User",
+      "part": "UserAddress",
+      "via_field": "address",
+      "sentences": [
+        "A User contains a UserAddress accessed via its address attribute.",
+        "The UserAddress is a component of the User record.",
+        "Operations on User may read or modify its UserAddress via address."
+      ]
+    },
+    "OrderItem::product_id": {
+      "whole": "OrderItem",
+      "part": "Product",
+      "via_field": "product_id",
+      "sentences": [
+        "A OrderItem contains a Product accessed via its product_id attribute.",
+        "The Product is a component of the OrderItem record.",
+        "Operations on OrderItem may read or modify its Product via product_id."
+      ]
+    },
+    "BaseOrder::order_id": {
+      "whole": "BaseOrder",
+      "part": "Order",
+      "via_field": "order_id",
+      "sentences": [
+        "A BaseOrder contains a Order accessed via its order_id attribute.",
+        "The Order is a component of the BaseOrder record.",
+        "Operations on BaseOrder may read or modify its Order via order_id."
+      ]
+    },
+    "BaseOrder::user_id": {
+      "whole": "BaseOrder",
+      "part": "User",
+      "via_field": "user_id",
+      "sentences": [
+        "A BaseOrder contains a User accessed via its user_id attribute.",
+        "The User is a component of the BaseOrder record.",
+        "Operations on BaseOrder may read or modify its User via user_id."
+      ]
+    },
+    "BaseOrder::address": {
+      "whole": "BaseOrder",
+      "part": "UserAddress",
+      "via_field": "address",
+      "sentences": [
+        "A BaseOrder contains a UserAddress accessed via its address attribute.",
+        "The UserAddress is a component of the BaseOrder record.",
+        "Operations on BaseOrder may read or modify its UserAddress via address."
+      ]
+    },
+    "BaseOrder::items": {
+      "whole": "BaseOrder",
+      "part": "OrderItem",
+      "via_field": "items",
+      "sentences": [
+        "A BaseOrder contains a OrderItem accessed via its items attribute.",
+        "The OrderItem is a component of the BaseOrder record.",
+        "Operations on BaseOrder may read or modify its OrderItem via items."
+      ]
+    },
+    "BaseOrder::fulfillments": {
+      "whole": "BaseOrder",
+      "part": "OrderFullfilment",
+      "via_field": "fulfillments",
+      "sentences": [
+        "A BaseOrder contains a OrderFullfilment accessed via its fulfillments attribute.",
+        "The OrderFullfilment is a component of the BaseOrder record.",
+        "Operations on BaseOrder may read or modify its OrderFullfilment via fulfillments."
+      ]
+    },
+    "BaseOrder::payment_history": {
+      "whole": "BaseOrder",
+      "part": "OrderPayment",
+      "via_field": "payment_history",
+      "sentences": [
+        "A BaseOrder contains a OrderPayment accessed via its payment_history attribute.",
+        "The OrderPayment is a component of the BaseOrder record.",
+        "Operations on BaseOrder may read or modify its OrderPayment via payment_history."
+      ]
+    },
+    "Order::user_id": {
+      "whole": "Order",
+      "part": "User",
+      "via_field": "user_id",
+      "sentences": [
+        "A Order contains a User accessed via its user_id attribute.",
+        "The User is a component of the Order record.",
+        "Operations on Order may read or modify its User via user_id."
+      ]
+    },
+    "Order::address": {
+      "whole": "Order",
+      "part": "UserAddress",
+      "via_field": "address",
+      "sentences": [
+        "A Order contains a UserAddress accessed via its address attribute.",
+        "The UserAddress is a component of the Order record.",
+        "Operations on Order may read or modify its UserAddress via address."
+      ]
+    },
+    "Order::items": {
+      "whole": "Order",
+      "part": "OrderItem",
+      "via_field": "items",
+      "sentences": [
+        "A Order contains a OrderItem accessed via its items attribute.",
+        "The OrderItem is a component of the Order record.",
+        "Operations on Order may read or modify its OrderItem via items."
+      ]
+    },
+    "Order::fulfillments": {
+      "whole": "Order",
+      "part": "OrderFullfilment",
+      "via_field": "fulfillments",
+      "sentences": [
+        "A Order contains a OrderFullfilment accessed via its fulfillments attribute.",
+        "The OrderFullfilment is a component of the Order record.",
+        "Operations on Order may read or modify its OrderFullfilment via fulfillments."
+      ]
+    },
+    "Order::payment_history": {
+      "whole": "Order",
+      "part": "OrderPayment",
+      "via_field": "payment_history",
+      "sentences": [
+        "A Order contains a OrderPayment accessed via its payment_history attribute.",
+        "The OrderPayment is a component of the Order record.",
+        "Operations on Order may read or modify its OrderPayment via payment_history."
+      ]
+    },
+    "RetailDB::products": {
+      "whole": "RetailDB",
+      "part": "Product",
+      "via_field": "products",
+      "sentences": [
+        "A RetailDB contains a Product accessed via its products attribute.",
+        "The Product is a component of the RetailDB record.",
+        "Operations on RetailDB may read or modify its Product via products."
+      ]
+    },
+    "RetailDB::users": {
+      "whole": "RetailDB",
+      "part": "User",
+      "via_field": "users",
+      "sentences": [
+        "A RetailDB contains a User accessed via its users attribute.",
+        "The User is a component of the RetailDB record.",
+        "Operations on RetailDB may read or modify its User via users."
+      ]
+    },
+    "RetailDB::orders": {
+      "whole": "RetailDB",
+      "part": "Order",
+      "via_field": "orders",
+      "sentences": [
+        "A RetailDB contains a Order accessed via its orders attribute.",
+        "The Order is a component of the RetailDB record.",
+        "Operations on RetailDB may read or modify its Order via orders."
+      ]
+    }
+  },
+  "per_relation": {
+    "calculate": {
+      "sentences": [
+        "This tool calculates a request to produce a str.",
+        "Invoke calculate when the user needs to calculate a str.",
+        "Calculate the result of a mathematical expression."
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "calculate"
+    },
+    "cancel_pending_order": {
+      "sentences": [
+        "This tool cancels Order to produce a Order.",
+        "Invoke cancel_pending_order when the user needs to cancel a Order.",
+        "Cancel a pending order. If the order is already processed or delivered,"
+      ],
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order",
+      "verb": "cancel"
+    },
+    "exchange_delivered_order_items": {
+      "sentences": [
+        "This tool exchanges Order to produce a Order.",
+        "Invoke exchange_delivered_order_items when the user needs to exchange a Order.",
+        "Exchange items in a delivered order to new items of the same product type."
+      ],
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order",
+      "verb": "exchange"
+    },
+    "find_user_id_by_name_zip": {
+      "sentences": [
+        "This tool finds a request to produce a str.",
+        "Invoke find_user_id_by_name_zip when the user needs to find a str.",
+        "Find user id by first name, last name, and zip code. If the user is not found, the function"
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "find"
+    },
+    "find_user_id_by_email": {
+      "sentences": [
+        "This tool finds a request to produce a str.",
+        "Invoke find_user_id_by_email when the user needs to find a str.",
+        "Find user id by email. If the user is not found, the function will return an error message."
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "find"
+    },
+    "get_order_details": {
+      "sentences": [
+        "This tool gets Order to produce a Order.",
+        "Invoke get_order_details when the user needs to get a Order.",
+        "Get the status and details of an order."
+      ],
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order",
+      "verb": "get"
+    },
+    "get_product_details": {
+      "sentences": [
+        "This tool gets Product to produce a Product.",
+        "Invoke get_product_details when the user needs to get a Product.",
+        "Get the inventory details of a product."
+      ],
+      "source_types": [
+        "Product"
+      ],
+      "target_type": "Product",
+      "verb": "get"
+    },
+    "get_item_details": {
+      "sentences": [
+        "This tool gets a request to produce a Variant.",
+        "Invoke get_item_details when the user needs to get a Variant.",
+        "Get the inventory details of an item."
+      ],
+      "source_types": [],
+      "target_type": "Variant",
+      "verb": "get"
+    },
+    "get_user_details": {
+      "sentences": [
+        "This tool gets User to produce a User.",
+        "Invoke get_user_details when the user needs to get a User.",
+        "Get the details of a user, including their orders."
+      ],
+      "source_types": [
+        "User"
+      ],
+      "target_type": "User",
+      "verb": "get"
+    },
+    "list_all_product_types": {
+      "sentences": [
+        "This tool lists a request to produce a str.",
+        "Invoke list_all_product_types when the user needs to list a str.",
+        "List the name and product id of all product types."
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "list"
+    },
+    "modify_pending_order_address": {
+      "sentences": [
+        "This tool modifys Order to produce a Order.",
+        "Invoke modify_pending_order_address when the user needs to modify a Order.",
+        "Modify the shipping address of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed."
+      ],
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order",
+      "verb": "modify"
+    },
+    "modify_pending_order_items": {
+      "sentences": [
+        "This tool modifys Order to produce a Order.",
+        "Invoke modify_pending_order_items when the user needs to modify a Order.",
+        "Modify items in a pending order to new items of the same product type. For a pending order, this function can only be called once. The agent needs to explain the exchange detail and ask for explicit u"
+      ],
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order",
+      "verb": "modify"
+    },
+    "modify_pending_order_payment": {
+      "sentences": [
+        "This tool modifys Order to produce a Order.",
+        "Invoke modify_pending_order_payment when the user needs to modify a Order.",
+        "Modify the payment method of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed."
+      ],
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order",
+      "verb": "modify"
+    },
+    "modify_user_address": {
+      "sentences": [
+        "This tool modifys User to produce a User.",
+        "Invoke modify_user_address when the user needs to modify a User.",
+        "Modify the default address of a user. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed."
+      ],
+      "source_types": [
+        "User"
+      ],
+      "target_type": "User",
+      "verb": "modify"
+    },
+    "return_delivered_order_items": {
+      "sentences": [
+        "This tool returns Order to produce a Order.",
+        "Invoke return_delivered_order_items when the user needs to return a Order.",
+        "Return some items of a delivered order."
+      ],
+      "source_types": [
+        "Order"
+      ],
+      "target_type": "Order",
+      "verb": "return"
+    },
+    "transfer_to_human_agents": {
+      "sentences": [
+        "This tool transfers a request to produce a str.",
+        "Invoke transfer_to_human_agents when the user needs to transfer a str.",
+        "Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "transfer"
+    }
+  },
+  "summary": {
+    "n_class_sentences": 76,
+    "n_tool_sentences": 48,
+    "n_part_sentences": 54,
+    "n_relation_sentences": 48
+  }
+}

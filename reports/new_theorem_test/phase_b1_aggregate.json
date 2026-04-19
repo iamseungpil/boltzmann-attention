@@ -1,0 +1,79 @@
+[
+  {
+    "src": "Telecom B_ont",
+    "tgt": "Retail",
+    "type": "cross",
+    "A_flip": 0,
+    "D_flip": 0,
+    "n": 100,
+    "A_kl": 0.007029465800151229,
+    "D_kl": 0.0019135453944909386,
+    "A_D_ratio": 3.6735296797185626
+  },
+  {
+    "src": "Telecom B_ont",
+    "tgt": "Airline",
+    "type": "cross",
+    "A_flip": 0,
+    "D_flip": 0,
+    "n": 50,
+    "A_kl": 0.009739190884865821,
+    "D_kl": 0.004629387129098177,
+    "A_D_ratio": 2.1037754271293907
+  },
+  {
+    "src": "Telecom B_ont",
+    "tgt": "Banking",
+    "type": "cross",
+    "A_flip": 9,
+    "D_flip": 7,
+    "n": 97,
+    "A_kl": 0.736029967852897,
+    "D_kl": 0.2893588789162639,
+    "A_D_ratio": 2.5436577948102053
+  },
+  {
+    "src": "Telecom B_ont",
+    "tgt": "ST4",
+    "type": "cross",
+    "A_flip": 0,
+    "D_flip": 0,
+    "n": 100,
+    "A_kl": 0.055639644814655186,
+    "D_kl": 0.030681543126702307,
+    "A_D_ratio": 1.813456532641988
+  },
+  {
+    "src": "Retail B_ont",
+    "tgt": "Telecom",
+    "type": "cross",
+    "A_flip": 0,
+    "D_flip": 0,
+    "n": 100,
+    "A_kl": 0.024287730529904364,
+    "D_kl": 0.10700733914971351,
+    "A_D_ratio": 0.22697256770326288
+  },
+  {
+    "src": "MetaTool B_ont",
+    "tgt": "Telecom",
+    "type": "cross",
+    "A_flip": 0,
+    "D_flip": 0,
+    "n": 100,
+    "A_kl": 0.03761990774422884,
+    "D_kl": 0.01523671692237258,
+    "A_D_ratio": 2.4690297743203637
+  },
+  {
+    "src": "Retail B_ont",
+    "tgt": "Retail",
+    "type": "self",
+    "A_flip": 0,
+    "D_flip": 0,
+    "n": 100,
+    "A_kl": 0.00707483017584309,
+    "D_kl": 0.001953467584971804,
+    "A_D_ratio": 3.6216777950503882
+  }
+]

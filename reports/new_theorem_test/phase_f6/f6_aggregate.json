@@ -1,0 +1,28 @@
+{
+  "real_contrastive": {
+    "attn_fro_A": 0.07286914631724357,
+    "attn_fro_D": 0.03686168029904366,
+    "attn_fro_ratio": 1.9768264964072757,
+    "kl_A": 0.019881224259734154,
+    "kl_D": 0.11239838182926178,
+    "kl_ratio": 0.1768817658775073,
+    "flip_A": 0,
+    "flip_D": 0,
+    "n": 100,
+    "r_used": 12
+  },
+  "shuffled_s42": {
+    "attn_fro_A": 0.08556045234203338,
+    "attn_fro_D": 0.03686168029904366,
+    "attn_fro_ratio": 2.3211218709488173,
+    "kl_A": 0.0266371576115489,
+    "kl_D": 0.11239838182926178,
+    "kl_ratio": 0.23698879982108592,
+    "flip_A": 0,
+    "flip_D": 0,
+    "n": 100,
+    "r_used": 12
+  },
+  "phase_c_baseline_attn_fro_ratio": 2.45,
+  "outcome": "WEAKER \u2014 contrastive < position pooling; current pipeline simplicity wins\n    + NULL RESULT: shuffled also \u2265 1.5 \u2192 semantic contrast not load-bearing"
+}

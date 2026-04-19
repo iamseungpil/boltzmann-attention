@@ -1,0 +1,255 @@
+{
+  "facet_order": [
+    "function_action",
+    "io_type",
+    "domain",
+    "tool_category"
+  ],
+  "ontology": {
+    "function_action": {
+      "get": [
+        "This tool sends a confirmation or certificate.",
+        "Use this to deliver an artifact to the user.",
+        "Example tool send_payment_request: Sends a payment request to the customer for a specific bill."
+      ],
+      "other": [
+        "This tool performs a miscellaneous action.",
+        "Use this as a general-purpose helper.",
+        "Example tool suspend_line: Suspends a specific line (max 6 months).",
+        "Example tool resume_line: Resumes a suspended line."
+      ],
+      "send": [
+        "This tool transfers the conversation to a human agent.",
+        "Use this to escalate when automated handling fails.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "transfer": [
+        "This tool retrieves details about a specific entity.",
+        "Use this to fetch the current state of a record.",
+        "Example tool get_customer_by_phone: Finds a customer by their primary contact or line phone number.",
+        "Example tool get_customer_by_id: Retrieves a customer directly by their unique ID."
+      ]
+    },
+    "io_type": {
+      "entity": [
+        "This tool primarily takes an identifier as input.",
+        "Use this to act on a record referenced by its id.",
+        "Example tool get_customer_by_id: Retrieves a customer directly by their unique ID.",
+        "Example tool get_details_by_id: Retrieves the details for a given ID."
+      ],
+      "identifier": [
+        "This tool primarily takes a free-text query as input.",
+        "Use this when searching by name or phrase.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "query": [
+        "This tool primarily takes or returns a full entity object.",
+        "Use this when the payload is a structured record.",
+        "Example tool get_customer_by_phone: Finds a customer by their primary contact or line phone number.",
+        "Example tool get_customer_by_name: Searches for customers by name and DOB. May return multiple matches if names are similar,"
+      ]
+    },
+    "domain": {
+      "data": [
+        "This tool belongs to the network domain.",
+        "Use this for network operations.",
+        "Example tool enable_roaming: Enables international roaming on a line.",
+        "Example tool disable_roaming: Disables international roaming on a line."
+      ],
+      "device": [
+        "This tool performs a utility action not tied to a domain.",
+        "Use this for arithmetic, escalation, or generic helpers.",
+        "Example tool get_customer_by_id: Retrieves a customer directly by their unique ID.",
+        "Example tool get_bills_for_customer: Retrieves a list of the customer's bills, most recent first."
+      ],
+      "line": [
+        "This tool belongs to the line domain.",
+        "Use this for line operations.",
+        "Example tool get_customer_by_phone: Finds a customer by their primary contact or line phone number.",
+        "Example tool suspend_line: Suspends a specific line (max 6 months)."
+      ],
+      "network": [
+        "This tool operates on payment and refund flows.",
+        "Use this for money-movement actions.",
+        "Example tool send_payment_request: Sends a payment request to the customer for a specific bill."
+      ],
+      "payment": [
+        "This tool belongs to the data domain.",
+        "Use this for data operations.",
+        "Example tool get_data_usage: Retrieves current billing cycle data usage for a line, including data",
+        "Example tool refuel_data: Refuels data for a specific line, adding to the customer's bill."
+      ],
+      "utility": [
+        "This tool belongs to the device domain.",
+        "Use this for device operations.",
+        "Example tool get_customer_by_name: Searches for customers by name and DOB. May return multiple matches if names are similar,",
+        "Example tool get_details_by_id: Retrieves the details for a given ID."
+      ]
+    },
+    "tool_category": {
+      "generic": [
+        "This tool only reads state and has no side effects.",
+        "Use this for idempotent lookups.",
+        "Example tool get_customer_by_phone: Finds a customer by their primary contact or line phone number.",
+        "Example tool get_customer_by_id: Retrieves a customer directly by their unique ID."
+      ],
+      "read": [
+        "This tool writes or mutates state.",
+        "Use this only after explicit user confirmation.",
+        "Example tool suspend_line: Suspends a specific line (max 6 months).",
+        "Example tool resume_line: Resumes a suspended line."
+      ],
+      "write": [
+        "This tool is a general-purpose helper.",
+        "Use this for utility operations not tied to data.",
+        "Example tool transfer_to_human_agents: Transfer the user to a human agent, with a summary of the user's issue."
+      ]
+    }
+  },
+  "domain": "telecom",
+  "facet_counts": {
+    "function_action": 4,
+    "io_type": 3,
+    "domain": 6,
+    "tool_category": 3
+  },
+  "classification_distribution": {
+    "function_action": {
+      "get": 6,
+      "other": 5,
+      "send": 1,
+      "transfer": 1
+    },
+    "io_type": {
+      "entity": 2,
+      "identifier": 10,
+      "query": 1
+    },
+    "domain": {
+      "line": 3,
+      "utility": 3,
+      "device": 2,
+      "payment": 1,
+      "data": 2,
+      "network": 2
+    },
+    "tool_category": {
+      "read": 6,
+      "write": 6,
+      "generic": 1
+    }
+  },
+  "classifications": [
+    {
+      "name": "get_customer_by_phone",
+      "docstring": "Finds a customer by their primary contact or line phone number.\n\nArgs:\n    phone_number: The phone number to search for.\n\nReturns:\n    Customer object if found, None otherwise.",
+      "function_action": "get",
+      "io_type": "entity",
+      "domain": "line",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_customer_by_id",
+      "docstring": "Retrieves a customer directly by their unique ID.\n\nArgs:\n    customer_id: The unique identifier of the customer.\n\nReturns:\n    Customer object if found, None otherwise.",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "utility",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_customer_by_name",
+      "docstring": "Searches for customers by name and DOB. May return multiple matches if names are similar,\nDOB helps disambiguate.\n\nArgs:\n    full_name: The full name of the customer.\n    dob: Date of birth for verifi",
+      "function_action": "get",
+      "io_type": "entity",
+      "domain": "device",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_details_by_id",
+      "docstring": "Retrieves the details for a given ID.\nThe ID must be a valid ID for a Customer, Line, Device, Bill, or Plan.\n\nArgs:\n    id: The ID of the object to retrieve.\n\nReturns:\n    The object corresponding to ",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "device",
+      "tool_category": "read"
+    },
+    {
+      "name": "suspend_line",
+      "docstring": "Suspends a specific line (max 6 months).\nChecks: Line status must be Active.\nLogic: Sets line status to Suspended, records suspension_start_date.\n\nArgs:\n    customer_id: ID of the customer who owns th",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "line",
+      "tool_category": "write"
+    },
+    {
+      "name": "resume_line",
+      "docstring": "Resumes a suspended line.\nChecks: Line status must be Suspended or Pending Activation.\nLogic: Sets line status to Active, clears suspension_start_date.\n\nArgs:\n    customer_id: ID of the customer who o",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "line",
+      "tool_category": "write"
+    },
+    {
+      "name": "get_bills_for_customer",
+      "docstring": "Retrieves a list of the customer's bills, most recent first.\n\nArgs:\n    customer_id: ID of the customer.\n    limit: Maximum number of bills to return.\n\nReturns:\n    List of Bill objects, ordered by is",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "utility",
+      "tool_category": "read"
+    },
+    {
+      "name": "send_payment_request",
+      "docstring": "Sends a payment request to the customer for a specific bill.\nChecks:\n    - Customer exists\n    - Bill exists and belongs to the customer\n    - No other bills are already awaiting payment for this cust",
+      "function_action": "send",
+      "io_type": "identifier",
+      "domain": "payment",
+      "tool_category": "write"
+    },
+    {
+      "name": "get_data_usage",
+      "docstring": "Retrieves current billing cycle data usage for a line, including data\nrefueling amount, data limit, and cycle end date.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "data",
+      "tool_category": "read"
+    },
+    {
+      "name": "enable_roaming",
+      "docstring": "Enables international roaming on a line.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to enable roaming for.\n\nReturns:\n    Message indicating the roaming h",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    {
+      "name": "disable_roaming",
+      "docstring": "Disables international roaming on a line.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to disable roaming for.\n\nReturns:\n    Message indicating the roaming",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    {
+      "name": "transfer_to_human_agents",
+      "docstring": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve t",
+      "function_action": "transfer",
+      "io_type": "query",
+      "domain": "utility",
+      "tool_category": "generic"
+    },
+    {
+      "name": "refuel_data",
+      "docstring": "Refuels data for a specific line, adding to the customer's bill.\nChecks: Line status must be Active, Customer owns the line.\nLogic: Adds data to the line and charges customer based on the plan's refue",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "data",
+      "tool_category": "write"
+    }
+  ],
+  "n_tools": 13,
+  "source": "tau2-bench telecom/tools.py",
+  "_permutation": {
+    "mode": "facet_values",
+    "seed": 42,
+    "source": "reports/axis2_theoretical_verification/tau2_telecom_ontology.json"
+  }
+}

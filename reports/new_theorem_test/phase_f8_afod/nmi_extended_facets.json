@@ -1,0 +1,841 @@
+{
+  "metatool": {
+    "dataset": "MetaTool",
+    "n_tools": 388,
+    "view_keys": [
+      "A_verb",
+      "B_cooc",
+      "C_name_jacc",
+      "D_domain",
+      "E_ntokens",
+      "F_desc_len",
+      "G_has_underscore",
+      "H_first_noun",
+      "I_desc_generic_term",
+      "J_name_len"
+    ],
+    "nmi_matrix": {
+      "A_verb": {
+        "A_verb": 1.0,
+        "B_cooc": 0.6076478807614619,
+        "C_name_jacc": 0.5987571580782226,
+        "D_domain": 0.16860230905479803,
+        "E_ntokens": 0.05209028794836049,
+        "F_desc_len": 0.15105707924211217,
+        "G_has_underscore": 0.0347854708461552,
+        "H_first_noun": 0.6239795695335532,
+        "I_desc_generic_term": 0.0746634567459482,
+        "J_name_len": 0.05619255886843196
+      },
+      "B_cooc": {
+        "A_verb": 0.6076478807614619,
+        "B_cooc": 1.0,
+        "C_name_jacc": 0.9950797169934976,
+        "D_domain": 0.6611904228658062,
+        "E_ntokens": 0.3801217520695295,
+        "F_desc_len": 0.45450355487465266,
+        "G_has_underscore": 0.3261527463849645,
+        "H_first_noun": 0.7395094402880714,
+        "I_desc_generic_term": 0.37268914715247986,
+        "J_name_len": 0.4476259698702318
+      },
+      "C_name_jacc": {
+        "A_verb": 0.5987571580782226,
+        "B_cooc": 0.9950797169934976,
+        "C_name_jacc": 1.0,
+        "D_domain": 0.6568278767736679,
+        "E_ntokens": 0.36555705883002665,
+        "F_desc_len": 0.44167255067670835,
+        "G_has_underscore": 0.30860014192734136,
+        "H_first_noun": 0.7333917678545984,
+        "I_desc_generic_term": 0.3664508666524706,
+        "J_name_len": 0.4331836394382132
+      },
+      "D_domain": {
+        "A_verb": 0.16860230905479803,
+        "B_cooc": 0.6611904228658062,
+        "C_name_jacc": 0.6568278767736679,
+        "D_domain": 1.0,
+        "E_ntokens": 0.03134623138719236,
+        "F_desc_len": 0.0829576442099239,
+        "G_has_underscore": 0.016273597926270165,
+        "H_first_noun": 0.35205284110321905,
+        "I_desc_generic_term": 0.09816466019574716,
+        "J_name_len": 0.037505274557233466
+      },
+      "E_ntokens": {
+        "A_verb": 0.05209028794836049,
+        "B_cooc": 0.3801217520695295,
+        "C_name_jacc": 0.36555705883002665,
+        "D_domain": 0.03134623138719236,
+        "E_ntokens": 1.0,
+        "F_desc_len": 0.013423220757873887,
+        "G_has_underscore": 0.8580217906743364,
+        "H_first_noun": 0.1626414252250999,
+        "I_desc_generic_term": 0.015401916139787778,
+        "J_name_len": 0.2480894481402215
+      },
+      "F_desc_len": {
+        "A_verb": 0.15105707924211217,
+        "B_cooc": 0.45450355487465266,
+        "C_name_jacc": 0.44167255067670835,
+        "D_domain": 0.0829576442099239,
+        "E_ntokens": 0.013423220757873887,
+        "F_desc_len": 1.0,
+        "G_has_underscore": 0.006996279772422891,
+        "H_first_noun": 0.29113897674903366,
+        "I_desc_generic_term": 0.10238469432404627,
+        "J_name_len": 0.021877082182265403
+      },
+      "G_has_underscore": {
+        "A_verb": 0.0347854708461552,
+        "B_cooc": 0.3261527463849645,
+        "C_name_jacc": 0.30860014192734136,
+        "D_domain": 0.016273597926270165,
+        "E_ntokens": 0.8580217906743364,
+        "F_desc_len": 0.006996279772422891,
+        "G_has_underscore": 1.0,
+        "H_first_noun": 0.13459744641657398,
+        "I_desc_generic_term": 0.008741519394518697,
+        "J_name_len": 0.223971563415558
+      },
+      "H_first_noun": {
+        "A_verb": 0.6239795695335532,
+        "B_cooc": 0.7395094402880714,
+        "C_name_jacc": 0.7333917678545984,
+        "D_domain": 0.35205284110321905,
+        "E_ntokens": 0.1626414252250999,
+        "F_desc_len": 0.29113897674903366,
+        "G_has_underscore": 0.13459744641657398,
+        "H_first_noun": 1.0,
+        "I_desc_generic_term": 0.22182788271258946,
+        "J_name_len": 0.1996040898038917
+      },
+      "I_desc_generic_term": {
+        "A_verb": 0.0746634567459482,
+        "B_cooc": 0.37268914715247986,
+        "C_name_jacc": 0.3664508666524706,
+        "D_domain": 0.09816466019574716,
+        "E_ntokens": 0.015401916139787778,
+        "F_desc_len": 0.10238469432404627,
+        "G_has_underscore": 0.008741519394518697,
+        "H_first_noun": 0.22182788271258946,
+        "I_desc_generic_term": 1.0,
+        "J_name_len": 0.029309061899718374
+      },
+      "J_name_len": {
+        "A_verb": 0.05619255886843196,
+        "B_cooc": 0.4476259698702318,
+        "C_name_jacc": 0.4331836394382132,
+        "D_domain": 0.037505274557233466,
+        "E_ntokens": 0.2480894481402215,
+        "F_desc_len": 0.021877082182265403,
+        "G_has_underscore": 0.223971563415558,
+        "H_first_noun": 0.1996040898038917,
+        "I_desc_generic_term": 0.029309061899718374,
+        "J_name_len": 1.0
+      }
+    },
+    "orthogonal": [
+      {
+        "a": "F_desc_len",
+        "b": "G_has_underscore",
+        "nmi": 0.006996279772422891
+      },
+      {
+        "a": "G_has_underscore",
+        "b": "I_desc_generic_term",
+        "nmi": 0.008741519394518697
+      },
+      {
+        "a": "E_ntokens",
+        "b": "F_desc_len",
+        "nmi": 0.013423220757873887
+      },
+      {
+        "a": "E_ntokens",
+        "b": "I_desc_generic_term",
+        "nmi": 0.015401916139787778
+      },
+      {
+        "a": "D_domain",
+        "b": "G_has_underscore",
+        "nmi": 0.016273597926270165
+      },
+      {
+        "a": "F_desc_len",
+        "b": "J_name_len",
+        "nmi": 0.021877082182265403
+      },
+      {
+        "a": "I_desc_generic_term",
+        "b": "J_name_len",
+        "nmi": 0.029309061899718374
+      },
+      {
+        "a": "D_domain",
+        "b": "E_ntokens",
+        "nmi": 0.03134623138719236
+      },
+      {
+        "a": "A_verb",
+        "b": "G_has_underscore",
+        "nmi": 0.0347854708461552
+      },
+      {
+        "a": "D_domain",
+        "b": "J_name_len",
+        "nmi": 0.037505274557233466
+      },
+      {
+        "a": "A_verb",
+        "b": "E_ntokens",
+        "nmi": 0.05209028794836049
+      },
+      {
+        "a": "A_verb",
+        "b": "J_name_len",
+        "nmi": 0.05619255886843196
+      },
+      {
+        "a": "A_verb",
+        "b": "I_desc_generic_term",
+        "nmi": 0.0746634567459482
+      },
+      {
+        "a": "D_domain",
+        "b": "F_desc_len",
+        "nmi": 0.0829576442099239
+      },
+      {
+        "a": "D_domain",
+        "b": "I_desc_generic_term",
+        "nmi": 0.09816466019574716
+      },
+      {
+        "a": "F_desc_len",
+        "b": "I_desc_generic_term",
+        "nmi": 0.10238469432404627
+      },
+      {
+        "a": "G_has_underscore",
+        "b": "H_first_noun",
+        "nmi": 0.13459744641657398
+      },
+      {
+        "a": "A_verb",
+        "b": "F_desc_len",
+        "nmi": 0.15105707924211217
+      },
+      {
+        "a": "E_ntokens",
+        "b": "H_first_noun",
+        "nmi": 0.1626414252250999
+      },
+      {
+        "a": "A_verb",
+        "b": "D_domain",
+        "nmi": 0.16860230905479803
+      },
+      {
+        "a": "H_first_noun",
+        "b": "J_name_len",
+        "nmi": 0.1996040898038917
+      },
+      {
+        "a": "H_first_noun",
+        "b": "I_desc_generic_term",
+        "nmi": 0.22182788271258946
+      },
+      {
+        "a": "G_has_underscore",
+        "b": "J_name_len",
+        "nmi": 0.223971563415558
+      },
+      {
+        "a": "E_ntokens",
+        "b": "J_name_len",
+        "nmi": 0.2480894481402215
+      },
+      {
+        "a": "F_desc_len",
+        "b": "H_first_noun",
+        "nmi": 0.29113897674903366
+      }
+    ],
+    "soft_orth": [
+      {
+        "a": "C_name_jacc",
+        "b": "G_has_underscore",
+        "nmi": 0.30860014192734136
+      },
+      {
+        "a": "B_cooc",
+        "b": "G_has_underscore",
+        "nmi": 0.3261527463849645
+      },
+      {
+        "a": "D_domain",
+        "b": "H_first_noun",
+        "nmi": 0.35205284110321905
+      },
+      {
+        "a": "C_name_jacc",
+        "b": "E_ntokens",
+        "nmi": 0.36555705883002665
+      },
+      {
+        "a": "C_name_jacc",
+        "b": "I_desc_generic_term",
+        "nmi": 0.3664508666524706
+      },
+      {
+        "a": "B_cooc",
+        "b": "I_desc_generic_term",
+        "nmi": 0.37268914715247986
+      },
+      {
+        "a": "B_cooc",
+        "b": "E_ntokens",
+        "nmi": 0.3801217520695295
+      },
+      {
+        "a": "C_name_jacc",
+        "b": "J_name_len",
+        "nmi": 0.4331836394382132
+      },
+      {
+        "a": "C_name_jacc",
+        "b": "F_desc_len",
+        "nmi": 0.44167255067670835
+      },
+      {
+        "a": "B_cooc",
+        "b": "J_name_len",
+        "nmi": 0.4476259698702318
+      },
+      {
+        "a": "B_cooc",
+        "b": "F_desc_len",
+        "nmi": 0.45450355487465266
+      }
+    ],
+    "redundant_count": 9,
+    "total_pairs": 45
+  },
+  "stabletoolbench_g1": {
+    "dataset": "StableToolBench G1",
+    "n_tools": 499,
+    "view_keys": [
+      "A_verb",
+      "B_cooc",
+      "C_param_jacc",
+      "D_category",
+      "E_method",
+      "F_side_effect",
+      "G_req_count",
+      "H_opt_count",
+      "I_param_total",
+      "J_tmpl_shape",
+      "K_desc_len",
+      "L_api_name_ntok"
+    ],
+    "nmi_matrix": {
+      "A_verb": {
+        "A_verb": 1.0,
+        "B_cooc": 0.48295319865685765,
+        "C_param_jacc": 0.4429606107934248,
+        "D_category": 0.21843038481265661,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.09788251566979579,
+        "H_opt_count": 0.0725146069955876,
+        "I_param_total": 0.06426011218320123,
+        "J_tmpl_shape": 0.035557318365887866,
+        "K_desc_len": 0.11779265593603423,
+        "L_api_name_ntok": 0.06495516117063029
+      },
+      "B_cooc": {
+        "A_verb": 0.48295319865685765,
+        "B_cooc": 1.0,
+        "C_param_jacc": 0.842269508863974,
+        "D_category": 0.7037129913290564,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.3842046590806456,
+        "H_opt_count": 0.35968360520938153,
+        "I_param_total": 0.3832422940203217,
+        "J_tmpl_shape": 0.3679758258642107,
+        "K_desc_len": 0.43656664595188416,
+        "L_api_name_ntok": 0.3844203662116211
+      },
+      "C_param_jacc": {
+        "A_verb": 0.4429606107934248,
+        "B_cooc": 0.842269508863974,
+        "C_param_jacc": 1.0,
+        "D_category": 0.6452967515231209,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.3833141845907104,
+        "H_opt_count": 0.33119700964389076,
+        "I_param_total": 0.34960364053067655,
+        "J_tmpl_shape": 0.2910030798416377,
+        "K_desc_len": 0.34294281499634516,
+        "L_api_name_ntok": 0.30842024215149305
+      },
+      "D_category": {
+        "A_verb": 0.21843038481265661,
+        "B_cooc": 0.7037129913290564,
+        "C_param_jacc": 0.6452967515231209,
+        "D_category": 1.0,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.13122146481467878,
+        "H_opt_count": 0.13783370231940364,
+        "I_param_total": 0.12252542363415435,
+        "J_tmpl_shape": 0.20502083003461227,
+        "K_desc_len": 0.13924150086229697,
+        "L_api_name_ntok": 0.14893619810703054
+      },
+      "E_method": {
+        "A_verb": 0.0,
+        "B_cooc": 0.0,
+        "C_param_jacc": 0.0,
+        "D_category": 0.0,
+        "E_method": 1.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.0,
+        "H_opt_count": 0.0,
+        "I_param_total": 0.0,
+        "J_tmpl_shape": 0.0,
+        "K_desc_len": 0.0,
+        "L_api_name_ntok": 0.0
+      },
+      "F_side_effect": {
+        "A_verb": 0.0,
+        "B_cooc": 0.0,
+        "C_param_jacc": 0.0,
+        "D_category": 0.0,
+        "E_method": 0.0,
+        "F_side_effect": 1.0,
+        "G_req_count": 0.0,
+        "H_opt_count": 0.0,
+        "I_param_total": 0.0,
+        "J_tmpl_shape": 0.0,
+        "K_desc_len": 0.0,
+        "L_api_name_ntok": 0.0
+      },
+      "G_req_count": {
+        "A_verb": 0.09788251566979579,
+        "B_cooc": 0.3842046590806456,
+        "C_param_jacc": 0.3833141845907104,
+        "D_category": 0.13122146481467878,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 1.0,
+        "H_opt_count": 0.018860397735233753,
+        "I_param_total": 0.22955570019381535,
+        "J_tmpl_shape": 0.027626053295338297,
+        "K_desc_len": 0.042857986600733,
+        "L_api_name_ntok": 0.015622276355342147
+      },
+      "H_opt_count": {
+        "A_verb": 0.0725146069955876,
+        "B_cooc": 0.35968360520938153,
+        "C_param_jacc": 0.33119700964389076,
+        "D_category": 0.13783370231940364,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.018860397735233753,
+        "H_opt_count": 1.0,
+        "I_param_total": 0.42027528062762265,
+        "J_tmpl_shape": 0.02350942310488313,
+        "K_desc_len": 0.05205842092927117,
+        "L_api_name_ntok": 0.011338228220154142
+      },
+      "I_param_total": {
+        "A_verb": 0.06426011218320123,
+        "B_cooc": 0.3832422940203217,
+        "C_param_jacc": 0.34960364053067655,
+        "D_category": 0.12252542363415435,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.22955570019381535,
+        "H_opt_count": 0.42027528062762265,
+        "I_param_total": 1.0,
+        "J_tmpl_shape": 0.008744024339028983,
+        "K_desc_len": 0.05079330202718544,
+        "L_api_name_ntok": 0.018827929353085537
+      },
+      "J_tmpl_shape": {
+        "A_verb": 0.035557318365887866,
+        "B_cooc": 0.3679758258642107,
+        "C_param_jacc": 0.2910030798416377,
+        "D_category": 0.20502083003461227,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.027626053295338297,
+        "H_opt_count": 0.02350942310488313,
+        "I_param_total": 0.008744024339028983,
+        "J_tmpl_shape": 1.0,
+        "K_desc_len": 0.00492761096169253,
+        "L_api_name_ntok": 0.010181790565325899
+      },
+      "K_desc_len": {
+        "A_verb": 0.11779265593603423,
+        "B_cooc": 0.43656664595188416,
+        "C_param_jacc": 0.34294281499634516,
+        "D_category": 0.13924150086229697,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.042857986600733,
+        "H_opt_count": 0.05205842092927117,
+        "I_param_total": 0.05079330202718544,
+        "J_tmpl_shape": 0.00492761096169253,
+        "K_desc_len": 1.0,
+        "L_api_name_ntok": 0.02011029704359978
+      },
+      "L_api_name_ntok": {
+        "A_verb": 0.06495516117063029,
+        "B_cooc": 0.3844203662116211,
+        "C_param_jacc": 0.30842024215149305,
+        "D_category": 0.14893619810703054,
+        "E_method": 0.0,
+        "F_side_effect": 0.0,
+        "G_req_count": 0.015622276355342147,
+        "H_opt_count": 0.011338228220154142,
+        "I_param_total": 0.018827929353085537,
+        "J_tmpl_shape": 0.010181790565325899,
+        "K_desc_len": 0.02011029704359978,
+        "L_api_name_ntok": 1.0
+      }
+    },
+    "orthogonal": [
+      {
+        "a": "A_verb",
+        "b": "E_method",
+        "nmi": 0.0
+      },
+      {
+        "a": "A_verb",
+        "b": "F_side_effect",
+        "nmi": 0.0
+      },
+      {
+        "a": "B_cooc",
+        "b": "E_method",
+        "nmi": 0.0
+      },
+      {
+        "a": "B_cooc",
+        "b": "F_side_effect",
+        "nmi": 0.0
+      },
+      {
+        "a": "C_param_jacc",
+        "b": "E_method",
+        "nmi": 0.0
+      },
+      {
+        "a": "C_param_jacc",
+        "b": "F_side_effect",
+        "nmi": 0.0
+      },
+      {
+        "a": "D_category",
+        "b": "E_method",
+        "nmi": 0.0
+      },
+      {
+        "a": "D_category",
+        "b": "F_side_effect",
+        "nmi": 0.0
+      },
+      {
+        "a": "E_method",
+        "b": "F_side_effect",
+        "nmi": 0.0
+      },
+      {
+        "a": "E_method",
+        "b": "G_req_count",
+        "nmi": 0.0
+      },
+      {
+        "a": "E_method",
+        "b": "H_opt_count",
+        "nmi": 0.0
+      },
+      {
+        "a": "E_method",
+        "b": "I_param_total",
+        "nmi": 0.0
+      },
+      {
+        "a": "E_method",
+        "b": "J_tmpl_shape",
+        "nmi": 0.0
+      },
+      {
+        "a": "E_method",
+        "b": "K_desc_len",
+        "nmi": 0.0
+      },
+      {
+        "a": "E_method",
+        "b": "L_api_name_ntok",
+        "nmi": 0.0
+      },
+      {
+        "a": "F_side_effect",
+        "b": "G_req_count",
+        "nmi": 0.0
+      },
+      {
+        "a": "F_side_effect",
+        "b": "H_opt_count",
+        "nmi": 0.0
+      },
+      {
+        "a": "F_side_effect",
+        "b": "I_param_total",
+        "nmi": 0.0
+      },
+      {
+        "a": "F_side_effect",
+        "b": "J_tmpl_shape",
+        "nmi": 0.0
+      },
+      {
+        "a": "F_side_effect",
+        "b": "K_desc_len",
+        "nmi": 0.0
+      },
+      {
+        "a": "F_side_effect",
+        "b": "L_api_name_ntok",
+        "nmi": 0.0
+      },
+      {
+        "a": "J_tmpl_shape",
+        "b": "K_desc_len",
+        "nmi": 0.00492761096169253
+      },
+      {
+        "a": "I_param_total",
+        "b": "J_tmpl_shape",
+        "nmi": 0.008744024339028983
+      },
+      {
+        "a": "J_tmpl_shape",
+        "b": "L_api_name_ntok",
+        "nmi": 0.010181790565325899
+      },
+      {
+        "a": "H_opt_count",
+        "b": "L_api_name_ntok",
+        "nmi": 0.011338228220154142
+      },
+      {
+        "a": "G_req_count",
+        "b": "L_api_name_ntok",
+        "nmi": 0.015622276355342147
+      },
+      {
+        "a": "I_param_total",
+        "b": "L_api_name_ntok",
+        "nmi": 0.018827929353085537
+      },
+      {
+        "a": "G_req_count",
+        "b": "H_opt_count",
+        "nmi": 0.018860397735233753
+      },
+      {
+        "a": "K_desc_len",
+        "b": "L_api_name_ntok",
+        "nmi": 0.02011029704359978
+      },
+      {
+        "a": "H_opt_count",
+        "b": "J_tmpl_shape",
+        "nmi": 0.02350942310488313
+      },
+      {
+        "a": "G_req_count",
+        "b": "J_tmpl_shape",
+        "nmi": 0.027626053295338297
+      },
+      {
+        "a": "A_verb",
+        "b": "J_tmpl_shape",
+        "nmi": 0.035557318365887866
+      },
+      {
+        "a": "G_req_count",
+        "b": "K_desc_len",
+        "nmi": 0.042857986600733
+      },
+      {
+        "a": "I_param_total",
+        "b": "K_desc_len",
+        "nmi": 0.05079330202718544
+      },
+      {
+        "a": "H_opt_count",
+        "b": "K_desc_len",
+        "nmi": 0.05205842092927117
+      },
+      {
+        "a": "A_verb",
+        "b": "I_param_total",
+        "nmi": 0.06426011218320123
+      },
+      {
+        "a": "A_verb",
+        "b": "L_api_name_ntok",
+        "nmi": 0.06495516117063029
+      },
+      {
+        "a": "A_verb",
+        "b": "H_opt_count",
+        "nmi": 0.0725146069955876
+      },
+      {
+        "a": "A_verb",
+        "b": "G_req_count",
+        "nmi": 0.09788251566979579
+      },
+      {
+        "a": "A_verb",
+        "b": "K_desc_len",
+        "nmi": 0.11779265593603423
+      },
+      {
+        "a": "D_category",
+        "b": "I_param_total",
+        "nmi": 0.12252542363415435
+      },
+      {
+        "a": "D_category",
+        "b": "G_req_count",
+        "nmi": 0.13122146481467878
+      },
+      {
+        "a": "D_category",
+        "b": "H_opt_count",
+        "nmi": 0.13783370231940364
+      },
+      {
+        "a": "D_category",
+        "b": "K_desc_len",
+        "nmi": 0.13924150086229697
+      },
+      {
+        "a": "D_category",
+        "b": "L_api_name_ntok",
+        "nmi": 0.14893619810703054
+      },
+      {
+        "a": "D_category",
+        "b": "J_tmpl_shape",
+        "nmi": 0.20502083003461227
+      },
+      {
+        "a": "A_verb",
+        "b": "D_category",
+        "nmi": 0.21843038481265661
+      },
+      {
+        "a": "G_req_count",
+        "b": "I_param_total",
+        "nmi": 0.22955570019381535
+      },
+      {
+        "a": "C_param_jacc",
+        "b": "J_tmpl_shape",
+        "nmi": 0.2910030798416377
+      }
+    ],
+    "soft_orth": [
+      {
+        "a": "C_param_jacc",
+        "b": "L_api_name_ntok",
+        "nmi": 0.30842024215149305
+      },
+      {
+        "a": "C_param_jacc",
+        "b": "H_opt_count",
+        "nmi": 0.33119700964389076
+      },
+      {
+        "a": "C_param_jacc",
+        "b": "K_desc_len",
+        "nmi": 0.34294281499634516
+      },
+      {
+        "a": "C_param_jacc",
+        "b": "I_param_total",
+        "nmi": 0.34960364053067655
+      },
+      {
+        "a": "B_cooc",
+        "b": "H_opt_count",
+        "nmi": 0.35968360520938153
+      },
+      {
+        "a": "B_cooc",
+        "b": "J_tmpl_shape",
+        "nmi": 0.3679758258642107
+      },
+      {
+        "a": "B_cooc",
+        "b": "I_param_total",
+        "nmi": 0.3832422940203217
+      },
+      {
+        "a": "C_param_jacc",
+        "b": "G_req_count",
+        "nmi": 0.3833141845907104
+      },
+      {
+        "a": "B_cooc",
+        "b": "G_req_count",
+        "nmi": 0.3842046590806456
+      },
+      {
+        "a": "B_cooc",
+        "b": "L_api_name_ntok",
+        "nmi": 0.3844203662116211
+      },
+      {
+        "a": "H_opt_count",
+        "b": "I_param_total",
+        "nmi": 0.42027528062762265
+      },
+      {
+        "a": "B_cooc",
+        "b": "K_desc_len",
+        "nmi": 0.43656664595188416
+      },
+      {
+        "a": "A_verb",
+        "b": "C_param_jacc",
+        "nmi": 0.4429606107934248
+      },
+      {
+        "a": "A_verb",
+        "b": "B_cooc",
+        "nmi": 0.48295319865685765
+      }
+    ],
+    "redundant_count": 3,
+    "total_pairs": 66
+  },
+  "summary": {
+    "metatool_orth_count": 25,
+    "metatool_total_pairs": 45,
+    "stb_orth_count": 49,
+    "stb_total_pairs": 66
+  }
+}

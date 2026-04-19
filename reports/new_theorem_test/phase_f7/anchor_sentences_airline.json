@@ -1,0 +1,764 @@
+{
+  "domain": "airline",
+  "per_class": {
+    "AirportCode": {
+      "sentences": [
+        "This describes a AirportCode entity in the domain.",
+        "The AirportCode record participates in downstream tool operations.",
+        "AirportCode.iata: IATA code",
+        "AirportCode.city: City name"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Name": {
+      "sentences": [
+        "This describes a Name entity in the domain.",
+        "The Name record participates in downstream tool operations.",
+        "Name.first_name: The person's first name",
+        "Name.last_name: The person's last name"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Address": {
+      "sentences": [
+        "This describes a Address entity in the domain.",
+        "The Address record participates in downstream tool operations.",
+        "Address.address1: Primary address line",
+        "Address.address2: Secondary address line (optional)",
+        "Address.city: City name",
+        "Address.country: Country name"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Payment": {
+      "sentences": [
+        "This describes a Payment entity in the domain.",
+        "The Payment record participates in downstream tool operations.",
+        "Payment.payment_id: Unique identifier for the payment",
+        "Payment.amount: Payment amount in dollars"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "PaymentMethodBase": {
+      "sentences": [
+        "This describes a PaymentMethodBase entity in the domain.",
+        "The PaymentMethodBase record participates in downstream tool operations.",
+        "PaymentMethodBase.source: Type of payment method",
+        "PaymentMethodBase.id: Unique identifier for the payment method"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "CreditCard": {
+      "sentences": [
+        "A CreditCard is a kind of PaymentMethodBase.",
+        "The CreditCard record participates in downstream tool operations.",
+        "CreditCard.source: Indicates this is a credit card payment method",
+        "CreditCard.brand: Credit card brand (e.g., visa, mastercard)",
+        "CreditCard.last_four: Last four digits of the credit card"
+      ],
+      "parents": [
+        "PaymentMethodBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "GiftCard": {
+      "sentences": [
+        "A GiftCard is a kind of PaymentMethodBase.",
+        "The GiftCard record participates in downstream tool operations.",
+        "GiftCard.source: Indicates this is a gift card payment method",
+        "GiftCard.amount: Gift card value amount",
+        "GiftCard.id: Unique identifier for the gift card"
+      ],
+      "parents": [
+        "PaymentMethodBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "Certificate": {
+      "sentences": [
+        "A Certificate is a kind of PaymentMethodBase.",
+        "The Certificate record participates in downstream tool operations.",
+        "Certificate.source: Indicates this is a certificate payment method",
+        "Certificate.amount: Certificate value amount"
+      ],
+      "parents": [
+        "PaymentMethodBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "Passenger": {
+      "sentences": [
+        "This describes a Passenger entity in the domain.",
+        "The Passenger record participates in downstream tool operations.",
+        "Passenger.first_name: Passenger's first name",
+        "Passenger.last_name: Passenger's last name",
+        "Passenger.dob: Date of birth in YYYY-MM-DD format"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "FlightDateStatusAvailable": {
+      "sentences": [
+        "This describes a FlightDateStatusAvailable entity in the domain.",
+        "The FlightDateStatusAvailable record participates in downstream tool operations.",
+        "FlightDateStatusAvailable.status: Indicates flight is available for booking",
+        "FlightDateStatusAvailable.available_seats: Available seats by class",
+        "FlightDateStatusAvailable.prices: Current prices by class"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "FlightDataStatusOnTime": {
+      "sentences": [
+        "This describes a FlightDataStatusOnTime entity in the domain.",
+        "The FlightDataStatusOnTime record participates in downstream tool operations.",
+        "FlightDataStatusOnTime.status: Indicates flight is on time",
+        "FlightDataStatusOnTime.estimated_departure_time_est: Estimated departure time in EST in the format YYYY-MM-DDTHH:MM:SS, e.g 2024-05-15T06:04:00",
+        "FlightDataStatusOnTime.estimated_arrival_time_est: Estimated arrival time in EST in the format YYYY-MM-DDTHH:MM:SS, e.g 2024-05-15T07:30:00"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "FlightDataStatusFlying": {
+      "sentences": [
+        "This describes a FlightDataStatusFlying entity in the domain.",
+        "The FlightDataStatusFlying record participates in downstream tool operations.",
+        "FlightDataStatusFlying.status: Indicates flight is in flight",
+        "FlightDataStatusFlying.actual_departure_time_est: Actual departure time in EST in the format YYYY-MM-DDTHH:MM:SS, e.g 2024-05-15T06:04:00",
+        "FlightDataStatusFlying.estimated_arrival_time_est: Estimated arrival time in EST in the format YYYY-MM-DDTHH:MM:SS, e.g 2024-05-15T07:30:00"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "FlightDateStatusLanded": {
+      "sentences": [
+        "This describes a FlightDateStatusLanded entity in the domain.",
+        "The FlightDateStatusLanded record participates in downstream tool operations.",
+        "FlightDateStatusLanded.status: Indicates flight has landed",
+        "FlightDateStatusLanded.actual_departure_time_est: Actual departure time in EST in the format YYYY-MM-DDTHH:MM:SS, e.g 2024-05-15T06:04:00",
+        "FlightDateStatusLanded.actual_arrival_time_est: Actual arrival time in EST in the format YYYY-MM-DDTHH:MM:SS, e.g 2024-05-15T07:30:00"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "FlightDateStatusCancelled": {
+      "sentences": [
+        "This describes a FlightDateStatusCancelled entity in the domain.",
+        "The FlightDateStatusCancelled record participates in downstream tool operations.",
+        "FlightDateStatusCancelled.status: Indicates flight was cancelled"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "FlightDateStatusDelayed": {
+      "sentences": [
+        "This describes a FlightDateStatusDelayed entity in the domain.",
+        "The FlightDateStatusDelayed record participates in downstream tool operations.",
+        "FlightDateStatusDelayed.status: Indicates flight was delayed",
+        "FlightDateStatusDelayed.estimated_departure_time_est: Estimated departure time in EST in the format YYYY-MM-DDTHH:MM:SS, e.g 2024-05-15T06:04:00",
+        "FlightDateStatusDelayed.estimated_arrival_time_est: Estimated arrival time in EST in the format YYYY-MM-DDTHH:MM:SS, e.g 2024-05-15T07:30:00"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "FlightBase": {
+      "sentences": [
+        "This describes a FlightBase entity in the domain.",
+        "The FlightBase record participates in downstream tool operations.",
+        "FlightBase.flight_number: Unique flight identifier",
+        "FlightBase.origin: IATA code for origin airport",
+        "FlightBase.destination: IATA code for destination airport"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Flight": {
+      "sentences": [
+        "A Flight is a kind of FlightBase.",
+        "The Flight record participates in downstream tool operations.",
+        "Flight.scheduled_departure_time_est: Scheduled departure time in EST in the format HH:MM:SS, e.g 06:00:00",
+        "Flight.scheduled_arrival_time_est: Scheduled arrival time in EST in the format HH:MM:SS, e.g 07:00:00",
+        "Flight.dates: Flight status by date (YYYY-MM-DD)"
+      ],
+      "parents": [
+        "FlightBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "DirectFlight": {
+      "sentences": [
+        "A DirectFlight is a kind of FlightBase.",
+        "The DirectFlight record participates in downstream tool operations.",
+        "DirectFlight.status: Indicates flight is available for booking",
+        "DirectFlight.scheduled_departure_time_est: Scheduled departure time in EST in the format HH:MM:SS, e.g 06:00:00",
+        "DirectFlight.scheduled_arrival_time_est: Scheduled arrival time in EST in the format HH:MM:SS, e.g 07:00:00",
+        "DirectFlight.date: Flight date in YYYY-MM-DD format"
+      ],
+      "parents": [
+        "FlightBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "ReservationFlight": {
+      "sentences": [
+        "A ReservationFlight is a kind of FlightBase.",
+        "The ReservationFlight record participates in downstream tool operations.",
+        "ReservationFlight.date: Flight date in YYYY-MM-DD format",
+        "ReservationFlight.price: Flight price in dollars."
+      ],
+      "parents": [
+        "FlightBase"
+      ],
+      "depth": 1,
+      "kind": "model"
+    },
+    "FlightInfo": {
+      "sentences": [
+        "This describes a FlightInfo entity in the domain.",
+        "The FlightInfo record participates in downstream tool operations.",
+        "FlightInfo.flight_number: Flight number, such as 'HAT001'.",
+        "FlightInfo.date: The date for the flight in the format 'YYYY-MM-DD', such as '2024-05-01'."
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "User": {
+      "sentences": [
+        "This describes a User entity in the domain.",
+        "The User record participates in downstream tool operations.",
+        "User.user_id: Unique identifier for the user",
+        "User.name: User's full name",
+        "User.address: User's address information",
+        "User.email: User's email address"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "Reservation": {
+      "sentences": [
+        "This describes a Reservation entity in the domain.",
+        "The Reservation record participates in downstream tool operations.",
+        "Reservation.reservation_id: Unique identifier for the reservation",
+        "Reservation.user_id: ID of the user who made the reservation",
+        "Reservation.origin: IATA code for trip origin",
+        "Reservation.destination: IATA code for trip destination"
+      ],
+      "parents": [
+        "BaseModel"
+      ],
+      "depth": 0,
+      "kind": "model"
+    },
+    "FlightDB": {
+      "sentences": [
+        "This describes a FlightDB entity in the domain.",
+        "The FlightDB record participates in downstream tool operations.",
+        "FlightDB.flights: Dictionary of all flights indexed by flight number",
+        "FlightDB.users: Dictionary of all users indexed by user ID",
+        "FlightDB.reservations: Dictionary of all reservations indexed by reservation ID"
+      ],
+      "parents": [
+        "DB"
+      ],
+      "depth": 0,
+      "kind": "model"
+    }
+  },
+  "per_tool": {
+    "book_reservation": {
+      "sentences": [
+        "This tool books User to produce a Reservation.",
+        "Invoke book_reservation when the user needs to book a Reservation.",
+        "Book a reservation."
+      ],
+      "verb": "book",
+      "tool_type": "WRITE",
+      "source_types": [
+        "User"
+      ],
+      "target_type": "Reservation"
+    },
+    "calculate": {
+      "sentences": [
+        "This tool calculates a request to produce a str.",
+        "Invoke calculate when the user needs to calculate a str.",
+        "Calculate the result of a mathematical expression."
+      ],
+      "verb": "calculate",
+      "tool_type": "GENERIC",
+      "source_types": [],
+      "target_type": "str"
+    },
+    "cancel_reservation": {
+      "sentences": [
+        "This tool cancels Reservation to produce a Reservation.",
+        "Invoke cancel_reservation when the user needs to cancel a Reservation.",
+        "Cancel the whole reservation."
+      ],
+      "verb": "cancel",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Reservation"
+      ],
+      "target_type": "Reservation"
+    },
+    "get_reservation_details": {
+      "sentences": [
+        "This tool gets Reservation to produce a Reservation.",
+        "Invoke get_reservation_details when the user needs to get a Reservation.",
+        "Get the details of a reservation."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [
+        "Reservation"
+      ],
+      "target_type": "Reservation"
+    },
+    "get_user_details": {
+      "sentences": [
+        "This tool gets User to produce a User.",
+        "Invoke get_user_details when the user needs to get a User.",
+        "Get the details of a user, including their reservations."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [
+        "User"
+      ],
+      "target_type": "User"
+    },
+    "list_all_airports": {
+      "sentences": [
+        "This tool lists a request to produce a AirportInfo.",
+        "Invoke list_all_airports when the user needs to list a AirportInfo.",
+        "Returns a list of all available airports."
+      ],
+      "verb": "list",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "AirportInfo"
+    },
+    "search_direct_flight": {
+      "sentences": [
+        "This tool searchs a request to produce a DirectFlight.",
+        "Invoke search_direct_flight when the user needs to search a DirectFlight.",
+        "Search for direct flights between two cities on a specific date."
+      ],
+      "verb": "search",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "DirectFlight"
+    },
+    "search_onestop_flight": {
+      "sentences": [
+        "This tool searchs a request to produce a DirectFlight.",
+        "Invoke search_onestop_flight when the user needs to search a DirectFlight.",
+        "Search for one-stop flights between two cities on a specific date."
+      ],
+      "verb": "search",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "DirectFlight"
+    },
+    "send_certificate": {
+      "sentences": [
+        "This tool sends User to produce a str.",
+        "Invoke send_certificate when the user needs to send a str.",
+        "Send a certificate to a user. Be careful!"
+      ],
+      "verb": "send",
+      "tool_type": "WRITE",
+      "source_types": [
+        "User"
+      ],
+      "target_type": "str"
+    },
+    "transfer_to_human_agents": {
+      "sentences": [
+        "This tool transfers a request to produce a str.",
+        "Invoke transfer_to_human_agents when the user needs to transfer a str.",
+        "Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "verb": "transfer",
+      "tool_type": "GENERIC",
+      "source_types": [],
+      "target_type": "str"
+    },
+    "update_reservation_baggages": {
+      "sentences": [
+        "This tool updates Payment and Reservation to produce a Reservation.",
+        "Invoke update_reservation_baggages when the user needs to update a Reservation.",
+        "Update the baggage information of a reservation."
+      ],
+      "verb": "update",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Payment",
+        "Reservation"
+      ],
+      "target_type": "Reservation"
+    },
+    "update_reservation_flights": {
+      "sentences": [
+        "This tool updates Payment and Reservation to produce a Reservation.",
+        "Invoke update_reservation_flights when the user needs to update a Reservation.",
+        "Update the flight information of a reservation."
+      ],
+      "verb": "update",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Payment",
+        "Reservation"
+      ],
+      "target_type": "Reservation"
+    },
+    "update_reservation_passengers": {
+      "sentences": [
+        "This tool updates Reservation to produce a Reservation.",
+        "Invoke update_reservation_passengers when the user needs to update a Reservation.",
+        "Update the passenger information of a reservation."
+      ],
+      "verb": "update",
+      "tool_type": "WRITE",
+      "source_types": [
+        "Reservation"
+      ],
+      "target_type": "Reservation"
+    },
+    "get_flight_status": {
+      "sentences": [
+        "This tool gets a request to produce a str.",
+        "Invoke get_flight_status when the user needs to get a str.",
+        "Get the status of a flight."
+      ],
+      "verb": "get",
+      "tool_type": "READ",
+      "source_types": [],
+      "target_type": "str"
+    }
+  },
+  "per_part_of": {
+    "User::name": {
+      "whole": "User",
+      "part": "Name",
+      "via_field": "name",
+      "sentences": [
+        "A User contains a Name accessed via its name attribute.",
+        "The Name is a component of the User record.",
+        "Operations on User may read or modify its Name via name."
+      ]
+    },
+    "User::address": {
+      "whole": "User",
+      "part": "Address",
+      "via_field": "address",
+      "sentences": [
+        "A User contains a Address accessed via its address attribute.",
+        "The Address is a component of the User record.",
+        "Operations on User may read or modify its Address via address."
+      ]
+    },
+    "User::saved_passengers": {
+      "whole": "User",
+      "part": "Passenger",
+      "via_field": "saved_passengers",
+      "sentences": [
+        "A User contains a Passenger accessed via its saved_passengers attribute.",
+        "The Passenger is a component of the User record.",
+        "Operations on User may read or modify its Passenger via saved_passengers."
+      ]
+    },
+    "Reservation::user_id": {
+      "whole": "Reservation",
+      "part": "User",
+      "via_field": "user_id",
+      "sentences": [
+        "A Reservation contains a User accessed via its user_id attribute.",
+        "The User is a component of the Reservation record.",
+        "Operations on Reservation may read or modify its User via user_id."
+      ]
+    },
+    "Reservation::flights": {
+      "whole": "Reservation",
+      "part": "ReservationFlight",
+      "via_field": "flights",
+      "sentences": [
+        "A Reservation contains a ReservationFlight accessed via its flights attribute.",
+        "The ReservationFlight is a component of the Reservation record.",
+        "Operations on Reservation may read or modify its ReservationFlight via flights."
+      ]
+    },
+    "Reservation::passengers": {
+      "whole": "Reservation",
+      "part": "Passenger",
+      "via_field": "passengers",
+      "sentences": [
+        "A Reservation contains a Passenger accessed via its passengers attribute.",
+        "The Passenger is a component of the Reservation record.",
+        "Operations on Reservation may read or modify its Passenger via passengers."
+      ]
+    },
+    "Reservation::payment_history": {
+      "whole": "Reservation",
+      "part": "Payment",
+      "via_field": "payment_history",
+      "sentences": [
+        "A Reservation contains a Payment accessed via its payment_history attribute.",
+        "The Payment is a component of the Reservation record.",
+        "Operations on Reservation may read or modify its Payment via payment_history."
+      ]
+    },
+    "FlightDB::flights": {
+      "whole": "FlightDB",
+      "part": "Flight",
+      "via_field": "flights",
+      "sentences": [
+        "A FlightDB contains a Flight accessed via its flights attribute.",
+        "The Flight is a component of the FlightDB record.",
+        "Operations on FlightDB may read or modify its Flight via flights."
+      ]
+    },
+    "FlightDB::users": {
+      "whole": "FlightDB",
+      "part": "User",
+      "via_field": "users",
+      "sentences": [
+        "A FlightDB contains a User accessed via its users attribute.",
+        "The User is a component of the FlightDB record.",
+        "Operations on FlightDB may read or modify its User via users."
+      ]
+    },
+    "FlightDB::reservations": {
+      "whole": "FlightDB",
+      "part": "Reservation",
+      "via_field": "reservations",
+      "sentences": [
+        "A FlightDB contains a Reservation accessed via its reservations attribute.",
+        "The Reservation is a component of the FlightDB record.",
+        "Operations on FlightDB may read or modify its Reservation via reservations."
+      ]
+    }
+  },
+  "per_relation": {
+    "book_reservation": {
+      "sentences": [
+        "This tool books User to produce a Reservation.",
+        "Invoke book_reservation when the user needs to book a Reservation.",
+        "Book a reservation."
+      ],
+      "source_types": [
+        "User"
+      ],
+      "target_type": "Reservation",
+      "verb": "book"
+    },
+    "calculate": {
+      "sentences": [
+        "This tool calculates a request to produce a str.",
+        "Invoke calculate when the user needs to calculate a str.",
+        "Calculate the result of a mathematical expression."
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "calculate"
+    },
+    "cancel_reservation": {
+      "sentences": [
+        "This tool cancels Reservation to produce a Reservation.",
+        "Invoke cancel_reservation when the user needs to cancel a Reservation.",
+        "Cancel the whole reservation."
+      ],
+      "source_types": [
+        "Reservation"
+      ],
+      "target_type": "Reservation",
+      "verb": "cancel"
+    },
+    "get_reservation_details": {
+      "sentences": [
+        "This tool gets Reservation to produce a Reservation.",
+        "Invoke get_reservation_details when the user needs to get a Reservation.",
+        "Get the details of a reservation."
+      ],
+      "source_types": [
+        "Reservation"
+      ],
+      "target_type": "Reservation",
+      "verb": "get"
+    },
+    "get_user_details": {
+      "sentences": [
+        "This tool gets User to produce a User.",
+        "Invoke get_user_details when the user needs to get a User.",
+        "Get the details of a user, including their reservations."
+      ],
+      "source_types": [
+        "User"
+      ],
+      "target_type": "User",
+      "verb": "get"
+    },
+    "list_all_airports": {
+      "sentences": [
+        "This tool lists a request to produce a AirportInfo.",
+        "Invoke list_all_airports when the user needs to list a AirportInfo.",
+        "Returns a list of all available airports."
+      ],
+      "source_types": [],
+      "target_type": "AirportInfo",
+      "verb": "list"
+    },
+    "search_direct_flight": {
+      "sentences": [
+        "This tool searchs a request to produce a DirectFlight.",
+        "Invoke search_direct_flight when the user needs to search a DirectFlight.",
+        "Search for direct flights between two cities on a specific date."
+      ],
+      "source_types": [],
+      "target_type": "DirectFlight",
+      "verb": "search"
+    },
+    "search_onestop_flight": {
+      "sentences": [
+        "This tool searchs a request to produce a DirectFlight.",
+        "Invoke search_onestop_flight when the user needs to search a DirectFlight.",
+        "Search for one-stop flights between two cities on a specific date."
+      ],
+      "source_types": [],
+      "target_type": "DirectFlight",
+      "verb": "search"
+    },
+    "send_certificate": {
+      "sentences": [
+        "This tool sends User to produce a str.",
+        "Invoke send_certificate when the user needs to send a str.",
+        "Send a certificate to a user. Be careful!"
+      ],
+      "source_types": [
+        "User"
+      ],
+      "target_type": "str",
+      "verb": "send"
+    },
+    "transfer_to_human_agents": {
+      "sentences": [
+        "This tool transfers a request to produce a str.",
+        "Invoke transfer_to_human_agents when the user needs to transfer a str.",
+        "Transfer the user to a human agent, with a summary of the user's issue."
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "transfer"
+    },
+    "update_reservation_baggages": {
+      "sentences": [
+        "This tool updates Payment and Reservation to produce a Reservation.",
+        "Invoke update_reservation_baggages when the user needs to update a Reservation.",
+        "Update the baggage information of a reservation."
+      ],
+      "source_types": [
+        "Payment",
+        "Reservation"
+      ],
+      "target_type": "Reservation",
+      "verb": "update"
+    },
+    "update_reservation_flights": {
+      "sentences": [
+        "This tool updates Payment and Reservation to produce a Reservation.",
+        "Invoke update_reservation_flights when the user needs to update a Reservation.",
+        "Update the flight information of a reservation."
+      ],
+      "source_types": [
+        "Payment",
+        "Reservation"
+      ],
+      "target_type": "Reservation",
+      "verb": "update"
+    },
+    "update_reservation_passengers": {
+      "sentences": [
+        "This tool updates Reservation to produce a Reservation.",
+        "Invoke update_reservation_passengers when the user needs to update a Reservation.",
+        "Update the passenger information of a reservation."
+      ],
+      "source_types": [
+        "Reservation"
+      ],
+      "target_type": "Reservation",
+      "verb": "update"
+    },
+    "get_flight_status": {
+      "sentences": [
+        "This tool gets a request to produce a str.",
+        "Invoke get_flight_status when the user needs to get a str.",
+        "Get the status of a flight."
+      ],
+      "source_types": [],
+      "target_type": "str",
+      "verb": "get"
+    }
+  },
+  "summary": {
+    "n_class_sentences": 110,
+    "n_tool_sentences": 42,
+    "n_part_sentences": 30,
+    "n_relation_sentences": 42
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "dataset": "metatool",
+  "n_tools": 388,
+  "cluster_stats": {
+    "A_verb": {
+      "n_clusters": 28,
+      "entropy": 2.2010174516114547,
+      "top3": [
+        [
+          "other",
+          112
+        ],
+        [
+          "search",
+          99
+        ],
+        [
+          "get",
+          33
+        ]
+      ]
+    },
+    "B_cooccurrence": {
+      "n_clusters": 388,
+      "entropy": 5.961005339623307,
+      "top3": [
+        [
+          "cc_0",
+          1
+        ],
+        [
+          "cc_1",
+          1
+        ],
+        [
+          "cc_2",
+          1
+        ]
+      ]
+    },
+    "C_name_jaccard": {
+      "n_clusters": 373,
+      "entropy": 5.902489984155052,
+      "top3": [
+        [
+          "cc_142",
+          4
+        ],
+        [
+          "cc_353",
+          3
+        ],
+        [
+          "cc_279",
+          2
+        ]
+      ]
+    },
+    "D_domain": {
+      "n_clusters": 21,
+      "entropy": 2.6336639276030853,
+      "top3": [
+        [
+          "coding",
+          56
+        ],
+        [
+          "entertainment",
+          53
+        ],
+        [
+          "misc",
+          47
+        ]
+      ]
+    }
+  },
+  "nmi": {
+    "A_verb": {
+      "A_verb": 1.0,
+      "B_cooccurrence": 0.6076478807614603,
+      "C_name_jaccard": 0.598757158078221,
+      "D_domain": 0.18520029698284848
+    },
+    "B_cooccurrence": {
+      "A_verb": 0.6076478807614603,
+      "B_cooccurrence": 1.0,
+      "C_name_jaccard": 0.9950797169934922,
+      "D_domain": 0.6646919548273194
+    },
+    "C_name_jaccard": {
+      "A_verb": 0.598757158078221,
+      "B_cooccurrence": 0.9950797169934922,
+      "C_name_jaccard": 1.0,
+      "D_domain": 0.6594807225319637
+    },
+    "D_domain": {
+      "A_verb": 0.18520029698284848,
+      "B_cooccurrence": 0.6646919548273194,
+      "C_name_jaccard": 0.6594807225319637,
+      "D_domain": 1.0
+    }
+  },
+  "verdicts": [
+    {
+      "a": "A_verb",
+      "b": "B_cooccurrence",
+      "nmi": 0.6076478807614603,
+      "verdict": "REDUNDANT \u2717"
+    },
+    {
+      "a": "A_verb",
+      "b": "C_name_jaccard",
+      "nmi": 0.598757158078221,
+      "verdict": "REDUNDANT \u2717"
+    },
+    {
+      "a": "A_verb",
+      "b": "D_domain",
+      "nmi": 0.18520029698284848,
+      "verdict": "ORTHOGONAL \u2713"
+    },
+    {
+      "a": "B_cooccurrence",
+      "b": "C_name_jaccard",
+      "nmi": 0.9950797169934922,
+      "verdict": "REDUNDANT \u2717"
+    },
+    {
+      "a": "B_cooccurrence",
+      "b": "D_domain",
+      "nmi": 0.6646919548273194,
+      "verdict": "REDUNDANT \u2717"
+    },
+    {
+      "a": "C_name_jaccard",
+      "b": "D_domain",
+      "nmi": 0.6594807225319637,
+      "verdict": "REDUNDANT \u2717"
+    }
+  ],
+  "summary": {
+    "orth": 1,
+    "soft": 0,
+    "redundant": 5,
+    "total": 6
+  }
+}

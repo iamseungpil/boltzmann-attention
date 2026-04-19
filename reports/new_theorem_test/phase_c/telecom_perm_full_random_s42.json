@@ -1,0 +1,255 @@
+{
+  "facet_order": [
+    "function_action",
+    "io_type",
+    "domain",
+    "tool_category"
+  ],
+  "ontology": {
+    "function_action": {
+      "get": [
+        "delta alpha quux baz baz epsilon delta gamma xyz beta alpha.",
+        "bar baz alpha bar xyz baz.",
+        "quux alpha foo xyz fizz quux epsilon bar fizz.",
+        "gamma nonce delta buzz buzz quux."
+      ],
+      "other": [
+        "beta blank delta nonce gamma plurp buzz bar gamma beta baz plurp.",
+        "baz delta nonce quux blank buzz.",
+        "buzz buzz bar quux gamma foo baz.",
+        "blank nonce quux baz fizz beta baz."
+      ],
+      "send": [
+        "beta fizz nonce quux gamma bar fizz bar thing nonce blank epsilon.",
+        "epsilon baz quux xyz nonce buzz baz epsilon.",
+        "thing gamma beta delta epsilon foo xyz gamma nonce nonce."
+      ],
+      "transfer": [
+        "blank quux alpha delta quux fizz delta plurp xyz foo.",
+        "alpha quux foo delta plurp bar epsilon buzz foo.",
+        "alpha fizz thing alpha delta buzz plurp baz beta baz."
+      ]
+    },
+    "io_type": {
+      "entity": [
+        "gamma gamma thing gamma epsilon epsilon thing foo quux xyz.",
+        "bar plurp nonce buzz blank blank delta.",
+        "baz gamma fizz alpha baz baz alpha.",
+        "beta baz gamma beta fizz gamma."
+      ],
+      "identifier": [
+        "baz quux thing bar epsilon thing baz thing xyz bar.",
+        "delta xyz buzz xyz xyz blank.",
+        "beta delta beta nonce fizz delta baz bar bar blank epsilon xyz.",
+        "quux blank baz gamma blank delta beta."
+      ],
+      "query": [
+        "alpha gamma baz foo xyz thing thing bar nonce beta foo.",
+        "alpha nonce quux blank plurp xyz thing epsilon bar.",
+        "bar beta beta fizz beta beta thing foo."
+      ]
+    },
+    "domain": {
+      "data": [
+        "gamma foo gamma gamma baz nonce.",
+        "baz beta gamma xyz fizz quux.",
+        "fizz baz quux nonce epsilon plurp blank.",
+        "gamma alpha blank delta gamma bar quux epsilon."
+      ],
+      "device": [
+        "gamma baz buzz plurp foo blank plurp alpha.",
+        "plurp delta epsilon quux delta delta epsilon quux plurp bar fizz.",
+        "quux thing quux beta gamma xyz quux.",
+        "alpha fizz epsilon quux foo blank."
+      ],
+      "line": [
+        "xyz alpha delta gamma epsilon beta buzz epsilon xyz epsilon.",
+        "plurp buzz beta buzz bar baz.",
+        "delta buzz xyz epsilon baz foo foo xyz alpha foo fizz.",
+        "xyz baz quux foo delta nonce beta thing baz bar blank buzz."
+      ],
+      "network": [
+        "baz baz alpha bar nonce fizz quux gamma.",
+        "quux buzz nonce fizz alpha delta quux foo quux beta delta xyz.",
+        "fizz xyz delta nonce bar quux beta xyz.",
+        "bar buzz xyz gamma fizz fizz."
+      ],
+      "payment": [
+        "delta plurp plurp xyz fizz nonce plurp epsilon bar xyz nonce.",
+        "foo plurp nonce alpha plurp plurp bar xyz fizz blank blank.",
+        "bar thing foo gamma plurp fizz gamma baz plurp."
+      ],
+      "utility": [
+        "bar epsilon alpha beta baz thing gamma.",
+        "xyz bar nonce thing nonce baz epsilon alpha delta.",
+        "xyz baz foo blank beta baz delta blank epsilon blank fizz blank.",
+        "xyz blank foo thing blank quux baz quux thing baz."
+      ]
+    },
+    "tool_category": {
+      "generic": [
+        "blank gamma plurp baz quux fizz fizz gamma.",
+        "epsilon baz nonce epsilon bar gamma xyz.",
+        "fizz blank xyz beta bar xyz nonce alpha nonce."
+      ],
+      "read": [
+        "alpha buzz plurp nonce xyz baz thing baz quux.",
+        "thing alpha nonce fizz nonce foo blank epsilon alpha.",
+        "alpha gamma xyz epsilon blank foo beta quux nonce.",
+        "bar blank fizz fizz nonce quux xyz quux."
+      ],
+      "write": [
+        "gamma thing alpha beta buzz baz gamma beta alpha baz bar alpha.",
+        "epsilon baz epsilon thing delta bar blank quux buzz foo.",
+        "delta foo plurp delta alpha plurp nonce nonce bar gamma.",
+        "baz delta plurp delta beta buzz xyz buzz gamma fizz."
+      ]
+    }
+  },
+  "domain": "telecom",
+  "facet_counts": {
+    "function_action": 4,
+    "io_type": 3,
+    "domain": 6,
+    "tool_category": 3
+  },
+  "classification_distribution": {
+    "function_action": {
+      "get": 6,
+      "other": 5,
+      "send": 1,
+      "transfer": 1
+    },
+    "io_type": {
+      "entity": 2,
+      "identifier": 10,
+      "query": 1
+    },
+    "domain": {
+      "line": 3,
+      "utility": 3,
+      "device": 2,
+      "payment": 1,
+      "data": 2,
+      "network": 2
+    },
+    "tool_category": {
+      "read": 6,
+      "write": 6,
+      "generic": 1
+    }
+  },
+  "classifications": [
+    {
+      "name": "get_customer_by_phone",
+      "docstring": "Finds a customer by their primary contact or line phone number.\n\nArgs:\n    phone_number: The phone number to search for.\n\nReturns:\n    Customer object if found, None otherwise.",
+      "function_action": "get",
+      "io_type": "entity",
+      "domain": "line",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_customer_by_id",
+      "docstring": "Retrieves a customer directly by their unique ID.\n\nArgs:\n    customer_id: The unique identifier of the customer.\n\nReturns:\n    Customer object if found, None otherwise.",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "utility",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_customer_by_name",
+      "docstring": "Searches for customers by name and DOB. May return multiple matches if names are similar,\nDOB helps disambiguate.\n\nArgs:\n    full_name: The full name of the customer.\n    dob: Date of birth for verifi",
+      "function_action": "get",
+      "io_type": "entity",
+      "domain": "device",
+      "tool_category": "read"
+    },
+    {
+      "name": "get_details_by_id",
+      "docstring": "Retrieves the details for a given ID.\nThe ID must be a valid ID for a Customer, Line, Device, Bill, or Plan.\n\nArgs:\n    id: The ID of the object to retrieve.\n\nReturns:\n    The object corresponding to ",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "device",
+      "tool_category": "read"
+    },
+    {
+      "name": "suspend_line",
+      "docstring": "Suspends a specific line (max 6 months).\nChecks: Line status must be Active.\nLogic: Sets line status to Suspended, records suspension_start_date.\n\nArgs:\n    customer_id: ID of the customer who owns th",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "line",
+      "tool_category": "write"
+    },
+    {
+      "name": "resume_line",
+      "docstring": "Resumes a suspended line.\nChecks: Line status must be Suspended or Pending Activation.\nLogic: Sets line status to Active, clears suspension_start_date.\n\nArgs:\n    customer_id: ID of the customer who o",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "line",
+      "tool_category": "write"
+    },
+    {
+      "name": "get_bills_for_customer",
+      "docstring": "Retrieves a list of the customer's bills, most recent first.\n\nArgs:\n    customer_id: ID of the customer.\n    limit: Maximum number of bills to return.\n\nReturns:\n    List of Bill objects, ordered by is",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "utility",
+      "tool_category": "read"
+    },
+    {
+      "name": "send_payment_request",
+      "docstring": "Sends a payment request to the customer for a specific bill.\nChecks:\n    - Customer exists\n    - Bill exists and belongs to the customer\n    - No other bills are already awaiting payment for this cust",
+      "function_action": "send",
+      "io_type": "identifier",
+      "domain": "payment",
+      "tool_category": "write"
+    },
+    {
+      "name": "get_data_usage",
+      "docstring": "Retrieves current billing cycle data usage for a line, including data\nrefueling amount, data limit, and cycle end date.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of",
+      "function_action": "get",
+      "io_type": "identifier",
+      "domain": "data",
+      "tool_category": "read"
+    },
+    {
+      "name": "enable_roaming",
+      "docstring": "Enables international roaming on a line.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to enable roaming for.\n\nReturns:\n    Message indicating the roaming h",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    {
+      "name": "disable_roaming",
+      "docstring": "Disables international roaming on a line.\n\nArgs:\n    customer_id: ID of the customer who owns the line.\n    line_id: ID of the line to disable roaming for.\n\nReturns:\n    Message indicating the roaming",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "network",
+      "tool_category": "write"
+    },
+    {
+      "name": "transfer_to_human_agents",
+      "docstring": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve t",
+      "function_action": "transfer",
+      "io_type": "query",
+      "domain": "utility",
+      "tool_category": "generic"
+    },
+    {
+      "name": "refuel_data",
+      "docstring": "Refuels data for a specific line, adding to the customer's bill.\nChecks: Line status must be Active, Customer owns the line.\nLogic: Adds data to the line and charges customer based on the plan's refue",
+      "function_action": "other",
+      "io_type": "identifier",
+      "domain": "data",
+      "tool_category": "write"
+    }
+  ],
+  "n_tools": 13,
+  "source": "tau2-bench telecom/tools.py",
+  "_permutation": {
+    "mode": "full_random",
+    "seed": 42,
+    "source": "reports/axis2_theoretical_verification/tau2_telecom_ontology.json"
+  }
+}

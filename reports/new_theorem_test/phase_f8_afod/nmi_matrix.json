@@ -1,0 +1,77 @@
+{
+  "domain": "telecom",
+  "keys": [
+    "A_function_action",
+    "B_task_cooccurrence",
+    "C_param_jaccard",
+    "D_tool_category"
+  ],
+  "nmi": {
+    "A_function_action": {
+      "A_function_action": 1.0,
+      "B_task_cooccurrence": 0.621743198890829,
+      "C_param_jaccard": 0.7202295572475056,
+      "D_tool_category": 0.566536906620384
+    },
+    "B_task_cooccurrence": {
+      "A_function_action": 0.621743198890829,
+      "B_task_cooccurrence": 1.0,
+      "C_param_jaccard": 0.782651648604636,
+      "D_tool_category": 0.5371248478013669
+    },
+    "C_param_jaccard": {
+      "A_function_action": 0.7202295572475056,
+      "B_task_cooccurrence": 0.782651648604636,
+      "C_param_jaccard": 1.0,
+      "D_tool_category": 0.38270102555739743
+    },
+    "D_tool_category": {
+      "A_function_action": 0.566536906620384,
+      "B_task_cooccurrence": 0.5371248478013669,
+      "C_param_jaccard": 0.38270102555739743,
+      "D_tool_category": 1.0
+    }
+  },
+  "verdicts": [
+    {
+      "a": "A_function_action",
+      "b": "B_task_cooccurrence",
+      "nmi": 0.621743198890829,
+      "verdict": "REDUNDANT \u2717 (merge)"
+    },
+    {
+      "a": "A_function_action",
+      "b": "C_param_jaccard",
+      "nmi": 0.7202295572475056,
+      "verdict": "REDUNDANT \u2717 (merge)"
+    },
+    {
+      "a": "A_function_action",
+      "b": "D_tool_category",
+      "nmi": 0.566536906620384,
+      "verdict": "REDUNDANT \u2717 (merge)"
+    },
+    {
+      "a": "B_task_cooccurrence",
+      "b": "C_param_jaccard",
+      "nmi": 0.782651648604636,
+      "verdict": "REDUNDANT \u2717 (merge)"
+    },
+    {
+      "a": "B_task_cooccurrence",
+      "b": "D_tool_category",
+      "nmi": 0.5371248478013669,
+      "verdict": "REDUNDANT \u2717 (merge)"
+    },
+    {
+      "a": "C_param_jaccard",
+      "b": "D_tool_category",
+      "nmi": 0.38270102555739743,
+      "verdict": "soft-orthogonal (L_facet_orth)"
+    }
+  ],
+  "thresholds": {
+    "orthogonal": 0.3,
+    "soft_orth": 0.5
+  }
+}

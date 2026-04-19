@@ -1,0 +1,578 @@
+{
+  "taskbench_hf": {
+    "dataset": "taskbench_hf",
+    "n_tools": 23,
+    "cluster_stats": {
+      "A_verb": {
+        "n_clusters": 4,
+        "entropy": 0.8378090821865456,
+        "top3": [
+          [
+            "other",
+            17
+          ],
+          [
+            "generate",
+            3
+          ],
+          [
+            "return",
+            2
+          ]
+        ]
+      },
+      "B_cooccurrence": {
+        "n_clusters": 23,
+        "entropy": 3.1354942159291497,
+        "top3": [
+          [
+            "cc_0",
+            1
+          ],
+          [
+            "cc_1",
+            1
+          ],
+          [
+            "cc_2",
+            1
+          ]
+        ]
+      },
+      "C_io_jaccard": {
+        "n_clusters": 8,
+        "entropy": 1.8120005877987309,
+        "top3": [
+          [
+            "cc_6",
+            7
+          ],
+          [
+            "cc_15",
+            6
+          ],
+          [
+            "cc_17",
+            3
+          ]
+        ]
+      },
+      "D_ml_subfield": {
+        "n_clusters": 4,
+        "entropy": 1.0750274625216438,
+        "top3": [
+          [
+            "text",
+            13
+          ],
+          [
+            "image",
+            6
+          ],
+          [
+            "audio",
+            3
+          ]
+        ]
+      }
+    },
+    "nmi": {
+      "A_verb": {
+        "A_verb": 1.0,
+        "B_cooccurrence": 0.5169154703393742,
+        "C_io_jaccard": 0.39498725440325194,
+        "D_ml_subfield": 0.14446109416532113
+      },
+      "B_cooccurrence": {
+        "A_verb": 0.5169154703393742,
+        "B_cooccurrence": 1.0,
+        "C_io_jaccard": 0.7601970240403092,
+        "D_ml_subfield": 0.5855402818473268
+      },
+      "C_io_jaccard": {
+        "A_verb": 0.39498725440325194,
+        "B_cooccurrence": 0.7601970240403092,
+        "C_io_jaccard": 1.0,
+        "D_ml_subfield": 0.5812056471326474
+      },
+      "D_ml_subfield": {
+        "A_verb": 0.14446109416532113,
+        "B_cooccurrence": 0.5855402818473268,
+        "C_io_jaccard": 0.5812056471326474,
+        "D_ml_subfield": 1.0
+      }
+    },
+    "verdicts": [
+      {
+        "a": "A_verb",
+        "b": "B_cooccurrence",
+        "nmi": 0.5169154703393742,
+        "verdict": "RED"
+      },
+      {
+        "a": "A_verb",
+        "b": "C_io_jaccard",
+        "nmi": 0.39498725440325194,
+        "verdict": "soft"
+      },
+      {
+        "a": "A_verb",
+        "b": "D_ml_subfield",
+        "nmi": 0.14446109416532113,
+        "verdict": "ORTH"
+      },
+      {
+        "a": "B_cooccurrence",
+        "b": "C_io_jaccard",
+        "nmi": 0.7601970240403092,
+        "verdict": "RED"
+      },
+      {
+        "a": "B_cooccurrence",
+        "b": "D_ml_subfield",
+        "nmi": 0.5855402818473268,
+        "verdict": "RED"
+      },
+      {
+        "a": "C_io_jaccard",
+        "b": "D_ml_subfield",
+        "nmi": 0.5812056471326474,
+        "verdict": "RED"
+      }
+    ],
+    "summary": {
+      "orth": 1,
+      "soft": 1,
+      "redundant": 4,
+      "total": 6
+    }
+  },
+  "taskbench_daily": {
+    "dataset": "taskbench_daily",
+    "n_tools": 40,
+    "cluster_stats": {
+      "A_verb": {
+        "n_clusters": 10,
+        "entropy": 1.5461611047884234,
+        "top3": [
+          [
+            "other",
+            23
+          ],
+          [
+            "book",
+            5
+          ],
+          [
+            "get",
+            2
+          ]
+        ]
+      },
+      "B_cooccurrence": {
+        "n_clusters": 40,
+        "entropy": 3.6888794541139402,
+        "top3": [
+          [
+            "cc_0",
+            1
+          ],
+          [
+            "cc_1",
+            1
+          ],
+          [
+            "cc_2",
+            1
+          ]
+        ]
+      },
+      "C_param_jaccard": {
+        "n_clusters": 25,
+        "entropy": 3.010266539589055,
+        "top3": [
+          [
+            "cc_34",
+            7
+          ],
+          [
+            "cc_36",
+            3
+          ],
+          [
+            "cc_37",
+            3
+          ]
+        ]
+      },
+      "D_domain": {
+        "n_clusters": 13,
+        "entropy": 2.107167193849976,
+        "top3": [
+          [
+            "misc",
+            14
+          ],
+          [
+            "finance",
+            5
+          ],
+          [
+            "communication",
+            5
+          ]
+        ]
+      }
+    },
+    "nmi": {
+      "A_verb": {
+        "A_verb": 1.0,
+        "B_cooccurrence": 0.6474110985537711,
+        "C_param_jaccard": 0.5909631843534991,
+        "D_domain": 0.5184415513121498
+      },
+      "B_cooccurrence": {
+        "A_verb": 0.6474110985537711,
+        "B_cooccurrence": 1.0,
+        "C_param_jaccard": 0.9033483255339239,
+        "D_domain": 0.7557919577479888
+      },
+      "C_param_jaccard": {
+        "A_verb": 0.5909631843534991,
+        "B_cooccurrence": 0.9033483255339239,
+        "C_param_jaccard": 1.0,
+        "D_domain": 0.6687306506553325
+      },
+      "D_domain": {
+        "A_verb": 0.5184415513121498,
+        "B_cooccurrence": 0.7557919577479888,
+        "C_param_jaccard": 0.6687306506553325,
+        "D_domain": 1.0
+      }
+    },
+    "verdicts": [
+      {
+        "a": "A_verb",
+        "b": "B_cooccurrence",
+        "nmi": 0.6474110985537711,
+        "verdict": "RED"
+      },
+      {
+        "a": "A_verb",
+        "b": "C_param_jaccard",
+        "nmi": 0.5909631843534991,
+        "verdict": "RED"
+      },
+      {
+        "a": "A_verb",
+        "b": "D_domain",
+        "nmi": 0.5184415513121498,
+        "verdict": "RED"
+      },
+      {
+        "a": "B_cooccurrence",
+        "b": "C_param_jaccard",
+        "nmi": 0.9033483255339239,
+        "verdict": "RED"
+      },
+      {
+        "a": "B_cooccurrence",
+        "b": "D_domain",
+        "nmi": 0.7557919577479888,
+        "verdict": "RED"
+      },
+      {
+        "a": "C_param_jaccard",
+        "b": "D_domain",
+        "nmi": 0.6687306506553325,
+        "verdict": "RED"
+      }
+    ],
+    "summary": {
+      "orth": 0,
+      "soft": 0,
+      "redundant": 6,
+      "total": 6
+    }
+  },
+  "appbench": {
+    "dataset": "appbench",
+    "n_tools": 25,
+    "cluster_stats": {
+      "A_verb": {
+        "n_clusters": 1,
+        "entropy": 0.0,
+        "top3": [
+          [
+            "other",
+            25
+          ]
+        ]
+      },
+      "B_cooccurrence": {
+        "n_clusters": 1,
+        "entropy": 0.0,
+        "top3": [
+          [
+            "cc_12",
+            25
+          ]
+        ]
+      },
+      "C_param_jaccard": {
+        "n_clusters": 18,
+        "entropy": 2.8097834780040483,
+        "top3": [
+          [
+            "cc_12",
+            3
+          ],
+          [
+            "cc_6",
+            2
+          ],
+          [
+            "cc_13",
+            2
+          ]
+        ]
+      },
+      "D_app": {
+        "n_clusters": 12,
+        "entropy": 2.4216210568904804,
+        "top3": [
+          [
+            "app_Movies",
+            4
+          ],
+          [
+            "app_Rents",
+            3
+          ],
+          [
+            "app_Hotels",
+            2
+          ]
+        ]
+      }
+    },
+    "nmi": {
+      "A_verb": {
+        "A_verb": 1.0,
+        "B_cooccurrence": 0.0,
+        "C_param_jaccard": 0.0,
+        "D_app": 0.0
+      },
+      "B_cooccurrence": {
+        "A_verb": 0.0,
+        "B_cooccurrence": 1.0,
+        "C_param_jaccard": 0.0,
+        "D_app": 0.0
+      },
+      "C_param_jaccard": {
+        "A_verb": 0.0,
+        "B_cooccurrence": 0.0,
+        "C_param_jaccard": 1.0,
+        "D_app": 0.9283605238837508
+      },
+      "D_app": {
+        "A_verb": 0.0,
+        "B_cooccurrence": 0.0,
+        "C_param_jaccard": 0.9283605238837508,
+        "D_app": 1.0
+      }
+    },
+    "verdicts": [
+      {
+        "a": "A_verb",
+        "b": "B_cooccurrence",
+        "nmi": 0.0,
+        "verdict": "ORTH"
+      },
+      {
+        "a": "A_verb",
+        "b": "C_param_jaccard",
+        "nmi": 0.0,
+        "verdict": "ORTH"
+      },
+      {
+        "a": "A_verb",
+        "b": "D_app",
+        "nmi": 0.0,
+        "verdict": "ORTH"
+      },
+      {
+        "a": "B_cooccurrence",
+        "b": "C_param_jaccard",
+        "nmi": 0.0,
+        "verdict": "ORTH"
+      },
+      {
+        "a": "B_cooccurrence",
+        "b": "D_app",
+        "nmi": 0.0,
+        "verdict": "ORTH"
+      },
+      {
+        "a": "C_param_jaccard",
+        "b": "D_app",
+        "nmi": 0.9283605238837508,
+        "verdict": "RED"
+      }
+    ],
+    "summary": {
+      "orth": 5,
+      "soft": 0,
+      "redundant": 1,
+      "total": 6
+    }
+  },
+  "c3bench": {
+    "dataset": "c3bench",
+    "n_tools": 618,
+    "cluster_stats": {
+      "A_verb": {
+        "n_clusters": 28,
+        "entropy": 2.021361090417124,
+        "top3": [
+          [
+            "other",
+            251
+          ],
+          [
+            "get",
+            139
+          ],
+          [
+            "search",
+            58
+          ]
+        ]
+      },
+      "B_cooccurrence": {
+        "n_clusters": 618,
+        "entropy": 6.426488457457641,
+        "top3": [
+          [
+            "cc_0",
+            1
+          ],
+          [
+            "cc_1",
+            1
+          ],
+          [
+            "cc_2",
+            1
+          ]
+        ]
+      },
+      "C_param_jaccard": {
+        "n_clusters": 339,
+        "entropy": 4.570878109762974,
+        "top3": [
+          [
+            "cc_569",
+            185
+          ],
+          [
+            "cc_440",
+            12
+          ],
+          [
+            "cc_615",
+            9
+          ]
+        ]
+      },
+      "D_domain": {
+        "n_clusters": 21,
+        "entropy": 2.4141495942038995,
+        "top3": [
+          [
+            "misc",
+            173
+          ],
+          [
+            "data",
+            95
+          ],
+          [
+            "finance",
+            50
+          ]
+        ]
+      }
+    },
+    "nmi": {
+      "A_verb": {
+        "A_verb": 1.0,
+        "B_cooccurrence": 0.5608349691255468,
+        "C_param_jaccard": 0.43400678976660434,
+        "D_domain": 0.15874868874865045
+      },
+      "B_cooccurrence": {
+        "A_verb": 0.5608349691255468,
+        "B_cooccurrence": 1.0,
+        "C_param_jaccard": 0.8433599132495255,
+        "D_domain": 0.6129079054451195
+      },
+      "C_param_jaccard": {
+        "A_verb": 0.43400678976660434,
+        "B_cooccurrence": 0.8433599132495255,
+        "C_param_jaccard": 1.0,
+        "D_domain": 0.47605124598222537
+      },
+      "D_domain": {
+        "A_verb": 0.15874868874865045,
+        "B_cooccurrence": 0.6129079054451195,
+        "C_param_jaccard": 0.47605124598222537,
+        "D_domain": 1.0
+      }
+    },
+    "verdicts": [
+      {
+        "a": "A_verb",
+        "b": "B_cooccurrence",
+        "nmi": 0.5608349691255468,
+        "verdict": "RED"
+      },
+      {
+        "a": "A_verb",
+        "b": "C_param_jaccard",
+        "nmi": 0.43400678976660434,
+        "verdict": "soft"
+      },
+      {
+        "a": "A_verb",
+        "b": "D_domain",
+        "nmi": 0.15874868874865045,
+        "verdict": "ORTH"
+      },
+      {
+        "a": "B_cooccurrence",
+        "b": "C_param_jaccard",
+        "nmi": 0.8433599132495255,
+        "verdict": "RED"
+      },
+      {
+        "a": "B_cooccurrence",
+        "b": "D_domain",
+        "nmi": 0.6129079054451195,
+        "verdict": "RED"
+      },
+      {
+        "a": "C_param_jaccard",
+        "b": "D_domain",
+        "nmi": 0.47605124598222537,
+        "verdict": "soft"
+      }
+    ],
+    "summary": {
+      "orth": 1,
+      "soft": 2,
+      "redundant": 3,
+      "total": 6
+    }
+  }
+}

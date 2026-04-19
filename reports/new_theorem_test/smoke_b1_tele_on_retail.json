@@ -1,0 +1,123 @@
+{
+  "args": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "device": "cuda:0",
+    "b_ont": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom/B_ont.pt",
+    "bench": "tau2_retail",
+    "layers_spec": "last10",
+    "amp": 0.3,
+    "n": 3,
+    "r_override": null,
+    "seed": 0,
+    "no_random_control": false,
+    "capture_attn": true,
+    "out": "reports/new_theorem_test/smoke_b1_tele_on_retail.json"
+  },
+  "head_dim": 128,
+  "n_kv": 4,
+  "sel_layers": [
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27
+  ],
+  "r_bont_used": 12,
+  "summary_A": {
+    "n": 3,
+    "flip_count": 0,
+    "flip_rate": 0.0,
+    "kl_mean": 0.004514508570233981,
+    "kl_std": 0.0022022339267661296,
+    "dlogit_mean": 318.362309773763,
+    "margin_mean": 6.807291666666667,
+    "margin_min": 6.390625,
+    "attn_fro_mean": 0.08288723975419998
+  },
+  "summary_D": {
+    "n": 3,
+    "flip_count": 0,
+    "flip_rate": 0.0,
+    "kl_mean": 0.001622013165615499,
+    "kl_std": 0.0007676575832771593,
+    "dlogit_mean": 141.21408081054688,
+    "margin_mean": 6.807291666666667,
+    "margin_min": 6.390625,
+    "attn_fro_mean": 0.02309697742263476
+  },
+  "gap": {
+    "flip_rate_A_minus_D": 0.0,
+    "kl_A_over_D_ratio": 2.783274923986747,
+    "flip_count_A": 0,
+    "flip_count_D": 0
+  },
+  "per_task_A": [
+    {
+      "idx": 0,
+      "margin": 6.390625,
+      "kl": 0.006531157530844212,
+      "d_logit": 339.9662170410156,
+      "flipped": 0,
+      "attn_shift_fro_mean": 0.0849284753203392,
+      "argmax_base_token": 151657,
+      "argmax_pert_token": 151657
+    },
+    {
+      "idx": 1,
+      "margin": 6.4375,
+      "kl": 0.005561566445976496,
+      "d_logit": 366.5898742675781,
+      "flipped": 0,
+      "attn_shift_fro_mean": 0.08079952001571655,
+      "argmax_base_token": 151657,
+      "argmax_pert_token": 151657
+    },
+    {
+      "idx": 2,
+      "margin": 7.59375,
+      "kl": 0.0014508017338812351,
+      "d_logit": 248.5308380126953,
+      "flipped": 0,
+      "attn_shift_fro_mean": 0.08293372392654419,
+      "argmax_base_token": 151657,
+      "argmax_pert_token": 151657
+    }
+  ],
+  "per_task_D": [
+    {
+      "idx": 0,
+      "margin": 6.390625,
+      "kl": 0.002537967637181282,
+      "d_logit": 169.61843872070312,
+      "flipped": 0,
+      "attn_shift_fro_mean": 0.023658443242311478,
+      "argmax_base_token": 151657,
+      "argmax_pert_token": 151657
+    },
+    {
+      "idx": 1,
+      "margin": 6.4375,
+      "kl": 0.0016687316820025444,
+      "d_logit": 140.984130859375,
+      "flipped": 0,
+      "attn_shift_fro_mean": 0.02262900583446026,
+      "argmax_base_token": 151657,
+      "argmax_pert_token": 151657
+    },
+    {
+      "idx": 2,
+      "margin": 7.59375,
+      "kl": 0.0006593401776626706,
+      "d_logit": 113.0396728515625,
+      "flipped": 0,
+      "attn_shift_fro_mean": 0.023003483191132545,
+      "argmax_base_token": 151657,
+      "argmax_pert_token": 151657
+    }
+  ]
+}
