@@ -578,6 +578,151 @@ F-series와 **orthogonal한** 새 실험 축. Regime-wise 독립이므로 F12/F1
 
 ---
 
+## §2.5.2 Group 6 확장 (v5.3, 2026-04-19 심야 — 3-agent prior-art 재감사 + 사용자 5-question synthesis)
+
+사용자 연쇄 5-질문 ("meta-attention / MCTS / RL / hierarchical observation / ontology-ordering 통합 아키텍처")을 3-agent web-search 재감사로 검증.
+
+### 6L. 추가 preemption risk 문헌 (3-agent audit)
+
+기존 6A-6K에 더해 다음이 **직접 선행연구 위험** (URLs in `cognitive_geometric_reframe_group6_2026_04_19.md` 확장본):
+
+#### 6L.1 **Das 2025 — Free Probabilistic Framework (arxiv:2506.16550)**
+- W* 대수 tracial self-adjoint operator로 LLM 모델링. **positional × semantic operator commutator nonzero → word order encoding** 명시 주장.
+- **Preemption**: 이론 overlap, 실험 부재. 우리 H-Order 실증 부분은 empty.
+
+#### 6L.2 **Aerts & Sozzo 2024 — Inductive bias from QM (arxiv:2312.03862)**
+- 비가환 projective measurement를 inductive bias로 QML에 도입, order effect 학습.
+- **Preemption**: QML framework, synthetic data. Transformer 아키텍처 아님. 차별화: pretrained transformer 내재 비가환성 측정.
+
+#### 6L.3 **Sato, Kawamoto, Kera 2025 — Chain of Thought in Order (ICML 2025, arxiv:2506.23875)**
+- **H-Order의 가장 직접적 선행**. 10억 CoT token order 후보에서 learning-friendly order 발견.
+- **Preemption**: training-level (loss-based), arithmetic 한정. 우리 H-Order (inference-time, ontology-axis, effect-size)와 **다른 level** — baseline+차별화 필수.
+
+#### 6L.4 **Chen et al. 2024 — Premise Order Matters (ICML 2024, R-GSM)**
+- Premise 순서 permutation으로 LLM 성능 30pp+ drop.
+- **Preemption**: mechanism 제시 없음. 우리 "ontology-informed order가 optimal에 근접"은 empty. 필수 baseline.
+
+#### 6L.5 **Shen 2026 (arxiv:2604.05655) + Barez 2026 (2603.01326) + Manson 2025 (2507.21107)**
+- 단계별 residual stream trajectory 측정. Correct vs incorrect late-layer divergence (AUC 0.87). Concern curvature.
+- **Preemption**: 방법론 overlap 高. Ontology-axis 구분은 없음 — correctness, concern만.
+- **Risk mitigation**: Manson curvature method cite + "we apply to ontology-axis distinction".
+
+#### 6L.6 **Wang & Zhang 2025 — Energy-Driven Steering (arxiv:2510.08646)**
+- 외부 EBM + gradient-based activation steering.
+- **Preemption**: H-Energy의 close cousin. 차별화: external training 필요 vs 우리 internal no-train.
+
+#### 6L.7 **Zhang 2025 — Hamiltonian LLM (arxiv:2601.11572)**
+- L2-normalized LLM embedding을 Hamiltonian dynamics로. Attention weight = path amplitude.
+- **Preemption**: 이론 overlap, 실험 부재.
+
+#### 6L.8 **Engels et al. 2024 — Not All Features Are 1D (arxiv:2405.14860)**
+- LRH 핵심 반론. 요일/월 등 circular 2D.
+- **Implication**: "axis = 1D" 주장 시 공격. Multi-dim subspace framing 필수.
+
+#### 6L.9 **Park et al. 2024 NeurIPS — Categorical/Hierarchical Concept Geometry**
+- 계층 개념의 simplex geometry.
+- **Preemption**: 우리 rep-geometry 이웃. §2 비교 필수.
+
+#### 6L.10 **Postmus 2024 NeurIPS + Joshi 2025 — Conceptors**
+- Conceptor matrix로 Boolean AND/OR/NOT compositional steering. Multi-facet composition의 SOTA baseline.
+
+#### 6L.11 **Zhou et al. 2023 ICLR — Least-to-Most**
+- Hierarchical 분해로 SCAN length-split 16% → 99%. "구조 유도가 latent capability unlock"의 강한 empirical 증거.
+- **Implication**: Q5 hierarchical meta-attention 가설의 empirical prior. Prompt-level.
+
+#### 6L.12 **Templeton 2024 Scaling Monosemanticity + Marks 2024 Sparse Feature Circuits**
+- SAE로 34M abstract features 발견. Feature-level circuit editing으로 task lift.
+- **Implication**: "dormant abstract circuits" 존재의 mechanistic 증거. Q5 강한 지지.
+
+#### 6L.13 **Zhou 2024 Self-Discover + Besta 2024 Graph of Thoughts**
+- Task-adaptive reasoning module composition. BBH +30%, sorting +62%.
+
+#### 6L.14 **MCTS × LLM**: AlphaProof (Nature 2025), FunSearch (Nature 2024), ReST-MCTS (2024), o1/o3 inference-time search
+- 모두 output/reasoning-step level. **Attention-subspace level MCTS는 empty**.
+
+#### 6L.15 **Higher-Order Theories of Consciousness** — Rosenthal 1986, Lau & Rosenthal 2011; Global Workspace Theory (Baars 1988, Dehaene 2014); Predictive Coding (Rao & Ballard 1999)
+- **Q5 가설의 직접 철학/인지과학 선행**. "Higher-order representation이 추상/의식 생성".
+- **Implication**: Q5는 확립된 인지과학 가설의 LLM 구체화. 정성적으로 참.
+
+### 6M. 사용자 5-Question Synthesis → F14 MetaFocus (proposed)
+
+**통합 thesis**:
+> Frozen pretrained LLM 위에 (a) ontology-conditioned meta-attention, (b) attention-subspace exploration, (c) RL-style intrinsic reward, (d) hierarchical observation을 **training-free**로 통합하여 higher-order abstraction unlock.
+
+#### 6M.1 각 구성요소의 empty cell
+
+| 구성요소 | 가장 근접한 선행 | Empty? |
+|---|---|---|
+| Meta-attention | HHGT/LUKE/K-BERT (training); Conceptors (steering); Marks SAE (probe) | **training-free + ontology-axis + cross-layer EMPTY** |
+| Ontology ordering | Sato 2025 (arith, training); ORACLE (prompt) | **inference-time + rep-level + effect-size EMPTY** |
+| Attention subspace exploration | Entropy-regularized; ToT/GoT (output); EDS (external EBM) | **attention-subspace MCTS EMPTY** |
+| RL for attention | RLHF (output); DPO; Marks SHIFT (circuit) | **attention-subspace RL EMPTY** |
+| Hierarchical meta-observation | Transformer depth; HOT (철학); Least-to-Most (prompt) | **qualitative-distinct meta-layer EMPTY** |
+
+5/5 empty.
+
+#### 6M.2 F14 MetaFocus preliminary spec (not yet committed)
+
+```
+Frozen pretrained LLM (Qwen2.5-7B)
+│
+├─ Base attention (L0-L27): 변경 없음
+│
+└─ Meta-attention layer (F12/F13 확장):
+    ├─ Ontology-axis Q/K rotation R_ont(axis, step)
+    ├─ Exploration bonus α_explore * N(0,σ²) in B_ont⊥  (MCTS-style, subspace-restricted)
+    ├─ Intrinsic reward (no training):
+    │   - Ontology coverage of emitted tokens
+    │   - Hopfield energy E_q(K) decrease rate
+    │   - Residual trajectory divergence
+    └─ Meta-observation: higher-layer attention over lower-attention outputs
+       indexed by ontology axes
+```
+
+**비용**: 8-12 GPU-hr (F12/F13 infra 재사용). 4-outcome pre-reg: ≥+5pp / +2-5pp / noise / negative.
+
+### 6N. 3 추가 testable hypotheses
+
+#### H-Meta (Q2+Q5)
+- **Claim**: Ontology-axis meta-attention layer > same-capacity pure-LoRA baseline.
+- **Setup**: F12/F13 infra + meta-layer. Subtask4 N=200.
+- **Null**: Identity rotation + identity gate.
+- **비용**: 10-15 GPU-hr.
+
+#### H-MCTS (Q3)
+- **Claim**: Attention-subspace exploration bonus `α_explore * noise in B_ont⊥`가 multi-tool coverage 개선.
+- **Setup**: MetaTool Subtask4. α_explore ∈ {0, 0.05, 0.1, 0.2}.
+- **Null**: Noise in B_ont-aligned subspace.
+- **비용**: 4-6 GPU-hr.
+
+#### H-HOT (Q5)
+- **Claim**: Pure transformer depth는 "implicit meta-attention"을 이미 구현. 명시 meta-layer는 qualitatively different (ontology-typed routing, step-state aware)일 때만 lift.
+- **Setup**: 3 variant — (i) identical stacked (control), (ii) ontology-typed routing, (iii) step-state aware.
+- **Prediction**: (ii),(iii) ≥ (i)+2pp. 아니면 "depth만으로 충분".
+- **비용**: 12-18 GPU-hr.
+
+### 6O. 권고 실험 순서 (F11 falsified 반영, 2026-04-19 저녁)
+
+| Priority | Phase | 비용 | Decision |
+|:-:|---|---|---|
+| 1 | F12 FacetRot-QK | spec 완료 | ≥+3pp → F14 delay / <+3pp → F13 확인 |
+| 2 | F13 FunnelRot | F12 병렬/순차 | F13 null → H-Order 즉시 |
+| 3 | H-Order | 1-2 GPU-hr | Positive → H-Meta + F14 pilot |
+| 4 | H-Energy | 0 GPU-hr (postprocess) | 항상 run, F10/F12 artifacts 재사용 |
+| 5 | H-Trajectory | 4-6 GPU-hr | Separate follow-on paper |
+| 6 | F14 MetaFocus (3-cell pilot) | 8-12 GPU-hr | H-Order ≥+2pp 후 착수 |
+| 7 | H-MCTS / H-HOT | F14 후 ablation | §5.X 확장 |
+
+### 6P. 추가 경고 (v5.3)
+
+6. **"Meta-attention" 용어는 reviewer magnet**. MoE, Hypernetworks, Capsule, RETRO cross-attn, Perceiver, RMT, AoA (Cui 2017) 모두 인접 — "**ontology-conditioned attention rotation**" 또는 "**facet-routed attention**"으로 구체 naming.
+7. **AlphaGo RL → attention은 search-space 폭발** (L×H×T×T continuous). **B_ont subspace (dim ~24) 로 축소** 필수.
+8. **Reward Goodhart 리스크**: "ontology coverage" reward → token 남발 가능. H-Energy / trajectory-divergence intrinsic signal 병행.
+9. **HOT 인용 시 철학 논쟁 주의** (Dennett/Block 비판). "HOT-inspired" weakly 언급.
+10. **F14는 F12/F13 null 이후 착수** — MOFCISS 실패 선례 반복 금지. Preliminary spec만 문서화.
+
+---
+
 ### 2.5.1.3 종합 6-dim cross-tab (확장 19-method)
 
 | # | Method | Year/Venue | Multi-tool | Step-adapt | Train-free | Multi-facet | Semantic | Activation-level |
