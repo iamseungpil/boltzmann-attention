@@ -60,13 +60,30 @@ DEFAULT_OUT = REPO / "reports" / "boltzmann_energy" / "h_wells_qwen25_metatool_n
 # ---------------------------------------------------------------
 
 @torch.no_grad()
-def capture_last_token_k_single_layer(model, tok, text: str, layer: int,
-                                       n_kv: int, head_dim: int) -> torch.Tensor | None:
-    """Capture K at given layer, last token, averaged over n_kv heads → (head_dim,).
+def capture_k_pooled(model, tok, text: str, layer: int, n_kv: int, head_dim: int,
+                     pooling: str = "prompt_end", prepend_name: str | None = None,
+                     chat_template: bool = False) -> torch.Tensor | None:
+    """Capture K at given layer with specified pooling, averaged over n_kv heads → (head_dim,).
 
-    Uses k_norm hook (Qwen-style) if present, else k_proj.
+    pooling:
+      - "prompt_end": last token (v1 baseline)
+      - "mean_all":   mean over all token positions
+      - "first_name": first content token (no BOS for Qwen2.5)
+
+    prepend_name: if set, encode `f"{prepend_name}: {text}"` so first_name pooling
+      grabs the first token of the name. Used for tool catalog encoding.
+
+    chat_template: wrap text in Qwen chat template before encoding (for queries).
     """
-    enc = tok(text, return_tensors="pt", add_special_tokens=True)
+    if chat_template:
+        msgs = [{"role": "user", "content": text}]
+        text_to_encode = tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+    elif prepend_name is not None:
+        text_to_encode = f"{prepend_name}: {text}"
+    else:
+        text_to_encode = text
+
+    enc = tok(text_to_encode, return_tensors="pt", add_special_tokens=True)
     ids = enc["input_ids"].to(next(model.parameters()).device)
     cap: dict = {}
 
@@ -81,7 +98,7 @@ def capture_last_token_k_single_layer(model, tok, text: str, layer: int,
             out_view = out
         else:
             return
-        cap["k"] = out_view[0, -1, :, :].detach().float().cpu()  # (n_kv, head_dim)
+        cap["k"] = out_view[0].detach().float().cpu()  # (T, n_kv, head_dim)
 
     attn = model.model.layers[layer].self_attn
     module = attn.k_norm if hasattr(attn, "k_norm") else attn.k_proj
@@ -93,8 +110,17 @@ def capture_last_token_k_single_layer(model, tok, text: str, layer: int,
 
     if "k" not in cap:
         return None
-    # Average across n_kv heads → (head_dim,)
-    return cap["k"].mean(dim=0)
+
+    K_seq = cap["k"]  # (T, n_kv, head_dim)
+    if pooling == "prompt_end":
+        v = K_seq[-1]
+    elif pooling == "mean_all":
+        v = K_seq.mean(dim=0)
+    elif pooling == "first_name":
+        v = K_seq[0]
+    else:
+        raise ValueError(f"unknown pooling: {pooling}")
+    return v.mean(dim=0)  # (head_dim,)
 
 
 # ---------------------------------------------------------------
