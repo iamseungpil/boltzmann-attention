@@ -92,18 +92,21 @@ Each branch has an independent execution path, gate, status, and artifact dir un
 
 ---
 
-## §3. Execution priority queue (post-F11 falsification, 2026-04-19)
+## §3. Execution priority queue (post-F13 positive, 2026-04-19)
 
-| Order | Branch   | Rationale                                                     |
-|-------|----------|---------------------------------------------------------------|
-| 1     | F12      | Primary alt to F11. Complete HF hook + train + eval.          |
-| 2     | F13      | Strict superset of F12b. Run parallel or sequential.          |
-| 3     | H-Energy | Postprocess-only. Zero GPU cost. Run anytime.                 |
-| 4     | H-Order  | Cheap canary (1–2 hr). Run after F12/F13 unless either +3pp.  |
-| 5     | E1       | Piggyback on F12/F13 generation. Add CoT/ToT baselines.       |
-| 6     | H-Traj   | Only if H-Order positive.                                     |
-| 7     | F14      | Only if full gate (F12<+3 ∧ F13<+3 ∧ H-Ord≥+2).               |
-| 8+    | H-Meta / H-MCTS / H-HOT | F14 ablations. After F14 pilot.                |
+| Order | Branch              | GPU-hr | Rationale                                                                           |
+|-------|---------------------|--------|-------------------------------------------------------------------------------------|
+| 1     | F13d (no L28-skip)  | ~2     | **Highest reviewer-defense value**. Isolates whether L28-skip is load-bearing.      |
+| 2     | F13e (uniform R=4)  | ~2     | Disentangles schedule vs rank. If F13e ≈ F13b → ladapt non-load-bearing.            |
+| 3     | H-Energy            | 0      | Postprocess F13b tensors for 6A/6B Hopfield anchor. Free.                           |
+| 4     | E1 (CoT/ToT/SC)     | ~3     | Piggyback on F13b replication. §6 Discussion interface-parity baseline.             |
+| 5     | Llama-3.1-8B F13b   | ~12    | Cross-architecture replication. Critical reviewer-defense for ICLR.                 |
+| 6     | BFCL / StableTB     | ~4     | Cross-benchmark generalization for §5 / §6.                                         |
+| 7     | F13c (proj-only)    | ~2     | Confirm SO(2) rotation > linear projection.                                         |
+| 8     | F13f (R=16)         | ~2     | Rank sweet-spot. Low-priority unless F13e null.                                     |
+| 9     | H-Order             | 1–2    | Cheap Group 6 canary. Independent paper thread.                                     |
+| 10    | H-Trajectory        | 4–6    | Only if H-Order positive.                                                           |
+| —     | F14 / H-Meta / H-MCTS / H-HOT | — | **Dormant.** F13 ≥ +3pp closed gate. Do not execute.                                |
 
 ---
 
