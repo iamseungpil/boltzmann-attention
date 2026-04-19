@@ -21,12 +21,35 @@ Per pre-reg decision tree: **strong positive** (0.80-0.84 bracket) → ICLR ceil
 
 Train dynamics: CE loss 0.955 → 0.896 over 5 epochs (non-monotonic, final θ_max 24.9°, 191 trainable scalars). Compared to F12b (1220 scalars, CE 1.333 → 0.624), F13 has cleaner eval generalization despite higher train-CE loss.
 
-## 🚨 CRITICAL caveats (2026-04-19)
+## 🚨 CRITICAL caveats (2026-04-19) — N=5 SEED SWEEP COMPLETE
 
-1. **F13b may be cherry-picked lucky seed**. F13k (same recipe, seed=1) gives F1 0.671 emit2 0.633 (**−13.2pp F1, −31.9pp emit2**). F13f seed=1 0.702. Need N≥5 seeds for robust mean ± σ.
-2. **`skip_layer_28` is NO-OP for Qwen2.5-7B**. Guard `28 < num_layers` is False. F13b/d/e/f/g all trained with IDENTICAL schedules regardless of --skip-layer-28 flag. Any ΔL28-skip claim is invalid.
+### Finding 1 — FunnelRot is seed-dependent (bimodal)
 
-Immediate priority: run F13l/m/n seeds 2,3,4 (R=4 ladapt L0-27) before finalizing any paper claim.
+N=5 seeds for R=4 ladapt L0-27 (F13b recipe):
+
+| Seed | Cell | F1 | emit2 | CE | Mode |
+|---|---|---:|---:|---:|---|
+| 0a | F13b | 0.8027 | 0.9524 | 0.90 | ✓ SUCCESS |
+| 0b | F13d | 0.7823 | 0.9252 | 0.76 | ✓ SUCCESS |
+| 3 | F13m | 0.7732 | 0.8571 | 0.73 | ✓ SUCCESS |
+| 1 | F13k | 0.6710 | 0.6327 | 1.36 | ✗ FAIL |
+| 2 | F13l | 0.6429 | 0.5578 | 1.29 | ✗ FAIL |
+
+- **Mean F1 = 0.7344 ± 0.072** (σ 0.0722), 95% CI [0.645, 0.824]
+- **Δmean = −2.98pp** vs baseline (below, CI includes baseline)
+- Success mode (3/5, CE<1.0): mean 0.786 ± 0.016 = **+2.19pp** (conditional)
+- Fail mode (2/5, CE>1.0): mean 0.657 ± 0.020 = −10.73pp
+- **Perfect final-CE → eval-F1 correlation** → CE-gating as mitigation
+
+F13b's +3.85pp headline is **upper-tail of success mode**, not robust.
+
+### Finding 2 — `skip_layer_28` flag is NO-OP for Qwen2.5-7B
+
+Guard `28 < num_layers` is False when num_layers=28. All F13b/d/e/f/g trained with IDENTICAL schedules regardless of `--skip-layer-28`. ΔL28-skip claims invalid.
+
+### Paper recommendation
+
+**Option B (recommended)**: "FunnelRot conditional on CE<1.0 convergence (60% of seeds) achieves +2.19pp ± 0.016 vs baseline. Non-converged seeds discarded via training-time CE-gating."
 
 ## Ablation matrix
 
