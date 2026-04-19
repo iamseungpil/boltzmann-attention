@@ -108,9 +108,12 @@ def main() -> None:
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--out-dir", default="external/SEKA/seka_projections")
     ap.add_argument("--tag", default="f11-qwen25-7b-metatool-dictionary")
+    ap.add_argument("--source", choices=["plugin_des", "plugin_info"],
+                    default="plugin_des",
+                    help="plugin_des covers 100%% of both Subtask1/4 candidates")
     args = ap.parse_args()
 
-    plugin_names, plugins = _build_plugin_index()
+    plugin_names, plugins = _build_plugin_index(args.source)
     print(f"[plugins] {len(plugin_names)} with non-empty descriptions")
     verb_map = {n: plugins[n]["verb"] for n in plugin_names}
     domain_map = {n: plugins[n]["domain"] for n in plugin_names}
