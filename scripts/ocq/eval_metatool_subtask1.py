@@ -1510,6 +1510,22 @@ def run_method(
             skip_heads=effective_skip,
             skip_sink=effective_sink,
         )
+    elif kind == "f10_facet":
+        if args.facet_split is None:
+            raise ValueError(
+                "f10_facet method requires --facet-split <json> (e.g. "
+                "'{\"V\":[0,12],\"D\":[12,24]}'), or load a B_ont built by "
+                "build_f10_stacked_bont.py which embeds the metadata."
+            )
+        ctx = install_f10_facet_gated_hooks(
+            model, B_ont, alpha=params["alpha"],
+            facet_split=args.facet_split,
+            n_kv=n_kv, head_dim=head_dim,
+            temperature=params["temperature"],
+            hard_gate=params["hard_gate"],
+            skip_heads=effective_skip,
+            skip_sink=effective_sink,
+        )
     elif kind == "qbias":
         n_q = model.config.num_attention_heads
         ctx = install_q_bias_hooks(
