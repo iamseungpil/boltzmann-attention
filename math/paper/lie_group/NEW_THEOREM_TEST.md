@@ -214,8 +214,10 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 #### 3순위 위협: SEKA + AdaSEKA (ICLR 2026)
 **왜 위협**: K-side spectral steering 의 직접 family. AdaSEKA 가 query-adaptive routing 도 함.
 
-**차별 wording**:
-> "SEKA and AdaSEKA use contrastive cross-covariance SVD to derive K-side projection directions (trained on GPT-4o synthetic positive/negative prompt pairs). Our basis is derived from positive-only ontology anchor sentences — no contrastive pair construction. AdaSEKA's query-adaptive routing selects one expert per query (single-direction per inference); MOFCISS allows multi-axis active simultaneously via OMP top-k sparse coding and per-step facet decay. SEKA is stationary; MOFCISS is step-adaptive."
+**차별 wording (v5.2 corrected 2026-04-19 late evening after full-text audit)**:
+> "SEKA and AdaSEKA use contrastive cross-covariance SVD to derive K-side projection directions (trained on GPT-4o synthetic positive/negative prompt pairs, ~100 samples per task). Our basis is derived from positive-only ontology anchor sentences — no contrastive pair construction. AdaSEKA's query-adaptive routing produces a **weighted blend of multiple trained expert subspaces** per query via coefficients $\alpha_m(q) \propto \sum_k (q^\top u^{(k)}_m) \sigma^{(k)}_m$, i.e. $P_{\text{dyn}}(q) = \sum_m \alpha_m(q) U^m (U^m)^\top$. MOFCISS differs on three distinct axes: (i) anchors are positive-only ontology labels with no contrastive pair construction, (ii) **step-adaptive** via per-step facet decay over multi-tool emission history (AdaSEKA is stationary within a forward pass), (iii) **sparse OMP top-k** activation rather than AdaSEKA's dense weighted blend. (The multi-axis-simultaneous property itself is shared with AdaSEKA — novelty claim reduced to sparsity + step-state + positive-only anchors.)"
+
+**v5.2 audit note**: earlier v5.1 draft claimed AdaSEKA "selects one expert per query (single-direction per inference)". Full-text read of SEKA paper (arxiv 2603.01281v1) confirms this is incorrect — AdaSEKA's $P_{\text{dyn}}(q)$ is a weighted blend of ALL experts, not a selector. Reviewers will catch the single-pick mischaracterization. Corrected wording above.
 
 #### 4순위 위협: OntoLLM (ScienceDirect 2026)
 **왜 위협**: ontology + LLM at inference time naming overlap. 단 prompt-level 이라 mechanism layer 다름.
