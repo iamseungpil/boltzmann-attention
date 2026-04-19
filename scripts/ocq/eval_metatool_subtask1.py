@@ -1259,6 +1259,21 @@ def parse_method(method: str) -> Tuple[str, Dict]:
     if tag.startswith("ocq_facet_gated_a"):
         alpha = float(tag[len("ocq_facet_gated_a"):])
         return "facet_gated", {"alpha": alpha, "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+    # F10 query-conditional facet gating: f10_facet_a<α>_T<temp>[_hard]
+    # Requires B_ont built by build_f10_stacked_bont.py (with facet_split metadata).
+    if tag.startswith("f10_facet_a"):
+        rest = tag[len("f10_facet_a"):]
+        hard = rest.endswith("_hard")
+        if hard:
+            rest = rest[:-len("_hard")]
+        if "_T" in rest:
+            a_str, t_str = rest.split("_T", 1)
+            return "f10_facet", {"alpha": float(a_str), "temperature": float(t_str),
+                                 "hard_gate": hard,
+                                 "use_skip": use_skip, "use_sinkskip": use_sinkskip}
+        return "f10_facet", {"alpha": float(rest), "temperature": 1.0,
+                             "hard_gate": hard,
+                             "use_skip": use_skip, "use_sinkskip": use_sinkskip}
     # Normalized K-bias (Thm 6.9.5): ocq_normbias_a<α>
     if tag.startswith("ocq_normbias_a"):
         alpha = float(tag[len("ocq_normbias_a"):])
