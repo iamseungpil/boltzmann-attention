@@ -53,58 +53,48 @@ $\pi_{\mathcal{G}} = \sum_{t\in\mathcal{G}} p_0(t)$와 $\bar r_{\mathcal{G}} = \
 
 요약하면, 정리~\ref{thm:beta-star}는 regime 해석 도구로는 표~\ref{tab:sign-routing}에서 네 도메인 중 Airline을 제외한 세 도메인의 부호 방향과 정성적으로 일치하지만, 스키마-$\mathcal{G}$를 통한 직접 측정은 $\tau^2$ Telecom(31.2\%, locked)에서 실패하고 Retail에서도 경계이다. 본 논문은 이 한계를 투명하게 기록하고, 실용적 부호 예측기 주장은 logit-lens 변형의 검증 이후로 미룬다.
 
-\section{Signed Q 진단의 G-robustness와 fallback 규칙}\label{app:asr-fallback}\label{app:G-robustness}
+\section{MetaTool ST4 보조 지표}\label{app:multi-metric-st4}
 
-알고리즘~\ref{alg:asr}은 proxy ground-truth 집합 $\mathcal{G}$ 정의에 의존한다. $\mathcal{G}$를 세 가지 대안으로 정의해 robustness를 측정한다: (i) 도구 이름 단일 토큰, (ii) 도구 이름 전체 토큰 스팬의 평균, (iii) 정답 액션 스트링 전체. 세 정의 모두에서 표~\ref{tab:sign-routing}의 방향 진단이 4개 도메인 중 3개(Airline 제외)에서 유지되면 $\mathcal{G}$ 정의에 대한 민감도가 낮다는 의미다. Airline 경계 사례에서는 $|\bar r_{\mathcal{G}} - \bar r| < \theta$ ($\theta = 0.05$로 설정)일 때 부호를 강제 해석하지 않고 레이어 적응형 K+Q로 fallback하는 규칙을 둔다.
-
-\section{Phase 2.5 레이어 경계 sweep (보조 ablation)}\label{app:layer-sweep}
-
-레이어 적응형의 $\tau=1/4$ 선택을 시험하는 coworker 운영 ablation. 6개 경계 configuration × 2개 $\beta$ × 2개 벤치마크. LS-1$\sim$LS-4는 $\tau$ Pareto frontier, LS-5 (K+Q 겹침)와 LS-6 (Q 후반만)는 competing hypothesis 구별.
+MetaTool ST4에서는 F1 외에도 Exact가 같은 방향으로 움직인다. 본문에서 쓰는 baseline과 stronger 변형을 같은 evaluator에서 비교하면 baseline Exact은 $0.5252$이고, stronger Q-only 변형은 $0.5332$, early-K를 포함한 layer-adaptive 변형은 $0.5473$이다. 즉 ST4에서도 이득은 ``정답 도구 집합을 정확히 맞히는가''라는 더 엄격한 지표와 함께 증가한다.
 
 \begin{table}[h]
 \centering
-\caption{Phase 2.5 layer boundary sweep (실행 대기).}
-\label{tab:layer-sweep-placeholder}
+\caption{MetaTool ST4 보조 지표. stronger Q-only와 early-K layer-adaptive 모두 Exact을 함께 끌어올린다.}
+\label{tab:st4-aux}
 \small
-\begin{tabularx}{\linewidth}{@{}lXrr@{}}
+\begin{tabularx}{0.78\linewidth}{@{}Xcc@{}}
 \toprule
-ID & 구성 & $\Delta$F1 (Subtask4) & $\Delta$F1 ($\tau^2$-retail) \\
+방법 & F1 & Exact \\
 \midrule
-LS-1 & K $\ell<L/7$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
-LS-2 & K $\ell<L/4$, Q 나머지 (현 baseline) & \textbf{+2.08} & \textbf{+1.50} \\
-LS-3 & K $\ell<L/3$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
-LS-4 & K $\ell<L/2$, Q 나머지 & \emph{placeholder} & \emph{placeholder} \\
-LS-5 & K $\ell<L/4$, Q 전 레이어 & \emph{placeholder} & \emph{placeholder} \\
-LS-6 & K $\ell<L/4$, Q $\ell>3L/4$ & \emph{placeholder} & \emph{placeholder} \\
+\texttt{no\_steer} & 0.7307 & 0.5252 \\
+Q-only (stronger, $\beta=-0.03$) & 0.7535 & 0.5332 \\
+레이어 적응형 (early-K variant) & 0.7514 & 0.5473 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{SEKA 재현, 매니페스트, 코드}\label{app:seka-repro}\label{app:manifest}
+\section{Signed Q 진단의 G-robustness}\label{app:asr-fallback}\label{app:G-robustness}
 
-외부 SEKA 행은 canonical CounterFact efficacy score ($\mathrm{ES}=0.952\pm 0.02$)를 재현한 구현에만 채워질 자격을 얻는다. A6000 환경에서 재현 실패(ES=0.374)이므로 A100 재현이 SEKA 비교 gate다. 모든 수치는 \texttt{MANIFEST.md}에 (표 번호, JSON 경로, 스크립트) 삼중쌍으로 기록된다. 개입 구현: \texttt{scripts/ocq/eval\_metatool\_subtask1.py}의 \texttt{install\_kbias\_hooks}, \texttt{install\_q\_bias\_hooks}, \texttt{install\_layer\_adaptive\_hooks}. 구동: \texttt{eval\_metatool\_subtask4.py}, \texttt{eval\_tau2\_bench.py}, \texttt{eval\_subtask4\_with\_real\_seka.py}. PCA 기저 builder: \texttt{scripts/ocq/build\_pca\_baseline\_basis.py}.
+알고리즘~\ref{alg:asr}은 proxy ground-truth 집합 $\mathcal{G}$ 정의에 의존한다. $\mathcal{G}$를 세 가지 대안으로 정의해 robustness를 측정한다: (i) 도구 이름 단일 토큰, (ii) 도구 이름 전체 토큰 스팬의 평균, (iii) 정답 액션 스트링 전체. 세 정의 모두에서 표~\ref{tab:sign-routing}의 방향 진단이 4개 도메인 중 3개(Airline 제외)에서 유지되면 $\mathcal{G}$ 정의에 대한 민감도가 낮다고 볼 수 있다. Airline처럼 경계적인 사례는 현재 데이터만으로 부호를 강하게 해석하기보다, 본문이 채택한 layer-adaptive 기본해와 함께 읽는 것이 더 안전하다.
 
-\section{Qwen 크기 스윕과 U-shape 전제}\label{app:size-ushape}
+\section{추가 검증 축}\label{app:planned-validation}\label{app:additional-validation}
 
-정리 1-3이 크기 무관이므로 Qwen2.5-Instruct 1.5B/3B/14B 스윕은 부호 보존을 확인한다(표~\ref{tab:e5-sizesweep}, 7B 행 locked, 나머지 실행 대기). 명제~\ref{prop:ladapt-intuition}의 전제 E1(U자형 per-layer MSE)은 \texttt{reports/layer\_adaptive\_2026\_04\_17/}에서 Qwen2.5-7B($L=28$)에 대해 확인되었다.
+본 절은 본문 서사를 뒤집기보다 \emph{더 좁게 검증}하기 위해 남겨 둔 추가 축을 정리한다. 핵심은 세 가지다. 첫째, stationary K-family에 대한 protocol-matched head-to-head가 있어야 related-work 반론을 직접 닫을 수 있다. 둘째, Llama telecom의 positive-$\beta$ 붕괴를 failure type으로 분해하면 cross-model 논의가 더 선명해진다. 셋째, PCA-of-K 비교가 있어야 ``아무 저랭크 기저''가 아니라 ontology-aligned basis가 중요한지 더 정확히 말할 수 있다.
 
 \begin{table}[h]
 \centering
-\caption{Qwen 크기 스윕 (보조 ablation).}
-\label{tab:e5-sizesweep}
-\small
-\begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
+\caption{추가 검증 축과 현재 anchor. 본문 해석을 유지한 채 더 직접적인 반론을 닫기 위한 항목만 남겼다.}
+\label{tab:planned-validation}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}lXlX@{}}
 \toprule
-크기 & \texttt{no\_steer} & SEKA amp=1.0 & Q-회전 $\beta=-0.03$ & 레이어 적응형 \\
+ID & 질문 & 설정 & 현재 anchor \\
 \midrule
-1.5B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
-3B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
-7B & \textbf{0.7307} & \emph{placeholder} & \textbf{0.7535} & \textbf{0.7514} \\
-14B & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} & \emph{placeholder} \\
+V1 & SEKA/AdaSEKA를 동일 evaluator에서 공정 비교해 stationary K-family 반론을 직접 닫을 수 있는가 & Qwen2.5-7B, MetaTool ST4 / $\tau^2$ retail / $\tau^2$ telecom & 현재 stationary K는 각각 $-4.57$pp, $+0.58$pp, $+11.79$pp로 충분히 약하다. 다만 이 수치만으로 SEKA-family 전체를 대표한다고 말하기에는 부족하다. \\
+V2 & ontology basis가 ``아무 저랭크 기저''보다 실제로 더 적합한가 & Qwen2.5-7B, PCA-of-K vs ontology, MetaTool ST4 / retail & shuffled/random control은 이미 열세이며, 남은 질문은 PCA가 ontology와 얼마나 가까운지다. \\
+V3 & positive-$\beta$ Llama telecom 붕괴는 semantic error보다 format failure에 가까운가 & Llama-3.1-8B, $\tau^2$ telecom, $\beta\in\{+0.03,+0.05,+0.10\}$ verbose audit & empty 출력은 각각 145/200, 200/200, 55/200으로 이미 크다. 필요한 것은 raw generation 수준의 failure taxonomy다. \\
+V4 & $L/4$ 경계는 우연한 하이퍼파라미터가 아니라 역할 분리의 최소 구현인가 & Qwen2.5-7B, layer-boundary sweep, ST4 / retail & 현재 본문은 early-K baseline 하나만 락되어 있으므로, 경계 선택의 민감도는 별도 표로 분리하는 편이 맞다. \\
+V5 & 7B 결과가 model-size artifact가 아닌가 & Qwen2.5 1.5B / 3B / 14B, ST4 + telecom 핵심 셀 & 지금의 main claim은 7B와 Llama telecom 재현으로도 서지만, 추가 size sweep이 reviewer comfort를 높일 수 있다. \\
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\begin{proposition}[레이어 적응형 역할 분리, 조건부]\label{prop:ladapt-intuition}
-transformer 표현이 초기(토큰 인코딩), 중간(안정화), 후기(출력 수렴)의 세 단계로 진화한다는 전제 E1 아래에서, 정지 K는 후기 수렴을 교란하지만 초기 $\lfloor \tau L\rfloor$ 층에 국한된 K는 도구 방향을 각인한다.
-\end{proposition}

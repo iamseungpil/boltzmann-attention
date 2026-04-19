@@ -293,6 +293,9 @@ def parse_args() -> argparse.Namespace:
                    help="Root dir for resolving relative expert_paths.json entries")
     p.add_argument("--out", type=str, default="")
     p.add_argument("--verbose", action="store_true")
+    p.add_argument("--save-generations", action="store_true",
+                   help="Save raw generation (truncated to 1000 chars) for EVERY sample; "
+                        "--verbose alone only saves the first 3. Used by failure-classification audits.")
     return p.parse_args()
 
 
@@ -808,7 +811,9 @@ def run_method(
                 "metrics": metrics,
             })
 
-            if args.verbose and i < 3:
+            if getattr(args, "save_generations", False):
+                per_sample[-1]["generation"] = generation[:1000]
+            elif args.verbose and i < 3:
                 per_sample[-1]["generation"] = generation[:500]
 
             if (i + 1) % 10 == 0 or i == len(tasks) - 1:

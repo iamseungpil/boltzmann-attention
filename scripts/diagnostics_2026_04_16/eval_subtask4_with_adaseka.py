@@ -18,7 +18,7 @@ from typing import List, Dict
 
 import torch
 
-REPO = Path(__file__).resolve().parents[0] if "scripts" in str(Path(__file__)) else Path("/home/woori/workspace_common/boltzmann-attention")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "scripts" / "ocq"))
 sys.path.insert(0, str(REPO / "external" / "SEKA"))

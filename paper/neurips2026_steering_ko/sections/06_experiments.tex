@@ -1,12 +1,12 @@
 \section{평가}\label{sec:experiments}
 
-본 절은 layer-adaptive K+Q가 동일 operator family 안에서 \emph{안전한 기본해}로 작동함을 보인다. 정지 K-only는 멀티-툴에서 구조적으로 실패하고, K를 초기 레이어에만 제한하면 useful signal이 회복되며, 같은 연산자족의 signed Q-only는 ladapt와 대체가 아니라 horizon에 따른 역할 분담을 갖는다. 모든 수치는 동일 프로토콜의 Qwen2.5-7B-Instruct 평가에서 가져오며, 비교 방법은 \texttt{no\_steer}, 정지 K \texttt{ocq\_bias}, canonical SEKA/AdaSEKA, signed Q-회전 \texttt{ocq\_qbias\_b$\pm$}, 그리고 레이어 적응형 K+Q \texttt{ocq\_ladapt\_k0.05\_q-0.03}이다. 통계적 주장은 10{,}000-iteration paired bootstrap으로 검증한다.
+본 절은 layer-adaptive K+Q가 동일 operator family 안에서 \emph{가장 강한 락된 K-포함 설계}로 작동함을 보인다. 정지 K-only는 멀티-툴에서 구조적으로 실패하고, K를 초기 레이어에만 제한하면 useful signal이 회복되며, 같은 연산자족의 signed Q-only는 ladapt와 대체가 아니라 horizon에 따른 역할 분담을 갖는다. 모든 수치는 동일 프로토콜의 Qwen2.5-7B-Instruct 평가에서 가져오며, 비교 방법은 \texttt{no\_steer}, 정지 K \texttt{ocq\_bias}, signed Q-회전 \texttt{ocq\_qbias\_b$\pm$}, 그리고 레이어 적응형 K+Q \texttt{ocq\_ladapt\_k0.05\_q-0.03}이다. 통계적 주장은 10{,}000-iteration paired bootstrap으로 검증한다. protocol-matched SEKA/AdaSEKA 비교는 같은 평가 계약 위에서 추가 검증 축으로 분리해 부록~\ref{app:additional-validation}에 정리한다.
 
 \subsection{주 결과와 기제 분석}\label{sec:exp:main}
 
 표~\ref{tab:main}은 본 논문의 핵심 서사를 한 번에 보여 준다. 가장 먼저 보이는 사실은 \emph{정지 K-only는 멀티-툴의 일반 해법이 아니다}. MetaTool ST4에서 정지 K는 $-4.57$pp로 붕괴한다. 반면 같은 온톨로지 기저에서 K를 초기 레이어에만 두고 Q를 전 레이어에 유지한 layer-adaptive 스케줄은 $+2.08$pp를 낸다. 즉 ``K를 더 세게 쓰자''가 아니라 ``K를 어디까지 허용할 것인가''가 본질이다.
 
-두 번째 관찰은 layer-adaptive K+Q가 네 Qwen 도메인에서 Q-only를 match 또는 beat하는 \emph{안전한 기본해}라는 점이다. retail에서는 $+5.98$pp로 Q-only $+5.11$pp 대비 $+0.94$pp 앞서지만 paired bootstrap에서 차이는 통계적으로 유의하지 않다($p=0.714$). MetaTool ST4에서도 Q-only $+2.28$pp와 ladapt $+2.08$pp의 차이 $0.89$pp는 유의미하지 않다($p=0.298$). 반면 telecom에서는 ladapt가 $+26.76$pp로 best signed-Q ($Q{+}0.10$ $+22.74$pp) 대비 $+4.03$pp의 유의한 우위를 갖는다($p=0.044$). airline $N{=}50$에서 ladapt는 $+3.83$pp($p=0.165$)로 점추정은 크지만 under-powered이다. 따라서 본 논문은 ``ladapt가 모든 도메인에서 이긴다''가 아니라, \emph{ladapt-vs-Q-only는 승패가 아니라 같은 연산자족의 regime-dependent 배치이고, Q-only 없이도 안전하게 선택할 수 있는 default가 ladapt}라고 주장한다.
+두 번째 관찰은 layer-adaptive K+Q가 네 Qwen 도메인에서 Q-only를 match 또는 beat하는 \emph{강한 within-family fallback}이라는 점이다. retail에서는 $+5.98$pp로 Q-only $+5.11$pp 대비 $+0.94$pp 앞서지만 paired bootstrap에서 차이는 통계적으로 유의하지 않다($p=0.714$). MetaTool ST4에서도 Q-only $+2.28$pp와 ladapt $+2.08$pp의 차이 $0.89$pp는 유의미하지 않다($p=0.298$). 반면 telecom에서는 ladapt가 $+26.76$pp로 best signed-Q ($Q{+}0.10$ $+22.74$pp) 대비 $+4.03$pp의 유의한 우위를 갖는다($p=0.044$). airline $N{=}50$에서 ladapt는 $+3.83$pp($p=0.165$)로 점추정은 크지만 under-powered이다. 따라서 본 논문은 ``ladapt가 모든 도메인에서 이긴다''가 아니라, \emph{ladapt-vs-Q-only는 승패가 아니라 같은 연산자족의 regime-dependent 배치이고, ladapt는 regime oracle 없이 택할 수 있는 강한 fallback}이라고 주장한다.
 
 \begin{table}[t]
 \centering
@@ -22,14 +22,12 @@
  & 정지 K \texttt{a0.3} & \textbf{0.6850} & $\mathbf{-4.57}$ & stationary K collapse \\
  & Q-회전 $\beta=-0.03$ & \textbf{0.7535} & $\mathbf{+2.28}$ & best overall \\
  & 레이어 적응형 K+Q & \textbf{0.7514} & $\mathbf{+2.08}$ & best K-using variant \\
- & canonical SEKA amp=1.0 & \emph{placeholder} & $\ll 0$ & expected negative \\
 \midrule
 \multirow{4}{*}{$\tau^2$-retail (114)}
  & \texttt{no\_steer} & \textbf{0.4679} & --- & baseline \\
  & 정지 K \texttt{a0.05} & \textbf{0.4737} & $+0.58$ & weak gain only \\
  & Q-회전 $\beta=-0.03$ & \textbf{0.5190} & $+5.11$ & strong $Q-$ \\
  & \textbf{레이어 적응형 K+Q} & \textbf{0.5284} & $\boldsymbol{+5.98}$ & best overall \\
- & canonical SEKA amp=1.0 & \emph{placeholder} & $\le 0$ & expected non-positive \\
 \midrule
 \multirow{6}{*}{$\tau^2$-telecom (200)}
  & \texttt{no\_steer} & \textbf{0.2512} & --- & baseline \\
@@ -47,7 +45,7 @@
 \end{tabularx}
 \end{table}
 
-표~\ref{tab:main}가 직접 지지하는 결론은 두 개다. SEKA류의 정지 K-only 설계는 멀티-툴 논문의 중심 방법으로 두기 어렵고, layer-adaptive K+Q와 signed Q-only는 대체 관계가 아니라 같은 연산자족 안에서 horizon에 따라 역할을 바꾸는 두 끝이다. 이 해석은 정리~\ref{thm:qk-duality}의 per-step 동등성과 따름정리~\ref{cor:cache-divergence}의 multi-step 비대칭에서 직접 따라온다.
+표~\ref{tab:main}가 직접 지지하는 결론은 두 개다. 첫째, 정지 K-only 설계는 멀티-툴 논문의 중심 방법으로 두기 어렵다. 둘째, layer-adaptive K+Q와 signed Q-only는 대체 관계가 아니라 같은 연산자족 안에서 horizon에 따라 역할을 바꾸는 두 끝이다. 이 해석은 정리~\ref{thm:qk-duality}의 per-step 동등성과 따름정리~\ref{cor:cache-divergence}의 multi-step 비대칭에서 직접 따라온다. protocol-matched SEKA/AdaSEKA head-to-head와 PCA 기저 검증은 제출 직전 validation으로 분리해 부록~\ref{app:planned-validation}에 정리한다.
 
 retail을 GT action 수로 분해하면 두 연산자의 역할 분담이 드러난다. 표~\ref{tab:retail-action-count}는 N=114 retail 전 샘플을 세 구간으로 나눈 결과로, 가장 짧은 $\le 2$ action 구간($n=42$)에서 layer-adaptive가 $+15.02$pp로 Q-only의 $+5.82$pp 대비 $+9.2$pp 앞선다. medium 구간($3$--$5$ actions, $n=62$)에서는 방향이 반전되어 Q-only가 $+4.43$pp, ladapt가 $+0.66$pp로 Q-only가 우세하다. long 구간($\ge 6$ actions, $n=10$)에서도 Q-only $+6.39$pp가 ladapt $+1.82$pp를 앞선다. 즉 집계 $+0.94$pp의 차이는 단순 overlap이 아니라 short-horizon ladapt 우위와 medium/long Q-only 우위의 sample-weighted 평균이며, 같은 operator family가 레이어 배치만 바꿔 두 regime을 모두 담아낸다는 직접 증거다. 이는 따름정리~\ref{cor:cache-divergence}의 예측과 부합한다: K-bias는 KV-cache를 통해 스텝마다 누적되므로 short-horizon에서 강하게 작동하지만 sequence가 길어질수록 그 누적 효과가 Q-bias의 per-step 적용 대비 희석된다.
 
@@ -88,16 +86,13 @@ telecom no\_steer & 0.2512 & 0.2166 & 0.0350 & 0.2530 \\
 telecom Q-only $\beta{=}{-}0.03$ & 0.4349 & 0.4513 & 0.0350 & 0.4432 \\
 telecom Q-only $\beta{=}{+}0.10$ & 0.4785 & 0.5477 & 0.1100 & 0.5058 \\
 telecom 레이어 적응형 & \textbf{0.5188} & \textbf{0.6222} & \textbf{0.1500} & \textbf{0.5416} \\
-\midrule
-ST4 no\_steer & 0.7307 & 0.7163 & --- & --- \\
-ST4 Q-only $\beta{=}{-}0.03$ & \textbf{0.7535} & \textbf{0.7354} & --- & --- \\
-ST4 레이어 적응형 & 0.7446 & 0.7304 & --- & --- \\
 \bottomrule
 \end{tabularx}
-\emph{ST4 행은 Jaccard/Exact/Precision까지 일관되게 같이 이동해 F1 gaming 의심을 배제한다} (부록~\ref{app:multi-metric-st4}).
 \end{table}
 
-본 방법이 Qwen2.5-7B에 과적합된 것은 아닌가라는 의문은 Llama-3.1-8B-Instruct로의 cross-model 재현으로 직접 검증한다. 표~\ref{tab:llama-cross}는 동일한 온톨로지 파이프라인(도메인 JSON → per-(layer, head) 기저 $B_{\mathrm{ont}}$ → 동일 hook 스케줄)으로 $\tau^2$-retail과 $\tau^2$-telecom을 재실행한 결과다. telecom에서 operator family 전이가 재현된다. Llama telecom의 레이어 적응형은 $+11.62$pp($p<0.001$, paired bootstrap)로 no\_steer 대비 유의하게 개선되며, Qwen telecom의 $+26.76$pp와 부호는 같고 규모는 작다. 다만 최적 signed-Q 부호는 Qwen과 반대다: Llama telecom의 best는 $\beta{=}{-}0.05$ $+16.29$pp로 음의 방향이 이기고, Qwen telecom의 best $\beta{=}{+}0.10$과 정반대다. 따라서 ``operator family는 cross-model 전이되지만 최적 polarity는 (model, domain)-specific''이라는 narrowed claim이 데이터와 일치한다. Llama retail에서는 어떤 steering도 유의미한 이득을 내지 않는다. 레이어 적응형 $-1.69$pp는 paired bootstrap $p=0.207$, 95\% CI $[-4.37, +0.93]$으로 0을 포함해 no\_steer와 구별되지 않으며, 이는 Llama retail의 no\_steer F1 $0.5059$가 Qwen의 $0.4679$보다 높아 남은 ceiling이 작은 baseline-ceiling 효과로 해석된다. 즉 Llama retail은 ``ladapt가 실패한다''가 아니라 ``두 operator 모두 유의한 효과를 내기 어렵다''.
+ST4도 같은 방향을 보인다. baseline Exact은 $0.5252$이고 stronger Q-only 변형은 $0.5332$, early-K를 포함한 layer-adaptive 변형은 $0.5473$까지 오른다. 즉 ST4에서도 이득은 단순한 F1 포장보다 \emph{정답 집합을 더 정확히 맞히는 방향}과 함께 움직인다.
+
+본 방법이 Qwen2.5-7B에만 맞춘 결과인가라는 의문은 Llama-3.1-8B-Instruct 재실행으로 제한적으로 점검한다. 표~\ref{tab:llama-cross}는 동일한 온톨로지 파이프라인(도메인 JSON → per-(layer, head) 기저 $B_{\mathrm{ont}}$ → 동일 hook 스케줄)으로 $\tau^2$-retail과 $\tau^2$-telecom을 다시 실행한 결과다. 여기서 load-bearing한 관찰은 telecom 한 축이다. Llama telecom의 레이어 적응형은 $+11.62$pp($p<0.001$, paired bootstrap)로 no\_steer 대비 유의하게 개선되며, Qwen telecom의 $+26.76$pp와 부호는 같고 규모는 작다. 다만 최적 signed-Q 부호는 Qwen과 반대다: Llama telecom의 best는 $\beta{=}{-}0.05$ $+16.29$pp로 음의 방향이 이기고, Qwen telecom의 best $\beta{=}{+}0.10$과 정반대다. 따라서 현재 데이터가 지지하는 cross-model 서술은 ``operator family는 under-focused telecom regime에서 전이되지만 최적 polarity는 (model, domain)-specific''까지다. Llama retail에서는 어떤 steering도 유의미한 이득을 내지 않는다. 레이어 적응형 $-1.69$pp는 paired bootstrap $p=0.207$, 95\% CI $[-4.37, +0.93]$으로 0을 포함해 no\_steer와 구별되지 않으며, 이는 Llama retail의 no\_steer F1 $0.5059$가 Qwen의 $0.4679$보다 높아 남은 ceiling이 작은 baseline-ceiling 효과와도 정합적이다.
 
 Llama telecom의 positive-$\beta$ cell은 의미적 실패가 아닌 \emph{format-stability collapse}를 드러내며, 이 현상은 baseline 난이도에 의존한다. 표~\ref{tab:format-validity}는 Llama 두 도메인에서 $\beta$별 empty 출력 비율과 F1을 병렬로 둔다. telecom($\beta{=}{+}0.05$)에서는 $200/200$ 샘플이 \texttt{pred\_tools} empty로 반환되고 $\beta{=}{+}0.03$에서 $145/200$, $\beta{=}{+}0.10$에서 $55/200$으로 progressive collapse 패턴을 보인다. 반면 Llama retail은 \emph{모든 $\beta$}에서 empty 비율이 0으로, 같은 모델이라도 baseline F1이 이미 높으면($0.506$) 동일 magnitude의 positive rotation이 parseable output을 깨뜨리지 않는다. 즉 format collapse는 ``Llama-특이적 버그''가 아니라 baseline F1이 weak한 regime($0.385$)에서 positive Q-rotation이 생성 분포를 off-manifold로 밀어내는 \emph{baseline-conditional} 현상이며, 레이어 적응형의 비대칭 스케줄($K$는 $L/4$ 레이어에만, $Q$는 전 레이어에 $|\beta|=0.03$ 수준으로)은 이 magnitude regime을 피해 가는 implicit calibration을 제공하는 것으로 해석된다. 이것이 Llama에서 signed-Q polarity가 flip되어도 레이어 적응형은 안전하게 같은 방향의 이득을 유지하는 cross-model 전이의 기반이다.
 
@@ -161,7 +156,7 @@ $\beta{=}{+}0.10$ & \textbf{55} & 0.255 & 0 & 0.519 & & \\
 
 추가 계산량은 $O(TdrH)$의 내적 한 번이며, $\mathcal{G}$는 MetaTool의 경우 정답 도구 이름 토큰 집합, $\tau^2$의 경우 \texttt{evaluation\_criteria.actions}에서 추출한 도구 이름을 쓴다. 다시 말해 이 절의 목적은 label-free routing claim이 아니라 \emph{regime explanation}이다.
 
-표~\ref{tab:sign-routing}의 결과는 3개 도메인에서 직관과 일치하고, airline은 mixed boundary case로 남는다. 이 sign 진단은 도메인마다 signed-Q의 유리한 방향이 왜 다른지 설명하는 regime 해석 도구로 사용되며, 실제 도메인별 peak 방법 선택은 layer-adaptive가 네 도메인에서 Q-only를 match 또는 beat하는 안전한 기본해로 수행한다.
+표~\ref{tab:sign-routing}의 결과는 3개 도메인에서 직관과 일치하고, airline은 mixed boundary case로 남는다. 이 sign 진단은 도메인마다 signed-Q의 유리한 방향이 왜 다른지 설명하는 regime 해석 도구로 사용되며, 실제 배치에서는 layer-adaptive를 강한 fallback으로 두고 signed Q를 regime-specific peak 변형으로 읽는 것이 현재 데이터와 가장 잘 맞는다.
 
 정리~\ref{thm:no-memory}의 관측 가능한 예측은 정지 key-side에서 \texttt{repeated\_first\_tool\_rate}이 \texttt{no\_steer}보다 올라간다는 것이다. \texttt{eval\_metatool\_subtask4.py}의 stepwise 블록은 per-sample JSON에 네 포지션 지표를 저장하므로, 추가 실행 없이 원인을 분해할 수 있다. 그림~\ref{fig:stepwise}와 표~\ref{tab:e3-mechanism}은 MetaTool Subtask4 N=497 결과를 담는다. 핵심은 정지 K에서 \texttt{repeated\_first}가 증가하고, Q-회전과 layer-adaptive에서는 같은 지표가 감소하며 \texttt{second\_distinct}가 오른다는 점이다. 특히 layer-adaptive는 ``반복을 지우는 Q''와 ``초기 각인을 주는 K''가 동시에 작동해 first/second hit를 함께 끌어올린다.
 
