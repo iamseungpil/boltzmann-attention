@@ -136,6 +136,109 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 | **E19 (v4)** | **Asymmetric transferability** | Telecom → Retail/Airline/Banking/ST4 전부 A>D (ratio 1.81-3.67); **Retail → Telecom A/D=0.23 < 1** (random 보다 약함) | B1 행 5 | **H-J 근거 (v4 신규)** — B_ont direction breadth 가 benchmark-specific |
 | **E20 (v4)** | **Phase B2 layer-resolved KL (29-layer Qwen Telecom)** | **28/29 residual layers monotonic in rank**, 오직 **layer 28 (final output = post-final-FFN) 만 non-monotonic** (peak r=6, dip r=24). Final logits 도 non-monotonic (Phase A Qwen Telecom 패턴 재현). | B2 aggregate | **H-D 결정적 확증** — T.C mechanism 위치 특정 |
 | **E21 (v4)** | **Layer-28 amplification at low rank** | r=1 at L27 → L28 KL 이 **85× amplification** (0.0003 → 0.0255). r=96 는 1.35× | B2 row 28 | Late FFN 의 "cleanup" nonlinear amplification 관측 |
+| **E22 (v5)** | **F10 4-cell results** | F10a/b/c/d top1 ∈ [46.0, 47.0]% on MetaTool Subtask1 N=200, **모두 F9 D-only 47.50% 이하**. Hard-gate (F10d) 47.0% — collapse 안 됨 | reports/f10_metatool/f10_facet_*.json | **H-F10 falsified** (per-token energy gating no help, V+D < D-only) |
+| **E23 (v5)** | **Hard-gate ≠ catastrophic** | F10d 47.0% ≈ F10c 47.0%. Cor 6.7 Lipschitz collapse 예측 단일-tool task 에서 미관찰 | F10d_hard.json | Cor 6.7 §3.4.1 R-violation claim 약화 (Subtask4 multi-step 에서 재검증 필요) |
+
+---
+
+## §2.5 선행연구 비교 + 우리 접근의 차별점 (v5 신규, 2026-04-19 audit)
+
+### 2.5.1 종합 비교 표 (9-method)
+
+이 표는 ICLR §2 Related Work 의 base. Reviewer-visible novelty 위치를 명확히 하기 위해 5-dimensional 비교 (Multi-tool / Step-adaptive / Training-free / Multi-facet / Semantic) 사용.
+
+| Method | Venue | 작동 layer | Multi-tool | Step-adapt | Train-free | Multi-facet | Semantic source |
+|---|---|---|:---:|:---:|:---:|:---:|---|
+| CAA (Rimsky 2024) | ACL | residual mid-layer | ❌ | ❌ | ✗ contrastive pair | ❌ single | trained vector |
+| ITI (Li 2023) | NeurIPS | head output post-W_O | ❌ | ❌ | ✗ probe | ❌ single | supervised probe |
+| RepE (Zou 2023) | arXiv | residual | ❌ | ❌ | ✗ probe | ❌ single | supervised probe |
+| PASTA (Zhang 2024) | ICLR | post-softmax attn | ❌ | ❌ | △ profile (semi) | ❌ | user-marked positions |
+| **SEKA (Li 2026)** | **ICLR** | K pre-softmax | ❌ | ❌ | ✗ contrastive | ❌ single basis | GPT-4o synthetic contrastive |
+| **AdaSEKA (Kim 2026)** | — | K pre-softmax | ❌ | ❌ | ✗ contrastive | ❌ single expert/query | trained expert mixture |
+| **SADI (Wang 2025)** | **ICLR** | head/neuron/hidden post | ❌ | ❌ | △ contrastive pair (~150) | ❌ single mask | contrastive activation diff |
+| Spotlight (2025) | arXiv | attn score | ❌ | ❌ | ✓ | ❌ | user-marked positions (PASTA-style) |
+| LLMSteer (2024) | arXiv | reused-context attn | ❌ | ❌ | ✓ | ❌ | reused KV positions |
+| Atlas (2024) | arXiv | attn scaling | ❌ | ❌ | △ bias localize | ❌ | bias-axis specific |
+| **Hazarika (2022)** | **AAAI** | cross-attn distribution | ❌ | ❌ | ✓ | ❌ | positional (manually specified) |
+| **OntoLLM (2026)** | **ScienceDirect** | **prompt text only** | △ | ❌ | ✓ | △ KG hierarchy text | ontology + KG (text injection) |
+| Focus Directions (Zhu 2025) | arXiv | K + Q | ❌ | ❌ | ✗ gradient-trained | ❌ | gradient-trained (gold response) |
+| Gated Attention (NeurIPS 2025 Oral) | NeurIPS | per-head sigmoid gate | ❌ | ❌ | ✗ trained from scratch | △ per-head | trained gate |
+| FGA (Gupta 2025) | arXiv | attn pre-softmax | ❌ | ❌ | ✗ learned W_K (~2.1M params) | ❌ | external KB (137 entities) |
+| **Q-coverage (NeurIPS 2026 withdrawn)** | — | Q step-adaptive | ✓ | ✓ | ✓ | ❌ | facet subspace projection |
+| **F10 (executed, falsified)** | — | K-side per-token gated | ❌ | ❌ | ✓ | ✓ V×D | ontology label energy ratio |
+| **MOFCISS (proposed)** | — | K-side step-adaptive sparse | ✓ | ✓ | ✓ | ✓ | sparse OMP over ontology atoms |
+
+### 2.5.2 Empty-cell mapping (어디가 비어 있는가)
+
+5-dimensional cross product (32 combinations 중) 에서 **모든 5 충족** 하는 prior work 부재:
+
+- 모든 prior **K-side** + **multi-facet** + **train-free** 동시 충족 0 건
+- 모든 prior **multi-tool** + **multi-facet** 동시 충족 0 건
+- 모든 prior **multi-tool** + **train-free** + **semantic** 동시 충족 0 건 (Q-coverage 가 multi-tool + train-free 이나 semantic 안 함; OntoLLM 이 train-free + semantic 이나 prompt-level 만)
+
+### 2.5.3 우리 접근의 정확한 차별점 (3-tier)
+
+#### Tier A — Phase A-D + F8 (이미 검증된 negative + structural finding)
+
+1. **Lemma 2 √(r/d) universality across 9 (M, V) settings** — Stiefel concentration 의 first cross-architecture empirical confirmation in transformer attention. **Novel: empirical breadth.** (Lemma 2 자체는 standard Ledoux 2001.)
+2. **Layer-28 mechanism localization** — 85× amplification at single layer. **Novel: mechanism position pinpoint.** (Geva 2021 가 late-FFN as KV memory 라고 제안했지만 low-rank K-bias 에 대한 quantification 은 없음.)
+3. **Phase C catalog-permutation falsifier** — H-F (catalog content load-bearing) 강한 형 falsified. **Novel: falsifier-as-refinement framing.** Pipeline-level direction specificity claim 으로 refine.
+4. **F8d verb × domain orthogonal axis on 4 multi-domain corpora** — NMI ∈ [0.144, 0.218] structural law. **Novel: dataset-level diagnostic** (NMI probe 가 이전 attention steering literature 에 없음).
+5. **F10 H-F10 falsification** — span-invariance 깨도 (per-token gating) lift 안 나옴. **Novel: negative result confirms refined F1 reframe scope** (training-free linear gating regime 에서 ontology 무관).
+
+#### Tier B — F11 MOFCISS (proposed, pending validation)
+
+6. **OMP sparse selection over ontology atoms** — anchor identity 직접 사용 (Gram-Schmidt 거치지 않음). **Novel: SADI/SEKA/Spotlight 모두 안 함.** (Sparse coding 자체는 OMP 표준.)
+7. **Step-history decay across multi-tool emission** — `decay(n, emitted_<t>)` per facet cell. **Novel: Q-coverage 에 inspire 받았으나 K-side + multi-facet + ontology-cell-aware 는 첫 사례.** (Q-coverage 는 Q-side single-axis, MOFCISS 는 K-side multi-axis.)
+8. **3중 span-invariance 깸**: (a) non-linear OMP, (b) non-stationary step-state, (c) anchor-identity 보존. **Novel: 셋이 동시에 들어간 mechanism 부재.**
+
+#### Tier C — Theoretical framework
+
+9. **Lemma 1 + Lemma 2 + Theorem T 의 two-level argmax-subspace selectivity** — paper §3 의 self-contained framework. SADI/SEKA/AdaSEKA 모두 Lemma-level 분석 없음 (empirical only).
+10. **Lemma A + B + Theorem M (MOFCISS 용)** — sparse selection distinguishability + coverage convergence + multi-tool optimality. **Novel: ontology-grounded sparse coding + step-state 의 convergence 분석은 첫 시도.**
+
+### 2.5.4 가장 위험한 prior art ranking + 차별 wording
+
+#### 1순위 위협: SADI (ICLR 2025)
+**왜 위협**: inference-time semantic-adaptive intervention paradigm 의 직접 prior art. Reviewer 가 "F10/F11 = SADI 변형" 으로 평가 가능.
+
+**차별 wording (paper §2 권고)**:
+> "F10 (executed) extends SADI's inference-time adaptive intervention paradigm to the K-side multi-facet regime. F11 (MOFCISS) further introduces sparse OMP coding and step-history decay, which are absent from SADI. SADI requires supervised contrastive pairs (~150 calibration items, positive + negative answers per concept); our anchors require only ontology labels (positive examples only — no negative pair construction), making MOFCISS strictly more training-free in calibration data requirement. SADI applies a single binary mask uniformly; MOFCISS applies per-step facet-cell-aware sparse subtraction over multiple orthogonal axes verified via NMI probe (F8d)."
+
+#### 2순위 위협: Q-coverage (NeurIPS withdrawn track 자체)
+**왜 위협**: 같은 lab 에서 multi-tool + step-adaptive + training-free 조합을 이미 시도했다는 점 (NeurIPS withdrawal context).
+
+**차별 wording**:
+> "Q-coverage (Q-side step-adaptive single-axis projection, our prior NeurIPS 2026 work, withdrawn) demonstrated that multi-tool emission requires step-state but achieved only +1.64pp F1 lift on MetaTool Subtask4 with mechanism claims (Q-coverage as 'the' multi-selection axis) refuted by canonical-AdaSEKA Telecom +28.89pp counterexample. MOFCISS preserves the step-state insight but switches to (i) K-side rather than Q-side, (ii) multi-facet (verb × domain) rather than single axis, (iii) sparse OMP rather than dense projection. Mechanism claim is downgraded from 'unique multi-selection mechanism' to 'one effective instance of multi-step ontology-aware K-side intervention'."
+
+#### 3순위 위협: SEKA + AdaSEKA (ICLR 2026)
+**왜 위협**: K-side spectral steering 의 직접 family. AdaSEKA 가 query-adaptive routing 도 함.
+
+**차별 wording**:
+> "SEKA and AdaSEKA use contrastive cross-covariance SVD to derive K-side projection directions (trained on GPT-4o synthetic positive/negative prompt pairs). Our basis is derived from positive-only ontology anchor sentences — no contrastive pair construction. AdaSEKA's query-adaptive routing selects one expert per query (single-direction per inference); MOFCISS allows multi-axis active simultaneously via OMP top-k sparse coding and per-step facet decay. SEKA is stationary; MOFCISS is step-adaptive."
+
+#### 4순위 위협: OntoLLM (ScienceDirect 2026)
+**왜 위협**: ontology + LLM at inference time naming overlap. 단 prompt-level 이라 mechanism layer 다름.
+
+**차별 wording**:
+> "OntoLLM integrates ontology and knowledge graphs into the LLM prompt at inference time without retraining, addressing factual grounding and digression prevention. The intervention layer is text-prompt only — no activation, attention, or KV cache modification. Our approach modifies attention K activations directly via subspace projection (F10) or sparse coding (MOFCISS). The two methods address orthogonal axes: prompt-level retrieval (OntoLLM) vs activation-level direction injection (ours)."
+
+### 2.5.5 ICLR §2 Related Work 권고 구조 (paper draft 변경 사항)
+
+현재 ICLR PAPER_DRAFT_ICLR_v1.md §2 는 4-paragraph (CAA/RepE/ITI 등 + Stiefel + interpretability + novelty). 다음으로 확장 권고:
+
+1. **§2.1 Activation steering** (현재) — CAA, RepE, ITI, ASA, ActAdd
+2. **§2.2 Attention steering** (확장) — PASTA, Spotlight, LLMSteer, Atlas, FGA, Hazarika 2022
+3. **§2.3 K-side spectral steering** (신규) — SEKA, AdaSEKA, Focus Directions
+4. **§2.4 Inference-time semantic adaptive** (신규) — SADI 단독 1 paragraph (직접 prior art)
+5. **§2.5 Ontology integration** (신규) — OntoLLM, OntoTune
+6. **§2.6 Concentration of measure** (현재) — Ledoux, Edelman & Rao
+7. **§2.7 Mechanistic interp** (현재) — Anthropic circuits, Geva 2021, Meng 2022
+8. **§2.8 Novelty placement** (확장) — §2.5.3 Tier A+B+C 로 명확 차별
+
+### 2.5.6 종합 한 줄
+
+> **9-method audit 결과 multi-tool + step-adaptive + training-free + multi-facet + semantic 5-dimensional 동시 충족 prior art 부재. F10 (실패) + F11 MOFCISS (제안) 가 빈 칸을 노린 design. 가장 큰 위협은 SADI (ICLR 2025) 의 inference-time adaptive intervention paradigm 선행성, but SADI 는 supervised contrastive pair 필요 + single-axis + step-state 없음 → 명확 차별 가능.**
 
 ---
 
