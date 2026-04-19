@@ -89,11 +89,25 @@ def main():
     # Best finder
     best = max(rows, key=lambda r: r["dnorm"])
     out += ["",
-            "## Winner",
+            "## Winner (highest Δ_norm — but see D.3 tautology check below)",
             "",
             f"**{best['label']}** — Δ_norm=**{best['dnorm']:+.3f}** (G1={'PASS' if best['g1'] else 'FAIL'}), "
             f"median ρ={best['rho']:+.3f} (G2={'PASS' if best['g2'] else 'FAIL'}), "
             f"Hopfield R²={best['hop_r2']:.3f}. Joint = **{best['joint']}**.",
+            "",
+            "## D.3 BERT-KM defense — TAUTOLOGY CHECK",
+            "",
+            "Pre-reg tier (locked before D.3 run):",
+            "- Δ ≥ 0.30: cross-feature semantic basin (paper tier 5.0-6.0)",
+            "- 0.15 ≤ Δ < 0.30: ambiguous (paper tier 4.0-5.0)",
+            "- Δ < 0.15: tautology confirmed, pure negative (paper tier 3.5-4.5)",
+            "",
+            "BERT-KM Δ_norm at L=18 prompt_end (best of {verb, domain, both}):",
+            "- domain: +0.143 (best, BARELY below 0.15 boundary)",
+            "- verb: +0.128 (non-monotone)",
+            "- both: +0.048",
+            "",
+            "**TAUTOLOGY CONFIRMED.** afod-domain (+0.139) ≈ BERT-KM-domain (+0.143) << Qwen-K-self-KMeans-domain (+0.579, 4× larger). Two independent semantic spaces (lexical regex, BERT embedding) BOTH produce identical near-zero basin in Qwen K-space; only K-self-derived labels lift the signal. The P2 'rescue' was self-similarity by construction, not semantic structure.",
             "",
             "## Per-phase conclusions",
             "",
