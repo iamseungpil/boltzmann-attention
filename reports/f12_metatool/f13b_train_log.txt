@@ -1,0 +1,19 @@
+[load] Qwen/Qwen2.5-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 116.63it/s]
+[load] done in 3.7s
+[model] L=28 n_q=28 n_kv=4 d=128
+[subspace] /home/woori/workspace_common/boltzmann-attention/external/SEKA/seka_projections/f13-qwen25-7b-metatool-facet-subspace/facet_subspace.pt
+[subspace] F=75 R=4
+[schedule] mode='ladapt', skip_L28=True
+  s_K = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  s_Q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+[subspace modules] K-layers=19 Q-layers=22
+[data] built 350 training examples (0 skipped > max_seq_len)
+[hooks] installed 41 forward hooks
+[opt] AdamW on 42 tensors, 191 scalars
+[epoch 0] ce=0.9549 lip=0.0007 ||theta||_F=0.4076 |theta|_max=0.0840 steps=175
+[epoch 1] ce=0.9343 lip=0.0031 ||theta||_F=0.6685 |theta|_max=0.1634 steps=175
+[epoch 2] ce=0.7044 lip=0.0074 ||theta||_F=1.0534 |theta|_max=0.2973 steps=175
+[epoch 3] ce=0.9134 lip=0.0146 ||theta||_F=1.2799 |theta|_max=0.3850 steps=175
+[epoch 4] ce=0.8961 lip=0.0180 ||theta||_F=1.3899 |theta|_max=0.4355 steps=175
+[saved] external/SEKA/seka_projections/f13b-qwen25-7b-r4-ladapt-skipl28/f12_checkpoint.pt
