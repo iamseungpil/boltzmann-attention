@@ -388,20 +388,21 @@ def main():
         print(f"[kmeans-domain] replaced afod domain labels: K={n_domain} inertia={km_d.inertia_:.1f}")
 
     # --- T1.b: query K extraction ---
-    print(f"[T1.b] extracting Q[{n_q}, {head_dim}]")
+    print(f"[T1.b] extracting Q[{n_q}, {head_dim}] pooling={args.pooling} chat_template={args.chat_template}")
     Q = np.zeros((n_q, head_dim), dtype=np.float64)
     gt_plugin_idx = np.zeros(n_q, dtype=np.int64)
     t0 = time.time()
     for qi, entry in enumerate(queries):
-        # Query text: raw user query (no chat template — same convention as tool desc)
         qtext = entry["query"]
-        v = capture_last_token_k_single_layer(model, tok, qtext,
-                                               args.layer, n_kv, head_dim)
+        # Queries do NOT use prepend_name (only tools do, for first_name pooling).
+        v = capture_k_pooled(model, tok, qtext, args.layer, n_kv, head_dim,
+                              pooling=args.pooling, prepend_name=None,
+                              chat_template=args.chat_template)
         if v is None:
             raise RuntimeError(f"query capture failed at qi={qi}")
         Q[qi] = v.numpy().astype(np.float64)
         gt_plugin_idx[qi] = plugin_idx[entry["tool"]]
-        if (qi + 1) % 20 == 0 or qi == 0:
+        if (qi + 1) % 50 == 0 or qi == 0:
             elapsed = time.time() - t0
             eta = elapsed / (qi + 1) * (n_q - qi - 1)
             print(f"    [{qi+1}/{n_q}] t={elapsed:.1f}s eta={eta:.1f}s", flush=True)
