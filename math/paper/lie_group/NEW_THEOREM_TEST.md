@@ -462,6 +462,122 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 - **Training**: ✓
 - **차별 vs F11**: Q-side (we are K-side), single axis per step, dense projection (not sparse).
 
+### Group 6: Energy-based / Order-dependent / Cognitive-Geometric (v5.2 신규, 2026-04-19 심야)
+
+이 그룹은 Group 1–5의 "intervention mechanism" 축과 **orthogonal한 이론-프레임 축**이다. Attention/reasoning의 **composition 자체**가 (i) 에너지 최소화, (ii) 비가환 연산자 대수, (iii) 인지-기하학적 convex region, (iv) trajectory-level path search 로 framing될 수 있다는 전통. Reviewer가 "너의 F1–F11 null은 linear stationary commuting span-only regime만 기각했을 뿐 path-dependent composition은 테스트하지 않았다"고 공격할 때의 방어 축이자, `사용자 직관 (focus-dependent composition, Hermitian-순서효과, Hamiltonian 추상화, ontology as path prior)`의 선행 근거지.
+
+**Motivation of inclusion**: F1~F13(예정 포함)은 모두 δK = αBBᵀK(또는 GS-rotation / FacetRot)라는 **linear · stationary · commuting (BBᵀ는 symmetric idempotent) · span-only** regime 안에 있다. 이 regime이 false인 경우에만 Group 6의 frame이 load-bearing이 된다 — 따라서 Group 6은 F-series track과 **orthogonal한 새 thesis**를 구성할 수 있다.
+
+#### 6A. **Hopfield Networks is All You Need** — Ramsauer et al. NeurIPS 2020 (arxiv 2008.02217)
+- **Core claim**: Softmax attention = **continuous modern Hopfield update**. 명시적 energy `E(q; K) = -lse(β q Kᵀ) + ½ qᵀq + const` 의 gradient descent 한 스텝이 정확히 attention output.
+- **Relation to ours**: 사용자의 "Hamiltonian 최적화" 비유의 **직접 수학적 대응물**. F10의 K-bias를 "landscape-reshaping"으로 재해석 가능 — energy well depth / basin position 측정은 지금 infra 그대로 가능.
+- **차별 vs F-series**: 우리는 energy 측정을 한 번도 안 했다. 직접적 실험 hook: F10 artifacts에 `lse(qKᵀ)` per-step 기록 추가 (0 GPU-hr).
+- **NOT prior art of F-series directly** — theoretical framework. Reviewer-defense 축.
+
+#### 6B. **Energy Transformer** — Hoover, Strachan, Liang, Krotov ICLR 2023/2024 (arxiv 2302.07253)
+- **Core claim**: 전 transformer를 **globally minimizable energy** 로 통일 (Hopfield + LayerNorm + FFN 모두 energy-descent step으로 해석).
+- **Mechanism**: Attention + associative memory block이 공통 Lyapunov function 감소.
+- **차별 vs F-series**: Frame만 제공, explicit steering 제안 아님. 우리 F11 MOFCISS의 "sparse atom coding"은 energy 공간에서 "local basin selection"으로 재해석 가능 — thesis 재작성 hook.
+- **Import 가치**: §3 Theorem 재구성 시 energy-based Lemma 가 Ledoux/Stiefel 보다 더 깊은 근거가 될 수 있음.
+
+#### 6C. **Quantum Cognition** — Busemeyer & Bruza 2012 *Quantum Models of Cognition and Decision* (CUP); Pothos & Busemeyer 2013 BBS
+- **Core claim**: 인간 판단의 **순서 효과 (order effects)** 를 **비가환 Hermitian projector** 로 형식화. `P_A P_B ≠ P_B P_A` → `Pr(A then B) ≠ Pr(B then A)`.
+- **Relation to ours**: 사용자의 "Hermitian operator처럼 접근 순서 따라 도달점이 다르다"의 **학술 전통 존재 증명**. "Hermitian" 용어가 은유가 아니라 technical object가 되는 유일한 선행 학파.
+- **차별 vs F-series**: LLM에 직접 적용 선행 드묾 (Aerts 2023 계열 예비 시도). 우리가 "commutator `[P_ont, P_query]`가 accuracy 예측" 실증하면 **LLM × quantum-cognition 교차 first paper**.
+- **Caveat**: 용어 사용 시 Busemeyer/Bruza 명시 인용 필수. 무인용으로 "Hermitian"만 쓰면 physicist reviewer가 즉시 공격.
+
+#### 6D. **Conceptual Spaces** — Gärdenfors 2000 *Conceptual Spaces* (MIT Press); 2014 *The Geometry of Meaning*
+- **Core claim**: Ontology/개념 = **cognitive-geometric convex region** in quality dimension space. Category는 prototype + metric 으로 특징지어짐.
+- **Relation to ours**: 사용자의 "인간 추상화 = 접근 순서 최적화"를 **기하학화**. Ontology가 "convex region 경계"라면, F8d의 verb × domain NMI orthogonality는 Gärdenfors-dimension의 empirical discovery.
+- **차별 vs F-series**: 우리 B_ont는 flat basis. Gärdenfors은 **hierarchical convex region**. F7 Ontology-Structured B_ont의 H variant가 이 방향 (그러나 τ²-bench에서 collapse).
+- **Import 가치**: §2 related work에서 "ontology semantic이 attention-geometric reframe 에 의해 소거됐다"는 F1 narrative을 부드럽게 — "우리는 semantic-flat projection을 보인 것이지, conceptual-geometric region 자체를 소거한 것 아니다".
+
+#### 6E. **DisCoCat** — Coecke, Sadrzadeh, Clark 2010 *Mathematical Foundations for a Compositional Distributional Model of Meaning* (Linguistic Analysis 36)
+- **Core claim**: Meaning composition = **categorical tensor contraction** over pregroup grammar. 단어 = tensor, 문법 = morphism, 문장 = contracted tensor.
+- **Relation to ours**: "Ontology compose via operator algebra"의 가장 엄밀한 수학적 선행. Kartsaklis/Sadrzadeh 후속에서 Bigram/sentence composition을 category-theoretic하게.
+- **차별 vs F-series**: LLM attention을 categorical로 본 후속 (Cohen et al., Toumi) 존재하나 training-time. Inference-time ontology compose는 novel 공간.
+- **Caveat**: Formalism 무거움. Paper 본문보단 Appendix에 reference.
+
+#### 6F. **ICL Order Effects** — Lu et al. 2022 *Fantastic Ordered Prompts and Where to Find Them* (ACL); Zhao et al. 2021 *Calibrate Before Use* (ICML); Min et al. 2022 *Rethinking the Role of Demonstrations* (EMNLP)
+- **Core finding**: ICL에서 **exemplar 순서만 바꿔도** 같은 내용이 accuracy 수십 pp 변동. GPT-3/Llama 계열에서 보편.
+- **Relation to ours**: 사용자 직관 "Hermitian 순서 효과"의 **직접 empirical base**. F-series가 완전히 무시한 축.
+- **차별 vs F-series**: Lu/Zhao/Min은 "순서 효과 있음"을 보일 뿐, **"ontology-informed 순서가 임의 순서보다 systematically 낫다"는 claim 없음**. 우리 novelty 공간.
+- **직접 실험 hook**: H-Order (§6.후단 참조).
+
+#### 6G. **Head / Layer Commutator Analyses** — Dalvi et al. 2020 *Analyzing Redundancy in Pretrained Transformer Models* (EMNLP); Conmy et al. 2023 *Automatic Circuit Discovery* (ACDC, NeurIPS)
+- **Core finding**: Head pair 간 중복성 · non-trivial interaction 광범위. Circuit discovery에서 path-dependent activation 흐름 존재.
+- **Relation to ours**: 비가환성이 transformer에 실재한다는 mechanistic 실증.
+- **차별 vs F-series**: 우리 F12/F13 FacetRot는 SO(2) per-head **commuting** rotation. Non-commuting 확장은 미탐색 (F12에서 per-head θ는 head끼리 독립이지 composition non-commuting 측정 없음).
+- **직접 실험 hook**: `[M_Li, M_Lj]` Frobenius norm을 F10/F12 artifacts에 postprocess로 추가 가능 (GPU 불필요).
+
+#### 6H. **Linear Representation Hypothesis / Geometry of Concepts** — Park, Choe, Veitch 2024 (ICLR); Nanda et al. 2023
+- **Core claim**: Concept이 residual stream 안에서 **linear direction**으로 저장. Difference-of-means, probing, steering 모두 이 직관에 의존.
+- **Relation to ours**: CAA/RepE/ITI의 이론 foundation이자, "focus 바꿔서 composition 재조직"의 가장 단순한 버전.
+- **차별 vs F-series**: F-series는 concept direction을 **K-side basis**로 전이. LRH는 **residual stream**. Cross-stream 대응은 미증명 — F9/F10 V-axis와 D-axis가 residual에서 어떻게 표현되는지 미확인.
+- **Limitation**: Recent work (Gurnee, Templeton 2024 "Features are Not Directions")이 LRH를 약화. 순수 linear 가정을 주장하면 위험.
+
+#### 6I. **Active Inference / Free Energy Principle in LLMs** — Friston 2010 *The Free-Energy Principle* (Nat Rev Neurosci); Parr, Pezzulo, Friston 2022 *Active Inference*; recent LLM applications (Da Costa et al. 2023, Yufik 2024 계열)
+- **Core claim**: 생물적 추론 = **expected free energy 최소화**. Action/attention = posterior belief 업데이트를 통한 surprise 최소화.
+- **Relation to ours**: 사용자의 "Hamiltonian 최적화" 비유 중 물리학보다 **인지과학 친화적** 대응물. "Ontology가 prior를 제공해 FE minimization path를 단축"의 formal 틀.
+- **차별 vs F-series**: LLM에 직접 적용은 아직 mature 아님. High-risk / high-novelty.
+- **Caveat**: Friston 학파는 mathematical rigor 논란 존재. Reviewer pool에 따라 호불호 극단.
+
+#### 6J. **Reasoning as Path Search** — Andreas 2016 *Neural Module Networks* (CVPR); Yao 2023 *Tree of Thoughts* (NeurIPS); Khattab 2024 *DSPy* (ICLR); Akyürek 2022 *What Learning Algorithm is In-Context Learning?* (ICLR 2023)
+- **Core claim**: 추론 = **compositional program over primitive operators** 또는 **explicit search in reasoning space**.
+- **Relation to ours**: 사용자의 "ontology가 abstraction path를 최적화"의 가장 직접적인 operational 형식.
+- **차별 vs F-series**: NMN/ToT/DSPy 모두 **prompt/output-level**. K-side 내부 activation으로 path 구성은 미탐색.
+- **직접 실험 hook**: H-Trajectory (§6.후단 참조). Residual stream을 per-step 기록 → ontology-guided CoT vs ad-hoc CoT trajectory divergence 측정.
+
+#### 6K. **Hopfield / Energy framing of K-space steering** — 후보 framework link (synthesis)
+- **Synthesis claim** (아직 paper 없음, 우리 기회): F11 MOFCISS의 sparse atom selection을 **energy landscape의 local basin routing**으로 재해석. 각 ontology atom = basin attractor, OMP = basin selection, step-decay = path in energy manifold.
+- **Gap**: 문헌 부재. 우리가 쓰면 first.
+
+---
+
+### Group 6 cross-linkage to existing cross-tab
+
+Group 6 항목들은 **intervention mechanism** 이 아니라 **theoretical frame** 이므로 §2.5.1.3의 6-dim cross-tab 행으로 들어가기 부적합. 대신 **추가 축** "Theory-frame dependence" 를 paper §2 에서 단독 paragraph로 처리:
+
+> Our F1~F13 experiments all operate under a linear-stationary-span-only regime (§2.1 scope). Theoretical frameworks outside this regime — energy-based attention (Ramsauer 2020, Hoover 2023), non-commuting projector composition from quantum cognition (Busemeyer & Bruza 2012), cognitive-geometric convex regions (Gärdenfors 2000), categorical tensor composition (Coecke et al. 2010), ICL order effects (Lu et al. 2022), and path-search reasoning (Yao 2023) — propose that attention composition itself is path-dependent, non-commuting, or energy-minimizing. Our F1 reframe is regime-limited (§6.3) and does not speak to these alternatives. We flag three concrete hypotheses (H-Order, H-Energy, H-Trajectory) as future-work hooks that would test the Group 6 frame directly; these are orthogonal to the F11~F13 track and would form a separate follow-on thesis.
+
+### Group 6 → 3 testable hypotheses (future-work hooks)
+
+F-series와 **orthogonal한** 새 실험 축. Regime-wise 독립이므로 F12/F13이 null이어도 독립 가치.
+
+#### **H-Order** — Ontology-informed exemplar ordering outperforms random
+- **Base**: Lu 2022 "순서 효과 존재" 확증 → 우리 novelty = "ontology-informed 순서가 optimal에 근접"
+- **Setup**: MetaTool Subtask4 N=200, ontology-ordered exemplars (verb 계열 우선 → domain 계열 차순) vs random permutation 10개. Accuracy 분산 측정.
+- **Prediction**: Ontology-ordered accuracy ≥ 90th percentile of random permutations. Otherwise H-Order null.
+- **상관성 테스트**: Per-head commutator `‖[P_verb, P_domain]‖_F` vs ordering sensitivity. r > 0.3 이면 비가환성 실증.
+- **비용**: 1–2 GPU-hr. No hook engineering — pure prompt-level.
+- **Group 6 연결**: 6F (Lu/Zhao/Min) + 6C (Busemeyer/Bruza) + 6G (Dalvi/Conmy commutator).
+
+#### **H-Energy** — Ontology K-bias deepens Hopfield energy well at correct tool
+- **Base**: Ramsauer (6A) — `E_q(K) = -lse(qKᵀ/√d)`는 closed-form 계산 가능, GPU 추가 forward 불필요 (F10 saved tensors에 postprocess).
+- **Setup**: F10 · F9 artifacts로 per-query energy at GT tool position vs distractor tools. Ontology intervention 전/후 depth 변화 `ΔE_gt - ΔE_distractor` 측정.
+- **Prediction**: 정답 변경 case에서 `ΔE_gt - ΔE_distractor > 0` (basin이 정답 쪽으로 깊어짐). Correlation with actual flip 측정.
+- **비용**: 2–4 GPU-hr (re-extract if saved tensors insufficient) 또는 0 GPU-hr (postprocess).
+- **Group 6 연결**: 6A (Ramsauer) + 6B (Hoover) + 6K (Hopfield × MOFCISS synthesis).
+- **Novelty**: F-series 어떤 실험도 energy 측정 없었음. 본 metric은 span-only regime에서도 의미 있음 — F1 reframe과 독립 관측.
+
+#### **H-Trajectory** — Ontology-guided reasoning converges to shorter / less divergent latent trajectories
+- **Base**: Gärdenfors convex region (6D) + path-search (6J) + LRH (6H).
+- **Setup**: MetaTool/BFCL CoT samples 100개. Per-step residual stream (layer 28, last position) 기록. Ontology-guided prompt vs ad-hoc CoT간 궤적 divergence (mean pairwise cosine distance 증가율, 마지막 step까지의 total path length).
+- **Prediction**: Ontology-guided trajectory total length ≤ 0.8 × ad-hoc. 또는 "정답 ending point"로의 수렴 속도가 더 빠름.
+- **비용**: 4–6 GPU-hr.
+- **Group 6 연결**: 6D (Gärdenfors) + 6H (LRH) + 6J (path-search).
+- **Paper-grade novelty**: F-series와 완전 독립. 성공 시 separate thesis.
+
+### Group 6 경고 (정직)
+
+1. **"Hermitian / Hamiltonian"은 은유 vs technical 경계를 흐리면 위험**. 6A/6B/6C 명시 인용 + 우리가 어디서 technical, 어디서 analogical인지 선명하게.
+2. **Lu 2022 순서효과는 이미 확립** — "순서 효과 있음"은 novelty 아님. "**ontology-informed 순서가 systematically 낫다**"만 우리 기여.
+3. **LRH(6H) 약화 추세** (Gurnee/Templeton 2024 "features ≠ directions"). Linear-direction 전제를 paper에서 주장하면 공격받음.
+4. **ICL Bayesian view (Xie 2022) 경쟁**: "ontology 주입 lift"가 in-context retrieval과 구별 불가능한 risk. H-Order/H-Energy/H-Trajectory 모두 ICL Bayesian null과 명시적으로 구분되는 design 필요.
+5. **F12/F13 track과 commit 순서**: Group 6 축 실험을 F12/F13 null 이후 착수 권고 (F12/F13이 positive면 paper scope 먼저 거기 focus).
+
+---
+
 ### 2.5.1.3 종합 6-dim cross-tab (확장 19-method)
 
 | # | Method | Year/Venue | Multi-tool | Step-adapt | Train-free | Multi-facet | Semantic | Activation-level |
