@@ -1217,7 +1217,51 @@ Paper 에서 §6.1 + Appendix B.1 로 transparent 보고. Theorem T 외 observat
 
 ---
 
-### Phase F11 — MOFCISS: Multi-step Ontology-indexed Facet Coverage via Sparse Subtraction (Week 11-13, ~6-10 GPU-hr) — **NEW (2026-04-19), proposed after F10 negative**
+### Phase F11 — MOFCISS: Multi-step Ontology-indexed Facet Coverage via Sparse Subtraction (Week 11-13, ~6-10 GPU-hr) — **EXECUTED 2026-04-19, FALSIFIED**
+
+#### Execution summary (2026-04-19 late evening)
+
+**Outcome**: H-F11 falsified on Subtask4 N=200. All working-regime variants ≤ baseline.
+
+**α calibration (pre-sweep)**:
+- Pre-reg α=0.3 catastrophic (F1=0.000, gibberish output) because raw non-orthonormal atoms cause top-k sum ‖delta‖ to overshoot ‖K‖. F9/F10's orthonormal-basis α=0.3 convention does NOT transfer to raw-atom OMP subtraction.
+- N=50 4-point α sweep at decay=0.5: α=0.01→0.677, α=0.02→0.690, α=0.05→0.677, α=0.1→0.327. **α*=0.02** selected as largest working-regime α.
+
+**4-cell main sweep (Qwen2.5-7B-Instruct × Subtask4, N=200, α=0.02, top-k=5, plugin_des dictionary M=199)**:
+
+| Cell | decay | OMP | F1 | Δ vs baseline 0.728 |
+|---|:---:|:---:|:---:|:---:|
+| baseline (no_steer) | — | — | **0.728** | (ref) |
+| F11a OMP-only | 0.0 | top-5 | 0.699 | −2.9pp |
+| F11b MOFCISS-base ★primary | 0.5 | top-5 | 0.695 | −3.3pp |
+| F11c MOFCISS-aggr | 1.0 | top-5 | 0.701 | −2.7pp |
+| F11d dense (no-OMP) | 0.5 | all | **0.000** | **−72.8pp** catastrophic |
+
+**Pre-reg decision tree match**:
+- F11b = 0.695 falls in **"< 0.71 harmful"** branch
+- F11a ≈ F11b within 0.4pp → **step-state non-load-bearing** (primary MOFCISS innovation inert)
+- F11d catastrophic → OMP sparseness is safety mechanism, not signal source
+
+**Three critical findings**:
+1. **OMP is SAFETY, not signal.** Dense (F11d) catastrophic even at α=0.02; sparse (F11a/b/c) stable but ≤ baseline.
+2. **Step-decay inert.** F11a (decay=0) ≈ F11b (0.5) ≈ F11c (1.0), spread 0.6pp. 2-tool emission horizon too short for coverage benefit.
+3. **Raw-atom α regime is narrow.** Working band α ∈ [0.01, 0.05]; at α=0.1 collapsing, α=0.3 catastrophic. Orthonormal-basis convention (F9/F10 α=0.3) does not transfer.
+
+**Cross-phase conclusion**: F10 (stationary gated projection, orthonormal basis) + F11 (step-adaptive sparse subtraction, raw anchors) jointly falsify "training-free K-side intervention with ontology anchors yields lift on multi-tool selection". Neither stationarity nor span-breaking nor step-state was the blocker — the training-free constraint itself caps lift.
+
+**Paper impact**: §6.3 scope-boundary claim strengthened. ICLR ceiling 5.25 unchanged. F12 FacetRot-QK (trainable LoRA-based, breaks training-free constraint) remains primary alternative.
+
+**Artifacts**:
+- `scripts/new_theorem_test/build_f11_dictionary.py`
+- `scripts/new_theorem_test/eval_metatool_subtask4_mofciss.py`
+- `external/SEKA/seka_projections/f11-qwen25-7b-metatool-plugdes/dictionary.pt` (M=199 atoms, plugin_des source)
+- `reports/f11_metatool/{cal_*, f11a/b/c/d}_*.json`
+
+**Details memo**: `memory/phase_f11_mofciss_executed_falsified_2026_04_19.md`
+
+---
+
+#### Original spec (below) — retained for reference
 
 #### Motivation chain
 
