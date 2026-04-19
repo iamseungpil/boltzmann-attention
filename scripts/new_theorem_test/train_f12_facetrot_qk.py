@@ -43,16 +43,77 @@ import torch.nn.functional as F
 
 @dataclass
 class F12Config:
+    """Shared config for F12 uniform (default) and F13 FunnelRot variants.
+
+    F12 uniform: schedule="uniform", steered_layers=[18..27], skip_layer_28=True (naturally).
+    F13 FunnelRot: schedule="ladapt", steered_layers=[0..27], skip_layer_28=True (explicit),
+                    early_end=5, mid_end=18, mid_alpha_scale=0.3, rot_pairs=2 (R=4 low-rank).
+    """
+
     model_name: str = "Qwen/Qwen2.5-7B-Instruct"
     bont_dir: Path = Path("external/SEKA/seka_projections/f12-qwen25-7b-metatool-facet-subspace")
     n_facets: int = 16
-    rot_pairs: int = 16  # R/2 — number of SO(2) pairs per head
-    steered_layers: tuple[int, ...] = tuple(range(18, 28))  # Thm 6.14 R1: mid-late block
+    rot_pairs: int = 16  # R/2 — number of SO(2) pairs per head. F12: 16 (R=32). F13: 2 (R=4).
+    steered_layers: tuple[int, ...] = tuple(range(18, 28))  # F12 default; F13 uses range(0, 28)
     gate_tau_init: float = 1.0
     lr: float = 1e-3
     epochs: int = 5
     batch_size: int = 4
     lipschitz_penalty: float = 1e-2  # Lemma 6.14.A regularity
+
+    # F13 FunnelRot extension: ladapt schedule + explicit L28 skip ------------
+    schedule: str = "uniform"          # "uniform" (F12) | "ladapt" (F13 FunnelRot)
+    skip_layer_28: bool = True         # F13.Funnel: preserve natural amplifier
+    early_end: int = 5                 # ladapt stage 1 upper bound (inclusive)
+    mid_end: int = 18                  # ladapt stage 2 upper bound (inclusive)
+    mid_alpha_scale: float = 0.3       # weak K in stage 2 (K scaling; Q stays at 1.0)
+    alpha_k: float = 1.0               # global K strength multiplier (stage 1 base)
+    beta_q: float = 1.0                # global Q strength multiplier (stages 2-3 base)
+
+
+def build_kq_schedule(cfg: F12Config, num_layers: int) -> tuple[list[float], list[float]]:
+    """Return per-layer (s_K, s_Q) schedule scalars.
+
+    `schedule="uniform"`: s_K=s_Q=1.0 for layers in cfg.steered_layers, 0 elsewhere.
+                           skip_layer_28=True forces s=0 at layer 28 regardless.
+    `schedule="ladapt"` : three-stage ladapt schedule per F13 spec.
+                           skip_layer_28=True forces s=0 at layer 28.
+
+    Stage definitions (ladapt):
+      Stage 1: [0, early_end]         -> (alpha_k, 0)
+      Stage 2: (early_end, mid_end]   -> (alpha_k * mid_alpha_scale, beta_q)
+      Stage 3: (mid_end, num_layers)  -> (0, beta_q)
+      Layer 28 (if skip_layer_28)     -> (0, 0) hard-overridden
+    """
+    s_K = [0.0] * num_layers
+    s_Q = [0.0] * num_layers
+    steered = set(cfg.steered_layers)
+
+    if cfg.schedule == "uniform":
+        for ell in range(num_layers):
+            if ell in steered:
+                s_K[ell] = 1.0
+                s_Q[ell] = 1.0
+    elif cfg.schedule == "ladapt":
+        for ell in range(num_layers):
+            if ell <= cfg.early_end:
+                s_K[ell] = cfg.alpha_k
+                s_Q[ell] = 0.0
+            elif ell <= cfg.mid_end:
+                s_K[ell] = cfg.alpha_k * cfg.mid_alpha_scale
+                s_Q[ell] = cfg.beta_q
+            else:
+                s_K[ell] = 0.0
+                s_Q[ell] = cfg.beta_q
+    else:
+        raise ValueError(f"unknown schedule: {cfg.schedule!r} (expected 'uniform' or 'ladapt')")
+
+    if cfg.skip_layer_28 and 28 < num_layers:
+        # F13.Funnel: L28 is the natural amplifier; do not perturb it.
+        s_K[28] = 0.0
+        s_Q[28] = 0.0
+
+    return s_K, s_Q
 
 
 # -------- SO(2) rotation module --------
