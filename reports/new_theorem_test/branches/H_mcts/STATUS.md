@@ -1,6 +1,6 @@
 # H-MCTS — Attention-subspace exploration Status
 
-**Status**: preliminary (2026-04-19).
+**Status**: **dormant** (2026-04-19). Depended transitively on F14 pilot positive OR H-Meta ≥ +2pp — both closed by F13b +3.85pp. **Do not execute.** Revive only if post-F13 ablation work reveals need for subspace exploration (unlikely given F13b's uniform +3.7-4.1pp across all metrics without exploration noise).
 **Primary spec**: memory `user_5question_synthesis_f14_metafocus_2026_04_19.md` §5 H-MCTS
 **Concept**: `α_explore * noise in B_ont⊥` (subspace-restricted exploration to control search-space explosion).
 **Sweep**: α_explore ∈ {0, 0.05, 0.1, 0.2} — 4-cell grid on MetaTool Subtask4 N=200.
