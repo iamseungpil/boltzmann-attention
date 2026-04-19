@@ -1,0 +1,12 @@
+[checkpoint] external/SEKA/seka_projections/f13e-qwen25-7b-r4-uniform-l18-27/f12_checkpoint.pt
+[subspace] /home/woori/workspace_common/boltzmann-attention/external/SEKA/seka_projections/f13-qwen25-7b-metatool-facet-subspace/facet_subspace.pt
+[load] Qwen/Qwen2.5-7B-Instruct
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:27, 12.10it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 114.66it/s]Loading weights:  19%|█▉        | 64/339 [00:00<00:01, 201.88it/s]Loading weights:  27%|██▋       | 90/339 [00:00<00:01, 214.92it/s]Loading weights:  37%|███▋      | 124/339 [00:00<00:00, 254.07it/s]Loading weights:  45%|████▍     | 151/339 [00:00<00:00, 254.68it/s]Loading weights:  54%|█████▍    | 184/339 [00:00<00:00, 267.43it/s]Loading weights:  63%|██████▎   | 214/339 [00:00<00:00, 275.88it/s]Loading weights:  72%|███████▏  | 245/339 [00:01<00:00, 277.07it/s]Loading weights:  81%|████████  | 274/339 [00:01<00:00, 280.65it/s]Loading weights:  90%|████████▉ | 304/339 [00:01<00:00, 279.02it/s]Loading weights:  99%|█████████▉| 336/339 [00:01<00:00, 290.06it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 251.79it/s]
+[load] done in 4.2s
+[data] 147 queries (slice 350:497)
+
+[eval] f12_uniform_r4 (hooks=20)
+[eval] f12_uniform_r4: F1=0.788 F0.5=0.797 EU=0.578 Exact=0.578 runtime=146.3s
+
+wrote reports/f12_metatool/f13e_eval_n147.json
