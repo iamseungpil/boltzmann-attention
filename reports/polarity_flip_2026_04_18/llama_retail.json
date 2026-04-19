@@ -1,0 +1,1005 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "domain": "retail",
+  "b_ont": "external/SEKA/seka_projections/ontology-llama31-8b-tau2-retail/B_ont.pt",
+  "n_tasks_attempted": 50,
+  "elapsed_sec": 3.414555311203003,
+  "config": {
+    "n_layers": 32,
+    "n_q": 32,
+    "n_kv": 8,
+    "head_dim": 128,
+    "B_ont_rank": 10
+  },
+  "aggregate": {
+    "n_samples_used": 0,
+    "median_s": 0.0,
+    "mean_s": 0.0,
+    "predicted_sign": 0,
+    "frac_positive_samples": 0.0,
+    "frac_negative_samples": 0.0,
+    "frac_zero_samples": 1.0
+  },
+  "per_sample": [
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 204,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "0",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 204
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 204,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "1",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 204
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 157,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "2",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 157
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 180,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "3",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 180
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 181,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "4",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 181
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 202,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "5",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 202
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 183,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "6",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 183
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 184,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "7",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 184
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 182,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "8",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 182
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 190,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "9",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 190
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 210,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "10",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "transfer_to_human_agents"
+      ],
+      "prompt_len": 210
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 209,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "11",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 209
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 191,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "12",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "transfer_to_human_agents"
+      ],
+      "prompt_len": 191
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 185,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "13",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 185
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 174,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "14",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 174
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 173,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "15",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 173
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 177,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "16",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "calculate",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 177
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 155,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "17",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "prompt_len": 155
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 206,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "18",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 206
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 204,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "19",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 204
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 261,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "20",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 261
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 268,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "21",
+      "n_gt_tools": 7,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_item_details",
+        "get_product_details",
+        "calculate",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 268
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 203,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "22",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "modify_user_address",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "prompt_len": 203
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 191,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "23",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 191
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 184,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "24",
+      "n_gt_tools": 0,
+      "gt_tools": [],
+      "prompt_len": 184
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 196,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "25",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details"
+      ],
+      "prompt_len": 196
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 173,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "26",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items",
+        "transfer_to_human_agents"
+      ],
+      "prompt_len": 173
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 199,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "27",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 199
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 233,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "28",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items",
+        "calculate"
+      ],
+      "prompt_len": 233
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 264,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "29",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 264
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 231,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "30",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items",
+        "cancel_pending_order"
+      ],
+      "prompt_len": 231
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 243,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "31",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 243
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 228,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "32",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 228
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 301,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "33",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "prompt_len": 301
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 278,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "34",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "prompt_len": 278
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 218,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "35",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 218
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 268,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "36",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 268
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 299,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "37",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 299
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 260,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "38",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "calculate",
+        "cancel_pending_order"
+      ],
+      "prompt_len": 260
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 236,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "39",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "prompt_len": 236
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 229,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "40",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_payment"
+      ],
+      "prompt_len": 229
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 258,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "41",
+      "n_gt_tools": 7,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address",
+        "modify_user_address",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 258
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 255,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "42",
+      "n_gt_tools": 7,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address",
+        "modify_user_address",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 255
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 242,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "43",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "prompt_len": 242
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 192,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "44",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 192
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 252,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "45",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 252
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 277,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "46",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "calculate",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 277
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 279,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "47",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "calculate",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 279
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 200,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "48",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 200
+    },
+    {
+      "n_layers": 32,
+      "n_q": 32,
+      "n_kv": 8,
+      "d": 128,
+      "T": 205,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "49",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 205
+    }
+  ]
+}

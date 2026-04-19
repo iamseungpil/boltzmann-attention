@@ -1,0 +1,3995 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "domain": "retail",
+  "b_ont_shape": [
+    28,
+    4,
+    128,
+    11
+  ],
+  "q_sign_json": "reports/tau2_2026_04_17/retail_q_sign_test.json",
+  "layers": [
+    27
+  ],
+  "n_tasks": 114,
+  "n_valid": 97,
+  "n_match": 54,
+  "sign_accuracy": 0.5567010309278351,
+  "runtime_s": 44.717923641204834,
+  "records": [
+    {
+      "task_id": "0",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -0.7233579386374913,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.06257400405593216,
+        "get_order_details": -2.7271931720897555,
+        "get_product_details": -2.7271931720897555,
+        "exchange_delivered_order_items": 2.4983805855736136
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "1",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -0.6267067432054318,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.10195622476749122,
+        "get_order_details": -2.3817960573360324,
+        "get_product_details": -2.3817960573360324,
+        "exchange_delivered_order_items": 2.154808917082846
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.55,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "2",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.6694686473347247,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.21697530755773187,
+        "get_product_details": -2.9329584995284677,
+        "get_user_details": -2.9329584995284677,
+        "get_order_details": -2.9329584995284677,
+        "return_delivered_order_items": 0.23455695435404778
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "3",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.6705434951931237,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.051104065496474504,
+        "get_product_details": -3.0774873117916286,
+        "get_user_details": -3.0774873117916286,
+        "get_order_details": -3.0774873117916286,
+        "modify_pending_order_items": 0.8286403939127922
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.8194444444444444,
+      "f1_neg": 0.7499999999999999,
+      "match": false
+    },
+    {
+      "task_id": "4",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.41659597447142,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.17934120213612914,
+        "get_product_details": -2.756398262223229,
+        "get_user_details": -2.756398262223229,
+        "get_order_details": -2.756398262223229,
+        "modify_pending_order_items": 1.006873712176457
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.888888888888889,
+      "f1_neg": 0.888888888888889,
+      "match": null
+    },
+    {
+      "task_id": "5",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.525696766760666,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.16656715516000986,
+        "get_user_details": -2.6563399413134903,
+        "get_order_details": -2.6563399413134903,
+        "get_product_details": -2.6563399413134903,
+        "return_delivered_order_items": 0.17396883497713134
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.3666666666666667,
+      "f1_neg": 0.4000000000000001,
+      "match": true
+    },
+    {
+      "task_id": "6",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -1.117491194419563,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.0011818383354693651,
+        "get_user_details": -2.4840508268680423,
+        "get_order_details": -2.4840508268680423,
+        "get_product_details": -2.4840508268680423,
+        "exchange_delivered_order_items": 1.8635146701708436
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.49999999999999994,
+      "f1_neg": 0.6666666666666665,
+      "match": true
+    },
+    {
+      "task_id": "7",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -1.1026832565199585,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.06446926016360521,
+        "get_user_details": -2.5257987666409463,
+        "get_order_details": -2.5257987666409463,
+        "get_product_details": -2.5257987666409463,
+        "exchange_delivered_order_items": 1.9995107571594417
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.49999999999999994,
+      "f1_neg": 0.7499999999999999,
+      "match": true
+    },
+    {
+      "task_id": "8",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -1.300506359920837,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.08866264228709042,
+        "get_user_details": -3.0404481535078958,
+        "get_order_details": -3.0404481535078958,
+        "get_product_details": -3.0404481535078958,
+        "exchange_delivered_order_items": 2.530150018632412
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5416666666666666,
+      "f1_neg": 0.6666666666666665,
+      "match": true
+    },
+    {
+      "task_id": "9",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -0.6986109530087561,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.07794274901971221,
+        "get_user_details": -1.6406960824970156,
+        "get_order_details": -1.6406960824970156,
+        "get_product_details": -1.6406960824970156,
+        "exchange_delivered_order_items": 1.3510907334275544
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.4666666666666667,
+      "f1_neg": 0.6666666666666665,
+      "match": true
+    },
+    {
+      "task_id": "10",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -0.5929635164793581,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.49693806609138846,
+        "get_user_details": -3.7995910570025444,
+        "get_order_details": -3.7995910570025444,
+        "transfer_to_human_agents": 4.730389981996268
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5416666666666666,
+      "f1_neg": 0.75,
+      "match": true
+    },
+    {
+      "task_id": "11",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.2131698808225337,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.31931606214493513,
+        "get_user_details": -2.5771051354240626,
+        "get_order_details": -2.5771051354240626,
+        "return_delivered_order_items": -0.017785314586944878
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.75,
+      "f1_neg": 0.75,
+      "match": null
+    },
+    {
+      "task_id": "12",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -0.6344778400962241,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.3745642288122326,
+        "get_user_details": -3.393101808615029,
+        "get_order_details": -3.393101808615029,
+        "transfer_to_human_agents": 3.8737280280329287
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.7777777777777777,
+      "f1_neg": 0.8,
+      "match": true
+    },
+    {
+      "task_id": "13",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.0274726768839173,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.45543740247376263,
+        "get_user_details": -2.4151785615831614,
+        "get_order_details": -2.4151785615831614,
+        "return_delivered_order_items": 0.26502901315689087
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.7333333333333333,
+      "f1_neg": 0.8,
+      "match": true
+    },
+    {
+      "task_id": "14",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.2305635429220274,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.49173663300462067,
+        "get_user_details": -2.9054804367478937,
+        "get_order_details": -2.9054804367478937,
+        "return_delivered_order_items": 0.3969700688030571
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.625,
+      "f1_neg": 0.5714285714285715,
+      "match": false
+    },
+    {
+      "task_id": "15",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.4980786667205392,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.21559771010652184,
+        "get_user_details": -2.742035842500627,
+        "get_order_details": -2.742035842500627,
+        "get_product_details": -2.742035842500627,
+        "modify_pending_order_items": 0.5201164837926626
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5584415584415585,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "16",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "calculate",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -0.32213341223541647,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.14315739437006414,
+        "get_user_details": -2.766649814788252,
+        "get_order_details": -2.766649814788252,
+        "calculate": 2.112740056589246,
+        "cancel_pending_order": 1.1107503101229668,
+        "return_delivered_order_items": 0.2338513950817287
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.9090909090909091,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "17",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ]
+      ],
+      "s_mean": -0.9755217536585405,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.36468612123280764,
+        "get_user_details": -2.4071790396701545,
+        "get_order_details": -2.4071790396701545,
+        "modify_pending_order_address": 0.5475849434733391
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.6190476190476191,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "18",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -1.073088286537677,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.06155012408271432,
+        "get_user_details": -2.5385338189080358,
+        "get_order_details": -2.5385338189080358,
+        "get_product_details": -2.5385338189080358,
+        "exchange_delivered_order_items": 2.1886098999530077
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.3484848484848485,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "19",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.5770932927844115,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.2693189322017133,
+        "get_user_details": -2.8057242590002716,
+        "get_order_details": -2.8057242590002716,
+        "get_product_details": -2.8057242590002716,
+        "return_delivered_order_items": 0.26238738087704405
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.606060606060606,
+      "f1_neg": 0.5454545454545454,
+      "match": false
+    },
+    {
+      "task_id": "20",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.3700423398055136,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.16787115926854312,
+        "get_user_details": 0.12558659282512963,
+        "get_order_details": 0.12558659282512963,
+        "get_product_details": 0.12558659282512963,
+        "modify_pending_order_items": -2.3948426367715
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.4666666666666667,
+      "f1_neg": 0.9090909090909091,
+      "match": true
+    },
+    {
+      "task_id": "21",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_item_details",
+        "get_product_details",
+        "calculate",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_item_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.3143363672840808,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.19970210595056415,
+        "get_user_details": 0.23599251871928573,
+        "get_order_details": 0.23599251871928573,
+        "get_item_details": 0.23599251871928573,
+        "get_product_details": 0.23599251871928573,
+        "calculate": -0.8737470097839832,
+        "modify_pending_order_items": -2.070875530131161
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.35,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "22",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "modify_user_address",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "modify_user_address",
+          34053
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ]
+      ],
+      "s_mean": -0.712610789691098,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.07799819577485323,
+        "modify_user_address": -0.2213998413644731,
+        "get_order_details": -2.485641671810299,
+        "modify_pending_order_address": -0.2213998413644731
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.75,
+      "f1_neg": 0.75,
+      "match": null
+    },
+    {
+      "task_id": "23",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.0846340868544455,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.007687021745368838,
+        "get_user_details": -2.795112155377865,
+        "get_order_details": -2.795112155377865,
+        "get_product_details": -2.795112155377865,
+        "exchange_delivered_order_items": 2.1214827275834978,
+        "modify_pending_order_items": -0.23626376083120704
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.6846153846153846,
+      "f1_neg": 0.4444444444444444,
+      "match": false
+    },
+    {
+      "task_id": "24",
+      "skipped": "no_gt_ids"
+    },
+    {
+      "task_id": "25",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ]
+      ],
+      "s_mean": -1.866805946493211,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.0030953976092860103,
+        "get_user_details": -2.8017566185444593,
+        "get_order_details": -2.8017566185444593
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.5714285714285715,
+      "f1_neg": 0.5714285714285715,
+      "match": null
+    },
+    {
+      "task_id": "26",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -0.21977254406083374,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.020119099994190037,
+        "get_user_details": -2.392415371257812,
+        "get_order_details": -2.392415371257812,
+        "return_delivered_order_items": 0.06890907511115074,
+        "transfer_to_human_agents": 3.637178047094494
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.7499999999999999,
+      "f1_neg": 0.7499999999999999,
+      "match": null
+    },
+    {
+      "task_id": "27",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -1.3982433468103408,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.10159813333302736,
+        "get_user_details": -3.120068379677832,
+        "get_order_details": -3.120068379677832,
+        "get_product_details": -3.120068379677832,
+        "exchange_delivered_order_items": 2.4705865383148193
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.49999999999999994,
+      "f1_neg": 0.6666666666666665,
+      "match": true
+    },
+    {
+      "task_id": "28",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items",
+        "calculate"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ],
+        [
+          "calculate",
+          35597
+        ]
+      ],
+      "s_mean": -0.7763056239811703,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.04549594223499298,
+        "get_user_details": -3.696704018104356,
+        "get_order_details": -3.696704018104356,
+        "return_delivered_order_items": 0.42533652717247605,
+        "calculate": 3.0410474468953907
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.6666666666666665,
+      "f1_neg": 0.8000000000000002,
+      "match": true
+    },
+    {
+      "task_id": "29",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 0.18372395886108278,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.15107535920105875,
+        "get_user_details": 0.6676452911924571,
+        "get_order_details": 0.6676452911924571,
+        "get_product_details": 0.6676452911924571,
+        "exchange_delivered_order_items": -0.9332407200708985
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.6222222222222223,
+      "f1_neg": 0.6666666666666665,
+      "match": false
+    },
+    {
+      "task_id": "30",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items",
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": -1.5198168295513217,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.1259437759872526,
+        "get_user_details": -4.002747506834567,
+        "get_order_details": -4.002747506834567,
+        "get_product_details": -4.002747506834567,
+        "return_delivered_order_items": 0.4526021284982562,
+        "cancel_pending_order": 2.3107956387102604
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.4886363636363636,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "31",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -0.8543403860647232,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.25567228253930807,
+        "get_user_details": -3.6945952160749584,
+        "get_order_details": -3.6945952160749584,
+        "cancel_pending_order": 2.301630711881444,
+        "return_delivered_order_items": 0.5601855074055493
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.8000000000000002,
+      "match": true
+    },
+    {
+      "task_id": "32",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -0.8292977540753782,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.08582563372328877,
+        "get_user_details": -3.1763352286070585,
+        "get_order_details": -3.1763352286070585,
+        "cancel_pending_order": 1.713354729115963,
+        "return_delivered_order_items": 0.4070013239979744
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.6857142857142858,
+      "f1_neg": 0.7499999999999999,
+      "match": true
+    },
+    {
+      "task_id": "33",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_user_address",
+          34053
+        ]
+      ],
+      "s_mean": -0.548750875517726,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.19312054151669145,
+        "get_user_details": -0.5000325213186443,
+        "get_order_details": -0.5000325213186443,
+        "modify_user_address": -1.3880590009503067
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.44285714285714284,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "34",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ]
+      ],
+      "s_mean": -0.24527627479983494,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.5903911897912621,
+        "get_user_details": -0.6877572843804955,
+        "get_order_details": -0.6877572843804955,
+        "modify_pending_order_address": -0.1959817202296108
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5972222222222222,
+      "f1_neg": 0.75,
+      "match": true
+    },
+    {
+      "task_id": "35",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.034582829568535,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.3605562716256827,
+        "get_user_details": -2.644424233585596,
+        "get_order_details": -2.644424233585596,
+        "get_product_details": -2.644424233585596,
+        "return_delivered_order_items": 0.34122048900462687,
+        "modify_pending_order_items": 1.0239989627152681
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.3333333333333333,
+      "f1_neg": 0.5454545454545454,
+      "match": true
+    },
+    {
+      "task_id": "36",
+      "gt_tools": [
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -2.5133053390309215,
+      "s_per_gt": {
+        "modify_pending_order_items": -2.5133053390309215
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.16666666666666669,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "37",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.1781571381725371,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.14509170211385936,
+        "find_user_id_by_name_zip": 0.14509170211385936,
+        "get_user_details": -1.7233822846319526,
+        "modify_pending_order_items": 0.7205703277140856
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.4040404040404041,
+      "f1_neg": 0.22222222222222224,
+      "match": false
+    },
+    {
+      "task_id": "38",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "calculate",
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": -0.02477193798404187,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.10844097356311977,
+        "find_user_id_by_name_zip": 0.10844097356311977,
+        "calculate": 0.060159497894346714,
+        "cancel_pending_order": -0.37612919695675373
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.4444444444444445,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "39",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_user_address",
+          34053
+        ]
+      ],
+      "s_mean": -1.4049282194464467,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.1778958044014871,
+        "get_user_details": -3.1293906305218115,
+        "get_order_details": -3.1293906305218115,
+        "modify_user_address": 0.461172578856349
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.3,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "40",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_payment"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_pending_order_payment",
+          34053
+        ]
+      ],
+      "s_mean": -0.9287026815582067,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.10578396543860435,
+        "get_user_details": -2.6891775359399617,
+        "get_order_details": -2.6891775359399617,
+        "modify_pending_order_payment": 1.5577603802084923
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.873015873015873,
+      "f1_neg": 0.8571428571428571,
+      "match": false
+    },
+    {
+      "task_id": "41",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address",
+        "modify_user_address",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_user_address",
+          34053
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.6839787741856915,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.048845740500837564,
+        "get_user_details": 0.22907816292718053,
+        "get_order_details": 0.22907816292718053,
+        "modify_pending_order_address": -1.8087467225268483,
+        "modify_user_address": -1.8087467225268483,
+        "get_product_details": 0.22907816292718053,
+        "modify_pending_order_items": -1.8087467225268483
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.8012820512820512,
+      "f1_neg": 0.4444444444444445,
+      "match": false
+    },
+    {
+      "task_id": "42",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address",
+        "modify_user_address",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_user_address",
+          34053
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.7266785344108939,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.011701121926307678,
+        "get_user_details": -0.6185093531385064,
+        "get_order_details": -0.6185093531385064,
+        "modify_pending_order_address": -1.080974267795682,
+        "modify_user_address": -1.080974267795682,
+        "get_product_details": -0.6185093531385064,
+        "modify_pending_order_items": -1.080974267795682
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5865384615384615,
+      "f1_neg": 0.923076923076923,
+      "match": true
+    },
+    {
+      "task_id": "43",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "modify_user_address",
+          34053
+        ]
+      ],
+      "s_mean": -1.0405895098811015,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.4123048847541213,
+        "get_user_details": -3.716742663877085,
+        "get_order_details": -3.716742663877085,
+        "modify_user_address": 2.858822403475642
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.6666666666666665,
+      "match": true
+    },
+    {
+      "task_id": "44",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.8653464731294662,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.0129152936860919,
+        "get_order_details": -2.816398426424712,
+        "get_product_details": -2.816398426424712,
+        "calculate": 1.9246064347680658,
+        "modify_pending_order_items": -0.6314572412520647
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.9166666666666666,
+      "f1_neg": 1.0,
+      "match": true
+    },
+    {
+      "task_id": "45",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 0.28319831467233597,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.675086012808606,
+        "get_order_details": -0.10576214920729399,
+        "get_product_details": -0.10576214920729399,
+        "calculate": 0.3799912082031369,
+        "exchange_delivered_order_items": 0.5724386507645249
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.41071428571428575,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "46",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "calculate",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -0.2280043849023059,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.007863268721848726,
+        "get_order_details": 0.018529696390032768,
+        "calculate": -0.5087926820851862,
+        "return_delivered_order_items": -0.4138912851922214
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.41666666666666663,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "47",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "calculate",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -0.18358925264328718,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.12150975177064538,
+        "get_order_details": -1.1246025073342025,
+        "calculate": 0.5444821240380406,
+        "return_delivered_order_items": -0.2757463790476322
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5714285714285715,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "48",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.1284405193291605,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.2358122372534126,
+        "get_user_details": -2.407297389116138,
+        "get_order_details": -2.407297389116138,
+        "return_delivered_order_items": 0.06502046366222203
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.625,
+      "f1_neg": 0.5714285714285715,
+      "match": false
+    },
+    {
+      "task_id": "49",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -0.5911665474413894,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.17339284613262862,
+        "get_user_details": -2.9266108479350805,
+        "get_order_details": -2.9266108479350805,
+        "get_product_details": -2.9266108479350805,
+        "calculate": 2.33850478194654,
+        "exchange_delivered_order_items": 2.7209356310777366
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.55,
+      "f1_neg": 0.5454545454545454,
+      "match": false
+    },
+    {
+      "task_id": "50",
+      "gt_tools": [
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": 5.4990501794964075,
+      "s_per_gt": {
+        "transfer_to_human_agents": 5.4990501794964075
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2,
+      "f1_neg": 0.33333333333333337,
+      "match": false
+    },
+    {
+      "task_id": "51",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.8452428616583347,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.08579191332682967,
+        "get_order_details": -3.1325601316057146,
+        "get_product_details": -3.1325601316057146,
+        "get_user_details": -3.1325601316057146,
+        "return_delivered_order_items": 0.08567417319864035
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.38888888888888895,
+      "f1_neg": 0.7499999999999999,
+      "match": true
+    },
+    {
+      "task_id": "52",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -1.1649647384649142,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.21179462759755552,
+        "get_user_details": -3.002561770263128,
+        "get_order_details": -3.002561770263128,
+        "get_product_details": -3.002561770263128,
+        "exchange_delivered_order_items": 2.971066990867257
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.7878787878787878,
+      "f1_neg": 0.9090909090909091,
+      "match": true
+    },
+    {
+      "task_id": "53",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -1.2951117415213957,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.10962471412494779,
+        "get_user_details": -2.577905905432999,
+        "get_order_details": -2.577905905432999,
+        "return_delivered_order_items": 0.08498955890536308
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5333333333333332,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "54",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -0.000307685206644237,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.2324212808161974,
+        "get_user_details": 0.15350250573828816,
+        "get_order_details": 0.15350250573828816,
+        "cancel_pending_order": -0.5376786906272173,
+        "return_delivered_order_items": -0.003286027698777616
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5857142857142856,
+      "f1_neg": 0.8333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "55",
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_email",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": -0.7453977693570778,
+      "s_per_gt": {
+        "find_user_id_by_email": 0.470122117199935,
+        "get_user_details": -3.5128211565315723,
+        "get_order_details": -3.5128211565315723,
+        "cancel_pending_order": 2.2109996816143394,
+        "return_delivered_order_items": 0.6175316674634814
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 1.0,
+      "f1_neg": 0.888888888888889,
+      "match": false
+    },
+    {
+      "task_id": "56",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.7228986330796032,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.06749829440377653,
+        "get_user_details": -3.456544098444283,
+        "get_order_details": -3.456544098444283,
+        "get_product_details": -3.456544098444283,
+        "modify_pending_order_items": 1.687640835531056
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.4444444444444445,
+      "match": false
+    },
+    {
+      "task_id": "57",
+      "skipped": "no_gt_ids"
+    },
+    {
+      "task_id": "58",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": -0.0715636732056737,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.13432444212958217,
+        "get_user_details": -0.24344652378931642,
+        "get_order_details": -0.24344652378931642,
+        "get_product_details": -0.24344652378931642,
+        "exchange_delivered_order_items": 0.2381967632099986
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.2361111111111111,
+      "f1_neg": 0.4444444444444445,
+      "match": true
+    },
+    {
+      "task_id": "59",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "cancel_pending_order",
+        "modify_pending_order_address"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ]
+      ],
+      "s_mean": -0.4805497955530882,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.0915806726552546,
+        "get_order_details": 0.3766592340543866,
+        "cancel_pending_order": -1.4584767655469477,
+        "modify_pending_order_address": -0.9319623233750463
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.75,
+      "match": true
+    },
+    {
+      "task_id": "60",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.7344685176503845,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.17768184770829976,
+        "get_order_details": -2.428890234325081,
+        "get_product_details": -2.428890234325081,
+        "modify_pending_order_items": -1.9024117542430758
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.625,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "61",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.7130279718898237,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.12800763081759214,
+        "get_order_details": -2.9172647828236222,
+        "get_product_details": -2.9172647828236222,
+        "calculate": 2.0739467926323414,
+        "modify_pending_order_items": 0.06743528274819255
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.4444444444444445,
+      "f1_neg": 0.4444444444444445,
+      "match": null
+    },
+    {
+      "task_id": "62",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ]
+      ],
+      "s_mean": -0.7752374130068347,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.11210196139290929,
+        "get_user_details": -0.9962825635448098,
+        "get_order_details": -0.9962825635448098,
+        "get_product_details": -0.9962825635448098
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5727272727272728,
+      "f1_neg": 0.6,
+      "match": true
+    },
+    {
+      "task_id": "63",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "calculate",
+          35597
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.443083410578159,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.22262176219373941,
+        "get_user_details": 0.37367052864283323,
+        "get_order_details": 0.37367052864283323,
+        "get_product_details": 0.37367052864283323,
+        "calculate": -0.6486680607777089,
+        "modify_pending_order_items": -2.9082222264260054
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.48571428571428577,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "64",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "get_product_details",
+          455
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.3396751390925299,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.0035190624184906483,
+        "get_user_details": -3.748203668743372,
+        "get_order_details": -3.748203668743372,
+        "get_product_details": -3.748203668743372,
+        "exchange_delivered_order_items": 3.0928577850572765,
+        "modify_pending_order_items": 0.11722144903615117
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.7636363636363637,
+      "f1_neg": 0.8,
+      "match": true
+    },
+    {
+      "task_id": "65",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ]
+      ],
+      "s_mean": -2.0150877081323415,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.10674016899429262,
+        "get_user_details": -2.969261477701366,
+        "get_order_details": -2.969261477701366
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.5,
+      "f1_neg": 0.5,
+      "match": null
+    },
+    {
+      "task_id": "66",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": -1.282954422669718,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": -0.2766760360682383,
+        "get_user_details": -2.521610020659864,
+        "get_order_details": -2.521610020659864,
+        "cancel_pending_order": 0.18807838670909405
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.507936507936508,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "67",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ]
+      ],
+      "s_mean": -2.2986977410813174,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.35744002228602767,
+        "get_user_details": -3.6267666227649897,
+        "get_order_details": -3.6267666227649897
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "68",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ]
+      ],
+      "s_mean": -2.386741516025116,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.42546620313078165,
+        "get_user_details": -3.792845375603065,
+        "get_order_details": -3.792845375603065
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "69",
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "find_user_id_by_name_zip",
+          3903
+        ],
+        [
+          "get_user_details",
+          455
+        ],
+        [
+          "get_order_details",
+          455
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": -1.0017356150783598,
+      "s_per_gt": {
+        "find_user_id_by_name_zip": 0.24844752438366413,
+        "get_user_details": -2.6022565946914256,
+        "get_order_details": -2.6022565946914256,
+        "cancel_pending_order": 0.9491232046857476
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.45,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "70",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 2.246579392813146,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 2.246579392813146
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.16666666666666669,
+      "f1_neg": 0.33333333333333337,
+      "match": false
+    },
+    {
+      "task_id": "71",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.5016252234345302,
+      "s_per_gt": {
+        "modify_pending_order_address": -1.5016252234345302,
+        "modify_pending_order_items": -1.5016252234345302
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.6190476190476191,
+      "f1_neg": 0.8,
+      "match": true
+    },
+    {
+      "task_id": "72",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.409344762796536,
+      "s_per_gt": {
+        "modify_pending_order_address": -1.409344762796536,
+        "modify_pending_order_items": -1.409344762796536
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "73",
+      "gt_tools": [
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": 0.26811848871875554,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.26811848871875554
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.5,
+      "f1_neg": 0.5,
+      "match": null
+    },
+    {
+      "task_id": "74",
+      "gt_tools": [
+        "cancel_pending_order",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "cancel_pending_order",
+          18515
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": 2.2052723062224686,
+      "s_per_gt": {
+        "cancel_pending_order": 2.300402194727212,
+        "modify_pending_order_items": 2.110142417717725
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.29166666666666663,
+      "f1_neg": 0.4444444444444445,
+      "match": false
+    },
+    {
+      "task_id": "75",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 2.357440465595573,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 2.357440465595573
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.45,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "76",
+      "gt_tools": [
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": 2.3323114523664117,
+      "s_per_gt": {
+        "cancel_pending_order": 2.3323114523664117
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.34285714285714286,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "77",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 2.033950572833419,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 2.033950572833419
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3333333333333333,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "78",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_pending_order_items",
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": -1.6070569353178144,
+      "s_per_gt": {
+        "modify_pending_order_address": -1.8751701419241726,
+        "modify_pending_order_items": -1.8751701419241726,
+        "cancel_pending_order": -1.0708305221050978
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.5714285714285715,
+      "f1_neg": 0.5714285714285715,
+      "match": null
+    },
+    {
+      "task_id": "79",
+      "gt_tools": [
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": 2.7971185287460685,
+      "s_per_gt": {
+        "modify_pending_order_items": 2.7971185287460685
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "80",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 4.157798347994685,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 4.157798347994685
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3666666666666667,
+      "f1_neg": 0.33333333333333337,
+      "match": true
+    },
+    {
+      "task_id": "81",
+      "gt_tools": [
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": 1.5445491084828973,
+      "s_per_gt": {
+        "cancel_pending_order": 1.5445491084828973
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "82",
+      "gt_tools": [
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": 0.17797925125341862,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.17797925125341862
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.5,
+      "f1_neg": 0.5,
+      "match": null
+    },
+    {
+      "task_id": "83",
+      "gt_tools": [
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": 0.2545766052789986,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.2545766052789986
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.25,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "84",
+      "gt_tools": [
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": 0.22429020795971155,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.22429020795971155
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "85",
+      "gt_tools": [
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": 2.2200259724631906,
+      "s_per_gt": {
+        "modify_pending_order_items": 2.2200259724631906
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "86",
+      "gt_tools": [
+        "modify_pending_order_items",
+        "modify_user_address"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_items",
+          34053
+        ],
+        [
+          "modify_user_address",
+          34053
+        ]
+      ],
+      "s_mean": 1.1259141275659204,
+      "s_per_gt": {
+        "modify_pending_order_items": 1.1259141275659204,
+        "modify_user_address": 1.1259141275659204
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.28571428571428575,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "87",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_user_address"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_user_address",
+          34053
+        ]
+      ],
+      "s_mean": 1.2953416388481855,
+      "s_per_gt": {
+        "modify_pending_order_address": 1.2953416388481855,
+        "modify_user_address": 1.2953416388481855
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.8,
+      "f1_neg": 0.8,
+      "match": null
+    },
+    {
+      "task_id": "88",
+      "gt_tools": [
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": 1.394544324837625,
+      "s_per_gt": {
+        "cancel_pending_order": 1.394544324837625
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.45,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "89",
+      "gt_tools": [
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": 0.20939600188285112,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.20939600188285112
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "90",
+      "gt_tools": [
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": 1.6463875127956271,
+      "s_per_gt": {
+        "cancel_pending_order": 1.6463875127956271
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.14285714285714285,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "91",
+      "gt_tools": [
+        "return_delivered_order_items",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 1.9745140774757601,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.44134430040139705,
+        "exchange_delivered_order_items": 3.507683854550123
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.45,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "92",
+      "gt_tools": [
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": 0.484122384339571,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.484122384339571
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.25,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "93",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 1.6816983963362873,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 1.6816983963362873
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "94",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 1.6193044227547944,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 1.6193044227547944
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "95",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 2.1593411001376808,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 2.1593411001376808
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "96",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": 0.6901852916926146,
+      "s_per_gt": {
+        "modify_pending_order_address": 0.6901852916926146,
+        "modify_pending_order_items": 0.6901852916926146
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.125,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "97",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -0.27288905857130885,
+      "s_per_gt": {
+        "modify_pending_order_address": -0.27288905857130885,
+        "modify_pending_order_items": -0.27288905857130885
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.2,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "98",
+      "gt_tools": [
+        "exchange_delivered_order_items",
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ],
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": -0.5537852908018976,
+      "s_per_gt": {
+        "exchange_delivered_order_items": -0.16289564222097397,
+        "cancel_pending_order": -0.9446749393828213
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.41666666666666663,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "99",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 1.0901972185820341,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 1.0901972185820341
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "100",
+      "gt_tools": [
+        "modify_pending_order_items",
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_items",
+          34053
+        ],
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": 1.5488537832861766,
+      "s_per_gt": {
+        "modify_pending_order_items": 2.5852981116622686,
+        "return_delivered_order_items": 0.5124094549100846
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.39682539682539686,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "101",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -2.561852984596044,
+      "s_per_gt": {
+        "modify_pending_order_address": -2.561852984596044,
+        "modify_pending_order_items": -2.561852984596044
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.6857142857142857,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "102",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_pending_order_items",
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ],
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 2.7907245761404433,
+      "s_per_gt": {
+        "modify_pending_order_address": 2.322355925105512,
+        "modify_pending_order_items": 2.322355925105512,
+        "exchange_delivered_order_items": 3.727461878210306
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.6785714285714286,
+      "f1_neg": 0.7499999999999999,
+      "match": false
+    },
+    {
+      "task_id": "103",
+      "gt_tools": [
+        "return_delivered_order_items",
+        "modify_pending_order_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": 1.5948328785598278,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.42455649841576815,
+        "modify_pending_order_address": 2.1799710686318576,
+        "modify_pending_order_items": 2.1799710686318576
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5416666666666666,
+      "f1_neg": 0.7499999999999999,
+      "match": false
+    },
+    {
+      "task_id": "104",
+      "gt_tools": [
+        "return_delivered_order_items",
+        "modify_pending_order_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": 1.9522669442618887,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.45398666616529226,
+        "modify_pending_order_address": 2.701407083310187,
+        "modify_pending_order_items": 2.701407083310187
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5416666666666666,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "105",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 3.848774597980082,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 3.848774597980082
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5333333333333333,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "106",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 2.756306709256023,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 2.756306709256023
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.4,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "107",
+      "gt_tools": [
+        "exchange_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "exchange_delivered_order_items",
+          39568
+        ]
+      ],
+      "s_mean": 3.660042656585574,
+      "s_per_gt": {
+        "exchange_delivered_order_items": 3.660042656585574
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3666666666666667,
+      "f1_neg": 0.2857142857142857,
+      "match": true
+    },
+    {
+      "task_id": "108",
+      "gt_tools": [
+        "return_delivered_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "return_delivered_order_items",
+          689
+        ]
+      ],
+      "s_mean": 0.009210969088599086,
+      "s_per_gt": {
+        "return_delivered_order_items": 0.009210969088599086
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.4,
+      "f1_neg": 0.4,
+      "match": null
+    },
+    {
+      "task_id": "109",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_user_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_user_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": -1.856685513164848,
+      "s_per_gt": {
+        "modify_pending_order_address": -1.856685513164848,
+        "modify_user_address": -1.856685513164848,
+        "modify_pending_order_items": -1.856685513164848
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5972222222222221,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "110",
+      "gt_tools": [
+        "modify_pending_order_address",
+        "modify_user_address",
+        "modify_pending_order_items"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_address",
+          34053
+        ],
+        [
+          "modify_user_address",
+          34053
+        ],
+        [
+          "modify_pending_order_items",
+          34053
+        ]
+      ],
+      "s_mean": 2.3924037888646126,
+      "s_per_gt": {
+        "modify_pending_order_address": 2.3924037888646126,
+        "modify_user_address": 2.3924037888646126,
+        "modify_pending_order_items": 2.3924037888646126
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4444444444444444,
+      "match": true
+    },
+    {
+      "task_id": "111",
+      "gt_tools": [
+        "modify_pending_order_items",
+        "modify_pending_order_address"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_items",
+          34053
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ]
+      ],
+      "s_mean": 2.2391459299251437,
+      "s_per_gt": {
+        "modify_pending_order_items": 2.2391459299251437,
+        "modify_pending_order_address": 2.2391459299251437
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6190476190476191,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "112",
+      "gt_tools": [
+        "modify_pending_order_items",
+        "modify_pending_order_address"
+      ],
+      "gt_first_ids": [
+        [
+          "modify_pending_order_items",
+          34053
+        ],
+        [
+          "modify_pending_order_address",
+          34053
+        ]
+      ],
+      "s_mean": 2.349646609276533,
+      "s_per_gt": {
+        "modify_pending_order_items": 2.349646609276533,
+        "modify_pending_order_address": 2.349646609276533
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "113",
+      "gt_tools": [
+        "cancel_pending_order"
+      ],
+      "gt_first_ids": [
+        [
+          "cancel_pending_order",
+          18515
+        ]
+      ],
+      "s_mean": 1.331945164129138,
+      "s_per_gt": {
+        "cancel_pending_order": 1.331945164129138
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    }
+  ]
+}

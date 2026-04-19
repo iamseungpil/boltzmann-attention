@@ -1,0 +1,125 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 995,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.05",
+    "ocq_bias_a0.1",
+    "ocq_bias_a0.2",
+    "ocq_bias_a0.5",
+    "ocq_bias_a1.0"
+  ],
+  "skip_heads_spec": null,
+  "skip_heads_count": 0,
+  "skip_sink_tokens": 0,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-llama31-8b-metatool/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 995,
+      "top1_correct": 620,
+      "top1_accuracy": 0.6231155778894473,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6231155778894473,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 785,
+        "no_match": 53,
+        "none_pred": 157
+      },
+      "runtime_s": 2126.936176776886,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.05",
+      "n_queries": 995,
+      "top1_correct": 626,
+      "top1_accuracy": 0.629145728643216,
+      "tool_queries": 995,
+      "tool_accuracy": 0.629145728643216,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 792,
+        "no_match": 55,
+        "none_pred": 148
+      },
+      "runtime_s": 2795.1805107593536,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.1",
+      "n_queries": 995,
+      "top1_correct": 630,
+      "top1_accuracy": 0.6331658291457286,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6331658291457286,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 783,
+        "no_match": 75,
+        "none_pred": 137
+      },
+      "runtime_s": 1516.7178750038147,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.2",
+      "n_queries": 995,
+      "top1_correct": 683,
+      "top1_accuracy": 0.6864321608040201,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6864321608040201,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 827,
+        "no_match": 47,
+        "none_pred": 121
+      },
+      "runtime_s": 2476.2546813488007,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.5",
+      "n_queries": 995,
+      "top1_correct": 725,
+      "top1_accuracy": 0.7286432160804021,
+      "tool_queries": 995,
+      "tool_accuracy": 0.7286432160804021,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 867,
+        "no_match": 57,
+        "none_pred": 71
+      },
+      "runtime_s": 2134.1220376491547,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a1.0",
+      "n_queries": 995,
+      "top1_correct": 721,
+      "top1_accuracy": 0.7246231155778895,
+      "tool_queries": 995,
+      "tool_accuracy": 0.7246231155778895,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 814,
+        "no_match": 128,
+        "none_pred": 53
+      },
+      "runtime_s": 2013.3202457427979,
+      "samples": []
+    }
+  ]
+}

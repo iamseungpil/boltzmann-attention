@@ -1,0 +1,2421 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "b_ont": null,
+  "p_pos_path": "external/SEKA/seka_projections/canonical-metatool-llama31-8b/Meta-Llama-3.1-8B-Instruct_pos_proj.pt",
+  "layers": "last10",
+  "n_queries": 20,
+  "results": [
+    {
+      "method": "no_steer",
+      "amplify_pos": 0.0,
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.6833333333333333,
+        "F_0.5": 0.6916666666666667,
+        "EU": 0.55,
+        "Jaccard": 0.6416666666666667,
+        "Exact": 0.55,
+        "precision": 0.7,
+        "recall": 0.675
+      },
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to solve the user's query:\n\n1. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose NewsTool to get the latest news about Tesla and FinanceTool to understand how Tesla's news ha",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to get the current stock price of Apple, as it provides real-time financial updat",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with an overview of the top trending stocks and their current",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to help solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with the latest financial updates and real-time insights",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "Based on the user's query, I will choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis, which can help th",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "Based on the user's query, I will choose the following two tools:\n\n1. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is looking for courses that teach accounting principles and in",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis on stocks, which a",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "Based on the user's query, I will choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis on various financi",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user find the latest financial report for a company and provide stock market trends for the past month:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nThe Finance",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"PDF&URLTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis on various ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ai_council"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ai_council\", \"arguments\": {}}</tool_call>\n\nThe FinanceTool will provide the user with the current interest rates for mortgages, while th",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Substack_IQ"
+          ],
+          "generation_head": "I would choose the following two tools to solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with the latest financial updates and real-time insights o",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose TripAdviceTool to provide recommendations for budget-friendly travel destinations. I chose FinanceTool to provide information on local currency exchange rates.",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user:\n\n1. <tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose TripAdviceTool because it can provide the user with cost-effective travel tips and recommendatio",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user with their query:\n\n1. <tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose TripAdviceTool because it can provide the user with cost-effective accommodatio",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides the user with information on investment options and th",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "real_seka_amp0.5",
+      "amplify_pos": 0.5,
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.6833333333333333,
+        "F_0.5": 0.6916666666666667,
+        "EU": 0.55,
+        "Jaccard": 0.6416666666666667,
+        "Exact": 0.55,
+        "precision": 0.7,
+        "recall": 0.675
+      },
+      "runtime_s": 58.6426465511322,
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to answer the user's query:\n\n1. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose NewsTool to get the latest news about Tesla and FinanceTool to analyze how Tesla's news has ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to get the current stock price of Apple, as it provides real-time financial updat",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with an overview of the top trending stocks and their curren",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to help solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to analyze the financial performance of Amazon and NewsTool to understand an",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial insights and analysis, which would be ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "Based on the user's query, I will choose the following two tools:\n\n1. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is looking for courses that teach accounting principles and in",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis on stocks, which a",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis on various option",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user find the latest financial report for a company and provide stock market trends for the past month:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nThe Finance",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"PDF&URLTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis on various ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ai_council"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ai_council\", \"arguments\": {}}</tool_call>\n\nThe FinanceTool will provide the user with the current interest rates for mortgages, while th",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Substack_IQ"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with the latest financial updates and real-time insi",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose TripAdviceTool to provide cost-effective travel tips and ways to save money during the trip, as it offers tourism activities, accommodation, and attraction reco",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose TripAdviceTool to provide recommendations for cost-effective accommodation options and local transportation fares, as it is a comprehensive travel assistant tha",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis on various in",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "real_seka_amp1.0",
+      "amplify_pos": 1.0,
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.6833333333333333,
+        "F_0.5": 0.6916666666666667,
+        "EU": 0.55,
+        "Jaccard": 0.6416666666666667,
+        "Exact": 0.55,
+        "precision": 0.7,
+        "recall": 0.675
+      },
+      "runtime_s": 59.67088842391968,
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to answer the user's query:\n\n1. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is asking for the latest news about Tesla and its impact on the",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to get the current stock price of Apple, as it provides real-time financial updat",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with an overview of the top trending stocks and their recent",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to help solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with the latest financial updates and real-time insights",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user invest their savings wisely and learn about financial planning:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is looking for courses that teach accounting principles and i",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial updates and analysis on stocks, which a",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial insights and analysis, which would be ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user find the latest financial report for a company and provide stock market trends for the past month:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nThe Finance",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"PDF&URLTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial insights and analysis on various",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ai_council"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ai_council\", \"arguments\": {}}</tool_call>\n\nThe FinanceTool will provide the user with the current interest rates for mortgages, while th",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Substack_IQ"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with the latest exchange rates between different cur",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can assist you in selecting the appropriate tools.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose TripAdviceTool to provide cost-effective travel tips and ways to save money during the trip, as it offers tourism activities, accommodation, and attraction reco",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with cost-effective accommodation options and insights on local transportation fares, as it offers real-time financial updates a",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with information on popular investment options and the",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "real_seka_amp2.0",
+      "amplify_pos": 2.0,
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.6333333333333333,
+        "F_0.5": 0.6416666666666667,
+        "EU": 0.45,
+        "Jaccard": 0.5750000000000001,
+        "Exact": 0.45,
+        "precision": 0.65,
+        "recall": 0.625
+      },
+      "runtime_s": 62.2810697555542,
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to answer the user's query:\n\n1. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is asking for the latest news about Tesla and its impact on the",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to get the current stock price of Apple, as it provides real-time financial updat",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with the latest financial updates and real-time insights on ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to help analyze the financial performance of Amazon and understand recent news or events that might have influenced its stock price:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_ca",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user invest their savings wisely and learn about financial planning:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is looking for courses that teach accounting principles ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial insights and analysis on stocks, which ",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "Based on the user's query, I would choose the following two tools:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial insights and analysis, which would be ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user find the latest financial report and past month's stock market trends:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nThe FinanceTool is ideal for staying in",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"PDF&URLTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool because it provides real-time financial insights and analysis on various",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ai_council"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ai_council\", \"arguments\": {}}</tool_call>\n\nThe FinanceTool will provide the user with the current interest rates for mortgages, while th",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Substack_IQ"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with real-time exchange rates and analysis on variou",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can choose the most appropriate tools to assist with their request.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can choose the most appropriate tools to assist with their request.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can choose the most appropriate tools to assist with their request.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can choose the most appropriate tools to assist with their request.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n\nI chose these two tools because MixerBox_WebSearchG_web_search can provide information on budget-friendly travel destinations, and TripAdviceTool can",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose these two tools because the user is planning a vacation and wants to manage their finances. The MixerBox_WebSearchG_web_search tool can provide ",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide real-time insights and analysis on local transportation fares, helping the user make informed decisions about their expenses. I chose Tri",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}</tool_call>\n\nI chose FinanceTool to provide the user with information on popular investment options and the",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        }
+      ]
+    },
+    {
+      "method": "real_seka_amp5.0",
+      "amplify_pos": 5.0,
+      "n_queries": 20,
+      "macro": {
+        "F1": 0.5416666666666666,
+        "F_0.5": 0.6083333333333334,
+        "EU": 0.15,
+        "Jaccard": 0.4333333333333333,
+        "Exact": 0.15,
+        "precision": 0.675,
+        "recall": 0.475
+      },
+      "runtime_s": 87.69050765037537,
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n2. <tool_name>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_name>\n\nI chose these tools because the user is asking for the latest news about Tesla and its impact o",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is asking for the current stock price of Apple and recent ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_markdown>{\"name\": \"NewsTool\", \"arguments\": {}}</tool_call>\n\nI chose these two tools because the user is asking for information about recent news that might ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user analyze the financial performance of Amazon and stay up-to-date with recent news and events that might have influenced its stock price:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"NewsTool\", \"argu",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user invest their savings wisely and learn about financial planning:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_name>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_name>\n\nI chose these tools because FinanceTool provi",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is looking for courses that teach accounting principles ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user find top-performing stocks and learn about the stock market:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"Coursera_Coursera is not in the list, but we have a similar tool: \"CourseTool\", \"arguments\"",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's question:\n\n1. <tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}</tool_call>\n2. <tool_name>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_name>\n\nI chose CourseTool because it offers a comprehensive learning platform with courses on var",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user find the latest financial report and past month's stock market trends:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_call>\n\nThe tool \"FinanceTool\" will provide the",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_tool>{\"name\": \"PDF&URLTool\", \"arguments\": {}}</tool_tool>\n\nI chose FinanceTool because it provides real-time insights and analysis on various investmen",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_query>\n2. <tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}</tool_query>\n\nI chose FinanceTool to provide the user with real-time interest rate analysis and insights. ",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Substack_IQ"
+          ],
+          "generation_head": "I would choose the following two tools to help solve the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_query>\n2. <tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}</tool_query>\n\nI chose FinanceTool to provide the user with real-time exchange rates between different cur",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can choose the most appropriate tools to assist with their request.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can choose the most appropriate tools to assist with their request.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can choose the most appropriate tools to assist with their request.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [],
+          "generation_head": "I don't see a user query. Please provide the user's question so I can choose the most appropriate tools to assist with their request.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_code>",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help the user:\n\n1. <tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}</tool_call>\n2. <tool_cost_effective_search_result>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}</tool_call>\n\nI chose these tools because the user is planning a vacation a",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}</tool_call>",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I would choose the following two tools to help answer the user's query:\n\n1. <tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n2. <tool_toolplayer_search_player_audio_player {\"name\": \"MusicTool\", \"arguments\": {}}</tool_toolplayer_search_player_audio_player>\n\nI chose FinanceTool to provi",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        }
+      ]
+    }
+  ]
+}

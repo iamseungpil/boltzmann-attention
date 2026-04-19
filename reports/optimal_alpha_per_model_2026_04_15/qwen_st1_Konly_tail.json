@@ -1,0 +1,71 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 995,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.5",
+    "ocq_bias_a1.0"
+  ],
+  "skip_heads_spec": null,
+  "skip_heads_count": 0,
+  "skip_sink_tokens": 0,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-qwen25-7b-metatool/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 995,
+      "top1_correct": 600,
+      "top1_accuracy": 0.6030150753768844,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6030150753768844,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 821,
+        "no_match": 43,
+        "none_pred": 131
+      },
+      "runtime_s": 1293.158658504486,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.5",
+      "n_queries": 995,
+      "top1_correct": 603,
+      "top1_accuracy": 0.6060301507537689,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6060301507537689,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 850,
+        "no_match": 72,
+        "none_pred": 73
+      },
+      "runtime_s": 1731.9168696403503,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a1.0",
+      "n_queries": 995,
+      "top1_correct": 541,
+      "top1_accuracy": 0.5437185929648242,
+      "tool_queries": 995,
+      "tool_accuracy": 0.5437185929648242,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 802,
+        "no_match": 74,
+        "none_pred": 119
+      },
+      "runtime_s": 1296.1007721424103,
+      "samples": []
+    }
+  ]
+}

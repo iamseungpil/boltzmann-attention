@@ -1,0 +1,2971 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "external/tau2-bench/data/tau2/domains/banking_knowledge/tasks_nonmeta.json",
+  "domain": "banking_knowledge",
+  "n_tasks": 13,
+  "max_new_tokens": 300,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.05",
+    "ocq_bias_a0.1",
+    "ocq_qbias_b-0.03",
+    "ocq_qbias_b-0.05",
+    "ocq_qbias_b-0.1",
+    "ocq_ladapt_k0.05_q-0.03",
+    "ocq_ladapt_k0.05_q-0.05",
+    "ocq_ladapt_k0.1_q-0.05",
+    "multipass_ocq_ladapt_k0.05_q-0.03",
+    "multipass_ocq_qbias_b-0.05",
+    "adaseka_M3_a0.3_T0.5"
+  ],
+  "skip_heads_spec": null,
+  "skip_sink_tokens": 0,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-banking/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.7564102564102565,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6923076923076923,
+        "Precision": 0.9230769230769231,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.7410869664307066
+      },
+      "runtime_s": 28.01982307434082,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.05",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.7564102564102565,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6923076923076923,
+        "Precision": 0.9230769230769231,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.7410869664307066
+      },
+      "runtime_s": 27.791611909866333,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_bias_a0.1",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.6666666666666666,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6282051282051282,
+        "Precision": 0.7692307692307693,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.6578234342162286
+      },
+      "runtime_s": 24.209288120269775,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_qbias_b-0.03",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.7051282051282051,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6538461538461539,
+        "Precision": 0.8461538461538461,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.6939217977564406
+      },
+      "runtime_s": 30.62019920349121,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_qbias_b-0.05",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.6923076923076923,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6538461538461539,
+        "Precision": 0.8076923076923077,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.6939217977564406
+      },
+      "runtime_s": 34.54050397872925,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_qbias_b-0.1",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.7564102564102565,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6923076923076923,
+        "Precision": 0.9230769230769231,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.7410869664307066
+      },
+      "runtime_s": 37.23589110374451,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_ladapt_k0.05_q-0.03",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.7564102564102565,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6923076923076923,
+        "Precision": 0.9230769230769231,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.7410869664307066
+      },
+      "runtime_s": 30.685712814331055,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_ladapt_k0.05_q-0.05",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.7564102564102565,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6923076923076923,
+        "Precision": 0.9230769230769231,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.7410869664307066
+      },
+      "runtime_s": 36.55128359794617,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "ocq_ladapt_k0.1_q-0.05",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.7051282051282051,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.6538461538461539,
+        "Precision": 0.8461538461538461,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.6939217977564406
+      },
+      "runtime_s": 33.3016152381897,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "multipass_ocq_ladapt_k0.05_q-0.03",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.8128205128205128,
+        "Exact": 0.5384615384615384,
+        "Recall": 0.782051282051282,
+        "Precision": 0.8974358974358974,
+        "GT_subset": 0.6153846153846154,
+        "nDCG": 0.8163959379050353
+      },
+      "runtime_s": 106.89606618881226,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral",
+            "log_verification",
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.8,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral",
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.8,
+            "Exact": 0,
+            "Recall": 0.6666666666666666,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.7653606369886217
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral",
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.8,
+            "Exact": 0,
+            "Recall": 0.6666666666666666,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.7653606369886217
+          }
+        }
+      ]
+    },
+    {
+      "method": "multipass_ocq_qbias_b-0.05",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.7282051282051282,
+        "Exact": 0.46153846153846156,
+        "Recall": 0.717948717948718,
+        "Precision": 0.8076923076923077,
+        "GT_subset": 0.5384615384615384,
+        "nDCG": 0.7464552376180104
+      },
+      "runtime_s": 77.68953275680542,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user",
+            "submit_transaction"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.38685280723454163
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.5,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card",
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.5,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral",
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.8,
+            "Exact": 0,
+            "Recall": 0.6666666666666666,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.7653606369886217
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    },
+    {
+      "method": "adaseka_M3_a0.3_T0.5",
+      "n_tasks": 13,
+      "metrics": {
+        "F1": 0.5897435897435898,
+        "Exact": 0.46153846153846156,
+        "Recall": 0.5512820512820513,
+        "Precision": 0.6923076923076923,
+        "GT_subset": 0.46153846153846156,
+        "nDCG": 0.5809003572931517
+      },
+      "runtime_s": 88.98453760147095,
+      "per_sample": [
+        {
+          "task_id": "task_001",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_002",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_003",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_006",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_007",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_010",
+          "gt_tools": [
+            "log_verification",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_016",
+          "gt_tools": [
+            "log_verification",
+            "submit_transaction"
+          ],
+          "pred_tools": [
+            "get_referrals_by_user"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_023",
+          "gt_tools": [
+            "log_verification",
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "log_verification"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "task_024",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_025",
+          "gt_tools": [
+            "apply_for_credit_card"
+          ],
+          "pred_tools": [
+            "apply_for_credit_card"
+          ],
+          "metrics": {
+            "F1": 1.0,
+            "Exact": 1,
+            "Recall": 1.0,
+            "Precision": 1.0,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "task_098",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "task_101",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "task_102",
+          "gt_tools": [
+            "log_verification",
+            "get_referrals_by_user",
+            "submit_referral"
+          ],
+          "pred_tools": [
+            "submit_referral"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        }
+      ]
+    }
+  ]
+}

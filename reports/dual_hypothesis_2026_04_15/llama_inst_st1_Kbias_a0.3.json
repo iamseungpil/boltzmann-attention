@@ -1,0 +1,53 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "dataset": "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask1.json",
+  "n_queries": 995,
+  "methods": [
+    "no_steer",
+    "ocq_bias_a0.3"
+  ],
+  "skip_heads_spec": null,
+  "skip_heads_count": 0,
+  "skip_sink_tokens": 0,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-llama31-8b-metatool/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "no_steer",
+      "n_queries": 995,
+      "top1_correct": 620,
+      "top1_accuracy": 0.6231155778894473,
+      "tool_queries": 995,
+      "tool_accuracy": 0.6231155778894473,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 785,
+        "no_match": 53,
+        "none_pred": 157
+      },
+      "runtime_s": 2146.9682655334473,
+      "samples": []
+    },
+    {
+      "method": "ocq_bias_a0.3",
+      "n_queries": 995,
+      "top1_correct": 770,
+      "top1_accuracy": 0.7738693467336684,
+      "tool_queries": 995,
+      "tool_accuracy": 0.7738693467336684,
+      "none_queries": 0,
+      "none_accuracy": null,
+      "pred_counts": {
+        "matched": 895,
+        "no_match": 17,
+        "none_pred": 83
+      },
+      "runtime_s": 2775.6986339092255,
+      "samples": []
+    }
+  ]
+}

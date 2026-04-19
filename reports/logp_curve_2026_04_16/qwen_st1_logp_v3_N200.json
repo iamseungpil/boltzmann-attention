@@ -1,0 +1,76 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "b_ont": "external/SEKA/seka_projections/ontology-qwen25-7b-metatool/B_ont.pt",
+  "script_version": "v3_2026_04_16_autoregressive",
+  "alphas": [
+    0.0,
+    0.025,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.3,
+    0.5
+  ],
+  "per_alpha": {
+    "0.0": {
+      "mean_sum_logp": -2.4106524149772803,
+      "std_sum_logp": 3.9261583459339406,
+      "mean_first_logp": -2.4034392869961505,
+      "first_argmax_acc": 0.62,
+      "n": 200
+    },
+    "0.025": {
+      "mean_sum_logp": -2.4453546318161936,
+      "std_sum_logp": 3.953339028341359,
+      "mean_first_logp": -2.439401731706498,
+      "first_argmax_acc": 0.62,
+      "n": 200
+    },
+    "0.05": {
+      "mean_sum_logp": -2.4021851887115564,
+      "std_sum_logp": 3.869807148151511,
+      "mean_first_logp": -2.3962792672424644,
+      "first_argmax_acc": 0.625,
+      "n": 200
+    },
+    "0.1": {
+      "mean_sum_logp": -2.4716463793778094,
+      "std_sum_logp": 3.968831349974652,
+      "mean_first_logp": -2.4673404190167325,
+      "first_argmax_acc": 0.615,
+      "n": 200
+    },
+    "0.15": {
+      "mean_sum_logp": -2.480020297550787,
+      "std_sum_logp": 3.9997699850238413,
+      "mean_first_logp": -2.475750363089344,
+      "first_argmax_acc": 0.63,
+      "n": 200
+    },
+    "0.2": {
+      "mean_sum_logp": -2.528007333217991,
+      "std_sum_logp": 3.9844682921073433,
+      "mean_first_logp": -2.5242812799703884,
+      "first_argmax_acc": 0.615,
+      "n": 200
+    },
+    "0.3": {
+      "mean_sum_logp": -2.568415428716109,
+      "std_sum_logp": 3.997025310155854,
+      "mean_first_logp": -2.564967451087242,
+      "first_argmax_acc": 0.62,
+      "n": 200
+    },
+    "0.5": {
+      "mean_sum_logp": -2.66885077821876,
+      "std_sum_logp": 4.258831757195406,
+      "mean_first_logp": -2.6597078556962117,
+      "first_argmax_acc": 0.61,
+      "n": 200
+    }
+  },
+  "n_samples": 200,
+  "n_skipped": 0,
+  "prefix_appended": "<tool_call>{\"name\": \""
+}

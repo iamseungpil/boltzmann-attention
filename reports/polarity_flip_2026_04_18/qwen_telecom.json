@@ -1,0 +1,883 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "domain": "telecom",
+  "b_ont": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-telecom/B_ont.pt",
+  "n_tasks_attempted": 50,
+  "elapsed_sec": 18.890000581741333,
+  "config": {
+    "n_layers": 28,
+    "n_q": 28,
+    "n_kv": 4,
+    "head_dim": 128,
+    "B_ont_rank": 12
+  },
+  "aggregate": {
+    "n_samples_used": 50,
+    "median_s": -2.2655837560704155,
+    "mean_s": -2.2070566159050826,
+    "predicted_sign": -1,
+    "frac_positive_samples": 0.0,
+    "frac_negative_samples": 1.0,
+    "frac_zero_samples": 0.0
+  },
+  "per_sample": [
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 3,
+      "sample_mean": -2.6650780618777596,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 3,
+      "sample_mean": -2.227989881985193,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 6,
+      "sample_mean": -2.2889482673788826,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 4,
+      "sample_mean": -2.541296834441278,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_mode_off[PERSONA:None]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "toggle_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 5,
+      "sample_mean": -2.6429874501868733,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_saver_mode_on[PERSONA:Easy]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "toggle_data_saver_mode"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 4,
+      "sample_mean": -2.3605751421006853,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_network_preference[PERSONA:Hard]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "set_network_mode_preference"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 3,
+      "sample_mean": -1.6474855219539835,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_vpn[PERSONA:None]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "disconnect_vpn"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 3,
+      "sample_mean": -2.429183796186138,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "refuel_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 7,
+      "sample_mean": -2.250577579902229,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 7,
+      "sample_mean": -2.11766734838781,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 10,
+      "sample_mean": -2.186265293744942,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 8,
+      "sample_mean": -2.2610696813850018,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 9,
+      "sample_mean": -2.265095132903896,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 8,
+      "sample_mean": -2.179609593450323,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 7,
+      "sample_mean": -1.6698977314916392,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 7,
+      "sample_mean": -2.1623770786712133,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 7,
+      "sample_mean": -2.58052122330212,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 8,
+      "sample_mean": -2.6369339628675754,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 7,
+      "sample_mean": -2.403601862075727,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 6,
+      "sample_mean": -1.749311642671794,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 6,
+      "sample_mean": -2.415214433027227,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 7,
+      "sample_mean": -2.2914865508138984,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 8,
+      "sample_mean": -2.312515167170155,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 7,
+      "sample_mean": -2.2650803037381864,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 6,
+      "sample_mean": -1.7407933436837237,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 6,
+      "sample_mean": -2.2660723792369355,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 10,
+      "sample_mean": -2.337956425263998,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 11,
+      "sample_mean": -2.351671740962162,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 10,
+      "sample_mean": -2.291862085255109,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 9,
+      "sample_mean": -1.7899068229414323,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 9,
+      "sample_mean": -2.283447052362542,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 7,
+      "sample_mean": -2.5571783918181232,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 8,
+      "sample_mean": -2.3774117074143604,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 7,
+      "sample_mean": -1.7556094506637778,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 7,
+      "sample_mean": -2.3622080325050594,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_mode_off|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 9,
+      "sample_mean": -2.3983986336428815,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on[PERSONA:Hard]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 8,
+      "sample_mean": -1.7639640223498723,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 8,
+      "sample_mean": -2.4080559195564635,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 7,
+      "sample_mean": -1.7670693573268095,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 7,
+      "sample_mean": -2.336558689896408,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded[PERSONA:Easy]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 860,
+      "gt_token_count": 6,
+      "sample_mean": -1.7900501724773474,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]bad_vpn|data_usage_exceeded[PERSONA:None]",
+      "n_gt_tools": 2,
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "prompt_len": 860
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 11,
+      "sample_mean": -2.3288868760928456,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 12,
+      "sample_mean": -2.335683263414494,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 11,
+      "sample_mean": -2.2565166082129333,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 10,
+      "sample_mean": -1.7456366854236514,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 10,
+      "sample_mean": -2.237323294128906,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 11,
+      "sample_mean": -2.2038523261993532,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 12,
+      "sample_mean": -2.2027017013929786,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 11,
+      "sample_mean": -2.1691447324998463,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 857,
+      "gt_token_count": 10,
+      "sample_mean": -1.7441015388175702,
+      "sample_median_sign": -1,
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "prompt_len": 857
+    }
+  ]
+}

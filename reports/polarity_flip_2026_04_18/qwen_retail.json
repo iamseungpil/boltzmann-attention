@@ -1,0 +1,1005 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "domain": "retail",
+  "b_ont": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-retail/B_ont.pt",
+  "n_tasks_attempted": 50,
+  "elapsed_sec": 34.11004114151001,
+  "config": {
+    "n_layers": 28,
+    "n_q": 28,
+    "n_kv": 4,
+    "head_dim": 128,
+    "B_ont_rank": 11
+  },
+  "aggregate": {
+    "n_samples_used": 49,
+    "median_s": -1.8522864220407922,
+    "mean_s": -1.7861563161547023,
+    "predicted_sign": -1,
+    "frac_positive_samples": 0.0,
+    "frac_negative_samples": 1.0,
+    "frac_zero_samples": 0.0
+  },
+  "per_sample": [
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1686,
+      "gt_token_count": 17,
+      "sample_mean": -1.8996761870580043,
+      "sample_median_sign": -1,
+      "task_id": "0",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1686
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1686,
+      "gt_token_count": 17,
+      "sample_mean": -1.9137394192770802,
+      "sample_median_sign": -1,
+      "task_id": "1",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1686
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1635,
+      "gt_token_count": 20,
+      "sample_mean": -1.7964638261660242,
+      "sample_median_sign": -1,
+      "task_id": "2",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1635
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1658,
+      "gt_token_count": 19,
+      "sample_mean": -1.8533381358207324,
+      "sample_median_sign": -1,
+      "task_id": "3",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1658
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1659,
+      "gt_token_count": 19,
+      "sample_mean": -1.8728765630437,
+      "sample_median_sign": -1,
+      "task_id": "4",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_product_details",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1659
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1682,
+      "gt_token_count": 20,
+      "sample_mean": -1.9390654397443257,
+      "sample_median_sign": -1,
+      "task_id": "5",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1682
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1663,
+      "gt_token_count": 20,
+      "sample_mean": -1.885234694922234,
+      "sample_median_sign": -1,
+      "task_id": "6",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1663
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1664,
+      "gt_token_count": 20,
+      "sample_mean": -1.879760453190077,
+      "sample_median_sign": -1,
+      "task_id": "7",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1664
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1662,
+      "gt_token_count": 20,
+      "sample_mean": -1.887677451715359,
+      "sample_median_sign": -1,
+      "task_id": "8",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1662
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1670,
+      "gt_token_count": 20,
+      "sample_mean": -1.8849251701500902,
+      "sample_median_sign": -1,
+      "task_id": "9",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1670
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1689,
+      "gt_token_count": 15,
+      "sample_mean": -1.5701943952281052,
+      "sample_median_sign": -1,
+      "task_id": "10",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "transfer_to_human_agents"
+      ],
+      "prompt_len": 1689
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1688,
+      "gt_token_count": 16,
+      "sample_mean": -1.7246312281289866,
+      "sample_median_sign": -1,
+      "task_id": "11",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1688
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1670,
+      "gt_token_count": 15,
+      "sample_mean": -1.5398900346307198,
+      "sample_median_sign": -1,
+      "task_id": "12",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "transfer_to_human_agents"
+      ],
+      "prompt_len": 1670
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1664,
+      "gt_token_count": 16,
+      "sample_mean": -1.7102576941678052,
+      "sample_median_sign": -1,
+      "task_id": "13",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1664
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1653,
+      "gt_token_count": 16,
+      "sample_mean": -1.6599889665299297,
+      "sample_median_sign": -1,
+      "task_id": "14",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1653
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1651,
+      "gt_token_count": 19,
+      "sample_mean": -1.8336053760613662,
+      "sample_median_sign": -1,
+      "task_id": "15",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1651
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1655,
+      "gt_token_count": 21,
+      "sample_mean": -1.51471666751708,
+      "sample_median_sign": -1,
+      "task_id": "16",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "calculate",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1655
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1639,
+      "gt_token_count": 16,
+      "sample_mean": -1.786361979002022,
+      "sample_median_sign": -1,
+      "task_id": "17",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "prompt_len": 1639
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1684,
+      "gt_token_count": 20,
+      "sample_mean": -1.913507075879273,
+      "sample_median_sign": -1,
+      "task_id": "18",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1684
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1682,
+      "gt_token_count": 20,
+      "sample_mean": -1.913848735221063,
+      "sample_median_sign": -1,
+      "task_id": "19",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1682
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1739,
+      "gt_token_count": 19,
+      "sample_mean": -1.8733271899779071,
+      "sample_median_sign": -1,
+      "task_id": "20",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1739
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1770,
+      "gt_token_count": 23,
+      "sample_mean": -1.5548778392735696,
+      "sample_median_sign": -1,
+      "task_id": "21",
+      "n_gt_tools": 7,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_item_details",
+        "get_product_details",
+        "calculate",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1770
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1686,
+      "gt_token_count": 16,
+      "sample_mean": -1.94181250527422,
+      "sample_median_sign": -1,
+      "task_id": "22",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "modify_user_address",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "prompt_len": 1686
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1669,
+      "gt_token_count": 24,
+      "sample_mean": -1.874931537878933,
+      "sample_median_sign": -1,
+      "task_id": "23",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1669
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1662,
+      "gt_token_count": 0,
+      "sample_mean": NaN,
+      "sample_median_sign": 0,
+      "task_id": "24",
+      "n_gt_tools": 0,
+      "gt_tools": [],
+      "prompt_len": 1662
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1674,
+      "gt_token_count": 12,
+      "sample_mean": -1.9375464814155017,
+      "sample_median_sign": -1,
+      "task_id": "25",
+      "n_gt_tools": 3,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details"
+      ],
+      "prompt_len": 1674
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1651,
+      "gt_token_count": 21,
+      "sample_mean": -1.6810721861275848,
+      "sample_median_sign": -1,
+      "task_id": "26",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items",
+        "transfer_to_human_agents"
+      ],
+      "prompt_len": 1651
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1677,
+      "gt_token_count": 20,
+      "sample_mean": -1.8522864220407922,
+      "sample_median_sign": -1,
+      "task_id": "27",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1677
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1711,
+      "gt_token_count": 18,
+      "sample_mean": -1.5537131623168063,
+      "sample_median_sign": -1,
+      "task_id": "28",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items",
+        "calculate"
+      ],
+      "prompt_len": 1711
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1748,
+      "gt_token_count": 20,
+      "sample_mean": -1.9605790093312756,
+      "sample_median_sign": -1,
+      "task_id": "29",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1748
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1709,
+      "gt_token_count": 23,
+      "sample_mean": -1.7226004543575524,
+      "sample_median_sign": -1,
+      "task_id": "30",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items",
+        "cancel_pending_order"
+      ],
+      "prompt_len": 1709
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1721,
+      "gt_token_count": 20,
+      "sample_mean": -1.7590454487642262,
+      "sample_median_sign": -1,
+      "task_id": "31",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1721
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1706,
+      "gt_token_count": 20,
+      "sample_mean": -1.7271223789758192,
+      "sample_median_sign": -1,
+      "task_id": "32",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "cancel_pending_order",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1706
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1779,
+      "gt_token_count": 15,
+      "sample_mean": -1.9421270675153786,
+      "sample_median_sign": -1,
+      "task_id": "33",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "prompt_len": 1779
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1756,
+      "gt_token_count": 16,
+      "sample_mean": -1.7979885231692878,
+      "sample_median_sign": -1,
+      "task_id": "34",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address"
+      ],
+      "prompt_len": 1756
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1702,
+      "gt_token_count": 23,
+      "sample_mean": -1.6949456588424432,
+      "sample_median_sign": -1,
+      "task_id": "35",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "return_delivered_order_items",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1702
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1754,
+      "gt_token_count": 4,
+      "sample_mean": -2.271283099972647,
+      "sample_median_sign": -1,
+      "task_id": "36",
+      "n_gt_tools": 1,
+      "gt_tools": [
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1754
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1785,
+      "gt_token_count": 18,
+      "sample_mean": -1.8914265525039424,
+      "sample_median_sign": -1,
+      "task_id": "37",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1785
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1746,
+      "gt_token_count": 15,
+      "sample_mean": -1.5260787702442733,
+      "sample_median_sign": -1,
+      "task_id": "38",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "calculate",
+        "cancel_pending_order"
+      ],
+      "prompt_len": 1746
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1719,
+      "gt_token_count": 15,
+      "sample_mean": -1.8990025370207333,
+      "sample_median_sign": -1,
+      "task_id": "39",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "prompt_len": 1719
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1706,
+      "gt_token_count": 15,
+      "sample_mean": -1.805817470880173,
+      "sample_median_sign": -1,
+      "task_id": "40",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_email",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_payment"
+      ],
+      "prompt_len": 1706
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1744,
+      "gt_token_count": 26,
+      "sample_mean": -1.8793661545361273,
+      "sample_median_sign": -1,
+      "task_id": "41",
+      "n_gt_tools": 7,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address",
+        "modify_user_address",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1744
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1739,
+      "gt_token_count": 26,
+      "sample_mean": -1.9565947110381872,
+      "sample_median_sign": -1,
+      "task_id": "42",
+      "n_gt_tools": 7,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_pending_order_address",
+        "modify_user_address",
+        "get_product_details",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1739
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1722,
+      "gt_token_count": 15,
+      "sample_mean": -1.9913936154683625,
+      "sample_median_sign": -1,
+      "task_id": "43",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "modify_user_address"
+      ],
+      "prompt_len": 1722
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1674,
+      "gt_token_count": 17,
+      "sample_mean": -1.4221105422137894,
+      "sample_median_sign": -1,
+      "task_id": "44",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "modify_pending_order_items"
+      ],
+      "prompt_len": 1674
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1736,
+      "gt_token_count": 18,
+      "sample_mean": -1.53871792915079,
+      "sample_median_sign": -1,
+      "task_id": "45",
+      "n_gt_tools": 5,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1736
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1765,
+      "gt_token_count": 15,
+      "sample_mean": -1.504119251515953,
+      "sample_median_sign": -1,
+      "task_id": "46",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "calculate",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1765
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1767,
+      "gt_token_count": 15,
+      "sample_mean": -1.5241365253183108,
+      "sample_median_sign": -1,
+      "task_id": "47",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "calculate",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1767
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1680,
+      "gt_token_count": 17,
+      "sample_mean": -1.909101759239766,
+      "sample_median_sign": -1,
+      "task_id": "48",
+      "n_gt_tools": 4,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "return_delivered_order_items"
+      ],
+      "prompt_len": 1680
+    },
+    {
+      "n_layers": 28,
+      "n_q": 28,
+      "n_kv": 4,
+      "d": 128,
+      "T": 1683,
+      "gt_token_count": 21,
+      "sample_mean": -1.5487752137620692,
+      "sample_median_sign": -1,
+      "task_id": "49",
+      "n_gt_tools": 6,
+      "gt_tools": [
+        "find_user_id_by_name_zip",
+        "get_user_details",
+        "get_order_details",
+        "get_product_details",
+        "calculate",
+        "exchange_delivered_order_items"
+      ],
+      "prompt_len": 1683
+    }
+  ]
+}

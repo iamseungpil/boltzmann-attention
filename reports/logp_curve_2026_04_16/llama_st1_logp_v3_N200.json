@@ -1,0 +1,76 @@
+{
+  "model": "NousResearch/Meta-Llama-3.1-8B-Instruct",
+  "b_ont": "external/SEKA/seka_projections/ontology-llama31-8b-metatool/B_ont.pt",
+  "script_version": "v3_2026_04_16_autoregressive",
+  "alphas": [
+    0.0,
+    0.025,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.3,
+    0.5
+  ],
+  "per_alpha": {
+    "0.0": {
+      "mean_sum_logp": -1.3669754845648183,
+      "std_sum_logp": 2.131738849629133,
+      "mean_first_logp": -1.3507015249961534,
+      "first_argmax_acc": 0.665,
+      "n": 200
+    },
+    "0.025": {
+      "mean_sum_logp": -1.3696682039457,
+      "std_sum_logp": 2.120760824782377,
+      "mean_first_logp": -1.3532833650543103,
+      "first_argmax_acc": 0.67,
+      "n": 200
+    },
+    "0.05": {
+      "mean_sum_logp": -1.3615327797375099,
+      "std_sum_logp": 2.10250762467782,
+      "mean_first_logp": -1.3450795142839649,
+      "first_argmax_acc": 0.66,
+      "n": 200
+    },
+    "0.1": {
+      "mean_sum_logp": -1.3746534649230915,
+      "std_sum_logp": 2.094533529670288,
+      "mean_first_logp": -1.3568795243961131,
+      "first_argmax_acc": 0.655,
+      "n": 200
+    },
+    "0.15": {
+      "mean_sum_logp": -1.398779933370687,
+      "std_sum_logp": 2.0955104811242955,
+      "mean_first_logp": -1.3816568570336563,
+      "first_argmax_acc": 0.655,
+      "n": 200
+    },
+    "0.2": {
+      "mean_sum_logp": -1.4069431000212063,
+      "std_sum_logp": 2.0982945732496217,
+      "mean_first_logp": -1.3907405617065114,
+      "first_argmax_acc": 0.665,
+      "n": 200
+    },
+    "0.3": {
+      "mean_sum_logp": -1.437974194720664,
+      "std_sum_logp": 2.098047190728943,
+      "mean_first_logp": -1.418836805588353,
+      "first_argmax_acc": 0.645,
+      "n": 200
+    },
+    "0.5": {
+      "mean_sum_logp": -1.444413038379601,
+      "std_sum_logp": 2.0894861540226066,
+      "mean_first_logp": -1.420748108529242,
+      "first_argmax_acc": 0.635,
+      "n": 200
+    }
+  },
+  "n_samples": 200,
+  "n_skipped": 0,
+  "prefix_appended": "<tool_call>{\"name\": \""
+}

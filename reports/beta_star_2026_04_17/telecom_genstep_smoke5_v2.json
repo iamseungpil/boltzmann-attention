@@ -1,0 +1,128 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "domain": "telecom",
+  "K": 5,
+  "gt_tokens": "discriminative",
+  "n_tasks": 5,
+  "n_valid": 4,
+  "n_match": 3,
+  "sign_accuracy": 0.75,
+  "runtime_s": 2.5676310062408447,
+  "records": [
+    {
+      "task_id": "[mobile_data_issue]user_abroad_roaming_enabled_off[PERSONA:None]",
+      "K_steps_actual": 5,
+      "s_per_step": [
+        1.9253571974113584,
+        6.263768544265379,
+        3.298116914307078,
+        0.45210078669091064,
+        5.406932003097609
+      ],
+      "s_mean": 3.469255089154467,
+      "generated_tokens": [
+        151657,
+        198,
+        4913,
+        606
+      ],
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "K_steps_actual": 5,
+      "s_per_step": [
+        1.3634205861017108,
+        4.636962054025692,
+        2.4979919471467533,
+        0.307449774350971,
+        3.9823690704846135
+      ],
+      "s_mean": 2.557638686421948,
+      "generated_tokens": [
+        151657,
+        198,
+        4913,
+        606
+      ],
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3666666666666667,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "K_steps_actual": 5,
+      "s_per_step": [
+        0.7458356255665421,
+        3.97767123329686,
+        2.0846198010258377,
+        0.26641893410123885,
+        3.8627688558772206
+      ],
+      "s_mean": 2.1874628899735398,
+      "generated_tokens": [
+        151657,
+        198,
+        4913,
+        606
+      ],
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off[PERSONA:None]",
+      "K_steps_actual": 5,
+      "s_per_step": [
+        1.2597519357223064,
+        3.324886745918775,
+        2.500375849660486,
+        0.22266634681727737,
+        2.236355939647183
+      ],
+      "s_mean": 1.9088073635532055,
+      "generated_tokens": [
+        151657,
+        198,
+        4913,
+        606
+      ],
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on[PERSONA:Easy]",
+      "K_steps_actual": 5,
+      "s_per_step": [
+        1.261165604647249,
+        2.823157184442971,
+        2.2017365858890114,
+        0.3829561109188944,
+        1.8308163003530353
+      ],
+      "s_mean": 1.6999663572502322,
+      "generated_tokens": [
+        151657,
+        198,
+        4913,
+        606
+      ],
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    }
+  ]
+}

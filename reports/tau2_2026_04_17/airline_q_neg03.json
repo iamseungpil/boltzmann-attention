@@ -1,0 +1,1032 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench/data/tau2/domains/airline/tasks.json",
+  "domain": "airline",
+  "n_tasks": 50,
+  "max_new_tokens": 300,
+  "methods": [
+    "ocq_qbias_b-0.03"
+  ],
+  "skip_heads_spec": null,
+  "skip_sink_tokens": 0,
+  "ocq": {
+    "b_ont_path": "external/SEKA/seka_projections/ontology-qwen25-7b-tau2-airline/B_ont.pt",
+    "ont_mode": "1b",
+    "quant_bits": 4
+  },
+  "results": [
+    {
+      "method": "ocq_qbias_b-0.03",
+      "n_tasks": 50,
+      "metrics": {
+        "F1": 0.3241962481962482,
+        "Exact": 0.0,
+        "Recall": 0.6366666666666666,
+        "Precision": 0.2977619047619047,
+        "GT_subset": 0.52,
+        "nDCG": 0.3899113467927399
+      },
+      "runtime_s": 285.00753808021545,
+      "per_sample": [
+        {
+          "task_id": "0",
+          "gt_tools": [],
+          "pred_tools": [
+            "cancel_reservation",
+            "get_reservation_details",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "1",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "cancel_reservation",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.5,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "2",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "search_direct_flight",
+            "get_user_details",
+            "book_reservation",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.3333333333333333,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.25,
+            "GT_subset": 0,
+            "nDCG": 0.38685280723454163
+          }
+        },
+        {
+          "task_id": "3",
+          "gt_tools": [
+            "get_reservation_details",
+            "get_user_details"
+          ],
+          "pred_tools": [
+            "get_reservation_details",
+            "update_reservation_baggages",
+            "get_user_details",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.5,
+            "GT_subset": 1,
+            "nDCG": 0.9197207891481876
+          }
+        },
+        {
+          "task_id": "4",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "get_user_details"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "5",
+          "gt_tools": [
+            "get_user_details"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.3333333333333333,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "6",
+          "gt_tools": [
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "get_reservation_details",
+            "update_reservation_passengers",
+            "update_reservation_baggages",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.4,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.25,
+            "GT_subset": 1,
+            "nDCG": 1.0
+          }
+        },
+        {
+          "task_id": "7",
+          "gt_tools": [
+            "get_reservation_details",
+            "update_reservation_flights",
+            "cancel_reservation"
+          ],
+          "pred_tools": [
+            "transfer_to_human_agents",
+            "get_reservation_details",
+            "cancel_reservation",
+            "get_user_details",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.6666666666666666,
+            "Precision": 0.4,
+            "GT_subset": 0,
+            "nDCG": 0.5307212739772434
+          }
+        },
+        {
+          "task_id": "8",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "search_direct_flight",
+            "book_reservation"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "search_direct_flight",
+            "get_reservation_details",
+            "update_reservation_passengers",
+            "update_reservation_baggages",
+            "update_reservation_flights",
+            "book_reservation"
+          ],
+          "metrics": {
+            "F1": 0.7272727272727273,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.5714285714285714,
+            "GT_subset": 1,
+            "nDCG": 0.9619991470595832
+          }
+        },
+        {
+          "task_id": "9",
+          "gt_tools": [
+            "search_direct_flight"
+          ],
+          "pred_tools": [
+            "cancel_reservation",
+            "update_reservation_flights"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "10",
+          "gt_tools": [],
+          "pred_tools": [
+            "get_user_details",
+            "search_direct_flight",
+            "update_reservation_flights",
+            "update_reservation_passengers",
+            "calculate",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "11",
+          "gt_tools": [
+            "update_reservation_flights"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "update_reservation_passengers"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "12",
+          "gt_tools": [
+            "get_reservation_details",
+            "search_direct_flight",
+            "calculate",
+            "update_reservation_baggages"
+          ],
+          "pred_tools": [
+            "get_reservation_details",
+            "update_reservation_passengers",
+            "update_reservation_baggages"
+          ],
+          "metrics": {
+            "F1": 0.5714285714285715,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 0,
+            "nDCG": 0.5855700749881525
+          }
+        },
+        {
+          "task_id": "13",
+          "gt_tools": [
+            "transfer_to_human_agents"
+          ],
+          "pred_tools": [
+            "update_reservation_flights",
+            "transfer_to_human_agents",
+            "get_reservation_details",
+            "search_direct_flight"
+          ],
+          "metrics": {
+            "F1": 0.4,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.25,
+            "GT_subset": 1,
+            "nDCG": 0.6309297535714575
+          }
+        },
+        {
+          "task_id": "14",
+          "gt_tools": [
+            "cancel_reservation",
+            "book_reservation"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "calculate",
+            "get_reservation_details",
+            "search_direct_flight",
+            "update_reservation_flights",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "15",
+          "gt_tools": [
+            "update_reservation_flights"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "search_direct_flight",
+            "update_reservation_flights",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.4,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.25,
+            "GT_subset": 1,
+            "nDCG": 0.5
+          }
+        },
+        {
+          "task_id": "16",
+          "gt_tools": [
+            "update_reservation_flights"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "search_direct_flight",
+            "update_reservation_flights",
+            "update_reservation_baggages",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.2,
+            "GT_subset": 1,
+            "nDCG": 0.5
+          }
+        },
+        {
+          "task_id": "17",
+          "gt_tools": [
+            "update_reservation_flights",
+            "update_reservation_passengers",
+            "update_reservation_baggages"
+          ],
+          "pred_tools": [
+            "get_user_details"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "18",
+          "gt_tools": [
+            "update_reservation_flights"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "update_reservation_flights",
+            "calculate",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.33333333333333337,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.2,
+            "GT_subset": 1,
+            "nDCG": 0.5
+          }
+        },
+        {
+          "task_id": "19",
+          "gt_tools": [
+            "cancel_reservation"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "search_direct_flight",
+            "update_reservation_flights",
+            "update_reservation_passengers",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "20",
+          "gt_tools": [
+            "book_reservation"
+          ],
+          "pred_tools": [
+            "search_direct_flight"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "21",
+          "gt_tools": [
+            "update_reservation_flights",
+            "update_reservation_baggages"
+          ],
+          "pred_tools": [
+            "search_direct_flight",
+            "update_reservation_flights",
+            "update_reservation_baggages",
+            "get_user_details",
+            "calculate",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.3333333333333333,
+            "GT_subset": 1,
+            "nDCG": 0.6934264036172708
+          }
+        },
+        {
+          "task_id": "22",
+          "gt_tools": [
+            "update_reservation_flights",
+            "update_reservation_passengers",
+            "update_reservation_baggages"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "search_direct_flight",
+            "update_reservation_passengers",
+            "update_reservation_flights",
+            "update_reservation_baggages"
+          ],
+          "metrics": {
+            "F1": 0.7499999999999999,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.6,
+            "GT_subset": 1,
+            "nDCG": 0.6182885020492784
+          }
+        },
+        {
+          "task_id": "23",
+          "gt_tools": [
+            "cancel_reservation",
+            "book_reservation"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "24",
+          "gt_tools": [
+            "book_reservation"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "update_reservation_passengers"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "25",
+          "gt_tools": [
+            "book_reservation"
+          ],
+          "pred_tools": [
+            "update_reservation_passengers",
+            "transfer_to_human_agents",
+            "get_reservation_details",
+            "get_user_details",
+            "calculate"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "26",
+          "gt_tools": [],
+          "pred_tools": [
+            "cancel_reservation"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "27",
+          "gt_tools": [
+            "get_user_details"
+          ],
+          "pred_tools": [
+            "transfer_to_human_agents",
+            "get_reservation_details",
+            "get_user_details"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.3333333333333333,
+            "GT_subset": 1,
+            "nDCG": 0.5
+          }
+        },
+        {
+          "task_id": "28",
+          "gt_tools": [],
+          "pred_tools": [
+            "transfer_to_human_agents",
+            "cancel_reservation"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "29",
+          "gt_tools": [
+            "get_reservation_details",
+            "cancel_reservation",
+            "book_reservation"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "search_direct_flight",
+            "update_reservation_flights",
+            "update_reservation_baggages"
+          ],
+          "metrics": {
+            "F1": 0.25,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 0.2,
+            "GT_subset": 0,
+            "nDCG": 0.2960819109658652
+          }
+        },
+        {
+          "task_id": "30",
+          "gt_tools": [
+            "get_reservation_details",
+            "search_direct_flight",
+            "update_reservation_flights"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "update_reservation_flights",
+            "update_reservation_baggages",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.6666666666666666,
+            "Precision": 0.4,
+            "GT_subset": 0,
+            "nDCG": 0.5307212739772434
+          }
+        },
+        {
+          "task_id": "31",
+          "gt_tools": [],
+          "pred_tools": [
+            "get_user_details",
+            "search_direct_flight",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "32",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "search_direct_flight",
+            "update_reservation_flights"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "update_reservation_baggages",
+            "update_reservation_passengers",
+            "update_reservation_flights",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.4444444444444445,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.4,
+            "GT_subset": 0,
+            "nDCG": 0.5585075862632192
+          }
+        },
+        {
+          "task_id": "33",
+          "gt_tools": [
+            "get_reservation_details",
+            "search_direct_flight",
+            "update_reservation_flights",
+            "update_reservation_baggages"
+          ],
+          "pred_tools": [
+            "book_reservation"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "34",
+          "gt_tools": [],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "update_reservation_flights",
+            "update_reservation_passengers",
+            "update_reservation_baggages",
+            "calculate",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "35",
+          "gt_tools": [
+            "book_reservation"
+          ],
+          "pred_tools": [
+            "cancel_reservation",
+            "book_reservation"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.5,
+            "GT_subset": 1,
+            "nDCG": 0.6309297535714575
+          }
+        },
+        {
+          "task_id": "36",
+          "gt_tools": [
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "update_reservation_flights",
+            "transfer_to_human_agents",
+            "get_reservation_details"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.3333333333333333,
+            "GT_subset": 1,
+            "nDCG": 0.5
+          }
+        },
+        {
+          "task_id": "37",
+          "gt_tools": [
+            "get_reservation_details",
+            "search_direct_flight",
+            "update_reservation_flights"
+          ],
+          "pred_tools": [
+            "cancel_reservation",
+            "update_reservation_passengers",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "38",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "transfer_to_human_agents",
+            "get_reservation_details",
+            "get_user_details"
+          ],
+          "metrics": {
+            "F1": 0.8,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.6666666666666666,
+            "GT_subset": 1,
+            "nDCG": 0.6934264036172708
+          }
+        },
+        {
+          "task_id": "39",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "cancel_reservation"
+          ],
+          "pred_tools": [
+            "cancel_reservation"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "40",
+          "gt_tools": [
+            "get_reservation_details",
+            "update_reservation_passengers"
+          ],
+          "pred_tools": [
+            "update_reservation_passengers"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "41",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "cancel_reservation",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.4,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 0.3333333333333333,
+            "GT_subset": 0,
+            "nDCG": 0.6131471927654584
+          }
+        },
+        {
+          "task_id": "42",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "cancel_reservation"
+          ],
+          "pred_tools": [
+            "get_user_details"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 0.3333333333333333,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.46927872602275644
+          }
+        },
+        {
+          "task_id": "43",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "transfer_to_human_agents",
+            "get_reservation_details",
+            "cancel_reservation",
+            "get_user_details"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.5,
+            "GT_subset": 1,
+            "nDCG": 0.6509209298071326
+          }
+        },
+        {
+          "task_id": "44",
+          "gt_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "search_direct_flight",
+            "update_reservation_flights"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "search_direct_flight"
+          ],
+          "metrics": {
+            "F1": 0.6666666666666666,
+            "Exact": 0,
+            "Recall": 0.5,
+            "Precision": 1.0,
+            "GT_subset": 0,
+            "nDCG": 0.6366824387328317
+          }
+        },
+        {
+          "task_id": "45",
+          "gt_tools": [
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "transfer_to_human_agents",
+            "get_reservation_details",
+            "cancel_reservation"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.3333333333333333,
+            "GT_subset": 1,
+            "nDCG": 0.6309297535714575
+          }
+        },
+        {
+          "task_id": "46",
+          "gt_tools": [],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.0,
+            "GT_subset": 1,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "47",
+          "gt_tools": [
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "cancel_reservation"
+          ],
+          "metrics": {
+            "F1": 0.0,
+            "Exact": 0,
+            "Recall": 0.0,
+            "Precision": 0.0,
+            "GT_subset": 0,
+            "nDCG": 0.0
+          }
+        },
+        {
+          "task_id": "48",
+          "gt_tools": [
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "cancel_reservation"
+          ],
+          "metrics": {
+            "F1": 0.5,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.3333333333333333,
+            "GT_subset": 1,
+            "nDCG": 0.6309297535714575
+          }
+        },
+        {
+          "task_id": "49",
+          "gt_tools": [
+            "get_reservation_details"
+          ],
+          "pred_tools": [
+            "get_user_details",
+            "get_reservation_details",
+            "cancel_reservation",
+            "transfer_to_human_agents"
+          ],
+          "metrics": {
+            "F1": 0.4,
+            "Exact": 0,
+            "Recall": 1.0,
+            "Precision": 0.25,
+            "GT_subset": 1,
+            "nDCG": 0.6309297535714575
+          }
+        }
+      ]
+    }
+  ]
+}

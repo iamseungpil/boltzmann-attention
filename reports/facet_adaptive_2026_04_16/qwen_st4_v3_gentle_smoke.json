@@ -1,0 +1,3075 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "alpha": 0.03,
+  "beta": -0.03,
+  "decay": 0.3,
+  "eps_threshold": 0.03,
+  "facet_order": [
+    "function_action",
+    "io_type",
+    "domain",
+    "tool_category"
+  ],
+  "results": [
+    {
+      "config": "no_steer",
+      "alpha": 0.0,
+      "beta": 0.0,
+      "adaptive": false,
+      "decay": 0.3,
+      "n": 50,
+      "macro": {
+        "F1": 0.6966666666666668,
+        "Exact": 0.46,
+        "Jaccard": 0.6199999999999997
+      },
+      "runtime_s": 63.46797037124634,
+      "per_sample": [
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WebTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "JobTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "web_requests"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}\n<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "ResearchHelper"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch",
+            "ChartTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ProductSearch\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WebRequests\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        }
+      ]
+    },
+    {
+      "config": "static_uniform_q",
+      "alpha": 0.0,
+      "beta": -0.03,
+      "adaptive": false,
+      "decay": 0.3,
+      "n": 50,
+      "macro": {
+        "F1": 0.6966666666666668,
+        "Exact": 0.46,
+        "Jaccard": 0.6199999999999997
+      },
+      "runtime_s": 74.91391777992249,
+      "per_sample": [
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ai_council"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ai_council\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "F1": 0.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WebTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"WebTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "JobTool",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "web_requests"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}\n<tool_call>{\"name\": \"web_requests\", \"arguments\": {\"url\": \"https://scholar.google.com\"}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "web_requests",
+            "ResearchHelper"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "FinanceTool"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch",
+            "ChartTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ProductSearch\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {\"company\": \"X\"}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "F1": 1.0,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "F1": 0.5,
+          "facet_weights": null,
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        }
+      ]
+    },
+    {
+      "config": "adaptive_q_only",
+      "alpha": 0.0,
+      "beta": -0.03,
+      "adaptive": true,
+      "decay": 0.3,
+      "n": 50,
+      "macro": {
+        "F1": 0.4266666666666667,
+        "Exact": 0.0,
+        "Jaccard": 0.32
+      },
+      "runtime_s": 102.365318775177,
+      "per_sample": [
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20222222805023193,
+            0.3417115807533264,
+            0.24542102217674255,
+            0.21064521372318268
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08862531185150146,
+            0.49859559535980225,
+            0.10748684406280518,
+            0.30529218912124634
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20551173388957977,
+            0.342328280210495,
+            0.2450830042362213,
+            0.20707698166370392
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08897555619478226,
+            0.49511295557022095,
+            0.1083775982260704,
+            0.3075339198112488
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08929402381181717,
+            0.505720853805542,
+            0.11186747997999191,
+            0.2931177020072937
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08957426995038986,
+            0.5082462430000305,
+            0.10935918986797333,
+            0.2928203344345093
+          ],
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08826321363449097,
+            0.509527862071991,
+            0.1091313362121582,
+            0.29307761788368225
+          ],
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08944322168827057,
+            0.511963963508606,
+            0.10796623677015305,
+            0.290626585483551
+          ],
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09268304705619812,
+            0.5036122798919678,
+            0.10538609325885773,
+            0.2983185648918152
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20878565311431885,
+            0.34244146943092346,
+            0.2428933084011078,
+            0.20587961375713348
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09261281043291092,
+            0.500256359577179,
+            0.10704606771469116,
+            0.30008476972579956
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ai_council\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20975738763809204,
+            0.34144723415374756,
+            0.2444298267364502,
+            0.2043655663728714
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.16749733686447144,
+            0.3235183358192444,
+            0.2770509421825409,
+            0.23193342983722687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.16749733686447144,
+            0.3235183358192444,
+            0.2770509421825409,
+            0.23193342983722687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.16749733686447144,
+            0.3235183358192444,
+            0.2770509421825409,
+            0.23193342983722687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.16749733686447144,
+            0.3235183358192444,
+            0.2770509421825409,
+            0.23193342983722687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20944803953170776,
+            0.3429875671863556,
+            0.2451411932706833,
+            0.20242322981357574
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20489512383937836,
+            0.3531264364719391,
+            0.2434835284948349,
+            0.19849494099617004
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20347900688648224,
+            0.3532679080963135,
+            0.24695062637329102,
+            0.19630245864391327
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09289822727441788,
+            0.5017189383506775,
+            0.10415074229240417,
+            0.30123206973075867
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09435322135686874,
+            0.49472323060035706,
+            0.1065330058336258,
+            0.3043905794620514
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0946730449795723,
+            0.4959399700164795,
+            0.1052914410829544,
+            0.3040955662727356
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09417730569839478,
+            0.4924685060977936,
+            0.10574466735124588,
+            0.30760955810546875
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07823435962200165,
+            0.533288300037384,
+            0.11575709283351898,
+            0.2727202773094177
+          ],
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0771544948220253,
+            0.5313184261322021,
+            0.11560051888227463,
+            0.27592650055885315
+          ],
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.18300476670265198,
+            0.36609432101249695,
+            0.262993723154068,
+            0.18790721893310547
+          ],
+          "gen_head": "<tool_call>{\"name\": \"WebTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07962372899055481,
+            0.5327163338661194,
+            0.11391787976026535,
+            0.27374202013015747
+          ],
+          "gen_head": "<tool_call>{\"name\": \"WebTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07231651991605759,
+            0.48095908761024475,
+            0.1189086064696312,
+            0.32781580090522766
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07231651991605759,
+            0.48095908761024475,
+            0.1189086064696312,
+            0.32781580090522766
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07231651991605759,
+            0.48095908761024475,
+            0.1189086064696312,
+            0.32781580090522766
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07231651991605759,
+            0.48095908761024475,
+            0.1189086064696312,
+            0.32781580090522766
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "JobTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0937432199716568,
+            0.5088552832603455,
+            0.10620451718568802,
+            0.2911970317363739
+          ],
+          "gen_head": "<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09296435117721558,
+            0.5052840113639832,
+            0.10667802393436432,
+            0.29507362842559814
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09145162254571915,
+            0.5105403661727905,
+            0.10642047971487045,
+            0.2915874719619751
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08912014216184616,
+            0.5143412351608276,
+            0.10533866286277771,
+            0.29120001196861267
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07942839711904526,
+            0.5261619091033936,
+            0.10879407078027725,
+            0.2856156527996063
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}\n<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0785168707370758,
+            0.5304843187332153,
+            0.10718091577291489,
+            0.28381791710853577
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08039789646863937,
+            0.5205689072608948,
+            0.10901355743408203,
+            0.2900196611881256
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "web_requests"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.17264370620250702,
+            0.36890533566474915,
+            0.26487964391708374,
+            0.19357137382030487
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07798063009977341,
+            0.5296464562416077,
+            0.11552640050649643,
+            0.2768464982509613
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07931146025657654,
+            0.5287424921989441,
+            0.11425116658210754,
+            0.27769485116004944
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ProductSearch\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.1738751232624054,
+            0.36874598264694214,
+            0.2668006718158722,
+            0.19057822227478027
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09230445325374603,
+            0.49903276562690735,
+            0.10680564492940903,
+            0.3018571734428406
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08692649751901627,
+            0.5061438679695129,
+            0.10506468266248703,
+            0.30186498165130615
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09056500345468521,
+            0.49992066621780396,
+            0.10599548369646072,
+            0.3035188913345337
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0914384201169014,
+            0.4954874813556671,
+            0.10680563002824783,
+            0.3062684237957001
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20603495836257935,
+            0.34478625655174255,
+            0.2426704317331314,
+            0.20650839805603027
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20634080469608307,
+            0.34138616919517517,
+            0.24195003509521484,
+            0.21032294631004333
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20445793867111206,
+            0.34288012981414795,
+            0.24639354646205902,
+            0.20626839995384216
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20531579852104187,
+            0.33807373046875,
+            0.24836333096027374,
+            0.20824718475341797
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        }
+      ]
+    },
+    {
+      "config": "adaptive_kq",
+      "alpha": 0.03,
+      "beta": -0.03,
+      "adaptive": true,
+      "decay": 0.3,
+      "n": 50,
+      "macro": {
+        "F1": 0.4533333333333334,
+        "Exact": 0.0,
+        "Jaccard": 0.34
+      },
+      "runtime_s": 113.48412680625916,
+      "per_sample": [
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20222222805023193,
+            0.3417115807533264,
+            0.24542102217674255,
+            0.21064521372318268
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08862531185150146,
+            0.49859559535980225,
+            0.10748684406280518,
+            0.30529218912124634
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20551173388957977,
+            0.342328280210495,
+            0.2450830042362213,
+            0.20707698166370392
+          ],
+          "gen_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\",\"arguments\":{}}\n<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08897555619478226,
+            0.49511295557022095,
+            0.1083775982260704,
+            0.3075339198112488
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"NewsTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08929402381181717,
+            0.505720853805542,
+            0.11186747997999191,
+            0.2931177020072937
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\"::CourseTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08957426995038986,
+            0.5082462430000305,
+            0.10935918986797333,
+            0.2928203344345093
+          ],
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\"::\"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20143315196037292,
+            0.34885138273239136,
+            0.24905811250209808,
+            0.20065738260746002
+          ],
+          "gen_head": "<tool_call>{\"name\": \"Substack_Iq\", \"arguments\": {}}\n<tool_call>{\"name\":\"CourseTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08944322168827057,
+            0.511963963508606,
+            0.10796623677015305,
+            0.290626585483551
+          ],
+          "gen_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09268304705619812,
+            0.5036122798919678,
+            0.10538609325885773,
+            0.2983185648918152
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\"::ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20878565311431885,
+            0.34244146943092346,
+            0.2428933084011078,
+            0.20587961375713348
+          ],
+          "gen_head": "<tool_call>{\"name\":\"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09261281043291092,
+            0.500256359577179,
+            0.10704606771469116,
+            0.30008476972579956
+          ],
+          "gen_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {\"query\": \"current interest rates for mortgages}}\n<tool_call>{\"name\":\"ai{\"name\":\"ai{\"name\":\"ai{\"name\":\"ai{\"name\":\"ai{\"name\":\"ai{\"name\":\"ai{\"name\":\"ai{\"na"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20975738763809204,
+            0.34144723415374756,
+            0.2444298267364502,
+            0.2043655663728714
+          ],
+          "gen_head": "<tool_call>{\"name\":\"ChartTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\":{}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.16749733686447144,
+            0.3235183358192444,
+            0.2770509421825409,
+            0.23193342983722687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user's query requires data extraction from websites (web_scraper) and financia"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.16749733686447144,
+            0.3235183358192444,
+            0.2770509421825409,
+            0.23193342983722687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user's query requires data extraction from websites (web_scraper) and financia"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.16749733686447144,
+            0.3235183358192444,
+            0.2770509421825409,
+            0.23193342983722687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user's query requires data extraction from websites (web_scraper) and financia"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.16749733686447144,
+            0.3235183358192444,
+            0.2770509421825409,
+            0.23193342983722687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n\nExplanation: The user's query requires data extraction from websites (web_scraper) and financia"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20944803953170776,
+            0.3429875671863556,
+            0.2451411932706833,
+            0.20242322981357574
+          ],
+          "gen_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\":\"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20489512383937836,
+            0.3531264364719391,
+            0.2434835284948349,
+            0.19849494099617004
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20347900688648224,
+            0.3532679080963135,
+            0.24695062637329102,
+            0.19630245864391327
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09289822727441788,
+            0.5017189383506775,
+            0.10415074229240417,
+            0.30123206973075867
+          ],
+          "gen_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"MusicTool\", \"arguments\":{}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09435322135686874,
+            0.49472323060035706,
+            0.1065330058336258,
+            0.3043905794620514
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0946730449795723,
+            0.4959399700164795,
+            0.1052914410829544,
+            0.3040955662727356
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"MusicTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09417730569839478,
+            0.4924685060977936,
+            0.10574466735124588,
+            0.30760955810546875
+          ],
+          "gen_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"MusicTool\", \"arguments\":{}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07823435962200165,
+            0.533288300037384,
+            0.11575709283351898,
+            0.2727202773094177
+          ],
+          "gen_head": "<tool_call>{\"name\":\"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0771544948220253,
+            0.5313184261322021,
+            0.11560051888227463,
+            0.27592650055885315
+          ],
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07982166856527328,
+            0.532267689704895,
+            0.11471065133810043,
+            0.2731999158859253
+          ],
+          "gen_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07962372899055481,
+            0.5327163338661194,
+            0.11391787976026535,
+            0.27374202013015747
+          ],
+          "gen_head": "<tool_call>{\"name\":\"WebTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07231651991605759,
+            0.48095908761024475,
+            0.1189086064696312,
+            0.32781580090522766
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07231651991605759,
+            0.48095908761024475,
+            0.1189086064696312,
+            0.32781580090522766
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07231651991605759,
+            0.48095908761024475,
+            0.1189086064696312,
+            0.32781580090522766
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07231651991605759,
+            0.48095908761024475,
+            0.1189086064696312,
+            0.32781580090522766
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "JobTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0937432199716568,
+            0.5088552832603455,
+            0.10620451718568802,
+            0.2911970317363739
+          ],
+          "gen_head": "<tool_call>{\"name\":\"JobTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09296435117721558,
+            0.5052840113639832,
+            0.10667802393436432,
+            0.29507362842559814
+          ],
+          "gen_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"JobTool\", \"arguments\":{}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09145162254571915,
+            0.5105403661727905,
+            0.10642047971487045,
+            0.2915874719619751
+          ],
+          "gen_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08912014216184616,
+            0.5143412351608276,
+            0.10533866286277771,
+            0.29120001196861267
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"JobTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07942839711904526,
+            0.5261619091033936,
+            0.10879407078027725,
+            0.2856156527996063
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}\n<tool_call>{\"name\"::FinanceTool\",,arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0785168707370758,
+            0.5304843187332153,
+            0.10718091577291489,
+            0.28381791710853577
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08039789646863937,
+            0.5205689072608948,
+            0.10901355743408203,
+            0.2900196611881256
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07465849816799164,
+            0.5317679643630981,
+            0.11454524099826813,
+            0.27902835607528687
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07798063009977341,
+            0.5296464562416077,
+            0.11552640050649643,
+            0.2768464982509613
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07931146025657654,
+            0.5287424921989441,
+            0.11425116658210754,
+            0.27769485116004944
+          ],
+          "gen_head": "<tool_call>{\"name\": \"ProductSearch\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.07543095201253891,
+            0.5332344174385071,
+            0.11574416607618332,
+            0.2755904793739319
+          ],
+          "gen_head": "<tool_call>{\"name\": \"WebRequests\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09230445325374603,
+            0.49903276562690735,
+            0.10680564492940903,
+            0.3018571734428406
+          ],
+          "gen_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"Discount\", \"arguments\":{}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.08692649751901627,
+            0.5061438679695129,
+            0.10506468266248703,
+            0.30186498165130615
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.09056500345468521,
+            0.49992066621780396,
+            0.10599548369646072,
+            0.3035188913345337
+          ],
+          "gen_head": "<tool_call>{\"name\":\"FinanceTool\", \"arguments\":{}}\n<tool_call>{\"name\":\"Discount\", \"arguments\":{}}"
+        },
+        {
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "F1": 0.6666666666666666,
+          "facet_weights": [
+            0.0914384201169014,
+            0.4954874813556671,
+            0.10680563002824783,
+            0.3062684237957001
+          ],
+          "gen_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\":\"Discount\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20603495836257935,
+            0.34478625655174255,
+            0.2426704317331314,
+            0.20650839805603027
+          ],
+          "gen_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20634080469608307,
+            0.34138616919517517,
+            0.24195003509521484,
+            0.21032294631004333
+          ],
+          "gen_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\":\"FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20445793867111206,
+            0.34288012981414795,
+            0.24639354646205902,
+            0.20626839995384216
+          ],
+          "gen_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\"::FinanceTool\", \"arguments\": {}}"
+        },
+        {
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "F1": 0.0,
+          "facet_weights": [
+            0.20531579852104187,
+            0.33807373046875,
+            0.24836333096027374,
+            0.20824718475341797
+          ],
+          "gen_head": "<tool_call>{\"name\":\"MixerBox_WebSearchG_web_search\",\"arguments\":{}}\n<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{}}"
+        }
+      ]
+    }
+  ]
+}

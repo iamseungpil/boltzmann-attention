@@ -1,0 +1,3331 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "domain": "banking_knowledge",
+  "b_ont_shape": [
+    28,
+    4,
+    128,
+    10
+  ],
+  "q_sign_json": "reports/tau2_2026_04_17/banking_q_full_signs.json",
+  "layers": [
+    27
+  ],
+  "gt_tokens": "discriminative",
+  "n_tasks": 97,
+  "n_valid": 69,
+  "n_match": 26,
+  "sign_accuracy": 0.37681159420289856,
+  "runtime_s": 38.25685453414917,
+  "records": [
+    {
+      "task_id": "task_001",
+      "gt_tools": [
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": 0.9790379885816947,
+      "s_per_gt": {
+        "apply_for_credit_card": 0.9790379885816947
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.0,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "task_002",
+      "gt_tools": [
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": 0.7085645591141656,
+      "s_per_gt": {
+        "apply_for_credit_card": 0.7085645591141656
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.5,
+      "f1_neg": 0.5,
+      "match": null
+    },
+    {
+      "task_id": "task_003",
+      "gt_tools": [
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -0.04803473246283829,
+      "s_per_gt": {
+        "apply_for_credit_card": -0.04803473246283829
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 1.0,
+      "f1_neg": 1.0,
+      "match": null
+    },
+    {
+      "task_id": "task_004",
+      "gt_tools": [
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -3.9008923954097554,
+      "s_per_gt": {
+        "transfer_to_human_agents": -3.9008923954097554
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_005",
+      "gt_tools": [
+        "transfer_to_human_agents",
+        "log_verification",
+        "change_user_email"
+      ],
+      "gt_first_ids": [
+        [
+          "transfer_to_human_agents",
+          24188
+        ],
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "change_user_email",
+          3373
+        ]
+      ],
+      "s_mean": -0.9646228158898237,
+      "s_per_gt": {
+        "transfer_to_human_agents": -1.2240975627209991,
+        "log_verification": -1.1035397644154727,
+        "change_user_email": -0.5662311205329994
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_006",
+      "gt_tools": [
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -0.7122470857575536,
+      "s_per_gt": {
+        "apply_for_credit_card": -0.7122470857575536
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.75,
+      "f1_neg": 0.8333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "task_007",
+      "gt_tools": [
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -1.4503640119219199,
+      "s_per_gt": {
+        "apply_for_credit_card": -1.4503640119219199
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 1.0,
+      "f1_neg": 1.0,
+      "match": null
+    },
+    {
+      "task_id": "task_008",
+      "gt_tools": [
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -1.3979967085178941,
+      "s_per_gt": {
+        "transfer_to_human_agents": -1.3979967085178941
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_010",
+      "gt_tools": [
+        "log_verification",
+        "submit_referral"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "submit_referral",
+          5955
+        ]
+      ],
+      "s_mean": -1.6064714745152742,
+      "s_per_gt": {
+        "log_verification": -1.631928677437827,
+        "submit_referral": -1.5810142715927213
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_012",
+      "gt_tools": [
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": 0.1026710559381172,
+      "s_per_gt": {
+        "transfer_to_human_agents": 0.1026710559381172
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_014",
+      "gt_tools": [
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -1.7766184504143894,
+      "s_per_gt": {
+        "transfer_to_human_agents": -1.7766184504143894
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_015",
+      "gt_tools": [
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 1.7346077961847186,
+      "s_per_gt": {
+        "give_discoverable_user_tool": 2.4612315259873867,
+        "call_discoverable_user_tool": 1.0079840663820505
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_016",
+      "gt_tools": [
+        "log_verification",
+        "submit_transaction"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "submit_transaction",
+          5955
+        ]
+      ],
+      "s_mean": 0.6803348670946434,
+      "s_per_gt": {
+        "log_verification": 0.5684605536516756,
+        "submit_transaction": 0.7922091805376112
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_017",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.1613183414641147,
+      "s_per_gt": {
+        "log_verification": -0.11254835675936192,
+        "give_discoverable_user_tool": 0.7230701968073845,
+        "call_discoverable_user_tool": -0.1265668156556785
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_018",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.891230697510764,
+      "s_per_gt": {
+        "log_verification": 0.8105833649169654,
+        "give_discoverable_user_tool": 1.643696665763855,
+        "call_discoverable_user_tool": 0.21941206185147166
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_019",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.7998754698783159,
+      "s_per_gt": {
+        "log_verification": 0.6153964207042009,
+        "give_discoverable_user_tool": 1.5954748408403248,
+        "call_discoverable_user_tool": 0.18875514809042215
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_020",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.5672953687608242,
+      "s_per_gt": {
+        "log_verification": 0.2980239260941744,
+        "give_discoverable_user_tool": 1.3471706565469503,
+        "call_discoverable_user_tool": 0.056691523641347885
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_021",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.30681102924669784,
+      "s_per_gt": {
+        "log_verification": -0.055636188481003046,
+        "give_discoverable_user_tool": 0.8454856937751174,
+        "call_discoverable_user_tool": 0.13058358244597912
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_022",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.6204350070717434,
+      "s_per_gt": {
+        "log_verification": -1.0192505195736885,
+        "give_discoverable_user_tool": -0.30058370623737574,
+        "call_discoverable_user_tool": -0.541470795404166
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_023",
+      "gt_tools": [
+        "log_verification",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": 0.6850069246720523,
+      "s_per_gt": {
+        "log_verification": 0.30965181172359735,
+        "apply_for_credit_card": 1.0603620376205072
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.25,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "task_024",
+      "gt_tools": [
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -0.7705397152458318,
+      "s_per_gt": {
+        "apply_for_credit_card": -0.7705397152458318
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.6666666666666667,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "task_025",
+      "gt_tools": [
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -1.2866446873813402,
+      "s_per_gt": {
+        "apply_for_credit_card": -1.2866446873813402
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 1.0,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "task_026",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.9968066609930247,
+      "s_per_gt": {
+        "log_verification": 0.9436627470422536,
+        "give_discoverable_user_tool": 1.4656387018039823,
+        "call_discoverable_user_tool": 0.14966342668049037,
+        "unlock_discoverable_agent_tool": 2.275405002757907,
+        "call_discoverable_agent_tool": 0.14966342668049037
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.16666666666666669,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "task_027",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.9675223349283139,
+      "s_per_gt": {
+        "log_verification": -1.462227385956794,
+        "give_discoverable_user_tool": -0.8385147983208299,
+        "call_discoverable_user_tool": -0.6018248205073178
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_028",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.5966323023196309,
+      "s_per_gt": {
+        "log_verification": 0.6921375680249184,
+        "give_discoverable_user_tool": 0.9533484857529402,
+        "call_discoverable_user_tool": 0.01956304721534252,
+        "unlock_discoverable_agent_tool": 1.2985493633896112,
+        "call_discoverable_agent_tool": 0.01956304721534252
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.0,
+      "f1_neg": 0.16666666666666669,
+      "match": false
+    },
+    {
+      "task_id": "task_029",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.13986066853006682,
+      "s_per_gt": {
+        "log_verification": -0.3372374391183257,
+        "give_discoverable_user_tool": 0.17353558167815208,
+        "call_discoverable_user_tool": -0.2558801481500268
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.25,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "task_031",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.20367988497018813,
+      "s_per_gt": {
+        "log_verification": -0.4881276492960751,
+        "give_discoverable_user_tool": 0.18234539218246937,
+        "call_discoverable_user_tool": -0.2899643164128065,
+        "unlock_discoverable_agent_tool": -0.13268853491172194,
+        "call_discoverable_agent_tool": -0.2899643164128065
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5454545454545454,
+      "f1_neg": 0.125,
+      "match": false
+    },
+    {
+      "task_id": "task_032",
+      "gt_tools": [
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -1.175240343164963,
+      "s_per_gt": {
+        "unlock_discoverable_agent_tool": -1.3606716133654118,
+        "call_discoverable_agent_tool": -0.38546736678108573,
+        "transfer_to_human_agents": -1.7795820493483916
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_033",
+      "gt_tools": [
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -0.8975606299936771,
+      "s_per_gt": {
+        "unlock_discoverable_agent_tool": -0.8945964742451906,
+        "call_discoverable_agent_tool": -0.5502266478724778,
+        "transfer_to_human_agents": -1.247858767863363
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_034",
+      "gt_tools": [
+        "request_human_agent_transfer",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "request_human_agent_transfer",
+          2035
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -1.6795956335263327,
+      "s_per_gt": {
+        "request_human_agent_transfer": -1.7112544194484751,
+        "transfer_to_human_agents": -1.6479368476041902
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "task_035",
+      "gt_tools": [
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -1.6869505535966407,
+      "s_per_gt": {
+        "unlock_discoverable_agent_tool": -2.493075892329216,
+        "call_discoverable_agent_tool": -1.0137132569216192,
+        "transfer_to_human_agents": -1.5540625115390867
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_036",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.5430760560557246,
+      "s_per_gt": {
+        "log_verification": -1.6165062836371362,
+        "unlock_discoverable_agent_tool": -2.3492861525155604,
+        "call_discoverable_agent_tool": -0.6634357320144773
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.45,
+      "match": false
+    },
+    {
+      "task_id": "task_037",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.1350122789852321,
+      "s_per_gt": {
+        "log_verification": -0.3006768645718694,
+        "unlock_discoverable_agent_tool": 0.215947640594095,
+        "call_discoverable_agent_tool": -0.06772323278710246,
+        "give_discoverable_user_tool": 0.8952370844781399,
+        "call_discoverable_user_tool": -0.06772323278710246
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.33333333333333337,
+      "f1_neg": 0.30000000000000004,
+      "match": true
+    },
+    {
+      "task_id": "task_038",
+      "gt_tools": [
+        "log_verification",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.4913335787598044,
+      "s_per_gt": {
+        "log_verification": -0.0025530329439789057,
+        "give_discoverable_user_tool": 0.9701485224068165,
+        "call_discoverable_user_tool": 0.3668221849948168,
+        "unlock_discoverable_agent_tool": 0.7554280343465507,
+        "call_discoverable_agent_tool": 0.3668221849948168
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4166666666666667,
+      "f1_neg": 0.2727272727272727,
+      "match": true
+    },
+    {
+      "task_id": "task_039",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.7251730430405587,
+      "s_per_gt": {
+        "log_verification": 0.38121068733744323,
+        "unlock_discoverable_agent_tool": 1.5554687473922968,
+        "call_discoverable_agent_tool": 0.2744597811251879,
+        "give_discoverable_user_tool": 1.1402662182226777,
+        "call_discoverable_user_tool": 0.2744597811251879
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.33333333333333337,
+      "f1_neg": 0.38461538461538464,
+      "match": false
+    },
+    {
+      "task_id": "task_040",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.4422730707330629,
+      "s_per_gt": {
+        "log_verification": -1.9100040131015703,
+        "unlock_discoverable_agent_tool": -2.6957154111005366,
+        "call_discoverable_agent_tool": -0.5649600764736533,
+        "give_discoverable_user_tool": -1.475725776515901,
+        "call_discoverable_user_tool": -0.5649600764736533
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.33333333333333337,
+      "f1_neg": 0.33333333333333326,
+      "match": false
+    },
+    {
+      "task_id": "task_041",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.9365286705084145,
+      "s_per_gt": {
+        "log_verification": 0.7032007072120905,
+        "unlock_discoverable_agent_tool": 1.9788344986736774,
+        "call_discoverable_agent_tool": 0.3814392117783427,
+        "give_discoverable_user_tool": 1.2377297230996192,
+        "call_discoverable_user_tool": 0.3814392117783427
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.25,
+      "match": true
+    },
+    {
+      "task_id": "task_043",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.1774735669605434,
+      "s_per_gt": {
+        "log_verification": -0.5972930118441582,
+        "unlock_discoverable_agent_tool": 0.2887673215009272,
+        "call_discoverable_agent_tool": -0.22389501053839922
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.575,
+      "f1_neg": 0.5952380952380952,
+      "match": true
+    },
+    {
+      "task_id": "task_044",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -0.5509576046315487,
+      "s_per_gt": {
+        "log_verification": -0.8387014581821859,
+        "unlock_discoverable_agent_tool": -0.5328651797026396,
+        "call_discoverable_agent_tool": -0.1986505025997758,
+        "apply_for_credit_card": -0.6336132780415937
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.575,
+      "f1_neg": 0.4999999999999999,
+      "match": false
+    },
+    {
+      "task_id": "task_045",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.0454458095288525,
+      "s_per_gt": {
+        "log_verification": -0.4587260012049228,
+        "unlock_discoverable_agent_tool": 0.41052416199818254,
+        "call_discoverable_agent_tool": 0.18453926779329777
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "task_046",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.3441084168540935,
+      "s_per_gt": {
+        "log_verification": -0.2084225956350565,
+        "unlock_discoverable_agent_tool": 0.8070425144396722,
+        "call_discoverable_agent_tool": 0.4337053317576647
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5,
+      "f1_neg": 0.5333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "task_047",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -0.5929831487883348,
+      "s_per_gt": {
+        "log_verification": -0.8763702150899917,
+        "unlock_discoverable_agent_tool": -0.7585712056607008,
+        "call_discoverable_agent_tool": 0.04550845921039581,
+        "apply_for_credit_card": -0.7824996336130425
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5333333333333333,
+      "f1_neg": 0.5357142857142858,
+      "match": true
+    },
+    {
+      "task_id": "task_048",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": 0.15356869312381605,
+      "s_per_gt": {
+        "log_verification": -0.20074995336472057,
+        "unlock_discoverable_agent_tool": 0.2654217791277915,
+        "call_discoverable_agent_tool": 0.3785407585091889,
+        "apply_for_credit_card": 0.17106218822300434
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4,
+      "f1_neg": 0.2,
+      "match": true
+    },
+    {
+      "task_id": "task_049",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "request_human_agent_transfer",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "request_human_agent_transfer",
+          2035
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -0.7186462160975984,
+      "s_per_gt": {
+        "log_verification": -0.9654870785307139,
+        "unlock_discoverable_agent_tool": -0.824107144959271,
+        "call_discoverable_agent_tool": -0.12013040808960795,
+        "request_human_agent_transfer": -0.6688654627650976,
+        "transfer_to_human_agents": -1.014640986143301
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.28571428571428575,
+      "match": false
+    },
+    {
+      "task_id": "task_050",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.1966525375222166,
+      "s_per_gt": {
+        "log_verification": -1.282371642999351,
+        "unlock_discoverable_agent_tool": -1.7012808788567781,
+        "call_discoverable_agent_tool": -0.6063050907105207
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "task_051",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.3478477338018517,
+      "s_per_gt": {
+        "log_verification": -1.3958867914043367,
+        "unlock_discoverable_agent_tool": -2.0958653446286917,
+        "call_discoverable_agent_tool": -0.5517910653725266
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222221,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "task_052",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.8738248590379953,
+      "s_per_gt": {
+        "log_verification": -0.9890999449416995,
+        "unlock_discoverable_agent_tool": -1.0794725567102432,
+        "call_discoverable_agent_tool": -0.5529020754620433
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.23076923076923075,
+      "match": false
+    },
+    {
+      "task_id": "task_053",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "give_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ]
+      ],
+      "s_mean": -0.2047093696310185,
+      "s_per_gt": {
+        "log_verification": -0.36415797006338835,
+        "unlock_discoverable_agent_tool": 0.16414387337863445,
+        "call_discoverable_agent_tool": -0.28716308902949095,
+        "give_discoverable_user_tool": -0.3316602928098291
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.2,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "task_054",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.24413376844798526,
+      "s_per_gt": {
+        "log_verification": -0.5588980247266591,
+        "unlock_discoverable_agent_tool": -0.2433086922392249,
+        "call_discoverable_agent_tool": 0.06980541162192822
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.45,
+      "f1_neg": 0.3611111111111111,
+      "match": false
+    },
+    {
+      "task_id": "task_055",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.46837614132091404,
+      "s_per_gt": {
+        "log_verification": -1.1096447105519474,
+        "unlock_discoverable_agent_tool": -1.0031904792413116,
+        "call_discoverable_agent_tool": -0.004472848027944565,
+        "give_discoverable_user_tool": -0.22009982075542212,
+        "call_discoverable_user_tool": -0.004472848027944565
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.33333333333333337,
+      "f1_neg": 0.16666666666666669,
+      "match": false
+    },
+    {
+      "task_id": "task_056",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.9935819070475796,
+      "s_per_gt": {
+        "log_verification": -1.2664008871652186,
+        "unlock_discoverable_agent_tool": -1.5460195783525705,
+        "call_discoverable_agent_tool": -0.16832525562494993
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.25,
+      "match": false
+    },
+    {
+      "task_id": "task_057",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.6085885308682919,
+      "s_per_gt": {
+        "log_verification": -0.0972431255504489,
+        "unlock_discoverable_agent_tool": 0.6106119556352496,
+        "call_discoverable_agent_tool": 0.5689168306998909,
+        "give_discoverable_user_tool": 1.3917401628568769,
+        "call_discoverable_user_tool": 0.5689168306998909
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.33333333333333337,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "task_058",
+      "gt_tools": [
+        "log_verification",
+        "apply_for_credit_card",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.3911240090819774,
+      "s_per_gt": {
+        "log_verification": -1.809352200012654,
+        "apply_for_credit_card": -1.3714024854707532,
+        "unlock_discoverable_agent_tool": -2.05760096386075,
+        "call_discoverable_agent_tool": -0.32614038698375225
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.4,
+      "f1_neg": 0.4,
+      "match": null
+    },
+    {
+      "task_id": "task_059",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -1.0569131147640292,
+      "s_per_gt": {
+        "log_verification": -1.616252812789753,
+        "unlock_discoverable_agent_tool": -1.3283759634941816,
+        "call_discoverable_agent_tool": -0.10586001072078943,
+        "apply_for_credit_card": -1.1771636720513925
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.4,
+      "f1_neg": 0.48571428571428577,
+      "match": true
+    },
+    {
+      "task_id": "task_060",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.928625321558987,
+      "s_per_gt": {
+        "log_verification": -2.0671129550319165,
+        "unlock_discoverable_agent_tool": -3.113991616293788,
+        "call_discoverable_agent_tool": -0.6047713933512568
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.4,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "task_061",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "give_discoverable_user_tool",
+        "call_discoverable_user_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "give_discoverable_user_tool",
+          46430
+        ],
+        [
+          "call_discoverable_user_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.9887153625488281,
+      "s_per_gt": {
+        "log_verification": -1.4283860186114907,
+        "unlock_discoverable_agent_tool": -1.9605178316123784,
+        "call_discoverable_agent_tool": -0.38075412809848785,
+        "give_discoverable_user_tool": -0.7931647063232958,
+        "call_discoverable_user_tool": -0.38075412809848785
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.45238095238095244,
+      "f1_neg": 0.11111111111111112,
+      "match": false
+    },
+    {
+      "task_id": "task_062",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.2084736464700351,
+      "s_per_gt": {
+        "log_verification": -0.6160743753425777,
+        "unlock_discoverable_agent_tool": -0.18044847808778286,
+        "call_discoverable_agent_tool": 0.1711019140202552
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.48571428571428577,
+      "match": false
+    },
+    {
+      "task_id": "task_063",
+      "gt_tools": [
+        "log_verification",
+        "apply_for_credit_card",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.005988268349028658,
+      "s_per_gt": {
+        "log_verification": -0.3681235904805362,
+        "apply_for_credit_card": -0.06773240028996952,
+        "unlock_discoverable_agent_tool": 0.22604932449758053,
+        "call_discoverable_agent_tool": 0.23375973966903985
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4,
+      "f1_neg": 0.325,
+      "match": true
+    },
+    {
+      "task_id": "task_064",
+      "gt_tools": [
+        "log_verification",
+        "apply_for_credit_card",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.3775963156367652,
+      "s_per_gt": {
+        "log_verification": -0.023465722799301147,
+        "apply_for_credit_card": 0.22790739662013948,
+        "unlock_discoverable_agent_tool": 0.912152505479753,
+        "call_discoverable_agent_tool": 0.3937910832464695
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4,
+      "f1_neg": 0.3666666666666667,
+      "match": true
+    },
+    {
+      "task_id": "task_065",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.7439778043578068,
+      "s_per_gt": {
+        "log_verification": -0.9628438157960773,
+        "unlock_discoverable_agent_tool": -1.069998544640839,
+        "call_discoverable_agent_tool": -0.19909105263650417
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.25,
+      "match": false
+    },
+    {
+      "task_id": "task_066",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": 1.5666211965872208,
+      "s_per_gt": {
+        "log_verification": 1.2310829269699752,
+        "unlock_discoverable_agent_tool": 2.5622586626559496,
+        "call_discoverable_agent_tool": 0.8294154163450003,
+        "apply_for_credit_card": 1.643727780377958
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.4,
+      "f1_neg": 0.5333333333333332,
+      "match": false
+    },
+    {
+      "task_id": "task_067",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": 0.305921151972143,
+      "s_per_gt": {
+        "log_verification": -0.061976912431418896,
+        "unlock_discoverable_agent_tool": 0.8297449927777052,
+        "call_discoverable_agent_tool": 0.16645536199212074,
+        "apply_for_credit_card": 0.2894611655501649
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.3,
+      "match": true
+    },
+    {
+      "task_id": "task_068",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -0.5324859059182927,
+      "s_per_gt": {
+        "log_verification": -0.6926836082711816,
+        "unlock_discoverable_agent_tool": -0.5127078713849187,
+        "call_discoverable_agent_tool": -0.14306285651400685,
+        "apply_for_credit_card": -0.7814892875030637
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.34285714285714286,
+      "f1_neg": 0.2,
+      "match": false
+    },
+    {
+      "task_id": "task_069",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "apply_for_credit_card"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "apply_for_credit_card",
+          10280
+        ]
+      ],
+      "s_mean": -0.23754023262881674,
+      "s_per_gt": {
+        "log_verification": -0.5116116660647094,
+        "unlock_discoverable_agent_tool": 0.10293450159952044,
+        "call_discoverable_agent_tool": -0.2668879572302103,
+        "apply_for_credit_card": -0.27459580881986767
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.0,
+      "f1_neg": 0.3928571428571429,
+      "match": true
+    },
+    {
+      "task_id": "task_070",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.5913676106526207,
+      "s_per_gt": {
+        "log_verification": -1.975797018269077,
+        "unlock_discoverable_agent_tool": -2.1912562903016806,
+        "call_discoverable_agent_tool": -0.6070495233871043
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "task_071",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.34880914554620784,
+      "s_per_gt": {
+        "log_verification": -0.589539117179811,
+        "unlock_discoverable_agent_tool": -0.45564013766124845,
+        "call_discoverable_agent_tool": -0.0012481817975640297
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.25,
+      "match": false
+    },
+    {
+      "task_id": "task_072",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.47505963523872197,
+      "s_per_gt": {
+        "log_verification": -0.8000170027371496,
+        "unlock_discoverable_agent_tool": -0.5581298489123583,
+        "call_discoverable_agent_tool": -0.06703205406665802
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "task_073",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.2946394473935167,
+      "s_per_gt": {
+        "log_verification": -0.5419020261615515,
+        "unlock_discoverable_agent_tool": -0.2980906656011939,
+        "call_discoverable_agent_tool": -0.04392565041780472
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.16666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "task_074",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.25314861675724387,
+      "s_per_gt": {
+        "log_verification": -0.44836360635235906,
+        "unlock_discoverable_agent_tool": -0.3337536724284291,
+        "call_discoverable_agent_tool": 0.022671428509056568
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.14285714285714288,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "task_075",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.329700531437993,
+      "s_per_gt": {
+        "log_verification": -1.5890164729207754,
+        "unlock_discoverable_agent_tool": -1.7987310215830803,
+        "call_discoverable_agent_tool": -0.6013540998101234
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_076",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.8345537091760586,
+      "s_per_gt": {
+        "log_verification": -2.083508574636653,
+        "unlock_discoverable_agent_tool": -2.844569898210466,
+        "call_discoverable_agent_tool": -0.5755826546810567
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_077",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.8887138028318683,
+      "s_per_gt": {
+        "log_verification": 0.32384803611785173,
+        "unlock_discoverable_agent_tool": 1.869838688056916,
+        "call_discoverable_agent_tool": 0.47245468432083726
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.25,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "task_078",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "get_credit_card_accounts_by_user"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "get_credit_card_accounts_by_user",
+          455
+        ]
+      ],
+      "s_mean": -0.5616904597069757,
+      "s_per_gt": {
+        "log_verification": -0.7839792903978378,
+        "unlock_discoverable_agent_tool": -0.745939320884645,
+        "call_discoverable_agent_tool": 0.048650373704731464,
+        "get_credit_card_accounts_by_user": -0.7654936012501518
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.2,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "task_079",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "get_credit_card_accounts_by_user"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "get_credit_card_accounts_by_user",
+          455
+        ]
+      ],
+      "s_mean": -1.2188325611156567,
+      "s_per_gt": {
+        "log_verification": -1.3031693291850388,
+        "unlock_discoverable_agent_tool": -1.8227144973352551,
+        "call_discoverable_agent_tool": -0.43227384239435196,
+        "get_credit_card_accounts_by_user": -1.3171725755479808
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.4727272727272727,
+      "f1_neg": 0.0,
+      "match": false
+    },
+    {
+      "task_id": "task_080",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.287559464884301,
+      "s_per_gt": {
+        "log_verification": -0.5561038483865559,
+        "unlock_discoverable_agent_tool": -0.5174458082765341,
+        "call_discoverable_agent_tool": 0.2108712620101869
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.5333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "task_081",
+      "gt_tools": [
+        "request_human_agent_transfer",
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "request_human_agent_transfer",
+          2035
+        ],
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -0.4433207868016325,
+      "s_per_gt": {
+        "request_human_agent_transfer": -0.5612798375077546,
+        "log_verification": -0.5281546825426631,
+        "unlock_discoverable_agent_tool": -0.21694018878042698,
+        "call_discoverable_agent_tool": -0.12087537022307515,
+        "transfer_to_human_agents": -0.7893538549542427
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.33333333333333337,
+      "f1_neg": 0.4166666666666667,
+      "match": true
+    },
+    {
+      "task_id": "task_082",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.9196657814706365,
+      "s_per_gt": {
+        "log_verification": -1.1048873043619096,
+        "unlock_discoverable_agent_tool": -1.4767427304759622,
+        "call_discoverable_agent_tool": -0.1773673095740378
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "task_083",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.7618396501832952,
+      "s_per_gt": {
+        "log_verification": -1.109781798091717,
+        "unlock_discoverable_agent_tool": -0.9248054279014468,
+        "call_discoverable_agent_tool": -0.25093172455672175
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.2,
+      "match": false
+    },
+    {
+      "task_id": "task_084",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.06098760183279713,
+      "s_per_gt": {
+        "log_verification": -0.4182431665249169,
+        "unlock_discoverable_agent_tool": 0.377509992569685,
+        "call_discoverable_agent_tool": 0.2236959794536233
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "task_085",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.1947406130299593,
+      "s_per_gt": {
+        "log_verification": -0.33017445250879973,
+        "unlock_discoverable_agent_tool": 1.051593253389001,
+        "call_discoverable_agent_tool": -0.13719696179032326
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.3666666666666667,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "task_086",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.9303125055351604,
+      "s_per_gt": {
+        "log_verification": -2.2077373256906867,
+        "unlock_discoverable_agent_tool": -3.2131506933365017,
+        "call_discoverable_agent_tool": -0.3700494975782931
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.5,
+      "f1_neg": 0.5,
+      "match": null
+    },
+    {
+      "task_id": "task_087",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.43076111174498993,
+      "s_per_gt": {
+        "log_verification": -0.7785158581100404,
+        "unlock_discoverable_agent_tool": -0.6410138495266438,
+        "call_discoverable_agent_tool": 0.12724637240171432
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.45,
+      "f1_neg": 0.37499999999999994,
+      "match": false
+    },
+    {
+      "task_id": "task_088",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -0.9304037389956648,
+      "s_per_gt": {
+        "log_verification": -1.1148001227993518,
+        "unlock_discoverable_agent_tool": -1.1340139545500278,
+        "call_discoverable_agent_tool": -0.3385931132361293,
+        "transfer_to_human_agents": -1.13420776539715
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.3333333333333333,
+      "f1_neg": 0.2777777777777778,
+      "match": false
+    },
+    {
+      "task_id": "task_089",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.06736588416000207,
+      "s_per_gt": {
+        "log_verification": -0.580041132401675,
+        "unlock_discoverable_agent_tool": 0.245419860817492,
+        "call_discoverable_agent_tool": 0.13252361910417676
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.5,
+      "f1_neg": 0.2,
+      "match": false
+    },
+    {
+      "task_id": "task_090",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 1.5867097101484735,
+      "s_per_gt": {
+        "log_verification": 0.926909051835537,
+        "unlock_discoverable_agent_tool": 2.3561886521056294,
+        "call_discoverable_agent_tool": 1.4770314265042543
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.5,
+      "f1_neg": 0.5,
+      "match": null
+    },
+    {
+      "task_id": "task_091",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.7873545252562811,
+      "s_per_gt": {
+        "log_verification": -1.1130979901645333,
+        "unlock_discoverable_agent_tool": -1.3225208530202508,
+        "call_discoverable_agent_tool": 0.07355526741594076
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.4,
+      "f1_neg": 0.6285714285714286,
+      "match": true
+    },
+    {
+      "task_id": "task_092",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "transfer_to_human_agents"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "transfer_to_human_agents",
+          24188
+        ]
+      ],
+      "s_mean": -0.6654307899298146,
+      "s_per_gt": {
+        "log_verification": -0.8605274751316756,
+        "unlock_discoverable_agent_tool": -0.908210743451491,
+        "call_discoverable_agent_tool": 0.008033938240259886,
+        "transfer_to_human_agents": -0.9010188793763518
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.5,
+      "f1_neg": 0.7,
+      "match": true
+    },
+    {
+      "task_id": "task_093",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": 0.9335842701063181,
+      "s_per_gt": {
+        "log_verification": 0.27198454190511256,
+        "unlock_discoverable_agent_tool": 2.3473795037716627,
+        "call_discoverable_agent_tool": 0.181388764642179
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.34285714285714286,
+      "match": true
+    },
+    {
+      "task_id": "task_094",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.312069526873529,
+      "s_per_gt": {
+        "log_verification": -1.5822917884215713,
+        "unlock_discoverable_agent_tool": -1.7174779158085585,
+        "call_discoverable_agent_tool": -0.6364388763904572
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.28571428571428575,
+      "f1_neg": 0.45,
+      "match": true
+    },
+    {
+      "task_id": "task_095",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.1202974738553166,
+      "s_per_gt": {
+        "log_verification": -1.6030768095515668,
+        "unlock_discoverable_agent_tool": -1.3651142809540033,
+        "call_discoverable_agent_tool": -0.39270133106037974
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.325,
+      "f1_neg": 0.25,
+      "match": false
+    },
+    {
+      "task_id": "task_096",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -1.8510852774294715,
+      "s_per_gt": {
+        "log_verification": -1.9108782834373415,
+        "unlock_discoverable_agent_tool": -2.8362281527370214,
+        "call_discoverable_agent_tool": -0.8061493961140513
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.34285714285714286,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "task_097",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ]
+      ],
+      "s_mean": -0.7246836891087393,
+      "s_per_gt": {
+        "log_verification": -1.1075347100850195,
+        "unlock_discoverable_agent_tool": -0.7749394327402115,
+        "call_discoverable_agent_tool": -0.29157692450098693
+      },
+      "pred_sign": "-",
+      "emp_sign": "+",
+      "f1_pos": 0.34285714285714286,
+      "f1_neg": 0.16666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "task_098",
+      "gt_tools": [
+        "log_verification",
+        "get_referrals_by_user",
+        "submit_referral"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "get_referrals_by_user",
+          455
+        ],
+        [
+          "submit_referral",
+          5955
+        ]
+      ],
+      "s_mean": -0.1971194011081631,
+      "s_per_gt": {
+        "log_verification": -0.16244503017514944,
+        "get_referrals_by_user": -0.1527516433270648,
+        "submit_referral": -0.27616152982227504
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.0,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "task_099",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "get_referrals_by_user",
+        "submit_referral"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "get_referrals_by_user",
+          455
+        ],
+        [
+          "submit_referral",
+          5955
+        ]
+      ],
+      "s_mean": 0.15384490515571086,
+      "s_per_gt": {
+        "log_verification": -0.11974661750718951,
+        "unlock_discoverable_agent_tool": 0.9407661948353052,
+        "call_discoverable_agent_tool": 0.4172116005793214,
+        "get_referrals_by_user": -0.057429205742664635,
+        "submit_referral": -0.41157744638621807
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.16666666666666669,
+      "f1_neg": 0.33333333333333337,
+      "match": false
+    },
+    {
+      "task_id": "task_100",
+      "gt_tools": [
+        "log_verification",
+        "unlock_discoverable_agent_tool",
+        "call_discoverable_agent_tool",
+        "submit_referral"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "unlock_discoverable_agent_tool",
+          55021
+        ],
+        [
+          "call_discoverable_agent_tool",
+          6659
+        ],
+        [
+          "submit_referral",
+          5955
+        ]
+      ],
+      "s_mean": -0.9048936903515521,
+      "s_per_gt": {
+        "log_verification": -1.120122941909358,
+        "unlock_discoverable_agent_tool": -0.7144743148237467,
+        "call_discoverable_agent_tool": -0.5687710819765925,
+        "submit_referral": -1.216206422696511
+      },
+      "pred_sign": "-",
+      "emp_sign": "tie",
+      "f1_pos": 0.4,
+      "f1_neg": 0.4,
+      "match": null
+    },
+    {
+      "task_id": "task_101",
+      "gt_tools": [
+        "log_verification",
+        "get_referrals_by_user",
+        "submit_referral"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "get_referrals_by_user",
+          455
+        ],
+        [
+          "submit_referral",
+          5955
+        ]
+      ],
+      "s_mean": -0.3964466341227914,
+      "s_per_gt": {
+        "log_verification": -0.3527508918195963,
+        "get_referrals_by_user": -0.18458836246281862,
+        "submit_referral": -0.6520006480859593
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.25,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "task_102",
+      "gt_tools": [
+        "log_verification",
+        "get_referrals_by_user",
+        "submit_referral"
+      ],
+      "gt_first_ids": [
+        [
+          "log_verification",
+          839
+        ],
+        [
+          "get_referrals_by_user",
+          455
+        ],
+        [
+          "submit_referral",
+          5955
+        ]
+      ],
+      "s_mean": -0.2343648950336501,
+      "s_per_gt": {
+        "log_verification": -0.5298139888327569,
+        "get_referrals_by_user": -0.06091124133672565,
+        "submit_referral": -0.11236945493146777
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.4,
+      "f1_neg": 0.41666666666666663,
+      "match": true
+    }
+  ]
+}

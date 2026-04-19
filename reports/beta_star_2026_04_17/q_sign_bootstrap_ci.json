@@ -1,0 +1,238 @@
+[
+  {
+    "domain": "Telecom",
+    "n_tasks": 200,
+    "baseline_f1": 0.2511904761904762,
+    "best_pos": "ocq_qbias_b0.05",
+    "best_pos_lift_pp": 24.783730158730158,
+    "best_pos_ci_pp": [
+      21.202321428571427,
+      28.502797619047616
+    ],
+    "best_pos_sig": true,
+    "best_neg": "ocq_qbias_b-0.05",
+    "best_neg_lift_pp": 5.257142857142856,
+    "best_neg_ci_pp": [
+      2.516607142857143,
+      8.062142857142854
+    ],
+    "best_neg_sig": true,
+    "best_overall": "ocq_qbias_b0.05",
+    "recommendation": "use_+ (ocq_qbias_b0.05)",
+    "regime": "high-signal",
+    "method_stats": {
+      "no_steer": {
+        "mean_f1": 0.2511904761904762,
+        "lift_mean": 0.0,
+        "lift_lo": 0.0,
+        "lift_hi": 0.0,
+        "significant": false
+      },
+      "ocq_qbias_b0.03": {
+        "mean_f1": 0.48416269841269843,
+        "lift_mean": 0.23297222222222225,
+        "lift_lo": 0.19856121031746032,
+        "lift_hi": 0.26701299603174605,
+        "significant": true,
+        "n": 200
+      },
+      "ocq_qbias_b0.05": {
+        "mean_f1": 0.4990277777777778,
+        "lift_mean": 0.24783730158730158,
+        "lift_lo": 0.21202321428571427,
+        "lift_hi": 0.28502797619047615,
+        "significant": true,
+        "n": 200
+      },
+      "ocq_qbias_b-0.05": {
+        "mean_f1": 0.3037619047619048,
+        "lift_mean": 0.05257142857142856,
+        "lift_lo": 0.02516607142857143,
+        "lift_hi": 0.08062142857142854,
+        "significant": true,
+        "n": 200
+      }
+    }
+  },
+  {
+    "domain": "Retail",
+    "n_tasks": 114,
+    "baseline_f1": 0.467879148142306,
+    "best_pos": "ocq_qbias_b0.03",
+    "best_pos_lift_pp": 3.823651981546717,
+    "best_pos_ci_pp": [
+      -0.24246769312558786,
+      8.194875543559748
+    ],
+    "best_pos_sig": false,
+    "best_neg": "ocq_qbias_b-0.05",
+    "best_neg_lift_pp": 3.603204787415313,
+    "best_neg_ci_pp": [
+      -0.6265050738734951,
+      7.798681581576313
+    ],
+    "best_neg_sig": false,
+    "best_overall": "ocq_qbias_b0.03",
+    "recommendation": "no_steer (low-signal)",
+    "regime": "low-signal",
+    "method_stats": {
+      "no_steer": {
+        "mean_f1": 0.467879148142306,
+        "lift_mean": 0.0,
+        "lift_lo": 0.0,
+        "lift_hi": 0.0,
+        "significant": false
+      },
+      "ocq_qbias_b0.03": {
+        "mean_f1": 0.5061156679577732,
+        "lift_mean": 0.03823651981546717,
+        "lift_lo": -0.0024246769312558786,
+        "lift_hi": 0.08194875543559747,
+        "significant": false,
+        "n": 114
+      },
+      "ocq_qbias_b0.05": {
+        "mean_f1": 0.5002739950108371,
+        "lift_mean": 0.032394846868531085,
+        "lift_lo": -0.01005143735406892,
+        "lift_hi": 0.07552078890894678,
+        "significant": false,
+        "n": 114
+      },
+      "ocq_qbias_b-0.05": {
+        "mean_f1": 0.5039111960164592,
+        "lift_mean": 0.03603204787415313,
+        "lift_lo": -0.00626505073873495,
+        "lift_hi": 0.07798681581576312,
+        "significant": false,
+        "n": 114
+      }
+    }
+  },
+  {
+    "domain": "Airline",
+    "n_tasks": 50,
+    "baseline_f1": 0.32852380952380955,
+    "best_pos": "ocq_qbias_b0.05",
+    "best_pos_lift_pp": 1.8291486291486296,
+    "best_pos_ci_pp": [
+      -3.9301839826839817,
+      7.5178715728715675
+    ],
+    "best_pos_sig": false,
+    "best_neg": "ocq_qbias_b-0.03",
+    "best_neg_lift_pp": -0.43275613275613356,
+    "best_neg_ci_pp": [
+      -6.673463203463205,
+      5.396904761904761
+    ],
+    "best_neg_sig": false,
+    "best_overall": "ocq_qbias_b0.05",
+    "recommendation": "no_steer (low-signal)",
+    "regime": "low-signal",
+    "method_stats": {
+      "no_steer": {
+        "mean_f1": 0.32852380952380955,
+        "lift_mean": 0.0,
+        "lift_lo": 0.0,
+        "lift_hi": 0.0,
+        "significant": false
+      },
+      "ocq_qbias_b0.03": {
+        "mean_f1": 0.3444761904761905,
+        "lift_mean": 0.015952380952380944,
+        "lift_lo": -0.032763095238095244,
+        "lift_hi": 0.0652083333333333,
+        "significant": false,
+        "n": 50
+      },
+      "ocq_qbias_b0.05": {
+        "mean_f1": 0.3468152958152958,
+        "lift_mean": 0.018291486291486296,
+        "lift_lo": -0.03930183982683982,
+        "lift_hi": 0.07517871572871568,
+        "significant": false,
+        "n": 50
+      },
+      "ocq_qbias_b-0.05": {
+        "mean_f1": 0.315989898989899,
+        "lift_mean": -0.01253391053391054,
+        "lift_lo": -0.06678906926406926,
+        "lift_hi": 0.04254653679653677,
+        "significant": false,
+        "n": 50
+      },
+      "ocq_qbias_b-0.03": {
+        "mean_f1": 0.3241962481962482,
+        "lift_mean": -0.004327561327561335,
+        "lift_lo": -0.06673463203463205,
+        "lift_hi": 0.053969047619047604,
+        "significant": false,
+        "n": 50
+      }
+    }
+  },
+  {
+    "domain": "Banking_k",
+    "n_tasks": 97,
+    "baseline_f1": 0.3371647253090552,
+    "best_pos": "ocq_qbias_b0.03",
+    "best_pos_lift_pp": 0.8969667217089895,
+    "best_pos_ci_pp": [
+      -4.254501941357612,
+      6.022267966855587
+    ],
+    "best_pos_sig": false,
+    "best_neg": "ocq_qbias_b-0.05",
+    "best_neg_lift_pp": 0.2992711755598345,
+    "best_neg_ci_pp": [
+      -4.878552003552003,
+      5.298981230682249
+    ],
+    "best_neg_sig": false,
+    "best_overall": "ocq_qbias_b0.03",
+    "recommendation": "no_steer (low-signal)",
+    "regime": "low-signal",
+    "method_stats": {
+      "no_steer": {
+        "mean_f1": 0.3371647253090552,
+        "lift_mean": 0.0,
+        "lift_lo": 0.0,
+        "lift_hi": 0.0,
+        "significant": false
+      },
+      "ocq_qbias_b0.03": {
+        "mean_f1": 0.3461343925261451,
+        "lift_mean": 0.008969667217089895,
+        "lift_lo": -0.042545019413576114,
+        "lift_hi": 0.06022267966855587,
+        "significant": false,
+        "n": 97
+      },
+      "ocq_qbias_b0.05": {
+        "mean_f1": 0.30864238853929576,
+        "lift_mean": -0.02852233676975945,
+        "lift_lo": -0.08050175912289313,
+        "lift_hi": 0.024368742654825064,
+        "significant": false,
+        "n": 97
+      },
+      "ocq_qbias_b-0.03": {
+        "mean_f1": 0.19423171330387826,
+        "lift_mean": -0.14293301200517697,
+        "lift_lo": -0.20115246723494146,
+        "lift_hi": -0.0874380587911517,
+        "significant": true,
+        "n": 97
+      },
+      "ocq_qbias_b-0.05": {
+        "mean_f1": 0.34015743706465357,
+        "lift_mean": 0.002992711755598345,
+        "lift_lo": -0.04878552003552003,
+        "lift_hi": 0.05298981230682249,
+        "significant": false,
+        "n": 97
+      }
+    }
+  }
+]

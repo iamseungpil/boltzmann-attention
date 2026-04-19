@@ -1,0 +1,7258 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "domain": "telecom",
+  "b_ont_shape": [
+    28,
+    4,
+    128,
+    12
+  ],
+  "q_sign_json": "reports/tau2_2026_04_17/telecom_q_sign_test.json",
+  "layers": [
+    27
+  ],
+  "gt_tokens": "discriminative",
+  "n_tasks": 200,
+  "n_valid": 195,
+  "n_match": 164,
+  "sign_accuracy": 0.841025641025641,
+  "runtime_s": 60.03243827819824,
+  "records": [
+    {
+      "task_id": "[mobile_data_issue]user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.9253571974113584,
+      "s_per_gt": {
+        "toggle_roaming": 1.9253571974113584
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.3634205861017108,
+      "s_per_gt": {
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3666666666666667,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.7458356255665421,
+      "s_per_gt": {
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ]
+      ],
+      "s_mean": 1.2597519357223064,
+      "s_per_gt": {
+        "toggle_data": 1.2597519357223064
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data_saver_mode",
+          17703
+        ]
+      ],
+      "s_mean": 1.261165604647249,
+      "s_per_gt": {
+        "toggle_data_saver_mode": 1.261165604647249
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ]
+      ],
+      "s_mean": 3.2412471853313036,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.2412471853313036
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ]
+      ],
+      "s_mean": 2.7063047726017735,
+      "s_per_gt": {
+        "disconnect_vpn": 2.7063047726017735
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "[mobile_data_issue]data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": -0.0068506277942409115,
+      "s_per_gt": {
+        "refuel_data": -0.0068506277942409115
+      },
+      "pred_sign": "-",
+      "emp_sign": "-",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 2.324255880356456,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.83837019931525,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.313319812528789,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.3488391623314886,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          1769
+        ]
+      ],
+      "s_mean": 2.0899712321503707,
+      "s_per_gt": {
+        "toggle_airplane_mode": 5.323047671777506,
+        "toggle_data": -1.143105207476765
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ]
+      ],
+      "s_mean": 2.994828829386582,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "toggle_data_saver_mode": -0.26932175069426495
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ]
+      ],
+      "s_mean": 4.282395407130631,
+      "s_per_gt": {
+        "toggle_airplane_mode": 5.393522632618745,
+        "set_network_mode_preference": 3.1712681816425174
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ]
+      ],
+      "s_mean": 3.807121398082624,
+      "s_per_gt": {
+        "toggle_airplane_mode": 4.907938023563474,
+        "disconnect_vpn": 2.7063047726017735
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.125,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.450543697884617,
+      "s_per_gt": {
+        "toggle_airplane_mode": 4.907938023563474,
+        "refuel_data": -0.0068506277942409115
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 0.6708970952313393,
+      "s_per_gt": {
+        "toggle_data": -0.7518713343888521,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.1779981977306306,
+      "s_per_gt": {
+        "toggle_data_saver_mode": 0.2623308706097305,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.14285714285714288,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.6757906462298706,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "toggle_roaming": 1.9253571974113584
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.6931761887390167,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_roaming": 1.9253571974113584
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.8441090890555643,
+      "s_per_gt": {
+        "refuel_data": -0.23713901930022985,
+        "toggle_roaming": 1.9253571974113584
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.8909275950863957,
+      "s_per_gt": {
+        "toggle_data": 0.4184346040710807,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6190476190476191,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.9455166955478489,
+      "s_per_gt": {
+        "toggle_data_saver_mode": 0.5276128049939871,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.45238095238095244,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.3948223405750468,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6190476190476191,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.4122078830841929,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.30952380952380953,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.5631407834007405,
+      "s_per_gt": {
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6190476190476191,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.2465999722480774,
+      "s_per_gt": {
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.5846673739142716,
+      "s_per_gt": {
+        "toggle_data_saver_mode": 0.2623308706097305,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9726317820604891,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9842221437332531,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.4181774106109515,
+      "s_per_gt": {
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ]
+      ],
+      "s_mean": 2.462358564759294,
+      "s_per_gt": {
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 1.2621080505972107
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ]
+      ],
+      "s_mean": 2.250499560526805,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.2412471853313036,
+        "toggle_data": 1.2597519357223064
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ]
+      ],
+      "s_mean": 1.98302835416204,
+      "s_per_gt": {
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 1.2597519357223064
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.1119428704841994,
+      "s_per_gt": {
+        "toggle_data": 3.6626090789213777,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 1.0,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ]
+      ],
+      "s_mean": 1.9424645691760816,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data_saver_mode": 0.7136609567096457
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ]
+      ],
+      "s_mean": 1.9837351886245114,
+      "s_per_gt": {
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data_saver_mode": 1.261165604647249
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.2117549848626368,
+      "s_per_gt": {
+        "toggle_data_saver_mode": 1.8622333076782525,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ]
+      ],
+      "s_mean": 2.973775978966539,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.2412471853313036,
+        "disconnect_vpn": 2.7063047726017735
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.6171982787685313,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.2412471853313036,
+        "refuel_data": -0.0068506277942409115
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.5,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.3497270724037662,
+      "s_per_gt": {
+        "disconnect_vpn": 2.7063047726017735,
+        "refuel_data": -0.0068506277942409115
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.5,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.2988801421080198,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "toggle_data": -0.7518713343888521,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.7270683638441067,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.125,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 2.2443542413723967,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 2.036502313593196,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "tie",
+      "f1_pos": 0.0,
+      "f1_neg": 0.0,
+      "match": null
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.4704575804708941,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "refuel_data": -0.23713901930022985,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.0554651625247466,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.4836533842608333,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.8246252348439562,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.6466247042020163,
+        "set_network_mode_preference": 1.4638304142281413,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.7125785262323916,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.313319812528789,
+        "disconnect_vpn": 1.460995180066675,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.14653379311009,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.313319812528789,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.8236615381514033,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.1448027044534683,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.5327671125996858,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.3768781667652852,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2361111111111111,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9523446169235589,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ]
+      ],
+      "s_mean": 3.3630528220285973,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 0.167569977696985
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          1769
+        ]
+      ],
+      "s_mean": 2.7623807945443937,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data": -1.143105207476765
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ]
+      ],
+      "s_mean": 2.2954157456341715,
+      "s_per_gt": {
+        "toggle_airplane_mode": 5.323047671777506,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": -1.143105207476765
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_usage_exceeded[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 3.182311137581968,
+      "s_per_gt": {
+        "toggle_airplane_mode": 5.323047671777506,
+        "toggle_data": 3.6626090789213777,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.8,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ]
+      ],
+      "s_mean": 3.053641946805227,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data_saver_mode": -0.26932175069426495
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ]
+      ],
+      "s_mean": 2.8986541437916458,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data_saver_mode": -0.26932175069426495
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.329275349737145,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "toggle_data_saver_mode": 0.167569977696985,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ]
+      ],
+      "s_mean": 3.7570318622876786,
+      "s_per_gt": {
+        "toggle_airplane_mode": 5.393522632618745,
+        "set_network_mode_preference": 3.1712681816425174,
+        "disconnect_vpn": 2.7063047726017735
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.85264672882234,
+      "s_per_gt": {
+        "toggle_airplane_mode": 5.393522632618745,
+        "set_network_mode_preference": 3.1712681816425174,
+        "refuel_data": -0.0068506277942409115
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_usage_exceeded[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.5357973894570027,
+      "s_per_gt": {
+        "toggle_airplane_mode": 4.907938023563474,
+        "disconnect_vpn": 2.7063047726017735,
+        "refuel_data": -0.0068506277942409115
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.427601446552823,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 0.9226727618370205,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "toggle_data": -0.7518713343888521,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 0.9342631235097846,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.2342110685422085,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.8,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.1564895735743146,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.2723305251759787,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.2623308706097305,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.125,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 0.9047636451238456,
+      "s_per_gt": {
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.6041921575088054,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_roaming": 1.9253571974113584
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.0381474243865039,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "refuel_data": -0.23713901930022985,
+        "toggle_roaming": 1.9253571974113584
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.0497377860592678,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "toggle_roaming": 1.9253571974113584
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2678571428571429,
+      "f1_neg": 0.4,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.1841864669695497,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6607142857142857,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.0693597617403914,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "toggle_data": 0.4184346040710807,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8035714285714285,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.0809501234131556,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 0.4184346040710807,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.9907960889589352,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8035714285714285,
+      "f1_neg": 0.8,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.0528052407316864,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": 0.33116472186520696,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6607142857142857,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.1173428570541242,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.5276128049939871,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3928571428571429,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.743710521395163,
+      "s_per_gt": {
+        "toggle_data_saver_mode": 0.8474838398396969,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6607142857142857,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.416879953738923,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.8508352206166213,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8035714285714285,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.8624255822893853,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5357142857142858,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9202025164850056,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.5415060029481538,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.5501987742027268,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.7751597329770448,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.7168686117511243,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.8037493254523724,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.2623308706097305,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.5280741654132726,
+      "s_per_gt": {
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.0947226315620355,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.6701890817203093,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.6788818529748823,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ]
+      ],
+      "s_mean": 2.33381574608696,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 0.167569977696985
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ]
+      ],
+      "s_mean": 2.543673967373454,
+      "s_per_gt": {
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 1.2621080505972107
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.8286645971885365,
+      "s_per_gt": {
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 1.2621080505972107,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.8,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ]
+      ],
+      "s_mean": 2.4024346312184615,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.2412471853313036,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 1.2597519357223064
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.4883776420999006,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.2412471853313036,
+        "toggle_data": 3.6626090789213777,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.8,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.310063504523391,
+      "s_per_gt": {
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 3.6626090789213777,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.8,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ]
+      ],
+      "s_mean": 2.197077970317979,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.1712681816425174,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data_saver_mode": 0.7136609567096457
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.688375951709329,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data_saver_mode": 1.3325830114384491,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.7099382474423492,
+      "s_per_gt": {
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data_saver_mode": 1.8622333076782525,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.9802337767129456,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.2412471853313036,
+        "disconnect_vpn": 2.7063047726017735,
+        "refuel_data": -0.0068506277942409115
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.4,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.7754669230198488,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.4952978474320844,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": -0.7518713343888521,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.3394089015976838,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2361111111111111,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.5643698603720018,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.6612588764401153,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.6605500678997487,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.11111111111111112,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.3833385719481157,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 2.048514476045966,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.2361111111111111,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.62398092620424,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "refuel_data": -0.23713901930022985,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.4680919803698393,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.2361111111111111,
+      "f1_neg": 0.3333333333333333,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.5929056883323938,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.3127366127446294,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.1568476669102288,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.3818086256845468,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.4786976417526603,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.4779888332122937,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.2007773372606607,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.733717721149636,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.6466247042020163,
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.3091841713079098,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.6466247042020163,
+        "set_network_mode_preference": 1.4638304142281413,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.2251491398492362,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.313319812528789,
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.2999746836721897,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.0758394232019781,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9511282665344577,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.1310970335539121,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.208608246408403,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.2080411995761096,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.31111111111111117,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9862720028148033,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.5184127260930835,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4222222222222223,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.1787858862197027,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.0540747295521822,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ]
+      ],
+      "s_mean": 3.3151066619320773,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 0.167569977696985
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_saver_mode_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ]
+      ],
+      "s_mean": 3.1988658096718914,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 0.167569977696985
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.662608782033203,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 0.167569977696985,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ]
+      ],
+      "s_mean": 2.748361789058739,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "set_network_mode_preference": 3.1712681816425174,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": -1.143105207476765
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 3.4135333330195863,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data": 3.6626090789213777,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 3.0633095463369195,
+      "s_per_gt": {
+        "toggle_airplane_mode": 5.323047671777506,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 3.6626090789213777,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_saver_mode_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ]
+      ],
+      "s_mean": 2.9668076532543637,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "set_network_mode_preference": 3.1712681816425174,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data_saver_mode": -0.26932175069426495
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.539773557713488,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data_saver_mode": 0.167569977696985,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|data_usage_exceeded[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.4235327054533022,
+      "s_per_gt": {
+        "toggle_airplane_mode": 6.258979409467429,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data_saver_mode": 0.167569977696985,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          17703
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.8160612397671985,
+      "s_per_gt": {
+        "toggle_airplane_mode": 5.393522632618745,
+        "set_network_mode_preference": 3.1712681816425174,
+        "disconnect_vpn": 2.7063047726017735,
+        "refuel_data": -0.0068506277942409115
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.3475328303175047,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.435949879931286,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.0757578694756376,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.0572533663944341,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.2822143251687521,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.2909070964233251,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.2326159751974046,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 0.9554044792457717,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.043821528859553,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.3472222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.1438593633065466,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "toggle_roaming": 1.9253571974113584
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4722222222222222,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.1649715956300497,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8194444444444444,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.253388645243831,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.8931966347881826,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8194444444444444,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.1672686163219623,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 0.4184346040710807,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.0996530904812971,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.9444444444444444,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.1083458617358701,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.1548527255654335,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.33116472186520696,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.8849137197976233,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": 0.69217674061656,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8194444444444444,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 0.923031686063041,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.8474838398396969,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5833333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.0033752104791347,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7083333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9576274095103144,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 1.0283610492013395,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.7402074408368208,
+      "s_per_gt": {
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.725403838371858,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9053726053913124,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8444444444444446,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.9123268223949708,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.8656939254142344,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.643924728652928,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.714658368343953,
+      "s_per_gt": {
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.6003982722759247,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data",
+        "enable_roaming",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ],
+        [
+          "toggle_roaming",
+          17703
+        ]
+      ],
+      "s_mean": 0.8283503013895824,
+      "s_per_gt": {
+        "set_network_mode_preference": 1.4262240950483829,
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "enable_roaming": -0.09706929139792919,
+        "toggle_roaming": 1.5887405425310135
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|data_saver_mode_on[PERSONA:None]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ]
+      ],
+      "s_mean": 2.4269380027156635,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.1712681816425174,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 0.167569977696985
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.8906809750769753,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.1712681816425174,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 0.167569977696985,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8444444444444446,
+      "f1_neg": 0.6666666666666666,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_saver_mode_on|data_usage_exceeded[PERSONA:None]",
+      "gt_tools": [
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.048074641041846,
+      "s_per_gt": {
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 3.6626090789213777,
+        "toggle_data_saver_mode": 1.2621080505972107,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|data_usage_exceeded[PERSONA:Hard]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 2.542859424725369,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.2412471853313036,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data": 3.6626090789213777,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "gt_tools": [
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data"
+      ],
+      "gt_first_ids": [
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ]
+      ],
+      "s_mean": 1.9428581569324403,
+      "s_per_gt": {
+        "set_network_mode_preference": 3.1712681816425174,
+        "disconnect_vpn": 2.7063047726017735,
+        "toggle_data_saver_mode": 1.3325830114384491,
+        "refuel_data": 0.5612766620470211
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.3333333333333333,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.7131396212615073,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.712572574429214,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.31111111111111117,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.4244189660646953,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.5714285714285715,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.4884373139590026,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.6684060809784569,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.5436949243109364,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "-",
+      "f1_pos": 0.4222222222222223,
+      "f1_neg": 0.5714285714285715,
+      "match": false
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.6212061371654272,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.31111111111111117,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.399436940404121,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.3988698935718276,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.31111111111111117,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "refuel_data",
+        "toggle_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "toggle_roaming",
+          26608
+        ]
+      ],
+      "s_mean": 1.591383776976727,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "refuel_data": -0.23713901930022985,
+        "toggle_roaming": 2.093665524851531
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.4222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.5670906335115433,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.56652358667925,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "toggle_data",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.2783699783147313,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "toggle_data": 1.5887405425310135,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.3423883262090386,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": -0.7518713343888521,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.5223570932284929,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.8444444444444446,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data",
+          17703
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.3976459365609724,
+      "s_per_gt": {
+        "toggle_airplane_mode": 2.554846235861381,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data": 1.5887405425310135,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.6333333333333333,
+      "f1_neg": 0.5714285714285715,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          1769
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.4751571494154632,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": -0.08802721835672855,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.0,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Hard]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "set_network_mode_preference",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "set_network_mode_preference",
+          746
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.253387952654157,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "set_network_mode_preference": 1.4638304142281413,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.7333333333333334,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_vpn|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+      "gt_tools": [
+        "toggle_airplane_mode",
+        "disconnect_vpn",
+        "toggle_data_saver_mode",
+        "refuel_data",
+        "enable_roaming"
+      ],
+      "gt_first_ids": [
+        [
+          "toggle_airplane_mode",
+          50827
+        ],
+        [
+          "disconnect_vpn",
+          51992
+        ],
+        [
+          "toggle_data_saver_mode",
+          643
+        ],
+        [
+          "refuel_data",
+          1097
+        ],
+        [
+          "enable_roaming",
+          12552
+        ]
+      ],
+      "s_mean": 1.2528209058218636,
+      "s_per_gt": {
+        "toggle_airplane_mode": 3.1755667850375175,
+        "disconnect_vpn": 1.460995180066675,
+        "toggle_data_saver_mode": 0.24389483965933323,
+        "refuel_data": 0.02022713824408129,
+        "enable_roaming": 1.3634205861017108
+      },
+      "pred_sign": "+",
+      "emp_sign": "+",
+      "f1_pos": 0.5222222222222223,
+      "f1_neg": 0.28571428571428575,
+      "match": true
+    }
+  ]
+}

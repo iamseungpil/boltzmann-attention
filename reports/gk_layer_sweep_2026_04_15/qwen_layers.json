@@ -1,0 +1,44 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "layers": [
+    5,
+    10,
+    13,
+    18,
+    22
+  ],
+  "n_queries": 30,
+  "per_layer": [
+    {
+      "layer": 5,
+      "mean_abs_cos": 0.11259876454666179,
+      "median_abs_cos": 0.09843368828296661,
+      "n": 120
+    },
+    {
+      "layer": 10,
+      "mean_abs_cos": 0.19030922253150492,
+      "median_abs_cos": 0.19833862036466599,
+      "n": 120
+    },
+    {
+      "layer": 13,
+      "mean_abs_cos": 0.0839430867296566,
+      "median_abs_cos": 0.03691672533750534,
+      "n": 120
+    },
+    {
+      "layer": 18,
+      "mean_abs_cos": 0.15351503854193047,
+      "median_abs_cos": 0.13250049948692322,
+      "n": 120
+    },
+    {
+      "layer": 22,
+      "mean_abs_cos": 0.07276273161745242,
+      "median_abs_cos": 0.05790198780596256,
+      "n": 120
+    }
+  ],
+  "cumulative_mean_abs_cos": 0.6131288439672062
+}

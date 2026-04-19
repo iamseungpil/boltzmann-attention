@@ -1,0 +1,4733 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "b_ont": null,
+  "p_pos_path": "external/SEKA/seka_projections/canonical-metatool-qwen25-7b-v2/Qwen2.5-7B-Instruct_pos_proj.pt",
+  "layers": "last10",
+  "n_queries": 50,
+  "results": [
+    {
+      "method": "no_steer",
+      "amplify_pos": 0.0,
+      "n_queries": 50,
+      "macro": {
+        "F1": 0.7533333333333334,
+        "F_0.5": 0.7566666666666666,
+        "EU": 0.5,
+        "Jaccard": 0.67,
+        "Exact": 0.5,
+        "precision": 0.76,
+        "recall": 0.75
+      },
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The web_scraper can be used to extract relevant data from websites, while the FinanceTool can help in analyzing and managing financial aspects related to the user's query.",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The web_scraper can be used to extract relevant data from websites, while the FinanceTool can help in analyzing and managing financial aspects related to the user's query.",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The web_scraper can be used to extract relevant data from websites, while the FinanceTool can help in analyzing and managing financial aspects related to the user's query.",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\nExplanation: The web_scraper can be used to extract relevant data from websites, while the FinanceTool can help in analyzing and managing financial aspects related to the user's query.",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 20,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 21,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 22,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 23,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 24,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 25,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 26,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WebTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 27,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 28,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 29,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 30,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 31,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 32,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 33,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 34,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 35,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "web_requests"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}\n<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 36,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 37,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 38,
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "web_requests",
+            "ResearchHelper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 39,
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 40,
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ProductSearch\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 41,
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 42,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 43,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 44,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 45,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 46,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 47,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 48,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 49,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        }
+      ]
+    },
+    {
+      "method": "real_seka_amp0.5",
+      "amplify_pos": 0.5,
+      "n_queries": 50,
+      "macro": {
+        "F1": 0.6533333333333334,
+        "F_0.5": 0.6566666666666666,
+        "EU": 0.38,
+        "Jaccard": 0.5633333333333331,
+        "Exact": 0.38,
+        "precision": 0.66,
+        "recall": 0.65
+      },
+      "runtime_s": 55.2045111656189,
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}\n\nExplanation: The user's query requires data extraction from websites and engagement with social media platforms. The web_scraper tool can be used for extracting data from various websites, ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}\n\nExplanation: The user's query requires data extraction from websites and engagement with social media platforms. The web_scraper tool can be used for extracting data from various websites, ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}\n\nExplanation: The user's query requires data extraction from websites and engagement with social media platforms. The web_scraper tool can be used for extracting data from various websites, ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper",
+            "social_media_muse"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"social_media_muse\", \"arguments\": {}}\n\nExplanation: The user's query requires data extraction from websites and engagement with social media platforms. The web_scraper tool can be used for extracting data from various websites, ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 2,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 20,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 21,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 22,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 23,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 24,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 25,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WebRequests\", \"arguments\": {}}\n<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 26,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WebRequests\", \"arguments\": {}}\n<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 27,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}\n\nExplanation: The user's query requires financial calculations and tax computations, so FinanceTool and Tax_Calculator are the most suitable choices.",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 28,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}\n\nExplanation: The user's query requires financial calculations and tax computations, so FinanceTool and Tax_Calculator are the most suitable choices.",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 29,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}\n\nExplanation: The user's query requires financial calculations and tax computations, so FinanceTool and Tax_Calculator are the most suitable choices.",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 30,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Tax_Calculator"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Tax_Calculator\", \"arguments\": {}}\n\nExplanation: The user's query requires financial calculations and tax computations, so FinanceTool and Tax_Calculator are the most suitable choices.",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 31,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 32,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 33,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 34,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 35,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "VideoSummarizeTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}\n<tool_call>{\"name\": \"VideoSummarizeTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 36,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "ResearchFinder",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ResearchFinder\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 37,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "VideoSummarizeTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"VideoSummarizeTool\", \"arguments\": {\"video_link\": \"\"}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 38,
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "web_requests",
+            "ResearchHelper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 39,
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "ResearchHelper",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ResearchHelper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 40,
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "ProductSearch",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ProductSearch\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 41,
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "web_requests",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 42,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 43,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 44,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 45,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 46,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 47,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 48,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 49,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        }
+      ]
+    },
+    {
+      "method": "real_seka_amp1.0",
+      "amplify_pos": 1.0,
+      "n_queries": 50,
+      "macro": {
+        "F1": 0.57,
+        "F_0.5": 0.58,
+        "EU": 0.3,
+        "Jaccard": 0.48333333333333306,
+        "Exact": 0.3,
+        "precision": 0.59,
+        "recall": 0.56
+      },
+      "runtime_s": 69.73743963241577,
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "CourseTool",
+            "Substack_IQ"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Substack_IQ"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [
+            "Substack_IQ",
+            "CourseTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"Substack_IQ\", \"arguments\": {}}\n<tool_call>{\"name\": \"CourseTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", tool description: \"Stay informed with the latest financial updates, real-time insights, and analysis on a wide range of options, stocks, cryptocurrencies, and more.\"}\n<tool_call>{\"name\": \"ChartTool\", tool description: \"A versatile chart and diagram tool that can cr",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", tool description: \"Stay informed with the latest financial updates, real-time insights, and analysis on a wide range of options, stocks, cryptocurrencies, and more.\"}\n<tool_call>{\"name\": \"PDF&URLTool\", tool description: \"Interact with any PDF files, provide page re",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "ChartTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [
+            "ChartTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"ChartTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsTool\", \"arguments\": {}}\n\nExplanation: The user's query was not provided, but based on the previous format, we can use the web_scraper to extract relevant data and FundsTool to analyze financial data.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsTool\", \"arguments\": {}}\n\nExplanation: The user's query was not provided, but based on the previous format, we can use the web_scraper to extract relevant data and FundsTool to analyze financial data.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsTool\", \"arguments\": {}}\n\nExplanation: The user's query was not provided, but based on the previous format, we can use the web_scraper to extract relevant data and FundsTool to analyze financial data.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "web_scraper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_scraper\", \"arguments\": {}}\n<tool_call>{\"name\": \"FundsTool\", \"arguments\": {}}\n\nExplanation: The user's query was not provided, but based on the previous format, we can use the web_scraper to extract relevant data and FundsTool to analyze financial data.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 20,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 21,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 22,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MusicTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 23,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"TemperatureTool\", tool_description: \"This tool can be used to fetch current temperature data from web APIs.\"}\n<tool_call>{\"name\": \"FinanceTool\", tool_description: \"This tool provides financial market data including stock prices and market trends.\"}\n<tool_call>{\"name'start\": \"Tem",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 24,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "WeatherTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 25,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"HistoricalWeatherData\", tool description: \"This tool provides access to historical weather data.\"}\n<tool_call>{\"name\": \"FinanceTool\", tool description: \"This tool can be used to analyze financial data, including stock performance.\"}\n<tool_call>{\"name'support\": \"The user wants to",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 26,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"WebRequests\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"WeatherTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 27,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [],
+          "generation_head": "CTCP\nMixerBox_WebSearchG_web_search\n\nExplanation: Since the user's query is not provided, we cannot determine the exact tools needed. However, for demonstration purposes, I will use the User's Query Start placeholder. The CTCP tool can be used for communication and data exchange, while the MixerBox_",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 28,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [],
+          "generation_head": "CTCP\nMixerBox_WebSearchG_web_search\n\nExplanation: Since the user's query is not provided, we cannot determine the exact tools needed. However, for demonstration purposes, I will use the User's Query Start placeholder. The CTCP tool can be used for communication and data exchange, while the MixerBox_",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 29,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [],
+          "generation_head": "CTCP\nMixerBox_WebSearchG_web_search\n\nExplanation: Since the user's query is not provided, we cannot determine the exact tools needed. However, for demonstration purposes, I will use the User's Query Start placeholder. The CTCP tool can be used for communication and data exchange, while the MixerBox_",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 30,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [],
+          "generation_head": "CTCP\nMixerBox_WebSearchG_web_search\n\nExplanation: Since the user's query is not provided, we cannot determine the exact tools needed. However, for demonstration purposes, I will use the User's Query Start placeholder. The CTCP tool can be used for communication and data exchange, while the MixerBox_",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 31,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 32,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 33,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 34,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 35,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "web_requests",
+            "ResearchFinder"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {\"description\": \"Search for research papers on the internet using keywords like 'inflation' and 'stock market performance'.\"}}\n<tool_call>{\"name\": \"ResearchFinder\", tool description: [\"A tool that searches for research papers based on specific keyword",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 36,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "web_requests",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {\"description\": \"Fetch and process data from various websites including financial news and market trend data.\"}}\n<tool_call>{\"name\": \"FinanceTool\", tool description: \"Analyze financial data and provide market trend analysis.\"}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 37,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [
+            "VideoSummarizeTool",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"VideoSummarizeTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 38,
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "web_requests",
+            "ResearchHelper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchHelper\", tool_description: \"This tool helps in finding recent articles and provides summaries.\"}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 39,
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "web_requests",
+            "ResearchHelper"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"ResearchHelper\", tool_description: \"This tool provides access to a wide range of resources including articles, videos, and other materials on various topics.\"}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 40,
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [],
+          "generation_head": "ChartTool\nProductSearch\n\nExplanation: The user wants a comparison of prices, ratings, and sales data, which can be gathered using web_requests to scrape relevant smartphone data from e-commerce websites and then processed with ChartTool to create a visual representation.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 41,
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [
+            "web_requests",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"web_requests\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 42,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 43,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 44,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 45,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"Discount\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 46,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 47,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 48,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 49,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        }
+      ]
+    },
+    {
+      "method": "real_seka_amp2.0",
+      "amplify_pos": 2.0,
+      "n_queries": 50,
+      "macro": {
+        "F1": 0.11,
+        "F_0.5": 0.12,
+        "EU": 0.04,
+        "Jaccard": 0.08999999999999998,
+        "Exact": 0.04,
+        "precision": 0.13,
+        "recall": 0.1
+      },
+      "runtime_s": 239.16126012802124,
+      "per_sample": [
+        {
+          "index": 0,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [],
+          "generation_head": "I will choose two tools to solve the user's query.\nI recommend using the following two tools: \n[User's Query Start]\nMixerBox_WebSearchG_web_search, FinanceTool\n[User's Query End]\nExplanation: To address the user's query, we need to find out the latest news and analyze the financial impact on Tesla's",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 1,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", tool description: [\"Search through a wide range of options, real-time financial updates, and analysis on a wide range of options, real-time financial updates, and analysis on a wide range of options.\"}\nThe FinanceTool will provide the current stock price of Apple. ",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 2,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", tool description: [\"Stay informed with the latest financial updates, real-time insights, and analysis on a wide range of options, stocks, cryptocurrencies, and more.\"]}\nStocks overview and financial updates are needed. Real-time financial updates and stock performa",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 3,
+          "gt": [
+            "FinanceTool",
+            "NewsTool"
+          ],
+          "pred": [
+            "FinanceTool"
+          ],
+          "generation_head": "I will choose the following two tools: FinanceTool and MixerBox_WebSearchG_web_search.\n\nAmazon is a company, not a soccer team, so Agones is irrelevant. PolishTool does not offer financial analysis or stock price information. MixerBox_WebSearchG_web_search can be used to find recent news and events,",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 0.5,
+            "F1": 0.6666666666666666,
+            "F_0.5": 0.8333333333333334,
+            "EU": 0.0,
+            "Jaccard": 0.5,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 0,
+            "FN": 1
+          }
+        },
+        {
+          "index": 4,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [],
+          "generation_head": "[List of Tools with Names and Description Start] \n[User's Query End] \n[User's Query Start]\nStay updated on financial news and investment strategies.\n[User's Query End] \n[List of Tools with Names End]\n[List of Tools with Names and Description Start]\n- tool name: FinanceTool, tool description: ['Proje",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 5,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [],
+          "generation_head": "[List of Tools with Names and Growth Start]\nCourseTool, dart\nWe chose CourseTool because it specializes in providing a range of courses from providers like Coursera and Upskillr, which would be useful for finding courses related to accounting and investment strategies. However, since the query is ab",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 6,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [],
+          "generation_head": "[List of Tools with Names and Perks Start]\n[Tool name: dart, tool description: [User's description: A wide range of financial analysis and real-time stock tracking.]]\n[User's Query End]\n[List of Tools with Names and Information Start]\n[User's Query End]\n[List of Tools with Names and End] \n\nI chose F",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 7,
+          "gt": [
+            "FinanceTool",
+            "CourseTool"
+          ],
+          "pred": [],
+          "generation_head": "[List of Tools with Names and Description Start] \n[User's Query End] \n[User's Query Start]\nStay updated on personal finance analysis and access the latest financial news.\n[User's Query End] \n\nBased on the user's query, I would choose two tools:\n\n[First Tool Start]\n{\"name\": \"PersonalFinanceTool\", too",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 8,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [],
+          "generation_head": "Two tools that can be used to solve the user's query are:\n1. tool name: tool name: FinanceTool\n2. tool name: tool name: tool name: tool description: (Explanation: The FinanceTool can provide the latest financial reports and stock market trends.)\n2. tool name: tool description Start]\nI have chosen Fi",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 9,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [],
+          "generation_head": "Two tools needed: FinanceTool and PDF&URLTool.\n\nBased on the user's query, they need information on average annual returns and understanding compound interest. FinanceTool would be useful for providing insights into investment returns. For understanding compound interest, the user can use PDF&URLToo",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 10,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [],
+          "generation_head": "I will use FinanceTool for the current interest rates and PDF&URLTool for analyzing financial statements.\n<tool_call>{\"name\": \"tool name: FinanceTool\", tool description: \"Stay informed with the latest financial updates, real-time insights, and analysis on a wide range of options, stocks, cryptocurre",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 11,
+          "gt": [
+            "FinanceTool",
+            "PDF&URLTool"
+          ],
+          "pred": [],
+          "generation_head": "PDF&URLTool\nFinanceTool",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 12,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "dart"
+          ],
+          "generation_head": "User's Query: How can I create an interactive app for a simple calculator?\n\n[User's Query End]\n\nUser's Query: How can I create an interactive app for a simple calculator?\n\nBrief Explanation:\nI will choose two tools that can be used together to create an interactive app. The first one is Dart, which ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 13,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "dart"
+          ],
+          "generation_head": "User's Query: How can I create an interactive app for a simple calculator?\n\n[User's Query End]\n\nUser's Query: How can I create an interactive app for a simple calculator?\n\nBrief Explanation:\nI will choose two tools that can be used together to create an interactive app. The first one is Dart, which ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 14,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "dart"
+          ],
+          "generation_head": "User's Query: How can I create an interactive app for a simple calculator?\n\n[User's Query End]\n\nUser's Query: How can I create an interactive app for a simple calculator?\n\nBrief Explanation:\nI will choose two tools that can be used together to create an interactive app. The first one is Dart, which ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 15,
+          "gt": [
+            "FinanceTool",
+            "TripTool"
+          ],
+          "pred": [
+            "dart"
+          ],
+          "generation_head": "User's Query: How can I create an interactive app for a simple calculator?\n\n[User's Query End]\n\nUser's Query: How can I create an interactive app for a simple calculator?\n\nBrief Explanation:\nI will choose two tools that can be used together to create an interactive app. The first one is Dart, which ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 16,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "TripAdviceTool",
+            "MixerBox_WebSearchG_web_search"
+          ],
+          "generation_head": "TripAdviceTool\nMixerBox_WebSearchG_web_search\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 17,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [],
+          "generation_head": "TripAdviceTool, FinanceTool\nI chose TripAdviceTool because it can offer cost-effective travel tips and attraction recommendations. Additionally, I picked FinanceTool to help manage finances during the trip.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 18,
+          "gt": [
+            "FinanceTool",
+            "TripAdviceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "TripAdviceTool"
+          ],
+          "generation_head": "TripAdviceTool\nMixerBox_WebSearchG_web_search\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {}}\n<tool_call>{\"name\": \"TripAdviceTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 19,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [],
+          "generation_head": "I will choose two tools that can provide investment information and relax the user while researching. Based on the provided descriptions, I will select two from the following:\n\n1. tool name: FinanceTool\n2. tool name: MusicTool\n\nExplanation: The user is looking for investment options and a playlist f",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 20,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [],
+          "generation_head": "[User's Query Start]\nHow can I calculate the latest financial updates and check out the latest music trends?\n[User's Query End]\nI will choose two tools based on the question.\n\nSelected Tool: [Tool name: FinanceTool, explanation: This tool can provide real-time financial updates, which are useful for",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 21,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "generation_head": "[User's Query Start]\nCan you give me an overview of the stock market trends, and suggest some upbeat music to listen to while analyzing the market?\n[User's Query End]\nI will choose two tools: FinanceTool and MusicTool.\n\n[User's Query Start]\nCan you give me an overview of the stock market trends, and",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 22,
+          "gt": [
+            "FinanceTool",
+            "MusicTool"
+          ],
+          "pred": [],
+          "generation_head": "Two tools to support the user's query:\n1. tool name: FinanceTool\n2. tool name: ai_council\n\nExplanation:\nFor the financial aspect of the query, FinanceTool would provide real-time financial analysis and mutual fund information. For the strategy part, Agones could be used to analyze mutual fund perfor",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 23,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [],
+          "generation_head": "I will use this tool to fetch real-time data from various sources including current temperature and other relevant information.\n2. tool name: web_requests, tool description: [User's Query Start] Can you tell me the current temperature in my city and how it will affect the stock market? [User's Query",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 24,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [],
+          "generation_head": "[List of Tools with Names and Descriptions End] tool name: web_requests, tool description: This tool allows us to find information on the internet by specifying keywords or topics.\n2. tool name: weather_forecast, tool description: This tool provides real-time weather data and forecasts.\n3. tool name",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 25,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [],
+          "generation_head": "[List of Tools with Names and Descriptions End] tool name: web_requests, tool description: This tool allows the user to request data from a website or API to gather information about stock performance and weather conditions.\n2. tool name: tool name: tool description: [Historical stock performance an",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 26,
+          "gt": [
+            "FinanceTool",
+            "WeatherTool"
+          ],
+          "pred": [],
+          "generation_head": "Two tools to use for the query: web_requests, Tool that can fetch data from web pages.\n2. tool name: stock_price, tool description: [User can use this tool to get real-time stock prices.]\n3. tool name: web_requests, tool description: [This tool can be used to gather information from various websites",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 27,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [],
+          "generation_head": "MixerBox_WebSearchG_web_search\nMixerBox_QueryEnd]\n\nBrief Explanation:\n[For this query, we need to find a specific type of data visualization tool that can handle complex data sets and create charts. However, since you can only provide one explanation per response, I will provide it after the answer.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 28,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [],
+          "generation_head": "MixerBox_WebSearchG_web_search\nMixerBox_QueryEnd]\n\nBrief Explanation:\n[For this query, we need to find a specific type of data visualization tool that can handle complex data sets and create charts. However, since you can only provide one explanation per response, I will provide it after the answer.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 29,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [],
+          "generation_head": "MixerBox_WebSearchG_web_search\nMixerBox_QueryEnd]\n\nBrief Explanation:\n[For this query, we need to find a specific type of data visualization tool that can handle complex data sets and create charts. However, since you can only provide one explanation per response, I will provide it after the answer.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 30,
+          "gt": [
+            "FinanceTool",
+            "HousePurchasingTool"
+          ],
+          "pred": [],
+          "generation_head": "MixerBox_WebSearchG_web_search\nMixerBox_QueryEnd]\n\nBrief Explanation:\n[For this query, we need to find a specific type of data visualization tool that can handle complex data sets and create charts. However, since you can only provide one explanation per response, I will provide it after the answer.",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 31,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [],
+          "generation_head": "I will choose two tools to solve the user's query: FinanceTool and JobTool.\n\nChartTool and FinanceTool: The combination of FinanceTool and JobTool would be ideal for this query. FinanceTool can provide real-time financial analysis and stock information, while JobTool can help find job opportunities ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 32,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [],
+          "generation_head": "FinanceTool\nFinanceTool\nExplanation: To calculate the return on investment for a particular stock investment, we need a tool that can provide real-time financial analysis and information. FinanceTool is ideal for this purpose. Additionally, to find and recommend job opportunities in the finance sect",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 33,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [],
+          "generation_head": "FinanceTool\nChartTool",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 34,
+          "gt": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "pred": [
+            "FinanceTool",
+            "JobTool"
+          ],
+          "generation_head": "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"JobTool\", \"arguments\": {}}",
+          "metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "F1": 1.0,
+            "F_0.5": 1.0,
+            "EU": 1.0,
+            "Jaccard": 1.0,
+            "Exact": 1.0,
+            "TP": 2,
+            "FP": 0,
+            "FN": 0
+          }
+        },
+        {
+          "index": 35,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [],
+          "generation_head": "MemeTool, web_requests\n\nI chose KoreaSubway, but since it doesn't directly help, I'll use web_requests to search for research papers. The champdex, NotesTool, and VideoSummarizeTool are not relevant to the task. The KoreaSubway tool is not useful in this context. \nI chose KoreaSubway, web_requests, ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 36,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [],
+          "generation_head": "Supporting analysis of market trends and financial indicators for a company would require a tool that can provide financial reports and market trend data.\n7. tool name: tool name: FinanceTool, tool description: [\"Retrieve financial reports and news articles about companies.\"]. \n8. tool name: tool na",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 37,
+          "gt": [
+            "FinanceTool",
+            "ResearchFinder"
+          ],
+          "pred": [],
+          "generation_head": "Supporting tools: KoreaSubway, KoreaSubway\nI will select web_requests for its capability to fetch recent news and data, and Korea_subway for its analysis of economic trends related to the banking sector. However, since the provided tools do not have specific descriptions that would help in analyzing",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 38,
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [],
+          "generation_head": "I will choose two tools for this task. The first tool is 'web_requests' to search for recent articles on the internet that discuss the topic. The second tool is 'summarize', which can be used to extract a summary from the found articles.\n2. tool name: web_requests, tool description: This tool allows",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 39,
+          "gt": [
+            "FinanceTool",
+            "ResearchHelper"
+          ],
+          "pred": [
+            "web_requests"
+          ],
+          "generation_head": "I will choose two tools to provide a definition and an example of diversification in a portfolio.\n<tool_call>{\"name\": \"web_requests\", tool description: \"This tool allows users to search for information on the internet.\"}\n<tool_call>{\"name\": \"tool name: Definition of Diversification\", tool descriptio",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 1,
+            "FN": 2
+          }
+        },
+        {
+          "index": 40,
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [],
+          "generation_head": "[List of Tools with Names and Descriptions End] tool name: web_requests, tool description: This tool allows us to request data from websites directly, which can be used to gather smartphone price and sales data.\n2. tool name: quarterly_sales, tool description: This tool provides access to quarterly ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 41,
+          "gt": [
+            "FinanceTool",
+            "ProductSearch"
+          ],
+          "pred": [],
+          "generation_head": "[List of Tools with Names and Descriptions Start] \n1. tool name: web_requests, tool description: A tool that can be used to fetch data from the internet.\n2. tool name: SalesGrowth, tool description: This tool provides access to sales figures and financial growth rates of luxury car brands.\n3. tool n",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 42,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [],
+          "generation_head": "FinanceTool\ntool name: FinanceTool, tool description: ['Stay informed with the latest financial updates, real-time insights, and analysis on a wide range of options, stocks, cryptocurrencies, and more.']\nDiscount\ntool name: Discount, tool description: [Discover discounts and coupon codes to save mon",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 43,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [],
+          "generation_head": "Brief Explanation:\nTo solve the user's query, we need tools that can provide stock prices and financial information, as well as one that can offer discounts. Which tool would you like me to use?\nRecommended FinanceTool and FinanceTool, tool description: [\"Stay informed with the latest financial upda",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 44,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [],
+          "generation_head": "Brief Explanation: For calculating the total return on government bonds, we need a tool that can handle financial calculations. Additionally, we need a tool to check if there are any discounts on the bonds. Which tool would you like me to use? I will provide the two most suitable ones.\nI will use: F",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 45,
+          "gt": [
+            "FinanceTool",
+            "Discount"
+          ],
+          "pred": [],
+          "generation_head": "FinanceTool\nDiscount",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 46,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [],
+          "generation_head": "FinanceTool\nMixerBox_WebSearchG_web_search\nBrief Explanation:\nI chose FinanceTool because it provides real-time financial updates and analysis, which is useful for understanding economic trends. Additionally, I selected MixerBox_WebSearchG_web_search to help find specific information about economic ",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 47,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [
+            "MixerBox_WebSearchG_web_search",
+            "FinanceTool"
+          ],
+          "generation_head": "I will choose two tools to provide the user with the latest financial and cryptocurrency news.\n<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", tool description: \"['Search and summarize the web with our customized search engine powered by Google Search API!']\"}\n<tool_call>{\"name\": \"FinanceTool\"",
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "F1": 0.5,
+            "F_0.5": 0.5,
+            "EU": 0.0,
+            "Jaccard": 0.3333333333333333,
+            "Exact": 0.0,
+            "TP": 1,
+            "FP": 1,
+            "FN": 1
+          }
+        },
+        {
+          "index": 48,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [],
+          "generation_head": "I will choose two tools to address the user's query.\n\nExplanation: To understand the impact of recent oil price changes on the global economy and major companies, we need to gather information from reliable sources and analyze it. Therefore, I will use two tools: FinanceTool and Agones. \n\n[List of T",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        },
+        {
+          "index": 49,
+          "gt": [
+            "NewsTool",
+            "FinanceTool"
+          ],
+          "pred": [],
+          "generation_head": "I will choose two tools to solve the user's query.\nSelected tools: MixerBox_WebSearchG_web_search, FinanceTool\n\nExplanation: The user is interested in learning about mergers and acquisitions in the technology industry and their influence on the stock market. The FinanceTool and MixerBox_WebSearchG_w",
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "F1": 0.0,
+            "F_0.5": 0.0,
+            "EU": 0.0,
+            "Jaccard": 0.0,
+            "Exact": 0.0,
+            "TP": 0,
+            "FP": 0,
+            "FN": 2
+          }
+        }
+      ]
+    }
+  ]
+}
