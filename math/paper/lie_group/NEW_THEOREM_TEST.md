@@ -681,6 +681,8 @@ Frozen pretrained LLM (Qwen2.5-7B)
 
 **비용**: 8-12 GPU-hr (F12/F13 infra 재사용). 4-outcome pre-reg: ≥+5pp / +2-5pp / noise / negative.
 
+**→ Refined spec (v5.4, 2026-04-19 dawn)**: 6M MetaFocus preliminary 은 brainstorm session 에서 `SAAF (SAE-Anchored Attention Focus)` + `H-SAAF (Hierarchical SAAF)` 로 구체화. **Park 2024 (2406.01506) Thm 8 + Muchane 2506.01197** 를 formal foundation 으로 채용, **andyrdt/saes-qwen2.5-7b-instruct** pretrained SAE library 재사용. 구조 = residual-SAE feature → W_K/W_Q pullback → per-head SO(2) rotation, layer-matched to ontology hierarchy. 3-agent preemption audit (2026-04-19) 결과 5-way intersection (cross-layer + SAE anchor + attention-head + training-free + formal ontology) EMPTY. **§5 Phase F14 참고** (10-cell pre-reg, 12-14 GPU-hr + $200-400 + human 10-20 hr). Gate: F12 < 3pp ∧ F13 < 3pp ∧ H-Order ≥ +2pp → Stage 2 SAAF-E1-E6 → Stage 3 HSAAF-E7-E10.
+
 ### 6N. 3 추가 testable hypotheses
 
 #### H-Meta (Q2+Q5)
