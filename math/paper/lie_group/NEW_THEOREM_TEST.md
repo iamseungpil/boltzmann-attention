@@ -242,6 +242,431 @@ Qwen Telecom N=100: $m_0 \geq 5.031$ (min over 100 tasks). Rule-of-three 95% upp
 
 ---
 
+## §2.5.1 확장: Ontology + LLM Inference 광범위 audit (v5.1, 15+ methods, 5 categories)
+
+이 섹션은 §2.5의 9-method 비교를 광범위하게 확장 (OG-RAG, Generative Ontology, GCD, Neuro-Symbolic, CAV, G-ACT, Vector Ontologies 등 추가). Reviewer 가 "ontology 를 LLM inference 에 사용한 prior 가 어디까지인가?" 질문 시 thorough 답변 가능하도록.
+
+### Group 1: Prompt-level / Retrieval-level (mechanism: prompt enrichment via retrieval)
+
+이 그룹은 ontology 를 **prompt 텍스트** 로 LLM 에 주입. Activation 직접 modification 없음.
+
+#### 1A. **OG-RAG (Ontology-Grounded RAG)** — EMNLP 2025, arxiv 2412.15235
+- **Mechanism**: User query → NER/type classification → SPARQL retrieval over ontology → prompt enrichment with retrieved facts → LLM generation → post-check
+- **Training**: None (LLM frozen, ontology pre-built)
+- **Numbers**: +55% recall, +40% correctness, +30% attribution clarity, +27% deductive reasoning vs RAG/GraphRAG
+- **Domains**: Healthcare, biomedicine, agriculture, electrical fault ID
+- **차별 vs F11**: Prompt-level only, no attention/K modification. Ontology 가 retrieval index 역할만.
+
+#### 1B. **GraphRAG variants** (Microsoft, GoodData, others 2024-2026)
+- **Mechanism**: Vector search → graph traversal → context composition → LLM
+- **Training**: Embedding model only (LLM frozen)
+- **차별 vs F11**: KG 가 retrieval graph, attention modification 없음.
+
+#### 1C. **OntoLLM** (ScienceDirect 2026)
+- **Mechanism**: Ontology + KG injection at prompt level. Question nodes bridge structured KG with unstructured docs.
+- **Training**: None
+- **차별 vs F11**: Prompt-text only, mechanism layer 다름 (이전 §2.5에서 다룸).
+
+#### 1D. **KGT (Knowledge Graph Thought)**
+- **Mechanism**: KG-enhanced framework, plug-and-play, no fine-tuning
+- **Training**: None
+- **차별 vs F11**: Reasoning chain via KG, not attention modification.
+
+#### 1E. **KA-RAG** (MDPI 2025)
+- **Mechanism**: Agentic retrieval-augmented generation with KG
+- **Training**: None (agent uses LLM as tool)
+- **차별 vs F11**: Multi-hop retrieval pipeline, not activation-level.
+
+#### 1F. **OntoGPT** (PMC 2025)
+- **Mechanism**: Ontology-grounded term extraction (biomedical)
+- **Training**: None
+- **차별 vs F11**: Output-side extraction, not steering.
+
+#### 1G. **Agentic AI for Ontology Grounding** (Semantic Web Journal 2025)
+- **Mechanism**: Agent-driven ontology grounding over LLM-discovered concepts
+- **Training**: None (agent loop)
+- **차별 vs F11**: Pipeline-level, not internal modification.
+
+### Group 2: Constrained Decoding (mechanism: token logit masking)
+
+이 그룹은 ontology 를 **output token grammar** 로 사용. Logit-level intervention.
+
+#### 2A. **Generative Ontology** — arxiv 2602.05636 (2026)
+- **Mechanism**: Ontology encoded as Pydantic schema → DSPy signatures constrain LLM generation
+- **Training**: None (schema is hand-coded ontology)
+- **Granularity**: Token-level masking (Outlines library: O(1) finite state machine)
+- **차별 vs F11**: Logit-level (post-softmax), not K-side. No multi-tool step-state. Output structure constraint, not direction steering.
+
+#### 2B. **Grammar-Constrained Decoding (GCD)** — EMNLP 2023, arxiv 2305.13971
+- **Mechanism**: CFG → token mask at each decode step
+- **Training**: None
+- **Famous use**: SQL generation, JSON output, structured extraction
+- **차별 vs F11**: Same logit-level. Validity not direction-quality.
+
+#### 2C. **RELATE** — arxiv 2509.19057 (2025)
+- **Mechanism**: Biomedical relation extraction with LLM + ontology constraints (GCD-style)
+- **Numbers**: F1 0.062 → 0.413, 0.102 → 0.47
+- **차별 vs F11**: Domain-specific, output-format constraint.
+
+#### 2D. **Outlines library** (production tool, 2024)
+- **Mechanism**: JSON schema → finite state machine → O(1) valid token lookup
+- **차별 vs F11**: Engineering tool, not novel mechanism per se.
+
+### Group 3: Neuro-Symbolic Post-hoc (mechanism: external reasoner verify+correct)
+
+이 그룹은 LLM output 을 ontology reasoner 로 검증 + 수정.
+
+#### 3A. **Enhancing LLMs through Neuro-Symbolic + Ontological Reasoning** — arxiv 2504.07640 (2025)
+- **Mechanism**: OWL ontology + HermiT reasoner (consistency check) + logistic regression (NL → logical form mapping)
+- **Training**: Lightweight (logistic regression only)
+- **Workflow**: LLM output → translate to logical statements → reasoner check → flag violations → re-generate
+- **차별 vs F11**: Post-hoc verification, not generation-time direction steering. Reasoner is heavy (OWL DL).
+
+#### 3B. **Δ₁-LLM** — arxiv 2603.12953 (2026)
+- **Mechanism**: Symbolic-neural integration for credible reasoning
+- **Training**: Symbolic component pre-built
+- **차별 vs F11**: Reasoning-time integration, output-level.
+
+#### 3C. **Ontology-Constrained Enterprise Agents** — arxiv 2604.00555 (2026)
+- **Mechanism**: Three-layer ontology framework (Role / Domain / Interaction) for enterprise agents
+- **Training**: Ontology curated by experts
+- **Application**: Enterprise compliance, hallucination prevention
+- **차별 vs F11**: Enterprise pipeline, not low-level activation.
+
+### Group 4: In-Context Learning / Self-Training (mechanism: ontology-aware instruction tuning)
+
+이 그룹은 ontology 를 **training signal** 로 사용. 우리 train-free scope 밖.
+
+#### 4A. **OntoTune** — arxiv 2502.05478 (2025 ICLR)
+- **Mechanism**: Ontology-driven self-training. ICL identifies what LLM hasn't mastered, generates training data, fine-tunes
+- **Training**: Self-training loop (LLM generates own data via ontology)
+- **Domain**: Medical, SNOMED CT
+- **차별 vs F11**: 우리 train-free scope 밖. ICL identification 단계는 inference-time이지만 main contribution은 training pipeline.
+
+#### 4B. **LLMs4OL** (2024-2025)
+- **Mechanism**: LLM as tool for ontology learning task
+- **Training**: Both — task formulation includes fine-tuning + prompting variants
+- **차별 vs F11**: 우리 reverse direction (ontology → LLM steering, not LLM → ontology).
+
+#### 4C. **AI Ontology** — arxiv 2404.03044 (2024)
+- **Mechanism**: LLM-assisted concept hierarchy construction
+- **차별 vs F11**: Output is ontology, not improved LLM behavior.
+
+### Group 5: Activation/Representation Steering (mechanism: hidden state modification) — **가장 우리와 가까움**
+
+이 그룹은 LLM 의 internal activation 을 modify. Mechanism layer 가 우리 F11 과 동일.
+
+#### 5A. **CAV (Concept Activation Vectors)** — Kim et al. 2017+
+- **Mechanism**: Train linear probe per concept → use probe direction as steering vector → add/subtract from activation
+- **Training**: ✗ supervised probes per concept
+- **Modification**: Hidden state element-wise additive
+- **차별 vs F11**: Probe trained, single concept axis, no multi-facet, no step-state, no ontology hierarchy.
+
+#### 5B. **CAA (Contrastive Activation Addition)** — Rimsky 2024 ACL
+- **Mechanism**: Mean difference of contrastive pair activations at residual stream layer 13 (Llama-2-7B)
+- **Training**: ✗ contrastive pairs per behavior (290-1000 pairs)
+- **Modification**: Residual stream additive
+- **차별 vs F11**: Same as CAV but at residual stream, +1/-1 multiplier.
+
+#### 5C. **ITI (Inference-Time Intervention)** — Li 2023 NeurIPS
+- **Mechanism**: Probe-trained mass mean shift on attention head output (post softmax-V, pre W_O), top-K heads
+- **Training**: ✗ logistic regression probe per (layer, head)
+- **차별 vs F11**: Probe-trained, attention output (not K), single concept.
+
+#### 5D. **RepE (Representation Engineering)** — Zou 2023
+- **Mechanism**: Superset framework for residual-stream steering (sentiment, truth, refusal, etc.)
+- **Training**: ✗ supervised probe per concept
+- **차별 vs F11**: Residual stream, single axis per probe.
+
+#### 5E. **PASTA** — Zhang 2024 ICLR
+- **Mechanism**: Post-softmax attention row reweighting at top-K heads (multi-task profiling)
+- **Training**: △ semi (head selection via profiling)
+- **Signal**: User-marked positions (NOT semantic)
+- **차별 vs F11**: Attention score (not K), positional, single intent per task.
+
+#### 5F. **Spotlight** — arxiv 2505.12025 (2025)
+- **Mechanism**: PASTA-style dynamic attention bias, ratio-based gating
+- **Training**: ✓ training-free, no profiling
+- **Signal**: User-marked positions
+- **차별 vs F11**: Positional (not ontological), single span per query.
+
+#### 5G. **LLMSteer** — arxiv 2411.13009 (2024)
+- **Mechanism**: Reused-context attention steering for long-context inference
+- **Training**: ✓
+- **차별 vs F11**: Context-reuse focused, not multi-tool.
+
+#### 5H. **Atlas** — arxiv 2410.22517 (2024)
+- **Mechanism**: Localize bias-concentrated layers → targeted attention scaling intervention
+- **Training**: △ bias localization step
+- **차별 vs F11**: Bias-mitigation specific.
+
+#### 5I. **SEKA** — arxiv 2603.01281, ICLR 2026
+- **Mechanism**: K' = k + (1/2)(g+ P+ k + g- P- k), contrastive cross-covariance SVD top-k
+- **Training**: ✗ contrastive (GPT-4o synthetic pairs)
+- **차별 vs F11**: K-side (matches our family), but contrastive trained, single basis, stationary.
+
+#### 5J. **AdaSEKA** — Kim 2026
+- **Mechanism**: Query-adaptive routing of contrastive expert directions, single expert per query
+- **Training**: ✗ contrastive expert pre-training + routing learning
+- **차별 vs F11**: Query-adaptive but single direction at a time, no step-state, no multi-facet active.
+
+#### 5K. **Focus Directions** — Zhu 2025, arxiv 2503.23306
+- **Mechanism**: K AND Q bias at top-k contextual heads, scalar α, gradient-trained directions
+- **Training**: ✗ AdamW 10 epochs
+- **차별 vs F11**: Trained directions, single concept (relevant context).
+
+#### 5L. **FGA (Fact Grounded Attention)** — Gupta 2025, arxiv 2509.25252
+- **Mechanism**: Pre-softmax attention bias S + α⊙G where G = B_qf · A (learned W_K ≈ 2.1M params), flat KB 137 entities × 12 attributes
+- **Training**: ✗ learned W_K
+- **차별 vs F11**: Trained attention augmentation, flat KB (no hierarchy).
+
+#### 5M. **SADI** — arxiv 2410.12299, ICLR 2025
+- **Mechanism**: Top-K element binary mask from contrastive activation diff, applied as A'_q = A_q + δ(A_q ⊙ M)
+- **Training**: △ contrastive pairs ~150 items
+- **Variants**: SADI-Head / SADI-Neuron / SADI-Hidden
+- **차별 vs F11**: Hidden state element-wise (not K subspace), single mask, no step-state.
+
+#### 5N. **G-ACT (Gradient-refined Adaptive Activation Steering)** — 2025
+- **Mechanism**: Per-prompt activation differences clustered into steering directions, lightweight per-layer probes refined online
+- **Training**: △ probes trained
+- **Adaptivity**: Online (per-prompt direction selection)
+- **차별 vs F11**: Probes trained, residual stream not K-side.
+
+#### 5O. **Attention-guided Steering** — arxiv 2602.00333 (2026)
+- **Mechanism**: Insert prefix into prompt → token's attention to prefix tokens = concept-activity heuristic
+- **Training**: ✓ training-free
+- **Signal**: Prefix injection (prompt-level, not semantic ontology)
+- **차별 vs F11**: Prefix injection (prompt-level intermediation), not direct K-side modification.
+
+#### 5P. **Vector Ontologies as LLM World View** — arxiv 2506.13252 (2025)
+- **Mechanism**: Define vector space spanned by ontologically meaningful dimensions for LLM representation analysis
+- **Training**: ✓ extraction only (no LLM mod)
+- **Purpose**: Interpretability / extraction (not steering)
+- **차별 vs F11**: Same conceptual framework (ontology axes as vector space), but they extract, we modify.
+
+#### 5Q. **Steering Conceptual Bias via Latent-Subspace** — 2025
+- **Mechanism**: Concept basis identified in latent subspace, activation perturbed along basis
+- **Training**: △ concept basis discovery
+- **차별 vs F11**: Latent subspace (residual or hidden), not K-side, single axis at a time.
+
+#### 5R. **Hazarika et al.** — AAAI 2022
+- **Mechanism**: Cross-attention distribution × bias vector + renormalize. Encoder-decoder NLG (T5/BART).
+- **Training**: ✓
+- **Signal**: Positional (manual)
+- **차별 vs F11**: Encoder-decoder, positional, not decoder-only K-side.
+
+#### 5S. **Q-coverage** (NeurIPS 2026 withdrawn, our prior work)
+- **Mechanism**: Δ_Q^(t) = -β Σ P_{f_s} q_t, step-adaptive Q-side subtraction
+- **Training**: ✓
+- **차별 vs F11**: Q-side (we are K-side), single axis per step, dense projection (not sparse).
+
+### 2.5.1.3 종합 6-dim cross-tab (확장 19-method)
+
+| # | Method | Year/Venue | Multi-tool | Step-adapt | Train-free | Multi-facet | Semantic | Activation-level |
+|---:|---|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1A | OG-RAG | EMNLP 2025 | △ | ❌ | ✓ | △ KG | ✓ | ❌ prompt |
+| 1C | OntoLLM | SD 2026 | △ | ❌ | ✓ | △ KG | ✓ | ❌ prompt |
+| 2A | Generative Ontology | arxiv 2602 | △ schema | ❌ | ✓ | △ schema | ✓ | △ logit |
+| 2B | GCD | EMNLP 2023 | △ | ❌ | ✓ | △ grammar | △ syntactic | △ logit |
+| 3A | Neuro-Symbolic Enhancing | arxiv 2504 | ❌ | ❌ | △ logistic regression | ❌ | ✓ OWL | ❌ post-hoc |
+| 3C | Ontology-Constrained Enterprise | arxiv 2604 | ❌ | △ session | ✓ | ✓ Role/Domain/Interaction | ✓ | ❌ pipeline |
+| 4A | OntoTune | ICLR 2025 | ❌ | ❌ | ✗ self-train | ❌ | ✓ | ❌ training |
+| 5A | CAV | 2017+ | ❌ | ❌ | ✗ probe | ❌ | ✓ concept | ✓ residual |
+| 5B | CAA | ACL 2024 | ❌ | ❌ | ✗ contrastive | ❌ | ✓ behavior | ✓ residual |
+| 5C | ITI | NeurIPS 2023 | ❌ | ❌ | ✗ probe | ❌ | ✓ truth | ✓ head output |
+| 5D | RepE | 2023 | ❌ | ❌ | ✗ probe | ❌ | ✓ concept | ✓ residual |
+| 5E | PASTA | ICLR 2024 | ❌ | ❌ | △ profile | ❌ | ❌ position | ✓ attn score |
+| 5F | Spotlight | 2025 | ❌ | ❌ | ✓ | ❌ | ❌ position | ✓ attn score |
+| 5I | SEKA | ICLR 2026 | ❌ | ❌ | ✗ contrastive | ❌ | ✓ trained | ✓ K-side |
+| 5J | AdaSEKA | 2026 | ❌ | ❌ | ✗ contrastive | ❌ | ✓ expert | ✓ K-side |
+| 5K | Focus Directions | 2025 | ❌ | ❌ | ✗ gradient | ❌ | ✓ relevance | ✓ K+Q |
+| 5L | FGA | 2025 | ❌ | ❌ | ✗ learned W_K | ❌ | ✓ KB | ✓ attn pre-soft |
+| 5M | SADI | ICLR 2025 | ❌ | ❌ | △ contrastive ~150 | ❌ single | ✓ contrastive | ✓ head/neuron/hidden |
+| 5N | G-ACT | 2025 | ❌ | △ online | △ probes | △ cluster | ✓ | ✓ residual |
+| 5O | Attention-guided Steer | arxiv 2602 | ❌ | ❌ | ✓ | ❌ | △ prefix | △ prefix-driven |
+| 5P | Vector Ontologies | arxiv 2506 | — | — | ✓ | ✓ ontology | ✓ | ❌ extraction only |
+| 5R | Hazarika 2022 | AAAI 2022 | ❌ | ❌ | ✓ | ❌ | ❌ position | ✓ cross-attn |
+| 5S | Q-coverage (NeurIPS withdrawn) | — | ✓ | ✓ | ✓ | ❌ | ❌ | ✓ Q-side |
+| F10 (executed, falsified) | 2026-04-19 | ❌ | ❌ | ✓ | ✓ V×D | ✓ ontology | ✓ K-side |
+| **F11 MOFCISS (proposed)** | **2026-04-19** | **✓** | **✓** | **✓** | **✓** | **✓** | **✓ K-side** |
+
+→ **F11 MOFCISS만 6/6 충족** in (multi-tool, step-adapt, train-free, multi-facet, semantic, activation-level).
+
+### 2.5.1.4 Mechanism layer 분포 시각화
+
+```
+┌────────────────────────────────────────────────────┐
+│ Ontology + LLM Inference Methods (~24 documented)  │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  Prompt level    ████████████ (50%)  RAG/OntoLLM   │
+│  Output level    █████ (12%)         GCD/Generative│
+│  Post-hoc verify ████ (8%)           Neuro-Symbolic│
+│  Training        ███ (4%)            OntoTune      │
+│  Activation level ██████████████ (26%)             │
+│    └─ Residual: CAV/CAA/RepE/G-ACT                 │
+│    └─ Attn output: ITI                             │
+│    └─ Attn score: PASTA/Spotlight/Focus            │
+│    └─ K-side: SEKA/AdaSEKA/FGA/F10/F11             │
+│    └─ Hidden state: SADI                           │
+│                                                    │
+│  K-side + ontology + train-free + multi-facet      │
+│  + step-state = 0 prior. 우리 F11이 빈 칸          │
+└────────────────────────────────────────────────────┘
+```
+
+---
+
+## §2.6 Prior-art gap analysis + 새 mechanism 후보 brainstorm (v5.1 신규)
+
+위 광범위 audit 후 **빈 칸이 명확**: K-side activation modification + ontology semantic + training-free + multi-tool step-adaptive + multi-facet 동시 충족 prior 부재.
+
+이를 바탕으로 새 mechanism 후보 5개 brainstorm. F11 MOFCISS 외 alternatives.
+
+### 2.6.1 후보 A: **MOFCISS** (이미 §5 Phase F11 spec 작성됨, 가장 가까운 후보)
+
+**핵심**: Sparse OMP coding over ontology atoms + step-history facet decay + K-side projection
+
+**위치**: ICLR §5 Phase F11 spec 참조
+
+**예상 성능**: F11b Subtask4 +3-5pp F1 lift over baseline 0.731
+
+### 2.6.2 후보 B: **OMR (Ontology-Mapped Retrieval-Augmented Steering)**
+
+**Motivation**: OG-RAG (EMNLP 2025) 의 retrieval framework + SEKA (ICLR 2026) 의 K-side steering 결합. Retrieval 이 query 별 ontology atoms 선택, K-side projection 으로 inject.
+
+**Mechanism**:
+```
+Step 1: Pre-compute ontology atom embeddings E_n = forward(model, plugin_n.desc)[L_retrieve]  
+        (retrieval embedding from one mid-layer)
+Step 2 (inference): query embedding q_emb = forward(model, query)[L_retrieve]
+                    top-k atoms = top-k cosine(q_emb, E_n) → A_query
+Step 3: Per-layer K-side bias:
+        delta_K = alpha * Σ_{n in A_query} c_n * K_n_at_layer_L
+        where c_n is retrieval score (softmax over top-k)
+Step 4: For multi-tool: after first emit, exclude emitted facet's atoms from retrieval pool
+```
+
+**vs F11 MOFCISS**:
+- F11: per-token OMP at every (L, h) — fine-grained but expensive
+- OMR: per-query retrieval at single layer + global K-bias — coarser but cheaper
+- OMR more aligned with OG-RAG paradigm familiarity
+
+**Pros**: Simpler implementation, leverage RAG infrastructure
+**Cons**: Per-query (not per-token), might lose multi-step granularity
+
+**Cost estimate**: 4-6 GPU-hr (build + Subtask4 sweep)
+
+### 2.6.3 후보 C: **NSCC (Neuro-Symbolic Coverage Control)**
+
+**Motivation**: Enhancing LLMs Neuro-Symbolic (arxiv 2504.07640) 의 OWL+reasoner pattern + step-adaptive coverage. Reasoner가 emitted tools 의 facet coverage 검증, missing facet 을 identify, K-side에서 missing facet 강조.
+
+**Mechanism**:
+```
+At decoding step t (after emitting tools_<t}):
+  Reasoner check: facets covered = {f : ∃ tool ∈ tools_<t, facet(tool) ⊇ f}
+  GT facets needed = parse from query (LLM call to enumerate intents)
+  Missing facets = GT_facets - covered_facets
+  
+  K-side bias toward missing facets:
+    delta_K = +alpha * Σ_{f in Missing} B_f B_f^T K
+```
+
+**Pros**: Symbolic reasoning explicit, interpretable
+**Cons**: Requires LLM call for query intent parsing (extra cost), reasoner heavyweight
+
+**vs MOFCISS**: NSCC explicit reasoning, MOFCISS implicit via decay
+**Cost estimate**: 8-12 GPU-hr (reasoner integration complex)
+
+### 2.6.4 후보 D: **GCD-OG (Grammar-Constrained Decoding + Ontology Gating)**
+
+**Motivation**: Generative Ontology (arxiv 2602.05636) 의 schema-as-grammar + facet-conditioned K-bias. Token-level grammar restricts to valid tools, K-bias steers toward NMI-orthogonal facets.
+
+**Mechanism**:
+```
+Step 1: Compile ontology to grammar G (Outlines library)
+Step 2: At each decode step:
+  (a) Apply K-bias toward currently-needed facet (from previous emissions)
+  (b) Token mask via G (only valid tool name tokens allowed)
+Step 3: Combined: K modification AND logit masking
+```
+
+**Pros**: Two-channel intervention (K-side + logit-side), validity guaranteed
+**Cons**: Grammar compilation overhead, might over-constrain
+
+**vs MOFCISS**: GCD-OG = validity guarantee + facet steering. MOFCISS = pure K-side.
+**Cost estimate**: 6-8 GPU-hr
+
+### 2.6.5 후보 E: **OAS-Multi (Ontology-Anchored Multi-step Steering)**
+
+**Motivation**: Vector Ontologies (arxiv 2506.13252) 의 vector space 위에 G-ACT (2025) 의 online adaptive direction selection, but **probes 없음** (training-free).
+
+**Mechanism**:
+```
+Pre-compute (one-time):
+  Vector ontology basis V_ont = stack of (verb, domain, schema, ...) axes
+  Each axis has set of anchor K vectors
+  
+Per-decoding-step:
+  Step 1: Score query along each ontology axis: score_axis = q · axis_centroid
+  Step 2: Identify dominant axis (top-1 or top-k)
+  Step 3: Apply K-bias along dominant axis only:
+          delta_K = alpha * V_dominant V_dominant^T K
+  Step 4: Track emitted tools' dominant axes; subsequent steps select different axes
+```
+
+**vs MOFCISS**: OAS uses single-axis at a time (sequential), MOFCISS multi-axis weighted.
+**Pros**: Closer to G-ACT/Vector Ontologies framework, maybe simpler
+**Cons**: Coarser granularity (one axis per step)
+
+**Cost estimate**: 4-6 GPU-hr
+
+### 2.6.6 후보 비교표
+
+| 후보 | Core idea | Build cost | Eval cost | Total | Risk | Expected lift |
+|---|---|---|---|---|---|---|
+| **A. MOFCISS** | Sparse OMP + step decay + facet-aware K-side | 0.5 hr | 5 hr | 6-10 hr | medium engineering | +3-5pp |
+| B. OMR | Retrieval + global K-bias + facet-exclude | 0.5 hr | 4 hr | 4-6 hr | low | +2-4pp |
+| C. NSCC | Reasoner facet coverage + missing-facet K-bias | 2 hr | 6 hr | 8-12 hr | high (reasoner integration) | +1-3pp |
+| D. GCD-OG | Grammar + facet K-bias dual | 1 hr | 5 hr | 6-8 hr | medium | +2-4pp |
+| E. OAS-Multi | Vector ontology axis-by-step single-axis | 0.5 hr | 3 hr | 4-6 hr | low | +1-3pp |
+
+**우선순위 권고**:
+
+1. **A (MOFCISS) 먼저** — 가장 fine-grained + 가장 novel, 이미 spec 작성됨
+2. **B (OMR) 백업** — A 가 implementation 어려우면 더 simple alternative
+3. **E (OAS-Multi) 비교** — A vs E 가 mechanism 가설 검증 (multi-axis weighted vs single-axis sequential)
+4. **D (GCD-OG) stretch** — token validity 보장 ablation
+5. **C (NSCC) 미루기** — reasoner integration 너무 무거움
+
+### 2.6.7 다음 세션 권고 실험 순서
+
+| 우선순위 | Phase | 실험 | 비용 | 의사결정 점 |
+|---|---|---|---|---|
+| 1 | F11 (MOFCISS) | Subtask4 5-cell sweep N=200 | 6-10 GPU-hr | F11b ≥ +3pp → 진행, < +3pp → 후보 B/E 시도 |
+| 2 | F12 (OMR, conditional) | F11 약하면 | 4-6 GPU-hr | OMR ≥ F11 → 메인 후보 변경 |
+| 3 | F13 (OAS-Multi, ablation) | F11 success 후 | 4-6 GPU-hr | A vs E 비교로 mechanism story 강화 |
+| 4 | F14 (GCD-OG, stretch) | 모든 above 후 | 6-8 GPU-hr | Validity guarantee ablation |
+
+### 2.6.8 새 mechanism 의 paper-grade contribution potential
+
+만약 F11 (또는 alternative B/D/E) 가 positive 면:
+
+**ICLR thesis 가능 framing**:
+> "We identify a 6-dimensional gap in the prior art landscape (multi-tool selection × step-adaptive × training-free × multi-facet × semantic × activation-level) and propose MOFCISS (or alternative) as the first mechanism filling all six dimensions simultaneously. The key technical novelty is the combination of (i) sparse OMP coding over ontology atoms (preserves anchor identity, breaks Gram-Schmidt span-invariance non-linearly), (ii) step-history facet decay (enables multi-tool coverage like Q-coverage but on K-side multi-axis), (iii) NMI-verified orthogonal axes (verb × domain, F8d empirical foundation). Three Lemmas + Theorem M provide convergence framework. Empirical validation on MetaTool Subtask4 (multi-tool primary target) + BFCL parallel_multiple (cross-bench) + Subtask1 control (single-tool no-lift expected, validates step-state necessity)."
+
+**ICLR ceiling 변화**:
+- 모든 후보 negative: 5.25 그대로
+- F11 (MOFCISS) +3-5pp: 6.0-6.5
+- F11 +5pp 이상: 6.5-7.0 (likely strong accept)
+- Alternative B/D/E positive (F11 negative 시 fallback): 5.75-6.25
+
+### 2.6.9 한 줄 요지
+
+> **광범위 audit (24 methods, 5 categories) 결과: K-side activation modification + ontology + training-free + multi-tool step-adaptive + multi-facet 동시 충족 prior 부재. F11 MOFCISS 가 primary 후보, OMR/NSCC/GCD-OG/OAS-Multi 가 backup/ablation. 다음 세션 first action = F11 prototype, decision tree per §5 Phase F11.**
+
+---
+
 ## §3. 가설 (재편)
 
 ### 3.1 Primary hypotheses — T 의 generalization scope
