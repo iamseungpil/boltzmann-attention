@@ -280,6 +280,16 @@ def main():
     ap.add_argument("--n-queries", type=int, default=100)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default=str(DEFAULT_OUT))
+    ap.add_argument("--pooling", default="prompt_end",
+                    choices=["prompt_end", "mean_all", "first_name"],
+                    help="P3 pooling sweep variant")
+    ap.add_argument("--kspace-cluster", default="none",
+                    choices=["none", "verb", "domain", "both"],
+                    help="P2: replace afod labels with KMeans-on-K labels for the named facet(s)")
+    ap.add_argument("--chat-template", action="store_true",
+                    help="P4: wrap query in Qwen chat template (tool desc unaffected)")
+    ap.add_argument("--variant", default="v1",
+                    help="Tag for this run, embedded in output JSON for summary collation")
     args = ap.parse_args()
 
     t_start = time.time()
