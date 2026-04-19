@@ -262,7 +262,7 @@ class FacetRotHook:
         )
         s = self.strength
         new_x = s * fac_rot_full + (1.0 - s) * fac_id_full + x_res
-        return new_x.to(orig_dtype).view(B, T, D)
+        return new_x.to(orig_dtype).reshape(B, T, D)
 
 
 # ============================================================================
