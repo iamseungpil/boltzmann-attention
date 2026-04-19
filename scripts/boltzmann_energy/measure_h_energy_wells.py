@@ -578,6 +578,8 @@ def main():
         "layer": args.layer,
         "pooling": args.pooling,
         "kspace_cluster": args.kspace_cluster,
+        "bert_kmeans": args.bert_kmeans,
+        "bert_model": args.bert_model if args.bert_kmeans != "none" else None,
         "chat_template": bool(args.chat_template),
         "label_source_verb": label_source_verb,
         "label_source_domain": label_source_domain,
