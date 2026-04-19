@@ -213,6 +213,11 @@ Status updates, artifacts (JSON, tensors), and run logs go in the same dir.
 | Date       | Change                                                                                      |
 |------------|---------------------------------------------------------------------------------------------|
 | 2026-04-19 | Document created. 10 branches registered. F12/F13 spec-ready, E1 added this session.        |
+| 2026-04-19 | F12 **done-falsified** (F1 0.728, −3.63pp). Pathology: emitted_two_rate −15.6pp, early-EOS bias from L18-27 K-rotation + L28 intact. |
+| 2026-04-19 | F13b **done-positive** (F1 0.803, **+3.85pp**). Pre-reg "strong positive" bracket → ICLR ceiling 5.25 → 6.5–7.0. emitted_two_rate 0.952 matches baseline → F12 pathology solved by ladapt + L28-skip. |
+| 2026-04-19 | Gates closed: F14, H-Meta, H-MCTS, H-HOT all → **dormant** (F13 ≥ +3pp evaluates F13<+3pp FALSE). |
+| 2026-04-19 | Sub-branches spawned: F13a/c/d/e/f ablation cells. F13a replicates F12b null (baseline for ablation grid). F13d/e highest priority. |
+| 2026-04-19 | Priority queue rewritten: F13 ablations (d/e) → H-Energy → E1 → Llama replication → cross-bench → remainder. |
 
 Add new rows here when status transitions (`spec-draft → spec-ready → in-progress → done-*` or `dormant`).
 
