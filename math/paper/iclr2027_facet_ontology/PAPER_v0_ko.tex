@@ -47,7 +47,7 @@
 \author{
   익명 저자\\
   ICLR 2027 제출 후보 (cowork)\\
-  내부 cowork용 한국어 작업본 (v0 skeleton, 2026-04-29)
+  내부 cowork용 한국어 작업본 (v0.2, 2026-04-29: E10b mechanism 분리 통합)
 }
 
 \date{\today}
@@ -259,6 +259,8 @@ mode & len (tok) & F1 & exact & F1 & exact \\
 \texttt{facet\_full}     & 312 / 318 & \textbf{0.8203} & \textbf{0.5469} & 0.8609 & 0.5625 \\
 \texttt{facet\_compact}  & 137 / 143 & 0.5234 & 0.1719 & 0.5526 & 0.2188 \\
 \texttt{list\_only}      &  95 / 101 & 0.2135 & 0.0156 & 0.6375 & 0.2188 \\
+\texttt{list\_anon}      & 173 / 177 & 0.7083 & 0.2500 & 0.5177 & 0.2344 \\
+\texttt{facet\_anon}     & 386 / 390 & 0.8016 & 0.5312 & 0.7474 & 0.2812 \\
 \texttt{noprompt}        &  55 /  37 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
 \bottomrule
 \end{tabular}
@@ -283,6 +285,31 @@ length-matched 비교 (Qwen \texttt{facet\_full} 312 토큰 vs \texttt{nl\_with\
 
 \paragraph{발견 5: precision $\geq 0.86$, recall이 격차의 source.}
 desc-bearing 모드 (\texttt{nl\_with\_desc}, \texttt{facet\_full})에서 두 모델 모두 precision $\geq 0.86$. 격차는 recall과 exact-match에서 발생 — 도구 카탈로그가 풍부할 때 모델이 *고른* 도구는 거의 정답이지만, *완전한* set을 모두 회수하는 것이 더 어려운 task.
+
+\paragraph{발견 6 (E10b: Qwen은 도구 이름이 \emph{방해 요소}).}
+도구 이름을 \texttt{tool\_001}, \texttt{tool\_002} 형식으로 추상화한 \texttt{list\_anon}에서 Qwen F1은 \textbf{0.2135 → 0.7083 (+233\%)}. 즉 도구 이름의 자연어 의미가 \emph{있으면} F1이 떨어지고, \emph{없으면} 회복된다. 한편 \texttt{facet\_anon}(0.8016)은 \texttt{facet\_full}(0.8203)에 거의 동등 (-2.3\%) — Qwen은 facet의 typed structure 자체를 도구 선택의 일차 신호로 사용하며, 이름 의미는 사용하지 않거나 오히려 방해 신호로 작용한다. 이 \emph{counter-intuitive} 결과는 attention-conditioning native 가설의 강한 형태를 mechanism level에서 제공한다.
+
+\paragraph{발견 7 (E10b: Llama는 NL name path 부분 활용).}
+같은 anonymization을 Llama에 적용하면 \texttt{list\_only} $0.6375 \to \texttt{list\_anon}\,0.5177$ (-19\%); \texttt{facet\_full} $0.8609 \to \texttt{facet\_anon}\,0.7474$ (-13\%). 양 condition 모두 \emph{일관되게} 하락하지만 폭락은 아님 (특히 \texttt{facet\_anon}=0.7474는 \texttt{nl\_full}=0.8745의 85\% 유지). 따라서 Llama의 prompt 형식 의존은 (a) facet typed structure 효과와 (b) NL name 매칭 효과의 \emph{합}이며, 둘 다 부분적으로 작동.
+
+\paragraph{발견 8 (Mechanism 분리 요약).}
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+& Qwen 2.5-7B & Llama 3.1-8B \\
+\midrule
+facet structure 의존 & 강함 (anon에서 \emph{거의} 유지) & 부분적 (anon에서 약 10\,pp 하락) \\
+NL name 의존         & 매우 약함 (이름 제거 시 \emph{증가}) & 부분적 (이름 제거 시 13--19\% 하락) \\
+우월 prompt 형식      & \texttt{facet\_full} 또는 \texttt{facet\_anon} & \texttt{nl\_with\_desc} \\
+진단 비율 \texttt{list\_only/nl\_full} & 0.285 (낮음) & 0.729 (높음) \\
+Mechanism class       & facet-structure native & hybrid (NL + structure) \\
+\bottomrule
+\end{tabular}
+\caption{발견 6+7의 종합. E10b 가설 분리 (이름 의미 path A vs 자연어 instruction-following path B) 결과 두 모델은 다른 path 조합을 사용하며, 이는 모델 family별 단일 prompt 설계 권고가 \emph{불가능}함을 함의한다.}
+\label{tab:e10b-mechanism}
+\end{table}
 
 \subsection{E11: $\tau^2$-bench 도메인 간 facet transfer}
 \label{sec:results-e11}
@@ -310,11 +337,21 @@ desc-bearing 모드 (\texttt{nl\_with\_desc}, \texttt{facet\_full})에서 두 �
 \subsection{Function calling harness에 대한 함의}
 \label{sec:harness}
 
-세 단계 채택 path:
+E10b 결과 (\cref{tab:e10b-mechanism})는 단일 prompt 설계가 아닌 \emph{모델 family별 분기}된 채택 path를 권고한다.
+
+\paragraph{Deployment selection rule (cheap 진단 후 분기).}
+새 모델에 대해 (1) \texttt{list\_only} F1과 (2) \texttt{nl\_full} F1을 측정 (총 2회 forward pass, $\sim$2분):
+\begin{itemize}[leftmargin=*]
+\item \textbf{비율 $< 0.4$ (Qwen-class, facet-structure native)}: \texttt{facet\_full} 또는 \texttt{facet\_anon}을 직접 deploy. 도구 이름의 자연어 의미는 \emph{제거}하거나 짧게 유지하는 편이 안전 (발견 6 증거 — 이름이 방해 신호로 작용).
+\item \textbf{비율 $> 0.7$ (Llama-class, NL-name native)}: \texttt{nl\_with\_desc}를 default로 사용. 단순 facet은 -3.7\% 손해이며, anonymization은 facet에서도 -13\% 손해. 단, length가 critical하면 \texttt{facet\_full}이 차선책 (\texttt{nl\_with\_desc} 대비 -3.7\%, \texttt{nl\_full} 대비 -1.6\%로 거의 동등).
+\item \textbf{0.4--0.7 (mixed)}: A/B 검증 권장. 본 실험 범위 외 모델에서 추가 benchmarking 필요.
+\end{itemize}
+
+\paragraph{세 단계 채택 path.}
 \begin{enumerate}[leftmargin=*]
-\item \textbf{단기}: function calling spec에 \texttt{facets} 필드 추가 (backward-compatible).
-\item \textbf{중기}: harness가 입력 JSON Schema → facet-typed compact form 자동 변환.
-\item \textbf{장기}: function calling spec이 facet-first로 진화, 모델 fine-tuning이 typed format 직접 학습.
+\item \textbf{단기}: function calling spec에 \texttt{facets} 필드 추가 (backward-compatible). 클라이언트는 (\texttt{name}, \texttt{description})에 더해 (\texttt{action}, \texttt{domain}) 쌍을 선언 가능. harness는 위 deployment rule에 따라 모델별로 \texttt{facet\_full} 또는 \texttt{nl\_with\_desc}를 자동 선택.
+\item \textbf{중기}: harness가 입력 JSON Schema → facet-typed compact form 자동 변환. NL name이 학습되지 않은 도구 (auto-generated id, internal API)에 대해 anonymous facet form을 default 사용.
+\item \textbf{장기}: function calling spec이 facet-first로 진화, 모델 fine-tuning이 typed format 직접 학습. NL-native 모델 패밀리 (현 Llama-class)도 facet-friendly로 점진 전환 가능.
 \end{enumerate}
 
 \section{한계}
