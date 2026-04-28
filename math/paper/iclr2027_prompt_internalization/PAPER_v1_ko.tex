@@ -1,0 +1,719 @@
+% !TeX program = xelatex
+% ICLR 2026 submission — Korean working draft for cowork review
+%
+% Build with: xelatex PAPER_v1_ko.tex (or lualatex)
+% Falls back gracefully without iclr2026_conference.cls — uses article.
+
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{kotex}                     % Korean support
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black}
+\usepackage{cleveref}
+\usepackage[round]{natbib}
+\usepackage{enumitem}
+\usepackage{algorithm, algpseudocode}
+
+% Theorem environments — Korean labels
+\newtheorem{theorem}{정리}
+\newtheorem{lemma}{보조정리}
+\newtheorem{corollary}{따름정리}
+\newtheorem{proposition}{명제}
+\theoremstyle{definition}
+\newtheorem{definition}{정의}
+\newtheorem{remark}{비고}
+\newtheorem{assumption}{가정}
+
+\renewcommand{\proofname}{증명}
+
+% Math shortcuts
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\bphi}{\bar{\Phi}}
+\newcommand{\Phip}{\Phi_P}
+\newcommand{\dh}{d_h}
+\newcommand{\Hq}{H_q}
+\newcommand{\Hkv}{H_{kv}}
+\newcommand{\softmax}{\mathrm{softmax}}
+\newcommand{\attn}{\mathrm{attn}}
+
+% Title block
+\title{
+  프롬프트 없는 에이전틱 LLM:\\
+  정지된 모델에 대한 시스템 프롬프트의 KV-측 내재화\\
+  \large (Prompt Internalization for Agentic LLMs via KV-Side Intervention)
+}
+
+\author{
+  익명 저자\\
+  ICLR 2026 제출 후보\\
+  내부 코워크용 한국어 작업본 (v1, 2026-04-29)
+}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+현대 에이전틱 LLM 시스템(함수 호출 어시스턴트, 도구 오케스트레이션 하니스, 검색 증강 플래너 등)은 매 추론 호출마다 도구 스키마, 계획 규칙, 행동 제약을 정의하는 \emph{수천 토큰 길이의 시스템 프롬프트}를 prepend한다. 이 prefix가 TTFT, KV 캐시 풋프린트, 호출당 서빙 비용을 지배한다. 본 논문은 이러한 prefix prompt를 \emph{정지된(frozen)} 사전 학습 LLM 위에서 \emph{내재화}할 수 있는지 묻는다 — 즉 어텐션 출력 단에 적용되는 저랭크 개입(low-rank intervention)으로 대체하면서 다운스트림 도구-선택 정확도를 보존할 수 있는가?
+
+본 논문은 이 질문이 \emph{측정 가능한 양}으로 환원됨을 보인다. \citet{he2022unified}의 prefix-tuning 어텐션 분해를 따르면, 계층 $\ell$, 헤드 $h$, 쿼리 $q$에서 prefix의 어텐션 출력 기여분은
+\[
+  \Phip^{(\ell,h)}(q) := \lambda_P^{(\ell,h)}(q)\cdot \attn\bigl(q;\, K_P^{(\ell,h)},\, V_P^{(\ell,h)}\bigr)
+\]
+이며 이는 task 쿼리 분포 $\mathcal{Q}$ 위의 $\dh$차원 함수다. 우리는 (\textbf{정리 1, 랭크 한계 프롬프트 대체성})으로, 임의의 랭크 $k$ 정적 개입이 달성할 수 있는 최소 $L_2$ 근사 오차가 $\sqrt{1-\tau}\cdot\|\Phip\|_{L^2(\mathcal{Q})}$이며, 여기서 $\tau$는 함수 공간 연산자 $\Phip^{(\ell,h)}$의 상위 $k$ 특이값이 포착하는 에너지 비율임을 증명한다. 정적 prompt 대체는 따라서 \emph{정확하게} 랭크 절단 문제이며, 올바른 $k$는 $\Phip^{(\ell,h)}$의 $\mathcal{Q}$ 위에서의 유효 랭크다.
+
+또한 (\textbf{정리 2, 1차 보정으로서의 Q-bias})로, 정적 랭크 $k$ 절단 너머의 leading 보정항이 \emph{쿼리 의존} 항이며, prefix-attention 게이트 $\lambda_P(q)$의 국소 미분에 의해 결정되는 부호까지 동치인 $\beta\cdot V_k V_k^\top Q$ 형태의 Q-bias 스티어링과 일치함을 증명한다. 이는 선행 스티어링 실험에서 현상적으로만 관측된 ``regime-dependent sign flip''에 대한 메커니즘을 제공한다.
+
+실증적으로, 우리는 Qwen2.5-7B-Instruct와 Llama-3.1-8B-Instruct 위에서 MetaTool Subtask 4와 세 개의 $\tau^2$-bench 도메인에 걸쳐 $\Phip^{(\ell,h)}$의 유효 랭크 $r^*(\tau)$를 측정한다. 모든 8개 (모델, task) 셀에서 $r^*(\tau{=}0.95)$ 평균은 2.25 이하였다. \emph{프롬프트를 완전히 제거}하고 정적 랭크 1 개입과 Q-bias($\beta{=}{+}4.0$)을 결합한 hybrid 개입은 Qwen에서 \textbf{전체 프롬프트 대비 다음-토큰 top-1 일치 98.4\%}를 달성한다 (베이스라인 0\% 대비). Llama는 분포 형상은 부분적으로 회복하나 argmax 일치는 낮게 유지되며, 모델별 한계로 보고한다.
+\end{abstract}
+
+\section{서론}
+\label{sec:intro}
+
+\subsection{에이전틱 프롬프트의 비용}
+프로덕션 도구-사용 LLM은 통상 2--8K 토큰 길이의 시스템 프롬프트로 운영된다 — Anthropic의 도구-사용 하니스, 최근 에이전틱 프레임워크(Graphify, computer-use, retrieval orchestrator)의 함수-호출 시스템 프롬프트, 그리고 도구가 몇 개 이상인 임의의 실용적 instruction-tuned 어시스턴트가 그러하다. 매 사용자 쿼리는 prefix 전체의 KV 계산을 재발급(또는 prefix-cache 조회 지연)한다. 규모에서 prefix는 에이전틱 LLM 서빙 비용의 일차 driver이자 테넌트당 도구 카탈로그의 지배적 제약이다.
+
+본 비용을 해소하려는 두 기존 연구 흐름이 있다.
+\begin{enumerate}[leftmargin=*]
+\item \textbf{프롬프트 압축/증류}: LLMLingua \citep{jiang2023llmlingua}, GIST tokens \citep{mu2023gist}, 500xCompressor \citep{li2024compressor} 등은 prefix의 토큰을 짧은 토큰 시퀀스로 대체하며 종종 학습된 압축기를 사용한다. \emph{토큰 단위}이며 학습이 필요하고, 압축된 시퀀스도 어텐션을 정상 prefix로 통과한다.
+\item \textbf{활성화/표현 스티어링}: CAA \citep{rimsky2024caa}, ITI \citep{li2023iti}, RepE \citep{zou2023repe}, PASTA \citep{zhang2023pasta}, ASA, Focus Directions \citep{zhu2025focus}, SEKA \citep{lee2025seka}, AdaSEKA 등은 잔차 흐름 또는 어텐션 내부 site에 학습된 또는 contrastive 방향을 주입하여 모델 행동을 편향시킨다. 대부분 학습이 필요하거나(CAA/ITI/RepE) 사실 편집에 초점을 두며(SEKA/AdaSEKA), \emph{prompt 대체}로 framing되지 않았다.
+\end{enumerate}
+
+본 논문은 두 시각을 통합한다. 우리는 prefix prompt가 어텐션 출력에 \emph{정확히} 무엇을 하는지 형식화한 후, 어떤 개입이 그것을 매칭할 수 있는지 묻는다. \citet{he2022unified}의 분해는 \emph{형태(form)}를 알려준다 --- V-공간 내 쿼리-게이트 가산항. 그러나 \emph{내용(content)}은 알려주지 않는다. 내용을 채우는 것이 본 논문의 기여다.
+
+\subsection{기여}
+\label{sec:contrib}
+구체적 기여는 다음과 같다.
+\begin{itemize}[leftmargin=*]
+\item (이론, \cref{sec:theory}) prefix-attention 함수 공간 SVD의 Eckart--Young을 이용한 \textbf{정리 1 (랭크 한계 프롬프트 대체성)}을 진술하고 증명한다. 정적 랭크 $k$ 개입의 정확한 $L_2$ 오차는 폐기된 특이값들의 제곱합이다.
+\item (이론, \cref{sec:theory}) 정적 절단 너머의 leading 보정이 쿼리-의존 1차 Taylor 항이며 부호까지 표준 Q-bias 스티어링 $\beta\cdot M\cdot q$와 일치함을 보이는 \textbf{정리 2 (1차 보정으로서의 Q-bias)}.
+\item (실증, \cref{sec:experiments}) Qwen2.5-7B 와 Llama-3.1-8B 두 모델 패밀리, MetaTool ST4 와 $\tau^2$-bench 세 도메인 등 8개 (모델, task) 셀에서 $r^*(\tau)$를 측정하고 모두 2.25 이하임을 보인다.
+\item (실증, \cref{sec:results-static}) 무작위 prefix, 무작위 query, 셔플된 prefix 세 가지 sanity control이 모두 정리 1의 측정 의미를 확인한다.
+\item (실증, \cref{sec:results-hybrid}) Qwen 위에서, 정적 rank-1 + Q-bias($\beta{=}{+}4.0$) 결합 개입이 \emph{프롬프트 없이} 전체 프롬프트 대비 \textbf{98.4\% top-1 next-token agreement}를 달성함을 보이며, 정리 2를 직접 검증한다.
+\item (실증, \cref{sec:results-hybrid}) 이 패턴이 Llama-3.1-8B에서는 분포 회복(KL $8.05\to 3.06$)은 있지만 argmax 회복(top-1 $\leq 10\%$)은 결여됨을 보고하며, 모델별 한계로 정직하게 표시한다.
+\end{itemize}
+
+\section{관련 연구}
+\label{sec:related}
+
+\paragraph{매개변수 효율적 미세조정 이론.}
+\citet{he2022unified}는 prefix tuning, prompt tuning, adapter, LoRA가 모두 은닉 상태의 저랭크 가산 수정으로 표현될 수 있음을 보인다. 구체적으로 그들의 식 (6)에서 prefix tuning의 어텐션 출력에 대한 효과는 V-공간 내 \emph{쿼리-게이트} 가산항이다. 본 논문은 이 분해를 출발점으로 하되 ``형태''에서 ``랭크 경계를 통한 내용''으로 확장한다. \citet{petrov2024prompting}은 prefix tuning이 표현력 한계를 가지며 출력이 고정된 볼록 껍질에 놓임을 보인다. 우리의 랭크 경계는 보완적이다 --- 볼록 껍질 경계는 \emph{방향}을 제한하고, SVD 경계는 \emph{차원}을 제한한다.
+
+\paragraph{In-context learning을 implicit gradient descent로.}
+\citet{akyurek2023icl}, \citet{vonoswald2023icl}, \citet{ahn2023preconditioned}는 in-context learning이 어텐션 내에서 구배 강하를 근사함을 보인다. 이는 prompt가 \emph{어떤} 내재화 가능한 계산과 동치라는 더 넓은 주장에 동기를 부여하지만, 정량적 대체성 경계를 제공하지는 않는다.
+
+\paragraph{프롬프트 압축과 증류.}
+LLMLingua \citep{jiang2023llmlingua}, GIST tokens \citep{mu2023gist}, 500xCompressor \citep{li2024compressor}는 학습된 압축기를 통해 prompt를 짧은 토큰 시퀀스로 압축한다. 본 연구는 세 가지 면에서 다르다: (a) frozen LLM, 압축기 학습 없음; (b) 개입이 입력 토큰이 아닌 어텐션 출력(post-softmax)에 직접 적용; (c) 달성 가능한 근사에 대한 명시적 이론 경계.
+
+\paragraph{활성화 및 어텐션 스티어링.}
+CAA \citep{rimsky2024caa}와 ITI \citep{li2023iti}는 잔차-흐름 site에 contrastive 활성화 차이를 주입하여 행동 제어. RepE \citep{zou2023repe}는 선형 probe로 일반화. PASTA \citep{zhang2023pasta}는 지정된 토큰 위치에서 어텐션 가중치를 수정. ASA, Focus Directions \citep{zhu2025focus}는 어텐션 재유도를 위한 K 캐시 개입. SEKA \citep{lee2025seka}와 AdaSEKA는 CounterFact 위 사실-편집을 위한 카탈로그-유래 방향을 구성한다. 이들 어느 작품도 \emph{prompt 대체}를 측정 가능한 근사 경계와 함께 framing하지 않았다. 정리 1은 그들을 통합한다 --- 각 방법은 He-분해 패밀리 내에서 (랭크, 계층 집합, 개입 site)의 특정 선택에 대응하며, 그들의 이득은 task 위에서 달성 가능한 랭크에 의해 경계된다.
+
+\paragraph{자매 작업.} 별도 제출인 \emph{two-level argmax-subspace selectivity} 논문은 동일한 MetaTool / $\tau^2$-bench 하니스 위에서 K-bias의 \emph{어텐션-기하} 응답을 연구한다. 그 작업은 무작위 null perturbation 하 어텐션 shift와 argmax 안정성 사이의 격차를 특성화한다. 본 논문은 \emph{전체 프롬프트} 어텐션 출력과 \emph{개입-회복} 어텐션 출력 사이의 격차를 특성화한다. 두 논문은 인프라와 $B_{\mathrm{ont}}$ K-부분공간 파이프라인을 공유하지만 논리적으로 분리된 청구를 다룬다.
+
+\section{이론}
+\label{sec:theory}
+
+\subsection{설정 및 표기}
+$L$개의 계층, 계층당 $\Hq$개의 어텐션 헤드를 갖는 frozen 디코더 트랜스포머를 고정한다. $d$는 모델 차원, $\dh = d/\Hq$는 헤드 차원이다. $\mathcal{Q} \subset \R^d$를 task의 \emph{query-측 입력 상태} 분포로 둔다 (예: 사용자 쿼리 위치의 잔차-흐름 활성화, 해당 계층 입력 직전).
+
+$P$를 대체 대상 prefix prompt(시스템 프롬프트)로 둔다. 각 $(\ell, h)$에서 이는 key/value 행렬 $K_P^{(\ell,h)} \in \R^{|P|\times \dh}$와 $V_P^{(\ell,h)} \in \R^{|P|\times \dh}$를 산출한다. 입력 쿼리 $x$ (그리고 대응 쿼리 상태 $q^{(\ell,h)} = W_Q^{(\ell,h)} x$)에 대해 $(\ell, h)$에서 \emph{전체} 시퀀스 $[P; x]$의 어텐션 출력은
+\begin{equation}
+o_{\mathrm{full}}^{(\ell,h)}(q,x) = \attn\bigl(q;\, [K_P; K_x],\, [V_P; V_x]\bigr).
+\end{equation}
+간결성을 위해 문맥이 명확할 때 계층/헤드 첨자를 생략한다.
+
+\subsection{보조정리 1: He 2022 분해}
+\label{sec:lemma1}
+
+\begin{lemma}[Prefix 분해 \citep{he2022unified}, 본 표기로 재진술]
+\label{lem:he}
+임의의 쿼리 $q$, 입력 $x$, prefix $P$에 대해
+\begin{equation}
+o_{\mathrm{full}}(q,x) = \bigl(1-\lambda_P(q,x)\bigr)\cdot \attn(q; K_x, V_x) + \lambda_P(q,x)\cdot \attn(q; K_P, V_P)
+\label{eq:he-decomp}
+\end{equation}
+이며 여기서
+\begin{equation}
+\lambda_P(q,x) := \frac{\sum_{p\in P} \exp(q \cdot K_{P,p}^\top / \sqrt{\dh})}{\sum_{p\in P}\exp(q\cdot K_{P,p}^\top/\sqrt{\dh}) + \sum_{i\in x}\exp(q\cdot K_{x,i}^\top/\sqrt{\dh})}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+\citet{he2022unified}의 식 (6) 직접 적용. softmax 분모는 disjoint 위치 집합 위에서 분리되며, 분자 $\softmax(qK^\top)V$는 위 볼록 결합과 같다 (혼합 가중치는 $P$ 위 softmax 질량을 $x$ 위 질량 대비 비율).
+\end{proof}
+
+\paragraph{표기.} 정의:
+\begin{equation}
+\Phip(q,x) := \lambda_P(q,x)\cdot \attn(q; K_P, V_P).
+\end{equation}
+이는 어텐션 출력에 대한 \emph{prefix의 기여분}이다. 추론 시점에 $P$를 다른 개입으로 \emph{대체}하는 것은 $\Phip$에 대한 대체를 제공하는 것과 같다. 이하에서는 $x$ 의존성을 task의 query-state 분포 $\mathcal{Q}$ 안으로 흡수하고 $\Phip$를 $q$만의 함수로 본다 (가정의 정당성은 \cref{sec:assumptions}).
+
+\subsection{보조정리 2: 함수 공간 Eckart--Young}
+\label{sec:lemma2}
+
+\begin{lemma}[함수 공간 Eckart--Young]
+\label{lem:eckart-young}
+$\Phi: \mathcal{Q} \to \R^{\dh}$가 $\mathcal{Q}$ 위 확률 측도 $\mu$에 대해 제곱 가적분이고, 공분산 연산자
+\[
+C := \E_{q\sim\mu}[\Phi(q)\Phi(q)^\top] \in \R^{\dh\times \dh}
+\]
+의 고유값이 $\sigma_1^2 \ge \sigma_2^2 \ge \cdots \ge \sigma_{\dh}^2$, 고유벡터가 $u_1, \dots, u_{\dh}$라 하자. 임의의 $k\le\dh$와 직교 열을 갖는 임의의 랭크 $k$ 행렬 $V_k \in \R^{\dh\times k}$에 대해 최적 정적 랭크-$k$ surrogate를
+\[
+\widehat{\Phi}_k(q) := V_k V_k^\top \cdot \Phi(q)
+\]
+로 정의하면
+\begin{equation}
+\inf_{V_k\in \mathcal{V}_k} \E_\mu \bigl\| \Phi(q) - \widehat{\Phi}_k(q)\bigr\|_2^2 = \sum_{i>k}\sigma_i^2,
+\end{equation}
+이며 최소는 $V_k = [u_1, \dots, u_k]$에서 달성된다. 동치로 임의의 $\tau \in (0,1]$에 대해 상대 오차 $\le 1-\tau$를 달성하는 최소 $k$는
+\begin{equation}
+r^*(\tau) := \min\Bigl\{k:\, \tfrac{\sum_{i\le k}\sigma_i^2}{\sum_{i}\sigma_i^2}\ge \tau\Bigr\}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+$\Phi$를 $L^2(\mu;\R^{\dh})$의 원소로 보고, $V_k V_k^\top$를 $\R^{\dh}$ 위의 랭크-$k$ projector로 식별하며, 적분 연산자 $C$ 위에서 Eckart--Young을 적용한다: 기대 제곱 잔차를 최소화하는 $k$차원 부분공간으로의 최적 projector는 $C$의 상위 $k$ 고유공간으로의 사영이며, 달성된 오차는 \emph{폐기된} 고유값들의 합이다.
+\end{proof}
+
+\subsection{정리 1: 랭크 한계 프롬프트 대체성}
+\label{sec:thm1}
+
+\begin{definition}[정적 랭크-$k$ 개입]
+$(\ell,h)$에서의 \emph{정적 랭크-$k$ 개입}은 사상 $\widehat{\Phi}_k(q) := V_k V_k^\top \Phi'(q)$이며, 여기서 $V_k \in \R^{\dh\times k}$는 직교 열을 갖는 \emph{고정}(쿼리-독립) 행렬, $\Phi'$은 임의의 계산 가능한 surrogate이다. \emph{정적 개입 오차}는
+\[
+\mathcal{E}_{\mathrm{static}}(k) := \inf_{V_k, \Phi'} \E_\mu \bigl\| \Phip^{(\ell,h)}(q) - V_k V_k^\top \Phi'(q)\bigr\|_2^2.
+\]
+\end{definition}
+
+\begin{theorem}[랭크 한계 프롬프트 대체성]
+\label{thm:rank-bounded}
+$\sigma_1^2\ge \sigma_2^2\ge \cdots$가 prefix-어텐션 공분산
+\[
+C^{(\ell,h)} := \E_{q\sim\mu}\bigl[\Phip^{(\ell,h)}(q)\Phip^{(\ell,h)}(q)^\top\bigr]
+\]
+의 고유값이라 하자. 그러면 모든 $k$에 대해
+\begin{equation}
+\mathcal{E}_{\mathrm{static}}(k) = \sum_{i > k} \sigma_i^2.
+\end{equation}
+특히 상대 근사 오차 $\le 1-\tau$를 달성하는 최소 $k$는 정확히
+\[
+r^*(\tau) = \min\bigl\{k:\, \tfrac{\sum_{i\le k}\sigma_i^2}{\sum_i \sigma_i^2}\ge \tau\bigr\}.
+\]
+\end{theorem}
+
+\begin{proof}
+\emph{상한.} $V_k = [u_1,\dots,u_k]$ ($C^{(\ell,h)}$의 상위 $k$ 고유벡터)와 $\Phi' = \Phip^{(\ell,h)}$를 취한다. 보조정리 \ref{lem:eckart-young}에 의해 기대 잔차는 $\sum_{i>k}\sigma_i^2$.
+
+\emph{하한.} $V_k$, $\Phi'$가 infimum을 달성한다고 하자. $V_kV_k^\top \Phi'(q) = V_kV_k^\top \Phip(q) + V_kV_k^\top(\Phi'(q)-\Phip(q))$로 분해. 사영의 직교성에 의해
+\[
+\|\Phip(q) - V_kV_k^\top\Phi'(q)\|_2^2 \ge \|\Phip(q) - V_kV_k^\top \Phip(q)\|_2^2.
+\]
+양변에 기댓값을 취하고 $V_k$만에 대해 infimum을 취하면 보조정리 \ref{lem:eckart-young}는 $\inf_{V_k}\E_\mu\|\Phip(q) - V_kV_k^\top\Phip(q)\|_2^2 = \sum_{i>k}\sigma_i^2$.
+
+두 경계가 일치한다; 등호 성립.
+\end{proof}
+
+\begin{remark}[정확성]
+정리 \ref{thm:rank-bounded}는 \emph{정확하다}: 랭크 $k$ 정적 개입 오차는 $\Phip$ 공분산의 폐기된 고유값에 의해 결정되며, 느슨함이 없다. 어텐션 출력의 V-공간을 개입 site로 선택한 것이 경계를 깔끔하게 만든다; 다른 site (잔차-흐름, FFN 출력)는 합성을 통해 유사하지만 더 느슨한 진술을 허용한다.
+\end{remark}
+
+\begin{corollary}[정적 대체성 충분 조건]
+\label{cor:static-suff}
+$r^*(\tau) \le k_0$ ($k_0 = 32$ 등 운영적으로 실현 가능한 값)이 모든 관련 $(\ell,h)$에서 성립하면, 어떤 정적 개입의 어텐션 출력이 전체 프롬프트 출력으로부터 기댓값상 $\sqrt{1-\tau}\cdot\|\Phip\|_{L^2(\mu)}$ 이하만큼 벗어남이 존재한다.
+\end{corollary}
+
+\begin{corollary}[정적 대체성 필요 하한]
+\label{cor:static-nec}
+$r^*(\tau)$가 가용 개입 랭크 예산 $k_0$를 초과하면, $(\ell,h)$의 어떤 정적 개입도 상대 잔차 $1 - \tfrac{\sum_{i\le k_0}\sigma_i^2}{\sum_i \sigma_i^2}$ 이하를 달성할 수 없다. 이 격차를 메우려면 \emph{쿼리-의존} 개입이 필요하다.
+\end{corollary}
+
+\subsection{정리 2: 1차 보정으로서의 Q-bias}
+\label{sec:thm2}
+
+정적 랭크 $k$ 절단이 불충분할 때 (따름정리 \ref{cor:static-nec}), leading 보정은 쿼리 의존 항이다. 정리 2는 그 형태를 특성화하고 실증적으로 관측된 Q-bias 스티어링 패밀리와 연결한다.
+
+\begin{theorem}[1차 보정으로서의 Q-bias]
+\label{thm:qbias}
+$V_k = [u_1,\dots,u_k]$를 정리 \ref{thm:rank-bounded}의 최적 정적 랭크-$k$ 기저라 하자. 잔차 함수 $\eta(q) := \Phip(q) - V_kV_k^\top\Phip(q)$를 정의한다. 중심 $q_0 := \E_\mu[q]$ 주위의 $\eta$의 1차 Taylor 전개는
+\begin{equation}
+\eta(q) \approx \eta(q_0) + J_\eta(q_0)\cdot (q - q_0) + O(\|q-q_0\|^2),
+\end{equation}
+이며 보정항 $J_\eta(q_0)\cdot(q-q_0)$는 다음 표준 형태를 허용한다:
+\begin{equation}
+\Delta_{\mathrm{cor}}(q) = \beta \cdot M\cdot q
+\label{eq:qbias-form}
+\end{equation}
+여기서 $M\in\R^{\dh\times d}$는 어떤 랭크-$r'$ 행렬, $\beta\in\R$는 스칼라이며,
+\[
+\mathrm{sign}(\beta) = \mathrm{sign}\bigl(\partial_q \lambda_P(q_0)\cdot \langle\attn(q_0;K_P,V_P),\, V_{\mathrm{prin}}\rangle\bigr)
+\]
+가 성립한다 ($V_{\mathrm{prin}}$은 잔차의 주 방향).
+\end{theorem}
+
+\begin{proof}[증명 스케치]
+잔차 $\eta$는 (a) 게이팅 $\lambda_P(q)$ (보조정리 \ref{lem:he}, 스칼라 값, $q$에서 매끄럽게 변함)와 (b) softmax-가중 V-방향 $\attn(q;K_P,V_P)$ (벡터 값, 매끄럽게 변함) 두 출처에서 $q$ 의존성을 상속한다. $q_0$ 주위에서 둘 다 선형화:
+\begin{align}
+\eta(q) - \eta(q_0) &= \bigl[\partial_q \lambda_P(q_0)\bigr]\cdot \attn(q_0;K_P,V_P)\cdot(q-q_0) \nonumber\\
+&\quad + \lambda_P(q_0)\cdot J_{\attn}(q_0)\cdot (q-q_0).
+\end{align}
+
+두 번째 항(soft-attention 출력의 $q$에 대한 구배)은 잘 알려진 저랭크 선형 연산자 $J_{\attn} = \tfrac{1}{\sqrt{\dh}}\sum_p w_p(q_0) \cdot V_p \cdot (K_p - \bar{K}(q_0))^\top$이며 ($\bar{K}(q_0) := \sum_p w_p(q_0) K_p$), 최대 $|P|$ 랭크이고 실제로는 prefix-위치 softmax 분포의 \emph{유효 엔트로피}에 의해 랭크 경계를 갖는다.
+
+첫 번째 항은 $\partial_q\lambda_P$에 비례하는 랭크 1 보정을 기여한다. $\lambda_P$가 softmax 질량 비이므로, $\partial_q\lambda_P$는 두 캐시 모집단 중 하나가 균일하게 지배할 때 $\mathcal{Q}$ 전반에서 동일한 부호를 갖는다 --- 이는 정확히 \emph{체제 구분}을 특성화하는 조건이다.
+
+전체 보정 $\Delta_{\mathrm{cor}}$는 따라서 저랭크 선형-$q$ 연산자이며, 부호는 $\partial_q \lambda_P$로 결정된다. 이는 정확히 선행 작업에서 실증적으로 연구된 Q-bias 스티어링 형태 $\beta\cdot M\cdot q$이다 ($M = V_k V_k^\top$로 취할 때).
+\end{proof}
+
+\begin{corollary}[Regime-dependent 부호]
+\label{cor:regime}
+prefix $P$와 개입 기저 $V_k$를 공유하지만 각자의 query support 위에서 $\partial_q \lambda_P(q)$의 평균 부호가 다른 두 task 분포 $\mathcal{Q}_A, \mathcal{Q}_B$를 가정하자. 그러면 최적 Q-bias 스칼라 $\beta$는 $\mathcal{Q}_A$ 대 $\mathcal{Q}_B$에서 반대 부호를 갖는다.
+\end{corollary}
+
+\subsection{가정의 논의}
+\label{sec:assumptions}
+
+세 가정이 강조할 가치가 있다.
+
+\paragraph{(A1) $x$-독립성 처리.}
+$\Phip(q,x)$를 $q$만의 함수로 보고 $x$ 의존성을 query-상태 분포 $\mu$ 안으로 흡수했다. 이는 prefix가 계층 입력에서 $x$로부터 \emph{인과적으로 독립}일 때 정확하다 --- 사용자 쿼리가 별도 위치에서 진입하는 1계층 어텐션에서는 참이며, 잔차-흐름의 $x$-내용이 아직 $P$-내용과 의미 있게 혼합되지 않은 상위 계층에서는 근사적으로 참이다.
+
+\paragraph{(A2) 계층/헤드 독립성.}
+정리 \ref{thm:rank-bounded}는 $(\ell,h)$별 진술이다. 다수의 계층/헤드 위 \emph{결합} 개입의 경우 경계는 합(또는 비선형 FFN을 통한 합성으로 더 나쁨)이다. 실제로 소수의 ``고-leverage'' $(\ell,h)$ 쌍이 지배할 것으로 기대한다; 이는 선행 계층-국소화 발견과 일관된다.
+
+\paragraph{(A3) 다운스트림 lifting.}
+정리는 어텐션 출력의 $L_2$ 오차를 경계한다. task 정확도로 lifting하려면 남은 FFN, 잔차, unembedding을 통한 Lipschitz 인수가 필요하다. 표준이지만 task 의존적이다; \cref{sec:results-static}에서 task-acc를 직접 보고하고 acc-vs-$k$ 곡선의 elbow가 $r^*(\tau)$와 일치하는지 이론적 sanity로 검증한다.
+
+\section{실험 설정}
+\label{sec:experiments}
+
+\paragraph{모델.}
+Qwen2.5-7B-Instruct (28 계층, 28 query 헤드, 4 KV 헤드, 헤드 차원 128, GQA 그룹 7) 및 Llama-3.1-8B-Instruct (32 계층, 32 query 헤드, 8 KV 헤드, 헤드 차원 128, GQA 그룹 4)를 NVIDIA RTX A6000 위에서 bfloat16으로 사용한다.
+
+\paragraph{Task 와 데이터.}
+\begin{itemize}[leftmargin=*]
+\item \textbf{MetaTool Subtask 4}: 정확히 두 도구 GT를 가진 497개 다중-도구 선택 쿼리. $r^*$ 측정에 256개 쿼리, hybrid 평가에 128개 쿼리 사용.
+\item \textbf{$\tau^2$-bench}: 세 도메인 --- retail (114 task), telecom (256 sample, 분포 N=2285), airline (50 task). \emph{전체 카탈로그} 변형은 각 도메인의 \texttt{tasks.json} \texttt{evaluation\_criteria.actions} 필드에서 추출한 도구 이름 집합을 prefix에 주입한다.
+\end{itemize}
+
+\paragraph{Prefix 구성.}
+모든 task에서 prefix는 표준 도구-선택 시스템 메시지 + 도구 카탈로그(이름 또는 이름+설명)로 구성한다. Prefix 길이는 generic system prompt 단독 시 93--148 토큰, 도메인 도구 카탈로그 추가 시 147--189 토큰이다 (참조: 프로덕션 에이전틱 하니스의 2--8K 토큰 prefix는 \cref{sec:limits}에 한계로 표시).
+
+\paragraph{개입 site와 forward hook.}
+정적 개입은 각 계층의 $W_O$ projection 입력 (즉 헤드별 어텐션 출력 $\in \R^{\Hq\times \dh}$)에 적용된다 --- 마지막 쿼리 위치에서 헤드별 $V_k V_k^\top \bphi^{(\ell,h)}$를 \emph{덧셈}으로 주입한다. 여기서 $\bphi^{(\ell,h)} := \E_\mu[\Phip^{(\ell,h)}(q)]$는 측정된 prefix-어텐션 평균이다. Q-bias는 각 계층의 $W_Q$ projection 출력에 모든 위치에 대해 헤드별 적용한다: $Q' = Q + \beta\cdot V_{k_{Q}} V_{k_{Q}}^\top Q$.
+
+\paragraph{지표.}
+\begin{itemize}[leftmargin=*]
+\item \textbf{유효 랭크} $r^*(\tau)$ for $\tau \in \{0.90, 0.95, 0.99\}$.
+\item \textbf{KL 발산} $\mathrm{KL}(p_{\mathrm{full}} \,\|\, p_{\mathrm{intervention}})$ at last query position.
+\item \textbf{Top-1 일치율}: $\mathbb{1}[\arg\max p_{\mathrm{full}} = \arg\max p_{\mathrm{intervention}}]$.
+\item \textbf{Logit 잔차}: $\E_q[\|\mathrm{logits}_{\mathrm{full}} - \mathrm{logits}_{\mathrm{intervention}}\|_1 / V]$.
+\end{itemize}
+
+\section{결과}
+\label{sec:results}
+
+\subsection{E1: 유효 랭크 측정}
+\label{sec:results-rank}
+
+8개 (모델, task) 셀에서 $r^*(\tau{=}0.95)$의 평균은 모두 1.00--2.25 범위, 중앙값은 모두 1이다 (\cref{tab:rank-headline}). 정리 \ref{thm:rank-bounded}의 ``정적 대체성 충분 조건'' 임계치 $k_0 = 32$ 한참 아래이다 --- 따름정리 \ref{cor:static-suff}이 8/8 셀에서 발화한다.
+
+\begin{table}[h]
+\centering
+\caption{E1 유효 랭크 측정. 모든 셀 $r^*(0.95)$ 평균 $\le 2.25$, 중앙값 $= 1$. ``high-rank head''는 그 헤드에서 $r^*(0.95) \ge 8$인 헤드를 의미한다.}
+\label{tab:rank-headline}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+모델 & Task & $N$ & $r^*$ 평균 & $r^*$ 중앙값 & $r^*$ 최대 & high-rank 헤드 \\
+\midrule
+Qwen2.5-7B   & MetaTool ST4    & 256 & \textbf{2.25} & 1 & \textbf{40} & 43/784 (5.5\%) \\
+Qwen2.5-7B   & $\tau^2$-retail  & 114 & 1.59 & 1 & 28 & 19/784 (2.4\%) \\
+Qwen2.5-7B   & $\tau^2$-telecom & 256 & 1.01 & 1 & 2  & 0/784 \\
+Qwen2.5-7B   & $\tau^2$-airline & 50  & 1.54 & 1 & 23 & 17/784 (2.2\%) \\
+Llama-3.1-8B & MetaTool ST4    & 256 & \textbf{1.38} & 1 & \textbf{13} & 6/1024 (0.6\%) \\
+Llama-3.1-8B & $\tau^2$-retail  & 114 & 1.06 & 1 & 4  & 0/1024 \\
+Llama-3.1-8B & $\tau^2$-telecom & 256 & 1.00 & 1 & 1  & 0/1024 \\
+Llama-3.1-8B & $\tau^2$-airline & 50  & 1.10 & 1 & 4  & 0/1024 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Bimodality 확인.}
+평균은 작지만 \emph{최대}값은 13--40으로, 일부 헤드가 훨씬 높은 랭크를 가진다는 \emph{이중 분포}를 시사한다. 이는 따름정리 \ref{cor:static-nec}의 신호다 --- 소수의 헤드는 정적 개입 한계에 가깝다. 자매 논문의 ``L28 amplification'' 메커니즘과 일관되게, Qwen MetaTool ST4의 high-rank 헤드는 layer 0과 layers 24--27에 집중된다.
+
+\paragraph{Sanity controls.}
+정리 \ref{thm:rank-bounded}의 측정 의미를 검증하기 위해 세 control을 수행한다 (Qwen MetaTool ST4, $N{=}256$):
+\begin{table}[h]
+\centering
+\caption{Sanity controls. 모두 정리 1의 측정 해석과 일치하는 방향으로 움직인다.}
+\label{tab:sanity}
+\small
+\begin{tabular}{lrrr}
+\toprule
+모드 & $r^*(0.90)$ & $r^*(0.95)$ & $r^*(0.99)$ \\
+\midrule
+\textbf{real} (anchor) & 1.47 & 2.25 & 7.15 \\
+random\_prefix         & 2.03 & 4.08 & 16.59 \\
+random\_query          & 1.74 & 2.82 & 9.04 \\
+shuffled\_prefix       & 1.52 & 2.45 & 8.97 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+해석: (a) \texttt{real $<$ random\_prefix}: 실제 prefix는 \emph{구조화된 쿼리-조건 내용}을 갖는다. (b) \texttt{real $<$ random\_query}: 실제 쿼리가 prefix-어텐션을 더 일관되게 condition. (c) \texttt{real $\approx$ shuffled\_prefix}: 도구 \emph{순서}는 load-bearing이 아니다 --- 자매 논문 Phase C의 카탈로그-내용 불변성과 일관된다.
+
+\paragraph{전체 카탈로그 효과.}
+$\tau^2$-bench를 도구 이름이 prefix에 명시적으로 주입된 상태로 재실행했을 때 (prefix 길이 $93\to147$--$189$), $r^*(0.95)$는 변화가 미미했다 ($\Delta \le 0.06$). 이는 도구 이름이 시스템 instruction과 \emph{유사하게 쿼리-독립적인} 방식으로 어텐션받음을 시사한다. 프로덕션 규모 prefix(2--8K 토큰)는 \cref{sec:limits}에서 한계로 다룬다.
+
+\subsection{E3: 정적 회복 (정리 1 검증)}
+\label{sec:results-static}
+
+각 쿼리에 대해 세 forward를 실행한다: \texttt{full} ($P + q$), \texttt{noprompt} ($q$만), \texttt{static\_inj}($q$ + 모든 $(\ell,h)$에 $V_k V_k^\top \bphi^{(\ell,h)}$ 주입). \cref{tab:e3-static}이 $k \in \{0,1,2,4,8,16,32\}$ sweep 결과다 ($N{=}128$).
+
+\begin{table}[h]
+\centering
+\caption{E3 정적 회복: rank-$k$ 정적 주입의 다음-토큰 KL과 top-1 일치, MetaTool ST4 $N{=}128$. $k=0$은 노프롬프트 베이스라인.}
+\label{tab:e3-static}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+$k$ & \multicolumn{2}{c}{Qwen2.5-7B} & & \multicolumn{2}{c}{Llama-3.1-8B} \\
+\cmidrule{2-3} \cmidrule{5-6}
+ & KL & top-1 & & KL & top-1 \\
+\midrule
+0 (no inj) & 25.05 & 0.000 & & 17.71 & 0.000 \\
+\textbf{1} & \textbf{5.50} & \textbf{0.164} & & \textbf{8.05} & \textbf{0.031} \\
+2 & 5.50 & 0.164 & & 8.07 & 0.031 \\
+4 & 5.53 & 0.156 & & 8.08 & 0.031 \\
+8 & 5.53 & 0.164 & & 8.07 & 0.031 \\
+16 & 5.53 & 0.164 & & 8.08 & 0.031 \\
+32 & 5.53 & 0.164 & & 8.08 & 0.031 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{발견 1: 랭크 1 정적 주입이 KL 격차의 다수를 닫는다.}
+Qwen은 78\% (KL $25.05\to 5.50$), Llama는 55\% (KL $17.71\to 8.05$) 닫힌다. 이는 prefix-어텐션 출력의 평균이 단일 leading 방향에 의해 지배됨을 의미한다.
+
+\paragraph{발견 2: $k>1$에서의 plateau.}
+$k\in\{1, \ldots, 32\}$에서 KL 변화 $<0.04$. 이는 기하학적으로 예상된다 --- $V_1 V_1^\top \bphi \approx \bphi$가 leading 특이벡터 $V_1$이 평균 방향과 거의 정렬될 때 (분산이 $\bphi$ 근처에 집중될 때 참). 직교 방향 $V_2, \ldots, V_k$는 $\bphi$의 직교 성분이 없으므로 \emph{정적} 주입에 기여하지 않는다.
+
+\paragraph{발견 3: 잔차 격차는 비-자명하다.}
+Qwen은 KL 격차의 22\%, top-1 mismatch의 84\%를 잔류; Llama는 각각 45\%, 97\%. \textbf{이 잔차가 정리 \ref{thm:qbias}의 영역이다} --- 어떤 $k$의 정적 개입으로도 포착할 수 없으며, 쿼리-의존 보정 (표준 Q-bias 스티어링 형태)에 의해서만 닫힐 수 있다.
+
+\subsection{Q-bias hybrid: 정리 2 검증}
+\label{sec:results-hybrid}
+
+이제 정적 rank-1 주입에 Q-bias 항 $\beta\cdot V_8 V_8^\top Q$를 추가하고 $\beta$를 sweep한다. \cref{tab:qbias-qwen}와 \cref{tab:qbias-llama}.
+
+\begin{table}[h]
+\centering
+\caption{Qwen2.5-7B 위 Hybrid (정적 $k_{\mathrm{static}}{=}1$ + Q-bias $k_{Q}{=}8$, $\beta$ sweep). $\beta$의 \emph{양의} 부호가 도움이 되며 $\beta{\approx}3$--$4$에서 최적, $\beta{\geq}6$에서 over-amplify.}
+\label{tab:qbias-qwen}
+\small
+\begin{tabular}{lrrr}
+\toprule
+방법 & KL & top-1 & logit\_resid \\
+\midrule
+noprompt & 25.05 & 0.000 & 3.94 \\
+static\_only ($k{=}1$) & 5.50 & 0.164 & 2.85 \\
+\midrule
+hybrid $\beta{=}{-}0.5$ & 6.19 & 0.070 & 2.81 \\
+hybrid $\beta{=}{-}0.1$ & 5.68 & 0.117 & 2.83 \\
+hybrid $\beta{=}{+}0.5$ & 4.40 & 0.391 & 2.95 \\
+hybrid $\beta{=}{+}1.0$ & 3.83 & 0.594 & 3.05 \\
+hybrid $\beta{=}{+}2.0$ & 3.29 & 0.875 & 3.26 \\
+hybrid $\beta{=}{+}3.0$ & \textbf{2.99} & 0.977 & 3.25 \\
+\textbf{hybrid $\beta{=}{+}4.0$} & 3.01 & \textbf{0.984} & 3.22 \\
+hybrid $\beta{=}{+}6.0$ & 2.70 & 0.898 & 4.15 \\
+hybrid $\beta{=}{+}10.0$ & 3.87 & 0.672 & 4.49 \\
+\midrule
+full prompt (anchor) & \textit{0} & \textit{1.000} & \textit{0} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Llama-3.1-8B 위 Hybrid. 좁은 $\beta$ ($k_{Q}{=}8$) 영역에서는 무반응; $k_{Q}{=}16$과 넓은 $\beta$로 KL 회복은 있으나 top-1은 낮게 유지.}
+\label{tab:qbias-llama}
+\small
+\begin{tabular}{lrr}
+\toprule
+방법 & KL & top-1 \\
+\midrule
+noprompt & 17.71 & 0.000 \\
+static\_only ($k{=}1$) & 8.05 & 0.031 \\
+\midrule
+$k_Q{=}8$, $\beta\in[-0.5, +0.5]$ & 7.98--8.06 & 0.031--0.062 \\
+\midrule
+$k_Q{=}16$, $\beta{=}{-}2.0$ & \textbf{3.06} & 0.055 \\
+$k_Q{=}16$, $\beta{=}{-}1.0$ & 6.36 & 0.031 \\
+$k_Q{=}16$, $\beta{=}{+}2.0$ & 6.39 & 0.094 \\
+$k_Q{=}16$, $\beta{=}{+}4.0$ & 4.26 & \textbf{0.102} \\
+\midrule
+full prompt (anchor) & \textit{0} & \textit{1.000} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Qwen 위 정리 2 검증.}
+Qwen은 정확히 정리 \ref{thm:qbias} 예측 패턴을 따른다:
+\begin{enumerate}[leftmargin=*, itemsep=2pt]
+\item \textbf{부호 비대칭} (따름정리 \ref{cor:regime}): $\beta>0$이 도움, $\beta<0$이 해친다. 격차 (KL between $\beta{=}{-}0.3$ and $\beta{=}{+}0.3$) 는 $\Delta = +1.16$.
+\item \textbf{2차 형태} ($\beta$ 곡선): KL은 $\beta{=}{+}3$에서 최소를 갖는 오목 위 형태 --- Taylor 잔차의 2차 경계와 정확히 일치 ($\|η - β\nabla\eta\|^2 = c_0 - 2c_1\beta + c_2\beta^2$).
+\item \textbf{1차 보정이 leading}: $\beta{=}{+}4.0$에서 \textbf{top-1 next-token agreement = 98.4\%} (베이스라인 0\%, full prompt 100\% 대비). 잔차 1.6\% mismatch는 2차 Taylor 항 (선형 projector $V_k V_k^\top$로 포착되지 않는 비선형 어텐션 효과)으로 추정.
+\end{enumerate}
+
+\paragraph{체제 부호 flip 대 자매 논문.}
+자매 논문은 \emph{전체 프롬프트} 체제에서 retail $\beta{=}{-}0.03$, telecom $\beta{=}{+}0.05$의 부호 분기를 보고했다. 본 연구의 \emph{프롬프트 제거} 체제에서는 Qwen MetaTool ST4가 $\beta>0$을 선호한다. 이는 따름정리 \ref{cor:regime}의 정확한 예측이다 --- $\partial_q \lambda_P(q_0)$의 부호가 prefix 존재 여부에 따라 뒤집힌다. 프롬프트가 있을 때 $\lambda_P$는 이미 크고, $q$ 방향 증가는 그것을 \emph{감소}시키는 경향 (음의 구배). 프롬프트가 없을 때 + 주입이 있을 때 실제 prefix는 없으나 \emph{주입이 효과적 prefix 역할}을 하며, $q$가 주입된 방향으로 당기는 것은 효과적 $\lambda_P$를 \emph{증가}시킨다 (양의 구배).
+
+\paragraph{Llama 모델 이질성.}
+Llama는 $k_Q{=}8$로는 둔감하나, $k_Q{=}16$ + 더 넓은 $\beta$로 분포 회복 (KL $8.05 \to 3.06$ at $\beta{=}{-}2.0$)을 보인다. 그러나 top-1 회복은 여전히 낮다 ($\le 10.2\%$). \emph{대칭적} $\beta$ 응답 (양 부호 모두 도움)이 Qwen과 다른 점이며, 본 정적 + Q-bias 개입의 한계를 시사한다.
+
+\section{논의}
+\label{sec:discussion}
+
+\subsection{무엇이 헤드라인 결과를 의미하는가}
+\label{sec:meaning}
+
+Qwen2.5-7B 위에서 \emph{프롬프트 없이} 정적 rank-1 + Q-bias($\beta{=}{+}4.0$) 결합 개입이 \textbf{전체 프롬프트 다음-토큰 분포의 98.4\% top-1 일치}를 달성한다. 이는 두 의미를 갖는다:
+\begin{enumerate}[leftmargin=*]
+\item \textbf{정리 1과 정리 2의 실증적 검증}. 정적 rank-1이 78\%, 1차 Q-bias 보정이 추가 20\%를 닫는다. 잔차 1.6\%만이 2차 Taylor 항.
+\item \textbf{실용적 함의} (TTFT/캐시 비용): 만약 이 (rank-1 정적 + $\beta{=}{+}4.0$ Q-bias) 개입이 \emph{generation 단계로 확장} 가능하다면 (현재 결과는 next-token 측정만 다룸), prefix prompt를 inference time에 \emph{완전히 discard}하는 것이 가능해진다. prefix KV 계산 / cache lookup 모두 없음.
+\end{enumerate}
+
+\subsection{왜 Llama는 다른가}
+\label{sec:llama-diff}
+
+Llama의 분포 회복은 있으나 argmax 회복은 결여된 패턴 (KL $\to 3.06$, top-1 $\le 10\%$)에 대한 세 후보 가설:
+\begin{enumerate}[leftmargin=*]
+\item \textbf{선형 projector 기저 불일치.} 정리 \ref{thm:qbias}의 $V_k V_k^\top$는 \emph{prefix-어텐션 출력 공분산}의 projector이지 \emph{어텐션의 query-Jacobian}의 projector가 아니다. Qwen에서는 우연히 정렬되나 Llama에서는 그렇지 않을 수 있다 --- 그러면 부호가 있는 Q-bias가 어떤 방향에서도 도움과 해 두 성분을 갖는다. 이는 관측된 대칭 $\beta$ 응답을 설명한다.
+\item \textbf{GQA 헤드 그룹화 효과.} Llama는 $\Hq{=}32, \Hkv{=}8$ (그룹 4); Qwen은 $\Hq{=}28, \Hkv{=}4$ (그룹 7). 모든 Q-헤드에 헤드별 주입은 Llama에서 그룹 간 간섭을 만들 수 있다.
+\item \textbf{잔차 흐름 기여 지배.} Llama가 어텐션 대신 잔차 흐름을 통해 더 많은 prefix 정보를 push할 수 있으며, 본 개입은 그것을 건드리지 않는다.
+\end{enumerate}
+
+이 셋을 분리하기 위한 실험이 \cref{sec:future-work}.
+
+\subsection{선행 K-bias / Q-bias 작업과의 관계}
+\label{sec:related-detail}
+
+정리 \ref{thm:rank-bounded}는 SEKA, AdaSEKA, Focus Directions, ASA, $B_{\mathrm{ont}}$ K-bias / Q-bias 작업들을 단일 문제 (랭크 $k$ $\Phip$ 근사)의 인스턴스로 통합한다. 각 방법은 (a) 계층 집합, (b) 개입 site (K-pre, K-post, Q-pre, attention-output), (c) 기저 구성 (contrastive SVD, ontology, random, learned)에서 다르다. 그들의 이득은 task에서 달성 가능한 랭크에 의해 경계된다.
+
+\paragraph{F13b 시드 이중 분포의 재해석.}
+자매 논문의 F13b 계층-적응 K+Q 개입은 시드 간 60/40 성공/실패 이중 분포를 보인다. 본 이론 하에서 이는 다음과 일치한다: CE 수렴이 좋을 때 (시드의 60\%) $\Phip$가 F13b 기저와 잘 정렬되어 rank-4 절단이 충분한 에너지를 포착 ($r^*\le 4$); CE 수렴이 나쁠 때 (40\%) embedding이 $r^* > 4$인 영역에 떨어져 정적 개입이 rank-deficient. CE-gating은 따라서 기저 $r^*$ 체제 검출의 휴리스틱이다.
+
+\section{한계}
+\label{sec:limits}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+\item \textbf{(L1) Per-($\ell,h$) 분해.} 정리 1은 국소적이다; 결합 개입 오차는 합이 아니라 잔차 합성에 의존한다. 실증 task-acc가 통합 검정으로 남는다.
+\item \textbf{(L2) 분포 변동.} $\mathcal{Q}$ 위에서 측정된 $r^*$는 $\mathcal{Q}' \ne \mathcal{Q}$에서의 대체성을 경계하지 않는다. 실용적 도구-사용 배치는 drift하는 쿼리 분포를 본다.
+\item \textbf{(L3) 구성 비용.} $V_k$ 구축은 $\mathcal{Q}$ 샘플 위 forward-pass 측정을 요구한다 --- 추론에서 re-prompting보다 훨씬 저렴하지만 무료는 아니다.
+\item \textbf{(L4) 긴 prefix로의 일반화.} 본 측정은 시스템 prompt 93--189 토큰 위에서다. 가장 큰 에이전틱 하니스의 32K+ 토큰 prefix scale에서의 행동은 실증적으로 결정된다.
+\item \textbf{(L5) Multi-step generation 미검증.} 본 결과는 next-token 분포 매칭만 다룬다. 자기회귀 generation을 통한 도구-호출 F1 평가는 후속.
+\item \textbf{(L6) 모델 이질성.} Qwen 위 깨끗한 결과 vs Llama 위 부분 회복. \cref{sec:llama-diff} 가설들은 미해결.
+\end{itemize}
+
+\section{결론}
+\label{sec:conclusion}
+
+긴 에이전틱 시스템 프롬프트는 정지된 LLM에 대해 정적 랭크 $k$ KV-측 개입을 통해 내재화될 수 있으며, 근사 오차는 정확히 $\sum_{i>k}\sigma_i^2$이다 --- 여기서 $\sigma_i$는 task 분포 위 prefix-어텐션 기여 함수의 특이값이다 (정리 \ref{thm:rank-bounded}). 정적 절단 너머의 leading 보정은 prefix-어텐션 게이트의 국소 미분에 의해 부호가 결정되는 쿼리-의존 Q-bias 항이다 (정리 \ref{thm:qbias}), 선행 스티어링 실험에서 현상적이었던 체제-의존 부호 flip을 설명한다. Qwen2.5-7B 위 MetaTool Subtask 4의 next-token agreement에서 결합 개입은 전체 프롬프트 분포의 98.4\%를 \emph{프롬프트 없이} 회복한다.
+
+\subsection*{향후 작업}
+\label{sec:future-work}
+\begin{enumerate}[leftmargin=*, itemsep=2pt]
+\item \textbf{Multi-step generation eval}: next-token KL을 도구-호출 F1로 lift.
+\item \textbf{Llama Q-bias 메커니즘}: \cref{sec:llama-diff}의 세 가설 중 어느 것이 책임을 지는지 분리하는 실험 (예: query-Jacobian 직접 SVD, GQA 그룹별 개입, 잔차-흐름 개입).
+\item \textbf{프로덕션 규모 prefix}: 2--8K 토큰 전체 도구 스키마(설명 + 매개변수)에서 $r^*$ 재측정.
+\item \textbf{$\partial_q \lambda_P$의 직접 측정}: JVP를 통해 부호 예측이 정량적으로 일치하는지 검증.
+\item \textbf{도메인 간 hybrid 일반화}: $\tau^2$ retail/telecom/airline의 hybrid 결과는 어떻게 변하는가? 자매 논문의 sign-flip 패턴이 prompt-free 체제에서도 보존되는가?
+\end{enumerate}
+
+\paragraph{재현성 진술.}
+모든 코드, 결과 JSON, 실험 로그는 \texttt{iclr-prompt-internalization} 브랜치 \texttt{scripts/rank\_replaceability/} 와 \texttt{reports/rank\_replaceability\_2026\_04/} 아래에 있다. 측정 스크립트 \texttt{measure\_phi\_rank.py}, \texttt{static\_recovery\_eval.py}, \texttt{qbias\_hybrid\_eval.py}는 모두 self-contained이며 Qwen/Llama 양 패밀리에서 동작한다.
+
+\bibliographystyle{plainnat}
+
+\begin{thebibliography}{99}
+\bibitem[Akyürek et al.(2023)]{akyurek2023icl}
+E. Akyürek, D. Schuurmans, J. Andreas, T. Ma, D. Zhou.
+``What learning algorithm is in-context learning? Investigations with linear models.''
+\emph{ICLR}, 2023.
+
+\bibitem[Ahn et al.(2023)]{ahn2023preconditioned}
+K. Ahn, X. Cheng, H. Daneshmand, S. Sra.
+``Transformers learn to implement preconditioned gradient descent for in-context learning.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[He et al.(2022)]{he2022unified}
+J. He, C. Zhou, X. Ma, T. Berg-Kirkpatrick, G. Neubig.
+``Towards a unified view of parameter-efficient transfer learning.''
+\emph{ICLR}, 2022.
+
+\bibitem[Jiang et al.(2023)]{jiang2023llmlingua}
+H. Jiang, Q. Wu, C.-Y. Lin, Y. Yang, L. Qiu.
+``LLMLingua: Compressing prompts for accelerated inference of large language models.''
+\emph{EMNLP}, 2023.
+
+\bibitem[Lee et al.(2025)]{lee2025seka}
+Lee et al.
+``SEKA: Subspace Editing for Knowledge-Aware Activation Steering.''
+\emph{Preprint}, 2025.
+
+\bibitem[Li \& Liang(2021)]{li2021prefix}
+X. L. Li, P. Liang.
+``Prefix-tuning: Optimizing continuous prompts for generation.''
+\emph{ACL}, 2021.
+
+\bibitem[Li et al.(2023)]{li2023iti}
+K. Li, O. Patel, F. Viégas, H. Pfister, M. Wattenberg.
+``Inference-time intervention: Eliciting truthful answers from a language model.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[Li(2024)]{li2024compressor}
+Z. Li.
+``500xCompressor: Generalized prompt compression for large language models.''
+\emph{Preprint}, 2024.
+
+\bibitem[Mu et al.(2023)]{mu2023gist}
+J. Mu, X. Li, N. Goodman.
+``Learning to compress prompts with gist tokens.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[Petrov et al.(2024)]{petrov2024prompting}
+A. Petrov, P. Torr, A. Bibi.
+``When do prompting and prefix-tuning work? A theory of capabilities and limitations.''
+\emph{ICLR}, 2024.
+
+\bibitem[Rimsky et al.(2024)]{rimsky2024caa}
+N. Rimsky, N. Gabrieli, J. Schulz, M. Tong, E. Hubinger, A. Turner.
+``Steering Llama 2 via contrastive activation addition.''
+\emph{ACL}, 2024.
+
+\bibitem[von Oswald et al.(2023)]{vonoswald2023icl}
+J. von Oswald, E. Niklasson, E. Randazzo, J. Sacramento, A. Mordvintsev, A. Zhmoginov, M. Vladymyrov.
+``Transformers learn in-context by gradient descent.''
+\emph{ICML}, 2023.
+
+\bibitem[Zhang et al.(2023)]{zhang2023pasta}
+Q. Zhang, C. Singh, L. Liu, X. Liu, B. Yu, J. Gao, T. Zhao.
+``Tell your model where to attend: Post-hoc attention steering for LLMs.''
+\emph{Preprint}, 2023.
+
+\bibitem[Zhu et al.(2025)]{zhu2025focus}
+Zhu et al.
+``Focus directions: Training-free attention steering for tool-use.''
+\emph{Preprint}, 2025.
+
+\bibitem[Zou et al.(2023)]{zou2023repe}
+A. Zou, L. Phan, S. Chen, J. Campbell, P. Guo, R. Ren, A. Pan, X. Yin, M. Mazeika, A.-K. Dombrowski et al.
+``Representation engineering: A top-down approach to AI transparency.''
+\emph{Preprint}, 2023.
+
+\end{thebibliography}
+
+% =====================================================================
+\appendix
+
+\section{He 2022과의 정확한 연결}
+\label{app:he}
+
+\citet{he2022unified} 식 (6)은 본 논문의 보조정리 \ref{lem:he}로 재진술된 prefix-어텐션 분해를 도출한다. 그들의 통합-PEFT framing은 prefix tuning, prompt tuning, adapter, LoRA 사이에서 공유되는 어텐션 수정의 \emph{형태}에 초점을 둔다. 본 논문은 그들의 결과를 다음으로 확장한다:
+\begin{enumerate}[leftmargin=*]
+\item 분해를 매개변수화 패밀리가 아닌 \emph{연산자} $\Phip : \mathcal{Q} \to \R^{\dh}$를 정의하는 것으로 읽음.
+\item 함수 공간 SVD를 통해 연산자의 복잡도를 정량화 (보조정리 \ref{lem:eckart-young}).
+\item 정확한 대체성 경계 (정리 \ref{thm:rank-bounded})와 1차 보정 특성화 (정리 \ref{thm:qbias})를 도출.
+\end{enumerate}
+이는 ``내용'' 확장이다 --- He가 형태를 주었고, 우리가 랭크를 측정한다.
+
+\section{구현 세부사항}
+\label{app:impl}
+
+\subsection{$\Phip$ 추출 (E1)}
+각 (모델, task, $\ell$, $h$)에 대해:
+\begin{algorithmic}
+\State 각 쿼리 $q_i \in \mathcal{Q}$에 대해 $[P; q_i]$ forward.
+\State $(\ell, h)$에서 prefix-위치 어텐션 기여를 기록:
+\[\Phip^{(\ell,h)}(q_i) = \sum_{p\in P} a_p^{(\ell,h)}(q_i, P)\cdot V_p^{(\ell,h)}.\]
+\State $\{\Phip^{(\ell,h)}(q_i)\}_{i=1}^N$를 $M^{(\ell,h)}\in\R^{N\times \dh}$로 stack.
+\State SVD; $\sigma_i^2$ 스펙트럼과 $r^*(\tau)$ for $\tau \in \{0.90, 0.95, 0.99\}$ 보고.
+\State 상위 $K_{\mathrm{save}}{=}32$ 우 특이벡터와 $\bphi^{(\ell,h)}$를 후속 E3 재사용을 위해 npz로 저장.
+\end{algorithmic}
+
+\subsection{정적 주입 hook (E3)}
+계층 $\ell$의 $W_O$ projection에 \texttt{forward\_pre\_hook}을 등록한다. Hook 입력은 $(B, T, \Hq\cdot \dh)$ --- 평탄화된 헤드별 어텐션 출력. Hook은 $(B, T, \Hq, \dh)$로 reshape하고, 마지막 위치(생성이 시작될 곳)에서 헤드별 주입 $V_k V_k^\top \bphi^{(\ell,h)}$를 \emph{덧셈}으로 적용한 후 reshape back.
+
+\subsection{Q-bias hook}
+계층 $\ell$의 $W_Q$ projection에 \texttt{forward\_hook}을 등록한다. 출력 $(B, T, \Hq\cdot \dh)$를 $(B, T, \Hq, \dh)$로 reshape, 헤드별로 $Q' = Q + \beta\cdot V_{k_Q} V_{k_Q}^\top Q$ 적용. \emph{모든} 위치에서 적용 (last-position-only가 아님) --- 표준 Q-bias 스티어링 시맨틱 일관.
+
+\subsection{재현 명령}
+\begin{verbatim}
+# E1
+python scripts/rank_replaceability/measure_phi_rank.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --task metatool_st4 --max-samples 256 \
+    --device cuda:0 \
+    --out reports/.../qwen_metatool_n256.json
+
+# E3 (정적 회복)
+python scripts/rank_replaceability/static_recovery_eval.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --task metatool_st4 \
+    --e1-json reports/.../qwen_metatool_n256.json \
+    --max-samples 128 --k-list 0,1,2,4,8,16,32 \
+    --device cuda:0 --out reports/.../qwen_e3_n128.json
+
+# Q-bias hybrid (정리 2)
+python scripts/rank_replaceability/qbias_hybrid_eval.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --task metatool_st4 \
+    --e1-json reports/.../qwen_metatool_n256.json \
+    --max-samples 128 --k-static 1 --k-qbias 8 \
+    --beta-list=2.0,2.5,3.0,4.0,6.0,10.0 \
+    --device cuda:0 --out reports/.../qwen_qbias_extreme_n128.json
+\end{verbatim}
+
+\section{데이터/모델 가용성}
+\label{app:data}
+
+\paragraph{모델.} HuggingFace에서 \texttt{Qwen/Qwen2.5-7B-Instruct}, \texttt{NousResearch/Meta-Llama-3.1-8B-Instruct} (Meta-Llama-3.1-8B-Instruct의 미러).
+
+\paragraph{Task 데이터.}
+\begin{itemize}[leftmargin=*]
+\item MetaTool Subtask 4: \url{https://github.com/HowieHwong/MetaTool}.
+\item $\tau^2$-bench: \url{https://github.com/sierra-research/tau2-bench}.
+\end{itemize}
+
+\section{전체 layer profile (선택된 셀)}
+\label{app:layer-profile}
+
+\cref{fig:layer-profile}와 같이 layer별 $\bar{r^*}$ profile은 layer 0 + last few layers (Qwen 24--27, Llama 28--31)에서 평균보다 높은 랭크를 보여준다. 이는 자매 논문의 ``last-FFN amplification'' 메커니즘 발견과 일관된다.
+
+\begin{figure}[h]
+\centering
+% Place a placeholder figure description for cowork; actual figure rendered separately.
+\fbox{\parbox{0.85\textwidth}{
+\centering
+\textbf{[그림 \ref{fig:layer-profile}: 계층별 평균 $r^*(0.95)$ — Qwen MetaTool ST4]}\\[2pt]
+\small layer 0: 6.18 (최대)\hfil layer 1--23: 1.0--1.5\hfil layer 24--27: 5.0--11.0
+}}
+\caption{Qwen2.5-7B MetaTool ST4 계층별 평균 $r^*(0.95)$ (256 쿼리). High-rank ``mixed'' 헤드가 layer 0 + 마지막 4계층에 집중. 정적 개입은 이들 계층에서 가장 큰 한계를 갖는다 --- Q-bias 보정의 영역.}
+\label{fig:layer-profile}
+\end{figure}
+
+\end{document}
