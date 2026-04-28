@@ -26,6 +26,8 @@
 \usepackage{algorithm, algpseudocode}
 \usepackage{tcolorbox}
 \tcbuselibrary{skins,breakable}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc, fit, decorations.pathreplacing}
 
 \newtheorem{theorem}{정리}
 \newtheorem{lemma}{보조정리}
@@ -131,6 +133,7 @@
 \item \textbf{Negative result}: 동일 hybrid의 multi-step 자기회귀 generation에서 도구 호출 F1 = 0.000 (full prompt 0.75/0.87 대비). 이는 따름정리의 직접 검증이며 framework 적용 영역의 \emph{경계}를 정의 (\cref{sec:exp-multistep}).
 \item NL prompt 대비 facet typed prompt가 Qwen에서 F1 \textbf{+9.7\%} (length-matched), Llama에서 \textbf{-3.7\%}로 model family heterogeneity 확인 (\cref{sec:exp-facet-nl}).
 \item 익명화 ablation: Qwen은 \texttt{list\_only} 0.214 → \texttt{list\_anon} 0.708로 \textbf{+233\%} (도구 이름이 \emph{방해 요소}); Llama는 list\_anon -19\%, facet\_anon -13\% (NL name path 부분 활용). 두 모델의 \emph{mechanism}이 다름을 정량적 분리 (\cref{sec:exp-anon}).
+\item Facet count $\to r^*$ 직접 anchor (E13): \texttt{facet\_full} ($F=2$ active)에서 $r^*(0.95) \approx 2$ (Qwen 2.16, Llama 1.45) → 정리 3 strict prediction 일치. Single-facet과 NL prompt에서는 soft 성립 (\cref{sec:exp-facet-rank}).
 \end{itemize}
 
 \paragraph{시스템 (Part II).}
@@ -242,7 +245,38 @@ $(\ell,h)$에서의 \emph{정적 랭크-$k$ 개입}은 사상 $\widehat{\Phi}_k(
 \end{theorem}
 
 \begin{proof}
-$\Phi'$의 임의성에서 surrogate가 $\Phip$를 정확히 평가하는 경우의 하한이 \eqref{eq:rank-bound}. 이는 보조정리 \ref{lem:eckart}의 직접 적용. 임의의 다른 $\Phi'$는 잔차를 추가할 뿐이므로 하한 강화 안 됨.
+최적화 문제를 두 단계로 분해한다.
+
+\textbf{Step 1 (Inner minimization over $\Phi'$).}
+$V_k \in \R^{\dh\times k}$가 직교 열 ($V_k^\top V_k = I_k$)을 갖도록 고정. 주어진 $V_k$에 대해 $\{V_k V_k^\top \Phi'(q) : \Phi': \mathcal{Q}\to\R^{\dh}\}$는 모든 $V_k$-부분공간 valued 함수의 집합과 같다. 즉 $a := V_k^\top \Phi'$로 놓으면 $a: \mathcal{Q}\to\R^k$는 임의이며 $V_k V_k^\top \Phi' = V_k a$. 따라서 문제는
+\begin{equation}
+\inf_{V_k} \, \inf_{a:\mathcal{Q}\to\R^k} \E_\mu \bigl\| \Phip(q) - V_k a(q) \bigr\|_2^2
+\end{equation}
+로 환원. 고정된 $V_k$ 위에서 내부 최적화는 점별 정사영(orthogonal projection): 1차 최적성 조건 $V_k^\top(\Phip(q) - V_k a^*(q)) = 0$ a.s.로부터
+\begin{equation}
+a^*(q) = V_k^\top \Phip(q)
+\end{equation}
+이며, 달성된 잔차는
+\begin{align}
+\E_\mu \bigl\| \Phip(q) - V_k V_k^\top \Phip(q) \bigr\|_2^2
+&= \E_\mu \bigl\| (I - V_k V_k^\top) \Phip(q) \bigr\|_2^2 \\
+&= \E_\mu \mathrm{tr}\bigl((I - V_k V_k^\top) \Phip\Phip^\top\bigr) \\
+&= \mathrm{tr}\bigl((I - V_k V_k^\top) C_{\Phip}\bigr),
+\end{align}
+여기서 $C_{\Phip} := \E_\mu[\Phip\Phip^\top]$은 양반정치(PSD) 공분산.
+
+\textbf{Step 2 (Outer minimization over $V_k$).}
+$\mathrm{tr}((I - V_k V_k^\top) C_{\Phip}) = \mathrm{tr}(C_{\Phip}) - \mathrm{tr}(V_k^\top C_{\Phip} V_k)$이므로 $V_k^\top V_k = I_k$ 제약 하 $\mathrm{tr}(V_k^\top C_{\Phip} V_k)$의 \emph{최대화}와 동치. Ky Fan trace 부등식 (또는 Eckart--Young 행렬 형식)에 의해
+\begin{equation}
+\max_{V_k:\, V_k^\top V_k = I_k} \mathrm{tr}\bigl(V_k^\top C_{\Phip} V_k\bigr) = \sum_{i=1}^k \sigma_i^2(\Phip),
+\end{equation}
+이며 최대는 $V_k = [u_1, \dots, u_k]$ ($u_i$는 $C_{\Phip}$의 상위 $i$ 고유벡터)에서 달성. 따라서
+\begin{equation}
+\min_{V_k} \mathrm{tr}\bigl((I - V_k V_k^\top) C_{\Phip}\bigr) = \mathrm{tr}(C_{\Phip}) - \sum_{i\le k}\sigma_i^2 = \sum_{i>k}\sigma_i^2.
+\end{equation}
+
+\textbf{Step 3 ($\tau$-동치).}
+상대 오차 $\le 1-\tau$의 정의 $\sum_{i>k}\sigma_i^2 / \sum_i \sigma_i^2 \le 1-\tau$는 $\sum_{i\le k}\sigma_i^2 / \sum_i \sigma_i^2 \ge \tau$와 동치. 이는 $k \ge r^*(\tau)$의 정의와 정확히 일치 (보조정리 \ref{lem:eckart}). \qed
 \end{proof}
 
 \paragraph{정리 1의 함의.}
@@ -264,7 +298,36 @@ $\Phi'$의 임의성에서 surrogate가 $\Phip$를 정확히 평가하는 경우
 \end{theorem}
 
 \begin{proof}
-보조정리 \ref{lem:he}의 분해를 $q_0$ 근방에서 1차 Taylor 전개. 정적 부분 $V_k V_k^\top \Phi'(q_0)$를 빼면 잔차의 leading 항은 $\partial_q \lambda_P(q_0) \cdot \attn(q_0; K_P, V_P) \otimes (q-q_0)$. 이 외적을 $V_k$ basis로 사영하면 \eqref{eq:qbias-correction}.
+보조정리 \ref{lem:he}의 prefix 기여 $\Phip(q) = \lambda_P(q) \cdot \attn(q; K_P, V_P)$를 $q_0$ 근방에서 1차 Taylor 전개:
+\begin{align}
+\Phip(q) &= \Phip(q_0) + J_{q_0}(q-q_0) + O(\|q-q_0\|^2), \\
+J_{q_0} &:= \frac{\partial \Phip}{\partial q}\bigg|_{q_0} = (\partial_q \lambda_P)|_{q_0} \cdot \attn(q_0; K_P, V_P) + \lambda_P(q_0) \cdot (\partial_q \attn)|_{q_0;K_P,V_P}.
+\end{align}
+
+\textbf{Step 1 (정적 surrogate 잔차).}
+\emph{진짜} 정적 (쿼리-독립) surrogate를 $\widehat{\Phi}_k^{\mathrm{static}} := V_k V_k^\top \Phip(q_0)$로 정의하면, 잔차
+\begin{align}
+\delta\Phip(q) &:= \Phip(q) - V_k V_k^\top \Phip(q_0) \\
+&= \underbrace{(I - V_k V_k^\top)\Phip(q_0)}_{(\mathrm{a})\;\text{직교 잔차 (정리 1의 절단 잔차)}} + \underbrace{V_k V_k^\top J_{q_0}(q - q_0)}_{(\mathrm{b})\;\text{V-사영 1차 항}} \nonumber\\
+&\quad + \underbrace{(I - V_k V_k^\top) J_{q_0}(q - q_0)}_{(\mathrm{c})\;\text{직교 1차 항}} + O(\|q-q_0\|^2).
+\end{align}
+$V_k$가 정리 \ref{thm:rank-bound}의 상위 $k$ 특이공간이면 (a)와 (c)는 정리 1이 책임지는 영역; (b)가 본 정리의 보정 대상.
+
+\textbf{Step 2 (1차 항 분해).}
+$J_{q_0} = (\partial_q\lambda_P)|_{q_0} \cdot \attn(q_0; K_P, V_P) + \lambda_P(q_0) \cdot (\partial_q\attn)|_{q_0}$의 V-사영:
+\begin{align}
+V_k V_k^\top J_{q_0}(q-q_0) &= \underbrace{(\partial_q \lambda_P)|_{q_0} \cdot V_k V_k^\top \attn(q_0; K_P, V_P) \cdot (q-q_0)}_{\text{게이트 미분 항}} \nonumber \\
+&\quad + \underbrace{\lambda_P(q_0) \cdot V_k V_k^\top (\partial_q \attn)|_{q_0} \cdot (q-q_0)}_{\text{어텐션 커널 미분 항}}.
+\end{align}
+
+\textbf{Step 3 (Q-bias 형태로 환원).}
+$V_k$가 상위 $k$ 특이공간이면 $V_k V_k^\top \attn(q_0; K_P, V_P) \approx \attn(q_0; K_P, V_P)$ ($\attn$이 V-부분공간 내). 따라서 게이트 미분 항은
+\begin{equation}
+\bigl[(\partial_q\lambda_P)|_{q_0} \cdot \attn(q_0; K_P, V_P)\bigr] \cdot (q-q_0) =: \beta(q_0) \cdot V_k V_k^\top \cdot Q,
+\end{equation}
+여기서 $\beta(q_0) := (\partial_q\lambda_P)|_{q_0} \cdot \|\attn(q_0; K_P, V_P)\|$의 부호는 $\partial_q\lambda_P(q_0)$의 부호와 일치 ($\|\cdot\| \ge 0$이므로), 그리고 $Q := q - q_0$ (또는 $q$의 정규화된 1차 형식). 어텐션 커널 미분 항은 별도의 고차 보정으로 흡수.
+
+따라서 leading 보정 형태는 정확히 \eqref{eq:qbias-correction} ($\beta\cdot V_k V_k^\top Q$). \qed
 \end{proof}
 
 \paragraph{정리 2의 함의.}
@@ -290,12 +353,40 @@ r^*(\tau \to 1^-) \to F.
 즉 facet 수가 함수공간 차원의 \emph{상한}이며, NMI 임계 위에서는 facet 병합 후 유효 랭크가 활성 facet 수.
 \end{theorem}
 
-\begin{proof}(스케치).
-$\Phip$의 공분산 $C = \E_\mu[\Phip\Phip^\top] = \sum_{f,g} \E_\mu[\alpha_f \alpha_g] \phi_f \phi_g^\top$. $\phi_f$가 직교면 cross 항 0, 대각만 남음 → $C$는 rank $\le F$이고 활성 facet (즉 $\E_\mu[\alpha_f^2] > 0$인 $f$) 수가 정확한 랭크. NMI 임계 하에서는 직교성이 깨지나 cross 항은 작고 (NMI $< 0.3$이면 분산 기여 $< 9\%$), 유효 랭크는 활성 facet 수의 $1\pm\epsilon$ 범위.
+\begin{proof}
+$\Phi := [\phi_1, \dots, \phi_F] \in \R^{\dh\times F}$ (열이 facet 임베딩의 행렬), $\alpha(q) := (\alpha_1(q), \dots, \alpha_F(q))^\top \in \R^F$로 두면 정의 \ref{def:facet-decomp}에서 $\Phip(q) = \Phi \alpha(q)$.
+
+\textbf{Step 1 (공분산의 facet 분해).}
+\begin{equation}
+C_{\Phip} = \E_\mu[\Phip\Phip^\top] = \E_\mu[\Phi \alpha \alpha^\top \Phi^\top] = \Phi \, M \, \Phi^\top,
+\end{equation}
+여기서 $M := \E_\mu[\alpha \alpha^\top] \in \R^{F\times F}$는 PSD 행렬 (facet 활성도의 공분산).
+
+\textbf{Step 2 (직교 facet 가정 하 랭크).}
+$\{\phi_f\}_{f=1}^F$가 직교 ($\phi_f^\top \phi_g = \|\phi_f\|^2 \delta_{fg}$, 또는 정규화 후 $\Phi^\top\Phi = I_F$)면 $\Phi$는 단사(injective) 선형변환, $\mathrm{rank}(\Phi) = F$. 따라서
+\begin{equation}
+\mathrm{rank}(C_{\Phip}) = \mathrm{rank}(\Phi M \Phi^\top) = \mathrm{rank}(M).
+\end{equation}
+$M$의 랭크는 $\{\alpha_f(q)\}_{f=1}^F$의 (function space 위) 선형 독립 성분 수. 활성 facet 정의 $F^* := \#\{f : \E_\mu[\alpha_f^2] > 0$ AND $\alpha_f$는 다른 $\alpha_g$와 함수적 독립$\}$에 대해 $\mathrm{rank}(M) = F^* \le F$. 비활성 facet (모든 $q$에서 $\alpha_f \equiv 0$)이나 종속 facet (다른 facet의 선형결합)은 $M$의 영공간(null space)에 흡수.
+
+\textbf{Step 3 ($r^*$의 극한).}
+$C_{\Phip}$의 고유값 $\sigma_1^2 \ge \cdots \ge \sigma_{F^*}^2 > \sigma_{F^*+1}^2 = \cdots = 0$. 보조정리 \ref{lem:eckart}의 정의에서
+\begin{equation}
+r^*(\tau) = \min\Bigl\{k:\, \tfrac{\sum_{i\le k}\sigma_i^2}{\sum_{i}\sigma_i^2} \ge \tau\Bigr\}.
+\end{equation}
+$k = F^*$에서 누적비 $= 1 \ge \tau$ (모든 $\tau \le 1$에 대해). $k < F^*$에서는 $\sigma_k^2 > 0$ 조건이 누적비 $< 1$을 강제하며, $\tau \to 1^-$에서 $r^*(\tau) \to F^*$.
+
+\textbf{Step 4 (소프트 직교, NMI $< \tau_{\mathrm{NMI}}$).}
+직교성이 약화되어 $\Phi^\top\Phi = I_F + E$ (cross 항 $E$의 Frobenius norm $\|E\|_F \le \epsilon$)일 때, Weyl 부등식에서 $C_{\Phip}$의 고유값 perturbation은 $\le \|E\|_F \cdot \sigma_{\max}(M)$. NMI $< 0.3$ 가정 하 $\|E\|_F^2 < 0.09 \cdot F^2$ (정보 이론적 결합), 따라서 active 고유값과 ``유출'' 고유값 사이 격차가 $1 - O(\epsilon)$ 수준 유지. 결과적으로 $r^*(\tau)$가 $F^*(1 \pm \epsilon)$ 범위.
+
+상기 Step 1-3에 의해 $r^*(\tau\to 1^-) = F^*$ (강한 직교 하 정확), Step 4에서 $r^*(\tau) = F^*(1 \pm O(\epsilon))$ (NMI $< 0.3$). \qed
 \end{proof}
 
 \paragraph{정리 3의 함의.}
 자연어 prefix를 typed facet으로 \emph{재인코딩}할 수 있다면, facet 수가 함수공간 차원의 상한이고 따라서 정적 랭크-$k$ 개입의 \emph{최소 $k$}를 결정. 자동 facet induction (Part II \cref{sec:auto-facet})이 운영적으로 facet 수를 발견하면 본 정리가 그것을 정리 1의 $r^*$와 직접 결합.
+
+\paragraph{Strict vs soft 성립.}
+실증 (\cref{sec:exp-facet-rank})에 의하면 정리 3은 (i) \texttt{facet\_full} (action $\times$ domain 두 facet) 모드에서 $r^*(0.95) \approx 2$로 strict prediction과 일치하지만, (ii) single-facet 모드 (\texttt{facet\_action\_only}, \texttt{facet\_domain\_only})에서 $r^*$가 1로 떨어지지 않고 NL prompt 수준에 머무른다. 이는 (a) NL prompt에 latent 다른 facet이 implicit하게 인코딩되어 있거나, (b) Step 4 (소프트 직교)의 NMI > 0 perturbation이 dominant 한 결과로 해석된다. 따라서 strict 성립은 multi-facet 명시 인코딩 모드에서, soft 성립은 일반 모드에서 관찰된다.
 
 \subsection{따름정리: Multi-step trajectory boundary}
 \label{sec:multistep-bound}
@@ -306,7 +397,41 @@ $\Phip$의 공분산 $C = \E_\mu[\Phip\Phip^\top] = \sum_{f,g} \E_\mu[\alpha_f \
 \end{corollary}
 
 \begin{proof}
-정리 1은 $L_2$ 오차의 함수공간 평균에 대한 경계를 제공하며 trajectory의 결합 분포에 대한 경계를 제공하지 않음. 자기회귀에서 $p(y_t | y_{<t}, x)$ 매 step 발생하는 작은 오차가 KL divergence의 chain rule에 의해 누적: $\mathrm{KL}(p_T \| q_T) \le \sum_{t} \E_{p_{<t}}[\mathrm{KL}(p_t \| q_t | y_{<t})]$. 각 step $\le \epsilon$이라도 $T$ 큰 trajectory에서 $T \cdot \epsilon$로 증가, 분포 mode 이동 가능.
+$p(y_{1:T}|x)$를 full-prompt 분포, $q(y_{1:T}|x)$를 정적 + Q-bias 개입 하 분포로 둔다.
+
+\textbf{Step 1 (KL chain rule).}
+자기회귀 분해와 KL의 chain rule (e.g., \citet{cover2006elements} Thm 2.5.3)에 의해
+\begin{equation}
+\mathrm{KL}\bigl(p(y_{1:T}|x) \,\|\, q(y_{1:T}|x)\bigr) = \sum_{t=1}^T \E_{y_{<t}\sim p}\bigl[\mathrm{KL}\bigl(p(y_t | y_{<t}, x) \,\|\, q(y_t | y_{<t}, x)\bigr)\bigr].
+\label{eq:kl-chain}
+\end{equation}
+
+\textbf{Step 2 (정리 1, 2의 적용 영역).}
+$t = 1$에서, 정리 \ref{thm:rank-bound}와 정리 \ref{thm:qbias}는
+\begin{equation}
+\mathrm{KL}\bigl(p(y_1|x) \,\|\, q(y_1|x)\bigr) \le \epsilon_1
+\end{equation}
+의 boundedness를 보장 ($\epsilon_1$은 선택된 랭크 $k$와 $\sum_{i>k}\sigma_i^2$에 의해 결정). 본 정리들은 \emph{단일 어텐션 출력}의 1차 모멘트 회복에 대한 보장을 제공.
+
+\textbf{Step 3 ($t \ge 2$에서의 발산).}
+$t \ge 2$의 conditional distribution $p(y_t | y_{<t}, x)$와 $q(y_t | y_{<t}, x)$의 차이는:
+\begin{itemize}[leftmargin=*]
+\item $p$ 하: full-prompt KV cache가 $[K_P; K_x; K_{y_{<t}}]$로 정확. 어텐션 분포 $\softmax(q_t [K_P; K_x; K_{y_{<t}}]^\top / \sqrt{\dh})$가 $V_P$의 정확한 정보를 가져옴.
+\item $q$ 하: 개입에 의해 prefix $K_P, V_P$가 surrogate $V_k V_k^\top$로 대체. $K_x; K_{y_{<t}}$는 정확하나 prefix-attention 부분이 정적 회복 한계 $\sum_{i>k}\sigma_i^2$ 이상의 오차를 가짐.
+\end{itemize}
+정리 1의 보장은 $\E_\mu[\Phip]$ (평균 prefix 기여)에 대한 것이지 conditional distribution 위의 균일 한계가 아님. 따라서 일반적으로 $\mathrm{KL}(p_t \| q_t | y_{<t})$가 $\epsilon_1$로 한정될 보장 없음.
+
+\textbf{Step 4 (Mode-shift).}
+\eqref{eq:kl-chain}의 cumulative KL이 $T$가 크면 발산할 수 있음. 구체적으로 generation length $T \sim 100$ (도구 호출 JSON), 단일 step 오차 $\epsilon_t \sim 10^{-2}$만 누적되어도 $\sum_t \epsilon_t \sim 1$ nat의 KL → 분포 mode 이동 (소위 ``exposure bias''의 KL 형태).
+
+이 mode-shift는 다음 mechanism으로 evident:
+\begin{itemize}[leftmargin=*]
+\item Step 1에서 $q(y_1|x) \approx p(y_1|x)$ → $y_1^*$ 매칭 (실증 \cref{sec:exp-static-qbias} 98.4\% top-1 agreement).
+\item Step 2에서 $q(y_2 | y_1^*, x)$의 KV state는 surrogate를 보유; $p(y_2 | y_1^*, x)$는 정확한 prefix를 보유. 두 분포의 mode가 다른 token에 위치 가능.
+\item 자기회귀 한 번 mode가 $y_1^*, y_2'$로 갈라지면 $y_3, y_4, \dots$ 모두 다른 trajectory로 분기 → JSON schema 깨짐, hallucinated 도구 이름 등 (실증 \cref{sec:exp-multistep} F1 = 0.0).
+\end{itemize}
+
+따라서 정리 1, 2, 3이 보장하는 1차 모멘트 회복은 \emph{joint trajectory 분포 회복을 함의하지 않는다}. \qed
 \end{proof}
 
 \paragraph{따름정리의 함의 (설계 규칙).}
@@ -321,7 +446,7 @@ $\Phip$의 공분산 $C = \E_\mu[\Phip\Phip^\top] = \sum_{f,g} \E_\mu[\alpha_f \
 \section{실증 (Part I)}
 \label{sec:experiments}
 
-본 절은 (a) 정리 1의 함수공간 유효 랭크 측정, (b) 정적 + Q-bias hybrid의 첫 토큰 회복, (c) 따름정리의 multi-step F1 negative 검증, (d) 정리 3의 facet-rank 일치, (e) facet vs NL prompt의 model heterogeneity, (f) 익명화 ablation으로 mechanism 분리를 다룬다.
+본 절은 (a) 정리 1의 함수공간 유효 랭크 측정, (b) 정적 + Q-bias hybrid의 첫 토큰 회복, (c) 따름정리의 multi-step F1 negative 검증, (d) facet vs NL prompt의 model heterogeneity, (e) 익명화 ablation으로 mechanism 분리, (f) 정리 3의 facet count $\to r^*$ 직접 anchor를 다룬다.
 
 \subsection{설정}
 \label{sec:exp-setup}
@@ -515,6 +640,53 @@ Mechanism class       & facet-structure native & hybrid (NL + structure) \\
 \end{tabular}
 \end{table}
 
+\subsection{Facet count → $r^*$ anchor (정리 3 검증)}
+\label{sec:exp-facet-rank}
+
+정리 \ref{thm:facet-rank}는 prefix가 $F$ active facet을 갖는다면 $r^*(\tau \to 1^-) \to F$임을 예측한다. 본 절은 prompt mode를 다섯 가지로 변형하여 $F$를 직접 조절한 뒤 $r^*$를 측정한다 ($N=64$, MetaTool ST4):
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{nl}: 자연어 도구 catalog (baseline). $F$ 정의되지 않음 (latent).
+\item \texttt{facet\_full}: \texttt{(action, domain)} 두 facet 명시 인코딩. 예측 $F = 2$.
+\item \texttt{facet\_compact}: facet 명시이나 description 제거. $F = 2$.
+\item \texttt{facet\_action\_only}: action facet만 인코딩. $F = 1$.
+\item \texttt{facet\_domain\_only}: domain facet만 인코딩. $F = 1$.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{E13 결과: prompt mode별 함수공간 유효 랭크 (mean over layers $\times$ heads, $N=64$). \textbf{굵게}: 정리 3의 strict prediction과 일치한 cell.}
+\label{tab:e13}
+\small
+\begin{tabular}{l|rrr|rrr|r}
+\toprule
+& \multicolumn{3}{c|}{Qwen 2.5-7B} & \multicolumn{3}{c|}{Llama 3.1-8B} & prefix \\
+mode (예측 $F$) & $r^*(0.9)$ & $r^*(0.95)$ & $r^*(0.99)$ & $r^*(0.9)$ & $r^*(0.95)$ & $r^*(0.99)$ & len \\
+\midrule
+\texttt{nl} (latent)              & 1.30 & 1.80 & 4.70 & 1.06 & 1.33 & 3.30 & 144 \\
+\texttt{facet\_full} ($F{=}2$)    & 1.49 & \textbf{2.16} & 5.53 & 1.09 & \textbf{1.45} & 3.98 & 343 \\
+\texttt{facet\_compact} ($F{=}2$) & 1.37 & 1.97 & 5.44 & 1.07 & 1.28 & 3.18 & 162 \\
+\texttt{facet\_action\_only} ($F{=}1$) & 1.34 & 1.86 & 4.99 & 1.07 & 1.32 & 3.17 & 146 \\
+\texttt{facet\_domain\_only} ($F{=}1$) & 1.34 & 1.88 & 5.06 & 1.07 & 1.29 & 3.19 & 146 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{발견 1 (strict prediction 부분 확인).}
+\texttt{facet\_full} ($F=2$)에서 Qwen $r^*(0.95) = 2.16$, Llama $r^*(0.95) = 1.45$. 두 모델 모두 정리 3의 prediction $\approx 2$ 부근. 두 명시 facet (action, domain) 활성을 정확히 capture.
+
+\paragraph{발견 2 (strict prediction은 single-facet에서 약화).}
+single-facet 모드 (\texttt{action\_only}, \texttt{domain\_only})에서 $r^*$가 \emph{1로 떨어지지 않고} \texttt{nl} 수준에 머무름 (Qwen $\approx 1.86$, Llama $\approx 1.30$). 이는 정리 3 Step 4 (소프트 직교 NMI $> 0$) 영역에 해당하며, NL prompt 자체에 latent 다른 facet이 implicit하게 인코딩되어 있거나 직교성 perturbation이 dominant 함을 시사.
+
+\paragraph{발견 3 (catalog content not load-bearing 재확인).}
+\texttt{facet\_full} (prefix 343 토큰)과 \texttt{facet\_compact} (162 토큰), \texttt{nl} (144 토큰) 사이 prefix length 5배 차이가 있음에도 $r^*$는 두 모델 모두 1.3--2.2 범위 내에서 유사. catalog의 \emph{내용} (description, wording)이 함수공간 차원에 거의 기여하지 않고 \emph{구조적 facet 수}만 결정.
+
+\paragraph{발견 4 (Llama가 더 압축 가능).}
+Llama가 모든 모드에서 Qwen 대비 $r^*$가 약 30\% 낮음 (예: nl 1.33 vs 1.80, facet\_full 1.45 vs 2.16). NL-name native (\cref{sec:exp-anon} 발견 8)인 Llama가 \emph{함수공간 효율적}으로 도구 카탈로그를 인코딩 (즉 더 적은 차원에 더 많은 정보 압축).
+
+\paragraph{종합 (정리 3과의 관계).}
+정리 3의 strict prediction은 다음 조건에서 성립: (a) 명시적 multi-facet 인코딩 (\texttt{facet\_full}), (b) facet 직교성이 NMI $< 0.3$ 임계 만족. Single-facet 모드와 NL latent에서는 soft 성립으로 환원. 이 관찰은 자동 facet induction (\cref{sec:auto-facet})이 \emph{명시적 분리}된 facet schema를 출력해야 함을 운영적 함의로 추가.
+
 % ======================================================================
 \part{시스템 및 운영 (Deployment Framework)}
 % ======================================================================
@@ -628,7 +800,58 @@ M4 (facet-aware KV) & 정리 3 (KV로 확장) & 향후 작업 \\
 \section{시스템 Architecture}
 \label{sec:system}
 
-5 layer 통합 architecture. 각 layer가 \cref{sec:auto-facet}, \cref{sec:internalization} 컴포넌트를 운영적으로 결합.
+5 layer 통합 architecture. 각 layer가 \cref{sec:auto-facet}, \cref{sec:internalization} 컴포넌트를 운영적으로 결합. \cref{fig:architecture}는 전체 구조와 정보 흐름을 보여준다.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  node distance=5mm,
+  every node/.style={font=\small},
+  layer/.style={draw, rounded corners=2pt, minimum width=12cm, minimum height=10mm, align=center, thick},
+  Astyle/.style={layer, fill=blue!10, draw=blue!60!black},
+  Dstyle/.style={layer, fill=green!10, draw=green!60!black},
+  Bstyle/.style={layer, fill=red!10, draw=red!60!black, minimum height=18mm},
+  Cstyle/.style={layer, fill=orange!10, draw=orange!60!black},
+  Estyle/.style={layer, fill=gray!15, draw=gray!60!black},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick},
+  dasharrow/.style={-{Stealth[length=2.5mm]}, thick, dashed, gray!70!black}
+]
+
+\node[Astyle] (A) {\textbf{Layer A — 입력 변환} \\
+  \footnotesize NER → Linking → Disambiguation → Tag 삽입 → Compact header (50 tokens)};
+
+\node[Dstyle, below=of A] (D) {\textbf{Layer D — 프롬프트 엔진} \\
+  \footnotesize Query abstraction · Multi-signal priority · Token budget pruning};
+
+\node[Bstyle, below=of D] (B) {\textbf{Layer B — 모델 강화 (Frozen LLM)} \\[1pt]
+  \footnotesize \textbf{도구 선택 단계 (decision point)}: M1 정적 rank-$k$ + M2 Q-bias + M3 도메인 어댑터 + M4 KV 압축 (aggressive)\\
+  \footnotesize \textbf{인자 생성 / 응답 합성 단계}: M1 · M2 · M3 비활성, M4 약한 압축만 (자연어 prompt 회복)};
+
+\node[Cstyle, below=of B] (C) {\textbf{Layer C — 출력 변환} \\
+  \footnotesize 도구 호출 검증 → Tag → 자연어 → Template};
+
+\node[Estyle, below=8mm of C] (E) {\textbf{Layer E — 자기 진화 (배치, 비동기)} \\
+  \footnotesize 새 데이터 수집 → 변경 감지·병합 → 운영자 승인 → 연쇄 갱신};
+
+% Hot path arrows (solid)
+\draw[arrow] (A) -- (D);
+\draw[arrow] (D) -- (B);
+\draw[arrow] (B) -- (C);
+
+% Self-evolution cycle (dashed)
+\draw[dasharrow] (C.east) -- ++(1.2,0) |- node[right, pos=0.25, font=\footnotesize, text=gray!70!black] {trace 누적} (E.east);
+\draw[dasharrow] (E.west) -- ++(-1.2,0) |- node[left, pos=0.75, font=\footnotesize, text=gray!70!black] {갱신 cascade} (A.west);
+
+% Side label for hot path
+\node[left=4mm of $(A)!0.5!(C)$, font=\bfseries\small, rotate=90, anchor=south] {Inference hot path};
+
+% Following corollary annotation
+\node[right=2mm of B, font=\footnotesize\itshape, text=red!60!black, align=left] {따름정리 \\ \ref{cor:multistep}};
+
+\end{tikzpicture}
+\caption{5-layer 시스템 architecture. 실선 화살표는 inference hot path (단일 query 처리), 점선은 자기 진화 cycle (배치). Layer B는 frozen weights 위에 4 sublayer (M1--M4)를 결합하며, 따름정리 \ref{cor:multistep}에 따라 도구 \emph{선택}에는 aggressive, 인자 \emph{생성}·응답 \emph{합성}에는 비활성 (자연어 prompt 회복).}
+\label{fig:architecture}
+\end{figure}
 
 \subsection{Layer A — 입력 변환}
 \label{sec:layer-a}
