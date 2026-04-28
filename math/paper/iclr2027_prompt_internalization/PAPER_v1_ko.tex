@@ -58,7 +58,7 @@
 \author{
   익명 저자\\
   ICLR 2026 제출 후보\\
-  내부 코워크용 한국어 작업본 (v1, 2026-04-29)
+  내부 코워크용 한국어 작업본 (v1.2, 2026-04-29: concurrent-work 정합화)
 }
 
 \date{\today}
@@ -123,8 +123,11 @@
 \paragraph{프롬프트 압축과 증류.}
 LLMLingua \citep{jiang2023llmlingua}, GIST tokens \citep{mu2023gist}, 500xCompressor \citep{li2024compressor}는 학습된 압축기를 통해 prompt를 짧은 토큰 시퀀스로 압축한다. 본 연구는 세 가지 면에서 다르다: (a) frozen LLM, 압축기 학습 없음; (b) 개입이 입력 토큰이 아닌 어텐션 출력(post-softmax)에 직접 적용; (c) 달성 가능한 근사에 대한 명시적 이론 경계.
 
+\paragraph{프롬프트 내재화 (concurrent work).}
+\citet{shin2025genpi}는 NAACL 2025에서 본 논문과 동일한 \emph{prompt internalization} 용어를 도입하나, prefix를 모델 weight 자체에 흡수시키는 \emph{미세조정 기반} 접근을 취한다 --- generation-time에 prompt 내용까지 reproduce하도록 학습. 본 연구는 (a) 정지된 (frozen) LLM, weight 갱신 없음, (b) 어텐션 출력 단 정적 저랭크 개입, (c) 가산-가능한 surrogate에 대한 정량적 \emph{근사 경계} (\cref{sec:thm1})를 제공한다는 점에서 보완적이다. 두 접근은 \emph{무엇이} 내재화되는지 (Shin: end-to-end weight 변경, 본 연구: rank-bounded 어텐션 통계)에 따라 분리된 분야를 다룬다.
+
 \paragraph{활성화 및 어텐션 스티어링.}
-CAA \citep{rimsky2024caa}와 ITI \citep{li2023iti}는 잔차-흐름 site에 contrastive 활성화 차이를 주입하여 행동 제어. RepE \citep{zou2023repe}는 선형 probe로 일반화. PASTA \citep{zhang2023pasta}는 지정된 토큰 위치에서 어텐션 가중치를 수정. ASA, Focus Directions \citep{zhu2025focus}는 어텐션 재유도를 위한 K 캐시 개입. SEKA \citep{lee2025seka}와 AdaSEKA는 CounterFact 위 사실-편집을 위한 카탈로그-유래 방향을 구성한다. 이들 어느 작품도 \emph{prompt 대체}를 측정 가능한 근사 경계와 함께 framing하지 않았다. 정리 1은 그들을 통합한다 --- 각 방법은 He-분해 패밀리 내에서 (랭크, 계층 집합, 개입 site)의 특정 선택에 대응하며, 그들의 이득은 task 위에서 달성 가능한 랭크에 의해 경계된다.
+CAA \citep{rimsky2024caa}와 ITI \citep{li2023iti}는 잔차-흐름 site에 contrastive 활성화 차이를 주입하여 행동 제어. RepE \citep{zou2023repe}는 선형 probe로 일반화. PASTA \citep{zhang2023pasta}는 지정된 토큰 위치에서 어텐션 가중치를 수정. ASA, Focus Directions \citep{zhu2025focus}는 어텐션 재유도를 위한 K 캐시 개입. SEKA \citep{lee2025seka}와 AdaSEKA는 CounterFact 위 사실-편집을 위한 카탈로그-유래 방향을 구성한다. 가장 가까운 동시 연구로 \citet{belitsky2025kvsteer}는 \emph{KV cache 일회성 개입}을 frozen LLM에 적용하여 reasoning 스타일 (stepwise/causal/analogical) 전환을 시연한다. architectural surface는 본 연구와 일치하지만 (a) 이론 보장이 부재하고 rank-bounded 분석이 없으며, (b) 평가 task가 GPQA/MATH의 reasoning 스타일이고 \emph{도구-선택 F1} 또는 \emph{multi-step generation trajectory}는 측정하지 않으며, (c) first-token next-token agreement와 multi-step F1 사이의 격차 (\cref{sec:results-multistep}의 본 연구 negative 결과)에 대한 분리된 보고가 없다는 점에서 보완적이다 --- 그들의 positive 시연은 본 연구의 정리 1·2의 \emph{1차 모멘트} 적용 영역에 해당하며, 본 연구는 그 영역의 \emph{경계}를 제공한다. 이들 어느 작품도 \emph{prompt 대체}를 측정 가능한 근사 경계와 함께 framing하지 않았다. 정리 1은 그들을 통합한다 --- 각 방법은 He-분해 패밀리 내에서 (랭크, 계층 집합, 개입 site)의 특정 선택에 대응하며, 그들의 이득은 task 위에서 달성 가능한 랭크에 의해 경계된다.
 
 \paragraph{자매 작업.} 별도 제출인 \emph{two-level argmax-subspace selectivity} 논문은 동일한 MetaTool / $\tau^2$-bench 하니스 위에서 K-bias의 \emph{어텐션-기하} 응답을 연구한다. 그 작업은 무작위 null perturbation 하 어텐션 shift와 argmax 안정성 사이의 격차를 특성화한다. 본 논문은 \emph{전체 프롬프트} 어텐션 출력과 \emph{개입-회복} 어텐션 출력 사이의 격차를 특성화한다. 두 논문은 인프라와 $B_{\mathrm{ont}}$ K-부분공간 파이프라인을 공유하지만 논리적으로 분리된 청구를 다룬다.
 
@@ -638,6 +641,16 @@ E7의 negative result (\cref{sec:results-multistep})는 본 framework의 가장 
 E. Akyürek, D. Schuurmans, J. Andreas, T. Ma, D. Zhou.
 ``What learning algorithm is in-context learning? Investigations with linear models.''
 \emph{ICLR}, 2023.
+
+\bibitem[Belitsky et al.(2025)]{belitsky2025kvsteer}
+M. Belitsky, D. J. Kopiczko, M. Dorkenwald, M. J. Mirza, J. R. Glass, C. G. M. Snoek, Y. M. Asano.
+``Cache steering: A lightweight one-shot intervention on the KV cache for controlling frozen LLMs.''
+\emph{Preprint, arXiv:2507.08799}, 2025.
+
+\bibitem[Shin et al.(2025)]{shin2025genpi}
+H. Shin, L. Ji, Y. Gong, S. Kim, E. Choi, M. Seo.
+``Generative Prompt Internalization (GenPI): Replicating prompted behavior and generating the prompt content.''
+\emph{NAACL}, 2025.
 
 \bibitem[Ahn et al.(2023)]{ahn2023preconditioned}
 K. Ahn, X. Cheng, H. Daneshmand, S. Sra.
