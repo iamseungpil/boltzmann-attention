@@ -78,7 +78,10 @@
 
 또한 (\textbf{정리 2, 1차 보정으로서의 Q-bias})로, 정적 랭크 $k$ 절단 너머의 leading 보정항이 \emph{쿼리 의존} 항이며, prefix-attention 게이트 $\lambda_P(q)$의 국소 미분에 의해 결정되는 부호까지 동치인 $\beta\cdot V_k V_k^\top Q$ 형태의 Q-bias 스티어링과 일치함을 증명한다. 이는 선행 스티어링 실험에서 현상적으로만 관측된 ``regime-dependent sign flip''에 대한 메커니즘을 제공한다.
 
-실증적으로, 우리는 Qwen2.5-7B-Instruct와 Llama-3.1-8B-Instruct 위에서 MetaTool Subtask 4와 세 개의 $\tau^2$-bench 도메인에 걸쳐 $\Phip^{(\ell,h)}$의 유효 랭크 $r^*(\tau)$를 측정한다. 모든 8개 (모델, task) 셀에서 $r^*(\tau{=}0.95)$ 평균은 2.25 이하였다. \emph{프롬프트를 완전히 제거}하고 정적 랭크 1 개입과 Q-bias($\beta{=}{+}4.0$)을 결합한 hybrid 개입은 Qwen에서 \textbf{전체 프롬프트 대비 다음-토큰 top-1 일치 98.4\%}를 달성한다 (베이스라인 0\% 대비). Llama는 분포 형상은 부분적으로 회복하나 argmax 일치는 낮게 유지되며, 모델별 한계로 보고한다.
+실증적으로, 우리는 Qwen2.5-7B-Instruct와 Llama-3.1-8B-Instruct 위에서 MetaTool Subtask 4와 세 개의 $\tau^2$-bench 도메인에 걸쳐 $\Phip^{(\ell,h)}$의 유효 랭크 $r^*(\tau)$를 측정한다. 모든 8개 (모델, task) 셀에서 $r^*(\tau{=}0.95)$ 평균은 2.25 이하였다. \emph{프롬프트를 완전히 제거}하고 정적 랭크 1 개입과 Q-bias($\beta{=}{+}4.0$)을 결합한 hybrid 개입은 Qwen에서 \emph{쿼리 직후 첫 generated token 위치에서} \textbf{전체 프롬프트 대비 다음-토큰 top-1 일치 98.4\%}를 달성한다 (베이스라인 0\% 대비). Llama는 분포 형상은 부분적으로 회복하나 argmax 일치는 낮게 유지되며, 모델별 한계로 보고한다.
+
+\paragraph{Negative result on autoregressive generation.}
+그러나 본 first-token 회복은 \emph{multi-step 자기회귀 generation}으로 \emph{이전되지 않는다}. MetaTool Subtask 4 위 두 모델 multi-tool 호출 평가에서 (N=64, JSON tool-call 채점), 정적 rank-1과 정적+Q-bias hybrid 모두 \textbf{F1 = 0.000}을 기록했다 (full prompt 베이스라인: Qwen 0.7495, Llama 0.8745). 분포의 \emph{1차 통계} (mean attention output) 회복이 \emph{trajectory}의 회복을 함의하지 않는다는 결과로, 정리 1·2의 정확한 적용 범위를 한정한다. 자세한 분석과 함의는 \cref{sec:results-multistep}, \cref{sec:trajectory-vs-firstmoment}.
 \end{abstract}
 
 \section{서론}
@@ -103,8 +106,9 @@
 \item (이론, \cref{sec:theory}) 정적 절단 너머의 leading 보정이 쿼리-의존 1차 Taylor 항이며 부호까지 표준 Q-bias 스티어링 $\beta\cdot M\cdot q$와 일치함을 보이는 \textbf{정리 2 (1차 보정으로서의 Q-bias)}.
 \item (실증, \cref{sec:experiments}) Qwen2.5-7B 와 Llama-3.1-8B 두 모델 패밀리, MetaTool ST4 와 $\tau^2$-bench 세 도메인 등 8개 (모델, task) 셀에서 $r^*(\tau)$를 측정하고 모두 2.25 이하임을 보인다.
 \item (실증, \cref{sec:results-static}) 무작위 prefix, 무작위 query, 셔플된 prefix 세 가지 sanity control이 모두 정리 1의 측정 의미를 확인한다.
-\item (실증, \cref{sec:results-hybrid}) Qwen 위에서, 정적 rank-1 + Q-bias($\beta{=}{+}4.0$) 결합 개입이 \emph{프롬프트 없이} 전체 프롬프트 대비 \textbf{98.4\% top-1 next-token agreement}를 달성함을 보이며, 정리 2를 직접 검증한다.
+\item (실증, \cref{sec:results-hybrid}) Qwen 위에서, 정적 rank-1 + Q-bias($\beta{=}{+}4.0$) 결합 개입이 \emph{프롬프트 없이} 전체 프롬프트 대비 \emph{첫 generated token 위치에서} \textbf{98.4\% top-1 next-token agreement}를 달성함을 보이며, 정리 2의 \emph{1차 통계 수준} 검증을 제공한다.
 \item (실증, \cref{sec:results-hybrid}) 이 패턴이 Llama-3.1-8B에서는 분포 회복(KL $8.05\to 3.06$)은 있지만 argmax 회복(top-1 $\leq 10\%$)은 결여됨을 보고하며, 모델별 한계로 정직하게 표시한다.
+\item (실증·negative, \cref{sec:results-multistep}) 동일 hybrid 개입을 \emph{multi-step 자기회귀 generation}로 lift할 때 두 모델 모두 \textbf{도구-호출 F1 = 0.000} (full prompt 0.75/0.87 대비)을 기록함을 보고한다. first-token next-token agreement가 trajectory로 이전되지 않는다는 결정적 negative result로, 정리 1·2의 \emph{정확한 적용 범위}를 한정한다 (분포 1차 모멘트 vs autoregressive 결합 분포).
 \end{itemize}
 
 \section{관련 연구}
@@ -319,8 +323,9 @@ Qwen2.5-7B-Instruct (28 계층, 28 query 헤드, 4 KV 헤드, 헤드 차원 128,
 \begin{itemize}[leftmargin=*]
 \item \textbf{유효 랭크} $r^*(\tau)$ for $\tau \in \{0.90, 0.95, 0.99\}$.
 \item \textbf{KL 발산} $\mathrm{KL}(p_{\mathrm{full}} \,\|\, p_{\mathrm{intervention}})$ at last query position.
-\item \textbf{Top-1 일치율}: $\mathbb{1}[\arg\max p_{\mathrm{full}} = \arg\max p_{\mathrm{intervention}}]$.
+\item \textbf{Top-1 일치율} (\emph{first-token only}): $\mathbb{1}[\arg\max p_{\mathrm{full}} = \arg\max p_{\mathrm{intervention}}]$, 쿼리 직후 \emph{첫 generated token} 위치에서 평가.
 \item \textbf{Logit 잔차}: $\E_q[\|\mathrm{logits}_{\mathrm{full}} - \mathrm{logits}_{\mathrm{intervention}}\|_1 / V]$.
+\item \textbf{Multi-step F1} (\cref{sec:results-multistep}): JSON tool-call greedy generation 후 GT tool set과의 F1 / exact match / precision / recall. 본 지표는 \emph{trajectory 수준}으로 위 first-token 지표들과 구별된다.
 \end{itemize}
 
 \section{결과}
@@ -485,16 +490,59 @@ Qwen은 정확히 정리 \ref{thm:qbias} 예측 패턴을 따른다:
 \paragraph{Llama 모델 이질성.}
 Llama는 $k_Q{=}8$로는 둔감하나, $k_Q{=}16$ + 더 넓은 $\beta$로 분포 회복 (KL $8.05 \to 3.06$ at $\beta{=}{-}2.0$)을 보인다. 그러나 top-1 회복은 여전히 낮다 ($\le 10.2\%$). \emph{대칭적} $\beta$ 응답 (양 부호 모두 도움)이 Qwen과 다른 점이며, 본 정적 + Q-bias 개입의 한계를 시사한다.
 
+\subsection{E7: Multi-step generation F1 (decisive negative)}
+\label{sec:results-multistep}
+
+\cref{sec:results-hybrid}의 결과는 모두 \emph{쿼리 직후 첫 토큰 위치}에서의 next-token 분포 매칭이다. \emph{실용적} prompt internalization은 multi-step generation을 통해 도구-호출 텍스트를 생성하고 그것이 GT tool-call set과 일치하는지로 측정된다. 본 절은 그 검증을 보고한다.
+
+\paragraph{설정.}
+MetaTool Subtask 4의 두 도구 GT를 가진 쿼리 $N=64$. 4 mode를 비교: \texttt{full} (시스템 prompt + 쿼리), \texttt{noprompt} (쿼리만), \texttt{static} (정적 rank-1 주입), \texttt{hybrid} (정적 rank-1 + Q-bias $\beta{=}{+}4.0$, $k_Q{=}8$). 각 mode에서 greedy generation으로 최대 256 새 토큰 생성, JSON tool-call 파싱 후 GT와 비교. F1, exact match, precision, recall 보고.
+
+\begin{table}[h]
+\centering
+\caption{E7 multi-step generation F1 (MetaTool ST4, $N{=}64$). \emph{모든} static / hybrid 지표가 0이며 next-token agreement (\cref{tab:qbias-qwen})는 trajectory로 이전되지 않는다.}
+\label{tab:e7-multistep}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+모델 & 지표 & full & noprompt & static & hybrid \\
+\midrule
+Qwen2.5-7B   & F1            & 0.7495 & 0.0000 & \textbf{0.0000} & \textbf{0.0000} \\
+             & exact         & 0.4688 & 0.0000 & 0.0000 & 0.0000 \\
+             & precision     & 0.8620 & 0.0000 & 0.0000 & 0.0000 \\
+             & recall        & 0.6953 & 0.0000 & 0.0000 & 0.0000 \\
+\midrule
+Llama-3.1-8B & F1            & 0.8745 & 0.0000 & \textbf{0.0000} & \textbf{0.0000} \\
+             & exact         & 0.6562 & 0.0000 & 0.0000 & 0.0000 \\
+             & precision     & 0.9557 & 0.0000 & 0.0000 & 0.0000 \\
+             & recall        & 0.8359 & 0.0000 & 0.0000 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{발견 1: first-token agreement는 trajectory로 이전되지 않는다.}
+Qwen hybrid는 \emph{첫 토큰}에서 98.4\% top-1 일치 (\cref{tab:qbias-qwen})를 달성하지만, 첫 몇 단계 generation 후 trajectory가 발산하여 JSON tool-call schema가 깨진다 — 결과 텍스트는 GT와 매칭되는 도구 이름을 \emph{어느 위치에서도} 산출하지 못한다 (precision 0, recall 0).
+
+\paragraph{발견 2: noprompt 베이스라인도 F1=0.}
+이는 보정 sanity로, 본 task가 system prompt 없이는 (어떤 형태의 보조 정보 없이도) 풀 수 없는 적합한 도구-사용 task임을 확인한다. static rank-1과 hybrid가 noprompt와 동일하게 F1=0이라는 것은 \emph{본 개입이 generation에 대해 noprompt와 구별 불가능}함을 의미한다.
+
+\paragraph{발견 3: 모델 간 일관된 negative.}
+Qwen이 next-token에서 깨끗한 회복을 보인 반면 Llama는 그렇지 않았음에도, multi-step generation에서는 \emph{둘 다} F1=0이다. \cref{sec:llama-diff}의 모델 이질성 가설이 multi-step regime에서는 사라진다 — failure mode가 모델 패밀리 독립적이며, 따라서 정리 1·2의 적용 범위 자체에 관한 구조적 한계임을 시사한다.
+
+\paragraph{함의 — 정리 1·2의 정확한 범위.}
+정리 1은 어텐션 출력에 대한 \emph{정적 평균} ($\bphi$) 의 $L_2$ 근사를 보장하고, 정리 2는 그 평균 주변의 \emph{1차 쿼리-응답} 보정을 보장한다. 두 보장 모두 \emph{고정된 입력 분포 $\mathcal{Q}$ 위에서의 1차 통계} 진술이다. 자기회귀 generation의 매 step은 \emph{이전 step에서 자기 출력을 입력으로 받는} 결합 분포 위 sampling이며, 첫 step에서의 1차 통계 정렬은 step $t \ge 2$의 분포에 대해 \emph{어떤 보장도 함의하지 않는다} — 첫 step의 잔차 1.6\% mismatch가 KV-cache에 ``오염된 prefix''로 누적되어 발산한다. \cref{sec:trajectory-vs-firstmoment}에서 더 형식적으로 다룬다.
+
 \section{논의}
 \label{sec:discussion}
 
 \subsection{무엇이 헤드라인 결과를 의미하는가}
 \label{sec:meaning}
 
-Qwen2.5-7B 위에서 \emph{프롬프트 없이} 정적 rank-1 + Q-bias($\beta{=}{+}4.0$) 결합 개입이 \textbf{전체 프롬프트 다음-토큰 분포의 98.4\% top-1 일치}를 달성한다. 이는 두 의미를 갖는다:
+Qwen2.5-7B 위에서 \emph{프롬프트 없이} 정적 rank-1 + Q-bias($\beta{=}{+}4.0$) 결합 개입이 \emph{쿼리 직후 첫 generated token 위치에서} \textbf{전체 프롬프트 다음-토큰 분포의 98.4\% top-1 일치}를 달성한다. 이는 두 가지 좁은 의미와 하나의 명확한 한계를 갖는다:
 \begin{enumerate}[leftmargin=*]
-\item \textbf{정리 1과 정리 2의 실증적 검증}. 정적 rank-1이 78\%, 1차 Q-bias 보정이 추가 20\%를 닫는다. 잔차 1.6\%만이 2차 Taylor 항.
-\item \textbf{실용적 함의} (TTFT/캐시 비용): 만약 이 (rank-1 정적 + $\beta{=}{+}4.0$ Q-bias) 개입이 \emph{generation 단계로 확장} 가능하다면 (현재 결과는 next-token 측정만 다룸), prefix prompt를 inference time에 \emph{완전히 discard}하는 것이 가능해진다. prefix KV 계산 / cache lookup 모두 없음.
+\item \textbf{정리 1과 정리 2의 1차 통계 수준 실증적 검증}. 정적 rank-1이 78\%, 1차 Q-bias 보정이 추가 20\%를 닫는다. 잔차 1.6\%만이 2차 Taylor 항으로 추정된다. \emph{단, 이는 첫 토큰 위치의 next-token 분포에 대한 진술이다.}
+\item \textbf{1차 모멘트 회복은 trajectory 회복을 함의하지 않는다} (negative). \cref{sec:results-multistep}의 E7은 동일 hybrid 개입을 multi-step generation으로 lift하면 두 모델 모두 \textbf{도구-호출 F1 = 0}임을 보였다. 즉 prefix prompt를 \emph{inference time에 완전히 discard}하려는 본 개입의 실용적 적용은 \emph{현재 형태로는 실패한다}. 첫 토큰의 1.6\% top-1 mismatch가 KV-cache에 누적되어 schema가 깨지는 trajectory를 만든다.
+\item \textbf{이론의 적용 범위 정밀화} (positive 부산물). 본 negative는 정리 1·2가 \emph{무엇을 보장하지 않는지}를 명확히 한다 (\cref{sec:trajectory-vs-firstmoment}). 이는 향후 generation-aware prompt internalization 작업의 출발점이 된다 — 1차 통계 매칭만으로는 부족하다는 음의 결과는 KV-cache 시뮬레이션 / generation-aware loss / per-step dynamic intervention이 필요함을 시사한다 (\cref{sec:future-work}).
 \end{enumerate}
 
 \subsection{왜 Llama는 다른가}
@@ -517,6 +565,38 @@ Llama의 분포 회복은 있으나 argmax 회복은 결여된 패턴 (KL $\to 3
 \paragraph{F13b 시드 이중 분포의 재해석.}
 자매 논문의 F13b 계층-적응 K+Q 개입은 시드 간 60/40 성공/실패 이중 분포를 보인다. 본 이론 하에서 이는 다음과 일치한다: CE 수렴이 좋을 때 (시드의 60\%) $\Phip$가 F13b 기저와 잘 정렬되어 rank-4 절단이 충분한 에너지를 포착 ($r^*\le 4$); CE 수렴이 나쁠 때 (40\%) embedding이 $r^* > 4$인 영역에 떨어져 정적 개입이 rank-deficient. CE-gating은 따라서 기저 $r^*$ 체제 검출의 휴리스틱이다.
 
+\subsection{1차 모멘트 회복 vs 자기회귀 trajectory 회복}
+\label{sec:trajectory-vs-firstmoment}
+
+E7의 negative result (\cref{sec:results-multistep})는 본 framework의 가장 중요한 한계를 드러내며, 후속 이론·실험의 출발점이 된다. 본 절은 이 격차를 형식적으로 진술한다.
+
+\paragraph{보장된 것과 그렇지 않은 것.}
+정리 \ref{thm:rank-bounded}와 정리 \ref{thm:qbias}는 어떤 \emph{고정된} 입력 분포 $\mathcal{Q}$ 위에서 어텐션 출력의 다음 \emph{1차 통계량}들을 경계한다:
+\begin{itemize}[leftmargin=*]
+\item $\E_{q\sim\mathcal{Q}}\bigl[\Phip(q) - \hat\Phi_k(q)\bigr]$ (정리 1, 평균),
+\item $\partial_q \Phip$의 1차 Taylor 항 (정리 2, 국소 미분).
+\end{itemize}
+이는 \emph{단일 forward pass}의 어텐션 출력 단에서 평가되는 양이다. 자기회귀 generation은 step $t$의 입력이 step $t-1$의 출력으로부터 sampled — 즉 \emph{결합 분포} $p(y_{1:T} \mid x) = \prod_t p(y_t \mid x, y_{1:t-1})$의 sampling이다. 정리 1·2는 이 결합 분포 또는 그 marginal에 대해 \emph{어떤 직접적 경계도 제공하지 않는다}.
+
+\paragraph{왜 1.6\% mismatch가 F1=0으로 폭증하는가.}
+첫 step에서 본 hybrid의 top-1 일치가 98.4\%일 때, KV-cache에 들어가는 첫 generated token이 1.6\% 확률로 GT trajectory에서 벗어난다. 이는 두 경로로 augment된다:
+\begin{enumerate}[leftmargin=*]
+\item \textbf{KV-cache 오염 누적.} 잘못 sampled된 token이 step $t \ge 2$의 KV-cache에 들어가, 후속 step의 어텐션은 ``실제 prefix''가 아닌 ``오염된 trajectory''에 attend한다. 본 정적 + Q-bias 개입은 \emph{prefix-기반} prefix-attention 통계만 보정하지, generated token으로 인한 KV-cache 변화는 보정하지 않는다.
+\item \textbf{Schema-fragility 증폭.} JSON tool-call schema는 \emph{exact-match} 평가다 — 함수 이름, 매개변수 키, 따옴표 위치가 모두 일치해야 한다. trajectory의 어떤 step에서든 사소한 발산이 schema parse 실패를 유발하여 \emph{전체} 호출이 GT 매칭에 실패한다. 그래서 first-token 98\%가 trajectory 0\%로 collapse한다.
+\end{enumerate}
+
+\paragraph{형식적 분리.}
+1차 모멘트 회복과 trajectory 회복 사이의 구조적 격차를 다음 부등식으로 표현할 수 있다 (informal):
+\[
+\underbrace{\bigl|\E[o_{\mathrm{full}}^{(1)}] - \E[o_{\mathrm{interv}}^{(1)}]\bigr|}_{\text{정리 1·2가 경계, } \le \epsilon}
+\;\;\not\Rightarrow\;\;
+\underbrace{\bigl\|p_{\mathrm{full}}(y_{1:T}) - p_{\mathrm{interv}}(y_{1:T})\bigr\|_{\mathrm{TV}}}_{\text{boundless 가능}}.
+\]
+좌변의 작은 격차가 우변의 격차를 작게 만들지 않는 이유는 결합 분포가 step별 분포의 \emph{곱}이며, 각 step의 분포가 \emph{이전 sample}에 condition하기 때문이다. step별 보정이 \emph{한 번} 빗나가면 후속 분포가 다른 manifold에 놓인다.
+
+\paragraph{이로부터 도출되는 후속 작업.}
+이 분석은 \cref{sec:future-work}의 후속 항목들에 동기를 부여한다. 핵심은 ``per-step dynamic intervention'' — 매 generation step의 KV-cache state에 condition한 개입을 적용하거나, KV-cache를 generation-time에 simulate하는 prefix-replay loss로 학습하는 것이다.
+
 \section{한계}
 \label{sec:limits}
 
@@ -525,21 +605,25 @@ Llama의 분포 회복은 있으나 argmax 회복은 결여된 패턴 (KL $\to 3
 \item \textbf{(L2) 분포 변동.} $\mathcal{Q}$ 위에서 측정된 $r^*$는 $\mathcal{Q}' \ne \mathcal{Q}$에서의 대체성을 경계하지 않는다. 실용적 도구-사용 배치는 drift하는 쿼리 분포를 본다.
 \item \textbf{(L3) 구성 비용.} $V_k$ 구축은 $\mathcal{Q}$ 샘플 위 forward-pass 측정을 요구한다 --- 추론에서 re-prompting보다 훨씬 저렴하지만 무료는 아니다.
 \item \textbf{(L4) 긴 prefix로의 일반화.} 본 측정은 시스템 prompt 93--189 토큰 위에서다. 가장 큰 에이전틱 하니스의 32K+ 토큰 prefix scale에서의 행동은 실증적으로 결정된다.
-\item \textbf{(L5) Multi-step generation 미검증.} 본 결과는 next-token 분포 매칭만 다룬다. 자기회귀 generation을 통한 도구-호출 F1 평가는 후속.
+\item \textbf{(L5) Multi-step generation에서 F1=0.} \cref{sec:results-multistep}이 보였듯, 본 hybrid 개입은 multi-step 자기회귀 generation으로 lift할 때 도구-호출 F1=0을 산출한다 (Qwen·Llama 양쪽 모두). 따라서 본 논문의 청구는 \emph{1차 통계 / first-token 수준}의 prompt internalization으로 한정된다. 실용적 도구-사용 (TTFT/캐시 비용 절감)은 추가 작업 (\cref{sec:future-work}) 필요.
 \item \textbf{(L6) 모델 이질성.} Qwen 위 깨끗한 결과 vs Llama 위 부분 회복. \cref{sec:llama-diff} 가설들은 미해결.
 \end{itemize}
 
 \section{결론}
 \label{sec:conclusion}
 
-긴 에이전틱 시스템 프롬프트는 정지된 LLM에 대해 정적 랭크 $k$ KV-측 개입을 통해 내재화될 수 있으며, 근사 오차는 정확히 $\sum_{i>k}\sigma_i^2$이다 --- 여기서 $\sigma_i$는 task 분포 위 prefix-어텐션 기여 함수의 특이값이다 (정리 \ref{thm:rank-bounded}). 정적 절단 너머의 leading 보정은 prefix-어텐션 게이트의 국소 미분에 의해 부호가 결정되는 쿼리-의존 Q-bias 항이다 (정리 \ref{thm:qbias}), 선행 스티어링 실험에서 현상적이었던 체제-의존 부호 flip을 설명한다. Qwen2.5-7B 위 MetaTool Subtask 4의 next-token agreement에서 결합 개입은 전체 프롬프트 분포의 98.4\%를 \emph{프롬프트 없이} 회복한다.
+긴 에이전틱 시스템 프롬프트의 prefix-어텐션 기여는 정지된 LLM 위에서 정적 랭크 $k$ KV-측 개입의 \emph{1차 통계 수준}으로 내재화될 수 있으며, 근사 오차는 정확히 $\sum_{i>k}\sigma_i^2$이다 --- 여기서 $\sigma_i$는 task 분포 위 prefix-어텐션 기여 함수의 특이값이다 (정리 \ref{thm:rank-bounded}). 정적 절단 너머의 leading 보정은 prefix-어텐션 게이트의 국소 미분에 의해 부호가 결정되는 쿼리-의존 Q-bias 항이다 (정리 \ref{thm:qbias}), 선행 스티어링 실험에서 현상적이었던 체제-의존 부호 flip을 설명한다. Qwen2.5-7B 위 MetaTool Subtask 4의 \emph{쿼리 직후 첫 generated token 위치 next-token agreement}에서 결합 개입은 전체 프롬프트 분포의 98.4\%를 \emph{프롬프트 없이} 회복한다.
+
+본 논문은 동시에 결정적 negative result를 함께 보고한다 (\cref{sec:results-multistep}, \cref{sec:trajectory-vs-firstmoment}): 동일 hybrid 개입을 multi-step 자기회귀 generation으로 lift할 때 두 모델 모두 도구-호출 F1=0을 기록한다. 1차 통계 회복이 trajectory 회복을 함의하지 않는다는 결과로, 정리 1·2의 적용 범위가 \emph{어디까지}인지를 정밀히 한다. 본 framework의 이론적 기여는 prompt-internalization 문제를 (a) 정적 prefix-attention contribution의 함수 공간 SVD, (b) 그 너머의 1차 query-Jacobian 보정의 두 정확히 정량화 가능한 양으로 환원시킨 것이며, 실용적 prompt-discard는 generation-aware 후속 작업의 영역으로 남긴다.
 
 \subsection*{향후 작업}
 \label{sec:future-work}
 \begin{enumerate}[leftmargin=*, itemsep=2pt]
-\item \textbf{Multi-step generation eval}: next-token KL을 도구-호출 F1로 lift.
-\item \textbf{Llama Q-bias 메커니즘}: \cref{sec:llama-diff}의 세 가설 중 어느 것이 책임을 지는지 분리하는 실험 (예: query-Jacobian 직접 SVD, GQA 그룹별 개입, 잔차-흐름 개입).
-\item \textbf{프로덕션 규모 prefix}: 2--8K 토큰 전체 도구 스키마(설명 + 매개변수)에서 $r^*$ 재측정.
+\item \textbf{Per-step dynamic intervention.} \cref{sec:trajectory-vs-firstmoment}의 분석은 step $t$에서의 KV-cache state에 condition한 개입이 필요함을 시사한다. 후보: (a) generation step에 따라 변하는 $\bphi_t$ ($\bphi_t := \E[\Phip(q_t) \mid \text{KV-cache}_{t}]$), (b) per-step query-Jacobian 재측정 $V_{k,t}$, (c) 두 가지의 결합.
+\item \textbf{KV-cache 시뮬레이션 / soft prompt augmentation.} 학습된 prefix token (soft prompt)를 KV-cache에 주입하여 \emph{진짜} prefix가 있을 때와 동일한 KV state를 합성한다. 정적 + Q-bias 개입은 그 위에 추가된다. 이는 ``generation-aware loss'' (full prompt trajectory와 intervention trajectory의 token-level CE) 학습 파이프라인을 제공한다.
+\item \textbf{Generation-aware loss training}: next-token 분포 매칭 대신 multi-step trajectory CE를 직접 최적화. 정리 1·2의 통계가 초기화·구조 제약으로 사용된다.
+\item \textbf{Llama Q-bias 메커니즘}: \cref{sec:llama-diff}의 세 가설 중 어느 것이 책임을 지는지 분리하는 실험 (예: query-Jacobian 직접 SVD, GQA 그룹별 개입, 잔차-흐름 개입). E7 결과 (Llama도 F1=0)는 적어도 multi-step regime에서는 모델 이질성보다 1차-vs-trajectory 격차가 지배적임을 시사한다.
+\item \textbf{프로덕션 규모 prefix}: 2--8K 토큰 전체 도구 스키마(설명 + 매개변수)에서 $r^*$ 재측정 (E9 부분 결과: 전체 schema 1.4--1.7K 토큰에서도 $r^*(0.95) \le 3.18$ 유지).
 \item \textbf{$\partial_q \lambda_P$의 직접 측정}: JVP를 통해 부호 예측이 정량적으로 일치하는지 검증.
 \item \textbf{도메인 간 hybrid 일반화}: $\tau^2$ retail/telecom/airline의 hybrid 결과는 어떻게 변하는가? 자매 논문의 sign-flip 패턴이 prompt-free 체제에서도 보존되는가?
 \end{enumerate}
