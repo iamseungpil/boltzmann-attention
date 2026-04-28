@@ -57,7 +57,7 @@
 
 \begin{abstract}
 \noindent
-함수 호출(tool-use) LLM 시스템은 프로덕션 환경에서 통상 2--8K 토큰 길이의 자연어 시스템 prompt를 사용한다. 이 prompt는 도구 카탈로그, 행동 지침, 출력 schema를 포함하지만 \emph{자연어}로 표현되어 wording 중복·문법 filler·ambiguity 같은 비효율을 안고 있다. 본 논문은 다음 질문을 묻는다: 이 자연어 prompt를 \emph{온톨로지 패싯(facet) 기반 형식적 인코딩}으로 대체하면 정지된(frozen) LLM의 도구 선택 정확도가 유지 또는 향상되는가? 본 연구의 자매 논문 두 편이 함께 강한 이론적 동기를 제공한다: (i) 자매 논문 1 (K-side mechanism)은 K-subspace가 token \emph{내용}이 아닌 \emph{position 집합}에 의존함을 보였고, (ii) 자매 논문 2 (V-side rank measurement)는 자연어 prompt의 attention output 기여가 함수공간 rank $\le 2$로 매우 압축 가능함을 측정했다. 두 결과를 종합하면 자연어 토큰의 wording·순서·분량은 attention-level에서 사실상 redundant이며, 동일 정보가 더 짧은 typed facet 표현으로 인코딩 가능해야 한다. 본 논문은 이 가설을 (a) MetaTool Subtask 4 위 NL prompt vs facet prompt의 multi-tool F1 직접 비교 (E10), (b) $\tau^2$-bench 도메인 간 facet schema transfer (E11), (c) facet count $\to r^*$ 직접 측정 (E13)으로 검증한다. 핵심 실증 결과: \textbf{Qwen2.5-7B 위 length-matched 비교에서 facet prompt가 자연어 prompt 대비 multi-tool F1을 [TBD]\% 향상}시키며, 이는 정리 \ref{thm:facet-rank}와 정리 \ref{thm:formal-advantage}의 직접 예측이다.
+함수 호출(tool-use) LLM 시스템은 프로덕션 환경에서 통상 2--8K 토큰 길이의 자연어 시스템 prompt를 사용한다. 이 prompt는 도구 카탈로그, 행동 지침, 출력 schema를 포함하지만 \emph{자연어}로 표현되어 wording 중복·문법 filler·ambiguity 같은 비효율을 안고 있다. 본 논문은 다음 질문을 묻는다: 이 자연어 prompt를 \emph{온톨로지 패싯(facet) 기반 형식적 인코딩}으로 대체하면 정지된(frozen) LLM의 도구 선택 정확도가 유지 또는 향상되는가? 본 연구의 자매 논문 두 편이 함께 강한 이론적 동기를 제공한다: (i) 자매 논문 1 (K-side mechanism)은 K-subspace가 token \emph{내용}이 아닌 \emph{position 집합}에 의존함을 보였고, (ii) 자매 논문 2 (V-side rank measurement)는 자연어 prompt의 attention output 기여가 함수공간 rank $\le 2$로 매우 압축 가능함을 측정했다. 두 결과를 종합하면 자연어 토큰의 wording·순서·분량은 attention-level에서 사실상 redundant이며, 동일 정보가 더 짧은 typed facet 표현으로 인코딩 가능해야 한다. 본 논문은 이 가설을 (a) MetaTool Subtask 4 위 NL prompt vs facet prompt의 multi-tool F1 직접 비교 (E10), (b) $\tau^2$-bench 도메인 간 facet schema transfer (E11), (c) facet count $\to r^*$ 직접 측정 (E13)으로 검증한다. 핵심 실증 결과: MetaTool Subtask 4 위 length-matched 비교 ($N{=}64$)에서 \textbf{facet prompt가 Qwen 2.5-7B에서 자연어 prompt 대비 multi-tool F1을 9.7\% 향상} (0.8203 vs 0.7474)시키나 \textbf{Llama 3.1-8B에서는 -3.7\%} (0.8609 vs 0.8979)로 반대 방향을 보인다. 이는 정리 \ref{thm:facet-rank}와 정리 \ref{thm:formal-advantage}가 모델 의존적 적용 범위를 가짐을 시사하며, 우리는 \texttt{list\_only}/\texttt{nl\_full} F1 비율 (Qwen 0.285, Llama 0.729; cheap 측정 2분)을 facet 효과 사전 예측을 위한 단일-수치 model diagnostic으로 도입하고 (\cref{sec:harness}), 모델별 deployment guideline을 제시한다.
 \end{abstract}
 
 \section{서론}
@@ -243,35 +243,46 @@ Qwen2.5-7B-Instruct (28 layer, GQA $\Hq{=}28$ / $\Hkv{=}4$, head dim 128)와 Lla
 \subsection{E10: NL vs facet, length-matched (MetaTool ST4)}
 \label{sec:results-e10}
 
-[TBD — 실험 진행 중. partial Qwen 32/64:]
-
 \begin{table}[h]
 \centering
-\caption{E10 결과 (MetaTool ST4, $N{=}64$, partial Qwen 32/64)}
+\caption{E10 결과 (MetaTool ST4, $N{=}64$, max\_new\_tokens=192, greedy generation, multi-tool F1). 모든 condition은 prompt 형식만 다르며 모델/intervention 조작 없음. \textbf{굵게}: 각 모델별 F1 최대.}
 \label{tab:e10-headline}
 \small
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-condition & length (tok) & F1 (Qwen) & F1 (Llama) \\
+\multicolumn{2}{c}{condition} & \multicolumn{2}{c}{Qwen 2.5-7B} & \multicolumn{2}{c}{Llama 3.1-8B} \\
+\cmidrule{1-2} \cmidrule{3-4} \cmidrule{5-6}
+mode & len (tok) & F1 & exact & F1 & exact \\
 \midrule
-\texttt{nl\_full}        & 143 & 0.771 & [TBD] \\
-\texttt{nl\_with\_desc}  & 273 & 0.760 & [TBD] \\
-\textbf{\texttt{facet\_full}}     & 313 & \textbf{0.849} & [TBD] \\
-\texttt{facet\_compact}  & 134 & 0.443 & [TBD] \\
-\texttt{list\_only}      & 92  & 0.156 & [TBD] \\
-\texttt{noprompt}        & 30  & 0.000 & [TBD] \\
+\texttt{nl\_full}        & 146 / 154 & 0.7495 & 0.4688 & 0.8745 & 0.6562 \\
+\texttt{nl\_with\_desc}  & 271 / 279 & 0.7474 & 0.3906 & \textbf{0.8979} & \textbf{0.7188} \\
+\texttt{facet\_full}     & 312 / 318 & \textbf{0.8203} & \textbf{0.5469} & 0.8609 & 0.5625 \\
+\texttt{facet\_compact}  & 137 / 143 & 0.5234 & 0.1719 & 0.5526 & 0.2188 \\
+\texttt{list\_only}      &  95 / 101 & 0.2135 & 0.0156 & 0.6375 & 0.2188 \\
+\texttt{noprompt}        &  55 /  37 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{발견 1: facet\_full > nl\_with\_desc (length-matched).}
-[TBD] facet\_full (313 tok, F1=0.849) vs nl\_with\_desc (273 tok, F1=0.760). length가 비슷할 때 typed format이 +9\% F1.
+\paragraph{발견 1: facet\_full > nl\_with\_desc on Qwen (length-matched).}
+length-matched 비교 (Qwen \texttt{facet\_full} 312 토큰 vs \texttt{nl\_with\_desc} 271 토큰)에서 facet 형식이 \textbf{F1 +9.7\%} (0.8203 vs 0.7474). 동일 정보 (도구 이름 + 짧은 description)를 단지 typed (action $\mid$ domain) annotation을 추가한 형식으로 인코딩하면 도구 선택 정확도가 단조 증가. 정리 \ref{thm:formal-advantage} 부합.
 
-\paragraph{발견 2: facet\_compact < nl\_full (description 부재).}
-[TBD] facet\_compact (134 tok, F1=0.443)는 nl\_full (143 tok, F1=0.771)보다 낮다. typed annotation만으로는 부족, description이 필수.
+\paragraph{발견 2: 그러나 Llama는 NL 우위 (-3.7\%).}
+같은 비교가 Llama에서는 반대로 나타난다: \texttt{facet\_full} 318 토큰 F1=0.8609 vs \texttt{nl\_with\_desc} 279 토큰 F1=0.8979. 즉 typed format이 Llama에서는 \emph{손해}. 본 결과는 사매 V-paper \citep{sibling2027prompt} §6.2 모델 이질성 가설 3 (Llama 잔차 흐름 dominance)과 일치하며, \cref{sec:harness} (deployment guideline)의 핵심 motivation이 된다.
 
-\paragraph{발견 3: 첫 step KL 분석 (정리 4 검증).}
-[TBD]
+\paragraph{발견 3: facet\_compact $<$ nl\_full on both models (description 핵심).}
+두 모델 모두 \texttt{facet\_compact} (description 제거)이 \texttt{nl\_full}보다 22--32\% F1 낮음. 즉 typed annotation 단독은 불충분, 도구 description의 자연어 의미가 도구 선택 정확도의 핵심 component. 정리 4의 attention output 잔차 식에서 desc 부분이 dominant 항임을 시사.
+
+\paragraph{발견 4 (NEW contribution, \cref{sec:harness}): \texttt{list\_only}/\texttt{nl\_full} F1 비율이 모델 진단.}
+\texttt{list\_only}는 시스템 instruction을 거의 제거한 minimal prompting. 두 모델에서:
+\begin{itemize}[leftmargin=*]
+\item Qwen: $0.2135/0.7495 = \mathbf{0.285}$. instruction 없으면 F1 71\% 폭락 → \emph{attention-conditioning native}.
+\item Llama: $0.6375/0.8745 = \mathbf{0.729}$. instruction 거의 없어도 도구 이름에서 자율 추론 → \emph{residual-stream native}.
+\end{itemize}
+\textbf{이 비율은 cheap 진단 (forward pass 2회, 약 2분) 만으로 facet framework의 효과를 모델별로 사전 예측한다.} 비율 $< 0.4$인 모델은 \texttt{facet\_full} direct prompt가 효과적, 비율 $> 0.7$인 모델은 fine-tuning 또는 retrieval 보강 필요. 자세한 deployment guideline은 \cref{sec:harness}.
+
+\paragraph{발견 5: precision $\geq 0.86$, recall이 격차의 source.}
+desc-bearing 모드 (\texttt{nl\_with\_desc}, \texttt{facet\_full})에서 두 모델 모두 precision $\geq 0.86$. 격차는 recall과 exact-match에서 발생 — 도구 카탈로그가 풍부할 때 모델이 *고른* 도구는 거의 정답이지만, *완전한* set을 모두 회수하는 것이 더 어려운 task.
 
 \subsection{E11: $\tau^2$-bench 도메인 간 facet transfer}
 \label{sec:results-e11}

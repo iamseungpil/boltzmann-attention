@@ -245,32 +245,91 @@ def _random_words(n_words: int, rng=None) -> str:
     return " ".join(rng.choice(_LOREM_BASE) for _ in range(n_words))
 
 
+def _build_catalog_text(
+    cands: List[str],
+    tool_system_prompt: str,
+    prompt_mode: str,
+    facet_schema: dict,
+) -> str:
+    """Generate the catalog portion of the system prompt under a given
+    prompt_mode (form), assuming the underlying tool list is `cands`.
+
+    prompt_mode:
+      - nl: bullet list of tool names (current default; matches E1/E3 behavior)
+      - facet_full: per-tool typed row "name | action | domain : desc" (length-similar to nl_with_desc)
+      - facet_compact: typed compact "name|a|domain" (no desc)
+      - facet_action_only: typed compact with action only (single facet, drops domain)
+      - facet_domain_only: typed compact with domain only (single facet, drops action)
+
+    facet_schema is the {tool_name: {action, domain, desc_short}} dict; if a
+    tool is missing from the schema, falls back to default "read"/"general".
+    """
+    if not cands:
+        return tool_system_prompt
+
+    if prompt_mode == "nl":
+        cand_str = "\n".join(f"- {c}" for c in cands)
+        return f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
+
+    rows: List[str] = []
+    for c in cands:
+        s = facet_schema.get(c, {}) if facet_schema else {}
+        action = s.get("action", "read")
+        domain = s.get("domain", "general")
+        desc = s.get("desc_short", "")
+        if prompt_mode == "facet_full":
+            rows.append(f"- {c} | {action} | {domain} : {desc}")
+        elif prompt_mode == "facet_compact":
+            rows.append(f"{c}|{action[:1]}|{domain}")
+        elif prompt_mode == "facet_action_only":
+            rows.append(f"{c}|{action}")
+        elif prompt_mode == "facet_domain_only":
+            rows.append(f"{c}|{domain}")
+        else:
+            raise ValueError(f"unknown prompt_mode={prompt_mode}")
+
+    if prompt_mode == "facet_full":
+        cand_str = "\n".join(rows)
+        return (
+            f"{tool_system_prompt}\n\nAvailable tools "
+            f"(format: name | action | domain : desc):\n{cand_str}"
+        )
+    cand_str = " ".join(rows)
+    return f"{tool_system_prompt}\n\nTools: {cand_str}"
+
+
 def build_messages(
     item: dict,
     tool_system_prompt: str,
     prefix_mode: str = "real",
     rng=None,
+    prompt_mode: str = "nl",
+    facet_schema: dict = None,
 ) -> List[dict]:
     """Builds [system, user] messages.
 
-    prefix_mode:
+    prefix_mode (carries the perturbation kind for E1 sanity controls):
       - real: real system prompt + real candidates + real user query
       - random_prefix: replace system content with random words (≈ same length)
       - random_query: real prefix, but user message replaced with random words
       - shuffled_prefix: real candidates list shuffled (control for ordering)
 
+    prompt_mode (NEW for E13, only takes effect when prefix_mode == real and
+    item lacks a system_full field):
+      - nl, facet_full, facet_compact, facet_action_only, facet_domain_only
+      see _build_catalog_text.
+
     If item has 'system_full' field (set when load_*(full_schema=True)),
-    the real system uses that instead of the names-only catalog. This drives
-    the production-scale prefix experiment (E9).
+    the real system uses that instead of the names-only catalog (E9).
     """
     cands = item.get("candidates") or []
     rng = rng or _RNG
+    facet_schema = facet_schema or {}
 
     if item.get("system_full"):
         real_system = item["system_full"]
     elif cands:
-        cand_str = "\n".join(f"- {c}" for c in cands)
-        real_system = f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
+        real_system = _build_catalog_text(cands, tool_system_prompt, prompt_mode, facet_schema)
     else:
         real_system = tool_system_prompt
 
@@ -287,12 +346,14 @@ def build_messages(
         n_words = max(8, len(item["query"].split()))
         user_content = _random_words(n_words, rng)
     elif prefix_mode == "shuffled_prefix":
-        # Shuffle candidate order only (keep system text + user query intact)
+        # Shuffle candidate order only (keep system text + user query intact).
+        # Honors prompt_mode so we can shuffle facet rows too.
         if cands:
             shuffled = list(cands)
             rng.shuffle(shuffled)
-            cand_str = "\n".join(f"- {c}" for c in shuffled)
-            sys_content = f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
+            sys_content = _build_catalog_text(
+                shuffled, tool_system_prompt, prompt_mode, facet_schema
+            )
         else:
             sys_content = real_system
         user_content = item["query"]
@@ -488,6 +549,20 @@ def parse_args() -> argparse.Namespace:
         help="'names' = current behavior (tool list as bullet names). "
              "'full' = production-scale schema with descriptions+params (E9).",
     )
+    p.add_argument(
+        "--prompt-mode",
+        choices=["nl", "facet_full", "facet_compact", "facet_action_only", "facet_domain_only"],
+        default="nl",
+        help="Catalog encoding form (E13). 'nl' = current default natural-language "
+             "bullet list. facet_* = typed schema using --facet-schema YAML. "
+             "Only takes effect when prefix-mode=real and item lacks system_full.",
+    )
+    p.add_argument(
+        "--facet-schema",
+        default=None,
+        help="Path to facet schema YAML (data/facet_schemas/*.yaml). "
+             "Required when prompt-mode startswith 'facet'.",
+    )
     return p.parse_args()
 
 
@@ -510,6 +585,32 @@ def main() -> int:
     if len(items) == 0:
         print("ERROR: zero items loaded", file=sys.stderr)
         return 2
+
+    # Load facet schema if needed for prompt-mode (E13).
+    facet_schema: dict = {}
+    if args.prompt_mode != "nl":
+        if not args.facet_schema:
+            print(
+                f"ERROR: --prompt-mode={args.prompt_mode} requires --facet-schema",
+                file=sys.stderr,
+            )
+            return 2
+        # Reuse facet_eval.load_facet_schema (no PyYAML dep).
+        try:
+            from facet_eval import load_facet_schema  # type: ignore
+        except ImportError:
+            print(
+                "ERROR: cannot import facet_eval.load_facet_schema "
+                "(needed for --prompt-mode != nl)",
+                file=sys.stderr,
+            )
+            return 2
+        facet_schema = load_facet_schema(args.facet_schema)
+        print(
+            f"[facet] loaded {len(facet_schema)} entries from {args.facet_schema} "
+            f"(prompt_mode={args.prompt_mode})",
+            flush=True,
+        )
 
     # Load model
     print(f"[model] loading {args.model} (dtype={args.dtype}, device={args.device})", flush=True)
@@ -550,6 +651,7 @@ def main() -> int:
             messages = build_messages(
                 item, DEFAULT_TOOL_SYSTEM_PROMPT,
                 prefix_mode=args.prefix_mode, rng=rng,
+                prompt_mode=args.prompt_mode, facet_schema=facet_schema,
             )
             try:
                 prompt_text = tokenizer.apply_chat_template(
@@ -646,6 +748,8 @@ def main() -> int:
         "model": args.model,
         "task": args.task,
         "prefix_mode": args.prefix_mode,
+        "prompt_mode": args.prompt_mode,
+        "facet_schema": args.facet_schema,
         "seed": int(args.seed),
         "n_samples": int(N),
         "n_layers": int(L),

@@ -146,6 +146,33 @@ LIST_ONLY_SYSTEM_TEMPLATE = (
 )
 
 
+# E10b -- anonymized tool names. Tools are referenced by placeholder IDs
+# (T1..Tn) so that any task knowledge the model has from the natural
+# tool-name strings is screened out. The real names appear ONLY in a
+# mapping at the bottom of the system prompt, forcing the model to read
+# the mapping to recover the catalogue.
+LIST_ANON_SYSTEM_TEMPLATE = (
+    "Tools (by ID): [{anon_ids}]. ID-to-name mapping: {mapping}. "
+    'Emit <tool_call>{{"name":"X","arguments":{{}}}}</tool_call> blocks '
+    "using the real tool names from the mapping."
+)
+
+
+# Same idea but with the facet annotation kept on the placeholder IDs.
+# Separates "does the model gain from typed format?" from "does the
+# model gain from natural-language tool names?".
+FACET_ANON_SYSTEM_TEMPLATE = (
+    "You are a tool-selection agent. Choose ALL applicable tools. "
+    "Available tools — format: tool_id | action | domain : description\n"
+    "{tool_rows}\n"
+    "ID-to-name mapping (use real names in tool_call): {mapping}\n"
+    "Format each call exactly as:\n"
+    '<tool_call>{{"name": "ToolName", "arguments": {{}}}}</tool_call>\n'
+    "Emit MULTIPLE blocks if the query needs multiple tools. "
+    "Output ONLY tool_call blocks; no explanation."
+)
+
+
 # Cap on per-tool description length (chars) for length-matched comparisons.
 DESC_MAX_CHARS = 60
 
@@ -219,6 +246,55 @@ def build_list_only_prompt(tokenizer, query: str, tools: List[str]) -> str:
     return tokenizer.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False)
 
 
+def _anon_ids(n: int) -> List[str]:
+    """T1, T2, ..., Tn"""
+    return [f"T{i+1}" for i in range(n)]
+
+
+def _mapping_str(ids: List[str], tools: List[str]) -> str:
+    """T1=NewsTool, T2=WeatherTool, ..."""
+    return ", ".join(f"{i}={t}" for i, t in zip(ids, tools))
+
+
+def build_list_anon_prompt(tokenizer, query: str, tools: List[str]) -> str:
+    """Tool names hidden behind T1..Tn placeholders; mapping at bottom of system."""
+    ids = _anon_ids(len(tools))
+    mapping = _mapping_str(ids, tools)
+    sys_msg = LIST_ANON_SYSTEM_TEMPLATE.format(
+        anon_ids=", ".join(ids), mapping=mapping
+    )
+    msgs = [
+        {"role": "system", "content": sys_msg},
+        {"role": "user", "content": query},
+    ]
+    return tokenizer.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False)
+
+
+def build_facet_anon_prompt(
+    tokenizer, query: str, tools: List[str], schema: Dict[str, Dict[str, str]]
+) -> str:
+    """facet_full but tool names replaced with T1..Tn placeholders.
+    Real names appear ONLY in the mapping line (so the placeholder Ti carries
+    only the typed facet annotation, not the natural tool name semantics)."""
+    ids = _anon_ids(len(tools))
+    rows = []
+    for tid, t in zip(ids, tools):
+        s = schema.get(t, {})
+        action = s.get("action", "read")
+        domain = s.get("domain", "general")
+        desc = _trim_desc(s.get("desc_short", ""))
+        rows.append(f"- {tid} | {action} | {domain} : {desc}")
+    mapping = _mapping_str(ids, tools)
+    sys_msg = FACET_ANON_SYSTEM_TEMPLATE.format(
+        tool_rows="\n".join(rows), mapping=mapping
+    )
+    msgs = [
+        {"role": "system", "content": sys_msg},
+        {"role": "user", "content": query},
+    ]
+    return tokenizer.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False)
+
+
 # =============================================================================
 # Main
 # =============================================================================
@@ -238,7 +314,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--conditions",
         default="nl_full,nl_with_desc,facet_full,facet_compact,list_only,noprompt",
-        help="comma-separated subset of {nl_full, nl_with_desc, facet_full, facet_compact, list_only, noprompt}",
+        help="comma-separated subset of {nl_full, nl_with_desc, facet_full, "
+        "facet_compact, list_only, list_anon, facet_anon, noprompt}",
     )
     p.add_argument("--out", required=True)
     return p.parse_args()
@@ -249,7 +326,16 @@ def main() -> int:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     conditions = [c.strip() for c in args.conditions.split(",") if c.strip()]
-    valid = {"nl_full", "nl_with_desc", "facet_full", "facet_compact", "list_only", "noprompt"}
+    valid = {
+        "nl_full",
+        "nl_with_desc",
+        "facet_full",
+        "facet_compact",
+        "list_only",
+        "list_anon",
+        "facet_anon",
+        "noprompt",
+    }
     for c in conditions:
         if c not in valid:
             raise ValueError(f"unknown condition '{c}' (valid: {valid})")
@@ -301,6 +387,10 @@ def main() -> int:
             prompts["facet_compact"] = build_facet_compact_prompt(tokenizer, query, tools, schema)
         if "list_only" in conditions:
             prompts["list_only"] = build_list_only_prompt(tokenizer, query, tools)
+        if "list_anon" in conditions:
+            prompts["list_anon"] = build_list_anon_prompt(tokenizer, query, tools)
+        if "facet_anon" in conditions:
+            prompts["facet_anon"] = build_facet_anon_prompt(tokenizer, query, tools, schema)
         if "noprompt" in conditions:
             prompts["noprompt"] = build_noprompt(tokenizer, query)
 

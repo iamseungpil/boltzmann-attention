@@ -1,0 +1,65 @@
+# tau2-bench retail facet schema (auto-extracted)
+# 15 tools, 4 action classes, 15/15 with canonical description
+schema_version: 1
+source: tau2-bench/data/tau2/domains/retail/tasks.json
+tools:
+  calculate:
+    action: compute
+    domain: retail
+    desc_short: "Calculate the result of a mathematical expression."
+  cancel_pending_order:
+    action: modify
+    domain: retail
+    desc_short: "Cancel a pending order. Status changes to 'cancelled' and payment refunded."
+  exchange_delivered_order_items:
+    action: modify
+    domain: retail
+    desc_short: "Exchange items in a delivered order to new items of same product type."
+  find_user_id_by_email:
+    action: search
+    domain: retail
+    desc_short: "Find user id by email address."
+  find_user_id_by_name_zip:
+    action: search
+    domain: retail
+    desc_short: "Find user id by first name, last name, and zip code."
+  get_item_details:
+    action: read
+    domain: retail
+    desc_short: "Get inventory details of an item by item id."
+  get_order_details:
+    action: read
+    domain: retail
+    desc_short: "Get status and details of an order by order id."
+  get_product_details:
+    action: read
+    domain: retail
+    desc_short: "Get inventory details of a product by product id."
+  get_user_details:
+    action: read
+    domain: retail
+    desc_short: "Get details of a user, including their orders."
+  modify_pending_order_address:
+    action: modify
+    domain: retail
+    desc_short: "Modify shipping address of a pending order."
+  modify_pending_order_items:
+    action: modify
+    domain: retail
+    desc_short: "Modify items in a pending order to new items of same product type."
+  modify_pending_order_payment:
+    action: modify
+    domain: retail
+    desc_short: "Modify payment method of a pending order."
+  modify_user_address:
+    action: modify
+    domain: retail
+    desc_short: "Modify default address of a user."
+  return_delivered_order_items:
+    action: modify
+    domain: retail
+    desc_short: "Return items of a delivered order. Status changes to 'return requested'."
+  transfer_to_human_agents:
+    action: read
+    domain: retail
+    desc_short: "Transfer the user to a human agent with summary of the issue."
