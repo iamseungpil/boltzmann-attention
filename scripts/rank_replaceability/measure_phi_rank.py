@@ -1,0 +1,475 @@
+#!/usr/bin/env python3
+"""measure_phi_rank.py — E1 of EXPERIMENT_PLAN_v27 (rank-bounded prompt replaceability).
+
+Measures the effective rank r*(τ) of the prefix-attention output function
+    Φ_P^{(ℓ,h)}(q) := λ_P^{(ℓ,h)}(q) · attn(q; K_P^{(ℓ,h)}, V_P^{(ℓ,h)})
+over a task query distribution Q, per (layer, head).
+
+Outputs JSON with:
+  - per (layer, head) singular spectrum of stacked Φ_P samples
+  - r*(τ) at τ ∈ {0.90, 0.95, 0.99}
+  - heatmap-friendly arrays
+
+Usage (smoke):
+  python measure_phi_rank.py \
+      --model Qwen/Qwen2.5-7B-Instruct \
+      --task metatool_st4 --max-samples 4 \
+      --device cuda:0 \
+      --out reports/rank_replaceability_2026_04/qwen_metatool_smoke.json
+
+Usage (full run):
+  python measure_phi_rank.py \
+      --model Qwen/Qwen2.5-7B-Instruct \
+      --task metatool_st4 --max-samples 256 \
+      --device cuda:0 \
+      --out reports/rank_replaceability_2026_04/qwen_metatool_n256.json
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+import time
+from pathlib import Path
+from typing import List, Tuple
+
+os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+
+# =============================================================================
+# Data loading
+# =============================================================================
+
+# MetaTool ST4: 497 records, each with (query, ground-truth tool list, candidates)
+DEFAULT_METATOOL_PATH = "/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask4.json"
+
+# tau2-bench: per-domain tasks.json
+DEFAULT_TAU2_BASE = (
+    "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench/data/tau2"
+)
+
+
+_METATOOL_TOOL_RE = __import__("re").compile(
+    r"\d+\.\s*tool name:\s*([^,\n]+?),\s*tool description"
+)
+
+
+def load_metatool_st4(dataset_path: str, n: int) -> List[dict]:
+    """Returns list of {query, candidates, gt} dicts.
+
+    MetaTool ST4 schema: {action_prompt, thought_prompt, tool, query}.
+    Candidates are embedded inside action_prompt (numbered list); we parse them
+    via regex.
+    """
+    with open(dataset_path) as f:
+        raw = json.load(f)
+    out = []
+    for entry in raw[:n]:
+        query = entry.get("query")
+        action = entry.get("action_prompt") or ""
+        gt = entry.get("tool") or []
+        cands = [m.strip().strip('"').strip("'") for m in _METATOOL_TOOL_RE.findall(action)]
+        if not query or not cands:
+            continue
+        out.append({"query": str(query), "candidates": cands, "gt": gt})
+    return out
+
+
+def load_tau2(domain: str, n: int) -> List[dict]:
+    """Loads tau2 retail/telecom/airline tasks. Returns list of {query, candidates, gt}.
+
+    For tau2-bench the system prompt and tool list are domain-wide, so we
+    construct a synthetic per-task tool catalog summary from the tasks file.
+    Each entry contains the user-facing 'instruction' as our query.
+    """
+    path = f"{DEFAULT_TAU2_BASE}/domains/{domain}/tasks.json"
+    with open(path) as f:
+        tasks = json.load(f)
+    # tau2 tasks have "user_scenario.instructions" or similar; fall back broad.
+    out = []
+    for t in tasks[:n]:
+        if isinstance(t, dict):
+            user_scn = t.get("user_scenario") or {}
+            instr = user_scn.get("instructions") if isinstance(user_scn, dict) else None
+            instr = (
+                instr
+                or t.get("instructions")
+                or t.get("instruction")
+                or t.get("query")
+                or json.dumps(t)[:512]
+            )
+        else:
+            instr = str(t)[:512]
+        out.append({"query": str(instr)[:1024], "candidates": [], "gt": []})
+    return out
+
+
+# =============================================================================
+# Prompt construction
+# =============================================================================
+
+DEFAULT_TOOL_SYSTEM_PROMPT = (
+    "You are a tool-selection agent. You will be given a user query, and a list "
+    "of available tools. Your job is to identify ALL tools required to fulfil "
+    "the user's request, and emit them as JSON-formatted tool calls. Only emit "
+    "tools from the candidate list. Emit them in the order they should be "
+    "executed. Output format per tool call: "
+    '<tool_call>{{"name": "ToolName", "arguments": {{}}}}</tool_call>'
+)
+
+
+def build_messages(item: dict, tool_system_prompt: str) -> List[dict]:
+    """Builds [system, user] messages. System carries tool catalog (the "prefix")."""
+    cands = item.get("candidates") or []
+    if cands:
+        cand_str = "\n".join(f"- {c}" for c in cands)
+        system_content = (
+            f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
+        )
+    else:
+        system_content = tool_system_prompt
+    return [
+        {"role": "system", "content": system_content},
+        {"role": "user", "content": item["query"]},
+    ]
+
+
+def find_user_block_start(
+    tokenizer, prompt_ids: torch.Tensor, model_family: str
+) -> int:
+    """Returns the position index where the user message block begins.
+
+    Tokens before this index are treated as 'prefix' (system + tools).
+    """
+    text = tokenizer.decode(prompt_ids[0], skip_special_tokens=False)
+    if model_family == "qwen":
+        marker = "<|im_start|>user"
+    elif model_family == "llama":
+        marker = "<|start_header_id|>user<|end_header_id|>"
+    else:
+        # Fallback: assume <|im_start|>user works (Qwen-style chatml)
+        marker = "<|im_start|>user"
+    idx_char = text.find(marker)
+    if idx_char < 0:
+        raise RuntimeError(
+            f"Could not find user marker {marker!r} in prompt (model_family={model_family})"
+        )
+    # Tokenize the prefix (text before the marker) and use its length as boundary
+    prefix_text = text[:idx_char]
+    # Encode without adding special tokens — we want raw token count of the prefix span
+    prefix_ids = tokenizer.encode(prefix_text, add_special_tokens=False)
+    return len(prefix_ids)
+
+
+def detect_model_family(model_name: str) -> str:
+    n = model_name.lower()
+    if "qwen" in n:
+        return "qwen"
+    if "llama" in n or "meta-llama" in n:
+        return "llama"
+    return "qwen"  # default chatml
+
+
+# =============================================================================
+# Hook to capture attention weights and V at each layer
+# =============================================================================
+
+class AttnCapture:
+    """Captures (attn_weights, V) per layer by forward-hooking attention modules.
+
+    Stored per-layer: attn_weights of shape (B, H_q, T, T_k) and V_kv of shape
+    (B, H_kv, T, d_h). For GQA we expand V to H_q on the fly when computing
+    per-head Φ_P.
+    """
+
+    def __init__(self, model, model_family: str):
+        self.model = model
+        self.family = model_family
+        self.handles = []
+        self.attn_weights: List[torch.Tensor] = []  # one per layer
+        self.values: List[torch.Tensor] = []  # one per layer
+
+    def _hook(self, layer_idx: int):
+        def fn(module, args, kwargs, output):
+            # transformers >=4.40 returns (output, attn_weights, past_key_value)
+            # We require output_attentions=True at forward call site.
+            attn = None
+            if isinstance(output, tuple) and len(output) >= 2:
+                attn = output[1]
+            if attn is None:
+                return
+            # Capture V from the kwargs via stored intermediate. For HF Qwen/Llama
+            # attention, the V is computed inside; safest is to recompute from K_proj/V_proj
+            # in a separate pass. As a pragmatic alternative we capture via a second hook
+            # on the v_proj output (set up below).
+            self.attn_weights[layer_idx] = attn.detach()
+        return fn
+
+    def _v_hook(self, layer_idx: int):
+        def fn(module, args, kwargs, output):
+            # output: (B, T, H_kv * d_h) — reshape later
+            self.values[layer_idx] = output.detach()
+        return fn
+
+    def install(self):
+        self.attn_weights = [None] * self.model.config.num_hidden_layers
+        self.values = [None] * self.model.config.num_hidden_layers
+        layers = _get_layers(self.model, self.family)
+        for i, layer in enumerate(layers):
+            attn_mod = _get_attn_module(layer, self.family)
+            v_proj = _get_v_proj(layer, self.family)
+            self.handles.append(
+                attn_mod.register_forward_hook(self._hook(i), with_kwargs=True)
+            )
+            self.handles.append(
+                v_proj.register_forward_hook(self._v_hook(i), with_kwargs=True)
+            )
+
+    def remove(self):
+        for h in self.handles:
+            h.remove()
+        self.handles = []
+
+
+def _get_layers(model, family: str):
+    if family == "qwen" or family == "llama":
+        return model.model.layers
+    raise ValueError(family)
+
+
+def _get_attn_module(layer, family: str):
+    if family == "qwen" or family == "llama":
+        return layer.self_attn
+    raise ValueError(family)
+
+
+def _get_v_proj(layer, family: str):
+    if family == "qwen" or family == "llama":
+        return layer.self_attn.v_proj
+    raise ValueError(family)
+
+
+# =============================================================================
+# Φ_P extraction
+# =============================================================================
+
+def compute_phi_p_per_layer_head(
+    attn_weights_layer: torch.Tensor,  # (1, H_q, T, T_k)
+    v_layer: torch.Tensor,             # (1, T, H_kv * d_h)
+    prefix_end: int,
+    last_query_pos: int,
+    num_kv_heads: int,
+    head_dim: int,
+    num_q_heads: int,
+) -> torch.Tensor:
+    """Returns Φ_P per head for the given query position. Shape (H_q, d_h).
+
+    Φ_P[h] = sum_{p in prefix} attn[h, last_q_pos, p] * V_kv[h//group, p]
+    """
+    # Reshape V: (1, T, H_kv * d_h) -> (1, H_kv, T, d_h)
+    V = v_layer.view(1, v_layer.shape[1], num_kv_heads, head_dim).permute(0, 2, 1, 3)
+    # GQA group size
+    group = num_q_heads // num_kv_heads
+
+    # Slice attention to last query position vs prefix positions
+    # attn_weights_layer: (1, H_q, T, T_k); take row=last_query_pos, cols 0:prefix_end
+    a = attn_weights_layer[0, :, last_query_pos, :prefix_end]  # (H_q, prefix_end)
+    # V at prefix positions per kv-head: (H_kv, prefix_end, d_h)
+    V_pref = V[0, :, :prefix_end, :]
+    # Expand V to H_q via group repeat
+    V_pref_expanded = V_pref.repeat_interleave(group, dim=0)  # (H_q, prefix_end, d_h)
+    # Φ_P[h] = a[h] @ V_pref_expanded[h] -> (d_h,)
+    phi = torch.einsum("hp,hpd->hd", a, V_pref_expanded)  # (H_q, d_h)
+    return phi.float().cpu()
+
+
+# =============================================================================
+# Main
+# =============================================================================
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser()
+    p.add_argument("--model", required=True)
+    p.add_argument(
+        "--task",
+        choices=["metatool_st4", "tau2_retail", "tau2_telecom", "tau2_airline"],
+        default="metatool_st4",
+    )
+    p.add_argument("--metatool-path", default=DEFAULT_METATOOL_PATH)
+    p.add_argument("--max-samples", type=int, default=256)
+    p.add_argument("--device", default="cuda:0")
+    p.add_argument("--dtype", default="bfloat16")
+    p.add_argument("--out", required=True)
+    p.add_argument(
+        "--tau-list", default="0.90,0.95,0.99",
+        help="comma-separated τ values for r*",
+    )
+    return p.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    taus = [float(t) for t in args.tau_list.split(",")]
+
+    # Load data
+    if args.task == "metatool_st4":
+        items = load_metatool_st4(args.metatool_path, args.max_samples)
+    elif args.task.startswith("tau2_"):
+        domain = args.task.split("_", 1)[1]
+        items = load_tau2(domain, args.max_samples)
+    else:
+        raise ValueError(args.task)
+    print(f"[data] task={args.task} N={len(items)}", flush=True)
+    if len(items) == 0:
+        print("ERROR: zero items loaded", file=sys.stderr)
+        return 2
+
+    # Load model
+    print(f"[model] loading {args.model} (dtype={args.dtype}, device={args.device})", flush=True)
+    dtype = {"bfloat16": torch.bfloat16, "float16": torch.float16, "float32": torch.float32}[args.dtype]
+    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model,
+        torch_dtype=dtype,
+        device_map=args.device,
+        trust_remote_code=True,
+        attn_implementation="eager",  # required for output_attentions
+    )
+    model.eval()
+
+    family = detect_model_family(args.model)
+    cfg = model.config
+    H_q = cfg.num_attention_heads
+    H_kv = getattr(cfg, "num_key_value_heads", H_q)
+    d_h = cfg.hidden_size // H_q
+    L = cfg.num_hidden_layers
+    print(f"[model] L={L} H_q={H_q} H_kv={H_kv} d_h={d_h} family={family}", flush=True)
+
+    # Pre-allocate Φ_P buffers per (layer, head): list[layer] of np.array(N, H_q, d_h)
+    N = len(items)
+    phi_buffer = np.zeros((L, N, H_q, d_h), dtype=np.float32)
+    prefix_lens = np.zeros(N, dtype=np.int32)
+    seq_lens = np.zeros(N, dtype=np.int32)
+
+    cap = AttnCapture(model, family)
+    cap.install()
+
+    t0 = time.time()
+    try:
+        for i, item in enumerate(items):
+            messages = build_messages(item, DEFAULT_TOOL_SYSTEM_PROMPT)
+            try:
+                prompt_text = tokenizer.apply_chat_template(
+                    messages, add_generation_prompt=True, tokenize=False
+                )
+            except Exception as e:
+                print(f"[skip {i}] chat_template failed: {e}", flush=True)
+                continue
+            enc = tokenizer(prompt_text, return_tensors="pt").to(args.device)
+            input_ids = enc.input_ids
+            T = input_ids.shape[1]
+            try:
+                prefix_end = find_user_block_start(tokenizer, input_ids, family)
+            except RuntimeError as e:
+                print(f"[skip {i}] {e}", flush=True)
+                continue
+            prefix_lens[i] = prefix_end
+            seq_lens[i] = T
+
+            with torch.no_grad():
+                _ = model(
+                    input_ids=input_ids,
+                    attention_mask=enc.attention_mask,
+                    output_attentions=True,
+                    use_cache=False,
+                    return_dict=True,
+                )
+
+            last_q_pos = T - 1  # last position before next-token prediction
+            # Extract Φ_P per layer
+            for ell in range(L):
+                aw = cap.attn_weights[ell]  # (1, H_q, T, T_k)
+                vv = cap.values[ell]        # (1, T, H_kv*d_h)
+                if aw is None or vv is None:
+                    continue
+                phi = compute_phi_p_per_layer_head(
+                    aw, vv, prefix_end, last_q_pos,
+                    num_kv_heads=H_kv, head_dim=d_h, num_q_heads=H_q,
+                )
+                phi_buffer[ell, i] = phi.numpy()
+
+            if (i + 1) % 8 == 0 or i == N - 1:
+                elapsed = time.time() - t0
+                rate = (i + 1) / max(elapsed, 1e-3)
+                remain = (N - i - 1) / max(rate, 1e-3)
+                print(
+                    f"[{i+1}/{N}] elapsed={elapsed:.1f}s rate={rate:.2f}/s "
+                    f"eta={remain:.1f}s prefix_len_mean={prefix_lens[:i+1].mean():.0f}",
+                    flush=True,
+                )
+    finally:
+        cap.remove()
+
+    # SVD per (layer, head)
+    print("[svd] computing per-(layer, head) spectrum...", flush=True)
+    spectra = np.zeros((L, H_q, min(N, d_h)), dtype=np.float32)  # singular values
+    r_star = {f"{tau:.2f}": np.zeros((L, H_q), dtype=np.int32) for tau in taus}
+
+    for ell in range(L):
+        for h in range(H_q):
+            M = phi_buffer[ell, :, h, :]  # (N, d_h)
+            # Center? Eckart-Young is on un-centered SVD. We use raw Φ_P samples.
+            # SVD: M = U Σ V^T; spectrum is Σ
+            try:
+                s = np.linalg.svd(M, compute_uv=False)
+            except np.linalg.LinAlgError:
+                s = np.zeros(min(N, d_h))
+            k = min(len(s), spectra.shape[2])
+            spectra[ell, h, :k] = s[:k]
+            energy = np.cumsum(s ** 2)
+            total = energy[-1] if len(energy) > 0 and energy[-1] > 0 else 1.0
+            for tau in taus:
+                idx = int(np.searchsorted(energy / total, tau)) + 1
+                r_star[f"{tau:.2f}"][ell, h] = min(idx, len(s))
+
+    # Save
+    out = {
+        "model": args.model,
+        "task": args.task,
+        "n_samples": int(N),
+        "n_layers": int(L),
+        "n_heads_q": int(H_q),
+        "n_heads_kv": int(H_kv),
+        "head_dim": int(d_h),
+        "taus": taus,
+        "r_star": {k: v.tolist() for k, v in r_star.items()},
+        "spectra_top16": spectra[:, :, :16].tolist(),
+        "prefix_lens": prefix_lens.tolist(),
+        "seq_lens": seq_lens.tolist(),
+        "wall_seconds": time.time() - t0,
+    }
+    with open(out_path, "w") as f:
+        json.dump(out, f, indent=2)
+    print(f"[done] saved -> {out_path}", flush=True)
+    # Quick summary stats to stdout
+    for tau in taus:
+        rr = np.array(r_star[f"{tau:.2f}"])
+        print(
+            f"  τ={tau:.2f}: r* mean={rr.mean():.2f} median={np.median(rr):.0f} "
+            f"min={rr.min()} max={rr.max()} "
+            f"layer-mean range=[{rr.mean(axis=1).min():.2f}, {rr.mean(axis=1).max():.2f}]",
+            flush=True,
+        )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
