@@ -1,0 +1,147 @@
+% =====================================================================
+% ARXIV-only appendix: Deployment scenario walkthrough
+% Append before \end{document} of ARXIV_v1_ko.tex
+% =====================================================================
+
+\section{Deployment 시나리오 walkthrough}
+\label{app:scenario}
+
+본 부록은 \cref{sec:system}의 5-layer architecture를 \emph{구체적 multi-turn dialog} 예시로 추적하여 운영 시점의 동작을 보여준다. 사용자는 데이터 소스에 대한 사전 지식 없이 자연어 목표만으로 시스템과 상호작용한다.
+
+\subsection{시나리오: 자원 그룹 선정 + 행동 분석}
+
+\paragraph{사용자 turn 1.}
+``특정 조건의 자원 그룹을 선정하고 그 행동 패턴을 분석해줘.''
+
+\paragraph{Layer A — 입력 변환.}
+\begin{itemize}[leftmargin=*]
+\item NER: 자원, 조건, 행동 패턴 식별.
+\item Linking: $A$의 항목을 자동 induction된 facet에 연결: \texttt{[domain.resource:?]}, \texttt{[action.select:filter]}, \texttt{[action.analyze:behavior]}.
+\item Disambiguation: ``자원''이 product, customer, event 중 어느 facet인지 미명확 → \emph{clarification flag}.
+\item Compact header (50 tokens): facet 정의 요약, 조건·행동 candidate 메뉴.
+\end{itemize}
+
+System turn 1 응답 (clarification): ``자원 종류를 명확히 해주세요: (a) 고객, (b) 상품, (c) 이벤트. 또한 어떤 행동 패턴을 분석할지 (purchase, conversion, engagement)?''
+
+\paragraph{사용자 turn 2.}
+``고객, 그리고 conversion 패턴.''
+
+\paragraph{Layer A — 입력 변환 (turn 2).}
+\begin{itemize}[leftmargin=*]
+\item Disambiguation 해소: \texttt{[domain.resource:customer]}, \texttt{[metric:conversion]}.
+\item Multi-turn context 누적: turn 1의 \texttt{select+filter+analyze} action chain + turn 2의 specifier.
+\item Compact header (확장, 80 tokens): 누적 facet context.
+\end{itemize}
+
+\paragraph{Layer D — 프롬프트 엔진.}
+누적 facet 활성도 분석 후 7-signal priority로 도구 선정:
+\begin{itemize}[leftmargin=*]
+\item Intent (high): \texttt{customer\_filter}, \texttt{conversion\_analysis}.
+\item Popularity (medium): \texttt{customer\_segment} (자주 사용되는 도구).
+\item Relevance (medium): \texttt{conversion\_funnel}, \texttt{conversion\_rate}.
+\item Token budget pruning: 50 도구 → top-12로 축소.
+\end{itemize}
+프롬프트 구성: compact header + top-12 도구 카탈로그 + 5계층 navigation hint.
+
+\paragraph{Layer B — 모델 강화 (도구 선택 단계).}
+\textbf{Decision point} (첫 토큰 도구 이름 결정): aggressive 개입 적용.
+\begin{itemize}[leftmargin=*]
+\item M3 routing: facet 활성도 \texttt{[customer + conversion]} → analytics 도메인 어댑터 활성화.
+\item M1 정적 rank-1: 압축된 prefix surrogate (도구 카탈로그 KV 대체).
+\item M2 Q-bias ($\beta = +4$): 첫 토큰 분포 sharp화.
+\item M4 facet-aware KV: analytics facet에 8-bit, 다른 facet 3-bit 할당.
+\end{itemize}
+출력: 첫 도구 ``\texttt{customer\_filter}'' (top-1 agreement $\sim 98\%$).
+
+\paragraph{Layer B — 모델 강화 (인자 생성 단계, multi-step).}
+\textbf{따름정리에 따라 aggressive 개입 비활성}, 자연어 prompt 회복:
+\begin{itemize}[leftmargin=*]
+\item M1, M2, M3 비활성화 (full prompt 모드).
+\item M4만 약한 압축 유지 (8-bit 균일).
+\item LLM이 도구 인자 생성: \texttt{\{customer\_filter: \{condition: ``conversion\_status = high'', limit: 1000\}\}}.
+\end{itemize}
+다음 도구 \texttt{conversion\_analysis}, 그 인자도 동일 모드.
+
+\paragraph{Layer C — 출력 변환.}
+도구 호출 결과 (예: customer 1000건 + conversion funnel data):
+\begin{itemize}[leftmargin=*]
+\item Facet 일관성 검증: 호출된 도구가 query의 facet (\texttt{customer + conversion})과 정합 → OK.
+\item Tag → 자연어: \texttt{[metric:conversion]} → ``전환''.
+\item Template 적용: 표 + 차트 + 분석 텍스트.
+\end{itemize}
+사용자에게 응답 (Layer B 응답 합성도 \emph{full prompt 모드}, 자연어 출력).
+
+\paragraph{Layer E — 자기 진화 (배치, 비동기).}
+이 turn의 trace 누적 (성공 도구 chain, 사용자 confirmation, 응답 satisfied 여부). 임계 도달 시:
+\begin{itemize}[leftmargin=*]
+\item 새 도구 조합 \texttt{(customer\_filter → conversion\_analysis)}이 자주 등장 → Layer D priority 상향.
+\item 새 facet candidate 감지 시 (예: \texttt{[event.trigger:?]}) → Layer A 어노테이터 갱신 후보.
+\item 운영자 승인 후 cascade: Layer A annotator + Layer B M3 어댑터 + Layer D prompt engine 동시 갱신.
+\end{itemize}
+
+\subsection{Cost-benefit 정량 추적}
+
+위 시나리오의 token / KV / 응답 시간 비교:
+
+\begin{table}[h]
+\centering
+\caption{시나리오 turn 2의 정량 비교 (개념적, 실제 수치는 환경 의존).}
+\label{tab:scenario-cost}
+\small
+\begin{tabular}{lrrr}
+\toprule
+& Baseline (full NL prompt) & \cref{sec:system} framework & 비율 \\
+\midrule
+도구 선택 prefix tokens & 약 4,000 & 약 800 (compact + facet) & 0.20 \\
+KV 캐시 (도구 선택 단계) & 100\% & 30\% (M4 facet-aware 압축) & 0.30 \\
+첫 토큰 latency & $\Delta$ ms & $\Delta/3$ ms (예상) & 0.33 \\
+인자 생성 단계 prompt & 4,000 & 4,000 (full 회복) & 1.00 \\
+응답 합성 단계 prompt & 4,000 & 4,000 (full 회복) & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{관찰.}
+도구 \emph{선택} 단계에서만 압축 효과 (token $\sim 5\times$, KV $\sim 3\times$). 인자 \emph{생성}·응답 \emph{합성}은 따름정리 \ref{cor:multistep}에 의해 자연어 prompt 회복 → baseline과 동일 비용. 그러나 도구 선택은 multi-tool query에서 \emph{여러 번} 발생 (예: 5-tool chain → 5번 decision point) → 누적 비용 절감.
+
+\subsection{Multi-turn 글로벌 최적의 예}
+
+위 시나리오에서 turn 1의 ambiguous query는 \emph{turn-local greedy}로 처리하면 임의 도구 선택 → 잘못된 결과 가능. 시스템이 Layer A의 disambiguation flag로 clarification을 묻고, 사용자 turn 2의 응답을 누적 facet context로 통합 → \emph{글로벌 의도}에 도달.
+
+\paragraph{글로벌 최적 mechanism.}
+\begin{itemize}[leftmargin=*]
+\item Turn 1: ambiguous → clarification 우선 (greedy 도구 호출 안 함).
+\item Turn 2: facet context 누적 → top-12 도구 candidates 중 \emph{전체 chain 최적} 선택 (단일 turn 최적 아님).
+\item Layer E의 workflow auto-discovery가 자주 등장하는 chain을 학습 → 미래 유사 query에서 chain 시작 단계부터 decision-tree 축약.
+\end{itemize}
+
+\subsection{시나리오 요약 (시스템 동작 개요)}
+
+\begin{table}[h]
+\centering
+\caption{각 layer의 시나리오 turn별 동작.}
+\label{tab:scenario-summary}
+\small
+\begin{tabular}{lp{0.55\textwidth}}
+\toprule
+Layer & 시나리오 동작 \\
+\midrule
+A 입력 변환 & NER + Linking + Disambiguation. Multi-turn에서 누적 facet context 유지. \\
+D 프롬프트 엔진 & 7-signal priority로 도구 선정, token budget pruning. \\
+B 모델 강화 & 도구 선택 단계 aggressive (M1+M2+M3+M4); 인자 생성·응답 합성은 full prompt 회복. \\
+C 출력 변환 & Facet 일관성 검증, tag → 자연어, template 적용. \\
+E 자기 진화 & Trace 누적, drift 감지, cascade 갱신 (배치). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Edge cases}
+
+\paragraph{사용자 의도가 5개 이상 facet에 걸친 경우.}
+정리 3은 active facet 수 $F$의 상한이 함수공간 차원이며, $F$가 크면 정적 rank-$k$ 개입의 $k$도 커야 함. cheap diagnostic으로 $F$ 추정 후, $F > 5$이면 Layer B aggressive 모드 비활성화 → full prompt fallback.
+
+\paragraph{새 facet schema 갱신 직후.}
+Layer E의 cascade update 직후 Layer B의 M3 어댑터·M1 SVD basis가 invalid. 일정 trace 재누적 (예: 1000 turn) 후 재학습. 그 동안 full prompt 모드로 안전 fallback.
+
+\paragraph{사용자가 명시적으로 ``이전 결과 재분석'' 요청.}
+Multi-turn context retrieval. Layer A의 NER이 ``이전''을 reference로 인식, 이전 turn의 facet context 활성. Layer D가 새 도구 + 이전 결과를 입력으로 받는 도구 (예: \texttt{re\_analyze}) 우선.

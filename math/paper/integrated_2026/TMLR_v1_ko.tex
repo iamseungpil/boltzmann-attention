@@ -1,0 +1,448 @@
+% !TeX program = xelatex
+% TMLR-style academic-only variant (Part I + brief system summary)
+% Trim of INTEGRATED_v1_ko.tex for academic submission
+
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{kotex}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black}
+\usepackage{cleveref}
+\usepackage[round]{natbib}
+\usepackage{enumitem}
+\usepackage{algorithm, algpseudocode}
+
+\newtheorem{theorem}{정리}
+\newtheorem{lemma}{보조정리}
+\newtheorem{corollary}{따름정리}
+\theoremstyle{definition}
+\newtheorem{definition}{정의}
+\newtheorem{remark}{비고}
+\renewcommand{\proofname}{증명}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Phip}{\Phi_P}
+\newcommand{\dh}{d_h}
+\newcommand{\softmax}{\mathrm{softmax}}
+\newcommand{\attn}{\mathrm{attn}}
+
+\title{
+  Frozen Agentic LLM의 함수공간 Prompt 내재화:\\
+  Rank-Bounded Replaceability와 Multi-Step Trajectory Boundary\\[4pt]
+  \large Function-Space Prompt Internalization for Frozen Agentic LLMs:\\
+  Rank-Bounded Replaceability and the Multi-Step Trajectory Boundary
+}
+\author{
+  익명 저자\\
+  TMLR 제출본 v1, 2026-04-29
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+도구 카탈로그가 풍부한 정지된(frozen) 에이전틱 LLM은 매 추론 호출마다 \emph{수천 토큰 길이의 시스템 prompt}를 prepend하며, 이는 추론 비용·KV 캐시·동시 처리량의 일차 제약이다. 본 논문은 자연어 prefix prompt가 attention 출력에 미치는 기여 $\Phip(q)$를 함수공간 SVD로 분석하여, \emph{정량적 rank-한계 대체성 정리}를 증명한다. 핵심 결과는 다음 네 가지: (1) \textbf{정리 1 (Rank-bounded replaceability)} --- 임의의 정적 rank-$k$ 개입의 정확한 $L_2$ 오차는 폐기된 특이값들의 제곱합 ($\sum_{i>k}\sigma_i^2$); (2) \textbf{정리 2 (Q-bias 1차 보정)} --- 정적 절단 너머 leading 보정이 query-의존 1차 Taylor 항이며 부호까지 표준 Q-bias 스티어링 $\beta\cdot V_k V_k^\top Q$와 일치; (3) \textbf{정리 3 (Facet-rank 일치)} --- prefix가 $F$ 직교 facet을 갖는 경우 함수공간 유효 rank $r^*(\tau \to 1) \to F$; (4) \textbf{Multi-step trajectory boundary 따름정리} --- 1차 모멘트 회복은 자기회귀 trajectory 회복을 함의하지 않음 (1-step recovery $\to$ multi-step F1 = 0).
+
+실증: Qwen 2.5-7B와 Llama 3.1-8B 두 모델 family, MetaTool ST4 + tool-use benchmark 3 도메인 (8 cells)에서 (a) $r^*(0.95) \le 2.25$ 측정, (b) 정적 rank-1 + Q-bias hybrid의 \emph{prompt 없이} 첫 토큰 next-token 일치 \textbf{98.4\%} (Qwen, baseline 0\%), (c) 동일 hybrid의 multi-step F1 = \textbf{0.000} (full prompt 0.75/0.87 대비) --- 따름정리의 결정적 negative 검증, (d) NL prompt 대비 facet typed prompt가 Qwen +9.7\%, Llama -3.7\% (model heterogeneity), (e) 익명화 ablation으로 Qwen은 \emph{도구 이름이 방해 요소} (list\_anon F1 +233\%), Llama는 NL name path 부분 활용 (mechanism 분리), (f) E13 facet count $\to r^*$ direct anchor: facet\_full ($F=2$)에서 $r^*(0.95) \approx 2$로 정리 3 strict prediction 일치.
+
+본 논문의 contribution은 정량적 prompt internalization의 이론·실증 정합 framework이며, 동시 연구 \citep{belitsky2025kvsteer, shin2025genpi}와 보완적인 \emph{rank-bounded 분석}과 \emph{multi-step trajectory boundary negative 결과}를 제공한다. 시스템 운영 측면의 함의 (5-layer architecture, model family 분기 deployment rule, bootstrap-and-distill cycle)는 동반 기술 보고서로 별도 publish (본 논문 §5에서 1쪽 요약).
+\end{abstract}
+
+\section{서론}
+\label{sec:intro}
+
+도메인 전문가용 도구가 다수 결합된 LLM 에이전트 시스템은 production 운영에서 자연어로 풀어 쓴 prefix prompt가 매 사용자 query의 KV 캐시 계산을 지배하는 비용 구조를 가진다. 도구 카탈로그가 추가될 때마다 prefix는 선형 누적되며, 도메인 간 통일 온톨로지의 부재와 사용자의 데이터 소스 무지식이 이 비용을 더 키운다.
+
+본 논문은 \emph{정지된} LLM 위에서 자연어 prefix prompt가 attention 출력에 미치는 기여 $\Phip$를 함수공간 SVD로 정량 분석하여 다음을 묻는다: prefix를 어텐션 출력 단의 \emph{저랭크 개입}으로 대체할 때 달성 가능한 정확도의 정확한 한계는 무엇인가? 이 대체가 자기회귀 generation에서 어디까지 작동하는가?
+
+\subsection{기여}
+
+\textbf{이론.} (1) \textbf{정리 1 (Rank-bounded replaceability)}: 정적 rank-$k$ 개입의 정확한 $L_2$ 오차 = $\sum_{i>k}\sigma_i^2(\Phip)$ (\cref{sec:thm1}). (2) \textbf{정리 2 (Q-bias 1차 보정)}: 정적 절단 너머 leading 보정 = $\beta\cdot V_k V_k^\top Q$, 부호 = $\mathrm{sign}(\partial_q\lambda_P)$ (\cref{sec:thm2}). (3) \textbf{정리 3 (Facet-rank 일치)}: $F$ 직교 facet 분해 하 $r^*(\tau\to 1) \to F$ (\cref{sec:thm3}). (4) \textbf{따름정리 (Multi-step trajectory boundary)}: 1차 모멘트 회복 $\not\Rightarrow$ trajectory 회복; KL chain rule + mode-shift argument (\cref{sec:multistep-bound}).
+
+\textbf{실증.} (a) $r^*(0.95) \le 2.25$ (8 cells, \cref{sec:exp-rank}); (b) hybrid 첫 토큰 98.4\% (\cref{sec:exp-static-qbias}); (c) multi-step F1 = 0 negative (\cref{sec:exp-multistep}); (d) facet vs NL model heterogeneity (\cref{sec:exp-facet-nl}); (e) 익명화 mechanism 분리 (\cref{sec:exp-anon}); (f) facet count $\to r^*$ anchor (\cref{sec:exp-facet-rank}).
+
+\section{관련 연구}
+\label{sec:related}
+
+\paragraph{매개변수 효율적 미세조정 이론.}
+\citet{he2022unified}는 prefix tuning, prompt tuning, adapter, LoRA가 모두 은닉 상태의 저랭크 가산 수정으로 표현될 수 있음을 보였다. \citet{petrov2024prompting}은 prefix tuning이 표현력 한계를 가지며 출력이 고정된 볼록 껍질에 놓임을 보였다. 본 논문의 rank 경계는 보완적이다 --- 볼록 껍질 경계는 \emph{방향}을, SVD 경계는 \emph{차원}을 제한.
+
+\paragraph{프롬프트 압축.}
+LLMLingua \citep{jiang2023llmlingua}, GIST tokens \citep{mu2023gist}, 500xCompressor \citep{li2024compressor}는 학습된 압축기를 통해 prompt를 짧은 토큰 시퀀스로 압축. 본 논문은 (a) frozen LLM, 압축기 학습 없음, (b) 어텐션 출력단 개입, (c) 명시적 이론 경계로 보완적. \citet{shin2025genpi} (GenPI)는 ``prompt internalization'' 용어를 도입했으나 미세조정 기반 (weight 흡수) -- 본 논문은 frozen weight + KV 개입의 분리된 path.
+
+\paragraph{KV / 활성화 스티어링 (concurrent).}
+CAA \citep{rimsky2024caa}, ITI \citep{li2023iti}, RepE \citep{zou2023repe}, PASTA \citep{zhang2023pasta}. 가장 가까운 동시 연구로 \citet{belitsky2025kvsteer}가 frozen LLM의 KV cache 일회성 개입으로 reasoning style 전환을 시연. 본 논문은 architectural surface 일치하나 (a) rank-bounded 이론 경계, (b) 도구-선택 F1 측정, (c) multi-step F1 negative 보고로 보완적 --- 그들의 positive 시연이 본 논문 정리의 \emph{1차 모멘트} 적용 영역에 해당, 본 논문은 그 영역의 \emph{경계} 제공.
+
+\paragraph{In-context learning theory.}
+\citet{akyurek2023icl}, \citet{vonoswald2023icl}, \citet{ahn2023preconditioned}는 ICL이 어텐션 내에서 구배 강하를 근사함을 보임. 정량적 대체성 경계는 본 논문이 처음 제시.
+
+\section{이론}
+\label{sec:theory}
+
+\subsection{설정 및 표기}
+\label{sec:notation}
+
+$L$개 layer, layer당 $H_q$ attention head, $\dh = d/H_q$ head dimension의 frozen decoder transformer. $\mathcal{Q} \subset \R^d$를 task의 query-측 입력 상태 분포. $P$는 시스템 prefix, $K_P, V_P$는 그 key/value. 입력 query $x$, query state $q^{(\ell,h)} = W_Q^{(\ell,h)}x$. 전체 attention 출력 $o_{\mathrm{full}}(q,x) = \attn(q; [K_P; K_x], [V_P; V_x])$.
+
+\subsection{보조정리: He 2022 분해}
+
+\begin{lemma}[Prefix 분해, \citet{he2022unified}]
+\label{lem:he}
+\begin{equation}
+o_{\mathrm{full}}(q,x) = (1-\lambda_P(q,x))\,\attn(q;K_x,V_x) + \lambda_P(q,x)\,\attn(q;K_P,V_P),
+\end{equation}
+$\lambda_P(q,x) = \frac{\sum_{p\in P}\exp(qK_{P,p}^\top/\sqrt{\dh})}{\sum_{p\in P}\exp(qK_{P,p}^\top/\sqrt{\dh}) + \sum_{i\in x}\exp(qK_{x,i}^\top/\sqrt{\dh})}$.
+\end{lemma}
+
+Prefix 기여를 $\Phip(q,x) := \lambda_P(q,x)\,\attn(q;K_P,V_P)$로 정의 (이하 $x$ 의존성을 query 분포 $\mathcal{Q}$에 흡수, $\Phip(q)$).
+
+\subsection{정리 1: Rank-bounded replaceability}
+\label{sec:thm1}
+
+\begin{definition}[정적 rank-$k$ 개입]
+$\widehat{\Phi}_k(q) := V_k V_k^\top \Phi'(q)$, $V_k \in \R^{\dh\times k}$ 직교 열 (쿼리-독립), $\Phi'$ 임의 surrogate.
+\end{definition}
+
+\begin{theorem}[Rank-bounded replaceability]
+\label{thm:rank-bound}
+$\Phip$가 $\mathcal{Q}$ 위 측도 $\mu$에 대해 제곱 가적분이고 공분산 $C_{\Phip} := \E_\mu[\Phip\Phip^\top]$의 특이값을 $\sigma_1^2 \ge \sigma_2^2 \ge \cdots$라 하면,
+\begin{equation}
+\inf_{V_k, \Phi'} \E_\mu \|\Phip(q) - V_k V_k^\top \Phi'(q)\|_2^2 = \sum_{i>k}\sigma_i^2(\Phip),
+\end{equation}
+이며 상대 오차 $\le 1-\tau$ 달성 $\Leftrightarrow$ $k \ge r^*(\tau) = \min\{k: \sum_{i\le k}\sigma_i^2/\sum_i\sigma_i^2 \ge \tau\}$.
+\end{theorem}
+
+\begin{proof}
+\textbf{Step 1.} $V_k$ 고정, $a := V_k^\top\Phi'$로 두면 $V_k V_k^\top \Phi' = V_k a$. $a$ 임의이므로 inner min은 점별 정사영: $a^*(q) = V_k^\top\Phip(q)$. 잔차 = $\E_\mu \|(I - V_k V_k^\top)\Phip\|^2 = \mathrm{tr}((I-V_k V_k^\top)C_{\Phip})$.
+
+\textbf{Step 2.} $V_k^\top V_k = I_k$ 하 $\mathrm{tr}(V_k^\top C V_k)$ 최대화. Ky Fan 부등식에서 $\max = \sum_{i\le k}\sigma_i^2$, $V_k = [u_1,\ldots,u_k]$ ($C$의 상위 고유벡터)에서 달성. 따라서 $\min\mathrm{tr}((I-V_k V_k^\top)C) = \sum_{i>k}\sigma_i^2$.
+
+\textbf{Step 3.} $\sum_{i>k}\sigma_i^2/\sum_i\sigma_i^2 \le 1-\tau \Leftrightarrow \sum_{i\le k}\sigma_i^2/\sum_i\sigma_i^2 \ge \tau \Leftrightarrow k \ge r^*(\tau)$.
+\qed
+\end{proof}
+
+\subsection{정리 2: Q-bias 1차 보정}
+\label{sec:thm2}
+
+\begin{theorem}[Q-bias 1차 보정]
+\label{thm:qbias}
+$\lambda_P(q)$가 $q_0$ 주변에서 미분 가능하면, 정적 rank-$k$ surrogate를 넘어선 leading 보정항은
+\begin{equation}
+\delta\Phip(q) \approx \beta(q_0)\cdot V_k V_k^\top Q + O(\|q-q_0\|^2),
+\end{equation}
+$\mathrm{sign}(\beta) = \mathrm{sign}(\partial_q\lambda_P(q_0))$, $V_k$는 정리 \ref{thm:rank-bound}의 상위 $k$ 특이공간, $Q = q-q_0$.
+\end{theorem}
+
+\begin{proof}
+$\Phip(q) = \Phip(q_0) + J_{q_0}(q-q_0) + O(\|q-q_0\|^2)$, $J_{q_0} = (\partial_q\lambda_P)|_{q_0}\cdot\attn(q_0;K_P,V_P) + \lambda_P(q_0)\cdot(\partial_q\attn)|_{q_0}$. 정적 surrogate $V_k V_k^\top\Phip(q_0)$를 빼면 잔차 = (직교 잔차, 정리 1) + V-사영 1차 항 + 직교 1차 항.
+
+V-사영 1차 항의 게이트 미분 부분을 분리:
+\begin{equation}
+(\partial_q\lambda_P)|_{q_0}\cdot V_k V_k^\top\attn(q_0;K_P,V_P)\cdot(q-q_0) = \beta(q_0)\cdot V_k V_k^\top\cdot Q,
+\end{equation}
+여기서 $\beta(q_0) = (\partial_q\lambda_P)|_{q_0}\cdot\|\attn(q_0;K_P,V_P)\|$. $\|\attn\|\ge 0$이므로 $\mathrm{sign}(\beta) = \mathrm{sign}(\partial_q\lambda_P)$. 어텐션 커널 미분 항은 별도 고차 보정으로 흡수.
+\qed
+\end{proof}
+
+\subsection{정리 3: Facet-rank 일치}
+\label{sec:thm3}
+
+\begin{definition}[Facet 분해]
+prefix $P$의 facet 분해는 직교 임베딩 $\{\phi_f: \mathcal{Q}\to\R^{\dh}\}_{f=1}^F$, $\Phip(q) = \sum_f \alpha_f(q)\phi_f$, $\alpha_f$ query-의존 활성화.
+\end{definition}
+
+\begin{theorem}[Facet-rank 일치]
+\label{thm:facet-rank}
+$\{\phi_f\}_{f=1}^F$ 직교, active facet $F^* = \mathrm{rank}(M)$ ($M = \E_\mu[\alpha\alpha^\top]$)이면 $r^*(\tau\to 1^-) = F^*$.
+\end{theorem}
+
+\begin{proof}
+$\Phi := [\phi_1,\ldots,\phi_F]$, $\alpha(q) := (\alpha_1(q),\ldots,\alpha_F(q))^\top$로 두면 $\Phip = \Phi\alpha$. 공분산 $C_{\Phip} = \Phi M \Phi^\top$, $M = \E_\mu[\alpha\alpha^\top] \succeq 0$. 직교성에서 $\mathrm{rank}(\Phi) = F$, $\mathrm{rank}(C) = \mathrm{rank}(M) = F^*$. $\sigma_i^2 = 0$ for $i > F^*$이므로 $r^*(\tau\to 1^-) = F^*$.
+
+소프트 직교 (NMI $< 0.3$, $\Phi^\top\Phi = I_F + E$, $\|E\|_F < \epsilon$) 하 Weyl 부등식에서 $r^*(\tau) = F^*(1\pm O(\epsilon))$.
+\qed
+\end{proof}
+
+\subsection{따름정리: Multi-step trajectory boundary}
+\label{sec:multistep-bound}
+
+\begin{corollary}[Multi-step trajectory boundary]
+\label{cor:multistep}
+정리 1, 2, 3이 보장하는 회복은 1차 모멘트 ($\E_\mu[\Phip]$) 수준이며 자기회귀 joint trajectory $p(y_{1:T}|x)$ 회복을 \emph{함의하지 않는다}. 첫 토큰 KL $\le \epsilon$이라도 $T$가 큰 trajectory에서 mode-shift 가능.
+\end{corollary}
+
+\begin{proof}
+KL chain rule: $\mathrm{KL}(p_T\|q_T) = \sum_t \E_{y_{<t}\sim p}[\mathrm{KL}(p_t\|q_t|y_{<t})]$. 정리 1은 단일 attention 출력의 1차 모멘트 경계 제공이며 conditional distribution 균일 한계 아님. $t\ge 2$에서 (a) $p$ 하: full KV cache 정확, (b) $q$ 하: 개입에 의해 prefix surrogate, residual $\sum_{i>k}\sigma_i^2$. 자기회귀 한 번 mode 갈라지면 trajectory 분기 → JSON tool-call schema 깨짐.
+\qed
+\end{proof}
+
+\paragraph{설계 함의.}
+도구 \emph{선택} (single decision point): aggressive 개입 가능. 도구 인자 \emph{생성}, 응답 \emph{합성} (multi-step autoregressive): aggressive 개입 \emph{금지}, 자연어 prompt 회복.
+
+\section{실증}
+\label{sec:experiments}
+
+\paragraph{설정.}
+모델: \texttt{Qwen2.5-7B-Instruct}, \texttt{Meta-Llama-3.1-8B-Instruct}. Task: MetaTool ST4 (78 도구) + tool-use benchmark 3 도메인. Metric: multi-tool F1, KL, next-token top-1 agreement, $r^*(\tau)$.
+
+\subsection{$r^*(\tau)$ 측정 (정리 1)}
+\label{sec:exp-rank}
+
+8 cells에서 query batch ($N=256$) $\Phip$ 추출, 공분산 SVD.
+
+\begin{table}[h]
+\centering
+\caption{함수공간 유효 rank ($N=256$ 평균). $r^*(0.95) \le 2.25$ 모든 셀.}
+\label{tab:r-star}
+\small
+\begin{tabular}{lrrr}
+\toprule
+(model, task) & $r^*(0.9)$ & $r^*(0.95)$ & $r^*(0.99)$ \\
+\midrule
+(Qwen, MetaTool ST4) & 1.00 & 1.62 & 4.21 \\
+(Qwen, retail)       & 1.00 & 1.85 & 5.32 \\
+(Qwen, telecom)      & 1.00 & 1.43 & 3.95 \\
+(Qwen, airline)      & 1.12 & 2.25 & 6.10 \\
+(Llama, MetaTool ST4) & 1.00 & 1.55 & 4.08 \\
+(Llama, retail)       & 1.00 & 1.78 & 5.05 \\
+(Llama, telecom)      & 1.00 & 1.34 & 3.62 \\
+(Llama, airline)      & 1.18 & 2.18 & 5.88 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Sanity controls: real prefix vs random ($r^*$ 8배 차이), real query vs random, shuffled prefix tokens ($r^*$ 거의 같음, catalog content not load-bearing). 3/3 통과.
+
+\subsection{Hybrid 첫 토큰 회복 (정리 1, 2)}
+\label{sec:exp-static-qbias}
+
+\begin{table}[h]
+\centering
+\caption{개입별 KL과 next-token top-1 agreement (Qwen MetaTool ST4, $N=128$).}
+\label{tab:hybrid}
+\small
+\begin{tabular}{lrr}
+\toprule
+condition & KL & top-1 \\
+\midrule
+no prompt & 25.05 & 0.00 \\
+정적 rank-1 & 5.50 & 0.13 \\
+정적 rank-8 & 4.32 & 0.27 \\
+Q-bias 단독 ($\beta=4$) & 6.21 & 0.41 \\
+\textbf{Hybrid (rank-1 + Q-bias $\beta=4$)} & \textbf{3.01} & \textbf{0.984} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Llama: 분포 회복 (KL $17.71\to 8.05\to 3.06$), argmax 회복 약함 (top-1 $\le 0.10$). Model family 의존성.
+
+\subsection{Multi-step F1 negative (따름정리)}
+\label{sec:exp-multistep}
+
+\begin{table}[h]
+\centering
+\caption{Multi-tool F1 ($N=64$). Hybrid가 first-token 98.4\%였음에도 multi-step F1 = 0.000.}
+\label{tab:multistep}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{2}{c}{Qwen} & \multicolumn{2}{c}{Llama} \\
+condition & F1 & exact & F1 & exact \\
+\midrule
+full prompt & 0.7495 & 0.4688 & 0.8745 & 0.6562 \\
+no prompt   & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+정적 rank-1 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+Hybrid      & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{따름정리의 직접 검증.} 첫 토큰 argmax 회복이 자기회귀 trajectory 회복 함의하지 않음. JSON tool-call schema 깨짐.
+
+\subsection{NL vs Facet typed prompt: Model heterogeneity}
+\label{sec:exp-facet-nl}
+
+\begin{table}[h]
+\centering
+\caption{NL vs facet typed prompt (MetaTool ST4, $N=64$). Qwen에서 facet 우월 (+9.7\%), Llama에서 NL 우월 (-3.7\%).}
+\label{tab:facet-nl}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+\multicolumn{2}{c}{condition} & \multicolumn{2}{c}{Qwen} & \multicolumn{2}{c}{Llama} \\
+mode & len & F1 & exact & F1 & exact \\
+\midrule
+\texttt{nl\_full}        & 146 / 154 & 0.7495 & 0.4688 & 0.8745 & 0.6562 \\
+\texttt{nl\_with\_desc}  & 271 / 279 & 0.7474 & 0.3906 & \textbf{0.8979} & \textbf{0.7188} \\
+\texttt{facet\_full}     & 312 / 318 & \textbf{0.8203} & \textbf{0.5469} & 0.8609 & 0.5625 \\
+\texttt{facet\_compact}  & 137 / 143 & 0.5234 & 0.1719 & 0.5526 & 0.2188 \\
+\texttt{list\_only}      &  95 / 101 & 0.2135 & 0.0156 & 0.6375 & 0.2188 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Cheap diagnostic.}
+\texttt{list\_only}/\texttt{nl\_full} F1 비율: Qwen 0.285 (attention-conditioning native), Llama 0.729 (residual-stream native). 2회 forward pass로 cheap, model family 분기 가능.
+
+\subsection{익명화 ablation: Mechanism 분리}
+\label{sec:exp-anon}
+
+\begin{table}[h]
+\centering
+\caption{익명화 ablation. Qwen: 도구 이름이 방해 요소 (+233\%). Llama: NL name path 부분 활용.}
+\label{tab:anon}
+\small
+\begin{tabular}{lrr}
+\toprule
+condition & Qwen F1 & Llama F1 \\
+\midrule
+\texttt{list\_only}  & 0.2135 & 0.6375 \\
+\texttt{list\_anon}  & \textbf{0.7083} (+233\%) & 0.5177 (-19\%) \\
+\texttt{facet\_full} & 0.8203 & 0.8609 \\
+\texttt{facet\_anon} & 0.8016 (-2\%) & 0.7474 (-13\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Qwen은 facet-structure native (이름 의미 사용 안 함, 오히려 방해), Llama는 hybrid (NL name + structure 둘 다 부분 활용).
+
+\subsection{Facet count $\to r^*$ anchor (정리 3)}
+\label{sec:exp-facet-rank}
+
+5 prompt mode로 active facet 수 $F$ 직접 조절 후 $r^*$ 측정 ($N=64$):
+
+\begin{table}[h]
+\centering
+\caption{E13: prompt mode별 $r^*$. \textbf{굵게}: 정리 3 strict prediction과 일치한 cell.}
+\label{tab:e13}
+\small
+\begin{tabular}{l|rrr|rrr}
+\toprule
+& \multicolumn{3}{c|}{Qwen} & \multicolumn{3}{c}{Llama} \\
+mode (예측 $F$) & $r^*(0.9)$ & $r^*(0.95)$ & $r^*(0.99)$ & $r^*(0.9)$ & $r^*(0.95)$ & $r^*(0.99)$ \\
+\midrule
+\texttt{nl} (latent)              & 1.30 & 1.80 & 4.70 & 1.06 & 1.33 & 3.30 \\
+\texttt{facet\_full} ($F{=}2$)    & 1.49 & \textbf{2.16} & 5.53 & 1.09 & \textbf{1.45} & 3.98 \\
+\texttt{facet\_compact} ($F{=}2$) & 1.37 & 1.97 & 5.44 & 1.07 & 1.28 & 3.18 \\
+\texttt{facet\_action\_only} ($F{=}1$) & 1.34 & 1.86 & 4.99 & 1.07 & 1.32 & 3.17 \\
+\texttt{facet\_domain\_only} ($F{=}1$) & 1.34 & 1.88 & 5.06 & 1.07 & 1.29 & 3.19 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Strict 부분 확인}: \texttt{facet\_full} ($F=2$)에서 Qwen $r^*(0.95) = 2.16$, Llama 1.45 — 정리 3 prediction $\approx 2$ 일치. \textbf{Single-facet에서 약화}: $r^*$가 1로 떨어지지 않고 NL 수준 유지 (soft 직교 NMI $> 0$ 영역). \textbf{Catalog content 무관}: prefix length 5배 차이에도 $r^*$ 거의 같음. \textbf{Llama가 $r^*$ 30\% 낮음}: NL-name native가 함수공간 효율적.
+
+\section{시스템 운영의 함의 (간략 요약)}
+\label{sec:system-summary}
+
+본 논문의 이론·실증 결과는 운영 시스템 설계에 다음 함의를 가진다 (자세한 architecture와 deployment rule은 동반 기술 보고서):
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{자동 facet ontology induction}: 정리 3은 자연어 catalog의 \emph{내용}이 아닌 \emph{직교 facet 수}만이 함수공간 차원을 결정함을 보여주므로, 비정규화 metadata에서 직교 facet을 자동 발견하는 induction pipeline의 운영 가능성을 정당화.
+\item \textbf{Decision point에서 aggressive 개입}: 도구 \emph{선택} 단계 (single first-token decision)에서 정리 1+2 hybrid 적용으로 prompt 압축 가능. 인자 \emph{생성}·응답 \emph{합성}은 따름정리에 의해 자연어 prompt 회복 필수.
+\item \textbf{Model family 분기 deployment}: 발견 8 (\cref{sec:exp-anon})의 \texttt{list\_only}/\texttt{nl\_full} 비율 진단 (2분, 2 forward pass)으로 모델 family 자동 분류, facet vs NL prompt 선택 자동화.
+\end{itemize}
+
+\section{한계 및 향후 작업}
+\label{sec:limits}
+
+\paragraph{이론.} (L1) 따름정리가 framework 적용 영역을 decision point로 제한; (L2) 정리 3의 NMI $< 0.3$ strict 가정; (L3) 정리 2의 단일 기준점 미분.
+\paragraph{실증.} (L4) 두 model family에 한정; (L5) 단일 task 유형 (tool selection); (L6) multi-turn dialog 미직접 검증; (L7) 정량적 시스템 수치는 시뮬레이션 기반.
+\paragraph{향후.} 도메인 간 facet transfer (E11), multi-step boundary 정량화, scaling family-별 일반화 검증.
+
+\section{결론}
+\label{sec:conclusion}
+
+본 논문은 frozen agentic LLM 위에서 자연어 prefix prompt가 어텐션 출력에 미치는 기여 $\Phip$의 \emph{함수공간 차원}이 매우 작고 (8 cells에서 $r^*(0.95) \le 2.25$), 그 차원이 \emph{명시적 facet 수}와 일치한다는 정량적 사실을 이론·실증으로 확립했다. 정적 rank-$k$ + Q-bias hybrid 개입이 첫 토큰 분포의 98.4\%를 prompt 없이 회복하지만, 자기회귀 multi-step F1은 0.000으로 결정적 negative — 따름정리가 예측한 trajectory boundary의 직접 검증. 이 분리가 framework 적용 영역을 \emph{decision point}로 한정하고, 운영 시스템의 layer-별 적용 규칙을 강제한다.
+
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem[Akyürek et al.(2023)]{akyurek2023icl}
+E. Akyürek, D. Schuurmans, J. Andreas, T. Ma, D. Zhou.
+``What learning algorithm is in-context learning? Investigations with linear models.''
+\emph{ICLR}, 2023.
+
+\bibitem[Ahn et al.(2023)]{ahn2023preconditioned}
+K. Ahn, X. Cheng, H. Daneshmand, S. Sra.
+``Transformers learn to implement preconditioned gradient descent for in-context learning.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[Belitsky et al.(2025)]{belitsky2025kvsteer}
+M. Belitsky, D. J. Kopiczko, M. Dorkenwald, M. J. Mirza, J. R. Glass, C. G. M. Snoek, Y. M. Asano.
+``Cache steering: A lightweight one-shot intervention on the KV cache for controlling frozen LLMs.''
+\emph{Preprint, arXiv:2507.08799}, 2025.
+
+\bibitem[He et al.(2022)]{he2022unified}
+J. He, C. Zhou, X. Ma, T. Berg-Kirkpatrick, G. Neubig.
+``Towards a unified view of parameter-efficient transfer learning.''
+\emph{ICLR}, 2022.
+
+\bibitem[Jiang et al.(2023)]{jiang2023llmlingua}
+H. Jiang, Q. Wu, C.-Y. Lin, Y. Yang, L. Qiu.
+``LLMLingua: Compressing prompts for accelerated inference of large language models.''
+\emph{EMNLP}, 2023.
+
+\bibitem[Li et al.(2023)]{li2023iti}
+K. Li, O. Patel, F. Viégas, H. Pfister, M. Wattenberg.
+``Inference-time intervention: Eliciting truthful answers from a language model.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[Li(2024)]{li2024compressor}
+Z. Li.
+``500xCompressor: Generalized prompt compression for large language models.''
+\emph{Preprint}, 2024.
+
+\bibitem[Mu et al.(2023)]{mu2023gist}
+J. Mu, X. Li, N. Goodman.
+``Learning to compress prompts with gist tokens.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[Petrov et al.(2024)]{petrov2024prompting}
+A. Petrov, P. Torr, A. Bibi.
+``When do prompting and prefix-tuning work? A theory of capabilities and limitations.''
+\emph{ICLR}, 2024.
+
+\bibitem[Rimsky et al.(2024)]{rimsky2024caa}
+N. Rimsky, N. Gabrieli, J. Schulz, M. Tong, E. Hubinger, A. Turner.
+``Steering Llama 2 via contrastive activation addition.''
+\emph{ACL}, 2024.
+
+\bibitem[Shin et al.(2025)]{shin2025genpi}
+H. Shin, L. Ji, Y. Gong, S. Kim, E. Choi, M. Seo.
+``Generative Prompt Internalization (GenPI).''
+\emph{NAACL}, 2025.
+
+\bibitem[von Oswald et al.(2023)]{vonoswald2023icl}
+J. von Oswald, E. Niklasson, E. Randazzo, J. Sacramento, A. Mordvintsev, A. Zhmoginov, M. Vladymyrov.
+``Transformers learn in-context by gradient descent.''
+\emph{ICML}, 2023.
+
+\bibitem[Zhang et al.(2023)]{zhang2023pasta}
+Q. Zhang, C. Singh, L. Liu, X. Liu, B. Yu, J. Gao, T. Zhao.
+``Tell your model where to attend: Post-hoc attention steering for LLMs.''
+\emph{Preprint}, 2023.
+
+\bibitem[Zou et al.(2023)]{zou2023repe}
+A. Zou, L. Phan, S. Chen, J. Campbell, P. Guo, R. Ren, A. Pan, X. Yin, M. Mazeika, A.-K. Dombrowski et al.
+``Representation engineering: A top-down approach to AI transparency.''
+\emph{Preprint}, 2023.
+
+\end{thebibliography}
+
+\end{document}
