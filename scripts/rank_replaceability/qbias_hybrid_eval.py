@@ -67,6 +67,17 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--k-qbias", type=int, default=4,
                    help="rank of Q-bias projector V_k V_k^T")
     p.add_argument("--beta-list", default="-0.3,-0.1,-0.05,0,0.05,0.1,0.3")
+    p.add_argument(
+        "--basis-mode",
+        choices=["phi_p", "q_self"],
+        default="phi_p",
+        help="phi_p: V_k from E1 npz (Phi_P SVD). "
+             "q_self: measure Q activations on noprompt inputs and SVD per (layer,head).",
+    )
+    p.add_argument(
+        "--basis-measure-n", type=int, default=128,
+        help="If basis-mode=q_self, # queries used to compute Q-SVD basis.",
+    )
     p.add_argument("--out", required=True)
     return p.parse_args()
 
@@ -186,6 +197,65 @@ def build_qbias_projector(eigvecs: np.ndarray, k: int) -> np.ndarray:
     return P
 
 
+def measure_q_self_basis(
+    model, tokenizer, items, device, dtype,
+    L: int, H_q: int, d_h: int, k_save: int = 32,
+) -> np.ndarray:
+    """E8: compute V_k from SVD of Q activations on noprompt inputs.
+
+    For each query, run a noprompt (user-only) forward, capture q_proj output
+    at last position, reshape to (H_q, d_h). Stack over queries → (N, H_q, d_h).
+    SVD per (layer, head) yields eigvecs of shape (L, H_q, k_save, d_h).
+    """
+    q_buffers = [[] for _ in range(L)]
+    handles = []
+
+    def make_hook(ell):
+        def fn(module, inputs, output):
+            x = output  # (B, T, H_q*d_h)
+            B, T, D = x.shape
+            assert D == H_q * d_h, f"q_proj out D={D} != H_q*d_h"
+            q_last = x[0, -1, :].view(H_q, d_h).detach().float().cpu().numpy()
+            q_buffers[ell].append(q_last)
+        return fn
+
+    for ell in range(L):
+        layer = model.model.layers[ell]
+        handles.append(layer.self_attn.q_proj.register_forward_hook(make_hook(ell)))
+
+    print(f"[q_self] measuring Q activations on {len(items)} noprompt inputs", flush=True)
+    t0 = time.time()
+    with torch.no_grad():
+        for i, item in enumerate(items):
+            msgs = [{"role": "user", "content": item["query"]}]
+            try:
+                txt = tokenizer.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False)
+            except Exception:
+                continue
+            ids = tokenizer(txt, return_tensors="pt").input_ids.to(device)
+            _ = model(input_ids=ids, use_cache=False, return_dict=True)
+            if (i + 1) % 32 == 0:
+                print(f"  q_self [{i+1}/{len(items)}] {time.time()-t0:.1f}s", flush=True)
+
+    for h in handles:
+        h.remove()
+
+    # SVD per (layer, head)
+    eigvecs = np.zeros((L, H_q, k_save, d_h), dtype=np.float32)
+    for ell in range(L):
+        Q = np.stack(q_buffers[ell])  # (N, H_q, d_h)
+        for h in range(H_q):
+            M = Q[:, h, :]  # (N, d_h)
+            try:
+                _, s, Vh = np.linalg.svd(M, full_matrices=False, compute_uv=True)
+            except np.linalg.LinAlgError:
+                continue
+            kk = min(k_save, Vh.shape[0])
+            eigvecs[ell, h, :kk] = Vh[:kk]
+    print(f"[q_self] basis ready ({time.time()-t0:.1f}s)", flush=True)
+    return eigvecs
+
+
 @torch.no_grad()
 def get_last_logits(model, input_ids: torch.Tensor) -> torch.Tensor:
     out = model(input_ids=input_ids, use_cache=False, return_dict=True)
@@ -215,10 +285,18 @@ def main() -> int:
     L, H_q, K_save, d_h = eigvecs.shape
     print(f"[e1] L={L} H_q={H_q} d_h={d_h} K_save={K_save}", flush=True)
 
-    # Build static injection (k=k_static fixed)
+    # Build static injection (k=k_static fixed) — always from Phi_P SVD
     static_inj_np = build_static_injection(eigvecs, phi_mean, args.k_static)
-    # Build Q-bias projector (k=k_qbias)
-    P_kk_np = build_qbias_projector(eigvecs, args.k_qbias)
+    # Build Q-bias projector (k=k_qbias) — basis source depends on --basis-mode
+    if args.basis_mode == "phi_p":
+        P_kk_np = build_qbias_projector(eigvecs, args.k_qbias)
+        qbias_basis_source = "phi_p_svd_from_e1_npz"
+    elif args.basis_mode == "q_self":
+        # Need to measure Q-self basis. Defer until after model load.
+        P_kk_np = None
+        qbias_basis_source = "q_self_svd_on_noprompt"
+    else:
+        raise ValueError(args.basis_mode)
 
     # Data
     if args.task == "metatool_st4":
@@ -238,6 +316,15 @@ def main() -> int:
         trust_remote_code=True, attn_implementation="eager",
     )
     model.eval()
+
+    # If q_self basis: measure Q activations BEFORE installing intervention hooks
+    if args.basis_mode == "q_self":
+        n_meas = min(args.basis_measure_n, len(items))
+        q_eigvecs = measure_q_self_basis(
+            model, tokenizer, items[:n_meas],
+            args.device, dtype, L, H_q, d_h, k_save=max(args.k_qbias, 16),
+        )
+        P_kk_np = build_qbias_projector(q_eigvecs, args.k_qbias)
 
     # Move tensors to device
     static_inj_t = torch.from_numpy(static_inj_np).to(args.device, dtype=dtype)
@@ -330,6 +417,8 @@ def main() -> int:
         "n_samples": N,
         "k_static": args.k_static,
         "k_qbias": args.k_qbias,
+        "basis_mode": args.basis_mode,
+        "qbias_basis_source": qbias_basis_source,
         "betas": betas,
         "summary": summary,
         "details": metrics,

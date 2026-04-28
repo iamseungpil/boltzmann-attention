@@ -60,12 +60,13 @@ _METATOOL_TOOL_RE = __import__("re").compile(
 )
 
 
-def load_metatool_st4(dataset_path: str, n: int) -> List[dict]:
-    """Returns list of {query, candidates, gt} dicts.
+def load_metatool_st4(dataset_path: str, n: int, full_schema: bool = False) -> List[dict]:
+    """Returns list of {query, candidates, gt, system_full?} dicts.
 
     MetaTool ST4 schema: {action_prompt, thought_prompt, tool, query}.
-    Candidates are embedded inside action_prompt (numbered list); we parse them
-    via regex.
+    Candidates parsed via regex from action_prompt. If full_schema=True,
+    we attach the action_prompt itself (rich tool descriptions) as the
+    system content, producing a substantially longer prefix.
     """
     with open(dataset_path) as f:
         raw = json.load(f)
@@ -77,7 +78,13 @@ def load_metatool_st4(dataset_path: str, n: int) -> List[dict]:
         cands = [m.strip().strip('"').strip("'") for m in _METATOOL_TOOL_RE.findall(action)]
         if not query or not cands:
             continue
-        out.append({"query": str(query), "candidates": cands, "gt": gt})
+        item = {"query": str(query), "candidates": cands, "gt": gt}
+        if full_schema:
+            # action_prompt is a full prompt with tool descriptions embedded.
+            # Strip surrounding quotes (the dataset wraps it in ").
+            sys_full = action.strip().strip('"').strip()
+            item["system_full"] = sys_full
+        out.append(item)
     return out
 
 
@@ -96,17 +103,84 @@ def _extract_domain_tools(tasks: List[dict]) -> List[str]:
     return sorted(names)
 
 
-def load_tau2(domain: str, n: int) -> List[dict]:
-    """Loads tau2 retail/telecom/airline tasks. Returns list of {query, candidates, gt}.
+# Minimal tool descriptions for tau2 (retail set imported from eval_tau2_bench.py
+# convention; non-retail domains fall back to generic descriptions). Used when
+# full_schema=True to expand the prefix to a more production-realistic length.
+_TAU2_TOOL_DESCRIPTIONS = {
+    # Retail
+    "calculate": "Calculate the result of a mathematical expression.",
+    "cancel_pending_order": "Cancel a pending order. Status changes to 'cancelled' and payment refunded.",
+    "exchange_delivered_order_items": "Exchange items in a delivered order to new items of same product type.",
+    "find_user_id_by_email": "Find user id by email address.",
+    "find_user_id_by_name_zip": "Find user id by first name, last name, and zip code.",
+    "get_item_details": "Get inventory details of an item by item id.",
+    "get_order_details": "Get status and details of an order by order id.",
+    "get_product_details": "Get inventory details of a product by product id.",
+    "get_user_details": "Get details of a user, including their orders.",
+    "modify_pending_order_address": "Modify shipping address of a pending order.",
+    "modify_pending_order_items": "Modify items in a pending order to new items of same product type.",
+    "modify_pending_order_payment": "Modify payment method of a pending order.",
+    "modify_user_address": "Modify default address of a user.",
+    "return_delivered_order_items": "Return items of a delivered order. Status changes to 'return requested'.",
+    "transfer_to_human_agents": "Transfer the user to a human agent with summary of the issue.",
+    # Telecom (descriptive fallbacks)
+    "toggle_roaming": "Enable or disable international roaming on a customer's line.",
+    "check_data_balance": "Check the remaining data balance on a customer's plan.",
+    "reset_pin": "Reset the customer's account PIN to a new value.",
+    "verify_otp": "Verify a one-time password sent to the customer's device.",
+    "change_plan": "Switch the customer to a new mobile plan.",
+    "suspend_line": "Temporarily suspend service on a customer's line.",
+    "activate_line": "Activate or reactivate a customer's mobile line.",
+    "report_issue": "Open a service issue ticket for the customer.",
+    "check_coverage": "Look up cellular coverage at a customer's address.",
+    # Airline (descriptive fallbacks)
+    "search_flights": "Search for available flights given origin, destination, and date.",
+    "book_flight": "Book a specific flight for the customer.",
+    "cancel_reservation": "Cancel an existing flight reservation.",
+    "modify_reservation": "Change the flight or date on an existing reservation.",
+    "get_baggage_policy": "Retrieve the baggage allowance policy for a fare class.",
+    "check_in_passenger": "Perform online check-in for a passenger on a booked flight.",
+    "select_seat": "Reserve a specific seat on a booked flight.",
+    "request_refund": "Initiate a refund request for an eligible reservation.",
+}
 
-    Domain tool list is shared across all queries (the realistic agentic prompt
-    structure), so each item gets the same `candidates` set. The user query is
-    extracted from the task's instructions field.
-    """
+
+def _build_full_tau2_schema(tools: List[str]) -> str:
+    """Build a JSON-array string with name + description per tool. Generic
+    fallback for tools not in _TAU2_TOOL_DESCRIPTIONS."""
+    schemas = []
+    for name in tools:
+        desc = _TAU2_TOOL_DESCRIPTIONS.get(
+            name, f"Tool '{name}'. Operates on the customer service domain."
+        )
+        # Mimic OpenAI function-calling JSON shape (compact)
+        schemas.append({
+            "type": "function",
+            "function": {
+                "name": name,
+                "description": desc,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "args": {
+                            "type": "object",
+                            "description": "Tool-specific arguments.",
+                        }
+                    },
+                    "required": [],
+                },
+            },
+        })
+    return json.dumps(schemas, indent=2)
+
+
+def load_tau2(domain: str, n: int, full_schema: bool = False) -> List[dict]:
+    """Loads tau2 retail/telecom/airline tasks. Returns list of {query, candidates, gt, system_full?}."""
     path = f"{DEFAULT_TAU2_BASE}/domains/{domain}/tasks.json"
     with open(path) as f:
         tasks = json.load(f)
     domain_tools = _extract_domain_tools(tasks)
+    schema_str = _build_full_tau2_schema(domain_tools) if full_schema else None
     out = []
     for t in tasks[:n]:
         if isinstance(t, dict):
@@ -124,11 +198,20 @@ def load_tau2(domain: str, n: int) -> List[dict]:
         else:
             instr = str(t)[:512]
             gt = []
-        out.append({
+        item = {
             "query": str(instr)[:1024],
             "candidates": domain_tools,
             "gt": gt,
-        })
+        }
+        if schema_str is not None:
+            item["system_full"] = (
+                "You are a customer service agent. Use the tools listed below "
+                "to resolve the customer's issue. Output the tool calls needed "
+                "in JSON format.\n\n"
+                "Available tools (full schema):\n"
+                + schema_str
+            )
+        out.append(item)
     return out
 
 
@@ -175,11 +258,17 @@ def build_messages(
       - random_prefix: replace system content with random words (≈ same length)
       - random_query: real prefix, but user message replaced with random words
       - shuffled_prefix: real candidates list shuffled (control for ordering)
+
+    If item has 'system_full' field (set when load_*(full_schema=True)),
+    the real system uses that instead of the names-only catalog. This drives
+    the production-scale prefix experiment (E9).
     """
     cands = item.get("candidates") or []
     rng = rng or _RNG
 
-    if cands:
+    if item.get("system_full"):
+        real_system = item["system_full"]
+    elif cands:
         cand_str = "\n".join(f"- {c}" for c in cands)
         real_system = f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
     else:
@@ -392,6 +481,13 @@ def parse_args() -> argparse.Namespace:
         default="real",
     )
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument(
+        "--tool-schema-mode",
+        choices=["names", "full"],
+        default="names",
+        help="'names' = current behavior (tool list as bullet names). "
+             "'full' = production-scale schema with descriptions+params (E9).",
+    )
     return p.parse_args()
 
 
@@ -402,11 +498,12 @@ def main() -> int:
     taus = [float(t) for t in args.tau_list.split(",")]
 
     # Load data
+    full_schema = args.tool_schema_mode == "full"
     if args.task == "metatool_st4":
-        items = load_metatool_st4(args.metatool_path, args.max_samples)
+        items = load_metatool_st4(args.metatool_path, args.max_samples, full_schema=full_schema)
     elif args.task.startswith("tau2_"):
         domain = args.task.split("_", 1)[1]
-        items = load_tau2(domain, args.max_samples)
+        items = load_tau2(domain, args.max_samples, full_schema=full_schema)
     else:
         raise ValueError(args.task)
     print(f"[data] task={args.task} N={len(items)}", flush=True)
