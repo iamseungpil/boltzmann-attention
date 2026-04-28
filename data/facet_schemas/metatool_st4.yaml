@@ -1,0 +1,317 @@
+# MetaTool ST4 facet schema (auto-extracted, deterministic rules)
+# 78 tools, 9 action classes, 24 domains
+schema_version: 1
+source: MetaTool/Task2-Subtask4.json
+tools:
+  AI2sql:
+    action: convert
+    domain: data
+    desc_short: "Converts a natural language text into an SQL query."
+  AbleStyle:
+    action: read
+    domain: general
+    desc_short: "Able Style is a fashion assistant who will help you answer the question, 'What s\u2026"
+  Agones:
+    action: read
+    domain: sports
+    desc_short: "Agones provides soccer (football) results for matches played all over the world \u2026"
+  ApexMap:
+    action: check
+    domain: geo
+    desc_short: "Checking the current APEX Legends Ranked Map."
+  AppyPieAIAppBuilder:
+    action: read
+    domain: general
+    desc_short: "AI-powered Text-to-App Generator turns your app idea into Android and iOS apps- \u2026"
+  CTCP:
+    action: compute
+    domain: general
+    desc_short: "Analyze eligibility criteria in ClinicalTrials.gov. Example input: nctid NCT0585\u2026"
+  CharityTool:
+    action: read
+    domain: charity
+    desc_short: "Empower your charitable endeavors by accessing a comprehensive platform featurin\u2026"
+  ChartTool:
+    action: create
+    domain: viz
+    desc_short: "A versatile chart and diagram tool that can create and display diagrams or using\u2026"
+  CompanyInfoTool:
+    action: read
+    domain: viz
+    desc_short: "Obtain relevant information about global companies from databases or knowledge g\u2026"
+  CourseTool:
+    action: search
+    domain: education
+    desc_short: "Unlock a world of knowledge and growth with our comprehensive learning platform,\u2026"
+  Creaticode_Extension_of_MIT_Scratch:
+    action: read
+    domain: code
+    desc_short: "Display Scratch programs as images and write 2D/3D programs using CreatiCode Scr\u2026"
+  DataRetrievalTool:
+    action: create
+    domain: doc
+    desc_short: "An tool that expands memory. It stores and retrieves user information to provide\u2026"
+  DietTool:
+    action: manage
+    domain: music
+    desc_short: "A tool that simplifies calorie counting, tracks diet, and provides insights from\u2026"
+  Discount:
+    action: search
+    domain: code
+    desc_short: "Discover discounts and coupon codes to save money on products"
+  EarthquakeTool:
+    action: read
+    domain: news
+    desc_short: "Provides real-time earthquake notifications and news"
+  ExchangeTool:
+    action: convert
+    domain: finance
+    desc_short: "Seamlessly convert currencies with our integrated currency conversion tool"
+  FinanceTool:
+    action: modify
+    domain: finance
+    desc_short: "Stay informed with the latest financial updates, real-time insights, and analysi\u2026"
+  GifApi:
+    action: search
+    domain: code
+    desc_short: "Search through a wide range of gifs - Powered by Giphy."
+  GiftTool:
+    action: read
+    domain: fun
+    desc_short: "Provide suggestions for gift selection"
+  Google_Ads_Shopping_Microsoft_Ads_pay_per_click:
+    action: read
+    domain: commerce
+    desc_short: "Your personal assistance for automating advertising \u2013 Google Ads (AdWords) and M\u2026"
+  HousePurchasingTool:
+    action: read
+    domain: realestate
+    desc_short: "Tool that provide all sorts of information about house purchasing"
+  JobTool:
+    action: search
+    domain: jobs
+    desc_short: "Your Global Career Hub! Find diverse job opportunities, expert interview tips, a\u2026"
+  LawTool:
+    action: search
+    domain: law
+    desc_short: "Enables quick search functionality for relevant laws"
+  Magnetis:
+    action: modify
+    domain: geo
+    desc_short: "Magnetis is a digital wealth manager. Get updated data on portfolios returns and\u2026"
+  MapTool:
+    action: create
+    domain: code
+    desc_short: "Experience the next level of map navigation with our innovative chatbot, leverag\u2026"
+  MediaModifyTool:
+    action: create
+    domain: media
+    desc_short: "A versatile image editing application with a vast selection of user-generated fi\u2026"
+  MemeTool:
+    action: create
+    domain: fun
+    desc_short: "Create memes"
+  MemoryTool:
+    action: create
+    domain: education
+    desc_short: "A learning application with spaced repetition functionality that allows users to\u2026"
+  MixerBox_WebSearchG_web_search:
+    action: search
+    domain: code
+    desc_short: "Search and summarize the web with our customized search engine powered by Google\u2026"
+  MusicTool:
+    action: search
+    domain: music
+    desc_short: "Create music playlists, search for music, and check out the latest music trends"
+  NASATool:
+    action: search
+    domain: science
+    desc_short: "A platform for exploring space, allowing users to search and discover NASA image\u2026"
+  NewsTool:
+    action: read
+    domain: news
+    desc_short: "Stay connected to global events with our up-to-date news around the world"
+  NotesTool:
+    action: manage
+    domain: memory
+    desc_short: "A full-featured reminder and to-do list management tool where you can add, delet\u2026"
+  "PDF&URLTool":
+    action: check
+    domain: code
+    desc_short: "Interact with any PDF files, provide page references for fact-checking, support \u2026"
+  PolishTool:
+    action: create
+    domain: news
+    desc_short: "Elevate your content with our AI-powered tool, which utilizes advanced rewriting\u2026"
+  ProductSearch:
+    action: search
+    domain: commerce
+    desc_short: "Find products tailored to your preferences with personalized recommendations and\u2026"
+  QuiverQuantitative:
+    action: read
+    domain: finance
+    desc_short: "Access data on congressional stock trading, lobbying, insider trading, and propo\u2026"
+  RepoTool:
+    action: search
+    domain: code
+    desc_short: "Discover GitHub projects tailored to your needs, explore their structures with i\u2026"
+  ResearchFinder:
+    action: search
+    domain: science
+    desc_short: "Tool for searching academic papers"
+  ResearchHelper:
+    action: search
+    domain: geo
+    desc_short: "Tool that offers additional functions beyond searching academic papers, such as \u2026"
+  ResumeTool:
+    action: create
+    domain: jobs
+    desc_short: "Quickly create resumes and receive feedback on your resume"
+  RoboAd:
+    action: read
+    domain: marketing
+    desc_short: "Your AI powered Ad Assistant!"
+  SceneXplain:
+    action: read
+    domain: general
+    desc_short: "SceneXplain lets you attach images to your prompt. Explore image storytelling be\u2026"
+  StrologyTool:
+    action: read
+    domain: general
+    desc_short: "Povides strology services for you"
+  Substack_IQ:
+    action: search
+    domain: news
+    desc_short: "Search, analyze, & summarize Substack newsletters, retrieve articles, and discov\u2026"
+  Tax_Calculator:
+    action: compute
+    domain: geo
+    desc_short: "Calculate sales tax given a U.S. address (or just a city) and an amount. Powered\u2026"
+  TripAdviceTool:
+    action: create
+    domain: travel
+    desc_short: "A comprehensive travel assistantn that makes travel planning more vivid and prac\u2026"
+  TripTool:
+    action: search
+    domain: travel
+    desc_short: "Offer discounted hotel and accommodation bookings, along with personalized hotel\u2026"
+  VideoSummarizeTool:
+    action: compute
+    domain: media
+    desc_short: "enerate summaries from YouTube video links, offer question-answering capabilitie\u2026"
+  WeatherTool:
+    action: read
+    domain: weather
+    desc_short: "Provide you with the latest weather information"
+  Zapier:
+    action: read
+    domain: code
+    desc_short: "Interact with over 5,000+ apps like Google Sheets, Gmail, HubSpot, Salesforce, a\u2026"
+  abc_to_audio:
+    action: convert
+    domain: music
+    desc_short: "Converts ABC music notation to WAV, MIDI, and PostScript files."
+  aiAgents:
+    action: read
+    domain: commerce
+    desc_short: "Unleashing the power of multiple AIs: One goal, limitless productivity."
+  ai_council:
+    action: read
+    domain: general
+    desc_short: "The AI council assesses queries through various agents, offering insights from m\u2026"
+  assetOvi:
+    action: search
+    domain: sports
+    desc_short: "Search and preview millions of 3D assets for games, AIGC, AR/VR and others."
+  champdex:
+    action: read
+    domain: general
+    desc_short: "Chat with your favorite League of Legends champions!"
+  chatspot:
+    action: search
+    domain: finance
+    desc_short: "Get access to marketing/sales data including domain information, company researc\u2026"
+  clinical_trial_radar:
+    action: search
+    domain: realestate
+    desc_short: "Discover current info on global clinical trials, organizations, diseases, and bi\u2026"
+  create_qr_code:
+    action: create
+    domain: code
+    desc_short: "Create a QR code for any text or url."
+  dart:
+    action: manage
+    domain: general
+    desc_short: "Project management on autopilot."
+  fundsdbsearch:
+    action: search
+    domain: fun
+    desc_short: "Discover funding opportunities in UK and India on FundsDB. Type in your query in\u2026"
+  hacktrack:
+    action: communicate
+    domain: music
+    desc_short: "This tool checks if credentials linked to an email have been exposed in data bre\u2026"
+  haulingbuddies:
+    action: search
+    domain: law
+    desc_short: "Locate dependable animal transporters using recommendations, reviews, and regula\u2026"
+  korea_subway:
+    action: read
+    domain: general
+    desc_short: "Korea  metro subway route info."
+  locator:
+    action: read
+    domain: realestate
+    desc_short: "Add-on for displaying the current coordinates of the ISS and the names of the cu\u2026"
+  lsongai:
+    action: read
+    domain: news
+    desc_short: "Lsong's AI provides AI-powered content like news, images, music, movies, weather\u2026"
+  placid:
+    action: create
+    domain: finance
+    desc_short: "A design assistant that creates marketing visuals from your templates."
+  qreator:
+    action: create
+    domain: code
+    desc_short: "Generate QR code in seconds."
+  recipe_retrieval:
+    action: search
+    domain: food
+    desc_short: "Discover recipe ideas, meal plans and cooking tips from Tasty's millions of user\u2026"
+  seoanalysis:
+    action: compute
+    domain: marketing
+    desc_short: "Use AI to analyze and improve the SEO of a website. Get advice on websites, keyw\u2026"
+  social_media_muse:
+    action: manage
+    domain: music
+    desc_short: "Get soundtrack and hashtag recommendations from a picture!"
+  speak:
+    action: read
+    domain: education
+    desc_short: "Learn how to say anything in another language with Speak, your AI-powered langua\u2026"
+  speechki_tts_plugin:
+    action: convert
+    domain: music
+    desc_short: "The easiest way to convert texts to ready-to-use audio \u2014 download link, audio pl\u2026"
+  storybird_stories:
+    action: create
+    domain: general
+    desc_short: "Create beautiful, illustrated stories easily."
+  universal:
+    action: create
+    domain: code
+    desc_short: "Enables to access web pages, analyze PDFs, generate QR codes, etc."
+  web_requests:
+    action: search
+    domain: code
+    desc_short: "Goodbye Knowledge Cutoff, Hello World! This is your AI assistant's web browser. \u2026"
+  web_scraper:
+    action: read
+    domain: doc
+    desc_short: "Scrape content from webpages by providing a URL.', 'Scrape content from webpages\u2026"
+  word_counter:
+    action: read
+    domain: science
+    desc_short: "Count the number of words, and characters (with and without spaces)."
