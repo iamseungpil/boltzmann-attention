@@ -1,11 +1,14 @@
 {
   "model": "Qwen/Qwen2.5-7B-Instruct",
   "task": "metatool_st4",
+  "prefix_mode": "real",
+  "seed": 0,
   "n_samples": 256,
   "n_layers": 28,
   "n_heads_q": 28,
   "n_heads_kv": 4,
   "head_dim": 128,
+  "k_save": 32,
   "taus": [
     0.9,
     0.95,
@@ -17225,5 +17228,6 @@
     192,
     184
   ],
-  "wall_seconds": 12.525638818740845
+  "wall_seconds": 16.122853755950928,
+  "npz_path": "qwen_metatool_n256.npz"
 }

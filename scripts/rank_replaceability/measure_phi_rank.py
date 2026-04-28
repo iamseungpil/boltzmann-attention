@@ -81,17 +81,32 @@ def load_metatool_st4(dataset_path: str, n: int) -> List[dict]:
     return out
 
 
+def _extract_domain_tools(tasks: List[dict]) -> List[str]:
+    """Replicates eval_tau2_bench.extract_domain_tools: collect unique tool names
+    from each task's evaluation_criteria.actions.
+    """
+    names = set()
+    for t in tasks:
+        if not isinstance(t, dict):
+            continue
+        crit = t.get("evaluation_criteria") or {}
+        for a in (crit.get("actions") or []):
+            if isinstance(a, dict) and a.get("name"):
+                names.add(a["name"])
+    return sorted(names)
+
+
 def load_tau2(domain: str, n: int) -> List[dict]:
     """Loads tau2 retail/telecom/airline tasks. Returns list of {query, candidates, gt}.
 
-    For tau2-bench the system prompt and tool list are domain-wide, so we
-    construct a synthetic per-task tool catalog summary from the tasks file.
-    Each entry contains the user-facing 'instruction' as our query.
+    Domain tool list is shared across all queries (the realistic agentic prompt
+    structure), so each item gets the same `candidates` set. The user query is
+    extracted from the task's instructions field.
     """
     path = f"{DEFAULT_TAU2_BASE}/domains/{domain}/tasks.json"
     with open(path) as f:
         tasks = json.load(f)
-    # tau2 tasks have "user_scenario.instructions" or similar; fall back broad.
+    domain_tools = _extract_domain_tools(tasks)
     out = []
     for t in tasks[:n]:
         if isinstance(t, dict):
@@ -104,9 +119,16 @@ def load_tau2(domain: str, n: int) -> List[dict]:
                 or t.get("query")
                 or json.dumps(t)[:512]
             )
+            gt_actions = (t.get("evaluation_criteria") or {}).get("actions") or []
+            gt = [a.get("name") for a in gt_actions if isinstance(a, dict) and a.get("name")]
         else:
             instr = str(t)[:512]
-        out.append({"query": str(instr)[:1024], "candidates": [], "gt": []})
+            gt = []
+        out.append({
+            "query": str(instr)[:1024],
+            "candidates": domain_tools,
+            "gt": gt,
+        })
     return out
 
 
@@ -124,19 +146,73 @@ DEFAULT_TOOL_SYSTEM_PROMPT = (
 )
 
 
-def build_messages(item: dict, tool_system_prompt: str) -> List[dict]:
-    """Builds [system, user] messages. System carries tool catalog (the "prefix")."""
+_RNG = __import__("random").Random(0)
+_LOREM_BASE = (
+    "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod "
+    "tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam "
+    "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo "
+    "consequat duis aute irure reprehenderit voluptate velit esse cillum "
+    "fugiat nulla pariatur excepteur sint occaecat cupidatat non proident "
+    "sunt in culpa qui officia deserunt mollit anim id est laborum"
+).split()
+
+
+def _random_words(n_words: int, rng=None) -> str:
+    rng = rng or _RNG
+    return " ".join(rng.choice(_LOREM_BASE) for _ in range(n_words))
+
+
+def build_messages(
+    item: dict,
+    tool_system_prompt: str,
+    prefix_mode: str = "real",
+    rng=None,
+) -> List[dict]:
+    """Builds [system, user] messages.
+
+    prefix_mode:
+      - real: real system prompt + real candidates + real user query
+      - random_prefix: replace system content with random words (≈ same length)
+      - random_query: real prefix, but user message replaced with random words
+      - shuffled_prefix: real candidates list shuffled (control for ordering)
+    """
     cands = item.get("candidates") or []
+    rng = rng or _RNG
+
     if cands:
         cand_str = "\n".join(f"- {c}" for c in cands)
-        system_content = (
-            f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
-        )
+        real_system = f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
     else:
-        system_content = tool_system_prompt
+        real_system = tool_system_prompt
+
+    if prefix_mode == "real":
+        sys_content = real_system
+        user_content = item["query"]
+    elif prefix_mode == "random_prefix":
+        # Token-count proxy: real_system word count
+        n_words = max(20, len(real_system.split()))
+        sys_content = _random_words(n_words, rng)
+        user_content = item["query"]
+    elif prefix_mode == "random_query":
+        sys_content = real_system
+        n_words = max(8, len(item["query"].split()))
+        user_content = _random_words(n_words, rng)
+    elif prefix_mode == "shuffled_prefix":
+        # Shuffle candidate order only (keep system text + user query intact)
+        if cands:
+            shuffled = list(cands)
+            rng.shuffle(shuffled)
+            cand_str = "\n".join(f"- {c}" for c in shuffled)
+            sys_content = f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
+        else:
+            sys_content = real_system
+        user_content = item["query"]
+    else:
+        raise ValueError(f"unknown prefix_mode={prefix_mode}")
+
     return [
-        {"role": "system", "content": system_content},
-        {"role": "user", "content": item["query"]},
+        {"role": "system", "content": sys_content},
+        {"role": "user", "content": user_content},
     ]
 
 
@@ -310,6 +386,12 @@ def parse_args() -> argparse.Namespace:
         "--tau-list", default="0.90,0.95,0.99",
         help="comma-separated τ values for r*",
     )
+    p.add_argument(
+        "--prefix-mode",
+        choices=["real", "random_prefix", "random_query", "shuffled_prefix"],
+        default="real",
+    )
+    p.add_argument("--seed", type=int, default=0)
     return p.parse_args()
 
 
@@ -359,13 +441,19 @@ def main() -> int:
     prefix_lens = np.zeros(N, dtype=np.int32)
     seq_lens = np.zeros(N, dtype=np.int32)
 
+    import random as _random_mod
+    rng = _random_mod.Random(args.seed)
+
     cap = AttnCapture(model, family)
     cap.install()
 
     t0 = time.time()
     try:
         for i, item in enumerate(items):
-            messages = build_messages(item, DEFAULT_TOOL_SYSTEM_PROMPT)
+            messages = build_messages(
+                item, DEFAULT_TOOL_SYSTEM_PROMPT,
+                prefix_mode=args.prefix_mode, rng=rng,
+            )
             try:
                 prompt_text = tokenizer.apply_chat_template(
                     messages, add_generation_prompt=True, tokenize=False
@@ -420,45 +508,65 @@ def main() -> int:
 
     # SVD per (layer, head)
     print("[svd] computing per-(layer, head) spectrum...", flush=True)
+    K_save = 32  # top-K right singular vectors saved for E3 reuse
+    K_save = min(K_save, d_h, N)
     spectra = np.zeros((L, H_q, min(N, d_h)), dtype=np.float32)  # singular values
+    eigvecs = np.zeros((L, H_q, K_save, d_h), dtype=np.float32)
+    phi_mean = np.zeros((L, H_q, d_h), dtype=np.float32)
     r_star = {f"{tau:.2f}": np.zeros((L, H_q), dtype=np.int32) for tau in taus}
 
     for ell in range(L):
         for h in range(H_q):
             M = phi_buffer[ell, :, h, :]  # (N, d_h)
-            # Center? Eckart-Young is on un-centered SVD. We use raw Φ_P samples.
-            # SVD: M = U Σ V^T; spectrum is Σ
+            phi_mean[ell, h] = M.mean(axis=0)
+            # Eckart-Young is on un-centered SVD. We use raw Φ_P samples.
             try:
-                s = np.linalg.svd(M, compute_uv=False)
+                # full_matrices=False → Vh shape (min(N,d_h), d_h)
+                _, s, Vh = np.linalg.svd(M, full_matrices=False, compute_uv=True)
             except np.linalg.LinAlgError:
                 s = np.zeros(min(N, d_h))
-            k = min(len(s), spectra.shape[2])
-            spectra[ell, h, :k] = s[:k]
+                Vh = np.zeros((min(N, d_h), d_h))
+            k_full = min(len(s), spectra.shape[2])
+            spectra[ell, h, :k_full] = s[:k_full]
+            k_save = min(K_save, Vh.shape[0])
+            eigvecs[ell, h, :k_save] = Vh[:k_save]
             energy = np.cumsum(s ** 2)
             total = energy[-1] if len(energy) > 0 and energy[-1] > 0 else 1.0
             for tau in taus:
                 idx = int(np.searchsorted(energy / total, tau)) + 1
                 r_star[f"{tau:.2f}"][ell, h] = min(idx, len(s))
 
-    # Save
+    # Save bulky arrays (eigvecs, phi_mean) as .npz alongside JSON
+    npz_path = out_path.with_suffix(".npz")
+    np.savez_compressed(
+        npz_path,
+        eigvecs=eigvecs,
+        phi_mean=phi_mean,
+        spectra_full=spectra,
+    )
+
     out = {
         "model": args.model,
         "task": args.task,
+        "prefix_mode": args.prefix_mode,
+        "seed": int(args.seed),
         "n_samples": int(N),
         "n_layers": int(L),
         "n_heads_q": int(H_q),
         "n_heads_kv": int(H_kv),
         "head_dim": int(d_h),
+        "k_save": int(K_save),
         "taus": taus,
         "r_star": {k: v.tolist() for k, v in r_star.items()},
         "spectra_top16": spectra[:, :, :16].tolist(),
         "prefix_lens": prefix_lens.tolist(),
         "seq_lens": seq_lens.tolist(),
         "wall_seconds": time.time() - t0,
+        "npz_path": str(npz_path.name),
     }
     with open(out_path, "w") as f:
         json.dump(out, f, indent=2)
-    print(f"[done] saved -> {out_path}", flush=True)
+    print(f"[done] saved -> {out_path} (+ {npz_path.name})", flush=True)
     # Quick summary stats to stdout
     for tau in taus:
         rr = np.array(r_star[f"{tau:.2f}"])

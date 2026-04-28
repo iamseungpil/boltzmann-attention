@@ -1,19 +1,28 @@
 # E1 Rank Measurement — Analysis Summary
 
 Auto-generated from: `reports/rank_replaceability_2026_04/*_n*.json`  
-Files analyzed: 8
+Files analyzed: 17
 
 ## Headline table (τ=0.95)
 
 | File | Model | Task | N | r*_mean | r*_med | r*_max | r*_p95 | high-rank heads (≥8) | bimodality | prefix_len |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | `llama_metatool_n256.json` | Meta-Llama-3.1-8B-Instruct | metatool_st4 | 256 | 1.38 | 1 | 13 | 3.0 | 6/1024 (0.6%) | 12.00 | 148 |
+| `llama_tau2_airline_full_n256.json` | Meta-Llama-3.1-8B-Instruct | tau2_airline | 50 | 1.07 | 1 | 3 | 2.0 | 0/1024 (0.0%) | 2.00 | 151 |
 | `llama_tau2_airline_n256.json` | Meta-Llama-3.1-8B-Instruct | tau2_airline | 50 | 1.10 | 1 | 4 | 2.0 | 0/1024 (0.0%) | 3.00 | 98 |
+| `llama_tau2_retail_full_n256.json` | Meta-Llama-3.1-8B-Instruct | tau2_retail | 114 | 1.04 | 1 | 3 | 1.0 | 0/1024 (0.0%) | 2.00 | 186 |
 | `llama_tau2_retail_n256.json` | Meta-Llama-3.1-8B-Instruct | tau2_retail | 114 | 1.06 | 1 | 4 | 1.8 | 0/1024 (0.0%) | 3.00 | 98 |
+| `llama_tau2_telecom_full_n256.json` | Meta-Llama-3.1-8B-Instruct | tau2_telecom | 256 | 1.00 | 1 | 1 | 1.0 | 0/1024 (0.0%) | 0.00 | 189 |
 | `llama_tau2_telecom_n256.json` | Meta-Llama-3.1-8B-Instruct | tau2_telecom | 256 | 1.00 | 1 | 1 | 1.0 | 0/1024 (0.0%) | 0.00 | 98 |
 | `qwen_metatool_n256.json` | Qwen2.5-7B-Instruct | metatool_st4 | 256 | 2.25 | 1 | 40 | 8.0 | 43/784 (5.5%) | 39.00 | 144 |
+| `qwen_metatool_random_prefix_n256.json` | Qwen2.5-7B-Instruct | metatool_st4 | 256 | 4.08 | 1 | 38 | 17.8 | 116/784 (14.8%) | 37.00 | 118 |
+| `qwen_metatool_random_query_n256.json` | Qwen2.5-7B-Instruct | metatool_st4 | 256 | 2.82 | 1 | 42 | 11.0 | 62/784 (7.9%) | 41.00 | 144 |
+| `qwen_metatool_shuffled_prefix_n256.json` | Qwen2.5-7B-Instruct | metatool_st4 | 256 | 2.45 | 1 | 44 | 10.0 | 54/784 (6.9%) | 43.00 | 144 |
+| `qwen_tau2_airline_full_n256.json` | Qwen2.5-7B-Instruct | tau2_airline | 50 | 1.60 | 1 | 25 | 3.0 | 17/784 (2.2%) | 24.00 | 147 |
 | `qwen_tau2_airline_n256.json` | Qwen2.5-7B-Instruct | tau2_airline | 50 | 1.54 | 1 | 23 | 3.0 | 17/784 (2.2%) | 22.00 | 93 |
+| `qwen_tau2_retail_full_n256.json` | Qwen2.5-7B-Instruct | tau2_retail | 114 | 1.60 | 1 | 30 | 3.0 | 17/784 (2.2%) | 29.00 | 182 |
 | `qwen_tau2_retail_n256.json` | Qwen2.5-7B-Instruct | tau2_retail | 114 | 1.59 | 1 | 28 | 4.0 | 19/784 (2.4%) | 27.00 | 93 |
+| `qwen_tau2_telecom_full_n256.json` | Qwen2.5-7B-Instruct | tau2_telecom | 256 | 1.01 | 1 | 2 | 1.0 | 0/784 (0.0%) | 1.00 | 185 |
 | `qwen_tau2_telecom_n256.json` | Qwen2.5-7B-Instruct | tau2_telecom | 256 | 1.01 | 1 | 2 | 1.0 | 0/784 (0.0%) | 1.00 | 93 |
 
 ## Per-τ summary
@@ -23,12 +32,21 @@ Files analyzed: 8
 | File | r*_mean | r*_med | r*_max | r*_p99 | high-rank heads |
 |---|---:|---:|---:|---:|---:|
 | `llama_metatool_n256.json` | 1.08 | 1 | 7 | 3.0 | 0/1024 |
+| `llama_tau2_airline_full_n256.json` | 1.01 | 1 | 2 | 2.0 | 0/1024 |
 | `llama_tau2_airline_n256.json` | 1.02 | 1 | 2 | 2.0 | 0/1024 |
+| `llama_tau2_retail_full_n256.json` | 1.01 | 1 | 2 | 1.0 | 0/1024 |
 | `llama_tau2_retail_n256.json` | 1.01 | 1 | 2 | 1.8 | 0/1024 |
+| `llama_tau2_telecom_full_n256.json` | 1.00 | 1 | 1 | 1.0 | 0/1024 |
 | `llama_tau2_telecom_n256.json` | 1.00 | 1 | 1 | 1.0 | 0/1024 |
 | `qwen_metatool_n256.json` | 1.47 | 1 | 27 | 12.5 | 15/784 |
+| `qwen_metatool_random_prefix_n256.json` | 2.03 | 1 | 20 | 16.0 | 42/784 |
+| `qwen_metatool_random_query_n256.json` | 1.74 | 1 | 29 | 15.2 | 27/784 |
+| `qwen_metatool_shuffled_prefix_n256.json` | 1.52 | 1 | 30 | 15.2 | 18/784 |
+| `qwen_tau2_airline_full_n256.json` | 1.30 | 1 | 19 | 11.0 | 13/784 |
 | `qwen_tau2_airline_n256.json` | 1.27 | 1 | 17 | 10.2 | 12/784 |
+| `qwen_tau2_retail_full_n256.json` | 1.30 | 1 | 21 | 11.3 | 13/784 |
 | `qwen_tau2_retail_n256.json` | 1.30 | 1 | 21 | 11.2 | 14/784 |
+| `qwen_tau2_telecom_full_n256.json` | 1.01 | 1 | 2 | 1.0 | 0/784 |
 | `qwen_tau2_telecom_n256.json` | 1.00 | 1 | 2 | 1.0 | 0/784 |
 
 ### τ = 0.95
@@ -36,12 +54,21 @@ Files analyzed: 8
 | File | r*_mean | r*_med | r*_max | r*_p99 | high-rank heads |
 |---|---:|---:|---:|---:|---:|
 | `llama_metatool_n256.json` | 1.38 | 1 | 13 | 5.8 | 6/1024 |
+| `llama_tau2_airline_full_n256.json` | 1.07 | 1 | 3 | 2.0 | 0/1024 |
 | `llama_tau2_airline_n256.json` | 1.10 | 1 | 4 | 2.0 | 0/1024 |
+| `llama_tau2_retail_full_n256.json` | 1.04 | 1 | 3 | 2.0 | 0/1024 |
 | `llama_tau2_retail_n256.json` | 1.06 | 1 | 4 | 2.0 | 0/1024 |
+| `llama_tau2_telecom_full_n256.json` | 1.00 | 1 | 1 | 1.0 | 0/1024 |
 | `llama_tau2_telecom_n256.json` | 1.00 | 1 | 1 | 1.0 | 0/1024 |
 | `qwen_metatool_n256.json` | 2.25 | 1 | 40 | 21.2 | 43/784 |
+| `qwen_metatool_random_prefix_n256.json` | 4.08 | 1 | 38 | 31.0 | 116/784 |
+| `qwen_metatool_random_query_n256.json` | 2.82 | 1 | 42 | 24.2 | 62/784 |
+| `qwen_metatool_shuffled_prefix_n256.json` | 2.45 | 1 | 44 | 23.7 | 54/784 |
+| `qwen_tau2_airline_full_n256.json` | 1.60 | 1 | 25 | 16.0 | 17/784 |
 | `qwen_tau2_airline_n256.json` | 1.54 | 1 | 23 | 14.2 | 17/784 |
+| `qwen_tau2_retail_full_n256.json` | 1.60 | 1 | 30 | 17.5 | 17/784 |
 | `qwen_tau2_retail_n256.json` | 1.59 | 1 | 28 | 16.5 | 19/784 |
+| `qwen_tau2_telecom_full_n256.json` | 1.01 | 1 | 2 | 2.0 | 0/784 |
 | `qwen_tau2_telecom_n256.json` | 1.01 | 1 | 2 | 2.0 | 0/784 |
 
 ### τ = 0.99
@@ -49,12 +76,21 @@ Files analyzed: 8
 | File | r*_mean | r*_med | r*_max | r*_p99 | high-rank heads |
 |---|---:|---:|---:|---:|---:|
 | `llama_metatool_n256.json` | 4.09 | 3 | 37 | 20.8 | 145/1024 |
+| `llama_tau2_airline_full_n256.json` | 1.96 | 2 | 11 | 6.8 | 4/1024 |
 | `llama_tau2_airline_n256.json` | 1.98 | 2 | 9 | 6.0 | 4/1024 |
+| `llama_tau2_retail_full_n256.json` | 1.80 | 2 | 10 | 6.0 | 3/1024 |
 | `llama_tau2_retail_n256.json` | 1.88 | 2 | 9 | 6.0 | 5/1024 |
+| `llama_tau2_telecom_full_n256.json` | 1.03 | 1 | 2 | 2.0 | 0/1024 |
 | `llama_tau2_telecom_n256.json` | 1.04 | 1 | 2 | 2.0 | 0/1024 |
 | `qwen_metatool_n256.json` | 7.15 | 3 | 71 | 50.0 | 225/784 |
+| `qwen_metatool_random_prefix_n256.json` | 16.59 | 7 | 79 | 72.0 | 390/784 |
+| `qwen_metatool_random_query_n256.json` | 9.04 | 4 | 73 | 53.2 | 301/784 |
+| `qwen_metatool_shuffled_prefix_n256.json` | 8.97 | 3 | 76 | 57.7 | 250/784 |
+| `qwen_tau2_airline_full_n256.json` | 3.17 | 2 | 36 | 27.0 | 64/784 |
 | `qwen_tau2_airline_n256.json` | 2.98 | 2 | 33 | 24.2 | 54/784 |
+| `qwen_tau2_retail_full_n256.json` | 3.16 | 2 | 48 | 32.5 | 60/784 |
 | `qwen_tau2_retail_n256.json` | 3.12 | 2 | 44 | 30.3 | 62/784 |
+| `qwen_tau2_telecom_full_n256.json` | 1.07 | 1 | 3 | 2.0 | 0/784 |
 | `qwen_tau2_telecom_n256.json` | 1.08 | 1 | 3 | 2.0 | 0/784 |
 
 ## Layer profiles (τ=0.95, mean r* per layer)
@@ -96,6 +132,43 @@ L30:  1.69  ███
 L31:  1.41  ██
 ```
 
+### llama_tau2_airline_full_n256.json
+
+```
+L00:  1.25  ██
+L01:  1.03  ██
+L02:  1.16  ██
+L03:  1.12  ██
+L04:  1.03  ██
+L05:  1.12  ██
+L06:  1.19  ██
+L07:  1.03  ██
+L08:  1.03  ██
+L09:  1.03  ██
+L10:  1.09  ██
+L11:  1.00  ██
+L12:  1.09  ██
+L13:  1.03  ██
+L14:  1.03  ██
+L15:  1.00  ██
+L16:  1.00  ██
+L17:  1.03  ██
+L18:  1.03  ██
+L19:  1.03  ██
+L20:  1.06  ██
+L21:  1.00  ██
+L22:  1.03  ██
+L23:  1.06  ██
+L24:  1.06  ██
+L25:  1.06  ██
+L26:  1.12  ██
+L27:  1.16  ██
+L28:  1.09  ██
+L29:  1.09  ██
+L30:  1.03  ██
+L31:  1.03  ██
+```
+
 ### llama_tau2_airline_n256.json
 
 ```
@@ -133,6 +206,43 @@ L30:  1.31  ██
 L31:  1.09  ██
 ```
 
+### llama_tau2_retail_full_n256.json
+
+```
+L00:  1.16  ██
+L01:  1.03  ██
+L02:  1.19  ██
+L03:  1.06  ██
+L04:  1.00  ██
+L05:  1.09  ██
+L06:  1.09  ██
+L07:  1.03  ██
+L08:  1.03  ██
+L09:  1.00  ██
+L10:  1.03  ██
+L11:  1.00  ██
+L12:  1.03  ██
+L13:  1.00  ██
+L14:  1.00  ██
+L15:  1.00  ██
+L16:  1.00  ██
+L17:  1.00  ██
+L18:  1.03  ██
+L19:  1.00  ██
+L20:  1.06  ██
+L21:  1.00  ██
+L22:  1.00  ██
+L23:  1.03  ██
+L24:  1.03  ██
+L25:  1.03  ██
+L26:  1.09  ██
+L27:  1.16  ██
+L28:  1.06  ██
+L29:  1.06  ██
+L30:  1.09  ██
+L31:  1.03  ██
+```
+
 ### llama_tau2_retail_n256.json
 
 ```
@@ -168,6 +278,43 @@ L28:  1.03  ██
 L29:  1.12  ██
 L30:  1.19  ██
 L31:  1.06  ██
+```
+
+### llama_tau2_telecom_full_n256.json
+
+```
+L00:  1.00  ██
+L01:  1.00  ██
+L02:  1.00  ██
+L03:  1.00  ██
+L04:  1.00  ██
+L05:  1.00  ██
+L06:  1.00  ██
+L07:  1.00  ██
+L08:  1.00  ██
+L09:  1.00  ██
+L10:  1.00  ██
+L11:  1.00  ██
+L12:  1.00  ██
+L13:  1.00  ██
+L14:  1.00  ██
+L15:  1.00  ██
+L16:  1.00  ██
+L17:  1.00  ██
+L18:  1.00  ██
+L19:  1.00  ██
+L20:  1.00  ██
+L21:  1.00  ██
+L22:  1.00  ██
+L23:  1.00  ██
+L24:  1.00  ██
+L25:  1.00  ██
+L26:  1.00  ██
+L27:  1.00  ██
+L28:  1.00  ██
+L29:  1.00  ██
+L30:  1.00  ██
+L31:  1.00  ██
 ```
 
 ### llama_tau2_telecom_n256.json
@@ -240,6 +387,138 @@ L26:  1.18  ██
 L27:  2.61  █████
 ```
 
+### qwen_metatool_random_prefix_n256.json
+
+```
+L00:  7.86  ███████████████
+L01: 10.39  ████████████████████
+L02:  8.04  ████████████████
+L03: 20.89  █████████████████████████████████████████
+L04:  1.43  ██
+L05:  5.14  ██████████
+L06:  1.29  ██
+L07:  3.57  ███████
+L08:  1.43  ██
+L09:  7.54  ███████████████
+L10:  1.29  ██
+L11:  1.14  ██
+L12:  1.57  ███
+L13:  2.68  █████
+L14:  1.75  ███
+L15:  1.18  ██
+L16:  1.93  ███
+L17:  2.57  █████
+L18:  3.04  ██████
+L19:  2.61  █████
+L20:  2.89  █████
+L21:  1.50  ███
+L22:  2.11  ████
+L23:  2.00  ████
+L24:  2.50  █████
+L25:  4.21  ████████
+L26:  4.79  █████████
+L27:  6.93  █████████████
+```
+
+### qwen_metatool_random_query_n256.json
+
+```
+L00:  4.96  █████████
+L01: 11.79  ███████████████████████
+L02:  2.61  █████
+L03:  6.61  █████████████
+L04:  1.29  ██
+L05:  1.79  ███
+L06:  1.39  ██
+L07:  2.14  ████
+L08:  1.18  ██
+L09:  1.68  ███
+L10:  1.11  ██
+L11:  1.11  ██
+L12:  1.11  ██
+L13:  1.29  ██
+L14:  1.07  ██
+L15:  1.00  ██
+L16:  1.04  ██
+L17:  1.43  ██
+L18:  4.21  ████████
+L19:  3.00  ██████
+L20:  2.43  ████
+L21:  1.89  ███
+L22:  3.50  ███████
+L23:  1.43  ██
+L24:  4.71  █████████
+L25:  4.04  ████████
+L26:  3.21  ██████
+L27:  5.89  ███████████
+```
+
+### qwen_metatool_shuffled_prefix_n256.json
+
+```
+L00:  5.07  ██████████
+L01: 11.57  ███████████████████████
+L02:  2.43  ████
+L03:  6.96  █████████████
+L04:  1.25  ██
+L05:  1.68  ███
+L06:  1.29  ██
+L07:  2.75  █████
+L08:  1.46  ██
+L09:  2.46  ████
+L10:  1.29  ██
+L11:  1.18  ██
+L12:  1.29  ██
+L13:  1.43  ██
+L14:  1.14  ██
+L15:  1.00  ██
+L16:  1.04  ██
+L17:  1.18  ██
+L18:  4.07  ████████
+L19:  2.57  █████
+L20:  1.96  ███
+L21:  1.82  ███
+L22:  1.86  ███
+L23:  1.11  ██
+L24:  2.36  ████
+L25:  2.25  ████
+L26:  1.14  ██
+L27:  3.04  ██████
+```
+
+### qwen_tau2_airline_full_n256.json
+
+```
+L00:  3.00  ██████
+L01:  7.18  ██████████████
+L02:  1.82  ███
+L03:  4.68  █████████
+L04:  1.32  ██
+L05:  1.14  ██
+L06:  1.11  ██
+L07:  1.39  ██
+L08:  1.18  ██
+L09:  1.29  ██
+L10:  1.18  ██
+L11:  1.04  ██
+L12:  1.07  ██
+L13:  1.07  ██
+L14:  1.07  ██
+L15:  1.00  ██
+L16:  1.00  ██
+L17:  1.11  ██
+L18:  1.43  ██
+L19:  1.25  ██
+L20:  1.29  ██
+L21:  1.36  ██
+L22:  1.29  ██
+L23:  1.11  ██
+L24:  1.04  ██
+L25:  1.11  ██
+L26:  1.04  ██
+L27:  1.36  ██
+```
+
 ### qwen_tau2_airline_n256.json
 
 ```
@@ -273,6 +552,39 @@ L26:  1.04  ██
 L27:  1.29  ██
 ```
 
+### qwen_tau2_retail_full_n256.json
+
+```
+L00:  2.93  █████
+L01:  8.14  ████████████████
+L02:  1.86  ███
+L03:  4.68  █████████
+L04:  1.43  ██
+L05:  1.11  ██
+L06:  1.11  ██
+L07:  1.46  ██
+L08:  1.07  ██
+L09:  1.14  ██
+L10:  1.11  ██
+L11:  1.04  ██
+L12:  1.11  ██
+L13:  1.07  ██
+L14:  1.04  ██
+L15:  1.00  ██
+L16:  1.00  ██
+L17:  1.07  ██
+L18:  1.29  ██
+L19:  1.14  ██
+L20:  1.14  ██
+L21:  1.18  ██
+L22:  1.14  ██
+L23:  1.00  ██
+L24:  1.04  ██
+L25:  1.04  ██
+L26:  1.04  ██
+L27:  1.50  ███
+```
+
 ### qwen_tau2_retail_n256.json
 
 ```
@@ -304,6 +616,39 @@ L24:  1.04  ██
 L25:  1.11  ██
 L26:  1.07  ██
 L27:  1.68  ███
+```
+
+### qwen_tau2_telecom_full_n256.json
+
+```
+L00:  1.04  ██
+L01:  1.25  ██
+L02:  1.00  ██
+L03:  1.00  ██
+L04:  1.00  ██
+L05:  1.00  ██
+L06:  1.00  ██
+L07:  1.00  ██
+L08:  1.00  ██
+L09:  1.00  ██
+L10:  1.00  ██
+L11:  1.00  ██
+L12:  1.00  ██
+L13:  1.00  ██
+L14:  1.00  ██
+L15:  1.00  ██
+L16:  1.00  ██
+L17:  1.00  ██
+L18:  1.00  ██
+L19:  1.00  ██
+L20:  1.00  ██
+L21:  1.00  ██
+L22:  1.00  ██
+L23:  1.00  ██
+L24:  1.00  ██
+L25:  1.00  ██
+L26:  1.00  ██
+L27:  1.04  ██
 ```
 
 ### qwen_tau2_telecom_n256.json
