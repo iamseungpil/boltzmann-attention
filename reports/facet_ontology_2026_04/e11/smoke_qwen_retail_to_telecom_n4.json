@@ -1,0 +1,588 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "task": "tau2_telecom",
+  "schema_path": "data/facet_schemas/tau2_telecom.yaml",
+  "source_schema_path": "data/facet_schemas/tau2_retail.yaml",
+  "source_domain": "retail",
+  "source_tools": [
+    "calculate",
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "find_user_id_by_email",
+    "find_user_id_by_name_zip",
+    "get_item_details",
+    "get_order_details",
+    "get_product_details",
+    "get_user_details",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items",
+    "transfer_to_human_agents"
+  ],
+  "n_samples": 4,
+  "max_new_tokens": 192,
+  "conditions": [
+    "nl_full",
+    "nl_full_source",
+    "facet_full",
+    "facet_xfer",
+    "facet_compact",
+    "noprompt"
+  ],
+  "summary": {
+    "nl_full": {
+      "f1_mean": 0.0,
+      "f_05_mean": 0.0,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.0,
+      "exact_mean": 0.0,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "n_pred_mean": 1.5,
+      "prompt_len_mean": 380.25,
+      "prompt_len_min": 380,
+      "prompt_len_max": 381
+    },
+    "nl_full_source": {
+      "f1_mean": 0.0,
+      "f_05_mean": 0.0,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.0,
+      "exact_mean": 0.0,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "n_pred_mean": 1.75,
+      "prompt_len_mean": 379.25,
+      "prompt_len_min": 379,
+      "prompt_len_max": 380
+    },
+    "facet_full": {
+      "f1_mean": 0.16666666666666666,
+      "f_05_mean": 0.1388888888888889,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.125,
+      "exact_mean": 0.0,
+      "precision_mean": 0.125,
+      "recall_mean": 0.25,
+      "n_pred_mean": 3.5,
+      "prompt_len_mean": 576.25,
+      "prompt_len_min": 576,
+      "prompt_len_max": 577
+    },
+    "facet_xfer": {
+      "f1_mean": 0.11805555555555555,
+      "f_05_mean": 0.08477011494252873,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.06696428571428571,
+      "exact_mean": 0.0,
+      "precision_mean": 0.07142857142857142,
+      "recall_mean": 0.375,
+      "n_pred_mean": 5.25,
+      "prompt_len_mean": 564.25,
+      "prompt_len_min": 564,
+      "prompt_len_max": 565
+    },
+    "facet_compact": {
+      "f1_mean": 0.0,
+      "f_05_mean": 0.0,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.0,
+      "exact_mean": 0.0,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "n_pred_mean": 1.0,
+      "prompt_len_mean": 398.25,
+      "prompt_len_min": 398,
+      "prompt_len_max": 399
+    },
+    "noprompt": {
+      "f1_mean": 0.0,
+      "f_05_mean": 0.0,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.0,
+      "exact_mean": 0.0,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "n_pred_mean": 0.0,
+      "prompt_len_mean": 255.25,
+      "prompt_len_min": 255,
+      "prompt_len_max": 256
+    }
+  },
+  "details": {
+    "nl_full": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data"
+        ]
+      }
+    ],
+    "nl_full_source": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_data"
+        ]
+      }
+    ],
+    "facet_full": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_data"
+        ]
+      }
+    ],
+    "facet_xfer": [
+      {
+        "f1": 0.25,
+        "f_05": 0.17241379310344823,
+        "eu": -1.0,
+        "jaccard": 0.14285714285714285,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 1.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.22222222222222224,
+        "f_05": 0.16666666666666666,
+        "eu": -1.0,
+        "jaccard": 0.125,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data"
+        ]
+      }
+    ],
+    "facet_compact": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data"
+        ]
+      }
+    ],
+    "noprompt": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data"
+        ]
+      }
+    ]
+  },
+  "prompt_lengths": {
+    "nl_full": [
+      380,
+      380,
+      380,
+      381
+    ],
+    "nl_full_source": [
+      379,
+      379,
+      379,
+      380
+    ],
+    "facet_full": [
+      576,
+      576,
+      576,
+      577
+    ],
+    "facet_xfer": [
+      564,
+      564,
+      564,
+      565
+    ],
+    "facet_compact": [
+      398,
+      398,
+      398,
+      399
+    ],
+    "noprompt": [
+      255,
+      255,
+      255,
+      256
+    ]
+  },
+  "generations_sample": {
+    "nl_full": [
+      "<tool_call>{\"name\": \"reboot_device\", \"arguments\": {\"device_id\": \"555-123-2302\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"reboot_device\", \"arguments\": {\"device_id\": \"555-123-2302\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"reboot_device\", \"arguments\": {\"device_id\": \"555-123-2302\"}}<|im_end|>"
+    ],
+    "nl_full_source": [
+      "<tool_call>{\"name\": \"modify_pending_order_items\", \"arguments\": {\"item\": \"data plan\", \"action\": \"refuel\", \"quantity\": 2.0}}}\n<tool_call>{\"name\": \"get_order_details\", \"arguments\": {}}<|im_end|>",
+      "<tool_call>{\"name\": \"modify_pending_order_items\", \"arguments\": {\"item\": \"data plan\", \"action\": \"refuel\", \"quantity\": 2.0}}}\n<tool_call>{\"name\": \"get_order_details\", \"arguments\": {}}<|im_end|>",
+      "<tool_call>{\"name\": \"modify_pending_order_items\", \"arguments\": {\"item\": \"data plan\", \"action\": \"refuel\", \"quantity\": 2.0}}}\n<tool_call>{\"name\": \"get_order_details\", \"arguments\": {}}<|im_end|>"
+    ],
+    "facet_full": [
+      "<tool_call>{\"name\": \"refuel_data\", \"arguments\": {\"amount\": 2.0}}\n<tool_call>{\"name\": \"toggle_data\", \"arguments\": {}}\n<tool_call>{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n<tool_call>{\"name\": \"make_payment\", \"arguments\": {\"amount\": 2.0, \"type\": \"data\"}}\n<tool_call>{\"name\": \"speed_test\", \"arguments\": {}}}<|im_end|>",
+      "<tool_call>{\"name\": \"refuel_data\", \"arguments\": {\"amount\": 2.0}}\n<tool_call>{\"name\": \"toggle_data\", \"arguments\": {}}\n<tool_call>{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n<tool_call>{\"name\": \"make_payment\", \"arguments\": {\"amount\": 2.0, \"type\": \"data\"}}\n<tool_call>{\"name\": \"speed_test\", \"arguments\": {}}}<|im_end|>",
+      "<tool_call>{\"name\": \"refuel_data\", \"arguments\": {\"amount\": 2.0}}\n<tool_call>{\"name\": \"toggle_data\", \"arguments\": {}}\n<tool_call>{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n<tool_call>{\"name\": \"make_payment\", \"arguments\": {\"amount\": 2.0, \"type\": \"data\"}}\n<tool_call>{\"name\": \"speed_test\", \"arguments\": {}}}<|im_end|>"
+    ],
+    "facet_xfer": [
+      "{\"name\": \"toggle_data\", \"arguments\": {}}\n{\"name\": \"refuel_data\", \"arguments\": {\"data_amount\": \"2.0 GB\"}}\n{\"name\": \"reset_apn_settings\", \"arguments\": {}}\n{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n{\"name\": \"toggle_roaming\", \"arguments\": {}}\n{\"name\": \"toggle_wifi_calling\", \"arguments\": {}}\n{\"name\": \"reboot_device\", \"arguments\": {}}<|im_end|>",
+      "{\"name\": \"toggle_data\", \"arguments\": {}}\n{\"name\": \"refuel_data\", \"arguments\": {\"data_amount\": \"2.0 GB\"}}\n{\"name\": \"reset_apn_settings\", \"arguments\": {}}\n{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n{\"name\": \"toggle_roaming\", \"arguments\": {}}\n{\"name\": \"toggle_wifi_calling\", \"arguments\": {}}\n{\"name\": \"reboot_device\", \"arguments\": {}}<|im_end|>",
+      "{\"name\": \"toggle_data\", \"arguments\": {}}\n{\"name\": \"refuel_data\", \"arguments\": {\"data_amount\": \"2.0 GB\"}}\n{\"name\": \"reset_apn_settings\", \"arguments\": {}}\n{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n{\"name\": \"toggle_roaming\", \"arguments\": {}}\n{\"name\": \"toggle_wifi_calling\", \"arguments\": {}}\n{\"name\": \"reboot_device\", \"arguments\": {}}<|im_end|>"
+    ],
+    "facet_compact": [
+      "IGHL{\"name\":\"refuel_data\",\"arguments\":{\"amount\":2.0,\"phone_number\":5551232002}}<|im_end|>",
+      "IGHL{\"name\":\"refuel_data\",\"arguments\":{\"amount\":2.0,\"phone_number\":5551232002}}<|im_end|>",
+      "IGHL{\"name\":\"refuel_data\",\"arguments\":{\"amount\":2.0,\"phone_number\":5551232002}}<|im_end|>"
+    ],
+    "noprompt": [
+      "### Call Transcript\n\n**Agent:** Hello, this is [Agent's Name). How can I assist you today?\n\n**John Smith:** Hi, my name is John Smith, and my phone number is 555-123-2002. I'm currently in France and experiencing issues with my mobile data. It either stops working or is very slow. I need to get to an excellent internet speed, nothing less.\n\n**Agent:** I understand your concern, John. Let\u2019s try a few troubleshooting steps first. First, could you please restart your device? Sometimes a simple restart can reso",
+      "### Call Transcript\n\n**Agent:** Hello, this is [Agent's Name). How can I assist you today?\n\n**John Smith:** Hi, my name is John Smith, and my phone number is 555-123-2002. I'm currently in France and experiencing issues with my mobile data. It either stops working or is very slow. I need to get to an excellent internet speed, nothing less.\n\n**Agent:** I understand your concern, John. Let\u2019s try a few troubleshooting steps first. First, could you please restart your device? Sometimes a simple restart can reso",
+      "### Call Transcript\n\n**Agent:** Hello, this is [Agent's Name). How can I assist you today?\n\n**John Smith:** Hi, my name is John Smith, and my phone number is 555-123-2002. I'm currently in France and experiencing issues with my mobile data. It either stops working or is very slow. I need to get to an excellent internet speed, nothing less.\n\n**Agent:** I understand your concern, John. Let\u2019s try a few troubleshooting steps first. First, could you please restart your device? Sometimes a simple restart can reso"
+    ]
+  },
+  "wall_seconds": 52.92268657684326
+}

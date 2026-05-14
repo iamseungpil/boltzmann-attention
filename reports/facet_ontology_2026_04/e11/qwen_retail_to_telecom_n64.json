@@ -1,0 +1,7125 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "task": "tau2_telecom",
+  "schema_path": "data/facet_schemas/tau2_telecom.yaml",
+  "source_schema_path": "data/facet_schemas/tau2_retail.yaml",
+  "source_domain": "retail",
+  "source_tools": [
+    "calculate",
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "find_user_id_by_email",
+    "find_user_id_by_name_zip",
+    "get_item_details",
+    "get_order_details",
+    "get_product_details",
+    "get_user_details",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items",
+    "transfer_to_human_agents"
+  ],
+  "n_samples": 64,
+  "max_new_tokens": 192,
+  "conditions": [
+    "nl_full",
+    "nl_full_source",
+    "facet_full",
+    "facet_xfer",
+    "facet_compact",
+    "noprompt"
+  ],
+  "summary": {
+    "nl_full": {
+      "f1_mean": 0.049479166666666664,
+      "f_05_mean": 0.04432806776556776,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.03098958333333333,
+      "exact_mean": 0.0,
+      "precision_mean": 0.041666666666666664,
+      "recall_mean": 0.06510416666666667,
+      "n_pred_mean": 1.875,
+      "prompt_len_mean": 380.4375,
+      "prompt_len_min": 380,
+      "prompt_len_max": 381
+    },
+    "nl_full_source": {
+      "f1_mean": 0.0,
+      "f_05_mean": 0.0,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.0,
+      "exact_mean": 0.0,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "n_pred_mean": 1.5625,
+      "prompt_len_mean": 379.4375,
+      "prompt_len_min": 379,
+      "prompt_len_max": 380
+    },
+    "facet_full": {
+      "f1_mean": 0.21960565476190474,
+      "f_05_mean": 0.21286674308878256,
+      "eu_mean": -0.9479166666666667,
+      "jaccard_mean": 0.1478422619047619,
+      "exact_mean": 0.015625,
+      "precision_mean": 0.2109375,
+      "recall_mean": 0.24609374999999997,
+      "n_pred_mean": 3.125,
+      "prompt_len_mean": 576.4375,
+      "prompt_len_min": 576,
+      "prompt_len_max": 577
+    },
+    "facet_xfer": {
+      "f1_mean": 0.1342724116161616,
+      "f_05_mean": 0.10648260799035966,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.08016493055555556,
+      "exact_mean": 0.0,
+      "precision_mean": 0.09375,
+      "recall_mean": 0.2526041666666667,
+      "n_pred_mean": 3.9375,
+      "prompt_len_mean": 564.4375,
+      "prompt_len_min": 564,
+      "prompt_len_max": 565
+    },
+    "facet_compact": {
+      "f1_mean": 0.13385416666666666,
+      "f_05_mean": 0.17234002976190477,
+      "eu_mean": -0.7994791666666666,
+      "jaccard_mean": 0.10026041666666666,
+      "exact_mean": 0.015625,
+      "precision_mean": 0.21875,
+      "recall_mean": 0.10026041666666666,
+      "n_pred_mean": 1.0,
+      "prompt_len_mean": 398.4375,
+      "prompt_len_min": 398,
+      "prompt_len_max": 399
+    },
+    "noprompt": {
+      "f1_mean": 0.0,
+      "f_05_mean": 0.0,
+      "eu_mean": -1.0,
+      "jaccard_mean": 0.0,
+      "exact_mean": 0.0,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "n_pred_mean": 0.0,
+      "prompt_len_mean": 255.4375,
+      "prompt_len_min": 255,
+      "prompt_len_max": 256
+    }
+  },
+  "details": {
+    "nl_full": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.3846153846153846,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3571428571428571,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3571428571428571,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3571428571428571,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3571428571428571,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3571428571428571,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.3333333333333333,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.3333333333333333,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "reset_apn_settings",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      }
+    ],
+    "nl_full_source": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items",
+          "get_order_details"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "modify_pending_order_items"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      }
+    ],
+    "facet_full": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.2777777777777778,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.2777777777777778,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.2777777777777778,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.2777777777777778,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.2777777777777778,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.2777777777777778,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.28571428571428575,
+        "f_05": 0.2631578947368421,
+        "eu": -1.0,
+        "jaccard": 0.16666666666666666,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.25,
+        "f_05": 0.25,
+        "eu": -1.0,
+        "jaccard": 0.14285714285714285,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.25,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.25,
+        "f_05": 0.25,
+        "eu": -1.0,
+        "jaccard": 0.14285714285714285,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.25,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.25,
+        "f_05": 0.25,
+        "eu": -1.0,
+        "jaccard": 0.14285714285714285,
+        "exact": 0.0,
+        "precision": 0.25,
+        "recall": 0.25,
+        "pred": [
+          "refuel_data",
+          "toggle_data",
+          "set_network_mode_preference",
+          "make_payment"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.8,
+        "f_05": 0.9090909090909091,
+        "eu": 0.3333333333333333,
+        "jaccard": 0.6666666666666666,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data",
+          "toggle_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      }
+    ],
+    "facet_xfer": [
+      {
+        "f1": 0.25,
+        "f_05": 0.17241379310344823,
+        "eu": -1.0,
+        "jaccard": 0.14285714285714285,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 1.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.22222222222222224,
+        "f_05": 0.16666666666666666,
+        "eu": -1.0,
+        "jaccard": 0.125,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.22222222222222224,
+        "f_05": 0.16666666666666666,
+        "eu": -1.0,
+        "jaccard": 0.125,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.2,
+        "f_05": 0.16129032258064516,
+        "eu": -1.0,
+        "jaccard": 0.1111111111111111,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.4444444444444445,
+        "f_05": 0.3333333333333333,
+        "eu": -1.0,
+        "jaccard": 0.2857142857142857,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 1.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.22222222222222224,
+        "f_05": 0.16666666666666666,
+        "eu": -1.0,
+        "jaccard": 0.125,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.4444444444444445,
+        "f_05": 0.3333333333333333,
+        "eu": -1.0,
+        "jaccard": 0.2857142857142857,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 1.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.22222222222222224,
+        "f_05": 0.16666666666666666,
+        "eu": -1.0,
+        "jaccard": 0.125,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.4444444444444445,
+        "f_05": 0.3333333333333333,
+        "eu": -1.0,
+        "jaccard": 0.2857142857142857,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 1.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.22222222222222224,
+        "f_05": 0.16666666666666666,
+        "eu": -1.0,
+        "jaccard": 0.125,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.22222222222222224,
+        "f_05": 0.16666666666666666,
+        "eu": -1.0,
+        "jaccard": 0.125,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.22222222222222224,
+        "f_05": 0.16666666666666666,
+        "eu": -1.0,
+        "jaccard": 0.125,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3225806451612903,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.2,
+        "f_05": 0.16129032258064516,
+        "eu": -1.0,
+        "jaccard": 0.1111111111111111,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3225806451612903,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.2,
+        "f_05": 0.16129032258064516,
+        "eu": -1.0,
+        "jaccard": 0.1111111111111111,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3225806451612903,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3225806451612903,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.2,
+        "f_05": 0.16129032258064516,
+        "eu": -1.0,
+        "jaccard": 0.1111111111111111,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3225806451612903,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.2,
+        "f_05": 0.16129032258064516,
+        "eu": -1.0,
+        "jaccard": 0.1111111111111111,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3225806451612903,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.2,
+        "f_05": 0.16129032258064516,
+        "eu": -1.0,
+        "jaccard": 0.1111111111111111,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.2,
+        "f_05": 0.16129032258064516,
+        "eu": -1.0,
+        "jaccard": 0.1111111111111111,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.2,
+        "f_05": 0.16129032258064516,
+        "eu": -1.0,
+        "jaccard": 0.1111111111111111,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.36363636363636365,
+        "f_05": 0.3125,
+        "eu": -1.0,
+        "jaccard": 0.2222222222222222,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.18181818181818182,
+        "f_05": 0.15625,
+        "eu": -1.0,
+        "jaccard": 0.1,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.25,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.36363636363636365,
+        "f_05": 0.3125,
+        "eu": -1.0,
+        "jaccard": 0.2222222222222222,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.18181818181818182,
+        "f_05": 0.15625,
+        "eu": -1.0,
+        "jaccard": 0.1,
+        "exact": 0.0,
+        "precision": 0.14285714285714285,
+        "recall": 0.25,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.36363636363636365,
+        "f_05": 0.3125,
+        "eu": -1.0,
+        "jaccard": 0.2222222222222222,
+        "exact": 0.0,
+        "precision": 0.2857142857142857,
+        "recall": 0.5,
+        "pred": [
+          "toggle_data",
+          "refuel_data",
+          "reset_apn_settings",
+          "set_network_mode_preference",
+          "toggle_roaming",
+          "toggle_wifi_calling",
+          "reboot_device"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      }
+    ],
+    "facet_compact": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "set_network_mode_preference",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "disconnect_vpn",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "refuel_data"
+        ],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      }
+    ],
+    "noprompt": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "set_network_mode_preference",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "disconnect_vpn",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "refuel_data",
+          "enable_roaming",
+          "toggle_roaming"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "disconnect_vpn",
+          "toggle_data_saver_mode"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "toggle_data_saver_mode",
+          "refuel_data"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "toggle_airplane_mode",
+          "set_network_mode_preference",
+          "disconnect_vpn"
+        ]
+      }
+    ]
+  },
+  "prompt_lengths": {
+    "nl_full": [
+      380,
+      380,
+      380,
+      381,
+      381,
+      381,
+      381,
+      381,
+      380,
+      380,
+      380,
+      381,
+      381,
+      381,
+      381,
+      381,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      381,
+      381,
+      381,
+      381,
+      381,
+      381,
+      381,
+      381,
+      381,
+      381,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      381,
+      381,
+      381,
+      381,
+      381,
+      381,
+      381,
+      381
+    ],
+    "nl_full_source": [
+      379,
+      379,
+      379,
+      380,
+      380,
+      380,
+      380,
+      380,
+      379,
+      379,
+      379,
+      380,
+      380,
+      380,
+      380,
+      380,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      379,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380
+    ],
+    "facet_full": [
+      576,
+      576,
+      576,
+      577,
+      577,
+      577,
+      577,
+      577,
+      576,
+      576,
+      576,
+      577,
+      577,
+      577,
+      577,
+      577,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      577,
+      577,
+      577,
+      577,
+      577,
+      577,
+      577,
+      577,
+      577,
+      577,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      576,
+      577,
+      577,
+      577,
+      577,
+      577,
+      577,
+      577,
+      577
+    ],
+    "facet_xfer": [
+      564,
+      564,
+      564,
+      565,
+      565,
+      565,
+      565,
+      565,
+      564,
+      564,
+      564,
+      565,
+      565,
+      565,
+      565,
+      565,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      565,
+      565,
+      565,
+      565,
+      565,
+      565,
+      565,
+      565,
+      565,
+      565,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      564,
+      565,
+      565,
+      565,
+      565,
+      565,
+      565,
+      565,
+      565
+    ],
+    "facet_compact": [
+      398,
+      398,
+      398,
+      399,
+      399,
+      399,
+      399,
+      399,
+      398,
+      398,
+      398,
+      399,
+      399,
+      399,
+      399,
+      399,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      399,
+      399,
+      399,
+      399,
+      399,
+      399,
+      399,
+      399,
+      399,
+      399,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      398,
+      399,
+      399,
+      399,
+      399,
+      399,
+      399,
+      399,
+      399
+    ],
+    "noprompt": [
+      255,
+      255,
+      255,
+      256,
+      256,
+      256,
+      256,
+      256,
+      255,
+      255,
+      255,
+      256,
+      256,
+      256,
+      256,
+      256,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256,
+      256
+    ]
+  },
+  "generations_sample": {
+    "nl_full": [
+      "<tool_call>{\"name\": \"reboot_device\", \"arguments\": {\"device_id\": \"555-123-2302\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"reboot_device\", \"arguments\": {\"device_id\": \"555-123-2302\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"reboot_device\", \"arguments\": {\"device_id\": \"555-123-2302\"}}<|im_end|>"
+    ],
+    "nl_full_source": [
+      "<tool_call>{\"name\": \"modify_pending_order_items\", \"arguments\": {\"item\": \"data plan\", \"action\": \"refuel\", \"quantity\": 2.0}}}\n<tool_call>{\"name\": \"get_order_details\", \"arguments\": {}}<|im_end|>",
+      "<tool_call>{\"name\": \"modify_pending_order_items\", \"arguments\": {\"item\": \"data plan\", \"action\": \"refuel\", \"quantity\": 2.0}}}\n<tool_call>{\"name\": \"get_order_details\", \"arguments\": {}}<|im_end|>",
+      "<tool_call>{\"name\": \"modify_pending_order_items\", \"arguments\": {\"item\": \"data plan\", \"action\": \"refuel\", \"quantity\": 2.0}}}\n<tool_call>{\"name\": \"get_order_details\", \"arguments\": {}}<|im_end|>"
+    ],
+    "facet_full": [
+      "<tool_call>{\"name\": \"refuel_data\", \"arguments\": {\"amount\": 2.0}}\n<tool_call>{\"name\": \"toggle_data\", \"arguments\": {}}\n<tool_call>{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n<tool_call>{\"name\": \"make_payment\", \"arguments\": {\"amount\": 2.0, \"type\": \"data\"}}\n<tool_call>{\"name\": \"speed_test\", \"arguments\": {}}}<|im_end|>",
+      "<tool_call>{\"name\": \"refuel_data\", \"arguments\": {\"amount\": 2.0}}\n<tool_call>{\"name\": \"toggle_data\", \"arguments\": {}}\n<tool_call>{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n<tool_call>{\"name\": \"make_payment\", \"arguments\": {\"amount\": 2.0, \"type\": \"data\"}}\n<tool_call>{\"name\": \"speed_test\", \"arguments\": {}}}<|im_end|>",
+      "<tool_call>{\"name\": \"refuel_data\", \"arguments\": {\"amount\": 2.0}}\n<tool_call>{\"name\": \"toggle_data\", \"arguments\": {}}\n<tool_call>{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n<tool_call>{\"name\": \"make_payment\", \"arguments\": {\"amount\": 2.0, \"type\": \"data\"}}\n<tool_call>{\"name\": \"speed_test\", \"arguments\": {}}}<|im_end|>"
+    ],
+    "facet_xfer": [
+      "{\"name\": \"toggle_data\", \"arguments\": {}}\n{\"name\": \"refuel_data\", \"arguments\": {\"data_amount\": \"2.0 GB\"}}\n{\"name\": \"reset_apn_settings\", \"arguments\": {}}\n{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n{\"name\": \"toggle_roaming\", \"arguments\": {}}\n{\"name\": \"toggle_wifi_calling\", \"arguments\": {}}\n{\"name\": \"reboot_device\", \"arguments\": {}}<|im_end|>",
+      "{\"name\": \"toggle_data\", \"arguments\": {}}\n{\"name\": \"refuel_data\", \"arguments\": {\"data_amount\": \"2.0 GB\"}}\n{\"name\": \"reset_apn_settings\", \"arguments\": {}}\n{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n{\"name\": \"toggle_roaming\", \"arguments\": {}}\n{\"name\": \"toggle_wifi_calling\", \"arguments\": {}}\n{\"name\": \"reboot_device\", \"arguments\": {}}<|im_end|>",
+      "{\"name\": \"toggle_data\", \"arguments\": {}}\n{\"name\": \"refuel_data\", \"arguments\": {\"data_amount\": \"2.0 GB\"}}\n{\"name\": \"reset_apn_settings\", \"arguments\": {}}\n{\"name\": \"set_network_mode_preference\", \"arguments\": {\"preference\": \"4G\"}}\n{\"name\": \"toggle_roaming\", \"arguments\": {}}\n{\"name\": \"toggle_wifi_calling\", \"arguments\": {}}\n{\"name\": \"reboot_device\", \"arguments\": {}}<|im_end|>"
+    ],
+    "facet_compact": [
+      "IGHL{\"name\":\"refuel_data\",\"arguments\":{\"amount\":2.0,\"phone_number\":5551232002}}<|im_end|>",
+      "IGHL{\"name\":\"refuel_data\",\"arguments\":{\"amount\":2.0,\"phone_number\":5551232002}}<|im_end|>",
+      "IGHL{\"name\":\"refuel_data\",\"arguments\":{\"amount\":2.0,\"phone_number\":5551232002}}<|im_end|>"
+    ],
+    "noprompt": [
+      "### Call Transcript\n\n**Agent:** Hello, this is [Agent's Name). How can I assist you today?\n\n**John Smith:** Hi, my name is John Smith, and my phone number is 555-123-2002. I'm currently in France and experiencing issues with my mobile data. It either stops working or is very slow. I need to get to an excellent internet speed, nothing less.\n\n**Agent:** I understand your concern, John. Let\u2019s try a few troubleshooting steps first. First, could you please restart your device? Sometimes a simple restart can reso",
+      "### Call Transcript\n\n**Agent:** Hello, this is [Agent's Name). How can I assist you today?\n\n**John Smith:** Hi, my name is John Smith, and my phone number is 555-123-2002. I'm currently in France and experiencing issues with my mobile data. It either stops working or is very slow. I need to get to an excellent internet speed, nothing less.\n\n**Agent:** I understand your concern, John. Let\u2019s try a few troubleshooting steps first. First, could you please restart your device? Sometimes a simple restart can reso",
+      "### Call Transcript\n\n**Agent:** Hello, this is [Agent's Name). How can I assist you today?\n\n**John Smith:** Hi, my name is John Smith, and my phone number is 555-123-2002. I'm currently in France and experiencing issues with my mobile data. It either stops working or is very slow. I need to get to an excellent internet speed, nothing less.\n\n**Agent:** I understand your concern, John. Let\u2019s try a few troubleshooting steps first. First, could you please restart your device? Sometimes a simple restart can reso"
+    ]
+  },
+  "wall_seconds": 827.4876518249512
+}
