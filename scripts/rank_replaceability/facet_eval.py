@@ -42,7 +42,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
-from measure_phi_rank import load_metatool_st4  # type: ignore
+from measure_phi_rank import load_metatool_st4, load_tau2  # type: ignore
 from intervention_metatool_eval import (  # type: ignore
     FC_SYSTEM_TEMPLATE,
     build_full_prompt,
@@ -296,6 +296,46 @@ def build_facet_anon_prompt(
 
 
 # =============================================================================
+# E11 cross-domain transfer prompt builders
+# =============================================================================
+
+def build_nl_full_source_prompt(
+    tokenizer, query: str, source_tools: List[str]
+) -> str:
+    """Target query but source's tool list as candidates -- expected F1 ~ 0
+    (tool-name mismatch). Reuses the standard NL FC system template."""
+    return build_full_prompt(tokenizer, query, source_tools)
+
+
+def build_facet_xfer_prompt(
+    tokenizer,
+    query: str,
+    target_tools: List[str],
+    target_schema: Dict[str, Dict[str, str]],
+    source_domain: str,
+) -> str:
+    """Target tools relabeled with source domain string and given a synthetic
+    name-only description (target's canonical desc stripped). Action labels
+    come from target_schema (the same universal classifier that produced the
+    source schema). Tests whether the typed-format gain transfers when the
+    domain label is mismatched and target descriptions are unavailable."""
+    rows = []
+    for t in target_tools:
+        s = target_schema.get(t, {})
+        action = s.get("action", "read")
+        domain = source_domain
+        words = t.replace("_", " ").strip().lower()
+        desc_short = _trim_desc(f"{source_domain}: {words}")
+        rows.append(f"- {t} | {action} | {domain} : {desc_short}")
+    sys_msg = FACET_FULL_SYSTEM_TEMPLATE.format(tool_rows="\n".join(rows))
+    msgs = [
+        {"role": "system", "content": sys_msg},
+        {"role": "user", "content": query},
+    ]
+    return tokenizer.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False)
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
@@ -306,7 +346,19 @@ def parse_args() -> argparse.Namespace:
         "--metatool-path",
         default="/tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask4.json",
     )
-    p.add_argument("--schema", required=True, help="facet schema YAML path")
+    p.add_argument("--schema", required=True, help="target facet schema YAML path")
+    p.add_argument(
+        "--task",
+        default="metatool_st4",
+        choices=["metatool_st4", "tau2_retail", "tau2_telecom", "tau2_airline"],
+        help="evaluation task: queries + GT come from this dataset",
+    )
+    p.add_argument(
+        "--source-schema",
+        default=None,
+        help="source-domain facet schema YAML (E11 cross-domain transfer; "
+        "required when conditions include nl_full_source / facet_xfer)",
+    )
     p.add_argument("--max-samples", type=int, default=64)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--dtype", default="bfloat16")
@@ -315,7 +367,8 @@ def parse_args() -> argparse.Namespace:
         "--conditions",
         default="nl_full,nl_with_desc,facet_full,facet_compact,list_only,noprompt",
         help="comma-separated subset of {nl_full, nl_with_desc, facet_full, "
-        "facet_compact, list_only, list_anon, facet_anon, noprompt}",
+        "facet_compact, list_only, list_anon, facet_anon, noprompt, "
+        "nl_full_source, facet_xfer}",
     )
     p.add_argument("--out", required=True)
     return p.parse_args()
@@ -335,6 +388,8 @@ def main() -> int:
         "list_anon",
         "facet_anon",
         "noprompt",
+        "nl_full_source",
+        "facet_xfer",
     }
     for c in conditions:
         if c not in valid:
@@ -343,8 +398,34 @@ def main() -> int:
     schema = load_facet_schema(args.schema)
     print(f"[schema] {len(schema)} tools loaded from {args.schema}", flush=True)
 
-    items = load_metatool_st4(args.metatool_path, args.max_samples, full_schema=False)
-    print(f"[data] N={len(items)}", flush=True)
+    # Source schema (E11 cross-domain only).
+    source_schema: Dict[str, Dict[str, str]] = {}
+    source_tools_list: List[str] = []
+    source_domain: str = ""
+    xfer_conds = {"nl_full_source", "facet_xfer"}
+    needed_xfer = xfer_conds & set(conditions)
+    if needed_xfer:
+        if not args.source_schema:
+            raise ValueError(
+                f"conditions {sorted(needed_xfer)} require --source-schema"
+            )
+        source_schema = load_facet_schema(args.source_schema)
+        source_tools_list = sorted(source_schema.keys())
+        # Source domain label: read any tool's domain field (uniform per file).
+        if source_schema:
+            source_domain = next(iter(source_schema.values())).get("domain", "general")
+        print(
+            f"[source] {len(source_tools_list)} tools, domain='{source_domain}' "
+            f"from {args.source_schema}",
+            flush=True,
+        )
+
+    if args.task == "metatool_st4":
+        items = load_metatool_st4(args.metatool_path, args.max_samples, full_schema=False)
+    else:
+        domain = args.task.split("_", 1)[1]
+        items = load_tau2(domain, args.max_samples, full_schema=False)
+    print(f"[data] task={args.task} N={len(items)}", flush=True)
 
     print(f"[model] loading {args.model}", flush=True)
     dtype = {"bfloat16": torch.bfloat16, "float16": torch.float16, "float32": torch.float32}[
@@ -393,13 +474,28 @@ def main() -> int:
             prompts["facet_anon"] = build_facet_anon_prompt(tokenizer, query, tools, schema)
         if "noprompt" in conditions:
             prompts["noprompt"] = build_noprompt(tokenizer, query)
+        if "nl_full_source" in conditions:
+            prompts["nl_full_source"] = build_nl_full_source_prompt(
+                tokenizer, query, source_tools_list
+            )
+        if "facet_xfer" in conditions:
+            prompts["facet_xfer"] = build_facet_xfer_prompt(
+                tokenizer, query, tools, schema, source_domain
+            )
 
         for cond in conditions:
             ptxt = prompts[cond]
             tok_count = len(tokenizer(ptxt).input_ids)
             prompt_lengths[cond].append(tok_count)
             gen = generate_text(model, tokenizer, ptxt, args.max_new_tokens, args.device)
-            pred = extract_tool_names(gen, tools)
+            # nl_full_source presents source's tool list; collect preds against
+            # union of source+target so the model's emitted source-tool names
+            # are visible in the metric (otherwise filter loses everything).
+            if cond == "nl_full_source":
+                cand = list(set(source_tools_list) | set(tools))
+            else:
+                cand = tools
+            pred = extract_tool_names(gen, cand)
             m = compute_metrics(pred, gt_list)
             metrics[cond].append(m)
             generations[cond].append(gen[:512])
@@ -436,8 +532,11 @@ def main() -> int:
 
     out = {
         "model": args.model,
-        "task": "metatool_st4",
+        "task": args.task,
         "schema_path": args.schema,
+        "source_schema_path": args.source_schema,
+        "source_domain": source_domain,
+        "source_tools": source_tools_list,
         "n_samples": len(items),
         "max_new_tokens": args.max_new_tokens,
         "conditions": conditions,

@@ -32,3 +32,7 @@ paper/*
 external/
 lora_adapters/
 logs/
+
+# Raw rank-measurement intermediates (recomputable from measure_phi_rank.py;
+# json summaries are committed alongside). Excluded to keep repo lean.
+reports/**/*.npz
