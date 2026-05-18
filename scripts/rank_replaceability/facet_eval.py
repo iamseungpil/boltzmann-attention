@@ -57,6 +57,23 @@ from intervention_metatool_eval import (  # type: ignore
 # Tiny YAML loader (avoid PyYAML dep -- our schema is flat)
 # =============================================================================
 
+def bootstrap_ci(
+    values: List[float], n_boot: int = 1000, alpha: float = 0.05, seed: int = 0
+) -> tuple:
+    """Percentile bootstrap CI of the mean. Returns (lo, hi)."""
+    arr = np.asarray(values, dtype=float)
+    n = len(arr)
+    if n == 0:
+        return float("nan"), float("nan")
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, n, size=(n_boot, n))
+    boot_means = arr[idx].mean(axis=1)
+    return (
+        float(np.quantile(boot_means, alpha / 2)),
+        float(np.quantile(boot_means, 1 - alpha / 2)),
+    )
+
+
 def load_facet_schema(path: str) -> Dict[str, Dict[str, str]]:
     """Parse the flat YAML produced by extract_facet_schema_metatool.py.
 
@@ -364,6 +381,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--dtype", default="bfloat16")
     p.add_argument("--max-new-tokens", type=int, default=192)
     p.add_argument(
+        "--bootstrap-n-boot",
+        type=int,
+        default=1000,
+        help="bootstrap resamples for 95%% CI on per-condition F1/precision/recall. "
+        "Set 0 to skip (CI fields become NaN).",
+    )
+    p.add_argument(
         "--conditions",
         default="nl_full,nl_with_desc,facet_full,facet_compact,list_only,noprompt",
         help="comma-separated subset of {nl_full, nl_with_desc, facet_full, "
@@ -512,19 +536,37 @@ def main() -> int:
 
     # Aggregate
     summary = {}
+    n_boot = max(0, int(args.bootstrap_n_boot))
     for cond in conditions:
         ms = metrics[cond]
         if not ms:
             continue
+        f1_vals = [m.get("f1", 0.0) for m in ms]
+        prec_vals = [m.get("precision", 0.0) for m in ms]
+        rec_vals = [m.get("recall", 0.0) for m in ms]
+        if n_boot > 0:
+            f1_lo, f1_hi = bootstrap_ci(f1_vals, n_boot=n_boot)
+            prec_lo, prec_hi = bootstrap_ci(prec_vals, n_boot=n_boot)
+            rec_lo, rec_hi = bootstrap_ci(rec_vals, n_boot=n_boot)
+        else:
+            f1_lo = f1_hi = prec_lo = prec_hi = rec_lo = rec_hi = float("nan")
         summary[cond] = {
-            "f1_mean": float(np.mean([m["f1"] for m in ms])),
-            "f_05_mean": float(np.mean([m["f_05"] for m in ms])),
-            "eu_mean": float(np.mean([m["eu"] for m in ms])),
-            "jaccard_mean": float(np.mean([m["jaccard"] for m in ms])),
-            "exact_mean": float(np.mean([m["exact"] for m in ms])),
-            "precision_mean": float(np.mean([m["precision"] for m in ms])),
-            "recall_mean": float(np.mean([m["recall"] for m in ms])),
-            "n_pred_mean": float(np.mean([len(m["pred"]) for m in ms])),
+            "n": len(ms),
+            "f1_mean": float(np.mean(f1_vals)),
+            "f1_sd": float(np.std(f1_vals, ddof=1)) if len(f1_vals) > 1 else 0.0,
+            "f1_ci95_lo": f1_lo,
+            "f1_ci95_hi": f1_hi,
+            "f_05_mean": float(np.mean([m.get("f_05", 0.0) for m in ms])),
+            "eu_mean": float(np.mean([m.get("eu", 0.0) for m in ms])),
+            "jaccard_mean": float(np.mean([m.get("jaccard", 0.0) for m in ms])),
+            "exact_mean": float(np.mean([m.get("exact", 0.0) for m in ms])),
+            "precision_mean": float(np.mean(prec_vals)),
+            "precision_ci95_lo": prec_lo,
+            "precision_ci95_hi": prec_hi,
+            "recall_mean": float(np.mean(rec_vals)),
+            "recall_ci95_lo": rec_lo,
+            "recall_ci95_hi": rec_hi,
+            "n_pred_mean": float(np.mean([len(m.get("pred", [])) for m in ms])),
             "prompt_len_mean": float(np.mean(prompt_lengths[cond])),
             "prompt_len_min": int(np.min(prompt_lengths[cond])),
             "prompt_len_max": int(np.max(prompt_lengths[cond])),
@@ -552,19 +594,31 @@ def main() -> int:
 
     # Pretty-print summary table
     print()
-    hdr = "  ".join(f"{c:>13}" for c in conditions)
-    print(f"{'metric':<14} {hdr}")
-    print("-" * (16 + 15 * len(conditions)))
+    hdr = "  ".join(f"{c:>16}" for c in conditions)
+    print(f"{'metric':<18} {hdr}")
+    print("-" * (20 + 18 * len(conditions)))
     for k in [
+        "n",
         "prompt_len_mean",
         "f1_mean",
+        "f1_sd",
         "f_05_mean",
         "exact_mean",
         "precision_mean",
         "recall_mean",
     ]:
-        row = "  ".join(f"{summary[c][k]:>13.4f}" for c in conditions)
-        print(f"{k:<14} {row}")
+        if k == "n":
+            row = "  ".join(f"{summary[c][k]:>16d}" for c in conditions)
+        else:
+            row = "  ".join(f"{summary[c][k]:>16.4f}" for c in conditions)
+        print(f"{k:<18} {row}")
+    # CI rows (mean [lo, hi])
+    for k in ["f1", "precision", "recall"]:
+        row = "  ".join(
+            f"[{summary[c][f'{k}_ci95_lo']:.3f},{summary[c][f'{k}_ci95_hi']:.3f}]".rjust(16)
+            for c in conditions
+        )
+        print(f"{k+'_ci95':<18} {row}")
     return 0
 
 
