@@ -162,6 +162,14 @@ LIST_ONLY_SYSTEM_TEMPLATE = (
     'Emit <tool_call>{{"name":"X","arguments":{{}}}}</tool_call> blocks.'
 )
 
+# D0 fix-(마): nl_full with same minimal framing as list_only (deconfound system-prompt richness)
+NL_SYSLESS_SYSTEM_TEMPLATE = (
+    "You are a tool-selection agent. "
+    "Tools: [{tools}]. "
+    'Emit <tool_call>{{"name":"X","arguments":{{}}}}</tool_call> blocks. '
+    "Multiple if needed. Only tool_call blocks."
+)
+
 
 # E10b -- anonymized tool names. Tools are referenced by placeholder IDs
 # (T1..Tn) so that any task knowledge the model has from the natural
@@ -256,6 +264,17 @@ def build_facet_compact_prompt(
 
 def build_list_only_prompt(tokenizer, query: str, tools: List[str]) -> str:
     sys_msg = LIST_ONLY_SYSTEM_TEMPLATE.format(tools=", ".join(tools))
+    msgs = [
+        {"role": "system", "content": sys_msg},
+        {"role": "user", "content": query},
+    ]
+    return tokenizer.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False)
+
+
+def build_nl_sysless_prompt(tokenizer, query: str, tools: List[str]) -> str:
+    """D0 fix-(마): nl_full with minimal framing identical to list_only (same template structure).
+    Isolates effect of tool-list format from system-prompt richness."""
+    sys_msg = NL_SYSLESS_SYSTEM_TEMPLATE.format(tools=", ".join(tools))
     msgs = [
         {"role": "system", "content": sys_msg},
         {"role": "user", "content": query},
@@ -392,7 +411,26 @@ def parse_args() -> argparse.Namespace:
         default="nl_full,nl_with_desc,facet_full,facet_compact,list_only,noprompt",
         help="comma-separated subset of {nl_full, nl_with_desc, facet_full, "
         "facet_compact, list_only, list_anon, facet_anon, noprompt, "
-        "nl_full_source, facet_xfer}",
+        "nl_sysless, nl_full_source, facet_xfer}",
+    )
+    # D0 assumption fixes
+    p.add_argument(
+        "--d0",
+        action="store_true",
+        default=False,
+        help="Enable all D0 assumption fixes: --query-mode native --gt-mode unique",
+    )
+    p.add_argument(
+        "--query-mode",
+        default="dict",
+        choices=["dict", "native"],
+        help="(나) dict=legacy str(instructions_dict); native=reason_for_call+known_info",
+    )
+    p.add_argument(
+        "--gt-mode",
+        default="full",
+        choices=["full", "unique"],
+        help="(가) full=legacy multiset trajectory; unique=ordered dedup of tool names",
     )
     p.add_argument("--out", required=True)
     return p.parse_args()
@@ -403,12 +441,17 @@ def main() -> int:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     conditions = [c.strip() for c in args.conditions.split(",") if c.strip()]
+    # Apply --d0 shorthand
+    if args.d0:
+        args.query_mode = "native"
+        args.gt_mode = "unique"
     valid = {
         "nl_full",
         "nl_with_desc",
         "facet_full",
         "facet_compact",
         "list_only",
+        "nl_sysless",
         "list_anon",
         "facet_anon",
         "noprompt",
@@ -448,7 +491,13 @@ def main() -> int:
         items = load_metatool_st4(args.metatool_path, args.max_samples, full_schema=False)
     else:
         domain = args.task.split("_", 1)[1]
-        items = load_tau2(domain, args.max_samples, full_schema=False)
+        items = load_tau2(
+            domain,
+            args.max_samples,
+            full_schema=False,
+            query_mode=args.query_mode,
+            gt_mode=args.gt_mode,
+        )
     print(f"[data] task={args.task} N={len(items)}", flush=True)
 
     print(f"[model] loading {args.model}", flush=True)
@@ -492,6 +541,8 @@ def main() -> int:
             prompts["facet_compact"] = build_facet_compact_prompt(tokenizer, query, tools, schema)
         if "list_only" in conditions:
             prompts["list_only"] = build_list_only_prompt(tokenizer, query, tools)
+        if "nl_sysless" in conditions:
+            prompts["nl_sysless"] = build_nl_sysless_prompt(tokenizer, query, tools)
         if "list_anon" in conditions:
             prompts["list_anon"] = build_list_anon_prompt(tokenizer, query, tools)
         if "facet_anon" in conditions:
@@ -582,6 +633,8 @@ def main() -> int:
         "n_samples": len(items),
         "max_new_tokens": args.max_new_tokens,
         "conditions": conditions,
+        "d0_query_mode": args.query_mode,
+        "d0_gt_mode": args.gt_mode,
         "summary": summary,
         "details": metrics,
         "prompt_lengths": prompt_lengths,

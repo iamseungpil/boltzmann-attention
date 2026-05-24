@@ -174,8 +174,21 @@ def _build_full_tau2_schema(tools: List[str]) -> str:
     return json.dumps(schemas, indent=2)
 
 
-def load_tau2(domain: str, n: int, full_schema: bool = False) -> List[dict]:
-    """Loads tau2 retail/telecom/airline tasks. Returns list of {query, candidates, gt, system_full?}."""
+def load_tau2(
+    domain: str,
+    n: int,
+    full_schema: bool = False,
+    query_mode: str = "dict",
+    gt_mode: str = "full",
+) -> List[dict]:
+    """Loads tau2 retail/telecom/airline tasks.
+
+    Args:
+        query_mode: "dict" (legacy — str(instructions_dict)) |
+                    "native" (D0 fix-나: reason_for_call + known_info natural language)
+        gt_mode:    "full" (legacy — all trajectory actions, may include duplicates) |
+                    "unique" (D0 fix-가: ordered dedup of tool names)
+    """
     path = f"{DEFAULT_TAU2_BASE}/domains/{domain}/tasks.json"
     with open(path) as f:
         tasks = json.load(f)
@@ -193,11 +206,20 @@ def load_tau2(domain: str, n: int, full_schema: bool = False) -> List[dict]:
                 or t.get("query")
                 or json.dumps(t)[:512]
             )
+            # D0 fix-(나): extract natural-language query from instructions dict
+            if query_mode == "native" and isinstance(instr, dict):
+                reason = (instr.get("reason_for_call") or "").strip()
+                known = (instr.get("known_info") or "").strip()
+                instr = f"{reason}\n{known}".strip() if known else reason
             gt_actions = (t.get("evaluation_criteria") or {}).get("actions") or []
             gt = [a.get("name") for a in gt_actions if isinstance(a, dict) and a.get("name")]
         else:
             instr = str(t)[:512]
             gt = []
+        # D0 fix-(가): deduplicate GT tool list (ordered unique set)
+        if gt_mode == "unique":
+            seen: dict = {}
+            gt = [seen.setdefault(g, g) for g in gt if g not in seen]
         item = {
             "query": str(instr)[:1024],
             "candidates": domain_tools,
