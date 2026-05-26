@@ -338,7 +338,7 @@ def make_symmetric_pairs(
     records, seen = [], set()
 
     for entry in pairs:
-        if hasattr(entry, "condition"):     a, b = entry.option_a, entry.option_b  # ExclusiveChoice
+        if hasattr(entry, "option_a"):      a, b = entry.option_a, entry.option_b  # ExclusiveChoice
         elif hasattr(entry, "tool"):        a, b = entry.tool, entry.trigger        # ConditionalOn
         else:                               a, b = entry[0], entry[1]
 
