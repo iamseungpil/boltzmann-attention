@@ -1281,6 +1281,53 @@ Go/No-Go: ✓ v2 OVERALL PASS → Phase 1 진행 가능
 **v1 → v2 전환**:
 v1에선 B1/B2가 vLLM 사망으로 모두 connection error (전체 456 sims 무효). v2 (2026-05-27 09:56 시작)는 GPU1:9000, max-model-len=32K, B0+B1+B2 모두 재실행 — cross-baseline 비교를 위해 동일 조건. 예상 종료 16~18 KST.
 
+#### Smoke3 (chain=1, max_steps=200) vs base v1 (chain 2-9) 비교
+
+smoke3 (small split N=20, 14 sims 저장, killed)에서 partial pass^1 = 0.214 (3/14) — base v1의 0.044와 약 5× 격차. **task split 구조 차이로 정밀 분석 시 통계적 분리 확인**:
+
+| 항목 | smoke3 (small) | base v1 |
+|---|---|---|
+| chain_len 분포 | **1.0** (전부 단일 이슈) | 2~9 (평균 ~4.3) |
+| task_id 공유 (small ∩ base) | **0** | 0 |
+| pass^1 | 0.2143 (3/14) | 0.0439 (20/456) |
+| Wilson 95% CI | [0.076, 0.476] | [0.028, 0.067] |
+| CI 중첩 | **분리됨** (smoke3 LB 0.076 > v1 UB 0.067) | |
+
+→ smoke3의 0.22는 **chain=1 단일 이슈 task의 7B 능력**이고, base의 0.044는 **multi-issue chained planning의 7B 능력**. 두 측정은 동일 모집단 아님. 공식 leaderboard는 base 조건 (multi-issue) 이므로 0.044가 정확한 비교군.
+
+**chain length × category 분해 (v1 base 456 sims)** — pass^1 표:
+
+| chain | service_issue | mobile_data_issue | mms_issue |
+|---|---|---|---|
+| 2 | 0.139 (5/36) | 0.094 (3/32) | **0.000 (0/32)** |
+| 3 | 0.056 (2/36) | 0.000 (0/32) | **0.000 (0/36)** |
+| 4 | **0.222** (8/36) | 0.042 (1/24) | **0.000 (0/24)** |
+| 5 | 0.125 (1/8) | 0.000 | **0.000 (0/20)** |
+| 6+ | n/a | 0.000 | **0.000** |
+
+핵심 관찰:
+1. **Chain-length scaling**: 모든 카테고리에서 chain≥6 = 0%. Prompt-only 한계.
+2. **MMS multi-step deficit**: chain=2 영역에서 non-mms = 11.8% (8/68) vs mms = 0% (0/32). chain=4 영역 non-mms = 15.0% (9/60) vs mms = 0% (0/24). **같은 chain 깊이에서도 mms만 풀리지 않음** — chain length만으론 설명 불가.
+3. **Chain=1 mms는 풀린다** (smoke3 1/2 = 50%, n작음): `break_app_sms_permission [None]` 통과. 모델 weight에 mms 단일 도구 사용 능력은 *존재*.
+
+#### "MMS = 추가 학습 필요"인지 — 결정은 Phase 2 후
+
+세 가설 분기:
+
+| 가설 | 함의 | 검증 신호 |
+|---|---|---|
+| **A. Pure weight gap** | mms domain SFT/RFT (Phase 4) 필수 | Phase 2 steering lift ≈ 0%p |
+| **B. LRH 적용 가능** | mms 표현이 weight에 약하게라도 존재 (chain=1 50%가 증거) → steering이 *증폭* | Phase 2 lift ≥ +5%p in mms chain 2-4 |
+| **C. Hybrid 필요** | Phase 2 부분 lift, Phase 3 cross-attn 또는 RFT가 완성 | Phase 2 +1~5%p, Phase 4 추가 lift |
+
+**현 데이터는 가설 A를 약하게 반박** (chain=1 mms 50% 통과). 가설 B/C 중 어느 쪽인지는 Phase 2 결과로 결정.
+
+#### Phase 2 측정 설계에 추가할 항목
+
+- **Chain length stratified 분석**: chain {2,3,4,5,6+} 각각에서 B0 vs Tx pass^1 lift 별도 보고. 평균 만 보면 chain=2 lift가 chain=8 noise에 묻힘.
+- **MMS-specific Go/No-Go**: Phase 2 T1 또는 A6가 **mms chain=2-4 영역에서 ≥+5%p** lift = 가설 B 확정. lift 0% = 가설 A → Phase 4 우선순위 상향.
+- **Chain=1 single-issue 결과는 별도 표** (선례 없는 sub-benchmark; leaderboard와 무관하지만 capability 분리 측정용).
+
 ### Phase 2: Vector Steering 구현 (2주)
 
 ```
@@ -1762,4 +1809,5 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-26 | v1.6: 온톨로지 종합 서베이 반영 — 12종→27종. Routine/GAP/PDDL/BPMN/KnowAgent/KG 전체 서베이. 신규 15종: CAUSAL_LINK, DIRECTLY_FOLLOWS, ERROR_FALLBACK, TOOL_SUBSUMES, AND_JOIN, STATE_TRANSITION, EXCLUSIVE_CHOICE, EFFECT_STATE, DOMAIN_CATEGORY, CHECKPOINT, IDEMPOTENT, REVERSIBLE, MANDATORY_IN_FLOW, OPTIONAL_IN_FLOW, LOOP_CAPABLE. 코드 전면 갱신(ontology v3, pairs v3). |
 | 2026-05-27 | v1.8: §3.5 PCLI (Probing-Calibrated Layerwise Intervention) 신규 추가. 증폭-효과 trade-off 해소 원리 정식화: amplification_risk ∝ 1/τ. 계수 자동 교정 수식 (α = BASE_ALPHA × tau_factor / settling). 방법 선택 결정 트리 (early_peak+directional → A6_peak, flat → A8, mid_late → T1_qonly/A8). 레이어 충돌 분석 설계. check_results_v3.py 전면 재작성: curve_pattern 분류, α 교정, 방법 선택, 충돌 탐지, intervention_map.json 자동 저장. Phase 0 출력에 intervention_map.json 추가 (Phase 2 구현 설계도). |
 | 2026-05-27 | v1.9: Phase 1 v1 B0 telecom 실측 반영. **pass^1 = 0.0475 (95% CI [0.031, 0.072])**, pass^4 = 0.1316, N=114 trials=4 max_steps=200. §7에 결과 박스(Termination/Category/Persona/병목/leaderboard 위치) 신규 추가. §8.1 예상 테이블에 실측 표시. 핵심 발견: max_steps 33.6% 도달 시 100% reward=0, mms_issue 0/97 user_stop pass, 0 tasks 4/4 통과, Hard persona가 Easy/None보다 높음. v2 (max-model-len=32K, B0+B1+B2 통일 재실행) 진행 중. |
+| 2026-05-27 | v1.10: smoke3(chain=1) vs base v1(chain 2-9) 정밀 비교 추가. small ∩ base = 0 (task 공유 없음), 두 split은 본질적으로 다른 difficulty regime. Chain length × category × pass^1 표 추가: chain=2 non-mms 11.8% vs mms 0%, chain=4 non-mms 15.0% vs mms 0% → MMS multi-step deficit 별개 효과. 그러나 chain=1 mms는 smoke3에서 50% 통과 → 가설 A(pure weight gap) 약하게 반박. Phase 2 측정에 chain stratified 분석 + MMS-specific Go/No-Go (+5%p in chain 2-4 = 가설 B 확정, 0% = Phase 4 우선) 추가. |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
