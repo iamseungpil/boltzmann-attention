@@ -1684,6 +1684,17 @@ Claim 5 (Pareto frontier, v1.11 신규):
    T6 (Triple composition)이 학습 비용 대비 pass^1
    Pareto frontier 최우상점. 각 lever의 marginal lift
    분해로 메커니즘 분리 가능."
+
+Claim 6 (Novelty 정확한 articulation, v1.12 신규):
+  "Process reward 자체는 Lightman 2023 (Let's Verify Step by Step)
+   부터 표준 기법. 우리 novelty는 두 가지:
+   (i) 동일한 42-relation ontology를 4개 representation layer
+       (probing / steering / cross-attn / RFT reward)에 *일관* 적용.
+       이 multi-level unified treatment는 학계 prior 없음.
+   (ii) Ontology가 tool schema에서 auto-discoverable (AFOD) — 
+       사람 라벨 없이 새 enterprise domain에 transferable.
+   Process reward는 우리 4-layer hierarchy의 한 layer일 뿐이며,
+   단독으로는 prior 기법의 application."
 ```
 
 ---
@@ -1871,6 +1882,64 @@ KV Cache Steering의 핵심 통찰:
 
 ---
 
+### 9.4.5 계열 4½: Process Reward Models (PRM) — 우리 RFT reward 직접 선조 (v1.12 신규)
+
+#### 핵심 흐름
+
+| 논문 | 연도 | Process reward 출처 | Task |
+|---|---|---|---|
+| **Lightman et al. "Let's Verify Step by Step"** | 2023 | 학습된 PRM이 math step 채점 | MATH benchmark |
+| **STaR** (Zelikman et al.) | 2022 | self-rationalizer, intermediate CoT | reasoning |
+| **ReST** (Google DeepMind, Gulcehre et al.) | 2023 | outcome reward + filter | language |
+| **MathShepherd** (Wang et al.) | 2024 | Monte Carlo step reward | math |
+| **CodeRL / RLEF** | 2022-24 | unit test per-step | code |
+| **ReST-MCTS*** (Zhang et al.) | 2024 | MCTS-based step value | reasoning |
+| **Quiet-STaR** (Stanford) | 2024 | continuous thought tokens | reasoning |
+
+#### 우리와의 정확한 비교
+
+```
+공통:
+  - outcome reward (sparse, 마지막에 한 번)
+  - + per-step/turn intermediate reward (dense)
+  - SFT 모델 → reward shaping → RL update
+
+차별:
+  (1) 도메인:
+      PRM 선례   = math step, code execution, reasoning CoT
+      우리       = multi-turn tool-use agent (τ²-bench)
+      
+  (2) Reward source:
+      PRM 선례   = (a) 학습된 PRM (Lightman, MathShepherd)
+                  (b) execution verifier (CodeRL)
+                  (c) MCTS rollout (ReST-MCTS*)
+      우리       = ontology relation rule-based:
+                    precedes 위반 → −0.1
+                    requires 위반 → −0.2
+                    mutex 위반    → −0.3
+                  학습 PRM 불요, MCTS 불요, 단순 rule
+                  
+  (3) Reward 적용 위치:
+      PRM 선례   = process reward 단독 (학습 신호로만)
+      우리       = ontology가 4 layer에 동시 적용:
+                    probing (Phase 0) → steering (Phase 2) →
+                    cross-attn (Phase 3) → RFT reward (Phase 4)
+                  process reward는 그 중 하나의 application
+                  
+  (4) Reward source의 origin:
+      PRM 선례   = 사람 라벨 (math step verify) 또는 외부 verifier (test cases)
+      우리       = tool schema에서 auto-discovered (AFOD)
+                  → 새 enterprise domain에 *zero-label transfer*
+```
+
+#### Risk — 우리 contribution은 *PRM의 application*인가 *novel mechanism*인가?
+
+Pessimistic reviewer 관점:
+> "PRM은 Lightman 2023부터 알려진 표준. Routine/RL training에 rule-based reward 추가도 prior 있음. 너희 novelty는 단지 'ontology relation을 rule로 변환'한 것뿐?"
+
+우리 응답 (Claim 6):
+> "Yes, isolated process reward는 prior. 그러나 단일 ontology를 *동시에 4 layer (Q-side steering, KV-side cross-attn, weight RFT, output probing)* 에 적용하는 setup은 학계 prior 없음. PRM 선례는 모두 *학습 신호*에만 ontology를 사용. 우리는 *representation injection 도구*로도 사용 — 이게 §3.3.2의 3-lever orthogonality 가설을 검증 가능한 매트릭스로 만듦."
+
 ### 9.5 계열 5: Agent Planning 계열 — 에이전트 아키텍처
 
 > **공통 특징**: Test-time 탐색/정제로 계획 품질 향상  
@@ -2043,4 +2112,5 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-27 | v1.9: Phase 1 v1 B0 telecom 실측 반영. **pass^1 = 0.0475 (95% CI [0.031, 0.072])**, pass^4 = 0.1316, N=114 trials=4 max_steps=200. §7에 결과 박스(Termination/Category/Persona/병목/leaderboard 위치) 신규 추가. §8.1 예상 테이블에 실측 표시. 핵심 발견: max_steps 33.6% 도달 시 100% reward=0, mms_issue 0/97 user_stop pass, 0 tasks 4/4 통과, Hard persona가 Easy/None보다 높음. v2 (max-model-len=32K, B0+B1+B2 통일 재실행) 진행 중. |
 | 2026-05-27 | v1.10: smoke3(chain=1) vs base v1(chain 2-9) 정밀 비교 추가. small ∩ base = 0 (task 공유 없음), 두 split은 본질적으로 다른 difficulty regime. Chain length × category × pass^1 표 추가: chain=2 non-mms 11.8% vs mms 0%, chain=4 non-mms 15.0% vs mms 0% → MMS multi-step deficit 별개 효과. 그러나 chain=1 mms는 smoke3에서 50% 통과 → 가설 A(pure weight gap) 약하게 반박. Phase 2 측정에 chain stratified 분석 + MMS-specific Go/No-Go (+5%p in chain 2-4 = 가설 B 확정, 0% = Phase 4 우선) 추가. |
 | 2026-05-27 | v1.11: Compositional lever 합성 8-cell ablation matrix 정식화 (사용자 thesis = 명제 C' 정량). Phase 2 분기: **Phase 2a** (T1@base, training-free) / **Phase 2b** (T3 = T2 + T1@T2, Compositional A) / **Phase 2c 조건부** (T5 = T4-RFT + T1@T4, Compositional B, 명제 C') / **Phase 5 T6 조건부** (Triple = T2 + T4-RFT + T1@(T2+T4), Pareto upper bound). §3.3에 3-lever 직교성 매트릭스 + LRH 곱셈 가설. §4.2 T1 variants notation (T1@base/T2/T4/(T2+T4)). §4.2 T4 분기 (T4-LATS path α / T4-RFT path β). §7 Phase 4에 facet-RFT 세부 (GRPO + ontology violation penalty). §8.1 Pareto frontier ASCII plot. §8.2 Claim 4-5 신규. §10 Go/No-Go에 C1-C6 조건 명시. 학계 prior: Persona Distill, Task Vectors 인용. T6 setting 자체는 prior 없음 — 우리 novel contribution. |
+| 2026-05-27 | v1.12: Process Reward Models (PRM) 계열 정직 articulation. §8.2 Claim 6 신규 — process reward 자체는 Lightman 2023부터 알려진 prior, 우리 novelty는 (i) 단일 42-relation ontology를 4 layer (probing/steering/cross-attn/RFT reward)에 일관 적용, (ii) tool schema에서 AFOD auto-discoverable. §9.4.5 PRM 계열 신규 subsection — Lightman/STaR/ReST/MathShepherd/CodeRL/ReST-MCTS*/Quiet-STaR 비교 표 + 우리와의 4가지 차별점 (domain/source/위치/origin). Pessimistic reviewer 선제 대응 framing. |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
