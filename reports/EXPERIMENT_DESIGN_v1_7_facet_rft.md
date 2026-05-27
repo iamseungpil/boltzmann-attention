@@ -1214,6 +1214,73 @@ Go/No-Go: ✓ v2 OVERALL PASS → Phase 1 진행 가능
   - 현재 D0 결과(Channel A)와 비교
 ```
 
+#### Phase 1 v1 B0 실측 결과 (2026-05-27, telecom base)
+
+실행: 2026-05-27 02:15 ~ 07:42 KST (5h 27m), Qwen2.5-7B-Instruct (local vLLM port 8000, max-model-len 16384), τ²-bench telecom base N=114, **trials=4, max_steps=200, max_concurrency=8** (공식 leaderboard 프로토콜).
+원본 데이터: `reports/facet_rft_2026/phase1_baseline/base_n114_v1_16k_partial/B0_telecom_base.json/results.json` (109 MB).
+해석 보고서: `reports/facet_rft_2026/phase1_baseline/base_n114_v1_16k_partial/B0_analysis_report.md`.
+
+**Headline**:
+
+| 지표 | 값 | 95% CI |
+|---|---|---|
+| Total / evaluated | 456 / 421 | infra error 35 제외 |
+| **pass^1 (avg reward)** | **0.0475** | [0.031, 0.072] (Wilson) |
+| pass^2 (≥1 in 2) | 0.0702 | |
+| pass^3 (≥1 in 3) | 0.0965 | |
+| **pass^4 (best-of-4)** | **0.1316** | 15/114 tasks |
+| pass-all (4/4) | **0** | 어떤 task도 4 trial 모두 통과 X |
+
+**Termination 분포 — 가장 진단적인 신호**:
+
+| Termination | n | 비중 | avg_reward | pass rate (≥1) |
+|---|---|---|---|---|
+| user_stop | 254 | 55.7% | 0.0787 | **7.87%** |
+| **max_steps** | **153** | **33.6%** | **0.0000** | **0.00%** |
+| infrastructure_error | 35 | 7.7% | 0.0 | 0.00% |
+| too_many_errors | 14 | 3.1% | 0.0 | 0.00% |
+
+→ **max_steps=200에 닿으면 100% reward=0**. `user_stop`까지 정상 종료된 254건만 통과 가능성 존재.
+
+**Category 능력 프로파일** (Qwen2.5-7B vanilla 한계 노출):
+
+| Category | n_sims | avg_reward | user_stop pass rate | 진단 |
+|---|---|---|---|---|
+| **service_issue** | 116 | **0.1379** | **19.8% (16/81)** | 가능성 있음 |
+| mobile_data_issue | 144 | 0.0278 | 5.3% (4/76) | 거의 실패 |
+| **mms_issue** | **196** | **0.0000** | **0.0% (0/97)** | **전체 실패** |
+
+→ `mms_issue` 196 sims 전부, persona/trial 무관하게 reward=0. **Vanilla로는 풀 수 없는 영역**. Phase 2 steering 개입 lift 측정의 *clean baseline*.
+
+**Persona 효과 (직관 반대)**:
+
+| Persona | n_evaluated | avg_reward |
+|---|---|---|
+| **Hard** | 136 | **0.0735** |
+| Easy | 140 | 0.0429 |
+| None | 145 | 0.0276 |
+
+→ Hard가 가장 높음. Hard persona는 구체적 정보를 일찍 주거나 종료 신호가 명확해 agent가 결판을 빨리 봄. None은 user simulator가 모호하게 행동해 agent 혼란.
+
+**구조적 병목 (Phase 2 설계 함의)**:
+1. **max_steps=200 도달 33.6%** — agent에 *명시적 종료 기준 없음*. B1 (ReAct) Thought/Action 강제가 종료 판단 개선 여부가 핵심 지표.
+2. **ContextWindowExceededError 18건** — message count 평균 201(max_steps 도달 sims) × 16K token 한계. v2에서 max-model-len=32K로 해소.
+3. **Stochasticity** — agent temperature=0.0인데도 0 tasks가 4/4 통과. tool-call routing의 stochastic noise + user simulator temp=0.5 영향.
+
+**Leaderboard 위치 비교** (taubench.com 2026-05 telecom):
+
+| 모델 | pass^1 |
+|---|---|
+| Claude Opus 4.6 / LongCat-Thinking-2601 | 0.993 |
+| GPT-4o | 0.235 |
+| Qwen3-Next-80B-A3B-Instruct | 0.132 |
+| **Qwen2.5-7B-Instruct (우리 B0)** | **0.0475** |
+
+→ 7B dense는 leaderboard 미보고 영역. B0 0.0475는 *novel data point*. Phase 2 개입으로 GPT-4o(0.235) 수준 추격이 noble bar.
+
+**v1 → v2 전환**:
+v1에선 B1/B2가 vLLM 사망으로 모두 connection error (전체 456 sims 무효). v2 (2026-05-27 09:56 시작)는 GPU1:9000, max-model-len=32K, B0+B1+B2 모두 재실행 — cross-baseline 비교를 위해 동일 조건. 예상 종료 16~18 KST.
+
 ### Phase 2: Vector Steering 구현 (2주)
 
 ```
@@ -1322,9 +1389,9 @@ Ablation: A4 (random vector vs 온톨로지 벡터), A5 (레이어별)
 
 | 조건 | Retail | Telecom | Airline | 비고 |
 |---|---|---|---|---|
-| B0 Vanilla | ~0.30 | ~0.20 | ~0.15 | D0 실험 참조 |
-| B1 ReAct | ~0.35 | ~0.25 | ~0.20 | |
-| B2 Text Serial | ~0.40 | ~0.30 | ~0.22 | |
+| B0 Vanilla | ~0.30 | ~0.20 **→ 실측 0.0475** | ~0.15 | Phase 1 v1 (N=114, trials=4) |
+| B1 ReAct | ~0.35 | ~0.25 (v2 측정 중) | ~0.20 | |
+| B2 Text Serial | ~0.40 | ~0.30 (v2 측정 중) | ~0.22 | |
 | B3 KnowAgent | ~0.42 | ~0.32 | ~0.23 | |
 | **T1 Steering** | ~0.45 | ~0.38 | ~0.26 | 예측 |
 | **T2 Cross-Attn** | ~0.50 | ~0.45 | ~0.30 | 예측 |
@@ -1332,7 +1399,7 @@ Ablation: A4 (random vector vs 온톨로지 벡터), A5 (레이어별)
 | **T4 + LATS** | ~0.60 | ~0.55 | ~0.38 | 예측 |
 | B4 Routine (FT) | ~0.75 | ~0.70 | ~0.55 | 상한선 |
 
-*수치는 D0 실험 기반 추정. Phase 1-2 후 업데이트 필요.*
+*B0 Telecom 사전 추정 ~0.20은 D0 (Channel A) 기반. **실측 0.0475는 4배 낮음** — 7B 모델 vanilla 한계가 D0 예측보다 훨씬 강함을 시사. Phase 1 §7 v1 결과 박스 참조. 다른 셀은 Phase 1 v2 / Phase 2 후 업데이트.*
 
 ### 8.2 논문 핵심 클레임
 
@@ -1694,4 +1761,5 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-26 | v1.5: 코드 반영 완료. tau2_telecom_ontology.py v2 (12종 + RELATION_GEOMETRY + PREDICTED_METHOD). generate_contrast_pairs_v3.py (12종 템플릿, 방향성/대칭/범주형 분리). probe_ontology_v3.py (A7 예측 검증 포함). run_probe_v3.sh, check_results_v3.py |
 | 2026-05-26 | v1.6: 온톨로지 종합 서베이 반영 — 12종→27종. Routine/GAP/PDDL/BPMN/KnowAgent/KG 전체 서베이. 신규 15종: CAUSAL_LINK, DIRECTLY_FOLLOWS, ERROR_FALLBACK, TOOL_SUBSUMES, AND_JOIN, STATE_TRANSITION, EXCLUSIVE_CHOICE, EFFECT_STATE, DOMAIN_CATEGORY, CHECKPOINT, IDEMPOTENT, REVERSIBLE, MANDATORY_IN_FLOW, OPTIONAL_IN_FLOW, LOOP_CAPABLE. 코드 전면 갱신(ontology v3, pairs v3). |
 | 2026-05-27 | v1.8: §3.5 PCLI (Probing-Calibrated Layerwise Intervention) 신규 추가. 증폭-효과 trade-off 해소 원리 정식화: amplification_risk ∝ 1/τ. 계수 자동 교정 수식 (α = BASE_ALPHA × tau_factor / settling). 방법 선택 결정 트리 (early_peak+directional → A6_peak, flat → A8, mid_late → T1_qonly/A8). 레이어 충돌 분석 설계. check_results_v3.py 전면 재작성: curve_pattern 분류, α 교정, 방법 선택, 충돌 탐지, intervention_map.json 자동 저장. Phase 0 출력에 intervention_map.json 추가 (Phase 2 구현 설계도). |
+| 2026-05-27 | v1.9: Phase 1 v1 B0 telecom 실측 반영. **pass^1 = 0.0475 (95% CI [0.031, 0.072])**, pass^4 = 0.1316, N=114 trials=4 max_steps=200. §7에 결과 박스(Termination/Category/Persona/병목/leaderboard 위치) 신규 추가. §8.1 예상 테이블에 실측 표시. 핵심 발견: max_steps 33.6% 도달 시 100% reward=0, mms_issue 0/97 user_stop pass, 0 tasks 4/4 통과, Hard persona가 Easy/None보다 높음. v2 (max-model-len=32K, B0+B1+B2 통일 재실행) 진행 중. |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
