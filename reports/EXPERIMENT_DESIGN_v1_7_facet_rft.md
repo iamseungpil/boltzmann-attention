@@ -1013,6 +1013,73 @@ D0 결과:    ✅ Telecom S1 (facet_full +18%p), Retail S2, Airline 소규모
 | **Latency** | 추론 시간 (ms/task) | 전체 | 실용성 |
 | **EM / F1** | 정확 일치 / 부분 일치 | HotpotQA (KnowAgent) | QA 정확도 |
 
+#### 5.7.1 Enterprise Viability Metrics (★ v1.19 신규)
+
+Pass^1 단독으로는 *모델 실용성* 평가 부족. Phase 1 v2 실측에서 **모델별 *실패 모드*가 질적으로 다름**:
+
+| 지표 | 정의 | 측정 의미 |
+|---|---|---|
+| **ATR (Average Time to Resolution)** | 성공 sim의 avg wallclock duration | 실용 latency (낮을수록 ↑) |
+| **ATR p95** | 95th percentile (꼬리) | worst-case latency |
+| **max_steps_rate** | max_steps 종료 비율 | **과진단 trap** (capability 충분하나 종료 못함) |
+| **quick_failure_rate** | <10 msg + reward=0 비율 | **즉시 포기형** (capability 부족) |
+| **over_diagnosis_rate** | >100 msg + reward=0 비율 | 오래 시도 후 실패 |
+| **productive_resolution_rate** | <30 msg + reward=1 비율 | 빠르고 정확한 해결 |
+| **tool_calls_per_success** | 성공 sim의 avg tool 호출 수 | 도구 사용 효율 |
+| **infra_error_rate** | infrastructure_error + too_many_errors | 안정성 |
+| **EVS (Enterprise Viability Score)** | (pass^1 + 0.5·productive_rate) / (1 + max_steps_rate + 0.5·over_diag_rate + infra_rate) | **종합 실용 지표** |
+
+#### 5.7.2 실측 (Phase 1 v2 telecom base)
+
+| Setup | n | pass^1 | ATR(s) | max_S% | quick% | over_diag% | prod% | infra% | **EVS** |
+|---|---|---|---|---|---|---|---|---|---|
+| **Hermes-3 conc=3** | 42 | 0.119 | 63 | 19.0% | 2.4% | 23.8% | 7.1% | 2.4% | **0.116** ★ |
+| Hermes-3 conc=4 | 23 | 0.087 | 18 | 21.7% | 0% | 21.7% | 8.7% | 13.0% | 0.090 |
+| Qwen v1 B0 (16K) | 456 | 0.044 | 70 | 33.6% | 7.7% | 34.2% | 0.7% | 10.7% | 0.029 |
+| Qwen v2 B1 (ReAct) | 456 | 0.035 | 90 | 56.6% | 0% | 57.5% | 0.7% | 1.5% | 0.021 |
+| Qwen v2 B0 (32K) | 456 | 0.029 | 76 | 52.4% | 0% | 53.9% | 0.9% | 1.5% | 0.018 |
+| Llama+chat-template | 456 | 0.002 | 27 | 0% | **91.7%** | 0% | 0.2% | 27.9% | 0.003 |
+
+#### 5.7.3 핵심 패턴 발견 — 모델별 *실패 모드 분기*
+
+```
+실패 모드 trichotomy:
+
+  Quick-failure (Llama-3.1-8B 91.7%)
+    └ 즉시 transfer_to_human → enterprise 불가능
+    └ 원인: native FC tuning 약함 (BFCL 70%)
+    
+  Over-diagnosis (Qwen2.5-7B 54-58%, ReAct 더 심각)
+    └ 200 step trap: capability 충분하나 *종료 인지* 부족
+    └ 원인: native FC OK but planning/termination 약함
+    
+  Balanced (Hermes-3 19% max_S, 7% prod)
+    └ 진단 시도 + 짧게 끝낼 때 끝냄
+    └ 원인: explicit FC fine-tune + 적절한 termination
+```
+
+#### 5.7.4 함의 — 우리 ontology 개입의 *부가 contribution*
+
+```
+Pass^1 lift 외에:
+
+  Phase 2 (T1/A6/A8 steering) 측정 시 EVS도 보고:
+    - achieves_goal, plan_committed_to_goal steering이 *종료 신호 강화* 가능
+    - max_steps_rate 감소 = over-diagnosis trap 해소
+    - productive_rate 증가 = enterprise 사용 가능
+
+  Phase 4 (RFT) 측정:
+    - facet-aware reward에 *종료 보너스* 포함 (turn 수에 inverse weight)
+    - 결과 모델은 *짧고 정확한 해결* 학습
+    
+우리 main contribution은:
+  (1) pass^1 lift (정확성)
+  (2) EVS lift (실용성) ← v1.19 신규 주장
+  
+Hermes-3 baseline이 *이미 EVS 0.116* → 우리 개입이 *그 위에서 추가 lift*  
+하면 enterprise-grade agent 영역 진입 가능.
+```
+
 ---
 
 ## 6. 실험 모델 전체 목록 및 우선순위
@@ -1798,6 +1865,26 @@ Claim 5 (Pareto frontier, v1.11 신규):
    Pareto frontier 최우상점. 각 lever의 marginal lift
    분해로 메커니즘 분리 가능."
 
+Claim 7 (Enterprise Viability Metrics, v1.19 신규):
+  "Pass^1 단독으로는 enterprise agent 평가 *부족*.
+   Phase 1 v2 실측에서 모델별 *실패 모드*가 질적으로 다름:
+     - Llama-3.1-8B: Quick-failure 91.7% (즉시 포기, enterprise 불가)
+     - Qwen2.5-7B vanilla: Over-diagnosis 54-58% (200 step trap)
+     - Hermes-3-Llama-8B (FC tune): Balanced (EVS 6.4× Qwen)
+   
+   따라서 우리 측정 protocol에 다음 추가:
+     - ATR / ATR p95 (latency)
+     - max_steps_rate (over-diagnosis trap)
+     - quick_failure_rate (즉시 포기)
+     - productive_resolution_rate (효율 성공)
+     - EVS (Enterprise Viability Score)
+   
+   우리 ontology 개입의 *부가 가치*:
+     - Phase 2-4가 pass^1 lift 외에 EVS lift
+     - achieves_goal/plan_committed_to_goal steering이
+       *종료 신호 강화* → max_steps_rate 감소
+     - facet-RFT reward에 *짧은 해결 보너스* 포함 가능"
+
 Claim 6 (Novelty 정확한 articulation, v1.14 → v1.15 정정 강화):
   "Process reward 자체는 Lightman 2023+에 prior 풍부.
    Dependency-aware process reward (단일 relation type)는 Jiayang
@@ -2559,6 +2646,7 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-27 | v1.14: 추가 깊은 탐색 → ★★★ **Graduated Rewards (Jiayang et al., 2603.24709, 2026-04)** 발견 — *가장 직접 prior* (1개월 전). Workflow template + dependency graph로 R_atomic + R_orch (sequencing check via `1[μ(j)<μ(i)]` multiplicative gating) 사용. 우리와 차이: (a) "ontology" 명명 안 함 ("workflow template + dependency graph"), (b) manually curated per-task (우리 AFOD auto-extract), (c) reward 1-layer (우리 4-layer). §9.4.5.3 표에 ★★★로 강조 표시 + 추가 prior 9편 (StepTool, PORTool, Agent-R1, OPRL, TRM, MemReward, ToolRL, PRMP, Rewarding Graph Reasoning). §8.2 Claim 6 정직 강화: "온톨로지를 process reward로 사용한 것 우리가 처음 아님 (Jiayang 1개월 prior, dependency graph도 동일 메커니즘). 우리가 처음인 것은 5개 동시 cover: (i) named relation ontology (precedes/requires/...), (ii) cross-domain 42-relation pre-defined, (iii) AFOD auto-discovery, (iv) 4-layer injection, (v) compositional ablation matrix." |
 | 2026-05-27 | v1.15: **Jiayang vs 우리 — single relation vs 42 relation 질적 차이 정정**. v1.14에서 Jiayang을 "가장 직접 prior"라고 격상했으나 재확인: Jiayang의 dependency graph는 *단일 edge type* (data flow + ordering combined) — 우리 42-relation ontology의 1-2 type 부분집합 (parameter_feeds ∪ precedes). Jiayang으로 표현 불가능한 관계 27+개: mutex (동시호출 불가), guardrail (호출 금지), conditional_on, validates (검증 ≠ data flow), retry_after_fail, compensates, fan_out / backtrack_to (GoT/ToT), workflow_role / idempotent / reversible 등 unary 속성. §9.4.5.3에 14-row 비교 표 (relation type 수, mutex/guardrail/conditional 등 표현 가능 여부, reward 차등, geometry-aware intervention, layer 시그니처, naming, discovery, layer 적용). §8.2 Claim 6 6-point novelty로 확장: (i) multi-relation ontology, (ii) relation-type-aware reward weighting, (iii) geometry-aware intervention (Phase 0 v3 검증), (iv) cross-domain pre-defined, (v) AFOD, (vi) 4-layer injection. 핵심 framing: "Jiayang = dataflow language, 우리 = planning-theory semantic predicates (PDDL/HTN/GoalAct 통합)". |
 | 2026-05-27 | v1.18: **Cross-model fair setup 도입 — Qwen + GPT-4o user_sim 시작**. Llama 0/456 분석에서 *agent=user_sim self-play* 한계 노출 (양쪽 같은 모델 deficit → 100% user_stop 빨리 종료). 해결책: user_sim = GPT-4o 외부 API (tau2-bench leaderboard 표준). `phase1_runner.py`에 `--user-llm` 인자 분리, `_run_phase1_qwen_gpt4o_user.sh` wrapper 신규. Agent = Qwen2.5-7B (local vLLM GPU1:9000), User_sim = openai/gpt-4o (OpenAI API). OPENAI_API_KEY 안전 저장 (`/home/woori/.openai_key` chmod 600), curl verify HTTP 200. 시작 2026-05-27 15:57, 예상 종료 21-23 KST, 비용 ~$60-120. Llama runner+vLLM kill (어차피 tool call 0%이므로 negative result 보존). §7에 v2 vs v3 비교 매트릭스 추가. 가치: (1) self-play 한계 정량화, (2) leaderboard fair 비교, (3) MMS 0% 가설 — user_sim 강해도 안 풀리면 진짜 capability deficit. |
+| 2026-05-27 | v1.19: **Enterprise Viability Metrics (EVS) 신규 도입**. §5.7.1-4 추가 — pass^1 외 *실용성* 평가 9개 metric: ATR(p95), max_steps_rate, quick_failure_rate, over_diagnosis_rate, productive_resolution_rate, tool_calls_per_success, infra_error_rate, EVS 종합 지표. Phase 1 v2 실측 6 baselines 적용 결과 *모델별 실패 모드 trichotomy* 발견: (a) Llama-8B = Quick-failure 91.7% (즉시 포기, BFCL 70% 약함), (b) Qwen-7B vanilla = Over-diagnosis 54-58% (200 step trap, 종료 인지 부족), (c) Hermes-3 = Balanced (EVS 0.116, Qwen 6.4×, Llama 45×). v1 (16K) vs v2 (32K) Qwen 비교: 32K가 *오히려 EVS 떨어뜨림* (0.029→0.018) — context 늘리면 *더 길게 시도하나 못 풀음*. §8.2 Claim 7 신규: "Pass^1 단독 부족, EVS 추가 측정 필수. 우리 ontology 개입 부가가치 = achieves_goal/plan_committed_to_goal steering이 종료 신호 강화 → max_steps_rate 감소 → enterprise viable agent." |
 | 2026-05-27 | v1.18: **Cross-model fair setup — Llama-8B agent + GPT-4o user_sim 시작 (원인 분리 실험)**. Llama 0/456 catastrophic (v1.17) 의 진짜 원인을 (H1) Llama 자체 deficit (vLLM parser 또는 native function-calling 약함) 와 (H2) self-play deficit (agent=user_sim 같은 모델 양쪽 결합)로 분리. 단 한 변수 변경 (user_sim Llama→GPT-4o), Llama agent 동일. 결과 시나리오: 0% 유지 → H1 확정 (negative result strengthening: "8B vanilla = enterprise tool 불가능"), ≥5%p lift → H2 dominant (self-play 한계). `phase1_runner.py`에 `--user-llm` 인자 분리 구현. `_run_phase1_llama_gpt4o_user.sh` wrapper 신규. OPENAI_API_KEY 안전 저장 (`/home/woori/.openai_key` chmod 600), curl verify HTTP 200. Llama vLLM 재가동 (GPU0:9001 max-model-len 32K). 시작 2026-05-27 16:01, pid 3770079. out-dir: `base_n114_llama_gpt4ouser/`. §7에 Phase 1 setup 매트릭스 (v1/v2/Llama-self-play/Llama+GPT-4o 4 row). Qwen v2 (self-play 진행 중) + Llama+GPT-4o 병행. |
 | 2026-05-27 | v1.17: **Phase 1 v2 partial (Qwen) + Llama cross-model (B0 완료) 실측 반영**. (1) Qwen v2 partial (346/456 = 76% 진행): pass^1 = 0.026 [0.014, 0.049] vs v1 0.0475 — v2가 약간 낮음 (남은 110 sims hard task일 가능성). max_steps 종료 33.6%→52.9% 증가 (32K로 long task 허용 효과 양면), infra error 0%로 해소. (2) **★ Llama-3.1-8B B0 catastrophic 0.000 (0/456)** — 모든 sim user_stop, **tool calls per sim = 0 (전체 456 sim에서 도구를 단 한 번도 호출 안 함)**. 원인: vLLM llama3_json parser 비호환 + Llama-3.1-8B native tool calling 약함 + user_sim 같은 모델 사용 시 양쪽 deficit 결합. (3) 함의: (a) Llama 결과는 negative result로서 가치 — "8B vanilla function-calling 환경에서 enterprise tool task 사실상 0%", multi-relation ontology 개입 필요성 강화. (b) Cross-model 실험 설계 결함 — user_simulator는 *독립된 strong 모델* (GPT-4o API) 필요. (c) Tier 1 추천 갱신: Qwen2.5-7B primary, Llama-3.1-8B는 reference baseline만, *큰 모델* (Llama-3.3-70B, Qwen2.5-32B) baseline 추가 권장. |
 | 2026-05-27 | v1.16: **§9.4.5.9-11 신규 — 학계 dynamics + publication timing 분석**. "쉬운 아이디어가 왜 안 됐는가" 7가지 구조적 원인: (1) Community fragmentation (4 communities — math RFT, tool SFT, KG/ontology, planning AI — 만나지 않음), (2) Benchmark immaturity (τ²-bench 18개월, CM2 τ²-RL 3개월 됨), (3) Verifier 자동화 어려움 (math는 SymPy 단순, ontology violation은 비자명), (4) Tool ontology 학계 부재 (PDDL/OWL/BPMN 등 부분만), (5) RFT compute가 GRPO (2024-말)에야 합리적, (6) Cross-disciplinary 언어 장벽 ("관계" 명명 5개 다름), (7) Enabling conditions 2024-2026 동시 도착. "왜 우리 정확한 형태가 안 됐나" 4가지: (a) Single-relation의 함정 (관계 세분화 → sparsity 우려), (b) Probing → ontology 발견 pipeline 부재 (mech interp + ontology eng 결합 희소), (c) Multi-layer injection engineering 부담 (PyTorch + HF + vLLM + RL framework + interp 모두 필요), (d) Patent + 학계 분리 (OISA patent v4 2026-04 이미 통합본). **§9.4.5.11 publication timing 위험**: 6-12개월 내 publication critical, ICLR 2027 / NeurIPS 2026 workshop submit. ArXiv preprint 6월말 권장. |
