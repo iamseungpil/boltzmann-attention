@@ -1685,34 +1685,48 @@ Claim 5 (Pareto frontier, v1.11 신규):
    Pareto frontier 최우상점. 각 lever의 marginal lift
    분해로 메커니즘 분리 가능."
 
-Claim 6 (Novelty 정확한 articulation, v1.12 → v1.14 정직 강화):
-  "우리는 다음 어느 것도 발명하지 않았다:
-    - Process reward (Lightman 2023+)
-    - Ontology + RL (PDDL+RL, robotics non-LLM)
-    - Graph-based agent planning (GAP 2510.25320, MHQA)
-    - τ²-bench multi-turn RL (CM2 2602.12268, checklist)
-    - Dependency-graph process reward (★ Jiayang 2603.24709, 1개월 prior,
-      workflow template + R_orch sequencing check)
-    - Step-level tool reward (StepTool 2410.07745, 2024-10)
+Claim 6 (Novelty 정확한 articulation, v1.14 → v1.15 정정 강화):
+  "Process reward 자체는 Lightman 2023+에 prior 풍부.
+   Dependency-aware process reward (단일 relation type)는 Jiayang
+   2603.24709 (2026-04)에 1개월 prior. 단 Jiayang의 dependency graph는
+   *parameter_feeds + precedes* 합쳐진 *단일 type edge*만 표현 가능.
    
-   우리가 *처음*인 것 — 5개 동시 cover:
-    (i) 명시적 inter-tool *relation ontology* (relations 명명: precedes,
-        requires, mutex, parameter_feeds, ...) — Jiayang은 'workflow
-        template + dependency graph'라 부름, ontology 명명 안 함
-    (ii) Pre-defined cross-domain 42-relation set
-        — Jiayang은 task-specific workflow template
-    (iii) AFOD auto-discovery from tool schema (zero-label transfer)
-        — Jiayang은 manually curated by domain experts
-    (iv) 4-layer ontology injection 
-         (probing / steering / cross-attn / RFT reward) 일관 적용
-         — 모든 prior는 reward layer 1개만
-    (v) Compositional ablation matrix (T1 × T2 × T4, 8-cell)
-        lever 직교 분해 첫 정량 측정
+   우리가 *처음*인 것은 다음 6개 동시 cover:
    
-   ★ 단일 차원 비교에서는 prior 풍부. 5 차원 *동시 cover*가 unique.
-   특히 (i)+(iii)+(iv) 조합은 *empirically* 학계 prior 없음.
-   '온톨로지를 process reward로 사용'은 우리가 처음 아니지만,
-   '명명된 ontology + AFOD + multi-layer injection'은 우리가 처음."
+    (i) ★ **Multi-relation ontology** (42 distinct semantic types):
+        Jiayang single-type vs 우리 16 directional + 3 symmetric 
+        + 4 conditional + 19 categorical
+        — mutex / guardrail / conditional_on / validates / 
+        retry_after_fail / compensates / fan_out / backtrack_to 
+        등 *Jiayang으로 표현 불가능한* 관계 27+개
+        
+    (ii) **Relation-type-aware reward weighting**:
+         precedes −0.1 vs mutex −0.3 vs guardrail −0.5 차등
+         Jiayang은 모든 edge uniform penalty
+         
+    (iii) **Geometry-aware intervention** (Phase 0 v3 검증):
+          directional → A6 per-head rotation
+          symmetric/categorical → T1 additive
+          학습된 dependency graph (Jiayang) 또는 학습된 PRM (AgentPRM)으로 
+          관계 유형별 다른 개입 불가능
+          
+    (iv) **Cross-domain pre-defined ontology**:
+         Jiayang은 task-specific workflow template 사람 작성
+         우리는 enterprise tool ontology 42-relation 통합 정의
+         
+    (v) **AFOD auto-discovery** from tool schema (zero-label transfer)
+        — Jiayang은 manually curated
+        
+    (vi) **4-layer injection** (probing/steering/cross-attn/RFT reward)
+         — 모든 prior는 reward 1-layer만
+   
+   ★ 핵심 differentiation: Jiayang은 *dataflow language* (data flow + 
+   ordering의 단일 edge type), 우리는 *planning-theory semantic 
+   predicates* (PDDL/HTN/GoalAct 통합한 42 relation 분류).
+   
+   '온톨로지를 process reward로 사용'은 우리가 처음 아님 (단일 relation).
+   '*다종 relation* ontology를 process reward + multi-layer injection에 
+   사용'은 우리가 처음."
 ```
 
 ---
@@ -1953,23 +1967,36 @@ Routine의 96% lift는 *enterprise scenario에 사람이 정확한 routine templ
 
 #### 9.4.5.3 Graph/Structure-grounded Agent RL (가장 인접, v1.13 → v1.14 갱신)
 
-★★★ **가장 직접 prior** (1개월 전, v1.14 신규):
+**가장 인접 prior** (v1.14 → v1.15 정정):
 
 > **Graduated Rewards** (Jiayang et al., arXiv 2603.24709, 2026-04)
 > "Training LLMs for Multi-Step Tool Orchestration with Constrained Data Synthesis and Graduated Rewards"
 >
-> 핵심 메커니즘: workflow template + dependency graph로 R_atomic (call validity) + R_orch (orchestration consistency) reward.
-> Dependency edge (j→i)가 있으면 그것이 *지켜졌는지* 검증: `1[μ(j) < μ(i)]` multiplicative gating.
-> Manually curated workflow templates (단, API schema에서 derivable 언급).
+> 핵심 메커니즘: workflow template + **단일 type dependency graph**로 R_atomic + R_orch reward.
+> Edge (j,i) ∈ E ≡ "θ_i depends on observation o_j" (data flow + ordering combined).
+> Reward gating: `1[μ(j) < μ(i)]` multiplicative (uniform penalty per edge).
 >
-> **우리와의 정확한 차이**:
-> - 그들: "dependency graph", "workflow template" 명명 — ontology *명명 안 함*
-> - 우리: 명시적 42-relation ontology (precedes/requires/mutex/parameter_feeds/...)
-> - 그들: manually curated per-task
-> - 우리: AFOD auto-extract from tool schema
-> - 그들: RFT reward 1-layer
-> - 우리: 4-layer injection (probing/steering/cross-attn/RFT)
-> - 그들: 2026-04 (1개월 prior)
+> **★ 우리와의 *질적* 차이 — 단일 vs 42 relation type** (v1.15 강조):
+>
+> | 측면 | Jiayang | 우리 |
+> |---|---|---|
+> | **Relation type 수** | **1개** (data flow + ordering 합쳐진 단일 edge) | **42개** (16 directional + 3 symmetric + 4 conditional + 19 categorical) |
+> | mutex (동시 호출 불가) | ❌ 표현 불가 | ✅ |
+> | guardrail (호출 금지) | ❌ 표현 불가 | ✅ |
+> | validates (결과 검증) | ❌ (parameter_feeds로 환원 안 됨) | ✅ |
+> | conditional_on (context 조건부) | ❌ | ✅ |
+> | retry_after_fail | ❌ | ✅ |
+> | compensates (효과 역전) | ❌ | ✅ |
+> | fan_out / backtrack_to (GoT/ToT) | ❌ | ✅ |
+> | Reward 가중치 차등 | 동일 페널티 per edge | precedes −0.1 / requires −0.2 / mutex −0.3 / guardrail −0.5 *관계별 차등* |
+> | Geometry-aware 개입 | ❌ (단일 type) | ✅ directional→A6 rotation, symmetric→T1 additive (Phase 0 v3 검증) |
+> | Layer 시그니처 | ❌ | ✅ L01-L18 (next_tool) vs L02-L05 (ordering) differential |
+> | Naming | "dependency graph" / "workflow template" | "ontology" + relation 어휘 |
+> | Discovery | manually curated per-task | AFOD auto-extract from schema |
+> | Layer 적용 | RFT reward 1-layer | 4-layer (probing/steering/cross-attn/RFT) |
+> | 출간 | 2026-04 (1개월 prior) | 2026-05+ |
+>
+> **결론**: Jiayang의 dependency graph는 우리 42-relation ontology의 **1-2개 relation type 정도의 부분집합** (parameter_feeds ∪ precedes 합쳐진 형태). Mutex / guardrail / conditional / validation / retry 등 모두 표현 불가. 즉 Jiayang은 **dataflow language**에 가깝고, 우리는 **planning-theory semantic predicates** 통합.
 
 | 논문 | 연도/arXiv | Structure 사용 | Reward 신호 | τ²-bench? |
 |---|---|---|---|---|
@@ -2285,4 +2312,5 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-27 | v1.12: Process Reward Models (PRM) 계열 정직 articulation. §8.2 Claim 6 신규 — process reward 자체는 Lightman 2023부터 알려진 prior, 우리 novelty는 (i) 단일 42-relation ontology를 4 layer (probing/steering/cross-attn/RFT reward)에 일관 적용, (ii) tool schema에서 AFOD auto-discoverable. §9.4.5 PRM 계열 신규 subsection — Lightman/STaR/ReST/MathShepherd/CodeRL/ReST-MCTS*/Quiet-STaR 비교 표 + 우리와의 4가지 차별점 (domain/source/위치/origin). Pessimistic reviewer 선제 대응 framing. **Routine 논문 정정**: arXiv 2507.14447 직접 확인 결과 (a) reward 없음, (b) inter-tool ontology 없음, (c) SFT only (RL 안 함). 이전 메모리의 "SFT+RL 필수" 오류 정정. §9.4 Routine 표 + "6가지 차별" 비교 추가. Routine은 우리 baseline 아니라 complementary direction (사람 routine + SFT vs 자동 ontology + multi-layer injection). |
 | 2026-05-27 | v1.13: Lightman 2023 이후 *ontology + process reward* 선행연구 깊은 탐색·정리. §9.4.5 전면 재편 — 5개 sub-subsection: (5.1) PRM foundations (math/code), (5.2) **Agent PRM 신규** (AgentPRM 2511.08325, ToolRM 2510.26167, ToolPRMBench, Web-Shepherd, AgentR, RLTR), (5.3) **Graph/structure agent RL 신규** (GAP 2510.25320 MHQA, **CM2 2602.12268 τ²-bench +8pt** 가장 직접 경쟁, Planner-R1 2509.25779, DynaSearcher 2507.17365, STEP-LLM, Tool Graph Retriever, Plan-RewardBench), (5.4) **PDDL/symbolic 신규** (LLM-Guided PDDL Shaping, VAL-integrated, arXiv 2508.19598 "Encouraging Good Processes", 2601.14456 Generalization Gap), (5.5) **Ontology-driven RL non-LLM 신규** (robotics, scheduling, edu MARL — 우리의 원격 선조). §9.4.5.6 4×4 차별 매트릭스 — 12 prior × 4 차원 (ontology/multi-layer/AFOD/τ²-bench). 결과: 어느 prior도 4 차원 모두 cover 안 함. CM2가 (4)만, PDDL+RL이 (1)만. §8.2 Claim 6 강화: "process reward 발명 안 함, ontology RL 발명 안 함, graph planning 발명 안 함" 정직 인정 + 4차원 동시 cover가 unique. §9.4.5.8 baseline 추가 권고: B6 CM2 (즉시), B7 GAP, B8 AgentPRM. |
 | 2026-05-27 | v1.14: 추가 깊은 탐색 → ★★★ **Graduated Rewards (Jiayang et al., 2603.24709, 2026-04)** 발견 — *가장 직접 prior* (1개월 전). Workflow template + dependency graph로 R_atomic + R_orch (sequencing check via `1[μ(j)<μ(i)]` multiplicative gating) 사용. 우리와 차이: (a) "ontology" 명명 안 함 ("workflow template + dependency graph"), (b) manually curated per-task (우리 AFOD auto-extract), (c) reward 1-layer (우리 4-layer). §9.4.5.3 표에 ★★★로 강조 표시 + 추가 prior 9편 (StepTool, PORTool, Agent-R1, OPRL, TRM, MemReward, ToolRL, PRMP, Rewarding Graph Reasoning). §8.2 Claim 6 정직 강화: "온톨로지를 process reward로 사용한 것 우리가 처음 아님 (Jiayang 1개월 prior, dependency graph도 동일 메커니즘). 우리가 처음인 것은 5개 동시 cover: (i) named relation ontology (precedes/requires/...), (ii) cross-domain 42-relation pre-defined, (iii) AFOD auto-discovery, (iv) 4-layer injection, (v) compositional ablation matrix." |
+| 2026-05-27 | v1.15: **Jiayang vs 우리 — single relation vs 42 relation 질적 차이 정정**. v1.14에서 Jiayang을 "가장 직접 prior"라고 격상했으나 재확인: Jiayang의 dependency graph는 *단일 edge type* (data flow + ordering combined) — 우리 42-relation ontology의 1-2 type 부분집합 (parameter_feeds ∪ precedes). Jiayang으로 표현 불가능한 관계 27+개: mutex (동시호출 불가), guardrail (호출 금지), conditional_on, validates (검증 ≠ data flow), retry_after_fail, compensates, fan_out / backtrack_to (GoT/ToT), workflow_role / idempotent / reversible 등 unary 속성. §9.4.5.3에 14-row 비교 표 (relation type 수, mutex/guardrail/conditional 등 표현 가능 여부, reward 차등, geometry-aware intervention, layer 시그니처, naming, discovery, layer 적용). §8.2 Claim 6 6-point novelty로 확장: (i) multi-relation ontology, (ii) relation-type-aware reward weighting, (iii) geometry-aware intervention (Phase 0 v3 검증), (iv) cross-domain pre-defined, (v) AFOD, (vi) 4-layer injection. 핵심 framing: "Jiayang = dataflow language, 우리 = planning-theory semantic predicates (PDDL/HTN/GoalAct 통합)". |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
