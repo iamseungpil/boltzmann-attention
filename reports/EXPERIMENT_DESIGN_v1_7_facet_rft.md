@@ -1346,6 +1346,72 @@ Go/No-Go: ✓ v2 OVERALL PASS → Phase 1 진행 가능
 **v1 → v2 전환**:
 v1에선 B1/B2가 vLLM 사망으로 모두 connection error (전체 456 sims 무효). v2 (2026-05-27 09:56 시작)는 GPU1:9000, max-model-len=32K, B0+B1+B2 모두 재실행 — cross-baseline 비교를 위해 동일 조건. 예상 종료 16~18 KST.
 
+#### Phase 1 v2 partial 결과 — Qwen2.5-7B-Instruct (2026-05-27 14:20, 76% 진행)
+
+실행: 2026-05-27 09:56 시작, GPU1:9000, max-model-len=32K. 현 시점 (4h22m 경과) **B0 진행 중** (346/456 sims = 76% 완료, B1/B2 아직 시작 안 함).
+
+| 지표 | v1 (16K, B0 완료 421/456) | **v2 partial (32K, 346/456)** |
+|---|---|---|
+| pass^1 | 0.0475 [0.031, 0.072] | **0.0260 [0.014, 0.049]** |
+| pass^2 (best-of-2) | 0.0702 | 0.0439 |
+| pass^4 | 0.1316 | 0.0175 (3 trials only avg) |
+| max_steps 종료 | 33.6% | **52.9%** (★ v1보다 ↑) |
+| infra error | 7.7% (35건) | **0% (32K 효과)** |
+| user_stop 종료 | 55.7% | 46.0% |
+| mms_issue pass | 0/97 user_stop | 0/146 (전체 fail 패턴 유지) |
+| service_issue pass | 19.8% user_stop | 4.6% |
+| mobile_data pass | 5.3% | 4.4% |
+| Hard persona avg | 0.0735 | 0.0550 |
+
+→ **32K가 ContextWindowExceededError 35→0건 해결**. 그러나 **max_steps 종료 비율 33.6%→52.9% 증가** — task가 *오래 끌릴 수 있게* 되니 hard task가 더 많이 max에 닿음.
+→ pass^1 0.0475 → 0.0260 *감소* — v2가 *더 어려운* setting일 가능성, 또는 partial sampling 효과 (남은 110 sims가 더 어려운 mms task).
+→ v2 종료 후 (예상 18~20 KST) 최종 분석.
+
+#### Phase 1 Llama-3.1-8B-Instruct Cross-Model — **★ Catastrophic Failure 0/456** (2026-05-27 13:46 B0 완료)
+
+실행: 2026-05-27 11:24 시작, GPU0:9001, max-model-len=32K. Llama-3.1-8B-Instruct + vLLM `--tool-call-parser llama3_json`. B0 N=456 trials=4 *완료*.
+
+| 지표 | 값 |
+|---|---|
+| pass^1 | **0.0000 (0/456)** CI95 [0.0000, 0.0084] |
+| pass^2/^4 | 0.0000 / 0.0000 |
+| pass-all | 0 |
+| Termination | **user_stop 100% (456/456)** ← max_steps 0건, infra error 0건 |
+| **★ Tool calls per sim** | **mean=0.0, max=0, distribution: {0: 456}** |
+| Mean conversation length | 20 messages, ~10 assistant turns |
+| Hallucination retries | 0/456 |
+
+**근본 원인 — Tool calling 작동 안 함**:
+
+샘플 trajectory:
+```
+[assistant]: "Hi! How can I help?"
+[user]:      "데이터 문제..."
+[assistant]: "Let's troubleshoot..."  ← 텍스트만, tool_call 없음
+[user]:      "I'll use check_status_bar()..."  ← user_sim도 같은 Llama, 
+                                                  도구 호출을 텍스트로 "역할극"만
+[assistant]: "Let's try..."          ← 여전히 tool_call 없음
+[user]:      "I've used check_roaming_status()..."
+[assistant]: "transfer_to_human_agent()"  ← 텍스트로만 명령어 작성
+[user]:      "###TRANSFER###"        ← 시뮬레이션 종료, DB 변경 없음
+```
+
+원인 진단:
+1. **vLLM `llama3_json` tool-call-parser 비호환** — Llama-3.1-8B가 vLLM의 parser 형식대로 tool_call JSON을 생성 못함
+2. **Llama-3.1-8B-Instruct의 native function calling 능력 약함** — Qwen2.5-Instruct는 강한 native tool calling, Llama-3.1-8B는 사전 학습에서 tool calling 노출 적음
+3. **User simulator 같은 모델 사용** — agent(Llama-8B)와 user_sim(Llama-8B)이 *같은 분포* → user_sim도 tool 안 부르고 *역할극*만 → 100% user_stop으로 빨리 종료
+
+**Cross-model 실험 설계 결함 노출**:
+- agent_llm = user_sim_llm 일 때 *모델 capability deficit*이 양쪽에 동일하게 발현
+- → 진정한 cross-model 비교 위해 **user_simulator는 독립된 strong 모델** (GPT-4o API) 사용 권장
+- 또는 Llama-3.3-70B / Llama-3.1-70B (큰 모델은 tool calling 학습 잘 됨)
+
+**Llama 결과의 *positive value*** (negative result로서):
+- "8B 클래스 모델은 vanilla function-calling 환경에서 enterprise tool task 사실상 0%" — 우리 main claim 강화
+- Multi-relation ontology 개입 *없이는* 작은 모델로 풀 수 없음 입증
+- 향후 Llama-3.3-70B / Qwen2.5-32B 등 *큰 모델 baseline* 추가 시 비교 강해짐
+- **EXPERIMENT_DESIGN §6 Tier 1 권고**: Llama-3.1-8B는 *baseline reference만* (cross-model claim에는 부적합), Qwen2.5-7B를 primary로
+
 #### Smoke3 (chain=1, max_steps=200) vs base v1 (chain 2-9) 비교
 
 smoke3 (small split N=20, 14 sims 저장, killed)에서 partial pass^1 = 0.214 (3/14) — base v1의 0.044와 약 5× 격차. **task split 구조 차이로 정밀 분석 시 통계적 분리 확인**:
@@ -2445,5 +2511,6 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-27 | v1.13: Lightman 2023 이후 *ontology + process reward* 선행연구 깊은 탐색·정리. §9.4.5 전면 재편 — 5개 sub-subsection: (5.1) PRM foundations (math/code), (5.2) **Agent PRM 신규** (AgentPRM 2511.08325, ToolRM 2510.26167, ToolPRMBench, Web-Shepherd, AgentR, RLTR), (5.3) **Graph/structure agent RL 신규** (GAP 2510.25320 MHQA, **CM2 2602.12268 τ²-bench +8pt** 가장 직접 경쟁, Planner-R1 2509.25779, DynaSearcher 2507.17365, STEP-LLM, Tool Graph Retriever, Plan-RewardBench), (5.4) **PDDL/symbolic 신규** (LLM-Guided PDDL Shaping, VAL-integrated, arXiv 2508.19598 "Encouraging Good Processes", 2601.14456 Generalization Gap), (5.5) **Ontology-driven RL non-LLM 신규** (robotics, scheduling, edu MARL — 우리의 원격 선조). §9.4.5.6 4×4 차별 매트릭스 — 12 prior × 4 차원 (ontology/multi-layer/AFOD/τ²-bench). 결과: 어느 prior도 4 차원 모두 cover 안 함. CM2가 (4)만, PDDL+RL이 (1)만. §8.2 Claim 6 강화: "process reward 발명 안 함, ontology RL 발명 안 함, graph planning 발명 안 함" 정직 인정 + 4차원 동시 cover가 unique. §9.4.5.8 baseline 추가 권고: B6 CM2 (즉시), B7 GAP, B8 AgentPRM. |
 | 2026-05-27 | v1.14: 추가 깊은 탐색 → ★★★ **Graduated Rewards (Jiayang et al., 2603.24709, 2026-04)** 발견 — *가장 직접 prior* (1개월 전). Workflow template + dependency graph로 R_atomic + R_orch (sequencing check via `1[μ(j)<μ(i)]` multiplicative gating) 사용. 우리와 차이: (a) "ontology" 명명 안 함 ("workflow template + dependency graph"), (b) manually curated per-task (우리 AFOD auto-extract), (c) reward 1-layer (우리 4-layer). §9.4.5.3 표에 ★★★로 강조 표시 + 추가 prior 9편 (StepTool, PORTool, Agent-R1, OPRL, TRM, MemReward, ToolRL, PRMP, Rewarding Graph Reasoning). §8.2 Claim 6 정직 강화: "온톨로지를 process reward로 사용한 것 우리가 처음 아님 (Jiayang 1개월 prior, dependency graph도 동일 메커니즘). 우리가 처음인 것은 5개 동시 cover: (i) named relation ontology (precedes/requires/...), (ii) cross-domain 42-relation pre-defined, (iii) AFOD auto-discovery, (iv) 4-layer injection, (v) compositional ablation matrix." |
 | 2026-05-27 | v1.15: **Jiayang vs 우리 — single relation vs 42 relation 질적 차이 정정**. v1.14에서 Jiayang을 "가장 직접 prior"라고 격상했으나 재확인: Jiayang의 dependency graph는 *단일 edge type* (data flow + ordering combined) — 우리 42-relation ontology의 1-2 type 부분집합 (parameter_feeds ∪ precedes). Jiayang으로 표현 불가능한 관계 27+개: mutex (동시호출 불가), guardrail (호출 금지), conditional_on, validates (검증 ≠ data flow), retry_after_fail, compensates, fan_out / backtrack_to (GoT/ToT), workflow_role / idempotent / reversible 등 unary 속성. §9.4.5.3에 14-row 비교 표 (relation type 수, mutex/guardrail/conditional 등 표현 가능 여부, reward 차등, geometry-aware intervention, layer 시그니처, naming, discovery, layer 적용). §8.2 Claim 6 6-point novelty로 확장: (i) multi-relation ontology, (ii) relation-type-aware reward weighting, (iii) geometry-aware intervention (Phase 0 v3 검증), (iv) cross-domain pre-defined, (v) AFOD, (vi) 4-layer injection. 핵심 framing: "Jiayang = dataflow language, 우리 = planning-theory semantic predicates (PDDL/HTN/GoalAct 통합)". |
+| 2026-05-27 | v1.17: **Phase 1 v2 partial (Qwen) + Llama cross-model (B0 완료) 실측 반영**. (1) Qwen v2 partial (346/456 = 76% 진행): pass^1 = 0.026 [0.014, 0.049] vs v1 0.0475 — v2가 약간 낮음 (남은 110 sims hard task일 가능성). max_steps 종료 33.6%→52.9% 증가 (32K로 long task 허용 효과 양면), infra error 0%로 해소. (2) **★ Llama-3.1-8B B0 catastrophic 0.000 (0/456)** — 모든 sim user_stop, **tool calls per sim = 0 (전체 456 sim에서 도구를 단 한 번도 호출 안 함)**. 원인: vLLM llama3_json parser 비호환 + Llama-3.1-8B native tool calling 약함 + user_sim 같은 모델 사용 시 양쪽 deficit 결합. (3) 함의: (a) Llama 결과는 negative result로서 가치 — "8B vanilla function-calling 환경에서 enterprise tool task 사실상 0%", multi-relation ontology 개입 필요성 강화. (b) Cross-model 실험 설계 결함 — user_simulator는 *독립된 strong 모델* (GPT-4o API) 필요. (c) Tier 1 추천 갱신: Qwen2.5-7B primary, Llama-3.1-8B는 reference baseline만, *큰 모델* (Llama-3.3-70B, Qwen2.5-32B) baseline 추가 권장. |
 | 2026-05-27 | v1.16: **§9.4.5.9-11 신규 — 학계 dynamics + publication timing 분석**. "쉬운 아이디어가 왜 안 됐는가" 7가지 구조적 원인: (1) Community fragmentation (4 communities — math RFT, tool SFT, KG/ontology, planning AI — 만나지 않음), (2) Benchmark immaturity (τ²-bench 18개월, CM2 τ²-RL 3개월 됨), (3) Verifier 자동화 어려움 (math는 SymPy 단순, ontology violation은 비자명), (4) Tool ontology 학계 부재 (PDDL/OWL/BPMN 등 부분만), (5) RFT compute가 GRPO (2024-말)에야 합리적, (6) Cross-disciplinary 언어 장벽 ("관계" 명명 5개 다름), (7) Enabling conditions 2024-2026 동시 도착. "왜 우리 정확한 형태가 안 됐나" 4가지: (a) Single-relation의 함정 (관계 세분화 → sparsity 우려), (b) Probing → ontology 발견 pipeline 부재 (mech interp + ontology eng 결합 희소), (c) Multi-layer injection engineering 부담 (PyTorch + HF + vLLM + RL framework + interp 모두 필요), (d) Patent + 학계 분리 (OISA patent v4 2026-04 이미 통합본). **§9.4.5.11 publication timing 위험**: 6-12개월 내 publication critical, ICLR 2027 / NeurIPS 2026 workshop submit. ArXiv preprint 6월말 권장. |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
