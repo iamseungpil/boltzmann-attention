@@ -1853,9 +1853,17 @@ KV Cache Steering의 핵심 통찰:
 > **공통 특징**: 계획을 구조화된 표현으로 명시 → 높은 정확도  
 > **공통 한계**: Fine-tuning 또는 SFT+RL 필수, 새 도메인 적응 비용 높음
 
+**Routine 정확한 정체 (v1.12 정정)**: arXiv 2507.14447 (2025-07) 직접 확인 결과:
+- **Prompt template** (step 번호 + 설명 + 입출력 + tool) **+ LoRA SFT**
+- **Reward 없음** (no process/outcome/rule reward, RL 안 함)
+- **명시적 inter-tool ontology 없음** (variable memory로 dependency 처리)
+- 학습: LoRA r=8, BUTTON 4,209 samples + scenario-specific 537
+- 결과: GPT-4o 41.1%→96.3% (template만), Qwen3-14B 32.6%→83.3% (SFT)→95.5% (scenario-specific)
+- 이전 메모리의 "SFT+RL 필수" 기술은 *오류*. SFT only.
+
 | 방법 | 연도 | 구조화 방식 | 학습 | 성능 | 한계 |
 |---|---|---|---|---|---|
-| **Routine** (기업용) | 2025 | 명확한 지시+파라미터 전달 스크립트 | Fine-tuning 필수 | GPT-4o 41%→96% | 도메인별 재학습 필요 |
+| **Routine** (기업용) | 2025 | step template (#/name/input/output/tool) + variable memory | **LoRA SFT only** (RL 없음, reward 없음) | GPT-4o 41%→96% (template만), Qwen3-14B 32.6%→83.3%→95.5% | scenario별 routine 사람이 작성, 새 task당 재학습 |
 | **GAP** (NeurIPS 2025) | 2025 | 서브태스크 의존성 DAG | SFT + RL | ReAct 대비 유의미한 향상 | MHQA 특화, 기업 도메인 아님 |
 | **KnowAgent** (NAACL 2025) | 2024/2025 | 행동 지식 텍스트 직렬화 + CoT | Self-learning | HotpotQA/ALFWorld 향상 | 텍스트 직렬화 병목 |
 | **FlowBench 기반 방법들** (EMNLP 2024) | 2024 | 워크플로우 텍스트/코드/플로우차트 | — | GPT-4o도 낮음 | 포맷 다양성, 성능 낮음 |
@@ -1879,6 +1887,21 @@ KV Cache Steering의 핵심 통찰:
     "Routine의 96% 향상이 구조화 표현에서 온다면,
      그 구조를 fine-tuning 없이 직접 주입해도 동등한 효과가 가능한가?"
 ```
+
+**Routine vs 우리 — 6가지 차별 (v1.12 갱신)**:
+
+| 차원 | Routine | 우리 |
+|---|---|---|
+| Inter-tool 관계 | 없음 (variable memory만) | **42-relation ontology** (precedes/requires/mutex/...) |
+| 학습 신호 | SFT only | **SFT + RFT** (process reward + outcome) |
+| Reward | **없음** | outcome (DB match) + per-turn ontology violation penalty |
+| 표현 layer | 단일 (prompt + weight via SFT) | **4 layer** (probing/steering/cross-attn/RFT reward) |
+| Auto-discovery | 수동 routine 작성 (scenario마다 사람) | **AFOD**: tool schema에서 auto-extract |
+| Training-free 가능? | ❌ (반드시 SFT) | **✅ Phase 2 (T1 steering) 단독 동작** |
+
+→ **Routine은 우리의 직접 baseline이 아니라 *complementary direction***. Routine = "사람이 plan template 작성, 모델이 SFT로 그것 따르도록 학습". 우리 = "자동 추출된 ontology를 다층 representation에 주입, training-free 가능".
+
+Routine의 96% lift는 *enterprise scenario에 사람이 정확한 routine template을 작성했을 때*. 새 scenario 마다 라벨링 비용 큼. 우리는 *자동* ontology에서 lift 측정 (사람 라벨 0).
 
 ---
 
@@ -2112,5 +2135,5 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-27 | v1.9: Phase 1 v1 B0 telecom 실측 반영. **pass^1 = 0.0475 (95% CI [0.031, 0.072])**, pass^4 = 0.1316, N=114 trials=4 max_steps=200. §7에 결과 박스(Termination/Category/Persona/병목/leaderboard 위치) 신규 추가. §8.1 예상 테이블에 실측 표시. 핵심 발견: max_steps 33.6% 도달 시 100% reward=0, mms_issue 0/97 user_stop pass, 0 tasks 4/4 통과, Hard persona가 Easy/None보다 높음. v2 (max-model-len=32K, B0+B1+B2 통일 재실행) 진행 중. |
 | 2026-05-27 | v1.10: smoke3(chain=1) vs base v1(chain 2-9) 정밀 비교 추가. small ∩ base = 0 (task 공유 없음), 두 split은 본질적으로 다른 difficulty regime. Chain length × category × pass^1 표 추가: chain=2 non-mms 11.8% vs mms 0%, chain=4 non-mms 15.0% vs mms 0% → MMS multi-step deficit 별개 효과. 그러나 chain=1 mms는 smoke3에서 50% 통과 → 가설 A(pure weight gap) 약하게 반박. Phase 2 측정에 chain stratified 분석 + MMS-specific Go/No-Go (+5%p in chain 2-4 = 가설 B 확정, 0% = Phase 4 우선) 추가. |
 | 2026-05-27 | v1.11: Compositional lever 합성 8-cell ablation matrix 정식화 (사용자 thesis = 명제 C' 정량). Phase 2 분기: **Phase 2a** (T1@base, training-free) / **Phase 2b** (T3 = T2 + T1@T2, Compositional A) / **Phase 2c 조건부** (T5 = T4-RFT + T1@T4, Compositional B, 명제 C') / **Phase 5 T6 조건부** (Triple = T2 + T4-RFT + T1@(T2+T4), Pareto upper bound). §3.3에 3-lever 직교성 매트릭스 + LRH 곱셈 가설. §4.2 T1 variants notation (T1@base/T2/T4/(T2+T4)). §4.2 T4 분기 (T4-LATS path α / T4-RFT path β). §7 Phase 4에 facet-RFT 세부 (GRPO + ontology violation penalty). §8.1 Pareto frontier ASCII plot. §8.2 Claim 4-5 신규. §10 Go/No-Go에 C1-C6 조건 명시. 학계 prior: Persona Distill, Task Vectors 인용. T6 setting 자체는 prior 없음 — 우리 novel contribution. |
-| 2026-05-27 | v1.12: Process Reward Models (PRM) 계열 정직 articulation. §8.2 Claim 6 신규 — process reward 자체는 Lightman 2023부터 알려진 prior, 우리 novelty는 (i) 단일 42-relation ontology를 4 layer (probing/steering/cross-attn/RFT reward)에 일관 적용, (ii) tool schema에서 AFOD auto-discoverable. §9.4.5 PRM 계열 신규 subsection — Lightman/STaR/ReST/MathShepherd/CodeRL/ReST-MCTS*/Quiet-STaR 비교 표 + 우리와의 4가지 차별점 (domain/source/위치/origin). Pessimistic reviewer 선제 대응 framing. |
+| 2026-05-27 | v1.12: Process Reward Models (PRM) 계열 정직 articulation. §8.2 Claim 6 신규 — process reward 자체는 Lightman 2023부터 알려진 prior, 우리 novelty는 (i) 단일 42-relation ontology를 4 layer (probing/steering/cross-attn/RFT reward)에 일관 적용, (ii) tool schema에서 AFOD auto-discoverable. §9.4.5 PRM 계열 신규 subsection — Lightman/STaR/ReST/MathShepherd/CodeRL/ReST-MCTS*/Quiet-STaR 비교 표 + 우리와의 4가지 차별점 (domain/source/위치/origin). Pessimistic reviewer 선제 대응 framing. **Routine 논문 정정**: arXiv 2507.14447 직접 확인 결과 (a) reward 없음, (b) inter-tool ontology 없음, (c) SFT only (RL 안 함). 이전 메모리의 "SFT+RL 필수" 오류 정정. §9.4 Routine 표 + "6가지 차별" 비교 추가. Routine은 우리 baseline 아니라 complementary direction (사람 routine + SFT vs 자동 ontology + multi-layer injection). |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
