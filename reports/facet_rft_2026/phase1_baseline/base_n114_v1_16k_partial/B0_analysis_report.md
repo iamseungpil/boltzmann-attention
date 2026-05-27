@@ -1,4 +1,10 @@
-# B0 Vanilla Baseline 분석 보고서
+# B0 Vanilla Baseline 분석 보고서 (v1 · 16K partial)
+
+> **Status**: superseded — 본 보고서는 **2026-05-27 02:15 시작 run의 B0 부분**만 다룬다.
+> 같은 run의 B1·B2는 vLLM 사망으로 무효 (전체 456 sims connection error).
+> v2 (max-model-len=32768, B0+B1+B2 모두 재실행)는 별도 보고서로 작성될 예정.
+>
+> **v1 raw data 보존 위치**: `reports/facet_rft_2026/phase1_baseline/base_n114_v1_16k_partial/`
 
 **실행**: 2026-05-27 02:15 ~ 07:42 KST (5h 27m)
 **대상**: τ²-bench telecom, base split (N=114), trials=4, max_steps=200, max_concurrency=8
@@ -6,9 +12,9 @@
 **Agent**: B0 (Vanilla — default `llm_agent`, scaffolding 없음)
 
 산출물:
-- 원본: `reports/facet_rft_2026/phase1_baseline/base_n114/B0_telecom_base.json/results.json` (109 MB)
-- 자동 metric: `analysis/B0_analysis.json`, `analysis/B0_analysis.md`
-- 심화 metric: `analysis/B0_deep.json`
+- 원본: `reports/facet_rft_2026/phase1_baseline/base_n114_v1_16k_partial/B0_telecom_base.json/results.json` (109 MB)
+- 자동 metric: `base_n114_v1_16k_partial/analysis/B0_analysis.json`, `B0_analysis.md`
+- 심화 metric: `base_n114_v1_16k_partial/analysis/B0_deep.json`
 - 본 보고서: `B0_analysis_report.md` (해석 + 결정 근거)
 
 ---
