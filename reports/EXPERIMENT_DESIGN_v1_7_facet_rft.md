@@ -271,6 +271,8 @@ Group I: GoalAct 기반 목표-계획 생명주기 (5종)
 
 ### 3.3 구현 방법 비교
 
+#### 3.3.1 기본 lever 비교
+
 | 구성 | 방법 A: Cross-Attention | 방법 B: Vector Steering | 방법 C: 하이브리드 |
 |---|---|---|---|
 | **원리** | 온톨로지 노드를 K,V로 변환, 매 레이어 조회 | 관계 벡터를 residual stream에 가산 | A + B 결합 |
@@ -280,6 +282,53 @@ Group I: GoalAct 기반 목표-계획 생명주기 (5종)
 | **표현력** | 높음 (노드별 선택적 attention) | 중간 (벡터 합으로 압축) | 높음 |
 | **구현 복잡도** | 중간 | 낮음 | 높음 |
 | **선행 연구** | GMT (KGC), K-BERT | RepE, CAA, Bias-Only Steering | 미존재 |
+
+#### 3.3.2 합성 방법 — 3 lever (T2 × T4 × T1) 조합 (2026-05-27 v1.11 추가)
+
+3 lever는 직교적 (서로 다른 메커니즘, 합성 가능):
+- **T2** = 새 architectural module (cross-attn block 삽입)
+- **T4** = weight 자체 변형 (RFT로 LoRA delta update)
+- **T1** = runtime additive intervention (inference-time hidden state hook)
+
+따라서 8가지 조합 가능 (2³ ablation matrix):
+
+| 조건 | T2 | T4 | T1 | 명명 | 학습 | Phase 시점 |
+|---|---|---|---|---|---|---|
+| B0 | ❌ | ❌ | ❌ | Vanilla | 없음 | Phase 1 |
+| **T1@base** | ❌ | ❌ | ✅ | Steering-only | 없음 | Phase 2a |
+| T2 | ✅ | ❌ | ❌ | Cross-Attn LoRA | LoRA | Phase 3 |
+| **T3 = T2 + T1@T2** | ✅ | ❌ | ✅ | Hybrid | LoRA | Phase 2b |
+| **T4-RFT** | ❌ | ✅ | ❌ | RFT-only | RFT | Phase 4 |
+| **T5 = T4 + T1@T4** | ❌ | ✅ | ✅ | RFT + Steering (사용자 thesis) | RFT | Phase 2c (조건부) |
+| T2+T4 | ✅ | ✅ | ❌ | LoRA + RFT | LoRA→RFT | Phase 5 옵션 |
+| **T6 = T2 + T4 + T1@(T2+T4)** | ✅ | ✅ | ✅ | Triple | LoRA→RFT | Phase 5 (조건부) |
+
+**Lever 직교성 매트릭스** — 합성 시 충돌 없음:
+
+|  | T2 (architecture) | T4 (weight) | T1 (runtime) |
+|---|---|---|---|
+| 메커니즘 | 새 모듈 추가 | 기존 weight ↔ LoRA delta | inference hook |
+| 작동 시점 | 모든 forward | 모든 forward | 선택된 layer forward |
+| 도메인 전환 비용 | LoRA 재학습 | RFT 재학습 | vector 재계산 |
+| 학습 데이터 | 74 train task | rollout + verifier | 200 contrast pair |
+| 합성 위험 | RFT가 cross-attn overwrite | T1이 학습 분포 벗어남 | (낮음) |
+
+**Compositional hypothesis** (사용자 thesis, 명제 C'):
+
+```
+LRH 관점:
+  Steering lift ΔT1 ∝ |c_i|  (해당 방향이 weight에 분리된 정도)
+  ⇒ ΔT1@base < ΔT1@T2 < ΔT1@T4 < ΔT1@(T2+T4)
+  
+이유: T2/T4 학습이 representation separability를 강화
+      → 동일 α로 steering 가산해도 lift 폭 ↑
+      → Phase 2c/2d (T1@T4, T1@(T2+T4))가 main contribution 후보
+```
+
+**선행 연구 (composition)**:
+- Persona Vector Distillation (Anthropic 2025-12): RLHF + steering 부분 시도, persona 영역
+- Task Vectors (Ilharco et al. 2023): fine-tuned − base = task vector. 우리는 *관계별 분리 vector*
+- T2+T4+T1 triple composition with multi-step ontology: **prior 없음**, 우리가 처음
 
 ### 3.4 수학적 프레임워크: 개입 공간의 분류
 
@@ -510,12 +559,28 @@ check_results_v3.py 실행
 
 ### 4.2 제안 방법 (Treatment)
 
-| 조건명 | 설명 |
-|---|---|
-| **T1: Steering-Only** | 온톨로지 관계 → steering vector만 주입, 완전 training-free |
-| **T2: Cross-Attn (LoRA)** | 온톨로지 노드 → cross-attention 주입, LoRA만 학습 |
-| **T3: Hybrid** | T1 + T2 결합 |
-| **T4: Cross-Attn + LATS** | T2 + LATS tree search (τ²-bench simulator reward 활용) |
+**Notation 갱신** (v1.11): T1 steering은 *어느 모델에서 추출했는지*에 따라 다른 효과 → `T1@<model>` 표기. T4는 기존 LATS 의미 + 신규 RFT 의미로 분기.
+
+| 조건명 | 설명 | 학습 | 검증 시점 |
+|---|---|---|---|
+| **T1@base** | 온톨로지 관계 → steering vector (base 모델에서 추출), residual에 가산. 완전 training-free | 없음 | Phase 2a |
+| **T2: Cross-Attn (LoRA)** | 온톨로지 노드 → cross-attention 주입, LoRA만 학습 | LoRA SFT | Phase 3 |
+| **T3 = T2 + T1@T2** | T2-tuned 모델에서 v_relation 재추출 + steering. Hybrid | LoRA SFT | Phase 2b |
+| **T4-LATS: Cross-Attn + LATS** | T2 + LATS tree search (τ²-bench simulator reward 활용, training-free reward) | LoRA만 | Phase 4 path α |
+| **T4-RFT: facet-aware RFT** | 온톨로지 verifier 기반 GRPO/rejection-SFT로 모델 weight 자체 업데이트 | RFT | Phase 4 path β |
+| **T5 = T4-RFT + T1@T4** | RFT 후 모델에서 v_relation 재추출 + steering (사용자 thesis, 명제 C') | RFT | Phase 2c (조건부) |
+| **T6 = T2 + T4-RFT + T1@(T2+T4)** | Triple: cross-attn LoRA + RFT + steering 합성. Pareto upper bound | LoRA→RFT | Phase 5 (조건부) |
+
+**Steering vector 추출 모델 명시** (T1 variants):
+
+| Variant | 추출 source | 합성 |
+|---|---|---|
+| `T1@base` | Qwen2.5-7B-Instruct 그대로 | Phase 2a 단독 |
+| `T1@T2` | T2 LoRA SFT 후 모델 | T3 (Phase 2b) |
+| `T1@T4` | T4-RFT 후 모델 | T5 (Phase 2c) |
+| `T1@(T2+T4)` | T2 LoRA SFT → T4-RFT 후 모델 | T6 (Phase 5) |
+
+각 variant는 contrast pair에서 별도 추출. 직접 사용 불가 (모델 분포가 다름).
 
 ### 4.3 Ablation 조건
 
@@ -1328,7 +1393,7 @@ smoke3 (small split N=20, 14 sims 저장, killed)에서 partial pass^1 = 0.214 (
 - **MMS-specific Go/No-Go**: Phase 2 T1 또는 A6가 **mms chain=2-4 영역에서 ≥+5%p** lift = 가설 B 확정. lift 0% = 가설 A → Phase 4 우선순위 상향.
 - **Chain=1 single-issue 결과는 별도 표** (선례 없는 sub-benchmark; leaderboard와 무관하지만 capability 분리 측정용).
 
-### Phase 2: Vector Steering 구현 (2주)
+### Phase 2a: Training-Free Vector Steering on base (2주)
 
 ```
 목표: T1 (Steering-Only) 검증 + A6 (Per-head Rotation) 비교
@@ -1360,10 +1425,11 @@ smoke3 (small split N=20, 14 sims 저장, killed)에서 partial pass^1 = 0.214 (
   5. Ablation: A1~A3 (관계 유형별 기여도), A4 (random vector), A5 (layer)
 
 측정:
-  pass^1 vs B0/B1/B2 비교
+  pass^1 vs B0/B1/B2 비교 (모든 측정은 base 모델에서)
   Constraint Violation Rate (ordering 위반, mutex 위반 각각)
 
-Go/No-Go: T1이 B2(텍스트 직렬화) 대비 +3%p 이상 → Phase 3 진행
+Go/No-Go: T1@base vs B2(텍스트 직렬화) +3%p 이상 → Phase 3 진행
+          단, training-free 단독 contribution은 *어떤 lift든* 명제 C' 검증에 가치 — Phase 3 진행 결정에 무관하게 보고
 ```
 
 ### Phase 3: Cross-Attention 주입 구현 (3주)
@@ -1393,39 +1459,152 @@ Go/No-Go: T1이 B2(텍스트 직렬화) 대비 +3%p 이상 → Phase 3 진행
 Ablation: A4 (random vector vs 온톨로지 벡터), A5 (레이어별)
 ```
 
-### Phase 4: 하이브리드 및 LATS 결합 (2주)
+### Phase 2b: Steering on T2-tuned (Compositional A, 1주)
 
 ```
-목표: T3, T4 검증 + 상한선 탐색
+목표: T3 = T2 + T1@T2 검증 — Compositional hypothesis 검증 Stage 1
+근거: T2 LoRA SFT 후 모델은 ontology routing이 weight에 명시적으로 학습됨
+      → 그 모델에서 contrast pair 재실행 → v_relation_T2 추출
+      → base의 v_relation보다 *분리도가 높을 것으로 기대*
+      → 동일 α로 가산해도 lift 폭 ↑
 
 실험:
-  1. T3 (Hybrid: Steering + Cross-Attn) on τ²-bench
-  2. T4 (Cross-Attn + LATS)
+  1. T2 모델 freeze
+  2. contrast pair (관계 충족/위반 예시 200×42)에서 hidden state 재추출
+     - T2 cross-attn 직후의 residual stream 기준
+  3. v_relation_T2 ∈ ℝ^d 계산 (mean-of-differences)
+  4. α 그리드 서치 {0.1, 0.3, 0.5, 1.0, 2.0}
+  5. T3 = T2 + α·v_relation_T2 inference
+
+비교 (4-way):
+  - B0 (Phase 1)
+  - T1@base (Phase 2a)
+  - T2 alone (Phase 3)
+  - T3 = T2 + T1@T2 (이 phase)
+
+Go/No-Go: T3 vs T2 +3%p 이상 → Compositional hypothesis 확정
+          mms_issue chain 2-4에서 별도 +5%p ≥ → 명제 B/C' 정량 증거
+
+측정:
+  pass^1 (overall), pass^1 by chain length, pass^1 by category
+  v_relation_T2 separability metric (긍/부 예시 cosine 분리도)
+  Comparison plot: ΔT1@base vs ΔT1@T2 by relation type
+```
+
+### Phase 4: 하이브리드 및 LATS 결합 + facet-RFT (3주)
+
+```
+목표: T4-LATS, T4-RFT 검증 — heavy training path
+
+실험 path α (Tree Search):
+  1. T4-LATS (Cross-Attn + LATS)
      - τ²-bench simulator를 LATS reward source로 연결
      - MCTS rollout 수: {4, 8, 16}
      - Facet Prior로 탐색 가중치 부여
 
+실험 path β (Reinforcement Fine-Tuning, v1.11 신규):
+  2. T4-RFT (facet-aware RFT)
+     - Rollout: τ²-bench train 74 task × 16 trial = 1184 rollout
+     - Verifier: τ²-bench simulator pass/fail + ontology violation 패널티
+        precedes 위반 → −0.1
+        requires 위반 → −0.2
+        mutex 위반 → −0.3
+     - Update: GRPO (DeepSeek-R1 방식) 또는 rejection-SFT
+     - Cross-attn LoRA + self-attn LoRA 동시 학습 (또는 cross-attn freeze 옵션)
+     - 라운드: 2-4 iteration
+
 측정:
   pass^1, pass^5, Compute Budget (rollout 수 vs 성능)
+  T4-LATS vs T4-RFT 비교 (training-free reward vs training)
 ```
 
-### Phase 5: 도메인 일반화 실험 (1주)
+### Phase 2c: Steering on T4-RFT (Compositional B, 조건부 1주)
 
 ```
-목표: H2 (Cross-Domain 일반화) 검증
+목표: T5 = T4-RFT + T1@T4 검증 — Compositional hypothesis Stage 2 (사용자 thesis, 명제 C')
+근거: RFT가 multi-step ontology routing을 weight 자체에 깊이 내재화
+      → T2 LoRA(cross-attn만)보다 representation separability 더 강함
+      → v_relation@T4가 가장 깨끗한 방향 따라감
+      → ΔT1@T4가 ΔT1@base, ΔT1@T2보다 클 것으로 기대
+
+진입 조건 (Go/No-Go):
+  C1: T4-RFT (Phase 4) absolute pass^1 ≥ 0.144 (B0+10%p)
+  C2: T4-RFT 후 모델에서 v_relation separability (긍/부 cosine) > base의 1.5×
+
+  C1 ∧ C2 → Phase 2c 진입
+  C1만 → T4-RFT 단독으로 main result
+  둘 다 못 만족 → Phase 4 가설 A 우세 (pure weight gap, capability ceiling)
 
 실험:
+  1. T4-RFT 모델 freeze
+  2. 동일 contrast pair에서 v_relation_T4 추출
+  3. T5 = T4-RFT + α·v_relation_T4
+  4. α 그리드 서치, 최적값에서 pass^1 측정
+
+비교 (6-way 확장):
+  - B0, T1@base, T2, T3 (Phase 2b), T4-RFT, T5
+
+측정:
+  pass^1, chain-stratified, category-stratified
+  v_relation_T4 vs v_relation_T2 vs v_relation_base — separability quartet
+  Inference-time cost (steering은 +0% latency / RFT는 학습 비용)
+
+Phase 2c의 핵심 메시지:
+  "Representation quality × steering 효율 곱셈 관계 검증"
+  ΔT1@base : ΔT1@T2 : ΔT1@T4 = ? : ? : ?  (논문 main figure 후보)
+```
+
+### Phase 5: 도메인 일반화 + T6 Triple Composition (조건부 2주)
+
+```
+목표: H2 (Cross-Domain 일반화) 검증 + T6 (조건부) 측정
+
+Part 1: Cross-Domain 일반화 (1주)
   학습: Retail 온톨로지만 사용
   평가: Telecom, Airline (새 도메인)
   
   비교:
     - T2 (온톨로지 교체만으로 새 도메인 적용)
+    - T3 (T2 + T1@T2, Phase 2b 결과 반영)
+    - T5 (T4-RFT + T1@T4, Phase 2c 결과 반영, 진입 시)
     - Routine fine-tuned (새 도메인에서 재학습 필요)
     - B2 (텍스트 직렬화, 새 도메인 텍스트 교체)
 
-측정:
-  Cross-Domain Drop = (학습 도메인 pass^1) - (새 도메인 pass^1)
-  목표: T2의 Drop < B4(Routine)의 Drop
+  측정:
+    Cross-Domain Drop = (학습 도메인 pass^1) - (새 도메인 pass^1)
+    목표: T2/T3/T5의 Drop < B4(Routine)의 Drop
+    추가: T1 vector swap (도메인별 v_relation 재추출만으로 transfer 가능성)
+
+Part 2: T6 Triple Composition (조건부, 1주, v1.11 신규)
+  목표: T6 = T2 + T4-RFT + T1@(T2+T4) — Pareto upper bound 측정
+
+  진입 조건 (모두 충족 시):
+    C3: T2 단독 vs B0 +5%p 이상 (Phase 3 ✓)
+    C4: T3 = T2+T1 vs T2 +3%p 이상 (Phase 2b compositional A ✓)
+    C5: T5 = T4+T1 vs T4 +3%p 이상 (Phase 2c compositional B ✓)
+    C6: T4-RFT 단독 vs B0 +10%p 이상 (Phase 4 ✓)
+    
+    C3 ∧ C4 ∧ C5 ∧ C6 → T6 측정
+    하나라도 실패 → T6 skip, 단순 모델 보고
+  
+  실험:
+    1. 학습 cascade: base → T2 LoRA SFT → T4-RFT (cross-attn freeze 옵션 검증)
+    2. T2+T4 모델에서 v_relation_T2T4 재추출
+    3. T6 inference: T2+T4 모델 + α·v_relation_T2T4
+    4. α 그리드 서치
+  
+  비교 (8-way 완전 ablation):
+    B0, T1@base, T2, T3, T4-RFT, T5, T2+T4 (steer 없음), T6
+  
+  Risk:
+    RFT가 T2 cross-attn LoRA overwrite → 완화: cross-attn LoRA freeze 옵션
+    Inference framework 복잡도 ↑ → custom vLLM plugin 또는 HF inference
+    Reproducibility ↓ → 모든 seed/hyperparam 상세 보고
+  
+  측정:
+    pass^1 (overall + chain-stratified + category-stratified)
+    Pareto frontier plot: x=학습 비용, y=pass^1
+    각 lever의 marginal lift 분해 (T6 - T2+T4, T6 - T5, T6 - T3)
 ```
 
 ---
@@ -1440,13 +1619,42 @@ Ablation: A4 (random vector vs 온톨로지 벡터), A5 (레이어별)
 | B1 ReAct | ~0.35 | ~0.25 (v2 측정 중) | ~0.20 | |
 | B2 Text Serial | ~0.40 | ~0.30 (v2 측정 중) | ~0.22 | |
 | B3 KnowAgent | ~0.42 | ~0.32 | ~0.23 | |
-| **T1 Steering** | ~0.45 | ~0.38 | ~0.26 | 예측 |
-| **T2 Cross-Attn** | ~0.50 | ~0.45 | ~0.30 | 예측 |
-| **T3 Hybrid** | ~0.53 | ~0.48 | ~0.32 | 예측 |
-| **T4 + LATS** | ~0.60 | ~0.55 | ~0.38 | 예측 |
+| **T1@base** (Phase 2a) | ~0.45 | ~0.38 | ~0.26 | training-free |
+| **T2 Cross-Attn LoRA** (Phase 3) | ~0.50 | ~0.45 | ~0.30 | LoRA SFT |
+| **T3 = T2 + T1@T2** (Phase 2b) | ~0.53 | ~0.48 | ~0.32 | Compositional A |
+| **T4-LATS** | ~0.55 | ~0.50 | ~0.34 | Tree search |
+| **T4-RFT** (Phase 4) | ~0.60 | ~0.55 | ~0.38 | facet-aware RFT |
+| **T5 = T4-RFT + T1@T4** (Phase 2c) | **~0.65** | **~0.60** | **~0.42** | Compositional B (명제 C') |
+| **T6 = T2 + T4-RFT + T1@(T2+T4)** (Phase 5) | **~0.68** | **~0.63** | **~0.45** | Triple (Pareto upper bound) |
 | B4 Routine (FT) | ~0.75 | ~0.70 | ~0.55 | 상한선 |
 
-*B0 Telecom 사전 추정 ~0.20은 D0 (Channel A) 기반. **실측 0.0475는 4배 낮음** — 7B 모델 vanilla 한계가 D0 예측보다 훨씬 강함을 시사. Phase 1 §7 v1 결과 박스 참조. 다른 셀은 Phase 1 v2 / Phase 2 후 업데이트.*
+*B0 Telecom 사전 추정 ~0.20은 D0 (Channel A) 기반. **실측 0.0475는 4배 낮음** — 7B 모델 vanilla 한계가 D0 예측보다 훨씬 강함. T1-T6 셀의 예측치도 같은 규모로 *과대평가* 가능성. v2 실측 후 모든 셀 재추정 필요.*
+
+**Pareto frontier 예측** (학습 비용 × pass^1):
+```
+                       pass^1
+                         │
+           T6 (Triple) — █  ← upper bound
+                         │  ╲
+              T5 (RFT+St) █  ← compositional B
+                         │  ╲
+                 T4-RFT — █  ← heavy training
+                         │  ╲
+                T3 (Hyb) — █  ← compositional A
+                         │  ╲
+                T2 (LoRA)— █  ← light training
+                         │  ╲
+              T1 (Steer) — █  ← training-free contribution
+                         │  ╲
+                B0 — — — █
+                         └────────────────── 학습 비용
+                       0       LoRA    RFT
+```
+
+핵심 가설 (검증 대상):
+- (a) ΔT1@base < ΔT1@T2 < ΔT1@T4 (steering lift가 representation quality와 함께 증가)
+- (b) T6 > T5 > T3 > T2 > T1@base (각 lever가 additive 또는 multiplicative)
+- (c) T6 − (T2+T4 no-steer) ≥ ΔT1@base (steering이 모델 단독보다 cheaper boost)
 
 ### 8.2 논문 핵심 클레임
 
@@ -1463,6 +1671,19 @@ Claim 2 (일반화):
 Claim 3 (효율):
   "TPS-Bench Hard에서 도구 의존성 그래프 주입이
    병렬화 효율을 W% 개선하면서 완료율 유지"
+
+Claim 4 (Compositional, v1.11 신규 — 사용자 thesis):
+  "Steering vector의 effectiveness는 underlying model의
+   representation quality에 *곱셈적으로* 비례한다.
+   ΔT1@base < ΔT1@T2 < ΔT1@T4 < ΔT1@(T2+T4)
+   학습된 모델 + training-free steering 합성이
+   학습 단독보다 cheaper boost를 제공."
+
+Claim 5 (Pareto frontier, v1.11 신규):
+  "8-cell ablation (T2 × T4 × T1) 매트릭스에서
+   T6 (Triple composition)이 학습 비용 대비 pass^1
+   Pareto frontier 최우상점. 각 lever의 marginal lift
+   분해로 메커니즘 분리 가능."
 ```
 
 ---
@@ -1763,10 +1984,21 @@ Option D (간결):
 
 | 단계 | 기준 | 판단 |
 |---|---|---|
-| Phase 0 완료 후 | Probing accuracy ≥ 70% at ≥1 layer | 진행 / 방향 재검토 |
-| Phase 2 완료 후 | T1 vs B2: +3%p on τ²-bench telecom | 진행 / Steering 포기, Cross-Attn 집중 |
+| Phase 0 완료 후 | Probing accuracy ≥ 70% at ≥1 layer | 진행 / 방향 재검토 ✅ 통과 (2026-05-27) |
+| Phase 1 v2 완료 후 | B0 baseline 측정 + B1/B2 scaffolding 효과 분리 | Phase 2a 진행 |
+| Phase 2a 완료 후 | T1@base vs B2: +3%p on τ²-bench telecom | 진행 / Steering 포기, Cross-Attn 집중 |
 | Phase 3 완료 후 | T2 vs B2: +5%p on τ²-bench ≥2 domains | 논문 제출 / 추가 실험 |
-| Phase 4 완료 후 | T4 vs B3: +10%p on τ²-bench | NeurIPS 목표 유지 / EMNLP 하향 |
+| Phase 2b 완료 후 (v1.11 신규) | T3 = T2+T1@T2 vs T2: +3%p | Compositional A 확정 / Phase 4 단순 진입 |
+| Phase 4 완료 후 | T4-RFT vs B3: +10%p on τ²-bench | NeurIPS 목표 유지 / EMNLP 하향 |
+| Phase 2c 진입 (v1.11 신규) | C1: T4-RFT ≥ B0+10%p (=0.144); C2: v_T4 separability > base × 1.5 | 둘 다 충족 → Phase 2c 진입 |
+| Phase 2c 완료 후 (v1.11 신규) | T5 = T4+T1@T4 vs T4: +3%p | Compositional B 확정 (명제 C' 정량) |
+| Phase 5 T6 진입 (v1.11 신규) | C3-C6 모두 통과 (T2/T3/T5/T4-RFT 각 임계치) | Triple 측정 / 단순 모델 보고 |
+| Phase 5 T6 완료 후 (v1.11 신규) | T6 vs max(T3, T5): +2%p | Pareto upper bound 정당화 / T6 효용 없음 보고 |
+
+**MMS-specific Go/No-Go** (chain-stratified, v1.10 도입):
+- Phase 2a: T1@base mms chain 2-4 ≥ +5%p → 가설 B (LRH 적용) 확정, 추가 학습 불필요
+- Phase 2c: T5 mms chain 2-4 ≥ T4-RFT +5%p → steering이 RFT 위에서도 boost 가능
+- Phase 4: T4-RFT mms 전체 = 0% 유지 → 가설 A 확정 (pure weight gap, 더 큰 모델 또는 RFT 데이터 부족)
 
 ---
 
@@ -1810,4 +2042,5 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-27 | v1.8: §3.5 PCLI (Probing-Calibrated Layerwise Intervention) 신규 추가. 증폭-효과 trade-off 해소 원리 정식화: amplification_risk ∝ 1/τ. 계수 자동 교정 수식 (α = BASE_ALPHA × tau_factor / settling). 방법 선택 결정 트리 (early_peak+directional → A6_peak, flat → A8, mid_late → T1_qonly/A8). 레이어 충돌 분석 설계. check_results_v3.py 전면 재작성: curve_pattern 분류, α 교정, 방법 선택, 충돌 탐지, intervention_map.json 자동 저장. Phase 0 출력에 intervention_map.json 추가 (Phase 2 구현 설계도). |
 | 2026-05-27 | v1.9: Phase 1 v1 B0 telecom 실측 반영. **pass^1 = 0.0475 (95% CI [0.031, 0.072])**, pass^4 = 0.1316, N=114 trials=4 max_steps=200. §7에 결과 박스(Termination/Category/Persona/병목/leaderboard 위치) 신규 추가. §8.1 예상 테이블에 실측 표시. 핵심 발견: max_steps 33.6% 도달 시 100% reward=0, mms_issue 0/97 user_stop pass, 0 tasks 4/4 통과, Hard persona가 Easy/None보다 높음. v2 (max-model-len=32K, B0+B1+B2 통일 재실행) 진행 중. |
 | 2026-05-27 | v1.10: smoke3(chain=1) vs base v1(chain 2-9) 정밀 비교 추가. small ∩ base = 0 (task 공유 없음), 두 split은 본질적으로 다른 difficulty regime. Chain length × category × pass^1 표 추가: chain=2 non-mms 11.8% vs mms 0%, chain=4 non-mms 15.0% vs mms 0% → MMS multi-step deficit 별개 효과. 그러나 chain=1 mms는 smoke3에서 50% 통과 → 가설 A(pure weight gap) 약하게 반박. Phase 2 측정에 chain stratified 분석 + MMS-specific Go/No-Go (+5%p in chain 2-4 = 가설 B 확정, 0% = Phase 4 우선) 추가. |
+| 2026-05-27 | v1.11: Compositional lever 합성 8-cell ablation matrix 정식화 (사용자 thesis = 명제 C' 정량). Phase 2 분기: **Phase 2a** (T1@base, training-free) / **Phase 2b** (T3 = T2 + T1@T2, Compositional A) / **Phase 2c 조건부** (T5 = T4-RFT + T1@T4, Compositional B, 명제 C') / **Phase 5 T6 조건부** (Triple = T2 + T4-RFT + T1@(T2+T4), Pareto upper bound). §3.3에 3-lever 직교성 매트릭스 + LRH 곱셈 가설. §4.2 T1 variants notation (T1@base/T2/T4/(T2+T4)). §4.2 T4 분기 (T4-LATS path α / T4-RFT path β). §7 Phase 4에 facet-RFT 세부 (GRPO + ontology violation penalty). §8.1 Pareto frontier ASCII plot. §8.2 Claim 4-5 신규. §10 Go/No-Go에 C1-C6 조건 명시. 학계 prior: Persona Distill, Task Vectors 인용. T6 setting 자체는 prior 없음 — 우리 novel contribution. |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
