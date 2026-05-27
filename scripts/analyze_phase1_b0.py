@@ -73,9 +73,16 @@ def main():
     term_counter = Counter(s.get("termination_reason") for s in sims)
 
     # --- 2. Reward stats ---
-    rewards_all = [s["reward_info"]["reward"] for s in sims]
-    evaluated = [s for s in sims if s.get("termination_reason") != "infrastructure_error"]
-    rewards_eval = [s["reward_info"]["reward"] for s in evaluated]
+    def _reward(s):
+        ri = s.get("reward_info")
+        if ri is None:
+            return 0.0
+        return ri.get("reward", 0.0)
+
+    rewards_all = [_reward(s) for s in sims]
+    evaluated = [s for s in sims
+                 if s.get("termination_reason") != "infrastructure_error" and s.get("reward_info") is not None]
+    rewards_eval = [_reward(s) for s in evaluated]
     full_credit_eval = sum(1 for r in rewards_eval if r >= args.pass_threshold)
     p_eval, lo_eval, hi_eval = wilson_ci(full_credit_eval, len(rewards_eval))
 
@@ -86,7 +93,7 @@ def main():
     # --- 3. pass^k task-level (at least 1 trial reaches threshold) ---
     task_rewards = defaultdict(list)  # task_id -> list of (trial, reward, terminated)
     for s in sims:
-        task_rewards[s["task_id"]].append((s["trial"], s["reward_info"]["reward"], s["termination_reason"]))
+        task_rewards[s["task_id"]].append((s["trial"], _reward(s), s["termination_reason"]))
 
     pass_k = {}
     pass_k_counts = {}
@@ -107,9 +114,9 @@ def main():
     persona_rewards = defaultdict(list)
     for s in sims:
         cat, _body, persona = parse_task_id(s["task_id"])
-        cat_rewards[cat].append(s["reward_info"]["reward"])
+        cat_rewards[cat].append(_reward(s))
         cat_terms[cat][s["termination_reason"]] += 1
-        persona_rewards[persona].append((s["reward_info"]["reward"], s["termination_reason"]))
+        persona_rewards[persona].append((_reward(s), s["termination_reason"]))
 
     cat_summary = {}
     for cat, rs in cat_rewards.items():
@@ -154,7 +161,7 @@ def main():
     term_reward_xtab = defaultdict(lambda: {"n": 0, "sum_reward": 0.0, "n_pass": 0})
     for s in sims:
         term = s.get("termination_reason")
-        r = s["reward_info"]["reward"]
+        r = _reward(s)
         term_reward_xtab[term]["n"] += 1
         term_reward_xtab[term]["sum_reward"] += r
         if r >= args.pass_threshold:
@@ -169,7 +176,7 @@ def main():
     db_match_evaluated = 0
     db_total_evaluated = 0
     for s in evaluated:
-        ri = s["reward_info"]
+        ri = s.get("reward_info") or {}
         for rb in ri.get("reward_basis") or []:
             rb_counter[rb] += 1
         db = ri.get("db_check") or {}
