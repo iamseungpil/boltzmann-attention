@@ -1685,16 +1685,23 @@ Claim 5 (Pareto frontier, v1.11 신규):
    Pareto frontier 최우상점. 각 lever의 marginal lift
    분해로 메커니즘 분리 가능."
 
-Claim 6 (Novelty 정확한 articulation, v1.12 신규):
-  "Process reward 자체는 Lightman 2023 (Let's Verify Step by Step)
-   부터 표준 기법. 우리 novelty는 두 가지:
-   (i) 동일한 42-relation ontology를 4개 representation layer
-       (probing / steering / cross-attn / RFT reward)에 *일관* 적용.
-       이 multi-level unified treatment는 학계 prior 없음.
-   (ii) Ontology가 tool schema에서 auto-discoverable (AFOD) — 
-       사람 라벨 없이 새 enterprise domain에 transferable.
-   Process reward는 우리 4-layer hierarchy의 한 layer일 뿐이며,
-   단독으로는 prior 기법의 application."
+Claim 6 (Novelty 정확한 articulation, v1.12 → v1.13 강화):
+  "우리는 다음 어느 것도 발명하지 않았다:
+    - Process reward (Lightman 2023+, MathShepherd, ReST-MCTS* ...)
+    - Ontology + RL (PDDL+RL, robotics 영역에 prior)
+    - Graph-based agent planning (GAP 2510.25320, MHQA에서)
+    - τ²-bench multi-turn RL (CM2 2602.12268, checklist reward)
+   
+   우리가 *처음*인 것은 다음 4차원 *동시* cover:
+    (i) Multi-turn enterprise tool-use × 4-layer ontology injection 
+        (probing/steering/cross-attn/RFT) 일관 적용
+    (ii) 명시적 42-relation ontology (학습 graph도, checklist도, TD-value도 아님)
+    (iii) Auto-discoverable (AFOD) — tool schema → ontology zero-label
+    (iv) Training-free 단독 동작 옵션 (Phase 2a T1@base)
+   
+   §9.4.5.6의 4×4 매트릭스에서 각 prior가 1-2 차원만 cover.
+   우리가 4차원 모두 cover하는 첫 work — 단 contribution은 
+   *novelty 차원* 자체가 아니라 *합성 효과* 정량 측정."
 ```
 
 ---
@@ -1905,19 +1912,120 @@ Routine의 96% lift는 *enterprise scenario에 사람이 정확한 routine templ
 
 ---
 
-### 9.4.5 계열 4½: Process Reward Models (PRM) — 우리 RFT reward 직접 선조 (v1.12 신규)
+### 9.4.5 계열 4½: Process Reward Models (PRM) — 우리 RFT reward 직접 선조 (v1.12 → v1.13 확장)
 
-#### 핵심 흐름
+#### 9.4.5.1 PRM Foundations — Math/Code (Lightman lineage)
 
-| 논문 | 연도 | Process reward 출처 | Task |
-|---|---|---|---|
-| **Lightman et al. "Let's Verify Step by Step"** | 2023 | 학습된 PRM이 math step 채점 | MATH benchmark |
-| **STaR** (Zelikman et al.) | 2022 | self-rationalizer, intermediate CoT | reasoning |
-| **ReST** (Google DeepMind, Gulcehre et al.) | 2023 | outcome reward + filter | language |
-| **MathShepherd** (Wang et al.) | 2024 | Monte Carlo step reward | math |
-| **CodeRL / RLEF** | 2022-24 | unit test per-step | code |
-| **ReST-MCTS*** (Zhang et al.) | 2024 | MCTS-based step value | reasoning |
-| **Quiet-STaR** (Stanford) | 2024 | continuous thought tokens | reasoning |
+| 논문 | 연도 | Process reward 출처 | Task | 코드/Bench |
+|---|---|---|---|---|
+| **Lightman et al. "Let's Verify Step by Step"** | OpenAI 2023 | 학습된 PRM이 math step 채점 | MATH | PRM800K |
+| **STaR** (Zelikman et al.) | Stanford 2022 | self-rationalizer, intermediate CoT | reasoning | – |
+| **ReST** (Gulcehre et al.) | DeepMind 2023 | outcome reward + filter | language | – |
+| **MathShepherd** (Wang et al.) | 2024 | Monte Carlo step reward | math | – |
+| **CodeRL / RLEF** | 2022-24 | unit test per-step | code | HumanEval/MBPP |
+| **ReST-MCTS*** (Zhang et al.) | 2024 | MCTS-based step value | reasoning | – |
+| **Quiet-STaR** (Stanford) | 2024 | continuous thought tokens | reasoning | – |
+| **PRL (Process Reward Learning)** | arXiv 2601.10201 | outcome → dense process via TD | reasoning | – |
+| **Survey of PRMs** | arXiv 2510.08049 | meta-review | – | – |
+| **Awesome-PRMs** | github.com/RyanLiu112 | comprehensive list | – | – |
+
+#### 9.4.5.2 Agent PRM — Tool-Use 영역 (우리와 직접 인접, v1.13 신규)
+
+| 논문 | 연도/arXiv | Process reward source | Task / Bench | 우리와의 차별 |
+|---|---|---|---|---|
+| **AgentPRM** | 2511.08325 (2025-11) | **TD + GAE 학습 PRM** (rule 아님) | general agent | rule-based vs learned, ontology 없음 |
+| **ToolRM** | 2510.26167 (2025-10) | rule-based verifier (tool call 정확성) | general tool-use | tool-use *결과* 평가; relation ontology 없음 |
+| **ToolPRMBench** | 2601.12294 (2026-01) | PRM benchmark | – | 메타 benchmark, 우리 reward 정의 평가 가능 |
+| **Web-Shepherd** | (2025) | web-agent trajectory filter | web agents | web 특화, ontology 없음 |
+| **AgentR / One Model to Critique** (OpenReview) | 2025 | critic via efficient reasoning | agent tool-use | critic model, 우리는 rule-based |
+| **RLTR** (RL with Tool-use Rewards) | (2025) | tool-use completeness | tool-use | completeness ≠ ontology violation |
+
+#### 9.4.5.3 Graph/Structure-grounded Agent RL (가장 인접, v1.13 신규)
+
+| 논문 | 연도/arXiv | Structure 사용 | Reward 신호 | τ²-bench? |
+|---|---|---|---|---|
+| **GAP** (Graph-Based Agent Planning) | 2510.25320 (2025-10) | 학습된 dependency graph per task | **outcome correctness only** (process 아님) | ❌ (MHQA) |
+| **CM2** (Checklist Rewards multi-turn) | 2602.12268 (2026-02) | per-turn binary checklist (task별) | **checklist reward (per-turn)** | **✅ +8pt** |
+| **Planner-R1** (Reward Shaping smaller LLM) | 2509.25779 (2025-09) | trajectory-level + constraint MDP | dense process + sparse outcome | – |
+| **STEP-LLM** | – | step-level reward shaping | per-step | tool orchestration |
+| **DynaSearcher** | 2507.17365 (2025-07) | dynamic KG augmented | multi-reward RL | – |
+| **Graph-RFT** | (2025) | 2-stage RFT, KG + web | RFT verifier | – |
+| **Tool Graph Retriever** | 2508.05152 (2025-08) | dependency graph (retrieval) | retrieval-only | – |
+| **Plan-RewardBench** | 2604.08178 | trajectory-level judge | reward model eval | – |
+| **Plan Then Retrieve** | 2510.20691 (2025-10) | KG reasoning + RL | KG-grounded | – |
+
+#### 9.4.5.4 PDDL/Symbolic Reward Shaping (LLM + 형식 logic, v1.13 신규)
+
+| 논문 | 방식 | 우리와의 차별 |
+|---|---|---|
+| **LLM-Guided Reward Shaping with PDDL** | LLM이 PDDL plan 생성 → potential-based shaping | PDDL = 사람 도메인 정의 / 우리 AFOD auto-extract |
+| **VAL-integrated training** | PDDL plan validity check를 optimization loop에 포함 | validity check만, multi-layer 없음 |
+| **"Encouraging Good Processes"** | arXiv 2508.19598 (2025-08) | process reward (정답 불요) | 우리와 비슷한 motivation, ontology는 없음 |
+| **Generalization Gap in LLM Planning** | arXiv 2601.14456 | verifier-reward RL | math/code, ontology 없음 |
+
+#### 9.4.5.5 Ontology-Driven RL — 비-LLM Lineage (v1.13 참고)
+
+LLM 이전부터 ontology + RL은 robotics/scheduling에 존재. 우리 진영의 *원격* 선조:
+
+| 논문 | 도메인 | Ontology 역할 |
+|---|---|---|
+| Du Plessis (2021) "Using ontology to guide RL agents in unseen situations" | RL transfer | ontology = action concept 일반화 |
+| Sustainable Manufacturing (MDPI 2024) | job shop scheduling | Reward Machine + ontology (low→high concept mapping) |
+| Personalized Student Support (arXiv 2407.10332) | edu MARL | ontology semantic organization + MARL |
+| Ontology-Guided DRL for Robotic Tasks (HAL 05266672, 2025) | robotics | interpretable DRL + ontology |
+
+이 계열은 **LLM 아님** — 그러나 "ontology를 reward source의 구조적 prior로 사용"하는 *철학*은 동일. 우리가 LLM 영역에 처음 적용.
+
+#### 9.4.5.6 우리와의 *정확* 분리 — 4×4 차별 매트릭스 (v1.13 강화)
+
+각 prior가 우리 4가지 novelty 중 *몇 개*를 cover하는가:
+
+| Prior | (1) Inter-tool ontology 명시 | (2) Multi-layer injection (probing/steering/CA/RFT) | (3) Auto-discoverable (AFOD) | (4) τ²-bench multi-turn |
+|---|:---:|:---:|:---:|:---:|
+| Lightman 2023 (PRM) | ❌ | ❌ | ❌ | ❌ |
+| MathShepherd | ❌ | ❌ | ❌ | ❌ |
+| **GAP** | △ (learned graph) | ❌ | ❌ | ❌ |
+| **CM2** | ❌ (checklist) | ❌ | ❌ | **✅** |
+| **AgentPRM** | ❌ (TD-value) | ❌ | ❌ | ❌ |
+| ToolRM | ❌ | ❌ | △ (rule-based) | △ |
+| Planner-R1 | △ (constraint MDP) | ❌ | ❌ | ❌ |
+| STEP-LLM | ❌ | ❌ | ❌ | △ |
+| PDDL+RL | ✅ (PDDL = ontology) | ❌ | ❌ (사람 정의) | ❌ |
+| **Routine** | ❌ (variable memory) | ❌ | ❌ | ❌ |
+| Ontology-DRL (non-LLM) | ✅ | ❌ | ❌ | ❌ |
+| **우리** | **✅ 42-relation** | **✅ 4 layer** | **✅ AFOD** | **✅** |
+
+→ **개별 차원에 대해서는 prior 풍부**. 그러나 **4 차원 모두 cover하는 work 없음**. CM2는 (4)만, PDDL+RL은 (1)만, GAP는 (1) 부분만.
+
+#### 9.4.5.7 우리 contribution 정확 재정의 (Claim 6 강화)
+
+```
+주장:
+  "우리는 process reward를 발명하지 않았다 (Lightman 2023부터 다수 선례).
+   우리는 ontology RL을 발명하지 않았다 (PDDL+RL, robotics에 prior).
+   우리는 graph-based agent planning을 발명하지 않았다 (GAP 2510 이 5개월 먼저).
+   
+   우리가 *처음*인 것:
+   (i) Multi-turn enterprise tool-use에서 4-layer ontology injection 
+       (probing/steering/cross-attn/RFT reward) 일관 적용
+   (ii) Auto-discoverable 42-relation ontology (AFOD) — Routine처럼 사람 작성 불요
+   (iii) Compositional ablation matrix (T1 × T2 × T4, 8-cell) 정량 측정
+   (iv) Training-free 단독 동작 옵션 (Phase 2a T1@base) — CM2/GAP/AgentPRM 모두 학습 필수"
+```
+
+→ Reviewer가 "X paper에서 했다" 비판 시 위 4 차원 어느 것을 cover하는지 매트릭스로 응답.
+
+#### 9.4.5.8 즉시 baseline 추가 권고
+
+v2 base 결과 이후 다음 baseline을 추가 측정 권장 (시간 무제한 가정):
+
+| 우선순위 | Baseline | 진입 조건 |
+|---|---|---|
+| **B6 (신규)** | **CM2 (Checklist RL)** — 우리와 같은 τ²-bench, 가장 직접 경쟁 | 즉시 |
+| B7 (조건부) | GAP — graph-based + outcome reward | 6-week sprint 외 시간 있으면 |
+| B8 (장기) | AgentPRM (learned PRM with TD/GAE) | Phase 4 후 비교용 |
+
+이 baseline들이 *우리 main result*를 강화하지 못하면 contribution 약화. 강화하면 매우 strong.
 
 #### 우리와의 정확한 비교
 
@@ -2136,4 +2244,5 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-27 | v1.10: smoke3(chain=1) vs base v1(chain 2-9) 정밀 비교 추가. small ∩ base = 0 (task 공유 없음), 두 split은 본질적으로 다른 difficulty regime. Chain length × category × pass^1 표 추가: chain=2 non-mms 11.8% vs mms 0%, chain=4 non-mms 15.0% vs mms 0% → MMS multi-step deficit 별개 효과. 그러나 chain=1 mms는 smoke3에서 50% 통과 → 가설 A(pure weight gap) 약하게 반박. Phase 2 측정에 chain stratified 분석 + MMS-specific Go/No-Go (+5%p in chain 2-4 = 가설 B 확정, 0% = Phase 4 우선) 추가. |
 | 2026-05-27 | v1.11: Compositional lever 합성 8-cell ablation matrix 정식화 (사용자 thesis = 명제 C' 정량). Phase 2 분기: **Phase 2a** (T1@base, training-free) / **Phase 2b** (T3 = T2 + T1@T2, Compositional A) / **Phase 2c 조건부** (T5 = T4-RFT + T1@T4, Compositional B, 명제 C') / **Phase 5 T6 조건부** (Triple = T2 + T4-RFT + T1@(T2+T4), Pareto upper bound). §3.3에 3-lever 직교성 매트릭스 + LRH 곱셈 가설. §4.2 T1 variants notation (T1@base/T2/T4/(T2+T4)). §4.2 T4 분기 (T4-LATS path α / T4-RFT path β). §7 Phase 4에 facet-RFT 세부 (GRPO + ontology violation penalty). §8.1 Pareto frontier ASCII plot. §8.2 Claim 4-5 신규. §10 Go/No-Go에 C1-C6 조건 명시. 학계 prior: Persona Distill, Task Vectors 인용. T6 setting 자체는 prior 없음 — 우리 novel contribution. |
 | 2026-05-27 | v1.12: Process Reward Models (PRM) 계열 정직 articulation. §8.2 Claim 6 신규 — process reward 자체는 Lightman 2023부터 알려진 prior, 우리 novelty는 (i) 단일 42-relation ontology를 4 layer (probing/steering/cross-attn/RFT reward)에 일관 적용, (ii) tool schema에서 AFOD auto-discoverable. §9.4.5 PRM 계열 신규 subsection — Lightman/STaR/ReST/MathShepherd/CodeRL/ReST-MCTS*/Quiet-STaR 비교 표 + 우리와의 4가지 차별점 (domain/source/위치/origin). Pessimistic reviewer 선제 대응 framing. **Routine 논문 정정**: arXiv 2507.14447 직접 확인 결과 (a) reward 없음, (b) inter-tool ontology 없음, (c) SFT only (RL 안 함). 이전 메모리의 "SFT+RL 필수" 오류 정정. §9.4 Routine 표 + "6가지 차별" 비교 추가. Routine은 우리 baseline 아니라 complementary direction (사람 routine + SFT vs 자동 ontology + multi-layer injection). |
+| 2026-05-27 | v1.13: Lightman 2023 이후 *ontology + process reward* 선행연구 깊은 탐색·정리. §9.4.5 전면 재편 — 5개 sub-subsection: (5.1) PRM foundations (math/code), (5.2) **Agent PRM 신규** (AgentPRM 2511.08325, ToolRM 2510.26167, ToolPRMBench, Web-Shepherd, AgentR, RLTR), (5.3) **Graph/structure agent RL 신규** (GAP 2510.25320 MHQA, **CM2 2602.12268 τ²-bench +8pt** 가장 직접 경쟁, Planner-R1 2509.25779, DynaSearcher 2507.17365, STEP-LLM, Tool Graph Retriever, Plan-RewardBench), (5.4) **PDDL/symbolic 신규** (LLM-Guided PDDL Shaping, VAL-integrated, arXiv 2508.19598 "Encouraging Good Processes", 2601.14456 Generalization Gap), (5.5) **Ontology-driven RL non-LLM 신규** (robotics, scheduling, edu MARL — 우리의 원격 선조). §9.4.5.6 4×4 차별 매트릭스 — 12 prior × 4 차원 (ontology/multi-layer/AFOD/τ²-bench). 결과: 어느 prior도 4 차원 모두 cover 안 함. CM2가 (4)만, PDDL+RL이 (1)만. §8.2 Claim 6 강화: "process reward 발명 안 함, ontology RL 발명 안 함, graph planning 발명 안 함" 정직 인정 + 4차원 동시 cover가 unique. §9.4.5.8 baseline 추가 권고: B6 CM2 (즉시), B7 GAP, B8 AgentPRM. |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
