@@ -1,0 +1,7319 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "task": "tau2_airline",
+  "schema_path": "/home/woori/workspace_common/boltzmann-attention-pi/data/facet_schemas/tau2_airline.yaml",
+  "source_schema_path": null,
+  "source_domain": "",
+  "source_tools": [],
+  "n_samples": 50,
+  "max_new_tokens": 192,
+  "conditions": [
+    "nl_full",
+    "nl_with_desc",
+    "facet_full",
+    "facet_compact",
+    "list_only",
+    "nl_sysless",
+    "list_anon",
+    "facet_anon",
+    "noprompt"
+  ],
+  "d0_query_mode": "native",
+  "d0_gt_mode": "unique",
+  "summary": {
+    "nl_full": {
+      "n": 50,
+      "f1_mean": 0.18066666666666667,
+      "f1_sd": 0.3063270820204089,
+      "f1_ci95_lo": 0.098,
+      "f1_ci95_hi": 0.2727,
+      "f_05_mean": 0.21257936507936506,
+      "eu_mean": -0.63,
+      "jaccard_mean": 0.14300000000000002,
+      "exact_mean": 0.06,
+      "precision_mean": 0.26,
+      "precision_ci95_lo": 0.14,
+      "precision_ci95_hi": 0.38,
+      "recall_mean": 0.165,
+      "recall_ci95_lo": 0.08666666666666668,
+      "recall_ci95_hi": 0.2600416666666666,
+      "n_pred_mean": 1.2,
+      "prompt_len_mean": 180.92,
+      "prompt_len_min": 156,
+      "prompt_len_max": 220
+    },
+    "nl_with_desc": {
+      "n": 50,
+      "f1_mean": 0.1953333333333333,
+      "f1_sd": 0.3237401886552964,
+      "f1_ci95_lo": 0.10598333333333332,
+      "f1_ci95_hi": 0.2887,
+      "f_05_mean": 0.2343722943722944,
+      "eu_mean": -0.56,
+      "jaccard_mean": 0.15733333333333333,
+      "exact_mean": 0.06,
+      "precision_mean": 0.2833333333333333,
+      "precision_ci95_lo": 0.15666666666666665,
+      "precision_ci95_hi": 0.41008333333333324,
+      "recall_mean": 0.16166666666666665,
+      "recall_ci95_lo": 0.085,
+      "recall_ci95_hi": 0.24837499999999996,
+      "n_pred_mean": 1.12,
+      "prompt_len_mean": 262.92,
+      "prompt_len_min": 238,
+      "prompt_len_max": 302
+    },
+    "facet_full": {
+      "n": 50,
+      "f1_mean": 0.2221904761904762,
+      "f1_sd": 0.33769821608901957,
+      "f1_ci95_lo": 0.13406666666666667,
+      "f1_ci95_hi": 0.3251547619047619,
+      "f_05_mean": 0.2401623376623377,
+      "eu_mean": -0.6033333333333333,
+      "jaccard_mean": 0.18,
+      "exact_mean": 0.08,
+      "precision_mean": 0.26666666666666666,
+      "precision_ci95_lo": 0.15666666666666665,
+      "precision_ci95_hi": 0.38666666666666666,
+      "recall_mean": 0.22,
+      "recall_ci95_lo": 0.12829166666666666,
+      "recall_ci95_hi": 0.3250833333333333,
+      "n_pred_mean": 1.52,
+      "prompt_len_mean": 302.92,
+      "prompt_len_min": 278,
+      "prompt_len_max": 342
+    },
+    "facet_compact": {
+      "n": 50,
+      "f1_mean": 0.02,
+      "f1_sd": 0.1414213562373095,
+      "f1_ci95_lo": 0.0,
+      "f1_ci95_hi": 0.06,
+      "f_05_mean": 0.02,
+      "eu_mean": -0.82,
+      "jaccard_mean": 0.02,
+      "exact_mean": 0.02,
+      "precision_mean": 0.02,
+      "precision_ci95_lo": 0.0,
+      "precision_ci95_hi": 0.06,
+      "recall_mean": 0.02,
+      "recall_ci95_lo": 0.0,
+      "recall_ci95_hi": 0.06,
+      "n_pred_mean": 0.02,
+      "prompt_len_mean": 177.92,
+      "prompt_len_min": 153,
+      "prompt_len_max": 217
+    },
+    "list_only": {
+      "n": 50,
+      "f1_mean": 0.19,
+      "f1_sd": 0.29045667381742046,
+      "f1_ci95_lo": 0.11196666666666666,
+      "f1_ci95_hi": 0.27868333333333334,
+      "f_05_mean": 0.23567821067821068,
+      "eu_mean": -0.6266666666666667,
+      "jaccard_mean": 0.1423333333333333,
+      "exact_mean": 0.04,
+      "precision_mean": 0.3,
+      "precision_ci95_lo": 0.18,
+      "precision_ci95_hi": 0.43,
+      "recall_mean": 0.15833333333333333,
+      "recall_ci95_lo": 0.08833333333333332,
+      "recall_ci95_hi": 0.24166666666666664,
+      "n_pred_mean": 1.02,
+      "prompt_len_mean": 129.92,
+      "prompt_len_min": 105,
+      "prompt_len_max": 169
+    },
+    "nl_sysless": {
+      "n": 50,
+      "f1_mean": 0.20666666666666664,
+      "f1_sd": 0.33665016461206926,
+      "f1_ci95_lo": 0.11866666666666667,
+      "f1_ci95_hi": 0.31404999999999994,
+      "f_05_mean": 0.242973692973693,
+      "eu_mean": -0.54,
+      "jaccard_mean": 0.17166666666666663,
+      "exact_mean": 0.1,
+      "precision_mean": 0.2966666666666667,
+      "precision_ci95_lo": 0.17,
+      "precision_ci95_hi": 0.4266666666666667,
+      "recall_mean": 0.18666666666666665,
+      "recall_ci95_lo": 0.10166666666666666,
+      "recall_ci95_hi": 0.29508333333333325,
+      "n_pred_mean": 1.08,
+      "prompt_len_mean": 145.92,
+      "prompt_len_min": 121,
+      "prompt_len_max": 185
+    },
+    "list_anon": {
+      "n": 50,
+      "f1_mean": 0.20666666666666664,
+      "f1_sd": 0.322897876345994,
+      "f1_ci95_lo": 0.12266666666666666,
+      "f1_ci95_hi": 0.3060333333333333,
+      "f_05_mean": 0.24901154401154404,
+      "eu_mean": -0.5666666666666668,
+      "jaccard_mean": 0.16566666666666666,
+      "exact_mean": 0.08,
+      "precision_mean": 0.31,
+      "precision_ci95_lo": 0.18,
+      "precision_ci95_hi": 0.44,
+      "recall_mean": 0.17833333333333332,
+      "recall_ci95_lo": 0.09833333333333333,
+      "recall_ci95_hi": 0.27166666666666667,
+      "n_pred_mean": 1.02,
+      "prompt_len_mean": 204.92,
+      "prompt_len_min": 180,
+      "prompt_len_max": 244
+    },
+    "facet_anon": {
+      "n": 50,
+      "f1_mean": 0.23866666666666667,
+      "f1_sd": 0.3016477800680035,
+      "f1_ci95_lo": 0.15729999999999997,
+      "f1_ci95_hi": 0.3286833333333333,
+      "f_05_mean": 0.2606818181818182,
+      "eu_mean": -0.69,
+      "jaccard_mean": 0.1746666666666667,
+      "exact_mean": 0.02,
+      "precision_mean": 0.2966666666666667,
+      "precision_ci95_lo": 0.19,
+      "precision_ci95_hi": 0.41666666666666663,
+      "recall_mean": 0.24833333333333332,
+      "recall_ci95_lo": 0.155,
+      "recall_ci95_hi": 0.35170833333333323,
+      "n_pred_mean": 1.36,
+      "prompt_len_mean": 373.92,
+      "prompt_len_min": 349,
+      "prompt_len_max": 413
+    },
+    "noprompt": {
+      "n": 50,
+      "f1_mean": 0.0,
+      "f1_sd": 0.0,
+      "f1_ci95_lo": 0.0,
+      "f1_ci95_hi": 0.0,
+      "f_05_mean": 0.0,
+      "eu_mean": -0.86,
+      "jaccard_mean": 0.0,
+      "exact_mean": 0.0,
+      "precision_mean": 0.0,
+      "precision_ci95_lo": 0.0,
+      "precision_ci95_hi": 0.0,
+      "recall_mean": 0.0,
+      "recall_ci95_lo": 0.0,
+      "recall_ci95_hi": 0.0,
+      "n_pred_mean": 0.0,
+      "prompt_len_mean": 86.92,
+      "prompt_len_min": 62,
+      "prompt_len_max": 126
+    }
+  },
+  "details": {
+    "nl_full": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "book_reservation",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "book_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.4166666666666667,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "calculate",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights",
+          "get_reservation_details"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights",
+          "get_reservation_details"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_baggages",
+          "update_reservation_passengers",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_passengers",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "calculate",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights",
+          "search_direct_flight",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.4166666666666667,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_flights",
+          "get_user_details"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "get_reservation_details"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ],
+    "nl_with_desc": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.4166666666666667,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.6666666666666666,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "update_reservation_baggages",
+          "update_reservation_passengers",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.8,
+        "f_05": 0.9090909090909091,
+        "eu": 0.3333333333333333,
+        "jaccard": 0.6666666666666666,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "pred": [
+          "update_reservation_passengers",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "calculate",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ],
+    "facet_full": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_passengers",
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "cancel_reservation",
+          "cancel_reservation",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.4166666666666667,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "get_user_details",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_baggages",
+          "update_reservation_passengers",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_baggages",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights",
+          "search_direct_flight",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_passengers",
+          "update_reservation_baggages",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "calculate",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_passengers",
+          "book_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.5714285714285715,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.4,
+        "exact": 0.0,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_passengers",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5714285714285715,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.4,
+        "exact": 0.0,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "pred": [
+          "search_direct_flight",
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_baggages",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ],
+    "facet_compact": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "book_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ],
+    "list_only": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "book_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "get_reservation_details",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.4166666666666667,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_passengers",
+          "update_reservation_baggages",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "get_reservation_details"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "cancel_reservation",
+          "book_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "get_reservation_details"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ],
+    "nl_sysless": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "book_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "book_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_baggages",
+          "update_reservation_passengers",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_passengers",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "calculate",
+          "update_reservation_flights",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.3846153846153846,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "pred": [
+          "cancel_reservation",
+          "search_direct_flight",
+          "book_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "get_reservation_details"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ],
+    "list_anon": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.4166666666666667,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_baggages",
+          "update_reservation_passengers",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "calculate",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "cancel_reservation",
+          "book_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "get_reservation_details"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ],
+    "facet_anon": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "book_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_baggages",
+          "calculate"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation",
+          "get_user_details"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.625,
+        "eu": -0.5,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.25,
+        "pred": [
+          "book_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.4166666666666667,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.25,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights",
+          "get_reservation_details"
+        ],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_baggages",
+          "update_reservation_passengers",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "calculate"
+        ],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "cancel_reservation",
+          "book_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "update_reservation_passengers",
+          "book_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_flights",
+          "search_direct_flight"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "search_direct_flight",
+          "update_reservation_flights",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.5555555555555556,
+        "eu": -1.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "pred": [
+          "cancel_reservation",
+          "book_reservation"
+        ],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.45454545454545453,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation",
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.4,
+        "f_05": 0.3571428571428571,
+        "eu": -1.0,
+        "jaccard": 0.25,
+        "exact": 0.0,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "pred": [
+          "search_direct_flight",
+          "get_user_details",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.7142857142857143,
+        "eu": -0.3333333333333333,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "update_reservation_passengers"
+        ],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "update_reservation_flights"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "get_user_details"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.3333333333333333,
+        "f_05": 0.4166666666666667,
+        "eu": -1.0,
+        "jaccard": 0.2,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.25,
+        "pred": [
+          "search_direct_flight",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "cancel_reservation",
+          "get_user_details",
+          "transfer_to_human_agents"
+        ],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ],
+    "noprompt": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_flights",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "search_direct_flight"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "calculate",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "transfer_to_human_agents"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "update_reservation_flights",
+          "update_reservation_passengers",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "cancel_reservation",
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights",
+          "update_reservation_baggages"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "book_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details",
+          "update_reservation_passengers"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "cancel_reservation"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_user_details",
+          "get_reservation_details",
+          "search_direct_flight",
+          "update_reservation_flights"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": 0.0,
+        "jaccard": 0.0,
+        "exact": 0.0
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "get_reservation_details"
+        ]
+      }
+    ]
+  },
+  "prompt_lengths": {
+    "nl_full": [
+      179,
+      170,
+      199,
+      220,
+      204,
+      162,
+      193,
+      162,
+      163,
+      186,
+      188,
+      172,
+      196,
+      180,
+      169,
+      183,
+      183,
+      192,
+      166,
+      220,
+      159,
+      219,
+      175,
+      181,
+      171,
+      180,
+      156,
+      163,
+      161,
+      203,
+      191,
+      184,
+      188,
+      191,
+      206,
+      184,
+      176,
+      181,
+      162,
+      174,
+      173,
+      160,
+      159,
+      160,
+      208,
+      169,
+      180,
+      171,
+      182,
+      192
+    ],
+    "nl_with_desc": [
+      261,
+      252,
+      281,
+      302,
+      286,
+      244,
+      275,
+      244,
+      245,
+      268,
+      270,
+      254,
+      278,
+      262,
+      251,
+      265,
+      265,
+      274,
+      248,
+      302,
+      241,
+      301,
+      257,
+      263,
+      253,
+      262,
+      238,
+      245,
+      243,
+      285,
+      273,
+      266,
+      270,
+      273,
+      288,
+      266,
+      258,
+      263,
+      244,
+      256,
+      255,
+      242,
+      241,
+      242,
+      290,
+      251,
+      262,
+      253,
+      264,
+      274
+    ],
+    "facet_full": [
+      301,
+      292,
+      321,
+      342,
+      326,
+      284,
+      315,
+      284,
+      285,
+      308,
+      310,
+      294,
+      318,
+      302,
+      291,
+      305,
+      305,
+      314,
+      288,
+      342,
+      281,
+      341,
+      297,
+      303,
+      293,
+      302,
+      278,
+      285,
+      283,
+      325,
+      313,
+      306,
+      310,
+      313,
+      328,
+      306,
+      298,
+      303,
+      284,
+      296,
+      295,
+      282,
+      281,
+      282,
+      330,
+      291,
+      302,
+      293,
+      304,
+      314
+    ],
+    "facet_compact": [
+      176,
+      167,
+      196,
+      217,
+      201,
+      159,
+      190,
+      159,
+      160,
+      183,
+      185,
+      169,
+      193,
+      177,
+      166,
+      180,
+      180,
+      189,
+      163,
+      217,
+      156,
+      216,
+      172,
+      178,
+      168,
+      177,
+      153,
+      160,
+      158,
+      200,
+      188,
+      181,
+      185,
+      188,
+      203,
+      181,
+      173,
+      178,
+      159,
+      171,
+      170,
+      157,
+      156,
+      157,
+      205,
+      166,
+      177,
+      168,
+      179,
+      189
+    ],
+    "list_only": [
+      128,
+      119,
+      148,
+      169,
+      153,
+      111,
+      142,
+      111,
+      112,
+      135,
+      137,
+      121,
+      145,
+      129,
+      118,
+      132,
+      132,
+      141,
+      115,
+      169,
+      108,
+      168,
+      124,
+      130,
+      120,
+      129,
+      105,
+      112,
+      110,
+      152,
+      140,
+      133,
+      137,
+      140,
+      155,
+      133,
+      125,
+      130,
+      111,
+      123,
+      122,
+      109,
+      108,
+      109,
+      157,
+      118,
+      129,
+      120,
+      131,
+      141
+    ],
+    "nl_sysless": [
+      144,
+      135,
+      164,
+      185,
+      169,
+      127,
+      158,
+      127,
+      128,
+      151,
+      153,
+      137,
+      161,
+      145,
+      134,
+      148,
+      148,
+      157,
+      131,
+      185,
+      124,
+      184,
+      140,
+      146,
+      136,
+      145,
+      121,
+      128,
+      126,
+      168,
+      156,
+      149,
+      153,
+      156,
+      171,
+      149,
+      141,
+      146,
+      127,
+      139,
+      138,
+      125,
+      124,
+      125,
+      173,
+      134,
+      145,
+      136,
+      147,
+      157
+    ],
+    "list_anon": [
+      203,
+      194,
+      223,
+      244,
+      228,
+      186,
+      217,
+      186,
+      187,
+      210,
+      212,
+      196,
+      220,
+      204,
+      193,
+      207,
+      207,
+      216,
+      190,
+      244,
+      183,
+      243,
+      199,
+      205,
+      195,
+      204,
+      180,
+      187,
+      185,
+      227,
+      215,
+      208,
+      212,
+      215,
+      230,
+      208,
+      200,
+      205,
+      186,
+      198,
+      197,
+      184,
+      183,
+      184,
+      232,
+      193,
+      204,
+      195,
+      206,
+      216
+    ],
+    "facet_anon": [
+      372,
+      363,
+      392,
+      413,
+      397,
+      355,
+      386,
+      355,
+      356,
+      379,
+      381,
+      365,
+      389,
+      373,
+      362,
+      376,
+      376,
+      385,
+      359,
+      413,
+      352,
+      412,
+      368,
+      374,
+      364,
+      373,
+      349,
+      356,
+      354,
+      396,
+      384,
+      377,
+      381,
+      384,
+      399,
+      377,
+      369,
+      374,
+      355,
+      367,
+      366,
+      353,
+      352,
+      353,
+      401,
+      362,
+      373,
+      364,
+      375,
+      385
+    ],
+    "noprompt": [
+      85,
+      76,
+      105,
+      126,
+      110,
+      68,
+      99,
+      68,
+      69,
+      92,
+      94,
+      78,
+      102,
+      86,
+      75,
+      89,
+      89,
+      98,
+      72,
+      126,
+      65,
+      125,
+      81,
+      87,
+      77,
+      86,
+      62,
+      69,
+      67,
+      109,
+      97,
+      90,
+      94,
+      97,
+      112,
+      90,
+      82,
+      87,
+      68,
+      80,
+      79,
+      66,
+      65,
+      66,
+      114,
+      75,
+      86,
+      77,
+      88,
+      98
+    ]
+  },
+  "generations_sample": {
+    "nl_full": [
+      "<tool_call>{\"name\": \"cancel_reservation\", \"arguments\": {\"reservation_id\": \"EHGLP3\", \"user_id\": \"emma_kim_9957\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"transfer_to_human_agents\", \"arguments\": {\"customer_id\": \"raj_sanchez_7340\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"book_reservation\", \"arguments\": {\"flight_origin\": \"sf\", \"flight_destination\": \"ny\", \"number_of_passengers\": 3}}\n<tool_call>{\"name\": \"transfer_to_human_agents\", \"arguments\": {}}<|im_end|>"
+    ],
+    "nl_with_desc": [
+      "<tool_call>{\"name\": \"cancel_reservation\", \"arguments\": {\"reservation_id\": \"EHGLP3\", \"user_id\": \"emma_kim_9957\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"transfer_to_human_agents\", \"arguments\": {\"user_id\": \"raj_sanchez_734\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"search_direct_flight\", \"arguments\": {\"origin\": \"sf\", \"destination\": \"ny\", \"passengers\": 3}}\n<tool_call>{\"name\": \"transfer_to_human_agents\", \"arguments\": {\"user_id\": \"noah_muller_9847\", \"reason\": \"Frustrated with the delayed flight in my most recent reservation.\"}}}<|im_end|>"
+    ],
+    "facet_full": [
+      "<tool_call>{\"name\": \"cancel_reservation\", \"arguments\": {\"reservation_id\": \"EHGLP3\", \"user_id\": \"emma_kim_9957\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"transfer_to_human_agents\", \"arguments\": {\"user_id\": \"raj_sanchez_734\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"search_direct_flight\", \"arguments\": {\"passengers\": 3, \"origin\": \"sf\", \"destination\": \"ny\", \"user_id\": \"noah_muller_9847\"}}<|im_end|>"
+    ],
+    "facet_compact": [
+      "z\u0142{\"name\":\"airline cancel_reservation\",\"arguments\":{\"reservation_id\":\"EHGLP3\",\"customer_id\":\"emma_kim_9957\"}}<|im_end|>",
+      "<tool_call>{\"name\":\"airline cancel_reservation\",\"arguments\":{\"customer_id\":\"raj_sanchez_7340\"}}<|im_end|>",
+      "<tool_call>{\"name\":\"airline search_direct_flight\",\"arguments\":{\"origin\":\"sf\",\"destination\":\"ny\",\"passengerCount\":3}}<|im_end|>"
+    ],
+    "list_only": [
+      "{\"name\":\"cancel_reservation\",\"arguments\":{\"reservation_id\":\"EHGLP3\",\"user_id\":\"emma_kim_9957\"}}<|im_end|>",
+      "{\"name\":\"cancel_reservation\",\"arguments\":{\"user_id\":\"raj_sanchez_7340\",\"reservation_id\":\"RSV123456\"}}<|im_end|>",
+      "{\"name\":\"book_reservation\",\"arguments\":{\"origin\":\"sf\",\"destination\":\"ny\",\"passenger_count\":3,\"user_id\":\"noah_muller_9847\"}}<|im_end|>"
+    ],
+    "nl_sysless": [
+      "{\"name\":\"cancel_reservation\",\"arguments\":{\"reservation_id\":\"EHGLP3\",\"user_id\":\"emma_kim_9957\"}}<|im_end|>",
+      "{\"name\":\"transfer_to_human_agents\",\"arguments\":{\"customer_id\":\"raj_sanchez_7340\"}}<|im_end|>",
+      "{\"name\":\"book_reservation\",\"arguments\":{\"passenger_count\":3,\"origin\":\"sf\",\"destination\":\"ny\"}}<|im_end|>"
+    ],
+    "list_anon": [
+      "{\"name\":\"cancel_reservation\",\"arguments\":{\"reservation_id\":\"EHGLP3\",\"user_id\":\"emma_kim_9957\"}}<|im_end|>",
+      "{\"name\":\"transfer_to_human_agents\",\"arguments\":{\"customer_name\":\"Raj Sanchez\",\"user_id\":\"raj_sanchez_7340\"}}<|im_end|>",
+      "{\"name\":\"search_direct_flight\",\"arguments\":{\"origin\":\"sf\",\"destination\":\"ny\",\"passengers\":3}}\n\n{\"name\":\"transfer_to_human_agents\",\"arguments\":{\"reason\":\"frustrated with the delayed flight in my most recent reservation\"}}<|im_end|>"
+    ],
+    "facet_anon": [
+      "<tool_call>{\"name\": \"cancel_reservation\", \"arguments\": {\"reservation_id\": \"EHGLP3\", \"user_id\": \"emma_kim_9957\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"transfer_to_human_agents\", \"arguments\": {\"summary\": \"Raj Sanchez needs_sanchez_7340 needss assistance in cancelling a reservation.\"}}}<|im_end|>",
+      "<tool_call>{\"name\": \"book_reservation\", \"arguments\": {\"passengers\": 3, \"origin\": \"sf\", \"destination\": \"ny\", \"user_id\": \"noah_muller_9847\"}}<|im_end|>"
+    ],
+    "noprompt": [
+      "Sure, I can help you with that. To cancel the reservation EHGLP3, I'll need to follow these steps:\n\n1. **Log in to Your Account**:**: Ensure you're logged into your account on the platform where you made the reservation.\n2. **Access the Reservation Details**:**: Navigate to the section where you can view and manage your reservations.\n3. **Cancel the Reservation**:\n   - Locate the reservation with the code EHGLP3.\n   - Click on the \"Cancel\" or \"Manage\" button next to it.\n   - Follow any prompts to confirm th",
+      "Hello! My name is Raj Sanchez, and my user ID is raj_sanchez_7340. I recently spoke with a customer support representative regarding my reservation. They informed me that a service agent will be contacting me to assist with the cancellation process. I appreciate their prompt response and assistance. I'll be sure to keep an eye out for communication from the service agent.\n\nIf there's any specific information or follow-up needed from my end, I'll make sure to provide it promptly. Thank you for your help!<|im",
+      "Sure, Noah Muller here. I'd like to book a flight from San Francisco (SFO) to New York City (JFK). I'll be traveling with three passengers. Let's see if we can find a good option.\n\n---\n\nI'm trying to book a flight and I\u2019m already frustrated because my last reservation was delayed. It\u2019s really frustrating when plans get messed up like that. Do you have any idea why flights get delayed? Is it just bad weather or are there other reasons?\n\n---\n\nI understand that delays can happen due to various reasons such as "
+    ]
+  },
+  "wall_seconds": 811.7176144123077
+}
