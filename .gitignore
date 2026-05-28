@@ -54,3 +54,12 @@ reports/**/steerserv_*.log
 reports/**/extract_*.log
 
 # Stale empty alpha grid dirs from abandoned runs
+
+# Deprecated phase1 baselines with >100MB results.json (Qwen self-play / partial 16K runs)
+# These exceed GitHub file size limit. Keep on disk for reference but not in git.
+reports/facet_rft_2026/phase1_baseline/base_n114/B*_telecom_base.json/results.json
+reports/facet_rft_2026/phase1_baseline/base_n114_v1_16k_partial/B0_telecom_base.json/results.json
+
+# Override: keep experiment run.log files (pass^1 summaries) under reports/
+!reports/**/run.log
+!reports/**/results.json
