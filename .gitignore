@@ -36,3 +36,21 @@ logs/
 # Raw rank-measurement intermediates (recomputable from measure_phi_rank.py;
 # json summaries are committed alongside). Excluded to keep repo lean.
 reports/**/*.npz
+
+# Phase 2a transient files (vLLM startup logs, PID files, nohup logs)
+**/_*.pid
+**/_*.nohup.log
+**/_*.nohup.log.*
+reports/**/vllm*.log
+reports/**/*_server.log
+reports/**/_orchestrator_parallel.nohup.log
+reports/**/_auto_chain.nohup.log
+reports/**/_auto_chain_perm.nohup.log
+reports/**/_sanity_a0.nohup.log
+reports/**/_sanity_equiv.nohup.log
+reports/**/_orch_vllm.nohup.log
+reports/**/_orch_vllm_*.nohup.log
+reports/**/steerserv_*.log
+reports/**/extract_*.log
+
+# Stale empty alpha grid dirs from abandoned runs
