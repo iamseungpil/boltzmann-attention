@@ -1,0 +1,379 @@
+{
+  "max_steps_by_category_x_persona": {
+    "mobile_data_issue": {
+      "Easy": 17,
+      "Hard": 16,
+      "None": 17
+    },
+    "service_issue": {
+      "None": 12,
+      "Hard": 6,
+      "Easy": 15
+    },
+    "mms_issue": {
+      "Hard": 26,
+      "Easy": 23,
+      "None": 21
+    }
+  },
+  "too_many_errors_by_category_x_persona": {
+    "mobile_data_issue": {
+      "Easy": 2,
+      "None": 2,
+      "Hard": 3
+    },
+    "service_issue": {
+      "None": 2
+    },
+    "mms_issue": {
+      "Hard": 3,
+      "None": 1,
+      "Easy": 1
+    }
+  },
+  "user_stop_pass_rate_by_category": {
+    "mobile_data_issue": {
+      "pass": 4,
+      "n": 76,
+      "pass_rate": 0.05263157894736842
+    },
+    "service_issue": {
+      "pass": 16,
+      "n": 81,
+      "pass_rate": 0.19753086419753085
+    },
+    "mms_issue": {
+      "pass": 0,
+      "n": 97,
+      "pass_rate": 0.0
+    }
+  },
+  "msg_count_by_termination": {
+    "user_stop": {
+      "mean": 47.7007874015748,
+      "median": 46.0,
+      "p95": 80,
+      "max": 118,
+      "min": 14
+    },
+    "max_steps": {
+      "mean": 201.18300653594773,
+      "median": 201,
+      "p95": 202,
+      "max": 206,
+      "min": 201
+    },
+    "infrastructure_error": {
+      "mean": 0.0,
+      "median": 0,
+      "p95": 0,
+      "max": 0,
+      "min": 0
+    },
+    "too_many_errors": {
+      "mean": 65.42857142857143,
+      "median": 61.0,
+      "p95": 110,
+      "max": 110,
+      "min": 17
+    }
+  },
+  "duration_by_termination": {
+    "user_stop": {
+      "mean": 92.01843215796664,
+      "median": 85.16844390355982,
+      "p95": 182.0858257249929
+    },
+    "max_steps": {
+      "mean": 218.21100156153156,
+      "median": 213.64181410009041,
+      "p95": 295.6162771782838
+    },
+    "infrastructure_error": {
+      "mean": 0.0,
+      "median": 0.0,
+      "p95": 0.0
+    },
+    "too_many_errors": {
+      "mean": 123.40114720511649,
+      "median": 110.64907365455292,
+      "p95": 210.2513621589169
+    }
+  },
+  "db_check_x_reward": {
+    "match_and_pass": 12,
+    "match_and_fail": 25,
+    "nomatch_and_pass": 8,
+    "nomatch_and_fail": 209,
+    "unchecked_and_pass": 0,
+    "unchecked_and_fail": 167
+  },
+  "action_checks": {
+    "mean_per_sim": 2.4394299287410925,
+    "max": 12,
+    "zero_actions_n": 167
+  },
+  "env_assertions": {
+    "mean_per_sim": 1.0641330166270784,
+    "max": 3,
+    "zero_n": 167
+  },
+  "trial_consistency": {
+    "consistent_pass_4_of_4": 0,
+    "consistent_fail_0_of_4": 99,
+    "inconsistent": 15,
+    "consistent_pass_task_ids": [],
+    "inconsistent_sample": [
+      {
+        "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]",
+        "rewards": [
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "terminations": [
+          "max_steps",
+          "user_stop",
+          "max_steps",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[mobile_data_issue]airplane_mode_on|data_mode_off[PERSONA:None]",
+        "rewards": [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "max_steps",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on[PERSONA:Hard]",
+        "rewards": [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "terminations": [
+          "max_steps",
+          "max_steps",
+          "user_stop",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|lock_sim_card_pin[PERSONA:Easy]",
+        "rewards": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "user_stop",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]contract_end_suspension|unseat_sim_card[PERSONA:Hard]",
+        "rewards": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "user_stop",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|break_apn_settings[PERSONA:Hard]",
+        "rewards": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "terminations": [
+          "max_steps",
+          "user_stop",
+          "max_steps",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|lock_sim_card_pin|unseat_sim_card[PERSONA:Hard]",
+        "rewards": [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "user_stop",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard]",
+        "rewards": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "user_stop",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|lock_sim_card_pin|overdue_bill_suspension|unseat_sim_card[PERSONA:Easy]",
+        "rewards": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "terminations": [
+          "user_stop",
+          "max_steps",
+          "max_steps",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin[PERSONA:None]",
+        "rewards": [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "max_steps",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|contract_end_suspension|lock_sim_card_pin|unseat_sim_card[PERSONA:Hard]",
+        "rewards": [
+          1.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "user_stop",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]break_apn_settings|lock_sim_card_pin|overdue_bill_suspension|unseat_sim_card[PERSONA:Easy]",
+        "rewards": [
+          0.0,
+          1.0,
+          1.0,
+          0.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "user_stop",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|break_apn_settings|contract_end_suspension|lock_sim_card_pin[PERSONA:None]",
+        "rewards": [
+          1.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "terminations": [
+          "user_stop",
+          "user_stop",
+          "max_steps",
+          "user_stop"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|break_apn_settings|contract_end_suspension|lock_sim_card_pin|unseat_sim_card[PERSONA:Easy]",
+        "rewards": [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        "terminations": [
+          "max_steps",
+          "user_stop",
+          "user_stop",
+          "max_steps"
+        ]
+      },
+      {
+        "task_id": "[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bill_suspension[PERSONA:Hard]",
+        "rewards": [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "terminations": [
+          "max_steps",
+          "user_stop",
+          "user_stop",
+          "max_steps"
+        ]
+      }
+    ]
+  },
+  "error_log": {
+    "ctx_window_count": 18,
+    "ctx_window_first": [
+      9214,
+      "2026-05-27 02:32:32.784 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy] failed after 4 attempts: litellm.ContextWindowExceededError: litellm.BadRequestError: ContextWindowExceededError: OpenAIException - "
+    ],
+    "ctx_window_last": [
+      175717,
+      "2026-05-27 07:27:57.739 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]airplane_mode_on|bad_wifi_calling|user_abroad_roaming_enabled_off[PERSONA:Easy] failed after 4 attempts: litellm.ContextWindowExceededError: litellm.BadRequestError: ContextWindowExceededError: OpenAIExcep"
+    ],
+    "connection_count": 16,
+    "connection_first": [
+      183260,
+      "2026-05-27 07:41:27.234 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|data_usage_exceeded|unseat_sim_card|user_abroad_roaming_disabled_on[PERSONA:Easy] failed after 4 attempts: litellm.InternalServerError: InternalServ"
+    ],
+    "connection_last": [
+      184854,
+      "2026-05-27 07:42:09.714 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roaming_disabled_off[PERSONA:Hard] fa"
+    ],
+    "unknown_tool_count": 1,
+    "unknown_tool_first": [
+      64818,
+      "2026-05-27 04:09:33.416 | ERROR    | tau2.runner.progress:run_with_retry:101 - Task [mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy] failed after 4 attempts: Unknown tool 'check_roaming_status' encountered d"
+    ]
+  }
+}

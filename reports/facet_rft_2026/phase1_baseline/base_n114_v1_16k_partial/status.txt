@@ -1,0 +1,7 @@
+started=2026-05-27 02:15:51 KST
+pid=3751684
+host=localhost.localdomain
+args: --task-split base --num-trials 4 --max-steps 200 --max-concurrency 8
+preflight=ok
+ended=2026-05-27 08:10:04 KST
+exit_code=0

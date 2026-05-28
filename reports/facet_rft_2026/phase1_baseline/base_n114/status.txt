@@ -1,0 +1,8 @@
+started=2026-05-27 09:56:57 KST
+pid=3763597
+host=localhost.localdomain
+vllm: GPU1 port 9000 max-model-len 32768
+args: --task-split base --num-trials 4 --max-steps 200 --max-concurrency 8 --base-url http://127.0.0.1:9000/v1
+preflight=ok
+ended=2026-05-28 04:30:33 KST
+exit_code=0

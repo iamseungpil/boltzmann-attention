@@ -1,0 +1,8 @@
+started=2026-05-27 16:20:28 KST
+pid=3771579
+host=localhost.localdomain
+agent: Llama-3.1-8B-Instruct (local vLLM GPU0:9001, ★ --chat-template tool_chat_template_llama3.1_json.jinja 추가)
+user_sim: GPT-4o-mini (OpenAI API)
+purpose: 0/456 catastrophic이 setup deficit (--chat-template 누락) vs model deficit인지 검증
+args: --task-split base --num-trials 4 --max-steps 200 --max-concurrency 8
+preflight=ok

@@ -1,0 +1,86 @@
+{
+  "args": {
+    "steer_url": "http://127.0.0.1:8201/v1",
+    "steer_base_model": "hermes3-steer",
+    "user_llm": "openrouter/openai/gpt-4o-mini",
+    "user_base_url": "https://openrouter.ai/api/v1",
+    "user_api_key": "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",
+    "relation": "validates",
+    "layers": "14,15,16",
+    "alphas": "0.0,0.1,0.3,0.5,1.0,2.0",
+    "n": 20,
+    "trials": 1,
+    "max_steps": 200,
+    "concurrency": 3,
+    "per_sim_timeout": 600,
+    "tag": "hermes3"
+  },
+  "rows": [
+    {
+      "pass1": null,
+      "productive_rate": null,
+      "n_completed": 0,
+      "stderr_tail": "python: can't open file '/home/woori/workspace_common/boltzmann-attention-pi/_phase1_runner.py': [Errno 2] No such file or directory\n",
+      "alpha": 0.0,
+      "model_name": "hermes3-steer",
+      "wallclock_s": 0.010981082916259766,
+      "out_dir": "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase2_steering/alpha_grid_hermes3_a0_20260528_174116",
+      "returncode": 2
+    },
+    {
+      "pass1": null,
+      "productive_rate": null,
+      "n_completed": 0,
+      "stderr_tail": "python: can't open file '/home/woori/workspace_common/boltzmann-attention-pi/_phase1_runner.py': [Errno 2] No such file or directory\n",
+      "alpha": 0.1,
+      "model_name": "hermes3-steer:validates@0.1/14,15,16",
+      "wallclock_s": 0.011853218078613281,
+      "out_dir": "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase2_steering/alpha_grid_hermes3_a0.1_20260528_174116",
+      "returncode": 2
+    },
+    {
+      "pass1": null,
+      "productive_rate": null,
+      "n_completed": 0,
+      "stderr_tail": "python: can't open file '/home/woori/workspace_common/boltzmann-attention-pi/_phase1_runner.py': [Errno 2] No such file or directory\n",
+      "alpha": 0.3,
+      "model_name": "hermes3-steer:validates@0.3/14,15,16",
+      "wallclock_s": 0.01181936264038086,
+      "out_dir": "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase2_steering/alpha_grid_hermes3_a0.3_20260528_174116",
+      "returncode": 2
+    },
+    {
+      "pass1": null,
+      "productive_rate": null,
+      "n_completed": 0,
+      "stderr_tail": "python: can't open file '/home/woori/workspace_common/boltzmann-attention-pi/_phase1_runner.py': [Errno 2] No such file or directory\n",
+      "alpha": 0.5,
+      "model_name": "hermes3-steer:validates@0.5/14,15,16",
+      "wallclock_s": 0.011167526245117188,
+      "out_dir": "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase2_steering/alpha_grid_hermes3_a0.5_20260528_174116",
+      "returncode": 2
+    },
+    {
+      "pass1": null,
+      "productive_rate": null,
+      "n_completed": 0,
+      "stderr_tail": "python: can't open file '/home/woori/workspace_common/boltzmann-attention-pi/_phase1_runner.py': [Errno 2] No such file or directory\n",
+      "alpha": 1.0,
+      "model_name": "hermes3-steer:validates@1/14,15,16",
+      "wallclock_s": 0.011906862258911133,
+      "out_dir": "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase2_steering/alpha_grid_hermes3_a1_20260528_174116",
+      "returncode": 2
+    },
+    {
+      "pass1": null,
+      "productive_rate": null,
+      "n_completed": 0,
+      "stderr_tail": "python: can't open file '/home/woori/workspace_common/boltzmann-attention-pi/_phase1_runner.py': [Errno 2] No such file or directory\n",
+      "alpha": 2.0,
+      "model_name": "hermes3-steer:validates@2/14,15,16",
+      "wallclock_s": 0.011460304260253906,
+      "out_dir": "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase2_steering/alpha_grid_hermes3_a2_20260528_174116",
+      "returncode": 2
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "relation": "validates",
+  "alpha": 0.3,
+  "layers": [
+    14,
+    15,
+    16
+  ],
+  "served_model_name": "hermes3-steer:validates@0.3/14,15,16"
+}

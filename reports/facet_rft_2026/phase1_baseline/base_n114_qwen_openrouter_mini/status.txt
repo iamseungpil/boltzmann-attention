@@ -1,0 +1,8 @@
+started=2026-05-28 04:31:25 KST
+pid=3791112
+host=localhost.localdomain
+agent: Qwen2.5-7B-Instruct (local vLLM GPU1:9000)
+user_sim: gpt-4o-mini via OpenRouter (cross-model fair vs self-play)
+purpose: Qwen v2 self-play (B0=0.0285) vs Qwen+OpenRouter-mini — self-play deficit 정량화
+args: --task-split base --num-trials 4 --max-steps 200 --max-concurrency 3
+preflight=ok

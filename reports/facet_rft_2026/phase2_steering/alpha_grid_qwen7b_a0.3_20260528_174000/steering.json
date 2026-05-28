@@ -1,0 +1,10 @@
+{
+  "relation": "validates",
+  "alpha": 0.3,
+  "layers": [
+    12,
+    13,
+    14
+  ],
+  "served_model_name": "qwen7b-steer:validates@0.3/12,13,14"
+}
