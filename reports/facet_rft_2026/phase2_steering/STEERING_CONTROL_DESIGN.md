@@ -23,11 +23,36 @@
 - **동치를 만들려면**: steering을 **학습가능 + 입력의존** `v(h)` 로 = **LoRA/adapter** 또는 학습된 컨트롤러. 이를 RFT reward로 최적화 = **parameter-efficient RFT 그 자체** (handoff Phase 3 cross-attn LoRA가 이것).
 - 사다리: 상수 v → 게이트(입력의존 약) → 컨트롤러 v(h)(입력의존 강) → **학습형 v(h)=LoRA=RFT-동치**.
 
-### 1.2 함의
+### 1.2 함수 class hierarchy — "RFT를 가변 steering/LoRA로"
+모든 변형(RFT full-FT, static LoRA, 가변 LoRA, closed-loop steering)은 **같은 목적함수 `max E[R]`** 를 최적화한다 — 다른 건 오직 **함수 class(파라미터 family)**.
+
+포함관계:
+```
+상수 steering ⊂ static LoRA ⊂ 가변(입력조건) LoRA ⊂ closed-loop steering controller
+(bias 1-step)   (저rank ΔW)    (hypernetwork ΔW(x))    (state→개입, 에피소드 내 가변)
+```
+
+| 레벨 | 정체 | RFT 관계 |
+|---|---|---|
+| **L0 static LoRA** | 고정 `ΔW=BA`, RL reward 학습 | **= PEFT-RFT.** rank 충분 시 full-FT와 **exact 동치**(RFT 업데이트는 저-intrinsic-dim) |
+| **L1 가변 LoRA** | `ΔW(x)=g_φ(x)` hypernetwork, φ를 RL 학습 | **conditional/fast-weight RFT.** static LoRA(상수 g)를 특수해로 포함 → **⊇ RFT** |
+| **L2 closed-loop steering** | `Δh(state_t)` 에피소드 내 가변, 컨트롤러 RL 학습 (base=고정 환경) | **control policy / meta·hierarchical RL.** RFT가 *구조적으로 못 하는* 실시간 적응 추가 |
+
+**정확한 명제**:
+- **static LoRA = RFT** (exact, rank 충분 시).
+- **가변 LoRA/steering ⊇ RFT** — 상수 컨트롤러(=static LoRA=RFT)를 **특수해로 포함**하고 실시간 적응을 더함. *엄밀 등호 아님*(가변이 상위 class). "RFT를 가변화" = **RFT 목적함수를 더 큰 조건부·closed-loop class 위에서 푸는 것**.
+
+**구성법**: base freeze, 동일 RL machinery(GRPO/PPO/RWR)로 학습 대상만 교체 — (L1) `H(state)→LoRA params` hypernetwork / (L2) 컨트롤러 `π(steer|state)`, action=steering 벡터.
+
+**No-free-lunch**: 표현력↑ → RFT 천장 접근/초과하나 **cheap·reversible·modular·real-time 장점 상실**. 약한 끝 = actuator ceiling(C5), 강한 끝 = full 조건부 → RFT 비용으로 회귀. **연구 베팅 = "최소 충분 표현력" + L2의 고유 실시간성(에피소드 내 적응)**.
+
+**사다리 연결**: Rung 6(학습형 v(h)/LoRA) = **L0→L1 = "RFT 가변화"**, Rung 7(외부 RL 컨트롤러) = **L2**. 정당성(C5 actuator·C1 감지·C4 데이터)은 하위 Rung에서 선검증.
+
+### 1.3 함의
 - 상수 steering = **RFT의 lower-bound / feasibility probe** (선형 부분공간에 reward 방향 있나 싼 확인).
 - **steering null ⊬ RFT null** (RFT는 비선형·입력의존 이득 추가 보유). 우리 약한 결과는 RFT 하한만 말함.
 
-### 1.3 실시간 steering의 고유 장점 (RFT가 *구조적으로* 못 함)
+### 1.4 실시간 steering의 고유 장점 (RFT가 *구조적으로* 못 함)
 1. 재학습 0 (벡터 덧셈, 무시할 비용) 2. 즉시 온라인 적응(ms) 3. per-context/도메인/유저 특화(1 base + 라이브러리) 4. 합성성(inference blend) 5. 가역·무망각·안전(weight 불변) 6. 연속 knob(α) 7. **★에피소드 *내* closed-loop 제어** (RFT는 가중치 고정이라 불가).
 - **종합**: RFT=느린 기반(고천장) + steering=빠른 실시간 제어층 → **보완재**. steering = test-time adaptation 층.
 - **단서**: 장점은 **효과 크기가 충분할 때만** 가치화 (현재 +1.5%p·gating null → 크기 충분성이 핵심 미지수).
