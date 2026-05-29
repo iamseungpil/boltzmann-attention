@@ -81,6 +81,13 @@ run_model_loop() {
     # set CUDA_VISIBLE_DEVICES to a single index for this server
     local gpu_idx="${device#cuda:}"
 
+    # RACE FIX: wait until target port is free so /health cannot pass against a
+    # stale server being torn down on the same port (Phase 2a ext bug 2026-05-29).
+    for i in $(seq 1 60); do
+      if ss -ltn 2>/dev/null | grep -q ":${port} "; then
+        echo "[$tag] :$port still bound, waiting for teardown (${i})"; sleep 3
+      else break; fi
+    done
     # start vllm server with steering baked in
     CUDA_VISIBLE_DEVICES="$gpu_idx" MASTER_PORT="$mport" VLLM_PORT="$mport" nohup "$VLLM_PY" "$SERVER_PY" \
       --steering-vectors "$vec" \

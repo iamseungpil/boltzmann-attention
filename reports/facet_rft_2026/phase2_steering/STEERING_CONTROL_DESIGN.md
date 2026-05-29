@@ -1,0 +1,150 @@
+# Steering-as-Control 실험 설계 (Phase 2c/2d+)
+
+**작성**: 2026-05-29 (Phase 2c/2d 진행 중)
+**상태**: 살아있는 설계 문서 — 다음 세션 실행용
+**보완 대상**: `STEERING_EFFICACY_ANALYSIS.md` (H1–H7 효능 분석)
+**Owner branch**: `facet-rft-2026`
+
+---
+
+## 0. 목적
+
+단일·상수 steering(+1.5%p)을 넘어, **온톨로지 관계 기반의 실시간 제어(closed-loop facet-steering)** 로 확장하는 설계.
+핵심 질문: *"steering을 RFT-동치까지 일반화하면서, RFT가 못 하는 실시간 적응 장점을 살릴 수 있는가, 그리고 그 효과 크기가 제어층으로 쓸 만한가."*
+
+---
+
+## 1. Framing: steering ↔ RFT
+
+### 1.1 수학적 관계
+- **상수 steering** `h ← h + α·v` = layer 출력 **bias 편집** = weight 편집의 부분집합(입력-독립, layer별 rank-1 가산).
+- **mean-of-diff 벡터 = advantage-weighted(RWR) 1-step gradient의 bias-부분공간 사영** (contrast pair = high/low advantage). → 우리 steering = **"대조 advantage 하 bias-한정 1-step RFT"**.
+- **완전 RFT = strict superset**: 모든 weight × 입력의존 × 다단계 × 진짜 reward. ⟹ RFT ≥ steering (도달 reward).
+- **동치를 만들려면**: steering을 **학습가능 + 입력의존** `v(h)` 로 = **LoRA/adapter** 또는 학습된 컨트롤러. 이를 RFT reward로 최적화 = **parameter-efficient RFT 그 자체** (handoff Phase 3 cross-attn LoRA가 이것).
+- 사다리: 상수 v → 게이트(입력의존 약) → 컨트롤러 v(h)(입력의존 강) → **학습형 v(h)=LoRA=RFT-동치**.
+
+### 1.2 함의
+- 상수 steering = **RFT의 lower-bound / feasibility probe** (선형 부분공간에 reward 방향 있나 싼 확인).
+- **steering null ⊬ RFT null** (RFT는 비선형·입력의존 이득 추가 보유). 우리 약한 결과는 RFT 하한만 말함.
+
+### 1.3 실시간 steering의 고유 장점 (RFT가 *구조적으로* 못 함)
+1. 재학습 0 (벡터 덧셈, 무시할 비용) 2. 즉시 온라인 적응(ms) 3. per-context/도메인/유저 특화(1 base + 라이브러리) 4. 합성성(inference blend) 5. 가역·무망각·안전(weight 불변) 6. 연속 knob(α) 7. **★에피소드 *내* closed-loop 제어** (RFT는 가중치 고정이라 불가).
+- **종합**: RFT=느린 기반(고천장) + steering=빠른 실시간 제어층 → **보완재**. steering = test-time adaptation 층.
+- **단서**: 장점은 **효과 크기가 충분할 때만** 가치화 (현재 +1.5%p·gating null → 크기 충분성이 핵심 미지수).
+
+---
+
+## 2. 지금까지의 실증 결과 (context)
+
+### 2.1 게이팅 null (Phase 2c, N=60)
+| 조건 | pass^1(all) | transfer%(svc) | med_chars |
+|---|---|---|---|
+| α=0 | 0.176 | 27.5% | 12259 |
+| raw α=0.5 | 0.192 | **37.5%** | 13714 |
+| decay | 0.183 | 30.0% | 12778 |
+| orth | 0.200 | 25.0% | 14010 |
+
+**효과 없는 정확한 이유**:
+1. **decay 전제가 거꾸로** — validates는 집계로 escalation을 *촉진*(transfer +10pp). 후반 steering 제거 → 도움신호 제거 → transfer↓(10중 5 task에서 하락). −0.50 "trap"은 예외였지 규칙 아님.
+2. **orth ≈ 무작동** — 제거량 = cos(v,h) ≈ 0(고차원) → orth ≈ raw. (확정: cos(v,h) 실측 필요, GPU ~5분.)
+3. **검정력 부족** — 기반 효과 작고(±noise) N=60 CI ±0.10. transfer%↔pass^1 디커플링(노이즈 지배).
+
+### 2.2 상보 구조 (표상 공간, layer 12–14)
+- 전체 평균 cos=0.016 (거의 직교).
+- **AXIS-1 (실행/지속/검증 ↔ 이탈/복구/에스컬레이션)**:
+  - EXEC 군집 {step_realizes_tool, parameter_feeds, **retry_after_fail**, and_join, validates(+enables)} ↔ RECOVER 군집 {**error_fallback**, conditional_on, compensates} (cos −0.3~−0.5).
+  - **retry_after_fail(EXEC) vs error_fallback(RECOVER) = 상보 대립** ← −0.50 메커니즘의 축.
+- 기타 축: mandatory_in_flow↔optional_in_flow(−0.31), plan_step_precedes↔plan_revised_to(−0.28), conditional_on↔and_join(−0.39).
+
+### 2.3 성공 driver
+- service task: **transfer_to_human_agents 발동 = 성공의 압도적 결정요인** (성공 trial 83% 발동 vs 실패 18%). transfer는 대화 **90% 지점**(콘텐츠 ~2000tok 후) 발동 = "위치"가 아닌 "실패누적 후 전이" 사건.
+
+---
+
+## 3. 검증 링크 (closed-loop controller가 서려면 — AND 조건)
+
+| 링크 | 주장 | 검증 | 상태 |
+|---|---|---|---|
+| **C1 READ** | live 궤적에서 relation 상태·변화를 신뢰성 있게 감지 | 프로브를 trajectory에 적용·정답대조 | 미검증(H3) |
+| **C2 PREDICT** | relation-변화가 성공/실패를 예측 | 로그에서 transition↔outcome | 미검증 = Rung 3 |
+| **C3 WRITE** | relation steering이 인과적으로 행동을 바꿈 | 실제 주입·측정 | Rung 2 진행 중 |
+| **C4 DATA** | 엣지 가치 추정에 충분한 데이터 | 분산/표본 분석 | 미확보(RL엔 부족) |
+| **C5 STRENGTH** | action(steering) 효과가 제어할 만큼 큼 | 효과 크기 측정 | 미입증(gating null) |
+
+> 루프는 C1∧C2∧C3(+C4/C5). **직관 기반 루프는 이미 한 번 틀림(decay)** → 내용은 측정 증거에서.
+
+---
+
+## 4. 실험 사다리 (각 rung: 가설 / 방법 / 지표 / go-no-go)
+
+- **Rung 1 — 게이팅 (decay/orth)**: ✅ 완료. **null** (§2.1). → 게이트-다운 방향 기각.
+- **Rung 2 — (a) 상보 relation 인과검증 [C3,C5]**: 🔄 진행 중.
+  - 가설: error_fallback → transfer% ↑; retry_after_fail → ↓ (AXIS-1 인과성).
+  - 방법: gate=none, α=0.5, layers 12–14, N=60(trials2). error_fallback(GPU0) ∥ retry_after_fail(GPU1). baseline=raw α0.5(N120, 37.5%), α0(27.5%).
+  - 지표: transfer% + pass^1 + verbosity. **go**: transfer%가 error_fallback > validates > retry_after_fail 순으로 갈림(인과 상보 확인) → relation-교체가 유효 actuator.
+- **Rung 3 — (b) 성공-조건부 관계-전이 그래프 [C2]**: 로그에서 (relation-state → state) 전이에 P(성공|전이) 라벨. **무예산.** go: 착취 가능 구조(전이가 outcome 가름) 존재 → 컨트롤러 정당화.
+- **Rung 4 — (c) 룰엔진 컨트롤러 (read→decide→write, 심볼릭) [C2+C3]**: P1 룰 `count(retry_after_fail)≥2 OR error_fallback.observed → validates⇒error_fallback`, turn-level(Path B), prefix-cache가 과거 보존. 지표: transfer% / pass^1.
+- **Rung 5 — 프로브 신뢰성 검증 [C1]**: PCLI 프로브가 live 궤적의 relation을 맞추나(정답 대조). go 후에만 프로브-라우티드 컨트롤러.
+- **Rung 6 — 입력의존/학습형 컨트롤러**: v(h) 학습(또는 LoRA) → **RFT-동치 수렴**.
+- **Rung 7 — 외부 RL/확률그래프 컨트롤러**: trial로 그래프 가치 추정 → offline RL 또는 룰. **C4(데이터) 충족 시에만**; 현 데이터론 룰 우선.
+
+### 병행(무예산/저비용)
+- **orth cos(v,h) 실측** (Rung 2 종료 후, GPU ~5분) — orth 무작동 가설 확정.
+- **terseness/결정성 벡터 추출** (오프라인) — caveman의 벡터화. 스케줄/룰에 drop-in.
+
+---
+
+## 5. 온톨로지 관계 활용 taxonomy (상보-전환 외)
+
+| 군 | 모드 | 비고 |
+|---|---|---|
+| **A 합성** | 가산합/부분공간/관계산술 (직교성 활용) | 단일효과 작음 주의 |
+| **B Read** | **관계=RFT 과정보상**(thesis 핵심) / facet 타임라인 / 이탈탐지 | C1 의존 |
+| **C 제거** | 유해 relation ablation(retry 등 빼기) / 직교투영 제거 | Rung 2서 retry 유해 시 즉시 |
+| **D 그래프구동** | 워크플로 그래프 상 "다음 필수 엣지"로 steer / precond→effect 체이닝 | sparse 이산액션에 적합 |
+| **E Training-time** | relation 커리큘럼 / **relation-조건 LoRA(=RFT)** / 보조헤드(H3 완화) | 큰 commitment, 큰 lift 가능 |
+| **F Meta** | facet 좌표 분해 / steerability 랭킹 | — |
+
+유망 top3: **B-4(RFT 과정보상)**, **D-9(그래프 구동)**, **C-7(유해 relation ablation)**.
+
+---
+
+## 6. 상보 관계 + 전환 규칙 카탈로그
+
+상보 쌍(steering 양극): **P1 validates/retry ↔ error_fallback**(★), P2 mandatory↔optional, P3 plan_committed↔plan_revised/backtrack, P4 checkpoint↔backtrack, P5 precondition↔effect, P6 achieves_goal(over-run 방지).
+
+전환 규칙(이벤트 구동, 양방향):
+```
+INIT steer=validates@0.5
+R1 IF count(retry_after_fail)≥2 OR error_fallback.observed OR no(state_transition⁺)≥2턴 OR mandatory pending
+   THEN steer=error_fallback@0.4[+orth]
+   (B→A) IF state_transition⁺ OR precondition newly_met THEN steer=validates@0.5
+R2 IF repeated_remediation≥3 THEN steer=error_fallback@0.6
+R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
+강화: A극서 state_transition⁺ 연속 → α↑
+```
+탐지: 심볼릭(기기 status 미개선/툴 실패 토큰) 우선, 프로브(H3 검증 후).
+> ⚠️ §2.1 발견(validates가 escalation 촉진)에 따라 R1의 "validates 제거" 효과는 재검토 필요 — Rung 2가 error_fallback이 *더 강한* escalation actuator인지 확인 후 규칙 확정.
+
+---
+
+## 7. 지표 · 검정력 · go/no-go
+
+- **지표**: pass^1(all/svc), **transfer_to_human_agents 발동률**(핵심), verbosity(chars/turns), (확장) relation-transition 경로.
+- **검정력**: N=60 CI ±0.10 → 방향탐색용. 유망 조건은 **N≥120(가능시 240)** 재실행.
+- **Phase 3 gating**: lift ≥ +3%p in ≥2 모델 → Phase 3(LoRA=RFT). 현재 미달 → 제어 사다리로 크기 충분성 탐색.
+- **Strategic NO-GO**: 32B/70B는 8B서 actuator 유효(C3,C5) 확인 후에만.
+
+---
+
+## 8. 정직한 한계 / 리스크
+- **천장**: steering은 기존 행동 재가중일 뿐 새 능력 X (H2). 적응이 능력을 요구하면 RFT만 가능.
+- **actuator 약함(C5)**: gating null·+1.5%p → 제어 레버가 작을 위험. Rung 2가 1차 판정.
+- **감지 신뢰성(C1)**: 실시간 제어는 센싱만큼만 좋음 — H3 미검증.
+- **데이터 기근(C4)**: RL 컨트롤러엔 현 N의 수십 배 필요 → 룰 우선.
+- **제어 안정성**: 실시간 보정 과보정/진동 → 게이팅 비자명.
+- **귀인 복잡도**: 컨트롤러+다벡터+게이트 → ablation 필수. user-sim 노이즈 교란.
+
+---
+
+**핵심 한 줄**: *상수 steering은 "bias-1step-RFT"라는 RFT의 정찰병이며, 이를 입력의존·학습형(LoRA=RFT-동치)으로 올리되 RFT가 못 하는 실시간 closed-loop 제어 장점을 살리는 것이 목표 — 단 그 전에 actuator 효과 크기(C5, Rung 2)와 감지 신뢰성(C1, Rung 5)을 검증해야 한다.*
