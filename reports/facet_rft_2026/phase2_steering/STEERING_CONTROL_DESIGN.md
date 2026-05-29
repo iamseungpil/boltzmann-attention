@@ -232,7 +232,8 @@ R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
 
 **4 도메인** (τ²-bench): telecom(2285, small 20) / retail(114) / airline(50) / banking_knowledge(97, nonmeta 13).
 - ⚠️ banking_knowledge는 knowledge-QA 성향 가능(tool-action 비중 확인 필요) — 도메인 style 이질성은 전이의 강한 시험.
-- 자산: per-domain ontology 추출본 telecom/retail/airline ✓, **banking 미추출(AFOD 필요)**. 합성 relation 데이터 contrast_pairs_v3.json ✓(steering 추출원).
+- **42-relation 온톨로지 구축 현황 (2026-05-29, LLM-AFOD by Claude Opus 4.8)**: telecom ✓(기존) · **retail ✓(319 entries)** · **airline ✓(283 entries)** · banking ⬜(discoverable-tool 메타레이어 → 후순위). 경로 scripts/ontology/tau2_<domain>_ontology.py, telecom 포맷 100% 호환(37 relation 테이블, RELATION_GEOMETRY/PREDICTED_METHOD verbatim). 각 [confirmed] tasks.json 통계 + [confirmed-policy] policy.md + [inferred] 의미. → **3개 진성 agentic 도메인(telecom/retail/airline) 전이 실험 준비 완료.** (구 4-facet json은 별개 자산.)
+- 합성 relation 데이터 contrast_pairs_v3.json ✓(steering 추출원).
 
 **전이 주장 3분리**: (a) 스키마 전이(auto, 약한 saving), (b) **개입(벡터/policy) 전이 — 진짜 prize**, (c) reward 전이 — **이미 rule-based 도메인-일반(공짜)**. 핵심 = (b).
 
@@ -249,7 +250,7 @@ R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
 - 지표: pass^1, 전이율 = (X→d − B0_d) / (d-RFT − B0_d)
 - 판정: SYN→d > B0_d (4도메인 평균 유의) → 도메인-일반 온톨로지 1회 학습 → 어디서나 (★최강 주장)
 
-**선행 필요**: (i) retail/airline/banking **B0 baseline**(현재 telecom만), (ii) banking ontology **AFOD 추출**, (iii) **합성 agentic 학습원 설계**(42-relation 템플릿을 합성 tool-use 시나리오로 확장 — 성패 핵심 변인), (iv) reward는 schema에서 auto(공짜).
+**선행 필요**: (i) retail/airline/banking **B0 baseline**(현재 telecom만 — GPU+예산 필요), (ii) ~~telecom/retail/airline 42-rel 온톨로지~~ ✅완료(2026-05-29) / banking AFOD는 후순위, (iii) **합성 agentic 학습원 설계**(42-relation 템플릿을 합성 tool-use 시나리오로 확장 — 성패 핵심 변인), (iv) reward는 schema에서 auto(공짜).
 
 **Go/No-Go 강화**: in-domain +X%p 가 아니라 **재학습 없이 held-out 도메인서 +X%p 전이**. §1.5 가변 steering 비전(아키텍처 A)과 결합 시 = **도메인-일반 relation-LoRA 라이브러리 + 도메인별 라우팅**(1회 학습 → 어디서나).
 
