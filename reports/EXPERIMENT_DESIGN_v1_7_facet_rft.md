@@ -1,8 +1,8 @@
 # 실험 설계서: 온톨로지 기반 그래프 구조 주입을 통한 Training-Free 다단계 도구 계획 개선
 
-**버전**: v1.7  
+**버전**: v1.21  
 **작성일**: 2026-05-26  
-**최종 갱신**: 2026-05-26 (42종 온톨로지, GoalAct 수정, 수학적 동치 분석, A8 KV Cache Steering 추가)  
+**최종 갱신**: 2026-05-29 (v1.21: Phase 2a/2c/2d steering 실측 — 상수 single-relation steering null, steering↔RFT class-hierarchy, LoRA-RFT 피벗. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md)  
 **목표 학회**: NeurIPS 2026 / ICLR 2027  
 
 ---
@@ -1612,6 +1612,24 @@ Go/No-Go: T1@base vs B2(텍스트 직렬화) +3%p 이상 → Phase 3 진행
           단, training-free 단독 contribution은 *어떤 lift든* 명제 C' 검증에 가치 — Phase 3 진행 결정에 무관하게 보고
 ```
 
+**▶ Phase 2a/2c/2d steering 실측 결과 (2026-05-29, Qwen2.5-7B, telecom, gpt-4o-mini user_sim)**
+
+| 조건 (α=0.5) | pass^1(all) | pass^1(svc) | transfer%(svc) |
+|---|---|---|---|
+| a0 (무steer) | 0.176 | 0.275 | 27.5% |
+| T1 validates (peak) | 0.192 | 0.300 | 37.5% |
+| gate decay / orth | 0.183 / 0.200 | 0.300 / 0.350 | 30% / 25% |
+| relation error_fallback | 0.186 | 0.300 | 30% |
+| relation retry_after_fail | 0.220 | 0.400 | 50% |
+
+핵심 발견:
+- **모든 steering 조건이 baseline noise band [0.176-0.220] 내** (N≤120, CI±0.10) — robust한 +3%p lift 없음.
+- **표상-공간 facet 상보 구조(AXIS-1: retry↔error_fallback cos<0)가 인과 행동으로 이어지지 않음** — 예측 반전: retry_after_fail(EXEC 극)이 transfer(50%)·pass 최고. 『표상 상보 ≠ 인과 상보』.
+- 효과 비특이적: 모든 steering이 transfer를 a0 대비 올리나 relation별 차이는 노이즈; pass^1 미반영(H2 capability ceiling 지지).
+- **C5(actuator 강도) 부정 경향 / C3(relation→behavior 매핑) 미지지.**
+
+**판단**: 상수 single-relation steering(=bias-1step-RFT, class-hierarchy 최약점)은 7B에서 weak·non-specific actuator → power test 생략, **LoRA-RFT(L0=PEFT-RFT)로 피벗** (사용자 결정 2026-05-29). 상세 framework·사다리: phase2_steering/STEERING_CONTROL_DESIGN.md
+
 ### Phase 3: Cross-Attention 주입 구현 (3주)
 
 ```
@@ -2586,7 +2604,7 @@ Option D (간결):
 |---|---|---|
 | Phase 0 완료 후 | Probing accuracy ≥ 70% at ≥1 layer | 진행 / 방향 재검토 ✅ 통과 (2026-05-27) |
 | Phase 1 v2 완료 후 | Cross-model fair baseline (gpt-4o-mini user_sim) 확보 | Phase 2a 진행 (in progress, ~11 KST 완료) |
-| **★ Phase 2a 후 (v1.20 gating)** | **T1 steering lift ≥ +3%p on Hermes-3 또는 Qwen-7B** | **Yes → Phase 3 / No → 방법 재검토** |
+| **★ Phase 2a 후 (v1.20 gating)** | T1 steering lift ≥ +3%p on Hermes-3/Qwen-7B | **No (2026-05-29): Qwen 상수 single-relation steering(validates/error_fallback/retry) + gate(decay/orth) 전부 noise band [0.176-0.220], N≤120 → 방법 재검토 → LoRA-RFT 피벗 (§12 v1.21)** |
 | **★ Phase 2b 후** | **T3 (T2+T1) compositional lift ≥ +3%p over T2** | **Yes → Phase 4 RFT / No → T2 단독** |
 | **★ Phase 4 후** | **T4-RFT vs B3: +10%p on τ²-bench** | **Yes → 32B/70B 확장 시작 (Strategy C/D)** |
 | Phase 2a 완료 후 | T1@base vs B2: +3%p on τ²-bench telecom | 진행 / Steering 포기, Cross-Attn 집중 |
@@ -2631,6 +2649,7 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-05-29 | v1.21: **Phase 2a/2c/2d steering 실측 + LoRA-RFT 피벗**. Qwen-7B 상수 single-relation steering(validates +1.5%p / error_fallback / retry_after_fail) + context-gating(decay/orth) 전부 baseline noise band [0.176-0.220] 내 (N≤120). **표상-공간 facet 상보 구조(AXIS-1)가 인과 행동으로 이어지지 않음** — retry_after_fail(EXEC 극)이 transfer(50%)·pass 최고로 예측 반전(『표상 상보 ≠ 인과 상보』). 효과 비특이적, pass^1 미반영(H2 ceiling 지지). C5 actuator 약함·C3 미지지 → Phase 2a Go/No-Go 미통과(<+3%p). **결정: class-hierarchy(상수 steering=bias-1step-RFT 최약점) 처방대로 학습 끝으로 피벗 → LoRA-RFT(L0=PEFT-RFT) 직행** (power test 생략, 사용자 결정). 신규 companion 문서 phase2_steering/STEERING_CONTROL_DESIGN.md: steering↔RFT 수학적 동치(상수=bias-1step-RFT, 가변 LoRA/steering ⊇ RFT), 실시간 steering 고유장점(closed-loop), 온톨로지 활용 taxonomy(합성/Read=RFT보상/ablation/그래프구동/training-time), 상보-전환 규칙, C1-C5 검증링크, 실험 사다리 Rung1-7. |
 | 2026-05-18 | D0 가정 수정 완료 (가)(나)(마), Telecom S1 확인 |
 | 2026-05-24 | 문제 재정의: 도구 선택 F1 → 다단계 계획 pass^1 |
 | 2026-05-24 | 벤치마크 재정의: τ²-bench + TPS-Bench + FlowBench |
