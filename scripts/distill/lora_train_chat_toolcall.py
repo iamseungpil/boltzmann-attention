@@ -257,7 +257,7 @@ def main() -> int:
              "float32": torch.float32}[args.dtype]
     print(f"[load] model {args.base_model} dtype={args.dtype} attn={args.attn}", flush=True)
     model = AutoModelForCausalLM.from_pretrained(
-        args.base_model, dtype=dtype, device_map=args.device,
+        args.base_model, torch_dtype=dtype, device_map=args.device,
         attn_implementation=args.attn, low_cpu_mem_usage=True)
     model.gradient_checkpointing_enable()
     model.config.use_cache = False
