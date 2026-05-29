@@ -184,11 +184,20 @@ def run_one(variant: str, args, ontology_text: str | None):
         _llm_agent_mod.AGENT_INSTRUCTION = ORIG_AGENT_INSTRUCTION
         assert ontology_text is not None
         domain_policy_suffix = "\n\n<ontology>\n" + ontology_text + "\n</ontology>"
+    elif variant == "NONE":
+        # Internalization arm (§13): system policy fully removed at inference.
+        # Matches lora_train_chat_toolcall.py apply_system_mode("none"):
+        # system message retained with EMPTY content, tools still passed separately.
+        _llm_agent_mod.AGENT_INSTRUCTION = ""
+        _llm_agent_mod.SYSTEM_PROMPT = ""
+        domain_policy_suffix = None  # sentinel: skip template assignment below
     else:
         raise ValueError(variant)
 
-    # Patch SYSTEM_PROMPT to append ontology suffix if needed
-    if domain_policy_suffix:
+    # Patch SYSTEM_PROMPT to append ontology suffix if needed (skipped for NONE)
+    if domain_policy_suffix is None:
+        pass
+    elif domain_policy_suffix:
         base = """
 <instructions>
 {agent_instruction}
@@ -243,7 +252,7 @@ def run_one(variant: str, args, ontology_text: str | None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--variants", nargs="+", default=["B0", "B1", "B2"],
-                    choices=["B0", "B1", "B2"])
+                    choices=["B0", "B1", "B2", "NONE"])
     ap.add_argument("--domain", default="telecom")
     ap.add_argument("--task-set", default="telecom",
                     help="telecom (default; uses splits) | telecom_full | telecom_small")
