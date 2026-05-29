@@ -2670,6 +2670,7 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-05-30 | v1.26: **구현·측정·GRPO (§14)**. 도구체인 전부 commit(build_sft_dataset/lora_train_chat_toolcall[full·none]/procedure_scorecard/metric_mining/fault_fix_induce/param_dataflow/wiseflow_baseline/grpo_reward). ★실측: Qwen-7B 격차 **94% 절차**(도구선택58%+형식36%, capability 1%), base fix-coverage 0.06. **F1/seq_F1 최강 변별(AUC 0.902/0.985)**, 3도메인 일반화(read-제외·requestor 정정). **파라미터 dataflow semantic layer**(read→action provenance=PARAMETER_FEEDS 확장)로 arg_bind 재정의(student 약점 0.32~0.73). **GRPO dense reward**(seq_F1, all-fail group advantage 0.255±0.291, GT-결정적). **7B full/none SFT 학습 중**(A6000×2). 다음=eval(scorecard). 핸드오프 project_distillation_handoff_2026_05_30. |
 | 2026-05-29 | v1.25: **방향 재정의 — 효율적 절차 내부화 + 목표→도구 distillation (§13)**. 선행연구 24편 정독 후 재프레이밍: 능력주장(온톨로지가 계획 개선)은 falsify(steering null + 궤적/스텝 변별 0, telecom mutex 역효과; 실패=합법-비효과) → 효율주장(온톨로지-prompt 내부화, Theorem-1)으로 복귀. ★실측: 목표→도구 변별 +0.36(FULL +48%p), Qwen-7B 격차 94% 절차(선택 58%+형식 36%, long-horizon 1%, fix-coverage 0.06)=distillable. GraphRAG/Graphify=연관검색 ≠ 우리 절차계획. 제안=TBox(절차)→weights 내부화 + ABox(인스턴스)→swap 전이. 신규 계열6(효율/내부화): Gist/CD/Transmuting(steering=δ만,Δ누락=null 설명; 절차 견고/지식 취약→TBox/ABox 필연)/SR-KI. WISE-Flow(2601.08158)=가장 가까운 prior(prereq 워크플로 τ²+10pp, prompt-side)+가설 부분검증→올바른 설계(데이터유도×결정시점 양성안내×student). SoK(2602.20867)=policy-내부화·cross-domain C 빈칸 인증. SkillFlow=병목은 검색 아닌 라이브러리 품질. 자산: build_sft_dataset.py(plain 1539/facet L1-3/aux 179), ontology_filter graded. |
 | 2026-05-29 | v1.24: **Phase 3/4/2b/2c를 Distillation→RFT/GRPO 캠페인으로 개정 (§7.0)**. 공통 학습 사다리 ①filter-SFT → ②graded RWR/DPO(offline facet-RFT: 효율+온톨로지 가중, 실패=negative) → ③on-policy GRPO(facet reward). Phase 4=③GRPO + ①②전단계 명시(LATS 보류), Phase 3=distillation 아키텍처 arm(cross-attn=온톨로지 cross-domain 전이 인터페이스), Phase 2b/2c=steering null로 deprioritize. teacher=Sonnet 4.6, student=Qwen-7B(+32B), 4trials x 3도메인 train split, eval=test split 전이매트릭스(로컬 student라 거의 무료). 전 trajectory(성공+실패) 보존. 상세: STEERING_CONTROL_DESIGN.md §11,11.1. |
 | 2026-05-29 | v1.23: **Facet-guided distillation lever 추가**. 7B 블로커(H2 capability ceiling + self-GRPO sparse cold-start at 0.18)를 teacher(GPT-4o/Qwen-72B) 성공궤적 distillation으로 우회 → floor(LoRA-RFT) lift의 실질 enabler. 형태: teacher 궤적 → ontology-violation reward 필터/가중 → student LoRA-SFT (=T4-RFT rejection-SFT의 teacher 버전, Phase 4 β 변형). ★confound 격리 필수: plain distill(teacher 복제)≠온톨로지 기여 → unfiltered vs facet-filtered ablation으로 marginal value 격리. 2단계: distill(capability)→facet-RFT(온톨로지 정제). 경제: distill-once→4도메인 zero-shot(합성-북극성 실질 수단, RL보다 쌈). Tier-4 API 모델을 teacher로 재활용. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §11. |
@@ -2766,3 +2767,29 @@ Qwen-7B telecom 실패 404건 분해: **도구선택 오류(A) 58% + 형식/파�
 - 진단 probe(/tmp, 비-커밋): 변별·스텝-admissibility·induction·Qwen 오류분해·goal→tool coverage.
 - 인프라: GitHub 동기화([[feedback_git_auto_commit_push]]; SFTP 차단, remote_run은 PowerShell). 보조 Sonnet 데이터=`tau2-bench/data/simulations/.../phase4_distill/`(4파일).
 - **다음 실행**: §6 step3 — goal→tool 선택 절차 LoRA 내부화 학습 → fix-coverage(vs 0.06)·cross-domain 전이 측정. (또는 fault→fix 유도 품질 정제 선행.)
+
+---
+
+## 14. ★ v1.26 (2026-05-30) — 구현·측정·GRPO reward
+
+> §13 방향의 **구현체·데이터-주도 실측·reward**. 도구 전부 `scripts/distill/` (repo commit). 핸드오프=[[project_distillation_handoff_2026_05_30]].
+
+### 14.1 구축 도구체인 (전부 commit 완료)
+- `build_sft_dataset.py` — shipped→chat JSONL. **plain 1539 / facet L1-3(1201) / aux_sonnet 179**. dual-control(telecom user-tool 드롭) 처리.
+- `lora_train_chat_toolcall.py` — 멀티턴 chat-SFT, **assistant-only incremental 마스킹**(Qwen 템플릿 `{% generation %}` 부재→prefix-boundary), `--system-mode full/none`(full=정책유지 / none=정책제거 내부화). 검증·버그픽스(torch_dtype, grad-ckpt는 peft wrap 후+enable_input_require_grads+use_reentrant False).
+- `procedure_scorecard.py`(8축) · `metric_mining.py`(AUC 발굴) · `fault_fix_induce.py`·`param_dataflow.py`(semantic layer, `induced/` 맵) · `wiseflow_baseline.py` · `grpo_reward.py`(+`GRPO_REWARD_DESIGN.md`) · `score_fix_coverage.py`.
+
+### 14.2 실측 — 격차는 절차(distillable), capability 아님
+Qwen-7B telecom 실패 분해: **도구선택 58% + 형식 36% = 94%**, long-horizon 1%. base **fix-coverage 0.06**(올바른 fix-tool 거의 안 부름). → distillable; mms tail만 GRPO/capability.
+
+### 14.3 실측 — 변별 metric (데이터-주도 AUC 랭킹)
+**F1/seq_F1이 succ/fail 최강 변별(AUC 0.902 teacher / 0.985 student)**. recall / precision(minimality) / seq_match(LCS 순서) 코어. **3 도메인 일반화**(telecom/retail/airline; ★초기 retail/airline 약변별은 GT에 read 포함·requestor 미필터 버그였고 정정 후 +0.2~0.6). 부가: superset(req⊆called)·exact_set·**extra_actions(over-diagnosis: 실패 1.27 vs 성공 0.63)**. repeat/n_calls 무신호. → scorecard headline=**F1/seq_F1**.
+
+### 14.4 ★파라미터 dataflow semantic layer (PARAMETER_FEEDS 확장)
+리터럴 arg-match는 reward(env-assertion)와 비정렬 → 폐기. **read→action entity-key provenance**(`param_dataflow.py`, 스키마+read출력 자동유도: customer_id/line_id/bill_id 등)로 **arg_bind 재정의**: "entity 인자가 선행 read 출력에서 바인딩됐나". teacher 포화(0.99)·**student 약점(0.32~0.73 ID 할루시네이션)=학습신호**. = 42-관계 PARAMETER_FEEDS의 read→action 확장, TBox타입/ABox인스턴스(§13 분해 부합).
+
+### 14.5 GRPO reward (학습사다리 ③)
+`grpo_reward.py`: **r = w_pass·pass + w_proc·seq_F1 − w_extra·extra + w_arg·arg_bind**(1.0/0.5/0.3/0.1). **GT-action 결정적·무료**(LLM-judge PRM과 차별). sparse cold-start 구제 검증: 실패 롤아웃 seq_F1 **0.255±0.291(std>0)→all-fail group도 advantage**. anti-hacking(seq_F1·extra·pass 지배), 통합·ablation은 `GRPO_REWARD_DESIGN.md`.
+
+### 14.6 실행 현황 + 다음
+**7B full/none SFT 학습 중**(woori A6000×2, nohup, epoch 0). 다음=학습완료→**eval(procedure_scorecard F1/seq_F1, full vs none retained pass^1)**→양성시 GRPO. coworker 32B/70B 병렬(`COWORKER_EXPERIMENT_PLAN.md`).
