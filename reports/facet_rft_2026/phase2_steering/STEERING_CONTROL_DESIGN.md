@@ -284,4 +284,24 @@ R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
 
 **teacher 옵션**: GPT-4o(API, trajectory/rejection distill) / Qwen-72B(local GPU, logit·representation distill 가능, activation 접근 ✓). 마스터 Tier-4 API 모델(상한선 참조 전용)을 **teacher로 재활용**하는 신규 lever.
 
+### 11.1 학습 사다리 — filter-SFT → graded RWR/DPO → GRPO (2026-05-29)
+
+온톨로지+효율을 process reward로 쓰는 정도에 따라, **같은 teacher 생성 풀** 위에서 3단계:
+
+| 단계 | 신호 | loss/reward | infra | 위치 |
+|---|---|---|---|---|
+| ① filter-SFT | 성공 AND clean만 (binary keep) | -log P(good) | peft SFT (있음) | floor |
+| ② **graded RWR/DPO** | 성공 graded(효율+준수) + 실패=negative | 가중 SFT / preference | 커스텀 loss(SFT 확장), **RL 루프 불필요** | offline facet-RFT |
+| ③ on-policy GRPO | student rollout + signed reward | policy gradient | trl/GRPO (미설치) | 천장 |
+
+**합성 process reward (②)**: w(traj) = outcome(+1 성공 / -1 실패) - λ·(steps - optimal_steps_task) - μ·(ontology_violations)
+- success+short+clean → 높은 (+) / success+roundabout 또는 위반 → 낮은 (+) / fail → (-) / fail+위반 → 강한 (-) [반면교사].
+- **★효율은 반드시 온톨로지-준수와 결합** — 짧지만 필수단계(verify/auth) skip은 나쁨. 온톨로지가 효율의 가드레일(skip 방지).
+
+**실증 지지**: telecom -0.50 케이스 — 긴 self-troubleshooting 루프=실패, 짧게 시도 후 escalate=성공 → short-clean ≻ roundabout 성립.
+
+**데이터 정책 (★중요)**: 생성 시 **전 trajectory 보존**(성공+실패). ①은 성공 AND clean만, ②는 실패=negative + 성공 graded, ③은 student rollout. **74 task × 4 trials → task당 여러 경로(짧음/돌아감/실패) → graded·preference 데이터 공짜.** 같은 생성으로 ①②③ + cross-attn(§11 ③ arch) 모두 가능.
+
+**confound 격리(누적)**: plain-distill(온톨로지 0) vs ①filter(데이터선택) vs ②graded(가중) vs cross-attn(아키텍처) → 온톨로지가 *어느 층위*에서 기여하는지 분리.
+
 **한계**: confound(위, 최우선) / capability 주입은 온톨로지와 orthogonal → 귀인 흐림 위험 → related work 포지셔닝(ontology-guided distill vs plain distill novelty) / static.
