@@ -49,7 +49,7 @@ def gt_agent_actions(task):
         if a.get("requestor") == "user":
             continue
         name = a.get("name") or a.get("func_name")
-        if not name:
+        if not name or is_read(name):   # only state-changing (write) actions are the goal->tool target
             continue
         out.append({"name": name, "args": a.get("arguments") or {},
                     "compare_args": a.get("compare_args")})
@@ -65,6 +65,21 @@ def agent_calls(messages):
                 if tc.get("requestor", "assistant") == "assistant" and tc.get("name"):
                     out.append((tc["name"], tc.get("arguments") or {}))
     return out
+
+
+def _lcs_len(a, b):
+    """Length of longest common subsequence (order-preserving) of two name sequences."""
+    m, n = len(a), len(b)
+    if m == 0 or n == 0:
+        return 0
+    prev = [0] * (n + 1)
+    for i in range(1, m + 1):
+        cur = [0] * (n + 1)
+        ai = a[i - 1]
+        for j in range(1, n + 1):
+            cur[j] = prev[j - 1] + 1 if ai == b[j - 1] else (prev[j] if prev[j] >= cur[j - 1] else cur[j - 1])
+        prev = cur
+    return prev[n]
 
 
 def _scalars(obj, out, depth=0):
@@ -156,13 +171,19 @@ def score_trajectory(sim, gt_map, idem, loopcap, entity_keys=None, action_params
     # arg binding (data-flow provenance): entity params bound from prior reads
     arg_bind = arg_binding(sim.get("messages") or [], entity_keys or set(), action_params or {})
 
+    # sequence match (order-aware): LCS of agent vs GT write-action order
+    lcs = _lcs_len(called_actions, gt_names)
+    seq_match = lcs / len(gt_names)                      # order-preserving recall
+    seq_prec = (lcs / len(called_actions)) if called_actions else None
+
     # repeat misuse (telecom ontology)
     cnt = Counter(called_actions)
     repeat = sum(1 for t, c in cnt.items()
                  if c > 1 and idem.get(t) is False and loopcap.get(t) is False)
 
-    return {"recall": recall, "precision": precision, "call_eff": call_eff,
-            "order": order, "arg_bind": arg_bind, "repeat": float(repeat)}
+    return {"recall": recall, "precision": precision, "seq_match": seq_match,
+            "seq_prec": seq_prec, "call_eff": call_eff, "order": order,
+            "arg_bind": arg_bind, "repeat": float(repeat)}
 
 
 def _agg(vals):
@@ -178,7 +199,7 @@ def run(sims, gt_map, idem, loopcap, label, entity_keys=None, action_params=None
             continue
         cls = "succ" if (s.get("reward_info") or {}).get("reward", 0) >= 0.999 else "fail"
         buckets[cls].append(sc)
-    axes = ["recall", "precision", "call_eff", "order", "arg_bind", "repeat"]
+    axes = ["recall", "precision", "seq_match", "seq_prec", "call_eff", "order", "arg_bind", "repeat"]
     print(f"\n[{label}] n_scored: succ={len(buckets['succ'])} fail={len(buckets['fail'])}")
     print(f"  {'axis':10} {'success':>9} {'failure':>9} {'disc(s-f)':>10}")
     for ax in axes:
