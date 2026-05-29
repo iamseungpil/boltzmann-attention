@@ -1,8 +1,10 @@
 {
   "variant": "plain",
+  "source": "shipped",
   "split": "train",
-  "domains": {
+  "groups": {
     "telecom": {
+      "domain": "telecom",
       "kept": 462,
       "success": 462,
       "in_split": 1184,
@@ -11,9 +13,19 @@
       "n_tools": 13,
       "n_tasks_covered": 59,
       "split_size": 74,
+      "teachers": [
+        "claude-3-7-sonnet-20250219",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-mini-2025-04-14",
+        "o4-mini-2025-04-16"
+      ],
+      "user_sims": [
+        "gpt-4.1"
+      ],
       "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_plain_train_telecom.jsonl"
     },
     "retail": {
+      "domain": "retail",
       "kept": 831,
       "success": 831,
       "in_split": 1184,
@@ -22,9 +34,19 @@
       "n_tools": 16,
       "n_tasks_covered": 74,
       "split_size": 74,
+      "teachers": [
+        "claude-3-7-sonnet-20250219",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-mini-2025-04-14",
+        "o4-mini-2025-04-16"
+      ],
+      "user_sims": [
+        "gpt-4.1"
+      ],
       "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_plain_train_retail.jsonl"
     },
     "airline": {
+      "domain": "airline",
       "kept": 246,
       "success": 246,
       "in_split": 480,
@@ -33,6 +55,15 @@
       "n_tools": 14,
       "n_tasks_covered": 26,
       "split_size": 30,
+      "teachers": [
+        "claude-3-7-sonnet-20250219",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-mini-2025-04-14",
+        "o4-mini-2025-04-16"
+      ],
+      "user_sims": [
+        "gpt-4.1"
+      ],
       "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_plain_train_airline.jsonl"
     }
   },
