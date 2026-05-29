@@ -1,0 +1,88 @@
+{
+  "variant": "facet",
+  "source": "shipped",
+  "split": "train",
+  "groups": {
+    "telecom": {
+      "domain": "telecom",
+      "kept": 378,
+      "success": 462,
+      "in_split": 1184,
+      "malformed": 0,
+      "capped": 0,
+      "n_tools": 13,
+      "n_tasks_covered": 55,
+      "split_size": 74,
+      "teachers": [
+        "claude-3-7-sonnet-20250219",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-mini-2025-04-14",
+        "o4-mini-2025-04-16"
+      ],
+      "user_sims": [
+        "gpt-4.1"
+      ],
+      "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_facet_train_telecom.jsonl",
+      "onto_violation_dropped": 84,
+      "onto_breakdown": {
+        "mutex": 84
+      }
+    },
+    "retail": {
+      "domain": "retail",
+      "kept": 635,
+      "success": 831,
+      "in_split": 1184,
+      "malformed": 0,
+      "capped": 0,
+      "n_tools": 16,
+      "n_tasks_covered": 63,
+      "split_size": 74,
+      "teachers": [
+        "claude-3-7-sonnet-20250219",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-mini-2025-04-14",
+        "o4-mini-2025-04-16"
+      ],
+      "user_sims": [
+        "gpt-4.1"
+      ],
+      "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_facet_train_retail.jsonl",
+      "onto_violation_dropped": 196,
+      "onto_breakdown": {
+        "mutex": 170,
+        "precedes": 50,
+        "requires": 6,
+        "guardrail": 3
+      }
+    },
+    "airline": {
+      "domain": "airline",
+      "kept": 188,
+      "success": 246,
+      "in_split": 480,
+      "malformed": 0,
+      "capped": 0,
+      "n_tools": 14,
+      "n_tasks_covered": 26,
+      "split_size": 30,
+      "teachers": [
+        "claude-3-7-sonnet-20250219",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-mini-2025-04-14",
+        "o4-mini-2025-04-16"
+      ],
+      "user_sims": [
+        "gpt-4.1"
+      ],
+      "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_facet_train_airline.jsonl",
+      "onto_violation_dropped": 58,
+      "onto_breakdown": {
+        "precedes": 51,
+        "requires": 38,
+        "guardrail": 13
+      }
+    }
+  },
+  "total_kept": 1201
+}
