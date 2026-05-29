@@ -259,7 +259,6 @@ def main() -> int:
     model = AutoModelForCausalLM.from_pretrained(
         args.base_model, torch_dtype=dtype, device_map=args.device,
         attn_implementation=args.attn, low_cpu_mem_usage=True)
-    model.gradient_checkpointing_enable()
     model.config.use_cache = False
 
     from peft import LoraConfig, get_peft_model, TaskType
@@ -268,6 +267,10 @@ def main() -> int:
                       task_type=TaskType.CAUSAL_LM, target_modules=args.lora_target)
     model = get_peft_model(model, lcfg)
     model.print_trainable_parameters()
+    # grad-ckpt AFTER peft wrap + enable_input_require_grads so checkpointing actually
+    # saves activation memory through the frozen base (else backward OOMs at long seq)
+    model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+    model.enable_input_require_grads()
 
     pad_id = tok.pad_token_id
     train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True,
