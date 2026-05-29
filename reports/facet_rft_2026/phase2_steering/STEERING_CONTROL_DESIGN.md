@@ -59,6 +59,30 @@
 
 ---
 
+### 1.5 비용 분리와 LoRA-RFT → 가변화 2단 경로 (실시간 적응)
+
+**핵심 구분 — 학습 비용 ≠ 실시간 적응 비용**:
+- LoRA-RFT가 비싼 건 *학습*(rollout+RL). 학습된 LoRA는 적용은 싸지만 **정적**(실시간 변경 불가).
+- 가변 steering의 실시간 변경은 학습을 *피해서* 얻는 게 아니라, **학습 1회 + inference에서 선택/합성/생성**으로 얻음.
+
+**구조적 수렴**: 입력의존 잔차 개입 Δh(x)를 self/cross-attn 출력에 더함 = 그 sublayer 가중치를 입력별로 바꾸는 것과 동치(ΔW·x). 게이팅/라우팅/하이퍼넷을 얹으면 = 『가중치 변경처럼 작동하는 가변 steering』. → **가변 steering ≡ (게이트된) LoRA** (별개 아님, 같은 대상의 두 이름).
+
+**불가능 정리**: 『학습 0 + 실시간 + RFT급』 3자 동시 달성은 불가 — 하드코딩 가변 steering = bias-1step-RFT(class-hierarchy 최약점)이고 §2.1/§2.4 null이 증거. RFT 성능엔 최적화가 *어딘가* 반드시 필요(공짜 점심 없음).
+
+**실시간 + RFT급을 동시에 얻는 2 아키텍처** (일회성 학습 산물을 실시간 가변 적용):
+
+| | 학습(1회, 비쌈) | inference(실시간, 쌈) | 가변 단위 |
+|---|---|---|---|
+| **A. LoRA 라이브러리 + 라우팅** (mixture-of-LoRA) | 강한 LoRA N개 오프라인 | 문맥/도메인/턴별 hot-swap·blend | 턴별 |
+| **B. 하이퍼넷/컨트롤러 per-input 생성** (amortized RFT) | 컨트롤러 1회 | 문맥별 개입 실시간 생성 | 토큰/턴별 |
+
+→ 둘 다 정적 LoRA-RFT가 못 하는 **에피소드 내 실시간 적응**을 줌. 이것이 가변 steering의 진짜 가치이며 **불가능하지 않음**.
+
+**2단 경로 (순서 불가역)**:
+1. **LoRA-RFT (강도 확보)** = Rung 6 진입: 학습된 강한 개입이 RFT급 lift를 내나 + 온톨로지가 *reward*로 유효한가 확인 (actuator 상한 확보).
+2. **가변화 (실시간 적응)** = Rung 7 / 위 A·B: 그 개입을 conditional/routed/per-turn으로 올려 실시간 적응·모듈성 부여.
+- **역순 불가**: 2를 1 없이 하드코딩하면 §2 null로 회귀. ⟹ **LoRA-RFT는 가변 steering의 경쟁자가 아니라 *전제*.**
+
 ## 2. 지금까지의 실증 결과 (context)
 
 ### 2.1 게이팅 null (Phase 2c, N=60)
@@ -196,6 +220,6 @@ R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
 
 **근거**: (i) 상수 steering null은 class-hierarchy상 예상된 것(최약점); (ii) H2 capability ceiling 지지 → RFT는 능력 추가 가능; (iii) 원 Go/No-Go = facet-RFT +5%p in ≥2 domain.
 
-**다음 (LoRA-RFT 파일럿)**: base=Qwen2.5-7B + LoRA(attn/mlp), objective=τ² task reward(GRPO/RWR), rollout=telecom + gpt-4o-mini user_sim(예산 주의), eval=동일 30-task pass^1. 기존 infra 정찰: run_lora_hybrid_pipeline.sh, scripts/ocq/lora_train_metatool_v*.py (RFT/SFT 여부 + peft/trl 가용성 확인 필요). ⚠️ RL rollout이 OpenRouter 대량 소비 → 소규모부터, 잔액 모니터링.
+**다음 = §1.5 2단 경로의 1단계 (LoRA-RFT 강도 확보; 성공 시 2단계 가변화로 승급)**: base=Qwen2.5-7B + LoRA(attn/mlp), objective=τ² task reward(GRPO/RWR), rollout=telecom + gpt-4o-mini user_sim(예산 주의), eval=동일 30-task pass^1. 기존 infra 정찰: run_lora_hybrid_pipeline.sh, scripts/ocq/lora_train_metatool_v*.py (RFT/SFT 여부 + peft/trl 가용성 확인 필요). ⚠️ RL rollout이 OpenRouter 대량 소비 → 소규모부터, 잔액 모니터링.
 
 > 마스터 설계서: reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md v1.21 §7 Phase 2a 박스 / §10 Go/No-Go / §12.
