@@ -252,3 +252,23 @@ R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
 **선행 필요**: (i) retail/airline/banking **B0 baseline**(현재 telecom만), (ii) banking ontology **AFOD 추출**, (iii) **합성 agentic 학습원 설계**(42-relation 템플릿을 합성 tool-use 시나리오로 확장 — 성패 핵심 변인), (iv) reward는 schema에서 auto(공짜).
 
 **Go/No-Go 강화**: in-domain +X%p 가 아니라 **재학습 없이 held-out 도메인서 +X%p 전이**. §1.5 가변 steering 비전(아키텍처 A)과 결합 시 = **도메인-일반 relation-LoRA 라이브러리 + 도메인별 라우팅**(1회 학습 → 어디서나).
+
+---
+
+## 11. Facet-guided distillation (capability 주입 + cold-start 해소) — 2026-05-29
+
+**동기**: 7B 최대 블로커 = (i) H2 capability ceiling(steering·self-RFT가 *없는 능력*을 못 만듦), (ii) self-GRPO가 baseline 0.18에서 성공 rollout 희소 → sparse-reward cold-start(gradient 기아). 강한 teacher가 7B가 스스로 못 만드는 성공 궤적을 제공 → 두 문제 동시 우회. → distillation은 옵션이 아니라 **floor(LoRA-RFT)가 lift를 보이게 하는 실질 enabler.**
+
+**형태 = facet-guided (온톨로지-필터) distillation**:
+- teacher(GPT-4o / Qwen-72B) 궤적 생성(합성 or 멀티도메인) → ontology-violation reward로 필터/가중(precedes/requires/mutex 준수 궤적만) → student(Qwen-7B) LoRA-SFT.
+- 문서 T4-RFT의 rejection-SFT 옵션의 **teacher 버전** → Phase 4 path β 변형 슬롯. GRPO보다 쌈(teacher 생성 1회, on-policy 루프 없음).
+
+**★confound 격리 (thesis 보호, 필수)**: plain distillation = teacher 행동 복제 ≠ 온톨로지 기여. plain이 큰 lift이고 필터가 +ε면 기여는 distillation이지 온톨로지가 아님. → **반드시 ablation: unfiltered distill vs facet-filtered distill** 로 온톨로지 marginal value 격리 (cross-domain·합성-학습과 동일 규율).
+
+**2단계 결합 (우아)**: ① distill → capability 확보(성공률↑, reward non-sparse화) → ② facet-RFT → 온톨로지 adherence 정제. distill이 cold-start 깨고 RFT가 facet-specific 미세조정.
+
+**경제/북극성 정합**: distill-once(합성 or 1도메인) → 4도메인 zero-shot = 합성-온톨로지 북극성의 실질 수단(RL보다 쌈 + capability 주입). 산물은 static(실시간 X)이나 §1.5 2단 경로 1단계(강도 확보)이므로 무방 → 이후 가변화 승급.
+
+**teacher 옵션**: GPT-4o(API, trajectory/rejection distill) / Qwen-72B(local GPU, logit·representation distill 가능, activation 접근 ✓). 마스터 Tier-4 API 모델(상한선 참조 전용)을 **teacher로 재활용**하는 신규 lever.
+
+**한계**: confound(위, 최우선) / capability 주입은 온톨로지와 orthogonal → 귀인 흐림 위험 → related work 포지셔닝(ontology-guided distill vs plain distill novelty) / static.
