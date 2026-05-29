@@ -1,6 +1,6 @@
 # 실험 설계서: 온톨로지 기반 그래프 구조 주입을 통한 Training-Free 다단계 도구 계획 개선
 
-**버전**: v1.23  
+**버전**: v1.24  
 **작성일**: 2026-05-26  
 **최종 갱신**: 2026-05-29 (v1.21: Phase 2a/2c/2d steering 실측 — 상수 single-relation steering null, steering↔RFT class-hierarchy, LoRA-RFT 피벗; v1.22: cross-domain 전이 축(4도메인 telecom/retail/airline/banking) 중심 격상 + 합성-온톨로지 북극성; v1.23: facet-guided distillation lever. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §1-11)  
 **목표 학회**: NeurIPS 2026 / ICLR 2027  
@@ -1234,6 +1234,27 @@ D0 실험 결과 (Channel A, 프롬프트 포맷):
 ---
 
 ## 7. 실험 단계별 계획
+
+### 7.0 ★ 실험 개정 — Distillation → RFT/GRPO 캠페인 (2026-05-29, v1.24)
+
+Phase 2a steering 전부 null(상수 single-relation/decay/orth/relation-sweep — STEERING_CONTROL_DESIGN.md §2,2.4). class-hierarchy 처방대로 *학습 끝*으로 피벗. 아래 phase들을 **distillation + GRPO 포함**으로 개정한다.
+
+**공통 학습 사다리** (같은 teacher 생성 풀 위, STEERING_CONTROL_DESIGN.md §11.1):
+- ① filter-SFT — 성공 AND 온톨로지-clean만 (binary keep). floor.
+- ② graded RWR/DPO = offline facet-RFT — 효율(짧은 경로)+온톨로지-준수 가중, 실패=negative(반면교사). RL 루프 불필요.
+- ③ on-policy GRPO — signed reward = tau2 pass/fail + ontology-violation penalty(precedes/requires/mutex). trl 필요.
+teacher = Claude Sonnet 4.6, student = Qwen2.5-7B(+32B 무료 재사용). 전 trajectory(성공+실패) 보존.
+
+**Phase별 개정**:
+- **Phase 4 (T4-RFT) [개정]**: RFT path = 위 ①→②→③ 사다리. T4-RFT = ③ on-policy GRPO(facet reward). ①distillation floor + ②offline-RFT를 GRPO 전 단계로 명시. LATS path는 보류.
+- **Phase 3 (T2 cross-attn) [개정]**: distillation의 *아키텍처 arm* — 온톨로지 그래프를 K/V로 주입해 **cross-domain 전이의 명시적 인터페이스**(도메인별 그래프 swap → 재학습 없이 전이). plain/filter/graded distill과 비교해 confound 격리.
+- **Phase 2b/2c (compositional steering on T2/T4) [개정]**: 상수 steering null → **deprioritize**. 의미(학습모델 위 steering 합성)는 유지하되 우선순위는 distillation/cross-attn/GRPO 메커니즘 뒤로.
+
+**평가**: cross-domain 전이 매트릭스(train telecom → eval telecom/retail/airline **test split**). eval agent=로컬 student라 거의 무료 → N=120+. Go/No-Go = *재학습 없이 held-out 도메인 +X%p 전이*.
+
+**인프라/예산**: OpenRouter Sonnet 4.6 teacher, 4 trials x 3도메인(telecom/retail/airline train split: 74/74/30), limit 00. peft LoRA-SFT 있음 / trl(GRPO) 미설치(③ 시 구축).
+
+
 
 ### Phase 0: 사전 검증 (진행 중)
 
@@ -2649,6 +2670,7 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-05-29 | v1.24: **Phase 3/4/2b/2c를 Distillation→RFT/GRPO 캠페인으로 개정 (§7.0)**. 공통 학습 사다리 ①filter-SFT → ②graded RWR/DPO(offline facet-RFT: 효율+온톨로지 가중, 실패=negative) → ③on-policy GRPO(facet reward). Phase 4=③GRPO + ①②전단계 명시(LATS 보류), Phase 3=distillation 아키텍처 arm(cross-attn=온톨로지 cross-domain 전이 인터페이스), Phase 2b/2c=steering null로 deprioritize. teacher=Sonnet 4.6, student=Qwen-7B(+32B), 4trials x 3도메인 train split, eval=test split 전이매트릭스(로컬 student라 거의 무료). 전 trajectory(성공+실패) 보존. 상세: STEERING_CONTROL_DESIGN.md §11,11.1. |
 | 2026-05-29 | v1.23: **Facet-guided distillation lever 추가**. 7B 블로커(H2 capability ceiling + self-GRPO sparse cold-start at 0.18)를 teacher(GPT-4o/Qwen-72B) 성공궤적 distillation으로 우회 → floor(LoRA-RFT) lift의 실질 enabler. 형태: teacher 궤적 → ontology-violation reward 필터/가중 → student LoRA-SFT (=T4-RFT rejection-SFT의 teacher 버전, Phase 4 β 변형). ★confound 격리 필수: plain distill(teacher 복제)≠온톨로지 기여 → unfiltered vs facet-filtered ablation으로 marginal value 격리. 2단계: distill(capability)→facet-RFT(온톨로지 정제). 경제: distill-once→4도메인 zero-shot(합성-북극성 실질 수단, RL보다 쌈). Tier-4 API 모델을 teacher로 재활용. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §11. |
 | 2026-05-29 | v1.22: **Cross-domain 전이 축 격상 + 합성-온톨로지 학습 북극성**. 학습비용=도메인당×N → 온톨로지 관계가 도메인-일반이면 1회 학습 후 전이로 amortize(thesis 경제 정당성·novelty). Phase 5에 묻힌 도메인 일반화를 *중심 축*으로 격상. 4 도메인(telecom 2285/retail 114/airline 50/banking_knowledge 97) cross-domain 전이: B0_d / SYN→d(합성 1회학습 zero-shot, 최강주장) / TEL→d(전이) / d-RFT(상한). 전이 주장 3분리: 스키마(auto)·개입(prize)·reward(이미 rule-based 도메인일반=공짜). 일반성 gradient + de-risk floor(in-domain real RFT). 선행: retail/airline/banking B0·banking AFOD 추출·합성 agentic 학습원 설계(성패 핵심). Go/No-Go 강화: 재학습 없이 held-out +X%p. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §10. |
 | 2026-05-29 | v1.21: **Phase 2a/2c/2d steering 실측 + LoRA-RFT 피벗**. Qwen-7B 상수 single-relation steering(validates +1.5%p / error_fallback / retry_after_fail) + context-gating(decay/orth) 전부 baseline noise band [0.176-0.217] 내 (N≤120). **표상-공간 facet 상보 구조(AXIS-1)가 인과 행동으로 이어지지 않음** — retry_after_fail(EXEC 극)이 transfer(45%)·pass 최고로 예측 반전(『표상 상보 ≠ 인과 상보』). 효과 비특이적, pass^1 미반영(H2 ceiling 지지). C5 actuator 약함·C3 미지지 → Phase 2a Go/No-Go 미통과(<+3%p). **결정: class-hierarchy(상수 steering=bias-1step-RFT 최약점) 처방대로 학습 끝으로 피벗 → LoRA-RFT(L0=PEFT-RFT) 직행** (power test 생략, 사용자 결정). 신규 companion 문서 phase2_steering/STEERING_CONTROL_DESIGN.md: steering↔RFT 수학적 동치(상수=bias-1step-RFT, 가변 LoRA/steering ⊇ RFT), 실시간 steering 고유장점(closed-loop), 온톨로지 활용 taxonomy(합성/Read=RFT보상/ablation/그래프구동/training-time), 상보-전환 규칙, C1-C5 검증링크, 실험 사다리 Rung1-7. |
