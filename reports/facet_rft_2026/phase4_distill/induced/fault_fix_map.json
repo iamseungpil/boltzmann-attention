@@ -1,0 +1,23 @@
+{
+  "telecom": {
+    "data_usage_exceeded": "refuel_data",
+    "data_saver_mode_on": "toggle_data_saver_mode",
+    "user_abroad_roaming_enabled_off": "toggle_roaming",
+    "contract_end_suspension": "transfer_to_human_agents",
+    "overdue_bill_suspension": "make_payment",
+    "break_apn_settings": "transfer_to_human_agents",
+    "break_app_sms_permission": "grant_app_permission",
+    "bad_network_preference": "set_network_mode_preference",
+    "break_app_storage_permission": "grant_app_permission",
+    "data_mode_off": "toggle_data",
+    "break_app_both_permissions": "grant_app_permission",
+    "break_apn_mms_setting": "reset_apn_settings",
+    "bad_vpn": "disconnect_vpn",
+    "unseat_sim_card": "reseat_sim_card",
+    "airplane_mode_on": "toggle_airplane_mode",
+    "user_abroad_roaming_disabled_on": "enable_roaming",
+    "user_abroad_roaming_disabled_off": "toggle_roaming",
+    "bad_wifi_calling": "toggle_wifi_calling",
+    "lock_sim_card_pin": "transfer_to_human_agents"
+  }
+}
