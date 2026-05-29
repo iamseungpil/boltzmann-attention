@@ -241,6 +241,13 @@ def _split_ids(tau2_root: str, domain: str, split: str) -> set[str]:
     return set(json.loads(p.read_text())[split])
 
 
+def _variant_label(args) -> str:
+    """Filename label; facet+ontology encodes the strictness level (L1/L2/L3)."""
+    if args.variant == "facet" and args.ontology:
+        return f"facet_L{args.onto_level}"
+    return args.variant
+
+
 def build_group(out_dir, group_key, domain, system, tools, sources, split_ids, args, combined_f):
     """Build one output group.
 
@@ -250,10 +257,11 @@ def build_group(out_dir, group_key, domain, system, tools, sources, split_ids, a
     per_task = defaultdict(int)
     stats = Counter()
     teachers = set()
+    vlabel = _variant_label(args)
     if args.source == "shipped":
-        fname = f"sft_{args.variant}_{args.split}_{group_key}.jsonl"
+        fname = f"sft_{vlabel}_{args.split}_{group_key}.jsonl"
     else:
-        fname = f"sft_{args.variant}_{args.source}_{args.split}_{group_key}.jsonl"
+        fname = f"sft_{vlabel}_{args.source}_{args.split}_{group_key}.jsonl"
     dom_path = out_dir / fname
     with dom_path.open("w", encoding="utf-8") as dom_f:
         for path, teacher, variant_tag, user_sim in sources:
@@ -280,7 +288,7 @@ def build_group(out_dir, group_key, domain, system, tools, sources, split_ids, a
                 if args.variant == "facet" and args.ontology:
                     tool_seq = agent_tool_sequence(conv)
                     onto_total, onto_breakdown, _ = count_ontology_violations(
-                        domain, tool_seq, args.ont_dir
+                        domain, tool_seq, args.ont_dir, level=args.onto_level
                     )
                     if onto_total > 0:
                         stats["onto_violation"] += 1
@@ -343,6 +351,10 @@ def main() -> int:
     )
     ap.add_argument("--ontology", action="store_true",
                     help="(facet variant) require ontology-clean trajectories")
+    ap.add_argument("--onto-level", type=int, default=1, choices=[1, 2, 3],
+                    help="ontology strictness: 1=conservative (order/coexist), "
+                         "2=moderate (+missing prereq, exclusive-both), "
+                         "3=aggressive (+compensates, repeat-misuse)")
     ap.add_argument("--ont-dir", default=DEFAULT_ONT_DIR,
                     help="dir with tau2_<domain>_ontology.py modules")
     args = ap.parse_args()
@@ -371,16 +383,19 @@ def main() -> int:
         print(f"no sources found for source={args.source} domains={args.domains}")
         return 1
 
+    vlabel = _variant_label(args)
     if args.source == "shipped":
-        combined_path = out_dir / f"sft_{args.variant}_{args.split}_all.jsonl"
-        man_path = out_dir / f"manifest_{args.variant}_{args.split}.json"
+        combined_path = out_dir / f"sft_{vlabel}_{args.split}_all.jsonl"
+        man_path = out_dir / f"manifest_{vlabel}_{args.split}.json"
     else:
-        combined_path = out_dir / f"sft_{args.variant}_{args.source}_{args.split}_all.jsonl"
-        man_path = out_dir / f"manifest_{args.variant}_{args.source}_{args.split}.json"
+        combined_path = out_dir / f"sft_{vlabel}_{args.source}_{args.split}_all.jsonl"
+        man_path = out_dir / f"manifest_{vlabel}_{args.source}_{args.split}.json"
     combined_f = combined_path.open("w", encoding="utf-8")
 
     grand = Counter()
-    manifest = {"variant": args.variant, "source": args.source, "split": args.split, "groups": {}}
+    manifest = {"variant": args.variant, "source": args.source, "split": args.split,
+                "onto_level": (args.onto_level if (args.variant == "facet" and args.ontology) else None),
+                "groups": {}}
     sys_cache = {}
 
     for group_key, domain, srcs in groups:
@@ -409,10 +424,11 @@ def main() -> int:
             "out_file": extras["out_file"],
         }
         if args.variant == "facet" and args.ontology:
+            manifest["groups"][group_key]["onto_level"] = args.onto_level
             manifest["groups"][group_key]["onto_violation_dropped"] = stats["onto_violation"]
             manifest["groups"][group_key]["onto_breakdown"] = {
-                k[5:]: stats[k] for k in ("onto_mutex", "onto_precedes", "onto_requires", "onto_guardrail")
-                if stats[k]
+                k[len("onto_"):]: stats[k] for k in sorted(stats)
+                if k.startswith("onto_") and k != "onto_violation" and stats[k]
             }
         onto_note = (f" onto_dropped={stats['onto_violation']}"
                      if (args.variant == "facet" and args.ontology) else "")
