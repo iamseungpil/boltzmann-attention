@@ -67,6 +67,12 @@ def agent_calls(messages):
     return out
 
 
+def _f1(p, r):
+    if p is None or r is None or (p + r) == 0:
+        return 0.0
+    return 2 * p * r / (p + r)
+
+
 def _lcs_len(a, b):
     """Length of longest common subsequence (order-preserving) of two name sequences."""
     m, n = len(a), len(b)
@@ -181,7 +187,8 @@ def score_trajectory(sim, gt_map, idem, loopcap, entity_keys=None, action_params
     repeat = sum(1 for t, c in cnt.items()
                  if c > 1 and idem.get(t) is False and loopcap.get(t) is False)
 
-    return {"recall": recall, "precision": precision, "seq_match": seq_match,
+    return {"F1": _f1(precision, recall), "seq_F1": _f1(seq_prec, seq_match),
+            "recall": recall, "precision": precision, "seq_match": seq_match,
             "seq_prec": seq_prec, "call_eff": call_eff, "order": order,
             "arg_bind": arg_bind, "repeat": float(repeat)}
 
@@ -199,7 +206,8 @@ def run(sims, gt_map, idem, loopcap, label, entity_keys=None, action_params=None
             continue
         cls = "succ" if (s.get("reward_info") or {}).get("reward", 0) >= 0.999 else "fail"
         buckets[cls].append(sc)
-    axes = ["recall", "precision", "seq_match", "seq_prec", "call_eff", "order", "arg_bind", "repeat"]
+    axes = ["F1", "seq_F1", "recall", "precision", "seq_match", "seq_prec",
+            "call_eff", "order", "arg_bind", "repeat"]
     print(f"\n[{label}] n_scored: succ={len(buckets['succ'])} fail={len(buckets['fail'])}")
     print(f"  {'axis':10} {'success':>9} {'failure':>9} {'disc(s-f)':>10}")
     for ax in axes:
