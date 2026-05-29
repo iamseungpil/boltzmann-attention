@@ -113,6 +113,7 @@ def make_run_config(domain: str, task_set: str, task_split: str, agent_llm: str,
                     base_url: str, save_to: str, num_tasks: int | None,
                     num_trials: int, seed: int, max_concurrency: int,
                     max_steps: int,
+                    agent_api_key: str = "sk-noauth",
                     user_llm: str | None = None,
                     user_base_url: str | None = None,
                     user_api_key: str | None = None,
@@ -124,7 +125,7 @@ def make_run_config(domain: str, task_set: str, task_split: str, agent_llm: str,
     # Agent LLM args (local vLLM by default)
     llm_args = {
         "api_base": base_url,
-        "api_key": "sk-noauth",
+        "api_key": agent_api_key,
         "temperature": 0.0,
     }
 
@@ -214,6 +215,7 @@ def run_one(variant: str, args, ontology_text: str | None):
         task_split=args.task_split,
         agent_llm=args.agent_llm,
         base_url=args.base_url,
+        agent_api_key=args.agent_api_key,
         save_to=save_to,
         num_tasks=args.num_tasks,
         num_trials=args.num_trials,
@@ -258,6 +260,7 @@ def main():
                     help="Resume from existing save_to (skip completed sims, retry incomplete)")
     ap.add_argument("--agent-llm", default="openai/Qwen2.5-7B-Instruct")
     ap.add_argument("--base-url", default="http://127.0.0.1:8000/v1")
+    ap.add_argument("--agent-api-key", default="sk-noauth")
     ap.add_argument("--user-llm", default=None,
                     help="If specified, use a separate model for user simulator (e.g., 'openai/gpt-4o'). "
                          "Defaults to same as agent-llm.")
