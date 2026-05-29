@@ -86,13 +86,25 @@
 
 ---
 
+### 2.4 관계-sweep 인과검증 (Phase 2d, N=60, α=0.5, gate=none) — Rung 2 결과
+| relation | pass^1(all) | pass^1(svc) | transfer%(svc) |
+|---|---|---|---|
+| error_fallback (RECOVER 극) | 0.183 | 0.300 | 30% |
+| retry_after_fail (EXEC 극) | 0.217 | 0.400 | 45% |
+| (validates raw, N120) | 0.192 | 0.300 | 37.5% |
+| (a0, N119) | 0.176 | 0.275 | 27.5% |
+
+- **AXIS-1 인과 미지지/반전**: 표상에서 retry↔error_fallback은 대립(cos<0)이나 행동상 **retry_after_fail(EXEC 극)이 transfer·pass 최고** — 예측 반대. → 표상 상보 ≠ 인과 상보.
+- 모든 조건 noise band [0.176-0.217] 내(N≤120). 효과 비특이적(모든 steering이 transfer를 a0 대비 올림), pass^1 미반영(H2 ceiling 지지).
+- **C5(actuator 강도) 부정 경향 / C3(relation→behavior) 미지지.** → §9 피벗.
+
 ## 3. 검증 링크 (closed-loop controller가 서려면 — AND 조건)
 
 | 링크 | 주장 | 검증 | 상태 |
 |---|---|---|---|
 | **C1 READ** | live 궤적에서 relation 상태·변화를 신뢰성 있게 감지 | 프로브를 trajectory에 적용·정답대조 | 미검증(H3) |
 | **C2 PREDICT** | relation-변화가 성공/실패를 예측 | 로그에서 transition↔outcome | 미검증 = Rung 3 |
-| **C3 WRITE** | relation steering이 인과적으로 행동을 바꿈 | 실제 주입·측정 | Rung 2 진행 중 |
+| **C3 WRITE** | relation steering이 인과적으로 행동을 바꿈 | 실제 주입·측정 | **미지지(2026-05-29, §2.4)** |
 | **C4 DATA** | 엣지 가치 추정에 충분한 데이터 | 분산/표본 분석 | 미확보(RL엔 부족) |
 | **C5 STRENGTH** | action(steering) 효과가 제어할 만큼 큼 | 효과 크기 측정 | 미입증(gating null) |
 
@@ -103,7 +115,7 @@
 ## 4. 실험 사다리 (각 rung: 가설 / 방법 / 지표 / go-no-go)
 
 - **Rung 1 — 게이팅 (decay/orth)**: ✅ 완료. **null** (§2.1). → 게이트-다운 방향 기각.
-- **Rung 2 — (a) 상보 relation 인과검증 [C3,C5]**: 🔄 진행 중.
+- **Rung 2 — (a) 상보 relation 인과검증 [C3,C5]**: ✅ 완료(2026-05-29). **결과: AXIS-1 인과 미지지/반전** (error_fallback 0.183/transfer30% < retry_after_fail 0.217/transfer45%, 예측 반대). C5 약함·C3 미지지 → §9 피벗. (§2.4)
   - 가설: error_fallback → transfer% ↑; retry_after_fail → ↓ (AXIS-1 인과성).
   - 방법: gate=none, α=0.5, layers 12–14, N=60(trials2). error_fallback(GPU0) ∥ retry_after_fail(GPU1). baseline=raw α0.5(N120, 37.5%), α0(27.5%).
   - 지표: transfer% + pass^1 + verbosity. **go**: transfer%가 error_fallback > validates > retry_after_fail 순으로 갈림(인과 상보 확인) → relation-교체가 유효 actuator.
@@ -173,3 +185,17 @@ R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
 ---
 
 **핵심 한 줄**: *상수 steering은 "bias-1step-RFT"라는 RFT의 정찰병이며, 이를 입력의존·학습형(LoRA=RFT-동치)으로 올리되 RFT가 못 하는 실시간 closed-loop 제어 장점을 살리는 것이 목표 — 단 그 전에 actuator 효과 크기(C5, Rung 2)와 감지 신뢰성(C1, Rung 5)을 검증해야 한다.*
+
+---
+
+## 9. 결과 종합 및 LoRA-RFT 피벗 (2026-05-29 PM) — DECISION
+
+**종합**: Qwen-7B에서 상수 single-relation steering(validates/error_fallback/retry_after_fail) + 게이팅(decay/orth)이 **전부 baseline noise band [0.176-0.217] 내** (N≤120). 표상-공간 facet 상보 구조가 인과 행동 제어로 이어지지 않음(AXIS-1 반전). 효과 약하고 비특이적 → **C5 부정 경향, C3 미지지.**
+
+**결정 (사용자, 2026-05-29)**: class-hierarchy(§1.2)가 가리키는 대로 — 상수 inference steering(=bias-1step-RFT, 최약점)에서 hand-tuning 중단, **학습 끝(LoRA-RFT, L0=PEFT-RFT)으로 피벗. power test(N=240) 생략, 본체 직행.**
+
+**근거**: (i) 상수 steering null은 class-hierarchy상 예상된 것(최약점); (ii) H2 capability ceiling 지지 → RFT는 능력 추가 가능; (iii) 원 Go/No-Go = facet-RFT +5%p in ≥2 domain.
+
+**다음 (LoRA-RFT 파일럿)**: base=Qwen2.5-7B + LoRA(attn/mlp), objective=τ² task reward(GRPO/RWR), rollout=telecom + gpt-4o-mini user_sim(예산 주의), eval=동일 30-task pass^1. 기존 infra 정찰: run_lora_hybrid_pipeline.sh, scripts/ocq/lora_train_metatool_v*.py (RFT/SFT 여부 + peft/trl 가용성 확인 필요). ⚠️ RL rollout이 OpenRouter 대량 소비 → 소규모부터, 잔액 모니터링.
+
+> 마스터 설계서: reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md v1.21 §7 Phase 2a 박스 / §10 Go/No-Go / §12.
