@@ -91,7 +91,9 @@ def induce_fault_fix(domain, shipped_dir, min_support=10, min_frac=0.5):
     return fix
 
 
-def score_sims(sims, fix_map, with_decomp=False):
+def score_sims(sims, fix_map, with_decomp=False, task_req=None):
+    """Coverage metric. If task_req ({task_id: [required tools]}) given, use the
+    benchmark GT action set (reward-aligned; recommended). Else fault->fix based."""
     cov = {"succ": [], "fail": []}
     full = {"succ": 0, "fail": 0}
     n = {"succ": 0, "fail": 0}
@@ -103,10 +105,14 @@ def score_sims(sims, fix_map, with_decomp=False):
         cls = "succ" if reward >= 0.999 else "fail"
         seq = agent_tool_seq(s.get("messages") or [])
         called = set(seq)
-        _, faults = parse_task(s.get("task_id", ""))
-        known = [flt for flt in faults if flt in fix_map]
-        if known:
-            c = sum(1 for flt in known if fix_map[flt] in called) / len(known)
+        tid = s.get("task_id", "")
+        if task_req is not None:
+            required = set(task_req.get(tid, []))
+        else:
+            _, faults = parse_task(tid)
+            required = {fix_map[f] for f in faults if f in fix_map}
+        if required:
+            c = len(required & called) / len(required)
             cov[cls].append(c)
             n[cls] += 1
             if c >= 0.999:
@@ -150,6 +156,9 @@ def main() -> int:
                     help="results.json path(s)/glob to score; if omitted, scores shipped data")
     ap.add_argument("--fault-fix-map", default=None,
                     help="JSON {fault: fix_tool}; if omitted, induce v1 from shipped")
+    ap.add_argument("--task-required-map", default=None,
+                    help="JSON {domain:{task_id:[tools]}} (from fault_fix_induce.py); "
+                         "REWARD-ALIGNED GT-action coverage. Overrides fault-fix.")
     ap.add_argument("--emit-map", default=None, help="write induced map to this path")
     ap.add_argument("--decomp", action="store_true", help="failure error-type decomposition")
     args = ap.parse_args()
@@ -167,12 +176,19 @@ def main() -> int:
         json.dump(fix_map, open(args.emit_map, "w"), indent=2, ensure_ascii=False)
         print(f"[map] wrote -> {args.emit_map}")
 
+    task_req = None
+    if args.task_required_map:
+        tr = json.load(open(args.task_required_map))
+        task_req = tr.get(args.domain, tr)
+        print(f"[map] REWARD-ALIGNED task->required-tools: {len(task_req)} tasks "
+              f"(GT-action coverage mode)")
+
     if not args.results:
         files = _shipped_files(args.domain, args.shipped_dir)
         sims = []
         for f in files:
             sims += json.load(open(f)).get("simulations", [])
-        print(f"[score:shipped {args.domain}] {json.dumps(score_sims(sims, fix_map, args.decomp), ensure_ascii=False)}")
+        print(f"[score:shipped {args.domain}] {json.dumps(score_sims(sims, fix_map, args.decomp, task_req), ensure_ascii=False)}")
         return 0
 
     paths = []
@@ -184,7 +200,7 @@ def main() -> int:
         except Exception as e:
             print(f"[skip] {p}: {e}"); continue
         print(f"[score] {p}")
-        print(f"        {json.dumps(score_sims(sims, fix_map, args.decomp), ensure_ascii=False)}")
+        print(f"        {json.dumps(score_sims(sims, fix_map, args.decomp, task_req), ensure_ascii=False)}")
     return 0
 
 
