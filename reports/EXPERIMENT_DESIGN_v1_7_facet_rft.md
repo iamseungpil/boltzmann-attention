@@ -2670,6 +2670,7 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-05-29 | v1.25: **방향 재정의 — 효율적 절차 내부화 + 목표→도구 distillation (§13)**. 선행연구 24편 정독 후 재프레이밍: 능력주장(온톨로지가 계획 개선)은 falsify(steering null + 궤적/스텝 변별 0, telecom mutex 역효과; 실패=합법-비효과) → 효율주장(온톨로지-prompt 내부화, Theorem-1)으로 복귀. ★실측: 목표→도구 변별 +0.36(FULL +48%p), Qwen-7B 격차 94% 절차(선택 58%+형식 36%, long-horizon 1%, fix-coverage 0.06)=distillable. GraphRAG/Graphify=연관검색 ≠ 우리 절차계획. 제안=TBox(절차)→weights 내부화 + ABox(인스턴스)→swap 전이. 신규 계열6(효율/내부화): Gist/CD/Transmuting(steering=δ만,Δ누락=null 설명; 절차 견고/지식 취약→TBox/ABox 필연)/SR-KI. WISE-Flow(2601.08158)=가장 가까운 prior(prereq 워크플로 τ²+10pp, prompt-side)+가설 부분검증→올바른 설계(데이터유도×결정시점 양성안내×student). SoK(2602.20867)=policy-내부화·cross-domain C 빈칸 인증. SkillFlow=병목은 검색 아닌 라이브러리 품질. 자산: build_sft_dataset.py(plain 1539/facet L1-3/aux 179), ontology_filter graded. |
 | 2026-05-29 | v1.24: **Phase 3/4/2b/2c를 Distillation→RFT/GRPO 캠페인으로 개정 (§7.0)**. 공통 학습 사다리 ①filter-SFT → ②graded RWR/DPO(offline facet-RFT: 효율+온톨로지 가중, 실패=negative) → ③on-policy GRPO(facet reward). Phase 4=③GRPO + ①②전단계 명시(LATS 보류), Phase 3=distillation 아키텍처 arm(cross-attn=온톨로지 cross-domain 전이 인터페이스), Phase 2b/2c=steering null로 deprioritize. teacher=Sonnet 4.6, student=Qwen-7B(+32B), 4trials x 3도메인 train split, eval=test split 전이매트릭스(로컬 student라 거의 무료). 전 trajectory(성공+실패) 보존. 상세: STEERING_CONTROL_DESIGN.md §11,11.1. |
 | 2026-05-29 | v1.23: **Facet-guided distillation lever 추가**. 7B 블로커(H2 capability ceiling + self-GRPO sparse cold-start at 0.18)를 teacher(GPT-4o/Qwen-72B) 성공궤적 distillation으로 우회 → floor(LoRA-RFT) lift의 실질 enabler. 형태: teacher 궤적 → ontology-violation reward 필터/가중 → student LoRA-SFT (=T4-RFT rejection-SFT의 teacher 버전, Phase 4 β 변형). ★confound 격리 필수: plain distill(teacher 복제)≠온톨로지 기여 → unfiltered vs facet-filtered ablation으로 marginal value 격리. 2단계: distill(capability)→facet-RFT(온톨로지 정제). 경제: distill-once→4도메인 zero-shot(합성-북극성 실질 수단, RL보다 쌈). Tier-4 API 모델을 teacher로 재활용. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §11. |
 | 2026-05-29 | v1.22: **Cross-domain 전이 축 격상 + 합성-온톨로지 학습 북극성**. 학습비용=도메인당×N → 온톨로지 관계가 도메인-일반이면 1회 학습 후 전이로 amortize(thesis 경제 정당성·novelty). Phase 5에 묻힌 도메인 일반화를 *중심 축*으로 격상. 4 도메인(telecom 2285/retail 114/airline 50/banking_knowledge 97) cross-domain 전이: B0_d / SYN→d(합성 1회학습 zero-shot, 최강주장) / TEL→d(전이) / d-RFT(상한). 전이 주장 3분리: 스키마(auto)·개입(prize)·reward(이미 rule-based 도메인일반=공짜). 일반성 gradient + de-risk floor(in-domain real RFT). 선행: retail/airline/banking B0·banking AFOD 추출·합성 agentic 학습원 설계(성패 핵심). Go/No-Go 강화: 재학습 없이 held-out +X%p. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §10. |
@@ -2700,3 +2701,68 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 | 2026-05-27 | v1.17: **Phase 1 v2 partial (Qwen) + Llama cross-model (B0 완료) 실측 반영**. (1) Qwen v2 partial (346/456 = 76% 진행): pass^1 = 0.026 [0.014, 0.049] vs v1 0.0475 — v2가 약간 낮음 (남은 110 sims hard task일 가능성). max_steps 종료 33.6%→52.9% 증가 (32K로 long task 허용 효과 양면), infra error 0%로 해소. (2) **★ Llama-3.1-8B B0 catastrophic 0.000 (0/456)** — 모든 sim user_stop, **tool calls per sim = 0 (전체 456 sim에서 도구를 단 한 번도 호출 안 함)**. 원인: vLLM llama3_json parser 비호환 + Llama-3.1-8B native tool calling 약함 + user_sim 같은 모델 사용 시 양쪽 deficit 결합. (3) 함의: (a) Llama 결과는 negative result로서 가치 — "8B vanilla function-calling 환경에서 enterprise tool task 사실상 0%", multi-relation ontology 개입 필요성 강화. (b) Cross-model 실험 설계 결함 — user_simulator는 *독립된 strong 모델* (GPT-4o API) 필요. (c) Tier 1 추천 갱신: Qwen2.5-7B primary, Llama-3.1-8B는 reference baseline만, *큰 모델* (Llama-3.3-70B, Qwen2.5-32B) baseline 추가 권장. |
 | 2026-05-27 | v1.16: **§9.4.5.9-11 신규 — 학계 dynamics + publication timing 분석**. "쉬운 아이디어가 왜 안 됐는가" 7가지 구조적 원인: (1) Community fragmentation (4 communities — math RFT, tool SFT, KG/ontology, planning AI — 만나지 않음), (2) Benchmark immaturity (τ²-bench 18개월, CM2 τ²-RL 3개월 됨), (3) Verifier 자동화 어려움 (math는 SymPy 단순, ontology violation은 비자명), (4) Tool ontology 학계 부재 (PDDL/OWL/BPMN 등 부분만), (5) RFT compute가 GRPO (2024-말)에야 합리적, (6) Cross-disciplinary 언어 장벽 ("관계" 명명 5개 다름), (7) Enabling conditions 2024-2026 동시 도착. "왜 우리 정확한 형태가 안 됐나" 4가지: (a) Single-relation의 함정 (관계 세분화 → sparsity 우려), (b) Probing → ontology 발견 pipeline 부재 (mech interp + ontology eng 결합 희소), (c) Multi-layer injection engineering 부담 (PyTorch + HF + vLLM + RL framework + interp 모두 필요), (d) Patent + 학계 분리 (OISA patent v4 2026-04 이미 통합본). **§9.4.5.11 publication timing 위험**: 6-12개월 내 publication critical, ICLR 2027 / NeurIPS 2026 workshop submit. ArXiv preprint 6월말 권장. |
 | 2026-05-26 | v1.7: 42종 온톨로지 확장 완료 (27→42). Group G: GoT/ToT/Harness 6종 (FAN_OUT, PRUNED_BY, SCORED_PREFERENCE, BACKTRACK_TO, OBSERVATION_TRIGGERS, GUARDRAIL). Group H: HTN 4종 (DECOMPOSES_INTO, SUBTASK_OF, ACHIEVES_GOAL, REFINES). Group I: GoalAct 5종 (PLAN_STEP_PRECEDES, PLAN_STEP_SKILL, PLAN_REVISED_TO, STEP_REALIZES_TOOL, PLAN_COMMITTED_TO_GOAL). GoalAct 수정: 주기적 목표 환기가 아닌 G_t=π(Q|T|S_t) 연속적 플랜 재작성 + 4종 skill 계층. §3.4 수학적 프레임워크 신규 추가: Q-side(T1/A6) vs KV-side(A8) 개입 공간 분류, 프롬프트-동치 정리. A8 실험 신규 추가 (§4.3): KV Cache Steering (arXiv 2507.08799) 온톨로지 관계별 확장. §9.3 KV Cache Steering 논문 추가 및 우리 연구와의 차별점 정리. GOAL_VOCAB(16), PLAN_STEP_VOCAB(12) 어휘 확장 반영. |
+
+---
+
+## 13. ★★ v1.25 (2026-05-29 PM) — 방향 재정의: 효율적 *절차 내부화* + 목표→도구 distillation
+
+> 이 절은 §7.0(distillation 캠페인)·§9(steering/제약 포지셔닝)을 **정교화·일부 supersede**한다.
+> 핵심 이동: **"온톨로지가 계획을 개선한다(능력)"** → **"온톨로지-정책을 효율적으로 내부화한다(효율) + 목표→도구 절차를 일반화 distill한다."**
+
+### 13.1 재프레이밍 — 능력 주장은 falsify, 효율 주장은 유효
+- 원논제(§1.1, PAPER_v1) = 2-8K 온톨로지-prompt를 *손실 없이 내부 표현으로 압축*(효율). Theorem-1(rank≤2)이 뒷받침.
+- steering→filter→reward 경로에서 "온톨로지가 행동을 개선/변별"(능력)으로 표류 → 이게 falsify됨. **falsify된 건 표류한 능력 주장이지 효율 주장이 아님.**
+
+### 13.2 온톨로지-as-제약 falsify (3각도) — 그러나 목표→도구는 lever
+실측(probe_disc/stepadmis, shipped teacher 성공 vs 실패):
+- **제약군(precedes/requires/mutex)**: 궤적-레벨·스텝-레벨 모두 변별 없음. telecom은 mutex가 **성공에서 더 발화**(disc −16) — 다중결함(mms) 성공이 단일결함 mutex를 정당히 위반. → 제약 검사 무용/역효과.
+- 실패의 본질 = **"합법이지만 비효과적"**(틀렸지만 허용된 도구 선택). 하드제약으론 못 잡음.
+- **목표→도구(positive)는 강한 변별**: fix-coverage 성공 0.75 vs 실패 0.39(**disc +0.36**), FULL-coverage 66% vs 17%(**+48%p**). → **레버 = "결함의 fix-tool을 부르는가"(양성 안내), 제약 아님.**
+
+### 13.3 Q1 실측 — 큰/작은 차이는 절차(distillable), capability 아님
+Qwen-7B telecom 실패 404건 분해: **도구선택 오류(A) 58% + 형식/파라미터(C) 36% = 94%**, long-horizon flail(B) **1%**. Qwen fix-coverage=**0.06**(올바른 action을 거의 안 부름). → 작은 모델은 *실행능력*이 아니라 *무엇을 부를지*를 모름 = distillable. mms 잔차(B)만 GRPO/capability 벽.
+
+### 13.4 GraphRAG/Graphify/LLM-Wiki ≠ 우리 온톨로지 (regime 구분)
+실독 결과: 그들 = open-vocab **연관** 관계(검색/요약용, LLM 자유텍스트 설명+strength). 우리 = 닫힌 타입 **절차** 관계(precedes/requires/mutex, 계획용). 그들 TBox-빈약/ABox-거대(RAG-partial 불가피), 우리 TBox-풍부/ABox-소형(내부화 가능). → "GraphRAG 효율화"는 부정확 framing; 우리는 *절차 온톨로지 regime*. (Graphify=코드구조+유사도, LLM-Wiki=메모리층 — 둘 다 prompt-side 검색.)
+
+### 13.5 제안 구조 — TBox/ABox 분해 (schema-in-weights, instance-swap)
+온톨로지 = **TBox**(관계 타입·추론, 도메인불변) + **ABox**(도메인 인스턴스 그래프, 소형).
+- **TBox → 가중치 1회 내부화** (context distillation/LoRA = Transmuting의 Δ matrix 성분 포함).
+- **ABox → flat 전달/교체** (관계 의미가 weights에 있으니 작아짐; cross-domain = ABox swap).
+- 효과: RAG-partial 제거 + 전역 위상 보존 + 무재학습 도메인 전이.
+
+### 13.6 신규 관련연구 — 계열 6 = 효율/내부화 (§9에 누락됐던 계보)
+§9의 5계열은 전부 "능력" 축. 출발점인 **효율/내부화 계열**이 빠져 있었음:
+
+| 논문 | 역할 | 우리 해석 |
+|---|---|---|
+| Gist (2304.08467) | 프롬프트→k gist(26×) | prompt-side, 비-관계 |
+| Apple gisting | API문서 typed gist(20×, unseen API) | function-calling 효율 선례 |
+| Generative CD (2411.15927) | 프롬프트→weights(QLoRA 0.5%) | 내부화 작동(OS 100% 유지) |
+| Self-distill (2412.14964) | teacher(지식)→student, RAG 능가 | 내부화>RAG 증거 |
+| **Transmuting (2510.08734)** | 프롬프트=δ(bias)+Δ(matrix) 재사용 patch | **HOW + 경계**: steering=δ만(Δ누락=null 설명); 절차 내부화 견고/지식·분포이동 취약(79→48, 100→42.7) → **TBox/ABox 필연** |
+| SR-KI (2511.06446) | 트리플→KV adapter(40K KB, 98% recall) | 타입 트리플 KV 내부화 스케일 |
+| **WISE-Flow (2601.08158)** | prerequisite+milestone 워크플로, **τ²-bench pass^1 0.564 vs ReAct 0.506** | **가장 가까운 prior + 가설 부분검증**(goal→tool+prereq가 τ²서 +10pp). 단 prompt-side·per-task·전이 없음·내부화 없음 |
+| **SkillFlow (2504.06188)** | 4단계 검색, **SkillsBench +78%/Terminal-Bench 0** | **병목=검색 아니라 라이브러리 품질**(코드밀도·실행아티팩트) → 유도 품질에 투자, 주입 과투자 금지 |
+| AWM (2409.07429) | 궤적서 워크플로 induce, sub-task 일반화 | prompt-side, 자유텍스트 |
+| Routine (2507.14447) | 선형 스크립트 distill 95.5% | 시나리오종속·간섭붕괴(96→76)·재distill |
+| SoK Agentic Skills (2602.20867) | skill=(C,π,T,R), C=goal-cond | **policy-내부화 칸 빔, weight vs context trade-off·cross-domain C = open** → 우리 빈칸 인증 |
+
+**화해(중요)**: 우리 "온톨로지 falsify"는 (LLM-AFOD 관계 × 사후 위반검사 × 강teacher 궤적) **특정 조합**의 실패. WISE-Flow +10pp = (데이터유도 × 결정-시점 양성안내 × 약 에이전트). → **올바른 설계: ①관계는 contrastive 데이터 유도(LLM-prior 폐기), ②결정-시점 positive grounding(사후검사 폐기), ③student에 적용.**
+
+### 13.7 결정화된 방향 + 실험 + 포지셔닝
+**Thesis**: *contrastive로 유도한 goal-conditioned 도구선택 절차 (C, π)를 가중치에 distill(SoK 빈칸; Δ matrix 성분=steering이 못한 것), goal→도구-역할 추상화로 일반화, 도메인 applicability(ABox)는 swap해 cross-domain 전이(SoK 미해결 domain-adaptive C).*
+
+- **비교군**: full-prompt agent / Graphify-RAG / **WISE-Flow(prompt-side prereq 워크플로)**.
+- **Treatment**: 절차 내부화(LoRA; plain SFT 1539가 substrate — 선택 58%+형식 36% 동시 보강 기대) + ABox swap.
+- **Metric**: 학생 **fix-coverage lift (vs 0.06)** + **retained pass^1 vs 절감 토큰/KV/latency** + **cross-domain 전이매트릭스**(telecom+retail 학습 → airline swap).
+- **데이터**: contrastive(clean/recovered/failure) 유도(WISE-Flow식). fault→fix 유도의 co-occurrence 아티팩트는 단일결함/인과귀속으로 정제(SkillFlow: 품질이 성패).
+- **경고(Transmuting)**: cross-domain = 분포 이동 → 도메인특수성 내부화 시 취약(100→42.7). *오직 불변 절차만* 내부화했는지 ablation 필수.
+- **신규 title 후보**: "Beyond Prompt-Side Compression: Internalizing a Goal→Tool Selection Procedure with a Swappable Ontology Interface for Cross-Domain Agent Transfer".
+
+### 13.8 이번 세션 구축 자산
+- `scripts/distill/build_sft_dataset.py`: shipped 멀티-teacher → chat JSONL. **plain 1539**(clean) / **facet L1-3**(온톨로지 필터; telecom L1 378) / **aux_sonnet 179**(teacher/user_sim 태그). dual-control(telecom: user-side tool 드롭) 변환 처리. 구조검증 ALL PASS.
+- `scripts/distill/ontology_filter.py`: graded L1/L2/L3 violation 체커.
+- 진단 probe(/tmp, 비-커밋): 변별·스텝-admissibility·induction·Qwen 오류분해·goal→tool coverage.
+- 인프라: GitHub 동기화([[feedback_git_auto_commit_push]]; SFTP 차단, remote_run은 PowerShell). 보조 Sonnet 데이터=`tau2-bench/data/simulations/.../phase4_distill/`(4파일).
+- **다음 실행**: §6 step3 — goal→tool 선택 절차 LoRA 내부화 학습 → fix-coverage(vs 0.06)·cross-domain 전이 측정. (또는 fault→fix 유도 품질 정제 선행.)
