@@ -173,6 +173,27 @@ def make_run_config(domain: str, task_set: str, task_split: str, agent_llm: str,
     return TextRunConfig(**cfg_kwargs)
 
 
+def _allow_empty_system_message():
+    """tau2's llm_utils.validate_message asserts every SystemMessage has non-empty
+    content, which rejects the NONE (internalization) arm whose system prompt is empty.
+    Relax it so the agent prompt matches the SFT-none training distribution exactly:
+    empty system message + tools (apply_system_mode("none") in the trainer). Only the
+    SystemMessage check is dropped; assistant/user/tool validation is preserved."""
+    import tau2.utils.llm_utils as _llm_utils
+    if getattr(_llm_utils, "_none_arm_patched", False):
+        return
+    _SystemMessage = _llm_utils.SystemMessage
+    _orig = _llm_utils.validate_message
+
+    def _patched(message):
+        if isinstance(message, _SystemMessage):
+            return  # allow empty system content (internalization arm)
+        return _orig(message)
+
+    _llm_utils.validate_message = _patched
+    _llm_utils._none_arm_patched = True
+
+
 def run_one(variant: str, args, ontology_text: str | None):
     if variant == "B0":
         _llm_agent_mod.AGENT_INSTRUCTION = ORIG_AGENT_INSTRUCTION
@@ -191,6 +212,7 @@ def run_one(variant: str, args, ontology_text: str | None):
         _llm_agent_mod.AGENT_INSTRUCTION = ""
         _llm_agent_mod.SYSTEM_PROMPT = ""
         domain_policy_suffix = None  # sentinel: skip template assignment below
+        _allow_empty_system_message()
     else:
         raise ValueError(variant)
 
