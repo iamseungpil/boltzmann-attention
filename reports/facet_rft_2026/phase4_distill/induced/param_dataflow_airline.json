@@ -1,0 +1,110 @@
+{
+  "domain": "airline",
+  "entity_keys": [
+    "cabin",
+    "destination",
+    "flight_type",
+    "flights",
+    "insurance",
+    "nonfree_baggages",
+    "origin",
+    "passengers",
+    "payment_methods",
+    "reservation_id",
+    "total_baggages",
+    "user_id"
+  ],
+  "provenance": {
+    "cabin": [
+      "get_reservation_details"
+    ],
+    "destination": [
+      "get_reservation_details",
+      "search_direct_flight"
+    ],
+    "flight_type": [
+      "get_reservation_details"
+    ],
+    "flights": [
+      "get_reservation_details"
+    ],
+    "insurance": [
+      "get_reservation_details"
+    ],
+    "nonfree_baggages": [
+      "get_reservation_details"
+    ],
+    "origin": [
+      "get_reservation_details",
+      "search_direct_flight"
+    ],
+    "passengers": [
+      "get_reservation_details"
+    ],
+    "payment_methods": [
+      "get_user_details"
+    ],
+    "reservation_id": [
+      "get_reservation_details"
+    ],
+    "total_baggages": [
+      "get_reservation_details"
+    ],
+    "user_id": [
+      "get_reservation_details",
+      "get_user_details"
+    ]
+  },
+  "action_params": {
+    "book_reservation": [
+      "user_id",
+      "origin",
+      "destination",
+      "flight_type",
+      "cabin",
+      "flights",
+      "passengers",
+      "payment_methods",
+      "total_baggages",
+      "nonfree_baggages",
+      "insurance"
+    ],
+    "calculate": [
+      "expression"
+    ],
+    "cancel_reservation": [
+      "reservation_id"
+    ],
+    "send_certificate": [
+      "user_id",
+      "amount"
+    ],
+    "transfer_to_human_agents": [
+      "summary"
+    ],
+    "update_reservation_baggages": [
+      "reservation_id",
+      "total_baggages",
+      "nonfree_baggages",
+      "payment_id"
+    ],
+    "update_reservation_flights": [
+      "reservation_id",
+      "cabin",
+      "flights",
+      "payment_id"
+    ],
+    "update_reservation_passengers": [
+      "reservation_id",
+      "passengers"
+    ]
+  },
+  "read_tools": [
+    "get_reservation_details",
+    "get_user_details",
+    "list_all_airports",
+    "search_direct_flight",
+    "search_onestop_flight",
+    "get_flight_status"
+  ]
+}
