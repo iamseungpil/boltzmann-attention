@@ -9,10 +9,32 @@
 
 | Track | 담당 | GPU | 핵심 역할 |
 |---|---|---|---|
-| **A (우리)** | woori box | A6000 ×2 | 데이터 파이프라인(완료)·7B 학습·trainer/scorer 제작·WISE-Flow baseline·fault→fix 정제 |
+| **A (우리)** | woori box | A6000 ×2 | ✅데이터·도구(trainer/scorecard/grpo_reward/semantic layers) **완비** · **7B full/none 학습 중** · eval·WISE-Flow baseline |
 | **B (coworker)** | A100 box | **A100 ×4 (80GB)** | **32B 학습 · cross-domain eval 매트릭스(대규모) · on-policy GRPO · capability-ceiling probe** |
 
-**한 줄 목표**: teacher 궤적에서 **goal→tool 선택 절차**를 student 가중치에 distill해, (1) student의 fix-coverage를 0.06 → 높게 끌어올리고, (2) **재학습 없이 held-out 도메인으로 전이**되며, (3) full-prompt 대비 토큰/KV/latency를 줄이는지 검증.
+**한 줄 목표**: teacher 궤적에서 **goal→tool 선택 절차**를 student 가중치에 distill해, (1) student의 goal→tool 일치도(F1/seq_F1, base 거의 0)를 끌어올리고, (2) **재학습 없이 held-out 도메인으로 전이**되며, (3) full-prompt 대비 토큰/KV/latency를 줄이는지 검증.
+
+---
+
+## 0.5 ★ 업데이트 (2026-05-30) — Track A 도구 완비, 즉시 착수 가능
+
+**Track A가 B1~B3에 필요한 도구·데이터·설계를 전부 제작·검증·commit 완료.** coworker는 clone 후 바로 32B 학습/eval/GRPO 착수 가능.
+
+**도구 인벤토리** (`scripts/distill/`, 전부 repo):
+- `lora_train_chat_toolcall.py` — chat-SFT 트레이너(멀티턴 tool-use, assistant-only 마스킹, `--system-mode full/none`). **검증·버그픽스 완료**(torch_dtype, **grad-ckpt는 peft wrap 후 + enable_input_require_grads + use_reentrant=False** — 안 하면 long-seq backward OOM). **7B full/none 현재 Track A에서 학습 중**(레시피 그대로 32B에 적용).
+- `procedure_scorecard.py` — **eval 지표(F1/seq_F1 headline + recall/precision/seq_match/arg_bind/extra/order)**. fix-coverage 단독 폐기.
+- `metric_mining.py` — AUC 기반 지표 발굴(F1이 최강, AUC 0.902).
+- `fault_fix_induce.py`·`param_dataflow.py` — goal→tool + 파라미터 provenance semantic layer. 맵 commit: `induced/{fault_fix_map,task_required_tools,param_dataflow_{telecom,retail,airline}}.json`.
+- `wiseflow_baseline.py` — prompt-side 비교군 inducer/injector.
+- `grpo_reward.py` + `GRPO_REWARD_DESIGN.md` — **B3용 검증된 dense reward**.
+
+**핵심 측정 결과(데이터-주도, 지표·reward 근거)**:
+- 큰/작은 격차 = **94% 절차(distillable)**, capability 벽 1%. base 7B 실패 시 recall ~0.04 + precision 0.03~0.1(과잉진단).
+- **F1/seq_F1이 success/failure 최강 변별**(AUC 0.902 teacher / 0.985 student). 3 도메인 일반화(telecom/retail/airline, read-제외·requestor 정정 후 전부 +0.2~0.6).
+- **arg_bind**(파라미터 dataflow): teacher 포화(0.99)·**student 약점 노출(0.32~0.73 ID 할루시네이션)** = 학습신호.
+- GRPO dense reward 검증: 실패 롤아웃 seq_F1 0.255±0.291(std>0) → all-fail group도 advantage(sparse cold-start 구제).
+
+**바뀐 점**: 지표가 fix-coverage → **scorecard(F1/seq_F1)**. 데이터·trainer·scorer·reward 전부 **repo에 존재**(이전 "제작 예정" 해소). adapter만 HF 교환.
 
 ---
 
@@ -27,9 +49,10 @@
 
 **Thesis**: contrastive 유도 goal-conditioned 선택 절차를 가중치에 distill(=steering이 못한 matrix 성분), goal→도구-역할 추상화로 일반화, 도메인 인스턴스(ABox)는 swap → cross-domain 전이.
 
-**지표**
-- **fix-coverage** (핵심): 태스크의 각 결함에 대해 student가 올바른 fix-tool을 불렀는가 (baseline 0.06). scorer = Track A 제공(`scripts/distill/score_fix_coverage.py`).
-- **pass^1** (tau2 test split, 도메인별).
+**지표** (scorer=`scripts/distill/procedure_scorecard.py`, 완료·3도메인 일반화)
+- **F1 / seq_F1** (핵심·headline): goal→tool 일치(recall·순서·minimality 통합). 데이터-주도 발굴서 최강 변별(AUC 0.902). base student 거의 0 → SFT 상승폭이 1차 판정.
+- 분해축: recall / precision(minimality) / seq_match / **arg_bind**(인자 바인딩=student 품질) / extra_actions(over-diagnosis).
+- **pass^1** (tau2 test split, 도메인별) — 최종 성능.
 - **cross-domain transfer**: telecom+retail 학습 → **airline held-out** 전이 +%p.
 - **efficiency**: retained pass^1 vs 절감 토큰/KV/latency (full-prompt 대비).
 - **mms-chain pass^1**: capability ceiling 분리용 (multi-fault).
@@ -63,8 +86,8 @@
 
 ### B3. On-policy GRPO (학습 사다리 ③) — 조건부
 - **목적**: SFT가 못 메운 mms residual을 student 탐색+reward로 보강.
-- **GPU**: 4× A100 (policy + rollout 서빙). trl 설치 필요(미설치).
-- **reward**: pass/fail + (옵션) goal→tool process reward(fix-tool 호출 시 +) + ontology-violation penalty. 
+- **GPU**: 4× A100 (policy + rollout 서빙). trl 설치 필요.
+- **reward**: `scripts/distill/grpo_reward.py`(검증 완료) — `w_pass·pass + w_proc·seq_F1 − w_extra·extra + w_arg·arg_bind`(기본 1.0/0.5/0.3/0.1). 설계·anti-hacking·ablation·통합은 **`reports/facet_rft_2026/GRPO_REWARD_DESIGN.md`** 참조. dense seq_F1이 sparse cold-start 구제(검증: 실패 롤아웃 seq_F1 0.255±0.291, std>0 → all-fail group advantage). 정책 init=SFT 어댑터(full/none).
 - **선행조건**: B1/A2 SFT가 양성 lift(G1) 확인 후 진입.
 - **출력**: GRPO adapter + reward curve + test 매트릭스 갱신.
 
@@ -108,7 +131,8 @@ export OPENROUTER_API_KEY=...   # phase1_runner: --user-llm openai/gpt-4.1 + OPE
 | 학습 jsonl (plain/facet/aux) | **GitHub repo** (commit 완료) | clone로 즉시 확보. plain_all 54MB 등 |
 | eval 데이터 (domains/split/env) | **public tau2-bench** | clone+pip install |
 | 577MB shipped 궤적 | — | **불필요**(재생성 소스일 뿐) |
-| trainer / scorer / WISE-Flow | GitHub (Track A 제작·push) | `scripts/distill/` |
+| trainer / scorecard / metric_mining / fault_fix / param_dataflow / wiseflow / grpo_reward | **GitHub repo (전부 commit 완료)** | `scripts/distill/` |
+| induced 맵 (fault_fix / task_required / param_dataflow×3) | **GitHub repo (commit 완료)** | `reports/.../phase4_distill/induced/` |
 | 학습된 adapter (7B↔32B 교차평가) | **HF private model repo** | repo push 금지(GB급); HF org에 공유 |
 
 ---
@@ -127,9 +151,9 @@ export OPENROUTER_API_KEY=...   # phase1_runner: --user-llm openai/gpt-4.1 + OPE
 
 | 주 | Track B (coworker) | Track A (우리) |
 |---|---|---|
-| **W1** | 셋업 + **B1 32B plain-SFT** | chat-SFT trainer + fix-coverage scorer 제작·전달, 7B plain-SFT, fault→fix 정제 |
-| **W2** | **B2 eval 매트릭스**(7B+32B × plain/facet × 3도메인) + B1 facet-SFT | WISE-Flow baseline, 7B facet-SFT, efficiency 측정 |
-| **W3** | **B3 GRPO**(조건부) + **B4 capability probe** | 결과 종합, 논문 표/그림 |
+| **W1** | 셋업 + **B1 32B plain/none-SFT** (도구 전부 repo, 즉시 착수) | ✅도구 일습 완료, **7B full/none 학습 중** → eval |
+| **W2** | **B2 eval 매트릭스**(7B+32B × plain/facet × full/none × 3도메인) + B1 facet-SFT | 7B eval(scorecard F1/seq_F1), efficiency 측정, fault→fix 추가 정제 |
+| **W3** | **B3 GRPO**(grpo_reward.py, 조건부) + **B4 capability probe** | 결과 종합, 논문 표/그림 |
 
 GPU 할당 예시(W2): 2 GPU 학습 + 2 GPU eval 병렬.
 
@@ -139,7 +163,7 @@ GPU 할당 예시(W2): 2 GPU 학습 + 2 GPU eval 병렬.
 
 | 게이트 | 기준 | 판단 |
 |---|---|---|
-| **G1 (SFT lift)** | fix-coverage 0.06 → **≥0.50 (7B), ≥0.60 (32B)**; pass^1 ≥ baseline | 진행 / 데이터·trainer 점검 |
+| **G1 (SFT lift)** | base 대비 **seq_F1/F1 대폭↑**(base 거의 0) + arg_bind↑(ID 바인딩) + pass^1 ≥ baseline | 진행 / 데이터·trainer 점검 |
 | **G2 (cross-domain 전이)** | telecom+retail 학습 → **airline held-out +≥5%p** vs baseline | thesis 핵심 양성 / ABox-swap 재설계 |
 | **G3 (facet vs plain)** | facet가 plain 대비 **+≥3%p** | facet 기여 확정 / 없으면 **facet 폐기, plain만** |
 | **G4 (GRPO, 조건부)** | mms-chain **+≥5%p** | capability 잔차 보강 / capability 벽 보고 |
@@ -150,4 +174,7 @@ GPU 할당 예시(W2): 2 GPU 학습 + 2 GPU eval 병렬.
 - **fault→fix ground-truth 품질**(SkillFlow 교훈: 병목은 검색 아닌 라이브러리 품질). Track A가 단일결함/인과귀속으로 정제 후 scorer에 반영.
 - **cross-domain = 분포 이동 → 도메인특수성 내부화 시 취약**(Transmuting 100→42.7 사례). 전이 평가에서 "불변 절차만 내부화" ablation 확인.
 - **user_sim 비용**: eval은 OpenRouter gpt-4.1 호출(과금). test split N≈40/도메인이라 관리가능하나 매트릭스 셀 수 × N 주의.
+- **retail/airline는 student baseline 없음**(Phase1=telecom only) → cross-domain eval에서 그 도메인은 **pass^1 위주**로, scorecard의 telecom 강점이 그대로 전이될지는 불확실(teacher 기준 +0.2 변별 확인됨).
+- **scorecard 도메인 특성**: telecom 가장 깨끗(F1 AUC 0.9). airline arg_bind는 복잡 중첩 params라 부분(0.6/0.69). retail/airline GT는 **read 제외·requestor=user 제외** 후 써야 정확(트레이너/scorer엔 반영됨).
+- **GT actions = reward-aligned but soft order**(env-assertion 기반) → reward의 seq_F1 vs set-F1 비교 ablation(GRPO_REWARD_DESIGN §8).
 - tau2 버전 일치(우리 baseline과). vLLM 0.11.0 권장.
