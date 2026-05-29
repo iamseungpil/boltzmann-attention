@@ -47,14 +47,16 @@
 - **목적**: 큰 student + 내부화된 절차가 7B 대비 얼마나 더 메우는지(특히 mms).
 - **GPU**: 2× A100 (FSDP) 또는 1× 80GB (LoRA + grad checkpointing). 
 - **입력**: `reports/facet_rft_2026/phase4_distill/sft_data/sft_plain_train_all.jsonl` (repo, clone로 확보) + **chat-SFT trainer**(Track A 제공: `scripts/distill/lora_train_chat_toolcall.py`, multi-turn tool-use, assistant-only loss). base = `Qwen/Qwen2.5-32B-Instruct`.
-- **변형**: ① plain(1539) ② facet_L1(ontology-clean) — plain vs facet confound 격리.
+- **변형 (2축)**: (a) **데이터**: plain(1539) / facet_L1(ontology-clean) — plain vs facet confound 격리. (b) **`--system-mode`**: `full`(정책 prompt 유지 = plain-SFT baseline, 추론 시 prompt 필요) vs **`none`**(정책 제거 = **내부화 arm**, 정책을 가중치로 흡수 → 추론 시 prompt 불필요; seq ~절반 5K로 학습도 쌈). §13 efficiency thesis 검증. → 최소 4 조합(plain/facet × full/none).
+- **trainer**: `scripts/distill/lora_train_chat_toolcall.py` (repo, **제작·인코딩 검증 완료**: incremental assistant-only 마스킹, tool_call args str→dict 정규화, dual-control 처리, boundary_mismatch 0). 검증: full supervised-frac 0.18·seq max 13K / none 0.35·seq max 7.7K. **env 주의**: seka_env엔 peft 없음 → 학습은 `torch+transformers>=4.51+peft+accelerate` env 필요. `--max-seq-len` 기본 14336(telecom 정책~6K 때문; none 모드는 더 짧음).
 - **출력**: adapter(`lora_adapters/qwen32b_{plain,facetL1}/`) + `train_meta.json`. adapter는 **HF private model repo로 공유**(repo push 금지, GB급).
 - **성공기준**: 수렴(val loss↓), 실제 lift는 B2에서 측정.
 
 ### B2. Cross-domain transfer EVAL 매트릭스  ★대규모 병렬 (coworker 핵심 기여)
 - **목적**: 학습된 student를 tau2 **test split**에서 평가하고 전이 매트릭스를 채움.
 - **GPU**: vLLM 서빙(adapter 머지 후) 1 GPU/모델 + 다중 에피소드 병렬. 4 GPU면 2~3 모델 동시 + 에피소드 fan-out.
-- **매트릭스**: {7B(Track A), 32B(B1)} × {baseline, plain-SFT, facet-SFT} × {telecom, retail, airline} test split. user_sim = **`openai/gpt-4.1` via OpenRouter** (키 공유; `OPENAI_BASE_URL`=openrouter 필수).
+- **매트릭스**: {7B(Track A), 32B(B1)} × {baseline, plain-SFT, facet-SFT} × {full, none system-mode} × {telecom, retail, airline} test split. user_sim = **`openai/gpt-4.1` via OpenRouter** (키 공유; `OPENAI_BASE_URL`=openrouter 필수).
+- **★efficiency 측정(§13 핵심)**: `none`-mode student(정책 prompt 0)의 **retained pass^1** vs `full`-prompt baseline + 절감 토큰/KV/latency. "정책을 가중치로 내부화해도 pass^1 유지되는가"가 thesis 검증.
 - **러너**: `scripts/phase1_runner.py` (repo; 패치됨 — `--agent-llm`=로컬 vLLM, `--user-llm`, `--agent-api-key`). **주의(기존 버그)**: 도메인별 `--task-set <domain>` 필수(기본 telecom), airline judge는 `OPENAI_BASE_URL`/`OPENAI_API_BASE`=openrouter 설정.
 - **출력**: `reports/facet_rft_2026/phase4_distill/coworker_a100/eval/<run>/results.json` + fix-coverage/pass^1 manifest.
 - **성공기준**: G1/G2/G3 (아래 §8).
@@ -85,7 +87,8 @@ git clone https://github.com/sierra-research/tau2-bench.git
 cd tau2-bench && pip install -e .        # tau2 패키지 + data/tau2/domains(split_tasks/policy/tools)
 
 # 3) python env
-#   학습: torch, peft, transformers, accelerate, (B3) trl
+#   학습: torch, transformers>=4.51, peft, accelerate, (B3) trl   # ★seka_env엔 peft 없음 → 별도 학습 env
+#         (검증 env: transformers 4.51.3 / torch 2.7.0+cu126; flash-attn 있으면 --attn flash_attention_2)
 #   서빙/eval: vllm==0.11.0  (우리 phase1 baseline과 버전 일치 권장)
 
 # 4) 모델 (HF)
