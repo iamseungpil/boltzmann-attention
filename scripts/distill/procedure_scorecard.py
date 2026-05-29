@@ -44,7 +44,9 @@ def gt_agent_actions(task):
     ec = task.get("evaluation_criteria") or {}
     out = []
     for a in ec.get("actions") or []:
-        if a.get("requestor") != "assistant":
+        # exclude only explicit USER actions (telecom dual-control). assistant or
+        # requestor=None (single-control retail/airline) are the agent's.
+        if a.get("requestor") == "user":
             continue
         name = a.get("name") or a.get("func_name")
         if not name:
