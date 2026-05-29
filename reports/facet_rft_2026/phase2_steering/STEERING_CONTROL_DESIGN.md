@@ -254,6 +254,18 @@ R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
 
 **Go/No-Go 강화**: in-domain +X%p 가 아니라 **재학습 없이 held-out 도메인서 +X%p 전이**. §1.5 가변 steering 비전(아키텍처 A)과 결합 시 = **도메인-일반 relation-LoRA 라이브러리 + 도메인별 라우팅**(1회 학습 → 어디서나).
 
+**▶ Tier 1 결과 — 스키마/추상-패턴 전이 (2026-05-29, 무예산 온톨로지 분석)**
+3 도메인(telecom/retail/airline) 42-rel 온톨로지 구조 비교:
+- **스키마 보편성**: 16/16 core relation-type가 3 도메인 모두 존재(각 37 테이블).
+- **도메인-일반 추상 invariant (3 도메인 동일 재현)**:
+  - escalation: transfer_to_human_agents가 모든 도메인서 ERROR_FALLBACK 타겟 + GUARDRAIL(not-first) + WORKFLOW_ROLE=cleanup — 구조 동일.
+  - verify-before-act: READ-tool이 WRITE-tool을 VALIDATES (6–7쌍/도메인).
+  - guardrail-on-write: retail 6/7, airline 6/6 write에 GUARDRAIL.
+  - mandatory lookup/auth 게이트: 각 도메인 소수 필수 도구.
+- **relation-type entry 분포 유사**: PRECEDES 10/13/13, VALIDATES 6/7/6, MUTEX 5/6/5, ERROR_FALLBACK 6/6/5, GUARDRAIL 6/8/7 — 거의 일치. (예외: STATE_TRANSITION telecom 17 vs 4 — telecom이 풍부한 상태기계.)
+- **판정**: 전이 주장 (a) 스키마/추상-패턴 전이 = **양성**. 42-rel 온톨로지 + 관계 스켈레톤(escalation-fallback · verify-before-act · guardrail-on-write · mandatory-auth)이 도메인-일반 → 경제 논거(스키마 1회 정의→어디서나)의 1차 근거 확보.
+- **남은 Tier (GPU/예산 필요)**: (b) *학습된 개입*(LoRA-RFT/distill)이 재학습 없이 전이하는가, (c) reward 전이. → retail/airline B0 baseline + 학습 후 측정.
+
 ---
 
 ## 11. Facet-guided distillation (capability 주입 + cold-start 해소) — 2026-05-29
