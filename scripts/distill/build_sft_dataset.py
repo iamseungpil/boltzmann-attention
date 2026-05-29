@@ -40,11 +40,18 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from ontology_filter import agent_tool_sequence, count_ontology_violations  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Paths (resolved relative to the boltzmann-attention checkout that holds the
 # tau2-bench submodule + shipped results).  Overridable via --tau2-root.
 # ---------------------------------------------------------------------------
 DEFAULT_TAU2_ROOT = "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench"
+# per-domain ontology data modules live in scripts/ontology/ (sibling of this dir)
+DEFAULT_ONT_DIR = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ontology")
+)
 
 # Teacher-result files we trust as distillation sources: standard gpt-4.1 user_sim,
 # *default* agent variant only (no-user / op / workflow ablations excluded so the
@@ -268,27 +275,37 @@ def build_group(out_dir, group_key, domain, system, tools, sources, split_ids, a
                 if conv is None:
                     stats["malformed"] += 1
                     continue
-                # ontology filter hook (facet variant) — wired in step 2
+                # ontology filter (facet variant): keep only ontology-clean trajectories
+                onto_total, onto_breakdown = 0, {}
                 if args.variant == "facet" and args.ontology:
-                    # placeholder: violations counter to be supplied by
-                    # scripts/ontology/tau2_<domain>_ontology.py
-                    pass
+                    tool_seq = agent_tool_sequence(conv)
+                    onto_total, onto_breakdown, _ = count_ontology_violations(
+                        domain, tool_seq, args.ont_dir
+                    )
+                    if onto_total > 0:
+                        stats["onto_violation"] += 1
+                        for k in onto_breakdown:
+                            stats[f"onto_{k}"] += onto_breakdown[k]
+                        continue
                 per_task[tid] += 1
                 teachers.add(teacher)
+                meta = {
+                    "domain": domain,
+                    "task_id": tid,
+                    "teacher": teacher,
+                    "user_sim": user_sim,
+                    "source": args.source,
+                    "variant_tag": variant_tag,
+                    "trial": s.get("trial"),
+                    "reward": reward,
+                    "source_file": path.name,
+                }
+                if args.variant == "facet" and args.ontology:
+                    meta["ontology_violations"] = onto_total  # 0 for kept records
                 rec = {
                     "messages": [{"role": "system", "content": system}] + conv,
                     "tools": tools,
-                    "meta": {
-                        "domain": domain,
-                        "task_id": tid,
-                        "teacher": teacher,
-                        "user_sim": user_sim,
-                        "source": args.source,
-                        "variant_tag": variant_tag,
-                        "trial": s.get("trial"),
-                        "reward": reward,
-                        "source_file": path.name,
-                    },
+                    "meta": meta,
                 }
                 line = json.dumps(rec, ensure_ascii=False)
                 dom_f.write(line + "\n")
@@ -326,6 +343,8 @@ def main() -> int:
     )
     ap.add_argument("--ontology", action="store_true",
                     help="(facet variant) require ontology-clean trajectories")
+    ap.add_argument("--ont-dir", default=DEFAULT_ONT_DIR,
+                    help="dir with tau2_<domain>_ontology.py modules")
     args = ap.parse_args()
 
     registry, SYSTEM_PROMPT, AGENT_INSTRUCTION = _require_tau2(args.tau2_root)
@@ -389,8 +408,16 @@ def main() -> int:
             "user_sims": sorted({s[3] for s in srcs}),
             "out_file": extras["out_file"],
         }
+        if args.variant == "facet" and args.ontology:
+            manifest["groups"][group_key]["onto_violation_dropped"] = stats["onto_violation"]
+            manifest["groups"][group_key]["onto_breakdown"] = {
+                k[5:]: stats[k] for k in ("onto_mutex", "onto_precedes", "onto_requires", "onto_guardrail")
+                if stats[k]
+            }
+        onto_note = (f" onto_dropped={stats['onto_violation']}"
+                     if (args.variant == "facet" and args.ontology) else "")
         print(f"[{group_key}] kept={stats['kept']} success={stats['success']} "
-              f"in_split={stats['in_split']} malformed={stats['malformed']} "
+              f"in_split={stats['in_split']} malformed={stats['malformed']}{onto_note} "
               f"tasks_covered={extras['tasks_covered']}/{len(split_ids)} tools={len(tools)}")
 
     combined_f.close()
