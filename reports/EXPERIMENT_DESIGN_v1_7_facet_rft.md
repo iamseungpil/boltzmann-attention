@@ -1,8 +1,8 @@
 # 실험 설계서: 온톨로지 기반 그래프 구조 주입을 통한 Training-Free 다단계 도구 계획 개선
 
-**버전**: v1.21  
+**버전**: v1.22  
 **작성일**: 2026-05-26  
-**최종 갱신**: 2026-05-29 (v1.21: Phase 2a/2c/2d steering 실측 — 상수 single-relation steering null, steering↔RFT class-hierarchy, LoRA-RFT 피벗. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md)  
+**최종 갱신**: 2026-05-29 (v1.21: Phase 2a/2c/2d steering 실측 — 상수 single-relation steering null, steering↔RFT class-hierarchy, LoRA-RFT 피벗; v1.22: cross-domain 전이 축(4도메인 telecom/retail/airline/banking) 중심 격상 + 합성-온톨로지 북극성. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §1-10)  
 **목표 학회**: NeurIPS 2026 / ICLR 2027  
 
 ---
@@ -2649,6 +2649,7 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-05-29 | v1.22: **Cross-domain 전이 축 격상 + 합성-온톨로지 학습 북극성**. 학습비용=도메인당×N → 온톨로지 관계가 도메인-일반이면 1회 학습 후 전이로 amortize(thesis 경제 정당성·novelty). Phase 5에 묻힌 도메인 일반화를 *중심 축*으로 격상. 4 도메인(telecom 2285/retail 114/airline 50/banking_knowledge 97) cross-domain 전이: B0_d / SYN→d(합성 1회학습 zero-shot, 최강주장) / TEL→d(전이) / d-RFT(상한). 전이 주장 3분리: 스키마(auto)·개입(prize)·reward(이미 rule-based 도메인일반=공짜). 일반성 gradient + de-risk floor(in-domain real RFT). 선행: retail/airline/banking B0·banking AFOD 추출·합성 agentic 학습원 설계(성패 핵심). Go/No-Go 강화: 재학습 없이 held-out +X%p. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §10. |
 | 2026-05-29 | v1.21: **Phase 2a/2c/2d steering 실측 + LoRA-RFT 피벗**. Qwen-7B 상수 single-relation steering(validates +1.5%p / error_fallback / retry_after_fail) + context-gating(decay/orth) 전부 baseline noise band [0.176-0.217] 내 (N≤120). **표상-공간 facet 상보 구조(AXIS-1)가 인과 행동으로 이어지지 않음** — retry_after_fail(EXEC 극)이 transfer(45%)·pass 최고로 예측 반전(『표상 상보 ≠ 인과 상보』). 효과 비특이적, pass^1 미반영(H2 ceiling 지지). C5 actuator 약함·C3 미지지 → Phase 2a Go/No-Go 미통과(<+3%p). **결정: class-hierarchy(상수 steering=bias-1step-RFT 최약점) 처방대로 학습 끝으로 피벗 → LoRA-RFT(L0=PEFT-RFT) 직행** (power test 생략, 사용자 결정). 신규 companion 문서 phase2_steering/STEERING_CONTROL_DESIGN.md: steering↔RFT 수학적 동치(상수=bias-1step-RFT, 가변 LoRA/steering ⊇ RFT), 실시간 steering 고유장점(closed-loop), 온톨로지 활용 taxonomy(합성/Read=RFT보상/ablation/그래프구동/training-time), 상보-전환 규칙, C1-C5 검증링크, 실험 사다리 Rung1-7. |
 | 2026-05-18 | D0 가정 수정 완료 (가)(나)(마), Telecom S1 확인 |
 | 2026-05-24 | 문제 재정의: 도구 선택 F1 → 다단계 계획 pass^1 |

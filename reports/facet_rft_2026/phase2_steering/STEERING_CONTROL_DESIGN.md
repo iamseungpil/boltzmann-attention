@@ -223,3 +223,32 @@ R3 IF goal-state met THEN steer=achieves_goal (확인·종료)
 **다음 = §1.5 2단 경로의 1단계 (LoRA-RFT 강도 확보; 성공 시 2단계 가변화로 승급)**: base=Qwen2.5-7B + LoRA(attn/mlp), objective=τ² task reward(GRPO/RWR), rollout=telecom + gpt-4o-mini user_sim(예산 주의), eval=동일 30-task pass^1. 기존 infra 정찰: run_lora_hybrid_pipeline.sh, scripts/ocq/lora_train_metatool_v*.py (RFT/SFT 여부 + peft/trl 가용성 확인 필요). ⚠️ RL rollout이 OpenRouter 대량 소비 → 소규모부터, 잔액 모니터링.
 
 > 마스터 설계서: reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md v1.21 §7 Phase 2a 박스 / §10 Go/No-Go / §12.
+
+---
+
+## 10. 도메인 전이 + 합성-온톨로지 학습 (경제성·일반성 축) — 2026-05-29
+
+**동기**: 학습 비용 ≈ 도메인당 학습 × N도메인. 온톨로지 관계가 *도메인-일반*이면 **1회 학습 후 전이**로 비용 amortize — thesis의 경제 정당성이자 novelty(cross-domain pre-defined ontology). → 마스터 Phase 5에 묻힌 도메인 일반화를 **중심 축으로 격상**.
+
+**4 도메인** (τ²-bench): telecom(2285, small 20) / retail(114) / airline(50) / banking_knowledge(97, nonmeta 13).
+- ⚠️ banking_knowledge는 knowledge-QA 성향 가능(tool-action 비중 확인 필요) — 도메인 style 이질성은 전이의 강한 시험.
+- 자산: per-domain ontology 추출본 telecom/retail/airline ✓, **banking 미추출(AFOD 필요)**. 합성 relation 데이터 contrast_pairs_v3.json ✓(steering 추출원).
+
+**전이 주장 3분리**: (a) 스키마 전이(auto, 약한 saving), (b) **개입(벡터/policy) 전이 — 진짜 prize**, (c) reward 전이 — **이미 rule-based 도메인-일반(공짜)**. 핵심 = (b).
+
+**일반성 gradient** (학습원 agnostic 정도 ↑ → 주장 깨끗·경제성 ↑, 전이 리스크 ↑):
+1. 합성 텍스트 → steering = 이미 보유, **null**(§2).
+2. **합성 agentic → RFT → 4도메인 zero-shot = 북극성**(최강 주장, 高리스크: synthetic→real gap > 도메인간 gap).
+3. 1도메인 RFT → others 전이.
+4. in-domain RFT = floor.
+
+**de-risk 측정 사다리**: Floor(ontology-개입이 real in-domain서 작동? telecom real LoRA-RFT, null이면 상한 막힘) → Gradient(in-domain → 1도메인전이 → 합성→4) 로 *어디서 전이가 깨지는지* 위치 측정.
+
+**4도메인 전이 실험** (각 도메인 d):
+- 조건: B0_d(무개입, 선측정) / SYN→d(합성학습 zero-shot) / TEL→d(telecom학습 전이) / d-RFT(in-domain 상한)
+- 지표: pass^1, 전이율 = (X→d − B0_d) / (d-RFT − B0_d)
+- 판정: SYN→d > B0_d (4도메인 평균 유의) → 도메인-일반 온톨로지 1회 학습 → 어디서나 (★최강 주장)
+
+**선행 필요**: (i) retail/airline/banking **B0 baseline**(현재 telecom만), (ii) banking ontology **AFOD 추출**, (iii) **합성 agentic 학습원 설계**(42-relation 템플릿을 합성 tool-use 시나리오로 확장 — 성패 핵심 변인), (iv) reward는 schema에서 auto(공짜).
+
+**Go/No-Go 강화**: in-domain +X%p 가 아니라 **재학습 없이 held-out 도메인서 +X%p 전이**. §1.5 가변 steering 비전(아키텍처 A)과 결합 시 = **도메인-일반 relation-LoRA 라이브러리 + 도메인별 라우팅**(1회 학습 → 어디서나).
