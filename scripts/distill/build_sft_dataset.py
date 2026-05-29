@@ -115,17 +115,29 @@ def convert_messages(raw_msgs: list[dict]) -> list[dict] | None:
     Recorded roles: assistant | user | tool.
       assistant: {role, content, tool_calls:[{id,name,arguments(dict),requestor}], ...}
       tool:      {id, role, content, requestor, error, ...}
-      user:      {role, content, ...}
+      user:      {role, content, tool_calls?, ...}
 
-    Returns None if the trajectory is malformed (e.g. tool response with no
-    matching call) so the caller can skip it.
+    DUAL-CONTROL DOMAINS (telecom): both the agent AND the user simulator hold
+    tools.  The agent we distill never sees the user's tool calls or their
+    results — only the user's natural-language messages.  So we keep only
+    requestor=="assistant" tool activity and the user's text turns:
+      - user message tool_calls (requestor=="user")  -> dropped
+      - tool responses with requestor=="user"        -> dropped
+      - user message with empty content (tool-call-only turn) -> dropped
+    Single-control domains (retail/airline) have no user tools -> no-op there.
+
+    Returns None if the trajectory is malformed (e.g. an agent-side tool
+    response with no matching agent call) so the caller can skip it.
     """
     out: list[dict] = []
     open_call_ids: set[str] = set()
     for m in raw_msgs:
         role = m.get("role")
         if role == "user":
-            out.append({"role": "user", "content": m.get("content") or ""})
+            # drop user-side tool_calls (agent-invisible); keep text turns only
+            content = m.get("content")
+            if content:
+                out.append({"role": "user", "content": content})
         elif role == "assistant":
             content = m.get("content")
             tcs = m.get("tool_calls") or []
@@ -152,9 +164,12 @@ def convert_messages(raw_msgs: list[dict]) -> list[dict] | None:
                 msg["tool_calls"] = conv_tcs
             out.append(msg)
         elif role == "tool":
+            if m.get("requestor") != "assistant":
+                # user-side tool response: the agent never sees it -> drop
+                continue
             cid = m.get("id")
             if cid not in open_call_ids:
-                # tool response with no preceding call -> malformed; drop trajectory
+                # agent-side tool response with no preceding call -> malformed
                 return None
             open_call_ids.discard(cid)
             content = m.get("content")
