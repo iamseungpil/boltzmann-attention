@@ -107,6 +107,53 @@ def iter_teacher_files(tau2_root: str, domain: str):
 
 
 # ---------------------------------------------------------------------------
+# Auxiliary teacher: our OpenRouter Sonnet-4.6 runs (NOT primary distillation).
+# These live under data/simulations/... (not in git) and are used as a stronger-
+# teacher arm + a user_sim ablation (gpt-4o-mini vs gpt-4.1).  Keep them OUT of
+# the shipped `plain` set so those comparisons stay un-confounded.
+# Only the 4 valid runs are listed; the buggy/smoke runs are intentionally omitted:
+#   gen_retail_...162303 (--task-set bug: telecom tasks leaked into a retail run),
+#   gen_airline_...162622 (2 sims), airline_smoke*, calib_sonnet (early failures).
+# ---------------------------------------------------------------------------
+AUX_SONNET_SUBDIR = "data/simulations/reports/facet_rft_2026/phase4_distill"
+AUX_SONNET_SOURCES = [
+    # (domain, user_sim, relpath-under-AUX_SONNET_SUBDIR)
+    ("telecom", "gpt-4o-mini", "gen_telecom_train_sonnet_20260529_154937/B0_telecom_train.json/results.json"),
+    ("telecom", "gpt-4.1",     "gen_telecom_train_sonnet_u41_20260529_165055/B0_telecom_train.json/results.json"),
+    ("retail",  "gpt-4o-mini", "gen_retail_train_sonnet_20260529_162430/B0_retail_train.json/results.json"),
+    ("airline", "gpt-4o-mini", "gen_airline_train_sonnet_20260529_163445/B0_airline_train.json/results.json"),
+]
+
+
+def _user_sim_slug(user_sim: str) -> str:
+    return user_sim.replace("-", "").replace(".", "")
+
+
+def iter_aux_sonnet(tau2_root: str, domain: str):
+    """Yield (path, teacher, user_sim) for the Sonnet-4.6 aux runs of `domain`.
+
+    `teacher` is read from the run's info block when present, else "sonnet-4.6".
+    """
+    base = Path(tau2_root) / AUX_SONNET_SUBDIR
+    for dom, user_sim, rel in AUX_SONNET_SOURCES:
+        if dom != domain:
+            continue
+        path = base / rel
+        if not path.exists():
+            continue
+        teacher = "sonnet-4.6"
+        try:
+            info = json.loads(path.read_text()).get("info") or {}
+            # info may carry the agent llm id; fall back gracefully
+            agent_llm = (info.get("agent_info") or {}).get("llm") or info.get("agent_llm")
+            if agent_llm:
+                teacher = str(agent_llm)
+        except Exception:
+            pass
+        yield path, teacher, user_sim
+
+
+# ---------------------------------------------------------------------------
 # Trajectory -> chat conversion
 # ---------------------------------------------------------------------------
 def convert_messages(raw_msgs: list[dict]) -> list[dict] | None:
@@ -182,50 +229,29 @@ def convert_messages(raw_msgs: list[dict]) -> list[dict] | None:
     return out
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--domains", nargs="+", default=["telecom", "retail", "airline"])
-    ap.add_argument("--tau2-root", default=DEFAULT_TAU2_ROOT)
-    ap.add_argument("--out", required=True, help="output directory")
-    ap.add_argument("--variant", choices=["plain", "facet"], default="plain")
-    ap.add_argument("--split", default="train")
-    ap.add_argument(
-        "--max-per-task",
-        type=int,
-        default=0,
-        help="cap successful trajectories kept per task_id (0 = no cap)",
-    )
-    ap.add_argument("--ontology", action="store_true",
-                    help="(facet variant) require ontology-clean trajectories")
-    args = ap.parse_args()
+def _split_ids(tau2_root: str, domain: str, split: str) -> set[str]:
+    p = Path(tau2_root) / "data" / "tau2" / "domains" / domain / "split_tasks.json"
+    return set(json.loads(p.read_text())[split])
 
-    registry, SYSTEM_PROMPT, AGENT_INSTRUCTION = _require_tau2(args.tau2_root)
 
-    out_dir = Path(args.out)
-    out_dir.mkdir(parents=True, exist_ok=True)
+def build_group(out_dir, group_key, domain, system, tools, sources, split_ids, args, combined_f):
+    """Build one output group.
 
-    combined_path = out_dir / f"sft_{args.variant}_{args.split}_all.jsonl"
-    combined_f = combined_path.open("w", encoding="utf-8")
-
-    grand = Counter()
-    manifest = {"variant": args.variant, "split": args.split, "domains": {}}
-
-    for domain in args.domains:
-        system, tools = build_system_and_tools(
-            registry, SYSTEM_PROMPT, AGENT_INSTRUCTION, domain
-        )
-        split_ids = load_train_ids(args.tau2_root, domain) if args.split == "train" \
-            else set(json.loads((Path(args.tau2_root) / "data" / "tau2" / "domains" / domain / "split_tasks.json").read_text())[args.split])
-
-        per_task = defaultdict(int)
-        stats = Counter()
-        dom_path = out_dir / f"sft_{args.variant}_{args.split}_{domain}.jsonl"
-        dom_f = dom_path.open("w", encoding="utf-8")
-
-        for path, teacher, variant in iter_teacher_files(args.tau2_root, domain):
+    sources: list of (path, teacher, variant_tag, user_sim).
+    Returns (stats: Counter[int], extras: dict).
+    """
+    per_task = defaultdict(int)
+    stats = Counter()
+    teachers = set()
+    if args.source == "shipped":
+        fname = f"sft_{args.variant}_{args.split}_{group_key}.jsonl"
+    else:
+        fname = f"sft_{args.variant}_{args.source}_{args.split}_{group_key}.jsonl"
+    dom_path = out_dir / fname
+    with dom_path.open("w", encoding="utf-8") as dom_f:
+        for path, teacher, variant_tag, user_sim in sources:
             data = json.loads(path.read_text())
-            sims = data.get("simulations", [])
-            for s in sims:
+            for s in data.get("simulations", []):
                 tid = s.get("task_id")
                 stats["seen"] += 1
                 if tid not in split_ids:
@@ -248,6 +274,7 @@ def main() -> int:
                     # scripts/ontology/tau2_<domain>_ontology.py
                     pass
                 per_task[tid] += 1
+                teachers.add(teacher)
                 rec = {
                     "messages": [{"role": "system", "content": system}] + conv,
                     "tools": tools,
@@ -255,7 +282,9 @@ def main() -> int:
                         "domain": domain,
                         "task_id": tid,
                         "teacher": teacher,
-                        "variant_tag": variant,
+                        "user_sim": user_sim,
+                        "source": args.source,
+                        "variant_tag": variant_tag,
                         "trial": s.get("trial"),
                         "reward": reward,
                         "source_file": path.name,
@@ -263,33 +292,112 @@ def main() -> int:
                 }
                 line = json.dumps(rec, ensure_ascii=False)
                 dom_f.write(line + "\n")
-                combined_f.write(line + "\n")
+                if combined_f is not None:
+                    combined_f.write(line + "\n")
                 stats["kept"] += 1
+    extras = {
+        "tasks_covered": len(per_task),
+        "teachers": sorted(teachers),
+        "out_file": str(dom_path),
+    }
+    return stats, extras
 
-        dom_f.close()
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--domains", nargs="+", default=["telecom", "retail", "airline"])
+    ap.add_argument("--tau2-root", default=DEFAULT_TAU2_ROOT)
+    ap.add_argument("--out", required=True, help="output directory")
+    ap.add_argument("--variant", choices=["plain", "facet"], default="plain")
+    ap.add_argument("--split", default="train")
+    ap.add_argument(
+        "--source",
+        choices=["shipped", "aux_sonnet"],
+        default="shipped",
+        help="shipped=free multi-teacher final/ (primary distillation); "
+             "aux_sonnet=our OpenRouter Sonnet-4.6 runs (auxiliary: stronger-teacher "
+             "+ user_sim ablation; grouped per user_sim, kept separate from shipped)",
+    )
+    ap.add_argument(
+        "--max-per-task",
+        type=int,
+        default=0,
+        help="cap successful trajectories kept per task_id (0 = no cap)",
+    )
+    ap.add_argument("--ontology", action="store_true",
+                    help="(facet variant) require ontology-clean trajectories")
+    args = ap.parse_args()
+
+    registry, SYSTEM_PROMPT, AGENT_INSTRUCTION = _require_tau2(args.tau2_root)
+
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Assemble output groups: (group_key, domain, sources[(path,teacher,variant_tag,user_sim)]).
+    # shipped -> one group per domain; aux_sonnet -> one group per (domain, user_sim).
+    groups = []
+    for domain in args.domains:
+        if args.source == "shipped":
+            srcs = [(p, t, v, "gpt-4.1") for (p, t, v) in iter_teacher_files(args.tau2_root, domain)]
+            if srcs:
+                groups.append((domain, domain, srcs))
+        else:  # aux_sonnet
+            by_us = defaultdict(list)
+            for (p, t, us) in iter_aux_sonnet(args.tau2_root, domain):
+                by_us[us].append((p, t, "aux", us))
+            for us, srcs in by_us.items():
+                groups.append((f"{domain}_{_user_sim_slug(us)}", domain, srcs))
+
+    if not groups:
+        print(f"no sources found for source={args.source} domains={args.domains}")
+        return 1
+
+    if args.source == "shipped":
+        combined_path = out_dir / f"sft_{args.variant}_{args.split}_all.jsonl"
+        man_path = out_dir / f"manifest_{args.variant}_{args.split}.json"
+    else:
+        combined_path = out_dir / f"sft_{args.variant}_{args.source}_{args.split}_all.jsonl"
+        man_path = out_dir / f"manifest_{args.variant}_{args.source}_{args.split}.json"
+    combined_f = combined_path.open("w", encoding="utf-8")
+
+    grand = Counter()
+    manifest = {"variant": args.variant, "source": args.source, "split": args.split, "groups": {}}
+    sys_cache = {}
+
+    for group_key, domain, srcs in groups:
+        if domain not in sys_cache:
+            sys_cache[domain] = build_system_and_tools(
+                registry, SYSTEM_PROMPT, AGENT_INSTRUCTION, domain
+            )
+        system, tools = sys_cache[domain]
+        split_ids = _split_ids(args.tau2_root, domain, args.split)
+        stats, extras = build_group(
+            out_dir, group_key, domain, system, tools, srcs, split_ids, args, combined_f
+        )
         grand.update(stats)
-        manifest["domains"][domain] = {
+        manifest["groups"][group_key] = {
+            "domain": domain,
             "kept": stats["kept"],
             "success": stats["success"],
             "in_split": stats["in_split"],
             "malformed": stats["malformed"],
             "capped": stats["capped"],
             "n_tools": len(tools),
-            "n_tasks_covered": len(per_task),
+            "n_tasks_covered": extras["tasks_covered"],
             "split_size": len(split_ids),
-            "out_file": str(dom_path),
+            "teachers": extras["teachers"],
+            "user_sims": sorted({s[3] for s in srcs}),
+            "out_file": extras["out_file"],
         }
-        print(f"[{domain}] kept={stats['kept']} success={stats['success']} "
+        print(f"[{group_key}] kept={stats['kept']} success={stats['success']} "
               f"in_split={stats['in_split']} malformed={stats['malformed']} "
-              f"tasks_covered={len(per_task)}/{len(split_ids)} tools={len(tools)}")
+              f"tasks_covered={extras['tasks_covered']}/{len(split_ids)} tools={len(tools)}")
 
     combined_f.close()
     manifest["total_kept"] = grand["kept"]
-    (out_dir / f"manifest_{args.variant}_{args.split}.json").write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False)
-    )
+    man_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
     print(f"\nTOTAL kept={grand['kept']} -> {combined_path}")
-    print(f"manifest -> {out_dir / f'manifest_{args.variant}_{args.split}.json'}")
+    print(f"manifest -> {man_path}")
     return 0
 
 
