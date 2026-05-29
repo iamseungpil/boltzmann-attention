@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+"""procedure_scorecard.py — multi-axis goal->tool procedure quality (extends fix-coverage).
+
+fix-coverage measures only RECALL (did the agent call the required tools). The
+goal->tool procedure is richer; this scores 5 axes against the benchmark ground
+truth (tasks.json evaluation_criteria.actions, which is an ORDERED list with
+requestor / arguments / compare_args):
+
+  recall       |GT_req ∩ called| / |GT_req|                  (what to call)   = fix-coverage
+  precision    |GT_req ∩ called_actions| / |called_actions|  (minimality / no over-action)
+  call_eff     |GT_req| / (#agent action calls incl. repeats) (call efficiency)
+  order        pairwise agreement of called-required tools vs GT order (Kendall-ish)
+  arg_match    matched required tools whose agent args match GT args (compare_args keys)
+  repeat       #non-idempotent, non-loop-capable tools called >1x (waste)  [telecom ontology]
+
+★FIX vs the earlier GT-action coverage: only requestor=='assistant' GT actions are
+required of the AGENT (telecom is dual-control: toggle_airplane_mode etc. are USER
+actions). Earlier task_required_tools counted user actions too -> understated recall.
+
+Usage:
+  python scripts/distill/procedure_scorecard.py --domain telecom            # shipped
+  python scripts/distill/procedure_scorecard.py --domain telecom --results '<glob>'
+"""
+from __future__ import annotations
+
+import argparse
+import glob
+import json
+import os
+import statistics as st
+import sys
+from collections import Counter
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from score_fix_coverage import is_read, _shipped_files  # noqa: E402
+from ontology_filter import _load_ont  # noqa: E402
+
+DEFAULT_TAU2 = "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench"
+ONT_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ontology"))
+
+
+def gt_agent_actions(task):
+    """Ordered list of AGENT-required actions: [{name, args, compare_args}] (requestor==assistant)."""
+    ec = task.get("evaluation_criteria") or {}
+    out = []
+    for a in ec.get("actions") or []:
+        if a.get("requestor") != "assistant":
+            continue
+        name = a.get("name") or a.get("func_name")
+        if not name:
+            continue
+        out.append({"name": name, "args": a.get("arguments") or {},
+                    "compare_args": a.get("compare_args")})
+    return out
+
+
+def agent_calls(messages):
+    """Ordered agent tool calls: [(name, args_dict)] for requestor==assistant."""
+    out = []
+    for m in messages or []:
+        if m.get("role") == "assistant":
+            for tc in m.get("tool_calls") or []:
+                if tc.get("requestor", "assistant") == "assistant" and tc.get("name"):
+                    out.append((tc["name"], tc.get("arguments") or {}))
+    return out
+
+
+def _args_match(agent_args, gt_args, compare_args):
+    if not gt_args:
+        return True
+    keys = compare_args if compare_args else list(gt_args.keys())
+    return all(agent_args.get(k) == gt_args.get(k) for k in keys)
+
+
+def score_trajectory(sim, gt_map, idem, loopcap):
+    tid = sim.get("task_id", "")
+    gt = gt_map.get(tid, [])
+    if not gt:
+        return None  # no agent-required actions (e.g. airline info tasks) -> skip
+    gt_names = [a["name"] for a in gt]
+    gt_set = set(gt_names)
+    calls = agent_calls(sim.get("messages") or [])
+    action_calls = [(n, a) for n, a in calls if not is_read(n)]   # state-changing only
+    called_actions = [n for n, _ in action_calls]
+    called_set = set(called_actions)
+    first_idx = {}
+    for i, n in enumerate(called_actions):
+        first_idx.setdefault(n, i)
+
+    matched = gt_set & called_set
+    recall = len(matched) / len(gt_set)
+    precision = (len(matched) / len(called_set)) if called_set else None
+    call_eff = (len(gt_set) / len(action_calls)) if action_calls else None  # <=1 ideal=1
+
+    # order: pairwise agreement among called required tools vs GT order
+    order_list = [n for n in gt_names if n in first_idx]
+    pairs = ok = 0
+    for i in range(len(order_list)):
+        for j in range(i + 1, len(order_list)):
+            pairs += 1
+            if first_idx[order_list[i]] < first_idx[order_list[j]]:
+                ok += 1
+    order = (ok / pairs) if pairs else None
+
+    # arg match among matched required tools
+    am_n = am_ok = 0
+    agent_args_by_tool = {}
+    for n, a in action_calls:
+        agent_args_by_tool.setdefault(n, a)  # first call's args
+    for a in gt:
+        if a["name"] in matched:
+            am_n += 1
+            if _args_match(agent_args_by_tool.get(a["name"], {}), a["args"], a["compare_args"]):
+                am_ok += 1
+    arg_match = (am_ok / am_n) if am_n else None
+
+    # repeat misuse (telecom ontology)
+    cnt = Counter(called_actions)
+    repeat = sum(1 for t, c in cnt.items()
+                 if c > 1 and idem.get(t) is False and loopcap.get(t) is False)
+
+    return {"recall": recall, "precision": precision, "call_eff": call_eff,
+            "order": order, "arg_match": arg_match, "repeat": float(repeat)}
+
+
+def _agg(vals):
+    vals = [v for v in vals if v is not None]
+    return round(st.mean(vals), 3) if vals else None
+
+
+def run(sims, gt_map, idem, loopcap, label):
+    buckets = {"succ": [], "fail": []}
+    for s in sims:
+        sc = score_trajectory(s, gt_map, idem, loopcap)
+        if sc is None:
+            continue
+        cls = "succ" if (s.get("reward_info") or {}).get("reward", 0) >= 0.999 else "fail"
+        buckets[cls].append(sc)
+    axes = ["recall", "precision", "call_eff", "order", "arg_match", "repeat"]
+    print(f"\n[{label}] n_scored: succ={len(buckets['succ'])} fail={len(buckets['fail'])}")
+    print(f"  {'axis':10} {'success':>9} {'failure':>9} {'disc(s-f)':>10}")
+    for ax in axes:
+        s = _agg([d[ax] for d in buckets["succ"]])
+        f = _agg([d[ax] for d in buckets["fail"]])
+        disc = round(s - f, 3) if (s is not None and f is not None) else None
+        print(f"  {ax:10} {str(s):>9} {str(f):>9} {str(disc):>10}")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--domain", required=True, choices=["telecom", "retail", "airline"])
+    ap.add_argument("--tau2-root", default=DEFAULT_TAU2)
+    ap.add_argument("--shipped-dir", default=DEFAULT_TAU2 + "/data/tau2/results/final")
+    ap.add_argument("--results", nargs="*", default=None)
+    args = ap.parse_args()
+
+    tasks = json.load(open(os.path.join(args.tau2_root, "data", "tau2", "domains",
+                                        args.domain, "tasks.json")))
+    gt_map = {t.get("id", ""): gt_agent_actions(t) for t in tasks}
+    n_with = sum(1 for v in gt_map.values() if v)
+    print(f"[gt] {args.domain}: {len(gt_map)} tasks, {n_with} with agent-required actions "
+          f"(mean {sum(len(v) for v in gt_map.values())/max(n_with,1):.2f} actions)")
+
+    try:
+        ont = _load_ont(args.domain, ONT_DIR)
+        idem = getattr(ont, "IDEMPOTENT", {}); loopcap = getattr(ont, "LOOP_CAPABLE", {})
+    except Exception:
+        idem = loopcap = {}
+
+    if not args.results:
+        sims = []
+        for f in _shipped_files(args.domain, args.shipped_dir):
+            sims += json.load(open(f)).get("simulations", [])
+        run(sims, gt_map, idem, loopcap, f"shipped {args.domain}")
+        return 0
+    for r in args.results:
+        for p in glob.glob(r):
+            try:
+                sims = json.load(open(p)).get("simulations", [])
+            except Exception as e:
+                print(f"[skip] {p}: {e}"); continue
+            run(sims, gt_map, idem, loopcap, os.path.basename(os.path.dirname(p)) or p)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
