@@ -1,7 +1,9 @@
 # GRPO Reward 설계 — Facet on-policy RFT (학습 사다리 ③, coworker B3)
 
-> 참조 구현: `scripts/distill/grpo_reward.py` (검증됨). 지표 근거: `metric_mining.py` (F1 AUC 0.902).
+> 참조 구현: `scripts/distill/grpo_reward.py` (검증됨). 맥락: `EXPERIMENT_DESIGN_v1_7_facet_rft.md §13(방향)·§14(구현·측정)`, 핸드오프 `project_distillation_handoff_2026_05_30`.
 > 정책 초기화: SFT 어댑터(`lora_train_chat_toolcall.py`, full 또는 none). 롤아웃: tau2 env + gpt-4.1 user_sim.
+
+**지표 근거 (metric_mining AUC 랭킹, succ>fail 확률; reward 구성의 실측 토대)**: **F1 0.902 / seq_F1 0.89~0.99**(최강, recall·precision 통합) · recall 0.88 · precision 0.86 · superset 0.88 · **extra_actions(over-diagnosis) 실패 1.27 vs 성공 0.63** · arg_bind은 teacher 포화(0.99)·**student 약점 노출(0.32~0.73)**. **3 도메인 일반화**(telecom/retail/airline). → reward = 이 변별축들의 가중합.
 
 ## 1. 동기 — sparse cold-start
 7B student는 pass^1 ≈ 0.18. GRPO는 프롬프트당 G개 롤아웃을 뽑아 **advantage = (r − group_mean)/std** 로 학습하는데, pass/fail(0/1)만 쓰면 어려운 task에서 **G개 전부 pass=0 → reward 전부 0 → advantage 0 → 학습 신호 없음** (mms hard tail에서 특히). 
@@ -18,8 +20,9 @@ r(rollout) = w_pass · pass              # 터미널 env reward(0/1) — 지배�
 ```
 - **seq_F1** = harmonic(seq_prec, seq_match), LCS 기반 순서-aware (metric_mining에서 AUC 0.89~0.99, F1과 동급 최강).
 - **extra_norm** = (필수 아닌 action 호출 수)/(|GT|+1).
-- **arg_bind** = entity 인자가 선행 read에서 바인딩된 비율(param_dataflow).
+- **arg_bind** = entity 인자가 선행 read에서 바인딩된 비율(param_dataflow). **teacher 포화·student 약점 신호**이므로 **학습 초반 가중↑, 후반 anneal↓**(student가 ID 할루시네이션 졸업하면 saturate→무신호).
 - 기본 가중치: `{pass:1.0, proc:0.5, extra:0.3, arg:0.1}` (pass 지배, proc는 shaping).
+- **★GT actions 추출 정정**(grpo_reward·scorecard 반영): GT = `evaluation_criteria.actions` 중 **read(get_*) 제외 + `requestor=='user'` 제외**(telecom dual-control의 user 행동·정보조회 read는 agent-필수 아님). 안 거르면 recall/seq_F1 과소·왜곡.
 
 ## 3. Reward hacking 방지
 - **recall 아닌 seq_F1** 사용 → "모든 도구 호출"은 precision/seq_prec이 깎음.
@@ -38,8 +41,9 @@ process reward가 **tasks.json `evaluation_criteria.actions`(GT) 기반·결정�
 5. KL 정규화 to SFT 정책(드리프트 방지).
 
 ## 6. 일반화 변형 (cross-domain)
-- in-domain: GT = tasks.json actions (가장 깨끗).
+- in-domain: GT = tasks.json actions(read·user 제외) — 가장 깨끗. **3 도메인(telecom/retail/airline) 모두 scorecard 변별 확인**(seq_F1 disc +0.22~0.63) → reward 동일 적용 가능.
 - GT 없는/새 도메인: **induced fault_fix_map + param_dataflow**(ABox)로 goal→tool 기대치 구성 → 동일 reward. = facet reward의 도메인-일반(전이) 버전.
+- 단 airline은 다수 task가 write-action 0개(nl-assertion 평가)·arg_bind 부분(복잡 중첩 params) → reward proc 비중·축 도메인별 조정.
 
 ## 7. Ablation & Go/No-Go
 - **A. pass-only GRPO** (vanilla) vs **B. pass + seq_F1 shaped** (ours) vs **C. + extra/arg**. 
@@ -49,5 +53,5 @@ process reward가 **tasks.json `evaluation_criteria.actions`(GT) 기반·결정�
 
 ## 8. 주의
 - process reward는 **shaping**(보조)이지 목적이 아님 — pass가 최종 판정. λ 과대 시 reward hacking 위험 → λ sweep.
-- seq_F1은 GT 순서 가정 — tau2 reward는 env-assertion(end-state)이라 순서 일부 soft. order 비중은 seq보다 set(recall/precision)이 안전할 수 있음 → proc=F1(set) vs seq_F1 비교 ablation.
+- seq_F1은 GT 순서 가정 — tau2 reward는 env-assertion(end-state)이라 순서 일부 soft. **F1(set) AUC 0.902 vs seq_F1 0.89~0.99로 거의 동급** → proc=F1(set) vs seq_F1 ablation으로 안전한 쪽 선택(multi-action 도메인은 seq_F1이, telecom 단일-action은 set-F1이 유리할 수 있음).
 - none-arm 롤아웃: 정책 prompt 없이 → SFT-none이 충분히 내부화돼야 롤아웃이 무의미 붕괴 안 함. full-arm으로 먼저 검증 권장.
