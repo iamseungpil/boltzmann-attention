@@ -3000,3 +3000,64 @@ B(monolithic, step+tool 동시 emit)는 구체 도구를 weights에 학습→ABo
 3. **harness 재시도 rule**(실패 N회→fallback/backtrack/escalate) — NONE의 anti-loop(max_steps 63%) 직접 차단.
 
 **Ablation/지표**: 단계별 **결정적 coverage%**(온톨로지 기여 정량) · monolithic-B vs 2-stage vs 4-stage 전이(LODO) · harness-retry on/off의 anti-loop 감소 · 층 추가의 marginal value. **층 분해가 전이/정확도를 *올려야* 정당화**(우아함만으론 불충분).
+
+---
+
+### 15.13 (v1.29, 2026-05-31) ★Neural ABox-conditioned resolver — 정식 트랙 (사용자 핵심 아이디어, 방법 C/D 승격)
+
+§15.10의 방법 **C(cross-attn swappable graph) / D(TBox-LoRA + ABox-LoRA)** 를 "대기 후보"에서 **정식 트랙**으로 승격한다. 핵심 통찰(사용자):
+**resolver도 온톨로지에 조건화된 학습 모듈로 만들어 planner처럼 동작시킬 수 있다.** TBox에서는 "ABox를 어떻게 소비해 도구를 고르는가"라는 *규칙*을 학습하고, ABox로는 실제 온톨로지 정보를 (프롬프트가 아니라) **cross-attention 메모리 / per-domain 모듈**로 주입한다. = §15.11의 결정적 resolver(rule)를 **학습된 neural resolver**로 일반화.
+
+#### 15.13.1 resolver 스펙트럼 — 온톨로지를 어떻게 소비하나
+| 방식 | 소비규칙(TBox) 위치 | ABox 주입 | two_stage 모드 | 비용/성질 |
+|---|---|---|---|---|
+| (a) 결정적 rule | 코드 하드코딩(역맵×매칭×argfill) | dict lookup | `resolver` | 토큰0·검증가능·**상태머신만**(telecom) |
+| (b) 온톨로지-conditioned 프롬프트 | LLM in-context(미학습) | 텍스트 직렬화 | `ontollm`(신규) | 토큰多·유연·프롬프트 천장 |
+| **(c) neural ABox-conditioned** | **weights에 학습**(cross-attn/hypernet) | **KV 메모리 / per-domain 모듈** | `xattn`(신규) | **토큰0 + 학습된 유연성** ← ★본 트랙 |
+| (d) 후보제한 LLM | 후보만 제한 | — | `fallback` | rule miss 구제 |
+
+(a)는 §15.11에서 구현·검증(`ontology_resolver.py`). (c)가 본 트랙 novelty: (a)의 토큰0·전이성을 유지하면서 (b)의 유연성을 *weights로* 획득 → catalogue-선택형(retail/airline)까지 coverage 천장을 올린다.
+
+#### 15.13.2 ★TBox/ABox 재정의 (이 트랙의 핵심)
+- **TBox = "ABox를 읽어 도구·인자를 고르는 절차"를 학습한 가중치** (cross-attn Q/K/V + readout). **도메인 무관·고정**.
+- **ABox = 온톨로지 관계를 인코딩한 메모리** (observation_triggers / step_realizes_tool / arg_source 임베딩). **도메인마다 swap, 재학습 0**.
+- → planner(추상 step)와 executor(ABox-conditioned)가 **둘 다 학습 모듈이지만 도메인 데이터는 입력으로 주입**. 전이 = 온톨로지 메모리 교체만. (§15.11은 executor가 코드+dict였고, 여기서는 executor가 weights+memory.)
+
+#### 15.13.3 아키텍처 후보 (3종)
+- **C-1. ABox-as-memory cross-attention** (가장 직접적):
+  - ABox 인코딩: 각 관계를 자연어로 직렬화("apply_targeted_fix | roaming_enabled=False → enable_roaming | arg customer_id←get_customer_by_phone.customer_id") → (frozen) 텍스트 인코더로 슬롯 임베딩 → 메모리 M=`{e_1..e_N}` (도메인별).
+  - executor: hidden h_t(현재 관찰+step)=Query → `cross_attn(Q=h_t, K=V=M)` 로 ABox에서 관련 관계 "검색·읽기" → head가 (tool, args) emit.
+  - **학습=cross-attn 가중치(W_Q,W_K,W_V)+readout=TBox / swap=M=ABox**. 토큰0(프롬프트 아님=KV 메모리). cross-attn이 "관찰상태↔trigger" 정렬을 학습 → rule의 `==`보다 유연(부분매칭·트리거충돌·catalogue).
+- **C-2. Hypernetwork / ABox→LoRA** (방법 D): 공유 **TBox-LoRA**(절차) + ABox에서 **per-domain ABox-LoRA** 생성/주입. 전이=ABox-LoRA만 교체. base 수술 최소.
+- **C-3. Graph encoder + readout**: 온톨로지를 그래프(step→tool→state→arg)로 GNN 인코딩 → cross-attn readout. 구조 명시적.
+
+#### 15.13.4 학습 / 전이 프로토콜
+- **데이터**: teacher SUCCESS 궤적(telret 등). 입력=관찰상태+abstract step(planner emit), 타깃=GT (tool, args). planner(B abstract 어댑터)는 freeze 또는 공동학습.
+- **ABox 인코딩 분포정합(★최난점)**: swap 도메인의 M이 학습분포와 같은 "의미 슬롯"이어야 cross-attn이 도메인무관하게 읽음 → 인코더는 **도메인무관 텍스트 인코더(관계→자연어→frozen embed)** 권장. 도메인 특수 토큰 회피.
+- **전이=ABox-memory swap LODO**: TBox(cross-attn weights) 불변, `M_telecom→M_airline` 교체만으로 held-out airline 작동하는지.
+- **검증가능성 회복(ablation)**: (a)의 깨끗한 coverage%가 사라지므로 → **ABox-ablation 필수**: 빈 M / 틀린 도메인 M 주입 시 성능 붕괴해야 "온톨로지가 실제로 일한다" 입증(attention이 ABox 무시하고 암기한 게 아님). attention map으로 "어느 관계를 읽었나" 해석.
+
+#### 15.13.5 통합 ablation 사다리 (two_stage_agent `--mode` 확장)
+```
+base       온톨로지 0, 전체도구 LLM                         (하한)
+resolver   ABox=dict, TBox=코드 (결정적 rule)               (a) — 순수 coverage%, 검증가능 baseline [done §15.11]
+ontollm    ABox=프롬프트, TBox=in-context LLM               (b) — 프롬프트 천장 (신규)
+xattn      ABox=cross-attn memory, TBox=학습 weights        (c) — ★본 트랙 novelty (신규: C-1/D)
+fallback   rule 먼저 + miss시 후보제한 LLM                  (d) — 하이브리드 [done §15.11]
+monolithic 온톨로지 0, abstract LLM 단독 emit               (상한) [done §15.11]
+```
+- 사다리 판독: `base→ontollm`=온톨로지를 LLM에 주기만 한 기여 / `resolver→xattn`=rule이 못 푸는 걸 학습 attention이 메운 양(catalogue 도메인서 격차 클 것) / `ontollm vs xattn`=프롬프트 vs weights(토큰·전이·정확도) / `xattn vs monolithic`=ABox-conditioning이 단독 LLM 대비 주는 이득.
+
+#### 15.13.6 실험 순서 (권장)
+1. **먼저 (a) resolver + (b) ontollm baseline** 으로 retail/airline에서 rule coverage가 낮은 gap을 정량화(=xattn이 메울 표적 크기).
+2. gap이 크면(예상) → **(c) xattn(C-1) 메인 기여 구현**. "rule은 telecom만, 프롬프트는 토큰 비싸고, xattn은 둘 다 이김+전이"가 스토리.
+3. **ABox-memory swap LODO + ABox-ablation**(빈/틀린 M 붕괴) → 논문 핵심 figure.
+- **담당**: 학습·아키텍처 수술이 무거우므로 **coworker A100(B 트랙)** 적합. 7B는 (a)(b) baseline·gap 정량화. COWORKER_EXPERIMENT_PLAN B 트랙에 반영.
+
+#### 15.13.7 리스크
+- 학습신호/데이터량: cross-attn 새 파라미터를 telret(~1300)로 학습 충분한지 → 증강/32B 필요할 수 있음.
+- ABox 인코딩 분포정합(§15.13.4) = 전이 가설의 핵심이자 최난점.
+- 구현 복잡도: base에 cross-attn block 삽입(커스텀 forward) 또는 adapter — (a)(b)보다 훨씬 무거움.
+- 검증가능성: (a)의 결정적 coverage% 상실 → ABox-ablation으로 대체 입증.
+
+→ **구현 산출물(예정)**: `ontology_encoder.py`(관계→메모리 슬롯), `xattn_resolver`(cross-attn executor block + readout), two_stage_agent `--mode {ontollm,xattn}`, ABox-ablation 러너.
