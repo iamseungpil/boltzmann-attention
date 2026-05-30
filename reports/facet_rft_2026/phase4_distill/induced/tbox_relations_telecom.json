@@ -1,0 +1,322 @@
+{
+  "domain": "telecom",
+  "meta": {
+    "n_teacher_sims": 1824,
+    "n_teacher_success": 773,
+    "n_fail_sims": 1091,
+    "n_tasks": 2285,
+    "min_support": 5,
+    "min_frac": 0.4,
+    "fail_sources": [
+      "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/eval_none/none_test_t1/NONE_telecom_test.json/results.json"
+    ]
+  },
+  "repairs_state": [
+    {
+      "read": "get_details_by_id",
+      "fix_tool": "transfer_to_human_agents",
+      "support": 146,
+      "frac": 0.566
+    },
+    {
+      "read": "get_details_by_id",
+      "fix_tool": "refuel_data",
+      "support": 108,
+      "frac": 0.584
+    },
+    {
+      "read": "get_details_by_id",
+      "fix_tool": "enable_roaming",
+      "support": 102,
+      "frac": 0.797
+    },
+    {
+      "read": "get_bills_for_customer",
+      "fix_tool": "send_payment_request",
+      "support": 60,
+      "frac": 0.968
+    },
+    {
+      "read": "get_details_by_id",
+      "fix_tool": "resume_line",
+      "support": 60,
+      "frac": 0.938
+    }
+  ],
+  "diagnosis_sufficient_for": [
+    {
+      "goal": "transfer_to_human_agents",
+      "n": 258,
+      "sufficient_reads": [
+        "get_bills_for_customer",
+        "get_customer_by_phone",
+        "get_details_by_id"
+      ],
+      "then_commit": "send_payment_request"
+    },
+    {
+      "goal": "refuel_data",
+      "n": 126,
+      "sufficient_reads": [
+        "get_customer_by_phone",
+        "get_data_usage",
+        "get_details_by_id"
+      ],
+      "then_commit": "refuel_data"
+    },
+    {
+      "goal": "enable_roaming",
+      "n": 63,
+      "sufficient_reads": [
+        "get_customer_by_phone",
+        "get_details_by_id"
+      ],
+      "then_commit": "enable_roaming"
+    },
+    {
+      "goal": "resume_line+send_payment_request",
+      "n": 62,
+      "sufficient_reads": [
+        "get_bills_for_customer",
+        "get_customer_by_phone",
+        "get_details_by_id"
+      ],
+      "then_commit": "send_payment_request"
+    },
+    {
+      "goal": "enable_roaming+refuel_data",
+      "n": 59,
+      "sufficient_reads": [
+        "get_customer_by_phone",
+        "get_details_by_id"
+      ],
+      "then_commit": "enable_roaming"
+    }
+  ],
+  "distractor_for": [
+    {
+      "goal": "enable_roaming+refuel_data",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 322
+        },
+        {
+          "wrong_tool": "send_payment_request",
+          "count": 59
+        },
+        {
+          "wrong_tool": "disable_roaming",
+          "count": 17
+        },
+        {
+          "wrong_tool": "check_network_status",
+          "count": 13
+        },
+        {
+          "wrong_tool": "can_send_mms",
+          "count": 13
+        },
+        {
+          "wrong_tool": "resume_line",
+          "count": 11
+        },
+        {
+          "wrong_tool": "check_apn_settings",
+          "count": 3
+        },
+        {
+          "wrong_tool": "reset_apn_settings",
+          "count": 3
+        },
+        {
+          "wrong_tool": "suspend_line",
+          "count": 3
+        },
+        {
+          "wrong_tool": "reseat_sim_card",
+          "count": 2
+        },
+        {
+          "wrong_tool": "run_speed_test",
+          "count": 1
+        },
+        {
+          "wrong_tool": "set_network_mode_preference",
+          "count": 1
+        },
+        {
+          "wrong_tool": "reboot_device",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "refuel_data",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 238
+        },
+        {
+          "wrong_tool": "send_payment_request",
+          "count": 44
+        },
+        {
+          "wrong_tool": "enable_roaming",
+          "count": 23
+        },
+        {
+          "wrong_tool": "disable_roaming",
+          "count": 14
+        },
+        {
+          "wrong_tool": "can_send_mms",
+          "count": 13
+        },
+        {
+          "wrong_tool": "check_network_status",
+          "count": 12
+        },
+        {
+          "wrong_tool": "resume_line",
+          "count": 8
+        },
+        {
+          "wrong_tool": "check_apn_settings",
+          "count": 2
+        },
+        {
+          "wrong_tool": "reset_apn_settings",
+          "count": 1
+        },
+        {
+          "wrong_tool": "set_network_mode_preference",
+          "count": 1
+        },
+        {
+          "wrong_tool": "reboot_device",
+          "count": 1
+        },
+        {
+          "wrong_tool": "reseat_sim_card",
+          "count": 1
+        },
+        {
+          "wrong_tool": "toggle_data",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "enable_roaming",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 147
+        },
+        {
+          "wrong_tool": "send_payment_request",
+          "count": 32
+        },
+        {
+          "wrong_tool": "can_send_mms",
+          "count": 11
+        },
+        {
+          "wrong_tool": "refuel_data",
+          "count": 6
+        },
+        {
+          "wrong_tool": "disable_roaming",
+          "count": 6
+        },
+        {
+          "wrong_tool": "resume_line",
+          "count": 4
+        },
+        {
+          "wrong_tool": "check_network_status",
+          "count": 3
+        },
+        {
+          "wrong_tool": "set_network_mode_preference",
+          "count": 1
+        },
+        {
+          "wrong_tool": "reset_apn_settings",
+          "count": 1
+        },
+        {
+          "wrong_tool": "suspend_line",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "transfer_to_human_agents",
+      "distractors": [
+        {
+          "wrong_tool": "send_payment_request",
+          "count": 47
+        },
+        {
+          "wrong_tool": "resume_line",
+          "count": 44
+        },
+        {
+          "wrong_tool": "check_status_bar",
+          "count": 1
+        },
+        {
+          "wrong_tool": "enable_roaming",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "resume_line+send_payment_request",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 28
+        },
+        {
+          "wrong_tool": "check_status_bar",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "escalate_when": {
+    "escalation_tool": "transfer_to_human_agents",
+    "n_tasks_requiring": 32,
+    "fault_conditions": [
+      {
+        "fault": "lock_sim_card_pin",
+        "count": 24
+      },
+      {
+        "fault": "contract_end_suspension",
+        "count": 16
+      },
+      {
+        "fault": "airplane_mode_on",
+        "count": 16
+      },
+      {
+        "fault": "unseat_sim_card",
+        "count": 16
+      },
+      {
+        "fault": "break_apn_settings",
+        "count": 16
+      },
+      {
+        "fault": "overdue_bill_suspension",
+        "count": 8
+      }
+    ],
+    "co_required_writes": []
+  }
+}

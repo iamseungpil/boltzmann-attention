@@ -1,0 +1,459 @@
+{
+  "domain": "retail",
+  "observation_triggers": {
+    "exchange_delivered_order_items": {
+      "n": 340,
+      "triggers": [
+        {
+          "pred": "get_product_details|variants.3358616356.options.size=S",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.05
+        },
+        {
+          "pred": "get_product_details|variants.3358616356.options.color=red",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.05
+        },
+        {
+          "pred": "get_product_details|variants.3358616356.options.ventilation=low",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.05
+        },
+        {
+          "pred": "get_product_details|variants.3358616356.available=True",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.05
+        },
+        {
+          "pred": "get_product_details|variants.8573379326.options.size=M",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.05
+        },
+        {
+          "pred": "get_product_details|variants.8573379326.options.color=red",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.05
+        },
+        {
+          "pred": "get_product_details|variants.8573379326.options.ventilation=high",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.05
+        },
+        {
+          "pred": "get_product_details|variants.8573379326.available=True",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.05
+        }
+      ]
+    },
+    "return_delivered_order_items": {
+      "n": 345,
+      "triggers": [
+        {
+          "pred": "get_order_details|items.0.options.type=canister",
+          "support": 39,
+          "precision": 0.93,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_order_details|items.0.options.bagged/bagless=bagged",
+          "support": 39,
+          "precision": 0.93,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_order_details|items.1.options.room size=large",
+          "support": 39,
+          "precision": 0.93,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_order_details|items.1.options.filter type=ionic",
+          "support": 39,
+          "precision": 0.93,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_order_details|items.2.options.color=green",
+          "support": 39,
+          "precision": 0.93,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_order_details|items.2.options.material=sunbrella",
+          "support": 39,
+          "precision": 0.93,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_order_details|items.3.options.material=iron",
+          "support": 39,
+          "precision": 0.93,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_order_details|items.4.options.type=robotic",
+          "support": 39,
+          "precision": 0.93,
+          "recall": 0.11
+        }
+      ]
+    },
+    "modify_pending_order_items": {
+      "n": 258,
+      "triggers": [
+        {
+          "pred": "get_product_details|variants.9690244451.options.switch type=clicky",
+          "support": 10,
+          "precision": 1.0,
+          "recall": 0.04
+        },
+        {
+          "pred": "get_product_details|variants.9690244451.options.backlight=RGB",
+          "support": 10,
+          "precision": 1.0,
+          "recall": 0.04
+        },
+        {
+          "pred": "get_product_details|variants.9690244451.options.size=60%",
+          "support": 10,
+          "precision": 1.0,
+          "recall": 0.04
+        },
+        {
+          "pred": "get_product_details|variants.9690244451.available=False",
+          "support": 10,
+          "precision": 1.0,
+          "recall": 0.04
+        },
+        {
+          "pred": "get_product_details|variants.7706410293.options.switch type=clicky",
+          "support": 10,
+          "precision": 1.0,
+          "recall": 0.04
+        },
+        {
+          "pred": "get_product_details|variants.7706410293.options.backlight=none",
+          "support": 10,
+          "precision": 1.0,
+          "recall": 0.04
+        },
+        {
+          "pred": "get_product_details|variants.7706410293.available=True",
+          "support": 10,
+          "precision": 1.0,
+          "recall": 0.04
+        },
+        {
+          "pred": "get_product_details|variants.3616838507.options.switch type=tactile",
+          "support": 10,
+          "precision": 1.0,
+          "recall": 0.04
+        }
+      ]
+    },
+    "modify_pending_order_address": {
+      "n": 139,
+      "triggers": [
+        {
+          "pred": "get_order_details|items.1.options.band material=leather",
+          "support": 16,
+          "precision": 0.8,
+          "recall": 0.12
+        },
+        {
+          "pred": "get_order_details|items.1.options.display=LCD",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.12
+        },
+        {
+          "pred": "get_order_details|items.2.options.material=urethane",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.12
+        },
+        {
+          "pred": "get_order_details|items.2.options.set type=adjustable",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.12
+        },
+        {
+          "pred": "get_order_details|items.3.options.type=capsule",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.12
+        },
+        {
+          "pred": "get_order_details|items.4.options.resolution=4K",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.12
+        },
+        {
+          "pred": "get_order_details|items.4.options.waterproof=no",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.12
+        },
+        {
+          "pred": "get_order_details|items.0.options.pieces=1000",
+          "support": 9,
+          "precision": 0.82,
+          "recall": 0.06
+        }
+      ]
+    },
+    "transfer_to_human_agents": {
+      "n": 40,
+      "triggers": [
+        {
+          "pred": "get_order_details|items.2.options.resolution=2K",
+          "support": 7,
+          "precision": 1.0,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_order_details|items.2.options.connectivity=Ethernet",
+          "support": 7,
+          "precision": 1.0,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_order_details|items.3.options.color=white",
+          "support": 7,
+          "precision": 1.0,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_order_details|fulfillments.0.tracking_id.0=208425478671",
+          "support": 7,
+          "precision": 1.0,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_order_details|fulfillments.0.item_ids.0=1999523885",
+          "support": 7,
+          "precision": 1.0,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_order_details|fulfillments.0.item_ids.1=9665000388",
+          "support": 7,
+          "precision": 1.0,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_order_details|fulfillments.0.item_ids.2=5966895767",
+          "support": 7,
+          "precision": 1.0,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_order_details|fulfillments.0.item_ids.3=2052249669",
+          "support": 7,
+          "precision": 1.0,
+          "recall": 0.17
+        }
+      ]
+    },
+    "cancel_pending_order": {
+      "n": 183,
+      "triggers": [
+        {
+          "pred": "get_order_details|items.0.options.output=Wireless",
+          "support": 25,
+          "precision": 0.96,
+          "recall": 0.14
+        },
+        {
+          "pred": "get_order_details|items.0.options.speed settings=low",
+          "support": 16,
+          "precision": 0.89,
+          "recall": 0.09
+        },
+        {
+          "pred": "get_order_details|items.0.options.battery type=rechargeable",
+          "support": 16,
+          "precision": 0.89,
+          "recall": 0.09
+        },
+        {
+          "pred": "get_order_details|items.3.options.material=urethane",
+          "support": 16,
+          "precision": 0.8,
+          "recall": 0.09
+        },
+        {
+          "pred": "get_product_details|variants.8479046075.options.material=wood",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.09
+        },
+        {
+          "pred": "get_product_details|variants.8479046075.options.color=white",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.09
+        },
+        {
+          "pred": "get_product_details|variants.8479046075.available=True",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.09
+        },
+        {
+          "pred": "get_product_details|variants.8895454203.options.material=glass",
+          "support": 16,
+          "precision": 1.0,
+          "recall": 0.09
+        }
+      ]
+    },
+    "modify_user_address": {
+      "n": 60,
+      "triggers": [
+        {
+          "pred": "get_user_details|payment_methods.paypal_3798357.source=paypal",
+          "support": 12,
+          "precision": 1.0,
+          "recall": 0.2
+        },
+        {
+          "pred": "get_user_details|payment_methods.gift_card_4332117.source=gift_card",
+          "support": 12,
+          "precision": 1.0,
+          "recall": 0.2
+        },
+        {
+          "pred": "get_user_details|payment_methods.gift_card_4332117.balance=86.0",
+          "support": 12,
+          "precision": 1.0,
+          "recall": 0.2
+        },
+        {
+          "pred": "get_user_details|orders.0=#W4967593",
+          "support": 12,
+          "precision": 1.0,
+          "recall": 0.2
+        },
+        {
+          "pred": "get_user_details|orders.1=#W9911714",
+          "support": 12,
+          "precision": 1.0,
+          "recall": 0.2
+        },
+        {
+          "pred": "get_user_details|orders.2=#W5733668",
+          "support": 12,
+          "precision": 1.0,
+          "recall": 0.2
+        },
+        {
+          "pred": "get_user_details|payment_methods.credit_card_9503061.source=credit_card",
+          "support": 11,
+          "precision": 1.0,
+          "recall": 0.18
+        },
+        {
+          "pred": "get_user_details|payment_methods.credit_card_9503061.brand=visa",
+          "support": 11,
+          "precision": 1.0,
+          "recall": 0.18
+        }
+      ]
+    }
+  },
+  "arg_source": {
+    "modify_pending_order_address": {
+      "address1": {
+        "source": "get_order_details.address.address1",
+        "support": 148,
+        "frac": 0.81
+      },
+      "city": {
+        "source": "get_order_details.address.city",
+        "support": 145,
+        "frac": 0.66
+      },
+      "state": {
+        "source": "get_order_details.address.state",
+        "support": 145,
+        "frac": 0.66
+      },
+      "country": {
+        "source": "get_user_details.address.country",
+        "support": 220,
+        "frac": 0.91
+      },
+      "zip": {
+        "source": "get_order_details.address.zip",
+        "support": 148,
+        "frac": 0.68
+      },
+      "address2": {
+        "source": "get_order_details.address.address2",
+        "support": 135,
+        "frac": 0.67
+      }
+    },
+    "modify_pending_order_payment": {
+      "order_id": {
+        "source": "get_user_details.orders.0",
+        "support": 16,
+        "frac": 1.0
+      },
+      "payment_method_id": {
+        "source": "get_user_details.payment_methods.credit_card_8897086.id",
+        "support": 16,
+        "frac": 1.0
+      }
+    },
+    "modify_user_address": {
+      "user_id": {
+        "source": "get_user_details.user_id",
+        "support": 110,
+        "frac": 1.0
+      },
+      "address1": {
+        "source": "get_order_details.address.address1",
+        "support": 60,
+        "frac": 0.78
+      },
+      "address2": {
+        "source": "get_order_details.address.address2",
+        "support": 60,
+        "frac": 0.63
+      },
+      "city": {
+        "source": "get_order_details.address.city",
+        "support": 57,
+        "frac": 0.6
+      },
+      "state": {
+        "source": "get_order_details.address.state",
+        "support": 57,
+        "frac": 0.6
+      },
+      "country": {
+        "source": "get_user_details.address.country",
+        "support": 110,
+        "frac": 1.0
+      },
+      "zip": {
+        "source": "get_order_details.address.zip",
+        "support": 60,
+        "frac": 0.63
+      }
+    }
+  }
+}
