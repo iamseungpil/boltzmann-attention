@@ -22,8 +22,16 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from collections import Counter, defaultdict
+
+ID_KEY_RE = re.compile(r"(^|\.)(id|.*_id)$", re.I)
+ID_VAL_RE = re.compile(r"^[A-Z]{1,3}\d{2,}$")  # P1002, D1002, C1001, B1003...
+
+
+def _is_id_field(key, val):
+    return bool(ID_KEY_RE.search(key)) or bool(ID_VAL_RE.match(str(val)))
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from score_fix_coverage import is_read, _shipped_files  # noqa: E402
@@ -79,6 +87,8 @@ def main() -> int:
     ap.add_argument("--shipped-dir", default=DEFAULT_TAU2 + "/data/tau2/results/final")
     ap.add_argument("--min-support", type=int, default=4)
     ap.add_argument("--min-frac", type=float, default=0.5)
+    ap.add_argument("--min-precision", type=float, default=0.8,
+                    help="P(tool|pred): keep only state predicates that discriminate the tool")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
 
@@ -91,6 +101,7 @@ def main() -> int:
 
     # counts
     trig = defaultdict(Counter)     # fix_tool -> Counter("read|field=value")
+    pred_tool = defaultdict(Counter)  # pred -> Counter(fix_tool)  (for precision/discrimination)
     fix_n = Counter()               # fix_tool -> occurrences (with a preceding read)
     argsrc = defaultdict(Counter)   # (fix_tool, param) -> Counter("read.field")
     arg_n = Counter()               # (fix_tool, param) -> occurrences
@@ -121,9 +132,11 @@ def main() -> int:
                             if last_read is not None and last_read_fields:
                                 fix_n[name] += 1
                                 for fld, val in last_read_fields.items():
-                                    if val is None:
-                                        continue
-                                    trig[name][f"{last_read}|{fld}={val}"] += 1
+                                    if val is None or _is_id_field(fld, val):
+                                        continue  # skip instance IDs (spurious); want STATE
+                                    pred = f"{last_read}|{fld}={val}"
+                                    trig[name][pred] += 1
+                                    pred_tool[pred][name] += 1
                             # arg_source: provenance of this write's args
                             wargs = tc.get("arguments") or {}
                             for p, v in wargs.items():
@@ -148,12 +161,18 @@ def main() -> int:
                         recent_by_read.append((caller, flds))
                         recent_by_read[:] = recent_by_read[-8:]
 
+    # discriminative state->tool: keep preds where this tool dominates the followers
+    # (precision = P(tool | pred)), not just frequent. Excludes shared/ambiguous state.
     observation_triggers = {}
     for tool, ctr in trig.items():
         n = fix_n[tool]
-        sig = [{"pred": k, "support": c, "frac": round(c / n, 2)}
-               for k, c in ctr.most_common()
-               if c >= args.min_support and n and c / n >= args.min_frac]
+        sig = []
+        for pred, c in ctr.most_common():
+            tot = sum(pred_tool[pred].values())
+            prec = c / tot if tot else 0
+            if c >= args.min_support and prec >= args.min_precision:
+                sig.append({"pred": pred, "support": c,
+                            "precision": round(prec, 2), "recall": round(c / n, 2)})
         if sig:
             observation_triggers[tool] = {"n": n, "triggers": sig[:8]}
 
@@ -174,9 +193,9 @@ def main() -> int:
               open(out, "w"), indent=2, ensure_ascii=False)
     print(f"[{args.domain}] observation_triggers: {len(observation_triggers)} tools | "
           f"arg_source: {len(arg_source)} tools")
-    for tool, d in list(observation_triggers.items())[:6]:
+    for tool, d in list(observation_triggers.items())[:8]:
         top = d["triggers"][0] if d["triggers"] else {}
-        print(f"    {tool:30} <= {top.get('pred','')} (frac {top.get('frac','')})")
+        print(f"    {tool:30} <= {top.get('pred','')} (prec {top.get('precision','')})")
     print(f"  -> {out}")
     return 0
 
