@@ -1,0 +1,279 @@
+{
+  "domain": "airline",
+  "meta": {
+    "n_teacher_sims": 800,
+    "n_teacher_success": 431,
+    "n_fail_sims": 369,
+    "n_tasks": 50,
+    "min_support": 5,
+    "min_frac": 0.4,
+    "fail_sources": []
+  },
+  "repairs_state": [
+    {
+      "read": "get_reservation_details",
+      "fix_tool": "update_reservation_passengers",
+      "support": 19,
+      "frac": 0.655
+    },
+    {
+      "read": "get_reservation_details",
+      "fix_tool": "cancel_reservation",
+      "support": 17,
+      "frac": 0.586
+    }
+  ],
+  "diagnosis_sufficient_for": [
+    {
+      "goal": "update_reservation_flights",
+      "n": 72,
+      "sufficient_reads": [
+        "get_reservation_details",
+        "get_user_details",
+        "search_direct_flight"
+      ],
+      "then_commit": "update_reservation_flights"
+    },
+    {
+      "goal": "book_reservation",
+      "n": 39,
+      "sufficient_reads": [
+        "get_reservation_details",
+        "get_user_details",
+        "search_direct_flight"
+      ],
+      "then_commit": "book_reservation"
+    },
+    {
+      "goal": "cancel_reservation",
+      "n": 22,
+      "sufficient_reads": [
+        "get_reservation_details",
+        "get_user_details"
+      ],
+      "then_commit": "cancel_reservation"
+    },
+    {
+      "goal": "transfer_to_human_agents",
+      "n": 16,
+      "sufficient_reads": [
+        "get_reservation_details",
+        "search_direct_flight"
+      ],
+      "then_commit": "calculate"
+    },
+    {
+      "goal": "update_reservation_passengers",
+      "n": 16,
+      "sufficient_reads": [
+        "get_reservation_details"
+      ],
+      "then_commit": "update_reservation_passengers"
+    },
+    {
+      "goal": "update_reservation_baggages+update_reservation_flights+update_reservation_passengers",
+      "n": 13,
+      "sufficient_reads": [
+        "get_reservation_details",
+        "get_user_details",
+        "search_onestop_flight"
+      ],
+      "then_commit": "update_reservation_passengers"
+    },
+    {
+      "goal": "calculate+update_reservation_baggages",
+      "n": 7,
+      "sufficient_reads": [
+        "get_reservation_details",
+        "get_user_details",
+        "search_direct_flight"
+      ],
+      "then_commit": "calculate"
+    },
+    {
+      "goal": "book_reservation+cancel_reservation",
+      "n": 6,
+      "sufficient_reads": [
+        "get_reservation_details",
+        "get_user_details",
+        "search_direct_flight"
+      ],
+      "then_commit": "update_reservation_flights"
+    },
+    {
+      "goal": "update_reservation_baggages+update_reservation_flights",
+      "n": 5,
+      "sufficient_reads": [
+        "get_reservation_details",
+        "get_user_details",
+        "search_direct_flight",
+        "search_onestop_flight"
+      ],
+      "then_commit": "update_reservation_flights"
+    }
+  ],
+  "distractor_for": [
+    {
+      "goal": "book_reservation+cancel_reservation",
+      "distractors": [
+        {
+          "wrong_tool": "calculate",
+          "count": 22
+        },
+        {
+          "wrong_tool": "update_reservation_flights",
+          "count": 19
+        },
+        {
+          "wrong_tool": "update_reservation_baggages",
+          "count": 7
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 3
+        },
+        {
+          "wrong_tool": "send_certificate",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "goal": "update_reservation_flights",
+      "distractors": [
+        {
+          "wrong_tool": "calculate",
+          "count": 16
+        },
+        {
+          "wrong_tool": "cancel_reservation",
+          "count": 15
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 7
+        },
+        {
+          "wrong_tool": "book_reservation",
+          "count": 3
+        },
+        {
+          "wrong_tool": "send_certificate",
+          "count": 1
+        },
+        {
+          "wrong_tool": "update_reservation_baggages",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "book_reservation",
+      "distractors": [
+        {
+          "wrong_tool": "cancel_reservation",
+          "count": 24
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 8
+        },
+        {
+          "wrong_tool": "calculate",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "goal": "calculate+update_reservation_baggages",
+      "distractors": [
+        {
+          "wrong_tool": "update_reservation_flights",
+          "count": 7
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 2
+        },
+        {
+          "wrong_tool": "cancel_reservation",
+          "count": 1
+        },
+        {
+          "wrong_tool": "book_reservation",
+          "count": 1
+        },
+        {
+          "wrong_tool": "update_reservation_passengers",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "update_reservation_baggages+update_reservation_flights",
+      "distractors": [
+        {
+          "wrong_tool": "calculate",
+          "count": 9
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 1
+        },
+        {
+          "wrong_tool": "book_reservation",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "cancel_reservation+update_reservation_flights",
+      "distractors": [
+        {
+          "wrong_tool": "calculate",
+          "count": 7
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "goal": "cancel_reservation",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 4
+        },
+        {
+          "wrong_tool": "update_reservation_flights",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "update_reservation_baggages+update_reservation_flights+update_reservation_passengers",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 1
+        },
+        {
+          "wrong_tool": "book_reservation",
+          "count": 1
+        },
+        {
+          "wrong_tool": "calculate",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "escalate_when": {
+    "escalation_tool": "transfer_to_human_agents",
+    "n_tasks_requiring": 1,
+    "fault_conditions": [],
+    "co_required_writes": []
+  }
+}
