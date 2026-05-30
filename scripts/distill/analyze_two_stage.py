@@ -61,7 +61,7 @@ def main():
 
     # accumulators
     n_sims = len(sims)
-    rewards = [s.get("reward_info", {}).get("reward", 0.0) or 0.0 for s in sims]
+    rewards = [(s.get("reward_info") or {}).get("reward", 0.0) or 0.0 for s in sims]
     pass1 = sum(1 for r in rewards if r and r >= 0.999) / max(n_sims, 1)
 
     step_emit = 0; tool_turns = 0; no_step = 0
