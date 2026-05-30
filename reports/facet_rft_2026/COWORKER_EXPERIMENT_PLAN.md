@@ -47,7 +47,7 @@
   | domain | test N | NONE | FULL |
   |---|---|---|---|
   | telecom | 40 | 0.350 | 0.300 |
-  | retail | 40 | ~0.82 | ~0.67 |
+  | retail | 40 | ~0.77 | 0.641 |
   | airline | 20 | 0.400 | 0.300 |
 
   → 정책 토큰 내부화 **무손실(efficiency thesis) multi-domain 재현**. retail 최고=학습량 831 최다와 정합.
