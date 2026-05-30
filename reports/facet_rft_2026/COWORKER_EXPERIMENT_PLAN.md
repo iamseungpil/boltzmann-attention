@@ -1,7 +1,25 @@
 # Coworker 실험 계획서 — Workflow Ontology Agent on SOP-Bench
 
 > 대상: 4× A100 80GB coworker. 공유 채널 = GitHub `iamseungpil/boltzmann-attention` branch **`facet-rft-2026`**.
-> 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
+> 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
+
+> ### ★★ v1.32 (2026-05-31) — LLM-in-loop 재정립 + Tier-1 이중벤치 (이 배너가 무게중심을 고정)
+> **★ Tier-1 이중벤치(이름 혼동 주의)**: **SOPBench**(Zekun Li, 하이픈無, arXiv **2503.08669**, 7도메인
+> bank/dmv/healthcare/hotel/library/online_market/university, native 형식 operator
+> `directed_action_graph`+constraints + rule oracle `env/evaluator.py`, LLM judge無) = **主, 파일럿=bank**.
+> **SOP-Bench**(Amazon, 하이픈有, **2506.08119**, 12도메인, `abox/` 자산) = **보조**(breadth/2차 전이면).
+> clone: `/home/woori/scratch/{SOPBench,SOP-Bench}`.
+> **결정적 executor·resolver coverage% = oracle/상한 + 진단**이지 최종 기여가 아니다 (GT call-graph 보유→천장).
+> **헤드라인 = 학습 도메인-일반 planner(TBox) + ABox-conditioned neural resolver(B5* xattn)의 전이** —
+> N-1 도메인 학습→held-out ABox swap·**재학습 0**(SOPBench 7도메인 LODO 主, Amazon 12도메인 보조) +
+> ABox-ablation 붕괴. 즉 **B5*(xattn)+B2* LODO 매트릭스+B1*(planner SFT)가 핵심**, 결정적 coverage(B2*
+> rule 모드)는 진단축. 권위본 = `WORKFLOW_ONTOLOGY_DESIGN.md §9`.
+> **⚠️ 본문 §1~§9의 tau2 도메인명(telecom/retail/airline)·`two_stage_agent.py`+`--user-llm`(user-sim)·
+> pass^1·tau2 러너는 superseded substrate**. SOPBench(主)로 읽을 것: 도메인=7 SOPBench 도메인(bank 등),
+> 러너=`swarm.Swarm`+`Agent(client=OpenAIHandler, functions=<d>_assistant.py:actions)`의 assistant를
+> planner→resolver로 교체(`run_simulation.py --domain --assistant_model --tool_list{oracle,full}`),
+> 지표 pass^1→**rule pass-rate(목표+constraint_not_violated+graph정합) + 거부정확도(action_should_succeed=false)
+> + tool@scale(--tool_list full)**, 전이=7도메인 LODO(主)/Amazon 12도메인(보조). ⚠️`env/helpers.py`=Python≥3.10.
 
 ---
 

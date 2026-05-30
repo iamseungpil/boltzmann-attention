@@ -3110,12 +3110,16 @@ Routine step 스키마 = `Step Number/Name/Description/Input*/Output*/Tool*` (*=
 
 ## 16. ★★★ v1.31 (2026-05-30 밤) — 벤치마크 피벗: tau2 → SOP-Bench (워크플로우 온톨로지의 본령)
 
-> ### ★★ v1.32 (2026-05-31) — 실험 재정립: 권위본 = `scripts/distill/sopbench/LLM_IN_LOOP_DESIGN.md`
-> 사용자 정정: **결정론 executor = oracle/상한일 뿐, 진짜 실험 = LLM-in-loop**(학습 TBox planner +
-> swappable ABox memory + **전이**). **Tier-1 이중벤치 확정 = SOPBench(Zekun Li 2503.08669, native
-> 형식 operator + rule oracle, ★主) + SOP-Bench(Amazon, 12도메인 보완)**. 아래 §16.5의 "Ours-P0
-> 결정론 executor 1순위" 톤은 oracle로 격하. 2-stage [planner→resolver→env] 루프·비교군·전이·지표·
-> bank 파일럿 구체안 전부 `LLM_IN_LOOP_DESIGN.md` 참조(SOPBench clone 코드에 grounding됨).
+> ### ★★ v1.32 (2026-05-31) — 실험 재정립(LLM-in-loop): 권위본 = `WORKFLOW_ONTOLOGY_DESIGN.md §9`
+> **결정론 executor = oracle/상한일 뿐, 진짜 실험 = LLM-in-loop**(학습 TBox planner + swappable
+> ABox memory + **전이**). 아래 §16.5의 "Ours-P0 결정론 executor 1순위" 톤은 **oracle/ceiling으로
+> 격하**; 헤드라인 = goal-only L2 학습 planner + ABox-conditioned resolver의 **전이**(§16.8 Phase-1b).
+> 2-stage [planner→resolver→env] 루프·비교군·지표·파일럿 = `WORKFLOW_ONTOLOGY_DESIGN.md §9`로 통합
+> (구 `LLM_IN_LOOP_DESIGN.md` 흡수·삭제).
+> **★ Tier-1 이중벤치(이름 혼동 주의)**: **SOPBench**(Zekun Li, 하이픈無, arXiv **2503.08669**, 7도메인,
+> native 형식 operator `directed_action_graph`+rule oracle `env/evaluator.py`, LLM judge無) = **主**,
+> **파일럿 = bank**. **SOP-Bench**(Amazon, 하이픈有, **2506.08119**, 12도메인, `abox/` 자산) = **보조**(breadth).
+> 즉 이 §16 본문이 "SOP-Bench(Amazon) 피벗"으로 쓰였으나 **주 벤치는 SOPBench(Zekun Li)**로 정정; Amazon은 보조.
 
 > **이 섹션이 현재 실험의 substrate를 §15(tau2 기반)에서 SOP-Bench로 이전한다.** §13~15의 **개념**(TBox/ABox 분리, Group J 관계, Routine R1-R4 자동 induce, 결정적 executor, LODO 전이)은 **전부 유지·강화**되나, 측정 벤치마크가 바뀐다. 상세 설계 문서 = `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`, 구현 계획 = `reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md`(개정본).
 
@@ -3164,11 +3168,15 @@ v3 telecom(N=114) 궤적 전수 재진단(`_redx.py`/`_traj_dump.py`):
 **지표(전 실행)**: TSR/ECR/C-TSR + **Tool Accuracy** + per-phase 결정적 coverage% + (전이) 도메인-swap Δ. (tau2 max_steps/read-loop 진단축은 SOP-Bench엔 비해당 — single-shot.)
 
 **비교군**:
-1. **Baseline**: SOP를 텍스트로 준 LLM agent (SOP-Bench 기본 FC/ReAct, ~55-64% 논문값).
-2. **Ours-P0(★1순위)**: sop.txt→온톨로지 컴파일 → **결정적 executor**가 상태→도구 실행, LLM은 진짜 모호/edge step만. 가설: 상태머신 부분 TSR≫baseline.
-3. **Ours-induced**: 온톨로지를 **궤적에서 induce**(sop.txt 안 보고) → 작성 SOP와 대조(구조 일치도) + TSR. = §15.14 자동-induce thesis의 ground-truth 검증.
-4. **Ours-transfer(LODO)**: TBox(phase/관계타입) 고정, ABox(도메인 slot/tool/branch) swap → held-out 도메인. 12도메인 로테이션.
-5. **Ours-P1(조건부)**: phase-planner(SFT) + executor. P0가 phase 시퀀싱에서 LLM 필요시.
+> ⚠️ **재정립(v1.32)**: 아래 arm 정의는 유지하되 **무게중심 이동**. Ours-P0(결정적 executor)는
+> **oracle/상한**(GT call-graph 보유→천장, abox/12 mean97%)으로 격하 — "1순위 기여"가 아니라
+> 상한 고정·wiring 검증. **헤드라인 = arm 4의 변형: goal-only L2 학습 planner + ABox-conditioned
+> resolver의 전이**(planner 고정+ABox swap, 재학습0). 권위본 = `WORKFLOW_ONTOLOGY_DESIGN.md §9`.
+1. **LLM-alone(baseline)**: 도구를 준 단일 LLM agent. SOPBench(ZekunLi): GPT-5 71-88%/Qwen7B 5-20%. SOP-Bench(Amazon): FC27%/ReAct48%.
+2. **Ours-oracle(상한, 구 P0)**: GT call-graph(`directed_action_graph`/sop.txt) → **결정적 executor** 실행 = **천장/wiring 검증**(기여 아님). 정직축: label-fit 도메인 별도표기.
+3. **LLM+structure(무학습)**: L0(symbolic means-ends, operator만) / L1(LLM+operator in-context)→resolver(b). 구조+global-plan이 학습 전 도움되나.
+4. **Ours-L2(★헤드라인)**: 학습 ABox-conditioned planner(TBox) + neural resolver(c, xattn). **N-1 도메인 학습→held-out ABox swap·재학습0**(SOPBench 7도메인 LODO 主, Amazon 12도메인 보조). + ABox-ablation(빈/틀린 operator→붕괴). induced↔GT 구조검증.
+5. **Ours-P1(조건부)**: phase-planner(SFT) — L2가 phase 시퀀싱에서 부족할 때만.
 
 **핵심 가설**: (H1) SOP→결정적 온톨로지 executor가 baseline LLM 대비 TSR 대폭↑(특히 분기복잡 SOP). (H2) 온톨로지를 궤적에서 induce해도 작성 SOP에 근접(자동화 가능). (H3) TBox 고정+ABox swap으로 held-out 도메인 전이. (H4) 잔여 LLM-fallback(진짜 모호 step)에서만 capability 의존.
 

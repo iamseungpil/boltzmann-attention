@@ -1,19 +1,36 @@
 # Full Workflow Ontology — design (2026-05-30)
 
-> ### ★ EXPERIMENT RE-CENTERED (2026-05-31) — see `sopbench/LLM_IN_LOOP_DESIGN.md`
-> The user corrected the framing: the **deterministic executor (§3/§6 P0) is the oracle /
-> upper bound, NOT the contribution.** The real experiment is **LLM-in-loop** (learned TBox
-> planner + swappable ABox memory + **transfer**), and the **primary benchmark moved to
-> SOPBench (Zekun Li, 2503.08669)** — native formal operators + a rule oracle —
-> with SOP-Bench (Amazon) complementary. **§1 (TBox/ABox split), §2 (8-relation schema),
-> §5 (L0/L1/L2 + prior art) stay valid;** §3/§6's "P0-first / deterministic-first" reading
-> is demoted to the oracle. Authoritative experiment design = `sopbench/LLM_IN_LOOP_DESIGN.md`.
+> ### ★ EXPERIMENT RE-CENTERED — LLM-in-loop (2026-05-31, integrated)
+> The deterministic executor (§3) is the **oracle / upper bound, NOT the contribution.** A
+> program that already holds the ground-truth call graph and walks it scores near-ceiling by
+> construction (the 12-domain `abox/` mean 97% = that ceiling). **The real experiment is
+> LLM-in-loop:** a *learned, domain-general planner* (TBox) + an *external, swappable operator
+> memory* (ABox) consumed by a resolver, with the **headline = transfer** (freeze the planner,
+> swap the ABox to a held-out domain, retrain nothing). The full LLM-in-loop spec — 2-stage
+> loop, comparison arms, metrics, transfer protocol, pilot — is now **§9 of this doc**
+> (consolidated here from the former `sopbench/LLM_IN_LOOP_DESIGN.md`).
+>
+> **★ Tier-1 dual benchmark (naming is confusing — read carefully):**
+> - **SOPBench** (Zekun Li, arXiv **2503.08669**, *no hyphen*) = **PRIMARY (主).** 7 domains
+>   (bank/dmv/healthcare/hotel/library/online_market/university). **Native formal operators**
+>   (`env/domains/<d>/<d>_assistant.py` + per-task `directed_action_graph` + `constraints`) and
+>   a **rule oracle** (`env/evaluator.py`, no LLM judge) → the transfer claim is auditable.
+>   **Pilot = bank.**
+> - **SOP-Bench** (Amazon, arXiv **2506.08119**, *with hyphen*) = **auxiliary (보조).** 12
+>   industry domains → breadth / second transfer surface. (`abox/` 12-domain assets live here.)
+>
+> §1 (TBox/ABox split), §2 (8-relation schema), §5 (L0/L1/L2 planner + prior art), §6 (phased
+> plan, 1b transfer = headline) all stay valid and already embody the LLM-in-loop framing;
+> §3/§6's "P0-first / deterministic-first" reading is the **oracle/ceiling**.
 
 Status: **DESIGN.** Supersedes the partial "fix-disambiguation only" ontology
 (`step_realization_*` + `obs_triggers_*`) and the per-turn reactive resolver
 (`ontology_resolver.py` + `two_stage_agent.py:_two_stage_generate`).
 
-> ### ★ BENCHMARK = SOP-Bench (confirmed 2026-05-30 밤)
+> ### ★ BENCHMARK = SOP-bench family (confirmed 2026-05-30 밤; primary corrected 2026-05-31)
+> *(Superseded on the primary/auxiliary split by the top banner: **SOPBench / Zekun Li
+> 2503.08669 = primary**, SOP-Bench / Amazon = auxiliary. The tau2→SOP-bench-family rationale
+> below applies to both.)*
 > The target benchmark moved **tau2 → SOP-Bench** (arXiv 2506.08119, amazon-science).
 > Rationale + full experiment design = `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md §16`.
 > Why it fits where tau2 didn't: SOP-Bench is **agent-controlled** (the agent calls all
@@ -454,11 +471,134 @@ Self-test each step (compile a domain's SOP → inspect ontology; run executor o
 ## 8. Decisions
 - **Benchmark** (DECIDED): SOP-Bench (see banner + `EXPERIMENT_DESIGN §16`). tau2 dropped
   as primary; `customer_service` (SOP-Bench) ≈ tau2 telecom offline → controlled contrast.
-- **D1** (open): P0-first (no planner; SOP→ontology→executor) vs P1 phase-planner. (Rec:
-  P0 first — SOP is given, so the planner adds least value initially.)
+- **D1** (RE-CENTERED 2026-05-31): the procedure-given deterministic executor (P0) is the
+  **oracle/ceiling**, not the deliverable. The contribution is the **goal-only learned planner
+  (L2) + ABox-conditioned resolver** and its **transfer** (§9). Build P0 first only to fix the
+  ceiling + validate wiring; the headline experiment is §9.
 - **D2** (RESOLVED, tau2-only, now moot): tau2 device/probe tools were user-only → drove
   the user-side machinery. SOP-Bench is all-agent-callable, so that machinery is dropped.
 - **D3** (open): single `ontology_<domain>.json` vs split files. (Rec: single file.)
 - **D5** (new): compile-from-`sop.txt` vs induce-from-traces as the primary ontology
   source. (Rec: build both; compile = clean upper bound, induce = the research claim,
   and their agreement is itself a result.)
+
+---
+
+## 9. The LLM-in-loop experiment (consolidated, AUTHORITATIVE for the experiment)
+
+> Consolidated 2026-05-31 from the former `sopbench/LLM_IN_LOOP_DESIGN.md`. Benchmark =
+> **SOP-Bench (Amazon, 2506.08119)**, 12 domains. §1/§2/§5/§6 above supply the schema, the
+> TBox/ABox split, and the L0/L1/L2 planner + prior art; this section fixes the *experiment
+> center of gravity* and reconciles the "deterministic executor" into its role as the oracle.
+
+### 9.0 The correction (why the executor is not the result)
+SOP-Bench-style benchmarks measure **how well an LLM, given a goal and tools, completes the
+task *without an external deterministic program solving it for it*.** The 12-domain
+deterministic executor (`workflow_executor.py` + `abox/`, mean 97%, 8/12 at 100%) holds the
+ground-truth call graph and walks it → it is the **oracle / upper bound**, useful only to
+(a) validate the env wiring and (b) mark the ceiling. **The real experiment is LLM-in-loop:**
+a *learned, domain-general planner* (TBox) + *external, swappable operator memory* (ABox)
+consumed by a resolver, and the headline is **transfer** — freeze the planner, swap the ABox
+to a held-out domain, retrain nothing. Label-fit/memorize ⇒ transfer fails; learned general
+planning ⇒ transfer holds. Honest-axis: the 97% is reported **as a ceiling only**, and any
+no-holdout / label-fit domain (e.g. traffic/content/kyb in the 12) is flagged separately.
+
+### 9.1 The 2-stage loop (planner → resolver → env)
+One agent "turn" = (plan abstract step) → (resolve to a concrete tool) → (env executes):
+```
+goal (output-contract slots) + state (CSV slots) + history
+        │
+   ┌────▼──────────────────────────────────────────────┐
+   │ PLANNER  (TBox — LEARNED, domain-general)           │
+   │  sees: goal + ABSTRACT operator affordances         │
+   │        (operator name + precondition/effect TYPE,   │
+   │         NOT the concrete tool schema), global plan   │
+   │        G, execution history; re-plans G every turn   │
+   │  emits: next ABSTRACT step (subgoal / operator-class)│
+   └────┬──────────────────────────────────────────────┘
+        │ abstract step
+   ┌────▼──────────────────────────────────────────────┐
+   │ RESOLVER (ABox-conditioned)                          │
+   │  sees: abstract step + the DOMAIN's concrete operator│
+   │        ABox (this tool's schema, arg sources) + state │
+   │  emits: concrete tool call with bound args           │
+   │  rungs: (a) deterministic rule = baseline/diagnostic  │
+   │         (b) ontollm (ABox in prompt)                  │
+   │         (c) neural ABox-conditioned (xattn / per-     │
+   │             domain memory) = ★novelty (B5*)           │
+   └────┬──────────────────────────────────────────────┘
+        │ tool call
+   ┌────▼──────────────────────────────────────────────┐
+   │ ENV (SOP-Bench tool API executes, updates slots)     │
+   └──────────────────────────────────────────────────────┘
+```
+**Why the split carries transfer:** planner weights encode the *general* skill (means-ends over
+operator types + GoalAct-style global-plan/re-plan — the structural cure for the tau2
+read-loop); the ABox (concrete operators) is *swappable memory* the resolver consumes. Freeze
+planner, swap ABox → held-out domain works with zero retraining.
+**Critical constraint:** the planner must NOT see concrete tool schemas, or it can memorize
+domain specifics and contaminate transfer — enforce the abstract/concrete split at the
+prompt/feature boundary.
+
+### 9.2 Comparison arms
+1. **LLM-alone (baseline)** — native single-LLM agent (FC / ReAct), full tool context.
+   SOPBench (Zekun Li): GPT-5 71–88% / Qwen-7B 5–20%. SOP-Bench (Amazon): FC 27% / ReAct 48%.
+2. **LLM+structure, no training** — L1 planner (LLM + operators) → resolver (b); plus **L0**
+   (symbolic means-ends, operators only) as the floor. Does the 2-stage structure +
+   global-plan re-planning help before any learning?
+3. **Ours — L2** — learned ABox-conditioned planner + resolver (c, xattn). Trained on N−1
+   domains. Ablation: greedy next-op (ReAct-like) vs global-plan+re-plan (GoalAct).
+
+### 9.3 Metrics
+- **Rule pass-rate** (SOPBench/Zekun Li oracle: goal action reached + `constraint_not_violated`
+  + `directed_action_graph` conformance, no LLM judge). **Primary.** On the auxiliary SOP-Bench
+  (Amazon): TSR / ECR / C-TSR + Tool Accuracy.
+- **Refusal accuracy** on `action_should_succeed=false` tasks (constraints unsatisfiable → the
+  agent must correctly decline). A hard axis SOPBench (Zekun Li) gives natively.
+- **Resolver coverage%** (diagnostic) — fraction of steps resolved deterministically (rung a)
+  vs needing the LLM. "How rarely we must invoke an LLM to resolve a step."
+- **Transfer Δ (★headline)** — held-out-domain pass-rate / in-domain pass-rate; target ≥ 70%
+  with zero retraining. Plus **ABox-ablation** (empty/wrong operators → L2 must collapse →
+  proves it *reads* the ABox, not memorizes).
+- **Tool-selection@scale** — SOPBench `--tool_list full` (distractors) vs `oracle`; degradation
+  = selection among distractors (OISA-patent touchpoint, reported jointly only on this axis).
+- **Oracle ceiling** — the deterministic executor's pass-rate, reported as upper bound only;
+  label-fit/no-holdout domains flagged.
+
+### 9.4 Transfer protocol (Phase 1b — the result)
+**Primary: SOPBench (Zekun Li) 7-domain leave-one-domain-out** (bank/dmv/healthcare/hotel/
+library/online_market/university). Train L2 on 6, freeze, swap held-out domain's ABox (its
+`actions` specs + dependency routines), zero retrain → rule pass-rate. **Auxiliary: SOP-Bench
+(Amazon) 12-domain rotation** → breadth. Success: (a) held-out ≥ 70% of in-domain;
+(b) ABox-ablation collapses; (c) L0 < L1 < L2 gap visible; (d) induced ABox ↔ ground truth
+(SOPBench `directed_action_graph` / Amazon `sop.txt`) structural agreement high → induction
+*validated*. Phase 2 (only after 1b holds): AppWorld (457 APIs / 9 apps, goal-only, no SOP) —
+autonomous, procedure-free planning, same ABox-ablation control.
+
+### 9.5 Pilot — bank (SOPBench / Zekun Li), then scale
+1. **Fix the ceiling + validate wiring:** run the deterministic executor over bank's
+   ground-truth `directed_action_graph` → oracle pass-rate (upper bound).
+2. **Baseline (arm 1):** SOPBench native single-LLM assistant on bank (Qwen-7B via local vLLM —
+   the weak-model regime where structure has the most headroom; SOPBench reports Qwen-7B
+   5–20% / GPT-5 71–88%). `run_simulation.py --domain bank --tool_list oracle ...`.
+3. **2-stage assistant (arm 2):** replace the single-LLM `Agent.client` (swarm) with
+   planner→resolver; start at **L1 + resolver (b)**, self-test on 1 task (trace plan steps →
+   resolved calls → oracle verdict vs that task's `directed_action_graph`).
+4. **Compare** baseline vs L1-2stage on bank → structure ≥ parity; add L0; then wire L2
+   training data (bank success traces → (goal, operators, state) → next-operator labels).
+5. **Scale** to the 7-domain rotation (primary), then the Amazon 12-domain auxiliary surface
+   (COWORKER_EXPERIMENT_PLAN matrix).
+Harness facts (verified from the clone): `swarm.Swarm` + `Agent(client=OpenAIHandler,
+functions=<d>_assistant.py:actions, tool_call_mode=fc)`; ABox = `env/domains/<d>/<d>_assistant.py`;
+GT plan = per-task `directed_action_graph`; rule oracle = `env/evaluator.py`; tasks =
+`data/<d>_tasks.json` (keyed by goal; `action_should_succeed` = refusal axis); dependency
+routines = `task_default_dep_full(domain,{full,required})`. ⚠️ `env/helpers.py` uses `match`
+→ Python ≥3.10 (use seka_env 3.12, not system python 3.9). Self-test each step on 1 task.
+
+### 9.6 Open items / honest risks
+- **Abstract-vs-concrete operator leakage** (§9.1) — the transfer-validity crux; enforce the split.
+- **L2 training data** — mine (goal, operators, state) → next-operator labels from success
+  traces (analogous to the telret abstract-step SFT). GPU recipe in INFRA / COWORKER plan B1*.
+- **Label-fit / no-holdout domains** — flag separately; the 12-domain rotation is the guard.
+- Claim retired: "deterministic beat the LLM." Replaced by: "given structure + a learned
+  ABox-swappable planner, the LLM-in-loop gains over baseline **and transfers**."
