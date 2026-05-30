@@ -2609,6 +2609,14 @@ Pessimistic reviewer 관점:
 §2.4 Benchmarks
   → τ²-bench, TPS-Bench, FlowBench, Blocksworld MCP 등
   → 우리가 새로운 통합 평가 프로토콜 제안
+
+§2.5 Procedural/SOP Agents and Cross-Domain Transfer   ★v1.32 (계열 7, §9.9)
+  → SOP/절차 벤치마크(SOPBench[主]·SAGE·SOP-Maze·TOD-ProcBench·LogicIF·constraint-bench)
+    + cross-domain SOP/policy 방법(FM SO.P 커리큘럼 SFT·CAP-CPT 내재화)
+  → 우리: "능력을 weight에 baking하는 두 방법군과 달리, 일반 planner(TBox)↔swappable operator
+    memory(ABox) 분리로 **재학습 0 전이**; 벤치마크군과 달리 측정이 아닌 *방법+전이 결과* 기여"
+  → ★현 벤치 피벗(SOP-Bench/SOPBench) 반영, 主 Related Work 절. §2.1~2.3(GraphRAG/steering)은
+    구 steering 라인 잔재 → 본 논문(계획·전이)에서는 축소/이관.
 ```
 
 ---
@@ -2637,6 +2645,92 @@ Option D (간결):
   - "Ontology-Grounded": 계열 2/3와의 차별점 명확
   - "Constraint-Aware": 계열 4/5와의 차별점 명확
 ```
+
+---
+
+### 9.9 ★ 계열 7: SOP·절차 벤치마크 & cross-domain SOP/policy 방법 (SOPBench 인용 지형, v1.32 2026-05-31)
+
+> 主 벤치 = **SOPBench**(Zekun Li, 2503.08669)로 확정됨에 따라, 그 **인용 이웃 8편**(Semantic
+> Scholar 인용 그래프, 2026-05-31 기준)을 정독하여 Related Work에 편입한다. 상세 비교 = `reports/
+> facet_rft_2026/SOPBENCH_CITING_PAPERS_REVIEW.md`. 핵심: 이 8편 중 **우리 메커니즘(학습 일반 planner
+> TBox + 외부 swappable operator memory ABox + zero-retrain 전이)을 청구한 논문은 없다**; 가장 가까운
+> 두 *방법* 논문은 정반대로 능력을 weight에 baking한다 → 깨끗한 novelty + 격파할 baseline 2개.
+
+**그룹 A — 우리와 가장 가까운 방법 논문(반드시 인용·비교·baseline化)**
+| 논문 | 유형 | 우리와 공유 | 우리와 차이 |
+|---|---|---|---|
+| **FM SO.P** (2602.09336, 2026) | method | SOPBench+동일 7도메인, cross-domain, 단계적(개념→시퀀스→scenario-graph)=L0→L1→L2, 작은모델≈큰모델 | cross-domain을 **커리큘럼 SFT로 단일 weight에 baking**; planner/operator 분리 無; **held-out zero-retrain 전이 無**; 평가=멀티에이전트 rubric(judge성) |
+| **CAP-CPT / CC-Gen** (2510.11588, 2025) | method | policy→factual/behavioral/conditional 구조화(≈slot/effect/precondition·branch), 내재화(우리 NONE-vs-FULL·특허 트랙) | 각 policy를 **continued-pretraining으로 weight에 per-policy 내재화**; 일반추론↔swappable-policy 분리 명시 無; held-out 전이 기술 無 |
+
+**그룹 B — 프레이밍을 공유하는 벤치마크(eval-only, 전이 method 無)**
+| 논문 | 우리와 공유 | 우리와 차이 |
+|---|---|---|
+| **SAGE** (2604.09285, 2026) | SOP→**Dynamic Dialogue Graph**+**Rule Engine 결정론 GT**(≈우리 ontology+rule oracle); **"Execution Gap"**(의도 정답·후속 action 실패)=우리 operator-planner 직접 동기 | eval 벤치(+adversarial intent); **judge agent** 병용; method/전이 無 |
+| **SOP-Maze** (2510.08942, 2025; 이미 Tier-2) | HRS(분기추론)=planner 분기추종; **LRS(wide-option)=tool@scale(`--tool_list full`)** | tool 無 QA; method/전이 無 |
+| **TOD-ProcBench** (2511.15976, 2025) | **condition-action 문장 + next-action 예측**(≈precondition→action/planner) | 멀티턴 대화·NLU 중심(tau2계열); 전이 無 |
+| **LogicIF** (2508.09125, 2025) | **코드 함수에서 검증가능 instruction 생성**(conditions/loops/function calls)=우리 "복잡성은 함수 안, ontology=thin call-graph" | single-turn IF; agent/전이 無 |
+
+**그룹 C — 안전/직교(우리 constraint·거부축만 접점)**: Outcome-Driven Constraint Violations
+(2512.20798, KPI압력 misalignment·judge panel), AgentSandbox (2505.24019, 보안 원칙 position).
+둘 다 method/전이 無 — 우리 거부정확도(`action_should_succeed=false`) 축과만 겹침.
+
+```
+우리의 차별점 vs 계열 7 (계열 6 내재화·계열 5 Agent Planning과 결합):
+  방법 논문(A): SOP/policy 능력을 weight에 baking (커리큘럼 SFT / continued-pretraining)
+    → 신규 도메인마다 재학습 필요. cross-domain은 "전 도메인 같이 학습"이지 전이가 아님.
+  우리: 일반 계획능력(weights=TBox) ↔ 도메인 operator(외부 swappable memory=ABox) 분리
+    → ABox swap만으로 held-out 도메인, 재학습 0 (+ ABox-ablation으로 "메모리를 실제로 읽음" 검증).
+  벤치마크 논문(B): graph/condition-action/code-function 형식화로 독립 수렴 = 우리 8-관계
+    call-graph와 동형 → 표현은 합의됨, "학습 planner+전이"만 우리가 추가. SAGE Execution-Gap=동기.
+  방법론적 우위: (a) rule oracle·LLM judge 無(SAGE/C1은 judge 의존), (b) induced ontology를
+    ground-truth(directed_action_graph)로 검증, (c) 거부/constraint를 1급 지표(C1은 그게 전부).
+```
+
+**★ Related Work 초안 (paper-ready, EN) — "Procedural / SOP agents and cross-domain transfer"**
+
+> *Procedure- and policy-following benchmarks.* A growing body of work evaluates whether LLM
+> agents can follow structured operating procedures. SOPBench [Li et al., 2503.08669] — our
+> primary benchmark — formalizes seven enterprise domains with explicit operator dependency
+> graphs and a *rule-based* oracle (goal attainment + constraint satisfaction + call-graph
+> conformance), avoiding LLM judges. Concurrent benchmarks converge on closely related
+> formalizations: SAGE [2604.09285] compiles unstructured SOPs into *dynamic dialogue graphs*
+> scored by a rule engine, SOP-Maze [2510.08942] separates wide-option selection (LRS) from
+> deep branch reasoning (HRS), TOD-ProcBench [2511.15976] expresses procedures as multi-level
+> *condition–action* statements with next-action prediction, and LogicIF [2508.09125] derives
+> verifiable instructions from *code functions* carrying conditions, loops, and calls.
+> Safety-oriented suites [2512.20798] and security frameworks [2505.24019] further probe the
+> *constraint-violation / refusal* axis. Two findings recur and motivate our design: an
+> **"execution gap"** [2604.09285] — models classify intent correctly yet fail to derive the
+> correct *subsequent action* — and a convergence on **graph / condition–action / function-call**
+> representations of procedures, mirroring our eight-relation call-graph ontology. These works
+> are *evaluations*; none contributes a planning method that transfers across domains.
+>
+> *Methods for procedural competence.* The closest methods build SOP/policy competence *into a
+> model's weights*. FM SO.P [2602.09336], evaluated on the same SOPBench seven domains, attains
+> cross-domain SOP understanding via a **progressive task-mixture curriculum** (concept
+> disambiguation → action-sequence → scenario-aware graph reasoning) under supervised
+> fine-tuning, reporting a 7B model matching a 72B baseline. CAP-CPT [2510.11588] **internalizes**
+> each policy document into model priors via category-aware *continued pretraining*, trading
+> in-context policy for weight-resident knowledge. Both bake domain knowledge into a monolithic
+> model: neither separates a general planner from domain operators, and neither demonstrates
+> transfer to a held-out domain *without retraining*.
+>
+> *Our position.* We instead factor the agent into a **learned, domain-general planner (TBox)**
+> that reasons over operator precondition/effect *types*, and an **ABox of domain operators held
+> as external, swappable memory** consumed by a resolver (rule / prompt / a learned
+> cross-attention memory). The planning skill lives in weights; the operators do not. This yields
+> our central claim, absent from all of the above: **freezing the planner and swapping only the
+> operator memory transfers to a held-out domain with zero retraining** (validated by an
+> ABox-ablation control in which empty/incorrect operators collapse performance). Relative to
+> curriculum SFT [2602.09336] and policy internalization [2510.11588], domain knowledge stays
+> external and replaceable rather than re-learned per domain; relative to the procedural
+> benchmarks [2503.08669, 2604.09285, 2510.08942, 2511.15976, 2508.09125], we contribute a method
+> and a transfer result rather than a measurement. We additionally inherit a *rule oracle* (no LLM
+> judge), validate the induced ontology against the authored ground-truth call graph, and treat
+> refusal/constraint accuracy as a first-class metric. This complements the test-time agent-
+> planning line (§9.5: ReAct/Reflexion/LATS; and GoalAct/ReWOO/LLMCompiler/AWM in
+> `WORKFLOW_ONTOLOGY_DESIGN §5`), which improves plan *search* without a transferable,
+> operator-conditioned planner, and the efficiency/internalization line (§13.6, 계열 6).
 
 ---
 
