@@ -2969,3 +2969,34 @@ B(monolithic, step+tool 동시 emit)는 구체 도구를 weights에 학습→ABo
 **Ablation**: (i) resolver=base-LLM+전체도구(베이스라인) (ii) planner + 온톨로지-resolver (iii) +LLM-fallback (iv) monolithic-B(§15.10 B). planner+온톨로지-resolver가 (i)을 이기면 TBox/ABox 구조 가치 입증.
 **전이**: planner=telecom+retail step 학습 → airline은 **온톨로지 파일만 swap**(planner 불변).
 **구현**: ①`observation_triggers`/`arg_source` inducer → ②planner-only 데이터(step만, tool 드롭) → ③결정적 resolver + 2-stage harness(+fallback) → ④airline LODO(온톨로지 swap).
+
+### 15.12 ★Layered ontology + staged agent pipeline (구현 청사진 — 다음 세션)
+§15.11의 2-stage를 일반화: 계획·실행을 **4단계**로 분해, 각 단계가 (온톨로지 층 × 결정자 × TBox/ABox). 학습은 계획층(TBox)에 집중, 실행층(ABox)은 결정적+LLM fallback. 제어흐름·재시도·파라미터제약 전부 온톨로지로 선언. (BPMN/PDDL/HTN 선례; §12 v1.22 합성-온톨로지 북극성 구체화.)
+
+```
+[P1 워크플로 선택]  goal → workflow            decomposes_into/achieves_goal       planner(학습)  TBox↑
+[P2 스텝 선택]      workflow DAG+상태 → step    workflow_step_edge(precedes/        planner(학습)  TBox(제어)+ABox(graph)
+                                               exclusive_choice/and_join)
+[E3 도구 선택]      step+관찰 → tool            step_realizes_tool+observation_     결정적/LLM      ABox
+                                               triggers
+[E4 파라미터]       tool → args                requires_param+arg_source+          결정적(스키마)/  ABox
+                                               param_constraint                    LLM
+[harness 제어]      실패 N회→대안/backtrack/    retry_after_fail/error_fallback/    rule(보편)     —
+                    escalate                   backtrack_to/escalate_when
+```
+
+**신규/강화 관계 (대부분 42+J에 존재; 추가분)**:
+- `workflow_step_edge(workflow, step_i, step_j, edge_type)` [신규] — 워크플로 DAG 엣지. **induce**: teacher step-시퀀스의 빈발 전이 + 분기(같은 step 후 다른 step = exclusive_choice). `induce_workflow_dag.py`.
+- `requires_param(tool, param, type, required)` [신규·공짜] — tau2 도구 JSON 스키마서 결정적 추출.
+- `param_constraint(tool, param, predicate)` [신규] — enum/type(스키마,공짜) + 의미제약(정책텍스트/teacher induce: "amount≤balance" 등).
+- `retry_policy(scope, max_fails, on_exhaust)` [신규·harness 상수] — 실패카운트 임계+소진시 동작(보편 harness 로직, 온톨로지엔 임계값만).
+- (기존 재사용) decomposes_into/achieves_goal(H), exclusive_choice/and_join/state_transition(E), error_fallback(D), retry_after_fail(B), backtrack_to/observation_triggers(G), escalate_when/step_realizes_tool/arg_source(J/신규).
+
+**결정자**: P1-2=학습 planner(추상 step/workflow만 emit=순수 TBox) / E3-4=결정적 온톨로지 우선+후보제한 LLM fallback / harness=실패-카운트 FSM.
+
+**구현 순서 (★증분, 빅뱅 금지)**:
+1. **2-stage 검증 먼저**(§15.11): planner(B 학습본) + E3 결정적 resolver(obs_triggers, done) + LLM fallback + harness 재시도. tau2 연동 `two_stage_agent.py`. → telecom 결정적 coverage% + airline 온톨로지-swap LODO.
+2. 데이터가 "층이 필요"라 말하면 증분: **P2 워크플로-DAG 층**(`induce_workflow_dag.py` + planner를 workflow→step 2단계), **E4 param 층**(`requires_param`/`param_constraint` 스키마추출 + 결정적 arg).
+3. **harness 재시도 rule**(실패 N회→fallback/backtrack/escalate) — NONE의 anti-loop(max_steps 63%) 직접 차단.
+
+**Ablation/지표**: 단계별 **결정적 coverage%**(온톨로지 기여 정량) · monolithic-B vs 2-stage vs 4-stage 전이(LODO) · harness-retry on/off의 anti-loop 감소 · 층 추가의 marginal value. **층 분해가 전이/정확도를 *올려야* 정당화**(우아함만으론 불충분).
