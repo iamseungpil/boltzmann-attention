@@ -2193,6 +2193,8 @@ KV Cache Steering의 핵심 통찰:
 
 → **Routine은 우리의 직접 baseline이 아니라 *complementary direction***. Routine = "사람이 plan template 작성, 모델이 SFT로 그것 따르도록 학습". 우리 = "자동 추출된 ontology를 다층 representation에 주입, training-free 가능".
 
+**★재독(2026-05-31, §15.14)**: Routine의 4 메커니즘(R1 variable memory / R2 placeholder slot / R3 branch condition / R4 scenario)을 **자동 induce + 다층 executor**로 일반화 가능(전부 기존 induced 맵에서 추출, 새 데이터 0). 우선순위 R4(scenario, 3도메인·multi-fault 직격) > R3(branch, anti-loop 차단) > R1/R2(arg_bind 계약). 상세 §15.14.
+
 Routine의 96% lift는 *enterprise scenario에 사람이 정확한 routine template을 작성했을 때*. 새 scenario 마다 라벨링 비용 큼. 우리는 *자동* ontology에서 lift 측정 (사람 라벨 0).
 
 ---
@@ -3061,3 +3063,45 @@ monolithic 온톨로지 0, abstract LLM 단독 emit               (상한) [done
 - 검증가능성: (a)의 결정적 coverage% 상실 → ABox-ablation으로 대체 입증.
 
 → **구현 산출물(예정)**: `ontology_encoder.py`(관계→메모리 슬롯), `xattn_resolver`(cross-attn executor block + readout), two_stage_agent `--mode {ontollm,xattn}`, ABox-ablation 러너.
+
+---
+
+### 15.14 (v1.30, 2026-05-31) ★Routine-derived layers — placeholder/variable·branch·scenario를 자동 induce (Routine 2507.14447 일반화)
+
+Routine 논문(arXiv 2507.14447)을 재독하여, **사람이 작성하던 Routine 메커니즘 4종을 teacher 궤적에서 자동 induce + 다층 executor로 소비**한다. Routine의 본질적 한계(시나리오마다 사람 작성·SFT 필수·간섭붕괴 96→76·재distill, §9.4 기록)를 우리 자동-온톨로지+다층 주입으로 극복. **새 데이터 불요** — 전부 기존 induced 맵(`fault_fix_map`/`task_required_tools`/`observation_triggers`/`arg_source`/`step_realization`) + shipped 궤적에서 추출.
+
+#### 15.14.1 Routine 메커니즘 ↔ 우리 대응 (verbatim 확인)
+Routine step 스키마 = `Step Number/Name/Description/Input*/Output*/Tool*` (*=optional, **"only one tool per step"** = 우리 `step_realizes_tool`). Branch notation `"x-n_i"` + `If <Condition>, perform <Step>, using <Tool>`. Variable Memory = 큰 출력은 저장·key만 참조(`<variables></variables>`). Distillation = GPT-4o+Routine → 537 시나리오 → 3108 tool-call SFT(시나리오별 routine 사람 작성).
+
+| # | Routine 메커니즘 | 우리 현황 | 일반화(자동 induce + 층) |
+|---|---|---|---|
+| **R1** | Variable Memory + key 참조 | `arg_source`(정적 provenance) + `ObservedState.by_source`(런타임 key-value, 이미 존재!) | 런타임 variable memory를 ABox로 — placeholder를 key로 채움 = `arg_source`의 결정적 실행판 |
+| **R2** | Placeholder slot (Input/Output 계약) | step 입출력 계약 없음 | step에 input/output 슬롯 → resolver가 by_source에서 채움(빈 슬롯=miss=fallback). **arg_bind(현 0.32 약점) 구조적 강제** |
+| **R3** | Branch/condition (`If <Cond>...`) | observation_triggers가 암묵 분기 | 분기를 1급 온톨로지 `exclusive_choice(step,[(cond_i,tool_i)])` 로 — mutual-exclusion 강제 + else→escalate |
+| **R4** | Scenario = routine 단위 | task 평면 | fault-유형 클러스터 = scenario(자동) → scenario별 workflow DAG → planner 2단계(task→scenario→step) |
+
+#### 15.14.2 R1+R2 — Variable/placeholder layer (E3/E4 실행층 보강)
+- **inducer**: `induce_variable_slots.py` = step별 input/output placeholder 계약을 teacher 궤적서 induce(`arg_source` 확장: 각 GT-write의 인자 출처를 명시 슬롯으로).
+- **resolver 보강**: `ontology_resolver`에 **placeholder 강제 채우기** — 슬롯을 `ObservedState.by_source`(런타임 variable memory) key로 resolve. **빈 슬롯 → miss → fallback**. 효과: 인자 할루시네이션이 *구조적으로 불가능*(key가 없으면 못 부름). arg_bind를 점수가 아니라 **계약**으로.
+- **xattn 정합**: ABox 메모리 슬롯에 variable slot 포함 → cross-attn이 "어느 read의 어느 field가 이 인자다"를 읽음.
+
+#### 15.14.3 R3 — Branch layer (E3 도구선택을 분기 구조로)
+- **inducer**: `induce_branch_dag.py` = teacher 성공 궤적서 **같은 plan_step 직후 다른 도구로 갈라지는 지점** 탐지 → 직전 read 상태 대조 → 분기 조건. **재료 = observation_triggers ∪ distractor_for ∪ escalate_when(전부 induce 완료)을 step 단위로 묶음** — 신규 inducer는 조합만.
+- observation_triggers와 다른 가치: ①**mutual exclusion**(정확히 하나 선택, 다중 trigger 충돌 해소) ②**else 조건**(분기 다 실패→escalate = NONE anti-loop 직접 차단) ③planner가 분기 step emit → executor 후보 제한 → coverage↑.
+- **경계**: telecom 결정적(roaming_enabled=False→enable_roaming 등) / retail·airline 분기조건 인스턴스-특수(variant.size=S) → R3 결정적 안 됨, xattn/fallback 필요.
+
+#### 15.14.4 R4 — Scenario layer (P1 계획층 자동 induce, ★최대 레버)
+- **inducer**: `induce_scenario_workflow.py`:
+  1. **scenario 군집화** = teacher 궤적을 GT-fix 도구집합 + fault 시그니처로 클러스터. **`fault_fix_map`의 fault 키가 곧 scenario 라벨**(예 telecom: data_usage_exceeded→refuel / roaming→enable_roaming / overdue_bill→send_payment→resume_line).
+  2. **scenario별 workflow DAG** = 클러스터 내 step 전이 빈발(§15.12 `induce_workflow_dag.py`). 전형 = gather→check→apply_fix→verify.
+  3. **scenario 선택** = 초기 read 상태 → fault 시그니처 매칭(결정적, LLM 없음). Routine은 LLM 유사도, 우리는 결정적.
+- 가치: ①**planner 입력 2단계**(task→scenario→step) = scenario-conditioned step 시퀀스로 정확도↑ ②**multi-fault 해결**(NONE 실패 핵심=다fault일수록 누락↑ → scenario 합집합 활성화로 누락 방지) ③**전이 단위**(ABox swap·xattn 메모리를 scenario 슬롯으로 묶음, airline booking/cancel/update 통째 교체).
+- **경계**: scenario(R4)는 **3도메인 다 됨**(작업 유형 명확) / 분기(R3)는 telecom만 결정적. → R4가 가장 일반적 레버.
+
+#### 15.14.5 통합 / 우선순위 / 검증
+- **층 매핑**: R1+R2 = E3/E4 실행층(arg 계약) / R3 = E3 분기 / R4 = P1 계획층(scenario→workflow). §15.11 2-stage·§15.12 4-stage·§15.13 xattn과 전부 정합(같은 induced 맵 소비).
+- **우선순위 = R4 > R3 > R1/R2**: R4가 planner 입력 구조를 바꾸는 최대 레버(3도메인)·multi-fault 직격. R3은 anti-loop 차단. R1/R2는 arg_bind 구조 보장(인프라 거의 완비).
+- **지표**: 각 층의 **결정적 coverage%** + 층 추가의 marginal pass^1 + **multi-fault task 누락 감소**(R4) + **arg_bind 0.32→계약 후 향상**(R1/R2) + anti-loop max_step 실패 감소(R3). telecom 결정적 / retail·airline neural 경계 그대로.
+- **Routine 대비 차별(명시)**: Routine=사람작성 routine+SFT, 우리=**자동 induce(사람 0)+다층(rule/cross-attn) 소비+training-free 가능**. 간섭붕괴(Routine 96→76)는 scenario를 독립 ABox로 분리해 회피.
+
+→ **신규 도구(예정)**: `induce_scenario_workflow.py`(R4), `induce_branch_dag.py`(R3), `induce_variable_slots.py`(R1/R2). resolver/two_stage_agent에 scenario-conditioned planner + 분기 + placeholder 강제 통합. 담당: induce·결정적 검증=Track A(7B), neural(xattn) scenario/branch=coworker(B5*).

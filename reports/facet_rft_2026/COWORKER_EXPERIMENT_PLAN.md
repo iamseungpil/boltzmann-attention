@@ -126,6 +126,15 @@
 - **출력**: `ontology_encoder.py`(관계→메모리) + cross-attn executor block + 학습된 TBox weights(HF) + 도메인별 ABox 메모리 + coverage/swap/ablation manifest (`coworker_a100/xattn/`).
 - **리스크**: telret~1300 데이터로 cross-attn 신규 파라미터 학습 충분한지(→증강/32B), ABox 인코딩 분포정합(전이 핵심·최난점), 구현 복잡도((a)(b)보다 훨씬 무거움).
 
+### B6*. ★Routine-derived layers — scenario/branch/placeholder 자동 induce (design §15.14, v1.30)
+Routine(2507.14447) 4 메커니즘을 **자동 induce + 다층 executor**로 일반화. 전부 기존 induced 맵에서 추출(새 데이터 0). **우선순위 R4 > R3 > R1/R2.**
+- **R4 scenario(★최대 레버, 3도메인)**: `induce_scenario_workflow.py` — fault-유형 클러스터=scenario(`fault_fix_map` 키), scenario별 workflow DAG, 초기 read→fault 시그니처 결정적 매칭. **planner 2단계(task→scenario→step)** + multi-fault 합집합 활성화(NONE 누락 직격). ABox swap·xattn 메모리를 scenario 슬롯으로.
+- **R3 branch(telecom 결정적)**: `induce_branch_dag.py` — 같은 step 후 분기점+직전 read 대조 → `exclusive_choice(step,[(cond,tool)])`. 재료=observation_triggers∪distractor_for∪escalate_when(완료). mutual-exclusion + else→escalate(anti-loop 차단).
+- **R1/R2 placeholder(arg_bind 계약)**: `induce_variable_slots.py` — step input/output 슬롯을 `ObservedState.by_source`(런타임 variable memory) key로 강제 채움. 빈 슬롯→miss→fallback. **인자 할루시네이션 구조적 불가**(arg_bind 0.32→계약).
+- **eval**: 각 층 결정적 coverage% + marginal pass^1 + **multi-fault 누락 감소(R4)** + arg_bind 향상(R1/R2) + anti-loop 감소(R3). telecom 결정적 / retail·airline neural(→B5* xattn) 경계.
+- **담당**: induce·결정적 검증=Track A(7B). neural scenario/branch(xattn 메모리에 scenario·분기 슬롯)=coworker. scenario-conditioned planner SFT는 B1* 데이터에 scenario 라벨 추가로 흡수 가능.
+- **출력**: 3 inducer + scenario/branch/variable 맵(`induced/{scenario_workflow,branch_dag,variable_slots}_<dom>.json`) + two_stage_agent scenario-2단계 통합.
+
 ---
 
 ## 4. 환경 셋업 (coworker box)
@@ -194,6 +203,8 @@ export OPENROUTER_API_KEY=...
 | **G4* (fallback capability)** | catalogue 도메인(retail/airline)서 70B fallback이 7B fallback 대비 **miss-turn 정확도 +≥10%p** | capability가 잔차 메움 확인 / 결정적 확장 필요 |
 | **G5* (GRPO, 조건부)** | anti-loop(step penalty)로 NONE max-step 실패 직접 감소 + pass^1 +≥5%p | 진입 / SFT로 충분 보고 |
 | **G6* (xattn neural resolver, B5*)** | catalogue 도메인(retail/airline)서 `xattn` coverage·pass^1이 `resolver`(rule) 및 `ontollm`(프롬프트) **둘 다 상회** + **ABox-ablation으로 붕괴**(빈/틀린 M) + **swap LODO가 in-dist의 ≥70% 회수** | 본 트랙 novelty 입증 / 인코딩 분포정합·데이터 재설계 |
+| **G7* (R4 scenario, B6*)** | scenario-2단계 planner가 평면 대비 **multi-fault task pass^1 +≥5%p**(누락 감소) + scenario 매칭 정확도 ≥80% (3도메인) | 계획층 가치 입증 / fault 클러스터 재정의 |
+| **G8* (R3 branch / R1·R2 placeholder, B6*)** | branch=telecom anti-loop(max-step 실패) 감소 + placeholder=arg_bind **0.32→≥0.7**(인자 계약) | 실행층 가치 입증 / 슬롯 induce 정제 |
 
 ---
 
