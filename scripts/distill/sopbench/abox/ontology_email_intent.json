@@ -1,0 +1,17 @@
+{
+  "start": "classify",
+  "steps": ["classify"],
+  "realizes": {
+    "classify": "_classify_intent"
+  },
+  "arg": {
+    "_classify_intent": {"product_id": "product_id"}
+  },
+  "next": {
+    "classify": null
+  },
+  "output": {
+    "required": ["seller_intent", "action"],
+    "format": "xml"
+  }
+}

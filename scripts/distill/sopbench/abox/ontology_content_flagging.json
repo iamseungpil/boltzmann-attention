@@ -1,0 +1,46 @@
+{
+  "start": "bot",
+  "steps": ["bot", "csi", "utc", "decide"],
+  "realizes": {
+    "bot": "calculateBotProbabilityIndex",
+    "csi": "calculateContentSeverityIndex",
+    "utc": "calculate_user_trust_score",
+    "decide": "_decide"
+  },
+  "arg": {
+    "calculateBotProbabilityIndex": {
+      "userid": "userid",
+      "is_possible_bot": "is_possible_bot",
+      "Captcha_tries": "Captcha_tries",
+      "device_type": "device_type",
+      "os": "os",
+      "browser": "browser"
+    },
+    "calculateContentSeverityIndex": {
+      "content_id": "content_id",
+      "PrimaryViolationType": "PrimaryViolationType",
+      "SecondaryViolationType": "SecondaryViolationType",
+      "PrimaryViolation_Confidence": "PrimaryViolation_Confidence",
+      "SecondaryViolation_Confidence": "SecondaryViolation_Confidence"
+    },
+    "calculate_user_trust_score": {
+      "userid": "userid",
+      "NumberofPreviousPosts": "NumberofPreviousPosts",
+      "CountofFlaggedPosts": "CountofFlaggedPosts",
+      "Latitude": "Latitude",
+      "Longitude": "Longitude",
+      "bot_probability_index": "bot_probability_index",
+      "device_consistency_score": "device_consistency_score"
+    }
+  },
+  "next": {
+    "bot": "csi",
+    "csi": "utc",
+    "utc": "decide",
+    "decide": null
+  },
+  "output": {
+    "required": ["final_decision"],
+    "format": "xml"
+  }
+}

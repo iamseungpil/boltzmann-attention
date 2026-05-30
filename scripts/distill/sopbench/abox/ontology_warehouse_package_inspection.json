@@ -1,0 +1,15 @@
+{
+  "start": "decide",
+  "steps": ["decide"],
+  "realizes": {
+    "decide": "_decide"
+  },
+  "arg": {},
+  "next": {
+    "decide": null
+  },
+  "output": {
+    "required": ["resolution_status"],
+    "format": "xml"
+  }
+}

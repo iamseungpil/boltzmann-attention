@@ -1,0 +1,33 @@
+{
+  "start": "profile",
+  "steps": ["profile", "registration", "ownership", "bank", "risk", "decide"],
+  "realizes": {
+    "profile": "getBusinessProfile",
+    "registration": "verifyBusinessRegistration",
+    "ownership": "verifyUBO",
+    "bank": "getBankData",
+    "risk": "calculateRiskScore",
+    "decide": "_decide"
+  },
+  "arg": {
+    "getBusinessProfile": {"business_id": "business_id"},
+    "verifyBusinessRegistration": {
+      "business_id": "business_id",
+      "registration_number": "registration_number",
+      "business_registration_state": "business_registration_state",
+      "license_number": "license_number"
+    },
+    "verifyUBO": {"business_id": "business_id", "ubo_list": "ubo_list"},
+    "getBankData": {"business_id": "business_id"},
+    "calculateRiskScore": {"business_id": "business_id"}
+  },
+  "next": {
+    "profile": "registration",
+    "registration": "ownership",
+    "ownership": "bank",
+    "bank": "risk",
+    "risk": "decide",
+    "decide": null
+  },
+  "output": {"required": ["escalation_status"], "format": "xml"}
+}
