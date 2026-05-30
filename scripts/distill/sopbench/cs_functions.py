@@ -61,10 +61,13 @@ def final_status(slots: Dict[str, Any]) -> Dict[str, Any]:
     (the FAILED/PENDING_ACTION short-circuits fire as `terminate` rules)."""
     if slots.get("final_resolution_status"):
         return {}
+    # FAILED / PENDING_ACTION short-circuits fire as `terminate` rules (auth, terminated,
+    # still-suspended, outage). _final_status only runs on the eligible/no-outage path.
     if slots.get("is_authenticated") is False:
         return {"final_resolution_status": "FAILED"}
-    status = str(slots.get("account_status", "")).upper()
-    if status in ("TERMINATED", "SUSPENDED"):
+    if str(slots.get("account_status", "")).upper() == "TERMINATED":
+        return {"final_resolution_status": "FAILED"}
+    if str(slots.get("account_suspension_status", "")).upper() == "SUSPENDED":
         return {"final_resolution_status": "FAILED"}
     if slots.get("outage_detected") in (True, "True", "true"):
         return {"final_resolution_status": "PENDING_ACTION"}

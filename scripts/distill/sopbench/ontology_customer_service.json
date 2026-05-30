@@ -1,7 +1,7 @@
 {
   "domain": "customer_service",
   "start": "validate",
-  "steps": ["validate", "auth", "authdecide", "session", "status", "outage",
+  "steps": ["validate", "auth", "authdecide", "session", "status", "suspstatus", "outage",
             "diag", "trouble", "improved", "escalate", "final"],
   "realizes": {
     "validate": "validateAccount",
@@ -9,6 +9,7 @@
     "authdecide": "_is_authenticated",
     "session": "createSessionAndOpenTicket",
     "status": "checkAccountStatus",
+    "suspstatus": "checkAccountSuspensionStatus",
     "outage": "checkServiceAreaOutage",
     "diag": "performTechnicalDiagnostics",
     "trouble": "executeTroubleshooting",
@@ -21,6 +22,7 @@
     "getAuthenticationDetails": {"account_id": "account_id", "is_account_id_valid": "is_account_id_valid"},
     "createSessionAndOpenTicket": {"account_id": "account_id", "is_account_id_valid": "is_account_id_valid", "is_authenticated": "is_authenticated"},
     "checkAccountStatus": {"account_id": "account_id", "session_token": "session_token"},
+    "checkAccountSuspensionStatus": {"account_id": "account_id", "session_token": "session_token"},
     "checkServiceAreaOutage": {"account_id": "account_id", "session_token": "session_token", "service_area_code": "service_area_code"},
     "performTechnicalDiagnostics": {"account_id": "account_id", "session_token": "session_token", "service_type": "service_type", "subscribed_bandwidth": "subscribed_bandwidth"},
     "executeTroubleshooting": {"account_id": "account_id", "session_token": "session_token", "root_causes": "root_causes"},
@@ -29,6 +31,7 @@
   "produces": {},
   "precondition": {
     "createSessionAndOpenTicket": "is_authenticated == True",
+    "checkAccountSuspensionStatus": "account_status == SUSPENDED",
     "performTechnicalDiagnostics": "account_status == ACTIVE",
     "executeTroubleshooting": "account_status == ACTIVE"
   },
@@ -37,7 +40,8 @@
     "auth": "authdecide",
     "authdecide": "session",
     "session": "status",
-    "status": "outage",
+    "status": "suspstatus",
+    "suspstatus": "outage",
     "outage": "diag",
     "diag": "trouble",
     "trouble": "improved",
@@ -48,7 +52,7 @@
   "terminate": [
     {"pred": "is_authenticated == False", "set": "final_resolution_status", "to": "FAILED"},
     {"pred": "account_status == TERMINATED", "set": "final_resolution_status", "to": "FAILED"},
-    {"pred": "account_status == SUSPENDED", "set": "final_resolution_status", "to": "FAILED"},
+    {"pred": "account_suspension_status == SUSPENDED", "set": "final_resolution_status", "to": "FAILED"},
     {"pred": "outage_detected == True", "set": "final_resolution_status", "to": "PENDING_ACTION"}
   ],
   "output": {"required": ["final_resolution_status"], "format": "xml"}
