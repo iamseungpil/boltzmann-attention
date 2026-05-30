@@ -1,0 +1,23 @@
+{
+  "mode": "resolver",
+  "domain": "telecom",
+  "ontology_domain": "telecom",
+  "tool_turns": 300,
+  "deterministic": 12,
+  "miss": 277,
+  "no_step": 11,
+  "deterministic_coverage": 0.04,
+  "by_tool_det": {
+    "enable_roaming": 7,
+    "refuel_data": 2,
+    "send_payment_request": 3
+  },
+  "by_step_det": {
+    "apply_targeted_fix": 12
+  },
+  "by_step_miss": {
+    "gather_account_context": 259,
+    "apply_targeted_fix": 6,
+    "escalate_or_document": 12
+  }
+}
