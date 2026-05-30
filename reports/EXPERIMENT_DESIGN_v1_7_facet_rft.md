@@ -3110,6 +3110,13 @@ Routine step 스키마 = `Step Number/Name/Description/Input*/Output*/Tool*` (*=
 
 ## 16. ★★★ v1.31 (2026-05-30 밤) — 벤치마크 피벗: tau2 → SOP-Bench (워크플로우 온톨로지의 본령)
 
+> ### ★★ v1.32 (2026-05-31) — 실험 재정립: 권위본 = `scripts/distill/sopbench/LLM_IN_LOOP_DESIGN.md`
+> 사용자 정정: **결정론 executor = oracle/상한일 뿐, 진짜 실험 = LLM-in-loop**(학습 TBox planner +
+> swappable ABox memory + **전이**). **Tier-1 이중벤치 확정 = SOPBench(Zekun Li 2503.08669, native
+> 형식 operator + rule oracle, ★主) + SOP-Bench(Amazon, 12도메인 보완)**. 아래 §16.5의 "Ours-P0
+> 결정론 executor 1순위" 톤은 oracle로 격하. 2-stage [planner→resolver→env] 루프·비교군·전이·지표·
+> bank 파일럿 구체안 전부 `LLM_IN_LOOP_DESIGN.md` 참조(SOPBench clone 코드에 grounding됨).
+
 > **이 섹션이 현재 실험의 substrate를 §15(tau2 기반)에서 SOP-Bench로 이전한다.** §13~15의 **개념**(TBox/ABox 분리, Group J 관계, Routine R1-R4 자동 induce, 결정적 executor, LODO 전이)은 **전부 유지·강화**되나, 측정 벤치마크가 바뀐다. 상세 설계 문서 = `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`, 구현 계획 = `reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md`(개정본).
 
 ### 16.1 왜 피벗 — tau2 재진단 + 벤치마크 mismatch

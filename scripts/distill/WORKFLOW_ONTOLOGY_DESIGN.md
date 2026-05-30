@@ -1,5 +1,14 @@
 # Full Workflow Ontology — design (2026-05-30)
 
+> ### ★ EXPERIMENT RE-CENTERED (2026-05-31) — see `sopbench/LLM_IN_LOOP_DESIGN.md`
+> The user corrected the framing: the **deterministic executor (§3/§6 P0) is the oracle /
+> upper bound, NOT the contribution.** The real experiment is **LLM-in-loop** (learned TBox
+> planner + swappable ABox memory + **transfer**), and the **primary benchmark moved to
+> SOPBench (Zekun Li, 2503.08669)** — native formal operators + a rule oracle —
+> with SOP-Bench (Amazon) complementary. **§1 (TBox/ABox split), §2 (8-relation schema),
+> §5 (L0/L1/L2 + prior art) stay valid;** §3/§6's "P0-first / deterministic-first" reading
+> is demoted to the oracle. Authoritative experiment design = `sopbench/LLM_IN_LOOP_DESIGN.md`.
+
 Status: **DESIGN.** Supersedes the partial "fix-disambiguation only" ontology
 (`step_realization_*` + `obs_triggers_*`) and the per-turn reactive resolver
 (`ontology_resolver.py` + `two_stage_agent.py:_two_stage_generate`).
