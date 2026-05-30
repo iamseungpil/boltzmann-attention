@@ -1,8 +1,8 @@
 # 실험 설계서: 온톨로지 기반 그래프 구조 주입을 통한 Training-Free 다단계 도구 계획 개선
 
-**버전**: v1.24  
+**버전**: v1.27  
 **작성일**: 2026-05-26  
-**최종 갱신**: 2026-05-29 (v1.21: Phase 2a/2c/2d steering 실측 — 상수 single-relation steering null, steering↔RFT class-hierarchy, LoRA-RFT 피벗; v1.22: cross-domain 전이 축(4도메인 telecom/retail/airline/banking) 중심 격상 + 합성-온톨로지 북극성; v1.23: facet-guided distillation lever. 상세: phase2_steering/STEERING_CONTROL_DESIGN.md §1-11)  
+**최종 갱신**: 2026-05-30 (v1.27: NONE eval 실측[Pass^1 0.350]·실패 19건 정밀분해·실패→TBox 재프레이밍·**Group J 4종 신규**[repairs_state·diagnosis_sufficient_for·distractor_for·escalate_when]·ABox inducer·LODO 일반화 설계 — §15. v1.25/26: distillation 방향+구현+GRPO reward §13/§14. 이전: v1.21 steering null, v1.22 cross-domain 축, v1.23 facet-distill lever; 상세 phase2_steering/STEERING_CONTROL_DESIGN.md §1-11)  
 **목표 학회**: NeurIPS 2026 / ICLR 2027  
 
 ---
@@ -207,6 +207,21 @@ Group I: GoalAct 기반 목표-계획 생명주기 (5종)
                                 플랜 스텝이 목표에 커밋
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Group J: 절차 Commitment & Contrastive 선택 (4종, v1.27 신규)
+  출처: 데이터-주도 실패분석 (§15) — 서베이가 아닌 실측 유래
+  ※ 전체 정의·ABox 유도 알고리즘·LODO 일반화 설계는 §15.4–15.6
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  repairs_state(blocking_state_read, fix_tool, goal)
+                                막힌 상태 진단 read → 그 상태 뒤집는 fix write
+                                (precondition_state∧effect_state∧achieves_goal 합성)
+  diagnosis_sufficient_for(min_read_set, action)
+                                main action commit에 충분한 최소 관찰집합 (anti-loop)
+  distractor_for(goal, wrong_tool)
+                                목표에 대한 그럴듯한 오답 도구 (achieves_goal 음성쌍)
+  escalate_when(unresolvable_condition, escalation_tool)
+                                해결불가 조건 → handoff (error_fallback의 goal-level)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 어휘 확장 (Group I 지원)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   GOAL_VOCAB (16종):
@@ -266,7 +281,13 @@ Group I: GoalAct 기반 목표-계획 생명주기 (5종)
   plan_step_skill
   근거: 단항 속성 또는 유형 레이블 — 크기 shift가 존재/부재 표현에 적합
 
+Group J (v1.27, 실측 유래) 기하:
+  방향성 → repairs_state, distractor_for(음성 방향)
+  조건부 → diagnosis_sufficient_for, escalate_when
+  ※ Group J는 steering 대상이 아니라 distill/GRPO reward·contrastive 라벨로 사용(§15.8)
+
 → Phase 0 v3 probing에서 42종 전체의 기하학 예측 검증 (A7, §4.3 참조)
+→ Group J 4종은 probing 대상 아님 — ABox inducer(§15.5)로 직접 유도·reward 통합
 ```
 
 ### 3.3 구현 방법 비교
@@ -2793,3 +2814,88 @@ Qwen-7B telecom 실패 분해: **도구선택 58% + 형식 36% = 94%**, long-hor
 
 ### 14.6 실행 현황 + 다음
 **7B full/none SFT 학습 중**(woori A6000×2, nohup, epoch 0). 다음=학습완료→**eval(procedure_scorecard F1/seq_F1, full vs none retained pass^1)**→양성시 GRPO. coworker 32B/70B 병렬(`COWORKER_EXPERIMENT_PLAN.md`).
+
+---
+
+## 15. ★★ v1.27 (2026-05-30 PM) — NONE eval 실측 + 실패-주도 TBox 확장(Group J) + cross-domain 일반화 설계
+
+> §13(TBox/ABox 분해)·§14(reward)의 후속. **핵심: 개선 레버를 telecom-특수 매핑(ABox 인스턴스)이 아니라 도메인-무관 관계(TBox 타입)로 재정의**하고, leave-one-domain-out으로 *일반화*를 증명한다. 신규 관계는 문헌 서베이(기존 42종)가 아니라 **데이터-주도 실패분석**에서 유도(§13.7 ①contrastive 원칙 부합).
+
+### 15.1 실측 — NONE(내부화) arm eval (telecom test N=40)
+정책 프롬프트를 **완전 제거**(`apply_system_mode("none")`=빈 system+tools)한 student를 eval(`phase1_runner --variants NONE`, vLLM LoRA, gpt-4.1 user_sim).
+- **Pass^1 = 0.350** (write 63/78=80.8%, normal-stop 22, max-step 15, err 3). FULL(정책유지 B0) Pass^1 ≈ 0.38 (근접) → **정책 ~6K 토큰 제거해도 pass 유지**(효율 주장 §13.1 지지, full-vs-none 토큰절감).
+- scorecard 성공 trajectory: F1=0.958 / seq_F1=0.931 / recall=1.0 / precision=0.944 / **arg_bind=1.0** / order=1.0; 실패: **recall-bound 0.316**(arg_bind 실패도 1.0=ID는 정확). base≈0 대비 명백상승 → distillation 작동. 도구: `analyze_none_failures.py`.
+
+### 15.2 실측 — 실패 19건 정밀분해 (`analyze_none_failures.py`)
+| 실패모드 | 건수 | 핵심 |
+|---|---|---|
+| A_recall_miss_major | 12 (63%) | fix tool을 아예 안 부름 |
+| D_over_action | 3 | 불필요한 write 추가 |
+| C_tool_errors | 2 | 틀린 write 반복→too_many_errors |
+| B_long_horizon | 1 | 도구 맞으나 max_steps |
+| E_args/order/state | 1 | 도구 다 부르고도 실패 |
+
+- 최다누락: `enable_roaming`(8) > `refuel_data`(6) > `transfer_to_human_agents`(4).
+- **anti-commitment**: recall-miss 다수가 steps 96–101·max_steps·**student writes=[]** — 정책 없이 끝없이 진단만, commit 안 함.
+- **wrong-tool 고착**: data_usage/overdue_bill서 정답 대신 `send_payment_request` 10–13회 스팸.
+- **teacher diff(동일 task)**: teacher mean writes **2.03** vs student-fail **2.42** — teacher는 정답 fix 2개 commit 후 정지, student는 (a)commit 안 함 또는 (b)틀린 write 반복.
+
+### 15.3 ★재프레이밍 — 증상(ABox)→도메인무관 관계(TBox). telecom 학습은 무의미; 전이가능 메커니즘이어야 한다
+| telecom 증상(ABox 인스턴스) | 도메인무관 구조(TBox) | retail/airline 동형 |
+|---|---|---|
+| abroad인데 `enable_roaming` 누락 | 목표가 *막힌 상태를 뒤집는 effect 도구*를 요구 | refund 전 주문 상태전이 / rebook 전 좌석해제 |
+| fix 없이 max_steps 진단루프 | *충분진단→main action commit* 경계 | 모든 도메인 read↔write commitment |
+| `refuel_data`↔`send_payment` 혼동 | effect 상이·표면 유사 도구의 *비대체성/오답* | refund↔exchange / cancel↔rebook |
+| `transfer` 과·소사용 | *해결불가 조건→에스컬레이션* 게이팅 | 모든 도메인 human-handoff |
+
+**보상은 이미 도메인무관**: `procedure_scorecard`/`grpo_reward` 축(recall/seq_F1/precision/arg_bind)은 각 도메인 GT에서 계산 → telecom 도구명을 박지 않음. 올바른 레버 = 이 도메인무관 reward로 **multi-domain GRPO** + 아래 Group J 신호.
+
+### 15.4 ★신규 TBox 관계 — Group J: 절차 commitment & contrastive 선택 (4종, 실패-주도)
+기존 42종에 없는 (a)*composite 상태-게이트 목표→도구*, (b)*commitment 경계*, (c)*negative(오답) 관계*, (d)*조건부 에스컬레이션*을 추가. 전부 도메인무관 타입·ABox 인스턴스는 inducer가 도메인별 자동 충당(§15.5).
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Group J: Procedural Commitment & Contrastive Selection (4종)
+  출처: 데이터-주도 실패분석(§15.2) — 서베이가 아닌 실측 유래
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  repairs_state(blocking_state_read, fix_tool, goal)
+     목표를 막는 상태를 진단하는 read → 그 상태를 뒤집는 effect를 가진
+     write(fix) 도구. = precondition_state ∧ effect_state ∧ achieves_goal의
+     상태-게이트 합성(개별 단항 속성으로는 "무엇을 불러 고치나"가 안 나옴).
+     레버①. 방향성.
+  diagnosis_sufficient_for(min_read_set, action)
+     main action을 commit하기에 충분한 최소 read/관찰 집합. 이 집합 확보 후엔
+     write를 *반드시* 발화(anti-loop). workflow_role(main)·observation_triggers가
+     "충분→commit·정지"를 인코딩 못 하는 빈칸. 레버②. 조건부/방향성.
+  distractor_for(goal, wrong_tool)
+     목표에 대해 그럴듯하지만 틀린 도구(negative goal→tool). 실패 궤적에서
+     GT-아닌 write로 유도. achieves_goal의 대조 음성쌍 → contrastive distill 신호
+     (§13.7 ①). 레버③. 방향성(음성).
+  escalate_when(unresolvable_condition, escalation_tool)
+     에이전트 도구로 해결 불가한 조건(권한·인증·범위 밖)→handoff 도구.
+     error_fallback(tool→tool)을 목표/조건 레벨로 일반화. 레버④. 조건부.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+기존 42종과의 관계: `repairs_state`⊃{precondition_state,effect_state,achieves_goal}의 운영적 합성, `distractor_for`=achieves_goal의 음성, `escalate_when`=error_fallback의 goal-level 일반화, `diagnosis_sufficient_for`=신규(commitment 경계). → 총 **46종**(42+4).
+
+### 15.5 ★ABox 유도 알고리즘 (도메인무관, `induce_tbox_relations.py`)
+입력: shipped 멀티-teacher 성공 궤적 + GT(`gt_agent_actions`) + (선택)약모델 실패 궤적. read/write는 prefix(`get_/list_/find_/search_/lookup`)로 판별 — telecom 하드코딩 없음. 도메인별 `induced/tbox_relations_<domain>.json` 출력.
+- **repairs_state**: teacher 성공에서 각 write `w`(GT∩호출) 직전에 발화된 read `r`를 (r→w) 카운트, support/frac 임계 통과쌍 = `repairs_state` 인스턴스. (precedes를 read→write-fix로 제한.)
+- **diagnosis_sufficient_for**: teacher 성공에서 *첫 write 이전*의 read 집합을 goal(=task GT-write 시그니처)별로 수집 → median/합집합 = 충분 진단셋.
+- **distractor_for**: 실패 궤적(약모델/student)에서 GT-아닌 write를 goal별 카운트 = 오답 도구(이미 `analyze_none_failures`의 EXTRA 로직 재사용). teacher 실패 희소 → student/weak에서 유도.
+- **escalate_when**: handoff 도구 자동탐지(이름 정규식 `transfer|escalate|human|agent` ∪ "표준 fix 도구 부재 task의 유일 GT-write") → 그 도구를 GT에 가진 task의 fault/조건 집합.
+검증: telecom/retail/airline 3도메인 모두 비어있지 않은 4맵 산출 → ABox swap 가능.
+
+### 15.6 ★일반화 증명 실험 — Leave-One-Domain-Out (telecom 튜닝 아님)
+1. **LODO**: SFT/GRPO를 {retail+airline}로, eval=**telecom(미학습)**. recall-miss(enable_roaming류) lift = TBox 전이 입증. 3 로테이션(각 도메인 hold-out).
+2. 대안: multi-domain train + 도메인별 held-out test split, **3도메인 recall/F1 동시상승**을 동일 메커니즘으로 보고.
+3. ABox(Group J 맵 + param_dataflow + task_required)는 3도메인 이미 induce → 학습 도메인 ABox 제거·held-out ABox만 swap해 *내부화된 건 TBox뿐*임을 ablation(§13.7 Transmuting 경고: 도메인특수성 내부화 시 100→42.7).
+4. Go/No-Go: 재학습 없이 held-out 도메인 +X%p(§7.0 기준 계승).
+
+### 15.7 정직한 한계
+- **anti-loop(②)는 일부 7B long-horizon capability 벽**일 수 있음 — TBox로 완전해결 보장 못 함, 분리검증.
+- student baseline은 현재 **telecom-only**(§5) → LODO 전 retail/airline student baseline 선행 필수.
+- framing([[feedback_facet_hypothesis_framing]]): "facet/온톨로지가 *필수*" 주장 X. 측정대상 = *TBox-관계형 reward·ABox가 도메인무관하게 정의·전이되는가*. Group J는 가설이지 검증된 사실 아님(induce 후 reward 기여·전이 ablation 필요).
+
+### 15.8 다음 실행
+①`induce_tbox_relations.py` 3도메인 induce → ②Group J를 (a)contrastive SFT 라벨(distractor_for 음성쌍) (b)GRPO reward 항(repairs_state recall·diagnosis_sufficient commitment·distractor 페널티)으로 통합 → ③LODO 학습·전이 매트릭스. FULL eval 완료 후 full-vs-none 토큰절감 수치 확정.
