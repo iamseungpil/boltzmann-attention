@@ -28,10 +28,25 @@ from collections import Counter, defaultdict
 
 ID_KEY_RE = re.compile(r"(^|\.)(id|.*_id)$", re.I)
 ID_VAL_RE = re.compile(r"^[A-Z]{1,3}\d{2,}$")  # P1002, D1002, C1001, B1003...
+# free-text / instance attributes that are NOT generalizable state predicates
+NONSTATE_KEY_RE = re.compile(r"name|address|email|phone|date|period|_at$|descr|title|"
+                             r"street|city|zip|first|last|number|amount|price|cost", re.I)
+DATE_VAL_RE = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 
 def _is_id_field(key, val):
     return bool(ID_KEY_RE.search(key)) or bool(ID_VAL_RE.match(str(val)))
+
+
+def _is_state_field(key, val):
+    """Keep only low-cardinality categorical/boolean STATE (roaming_enabled, status),
+    drop instance IDs, names, addresses, dates, free text, amounts."""
+    if _is_id_field(key, val) or NONSTATE_KEY_RE.search(key):
+        return False
+    s = str(val)
+    if " " in s or DATE_VAL_RE.match(s) or len(s) > 16:
+        return False
+    return True
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from score_fix_coverage import is_read, _shipped_files  # noqa: E402
@@ -132,8 +147,8 @@ def main() -> int:
                             if last_read is not None and last_read_fields:
                                 fix_n[name] += 1
                                 for fld, val in last_read_fields.items():
-                                    if val is None or _is_id_field(fld, val):
-                                        continue  # skip instance IDs (spurious); want STATE
+                                    if val is None or not _is_state_field(fld, val):
+                                        continue  # keep only categorical/boolean STATE
                                     pred = f"{last_read}|{fld}={val}"
                                     trig[name][pred] += 1
                                     pred_tool[pred][name] += 1
