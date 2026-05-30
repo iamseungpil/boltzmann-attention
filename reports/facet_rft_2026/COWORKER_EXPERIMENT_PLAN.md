@@ -61,13 +61,17 @@
 - **transfer Δ**: in-distribution vs ontology-swap LODO의 pass^1·coverage 차이.
 - **efficiency**: none-arm 토큰/KV 절감 (7B에서 입증, 32B는 확인만).
 
-**Ablation 4모드** (`two_stage_agent.py --mode`, §15.11):
-| mode | 구성 | 측정 의미 |
-|---|---|---|
-| `base` | 전체도구 LLM (planner/resolver 無) | 하한 baseline |
-| `resolver` | planner step + 결정적 resolver, miss시 planner 자기콜 유지 | **순수 결정적 coverage** (LLM 추가 0) |
-| `fallback` | resolver + miss시 후보제한 LLM | 결정적+fallback 조합 (실사용) |
-| `monolithic` | abstract 모델이 Plan+구체콜 end-to-end (resolver bypass) | planner 단독 상한 |
+**Ablation 6모드** (`two_stage_agent.py --mode`, §15.11 + §15.13):
+| mode | 구성 | 측정 의미 | 상태 |
+|---|---|---|---|
+| `base` | 전체도구 LLM (planner/resolver 無) | 하한 baseline | done |
+| `resolver` | planner step + 결정적 rule resolver(ABox=dict), miss시 planner 자기콜 | **순수 결정적 coverage** (LLM 추가 0) | done(§15.11) |
+| `ontollm` | ABox를 프롬프트로 직렬화, LLM in-context 선택 | 프롬프트 천장 (토큰 비쌈) | 신규(b) |
+| `xattn` | **ABox=cross-attn 메모리, TBox=학습 weights** | **★본 트랙 novelty**(토큰0+학습 유연성) | 신규(c)·B5* |
+| `fallback` | rule resolver + miss시 후보제한 LLM | 결정적+fallback 조합 (실사용) | done(§15.11) |
+| `monolithic` | abstract 모델이 Plan+구체콜 end-to-end (resolver bypass) | planner 단독 상한 | done(§15.11) |
+
+→ 사다리 판독: `base→ontollm`=온톨로지 프롬프트-side 기여 / `resolver→xattn`=rule이 못 푼 걸 학습 attention이 메운 양(catalogue 도메인서 격차 클 것) / `ontollm vs xattn`=프롬프트 vs weights(토큰·전이·정확도) / `xattn vs monolithic`=ABox-conditioning 이득.
 
 ---
 
@@ -85,13 +89,13 @@
 - **목적**: layered agent의 결정적 coverage + 전이를 **모드·도메인·온톨로지 전부** 채운다. A100×4 fan-out 최적.
 - **러너**: `scripts/distill/two_stage_agent.py` (repo). 모드별 호출:
   ```
-  python scripts/distill/two_stage_agent.py --mode {base|resolver|fallback|monolithic} \
+  python scripts/distill/two_stage_agent.py --mode {base|resolver|ontollm|xattn|fallback|monolithic} \
     --domain <dom> --task-set <dom> --task-split test \
     --agent-llm openai/<served-lora> --base-url http://127.0.0.1:<port>/v1 --agent-api-key sk-noauth \
     --user-llm openai/openai/gpt-4.1 --user-base-url https://openrouter.ai/api/v1 --user-api-key $OPENROUTER_API_KEY
   ```
 - **매트릭스** (각 셀 = pass^1 + 결정적 coverage%):
-  - **{7B-abstract, 32B-abstract}** × **4 modes** × **{telecom, retail, airline} in-distribution test**.
+  - **{7B-abstract, 32B-abstract}** × **6 modes**(base/resolver/ontollm/xattn/fallback/monolithic) × **{telecom, retail, airline} in-distribution test**. (xattn 모드는 B5* 학습 완료 후 추가.)
   - **★LODO ontology-swap**: planner 불변, `--ontology-domain <other>`로 ABox만 교체. 핵심 셀 = **telecom planner + airline ontology**(전이) vs **airline planner + airline ontology**(in-dist) — coverage·pass^1 격차로 "온톨로지만 swap해도 전이되나"(H3) 판정.
   - **ABox-swap sanity**: `--ontology-domain`을 틀린 도메인으로 주면 coverage가 무너져야 함(온톨로지가 실제로 일한다는 음성대조).
 - **예상 결과**(7B 기준 외삽): telecom = `resolver` 높은 coverage(상태머신), retail/airline = `resolver` 낮음 → `fallback` 비중↑. **coverage%가 도메인별로 갈리는 곡선이 메인 figure.**
@@ -108,6 +112,19 @@
 - **reward**: `scripts/distill/grpo_reward.py`(검증) + **Group J 항**(repairs_state recall, distractor penalty, step penalty=anti-loop). 정책 init=B1* abstract-none 어댑터. planner의 step-emit에 dense reward.
 - **trl**: seka_env(transformers 4.51.3) 충돌 → coworker는 **trl 호환 별도 venv** 권장(transformers 버전 맞춤). 안 되면 수동 GRPO 루프(Track A 방식).
 - **출력**: GRPO adapter + reward curve + B2* 매트릭스 갱신.
+
+### B5*. ★Neural ABox-conditioned resolver (cross-attn) — 본 트랙 novelty (design §15.13, v1.29)
+- **목적**: §15.11의 결정적 rule resolver(코드+dict)를 **학습된 neural resolver**로 일반화. **TBox=ABox를 읽어 도구·인자를 고르는 절차(cross-attn weights, 도메인무관 고정) / ABox=온톨로지 관계 메모리(도메인별 swap)**. rule이 못 푸는 catalogue-선택형(retail/airline)까지 coverage 천장을 올리고, **온톨로지 메모리 swap만으로 전이**.
+- **왜 coworker(A100)**: 아키텍처 수술(base에 cross-attn block 삽입)+학습이 무거움. 7B는 (a)rule+(b)프롬프트 baseline·gap 정량화(Track A), **(c)xattn 학습·매트릭스는 B 트랙**.
+- **아키텍처(우선 C-1)**: ABox 관계를 자연어 직렬화→frozen 텍스트 인코더→메모리 M={e_1..e_N}(도메인별). executor hidden h_t(관찰+abstract step)=Query → `cross_attn(Q=h_t,K=V=M)` → head가 (tool,args) emit. **학습=cross-attn W_Q/K/V+readout=TBox / swap=M=ABox**. 토큰0(프롬프트 아님). 대안: C-2 hypernet→ABox-LoRA(공유 TBox-LoRA + per-domain ABox-LoRA), C-3 graph encoder.
+- **학습**: teacher SUCCESS 궤적(telret 등). 입력=관찰상태+planner의 abstract step, 타깃=GT(tool,args). planner(B1* abstract-none 어댑터)는 freeze 권장. **ABox 인코더는 도메인무관 텍스트 인코더**(관계→자연어→frozen embed) — swap 도메인 M이 학습분포와 같은 의미슬롯이어야 전이(★최난점).
+- **eval/ablation**:
+  - **`two_stage_agent --mode xattn`** 신규 → B2* 매트릭스에 모드 1개 추가({7B,32B}×{base,resolver,ontollm,**xattn**,fallback,monolithic}×3도메인×{in-dist,swap}).
+  - **ABox-memory swap LODO**: TBox(cross-attn weights) 불변, M_telecom→M_airline 교체만으로 held-out airline 작동?
+  - **★ABox-ablation(검증가능성)**: 빈 M / 틀린 도메인 M 주입 시 성능 **붕괴**해야 "온톨로지가 실제로 일한다" 입증(attention이 ABox 무시·암기 아님). attention map으로 "어느 관계 읽었나" 해석.
+- **선행조건**: Track A가 (a)resolver+(b)ontollm baseline으로 retail/airline rule-coverage gap을 정량화(=xattn이 메울 표적). gap이 크면 B5* 메인 기여로 진입.
+- **출력**: `ontology_encoder.py`(관계→메모리) + cross-attn executor block + 학습된 TBox weights(HF) + 도메인별 ABox 메모리 + coverage/swap/ablation manifest (`coworker_a100/xattn/`).
+- **리스크**: telret~1300 데이터로 cross-attn 신규 파라미터 학습 충분한지(→증강/32B), ABox 인코딩 분포정합(전이 핵심·최난점), 구현 복잡도((a)(b)보다 훨씬 무거움).
 
 ---
 
@@ -175,6 +192,7 @@ export OPENROUTER_API_KEY=...
 | **G3* (ontology-swap 전이)** | telecom-planner + airline-ontology 의 pass^1·coverage가 **base 대비 +, in-dist의 ≥70% 회수** | H3 전이 입증 / ABox 재설계 |
 | **G4* (fallback capability)** | catalogue 도메인(retail/airline)서 70B fallback이 7B fallback 대비 **miss-turn 정확도 +≥10%p** | capability가 잔차 메움 확인 / 결정적 확장 필요 |
 | **G5* (GRPO, 조건부)** | anti-loop(step penalty)로 NONE max-step 실패 직접 감소 + pass^1 +≥5%p | 진입 / SFT로 충분 보고 |
+| **G6* (xattn neural resolver, B5*)** | catalogue 도메인(retail/airline)서 `xattn` coverage·pass^1이 `resolver`(rule) 및 `ontollm`(프롬프트) **둘 다 상회** + **ABox-ablation으로 붕괴**(빈/틀린 M) + **swap LODO가 in-dist의 ≥70% 회수** | 본 트랙 novelty 입증 / 인코딩 분포정합·데이터 재설계 |
 
 ---
 
