@@ -2937,3 +2937,13 @@ SFT는 floor로 유효하나(NONE≥FULL 무손실) 실패 63% recall-miss/anti-
 **함의 3 — 다양성이 TBox 추출을 키움**: single-domain SFT는 entanglement 최대(암기). 2+ 도메인 학습은 *공통=TBox*만 일관 신호 → 더 TBox스러움. 그래서 LODO를 **1→2→3 source gradient**로 보고하면 "도메인 다양성이 일반화(TBox 추출)를 얼마나 키우나"가 드러남.
 
 **측정 질문(LODO의 본질)**: "SFT가 내부화한 것 중 얼마가 TBox(전이됨)이고 얼마가 ABox(안 됨)인가." → recall/seq_F1(도메인 GT 기준) + pass^1 on held-out, FULL(swap 있음) vs NONE(없음), ±Group J ABox 주입.
+
+### 15.10 ★TBox만 따로 학습하는 방법 (B→A→C→D 구현 순서)
+**공통 원리**: ABox를 weights에 넣지 말고 **외부(context/모듈/lookup)**에 두고, weights엔 *"임의의 ABox를 consult→apply하는 절차"*만 남긴다. + ABox를 **변형/랜덤화**해 암기를 불가능하게. (plain FULL-SFT 누수 2경로: ①도메인당 고정 ABox 암기에 보상, ②구체 도구명 토큰 직접 지도.) 단일 monolith LM서 완벽분리 불가 — 순도 *최대화* + LODO/ABox-swap ablation으로 잔여 entanglement 측정.
+
+- **B. 추상 plan-step 지도** (구현 1순위·우리 온톨로지 직결): teacher action을 **PLAN_STEP_VOCAB**(identify_root_cause→apply_targeted_fix→verify_resolution→close_or_escalate 등 12종, 도메인 일반)로 매핑, 모델이 **plan-step을 reasoning prefix로 emit→구체 도구 호출**. `step_realizes_tool(step,tool)`(ABox, 도메인별 induced·swap)가 실현. TBox=step 계획, ABox=step→tool 맵. Group J `repairs_state/diagnosis_sufficient_for`가 step-수준 관계. 누수②(구체명 직접지도)를 추상층이 완화. 도구: `induce_step_realization.py`(tool→step 맵, 도메인무관 휴리스틱: read→gather/check, GT-fix write→apply_targeted_fix, escalation→escalate_or_document, write후 read→verify) + `build_abstract_sft.py`(plain jsonl에 `Plan: <step>` 주입→sft_abstract_*). 학습=기존 trainer.
+- **A. 랜덤화-ABox meta-training** (2순위·가장 원리적): 다도메인 + **도구명 셔플/fault→fix 순열/합성 도메인**으로 학습 → 고정 ABox 암기가 무의미 → "프롬프트 스키마 읽어 절차 적용"만 생존(암기 불가=강제 TBox화). v1.22 합성-온톨로지 북극성. 누수①차단.
+- **C. Cross-attn swappable ABox 그래프** (3순위·아키텍처 강제분리, Phase 3): 온톨로지 그래프(ABox)를 K/V cross-attn 분리입력으로 주입, 그래프 도메인별 swap. cross-attn weights="그래프 사용법"(TBox). 구조가 분리 강제. 무겁다.
+- **D. 파라미터 분리**: 공유 TBox-LoRA(다도메인 공통) + per-domain ABox-LoRA(swap). AdapterFusion식. 누수 위험은 ablation 측정.
+
+**검증**: 각 방법이 plain-SFT 대비 *미학습 도메인 전이*(LODO)를 얼마나 올리나 = TBox 순도 직접 지표. B/A/C/D를 동일 LODO 프로토콜로 비교.
