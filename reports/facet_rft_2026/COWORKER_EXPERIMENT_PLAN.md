@@ -97,9 +97,15 @@
 ### B2. Cross-domain transfer EVAL 매트릭스  ★대규모 병렬 (coworker 핵심 기여)
 - **목적**: 학습된 student를 tau2 **test split**에서 평가하고 전이 매트릭스를 채움.
 - **GPU**: vLLM 서빙(adapter 머지 후) 1 GPU/모델 + 다중 에피소드 병렬. 4 GPU면 2~3 모델 동시 + 에피소드 fan-out.
-- **매트릭스**: {7B(Track A), 32B(B1)} × {baseline, plain-SFT, facet-SFT} × {full, none system-mode} × {telecom, retail, airline} test split. user_sim = **`openai/gpt-4.1` via OpenRouter** (키 공유; `OPENAI_BASE_URL`=openrouter 필수).
+- **매트릭스**: {7B(Track A), 32B(B1)} × {baseline, plain-SFT, facet-SFT} × {full, none system-mode} × {telecom, retail, airline} test split. **★user_sim = `openai/gpt-4.1` via OpenRouter — 검증된 정확한 플래그(이대로 복붙)**:
+  ```
+  --user-llm openai/openai/gpt-4.1 \
+  --user-base-url https://openrouter.ai/api/v1 \
+  --user-api-key $OPENROUTER_API_KEY
+  ```
+  ⚠️ `openai/openai/gpt-4.1`(double 접두사) 필수 — OpenRouter model id가 `openai/gpt-4.1`이라 litellm provider 접두사 1개 더. 단일 `openai/gpt-4.1` 또는 `OPENAI_BASE_URL` env 의존은 404/오인증. agent는 `--agent-llm openai/<served-lora-name> --base-url http://127.0.0.1:<port>/v1 --agent-api-key sk-noauth`.
 - **★efficiency 측정(§13 핵심)**: `none`-mode student(정책 prompt 0)의 **retained pass^1** vs `full`-prompt baseline + 절감 토큰/KV/latency. "정책을 가중치로 내부화해도 pass^1 유지되는가"가 thesis 검증.
-- **러너**: `scripts/phase1_runner.py` (repo; 패치됨 — `--agent-llm`=로컬 vLLM, `--user-llm`, `--agent-api-key`). **주의(기존 버그)**: 도메인별 `--task-set <domain>` 필수(기본 telecom), airline judge는 `OPENAI_BASE_URL`/`OPENAI_API_BASE`=openrouter 설정.
+- **러너**: `scripts/phase1_runner.py` (repo; 패치됨). **주의**: 도메인별 `--task-set <domain>` + `--domain <domain>` 필수(기본 telecom). **★airline/retail judge**: reward_basis=nl_assertions라 LLM judge 필수인데, **`phase1_runner._route_nl_judge_via_openrouter()`가 자동으로 judge를 `openrouter/openai/gpt-4.1`로 라우팅**(OPENROUTER_API_KEY env 사용) → **최신 pull만 하면 적용됨**(commit 7530d14 이상). `OPENAI_BASE_URL` env 설정 불필요(과거 안내 폐기 — bare `gpt-4.1-2025-04-14`가 OpenAI로 가 "Missing credentials" 났던 버그를 이 패치가 해결).
 - **출력**: `reports/facet_rft_2026/phase4_distill/coworker_a100/eval/<run>/results.json` + fix-coverage/pass^1 manifest.
 - **성공기준**: G1/G2/G3 (아래 §8).
 
@@ -137,8 +143,10 @@ cd tau2-bench && pip install -e .        # tau2 패키지 + data/tau2/domains(sp
 #   Qwen/Qwen2.5-32B-Instruct (학습/평가), Qwen/Qwen2.5-7B-Instruct
 #   (B4) Qwen/Qwen2.5-72B-Instruct 또는 meta-llama/Llama-3.3-70B-Instruct
 
-# 5) OpenRouter (user_sim) — 키 공유받기
-export OPENROUTER_API_KEY=...   # phase1_runner: --user-llm openai/gpt-4.1 + OPENAI_BASE_URL=openrouter
+# 5) OpenRouter (user_sim + airline/retail judge) — 키 공유받기
+export OPENROUTER_API_KEY=...
+#   user_sim 플래그(정확): --user-llm openai/openai/gpt-4.1 --user-base-url https://openrouter.ai/api/v1 --user-api-key $OPENROUTER_API_KEY
+#   judge: phase1_runner가 자동으로 openrouter/openai/gpt-4.1 라우팅(OPENROUTER_API_KEY env 사용) — pull만 하면 됨
 ```
 
 ---
