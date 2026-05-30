@@ -50,6 +50,7 @@
 - **leaderboard는 모드가 섞여 있다**: **proprietary = FC**(`--tool_call_mode fc`, native function-calling), **open-source = ReAct**(`--tool_call_mode react`, 프롬프트기반 도구호출). 이유 = 원 repo의 `FUNCTION_CALLING_MODELS["vllm"]=[]`(빈 리스트) → OSS는 fc assert를 통과 못 해 저자들이 ReAct로 측정.
 - **그래서 우리 baseline 모델 Qwen2.5-7B의 공식값은 ReAct, bank=5.22%/avg=9.7%** (약한모델 regime = 우리 2-stage 구조 향상 여지 최대).
 - **⚠️ 우리 파일럿은 FC로 돌렸다**(Track A가 `constants.FUNCTION_CALLING_MODELS["vllm"]`에 qwen/llama 등록 + vLLM을 `--enable-auto-tool-choice --tool-call-parser hermes`로 서빙). **FC≠ReAct → 5.22%와 직접 비교 금지.** 모드를 명시하지 않고 leaderboard와 나란히 놓지 말 것.
+- **★leaderboard 실제 실행설정 (확정, `scripts/simulation/<model>.sh` 실측)**: (1) **user_model 없음 = dummy user**(`user_known` 첫 메시지로 선제공, agent 단독) — **user-sim 아님**. user-sim(`--user_model gpt-4.1-mini`)은 `scripts/multi-turn/` **별도 실험**, `--user_model adv`(adversarial)는 Exp2 별도. (2) **OSS는 `--tool_call_mode react`**(qwen-7b 포함), proprietary는 `fc`. (3) **full·oracle 둘 다 실행**(Exp1 루프) — 단 README 표가 둘 중 어느 값인지 **미명시**(Track A가 Qwen-7B ReAct×{full,oracle}로 5.22% 재현해 확정 중). (4) `--env_mode prompt`, `--num_run_per_interaction 1`. → **우리 dummy-user 설정은 leaderboard 표준과 일치**(이건 confound 아님); 남는 차이는 **모드(FC vs ReAct)와 tool_list(oracle vs full)** 둘뿐.
 - **규약(coworker 매트릭스 전체에 적용)**: baseline·우리방법 **동일 tool_call_mode**로 셀을 채울 것. 권장 = **두 모드 다 보고**:
   - **ReAct 트랙**: leaderboard 정합·재현(Qwen-7B bank≈5.22% 출발점 고정). 우리 향상Δ를 공식값 위에 직접 얹어 보고.
   - **FC 트랙**: native function-calling을 우리 표준으로(현대적·tool_calls 구조화). baseline을 **우리가 직접 측정**해 같은 모드로 비교(공식표에 OSS-FC 값 없음 → 우리가 만든다).
