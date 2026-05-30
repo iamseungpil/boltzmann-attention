@@ -379,32 +379,48 @@ Our design is positioned in, and borrows from, the LLM-agent planning literature
 
 ---
 
-## 6. Experiment reconstruction (SOP-Bench)
+## 6. Experiment plan — phased (prove transfer cleanly, then scale to autonomy)
 
-Benchmark = **SOP-Bench** (agent-controlled, single-shot, state-based). Metrics (every run):
-**TSR / ECR / C-TSR + Tool Accuracy** (SOP-Bench CLI) **+ per-PHASE deterministic coverage**
-(fraction of agent tool-calls chosen by the ontology vs LLM-fallback). No tau2 max_steps/
-read-loop axis (single-shot removes it).
+> **Scope note (decided 2026-05-31): this is a SEPARATE track from the OISA patent.** The
+> patent's claim is *context-dependent tool SELECTION among hundreds–thousands of redundant,
+> faceted tools, internalized into weights* → its benchmarks are MetaTool / ToolBench /
+> τ²-bench. This document's claim is *learned general PLANNING (TBox) over per-domain operators
+> (ABox), with transfer* → benchmarks SOP-Bench then AppWorld. The two tracks share the
+> TBox/ABox framing but are evaluated and reported independently.
 
-Two task settings: **procedure-given** (SOP supplied) and **goal-only** (★ agentic: goal +
-operator ABox, no sequence). Runs:
-1. **Baseline** — SOP-Bench FC / ReAct given `sop.txt` as text (~55-64% paper). [procedure-given]
-2. **Executor (procedure-given)** — `compile_sop_ontology(sop.txt)` → call-graph executor (§3);
-   functions = provided tools / wrapped; LLM only for generative steps. **Upper bound** + per-
-   step coverage%. Expect TSR ≫ baseline (deterministic where the SOP is determinate).
-3. **Goal-only planner** (★primary, the agentic target) — operator ABox only; plan with
-   **L0 / L1 / L2** (§5). TSR + how close each gets to the executor upper bound. The L0→L1→L2
-   gap = the contribution.
-4. **Induction validation** — induce the operator ABox + (procedure-mode) call graph from
-   traces; report TSR + **structural agreement vs authored `sop.txt`** (impossible in tau2).
-5. **Transfer (LODO)** — train the L2 planner on N−1 domains, test the held-out domain with
-   **only its operator ABox swapped in** (no retraining). 12-domain rotation. This is the
-   headline "auto-select tools in an unseen domain" result.
-6. **Ablations** — operators-only L0 vs +SOP; ABox-memory ablation (empty/wrong operators →
-   L2 must collapse, proving it reads the ABox not memorizes); compile vs induce;
-   **planning-paradigm**: greedy next-tool (ReAct-style) vs global-plan + re-plan
-   (GoalAct-style, §5.1) — validates the global-goal anchor (expect greedy → local sticking).
-7. **Pilot first** — `customer_service` end-to-end (executor → L0 → L1) before scaling.
+Strategy: **prove the TBox/ABox transfer mechanism in a clean, ground-truth, single-shot
+setting (SOP-Bench) first, then scale to autonomous, procedure-free planning (AppWorld).**
+Precise claim: **TBox (the learned general planning/execution skill) transfers; ABox (domain
+operators) is *swapped* — freeze TBox, swap ABox → held-out domain works.** (TBox transfers;
+ABox is replaced, not "transferred".)
+
+Metrics: **TSR / ECR / C-TSR + Tool Accuracy** + per-phase **deterministic coverage%** (tool/
+wrapped vs LLM-backed). Single-shot → no max_steps/read-loop axis.
+
+### Phase 1 — SOP-Bench: quantitatively prove TBox/ABox transfer
+- **1a (upper bound + induction validation)**: `compile_sop_ontology(sop.txt)` and
+  `induce_ontology(traces)` → call-graph executor (§3). Report TSR ≫ baseline FC/ReAct, and
+  **structural agreement of the induced ABox vs the authored `sop.txt`** (ground truth — the
+  unique value of SOP-Bench). Establishes the ontology is correct *and* extractable.
+- **1b (★the real transfer result)**: the **goal-only L2 learned planner** (§5) — train on
+  **N−1 domains**, test the held-out domain with **only its operator ABox swapped in, NO
+  retraining**; 12-domain rotation. Plus **ABox-memory ablation** (empty/wrong operators → L2
+  must collapse → proves it *reads* the ABox, not memorizes). This is the headline: "the
+  general planning skill transfers; only the operators swap."
+- **Phase-1 success criteria**: (a) compiled-executor TSR ≫ baseline; (b) induced↔sop.txt
+  structural agreement high + TSR ≈ compiled; (c) **L2 held-out TSR ≥ 70% of in-domain with
+  zero retraining**; (d) ABox-ablation collapses. (a)/(b) are the *executor/ontology* claim;
+  (c)/(d) are the *learned-planner transfer* claim — (c) is the one that matters.
+- **Ablations**: L0 (symbolic, operators-only) vs L1 (LLM+operators) vs L2; compile vs induce;
+  greedy (ReAct) vs global-plan+re-plan (GoalAct, §5.1) — expect greedy → local sticking.
+- **Pilot first**: `customer_service` end-to-end (executor → L0 → L1) before scaling to 12.
+
+### Phase 2 — AppWorld: extend transfer to autonomous, procedure-free planning
+Only after Phase-1 (c) holds. AppWorld (457 APIs / 9 apps, goal-only, no SOP, state-based unit
+tests): operators = API affordances; **train L2 on N−1 apps, swap the held-out app's API
+operators in → autonomous tool selection with no retraining**. Same ABox-ablation control.
+This is the full agentic claim (no procedure given anywhere); SOP-Bench Phase-1 having
+de-risked the mechanism.
 
 ---
 

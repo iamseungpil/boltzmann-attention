@@ -3177,3 +3177,12 @@ v3 telecom(N=114) 궤적 전수 재진단(`_redx.py`/`_traj_dump.py`):
 - 일부 SOP step이 진짜 모호/생성형(예: resolution_summary 자유서술) → 결정적 불가, LLM fallback 분담(정상·측정대상).
 - 도메인 독립스키마 = 전이가 진짜 TBox 일반성을 요구(쉬운 길 없음 = 좋은 시험).
 - customer_service(SOP-Bench)는 tau2 telecom과 흡사 트러블슈팅이나 **완전 오프라인·agent실행** → tau2 실패워크플로우의 통제대조(같은 절차, user-sim 제거 효과 격리).
+
+### 16.8 (2026-05-31) — agentic 재프레이밍 + 단순화 + 선행연구 + phased plan + ★특허 분리
+상세 = `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(권위본). 요지:
+- **목표 격상(agentic)**: "주어진 SOP 실행" → **"큰 목표만 주면 자동 도구선택 완수"**. **TBox=학습된 일반 계획·도구선택 능력 / ABox=도메인 도구 operator 관계만**(precondition/produces/arg/achieves=PDDL/HTN operator). 전이=TBox 고정+ABox **교체**.
+- **단순화(call-graph)**: 모든 단계(read/compute/decide/write)=**function call**, 복잡로직(공식·표·임계)은 **함수 안**(SOP-Bench 제공 tool or wrapper). 온톨로지=**8 단순관계**(realizes/arg/produces/precondition/next/scenario_select+steps/terminate/output). compute/decide 복잡성은 함수로 캡슐화(온톨로지에 안 넣음).
+- **planner 3단**: L0 symbolic means-ends(operator만) / L1 LLM+operator in-context / L2 **학습 ABox-conditioned planner**(operator=swappable memory, §15.13)=★기여·전이.
+- **선행연구 반영**(§5.1-5.3): GoalAct(2504.16563, 글로벌플랜+재계획+skill계층; 우리추가=구조적 operator로 실행보장+학습/swap) / ReWOO(2305.18323)·LLMCompiler(2312.04511)=upfront plan-DAG=procedure-given executor / LATS(2310.04406)=optional L3 search / **Agent Workflow Memory(2409.07429 ICML25)=최근접 선행**(궤적→재사용 workflow; 우리 delta=구조적 ontology+결정적 executor+학습 swap+정답SOP검증) / Plan-and-Execute·Plan-then-Execute(2509.08646) / harness(Reasoning Sandwich=determinism split, goal re-injection=비수렴 치료) / Plan-Caching(2506.14852)·Learn-When-to-Plan(2509.03581)·reasoning models+PRM(2501.09686).
+- **★phased plan**: **Phase 1=SOP-Bench로 TBox/ABox 전이 정량증명**(1a compiled-executor 상한+induced↔sop.txt 검증 / 1b ★goal-only L2를 N-1도메인 학습→held-out operator swap·재학습0→TSR≥in-domain 70%, ABox-ablation 붕괴). **Phase 2=AppWorld**(457API/9앱, 절차없음·자율)로 planner 전이 확장. 1b가 핵심(generic executor 전이는 자명, 학습 planner 전이가 결과).
+- **★★특허 분리 결정(2026-05-31)**: 본 라인(계획·전이, SOP-Bench→AppWorld)은 **OISA 특허와 별개 트랙**. 특허=중복·다면 도구 컨텍스트 **선택**+가중치 내재화(MetaTool/ToolBench/τ²-bench). 논문(계획·전이) ∥ 특허(선택·내재화) 두 트랙 독립 평가·보고. SOP-Bench/AppWorld는 특허 핵심 입증 안 함(반대로 MetaTool/ToolBench는 계획·전이 입증 안 함).

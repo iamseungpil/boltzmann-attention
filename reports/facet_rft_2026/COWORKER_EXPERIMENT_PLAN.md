@@ -20,6 +20,11 @@ tau2 재진단 결과 **tau2는 user_sim이 핵심실행, agent는 도구선택+
 | user_sim(OpenRouter gpt-4.1) | **불요**(에이전트 단독, user 없음) → OpenRouter 비용·judge 이슈 소멸 |
 | LODO 3도메인 swap | **12도메인 ABox-swap** 전이 |
 
+**★phased plan + 특허 분리 (2026-05-31, 상세 EXPERIMENT_DESIGN §16.8 / WORKFLOW_ONTOLOGY_DESIGN §6)**:
+- **목표 격상(agentic)**: "주어진 SOP 실행"→"목표만 주면 자동 도구선택". **TBox=학습 일반 planner / ABox=도메인 operator(precondition/produces/arg/achieves)**. 온톨로지는 **8 단순 call-graph 관계**(복잡 compute/decide는 함수 안). planner 3단 L0(symbolic)/L1(LLM+operator)/L2(학습 ABox-conditioned=§15.13).
+- **Phase 1=SOP-Bench로 전이 정량증명**(1a executor 상한+induced↔sop.txt / **1b ★goal-only L2 N-1학습→held-out operator swap·재학습0**), **Phase 2=AppWorld**(자율·절차없음)로 확장.
+- **★특허와 별개 트랙**: 본 라인=계획·전이(SOP-Bench/AppWorld). 특허=중복·다면 도구 컨텍스트 **선택**+내재화(MetaTool/ToolBench/τ²-bench). 독립 평가·보고.
+
 ### ★ Coworker 태스크 재정의 (SOP-Bench)
 - **C1*. SOP→온톨로지 컴파일러 + executor** (Track A와 공동, P0): `compile_sop_ontology.py`(sop.txt→ontology) + `workflow_executor.py`(순수 agent-tool, user-side 無) → SOP-Bench custom agent. **파일럿 customer_service 1도메인 end-to-end 먼저.**
 - **C2*. ★대규모 매트릭스** (coworker 핵심, A100×4 fan-out): {Baseline FC/ReAct, Ours-P0-compiled, Ours-induced} × **12 도메인** × {in-domain, ABox-swap LODO}. 셀=TSR/ToolAcc/per-phase coverage. **SOP-Bench는 single-shot이라 user_sim 비용 0 → 대량 병렬 저렴.**
