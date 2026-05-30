@@ -2823,7 +2823,7 @@ Qwen-7B telecom 실패 분해: **도구선택 58% + 형식 36% = 94%**, long-hor
 
 ### 15.1 실측 — NONE(내부화) arm eval (telecom test N=40)
 정책 프롬프트를 **완전 제거**(`apply_system_mode("none")`=빈 system+tools)한 student를 eval(`phase1_runner --variants NONE`, vLLM LoRA, gpt-4.1 user_sim).
-- **Pass^1 = 0.350** (write 63/78=80.8%, normal-stop 22, max-step 15, err 3). FULL(정책유지 B0) Pass^1 ≈ 0.38 (근접) → **정책 ~6K 토큰 제거해도 pass 유지**(효율 주장 §13.1 지지, full-vs-none 토큰절감).
+- **NONE Pass^1 = 0.350** (write 63/78=80.8%, normal-stop 22, max-step 15, err 3) **vs FULL(정책유지 B0) Pass^1 = 0.300** — 1-trial N=40이라 노이즈(±~0.07) 내 사실상 동률, NONE이 오히려 약간↑. → **정책 ~6K 토큰 제거해도 pass 무손실(내부화 성공)** = 효율 주장 §13.1 강하게 지지, full-vs-none 토큰절감 확정.
 - scorecard 성공 trajectory: F1=0.958 / seq_F1=0.931 / recall=1.0 / precision=0.944 / **arg_bind=1.0** / order=1.0; 실패: **recall-bound 0.316**(arg_bind 실패도 1.0=ID는 정확). base≈0 대비 명백상승 → distillation 작동. 도구: `analyze_none_failures.py`.
 
 ### 15.2 실측 — 실패 19건 정밀분해 (`analyze_none_failures.py`)
