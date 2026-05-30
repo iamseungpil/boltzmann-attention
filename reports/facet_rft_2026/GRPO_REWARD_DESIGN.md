@@ -33,11 +33,11 @@ r(rollout) = w_pass · pass              # 터미널 env reward(0/1) — 지배�
 ## 4. 검증가능성 (PRM과의 차별)
 process reward가 **tasks.json `evaluation_criteria.actions`(GT) 기반·결정적·LLM judge 불필요·무료**. 대부분 agent-PRM(LLM/MC judge)과 달리 reward hacking·judge noise 없음. (cf. §9.4.5 PRM 계열; 우리는 named-ontology GT-grounded.)
 
-## 5. 통합 (B3, 4×A100, trl)
-1. **정책 초기화** = SFT 어댑터. 두 arm: **full**(정책 prompt 유지) / **none**(내부화, prompt 없이 롤아웃 → 정책 흡수 검증). 
-2. **롤아웃**: tau2 env(telecom train split 74) + user_sim=gpt-4.1(OpenRouter). G=8~16/prompt.
-3. **reward**: 각 롤아웃 messages + task GT action names → `compute_reward(...)`. pass=env-assertion, process=seq_F1 등.
-4. **trl GRPOTrainer**: 4×A100(policy + 롤아웃 서빙). 32B는 coworker, 7B는 Track A.
+## 5. 통합 (B3, 4×A100)
+1. **정책 초기화** = SFT 어댑터(multi-domain plain, telecom462+retail831+airline246). 두 arm: **full**(정책 prompt 유지) / **none**(내부화, prompt 없이 롤아웃). 
+2. **롤아웃**: tau2 env(train split) + user_sim=gpt-4.1(OpenRouter). G=8~16/prompt.
+3. **reward**: 각 롤아웃 messages + task GT action names → `compute_reward(...)`. pass=env-assertion, process=seq_F1 등. **★airline 등 reward_basis=nl_assertions 도메인은 judge가 OpenRouter로 라우팅돼야 pass가 0이 안 됨**(`phase1_runner._route_nl_judge_via_openrouter`, commit 7530d14; bare `gpt-4.1-2025-04-14`→OPENAI_API_KEY 필요 버그).
+4. **★trl 설치 불가**(seka_env transformers 4.51.3과 모든 trl 버전이 다운/업그레이드 충돌) → **수동 GRPO 루프**(policy=SFT+trainable LoRA, ref=frozen SFT, advantage=group-normalize, KL to ref). DPOTrainer/GRPOTrainer 미사용.
 5. KL 정규화 to SFT 정책(드리프트 방지).
 
 ## 6. 일반화 변형 (cross-domain)
@@ -54,4 +54,23 @@ process reward가 **tasks.json `evaluation_criteria.actions`(GT) 기반·결정�
 ## 8. 주의
 - process reward는 **shaping**(보조)이지 목적이 아님 — pass가 최종 판정. λ 과대 시 reward hacking 위험 → λ sweep.
 - seq_F1은 GT 순서 가정 — tau2 reward는 env-assertion(end-state)이라 순서 일부 soft. **F1(set) AUC 0.902 vs seq_F1 0.89~0.99로 거의 동급** → proc=F1(set) vs seq_F1 ablation으로 안전한 쪽 선택(multi-action 도메인은 seq_F1이, telecom 단일-action은 set-F1이 유리할 수 있음).
-- none-arm 롤아웃: 정책 prompt 없이 → SFT-none이 충분히 내부화돼야 롤아웃이 무의미 붕괴 안 함. full-arm으로 먼저 검증 권장.
+- none-arm 롤아웃: 정책 prompt 없이 → SFT-none이 충분히 내부화돼야 롤아웃이 무의미 붕괴 안 함. **검증됨**: NONE eval이 3도메인 모두 FULL≥(telecom .35/.30, retail ~.82/.67, airline .40/.30)라 none-arm 롤아웃 안전.
+
+## 9. ★v1.27 — Group J reward 항 + SFT 실측 + a→b→c 사다리
+**SFT 실측(3도메인 held-out test, multi-domain SFT)**: NONE≥FULL 전부(위). 단 **NONE 실패 19건 분해**(`analyze_none_failures.py`): **63% recall-miss/anti-loop**(fix tool 미발화·max_steps 루프), wrong-tool 고착(send_payment 스팸), escalation 오타이밍. = imitation 분포이동 한계 → **순수 SFT로 못 닫음, reward shaping 필요**.
+
+**Group J(§15.4 design doc) 기반 reward 증강** — 도메인무관, ABox는 `induced/tbox_relations_<domain>.json`(inducer 산출):
+```
+r += w_repair · repairs_state_recall      # 막힌 상태→fix 도구를 실제로 불렀나 (recall-miss 직접 공략)
+   − w_loop   · step_penalty              # 진단 루프(max_steps 도달·과다 read) 패널티 (anti-commitment)
+   − w_distr  · distractor_hit            # distractor_for 오답 도구 호출 시 패널티 (wrong-tool 고착)
+   (+ diagnosis_sufficient_for 충족 후 write 미발화 시 추가 패널티 — commitment)
+```
+- 전부 **GT/induced 기반 결정적·도메인무관**(LLM judge 불요, §4 검증가능성 유지).
+- 기존 `{pass1.0/proc0.5/extra0.3/arg0.1}`에 `{repair, loop, distr}` 추가, λ sweep로 anti-hacking.
+
+**학습 사다리 a→b→c** (SFT floor→offline→on-policy):
+- **(a) SFT** = floor(완료, NONE≥FULL).
+- **(b) offline DPO**: `build_dpo_dataset.py` 1171 preference pairs(chosen=GT fix / rejected=distractor_for). wrong-tool 고착 공략. **trl 불가→수동 DPO**(ref=frozen SFT).
+- **(c) GRPO**: 위 Group J reward로 anti-loop residual. 수동 루프(trl 불가).
+- **전이 검증 = LODO**(§15.6): reward·ABox가 도메인무관이므로 미학습 도메인 전이 측정.
