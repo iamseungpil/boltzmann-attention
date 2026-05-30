@@ -174,12 +174,13 @@ export OPENROUTER_API_KEY=...
 
 ---
 
-## 7. 일정 (4× A100, 2주로 단축 — 검증단계 스킵 효과)
+## 7. 일정 (4× A100, 3주 — xattn 트랙 추가 반영)
 
 | 주 | Track B (coworker) | Track A (우리) |
 |---|---|---|
-| **W1** | 셋업 + **B1* 32B abstract-none SFT** + **B2* ablation×LODO 매트릭스 착수** | B LODO(telret) 학습완료 → 7B two_stage telecom coverage + airline swap LODO |
-| **W2** | **B2* 완성**(전 모드×3도메인×LODO) + **B3* fallback 70B probe** + (조건부)B4* GRPO | 결과 종합, coverage 곡선 figure, 논문 표 |
+| **W1** | 셋업 + **B1* 32B abstract-none SFT** + **B2* ablation×LODO 매트릭스 착수**(base/resolver/fallback/monolithic) | B LODO(telret) 학습완료 → 7B two_stage telecom coverage + airline swap LODO |
+| **W2** | **B2* 완성**(rule계열 전모드×3도메인×LODO) + **ontollm 모드** + **B3* fallback 70B probe** + (조건부)B4* GRPO | (a)resolver+(b)ontollm baseline로 **retail/airline rule-coverage gap 정량화** → B5* 표적 확정 |
+| **W3** | **★B5* xattn neural resolver**(C-1 cross-attn 학습 → xattn 모드 매트릭스 + ABox-swap LODO + ABox-ablation) | 결과 종합, coverage 곡선·xattn vs rule/프롬프트 figure, 논문 표 |
 
 ---
 
