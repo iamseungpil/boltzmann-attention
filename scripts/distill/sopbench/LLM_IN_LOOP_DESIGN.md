@@ -194,9 +194,13 @@ Pilot on **bank** end-to-end before scaling to 7/12 domains. Build order:
    3.10+ venv, *not* the system `python` 3.9). Run:
    `python run_simulation.py --domain bank --tool_list oracle --assistant_model <model>
    --num_tasks <small> --max_num_turns 20` then `run_evaluation.py` → get the baseline rule
-   pass-rate. Cheapest assistant_model = an OpenRouter model via the `-Or` key (avoids local
-   vLLM/GPU). **Open item:** confirm `OpenAIHandler` routes to OpenRouter (base_url/key) vs
-   spinning vLLM from `num_gpus`; pick the API path for the pilot.
+   pass-rate. **DECIDED (2026-05-31): baseline assistant_model = Qwen-7B via local vLLM**
+   (SOPBench reports 5–20% for Qwen-7B → the weak-model regime where the 2-stage structure has
+   the most headroom = the core narrative). `OpenAIHandler` backend resolves to `vllm` (serves
+   on a random port, `base_url=localhost:PORT/v1`) vs `openai` (`OPENAI_API_KEY`, default
+   `gpt-4o-mini`) / Fireworks / `swarm/claude.py` / `gemini.py`. Use **seka_env (Python 3.12,
+   has openai+litellm)** — system `python` 3.9 fails the `match` syntax. Optional cheap sanity
+   pass with `gpt-4o-mini` (OpenAI key) to validate the harness/2-stage loop before the Qwen run.
 2. **Resolve the user-sim question (handoff §6).** SOPBench is multi-turn with a `user_model`.
    For pilot reproducibility/cost: start with the **dummy user** (`default_response`/
    `response_repeat`) or a deterministic small `--user_model`; confirm how `user_known` reaches
