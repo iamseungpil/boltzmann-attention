@@ -21,6 +21,58 @@
 > 지표 pass^1→**rule pass-rate(목표+constraint_not_violated+graph정합) + 거부정확도(action_should_succeed=false)
 > + tool@scale(--tool_list full)**, 전이=7도메인 LODO(主)/Amazon 12도메인(보조). ⚠️`env/helpers.py`=Python≥3.10.
 
+### ★★ SOPBench(Zekun Li) 공식 leaderboard + ★FC/ReAct 모드 주의 (coworker 필독, 2026-05-31)
+
+**공식 pass rate(%) — 7도메인** (clone `README.md` `## Results`; pass@1=`success`=5체크 AND: no_tool_call_error ∧ constraint_not_violated ∧ database_match ∧ action_called_correctly ∧ dirgraph_satisfied. **LLM judge 0, 순수 rule oracle** `env/evaluator.py`). Avg*=7도메인 산술평균(공식표엔 없음, 우리 계산).
+
+| Model (mode) | Bank | DMV | Health | Market | Univ | Library | Hotel | Avg* |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| GPT-5 (FC) | 71.64 | 84.54 | 76.61 | 69.77 | 88.10 | 66.67 | 67.18 | 74.9 |
+| o4-mini-high (FC) | 76.87 | 83.51 | 92.74 | 89.53 | 95.24 | 34.85 | 55.90 | 75.5 |
+| GPT-5-mini (FC) | 58.96 | 82.47 | 92.74 | 75.58 | 95.24 | 34.85 | 69.74 | 72.8 |
+| Gemini-2.5-Flash (FC) | 67.91 | 81.44 | 87.90 | 77.91 | 83.33 | 51.52 | 42.56 | 70.4 |
+| Deepseek-R1 (ReAct) | 54.48 | 81.44 | 54.03 | 70.41 | 76.19 | 54.55 | 50.77 | 63.1 |
+| GPT-4.1 (FC) | 69.40 | 79.38 | 79.03 | 80.81 | 50.00 | 57.58 | 42.56 | 65.5 |
+| GPT-4o (FC) | 58.96 | 80.41 | 73.39 | 61.63 | 66.67 | 60.61 | 39.49 | 63.0 |
+| Claude-3-7-Sonnet (FC) | 65.67 | 70.10 | 70.97 | 56.98 | 66.67 | 27.27 | 23.59 | 54.5 |
+| GPT-4.1-mini (FC) | 57.46 | 76.29 | 66.13 | 56.40 | 35.71 | 18.18 | 7.18 | 45.3 |
+| Claude-3-5-Sonnet (FC) | 71.90 | 50.43 | 39.23 | 43.32 | 52.27 | 33.33 | 15.82 | 43.8 |
+| GPT-4o-mini (FC) | 33.58 | 73.20 | 25.00 | 43.60 | 38.10 | 42.42 | 41.03 | 42.4 |
+| Gemini-2.0-Flash (FC) | 52.99 | 51.55 | 21.77 | 38.37 | 30.95 | 19.70 | 7.18 | 31.8 |
+| Llama3.1-70B-Instruct (ReAct) | 42.54 | 65.98 | 54.84 | 37.21 | 42.86 | 34.85 | 13.85 | 41.7 |
+| Qwen2.5-32B-Instruct (ReAct) | 40.30 | 52.58 | 41.13 | 44.19 | 54.76 | 27.27 | 18.46 | 39.8 |
+| Qwen2.5-72B-Instruct (ReAct) | 35.07 | 68.04 | 27.42 | 40.12 | 35.71 | 34.85 | 13.85 | 36.4 |
+| Qwen2.5-14B-Instruct (ReAct) | 35.07 | 57.73 | 29.03 | 35.47 | 23.81 | 25.76 | 14.87 | 31.7 |
+| Llama3.1-8B-Instruct (ReAct) | 14.93 | 18.56 | 20.16 | 16.28 | 23.81 | 30.30 | 0.00 | 17.7 |
+| **Qwen2.5-7B-Instruct (ReAct)** | **5.22** | 20.62 | 16.94 | 9.30 | 0.00 | 15.15 | 0.51 | **9.7** |
+
+**★ FC vs ReAct — baseline 정합의 핵심 주의:**
+- **leaderboard는 모드가 섞여 있다**: **proprietary = FC**(`--tool_call_mode fc`, native function-calling), **open-source = ReAct**(`--tool_call_mode react`, 프롬프트기반 도구호출). 이유 = 원 repo의 `FUNCTION_CALLING_MODELS["vllm"]=[]`(빈 리스트) → OSS는 fc assert를 통과 못 해 저자들이 ReAct로 측정.
+- **그래서 우리 baseline 모델 Qwen2.5-7B의 공식값은 ReAct, bank=5.22%/avg=9.7%** (약한모델 regime = 우리 2-stage 구조 향상 여지 최대).
+- **⚠️ 우리 파일럿은 FC로 돌렸다**(Track A가 `constants.FUNCTION_CALLING_MODELS["vllm"]`에 qwen/llama 등록 + vLLM을 `--enable-auto-tool-choice --tool-call-parser hermes`로 서빙). **FC≠ReAct → 5.22%와 직접 비교 금지.** 모드를 명시하지 않고 leaderboard와 나란히 놓지 말 것.
+- **규약(coworker 매트릭스 전체에 적용)**: baseline·우리방법 **동일 tool_call_mode**로 셀을 채울 것. 권장 = **두 모드 다 보고**:
+  - **ReAct 트랙**: leaderboard 정합·재현(Qwen-7B bank≈5.22% 출발점 고정). 우리 향상Δ를 공식값 위에 직접 얹어 보고.
+  - **FC 트랙**: native function-calling을 우리 표준으로(현대적·tool_calls 구조화). baseline을 **우리가 직접 측정**해 같은 모드로 비교(공식표에 OSS-FC 값 없음 → 우리가 만든다).
+  - 어느 경우든 셀 라벨에 `(FC)`/`(ReAct)` 표기 필수.
+
+**baseline 재현 레시피 (Track A 검증완료, bank 파일럿):**
+```bash
+# 서빙: Qwen2.5-7B-Instruct, GPU0:9100, tool-calling 활성(FC용; ReAct만 할거면 tool-parser 불요)
+CUDA_VISIBLE_DEVICES=0 <vllm0.11_env>/bin/vllm serve Qwen/Qwen2.5-7B-Instruct \
+  --port 9100 --dtype bfloat16 --gpu-memory-utilization 0.85 --max-model-len 32000 \
+  --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code
+# 실행 env: seka_env(py3.12)+colorama/termcolor/anthropic로 SOPBench import OK(vllm 모듈 불요, CLI만)
+# 패치2종(clone, *.py.bak 백업): (a) llm_handler._init_vllm가 env SOPBENCH_VLLM_BASE_URL 있으면 spawn 회피
+#   (b) constants.FUNCTION_CALLING_MODELS["vllm"]에 qwen/llama 등록(FC assert 통과)
+cd SOPBench
+SOPBENCH_VLLM_BASE_URL=http://localhost:9100/v1 seka_env/bin/python run_simulation.py \
+  --domain bank --assistant_model qwen2.5-7b-instruct --tool_list oracle \
+  --tool_call_mode {fc|react} --max_num_turns 20 --output_dir ./output   # user_model 생략=dummy(user_known 통째 제공, agent단독)
+seka_env/bin/python run_evaluation.py --domain bank --assistant_model qwen2.5-7b-instruct \
+  --tool_list oracle --tool_call_mode {fc|react} --output_dir ./output    # → Mean Pass Rate + 오류분해
+# bank=14 goals/134 instances(48 should_succeed=True / 86 False=거부축). num_tasks 생략=전체.
+```
+
 ---
 
 ## 0.0 ★★★ 벤치마크 피벗 (2026-05-30 밤) — tau2 → SOP-Bench
