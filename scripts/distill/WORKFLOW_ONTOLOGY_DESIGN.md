@@ -59,21 +59,39 @@ DRIVES the loop deterministically; rebuild all experiments on it.
 
 ---
 
-## 1. Architectural inversion
+## 1. The practical goal — goal-directed agentic tool use
 
-| | Old (per-turn rewriter) | New (workflow executor) |
+**Target use case (Agentic AI):** the user gives only a **high-level goal**; the system
+**autonomously selects skills/tools and composes a workflow** to complete it. We want a
+generalized ontology for *that*, not for executing a hand-written procedure.
+
+This fixes the TBox/ABox split precisely:
+
+| | **ABox** (per-domain, given/inducible) | **TBox** (domain-general, **LEARNED**) |
 |---|---|---|
-| Who owns control flow | Planner LLM | **Deterministic executor (ontology state machine)** |
-| Resolver scope | swap 1 tool/turn | drive the full phase loop; choose next action |
-| LLM role | plan every turn + emit concrete call | **perception (NL→slots) + uncovered-branch fallback only** |
-| Transition (gather→fix) | impossible (planner re-plans) | explicit `phase_exit_predicate` |
-| Read-loop | unbreakable | impossible (read-dedup + monotone gather progress) |
-| Diagnostics | freeform NL → max_steps | executor emits device tool-calls / NL templates deterministically |
+| what it is | the domain's **tool/skill relations only** — each tool's `precondition`, `produces`, `arg`, effect, and which goal-slot it `achieves` | the general **planning / tool-selection skill**: given a goal + tool relations, decide *which tool next, in what order, when done* |
+| transfers? | no — **swapped** per domain | yes — the thing that generalizes |
+| how obtained | parsed/induced from tool specs + traces | **learned** across many domains' traces |
+| analogy | PDDL/HTN domain operators (pre/eff) | the general planner over those operators |
 
-The executor becomes a **neuro-symbolic workflow engine**: symbolic where the domain is
-a state machine (telecom), LLM only for (a) parsing user free-text into state slots and
-(b) genuinely uncovered/ambiguous branches. The TBox is the domain-general control
-skeleton (transfers); the ABox is the per-domain bindings (swaps).
+So: **TBox = a learned means-ends planner; ABox = domain operators (tool affordances).** The
+agent, given a goal and a domain's operators, plans and executes — no procedure spelled out.
+
+### Two evaluation modes (SOP-Bench supports both)
+- **Procedure-given** (easier, validates the executor): the workflow (`next`/`scenario_steps`)
+  is compiled from `sop.txt` → the deterministic executor (§3) just runs it. Upper bound.
+- **Goal-only (★the real agentic target)**: the agent gets the **goal** (required output
+  slots) + the **operator ABox only** (no sequence). The **TBox planner composes the workflow**
+  from operators via means-ends (pick a tool whose `precondition` holds and whose effect fills
+  an unmet goal/sub-goal slot; repeat until the `output` contract is satisfied). What we
+  learn + transfer is exactly this planner.
+
+The earlier "deterministic executor" is now the **procedure-given** special case; the
+contribution is the **goal-only** planner that reconstructs the workflow from operators alone.
+Computation stays encapsulated in functions (§2.0); the planner only chooses *which function
+to call next toward the goal*. This connects to the neural ABox-conditioned resolver
+(EXPERIMENT_DESIGN §15.13): TBox = how to consume ABox to choose tools (learned weights),
+ABox = operator relations (swappable memory).
 
 ---
 
@@ -126,6 +144,14 @@ ABox instances per domain; TBox = these types + the executor.
 That is the entire schema. Everything else (scoring, banding, tables, imputation, validation,
 logging, verification re-checks) is **a function** referenced by `realizes` and consumed via
 `produces`/`arg`.
+
+**Operator relations vs plan relations (the §1 split).** Five are **ABox operator
+affordances** — pure per-domain tool knowledge, always given/induced: `precondition`,
+`produces`, `arg`, plus the function signatures and `achieves(function → goal_slot)`. Three
+are **plan** — the control flow: `realizes`/`next`/`scenario_*`. In **procedure-given** mode
+the plan is compiled from `sop.txt`; in **goal-only (agentic)** mode the plan is **not given**
+— the **TBox planner produces it** at run time from the goal + operator affordances. So the
+minimal per-domain ABox is just *operators*; the workflow is either supplied or planned.
 
 ### 2.3 Coverage — prior mechanisms map to {simple relation} or {function}
 | prior mechanism | where it goes now |
@@ -247,23 +273,32 @@ Honest risks:
 
 ---
 
-## 5. Planner & SFT taxonomy under the new design
+## 5. The TBox planner (the learned, transferable thing)
 
-Because the executor owns control, the planner's role shrinks. Two options to evaluate:
+In **procedure-given** mode there is no planner — the executor (§3) runs the supplied call
+graph. The research object is the **goal-only** planner: given the **goal** (the `output`
+contract's required slots) + the domain **operator ABox** (`precondition`/`produces`/`arg`/
+`achieves` per tool), choose the next tool until the goal slots are filled. This planner is
+the **TBox** — domain-invariant, learned, swap the ABox to transfer. Three rungs:
 
-- **(P0) No planner** — pure deterministic executor + LLM perception/fallback. The
-  cleanest test of "how far does the workflow ontology go alone." Cheapest.
-- **(P1) Phase-planner** — a tiny LLM emits only the PHASE
-  (`identify/gather/diagnose/fix/verify/close`) as `Plan: <phase>`; executor does the
-  rest. SFT taxonomy collapses from 5 ad-hoc steps → 6 principled phases. Retrain target.
+- **L0 — symbolic means-ends planner** (no learning): forward/backward chaining over operator
+  pre/effects (PDDL/HTN-style): pick a callable tool whose effect fills an unmet goal/sub-goal
+  slot; loop. Measures how far *operators alone* determine the workflow (the clean baseline).
+- **L1 — LLM planner, operators in context** (no training): prompt = goal + operator list +
+  current slots → next tool. Tests whether a frontier model plans correctly given only the
+  affordances (the "agentic" zero-shot bar).
+- **L2 — learned ABox-conditioned planner** (★the contribution, EXPERIMENT_DESIGN §15.13):
+  train across many domains' traces to map (goal, operators, state) → next tool, with the
+  **operators injected as swappable memory** (cross-attention / per-domain module), *not*
+  baked into weights. The weights learn the **general planning skill** (TBox); the ABox memory
+  is replaced per domain → **transfer with no retraining**. This is exactly "user gives a goal,
+  the system auto-selects tools," generalized.
 
-This is why the old TBox-only training was killed: its step taxonomy
-(`gather_account_context`/`apply_policy_action`/…) and its assumption that the resolver
-only fills fix-writes are both obsolete. If we pursue P1, regenerate SFT with
-`build_tbox_sft.py` retargeted to phase labels; if P0, no planner training at all.
+(The killed tau2 TBox-only adapter was a degenerate P1 phase-planner on an obsolete taxonomy.
+The real target is L2: a planner conditioned on operator relations, not on a fixed step vocab.)
 
-**Recommendation**: implement P0 first (fastest signal on the executor), add P1 only if
-P0 shows the LLM is needed for phase sequencing.
+**Recommendation**: L0 first (does the operator ABox alone suffice?), then L1 (zero-shot LLM
+bar), then L2 (the learned transferable planner). The gap L0→L1→L2 is the result.
 
 ---
 
@@ -274,19 +309,23 @@ Benchmark = **SOP-Bench** (agent-controlled, single-shot, state-based). Metrics 
 (fraction of agent tool-calls chosen by the ontology vs LLM-fallback). No tau2 max_steps/
 read-loop axis (single-shot removes it).
 
-Runs:
-1. **Baseline** — SOP-Bench's own FC / ReAct agent given `sop.txt` as text (~55-64% paper).
-2. **Ours-P0** (★primary) — `compile_sop_ontology(sop.txt)` → deterministic
-   `workflow_executor`; LLM fallback only on genuinely ambiguous/generative steps. Per
-   domain TSR + coverage. Expect TSR ≫ baseline on branch-heavy SOPs.
-3. **Ours-induced** — ontology **induced from teacher traces** (not reading sop.txt) →
-   (a) TSR, (b) **structural agreement vs the authored SOP** (validates auto-induction,
-   §15.14; impossible in tau2).
-4. **Transfer (LODO)** — TBox (phase + relation types) fixed, ABox (per-domain slots/
-   tools/branches) swapped → held-out domain; 12-domain rotation.
-5. **Ablations** — executor w/o `diagnostic_next` (→LLM), w/o `phase_exit`; P0 vs P1;
-   compile-from-SOP vs induce-from-traces.
-6. **Pilot first** — `customer_service` end-to-end before scaling to all domains.
+Two task settings: **procedure-given** (SOP supplied) and **goal-only** (★ agentic: goal +
+operator ABox, no sequence). Runs:
+1. **Baseline** — SOP-Bench FC / ReAct given `sop.txt` as text (~55-64% paper). [procedure-given]
+2. **Executor (procedure-given)** — `compile_sop_ontology(sop.txt)` → call-graph executor (§3);
+   functions = provided tools / wrapped; LLM only for generative steps. **Upper bound** + per-
+   step coverage%. Expect TSR ≫ baseline (deterministic where the SOP is determinate).
+3. **Goal-only planner** (★primary, the agentic target) — operator ABox only; plan with
+   **L0 / L1 / L2** (§5). TSR + how close each gets to the executor upper bound. The L0→L1→L2
+   gap = the contribution.
+4. **Induction validation** — induce the operator ABox + (procedure-mode) call graph from
+   traces; report TSR + **structural agreement vs authored `sop.txt`** (impossible in tau2).
+5. **Transfer (LODO)** — train the L2 planner on N−1 domains, test the held-out domain with
+   **only its operator ABox swapped in** (no retraining). 12-domain rotation. This is the
+   headline "auto-select tools in an unseen domain" result.
+6. **Ablations** — operators-only L0 vs +SOP; ABox-memory ablation (empty/wrong operators →
+   L2 must collapse, proving it reads the ABox not memorizes); compile vs induce.
+7. **Pilot first** — `customer_service` end-to-end (executor → L0 → L1) before scaling.
 
 ---
 
