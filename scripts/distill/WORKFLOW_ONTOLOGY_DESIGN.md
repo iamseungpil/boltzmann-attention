@@ -297,8 +297,46 @@ the **TBox** — domain-invariant, learned, swap the ABox to transfer. Three run
 (The killed tau2 TBox-only adapter was a degenerate P1 phase-planner on an obsolete taxonomy.
 The real target is L2: a planner conditioned on operator relations, not on a fixed step vocab.)
 
+**Planner operating loop (adopted from GoalAct, §5.1).** L1/L2 do **not** plan greedily one
+tool at a time. They maintain a **global plan** `G = [(subgoal_i, skill/operator_i), …, Finish]`
+anchored to the goal, and **re-plan after every action** from the execution history
+`G_t = π(goal | operators | history_t)` (history = ⟨plan, action, observation⟩ tuples). Two
+reasons this matters for us: (a) the persistent global goal **prevents the local-branch /
+read-loop sticking** we diagnosed in tau2 (a greedy next-tool policy is exactly what looped);
+(b) re-grounding the plan against the **operator preconditions/effects** keeps it
+**executable** (no plan steps outside the action space). Plan at the **skill/operator level**,
+not micro-steps; each operator then resolves its own concrete call (provided tool / wrapped).
+
 **Recommendation**: L0 first (does the operator ABox alone suffice?), then L1 (zero-shot LLM
 bar), then L2 (the learned transferable planner). The gap L0→L1→L2 is the result.
+
+### 5.1 Prior art reflected (searched 2026-05-31)
+Our design is positioned in, and borrows from, the LLM-agent planning literature:
+
+- **GoalAct** (arXiv 2504.16563, *Global Planning + Hierarchical Execution*, NCIIP'25 best
+  paper): continuously-updated **global plan** of high-level **skills** + execution feedback.
+  We adopt its global-plan + re-plan loop and skill-level abstraction (§5.1 above). **Our
+  addition**: GoalAct grounds plans only via LLM reasoning over tool descriptions; we add
+  **structured operators** (precondition/produces/effect = a checkable action space) so
+  executability is *guaranteed*, not hoped — and so the planning skill (TBox) is **learned +
+  ABox-swappable**, not prompt-only.
+- **Planning survey** (arXiv 2402.02716): taxonomy = Task-Decomposition / Plan-Selection /
+  **External-Module** / Reflection / Memory. We are **External-Module + Memory + Reflection**:
+  a structured operator module + a slot store + continuous re-plan. (We are *not* pure
+  decomposition-by-prompt.)
+- **LLM+P / classical planning**: ABox operators = a **PDDL/HTN Domain** (pre/eff); the goal =
+  the `output` contract. **L0 = an external symbolic planner** over that domain (LLM+P style);
+  **L2 = a neural planner** conditioned on the same operators-as-memory.
+- **Plan-and-Execute / Plan-then-Execute** (LangChain; arXiv 2509.08646 security): validates the
+  **planner(TBox)/executor split** — a structured, machine-readable plan (our call graph),
+  big model for planning, cheap/deterministic executor. We inherit modularity/debuggability and
+  the plan-then-execute safety posture (no tool runs outside a vetted plan/operator set).
+- **Agent-harness patterns** (harness-engineering, OpenAI/LangChain deepagents): the executor
+  is a **stateless orchestration harness** (loop, tool routing, slot memory, tracing, recovery).
+  We adopt two patterns explicitly: **Reasoning Sandwich** — strong model for plan+verify,
+  deterministic/cheap for intermediate steps (= our determinism split, coverage% measures it);
+  **goal re-injection** — keep the global goal in context every step (= GoalAct's global plan),
+  the structural cure for premature-exit / non-convergence.
 
 ---
 
@@ -324,7 +362,9 @@ operator ABox, no sequence). Runs:
    **only its operator ABox swapped in** (no retraining). 12-domain rotation. This is the
    headline "auto-select tools in an unseen domain" result.
 6. **Ablations** — operators-only L0 vs +SOP; ABox-memory ablation (empty/wrong operators →
-   L2 must collapse, proving it reads the ABox not memorizes); compile vs induce.
+   L2 must collapse, proving it reads the ABox not memorizes); compile vs induce;
+   **planning-paradigm**: greedy next-tool (ReAct-style) vs global-plan + re-plan
+   (GoalAct-style, §5.1) — validates the global-goal anchor (expect greedy → local sticking).
 7. **Pilot first** — `customer_service` end-to-end (executor → L0 → L1) before scaling.
 
 ---
