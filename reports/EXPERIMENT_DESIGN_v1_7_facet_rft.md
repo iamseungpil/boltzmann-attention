@@ -2947,3 +2947,25 @@ SFT는 floor로 유효하나(NONE≥FULL 무손실) 실패 63% recall-miss/anti-
 - **D. 파라미터 분리**: 공유 TBox-LoRA(다도메인 공통) + per-domain ABox-LoRA(swap). AdapterFusion식. 누수 위험은 ablation 측정.
 
 **검증**: 각 방법이 plain-SFT 대비 *미학습 도메인 전이*(LODO)를 얼마나 올리나 = TBox 순도 직접 지표. B/A/C/D를 동일 LODO 프로토콜로 비교.
+
+### 15.11 ★Hierarchical planner + 온톨로지-executor (B+A 결합, 가장 순수한 TBox/ABox)
+B(monolithic, step+tool 동시 emit)는 구체 도구를 weights에 학습→ABox 누수 잔존. **2-stage로 분리하면 planner는 추상 step만 emit(구체 도구 절대 안 봄)=순수 TBox, 구체화는 swap 가능한 executor=ABox.** = HTN(Group H)/GoalAct(Group I)의 문자 그대로 구현 + 실제 enterprise(SOP planner + 시스템별 executor) 대응.
+
+```
+[planner LLM] (TBox, 학습)  관찰 → 추상 step (PLAN_STEP_VOCAB)
+      ▼ step
+[executor] (ABox, swap·무학습 목표)  step + 최근 관찰 → 구체 tool+args
+      ▼ tool call
+[tau2 env] → 관찰 → planner ...
+```
+
+**★executor는 SFT 불필요 — 온톨로지 rule-engine으로**: step 내 도구 모호성(`apply_targeted_fix`→{enable_roaming,refuel_data})은 *관찰된 상태*가 해소 → 선언적 관계로 표현:
+- **`observation_triggers(read, state_pred, tool)`**[강화]: 진단 read 결과 상태-술어(roaming==off)→fix 도구. 모호성 해소 핵심. teacher 궤적서 induce(read 출력 {field:value} 직후 호출된 write 집계).
+- **`arg_source(tool, param, read.field)`**[신규]: 인자←선행 read field. param_dataflow의 field-level 정밀화. 결정적 arg 바인딩.
+- **`selects_among(step,[tools],discriminator)`**[신규]: step 후보 도구를 가르는 상태 feature.
+- resolver = `step_realizes_tool⁻¹`(후보) → `observation_triggers` 매칭(도구) → `arg_source`(인자). **결정적·LLM 없음·검증가능**.
+
+**하이브리드 + 측정**: 결정적 우선, 미스 시 후보-제한 소형 LLM fallback. **"tool 선택의 X%가 온톨로지만으로 결정적 해소"=온톨로지 기여의 정량 증거**(1−X%만 학습 필요). 
+**Ablation**: (i) resolver=base-LLM+전체도구(베이스라인) (ii) planner + 온톨로지-resolver (iii) +LLM-fallback (iv) monolithic-B(§15.10 B). planner+온톨로지-resolver가 (i)을 이기면 TBox/ABox 구조 가치 입증.
+**전이**: planner=telecom+retail step 학습 → airline은 **온톨로지 파일만 swap**(planner 불변).
+**구현**: ①`observation_triggers`/`arg_source` inducer → ②planner-only 데이터(step만, tool 드롭) → ③결정적 resolver + 2-stage harness(+fallback) → ④airline LODO(온톨로지 swap).
