@@ -338,6 +338,45 @@ Our design is positioned in, and borrows from, the LLM-agent planning literature
   **goal re-injection** — keep the global goal in context every step (= GoalAct's global plan),
   the structural cure for premature-exit / non-convergence.
 
+### 5.2 Plan↔execute spectrum — where we sit, and what else we borrow
+**Spectrum of plan/execute coupling** (informs our two modes):
+`ReAct (re-reason every step, greedy)` ↔ `GoalAct (global plan + re-plan on feedback)` ↔
+`ReWOO / LLMCompiler (full plan up front, then execute)`.
+- **ReWOO** (arXiv 2305.18323): Planner→Worker→Solver; plan *all* interdependent tool calls up
+  front (blueprint with `#E` variable-passing), workers fetch in parallel, 2 LLM calls total
+  (vs ReAct's per-step) → 50–70% latency cut. = our **procedure-given executor** (the call graph
+  is the blueprint; `arg`/`produces` = `#E` variable passing). 
+- **LLMCompiler** (arXiv 2312.04511): plan = a **task DAG with dependencies**, execute
+  independent tasks **in parallel**. = our call graph + `parallel_block`; adopt DAG scheduling.
+- **Our position**: goal-only mode = GoalAct point (global plan + re-ground on operator
+  effects) — between ReAct's loops (which caused our tau2 read-loop) and ReWOO's brittle
+  full-upfront plan (GoalAct's "non-executable" critique). Procedure-given mode = the ReWOO/
+  LLMCompiler upfront-DAG special case.
+- **LATS** (arXiv 2310.04406, ICML'24): MCTS over reason+act+plan with an LM value fn +
+  reflection — explores *alternative* operator choices, not one trajectory. Optional **L3**
+  rung for ambiguous operator graphs (value-guided search over `next`); heavier, note only.
+- **Reflexion / AdaPlanner / Self-Refine**: verbal reflection memory + ± feedback to refine a
+  plan. = the re-plan signal in our loop when an operator's `precondition`/effect check fails.
+
+### 5.3 Induce-and-reuse workflows — closest prior, and our delta
+- **Agent Workflow Memory** (arXiv 2409.07429, ICML'25): **induces reusable workflows from
+  interaction traces** — stored as *workflow skills = trigger + multi-step procedure +
+  parameter slots* — and reuses them (offline from train traces or online from test), on
+  Mind2Web/WebArena (1000+ tasks, 200+ domains). **This is the closest prior to our
+  induction+transfer thesis.** AWM's {trigger, procedure, slots} ≈ our {`scenario_select`,
+  `scenario_steps`, `arg`}. **Our delta**: AWM stores **NL workflows reused via prompt**; we
+  induce a **structured operator ontology** run by a *deterministic executor* and a *learned,
+  ABox-swappable planner* (L2) — verifiable, training-time transfer, not prompt-only. SOP-Bench
+  also gives a **ground-truth SOP** to validate the induced workflow (AWM has none).
+- **Agentic Plan Caching** (arXiv 2506.14852) + **Learn-When-to-Plan** (arXiv 2509.03581):
+  cache structured plan templates; spend LLM planning only when needed. = our **compiled
+  per-domain call graph is a plan template** (`scenario_select` = retrieval), and the
+  deterministic executor means **LLM is invoked only at uncertain steps** — coverage% is exactly
+  "how rarely we must plan with an LLM."
+- **Reasoning models + PRM/ORM** (o1/o3/R1; arXiv 2501.09686): L1 may be a reasoning model;
+  L2 training can use **process/outcome reward on planning decisions** (reward a correct
+  next-operator / penalize off-action-space picks).
+
 ---
 
 ## 6. Experiment reconstruction (SOP-Bench)
