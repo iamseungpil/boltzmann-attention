@@ -1,0 +1,26 @@
+{
+  "domain": "retail",
+  "n_tools": 15,
+  "step_dist": {
+    "apply_targeted_fix": 8,
+    "gather_account_context": 6,
+    "escalate_or_document": 1
+  },
+  "step_realizes_tool": {
+    "calculate": "apply_targeted_fix",
+    "cancel_pending_order": "apply_targeted_fix",
+    "exchange_delivered_order_items": "apply_targeted_fix",
+    "find_user_id_by_email": "gather_account_context",
+    "find_user_id_by_name_zip": "gather_account_context",
+    "get_order_details": "gather_account_context",
+    "get_product_details": "gather_account_context",
+    "get_user_details": "gather_account_context",
+    "list_all_product_types": "gather_account_context",
+    "modify_pending_order_address": "apply_targeted_fix",
+    "modify_pending_order_items": "apply_targeted_fix",
+    "modify_pending_order_payment": "apply_targeted_fix",
+    "modify_user_address": "apply_targeted_fix",
+    "return_delivered_order_items": "apply_targeted_fix",
+    "transfer_to_human_agents": "escalate_or_document"
+  }
+}

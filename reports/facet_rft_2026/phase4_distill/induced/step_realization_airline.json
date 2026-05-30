@@ -1,0 +1,27 @@
+{
+  "domain": "airline",
+  "n_tools": 14,
+  "step_dist": {
+    "apply_targeted_fix": 6,
+    "check_system_status": 1,
+    "gather_account_context": 5,
+    "apply_policy_action": 1,
+    "escalate_or_document": 1
+  },
+  "step_realizes_tool": {
+    "book_reservation": "apply_targeted_fix",
+    "calculate": "apply_targeted_fix",
+    "cancel_reservation": "apply_targeted_fix",
+    "get_flight_status": "check_system_status",
+    "get_reservation_details": "gather_account_context",
+    "get_user_details": "gather_account_context",
+    "list_all_airports": "gather_account_context",
+    "search_direct_flight": "gather_account_context",
+    "search_onestop_flight": "gather_account_context",
+    "send_certificate": "apply_policy_action",
+    "transfer_to_human_agents": "escalate_or_document",
+    "update_reservation_baggages": "apply_targeted_fix",
+    "update_reservation_flights": "apply_targeted_fix",
+    "update_reservation_passengers": "apply_targeted_fix"
+  }
+}
