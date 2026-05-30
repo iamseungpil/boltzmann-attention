@@ -1,8 +1,29 @@
 # Full Workflow Ontology — design (2026-05-30)
 
-Status: **DESIGN, for review.** Supersedes the partial "fix-disambiguation only" ontology
+Status: **DESIGN.** Supersedes the partial "fix-disambiguation only" ontology
 (`step_realization_*` + `obs_triggers_*`) and the per-turn reactive resolver
 (`ontology_resolver.py` + `two_stage_agent.py:_two_stage_generate`).
+
+> ### ★ BENCHMARK = SOP-Bench (confirmed 2026-05-30 밤)
+> The target benchmark moved **tau2 → SOP-Bench** (arXiv 2506.08119, amazon-science).
+> Rationale + full experiment design = `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md §16`.
+> Why it fits where tau2 didn't: SOP-Bench is **agent-controlled** (the agent calls all
+> tools itself), **single-shot** (no user simulator, no dialogue), and the SOP carries
+> **explicit If-branches / state-dependent decisions** — exactly our TBox/ABox + Group J
+> relations. This **eliminates the tau2 failure modes** diagnosed in §0 below
+> (max_steps non-convergence, read-loop, user-side locus): those were artifacts of a
+> user-sim-centric benchmark, not of our approach.
+>
+> Consequences for THIS doc:
+> - §0 (tau2 diagnosis) is the **motivation** for moving to an agent-controlled benchmark.
+> - §2 schema is benchmark-agnostic → **unchanged** (slots = SOP-Bench CSV columns,
+>   tools = toolspecs.json, phases = SOP sections).
+> - §3 executor **simplifies**: SOP-Bench has NO user-side tools, so the D2 machinery
+>   (NL instruction templates, user-tool-result ingestion) is **dropped** — the executor
+>   emits agent tool calls only. See §3 note.
+> - Induction gains a 2nd route: **compile sop.txt directly** (the SOP is the ground-truth
+>   workflow), and we can **validate induced ontology vs the authored SOP**.
+> - §6/§7 updated to SOP-Bench (TSR/Tool-Accuracy, 12-domain ABox-swap transfer).
 
 ---
 
@@ -157,7 +178,13 @@ def next_action(execstate, ontology, llm_perceive):
         return Talk(resolution_summary) → STOP
 ```
 
-**D2 RESOLVED (empirical, shipped telecom trajectories):** device/probe tools
+> **NOTE (SOP-Bench): the entire user-side/D2 block below is tau2-only and is DROPPED.**
+> SOP-Bench exposes ALL tools as agent-callable (no user simulator), so DIAGNOSE/FIX are
+> ordinary agent tool calls — no NL instruction templates, no user-tool-result ingestion.
+> The executor (§3 loop) keeps only the agent-call path. The D2 analysis is retained as
+> the evidence that tau2's locus was user-side (motivating the benchmark move).
+
+**D2 RESOLVED (empirical, shipped telecom trajectories — tau2 only):** device/probe tools
 (check_*, toggle_*, reset_*, reseat_*, reboot_device, run_speed_test, set_network_*) are
 **`requestor=user`** — USER-side, executed on the user's phone (e.g. check_status_bar:
 user×130 vs assistant×2). Only account tools (get_*, enable_roaming, refuel_data,
@@ -249,47 +276,55 @@ P0 shows the LLM is needed for phase sequencing.
 
 ---
 
-## 6. Experiment reconstruction
+## 6. Experiment reconstruction (SOP-Bench)
 
-Metrics (all, every run): **Pass^1 + termination distribution (max_steps rate) +
-read-loop signature (≥4× identical) + write/probe sparsity + per-PHASE deterministic
-coverage**. (Pass^1 alone hid the real story; `_redx.py`/`analyze_two_stage.py` extended.)
+Benchmark = **SOP-Bench** (agent-controlled, single-shot, state-based). Metrics (every run):
+**TSR / ECR / C-TSR + Tool Accuracy** (SOP-Bench CLI) **+ per-PHASE deterministic coverage**
+(fraction of agent tool-calls chosen by the ontology vs LLM-fallback). No tau2 max_steps/
+read-loop axis (single-shot removes it).
 
 Runs:
-1. **telecom in-domain** (N=114, split base): P0 executor vs old base/resolver/fallback
-   (`two_stage_v3`) vs entangled abstract. Expect: max_steps↓, read-loop→0, Pass↑.
-2. **transfer LODO**: airline (N=50) + retail — swap ABox only, TBox fixed. Tests
-   ABox-swap transfer with the richer ontology.
-3. **ablations**: executor w/o `diagnostic_next` (DIAGNOSE→LLM), w/o `phase_exit`
-   (read-loop returns?), P0 vs P1.
-4. **max_steps sensitivity**: rerun old vs new at max_steps ∈ {50, 100} to separate
-   "executor convergence" from "raw budget."
+1. **Baseline** — SOP-Bench's own FC / ReAct agent given `sop.txt` as text (~55-64% paper).
+2. **Ours-P0** (★primary) — `compile_sop_ontology(sop.txt)` → deterministic
+   `workflow_executor`; LLM fallback only on genuinely ambiguous/generative steps. Per
+   domain TSR + coverage. Expect TSR ≫ baseline on branch-heavy SOPs.
+3. **Ours-induced** — ontology **induced from teacher traces** (not reading sop.txt) →
+   (a) TSR, (b) **structural agreement vs the authored SOP** (validates auto-induction,
+   §15.14; impossible in tau2).
+4. **Transfer (LODO)** — TBox (phase + relation types) fixed, ABox (per-domain slots/
+   tools/branches) swapped → held-out domain; 12-domain rotation.
+5. **Ablations** — executor w/o `diagnostic_next` (→LLM), w/o `phase_exit`; P0 vs P1;
+   compile-from-SOP vs induce-from-traces.
+6. **Pilot first** — `customer_service` end-to-end before scaling to all domains.
 
 ---
 
 ## 7. Build order (file changes)
 
-1. `induce_ontology.py` (new) — emits `ontology_<domain>.json` with all §2.1 relations;
-   internally reuses/absorbs `induce_step_realization.py` + `induce_observation_triggers.py`.
-2. `workflow_executor.py` (new) — ExecState + `next_action` (§3); replaces
-   `ontology_resolver.py` (kept as a thin compat view if needed).
-3. `two_stage_agent.py` — `_two_stage_generate` rewritten: call executor for the next
-   action instead of rewriting the planner's call; add a `--mode executor` (P0) and
-   `--mode phase_planner` (P1); keep `base` for control.
-4. `analyze_two_stage.py` / `_redx.py` — add per-phase coverage, termination, read-loop,
-   verify-reach metrics.
-5. (P1 only) `build_tbox_sft.py` — retarget labels to 6 phases; regenerate; retrain.
+1. `sop_bench_loader.py` (new) — load a SOP-Bench domain dir → (sop.txt, toolspecs,
+   tasks rows, ground-truth output columns). Plug our executor in via SOP-Bench's custom
+   agent interface (`agents/base.py`, `examples/03_custom_agent.py`).
+2. `compile_sop_ontology.py` (new) — parse `sop.txt`: sections→phases, "If <cond>→<action>"
+   →branch/precondition_trigger, columns→slots, toolspecs→tool_class/arg_dependency →
+   `ontology_<domain>.json` (§2). Plus `induce_ontology.py` (trace-mining route for
+   Ours-induced; absorbs `induce_step_realization`+`induce_observation_triggers` logic).
+3. `workflow_executor.py` (new) — ExecState + `next_action` (§3), **agent-call only**
+   (no user-side path). Replaces `ontology_resolver.py`.
+4. eval — wire SOP-Bench CLI (TSR/ToolAcc) + per-phase coverage + domain-swap reporter.
+5. (P1 only) phase-planner SFT — regenerate labels to phases from SOP-Bench traces; train.
 
-Self-tests at each step (the inducers/resolver already ship `--selftest`/`_selftest`).
+Self-test each step (compile a domain's SOP → inspect ontology; run executor on 1 task).
 
 ---
 
-## 8. Open decisions
-- **D1** (open): P0-first (no planner) vs build P1 phase-planner immediately. (Rec: P0 first.)
-- **D2** (RESOLVED): telecom device/probe tools are **user-only** (`requestor=user`);
-  account tools agent-callable. DIAGNOSE/FIX(device) → deterministic NL templates +
-  user-tool-result ingestion. See §3.
-- **D3** (open): Single `ontology_<domain>.json` vs keep split files + add new ones. (Rec:
-  single file, with a compat exporter for old analysis scripts.)
-- **D4** (open): `max_steps` for eval — keep 50 (old default) or raise to 100 for
-  multi-fault tasks? (Rec: run both to separate convergence from raw budget.)
+## 8. Decisions
+- **Benchmark** (DECIDED): SOP-Bench (see banner + `EXPERIMENT_DESIGN §16`). tau2 dropped
+  as primary; `customer_service` (SOP-Bench) ≈ tau2 telecom offline → controlled contrast.
+- **D1** (open): P0-first (no planner; SOP→ontology→executor) vs P1 phase-planner. (Rec:
+  P0 first — SOP is given, so the planner adds least value initially.)
+- **D2** (RESOLVED, tau2-only, now moot): tau2 device/probe tools were user-only → drove
+  the user-side machinery. SOP-Bench is all-agent-callable, so that machinery is dropped.
+- **D3** (open): single `ontology_<domain>.json` vs split files. (Rec: single file.)
+- **D5** (new): compile-from-`sop.txt` vs induce-from-traces as the primary ontology
+  source. (Rec: build both; compile = clean upper bound, induce = the research claim,
+  and their agreement is itself a result.)

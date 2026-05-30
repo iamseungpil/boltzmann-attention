@@ -3105,3 +3105,75 @@ Routine step 스키마 = `Step Number/Name/Description/Input*/Output*/Tool*` (*=
 - **Routine 대비 차별(명시)**: Routine=사람작성 routine+SFT, 우리=**자동 induce(사람 0)+다층(rule/cross-attn) 소비+training-free 가능**. 간섭붕괴(Routine 96→76)는 scenario를 독립 ABox로 분리해 회피.
 
 → **신규 도구(예정)**: `induce_scenario_workflow.py`(R4), `induce_branch_dag.py`(R3), `induce_variable_slots.py`(R1/R2). resolver/two_stage_agent에 scenario-conditioned planner + 분기 + placeholder 강제 통합. 담당: induce·결정적 검증=Track A(7B), neural(xattn) scenario/branch=coworker(B5*).
+
+---
+
+## 16. ★★★ v1.31 (2026-05-30 밤) — 벤치마크 피벗: tau2 → SOP-Bench (워크플로우 온톨로지의 본령)
+
+> **이 섹션이 현재 실험의 substrate를 §15(tau2 기반)에서 SOP-Bench로 이전한다.** §13~15의 **개념**(TBox/ABox 분리, Group J 관계, Routine R1-R4 자동 induce, 결정적 executor, LODO 전이)은 **전부 유지·강화**되나, 측정 벤치마크가 바뀐다. 상세 설계 문서 = `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`, 구현 계획 = `reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md`(개정본).
+
+### 16.1 왜 피벗 — tau2 재진단 + 벤치마크 mismatch
+v3 telecom(N=114) 궤적 전수 재진단(`_redx.py`/`_traj_dump.py`):
+- **실패의 86%가 `max_steps` 비수렴** → reward_info null, 평가 자체 미실행. DB/action 실제오류는 한 줌. "coverage 높음/타이밍 미스" 진단은 틀렸음.
+- **read-loop 증폭**(동일호출≥4회=100%실패; base23→resolver32→fallback44 용량반응). resolver가 gather→fix 전이를 소유 못 해 planner가 gather 무한재발화.
+- **ABox locus 오류**: agent 도구호출 86%가 read, ~절반 task가 write 0개. telecom 해결은 **NL-가이드 사용자측 진단**(check_*=requestor=user 확정)으로 일어나 결정적 executor가 못 건드림.
+
+→ **근본원인 = tau2는 user_sim이 핵심실행, agent는 도구선택+대화지휘만 하는 벤치**. 우리 온톨로지("에이전트가 워크플로우 전체를 자기 도구로 결정적 실행")와 구조적 mismatch. retail/airline도 catalogue-선택(상태머신 아님). **어느 tau2 도메인도 "에이전트통제+상태결정적+절차적" 삼박자 미충족.**
+
+### 16.2 SOP-Bench (arXiv 2506.08119, amazon-science) — 채택
+[Routine](https://arxiv.org/abs/2507.14447)(2507.14447, §15.14)은 사람이 NL routine(SOP)을 작성→실행안정성 41→96%, 단 **자체 비공개 시나리오·수작성**. SOP-Bench = 그 routine을 공개·일반화한 enterprise SOP 벤치. **우리 = 이 routine/SOP를 induce·컴파일+ABox-swap하는 자동 버전.**
+
+| SOP-Bench 사실 | 우리 thesis 적합성 |
+|---|---|
+| 에이전트가 mock API를 **자기 tool call로 전부 실행**, user-in-the-loop 없음 | ✅ tau2 mismatch 제거(에이전트통제) |
+| **single-shot**(대화 없음) | ✅✅ max_steps/read-loop/NL-locus 실패모드 **소멸** |
+| SOP에 **명시적 If-분기·상태의존 결정**(positive/negative/edge 경로) | ✅✅✅ = 우리 precondition_trigger/branch/phase_exit 그 자체 |
+| 12 산업도메인 독립스키마, 1811 task, 107 tools | ✅ ABox-swap 전이(tau2 3개보다 강함) |
+| 평가 = `TSR=ECR×C-TSR + Tool Accuracy`, `<final_output>` 상태 비교 | ✅ 순수 결과/상태 기반, 대화 교란 없음 |
+| **정답 SOP(sop.txt) 제공** | ✅ "induce한 온톨로지 vs 작성 SOP" 검증(tau2 불가) |
+| 프런티어 26.7~94.3%(avg~55-64%) SOP추종 실패 | 우리 결정적 executor 기여 여지 큼 |
+
+### 16.3 SOP-Bench ↔ 우리 온톨로지 매핑 (도메인별 자기완결 디렉터리)
+`src/amazon_sop_bench/benchmarks/data/<domain>/`: `sop.txt`(NL SOP), `toolspecs.json`+`tools.py`(도구/mock API), `data.csv`/`test_set_with_outputs.csv`(태스크행, **컬럼=상태슬롯**), `metadata.json`(input/output_columns).
+
+| 우리 구성 | SOP-Bench 대응 |
+|---|---|
+| **슬롯(state variable)** | CSV 컬럼 (is_authenticated, outage_detected, ...) |
+| **read/probe/write 도구** | toolspecs.json (전부 agent-callable, requestor 구분 불필요) |
+| **TBox phase** | SOP 섹션 (5.1 auth→5.2 status→5.3 outage→5.4 diagnose→5.5 troubleshoot→5.6 escalate→5.7 resolve) — 보편골격 gather→diagnose→fix→verify→escalate→close |
+| **precondition_trigger / R3 branch** | SOP "If <cond> → <action>" (직접 파싱가능 = induce 쉬움) |
+| **diagnosis_sufficient_for / phase_exit** | SOP의 "충분조사 후 commit" 경계 |
+| **distractor_for** | SOP 음성경로(negative pathway, 명시 제공) |
+| **escalate_when / R4 scenario** | SOP escalation 규칙 / 이슈유형 top-branch |
+| **종료조건** | output_columns (final_resolution_status 등) = ground truth |
+| **arg_source / R1·R2 placeholder** | tool inputSchema의 컬럼 provenance |
+
+### 16.4 무엇이 유지/supersede/신규
+- **유지(개념 불변)**: TBox/ABox 분리(§13), Group J 4관계(§15.4)=SOP 분기/commit/음성/escalate에 직접 대응, Routine R1-R4 자동 induce(§15.14), 결정적 executor + LLM fallback(§15.11), neural ABox-conditioned resolver(§15.13), LODO 전이(§15.6)=12도메인 ABox-swap.
+- **강화**: induction이 **2경로**(궤적 마이닝 + **sop.txt 직접 컴파일**) + **정답 SOP로 induce 검증**(tau2 불가능했던 것). executor가 **순수 agent-tool**(user-side NL 템플릿/사용자 결과 흡수 불요 → §15.11보다 단순·강력).
+- **supersede(substrate만)**: §15.1~15.9의 tau2 NONE/FULL·19실패분해·telecom-특수 수치는 **동기/역사**로 격하. §15.11~15.14의 tau2 eval 계획(two_stage_agent tau2 연동, coverage% on tau2)은 SOP-Bench 하니스로 재구현. **planner 역할 축소**: SOP가 주어지므로 P0(무planner, SOP→ontology 컴파일+결정적 executor) 우선, P1(phase-planner SFT)은 P0가 부족할 때.
+
+### 16.5 실험 설계 (SOP-Bench)
+**지표(전 실행)**: TSR/ECR/C-TSR + **Tool Accuracy** + per-phase 결정적 coverage% + (전이) 도메인-swap Δ. (tau2 max_steps/read-loop 진단축은 SOP-Bench엔 비해당 — single-shot.)
+
+**비교군**:
+1. **Baseline**: SOP를 텍스트로 준 LLM agent (SOP-Bench 기본 FC/ReAct, ~55-64% 논문값).
+2. **Ours-P0(★1순위)**: sop.txt→온톨로지 컴파일 → **결정적 executor**가 상태→도구 실행, LLM은 진짜 모호/edge step만. 가설: 상태머신 부분 TSR≫baseline.
+3. **Ours-induced**: 온톨로지를 **궤적에서 induce**(sop.txt 안 보고) → 작성 SOP와 대조(구조 일치도) + TSR. = §15.14 자동-induce thesis의 ground-truth 검증.
+4. **Ours-transfer(LODO)**: TBox(phase/관계타입) 고정, ABox(도메인 slot/tool/branch) swap → held-out 도메인. 12도메인 로테이션.
+5. **Ours-P1(조건부)**: phase-planner(SFT) + executor. P0가 phase 시퀀싱에서 LLM 필요시.
+
+**핵심 가설**: (H1) SOP→결정적 온톨로지 executor가 baseline LLM 대비 TSR 대폭↑(특히 분기복잡 SOP). (H2) 온톨로지를 궤적에서 induce해도 작성 SOP에 근접(자동화 가능). (H3) TBox 고정+ABox swap으로 held-out 도메인 전이. (H4) 잔여 LLM-fallback(진짜 모호 step)에서만 capability 의존.
+
+### 16.6 빌드 순서
+1. **SOP-Bench 어댑터**: `sop_bench_loader.py` — 도메인 dir → (sop.txt, toolspecs, tasks, ground-truth) 로드. 커스텀 agent 인터페이스(`agents/base.py`, `examples/03_custom_agent.py`)에 우리 executor 삽입.
+2. **`compile_sop_ontology.py`**: sop.txt 파싱(섹션→phase, If→branch trigger, 컬럼→slot) → `ontology_<domain>.json`. + `induce_ontology.py`(궤적 마이닝 경로, Ours-induced용).
+3. **`workflow_executor.py`**: phase 상태머신 + state→tool(precondition_trigger/branch/arg_source) + LLM fallback. (§15.11 resolver의 SOP-Bench·순수-agent 재구현.)
+4. **eval**: SOP-Bench CLI(TSR/ToolAcc) + per-phase coverage + 도메인-swap.
+5. **파일럿 우선**: customer_service 1도메인 end-to-end(SOP→ontology→executor→TSR) 검증 후 전 도메인·induction·transfer 확장.
+
+### 16.7 정직한 리스크
+- sop.txt 파싱의 분기/조건 추출 정확도(NL→구조). 실패시 LLM-assisted 파싱 or 궤적 induce 폴백.
+- 일부 SOP step이 진짜 모호/생성형(예: resolution_summary 자유서술) → 결정적 불가, LLM fallback 분담(정상·측정대상).
+- 도메인 독립스키마 = 전이가 진짜 TBox 일반성을 요구(쉬운 길 없음 = 좋은 시험).
+- customer_service(SOP-Bench)는 tau2 telecom과 흡사 트러블슈팅이나 **완전 오프라인·agent실행** → tau2 실패워크플로우의 통제대조(같은 절차, user-sim 제거 효과 격리).

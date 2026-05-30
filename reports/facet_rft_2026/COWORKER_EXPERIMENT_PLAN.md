@@ -1,11 +1,38 @@
-# Coworker 실험 계획서 — Layered Ontology Agent (TBox planner + 결정적 executor)
+# Coworker 실험 계획서 — Workflow Ontology Agent on SOP-Bench
 
 > 대상: 4× A100 80GB coworker. 공유 채널 = GitHub `iamseungpil/boltzmann-attention` branch **`facet-rft-2026`**.
-> 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§13(방향)·§15.9~15.12(layered ontology agent)**를 구현한다. **먼저 §15.11/§15.12를 읽을 것.**
+> 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
 ---
 
-## 0. ★ 방향 전환 (2026-05-31) — 단순 distillation → 다층 온톨로지 에이전트
+## 0.0 ★★★ 벤치마크 피벗 (2026-05-30 밤) — tau2 → SOP-Bench
+
+tau2 재진단 결과 **tau2는 user_sim이 핵심실행, agent는 도구선택+대화지휘만** 하는 벤치 → 우리 워크플로우 온톨로지("에이전트가 SOP 전체를 자기 도구로 결정적 실행")와 구조적 mismatch(상세 §16.1). **벤치마크를 [SOP-Bench](https://github.com/amazon-science/SOP-Bench)(arXiv 2506.08119)로 이전.** 에이전트단독·single-shot(대화없음→max_steps/read-loop 실패모드 소멸)·SOP의 명시적 If-분기(=우리 trigger/branch)·12 독립도메인·정답 SOP 제공.
+
+**개념(§15)은 전부 유지, substrate만 교체.** 아래 §1~§9의 tau2 도메인(telecom/retail/airline)·two_stage_agent·coverage 수치는 **개념 참조용(superseded substrate)**. SOP-Bench 재정의:
+
+| 옛 (tau2) | 새 (SOP-Bench) |
+|---|---|
+| telecom/retail/airline 3도메인 | 12 산업도메인(customer_service/content_flagging/... ) |
+| two_stage_agent.py + tau2 run | `sop_bench_loader.py` + SOP-Bench custom agent(`agents/base.py`) |
+| 결정적 coverage% + pass^1(대화) | **TSR/ECR/C-TSR + Tool Accuracy**(상태기반) + per-phase coverage |
+| obs_triggers/step_realization induce | `compile_sop_ontology.py`(sop.txt 직접) + `induce_ontology.py`(궤적) |
+| user_sim(OpenRouter gpt-4.1) | **불요**(에이전트 단독, user 없음) → OpenRouter 비용·judge 이슈 소멸 |
+| LODO 3도메인 swap | **12도메인 ABox-swap** 전이 |
+
+### ★ Coworker 태스크 재정의 (SOP-Bench)
+- **C1*. SOP→온톨로지 컴파일러 + executor** (Track A와 공동, P0): `compile_sop_ontology.py`(sop.txt→ontology) + `workflow_executor.py`(순수 agent-tool, user-side 無) → SOP-Bench custom agent. **파일럿 customer_service 1도메인 end-to-end 먼저.**
+- **C2*. ★대규모 매트릭스** (coworker 핵심, A100×4 fan-out): {Baseline FC/ReAct, Ours-P0-compiled, Ours-induced} × **12 도메인** × {in-domain, ABox-swap LODO}. 셀=TSR/ToolAcc/per-phase coverage. **SOP-Bench는 single-shot이라 user_sim 비용 0 → 대량 병렬 저렴.**
+- **C3*. Induce vs 작성SOP 검증**: `induce_ontology.py`로 궤적에서 온톨로지 유도 → sop.txt와 구조일치도 + TSR(=§15.14 자동induce thesis의 ground-truth 검증, tau2 불가했던 것).
+- **C4*. (조건부) Neural ABox resolver (xattn, §15.13)**: SOP 분기가 결정적이지 않은(생성형·모호) step에서 rule이 못 메우는 잔차를 학습 resolver가 메우나. ABox 메모리=SOP 관계. Baseline rule-coverage gap이 클 때만 진입.
+- **C5*. (조건부) Phase-planner SFT (P1)**: P0가 phase 시퀀싱에서 LLM 필요할 때만. SOP-Bench 궤적에서 phase 라벨 SFT. 32B.
+- **SKIP**: tau2 32B abstract-SFT(구 B1*), tau2 two_stage 매트릭스(구 B2*), GRPO(구 B4*)는 **substrate 폐기**. 개념(Group J·Routine R1-R4)은 SOP 분기/슬롯 컴파일로 흡수.
+
+---
+
+## 0. ★ (참고·구 substrate) 방향 전환 (2026-05-31) — 단순 distillation → 다층 온톨로지 에이전트
+
+> ⚠️ 이하 §0~§9는 **tau2 기반 구 계획**. 개념은 §0.0 표대로 SOP-Bench에 re-map됨. 운영 세부(도메인·러너·user_sim)는 SOP-Bench 재정의로 대체.
 
 이전 계획(B1–B4: 32B plain/facet × full/none 4조합 SFT 매트릭스)은 **단순 goal→tool distillation** 검증용이었다. 그 thesis는 **7B에서 이미 검증 완료**(아래 §1) → coworker는 그 중간단계를 **재현하지 않는다**. 대신 그 위에 올린 **layered hierarchical agent**(planner=TBox + 결정적 온톨로지 executor + LLM fallback)를 **A100×4 우위로 대규모 검증**한다.
 
@@ -145,20 +172,22 @@ git clone -b facet-rft-2026 https://github.com/iamseungpil/boltzmann-attention.g
 #  → scripts/distill/{two_stage_agent,ontology_resolver,lora_train_chat_toolcall,...}.py
 #  → reports/.../sft_data/sft_abstract_train_all.jsonl + induced/{obs_triggers,step_realization}_<dom>.json
 
-# 2) eval용 tau2-bench (public)
-git clone https://github.com/sierra-research/tau2-bench.git && cd tau2-bench && pip install -e .
+# 2) ★eval용 SOP-Bench (public, tau2 대체)
+git clone https://github.com/amazon-science/SOP-Bench.git && cd SOP-Bench && pip install -e .
+#  → 데이터: src/amazon_sop_bench/benchmarks/data/<domain>/{sop.txt,toolspecs.json,tools.py,data.csv,test_set_with_outputs.csv,metadata.json}
+#  → 우리 커스텀 agent = scripts/distill/{sop_bench_loader,compile_sop_ontology,workflow_executor}.py (Track A 제공)
+#  → eval CLI: TSR/ECR/C-TSR + Tool Accuracy (src/amazon_sop_bench/cli)
+#  (tau2-bench는 더 이상 필요 없음 — 개념 참조용으로만)
 
 # 3) python env
-#   학습: torch + transformers>=4.51 + peft + accelerate (검증: 4.51.3 / torch 2.7.0+cu126; flash-attn 옵션)
-#   서빙/eval: vllm==0.11.0 (--enable-lora --max-lora-rank 16 --lora-modules <name>=<adapter>, hermes parser)
-#   (B4* GRPO) trl 호환 별도 venv
+#   학습(C5* phase-planner, 조건부): torch + transformers>=4.51 + peft + accelerate (검증: 4.51.3 / torch 2.7.0+cu126)
+#   서빙: vllm==0.11.0 (--enable-lora ...) — P0(무학습)는 서빙만, API 모델 직접도 가능
+#   SOP-Bench 의존: requirements.txt (pip install -e . 로 충족)
 
-# 4) 모델 (HF): Qwen/Qwen2.5-32B-Instruct, Qwen/Qwen2.5-7B-Instruct, (B3*) Qwen2.5-72B / Llama-3.3-70B
+# 4) 모델: P0는 강 instruct 모델(API 또는 로컬 Qwen2.5-32B/72B). (C4* xattn / C5* SFT 시) Qwen2.5-7B/32B-Instruct.
 
-# 5) OpenRouter (user_sim + airline/retail judge) — 키 공유받기
-export OPENROUTER_API_KEY=...
-#   user_sim: --user-llm openai/openai/gpt-4.1 --user-base-url https://openrouter.ai/api/v1 --user-api-key $OPENROUTER_API_KEY
-#   ⚠️ openai/openai/gpt-4.1 (double 접두사) 필수. judge는 phase1_runner/two_stage_agent가 자동 openrouter 라우팅(pull만).
+# 5) ★user_sim 불요 (SOP-Bench는 single-shot, user 없음) → OpenRouter user_sim·judge 비용/이슈 전부 소멸.
+#   LLM-fallback·생성형 step용 모델만 필요(agent-llm). OpenRouter 키는 fallback 모델 호출에만(선택).
 ```
 
 ---
