@@ -2691,6 +2691,7 @@ Output:     ~/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-05-30 | v1.27: **NONE/FULL eval(3도메인) + 실패-주도 TBox Group J + a→b→c 사다리 (§15)**. ★학습은 **multi-domain**(telecom462+retail831+airline246=1539, telecom-only 아님) → eval=in-distribution held-out task(LODO≠). **3도메인 모두 NONE≥FULL**(telecom .35/.30, retail ~.82/.67, airline .40/.30) = 정책 내부화 토큰절감 무손실 multi-domain 재현. 실패 19건=63% recall-miss/anti-loop(enable_roaming/refuel/transfer)·wrong-tool 고착. **Group J 4종 신규**(repairs_state/diagnosis_sufficient_for/distractor_for/escalate_when; 데이터유래, 42→46) + `induce_tbox_relations.py` 3도메인 ABox. **airline judge 버그 수정**(reward_basis=nl_assertions→LLM judge 필수, bare OpenAI 모델→Missing creds; `_route_nl_judge_via_openrouter`로 OpenRouter 라우팅). (b)offline DPO `build_dpo_dataset.py` 1171 pairs. **trl 설치 불가**(transformers 4.51.3 충돌)→수동 DPO/GRPO. 도구: analyze_none_failures/induce_tbox_relations/build_dpo_dataset. |
 | 2026-05-30 | v1.26: **구현·측정·GRPO (§14)**. 도구체인 전부 commit(build_sft_dataset/lora_train_chat_toolcall[full·none]/procedure_scorecard/metric_mining/fault_fix_induce/param_dataflow/wiseflow_baseline/grpo_reward). ★실측: Qwen-7B 격차 **94% 절차**(도구선택58%+형식36%, capability 1%), base fix-coverage 0.06. **F1/seq_F1 최강 변별(AUC 0.902/0.985)**, 3도메인 일반화(read-제외·requestor 정정). **파라미터 dataflow semantic layer**(read→action provenance=PARAMETER_FEEDS 확장)로 arg_bind 재정의(student 약점 0.32~0.73). **GRPO dense reward**(seq_F1, all-fail group advantage 0.255±0.291, GT-결정적). **7B full/none SFT 학습 중**(A6000×2). 다음=eval(scorecard). 핸드오프 project_distillation_handoff_2026_05_30. |
 | 2026-05-29 | v1.25: **방향 재정의 — 효율적 절차 내부화 + 목표→도구 distillation (§13)**. 선행연구 24편 정독 후 재프레이밍: 능력주장(온톨로지가 계획 개선)은 falsify(steering null + 궤적/스텝 변별 0, telecom mutex 역효과; 실패=합법-비효과) → 효율주장(온톨로지-prompt 내부화, Theorem-1)으로 복귀. ★실측: 목표→도구 변별 +0.36(FULL +48%p), Qwen-7B 격차 94% 절차(선택 58%+형식 36%, long-horizon 1%, fix-coverage 0.06)=distillable. GraphRAG/Graphify=연관검색 ≠ 우리 절차계획. 제안=TBox(절차)→weights 내부화 + ABox(인스턴스)→swap 전이. 신규 계열6(효율/내부화): Gist/CD/Transmuting(steering=δ만,Δ누락=null 설명; 절차 견고/지식 취약→TBox/ABox 필연)/SR-KI. WISE-Flow(2601.08158)=가장 가까운 prior(prereq 워크플로 τ²+10pp, prompt-side)+가설 부분검증→올바른 설계(데이터유도×결정시점 양성안내×student). SoK(2602.20867)=policy-내부화·cross-domain C 빈칸 인증. SkillFlow=병목은 검색 아닌 라이브러리 품질. 자산: build_sft_dataset.py(plain 1539/facet L1-3/aux 179), ontology_filter graded. |
 | 2026-05-29 | v1.24: **Phase 3/4/2b/2c를 Distillation→RFT/GRPO 캠페인으로 개정 (§7.0)**. 공통 학습 사다리 ①filter-SFT → ②graded RWR/DPO(offline facet-RFT: 효율+온톨로지 가중, 실패=negative) → ③on-policy GRPO(facet reward). Phase 4=③GRPO + ①②전단계 명시(LATS 보류), Phase 3=distillation 아키텍처 arm(cross-attn=온톨로지 cross-domain 전이 인터페이스), Phase 2b/2c=steering null로 deprioritize. teacher=Sonnet 4.6, student=Qwen-7B(+32B), 4trials x 3도메인 train split, eval=test split 전이매트릭스(로컬 student라 거의 무료). 전 trajectory(성공+실패) 보존. 상세: STEERING_CONTROL_DESIGN.md §11,11.1. |
@@ -2821,10 +2822,21 @@ Qwen-7B telecom 실패 분해: **도구선택 58% + 형식 36% = 94%**, long-hor
 
 > §13(TBox/ABox 분해)·§14(reward)의 후속. **핵심: 개선 레버를 telecom-특수 매핑(ABox 인스턴스)이 아니라 도메인-무관 관계(TBox 타입)로 재정의**하고, leave-one-domain-out으로 *일반화*를 증명한다. 신규 관계는 문헌 서베이(기존 42종)가 아니라 **데이터-주도 실패분석**에서 유도(§13.7 ①contrastive 원칙 부합).
 
-### 15.1 실측 — NONE(내부화) arm eval (telecom test N=40)
-정책 프롬프트를 **완전 제거**(`apply_system_mode("none")`=빈 system+tools)한 student를 eval(`phase1_runner --variants NONE`, vLLM LoRA, gpt-4.1 user_sim).
-- **NONE Pass^1 = 0.350** (write 63/78=80.8%, normal-stop 22, max-step 15, err 3) **vs FULL(정책유지 B0) Pass^1 = 0.300** — 1-trial N=40이라 노이즈(±~0.07) 내 사실상 동률, NONE이 오히려 약간↑. → **정책 ~6K 토큰 제거해도 pass 무손실(내부화 성공)** = 효율 주장 §13.1 강하게 지지, full-vs-none 토큰절감 확정.
-- scorecard 성공 trajectory: F1=0.958 / seq_F1=0.931 / recall=1.0 / precision=0.944 / **arg_bind=1.0** / order=1.0; 실패: **recall-bound 0.316**(arg_bind 실패도 1.0=ID는 정확). base≈0 대비 명백상승 → distillation 작동. 도구: `analyze_none_failures.py`.
+### 15.1 실측 — NONE(내부화) vs FULL eval, **3 도메인 held-out test**
+**★학습 데이터 정정(중요)**: 7B SFT는 telecom-only가 아니라 **multi-domain**(`sft_plain_train_all.jsonl`=telecom 462 + retail 831 + airline 246 = **1539**, train_meta 확인). 따라서 아래 eval은 **각 도메인 in-distribution + held-out *task*(test split)** 평가지, *미학습 도메인 zero-shot 전이가 아님*. 진짜 cross-domain 전이는 LODO(§15.6)로 별도 측정 — 아직 미실시.
+
+정책 프롬프트를 **완전 제거**(`apply_system_mode("none")`=빈 system+tools)한 NONE arm vs **FULL**(정책유지 B0). `phase1_runner --variants NONE/B0`, vLLM LoRA, gpt-4.1 user_sim, 1-trial.
+
+| domain | test N | NONE Pass^1 | FULL Pass^1 |
+|---|---|---|---|
+| telecom | 40 | **0.350** | 0.300 |
+| retail | 40 | **~0.82** | ~0.67 |
+| airline | 20 | **0.400** | 0.300 |
+
+- **★3 도메인 모두 NONE ≥ FULL** → **정책(telecom ~6K 토큰)을 가중치로 내부화해도 pass 무손실, 오히려 약간↑**. 효율 주장(§13.1) **multi-domain 일관 재현**, full-vs-none 토큰절감 확정. (retail이 최고=학습량 831 최다와 정합.)
+- **함정·정정**: 초기 retail은 FULL>NONE(0.90/0.59)로 보였으나 이는 **judge 버그 아티팩트**(아래) — 클린 재실행 시 역전(NONE>FULL). airline은 초기 reward≈0(judge 버그)이었고 수정 후 0.40/0.30.
+- **★airline judge 버그(§15.1a)**: airline `reward_basis = nl_assertions`(+communicate)뿐 → reward 계산에 **LLM judge 필수**. tau2 `evaluator_nl_assertions`가 bare `gpt-4.1-2025-04-14`(provider 없음)을 호출 → litellm OpenAI 라우팅 → `OPENAI_API_KEY` 없음 → "Missing credentials" → airline/일부 retail reward 미집계. telecom은 `db`·`env_assertions`로 상태기반 채점이라 judge 불필요해 안 걸림. **수정**: `phase1_runner._route_nl_judge_via_openrouter()`로 judge를 `openrouter/openai/gpt-4.1`로 라우팅(OPENROUTER_API_KEY 자동). commit 7530d14.
+- telecom NONE scorecard 성공 trajectory: F1=0.958 / seq_F1=0.931 / recall=1.0 / precision=0.944 / **arg_bind=1.0** / order=1.0; 실패: **recall-bound 0.316**(arg_bind 실패도 1.0=ID는 정확). base≈0 대비 명백상승 → distillation 작동. 도구: `analyze_none_failures.py`.
 
 ### 15.2 실측 — 실패 19건 정밀분해 (`analyze_none_failures.py`)
 | 실패모드 | 건수 | 핵심 |
@@ -2897,5 +2909,9 @@ Group J: Procedural Commitment & Contrastive Selection (4종)
 - student baseline은 현재 **telecom-only**(§5) → LODO 전 retail/airline student baseline 선행 필수.
 - framing([[feedback_facet_hypothesis_framing]]): "facet/온톨로지가 *필수*" 주장 X. 측정대상 = *TBox-관계형 reward·ABox가 도메인무관하게 정의·전이되는가*. Group J는 가설이지 검증된 사실 아님(induce 후 reward 기여·전이 ablation 필요).
 
-### 15.8 다음 실행
-①`induce_tbox_relations.py` 3도메인 induce → ②Group J를 (a)contrastive SFT 라벨(distractor_for 음성쌍) (b)GRPO reward 항(repairs_state recall·diagnosis_sufficient commitment·distractor 페널티)으로 통합 → ③LODO 학습·전이 매트릭스. FULL eval 완료 후 full-vs-none 토큰절감 수치 확정.
+### 15.8 다음 실행 — a→b→c 사다리 (SFT floor → offline contrastive → on-policy GRPO)
+SFT는 floor로 유효하나(NONE≥FULL 무손실) 실패 63% recall-miss/anti-loop는 imitation의 분포이동 한계라 SFT만으론 못 닫음. 사다리:
+- **(a) [완료]** multi-domain SFT를 3도메인 held-out test로 eval(위 표). = "SFT가 도메인별로 작동"; 단 *진짜 전이는 LODO 必*.
+- **(b) [진행]** Group J **offline contrastive(DPO)**: `build_dpo_dataset.py`로 commit-지점 preference pair **1171건**(telecom 325/retail 769/airline 77; chosen=GT fix, rejected=`distractor_for` 오답). top distractor=transfer(367)·return/exchange·send_payment(101). wrong-tool 고착 공격. **★trl 설치 불가**(모든 버전이 transformers 4.51.3을 다운/업그레이드→seka_env 의존 붕괴) → **수동 DPO**(ref=frozen SFT, SFT 트레이너 토크나이즈·assistant-only 마스킹 재사용).
+- **(c)** on-policy **GRPO**(`grpo_reward.py` + Group J 항): repairs_state recall·diagnosis_sufficient commitment(step penalty)·distractor 페널티. anti-loop residual 공략. trl 없이 수동 루프.
+- **★전이 증명 = LODO**(§15.6): {retail+airline}→telecom 등 3 로테이션 + ABox-swap ablation. (a)의 in-distribution 수치와 구분.

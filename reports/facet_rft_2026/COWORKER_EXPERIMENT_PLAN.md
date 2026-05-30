@@ -38,6 +38,25 @@
 
 ---
 
+## 0.6 ★ 업데이트 (2026-05-30 PM) — 7B eval 완료(3도메인) + Group J + a→b→c 사다리
+
+**Track A가 7B full/none 학습+eval을 3도메인 마무리.** 핵심:
+- **★학습은 multi-domain**(`sft_plain_train_all.jsonl` = telecom 462 + retail 831 + airline 246 = **1539**). telecom-only 아님. → eval은 도메인별 **in-distribution held-out task**(test split). *미학습 도메인 zero-shot 전이는 LODO(아래)로 별도 측정 — 미실시*.
+- **3 도메인 모두 NONE(정책제거 내부화) ≥ FULL(정책유지)**:
+
+  | domain | test N | NONE | FULL |
+  |---|---|---|---|
+  | telecom | 40 | 0.350 | 0.300 |
+  | retail | 40 | ~0.82 | ~0.67 |
+  | airline | 20 | 0.400 | 0.300 |
+
+  → 정책 토큰 내부화 **무손실(efficiency thesis) multi-domain 재현**. retail 최고=학습량 831 최다와 정합.
+- **★airline judge 버그 + 수정(coworker도 필수)**: airline `reward_basis=nl_assertions`(+communicate)뿐 → reward에 **LLM judge 필수**. tau2 `evaluator_nl_assertions`가 bare `gpt-4.1-2025-04-14` 호출 → litellm OpenAI 라우팅 → `OPENAI_API_KEY` 없음 → "Missing credentials" → airline/일부 retail reward 미집계. telecom은 db/env로 채점해 안 걸림. **수정**: `phase1_runner._route_nl_judge_via_openrouter()`(judge→`openrouter/openai/gpt-4.1`, commit 7530d14). **coworker eval에도 이미 적용됨**(pull만 하면 됨).
+- **실패-주도 TBox 확장 Group J(4종)**: design doc §15. `repairs_state/diagnosis_sufficient_for/distractor_for/escalate_when`. `induce_tbox_relations.py`로 3도메인 ABox(`induced/tbox_relations_<domain>.json`) 산출 완료. NONE 실패 63%=recall-miss/anti-loop.
+- **a→b→c 사다리**: (a)SFT floor[완료] → (b)offline DPO(`build_dpo_dataset.py`, 1171 preference pairs, distractor 음성쌍) → (c)GRPO(Group J reward). **★trl 설치 불가**(seka_env transformers 4.51.3과 모든 trl 버전 충돌) → **수동 DPO/GRPO**. coworker A100 박스가 trl 호환 env를 새로 만들면 trl 사용 가능(권장: transformers 맞춘 별도 venv).
+
+---
+
 ## 1. 배경 (요약)
 - tau2-bench 도구 에이전트. 큰/작은 모델 격차는 **거의 전부 절차(distillable)** 임이 실측됨: Qwen-7B telecom 실패의 **도구선택 58% + 형식 36% = 94%**, long-horizon capability 벽은 1%. student **fix-coverage = 0.06**(올바른 fix-tool을 거의 안 부름).
 - **목표→도구(positive)는 성공/실패를 강하게 변별**(disc +0.36, FULL-coverage +48%p). 제약(precedes/mutex)은 변별 0(폐기).
@@ -86,7 +105,7 @@
 
 ### B3. On-policy GRPO (학습 사다리 ③) — 조건부
 - **목적**: SFT가 못 메운 mms residual을 student 탐색+reward로 보강.
-- **GPU**: 4× A100 (policy + rollout 서빙). trl 설치 필요.
+- **GPU**: 4× A100 (policy + rollout 서빙). **trl 주의**: Track A seka_env(transformers 4.51.3)는 trl 설치 시 transformers 다운/업그레이드 충돌 → 우리는 **수동 GRPO 루프**. coworker는 **trl 호환 별도 venv**(transformers 버전 맞춤) 만들면 trl GRPOTrainer 사용 가능(권장).
 - **reward**: `scripts/distill/grpo_reward.py`(검증 완료) — `w_pass·pass + w_proc·seq_F1 − w_extra·extra + w_arg·arg_bind`(기본 1.0/0.5/0.3/0.1). 설계·anti-hacking·ablation·통합은 **`reports/facet_rft_2026/GRPO_REWARD_DESIGN.md`** 참조. dense seq_F1이 sparse cold-start 구제(검증: 실패 롤아웃 seq_F1 0.255±0.291, std>0 → all-fail group advantage). 정책 init=SFT 어댑터(full/none).
 - **선행조건**: B1/A2 SFT가 양성 lift(G1) 확인 후 진입.
 - **출력**: GRPO adapter + reward curve + test 매트릭스 갱신.
@@ -174,7 +193,7 @@ GPU 할당 예시(W2): 2 GPU 학습 + 2 GPU eval 병렬.
 - **fault→fix ground-truth 품질**(SkillFlow 교훈: 병목은 검색 아닌 라이브러리 품질). Track A가 단일결함/인과귀속으로 정제 후 scorer에 반영.
 - **cross-domain = 분포 이동 → 도메인특수성 내부화 시 취약**(Transmuting 100→42.7 사례). 전이 평가에서 "불변 절차만 내부화" ablation 확인.
 - **user_sim 비용**: eval은 OpenRouter gpt-4.1 호출(과금). test split N≈40/도메인이라 관리가능하나 매트릭스 셀 수 × N 주의.
-- **retail/airline는 student baseline 없음**(Phase1=telecom only) → cross-domain eval에서 그 도메인은 **pass^1 위주**로, scorecard의 telecom 강점이 그대로 전이될지는 불확실(teacher 기준 +0.2 변별 확인됨).
+- **★baseline 정정**: "retail/airline student baseline 없음(telecom only)"은 **base Qwen B0 baseline** 얘기였음. **distillation student(SFT)는 multi-domain**(retail 831·airline 246 학습 포함)이라 3도메인 모두 eval 완료(NONE≥FULL, §0.6). 단 이는 *in-distribution* — **미학습 도메인 zero-shot 전이는 LODO(G2)로만 측정**(아직). G2 LODO 전 base Qwen의 retail/airline B0 baseline은 비교군으로 별도 필요.
 - **scorecard 도메인 특성**: telecom 가장 깨끗(F1 AUC 0.9). airline arg_bind는 복잡 중첩 params라 부분(0.6/0.69). retail/airline GT는 **read 제외·requestor=user 제외** 후 써야 정확(트레이너/scorer엔 반영됨).
 - **GT actions = reward-aligned but soft order**(env-assertion 기반) → reward의 seq_F1 vs set-F1 비교 ablation(GRPO_REWARD_DESIGN §8).
 - tau2 버전 일치(우리 baseline과). vLLM 0.11.0 권장.
