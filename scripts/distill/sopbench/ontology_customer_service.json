@@ -1,0 +1,55 @@
+{
+  "domain": "customer_service",
+  "start": "validate",
+  "steps": ["validate", "auth", "authdecide", "session", "status", "outage",
+            "diag", "trouble", "improved", "escalate", "final"],
+  "realizes": {
+    "validate": "validateAccount",
+    "auth": "getAuthenticationDetails",
+    "authdecide": "_is_authenticated",
+    "session": "createSessionAndOpenTicket",
+    "status": "checkAccountStatus",
+    "outage": "checkServiceAreaOutage",
+    "diag": "performTechnicalDiagnostics",
+    "trouble": "executeTroubleshooting",
+    "improved": "_metrics_improved",
+    "escalate": "createEscalation",
+    "final": "_final_status"
+  },
+  "arg": {
+    "validateAccount": {"account_id": "account_id"},
+    "getAuthenticationDetails": {"account_id": "account_id", "is_account_id_valid": "is_account_id_valid"},
+    "createSessionAndOpenTicket": {"account_id": "account_id", "is_account_id_valid": "is_account_id_valid", "is_authenticated": "is_authenticated"},
+    "checkAccountStatus": {"account_id": "account_id", "session_token": "session_token"},
+    "checkServiceAreaOutage": {"account_id": "account_id", "session_token": "session_token", "service_area_code": "service_area_code"},
+    "performTechnicalDiagnostics": {"account_id": "account_id", "session_token": "session_token", "service_type": "service_type", "subscribed_bandwidth": "subscribed_bandwidth"},
+    "executeTroubleshooting": {"account_id": "account_id", "session_token": "session_token", "root_causes": "root_causes"},
+    "createEscalation": {"session_token": "session_token", "ticket_id": "ticket_identifer", "metrics_improved_post_troubleshooting": "metrics_improved", "escalation_required": "escalation_required"}
+  },
+  "produces": {},
+  "precondition": {
+    "createSessionAndOpenTicket": "is_authenticated == True",
+    "performTechnicalDiagnostics": "account_status == ACTIVE",
+    "executeTroubleshooting": "account_status == ACTIVE"
+  },
+  "next": {
+    "validate": "auth",
+    "auth": "authdecide",
+    "authdecide": "session",
+    "session": "status",
+    "status": "outage",
+    "outage": "diag",
+    "diag": "trouble",
+    "trouble": "improved",
+    "improved": "escalate",
+    "escalate": "final",
+    "final": null
+  },
+  "terminate": [
+    {"pred": "is_authenticated == False", "set": "final_resolution_status", "to": "FAILED"},
+    {"pred": "account_status == TERMINATED", "set": "final_resolution_status", "to": "FAILED"},
+    {"pred": "account_status == SUSPENDED", "set": "final_resolution_status", "to": "FAILED"},
+    {"pred": "outage_detected == True", "set": "final_resolution_status", "to": "PENDING_ACTION"}
+  ],
+  "output": {"required": ["final_resolution_status"], "format": "xml"}
+}
