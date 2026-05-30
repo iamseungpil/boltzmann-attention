@@ -89,6 +89,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--log-every", type=int, default=20)
     p.add_argument("--encode-only", action="store_true",
                    help="build+report dataset encoding then exit (no model/training)")
+    p.add_argument("--mask-toolcalls", action="store_true",
+                   help="supervise only assistant CONTENT (e.g. 'Plan: <step>'), mask "
+                        "tool_call tokens to -100 — trains a TBox-only planner "
+                        "(use with build_tbox_sft.py data).")
     return p.parse_args()
 
 
@@ -128,8 +132,17 @@ def apply_system_mode(msgs, mode, minimal_stub):
     return out
 
 
-def encode_record(tok, rec, max_len, skip_overlong, system_mode="full", minimal_stub=""):
-    """Return (input_ids, labels) with assistant-only supervision, or None to skip."""
+def encode_record(tok, rec, max_len, skip_overlong, system_mode="full", minimal_stub="",
+                  mask_toolcalls=False):
+    """Return (input_ids, labels) with assistant-only supervision, or None to skip.
+
+    mask_toolcalls=True: for an assistant turn that carries tool_calls, supervise ONLY
+    its content (e.g. 'Plan: <step>') tokens and leave the tool_call serialization at
+    -100. The tool_calls stay in the rendered sequence (chat-template validity: the
+    following tool result needs a parent) but get no gradient -> TBox-only planner.
+    Content end = longest common prefix between the full turn render and a render of
+    the same turn with tool_calls stripped.
+    """
     msgs = normalize_messages(rec["messages"])
     msgs = apply_system_mode(msgs, system_mode, minimal_stub)
     tools = rec.get("tools") or None
@@ -147,6 +160,17 @@ def encode_record(tok, rec, max_len, skip_overlong, system_mode="full", minimal_
         # boundary sanity: pre must be a prefix of full, inc within full
         if e > len(full) or full[:s] != pre[:s]:
             return None, "boundary_mismatch"
+        if mask_toolcalls and m.get("tool_calls"):
+            # render the SAME turn without tool_calls; supervise only the shared
+            # (content) prefix, mask the tool_call tokens.
+            mc = dict(m); mc.pop("tool_calls", None)
+            inc_nc = tok.apply_chat_template(msgs[:i] + [mc], tools=tools, tokenize=True,
+                                             add_generation_prompt=False)
+            k = s
+            lim = min(len(inc_nc), e)
+            while k < lim and full[k] == inc_nc[k]:
+                k += 1
+            e = k  # supervise only [s, content_end)
         for j in range(s, e):
             labels[j] = full[j]
         sup += (e - s)
@@ -164,13 +188,13 @@ def encode_record(tok, rec, max_len, skip_overlong, system_mode="full", minimal_
 
 class ChatToolDataset(Dataset):
     def __init__(self, records, tok, max_len, skip_overlong, tag="",
-                 system_mode="full", minimal_stub=""):
+                 system_mode="full", minimal_stub="", mask_toolcalls=False):
         self.items = []
         stats = {"ok": 0, "boundary_mismatch": 0, "no_assistant": 0,
                  "overlong": 0, "overlong_no_sup": 0}
         for k, rec in enumerate(records):
             item, why = encode_record(tok, rec, max_len, skip_overlong,
-                                      system_mode, minimal_stub)
+                                      system_mode, minimal_stub, mask_toolcalls)
             stats[why] = stats.get(why, 0) + 1
             if item is not None:
                 self.items.append(item)
@@ -234,9 +258,11 @@ def main() -> int:
     print(f"[data] train={len(train_recs)} val={len(val_recs)}", flush=True)
 
     train_ds = ChatToolDataset(train_recs, tok, args.max_seq_len, args.skip_overlong,
-                               "train", args.system_mode, args.minimal_stub)
+                               "train", args.system_mode, args.minimal_stub,
+                               args.mask_toolcalls)
     val_ds = ChatToolDataset(val_recs, tok, args.max_seq_len, args.skip_overlong,
-                             "val", args.system_mode, args.minimal_stub) \
+                             "val", args.system_mode, args.minimal_stub,
+                             args.mask_toolcalls) \
         if val_recs else None
 
     if args.encode_only:
