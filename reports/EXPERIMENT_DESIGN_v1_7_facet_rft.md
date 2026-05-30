@@ -2915,3 +2915,25 @@ SFT는 floor로 유효하나(NONE≥FULL 무손실) 실패 63% recall-miss/anti-
 - **(b) [진행]** Group J **offline contrastive(DPO)**: `build_dpo_dataset.py`로 commit-지점 preference pair **1171건**(telecom 325/retail 769/airline 77; chosen=GT fix, rejected=`distractor_for` 오답). top distractor=transfer(367)·return/exchange·send_payment(101). wrong-tool 고착 공격. **★trl 설치 불가**(모든 버전이 transformers 4.51.3을 다운/업그레이드→seka_env 의존 붕괴) → **수동 DPO**(ref=frozen SFT, SFT 트레이너 토크나이즈·assistant-only 마스킹 재사용).
 - **(c)** on-policy **GRPO**(`grpo_reward.py` + Group J 항): repairs_state recall·diagnosis_sufficient commitment(step penalty)·distractor 페널티. anti-loop residual 공략. trl 없이 수동 루프.
 - **★전이 증명 = LODO**(§15.6): {retail+airline}→telecom 등 3 로테이션 + ABox-swap ablation. (a)의 in-distribution 수치와 구분.
+
+### 15.9 ★개념 정정 — plain SFT는 TBox만 학습하지 *않는다* (entanglement; reviewer 방지)
+흔한 오해: "SFT가 내부화하는 것 = goal→tool 절차(TBox)". **틀림.** plain SFT는 teacher 궤적의 loss를 줄이는 데 도움되는 *모든 것*을 가중치에 **뒤섞어** 넣는다:
+
+| 내부화되는 것 | 성격 | 전이 |
+|---|---|---|
+| 진단→fix선택→commit→정지 절차 | **TBox**(도메인 일반) | ✅ |
+| "abroad+roaming-off → enable_roaming" 류 fault→fix | **ABox**(도메인 인스턴스) | ❌ |
+| 도메인 정책 규칙·도구 이름/시그니처 습관 | 도메인-특수 | ❌ |
+
+→ **TBox/ABox 분리는 우리가 *원하는 설계 목표*이지 SFT의 자동 성질이 아니다.** plain SFT(특히 single-domain)는 추상화 압력이 없어 도메인-특수성을 암기.
+
+**함의 1 — NONE의 전이 약화는 "win"이 아니라 진단**: NONE이 미학습 도메인에서 무너지면, 그건 *SFT가 깨끗한 TBox가 아니라 telecom-특수성까지 얽어 내부화했다*는 증거(예측됨). 이는 우리 설계를 **정당화하는 게 아니라 동기부여**한다 — "TBox/ABox를 *강제 분리*하는 장치(다도메인 학습 압력·Group J·ABox-swap)가 필요"하다는.
+
+**함의 2 — FULL vs NONE 전이 = swap 유무**: 추론 시점 구성으로 보면,
+- **FULL on 미학습 도메인** = 가중치(절차) + 프롬프트로 타겟 정책/도구 주입 = **"TBox(weights) + ABox(swap via prompt)"** = 우리 의도한 구성 → TBox 일반적이면 전이.
+- **NONE on 미학습 도메인** = telecom 정책+ABox가 weights에 박힘, 타겟 ABox는 부재 = **swap 없음** → 무너짐.
+단 weights의 telecom-ABox 잔재가 FULL 전이도 방해 가능(Transmuting 100→42.7).
+
+**함의 3 — 다양성이 TBox 추출을 키움**: single-domain SFT는 entanglement 최대(암기). 2+ 도메인 학습은 *공통=TBox*만 일관 신호 → 더 TBox스러움. 그래서 LODO를 **1→2→3 source gradient**로 보고하면 "도메인 다양성이 일반화(TBox 추출)를 얼마나 키우나"가 드러남.
+
+**측정 질문(LODO의 본질)**: "SFT가 내부화한 것 중 얼마가 TBox(전이됨)이고 얼마가 ABox(안 됨)인가." → recall/seq_F1(도메인 GT 기준) + pass^1 on held-out, FULL(swap 있음) vs NONE(없음), ±Group J ABox 주입.
