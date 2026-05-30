@@ -173,6 +173,28 @@ def make_run_config(domain: str, task_set: str, task_split: str, agent_llm: str,
     return TextRunConfig(**cfg_kwargs)
 
 
+def _route_nl_judge_via_openrouter():
+    """tau2's nl_assertions reward judge defaults to a BARE OpenAI model id
+    (config.DEFAULT_LLM_NL_ASSERTIONS = 'gpt-4.1-2025-04-14') -> litellm routes it to
+    the OpenAI provider, which needs OPENAI_API_KEY. We only hold OpenRouter creds, so
+    domains whose reward_basis is nl_assertions (e.g. AIRLINE) fail with
+    'Missing credentials' and their reward is never scored. Route the judge through
+    OpenRouter instead (litellm reads OPENROUTER_API_KEY from env automatically).
+    Override the model via env TAU2_NL_JUDGE if needed."""
+    judge = os.environ.get("TAU2_NL_JUDGE", "openrouter/openai/gpt-4.1")
+    patched = []
+    for modname in ("tau2.evaluator.evaluator_nl_assertions",
+                    "tau2.config"):
+        try:
+            mod = __import__(modname, fromlist=["DEFAULT_LLM_NL_ASSERTIONS"])
+            if hasattr(mod, "DEFAULT_LLM_NL_ASSERTIONS"):
+                mod.DEFAULT_LLM_NL_ASSERTIONS = judge
+                patched.append(modname)
+        except Exception as e:  # pragma: no cover
+            print(f"[warn] nl-judge patch skip {modname}: {e}")
+    print(f"[nl-judge] routed nl_assertions judge -> {judge} (patched: {patched})")
+
+
 def _allow_empty_system_message():
     """tau2's llm_utils.validate_message asserts every SystemMessage has non-empty
     content, which rejects the NONE (internalization) arm whose system prompt is empty.
@@ -316,6 +338,9 @@ def main():
         print(f"[phase1] using {len(args.task_ids_list)} explicit task ids from {args.task_ids_file}")
 
     Path(args.out_dir).mkdir(parents=True, exist_ok=True)
+
+    # Route nl_assertions reward judge through OpenRouter (airline reward_basis needs it).
+    _route_nl_judge_via_openrouter()
 
     ontology_text = None
     if "B2" in args.variants:
