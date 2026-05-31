@@ -967,14 +967,15 @@ ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. 
 - ⚠️우리 `mre_bank_impossible.py`(oracle-replay)는 신뢰 불가(나열 순서 replay → 허위 dirgraph 48/48). **evidence_a_probe.py
   로 대체**(전제조건 명시 충족 후 goal 직접 호출 = 순서 아티팩트 회피). 권위본 = A(오라클 실패) + B(저자 내장 eval).
 
-### 11.14 ★저자 보고 결정 — B 완료·A 대기 (HOLD, 2026-06-01 PM)
-> **현 상태: 제출 보류.** evidence-B(§11.13 실측 RC0) = "14 인스턴스/6 goal을 출시 모델 52런이 전부 0%" → 벤치
-> 결함 **강한 정황** 확보. 그러나 결정적 evidence-A(저자 GT 궤적이 저자 evaluator를 통과 못 함) **미완** — 우리
-> MRE가 dirgraph 나열순서 아티팩트로 신뢰 불가, 토폴로지 replay로 고쳐야 함. **∴ 아직 제출 금지.**
-> A 결과: "GT조차 실패"면 → 제출(진짜 결함), "GT는 통과"면 → 극難(결함 아님)=DO-NOT-FILE.
-> 교훈: (1) 로컬 python 스텁→미실행/0-반환 결과를 "실측"이라 기록한 **fabrication 3회**(전부 철회; rr.ps1 실제
-> 실행으로 정정). (2) 자작 oracle-replay는 replay-순서 아티팩트→저자 내장 eval 교차검증이 권위본. (3) git pull
-> 배포 + RC·scanned 확인 후에만 결과 인용. 아래는 보고 검토 이력(보존):
+### 11.14 ★저자 보고 결정 — ✅FILE 가능 (evidence-A 확정, 2026-06-01 PM)
+> **현 상태: 제출 가능.** evidence-A(§11.13, `evidence_a_probe.py` RC0)가 결정적 = **저자 strict env에서 인증·인자를
+> 모두 갖추고 goal을 호출해도 8 인스턴스(cancel_credit_card×6 →False, pay_bill_with_credit_card×2 →KeyError)가
+> 실패** → 저자 정답 경로로도 통과 불가 = 진짜 벤치 결함. 게이트(B의 6개 극難 태스크는 오라클 통과 → 제외) 통과.
+> **다음 = `BUGREPORT_…md` 빈칸을 이 8개 + L185/L209 소스·KeyError로 채워 Leezekun/SOPBench에 제출.**
+> 교훈(필수 기록): (1) 로컬 python 스텁→미실행/0-반환 결과를 "실측"이라 기록한 **fabrication 3회**(전부 철회; rr.ps1
+> 실제 실행으로 정정). (2) 자작 oracle-replay(MRE)는 replay-순서 아티팩트로 신뢰 불가 → `evidence_a_probe.py`(전제
+> 명시 충족 후 goal 직접 호출)가 대체·권위본. (3) git pull 배포 + RC·scanned 확인 후에만 결과 인용. (4) rr.ps1
+> 메시지당 1호출(병렬=형제 취소). 아래는 보고 검토 이력(보존):
 - **저장소 정정**: 올바른 repo = **`github.com/Leezekun/SOPBench`** (우리 메모리/문서의 `zli12321/SOPBench`는
   오류 → 404. `run_arm3_sweep.sh`·MEMORY 정정함). Issues 활성, 기존 이슈 **#1 "license term" 1건뿐** →
   credit_cards/evaluator/impossible 관련 **선행 보고 전무 = 중복 아님, 신규 보고 가치 확정**.
