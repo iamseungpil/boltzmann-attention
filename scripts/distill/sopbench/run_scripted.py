@@ -47,10 +47,11 @@ GETTER = {"minimal_elgibile_credit_score": "internal_get_credit_score",
 CALLABLE_CHECK = {"internal_check_username_exist", "internal_check_foreign_currency_available"}
 AUTH = ("login_user", "authenticate_admin_password")
 AUTH_PRED = {"logged_in_user": "login_user", "authenticated_admin_password": "authenticate_admin_password"}
-# preferred call order (verify/establish before the goal)
+# preferred call order: existence checks -> login -> auth -> (post-auth) getters -> goal
 PRE = ["internal_get_database", "internal_check_username_exist", "internal_check_foreign_currency_available",
-       "get_credit_cards", "get_credit_card_info", "get_account_balance", "get_account_owed_balance",
-       "internal_get_credit_score", "get_loan", "login_user", "authenticate_admin_password"]
+       "login_user", "authenticate_admin_password",
+       "internal_get_credit_score", "get_credit_cards", "get_credit_card_info",
+       "get_account_balance", "get_account_owed_balance", "get_loan"]
 
 
 def exit_conversation():
