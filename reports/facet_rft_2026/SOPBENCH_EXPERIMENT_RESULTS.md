@@ -246,7 +246,15 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 >   따르게 하려면 학습 필요** = 본 라인 헤드라인 동기. (단 ABox는 가중치에 안 넣음=분리계약 §11.0, copy-grounded+xattn.)
 > - **모델크기 상호작용(coworker)**: in-context 구조가 **강한 모델**(32B/72B)엔 게이팅까지 도움되는지 = arm-3v2 sweep이
 >   "구조×크기" 측정. 7B는 명확히 L2 필요.
-| Exp-4a | arm-4a(L2 학습 TBox, in-context, 7 LODO) | fc/full | — | — | 예정 (★헤드라인, Track A; 설계 §11) |
+| Exp-4a | arm-4a(L2 학습 TBox, in-context, 7 LODO) | fc/full | — | — | 🔶 데이터 준비완(1497ex/7dom), 학습 대기(GPU) |
+
+> **Exp-4a 데이터 파이프라인 완성 (2026-06-01)**: `build_tbox_planner_sft.py` — GT means-ends가 만든 정답
+> 결정 시퀀스([login→goal]/[login→STOP]/[goal]) → 각 step을 **공유 `build_v2_prompt`(train/test 동일 프롬프트)**
+> + copy-target(operator명/STOP)으로 SFT 예제화, operator 순서 셔플(§11.4 위치암기 차단; alias는 후속). **1497
+> examples × 7도메인**(bank 312·GOAL76/establish178/STOP58 등), 이중호출 0. 트레이너 `lora_train_chat_toolcall.py`
+> 포맷 직접 호환(assistant content만 supervise). LODO 7 splits(`sft_tbox/lodo_train_holdout_<d>.jsonl`) 준비완.
+> **다음=학습**(6도메인→held-out, GPU 확보 필요) → 서빙 → `run_simulation --two_stage_v2`(SFT 모델)로 held-out eval
+> → arm-3v2(should_T 2/48) 대비 게이팅 향상 측정 + ablation(빈/틀린 ABox 붕괴, §11.7).
 | Exp-4b | arm-4b(L2 xattn ABox-memory, 19 LODO) | fc/full | — | — | 예정 (Phase 2, coworker) |
 
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
