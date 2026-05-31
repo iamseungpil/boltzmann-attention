@@ -450,3 +450,53 @@ git clone https://github.com/amazon-science/SOP-Bench.git && cd SOP-Bench && pip
 - **user_sim 비용**: OpenRouter gpt-4.1 과금. 매트릭스 셀 多(2모델×4모드×3도메인×{in-dist,LODO}) → test N≈20–40/셀로 관리, 우선순위=telecom resolver/fallback + airline swap.
 - **judge**: airline/retail reward_basis=nl_assertions → LLM judge 필수. two_stage_agent도 `_route_nl_judge_via_openrouter()` 포함(pull만).
 - **trl**: seka_env 충돌 → 별도 venv. vLLM 0.11.0 / tau2 버전 Track A와 일치.
+
+---
+
+## 10. ★SOPBench `bank` 벤치마크 결함 — coworker 협의 조치사항 (2026-06-01, 실측 확정)
+
+> **결론(리모트 GPU0 실측·검증):** Leezekun/SOPBench `bank`의 `should_succeed=True` 48 인스턴스 중 **8개가 저자
+> 자신의 strict 오라클로도 통과 불가 = 진짜 벤치마크 결함**. 모든 bank 수치 해석의 전제이므로 coworker 실험에도
+> 직접 영향. 아래 조치사항을 **다음 동기 시 협의 후 진행**.
+
+### 10.1 무엇이 결함인가 (재현·검증 완료)
+- 결함 8 인스턴스 / 2 goal: **`cancel_credit_card`×6** (메서드 `return False`), **`pay_bill_with_credit_card`×2**
+  (`KeyError: 'credit_limit'`). 근본원인: 태스크 데이터의 `credit_cards`는 **list-of-dict**인데 `env/domains/bank/bank.py`
+  메서드(L189–190, L209–213, L254–255, L271–278)는 **dict-keyed** 가정 → 매칭 영영 실패.
+- **판정 기준 = evidence-A**(저자 strict 오라클이 전제충족+GT인자로 goal 호출 시 성공하는가). `evidence_a_probe.py`로
+  BEFORE 8실패 → 패치 AFTER 0실패 → revert 8실패 **리모트 실증**.
+- evidence-B(53 출시모델 output 교차검증)는 14개가 전모델 0%였으나, 그중 6개(get_loan/pay_bill/set_safety_box/
+  transfer_funds)는 **오라클은 통과 = 극難·결함 아님**. ⇒ **"전모델 0%"(B)는 결함의 충분조건이 아니며, "오라클
+  실패"(A)가 판정 기준**임을 데이터로 확립. coworker도 이 기준을 따를 것.
+
+### 10.2 coworker 실험에 대한 조치 (협의 항목)
+1. **bank 수치는 8개 제외/플래그하여 해석** — 실효 천장 = should=True 40/48. **arm-1/L0/arm-3/arm-4a 모든 bank
+   pass-rate를 "8 결함 제외" 기준으로 보고**(분모 명시). 32B/72B sweep·LODO 결과 표에도 동일 적용. 안 그러면 우리·
+   coworker 숫자가 일괄 하향편향.
+2. **patched vs unpatched 결정** (★협의 필요): 결함을 (a) **건드리지 않고 8개 제외 보고**(기본·리더보드 비교 가능)
+   할지, (b) `fix_bank_creditcard.py`로 **패치한 클론에서 재측정**(천장 회복, 단 리더보드와 비교 불가)할지.
+   → **권장: 두 트랙 분리** — 주(主)는 (a) unpatched+제외(리더보드 정합), 보조로 (b) patched에서 "결함 제거 시
+   천장" 1회 측정. coworker 클론은 **기본 unpatched 유지**(현 결과 호환), 패치는 opt-in.
+3. **LODO 전이 측정 시 bank가 held-out일 때 주의**: held-out=bank면 분모에 결함 8개 포함되어 전이율이 인위적으로
+   낮아짐 → bank-held-out 셀은 8개 제외 분모로 별도 보고.
+4. **다른 6개 도메인도 evidence-A 스윕 권장**(협의): `evidence_a_probe.py --domain <d>`를 dmv/healthcare/hotel/
+   library/online_market/university에 돌려 **유사 결함 유무 선제 점검**. 결함 있으면 그 도메인 천장도 보정. (bank만
+   확인된 상태 — 19도메인 LODO/통합 TBox 전에 전수 점검이 안전.)
+
+### 10.3 저자 보고 (이슈/PR) — 분담 협의
+- **이슈 = FILE-READY**: `scripts/distill/ISSUE_paste_ready_bank_creditcard.md`(제목+본문, 내부 메모 제거). 중복 재검색
+  완료(이슈 #1 license만 존재 = 중복 아님). **제출은 GitHub 쓰기 인증 필요 → 누가 계정으로 올릴지 협의.**
+- **PR(선택)**: `scripts/distill/sopbench/fix_bank_creditcard.py`(멱등 anchor 패치, `--check` 지원, 리모트 실증). 이슈에
+  "fix PR 가능" 명시함. fork·push·PR도 인증 필요 → 분담.
+- **제출 전 수동 2건**: (i) 제출 직전 이슈 재검색(중복), (ii) 선택적 1-task end-to-end 부록(john_doe cancel).
+
+### 10.4 인프라 교훈 (coworker도 준수 — ★중요)
+- **로컬 Windows python은 Store 스텁**(exit49, 미실행). **모든 측정은 리모트(rr.ps1)에서**, **RC·scanned 수 확인 후에만
+  "실측"으로 인용**. (이번에 미실행/0-반환 결과를 실측이라 기록하는 fabrication 3회 발생·전부 철회 — 동일 실수 금지.)
+- **스크립트 배포는 git pull**(SFTP 텍스트 업로드가 들여쓰기/구버전 손상시킨 사례 있음). 배포 후 glob·핵심 라인 확인.
+- **rr.ps1은 메시지당 1호출**(paramiko가 형제 호출 일괄 취소).
+- **자작 oracle-replay `mre_bank_impossible.py`는 신뢰 불가**(dirgraph 나열순서 아티팩트 → 허위 48/48). 결함 판정은
+  **`evidence_a_probe.py`(전제충족 후 goal 직접 호출)** 사용. 저자 내장 evaluation 교차검증(`offline_crosscheck.py`)은
+  corroboration용.
+- 자산: `reports/facet_rft_2026/{evidence_a_bank.json, xcheck_bank_evidenceB.json}`, 권위본 설계=`scripts/distill/
+  WORKFLOW_ONTOLOGY_DESIGN.md` §11.13/11.14.
