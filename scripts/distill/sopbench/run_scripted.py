@@ -39,8 +39,8 @@ GETTER = {"minimal_elgibile_credit_score": "internal_get_credit_score",
           "not_over_credit_limit": "get_credit_card_info",
           "internal_check_credit_card_exist": "get_credit_card_info",
           "get_loan_owed_balance_restr": "get_account_owed_balance",
-          "pay_loan_account_balance_restr": "get_account_balance",
-          "pay_loan_amount_restr": "get_account_balance",
+          "pay_loan_account_balance_restr": ["get_account_balance", "get_account_owed_balance"],
+          "pay_loan_amount_restr": ["get_account_balance", "get_account_owed_balance"],
           "safety_box_eligible": "get_account_balance",
           "maximum_exchange_amount": "internal_get_database",
           "maximum_deposit_limit": "internal_get_database"}
@@ -115,12 +115,23 @@ class ScriptedGatherClient:
                 elif nm in CALLABLE_CHECK:                # A: callable check, args-aware
                     calls.append((nm, resolve(nm, pm)))
                 elif preds.get(nm, {}).get("kind") == "condition" and nm in GETTER:  # B: condition->getter
-                    g = GETTER[nm]; calls.append((g, resolve(g, ops.get(g, {}).get("args", pm))))
-            if self.mode == "abc":                        # C: innate login/auth not in constraint
-                inn = json.dumps(self.dep_innate.get(goal))
-                for pred, by in AUTH_PRED.items():
-                    if pred in inn and not any(c[0] == by for c in calls):
-                        calls.append((by, resolve(by, ops.get(by, {}).get("args", {}))))
+                    gs = GETTER[nm]
+                    for g in (gs if isinstance(gs, list) else [gs]):
+                        calls.append((g, resolve(g, ops.get(g, {}).get("args", pm))))
+            if self.mode == "abc":                        # C: innate login/auth (auth requires login)
+                g_inn = json.dumps(self.dep_innate.get(goal))
+                a_inn = json.dumps(self.dep_innate.get("authenticate_admin_password"))
+                has_auth = any(c[0] == "authenticate_admin_password" for c in calls) or \
+                    ("authenticated_admin_password" in g_inn)
+                # login is required if: innate to goal, OR (transitively) authenticate is present/needed
+                has_login = ("logged_in_user" in g_inn) or has_auth or ("logged_in_user" in a_inn)
+                if has_auth and not any(c[0] == "authenticate_admin_password" for c in calls):
+                    calls.append(("authenticate_admin_password",
+                                  resolve("authenticate_admin_password",
+                                          ops.get("authenticate_admin_password", {}).get("args", {}))))
+                if has_login and not any(c[0] == "login_user" for c in calls):
+                    calls.append(("login_user",
+                                  resolve("login_user", ops.get("login_user", {}).get("args", {}))))
         # order: PRE first (stable), then goal
         rank = {n: i for i, n in enumerate(PRE)}
         calls.sort(key=lambda c: rank.get(c[0], 999))
