@@ -55,14 +55,33 @@ task 111 실제 constraints_original:
 assistant_prompt 정책(에이전트가 보는 것): "transfer_funds: username 존재 + destination 존재" # 가벼움 = task 제약과 일치
 ```
 
-→ SFT 학습쌍이 **모순**: 입력(프롬프트)="transfer_funds BLOCKED, login_user 먼저" / 정답="transfer_funds 바로 호출".
-7B는 혼란 정책을 학습하고, 추론 시 무거운 status에 끌려 **불필요한 login/auth를 환각 자격증명으로 호출** → dirgraph 위반(자해).
-(full 모드라 그 login 도구가 목록에 노출된 것도 가중.)
+→ **메커니즘 = "비단사(non-injective) 프롬프트"** (2026-06-02 SFT 데이터 실측, 리뷰 P1 반영 정정).
+이전 초안의 "일관된 모순쌍" 표현은 부정확. 실제 v2 SFT(login-default goal들)의 (프롬프트 goal-status)×(GT 타깃):
+
+| 프롬프트 status | 타깃 | 건수 |
+|---|---|--:|
+| BLOCKED-login | login_user | **76** |
+| BLOCKED-login | GOAL(login 건너뜀) | **24** |
+| BLOCKED-login | other(internal_check 등) | 89 |
+| READY | STOP(fact 거부) | 28 |
+
+즉 **똑같은 "BLOCKED-login" status가 무거운 task엔 login(76), 가벼운 task엔 skip(24)이라는 다른 정답에 매핑** —
+status가 task 제약을 무시하고 default로 렌더되어 **두 클래스를 구분 못 하는 비단사 입력**. policy 텍스트는 task 제약을
+담지만 explicit status 줄이 misleading. 모델은 구분 불가 입력에 모순 지도를 받아 blend → 추론 시 login 과/오호출
+(자격증명도 없어 환각). → **mechanism A(status를 task 제약으로 렌더 → 입력을 단사로)가 정당화됨.** (full 모드라 그 login 도구가 목록에 노출된 것도 가중.)
 
 ### 2.3 궤적 증거
 - 우리 v2 task 111: `internal_check → login_user=F(환각 'password') → transfer_funds → authenticate=F` → dirgraph_satisfied=False.
 - gpt-4o oracle task 111: `internal_check(user) → internal_check(dest) → transfer_funds` → **통과**(login 없음).
 - 차이 = 정책(가벼운 task 제약)을 따랐는가 vs default(무거운) 게이팅에 끌렸는가.
+
+### 2.4 진단 게이트 결과 (무료, 리뷰 P2·P3·P6 응답; 2026-06-02 실측 `_gates_p2p3.py`)
+**P2 — A 수혜/위험 분포 (should_T 48, n≈1 함정 해소)**: A_HELPS(default-login인데 task-light)=**14** · task가 genuinely login 필요(A가 올바르게 무겁게 렌더, **망치지 않음**)=31 · neither=3. → **A의 addressable=14**(미니멀이 아님). A는 task가 login 필요한 31엔 무손해 → **should_T에서 A 순손해 위험 낮음.**
+
+**P3 — should_F(거부축) 회귀 위험 (통과 31 분해)**: PRINCIPLED(fact-False 거부, 안전)=**16** · STOP/기타=9 · **ACCIDENTAL(auth 실패로 우연 거부)=5 [A-위험]** · goal-호출-통과=1. → 리뷰 P3가 옳음: **5/31(set_safety_box)이 fragile**(auth=F로 우연 통과 → 경로 변하면 뒤집힐 수 있음). 단 16 principled는 A가 손대지 않음(fact 게이팅 보존). **재학습/배포 전 이 5건 회귀 모니터 필수.**
+
+**P6 — reconciled 분모 (단일 등록)**: **48 should_T = 8 결함(오라클불가) + 6 극難(오라클통과·52모델 미통과) + 2 경계(1-2모델) + 32 통상가능.**
+- 보고: **주 지표 = should_T/48**(leaderboard 직접비교) · **보조 = /40**(오라클천장 정규화, 결함8 제외). "현실 상한 ~32~34"는 본문 주석으로만, **헤드라인 분모는 /48·/40 둘로 고정**(/34 등 혼용 금지).
 
 ---
 
@@ -162,7 +181,9 @@ domain ABox(HOW 지식)를 **task 제약으로 마스킹**해 task-active 술어
 
 ## 9. 위험 / 리뷰 포인트
 
-1. **공정성**: `task["constraints"]` 사용이 "치팅" 아닌가? → oracle 도구모드가 directed_action_graph(동일정보)를 쓰고, 정책설명으로 에이전트에 이미 제공됨 → **공정**. 단 논문 보고 시 "정책에서 유도" 프레이밍 명확화. 출처3(정책 직독)이 가장 방어적.
+1. **공정성 — A와 B를 분리해야(리뷰 P4)**:
+   - **A(precondition status를 task 제약으로 렌더)는 공정**: 에이전트가 이미 보는 정책 NL과 동일 제약의 구조적 표현일 뿐(새 정보 주입 아님). 헤드라인 가능.
+   - **B(어떤 도구를 보여줄지 프루닝)만 semi-oracle**: 프루닝 셋 = directed_action_graph ≈ oracle. → **E-AB는 별도 "policy-pruned(semi-oracle)" 조건으로 보고**, "full-mode 천장근접" 헤드라인은 A 단독 또는 출처3(정책직독)으로만. 보고 분리(§8) 준수.
 2. **거부축 보존(분리계약)**: A가 fact 게이팅/STOP을 약화하면 안 됨 — task 제약에 **있는** fact는 그대로 VERIFY/STOP. should_F 회복(31/86)이 유지되는지 필수 확인.
 3. **B의 표시-프루닝 vs 실제 도구셋**: env는 full 도구목록을 기대 → planner에 **보이는 목록만** 프루닝하고 resolver/env엔 full 유지. 잘못하면 env 오류.
 4. **task 제약과 innate-dep 구분**: 일부 goal은 innate-dep(login)이 task 제약과 별개로 dirgraph에 영향. task 111은 login 불요였으나, login이 innate인 goal에선 마스크가 login을 빠뜨리면 안 됨 → 마스크 = `task_constraint ∪ innate_dep(goal)`로 정의(검증 필요, §리뷰질문 Q2).

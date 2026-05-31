@@ -28,6 +28,7 @@ tasks; call .reset() per task to clear slot state.
 from __future__ import annotations
 import ast
 import json
+import os
 from openai import OpenAI
 
 
@@ -68,10 +69,16 @@ def _render_precond_mod(tree, predicates, out, est):
 
 
 def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines, slot_keys,
-                    op_descs=None, observed=None):
+                    op_descs=None, observed=None, goal_name=None, goal_constraint=None):
     """Build the arm-3v2/arm-4a planner prompt. `op_names` = the exact tool-name order shown to
     the model. `established` = establishable preds already satisfied. `observed` = {fact_pred ->
     bool} learned from prior internal-check results in history (fact-visibility, arm-4a v2).
+
+    `goal_name`/`goal_constraint` (TASK_CONSTRAINT_DESIGN.md mechanism A): when given, the GOAL
+    operator's precondition is rendered from the TASK-SPECIFIC constraint tree `goal_constraint`
+    instead of the domain-default `op["precondition"]`. This makes the goal status line reflect
+    THIS task's actual requirement (light/heavy) rather than the maximal default — removing the
+    non-injective signal that maps the same "BLOCKED-login" status to different correct actions.
     Returns the prompt string."""
     ops = abox.get("operators", {})
     predicates = abox.get("predicates", {})
@@ -85,7 +92,9 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
         op = ops.get(nm)
         if op:
             preds, est = [], {}
-            _render_precond_mod(op.get("precondition"), predicates, preds, est)
+            precond = (goal_constraint if (goal_name and nm == goal_name and goal_constraint is not None)
+                       else op.get("precondition"))
+            _render_precond_mod(precond, predicates, preds, est)
             est_map.update(est)
             needs = ", ".join(dict.fromkeys(preds)) or "nothing"
             gives = ", ".join(op.get("produces", [])) or "the goal/result"
@@ -159,14 +168,22 @@ class TwoStageClient:
         # per-interaction state
         self._slot_state: dict = {}    # arg values mined from tool results + user_known
         self._turn: int = 0
+        # mechanism A (TASK_CONSTRAINT_DESIGN): per-task goal constraint for goal-status rendering.
+        # Active only when env SOPBENCH_LIGHTEN is set (zero-train diagnostic toggle).
+        self._task_constraints = None
+        self._goal_name = None
+        self._lighten = bool(os.environ.get("SOPBENCH_LIGHTEN"))
         # coverage counters (cumulative across the run)
         self.cov_turns = 0
         self.cov_deterministic = 0
 
-    def reset(self):
-        """Call once per task before the interaction."""
+    def reset(self, task_constraints=None, goal=None):
+        """Call once per task before the interaction. `task_constraints`/`goal` (optional) feed
+        mechanism A's task-specific goal-status rendering (active under env SOPBENCH_LIGHTEN)."""
         self._slot_state = {}
         self._turn = 0
+        self._task_constraints = task_constraints
+        self._goal_name = goal
 
     # ------------------------------------------------------------------
     # Swarm entry point (called every assistant turn)
@@ -299,8 +316,11 @@ class TwoStageClient:
                 for tc in (m.get("tool_calls") or []):
                     fn = tc.function if hasattr(tc, "function") else tc.get("function", {})
                     hist.append(f"CALLED: {fn.name if hasattr(fn,'name') else fn.get('name','?')}")
+        gname = self._goal_name if self._lighten else None
+        gconstr = self._task_constraints if self._lighten else None
         prompt = build_v2_prompt(self.abox, tool_names, established, user_req, policy,
-                                 hist, set(self._slot_state.keys()), op_descs, observed)
+                                 hist, set(self._slot_state.keys()), op_descs, observed,
+                                 goal_name=gname, goal_constraint=gconstr)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
             temperature=0.0, top_p=0.01, max_tokens=24)

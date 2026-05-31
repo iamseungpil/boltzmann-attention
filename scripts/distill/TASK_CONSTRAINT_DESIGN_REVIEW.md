@@ -113,3 +113,24 @@ A가 그 게이팅을 걷어내면 이들이 goal 호출로 뒤집혀 should_F �
 
 설계서 §1 정정("천장 40, 24 아님")은 본 리뷰 P6의 reconciled 표가 확정될 때 결과본(`SOPBENCH_EXPERIMENT_RESULTS.md`)·메모리에
 일괄 반영하는 것이 자연스럽다(같은 표를 공유). 본 리뷰는 정정 자체엔 손대지 않았다(리뷰 범위 한정).
+
+---
+
+## 5. 저자 응답 + 게이트 실측 (2026-06-02) — 리뷰 수용, 일부 정밀화
+
+리뷰의 3-게이트를 **구현 게이트로 채택**. 무료 게이트(P2·P3·P6·P8)를 즉시 실측, zero-train(게이트3)은 실행 중. 결과:
+
+- **P1 정밀화 (framing 양측 정정)**: SFT 데이터 실측 = "일관된 모순"(리뷰)도 아니고 "일관 모순쌍"(설계서 §2.2 초안)도 아님.
+  (BLOCKED-login)→login **76** vs →GOAL(skip) **24** = **비단사 프롬프트**(같은 status, 다른 정답). 리뷰의 "override 학습"·"A 헛발질"
+  가설은 약화 — A(status를 단사로)가 **오히려 강화**됨. 단 "검증 후 진행" 결론은 유지.
+- **P2 (분포) ✅ 실측**: A_HELPS=**14**(default-login∧task-light), A-무손해=31(task가 login 필요→A가 올바르게 무겁게), neutral=3.
+  → A addressable=14(n≈1 아님), **should_T에서 A 순손해 위험 낮음**(A는 31엔 손대지 않음).
+- **P3 (should_F 회귀) ✅ 실측 — 리뷰가 옳음**: 통과 31 = PRINCIPLED(fact-False)16 + STOP/기타9 + **ACCIDENTAL(auth=F 우연거부)5[위험]** + 1.
+  **5/31 fragile**(set_safety_box). 16 principled는 A 무관(fact 게이팅 보존). → **배포 전 이 5건 회귀 모니터를 성공기준에 포함.**
+- **P4 (공정성) 수용+분리**: A=공정(정책 등가)·헤드라인 가능 / B=semi-oracle·별도 조건 보고. 설계서 §9.1·§4 반영.
+- **P5 (마스크 정의)**: P2의 "31 task-login-필요"가 곧 innate/필요 모수 → 마스크는 **`task_constraint`만으로 충분**(login 필요 task는 task 제약 자체에 login 포함). `∪ innate_dep`까지 필요한지는 zero-train 결과로 최종 확인.
+- **P6 (분모) 확정**: 48 = 8결함+6극難+2경계+32통상. 등록 분모 = **/48 주 + /40 보조**(설계서 §2.4·§8).
+- **P7 (zero-train 먼저) 채택**: env `SOPBENCH_LIGHTEN`으로 추론 시 goal status만 task 제약으로 렌더(재학습 0). `output_v4a_v2_lighten` eval 실행 중 → login 호출률·should_T(/40)·**should_F 5 fragile 회귀** 측정.
+- **P8 (plumbing) ✅ 확인**: 클론 `run_simulation.py:151` per-task `client.reset()`가 `task` 스코프 내 → `reset(task_constraints, goal)`로 주입 가능(패치 완료, compile OK).
+
+**게이트 통과 기준(사전등록)**: zero-train에서 (i) login 과잉호출 ≥50%↓ AND (ii) should_T(/40) 상승 AND (iii) should_F fragile 5건 회귀 ≤2 → 재학습 1회 착수. 미달 시 메커니즘 재검토(A가 status에 둔감 등).
