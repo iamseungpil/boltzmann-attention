@@ -766,14 +766,25 @@ target에 그대로 유지** → 가중치가 fault→fix(도메인 ABox)를 암
 **⇒ TBox 관계 집합 = 이 8개. 추가 도출 불요(19 공통).** 도메인 간 차이는 전부 **ABox 인스턴스 값**(어느 fn, 어느
 pred, 어느 슬롯)일 뿐 — 관계 *타입*은 불변. 이것이 "TBox 동결, ABox swap"이 성립하는 구조적 근거.
 
-### 11.3 학습되는 TBox = means-ends 선택 정책 (도메인-불변 룰)
-- **입력**: `goal`(output 계약의 required slots) + **ABox operator affordances**(operator명 + `precondition`
-  pred + `produces` slots + `achieves` goal-slot — **관계적 affordance만; 구체 param schema는 제외** =§9.1
-  전이가드 유지, 그건 resolver 몫) + 현재 `slot_state` + history(global plan `G`, GoalAct §5.1).
-- **출력**: 다음 operator 선택(**제공된 ABox로의 pointer**) 또는 `terminate`.
-- **룰(불변)**: precondition이 현 slot_state로 충족 ∧ 미충족 goal/subgoal slot을 `produces`하는 operator 선택;
-  **precondition 미충족 operator는 호출 금지(gate)**; goal slot이 다 차면 종료. = PDDL/HTN means-ends.
-- 이 룰은 **19 도메인 어디서나 동일** — 도메인은 ABox(어떤 operator·pred·slot)로만 들어옴.
+### 11.3 학습되는 TBox = means-ends 선택 정책 (도메인-불변 룰) [v2 — 리뷰 A1–A4 반영]
+- **goal_slots := `output.required`** (리뷰 A2: 별도 `achieves` 관계 폐기 → 8관계 닫힘 유지). "operator가
+  goal을 achieve" ⟺ **`produces(fn) ∩ goal_slots ≠ ∅`**. (induce도 8관계만.)
+- **입력**: goal_slots + **ABox operator affordances**(operator명 + `precondition` pred + `produces` slots —
+  **관계적 affordance만; 구체 param schema 제외** =§9.1 전이가드, resolver 몫) + 현재 `slot_state` + history(`G`).
+- **출력**: 다음 operator 선택(**제공된 ABox로의 pointer**) 또는 `terminate(done|refuse)`.
+- **룰 = 진짜 means-ends + goal-stack 후방 회귀 (리뷰 A1, 구 greedy-forward 수정)**:
+  1. goal stack ← 미충족 goal_slots.
+  2. top `g` pop: `g`를 `produces`하는 operator X 후보.
+     - X의 `precondition`이 현 slot_state로 충족 ∧ X 미실행 → **X 선택**(출력).
+     - 아니면 X의 **미충족 precondition 슬롯을 subgoal로 push**(재귀) → 그 subgoal을 produces하는 operator로 하강.
+  3. **gate**: precondition 미충족 operator는 절대 출력 안 함.
+  4. **종료**: stack 비면 `terminate(done)`. **refuse (리뷰 A3)**: stack 비지 않았는데 적용가능 operator도,
+     그 subgoal을 produces하는 operator도 없음 → `terminate(refuse)` (= `action_should_succeed=false` 정답, §9.3 hard축).
+  5. **tie-break (리뷰 A4 — L0 결정론 필수, gap 주장 보호)**: 후보 복수면 **`next` 토폴로지 순 → 잔여 미충족
+     precondition 수 최소 → operator명 사전순** 고정. (L1/L2는 LLM/가중치가 끊고, L0는 이 순서로 재현.)
+- **19 도메인 불변** — 도메인은 ABox(operator·pred·slot)로만 들어옴. ★구 greedy-forward는 *subgoal slot만*
+  produces하는 중간 operator를 영영 못 골라(precondition 체인서 정지) **arm-3 naive 0%(제약위반 90%)의 유력
+  근본원인**(리뷰 A1) → 후방 회귀가 직접 처방. L0에서 이 룰을 결정론 구현, L1/L2는 동일 구조를 컨텍스트/가중치로 근사.
 
 ### 11.4 Entanglement-free 학습 (핵심 — 저번 실패의 직접 수정)
 1. **매 예제 ABox를 planner 컨텍스트에 직렬화**(해당 도메인 operator affordance). planner는 이걸 **읽어서** 고름.
@@ -781,8 +792,11 @@ pred, 어느 슬롯)일 뿐 — 관계 *타입*은 불변. 이것이 "TBox 동�
    span만** supervise, reasoning·구체 call 내부는 **mask(−100)**. (저번 실패=구체 call을 target에 유지한 것.)
 3. **cross-domain 배치**: 각 예제가 자기 도메인 ABox를 운반 → 단일 도메인 operator 집합이 안정적 가중치
    shortcut이 못 됨. (LODO: held-out 제외 6 도메인 trace로 학습.)
-4. **anti-memorization (강력 권장)**: 예제마다 operator **순서 셔플** + (선택) operator명 **alias 치환** →
-   정책이 위치·표면형이 아니라 **관계 구조(precondition match)로 선택**하도록 강제. = copy-grounding을 진짜로 만듦.
+4. **anti-memorization (alias는 "(선택)"이 아니라 필수 = 리뷰 B1)**: 예제마다 operator **순서 셔플 +
+   operator명 alias 치환을 per-epoch 랜덤화**(같은 trace가 epoch마다 다른 alias). 셔플은 **위치** 암기만 막고,
+   alias는 **어휘** 암기(verify_*/check_* 이름 공기만으로 "goal transfer→먼저 verify_identity"를 학습=ABox가
+   가중치 누수=§11.0 그 실패)를 막음 → 정책이 **관계 구조(precondition match)로만** 선택. **copy-grounding은 출력
+   pointer만 보장, 입력 reading은 보장 못 함(리뷰 B2)** → 충분조건 = **alias 필수 + (ii)(iii) 붕괴를 큰 효과크기로 입증.**
 5. **데이터 소스**: GT `directed_action_graph` walk(=oracle SUCCESS 궤적)을 step별로
    `(slot_state_t, ABox, goal) → 다음 operator(라벨)`로 **재라벨**. 궤적이 정답 순서를 주고, 우리는 각 step을
    "제공된 ABox 위에서의 선택"으로 변환. ⇒ tool-call 토큰은 학습 신호에서 빠짐.
@@ -802,31 +816,60 @@ pred, 어느 슬롯)일 뿐 — 관계 *타입*은 불변. 이것이 "TBox 동�
 > **arm-3-naive(현 0%)는 ABox 의존성 그래프를 안 줌** → arm-3v2 = **planner 컨텍스트에 ABox(precondition/
 > produces) 주입 + gate + exit 허용**(무학습 L1). arm-4a = 그 선택을 cross-domain copy-grounded SFT로 학습.
 
-### 11.7 분리 증명 ablation (반드시 통과 — "가중치엔 룰만" 입증)
+### 11.7 분리 증명 ablation (반드시 통과 — "가중치엔 룰만" 입증) [리뷰 B3–B5 반영]
 - **(i) ABox-swap LODO** (전이): 6 도메인 학습 → held-out ABox swap, **재학습 0** → pass-rate ≥ in-domain의 70%.
 - **(ii) Empty ABox**: operator 제거 → planner **붕괴**(선택 불가). ⇒ ABox를 실제로 읽음.
 - **(iii) Wrong-domain ABox**: A task에 B의 ABox → 붕괴/ B operator 선택. ⇒ 도메인 암기 아님.
 - **(iv) Operator-shuffle 불변**: 순서 셔플해도 선택 동일. ⇒ 위치 아닌 구조로 선택.
-- (ii)(iii)이 음성대조의 핵심 — entangled 모델은 ABox 없이도 동작(=실패). 분리 모델은 ABox 없으면 못 함(=성공조건).
+- **(v) Alias 불변 (리뷰 B4)**: operator명을 무작위 alias로 치환해도 선택 동일. ⇒ 어휘 아닌 관계로 선택.
+  (alias 없이 통과한 LODO는 어휘 전이 가능성으로 해석 모호 — (v)가 그걸 봉쇄.)
+- **(vi) Slot명 alias (P2 스트레치, 리뷰 B5)**: operator명+slot명 둘 다 alias(관계 그래프만 남김) → 가장 깨끗한
+  분리 증명. Phase 1엔 과할 수 있음.
+- **★붕괴 임계 사전등록 (리뷰 B3, 눈대중 금지)**: "붕괴" ≝ `wrong-ABox pass ≤ 1.2× empty-ABox` **AND**
+  `≤ 0.3× correct-ABox`. (ii)(iii)이 음성대조의 핵심 — entangled 모델은 ABox 없이도 동작(=이 임계 위반=실패).
+  분리 모델은 ABox 없으면 못 함(=임계 통과=성공조건).
 
 ### 11.8 Phasing (사용자 결정: 7 먼저 + Amazon 병행)
-- **Phase 1 (즉시, Track A)**: Zekun **7-도메인 LODO** × L2a in-context copy-grounded SFT. 6→1 회전 ×7 +
-  ablation (i)-(iv). 비교: arm-3v2(L1 무학습) → arm-4a(L2 학습) 격차 = "학습된 TBox 기여".
+- **Phase 1 (즉시, Track A)** — ★실행 순서(리뷰 C-1/C-2): `induce → (induced↔GT dirgraph 대조 = **gate**) →
+  **L0/arm-2**(GT ABox로 means-ends 룰 검증, LLM 無 = 가장 싼 (a) 반증/검증) → arm-3v2(무학습 L1) →
+  arm-4a(L2 cross-domain copy-grounded SFT, 7 LODO 6→1×7)`. ablation (i)-(vi).
+  비교 분해: Δ(naive→3v2)="ABox in-context+gate" / Δ(3v2→4a)="학습된 정책". **★L0서 greedy-vs-regression 둘 다
+  돌려** "greedy X% 실패 → regression 해결"을 GPU 없이 데이터로 입증(미결결정1 해소, §11.11).
 - **Phase 1b (병행)**: Amazon 12-도메인 harness(loader/executor/eval) 구축 → `ontology_<dom>.json` 12개 induce
   → 19-도메인 ABox 풀 완성. (customer_service 파일럿 자산 `abox/`·`workflow_executor.py` 확장.)
 - **Phase 2**: **19-도메인 통합 TBox**(union 학습, 19 LODO) + **L2b xattn** novelty(§15.13).
 
-### 11.9 Build order / 파일
-- `build_tbox_planner_sft.py` (신규, 구 build_abstract_sft 대체): oracle 궤적 → `(goal, ABox-직렬화,
-  slot_state, history) → 다음-operator copy-target`, **선택 span만 supervise**, operator 셔플/alias.
-- `induce_ontology_zekun.py` (신규): `directed_action_graph`+`constraints` → `ontology_<dom>.json`(8 관계) ×7.
-- `two_stage_client.py` planner 확장: ABox-in-context 입력 + **copy-grounded 디코딩**(제공 operator명으로 제약,
-  gate=precondition 미충족 금지, exit 허용). = arm-3v2(무학습)·arm-4a(학습) 공용 경로.
-- LODO 러너 + ablation harness((i)-(iv)).
-- 학습 trainer: `lora_train_chat_toolcall.py --mask-toolcalls` 재사용(이미 content-only supervise) — 단,
-  target이 copy operator명이고 그 외 전부 mask인지 데이터 단에서 보장(§11.4-2).
+### 11.9 Build order / 파일 [리뷰 반영 순서]
+1. **`induce_ontology_zekun.py`** (신규): `directed_action_graph`+`constraints` → `ontology_<dom>.json`(8 관계) ×7.
+2. **induce↔GT 대조 gate (리뷰 C-1, §9.4d)**: induced call-graph vs GT `directed_action_graph` 일치율 검증.
+   **통과해야** 다음 진행(arm-3v2 저조를 "룰 오류 vs induce 오류"로 혼동 방지).
+3. **`l0_planner.py`** (신규, arm-2): §11.3 means-ends 룰 결정론 구현. **greedy-forward 변형도 같이**(ablation:
+   greedy 실패 vs regression 해결 = (a) 데이터 증명). GT ABox 위 LLM 無.
+4. **`two_stage_client.py` planner 확장**: ABox-in-context 입력 + **copy-grounded 디코딩**(제공 operator명 제약,
+   gate=precondition 미충족 금지, exit/refuse 허용). = arm-3v2(무학습)·arm-4a(학습) 공용 경로.
+5. **`build_tbox_planner_sft.py`** (신규, 구 build_abstract_sft 대체): oracle 궤적 → `(goal, ABox-직렬화,
+   slot_state, history) → 다음-operator copy-target`, **선택 span만 supervise**, **operator 순서 셔플 + per-epoch
+   alias 필수**(리뷰 B1).
+6. LODO 러너 + ablation harness (i)-(vi) + 붕괴 임계 자동판정(리뷰 B3).
+- 학습 trainer: `lora_train_chat_toolcall.py --mask-toolcalls` 재사용 — target이 copy operator명이고 그 외 전부
+  mask인지 데이터 단에서 보장(§11.4-2).
 
 ### 11.10 왜 이게 헤드라인인가 (thesis)
 "사용자가 목표만 주면 시스템이 도구를 자동 선택"을, **계획 능력(TBox)은 학습으로 일반화하고 도메인 지식(ABox)은
 교체 가능한 데이터로 분리**해 달성. ablation (ii)(iii)이 "가중치가 룰만 들고 ABox를 실제로 읽는다"를 증명하고,
 (i) LODO가 "재학습 0 전이"를 증명. AWM(NL workflow 프롬프트 재사용, §5.3) 대비 **구조적·검증가능·학습시 전이**가 델타.
+
+### 11.11 설계리뷰 반영 (2026-06-01, `DESIGN_REVIEW_s11_tbox_abox_2026_06_01.md`)
+리뷰 판정: 골격(copy-target SFT → LODO → empty/wrong-ABox 음성대조) 건전, **(c) 순서 유지**, **(a)/(b) 정식화 보강**.
+전 항목 수용·반영:
+- **(a) §11.3 [수정완]**: A1 후방 subgoal 회귀(greedy→means-ends, 0%의 유력 근본원인) · A2 `achieves`→
+  `produces∩output.required`(8관계 닫힘) · A3 `refuse` 종단(거부 정확도) · A4 L0 결정론 tie-break.
+- **(b) §11.4/11.7 [수정완]**: B1 alias **필수+per-epoch**(어휘 누수 차단) · B2 copy=필요조건일뿐(alias로 충분화)
+  · B3 붕괴 임계 사전등록(`wrong ≤1.2×empty AND ≤0.3×correct`) · B4 ablation **(v) alias-불변** · B5 (vi) slot명 alias(P2).
+- **(c) §11.8/11.9 [수정완]**: 순서 유지 + C-1 induce↔GT 대조를 **명시 gate** · C-2 **L0를 arm-3v2 앞으로**.
+
+**미결 결정 해소:**
+1. **(P0 먼저 vs greedy 먼저)** → **L0-우선으로 해소.** L0(LLM·학습 無)에서 **regression 정식 구현 + greedy 변형**을
+   둘 다 GT ABox로 돌려 "greedy 실패율 vs regression 해결"을 **싸게 데이터로 입증** → "고치고 가기"와 "데이터 먼저"를
+   동시 달성. greedy-L0가 bank를 의미있게 풀면 회귀 불요 판정도 가능(반증 경로 보존).
+2. **(achieves)** → **(ii) `produces ∩ output.required` 채택** (새 관계 불필요, 8관계 닫힘).
