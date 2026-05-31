@@ -602,3 +602,103 @@ routines = `task_default_dep_full(domain,{full,required})`. ⚠️ `env/helpers.
 - **Label-fit / no-holdout domains** — flag separately; the 12-domain rotation is the guard.
 - Claim retired: "deterministic beat the LLM." Replaced by: "given structure + a learned
   ABox-swappable planner, the LLM-in-loop gains over baseline **and transfers**."
+
+---
+
+## 10. Step-by-step implementation spec (FOR REVIEW before running)
+
+> Status: **IMPLEMENTED, awaiting design-review → code-review → experiment** (2026-06-01).
+> Code lives in `scripts/distill/sopbench/{two_stage_client.py, run_two_stage.py}` (this repo,
+> version-controlled + coworker-shared). Deploy = copy both into the SOPBench clone `scripts/`.
+> This section documents exactly what was built so the design can be reviewed against §9.
+
+### 10.1 Where it plugs in (verified against the clone)
+SOPBench's loop is `swarm.Swarm.run_user_assistant_interaction` → per assistant turn it calls
+`get_chat_completion` (swarm/core.py:32), which builds `create_params = {messages, tools,
+temperature, top_p, max_tokens, [parallel_tool_calls]}` and calls:
+```
+agent.client.inference(create_params, debug, mode=mode, tool_call_mode=agent.tool_call_mode)
+   -> {"idx": int, "completion": ChatCompletion}
+```
+So the entire 2-stage policy is injected by giving the assistant `Agent` a **custom client
+object that implements `.inference(...)`** with the same return shape. The Swarm loop, tool
+execution, DB mutation, and the rule oracle are reused UNCHANGED. (`model_name_huggingface`
+attr is also read by core.py for logging → the client exposes it.)
+
+### 10.2 Per-turn algorithm (arm-3 = L1 planner + rung-b resolver)
+`TwoStageClient.inference()` does, each turn:
+1. **If no tools** in `create_params` → plain chat completion (final natural-language msg).
+2. **Slot mining** (`_update_slots`): scan messages; from every `role=="tool"` message parse
+   its JSON content into `_slot_state`; from the dummy-user "Here is all the information…"
+   message parse the `user_known` JSON block into `_slot_state`. (Accumulates known arg values.)
+3. **STEP 1 — Planner** (`_plan`, 1 LLM call, **abstract**):
+   - Build operator list = `name: description[:120]` for each tool — **names + descriptions
+     ONLY, the concrete param schema is withheld** (the §9.1 transfer-contamination guard).
+   - Prompt = goal context (system msg, truncated) + operator list + last-6-turn history
+     (CALLED/TOOL_RESULT/USER lines) → "output ONLY the next action name".
+   - Parse first token; validate ∈ tool names (else fall back to first tool).
+4. **STEP 2 — Resolver** (`_resolve`, rung b):
+   - Locate the chosen tool's FULL spec.
+   - **Deterministic shortcut**: if every `required` param is already in `_slot_state`, build
+     the tool call directly (no LLM) and count it as deterministic coverage.
+   - Else **LLM resolver**: `chat.completions.create` constrained to the single chosen tool
+     via `tool_choice={"type":"function","function":{"name":action}}`, model fills args
+     in-context. (rung b = "ontollm".)
+5. Return `{"idx", "completion"}` (real OpenAI object, or a synthetic `ChatCompletion` for the
+   deterministic path built via `_make_tool_call_completion`).
+
+`reset()` clears `_slot_state`/turn per task. `coverage()` reports
+deterministic / llm_resolved / pct.
+
+### 10.3 Runner (`run_two_stage.py`)
+Mirrors run_simulation.py's task loop but self-contained:
+- Loads `data/<domain>_tasks.json` (flatten goal→task list, `--num_tasks` head).
+- `task_default_dep_full` + `task_initializer` (same calls as run_simulation) → domain_system,
+  user_info, assistant_info; `--tool_list oracle` restricts tools to the task's
+  `directed_action_graph` nodes, `full` uses all domain tools.
+- Builds dummy user (no user_model) with the `user_known` dump as default_response
+  (= leaderboard-standard agent-controlled setting).
+- Runs `Swarm.run_user_assistant_interaction`, then scores with
+  `evaluator_function_directed_graph` (the SAME rule oracle as run_evaluation).
+- Saves per-task {task, interaction, evaluation, coverage}; prints pass@1 + coverage%.
+
+### 10.4 Mapping to the §5 / §9 design — what is and isn't done
+| design element | this impl (arm-3 L1) | status |
+|---|---|---|
+| planner = LLM over abstract operators (§5 L1) | `_plan`, names+desc only | ✅ |
+| global-plan + re-plan each turn (GoalAct §5.1) | re-decided per turn from history | ⚠️ partial — re-decides per turn but does NOT keep an explicit persistent plan `G`; greedy-ish. Review: is per-turn re-decision enough, or add explicit G? |
+| abstract/concrete split (§9.1 guard) | planner sees no param schema | ✅ (review the truncation/leak via descriptions) |
+| resolver rung (a) deterministic | slot-state shortcut | ✅ |
+| resolver rung (b) ontollm | tool_choice-forced LLM fill | ✅ |
+| resolver rung (c) neural xattn (§5 L2) | — | ✗ later (coworker B5*) |
+| L0 symbolic planner (§5 L0) | — | ✗ TODO (arm-2) |
+| L2 learned planner + transfer (§9.4) | — | ✗ later (coworker B1*/Exp-4) |
+
+### 10.5 KNOWN ISSUES / review points (must resolve before trusting results)
+1. **Import (smoke hit this)**: deploy as same-dir import. `run_two_stage.py` now does
+   `sys.path.insert(0, <file dir>)` + `from two_stage_client import TwoStageClient`; run from
+   the clone root with both files in `scripts/`. (Original `from scripts.two_stage_client`
+   failed: scripts/ not a package.)
+2. **Synthetic ChatCompletion** (`_make_tool_call_completion`): must match what
+   swarm/core.py:handle_tool_calls expects (`completion.choices[0].message.tool_calls[*]
+   .function.name/.arguments`, `tool_call.id`). Verify field-for-field in code review — a
+   mismatch silently drops the deterministic-path calls.
+3. **Slot mining heuristic**: `_update_slots` assumes tool results are JSON dicts and the
+   user_known dump starts with a fixed string. Real SOPBench tool returns may be bare bools/
+   strings → review coverage of the miner; a wrong miner inflates/deflates deterministic %.
+4. **Planner validation**: on an invalid action name it falls back to "first tool" — crude;
+   could bias. Review whether to re-prompt or use a smarter default.
+5. **Two LLM calls/turn** (plan + resolve) → ~2× tokens/latency vs arm-1. Acceptable for the
+   pilot; note in cost accounting.
+6. **No explicit termination policy**: relies on the model calling `exit_conversation`. Weak
+   7B may loop to max_turns. Review whether the planner should be allowed to choose exit.
+7. **Coverage semantics**: deterministic = "all required args in slot state" — this is rung-a
+   opportunism inside arm-3, NOT the §9 oracle. Keep labelled as diagnostic.
+
+### 10.6 Test plan (after code review)
+- Smoke: `--domain bank --tool_list full --num_tasks 5 --model Qwen/Qwen2.5-7B-Instruct`
+  (vLLM 9100). Inspect 1 trajectory: planner picks → resolver args → oracle verdict vs the
+  task's `directed_action_graph`.
+- Then bank full N=134: compare arm-3 vs arm-1 baseline (react/full 5.2%, fc/full 3.7%).
+  Success gate = **arm-3 full > arm-1 full by ≥5%p on bank** → scale to 7 domains + 14B.
+- Report into `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` (Exp-3 row).
