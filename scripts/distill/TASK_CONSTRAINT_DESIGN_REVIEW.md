@@ -206,3 +206,30 @@ A가 그 게이팅을 걷어내면 이들이 goal 호출로 뒤집혀 should_F �
 - **R5 — 감사**: P1 비단사·P2 분포·P4 분리 인정분 반영 유지.
 
 **순 결론**: R1은 실측으로 해소(run 유효), 게이트는 **미통과(should_T 불변)** → 재학습 보류, **다음은 should_T binding-constraint 진단**(설계서 §8.1).
+
+---
+
+## 8. 재평가 라운드 3 (2026-06-02, `_lighten_compare.py` + 갱신 본문 검증)
+
+§7 저자 응답과 zero-train 판정을 `_lighten_compare.py`·`apply_two_stage_patch.py` diff·설계서 본문으로 재검증.
+
+### ✅ R1 해소 수용 (내 BLOCKING 판정 철회, 단 재현성 지적은 유효했음)
+- **행동 델타가 결정적**: login/auth 183→151, A_HELPS 17→7은 no-op으로 **산출 불가** → mechanism A가 라이브 작동했음이 증명됨. 유닛테스트(111 OFF=BLOCKED / ON=VERIFY, DIFFERENT=True)와 합쳐 **run 유효·폐기 불요**. 내 "폐기 권고"는 과잉.
+- **단 내 R1의 핵심(재현성)은 옳았음**: 소스 패치 `apply_two_stage_patch.py`가 무인자 reset이었던 것은 실재 → 라이브 클론의 **손편집(unversioned)**에 의존한 run이었음(메모리의 "unversioned 편집→배포" 경계와 직결). 지금 패치가 `reset(task_constraints=task.get("constraints"), goal=task.get("user_goal"))`로 갱신돼 갭 해소 ✅. (단 `except TypeError: reset()` fallback은 향후 다른 TypeError를 삼켜 LIGHTEN을 조용히 끌 수 있음 — 배선 변경 시 행동 델타 재확인 습관 필요.)
+
+### 🟠 R6 — should_F "31→31"은 **net이 churn을 가린다** (남은 최중요 측정 간극)
+산술: task 100이 pass→fail로 회귀했는데 should_F **net이 31→31로 동일** ⇒ **다른 should_F가 fail→pass로 보상**했다는 뜻(≥2건 churn). 그런데 `_lighten_compare.py`는 should_**T**만 gains/losses를 열거(L81-88)하고 should_**F**는 net + fragile-5만 본다 → **보상 gain이 미측정**. 거부축에서 그 gain이 "옳은 이유의 거부"인지 "틀린 이유의 거부"인지 모른 채 "should_F 안정"이라 보고됨. → **should_F gross gain/loss 열거 추가**(should_T와 동일 처리) 후 "안정" 주장 확정.
+
+### 🟠 R7 — 보고된 게이트 (iii)는 **5-scope**, 문서가 약속한 14-scope 아님
+§7 R3·설계서 §9.2는 모니터를 14(위험5+미정9)로 확대한다 했으나, **실행된 `_lighten_compare.py`의 `FRAGILE=[93,96,100,101,104]`는 5건뿐.** 즉 *이번 zero-train의* (iii)✅(회귀 1)는 **5-scope 실측**이고 미정 9는 점검되지 않았다. 14 확대는 forward-looking(재학습용). → 보고 시 "(iii)는 5-scope" 명시, 재학습 전 14-scope로 재측정.
+
+### 🟡 R8 — §2.3 모범사례(task 111)와 §7 결론의 미봉합 → §8.1로 직접 연결
+should_T **gain=0/loss=0**이면, §2.3에서 "login 과호출→dirgraph 위반"의 poster child였던 **task 111이 LIGHTEN(login 제거)에도 통과로 안 뒤집힘**. 이는 §7 결론("login은 binding 아님")과 정합하나, §2.3의 궤적 서사는 login을 111 실패의 *원인*으로 제시했으므로 **"111이 이제 무엇으로 실패하는가"의 post-LIGHTEN 궤적이 §8.1 재census의 1번 항목**이어야 함. (gain=0은 "login 제거가 어떤 should_T도 회복 못 함"을 licensing하나, OOD가 'replacement failure'로 효과를 가렸을 가능성은 §8.1 실패모드 재census로만 배제 가능 — §7 "binding 아님"은 실용적 결론으론 충분하되 확정은 §8.1.)
+
+### 🟢 R9 — 모범적 처리(강한 인정)
+- **음성 결과 + 재학습 거부 = 정확한 과학**: 값싼 zero-train으로 타깃 지표(should_T) null을 확인하고 **과대주장 없이 재학습을 보류**, binding 재진단으로 피벗. 메모리의 fabrication 이력 우려를 정면으로 해소하는 처리.
+- **검증을 "compile"이 아닌 유닛테스트+행동델타로**: 이전 "compile OK"의 무검증력을 정정하고 DIFFERENT=True/login델타로 대체 — 정확.
+- **R3·R4 반영**: 14건 모니터(forward)·스테일 5개 섹션 정리·마스크 `task_constraint` 단독 확정·분모 /48·/40 고정 모두 반영 ✅.
+
+### 라운드3 결론
+**문서·코드 정합성은 이제 견고**. BLOCKING 없음. 남은 건 측정 위생 2건(R6 should_F gross churn, R7 (iii) 5-scope 표기)과 §8.1 진단의 1번 항목(R8 task 111). **다음 단계(should_T binding 재census)는 타당** — 단 R6/R8을 그 census에 포함하면 한 번에 닫힘: (1) should_T 실패 41건을 task-제약 기준 실패모드로 재분류(destination-check/constraint_violation/극難), (2) task 111 post-LIGHTEN 궤적, (3) should_F gross flips. 이 셋이 binding을 규명한다.
