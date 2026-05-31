@@ -91,10 +91,6 @@ def induce_domain(domain, data_dir, out_dir):
     ds_strict = domain_keys[domain + "_strict"](
         copy.deepcopy(t0["initial_database"]), dep_innate, dep_full, t0["constraint_parameters"])
     ds = ds_strict.evaluation_get_domain_system()
-    state_obj = getattr(ds, "innate_state_tracker", None)
-
-    def is_state_pred(p):
-        return state_obj is not None and hasattr(state_obj, p)
 
     # agent-callable actions = dep_full keys that are methods on ds and NOT internal_* checks
     actions = [a for a in dep_full
@@ -108,20 +104,22 @@ def induce_domain(domain, data_dir, out_dir):
         for name, pm in leaves:
             predicates.setdefault(name, {"params": pm})
 
-    # classify + map state preds -> establishing action
+    # Classify each precondition predicate (§11.3):
+    #   establishable -> some AGENT ACTION flips it true (a subgoal in backward regression).
+    #     detected by: (a) the predicate name IS an agent action, or (b) verb-dep convention
+    #     (logged_in_user<-login_user, authenticated_X<-authenticate_X). [effect-mining = general
+    #     TODO for non-login establishables in the other 6 domains.]
+    #   condition (fact) -> a DB/computed check no agent action can set (internal_*, capacity,
+    #     gpa, eligibility, period, ...). If false at decision time -> REFUSE (N1/§7).
     produces = {a: [] for a in actions}
-    warnings = []
     for name, info in predicates.items():
-        if is_state_pred(name):
-            info["kind"] = "state"
-            act = convention_action_for(name, actions)
+        act = name if name in actions else convention_action_for(name, actions)
+        if act:
+            info["kind"] = "establishable"
             info["by"] = act
-            if act:
-                produces[act].append(name)
-            else:
-                warnings.append(f"state predicate '{name}' has NO establishing action (convention miss)")
+            produces[act].append(name)
         else:
-            info["kind"] = "fact"
+            info["kind"] = "condition"
             info["by"] = None
 
     # arg bindings: aggregate {param->slot} from each task's directed_action_graph action node
@@ -152,15 +150,12 @@ def induce_domain(domain, data_dir, out_dir):
     path = os.path.join(out_dir, f"ontology_{domain}.json")
     json.dump(ontology, open(path, "w"), indent=2)
 
-    n_state = sum(1 for p in predicates.values() if p["kind"] == "state")
-    n_fact = len(predicates) - n_state
+    n_est = sum(1 for p in predicates.values() if p["kind"] == "establishable")
+    n_cond = len(predicates) - n_est
     print(f"[{domain}] actions={len(actions)} goals={len(ontology['goal_actions'])} "
-          f"predicates={len(predicates)} (state={n_state}, fact={n_fact}) -> {path}")
-    for a in actions:
-        if operators[a]["produces"]:
-            print(f"    produces: {a} -> {operators[a]['produces']}")
-    for w in warnings:
-        print(f"    WARN: {w}")
+          f"predicates={len(predicates)} (establishable={n_est}, condition={n_cond}) -> {path}")
+    est = {n: i["by"] for n, i in predicates.items() if i["kind"] == "establishable"}
+    print(f"    establishable preds -> action: {est}")
     return ontology
 
 
