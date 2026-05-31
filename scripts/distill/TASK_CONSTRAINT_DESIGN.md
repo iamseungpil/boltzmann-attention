@@ -1,8 +1,9 @@
 # Task-Instance Constraint 설계서 — should_T 병목(과잉 게이팅 + full-tool 부담) 해소
 
-> 상태: **리뷰 대기 (구현 전)**. 작성 2026-06-02. 권위본 `WORKFLOW_ONTOLOGY_DESIGN.md §11`의 보강.
-> 대상 독자: 리뷰어(사용자). 리뷰 후 구현 착수.
-> 선행 근거: `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4a v2 전수조사 + 본 문서 §2(코드 증명).
+> 상태: **리뷰 1라운드 완료 + zero-train 게이트 실측 완료 (2026-06-02). 재학습 보류 — §8.1 binding 진단이 다음.**
+> 작성 2026-06-02. 권위본 `WORKFLOW_ONTOLOGY_DESIGN.md §11`의 보강. 리뷰=`TASK_CONSTRAINT_DESIGN_REVIEW.md`.
+> 선행 근거: `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4a v2 전수조사 + 본 문서 §2(코드 증명) + §7(zero-train 실측).
+> ★요약 결과: mechanism A는 라이브 작동(login -59% on A_HELPS)·하지만 should_T 불변(게이트 미통과)=login은 should_T binding 아님.
 
 ---
 
@@ -155,48 +156,59 @@ domain ABox(HOW 지식)를 **task 제약으로 마스킹**해 task-active 술어
 
 ---
 
-## 7. 재학습 분석
+## 7. ★ zero-train 게이트 결과 (2026-06-02 실측, `_lighten_compare.py`) — 재학습 보류
 
-- **(A) precondition 렌더 수정**: 입력(프롬프트) 분포가 바뀌므로(무거운→가벼운 status) **SFT 재생성 + 재학습 1회 필요**. 정답·파이프라인 불변, 어댑터만.
-- **(B) 도구 프루닝**: 프롬프트의 op_names 집합이 바뀌므로 이 역시 SFT 프롬프트 동반 수정 → A와 함께 1회 재학습으로 흡수.
-- 따라서 **A 또는 A+B 모두 재학습 1회**(LODO holdout=bank, 기존 레시피 `lora_train_chat_toolcall.py --system-mode none --max-seq-len 8192`).
-- 추론-전용 band-aid(재학습 0)는 가능하나(추론 시 login 선택을 task 제약으로 사후 필터) **band-aid → 비추천**(train/test 불일치 잔존).
+리뷰 P7대로 **재학습 전 zero-train 진단**을 먼저 실행(env `SOPBENCH_LIGHTEN`, 추론 시 goal status를 task 제약으로 렌더, 재학습 0).
 
----
+| 지표 | baseline v2 | LIGHTEN | 게이트 |
+|---|--:|--:|:--:|
+| login/auth 호출 (A_HELPS 14) | 17 | **7 (-59%)** | (i) ✅ |
+| login/auth 호출 (전체) | 183 | 151 | — |
+| should_T | 4/48 | **4/48** | (ii) ❌ |
+| should_F | 31/86 | 31/86 | — |
+| should_F fragile 회귀 | — | 1 (task 100) | (iii) ✅ |
 
-## 8. 실험 계획 (ablation, Exp-4c 갱신)
+- **R1 반증·A 작동 확인**: login 호출이 실제 감소(no-op이면 불가) + 유닛테스트(task 111 OFF=BLOCKED-login / ON=VERIFY-internal_check, DIFFERENT=True). **mechanism A는 라이브로 정확히 작동.**
+- **게이트 (i)✅(ii)❌(iii)✅ → 미통과 → 재학습 보류.** A가 불필요 login을 제거했으나 **should_T 불변** = login 과잉호출은 실재했으나 **should_T의 binding constraint가 아님**(남은 실패=destination 체크 누락·constraint_violation·자격증명부재 극難 = 비-login).
+- **R2 비대칭**: 어댑터가 무거운 프롬프트 학습 → lighten은 OOD. should_T null은 "A 무효"가 아니라 **"login만으론 should_T 안 움직임"**. zero-train은 positive-only 확증 도구 — null은 비결론. 깨끗한 A 검정은 재학습 필요하나 **기대값 낮음**.
 
-분모 = **40**(정직; 결함8 제외). 서빙=GPU1 단일 lora.
-
-1. **E-A (A만)**: precondition을 task 제약으로 정합 렌더 + 재학습 → bank LODO eval.
-   - 측정: 과잉 login/auth 호출률↓, should_T(분모40)↑, dirgraph 위반↓. census로 goal_not_reached/dirgraph_value_mismatch 변화.
-2. **E-AB (A+B)**: A + 도구 프루닝 + 재학습 → eval.
-   - 측정: full-mode가 oracle-유사로 좁혀지며 추가 상승분 = 도구선택 부담 기여 분리.
-3. **분리증명(§11.7 연계)**: 빈/틀린 task 제약 주입 → should_T 붕괴(WHAT이 task 제약에서 옴을 입증). 거부축(should_F)은 STOP 보존 확인.
-4. **전이 검증**: A(+B)로 bank 개선 확인 후 6 LODO 회전(출처1) → 출처3(정책 직독)으로 전이 강건성.
-
-**성공 기준(사전등록 제안)**: E-A에서 should_T ≥ L0 regression(7/48≈7/40) 수준 회복 AND 과잉 login 호출 ≥50%↓; E-AB에서 추가 상승.
+### 재학습 분석 (참고, 게이트 통과 시에만)
+- (A) 렌더 수정·(B) 도구 프루닝 모두 입력분포 변화 → SFT 재생성+재학습 1회(LODO holdout=bank, `lora_train_chat_toolcall.py --system-mode none --max-seq-len 8192`). GT 정답·파이프라인 불변.
 
 ---
 
-## 9. 위험 / 리뷰 포인트
+## 8. 실험 계획 / 다음 (Exp-4c, zero-train 후 갱신)
 
-1. **공정성 — A와 B를 분리해야(리뷰 P4)**:
-   - **A(precondition status를 task 제약으로 렌더)는 공정**: 에이전트가 이미 보는 정책 NL과 동일 제약의 구조적 표현일 뿐(새 정보 주입 아님). 헤드라인 가능.
-   - **B(어떤 도구를 보여줄지 프루닝)만 semi-oracle**: 프루닝 셋 = directed_action_graph ≈ oracle. → **E-AB는 별도 "policy-pruned(semi-oracle)" 조건으로 보고**, "full-mode 천장근접" 헤드라인은 A 단독 또는 출처3(정책직독)으로만. 보고 분리(§8) 준수.
-2. **거부축 보존(분리계약)**: A가 fact 게이팅/STOP을 약화하면 안 됨 — task 제약에 **있는** fact는 그대로 VERIFY/STOP. should_F 회복(31/86)이 유지되는지 필수 확인.
-3. **B의 표시-프루닝 vs 실제 도구셋**: env는 full 도구목록을 기대 → planner에 **보이는 목록만** 프루닝하고 resolver/env엔 full 유지. 잘못하면 env 오류.
-4. **task 제약과 innate-dep 구분**: 일부 goal은 innate-dep(login)이 task 제약과 별개로 dirgraph에 영향. task 111은 login 불요였으나, login이 innate인 goal에선 마스크가 login을 빠뜨리면 안 됨 → 마스크 = `task_constraint ∪ innate_dep(goal)`로 정의(검증 필요, §리뷰질문 Q2).
-5. **극難 6개**: 자격증명 부재로 어차피 불가 → 분모40에서도 이 6은 못 풀 수 있음(천장 40이지만 현실 상한 ~34). 보고 시 명시.
+분모 = **/48 주 · /40 보조**(reconciled §2.4 P6; "7/40" 등 카운트-분모 혼용 폐기).
+
+**현 상태**: zero-train(§7)에서 게이트 미통과 → **재학습 아님.** 다음은:
+1. **★should_T binding constraint 진단**: zero-train이 login을 지웠는데도 안 풀리는 41(=should_T 실패) 재census(task 제약 기준, 구 census의 default-precond 버그 수정) → destination 체크 누락 / constraint_violation 4 / 극難6 분해. **여기서 진짜 레버 재설계.**
+2. (조건부) binding이 "task별 게이팅 노이즈"로 판명되면 → E-A 재학습(A만, 분리증명 §11.7 = 빈/틀린 task 제약 주입→should_T 붕괴) + should_F 회귀 모니터(아래 §9.2).
+3. (조건부) full-tool 부담이 별도 기여로 확인되면 → E-AB(B 도구 프루닝, **semi-oracle 별도 보고** P4).
+4. 개선 확인 후에만 6 LODO 회전 → 출처3(정책 직독) 전이.
 
 ---
 
-## 10. 리뷰어 결정 질문
+## 9. 위험 / 리뷰 포인트 (zero-train 후 갱신)
 
-- **Q1. 마스크 출처**: 1차로 출처1(구조적 task 제약)로 갈지, 처음부터 출처3(정책 직독, 전이↑·난이도↑)로 갈지.
-- **Q2. 마스크 정의**: `task_constraint` 단독인지 `task_constraint ∪ innate_dep(goal)`인지 (§9.4). login이 innate인 goal의 dirgraph 요구를 먼저 실측 확인 필요.
-- **Q3. 범위**: A만 먼저(병목2 격리) vs A+B 동시(둘 다). 각각 재학습 1회.
-- **Q4. 도구 프루닝 강도**: 정확히 task 제약 함수만 vs task 제약 + 1-hop establishable(여유). 너무 좁히면 회복경로 차단 위험.
+1. **공정성 — A와 B 분리(P4)**:
+   - **A(status를 task 제약으로 렌더)는 공정**: 에이전트가 보는 정책 NL과 동일 제약의 구조적 표현(새 정보 아님). 헤드라인 가능.
+   - **B(도구 프루닝)만 semi-oracle**(≈directed_action_graph) → **E-AB는 별도 조건 보고**, "full 천장근접" 헤드라인은 A 또는 출처3로만.
+2. **거부축 보존(P3) — 회귀 모니터 = 14건(R3)**: should_F 통과 31 = 확인-안전 16(fact-STOP) + 확인-위험 5(auth-fail 우연거부) + **미정 9(STOP/other, principled 미확인)** + 1. A 변경 시 **5+9=14건**을 회귀 모니터(zero-train서 task 100 1건 이미 회귀). 사전등록 기준: 14건 중 회귀 ≤2.
+3. **B의 표시-프루닝**: planner에 **보이는 목록만** 프루닝, resolver/env엔 full 유지(env 오류 방지).
+4. **마스크 정의(P5 해소)**: zero-train서 task 제약 단독으로 login이 깨끗이 제거됨(A_HELPS 17→7) → **마스크 = `task_constraint` 단독으로 충분**(login 필요 task는 그 login이 task 제약에 포함). `∪ innate_dep`는 불필요로 판정(이전 §9.4 스테일, 정정).
+5. **극難 6개**: 자격증명 부재로 실제 미통과(분모는 /48·/40 고정, "~34"는 주석으로만).
+
+---
+
+## 10. 리뷰어 결정 질문 (zero-train 후 — 대부분 해소)
+
+- **Q1(마스크 출처)**: ~~미정~~ → 헤드라인엔 출처1 부적합(P4), 출처1=진단상한·보고는 출처3. **단 재학습 자체가 보류(§7)** 라 당면 무의미.
+- **Q2(마스크 정의)**: ~~미정~~ → **`task_constraint` 단독 확정**(§9.4, zero-train 실측).
+- **Q3(범위 A vs A+B)**: ~~미정~~ → **둘 다 보류**(게이트 미통과). 먼저 §8.1 binding 진단.
+- **Q4(프루닝 강도)**: B 착수 시 task 제약 함수 + 1-hop establishable(회복경로 보존). 보류 중.
+
+**현 결정 질문(신규)**: §8.1 binding-constraint 진단부터 갈지(권고), 아니면 should_F 회귀를 무릅쓰고 E-A 재학습을 강행할지.
 
 ---
 

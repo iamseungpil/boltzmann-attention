@@ -89,9 +89,14 @@ def main():
         # Edit B: per-interaction slot-state reset
         ('    # Get the included functions in the oracle trajectory\n'
          '    if args.tool_list == "oracle":',
-         "    # arm-3: reset TwoStageClient per-interaction slot state (no-op for OpenAIHandler)\n"
+         "    # arm-3: reset TwoStageClient per-interaction slot state (no-op for OpenAIHandler).\n"
+         "    # Pass task constraints + goal so mechanism A (TASK_CONSTRAINT_DESIGN, env SOPBENCH_LIGHTEN)\n"
+         "    # can render the goal-status line from THIS task's constraint instead of the default precond.\n"
          '    if hasattr(assistant_agent.client, "reset"):\n'
-         "        assistant_agent.client.reset()\n"
+         "        try:\n"
+         '            assistant_agent.client.reset(task_constraints=task.get("constraints"), goal=task.get("user_goal"))\n'
+         "        except TypeError:\n"
+         "            assistant_agent.client.reset()\n"
          '    # Get the included functions in the oracle trajectory\n'
          '    if args.tool_list == "oracle":'),
         # Edit C: conditional client construction

@@ -322,11 +322,20 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > + **full-tool 모드**(도구 ~20개)의 선택 부담. 공통뿌리=**WHAT(적용 제약)을 task별 아닌 default로 다룸**.
 > (이전 표의 goal_not_reached/dirgraph_value_mismatch 분류는 default-precond 기준이라 부분 distort; 정밀 재분류는 설계서 실험에서.)
 
-> **★Exp-4c 실험계획** — 설계서 `TASK_CONSTRAINT_DESIGN.md`(리뷰 대기). 분모=**40**.
-> 해법=**task-instance 제약을 per-task ABox로 사용**: (A) precondition status를 task 제약으로 정합 렌더(과잉 게이팅 제거)
-> + (B) 도구목록을 정책-유도 oracle-유사로 프루닝(full 부담 제거). WHAT(task별 가변)/HOW(domain 불변) 분리.
-> ablation E-A(A만, 재학습1회) → E-AB(A+B). 분리증명=빈/틀린 task 제약 주입→should_T 붕괴. 거부축(should_F) STOP 보존 확인.
-> 리뷰 결정질문 4개(마스크 출처 구조 vs 정책직독 / innate-dep 포함 / A vs A+B / 프루닝 강도)는 설계서 §10.
+> **★Exp-4c — 설계서 `TASK_CONSTRAINT_DESIGN.md`(리뷰 1라운드+zero-train 게이트 완료). 분모 /48 주·/40 보조.**
+> 해법 가설=task-instance 제약을 per-task ABox로: (A) precond status를 task 제약으로 렌더(과잉게이팅 제거)+(B) 도구 프루닝.
+>
+> **★zero-train 게이트 결과 (2026-06-02, `_lighten_compare.py`, env SOPBENCH_LIGHTEN, 재학습0)**:
+> | 지표 | baseline v2 | LIGHTEN | 게이트 |
+> |---|--:|--:|:--:|
+> | login/auth 호출(A_HELPS 14) | 17 | **7(-59%)** | (i)✅ |
+> | should_T | 4/48 | **4/48** | (ii)❌ |
+> | should_F | 31/86 | 31/86 (fragile 1 회귀) | (iii)✅ |
+>
+> - **mechanism A 라이브 작동 확인**(유닛테스트 task111 OFF=BLOCKED-login/ON=VERIFY-internal_check DIFFERENT; 행동 login 183→151). no-op 아님.
+> - **게이트 미통과((ii) should_T 불변) → 재학습 보류.** login 과잉호출은 실재했으나 **should_T binding constraint 아님**(남은 실패=destination 체크 누락·constraint_violation·자격증명부재 극難=비-login). R2 비대칭(OOD 어댑터)이라 null은 비결론.
+> - **다음 = 재학습 아님 → should_T binding-constraint 진단**(task 제약 기준 재census). should_F 회귀 모니터=14건(위험5+미정9, R3).
+> - 코드: `two_stage_client.build_v2_prompt(goal_constraint=)`·`apply_two_stage_patch`(reset 배선)·`gates_p2p3.py`·`_lighten_compare.py`. 리뷰=`TASK_CONSTRAINT_DESIGN_REVIEW.md`.
 
 > **Exp-4a 데이터 파이프라인 완성 (2026-06-01)**: `build_tbox_planner_sft.py` — GT means-ends가 만든 정답
 > 결정 시퀀스([login→goal]/[login→STOP]/[goal]) → 각 step을 **공유 `build_v2_prompt`(train/test 동일 프롬프트)**
