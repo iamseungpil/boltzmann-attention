@@ -207,10 +207,15 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **★설계리뷰 A1 확증**: 체인 필요 케이스(should_succeed=T)서 **regression(7)>greedy(0)**. greedy는 login을
 >   영영 establish 못 해 달성 0(=A1 예측), "전부 거부"로 거부 86개 trivially 통과(전체 64%는 passive 게이밍 허수).
 >   ⇒ **후방 회귀가 필요조건임을 LLM·파싱·tool_choice 교란 0 환경에서 입증**(코드리뷰 C-2 "L0가 유일 깨끗 중재자").
-> - **천장 갭(regression 7/48)은 룰이 아니라 L0 executor 미성숙**: (a) dirgraph_satisfied 평가자 정합(innate-dep
->   함의), (b) 이중 login(state_true/arg-sourcing 버그), (c) solvable 태스크 과도 refuse(precondition 체크 누락).
->   → 다음=executor 정제(arm-0 oracle 천장 ~100% 목표). **수치 자체보다 regression>greedy(A1) 방향이 핵심 산출.**
+> - **천장 갭은 룰이 아니라 L0 executor의 벤치 정합 미완**(정제중): 수정완=이중 login(executed 집합)·과도
+>   refuse(goal precond를 평가자처럼 `task["constraints"]`로 오버라이드). **잔여 지배 실패=`dirgraph_satisfied`
+>   (should_T 실패의 35/43)**: 일부 goal 액션이 **strict 시스템의 innate-dep 강제로 False 반환**(예 cancel의
+>   `internal_check_credit_card_exist`가 카드 존재에도 False) → action_successfully_called=False → dirgraph 실패.
+>   = SOPBench innate-dep 의미론(평가자 dirgraph가 요구 안 하는 검사도 strict가 강제)과의 정합 필요 = arm-0
+>   oracle 엔지니어링(벤치 내부 리버스). **수치 자체보다 regression>greedy(A1) 방향이 핵심 산출이고 이미 확정.**
 > - 코드: `scripts/distill/sopbench/{induce_ontology_zekun,l0_planner}.py`. induced 7도메인 ontology 추출완.
+> - **상태**: A1 확정. arm-0 oracle ~100% 천장은 innate-dep/dirgraph 정합 추가작업 필요(보류 가능). 다음 우선
+>   순위 = arm-3v2(planner I/O 재설계, 더 높은 가치)로 이동 권장 — L0 oracle 천장은 병렬/후속.
 | Exp-3 | arm-3(L1 naive planner) | fc/full | **0.0%** | — | ✅ 완료 (음성: arm-1 3.7%↓, 제약위반 지배 → 구조판 v2 동기화) |
 | Exp-3v2 | arm-3v2(L1+ABox 의존성그래프) | fc/full | — | — | 예정 (Track A, 무학습 구조 바) |
 | Exp-4a | arm-4a(L2 학습 TBox, in-context, 7 LODO) | fc/full | — | — | 예정 (★헤드라인, Track A; 설계 §11) |
