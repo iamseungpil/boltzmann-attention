@@ -118,20 +118,16 @@ class ScriptedGatherClient:
                     gs = GETTER[nm]
                     for g in (gs if isinstance(gs, list) else [gs]):
                         calls.append((g, resolve(g, ops.get(g, {}).get("args", pm))))
-            if self.mode == "abc":                        # C: innate login/auth (auth requires login)
-                g_inn = json.dumps(self.dep_innate.get(goal))
-                a_inn = json.dumps(self.dep_innate.get("authenticate_admin_password"))
-                has_auth = any(c[0] == "authenticate_admin_password" for c in calls) or \
-                    ("authenticated_admin_password" in g_inn)
-                # login is required if: innate to goal, OR (transitively) authenticate is present/needed
-                has_login = ("logged_in_user" in g_inn) or has_auth or ("logged_in_user" in a_inn)
-                if has_auth and not any(c[0] == "authenticate_admin_password" for c in calls):
-                    calls.append(("authenticate_admin_password",
-                                  resolve("authenticate_admin_password",
-                                          ops.get("authenticate_admin_password", {}).get("args", {}))))
-                if has_login and not any(c[0] == "login_user" for c in calls):
-                    calls.append(("login_user",
-                                  resolve("login_user", ops.get("login_user", {}).get("args", {}))))
+            if self.mode == "abc":
+                # C: the evaluator's dirgraph follows the goal's DEFAULT (induced) precondition, which
+                # includes establishable login/auth even when the (lighter) task constraint omits them.
+                # So emit by-actions for establishable preds in the GOAL's ontology precondition.
+                gl = []; walk(ops.get(goal, {}).get("precondition"), gl)
+                for nm, pm in gl:
+                    info = preds.get(nm, {})
+                    if info.get("kind") == "establishable" and info.get("by") and \
+                            not any(c[0] == info["by"] for c in calls):
+                        by = info["by"]; calls.append((by, resolve(by, ops.get(by, {}).get("args", {}))))
         # order: PRE first (stable), then goal
         rank = {n: i for i, n in enumerate(PRE)}
         calls.sort(key=lambda c: rank.get(c[0], 999))
