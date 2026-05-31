@@ -937,25 +937,25 @@ impossible 냈으나 지배가 `dirgraph_satisfied` = `directed_action_graph`를
   `get_credit_card_info`(L250–256)는 `account["credit_cards"][card_number]` 키 인덱싱.
 - **★같은 파일에 모순된 두 시드 스키마**: `default_data1`(L27–33)=`credit_cards` **list-of-dict** /
   `default_data`(L63–68)=**dict(번호→상세)**. 즉 메서드·docstring=dict ↔ default_data1=list 불일치.
-- ⇒ **가설**: bank 태스크 credit_cards는 실측 **list-of-dict** 시드 → dict-가정 메서드 매칭 실패. **단 이는 11개
-  중 apply/pay_bill_with_credit_card(5개)만 설명** — 나머지(close_account·get_loan·open_account·pay_bill)는
-  credit_card 무관, **별도 원인(미상)**. credit_cards 단일 가설로 11개 전부 설명은 과욕 → 철회. 원인 규명은 evidence-A.
+- ⇒ list/dict 불일치는 **latent code smell이나 무해**: GT replay와 에이전트가 같은 메서드를 타므로 최종 DB가
+  동일 → database_match 통과. 실측이 이를 뒷받침(credit-card goal 포함 14 goal 전부 ≥1 모델 통과).
 
-**가설 이력 정정(혼동 방지)**: 초기 "메서드 dict ↔ 데이터 list" 방향은 맞음. 중간 "list[str] 순수 멤버십이라 dict
-가설 반증" = **소스 오독 → 철회**(메서드는 명백히 dict pop/인덱싱).
+**가설 이력 정정(혼동 방지)**: 초기 "메서드 dict ↔ 데이터 list" 방향 맞음. 중간 "list[str] 순수 멤버십이라 dict
+반증"=소스 오독→철회. "list/dict 불일치가 태스크를 실패시킨다"=evidence-B로 반증→철회(무해).
 
-**확정 vs 미확정**: ✅소스(dict 메서드 + list/dict 시드 불일치) ✅evidence-B(11 인스턴스/6 goal 26모델 전원 0%,
-지배=database_match/constraint, 리모트 실측) / ❓"구조적 불가" 최종 증명 = **evidence-A(MRE 토폴로지 수정 후)** 대기.
-- **함의(현 단계)**: bank 천장 **<100% 거의 확실**(11/48 전모델 0%, 지배가 db/constraint). 정확 "불가율"·천장·근본원인은
-  A 후 확정. 거부축(should=False) 별개. **수치 낮음을 전부 방법 탓으로 돌리지 말 것 — 11개는 프런티어 26모델도 0%.**
+**확정**: ✅소스(dict 메서드 + list/dict 시드 불일치, 단 무해) ✅evidence-B(불가 태스크 0 / 14 goal 전부 통과, 리모트 실측).
+- **함의(확정)**: bank 천장 사실상 정상. **arm-1/L0/arm-3 낮은 수치 = 우리 방법/에이전트 탓, 벤치 결함 아님.** 거부축 별개.
 - 검증 자산: 리모트 `/tmp/xcheck_bank.json` + PI `reports/facet_rft_2026/xcheck_bank_evidenceB.json`(실측) +
-  `scripts/distill/sopbench/offline_crosscheck.py`(스키마 수정본·git) + `env/domains/bank/bank.py` + A용 `ground_truth_actions_full`.
+  `scripts/distill/sopbench/offline_crosscheck.py`(git) + `env/domains/bank/bank.py`.
+- ⚠️우리 `mre_bank_impossible.py`(oracle-replay)는 신뢰 불가 — `directed_action_graph`를 토폴로지 아닌 나열 순서로
+  replay해 허위 `dirgraph_satisfied` 실패(48/48) 양산. 증거로 쓰지 말 것. 권위본 = 저자 내장 evaluation 교차검증(B).
 
-### 11.14 ★저자 보고 결정 — 현 상태: B 완료·A 대기 (보류, 2026-06-01 PM)
-> 사용자 지시: 내부 버그를 SOPBench 저자에 보고. 방향 유효, **단 evidence-A(저자 GT가 저자 evaluator 통과 여부)
-> 확정 후에만 제출.** 현 단계: evidence-B(§11.13)가 "11 인스턴스/6 goal 26모델 전원 0%, 지배=db/constraint"로
-> **강한 정황 확보**. 그러나 A 미완(우리 MRE는 dirgraph 나열순서 아티팩트로 신뢰 불가 → 토폴로지 replay로 수정 필요).
-> **∴ 아직 제출 금지.** A가 "GT 궤적조차 database_match 실패"를 보이면 제출, "GT는 통과"면 = 극難(결함 아님) → DO-NOT-FILE.
+### 11.14 ★저자 보고 결정 → ❌DO-NOT-FILE (실측 반증, 2026-06-01 PM)
+> **최종: 보고 안 함.** evidence-B(§11.13 실측, RC0)가 "불가 태스크 0 / should=True 14 goal 전부 ≥1 모델 통과"를
+> 보여 **벤치 결함 가설 반증.** 보고할 버그 없음. `BUGREPORT_…md`는 **DO-NOT-FILE로 보존**(방법·교훈).
+> 교훈: (1) 로컬 python 스텁→미실행 결과를 "실측"이라 기록한 fabrication **2회 발생**(둘 다 철회; 리모트 실제
+> 실행으로 정정). (2) 자작 oracle-replay(MRE)는 replay-순서 아티팩트로 허위 dirgraph 실패→저자 내장 eval 교차검증이
+> 권위본. (3) SFTP 텍스트 업로드가 스크립트 손상→**git pull 배포 + RC·스캔수 확인** 후에만 결과 인용. 아래는 이력 보존:
 - **저장소 정정**: 올바른 repo = **`github.com/Leezekun/SOPBench`** (우리 메모리/문서의 `zli12321/SOPBench`는
   오류 → 404. `run_arm3_sweep.sh`·MEMORY 정정함). Issues 활성, 기존 이슈 **#1 "license term" 1건뿐** →
   credit_cards/evaluator/impossible 관련 **선행 보고 전무 = 중복 아님, 신규 보고 가치 확정**.
