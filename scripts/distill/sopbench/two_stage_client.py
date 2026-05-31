@@ -58,13 +58,21 @@ class TwoStageClient:
 
     def __init__(self, base_url: str, model_name: str,
                  temperature: float = 0.0, max_tokens: int = 512, top_p: float = 0.01,
-                 use_deterministic_shortcut: bool = False):
+                 use_deterministic_shortcut: bool = False,
+                 planner: str = "naive", abox=None):
         self.model_name = model_name
         self.model_name_huggingface = model_name      # swarm/core reads this
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.top_p = top_p
         self.use_deterministic_shortcut = use_deterministic_shortcut
+        # arm-3v2: structured planner reads the induced ABox (precondition/produces),
+        # current slot state, allows STOP=refuse (N1), and is prompted for the cheapest
+        # gated path (§11.12). planner="naive" keeps the arm-3 baseline untouched.
+        self.planner = planner
+        self.abox = abox
+        if isinstance(abox, str):
+            self.abox = json.load(open(abox)) if abox else None
         self._client = OpenAI(base_url=base_url, api_key="EMPTY")
         # per-interaction state
         self._slot_state: dict = {}    # arg values mined from tool results + user_known
@@ -97,7 +105,15 @@ class TwoStageClient:
 
         self._turn += 1
         self._update_slots(messages)
-        chosen_action = self._plan(messages, tools)
+        if self.planner == "v2" and self.abox:
+            chosen_action = self._plan_v2(messages, tools)
+            if chosen_action in ("STOP", "exit_conversation", ""):
+                # refuse / terminate = a no-forbidden-call turn (N1/§7): end via exit_conversation
+                self.cov_turns += 1
+                return {"idx": self._turn,
+                        "completion": self._make_tool_call_completion("exit_conversation", {})}
+        else:
+            chosen_action = self._plan(messages, tools)
         completion = self._resolve(chosen_action, messages, tools,
                                    temperature, max_tokens, top_p)
         return {"idx": self._turn, "completion": completion}
@@ -144,6 +160,103 @@ class TwoStageClient:
         if chosen not in tool_names:
             chosen = next(iter(tool_names)) if tool_names else ""
         return chosen
+
+    # ------------------------------------------------------------------
+    # STEP 1' — arm-3v2 structured planner (ABox precondition/produces + state + STOP)
+    # ------------------------------------------------------------------
+    def _render_precond(self, tree, out, est):
+        """Flatten an ABox precondition tree to readable predicate names + establishable hints."""
+        if not tree:
+            return
+        if isinstance(tree, (list, tuple)) and tree:
+            head = tree[0]
+            if head == "single":
+                name = tree[1]
+                name = name[4:] if name.startswith("not ") else name
+                info = (self.abox.get("predicates", {}) or {}).get(name, {})
+                if info.get("kind") == "establishable" and info.get("by"):
+                    out.append(name)
+                    est[name] = info["by"]
+                else:
+                    out.append(name)
+            elif head in ("and", "or", "chain", "gate"):
+                for sub in tree[1]:
+                    self._render_precond(sub, out, est)
+
+    def _plan_v2(self, messages, tools) -> str:
+        ops = self.abox.get("operators", {})
+        tool_names = [t.get("function", {}).get("name", "") for t in tools]
+        # operator affordances: name — needs [precondition preds] — gives [produces]
+        est_map = {}
+        lines = []
+        for t in tools:
+            nm = t.get("function", {}).get("name", "")
+            if nm == "exit_conversation":
+                continue
+            op = ops.get(nm)
+            if op:
+                preds, est = [], {}
+                self._render_precond(op.get("precondition"), preds, est)
+                est_map.update(est)
+                needs = ", ".join(dict.fromkeys(preds)) or "nothing"
+                gives = ", ".join(op.get("produces", [])) or "the goal/result"
+                lines.append(f"- {nm}: needs [{needs}]; gives [{gives}]")
+            else:
+                desc = t.get("function", {}).get("description", "")[:80]
+                lines.append(f"- {nm}: {desc}")
+        ops_str = "\n".join(lines)
+        est_str = ("\n".join(f"  - to establish '{p}', call {a}" for p, a in est_map.items())
+                   or "  (none)")
+
+        user_req = next((str(m.get("content", ""))[:300] for m in messages
+                         if m.get("role") == "user" and m.get("content")), "")
+        policy = next((str(m.get("content", ""))[:600] for m in messages
+                       if m.get("role") == "system"), "")
+        hist = []
+        for m in messages[-8:]:
+            role = m.get("role", "")
+            if role == "tool":
+                hist.append(f"RESULT[{m.get('tool_name','?')}]: {str(m.get('content',''))[:80]}")
+            elif role == "assistant" and m.get("tool_calls"):
+                for tc in (m.get("tool_calls") or []):
+                    fn = tc.function if hasattr(tc, "function") else tc.get("function", {})
+                    hist.append(f"CALLED: {fn.name if hasattr(fn,'name') else fn.get('name','?')}")
+        hist_str = "\n".join(hist) if hist else "nothing yet"
+        slots_str = ", ".join(sorted(self._slot_state.keys())) or "only what the user provided"
+
+        prompt = (
+            "You are a planning agent. Pick the SINGLE next tool to call, or STOP.\n\n"
+            f"USER REQUEST:\n{user_req}\n\nPOLICY (constraints to honor):\n{policy}\n\n"
+            f"TOOLS (name: needs [preconditions]; gives [effects]):\n{ops_str}\n\n"
+            f"HOW TO ESTABLISH preconditions:\n{est_str}\n\n"
+            f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
+            f"HISTORY:\n{hist_str}\n\n"
+            "RULES:\n"
+            "- Call a tool ONLY when its preconditions are already established. If a needed "
+            "precondition (e.g. logged_in_user) is not yet established, FIRST call the tool that "
+            "establishes it.\n"
+            "- Prefer the cheapest path: never repeat a call whose result you already have; avoid "
+            "tools you don't need for the goal.\n"
+            "- If a required precondition is a fact that is FALSE and no tool can establish it, "
+            "output STOP (refusing is the correct answer — do not call the goal tool).\n"
+            "- When the goal tool's preconditions are all established, call the goal tool.\n\n"
+            "Output ONLY one tool name from the list, or STOP. Nothing else:")
+        resp = self._client.chat.completions.create(
+            model=self.model_name, messages=[{"role": "user", "content": prompt}],
+            temperature=0.0, top_p=0.01, max_tokens=24)
+        raw = (resp.choices[0].message.content or "").strip()
+        low = raw.lower()
+        if "stop" in low or "refuse" in low or "exit_conversation" in low:
+            return "STOP"
+        # copy-grounded: pick the tool name that appears in the output (longest match wins)
+        hits = [n for n in tool_names if n and n in raw]
+        if hits:
+            return max(hits, key=len)
+        first = low.split()[0].strip(".,:\"'") if low.split() else ""
+        for n in tool_names:
+            if n.lower() == first:
+                return n
+        return "STOP"   # uninterpretable -> refuse rather than blind first-tool (C1/N2 fix)
 
     # ------------------------------------------------------------------
     # STEP 2 — Resolver: action + concrete spec + slot state -> tool call
