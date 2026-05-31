@@ -13,9 +13,14 @@
 >   (`cancel_credit_card`×6 return False; `pay_bill_with_credit_card`×2 raise `KeyError`).
 > - **B (corroboration, `offline_crosscheck.py`)**: across 53 `output/bank/ast_*.json`, those 8
 >   instances are passed by 0 of ~26 released models.
-> - The other 6 "all-models-0%" instances from B (get_loan/pay_bill/set_safety_box/transfer_funds)
->   **pass under the oracle** → merely hard, NOT defects. So all-models-0% (B) is not sufficient;
->   oracle-failure (A) is the defect criterion. Only the 8 A-failures are reported.
+> - ~~The other 6 "all-models-0%" instances pass under the oracle → merely hard, NOT defects.~~
+>   **CORRECTION (2026-06-02, see Part B):** that "oracle pass" was `evidence_a_probe` injecting
+>   credentials read from the account record (`internal_get_database`) — a path NOT available to any
+>   agent (internal_get_database is not an agent tool in full OR oracle mode). Under the
+>   agent-accessible setting these 8 instances (get_loan×2, pay_bill, pay_loan×2, set_safety_box×2,
+>   transfer_funds) are a **separate defect class**: the `directed_action_graph` requires
+>   `login_user`/`authenticate` that the task's own `constraints`/`user_instruction` (username-only
+>   identification) do NOT — see **Part B** below.
 >
 > **Process lessons (kept honest):** during this investigation, un-run / 0-returning script output
 > was recorded as "measured" THREE times (local `python` was a Windows Store stub exit 49; an old
@@ -108,3 +113,67 @@ Happy to send a PR for fix (1) once you confirm the intended schema.
   satisfies auth preconditions, so a failure is the method's, not missing args.
 - **Multi-task goals**: counts are per-instance (8 instances across 2 goals), not per-goal.
 - **Refusal semantics**: all 8 are labelled `action_should_succeed=true` (verified), not refusals.
+
+---
+
+# Part B — SECOND defect class: `directed_action_graph` requires auth the task's constraints do not (8 instances)
+
+> **STATUS: candidate, evidence measured 2026-06-02 (`run_scripted.py`, `_defectchk.py`, `_intent8.py`,
+> `_admincheck.py` on the clone). Distinct from Part A (there the goal method itself fails; here the
+> goal SUCCEEDS but the evaluator over-requires login).** Pre-post: dup-search + (recommended) ask
+> authors whether login is intended for these tasks before filing.
+
+## Title (Part B)
+`bank`: 8 `action_should_succeed=true` tasks are unpassable by any agent — `directed_action_graph`
+requires `login_user`/`authenticate_admin_password` that the task's own `constraints`,
+`constraints_original`, and `user_instruction` (username-only identification) do not, and no
+credentials are provided or agent-accessible.
+
+## Instances (8)
+get_loan (idx 39, 44) · pay_bill (56) · pay_loan (66, 67) · set_safety_box (76, 89) · transfer_funds (120).
+(= memory's "극難 6 + 경계 2"; previously mis-classed as "merely hard".)
+
+## Evidence
+1. **Task intent = username-only, no login** (8/8): `user_instruction` says *"using your username to
+   identify yourself"* / *"under your username"*; no mention of password/identification/auth.
+   `constraints_original` and `constraints` contain **no** `logged_in_user`/`authenticated_admin_password`.
+2. **But the evaluator requires login** (8/8): `directed_action_graph` contains `login_user`
+   (and `authenticate_admin_password` for set_safety_box/transfer). A constraint-faithful trajectory
+   (checks + getters + goal, **no login**) yields, on the unchanged `evaluator_function_directed_graph`:
+   `action_successfully_called=True, action_called_correctly=True, database_match=True,
+   no_tool_call_error=True` — i.e. **the goal action executes correctly** — but
+   `dirgraph_satisfied=False` **and** `constraint_not_violated=False` → `success=False`.
+3. **Credentials are neither provided nor agent-accessible**: `identification`/`admin_password` are
+   absent from `user_known`; the only tool that returns them, `internal_get_database`, is **not in the
+   agent tool list in full OR oracle mode** (exposed `internal_*` tools are check/score only). So no
+   agent can satisfy the login the dirgraph demands.
+4. **0 of ~42 released model runs pass these 8** (all tool modes), unlike the routinely-passed
+   instances of the same goals that DO carry credentials. (`evidence_a_probe` "passes" them only by
+   calling `dss.internal_get_database()` directly — a system method an agent cannot invoke.)
+
+## Root cause (hypothesis to confirm with authors)
+The stored `directed_action_graph` is built from the **default/full dependency** (`dep_full`, which
+includes login for these goals) while the task's sampled `constraints` are a lighter subset
+(username-only). The evaluator enforces the dep_full dirgraph (+ an auth check in
+`constraint_not_violated`), so login is required at eval time even though the task neither states it
+nor supplies credentials → the task is internally inconsistent and unpassable.
+
+## Why it matters
+8 more `should_succeed=true` instances are unpassable by every agent — distinct from Part A (method
+bug). Combined effective honest ceiling for bank `should_succeed` ≈ **32/48** (48 − 8 Part-A − 8 Part-B).
+
+## Suggested fix (any one)
+1. Build/store `directed_action_graph` from the task's actual `constraints` (so username-only tasks
+   don't require login); or
+2. If login IS intended, add the credentials (`identification`/`admin_password`) to `user_known`; or
+3. Relabel these instances or document them as auth-required-but-uncredentialed.
+
+## Pre-post checklist (Part B)
+- [x] Task intent username-only (user_instruction + constraints_original), 8/8.
+- [x] dirgraph requires login, 8/8; constraint-faithful (no-login) trajectory: goal succeeds but
+      dirgraph_satisfied & constraint_not_violated both False.
+- [x] Credentials absent from user_known AND internal_get_database not an agent tool (full & oracle).
+- [x] 0/~42 released models pass (all modes).
+- [ ] **MANUAL**: re-search Leezekun/SOPBench issues for duplicates.
+- [ ] **MANUAL / recommended**: ask authors whether login is intended for these tasks (root-cause
+      hypothesis) before filing, to choose fix (1) vs (2).
