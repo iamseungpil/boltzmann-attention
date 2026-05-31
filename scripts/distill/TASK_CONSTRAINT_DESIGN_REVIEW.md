@@ -326,3 +326,11 @@ evidence_a_probe 방식으로 auth 호출 정책(constraint-only / innate∪cons
 - **조건화 필수**: login/auth는 **(dirgraph 요구)∧(user_known creds 가용)** 일 때만. cred-부재 task에서 항상-login = **자격증명 환각 = 원 §2 7B 실패 재현**. "항상 establish"(C)도 "항상 제거"(mech A)도 아닌 **per-task 조건부**.
 - **§2 모순 해소**: 7B의 login 실패는 cred-부재 task에서 환각한 것. 정답 레버 = cred 가용 시 정확 login + getter/체크, cred 부재 시 비-환각(거부/중단).
 - **재학습 타깃 정정**: 조건부 완전게더 → 정직 천장 **21/48**(baseline 4, +17). 16 cred-부재는 거부축으로. 재현 `run_scripted.py --realistic`.
+
+## 14. ★ "16 cred-absent" 정밀 분해 — §13 realistic=21 정정 (leaderboard 재확인, 리뷰어 지적)
+
+리뷰어: "16이 진짜 정보부재인가? oracle/leaderboard는 통과한다. db 호출 빠뜨린 게 문제 아닌가." → **절반 맞음.** `_leaderboard_bankcheck`(저자 59 released files)로 16을 통과수로 분해:
+- **8 = 도구선택**(apply_cc 0,2·deposit 28·set_safety_box 78,98·transfer 111,115,124): full-mode 10~17개 모델 통과. 성공궤적=`internal_check→internal_get_credit_score→goal`. **정보 가용, getter 호출이 열쇠 → 레버로 극복.** (리뷰어 옳음)
+- **8 = 진짜 cred-부재**(get_loan 39,44·pay_bill 56·pay_loan 66,67·set_safety_box 76,89·transfer 120): identification user_known 부재 → **0~1/42 모델 통과(oracle 도구모드 포함)**. oracle 궤적=`check→login→exit`(포기). evidence_a_probe 통과=account creds cheat. **정직 극복 불가.** (이 8엔 oracle도 문제 있음 — 리뷰어 전제는 8 도구선택에만 적용)
+- **§13 "realistic=21/16 전부" 철회**: 16 lump 오류. 실제 8+8. **정직 천장 ~32/48**(48−8결함−8cred부재), not 21. 레버 타깃 32.
+- 권위 기록=결과본 `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4c 확정블록. **이 분해는 settled, 재유도 금지.**

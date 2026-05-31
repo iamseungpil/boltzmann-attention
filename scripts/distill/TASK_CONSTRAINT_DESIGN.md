@@ -253,11 +253,20 @@ abc=37은 **account 레코드 자격증명 증강(cheating)** 에 의존. 에이
 
 **login 분류(should_T 48)**: dirgraph_login=True 41 / False 7(task-optional 맞음). 그중 **login 필요 ∧ user_known creds 부재 = ~16**(사용자가 자격증명 미제공 → 정직한 에이전트 완료 불가 ≈ 극難 일반화).
 
-**⇒ 사용자 지적대로 per-task 조건화 필수**:
-- login/auth는 **(이 task의 dirgraph가 요구) ∧ (creds가 user_known에 가용)** 일 때만 호출.
-- cred-부재 task에서 항상-login = **자격증명 환각 = 원 §2의 7B 실패 재현**. → cred-부재 시 환각 금지(중단/거부).
-- "항상 establish"(generic precond)도 "항상 제거"(mechanism A)도 아닌 **조건부**가 정답. 마스크 = task-instance 조건(dirgraph 요구 + cred 가용).
-- **정직한 재학습 천장 = 21/48**(baseline 4 대비 +17 헤드룸). 16 cred-부재는 거부축(should_F) 문제로 이전.
+**⇒ per-task 조건화 필수** (login은 task-conditional + credential-conditional).
+
+### 8.4 ★★★ "16 cred-absent"의 정확한 분해 (leaderboard 59 released files 재확인) — §8.3의 realistic=21 정정
+이전 §8.3 "realistic=21 / 16 전부 cred-부재→refusal"은 **16을 lump한 오류, 철회.** 저자 released 모델 통과수로 16은 둘로 갈림:
+
+| 그룹 | tasks (idx) | full-mode 모델 통과 | 성격 |
+|---|---|--:|---|
+| **8 도구선택** | apply_cc(0,2)·deposit(28)·set_safety_box(78,98)·transfer(111,115,124) | 10~17개 ✅ | **정보 가용 → 레버로 극복** (성공궤적=getter 호출) |
+| **8 자격증명-부재** | get_loan(39,44)·pay_bill(56)·pay_loan(66,67)·set_safety_box(76,89)·transfer(120) | **0~1개** (oracle 포함) | identification(+admin_pw) user_known 부재 → 정직 극복 불가 |
+
+- **사용자 지적 수용**: 16 중 **8은 도구선택**(oracle/leaderboard 통과 = 정보 있음, getter 빠뜨린 게 문제). 레버(A+B+C, getter 포함)로 극복.
+- **단 8은 진짜 cred-부재**: 0~1/42 모델만 통과(oracle 도구 줘도). evidence_a_probe 통과는 account creds 읽는 cheat. 정직 에이전트는 불가 → 거부/can't-do.
+- **정직한 천장 = ~32/48** (48 − 8 결함 − 8 cred-부재), NOT 21. 레버 타깃 32(baseline 4).
+- **조건부 login**: cred 가용 시 호출(8 도구선택 포함 32), cred 부재 시 환각 금지(8). 이게 §2 7B 실패(cred-부재 task에서 비번 환각→login=F)와 정합.
 
 → **구현 1순위 = B(condition→getter 온톨로지 induction) + A(args-aware 게더)**. mechanism A(게이팅 경량화, §7)는 should_T 비-binding이므로 부차(프롬프트 정합으로 흡수).
 

@@ -337,6 +337,30 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **다음 = 재학습 아님 → should_T binding-constraint 진단**(task 제약 기준 재census). should_F 회귀 모니터=14건(위험5+미정9, R3).
 > - 코드: `two_stage_client.build_v2_prompt(goal_constraint=)`·`apply_two_stage_patch`(reset 배선)·`gates_p2p3.py`·`_lighten_compare.py`. 리뷰=`TASK_CONSTRAINT_DESIGN_REVIEW.md`.
 
+> **★★★Exp-4c 확정 결론 (2026-06-02, harness sim `run_scripted.py` + leaderboard 재확인 `_leaderboard_bankcheck`) — 이 블록이 권위본. 아래는 재유도 금지(반복 방지).**
+>
+> **should_T binding = 도구 선택(어떤 검증/establish 도구를 호출하는가), NOT 정보부재·NOT 게이팅·NOT 모델용량·NOT login제거.**
+> 결정론 scripted-gather(LLM無)를 실제 evaluator로 채점:
+> | gather | should_T | 비고 |
+> |---|--:|---|
+> | 실제 7B baseline | 4/48 | 현재 |
+> | ab (A args-aware체크 + B condition→getter) | 24/48 | login 없음 |
+> | **abc (A+B + C establishable login/auth)** | **37/48 = scripted-oracle** | 완전 게더 |
+> | scripted-oracle plan | 37/48 | =실질 오라클 40(아래 gap3) |
+>
+> - **레버 = goal의 induced precondition 완전 충족**: A(args-aware 콜러블 체크, 예 transfer dest 2회) + B(condition 술어→getter; `induce_ontology_zekun`가 `by:null`로 둔 결함 보강: minimal_credit_score→internal_get_credit_score, sufficient_account_balance→get_account_balance, …) + C(establishable login/auth, task-conditional). root cause=GT teacher `build_tbox_planner_sft.py:108` `goal_fact_checkable`가 name-dedup·establishable제외·동명callable한정으로 **검증 시퀀스 불완전 생성** → 모델이 "덜 검증" 학습 → dirgraph 위반.
+> - **C(login/auth)는 task-conditional**: should_T 48 중 dirgraph상 login 필요 41/불요 7. C 출처=**induced precond establishable**(dep_innate은 null이라 못 잡음). evaluator dirgraph는 task제약 아닌 default deps를 따름.
+> - **mechanism A(게이팅 경량화)·zero-train(LIGHTEN) 폐기**: login은 제거 대상이 아니라 (자격증명 가용 시)올바르게 수행 대상. zero-train null은 binding이 게이팅 아님을 보였을 뿐.
+>
+> **★16개 "cred-absent"(이전 crude bucket)의 정확한 분해 — leaderboard(저자 59 released model files) 재확인:**
+> - **8개 = 도구선택(정보 가용, 레버로 극복)**: apply_credit_card(idx0:full-pass13,idx2:16)·deposit_funds(28:17)·set_safety_box(78:10,98:7)·transfer_funds(111:10,115:11,124:13). released 모델 다수가 **full 모드에서 통과**. 성공궤적=`internal_check→internal_get_credit_score→goal` / `login→authenticate→internal_get_credit_score→get_account_balance→set_safety_box`. ⇒ getter 호출이 열쇠.
+> - **8개 = 진짜 자격증명-부재(정직 극복 불가)**: get_loan(39,44)·pay_bill(56)·pay_loan(66,67)·set_safety_box(76,89)·transfer_funds(120). identification(+admin_password)가 **user_known에 부재** → **0~1/42 모델만 통과(oracle 도구모드 포함)**. oracle 궤적=`check→login→exit`(포기) 또는 goal시도→dirgraph False. =메모리 극難6(39,44,56,76,89,120)+경계2(66,67). evidence_a_probe가 통과시킨 건 account에서 creds 읽는 cheat.
+> - **⚠️ 이전 "realistic=21 / 16 전부 refusal" 철회**: 16을 lump한 오류. realistic 모드(account aug 끔)가 rigid scripted+과대strip으로 16 drop했으나, 실제는 8(도구선택)+8(cred-부재).
+>
+> **정직한 천장 = ~32/48** (48 − 8 결함(cancel_cc×6+pay_bill_cc×2) − 8 자격증명부재). 레버 타깃=이 32(baseline 4). gap3(scripted oracle 37 vs evidence_a_probe 40)=값-반환 goal(exchange_foreign_currency·get_account_owed_balance) **run_scripted 아티팩트, 결함 아님**(evidence_a_probe 통과; 결함목록 8개 유지).
+> - **재학습 타깃 확정**: 완전 게더(A+B+C, C는 cred 가용 시 조건부 login) → `build_tbox_planner_sft`/`build_v2_prompt` 내재화. should_F 거부축 별도 보존(gross 14-scope). 8 자격증명부재는 거부/can't-do로(should_T 라벨이나 정직 에이전트 불가).
+> - 코드: `run_scripted.py`(scripted-gather, --realistic/--analyze), `lever_decomp.py`, `binding_diag.py`, `_leaderboard_bankcheck.py`(59 released files, bucket C 분해).
+
 > **Exp-4a 데이터 파이프라인 완성 (2026-06-01)**: `build_tbox_planner_sft.py` — GT means-ends가 만든 정답
 > 결정 시퀀스([login→goal]/[login→STOP]/[goal]) → 각 step을 **공유 `build_v2_prompt`(train/test 동일 프롬프트)**
 > + copy-target(operator명/STOP)으로 SFT 예제화, operator 순서 셔플(§11.4 위치암기 차단; alias는 후속). **1497
