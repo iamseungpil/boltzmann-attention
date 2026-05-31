@@ -17,8 +17,8 @@
 >   **CORRECTION (2026-06-02, see Part B):** that "oracle pass" was `evidence_a_probe` injecting
 >   credentials read from the account record (`internal_get_database`) — a path NOT available to any
 >   agent (internal_get_database is not an agent tool in full OR oracle mode). Under the
->   agent-accessible setting these 8 instances (get_loan×2, pay_bill, pay_loan×2, set_safety_box×2,
->   transfer_funds) are a **separate defect class**: the `directed_action_graph` requires
+>   agent-accessible setting **6** instances (get_loan×2, pay_bill, set_safety_box×2,
+>   transfer_funds; pay_loan 66/67 excluded = passable) are a **separate defect class**: the `directed_action_graph` requires
 >   `login_user`/`authenticate` that the task's own `constraints`/`user_instruction` (username-only
 >   identification) do NOT — see **Part B** below.
 >
@@ -116,7 +116,7 @@ Happy to send a PR for fix (1) once you confirm the intended schema.
 
 ---
 
-# Part B — SECOND defect class: `directed_action_graph` requires auth the task's constraints do not (8 instances)
+# Part B — SECOND defect class: `directed_action_graph` requires auth the task's constraints do not (6 instances)
 
 > **STATUS: candidate, evidence measured 2026-06-02 (`run_scripted.py`, `_defectchk.py`, `_intent8.py`,
 > `_admincheck.py` on the clone). Distinct from Part A (there the goal method itself fails; here the
@@ -124,14 +124,20 @@ Happy to send a PR for fix (1) once you confirm the intended schema.
 > authors whether login is intended for these tasks before filing.
 
 ## Title (Part B)
-`bank`: 8 `action_should_succeed=true` tasks are unpassable by any agent — `directed_action_graph`
-requires `login_user`/`authenticate_admin_password` that the task's own `constraints`,
-`constraints_original`, and `user_instruction` (username-only identification) do not, and no
-credentials are provided or agent-accessible.
+`bank`: 6 `action_should_succeed=true` tasks are passed by 0 of 43 released model runs — their
+`directed_action_graph` requires `login_user`/`authenticate_admin_password` that the task's own
+`constraints`, `constraints_original`, and `user_instruction` (username-only identification) do
+not, and no credentials are provided or agent-accessible.
 
-## Instances (8)
-get_loan (idx 39, 44) · pay_bill (56) · pay_loan (66, 67) · set_safety_box (76, 89) · transfer_funds (120).
-(= memory's "극難 6 + 경계 2"; previously mis-classed as "merely hard".)
+## Instances (6) — VERIFIED by task-identity matching, not index
+get_loan (our_idx 39, 44) · pay_bill (56) · set_safety_box (76, 89) · transfer_funds (120).
+> **Method correction (2026-06-02):** released `output/bank/*.json` files do **NOT** share task
+> ordering, so earlier index-based aggregation was invalid. Re-matched by task IDENTITY
+> (goal+constraints+user_known+constraint_parameters+initial_database hash) across all 59 released
+> files (43 contain these tasks). **pay_loan (66, 67) were initially included but are PASSED**
+> (66: 1/44 = qwen2.5-7b oracle; 67: 2/43 = gemini-2.0-flash full + qwen2.5-7b oracle) → **NOT
+> defects, excluded.** The remaining 6 are passed by **0/43** — across full-static (37),
+> oracle-static (16), and user-sim-full (6) configs. (Released set has no oracle+user-sim config.)
 
 ## Evidence
 1. **Task intent = username-only, no login** (8/8): `user_instruction` says *"using your username to
@@ -147,9 +153,11 @@ get_loan (idx 39, 44) · pay_bill (56) · pay_loan (66, 67) · set_safety_box (7
    absent from `user_known`; the only tool that returns them, `internal_get_database`, is **not in the
    agent tool list in full OR oracle mode** (exposed `internal_*` tools are check/score only). So no
    agent can satisfy the login the dirgraph demands.
-4. **0 of ~42 released model runs pass these 8** (all tool modes), unlike the routinely-passed
-   instances of the same goals that DO carry credentials. (`evidence_a_probe` "passes" them only by
-   calling `dss.internal_get_database()` directly — a system method an agent cannot invoke.)
+4. **0 of 43 released model runs pass these 6** (identity-matched; full-static + oracle-static +
+   user-sim-full), unlike the routinely-passed instances of the same goals that DO carry
+   credentials. (`evidence_a_probe` "passes" them only by calling `dss.internal_get_database()`
+   directly — a system method an agent cannot invoke.) **pay_loan 66/67 excluded** (passable; see
+   Method correction above — pay_loan's constraint has an `or` branch admitting a no-login path).
 
 ## Root cause (hypothesis to confirm with authors)
 The stored `directed_action_graph` is built from the **default/full dependency** (`dep_full`, which
@@ -159,8 +167,9 @@ includes login for these goals) while the task's sampled `constraints` are a lig
 nor supplies credentials → the task is internally inconsistent and unpassable.
 
 ## Why it matters
-8 more `should_succeed=true` instances are unpassable by every agent — distinct from Part A (method
-bug). Combined effective honest ceiling for bank `should_succeed` ≈ **32/48** (48 − 8 Part-A − 8 Part-B).
+6 more `should_succeed=true` instances are passed by 0/43 released runs — distinct from Part A
+(method bug). Combined effective honest ceiling for bank `should_succeed` ≈ **34/48** (48 − 8 Part-A
+− 6 Part-B). (pay_loan 66/67 excluded: passable.)
 
 ## Suggested fix (any one)
 1. Build/store `directed_action_graph` from the task's actual `constraints` (so username-only tasks
