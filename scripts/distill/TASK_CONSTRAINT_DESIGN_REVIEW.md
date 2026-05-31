@@ -134,3 +134,49 @@ A가 그 게이팅을 걷어내면 이들이 goal 호출로 뒤집혀 should_F �
 - **P8 (plumbing) ✅ 확인**: 클론 `run_simulation.py:151` per-task `client.reset()`가 `task` 스코프 내 → `reset(task_constraints, goal)`로 주입 가능(패치 완료, compile OK).
 
 **게이트 통과 기준(사전등록)**: zero-train에서 (i) login 과잉호출 ≥50%↓ AND (ii) should_T(/40) 상승 AND (iii) should_F fragile 5건 회귀 ≤2 → 재학습 1회 착수. 미달 시 메커니즘 재검토(A가 status에 둔감 등).
+
+---
+
+## 6. 재평가 (2026-06-02, 갱신본 1912ed9 + 게이트 실측 검증)
+
+저자 응답(§5)과 갱신 본문(§2.4·§9.1)을 코드/산출물 대조로 재검증. **개선은 실질적이나, 진행 중 zero-train 실험을 무효화하는 배선 버그 1건(R1)을 발견.**
+
+### 🔴 R1 — zero-train(LIGHTEN) 실험이 현재 커밋 상태로 **no-op**. 진행 중 실험은 아무것도 측정하지 않음 (최우선·BLOCKING)
+커밋 1912ed9는 **client 측 시그니처만** 추가했고 그것을 먹이는 **호출부를 안 바꿨다**:
+- `two_stage_client.py`: `reset(task_constraints=None, goal=None)` + `_lighten` 게이트 ✅ (추가됨)
+- 그러나 호출부는 둘 다 **무인자**: `apply_two_stage_patch.py:94` `assistant_agent.client.reset()` (배포 시 클론 `run_simulation.py`에 주입되는 코드), `run_two_stage.py:83` `client.reset()`.
+- 결과: `_task_constraints`/`_goal_name`이 항상 `None` → `_plan_v2`의 `gname = self._goal_name if self._lighten else None`이 `None` → `build_v2_prompt`가 `goal_constraint=None`으로 무거운 default precond 렌더 = **baseline과 바이트 동일**.
+
+즉 `SOPBENCH_LIGHTEN=1`이어도 프롬프트가 안 바뀐다. **`output_v4a_v2_lighten` eval은 baseline 재현일 뿐**, mechanism A를 전혀 검증하지 못한다. temp=0이라 결과가 baseline과 **동일**하게 나올 것이고, 이를 "A가 안 듣는다"로 오독하면 위험(메모리의 fabrication/오결과 경계와 직결).
+- §5 P8의 "패치 완료, compile OK"는 **부정확**: client 시그니처가 compile될 뿐, 호출부 주입은 미구현. ("compile OK"는 호출부가 바뀌지 않았으므로 당연히 통과 — 검증력 없음.)
+- **수정**: `apply_two_stage_patch.py` Edit B(및 `run_two_stage.py:83`)를 `reset(task_constraints=task["constraints"], goal=<goal 연산자명>)`로 변경. `task`는 해당 지점 스코프 내(run_two_stage:82 루프변수; clone run_simulation도 per-task 루프) ✅. 재배포 후 **샘플 프롬프트 1건이 baseline과 실제로 다른지 눈으로 확인한 뒤** 실험 신뢰. 현재 진행 run은 중단·폐기 권고.
+
+### 🟠 R2 — zero-train 검정은 비대칭. **null 결과 ≠ A 반증**
+배포 어댑터(arm-4a v2)는 **무거운 프롬프트로 학습**됨. (R1 수정 후) 가벼운 status를 먹이면 train/test 분포 shift. 따라서:
+- **양성**(login 호출↓·should_T↑) → A 강한 확증. ✅
+- **null/음성** → **비결론**(어댑터가 학습한 적 없는 READY status를 무시할 뿐일 수 있음). A 반증 아님.
+§5 게이트 기준 "미달 시 메커니즘 재검토"는 이 비대칭을 담아야 함 — 배선 정상인데 null이 나와도 A를 폐기하면 안 됨. **A의 깨끗한 검정은 재학습이 필수**(zero-train은 positive-only 확증 도구). 사전등록 문구에 명시 필요.
+
+### 🟠 R3 — P3 "fragile 5건"은 과소계상. 9건은 "안전"이 아니라 **미분류(잠재 위험)**
+`gates_p2p3.py`의 31 분해 = PRINCIPLED 16 + ACCIDENTAL[risk] 5 + STOP/other 9 + goal-called 1.
+- 9 "STOP/other" = "goal 호출X · fact-false X · login-fail X" = **principled로 확인된 게 아님**(step-limit·looping·과잉게이팅 혼선 가능 — A가 건드릴 수 있는 부류). 
+- 정직한 진술: **확인-안전=16, 확인-위험=5, 미정=9**. 회귀 모니터는 5가 아니라 **5+9=14**를 덮어야 함.
+- 부차: 스크립트가 `called_goal→fact_false→login_failed` 순 우선 분류 → fact-false와 login-fail이 공존하는 레코드는 PRINCIPLED로 흡수되어 위험을 가릴 수 있음(경미).
+
+### 🟠 R4 — 신규 §2.4/§5와 **구 본문(§7·§8·§9.4·§9.5·§10)이 모순** — 이 문서가 고치려던 바로 그 실패모드 재발
+갱신이 §2.4·§9.1을 더했으나 충돌하는 옛 텍스트를 안 지움:
+- **§8 L169 "분모=40"** + **L178 "7/48≈7/40"** ↔ §2.4 P6(주 /48 · 보조 /40, 카운트를 분모만 바꿔 동일시 금지). 모순.
+- **§9.4 L189** 여전히 "마스크 = `task_constraint ∪ innate_dep`, 검증 필요" ↔ P2/P5 결론(task가 login 필요하면 그 login이 **task 제약 자체에 들어있음** → `task_constraint` 단독 충분). 스테일.
+- **§9.5 L190** 본문에 "현실 상한 ~34" 부유 ↔ P6(/48·/40 고정, ~34는 주석으로만).
+- **§7 L163** 여전히 zero-train band-aid "비추천" ↔ P7 채택·zero-train이 지금 **1차 게이트**. 직접 모순.
+- **§10 Q1/Q2/Q4** 여전히 미해결 질문으로 제시 ↔ §5에서 이미 답함.
+→ 천장 "24→40" 오정정과 **동종의 누적 스테일**. §7·§8·§9.4·§9.5·§10을 §2.4/§9.1 결론으로 갱신하거나 "superseded" 표기 권고.
+
+### 🟢 R5 — 실질 개선(인정)
+- **P1 "비단사(76/24)" 재프레이밍**: 설계서의 "일관 모순쌍"과 리뷰의 "override 학습" **양측을 정직하게 정정**. 76/24는 올바른 증거이고 A를 강화함. ✅
+- **P2 분포(14/31/3, 합=48)**: n≈1 우려 정면 해소. "A는 31엔 무손해" 논리 타당. ✅
+- **P4 A/B 분리(§9.1)**: A=공정(정책 등가)·B=semi-oracle 분리 보고 — 정확하고 중요. ✅
+- **게이트 스크립트 실재**: P2/P3 로직 대체로 건전(R3 caveat 제외). ✅
+
+### 재평가 결론
+방향과 진단(§2.2 비단사)·게이트 설계는 견고해졌다. 단 **R1(no-op 배선)이 BLOCKING** — 고치기 전 진행 중 실험 결과는 0의 정보가치이며 오독 위험. 순서: **R1 수정+프롬프트 차이 육안확인 → (정상 배선) zero-train 재실행 → R2 비대칭 해석규칙 적용 → R3대로 14건 모니터 → R4 스테일 정리 → 게이트 통과 시 재학습.**
