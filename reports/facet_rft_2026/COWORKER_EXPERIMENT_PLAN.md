@@ -4,6 +4,65 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★★★ v1.35 (2026-06-01) — ★coworker 32B **G-alias zero-train 게이트** (재학습 전 필수, 결정적)
+> **무게중심 업데이트**: should_T 병목 해소의 (b) 구현이 **tool-name ALIAS 마스킹 + source-3(NL-only)** 로 재정렬됐다
+> (설계 권위본 = `scripts/distill/TASK_CONSTRAINT_DESIGN.md` **§8.5.★**). **coworker의 역할 = 32B로 G-alias 게이트 실행**
+> (모델분업: 강모델=coworker). Track A(7B)는 같은 게이트의 zero-shot 하한 사다리를 병행 중(진행).
+>
+> **왜 이 게이트인가 (재학습 1회 낭비 방지 = "zero-train 먼저" 교훈):**
+> - **alias 마스킹** = LODO 전이 헤드라인의 **타당성 게이트**. 도구명이 암기가능하면(`login→apply_credit_card`) 양성
+>   전이 숫자가 "이름 암기"로 오염돼 신뢰 불가. 도구를 per-task 불투명 alias(`op_7`)로 주면 모델은 **NL 정책↔도구 설명
+>   의미매칭**을 강제당함 = thesis가 주장하는 NL→절차 스킬 그 자체. (그래프 전체 일관 alias: 술어·STATUS내 체크명·
+>   설명·history까지. 선두 이름만 가리면 needs[]/STATUS로 샌다 → 코드는 전부 치환.)
+> - **source-3** = 제약-도출 STATUS('정답지') 미렌더, 도구는 **설명 + NL 정책만**. alias와 **직교축**: 진짜 anti-cheat =
+>   **alias ON + source3**(alias+source1은 익명화된 dirgraph를 여전히 떠먹임).
+> - 위험: alias는 난이도↑. 자체 실적 경고 = arm-3v2 should_T 2/48·arm-4a 4/48(더 쉬운 실명 세팅서도 바닥). **강모델조차
+>   alias+s3을 못 풀면 라벨이 7B엔 학습 불가** → 재학습 말고 **설명/정책 신호부터 보강**. 강모델이 풀면 = 스킬 실재 →
+>   7B SFT/RFT로 내재화 가치 확정. **이걸 재학습 0으로 선판정하는 것이 G-alias.**
+>
+> ### ▶ TURNKEY (git-only, **cp 금지** — 레포에서 직접 실행, 클론의 env/data는 PYTHONPATH로)
+> ```bash
+> # STEP 1 — repo pull (신규: build_tbox_planner_sft.py에 --alias/--source, gate_alias.py 신규)
+> cd <checkout> && git pull --rebase origin facet-rft-2026
+> REPO=<checkout>/scripts/distill/sopbench
+> CLONE=<your SOPBench clone>          # data/ + induced/ontology_bank.json 필요
+> #   induced/ontology_bank.json 없으면: PYTHONPATH=$CLONE python $REPO/induce_ontology_zekun.py --domain bank --out $CLONE/induced
+>
+> # STEP 2 — 세 regime SFT jsonl 빌드 (난이도 사다리). build는 env.task 임포트 → PYTHONPATH=$CLONE.
+> cd $REPO
+> for FLAGS in "" "--source 3" "--alias --source 3"; do
+>   PYTHONPATH=$CLONE python build_tbox_planner_sft.py --domain bank --out /tmp/g \
+>     --data_dir $CLONE/data --ont_dir $CLONE/induced $FLAGS
+> done
+> #   → /tmp/g/{sft_tbox_bank.jsonl, _s3.jsonl, _alias_s3.jsonl}  (각 ~516행, target mix 동일=INPUT만 다름)
+>
+> # STEP 3 — G-alias 게이트: 서빙된 32B(v1.34 STEP3, port 9100)에 teacher-forced 질의. gate는 env 임포트 無.
+> for f in sft_tbox_bank sft_tbox_bank_s3 sft_tbox_bank_alias_s3; do
+>   python gate_alias.py --sft /tmp/g/$f.jsonl --model qwen2.5-32b-instruct \
+>     --base_url http://localhost:9100/v1 --first_only
+> done
+> ```
+> **사전등록 판정 (G9*)**: **alias+s3에서 32B first-step next-op 정확도 ≥ 0.6 = LEARNABLE**(7B SFT/RFT 진입) /
+> **< 0.6 = 신호 부족**(재학습 전 도구 설명·정책 블록 보강). **s1 → s3 → alias_s3 정확도 하락폭 = 구조 spoon-feed가
+> 떠먹인 양**의 정량치(메인 figure 후보). `--first_only` 빼면 전 step per-step 정확도(SFT가 최적화하는 그 신호).
+>
+> ### ▶ 게이트 통과 시 → 32B/72B alias 매트릭스 (coworker 본 기여)
+> 통과하면 **헤드라인 실험**으로 진입(설계 §8.5.★ ④): ① **LODO 전이**(6도메인 학습→held-out bank, ABox swap, 재학습0)
+> ② **ablation**: 빈/틀린 ABox→붕괴(온톨로지 실사용) · in-context(arm-3v2) vs 학습(arm-4a) vs **L0(arm-2)** · **alias on/off**
+> ③ 멀티턴 user_sim pass@1. **SOTA 절대수치보다 "재학습0 전이"가 1급 결과.** (단 bank held-out은 §10 결함 8개 제외 분모.)
+>
+> ### ▶ 파일 레퍼런스 (repo `scripts/distill/sopbench/`)
+> | 파일 | 역할 |
+> |---|---|
+> | `two_stage_client.py` | `build_v2_prompt(alias_map, source)` + `make_alias_map`(전그래프 일관 bijection) + `_plan_v2` de-alias. env `SOPBENCH_ALIAS`/`SOPBENCH_SOURCE` 토글. 기본경로(alias off·s1)=레거시 byte-identical(기존 수치 불변, 단위검증). |
+> | `build_tbox_planner_sft.py` | `--alias`/`--source {1,3}` → per-task TRAIN-salt alias map + 타깃 alias + 파일명 태깅. |
+> | `gate_alias.py` | offline teacher-forced next-op 정확도(should_T/F 분리). SOPBench env 無, endpoint만. |
+> > **train salt ≠ eval salt (의도)**: build는 `train|<dom>|<task#>`, client는 `eval|<goal>|<toolset>` salt → alias 값이
+> > train/eval 달라야 "alias↔tool 암기 아님=의미매칭만 전이"가 입증됨. 프롬프트 *형식*은 동일(§6.4 train/test 일관).
+> > ⚠️ rr.ps1/원격 1호출 규칙·로컬 python=Store스텁(seka_env py3.12 사용)·결과는 실제 RC 확인 후만 인용(§10.4).
+>
+> ---
+>
 > ### ★★★★ v1.34 (2026-06-01 밤) — arm-3 파이프라인 완성·검증 + 32B/72B TURNKEY 실행 지시 (coworker 내일 바로)
 > **TL;DR**: arm-3(L1 2-stage agent) 파이프라인이 **완성·디버그·검증**되었다(7B bank N=134 저자 evaluator로 채점 완료).
 > coworker는 **`MODEL` 한 변수만 바꿔** 32B/72B를 7도메인 sweep 가능. 모든 코드·스크립트·서빙레시피 아래 박제.
@@ -439,6 +498,7 @@ git clone https://github.com/amazon-science/SOP-Bench.git && cd SOP-Bench && pip
 | **G6* (xattn neural resolver, B5*)** | catalogue 도메인(retail/airline)서 `xattn` coverage·pass^1이 `resolver`(rule) 및 `ontollm`(프롬프트) **둘 다 상회** + **ABox-ablation으로 붕괴**(빈/틀린 M) + **swap LODO가 in-dist의 ≥70% 회수** | 본 트랙 novelty 입증 / 인코딩 분포정합·데이터 재설계 |
 | **G7* (R4 scenario, B6*)** | scenario-2단계 planner가 평면 대비 **multi-fault task pass^1 +≥5%p**(누락 감소) + scenario 매칭 정확도 ≥80% (3도메인) | 계획층 가치 입증 / fault 클러스터 재정의 |
 | **G8* (R3 branch / R1·R2 placeholder, B6*)** | branch=telecom anti-loop(max-step 실패) 감소 + placeholder=arg_bind **0.32→≥0.7**(인자 계약) | 실행층 가치 입증 / 슬롯 induce 정제 |
+| **G9* (alias 학습가능성, v1.35 ★zero-train)** | **32B가 alias+source3 SFT 프롬프트에서 first-step next-op 정확도 ≥0.6** (`gate_alias.py`) | 재학습 진입(7B SFT/RFT) / <0.6이면 도구설명·정책 신호 보강 후 재게이트 |
 
 ---
 
