@@ -922,10 +922,18 @@ ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. 
   **`dirgraph_satisfied`**(get_loan/set_safety_box/transfer_funds 25~38/52) + `constraint_not_violated`(21~36/52).
 - 12 goal은 ≥1 모델 통과(정상부). 아티팩트 = `reports/facet_rft_2026/xcheck_bank_evidenceB.json`.
 
-**해석(정직)**: seen=52 전부 0%는 **강한 정황이지 구조적 불가의 증명은 아님**(극難 가능성). 결정적 = evidence-A
-(저자 GT 궤적 `directed_action_graph`가 저자 evaluator를 통과하는가). **단 우리 `mre_bank_impossible.py`는 신뢰
-불가** — GT를 토폴로지가 아닌 **나열 순서**로 replay해 허위 dirgraph 실패 양산(같은 실행서 48/48 impossible).
-→ A는 MRE를 **위상정렬 replay로 고친 뒤** 재실행해야 결정.
+**★★evidence-A 확정 (2026-06-01 PM, 리모트 GPU0 `evidence_a_probe.py` RC0 — 결정적):**
+저자 strict env에서 **인증·전제조건을 모두 충족하고 GT 인자로 goal을 직접 호출**(replay 순서 무관, MRE 아티팩트
+회피)한 결과, should=True 48개 중 **오라클로도 성공 못 하는 = 8 인스턴스 / 2 goal**:
+- `cancel_credit_card`×6 → `goal_return=False` (메서드가 list를 dict처럼 순회 → `card_num(dict)==card_number(str)`
+  영영 False → `return False`, `bank.py` L209–213).
+- `pay_bill_with_credit_card`×2 → **`KeyError: 'credit_limit'`** (L190 `account["credit_cards"][card_num]["credit_balance"]`
+  에서 card_num이 dict → 예외). cc_type=**list** 확정.
+- ⇒ **이 8개는 저자 정답 경로로도 통과 불가 = 진짜 벤치마크 결함** (난이도 아님). 아티팩트 = `reports/facet_rft_2026/evidence_a_bank.json`.
+
+**evidence-B의 나머지 6개는 결함 아님**: get_loan×2·pay_bill×1·set_safety_box×2·transfer_funds×1은 evidence-B에선
+52런 전원 0%였으나 **evidence-A에서 오라클이 정상 성공** → 구조적 불가가 아니라 **극難 태스크**(전제조건 체인·잔액 등
+난이도). 즉 "전모델 0%"(B)는 결함의 충분조건이 아니며, **오라클 실패(A)가 결함의 판정 기준**임을 데이터가 보여줌.
 
 **⚠️★★★fabrication 사고 3회 — 전부 철회 (정직성 기록):** 로컬 python=Windows Store 스텁(exit49)이고 배포본이
 옛 stub(0개 반환)이던 동안, 미실행/0-반환 결과를 "실측"이라 **세 번** 지어냄:
@@ -942,22 +950,22 @@ ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. 
   `get_credit_card_info`(L250–256)는 `account["credit_cards"][card_number]` 키 인덱싱.
 - **★같은 파일에 모순된 두 시드 스키마**: `default_data1`(L27–33)=`credit_cards` **list-of-dict** /
   `default_data`(L63–68)=**dict(번호→상세)**. 즉 메서드·docstring=dict ↔ default_data1=list 불일치.
-- ⇒ **가설**: bank 태스크 credit_cards는 실측 **list-of-dict** 시드 → dict-가정 메서드 매칭 실패. cancel/pay_bill_
-  with_credit_card 8 인스턴스(실측 불가 14개 중)에서 `action_called_correctly` 지배 실패와 정합. **단 나머지 6개
-  (get_loan/pay_bill/set_safety_box/transfer_funds)는 credit_card 무관 → 별도 원인(미상)**. credit_cards 단일
-  가설로 14개 전부 설명은 과욕. 원인 규명·"불가" 확정은 evidence-A.
+- ⇒ **확정(evidence-A)**: bank 태스크 credit_cards = **list-of-dict** 시드인데 메서드는 dict 의미론 → cancel은
+  False 반환, pay_bill_with_credit_card는 KeyError. **8 인스턴스(2 goal)가 오라클로도 실패 = 결함.** 단일 list/dict
+  근본원인으로 이 8개 전부 설명됨(나머지 6개는 결함 아님 — 위).
 
-**가설 이력 정정(혼동 방지)**: 초기 "메서드 dict ↔ 데이터 list" 방향 맞음. 중간 "list[str] 순수 멤버십이라 dict
-반증"=소스 오독→철회. "list/dict 불일치는 무해, 불가 0개"=fabrication 3차→철회(실측은 14개 전원 0%).
+**가설 이력 정정(혼동 방지)**: 초기 "메서드 dict ↔ 데이터 list" 방향 맞음(=최종 결론). 중간 "list[str] 순수 멤버십
+이라 dict 반증"=소스 오독→철회. "list/dict 불일치는 무해, 불가 0개"=fabrication 3차→철회. **최종 = 8개 오라클 실패(A).**
 
-**확정 vs 미확정**: ✅소스(dict 메서드 + list/dict 시드 불일치) ✅evidence-B(14 인스턴스/6 goal seen=52 전원 0%,
-실측 RC0) / ❓"구조적 불가" 최종 증명 = **evidence-A(MRE 토폴로지 수정 후)** 대기.
-- **함의(현 단계)**: bank 천장 **<100% 거의 확실**(14/48 전모델 0%). 정확 "불가율"·천장·근본원인은 A 후 확정.
-  거부축(should=False) 별개. **수치 낮음을 전부 방법 탓으로 돌리지 말 것 — 14개는 출시 모델 52런이 전부 0%.**
-- 검증 자산: 리모트 `/tmp/xcheck_bank.json` + PI `reports/facet_rft_2026/xcheck_bank_evidenceB.json`(실측 RC0) +
-  `scripts/distill/sopbench/offline_crosscheck.py`(git) + `env/domains/bank/bank.py`.
-- ⚠️우리 `mre_bank_impossible.py`(oracle-replay)는 신뢰 불가 — `directed_action_graph`를 토폴로지 아닌 나열 순서로
-  replay해 허위 `dirgraph_satisfied` 실패(48/48) 양산. 증거로 쓰지 말 것. 권위본 = 저자 내장 evaluation 교차검증(B).
+**확정**: ✅소스(dict 메서드 + list/dict 시드 불일치) ✅evidence-B(14/6 goal seen=52 전원 0%) ✅**evidence-A(8 인스턴스
+/2 goal 오라클도 실패 = 결함 확정; 나머지 6개는 극難·결함 아님)**. 더 이상 미확정 없음 — 보고 가능(§11.14).
+- **함의(확정)**: bank should=True 실효 천장 = **40/48** (8개는 credit-card list/dict 결함으로 누구도 불가).
+  bank 수치 해석 시 이 8개는 **제외/플래그**. 거부축(should=False) 별개. **단 evidence-B 6개(극難)는 결함 아님 —
+  낮은 수치를 전부 벤치 탓으로 돌려서도 안 됨**(우리 방법 개선 여지 = 그 6개 + 정상부 40개).
+- 검증 자산: PI `reports/facet_rft_2026/{xcheck_bank_evidenceB.json (B), evidence_a_bank.json (A)}` +
+  `scripts/distill/sopbench/{offline_crosscheck.py (B), evidence_a_probe.py (A)}`(git) + `env/domains/bank/bank.py`.
+- ⚠️우리 `mre_bank_impossible.py`(oracle-replay)는 신뢰 불가(나열 순서 replay → 허위 dirgraph 48/48). **evidence_a_probe.py
+  로 대체**(전제조건 명시 충족 후 goal 직접 호출 = 순서 아티팩트 회피). 권위본 = A(오라클 실패) + B(저자 내장 eval).
 
 ### 11.14 ★저자 보고 결정 — B 완료·A 대기 (HOLD, 2026-06-01 PM)
 > **현 상태: 제출 보류.** evidence-B(§11.13 실측 RC0) = "14 인스턴스/6 goal을 출시 모델 52런이 전부 0%" → 벤치

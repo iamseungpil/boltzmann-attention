@@ -246,7 +246,29 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 >   따르게 하려면 학습 필요** = 본 라인 헤드라인 동기. (단 ABox는 가중치에 안 넣음=분리계약 §11.0, copy-grounded+xattn.)
 > - **모델크기 상호작용(coworker)**: in-context 구조가 **강한 모델**(32B/72B)엔 게이팅까지 도움되는지 = arm-3v2 sweep이
 >   "구조×크기" 측정. 7B는 명확히 L2 필요.
-| Exp-4a | arm-4a(L2 학습 TBox, in-context, 7 LODO) | fc/full | — | — | 🔶 데이터 준비완(1497ex/7dom), 학습 대기(GPU) |
+| Exp-4a | arm-4a(L2 학습 TBox, holdout=bank LODO) | fc/full | **16.4%** | should_T 3/48 · should_F 19/86 | ✅ 혼합(게이팅 전이 성공, 거부 붕괴) |
+
+> **★Exp-4a 첫 결과 (holdout=bank LODO, bank N=134, 2026-06-01)**: 6도메인(dmv·healthcare·hotel·library·
+> online_market·university) SFT(`lora qwen7b_tbox_planner_lodo_bank`, val 0.133→0.119→**0.1137** 단조개선) →
+> **bank(학습 제외) eval**.
+>
+> | arm | pass@1 | should_T | should_F |
+> |---|--:|--:|--:|
+> | arm-3v2(미학습) | 44.0% | 2/48 | **57/86** |
+> | **arm-4a(학습)** | **16.4%(22/134)** | **3/48** | **19/86** |
+> | L0 regression | 45.5% | 7/48 | 54/86 |
+>
+> - **✅ 학습+전이 성공(메커니즘)**: SFT가 establishable 게이팅을 내재화 → **궤적 `[login_user→apply_credit_card→
+>   exit]`**(arm-3v2의 login-건너뛰고 goal 무한반복이 사라짐). **bank=학습 제외인데도 login-우선 룰 따름 = 전이**
+>   (암기 아님, §11.7-i). **in-context(arm-3v2)로 안 되던 게이팅을 학습이 함** = L0→L1→L2 사다리의 L2 가치 입증.
+> - **❌ 거부축 붕괴(57→19) = 프롬프트가 FACT를 못 보여줌**: 프롬프트는 establishable(login)만 READY/BLOCKED 표시,
+>   **fact 선행조건(credit score 자격 등)은 미표시** → 거부 케이스서 login 후 goal이 "READY"로 보여 모델이 goal 호출
+>   (STOP 안 함) → 거부 실패. STOP 학습예제는 **추론 시 모델이 못 보는 fact에 기반**해 재현 불가. **arm-3v2가 STOP으로
+>   거부 57개 통과한 걸 arm-4a가 "login+try"로 깨뜨림** → 전체 16.4%<44%.
+> - **should_T 3/48 소폭**(게이팅 고쳤으나 dirgraph/실행 한계는 L0 7/48과 동류; ~26% 불가태스크 §11.13).
+> - **⇒ 다음(arm-4a v2)**: 프롬프트에 **fact-status 주입**(내부 read 도구 호출→관찰→STOP 판단) 또는 refuse 데이터를
+>   "fact 불명 시 보수적 STOP" 정책으로 재설계. 게이팅+전이는 입증됨 → 거부 fact-visibility만 고치면 됨.
+> - **남은 검증**: ablation (ii)빈/(iii)틀린 ABox 붕괴(분리 증명) + 6 LODO 회전.
 
 > **Exp-4a 데이터 파이프라인 완성 (2026-06-01)**: `build_tbox_planner_sft.py` — GT means-ends가 만든 정답
 > 결정 시퀀스([login→goal]/[login→STOP]/[goal]) → 각 step을 **공유 `build_v2_prompt`(train/test 동일 프롬프트)**
