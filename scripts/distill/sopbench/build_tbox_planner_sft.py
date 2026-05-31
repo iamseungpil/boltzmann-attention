@@ -84,7 +84,7 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 am = ont["operators"].get(a, {}).get("args", {})
                 return {p: slots[s] for p, s in am.items() if s in slots}
 
-            established, history, visiting = set(), [], set()
+            established, history, executed = set(), [], set()
 
             def next_decision():
                 try:
@@ -100,13 +100,13 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                         continue
                     seen.add(a)
                     for pred, by in establishable_of(a, ont).items():
-                        if pred in established:
+                        if pred in established or by in executed:
                             continue
                         try:
                             ok = de.process(by, **slots)
                         except Exception:
                             ok = False
-                        if ok and by not in established:
+                        if ok:
                             return by
                         frontier.append(by)
                 return "STOP"
@@ -125,9 +125,9 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                                  {"role": "assistant", "content": target}],
                 })
                 idx += 1
-                if target in ("STOP", goal) or target in visiting:
+                if target in ("STOP", goal) or target in executed:
                     break
-                visiting.add(target)
+                executed.add(target)
                 # advance GT state by executing the establishing action
                 try:
                     r = getattr(dss, target)(**resolve_args(target))
@@ -137,9 +137,6 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 history.append(f"RESULT[{target}]: {str(r)[:60]}")
                 if r is not False and "Error" not in str(r):
                     established.update(ont["operators"].get(target, {}).get("produces", []))
-                else:
-                    # establishing action failed -> can't advance -> next decision will STOP
-                    pass
     return examples
 
 
