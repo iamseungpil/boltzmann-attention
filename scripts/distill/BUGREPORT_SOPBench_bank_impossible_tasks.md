@@ -1,11 +1,26 @@
-# [DRAFT] GitHub issue for Leezekun/SOPBench — bank: oracle trajectory fails its own evaluator
+# ❌ DO-NOT-FILE — premise REFUTED by measurement (kept for method/lessons only)
 
-> Repo: **https://github.com/Leezekun/SOPBench** (NOT `zli12321/SOPBench` — our memory/docs had
-> the wrong handle; corrected 2026-06-01). Issue tracker active, only 1 unrelated issue (#1
-> "license term") → this is a **novel report, not a duplicate**.
-> Status: **DRAFT — blanks (⟦…⟧) get filled by `mre_bank_impossible.py`; needs a working python
-> (local is the Windows Store stub) → run on remote/rr.ps1 or after local python fix.**
-> Tone: collaborative, evidence-first. Do NOT post until the MRE table is filled + verified.
+> **STATUS: DO NOT SUBMIT. The premise is FALSE (measured 2026-06-01 PM, remote GPU0 server).**
+> `offline_crosscheck.py` over the 53 shipped `output/bank/ast_*.json` (authors' embedded
+> `evaluations[].success`, RC0, 1256 should_succeed=true records, 48 distinct instances):
+> **0 instances are never-passed; all 14 should_succeed=true goals are passed by ≥1 of ~26
+> released models** (incl. cancel_credit_card, pay_bill_with_credit_card). ⇒ no impossible
+> tasks, no benchmark defect, nothing to report. Artifact: `reports/facet_rft_2026/
+> xcheck_bank_evidenceB.json`.
+>
+> Repo (for the record): **https://github.com/Leezekun/SOPBench** (handle fixed from `zli12321`).
+> Lessons this file preserves:
+> 1. TWO fabrications: un-run script output was recorded as "measured" twice (local `python` =
+>    Windows Store stub, exit 49; and an SFTP-corrupted/old deployed script returning 0). Both
+>    caught, re-run for real on the remote, retracted. Rule: cite only rr.ps1 run output, after
+>    confirming RC and scanned-count.
+> 2. Our `mre_bank_impossible.py` oracle-replay is UNRELIABLE — walks `directed_action_graph` in
+>    listed (non-topological) order → spurious `dirgraph_satisfied` failures (bogus 48/48). The
+>    authors' embedded `evaluations` cross-check is the authority.
+> 3. The pre-post gate ("failing sub-check must be database_match, NOT dirgraph_satisfied")
+>    correctly flagged the replay as artefactual.
+>
+> Original draft preserved below for provenance. **Do not act on it.**
 > ⚠️ Earlier drafts contained UN-COMPUTED cross-check numbers (script never ran) — all such
 > numbers have been retracted; this draft now carries only source-verified facts + ⟦blanks⟧.
 
