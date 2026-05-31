@@ -918,3 +918,24 @@ ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. 
 - **함의**: bank should_succeed=True의 **실효 천장 ≈ 74%**(100% 아님). L0/arm-0 "oracle 천장"은 이 32개 기준으로
   측정·해석할 것. 거부축(should_succeed=False)은 별개로 대체로 달성가능. **수치 낮음을 전부 방법 탓으로 돌리지 말 것.**
 - 검증 자산: 저자 `output/bank/*.json`(evaluations 포함) per-task solvable 집계.
+
+### 11.14 ★저자 보고 결정 (벤치 결함 = §11.13, 2026-06-01)
+> 사용자 지시: 도달 못하는 내부 버그를 SOPBench 저자에게 보고. 방향 확정, 단 **반박불가 MRE 확정 후** 제출.
+- **저장소 정정**: 올바른 repo = **`github.com/Leezekun/SOPBench`** (우리 메모리/문서의 `zli12321/SOPBench`는
+  오류 → 404. `run_arm3_sweep.sh`·MEMORY 정정함). Issues 활성, 기존 이슈 **#1 "license term" 1건뿐** →
+  credit_cards/evaluator/impossible 관련 **선행 보고 전무 = 중복 아님, 신규 보고 가치 확정**.
+- **왜 보고**: (1) §11.13이 맞으면 저자 리더보드 천장이 전 참가자에 하향편향 = 커뮤니티 가치. (2) 우리 논문
+  방어력↑("벤치 결함 식별·**공개 보고**·영향 태스크 제외 해석", citable issue 번호). (3) 저자 ack/fix = 외부 확증.
+- **증거 강도 순서(반드시 이 순서로 잠금)**: ★**저자 자신의 oracle 궤적(`directed_action_graph`)이 저자 자신의
+  `evaluator_function_directed_graph`를 통과 못 함** = LLM·우리 planner·induce와 무관한 결정적 증거. "어려운
+  태스크"와 "구성 버그"를 가르는 선.
+- **산출물(이번 턴)**:
+  1. `sopbench/mre_bank_impossible.py` — **리모트 클론 root에서 실행**(로컬엔 SOPBench 클론 없음).
+     oracle-replay 표(should_succeed=True별 success + 실패 sub-check) + root-cause probe(credit_cards 타입 +
+     소스 dict-인덱싱 grep) + author output 교차검증(`--crosscheck`). **우리 5패치 없는 클린 클론**에서 돌릴 것.
+  2. `DESIGN/../BUGREPORT_SOPBench_bank_impossible_tasks.md` — GitHub issue 초안(빈칸=MRE 결과). pre-post
+     체크리스트 + 정직한 실패모드(arg-sourcing 아티팩트·dirgraph 순서 아티팩트·refusal 오라벨) 포함.
+- **제출 전 게이트(체크리스트 미충족 시 보고 보류)**: 실패 sub-check가 **database_match**(구성버그)지
+  **dirgraph_satisfied**(replay 순서 아티팩트 가능)가 아님을 확인 · `--toposort` 교차 · 1태스크 end-to-end 서술 ·
+  근본원인 줄을 grep 아닌 **메서드 정독**으로 확정. → 통과 시 issue 제출, 결과를 §11.13 수치에 역반영.
+- **상태**: 스크립트·초안 완료. **다음=리모트에서 MRE 실행→초안 빈칸 채움→게이트 통과 시 제출.**

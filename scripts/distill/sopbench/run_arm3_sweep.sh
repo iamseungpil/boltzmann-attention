@@ -8,8 +8,8 @@
 # every number is directly comparable to the leaderboard / Track-A 7B numbers.
 #
 # PREREQUISITES (once per clone):
-#   1. git clone the SOPBench repo into $CLONE (https://github.com/zli12321/SOPBench
-#      or your existing clone). cd into it.
+#   1. git clone the SOPBench repo into $CLONE (https://github.com/Leezekun/SOPBench
+#      or your existing clone). cd into it.   [repo handle corrected 2026-06-01: Leezekun, NOT zli12321]
 #   2. Deploy the arm-3 patch (idempotent, makes .bak backups):
 #        python /path/to/bap-pi/scripts/distill/sopbench/apply_two_stage_patch.py "$CLONE"
 #   3. Serve the model on a vLLM OpenAI endpoint with the SHORT canonical name
