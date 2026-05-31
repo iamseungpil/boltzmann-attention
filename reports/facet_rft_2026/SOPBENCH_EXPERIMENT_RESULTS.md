@@ -90,6 +90,12 @@ FC가 7B에 "유리"하다는 초기 가설 틀림. ReAct가 oracle에서 다소
 **5. 상한(oracle) 도메인별 분포 메모:**
 react/oracle: dmv 62.9% · library 47.0% · online_market 43.0% → 이 도메인들은 oracle에서 의미있는 성능, full에서 크게 떨어짐 = distractor 제거가 큰 효과를 보이는 도메인 = 우리 방법의 기여가 가장 선명히 드러날 곳.
 
+### ⚠️ 벤치마크 caveat — 구조적 불가 태스크 (~26%, 모든 bank 수치 해석 전제)
+bank `should_succeed=True` 43 유니크 중 **저자 모델(GPT-5/o4-mini/Claude-3.7/Gemini 등) 누구라도 푼 것 = 32 (74%)**.
+**11개(26%)는 어떤 프런티어 모델도 0% = 구조적 불가** (예 `cancel_credit_card` 0/3·`pay_bill_with_credit_card` 0/2:
+도메인 메서드가 `credit_cards`를 dict 가정하나 데이터는 list → 카드 lookup 영구 실패). ⇒ **bank should_T 실효 천장
+≈74%**(100% 아님). L0/arm-0 천장은 이 32개 기준 해석. **수치 낮음을 전부 방법 탓 말 것.** 상세 = `WORKFLOW_ONTOLOGY_DESIGN §11.13`.
+
 ### bank 추가 분석 (should_succeed 분해)
 
 | 설정 | overall | should_succeed=True (n=48) | should_succeed=False (n=86) |

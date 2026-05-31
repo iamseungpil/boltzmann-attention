@@ -876,3 +876,45 @@ pred, 어느 슬롯)일 뿐 — 관계 *타입*은 불변. 이것이 "TBox 동�
    둘 다 GT ABox로 돌려 "greedy 실패율 vs regression 해결"을 **싸게 데이터로 입증** → "고치고 가기"와 "데이터 먼저"를
    동시 달성. greedy-L0가 bank를 의미있게 풀면 회귀 불요 판정도 가능(반증 경로 보존).
 2. **(achieves)** → **(ii) `produces ∩ output.required` 채택** (새 관계 불필요, 8관계 닫힘).
+
+### 11.12 ★Cost-benefit 경로 선택 (TBox 계획 원칙, 사용자 지시 2026-06-01)
+
+> 사용자 지시: "실행 비용을 생각해서 여러 경로 중 **비용대비 효과(benefit/cost)가 가장 좋은 경로**를 선택." =
+> 제안(b)"최소경로"의 일반화. means-ends가 (sub)goal을 만족시키는 길이 **여럿일 때**(주로 `or` 분기, 또는 같은
+> 슬롯을 produces하는 복수 operator) 단순 최단이 아니라 **효용 최대 경로**를 고른다. 도메인-불변 → **TBox 일부**.
+
+**우리 세팅의 cost / benefit (구체화):**
+- **cost(경로)** = ① operator 호출 수(부작용·DB변경 위험과 비례 — 불필요 호출이 dirgraph/database_match 깨뜨림),
+  ② **LLM resolver 호출 수**(deterministic 해결=슬롯에 인자 존재 시 ~0 비용 / tool_choice LLM 호출=토큰·지연 비용
+  — 이게 §11 coverage%가 측정하는 축), ③ 깊이/지연. → deterministic·소수 호출 경로가 저비용.
+- **benefit(경로)** = goal 도달 확률 ≈ 경로상 모든 precondition의 충족가능성 × operator 성공확률. L0에선 이진
+  (충족가능=1/불가=0), L2에선 학습된 추정.
+- **선택 규칙**: 후보 경로들 중 `argmax benefit/cost`. 동률이면 §11.3 A4 tie-break(토폴로지→잔여 precond 최소→사전순).
+
+**각 rung의 실현 (분리 계약 유지):**
+| rung | cost-benefit 실현 |
+|---|---|
+| **L0 symbolic** | 명시적 cost = (호출수, LLM=0 전부 deterministic). benefit=충족가능 이진. 최소-호출 충족 경로 선택(=제안 b). |
+| **L1 in-context** | planner 프롬프트에 "불필요 호출 피하고 이미 아는 정보로 풀 수 있으면 LLM 없이"를 규칙으로. 후보 operator의 deterministic 가능 여부를 affordance로 노출. |
+| **L2a 학습 TBox** | **reward/데이터에 cost 항**: success 궤적 중 **짧고 deterministic 비중 높은** 것을 선호하도록 학습(GoalAct식 효율 내재화). benefit=학습된 성공확률. → 비용대비효과가 가중치로 들어감. |
+
+**왜 분리 계약과 호환되나**: cost-benefit 룰은 **operator의 cost/benefit 신호**(호출수·deterministic 가능성·
+충족가능성)를 읽어 고르는 **도메인-불변 정책**이다. 도메인별 값(어느 operator가 어느 슬롯을 싸게 produces하나)은
+ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. ⇒ §11.1 분리 계약 그대로 — 19도메인 불변.
+
+**부수 이득 (현 진단과 직결)**: 불필요 호출 최소화가 §11.7 dirgraph/database_match 부작용 실패를 줄인다(L0 천장
+갭의 일부). 단, **벤치 불가능 태스크(cancel 등 ~26%, §11.13)는 어떤 저비용 경로로도 못 푼다 — cost-benefit과 무관.**
+
+**미결(설계 검토)**: benefit(성공확률) 추정 — L0=이진으로 충분하나, L1/L2에서 "이 condition-fact가 충족될지"를
+사전에 알 수 없는 경우(예: 잔액 충분?) 시도-실패 비용을 어떻게 반영할지(낙관적 시도 vs 보수적 refuse). N1과 연동
+(불확실하면 싸게 시도 후 실패 시 refuse vs 처음부터 refuse) — refuse=no-call이므로 시도-후-실패도 거부로 귀결 가능.
+
+### 11.13 ★벤치마크 caveat — 구조적으로 풀 수 없는 태스크 (~26% of bank should_succeed=True)
+> ALL bank 수치 해석의 전제 (2026-06-01 실측). arm-1/L0/모든 후속 arm에 적용.
+- bank `should_succeed=True` 43 유니크 중 **저자 모델(GPT-5/o4-mini/Claude-3.7/Gemini 등) 누구라도 푼 것 = 32
+  (74%)**. 나머지 **11 (26%)은 어떤 프런티어 모델도 0% = 구조적 불가**.
+- 원인 예: `cancel_credit_card`(0/3 전 모델)·`pay_bill_with_credit_card`(0/2) — 도메인 메서드가 `credit_cards`를
+  dict로 가정하나 데이터는 list → `card_num(dict)==card_number(str)` 영영 불일치 → 카드 lookup 영구 실패.
+- **함의**: bank should_succeed=True의 **실효 천장 ≈ 74%**(100% 아님). L0/arm-0 "oracle 천장"은 이 32개 기준으로
+  측정·해석할 것. 거부축(should_succeed=False)은 별개로 대체로 달성가능. **수치 낮음을 전부 방법 탓으로 돌리지 말 것.**
+- 검증 자산: 저자 `output/bank/*.json`(evaluations 포함) per-task solvable 집계.
