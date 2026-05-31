@@ -53,7 +53,6 @@ def run_task(task, domain, ont, dep_innate, dep_full, domain_keys, rule):
     dss = domain_keys[domain + "_strict"](
         copy.deepcopy(task["initial_database"]), dep_innate, dep_full, task["constraint_parameters"])
     de = dss.evaluation_get_dependency_evaluator()
-    st = dss.evaluation_get_innate_state_tracker()
 
     # slot pool: user_known + the acting user's account row (credentials etc.)
     slots = dict(task.get("user_known", {}))
@@ -69,6 +68,8 @@ def run_task(task, domain, ont, dep_innate, dep_full, domain_keys, rule):
         amap = ont["operators"][action]["args"]
         return {p: slots[s] for p, s in amap.items() if s in slots}
 
+    executed = set()
+
     def execute(action):
         args = resolve_args(action)
         try:
@@ -76,6 +77,7 @@ def run_task(task, domain, ont, dep_innate, dep_full, domain_keys, rule):
         except Exception as e:
             content = f"{e.__class__.__name__}: {e}"
         func_calls.append({"tool_name": action, "arguments": args, "content": content})
+        executed.add(action)
         return content
 
     def precond_ok(action):
@@ -84,19 +86,11 @@ def run_task(task, domain, ont, dep_innate, dep_full, domain_keys, rule):
         except Exception:
             return False
 
-    def state_true(pred, pm):
-        try:
-            fargs = {k: slots[pm[k]] for k in pm if pm[k] in slots}
-            r = getattr(st, pred)(**fargs)
-            return r if isinstance(r, bool) else bool(r[1])
-        except Exception:
-            return False
-
     visiting = set()
 
     def satisfy(action, depth=0):
-        """Ensure `action`'s preconditions by calling establishable subgoals (regression).
-        Returns True iff `action`'s full precondition holds afterwards."""
+        """Ensure `action`'s preconditions by calling each establishable subgoal ONCE
+        (backward regression). Returns True iff `action`'s full precondition holds after."""
         if depth > 12 or action in visiting:
             return precond_ok(action)
         visiting.add(action)
@@ -104,10 +98,10 @@ def run_task(task, domain, ont, dep_innate, dep_full, domain_keys, rule):
             leaves = []
             establishable_leaves(ont["operators"][action]["precondition"], ont, leaves)
             for pred, pm, by in leaves:
-                if not state_true(pred, pm):
+                if by not in executed:
                     satisfy(by, depth + 1)          # recurse on subgoal's own preconditions
-                    if precond_ok(by):
-                        execute(by)                 # establish the state predicate
+                    if by not in executed and precond_ok(by):
+                        execute(by)                 # establish the state predicate (once)
         visiting.discard(action)
         return precond_ok(action)
 
