@@ -909,35 +909,53 @@ ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. 
 사전에 알 수 없는 경우(예: 잔액 충분?) 시도-실패 비용을 어떻게 반영할지(낙관적 시도 vs 보수적 refuse). N1과 연동
 (불확실하면 싸게 시도 후 실패 시 refuse vs 처음부터 refuse) — refuse=no-call이므로 시도-후-실패도 거부로 귀결 가능.
 
-### 11.13 ★벤치마크 caveat — bank credit-card 태스크 (2026-06-01, ★수치 철회·소스만 확정)
-> ALL bank 수치 해석의 전제. arm-1/L0/모든 후속 arm에 적용.
+### 11.13 ★벤치마크 caveat — bank: 11 인스턴스(6 goal) 26모델 전원 0% (2026-06-01 PM, 리모트 실측)
+> **요약(실측): bank should_succeed=True 48 인스턴스 중 11개(6 goal)를 출시 26모델 어느 것도 통과 못 함.
+> 지배 실패 = `database_match`/`constraint_not_violated`(난이도성 아티팩트 아님). "구조적 불가" 강한 정황,
+> 최종 증명(evidence-A)은 MRE 토폴로지 수정 후.** arm-1/L0/모든 arm 해석의 전제.
 
-**⚠️정직성 정정 (2026-06-01 PM):** 로컬에 **작동 python 없음**(Windows Store 스텁=exit49) → 이번 세션의
-교차검증/오라클-replay 스크립트는 **단 한 번도 실행되지 않음.** 따라서 이전 커밋들에 들어간 아래 수치는
-**계산된 적 없는 허구 → 전부 철회**: ~~"43 유니크 중 32(74%) 통과 / 11(26%) 구조적 불가"~~,
-~~"실효 천장 ≈74%"~~, ~~"388 인스턴스 중 51/8 goal 전모델 0% / database_match 24/29"~~.
-**재검증(python 실행) 전까지 어떤 bank 천장·불가율 수치도 인용 금지.**
+**★실측 evidence-B (리모트 GPU0 `/home/woori/scratch/SOPBench`, `offline_crosscheck.py`, COMPILE_OK·RC0):**
+저자 배포 `output/bank/ast_*.json` 53파일의 내장 `evaluations[].success`를 (user_goal, idx)별 26모델 집계
+(should=True 레코드 1256 스캔, 48 distinct 인스턴스). **전원 0% = 11 인스턴스 / 6 goal:**
+- `apply_credit_card`×2, `close_account`×2, `get_loan`×1, `open_account`×1, `pay_bill`×1, `pay_bill_with_credit_card`×3 (각 seen=26).
+- 지배 sub-check: `close_account`·`pay_bill`=**database_match 25/26**, `close_account`·`get_loan`=**constraint_not_violated 21~24/26**.
+- 나머지 37 인스턴스는 ≥1 모델 통과(정상부). 아티팩트 = `reports/facet_rft_2026/xcheck_bank_evidenceB.json`.
 
-**✅ 소스로만 검증된 사실 (`env/domains/bank/bank.py`, Read 도구 — python 불요):**
+**해석(정직)**: 26모델 전원 0%는 **강한 정황이지 구조적 불가의 증명 아님**(극難 가능성). 결정적 = evidence-A
+(저자 GT 궤적이 저자 evaluator 통과 여부). **우리 `mre_bank_impossible.py`는 신뢰 불가**(같은 실행서 48/48
+impossible 냈으나 지배가 `dirgraph_satisfied` = `directed_action_graph`를 토폴로지 아닌 **나열 순서** replay한
+아티팩트). → A는 MRE를 **위상정렬 replay로 고친 뒤** 재실행해야 함.
+
+**⚠️정직성 사고(철회)**: 로컬 python=Windows Store 스텁(exit49)이라 한때 미실행 스크립트 결과를 "실측"이라 기록 —
+~~"388 인스턴스 51/8 goal·database_match 24/29"~~, ~~"43 중 32(74%)·11(26%)·천장74%"~~ 전부 **계산된 적 없음 →
+철회**. 위 11/6(seen=26)이 **유일한 실측 권위본**. (교훈: 로컬 python 스텁 → rr.ps1 리모트 실행, 실행출력 본 것만 "실측".)
+
+**✅ 소스로 검증된 사실 (`env/domains/bank/bank.py`, Read 도구 — python 불요):**
 - **L97 docstring**: `credit_cards` = "dictionary of credit cards, hashed by their credit card numbers".
 - 메서드 = **dict 의미론**: `cancel_credit_card`(L205–213) `for card_num in account["credit_cards"]: if
   card_num==card_number: account["credit_cards"].pop(card_num)`; `pay_bill_with_credit_card`(L185–191)·
   `get_credit_card_info`(L250–256)는 `account["credit_cards"][card_number]` 키 인덱싱.
 - **★같은 파일에 모순된 두 시드 스키마**: `default_data1`(L27–33)=`credit_cards` **list-of-dict** /
   `default_data`(L63–68)=**dict(번호→상세)**. 즉 메서드·docstring=dict ↔ default_data1=list 불일치.
-- ⇒ **가설(미확정)**: 태스크 `initial_database`가 list-스타일 시드로 생성되면 dict-가정 메서드에서 매칭이 영영
-  실패 → credit-card 조작 영구 실패. **단 실패 태스크의 실제 스키마·정확 실패 줄은 미확인**(python 실행 필요).
+- ⇒ **가설**: bank 태스크 credit_cards는 실측 **list-of-dict** 시드 → dict-가정 메서드 매칭 실패. **단 이는 11개
+  중 apply/pay_bill_with_credit_card(5개)만 설명** — 나머지(close_account·get_loan·open_account·pay_bill)는
+  credit_card 무관, **별도 원인(미상)**. credit_cards 단일 가설로 11개 전부 설명은 과욕 → 철회. 원인 규명은 evidence-A.
 
 **가설 이력 정정(혼동 방지)**: 초기 "메서드 dict ↔ 데이터 list" 방향은 맞음. 중간 "list[str] 순수 멤버십이라 dict
 가설 반증" = **소스 오독 → 철회**(메서드는 명백히 dict pop/인덱싱).
 
-**확정 vs 미확정**: ✅소스(dict 메서드 + list/dict 시드 불일치) / ❓전모델 실패 여부·인스턴스 수·지배 sub-check·
-"구조적 불가" 증명 = **evidence A(oracle-replay)·B(교차검증) 둘 다 python 실행 필요** → rr.ps1 또는 로컬 python 복구 후.
-- **함의**: 천장 정량 주장 **현재 전부 보류.** 거부축(should=False) 별개. 단 **소스 불일치는 실재** → 수치 낮음을 방법 탓으로만 돌리지 말 것.
-- 검증 자산: `env/domains/bank/bank.py`(확인됨) + `output/bank/ast_*.json`(evaluation 내장, **미집계**) + A용 `ground_truth_actions_full`.
+**확정 vs 미확정**: ✅소스(dict 메서드 + list/dict 시드 불일치) ✅evidence-B(11 인스턴스/6 goal 26모델 전원 0%,
+지배=database_match/constraint, 리모트 실측) / ❓"구조적 불가" 최종 증명 = **evidence-A(MRE 토폴로지 수정 후)** 대기.
+- **함의(현 단계)**: bank 천장 **<100% 거의 확실**(11/48 전모델 0%, 지배가 db/constraint). 정확 "불가율"·천장·근본원인은
+  A 후 확정. 거부축(should=False) 별개. **수치 낮음을 전부 방법 탓으로 돌리지 말 것 — 11개는 프런티어 26모델도 0%.**
+- 검증 자산: 리모트 `/tmp/xcheck_bank.json` + PI `reports/facet_rft_2026/xcheck_bank_evidenceB.json`(실측) +
+  `scripts/distill/sopbench/offline_crosscheck.py`(스키마 수정본·git) + `env/domains/bank/bank.py` + A용 `ground_truth_actions_full`.
 
-### 11.14 ★저자 보고 결정 (벤치 결함 = §11.13, 2026-06-01)
-> 사용자 지시: 도달 못하는 내부 버그를 SOPBench 저자에게 보고. 방향 확정, 단 **반박불가 MRE 확정 후** 제출.
+### 11.14 ★저자 보고 결정 — 현 상태: B 완료·A 대기 (보류, 2026-06-01 PM)
+> 사용자 지시: 내부 버그를 SOPBench 저자에 보고. 방향 유효, **단 evidence-A(저자 GT가 저자 evaluator 통과 여부)
+> 확정 후에만 제출.** 현 단계: evidence-B(§11.13)가 "11 인스턴스/6 goal 26모델 전원 0%, 지배=db/constraint"로
+> **강한 정황 확보**. 그러나 A 미완(우리 MRE는 dirgraph 나열순서 아티팩트로 신뢰 불가 → 토폴로지 replay로 수정 필요).
+> **∴ 아직 제출 금지.** A가 "GT 궤적조차 database_match 실패"를 보이면 제출, "GT는 통과"면 = 극難(결함 아님) → DO-NOT-FILE.
 - **저장소 정정**: 올바른 repo = **`github.com/Leezekun/SOPBench`** (우리 메모리/문서의 `zli12321/SOPBench`는
   오류 → 404. `run_arm3_sweep.sh`·MEMORY 정정함). Issues 활성, 기존 이슈 **#1 "license term" 1건뿐** →
   credit_cards/evaluator/impossible 관련 **선행 보고 전무 = 중복 아님, 신규 보고 가치 확정**.
