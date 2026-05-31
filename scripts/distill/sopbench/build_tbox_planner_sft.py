@@ -32,6 +32,20 @@ from two_stage_client import build_v2_prompt, _render_precond_mod   # shared pro
 DOMAINS = ["bank", "dmv", "healthcare", "hotel", "library", "online_market", "university"]
 
 
+def collect_pred_params(tree, acc):
+    """{predicate -> param_mapping} from a dep tree (for resolving internal-check args)."""
+    if not tree:
+        return
+    if isinstance(tree, (list, tuple)) and tree:
+        if tree[0] == "single":
+            name = tree[1]
+            name = name[4:] if name.startswith("not ") else name
+            acc[name] = tree[2] if len(tree) > 2 else {}
+        elif tree[0] in ("and", "or", "chain", "gate"):
+            for s in tree[1]:
+                collect_pred_params(s, acc)
+
+
 def establishable_of(action, ont):
     """{pred -> establishing action} for action's establishable precondition leaves."""
     leaves, est = [], {}
@@ -80,8 +94,12 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 for k, v in accounts[uname].items():
                     slots.setdefault(k, v)
 
+            # param_mapping for every predicate in the goal constraint (for check-tool args)
+            fact_pm = {}
+            collect_pred_params(task["constraints"], fact_pm)
+
             def resolve_args(a):
-                am = ont["operators"].get(a, {}).get("args", {})
+                am = ont["operators"].get(a, {}).get("args") or fact_pm.get(a, {})
                 return {p: slots[s] for p, s in am.items() if s in slots}
 
             # goal's FACT preconditions that are directly checkable (callable tool, same name) — v2
