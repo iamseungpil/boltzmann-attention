@@ -125,6 +125,45 @@ react/oracle: dmv 62.9% · library 47.0% · online_market 43.0% → 이 도메�
 - 성공기준: **arm-3 full > arm-1 full by ≥ 5%p on bank** → scale to 7 domains.
 - ⚠️ 주의: planner가 concrete tool schema 보면 안 됨(전이 오염).
 
+### ✅ Exp-3 결과 — arm-3 (L1) bank N=134, Qwen-7B, fc/full (2026-06-01, Track A)
+
+> **파이프라인 BLOCKING 수정 완료·검증.** 구 `run_two_stage.py`의 인라인 eval(tuple/포맷 불일치)을
+> 폐기하고, 저자 `run_simulation.py`에 `--two_stage` 플래그(assistant client만 `TwoStageClient`로 교체)
+> 추가 → 표준 `run_evaluation.py` **무수정** 재사용. 배포 = `apply_two_stage_patch.py <clone>`.
+> smoke 5 + bank 134 전부 저자 evaluator로 채점됨(포맷·합성객체 호환 검증). deterministic shortcut은
+> **opt-in 기본 off**(`--two_stage_det`) → 본 수치는 **순수 L1**(planner + LLM resolver).
+
+| arm | mode/tool | bank pass@1 | vs arm-1 |
+|---|---|--:|--:|
+| arm-1 (LLM-alone) | fc/full | 3.7% (5/134) | — |
+| arm-1 (LLM-alone) | react/full | 5.2% (7/134) | — |
+| **arm-3 (L1, naive planner)** | **fc/full** | **0.0% (0/133)** | **−3.7%p (HURTS)** |
+
+**오류 분해 (arm-3, 133 실패 중):** dirgraph_violations **122**(92%) · constraint_violations **116**(87%) ·
+database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
+
+**해석 (HL1 기각, 현 구현 기준):**
+1. **지배적 실패 = 제약 순서 위반**(constraint/dirgraph ~90%), tool-selection 아님. agent가 타깃 액션
+   (예: `apply_credit_card`)을 **SOP 선행제약 검증(`internal_check_*`/`internal_get_database`) 없이 즉시 호출** →
+   `directed_action_graph` 위반. (궤적 검수로 확인: 타깃 호출 후 read-loop 진입.)
+2. **순진한 L1 planner는 이 병목을 못 건드린다.** planner 프롬프트가 operator **이름+desc[:120]**와
+   goal 첫 400자만 받음 → **의존성/제약 그래프(어느 operator가 무엇을 선행해야 하는지)를 전혀 모름.**
+   arm-1은 같은 SOP를 system prompt로 다 보고도 5%이고, arm-3는 그 구조를 **버려서** 0%.
+3. **매턴 강제 도구호출의 부작용**: planner가 항상 도구를 고르고 resolver가 `tool_choice`로 강제 →
+   모델이 (a)우아하게 멈추거나 (b)명확화 질문을 할 수 없음 → **read-loop + 인자 환각**(resolver가
+   `username`에 문장 전체 주입 → max_tokens 절단 → JSON 깨짐, 6태스크 retry 소진). = telecom read-loop
+   메모리와 동일 패턴.
+4. **⇒ 결론: arm-3-naive는 음성. 그러나 이것이 구조적 planner의 필요를 깨끗이 증명한다.** 다음 iteration =
+   planner에 **call-graph/의존성 관계(§2 8-relation 온톨로지: precondition·step_realizes·observation_triggers)**
+   를 주입 + **종료/비호출 허용**. arm-3-naive는 그 구조판의 **clean baseline**.
+
+**다음(arm-3 v2 설계 — 사용자 설계리뷰 대상):**
+- (a) planner 입력에 **SOP 의존성 그래프** 추가(어느 operator가 어느 선행검증을 요구하는지; concrete param
+  schema는 여전히 숨김 = 전이가드 유지). (b) planner가 **선행제약 미충족 시 타깃 액션 금지**(gate). (c)
+  planner가 **exit/no-op 선택 허용**(read-loop·강제호출 차단). (d) resolver 인자 환각 가드(슬롯-우선·길이제한).
+- 코워커(32B/72B)는 우선 **arm-3-naive를 그대로** 돌려 **모델크기 × 구조 상호작용** 측정(강한 모델이 강제호출
+  패널티를 흡수하는지) → 구조판 v2의 비교 baseline 확보.
+
 ---
 
 ## Exp-4 — arm-4 L2 학습 planner + 전이 (예정, 2026-06~, coworker 주도)
@@ -152,7 +191,7 @@ react/oracle: dmv 62.9% · library 47.0% · online_market 43.0% → 이 도메�
 | Exp-1 | arm-1 | fc/oracle | 55.2% | 28.2% | ✅ 완료 (진단) |
 | Exp-0 | arm-0(ceiling) | oracle+full | — | — | 예정 |
 | Exp-2 | arm-2(L0 symbolic) | react/full | — | — | 예정 |
-| Exp-3 | arm-3(L1+structure) | react/full | — | — | 예정 |
+| Exp-3 | arm-3(L1 naive planner) | fc/full | **0.0%** | — | ✅ 완료 (음성: arm-1 3.7%↓, 제약위반 지배 → 구조판 v2 동기화) |
 | Exp-4 | arm-4(L2 LODO) | react/full | — | — | 예정 (coworker) |
 
 ---

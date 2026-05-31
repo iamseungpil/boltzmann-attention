@@ -17,6 +17,14 @@ This script applies, idempotently (with .bak backups), to a SOPBench clone:
                           (the original Union[OpenAIHandler, None] rejects it — this
                           pydantic error is the bug the first smoke surfaced, because
                           arm-3 had never actually been run before).
+  4. swarm/llm_handler.py : _init_vllm honours $SOPBENCH_VLLM_BASE_URL (use a PRE-SERVED
+                          vLLM endpoint instead of spawning one). Needed for arm-1 baseline
+                          to share the same endpoint as arm-3. (arm-3 client connects to the
+                          endpoint directly and does not need this.)
+  5. swarm/constants.py : register the open-source models in FUNCTION_CALLING_MODELS["vllm"]
+                          (original is []), so arm-1 fc mode passes the tool-calling assert
+                          for qwen2.5-{3b,7b,14b,32b,72b}-instruct + llama3.x. (arm-3 bypasses
+                          OpenAIHandler entirely, so it works regardless.)
 
 Usage (on the remote, from this file's dir or anywhere):
   python apply_two_stage_patch.py /home/woori/scratch/SOPBench
@@ -114,6 +122,33 @@ def main():
         ("    client: Union[OpenAIHandler, None] = None",
          "    client: Optional[object] = None  # arm-3: allow TwoStageClient (duck-typed .inference/.model_name_huggingface)"),
     ], marker="arm-3: allow TwoStageClient")
+
+    # 4) swarm/llm_handler.py — _init_vllm honours $SOPBENCH_VLLM_BASE_URL (pre-served endpoint)
+    lh = os.path.join(clone, "swarm", "llm_handler.py")
+    _patch(lh, [
+        ('        """Initialize VLLM backend."""\n'
+         "        self.VLLM_PORT = random.randint(3000, 8000)",
+         '        """Initialize VLLM backend."""\n'
+         "        import os as _os  # arm-3 infra: reuse a pre-served vLLM endpoint if provided\n"
+         '        _ext = _os.getenv("SOPBENCH_VLLM_BASE_URL")\n'
+         "        if _ext:\n"
+         '            self.client = OpenAI(base_url=_ext, api_key="EMPTY")\n'
+         "            self.process = None\n"
+         '            print(f"[patch] using pre-served vLLM endpoint {_ext}")\n'
+         "            return\n"
+         "        self.VLLM_PORT = random.randint(3000, 8000)"),
+    ], marker="SOPBENCH_VLLM_BASE_URL")
+
+    # 5) swarm/constants.py — register OSS models for fc tool-calling (original list is [])
+    cs = os.path.join(clone, "swarm", "constants.py")
+    _patch(cs, [
+        ('    "vllm": [],',
+         '    "vllm": [  # arm-3 infra: original was [] (OSS models blocked from fc assert)\n'
+         '        "qwen2.5-3b-instruct", "qwen2.5-7b-instruct", "qwen2.5-14b-instruct",\n'
+         '        "qwen2.5-32b-instruct", "qwen2.5-72b-instruct",\n'
+         '        "llama3.1-8b-instruct", "llama3.1-70b-instruct", "llama3.3-70b-instruct",\n'
+         '    ],'),
+    ], marker="arm-3 infra: original was []")
 
     print("DONE.")
 

@@ -4,6 +4,104 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★★ v1.34 (2026-06-01 밤) — arm-3 파이프라인 완성·검증 + 32B/72B TURNKEY 실행 지시 (coworker 내일 바로)
+> **TL;DR**: arm-3(L1 2-stage agent) 파이프라인이 **완성·디버그·검증**되었다(7B bank N=134 저자 evaluator로 채점 완료).
+> coworker는 **`MODEL` 한 변수만 바꿔** 32B/72B를 7도메인 sweep 가능. 모든 코드·스크립트·서빙레시피 아래 박제.
+>
+> **⚠️ 7B 결과 먼저 보고 기대치 보정 (중요):** arm-3-**naive**(operator 이름+desc만 보는 planner + 매턴 강제
+> 도구호출 resolver)는 7B bank에서 **pass@1 = 0.0%** (arm-1 fc/full 3.7%·react/full 5.2%보다 **나쁨**).
+> 실패의 ~90%가 **제약 순서 위반**(constraint/dirgraph violation): agent가 SOP 선행검증 없이 타깃 액션을 즉시
+> 호출. → **순진한 L1은 음성이지만, 이것이 "구조적 planner(의존성 그래프 주입)"의 필요를 깨끗이 증명**한다.
+> 상세 = `SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-3**. coworker의 32B/72B arm-3-naive run의 목적 =
+> **모델크기 × 구조 상호작용 측정**(강한 모델이 강제호출 패널티를 흡수하는지) + 구조판 v2의 비교 baseline 확보.
+> **수치가 낮아도 정상** — error_statistics 분해(어느 실패가 지배적인지)가 핵심 산출물.
+>
+> ### ▶ TURNKEY 실행 (4 스텝, `MODEL`만 변경)
+>
+> **STEP 1 — 코드 받기 (repo pull):**
+> ```bash
+> cd <your boltzmann-attention checkout>     # branch facet-rft-2026
+> git pull --rebase origin facet-rft-2026
+> # 신규 파일: scripts/distill/sopbench/{two_stage_client.py, apply_two_stage_patch.py, run_arm3_sweep.sh}
+> ```
+>
+> **STEP 2 — SOPBench 클론 + 패치 1회 (단일 명령, 멱등·.bak 백업):**
+> ```bash
+> git clone https://github.com/zli12321/SOPBench.git ~/SOPBench   # 또는 기존 클론 경로
+> python <repo>/scripts/distill/sopbench/apply_two_stage_patch.py ~/SOPBench
+> #  → cp two_stage_client.py + run_simulation.py(--two_stage) + types.py(client 완화)
+> #    + llm_handler.py(SOPBENCH_VLLM_BASE_URL endpoint) + constants.py(OSS fc 등록) 전부 적용
+> # env: python3.10+ (py3.12 권장), pip install openai tqdm termcolor colorama pydantic  (vllm 모듈 불요·CLI만)
+> ```
+>
+> **STEP 3 — 모델 서빙 (vLLM, `--served-model-name`을 짧은 표준명으로 — 이게 turnkey 핵심):**
+> ```bash
+> # 32B (1×80GB로 충분; 여유위해 TP=2도 가능). served-model-name = constants에 등록된 짧은 id.
+> CUDA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen2.5-32B-Instruct \
+>   --served-model-name qwen2.5-32b-instruct \
+>   --port 9100 --dtype bfloat16 --gpu-memory-utilization 0.90 --max-model-len 32000 \
+>   --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code
+>
+> # 72B (TP=2, 2×80GB):
+> CUDA_VISIBLE_DEVICES=0,1 vllm serve Qwen/Qwen2.5-72B-Instruct \
+>   --served-model-name qwen2.5-72b-instruct \
+>   --tensor-parallel-size 2 \
+>   --port 9000 --dtype bfloat16 --gpu-memory-utilization 0.92 --max-model-len 32000 \
+>   --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code
+> ```
+> > **왜 `--served-model-name` 짧은 id가 핵심**: arm-1 fc는 `model_name ∈ FUNCTION_CALLING_MODELS["vllm"]`
+> > (=`qwen2.5-32b-instruct` 등 짧은명) assert를 통과해야 하고, arm-3·arm-1 모두 OpenAI API에 `model=<MODEL>`로
+> > 호출한다. 서빙명을 짧은 표준명으로 맞추면 **두 arm이 동일 `--assistant_model <MODEL>`로 작동**(이름 충돌 0).
+>
+> **STEP 4 — sweep 실행 (`MODEL`만 변경):**
+> ```bash
+> cd ~/SOPBench
+> # 32B 전체(arm-1 + arm-3, 7도메인, fc/full):
+> MODEL=qwen2.5-32b-instruct SOPBENCH_VLLM_BASE_URL=http://localhost:9100/v1 \
+>   PY=$(which python) bash <repo>/scripts/distill/sopbench/run_arm3_sweep.sh
+>
+> # 72B (다른 endpoint):
+> MODEL=qwen2.5-72b-instruct SOPBENCH_VLLM_BASE_URL=http://localhost:9000/v1 \
+>   PY=$(which python) bash <repo>/scripts/distill/sopbench/run_arm3_sweep.sh
+>
+> # 빠른 smoke 먼저 권장(각 5태스크): ... NUM_TASKS=5 DOMAINS="bank dmv" ARMS="arm3" ... 추가
+> ```
+> 끝나면 `output_coworker/summary_<MODEL>.tsv` + 콘솔에 `arm/mode/tool/domain/pass_rate/action_called` 표 출력.
+> arm별 결과 json = `output_coworker/{arm1,arm3}/<domain>/...json` (저자 포맷 그대로 → 재평가·궤적검수 가능).
+>
+> ### ▶ 무엇을 비교하나 (arm 정의)
+> - **arm-1 (LLM-alone, baseline)**: 단일 LLM, full tool list. `run_simulation.py`(--two_stage 없음).
+> - **arm-3 (L1 2-stage)**: planner(LLM, **operator 이름+desc만**, concrete schema 숨김=전이가드) → resolver
+>   (`tool_choice` 강제 LLM 인자채움). `run_simulation.py --two_stage`. **planner+resolver = 매턴 2 LLM 호출.**
+> - **공정비교**: `run_arm3_sweep.sh`는 arm-1·arm-3 **둘 다 같은 `fc/full`**로 돌려 **같은-모드 Δ**(arm3−arm1) 산출.
+>   (resolver가 fc-native라 fc로 통일. `ARMS="arm1react"`로 leaderboard react/full 앵커도 추가 가능.)
+> - **headline 판독**: domain별 arm3 vs arm1 + **error_statistics 분해**(constraint/dirgraph/db/action/toolcall).
+>   7B에선 constraint/dirgraph가 ~90% 지배 → 32B/72B에서 이 분포가 어떻게 바뀌는지가 관전포인트.
+>
+> ### ▶ 결과 기록
+> - 수치 → `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-3 표에 `(arm, mode, model, domain, pass@1)` 행 추가.
+> - 출력 서브트리: coworker = `reports/facet_rft_2026/phase4_distill/coworker_a100/` 하위(충돌회피). summary.tsv도 여기 commit.
+> - arm-3 **설계 한계·v2 방향**(planner에 의존성그래프 주입·gate·exit허용·인자환각가드) = `WORKFLOW_ONTOLOGY_DESIGN §10`
+>   + `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-3 "다음" 절. v2 구현 전까지 coworker는 **arm-3-naive를 그대로** 돌릴 것.
+>
+> ### ▶ 파일 레퍼런스 (전부 repo `scripts/distill/sopbench/`)
+> | 파일 | 역할 |
+> |---|---|
+> | `two_stage_client.py` | arm-3 정책(planner+resolver). `OpenAIHandler.inference` 호환 client. `use_deterministic_shortcut`(기본 off). |
+> | `apply_two_stage_patch.py` | 클론에 5패치 멱등 배포(client cp + run_simulation `--two_stage` + types/llm_handler/constants). |
+> | `run_arm3_sweep.sh` | **메인 진입점.** `MODEL`만 바꿔 arm-1+arm-3 × 7도메인 × eval × summary.tsv. |
+> | `run_two_stage.py` | ⚠️DEPRECATED(구 인라인 eval 버그). 쓰지 말 것. |
+>
+> ### ▶ gotcha
+> - `apply_two_stage_patch.py`는 멱등(이미 패치면 skip). 클론 업데이트 후 재실행 안전.
+> - arm-3는 OpenAIHandler를 우회 → `--num_gpus/--gpu_memory_utilization` 무시(이미 서빙된 endpoint 사용).
+> - arm-1 fc는 `SOPBENCH_VLLM_BASE_URL` 설정 시 pre-served endpoint 사용(patch #4). 미설정 시 자체 vLLM spawn.
+> - 강제 도구호출 resolver가 read-loop에서 긴 인자 환각 → max_tokens 절단 → JSON 에러 → run_simulation이 retry(최대5).
+>   일부 태스크 empty-runs 가능하나 **분모에 실패로 정상 집계**(검증됨). 강한 모델에선 빈도 줄 것.
+> - 72B fp16은 1×80GB에 안 들어감(~145GB) → **반드시 TP≥2**.
+>
+> ---
+>
 > ### ★★★ v1.33 (2026-06-01) — arm-1 baseline 완료 + 내일 실험 지시
 > **결과 문서 (필독)**: `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` — 가설·결과·해석·
 > 다음 스텝 누적 기록. 이 문서가 앞으로 모든 SOPBench 실험의 결과 기록 권위본.
