@@ -909,15 +909,32 @@ ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. 
 사전에 알 수 없는 경우(예: 잔액 충분?) 시도-실패 비용을 어떻게 반영할지(낙관적 시도 vs 보수적 refuse). N1과 연동
 (불확실하면 싸게 시도 후 실패 시 refuse vs 처음부터 refuse) — refuse=no-call이므로 시도-후-실패도 거부로 귀결 가능.
 
-### 11.13 ★벤치마크 caveat — 구조적으로 풀 수 없는 태스크 (~26% of bank should_succeed=True)
-> ALL bank 수치 해석의 전제 (2026-06-01 실측). arm-1/L0/모든 후속 arm에 적용.
-- bank `should_succeed=True` 43 유니크 중 **저자 모델(GPT-5/o4-mini/Claude-3.7/Gemini 등) 누구라도 푼 것 = 32
-  (74%)**. 나머지 **11 (26%)은 어떤 프런티어 모델도 0% = 구조적 불가**.
-- 원인 예: `cancel_credit_card`(0/3 전 모델)·`pay_bill_with_credit_card`(0/2) — 도메인 메서드가 `credit_cards`를
-  dict로 가정하나 데이터는 list → `card_num(dict)==card_number(str)` 영영 불일치 → 카드 lookup 영구 실패.
-- **함의**: bank should_succeed=True의 **실효 천장 ≈ 74%**(100% 아님). L0/arm-0 "oracle 천장"은 이 32개 기준으로
-  측정·해석할 것. 거부축(should_succeed=False)은 별개로 대체로 달성가능. **수치 낮음을 전부 방법 탓으로 돌리지 말 것.**
-- 검증 자산: 저자 `output/bank/*.json`(evaluations 포함) per-task solvable 집계.
+### 11.13 ★벤치마크 caveat — bank credit-card 태스크 (2026-06-01, ★수치 철회·소스만 확정)
+> ALL bank 수치 해석의 전제. arm-1/L0/모든 후속 arm에 적용.
+
+**⚠️정직성 정정 (2026-06-01 PM):** 로컬에 **작동 python 없음**(Windows Store 스텁=exit49) → 이번 세션의
+교차검증/오라클-replay 스크립트는 **단 한 번도 실행되지 않음.** 따라서 이전 커밋들에 들어간 아래 수치는
+**계산된 적 없는 허구 → 전부 철회**: ~~"43 유니크 중 32(74%) 통과 / 11(26%) 구조적 불가"~~,
+~~"실효 천장 ≈74%"~~, ~~"388 인스턴스 중 51/8 goal 전모델 0% / database_match 24/29"~~.
+**재검증(python 실행) 전까지 어떤 bank 천장·불가율 수치도 인용 금지.**
+
+**✅ 소스로만 검증된 사실 (`env/domains/bank/bank.py`, Read 도구 — python 불요):**
+- **L97 docstring**: `credit_cards` = "dictionary of credit cards, hashed by their credit card numbers".
+- 메서드 = **dict 의미론**: `cancel_credit_card`(L205–213) `for card_num in account["credit_cards"]: if
+  card_num==card_number: account["credit_cards"].pop(card_num)`; `pay_bill_with_credit_card`(L185–191)·
+  `get_credit_card_info`(L250–256)는 `account["credit_cards"][card_number]` 키 인덱싱.
+- **★같은 파일에 모순된 두 시드 스키마**: `default_data1`(L27–33)=`credit_cards` **list-of-dict** /
+  `default_data`(L63–68)=**dict(번호→상세)**. 즉 메서드·docstring=dict ↔ default_data1=list 불일치.
+- ⇒ **가설(미확정)**: 태스크 `initial_database`가 list-스타일 시드로 생성되면 dict-가정 메서드에서 매칭이 영영
+  실패 → credit-card 조작 영구 실패. **단 실패 태스크의 실제 스키마·정확 실패 줄은 미확인**(python 실행 필요).
+
+**가설 이력 정정(혼동 방지)**: 초기 "메서드 dict ↔ 데이터 list" 방향은 맞음. 중간 "list[str] 순수 멤버십이라 dict
+가설 반증" = **소스 오독 → 철회**(메서드는 명백히 dict pop/인덱싱).
+
+**확정 vs 미확정**: ✅소스(dict 메서드 + list/dict 시드 불일치) / ❓전모델 실패 여부·인스턴스 수·지배 sub-check·
+"구조적 불가" 증명 = **evidence A(oracle-replay)·B(교차검증) 둘 다 python 실행 필요** → rr.ps1 또는 로컬 python 복구 후.
+- **함의**: 천장 정량 주장 **현재 전부 보류.** 거부축(should=False) 별개. 단 **소스 불일치는 실재** → 수치 낮음을 방법 탓으로만 돌리지 말 것.
+- 검증 자산: `env/domains/bank/bank.py`(확인됨) + `output/bank/ast_*.json`(evaluation 내장, **미집계**) + A용 `ground_truth_actions_full`.
 
 ### 11.14 ★저자 보고 결정 (벤치 결함 = §11.13, 2026-06-01)
 > 사용자 지시: 도달 못하는 내부 버그를 SOPBench 저자에게 보고. 방향 확정, 단 **반박불가 MRE 확정 후** 제출.
