@@ -5,7 +5,17 @@ For each record, reconstruct the ordered tool-call sequence (func, args, result)
 goal's ABox precondition requirements, then classify WHY it failed against the dirgraph /
 success gates. Outputs per-record lines + aggregate tallies.
 
-Usage: python _census_shouldT.py <output_dir_or_json> <ontology_dir>
+Usage: python census_shouldT.py <output_dir_or_json> <ontology_dir>
+
+⚠️ KNOWN BUG (2026-06-02): this classifies required prerequisites from the DOMAIN-DEFAULT
+ontology precondition (`operators[goal].precondition`, from dep_full). The task's ACTUAL
+requirement is `task["constraints"]` (a lighter subset — see TASK_CONSTRAINT_DESIGN.md §2).
+Using the default over-counts login/credential requirements, which produced the now-RETRACTED
+"ceiling 24 / 16 credential-absent unpassable" conclusion. The real ceiling is 40/48 (only 8
+oracle-impossible; evidence_a_probe.py). For correct per-task requirements, read the bucket
+from task["constraints"] / directed_action_graph, not the ontology. Failure-mode buckets here
+are still indicative but partially distorted by this. See leaderboard_bankcheck.py for the
+model-agnostic per-task pass counts that exposed the bug.
 """
 import json, sys, glob, os, ast
 

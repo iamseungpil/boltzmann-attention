@@ -247,7 +247,7 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **모델크기 상호작용(coworker)**: in-context 구조가 **강한 모델**(32B/72B)엔 게이팅까지 도움되는지 = arm-3v2 sweep이
 >   "구조×크기" 측정. 7B는 명확히 L2 필요.
 | Exp-4a v1 | arm-4a(L2 학습 TBox, fact-invisible, holdout=bank LODO) | fc/full | **16.4%** | should_T 3/48 · should_F 19/86 | ✅ 혼합(게이팅 전이 성공, 거부 붕괴) |
-| Exp-4a v2 | arm-4a(L2 학습 TBox, **fact-visibility**, holdout=bank LODO) | fc/full | **26.1%** | should_T 4/48 · should_F **31/86** | ✅ **거부 회복**(+13.9pp), should_T 정체=executor 병목 |
+| Exp-4a v2 | arm-4a(L2 학습 TBox, **fact-visibility**, holdout=bank LODO) | fc/full | **26.1%** | should_T 4/48 · should_F **31/86** | ✅ **거부 회복**(+13.9pp); should_T 정체=task-default 과잉게이팅(전수조사 정정, 천장 40 not 24) |
 
 > **★Exp-4a 첫 결과 (holdout=bank LODO, bank N=134, 2026-06-01)**: 6도메인(dmv·healthcare·hotel·library·
 > online_market·university) SFT(`lora qwen7b_tbox_planner_lodo_bank`, val 0.133→0.119→**0.1137** 단조개선) →
@@ -295,58 +295,38 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **아티팩트**: 시뮬 `output_v4a_v2/bank/ast_tbox_v2-*.json`, 분해 `_v2_breakdown.py`. 서빙=GPU1 단일 lora tbox_v2
 >   (TP=2는 이 박스 NCCL hang → 단일-GPU만).
 
-> **★★Exp-4a v2 should_T 실패 전수 조사 (2026-06-02, rr.ps1 실측, bank 48 should_T)** — 레버1(인자 결정화)
-> 설계 전 진단. 아티팩트 `_census_shouldT.py`(궤적별 분류), 분류기준=ABox precondition 트리 vs 실제 호출 시퀀스.
+> **★★Exp-4a v2 should_T 실패 전수 조사 (2026-06-02, rr.ps1 실측, bank 48 should_T)** — should_T 레버 설계 전 진단.
+> 아티팩트 `census_shouldT.py`·`leaderboard_bankcheck.py`·`evidence_a_probe.py`. 설계 후속=`scripts/distill/TASK_CONSTRAINT_DESIGN.md`.
 >
-> **(1) should_T 진짜 천장 = ~24, NOT 40** (자격증명 가용성 분류):
+> ⚠️ **정정(2026-06-02): 본 조사의 1차 결론 "천장 24 / 자격증명-부재 16개 불가"는 오류였음.** census가 자격증명 요구를
+> **task별 실제 제약이 아니라 domain-default precondition(`dep_full`)** 으로 판정해 과대분류했음. 아래는 정정본.
 >
-> | 클래스 | pass/total | 성격 |
-> |---|--:|---|
-> | Z 저자-strict 불가8 | 0/8 | 기존 §11.13 결함(cancel_credit_card×6, pay_bill_with_credit_card×2) |
-> | **C 자격증명 user_known 부재** | 2/16 | **정보적 불가** — identification/admin_password가 initial_database에만 존재. 에이전트도 user-sim(`env/generation.py:591`=user_known만 주입)도 영원히 못 봄 → login_user/authenticate 통과 불가(2/16만 dirgraph 관용 누설) |
-> | A 자격증명 불요 | 0/3 | login 불요인데 0통과(별도) |
-> | **B 자격증명 가용** | 2/21 | ★**유일한 addressable** |
+> **(1) should_T 진짜 천장 = 40/48** (strict-oracle 직접검사 `evidence_a_probe.py` 재실행, 2026-06-02):
+> 오라클이 못 푸는 건 **8개뿐**(cancel_credit_card×6 `goal_return=False`; pay_bill_with_credit_card×2 `KeyError:'credit_limit'`;
+> 원인 §11.13 credit_cards list/dict). **나머지 40은 오라클 통과** → 정직 분모=**40**. (이전 "24"는 폐기.)
 >
-> → **24/48이 LLM 에이전트에게 구조·정보적 불가**(C16+Z8). **정직 분모=24**(40 아님; 40은 DB 접근 가능한 L0 oracle 기준).
-> ⚠️ C(자격증명 부재)는 **8 결함과 별개의 제2 한계** — 공개 26모델 대조(evidence-B 방식 `offline_crosscheck`)로 확증 후 보고.
+> **(2) "자격증명 부재 16개 불가" = bucketing 오류.** 52개 공개 모델 task별 통과수(`leaderboard_bankcheck.py`)로 검증:
+> - 그 16개 중 **8개는 19~30모델이 통과**(task 0/2/28/78/98/111/115/124) — 통과 가능. (예: task 111 transfer_funds는 실제
+>   제약이 `internal_check_username_exist`만 → gpt-4o가 login 없이 통과; task 78은 user_known에 identification 있음.)
+> - **6개**(39/44 get_loan·56 pay_bill·76/89 set_safety_box·120 transfer_funds)는 전원 미통과지만 **오라클은 통과**
+>   = 극難(자격증명이 에이전트엔 부재, 오라클만 DB접근)·**결함 아님**(§11 evidence-B와 동일 판정). 2개(66/67) 경계.
+> - ⇒ 자격증명-부재로 실제 못 푸는 건 ~6개(현실 상한 ~34), 결함은 8개. **16개 불가 주장은 철회.**
 >
-> **(2) 레버1(A=인자 바인딩) 단독 효과 = +1 (반증)**: dirgraph가 value-매칭하는 인자관계는 **이미 ABox에 정확히 존재**
-> (`operators[login_user].args={username,identification}` = 평가기 `func_param_mapping`). 게다가 addressable 실패서
-> 에이전트는 **이미 올바른 값을 넘김**([81] login `padoesshnwojord`✓ authenticate `addoeminhnpajoss`✓). 관계·값 다 맞아도 실패.
-> mode-b 자격증명 환각 17건은 **19/20이 C버킷(값 부재)** → A 대상 아님. **A 단독은 B19중 1건만**(record 69 포맷오류).
+> **(3) leaderboard >50%의 이유(정합)**: 상위권은 거의 전부 **oracle 도구모드**(gpt-4o oracle 62% vs full 35%; llama70b-react-oracle 65%).
+> 대부분 task는 login 불요(task별 제약이 username 체크만), login 필요 시 자격증명이 user_known에 있음, fact는 호출가능 도구
+> (`internal_get_credit_score`·`get_account_balance`)로 검증. 우리(full·7B)가 낮은 건 §4 병목 때문.
 >
-> **(3) addressable 버킷 B(21, 자격증명 가용) 19개 실패 모드**:
->
-> | 모드 | 건수 | 원인(궤적 확인) | A | B'goal-fire | 비고 |
-> |---|--:|---|:-:|:-:|---|
-> | **goal_not_reached** | 8 | 선행 전부 정확 호출 후 **goal 미발사·exit** ([81]: check→login✓→auth✓→exit, set_safety_box 미호출) | ❌ | ✅ | planner should_T 과소발사(should_F 과잉거부의 거울) |
-> | **dirgraph_value_mismatch** | 5 | 전부 호출·true·일관값인데 dirgraph false. 원인=비호출 CHAIN 노드(`minimal_elgibile_credit_score`=fact, 호출 도구 없음)→implied-dep 경로만 충족 | ❌ | △ | 평가기 implied-dep 추가분석 필요 |
-> | **constraint_violation** | 4 | goal 도달했으나 constraint_not_violated=False&db_match=False ([122/127/131] transfer_funds: auth를 transfer 뒤에 호출 등) | ❌ | ❌ | 정책·순서 분석 필요(별도) |
-> | b_prereq_FALSE | 1 | record 69 login 자격증명을 dict로 잘못 감쌈 | ✅ | — | 유일 A 대상 |
-> | other | 1 | get_account_owed_balance | ? | ? | |
->
-> **결론**: should_T 병목은 인자 바인딩이 아니라 **(α) planner의 goal 과소발사 + (β) 비호출 fact 노드 dirgraph + (γ) 정책위반**.
-> standalone-A 라운드는 건너뛴다(+1 예측). 코드 `_census_shouldT.py`, 천장 census는 위 (1).
+> **(4) ★진짜 should_T 병목 (코드-증명, `TASK_CONSTRAINT_DESIGN.md §2`)**: 인자 바인딩 아님.
+> `build_v2_prompt`가 goal precondition을 **domain-default(무거움)** 로 렌더 → login 불필요 task에도 "login 먼저"
+> 지시 → 7B가 불필요 login/auth를 **환각 자격증명**으로 호출(`identification='password'`) → 스스로 dirgraph 위반.
+> + **full-tool 모드**(도구 ~20개)의 선택 부담. 공통뿌리=**WHAT(적용 제약)을 task별 아닌 default로 다룸**.
+> (이전 표의 goal_not_reached/dirgraph_value_mismatch 분류는 default-precond 기준이라 부분 distort; 정밀 재분류는 설계서 실험에서.)
 
-> **★Exp-4c 실험계획 (should_T 레버, 우선순위 E3→E2, 2026-06-02 등록)** — 위 전수조사 기반. 분모=24(정직).
->
-> **E3 (먼저, 싼 진단/수정 — goal_not_reached 8건 공략)**: 가설 = planner가 precondition 충족 후에도 goal을 안 쏨.
-> - **E3.0 진단**: 8개 goal_not_reached 태스크에서 매 턴 `build_v2_prompt`가 goal에 부여한 status(READY/VERIFY/BLOCKED)
->   + planner raw 출력을 로깅. 분기: **(H-a)** goal=READY인데 7B가 exit/STOP 선택 → 과소발사(룰/SFT 문제). **(H-b)**
->   goal이 비호출 fact 때문에 영구 non-READY(VERIFY FIRST 고착) → `build_v2_prompt` status 로직 문제.
-> - **E3.1 수정(택, H에 따라)**: (a) 프롬프트 룰 강화("goal=READY & 미호출이면 반드시 호출, exit 금지"); (b) SFT 데이터에서
->   완전 establish 후 goal-발사 예제 비중/명료화; (c) build_v2_prompt status 로직: 비호출 fact는 READY 차단하지 않도록.
-> - **측정**: goal_not_reached 수 → 0 목표, should_T(분모24). 비용=프롬프트/SFT만(어댑터 재학습 0~1회). **E3로 8건 회복 시 E2 불요.**
->
-> **E2 (다음, 무거운 레버 — goal-firing 결정론 실행기)**: E3 싼 수정으로 goal_not_reached 미해결 시.
-> - **설계**: planner는 goal 선택·거부(STOP) 결정만(TBox 유지). 실행기(ABox)는 = ① **인자 바인딩**(param→`operators[a].args` slot→
->   `_slot_state`값; A 흡수) + ② **precondition 충족 시 goal 결정론 발사**(planner가 exit해도 override, 단 **STOP=거부는 존중**).
-> - **코드**: `two_stage_client._resolve` 교체 + precondition 충족 추적기. `use_deterministic_shortcut`을 ABox-매핑판으로.
-> - **재학습 0**(resolver-only) → 같은 tbox_v2 어댑터 재서빙·재eval. **측정**: should_T(분모24), goal_not_reached·dirgraph 분해.
-> - **위험**: STOP override 금지(거부축 should_F 보존 — 분리계약). ablation: 실행기만 켜고 planner naive화 시 should_F 붕괴 확인.
->
-> **E-후속(별도, B'으로 미해결분)**: dirgraph_value_mismatch(5)=평가기 implied-dependency(`dfsgather_allfunccalled_indepperm`)
-> 분석→비호출 credit-score 노드 충족 경로 규명. constraint_violation(4)=transfer/set_account 정책·호출순서 분석(auth 타이밍).
+> **★Exp-4c 실험계획** — 설계서 `TASK_CONSTRAINT_DESIGN.md`(리뷰 대기). 분모=**40**.
+> 해법=**task-instance 제약을 per-task ABox로 사용**: (A) precondition status를 task 제약으로 정합 렌더(과잉 게이팅 제거)
+> + (B) 도구목록을 정책-유도 oracle-유사로 프루닝(full 부담 제거). WHAT(task별 가변)/HOW(domain 불변) 분리.
+> ablation E-A(A만, 재학습1회) → E-AB(A+B). 분리증명=빈/틀린 task 제약 주입→should_T 붕괴. 거부축(should_F) STOP 보존 확인.
+> 리뷰 결정질문 4개(마스크 출처 구조 vs 정책직독 / innate-dep 포함 / A vs A+B / 프루닝 강도)는 설계서 §10.
 
 > **Exp-4a 데이터 파이프라인 완성 (2026-06-01)**: `build_tbox_planner_sft.py` — GT means-ends가 만든 정답
 > 결정 시퀀스([login→goal]/[login→STOP]/[goal]) → 각 step을 **공유 `build_v2_prompt`(train/test 동일 프롬프트)**
