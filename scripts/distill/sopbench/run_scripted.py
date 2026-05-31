@@ -187,6 +187,46 @@ def build_func_calls(messages):
     return out
 
 
+ORACLE_IMPOSSIBLE = {"cancel_credit_card", "pay_bill_with_credit_card"}  # evidence_a_probe: 8 defective
+
+
+def simulate(task, mode, tool_list, ctx):
+    """Run one task with a scripted plan of `mode`; return dict(ok, ev, plan_names, dirgraph)."""
+    ont, dep_innate_v, dep_innate, dep_full, dep_descr, domain, option, fmt = ctx
+    client = ScriptedGatherClient(mode, ont, dep_innate_v)
+    assistant = Agent(name="assistant", client=client, instructions="", functions=[],
+                      tool_call_mode="fc", temperature=0.0, top_p=0.01, max_tokens=512)
+    user = Agent(name="user", client=None, default_response="", response_repeat=True)
+    client.reset(task=task)
+    included = ([n[0] for n in task["directed_action_graph"]["nodes"] if isinstance(n, list)]
+                if tool_list == "oracle" else None)
+    dsys, uinfo, ainfo, tinfo = task_initializer(
+        domain, task, dep_innate, dep_full, dep_descr, included, "prompt", False, fmt)
+    assistant.instructions = ainfo["instructions"]
+    assistant.functions = ainfo["tools"] + [function_to_json(exit_conversation)]
+    assistant.name = f"{domain} assistant"
+    avail = {t["function"]["name"] for t in assistant.functions}
+    client.plan = [(n, a) for (n, a) in client.plan if n in avail]
+    if not client.plan or client.plan[-1][0] != "exit_conversation":
+        client.plan.append(("exit_conversation", {}))
+    plan_names = [n for n, _ in client.plan if n != "exit_conversation"]
+    dm = ("Here is all the information I can provide:\n" + json.dumps(uinfo["known"], indent=4) +
+          f"\n\nIf you have completed my request or cannot assist me, please use the "
+          f"`exit_conversation` action.")
+    user.default_response = dm
+    sw = Swarm(system=dsys, max_turns=30, max_actions=20)
+    inter = sw.run_user_assistant_interaction(
+        user_agent=user, assistant_agent=assistant,
+        messages=[{"role": "user", "content": dm, "sender": "user"}],
+        debug=False, execute_tools=True, start_agent="assistant", finished_action=exit_conversation)
+    fc = build_func_calls(inter.messages)
+    db = dsys.evaluation_get_database() if hasattr(dsys, "evaluation_get_database") else dsys.data
+    ev = evaluator_function_directed_graph(domain, task, [], fc, {"final_database": db}, option)
+    dn = [n[0] for n in task["directed_action_graph"]["nodes"] if isinstance(n, list)]
+    return {"ok": bool(ev.get("success")), "ev": ev, "plan": plan_names, "avail": avail,
+            "dirgraph": dn, "fc": [(c["tool_name"], c["content"]) for c in fc]}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--domain", default="bank")
@@ -196,9 +236,8 @@ def main():
     ap.add_argument("--option", default="full")
     ap.add_argument("--fmt", default="structured")
     ap.add_argument("--tool_list", default="full", choices=["full", "oracle"])
-    ap.add_argument("--debug", default=None, help="goal name to dump once (e.g. transfer_funds)")
+    ap.add_argument("--analyze", action="store_true", help="diff oracle vs ab per should_T task")
     args = ap.parse_args()
-    _dumped = [False]
 
     ont = json.load(open(f"{args.ont_dir}/ontology_{args.domain}.json"))
     dep_innate_v = domain_assistant_keys[args.domain].action_innate_dependencies
@@ -206,73 +245,53 @@ def main():
         args.domain, args.option, args.fmt, dependency_verb_dep_orig=True)
     raw = json.load(open(f"{args.data_dir}/{args.domain}_tasks.json"))
     tasks = [dict(t, user_goal=g) for g, v in raw.items() for t in v]
+    ctx = (ont, dep_innate_v, dep_innate, dep_full, dep_descr, args.domain, args.option, args.fmt)
+    GK = ("action_successfully_called", "dirgraph_satisfied", "action_called_correctly",
+          "constraint_not_violated", "database_match", "no_tool_call_error")
 
-    client = ScriptedGatherClient(args.mode, ont, dep_innate_v)
-    assistant = Agent(name="assistant", client=client, instructions="", functions=[],
-                      tool_call_mode="fc", temperature=0.0, top_p=0.01, max_tokens=512)
-    user = Agent(name="user", client=None, default_response="", response_repeat=True)
+    if not args.analyze:
+        st = stp = sf = sfp = 0
+        for task in tasks:
+            r = simulate(task, args.mode, args.tool_list, ctx)
+            if task.get("action_should_succeed"):
+                st += 1; stp += r["ok"]
+            else:
+                sf += 1; sfp += r["ok"]
+        print(f"=== mode={args.mode} tool_list={args.tool_list}: should_T {stp}/{st}  should_F {sfp}/{sf} ===")
+        return
 
-    st = sf = stp = sfp = 0
-    fails = []
+    # ---- analyze: per should_T task, oracle vs ab ----
+    gap13, gap3, both_fail_impossible, both_fail_other = [], [], [], []
+    idx = 0
     for task in tasks:
-        should = bool(task.get("action_should_succeed"))
-        client.reset(task=task)
-        included = ([n[0] for n in task["directed_action_graph"]["nodes"] if isinstance(n, list)]
-                    if args.tool_list == "oracle" else None)
-        dsys, uinfo, ainfo, tinfo = task_initializer(
-            args.domain, task, dep_innate, dep_full, dep_descr, included, "prompt", False, args.fmt)
-        assistant.instructions = ainfo["instructions"]
-        assistant.functions = ainfo["tools"] + [function_to_json(exit_conversation)]
-        assistant.name = f"{args.domain} assistant"
-        # filter the scripted plan to tools that actually exist in the agent's tool list
-        avail = {t["function"]["name"] for t in assistant.functions}
-        if not _dumped[0]:
-            _dumped[0] = True
-            need = set(GETTER.values()) | CALLABLE_CHECK | set(AUTH)
-            print(f"[tool_list={args.tool_list}] full-avail B-getters/checks present: "
-                  f"{sorted(n for n in need if n in avail)}  | MISSING: {sorted(n for n in need if n not in avail)}")
-        client.plan = [(n, a) for (n, a) in client.plan if n in avail]
-        if not client.plan or client.plan[-1][0] != "exit_conversation":
-            client.plan.append(("exit_conversation", {}))
-        dm = ("Here is all the information I can provide:\n" + json.dumps(uinfo["known"], indent=4) +
-              f"\n\nIf you have completed my request or cannot assist me, please use the "
-              f"`exit_conversation` action.")
-        user.default_response = dm
-        sw = Swarm(system=dsys, max_turns=30, max_actions=20)
-        inter = sw.run_user_assistant_interaction(
-            user_agent=user, assistant_agent=assistant,
-            messages=[{"role": "user", "content": dm, "sender": "user"}],
-            debug=False, execute_tools=True, start_agent="assistant",
-            finished_action=exit_conversation)
-        fc = build_func_calls(inter.messages)
-        db = dsys.evaluation_get_database() if hasattr(dsys, "evaluation_get_database") else dsys.data
-        ev = evaluator_function_directed_graph(args.domain, task, [], fc,
-                                               {"final_database": db}, args.option)
-        ok = bool(ev.get("success"))
-        if args.debug and should and task["user_goal"] == args.debug:
-            print(f"\n--- DEBUG {task['user_goal']} ---")
-            print("  plan:", [(n, a) for n, a in client.plan])
-            print("  func_calls:", json.dumps(fc)[:600])
-            print("  avail_has_internal_get_db:", "internal_get_database" in avail)
-            print("  ev:", {k: ev.get(k) for k in ("success", "action_successfully_called",
-                  "dirgraph_satisfied", "action_called_correctly", "constraint_not_violated",
-                  "database_match", "no_tool_call_error")})
-            args.debug = None  # once
-        if should:
-            st += 1; stp += ok
-            if not ok:
-                fails.append((task["user_goal"], ev.get("action_successfully_called"),
-                              ev.get("dirgraph_satisfied"), ev.get("constraint_not_violated")))
-        else:
-            sf += 1; sfp += ok
-    print(f"=== run_scripted mode={args.mode} domain={args.domain} ===")
-    print(f"  should_T success: {stp}/{st}")
-    print(f"  should_F success: {sfp}/{sf}")
-    print(f"  (should_T fails: asc/dirgraph/constraint gate breakdown)")
-    from collections import Counter
-    c = Counter((a, d, cn) for _, a, d, cn in fails)
-    for (a, d, cn), n in c.most_common():
-        print(f"    {n:3d}  action_called={a} dirgraph={d} constraint_ok={cn}")
+        if not task.get("action_should_succeed"):
+            continue
+        g = task["user_goal"]; idx += 1
+        o = simulate(task, "oracle", "full", ctx)
+        a = simulate(task, "ab", "full", ctx)
+        if o["ok"] and not a["ok"]:                      # GAP-13: oracle passes, A+B fails
+            missing = [n for n in o["plan"] if n not in set(a["plan"])]
+            gap13.append((idx, g, missing, {k: a["ev"].get(k) for k in GK}, a["plan"]))
+        elif not o["ok"]:                                # oracle fails
+            gate = {k: o["ev"].get(k) for k in GK}
+            if g in ORACLE_IMPOSSIBLE:
+                both_fail_impossible.append((idx, g))
+            else:
+                gap3.append((idx, g, gate, o["plan"], o["dirgraph"], o["fc"]))
+    print(f"\n########## GAP-13  (oracle PASS, A+B FAIL) — what the A+B gather misses ##########")
+    print(f"  count={len(gap13)}")
+    for i, g, miss, gate, aplan in gap13:
+        print(f"  [{i}] {g}")
+        print(f"      A+B missed calls (oracle had, A+B didn't): {miss}")
+        print(f"      A+B fail gates: {gate}")
+    print(f"\n########## GAP-3  (oracle FAIL but NOT in 8 defective) — my oracle-plan gaps ##########")
+    print(f"  count={len(gap3)}  (oracle-impossible hit: {len(both_fail_impossible)} = {[g for _,g in both_fail_impossible]})")
+    for i, g, gate, plan, dn, fc in gap3:
+        print(f"  [{i}] {g}")
+        print(f"      oracle gates: {gate}")
+        print(f"      oracle plan : {plan}")
+        print(f"      dirgraph    : {dn}")
+        print(f"      fc results  : {fc}")
 
 
 if __name__ == "__main__":
