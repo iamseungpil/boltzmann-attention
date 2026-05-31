@@ -3,8 +3,11 @@
 > Repo: **https://github.com/Leezekun/SOPBench** (NOT `zli12321/SOPBench` — our memory/docs had
 > the wrong handle; corrected 2026-06-01). Issue tracker active, only 1 unrelated issue (#1
 > "license term") → this is a **novel report, not a duplicate**.
-> Status: **DRAFT — blanks (⟦…⟧) get filled by `mre_bank_impossible.py` on the remote clone.**
+> Status: **DRAFT — blanks (⟦…⟧) get filled by `mre_bank_impossible.py`; needs a working python
+> (local is the Windows Store stub) → run on remote/rr.ps1 or after local python fix.**
 > Tone: collaborative, evidence-first. Do NOT post until the MRE table is filled + verified.
+> ⚠️ Earlier drafts contained UN-COMPUTED cross-check numbers (script never ran) — all such
+> numbers have been retracted; this draft now carries only source-verified facts + ⟦blanks⟧.
 
 ---
 
@@ -45,19 +48,21 @@ python scripts/mre_bank_impossible.py --domain bank --crosscheck --out mre_bank.
 Cross-check: in `output/bank/*.json`, these goals are passed by **⟦0⟧** of the released models
 — consistent with structural unsolvability rather than task difficulty.
 
-### Root cause (our hypothesis — please verify)
-The `bank` account schema stores `credit_cards` as a **list**:
-```
-credit_cards observed: type=⟦list⟧, sample=⟦{...}⟧
-```
-but the domain method(s) handling credit cards index/compare it as if it were a **dict** keyed
-by card id, so the card lookup `⟦card_num (dict) == card_number (str)⟧` can never match →
-the cancel/pay path always fails its post-condition `database_match`.
+### Root cause (our hypothesis — please verify; VERIFIED source facts only)
+Verified by reading `env/domains/bank/bank.py` (no execution needed):
+- The credit-card **methods use dict semantics** — `cancel_credit_card` (L205–213) iterates keys
+  and `account["credit_cards"].pop(card_num)`; `pay_bill_with_credit_card` (L185–191) and
+  `get_credit_card_info` (L250–256) index `account["credit_cards"][card_number]`; docstring L97:
+  "dictionary of credit cards, hashed by their card numbers".
+- **But the same file defines two conflicting seed schemas**: `default_data1` (L27–33) stores
+  `credit_cards` as a **list of dicts**, while `default_data` (L63–68) stores a **dict keyed by
+  number**.
 
-Suspected site(s):
-```
-⟦env/.../bank...py:LINE⟧: ⟦offending line⟧
-```
+Hypothesis (NOT yet confirmed): tasks whose `initial_database` is built from the *list*-style
+seed cannot succeed at credit-card ops — the dict-style methods compare a dict element to a
+string, so the lookup never matches and the post-condition `database_match` fails. **Must be
+confirmed by (i) reading the failing tasks' actual `initial_database` schema and (ii) the
+oracle-replay (A).** ⟦fill: which seed schema the failing tasks use; exact failing line⟧
 
 ### Why it matters
 These tasks lower the reported ceiling for **all** evaluated models equally, so they bias
