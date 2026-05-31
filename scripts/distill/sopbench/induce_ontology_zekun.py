@@ -37,6 +37,10 @@ import argparse
 import copy
 import json
 import os
+import sys
+
+# allow running as `python scripts/induce_ontology_zekun.py` from the clone root
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 DOMAINS = ["bank", "dmv", "healthcare", "hotel", "library", "online_market", "university"]
 
