@@ -278,4 +278,11 @@ should_T **gain=0/loss=0**이면, §2.3에서 "login 과호출→dirgraph 위반
 
 **검증의 가치**: 재학습 **전에** A+B 불완전(C·미매핑)을 잡음 → 그대로 재학습했으면 ~8 task 재실패. **R7 "verify first"가 정확히 작동.**
 
-**다음(올바른 재현)**: 전제(login/auth/check/getter)를 dss에 **실제 실행 후 goal 메서드 호출→truthy** replay(evidence_a_probe 방식)로 (a) 진짜 reconstructible 천장 (b) C가 strict 필수인지 동시 확정 → 그 후 A+B+C 게더 구현 → 재학습. 재현 `binding_diag.py`·`lever_decomp.py`·`_verify_ab.py`.
+**다음(올바른 재현)**: 전제(login/auth/check/getter)를 dss에 **실제 실행 후 goal 메서드 호출→truthy** replay로 (a) 진짜 reconstructible 천장 (b) C strict 필요성 확정.
+
+### 11.1 ⚠️ hand-replay 한계 — full-success 천장·C 필요성은 미확정 (`_verify_c`, 정직 기록)
+evidence_a_probe 방식으로 auth 호출 정책(constraint-only / innate∪constraint / oracle-전부)을 토글하고 **실제 evaluator**로 채점 시도 → 세 정책 모두 **9/48·flip 0**.
+- **그러나 9는 신뢰 불가**: 내 hand-built trajectory가 evidence_a_probe의 기준을 **재현 못 함**(앞 `_verify_ab`의 15도 동일). auth와 무관한 이유(호출 순서/누락/잉여/evaluator 입력형식)로 dirgraph를 통과 못 함 → "flip 0 → C 불필요"는 **추론 불가**(다른 실패가 auth 효과를 가림).
+- **개념 정정**: "천장 40"은 evidence_a_probe의 **`action_successfully_called`(goal 호출가능=결함아님)** 기준이지 **full-success(dirgraph 포함)** 아님. full-success 천장은 별도이고 더 낮을 수 있음. **hand-replay 2회(15·9) 모두 기준 재현 실패 → 값싼 replay로는 full-success 천장·C 확정 불가(내 한계 도달).**
+- **확정된 것**: binding=under-verification 84%(✅), 레버 A+B(✅, `by:null` 사실). **미확정**: full-success 천장, C strict 필요성(구조적으론 set_safety_box dirgraph에 login 존재·constraint엔 부재=실재하나 strict 여부는 harness 필요).
+- **신뢰 가능한 다음**: `run_simulation` **oracle 도구모드** 또는 **scripted-gather 에이전트**(A/B/C 게더를 harness에 태워 evaluator 채점) = 작은 sim 1회(재학습 아님). hand-replay(`/tmp/_verify_*.py`, 미커밋=신뢰불가)는 폐기.

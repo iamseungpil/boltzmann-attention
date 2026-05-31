@@ -222,7 +222,7 @@ goal_fact_checkable = [p for p in dict.fromkeys(gleaves)        # (1) NAME dedup
 - **⚠️ 정정 (free 검증 `_verify_ab`, 2026-06-02)**: 이전의 "A+B → 40/48 확정"은 **철회**. free 검증이 **A+B 불완전**을 발견:
   - **C: innate-dep 누락** — dirgraph가 `login_user`(일부 `get_account_owed_balance`)를 요구하나 task constraint에 없는 task ~8(get_loan·pay_bill·pay_loan·set_safety_box·transfer 120). **P5 "task_constraint 단독 충분" 반증** → 게더 = **task_constraint ∪ innate_dep ∪ condition→getter (A+B+C)**. (단 dirgraph가 flat OR이라 login이 strict 필수인지 구조적 확인 필요.)
   - **B 테이블 미완**: `maximum_deposit_limit`(deposit_funds) unmapped → 매핑 추가.
-  - **천장(40)은 teacher 출력으로 아직 미재현**: `de.process`를 establishment 실행 없이 호출한 측정오류로 15가 나왔을 뿐(40 무관). 올바른 재현 = 전제 실행 후 goal 호출 replay(evidence_a_probe 방식) → 보류.
+  - **천장(40)은 teacher 출력으로 아직 미재현**: hand-replay 2회 모두 기준 재현 실패(`_verify_ab` de.process=15, `_verify_c` evaluator=9/48 전 정책 동일·flip0). **9·15 모두 신뢰불가**(auth 무관 사유로 dirgraph 미통과). **개념 정정**: "천장 40"은 `action_successfully_called`(goal 호출가능=결함아님) 기준이지 full-success 아님. **C strict 필요성·full-success 천장은 hand-replay로 미확정 → 실제 harness(`run_simulation` oracle모드 / scripted-gather 에이전트, 작은 sim 1회) 필요.** 확정된 것은 binding=under-verification 84%·레버 A+B(`by:null`)뿐.
 
 → **구현 1순위 = B(condition→getter 온톨로지 induction) + A(args-aware 게더)**. mechanism A(게이팅 경량화, §7)는 should_T 비-binding이므로 부차(프롬프트 정합으로 흡수).
 
