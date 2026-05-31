@@ -246,7 +246,8 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 >   따르게 하려면 학습 필요** = 본 라인 헤드라인 동기. (단 ABox는 가중치에 안 넣음=분리계약 §11.0, copy-grounded+xattn.)
 > - **모델크기 상호작용(coworker)**: in-context 구조가 **강한 모델**(32B/72B)엔 게이팅까지 도움되는지 = arm-3v2 sweep이
 >   "구조×크기" 측정. 7B는 명확히 L2 필요.
-| Exp-4a | arm-4a(L2 학습 TBox, holdout=bank LODO) | fc/full | **16.4%** | should_T 3/48 · should_F 19/86 | ✅ 혼합(게이팅 전이 성공, 거부 붕괴) |
+| Exp-4a v1 | arm-4a(L2 학습 TBox, fact-invisible, holdout=bank LODO) | fc/full | **16.4%** | should_T 3/48 · should_F 19/86 | ✅ 혼합(게이팅 전이 성공, 거부 붕괴) |
+| Exp-4a v2 | arm-4a(L2 학습 TBox, **fact-visibility**, holdout=bank LODO) | fc/full | **26.1%** | should_T 4/48 · should_F **31/86** | ✅ **거부 회복**(+13.9pp), should_T 정체=executor 병목 |
 
 > **★Exp-4a 첫 결과 (holdout=bank LODO, bank N=134, 2026-06-01)**: 6도메인(dmv·healthcare·hotel·library·
 > online_market·university) SFT(`lora qwen7b_tbox_planner_lodo_bank`, val 0.133→0.119→**0.1137** 단조개선) →
@@ -269,6 +270,30 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **⇒ 다음(arm-4a v2)**: 프롬프트에 **fact-status 주입**(내부 read 도구 호출→관찰→STOP 판단) 또는 refuse 데이터를
 >   "fact 불명 시 보수적 STOP" 정책으로 재설계. 게이팅+전이는 입증됨 → 거부 fact-visibility만 고치면 됨.
 > - **남은 검증**: ablation (ii)빈/(iii)틀린 ABox 붕괴(분리 증명) + 6 LODO 회전.
+
+> **★Exp-4a v2 결과 (fact-visibility, holdout=bank LODO, bank N=134, fc/full, 2026-06-02, rr.ps1 실측)**:
+> v2 SFT(`lora qwen7b_tbox_planner_v2_lodo_bank`, val **0.1115**) — refuse 데이터에 fact-check 도구를
+> **선호출→관찰→STOP** 패턴 내장(`build_v2_prompt`로 train/test 프롬프트 동일, fact_pm 인자). bank(학습 제외) eval.
+>
+> | arm | pass@1 | should_T(수행) | should_F(거부) | should_T fail-locus(지배 게이트) |
+> |---|--:|--:|--:|---|
+> | arm-4a v1 (fact-invisible) | 16.4%(22/134) | 6.2%(3/48) | 22.1%(19/86) | dirgraph 27/45 (60%) |
+> | **arm-4a v2 (fact-visibility)** | **26.1%(35/134)** | 8.3%(4/48) | **36.0%(31/86)** | dirgraph 23/44 (52%) |
+> | (참고) arm-3v2 미학습 | 44.0% | 2/48 | 57/86 | — |
+> | (참고) L0 regression | 45.5% | 7/48 | 54/86 | — |
+>
+> - **✅ 거부 회복 = v2 설계 목적 달성**: should_F 22.1%→**36.0%(+13.9pp)** = fact-visibility 개입이 v1의 거부붕괴를
+>   부분 복구. overall +9.7pp(16.4→26.1)의 **주동력이 거부축**(should_T는 +1태스크 정체). v1 진단(프롬프트가 fact 미표시→
+>   거부 실패)이 인과적으로 옳았음을 v2가 역으로 입증. (단 arm-3v2 STOP 57엔 못 미침 = 학습 STOP은 추론시 fact-tool
+>   관찰에 의존, 무학습 in-context STOP보다 약함 — 거부 천장 미달.)
+> - **❌ should_T 정체(3→4) = 레버2(gather→dirgraph) 가설 기각**: v2 gather(internal_check 호출)가 dirgraph를 못 채움.
+>   should_T 실패 locus는 여전히 **dirgraph_satisfied 위반이 지배**(23/44≈52%, v1 27/45≈60%과 거의 불변) +
+>   action_called_correctly/action_successfully_called 각 22. **수행의 병목=planner 아닌 executor**(L0 룰완벽도 7/48).
+> - **⇒ 다음 레버=레버1(인자 결정화)**: goal args를 ABox arg-매핑으로 slot-state서 결정론 채움(LLM 환각 제거) +
+>   precondition 트리 선행함수 전부 호출(dirgraph 완전 충족). `two_stage_client.use_deterministic_shortcut` 강화.
+>   (분모정직: should_T 8/48 구조적 불가 = bank 결함태스크 §11.13 → 실효분모 40, v2 4/40=10.0%.)
+> - **아티팩트**: 시뮬 `output_v4a_v2/bank/ast_tbox_v2-*.json`, 분해 `_v2_breakdown.py`. 서빙=GPU1 단일 lora tbox_v2
+>   (TP=2는 이 박스 NCCL hang → 단일-GPU만).
 
 > **Exp-4a 데이터 파이프라인 완성 (2026-06-01)**: `build_tbox_planner_sft.py` — GT means-ends가 만든 정답
 > 결정 시퀀스([login→goal]/[login→STOP]/[goal]) → 각 step을 **공유 `build_v2_prompt`(train/test 동일 프롬프트)**
