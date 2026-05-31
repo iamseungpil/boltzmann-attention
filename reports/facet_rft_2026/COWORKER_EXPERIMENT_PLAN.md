@@ -27,7 +27,7 @@
 >
 > **STEP 2 — SOPBench 클론 + 패치 1회 (단일 명령, 멱등·.bak 백업):**
 > ```bash
-> git clone https://github.com/zli12321/SOPBench.git ~/SOPBench   # 또는 기존 클론 경로
+> git clone https://github.com/Leezekun/SOPBench.git ~/SOPBench   # 또는 기존 클론 경로
 > python <repo>/scripts/distill/sopbench/apply_two_stage_patch.py ~/SOPBench
 > #  → cp two_stage_client.py + run_simulation.py(--two_stage) + types.py(client 완화)
 > #    + llm_handler.py(SOPBENCH_VLLM_BASE_URL endpoint) + constants.py(OSS fc 등록) 전부 적용
