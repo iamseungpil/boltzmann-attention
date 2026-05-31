@@ -72,13 +72,16 @@ def walk(tree, acc):
 
 class ScriptedGatherClient:
     """OpenAIHandler-compatible deterministic client: emits a precomputed call plan, no LLM."""
-    def __init__(self, mode, ont, dep_innate):
+    def __init__(self, mode, ont, dep_innate, realistic=False):
         self.mode = mode; self.ont = ont; self.dep_innate = dep_innate
+        self.realistic = realistic   # if True: agent only knows user_known (no DB/account creds)
         self.model_name_huggingface = f"scripted_{mode}"
         self.plan = []; self._i = 0; self._tid = 0
 
     def _slots(self, task):
         s = dict(task.get("user_known", {}))
+        if self.realistic:
+            return s   # a real agent cannot read account-record fields (creds/balances)
         accts = task["initial_database"].get("accounts", {}); un = s.get("username")
         if un in accts and isinstance(accts[un], dict):
             for k, v in accts[un].items():
@@ -199,8 +202,8 @@ ORACLE_IMPOSSIBLE = {"cancel_credit_card", "pay_bill_with_credit_card"}  # evide
 
 def simulate(task, mode, tool_list, ctx):
     """Run one task with a scripted plan of `mode`; return dict(ok, ev, plan_names, dirgraph)."""
-    ont, dep_innate_v, dep_innate, dep_full, dep_descr, domain, option, fmt = ctx
-    client = ScriptedGatherClient(mode, ont, dep_innate_v)
+    ont, dep_innate_v, dep_innate, dep_full, dep_descr, domain, option, fmt, realistic = ctx
+    client = ScriptedGatherClient(mode, ont, dep_innate_v, realistic=realistic)
     assistant = Agent(name="assistant", client=client, instructions="", functions=[],
                       tool_call_mode="fc", temperature=0.0, top_p=0.01, max_tokens=512)
     user = Agent(name="user", client=None, default_response="", response_repeat=True)
@@ -244,6 +247,8 @@ def main():
     ap.add_argument("--fmt", default="structured")
     ap.add_argument("--tool_list", default="full", choices=["full", "oracle"])
     ap.add_argument("--analyze", action="store_true", help="diff oracle vs ab per should_T task")
+    ap.add_argument("--realistic", action="store_true",
+                    help="agent uses ONLY user_known (no account/DB cred augmentation)")
     args = ap.parse_args()
 
     ont = json.load(open(f"{args.ont_dir}/ontology_{args.domain}.json"))
@@ -252,7 +257,7 @@ def main():
         args.domain, args.option, args.fmt, dependency_verb_dep_orig=True)
     raw = json.load(open(f"{args.data_dir}/{args.domain}_tasks.json"))
     tasks = [dict(t, user_goal=g) for g, v in raw.items() for t in v]
-    ctx = (ont, dep_innate_v, dep_innate, dep_full, dep_descr, args.domain, args.option, args.fmt)
+    ctx = (ont, dep_innate_v, dep_innate, dep_full, dep_descr, args.domain, args.option, args.fmt, args.realistic)
     GK = ("action_successfully_called", "dirgraph_satisfied", "action_called_correctly",
           "constraint_not_violated", "database_match", "no_tool_call_error")
 
