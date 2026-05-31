@@ -29,8 +29,14 @@
 | **arm-1: LLM-alone (baseline)** | 단일 LLM, full tool list, 우리 harness | leaderboard 재현·출발점 |
 | **arm-0: oracle ceiling** | GT `directed_action_graph` walk = 결정론 executor | 상한; 기여 아님 |
 | **arm-2: L0 symbolic** | forward-chain over operator pre/effect, 무학습 | "operator만으로 얼마나" 바닥 |
-| **arm-3: L1 LLM+structure** | planner(LLM, 추상 operator in-context) + resolver(b), 무학습 | 구조 기여 격리, 무학습 |
-| **arm-4: L2 학습 planner (★헤드라인)** | 학습 ABox-conditioned planner + resolver(c, xattn) | 전이 주장; N-1→held-out LODO |
+| **arm-3: L1 naive planner** | planner(LLM, operator 이름+desc만) + resolver(b), 무학습 | 구조 *없는* L1 격리. **=음성(0%), ABox 미주입** |
+| **arm-3v2: L1 + ABox 의존성그래프** | planner에 ABox(precondition/produces) 주입 + gate + exit허용, 무학습 | 구조 zero-shot 바. arm-3→arm-3v2 = "ABox 주입 효과" |
+| **arm-4a: L2 학습 TBox (in-context, ★헤드라인)** | cross-domain copy-grounded SFT, ABox=swappable in-context, 동결 TBox | **분리 학습**; 7 LODO 전이 + ablation(빈/틀린 ABox 붕괴) = `WORKFLOW_ONTOLOGY_DESIGN §11` |
+| **arm-4b: L2 xattn ABox-memory (novelty)** | ABox=cross-attn 메모리뱅크, 가중치 content-free (§15.13) | 분리 보장 최강. Phase 2, coworker. |
+
+> **arm-4 분리 계약**(사용자 지시 2026-06-01): TBox=도메인불변 means-ends 룰만 학습, ABox=도메인별 call-graph
+> 완전분리·swap, **TBox+ABox 혼재 SFT 금지**(저번 entangled 실패 수정=target을 ABox에 copy-grounded). 19도메인
+> 공통 8관계가 TBox 타입, 도메인차는 ABox 인스턴스값. 상세·증명ablation·phasing = **`WORKFLOW_ONTOLOGY_DESIGN §11`**.
 
 ---
 
@@ -192,7 +198,15 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 | Exp-0 | arm-0(ceiling) | oracle+full | — | — | 예정 |
 | Exp-2 | arm-2(L0 symbolic) | react/full | — | — | 예정 |
 | Exp-3 | arm-3(L1 naive planner) | fc/full | **0.0%** | — | ✅ 완료 (음성: arm-1 3.7%↓, 제약위반 지배 → 구조판 v2 동기화) |
-| Exp-4 | arm-4(L2 LODO) | react/full | — | — | 예정 (coworker) |
+| Exp-3v2 | arm-3v2(L1+ABox 의존성그래프) | fc/full | — | — | 예정 (Track A, 무학습 구조 바) |
+| Exp-4a | arm-4a(L2 학습 TBox, in-context, 7 LODO) | fc/full | — | — | 예정 (★헤드라인, Track A; 설계 §11) |
+| Exp-4b | arm-4b(L2 xattn ABox-memory, 19 LODO) | fc/full | — | — | 예정 (Phase 2, coworker) |
+
+> **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
+> - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
+> - HT2(분리증명): **빈/틀린 ABox 주입 → 붕괴**(entangled면 ABox 없이도 동작=실패; 분리면 ABox 필수=성공조건).
+> - HT3(학습기여): arm-3v2(무학습 L1)< arm-4a(학습 L2), 그리고 arm-4a > arm-3-naive(0%)·arm-1.
+> - HT4(불변): operator 셔플 불변(위치 아닌 관계로 선택).
 
 ---
 

@@ -725,3 +725,108 @@ Mirrors run_simulation.py's task loop but self-contained:
 - Then bank full N=134: compare arm-3 vs arm-1 baseline (react/full 5.2%, fc/full 3.7%).
   Success gate = **arm-3 full > arm-1 full by ≥5%p on bank** → scale to 7 domains + 14B.
 - Report into `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` (Exp-3 row).
+
+---
+
+## 11. ★ TBox/ABox 완전 분리 학습 설계 — 19-domain, entanglement-free (2026-06-01, 사용자 지시)
+
+> **사용자 지시 (3회 반복, 확정)**: (1) 19개 도메인 모두에서 유효한 **TBox 온톨로지 관계를 전부 도출**하고
+> 이를 학습하는 TBox 설계. (2) TBox는 **도메인 특화되지 않은 "의존성 그래프 룰 자체"**만 학습. (3) 실제
+> 도메인별 **ABox를 완전히 분리**, 19-도메인 실험에서 **ABox만 교체, TBox는 동결**. (4) **저번처럼 TBox+ABox
+> 혼재 SFT 금지.** 결정(2026-06-01): **Phase 1 = Zekun 7 LODO 즉시 + Amazon 12 harness 병행**; 아키텍처 =
+> **in-context copy-grounded SFT 먼저 → xattn novelty**.
+
+### 11.0 저번 entanglement 실패 (반복 금지 대상)
+`build_abstract_sft.py`가 action turn에 `Plan: <step>` **prefix만 추가하고 구체 tool call을 supervised
+target에 그대로 유지** → 가중치가 fault→fix(도메인 ABox)를 암기 = **TBox+ABox entangled** (turn correctness
+87%였지만 외부 resolver와 충돌, 전이 시 ABox만 실패). 수정 시도(`build_tbox_sft.py` content→`Plan:` 치환 +
+`--mask-toolcalls`)도 **step vocab 자체가 도메인 특화면 여전히 누수.** ⇒ 진짜 분리의 필요조건은 아래 §11.3.
+
+### 11.1 분리 계약 (the separation contract — 이 실험의 불변식)
+- **TBox** = 도메인-불변. = {8 관계 타입(§2.2) + 엔티티 문법(Function/Slot/Predicate/Scenario) +
+  **means-ends 선택 정책**}. **한 번 학습, 테스트 시 동결.**
+- **ABox** = 도메인별 call-graph 인스턴스 = `ontology_<domain>.json` (§2.5). **유일하게 교체되는 것.**
+- **하드 제약**: planner 출력 = `f(goal, slot_state, 제공된 ABox)`의 **순수 함수**. target은 **제공된 ABox에
+  grounded(copy/pointer)**, 가중치는 **도메인 특화 이름을 절대 생성하지 않음**. ⇒ 가중치엔 룰만, 내용은 ABox에.
+
+### 11.2 19-도메인 공통 TBox 관계 집합 (도출 완료 — 8 관계가 19를 span)
+8 관계(§2.2)는 **Amazon 12 도메인 서베이에서 도출**(§2.0)되었고 **Zekun 7도 커버**. 두 벤치 native 포맷 → 8 관계 매핑:
+
+| 8 relation (TBox type) | Zekun-SOPBench(7) 소스 | Amazon-SOP-Bench(12) 소스 |
+|---|---|---|
+| `realizes`(step→fn) | `directed_action_graph` 노드 | sop.txt 번호 step의 도구 |
+| `precondition`(fn→pred) | `constraints`(should-call-before) | "If <cond>" 가드 |
+| `produces`(fn→slots) | 도구 반환 필드 | step "Output:" / output_columns |
+| `arg`(param←slot) | 도구 inputSchema↔user_known/prior | inputSchema↔column "save for step N" |
+| `next`(step→step\|forks) | dirgraph 엣지 | 섹션 순서 + "If→step" |
+| `scenario_select`/`_steps` | task `user_goal` 유형 | "intent=a\|b" 서브절차 |
+| `terminate`(pred→outcome) | `action_should_succeed`(거부=no-op) | "no further action→default"/escalate |
+| `output`(required,format) | GT action + db state | §6 Output keys + json/xml |
+
+**⇒ TBox 관계 집합 = 이 8개. 추가 도출 불요(19 공통).** 도메인 간 차이는 전부 **ABox 인스턴스 값**(어느 fn, 어느
+pred, 어느 슬롯)일 뿐 — 관계 *타입*은 불변. 이것이 "TBox 동결, ABox swap"이 성립하는 구조적 근거.
+
+### 11.3 학습되는 TBox = means-ends 선택 정책 (도메인-불변 룰)
+- **입력**: `goal`(output 계약의 required slots) + **ABox operator affordances**(operator명 + `precondition`
+  pred + `produces` slots + `achieves` goal-slot — **관계적 affordance만; 구체 param schema는 제외** =§9.1
+  전이가드 유지, 그건 resolver 몫) + 현재 `slot_state` + history(global plan `G`, GoalAct §5.1).
+- **출력**: 다음 operator 선택(**제공된 ABox로의 pointer**) 또는 `terminate`.
+- **룰(불변)**: precondition이 현 slot_state로 충족 ∧ 미충족 goal/subgoal slot을 `produces`하는 operator 선택;
+  **precondition 미충족 operator는 호출 금지(gate)**; goal slot이 다 차면 종료. = PDDL/HTN means-ends.
+- 이 룰은 **19 도메인 어디서나 동일** — 도메인은 ABox(어떤 operator·pred·slot)로만 들어옴.
+
+### 11.4 Entanglement-free 학습 (핵심 — 저번 실패의 직접 수정)
+1. **매 예제 ABox를 planner 컨텍스트에 직렬화**(해당 도메인 operator affordance). planner는 이걸 **읽어서** 고름.
+2. **target = 다음 operator명, 단 그 이름은 컨텍스트 ABox에 verbatim 존재(copy)**. loss는 **operator-선택
+   span만** supervise, reasoning·구체 call 내부는 **mask(−100)**. (저번 실패=구체 call을 target에 유지한 것.)
+3. **cross-domain 배치**: 각 예제가 자기 도메인 ABox를 운반 → 단일 도메인 operator 집합이 안정적 가중치
+   shortcut이 못 됨. (LODO: held-out 제외 6 도메인 trace로 학습.)
+4. **anti-memorization (강력 권장)**: 예제마다 operator **순서 셔플** + (선택) operator명 **alias 치환** →
+   정책이 위치·표면형이 아니라 **관계 구조(precondition match)로 선택**하도록 강제. = copy-grounding을 진짜로 만듦.
+5. **데이터 소스**: GT `directed_action_graph` walk(=oracle SUCCESS 궤적)을 step별로
+   `(slot_state_t, ABox, goal) → 다음 operator(라벨)`로 **재라벨**. 궤적이 정답 순서를 주고, 우리는 각 step을
+   "제공된 ABox 위에서의 선택"으로 변환. ⇒ tool-call 토큰은 학습 신호에서 빠짐.
+
+### 11.5 ABox 표현 + swap 메커니즘
+- `ontology_<domain>.json`(8 관계, §2.5). 추론 시 held-out 도메인 ABox를 (A)컨텍스트 직렬화 또는 (B)메모리
+  인코딩. **TBox 가중치 불변.** 19 도메인 = 19 ABox 파일, 정책 코드/가중치는 1벌.
+
+### 11.6 사다리 (모든 rung이 분리 계약 만족) — arm 매핑
+| rung | 분리 방식 | arm | 상태 |
+|---|---|---|---|
+| **L0 symbolic** | 룰 hand-code, 가중치 0, 순수 ABox = **완벽 분리** | arm-2 | TODO |
+| **L1 in-context (no train)** | frozen LLM이 프롬프트 ABox 읽고 선택 = 프롬프트 분리 | arm-3v2 | 설계(아래) |
+| **L2a in-context copy-grounded SFT** | 선택 정책 cross-domain 학습, copy-target, ablation 증명 | **arm-4a ★이 실험** | 설계완 |
+| **L2b xattn ABox-memory** | ABox=swap 메모리뱅크, 가중치 물리적 content-free (§15.13) | arm-4b(novelty) | 후속 |
+
+> **arm-3-naive(현 0%)는 ABox 의존성 그래프를 안 줌** → arm-3v2 = **planner 컨텍스트에 ABox(precondition/
+> produces) 주입 + gate + exit 허용**(무학습 L1). arm-4a = 그 선택을 cross-domain copy-grounded SFT로 학습.
+
+### 11.7 분리 증명 ablation (반드시 통과 — "가중치엔 룰만" 입증)
+- **(i) ABox-swap LODO** (전이): 6 도메인 학습 → held-out ABox swap, **재학습 0** → pass-rate ≥ in-domain의 70%.
+- **(ii) Empty ABox**: operator 제거 → planner **붕괴**(선택 불가). ⇒ ABox를 실제로 읽음.
+- **(iii) Wrong-domain ABox**: A task에 B의 ABox → 붕괴/ B operator 선택. ⇒ 도메인 암기 아님.
+- **(iv) Operator-shuffle 불변**: 순서 셔플해도 선택 동일. ⇒ 위치 아닌 구조로 선택.
+- (ii)(iii)이 음성대조의 핵심 — entangled 모델은 ABox 없이도 동작(=실패). 분리 모델은 ABox 없으면 못 함(=성공조건).
+
+### 11.8 Phasing (사용자 결정: 7 먼저 + Amazon 병행)
+- **Phase 1 (즉시, Track A)**: Zekun **7-도메인 LODO** × L2a in-context copy-grounded SFT. 6→1 회전 ×7 +
+  ablation (i)-(iv). 비교: arm-3v2(L1 무학습) → arm-4a(L2 학습) 격차 = "학습된 TBox 기여".
+- **Phase 1b (병행)**: Amazon 12-도메인 harness(loader/executor/eval) 구축 → `ontology_<dom>.json` 12개 induce
+  → 19-도메인 ABox 풀 완성. (customer_service 파일럿 자산 `abox/`·`workflow_executor.py` 확장.)
+- **Phase 2**: **19-도메인 통합 TBox**(union 학습, 19 LODO) + **L2b xattn** novelty(§15.13).
+
+### 11.9 Build order / 파일
+- `build_tbox_planner_sft.py` (신규, 구 build_abstract_sft 대체): oracle 궤적 → `(goal, ABox-직렬화,
+  slot_state, history) → 다음-operator copy-target`, **선택 span만 supervise**, operator 셔플/alias.
+- `induce_ontology_zekun.py` (신규): `directed_action_graph`+`constraints` → `ontology_<dom>.json`(8 관계) ×7.
+- `two_stage_client.py` planner 확장: ABox-in-context 입력 + **copy-grounded 디코딩**(제공 operator명으로 제약,
+  gate=precondition 미충족 금지, exit 허용). = arm-3v2(무학습)·arm-4a(학습) 공용 경로.
+- LODO 러너 + ablation harness((i)-(iv)).
+- 학습 trainer: `lora_train_chat_toolcall.py --mask-toolcalls` 재사용(이미 content-only supervise) — 단,
+  target이 copy operator명이고 그 외 전부 mask인지 데이터 단에서 보장(§11.4-2).
+
+### 11.10 왜 이게 헤드라인인가 (thesis)
+"사용자가 목표만 주면 시스템이 도구를 자동 선택"을, **계획 능력(TBox)은 학습으로 일반화하고 도메인 지식(ABox)은
+교체 가능한 데이터로 분리**해 달성. ablation (ii)(iii)이 "가중치가 룰만 들고 ABox를 실제로 읽는다"를 증명하고,
+(i) LODO가 "재학습 0 전이"를 증명. AWM(NL workflow 프롬프트 재사용, §5.3) 대비 **구조적·검증가능·학습시 전이**가 델타.
