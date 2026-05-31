@@ -130,7 +130,13 @@ class ScriptedGatherClient:
                     info = preds.get(nm, {})
                     if info.get("kind") == "establishable" and info.get("by") and \
                             not any(c[0] == info["by"] for c in calls):
-                        by = info["by"]; calls.append((by, resolve(by, ops.get(by, {}).get("args", {}))))
+                        by = info["by"]
+                        # CONDITIONAL login/auth: only call if the establishing action's credential
+                        # args are actually available (don't fabricate creds; don't over-call login
+                        # on tasks that have a no-login path). Matches honest agent behavior.
+                        req = set((ops.get(by, {}).get("args") or {}).values())
+                        if req.issubset(set(slots.keys())):
+                            calls.append((by, resolve(by, ops.get(by, {}).get("args", {}))))
         # order: PRE first (stable), then goal
         rank = {n: i for i, n in enumerate(PRE)}
         calls.sort(key=lambda c: rank.get(c[0], 999))
