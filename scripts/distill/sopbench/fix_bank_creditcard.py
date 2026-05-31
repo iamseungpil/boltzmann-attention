@@ -45,18 +45,15 @@ EDITS = [
      '        for card in account["credit_cards"]:\n'
      '            if card["card_number"] == card_number: return True, card\n'
      '        return False, {}'),
-    # --- internal_check_credit_card_exist (also fixes the broken cc_number_found logic) ---
-    ('        account = self.accounts.get(username)\n'
+    # --- internal_check_credit_card_exist ---
+    ('        cc_number_found:bool = False\n'
      '        for card_num in account["credit_cards"]:\n'
      '            if not cc_number_found and card_num == card_number: cc_number_found = True\n'
-     '            cc_number_found = False  # ← bug-ish\n'
-     '            return True, account["credit_cards"][card_number]\n'
-     '        return True, cc_number_found',
-     '        account = self.accounts.get(username)\n'
-     '        cc_number_found = False\n'
+     '        return True, cc_number_found ',
+     '        cc_number_found:bool = False\n'
      '        for card in account["credit_cards"]:\n'
      '            if card["card_number"] == card_number: cc_number_found = True\n'
-     '        return True, cc_number_found'),
+     '        return True, cc_number_found '),
 ]
 
 MARKER = 'card["card_number"] == card_number'
