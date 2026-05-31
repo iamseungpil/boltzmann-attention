@@ -156,8 +156,15 @@ get_loan (our_idx 39, 44) · pay_bill (56) · set_safety_box (76, 89) · transfe
 4. **0 of 43 released model runs pass these 6** (identity-matched; full-static + oracle-static +
    user-sim-full), unlike the routinely-passed instances of the same goals that DO carry
    credentials. (`evidence_a_probe` "passes" them only by calling `dss.internal_get_database()`
-   directly — a system method an agent cannot invoke.) **pay_loan 66/67 excluded** (passable; see
-   Method correction above — pay_loan's constraint has an `or` branch admitting a no-login path).
+   directly — a system method an agent cannot invoke.)
+5. **`login_user` requires the EXACT stored credential** (`bank.py`:124 `return
+   self.accounts[username]["identification"] == identification`), so a hallucinated password fails.
+   For the 6, login is **mandatory** (no-login trajectory → `dirgraph_satisfied=False`) and the real
+   `identification` is not in `user_known` → unwinnable. **pay_loan 66/67 are EXCLUDED**: they are
+   equally credential-absent, but their constraint has a **no-login `or` branch**, so they pass
+   *without* login — verified: the passing runs called `login_user(identification="password123")`
+   which returned **False**, yet `pay_loan` still succeeded via the no-login path. (This is exactly
+   why 66/67 are not defects and the 6 are: same missing creds, but only the 6 force login.)
 
 ## Root cause (hypothesis to confirm with authors)
 The stored `directed_action_graph` is built from the **default/full dependency** (`dep_full`, which
