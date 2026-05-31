@@ -26,20 +26,45 @@ DEPLOY: copy to the SOPBench clone `scripts/` (alongside run_two_stage.py). Reus
 tasks; call .reset() per task to clear slot state.
 """
 from __future__ import annotations
+import ast
 import json
 from openai import OpenAI
 
 
+def _try_parse(s):
+    """Parse a tool-result string into a python object (try_eval-style, matches
+    run_evaluation.py:try_eval). Returns the object or None if unparseable."""
+    if not isinstance(s, str):
+        return s
+    try:
+        return json.loads(s)
+    except Exception:
+        pass
+    try:
+        return ast.literal_eval(s)
+    except Exception:
+        return None
+
+
 class TwoStageClient:
-    """OpenAIHandler-compatible client running a 2-stage planner+resolver per turn."""
+    """OpenAIHandler-compatible client running a 2-stage planner+resolver per turn.
+
+    use_deterministic_shortcut: rung-(a) opportunism. When True, if every required
+    arg of the chosen tool is already in slot state, the call is emitted WITHOUT an
+    LLM resolver call. Default False so arm-3 measures CLEAN L1 (planner + LLM
+    resolver) without slot-state guesses contaminating pass@1; the would-be coverage
+    is still counted as a diagnostic either way (see coverage()).
+    """
 
     def __init__(self, base_url: str, model_name: str,
-                 temperature: float = 0.0, max_tokens: int = 512, top_p: float = 0.01):
+                 temperature: float = 0.0, max_tokens: int = 512, top_p: float = 0.01,
+                 use_deterministic_shortcut: bool = False):
         self.model_name = model_name
         self.model_name_huggingface = model_name      # swarm/core reads this
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.top_p = top_p
+        self.use_deterministic_shortcut = use_deterministic_shortcut
         self._client = OpenAI(base_url=base_url, api_key="EMPTY")
         # per-interaction state
         self._slot_state: dict = {}    # arg values mined from tool results + user_known
@@ -131,11 +156,14 @@ class TwoStageClient:
         required = fn.get("parameters", {}).get("required", [])
 
         self.cov_turns += 1
-        if required and all(r in self._slot_state for r in required):
-            # deterministic rung: build the call from slot state, NO LLM
+        all_in_slots = bool(required) and all(r in self._slot_state for r in required)
+        if all_in_slots:
+            # diagnostic: this turn COULD be resolved deterministically
             self.cov_deterministic += 1
-            args = {r: self._slot_state[r] for r in required}
-            return self._make_tool_call_completion(action_name, args)
+            if self.use_deterministic_shortcut:
+                # rung (a): build the call from slot state, NO LLM
+                args = {r: self._slot_state[r] for r in required}
+                return self._make_tool_call_completion(action_name, args)
 
         # LLM resolver rung (b): force the chosen tool, let the model fill args in-context
         resp = self._client.chat.completions.create(
@@ -152,18 +180,17 @@ class TwoStageClient:
         """Mine arg values from tool results and the user_known dump into slot state."""
         for m in messages:
             if m.get("role") == "tool":
-                try:
-                    r = json.loads(m.get("content", "{}"))
-                    if isinstance(r, dict):
-                        self._slot_state.update(r)
-                except Exception:
-                    pass
+                # SOPBench tool results may be JSON or python-repr (try_eval-style).
+                r = _try_parse(m.get("content", ""))
+                if isinstance(r, dict):
+                    self._slot_state.update(r)
             if m.get("role") == "user" and \
                str(m.get("content", "")).startswith("Here is all the information"):
                 try:
                     txt = m["content"]
-                    self._slot_state.update(
-                        json.loads(txt[txt.index("{"):txt.rindex("}") + 1]))
+                    block = _try_parse(txt[txt.index("{"):txt.rindex("}") + 1])
+                    if isinstance(block, dict):
+                        self._slot_state.update(block)
                 except Exception:
                     pass
 
