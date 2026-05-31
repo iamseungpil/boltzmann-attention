@@ -1,8 +1,9 @@
 # Task-Instance Constraint 설계서 — should_T 병목(과잉 게이팅 + full-tool 부담) 해소
 
-> 상태: **(b) 구현 설계 확정 (2026-06-02) — §8.5가 구현 권위본. 다음=resolver/teacher 코드 착수.**
-> 작성 2026-06-02. 권위본 `WORKFLOW_ONTOLOGY_DESIGN.md §11`의 보강. 리뷰=`TASK_CONSTRAINT_DESIGN_REVIEW.md`. 결과 권위본=`SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4c.
-> ★요약: binding = **검증 도구 선택**(should_T·should_F 공통). 레버 = **완전 검증 게더(A args-aware + B condition→getter+compare + C 조건부 login) + act/STOP 게이트**, **LLM은 도구선택만·계산은 결정론 resolver**. 실측 천장: should_T ~34/48, should_F ~83/86 도구-탐지; 134 union 120(우리 35→SOTA 103~107). genuine-impossible=14(8 PartA 코드결함+6 PartB cred-부재; PartB는 BUGREPORT Part B 후보). 구현 설계=**§8.5**.
+> 상태: **(b) 설계 thesis 재정립 (2026-06-02) — §8.5.★가 최우선 권위본. 리뷰 `TASK_CONSTRAINT_IMPL_REVIEW.md`(C1-C6) 반영.**
+> 작성 2026-06-02. 권위본 `WORKFLOW_ONTOLOGY_DESIGN.md §11`. 리뷰=`TASK_CONSTRAINT_DESIGN_REVIEW.md`·`TASK_CONSTRAINT_IMPL_REVIEW.md`. 결과=`SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4c. related-work=`EXPERIMENT_DESIGN_v1_7 §9`.
+> ★근본목표(재확정): **NL 멀티턴 요청 → 도메인 온톨로지(ABox)로 재해석 → 내부 dirgraph(절차) 추론·실행하는 agentic planner를 weight(TBox)에 학습 → held-out은 ABox swap만으로 재학습0 전이.** injection/steering 라인 폐기(null). FM SO.P·CAP-CPT(weight-baking)와 달리 분리·전이.
+> ★최우선 설계(§8.5.★): **① 도구 이름 ALIAS 마스킹(1급, anti-cheat·전이 핵심)** ② 출처3(NL정책, precond 정답 미렌더)·출처1/3 강등 ③ 멀티턴 user_sim 평가(leaderboard 동일세팅) ④ 헤드라인=LODO 전이+ablation(빈ABox붕괴·L0 vs L2·alias on/off). binding=검증 도구 선택; 레버=완전 게더+act/STOP(resolver 계산, LLM 무계산). genuine-impossible=14(8 PartA+6 PartB).
 
 ---
 
@@ -287,6 +288,25 @@ net 31→31은 **2-task churn을 은폐**: GAIN `[87] set_safety_box`(fail→pas
 ## 8.5 ★★★ (b) 구현 설계 — 완전 검증 게더 (should_T + should_F 동시), 2026-06-02 확정
 
 > 이 절이 **구현 권위본**. §2~§8의 진단·검증 결론을 (b) 코드 설계로 종합. 모든 수치는 실측(`run_scripted`·`binding_diag`·`lever_decomp`·leaderboard union·`_shouldF2`·`_verifyF`).
+
+### 8.5.★ 최우선 설계 원칙 (2026-06-02 thesis 재정립 — 이 블록이 §8.5 전체를 지배)
+
+**근본 목표(재확정)**: 자연어 멀티턴 요청을, **도메인별 구조화 온톨로지(ABox)로 재해석**해 **내부적으로 절차(dirgraph)를 추론·실행**하는 agentic planner를, 작은 모델 weight(TBox)에 학습시키고, **본 적 없는 도메인은 ABox 교체만으로 재학습 0 전이**. (injection/steering 라인은 폐기=실증 null; FM SO.P·CAP-CPT의 weight-baking과 달리 분리·전이.)
+- **TBox(weight, 학습·전이)** = "NL 요청 + ABox 어휘 → dirgraph(절차) 도출 + 절차 실행" 스킬. **dirgraph는 모델이 만들어내는 출력**(입력 컨닝 아님). L0는 NL→dirgraph 불가 → 이 매핑이 비자명·대체불가 기여.
+- **ABox(in-context, swap)** = 도메인 도구 affordance(능력·설명) + NL 정책. goal의 precondition '정답 구조'는 안 떠먹임.
+
+**① [최우선] 도구 이름 ALIAS 마스킹** (현재 `--alias` stub=미구현 → **1급 구현**):
+- 프롬프트의 도구를 **per-task 추상 alias**로 제시(`tool_A: 사용자 존재 확인`), 타깃도 alias, **resolver가 alias→실제 도구 매핑**.
+- 효과: (a) 이름 암기 차단(within-domain entanglement 봉쇄; 순서shuffle로 못 막던 부분), (b) **NL 조건 → 도구 설명 의미매칭 강제**(lexical 지름길 제거=학습 비자명, C1 정면 응답), (c) 전이 깨끗(held-out=새 alias+새 설명, 같은 스킬), (d) **"답지 컨닝" 원천 차단**(precond를 렌더해도 도구가 `tool_3`이라 무의미). → **출처1/3 논쟁보다 근본적인 anti-cheat.**
+- 트레이드오프: 7B 난이도↑(이름 힌트 없이 설명만으로). β(전이 논제)엔 정답인 선택.
+
+**② 출처1/3 강등**: 둘 다 NL→goal+args 매핑은 모델이 하므로 thesis는 둘 다 성립. **출처3(NL 정책 블록, precond '정답목록' 미렌더)을 기본**으로 하되, alias가 진짜 방어선이므로 1급 결정 아님. (G0 확인: NL 정책이 절차를 담음. 단 `build_v2_prompt`가 정책을 600자 truncate → **goal 관련 블록 전달로 수정**.)
+
+**③ 평가 = 멀티턴 user_sim, leaderboard 동일 세팅 비교**: 현재 정적-user(`default_response` 1회 덤프) → **멀티턴 user_sim 전환**. 함의: 멀티턴이면 에이전트가 부족정보 되묻기 가능 → PartB(cred-부재) 일부 해소 가능(단 **user_sim이 자격증명을 보유·제공하는지 선확인 필요**, 천장 재산정).
+
+**④ 헤드라인 실험(thesis 입증)**: ① **LODO 전이**(6→held-out, ABox swap, 재학습0) ② **ablation**: 빈/틀린 ABox→붕괴(온톨로지 실제 사용) · in-context(arm-3v2 2/48) vs 학습(arm-4a) vs **L0(arm-2)** · alias on/off. ③ 멀티턴 user_sim pass@1. **SOTA 절대수치보다 "재학습0 전이"가 1급 결과.**
+
+> 아래 8.5.0~8.5.6은 **메커니즘 디테일**(완전 게더·resolver·should_F 교정)로 위 ★원칙 하에서 유효. resolver 계산 오프로딩·양축 게더는 그대로, 단 **planner 입력은 alias+NL정책(출처3)·precond 정답목록 미렌더**로 구현.
 
 ### 8.5.0 결론 한 줄
 should_T·should_F 공통 binding = **검증 도구 선택**(어떤 체크/establish 도구를 호출하는가). 레버 = **완전 검증 게더 + act/STOP 게이트**, 단 **LLM은 도구 선택만 하고 정확한 계산은 결정론 resolver(ABox executor)가** 수행(사용자 설계: "모든 조건/계산을 도구호출로 환원").
