@@ -219,7 +219,10 @@ goal_fact_checkable = [p for p in dict.fromkeys(gleaves)        # (1) NAME dedup
 
 - **레버 B가 dominant.** root cause는 args-aware보다 **온톨로지 induction 결함**: `induce_ontology_zekun.py`가 모든 condition 술어를 **`by:null`** 로 남겨 → teacher가 자격/잔액/한도 fact를 **검증할 HOW 지식이 없음**(콜러블도 아님). dirgraph는 이를 getter(`internal_get_credit_score`·`get_account_balance`·`get_credit_card_info`…)로 검증.
 - **B는 inducible(비-oracle)**: condition→getter는 도메인 상수(co-occurrence로 깨끗이 도출됨, `lever_decomp.py` 출력). 즉 ABox HOW 지식으로 induce 가능 — oracle 누수 아님.
-- **레버 상한 = A+B → 40/48**(8 oracle-impossible 제외 = 기존 천장). 둘 다 비-oracle/inducible로 확인 → **재학습 가치 오프라인 확정.**
+- **⚠️ 정정 (free 검증 `_verify_ab`, 2026-06-02)**: 이전의 "A+B → 40/48 확정"은 **철회**. free 검증이 **A+B 불완전**을 발견:
+  - **C: innate-dep 누락** — dirgraph가 `login_user`(일부 `get_account_owed_balance`)를 요구하나 task constraint에 없는 task ~8(get_loan·pay_bill·pay_loan·set_safety_box·transfer 120). **P5 "task_constraint 단독 충분" 반증** → 게더 = **task_constraint ∪ innate_dep ∪ condition→getter (A+B+C)**. (단 dirgraph가 flat OR이라 login이 strict 필수인지 구조적 확인 필요.)
+  - **B 테이블 미완**: `maximum_deposit_limit`(deposit_funds) unmapped → 매핑 추가.
+  - **천장(40)은 teacher 출력으로 아직 미재현**: `de.process`를 establishment 실행 없이 호출한 측정오류로 15가 나왔을 뿐(40 무관). 올바른 재현 = 전제 실행 후 goal 호출 replay(evidence_a_probe 방식) → 보류.
 
 → **구현 1순위 = B(condition→getter 온톨로지 induction) + A(args-aware 게더)**. mechanism A(게이팅 경량화, §7)는 should_T 비-binding이므로 부차(프롬프트 정합으로 흡수).
 

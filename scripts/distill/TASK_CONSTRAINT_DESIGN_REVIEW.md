@@ -260,7 +260,22 @@ should_T **gain=0/loss=0**이면, §2.3에서 "login 과호출→dirgraph 위반
 | **A args-aware** | A-only 11 task / 88 leaf | `goal_fact_checkable` name-dedup → 동명 체크 2회(transfer dest) 소멸. (name,args) 키로 수정 | ✅ task 제약서 직접 |
 
 - **§8.1 초안 정정**: "진짜 레버=args-aware"는 부분적이었음 — **dominant는 B(온톨로지 induction 결함, 33 task)**, args-aware(A)는 11 task. condition 술어(`internal_check_credit_card_exist`조차 `by:null` condition, 콜러블 아님)가 다수.
-- **상한 = A+B → 40/48**(8 oracle-impossible 제외 = 기존 oracle 천장과 일치). **두 레버 모두 비-oracle/inducible** → **재학습 가치 오프라인 확정**(login 게이팅 레버와 달리 should_T를 실제로 움직일 수 있음).
-- **R7 원칙 충족**: 비싼 재학습 전, 정적 분석만으로 (a) 레버가 should_T binding을 실제 겨냥하고 (b) 상한이 oracle천장(40)이며 (c) 비-oracle로 구현 가능함을 확인. login 게이팅(zero-train null)과 정반대 = 진행 정당.
+- ~~상한 = A+B → 40/48~~ → **철회 (아래 §11).**
 
-**구현 순서**: B(온톨로지 condition→getter induction) + A(args-aware 게더) → SFT 재생성 → 재학습 1회 → should_F gross 모니터(14-scope). 재현 `binding_diag.py`·`lever_decomp.py`.
+**구현 순서(잠정)**: B(condition→getter) + A(args-aware) → 단 §11에서 C(innate-dep) 추가 필요 판명.
+
+---
+
+## 11. ★ free 검증 결과 (`_verify_ab.py`, 재학습0) — A+B 불완전 발견, §10 성급주장 철회
+
+"무료 검증 먼저" 지시대로 A+B teacher가 천장을 재현하는지 정적+strict-system으로 확인. **결과: A+B는 불완전. 정직한 정정 2건.**
+
+1. **§10의 "A+B→40/48 확정"은 성급 → 철회.** 천장 재현에 쓴 `de.process(goal)`를 **establishing action 실행 없이** 호출 → login 필요 task가 False → "solvable 15/48"는 천장(40, evidence_a_probe 권위본)과 **무관한 측정오류**. A+B로 40 재현은 **아직 미검증.**
+2. **A+B 게더 불완전 — 진짜 gap 2개 발견(검증의 성과):**
+   - **C: innate-dep 누락 (P5 반증)** — dirgraph가 `login_user`(일부 `get_account_owed_balance`)를 요구하나 task constraint에 없는 task ~8(get_loan/pay_bill/pay_loan/set_safety_box/transfer 120). 예: set_safety_box 제약엔 `authenticated_admin_password`만 있고 `logged_in_user`는 dirgraph innate. → **게더 = task_constraint ∪ innate_dep ∪ condition→getter (A+B+C)**. 이전 "mask=task_constraint 단독 충분(P5 해소)" 결론 **부분 철회**.
+     - ⚠️ dirgraph node가 flat list("or" 포함) → login이 strict-필수인지 OR-대안인지 **구조적 확인 필요**(현 단계 과대주장 금지).
+   - **B 테이블 미완**: `maximum_deposit_limit`(deposit_funds) unmapped → condition→getter 1건 추가.
+
+**검증의 가치**: 재학습 **전에** A+B 불완전(C·미매핑)을 잡음 → 그대로 재학습했으면 ~8 task 재실패. **R7 "verify first"가 정확히 작동.**
+
+**다음(올바른 재현)**: 전제(login/auth/check/getter)를 dss에 **실제 실행 후 goal 메서드 호출→truthy** replay(evidence_a_probe 방식)로 (a) 진짜 reconstructible 천장 (b) C가 strict 필수인지 동시 확정 → 그 후 A+B+C 게더 구현 → 재학습. 재현 `binding_diag.py`·`lever_decomp.py`·`_verify_ab.py`.
