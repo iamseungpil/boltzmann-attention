@@ -938,4 +938,10 @@ ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. 
 - **제출 전 게이트(체크리스트 미충족 시 보고 보류)**: 실패 sub-check가 **database_match**(구성버그)지
   **dirgraph_satisfied**(replay 순서 아티팩트 가능)가 아님을 확인 · `--toposort` 교차 · 1태스크 end-to-end 서술 ·
   근본원인 줄을 grep 아닌 **메서드 정독**으로 확정. → 통과 시 issue 제출, 결과를 §11.13 수치에 역반영.
-- **상태**: 스크립트·초안 완료. **다음=리모트에서 MRE 실행→초안 빈칸 채움→게이트 통과 시 제출.**
+- **진행(2026-06-01, offline)**: 배포 tarball만으로 ① repo handle 확정(Leezekun) ② 출력 스키마 확정
+  (goal-키+evaluation 내장) ③ **evidence B 완료**(8 goal/51 inst 전모델 0%, 지배=database_match) ④ **dict
+  근본원인 반증**(bank.py 정확 인용) — 전부 리모트 없이. `mre_bank_impossible.py` crosscheck 경로를 실제 flat
+  `ast_*.json`+내장 evaluation으로 **수정함**(구 `<model>/results.json` 가정 폐기).
+- **상태/다음**: evidence B·소스반증 완료, **evidence A(oracle-replay)만 남음 — 배포 output의
+  `ground_truth_actions_full`로 offline 실행 가능**(GPU/리모트 불요). A로 database_match 재현+불가 확정+정확 N →
+  게이트 통과 시 `BUGREPORT_…md` 빈칸 채워 Leezekun/SOPBench에 제출.

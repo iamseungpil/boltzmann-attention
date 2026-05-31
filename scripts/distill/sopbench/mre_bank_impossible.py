@@ -144,25 +144,37 @@ def root_cause_probe(domain, data_dir):
 
 
 def crosscheck_author_outputs(domain, impossible_goals, out_root="output"):
-    """For each impossible goal, did ANY author trajectory ever pass it? (corroboration)"""
-    res = {g: {"passed_by": [], "files_seen": 0} for g in impossible_goals}
-    for path in glob.glob(os.path.join(out_root, domain, "**", "*.json"), recursive=True):
+    """Evidence (B): for each impossible goal, did ANY shipped model trajectory ever pass it?
+
+    VERIFIED SHIPPED LAYOUT (Leezekun/SOPBench, 2026-06-01): the released results are FLAT files
+    `output/<domain>/ast_<model>-mode_...-shuffle_False.json`, each a dict keyed by GOAL name ->
+    list of task-instance records; every record carries an embedded `evaluation` dict (already
+    has `success` + the 5 sub-checks). So NO re-run of run_evaluation is needed for cross-check.
+    (Earlier draft wrongly assumed `output/<domain>/<model>/results.json` — corrected.)
+    """
+    res = {g: {"passed_by": [], "instances": {}} for g in impossible_goals}
+    for path in glob.glob(os.path.join(out_root, domain, "ast_*.json")):
         try:
             data = json.load(open(path))
         except Exception:
             continue
-        model = os.path.basename(os.path.dirname(path)) or os.path.basename(path)
-        records = data if isinstance(data, list) else data.get("results", data.get("tasks", []))
-        if not isinstance(records, list):
+        if not isinstance(data, dict):
             continue
-        for rec in records:
-            if not isinstance(rec, dict):
+        model = os.path.basename(path)[len("ast_"):].split("-mode_")[0]
+        for g in impossible_goals:
+            insts = data.get(g)
+            if insts is None:
                 continue
-            g = rec.get("user_goal") or rec.get("goal")
-            ev = rec.get("evaluation") or rec.get("eval") or {}
-            if g in res:
-                res[g]["files_seen"] += 1
-                if isinstance(ev, dict) and ev.get("success"):
+            if not isinstance(insts, list):
+                insts = [insts]
+            for j, rec in enumerate(insts):
+                ev = (rec or {}).get("evaluation") or {}
+                if not isinstance(ev, dict) or "success" not in ev:
+                    continue
+                cell = res[g]["instances"].setdefault(j, {"seen": 0, "passed": 0})
+                cell["seen"] += 1
+                if ev.get("success"):
+                    cell["passed"] += 1
                     if model not in res[g]["passed_by"]:
                         res[g]["passed_by"].append(model)
     return res
