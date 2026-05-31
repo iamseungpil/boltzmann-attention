@@ -27,9 +27,54 @@ tasks; call .reset() per task to clear slot state.
 """
 from __future__ import annotations
 import ast
+import hashlib
 import json
 import os
+import re
 from openai import OpenAI
+
+
+# ----------------------------------------------------------------------------
+# Tool-/predicate-NAME ALIAS masking (TASK_CONSTRAINT_DESIGN §8.5.★ ①, top priority).
+# Anti-cheat: present every referential name (tool, predicate, the check/establish tools
+# named INSIDE status lines, history, descriptions) as an opaque per-task alias so the
+# planner cannot memorize "login->apply" or lexical-shortcut policy<->tool. It is FORCED
+# to semantic-match the NL policy/request against the (scrubbed) tool DESCRIPTION. This is
+# the validity gate on the LODO transfer headline: with names memorizable, a positive
+# transfer number is suspect; with aliases, transfer = the general NL->procedure skill.
+#
+# NOTE (orthogonality, design review): alias is independent of source1/source3. Aliasing
+# only defangs NAME memorization; source3 (drop the constraint-derived STATUS/precond
+# "answer key") is what removes structure spoon-feeding. The real anti-cheat = alias ON
+# *and* source3. Alias-ON+source1 still hands the anonymized dirgraph (op_7 => VERIFY: op_3).
+#
+# Train/eval need NOT share the map: within one (prompt,target) pair the map is consistent;
+# across train vs eval the salt differs ON PURPOSE so a model that merely memorized an
+# alias<->tool binding fails — only genuine description-grounded matching transfers.
+# ----------------------------------------------------------------------------
+def make_alias_map(terms, salt: str = "") -> dict:
+    """Deterministic bijection {real_name -> opaque alias} over the union of tool + predicate
+    names. Reproducible across processes (sha256, not the salted builtin hash). `salt` permutes
+    the assignment; vary it per task (anti-memorization) and differently in train vs eval."""
+    names = sorted({t for t in terms if t and t != "exit_conversation"})
+    order = sorted(names, key=lambda n: hashlib.sha256(f"{salt}|{n}".encode()).hexdigest())
+    amap = {n: f"op_{i}" for i, n in enumerate(order)}
+    amap["exit_conversation"] = "exit_conversation"      # keep STOP/terminate sentinel stable
+    return amap
+
+
+def _alias_text(text: str, amap: dict) -> str:
+    """Whole-token replace every real name in `text` with its alias (word boundaries so e.g.
+    'get_account_balance' is not partially hit by 'get_account_balance_safety'). Scrubs
+    descriptions / policy / history of leaked real names."""
+    if not amap or not text:
+        return text
+    # longest names first is irrelevant with \b boundaries, but keeps behaviour obvious
+    for real in sorted(amap, key=len, reverse=True):
+        if real == "exit_conversation":
+            continue
+        text = re.sub(rf"\b{re.escape(real)}\b", amap[real], text)
+    return text
 
 
 def _try_parse(s):
@@ -69,35 +114,52 @@ def _render_precond_mod(tree, predicates, out, est):
 
 
 def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines, slot_keys,
-                    op_descs=None, observed=None, goal_name=None, goal_constraint=None):
+                    op_descs=None, observed=None, goal_name=None, goal_constraint=None,
+                    alias_map=None, source=1):
     """Build the arm-3v2/arm-4a planner prompt. `op_names` = the exact tool-name order shown to
     the model. `established` = establishable preds already satisfied. `observed` = {fact_pred ->
     bool} learned from prior internal-check results in history (fact-visibility, arm-4a v2).
 
     `goal_name`/`goal_constraint` (TASK_CONSTRAINT_DESIGN.md mechanism A): when given, the GOAL
     operator's precondition is rendered from the TASK-SPECIFIC constraint tree `goal_constraint`
-    instead of the domain-default `op["precondition"]`. This makes the goal status line reflect
-    THIS task's actual requirement (light/heavy) rather than the maximal default — removing the
-    non-injective signal that maps the same "BLOCKED-login" status to different correct actions.
-    Returns the prompt string."""
+    instead of the domain-default `op["precondition"]`.
+
+    `alias_map` (§8.5.★ ①): {real_name -> opaque alias} applied to EVERY referential name —
+    the tool's leading name, its precondition predicate names, the check/establish tools named
+    inside status lines, the HOW-TO-ESTABLISH block, history, and (scrubbed) descriptions/policy.
+    Aliasing only the leading name leaks the procedure via needs[]/STATUS, so we alias the whole
+    graph. `op_names` stays REAL (callers look operators up by real name); aliasing is render-only.
+    `source` (§8.5.★ ②): 1 = render the constraint-derived needs/gives/STATUS lines (the
+    "answer key"). 3 = render ONLY the (scrubbed) tool description + the NL policy; the planner
+    must INFER which checks are required from the policy (no spoon-fed structure). The real
+    anti-cheat is alias_map AND source=3 together. Returns the prompt string."""
     ops = abox.get("operators", {})
     predicates = abox.get("predicates", {})
     op_descs = op_descs or {}
     observed = observed or {}
     op_set = set(op_names)
+    amap = alias_map or {}
+    A = lambda n: amap.get(n, n)                         # noqa: E731 — render-time alias
+    S = lambda t: _alias_text(t, amap)                   # noqa: E731 — scrub free text
+
     est_map, lines = {}, []
     for nm in op_names:
         if nm == "exit_conversation":
             continue
         op = ops.get(nm)
+        if source == 3:
+            # affordance-only: description (scrubbed) + alias; NO needs/gives/STATUS answer key.
+            desc = S(op_descs.get(nm, "") or (op.get("description", "") if op else "") or "(tool)")
+            lines.append(f"- {A(nm)}: {desc[:160]}")
+            continue
         if op:
             preds, est = [], {}
             precond = (goal_constraint if (goal_name and nm == goal_name and goal_constraint is not None)
                        else op.get("precondition"))
             _render_precond_mod(precond, predicates, preds, est)
             est_map.update(est)
-            needs = ", ".join(dict.fromkeys(preds)) or "nothing"
-            gives = ", ".join(op.get("produces", [])) or "the goal/result"
+            needs = ", ".join(A(p) for p in dict.fromkeys(preds)) or "nothing"
+            gives = ", ".join(A(p) for p in op.get("produces", [])) or "the goal/result"
             # fact preconditions = non-establishable preds; a fact is checkable if it is a callable tool
             facts = [p for p in dict.fromkeys(preds) if p not in est]
             violated = [p for p in facts if observed.get(p) is False]
@@ -106,22 +168,41 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
             if violated:
                 status = "BLOCKED by FACT (a required check returned FALSE) => STOP, do not call this"
             elif unmet_est:
-                status = f"BLOCKED — first call: {', '.join(sorted({est[p] for p in unmet_est}))}"
+                status = f"BLOCKED — first call: {', '.join(sorted({A(est[p]) for p in unmet_est}))}"
             elif uncheckable_unknown:
-                status = f"VERIFY FIRST — call these checks: {', '.join(sorted(uncheckable_unknown))}"
+                status = f"VERIFY FIRST — call these checks: {', '.join(sorted(A(p) for p in uncheckable_unknown))}"
             else:
                 status = "READY (preconditions satisfied/verified)"
-            lines.append(f"- {nm}: needs [{needs}]; gives [{gives}]  => {status}")
+            lines.append(f"- {A(nm)}: needs [{needs}]; gives [{gives}]  => {status}")
         else:
-            lines.append(f"- {nm}: {op_descs.get(nm, '(tool)')[:80]}")
+            lines.append(f"- {A(nm)}: {S(op_descs.get(nm, '(tool)'))[:80]}")
     ops_str = "\n".join(lines)
-    est_str = ("\n".join(f"  - to establish '{p}', call {a}" for p, a in est_map.items())
-               or "  (none)")
-    hist_str = "\n".join(history_lines) if history_lines else "nothing yet"
+    hist_str = S("\n".join(history_lines)) if history_lines else "nothing yet"
     slots_str = ", ".join(sorted(slot_keys)) or "only what the user provided"
+    policy_str = S(str(policy))
+    req_str = S(str(user_req))
+    if source == 3:
+        return (
+            "You are a planning agent. Pick the SINGLE next tool to call, or STOP.\n\n"
+            f"USER REQUEST:\n{req_str}\n\nPOLICY (constraints to honor):\n{policy_str}\n\n"
+            f"TOOLS (name: what it does):\n{ops_str}\n\n"
+            f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
+            f"HISTORY:\n{hist_str}\n\n"
+            "RULES:\n"
+            "- Read the POLICY and decide which conditions must be VERIFIED before the goal.\n"
+            "- Call the verification/lookup tool whose description matches each required check "
+            "FIRST; only then act.\n"
+            "- If a verified condition fails (a required check is false), output STOP — refusing "
+            "is correct; do NOT force the goal.\n"
+            "- Prefer the cheapest path: never repeat a call whose result you already have.\n"
+            "- When every required condition is satisfied and the goal is not yet done, call the "
+            "goal tool, then STOP.\n\n"
+            "Output ONLY one tool name from the list, or STOP. Nothing else:")
+    est_str = ("\n".join(f"  - to establish '{A(p)}', call {A(a)}" for p, a in est_map.items())
+               or "  (none)")
     return (
         "You are a planning agent. Pick the SINGLE next tool to call, or STOP.\n\n"
-        f"USER REQUEST:\n{user_req}\n\nPOLICY (constraints to honor):\n{policy}\n\n"
+        f"USER REQUEST:\n{req_str}\n\nPOLICY (constraints to honor):\n{policy_str}\n\n"
         f"TOOLS (name: needs [preconditions]; gives [effects]):\n{ops_str}\n\n"
         f"HOW TO ESTABLISH preconditions:\n{est_str}\n\n"
         f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
@@ -173,6 +254,11 @@ class TwoStageClient:
         self._task_constraints = None
         self._goal_name = None
         self._lighten = bool(os.environ.get("SOPBENCH_LIGHTEN"))
+        # §8.5.★ ① tool-name alias masking + ② source (1=render answer-key STATUS, 3=NL-only).
+        self._alias = bool(os.environ.get("SOPBENCH_ALIAS"))
+        self._source = int(os.environ.get("SOPBENCH_SOURCE", "1"))
+        self._alias_map = None        # {real -> alias}, built once per task (reset clears)
+        self._alias_inv = None        # {alias -> real}, to de-alias the planner output
         # coverage counters (cumulative across the run)
         self.cov_turns = 0
         self.cov_deterministic = 0
@@ -184,6 +270,8 @@ class TwoStageClient:
         self._turn = 0
         self._task_constraints = task_constraints
         self._goal_name = goal
+        self._alias_map = None        # rebuilt lazily on first plan of this task
+        self._alias_inv = None
 
     # ------------------------------------------------------------------
     # Swarm entry point (called every assistant turn)
@@ -318,9 +406,19 @@ class TwoStageClient:
                     hist.append(f"CALLED: {fn.name if hasattr(fn,'name') else fn.get('name','?')}")
         gname = self._goal_name if self._lighten else None
         gconstr = self._task_constraints if self._lighten else None
+        # §8.5.★ ①: build the per-task alias map once (union of operator + predicate + tool names).
+        # eval salt differs from train salt by design -> a model that memorized an alias<->tool
+        # binding fails; only description-grounded semantic matching transfers.
+        if self._alias and self._alias_map is None:
+            terms = set(ops) | set(self.abox.get("predicates", {})) | set(tool_names)
+            salt = f"eval|{self._goal_name}|" + "|".join(sorted(tool_names))
+            self._alias_map = make_alias_map(terms, salt)
+            self._alias_inv = {v: k for k, v in self._alias_map.items()}
+        amap = self._alias_map if self._alias else None
         prompt = build_v2_prompt(self.abox, tool_names, established, user_req, policy,
                                  hist, set(self._slot_state.keys()), op_descs, observed,
-                                 goal_name=gname, goal_constraint=gconstr)
+                                 goal_name=gname, goal_constraint=gconstr,
+                                 alias_map=amap, source=self._source)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
             temperature=0.0, top_p=0.01, max_tokens=24)
@@ -328,14 +426,16 @@ class TwoStageClient:
         low = raw.lower()
         if "stop" in low or "refuse" in low or "exit_conversation" in low:
             return "STOP"
-        # copy-grounded: pick the tool name that appears in the output (longest match wins)
-        hits = [n for n in tool_names if n and n in raw]
+        # match against the SHOWN names (aliases when alias is on), then de-alias to the real tool.
+        shown = [amap[n] for n in tool_names] if amap else tool_names
+        hits = [s for s in shown if s and s in raw]
         if hits:
-            return max(hits, key=len)
+            best = max(hits, key=len)
+            return self._alias_inv.get(best, best) if amap else best
         first = low.split()[0].strip(".,:\"'") if low.split() else ""
-        for n in tool_names:
-            if n.lower() == first:
-                return n
+        for s in shown:
+            if s.lower() == first:
+                return self._alias_inv.get(s, s) if amap else s
         return "STOP"   # uninterpretable -> refuse rather than blind first-tool (C1/N2 fix)
 
     # ------------------------------------------------------------------
