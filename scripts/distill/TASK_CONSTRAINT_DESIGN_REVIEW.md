@@ -248,4 +248,19 @@ should_T **gain=0/loss=0**이면, §2.3에서 "login 과호출→dirgraph 위반
 - **★root cause 코드 확정 (`build_tbox_planner_sft.py:108`)**: GT teacher의 `goal_fact_checkable = [p for p in dict.fromkeys(gleaves) if p not in gest and p in tool_names]` — (1) name-dedup으로 동명 2회 체크(dest) 소멸, (2) establishable 제외, (3) 동명 callable만 → **검증 시퀀스를 불완전 생성 → 모델이 "덜 검증"을 학습**. should_T 천장은 게이팅·모델용량이 아니라 **SFT 데이터 생성 결함**.
 
 ### 방향 재설정 (리뷰 관점)
-이 설계서의 원 가설(mechanism A = 게이팅 경량화)은 **login 위생엔 유효(검증됨)하나 should_T의 레버가 아니다.** 진짜 레버는 **검증-게더를 args-aware·완전화**(`goal_fact_checkable`을 (name,args)키 + establishable/compound fact 포함, `build_v2_prompt`의 `observed`/`facts`도 동일). A는 이 수정에 프롬프트 정합으로 흡수. **다음 구현 1순위 = §8.1 root cause 수정 후 재학습 1회.** 재현 스크립트 `binding_diag.py`(repo 커밋, R1 교훈=unversioned 금지).
+이 설계서의 원 가설(mechanism A = 게이팅 경량화)은 **login 위생엔 유효(검증됨)하나 should_T의 레버가 아니다.** 진짜 레버는 **검증-게더 완전화**. 재현 스크립트 `binding_diag.py`(repo 커밋, R1 교훈=unversioned 금지).
+
+## 10. 오프라인 레버-상한 확정 (2026-06-02, `lever_decomp.py`, 재학습0 — R7 "verify first")
+
+"재학습 전 무료 검증" 지시대로 레버 상한을 정적 분석. **레버가 2개로 분해되고 B가 dominant임이 드러남(§8.1 정정).**
+
+| 레버 | 대상 | 메커니즘 | 비-oracle? |
+|---|--:|---|:--:|
+| **B condition→getter** (dominant) | **needs-B 33 task** / 47 leaf | `induce_ontology_zekun.py`가 condition 술어를 `by:null`로 남김 → teacher가 자격/잔액/한도 fact 검증법(getter)을 모름. condition→getter induce | ✅ 도메인상수, co-occurrence로 도출 |
+| **A args-aware** | A-only 11 task / 88 leaf | `goal_fact_checkable` name-dedup → 동명 체크 2회(transfer dest) 소멸. (name,args) 키로 수정 | ✅ task 제약서 직접 |
+
+- **§8.1 초안 정정**: "진짜 레버=args-aware"는 부분적이었음 — **dominant는 B(온톨로지 induction 결함, 33 task)**, args-aware(A)는 11 task. condition 술어(`internal_check_credit_card_exist`조차 `by:null` condition, 콜러블 아님)가 다수.
+- **상한 = A+B → 40/48**(8 oracle-impossible 제외 = 기존 oracle 천장과 일치). **두 레버 모두 비-oracle/inducible** → **재학습 가치 오프라인 확정**(login 게이팅 레버와 달리 should_T를 실제로 움직일 수 있음).
+- **R7 원칙 충족**: 비싼 재학습 전, 정적 분석만으로 (a) 레버가 should_T binding을 실제 겨냥하고 (b) 상한이 oracle천장(40)이며 (c) 비-oracle로 구현 가능함을 확인. login 게이팅(zero-train null)과 정반대 = 진행 정당.
+
+**구현 순서**: B(온톨로지 condition→getter induction) + A(args-aware 게더) → SFT 재생성 → 재학습 1회 → should_F gross 모니터(14-scope). 재현 `binding_diag.py`·`lever_decomp.py`.
