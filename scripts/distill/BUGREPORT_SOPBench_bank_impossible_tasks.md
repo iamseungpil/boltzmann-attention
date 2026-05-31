@@ -1,127 +1,110 @@
 # ✅ FILE-READY — evidence-A confirms 8 unsolvable bank instances (do 2 manual checks first)
 
-> **STATUS: READY (measured 2026-06-01 PM, remote GPU0, RC0). Title+Body+Root-cause finalized
-> below.** Before posting, do the 2 unchecked items in the checklist (re-search dup issues; optional
-> appendix). The Title/Body/Root-cause section is the actual issue text to paste.
-> Prior status line (kept for history):
-> **DO NOT SUBMIT YET (measured 2026-06-01 PM, remote GPU0 server).**
-> `offline_crosscheck.py` over the 53 shipped `output/bank/ast_*.json` (authors' embedded
-> `evaluations[].success`, **RC0, 2497 should_succeed=true records, 48 distinct instances,
-> seen=52 each**): **14 instances across 6 goals are NEVER passed by ANY released model** —
-> `cancel_credit_card`×6, `get_loan`×2, `pay_bill`×1, `pay_bill_with_credit_card`×2,
-> `set_safety_box`×2, `transfer_funds`×1. Dominant failing sub-checks: `action_called_correctly`
-> (47–48/52 on credit-card goals), `dirgraph_satisfied`, `constraint_not_violated`. The other 12
-> goals pass by ≥1 model. Artifact: `reports/facet_rft_2026/xcheck_bank_evidenceB.json`.
+> **STATUS: READY (measured 2026-06-01 PM, remote GPU0 server, RC0).** The Title/Body/Root-cause
+> section below is the actual issue text to paste into Leezekun/SOPBench. Before posting, do the
+> 2 unchecked checklist items (re-search for a duplicate issue; optional one-task appendix).
 >
-> This is **strong corroboration of a ceiling <100%, NOT proof of structural impossibility.**
-> Decisive test = **evidence-A**: does the task's own GT `directed_action_graph` pass the authors'
-> evaluator? Our `mre_bank_impossible.py` can't answer yet (listed-order replay → spurious
-> `dirgraph_satisfied` fails, bogus 48/48). **Fix MRE to topological replay, run A, THEN decide:**
-> GT fails → file; GT passes → just hard (no defect) → DO-NOT-FILE.
+> Repo: **https://github.com/Leezekun/SOPBench** (handle corrected from `zli12321` = 404).
 >
-> Repo (for the record): **https://github.com/Leezekun/SOPBench** (handle fixed from `zli12321`).
-> Lessons this file preserves:
-> 1. **THREE fabrications**: un-run / 0-returning script output recorded as "measured" three times
->    (local `python` = Windows Store stub exit 49; an old deployed stub returning 0; and a
->    "0 impossible / refuted" reversal written minutes before the real run). All caught, re-run on
->    the remote, retracted. Rule: cite only rr.ps1 output, after confirming RC and scanned-count.
-> 2. Our `mre_bank_impossible.py` oracle-replay is UNRELIABLE (listed-order replay → spurious
->    dirgraph fails). The authors' embedded `evaluations` cross-check is the authority for B.
-> 3. The pre-post gate (database_match vs dirgraph_satisfied) correctly flags the replay artefact.
+> **Evidence summary.** Two independent checks, both run on a clean clone (`/home/woori/scratch/
+> SOPBench`, py3.12):
+> - **A (decisive, `evidence_a_probe.py`)**: satisfy preconditions + call the goal with GT args on
+>   the authors' strict env → **8 of 48 `should_succeed=true` instances fail for the ORACLE**
+>   (`cancel_credit_card`×6 return False; `pay_bill_with_credit_card`×2 raise `KeyError`).
+> - **B (corroboration, `offline_crosscheck.py`)**: across 53 `output/bank/ast_*.json`, those 8
+>   instances are passed by 0 of ~26 released models.
+> - The other 6 "all-models-0%" instances from B (get_loan/pay_bill/set_safety_box/transfer_funds)
+>   **pass under the oracle** → merely hard, NOT defects. So all-models-0% (B) is not sufficient;
+>   oracle-failure (A) is the defect criterion. Only the 8 A-failures are reported.
 >
-> Original draft preserved below for provenance. **Do not act on it until A is done.**
+> **Process lessons (kept honest):** during this investigation, un-run / 0-returning script output
+> was recorded as "measured" THREE times (local `python` was a Windows Store stub exit 49; an old
+> deployed stub returned 0; and a "0 impossible / refuted" reversal was written just before the
+> real run). All three were caught, re-run for real on the remote, and retracted. Rule going
+> forward: cite only rr.ps1 run output after confirming RC and scanned-count; deploy scripts via
+> git pull (not SFTP text upload); one rr.ps1 call per step. The old graph-replay
+> `mre_bank_impossible.py` is UNRELIABLE (listed-order replay → spurious `dirgraph_satisfied`
+> failures); use `evidence_a_probe.py` instead.
 
 ---
 
 ## Title
-`bank`: some `should_succeed=true` tasks appear structurally unsolvable — the ground-truth `directed_action_graph` does not pass `evaluator_function_directed_graph`
+`bank`: `cancel_credit_card` / `pay_bill_with_credit_card` are unsolvable for any agent — `credit_cards` is a list-of-dict in task data but the domain methods treat it as a dict
 
 ## Body
 
-Thanks for releasing SOPBench — we've been using the `bank` domain (Qwen via vLLM) to study
-structured planning. While reproducing the leaderboard we found a subset of
-`action_should_succeed=true` bank tasks that **no agent can pass, because the task's own
-ground-truth answer doesn't pass the evaluator.**
+Thanks for releasing SOPBench! While reproducing the `bank` leaderboard we found a set of
+`action_should_succeed=true` tasks that cannot be passed by **any** agent — including the oracle
+itself — because the credit-card domain methods assume a `credit_cards` schema that the released
+task data does not use.
 
-### What we did (no agent, no LLM — pure oracle replay)
-For every `bank` task with `action_should_succeed=true`, we **replay the task's own
-`directed_action_graph`** (the oracle call sequence, with each node's `{param→slot}` arg
-binding resolved from `user_known` + the acting account row) on the **strict** domain system,
-then score it with the **unchanged** `evaluator_function_directed_graph`. If the oracle answer
-fails, the task is unpassable by construction.
+### Evidence A — the authors' own strict env cannot make the goal succeed
+With every precondition satisfied (`login_user` / `authenticate_admin_password`) and the
+**ground-truth args** from `user_known`, we call the goal action on `<domain>_strict` and score
+with the unchanged `evaluator_function_directed_graph`. Result over the `action_should_succeed=true`
+bank instances:
 
-Repro (clone root, py≥3.10):
-```bash
-python scripts/mre_bank_impossible.py --domain bank --crosscheck --out mre_bank.json
+| goal | instances | goal-call result | `action_successfully_called` | passed by any of ~26 released models? |
+|---|---|---|---|---|
+| `cancel_credit_card` | 6 | returns `False` | False (all) | none |
+| `pay_bill_with_credit_card` | 2 | raises `KeyError: 'credit_limit'` | False (all) | none |
+
+These 8 instances fail for the **oracle** → unpassable by construction. (Order-independent: we
+satisfy preconditions explicitly then call the goal, so this is not a call-ordering artifact.)
+
+### Cross-check B (corroboration)
+Across the 53 shipped `output/bank/ast_*.json`, these same 8 instances are passed by **0** of
+the ~26 released models — consistent with structural unsolvability, not difficulty.
+
+### Root cause (confirmed)
+In the released `bank` tasks an account's `credit_cards` is a **list of dicts**, e.g.
+```json
+"credit_cards": [{"card_number": "2357 1113 1719 2329", "credit_limit": 250.0, "credit_balance": 0.0}]
 ```
-(script attached below; it only imports your `env.*` and replays the GT graph.)
-
-### Result
-- should_succeed=true tasks: **⟦N_should_true⟧**
-- oracle-replay **FAILS**: **⟦N_impossible⟧ tasks / ⟦K⟧ unique goals**
-- ⇒ effective ceiling on should_succeed=true ≈ **⟦ceiling%⟧** (not 100%)
-
-| goal | oracle replay | dominant failing sub-check | passed by ANY author model? |
-|---|---|---|---|
-| `cancel_credit_card` | FAIL | ⟦database_match⟧ | ⟦none⟧ |
-| `pay_bill_with_credit_card` | FAIL | ⟦database_match⟧ | ⟦none⟧ |
-| ⟦…⟧ | | | |
-
-Cross-check: in `output/bank/*.json`, these goals are passed by **⟦0⟧** of the released models
-— consistent with structural unsolvability rather than task difficulty.
-
-### Root cause (our hypothesis — please verify; VERIFIED source facts only)
-Verified by reading `env/domains/bank/bank.py` (no execution needed):
-- The credit-card **methods use dict semantics** — `cancel_credit_card` (L205–213) iterates keys
-  and `account["credit_cards"].pop(card_num)`; `pay_bill_with_credit_card` (L185–191) and
-  `get_credit_card_info` (L250–256) index `account["credit_cards"][card_number]`; docstring L97:
-  "dictionary of credit cards, hashed by their card numbers".
-- **But the same file defines two conflicting seed schemas**: `default_data1` (L27–33) stores
-  `credit_cards` as a **list of dicts**, while `default_data` (L63–68) stores a **dict keyed by
-  number**.
-
-Hypothesis (NOT yet confirmed): tasks whose `initial_database` is built from the *list*-style
-seed cannot succeed at credit-card ops — the dict-style methods compare a dict element to a
-string, so the lookup never matches and the post-condition `database_match` fails. **Must be
-confirmed by (i) reading the failing tasks' actual `initial_database` schema and (ii) the
-oracle-replay (A).** ⟦fill: which seed schema the failing tasks use; exact failing line⟧
+but `env/domains/bank/bank.py` treats `credit_cards` as a **dict keyed by card number**:
+- `cancel_credit_card` (L209–213): `for card_num in account["credit_cards"]: if card_num == card_number:`
+  — iterating a list yields the **dict elements**, so `card_num` (a dict) never equals
+  `card_number` (a str); nothing matches → **`return False`**.
+- `pay_bill_with_credit_card` (L189–190): `for card_num in account.get("credit_cards", {}): if
+  card_num == card_number: account["credit_cards"][card_num]["credit_balance"] += amount` — once
+  a match is attempted it indexes a **list with a dict key** → **`KeyError`** (observed
+  `KeyError: 'credit_limit'`).
+- The file is internally inconsistent: `default_data1` (L27–33) seeds `credit_cards` as a
+  **list of dicts** (matching the task data), while `default_data` (L63–68) and the docstring
+  (L97, "dictionary … hashed by their card numbers") assume a **dict**.
 
 ### Why it matters
-These tasks lower the reported ceiling for **all** evaluated models equally, so they bias
-absolute pass-rates downward on `bank`. Flagging or fixing them would make the `bank` numbers
-cleaner for everyone.
+These 8 instances cap the reported `bank` ceiling for **all** models (effective
+`should_succeed=true` ceiling = 40/48 in our count), biasing absolute pass-rates downward.
 
-### Suggested resolutions (any one)
-1. Fix the credit-card lookup to match the list schema (or store `credit_cards` as a dict).
-2. Mark the affected task instances as `action_should_succeed=false` (refusal) if that's the
-   intended semantics.
-3. Document them as known-unsolvable so reproductions can exclude them.
+### Suggested fix (any one)
+1. Iterate the list-of-dict form, matching `card["card_number"] == card_number` and indexing
+   `card` directly — consistent with `default_data1` and the task data; or
+2. Seed the task `initial_database` with the dict form the methods expect; or
+3. Document/flag these instances so reproductions can exclude them.
 
-Happy to send a PR for (1) if you point us at the intended schema. MRE script + full
-`mre_bank.json` artifact attached.
+Repro (clone root, py≥3.10) — order-independent oracle probe (no agent/LLM):
+```bash
+python scripts/evidence_a_probe.py --domain bank --out evidence_a_bank.json
+```
+Happy to send a PR for fix (1) once you confirm the intended schema.
 
 ---
 
 ## Pre-post checklist
 - [x] Ran on a clean Leezekun/SOPBench clone (`/home/woori/scratch/SOPBench`), py3.12, RC0.
-- [x] Oracle genuinely fails: `evidence_a_probe.py` satisfies preconditions then calls the goal
-      with GT args → 8 instances fail (cancel ×6 `return False`; pay_bill_with_cc ×2 `KeyError`).
-      Order-independent (not a replay-order artifact) — this is why we use the probe, not the
-      graph-replay MRE.
-- [x] Failing mechanism is the method itself (returns False / raises), not a `dirgraph_satisfied`
-      ordering artifact. (The old `mre_bank_impossible.py` graph-replay over-reports via ordering;
-      do NOT cite it.)
-- [x] Root cause located + confirmed by reading the methods: `bank.py` L209–213 / L189–190;
-      data is list-of-dict (e.g. john_doe), methods assume dict.
+- [x] Oracle genuinely fails (order-independent probe): cancel ×6 `return False`,
+      pay_bill_with_cc ×2 `KeyError`.
+- [x] Failure is in the method itself (returns False / raises), NOT a `dirgraph_satisfied`
+      ordering artifact. (Do NOT cite the old graph-replay `mre_bank_impossible.py`.)
+- [x] Root cause located + confirmed by reading the methods (`bank.py` L209–213 / L189–190);
+      data is list-of-dict, methods assume dict.
 - [x] Cross-check (B): 0 of ~26 released models pass these 8 instances.
 - [ ] **MANUAL before posting**: re-search Leezekun/SOPBench issues for a new duplicate.
-- [ ] **MANUAL before posting**: paste the one-task end-to-end appendix (john_doe cancel) if desired.
+- [ ] **MANUAL before posting**: optionally paste the one-task end-to-end appendix (john_doe cancel).
 
-## Honest caveats / failure modes to rule out first
-- **Arg-sourcing**: our replay resolves args from `user_known`+account row. If the *intended*
-  oracle expects an arg we don't supply, the failure could be ours, not the benchmark's. The
-  `--toposort` cross-run + reading the replayed `content` per call guards this.
-- **Multi-task goals**: a goal key holds many task instances; report per-instance counts, not
-  just unique goals, so "26%" is unambiguous.
-- **Refusal semantics**: confirm these really are labelled `should_succeed=true` (impossible)
-  and not mislabeled refusals.
+## Honest caveats / failure modes (ruled out)
+- **Arg-sourcing**: args come from `user_known` + the acting account row (GT). The probe also
+  satisfies auth preconditions, so a failure is the method's, not missing args.
+- **Multi-task goals**: counts are per-instance (8 instances across 2 goals), not per-goal.
+- **Refusal semantics**: all 8 are labelled `action_should_succeed=true` (verified), not refusals.
