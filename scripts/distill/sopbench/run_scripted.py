@@ -186,6 +186,7 @@ def main():
     ap.add_argument("--ont_dir", default="./induced")
     ap.add_argument("--option", default="full")
     ap.add_argument("--fmt", default="structured")
+    ap.add_argument("--debug", default=None, help="goal name to dump once (e.g. transfer_funds)")
     args = ap.parse_args()
 
     ont = json.load(open(f"{args.ont_dir}/ontology_{args.domain}.json"))
@@ -221,9 +222,17 @@ def main():
             debug=False, execute_tools=True, start_agent="assistant",
             finished_action=exit_conversation)
         fc = build_func_calls(inter.messages)
+        db = dsys.evaluation_get_database() if hasattr(dsys, "evaluation_get_database") else dsys.data
         ev = evaluator_function_directed_graph(args.domain, task, [], fc,
-                                               {"final_database": dsys.data}, args.option)
+                                               {"final_database": db}, args.option)
         ok = bool(ev.get("success"))
+        if args.debug and should and task["user_goal"] == args.debug:
+            print(f"\n--- DEBUG {task['user_goal']} ---")
+            print("  plan:", [(n, a) for n, a in client.plan])
+            print("  func_calls:", json.dumps(fc)[:600])
+            print("  ev:", {k: ev.get(k) for k in ("success", "action_successfully_called",
+                  "dirgraph_satisfied", "action_called_correctly", "constraint_not_violated", "database_match")})
+            args.debug = None  # once
         if should:
             st += 1; stp += ok
             if not ok:
