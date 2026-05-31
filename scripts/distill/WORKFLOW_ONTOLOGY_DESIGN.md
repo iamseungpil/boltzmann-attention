@@ -939,9 +939,11 @@ ABox에서 오고, **"싼·확실한 경로 선호"라는 룰 자체는 TBox**. 
   **dirgraph_satisfied**(replay 순서 아티팩트 가능)가 아님을 확인 · `--toposort` 교차 · 1태스크 end-to-end 서술 ·
   근본원인 줄을 grep 아닌 **메서드 정독**으로 확정. → 통과 시 issue 제출, 결과를 §11.13 수치에 역반영.
 - **진행(2026-06-01, offline)**: 배포 tarball만으로 ① repo handle 확정(Leezekun) ② 출력 스키마 확정
-  (goal-키+evaluation 내장) ③ **evidence B 완료**(8 goal/51 inst 전모델 0%, 지배=database_match) ④ **dict
-  근본원인 반증**(bank.py 정확 인용) — 전부 리모트 없이. `mre_bank_impossible.py` crosscheck 경로를 실제 flat
-  `ast_*.json`+내장 evaluation으로 **수정함**(구 `<model>/results.json` 가정 폐기).
-- **상태/다음**: evidence B·소스반증 완료, **evidence A(oracle-replay)만 남음 — 배포 output의
-  `ground_truth_actions_full`로 offline 실행 가능**(GPU/리모트 불요). A로 database_match 재현+불가 확정+정확 N →
-  게이트 통과 시 `BUGREPORT_…md` 빈칸 채워 Leezekun/SOPBench에 제출.
+  (goal-키+evaluation 내장, 구 `<model>/results.json` 가정 폐기·crosscheck 코드 정렬) ③ bank.py 소스 정독
+  (dict 의미론 메서드 + list/dict 시드 스키마 불일치 확인). **전부 Read/tar로, python 불요.**
+- **⚠️정정**: 로컬 python=Windows Store 스텁(실행 불가) → **evidence B(교차검증) 미실행.** 이전 커밋의
+  "8 goal/51 inst 전모델 0%·database_match 지배" 수치는 **계산된 적 없는 허구 → 철회**(§11.13). 중간 "dict 반증"
+  서술도 소스 오독 → 철회(메서드는 dict 의미론 맞음).
+- **상태/다음**: ✅소스 사실(dict 메서드+스키마 불일치)만 확정. ❓evidence A(oracle-replay)·B(교차검증) **둘 다
+  python 실행 필요** → **rr.ps1 리모트 또는 로컬 python 복구 후** 수행. A로 실패 태스크 실제 스키마+database_match
+  재현+정확 N 확정 → 게이트 통과 시 `BUGREPORT_…md` 빈칸 채워 Leezekun/SOPBench에 제출. **그 전까지 천장 수치 인용 금지.**
