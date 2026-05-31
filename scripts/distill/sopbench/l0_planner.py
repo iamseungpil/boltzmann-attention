@@ -50,8 +50,13 @@ def establishable_leaves(tree, ont, acc):
 
 def run_task(task, domain, ont, dep_innate, dep_full, domain_keys, rule):
     """Means-ends drive the strict system; return (func_calls, final_db, refused)."""
+    # The evaluator overrides the GOAL's dependency with the task-specific constraints
+    # (default_dep_full[user_goal] = task["constraints"]). Mirror that exactly, else L0
+    # checks a stricter tree than the task requires and over-refuses.
+    task_dep = dict(dep_full)
+    task_dep[task["user_goal"]] = task["constraints"]
     dss = domain_keys[domain + "_strict"](
-        copy.deepcopy(task["initial_database"]), dep_innate, dep_full, task["constraint_parameters"])
+        copy.deepcopy(task["initial_database"]), dep_innate, task_dep, task["constraint_parameters"])
     de = dss.evaluation_get_dependency_evaluator()
 
     # slot pool: user_known + the acting user's account row (credentials etc.)
@@ -96,7 +101,8 @@ def run_task(task, domain, ont, dep_innate, dep_full, domain_keys, rule):
         visiting.add(action)
         if rule == "regression":
             leaves = []
-            establishable_leaves(ont["operators"][action]["precondition"], ont, leaves)
+            # use the task-overridden tree for the goal, default dep for sub-actions
+            establishable_leaves(task_dep.get(action, ont["operators"].get(action, {}).get("precondition")), ont, leaves)
             for pred, pm, by in leaves:
                 if by not in executed:
                     satisfy(by, depth + 1)          # recurse on subgoal's own preconditions
