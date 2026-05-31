@@ -675,6 +675,13 @@ Mirrors run_simulation.py's task loop but self-contained:
 | L2 learned planner + transfer (§9.4) | — | ✗ later (coworker B1*/Exp-4) |
 
 ### 10.5 KNOWN ISSUES / review points (must resolve before trusting results)
+> ★ **Self-review (2026-06-01) found a BLOCKING bug**: `run_two_stage.py`'s inline eval passes
+> `func_calls` as tuples but `evaluator_function_directed_graph` expects dicts
+> `{"tool_name","arguments","content"}` paired from `interaction[i]↔[i+1]`; saved format also
+> differs from run_simulation (key `interaction`, role-stripped, `database` placement).
+> **Recommended fix: drop run_two_stage inline eval → add `--two_stage` flag to
+> `run_simulation.py` (swap only the assistant client) + reuse standard `run_evaluation.py`.**
+> Full self-review = handoff `project_handoff_2026_06_01.md §4.5`.
 1. **Import (smoke hit this)**: deploy as same-dir import. `run_two_stage.py` now does
    `sys.path.insert(0, <file dir>)` + `from two_stage_client import TwoStageClient`; run from
    the clone root with both files in `scripts/`. (Original `from scripts.two_stage_client`
