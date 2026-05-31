@@ -80,6 +80,10 @@ def main():
          '                       help="arm-3 L1: use TwoStageClient (planner+resolver) as assistant client")\n'
          '    parser.add_argument("--two_stage_det", action="store_true",\n'
          '                       help="arm-3: enable deterministic slot-state resolver shortcut (rung a)")\n'
+         '    parser.add_argument("--two_stage_v2", action="store_true",\n'
+         '                       help="arm-3v2: structured planner (ABox precond/produces + READY/BLOCKED gate + STOP)")\n'
+         '    parser.add_argument("--ont_dir", default="./induced",\n'
+         '                       help="arm-3v2: induced ontology dir (ontology_<domain>.json)")\n'
          "\n"
          "    args = parser.parse_args()"),
         # Edit B: per-interaction slot-state reset
@@ -103,10 +107,12 @@ def main():
          "            sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), \"scripts\"))\n"
          "            from two_stage_client import TwoStageClient\n"
          "            _ts_base_url = os.environ.get(\"SOPBENCH_VLLM_BASE_URL\", \"http://localhost:9100/v1\")\n"
-         "            print(f\"[arm-3 two_stage] base_url={_ts_base_url} det_shortcut={args.two_stage_det}\")\n"
+         "            _abox = (os.path.join(args.ont_dir, f\"ontology_{args.domain}.json\") if args.two_stage_v2 else None)\n"
+         "            print(f\"[arm-3 two_stage] base_url={_ts_base_url} det={args.two_stage_det} v2={args.two_stage_v2}\")\n"
          "            openai_handler = TwoStageClient(\n"
          "                base_url=_ts_base_url, model_name=args.assistant_model,\n"
-         "                use_deterministic_shortcut=args.two_stage_det)\n"
+         "                use_deterministic_shortcut=args.two_stage_det,\n"
+         "                planner=(\"v2\" if args.two_stage_v2 else \"naive\"), abox=_abox)\n"
          "        else:\n"
          "            openai_handler = OpenAIHandler(\n"
          "                model_name=args.assistant_model,\n"
