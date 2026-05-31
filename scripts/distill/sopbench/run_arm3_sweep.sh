@@ -57,6 +57,7 @@ nt_flag=""; [ -n "$NUM_TASKS" ] && nt_flag="--num_tasks $NUM_TASKS"
 run_one () {   # $1=arm  $2=mode  $3=extra run_simulation flags
   local arm="$1" mode="$2" extra="$3"
   local odir="${OUT}/${arm}"
+  mkdir -p "$odir"
   for d in $DOMAINS; do
     echo "--- [$arm] $d ($mode/$TOOL_LIST) ---"
     $PY run_simulation.py \
