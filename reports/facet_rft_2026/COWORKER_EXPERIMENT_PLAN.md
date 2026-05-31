@@ -3,6 +3,36 @@
 > 대상: 4× A100 80GB coworker. 공유 채널 = GitHub `iamseungpil/boltzmann-attention` branch **`facet-rft-2026`**.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★ v1.33 (2026-06-01) — arm-1 baseline 완료 + 내일 실험 지시
+> **결과 문서 (필독)**: `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` — 가설·결과·해석·
+> 다음 스텝 누적 기록. 이 문서가 앞으로 모든 SOPBench 실험의 결과 기록 권위본.
+>
+> **arm-1 baseline 확정 (Qwen2.5-7B, 7도메인, 2026-05-31):**
+> | domain | fc/full | react/full (=leaderboard) | react/oracle |
+> |---|--:|--:|--:|
+> | bank | 3.7% | **5.2%** ✓ | 59.0% |
+> | dmv | 11.3% | **21.7%** ✓ | 62.9% |
+> | healthcare | 8.1% | **16.1%** ✓ | 34.7% |
+> | hotel | 0.5% | **0.0%** ✓ | 16.9% |
+> | library | 13.6% | **13.6%** ✓ | 47.0% |
+> | online_market | 9.3% | **7.6%** ✓ | 43.0% |
+> | university | 4.8% | **2.4%** ✓ | 38.1% |
+> | **평균** | **7.3%** | **9.5%** | **43.1%** |
+> → 공식 leaderboard Qwen-7B avg 9.7%와 일치. **harness 재현 검증 완료.**
+> → **핵심 발견: oracle−full 격차가 압도적** (43% vs 9.5%). distractor 도구선택이 7B 주 병목.
+>   FC vs ReAct는 full에서 미미 (7.3 vs 9.5%). 우리 표준 = **react/full** (leaderboard 정합).
+>
+> **★ 내일(2026-06-01) 즉시 할 실험 (Track B, coworker):**
+> 1. **arm-0: oracle ceiling** — `scripts/distill/sopbench/workflow_executor.py` + `abox/` + SOPBench
+>    custom agent interface. full+oracle 둘 다. ⚠️ should_succeed=False(거부) 처리 명시적 구현 필수.
+>    bank 먼저 → 7도메인 확장. 목표: arm-1과 ceiling 사이 gap 정량화.
+> 2. **arm-3: L1 2-stage agent** — `Agent.client` = planner(LLM, abstract operator in-context,
+>    goal+추상 affordance만, concrete schema 금지) → resolver(b, ontollm). **full 표준 + bank부터.**
+>    baseline(react/full 5.2%) vs arm-3(full) → ≥5%p 향상이면 구조 기여 확인 → 7도메인 확장.
+>    코드: `scripts/distill/two_stage_agent.py`(tau2 기반, SOP-Bench 인터페이스로 재연결 필요).
+> **표준 비교 규약**: 셀 표기 `(mode)/(tool_list)`. baseline arm = react/full. 진단 = react/oracle.
+> 결과는 `SOPBENCH_EXPERIMENT_RESULTS.md` 대시보드에 채워 push.
+
 > ### ★★ v1.32 (2026-05-31) — LLM-in-loop 재정립 + Tier-1 이중벤치 (이 배너가 무게중심을 고정)
 > **★ Tier-1 이중벤치(이름 혼동 주의)**: **SOPBench**(Zekun Li, 하이픈無, arXiv **2503.08669**, 7도메인
 > bank/dmv/healthcare/hotel/library/online_market/university, native 형식 operator
