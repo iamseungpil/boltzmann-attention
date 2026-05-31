@@ -55,6 +55,38 @@ def establishable_of(action, ont):
     return est
 
 
+def collect_leaf_list(tree, acc):
+    """ARGS-AWARE leaf list [(pred, param_map, negated)] preserving same-name duplicates
+    (e.g. internal_check_username_exist on source AND destination)."""
+    if not tree or not isinstance(tree, (list, tuple)) or not tree:
+        return
+    if tree[0] == "single":
+        nm = tree[1]; neg = nm.startswith("not ")
+        acc.append((nm[4:] if neg else nm, tree[2] if len(tree) > 2 else {}, neg))
+    elif tree[0] in ("and", "or", "chain", "gate"):
+        for s in tree[1]:
+            collect_leaf_list(s, acc)
+
+
+# (b §8.5.3) condition predicate -> verifying GETTER tool, per domain. A `condition` predicate
+# (kind=condition, by:null) is not directly callable; the agent calls the GETTER and a deterministic
+# resolver compares the result to the threshold. Derived from directed_action_graph co-occurrence
+# (lever_decomp). bank verified; other domains derived the same way (TODO: auto-derive per domain).
+GETTER_BY_DOMAIN = {
+    "bank": {
+        "minimal_elgibile_credit_score": "internal_get_credit_score",
+        "sufficient_account_balance": "get_account_balance",
+        "no_credit_card_balance_on_card": "get_credit_card_info",
+        "not_over_credit_limit": "get_credit_card_info",
+        "internal_check_credit_card_exist": "get_credit_card_info",
+        "get_loan_owed_balance_restr": "get_account_owed_balance",
+        "pay_loan_account_balance_restr": "get_account_balance",
+        "pay_loan_amount_restr": "get_account_balance",
+        "safety_box_eligible": "get_account_balance",
+    },
+}
+
+
 def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
     from env.variables import domain_assistant_keys, domain_keys
     from env.task import task_default_dep_full, task_initializer, get_default_dep_full
@@ -102,48 +134,64 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 am = ont["operators"].get(a, {}).get("args") or fact_pm.get(a, {})
                 return {p: slots[s] for p, s in am.items() if s in slots}
 
-            # goal's FACT preconditions that are directly checkable (callable tool, same name) — v2
-            gleaves, gest = [], {}
-            _render_precond_mod(task["constraints"], ont.get("predicates", {}), gleaves, gest)
-            goal_fact_checkable = [p for p in dict.fromkeys(gleaves)
-                                   if p not in gest and p in tool_names]
+            # ---- (b §8.5) COMPLETE verification gather + reason-based STOP (should_T & should_F) ----
+            GETTER = GETTER_BY_DOMAIN.get(domain, {})
+            cleaves = []
+            collect_leaf_list(task["constraints"], cleaves)        # args-aware constraint leaves
+            # required fact/condition verifications: callable check -> itself; condition -> its getter.
+            required = []   # (pred, param_map, negated, tool_to_call)
+            for pred, pm, neg in cleaves:
+                kind = ont["predicates"].get(pred, {}).get("kind")
+                if kind == "establishable":
+                    continue                                       # login/auth handled in establish phase
+                if pred in tool_names:
+                    required.append((pred, pm, neg, pred))         # A: args-aware callable check
+                elif pred in GETTER and GETTER[pred] in tool_names:
+                    required.append((pred, pm, neg, GETTER[pred]))  # B: condition -> getter+compare
+            # C: goal's establishable login/auth, CONDITIONAL on credential availability (no halluc)
+            gl = []
+            collect_leaf_list(ont["operators"].get(goal, {}).get("precondition"), gl)
+            ests = []
+            for pred, pm, neg in gl:
+                info = ont["predicates"].get(pred, {})
+                by = info.get("by")
+                if info.get("kind") == "establishable" and by and by in tool_names:
+                    am = ont["operators"].get(by, {}).get("args") or {}
+                    if set(am.values()).issubset(set(slots.keys())):     # creds present in user_known
+                        ests.append((pred, by))
+
+            def truth(pred, pm, neg):
+                """Authoritative truth of a constraint leaf on the GT strict system (resolver = deterministic)."""
+                try:
+                    return bool(de._process(("single", ("not " if neg else "") + pred, pm), **slots))
+                except Exception:
+                    return None
 
             established, history, executed, observed = set(), [], set(), {}
 
             def next_decision():
-                # 1. gather: verify any unobserved checkable fact of the goal first
-                for p in goal_fact_checkable:
-                    if p not in observed and p not in executed:
-                        return p
-                # 2. a verified fact is FALSE -> refuse
-                if any(observed.get(p) is False for p in goal_fact_checkable):
+                # 1. gather: call each required fact/condition verification tool (args-aware)
+                for pred, pm, neg, tool in required:
+                    if tool not in executed:
+                        return tool
+                # 2. a verified constraint fact/condition is FALSE -> refuse (reason now gathered) [should_F]
+                if any(observed.get(p) is False for p, _, _, _ in required):
                     return "STOP"
-                # 3. goal reachable?
+                # 3. establish login/auth (only when creds available) for the goal
+                for pred, by in ests:
+                    if pred in established or by in executed:
+                        continue
+                    return by
+                # 4. goal reachable on the GT system? [should_T]
                 try:
                     if de.process(goal, **slots):
                         return goal
                 except Exception:
                     pass
-                # 4. BFS for a callable establishing action that advances an unmet precond
-                frontier, seen = [goal], set()
-                while frontier:
-                    a = frontier.pop(0)
-                    if a in seen:
-                        continue
-                    seen.add(a)
-                    for pred, by in establishable_of(a, ont).items():
-                        if pred in established or by in executed:
-                            continue
-                        try:
-                            ok = de.process(by, **slots)
-                        except Exception:
-                            ok = False
-                        if ok:
-                            return by
-                        frontier.append(by)
                 return "STOP"
 
-            for _ in range(12):
+            _seq = []
+            for _ in range(16):
                 # SHUFFLE tool order per step (deterministic from idx; no Math.random in env)
                 order = list(range(len(tool_names)))
                 s = (shuffle_seed_base + idx * 7 + len(history)) % max(1, len(order))
@@ -151,6 +199,7 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 prompt = build_v2_prompt(ont, shown, established, user_req, policy,
                                          list(history), set(slots.keys()), op_descs, observed)
                 target = next_decision()
+                _seq.append(target)
                 examples.append({
                     "domain": domain, "goal": goal,
                     "messages": [{"role": "user", "content": prompt},
@@ -160,7 +209,7 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 if target in ("STOP", goal) or target in executed:
                     break
                 executed.add(target)
-                # advance GT state by executing the establishing action
+                # advance GT state by executing the chosen tool
                 try:
                     r = getattr(dss, target)(**resolve_args(target))
                 except Exception as e:
@@ -169,10 +218,14 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 history.append(f"RESULT[{target}]: {str(r)[:60]}")
                 if r is not False and "Error" not in str(r):
                     established.update(ont["operators"].get(target, {}).get("produces", []))
-                # fact-visibility: record a checkable fact's observed bool (v2)
-                if target in goal_fact_checkable:
-                    v = r[1] if isinstance(r, (list, tuple)) and len(r) >= 2 else r
-                    observed[target] = bool(v) if isinstance(v, (bool, int)) else False
+                # resolver: reveal the deterministic truth of every constraint leaf this tool verifies
+                for pred, pm, neg, tool in required:
+                    if tool == target and pred not in observed:
+                        observed[pred] = truth(pred, pm, neg)
+            if os.environ.get("SFT_TRACE"):
+                ss = "T" if task.get("action_should_succeed") else "F"
+                print(f"[{ss}] {goal:22} req={[t for _,_,_,t in required]} ests={[b for _,b in ests]} "
+                      f"obs={observed} seq={_seq}", file=sys.stderr)
     return examples
 
 
