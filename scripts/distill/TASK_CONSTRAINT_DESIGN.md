@@ -265,6 +265,7 @@ abc=37은 **account 레코드 자격증명 증강(cheating)** 에 의존. 에이
 
 - **사용자 지적 수용**: 16 중 **8은 도구선택**(oracle/leaderboard 통과 = 정보 있음, getter 빠뜨린 게 문제). 레버(A+B+C, getter 포함)로 극복.
 - **단 8은 진짜 cred-부재**: 0~1/42 모델만 통과(oracle 도구 줘도). evidence_a_probe 통과는 account creds 읽는 cheat. 정직 에이전트는 불가 → 거부/can't-do.
+  - **admin DB-read 검증(`_admincheck.py`)**: creds는 DB에 있고 `internal_get_database()`가 반환(identification·admin_password). 8개 dirgraph에 그 노드 있음. **그러나 internal_get_database는 에이전트에 미노출(full·oracle 둘 다); 노출 internal_*는 check/score뿐.** ⇒ admin으로 읽으려면 벤치가 그 도구를 노출해야 함=셋업변경+impersonation 보안문제. 현 도구셋 내 정직 극복 불가 확정.
 - **정직한 천장 = ~32/48** (48 − 8 결함 − 8 cred-부재), NOT 21. 레버 타깃 32(baseline 4).
 - **조건부 login**: cred 가용 시 호출(8 도구선택 포함 32), cred 부재 시 환각 금지(8). 이게 §2 7B 실패(cred-부재 task에서 비번 환각→login=F)와 정합.
 
