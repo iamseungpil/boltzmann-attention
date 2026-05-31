@@ -211,6 +211,11 @@ def main():
         assistant.instructions = ainfo["instructions"]
         assistant.functions = ainfo["tools"] + [function_to_json(exit_conversation)]
         assistant.name = f"{args.domain} assistant"
+        # filter the scripted plan to tools that actually exist in the agent's tool list
+        avail = {t["function"]["name"] for t in assistant.functions}
+        client.plan = [(n, a) for (n, a) in client.plan if n in avail]
+        if not client.plan or client.plan[-1][0] != "exit_conversation":
+            client.plan.append(("exit_conversation", {}))
         dm = ("Here is all the information I can provide:\n" + json.dumps(uinfo["known"], indent=4) +
               f"\n\nIf you have completed my request or cannot assist me, please use the "
               f"`exit_conversation` action.")
@@ -230,8 +235,10 @@ def main():
             print(f"\n--- DEBUG {task['user_goal']} ---")
             print("  plan:", [(n, a) for n, a in client.plan])
             print("  func_calls:", json.dumps(fc)[:600])
+            print("  avail_has_internal_get_db:", "internal_get_database" in avail)
             print("  ev:", {k: ev.get(k) for k in ("success", "action_successfully_called",
-                  "dirgraph_satisfied", "action_called_correctly", "constraint_not_violated", "database_match")})
+                  "dirgraph_satisfied", "action_called_correctly", "constraint_not_violated",
+                  "database_match", "no_tool_call_error")})
             args.debug = None  # once
         if should:
             st += 1; stp += ok
