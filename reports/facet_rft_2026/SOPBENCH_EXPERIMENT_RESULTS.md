@@ -223,22 +223,29 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **상태**: A1 확정. arm-0 oracle ~100% 천장은 innate-dep/dirgraph 정합 추가작업 필요(보류 가능). 다음 우선
 >   순위 = arm-3v2(planner I/O 재설계, 더 높은 가치)로 이동 권장 — L0 oracle 천장은 병렬/후속.
 | Exp-3 | arm-3(L1 naive planner) | fc/full | **0.0%** | — | ✅ 완료 (음성: arm-1 3.7%↓, 제약위반 지배 → 구조판 v2 동기화) |
-| Exp-3v2 | arm-3v2(L1+ABox+게이트+STOP) | fc/full | ~0%(7B) | — | 🔶 7B가 게이트 무시(아래) |
+| Exp-3v2 | arm-3v2(L1+ABox+게이트+STOP) | fc/full | **44.0%** | should_T 2/48 · should_F 57/86 | ✅ 완료 (거부는 고침, 수행 게이팅은 못 고침) |
 
-> **Exp-3v2 (arm-3v2 L1 structured planner, bank, 7B, 2026-06-01)** — planner I/O 재설계: ABox(precondition/
+> **Exp-3v2 (arm-3v2 L1 structured planner, bank N=134, 7B, 2026-06-01)** — planner I/O 재설계: ABox(precondition/
 > produces) + **계산된 READY/BLOCKED 게이트 상태**(history서 establishable 충족 추적) + STOP=refuse(N1) + cost
 > 규칙(§11.12) + copy-grounded(C1). 코드 `two_stage_client.py planner="v2"`, 배포 `run_simulation --two_stage_v2`.
-> - **★결정적 관찰(프롬프트+궤적 실증)**: 프롬프트가 `apply_credit_card: ... => BLOCKED — first call: login_user`로
->   **정확히** 표시하고 규칙도 "BLOCKED 호출 금지·login 먼저·READY만 호출"로 명시하는데, **7B는 raw 출력으로 그냥
->   `apply_credit_card`를 내놓고 login을 건너뛴 채 goal을 max_actions까지 반복**. = **약한 모델은 명시적·정확한
->   in-context 게이트조차 따르지 않는다**(arm-3-naive와 동급 ~0%). 내 v2 버그 아님(프롬프트·파싱 검증).
-> - **★사다리 결론(headline narrative, 실증 완성)**:
->   - **L0**(룰을 코드가 실행): regression>greedy = **룰 자체는 옳다**(Exp-2).
->   - **L1/arm-3v2**(룰을 7B에 in-context 주입, 명시적 게이트 상태까지): **7B 무시·goal-greedy·loop → ~0%**.
->   - **⇒ L2/arm-4a**(학습): 게이팅 룰을 **가중치에 학습**시켜야 약한 모델이 따른다 = 본 라인의 헤드라인 동기.
-> - **모델크기 상호작용 가설(HT)**: in-context 구조는 **강한 모델**(14B/32B/72B, 규칙준수↑)엔 도움될 수 있음 →
->   **coworker 32B/72B arm-3v2 sweep이 "구조×크기" 곡선을 측정**(7B=불충분→L2 필요 / 큰모델=L1로도 일부 이득?).
-> - 정확 수치 = full bank N=134 실행 중(`/tmp/arm3v2_bank.log`).
+>
+> | arm | pass@1 | should_T(수행) | should_F(거부) |
+> |---|--:|--:|--:|
+> | arm-1 fc/full | 3.7%(5/134) | — | — |
+> | arm-3-naive | 0%(0/133) | ~0 | 0 |
+> | **arm-3v2** | **44.0%(59/134)** | **2/48** | **57/86** |
+> | L0 regression | 45.5%(61/134) | 7/48 | 54/86 |
+>
+> - **★두 축이 갈린다**: **거부축(should_F) 0→57/86 대약진 = N1 수정(STOP=도구 미호출 턴)이 정확히 작동**(강제호출
+>   폐지로 금지 액션 안 부름 → 거부 통과). 44% 상승의 거의 전부가 이것. **수행축(should_T) 2/48 여전히 바닥**: 7B가
+>   `BLOCKED — first call: login_user`를 **무시**하고 goal을 greedy하게 반복(프롬프트·파싱 검증; v2 버그 아님).
+> - **⇒ in-context 구조는 "거부"는 고치나 "수행 게이팅"은 못 고친다**(약한 모델). L0(코드가 룰 실행)의 should_T 7/48
+>   보다도 낮음 = **프롬프트로 룰을 주는 것과 룰을 실제 따르는 것은 다르다.**
+> - **★사다리 결론(headline, 실증 완성)**: L0(룰 코드실행: regression>greedy=룰 옳음) → L1/arm-3v2(룰 in-context:
+>   거부만 고침, 게이팅 무시) → **L2/arm-4a/4b**(룰을 **가중치에 학습/내재화**, ABox는 swap): **게이팅을 약한 모델이
+>   따르게 하려면 학습 필요** = 본 라인 헤드라인 동기. (단 ABox는 가중치에 안 넣음=분리계약 §11.0, copy-grounded+xattn.)
+> - **모델크기 상호작용(coworker)**: in-context 구조가 **강한 모델**(32B/72B)엔 게이팅까지 도움되는지 = arm-3v2 sweep이
+>   "구조×크기" 측정. 7B는 명확히 L2 필요.
 | Exp-4a | arm-4a(L2 학습 TBox, in-context, 7 LODO) | fc/full | — | — | 예정 (★헤드라인, Track A; 설계 §11) |
 | Exp-4b | arm-4b(L2 xattn ABox-memory, 19 LODO) | fc/full | — | — | 예정 (Phase 2, coworker) |
 
