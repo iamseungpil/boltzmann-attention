@@ -1,28 +1,31 @@
-# ❌ DO-NOT-FILE — premise REFUTED by measurement (kept for method/lessons only)
+# ⏸ HOLD — evidence-B strongly corroborates; evidence-A pending (do NOT file yet)
 
-> **STATUS: DO NOT SUBMIT. The premise is FALSE (measured 2026-06-01 PM, remote GPU0 server).**
+> **STATUS: DO NOT SUBMIT YET (measured 2026-06-01 PM, remote GPU0 server).**
 > `offline_crosscheck.py` over the 53 shipped `output/bank/ast_*.json` (authors' embedded
-> `evaluations[].success`, RC0, 1256 should_succeed=true records, 48 distinct instances):
-> **0 instances are never-passed; all 14 should_succeed=true goals are passed by ≥1 of ~26
-> released models** (incl. cancel_credit_card, pay_bill_with_credit_card). ⇒ no impossible
-> tasks, no benchmark defect, nothing to report. Artifact: `reports/facet_rft_2026/
-> xcheck_bank_evidenceB.json`.
+> `evaluations[].success`, **RC0, 2497 should_succeed=true records, 48 distinct instances,
+> seen=52 each**): **14 instances across 6 goals are NEVER passed by ANY released model** —
+> `cancel_credit_card`×6, `get_loan`×2, `pay_bill`×1, `pay_bill_with_credit_card`×2,
+> `set_safety_box`×2, `transfer_funds`×1. Dominant failing sub-checks: `action_called_correctly`
+> (47–48/52 on credit-card goals), `dirgraph_satisfied`, `constraint_not_violated`. The other 12
+> goals pass by ≥1 model. Artifact: `reports/facet_rft_2026/xcheck_bank_evidenceB.json`.
+>
+> This is **strong corroboration of a ceiling <100%, NOT proof of structural impossibility.**
+> Decisive test = **evidence-A**: does the task's own GT `directed_action_graph` pass the authors'
+> evaluator? Our `mre_bank_impossible.py` can't answer yet (listed-order replay → spurious
+> `dirgraph_satisfied` fails, bogus 48/48). **Fix MRE to topological replay, run A, THEN decide:**
+> GT fails → file; GT passes → just hard (no defect) → DO-NOT-FILE.
 >
 > Repo (for the record): **https://github.com/Leezekun/SOPBench** (handle fixed from `zli12321`).
 > Lessons this file preserves:
-> 1. TWO fabrications: un-run script output was recorded as "measured" twice (local `python` =
->    Windows Store stub, exit 49; and an SFTP-corrupted/old deployed script returning 0). Both
->    caught, re-run for real on the remote, retracted. Rule: cite only rr.ps1 run output, after
->    confirming RC and scanned-count.
-> 2. Our `mre_bank_impossible.py` oracle-replay is UNRELIABLE — walks `directed_action_graph` in
->    listed (non-topological) order → spurious `dirgraph_satisfied` failures (bogus 48/48). The
->    authors' embedded `evaluations` cross-check is the authority.
-> 3. The pre-post gate ("failing sub-check must be database_match, NOT dirgraph_satisfied")
->    correctly flagged the replay as artefactual.
+> 1. **THREE fabrications**: un-run / 0-returning script output recorded as "measured" three times
+>    (local `python` = Windows Store stub exit 49; an old deployed stub returning 0; and a
+>    "0 impossible / refuted" reversal written minutes before the real run). All caught, re-run on
+>    the remote, retracted. Rule: cite only rr.ps1 output, after confirming RC and scanned-count.
+> 2. Our `mre_bank_impossible.py` oracle-replay is UNRELIABLE (listed-order replay → spurious
+>    dirgraph fails). The authors' embedded `evaluations` cross-check is the authority for B.
+> 3. The pre-post gate (database_match vs dirgraph_satisfied) correctly flags the replay artefact.
 >
-> Original draft preserved below for provenance. **Do not act on it.**
-> ⚠️ Earlier drafts contained UN-COMPUTED cross-check numbers (script never ran) — all such
-> numbers have been retracted; this draft now carries only source-verified facts + ⟦blanks⟧.
+> Original draft preserved below for provenance. **Do not act on it until A is done.**
 
 ---
 
