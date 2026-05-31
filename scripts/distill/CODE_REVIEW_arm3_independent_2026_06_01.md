@@ -132,3 +132,18 @@
 ## 6. 미결 (사용자 판단)
 - N1 검증: SOPBench oracle의 거부-축 채점 방식 확인 후, arm-3v2에서 거부를 빈-도구턴으로 낼지
   전용 `refuse` operator로 낼지. (설계 A3와 연동.)
+
+## 7. N1 검증 결과 (§6 미결 해소, Track A 2026-06-01)
+평가자(`env/evaluator.py:evaluator_function_directed_graph`) + arm-3 실측 대조로 확정:
+- **채점 의미론**: `action_called_correctly = (action_should_succeed == action_successfully_called)`.
+  `success = no_tool_call_error ∧ constraint_not_violated ∧ database_match ∧ action_called_correctly ∧ dirgraph_satisfied`.
+  ⇒ **거부 태스크(should_succeed=False)는 "타깃 액션을 성공 호출하지 않으면" 통과** — **명시적 refuse operator 불필요,
+  호출 부재가 곧 거부.**
+- **실측(우리 arm-3 bank 출력, 거부 n=86)**: `action_successfully_called=0.66` → **강제 tool_choice가 66%에서 금지
+  액션을 실제 호출** → action_called_correctly=False. `constraint_not_violated`도 0.10(강제호출+read-loop 이중 타격).
+  **N1이 데이터로 확증**(거부-축 구조적 실패).
+- **결정(설계 A3 연동)**:
+  - **L0 refuse** = precondition 불충족 시 **타깃 미호출 후 정지**(전용 operator 無). 이대로 채점 정상.
+  - **arm-3v2 refuse** = **도구 미호출(빈) 턴**으로 종료(강제호출 금지). planner I/O 계약에서 "no-call/terminate"를
+    1급 선택지로(N1) — 별도 refuse operator 불필요. exit_conversation은 선택지로 두되 거부 성립의 필수조건 아님.
+- ⇒ 미결 종결. L0 구현은 이 채점 의미론(미호출=거부) 위에서 진행.

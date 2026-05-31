@@ -780,6 +780,9 @@ pred, 어느 슬롯)일 뿐 — 관계 *타입*은 불변. 이것이 "TBox 동�
   3. **gate**: precondition 미충족 operator는 절대 출력 안 함.
   4. **종료**: stack 비면 `terminate(done)`. **refuse (리뷰 A3)**: stack 비지 않았는데 적용가능 operator도,
      그 subgoal을 produces하는 operator도 없음 → `terminate(refuse)` (= `action_should_succeed=false` 정답, §9.3 hard축).
+     **★검증완(N1, 코드리뷰 §7)**: 평가자 `action_called_correctly=(should_succeed==action_successfully_called)`
+     → refuse = **타깃 미호출 후 정지**로 성립(전용 refuse operator 불요). arm-3 강제 tool_choice가 거부 태스크
+     66%에서 금지 액션 호출=실패=N1. ⇒ L0/arm-3v2 모두 refuse=no-call 턴.
   5. **tie-break (리뷰 A4 — L0 결정론 필수, gap 주장 보호)**: 후보 복수면 **`next` 토폴로지 순 → 잔여 미충족
      precondition 수 최소 → operator명 사전순** 고정. (L1/L2는 LLM/가중치가 끊고, L0는 이 순서로 재현.)
 - **19 도메인 불변** — 도메인은 ABox(operator·pred·slot)로만 들어옴. ★구 greedy-forward는 *subgoal slot만*
