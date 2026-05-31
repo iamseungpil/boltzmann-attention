@@ -310,4 +310,19 @@ evidence_a_probe 방식으로 auth 호출 정책(constraint-only / innate∪cons
 5. **원 §2 정합**: 7B는 login을 **틀린 creds로 호출→실패(=F)→dirgraph 위반**. scripted는 올바른 creds로 성공. ⇒ 단순 "login 제거"(mechanism A)가 아니라 **올바른 creds로 login + 모든 getter/체크까지 완전·정확 시퀀스**가 레버.
 6. should_F는 scripted 미검증(항상 goal 호출)→재학습 시 거부축 별도 보존(P3/R3 14-scope).
 
-**재학습 타깃(확정)**: 완전 게더(A args-aware + B condition→getter + C establishable login/auth = induced precond 완전 충족)를 `build_tbox_planner_sft`/`build_v2_prompt`에 내재화 → should_T 4 → 최대 **37**(=oracle 천장). mechanism A(게이팅 경량화)는 **폐기**(login은 제거 대상이 아니라 올바르게 수행 대상). 재현 `run_scripted.py`(repo).
+**재학습 타깃**: 완전 게더(A args-aware + B condition→getter + C establishable login/auth)를 내재화. mechanism A(게이팅 경량화) 폐기.
+
+## 13. ★★ 조건화 필요성 — login은 task+credential conditional (realistic 검증, 리뷰어 지적)
+
+리뷰어 지적: "login이 default deps를 따른다 ≠ task-optional 이전분석. 조건부 활성화·task별 조건화 불필요한가?" → **조건화 필요가 맞음.** abc=37이 **account-cred 증강(cheating)** 에 의존함을 발견:
+
+| abc (A+B+C) | should_T |
+|---|--:|
+| account-cred 증강 | 37/48 |
+| **realistic(user_known creds만)** | **21/48** |
+
+- **16 통과 = cred-cheating**(에이전트 접근불가 account creds로 login 성공). **정직 천장 = 21/48** — 37/40(evidence_a_probe·메모리 "40")은 oracle/DB-cred 천장이지 정직 에이전트 천장이 아님(중대 재프레이밍).
+- **login 분류(48)**: dirgraph 요구 41 / 불요 7(task-optional 맞음). login필요∧creds부재 = ~16(사용자 미제공 → 정직 완료 불가).
+- **조건화 필수**: login/auth는 **(dirgraph 요구)∧(user_known creds 가용)** 일 때만. cred-부재 task에서 항상-login = **자격증명 환각 = 원 §2 7B 실패 재현**. "항상 establish"(C)도 "항상 제거"(mech A)도 아닌 **per-task 조건부**.
+- **§2 모순 해소**: 7B의 login 실패는 cred-부재 task에서 환각한 것. 정답 레버 = cred 가용 시 정확 login + getter/체크, cred 부재 시 비-환각(거부/중단).
+- **재학습 타깃 정정**: 조건부 완전게더 → 정직 천장 **21/48**(baseline 4, +17). 16 cred-부재는 거부축으로. 재현 `run_scripted.py --realistic`.

@@ -239,7 +239,25 @@ hand-replay 2회(15·9) 실패 원인 규명·수정(content `"True"`→bool 복
 - **마스크 정정**: ~~task_constraint + getter~~ → **goal의 induced precondition을 완전 충족**(A: args-aware 콜러블 체크 + B: condition→getter + C: establishable login/auth). = "induced precond를 끝까지 establish+verify".
 - **gap-13 root cause**: login 누락(전수 동일). **gap-3(37 vs 40)** = 값-반환 goal(exchange_foreign_currency·get_account_owed_balance) 채점/args 뉘앙스, 게더 무관.
 - **full 모드 모든 도구 가용** → 배포 실현 가능. should_F는 scripted 미검증(항상 goal 호출)→재학습 시 거부축 별도 보존(P3, 14-scope).
-- ⚠️ 원 §2 "login 과잉호출"과 정합: 7B는 login을 **틀린 자격증명으로 호출해 실패**(login=F)→dirgraph 위반. scripted는 user_known의 **올바른 creds**로 login 성공→통과. ⇒ 재학습 타깃=login을 **올바른 creds로** + getter + args-aware 체크까지 **완전·정확 시퀀스** 시연.
+- ⚠️ 원 §2 "login 과잉호출"과 정합: 7B는 login을 **틀린 자격증명으로 호출해 실패**(login=F)→dirgraph 위반.
+
+### 8.3 ★★ login은 task-conditional + credential-conditional — 조건화 필수 (realistic 검증)
+abc=37은 **account 레코드 자격증명 증강(cheating)** 에 의존. 에이전트는 그 creds에 접근 불가 → `--realistic`(user_known creds만):
+
+| abc (A+B+C) | should_T |
+|---|--:|
+| account-cred 증강 | 37/48 |
+| **realistic (user_known만)** | **21/48** |
+
+**16개 통과가 cred-cheating이었음. 정직한 에이전트 천장 = 21/48**(37/40은 oracle/DB-cred 천장 — evidence_a_probe·메모리의 "40"도 동일 증강 사용).
+
+**login 분류(should_T 48)**: dirgraph_login=True 41 / False 7(task-optional 맞음). 그중 **login 필요 ∧ user_known creds 부재 = ~16**(사용자가 자격증명 미제공 → 정직한 에이전트 완료 불가 ≈ 극難 일반화).
+
+**⇒ 사용자 지적대로 per-task 조건화 필수**:
+- login/auth는 **(이 task의 dirgraph가 요구) ∧ (creds가 user_known에 가용)** 일 때만 호출.
+- cred-부재 task에서 항상-login = **자격증명 환각 = 원 §2의 7B 실패 재현**. → cred-부재 시 환각 금지(중단/거부).
+- "항상 establish"(generic precond)도 "항상 제거"(mechanism A)도 아닌 **조건부**가 정답. 마스크 = task-instance 조건(dirgraph 요구 + cred 가용).
+- **정직한 재학습 천장 = 21/48**(baseline 4 대비 +17 헤드룸). 16 cred-부재는 거부축(should_F) 문제로 이전.
 
 → **구현 1순위 = B(condition→getter 온톨로지 induction) + A(args-aware 게더)**. mechanism A(게이팅 경량화, §7)는 should_T 비-binding이므로 부차(프롬프트 정합으로 흡수).
 
