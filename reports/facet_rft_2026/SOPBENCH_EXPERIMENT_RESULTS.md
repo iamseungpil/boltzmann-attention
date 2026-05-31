@@ -124,6 +124,12 @@ oracle 상위: gpt-5 79.9 · gpt-4o 76.9 · qwen2.5-32b(react) 76.9 · llama3.1-
 - oracle>full(실현 31 vs 27)은 **천장이 높아서가 아니라 도구선택 부담↓로 천장에 더 근접**. 14개(8+6)는 전 모델·전 모드 0 → should_T를 48→34로 누름.
 - 레버(검증 게더) 타깃 = full에서 27→최대 34 헤드룸. gpt-5 oracle은 거부축(85/86)에 치중해 should_T 22로 낮음(전체 1위지만 should_T는 중위).
 
+**★134 환산 (leaderboard 비교용, identity-matched union `_union.py`):**
+- should_T 통과(≥1 모델)=**34/48**(never 14=전부 should_T), should_F=**86/86**(never 0=should_F 구조결함 없음).
+- ⇒ **구조적 천장(union) = 120/134 ≈ 89.6%** (= 134 − 14 불가; 34 sT + 86 sF). "34/48 should_T"는 134 기준 **120/134**에 대응.
+- **⚠️ union ≠ 단일모델**: should_T↔should_F 트레이드오프로 한 모델이 120 못 찍음. 실현 단일 최대 = **oracle gpt-5 107/134(79.9%)**, **full o4-mini-high 103/134(76.9%)**. 우리 arm-4a v2 = **35/134(26.1%)**(sT4+sF31).
+- 134 그림: 우리 35 → SOTA 단일 103~107 → union 천장 120. 헤드룸 sT(4→34)·sF(31→86) 양쪽, 레버는 sT 겨냥.
+
 ---
 
 ## Exp-0 — arm-0 oracle ceiling (예정, 2026-06~)
