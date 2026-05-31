@@ -1,9 +1,9 @@
 # Task-Instance Constraint 설계서 — should_T 병목(과잉 게이팅 + full-tool 부담) 해소
 
-> 상태: **리뷰 1라운드 완료 + zero-train 게이트 실측 완료 (2026-06-02). 재학습 보류 — §8.1 binding 진단이 다음.**
+> 상태: **리뷰 + zero-train 게이트 + §8.1 binding 진단 완료 (2026-06-02). 진짜 레버 규명 → 다음=검증-게더 args-aware 수정.**
 > 작성 2026-06-02. 권위본 `WORKFLOW_ONTOLOGY_DESIGN.md §11`의 보강. 리뷰=`TASK_CONSTRAINT_DESIGN_REVIEW.md`.
-> 선행 근거: `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4a v2 전수조사 + 본 문서 §2(코드 증명) + §7(zero-train 실측).
-> ★요약 결과: mechanism A는 라이브 작동(login -59% on A_HELPS)·하지만 should_T 불변(게이트 미통과)=login은 should_T binding 아님.
+> 선행 근거: `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4a v2 + 본 문서 §2(코드 증명)·§7(zero-train)·§8.1(binding 진단).
+> ★요약 결과: mechanism A는 라이브 작동(login -59%)이나 should_T 불변. **§8.1: should_T 실패의 84%(37/44)가 "필수 CHECK 미호출"(login 0). root cause=GT teacher가 검증 체크를 name-dedup·establishable 제외로 불완전 생성(`build_tbox_planner_sft.py:108`). 진짜 레버=검증-게더 args-aware·완전화(게이팅 아님).**
 
 ---
 
@@ -169,7 +169,7 @@ domain ABox(HOW 지식)를 **task 제약으로 마스킹**해 task-active 술어
 | should_F fragile 회귀 | — | 1 (task 100) | (iii) ✅ |
 
 - **R1 반증·A 작동 확인**: login 호출이 실제 감소(no-op이면 불가) + 유닛테스트(task 111 OFF=BLOCKED-login / ON=VERIFY-internal_check, DIFFERENT=True). **mechanism A는 라이브로 정확히 작동.**
-- **게이트 (i)✅(ii)❌(iii)✅ → 미통과 → 재학습 보류.** A가 불필요 login을 제거했으나 **should_T 불변** = login 과잉호출은 실재했으나 **should_T의 binding constraint가 아님**(남은 실패=destination 체크 누락·constraint_violation·자격증명부재 극難 = 비-login).
+- **게이트 (i)✅(ii)❌(iii)✅ → 미통과 → 재학습 보류.** A가 불필요 login을 제거했으나 **should_T 불변** = login 과잉호출은 실재했으나 **should_T의 binding constraint가 아님**. **정밀 분해는 §8.1**: 실패 44건 중 **37(84%)이 "필수 CHECK 미호출"**, login 단독 binding=**0**.
 - **R2 비대칭**: 어댑터가 무거운 프롬프트 학습 → lighten은 OOD. should_T null은 "A 무효"가 아니라 **"login만으론 should_T 안 움직임"**. zero-train은 positive-only 확증 도구 — null은 비결론. 깨끗한 A 검정은 재학습 필요하나 **기대값 낮음**.
 
 ### 재학습 분석 (참고, 게이트 통과 시에만)
@@ -181,11 +181,42 @@ domain ABox(HOW 지식)를 **task 제약으로 마스킹**해 task-active 술어
 
 분모 = **/48 주 · /40 보조**(reconciled §2.4 P6; "7/40" 등 카운트-분모 혼용 폐기).
 
-**현 상태**: zero-train(§7)에서 게이트 미통과 → **재학습 아님.** 다음은:
-1. **★should_T binding constraint 진단**: zero-train이 login을 지웠는데도 안 풀리는 41(=should_T 실패) 재census(task 제약 기준, 구 census의 default-precond 버그 수정) → destination 체크 누락 / constraint_violation 4 / 극難6 분해. **여기서 진짜 레버 재설계.**
-2. (조건부) binding이 "task별 게이팅 노이즈"로 판명되면 → E-A 재학습(A만, 분리증명 §11.7 = 빈/틀린 task 제약 주입→should_T 붕괴) + should_F 회귀 모니터(아래 §9.2).
-3. (조건부) full-tool 부담이 별도 기여로 확인되면 → E-AB(B 도구 프루닝, **semi-oracle 별도 보고** P4).
-4. 개선 확인 후에만 6 LODO 회전 → 출처3(정책 직독) 전이.
+**현 상태**: zero-train(§7)에서 게이트 미통과 → **재학습 아님.** binding 진단(§8.1)으로 진짜 레버를 규명함.
+
+### 8.1 ★ binding-constraint 진단 결과 (2026-06-02 실측, `binding_diag.py`, args-aware)
+
+should_T 실패 **44건**(48 중 4통과)을 **task 제약 기준 + args-aware**로 재census(구 `census_shouldT`의 default-precond 버그 + name-dedup 맹점 동시 수정). LIGHTEN run 기준:
+
+| binding | 건수 | 내용 |
+|---|--:|---|
+| **필수 CHECK 미호출 (under-verification)** | **37 / 44 (84%)** | dirgraph가 요구하는 검증 도구를 planner가 안 부름 |
+| checks_ok_other (순서/잉여호출/goal-skip) | 7 / 44 | 검증은 다 했으나 순서·잉여 login·goal 미호출 |
+| login/auth 실패가 *단독* binding | **0** | (login은 어떤 should_T 실패의 단독 원인도 아님 — §7 결론 확증) |
+
+**미호출 CHECK의 종류**(37건 분해):
+- **transfer_funds — 두 번째(destination) username 체크 누락** (~8): task 제약=`AND(check(username), check(destination_username))`인데 planner는 `check(source)` 한 번만 부르고 goal 호출. **task 111 LITE 궤적**: `check(john_doe) → transfer_funds` (login 제거됨) → dirgraph F (`check(alice_smith)` 영구 누락). **R8 종결: 111은 login이 아니라 dest-check 누락으로 실패.**
+- **set_safety_box — 자격 fact 체크 누락** (~12): `minimal_eligible_credit_score`, `safety_box_eligible` 미호출.
+- **cancel/pay_bill_cc — 카드 fact 체크 누락**: `internal_check_credit_card_exist`, `no_credit_card_balance_on_card`, `not_over_credit_limit`.
+- **get_loan/pay_loan — 대출 제약 체크 누락**: `get_loan_owed_balance_restr`, `pay_loan_account_balance_restr`, `pay_loan_amount_restr`.
+- **balance/exchange**: `sufficient_account_balance`, `maximum_exchange_amount`.
+
+**★ root cause (코드 확정, `build_tbox_planner_sft.py:108`)** — GT means-ends teacher 자체가 불완전한 검증 시퀀스를 생성:
+```python
+goal_fact_checkable = [p for p in dict.fromkeys(gleaves)        # (1) NAME으로 dedup → 동명 2회 체크(dest) 소멸
+                       if p not in gest and p in tool_names]    # (2) establishable 제외 (3) 동명 callable만
+```
+→ (1) transfer_funds의 source/dest 동명 체크가 하나로 붕괴, (2)·(3) 자격/잔액/한도 등 establishable·비-동명 fact 체크가 누락. **모델은 충실히 "덜 검증하기"를 학습** → dirgraph 위반. **즉 should_T 천장은 login 게이팅도, 모델 용량도 아닌 SFT 데이터 생성 결함.**
+
+→ **진짜 레버 = mechanism A(게이팅 경량화)가 아니라 "검증-게더를 args-aware·완전하게"**: `goal_fact_checkable`을 (name,args) 키로 + establishable/compound fact 포함하도록 재정의. 프롬프트(`build_v2_prompt`)의 `observed`/`facts`도 동일하게 args-aware. **이것이 다음 구현 1순위.**
+
+### should_F gross churn (R6/R7 종결)
+net 31→31은 **2-task churn을 은폐**: GAIN `[87] set_safety_box`(fail→pass) + LOSS `[100] set_safety_box`(pass→fail), 둘 다 auth=F 처리. 문서가 보고한 "fragile 1 회귀(100)"는 5-scope monitor가 100은 잡았으나 **87 gain은 놓침(R7 확증)**. → should_F는 **net 아닌 gross로 보고**.
+
+### 다음 (binding 규명 후)
+1. **★검증-게더 args-aware·완전화** (위 root cause 수정) → SFT 재생성 + 재학습 1회. **이것이 should_T 천장의 진짜 레버.**
+2. mechanism A(게이팅)는 **부차**(login 호출 위생엔 유효하나 should_T 비-binding) — A를 1과 함께 흡수(프롬프트 정합).
+3. should_F는 **gross gain/loss 모니터**(net 금지), 14-scope.
+4. 개선 확인 후 6 LODO 회전 → 출처3 전이.
 
 ---
 

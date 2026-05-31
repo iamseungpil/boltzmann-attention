@@ -233,3 +233,19 @@ should_T **gain=0/loss=0**이면, §2.3에서 "login 과호출→dirgraph 위반
 
 ### 라운드3 결론
 **문서·코드 정합성은 이제 견고**. BLOCKING 없음. 남은 건 측정 위생 2건(R6 should_F gross churn, R7 (iii) 5-scope 표기)과 §8.1 진단의 1번 항목(R8 task 111). **다음 단계(should_T binding 재census)는 타당** — 단 R6/R8을 그 census에 포함하면 한 번에 닫힘: (1) should_T 실패 41건을 task-제약 기준 실패모드로 재분류(destination-check/constraint_violation/극難), (2) task 111 post-LIGHTEN 궤적, (3) should_F gross flips. 이 셋이 binding을 규명한다.
+
+---
+
+## 9. §8.1 binding 진단 실측 (2026-06-02, `binding_diag.py`) — R6/R7/R8 종결 + 진짜 레버 규명
+
+라운드3이 요청한 3종을 args-aware로 실측(설계서 §8.1). 결과가 연구 방향을 재설정한다.
+
+- **실패 모수 정정**: should_T 실패는 **44건**(48−4통과), 문서의 "41"은 오기 → /48·/40 분모와 함께 44로 고정.
+- **★binding = "필수 CHECK 미호출" 37/44 (84%)**, login 단독 binding **0** → §7 결론("login 비-binding")을 **정량 확증**. checks_ok_other 7.
+  - transfer_funds dest-check 누락(~8), set_safety_box 자격체크 누락(~12), 카드/대출/잔액 체크 누락 등.
+- **R8 종결 (task 111)**: LITE 궤적 `check(john_doe) → transfer_funds`, dirgraph F = `check(alice_smith)`(destination) **영구 누락**. login 제거돼도 111이 안 풀린 이유 확정 — **비-login binding**.
+- **R6 종결 (should_F gross)**: net 31→31이 churn 은폐 = GAIN`[87]` + LOSS`[100]`(둘 다 set_safety_box, auth=F 처리). **R7 확증**: 5-scope monitor가 100은 잡고 **87 gain은 놓침**. → 향후 should_F는 gross 보고.
+- **★root cause 코드 확정 (`build_tbox_planner_sft.py:108`)**: GT teacher의 `goal_fact_checkable = [p for p in dict.fromkeys(gleaves) if p not in gest and p in tool_names]` — (1) name-dedup으로 동명 2회 체크(dest) 소멸, (2) establishable 제외, (3) 동명 callable만 → **검증 시퀀스를 불완전 생성 → 모델이 "덜 검증"을 학습**. should_T 천장은 게이팅·모델용량이 아니라 **SFT 데이터 생성 결함**.
+
+### 방향 재설정 (리뷰 관점)
+이 설계서의 원 가설(mechanism A = 게이팅 경량화)은 **login 위생엔 유효(검증됨)하나 should_T의 레버가 아니다.** 진짜 레버는 **검증-게더를 args-aware·완전화**(`goal_fact_checkable`을 (name,args)키 + establishable/compound fact 포함, `build_v2_prompt`의 `observed`/`facts`도 동일). A는 이 수정에 프롬프트 정합으로 흡수. **다음 구현 1순위 = §8.1 root cause 수정 후 재학습 1회.** 재현 스크립트 `binding_diag.py`(repo 커밋, R1 교훈=unversioned 금지).
