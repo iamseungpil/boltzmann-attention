@@ -46,6 +46,76 @@ def _try_parse(s):
         return None
 
 
+# ----------------------------------------------------------------------------
+# arm-3v2 / arm-4a SHARED planner-prompt builder (train/test consistency: the SFT
+# data generator and the inference planner MUST produce byte-identical prompts).
+# ----------------------------------------------------------------------------
+def _render_precond_mod(tree, predicates, out, est):
+    if not tree:
+        return
+    if isinstance(tree, (list, tuple)) and tree:
+        head = tree[0]
+        if head == "single":
+            name = tree[1]
+            name = name[4:] if name.startswith("not ") else name
+            info = (predicates or {}).get(name, {})
+            out.append(name)
+            if info.get("kind") == "establishable" and info.get("by"):
+                est[name] = info["by"]
+        elif head in ("and", "or", "chain", "gate"):
+            for sub in tree[1]:
+                _render_precond_mod(sub, predicates, out, est)
+
+
+def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines, slot_keys,
+                    op_descs=None):
+    """Build the arm-3v2/arm-4a planner prompt. `op_names` = the exact tool-name order shown to
+    the model (alias/shuffle applied by the caller). `established` = set of establishable preds
+    already satisfied. Returns the prompt string."""
+    ops = abox.get("operators", {})
+    predicates = abox.get("predicates", {})
+    op_descs = op_descs or {}
+    est_map, lines = {}, []
+    for nm in op_names:
+        if nm == "exit_conversation":
+            continue
+        op = ops.get(nm)
+        if op:
+            preds, est = [], {}
+            _render_precond_mod(op.get("precondition"), predicates, preds, est)
+            est_map.update(est)
+            needs = ", ".join(dict.fromkeys(preds)) or "nothing"
+            gives = ", ".join(op.get("produces", [])) or "the goal/result"
+            unmet = [p for p in est if p not in established]
+            status = (f"BLOCKED — first call: {', '.join(sorted({est[p] for p in unmet}))}"
+                      if unmet else "READY (establishable preconditions satisfied)")
+            lines.append(f"- {nm}: needs [{needs}]; gives [{gives}]  => {status}")
+        else:
+            lines.append(f"- {nm}: {op_descs.get(nm, '(tool)')[:80]}")
+    ops_str = "\n".join(lines)
+    est_str = ("\n".join(f"  - to establish '{p}', call {a}" for p, a in est_map.items())
+               or "  (none)")
+    hist_str = "\n".join(history_lines) if history_lines else "nothing yet"
+    slots_str = ", ".join(sorted(slot_keys)) or "only what the user provided"
+    return (
+        "You are a planning agent. Pick the SINGLE next tool to call, or STOP.\n\n"
+        f"USER REQUEST:\n{user_req}\n\nPOLICY (constraints to honor):\n{policy}\n\n"
+        f"TOOLS (name: needs [preconditions]; gives [effects]):\n{ops_str}\n\n"
+        f"HOW TO ESTABLISH preconditions:\n{est_str}\n\n"
+        f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
+        f"HISTORY:\n{hist_str}\n\n"
+        "RULES:\n"
+        "- NEVER call a tool marked BLOCKED. Call its 'first call' tool instead. Only ever "
+        "call a tool marked READY.\n"
+        "- Prefer the cheapest path: never repeat a call whose result you already have (check "
+        "HISTORY); call only the tools needed to reach the goal.\n"
+        "- If the goal tool stays BLOCKED because a required FACT is false and no tool can fix "
+        "it, output STOP (refusing is correct — do not call the goal tool).\n"
+        "- When the goal tool is READY and not yet successfully called, call the goal tool, "
+        "then STOP.\n\n"
+        "Output ONLY one tool name from the list, or STOP. Nothing else:")
+
+
 class TwoStageClient:
     """OpenAIHandler-compatible client running a 2-stage planner+resolver per turn.
 
@@ -186,8 +256,10 @@ class TwoStageClient:
     def _plan_v2(self, messages, tools) -> str:
         ops = self.abox.get("operators", {})
         tool_names = [t.get("function", {}).get("name", "") for t in tools]
+        op_descs = {t.get("function", {}).get("name", ""):
+                    t.get("function", {}).get("description", "") for t in tools}
         # established establishable-predicates: an operator that was called and did NOT error/
-        # return False establishes its `produces` (deterministic gate-status, computed from history).
+        # return False establishes its `produces` (deterministic gate-status, from history).
         established = set()
         for m in messages:
             if m.get("role") == "tool":
@@ -195,34 +267,6 @@ class TwoStageClient:
                 c = str(m.get("content", ""))
                 if nm in ops and "Error" not in c and c.strip() not in ("False", "false", "None", ""):
                     established.update(ops[nm].get("produces", []))
-        # operator affordances + READY/BLOCKED status (establishable preconditions only)
-        est_map = {}
-        lines = []
-        for t in tools:
-            nm = t.get("function", {}).get("name", "")
-            if nm == "exit_conversation":
-                continue
-            op = ops.get(nm)
-            if op:
-                preds, est = [], {}
-                self._render_precond(op.get("precondition"), preds, est)
-                est_map.update(est)
-                needs = ", ".join(dict.fromkeys(preds)) or "nothing"
-                gives = ", ".join(op.get("produces", [])) or "the goal/result"
-                unmet = [p for p, a in est.items() if p not in established]
-                if unmet:
-                    blockers = ", ".join(sorted({est[p] for p in unmet}))
-                    status = f"BLOCKED — first call: {blockers}"
-                else:
-                    status = "READY (establishable preconditions satisfied)"
-                lines.append(f"- {nm}: needs [{needs}]; gives [{gives}]  => {status}")
-            else:
-                desc = t.get("function", {}).get("description", "")[:80]
-                lines.append(f"- {nm}: {desc}")
-        ops_str = "\n".join(lines)
-        est_str = ("\n".join(f"  - to establish '{p}', call {a}" for p, a in est_map.items())
-                   or "  (none)")
-
         user_req = next((str(m.get("content", ""))[:300] for m in messages
                          if m.get("role") == "user" and m.get("content")), "")
         policy = next((str(m.get("content", ""))[:600] for m in messages
@@ -236,26 +280,8 @@ class TwoStageClient:
                 for tc in (m.get("tool_calls") or []):
                     fn = tc.function if hasattr(tc, "function") else tc.get("function", {})
                     hist.append(f"CALLED: {fn.name if hasattr(fn,'name') else fn.get('name','?')}")
-        hist_str = "\n".join(hist) if hist else "nothing yet"
-        slots_str = ", ".join(sorted(self._slot_state.keys())) or "only what the user provided"
-
-        prompt = (
-            "You are a planning agent. Pick the SINGLE next tool to call, or STOP.\n\n"
-            f"USER REQUEST:\n{user_req}\n\nPOLICY (constraints to honor):\n{policy}\n\n"
-            f"TOOLS (name: needs [preconditions]; gives [effects]):\n{ops_str}\n\n"
-            f"HOW TO ESTABLISH preconditions:\n{est_str}\n\n"
-            f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
-            f"HISTORY:\n{hist_str}\n\n"
-            "RULES:\n"
-            "- NEVER call a tool marked BLOCKED. Call its 'first call' tool instead. Only ever "
-            "call a tool marked READY.\n"
-            "- Prefer the cheapest path: never repeat a call whose result you already have (check "
-            "HISTORY); call only the tools needed to reach the goal.\n"
-            "- If the goal tool stays BLOCKED because a required FACT is false and no tool can fix "
-            "it, output STOP (refusing is correct — do not call the goal tool).\n"
-            "- When the goal tool is READY and not yet successfully called, call the goal tool, "
-            "then STOP.\n\n"
-            "Output ONLY one tool name from the list, or STOP. Nothing else:")
+        prompt = build_v2_prompt(self.abox, tool_names, established, user_req, policy,
+                                 hist, set(self._slot_state.keys()), op_descs)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
             temperature=0.0, top_p=0.01, max_tokens=24)
