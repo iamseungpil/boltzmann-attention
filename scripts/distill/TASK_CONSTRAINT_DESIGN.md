@@ -230,15 +230,16 @@ hand-replay 2회(15·9) 실패 원인 규명·수정(content `"True"`→bool 복
 | mode (full, 결정론) | should_T |
 |---|--:|
 | oracle plan (sanity) | **37/48** |
-| **abc (A+B+C)** | **24/48** |
-| **ab (A+B)** | **24/48** |
+| **abc (A+B+C)** | **37/48 = oracle** |
+| ab (A+B only) | 24/48 |
 | 실제 7B baseline | 4/48 |
 
-- **under-verification = binding 확정**: 검증호출만 하면 4→24~37.
-- **C(innate login) 불필요·철회**: `abc==ab==24`(완전 동일) → §8.1의 "C 필요(P5 반증)"는 success 무영향 → **마스크 = task_constraint + condition→getter(A+B)** 로 확정, C 제외.
-- **full 모드 B getter 전부 가용** → 레버 배포 실현 가능.
-- **A+B(24) vs oracle(37) 갭 13** = 게더 일부 누락 → condition→getter/멀티-arg 커버리지 보강 시 천장↑.
-- should_F는 scripted-gather 미검증(항상 goal 호출) → 재학습 시 거부축 별도 보존(P3, 14-scope).
+- **under-verification = binding 확정**: 완전 게더(A+B+C)로 4→**37 = oracle 천장**.
+- **★C(login/auth establishment) 필요·+13 기여** (ab 24 → abc 37). 출처 정정: C는 **goal의 induced 온톨로지 precondition의 establishable**(login/auth)에서 도출. (이전 "C 불필요(abc==ab)"는 C를 `dep_innate`(=null)에서 찾던 버그였음.) **evaluator의 dirgraph는 task 제약이 아니라 default deps(=induced precond)를 따르므로 login 필수.**
+- **마스크 정정**: ~~task_constraint + getter~~ → **goal의 induced precondition을 완전 충족**(A: args-aware 콜러블 체크 + B: condition→getter + C: establishable login/auth). = "induced precond를 끝까지 establish+verify".
+- **gap-13 root cause**: login 누락(전수 동일). **gap-3(37 vs 40)** = 값-반환 goal(exchange_foreign_currency·get_account_owed_balance) 채점/args 뉘앙스, 게더 무관.
+- **full 모드 모든 도구 가용** → 배포 실현 가능. should_F는 scripted 미검증(항상 goal 호출)→재학습 시 거부축 별도 보존(P3, 14-scope).
+- ⚠️ 원 §2 "login 과잉호출"과 정합: 7B는 login을 **틀린 자격증명으로 호출해 실패**(login=F)→dirgraph 위반. scripted는 user_known의 **올바른 creds**로 login 성공→통과. ⇒ 재학습 타깃=login을 **올바른 creds로** + getter + args-aware 체크까지 **완전·정확 시퀀스** 시연.
 
 → **구현 1순위 = B(condition→getter 온톨로지 induction) + A(args-aware 게더)**. mechanism A(게이팅 경량화, §7)는 should_T 비-binding이므로 부차(프롬프트 정합으로 흡수).
 

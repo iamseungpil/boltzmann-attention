@@ -298,15 +298,16 @@ evidence_a_probe 방식으로 auth 호출 정책(constraint-only / innate∪cons
 | mode (full, 결정론) | should_T | 의미 |
 |---|--:|---|
 | oracle plan | **37/48** | sanity·천장 재현 |
-| **abc (A+B+C)** | **24/48** | 비-oracle 게더 |
-| **ab (A+B)** | **24/48** | C 제거 |
+| **abc (A+B+C)** | **37/48 = oracle** | 완전 게더 |
+| ab (A+B only) | 24/48 | C 제거 |
 | 실제 7B baseline | 4/48 | 현재 |
 
-**결론(실측 확정):**
-1. **under-verification = should_T binding 확정.** 검증 도구를 부르게만 하면 4→24(A+B)~37(oracle). 모델용량·게이팅 아님.
-2. **C(innate login) 불필요** — `abc==ab==24` 완전 동일. §11의 "C 필요(P5 반증)"는 **success엔 무영향=철회**. _verify_ab의 dirgraph-login은 OR-대안/authenticate가 흡수 → 마스크 = **task_constraint + condition→getter(A+B)** 로 충분.
-3. **full 모드에 B getter 전부 가용**(`get_account_balance·get_account_owed_balance·get_credit_card_info·internal_get_credit_score·login·auth`, `internal_get_database`만 부재=불필요) → **레버 배포 실현 가능**.
-4. **A+B(24) vs oracle(37) 갭 13** = A+B 게더가 일부 검증 누락(condition→getter 테이블/멀티-arg 커버리지 보강 여지) → 보강 시 천장↑.
-5. should_F는 scripted-gather가 항상 goal 호출 → 미검증. 거부축은 재학습 시 별도 보존 필요(P3/R3 14-scope 모니터).
+**결론(실측 확정, 갭분석 후 정정):**
+1. **under-verification = should_T binding 확정.** 완전 게더(A+B+C)로 4→**37 = oracle 천장 완전 재현**.
+2. **★C(login/auth) 필요·+13 (24→37). 이전 "C 불필요(abc==ab)"는 철회** — C를 `dep_innate`(=null)에서 찾던 버그였고, 올바른 출처는 **goal의 induced 온톨로지 precondition establishable**. evaluator dirgraph는 default deps(=induced precond)를 따르므로 login 필수.
+3. **마스크 정정**: ~~task_constraint + getter~~ → **goal의 induced precondition 완전 충족**(A args-aware 체크 + B condition→getter + C establishable login/auth).
+4. **갭 완전 규명**: GAP-13=전부 login 누락(C). GAP-3(37 vs 40)=값-반환 goal(exchange_foreign_currency·get_account_owed_balance) 채점/args 뉘앙스(게더 무관).
+5. **원 §2 정합**: 7B는 login을 **틀린 creds로 호출→실패(=F)→dirgraph 위반**. scripted는 올바른 creds로 성공. ⇒ 단순 "login 제거"(mechanism A)가 아니라 **올바른 creds로 login + 모든 getter/체크까지 완전·정확 시퀀스**가 레버.
+6. should_F는 scripted 미검증(항상 goal 호출)→재학습 시 거부축 별도 보존(P3/R3 14-scope).
 
-**재학습 타깃(확정)**: A+B 게더(task_constraint args-aware + condition→getter)를 `build_tbox_planner_sft`/`build_v2_prompt`에 내재화 → 모델이 검증호출을 학습 → should_T 4→최대 24(현 게더)~37(게더 보강 시). **C·mechanism A(게이팅)는 제외.** 재현 `run_scripted.py`(repo).
+**재학습 타깃(확정)**: 완전 게더(A args-aware + B condition→getter + C establishable login/auth = induced precond 완전 충족)를 `build_tbox_planner_sft`/`build_v2_prompt`에 내재화 → should_T 4 → 최대 **37**(=oracle 천장). mechanism A(게이팅 경량화)는 **폐기**(login은 제거 대상이 아니라 올바르게 수행 대상). 재현 `run_scripted.py`(repo).
