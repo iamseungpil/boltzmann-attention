@@ -84,15 +84,29 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 am = ont["operators"].get(a, {}).get("args", {})
                 return {p: slots[s] for p, s in am.items() if s in slots}
 
-            established, history, executed = set(), [], set()
+            # goal's FACT preconditions that are directly checkable (callable tool, same name) — v2
+            gleaves, gest = [], {}
+            _render_precond_mod(task["constraints"], ont.get("predicates", {}), gleaves, gest)
+            goal_fact_checkable = [p for p in dict.fromkeys(gleaves)
+                                   if p not in gest and p in tool_names]
+
+            established, history, executed, observed = set(), [], set(), {}
 
             def next_decision():
+                # 1. gather: verify any unobserved checkable fact of the goal first
+                for p in goal_fact_checkable:
+                    if p not in observed and p not in executed:
+                        return p
+                # 2. a verified fact is FALSE -> refuse
+                if any(observed.get(p) is False for p in goal_fact_checkable):
+                    return "STOP"
+                # 3. goal reachable?
                 try:
                     if de.process(goal, **slots):
                         return goal
                 except Exception:
                     pass
-                # BFS for a callable establishing action that advances an unmet precond
+                # 4. BFS for a callable establishing action that advances an unmet precond
                 frontier, seen = [goal], set()
                 while frontier:
                     a = frontier.pop(0)
@@ -117,7 +131,7 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 s = (shuffle_seed_base + idx * 7 + len(history)) % max(1, len(order))
                 shown = tool_names[s:] + tool_names[:s]
                 prompt = build_v2_prompt(ont, shown, established, user_req, policy,
-                                         list(history), set(slots.keys()), op_descs)
+                                         list(history), set(slots.keys()), op_descs, observed)
                 target = next_decision()
                 examples.append({
                     "domain": domain, "goal": goal,
@@ -137,6 +151,10 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base):
                 history.append(f"RESULT[{target}]: {str(r)[:60]}")
                 if r is not False and "Error" not in str(r):
                     established.update(ont["operators"].get(target, {}).get("produces", []))
+                # fact-visibility: record a checkable fact's observed bool (v2)
+                if target in goal_fact_checkable:
+                    v = r[1] if isinstance(r, (list, tuple)) and len(r) >= 2 else r
+                    observed[target] = bool(v) if isinstance(v, (bool, int)) else False
     return examples
 
 

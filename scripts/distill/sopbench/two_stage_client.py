@@ -68,13 +68,16 @@ def _render_precond_mod(tree, predicates, out, est):
 
 
 def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines, slot_keys,
-                    op_descs=None):
+                    op_descs=None, observed=None):
     """Build the arm-3v2/arm-4a planner prompt. `op_names` = the exact tool-name order shown to
-    the model (alias/shuffle applied by the caller). `established` = set of establishable preds
-    already satisfied. Returns the prompt string."""
+    the model. `established` = establishable preds already satisfied. `observed` = {fact_pred ->
+    bool} learned from prior internal-check results in history (fact-visibility, arm-4a v2).
+    Returns the prompt string."""
     ops = abox.get("operators", {})
     predicates = abox.get("predicates", {})
     op_descs = op_descs or {}
+    observed = observed or {}
+    op_set = set(op_names)
     est_map, lines = {}, []
     for nm in op_names:
         if nm == "exit_conversation":
@@ -86,9 +89,19 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
             est_map.update(est)
             needs = ", ".join(dict.fromkeys(preds)) or "nothing"
             gives = ", ".join(op.get("produces", [])) or "the goal/result"
-            unmet = [p for p in est if p not in established]
-            status = (f"BLOCKED — first call: {', '.join(sorted({est[p] for p in unmet}))}"
-                      if unmet else "READY (establishable preconditions satisfied)")
+            # fact preconditions = non-establishable preds; a fact is checkable if it is a callable tool
+            facts = [p for p in dict.fromkeys(preds) if p not in est]
+            violated = [p for p in facts if observed.get(p) is False]
+            uncheckable_unknown = [p for p in facts if p in op_set and p not in observed]
+            unmet_est = [p for p in est if p not in established]
+            if violated:
+                status = "BLOCKED by FACT (a required check returned FALSE) => STOP, do not call this"
+            elif unmet_est:
+                status = f"BLOCKED — first call: {', '.join(sorted({est[p] for p in unmet_est}))}"
+            elif uncheckable_unknown:
+                status = f"VERIFY FIRST — call these checks: {', '.join(sorted(uncheckable_unknown))}"
+            else:
+                status = "READY (preconditions satisfied/verified)"
             lines.append(f"- {nm}: needs [{needs}]; gives [{gives}]  => {status}")
         else:
             lines.append(f"- {nm}: {op_descs.get(nm, '(tool)')[:80]}")
@@ -105,12 +118,11 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
         f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
         f"HISTORY:\n{hist_str}\n\n"
         "RULES:\n"
-        "- NEVER call a tool marked BLOCKED. Call its 'first call' tool instead. Only ever "
-        "call a tool marked READY.\n"
-        "- Prefer the cheapest path: never repeat a call whose result you already have (check "
-        "HISTORY); call only the tools needed to reach the goal.\n"
-        "- If the goal tool stays BLOCKED because a required FACT is false and no tool can fix "
-        "it, output STOP (refusing is correct — do not call the goal tool).\n"
+        "- NEVER call a tool marked BLOCKED. Call its 'first call' tool instead.\n"
+        "- If a tool is 'VERIFY FIRST', call the listed check tool(s) first to confirm its facts.\n"
+        "- If the goal tool is 'BLOCKED by FACT', output STOP (refusing is correct — a required "
+        "fact is false; do NOT call the goal).\n"
+        "- Prefer the cheapest path: never repeat a call whose result you already have.\n"
         "- When the goal tool is READY and not yet successfully called, call the goal tool, "
         "then STOP.\n\n"
         "Output ONLY one tool name from the list, or STOP. Nothing else:")
@@ -261,12 +273,19 @@ class TwoStageClient:
         # established establishable-predicates: an operator that was called and did NOT error/
         # return False establishes its `produces` (deterministic gate-status, from history).
         established = set()
+        observed = {}                       # fact_pred -> bool, from internal-check results (v2)
         for m in messages:
             if m.get("role") == "tool":
                 nm = m.get("tool_name")
                 c = str(m.get("content", ""))
                 if nm in ops and "Error" not in c and c.strip() not in ("False", "false", "None", ""):
                     established.update(ops[nm].get("produces", []))
+                # fact-visibility: a callable check (tool name == a fact predicate) reveals a bool
+                if nm and "Error" not in c:
+                    r = _try_parse(c)
+                    v = r[1] if isinstance(r, (list, tuple)) and len(r) >= 2 else r
+                    if isinstance(v, bool):
+                        observed[nm] = v
         user_req = next((str(m.get("content", ""))[:300] for m in messages
                          if m.get("role") == "user" and m.get("content")), "")
         policy = next((str(m.get("content", ""))[:600] for m in messages
@@ -281,7 +300,7 @@ class TwoStageClient:
                     fn = tc.function if hasattr(tc, "function") else tc.get("function", {})
                     hist.append(f"CALLED: {fn.name if hasattr(fn,'name') else fn.get('name','?')}")
         prompt = build_v2_prompt(self.abox, tool_names, established, user_req, policy,
-                                 hist, set(self._slot_state.keys()), op_descs)
+                                 hist, set(self._slot_state.keys()), op_descs, observed)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
             temperature=0.0, top_p=0.01, max_tokens=24)
