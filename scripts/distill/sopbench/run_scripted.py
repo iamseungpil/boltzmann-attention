@@ -170,6 +170,14 @@ def build_func_calls(messages):
                 pend.append((nm, ar))
         if m.get("role") == "tool":
             nm = m.get("tool_name"); content = m.get("content")
+            # harness stringifies tool returns; restore python objects (True/False/tuples) so the
+            # evaluator's value checks (action_successfully_called etc.) see real bools, not "True".
+            if isinstance(content, str):
+                import ast as _ast
+                try:
+                    content = _ast.literal_eval(content)
+                except Exception:
+                    pass
             args = {}
             for j in range(len(pend) - 1, -1, -1):
                 if pend[j][0] == nm:
