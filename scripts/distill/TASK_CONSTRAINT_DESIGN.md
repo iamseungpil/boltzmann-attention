@@ -1,9 +1,8 @@
 # Task-Instance Constraint 설계서 — should_T 병목(과잉 게이팅 + full-tool 부담) 해소
 
-> 상태: **리뷰 + zero-train 게이트 + §8.1 binding 진단 완료 (2026-06-02). 진짜 레버 규명 → 다음=검증-게더 args-aware 수정.**
-> 작성 2026-06-02. 권위본 `WORKFLOW_ONTOLOGY_DESIGN.md §11`의 보강. 리뷰=`TASK_CONSTRAINT_DESIGN_REVIEW.md`.
-> 선행 근거: `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4a v2 + 본 문서 §2(코드 증명)·§7(zero-train)·§8.1(binding 진단).
-> ★요약 결과: mechanism A는 라이브 작동(login -59%)이나 should_T 불변. **§8.1: should_T 실패의 84%(37/44)가 "필수 CHECK 미호출"(login 0). root cause=teacher가 fact 체크를 불완전 생성. 레버 분해(오프라인): B=condition→getter 온톨로지 induction(33 task, dominant; `by:null` 정정) + A=args-aware 게더(11 task). 상한 A+B=40/48 비-oracle 확정. 게이팅(mechanism A)은 비-binding=부차.**
+> 상태: **(b) 구현 설계 확정 (2026-06-02) — §8.5가 구현 권위본. 다음=resolver/teacher 코드 착수.**
+> 작성 2026-06-02. 권위본 `WORKFLOW_ONTOLOGY_DESIGN.md §11`의 보강. 리뷰=`TASK_CONSTRAINT_DESIGN_REVIEW.md`. 결과 권위본=`SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4c.
+> ★요약: binding = **검증 도구 선택**(should_T·should_F 공통). 레버 = **완전 검증 게더(A args-aware + B condition→getter+compare + C 조건부 login) + act/STOP 게이트**, **LLM은 도구선택만·계산은 결정론 resolver**. 실측 천장: should_T ~34/48, should_F ~83/86 도구-탐지; 134 union 120(우리 35→SOTA 103~107). genuine-impossible=14(8 PartA 코드결함+6 PartB cred-부재; PartB는 BUGREPORT Part B 후보). 구현 설계=**§8.5**.
 
 ---
 
@@ -282,6 +281,48 @@ net 31→31은 **2-task churn을 은폐**: GAIN `[87] set_safety_box`(fail→pas
 5. should_F는 **gross gain/loss 모니터**(net 금지, 14-scope). 개선 확인 후 6 LODO 회전 → 출처3 전이.
 
 > 추가 오프라인 검증(선택, 재학습 전): A+B로 고친 teacher가 44 실패 task에서 dirgraph 노드를 전부 재구성하는지 replay로 확인 → 상한 40/48 직접 재현.
+
+---
+
+## 8.5 ★★★ (b) 구현 설계 — 완전 검증 게더 (should_T + should_F 동시), 2026-06-02 확정
+
+> 이 절이 **구현 권위본**. §2~§8의 진단·검증 결론을 (b) 코드 설계로 종합. 모든 수치는 실측(`run_scripted`·`binding_diag`·`lever_decomp`·leaderboard union·`_shouldF2`·`_verifyF`).
+
+### 8.5.0 결론 한 줄
+should_T·should_F 공통 binding = **검증 도구 선택**(어떤 체크/establish 도구를 호출하는가). 레버 = **완전 검증 게더 + act/STOP 게이트**, 단 **LLM은 도구 선택만 하고 정확한 계산은 결정론 resolver(ABox executor)가** 수행(사용자 설계: "모든 조건/계산을 도구호출로 환원").
+
+### 8.5.1 메커니즘 (two-stage, LLM 무계산)
+- **planner(LLM, TBox)**: 추상 검증액션 선택(예 "sufficient_account_balance 확인") + `observed` **bool**만 보고 act/STOP 결정. 산술·비교 안 함.
+- **resolver(결정론, ABox)**: 추상 검증액션 → **실제 raw getter 호출**(`get_account_balance` 등 → func_call 로그 → dirgraph 노드 충족) + **내부 결정론 비교**(balance ≥ amount, score ≥ 임계 등) → bool을 `observed`에 기록.
+- **게이트**: `observed` 전부 True → **goal 호출**(should_T); 하나라도 False → **STOP**(should_F 거부).
+- **검증완료**: (i) raw getter 호출이 dirgraph 충족(`run_scripted` abc=37). (ii) should_F 거부는 goal 미호출로 success=True(`_verifyF`; dirgraph 불요). (iii) 새 wrapper 도구명 불필요 → dirgraph 안 깨짐(resolver가 raw getter 호출).
+
+### 8.5.2 should_T·should_F 대칭 + should_F 샘플 교정 (핵심)
+현재 teacher는 should_F 샘플을 **생성하나 불량**: condition-위반 should_F가 위반 조건을 게더하지 않고 fallback STOP → SFT가 "이유 없는 STOP"(예 apply_credit_card should_F: `[check_username=True, STOP]`, 위반인 credit_score 미게더) → 판별 무의미·과잉거부 위험(현 should_F 31/86).
+**(b) 교정**: 완전 게더로 위반 조건을 게더·관찰 후 STOP → `[check_username=True, check_credit_score=False, STOP]` = **이유기반 거부 학습**. should_T(전부 True→act)·should_F(하나 False→STOP) 양축 SFT 동시 정합.
+
+### 8.5.3 게더 구성요소 (A+B+C)
+- **A — args-aware callable check**: `internal_check_username_exist` 등은 (name,args) 키로(동명 2회=source+dest 둘 다). `dict.fromkeys` dedup 제거.
+- **B — condition→getter+compare (resolver)**: condition 술어(`by:null`)를 결정론 체크로. 매핑(leaderboard co-occurrence 확정):
+  `minimal_elgibile_credit_score`→`internal_get_credit_score`≥`minimum_credit_score`; `sufficient_account_balance`→`get_account_balance`≥amount; `no_credit_card_balance_on_card`/`not_over_credit_limit`→`get_credit_card_info`; `safety_box_eligible`→`get_account_balance`≥`minimum_account_balance_safety_box`; `*_owed_balance_restr`/`pay_loan_*_restr`→`get_account_owed_balance`(+`get_account_balance`); `maximum_exchange_amount`/`maximum_deposit_limit`→내부 임계.
+- **C — 조건부 login/auth**: goal의 induced precond에 establishable(login/auth)이 있고 **자격증명이 user_known에 가용**할 때만 호출. cred 부재 시 **환각 금지**(호출 안 함; §2 7B 실패 모드 회피). `run_scripted` 검증: unconditional→realistic 21, conditional→realistic 29.
+
+### 8.5.4 변경 파일
+1. **`two_stage_client.py`**:
+   - resolver: condition 술어 처리 추가 — 추상 체크 선택 시 raw getter 호출 + 결정론 비교 → `observed[pred]=bool`. (기존 fact-visibility `observed` 확장: 동명 callable뿐 아니라 condition도.)
+   - `build_v2_prompt`: condition 술어를 `observed` bool과 함께 표시(VERIFY FIRST/READY/BLOCKED-by-FACT). 게이트 룰 동일(observed-False→STOP).
+2. **`build_tbox_planner_sft.py`**: `goal_fact_checkable`을 **(name,args)-aware + condition(→getter경유) + 조건부 login/auth** 로 교체. `next_decision`: 위반 condition 게더 후 STOP(이유), 전부 True면 establish→goal. should_T·should_F 양축 GT 재생성.
+3. **train/test 일치(§6.4)**: 위 둘이 동일 게더·동일 `build_v2_prompt` 거치도록.
+
+### 8.5.5 목표·평가
+- 평가는 **실제 파이프라인**(`run_simulation`→`run_evaluation`); 값-반환 goal(exchange/owed_balance) scoring은 실제 evaluator가 정상 처리(run_scripted 아티팩트는 무관).
+- 타깃: should_T **4→~34**(정직 천장; 14 불가 제외=8 PartA 코드결함+6 PartB cred-부재), should_F **31→다수**(86 중 ~83이 도구-탐지 거부트리거: 38 auth-fail+37 condition+8 callable).
+- 134 환산: 우리 35 → 천장 union 120(=34 sT+86 sF). 단일모델 SOTA full 103/oracle 107. 레버는 sT·sF 양축 동시 상승 노림.
+- 모니터: should_F **gross** gain/loss(net 금지). LODO holdout=bank.
+
+### 8.5.6 검증 완료 / 미해결
+- ✅ 검증완료: 게더 작동(abc 37=oracle), C 조건화 필요(21→29→37), should_F 거부=success, raw getter→dirgraph, 14 genuine-impossible(8+6), should_F 트리거 83/86 도구탐지.
+- ⬜ 미해결(구현 중 확인): resolver의 condition→getter 매핑이 **모든 도메인**에서 일반화되는지(bank 외 6도메인 condition 술어 매핑); 7B가 condition `observed` bool로 게이팅을 실제 학습하는지(재학습 후 측정).
 
 ---
 
