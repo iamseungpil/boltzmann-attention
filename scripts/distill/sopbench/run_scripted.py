@@ -194,8 +194,10 @@ def main():
     ap.add_argument("--ont_dir", default="./induced")
     ap.add_argument("--option", default="full")
     ap.add_argument("--fmt", default="structured")
+    ap.add_argument("--tool_list", default="full", choices=["full", "oracle"])
     ap.add_argument("--debug", default=None, help="goal name to dump once (e.g. transfer_funds)")
     args = ap.parse_args()
+    _dumped = [False]
 
     ont = json.load(open(f"{args.ont_dir}/ontology_{args.domain}.json"))
     dep_innate_v = domain_assistant_keys[args.domain].action_innate_dependencies
@@ -214,13 +216,20 @@ def main():
     for task in tasks:
         should = bool(task.get("action_should_succeed"))
         client.reset(task=task)
+        included = ([n[0] for n in task["directed_action_graph"]["nodes"] if isinstance(n, list)]
+                    if args.tool_list == "oracle" else None)
         dsys, uinfo, ainfo, tinfo = task_initializer(
-            args.domain, task, dep_innate, dep_full, dep_descr, None, "prompt", False, args.fmt)
+            args.domain, task, dep_innate, dep_full, dep_descr, included, "prompt", False, args.fmt)
         assistant.instructions = ainfo["instructions"]
         assistant.functions = ainfo["tools"] + [function_to_json(exit_conversation)]
         assistant.name = f"{args.domain} assistant"
         # filter the scripted plan to tools that actually exist in the agent's tool list
         avail = {t["function"]["name"] for t in assistant.functions}
+        if not _dumped[0]:
+            _dumped[0] = True
+            need = set(GETTER.values()) | CALLABLE_CHECK | set(AUTH)
+            print(f"[tool_list={args.tool_list}] full-avail B-getters/checks present: "
+                  f"{sorted(n for n in need if n in avail)}  | MISSING: {sorted(n for n in need if n not in avail)}")
         client.plan = [(n, a) for (n, a) in client.plan if n in avail]
         if not client.plan or client.plan[-1][0] != "exit_conversation":
             client.plan.append(("exit_conversation", {}))
