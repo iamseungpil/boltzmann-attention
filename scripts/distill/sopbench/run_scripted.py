@@ -279,8 +279,8 @@ def main():
             continue
         g = task["user_goal"]; idx += 1
         o = simulate(task, "oracle", "full", ctx)
-        a = simulate(task, "ab", "full", ctx)
-        if o["ok"] and not a["ok"]:                      # GAP-13: oracle passes, A+B fails
+        a = simulate(task, "abc", "full", ctx)
+        if o["ok"] and not a["ok"]:                      # GAP: oracle passes, A+B+C fails
             missing = [n for n in o["plan"] if n not in set(a["plan"])]
             gap13.append((idx, g, missing, {k: a["ev"].get(k) for k in GK}, a["plan"]))
         elif not o["ok"]:                                # oracle fails
