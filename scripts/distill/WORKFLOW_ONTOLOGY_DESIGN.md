@@ -675,12 +675,28 @@ Mirrors run_simulation.py's task loop but self-contained:
 | L2 learned planner + transfer (§9.4) | — | ✗ later (coworker B1*/Exp-4) |
 
 ### 10.5 KNOWN ISSUES / review points (must resolve before trusting results)
-> ★ **Self-review (2026-06-01) found a BLOCKING bug**: `run_two_stage.py`'s inline eval passes
-> `func_calls` as tuples but `evaluator_function_directed_graph` expects dicts
-> `{"tool_name","arguments","content"}` paired from `interaction[i]↔[i+1]`; saved format also
-> differs from run_simulation (key `interaction`, role-stripped, `database` placement).
-> **Recommended fix: drop run_two_stage inline eval → add `--two_stage` flag to
-> `run_simulation.py` (swap only the assistant client) + reuse standard `run_evaluation.py`.**
+> ✅ **RESOLVED (2026-06-01, Track A)** — the BLOCKING eval-format bug is fixed by the
+> recommended route: `apply_two_stage_patch.py` adds `--two_stage`/`--two_stage_det` to the
+> author's `run_simulation.py` (swap ONLY the assistant client → identical save schema) and
+> the standard `run_evaluation.py` scores it UNCHANGED. Verified end-to-end on bank/full/5
+> (eval ran, produced per-task verdicts). `run_two_stage.py` is now DEPRECATED (banner added).
+>
+> **Independent re-review (2026-06-01, this session) — verified against the live clone source:**
+> - **Synthetic ChatCompletion OK** (issue #2 closed): on openai 2.38.0 the synth object's
+>   `model_dump_json()` yields `tool_calls[0].function.name/.arguments` + `.id`, matching BOTH
+>   core.py:handle_tool_calls AND run_evaluation.py L207 (`interaction[i]["tool_calls"][0]
+>   ["function"]["arguments"]`). Tested in isolation before any run.
+> - **NEW BUG the smoke surfaced** (never hit before because arm-3 had never run): `swarm/types.py`
+>   typed `Agent.client: Union[OpenAIHandler, None]` → pydantic REJECTS a TwoStageClient. Fixed
+>   by relaxing to `Optional[object]` (patch #3). Confirms arm-3 was genuinely un-executed.
+> - **User protocol now leaderboard-exact**: run_simulation's no-user-model path opens with
+>   `task["user_prompt"]` then a dummy user repeats the `user_known` dump — the author standard.
+>   (The old run_two_stage opened with the user_known dump itself = non-standard. Another reason
+>   the --two_stage route is more faithful.)
+> - **Deterministic shortcut made opt-in** (default OFF, `--two_stage_det` to enable): arm-3 now
+>   measures CLEAN L1 (planner + LLM resolver); would-be coverage is still counted as a diagnostic.
+>   Rationale: the rung-(a) shortcut emits slot-state args with NO type/semantic check, which can
+>   produce wrong calls and contaminate pass@1 (issue #3/#7). Keep it as a separate condition.
 > Full self-review = handoff `project_handoff_2026_06_01.md §4.5`.
 1. **Import (smoke hit this)**: deploy as same-dir import. `run_two_stage.py` now does
    `sys.path.insert(0, <file dir>)` + `from two_stage_client import TwoStageClient`; run from

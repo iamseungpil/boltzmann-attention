@@ -1,6 +1,14 @@
 """
 run_two_stage.py — arm-3 (L1) runner for SOPBench (Zekun Li, 2503.08669).
 
+⚠️ DEPRECATED (2026-06-01) — DO NOT USE FOR REAL NUMBERS. Its inline evaluation passes
+`func_calls` as TUPLES, but evaluator_function_directed_graph expects dict func_calls
+`{"tool_name","arguments","content"}` paired interaction[i]<->[i+1], and the saved schema
+differs from run_simulation.py. Any pass@1 it reports is unreliable. Use instead:
+    python apply_two_stage_patch.py <clone>   # adds --two_stage to run_simulation.py
+    run_simulation.py --two_stage  ->  run_evaluation.py   (author pipeline, unchanged)
+Kept only as a reference for the TwoStageClient task-loop wiring.
+
 Same task-loop as run_simulation.py but injects TwoStageClient (planner+resolver) as the
 assistant's client. Evaluates with the native rule oracle and reports pass@1 + coverage%.
 
