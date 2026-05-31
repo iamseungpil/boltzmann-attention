@@ -286,3 +286,27 @@ evidence_a_probe 방식으로 auth 호출 정책(constraint-only / innate∪cons
 - **개념 정정**: "천장 40"은 evidence_a_probe의 **`action_successfully_called`(goal 호출가능=결함아님)** 기준이지 **full-success(dirgraph 포함)** 아님. full-success 천장은 별도이고 더 낮을 수 있음. **hand-replay 2회(15·9) 모두 기준 재현 실패 → 값싼 replay로는 full-success 천장·C 확정 불가(내 한계 도달).**
 - **확정된 것**: binding=under-verification 84%(✅), 레버 A+B(✅, `by:null` 사실). **미확정**: full-success 천장, C strict 필요성(구조적으론 set_safety_box dirgraph에 login 존재·constraint엔 부재=실재하나 strict 여부는 harness 필요).
 - **신뢰 가능한 다음**: `run_simulation` **oracle 도구모드** 또는 **scripted-gather 에이전트**(A/B/C 게더를 harness에 태워 evaluator 채점) = 작은 sim 1회(재학습 아님). hand-replay(`/tmp/_verify_*.py`, 미커밋=신뢰불가)는 폐기.
+
+---
+
+## 12. ★ harness sim 결과 (`run_scripted.py`, 결정론 scripted-gather, 실제 evaluator) — 레버 확정
+
+리뷰어 선택대로 **scripted-gather 에이전트(LLM 없음)** 를 실제 `run_simulation` Swarm 루프 + `evaluator_function_directed_graph`에 태워 채점. hand-replay 실패 2건(15·9)의 원인을 디버그로 규명·수정해 **신뢰 가능한 sim 확보**:
+- **버그2개 수정**: (a) tool 결과 content가 harness에서 **문자열 `"True"`** 로 와서 evaluator의 bool 검사 실패 → `ast.literal_eval`로 복원; (b) plan **호출 순서**(getter를 login/auth보다 먼저 emit)로 의존성 위반 → existence-check→login→auth→getter→goal 순으로 수정.
+- **sanity 통과**: oracle plan(dirgraph 도구 호출) → should_T **37/48**(=천장 40 근접, 8 oracle-impossible+edge 제외). **sim 신뢰 가능.**
+
+| mode (full, 결정론) | should_T | 의미 |
+|---|--:|---|
+| oracle plan | **37/48** | sanity·천장 재현 |
+| **abc (A+B+C)** | **24/48** | 비-oracle 게더 |
+| **ab (A+B)** | **24/48** | C 제거 |
+| 실제 7B baseline | 4/48 | 현재 |
+
+**결론(실측 확정):**
+1. **under-verification = should_T binding 확정.** 검증 도구를 부르게만 하면 4→24(A+B)~37(oracle). 모델용량·게이팅 아님.
+2. **C(innate login) 불필요** — `abc==ab==24` 완전 동일. §11의 "C 필요(P5 반증)"는 **success엔 무영향=철회**. _verify_ab의 dirgraph-login은 OR-대안/authenticate가 흡수 → 마스크 = **task_constraint + condition→getter(A+B)** 로 충분.
+3. **full 모드에 B getter 전부 가용**(`get_account_balance·get_account_owed_balance·get_credit_card_info·internal_get_credit_score·login·auth`, `internal_get_database`만 부재=불필요) → **레버 배포 실현 가능**.
+4. **A+B(24) vs oracle(37) 갭 13** = A+B 게더가 일부 검증 누락(condition→getter 테이블/멀티-arg 커버리지 보강 여지) → 보강 시 천장↑.
+5. should_F는 scripted-gather가 항상 goal 호출 → 미검증. 거부축은 재학습 시 별도 보존 필요(P3/R3 14-scope 모니터).
+
+**재학습 타깃(확정)**: A+B 게더(task_constraint args-aware + condition→getter)를 `build_tbox_planner_sft`/`build_v2_prompt`에 내재화 → 모델이 검증호출을 학습 → should_T 4→최대 24(현 게더)~37(게더 보강 시). **C·mechanism A(게이팅)는 제외.** 재현 `run_scripted.py`(repo).

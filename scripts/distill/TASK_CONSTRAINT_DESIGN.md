@@ -222,7 +222,23 @@ goal_fact_checkable = [p for p in dict.fromkeys(gleaves)        # (1) NAME dedup
 - **⚠️ 정정 (free 검증 `_verify_ab`, 2026-06-02)**: 이전의 "A+B → 40/48 확정"은 **철회**. free 검증이 **A+B 불완전**을 발견:
   - **C: innate-dep 누락** — dirgraph가 `login_user`(일부 `get_account_owed_balance`)를 요구하나 task constraint에 없는 task ~8(get_loan·pay_bill·pay_loan·set_safety_box·transfer 120). **P5 "task_constraint 단독 충분" 반증** → 게더 = **task_constraint ∪ innate_dep ∪ condition→getter (A+B+C)**. (단 dirgraph가 flat OR이라 login이 strict 필수인지 구조적 확인 필요.)
   - **B 테이블 미완**: `maximum_deposit_limit`(deposit_funds) unmapped → 매핑 추가.
-  - **천장(40)은 teacher 출력으로 아직 미재현**: hand-replay 2회 모두 기준 재현 실패(`_verify_ab` de.process=15, `_verify_c` evaluator=9/48 전 정책 동일·flip0). **9·15 모두 신뢰불가**(auth 무관 사유로 dirgraph 미통과). **개념 정정**: "천장 40"은 `action_successfully_called`(goal 호출가능=결함아님) 기준이지 full-success 아님. **C strict 필요성·full-success 천장은 hand-replay로 미확정 → 실제 harness(`run_simulation` oracle모드 / scripted-gather 에이전트, 작은 sim 1회) 필요.** 확정된 것은 binding=under-verification 84%·레버 A+B(`by:null`)뿐.
+  - ~~천장 미재현~~ → **§8.2에서 harness sim으로 재현·확정.**
+
+### 8.2 ★ harness sim 확정 (`run_scripted.py`, 결정론 scripted-gather + 실제 evaluator)
+hand-replay 2회(15·9) 실패 원인 규명·수정(content `"True"`→bool 복원, 호출순서 check→login→auth→getter→goal) 후 신뢰 sim 확보. **oracle plan sanity = should_T 37/48**(천장 재현).
+
+| mode (full, 결정론) | should_T |
+|---|--:|
+| oracle plan (sanity) | **37/48** |
+| **abc (A+B+C)** | **24/48** |
+| **ab (A+B)** | **24/48** |
+| 실제 7B baseline | 4/48 |
+
+- **under-verification = binding 확정**: 검증호출만 하면 4→24~37.
+- **C(innate login) 불필요·철회**: `abc==ab==24`(완전 동일) → §8.1의 "C 필요(P5 반증)"는 success 무영향 → **마스크 = task_constraint + condition→getter(A+B)** 로 확정, C 제외.
+- **full 모드 B getter 전부 가용** → 레버 배포 실현 가능.
+- **A+B(24) vs oracle(37) 갭 13** = 게더 일부 누락 → condition→getter/멀티-arg 커버리지 보강 시 천장↑.
+- should_F는 scripted-gather 미검증(항상 goal 호출) → 재학습 시 거부축 별도 보존(P3, 14-scope).
 
 → **구현 1순위 = B(condition→getter 온톨로지 induction) + A(args-aware 게더)**. mechanism A(게이팅 경량화, §7)는 should_T 비-binding이므로 부차(프롬프트 정합으로 흡수).
 
