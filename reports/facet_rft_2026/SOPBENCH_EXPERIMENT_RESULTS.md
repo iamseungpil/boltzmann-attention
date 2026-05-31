@@ -95,6 +95,7 @@ bank `should_succeed=True` 43 유니크 중 **저자 모델(GPT-5/o4-mini/Claude
 **11개(26%)는 어떤 프런티어 모델도 0% = 구조적 불가** (예 `cancel_credit_card` 0/3·`pay_bill_with_credit_card` 0/2:
 도메인 메서드가 `credit_cards`를 dict 가정하나 데이터는 list → 카드 lookup 영구 실패). ⇒ **bank should_T 실효 천장
 ≈74%**(100% 아님). L0/arm-0 천장은 이 32개 기준 해석. **수치 낮음을 전부 방법 탓 말 것.** 상세 = `WORKFLOW_ONTOLOGY_DESIGN §11.13`.
+> **정밀 갱신(2026-06-02, 아래 "bank leaderboard 실측" 블록 참조)**: instance 기준(48)으로는 불가 = **14개**(8 PartA 코드결함 + 6 PartB cred-부재). 정직 천장 = **34/48** (full·oracle 공통). 위 "11개/≈74%"는 unique(43) 기준 근사·구버전 — 정밀치는 아래 블록·`BUGREPORT Part A/B`.
 
 ### bank 추가 분석 (should_succeed 분해)
 
@@ -105,6 +106,23 @@ bank `should_succeed=True` 43 유니크 중 **저자 모델(GPT-5/o4-mini/Claude
 
 - should_succeed=False(거부 케이스) 쪽이 높음 = 모델이 소극적으로 행동하면 거부 케이스를 "우연히" 통과 가능. 그러나 True/False 양쪽 다 실질 성능(0이 아님) → trivial-refusal 게이밍 아님.
 - True(실제 실행 필요) 케이스의 성능이 낮음 = 실제 task 수행이 어려운 주 원인. arm-3/4의 향상이 이 쪽에서 나와야 의미 있음.
+
+### ★ bank leaderboard 실측 (저자 released 59 files, 2026-06-02, `_lbmax`/`_lboracle`/`_ceil`) — 천장 권위 기록
+overall pass@1 = (should_T+should_F)/134. should_T 별도 표기. **모드별 최고 + should_T 실현 최대치:**
+
+| 모드 | overall 최대 (모델) | should_T 최대 (별도 모델) | should_F 최대 |
+|---|---|---|---|
+| **full** | **o4-mini-high 76.9% (103/134)** [sT 25·sF 78] | gemini-2.0-flash-thinking(react) **27/48** | 78/86 |
+| **oracle** | **gpt-5 79.9% (107/134)** [sT 22·sF **85**] | llama3.1-70b(react) **31/48** | gpt-5 85/86 |
+
+full 상위: o4-mini-high 76.9 · gemini-thinking 73.1 · gpt-5 71.6 · gpt-4.1 69.4 · claude-3.5 67.2.
+oracle 상위: gpt-5 79.9 · gpt-4o 76.9 · qwen2.5-32b(react) 76.9 · llama3.1-70b(react) 75.4 · claude-3.5 75.4.
+
+**★천장 해석 (정정·확정):**
+- **should_T 실현 최대 = full 27 / oracle 31** — 둘 다 **40에 한참 못 미침**. 즉 **"40"은 에이전트(full·oracle 포함) 천장이 아니라** `evidence_a_probe`(전제 강제충족=DB에서 자격증명 주입하는 프로버)의 **"코드결함 아닌 task 수"**(48−8 PartA).
+- **정직한 should_T 천장 ≈ 34** = 48 − 8(PartA 코드결함) − 6(PartB cred-부재, login 필수인데 자격증명 미제공·미노출). **full·oracle 공통**(oracle 도구모드는 자격증명을 주지 않으므로 6 PartB 동일 차단).
+- oracle>full(실현 31 vs 27)은 **천장이 높아서가 아니라 도구선택 부담↓로 천장에 더 근접**. 14개(8+6)는 전 모델·전 모드 0 → should_T를 48→34로 누름.
+- 레버(검증 게더) 타깃 = full에서 27→최대 34 헤드룸. gpt-5 oracle은 거부축(85/86)에 치중해 should_T 22로 낮음(전체 1위지만 should_T는 중위).
 
 ---
 
