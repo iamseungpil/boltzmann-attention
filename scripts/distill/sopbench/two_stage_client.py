@@ -186,7 +186,16 @@ class TwoStageClient:
     def _plan_v2(self, messages, tools) -> str:
         ops = self.abox.get("operators", {})
         tool_names = [t.get("function", {}).get("name", "") for t in tools]
-        # operator affordances: name — needs [precondition preds] — gives [produces]
+        # established establishable-predicates: an operator that was called and did NOT error/
+        # return False establishes its `produces` (deterministic gate-status, computed from history).
+        established = set()
+        for m in messages:
+            if m.get("role") == "tool":
+                nm = m.get("tool_name")
+                c = str(m.get("content", ""))
+                if nm in ops and "Error" not in c and c.strip() not in ("False", "false", "None", ""):
+                    established.update(ops[nm].get("produces", []))
+        # operator affordances + READY/BLOCKED status (establishable preconditions only)
         est_map = {}
         lines = []
         for t in tools:
@@ -200,7 +209,13 @@ class TwoStageClient:
                 est_map.update(est)
                 needs = ", ".join(dict.fromkeys(preds)) or "nothing"
                 gives = ", ".join(op.get("produces", [])) or "the goal/result"
-                lines.append(f"- {nm}: needs [{needs}]; gives [{gives}]")
+                unmet = [p for p, a in est.items() if p not in established]
+                if unmet:
+                    blockers = ", ".join(sorted({est[p] for p in unmet}))
+                    status = f"BLOCKED — first call: {blockers}"
+                else:
+                    status = "READY (establishable preconditions satisfied)"
+                lines.append(f"- {nm}: needs [{needs}]; gives [{gives}]  => {status}")
             else:
                 desc = t.get("function", {}).get("description", "")[:80]
                 lines.append(f"- {nm}: {desc}")
@@ -232,14 +247,14 @@ class TwoStageClient:
             f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
             f"HISTORY:\n{hist_str}\n\n"
             "RULES:\n"
-            "- Call a tool ONLY when its preconditions are already established. If a needed "
-            "precondition (e.g. logged_in_user) is not yet established, FIRST call the tool that "
-            "establishes it.\n"
-            "- Prefer the cheapest path: never repeat a call whose result you already have; avoid "
-            "tools you don't need for the goal.\n"
-            "- If a required precondition is a fact that is FALSE and no tool can establish it, "
-            "output STOP (refusing is the correct answer — do not call the goal tool).\n"
-            "- When the goal tool's preconditions are all established, call the goal tool.\n\n"
+            "- NEVER call a tool marked BLOCKED. Call its 'first call' tool instead. Only ever "
+            "call a tool marked READY.\n"
+            "- Prefer the cheapest path: never repeat a call whose result you already have (check "
+            "HISTORY); call only the tools needed to reach the goal.\n"
+            "- If the goal tool stays BLOCKED because a required FACT is false and no tool can fix "
+            "it, output STOP (refusing is correct — do not call the goal tool).\n"
+            "- When the goal tool is READY and not yet successfully called, call the goal tool, "
+            "then STOP.\n\n"
             "Output ONLY one tool name from the list, or STOP. Nothing else:")
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
