@@ -1,6 +1,10 @@
-# ⏸ HOLD — evidence-B strongly corroborates; evidence-A pending (do NOT file yet)
+# ✅ FILE-READY — evidence-A confirms 8 unsolvable bank instances (do 2 manual checks first)
 
-> **STATUS: DO NOT SUBMIT YET (measured 2026-06-01 PM, remote GPU0 server).**
+> **STATUS: READY (measured 2026-06-01 PM, remote GPU0, RC0). Title+Body+Root-cause finalized
+> below.** Before posting, do the 2 unchecked items in the checklist (re-search dup issues; optional
+> appendix). The Title/Body/Root-cause section is the actual issue text to paste.
+> Prior status line (kept for history):
+> **DO NOT SUBMIT YET (measured 2026-06-01 PM, remote GPU0 server).**
 > `offline_crosscheck.py` over the 53 shipped `output/bank/ast_*.json` (authors' embedded
 > `evaluations[].success`, **RC0, 2497 should_succeed=true records, 48 distinct instances,
 > seen=52 each**): **14 instances across 6 goals are NEVER passed by ANY released model** —
@@ -98,18 +102,20 @@ Happy to send a PR for (1) if you point us at the intended schema. MRE script + 
 
 ---
 
-## Pre-post checklist (must all be ✅ before filing)
-- [ ] `mre_bank_impossible.py` ran on a **clean** Leezekun/SOPBench clone (no our patches) in py≥3.10.
-- [ ] N_impossible ≥ 1 with the oracle replay genuinely failing (not an arg-sourcing artifact —
-      confirm by also trying `--toposort` and by spot-checking one task's replayed `content`).
-- [ ] The failing sub-check is **database_match** (or constraint), NOT `dirgraph_satisfied`
-      (a dirgraph mismatch could be a replay-order artifact, not a benchmark bug — investigate
-      before claiming).
-- [ ] Root-cause line(s) located in source and the dict-vs-list mismatch confirmed by reading
-      the method (not just grep).
-- [ ] Cross-check shows 0 author-model passes for the impossible goals.
-- [ ] Re-searched Leezekun/SOPBench issues at post time for any new duplicate.
-- [ ] One task fully narrated end-to-end (inputs → calls → evaluator dict) in an appendix.
+## Pre-post checklist
+- [x] Ran on a clean Leezekun/SOPBench clone (`/home/woori/scratch/SOPBench`), py3.12, RC0.
+- [x] Oracle genuinely fails: `evidence_a_probe.py` satisfies preconditions then calls the goal
+      with GT args → 8 instances fail (cancel ×6 `return False`; pay_bill_with_cc ×2 `KeyError`).
+      Order-independent (not a replay-order artifact) — this is why we use the probe, not the
+      graph-replay MRE.
+- [x] Failing mechanism is the method itself (returns False / raises), not a `dirgraph_satisfied`
+      ordering artifact. (The old `mre_bank_impossible.py` graph-replay over-reports via ordering;
+      do NOT cite it.)
+- [x] Root cause located + confirmed by reading the methods: `bank.py` L209–213 / L189–190;
+      data is list-of-dict (e.g. john_doe), methods assume dict.
+- [x] Cross-check (B): 0 of ~26 released models pass these 8 instances.
+- [ ] **MANUAL before posting**: re-search Leezekun/SOPBench issues for a new duplicate.
+- [ ] **MANUAL before posting**: paste the one-task end-to-end appendix (john_doe cancel) if desired.
 
 ## Honest caveats / failure modes to rule out first
 - **Arg-sourcing**: our replay resolves args from `user_known`+account row. If the *intended*
