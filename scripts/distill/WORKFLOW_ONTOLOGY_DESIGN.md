@@ -1,3 +1,5 @@
+> ⚠️ **마스터 = `EXPERIMENT_DESIGN.md`** (목표·실험 순서·헤드라인 지표 권위본). 이 문서는 **detail**(TBox/ABox 전체 스펙·planner L0/L1/L2·§9 LLM-in-loop·prior art). 방향은 마스터에서 고정.
+
 # Full Workflow Ontology — design (2026-05-30)
 
 > ### ★ EXPERIMENT RE-CENTERED — LLM-in-loop (2026-05-31, integrated)

@@ -1,3 +1,5 @@
+> ⚠️ **마스터 = `EXPERIMENT_DESIGN.md`** (목표·실험 순서·헤드라인 지표 권위본). 이 문서는 **detail**(should_T 병목 진단 + §8.6 전수진단 + §8.7 학습 사다리 상세 = Rung1-2 구현). 방향은 마스터에서 고정.
+
 # Task-Instance Constraint 설계서 — should_T 병목(과잉 게이팅 + full-tool 부담) 해소
 
 > 상태: **(b) 설계 thesis 재정립 (2026-06-02) — §8.5.★가 최우선 권위본. 리뷰 `TASK_CONSTRAINT_IMPL_REVIEW.md`(C1-C6) 반영.**
