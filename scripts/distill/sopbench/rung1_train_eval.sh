@@ -28,6 +28,9 @@ wc -l $OUT/lodo_train_s1_scratch.jsonl $OUT/lodo_train_alias_s3_scratch.jsonl >>
 # 1) train 2 regimes SOLO (GPU0 s1_scratch, GPU1 alias_s3_scratch) — no OOM
 cd $REPO/scripts/distill
 COMMON="--base-model Qwen/Qwen2.5-7B-Instruct --device cuda:0 --max-seq-len 2048 --epochs 3 --lora-r 16 --val-frac 0.05 --skip-overlong"
+# ★remove STALE train_meta.json from any prior run (else the wait-loop below false-triggers
+#  on old metas, skips training, and evals stale adapters — observed 2026-06-02). Force fresh.
+rm -f $RUNS/qwen7b_tbox_s1_scratch_lodo_bank/train_meta.json $RUNS/qwen7b_tbox_alias_s3_scratch_lodo_bank/train_meta.json
 echo "=== train $(date) ===" >> $SUM
 CUDA_VISIBLE_DEVICES=0 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True nohup $PY $TR $COMMON \
   --train-jsonl $OUT/lodo_train_s1_scratch.jsonl --out-dir $RUNS/qwen7b_tbox_s1_scratch_lodo_bank > $OUT/train_s1_scratch.log 2>&1 &
