@@ -28,8 +28,10 @@ done
 cd $REPO && $PY apply_two_stage_patch.py $CLONE >> $SUM 2>&1
 echo "clone client make_alias_map=$(grep -c make_alias_map $CLONE/scripts/two_stage_client.py)" >> $SUM
 
-# serve on GPU1 (GPU0 may hold a wedged/engine-init-failed vLLM that pkill cannot reap).
+# serve on GPU1 + port 9001 (GPU0 may hold a wedged engine-init-failed vLLM that pkill cannot
+# reap and that may still hold port 9000). This fully dodges the wedged GPU0 process.
 SERVE_GPU=1
+SERVE_PORT=9001
 teardown () {
   pkill -9 -f "vllm serve Qwen/Qwen2.5-7B" 2>/dev/null
   pkill -9 -f "tau2_vllm_env/bin/python" 2>/dev/null
@@ -51,18 +53,18 @@ run_one () {
     echo "[$r] already evaluated, skip" >> $SUM; return; fi
   teardown
   CUDA_VISIBLE_DEVICES=$SERVE_GPU nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
-    --lora-modules tbox_v2=$AD --port 9000 --dtype bfloat16 --gpu-memory-utilization 0.85 \
+    --lora-modules tbox_v2=$AD --port $SERVE_PORT --dtype bfloat16 --gpu-memory-utilization 0.85 \
     --max-model-len 8192 --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code \
     > $OUT/serve_$r.log 2>&1 &
   for i in $(seq 1 100); do
-    curl -s -m 3 http://localhost:9000/v1/models 2>/dev/null | grep -q tbox_v2 && break
+    curl -s -m 3 http://localhost:$SERVE_PORT/v1/models 2>/dev/null | grep -q tbox_v2 && break
     sleep 4
   done
-  curl -s -m 3 http://localhost:9000/v1/models 2>/dev/null | grep -q tbox_v2 || {
+  curl -s -m 3 http://localhost:$SERVE_PORT/v1/models 2>/dev/null | grep -q tbox_v2 || {
     echo "[$r] SERVE FAILED (see serve_$r.log)" >> $SUM; teardown; return; }
   echo "[$r] endpoint up, simulating $(date)" >> $SUM
   cd $CLONE
-  env $envv SOPBENCH_VLLM_BASE_URL=http://localhost:9000/v1 $PY run_simulation.py \
+  env $envv SOPBENCH_VLLM_BASE_URL=http://localhost:$SERVE_PORT/v1 $PY run_simulation.py \
     --domain bank --assistant_model tbox_v2 --tool_call_mode fc --tool_list full \
     --two_stage --two_stage_v2 --ont_dir $CLONE/induced --output_dir $OUT/eval_$r --env_mode prompt \
     > $OUT/sim_$r.log 2>&1
