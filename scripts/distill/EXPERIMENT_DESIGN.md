@@ -19,6 +19,11 @@
   3. **should_F gross** gain/loss(net 금지).
 - **평가 세팅**: 현재 정적-user(`default_response` 덤프, leaderboard 정합). **멀티턴 user_sim**(`--user_model`)은 더 어려운 robustness 축(천장 불변 — user_sim도 user_known만 앎; PartB cred-부재 해소 안 됨).
 - **ablation(매 rung)**: 빈/틀린 ABox→붕괴(온톨로지 실사용) · L0 vs L1(in-context) vs L2(학습) · **alias on/off**.
+- **★★TBox/ABox 분리: 강제 메커니즘 + 증명 (transfer 주장의 근간)**: "TBox만 학습·ABox 제외"는 *하드 보장*이 아니라 **3기둥으로 강제 + 전이/ablation으로 증명**.
+  - **강제 3기둥**: ① **loss=assistant-only**(ABox=정책·도구affordance·요청은 *마스킹된 프롬프트*에, dirgraph 스텝 target만 supervise=labels -100 except assistant) ② **alias**(도구명 별칭화→lexical 암기 차단·NL설명↔도구 의미매칭 강제; ⚠️s1=실도구명 타깃 노출→누수 가능→**헤드라인은 alias_s3/alias-Δ**) ③ **다중도메인 LODO 혼합**(6 도메인 동시 → 암기로 못 풀어 *공통 불변량=절차 스킬*만 추출; 단일도메인 ABox 과적합 불가).
+  - **증명**: held-out bank 전이(재학습0) + **ABox-ablation**(빈/틀린 ABox→붕괴 = weight에 안 구워짐) + **alias on/off Δ**.
+  - **★혼합이 강화하는 *축* (실측 분해)**: 6도메인 혼합 = **게더 TBox 강화·전이 성공**(dirgraph 36-45/48 held-out) **but 순서 게이트 미해결**(BOTH 0-2) → 혼합은 *공통구조서 배울 수 있는 축*(게더)만 강화; 순서 경합은 사다리(①②③) 필요. "혼합이 더 강하다"는 **게더 축에 한해 사실**.
+  - **★개수 효과 = 미측정 → 실험**: **도메인-수 스케일링(2/4/6 → bank 전이 BOTH·게더)** 우상향이면 "혼합→TBox 강화" 정량 입증 + **그래프충실도 vs 구조유사도**(보간 vs 일반화 판별; bank가 학습도메인 near-dup면 전이=보간으로 주장 약화). 다양성 > 개수, negative transfer 주의.
 - **★★결정론 도구 offload 경계 (검증-타당성 북극성; "어디까지 도구로 빼도 되나" 흔들리면 이것부터)**: 작은 모델이 확률적으로 할루시네이션하는 부분은 결정론 도구로 빼는 게 옳다(ReAct·verifier·PAL 표준). **단 경계 = 사실(fact) vs 절차(procedure)**.
   - ✅ **사실 offload (권장·표준)**: "precond X가 *실제로 충족됐나*"의 검증 = 결정론 도구(할루시네이션 0). 사실-노이즈 제거.
   - ❌ **절차 offload (= 답지 = 기여 자체, 금지)**: "이 goal엔 *어떤* precond가 필요한가 + 순서"(=dirgraph/TBox)를 함수가 쥐면 = NL→dirgraph 추론을 외부가 대신함 = **L0**. 모델은 도구호출기로 전락, 전이(ABox swap 무재학습) 주장 붕괴.
