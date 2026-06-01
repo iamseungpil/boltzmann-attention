@@ -28,12 +28,14 @@ done
 cd $REPO && $PY apply_two_stage_patch.py $CLONE >> $SUM 2>&1
 echo "clone client make_alias_map=$(grep -c make_alias_map $CLONE/scripts/two_stage_client.py)" >> $SUM
 
+# serve on GPU1 (GPU0 may hold a wedged/engine-init-failed vLLM that pkill cannot reap).
+SERVE_GPU=1
 teardown () {
   pkill -9 -f "vllm serve Qwen/Qwen2.5-7B" 2>/dev/null
   pkill -9 -f "tau2_vllm_env/bin/python" 2>/dev/null
-  # poll until GPU0 memory actually released (vLLM workers free ~40GB slowly)
+  # poll until the SERVE_GPU memory is released (the reapable serve we just started)
   for i in $(seq 1 40); do
-    u=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1)
+    u=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits --id=$SERVE_GPU)
     [ "${u:-9999}" -lt 2000 ] && break
     sleep 4
   done
@@ -48,7 +50,7 @@ run_one () {
   if grep -q "Mean Pass Rate" "$OUT/evalout_$r.txt" 2>/dev/null; then
     echo "[$r] already evaluated, skip" >> $SUM; return; fi
   teardown
-  CUDA_VISIBLE_DEVICES=0 nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
+  CUDA_VISIBLE_DEVICES=$SERVE_GPU nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
     --lora-modules tbox_v2=$AD --port 9000 --dtype bfloat16 --gpu-memory-utilization 0.85 \
     --max-model-len 8192 --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code \
     > $OUT/serve_$r.log 2>&1 &
