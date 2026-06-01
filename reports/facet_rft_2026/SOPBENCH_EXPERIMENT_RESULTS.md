@@ -424,7 +424,15 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **★다음 Exp-4e = ACT 전제조건 가드**(resolver: required 미게더면 ACT 무효→게더 강제 → BOTH 직접 보장) + BOTH-직접 RFT. 설계 `TASK_CONSTRAINT_DESIGN §8.6.9`.
 > - 인프라: 2잡/GPU0(48GB)=OOM(s3_gate, 한 잡 26.9GB) → solo 재학습+expandable_segments. eval serve engine-init은 학습 직후 전이상태→GPU free 후 정상.
 
-| Exp-4e | gate-token + ACT 전제조건 가드 (resolver) | fc/full | — | — | 예정 (헤드라인=dirgraph+∩goal+; s1_gate 2→다수 목표) |
+| Exp-4e | ~~gate-token + ACT 전제조건 가드 (resolver)~~ → **SUPERSEDED** | — | — | — | ⛔ 폐기: "가드"가 아니라 **"게더 미완이면 ACT 금지"를 *학습*** 으로 피벗(§3 학습 사다리). 아래 Exp-4f(Rung1)로 대체. |
+| Exp-4f (Rung1 ①) | **readiness-gate SFT** (per-step `ready=<T/F>; 행동`; s1_scratch + alias_s3_scratch, LODO holdout=bank) | fc/full | — | **PENDING (학습 중)** | 🔄 2026-06-01 학습 중(~21:20 KST 완료 예상). 완료 시 BOTH 본 블록에 기록. |
+
+> **★★Exp-4f — Rung1 ① readiness-gate SFT (2026-06-01, 학습 중)** — `EXPERIMENT_DESIGN §3` / `TASK_CONSTRAINT_DESIGN §8.7` 권위본.
+> **사다리 피벗**: Exp-4d gate-token이 act/STOP 비대칭은 완화했으나 **BOTH(게더∩act) 0→2 정체**(ACT 쉬워지니 게더 덜 함) → 근본 = **게더-act 경합(순서)**. 해법 = "순서를 *학습*"(가드 아님): per-step readiness 게이트 토큰 `ready=false; <tool>`(미완→ACT 구조적 금지) / `ready=true; all_verified=<T/F>; ACT|STOP`(완료 후 분기). 데이터 검증=ready=false 뒤 ACT 0건.
+> - **학습**: 7B LoRA r16, grad-ckpt, seqlen2048, ep3, LODO holdout=bank, 6 non-bank **2382예제/regime**. 2 regime SOLO(GPU0 `s1_scratch`=source1+gate+scratch / GPU1 `alias_s3_scratch`=alias+source3+gate+scratch). 어댑터 `sft_runs/qwen7b_tbox_{s1,alias_s3}_scratch_lodo_bank`.
+> - **헤드라인**: should_T **BOTH(dirgraph_satisfied ∩ action_called_correctly)** + should_F gross (총점 금지). **격파 기준선 = gate-token BOTH s1_gate 2 / alias_s3_gate 1.**
+> - **결과**: ⏳ 학습 중 → 완료 시 `rung1_train_eval.sh` 자동 eval(`SOPBENCH_GATE=1 SOPBENCH_SCRATCHPAD=1`)이 BOTH 헤드라인 산출 → 본 블록에 기록.
+> - **다음**: BOTH 2→다수면 readiness-게이트 성공 → ② DPO(`build_dpo_pairs`+`dpo_train`, init=Rung1 어댑터, GT-유도 ordering-violating 음성쌍) → ③ RFT GRPO(`sopbench_reward`+`grpo_train_sopbench`, reward=BOTH+dirgraph−조기ACT). 정체면 ② DPO 먼저. ⚠️③ RFT `assemble`는 goal당 첫 task만 매핑(`recs[0]`)=rollout↔task 정렬 갭 → Rung2 진입 시 per-task isolation 필요.
 
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
