@@ -35,6 +35,9 @@ SERVE_PORT=9001
 teardown () {
   pkill -9 -f "vllm serve Qwen/Qwen2.5-7B" 2>/dev/null
   pkill -9 -f "tau2_vllm_env/bin/python" 2>/dev/null
+  # kill -9 leaves vLLM /dev/shm segments that make the NEXT engine init fail + wedge the GPU;
+  # clean them so each regime's serve starts fresh.
+  rm -f /dev/shm/vllm* /dev/shm/nccl* 2>/dev/null
   # poll until the SERVE_GPU memory is released (the reapable serve we just started)
   for i in $(seq 1 40); do
     u=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits --id=$SERVE_GPU)
