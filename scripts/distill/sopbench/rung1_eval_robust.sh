@@ -50,6 +50,7 @@ for attempt in 1 2 3; do
 done
 [ "$ok" -ne 1 ] && { echo "[$r] SERVE FAILED after 3 retries"; clean; exit 1; }
 
+rm -rf $OUT/eval_${r}_scratch_re   # ★clear leftover: a serve/sim failure yields honest NO DATA, never stale prev-run JSON
 cd $CLONE
 env SOPBENCH_GATE=1 SOPBENCH_SCRATCHPAD=1 $envv SOPBENCH_VLLM_BASE_URL=http://localhost:$port/v1 $PY run_simulation.py \
   --domain bank --assistant_model tbox_v2 --tool_call_mode fc --tool_list full \
@@ -59,13 +60,20 @@ $PY run_evaluation.py --domain bank --assistant_model tbox_v2 --tool_call_mode f
   --output_dir $OUT/eval_${r}_scratch_re > $OUT/evalout_${r}_scratch_re.txt 2>&1
 clean
 $PY - "$r" <<'PYEOF'
-import json, glob, sys
+import json, glob, sys, os
 r = sys.argv[1]
 def e0(x):
     e = x.get("evaluations"); return (e[0] if e else {}) if isinstance(e, list) else (e or {})
 fs = glob.glob(f'/home/woori/scratch/sft_alias_run/eval_{r}_scratch_re/bank/*.json')
 if not fs:
-    print(f"{r}: NO DATA"); sys.exit()
+    print(f"[NO DATA] {r}: no eval JSON (serve/sim failed) — NOT stale, just absent"); sys.exit()
+# ★FRESHNESS GUARD: eval result MUST be newer than the adapter it claims to evaluate.
+ad = f'/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/sft_runs/qwen7b_tbox_{r}_scratch_lodo_bank/adapter_model.safetensors'
+if os.path.exists(ad) and os.path.getmtime(fs[0]) <= os.path.getmtime(ad):
+    import time
+    print(f"[STALE!! REJECT] {r}: eval JSON ({time.ctime(os.path.getmtime(fs[0]))}) older than adapter "
+          f"({time.ctime(os.path.getmtime(ad))}) = previous-run data. ABORT — do not report."); sys.exit()
+print(f"[FRESHNESS OK] {r}: eval newer than adapter")
 d = json.load(open(fs[0]))
 T = [x for x in d if e0(x).get("action_should_succeed")]
 F = [x for x in d if not e0(x).get("action_should_succeed")]

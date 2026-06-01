@@ -54,6 +54,7 @@ eval_one () {
   local AD=$RUNS/qwen7b_tbox_${r}_scratch_lodo_bank
   echo "[$r] gpu=$gpu env=[GATE=1 SCRATCHPAD=1 $envv] $(date)" >> $SUM
   [ -f "$AD/adapter_model.safetensors" ] || { echo "[$r] NO adapter" >> $SUM; return; }
+  rm -rf $OUT/eval_${r}_scratch   # ★clear leftover: serve-fail -> headline gets honest NO DATA, never stale prev-run JSON
   CUDA_VISIBLE_DEVICES=$gpu nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
     --lora-modules tbox_v2=$AD --port $port --dtype bfloat16 --gpu-memory-utilization 0.85 \
     --max-model-len 8192 --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code \
@@ -76,12 +77,17 @@ wait
 
 echo "=== RUNG1 HEADLINE (should_T dirgraph+ INT goal+) $(date) ===" >> $SUM
 $PY - >> $SUM 2>&1 <<'PYEOF'
-import json,glob
+import json,glob,os,time
 def e0(x):
     e=x.get("evaluations"); return (e[0] if e else {}) if isinstance(e,list) else (e or {})
+RUNS="/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/sft_runs"
 for r in ["s1","alias_s3"]:
     fs=glob.glob(f'/home/woori/scratch/sft_alias_run/eval_{r}_scratch/bank/*.json')
     if not fs: print(f"{r}_scratch: NO DATA"); continue
+    # ★FRESHNESS GUARD: eval JSON must be newer than the adapter it evaluated, else it is prev-run data.
+    ad=f"{RUNS}/qwen7b_tbox_{r}_scratch_lodo_bank/adapter_model.safetensors"
+    if os.path.exists(ad) and os.path.getmtime(fs[0])<=os.path.getmtime(ad):
+        print(f"{r}_scratch: STALE!! REJECT (eval {time.ctime(os.path.getmtime(fs[0]))} <= adapter {time.ctime(os.path.getmtime(ad))}) = previous-run data"); continue
     d=json.load(open(fs[0])); T=[x for x in d if e0(x).get("action_should_succeed")]; F=[x for x in d if not e0(x).get("action_should_succeed")]
     both=sum(1 for x in T if e0(x).get("dirgraph_satisfied") and e0(x).get("action_called_correctly"))
     print(f"{r}_scratch: should_T succ={sum(bool(e0(x).get('success')) for x in T)}/48 "
