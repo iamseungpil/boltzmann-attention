@@ -115,7 +115,7 @@ def _render_precond_mod(tree, predicates, out, est):
 
 def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines, slot_keys,
                     op_descs=None, observed=None, goal_name=None, goal_constraint=None,
-                    alias_map=None, source=1, gate_token=False):
+                    alias_map=None, source=1, gate_token=False, scratchpad=False):
     """Build the arm-3v2/arm-4a planner prompt. `op_names` = the exact tool-name order shown to
     the model. `established` = establishable preds already satisfied. `observed` = {fact_pred ->
     bool} learned from prior internal-check results in history (fact-visibility, arm-4a v2).
@@ -183,14 +183,24 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
     req_str = S(str(user_req))
     # §8.6 gate-token: the TERMINAL decision is a CONSTANT token (ACT / STOP), not the rare,
     # per-task-varying goal name — removing the asymmetry where constant STOP beats varying-goal.
-    last_rule = ("- When all required conditions are verified and the goal is READY, output ACT "
-                 "(do NOT name the goal tool); if a required fact is false, output STOP.\n"
-                 if gate_token else
-                 "- When the goal tool is READY and not yet successfully called, call the goal tool, "
-                 "then STOP.\n")
-    out_line = ("Output a verification tool name to call, or ACT (all verified -> run goal), or "
-                "STOP (refuse). Nothing else:" if gate_token
-                else "Output ONLY one tool name from the list, or STOP. Nothing else:")
+    if gate_token and scratchpad:
+        # §8.7 Rung1: educated inductive scratchpad — emit the AND-aggregation as one explicit
+        # boolean token BEFORE the branch, so the terminal decision is low-globality (Abbe NeurIPS24).
+        last_rule = ("- If a required check is still ungathered, call it (keep gathering).\n"
+                     "- Once ALL required checks are gathered: output `all_verified=<true|false>` "
+                     "(the AND of every required check's result), then on the same line ACT (run the "
+                     "goal — only if all_verified=true) or STOP (refuse — if all_verified=false).\n")
+        out_line = ("Output a verification tool name to call, OR the terminal decision in the form "
+                    "`all_verified=<true|false>; <ACT|STOP>`. Nothing else:")
+    elif gate_token:
+        last_rule = ("- When all required conditions are verified and the goal is READY, output ACT "
+                     "(do NOT name the goal tool); if a required fact is false, output STOP.\n")
+        out_line = ("Output a verification tool name to call, or ACT (all verified -> run goal), or "
+                    "STOP (refuse). Nothing else:")
+    else:
+        last_rule = ("- When the goal tool is READY and not yet successfully called, call the goal tool, "
+                     "then STOP.\n")
+        out_line = "Output ONLY one tool name from the list, or STOP. Nothing else:"
     if source == 3:
         return (
             "You are a planning agent. Pick the SINGLE next tool to call, or STOP.\n\n"
@@ -266,6 +276,7 @@ class TwoStageClient:
         self._alias = bool(os.environ.get("SOPBENCH_ALIAS"))
         self._source = int(os.environ.get("SOPBENCH_SOURCE", "1"))
         self._gate = bool(os.environ.get("SOPBENCH_GATE"))   # §8.6 gate-token (ACT/STOP terminal)
+        self._scratch = bool(os.environ.get("SOPBENCH_SCRATCHPAD"))  # §8.7 Rung1 educated scratchpad
         self._alias_map = None        # {real -> alias}, built once per task (reset clears)
         self._alias_inv = None        # {alias -> real}, to de-alias the planner output
         # coverage counters (cumulative across the run)
@@ -427,17 +438,26 @@ class TwoStageClient:
         prompt = build_v2_prompt(self.abox, tool_names, established, user_req, policy,
                                  hist, set(self._slot_state.keys()), op_descs, observed,
                                  goal_name=gname, goal_constraint=gconstr,
-                                 alias_map=amap, source=self._source, gate_token=self._gate)
+                                 alias_map=amap, source=self._source, gate_token=self._gate,
+                                 scratchpad=self._scratch)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
             temperature=0.0, top_p=0.01, max_tokens=24)
         raw = (resp.choices[0].message.content or "").strip()
         low = raw.lower()
-        if "stop" in low or "refuse" in low or "exit_conversation" in low:
+        # §8.6/8.7 gate-token & scratchpad: terminal decision = last ACT/STOP token in the output
+        # (handles bare "ACT"/"STOP" and the scratchpad chain "all_verified=<t/f>; <ACT|STOP>").
+        if self._gate:
+            toks = low.replace(";", " ").replace(":", " ").replace("=", " ").split()
+            dec = next((t for t in reversed(toks)
+                        if t in ("act", "stop", "refuse", "exit_conversation")), None)
+            if dec == "act":
+                return self._goal_name or "STOP"          # ACT -> this task's goal tool
+            if dec in ("stop", "refuse", "exit_conversation"):
+                return "STOP"
+            # else: a gather step (tool name) -> fall through to copy-grounded matching
+        elif "stop" in low or "refuse" in low or "exit_conversation" in low:
             return "STOP"
-        # §8.6 gate-token: planner emits the constant "ACT" -> resolve to THIS task's goal tool.
-        if self._gate and raw.rstrip(".,:'\" ").upper() == "ACT":
-            return self._goal_name or "STOP"
         # match against the SHOWN names (aliases when alias is on), then de-alias to the real tool.
         shown = [amap[n] for n in tool_names] if amap else tool_names
         hits = [s for s in shown if s and s in raw]

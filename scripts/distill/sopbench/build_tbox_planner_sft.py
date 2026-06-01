@@ -89,7 +89,7 @@ GETTER_BY_DOMAIN = {
 
 
 def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, source=1,
-                 use_gate=False):
+                 use_gate=False, use_scratch=False):
     from env.variables import domain_assistant_keys, domain_keys
     from env.task import task_default_dep_full, task_initializer, get_default_dep_full
     from swarm.util import function_to_json
@@ -210,11 +210,20 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 shown = tool_names[s:] + tool_names[:s]
                 prompt = build_v2_prompt(ont, shown, established, user_req, policy,
                                          list(history), set(slots.keys()), op_descs, observed,
-                                         alias_map=amap, source=source, gate_token=use_gate)
+                                         alias_map=amap, source=source, gate_token=use_gate,
+                                         scratchpad=use_scratch)
                 target = next_decision()
                 _seq.append(target)
-                # alias the supervised target so it matches the aliased tool list (STOP/ACT are constants)
-                tgt_out = target if (amap is None or target in ("STOP", "ACT")) else amap.get(target, target)
+                # §8.7 Rung1 educated scratchpad: terminal target = AND-aggregation token + branch
+                # (all_verified = AND of required checks' observed truths). gather steps unchanged.
+                if use_scratch and target in ("ACT", "STOP"):
+                    _ro = [observed.get(p) for p, _, _, _ in required if p in observed]
+                    av = (all(v is True for v in _ro) if _ro else True)
+                    tgt_out = f"all_verified={'true' if av else 'false'}; {target}"
+                elif amap is None or target in ("STOP", "ACT"):
+                    tgt_out = target                      # constants stay literal
+                else:
+                    tgt_out = amap.get(target, target)    # alias the tool name
                 tgt_kind = "STOP" if target == "STOP" else ("GOAL" if target in (goal, "ACT") else "establish")
                 examples.append({
                     "domain": domain, "goal": goal, "target_kind": tgt_kind,
@@ -258,21 +267,28 @@ def main():
     ap.add_argument("--gate-token", action="store_true",
                     help="§8.6: terminal target = constant ACT/STOP (not the varying goal name); "
                          "should_F forced to STOP. Fixes the act-vs-STOP gate asymmetry.")
+    ap.add_argument("--scratchpad", action="store_true",
+                    help="§8.7 Rung1: educated inductive scratchpad — terminal target emits the "
+                         "AND-aggregation token `all_verified=<true|false>; <ACT|STOP>` (implies gate). "
+                         "Grounded in Abbe NeurIPS24 / Kim&Suzuki ICML25.")
     args = ap.parse_args()
+    if args.scratchpad and not args.gate_token:
+        args.gate_token = True   # scratchpad terminal is ACT/STOP -> requires gate-token vocabulary
     os.makedirs(args.out, exist_ok=True)
     doms = [args.domain] if args.domain else DOMAINS
     all_ex = []
     for d in doms:
         try:
             ex = build_domain(d, args.data_dir, args.ont_dir, shuffle_seed_base=13,
-                              use_alias=args.alias, source=args.source, use_gate=args.gate_token)
+                              use_alias=args.alias, source=args.source, use_gate=args.gate_token,
+                              use_scratch=args.scratchpad)
         except Exception as e:
             import traceback
             print(f"[{d}] FAILED: {e.__class__.__name__}: {e}")
             traceback.print_exc()
             continue
         tag = ("_alias" if args.alias else "") + (f"_s{args.source}" if args.source != 1 else "") \
-            + ("_gate" if args.gate_token else "")
+            + ("_gate" if args.gate_token else "") + ("_scratch" if args.scratchpad else "")
         path = os.path.join(args.out, f"sft_tbox_{d}{tag}.jsonl")
         with open(path, "w", encoding="utf-8") as f:
             for e in ex:
