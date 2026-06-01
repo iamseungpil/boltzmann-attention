@@ -220,15 +220,23 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     # §3 Rung1 ①: per-step readiness gate. tool step -> ready=false; <tool> (never ACT);
                     # terminal -> ready=true; all_verified=<AND>; <ACT|STOP>.
                     if target in ("ACT", "STOP"):
-                        # all_verified MUST be causally consistent with the gate: true <=> ACT.
-                        # (Bug fix 2026-06-01: av was the AND of observed *checks* only, independent
-                        # of target — so should_F refusals whose checks passed (policy/constraint
-                        # refusal, or no observed checks -> default True) got `all_verified=true; STOP`
-                        # (380/473 STOP), teaching av=true -> STOP and collapsing ACT (goal 0/48).
-                        # The gate predicate is "action fully permitted+possible" = (target==ACT);
-                        # the model predicts it from the in-context policy+request+history.)
-                        av = (target == "ACT")
-                        tgt_out = f"ready=true; all_verified={'true' if av else 'false'}; {target}"
+                        # Two-gate decomposition (review B-3/B-4, 2026-06-01). A single `all_verified`
+                        # token cannot represent both gates: refusal happens when a required CHECK
+                        # fails AND when checks pass but POLICY forbids. The old av=AND(checks) gave
+                        # `all_verified=true; STOP` (380/473) contradicting "ACT iff true"; the naive
+                        # av=(target==ACT) fix removed the contradiction but made av a pure echo of the
+                        # decision (zero decomposition -> scaffold collapse). Split into two INDEPENDENT
+                        # predictions whose AND is the decision; ACT iff (preconds_verified AND permitted).
+                        _ro = [observed.get(p) for p, _, _, _ in required if p in observed]
+                        pv = all(v is True for v in _ro) if _ro else True   # required checks verified (gather-state)
+                        try:
+                            _reach = bool(de.process(goal, **slots))
+                        except Exception:
+                            _reach = False
+                        pm = bool(should_succeed and _reach)                # policy permits + reachable
+                        # consistency: ACT iff (pv and pm); STOP explained by which gate is false.
+                        tgt_out = (f"ready=true; preconds_verified={'true' if pv else 'false'}; "
+                                   f"permitted={'true' if pm else 'false'}; {target}")
                     else:
                         _tool = amap.get(target, target) if amap else target
                         tgt_out = f"ready=false; {_tool}"

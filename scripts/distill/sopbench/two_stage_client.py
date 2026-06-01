@@ -190,10 +190,14 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
         last_rule = ("- EVERY step, first decide `ready` = are ALL required checks gathered?\n"
                      "- If NOT all gathered -> output `ready=false; <next verification/establish tool>` "
                      "(you may NOT ACT until ready=true).\n"
-                     "- If ALL gathered -> output `ready=true; all_verified=<true|false>; <ACT|STOP>` "
-                     "(all_verified = AND of the required checks; ACT only if true, else STOP).\n")
+                     "- If ALL gathered -> output `ready=true; preconds_verified=<true|false>; "
+                     "permitted=<true|false>; <ACT|STOP>`. Two SEPARATE gates: "
+                     "preconds_verified = AND of the required checks (all returned the needed value); "
+                     "permitted = the policy allows this action for this request. "
+                     "ACT only if BOTH true; otherwise STOP (a failed check -> preconds_verified=false; "
+                     "a policy refusal with checks passing -> preconds_verified=true, permitted=false).\n")
         out_line = ("Output EITHER `ready=false; <tool>` (keep gathering) OR "
-                    "`ready=true; all_verified=<true|false>; <ACT|STOP>`. Nothing else:")
+                    "`ready=true; preconds_verified=<true|false>; permitted=<true|false>; <ACT|STOP>`. Nothing else:")
     elif gate_token:
         last_rule = ("- When all required conditions are verified and the goal is READY, output ACT "
                      "(do NOT name the goal tool); if a required fact is false, output STOP.\n")
