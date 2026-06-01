@@ -279,6 +279,7 @@ class TwoStageClient:
         self._source = int(os.environ.get("SOPBENCH_SOURCE", "1"))
         self._gate = bool(os.environ.get("SOPBENCH_GATE"))   # §8.6 gate-token (ACT/STOP terminal)
         self._scratch = bool(os.environ.get("SOPBENCH_SCRATCHPAD"))  # §8.7 Rung1 educated scratchpad
+        self._rllog = os.environ.get("SOPBENCH_RLLOG")               # §3 Rung2 GRPO rollout log path
         self._alias_map = None        # {real -> alias}, built once per task (reset clears)
         self._alias_inv = None        # {alias -> real}, to de-alias the planner output
         # coverage counters (cumulative across the run)
@@ -444,9 +445,17 @@ class TwoStageClient:
                                  scratchpad=self._scratch)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
-            temperature=0.0, top_p=0.01, max_tokens=24)
+            temperature=self.temperature, top_p=self.top_p, max_tokens=24)
         raw = (resp.choices[0].message.content or "").strip()
         low = raw.lower()
+        # §3 Rung2 GRPO: log each planner (prompt, sampled output) for the RL update (env SOPBENCH_RLLOG).
+        if self._rllog:
+            try:
+                with open(self._rllog, "a", encoding="utf-8") as _f:
+                    _f.write(json.dumps({"turn": self._turn, "goal": self._goal_name,
+                                         "prompt": prompt, "output": raw}) + "\n")
+            except Exception:
+                pass
         # §8.6/8.7 gate-token & scratchpad: terminal decision = last ACT/STOP token in the output
         # (handles bare "ACT"/"STOP" and the scratchpad chain "all_verified=<t/f>; <ACT|STOP>").
         if self._gate:
