@@ -55,7 +55,8 @@ eval_one () {
   echo "[$r] gpu=$gpu env=[GATE=1 SCRATCHPAD=1 $envv] $(date)" >> $SUM
   [ -f "$AD/adapter_model.safetensors" ] || { echo "[$r] NO adapter" >> $SUM; return; }
   rm -rf $OUT/eval_${r}_scratch   # ★clear leftover: serve-fail -> headline gets honest NO DATA, never stale prev-run JSON
-  CUDA_VISIBLE_DEVICES=$gpu nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
+  local iport=$((8100 + gpu*200))   # ★distinct internal port range per GPU (else parallel vLLMs collide on default 8010 -> EADDRINUSE)
+  CUDA_VISIBLE_DEVICES=$gpu VLLM_PORT=$iport VLLM_DP_MASTER_PORT=$((iport+50)) nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
     --lora-modules tbox_v2=$AD --port $port --dtype bfloat16 --gpu-memory-utilization 0.85 \
     --max-model-len 8192 --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code \
     > $OUT/serve_${r}_scratch.log 2>&1 &
@@ -71,11 +72,11 @@ eval_one () {
   echo "[$r] $(grep -E 'Mean Pass Rate' $OUT/evalout_${r}_scratch.txt | tail -1)" >> $SUM
   kill_gpu $gpu
 }
-# ★SEQUENTIAL (not parallel): two parallel vLLM serves collide on the FIXED internal engine-core
-#  port 8010 (DistNetworkError EADDRINUSE) — the real cause of recurring "engine init failed".
-#  eval_one ends with kill_gpu -> frees GPU+port 8010 before the next regime.
-eval_one s1       0 9001
-eval_one alias_s3 1 9002 SOPBENCH_ALIAS=1 SOPBENCH_SOURCE=3
+# PARALLEL ok now: distinct VLLM_PORT/VLLM_DP_MASTER_PORT per GPU avoids the internal port-8010
+#  collision (EADDRINUSE) that broke recurring runs. Each regime on its own GPU + internal port range.
+eval_one s1       0 9001 &
+eval_one alias_s3 1 9002 SOPBENCH_ALIAS=1 SOPBENCH_SOURCE=3 &
+wait
 
 echo "=== RUNG1 HEADLINE (should_T dirgraph+ INT goal+) $(date) ===" >> $SUM
 $PY - >> $SUM 2>&1 <<'PYEOF'

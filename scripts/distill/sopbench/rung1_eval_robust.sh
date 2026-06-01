@@ -38,8 +38,9 @@ wait_gpu_free
 ok=0
 for attempt in 1 2 3; do
   clean
-  echo "[$r] serve attempt $attempt (gpu$gpu port$port) $(date)"
-  CUDA_VISIBLE_DEVICES=$gpu nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
+  iport=$((8100 + gpu*200))   # ★distinct internal port range per GPU (avoid default-8010 EADDRINUSE under parallel)
+  echo "[$r] serve attempt $attempt (gpu$gpu api$port internal$iport) $(date)"
+  CUDA_VISIBLE_DEVICES=$gpu VLLM_PORT=$iport VLLM_DP_MASTER_PORT=$((iport+50)) nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
     --lora-modules tbox_v2=$AD --port $port --dtype bfloat16 --gpu-memory-utilization 0.85 \
     --max-model-len 8192 --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code \
     > $OUT/serve_${r}_scratch_re.log 2>&1 &
