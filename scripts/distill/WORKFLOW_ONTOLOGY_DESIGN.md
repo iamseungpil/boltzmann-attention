@@ -200,6 +200,13 @@ So the decision/computation complexity that motivated the survey is **acknowledg
 encapsulated**: it is *why* we make those steps functions, not relations. The ontology proper
 stays at 8 relations.
 
+### 2.3.1 루프/병렬 — 스키마 경계 + 확장 비용 (2026-06-01, "왜 8개냐·더 필요하면?"의 기준)
+8관계 = 방향 call-graph(`next` 선형/조건분기) ≈ DAG. 루프(반복)·병렬(fork-join)은 기본 표현 밖. **처리 정책 (우선순위)**:
+- **병렬**: 기본 **불요** — DAG에서 `precondition` 의존이 없는 step들은 *임의 순서*이고 LLM은 1회 1도구 → "병렬"이 "무순서"로 붕괴(이미 커버). 진짜 동시/fork-join-집계만 새 의미 → **집계 함수(aggregator)** 또는 `scenario_*`로 처리, 새 관계 불요.
+- **계산/데이터 루프**(컬렉션 순회·N회 반복해 집계): **함수로 캡슐화**(`validate_all(batch)→results`, 내부 반복·집계 반환) → scoring/decision-table 처리와 동일 원칙, 새 관계 불요·DAG 유지.
+- **★agentic 루프**(반복 *바디에서 모델이 매 iteration 도구 선택*): 함수로 못 숨기는 **유일한 진짜 gap**. (i) 우선 서브절차 함수로, (ii) 정말 agentic이면 `foreach(collection_slot → sub_steps)` **1구문 신중 추가** — **비용**: executor가 DAG-walk→**사이클+루프상태**, planner 루프 emit 난이도↑, **graph-fidelity(GED)가 순환그래프서 복잡화**, 전이/지표 재검증 필요.
+- **YAGNI / 경계**: **SOPBench·SOP-Bench(2506.08119) 둘 다 루프/병렬 부재**(전문 확인) → **지금 추가 안 함**. "9관계 확장"은 *가능하나 공짜 add 아님*(loop = 컬렉션+바디+종료+누산 ≈ 여러 요소) → §2.1 "relation zoo 회피"·minimal schema 유지. **추가는 *증명된 도메인*에서 비용 동반 의도적 확장으로만.**
+
 ### 2.4 TBox / ABox + induction
 - **TBox** (fixed, transfers): the 8 relation types + the entity grammar + the executor (§3).
 - **ABox** (per-domain, swaps): the call graph instance — {which functions, `arg` bindings,
