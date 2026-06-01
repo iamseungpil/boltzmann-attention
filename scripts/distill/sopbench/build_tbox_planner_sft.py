@@ -216,10 +216,16 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 _seq.append(target)
                 # §8.7 Rung1 educated scratchpad: terminal target = AND-aggregation token + branch
                 # (all_verified = AND of required checks' observed truths). gather steps unchanged.
-                if use_scratch and target in ("ACT", "STOP"):
-                    _ro = [observed.get(p) for p, _, _, _ in required if p in observed]
-                    av = (all(v is True for v in _ro) if _ro else True)
-                    tgt_out = f"all_verified={'true' if av else 'false'}; {target}"
+                if use_scratch:
+                    # §3 Rung1 ①: per-step readiness gate. tool step -> ready=false; <tool> (never ACT);
+                    # terminal -> ready=true; all_verified=<AND>; <ACT|STOP>.
+                    if target in ("ACT", "STOP"):
+                        _ro = [observed.get(p) for p, _, _, _ in required if p in observed]
+                        av = (all(v is True for v in _ro) if _ro else True)
+                        tgt_out = f"ready=true; all_verified={'true' if av else 'false'}; {target}"
+                    else:
+                        _tool = amap.get(target, target) if amap else target
+                        tgt_out = f"ready=false; {_tool}"
                 elif amap is None or target in ("STOP", "ACT"):
                     tgt_out = target                      # constants stay literal
                 else:

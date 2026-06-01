@@ -184,14 +184,16 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
     # §8.6 gate-token: the TERMINAL decision is a CONSTANT token (ACT / STOP), not the rare,
     # per-task-varying goal name — removing the asymmetry where constant STOP beats varying-goal.
     if gate_token and scratchpad:
-        # §8.7 Rung1: educated inductive scratchpad — emit the AND-aggregation as one explicit
-        # boolean token BEFORE the branch, so the terminal decision is low-globality (Abbe NeurIPS24).
-        last_rule = ("- If a required check is still ungathered, call it (keep gathering).\n"
-                     "- Once ALL required checks are gathered: output `all_verified=<true|false>` "
-                     "(the AND of every required check's result), then on the same line ACT (run the "
-                     "goal — only if all_verified=true) or STOP (refuse — if all_verified=false).\n")
-        out_line = ("Output a verification tool name to call, OR the terminal decision in the form "
-                    "`all_verified=<true|false>; <ACT|STOP>`. Nothing else:")
+        # §3 Rung1 ①: per-step readiness gate. `ready` (all required checks gathered?) is supervised
+        # at EVERY step; ready=false is NEVER followed by ACT -> "incomplete => no ACT" is learned
+        # structurally. When ready=true, emit the AND-aggregation token, then the low-globality branch.
+        last_rule = ("- EVERY step, first decide `ready` = are ALL required checks gathered?\n"
+                     "- If NOT all gathered -> output `ready=false; <next verification/establish tool>` "
+                     "(you may NOT ACT until ready=true).\n"
+                     "- If ALL gathered -> output `ready=true; all_verified=<true|false>; <ACT|STOP>` "
+                     "(all_verified = AND of the required checks; ACT only if true, else STOP).\n")
+        out_line = ("Output EITHER `ready=false; <tool>` (keep gathering) OR "
+                    "`ready=true; all_verified=<true|false>; <ACT|STOP>`. Nothing else:")
     elif gate_token:
         last_rule = ("- When all required conditions are verified and the goal is READY, output ACT "
                      "(do NOT name the goal tool); if a required fact is false, output STOP.\n")
