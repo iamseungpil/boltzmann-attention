@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED — 현 권위본 마스터 = `scripts/distill/EXPERIMENT_DESIGN.md`** (목표·실험순서·헤드라인 지표). 본 v1.x는 구 **facet-rft / training-free 구조주입** 라인(개념 참조용). 현 라인 = SOPBench TBox/ABox 전이 + 학습 사다리(SFT→RFT→xattn). 방향은 마스터에서 고정.
+
 # 실험 설계서: 온톨로지 기반 그래프 구조 주입을 통한 Training-Free 다단계 도구 계획 개선
 
 **버전**: v1.27  

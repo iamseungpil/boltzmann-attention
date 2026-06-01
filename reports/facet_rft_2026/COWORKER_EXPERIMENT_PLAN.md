@@ -1,3 +1,5 @@
+> ⚠️ **마스터 = `scripts/distill/EXPERIMENT_DESIGN.md`** (목표·실험순서 SFT→RFT→xattn·헤드라인 지표 권위본). 이 문서는 **Track B(coworker, 32B/72B) 실행 상세** — 목표/순서 변경은 마스터에서. (32B 바닐라는 leaderboard 인용=재측정 금지.)
+
 # Coworker 실험 계획서 — Workflow Ontology Agent on SOP-Bench
 
 > 대상: 4× A100 80GB coworker. 공유 채널 = GitHub `iamseungpil/boltzmann-attention` branch **`facet-rft-2026`**.
