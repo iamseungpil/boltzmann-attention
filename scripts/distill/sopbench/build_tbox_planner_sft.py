@@ -88,7 +88,8 @@ GETTER_BY_DOMAIN = {
 }
 
 
-def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, source=1):
+def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, source=1,
+                 use_gate=False):
     from env.variables import domain_assistant_keys, domain_keys
     from env.task import task_default_dep_full, task_initializer, get_default_dep_full
     from swarm.util import function_to_json
@@ -176,6 +177,7 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     return None
 
             established, history, executed, observed = set(), [], set(), {}
+            should_succeed = bool(task.get("action_should_succeed", True))
 
             def next_decision():
                 # 1. gather: call each required fact/condition verification tool (args-aware)
@@ -190,13 +192,15 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     if pred in established or by in executed:
                         continue
                     return by
-                # 4. goal reachable on the GT system? [should_T]
+                # 4. TERMINAL gate (§8.6). gate-token: constant ACT/STOP (not the varying goal name);
+                #    should_F is forced to STOP (fixes the should_F GOAL-mislabel that polluted the gate).
                 try:
-                    if de.process(goal, **slots):
-                        return goal
+                    reachable = bool(de.process(goal, **slots))
                 except Exception:
-                    pass
-                return "STOP"
+                    reachable = False
+                if use_gate:
+                    return "ACT" if (should_succeed and reachable) else "STOP"
+                return goal if reachable else "STOP"
 
             _seq = []
             for _ in range(16):
@@ -206,19 +210,19 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 shown = tool_names[s:] + tool_names[:s]
                 prompt = build_v2_prompt(ont, shown, established, user_req, policy,
                                          list(history), set(slots.keys()), op_descs, observed,
-                                         alias_map=amap, source=source)
+                                         alias_map=amap, source=source, gate_token=use_gate)
                 target = next_decision()
                 _seq.append(target)
-                # alias the supervised target so it matches the aliased tool list (STOP stays STOP)
-                tgt_out = target if (amap is None or target == "STOP") else amap.get(target, target)
-                tgt_kind = "STOP" if target == "STOP" else ("GOAL" if target == goal else "establish")
+                # alias the supervised target so it matches the aliased tool list (STOP/ACT are constants)
+                tgt_out = target if (amap is None or target in ("STOP", "ACT")) else amap.get(target, target)
+                tgt_kind = "STOP" if target == "STOP" else ("GOAL" if target in (goal, "ACT") else "establish")
                 examples.append({
                     "domain": domain, "goal": goal, "target_kind": tgt_kind,
                     "messages": [{"role": "user", "content": prompt},
                                  {"role": "assistant", "content": tgt_out}],
                 })
                 idx += 1
-                if target in ("STOP", goal) or target in executed:
+                if target in ("STOP", "ACT", goal) or target in executed:
                     break
                 executed.add(target)
                 # advance GT state by executing the chosen tool
@@ -251,6 +255,9 @@ def main():
                     help="§8.5.★ ①: mask tool/predicate names as opaque per-task aliases (anti-cheat)")
     ap.add_argument("--source", type=int, default=1, choices=[1, 3],
                     help="1=render constraint-derived STATUS (answer key); 3=NL policy only")
+    ap.add_argument("--gate-token", action="store_true",
+                    help="§8.6: terminal target = constant ACT/STOP (not the varying goal name); "
+                         "should_F forced to STOP. Fixes the act-vs-STOP gate asymmetry.")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     doms = [args.domain] if args.domain else DOMAINS
@@ -258,13 +265,14 @@ def main():
     for d in doms:
         try:
             ex = build_domain(d, args.data_dir, args.ont_dir, shuffle_seed_base=13,
-                              use_alias=args.alias, source=args.source)
+                              use_alias=args.alias, source=args.source, use_gate=args.gate_token)
         except Exception as e:
             import traceback
             print(f"[{d}] FAILED: {e.__class__.__name__}: {e}")
             traceback.print_exc()
             continue
-        tag = ("_alias" if args.alias else "") + (f"_s{args.source}" if args.source != 1 else "")
+        tag = ("_alias" if args.alias else "") + (f"_s{args.source}" if args.source != 1 else "") \
+            + ("_gate" if args.gate_token else "")
         path = os.path.join(args.out, f"sft_tbox_{d}{tag}.jsonl")
         with open(path, "w", encoding="utf-8") as f:
             for e in ex:

@@ -396,6 +396,28 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > → arm-3v2(should_T 2/48) 대비 게이팅 향상 측정 + ablation(빈/틀린 ABox 붕괴, §11.7).
 | Exp-4b | arm-4b(L2 xattn ABox-memory, 19 LODO) | fc/full | — | — | 예정 (Phase 2, coworker) |
 
+> **★★★Exp-4c-eval — 3-regime SFT(alias 마스킹·source3) bank 실측 + should_T 전수 재진단 (2026-06-01, rr.ps1 실측)**
+> 완전게더 teacher(§8.5)로 3 regime 재학습(7B LoRA r16, grad-ckpt, seqlen2048, ep3, LODO holdout=bank, 6 non-bank
+> 2382예제) → bank eval(`run_simulation --two_stage_v2`→`run_evaluation`, fc/full) + **134 task 전수 궤적 분류**.
+>
+> | regime | should_T 성공 | **dirgraph(게더)** | **act_called(goal)** | constraint | should_F 성공 | 총/134 |
+> |---|---|---|---|---|---|---|
+> | **s1** (STATUS 렌더) | **0/48** | 45/48 | 3/48 | 48/48 | 81/86 | **0.605** |
+> | **s3** (NL-only source3) | 5/48 | 16/48 | 35/48 | 38/48 | 24/86 | 0.218 |
+> | **alias_s3** (alias+source3) | 5/48 | 22/48 | 27/48 | 37/48 | 28/86 | 0.246 |
+> | arm-4a v2 (기준선) | 4/48 | — | — | — | 31/86 | 0.261 |
+>
+> **★s1 총 0.605는 함정**(=should_F 81 + should_T 0 = degenerate 과잉거부; 거부-all 0.642에 근접). **헤드라인 금지.**
+> **★진단(사분면 전수, dirgraph×goal)**: should_T 성공=dirgraph∩goal 동시충족, 대각선=0~5뿐.
+> - **s1**: 게더✓(45) goal✗(3) — 궤적 `[check, login, exit]`×45 = **게더 완벽 후 goal 직전 exit**(과잉STOP).
+> - **s3**: goal✓(35) 게더✗(16) — `[…, login, goal, get_*, exit]` = **안게더 act**(과소거부).
+> - **병목 이동**: 이전 완전게더 레버 **성공**(s1 dirgraph 45/48=under-verification 해소) → **새 병목=터미널 "게더후 act/STOP 게이트"** 노출. 비대칭(STOP=상수쉬움 vs goal=varying드묾) + should_F GOAL-오라벨 32/86 오염.
+> - **alias 중립**: alias_s3≈s3(sT 5=5, 총 .246 vs .218), 7B G-alias 사다리 평평(0.254/0.215/0.205)과 정합 → 병목이 게이트라 alias 무관(채택은 유효, should_T 안 가름).
+> - **★재설계 = Exp-4d**: 게이트-토큰(터미널 goal명→상수 "ACT"/"STOP", varying-name 비대칭 제거) + should_F→STOP 정정. 헤드라인=**dirgraph+∩goal+**(총점 폐기). 설계 권위본 `TASK_CONSTRAINT_DESIGN.md §8.6`.
+> - 인프라 교훈: rr.ps1 `pkill -f`가 **자기 셸 self-match→SSH drop**(문자열 split로 회피); vLLM `kill-9` 잔여 `/dev/shm` 세그먼트가 **GPU wedge→engine-init 반복실패**(shm 정리+GPU별 PID kill로 복구). 병렬 eval=GPU별 격리.
+
+| Exp-4d | gate-token SFT(ACT/STOP) + should_F 정정 | fc/full | — | — | 예정 (s1·s3 재학습, 헤드라인=dirgraph+∩goal+) |
+
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
 > - HT2(분리증명): **빈/틀린 ABox 주입 → 붕괴**(entangled면 ABox 없이도 동작=실패; 분리면 ABox 필수=성공조건).

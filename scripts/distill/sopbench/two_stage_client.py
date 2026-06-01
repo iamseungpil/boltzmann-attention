@@ -115,7 +115,7 @@ def _render_precond_mod(tree, predicates, out, est):
 
 def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines, slot_keys,
                     op_descs=None, observed=None, goal_name=None, goal_constraint=None,
-                    alias_map=None, source=1):
+                    alias_map=None, source=1, gate_token=False):
     """Build the arm-3v2/arm-4a planner prompt. `op_names` = the exact tool-name order shown to
     the model. `established` = establishable preds already satisfied. `observed` = {fact_pred ->
     bool} learned from prior internal-check results in history (fact-visibility, arm-4a v2).
@@ -181,6 +181,16 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
     slots_str = ", ".join(sorted(slot_keys)) or "only what the user provided"
     policy_str = S(str(policy))
     req_str = S(str(user_req))
+    # §8.6 gate-token: the TERMINAL decision is a CONSTANT token (ACT / STOP), not the rare,
+    # per-task-varying goal name — removing the asymmetry where constant STOP beats varying-goal.
+    last_rule = ("- When all required conditions are verified and the goal is READY, output ACT "
+                 "(do NOT name the goal tool); if a required fact is false, output STOP.\n"
+                 if gate_token else
+                 "- When the goal tool is READY and not yet successfully called, call the goal tool, "
+                 "then STOP.\n")
+    out_line = ("Output a verification tool name to call, or ACT (all verified -> run goal), or "
+                "STOP (refuse). Nothing else:" if gate_token
+                else "Output ONLY one tool name from the list, or STOP. Nothing else:")
     if source == 3:
         return (
             "You are a planning agent. Pick the SINGLE next tool to call, or STOP.\n\n"
@@ -195,9 +205,8 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
             "- If a verified condition fails (a required check is false), output STOP — refusing "
             "is correct; do NOT force the goal.\n"
             "- Prefer the cheapest path: never repeat a call whose result you already have.\n"
-            "- When every required condition is satisfied and the goal is not yet done, call the "
-            "goal tool, then STOP.\n\n"
-            "Output ONLY one tool name from the list, or STOP. Nothing else:")
+            f"{last_rule}\n"
+            f"{out_line}")
     est_str = ("\n".join(f"  - to establish '{A(p)}', call {A(a)}" for p, a in est_map.items())
                or "  (none)")
     return (
@@ -213,9 +222,8 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
         "- If the goal tool is 'BLOCKED by FACT', output STOP (refusing is correct — a required "
         "fact is false; do NOT call the goal).\n"
         "- Prefer the cheapest path: never repeat a call whose result you already have.\n"
-        "- When the goal tool is READY and not yet successfully called, call the goal tool, "
-        "then STOP.\n\n"
-        "Output ONLY one tool name from the list, or STOP. Nothing else:")
+        f"{last_rule}\n"
+        f"{out_line}")
 
 
 class TwoStageClient:

@@ -346,6 +346,54 @@ should_T·should_F 공통 binding = **검증 도구 선택**(어떤 체크/estab
 
 ---
 
+## 8.6 ★★★ should_T 재진단 (전수조사 2026-06-01) — 병목 이동: 게더(해결됨) → **터미널 act/STOP 게이트**
+
+> 3-regime SFT(**s1**=STATUS 렌더 / **s3**=NL-only source3 / **alias_s3**=alias+source3) 학습(7B LoRA r16, LODO holdout=bank, 6 non-bank 2382예제) 후 **bank 실제 eval**(`run_simulation --two_stage_v2`→`run_evaluation`)·134 task 전수 궤적 분류. 결과 권위본 = `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4c.
+
+### 8.6.1 실측 (bank, 7B, 공식 evaluator)
+| regime | should_T 성공 | **dirgraph(게더)** | **act_called(goal)** | constraint | should_F 성공 | 총/134 |
+|---|---|---|---|---|---|---|
+| **s1** (STATUS) | **0/48** | 45/48 | 3/48 | 48/48 | 81/86 | 0.605 |
+| **s3** (NL) | 5/48 | 16/48 | 35/48 | 38/48 | 24/86 | 0.218 |
+| **alias_s3** | 5/48 | 22/48 | 27/48 | 37/48 | 28/86 | 0.246 |
+(arm-4a v2 기준선 = 0.261 / should_T 4/48.) **★총점은 거부로 부풀려짐**(s1 0.605 = should_F 81 + should_T 0 = degenerate 과잉거부) → **헤드라인 금지**.
+
+### 8.6.2 진단 (사분면 전수 — dirgraph × goal)
+should_T 성공 = **dirgraph_satisfied AND action_called_correctly** 동시충족. 대각선(둘 다)=**0~5뿐**:
+- **s1**: 게더✓(45) but goal호출✗(3). 궤적 `[internal_check_username_exist, login_user, exit_conversation]` ×45 = **게더 완벽 후 goal 직전에 exit**(과잉STOP, sF 81 폭증).
+- **s3**: goal호출✓(35) but 게더✗(16). 궤적 `[..., login, apply_credit_card, get_credit_card_info, exit]` = **안게더하고 act**(검증을 goal 뒤에/누락, sF 24 과소거부).
+- **alias_s3**: 중간(게더후멈춤 17 + 안게더act 22).
+→ **STATUS 보이면 STOP편향 / 안보이면 act편향. mechanism의 두 반쪽이 regime별로 갈라짐.**
+
+### 8.6.3 핵심 결론 — 이전 레버 성공이 새 병목을 노출
+- **이전 세션의 완전게더(A+B+C) 레버는 성공했다**: s1 dirgraph **45/48** = under-verification 병목(§8.1) **해소**. 모델이 varying 검증-도구명(internal_check_*)은 잘 emit.
+- **그게 새 병목 = 터미널 "게더 후 act vs STOP" 게이트를 노출**. should_T·should_F 공통 binding이 게더에서 **이 게이트로 이동**.
+- **alias 중립**(병목이 게이트라 alias와 무관 — 7B G-alias 사다리 평평 0.254/0.215/0.205과 정합). alias 채택은 유효하나 should_T를 가르지 않음.
+
+### 8.6.4 근본원인 (왜 게이트가 안 학습되나) — 비대칭
+- **STOP/exit = 상수 토큰(쉬움)** vs **goal = per-task varying·드묾**(타깃 mix GOAL 70 vs 비-goal 446). 터미널에서 모델이 상수 STOP을 varying-goal-act보다 선호.
+- **should_F "게더→STOP" 데이터**가 터미널 STOP 편향 강화. + **should_F GOAL-오라벨 32/86**(`de.process(goal)`가 should_F서 True 반환=거부 task에 act 가르침) = 게이트 신호 오염.
+
+### 8.6.5 ★재설계 — 게이트-토큰(ACT/STOP) + should_F 정정 (Exp-4d, 다음 재학습)
+**메커니즘**:
+1. **타깃 어휘 = {검증도구명, "ACT", "STOP"}**. 게더 단계 = 검증도구명(현행). **터미널: 전부 verified→`"ACT"`**(상수, goal명 미emit) / **위반→`"STOP"`**(상수). → act vs STOP가 **상수 대 상수 공정 경쟁**(prompt의 READY/BLOCKED-by-FACT로 결정), varying-goal-name 비대칭 제거. (§8.5.1 "LLM 무계산, resolver가 도구 선택"의 정합 실현.)
+2. **resolver(eval, `_plan_v2`)**: `"ACT"` 출력 → goal 도구로 매핑·호출(established+observed로 goal 결정). `build_v2_prompt` RULES에 "READY면 ACT, BLOCKED-by-FACT면 STOP" 명시.
+3. **should_F GOAL-오라벨 정정**: should_F task는 위반 fact 게더 후 **반드시 STOP**(현 `de.process` True 케이스 차단). → 게이트 신호 정합.
+4. (보조) READY→ACT 터미널 예제 균형(과소대표 완화).
+
+### 8.6.6 ★새 헤드라인 지표 (총점 폐기)
+- **should_T = dirgraph+ ∩ goal+ 동시충족 수** (현 s1 0 / s3·alias 5 → 목표 다수). 총 Mean Pass Rate는 거부로 부풀려져 **헤드라인 금지**(보조로만, gross 분해 필수).
+- should_F gross gain/loss 별도(net 금지). **alias on/off Δ는 게이트 수정 후 재평가**(현재 alias 중립이라 미결).
+- 분모 bank should_T /48, 결함 8 제외 천장 /40 주석.
+
+### 8.6.7 구현·실험 계획 (Exp-4d)
+- `build_tbox_planner_sft.py`: `next_decision` 터미널 타깃 **goal명→"ACT"**, should_F **→"STOP" 정정**(de.process 우회: 위반 observed면 STOP). `--gate-token` 플래그.
+- `two_stage_client.py`: `_plan_v2`가 `"ACT"`→goal 호출 분기; `build_v2_prompt` RULES 갱신.
+- 재학습: **s1·s3 각 게이트-토큰판** 재생성→재학습→bank eval. **판독 = dirgraph+∩goal+**(대각선) 상승 여부. s1의 0→다수면 게이트-토큰 가설 확증.
+- ⬜ 리스크: ACT-token이 게더-단계 도구선택과 분리되며 resolver의 goal-결정이 정확한지(established 기반); should_F 정정이 게더 일관성 유지하는지.
+
+---
+
 ## 9. 위험 / 리뷰 포인트 (zero-train 후 갱신)
 
 1. **공정성 — A와 B 분리(P4)**:
