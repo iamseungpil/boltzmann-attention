@@ -31,7 +31,13 @@ echo "clone client make_alias_map=$(grep -c make_alias_map $CLONE/scripts/two_st
 teardown () {
   pkill -9 -f "vllm serve Qwen/Qwen2.5-7B" 2>/dev/null
   pkill -9 -f "tau2_vllm_env/bin/python" 2>/dev/null
-  sleep 12
+  # poll until GPU0 memory actually released (vLLM workers free ~40GB slowly)
+  for i in $(seq 1 40); do
+    u=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1)
+    [ "${u:-9999}" -lt 2000 ] && break
+    sleep 4
+  done
+  sleep 5
 }
 
 run_one () {
@@ -39,6 +45,8 @@ run_one () {
   local AD=$RUNS/qwen7b_tbox_${r}_lodo_bank
   echo "=== [$r] env=[$envv] $(date) ===" >> $SUM
   [ -f "$AD/adapter_model.safetensors" ] || { echo "[$r] NO adapter, skip" >> $SUM; return; }
+  if grep -q "Mean Pass Rate" "$OUT/evalout_$r.txt" 2>/dev/null; then
+    echo "[$r] already evaluated, skip" >> $SUM; return; fi
   teardown
   CUDA_VISIBLE_DEVICES=0 nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 \
     --lora-modules tbox_v2=$AD --port 9000 --dtype bfloat16 --gpu-memory-utilization 0.85 \
