@@ -1,17 +1,17 @@
 """
 build_dpo_pairs.py — §3 Rung1.5 ②: DPO preference pairs for the gather-act ORDERING.
 
-Reads a readiness-gate SFT jsonl (from build_tbox_planner_sft.py --scratchpad) where each
-assistant target is `ready=false; <tool>` (gather) or `ready=true; all_verified=<t/f>; <ACT|STOP>`
-(terminal). For each step it emits {prompt, chosen, rejected} where `rejected` is the
+Reads a readiness-gate SFT jsonl (from build_tbox_planner_sft.py --scratchpad). 2-token terminal
+format (v2): `ready=false; <tool>` (gather) or `ready=true; preconds_verified=<t/f>; permitted=<t/f>;
+<ACT|STOP>` (terminal). For each step it emits {prompt, chosen, rejected} where `rejected` is the
 ORDERING-VIOLATING alternative — the negative signal that positive-only SFT cannot give:
 
-  chosen = `ready=false; <tool>`              -> rejected = `ready=true; all_verified=true; ACT`   (premature ACT)
-  chosen = `ready=true; all_verified=true; ACT`  -> rejected = `ready=true; all_verified=false; STOP`  (over-refuse)
-  chosen = `ready=true; all_verified=false; STOP` -> rejected = `ready=true; all_verified=true; ACT`   (under-refuse / premature)
+  chosen = `ready=false; <tool>`                                    -> rejected = `...preconds_verified=true; permitted=true; ACT`  (premature ACT)
+  chosen = `ready=true; preconds_verified=true; permitted=true; ACT`  -> rejected = `...permitted=false; STOP`                       (over-refuse)
+  chosen = `ready=true; ...; STOP`                                  -> rejected = `...preconds_verified=true; permitted=true; ACT`  (under-refuse / premature)
 
-So DPO teaches: do NOT ACT while ready=false (incomplete gather); do NOT STOP when verified;
-do NOT ACT when a check failed. Pairs are GT-derived (no reward model).
+So DPO teaches: do NOT ACT while ready=false (incomplete gather); do NOT flip a true gate to STOP;
+do NOT ACT when a gate is false. Pairs are GT-derived (no reward model).
 
 RUN:  python scripts/build_dpo_pairs.py --sft lodo_train_s1_scratch.jsonl --out dpo_s1.jsonl
 """
@@ -24,14 +24,15 @@ def make_rejected(chosen: str):
     """Return the ordering-violating alternative for a readiness-gate target, or None to skip."""
     c = chosen.strip()
     low = c.lower()
+    # 2-token format (build_tbox_planner_sft v2): ready=true; preconds_verified=<t/f>; permitted=<t/f>; <ACT|STOP>
     if low.startswith("ready=false"):
-        # gather/establish step -> the violation is to ACT prematurely
-        return "ready=true; all_verified=true; ACT"
+        # gather/establish step -> the violation is to ACT prematurely (claim both gates pass)
+        return "ready=true; preconds_verified=true; permitted=true; ACT"
     if low.startswith("ready=true"):
-        if re.search(r"\bact\b", low):            # should_T terminal (ACT) -> over-refuse
-            return "ready=true; all_verified=false; STOP"
-        if re.search(r"\bstop\b", low):           # should_F terminal (STOP) -> under-refuse / premature
-            return "ready=true; all_verified=true; ACT"
+        if re.search(r"\bact\b", low):            # should_T terminal (ACT) -> over-refuse (flip permitted)
+            return "ready=true; preconds_verified=true; permitted=false; STOP"
+        if re.search(r"\bstop\b", low):           # STOP terminal -> under-refuse / premature ACT
+            return "ready=true; preconds_verified=true; permitted=true; ACT"
     return None
 
 

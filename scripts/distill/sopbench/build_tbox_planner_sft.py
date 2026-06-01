@@ -214,11 +214,12 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                                          scratchpad=use_scratch)
                 target = next_decision()
                 _seq.append(target)
-                # §8.7 Rung1 educated scratchpad: terminal target = AND-aggregation token + branch
-                # (all_verified = AND of required checks' observed truths). gather steps unchanged.
+                # §8.7 Rung1 educated scratchpad: terminal target = TWO-gate AND + branch.
+                # gather steps unchanged. (review B-3/B-4: a single all_verified conflated checks
+                # and policy; split into preconds_verified + permitted, ACT iff both.)
                 if use_scratch:
                     # §3 Rung1 ①: per-step readiness gate. tool step -> ready=false; <tool> (never ACT);
-                    # terminal -> ready=true; all_verified=<AND>; <ACT|STOP>.
+                    # terminal -> ready=true; preconds_verified=<checks>; permitted=<policy>; <ACT|STOP>.
                     if target in ("ACT", "STOP"):
                         # Two-gate decomposition (review B-3/B-4, 2026-06-01). A single `all_verified`
                         # token cannot represent both gates: refusal happens when a required CHECK
