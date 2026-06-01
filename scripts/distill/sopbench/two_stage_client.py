@@ -265,6 +265,7 @@ class TwoStageClient:
         # §8.5.★ ① tool-name alias masking + ② source (1=render answer-key STATUS, 3=NL-only).
         self._alias = bool(os.environ.get("SOPBENCH_ALIAS"))
         self._source = int(os.environ.get("SOPBENCH_SOURCE", "1"))
+        self._gate = bool(os.environ.get("SOPBENCH_GATE"))   # §8.6 gate-token (ACT/STOP terminal)
         self._alias_map = None        # {real -> alias}, built once per task (reset clears)
         self._alias_inv = None        # {alias -> real}, to de-alias the planner output
         # coverage counters (cumulative across the run)
@@ -426,7 +427,7 @@ class TwoStageClient:
         prompt = build_v2_prompt(self.abox, tool_names, established, user_req, policy,
                                  hist, set(self._slot_state.keys()), op_descs, observed,
                                  goal_name=gname, goal_constraint=gconstr,
-                                 alias_map=amap, source=self._source)
+                                 alias_map=amap, source=self._source, gate_token=self._gate)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
             temperature=0.0, top_p=0.01, max_tokens=24)
@@ -434,6 +435,9 @@ class TwoStageClient:
         low = raw.lower()
         if "stop" in low or "refuse" in low or "exit_conversation" in low:
             return "STOP"
+        # §8.6 gate-token: planner emits the constant "ACT" -> resolve to THIS task's goal tool.
+        if self._gate and raw.rstrip(".,:'\" ").upper() == "ACT":
+            return self._goal_name or "STOP"
         # match against the SHOWN names (aliases when alias is on), then de-alias to the real tool.
         shown = [amap[n] for n in tool_names] if amap else tool_names
         hits = [s for s in shown if s and s in raw]
