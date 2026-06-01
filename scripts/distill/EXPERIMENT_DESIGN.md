@@ -24,6 +24,10 @@
   - **증명**: held-out bank 전이(재학습0) + **ABox-ablation**(빈/틀린 ABox→붕괴 = weight에 안 구워짐) + **alias on/off Δ**.
   - **★혼합이 강화하는 *축* (실측 분해)**: 6도메인 혼합 = **게더 TBox 강화·전이 성공**(dirgraph 36-45/48 held-out) **but 순서 게이트 미해결**(BOTH 0-2) → 혼합은 *공통구조서 배울 수 있는 축*(게더)만 강화; 순서 경합은 사다리(①②③) 필요. "혼합이 더 강하다"는 **게더 축에 한해 사실**.
   - **★개수 효과 = 미측정 → 실험**: **도메인-수 스케일링(2/4/6 → bank 전이 BOTH·게더)** 우상향이면 "혼합→TBox 강화" 정량 입증 + **그래프충실도 vs 구조유사도**(보간 vs 일반화 판별; bank가 학습도메인 near-dup면 전이=보간으로 주장 약화). 다양성 > 개수, negative transfer 주의.
+- **★★벤치 횡단 전이: SOPBench(학습) → SOP-Bench(Amazon, 2506.08119) ABox-swap 재학습0 (2026-06-01, 표현 적합성 검증 완료)**: 8관계 스키마 공유 → SOPBench 6도메인 학습 TBox를 **벤치 경계 넘어** SOP-Bench로 ABox swap만 전이 = 도메인-일반을 넘은 **벤치-일반** 증명(LODO보다 훨씬 강한 주장).
+  - **표현 적합성 = 강함 ✓ (전문 정독)**: SOP-Bench(12도메인·2411 task/13 SOP·9 tools/SOP·1394토큰) = free-text NL SOP + 메타(input/decision/outcome) + tool I/O + executable code. 매핑: 순차 step→`realizes`+`next`, tool I/O→`realizes`/`arg`/`produces`, prereq→`precondition`, decision point→`next`(조건), 서브절차→`scenario_*`, 조기종료→`terminate`, 최종→`output`. **scoring/threshold(점수≥0.4·decision table)=함수 캡슐화**(우리 설계와 정확히 일치). **루프/병렬은 SOP-Bench에 부재** → 8관계로 충분(있었으면 미적합). eval=**최종상태 매칭**(ECR/C-TSR/TSR)→SOPBench rule evaluator와 호환.
+  - **단(정직)**: SOP-Bench는 훨씬 길고 복잡(28 step·12 decision points·복잡도 7–8/10 vs bank 1–3 check) → **순서/conjunction의 스케일 테스트**(BOTH 낮을 수 있음; scratchpad `all_verified`가 여기서 핵심) + SOP-Bench ABox를 induce 파이프라인(8관계 call-graph)으로 추출 필요. 향후 루프/병렬 필요한 도메인은 8관계 미적합(스키마 경계 명시).
+  - **무학습으론?** 스키마(8관계)만으론 못 풂 — 7B in-context 무학습은 SOPBench 자기 자신도 실패(arm-3 0%·arm-3v2 게이팅무시); 대형 모델 in-context는 부분 가능. **관계=표현이지 NL→dirgraph *스킬*(TBox) 아님** → 횡단 전이의 핵심은 *학습된 TBox*가 벤치 경계를 넘느냐.
 - **★★결정론 도구 offload 경계 (검증-타당성 북극성; "어디까지 도구로 빼도 되나" 흔들리면 이것부터)**: 작은 모델이 확률적으로 할루시네이션하는 부분은 결정론 도구로 빼는 게 옳다(ReAct·verifier·PAL 표준). **단 경계 = 사실(fact) vs 절차(procedure)**.
   - ✅ **사실 offload (권장·표준)**: "precond X가 *실제로 충족됐나*"의 검증 = 결정론 도구(할루시네이션 0). 사실-노이즈 제거.
   - ❌ **절차 offload (= 답지 = 기여 자체, 금지)**: "이 goal엔 *어떤* precond가 필요한가 + 순서"(=dirgraph/TBox)를 함수가 쥐면 = NL→dirgraph 추론을 외부가 대신함 = **L0**. 모델은 도구호출기로 전락, 전이(ABox swap 무재학습) 주장 붕괴.
