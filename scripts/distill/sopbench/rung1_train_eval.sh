@@ -71,9 +71,11 @@ eval_one () {
   echo "[$r] $(grep -E 'Mean Pass Rate' $OUT/evalout_${r}_scratch.txt | tail -1)" >> $SUM
   kill_gpu $gpu
 }
-eval_one s1       0 9001 &
-eval_one alias_s3 1 9002 SOPBENCH_ALIAS=1 SOPBENCH_SOURCE=3 &
-wait
+# ★SEQUENTIAL (not parallel): two parallel vLLM serves collide on the FIXED internal engine-core
+#  port 8010 (DistNetworkError EADDRINUSE) — the real cause of recurring "engine init failed".
+#  eval_one ends with kill_gpu -> frees GPU+port 8010 before the next regime.
+eval_one s1       0 9001
+eval_one alias_s3 1 9002 SOPBENCH_ALIAS=1 SOPBENCH_SOURCE=3
 
 echo "=== RUNG1 HEADLINE (should_T dirgraph+ INT goal+) $(date) ===" >> $SUM
 $PY - >> $SUM 2>&1 <<'PYEOF'
