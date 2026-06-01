@@ -415,6 +415,36 @@ should_T 성공 = **dirgraph_satisfied AND action_called_correctly** 동시충�
 
 ---
 
+## 8.7 ★★★ 학습 사다리 — 확정 설계 순서 (SFT → RFT → 내재화 xattn/steering)
+
+> 2026-06-01 확정. **TBox는 SFT 전용이 아니다.** 3-rung 사다리로 진행하며, 각 rung은 이전이 *못 한 것*을 친다. 근거: **run_scripted(직접제어 37/48 ≫ 프롬프트-LLM 4/48)** = 천장이자 깨끗한 teacher 소스; **현 SFT가 게더(dirgraph 36-45)는 배웠으나 터미널 게이트(BOTH 0-2)는 못 박음**.
+
+### Rung 1 — SFT (절차분해, cold-start) 〔현재〕
+- 게더 관계 = 이미 학습·전이됨(dirgraph 36-45/48, LODO holdout=bank). **병목 = 터미널 게이트**(게더 AND act 공존, BOTH 0-2).
+- **절차분해 supervision** (사용자 설계): (a) **게더-루프**(미충족 required 있으면 다음 체크) → (b) **AND-집계를 추상 중간토큰**(`all_verified: T/F`)으로 emit → (c) 그 변수로 **ACT/STOP 분기**. **run_scripted 결정론 궤적을 분해 teacher로** 변환(중간 라벨 결정론 생성 가능). 중간토큰은 **추상**(전이 안전 §9.1).
+- 선행근거: scratchpad(Nye)·sub-task decomposition(Wies: parity는 end-to-end 난해하나 중간 supervision으론 가능)·least-to-most. (deep-research 확정 중.)
+- 목표: BOTH 0-2 → 다수. 현 상태 Exp-4d(gate-token)=부분성공(act 3→13·BOTH 0→2), Exp-4e=절차분해.
+- 한계: SFT per-step·불균형 → conjunctive 게이트 경계 약함 → **Rung 2**.
+
+### Rung 2 — RFT (GRPO, 게이트 경계 직접 최적화)
+- **정책 init = Rung1 SFT 어댑터** (표준 SFT→RFT). 기구 = **수동 GRPO 루프**(`grpo_reward.py` 검증; trl 충돌 회피), policy=SFT+LoRA·ref=frozen SFT·group-normalize·KL to SFT.
+- **reward = SOPBench rule evaluator**(결정론·LLM judge無·무료, tau2보다 깨끗): should_T면 **+(dirgraph_satisfied ∧ action_called_correctly) = BOTH 직접 보상**; should_F면 **+올바른 STOP**(dual-axis, **gross** 모니터). + dense process(seq_F1류 next-op 일치)로 **sparse cold-start(should_T≈0) 구제**.
+- 신규 = **SOPBench reward 어댑터만**(tau2판 `grpo_reward.py` → SOPBench `evaluator` 래핑). 목표: **SFT가 못 박은 conjunctive 게이트(BOTH) 경계를 직접 최적화** → 37 천장 향해.
+- 근거: `GRPO_REWARD_DESIGN.md`(§13/§14), WORKFLOW_ONTOLOGY §5.3(process/outcome reward on planning decisions), Lightman "Let's Verify Step by Step"(process supervision).
+
+### Rung 3 — 내재화: xattn ABox-memory + steering (직접 주입)
+- 원래 ★novelty(WORKFLOW_ONTOLOGY **B5\***). ABox를 **프롬프트(토큰) 아닌 xattn 메모리/steering으로 직접 주입**. **TBox = xattn weights(도메인불변·학습) / ABox = 메모리 M(스왑)** → 토큰0·깔끔 분리·전이.
+- 근거(직접제어 > 프롬프트, 실측): **MetaTool basis-specificity**(직접개입이 random/shuffled/프롬프트 재현불가 specific 효과; K-bias real .685 vs random/shuffled .000) + **run_scripted**(직접제어 37 ≫ 프롬프트 4). = "프롬프트 천장 → 직접제어 필요".
+- 검증: **ABox-ablation**(빈/틀린 M → 붕괴 = 메모리 실사용 증명), swap LODO 전이.
+- 진입조건: **Rung1-2가 in-context로 천장 근접 후**, 프롬프트-injection의 잔여 천장을 직접주입이 넘는지. (steering은 agentic tau2서 한번 null이었음 → SOPBench rule-reward·xattn 형태로 재시도.)
+
+### 사다리 헤드라인 (일관)
+- 지표 = **should_T BOTH(dirgraph∩goal) 동시충족** + **should_F gross**. (총 Mean Pass Rate는 거부로 부풀려져 헤드라인 금지.)
+- rung별 Δ: SFT(게더+게이트 cold-start) → RFT(게이트 경계) → xattn(주입 novelty·전이). 각 rung이 직전 천장을 넘는지가 판독.
+- 실험 번호: Exp-4d/4e = Rung1(SFT), Exp-4f = Rung2(RFT), Exp-4g = Rung3(xattn/steering).
+
+---
+
 ## 9. 위험 / 리뷰 포인트 (zero-train 후 갱신)
 
 1. **공정성 — A와 B 분리(P4)**:
