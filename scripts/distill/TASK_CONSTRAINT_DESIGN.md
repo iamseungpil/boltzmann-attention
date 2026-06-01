@@ -392,6 +392,27 @@ should_T 성공 = **dirgraph_satisfied AND action_called_correctly** 동시충�
 - 재학습: **s1·s3 각 게이트-토큰판** 재생성→재학습→bank eval. **판독 = dirgraph+∩goal+**(대각선) 상승 여부. s1의 0→다수면 게이트-토큰 가설 확증.
 - ⬜ 리스크: ACT-token이 게더-단계 도구선택과 분리되며 resolver의 goal-결정이 정확한지(established 기반); should_F 정정이 게더 일관성 유지하는지.
 
+### 8.6.8 ★ Exp-4d 1차 실측 (gate-token, bank, 7B, 2026-06-01) — 부분 성공
+| 지표 | s1 (비게이트) | **s1_gate** |
+|---|---|---|
+| goal 호출(act_called) | 3/48 | **13/48** (4배) |
+| should_F (과잉거부) | 81/86 | 67/86 (완화) |
+| dirgraph (게더) | 45/48 | 36/48 |
+| **BOTH = dirgraph+∩goal+ (헤드라인)** | 0 | **2** |
+| should_T 성공 | 0/48 | 2/48 |
+| 총 | 0.605 | 0.527 |
+- ✅ **방향 맞음**: ACT 상수화로 goal 4배·과잉거부 완화 = act/STOP 비대칭 실제 완화.
+- ❌ **근본 미해결**: BOTH 거의 불변(0→2). ACT를 쉽게 하니 **게더를 덜 하고 act**(s1↔s3 중간 이동) — 게더·act를 **순차 아닌 경쟁**으로 처리, "게더 후 act"를 한 궤적에 못 함.
+- (alias_s3_gate=serve실패 재eval 대기; s3_gate=OOM 후 solo 재학습. 결과 권위본 `SOPBENCH_EXPERIMENT_RESULTS Exp-4c-eval`.)
+
+### 8.6.9 ★★ 재설계 Exp-4e — ACT 전제조건 가드 (게더 AND act 공존 강제)
+근본원인 = 모델이 "게더 후 act" **순차를 못 지킴**(ACT 조기 출력). 레버:
+1. **resolver ACT-가드 (결정론, §8.5.1 정합)**: planner가 `ACT` 출력해도 **required 체크가 전부 `observed`-True가 아니면 ACT 무효 → 미게더 required 체크를 강제 호출**(goal 미호출). **게더 완료 후에만 ACT→goal**. → 조기-act 오류를 "게더 먼저"로 전환 = **BOTH(dirgraph∩goal) 직접 보장**. planner는 여전히 ACT/STOP 게이트 결정 학습(TBox=WHAT), 가드는 **순서만 enforce**(resolver=ordering). (C1 우려 회피: 무엇을 검증할지·act할지는 planner; 가드는 순서 오류만 교정.)
+2. **(보조) BOTH-직접 RFT**: 게더 완료 + goal 호출 **동시** 시 +reward, 조기 act/조기 STOP −. dual-axis(should_F STOP도 +).
+- **지표 불변**: should_T = **dirgraph+∩goal+**. 목표 = s1_gate 2 → 다수.
+- **구현**: `two_stage_client._plan_v2`/`_resolve`에 ACT-가드(`observed`에 required 미완이면 `ACT`→미게더 required tool 반환). **teacher 불변**(이미 게더후 ACT). env `SOPBENCH_ACTGUARD`.
+- ⬜ 미해결: required 집합을 eval에서 정확히 알아야 가드 작동(현 `observed`/precond 기반 — bank는 B-getter 매핑 있으나 6도메인은 A+C만; 가드의 일반화 확인 필요).
+
 ---
 
 ## 9. 위험 / 리뷰 포인트 (zero-train 후 갱신)

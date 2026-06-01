@@ -416,7 +416,15 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **★재설계 = Exp-4d**: 게이트-토큰(터미널 goal명→상수 "ACT"/"STOP", varying-name 비대칭 제거) + should_F→STOP 정정. 헤드라인=**dirgraph+∩goal+**(총점 폐기). 설계 권위본 `TASK_CONSTRAINT_DESIGN.md §8.6`.
 > - 인프라 교훈: rr.ps1 `pkill -f`가 **자기 셸 self-match→SSH drop**(문자열 split로 회피); vLLM `kill-9` 잔여 `/dev/shm` 세그먼트가 **GPU wedge→engine-init 반복실패**(shm 정리+GPU별 PID kill로 복구). 병렬 eval=GPU별 격리.
 
-| Exp-4d | gate-token SFT(ACT/STOP) + should_F 정정 | fc/full | — | — | 예정 (s1·s3 재학습, 헤드라인=dirgraph+∩goal+) |
+| Exp-4d | gate-token SFT(ACT/STOP) **s1_gate** | fc/full | 0.527 | should_T 2/48 · should_F 67/86 | ⚠️ **부분 성공**: goal호출 3→13(4배)·과잉거부 81→67 완화(비대칭↓) **but BOTH(dirgraph∩goal)=0→2 거의 불변**(게더 덜 하고 act). s3_gate=OOM후 solo재학습·alias_s3_gate=serve실패 재eval |
+
+> **★Exp-4d gate-token 1차 (2026-06-01, rr.ps1 실측)**: 터미널 타깃을 varying goal명→상수 ACT/STOP으로 교체.
+> **s1_gate vs s1**: goal_called **3→13/48**(4배↑), should_F **81→67**(과잉거부 완화), dirgraph 45→36, **BOTH=dirgraph+∩goal+ 0→2**, should_T 0→2, 총 0.605→0.527.
+> - ✅ act/STOP 비대칭 완화(가설 방향 맞음) / ❌ 근본(게더 AND act 공존) 미해결 — ACT 쉽게 하니 게더 덜 하고 act(s1↔s3 중간 이동).
+> - **★다음 Exp-4e = ACT 전제조건 가드**(resolver: required 미게더면 ACT 무효→게더 강제 → BOTH 직접 보장) + BOTH-직접 RFT. 설계 `TASK_CONSTRAINT_DESIGN §8.6.9`.
+> - 인프라: 2잡/GPU0(48GB)=OOM(s3_gate, 한 잡 26.9GB) → solo 재학습+expandable_segments. eval serve engine-init은 학습 직후 전이상태→GPU free 후 정상.
+
+| Exp-4e | gate-token + ACT 전제조건 가드 (resolver) | fc/full | — | — | 예정 (헤드라인=dirgraph+∩goal+; s1_gate 2→다수 목표) |
 
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
