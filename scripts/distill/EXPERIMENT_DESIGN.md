@@ -28,6 +28,15 @@
 - **★★그래프-충실도 지표 + NL→graph 실현가능 천장 (BOTH 보조, 절차축 분리)**: 현 헤드라인 BOTH는 *절차추론+실행+순서*를 뭉뚱그림 → **모델이 emit한 절차 그래프 vs GT `directed_action_graph`**를 **노드·엣지 P/R + graph-edit-distance**로 비교 = **절차추론 축만 분리 측정**(어디서 깨지나: 추론 vs 실행).
   - **NL→graph 실현가능 천장 (벤치 타당성·thesis 전제 검증, 선행 필수)**: 강한 컴파일러가 NL 정책*만*으로 GT dirgraph를 복원 가능한가? **세 컴파일러 대조군 = 결정론 파서(L0) / 큰 LLM(천장) / 우리 작은 모델(method)**, 기준=GT dirgraph. 복원 가능→학습 신호 존재(정당); **복원 불가→dirgraph가 NL에 없는 정보 포함=배울 수 없음=벤치 타당성 문제**("L0 불가"는 *난이도*여야지 *불가능*이면 안 됨). ⚠️ 컴파일 결과를 모델에 *떠먹이면* 절차 offload=L0(§1 경계) — 비교는 "누가 얼마나 잘 컴파일하나" 진단이지 입력 주입 아님.
 - **★구조적 vs 공간적(RAG) baseline + 10k라인 동기**: 정책 처리 2패러다임 — **공간적/RAG**(GraphRAG·Graphify·LLM-Wiki: 텍스트 유지, 청크 retrieve해 프롬프트 부분처리; "그래프"=retrieval 인덱스; 전역 의존 누락 위험) vs **구조적**(정책→명시 절차그래프 컴파일, 전역 위상순 추론; "그래프"=실행가능 절차; **모델이 emit=내재화·전이**). **baseline = RAG-over-policy**(스텝마다 청크 retrieve, 명시 절차그래프 無) → 구조적 > RAG면 절차 컴파일이 retrieval 넘어 기여. **동기 = 10k라인 정책**(매 결정 context 불가·비용/손실; RAG는 먼 절 cross-ref precond 누락=globality; 컴파일=goal당 노드 몇 개로 압축+스킬 내재화로 전이). ⚠️ SOPBench 실정책은 1만 라인보다 작음 → 1만은 실세계 엔터프라이즈 SOP 타깃(2단계: SOPBench 메커니즘 증명→대형 실정책 stress-test).
+  - **선행 — 공간적/그래프 RAG 계열 (전부 검증 2026-06-01, 우리와 구분 명시)**:
+    - **RAG** [Lewis et al. 2020, `2005.11401`] = parametric+non-parametric 메모리·retrieve-then-generate 원형.
+    - **GraphRAG** [Edge et al. MS 2024, `2404.16130`] = LLM이 엔티티/관계/claim 추출→그래프 *인덱스*+community detection 요약. 그래프 = retrieval 인덱스(사실), 절차 아님.
+    - **HippoRAG** [Gutiérrez et al. 2024, `2405.14831`] = KG+Personalized PageRank(해마 인덱싱)로 대량 신규지식 retrieve.
+    - **Think-on-Graph** [Sun et al. 2023, `2307.07697`] = LLM이 KG 위 beam search로 추론경로 탐색(plug-and-play·무학습).
+    - **Reasoning on Graphs (RoG)** [Luo et al. ICLR'24, `2310.01061`] = relation *path를 plan으로 생성*→KG서 경로 retrieve→faithful 추론. ★우리와 가장 인접(구조 emit) but 대상이 *주어진 사실 KG*이지 *NL→절차 컴파일* 아님.
+    - **Unifying LLMs & KGs: Roadmap** [Pan et al. 2023, `2306.08302`] = survey 우산.
+    - **엔지니어링 도구(arXiv 아님, 명시)**: **LLM Wiki**(`nashsu/llm_wiki`·Karpathy 개념) = RAG의 매번-재검색 대신 *persistent 위키로 사전컴파일*(부분적 구조화 but *지식* 위키지 실행 *절차* 아님·학습/전이 아님). **Graphiti**(Zep/Neo4j) = temporal KG 에이전트 메모리. **Graphify**(`safishamsi/graphify`) = 구조적 지식 도구.
+    - **★우리와 구분(한 줄)**: 이들은 *사실/엔티티 KG*를 build·retrieve(그래프=검색 인덱스). 우리는 **NL 정책→실행가능 *절차* 그래프(dirgraph)를 *모델이 emit*** (그래프=실행 절차·weight 내재화·ABox swap 전이). RoG(구조 emit)·LLM Wiki(사전컴파일)가 인접하나 **절차 컴파일 + 학습 전이**가 우리 고유.
 
 ## §2. 현재 진단 (어디까지 왔나)
 - **arm-1(LLM-alone) bank 5.2% / arm-3 naive 0% / arm-3v2(in-context 구조, 무학습) gating 무시 / arm-4a(학습 L2) 26.1%(should_T 4/48)**.
