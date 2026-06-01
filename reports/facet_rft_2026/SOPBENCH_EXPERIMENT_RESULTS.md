@@ -425,14 +425,17 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - 인프라: 2잡/GPU0(48GB)=OOM(s3_gate, 한 잡 26.9GB) → solo 재학습+expandable_segments. eval serve engine-init은 학습 직후 전이상태→GPU free 후 정상.
 
 | Exp-4e | ~~gate-token + ACT 전제조건 가드 (resolver)~~ → **SUPERSEDED** | — | — | — | ⛔ 폐기: "가드"가 아니라 **"게더 미완이면 ACT 금지"를 *학습*** 으로 피벗(§3 학습 사다리). 아래 Exp-4f(Rung1)로 대체. |
-| Exp-4f (Rung1 ①) | **readiness-gate SFT** (per-step `ready=<T/F>; 행동`; s1_scratch + alias_s3_scratch, LODO holdout=bank) | fc/full | — | **PENDING (학습 중)** | 🔄 2026-06-01 학습 중(~21:20 KST 완료 예상). 완료 시 BOTH 본 블록에 기록. |
+| Exp-4f (Rung1 ① v1) | **readiness-gate SFT** (s1_scratch + alias_s3_scratch, LODO holdout=bank) | fc/full | s1 0.6418(degenerate) | **should_T 0/48 · dirgraph 48 · goal 0 · BOTH 0 · should_F 86/86** | ⛔ **INVALIDATED (teacher 라벨링 버그)** — `all_verified=true;STOP` 380/473 → av=true⟹STOP 학습 → ACT 붕괴(goal 0/48, login=True 29개서도 0). alias_s3=serve 실패(NO DATA). **버그 수정(`32036bc`) 후 데이터 재생성+Rung1 재학습 필요.** |
 
 > **★★Exp-4f — Rung1 ① readiness-gate SFT (2026-06-01, 학습 중)** — `EXPERIMENT_DESIGN §3` / `TASK_CONSTRAINT_DESIGN §8.7` 권위본.
 > **사다리 피벗**: Exp-4d gate-token이 act/STOP 비대칭은 완화했으나 **BOTH(게더∩act) 0→2 정체**(ACT 쉬워지니 게더 덜 함) → 근본 = **게더-act 경합(순서)**. 해법 = "순서를 *학습*"(가드 아님): per-step readiness 게이트 토큰 `ready=false; <tool>`(미완→ACT 구조적 금지) / `ready=true; all_verified=<T/F>; ACT|STOP`(완료 후 분기). 데이터 검증=ready=false 뒤 ACT 0건.
 > - **학습**: 7B LoRA r16, grad-ckpt, seqlen2048, ep3, LODO holdout=bank, 6 non-bank **2382예제/regime**. 2 regime SOLO(GPU0 `s1_scratch`=source1+gate+scratch / GPU1 `alias_s3_scratch`=alias+source3+gate+scratch). 어댑터 `sft_runs/qwen7b_tbox_{s1,alias_s3}_scratch_lodo_bank`.
 > - **헤드라인**: should_T **BOTH(dirgraph_satisfied ∩ action_called_correctly)** + should_F gross (총점 금지). **격파 기준선 = gate-token BOTH s1_gate 2 / alias_s3_gate 1.**
-> - **결과**: ⏳ 학습 중 → 완료 시 `rung1_train_eval.sh` 자동 eval(`SOPBENCH_GATE=1 SOPBENCH_SCRATCHPAD=1`)이 BOTH 헤드라인 산출 → 본 블록에 기록.
-> - **다음**: BOTH 2→다수면 readiness-게이트 성공 → ② DPO(`build_dpo_pairs`+`dpo_train`, init=Rung1 어댑터, GT-유도 ordering-violating 음성쌍) → ③ RFT GRPO(`sopbench_reward`+`grpo_train_sopbench`, reward=BOTH+dirgraph−조기ACT). 정체면 ② DPO 먼저. ⚠️③ RFT `assemble`는 goal당 첫 task만 매핑(`recs[0]`)=rollout↔task 정렬 갭 → Rung2 진입 시 per-task isolation 필요.
+> - **★v1 결과 (2026-06-01, rr.ps1 실측) = INVALIDATED (teacher 라벨링 버그)**: 학습 정상완료(train_meta 2/2, loss 수렴) but eval degenerate. **s1_scratch: should_T 0/48 · dirgraph 48/48 · goal 0/48 · BOTH 0 · should_F 86/86**(Mean 0.6418=거부-all). alias_s3=vLLM engine-init 실패(학습직후 전이상태)→NO DATA.
+>   - **근본원인(eval JSON+학습데이터 전수)**: 파서는 정상(`ready=true;...;ACT`→goal 검증). goal=0은 **login=True인 29개 태스크서도 0** → 모델이 ACT를 *전혀* emit 안 함. 학습데이터 전수: 터미널 `all_verified=true; ACT`=223 / `all_verified=false; STOP`=93 / **`all_verified=true; STOP`=380(버그)**. `build_tbox_planner_sft`가 av를 *관찰된 check의 AND*(target 독립; `_ro` 비면 default True)로 계산 → 정책/제약 거부(체크 통과) STOP이 av=true → "av=true⟹STOP"(380>223 ACT) 학습 → ACT 붕괴. (gate-token s1_gate가 goal 13이었던 건 av 토큰 부재.)
+>   - **수정(`32036bc`)**: `av = (target == "ACT")` — all_verified를 게이트와 인과 일치(true⟺ACT). 모델은 in-context 정책+요청으로 "행동 허용" 예측.
+>   - **다음 = Rung1 v2 재실행**: 데이터 재생성(수정된 teacher)→재학습(2 regime solo)→eval. alias_s3는 serve 전 `/dev/shm/vllm*` 정리+GPU free 확인(engine-init 전이실패 회피). **헤드라인=alias_s3 BOTH** vs 기준선 s1_gate 2/alias_s3_gate 1.
+> - **다음 사다리**: v2 BOTH 다수면 → ② DPO(`build_dpo_pairs`+`dpo_train`, init=Rung1 어댑터; ⚠️ DPO 쌍도 같은 teacher서 파생→재생성 필요) → ③ RFT GRPO(`sopbench_reward`+`grpo_train_sopbench`). ⚠️③ `assemble` goal당 첫 task 매핑(`recs[0]`) 갭=Rung2 per-task isolation 필요.
 
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
