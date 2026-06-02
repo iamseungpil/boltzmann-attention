@@ -447,6 +447,11 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **★"28% ungroundable"은 전부 휴리스틱 결함**: (a) name-token 미스, (b) `is_getter`가 **`view_*` 누락**(online_market `view_cart`/`view_shipping_addresses` 실재→cart/shipping/review 전부 groundable), (c) multi-getter, (d) arg-only, (e) rich-record getter(`internal_get_student_info`=student 레코드 전체: academic_status·tuition_balance·residency·minors·income·completed_courses·gpa). **진짜 no-access-path 조건 = 사실상 0.**
 > - **결론(확정)**: ① **Track A로 ~100% groundable** — 합성 §3.0b는 grounding 목적 고유 scope ≈ 없음(many-conditions 일반화 GO/NO-GO 용도만). in-dist 붕괴 = 순수 getter-map 결손+teacher policy조건 미게더, 절차-학습성 문제 아님. ② **★auto-derive v2 정답 방법 = predicate 소스 정적 파싱**: `self.domain_system.<getter>(...)` 호출 추출 = condition→getter-집합(구조적·전수·전이무결, 토큰추측 아님). 코드 `autoderive_getter_map.py`. ③ 다음 = 파서로 7도메인 맵 자동생성→bank 손-map 검증→`build_tbox_planner_sft` GETTER_BY_DOMAIN 대체→teacher 재생성.
 
+> **Exp-4-mapwire (auto-map → teacher 배선 + census 검증, 2026-06-02 PM, rr.ps1 실측)**: `build_tbox_planner_sft`에 `getter_map.json`(multi-getter) 배선(011deb9) 후 SFT_CENSUS 7도메인 실행. 혼동행렬(should×modeled):
+> - **✅판별축 복구**: `should0_model1(BAD=차단조건 못봐 허위permit)` ≈ **0 전도메인**(bank 1·나머지 0). 옛 permitted-collapse 원인(condition 미게더) **제거 확인**.
+> - **⚠️`should1_model0` 큼**(bank 35/48·healthcare 44/45·online_market 59/60·library 24/24) **but 대부분 census 진단결함**: bank 35 중 **33이 reach=0인데 leaf는 전부 True**(`lt=[True,True,True]`) → census `_reach=de.process(goal)`가 **로그인 establishment 전 초기상태**서 goal precond 평가해 0(teacher는 step3서 login 실제수행→데이터 정상). 나머지 **2는 reach=1+False leaf = pay_loan OR/조건부**(flat-AND가 OR 오판=리뷰어 OR경고, 소수).
+> - **결론**: map 배선 **건전**(판별 복구·hand-map recall 8/9). 진짜 잔여 2개: **(a) census `_reach` establishment 미시뮬(다른세션 census 과엄격 진단버그)** · **(b) teacher `next_decision` step2 flat-AND(`any False→STOP`)가 OR/조건부 과잉거부**(소수 태스크). 다음=teacher를 **constraint-TREE eval**(AND/OR/chain)로 + census `_reach` 수정 → teacher 재생성 → 재학습 → ACT-recall|게더 + STOP-recall 분리 재측정.
+
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
 > - HT2(분리증명): **빈/틀린 ABox 주입 → 붕괴**(entangled면 ABox 없이도 동작=실패; 분리면 ABox 필수=성공조건).
