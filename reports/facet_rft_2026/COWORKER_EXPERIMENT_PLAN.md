@@ -18,11 +18,24 @@
 > 1. **★지표 교정 (필수, 전 셀 적용)**: 헤드라인 = **ACT-recall | 충분게더**(should_T서 게더 완료 후 실제 ACT한 비율; over-refusal 붕괴를 직접 검출) + **STOP-recall 분리 보고**(should_F서 올바른 STOP). 붕괴는 비대칭(STOP-recall=1·ACT-recall=0)이라 **합친 총점/Mean Pass Rate가 ACT-recall=0을 가림** → ⚠️**Mean Pass Rate 단독 헤드라인 금지**. should_T **BOTH(dirgraph∩goal)** 유지, should_F gross. ordering-violation(조기 ACT)은 3차 가드레일.
 > 2. **★★in-context 플래너 getter-hint 정렬 (중요 — 신규 prerequisite)**: 현 `two_stage_client.py:build_v2_prompt`는 **condition→getter 매핑을 프롬프트에 노출하지 않는다** → 32B/72B in-context는 7B와 똑같이 정책조건의 getter를 **cold-infer**해야 함 = **permitted-collapse 재현 위험**. 신규 ablation 축 = **getter-hint on/off**:
 >    - **hint-OFF**(현행 build_v2_prompt): "강모델이 구조 맵 없이 condition→getter를 *추론*하는가" (= 7B가 못 한 것을 32B/72B는 하나).
->    - **hint-ON**(getter_map.json을 프롬프트에 주입; ⚠️**Track A가 `build_v2_prompt`에 wiring + env 스위치 추가 후 가능** — 현재 미구현): 고친 7B teacher와 apples-to-apples.
+>    - **hint-ON** (✅**구현완료·검증**: env **`SOPBENCH_GETTER_HINT=1`** → `build_v2_prompt`가 getter_map에서 "to verify [condition], call [getter(s)]" 블록을 프롬프트에 주입; 고친 7B teacher와 apples-to-apples). `SOPBENCH_GETTER_MAP` 미지정시 clone `induced/getter_map.json` 사용. **OFF시 프롬프트 byte-identical**(레거시/teacher 불변 검증).
 > 3. **매트릭스 (v1.35 축 유지 + 신규축)**: {alias on/off} × {source 1/3} × **{getter-hint on/off(신규)}**, 32B·72B, bank held-out(+가능하면 LODO). 비교앵커 = 32B leaderboard 40.30(바닐라, 재측정 금지)·고친 7B SFT(재학습 후 갱신).
 > 4. **합성 §3.0b는 coworker 범위 아님**(grounding scope 없음 확정; many-conditions 일반화 stress-test가 필요해지면 그때 Track A가 합성 생성).
 >
-> **▶ 실행**: v1.35 STEP1-4 레시피 그대로(32B/72B 서빙 + `run_simulation.py --two_stage --two_stage_v2`, alias/source env 토글). `induced/getter_map.json`은 clone에 생성됨(`autoderive_getter_map.py`; rung1 파이프라인이 자동 재생성). **getter-hint-ON 셀은 Track A의 build_v2_prompt wiring을 기다릴 것**(완료 시 이 배너 갱신). 결과 → `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4* 행.
+> **▶ 실행**: v1.35 STEP1-4 레시피 그대로(32B/72B 서빙 + `run_simulation.py --two_stage --two_stage_v2`) + env 토글로 셀 선택:
+> ```bash
+> #   매트릭스 셀 = {SOPBENCH_ALIAS} × {SOPBENCH_SOURCE} × {SOPBENCH_GETTER_HINT}
+> for HINT in "" "SOPBENCH_GETTER_HINT=1"; do
+>  for A in "" "SOPBENCH_ALIAS=1"; do for S in "SOPBENCH_SOURCE=1" "SOPBENCH_SOURCE=3"; do
+>   env $HINT $A $S SOPBENCH_VLLM_BASE_URL=http://localhost:9100/v1 \
+>     <seka_env>/bin/python run_simulation.py --domain bank --assistant_model qwen2.5-32b-instruct \
+>     --two_stage --two_stage_v2 --tool_list full --output_dir ./out_32b_${HINT}_${A}_${S}   # +v2-planner 플래그
+>   <seka_env>/bin/python run_evaluation.py --domain bank --assistant_model qwen2.5-32b-instruct \
+>     --tool_list full --output_dir ./out_32b_${HINT}_${A}_${S}
+>  done; done
+> done
+> ```
+> ⚠️ **STEP2 `apply_two_stage_patch.py <clone>` 재실행 필수**(갱신된 `two_stage_client.py`를 clone에 재배포해야 getter-hint 작동). `induced/getter_map.json`은 `autoderive_getter_map.py`로 생성(rung1 파이프라인이 자동). 헤드라인 지표(1번 항목)로 판독. 결과 → `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4* 행.
 >
 > ### ★★★★★ v1.35 (2026-06-01) — ★coworker 32B = **우리 arm(구조+alias) vs leaderboard 바닐라** (바닐라 재측정 금지)
 > **무게중심 업데이트**: should_T 병목 해소의 (b) 구현이 **tool-name ALIAS 마스킹 + source-3(NL-only)** 로 재정렬됐다
