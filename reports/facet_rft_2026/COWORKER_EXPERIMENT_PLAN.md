@@ -6,6 +6,24 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★★★★ v1.36 (2026-06-02) — Track A 근본원인 해결(condition→getter auto-derive) → coworker 재정렬 + 지표 교정
+> **이번 세션(Track A, 7B) 변경 요약 — coworker가 알아야 할 것 (상세는 링크):**
+> - **근본원인 확정 = condition→getter 맵 결손**(절차-학습성 문제 *아님*). permitted-collapse(거부 붕괴/should_T 0)는 *정책조건이 getter에 안 묶여 미게더*된 탓이었다. **ungroundable ≈ 0**(7도메인 158/158 grounded, env predicate-source로 정의적 확정; "28% ungroundable"은 휴리스틱 결함이었음). → 상세 [`SOPBENCH_EXPERIMENT_RESULTS.md`](SOPBENCH_EXPERIMENT_RESULTS.md) **Exp-4-precheck-FINAL**.
+> - **auto-derive v2** (`scripts/distill/sopbench/autoderive_getter_map.py` → clone `induced/getter_map.json`): predicate 소스 정적파싱으로 condition→getter-**집합** 자동도출(구조적·전수·전이무결·토큰추측 아님; multi-getter). hand bank-map recall 8/9.
+> - **teacher 수정** (`build_tbox_planner_sft.py`): getter-집합 required-set 배선 + **터미널 = GT `should_succeed`**(login/credential-block·OR 과잉거부 해소). 검증: 터미널 ACT/STOP = should 정확 수렴(bank **48/86**, 7도메인 전부). → 상세 [`SOPBENCH_EXPERIMENT_RESULTS.md`](SOPBENCH_EXPERIMENT_RESULTS.md) **Exp-4-mapwire**.
+> - **설계 priority-lock**: Track A(데이터-fix) **선행** / 합성 §3.0b는 **fallback**(grounding 고유 scope 없음 확정) / **★지표 교정**. → 상세 [`scripts/distill/EXPERIMENT_DESIGN.md`](../../scripts/distill/EXPERIMENT_DESIGN.md) "Rung 1 진단·우선순위 확정" + §3.0b.
+> - 7B LODO 재학습 launch됨(새 teacher 데이터).
+>
+> **▶ coworker(32B/72B) 재정렬 — 무엇이 바뀌나:**
+> 1. **★지표 교정 (필수, 전 셀 적용)**: 헤드라인 = **ACT-recall | 충분게더**(should_T서 게더 완료 후 실제 ACT한 비율; over-refusal 붕괴를 직접 검출) + **STOP-recall 분리 보고**(should_F서 올바른 STOP). 붕괴는 비대칭(STOP-recall=1·ACT-recall=0)이라 **합친 총점/Mean Pass Rate가 ACT-recall=0을 가림** → ⚠️**Mean Pass Rate 단독 헤드라인 금지**. should_T **BOTH(dirgraph∩goal)** 유지, should_F gross. ordering-violation(조기 ACT)은 3차 가드레일.
+> 2. **★★in-context 플래너 getter-hint 정렬 (중요 — 신규 prerequisite)**: 현 `two_stage_client.py:build_v2_prompt`는 **condition→getter 매핑을 프롬프트에 노출하지 않는다** → 32B/72B in-context는 7B와 똑같이 정책조건의 getter를 **cold-infer**해야 함 = **permitted-collapse 재현 위험**. 신규 ablation 축 = **getter-hint on/off**:
+>    - **hint-OFF**(현행 build_v2_prompt): "강모델이 구조 맵 없이 condition→getter를 *추론*하는가" (= 7B가 못 한 것을 32B/72B는 하나).
+>    - **hint-ON**(getter_map.json을 프롬프트에 주입; ⚠️**Track A가 `build_v2_prompt`에 wiring + env 스위치 추가 후 가능** — 현재 미구현): 고친 7B teacher와 apples-to-apples.
+> 3. **매트릭스 (v1.35 축 유지 + 신규축)**: {alias on/off} × {source 1/3} × **{getter-hint on/off(신규)}**, 32B·72B, bank held-out(+가능하면 LODO). 비교앵커 = 32B leaderboard 40.30(바닐라, 재측정 금지)·고친 7B SFT(재학습 후 갱신).
+> 4. **합성 §3.0b는 coworker 범위 아님**(grounding scope 없음 확정; many-conditions 일반화 stress-test가 필요해지면 그때 Track A가 합성 생성).
+>
+> **▶ 실행**: v1.35 STEP1-4 레시피 그대로(32B/72B 서빙 + `run_simulation.py --two_stage --two_stage_v2`, alias/source env 토글). `induced/getter_map.json`은 clone에 생성됨(`autoderive_getter_map.py`; rung1 파이프라인이 자동 재생성). **getter-hint-ON 셀은 Track A의 build_v2_prompt wiring을 기다릴 것**(완료 시 이 배너 갱신). 결과 → `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-4* 행.
+>
 > ### ★★★★★ v1.35 (2026-06-01) — ★coworker 32B = **우리 arm(구조+alias) vs leaderboard 바닐라** (바닐라 재측정 금지)
 > **무게중심 업데이트**: should_T 병목 해소의 (b) 구현이 **tool-name ALIAS 마스킹 + source-3(NL-only)** 로 재정렬됐다
 > (설계 권위본 = `scripts/distill/TASK_CONSTRAINT_DESIGN.md` **§8.5.★**). **coworker의 역할 = 32B로 *우리 arm*만**
