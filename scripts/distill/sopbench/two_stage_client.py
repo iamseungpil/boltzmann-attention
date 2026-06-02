@@ -115,7 +115,8 @@ def _render_precond_mod(tree, predicates, out, est):
 
 def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines, slot_keys,
                     op_descs=None, observed=None, goal_name=None, goal_constraint=None,
-                    alias_map=None, source=1, gate_token=False, scratchpad=False):
+                    alias_map=None, source=1, gate_token=False, scratchpad=False,
+                    getter_hint=False, getter_map=None):
     """Build the arm-3v2/arm-4a planner prompt. `op_names` = the exact tool-name order shown to
     the model. `established` = establishable preds already satisfied. `observed` = {fact_pred ->
     bool} learned from prior internal-check results in history (fact-visibility, arm-4a v2).
@@ -177,6 +178,31 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
         else:
             lines.append(f"- {A(nm)}: {S(op_descs.get(nm, '(tool)'))[:80]}")
     ops_str = "\n".join(lines)
+    # getter-hint (coworker v1.36 / EXPERIMENT_DESIGN Rung1): surface the condition->getter HOW-binding
+    # so an IN-CONTEXT planner (no SFT) knows which lookup tool verifies each POLICY CONDITION that is
+    # NOT a directly-callable check. The 7B teacher learns this from the auto-derived getter_map; the
+    # in-context model must be told (else it cold-infers -> permitted-collapse). Legitimate fact-offload
+    # HOW (design §1: the getter that verifies a fact), NOT the WHAT/order answer-key. OFF by default ->
+    # the teacher's build_v2_prompt call (no getter_map) stays byte-identical.
+    gh_block = ""
+    if getter_hint and getter_map:
+        pairs = {}
+        for nm in op_names:
+            op = ops.get(nm)
+            if not op:
+                continue
+            gp, ge = [], {}
+            _render_precond_mod(op.get("precondition"), predicates, gp, ge)
+            for p in dict.fromkeys(gp):
+                if (predicates.get(p, {}).get("kind") == "condition"
+                        and p in getter_map and p not in pairs):
+                    avail = [g for g in getter_map[p] if g in op_set]
+                    if avail:
+                        pairs[p] = avail
+        if pairs:
+            gh_lines = "\n".join(f"  - to verify [{A(p)}], call: {', '.join(A(g) for g in gs)}"
+                                 for p, gs in pairs.items())
+            gh_block = f"VERIFICATION TOOLS (which lookup checks each policy condition):\n{gh_lines}\n\n"
     hist_str = S("\n".join(history_lines)) if history_lines else "nothing yet"
     slots_str = ", ".join(sorted(slot_keys)) or "only what the user provided"
     policy_str = S(str(policy))
@@ -212,6 +238,7 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
             "You are a planning agent. Pick the SINGLE next tool to call, or STOP.\n\n"
             f"USER REQUEST:\n{req_str}\n\nPOLICY (constraints to honor):\n{policy_str}\n\n"
             f"TOOLS (name: what it does):\n{ops_str}\n\n"
+            f"{gh_block}"
             f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
             f"HISTORY:\n{hist_str}\n\n"
             "RULES:\n"
@@ -230,6 +257,7 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
         f"USER REQUEST:\n{req_str}\n\nPOLICY (constraints to honor):\n{policy_str}\n\n"
         f"TOOLS (name: needs [preconditions]; gives [effects]):\n{ops_str}\n\n"
         f"HOW TO ESTABLISH preconditions:\n{est_str}\n\n"
+        f"{gh_block}"
         f"ALREADY KNOWN/ESTABLISHED: {slots_str}\n"
         f"HISTORY:\n{hist_str}\n\n"
         "RULES:\n"
@@ -284,6 +312,21 @@ class TwoStageClient:
         self._gate = bool(os.environ.get("SOPBENCH_GATE"))   # §8.6 gate-token (ACT/STOP terminal)
         self._scratch = bool(os.environ.get("SOPBENCH_SCRATCHPAD"))  # §8.7 Rung1 educated scratchpad
         self._rllog = os.environ.get("SOPBENCH_RLLOG")               # §3 Rung2 GRPO rollout log path
+        # coworker v1.36: in-context getter-hint (condition->getter HOW-binding from auto-derived map).
+        # OFF by default. SOPBENCH_GETTER_MAP defaults to the clone's induced/getter_map.json.
+        self._getter_hint = bool(os.environ.get("SOPBENCH_GETTER_HINT"))
+        self._getter_map = None
+        if self._getter_hint:
+            try:
+                _raw = json.load(open(os.environ.get("SOPBENCH_GETTER_MAP", "induced/getter_map.json")))
+                _flat = {}                       # flatten per-domain {cond->getters}; cond names domain-unique
+                for _m in _raw.values():
+                    for _c, _gs in _m.items():
+                        if _gs:
+                            _flat.setdefault(_c, _gs)
+                self._getter_map = _flat
+            except Exception:
+                self._getter_map = None          # missing map -> hint silently off (no crash)
         self._alias_map = None        # {real -> alias}, built once per task (reset clears)
         self._alias_inv = None        # {alias -> real}, to de-alias the planner output
         # coverage counters (cumulative across the run)
@@ -446,7 +489,8 @@ class TwoStageClient:
                                  hist, set(self._slot_state.keys()), op_descs, observed,
                                  goal_name=gname, goal_constraint=gconstr,
                                  alias_map=amap, source=self._source, gate_token=self._gate,
-                                 scratchpad=self._scratch)
+                                 scratchpad=self._scratch,
+                                 getter_hint=self._getter_hint, getter_map=self._getter_map)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
             temperature=self.temperature, top_p=self.top_p, max_tokens=24)
