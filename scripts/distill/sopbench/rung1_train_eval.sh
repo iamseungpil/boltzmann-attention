@@ -17,8 +17,11 @@ NB="dmv healthcare hotel library online_market university"
 echo "=== rung1 (readiness-gate) train+eval start $(date) ===" > $SUM
 rm -f /dev/shm/vllm* /dev/shm/nccl* 2>/dev/null
 
-# 0) build readiness-gate LODO data (idempotent)
+# 0) auto-derive condition->getter-SET map (structural; Exp-4-precheck-FINAL) -> induced/getter_map.json
 cd $SB
+PYTHONPATH=$CLONE $PY autoderive_getter_map.py --ont_dir $CLONE/induced --data_dir $CLONE/data --src_root $CLONE/env/domains --out $CLONE/induced/getter_map.json >> $SUM 2>&1
+# 0b) build readiness-gate LODO data (idempotent; teacher now gathers policy conditions via the map,
+#     terminal = should_succeed GT label)
 PYTHONPATH=$CLONE $PY build_tbox_planner_sft.py --out $OUT --data_dir $CLONE/data --ont_dir $CLONE/induced --scratchpad >> $SUM 2>&1
 PYTHONPATH=$CLONE $PY build_tbox_planner_sft.py --out $OUT --data_dir $CLONE/data --ont_dir $CLONE/induced --alias --source 3 --scratchpad >> $SUM 2>&1
 : > $OUT/lodo_train_s1_scratch.jsonl;        for d in $NB; do cat $OUT/sft_tbox_${d}_gate_scratch.jsonl          >> $OUT/lodo_train_s1_scratch.jsonl 2>/dev/null; done
