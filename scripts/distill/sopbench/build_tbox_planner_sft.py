@@ -95,6 +95,11 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
     from swarm.util import function_to_json
 
     ont = json.load(open(f"{ont_dir}/ontology_{domain}.json"))
+    # auto-derived condition->getter-SET (autoderive_getter_map.py; structural, multi-getter,
+    # transfer-clean). Replaces the hand GETTER_BY_DOMAIN single-getter map. Falls back to hand
+    # map if absent. See EXPERIMENT_DESIGN Rung1 priority-lock / Exp-4-precheck-FINAL.
+    _gmap_path = f"{ont_dir}/getter_map.json"
+    GMAP = json.load(open(_gmap_path)).get(domain, {}) if os.path.exists(_gmap_path) else {}
     di, dfu, dd = task_default_dep_full(domain, "full", "structured", dependency_verb_dep_orig=True)
     dep_innate = domain_assistant_keys[domain].action_innate_dependencies
     dep_full_raw = get_default_dep_full(domain, "full")
@@ -155,8 +160,12 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     continue                                       # login/auth handled in establish phase
                 if pred in tool_names:
                     required.append((pred, pm, neg, pred))         # A: args-aware callable check
+                elif pred in GMAP:
+                    for g in GMAP[pred]:                            # B: condition -> getter-SET (auto, multi)
+                        if g in tool_names:
+                            required.append((pred, pm, neg, g))
                 elif pred in GETTER and GETTER[pred] in tool_names:
-                    required.append((pred, pm, neg, GETTER[pred]))  # B: condition -> getter+compare
+                    required.append((pred, pm, neg, GETTER[pred]))  # B-legacy: hand single-getter fallback
             # C: goal's establishable login/auth, CONDITIONAL on credential availability (no halluc)
             gl = []
             collect_leaf_list(ont["operators"].get(goal, {}).get("precondition"), gl)
