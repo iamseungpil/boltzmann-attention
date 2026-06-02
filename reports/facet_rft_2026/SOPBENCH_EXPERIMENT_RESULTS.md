@@ -452,6 +452,11 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **⚠️`should1_model0` 큼**(bank 35/48·healthcare 44/45·online_market 59/60·library 24/24) **but 대부분 census 진단결함**: bank 35 중 **33이 reach=0인데 leaf는 전부 True**(`lt=[True,True,True]`) → census `_reach=de.process(goal)`가 **로그인 establishment 전 초기상태**서 goal precond 평가해 0(teacher는 step3서 login 실제수행→데이터 정상). 나머지 **2는 reach=1+False leaf = pay_loan OR/조건부**(flat-AND가 OR 오판=리뷰어 OR경고, 소수).
 > - **결론**: map 배선 **건전**(판별 복구·hand-map recall 8/9). 진짜 잔여 2개: **(a) census `_reach` establishment 미시뮬(다른세션 census 과엄격 진단버그)** · **(b) teacher `next_decision` step2 flat-AND(`any False→STOP`)가 OR/조건부 과잉거부**(소수 태스크). 다음=teacher를 **constraint-TREE eval**(AND/OR/chain)로 + census `_reach` 수정 → teacher 재생성 → 재학습 → ACT-recall|게더 + STOP-recall 분리 재측정.
 
+> **Exp-4-rung1-trained (corrected teacher → 7B LODO 재학습+bank eval, 2026-06-02 17:40 KST, rr.ps1 실측) — ★헤드라인 NULL**: getter-map+should_succeed-terminal로 고친 teacher(검증: 터미널 48/86 정확)로 2 regime SOLO 재학습(LODO holdout=bank, ep3, val_loss s1 0.053/alias_s3 0.087 수렴) 후 bank held-out eval(fresh, freshness-guard 통과).
+> - **결과(should_T BOTH = dirgraph∩goal)**: **s1 BOTH=0**(dirgraph 9·goal 20) · **alias_s3 BOTH=2**(dirgraph 18·goal 17). 기준선 gate-token s1 2/alias_s3 1 대비 **개선 없음**(null). Mean Pass Rate s1 0.246/alias_s3 0.205(거부 부풀림, 헤드라인 아님).
+> - **★corrected 지표(reviewer, eval JSON 산출)**: **ACT-recall|게더(dirgraph) = 0/9(s1)·2/18(alias_s3)** = 게더 충분해도 거의 ACT 안 함; **gather-then-STOP = 9/9·16/18**(게더후 거부); **premature-act(게더없이 goal) = 20/45·15/47**; **STOP-recall(should_F 정답) = 32/89=36%·26/87=30%**(과소거부).
+> - **★진단(솔직)**: 모델이 **gather-act XOR**로 분리 — 게더하면 STOP, act하면 게더 안 함, BOTH≈0. **데이터 정확성(48/86)은 필요조건이었고 확보됐으나, SFT positive-only 단독은 "게더 *후* act" 순서를 못 가르침**(메모리의 BOTH 0-2 그대로). should_succeed-terminal이 refuse-all(이전 av-버그 86/86)은 깼지만 premature-act 쪽으로 이동. = **사다리 전제 확증**(SFT는 순서 음성신호 부재) → **Rung 1.5 DPO**(gather-then-STOP·premature-act를 rejected로) / **Rung 2 RFT**(BOTH 보상)가 필요. serve/parse 정상(Mean 0.20-0.25·dirgraph/goal nonzero=degenerate 아님). **다음 = ② DPO(`build_dpo_pairs`+`dpo_train`, init=이 어댑터).**
+
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
 > - HT2(분리증명): **빈/틀린 ABox 주입 → 붕괴**(entangled면 ABox 없이도 동작=실패; 분리면 ABox 필수=성공조건).
