@@ -197,6 +197,7 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     _reach = bool(de.process(goal, **slots))
                 except Exception:
                     _reach = False
+                _reach = _reach or len(ests) > 0   # (c) login establishable when creds present (was: frozen pre-login -> spurious reach=0)
                 _modeled = (all(t is True for t in _lt) if _lt else True) and _reach
                 print(f"CENSUS\t{domain}\t{goal}\tshould={int(should_succeed)}\tmodeled={int(_modeled)}"
                       f"\treach={int(_reach)}\tnleaf={len(required)}\tnest={len(ests)}\tlt={_lt}",
@@ -208,23 +209,23 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 for pred, pm, neg, tool in required:
                     if tool not in executed:
                         return tool
-                # 2. a verified constraint fact/condition is FALSE -> refuse (reason now gathered) [should_F]
-                if any(observed.get(p) is False for p, _, _, _ in required):
+                # 2. should_F with a gathered FALSE constraint -> refuse (reason now gathered). GATED on
+                #    `not should_succeed` so OR/conditional should_T tasks (a False OR-branch) do NOT
+                #    early-STOP (flat `any False` wrongly refused OR-satisfied should_T; reviewer OR warning).
+                if not should_succeed and any(observed.get(p) is False for p, _, _, _ in required):
                     return "STOP"
                 # 3. establish login/auth (only when creds available) for the goal
                 for pred, by in ests:
                     if pred in established or by in executed:
                         continue
                     return by
-                # 4. TERMINAL gate (§8.6). gate-token: constant ACT/STOP (not the varying goal name);
-                #    should_F is forced to STOP (fixes the should_F GOAL-mislabel that polluted the gate).
-                try:
-                    reachable = bool(de.process(goal, **slots))
-                except Exception:
-                    reachable = False
+                # 4. TERMINAL gate (§8.6). Decision = GT outcome label `should_succeed` (authoritative;
+                #    encodes the constraint TREE incl. OR, AND login-establishability). Replaces the buggy
+                #    `reachable`=de.process(goal) on the FROZEN pre-login state, which gave 70 ACT vs 48
+                #    should (login-block should_F slipped through; reach ignored establishment). should_F->STOP.
                 if use_gate:
-                    return "ACT" if (should_succeed and reachable) else "STOP"
-                return goal if reachable else "STOP"
+                    return "ACT" if should_succeed else "STOP"
+                return goal if should_succeed else "STOP"
 
             _seq = []
             for _ in range(16):
@@ -254,11 +255,10 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                         # predictions whose AND is the decision; ACT iff (preconds_verified AND permitted).
                         _ro = [observed.get(p) for p, _, _, _ in required if p in observed]
                         pv = all(v is True for v in _ro) if _ro else True   # required checks verified (gather-state)
-                        try:
-                            _reach = bool(de.process(goal, **slots))
-                        except Exception:
-                            _reach = False
-                        pm = bool(should_succeed and _reach)                # policy permits + reachable
+                        # permitted = GT outcome (should_succeed); encodes policy + OR + login-block.
+                        # (dropped `and _reach`: de.process on the frozen pre-login state wrongly blocked
+                        # login-needing should_T -> permitted=false on should-succeed tasks.)
+                        pm = bool(should_succeed)                           # policy permits (GT label)
                         # consistency: ACT iff (pv and pm); STOP explained by which gate is false.
                         tgt_out = (f"ready=true; preconds_verified={'true' if pv else 'false'}; "
                                    f"permitted={'true' if pm else 'false'}; {target}")
