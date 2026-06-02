@@ -34,6 +34,14 @@
 - s1(source=1) 진단이 prior-override를 시사했으나 **렌더 confound 미해소**: goal `needs[]`/STATUS는 `goal_constraint`가 명시될 때만 task-pruned, 아니면 풀 precond(login 포함)로 렌더됨(`two_stage_client.py` **L158-160**). eval은 `_lighten`일 때만 gconstr 전달(**L477-478**), teacher는 아예 안 넘김(L238). → s1 프롬프트가 login을 "BLOCKED→먼저 호출"로 *명시 렌더*했을 공산이 큼 = 모델이 따른 것이지 무시한 것 아님.
 - **본 수정(establish-phase 삭제 + required_set 균일)이 teacher 측 over-login을 제거**하므로, prior-override 여부는 *수정 후 재측정*으로 판별한다(사전 단정 금지).
 
+### 1.5 ★login 외 도메인-특화 학습 전수 감사 (2026-06-02, 코드 `build_tbox_planner_sft.py`+`build_v2_prompt` 전수 검색)
+**결론: login 특별취급이 유일한 도메인-특화 학습이며, 그 *쌍둥이*가 프롬프트 쪽에도 있다. 나머지는 ABox-입력이거나 alias로 보호됨.**
+- **(1) ★프롬프트-측 establish 쌍둥이 (T3로 반드시 *함께* 제거 — T1만으론 불충분)**: `build_v2_prompt`가 (a) **"HOW TO ESTABLISH preconditions: to establish 'X', call Y"** 블록(L253/259), (b) establishable 미충족 시 **"BLOCKED — first call: login_user"** STATUS(L172)를 렌더 = teacher establish-phase의 프롬프트 판. teacher만 고치고 프롬프트를 두면: (i) login이 프롬프트에서 여전히 특별 개념으로 노출, (ii) **source=1(s1)에서 needs/STATUS가 full operator precond(login 포함)로 렌더되는데 T1 후 teacher 타깃은 login-free → train/eval 불일치**.
+  - ★**source=3(헤드라인 alias_s3)은 이미 깨끗**: source=3 템플릿(L210-225)은 needs/STATUS·HOW-TO-ESTABLISH를 **렌더 안 함**(도구 설명만) → 프롬프트-측 login 노출 0 → **헤드라인 regime은 T1(teacher)만으로 충분**(모델이 required_set을 NL서 추론). = §1.4 confound는 *s1 전용* 현상.
+  - source=1(s1, 비교군)만 needs를 **task-pruned로 렌더**해야 깨끗(안 그러면 s1 = alias 효과 + login-렌더 효과가 혼동). → T3에 포함.
+- **(2) GETTER_BY_DOMAIN 하드코딩 bank dict (L76-88)**: bank만 손-map, 타 6도메인은 auto-derive(`getter_map.json`) → **bank 특별취급(불일치)**. LODO(holdout=bank)엔 bank teacher가 학습에 안 쓰여 *모델 누수는 없음*. 단 균일성 위해 **삭제하고 auto-derive에 일원화 권장**(cleanup).
+- **(3) 누수 아님 — 확인된 것**: getter-선택(condition→getter)은 **alias로 보호**(alias_s3서 도구명 마스킹→설명 의미매칭 강제, 암기 불가); establishable/condition **kind 구분은 ABox 구조**(T1 후 라우팅 균일하면 정당); 인자 채움은 **resolver 몫**(planner SFT 타깃 아님); `should_succeed` 터미널은 **GT 출력 라벨**(일반 예측 스킬). → **planner-타깃에 login 외 도메인-특화 학습 없음**.
+
 ---
 
 ## 2. ★구현 전 단일 게이트 (코딩 시작 전 반드시)
@@ -71,9 +79,14 @@
   - ⚠️ **`target in executed: break` 무한루프 가드는 유지.** goal-break만 완화(should_succeed & goal 1회 성공 후 종료 1스텝 추가). should_F는 현행대로(goal 미호출, STOP).
 - **빌드-타임 assertion 추가**: "history에 goal-success가 있는데 그 뒤 tool-call(비종료) 타깃이 있는 예제 = 0." 위반 시 빌드 실패.
 
-### T3. 종료 토큰 vocabulary/프롬프트 룰 반영
-- `two_stage_client.py` `build_v2_prompt`의 scratchpad 룰 블록(L216-226)에 종료 분기 1줄 추가: "goal이 이미 성공 호출됨 → `ready=true; done=true; STOP`(종료)."
-- eval 파서(L507-530)가 done-STOP을 정상 종료로 처리하는지 확인(현재 STOP→"STOP"→exit_conversation이므로 동작; done 플래그는 파싱 영향 없음).
+### T3. 프롬프트(`build_v2_prompt`) — 종료 토큰 + ★login 쌍둥이 제거 (§1.5)
+- **T3a 종료 분기**: scratchpad 룰 블록(L216-226)에 1줄 추가: "goal이 이미 성공 호출됨 → `ready=true; done=true; STOP`(종료)." eval 파서(L507-530)가 done-STOP을 정상 종료로 처리하는지 확인(현재 STOP→exit_conversation이므로 동작; done 플래그는 파싱 영향 없음).
+- **T3b ★프롬프트-측 login 특별취급 제거 (§1.5-(1), T1과 짝)**: establishable을 condition/check와 **균일 렌더**.
+  - source=1 STATUS의 establishable-전용 "BLOCKED — first call: login_user"(L172)를 일반 "VERIFY/CALL: <도구>"로 통합(establishable·condition 동일 처리).
+  - **별도 "HOW TO ESTABLISH" 블록(est_str, L253/259) 제거** — establishable이 required_set 멤버로 needs에 균일 포함되므로 중복.
+  - ★**source=1 needs/STATUS를 task-pruned required_set으로 렌더**(현재 gconstr=None시 full operator precond=login 포함 → T1 후 teacher 타깃과 불일치). teacher가 쓰는 동일 required_set 소스로 통일.
+  - ⚠️ **source=3(헤드라인)은 needs/establish 미렌더라 변경 불요**(이미 깨끗) — T3b는 s1 비교군 정합용. 단 *하지 말 것*: source=3에 required_set을 needs로 노출(=answer-key, §5).
+- **T3c (cleanup) GETTER_BY_DOMAIN 하드코딩 bank dict 삭제** → auto-derive(`getter_map.json`) 일원화(§1.5-(2)). 모델 누수는 없으나 균일성.
 
 ### T4. 데이터 재생성 + 검증
 - LODO holdout=bank, non-bank 6도메인 학습셋. alias regime은 헤드라인이므로 **`--alias --source 3 --scratchpad`**(alias_s3_scratch)와 비교군 `--source 1 --scratchpad`(s1_scratch) 둘 생성.
@@ -102,6 +115,7 @@
 ## 5. 하지 말 것 (anti-patterns)
 
 - ❌ login/auth를 도메인별로 손-처리하거나 creds 휴리스틱으로 게이팅. **모든 도구는 required_set 멤버로 균일.**
+- ❌ teacher establish-phase만 고치고 **프롬프트(`build_v2_prompt`)의 establish 쌍둥이(HOW-TO-ESTABLISH 블록·"BLOCKED→first call login" STATUS)를 방치**(§1.5-(1)). T1·T3b는 **반드시 짝으로**. (안 그러면 s1 train/eval 불일치 + 프롬프트가 여전히 login을 특별 개념으로 노출.)
 - ❌ source=3/alias에서 required_set(정답)을 `needs[]`로 렌더. = answer-key = anti-cheat 붕괴 + NL→dirgraph 컴파일이 RoG식 그래프-실행으로 강등(novelty 상실). **규칙(도구·condition·getter)은 ABox에 명시 OK / "이 요청에 무엇이 발화하는가(required_set)"의 task-조건화는 *렌더 아니라 TBox 학습*.**
 - ❌ "over-login = prior-override"를 설계서에 단정. 본 수정 후 재측정으로 판별(§1.4).
 - ❌ goal-break 완화 시 `target in executed` 무한루프 가드 제거.
@@ -134,6 +148,9 @@
 | 〃 L161-168 | required 매핑(check/getter) | T1 establishable→`by` 추가 |
 | 〃 L281-282 (break) | goal/ACT 즉시 종료 | T2 완화(가드 유지) |
 | 〃 L131-132 | `task_dep[goal]=constraints` | §2 소스 검증 근거 |
-| `two_stage_client.py` L216-226 | scratchpad 룰 | T3 종료분기 추가 |
-| 〃 L507-530 | 터미널 파서 | T3 done-STOP 확인 |
-| 〃 L158-160, L477-478 | goal_constraint 렌더 게이트 | §1.4 confound 근거 |
+| `build_tbox_planner_sft.py` L76-88 | GETTER_BY_DOMAIN 하드코딩 bank dict | T3c 삭제(auto-derive 일원화) |
+| `two_stage_client.py` L216-226 | scratchpad 룰 | T3a 종료분기 추가 |
+| 〃 L170-175 | establishable STATUS "BLOCKED→first call login" | T3b 일반화(login 특별취급 제거) |
+| 〃 L253, L259 | "HOW TO ESTABLISH" est_str 블록 | T3b 제거(needs로 균일 흡수) |
+| 〃 L507-530 | 터미널 파서 | T3a done-STOP 확인 |
+| 〃 L158-160, L477-478 | goal_constraint 렌더 게이트(full precond vs task-pruned) | §1.4 confound 근거 / T3b source=1 task-prune |
