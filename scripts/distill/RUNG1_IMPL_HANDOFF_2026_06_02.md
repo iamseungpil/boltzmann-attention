@@ -12,6 +12,8 @@
 
 이로써 §3의 실행 불변식 R1–R4가 전부 "required_set 충실 실행" 하나로 붕괴하고, R1(parsimony=불필요 호출 금지)은 **자동 충족**된다(set 밖이면 안 부름).
 
+**★작업 범위(login은 빙산의 일각 — §1.5 감사)**: teacher 도메인-특화 3종 = **T1**(login establish, target-leak·핵심) + **T1b**(GETTER bank 손-맵, cleanup) + **T1c**(accounts/username 스키마, census-gated 대체) / 프롬프트 쌍둥이 = **T3b**(login establish 렌더) / 제어 = **T2/T3a**(R3 종료). T1·T3b는 짝(teacher+prompt 동시). 헤드라인(source=3 alias_s3)은 T1만으로 충분, 나머지는 정합·균일성.
+
 ---
 
 ## 1. 근거 (코드·실측, 추측 아님)
@@ -40,7 +42,7 @@
   - ★**source=3(헤드라인 alias_s3)은 이미 깨끗**: source=3 템플릿(L210-225)은 needs/STATUS·HOW-TO-ESTABLISH를 **렌더 안 함**(도구 설명만) → 프롬프트-측 login 노출 0 → **헤드라인 regime은 T1(teacher)만으로 충분**(모델이 required_set을 NL서 추론). = §1.4 confound는 *s1 전용* 현상.
   - source=1(s1, 비교군)만 needs를 **task-pruned로 렌더**해야 깨끗(안 그러면 s1 = alias 효과 + login-렌더 효과가 혼동). → T3에 포함.
 - **(2) GETTER_BY_DOMAIN 하드코딩 bank dict (L76-88)**: bank만 손-map, 타 6도메인은 auto-derive(`getter_map.json`) → **bank 특별취급(불일치)**. LODO(holdout=bank)엔 bank teacher가 학습에 안 쓰여 *모델 누수는 없음*. 단 균일성 위해 **삭제하고 auto-derive에 일원화 권장**(cleanup).
-- **(3) accounts/username slot 확장 (L137-141) — 도메인-특화 가정 + train/eval 비대칭**: teacher가 `task["initial_database"]["accounts"][username]` 필드를 slots에 평탄화(**"accounts"·"username" 리터럴 하드코딩**). (a) bank-중심 identity 스키마(university=student_id·hotel=guest 등엔 부적합), (b) `slots`→`set(slots.keys())`가 프롬프트 "ALREADY KNOWN/ESTABLISHED"로 렌더되는데 **eval-side `_update_slots`(`two_stage_client.py` L563-579)는 도구결과 dict + "Here is all the information" 덤프를 키-무관 일반 수확**(account 특수처리 0) = **train/eval 분포 불일치**. 학습 *타깃*엔 직접 영향 없으나(slot은 입력측) 프롬프트 known-state를 도메인별로 비대칭화. → **T3d cleanup**.
+- **(3) accounts/username slot 확장 (L137-141) — 도메인-특화 가정 + train/eval 비대칭**: teacher가 `task["initial_database"]["accounts"][username]` 필드를 slots에 평탄화(**"accounts"·"username" 리터럴 하드코딩**). (a) bank-중심 identity 스키마(university=student_id·hotel=guest 등엔 부적합), (b) `slots`→`set(slots.keys())`가 프롬프트 "ALREADY KNOWN/ESTABLISHED"로 렌더되는데 **eval-side `_update_slots`(`two_stage_client.py` L563-579)는 도구결과 dict + "Here is all the information" 덤프를 키-무관 일반 수확**(account 특수처리 0) = **train/eval 분포 불일치**. 학습 *타깃*엔 직접 영향 없으나(slot은 입력측이되 `resolve_args`/`truth()` 통해 궤적·라벨에 간접 영향 — T1c census 가드) 프롬프트 known-state를 도메인별로 비대칭화. → **T1c**(teacher 편집).
 - **(4) 누수 아님 — 확인된 것**: getter-선택(condition→getter)은 **alias로 보호**(alias_s3서 도구명 마스킹→설명 의미매칭 강제, 암기 불가); establishable/condition **kind 구분은 ABox 구조**(T1 후 라우팅 균일하면 정당); 인자 채움은 **resolver 몫**(planner SFT 타깃 아님); `should_succeed` 터미널은 **GT 출력 라벨**(일반 예측 스킬). → **planner-타깃에 login 외 도메인-특화 학습 없음**.
 
 ---
@@ -72,6 +74,17 @@
 - 결과: `required_set` = `task["constraints"]` leaf 전부(균일, establishable 포함). next_decision = "required 중 미실행 도구 호출 → 다 되면 ACT(should_succeed) else STOP." **도구별/도메인별 분기 0. TBox에 login 개념 없음.**
 - 의존순서: establishable(login)이 그것을 전제하는 check보다 먼저 호출되도록 정렬 필요할 수 있음(login→auth-필요 check). 1차는 leaf 순서로 두되, 재학습 후 순서위반 보이면 위상정렬 추가.
 
+### T1b. (cleanup) GETTER_BY_DOMAIN 하드코딩 bank dict 삭제 — 도메인 균일성 (§1.5-(2))
+〔파일 = `build_tbox_planner_sft.py`(teacher), build_v2_prompt 아님〕
+- **L76-88**의 하드코딩 bank getter 손-맵 삭제 → auto-derive(`getter_map.json`, L99 로드) 단일 경로로 일원화. bank만 손-맵을 갖던 비대칭 제거.
+- ⚠️LODO(holdout=bank)엔 bank teacher 미학습이라 **모델 누수 없음** — 순수 cross-domain 코드 균일성·재현성 cleanup.
+
+### T1c. ★accounts/username slot 확장 generic화 — 도메인-특화 가정 제거 + train/eval 정합 (§1.5-(3))
+〔파일 = `build_tbox_planner_sft.py`(teacher), build_v2_prompt 아님〕
+- **L137-141**: `task["initial_database"]["accounts"][username]` 필드 평탄화 = **"accounts"·"username" 리터럴 하드코딩**(bank identity 스키마). → **generic slot 도출로 대체**(eval `_update_slots` L563-579와 동일 분포: `user_known` + 도구결과 dict 수확, 도메인-특수 키 가정 0 — 검증됨).
+- ⚠️**load-bearing — 삭제 아닌 *대체* (census-gated)**: slots는 프롬프트 known-state뿐 아니라 **`resolve_args`(궤적 인자채움)·`truth()`(`**slots` 인자바인딩)**에 쓰임 → 단순 삭제 시 **bank 라벨(should_succeed)·궤적이 바뀔 수 있음**. **census 가드 필수**: 적용 전후 `truth()`/should_succeed 라벨 불변 확인. 바뀌면 = 확장이 라벨계산에 load-bearing → ABox-스키마에서 user-record 컬렉션·키를 *일반적으로* 도출해 대체(특정 도메인 리터럴 금지).
+- LODO 무누수: 6 non-bank엔 "accounts" 키 없어 미발화(T4 edge 확인).
+
 ### T2. R3 종료(post-success exit) — (B) 16건 표적
 - **근원**: L281 `if target in ("STOP","ACT",goal) or target in executed: break` 가 goal/ACT emit 즉시 루프 종료 → post-success 예제 0개.
 - **수정**: goal/ACT가 should_succeed일 때 즉시 break하지 말고, **goal 실행(상태 전진) → 다음 스텝에서 종료 예제 1개 추가**.
@@ -87,8 +100,7 @@
   - **별도 "HOW TO ESTABLISH" 블록(est_str, L253/259) 제거** — establishable이 required_set 멤버로 needs에 균일 포함되므로 중복.
   - ★**source=1 needs/STATUS를 task-pruned required_set으로 렌더**(현재 gconstr=None시 full operator precond=login 포함 → T1 후 teacher 타깃과 불일치). teacher가 쓰는 동일 required_set 소스로 통일.
   - ⚠️ **source=3(헤드라인)은 needs/establish 미렌더라 변경 불요**(이미 깨끗) — T3b는 s1 비교군 정합용. 단 *하지 말 것*: source=3에 required_set을 needs로 노출(=answer-key, §5).
-- **T3c (cleanup) GETTER_BY_DOMAIN 하드코딩 bank dict 삭제** → auto-derive(`getter_map.json`) 일원화(§1.5-(2)). 모델 누수는 없으나 균일성.
-- **T3d (cleanup, `build_tbox_planner_sft.py` L137-141) accounts/username slot 확장 삭제** → `task["user_known"]` 기반 **일반 slot 도출**로 eval `_update_slots`와 정합(§1.5-(3)). ⚠️적용 후 `truth()`/`resolve_args` 라벨이 불변인지 census 확인(slot 축소가 GT 평가 인자를 깨면 안 됨).
+- ⚠️ **(이동됨)** GETTER_BY_DOMAIN 삭제·accounts/username generic화는 **teacher 파일 편집**이라 **T1b·T1c**로 옮김(이 T3는 `build_v2_prompt` 전용). 엉뚱한 파일 열지 말 것.
 
 ### T4. 데이터 재생성 + 검증
 - LODO holdout=bank, non-bank 6도메인 학습셋. alias regime은 헤드라인이므로 **`--alias --source 3 --scratchpad`**(alias_s3_scratch)와 비교군 `--source 1 --scratchpad`(s1_scratch) 둘 생성.
@@ -96,7 +108,8 @@
   - `ready=false` 뒤 ACT가 한 번도 없는가(0).
   - establishable(login) 타깃이 등장하는 태스크 == task["constraints"]에 establishable leaf 있는 태스크(특별취급 0 확증).
   - post-success 종료 예제 수 > 0, T2 assertion 통과.
-  - 터미널 정확도(should_succeed 정합) census.
+  - 터미널 정확도(should_succeed 정합) census. **T1c 전후 should_succeed/`truth()` 라벨 불변 확인**(load-bearing 가드).
+  - **edge**: non-bank 6도메인 중 `accounts`類(user-record) 컬렉션 가진 곳 없음 확인(있으면 T1c가 학습데이터 변경 → 재census).
 
 ---
 
@@ -150,8 +163,8 @@
 | 〃 L161-168 | required 매핑(check/getter) | T1 establishable→`by` 추가 |
 | 〃 L281-282 (break) | goal/ACT 즉시 종료 | T2 완화(가드 유지) |
 | 〃 L131-132 | `task_dep[goal]=constraints` | §2 소스 검증 근거 |
-| 〃 L137-141 | accounts/username slot 확장(도메인 가정+train/eval 비대칭) | T3d 일반화(user_known 기반) |
-| `build_tbox_planner_sft.py` L76-88 | GETTER_BY_DOMAIN 하드코딩 bank dict | T3c 삭제(auto-derive 일원화) |
+| 〃 L137-141 | accounts/username slot 확장(도메인 가정+train/eval 비대칭) | **T1c** generic 대체(census-gated, load-bearing) |
+| 〃 L76-88 | GETTER_BY_DOMAIN 하드코딩 bank dict | **T1b** 삭제(auto-derive 일원화) |
 | `two_stage_client.py` L216-226 | scratchpad 룰 | T3a 종료분기 추가 |
 | 〃 L170-175 | establishable STATUS "BLOCKED→first call login" | T3b 일반화(login 특별취급 제거) |
 | 〃 L253, L259 | "HOW TO ESTABLISH" est_str 블록 | T3b 제거(needs로 균일 흡수) |
