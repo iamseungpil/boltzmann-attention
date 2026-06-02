@@ -35,12 +35,13 @@
 - **본 수정(establish-phase 삭제 + required_set 균일)이 teacher 측 over-login을 제거**하므로, prior-override 여부는 *수정 후 재측정*으로 판별한다(사전 단정 금지).
 
 ### 1.5 ★login 외 도메인-특화 학습 전수 감사 (2026-06-02, 코드 `build_tbox_planner_sft.py`+`build_v2_prompt` 전수 검색)
-**결론: login 특별취급이 유일한 도메인-특화 학습이며, 그 *쌍둥이*가 프롬프트 쪽에도 있다. 나머지는 ABox-입력이거나 alias로 보호됨.**
+**결론: 학습 *타깃*에 영향하는 도메인-특화 학습은 login 특별취급(+프롬프트 쌍둥이)이 유일하다. 그 외 teacher에 도메인-특화 *가정* 2건(GETTER bank 손-map · accounts/username slot 확장)이 있어 cleanup 필요(모델 누수는 없으나 균일성·train/eval 정합). 나머지는 ABox-입력이거나 alias로 보호됨.**
 - **(1) ★프롬프트-측 establish 쌍둥이 (T3로 반드시 *함께* 제거 — T1만으론 불충분)**: `build_v2_prompt`가 (a) **"HOW TO ESTABLISH preconditions: to establish 'X', call Y"** 블록(L253/259), (b) establishable 미충족 시 **"BLOCKED — first call: login_user"** STATUS(L172)를 렌더 = teacher establish-phase의 프롬프트 판. teacher만 고치고 프롬프트를 두면: (i) login이 프롬프트에서 여전히 특별 개념으로 노출, (ii) **source=1(s1)에서 needs/STATUS가 full operator precond(login 포함)로 렌더되는데 T1 후 teacher 타깃은 login-free → train/eval 불일치**.
   - ★**source=3(헤드라인 alias_s3)은 이미 깨끗**: source=3 템플릿(L210-225)은 needs/STATUS·HOW-TO-ESTABLISH를 **렌더 안 함**(도구 설명만) → 프롬프트-측 login 노출 0 → **헤드라인 regime은 T1(teacher)만으로 충분**(모델이 required_set을 NL서 추론). = §1.4 confound는 *s1 전용* 현상.
   - source=1(s1, 비교군)만 needs를 **task-pruned로 렌더**해야 깨끗(안 그러면 s1 = alias 효과 + login-렌더 효과가 혼동). → T3에 포함.
 - **(2) GETTER_BY_DOMAIN 하드코딩 bank dict (L76-88)**: bank만 손-map, 타 6도메인은 auto-derive(`getter_map.json`) → **bank 특별취급(불일치)**. LODO(holdout=bank)엔 bank teacher가 학습에 안 쓰여 *모델 누수는 없음*. 단 균일성 위해 **삭제하고 auto-derive에 일원화 권장**(cleanup).
-- **(3) 누수 아님 — 확인된 것**: getter-선택(condition→getter)은 **alias로 보호**(alias_s3서 도구명 마스킹→설명 의미매칭 강제, 암기 불가); establishable/condition **kind 구분은 ABox 구조**(T1 후 라우팅 균일하면 정당); 인자 채움은 **resolver 몫**(planner SFT 타깃 아님); `should_succeed` 터미널은 **GT 출력 라벨**(일반 예측 스킬). → **planner-타깃에 login 외 도메인-특화 학습 없음**.
+- **(3) accounts/username slot 확장 (L137-141) — 도메인-특화 가정 + train/eval 비대칭**: teacher가 `task["initial_database"]["accounts"][username]` 필드를 slots에 평탄화(**"accounts"·"username" 리터럴 하드코딩**). (a) bank-중심 identity 스키마(university=student_id·hotel=guest 등엔 부적합), (b) `slots`→`set(slots.keys())`가 프롬프트 "ALREADY KNOWN/ESTABLISHED"로 렌더되는데 **eval-side `_update_slots`(`two_stage_client.py` L563-579)는 도구결과 dict + "Here is all the information" 덤프를 키-무관 일반 수확**(account 특수처리 0) = **train/eval 분포 불일치**. 학습 *타깃*엔 직접 영향 없으나(slot은 입력측) 프롬프트 known-state를 도메인별로 비대칭화. → **T3d cleanup**.
+- **(4) 누수 아님 — 확인된 것**: getter-선택(condition→getter)은 **alias로 보호**(alias_s3서 도구명 마스킹→설명 의미매칭 강제, 암기 불가); establishable/condition **kind 구분은 ABox 구조**(T1 후 라우팅 균일하면 정당); 인자 채움은 **resolver 몫**(planner SFT 타깃 아님); `should_succeed` 터미널은 **GT 출력 라벨**(일반 예측 스킬). → **planner-타깃에 login 외 도메인-특화 학습 없음**.
 
 ---
 
@@ -87,6 +88,7 @@
   - ★**source=1 needs/STATUS를 task-pruned required_set으로 렌더**(현재 gconstr=None시 full operator precond=login 포함 → T1 후 teacher 타깃과 불일치). teacher가 쓰는 동일 required_set 소스로 통일.
   - ⚠️ **source=3(헤드라인)은 needs/establish 미렌더라 변경 불요**(이미 깨끗) — T3b는 s1 비교군 정합용. 단 *하지 말 것*: source=3에 required_set을 needs로 노출(=answer-key, §5).
 - **T3c (cleanup) GETTER_BY_DOMAIN 하드코딩 bank dict 삭제** → auto-derive(`getter_map.json`) 일원화(§1.5-(2)). 모델 누수는 없으나 균일성.
+- **T3d (cleanup, `build_tbox_planner_sft.py` L137-141) accounts/username slot 확장 삭제** → `task["user_known"]` 기반 **일반 slot 도출**로 eval `_update_slots`와 정합(§1.5-(3)). ⚠️적용 후 `truth()`/`resolve_args` 라벨이 불변인지 census 확인(slot 축소가 GT 평가 인자를 깨면 안 됨).
 
 ### T4. 데이터 재생성 + 검증
 - LODO holdout=bank, non-bank 6도메인 학습셋. alias regime은 헤드라인이므로 **`--alias --source 3 --scratchpad`**(alias_s3_scratch)와 비교군 `--source 1 --scratchpad`(s1_scratch) 둘 생성.
@@ -148,6 +150,7 @@
 | 〃 L161-168 | required 매핑(check/getter) | T1 establishable→`by` 추가 |
 | 〃 L281-282 (break) | goal/ACT 즉시 종료 | T2 완화(가드 유지) |
 | 〃 L131-132 | `task_dep[goal]=constraints` | §2 소스 검증 근거 |
+| 〃 L137-141 | accounts/username slot 확장(도메인 가정+train/eval 비대칭) | T3d 일반화(user_known 기반) |
 | `build_tbox_planner_sft.py` L76-88 | GETTER_BY_DOMAIN 하드코딩 bank dict | T3c 삭제(auto-derive 일원화) |
 | `two_stage_client.py` L216-226 | scratchpad 룰 | T3a 종료분기 추가 |
 | 〃 L170-175 | establishable STATUS "BLOCKED→first call login" | T3b 일반화(login 특별취급 제거) |
