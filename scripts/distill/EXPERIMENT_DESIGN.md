@@ -90,47 +90,46 @@
     - **(6) 빠진 고전 정확본 = sensing-action planning**: **PKS** [Petrick & Bacchus 2002/2004, "Knowledge-Based Approach to Planning with Incomplete Information and Sensing"] = 지식DB(Kf/Kw/Kv/Kx)+**sensing action**으로 미지 해소까지 보류하는 forward-chaining contingent planner. **wait=sensing action** = STRIPS precondition보다 진짜 본가(least-commitment/value-of-information). conformant(감지無 plan) vs contingent(감지결과별 plan) 구분.
     - **★잠금 전 게이트(순서)**: (i) alias_s3 raw permitted-collapse ✅(106+28/134) → (ii) 완전성 census(천장 규모) → (iii) A/B ablation. (ii)(iii) 닫은 *후* v3 teacher 구현. 그 전까진 **가설**.
 
-### ?3.0b ?? TBox-?? ?? (clean-getter, Rung1 v4) ?2026-06-02 ?? ? ?? ???
-**?? (?? ?? ? raw?census ??, ??? Exp-4f? ?? ??)**: Rung1 v2 in-dist ??? ??? census? ?? ? permitted ??(v2/v3)?teacher??????? ??? **induced ABox ??**?? ??.
-- **in-dist healthcare**(??? ???): should_T=45, goal=0, terminal `permitted=false ?124(??)` = 100% ????? ??(??? ????). ???? ??(?? ????? ??).
-- **teacher census**: healthcare ??? 124 = ACT 45 + STOP 79, ??? 0 ? teacher? should_T **45/45? ??? ACT?** ??? = teacher ???model-unlearnable ??.
-- **??? census**: AND(??? ??)=True? 124/124(should_T?should_F ??) ? **??? ??? ??? 0**. ??? ????=???? 3??.
-- **induction ??**: ?? predicate 20? ? 18? `produces=[]`/`by=null` = getter?predicate ?? ??. ? ???? getter 4?(get_policy/provider/claim_details?get_claim_history) ??, ?? predicate **15? ?? getter ???? ??(?? ??? ?? ??), 10/15 ????5/15(?????3???????2) ???** ? **info-absence ??? induction ?? ??**. bank `all_verified=true;STOP 380/473` ?? ???? = ????.
-- **??**: ?? history? ???? ?? ? permitted=ungrounded ? CE ????? ??. ??? ?: **(A) induction ?? ??**(????????? ??) / **(B) ?? clean-getter? grounding ??? ?? + TBox ?? ?? ??**(? ?; ????? 6??? ???? ??).
+### Rung 1 진단·우선순위 확정 (2026-06-02 PM) — condition→getter 맵 결함 = 근본 / Track A(getter-map auto-derive) 선행 / 합성(§3.0b)은 fallback
+> **2명 리뷰 + 코드 교차검증으로 우선순위 재정렬.** v3 "grounding 비대칭"의 *하위 근본원인*을 코드로 확정하고, "합성 먼저냐 데이터-fix 먼저냐"를 **데이터-fix(Track A) 선행**으로 잠금.
 
-**??**: ???-?? ?? = "??? constraint ??? ? ?? ??? getter? ?? ? AND ? ?? true? ACT, ??? STOP"? weight? ??. ?? = ? held-out(bank, ABox ??) ??(???0).
+- **★근본원인 (코드 확정, 가설 아님)**: permitted-collapse의 기계적 원인 = **condition predicate가 getter 도구에 링크 안 됨**.
+  - `induce_ontology_zekun.py` L.114-123: 인덕션은 **설계상** action이 state를 flip하는 `establishable`만 `by`를 링크하고(L.118-120), 값-비교 `condition`은 **의도적으로 `by=None`**(L.122-123). 즉 `by=null`은 버그가 아니라 인덕션의 의도된 한계. (실측 bank cond by=null 16/18·hc 18/19; establishable login/auth만 by-linked 2/2 → **그것만 게더됨** = preconds_verified=true/permitted=false의 정확한 원인.)
+  - condition→getter 링크는 인덕션이 아니라 `build_tbox_planner_sft.py` L.76-88의 **손-유지 `GETTER_BY_DOMAIN`** dict에 삽. teacher required-set(L.152-159)은 `pred in GETTER and GETTER[pred] in tool_names`일 때만 condition 게더 → **map에 없으면 누락→ungrounded→붕괴.**
+  - 커버리지: **bank만 9개 매핑("bank verified") · 나머지 6개 도메인 GETTER 전부 비어있음.** 코멘트 L.75: *"TODO: auto-derive per domain."* → **LODO 전이(non-bank 학습→bank)면 학습 도메인들의 permitted가 전부 붕괴 상태.**
+  - ★도구는 존재(induction-fix ≠ 도구 추가): bank tool_names에 `internal_get_credit_score`·`internal_check_credit_card_exist`·`internal_check_foreign_currency_available` 등 실존. **링크만 결여.**
 
-**?? ??? ??** (`synth_tbox_gen.py` ? ?? ??):
-- constraint ??: ?? K?{1,2,3,5}, ? DSL ??(`["and",[...]]`?`["chain",[...]]`?`["single",pred,args]`)+OR.
-- ? ?? = predicate + **clean getter**(?? ??? ?? ? grounding ??? ?????0).
-- **NL ?? ???**: ??? ?? ???? ?? ? NL??? ?? ??(??? ?? ??).
-- **alias**: predicate/getter/??? = per-task ??? ??(?? ?? ??).
-- **??**: ACT:STOP 50:50 + ?? ??? ??(AND ??? ???? ?? ??).
-- **distractor**: goal? ???? ??/getter ?? ? "? ??" ?? ??(?? ??).
+- **★우선순위 = Track A(데이터-fix) 선행, 합성(§3.0b)은 fallback** (리뷰어 2인 합의 + 위 코드):
+  - **Track A (PRIMARY)** = condition→getter 맵을 **auto-derive**(손-라벨 금지). 근거: 도메인마다 손으로 9-매핑 짜면 **"ABox-swap 재학습0 전이" thesis를 스스로 깸**(per-domain 손-라벨=전이 아님). 따라서 auto-derive(lever_decomp directed-action-graph 공기 도출, L.74 코멘트 경로)는 **선택이 아니라 thesis 필수조건.** → teacher 재생성(판별조건 게더 포함)→재학습. root을 *실데이터에서 직접* 고치는 가장 싼 길. 되면 합성 우회 불요.
+  - **§3.0b 합성 (FALLBACK only)**: Track A 후에도 (clean grounding인데) 학습 안 되면 → "절차 자체가 학습되나" 격리(순수 GO/NO-GO) + many-conditions 일반화(bank conjunction 작음 2-4) + 전이-thesis vehicle. **지금 1순위 아님**(합성은 induction-data 문제를 우회만 하지 안 고침 = "데이터 문제면 틀린 처방").
+  - 명명 교정: 이 작업은 "induction-fix(by/produces 복구)"가 **아님** — 인덕션은 condition을 의도적 by=null. 정확히는 **"condition→getter 맵 auto-derive(teacher-side)".**
 
-**??/??** (teacher; `build_v2_prompt` ???):
-- gather: `ready=false; <?? ??? ??? getter>` / terminal: `ready=true; all_conditions_met=<AND(??? ??)>; ACT|STOP`
-- ???? *??* ????? ????ground ? **permitted ? AND(??)** ??? ?? ? v2 2-???(preconds vs permitted) ??? **?? grounded AND? ??**(real? ??? ???? ??? 2?? ??). ? real ?? ?? ?? 2?? ?? ??? **?? ????**.
+- **★결정적 pre-check (구현 전 1순위 행동, 이게 합성-vs-fix를 경험적으로 종결)**: 7개 도메인 **전 판별조건 → 존재하는 `internal_*`/getter 도구** 전수 매칭. 산출: (i) groundable 비율, (ii) auto-derive 규칙 검증(co-occurrence가 손-map과 일치하나), (iii) **getter 없는 순수 정책룰 잔여집합 = 합성/대안의 진짜 범위(=진짜 ungroundable 천장).** ⚠️로컬 불가(bank tool_names=리모트 SOPBench env) → 리모트 실행. `income_proof_enough`·`within_enrollment_period`는 현 GETTER 미커버 → 도구 존재 여부가 핵심 미지수.
 
-**??(ablation ????)**: K(1/2/3/5=AND ?=parity ???) ? ??(?? AND vs AND/OR/chain) ? distractor(0 vs ??=?????) ? alias on/off ? NL ?? ???.
+- **5개 결정 (확정값)**: ① **토큰=2-토큰 유지**(단일화 반대) — precond(=action이 state flip)와 condition(=read-only getter sense, state 불변)은 **기계적 2-범주**이고 SOPBench evaluator가 precondition-violation/constraint-violation을 **다르게 채점**; grounding 비대칭은 *증상*이지 2-범주는 *내재적*. 단 **게더 루프는 통일**(gather-until-all-resolved 단일 루프 + 터미널 2-토큰 emit; *루프 통일 ≠ 토큰 통일*). 최종 포맷은 **재생성 데이터에서 permitted≡AND 성립 확인 후** 확정(지금 단정 금지). ② 게이트 임계: 1차 지표=**ordering-violation rate(전부 게더 전 ACT 비율)→0** (BOTH는 게이트+실행 혼합이라 보조). ③ bank=Step2(전이 증명). ④ 레버 K∈{1,2,3,5}·AND+chain, **OR 조기 포함**(ablation 아님 — OR은 "전부 게더 후 AND" 불변식을 깸=short-circuit; AND만 학습→OR도메인 전이 시 과잉게더)·distractor 2-3. ⑤ ~~Track A 병행~~ → **Track A 선행**(위).
 
-**?? staging + ???**:
-- **Step 1 ? ??-only ?? ? ?? held-out eval**: GO/NO-GO "grounding ?? ? ?? ?????" metric=BOTH. ????confound ?? ?? / ?????????(? ?? ? ? ?? ??????).
-- **Step 2 ? ?? ?? ? ? bank eval**(bank ABox induction-??): ??=thesis ??(????, ???). ???: bank BOTH > ? baseline.
-- **Step 3 (???) ? ??+? co-train**: sim-to-real ? ??.
-- **ablation ????**: BOTH vs K(??? ???=Kim&Suzuki parity ?? ??)?vs distractor(??)?vs alias(??).
+- **잠금 전 게이트(순서)**: (i) 리모트 pre-check(groundable 비율·ungroundable 잔여) → (ii) auto-derive getter-map 구현 + teacher 재생성 → (iii) 재학습→bank/LODO 재측정(ordering-violation·BOTH). (iii)서 clean grounding인데도 학습 실패 시 *그때* §3.0b 합성 발동. 그 전까지 합성은 **대기.**
 
-**???/caveat**:
-- sim-to-real ? ? NL ?? + **??? ??**(??? ??, ?? ??? ????) + co-train.
-- degenerate "? ??" ?? ? distractor??? K???.
-- ?????? "?? ???"? ?? ? thesis? **Step 2 ??**.
-- ??? ???? ???? **held-out ??? ? ??? induction ?? ??**(?? ? ??? ABox).
-- novelty = "?? ???"? ??? **??? ?? + ? ??**(framing ??).
+### §3.0b 합성 TBox-절차 격리 (clean-getter, Rung1 v4) — ⚠️FALLBACK (Track A 실패 시에만 발동)
+> **상태: 대기.** 위 priority-lock으로 **Track A(condition→getter auto-derive) 선행**이 확정됨. 이 §3.0b는 *Track A 후에도 clean grounding인데 절차가 안 학습될 때*만 발동하는 격리 실험. (이전 mojibake 커밋 재작성·token=priority-lock 2-토큰 결정에 정합.)
 
-**?? ??**(?3.9??1): Abbe inductive-scratchpad?Kim&Suzuki parity?Teaching-Arithmetic = ?? from-scratch ?? ??(? ??? ?? ??). slot-filling DST(gather-until-resolved)?PKS sensing-action?LLM-Modulo(self-verify ??) ??.
-
-**?? ???**: `synth_tbox_gen.py`(?? task?SFT messages, `build_v2_prompt` ???) + LODO ????(??=?? vocab disjoint, eval=? ?? vocab + ? bank). ????=?? `lora_train_chat_toolcall.py`. **?? = ????? ?? ? ?? ? generator ??.**
-
+- **동기 (코드 census)**: in-dist에서도 permitted-collapse → 합성으로 "절차 자체가 학습 가능한가"를 induction-data 결함과 **분리**. healthcare in-dist: should_T=45·goal=0·terminal `permitted=false` 다수 = teacher should_T 45/45가 클린 ACT인데도 학습 실패 → **데이터(induced ABox 링크) 결함이지 절차 아님**을 의심. 합성은 grounding을 보장해 이 의심을 격리 검증.
+- **목표**: "주어진 constraint 트리 → 잎별 getter 게더 → AND → ACT/STOP" 절차를 weight에. 증명 = synth held-out 전이(재학습0), 종착 = 실 bank 전이.
+- **합성 생성기 스펙** (`synth_tbox_gen.py`, 미구현):
+  - constraint 트리: 가변 K∈{1,2,3,5}, DSL 미러(`["and",[...]]`·`["chain",[...]]`·`["single",pred,args]`)+**OR 조기포함**.
+  - 각 잎 = predicate + **clean getter**(잎마다 산출 도구 보장 → grounding 비대칭 0).
+  - **NL 정책 패러프레이즈**: 순수 비트열 금지 → NL 문장에서 의미매칭 강제(도구암기 차단).
+  - **alias**: predicate/getter/도구명 per-task 별칭(lexical 암기 차단).
+  - **균형**: ACT:STOP 50:50 + 잎별 truth 균형(AND 결과가 한쪽 쏠림 금지).
+  - **distractor**: goal당 무관 조건/getter 2-3개("덫 도구") 섞음.
+- **포맷/토큰 (priority-lock 정합 = 2-토큰 유지)**: gather `ready=false; <미충족 잎 getter>` / terminal `ready=true; preconds_verified=<AND>; permitted=<AND>; ACT|STOP`. 합성에선 모든 조건이 ground돼 두 토큰 다 룩업-결정 = **2-토큰이 real bank(precond=action-flip / condition=getter-sense 2범주)와 동형 전이 가능.** (단일 토큰 단순화는 priority-lock에서 기각 — 재생성 데이터 검증 후 재고.)
+- **레버(ablation)**: K(1/2/3/5=AND폭) · 트리(AND vs AND/OR/chain) · distractor(0 vs 2-3) · alias on/off · NL 패러프레이즈 on/off.
+- **staging + 게이트**:
+  - **Step 1 = synth-only 학습 → synth held-out eval**: GO/NO-GO "grounding 깨끗하면 절차 학습되나". 1차 지표=**ordering-violation→0**, 보조 BOTH. (confound·sim-to-real 둘 다 합성서 제거.)
+  - **Step 2 = synth 학습 → 실 bank eval**(Track A induction-fix 후): 이게 thesis 증명(전이, 재학습0). 게이트: bank BOTH > L0 baseline + **synth→bank 음성전이**(synth 높은데 bank 0)는 명시 실패조건.
+  - **Step 3 (조건부) = synth+real co-train**: sim-to-real 보강.
+- **리스크/caveat**: ① sim-to-real(NL 패러프레이즈+distractor+co-train로 완화) · ② degenerate 표면템플릿(distractor·alias·NL강제로 차단) · ③ synth→synth 전이는 thesis 증거로 **약함**(vocab만 swap) → thesis는 **Step 2**가 짊 · ④ novelty 무증가(slot-filling DST) → 합성은 *용량 프로브*이지 기여 아님(기여=학습된 required-set+전이).
+- **선행근거**(§3.9 SFT 참조): Abbe inductive-scratchpad·Kim&Suzuki parity·Teaching-Arithmetic(전부 from-scratch 합성과제 = 합성 정당성) + slot-filling DST(gather-until-resolved)·PKS sensing-action·LLM-Modulo(self-verify 불가).
 
 ### Phase 1.5 = Rung 1.5 = ② DPO: 순서 preference (SFT 음성-부재 보강)
 - **GT 쌍**(reward model 불요): **chosen** = 게더→올바른 분기(완전 궤적) / **rejected** = (a) **조기 act**(게더 미완 상태서 ACT/goal 호출), (b) should_T인데 게더→STOP(과잉거부), (c) should_F인데 act(과소거부).
