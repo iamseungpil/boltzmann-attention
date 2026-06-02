@@ -69,10 +69,10 @@ def collect_leaf_list(tree, acc):
             collect_leaf_list(s, acc)
 
 
-# (b §8.5.3) condition predicate -> verifying GETTER tool, per domain. A `condition` predicate
-# (kind=condition, by:null) is not directly callable; the agent calls the GETTER and a deterministic
-# resolver compares the result to the threshold. Derived from directed_action_graph co-occurrence
-# (lever_decomp). bank verified; other domains derived the same way (TODO: auto-derive per domain).
+# (T1b, handoff §1.5-(2)) DEPRECATED hand-map. The teacher NO LONGER uses this for required_set —
+# condition->getter is now the auto-derived `getter_map.json` (GMAP, structural AST parse,
+# autoderive_getter_map.py) on ALL 7 domains uniformly. Retained ONLY as the ground-truth that
+# autoderive_getter_map.py validates its bank recall against (imported there). Do NOT add domains here.
 GETTER_BY_DOMAIN = {
     "bank": {
         "minimal_elgibile_credit_score": "internal_get_credit_score",
@@ -148,35 +148,47 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 am = ont["operators"].get(a, {}).get("args") or fact_pm.get(a, {})
                 return {p: slots[s] for p, s in am.items() if s in slots}
 
-            # ---- (b §8.5) COMPLETE verification gather + reason-based STOP (should_T & should_F) ----
-            GETTER = GETTER_BY_DOMAIN.get(domain, {})
+            # ---- T1 (RUNG1): UNIFORM required_set — login is an ORDINARY member, NOT special-cased.
+            #  source = task["constraints"] leaves  ∪  goal-default establishable (evaluator-authoritative;
+            #  handoff §2 GATE=DIFFERENT: 98/830 goals need login innately, absent from constraints ->
+            #  constraints-only would UNDER-login -> goal precond unmet -> fail). The authoritative source
+            #  is the SAME one precheck_required_source.py measured: dep_innate[goal] ∪ dep_full_raw[goal]
+            #  ∪ ops[goal]["precondition"]. Mapping is ABox-driven & domain-general: check leaf -> itself;
+            #  condition -> its getter(s) (auto getter_map only; hand GETTER_BY_DOMAIN dropped = T1b);
+            #  establishable -> its `by` action. No creds heuristic, no per-tool/per-domain branch, no
+            #  separate establish phase. `is_est` marks establishment tools (satisfied by `produces`, not a
+            #  read-truth) so they are GATHERED but excluded from the preconds_verified truth-AND.
             cleaves = []
             collect_leaf_list(task["constraints"], cleaves)        # args-aware constraint leaves
-            # required fact/condition verifications: callable check -> itself; condition -> its getter.
-            required = []   # (pred, param_map, negated, tool_to_call)
+            gleaves = []                                           # goal-default / innate establishable
+            collect_leaf_list(dep_innate.get(goal), gleaves)
+            collect_leaf_list(dep_full_raw.get(goal), gleaves)
+            collect_leaf_list(ont["operators"].get(goal, {}).get("precondition"), gleaves)
+            con_preds = {p for p, _, _ in cleaves}
+            required = []   # (pred, param_map, negated, tool_to_call, is_est)
+            _seen_rt = set()
+
+            def _add_req(pred, pm, neg, tool, is_est):
+                if tool in tool_names and (pred, tool) not in _seen_rt:
+                    _seen_rt.add((pred, tool))
+                    required.append((pred, pm, neg, tool, is_est))
+
+            # 1. establishment tools FIRST (login/auth before the reads that depend on them): constraint
+            #    establishables + goal-default establishables absent from constraints (evaluator-authoritative).
+            for pred, pm, neg in list(cleaves) + [g for g in gleaves if g[0] not in con_preds]:
+                info = ont["predicates"].get(pred, {})
+                if info.get("kind") == "establishable" and info.get("by"):
+                    _add_req(pred, pm, neg, info["by"], True)
+            # 2. then constraint checks / condition-getters (uniform routing).
             for pred, pm, neg in cleaves:
-                kind = ont["predicates"].get(pred, {}).get("kind")
-                if kind == "establishable":
-                    continue                                       # login/auth handled in establish phase
+                info = ont["predicates"].get(pred, {})
+                if info.get("kind") == "establishable":
+                    continue                                       # already added as establishment (step 1)
                 if pred in tool_names:
-                    required.append((pred, pm, neg, pred))         # A: args-aware callable check
+                    _add_req(pred, pm, neg, pred, False)           # A: args-aware callable check
                 elif pred in GMAP:
                     for g in GMAP[pred]:                            # B: condition -> getter-SET (auto, multi)
-                        if g in tool_names:
-                            required.append((pred, pm, neg, g))
-                elif pred in GETTER and GETTER[pred] in tool_names:
-                    required.append((pred, pm, neg, GETTER[pred]))  # B-legacy: hand single-getter fallback
-            # C: goal's establishable login/auth, CONDITIONAL on credential availability (no halluc)
-            gl = []
-            collect_leaf_list(ont["operators"].get(goal, {}).get("precondition"), gl)
-            ests = []
-            for pred, pm, neg in gl:
-                info = ont["predicates"].get(pred, {})
-                by = info.get("by")
-                if info.get("kind") == "establishable" and by and by in tool_names:
-                    am = ont["operators"].get(by, {}).get("args") or {}
-                    if set(am.values()).issubset(set(slots.keys())):     # creds present in user_known
-                        ests.append((pred, by))
+                        _add_req(pred, pm, neg, g, False)
 
             def truth(pred, pm, neg):
                 """Authoritative truth of a constraint leaf on the GT strict system (resolver = deterministic)."""
@@ -186,13 +198,15 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     return None
 
             established, history, executed, observed = set(), [], set(), {}
+            observed_goal_ok = False                              # T2: goal called AND succeeded (post-success exit)
             should_succeed = bool(task.get("action_should_succeed", True))
 
             # ★COMPLETENESS CENSUS (v3 gate, SFT_CENSUS=1): does AND(gatherable conditions) ∧ reachable
             #  == should_succeed? Mismatch = the set wait CANNOT fix (ungatherable pure-policy rule / OR
             #  structure / missing condition) = v3 ceiling. Dual of v2's preconds_verified=false;ACT==0.
             if os.environ.get("SFT_CENSUS"):
-                _lt = [truth(p, pm, neg) for p, pm, neg, _t in required]
+                _lt = [truth(p, pm, neg) for p, pm, neg, _t, ie in required if not ie]
+                _nest = sum(1 for *_x, ie in required if ie)
                 try:
                     _reach = bool(de.process(goal, **slots))
                 except Exception:
@@ -202,29 +216,28 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 # be meaningful). Teacher decision no longer uses this (terminal = should_succeed).
                 _modeled = (all(t is True for t in _lt) if _lt else True) and _reach
                 print(f"CENSUS\t{domain}\t{goal}\tshould={int(should_succeed)}\tmodeled={int(_modeled)}"
-                      f"\treach={int(_reach)}\tnleaf={len(required)}\tnest={len(ests)}\tlt={_lt}",
+                      f"\treach={int(_reach)}\tnleaf={len(_lt)}\tnest={_nest}\tlt={_lt}",
                       file=sys.stderr)
                 continue
 
             def next_decision():
-                # 1. gather: call each required fact/condition verification tool (args-aware)
-                for pred, pm, neg, tool in required:
+                # 1. gather: call each required tool (establishment + checks), args-aware, UNIFORM
+                #    (login is just an early required member now — no separate establish phase).
+                for pred, pm, neg, tool, is_est in required:
                     if tool not in executed:
                         return tool
                 # 2. should_F with a gathered FALSE constraint -> refuse (reason now gathered). GATED on
                 #    `not should_succeed` so OR/conditional should_T tasks (a False OR-branch) do NOT
-                #    early-STOP (flat `any False` wrongly refused OR-satisfied should_T; reviewer OR warning).
-                if not should_succeed and any(observed.get(p) is False for p, _, _, _ in required):
+                #    early-STOP. Establishables excluded (they are established, not read-false).
+                if not should_succeed and any(observed.get(p) is False for p, _, _, _, ie in required if not ie):
                     return "STOP"
-                # 3. establish login/auth (only when creds available) for the goal
-                for pred, by in ests:
-                    if pred in established or by in executed:
-                        continue
-                    return by
+                # 3. T2 (R3): post-success termination. goal already called & succeeded -> exit (DONE).
+                #    The old `break`-after-ACT meant the teacher NEVER demonstrated stopping after success
+                #    (handoff §1.3 (B): goal re-called 4-8x). Now we execute the goal then emit ONE DONE.
+                if observed_goal_ok:
+                    return "DONE"
                 # 4. TERMINAL gate (§8.6). Decision = GT outcome label `should_succeed` (authoritative;
-                #    encodes the constraint TREE incl. OR, AND login-establishability). Replaces the buggy
-                #    `reachable`=de.process(goal) on the FROZEN pre-login state, which gave 70 ACT vs 48
-                #    should (login-block should_F slipped through; reach ignored establishment). should_F->STOP.
+                #    encodes the constraint TREE incl. OR, AND login-establishability). should_F -> STOP.
                 if use_gate:
                     return "ACT" if should_succeed else "STOP"
                 return goal if should_succeed else "STOP"
@@ -247,7 +260,11 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 if use_scratch:
                     # §3 Rung1 ①: per-step readiness gate. tool step -> ready=false; <tool> (never ACT);
                     # terminal -> ready=true; preconds_verified=<checks>; permitted=<policy>; <ACT|STOP>.
-                    if target in ("ACT", "STOP"):
+                    if target == "DONE":
+                        # T2 (R3) post-success exit. Distinct from refuse-STOP via the `done` flag so the
+                        # model learns "goal succeeded in history -> terminate" (not a policy refusal).
+                        tgt_out = "ready=true; done=true; STOP"
+                    elif target in ("ACT", "STOP"):
                         # Two-gate decomposition (review B-3/B-4, 2026-06-01). A single `all_verified`
                         # token cannot represent both gates: refusal happens when a required CHECK
                         # fails AND when checks pass but POLICY forbids. The old av=AND(checks) gave
@@ -255,7 +272,7 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                         # av=(target==ACT) fix removed the contradiction but made av a pure echo of the
                         # decision (zero decomposition -> scaffold collapse). Split into two INDEPENDENT
                         # predictions whose AND is the decision; ACT iff (preconds_verified AND permitted).
-                        _ro = [observed.get(p) for p, _, _, _ in required if p in observed]
+                        _ro = [observed.get(p) for p, _, _, _, ie in required if not ie and p in observed]
                         pv = all(v is True for v in _ro) if _ro else True   # required checks verified (gather-state)
                         # permitted = GT outcome (should_succeed); encodes policy + OR + login-block.
                         # (dropped `and _reach`: de.process on the frozen pre-login state wrongly blocked
@@ -267,36 +284,53 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     else:
                         _tool = amap.get(target, target) if amap else target
                         tgt_out = f"ready=false; {_tool}"
+                elif target == "DONE":
+                    tgt_out = "STOP"                       # non-scratch post-success exit (parser: terminate)
                 elif amap is None or target in ("STOP", "ACT"):
                     tgt_out = target                      # constants stay literal
                 else:
                     tgt_out = amap.get(target, target)    # alias the tool name
-                tgt_kind = "STOP" if target == "STOP" else ("GOAL" if target in (goal, "ACT") else "establish")
+                tgt_kind = ("STOP" if target == "STOP" else "done" if target == "DONE"
+                            else "GOAL" if target in (goal, "ACT") else "establish")
                 examples.append({
                     "domain": domain, "goal": goal, "target_kind": tgt_kind,
                     "messages": [{"role": "user", "content": prompt},
                                  {"role": "assistant", "content": tgt_out}],
                 })
                 idx += 1
-                if target in ("STOP", "ACT", goal) or target in executed:
+                if target in ("STOP", "DONE"):
                     break
-                executed.add(target)
-                # advance GT state by executing the chosen tool
+                # T2: execute the chosen tool (incl. the goal on ACT) and CONTINUE so a post-success DONE
+                #     step can be emitted next iter. We no longer break on goal/ACT (that erased the exit).
+                exec_target = goal if target == "ACT" else target
+                if exec_target in executed:               # infinite-loop guard RETAINED (handoff T2)
+                    break
+                executed.add(exec_target)
                 try:
-                    r = getattr(dss, target)(**resolve_args(target))
+                    r = getattr(dss, exec_target)(**resolve_args(exec_target))
                 except Exception as e:
                     r = f"{e.__class__.__name__}"
-                history.append(f"CALLED: {target}")
-                history.append(f"RESULT[{target}]: {str(r)[:60]}")
-                if r is not False and "Error" not in str(r):
-                    established.update(ont["operators"].get(target, {}).get("produces", []))
+                history.append(f"CALLED: {exec_target}")
+                history.append(f"RESULT[{exec_target}]: {str(r)[:60]}")
+                _ok = (r is not False and "Error" not in str(r))
+                if _ok:
+                    established.update(ont["operators"].get(exec_target, {}).get("produces", []))
+                if exec_target == goal:
+                    observed_goal_ok = _ok                # T2: gate the post-success DONE on real success
                 # resolver: reveal the deterministic truth of every constraint leaf this tool verifies
-                for pred, pm, neg, tool in required:
-                    if tool == target and pred not in observed:
+                #           (checks only; establishables are tracked via `established`/`produces`).
+                for pred, pm, neg, tool, is_est in required:
+                    if not is_est and tool == exec_target and pred not in observed:
                         observed[pred] = truth(pred, pm, neg)
+            # T2 build-time assertion: DONE, if present, must be the terminal step (no tool-call after a
+            # successful goal). Guards the loop restructure (handoff T2).
+            assert "DONE" not in _seq or _seq.index("DONE") == len(_seq) - 1, \
+                f"DONE not terminal in {domain}/{goal}: {_seq}"
             if os.environ.get("SFT_TRACE"):
                 ss = "T" if task.get("action_should_succeed") else "F"
-                print(f"[{ss}] {goal:22} req={[t for _,_,_,t in required]} ests={[b for _,b in ests]} "
+                _reqt = [t for _, _, _, t, _ in required]
+                _estt = [t for _, _, _, t, ie in required if ie]
+                print(f"[{ss}] {goal:22} req={_reqt} est={_estt} "
                       f"obs={observed} seq={_seq}", file=sys.stderr)
     return examples
 

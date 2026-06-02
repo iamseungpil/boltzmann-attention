@@ -221,9 +221,12 @@ def build_v2_prompt(abox, op_names, established, user_req, policy, history_lines
                      "preconds_verified = AND of the required checks (all returned the needed value); "
                      "permitted = the policy allows this action for this request. "
                      "ACT only if BOTH true; otherwise STOP (a failed check -> preconds_verified=false; "
-                     "a policy refusal with checks passing -> preconds_verified=true, permitted=false).\n")
-        out_line = ("Output EITHER `ready=false; <tool>` (keep gathering) OR "
-                    "`ready=true; preconds_verified=<true|false>; permitted=<true|false>; <ACT|STOP>`. Nothing else:")
+                     "a policy refusal with checks passing -> preconds_verified=true, permitted=false).\n"
+                     "- If the goal action was ALREADY called successfully (see HISTORY) -> you are done: "
+                     "output `ready=true; done=true; STOP`. Do NOT call the goal again.\n")
+        out_line = ("Output ONE of: `ready=false; <tool>` (keep gathering) | "
+                    "`ready=true; preconds_verified=<true|false>; permitted=<true|false>; <ACT|STOP>` | "
+                    "`ready=true; done=true; STOP` (goal already succeeded). Nothing else:")
     elif gate_token:
         last_rule = ("- When all required conditions are verified and the goal is READY, output ACT "
                      "(do NOT name the goal tool); if a required fact is false, output STOP.\n")

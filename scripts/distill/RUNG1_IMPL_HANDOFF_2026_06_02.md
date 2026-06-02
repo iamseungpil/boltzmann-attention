@@ -65,6 +65,16 @@
 
 ## 3. 구현 작업 (순서대로)
 
+> **✅ 구현 상태 (2026-06-02, this session)** — gate=DIFFERENT 반영 완료:
+> - **T1 ✅** `build_tbox_planner_sft.py`: required_set = constraints leaves ∪ goal-default establishable(`dep_innate[goal]`∪`dep_full_raw[goal]`∪`ops[goal]["precondition"]`, precheck와 동일 소스). establishable→`by`, **establishment 우선 정렬**, `is_est` 플래그(게더하되 truth-AND 제외). `ests`/establish-phase/creds-게이팅/`if establishable: continue` 삭제.
+> - **T2 ✅** post-success `DONE`(→`ready=true; done=true; STOP`). ACT-break 제거→goal 실행 후 1회 DONE; `exec_target in executed` 무한루프 가드 유지; `observed_goal_ok` 게이트; 빌드 assert(DONE 종결성).
+> - **T1b ✅** teacher가 `GETTER_BY_DOMAIN` 미사용(GMAP=auto getter_map만). dict는 `autoderive_getter_map.py` 검증 import 때문에 *정의만* 보존(주석으로 deprecated 표기) — 핸드오프의 "L76-88 삭제"에서 이 한 점만 deviation(이유=import).
+> - **T3a ✅** `two_stage_client.py` scratchpad 룰에 done-STOP 분기 추가(파서 변경 불요 확인).
+> - **⏸ T3b 보류** (source=1 렌더 전용; **헤드라인 alias_s3=source=3은 needs/establish 미렌더라 불요**). s1 비교군 돌리기 전 필요. 위험한 프롬프트 편집+로컬 실행 불가라 미반영.
+> - **⏸ T1c 보류** (census-gated; non-bank에 `accounts` 컬렉션 없으면 LODO 학습 no-op=T4 edge). 라벨 깨질 위험으로 remote census 전까지 미반영.
+> - **빌드 전제**: 리모트 `induced/getter_map.json` 존재 필수(autoderive 산출). 없으면 condition 미게더.
+> - **로컬 검증 불가**(python=Store stub RC49) → 리모트 빌드시 `SFT_TRACE=1`로 (i)establishment 우선·(ii)should_T 말미 `ACT,DONE`·(iii)should_F `STOP` 단건 확인.
+
 파일: `scripts/distill/sopbench/build_tbox_planner_sft.py`
 
 ### T1. required_set 균일화 (login 특별취급 제거) — (A) 19건 표적
