@@ -37,6 +37,9 @@ STOP = {
     "account", "user", "current", "amount", "info", "status", "value", "number",
 }
 
+# content tokens generic enough that a single-token match is LOW CONFIDENCE (spot-check).
+GENERIC = {"balance", "limit", "date", "time", "name", "type", "id", "code", "list"}
+
 
 def toks(name):
     return [t for t in name.replace("-", "_").lower().split("_") if t and t not in STOP]
@@ -93,16 +96,17 @@ def census_domain(domain, ont_dir, data_dir):
             if preds.get(pred, {}).get("kind") == "condition":
                 conds.add(pred)
 
-    rows = []  # (cond, klass, getter, shared)
+    rows = []  # (cond, klass, getter, shared, low_conf)
     for c in sorted(conds):
         if c in tools:
-            rows.append((c, "A_callable", c, []))
+            rows.append((c, "A_callable", c, [], False))
             continue
         g, sh = best_getter(c, getters)
         if g and sh:
-            rows.append((c, "B_getter", g, sh))
+            low = len(sh) == 1 and sh[0] in GENERIC   # single generic token = spot-check
+            rows.append((c, "B_getter", g, sh, low))
         else:
-            rows.append((c, "UNGROUNDABLE", "", []))
+            rows.append((c, "UNGROUNDABLE", "", [], False))
     return rows, getters
 
 
@@ -128,16 +132,19 @@ def main():
         nA = sum(1 for r in rows if r[1] == "A_callable")
         nB = sum(1 for r in rows if r[1] == "B_getter")
         nU = sum(1 for r in rows if r[1] == "UNGROUNDABLE")
+        nLow = sum(1 for r in rows if r[1] == "B_getter" and r[4])
         ungr = [r[0] for r in rows if r[1] == "UNGROUNDABLE"]
         all_ungr[d] = ungr
-        tot["cond"] += len(rows); tot["A"] += nA; tot["B"] += nB; tot["U"] += nU
-        print(f"{d:14s} {len(rows):5d} {nA:4d} {nB:4d} {nU:7d}   {', '.join(ungr) if ungr else '-'}")
+        tot["cond"] += len(rows); tot["A"] += nA; tot["B"] += nB; tot["U"] += nU; tot["low"] += nLow
+        print(f"{d:14s} {len(rows):5d} {nA:4d} {nB:4d} {nU:7d}   {', '.join(ungr) if ungr else '-'}"
+              + (f"   [B low-conf: {nLow}]" if nLow else ""))
         if d == "bank":
             bank_auto = {r[0]: r[2] for r in rows if r[1] == "B_getter"}
-        # proposed table (verbose)
-        for c, k, g, sh in rows:
+        # proposed table (verbose; '?' = single-generic-token = SPOT-CHECK)
+        for c, k, g, sh, low in rows:
             if k == "B_getter":
-                print(f"      B {c:42s} -> {g:34s} (shared: {','.join(sh)})")
+                flag = " ?LOW" if low else ""
+                print(f"      B {c:42s} -> {g:34s} (shared: {','.join(sh)}){flag}")
             elif k == "UNGROUNDABLE":
                 print(f"      ! {c:42s} -> NONE (pure policy rule)")
     print("-" * 100)
