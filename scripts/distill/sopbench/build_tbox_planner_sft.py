@@ -197,7 +197,9 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     _reach = bool(de.process(goal, **slots))
                 except Exception:
                     _reach = False
-                _reach = _reach or len(ests) > 0   # (c) login establishable when creds present (was: frozen pre-login -> spurious reach=0)
+                # NOTE: _reach = de.process(goal) on the FROZEN pre-login state -> spurious 0 for
+                # login-needing tasks (census diagnostic limitation; needs establishment-simulation to
+                # be meaningful). Teacher decision no longer uses this (terminal = should_succeed).
                 _modeled = (all(t is True for t in _lt) if _lt else True) and _reach
                 print(f"CENSUS\t{domain}\t{goal}\tshould={int(should_succeed)}\tmodeled={int(_modeled)}"
                       f"\treach={int(_reach)}\tnleaf={len(required)}\tnest={len(ests)}\tlt={_lt}",
