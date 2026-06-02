@@ -179,6 +179,21 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
             established, history, executed, observed = set(), [], set(), {}
             should_succeed = bool(task.get("action_should_succeed", True))
 
+            # ★COMPLETENESS CENSUS (v3 gate, SFT_CENSUS=1): does AND(gatherable conditions) ∧ reachable
+            #  == should_succeed? Mismatch = the set wait CANNOT fix (ungatherable pure-policy rule / OR
+            #  structure / missing condition) = v3 ceiling. Dual of v2's preconds_verified=false;ACT==0.
+            if os.environ.get("SFT_CENSUS"):
+                _lt = [truth(p, pm, neg) for p, pm, neg, _t in required]
+                try:
+                    _reach = bool(de.process(goal, **slots))
+                except Exception:
+                    _reach = False
+                _modeled = (all(t is True for t in _lt) if _lt else True) and _reach
+                print(f"CENSUS\t{domain}\t{goal}\tshould={int(should_succeed)}\tmodeled={int(_modeled)}"
+                      f"\treach={int(_reach)}\tnleaf={len(required)}\tnest={len(ests)}\tlt={_lt}",
+                      file=sys.stderr)
+                continue
+
             def next_decision():
                 # 1. gather: call each required fact/condition verification tool (args-aware)
                 for pred, pm, neg, tool in required:
