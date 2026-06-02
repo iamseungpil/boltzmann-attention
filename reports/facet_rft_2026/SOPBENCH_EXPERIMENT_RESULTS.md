@@ -455,7 +455,12 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > **Exp-4-rung1-trained (corrected teacher → 7B LODO 재학습+bank eval, 2026-06-02 17:40 KST, rr.ps1 실측) — ★헤드라인 NULL**: getter-map+should_succeed-terminal로 고친 teacher(검증: 터미널 48/86 정확)로 2 regime SOLO 재학습(LODO holdout=bank, ep3, val_loss s1 0.053/alias_s3 0.087 수렴) 후 bank held-out eval(fresh, freshness-guard 통과).
 > - **결과(should_T BOTH = dirgraph∩goal)**: **s1 BOTH=0**(dirgraph 9·goal 20) · **alias_s3 BOTH=2**(dirgraph 18·goal 17). 기준선 gate-token s1 2/alias_s3 1 대비 **개선 없음**(null). Mean Pass Rate s1 0.246/alias_s3 0.205(거부 부풀림, 헤드라인 아님).
 > - **★corrected 지표(reviewer, eval JSON 산출)**: **ACT-recall|게더(dirgraph) = 0/9(s1)·2/18(alias_s3)** = 게더 충분해도 거의 ACT 안 함; **gather-then-STOP = 9/9·16/18**(게더후 거부); **premature-act(게더없이 goal) = 20/45·15/47**; **STOP-recall(should_F 정답) = 32/89=36%·26/87=30%**(과소거부).
-> - **★진단(솔직)**: 모델이 **gather-act XOR**로 분리 — 게더하면 STOP, act하면 게더 안 함, BOTH≈0. **데이터 정확성(48/86)은 필요조건이었고 확보됐으나, SFT positive-only 단독은 "게더 *후* act" 순서를 못 가르침**(메모리의 BOTH 0-2 그대로). should_succeed-terminal이 refuse-all(이전 av-버그 86/86)은 깼지만 premature-act 쪽으로 이동. = **사다리 전제 확증**(SFT는 순서 음성신호 부재) → **Rung 1.5 DPO**(gather-then-STOP·premature-act를 rejected로) / **Rung 2 RFT**(BOTH 보상)가 필요. serve/parse 정상(Mean 0.20-0.25·dirgraph/goal nonzero=degenerate 아님). **다음 = ② DPO(`build_dpo_pairs`+`dpo_train`, init=이 어댑터).**
+> - **⚠️1차 진단 철회("gather-act XOR / SFT는 순서 못 배움")**: 궤적 전수조사로 반증됨. 끼워맞춤이었음.
+> - **★★정정 진단 (궤적 전수조사 2026-06-02, eval JSON `interactions[].interaction`)**: 모델은 should_T에서 **평균 ~6콜 게더함**(거의 항상; XOR 아님). BOTH=0의 실제 원인:
+>   - **(1) 비차단-False 과잉거부 (지배적)**: should_T 거부 25 중 **22가 False 도구결과를 보고 거부**(alias_s3 20/30). should_T는 정의상 성공 가능 → 그 False는 **비차단**(OR-분기/비필수). = **shortcut "False→STOP" 학습**(학습셋의 False-동반 사례가 should_F에 압도적 → should_T로 오전이; spurious correlation). 순수 오결정(False 없이 거부)은 소수(3·10).
+>   - **(2) sloppy act**: should_T 행동 20 중 **16이 제약위반(cnv=0)**(alias_s3 14/17) — 행동 시 조건 미충족/순서위반.
+>   - **(3) should_F 거부는 양호**: 행동적 거부 **62/89=70%·69/87=79%**(앞서 보고한 36%/30%는 strict `success`=db_match 등 포함분, 오인용). 즉 거부축은 큰 문제 아님.
+> - **결론(정정)**: 실패 = **데이터 분포/shortcut(비차단-False 과잉거부) + sloppy execution**이지 "SFT가 조건부 action·순서를 원리적으로 못 배움"이 **아님**(모델은 게더+조건부 거부를 실제로 수행). "사다리 전제 확증"은 **부당한 결과끼워맞춤이었고 철회**. 처방은 DPO 자동전제 아님 → 먼저 (a) 이론적 학습가능성 선행연구 검토(SFT가 conditional gate를 배우는가, shortcut/globality 어느 쪽인가) + (b) shortcut 가설 직접검증(teacher 데이터의 P(STOP|False seen) by should_T/F 분포; 비차단-False should_T 예제 빈도). 그 후 처방 결정.
 
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
