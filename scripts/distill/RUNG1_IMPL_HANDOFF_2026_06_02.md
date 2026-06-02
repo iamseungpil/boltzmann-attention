@@ -49,7 +49,10 @@
 
 ## 2. ★구현 전 단일 게이트 (코딩 시작 전 반드시)
 
-**required_set 소스 검증 1건** — 리모트(rr.ps1) 실행. 로컬 python=Store 스텁이라 측정 전부 리모트.
+**✅ GATE 실행 완료 (2026-06-02, rr.ps1 실측, `precheck_required_source.py`)**: **GATE=DIFFERENT.** 830 task 중 **98개**가 evaluator-authoritative establishable(login/auth)을 요구하나 `task["constraints"]`엔 없음 — **bank** transfer_funds 18/23(logged_in_user+authenticated_admin_password) · **dmv** change_dl_address/renew_dl/renew_vehicle/validate_vehicle_insurance/change_vehicle_address(logged_in_user). 나머지 5도메인=0.
+> → **T1 분기 확정 = required_set 소스 = `task["constraints"]` leaves ∪ goal-default establishable**(evaluator-authoritative 합성 의존성; `dep_innate[goal]` ∪ `dep_full_raw[goal]` ∪ `ops[goal]["precondition"]`의 establishable leaf). login은 **균일·비특수**하되 evaluator가 요구할 때 포함. `task["constraints"]`만 쓰면 그 98개서 **under-login→실패**. ⚠️over-login 진단 추가 교란(그 98개선 evaluator가 login을 원함→"prior-override 미확정" 강화).
+
+**(원 게이트 명세, 참조)** required_set 소스 검증 1건 — 리모트(rr.ps1) 실행. 로컬 python=Store 스텁이라 측정 전부 리모트.
 
 - **확인할 것**: 몇 개 goal에 대해 *evaluator가 실제로 요구하는 의존성*(innate `dep_innate` + `task["constraints"]` 합성 결과) == `task["constraints"]` leaf 집합인가?
 - **분기**:
