@@ -243,6 +243,7 @@
 | `TASK_CONSTRAINT_DESIGN.md` | should_T 병목 진단·게이트·§8.6 전수진단·§8.7 사다리 상세 | detail (Rung1-2 상세) |
 | `GRPO_REWARD_DESIGN.md` | RFT reward 함수·GRPO 루프(Rung2 상세) | detail |
 | **`RUNG1_SOURCE_LADDER_DESIGN.md`** | **★현재 진입점**: source 사다리(s3→budget→s1)·**2-agent(구조추론+실행=2 LoRA, §12)**·upper-bound-first·버그수정·다음세션 순서 | ★**활성 진입점** (§2·§3.10 구체화) |
+| **`RUNG1_T1C_DESIGN.md`** | **★다음 실험**: grounded-permitted @ source=1 (treeval@s1)+결정레버 — upperbound census(gathered_then_REFUSE 29) 처방 | ★활성 (next exp) |
 | `RUNG1_V3_INDUCTIVE_DESIGN.md` | inductive reduction-chain 설계(treeval_reduce) — **NULL 판정(Exp-4-rung1-v3ind)** | detail (종결·역사) |
 | `RUNG1_IMPL_HANDOFF_2026_06_02.md` | T1(login-uniform)·T2(종료) teacher 구현 핸드오프 | detail (Rung1 구현) |
 | `RUNG1_V3_TREE_EVAL_LITREVIEW.md` | grounded 트리평가+derivation 학습 — 적대검증 선행연구(§8 AND/OR 트리평가 재탐색) | detail (§3.10 근거) |

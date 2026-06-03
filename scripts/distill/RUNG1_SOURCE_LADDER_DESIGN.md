@@ -137,7 +137,7 @@ vllm serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 --max-loras
 ## 12. 다음 세션 첫 행동
 > ★**진척 (2026-06-04): §6 버그수정 완료(no-400, 양쪽 n_T=48·레이스無 검증) + 1차 게이트 측정 완료 = `Exp-4-rung1-upperbound`.** 결과: **C(s1)=A(s3) BOTH 3 = 구조 제공만으론 BOTH 무개선**. 단 C가 게더 dirgraph 29→34·STOP 40→49%·over-refuse 38→33 개선. **병목 = should_T ACT *결정***(dirgraph 34 충족인데 BOTH 3·premature 10). **→ 리뷰 A2 적중: 구조 아니라 *결정*이 벽. Agent1로 가기 전에 결정 레버부터.**
 1. **이 게이트 결과 숙지**(↑) — Agent2@oracle 천장이 BOTH 3에 머묾 = 구조 가시화는 게더/STOP만 도움.
-2. **★결정 레버를 source=1 위에 (다음 실험)**: **C(s1) × {T1c, DPO}**.
+2. **★결정 레버를 source=1 위에 (다음 실험)** — 정밀 설계 = **[`RUNG1_T1C_DESIGN.md`](RUNG1_T1C_DESIGN.md)** (treeval@s1 = 기존 grounded-gate를 source=1서; v3 실패는 source=3 fabrication 탓 → s1이 차단). **C(s1) × {T1c, DPO}**.
    - **T1c 구현**(`build_tbox_planner_sft --gather_complete_gate`): readiness=true는 required 전부 게더일 때만(premature 10 차단) + **permitted = 주어진 구조의 leaf-truth AND/OR 룩업**(treeval_expr disp 재사용, 트리 emit 없이 값만; 콜드 should_succeed 추측 제거). C+T1c가 BOTH를 올리나?
    - **DPO**(`build_dpo_pairs`): should_T `permitted=false;STOP`(over-refuse 33) + premature-ACT dispreferred. C+T1c 후 잔여 누름.
 3. **판정**: C+T1c/DPO가 BOTH↑(특히 dirgraph 34 충족분이 BOTH로 전환되면 → 34 근처까지 가능성) → 결정 레버가 답. 권위본 `Exp-4-rung1-decision-lever` 기록.
