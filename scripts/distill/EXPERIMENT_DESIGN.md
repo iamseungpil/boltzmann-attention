@@ -204,6 +204,16 @@
   - **STaR** [Zelikman et al. 2022, `2203.14465`]: 정답 rationale만 모아 FT→반복. **ReST-EM "Beyond Human Data"** [Singh et al. 2023, `2312.06585`; 원 ReST `2308.08998`]: generate→**검증가능 피드백으로 필터**→FT→반복(EM). = ③ GRPO 롤아웃을 rule evaluator로 필터해 재학습하는 우리 루프의 선례(reward hacking 없는 GT-grounded 자기학습).
 - **정직 단서**: 이 선례들은 대형 모델(수십B~)·math/instruction 도메인 결과 → 7B LoRA + SOPBench tool-use 전이는 **레시피 차용**(단계 순서·검증가능 보상)이지 성능 보장 아님. 헤드라인은 우리 LODO BOTH 실측으로만 주장.
 
+## §3.10 ★Target Architecture (북극성) — graph-guided 자율 agent의 *내재화* 〔2026-06-03 박제, 적대검증 서베이 2회 근거〕
+> 현 사다리(Rung1-3)는 이 북극성의 *부분집합·경로*다. 방향 흔들리면 이 절을 본다. 상세 근거=`RUNG1_V3_TREE_EVAL_LITREVIEW.md`(트리평가 학습)·`SEARCH_INTERNALIZATION_LITREVIEW.md`(탐색 내재화).
+
+- **한 줄**: "그래프-가이드로 gather→judge→act를 *성공 또는 불가증명까지* 추구하는 자율 agent"(= run_scripted 오라클 37/48의 일반화)를 **TBox(weight)에 내재화**하고 **ABox+관계그래프 swap만으로 전이**한다. = 외부탐색의 전이가능·무탐색 내재화 버전.
+- **4층 분리**: **TBox**(도메인-불변 일반 *논리·검증·탐색 제어*: gather-until-resolved·트리평가 AND/OR/chain·act/stop·백트랙 = **weight**, 학습·전이) / **ABox**(도메인 *가이드 룰*: 어떤 조건이 정책상 중요·관계·의존 — ★도구 바인딩 아님 = **swappable 데이터/메모리**, induce) / **관계그래프(GraphRAG/Graphify)**(도메인-특화 관계로 **affordance 검색**: condition→tool, 이웃관계 = **swappable 인덱스**) / **자율 탐색루프**(TBox 구동, 성공/불가증명까지).
+- **★4 설계 보정(정직)**: ① **GraphRAG=검색(spatial)·TBox=절차(structural) 분리** — 그래프는 affordance만, AND/OR 순서·트리평가는 TBox emit(그래프가 절차하면 globality로 깨짐). ② **"성공까지"→"성공 *또는* 불가증명까지"**(should_F=거부; 무한탐색 금지). ③ **ABox=induce된 swappable 데이터**(weight에 구우면 TBox-baking=전이파괴); TBox는 *임의 가이드룰을 적용하는 일반능력*만 학습. ④ **cost-aware 경계**(VOI로 다음 게더 선택·깊이/스텝 bound).
+- **빌드 경로(외부탐색→내재화, 문헌 정합)**: ① 외부 graph-search agent(LATS/RAP식 + **완벽검증기**로 leaf 평가) = run_scripted의 그래프-일반화 → ② trace를 TBox에 **증류**(★Searchformer `2402.14083`: 교사초과·짧은trace 부트스트랩; 스텝 reward는 ReST-MCTS*/Math-Shepherd식 최종 gate-정답서 추론) → ③ 깊이=**value-fn 증류**(TS-LLM `2309.17179` depth-64) → ④ **ABox+그래프 swap 전이**(재학습0).
+- **3축 현황**: (A) grounded 트리평가+derivation=**학습가능**(litreview#1: Kim&Suzuki·Abbe·Feng) / (B) 탐색 내재화=**교사초과**(litreview#2: Searchformer·TS-LLM) / (C) **NL→마스킹트리 추론+전이=선행 전무=헤드라인 novelty이자 최대 리스크**.
+- **정직 리스크**: 완벽검증기 의존(실세계엔 LLM-Modulo식 검증기 학습 필요)·내재화의 우리-도메인 일반화 미증명(전부 math/puzzle·from-scratch)·그래프 품질=induce 의존·공학규모.
+
 ## §4. 성공 게이트 (사전등록)
 - **G-SFT(Rung1, ① readiness-게이트)**: BOTH(dirgraph∩goal) 현 0-2 → **≥ 다수**(예 ≥15/48) + **조기 ACT율↓**(ready=false서 ACT 거의 0). 못 넘으면 ② DPO.
 - **G-DPO(Rung1.5, ②)**: DPO가 SFT 대비 **조기 act율 추가 감소 + BOTH 상승**. 음성 신호 효과 확인.
@@ -229,6 +239,9 @@
 | `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 전체 스펙·planner L0/L1/L2·§9 LLM-in-loop·prior art | detail (개념 원본) |
 | `TASK_CONSTRAINT_DESIGN.md` | should_T 병목 진단·게이트·§8.6 전수진단·§8.7 사다리 상세 | detail (Rung1-2 상세) |
 | `GRPO_REWARD_DESIGN.md` | RFT reward 함수·GRPO 루프(Rung2 상세) | detail |
+| `RUNG1_IMPL_HANDOFF_2026_06_02.md` | T1(login-uniform)·T2(종료) teacher 구현 핸드오프 | detail (Rung1 구현) |
+| `RUNG1_V3_TREE_EVAL_LITREVIEW.md` | grounded 트리평가+derivation 학습 — 적대검증 선행연구·레시피 | detail (§3.10 근거) |
+| `SEARCH_INTERNALIZATION_LITREVIEW.md` | 탐색→weight 내재화(Searchformer·TS-LLM 등) — 적대검증·북극성 근거 | detail (§3.10 근거) |
 | `SOPBENCH_EXPERIMENT_RESULTS.md` | 모든 실측 결과(Exp-1~4) 누적 | 결과 권위본 |
 | `COWORKER_EXPERIMENT_PLAN.md` | 32B/72B 분업 | detail (Track B) |
 | `TASK_CONSTRAINT_{DESIGN_REVIEW,IMPL_REVIEW}.md` | 리뷰 라운드 | 참조 |
