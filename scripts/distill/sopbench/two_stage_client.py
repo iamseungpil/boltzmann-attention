@@ -542,14 +542,18 @@ class TwoStageClient:
     # STEP 2 — Resolver: action + concrete spec + slot state -> tool call
     # ------------------------------------------------------------------
     def _resolve(self, action_name, messages, tools, temperature, max_tokens, top_p):
+        # BUGFIX (2026-06-04): the goal tool (action_name) may be ABSENT from the provided `tools`
+        # (e.g. harness pruning / goal_name mismatch). The old code fell back to tools[0] but still
+        # forced tool_choice=action_name -> 400 BadRequest ("tool_choice does not match tools"),
+        # silently DROPPING ACT-heavy should_T tasks (treeval n_T 48->45). Fix: only force the tool
+        # when it is actually present; otherwise let the model choose from the full list (no 400).
         chosen_spec = next((t for t in tools
-                            if t.get("function", {}).get("name", "") == action_name),
-                           tools[0] if tools else {})
-        fn = chosen_spec.get("function", {})
+                            if t.get("function", {}).get("name", "") == action_name), None)
+        fn = (chosen_spec or {}).get("function", {})
         required = fn.get("parameters", {}).get("required", [])
 
         self.cov_turns += 1
-        all_in_slots = bool(required) and all(r in self._slot_state for r in required)
+        all_in_slots = bool(chosen_spec) and bool(required) and all(r in self._slot_state for r in required)
         if all_in_slots:
             # diagnostic: this turn COULD be resolved deterministically
             self.cov_deterministic += 1
@@ -558,13 +562,19 @@ class TwoStageClient:
                 args = {r: self._slot_state[r] for r in required}
                 return self._make_tool_call_completion(action_name, args)
 
-        # LLM resolver rung (b): force the chosen tool, let the model fill args in-context
-        resp = self._client.chat.completions.create(
-            model=self.model_name, messages=messages, tools=[chosen_spec],
-            tool_choice={"type": "function", "function": {"name": action_name}},
+        if chosen_spec is not None:
+            # rung (b): force the chosen tool (present in tools), let the model fill args in-context
+            return self._client.chat.completions.create(
+                model=self.model_name, messages=messages, tools=[chosen_spec],
+                tool_choice={"type": "function", "function": {"name": action_name}},
+                temperature=temperature, top_p=top_p, max_tokens=max_tokens,
+                parallel_tool_calls=False)
+        # goal tool absent from provided tools -> cannot force it (would 400); offer the full list with
+        # auto choice so the turn proceeds (model calls the goal if available, else a sensible tool).
+        return self._client.chat.completions.create(
+            model=self.model_name, messages=messages, tools=tools, tool_choice="auto",
             temperature=temperature, top_p=top_p, max_tokens=max_tokens,
             parallel_tool_calls=False)
-        return resp
 
     # ------------------------------------------------------------------
     # Helpers
