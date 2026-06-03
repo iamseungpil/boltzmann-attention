@@ -215,15 +215,18 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 if info.get("kind") == "establishable" and info.get("by"):
                     _add_req(pred, pm, neg, info["by"], True)
             # 2. then constraint checks / condition-getters (uniform routing).
+            argonly = []   # conditions evaluable from the REQUEST (no tool/getter): autoderive arg-only.
             for pred, pm, neg in cleaves:
                 info = ont["predicates"].get(pred, {})
                 if info.get("kind") == "establishable":
                     continue                                       # already added as establishment (step 1)
                 if pred in tool_names:
                     _add_req(pred, pm, neg, pred, False)           # A: args-aware callable check
-                elif pred in GMAP:
+                elif pred in GMAP and any(g in tool_names for g in GMAP[pred]):
                     for g in GMAP[pred]:                            # B: condition -> getter-SET (auto, multi)
                         _add_req(pred, pm, neg, g, False)
+                else:
+                    argonly.append((pred, pm, neg))                # C: arg-only -> known from request (inject truth)
 
             def truth(pred, pm, neg):
                 """Authoritative truth of a constraint leaf on the GT strict system (resolver = deterministic)."""
@@ -233,6 +236,10 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     return None
 
             established, history, executed, observed = set(), [], set(), {}
+            # Point 1: inject arg-only condition truths (no tool needed; model evaluates from request)
+            # so treeval grounds them instead of seeing 'unknown'. (autoderive: 100% getter-set OR arg-only.)
+            for _p, _pm, _neg in argonly:
+                observed[(_p, frozenset((_pm or {}).items()))] = truth(_p, _pm, _neg)
             observed_goal_ok = False                              # T2: goal called AND succeeded (post-success exit)
             est_tools = {t for _p, _pm, _n, t, ie in required if ie}   # v3: establishment tool names
             est_failed = False                                    # v3: any required establishable failed to establish
