@@ -69,6 +69,40 @@ def collect_leaf_list(tree, acc):
             collect_leaf_list(s, acc)
 
 
+def treeval_expr(tree, observed, amap=None):
+    """v3 grounded tree-eval (RUNG1_V3_TREE_EVAL_LITREVIEW): render the constraint TREE with each
+    leaf replaced by its GATHERED truth (observed lookup, not a cold guess) and recursively evaluate
+    AND/OR/chain. Returns (expr_str, value). value=None if a leaf truth is missing (ungathered).
+    expr e.g. 'AND(credit=true, OR(b=false, c=true))'. amap aliases predicate names (anti-cheat)."""
+    A = (lambda n: amap.get(n, n)) if amap else (lambda n: n)
+    if not tree or not isinstance(tree, (list, tuple)) or not tree:
+        return ("true", True)
+    h = tree[0]
+    if h == "single":
+        nm = tree[1]; neg = nm.startswith("not "); base = nm[4:] if neg else nm
+        v = observed.get(base)
+        vv = "true" if v is True else ("false" if v is False else "unknown")
+        return (f"{A(base)}={vv}", v)
+    if h in ("and", "chain", "gate"):
+        ch = [treeval_expr(s, observed, amap) for s in tree[1]]
+        vals = [c[1] for c in ch]
+        val = (all(x is True for x in vals) if vals else True)
+        if any(x is None for x in vals) and not any(x is False for x in vals):
+            val = None                                  # unknown leaf, not decidable false
+        return ("AND(" + ", ".join(c[0] for c in ch) + ")", val)
+    if h == "or":
+        ch = [treeval_expr(s, observed, amap) for s in tree[1]]
+        vals = [c[1] for c in ch]
+        if any(x is True for x in vals):
+            val = True
+        elif any(x is None for x in vals):
+            val = None
+        else:
+            val = False
+        return ("OR(" + ", ".join(c[0] for c in ch) + ")", val)
+    return ("true", True)
+
+
 # (T1b, handoff §1.5-(2)) DEPRECATED hand-map. The teacher NO LONGER uses this for required_set —
 # condition->getter is now the auto-derived `getter_map.json` (GMAP, structural AST parse,
 # autoderive_getter_map.py) on ALL 7 domains uniformly. Retained ONLY as the ground-truth that
@@ -89,7 +123,7 @@ GETTER_BY_DOMAIN = {
 
 
 def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, source=1,
-                 use_gate=False, use_scratch=False):
+                 use_gate=False, use_scratch=False, use_treeval=False):
     from env.variables import domain_assistant_keys, domain_keys
     from env.task import task_default_dep_full, task_initializer, get_default_dep_full
     from swarm.util import function_to_json
@@ -199,6 +233,9 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
 
             established, history, executed, observed = set(), [], set(), {}
             observed_goal_ok = False                              # T2: goal called AND succeeded (post-success exit)
+            est_tools = {t for _p, _pm, _n, t, ie in required if ie}   # v3: establishment tool names
+            est_failed = False                                    # v3: any required establishable failed to establish
+            _tv = {}                                              # v3 treeval: terminal (expr, value) for emit
             should_succeed = bool(task.get("action_should_succeed", True))
 
             # ★COMPLETENESS CENSUS (v3 gate, SFT_CENSUS=1): does AND(gatherable conditions) ∧ reachable
@@ -226,18 +263,25 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 for pred, pm, neg, tool, is_est in required:
                     if tool not in executed:
                         return tool
-                # 2. should_F with a gathered FALSE constraint -> refuse (reason now gathered). GATED on
-                #    `not should_succeed` so OR/conditional should_T tasks (a False OR-branch) do NOT
-                #    early-STOP. Establishables excluded (they are established, not read-false).
-                if not should_succeed and any(observed.get(p) is False for p, _, _, _, ie in required if not ie):
-                    return "STOP"
-                # 3. T2 (R3): post-success termination. goal already called & succeeded -> exit (DONE).
-                #    The old `break`-after-ACT meant the teacher NEVER demonstrated stopping after success
-                #    (handoff §1.3 (B): goal re-called 4-8x). Now we execute the goal then emit ONE DONE.
+                # 2. T2 (R3): post-success termination. goal already called & succeeded -> exit (DONE).
                 if observed_goal_ok:
                     return "DONE"
-                # 4. TERMINAL gate (§8.6). Decision = GT outcome label `should_succeed` (authoritative;
-                #    encodes the constraint TREE incl. OR, AND login-establishability). should_F -> STOP.
+                # 3. ★v3 TERMINAL = GROUNDED tree-eval over GATHERED leaf truths (RUNG1_V3 litreview#1).
+                #    permitted is no longer a cold should_succeed guess -> it is AND/OR/chain over the
+                #    OBSERVED constraint-leaf truths (+ establishment status), so it cannot cold-collapse
+                #    and OR is handled correctly. gate_val SHOULD == should_succeed (SFT_TRACE census).
+                if use_treeval:
+                    obs2 = dict(observed)
+                    for _p, _pm, _n, _t, _ie in required:
+                        if _ie and _p not in obs2:
+                            obs2[_p] = (_p in established)        # establishable leaf truth = established
+                    expr, tv = treeval_expr(task["constraints"], obs2, amap)
+                    gate_val = (tv is True) and (not est_failed)
+                    _tv["expr"], _tv["val"] = expr, gate_val
+                    return "ACT" if gate_val else "STOP"
+                # 3'. (legacy non-treeval) should_F gathered-false -> STOP; terminal = should_succeed label.
+                if not should_succeed and any(observed.get(p) is False for p, _, _, _, ie in required if not ie):
+                    return "STOP"
                 if use_gate:
                     return "ACT" if should_succeed else "STOP"
                 return goal if should_succeed else "STOP"
@@ -264,6 +308,11 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                         # T2 (R3) post-success exit. Distinct from refuse-STOP via the `done` flag so the
                         # model learns "goal succeeded in history -> terminate" (not a policy refusal).
                         tgt_out = "ready=true; done=true; STOP"
+                    elif use_treeval and target in ("ACT", "STOP"):
+                        # ★v3 grounded derivation: per-leaf truths aggregated by the constraint TREE
+                        # (AND/OR/chain) over GATHERED values -> gate. Not a cold guess. (litreview#1)
+                        tgt_out = (f"ready=true; gate = {_tv.get('expr', 'true')} = "
+                                   f"{'true' if _tv.get('val') else 'false'}; {target}")
                     elif target in ("ACT", "STOP"):
                         # Two-gate decomposition (review B-3/B-4, 2026-06-01). A single `all_verified`
                         # token cannot represent both gates: refusal happens when a required CHECK
@@ -313,6 +362,8 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 history.append(f"CALLED: {exec_target}")
                 history.append(f"RESULT[{exec_target}]: {str(r)[:60]}")
                 _ok = (r is not False and "Error" not in str(r))
+                if exec_target in est_tools and not _ok:
+                    est_failed = True                            # v3: a required establishable failed
                 if _ok:
                     established.update(ont["operators"].get(exec_target, {}).get("produces", []))
                 if exec_target == goal:
@@ -330,8 +381,12 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 ss = "T" if task.get("action_should_succeed") else "F"
                 _reqt = [t for _, _, _, t, _ in required]
                 _estt = [t for _, _, _, t, ie in required if ie]
+                _tvinfo = ""
+                if use_treeval and "val" in _tv:
+                    _agree = (bool(_tv["val"]) == should_succeed)
+                    _tvinfo = f" | treeval={_tv['val']} ss={should_succeed} agree={_agree} expr={_tv['expr']}"
                 print(f"[{ss}] {goal:22} req={_reqt} est={_estt} "
-                      f"obs={observed} seq={_seq}", file=sys.stderr)
+                      f"obs={observed} seq={_seq}{_tvinfo}", file=sys.stderr)
     return examples
 
 
@@ -352,7 +407,13 @@ def main():
                     help="§8.7 Rung1: educated inductive scratchpad — terminal target emits the "
                          "AND-aggregation token `all_verified=<true|false>; <ACT|STOP>` (implies gate). "
                          "Grounded in Abbe NeurIPS24 / Kim&Suzuki ICML25.")
+    ap.add_argument("--treeval", action="store_true",
+                    help="§3.10 v3: terminal = GROUNDED tree-eval derivation `gate = AND/OR(leaf=<obs>...) "
+                         "= <bool>; <ACT|STOP>` over gathered leaf truths (replaces cold permitted). "
+                         "Implies --scratchpad/--gate-token. RUNG1_V3_TREE_EVAL_LITREVIEW.")
     args = ap.parse_args()
+    if args.treeval:
+        args.scratchpad = True    # treeval terminal lives in the scratchpad emit branch
     if args.scratchpad and not args.gate_token:
         args.gate_token = True   # scratchpad terminal is ACT/STOP -> requires gate-token vocabulary
     os.makedirs(args.out, exist_ok=True)
@@ -362,14 +423,15 @@ def main():
         try:
             ex = build_domain(d, args.data_dir, args.ont_dir, shuffle_seed_base=13,
                               use_alias=args.alias, source=args.source, use_gate=args.gate_token,
-                              use_scratch=args.scratchpad)
+                              use_scratch=args.scratchpad, use_treeval=args.treeval)
         except Exception as e:
             import traceback
             print(f"[{d}] FAILED: {e.__class__.__name__}: {e}")
             traceback.print_exc()
             continue
         tag = ("_alias" if args.alias else "") + (f"_s{args.source}" if args.source != 1 else "") \
-            + ("_gate" if args.gate_token else "") + ("_scratch" if args.scratchpad else "")
+            + ("_gate" if args.gate_token else "") + ("_scratch" if args.scratchpad else "") \
+            + ("_treeval" if args.treeval else "")
         path = os.path.join(args.out, f"sft_tbox_{d}{tag}.jsonl")
         with open(path, "w", encoding="utf-8") as f:
             for e in ex:
