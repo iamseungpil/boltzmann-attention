@@ -80,7 +80,8 @@ def treeval_expr(tree, observed, amap=None):
     h = tree[0]
     if h == "single":
         nm = tree[1]; neg = nm.startswith("not "); base = nm[4:] if neg else nm
-        v = observed.get(base)
+        pm = tree[2] if len(tree) > 2 else {}
+        v = observed.get((base, frozenset((pm or {}).items())))   # (pred,args) key: source/dest distinct
         vv = "true" if v is True else ("false" if v is False else "unknown")
         return (f"{A(base)}={vv}", v)
     if h in ("and", "chain", "gate"):
@@ -273,16 +274,18 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 if use_treeval:
                     obs2 = dict(observed)
                     for _p, _pm, _n, _t, _ie in required:
-                        if _ie and _p not in obs2:
+                        _k = (_p, frozenset((_pm or {}).items()))
+                        if _ie and _k not in obs2:
                             # establishable leaf: on should_T trust GT (creds establishable; sim cred
                             # artifacts ignored); on should_F use real established status.
-                            obs2[_p] = True if should_succeed else (_p in established)
+                            obs2[_k] = True if should_succeed else (_p in established)
                     expr, tv = treeval_expr(task["constraints"], obs2, amap)
                     disp = (tv is True) and (not est_failed)     # grounded gate value (for display)
                     _tv["expr"], _tv["val"] = expr, disp
                     return "ACT" if should_succeed else "STOP"   # decision = authoritative GT label
                 # 3'. (legacy non-treeval) should_F gathered-false -> STOP; terminal = should_succeed label.
-                if not should_succeed and any(observed.get(p) is False for p, _, _, _, ie in required if not ie):
+                if not should_succeed and any(observed.get((p, frozenset((pm or {}).items()))) is False
+                                              for p, pm, _, _, ie in required if not ie):
                     return "STOP"
                 if use_gate:
                     return "ACT" if should_succeed else "STOP"
@@ -329,7 +332,8 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                         # av=(target==ACT) fix removed the contradiction but made av a pure echo of the
                         # decision (zero decomposition -> scaffold collapse). Split into two INDEPENDENT
                         # predictions whose AND is the decision; ACT iff (preconds_verified AND permitted).
-                        _ro = [observed.get(p) for p, _, _, _, ie in required if not ie and p in observed]
+                        _ro = [observed.get((p, frozenset((pm or {}).items()))) for p, pm, _, _, ie in required
+                               if not ie and (p, frozenset((pm or {}).items())) in observed]
                         pv = all(v is True for v in _ro) if _ro else True   # required checks verified (gather-state)
                         # permitted = GT outcome (should_succeed); encodes policy + OR + login-block.
                         # (dropped `and _reach`: de.process on the frozen pre-login state wrongly blocked
@@ -379,8 +383,9 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 # resolver: reveal the deterministic truth of every constraint leaf this tool verifies
                 #           (checks only; establishables are tracked via `established`/`produces`).
                 for pred, pm, neg, tool, is_est in required:
-                    if not is_est and tool == exec_target and pred not in observed:
-                        observed[pred] = truth(pred, pm, neg)
+                    _k = (pred, frozenset((pm or {}).items()))   # (pred,args) key: same-pred-multi-arg distinct
+                    if not is_est and tool == exec_target and _k not in observed:
+                        observed[_k] = truth(pred, pm, neg)
             # T2 build-time assertion: DONE, if present, must be the terminal step (no tool-call after a
             # successful goal). Guards the loop restructure (handoff T2).
             assert "DONE" not in _seq or _seq.index("DONE") == len(_seq) - 1, \
