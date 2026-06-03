@@ -12,6 +12,7 @@
 # RUN (remote): bash scripts/distill/sopbench/cast_sweep_eval.sh
 set +e
 PY=/home/woori/venvs/seka_env/bin/python
+VLLM_PY=/home/woori/venvs/tau2_vllm_env/bin/python   # vLLM lives here (seka has no vllm); gated server needs it
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
 SB=$REPO/scripts/distill/sopbench
 CLONE=/home/woori/scratch/SOPBench
@@ -34,7 +35,7 @@ for A in $ALPHAS; do
   echo "[alpha=$A] serving $(date)" >> $SUM
   EVDIR=$OUT/cast_eval_a${A}
   rm -rf $EVDIR
-  CUDA_VISIBLE_DEVICES=0 VLLM_PORT=8100 VLLM_DP_MASTER_PORT=8150 nohup $PY $GATED \
+  CUDA_VISIBLE_DEVICES=0 VLLM_PORT=8100 VLLM_DP_MASTER_PORT=8150 nohup $VLLM_PY $GATED \
     --steering-vectors $VEC --relation actvec --alpha $A --layers $LAYERS --gate-mode orth --target-layer-class qwen2 \
     -- --model Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 --lora-modules tbox_v2=$AD \
        --port 9001 --dtype bfloat16 --gpu-memory-utilization 0.85 --max-model-len 8192 \
