@@ -482,7 +482,14 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 >   - **v3(treeval)**: dirgraph **18** · acted 7 · goal 7 · **BOTH 2** | ACT-recall|게더 **0.11** · over-refuse(noact) 38 · premature 5 ‖ should_F STOP-recall **17 (20%)**.
 >   - baseline(T1/T2 alias_s3): BOTH 4 · over-refuse~30 · STOP~46.
 > - **판정 = v3 무효, 그것도 control 대비 명확한 회귀(분기 B 강버전)**: treeval가 **모든 축에서 control 미달** — BOTH 5→2(baseline 4보다도 낮음), dirgraph 31→18(계획 생성 급감), ACT-recall 0.16→0.11, over-refuse 31→38(거부 증가), STOP-recall 42%→20%(회귀). grounded emit derivation은 콜드붕괴를 해소하기는커녕 dirgraph 생성·STOP까지 악화. val_loss 상승이 선행 신호였음(grounded treeval 토큰 학습이 더 나쁜 정책으로 수렴).
-> - **함의**: emit-기반 트리평가(teacher가 derivation 토큰을 출력하도록 학습)는 7B에서 역효과. permitted 콜드붕괴 처방은 (i) **T1c 선결**(13% fallback 중 slot/의존-undefined 제거 후 재측정) 또는 (ii) **②DPO**(should_T→`permitted=false;STOP` dispreferred로 편향만 직접 교정) 또는 (iii) §3.10 북극성 **탐색-trace 증류**(Searchformer식)로 전환 필요. **→ derivation을 출력토큰으로 SFT하는 경로는 기각.**
+> - ⚠️**위 "회귀" 판정 = 디코드 예산 아티팩트, 철회**(아래 전수조사·재시험으로 정정).
+>
+> **Exp-4-rung1-v3-AB ★전수조사 정정 (2026-06-03 19:43 KST, rr.ps1 실측) — 회귀는 truncation 아티팩트, v3 진짜 판정 = control과 동(무개선)**: 위 헤드라인 NULL을 분기 결정 전 **전 궤적 전수조사**(행동층=도구시퀀스 + 메커니즘층=SOPBENCH_RLLOG planner raw 출력)로 원인 규명.
+>   - **행동층**: treeval should_T 48 중 **35개가 max_steps=10 캡까지 루프**(같은 게더 도구 반복, avg 8→20스텝), should_F도 57/86 루프. control은 4–6스텝서 깨끗이 종결. = 콜드붕괴(over-refuse)가 아니라 **전역 비수렴**.
+>   - **메커니즘층(RLLOG)**: control terminal-attempt(ready=true) **27/27=100% 결정 도달**(`...; permitted=..; ACT`), treeval **0/29=0% 도달** — 전부 `ready=true; gate = AND(op_32=false, AND(op_39=true, op_25=true` 에서 **planner max_tokens=24 절단**(닫는 괄호·`= <val>; ACT/STOP` 종결 전). 즉 **모델은 grounded tree-eval emit을 정확히 학습**(중첩 AND 전개 중)했으나, 디코드 예산이 종결 전 잘라 결정 미파싱→재게더→루프.
+>   - **무재학습 재시험(`SOPBENCH_PLAN_MAXTOK=1024`, 동일 어댑터 재서빙·재eval, `rung1_v3_maxtok_retest.sh`)**: treeval **loop 35→0, terminal 도달 0%→100%(212/213), BOTH 2→5**. control(maxtok불민감) BOTH 5 유지. → **"v3가 모든 축 회귀"는 100% truncation 아티팩트.**
+>   - **★v3 진짜 판정 (maxtok=1024, 수렴 상태)**: treeval **BOTH 5 = control 5 = 무개선**. 단 실패 모드 이동: over-refuse 33→**29**(거부↓), acted 14→**15**(행동↑), dirgraph 32→**22**(완전게더↓), should_F STOP 42%→33%. = grounded 게이트가 콜드 보수성은 풀었으나(덜 거부·더 행동) 그 결정을 *완전 게더* 위에 못 얹음(acted 15 중 ~10이 dirgraph 미충족 premature). **단일-스텝 whole-expression 평가의 한계**(globality; Abbe/Feng/Kim&Suzuki가 예측 — 식 emit ≠ 정확 평가).
+>   - **함의 (정정)**: ❌"SFT로 트리 불가" 아님(우리 데이터: AND(preconds) 0오류로 학습됨). ❌"v3 회귀"도 아님(아티팩트). ✅**진짜 결론 = 단일-스텝 grounded derivation은 콜드 permitted 대비 BOTH 무개선**. 처방: (i) **inductive multi-step derivation**(잎별 reduce + 중간집계 SFT loss; litreview §4 — 단일식→단계화, 여전히 SFT) 또는 (ii) **T1c**(treeval의 premature 10건이 게더-완전성/slot 결함이면 BOTH로 전환 가능 — treeval base가 control보다 T1c 수익 클 수 있음) 또는 (iii) **②DPO**(단 treeval는 이미 over-refuse↓라 DPO 레버 약함). 코드: `rung1_v3_rllog_census.sh`(메커니즘 census)·`rung1_v3_maxtok_retest.sh`·`two_stage_client.py SOPBENCH_PLAN_MAXTOK`.
 >
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
