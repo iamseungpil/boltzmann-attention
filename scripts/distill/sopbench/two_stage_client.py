@@ -315,6 +315,12 @@ class TwoStageClient:
         self._gate = bool(os.environ.get("SOPBENCH_GATE"))   # §8.6 gate-token (ACT/STOP terminal)
         self._scratch = bool(os.environ.get("SOPBENCH_SCRATCHPAD"))  # §8.7 Rung1 educated scratchpad
         self._rllog = os.environ.get("SOPBENCH_RLLOG")               # §3 Rung2 GRPO rollout log path
+        # v3 census fix (2026-06-03): planner decode budget. Default 24 fits the control terminal
+        # (`ready=true; preconds_verified=..; permitted=..; ACT`) but TRUNCATES the verbose grounded
+        # treeval terminal (`ready=true; gate = AND(op_a=..,AND(op_b=..,..)) = <val>; ACT`) before the
+        # ACT/STOP token -> 0/29 treeval terminals reached a decision -> max_steps loop. Raise via
+        # SOPBENCH_PLAN_MAXTOK to let the grounded gate expression complete (retest v3 without retrain).
+        self._plan_maxtok = int(os.environ.get("SOPBENCH_PLAN_MAXTOK", "24"))
         # coworker v1.36: in-context getter-hint (condition->getter HOW-binding from auto-derived map).
         # OFF by default. SOPBENCH_GETTER_MAP defaults to the clone's induced/getter_map.json.
         self._getter_hint = bool(os.environ.get("SOPBENCH_GETTER_HINT"))
@@ -496,7 +502,7 @@ class TwoStageClient:
                                  getter_hint=self._getter_hint, getter_map=self._getter_map)
         resp = self._client.chat.completions.create(
             model=self.model_name, messages=[{"role": "user", "content": prompt}],
-            temperature=self.temperature, top_p=self.top_p, max_tokens=24)
+            temperature=self.temperature, top_p=self.top_p, max_tokens=self._plan_maxtok)
         raw = (resp.choices[0].message.content or "").strip()
         low = raw.lower()
         # §3 Rung2 GRPO: log each planner (prompt, sampled output) for the RL update (env SOPBENCH_RLLOG).
