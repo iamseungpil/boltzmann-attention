@@ -391,7 +391,9 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                             # unknown, or est_failed/policy diverges) fall back to the non-grounded token.
                             cv = _tv.get("chain_val")
                             if (cv is True and target == "ACT") or (cv is False and target == "STOP"):
-                                tgt_out = (f"ready=true; {_tv.get('chain', 'true')}; "
+                                _ch = _tv.get("chain", "true")
+                                _seg = f"{_ch}; " if "=" in _ch else ""   # drop bare trivial literal (empty-constraint task)
+                                tgt_out = (f"ready=true; {_seg}"
                                            f"gate={'true' if cv is True else 'false'}; {target}")
                             else:
                                 tgt_out = (f"ready=true; preconds_verified=true; "
