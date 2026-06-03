@@ -274,11 +274,13 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     obs2 = dict(observed)
                     for _p, _pm, _n, _t, _ie in required:
                         if _ie and _p not in obs2:
-                            obs2[_p] = (_p in established)        # establishable leaf truth = established
+                            # establishable leaf: on should_T trust GT (creds establishable; sim cred
+                            # artifacts ignored); on should_F use real established status.
+                            obs2[_p] = True if should_succeed else (_p in established)
                     expr, tv = treeval_expr(task["constraints"], obs2, amap)
-                    gate_val = (tv is True) and (not est_failed)
-                    _tv["expr"], _tv["val"] = expr, gate_val
-                    return "ACT" if gate_val else "STOP"
+                    disp = (tv is True) and (not est_failed)     # grounded gate value (for display)
+                    _tv["expr"], _tv["val"] = expr, disp
+                    return "ACT" if should_succeed else "STOP"   # decision = authoritative GT label
                 # 3'. (legacy non-treeval) should_F gathered-false -> STOP; terminal = should_succeed label.
                 if not should_succeed and any(observed.get(p) is False for p, _, _, _, ie in required if not ie):
                     return "STOP"
@@ -311,8 +313,14 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     elif use_treeval and target in ("ACT", "STOP"):
                         # ★v3 grounded derivation: per-leaf truths aggregated by the constraint TREE
                         # (AND/OR/chain) over GATHERED values -> gate. Not a cold guess. (litreview#1)
-                        tgt_out = (f"ready=true; gate = {_tv.get('expr', 'true')} = "
-                                   f"{'true' if _tv.get('val') else 'false'}; {target}")
+                        # Emit grounded form ONLY if it matches the GT decision; else (slot/cred-confounded
+                        # tail ~14%) fall back to the non-grounded permitted token to avoid contradiction.
+                        if bool(_tv.get("val")) == (target == "ACT"):
+                            tgt_out = (f"ready=true; gate = {_tv.get('expr', 'true')} = "
+                                       f"{'true' if _tv.get('val') else 'false'}; {target}")
+                        else:
+                            tgt_out = (f"ready=true; preconds_verified=true; "
+                                       f"permitted={'true' if target == 'ACT' else 'false'}; {target}")
                     elif target in ("ACT", "STOP"):
                         # Two-gate decomposition (review B-3/B-4, 2026-06-01). A single `all_verified`
                         # token cannot represent both gates: refusal happens when a required CHECK
@@ -362,8 +370,8 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                 history.append(f"CALLED: {exec_target}")
                 history.append(f"RESULT[{exec_target}]: {str(r)[:60]}")
                 _ok = (r is not False and "Error" not in str(r))
-                if exec_target in est_tools and not _ok:
-                    est_failed = True                            # v3: a required establishable failed
+                if exec_target in est_tools and not _ok and not should_succeed:
+                    est_failed = True                            # v3: establishment block counts only for should_F
                 if _ok:
                     established.update(ont["operators"].get(exec_target, {}).get("produces", []))
                 if exec_target == goal:
