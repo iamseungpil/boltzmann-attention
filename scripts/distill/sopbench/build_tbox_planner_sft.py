@@ -104,6 +104,58 @@ def treeval_expr(tree, observed, amap=None):
     return ("true", True)
 
 
+def treeval_reduce(tree, observed, amap=None):
+    """v3-INDUCTIVE (litreview §4 / Abbe NeurIPS24 inductive scratchpad + Kim&Suzuki ICML25
+    intermediate-step loss): instead of emitting the whole nested expression in ONE step
+    (`gate = AND(op_a, AND(op_b, op_c)) = val`, which our Exp-4-rung1-v3-AB retest showed converges
+    but gives BOTH==control = single-step globality limit), emit a BOTTOM-UP REDUCTION CHAIN where
+    each internal node folds its ALREADY-RESOLVED children into a named partial result. Each `tK=OP(..)=v`
+    is a LOCAL step (combines 2-3 known values) and is in the SFT target -> serial compute + supervision.
+    Leaves use the GATHERED truth lookup (identical semantics to treeval_expr; no re-derivation).
+    Returns (chain_str, value); chain_str e.g. 't1=AND(op_39=true, op_25=true)=true; t2=AND(op_32=false, t1)=false'."""
+    A = (lambda n: amap.get(n, n)) if amap else (lambda n: n)
+    steps = []
+    counter = [0]
+
+    def rec(t):
+        # returns (ref, value): ref is a leaf token 'name=val' or a temp 'tK' for an internal node.
+        if not t or not isinstance(t, (list, tuple)) or not t:
+            return ("true", True)
+        h = t[0]
+        if h == "single":
+            nm = t[1]; neg = nm.startswith("not "); base = nm[4:] if neg else nm
+            pm = t[2] if len(t) > 2 else {}
+            v = observed.get((base, frozenset((pm or {}).items())))
+            vv = "true" if v is True else ("false" if v is False else "unknown")
+            return (f"{A(base)}={vv}", v)
+        if h in ("and", "chain", "gate", "or"):
+            kids = [rec(s) for s in t[1]]
+            vals = [k[1] for k in kids]
+            if h == "or":
+                if any(x is True for x in vals):
+                    val = True
+                elif any(x is None for x in vals):
+                    val = None
+                else:
+                    val = False
+                opn = "OR"
+            else:
+                val = (all(x is True for x in vals) if vals else True)
+                if any(x is None for x in vals) and not any(x is False for x in vals):
+                    val = None
+                opn = "AND"
+            counter[0] += 1
+            tk = f"t{counter[0]}"
+            vstr = "true" if val is True else ("false" if val is False else "unknown")
+            steps.append(f"{tk}={opn}(" + ", ".join(k[0] for k in kids) + f")={vstr}")
+            return (tk, val)
+        return ("true", True)
+
+    ref, val = rec(tree)
+    chain = "; ".join(steps) if steps else ref   # single-leaf tree -> just the leaf truth
+    return (chain, val)
+
+
 # (T1b, handoff §1.5-(2)) DEPRECATED hand-map. The teacher NO LONGER uses this for required_set —
 # condition->getter is now the auto-derived `getter_map.json` (GMAP, structural AST parse,
 # autoderive_getter_map.py) on ALL 7 domains uniformly. Retained ONLY as the ground-truth that
@@ -124,7 +176,7 @@ GETTER_BY_DOMAIN = {
 
 
 def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, source=1,
-                 use_gate=False, use_scratch=False, use_treeval=False):
+                 use_gate=False, use_scratch=False, use_treeval=False, use_treeval_inductive=False):
     from env.variables import domain_assistant_keys, domain_keys
     from env.task import task_default_dep_full, task_initializer, get_default_dep_full
     from swarm.util import function_to_json
@@ -289,6 +341,10 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     expr, tv = treeval_expr(task["constraints"], obs2, amap)
                     disp = (tv is True) and (not est_failed)     # grounded gate value (for display)
                     _tv["expr"], _tv["val"] = expr, disp
+                    if use_treeval_inductive:
+                        # bottom-up reduction chain (each internal node folded as a supervised step)
+                        chain, _ = treeval_reduce(task["constraints"], obs2, amap)
+                        _tv["chain"] = chain
                     return "ACT" if should_succeed else "STOP"   # decision = authoritative GT label
                 # 3'. (legacy non-treeval) should_F gathered-false -> STOP; terminal = should_succeed label.
                 if not should_succeed and any(observed.get((p, frozenset((pm or {}).items()))) is False
@@ -326,8 +382,14 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                         # Emit grounded form ONLY if it matches the GT decision; else (slot/cred-confounded
                         # tail ~14%) fall back to the non-grounded permitted token to avoid contradiction.
                         if bool(_tv.get("val")) == (target == "ACT"):
-                            tgt_out = (f"ready=true; gate = {_tv.get('expr', 'true')} = "
-                                       f"{'true' if _tv.get('val') else 'false'}; {target}")
+                            if use_treeval_inductive:
+                                # §4 inductive: emit the bottom-up reduction chain (intermediate
+                                # aggregations supervised), then restate gate from the final fold.
+                                tgt_out = (f"ready=true; {_tv.get('chain', 'gate=true')}; "
+                                           f"gate={'true' if _tv.get('val') else 'false'}; {target}")
+                            else:
+                                tgt_out = (f"ready=true; gate = {_tv.get('expr', 'true')} = "
+                                           f"{'true' if _tv.get('val') else 'false'}; {target}")
                         else:
                             tgt_out = (f"ready=true; preconds_verified=true; "
                                        f"permitted={'true' if target == 'ACT' else 'false'}; {target}")
@@ -431,7 +493,15 @@ def main():
                     help="§3.10 v3: terminal = GROUNDED tree-eval derivation `gate = AND/OR(leaf=<obs>...) "
                          "= <bool>; <ACT|STOP>` over gathered leaf truths (replaces cold permitted). "
                          "Implies --scratchpad/--gate-token. RUNG1_V3_TREE_EVAL_LITREVIEW.")
+    ap.add_argument("--treeval_inductive", action="store_true",
+                    help="§4 v3-inductive: terminal = BOTTOM-UP REDUCTION CHAIN `t1=AND(a=t,b=t)=t; "
+                         "t2=AND(t1,c=f)=f; gate=f; <ACT|STOP>` — each internal node folded as a supervised "
+                         "step (Abbe inductive scratchpad + Kim&Suzuki intermediate-loss). Replaces the "
+                         "single-step whole-expression emit (Exp-4-rung1-v3-AB: single-step converges but "
+                         "BOTH==control). Implies --treeval.")
     args = ap.parse_args()
+    if args.treeval_inductive:
+        args.treeval = True       # inductive is a treeval variant (shares the grounded terminal branch)
     if args.treeval:
         args.scratchpad = True    # treeval terminal lives in the scratchpad emit branch
     if args.scratchpad and not args.gate_token:
@@ -443,7 +513,8 @@ def main():
         try:
             ex = build_domain(d, args.data_dir, args.ont_dir, shuffle_seed_base=13,
                               use_alias=args.alias, source=args.source, use_gate=args.gate_token,
-                              use_scratch=args.scratchpad, use_treeval=args.treeval)
+                              use_scratch=args.scratchpad, use_treeval=args.treeval,
+                              use_treeval_inductive=args.treeval_inductive)
         except Exception as e:
             import traceback
             print(f"[{d}] FAILED: {e.__class__.__name__}: {e}")
@@ -451,7 +522,7 @@ def main():
             continue
         tag = ("_alias" if args.alias else "") + (f"_s{args.source}" if args.source != 1 else "") \
             + ("_gate" if args.gate_token else "") + ("_scratch" if args.scratchpad else "") \
-            + ("_treeval" if args.treeval else "")
+            + ("_treeval" if args.treeval else "") + ("ind" if args.treeval_inductive else "")
         path = os.path.join(args.out, f"sft_tbox_{d}{tag}.jsonl")
         with open(path, "w", encoding="utf-8") as f:
             for e in ex:
