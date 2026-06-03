@@ -92,10 +92,43 @@
 | `rung1_v3_maxtok_retest.sh`·`rung1_v3ind_train_eval.sh` | 직전(참조·버그수정 대상) |
 | `RUNG1_V3_INDUCTIVE_DESIGN.md` | 직전 설계(treeval_reduce) |
 
-## 11. 다음 세션 첫 행동
-1. **이 설계서 리뷰**(특히 §3 사다리·§5 구현·§6 버그·§4 지표). 적대검증.
-2. **§6 버그 3종 수정** + 검증(드롭0, nt 레이스 해소).
-3. **§5 구현**(트리-emit OFF, `--shape_budget`+`--gather_complete_gate`, 드라이버).
-4. **빌드 검증**(rung B 타깃 포맷 육안 + 일관성) → 학습 launch(~4h, SOLO) → 3 rung eval.
-5. **§4 판정**(어느 rung서 BOTH 회복) → 권위본 `Exp-4-rung1-source-ladder` 기록.
-6. 회복되면 **전이(§8)** + **도구변경 ablation** → 논문 헤드라인.
+## 12. ★타깃 아키텍처 — 2-agent (구조추론 + 실행) = 단일 base + 2 LoRA
+전수조사 근본원인(한 agent가 구조추론+실행 동시 → fabrication)을 **구조적으로** 제거하는 분해. source 사다리를 포섭한다(rung C = Agent2 천장, rung A/B = 단일 agent로는 불가 baseline).
+
+**구성**:
+| | Agent1 (구조추론/Parser) | Agent2 (실행, 현 planner) |
+|---|---|---|
+| 입력 | NL 정책 + (alias) 도구설명 (=s3) | NL 요청 + 도구 + **Agent1 dirgraph** (=s1) |
+| 출력 | dirgraph (canonical 직렬화) | gather → ACT/STOP |
+| 호출 빈도 | 태스크당 **1회** | 게더-until-resolved **루프** |
+| **검증기** | **GT `task["constraints"]` 트리매치** | **결정론 evaluator**(dirgraph∩correct) |
+| teacher | s3 프롬프트 → dirgraph 직렬화 | s1 프롬프트(구조 제공) → 게더/결정 |
+
+**서빙 = vLLM 네이티브 멀티-LoRA(단일 base, adapter 2개)**:
+```
+vllm serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 --max-loras 2 \
+  --lora-modules struct=<struct_adapter> exec=<exec_adapter> ...
+```
+오케스트레이터(two_stage_client): Stage1 `model=struct`(NL→dirgraph) → Stage2 `model=exec`(dirgraph 렌더 후 게더/결정, 루프). 같은 base 1회 로드, adapter ~20MB×2, 단계별 `model` 필드로 선택. 저렴.
+
+**★인터페이스 계약**: **하나의 canonical dirgraph 직렬화**(=source=1 렌더 `op_7=>VERIFY op_3`)를 Agent1 타깃 ∧ Agent2 입력으로 공유. 포맷 불일치 = 파이프라인 깨짐 → 단일 포맷 함수로 강제.
+
+**Agent1 = 학습된 온톨로지 inducer**: `induce_ontology`가 오프라인에 하는 걸 NL서 런타임·새도메인 일반화. → **새 도메인 = NL 정책만 주면 Agent1이 dirgraph 생성 → Agent2 실행, 재학습0**(전이 강화).
+
+**upper-bound-first 프로토콜**:
+1. **Agent2 천장**: oracle 구조(=GT dirgraph 직접 주입, s1) → Agent2@oracle BOTH. fabrication 제거 시 실행이 오라클(37/48)에 근접하나? = 가장 중요한 첫 측정.
+2. **Agent1 측정**: NL→dirgraph 트리매치 정확도.
+3. **파이프라인**: Agent1→Agent2 end-to-end. 천장과의 격차 = **구조추론 비용**(고립·정량화).
+
+**필수 ablation**: **2-adapter(분리, 기본)** vs **1-adapter(멀티태스크, 모드 프롬프트)** — 분리가 fabrication을 실제로 격리하는지(2>1이면 분해 정당). + Agent2 단독 단일agent(s3) = fabrication baseline(이미 NULL).
+
+**정직 경계**: ①오차복합(파이프라인≈A1×A2) — 단 어려운 부분(구조추론) 고립·측정이 장점. ②Agent1 학습성=supervised라 tractable(무감독 발견 아님), 단 7B의 dirgraph 트리매치 실측 필요. ③서빙=단일base+2LoRA로 저렴.
+
+## 13. 다음 세션 첫 행동
+1. **이 설계서 리뷰**(특히 §3 사다리·§12 2-agent·§5 구현·§6 버그·§4 지표). 적대검증.
+2. **§6 버그 3종 수정** + 검증(ACT-call tool_choice 드롭0, nt 헤드라인 레이스 해소).
+3. **upper-bound 먼저(§12-1)**: oracle 구조(s1) 주입 → **Agent2 천장 BOTH** 측정 = 트리-emit OFF·단순 게더/결정 타깃. (실행이 깨끗한 구조서 학습되는지 = 전체 가설의 1차 게이트.)
+4. 천장 유의미하면 → **Agent1(NL→dirgraph) 학습**(canonical 직렬화 타깃, 트리매치 검증) → **2-LoRA 파이프라인**(§12 서빙).
+5. **§4 판정**(천장·Agent1정확도·파이프라인 격차) → 권위본 `Exp-4-rung1-2agent` 기록.
+6. 회복되면 **전이(§8)** + **도구변경 ablation** + 2-vs-1 adapter ablation → 논문 헤드라인.
+7. (보조) source 사다리 rung B(조건수budget+종료)는 "단일agent를 구조제공 없이 얼마나 구할 수 있나"의 진단으로 병행 가능.
