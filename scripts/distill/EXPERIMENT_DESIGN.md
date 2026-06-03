@@ -50,6 +50,7 @@
     - **★우리와 구분(한 줄)**: 이들은 *사실/엔티티 KG*를 build·retrieve(그래프=검색 인덱스). 우리는 **NL 정책→실행가능 *절차* 그래프(dirgraph)를 *모델이 emit*** (그래프=실행 절차·weight 내재화·ABox swap 전이). RoG(구조 emit)·LLM Wiki(사전컴파일)가 인접하나 **절차 컴파일 + 학습 전이**가 우리 고유.
 
 ## §2. 현재 진단 (어디까지 왔나)
+> ★**최신 전환 (2026-06-04) — 진입점 = [`RUNG1_SOURCE_LADDER_DESIGN.md`](RUNG1_SOURCE_LADDER_DESIGN.md)**. **트리평가-*형식* 라인(단일식·inductive·depth-recurrence) 전부 NULL/비-문제로 종결.** 근거: ①`Exp-4-rung1-v3-AB` "회귀"는 planner max_tokens=24 **truncation 아티팩트**(전수조사), 무재학습 maxtok=1024 재시험 → BOTH 2→5 = **control과 동(무개선)**. ②`Exp-4-rung1-v3ind`(inductive reduction 체인) = **NULL, 단일식보다 나쁨**(BOTH 3<4<5). **★전 궤적 전수조사 근본원인 = 구조 fabrication**(한 agent가 구조추론+실행 동시 → 실제보다 큰 트리 환각, pay_bill 10op/실제3, STOP chain 17/17 fabricate된 `=false`) + **over-gather**(step cap까지). **★조건수별 BOTH = 균일 바닥(1조건도 0) → serial-depth/조건수는 병목 아님**(depth-recurrence/트리평가-깊이는 비-문제). ③deep-research×2(AND/OR 트리평가·depth-recurrence)·CDP/OISA 현장분석(도구폭발·동음이의어·source=1=배포현실)로 방향 확정. **→ 병목 = gather/결정 정책 + 모델이 구조를 *추론/emit*하게 둔 것. 처방 = 구조를 *제공*(source 사다리)하고 *구조추론을 전문 agent로 분리*(2-agent = 단일base+2LoRA, §3.10)·gather-종료(T1c)·거부편향(DPO). 트리-emit 폐기.** 상세·실행순서=새 설계서 §12-13.
 - **arm-1(LLM-alone) bank 5.2% / arm-3 naive 0% / arm-3v2(in-context 구조, 무학습) gating 무시 / arm-4a(학습 L2) 26.1%(should_T 4/48)**.
 - **★run_scripted(결정론 직접제어): 완전게더 A+B+C = 37/48(oracle), 프롬프트-LLM = 4/48.** → **should_T binding = 도구 선택(=게더: 어떤 검증/establish 도구를 부르는가)**. "직접제어 ≫ 프롬프트" 실증.
 - **★현 SFT 진단(전수조사)**: **게더는 학습됨**(dirgraph 36-45/48, LODO 전이) **but 터미널 게이트(게더 후 act vs STOP) 못 박음** → **BOTH 0-2**. s1(STATUS)=게더후 STOP / s3(NL)=안게더 act. gate-token(Exp-4d)=부분(act 3→13, BOTH 0→2). **= 병목이 게더에서 터미널 게이트로 이동.**
@@ -207,11 +208,13 @@
 ## §3.10 ★Target Architecture (북극성) — graph-guided 자율 agent의 *내재화* 〔2026-06-03 박제, 적대검증 서베이 2회 근거〕
 > 현 사다리(Rung1-3)는 이 북극성의 *부분집합·경로*다. 방향 흔들리면 이 절을 본다. 상세 근거=`RUNG1_V3_TREE_EVAL_LITREVIEW.md`(트리평가 학습)·`SEARCH_INTERNALIZATION_LITREVIEW.md`(탐색 내재화).
 
+> ★**구체화 (2026-06-04, [`RUNG1_SOURCE_LADDER_DESIGN.md`](RUNG1_SOURCE_LADDER_DESIGN.md) §12) — 북극성의 실현형 = 2-agent 분해 (단일 base + 2 LoRA)**: 위 4층 분리를 실행가능하게 분해 = **Agent1(구조추론/Parser: NL→dirgraph, 검증=GT `task["constraints"]` 트리매치 = "학습된 온톨로지 inducer")** + **Agent2(실행: dirgraph+NL→gather/ACT/STOP, 검증=결정론 evaluator)**. 단일 Qwen-7B base + `struct`/`exec` LoRA 2개를 vLLM 멀티-LoRA로 단계별 `model` 필드 선택(태스크당 Agent1 1회 → Agent2 루프). **공유 계약 = canonical dirgraph 직렬화**(=source=1 렌더). **왜 = 전수조사 근본원인(한 agent 구조추론+실행 동시 → fabrication)을 *구조적으로* 제거**(Agent2는 항상 깨끗한 구조 받음 → 트리 발명 불가). **전이 = 새 도메인 NL만 주면 Agent1이 dirgraph 생성 → Agent2 실행, 재학습0**(TBox/ABox 강화). **upper-bound-first**: Agent2@oracle-구조(천장) → Agent1 정확도 → 파이프라인 격차=구조추론 비용. ablation: 2-adapter(분리) vs 1-adapter(멀티태스크).
+
 - **한 줄**: "그래프-가이드로 gather→judge→act를 *성공 또는 불가증명까지* 추구하는 자율 agent"(= run_scripted 오라클 37/48의 일반화)를 **TBox(weight)에 내재화**하고 **ABox+관계그래프 swap만으로 전이**한다. = 외부탐색의 전이가능·무탐색 내재화 버전.
 - **4층 분리**: **TBox**(도메인-불변 일반 *논리·검증·탐색 제어*: gather-until-resolved·트리평가 AND/OR/chain·act/stop·백트랙 = **weight**, 학습·전이) / **ABox**(도메인 *가이드 룰*: 어떤 조건이 정책상 중요·관계·의존 — ★도구 바인딩 아님 = **swappable 데이터/메모리**, induce) / **관계그래프(GraphRAG/Graphify)**(도메인-특화 관계로 **affordance 검색**: condition→tool, 이웃관계 = **swappable 인덱스**) / **자율 탐색루프**(TBox 구동, 성공/불가증명까지).
 - **★4 설계 보정(정직)**: ① **GraphRAG=검색(spatial)·TBox=절차(structural) 분리** — 그래프는 affordance만, AND/OR 순서·트리평가는 TBox emit(그래프가 절차하면 globality로 깨짐). ② **"성공까지"→"성공 *또는* 불가증명까지"**(should_F=거부; 무한탐색 금지). ③ **ABox=induce된 swappable 데이터**(weight에 구우면 TBox-baking=전이파괴); TBox는 *임의 가이드룰을 적용하는 일반능력*만 학습. ④ **cost-aware 경계**(VOI로 다음 게더 선택·깊이/스텝 bound).
 - **빌드 경로(외부탐색→내재화, 문헌 정합)**: ① 외부 graph-search agent(LATS/RAP식 + **완벽검증기**로 leaf 평가) = run_scripted의 그래프-일반화 → ② trace를 TBox에 **증류**(★Searchformer `2402.14083`: 교사초과·짧은trace 부트스트랩; 스텝 reward는 ReST-MCTS*/Math-Shepherd식 최종 gate-정답서 추론) → ③ 깊이=**value-fn 증류**(TS-LLM `2309.17179` depth-64) → ④ **ABox+그래프 swap 전이**(재학습0).
-- **3축 현황**: (A) grounded 트리평가+derivation=**학습가능**(litreview#1: Kim&Suzuki·Abbe·Feng) / (B) 탐색 내재화=**교사초과**(litreview#2: Searchformer·TS-LLM) / (C) **NL→마스킹트리 추론+전이=선행 전무=헤드라인 novelty이자 최대 리스크**.
+- **3축 현황**: (A) grounded 트리평가+derivation=학습가능(litreview#1) — ⚠️**2026-06-04 실측 정정: 트리평가 *형식*(단일식·inductive·depth-recurrence)은 우리 병목이 아님**(BOTH 무개선·균일실패, 형식 정교화는 fabrication 유발). 트리평가는 Agent2가 *주어진 구조*를 집계하는 trivial 부분, 진짜 문제는 Agent1(구조)·gather정책. / (B) 탐색 내재화=교사초과(litreview#2: Searchformer·TS-LLM) — Agent1/Agent2 각자 검증기로 증류·부트스트랩 경로 / (C) **NL→구조(dirgraph) 추론+전이=선행 전무=헤드라인 novelty=Agent1의 정체이자 최대 리스크**.
 - **정직 리스크**: 완벽검증기 의존(실세계엔 LLM-Modulo식 검증기 학습 필요)·내재화의 우리-도메인 일반화 미증명(전부 math/puzzle·from-scratch)·그래프 품질=induce 의존·공학규모.
 
 ## §4. 성공 게이트 (사전등록)
@@ -239,9 +242,11 @@
 | `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 전체 스펙·planner L0/L1/L2·§9 LLM-in-loop·prior art | detail (개념 원본) |
 | `TASK_CONSTRAINT_DESIGN.md` | should_T 병목 진단·게이트·§8.6 전수진단·§8.7 사다리 상세 | detail (Rung1-2 상세) |
 | `GRPO_REWARD_DESIGN.md` | RFT reward 함수·GRPO 루프(Rung2 상세) | detail |
+| **`RUNG1_SOURCE_LADDER_DESIGN.md`** | **★현재 진입점**: source 사다리(s3→budget→s1)·**2-agent(구조추론+실행=2 LoRA, §12)**·upper-bound-first·버그수정·다음세션 순서 | ★**활성 진입점** (§2·§3.10 구체화) |
+| `RUNG1_V3_INDUCTIVE_DESIGN.md` | inductive reduction-chain 설계(treeval_reduce) — **NULL 판정(Exp-4-rung1-v3ind)** | detail (종결·역사) |
 | `RUNG1_IMPL_HANDOFF_2026_06_02.md` | T1(login-uniform)·T2(종료) teacher 구현 핸드오프 | detail (Rung1 구현) |
-| `RUNG1_V3_TREE_EVAL_LITREVIEW.md` | grounded 트리평가+derivation 학습 — 적대검증 선행연구·레시피 | detail (§3.10 근거) |
-| `SEARCH_INTERNALIZATION_LITREVIEW.md` | 탐색→weight 내재화(Searchformer·TS-LLM 등) — 적대검증·북극성 근거 | detail (§3.10 근거) |
+| `RUNG1_V3_TREE_EVAL_LITREVIEW.md` | grounded 트리평가+derivation 학습 — 적대검증 선행연구(§8 AND/OR 트리평가 재탐색) | detail (§3.10 근거) |
+| `SEARCH_INTERNALIZATION_LITREVIEW.md` | 탐색→weight 내재화(Searchformer·TS-LLM) + §9 depth-recurrence(Universal/Looped TF) 재탐색 | detail (§3.10 근거) |
 | `SOPBENCH_EXPERIMENT_RESULTS.md` | 모든 실측 결과(Exp-1~4) 누적 | 결과 권위본 |
 | `COWORKER_EXPERIMENT_PLAN.md` | 32B/72B 분업 | detail (Track B) |
 | `TASK_CONSTRAINT_{DESIGN_REVIEW,IMPL_REVIEW}.md` | 리뷰 라운드 | 참조 |
