@@ -135,10 +135,11 @@ vllm serve Qwen/Qwen2.5-7B-Instruct --enable-lora --max-lora-rank 16 --max-loras
 **정직 경계**: ①오차복합(파이프라인≈A1×A2) — 단 어려운 부분(구조추론) 고립·측정이 장점. ②Agent1=NL서 코드-유래 구조 복원=오프라인 inducer보다 어려움(A5), 7B dirgraph 트리매치 실측 필요. ③서빙=단일base+2LoRA로 저렴. ④Agent1 malformed 출력→parse/repair+robustness(A6).
 
 ## 12. 다음 세션 첫 행동
-1. **이 설계서 리뷰**(§11 2-agent=헤드라인·§3 2축 그리드·§5 구현·§6 버그·§4 지표). 적대검증.
-2. **§6 버그 3종 수정** + 검증(ACT-call tool_choice 드롭0·헤드라인 레이스 해소) + **tree-emit arm 1회 clean 재실행**(NULL 재확인 후 라인 종료).
-3. **★upper-bound 먼저(§11)**: **Agent2@oracle = rung C(s1, GT dirgraph 주입) × {none, T1c}** — 트리-emit OFF, T1c는 permitted을 *주어진 구조 leaf-truth AND 룩업*으로. **구조+grounded-결정 시 BOTH가 오라클(37/48)에 근접하나? = 전체 가설 1차 게이트.** (none vs T1c로 결정-레버 기여 분리.)
-4. 천장 유의미 → **Agent1(NL→dirgraph) 학습**(canonical 직렬화 타깃·트리매치 검증·parse/repair) → **2-LoRA 파이프라인**(§11). Agent1 정확도·noisy-robustness 측정.
-5. **§4 판정**(천장·결정레버 기여·Agent1정확도·파이프라인 격차) → 권위본 `Exp-4-rung1-2agent` 기록.
-6. 회복 시 **전이(§8)** + **도구변경 ablation** + 2-vs-1 adapter ablation → 논문 헤드라인.
-7. (보조 진단) rung A(s3)+T1c/DPO·rung B(조건수budget+종료) 격자로 "구조 없이 결정-레버만으로 어디까지" 병행.
+> ★**진척 (2026-06-04): §6 버그수정 완료(no-400, 양쪽 n_T=48·레이스無 검증) + 1차 게이트 측정 완료 = `Exp-4-rung1-upperbound`.** 결과: **C(s1)=A(s3) BOTH 3 = 구조 제공만으론 BOTH 무개선**. 단 C가 게더 dirgraph 29→34·STOP 40→49%·over-refuse 38→33 개선. **병목 = should_T ACT *결정***(dirgraph 34 충족인데 BOTH 3·premature 10). **→ 리뷰 A2 적중: 구조 아니라 *결정*이 벽. Agent1로 가기 전에 결정 레버부터.**
+1. **이 게이트 결과 숙지**(↑) — Agent2@oracle 천장이 BOTH 3에 머묾 = 구조 가시화는 게더/STOP만 도움.
+2. **★결정 레버를 source=1 위에 (다음 실험)**: **C(s1) × {T1c, DPO}**.
+   - **T1c 구현**(`build_tbox_planner_sft --gather_complete_gate`): readiness=true는 required 전부 게더일 때만(premature 10 차단) + **permitted = 주어진 구조의 leaf-truth AND/OR 룩업**(treeval_expr disp 재사용, 트리 emit 없이 값만; 콜드 should_succeed 추측 제거). C+T1c가 BOTH를 올리나?
+   - **DPO**(`build_dpo_pairs`): should_T `permitted=false;STOP`(over-refuse 33) + premature-ACT dispreferred. C+T1c 후 잔여 누름.
+3. **판정**: C+T1c/DPO가 BOTH↑(특히 dirgraph 34 충족분이 BOTH로 전환되면 → 34 근처까지 가능성) → 결정 레버가 답. 권위본 `Exp-4-rung1-decision-lever` 기록.
+4. **그 후에야 Agent1(NL→dirgraph) 학습**(C가 결정 레버로 천장 확보 후) → 2-LoRA 파이프라인(§11)·전이(§8)·도구변경 ablation → 논문 헤드라인. (Agent1을 먼저 만들 이유 없음: 천장 자체가 결정 레버 없인 안 섬.)
+5. (참고) tree-emit 라인은 종료(단일식·inductive 둘 다 NULL); buggy harness였으나 no-400 수정 후에도 결론 불변(행동델타 큼). 재확인 불요.
