@@ -43,3 +43,21 @@
 
 ## 8. 소스(primary)
 2305.10601·2305.14992·2310.04406·AAAI24-29720·2502.16235·2402.14083·2309.17179·2406.03816(ReST-MCTS*)·2312.08935·2404.12253·2501.04519·2404.03683·2405.14838·2407.06023. 기각: 2501.04519의 58.8→90 수치.
+
+## 9. 재탐색 (2026-06-03 PM) — depth-recurrence (Universal/Looped Transformer)로 serial-depth 내재화 (deep-research #4, 104 에이전트·22소스·25주장, 21 confirmed/4 killed)
+> 동기: CoT 토큰 대신 **weight-tied recurrence**로 serial 계산깊이를 얻어 트리/탐색 평가를 latent로 내재화 가능한가 + pretrained 7B retrofit 가능한가.
+> **결론: 결정론 트리평가엔 looping이 이론적 정답이나, pretrained 7B latent-recurrence retrofit은 오늘 방법 無 → 실현경로=RELAY식 trace 증류(=우리 inductive/multi-call의 loop-aligned판). serial-depth가 우리 병목인지 선결 확인 필요.**
+
+| 발견 | 논문 | 판정·함의 |
+|---|---|---|
+| ★**결정론 DAG/트리평가: loop ∝ 깊이, CoT ∝ 크기 (형식 분리)** | **Xu & Sato 2505.19245 "To CoT or To Loop?"** (Thm 4.7/4.4/5.6) | ✅ HIGH. **우리 AND/OR/chain precond 트리(bounded-fan-in 결정론 DAG)=looping 우위 영역.** "recurrent induced bottom-up GoT" 이론 검증. stochastic 샘플링은 CoT 우위(looping FPAUS 불가) → **평가=loop, 탐색=CoT**(통합 아님; "unified" 0-3 기각) |
+| recurrence가 TC0 초과(serial depth=iter) | **UT 1807.03819**(Turing-complete, 가정下)·**Giannou 2301.13196**(looped 13-layer=프로그래머블 컴퓨터) | ✅ HIGH. 단 **constructive 존재증명(hand-designed weights)·학습/pretrained 결합법 불명** |
+| adaptive-step looping이 length/depth 일반화↑ | **Fan et al. ICLR25 2409.15647** (n-RASP-L) | ✅ HIGH. 단 (1)iterative 해법 (2)step 감독 (3)정지규칙 필요 |
+| ★**retrofit/증류 경로** | **RELAY 2502.08482**: loop-iter↔CoT-step 정렬+중간감독→looped로 학습길이초과 CoT 생성→**AR 모델 SFT** | ✅ HIGH. = recurrence를 *trace 생성기*로. ⚠️**소형 from-scratch·합성과제만, pretrained 7B 미검증** |
+| ❌**latent recurrence retrofit 불가** | **Huginn-3.5B 2502.05171**: from-scratch(800B토큰)·Prelude/Loop/Coda=vanilla retrofit 비호환. **latent<CoT**(GSM8K 5% vs 25-38%, Lu 2507.02199 probing=해석가능 latent CoT 거의無) | ✅ HIGH. **LoRA-on-7B 목표 결정적 부정** |
+| recurrence 단독≠일반화 | UT+ACT Sudoku 6-8% vs TRM 87.4% (2604.21999/2510.04871) | ◐ MED(과일반화; "올바른 학습 필요" clause만 타당. TRM도 recursive-depth) |
+
+**기각(신뢰금지)**: "CoT=loop 단일메커니즘"(0-3)·"memory token 필수"(0-3)·"Huginn 50B급 능력"(1-2, FLOPs일 뿐)·"recurrence는 CoT데이터 불요 이점"(0-3).
+**gap**: ①pretrained 7B 레이어 post-hoc looping(LoRA loop-stable)=無 ②RELAY @7B·현실과제=無 ③**우리 트리가 serial-depth 병목인지 자체가 미확인**(얕음 2-7조건; 우리 진단=gather/도구선택 병목 → recurrence가 비-문제 풀 위험).
+**실행 함의**: 7B 내부 looping 대신 ①**call-레벨 loop**(harness가 frontier 한 층씩 재호출=손수 만든 looped TF, 즉시 구현가능=명시적 multi-call recurrent bottom-up) + ②RELAY식으로 단일-pass 증류. **선결: BOTH 조건수/깊이 분해**(평탄→recurrence 불필요 / decay→투자가치).
+소스: 2505.19245·1807.03819·2301.13196·2409.15647·2502.08482·2502.05171·2507.02199·2604.21999·2510.04871·2509.25239.
