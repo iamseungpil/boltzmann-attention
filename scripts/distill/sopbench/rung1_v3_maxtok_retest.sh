@@ -8,7 +8,7 @@
 # genuinely fail. nt is the unchanged control (160 is harmless: its terminal already fits in <12 tok).
 # Also captures RLLOG to classify completed terminals (grounded gate val vs should_succeed agreement).
 set +e
-PLAN_MAXTOK=${PLAN_MAXTOK:-160}
+PLAN_MAXTOK=${PLAN_MAXTOK:-1024}   # large enough that the deepest nested-AND gate never truncates
 PY=/home/woori/venvs/seka_env/bin/python
 VLLM=/home/woori/venvs/tau2_vllm_env/bin/vllm
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
