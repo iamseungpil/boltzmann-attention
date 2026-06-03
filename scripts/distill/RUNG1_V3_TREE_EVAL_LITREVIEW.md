@@ -52,3 +52,20 @@ v3 teacher 구현(§4 레시피) → bank LODO 재학습 → 측정: BOTH(헤드
 
 ## 7. 소스 (primary, arXiv)
 2410.08633 · 2305.15408 · 2402.12875 · 2406.06467(NeurIPS proc) · 2211.12316 · 2412.02823 · 2512.02677 · 2305.18654 · 1802.08535 · 1406.1827 · 2207.00729 · (DNF: Jackson/Lee/Servedio/Wan RANDOM08) · 2101.02258. 기각: 2310.16028.
+
+## 8. 재탐색 (2026-06-03 PM) — AND/OR 트리 *평가·해소* 선행연구 (deep-research 104 에이전트·21소스·25주장 검증, 22 confirmed/3 killed)
+> 동기: §1–7은 *학습가능성 이론*(parity/globality) 중심 → AND/OR 트리 **평가·해소 자체**(BFVP/CVP·ListOps·RvNN·AND-OR search·CoT·depth·agentic) 재탐색.
+> **결론: "grounded(tool-gathered) AND/OR 트리평가 + ABox 전이" = 검증문헌 全無(novel locus). 단 하위 3조각은 (기호적으로) 연구됨 → 인용하되 신규성 주장 금지.**
+
+| 발견 | 논문 (arXiv/venue) | 판정·함의 |
+|---|---|---|
+| **bottom-up reduction가 OOD depth-decay 완화**(★inductive 직접지지) | **He 2025 2512.02677**(Looped Locate-and-Replace; depth12 66.7% vs 51.8%, 학습 depth≤5) · **Yehudai/Amsel/Bruna 2503.01544 (NeurIPS25)**(CoT가 depth↔n 순차 sub-result 토큰 교환; 2-layer transformer가 Boolean-formula CRQ 해결) | ✅ HIGH. **§5 #5에서 RISK로만 봤던 He 2512.02677이 이제 *처방 지지*로 승격**(단 He=inference-time 루프, 우리=SFT 변형) |
+| depth/length 외삽 *가능*(decay 비보편) — **명시적 recursive bias 필요** | **CRvNN**(Chowdhury&Caragea ICML21; ListOps len≤100 학습→900–1000서 96–98%) · **Beam Tree RvNN 2305.19999 (ICML23)**(IID 99.4%) · **RIR 2311.04449 (NeurIPS23)** | ✅ HIGH. vanilla transformer ListOps **37–57% 실패** vs recursive-구조 96–99%+. ⚠️**decoder-only LLM=구조 bias 無 → 우리 7B LoRA 외삽은 시사일 뿐 미확립** |
+| ★**미지 실패축: 인자개수(fan-in) 일반화** | **Beam Tree 2305.19999** ("previously unknown failure ... unseen number of arguments"; ≤5인자 학습→15인자 67.9%) | ✅ HIGH. **우리 "조건수↑서 BOTH↓"가 콜드붕괴 아니라 *documented arg-count 일반화 실패*일 가능성 = 재해석 단서**. §6 조건수 분해(2/4/6/8)로 직접 검증 |
+| 단일-패스 expressivity 천장 | **RoPE bound 2411.07602 (EMNLP25)**(TC0≠NC1이면 const-depth transformer는 BFVP/arith-formula 평가 불가) · BFVP=NC1-complete(Buss87) · Malach 1910.11923(JMLR22; gate-label local correlation 있어야 학습) | ✅ HIGH. **CoT/중간emit은 TC0 탈출(Feng)** = 단일-스텝 실패·inductive 처방의 이론근거 |
+| ListOps=중첩연산자 평가 정전 진단 | Nangia&Bowman **1804.06028**(NAACL18) · LRA **2011.04006**(ICLR21) · ORCHARD 2111.14034(scope만) | ✅ latent-tree는 구조*발견* 실패(용량 아님)·supervised TreeLSTM 거의완벽. ⚠️**SCOPE: 잎 in-context·숫자연산(MAX/MIN/MEDIAN/SUM_MOD)·Boolean AND/OR 아님·grounded 아님** |
+
+**진짜 gap(novel locus)**: tool로 잎 truth 게더 → AND/OR/chain precondition 트리 집계 → ACT/STOP + ABox-swap 전이 = **검증문헌 全無**.
+**★기각(0-3)**: "ListOps 최고 transformer 37%"·"transformer/LSTM systematic-gen 실패"·"ORCHARD chance 붕괴" → 하니스가 transformer 실패 과장 안 함(신뢰↑).
+**caveat(정직)**: ①gap=absence-of-evidence(부재증명 아님; **AO*/AND-OR search·neural game-tree·neuro-symbolic planning·agentic tool-use 미망라** → 연구질문 #3/#4/#7 열림). ②ListOps 연산자=숫자(유추 부정확). ③긍정 외삽=recursive 아키텍처(LLM 아님). ④expressivity=TC0≠NC1·단일패스 한정. ⑤He 2025=미peer-review 프리프린트. ⑥**openQ: "중간결과 supervise가 (서브식평가 아닌) ACT/STOP *결정* 정확도를 grounding noise 하서 올리는가"=문헌상 열림 → 우리 실험이 답함**.
+소스: 2512.02677·2503.01544·2411.07602·2305.19999·2311.04449·chowdhury21a(CRvNN)·1804.06028·2011.04006·1910.11923·2111.14034. (미망라: AO*/Evans 1802.08535 grounded각·agentic precond aggregation.)

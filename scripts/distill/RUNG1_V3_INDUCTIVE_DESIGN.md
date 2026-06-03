@@ -44,7 +44,8 @@ ready=true; t1=AND(op_39=true, op_25=true)=true; t2=AND(op_32=false, t1)=false; 
 | 설계 결정 | 근거 논문 | 판정 |
 |---|---|---|
 | **중간 집계결과(t1,t2)를 target에 supervise** (★load-bearing) | **Kim & Suzuki 2410.08633 (ICLR25 Oral)** — 중간스텝 loss면 parity 1-step 학습, 없으면 *증명적으로* 불가(효율분리) | ✅ SUPPORTED(가장 직접) |
-| 깊은 중첩식 → **노드별 단일-토큰 예측으로 분해**(long-range 완화) | **Feng 2305.15408/2402.12875** — no-CoT const-depth=AC0/TC0(serial boolean 불가), CoT면 size-T boolean circuit 평가(CVP) | ✅ SUPPORTED(expressivity) |
+| **bottom-up reduction이 OOD depth-decay 완화**(우리 형식과 가장 근접한 실증) | **He 2025 2512.02677**(Looped Locate-and-Replace; depth12 66.7% vs 51.8%) · **Yehudai/Amsel/Bruna 2503.01544 (NeurIPS25)**(CoT가 depth↔n 순차 sub-result 토큰 교환; 2-layer가 Boolean-formula 평가) | ✅ SUPPORTED(★재탐색; 단 He=inference-루프, 우리=SFT 변형) |
+| 깊은 중첩식 → **노드별 단일-토큰 예측으로 분해**(long-range 완화) | **Feng 2305.15408/2402.12875** · **RoPE bound 2411.07602(EMNLP25)** — no-CoT const-depth=TC0(BFVP=NC1-complete 평가 불가), CoT면 TC0 탈출·boolean circuit 평가 | ✅ SUPPORTED(expressivity) |
 | **pairwise/소(小)-AND로 fold**(고민감도 회피) | **Bhattamishra 2211.12316 (ACL23)·Wang 2412.02823** — flat-AND 쉬움·고민감도 붕괴, ICL정확도↔식복잡도 r=−0.88(Qwen2-7B) | ✅✅ 우리 실측 직접설명 |
 | 구조적(inductive) scratchpad(free-form 아님) | **Abbe 2406.06467 (NeurIPS24)** — globality 장벽은 inductive scratchpad만 깸 | ◐ **analogical**(우리 잎은 기지값→globality 직접 적용 아님; 형식 유추로만) |
 | **잎=게더 truth 룩업**(재추론 금지) | 자체 T1T2 census(grounded AND(preconds) **0오류**) + litreview §4.3 | ✅ 자체실증 |
@@ -70,9 +71,11 @@ ready=true; t1=AND(op_39=true, op_25=true)=true; t2=AND(op_32=false, t1)=false; 
 - ⚠️ Mean Pass Rate 단독 판정 금지(거부 부풀림). 분모=/48 주, /40 보조.
 
 ## 5. 측정 부가(ablation·진단)
-- **조건수별 BOTH 분해**(2/4/6/8): depth-decay(He #5) 회피 여부 — reduction이 깊이를 평탄화하는지.
+- **조건수별(=fan-in) BOTH 분해**(2/4/6/8): ★재탐색 단서 — **Beam Tree 2305.19999**가 *인자개수(fan-in) 일반화*를
+  길이/깊이와 별개 실패축으로 documented(≤5인자 학습→15인자 67.9%). **우리 "조건수↑서 BOTH↓"가 콜드붕괴가 아니라
+  이 arg-count 일반화 실패일 수 있음** → 학습 조건수 분포 대비 held-out 조건수서 BOTH 곡선 확인(콜드붕괴 vs fan-in decay 분리).
 - **OR-케이스 정확도**(litreview 21% OR): grounded OR-fold가 AND만큼 되는지.
-- **RLLOG 체인 정확도**: 모델이 emit한 reduction의 중간 fold가 게더 truth와 일치하는지(허위 fold 검출).
+- **RLLOG 체인 정확도**: 모델이 emit한 reduction의 중간 fold가 게더 truth와 일치하는지(허위 fold 검출). + 형식혼합(chain vs permitted)·chain끝값↔ACT/STOP 모순율(드라이버 census).
 
 ## 6. 리스크·교란(정직)
 0. ★**#1 리스크 — 천장 원인이 terminal 형식의 *상류*다(리뷰 D2)**: §1 정정결과에서 단일-스텝 천장(BOTH=5)의
