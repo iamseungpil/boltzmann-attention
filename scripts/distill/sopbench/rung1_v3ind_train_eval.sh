@@ -35,9 +35,11 @@ g=f=0; samp=[]
 for fn in glob.glob('/home/woori/scratch/sft_alias_run/sft_tbox_*_alias_s3_gate_scratch_treevalind.jsonl'):
     for L in open(fn):
         a=json.loads(L)["messages"][1]["content"]
-        if a.startswith("ready=true; ") and "gate=" in a and ("=AND(" in a or "=OR(" in a or "t1=" in a): g+=1; samp.append(a) if len(samp)<5 else None
-        elif a.startswith("ready=true; preconds_verified"): f+=1
-print(f"  inductive grounded={g} fallback={f} ({100*g/max(1,g+f):.1f}% grounded)")
+        if not a.startswith("ready=true"): continue
+        if a.startswith("ready=true; preconds_verified"): f+=1            # fallback (non-grounded permitted)
+        elif a.startswith("ready=true; done"): pass                       # T2 post-success exit (not a gate)
+        elif "gate=" in a: g+=1; (samp.append(a) if len(samp)<6 else None) # grounded chain incl. single-leaf
+print(f"  inductive grounded={g} fallback={f} ({100*g/max(1,g+f):.1f}% grounded)  [single-leaf groundeds now counted]")
 for s in samp: print("   SAMPLE:", s[:220])
 PYC
 
@@ -82,8 +84,12 @@ eval_one () {  # arm gpu port
     --output_dir $OUT/eval_ind_${arm} > $OUT/evalout_ind_${arm}.txt 2>&1
   kill_gpu $gpu
 }
+# 3-way, all FRESH this run (reviewer #3: don't carry nt as a hardcoded constant — re-eval to
+# control env drift). Round 1 (2 GPUs): inductive + single-step treeval. Round 2: non-treeval control.
 eval_one treevalind 0 8901 &
 eval_one treeval    1 8902 &
+wait
+eval_one nt 0 8901
 wait
 
 echo "=== RUNG1 v3-INDUCTIVE HEADLINE (maxtok=$PLAN_MAXTOK) $(date) ===" >> $SUM
@@ -101,7 +107,14 @@ def seq(x):
                     fn=(c.get("function") or {}).get("name")
                     if fn: s.append(fn)
     return s
-for arm in ["treeval","treevalind"]:
+def chain_last_val(o):
+    # final fold/leaf value emitted just before 'gate=' in a model chain output
+    segs=[s.strip() for s in o.split(";")]
+    gi=[i for i,s in enumerate(segs) if s.startswith("gate=")]
+    if not gi: return None
+    m=re.search(r"=(true|false|unknown)\s*$", segs[gi[-1]-1]) if gi[-1]>0 else None
+    return m.group(1) if m else None
+for arm in ["nt","treeval","treevalind"]:
     fs=glob.glob(f'/home/woori/scratch/sft_alias_run/eval_ind_{arm}/bank/*.json')
     if not fs: print(f"{arm}: NO DATA"); continue
     d=json.load(open(fs[0])); T=[x for x in d if e0(x).get("action_should_succeed")]; F=[x for x in d if not e0(x).get("action_should_succeed")]
@@ -110,18 +123,27 @@ for arm in ["treeval","treevalind"]:
     acted=sum(1 for x in T if e0(x).get("action_successfully_called"))
     noact=sum(1 for x in T if not e0(x).get("action_successfully_called") and e0(x).get("user_goal") not in seq(x))
     loop=sum(1 for x in T if (max(collections.Counter(seq(x)).values()) if seq(x) else 0)>=3)
-    prem=acted-both if acted>=both else 0
+    prem=sum(1 for x in T if e0(x).get("action_successfully_called") and not e0(x).get("dirgraph_satisfied"))  # acted AND NOT dirgraph (direct)
     stopF=sum(1 for x in F if e0(x).get("success"))
+    actrec = both/dg if dg else 0.0
     print(f"== {arm} ==")
-    print(f"  should_T(48): dirgraph={dg} acted={acted} goal={gc} BOTH={both} | over-refuse(noact)={noact} premature={prem} loop>=3={loop}")
+    print(f"  should_T(48): dirgraph={dg} acted={acted} goal={gc} BOTH={both} | ACT-recall|gather={actrec:.2f} over-refuse(noact)={noact} premature(acted&!dg)={prem} loop>=3={loop}")
     print(f"  should_F(86): STOP-recall={stopF} ({100*stopF/86:.0f}%)")
+    # RLLOG MODEL-OUTPUT census (reviewer #4): format mixing + chain final-value vs decision consistency
     try:
         rows=[json.loads(l) for l in open(f'/home/woori/scratch/sft_alias_run/rllog_ind_{arm}.jsonl')]
-        ready=[r["output"] for r in rows if "ready=true" in r["output"].lower()]
-        reached=sum(1 for o in ready if re.search(r'\b(ACT|STOP)\s*$',o.strip()))
-        print(f"  [rllog] terminal-attempts={len(ready)} reached={reached} ({100*reached/len(ready) if ready else 0:.0f}%)")
-    except Exception: pass
-print("(@maxtok1024 prior: control(nt) BOTH=5 STOP=42% | single-step treeval BOTH=5 STOP=33%)")
+        ready=[r["output"].strip() for r in rows if "ready=true" in r["output"].lower()]
+        reached=sum(1 for o in ready if re.search(r'\b(ACT|STOP)\s*$',o))
+        chain=[o for o in ready if "gate=" in o and "preconds_verified" not in o]
+        perm =[o for o in ready if "preconds_verified" in o]
+        inc=0
+        for o in chain:
+            cv=chain_last_val(o); dec=("ACT" if re.search(r'\bACT\s*$',o) else ("STOP" if re.search(r'\bSTOP\s*$',o) else "?"))
+            if cv is None or dec=="?": continue
+            if not ((cv=="true" and dec=="ACT") or (cv=="false" and dec=="STOP")): inc+=1
+        print(f"  [rllog] terminal-attempts={len(ready)} reached={reached} ({100*reached/len(ready) if ready else 0:.0f}%) | chain-fmt={len(chain)} permitted-fmt={len(perm)} | chain final!=decision={inc}")
+    except Exception as e: print(f"  [rllog] err {e}")
+print("(@maxtok1024 prior, FRESH baselines re-run this run: nt STOP-recall=42% is the STOP bar; single-step treeval BOTH~5)")
 PYEOF
 echo "=== rung1 v3-inductive DONE $(date) ===" >> $SUM
 cat $SUM

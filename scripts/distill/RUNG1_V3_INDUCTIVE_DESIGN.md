@@ -36,15 +36,19 @@ ready=true; t1=AND(op_39=true, op_25=true)=true; t2=AND(op_32=false, t1)=false; 
 - 단일-leaf 트리는 fold 없이 `ready=true; op_28=true; gate=true; ACT`.
 
 ## 3. 설계결정 ↔ 선행연구 매핑 (각 선택의 근거)
+> ⚠️**load-bearing 근거 = Kim&Suzuki(중간-스텝 loss), Abbe globality 아님**(리뷰 D1).
+> 우리 잎은 **이미 게더된 기지(旣知) boolean**(observed 룩업) → terminal은 *기지 비트의 AND/OR fold*이고
+> 얕은 망도 가능 = **globality-hard 아님**. 단일-스텝이 막는 진짜 병목 = **깊은 중첩식 뒤 단일-토큰
+> boolean 예측**(long-range). 처방(중간 sub-result t1,t2 supervise)은 정확히 **Kim&Suzuki의 기제**.
+
 | 설계 결정 | 근거 논문 | 판정 |
 |---|---|---|
-| 중첩식 1샷 평가 → **노드별 reduction**(globality 분해) | **Abbe 2406.06467 (NeurIPS24)** — globality 장벽은 *inductive(구조적) scratchpad만* 깬다; free-form/agnostic 불가 | ✅ SUPPORTED |
-| **중간 집계결과(t1,t2)를 target에 포함**(supervise) | **Kim & Suzuki 2410.08633 (ICLR25 Oral)** — 중간스텝 loss면 parity 1-step 학습, 없으면 *증명적으로* 불가(효율분리) | ✅ SUPPORTED(analogical) |
-| reduction 체인 = **serial 토큰으로 serial 평가** | **Feng 2305.15408/2402.12875** — no-CoT const-depth=AC0/TC0(serial boolean 불가), CoT면 size-T boolean circuit 평가(CVP) | ✅ SUPPORTED(expressivity) |
+| **중간 집계결과(t1,t2)를 target에 supervise** (★load-bearing) | **Kim & Suzuki 2410.08633 (ICLR25 Oral)** — 중간스텝 loss면 parity 1-step 학습, 없으면 *증명적으로* 불가(효율분리) | ✅ SUPPORTED(가장 직접) |
+| 깊은 중첩식 → **노드별 단일-토큰 예측으로 분해**(long-range 완화) | **Feng 2305.15408/2402.12875** — no-CoT const-depth=AC0/TC0(serial boolean 불가), CoT면 size-T boolean circuit 평가(CVP) | ✅ SUPPORTED(expressivity) |
 | **pairwise/소(小)-AND로 fold**(고민감도 회피) | **Bhattamishra 2211.12316 (ACL23)·Wang 2412.02823** — flat-AND 쉬움·고민감도 붕괴, ICL정확도↔식복잡도 r=−0.88(Qwen2-7B) | ✅✅ 우리 실측 직접설명 |
+| 구조적(inductive) scratchpad(free-form 아님) | **Abbe 2406.06467 (NeurIPS24)** — globality 장벽은 inductive scratchpad만 깸 | ◐ **analogical**(우리 잎은 기지값→globality 직접 적용 아님; 형식 유추로만) |
 | **잎=게더 truth 룩업**(재추론 금지) | 자체 T1T2 census(grounded AND(preconds) **0오류**) + litreview §4.3 | ✅ 자체실증 |
 | 분해 자체의 *필요성* | **Dziri 2305.18654 (NeurIPS23)** — 트랜스포머=linearized subgraph matching, 복잡도↑서 error→1 | ✅(negative) |
-| 재귀 locate-then-evaluate(잎부터 위로) | He 2512.02677 | ◐ (depth 일반화는 RISK) |
 
 **과대주장 경계(litreview §3 그대로)**: 대부분 1-layer/from-scratch 합성(parity/CVP)·GPT-2급 →
 **7B LoRA tool-use 전이는 미검증**. expressivity 증명 ≠ SFT가 그 해를 복원한다는 보장. 본 실험은 *탐색적*.
@@ -56,10 +60,13 @@ ready=true; t1=AND(op_39=true, op_25=true)=true; t2=AND(op_32=false, t1)=false; 
   **둘 다 PLAN_MAXTOK=1024**(truncation 통제). LODO holdout=bank, alias_s3, source=3, ep3, r16, SOLO.
 - **분리지표(헤드라인)**: should_T(48) **BOTH**(dirgraph∩goal) + dirgraph + acted + premature + over-refuse;
   should_F(86) **STOP-recall**. + RLLOG **terminal-도달%**(둘 다 ~100% 기대, 비수렴 통제 확인).
-- **판정**:
-  - **성공** = treevalind **BOTH > 5**(특히 ≥ single-step+3) & STOP 비회귀 → inductive가 단일-스텝 한계를 깸 → §3.10 북극성 경로 + 조건수 분해.
-  - **부분** = BOTH 6~7(소폭) → 방향 맞음, depth/조건수 분해로 어디서 새는지 확인 후 강화(노드별 별도 스텝화 등).
-  - **무효** = BOTH ≈ 5 → 단계별 supervise도 7B 단일-call CoT로는 globality 못 깸 → **planner-call 분할**(노드당 1 call) 또는 DPO/T1c/탐색증류로 분기.
+- **판정** (★STOP 기준선 = **nt=42%**, single-step의 33% 아님 — 리뷰 D3. single-step grounding은 STOP을
+  42→33%로 *9pp 악화*시키고 BOTH는 평탄 = net-negative였음. inductive STOP 35%를 "비회귀"로 오판 금지):
+  - **성공** = treevalind **BOTH > 5**(특히 ≥ single-step+3) & **STOP-recall ≥ nt 42%** → inductive가 단일-스텝 한계를 깸 → §3.10 북극성 경로 + 조건수 분해.
+  - **부분** = BOTH 6~7(소폭) → 방향 맞음, depth/조건수 분해로 어디서 새는지 확인 후 강화(노드당 별도 call 등).
+  - **무효** = BOTH ≈ 5 → 단계별 supervise도 7B 단일-call로는 천장 못 깸. ★**무효의 의미(D2)**: terminal 형식
+    변경이 천장 원인(=premature gather-termination, 상류)을 *못 건드림*을 뜻함 → **gather-side 레버(T1c)** 또는
+    **노드당 1 planner-call**(§6.1)로 분기, *grounding 추가* 아님.
 - ⚠️ Mean Pass Rate 단독 판정 금지(거부 부풀림). 분모=/48 주, /40 보조.
 
 ## 5. 측정 부가(ablation·진단)
@@ -68,6 +75,14 @@ ready=true; t1=AND(op_39=true, op_25=true)=true; t2=AND(op_32=false, t1)=false; 
 - **RLLOG 체인 정확도**: 모델이 emit한 reduction의 중간 fold가 게더 truth와 일치하는지(허위 fold 검출).
 
 ## 6. 리스크·교란(정직)
+0. ★**#1 리스크 — 천장 원인이 terminal 형식의 *상류*다(리뷰 D2)**: §1 정정결과에서 단일-스텝 천장(BOTH=5)의
+   직접 원인은 *틀린 gate boolean*이 아니라 **premature action**(acted 15 중 ~10이 게더 완성 전 행동).
+   모델은 게이트를 *틀리게 계산*하는 게 아니라 **게더를 끝내기 전에 행동**한다. 그런데 inductive terminal은
+   teacher-side에서 **게더 완료 후에만** 발화(코드 L323–325) → terminal emit을 늘려도 "더 게더하라"를 *직접*
+   가르치지 않는다. §4의 "fold=checklist → 완전 게더 강제 → dirgraph↑"는 **emergent-behavior 가설**이며
+   Abbe/Kim&Suzuki/Feng 어느 것도 *gather-완전성*을 다루지 않는다(전부 *함수 계산*에 관한 것).
+   → **무효(BOTH≈5)면 결론 = "형식 변경은 gather 행동을 못 고친다"**, 처방은 grounding 추가가 아니라
+   **gather-side(T1c)** 또는 **노드당 1 call**(아래 #1).
 1. **단일-call 내 CoT vs call분할**: 본 구현은 *한* planner call이 체인을 autoregressive 생성. Abbe/Feng은
    "serial 스텝"을 요구하나 call-내 토큰열도 serial. 다만 7B가 call-내 다단계 fold를 신뢰성있게 할지 미검증
    → 무효 시 **노드당 1 planner-call**(진짜 멀티스텝)이 다음 후보.
