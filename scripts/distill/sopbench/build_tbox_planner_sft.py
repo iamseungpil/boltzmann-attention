@@ -342,9 +342,12 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                     disp = (tv is True) and (not est_failed)     # grounded gate value (for display)
                     _tv["expr"], _tv["val"] = expr, disp
                     if use_treeval_inductive:
-                        # bottom-up reduction chain (each internal node folded as a supervised step)
-                        chain, _ = treeval_reduce(task["constraints"], obs2, amap)
-                        _tv["chain"] = chain
+                        # bottom-up reduction chain (each internal node folded as a supervised step).
+                        # Keep chain_val (treeval_reduce's final fold) so the emit can guarantee the
+                        # chain's last value == the stated gate (avoids the est_failed-flip inconsistency
+                        # where disp!=tv would print a chain ending =true under gate=false).
+                        chain, chain_val = treeval_reduce(task["constraints"], obs2, amap)
+                        _tv["chain"], _tv["chain_val"] = chain, chain_val
                     return "ACT" if should_succeed else "STOP"   # decision = authoritative GT label
                 # 3'. (legacy non-treeval) should_F gathered-false -> STOP; terminal = should_succeed label.
                 if not should_succeed and any(observed.get((p, frozenset((pm or {}).items()))) is False
@@ -381,15 +384,21 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
                         # (AND/OR/chain) over GATHERED values -> gate. Not a cold guess. (litreview#1)
                         # Emit grounded form ONLY if it matches the GT decision; else (slot/cred-confounded
                         # tail ~14%) fall back to the non-grounded permitted token to avoid contradiction.
-                        if bool(_tv.get("val")) == (target == "ACT"):
-                            if use_treeval_inductive:
-                                # §4 inductive: emit the bottom-up reduction chain (intermediate
-                                # aggregations supervised), then restate gate from the final fold.
-                                tgt_out = (f"ready=true; {_tv.get('chain', 'gate=true')}; "
-                                           f"gate={'true' if _tv.get('val') else 'false'}; {target}")
+                        if use_treeval_inductive:
+                            # §4 inductive: emit the bottom-up reduction chain ONLY when its final fold
+                            # value matches the GT decision (ACT<->true, STOP<->false) — guarantees the
+                            # chain ends at the stated gate (internally consistent). Else (chain_val None/
+                            # unknown, or est_failed/policy diverges) fall back to the non-grounded token.
+                            cv = _tv.get("chain_val")
+                            if (cv is True and target == "ACT") or (cv is False and target == "STOP"):
+                                tgt_out = (f"ready=true; {_tv.get('chain', 'true')}; "
+                                           f"gate={'true' if cv is True else 'false'}; {target}")
                             else:
-                                tgt_out = (f"ready=true; gate = {_tv.get('expr', 'true')} = "
-                                           f"{'true' if _tv.get('val') else 'false'}; {target}")
+                                tgt_out = (f"ready=true; preconds_verified=true; "
+                                           f"permitted={'true' if target == 'ACT' else 'false'}; {target}")
+                        elif bool(_tv.get("val")) == (target == "ACT"):
+                            tgt_out = (f"ready=true; gate = {_tv.get('expr', 'true')} = "
+                                       f"{'true' if _tv.get('val') else 'false'}; {target}")
                         else:
                             tgt_out = (f"ready=true; preconds_verified=true; "
                                        f"permitted={'true' if target == 'ACT' else 'false'}; {target}")
