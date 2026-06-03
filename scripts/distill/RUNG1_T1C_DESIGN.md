@@ -9,7 +9,8 @@ upper-bound 전수조사 = 병목은 **"완전 게더 → permitted 콜드붕괴
 
 ## 0.5 ★PRE-CHECK 결과 (2026-06-04, 학습 전 필수 게이트 — PASSED) + 사전등록 threshold
 **🔴 build-time 천장 검사 (리뷰 BLOCKING)**: bank s1 treeval teacher SFT_TRACE → should_T 48 중 **grounded-ACT(agree=True, `gate=...=true;ACT`)=34 / fallback(cold permitted)=14**. fallback 14 = **transfer_funds 8·cancel_credit_card 4·pay_bill_with_credit_card 2**(dependency-undefined leaf=카드/목적지 미정의 → tv=None → 13% fallback, **T1c 못 고침**).
-- **→ T1c 천장 ≈ 34** (not ~10). dirgraph-충족 34 == grounded 34 → **gathered_then_REFUSE 29는 grounded 집합 내 → 전환 대상.** 4h 투자 정당.
+- **→ T1c 전체 BOTH 천장 ≈ 34** (grounded should_T; C-none이 그 34 중 31 실패).
+- ⚠️**by-identity 교정(리뷰 point1, 34==34는 우연)**: by-goal 교차확인 = **29 gathered_then_REFUSE 중 16이 fallback-goal**(transfer_funds 8·cancel_cc 6·pay_bill_cc 2). transfer_funds(grounded 0)·pay_bill_cc(grounded 0)는 순수 cold → **게더완료-거부해도 T1c가 못 고침**. → **29 중 실제 전환가능 ≈ 13-19**(transfer 8+pay_bill_cc 2는 cold; cancel_cc는 혼합). **"29→34 전환"은 과대 — 정정: gathered_then_REFUSE 전환분 ~13-19, 전체 grounded 천장 34.** 단 **coherence**: T1c가 못 고치는 14 = 정확히 bench-defect/credential-absent(transfer/cancel/pay_bill_cc=불가능 태스크) → T1c 천장 34 ≈ honest 천장. 4h 투자 정당.
 - **★사전등록 판정(n=48, ±2 noise, 모든 선행 BOTH≤5, 천장 34)**: **성공 = BOTH ≥ 12**(29의 ≥1/3 전환) · 강성공 ≥ 20 · 부분 6–11 · **null ≤ 5**. (천장 34로 cap.)
 - **🟡 보조 검사(s3 no-fab subset)**: treeval@s3 RLLOG small(≤4op,non-fab) gate = true 50/false 50(콜드붕괴로 false 쏠림 아님=20/80 아님) → scaffold가 true도 생성함(약-고무적). ⚠️should_T 라벨 부재로 inconclusive지만 "non-fab서 콜드붕괴 지배" 반증 못 함 = train 막을 신호 아님.
 - **→ 결론: 🔴 통과(천장34) + 🟡 약-고무적 → train 진행.**
