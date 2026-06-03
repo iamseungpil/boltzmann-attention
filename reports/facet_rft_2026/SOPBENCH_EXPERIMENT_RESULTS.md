@@ -476,6 +476,14 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 
 > **Exp-4-rung1-CAST (conditional steering probe, 2026-06-03, rr.ps1 실측)**: alias_s3 어댑터에서 ACT-vs-STOP behavior vector 추출(`cast_extract_actvec.py`, 같은 터미널 프롬프트 content-통제, layers 10-23, 300쌍) → gated 서버(`_steering_vllm_server_gated.py`, gate=orth, layers 14-20) alpha-sweep bank eval. **결과 = NULL**: α0(control) dirgraph32·acted16·BOTH**4**·should_F STOP46 / α8 32·16·**4**·46(control과 동일) / α16 31·17·**4**·46. → **always-on/orth steering이 BOTH·should_F 전혀 못 옮김**(Phase2a steering null 재현). **함의**: steering=bias-at-most이고 trie평가(grounding+serial compute)는 못 고침(설계 Rung3 재검토·AC0/TC0 논거 실증). 단 caveat: always-on/orth·좁은 α(decode-anchor gated 강버전 미구현). **→ 처방은 derivation/xattn(v3), steering 아님.** 인프라: gated 서버는 **tau2_vllm_env python**(seka엔 vllm 無)·vllm 0.11.0서 monkey-patch 정상.
 
+> **Exp-4-rung1-v3-AB (grounded 트리평가 teacher A/B → 7B LODO 재학습+bank eval, 2026-06-03 19:08 KST, rr.ps1 실측) — ★헤드라인 NULL (v3 회귀)**: control(비-treeval, should_succeed 터미널 `alias_s3_nt`) vs v3(`--treeval` grounded per-leaf truth→AND/OR/chain derivation, `alias_s3_treeval`). 둘 다 key-fixed·alias_s3 헤드라인·LODO holdout=bank·ep3·n_train 11,940·SOLO(GPU0 control/GPU1 v3). val_loss control **0.0679** < treeval **0.1064**(treeval 토큰이 fit 더 어려움). eval fresh(18:51 시작 > adapter, freshness-guard 통과). 알려진 무해 AssertionError(constants.py 재패치, 이미-패치 클론 → eval 정상).
+> - **분리지표 (should_T 48 / should_F 86)**:
+>   - **control(nt)**: dirgraph **31** · acted 15 · goal 15 · **BOTH 5** | ACT-recall|게더 **0.16** · over-refuse(noact) 31 · premature 10 ‖ should_F STOP-recall **36 (42%)**.
+>   - **v3(treeval)**: dirgraph **18** · acted 7 · goal 7 · **BOTH 2** | ACT-recall|게더 **0.11** · over-refuse(noact) 38 · premature 5 ‖ should_F STOP-recall **17 (20%)**.
+>   - baseline(T1/T2 alias_s3): BOTH 4 · over-refuse~30 · STOP~46.
+> - **판정 = v3 무효, 그것도 control 대비 명확한 회귀(분기 B 강버전)**: treeval가 **모든 축에서 control 미달** — BOTH 5→2(baseline 4보다도 낮음), dirgraph 31→18(계획 생성 급감), ACT-recall 0.16→0.11, over-refuse 31→38(거부 증가), STOP-recall 42%→20%(회귀). grounded emit derivation은 콜드붕괴를 해소하기는커녕 dirgraph 생성·STOP까지 악화. val_loss 상승이 선행 신호였음(grounded treeval 토큰 학습이 더 나쁜 정책으로 수렴).
+> - **함의**: emit-기반 트리평가(teacher가 derivation 토큰을 출력하도록 학습)는 7B에서 역효과. permitted 콜드붕괴 처방은 (i) **T1c 선결**(13% fallback 중 slot/의존-undefined 제거 후 재측정) 또는 (ii) **②DPO**(should_T→`permitted=false;STOP` dispreferred로 편향만 직접 교정) 또는 (iii) §3.10 북극성 **탐색-trace 증류**(Searchformer식)로 전환 필요. **→ derivation을 출력토큰으로 SFT하는 경로는 기각.**
+>
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
 > - HT2(분리증명): **빈/틀린 ABox 주입 → 붕괴**(entangled면 ABox 없이도 동작=실패; 분리면 ABox 필수=성공조건).
