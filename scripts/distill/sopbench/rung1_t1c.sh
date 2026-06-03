@@ -67,9 +67,9 @@ eval_one () {  # tag adapter gpu port source
     --output_dir $OUT/eval_${tag} > $OUT/evalout_${tag}.txt 2>&1
   kill_gpu $gpu
 }
-eval_one t1c        qwen7b_tbox_t1c_lodo_bank            0 8351 1 &
-eval_one treevals3  qwen7b_tbox_alias_s3_treeval_lodo_bank 1 8352 3 &
-wait
+# GPU1 occupied by ollama (other user) -> run both evals SEQUENTIALLY on GPU0 (robust, +~25min).
+eval_one t1c        qwen7b_tbox_t1c_lodo_bank            0 8351 1
+eval_one treevals3  qwen7b_tbox_alias_s3_treeval_lodo_bank 0 8351 3
 
 echo "=== RUNG1 T1c 2x2 HEADLINE (maxtok=$PLAN_MAXTOK) $(date) ===" >> $SUM
 $PY - >> $SUM 2>&1 <<'PYEOF'
