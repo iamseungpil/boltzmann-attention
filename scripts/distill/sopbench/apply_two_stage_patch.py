@@ -94,7 +94,10 @@ def main():
          "    # can render the goal-status line from THIS task's constraint instead of the default precond.\n"
          '    if hasattr(assistant_agent.client, "reset"):\n'
          "        try:\n"
-         '            assistant_agent.client.reset(task_constraints=task.get("constraints"), goal=task.get("user_goal"))\n'
+         '            assistant_agent.client.reset(task_constraints=task.get("constraints"), goal=task.get("user_goal"),\n'
+         '                                         task_db=task.get("initial_database"),\n'
+         '                                         constraint_params=task.get("constraint_parameters"),\n'
+         '                                         domain=args.domain)\n'
          "        except TypeError:\n"
          "            assistant_agent.client.reset()\n"
          '    # Get the included functions in the oracle trajectory\n'

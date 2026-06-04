@@ -324,6 +324,9 @@ class TwoStageClient:
         # measured). env SOPBENCH_OFFLOAD. Decision log -> SOPBENCH_OFFLOAD_LOG (deny-by-unknown census).
         self._offload = bool(os.environ.get("SOPBENCH_OFFLOAD"))
         self._offload_log = os.environ.get("SOPBENCH_OFFLOAD_LOG")
+        self._task_db = None            # H3: this task's initial_database (for evidence-gated bench compute)
+        self._constraint_params = None  # this task's constraint_parameters (thresholds)
+        self._domain = None             # domain name (for dep_full / *_strict construction)
         # v3 census fix (2026-06-03): planner decode budget. Default 24 fits the control terminal
         # (`ready=true; preconds_verified=..; permitted=..; ACT`) but TRUNCATES the verbose grounded
         # treeval terminal (`ready=true; gate = AND(op_a=..,AND(op_b=..,..)) = <val>; ACT`) before the
@@ -334,7 +337,7 @@ class TwoStageClient:
         # OFF by default. SOPBENCH_GETTER_MAP defaults to the clone's induced/getter_map.json.
         self._getter_hint = bool(os.environ.get("SOPBENCH_GETTER_HINT"))
         self._getter_map = None
-        if self._getter_hint:
+        if self._getter_hint or self._offload:   # H3 offload needs the condition->getter map too
             try:
                 _raw = json.load(open(os.environ.get("SOPBENCH_GETTER_MAP", "induced/getter_map.json")))
                 _flat = {}                       # flatten per-domain {cond->getters}; cond names domain-unique
@@ -351,13 +354,20 @@ class TwoStageClient:
         self.cov_turns = 0
         self.cov_deterministic = 0
 
-    def reset(self, task_constraints=None, goal=None):
-        """Call once per task before the interaction. `task_constraints`/`goal` (optional) feed
-        mechanism A's task-specific goal-status rendering (active under env SOPBENCH_LIGHTEN)."""
+    def reset(self, task_constraints=None, goal=None, task_db=None,
+              constraint_params=None, domain=None):
+        """Call once per task before the interaction. `task_constraints`/`goal` feed mechanism A
+        (SOPBENCH_LIGHTEN) and H3 offload. `task_db`/`constraint_params`/`domain` (H3 offload only)
+        let check_permitted COMPUTE policy conditions via the bench domain system over GATHERED
+        evidence (evidence-gated; ungathered -> unknown -> deny). Optional/back-compat."""
         self._slot_state = {}
         self._turn = 0
         self._task_constraints = task_constraints
         self._goal_name = goal
+        self._task_db = task_db
+        self._constraint_params = constraint_params
+        if domain:
+            self._domain = domain
         self._alias_map = None        # rebuilt lazily on first plan of this task
         self._alias_inv = None
 
@@ -573,19 +583,22 @@ class TwoStageClient:
     # H3 decision-OFFLOAD: deterministic check_permitted over GATHERED results
     # ------------------------------------------------------------------
     def _check_permitted(self, messages):
-        """Lock #2: REUSE the bench `Dependency_Evaluator` AND/OR/chain/gate combinators + its arg
-        resolution (no reimplementation). Lock #1: override ONLY `_single` to read each leaf's truth
-        from the model's ACTUALLY-GATHERED tool results (conversation history) — NEVER the env DB;
-        ungathered leaf -> unknown -> DENY (lock #4, recorded). Returns
-        (decision, reason, n_unknown, n_false): decision in {'ACT','STOP'}."""
+        """H3 offload decision (5 locks). Lock #2: reuse the bench `Dependency_Evaluator` combinators
+        AND its per-leaf COMPUTATION (policy conditions e.g. credit_score>=thr). Lock #1: gate EVERY
+        leaf by whether its EVIDENCE was actually gathered — the check tool itself / the establishing
+        action / (for COMPUTED conditions) the condition's getter(s) from getter_map. Ungathered ->
+        unknown -> DENY. The bench compute reads the DB, but ONLY for leaves whose getter the model
+        gathered (getter result == DB value, so this is NOT an oracle). `logged_in` state comes from
+        REPLAYING the model's gathered (credential-augmented) login through the domain system. Returns
+        (decision, reason, n_unknown, n_false)."""
         cons = self._task_constraints
         if not cons:
             return ("ACT", "no_constraints", 0, 0)
         preds = self.abox.get("predicates", {})
         tool_set = set(self.abox.get("operators", {}))
-        # 1) gathered truths from HISTORY ONLY: {real_tool_name: [(args_dict, bool), ...]}.
-        #    (alias is render-only; executed/history tool names are already de-aliased -> real.)
-        gathered = {}
+        gmap = self._getter_map or {}
+        # 1) which tools the model CALLED (evidence), args-aware, non-errored: {tool: [args, ...]}.
+        called = {}
         pend = []
         for m in messages:
             for tc in (m.get("tool_calls") or []):
@@ -599,52 +612,81 @@ class TwoStageClient:
                 pend.append((nm, aa if isinstance(aa, dict) else {}))
             if m.get("role") == "tool" and m.get("tool_name"):
                 nm = m.get("tool_name"); c = str(m.get("content", ""))
-                r = _try_parse(c)
-                v = r[1] if isinstance(r, (list, tuple)) and len(r) >= 2 else r
-                b = v if isinstance(v, bool) else None
                 args = {}
                 for j in range(len(pend) - 1, -1, -1):
                     if pend[j][0] == nm:
                         args = pend[j][1]; pend.pop(j); break
-                if "Error" not in c and b is not None:
-                    gathered.setdefault(nm, []).append((args, b))
-        # 2) subclass the bench evaluator: inherit combinators; override _single -> gathered-only.
+                if "Error" not in c:
+                    called.setdefault(nm, []).append(args)
+        # 2) bench domain system (for the per-leaf compute) + evidence-gated Dependency_Evaluator.
+        if not self._task_db:
+            return ("STOP", "no_task_db", 0, 0)          # offload requires DB wiring (reset)
         try:
+            from env.variables import domain_keys, domain_assistant_keys
+            from env.task import get_default_dep_full
             from env.dep_eval import Dependency_Evaluator
         except Exception:
-            return ("STOP", "no_dep_eval", 0, 0)
+            return ("STOP", "no_bench", 0, 0)
+        domain = self._domain or "bank"
+        try:
+            dep_innate = domain_assistant_keys[domain].action_innate_dependencies
+            dep_full = get_default_dep_full(domain, "full")
+            task_dep = dict(dep_full); task_dep[self._goal_name] = cons
+            dss = domain_keys[domain + "_strict"](
+                json.loads(json.dumps(self._task_db)), dep_innate, task_dep,
+                self._constraint_params or {})
+        except Exception:
+            return ("STOP", "dss_build_fail", 0, 0)
+        # replay STATE-establishing actions the model gathered (augmented login -> sets logged_in).
+        for tool in ("login_user", "authenticate_admin_password"):
+            for args in called.get(tool, []):
+                try:
+                    getattr(dss, tool)(**args)
+                except Exception:
+                    pass
+        base_dep = dss.domain_dep                        # bench evaluator (database + state_tracker)
 
-        class _GatheredDep(Dependency_Evaluator):
+        def _evidence_tools(base):
+            if base in tool_set or base.startswith("internal_"):
+                return [base]                            # callable check = itself
+            info = preds.get(base, {})
+            if info.get("kind") == "establishable" and info.get("by"):
+                return [info["by"]]                      # state-pred = establishing action
+            if gmap.get(base):
+                return list(gmap[base])                  # COMPUTED condition = its getter(s)
+            return []                                    # unknown evidence route -> conservative deny
+
+        class _GatedDep(Dependency_Evaluator):
             def __init__(self):
-                super().__init__(None, None, {})
+                super().__init__(base_dep.database, base_dep.state_tracker, task_dep)
                 self.unknown = []; self.false_leaves = []
             def _single(self, func, param_mapping, **kw):
                 neg = func.startswith("not "); base = func[4:] if neg else func
                 pm = param_mapping or {}
-                try:                                   # reuse bench param-resolution exactly
-                    fp = {}
-                    for k in pm:
-                        if "value " not in pm[k]:
-                            fp[k] = kw[pm[k]]
-                        else:
-                            fp[k] = eval(re.sub("value ", "", pm[k]))
+                try:
+                    fp = {k: (kw[pm[k]] if "value " not in pm[k]
+                              else eval(re.sub("value ", "", pm[k]))) for k in pm}
                 except Exception:
-                    self.unknown.append((base, dict(pm))); return False    # args un-resolvable -> unknown
-                # evidencing tool: a callable check = itself; a state-pred = its establishing action.
-                tool = base if base in tool_set else (preds.get(base, {}).get("by") or base)
-                truth = None
-                for a, bb in gathered.get(tool, []):
-                    if all(a.get(k) == v for k, v in fp.items()):
-                        truth = bb; break
-                if truth is None and not fp and gathered.get(tool):
-                    truth = gathered[tool][-1][1]
-                if truth is None:
-                    self.unknown.append((base, fp)); return False          # ungathered -> DENY (lock #1)
-                if truth is False:
+                    self.unknown.append((base, dict(pm))); return False
+                evs = _evidence_tools(base)
+                if not evs:
+                    self.unknown.append((base, fp)); return False
+                def matched(tool):
+                    for a in called.get(tool, []):
+                        if all(a.get(k) == v for k, v in fp.items() if k in a):
+                            return True
+                    return False
+                if not all(matched(tl) for tl in evs):
+                    self.unknown.append((base, fp)); return False   # evidence ungathered -> DENY (lock #1)
+                try:                                                # lock #2: bench compute, gated
+                    val = Dependency_Evaluator._single(self, func, param_mapping, **kw)
+                except Exception:
+                    self.unknown.append((base, fp)); return False
+                if val is False:
                     self.false_leaves.append((base, fp))
-                return (not neg) == truth
-        ev = _GatheredDep()
-        try:                                           # lock #3 inputs = model's gathered slot values
+                return val
+        ev = _GatedDep()
+        try:                                             # lock #3 inputs = model's gathered slot values
             permitted = bool(ev._process(cons, **dict(self._slot_state)))
         except Exception:
             return ("STOP", "eval_error", len(ev.unknown), len(ev.false_leaves))
