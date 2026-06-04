@@ -6,6 +6,19 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★★★★★★ v1.38 (2026-06-04 PM) — 논문 축 = **robust gather 스케일-임계(7B/14B/32B/72B)** + 결정 offload. LOCK 후 정렬.
+> **이번 세션 결과(필독, 상세=권위본 `Exp-4-rung1-{upperbound,T1c}` + `RUNG1_SOURCE_LADDER_DESIGN.md` LOCK):**
+> 1. **T1c(grounded-permitted@s1) NULL**(BOTH 1<C-none 3). **LOCK 발효**: 결정 terminal에 truth/derivation emit하는 SFT 스캐폴드(treeval→inductive→T1c)=3-NULL 종결. over-refuse/over-call/early-act=MODEL회귀=SFT-positive 불가. **emission 변종 추가 금지.** (범위: gather-grounding/credential teacher/2-agent SFT는 유효=over-prune 금지.)
+> 2. **게이트 진단**: login=False 19/48 중 **16=credential 진짜부재**(prompt·user_known에 비번 없음→모델 환각). = KNOWN credential-조건화 이슈, 현 base가 credential-부재 regime이라 should_T capped.
+> 3. **★논문 헤드라인 재정렬 = 두 축 분리**: **A축 robust gather(도구선택+완전성+alias robust+LODO 전이)가 어느 최소 스케일서 학습되나** + **B축 결정 게이트는 SFT로 32B/72B서도 NULL인가(LOCK 스케일-시험) → check_permitted로 offload**. 클레임 = "robust gather+전이는 [min scale] 학습가능, 결정은 verifier offload"(현장 정합).
+>
+> **▶ coworker(32B/72B) 할 일 (v1.37 대체):**
+> 1. **★gather 스케일곡선**: gather SFT(LODO holdout=bank) → **dirgraph_satisfied**(gather 1차지표)·**LODO 전이**(held-out/in-domain)·**alias on/off + 도구 rename/add/remove robust**. = Track A 7B/14B와 동일조건 → **7B/14B/32B/72B 곡선으로 "robust gather 최소 스케일" 규명.**
+> 2. **★B축 LOCK 스케일-시험**: 결정-emission(treeval@s1, slot-fix HEAD)을 32B/72B서 → **BOTH가 7B처럼 NULL인가**(=LOCK 스케일-불변 확증) vs 깨지는가(=스케일-임계). *가정 말고 측정.*
+> 3. **★필수 통제(안 하면 스케일비교 무효)**: ①**credential-augmented regime**(login confound 16 제거=비번 surface; Track A가 메커니즘 확정 후 공유, 모든 스케일 공통) ②bench-defect 제외(cancel_cc/pay_bill_cc ~8) ③`check_permitted` offload로 BOTH=gather-bound 측정(결정 변수 제거). ④no-400 client(HEAD≥434c515)·헤드라인 race 가드·freshness.
+> 4. **버려진 축**(추구 금지): 트리-emit 정교화·inductive·depth-recurrence·getter-hint. source는 s1(배포현실) 중심.
+> 5. **value-prop**: 헤드라인 = robust gather + **도구변경 robust 전이**(재학습0) + 중첩도구 disambiguation(alias). 결정/스케일-KV는 OISA·offload 영역.
+
 > ### ★★★★★★★ v1.37 (2026-06-04) — Track A 대전환: 트리평가-형식 종료 / 병목=결정 / **T1c grounded-permitted @ source=1** + slot-fix + 2-agent
 > **이번 세션(Track A, 7B) 변경 — coworker 필독. 상세 진입점 = [`scripts/distill/RUNG1_T1C_DESIGN.md`](../../scripts/distill/RUNG1_T1C_DESIGN.md) + `RUNG1_SOURCE_LADDER_DESIGN.md` + 권위본 `SOPBENCH_EXPERIMENT_RESULTS.md`(Exp-4-rung1-{v3-AB,v3ind,upperbound,T1c}).**
 > 1. **트리평가-*형식* 라인 전부 NULL/종결** — 추구 금지: 단일식 grounded gate(`Exp-4-rung1-v3-AB`: "회귀"는 maxtok=24 truncation 아티팩트, maxtok=1024 재시험 BOTH 2→5=control과 동) + inductive reduction 체인(`v3ind`: BOTH 3<4, fabrication+over-gather) + depth-recurrence(deep-research: Huginn from-scratch=retrofit 불가). **조건수별 BOTH 균일 바닥(1조건도 0) → serial-depth/조건수는 병목 아님.**
