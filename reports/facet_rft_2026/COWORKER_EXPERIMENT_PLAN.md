@@ -6,6 +6,21 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★★★★★ v1.37 (2026-06-04) — Track A 대전환: 트리평가-형식 종료 / 병목=결정 / **T1c grounded-permitted @ source=1** + slot-fix + 2-agent
+> **이번 세션(Track A, 7B) 변경 — coworker 필독. 상세 진입점 = [`scripts/distill/RUNG1_T1C_DESIGN.md`](../../scripts/distill/RUNG1_T1C_DESIGN.md) + `RUNG1_SOURCE_LADDER_DESIGN.md` + 권위본 `SOPBENCH_EXPERIMENT_RESULTS.md`(Exp-4-rung1-{v3-AB,v3ind,upperbound,T1c}).**
+> 1. **트리평가-*형식* 라인 전부 NULL/종결** — 추구 금지: 단일식 grounded gate(`Exp-4-rung1-v3-AB`: "회귀"는 maxtok=24 truncation 아티팩트, maxtok=1024 재시험 BOTH 2→5=control과 동) + inductive reduction 체인(`v3ind`: BOTH 3<4, fabrication+over-gather) + depth-recurrence(deep-research: Huginn from-scratch=retrofit 불가). **조건수별 BOTH 균일 바닥(1조건도 0) → serial-depth/조건수는 병목 아님.**
+> 2. **★병목 = 결정(permitted 콜드붕괴), 구조 아님** — `Exp-4-rung1-upperbound`(Agent2@oracle): 구조 제공(source=1) BOTH **3 = source=3** = 구조만으론 BOTH 무개선(게더↑ dirgraph 29→34·STOP 40→49%는 개선). 전수조사: **gathered_then_REFUSE 29**(완전게더 후 거부). → source=1은 게더만 돕고, *게더 후 ACT/STOP 결정*이 벽.
+> 3. **★slot-fix** (`build_tbox_planner_sft._add_req` dedup 키에 args(pm) 포함): 같은-predicate-다른-args leaf(transfer_funds: internal_check_username_exist on username AND destination_username) 누락 버그 → required서 destination 드롭 → unknown → fallback. 수정 후 teacher 천장 **34→42**(transfer_funds 8 grounded 회복; fallback 14→6 = 순수 bench-defect cancel_cc/pay_bill_cc만, BUGREPORT 대상). **coworker 재학습 시 이 fix 포함된 HEAD 사용 필수.**
+> 4. **★현 헤드라인 레버 = T1c = grounded-permitted @ source=1**: permitted을 콜드 should_succeed 추측 → *주어진 구조의 leaf-truth AND/OR 룩업*으로(= **treeval@s1**, v3 실패는 source=3 fabrication 탓·s1이 구조 제공해 차단). teacher byte-identical(s1/s3 동일 타깃, 프롬프트만 다름). **학습 중**(7B, s1+s3 slot-fixed 병렬).
+> 5. **★북극성 = 2-agent (단일 base + 2 LoRA)**: Agent1(NL→dirgraph 구조추론, 검증=GT constraints) + Agent2(구조+게더→ACT/STOP, 검증=결정론 evaluator). vLLM 멀티-LoRA로 단계별 `model` 선택. (§11 of RUNG1_SOURCE_LADDER_DESIGN.)
+>
+> **▶ coworker(32B/72B) 할 일 (v1.36 매트릭스 대체):**
+> 1. **★T1c를 32B/72B로**: `build_tbox_planner_sft.py --alias --source 1 --treeval`(slot-fix HEAD) → LODO(holdout=bank) 학습 → eval `SOPBENCH_SOURCE=1 ... PLAN_MAXTOK=1024`. **헤드라인 = BOTH**(천장 42). **대형모델이 grounded-permitted를 7B보다 잘 학습해 BOTH↑인가** = 핵심 질문(7B가 gathered_then_REFUSE 29를 ACT로 전환 못 하면 32B/72B가?).
+> 2. **2×2 (slot-fixed)**: {none(permitted=should_succeed), treeval(grounded)} × {s1, s3}, 32B/72B. interaction(grounding이 s1서 더 도움)=fabrication-attribution. (none 셀 = `--source N --scratchpad` treeval 없이.)
+> 3. **buggy harness 주의**: eval client `two_stage_client._resolve` **no-400 fix(HEAD≥434c515) 필수**(goal 부재 시 400→ACT 태스크 드롭). 헤드라인 python은 run_evaluation **후** 실행(nt=0 레이스). freshness 가드(eval>adapter).
+> 4. **버려진 축**: getter-hint(v1.36)·트리-emit·depth-recurrence = 추구 금지. source 축은 **s1(배포현실=OISA Score-Prune-Present) 중심**.
+> 5. **value-prop 정렬(현장)**: 헤드라인 클레임 = (a) 중첩도구 disambiguation(alias) (b) **도구변경 robust 전이**(도구 add/rename/remove→리스트만, 재학습0) (c) ABox-swap 전이. 스케일/KV는 OISA 영역(우리 코어 아님).
+
 > ### ★★★★★★ v1.36 (2026-06-02) — Track A 근본원인 해결(condition→getter auto-derive) → coworker 재정렬 + 지표 교정
 > **이번 세션(Track A, 7B) 변경 요약 — coworker가 알아야 할 것 (상세는 링크):**
 > - **근본원인 확정 = condition→getter 맵 결손**(절차-학습성 문제 *아님*). permitted-collapse(거부 붕괴/should_T 0)는 *정책조건이 getter에 안 묶여 미게더*된 탓이었다. **ungroundable ≈ 0**(7도메인 158/158 grounded, env predicate-source로 정의적 확정; "28% ungroundable"은 휴리스틱 결함이었음). → 상세 [`SOPBENCH_EXPERIMENT_RESULTS.md`](SOPBENCH_EXPERIMENT_RESULTS.md) **Exp-4-precheck-FINAL**.
