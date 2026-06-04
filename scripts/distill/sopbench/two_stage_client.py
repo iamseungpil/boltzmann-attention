@@ -315,6 +315,15 @@ class TwoStageClient:
         self._gate = bool(os.environ.get("SOPBENCH_GATE"))   # §8.6 gate-token (ACT/STOP terminal)
         self._scratch = bool(os.environ.get("SOPBENCH_SCRATCHPAD"))  # §8.7 Rung1 educated scratchpad
         self._rllog = os.environ.get("SOPBENCH_RLLOG")               # §3 Rung2 GRPO rollout log path
+        # H3 decision-OFFLOAD (RUNG1_REDESIGN §3/§9): replace the model's EMITTED permitted-gate
+        # (which cold-bias-hallucinates: login real-True but emit false) with a DETERMINISTIC
+        # check_permitted over the model's ACTUALLY-GATHERED tool results (history ONLY — no oracle
+        # DB read; ungathered leaf -> unknown -> DENY). Reuses the bench Dependency_Evaluator AND/OR/
+        # chain/gate combinators (subclass _GatheredDep below); only _single is overridden to read the
+        # gathered truth. The model still GATHERS (its skill) and still CALLS the goal (arg-correctness
+        # measured). env SOPBENCH_OFFLOAD. Decision log -> SOPBENCH_OFFLOAD_LOG (deny-by-unknown census).
+        self._offload = bool(os.environ.get("SOPBENCH_OFFLOAD"))
+        self._offload_log = os.environ.get("SOPBENCH_OFFLOAD_LOG")
         # v3 census fix (2026-06-03): planner decode budget. Default 24 fits the control terminal
         # (`ready=true; preconds_verified=..; permitted=..; ACT`) but TRUNCATES the verbose grounded
         # treeval terminal (`ready=true; gate = AND(op_a=..,AND(op_b=..,..)) = <val>; ACT`) before the
@@ -513,6 +522,28 @@ class TwoStageClient:
                                          "prompt": prompt, "output": raw}) + "\n")
             except Exception:
                 pass
+        # H3 OFFLOAD: the model's EMITTED gate is ignored; check_permitted (deterministic, over
+        # GATHERED results) makes the ACT/STOP decision. The model's `raw` is used ONLY to pick the
+        # next GATHER tool when not-yet-permitted (its learned skill); its ACT/STOP emit is discarded.
+        if self._offload:
+            dec, reason, n_unknown, n_false = self._check_permitted(messages)
+            if self._offload_log:
+                try:
+                    with open(self._offload_log, "a", encoding="utf-8") as _f:
+                        _f.write(json.dumps({"turn": self._turn, "goal": self._goal_name,
+                                             "decision": dec, "reason": reason,
+                                             "n_unknown": n_unknown, "n_false": n_false}) + "\n")
+                except Exception:
+                    pass
+            if dec == "ACT":
+                return self._goal_name or "STOP"           # permitted -> model CALLS goal (arg-correctness)
+            # not permitted: keep GATHERING via the model's tool pick; discard its ACT/STOP emit.
+            shown_o = [amap[n] for n in tool_names] if amap else tool_names
+            hits_o = [s for s in shown_o if s and s in raw]
+            if hits_o:
+                best_o = max(hits_o, key=len)
+                return self._alias_inv.get(best_o, best_o) if amap else best_o
+            return "STOP"                                   # model done/uninterpretable & not permitted -> DENY
         # §8.6/8.7 gate-token & scratchpad: terminal decision = last ACT/STOP token in the output
         # (handles bare "ACT"/"STOP" and the scratchpad chain "all_verified=<t/f>; <ACT|STOP>").
         if self._gate:
@@ -537,6 +568,91 @@ class TwoStageClient:
             if s.lower() == first:
                 return self._alias_inv.get(s, s) if amap else s
         return "STOP"   # uninterpretable -> refuse rather than blind first-tool (C1/N2 fix)
+
+    # ------------------------------------------------------------------
+    # H3 decision-OFFLOAD: deterministic check_permitted over GATHERED results
+    # ------------------------------------------------------------------
+    def _check_permitted(self, messages):
+        """Lock #2: REUSE the bench `Dependency_Evaluator` AND/OR/chain/gate combinators + its arg
+        resolution (no reimplementation). Lock #1: override ONLY `_single` to read each leaf's truth
+        from the model's ACTUALLY-GATHERED tool results (conversation history) — NEVER the env DB;
+        ungathered leaf -> unknown -> DENY (lock #4, recorded). Returns
+        (decision, reason, n_unknown, n_false): decision in {'ACT','STOP'}."""
+        cons = self._task_constraints
+        if not cons:
+            return ("ACT", "no_constraints", 0, 0)
+        preds = self.abox.get("predicates", {})
+        tool_set = set(self.abox.get("operators", {}))
+        # 1) gathered truths from HISTORY ONLY: {real_tool_name: [(args_dict, bool), ...]}.
+        #    (alias is render-only; executed/history tool names are already de-aliased -> real.)
+        gathered = {}
+        pend = []
+        for m in messages:
+            for tc in (m.get("tool_calls") or []):
+                fn = tc.function if hasattr(tc, "function") else tc.get("function", {})
+                nm = fn.name if hasattr(fn, "name") else fn.get("name")
+                aa = fn.arguments if hasattr(fn, "arguments") else fn.get("arguments", "{}")
+                try:
+                    aa = json.loads(aa) if isinstance(aa, str) else (aa or {})
+                except Exception:
+                    aa = {}
+                pend.append((nm, aa if isinstance(aa, dict) else {}))
+            if m.get("role") == "tool" and m.get("tool_name"):
+                nm = m.get("tool_name"); c = str(m.get("content", ""))
+                r = _try_parse(c)
+                v = r[1] if isinstance(r, (list, tuple)) and len(r) >= 2 else r
+                b = v if isinstance(v, bool) else None
+                args = {}
+                for j in range(len(pend) - 1, -1, -1):
+                    if pend[j][0] == nm:
+                        args = pend[j][1]; pend.pop(j); break
+                if "Error" not in c and b is not None:
+                    gathered.setdefault(nm, []).append((args, b))
+        # 2) subclass the bench evaluator: inherit combinators; override _single -> gathered-only.
+        try:
+            from env.dep_eval import Dependency_Evaluator
+        except Exception:
+            return ("STOP", "no_dep_eval", 0, 0)
+
+        class _GatheredDep(Dependency_Evaluator):
+            def __init__(self):
+                super().__init__(None, None, {})
+                self.unknown = []; self.false_leaves = []
+            def _single(self, func, param_mapping, **kw):
+                neg = func.startswith("not "); base = func[4:] if neg else func
+                pm = param_mapping or {}
+                try:                                   # reuse bench param-resolution exactly
+                    fp = {}
+                    for k in pm:
+                        if "value " not in pm[k]:
+                            fp[k] = kw[pm[k]]
+                        else:
+                            fp[k] = eval(re.sub("value ", "", pm[k]))
+                except Exception:
+                    self.unknown.append((base, dict(pm))); return False    # args un-resolvable -> unknown
+                # evidencing tool: a callable check = itself; a state-pred = its establishing action.
+                tool = base if base in tool_set else (preds.get(base, {}).get("by") or base)
+                truth = None
+                for a, bb in gathered.get(tool, []):
+                    if all(a.get(k) == v for k, v in fp.items()):
+                        truth = bb; break
+                if truth is None and not fp and gathered.get(tool):
+                    truth = gathered[tool][-1][1]
+                if truth is None:
+                    self.unknown.append((base, fp)); return False          # ungathered -> DENY (lock #1)
+                if truth is False:
+                    self.false_leaves.append((base, fp))
+                return (not neg) == truth
+        ev = _GatheredDep()
+        try:                                           # lock #3 inputs = model's gathered slot values
+            permitted = bool(ev._process(cons, **dict(self._slot_state)))
+        except Exception:
+            return ("STOP", "eval_error", len(ev.unknown), len(ev.false_leaves))
+        if permitted:
+            return ("ACT", "permitted", 0, 0)
+        # deny decomposition (lock #4): on should_T, a deny should be ~all unknown (ungathered).
+        reason = "false" if ev.false_leaves else "unknown"
+        return ("STOP", reason, len(ev.unknown), len(ev.false_leaves))
 
     # ------------------------------------------------------------------
     # STEP 2 — Resolver: action + concrete spec + slot state -> tool call
