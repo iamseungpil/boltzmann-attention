@@ -160,3 +160,10 @@
 **★active-H3 레버 (reviewer, no-retrain)**: 게이트가 *어느 leaf가 ungathered인지* 앎(info dict) → passive STOP 대신 **"not permitted — gather get_account_balance" 피드백**으로 게더 유도 = 결정론 게이트를 gather-driver로. 22 ungathered 중 상당수를 **무재학습**으로 ACT 전환 가능 → gather-retrain 전 1차 시도.
 
 **다음**: (1) credential-augment task 전처리(lock #5) (2) **live rollout**(SOPBENCH_OFFLOAD + augment) → BOTH 헤드라인 + deny-by-unknown 라이브; 대조 T1c-emit(BOTH 1)/C-none(3) (3) active-H3 파일럿. push=57fe779.
+
+### §10.1 active-H3 전 zero-cost 진단 2개 (2026-06-05, 리뷰어 요청) — ordering 결정
+**① login 커플링 (deny 버킷 × 원래 login 결과)**: 22 ungathered = **login=False 9** (augment가 세션 unblock해 전환할 *상한*) + **login=True 13** (로그인 됐는데도 balance getter 스킵 = augment-독립 게더 결핍). ⇒ credential-augment는 ≤9 전환, 핵심 게더 결핍(13+)은 별개 게더-축.
+**② teacher-trace census (coverage-gap vs model-skip)** — `build_tbox_planner_sft.py:282-288` branch 재현(올바른 available tool_names): teacher required-set이 balance 조건을 **branch B(getter_map→get_account_balance)로 GATHERS**(safety_box_eligible·sufficient_account_balance·pay_loan_*_restr 전부; argonly 미게더는 max_deposit/exchange 3건뿐). ⇒ **MODEL-SKIP, coverage gap 아님**: teacher 시범하는데 모델 스킵 = **게더도 SFT-positive 저항**(decision축과 동일 실패모드) = 리뷰어 통합가설 지지. **둘 다 RFT/음성신호 필요.** ⚠️caveat: alias 반-암기(train≠eval salt)로 eval서 의미매칭 실패 가능성 — 단 credit getter는 over-gather·balance만 스킵 = *선택적* → content-bias/SFT-limit 쪽; non-alias 1회로 완전분리.
+- ⚠️신뢰성: 이 진단서 observed-called를 available-tool로 착각 2회 + string-search aliasing 아티팩트 자가검출, 올바른 dss 빌드로 정정.
+
+**★ordering 정정 (active-H3 먼저 철회)**: (1) zero-cost 진단 2개=완료 → (2) **credential-augment + passive-H3 live rollout**(구현됨; 정직 베이스라인=모델 자율게더∧완벽결정; augment ≤9 전환; offline deny-by-unknown 라이브 확인; 대조 T1c-emit 1/C-none 3) → (3) **active-H3**(gate-DRIVEN gather=배포/LLM-Modulo 증명, axis-A 아님; passive 후라야 자율게더 vs gate-driver 분리). **active-H3 성공=모델이 자율 게더 못 함의 증거라 axis-A와 긴장 — 헤드라인으로 쓰지 말 것.**
