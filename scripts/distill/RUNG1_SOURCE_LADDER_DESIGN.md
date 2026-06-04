@@ -5,6 +5,11 @@
 > 직전 결과=`Exp-4-rung1-v3-AB`(truncation 정정) + `Exp-4-rung1-v3ind`(inductive NULL).
 > 선행근거=`RUNG1_V3_TREE_EVAL_LITREVIEW.md §8`(AND/OR 트리평가)·`SEARCH_INTERNALIZATION_LITREVIEW.md §9`(depth-recurrence)·`RUNG1_V3_INDUCTIVE_DESIGN.md`(직전 설계).
 
+## ★★★LOCK (2026-06-04, Exp-4-rung1-T1c 後) — 재발방지 (읽고 시작)
+**결정 terminal에 truth/derivation을 모델이 emit하게 하는 SFT 스캐폴드(treeval 단일식→inductive→grounded-permitted/T1c)는 3-NULL로 종결.** 콜드붕괴가 제거가 아니라 leaf-emission으로 이전(L107 예측 적중)+AND가 1개 false leaf로 붕괴(Bhattamishra). over-refuse(gathered_then_REFUSE)·over-call·early-act = MODEL 회귀 = **SFT-positive로 불가**(2026-06-02 결론, teacher는 이미 parsimonious/correct). → 잔여는 **DPO/RFT(음성)·credential 바인딩(인자축)·결정론 offload(`check_permitted`)·2-agent(구조분리)로만. emission 스캐폴드 변종 금지.**
+⚠️**범위**: 죽은 건 *결정-emission 라인*뿐. gather-grounding(0→43%)·credential-binding teacher·2-agent Agent2 = SFT로 유효(over-prune 금지).
+**메타규칙**: 4h SFT/DPO 전 ①dead-end 변종인가 ②zero-cost 진단(L0 등) 끝났나 — 둘 다 통과해야 launch. (Exp-4-rung1-T1c가 위반: 선결진단 건너뜀.)
+
 ## 0. 한 줄
 트리평가-*형식* 라인(단일식·inductive·depth-recurrence) 종료 = NULL. 전수조사 = 병목은 **serial-depth/조건수가 아니라 gather/결정 정책 + 모델이 구조를 *추론/emit*하게 둔 것**. → **무엇을 외부 제공(source)하고 무엇을 정책으로 고치면 BOTH가 오르나**를 ablation 사다리로 분리 측정.
 
