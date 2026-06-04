@@ -21,23 +21,29 @@ NB="dmv healthcare hotel library online_market university"
 echo "=== rung1 T1c (treeval@s1) start $(date) ===" > $SUM
 rm -f /dev/shm/vllm* /dev/shm/nccl* 2>/dev/null
 
-# 0) build T1c teacher = --source 1 --treeval (NO inductive). tag = _alias_gate_scratch_treeval (source1 -> no _s).
+# 0) build SLOT-FIXED treeval teachers: s1 (T1c) + s3 (clean 2x2). NO inductive.
 cd $SB
 PYTHONPATH=$CLONE $PY build_tbox_planner_sft.py --out $OUT --data_dir $CLONE/data --ont_dir $CLONE/induced --alias --source 1 --treeval >> $SUM 2>&1
-: > $OUT/lodo_train_t1c.jsonl; for d in $NB; do cat $OUT/sft_tbox_${d}_alias_gate_scratch_treeval.jsonl >> $OUT/lodo_train_t1c.jsonl 2>/dev/null; done
-wc -l $OUT/lodo_train_t1c.jsonl >> $SUM
+PYTHONPATH=$CLONE $PY build_tbox_planner_sft.py --out $OUT --data_dir $CLONE/data --ont_dir $CLONE/induced --alias --source 3 --treeval >> $SUM 2>&1
+: > $OUT/lodo_train_t1c.jsonl;    for d in $NB; do cat $OUT/sft_tbox_${d}_alias_gate_scratch_treeval.jsonl    >> $OUT/lodo_train_t1c.jsonl 2>/dev/null; done
+: > $OUT/lodo_train_t1c_s3.jsonl; for d in $NB; do cat $OUT/sft_tbox_${d}_alias_s3_gate_scratch_treeval.jsonl >> $OUT/lodo_train_t1c_s3.jsonl 2>/dev/null; done
+wc -l $OUT/lodo_train_t1c.jsonl $OUT/lodo_train_t1c_s3.jsonl >> $SUM
 
-# 1) train T1c (GPU0 solo). C-none(ub_s1)/A(ub_s3) already trained+evaled (reuse).
+# 1) train T1c@s1 (GPU0) + treeval@s3 slot-fixed (GPU1, alongside ollama: 21+21<80GB) IN PARALLEL.
 cd $REPO/scripts/distill
-COMMON="--base-model Qwen/Qwen2.5-7B-Instruct --device cuda:0 --max-seq-len 2048 --epochs 3 --lora-r 16 --val-frac 0.05 --skip-overlong"
-rm -f $RUNS/qwen7b_tbox_t1c_lodo_bank/train_meta.json
+COMMON="--base-model Qwen/Qwen2.5-7B-Instruct --max-seq-len 2048 --epochs 3 --lora-r 16 --val-frac 0.05 --skip-overlong"
+rm -f $RUNS/qwen7b_tbox_t1c_lodo_bank/train_meta.json $RUNS/qwen7b_tbox_t1c_s3_lodo_bank/train_meta.json
 echo "=== train $(date) ===" >> $SUM
-CUDA_VISIBLE_DEVICES=0 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True nohup $PY $TR $COMMON \
+CUDA_VISIBLE_DEVICES=0 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True nohup $PY $TR $COMMON --device cuda:0 \
   --train-jsonl $OUT/lodo_train_t1c.jsonl --out-dir $RUNS/qwen7b_tbox_t1c_lodo_bank > $OUT/train_t1c.log 2>&1 &
+CUDA_VISIBLE_DEVICES=1 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True nohup $PY $TR $COMMON --device cuda:0 \
+  --train-jsonl $OUT/lodo_train_t1c_s3.jsonl --out-dir $RUNS/qwen7b_tbox_t1c_s3_lodo_bank > $OUT/train_t1c_s3.log 2>&1 &
 while true; do
-  [ -f $RUNS/qwen7b_tbox_t1c_lodo_bank/train_meta.json ] && { echo "$(date) train DONE" >> $SUM; break; }
-  [ "$(pgrep -fc lora_train_chat_toolcall)" -eq 0 ] && { echo "trainer gone, no meta" >> $SUM; break; }
-  echo "$(date) training... $(tail -1 $OUT/train_t1c.log 2>/dev/null)" >> $SUM; sleep 180
+  n=0; for r in t1c t1c_s3; do [ -f $RUNS/qwen7b_tbox_${r}_lodo_bank/train_meta.json ] && n=$((n+1)); done
+  echo "$(date) train_meta=$n/2 $(tail -1 $OUT/train_t1c.log 2>/dev/null)" >> $SUM
+  [ "$n" -ge 2 ] && { echo "$(date) train DONE" >> $SUM; break; }
+  [ "$(pgrep -fc lora_train_chat_toolcall)" -eq 0 ] && { echo "trainers gone meta=$n" >> $SUM; break; }
+  sleep 180
 done
 
 # 2) eval: T1c (src=1, GPU0) + treeval@s3 RE-EVAL (src=3, GPU1) in parallel. bug-fixed client.
@@ -67,9 +73,9 @@ eval_one () {  # tag adapter gpu port source
     --output_dir $OUT/eval_${tag} > $OUT/evalout_${tag}.txt 2>&1
   kill_gpu $gpu
 }
-# GPU1 occupied by ollama (other user) -> run both evals SEQUENTIALLY on GPU0 (robust, +~25min).
-eval_one t1c        qwen7b_tbox_t1c_lodo_bank            0 8351 1
-eval_one treevals3  qwen7b_tbox_alias_s3_treeval_lodo_bank 0 8351 3
+# GPU1 occupied by ollama -> run both evals SEQUENTIALLY on GPU0 (vllm serve needs full GPU). slot-fixed both.
+eval_one t1c        qwen7b_tbox_t1c_lodo_bank     0 8351 1
+eval_one treevals3  qwen7b_tbox_t1c_s3_lodo_bank  0 8351 3
 
 echo "=== RUNG1 T1c 2x2 HEADLINE (maxtok=$PLAN_MAXTOK) $(date) ===" >> $SUM
 $PY - >> $SUM 2>&1 <<'PYEOF'
