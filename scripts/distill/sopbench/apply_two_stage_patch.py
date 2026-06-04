@@ -86,6 +86,21 @@ def main():
          '                       help="arm-3v2: induced ontology dir (ontology_<domain>.json)")\n'
          "\n"
          "    args = parser.parse_args()"),
+        # Edit D: H3 credential-augment (env SOPBENCH_AUGMENT_CRED, lock #5) — inject ONLY the login
+        # credential (identification) into user_known (model-visible) from the account, so login can
+        # SUCCEED and the deterministic gate reads logged_in=True. NO balance/condition/account field
+        # is touched => NO oracle leak (the model must still CALL getters to gather those facts).
+        ('            task["user_goal"] = task_key\n'
+         '            tasks.append(task)',
+         '            task["user_goal"] = task_key\n'
+         '            if os.environ.get("SOPBENCH_AUGMENT_CRED"):\n'
+         '                _uk = task.get("user_known") or {}\n'
+         '                _un = _uk.get("username")\n'
+         '                _acct = (task.get("initial_database") or {}).get("accounts", {}).get(_un, {})\n'
+         '                if isinstance(_acct, dict) and "identification" in _acct and "identification" not in _uk:\n'
+         '                    _uk["identification"] = _acct["identification"]   # login credential ONLY\n'
+         '                    task["user_known"] = _uk\n'
+         '            tasks.append(task)'),
         # Edit B: per-interaction slot-state reset
         ('    # Get the included functions in the oracle trajectory\n'
          '    if args.tool_list == "oracle":',
