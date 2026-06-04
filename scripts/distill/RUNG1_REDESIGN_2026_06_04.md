@@ -115,6 +115,14 @@
 3. **= H3의 "offload 후 BOTH는 gather품질의 함수" 명제를 실증**: offload(강제 ACT)하니 success가 정확히 gather-bound(11, dirgraph 게더결핍이 cap). ⇒ **두 축 동시 필요**: A축(goal의 실제 선행조건을 slot-완전하게 게더) + 결정(offload/B). 11→34 갭 = **gather-타겟팅**(auth 과다 줄이고 goal 실제 dep 게더).
 - ⚠️reliability caveat: dirgraph param-matching이 append된 goal에 엄격해 일부 과소집계 가능하나, 단순-vs-복합 goal 패턴이 지배원인=실제 게더결핍을 확증.
 
+### §8.1 gather-타겟팅 진단 (zero-cost, 실제 evaluator) — 결핍은 단일·구체: DB-읽기 누락
+- **신뢰 게이트**: 결정론 clean gather → dirgraph **48/48**, 모델 gather → **14/48** ⇒ metric 아님, **모델 게더결핍 실재**.
+- **leave-one-IN (실제 evaluator)**: 모델 gather에 **`internal_get_database`(DB 전체 읽기) 추가 → dirgraph 14→42(+28).** ⇒ **지배 결핍 = DB-읽기 누락 단일 원인**(OR-노이즈 아님 — 검증됨). 잔여 42→48 = transfer 이중 username-check(slot)·cancel admin auth 등 특정.
+- **패턴**: 모델은 *넓은 그물*(over-gather: credit_score 32·credit_card_info 33·admin 18) + *DB-읽기 누락* + piecemeal 체크 → goal의 dirgraph fact-선행조건 미커버. = 게더가 goal-타겟이 아님.
+- **★근본원인 (확정)**: `internal_get_database` = constraints에 **0/48**, directed_action_graph에 **46/48**, 그리고 **predicate 아님(standalone DB-read action)**. teacher의 required-set은 constraints+establishable-predicate→tool 매핑으로 구성되므로 **구조적으로 `internal_get_database`를 못 담는다** → 모델이 영영 안 배움 → dirgraph 실패.
+- **★통합 근본원인 (login과 동일 패턴)**: **teacher 게더 타깃 = `constraints`(+establishables) / eval 게더 metric = `directed_action_graph`(dep_full).** dirgraph가 요구하는 것(login·`internal_get_database`)을 constraints는 안 가짐 → teacher가 dirgraph 요구를 체계적으로 과소교육 → 모델 gather 14/48. (login은 predicate라 gleaves가 커버; internal_get_database는 standalone action이라 predicate기반 required-set이 표현 불가.)
+- **★A축 처방**: **teacher 게더를 `directed_action_graph` 노드(=eval이 실제 채점하는 metric)에 맞춰 구성** — constraint-유도 predicate 체크뿐 아니라 standalone action(DB-읽기)까지 포함. + transfer 슬롯-완전·cancel admin. 재현 = 본 세션 leave-one-IN/diff(`evaluator_function_directed_graph`).
+
 ## §9 결정-축 격상 (decision-axis = 소형모델 환각 제거 비교) — 사용자 제안 (2026-06-04)
 
 **문제**: T1c는 도구를 실제로 돌려놓고도 **결정을 모델이 emit(재-생성)** 하게 해서 cold-bias 환각(login 실제 True 30건 → 게이트에 false 적음 → 0 성공·`op_20=650` emission). **핵심 = 생성 ≠ 복사**: 맥락에 정답이 있어도 작은 모델은 구조화 emit서 prior로 덮어씀. (사용자 §1 원칙 위반: "노트 도구는 raw 관찰만, ready 판정 담지 말 것".)
