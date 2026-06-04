@@ -112,7 +112,7 @@ def main():
          '            assistant_agent.client.reset(task_constraints=task.get("constraints"), goal=task.get("user_goal"),\n'
          '                                         task_db=task.get("initial_database"),\n'
          '                                         constraint_params=task.get("constraint_parameters"),\n'
-         '                                         domain=args.domain)\n'
+         '                                         domain=args.domain, user_known=task.get("user_known"))\n'
          "        except TypeError:\n"
          "            assistant_agent.client.reset()\n"
          '    # Get the included functions in the oracle trajectory\n'

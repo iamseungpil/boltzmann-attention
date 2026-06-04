@@ -327,6 +327,7 @@ class TwoStageClient:
         self._task_db = None            # H3: this task's initial_database (for evidence-gated bench compute)
         self._constraint_params = None  # this task's constraint_parameters (thresholds)
         self._domain = None             # domain name (for dep_full / *_strict construction)
+        self._task_user_known = {}      # this task's user_known (constraint-leaf param values)
         # v3 census fix (2026-06-03): planner decode budget. Default 24 fits the control terminal
         # (`ready=true; preconds_verified=..; permitted=..; ACT`) but TRUNCATES the verbose grounded
         # treeval terminal (`ready=true; gate = AND(op_a=..,AND(op_b=..,..)) = <val>; ACT`) before the
@@ -355,17 +356,20 @@ class TwoStageClient:
         self.cov_deterministic = 0
 
     def reset(self, task_constraints=None, goal=None, task_db=None,
-              constraint_params=None, domain=None):
+              constraint_params=None, domain=None, user_known=None):
         """Call once per task before the interaction. `task_constraints`/`goal` feed mechanism A
-        (SOPBENCH_LIGHTEN) and H3 offload. `task_db`/`constraint_params`/`domain` (H3 offload only)
-        let check_permitted COMPUTE policy conditions via the bench domain system over GATHERED
-        evidence (evidence-gated; ungathered -> unknown -> deny). Optional/back-compat."""
+        (SOPBENCH_LIGHTEN) and H3 offload. `task_db`/`constraint_params`/`domain`/`user_known`
+        (H3 offload only) let check_permitted COMPUTE policy conditions via the bench domain system
+        over GATHERED evidence. `user_known` supplies the constraint-leaf param VALUES (username,
+        destination_username, amount, ...) for the bench arg-resolution — without it every leaf is
+        args_unresolvable. Optional/back-compat."""
         self._slot_state = {}
         self._turn = 0
         self._task_constraints = task_constraints
         self._goal_name = goal
         self._task_db = task_db
         self._constraint_params = constraint_params
+        self._task_user_known = dict(user_known) if user_known else {}
         if domain:
             self._domain = domain
         self._alias_map = None        # rebuilt lazily on first plan of this task
@@ -691,8 +695,11 @@ class TwoStageClient:
                     self.false_leaves.append((base, fp))
                 return val
         ev = _GatedDep()
-        try:                                             # lock #3 inputs = model's gathered slot values
-            permitted = bool(ev._process(cons, **dict(self._slot_state)))
+        # constraint-leaf param VALUES: user_known (request params: username/destination/amount/...)
+        # overlaid with any slot state. Without these the bench arg-resolution -> args_unresolvable.
+        kw = {**self._task_user_known, **self._slot_state}
+        try:
+            permitted = bool(ev._process(cons, **kw))
         except Exception:
             permitted = None
         info = {"n_false": len(ev.false_leaves), "n_ungathered": len(ev.ungathered),
