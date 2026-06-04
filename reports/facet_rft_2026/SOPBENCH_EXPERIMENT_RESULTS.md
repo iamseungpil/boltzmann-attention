@@ -514,6 +514,13 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > ⚠️**범위 정확**(over-prune 방지): **죽은 건 *결정-emission 라인*뿐.** gather-grounding은 SFT로 학습됨(0→43%·dirgraph 34-43)·credential-binding teacher·2-agent Agent2도 SFT = 유효. "SFT 전체 사망" 아님.
 > **메타규칙**: 4h SFT/DPO launch 전 ①이 변종이 위 dead-end인가 ②잠긴 zero-cost 진단(L0 등)이 끝났는가 — 둘 다 통과해야 launch.
 
+> ### ★★Gate-A / 0a 진단 (2026-06-04, zero-cost, `eval_t1c` 전수재파싱) — login=False는 credential confound이 **아니다**; over-call이 진짜 should_T 한계
+> 메타규칙②가 요구한 잠긴 zero-cost 진단. T1c census line 509의 "login=False 18/48 = 틀린 credential 인자"를 **정밀화·부분정정**. 방법 = should_T 실패 48건을 (i) DB 정답 자격증명(`initial_database.accounts`) (ii) **태스크별 실제 `constraints` 술어**(operator-default 아님) (iii) operator precondition (iv) 모델 호출 시퀀스·인자 4중 대조.
+> - **세 가설 판정**: **eval-confound(`two_stage_client:158-160`) = 0건 기각** (login=False는 프롬프트 렌더가 아니라 `login_user()` 실제 반환; 렌더 override는 결과를 못 바꿈) · **bench-defect on login = 0건 기각** (DB-정답 자격증명이 거부된 사례 0) · **credential-absence(login 요구 ∧ 비번 미제공) = 0건**.
+> - **확정 분해 (n=48)**: ADMIN over-call(admin이 태스크 constraint에 없는데 호출·실패) **14** + LOGIN over-call **11** + 둘 다 **6** = **over-call 31** · constraint-violation 12(대개 과잉행동 downstream) · non-auth goal-false 3(=알려진 credit_card 결함 8 부분집합) · login-binding 1 · dirgraph-other 1.
+> - **결정적 사실**: ① `padoesshnwojord`는 환각이 아니라 john_doe의 **실제 DB 비번**(user_known 제공값) — 모델이 admin_password 슬롯에 오배치하거나 admin 실제값 `addoeminhnpajoss`(한 번도 미제공)를 환각. ② **모든 goal operator precond에 `logged_in_user` 실재**하나 per-task `constraints`는 랜덤 부분집합 → 실패 인스턴스는 login이 그 태스크 constraint에 **없는데도** 모델이 호출(31/48). ③ 비-auth 실제 constraint 미게더는 **7/48뿐** → 모델은 비즈니스 체크(getter)는 제대로 게더. = over-call/over-gate(**LOCK의 결정 병리**)이지 credential 아님.
+> - **★step-0 정정 (리뷰 R6 반전)**: **credential-augment는 (T1c 같은) 학습 모델의 should_T 천장을 못 올린다**(absence 0건). 단 **base 모델엔 유효** — 메모리 `realistic 21→augmented 37`은 base/arm-4a 수치(base는 absence에 진짜 막힘); **학습 모델은 그 confound를 over-call로 *교환***. ⇒ credential-augment = **base 측정 통제(regime)로만** 사용, "천장 레버" 아님. 학습 모델의 진짜 should_T 한계 = **over-call(A축 gather-타겟팅 "필요할 때만 auth 게더" + B축 결정 offload/DPO)**. R9·LOCK 강화(병목=gather-타겟팅+결정, credential 아님). 분류기·전수표 = 본 세션 rr.ps1 census(재현: `census_shouldT.py` mode-b + DB/constraints 대조).
+
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
 > - HT2(분리증명): **빈/틀린 ABox 주입 → 붕괴**(entangled면 ABox 없이도 동작=실패; 분리면 ABox 필수=성공조건).

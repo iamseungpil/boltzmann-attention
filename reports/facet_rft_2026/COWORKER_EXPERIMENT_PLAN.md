@@ -6,6 +6,15 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★★★★★★★ v1.39 (2026-06-04, 0a 진단 후) — credential confound 기각 + sub-7B 추가 + 매트릭스 비용역전 수정
+> **Gate-A/0a 진단(zero-cost, `eval_t1c` 전수재파싱; 권위본 ★★Gate-A 기록):** v1.38 #2의 "login=False 16=credential 진짜부재"를 **정정** — eval-confound·bench-defect·credential-absence **모두 0건**, 지배원인 = **over-call 31/48**(태스크 constraint에 없는 auth 호출·실패; admin 실제비번 미제공·환각). **함의 = credential-augment는 *학습* 모델 천장 못 올림**(base 모델엔 absence 유효=측정 통제로만). 외부 리뷰(R1~R9)+0a 반영 **수정 매트릭스/순서**:
+> 1. **★R1 비용역전(단 하나의 구조 수정)**: 7B가 이미 gather→임계 ≤7B → 7B–72B로 *min-scale 국소화 불가*. **gather 스케일곡선 = 0.5/1.5/3/7/14B(전부 Qwen2.5-Instruct, 싼 쪽; Track A 확장)** + **대형 32B/72B = B축(decision-emission) 전용**(LOCK이 스케일로 깨지나 — 여기만 스케일 의미). full 매트릭스를 72B에 태우지 말 것.
+> 2. **★A1(능력 바닥 통제)**: 각 스케일 base-gather + valid-tool-call rate 먼저 → sub-7B "gather 못함" vs "기계적 도구조작 못함" 분리.
+> 3. **★R3/A2(offload=메모장형)**: `check_permitted` = 결정론 게이트 over *모델 게더결과*(oracle 아님=upper bound). unknown→deny 사전등록. BOTH = dirgraph ∧ goal-call-correctness ∧ 게이트.
+> 4. **★R4/R5/R7/R8 사전등록**: LoRA r 고정+1스케일 rank-sweep / 전이 multi-holdout(7B full-LODO ≥4)+≥70% 상대 사전등록 / tool-change 7B 파일럿 선행 / 도메인-mix 고정·seed 2.
+> 5. **★credential-augment 격하**: 비번만 surface(누출 금지)·realistic 병행·base 측정 통제로만. **coworker 32B/72B는 B축만이므로 credential-augment 의존 낮음**(B축은 결정-emission NULL/break 시험). positioning(R9): offload=LLM-Modulo 인용, novelty=gather 스케일-임계+LODO 전이+도구변경 robust.
+> ⚠️ 아래 v1.38 본문은 **#2(credential 16)·매트릭스 스케일이 위로 대체됨** — 나머지(A/B축 분리·LOCK·value-prop)는 유효.
+
 > ### ★★★★★★★★ v1.38 (2026-06-04 PM) — 논문 축 = **robust gather 스케일-임계(7B/14B/32B/72B)** + 결정 offload. LOCK 후 정렬.
 > **이번 세션 결과(필독, 상세=권위본 `Exp-4-rung1-{upperbound,T1c}` + `RUNG1_SOURCE_LADDER_DESIGN.md` LOCK):**
 > 1. **T1c(grounded-permitted@s1) NULL**(BOTH 1<C-none 3). **LOCK 발효**: 결정 terminal에 truth/derivation emit하는 SFT 스캐폴드(treeval→inductive→T1c)=3-NULL 종결. over-refuse/over-call/early-act=MODEL회귀=SFT-positive 불가. **emission 변종 추가 금지.** (범위: gather-grounding/credential teacher/2-agent SFT는 유효=over-prune 금지.)
