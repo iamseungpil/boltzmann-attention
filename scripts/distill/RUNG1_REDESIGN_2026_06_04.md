@@ -139,3 +139,24 @@
 **novelty = A↔B**(offload는 룰엔진 의존, B 성공시 = 검증 weight-baking → 엔진 없이 전이). **양 결과 게재가능**(B 성공=내재화 가능 / B NULL=offload 필수, LLM-Modulo 강화). **메모장 = harness가 도구출력 verbatim 기록, 모델은 읽고 판단/교정만**(재-state 금지). 위험: B가 cold-bias(LIGHTEN·30→0 robust) 이길지 미지수=시험 / B는 A 대비 *전이*로 정당화 / positioning vs process-supervision·verifier-RFT.
 
 **현 데이터의 함의**: A-arm(§8)이 offload→11(gather-bound)을 보였으므로, decision-axis 비교는 **gather를 먼저 정상화한(또는 동시) 위에서** 해야 결정 효과가 분리됨. 순서 = (A축 게더-타겟팅 개선) ∥ (offload A) → B/B' 학습.
+
+## §10 H3 check_permitted 구현 + offline deny-by-unknown 프리뷰 (2026-06-05)
+
+**구현(`two_stage_client.py` env SOPBENCH_OFFLOAD)** — 모델 emit 게이트 폐기, 게더된 실제 도구결과로 결정론 ACT/STOP. **5 정확성 잠금**:
+- #1 게더-only: leaf truth를 history에서만, 미게더→unknown→deny. **DB는 getter가 게더된 leaf에만 읽음(getter==DB값이라 오라클 아님)**; arg-matching 보수적(불일치→deny, over-permit 불가).
+- #2 벤치 `Dependency_Evaluator` subclass — combinators+condition 계산 재사용, `_single`만 evidence-gated override.
+- #3 ACT시 모델이 goal 호출(arg-correctness 측정), harness auto-call 아님.
+- #4 deny 분해: **ungathered(도구 미호출=게더축) / argmismatch(호출·args불일치=slot축) / false** — reviewer 지적(두 work-stream 분리).
+- #5 credential-augment companion(미구현, 다음).
+
+**offline 프리뷰 (T1c 궤적, augment login=True, honest n=40) — 검증·artifact-free**:
+- 변환 충실도 확인(raw non-error tool == captured `called`); deny-by-unknown은 *unchanged gather 궤적의 terminal-time 속성*이라 offline=live의 check_permitted와 동일(§8 trap 아님 — append 없음). **단 BOTH/full-success는 절대 offline 보고 금지 = live rollout만.**
+- **결과**: ACT permitted **10** / STOP ungathered **22** / STOP argmismatch **8**.
+  - ungathered(게더축) 지배 = **get_account_balance 18·get_account_owed_balance 7** 미호출(balance 조건 getter); 모델은 credit getter 과다게더. = **게더-타겟팅(엉뚱한 getter)**.
+  - argmismatch(slot축) = **internal_check_username_exist 8** = transfer 이중-username(별개 처방, slot-fix 잔여).
+- **one-vs-two-axis(artifact-free) = TWO-AXIS**: 게더 진짜 incomplete(22 ungathered), strict-gather 14/48과 일치. 단 게더축은 specific(balance getter), slot축은 분리.
+- ⚠️ v1 confound(computed condition을 callable 오취급→spurious unknown) 자가검출·수정(evidence-gated bench-compute v2). 검증 census로 사유 정정 확인.
+
+**★active-H3 레버 (reviewer, no-retrain)**: 게이트가 *어느 leaf가 ungathered인지* 앎(info dict) → passive STOP 대신 **"not permitted — gather get_account_balance" 피드백**으로 게더 유도 = 결정론 게이트를 gather-driver로. 22 ungathered 중 상당수를 **무재학습**으로 ACT 전환 가능 → gather-retrain 전 1차 시도.
+
+**다음**: (1) credential-augment task 전처리(lock #5) (2) **live rollout**(SOPBENCH_OFFLOAD + augment) → BOTH 헤드라인 + deny-by-unknown 라이브; 대조 T1c-emit(BOTH 1)/C-none(3) (3) active-H3 파일럿. push=57fe779.
