@@ -39,10 +39,10 @@
 | **⓪** | login over-call 실패 = dirgraph-required login의 **credential 부재**(prune 아님; leave-one-out 12/17 mandatory) | **credential-augment**: 비번만 user_known surface(누출 금지, Part B 제외) | login 성공률↑ | — | — |
 | **⚠️⓪ zero-cost 게이트 결과 (2026-06-04, alias-independent, 실제 eval) = ⓪-단독 NULL 예측** | login=True인 should_T 30건 중 **success 0·refused 28·acted 2** → login 이미 성공해도 전부 실패. credential-augment가 고치는 건 login=False 18건뿐인데, **login=True 30건이 grounded-gate 붕괴(non-login leaf cold-bias·`op_20=650` emission)로 이미 전멸**. ⇒ **⓪-단독은 should_T 못 올림.** credential-augment = H3의 *필요 입력*(deterministic 게이트가 login=true를 보게)이지 단독 레버 아님. | ⓪+H3 결합 | — | 이미 결정: H3로 |
 | ~~H1~~ | ~~teacher dep 불일치 prune~~ | **RETRACTED** — leave-one-out 반증(login dirgraph-required 12/17). prune=under-login. | — | — | — |
-| **H2** | robust gather는 어느 최소 스케일서 학습·전이되나 | 현 teacher(prune 아님; login 유지 = dirgraph-정합)로 0.5/1.5/3/7/14B gather SFT 곡선 | `dirgraph_satisfied`·LODO 전이 곡선이 임계 드러냄(≤7B 예상) | 임계 국소화(±noise 밖) | 임계 없음/평평 = "≤최소" 보고 |
+| **H2** | robust gather는 어느 최소 스케일서 학습·전이되나 | 현 teacher로 0.5/1.5/3/7/14B gather SFT 곡선 | **goal-precond-complete / clean-H3-success** 곡선이 임계 드러냄(⚠️**natural `dirgraph_satisfied` 금지** = refuse 궤적서 over-report) | 임계 국소화(±noise 밖) | 임계 없음/평평 = "≤최소" 보고 |
 | **H3** | 결정(permitted)은 SFT로 안 되면 결정론 offload | 메모장형 `check_permitted`(결정론 over 모델 게더결과, unknown→deny) | BOTH = gather품질의 함수 | BOTH ≈ gather-bound(offload 후 결정실패 0) | 결정에 잔여 = DPO |
 
-**사전등록 임계 (⓪)**: should_T BOTH ≥ **12/34** ∧ should_F STOP ≥ nt-baseline의 42% (over-refuse 비회귀 가드, LOCK 게이트B 승계). seed 2(가능시), 분모는 **항상 honest-34**(Part A/B 제외). ⓪이 NULL이면(LIGHTEN형) binding=policy-leaf cold-bias → H3.
+**사전등록 임계 (H3, ⓪-단독 skip 후 이전)**: 실제 H3 rollout eval에서 should_T success ≥ **12/34** ∧ should_F STOP 비회귀(LOCK 게이트B 승계). seed 2(가능시), 분모 **항상 honest-34**(Part A/B 제외). ⚠️offline forced-ACT는 측정수단 아님(§8 RETRACT) — H3는 실제 rollout으로만 측정.
 
 ---
 
@@ -102,26 +102,27 @@
 
 ---
 
-## §8 A-arm 헤드룸 (zero-cost, 2026-06-04, 실제 evaluator) — "결정 단독 병목" 반증, 두 축 모두 필요
+## §8 A-arm 헤드룸 시도 (2026-06-04) — ⚠️RETRACTED: offline full-success 신뢰불가, one-vs-two-axis 미해결
 
 **측정**: 각 should_T 태스크의 *모델 실제 게더 궤적* + login/admin **augment**(실제 cred 주입) + **강제 ACT**(goal 호출 append) → 미변경 `evaluator_function_directed_graph` 재채점. = "결정을 offload하고 ACT시키면 현 게더로 몇 건 성공?"
 
 **결과 (honest 분모 주의)**: FULL success = **11/48**. goal *실행 가능* = **40/48**(Part A 8만 실행불가). 비-성공 37의 게이트 분해: **`dirgraph_satisfied`=False 34** / action_called=False 8(Part A) / tool_call_error 3. **`constraint_not_violated`·`database_match`는 통과.**
 - per-goal: 단순-선행 goal 성공(apply_credit_card 4/4·deposit 2/2), **복합-선행 goal 전멸**(set_safety_box 0/10·transfer_funds 0/8·pay_loan 0/4·cancel_cc 0/6). ⇒ **artifact 아님 = 실제 게더 결핍**: 모델이 goal의 *실제 dirgraph 선행조건*을 못 세움(auth 과다게더·goal 실제 dep 과소게더·slot 불완전 예 transfer 이중 username-check).
 
-**★해석 (프레이밍 수정)**:
-1. **goal은 40건 실행가능 = 천장 존재**(병목은 executability 아님).
-2. **결정 offload는 필요하나 단독 불충분** — 현 게더로 강제 ACT해도 11/48(dirgraph 게더결핍으로 cap). "결정이 유일 병목·offload가 34로 회복"은 **과대**였음.
-3. **= H3의 "offload 후 BOTH는 gather품질의 함수" 명제를 실증**: offload(강제 ACT)하니 success가 정확히 gather-bound(11, dirgraph 게더결핍이 cap). ⇒ **두 축 동시 필요**: A축(goal의 실제 선행조건을 slot-완전하게 게더) + 결정(offload/B). 11→34 갭 = **gather-타겟팅**(auth 과다 줄이고 goal 실제 dep 게더).
-- ⚠️reliability caveat: dirgraph param-matching이 append된 goal에 엄격해 일부 과소집계 가능하나, 단순-vs-복합 goal 패턴이 지배원인=실제 게더결핍을 확증.
+**⚠️⚠️ §8 RETRACT (2026-06-04, 리뷰어 push → clean 측정으로 철회)**: 아래 forced-ACT full-success(11) 및 §8.1 "DB-read 처방"은 **offline 신뢰불가로 철회**. 검증:
+- **clean 측정 (honest-40, Part A 제외)**: forced-ACT full-success **WITHOUT fix 11/40 → WITH `internal_get_database` 6/40 (↓!)**. DB-read 추가가 **dirgraph는 올리나(14→42) full-success는 내림**(close_account 1→0·deposit 2→0·get_loan 1→0: DB 전체읽기가 `constraint_not_violated` 위반). ⇒ **§8.1 "DB-read = A축 처방"은 net 음성 = 철회.**
+- **offline full-success 자체가 artifact-prone**: 결정론 clean gather(probe)도 full-success **9**, 모델 11, 모델+DB 6 — 구성 궤적은 무엇이든 constraint/database 게이트서 낮게 나옴. ⇒ **forced-ACT offline로 H3 헤드룸 측정 불가. "11→34 / 두 축 필요" sizing 철회.**
+- **신뢰 잔존 사실**: 게더 incomplete는 reliable(모델 dirgraph 14/48 vs clean 48/48, 동일 append 구성; natural 43은 over-report=goal 미호출). 단 **dirgraph-incomplete가 곧 success-deficit은 아님**(DB-read가 dirgraph↑·success↓로 증명). ⇒ **one-vs-two-axis는 offline로 미해결 — 실제 H3 eval(check_permitted in-loop rollout) 필요.**
 
-### §8.1 gather-타겟팅 진단 (zero-cost, 실제 evaluator) — 결핍은 단일·구체: DB-읽기 누락
-- **신뢰 게이트**: 결정론 clean gather → dirgraph **48/48**, 모델 gather → **14/48** ⇒ metric 아님, **모델 게더결핍 실재**.
-- **leave-one-IN (실제 evaluator)**: 모델 gather에 **`internal_get_database`(DB 전체 읽기) 추가 → dirgraph 14→42(+28).** ⇒ **지배 결핍 = DB-읽기 누락 단일 원인**(OR-노이즈 아님 — 검증됨). 잔여 42→48 = transfer 이중 username-check(slot)·cancel admin auth 등 특정.
-- **패턴**: 모델은 *넓은 그물*(over-gather: credit_score 32·credit_card_info 33·admin 18) + *DB-읽기 누락* + piecemeal 체크 → goal의 dirgraph fact-선행조건 미커버. = 게더가 goal-타겟이 아님.
-- **★근본원인 (확정)**: `internal_get_database` = constraints에 **0/48**, directed_action_graph에 **46/48**, 그리고 **predicate 아님(standalone DB-read action)**. teacher의 required-set은 constraints+establishable-predicate→tool 매핑으로 구성되므로 **구조적으로 `internal_get_database`를 못 담는다** → 모델이 영영 안 배움 → dirgraph 실패.
-- **★통합 근본원인 (login과 동일 패턴)**: **teacher 게더 타깃 = `constraints`(+establishables) / eval 게더 metric = `directed_action_graph`(dep_full).** dirgraph가 요구하는 것(login·`internal_get_database`)을 constraints는 안 가짐 → teacher가 dirgraph 요구를 체계적으로 과소교육 → 모델 gather 14/48. (login은 predicate라 gleaves가 커버; internal_get_database는 standalone action이라 predicate기반 required-set이 표현 불가.)
-- **★A축 처방**: **teacher 게더를 `directed_action_graph` 노드(=eval이 실제 채점하는 metric)에 맞춰 구성** — constraint-유도 predicate 체크뿐 아니라 standalone action(DB-읽기)까지 포함. + transfer 슬롯-완전·cancel admin. 재현 = 본 세션 leave-one-IN/diff(`evaluator_function_directed_graph`).
+**~~★해석 (프레이밍 수정)~~ — 위 RETRACT로 무효. 정직한 현 위치**:
+1. goal 실행가능 40/48(천장 존재)는 유효.
+2. 게더는 dirgraph 기준 incomplete(14 vs 48) = reliable. **하지만 offload 단독이 몇 건 회복하는지는 offline 측정불가**(constraint/database artifact).
+3. **다음 = 실제 H3 구현·rollout eval**(offline 재구성 아님)이 one-vs-two-axis를 가름.
+
+### §8.1 ~~gather-타겟팅 처방~~ (RETRACTED — DB-read는 net 음성)
+- 신뢰 게이트(clean 48 vs 모델 14)·근본원인 분석(`internal_get_database` ∈dirgraph 46·∉constraints 0·predicate 아님 → teacher가 구조적으로 못 담음)은 **사실로 유효**.
+- **그러나 "DB-read를 게더에 추가" 처방은 철회**: full-success를 내림(constraint 위반). teacher가 constraints를 타깃하고 eval은 dirgraph를 채점하는 **mismatch는 실재**하나, dirgraph를 DB-read로 맞추면 constraint를 깬다 = **벤치 내부 tension**(dirgraph vs constraint). 단순 처방 없음.
+- **★통합 근본원인 (login·DB-read 동일, 사실로 유효)**: teacher 게더타깃=`constraints` / eval 게더metric=`directed_action_graph`. 단 이 mismatch의 *해법*은 미정(DB-read 추가는 역효과). transfer 0/8 = slot-axis(teacher slot-fix됐으나 모델 미준수=별개)·cancel 0/6 = Part A defect(gather 무관).
 
 ## §9 결정-축 격상 (decision-axis = 소형모델 환각 제거 비교) — 사용자 제안 (2026-06-04)
 
