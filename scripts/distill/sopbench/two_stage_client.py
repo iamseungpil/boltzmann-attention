@@ -536,13 +536,12 @@ class TwoStageClient:
         # GATHERED results) makes the ACT/STOP decision. The model's `raw` is used ONLY to pick the
         # next GATHER tool when not-yet-permitted (its learned skill); its ACT/STOP emit is discarded.
         if self._offload:
-            dec, reason, n_unknown, n_false = self._check_permitted(messages)
+            dec, reason, info = self._check_permitted(messages)
             if self._offload_log:
                 try:
                     with open(self._offload_log, "a", encoding="utf-8") as _f:
                         _f.write(json.dumps({"turn": self._turn, "goal": self._goal_name,
-                                             "decision": dec, "reason": reason,
-                                             "n_unknown": n_unknown, "n_false": n_false}) + "\n")
+                                             "decision": dec, "reason": reason, **info}) + "\n")
                 except Exception:
                     pass
             if dec == "ACT":
@@ -659,7 +658,10 @@ class TwoStageClient:
         class _GatedDep(Dependency_Evaluator):
             def __init__(self):
                 super().__init__(base_dep.database, base_dep.state_tracker, task_dep)
-                self.unknown = []; self.false_leaves = []
+                self.false_leaves = []
+                # lock #4 / reviewer split: two DIFFERENT work-streams behind a deny —
+                self.ungathered = []     # evidence tool NEVER called -> gather-targeting axis
+                self.argmismatch = []    # tool called but args didn't match -> arg-binding/slot axis
             def _single(self, func, param_mapping, **kw):
                 neg = func.startswith("not "); base = func[4:] if neg else func
                 pm = param_mapping or {}
@@ -667,21 +669,24 @@ class TwoStageClient:
                     fp = {k: (kw[pm[k]] if "value " not in pm[k]
                               else eval(re.sub("value ", "", pm[k]))) for k in pm}
                 except Exception:
-                    self.unknown.append((base, dict(pm))); return False
+                    self.ungathered.append((base, "args_unresolvable")); return False
                 evs = _evidence_tools(base)
                 if not evs:
-                    self.unknown.append((base, fp)); return False
+                    self.ungathered.append((base, "no_evidence_route")); return False
                 def matched(tool):
                     for a in called.get(tool, []):
                         if all(a.get(k) == v for k, v in fp.items() if k in a):
                             return True
                     return False
-                if not all(matched(tl) for tl in evs):
-                    self.unknown.append((base, fp)); return False   # evidence ungathered -> DENY (lock #1)
+                miss = [tl for tl in evs if not matched(tl)]
+                if miss:                                            # evidence not gathered -> DENY (lock #1)
+                    for tl in miss:
+                        (self.argmismatch if called.get(tl) else self.ungathered).append((base, tl))
+                    return False
                 try:                                                # lock #2: bench compute, gated
                     val = Dependency_Evaluator._single(self, func, param_mapping, **kw)
                 except Exception:
-                    self.unknown.append((base, fp)); return False
+                    self.ungathered.append((base, "compute_error")); return False
                 if val is False:
                     self.false_leaves.append((base, fp))
                 return val
@@ -689,12 +694,25 @@ class TwoStageClient:
         try:                                             # lock #3 inputs = model's gathered slot values
             permitted = bool(ev._process(cons, **dict(self._slot_state)))
         except Exception:
-            return ("STOP", "eval_error", len(ev.unknown), len(ev.false_leaves))
+            permitted = None
+        info = {"n_false": len(ev.false_leaves), "n_ungathered": len(ev.ungathered),
+                "n_argmismatch": len(ev.argmismatch),
+                "ungathered": [f"{b}:{t}" for b, t in ev.ungathered],
+                "argmismatch": [f"{b}:{t}" for b, t in ev.argmismatch],
+                "false": [b for b, _ in ev.false_leaves]}
+        if permitted is None:
+            return ("STOP", "eval_error", info)
         if permitted:
-            return ("ACT", "permitted", 0, 0)
-        # deny decomposition (lock #4): on should_T, a deny should be ~all unknown (ungathered).
-        reason = "false" if ev.false_leaves else "unknown"
-        return ("STOP", reason, len(ev.unknown), len(ev.false_leaves))
+            return ("ACT", "permitted", info)
+        # deny decomposition (lock #4): unknown splits into gather-axis (ungathered) vs slot-axis
+        # (argmismatch); false = a gathered required leaf is actually false (should be ~0 on should_T).
+        if ev.false_leaves:
+            reason = "false"
+        elif ev.argmismatch and not ev.ungathered:
+            reason = "argmismatch"
+        else:
+            reason = "ungathered"
+        return ("STOP", reason, info)
 
     # ------------------------------------------------------------------
     # STEP 2 — Resolver: action + concrete spec + slot state -> tool call
