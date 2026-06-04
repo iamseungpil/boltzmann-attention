@@ -99,3 +99,34 @@
 - 측정: realistic(현행) vs augmented 병행 보고. login 성공률·`gathered_then_REFUSE`·should_T(honest-34)·should_F 비회귀.
 - 무재학습 우선(프롬프트/user_known만 변경) → 효과 보이면 재학습으로 확정. 권위본 freshness-guard.
 - **검증 도구**: leave-one-out 재현 스크립트(본 세션, `evaluator_function_directed_graph` 사용) = dirgraph-required 판정의 reliable 근거. 재실행으로 admin-only·타도메인 확장 가능.
+
+---
+
+## §8 A-arm 헤드룸 (zero-cost, 2026-06-04, 실제 evaluator) — "결정 단독 병목" 반증, 두 축 모두 필요
+
+**측정**: 각 should_T 태스크의 *모델 실제 게더 궤적* + login/admin **augment**(실제 cred 주입) + **강제 ACT**(goal 호출 append) → 미변경 `evaluator_function_directed_graph` 재채점. = "결정을 offload하고 ACT시키면 현 게더로 몇 건 성공?"
+
+**결과 (honest 분모 주의)**: FULL success = **11/48**. goal *실행 가능* = **40/48**(Part A 8만 실행불가). 비-성공 37의 게이트 분해: **`dirgraph_satisfied`=False 34** / action_called=False 8(Part A) / tool_call_error 3. **`constraint_not_violated`·`database_match`는 통과.**
+- per-goal: 단순-선행 goal 성공(apply_credit_card 4/4·deposit 2/2), **복합-선행 goal 전멸**(set_safety_box 0/10·transfer_funds 0/8·pay_loan 0/4·cancel_cc 0/6). ⇒ **artifact 아님 = 실제 게더 결핍**: 모델이 goal의 *실제 dirgraph 선행조건*을 못 세움(auth 과다게더·goal 실제 dep 과소게더·slot 불완전 예 transfer 이중 username-check).
+
+**★해석 (프레이밍 수정)**:
+1. **goal은 40건 실행가능 = 천장 존재**(병목은 executability 아님).
+2. **결정 offload는 필요하나 단독 불충분** — 현 게더로 강제 ACT해도 11/48(dirgraph 게더결핍으로 cap). "결정이 유일 병목·offload가 34로 회복"은 **과대**였음.
+3. **= H3의 "offload 후 BOTH는 gather품질의 함수" 명제를 실증**: offload(강제 ACT)하니 success가 정확히 gather-bound(11, dirgraph 게더결핍이 cap). ⇒ **두 축 동시 필요**: A축(goal의 실제 선행조건을 slot-완전하게 게더) + 결정(offload/B). 11→34 갭 = **gather-타겟팅**(auth 과다 줄이고 goal 실제 dep 게더).
+- ⚠️reliability caveat: dirgraph param-matching이 append된 goal에 엄격해 일부 과소집계 가능하나, 단순-vs-복합 goal 패턴이 지배원인=실제 게더결핍을 확증.
+
+## §9 결정-축 격상 (decision-axis = 소형모델 환각 제거 비교) — 사용자 제안 (2026-06-04)
+
+**문제**: T1c는 도구를 실제로 돌려놓고도 **결정을 모델이 emit(재-생성)** 하게 해서 cold-bias 환각(login 실제 True 30건 → 게이트에 false 적음 → 0 성공·`op_20=650` emission). **핵심 = 생성 ≠ 복사**: 맥락에 정답이 있어도 작은 모델은 구조화 emit서 prior로 덮어씀. (사용자 §1 원칙 위반: "노트 도구는 raw 관찰만, ready 판정 담지 말 것".)
+
+**논문 축 = 결정의 충실성을 어떻게 얻나, 3~4 arm 비교**:
+| arm | 무엇 | 위치 |
+|---|---|---|
+| **C** (완료·NULL) | 자기-emit derivation (T1c) | 환각 기준선 (login 30→0) |
+| **A** | 결정론 offload — 기록된 raw 결과로 시스템이 permitted | 충실성 상한 (= LLM-Modulo, 단독 novelty 약). **A-arm §8: offload→gather-bound 실증** |
+| **B** | 모델 판단 + **결정론 verifier와의 차이를 DPO/RFT로 교정** 학습 | **핵심: 충실 판단을 weight 내재화 가능한가** (LOCK의 음성신호 escape, SFT-positive emission 아님 = 재-tread 아님) |
+| **B'** (옵션) | derivation 없이 **기록값 grounded-copy** 학습(최소 emission 표면) | cold-bias 이기는 최소 개입 |
+
+**novelty = A↔B**(offload는 룰엔진 의존, B 성공시 = 검증 weight-baking → 엔진 없이 전이). **양 결과 게재가능**(B 성공=내재화 가능 / B NULL=offload 필수, LLM-Modulo 강화). **메모장 = harness가 도구출력 verbatim 기록, 모델은 읽고 판단/교정만**(재-state 금지). 위험: B가 cold-bias(LIGHTEN·30→0 robust) 이길지 미지수=시험 / B는 A 대비 *전이*로 정당화 / positioning vs process-supervision·verifier-RFT.
+
+**현 데이터의 함의**: A-arm(§8)이 offload→11(gather-bound)을 보였으므로, decision-axis 비교는 **gather를 먼저 정상화한(또는 동시) 위에서** 해야 결정 효과가 분리됨. 순서 = (A축 게더-타겟팅 개선) ∥ (offload A) → B/B' 학습.
