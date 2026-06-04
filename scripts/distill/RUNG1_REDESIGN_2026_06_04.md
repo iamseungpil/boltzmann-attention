@@ -36,7 +36,8 @@
 
 | # | 가설 | 조작 | 사전등록 예측 | 합격 기준 | NULL이면 |
 |---|---|---|---|---|---|
-| **⓪** | login over-call 실패 = dirgraph-required login의 **credential 부재**(prune 아님; leave-one-out 12/17 mandatory) | **credential-augment**: 비번만 user_known surface(누출 금지, Part B 제외)·realistic 병행 → 무재학습 또는 재학습 후 honest-34 eval | login 성공률↑ → grounded-gate 붕괴↓ → should_T↑ | login=True 비율↑ ∧ `gathered_then_REFUSE`↓ ∧ should_F 비회귀 | should_T 불변(LIGHTEN형) → binding=policy-leaf cold-bias = H3(offload/DPO) |
+| **⓪** | login over-call 실패 = dirgraph-required login의 **credential 부재**(prune 아님; leave-one-out 12/17 mandatory) | **credential-augment**: 비번만 user_known surface(누출 금지, Part B 제외) | login 성공률↑ | — | — |
+| **⚠️⓪ zero-cost 게이트 결과 (2026-06-04, alias-independent, 실제 eval) = ⓪-단독 NULL 예측** | login=True인 should_T 30건 중 **success 0·refused 28·acted 2** → login 이미 성공해도 전부 실패. credential-augment가 고치는 건 login=False 18건뿐인데, **login=True 30건이 grounded-gate 붕괴(non-login leaf cold-bias·`op_20=650` emission)로 이미 전멸**. ⇒ **⓪-단독은 should_T 못 올림.** credential-augment = H3의 *필요 입력*(deterministic 게이트가 login=true를 보게)이지 단독 레버 아님. | ⓪+H3 결합 | — | 이미 결정: H3로 |
 | ~~H1~~ | ~~teacher dep 불일치 prune~~ | **RETRACTED** — leave-one-out 반증(login dirgraph-required 12/17). prune=under-login. | — | — | — |
 | **H2** | robust gather는 어느 최소 스케일서 학습·전이되나 | 현 teacher(prune 아님; login 유지 = dirgraph-정합)로 0.5/1.5/3/7/14B gather SFT 곡선 | `dirgraph_satisfied`·LODO 전이 곡선이 임계 드러냄(≤7B 예상) | 임계 국소화(±noise 밖) | 임계 없음/평평 = "≤최소" 보고 |
 | **H3** | 결정(permitted)은 SFT로 안 되면 결정론 offload | 메모장형 `check_permitted`(결정론 over 모델 게더결과, unknown→deny) | BOTH = gather품질의 함수 | BOTH ≈ gather-bound(offload 후 결정실패 0) | 결정에 잔여 = DPO |
@@ -50,7 +51,8 @@
 | Phase | 무엇 | 모델 | 비용 | 게이트 |
 |---|---|---|---|---|
 | **0** | 진단·정직분모 (DONE) | — | zero | 0a 완료(over-call 지배·teacher 원인). |
-| **⓪** | **credential-augment** (비번 surface, Part B 제외, realistic 병행) → login 성공률·should_T 재측정. login은 dirgraph-required라 *유지*(prune 아님). | 7B; 무재학습 우선→필요시 재학습 | 저~중 | login성공↑∧should_T↑면 H2; NULL이면 H3 직행. |
+| **⓪** | ~~credential-augment 단독~~ → **zero-cost 게이트로 NULL 예측**(login=True 30건 success 0). ⇒ **⓪-단독 skip**, credential-augment는 H3의 입력으로 흡수. | — | zero(완료) | **H3 직행** |
+| **H3'** | **메모장형 `check_permitted` offload** (결정론 게이트 over 모델 게더결과; credential-augment로 login=real-true 보장; unknown→deny) → 모델 emission gate 우회 | 7B; 구현 필요 | 중 | gate 붕괴 제거 → should_T↑면 = 진짜 레버 |
 | **2** | H2 gather 스케일곡선 | **0.5/1.5/3/7/14B**(sub-7B=R1) + A1 스크린(base-gather+valid-call) + full-LODO(7B)+대표 holdout 2 | 중(작은쪽 쌈) | 임계 국소화. |
 | **3** | H3 메모장형 offload(unknown→deny) + (잔여시) DPO | 7B; **대형 32B/72B = B축(decision-emission) 전용** | 저~비쌈(좁게) | BOTH=gather-bound. |
 
