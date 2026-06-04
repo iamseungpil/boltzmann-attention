@@ -512,6 +512,7 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > ### ★★★LOCK (2026-06-04, Exp-4-rung1-T1c 後) — 재발방지 (권위본·설계서·메모리 공통)
 > **결정 terminal에 truth/derivation을 모델이 emit하게 하는 SFT 스캐폴드(treeval 단일식 → inductive → grounded-permitted/T1c)는 3-NULL로 종결.** 이유 = 콜드붕괴가 *제거*가 아니라 leaf-emission으로 *이전*되고(litreview L107 예측 적중) + AND가 N개 cold leaf 중 1개만 false여도 붕괴(Bhattamishra 고민감도). **over-refuse(gathered_then_REFUSE)·over-call·early-act는 MODEL 회귀 = SFT-positive로 불가(2026-06-02 이미 결론), teacher는 이미 parsimonious/correct.** → 잔여는 **DPO/RFT(음성신호)·credential 바인딩(인자축)·결정론 offload(`check_permitted` 도구)·2-agent(구조분리)로만**. **emission 스캐폴드 변종 추가 금지.**
 > ⚠️**범위 정확**(over-prune 방지): **죽은 건 *결정-emission 라인*뿐.** gather-grounding은 SFT로 학습됨(0→43%·dirgraph 34-43)·credential-binding teacher·2-agent Agent2도 SFT = 유효. "SFT 전체 사망" 아님.
+> ⚠️**수정 (2026-06-04, 0a/redesign)**: LOCK의 *"over-call=teacher parsimonious이므로 SFT-positive 불가"* 전제가 **auth축에서 거짓**. over-call 근본원인 = teacher required-set이 `dep_full∪ops[precond]`를 union(`build_tbox_planner_sft.py:272`)해 login/admin 과대포함 = 실행 dep(constraints, 219행)과 불일치 = **데이터 결함**. ⇒ **auth-over-call은 teacher consistency fix(gleaves=dep_innate-only)로 SFT-positive 시험 가능**(emission 변종 아님 = LOCK 범위 밖). 단 LIGHTEN 선례로 *시험*(H1). 설계 = `RUNG1_REDESIGN_2026_06_04.md`.
 > **메타규칙**: 4h SFT/DPO launch 전 ①이 변종이 위 dead-end인가 ②잠긴 zero-cost 진단(L0 등)이 끝났는가 — 둘 다 통과해야 launch.
 
 > ### ★★Gate-A / 0a 진단 (2026-06-04, zero-cost, `eval_t1c` 전수재파싱) — login=False는 credential confound이 **아니다**; over-call이 진짜 should_T 한계

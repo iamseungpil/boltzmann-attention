@@ -8,6 +8,7 @@
 ## ★★★LOCK (2026-06-04, Exp-4-rung1-T1c 後) — 재발방지 (읽고 시작)
 **결정 terminal에 truth/derivation을 모델이 emit하게 하는 SFT 스캐폴드(treeval 단일식→inductive→grounded-permitted/T1c)는 3-NULL로 종결.** 콜드붕괴가 제거가 아니라 leaf-emission으로 이전(L107 예측 적중)+AND가 1개 false leaf로 붕괴(Bhattamishra). over-refuse(gathered_then_REFUSE)·over-call·early-act = MODEL 회귀 = **SFT-positive로 불가**(2026-06-02 결론, teacher는 이미 parsimonious/correct). → 잔여는 **DPO/RFT(음성)·credential 바인딩(인자축)·결정론 offload(`check_permitted`)·2-agent(구조분리)로만. emission 스캐폴드 변종 금지.**
 ⚠️**범위**: 죽은 건 *결정-emission 라인*뿐. gather-grounding(0→43%)·credential-binding teacher·2-agent Agent2 = SFT로 유효(over-prune 금지).
+⚠️**수정 (2026-06-04, 0a/redesign)**: *"over-call=teacher parsimonious→SFT-positive 불가"*가 **auth축에서 거짓**. over-call 근본원인 = teacher required-set이 `dep_full∪ops[precond]` union(`build_tbox_planner_sft.py:272`)해 login/admin 과대포함 = 실행 dep(constraints,219행)과 불일치 = **데이터 결함**. ⇒ auth-over-call은 **teacher consistency fix(gleaves=dep_innate-only)로 SFT-positive 시험 가능**(emission 변종 아님). 단 LIGHTEN 선례로 시험(H1). **현 진입점 = `RUNG1_REDESIGN_2026_06_04.md`**(사전등록·리뷰훅).
 **메타규칙**: 4h SFT/DPO 전 ①dead-end 변종인가 ②zero-cost 진단(L0 등) 끝났나 — 둘 다 통과해야 launch. (Exp-4-rung1-T1c가 위반: 선결진단 건너뜀.)
 
 ## 0. 한 줄
