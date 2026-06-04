@@ -256,8 +256,15 @@ def build_domain(domain, data_dir, ont_dir, shuffle_seed_base, use_alias=False, 
             _seen_rt = set()
 
             def _add_req(pred, pm, neg, tool, is_est):
-                if tool in tool_names and (pred, tool) not in _seen_rt:
-                    _seen_rt.add((pred, tool))
+                # SLOT-FIX (2026-06-04): dedup key MUST include args (pm). Same-predicate/different-args
+                # leaves (e.g. transfer_funds: internal_check_username_exist on username AND on
+                # destination_username) were collapsed by the (pred,tool) key -> the destination leaf was
+                # dropped from `required` -> never gathered -> treeval saw it `unknown` -> fallback (cold).
+                # The observed recorder (below) is already args-aware, so adding pm to the key is sufficient:
+                # one tool execution records BOTH (pred,args) leaves with their correct truths.
+                key = (pred, tool, frozenset((pm or {}).items()))
+                if tool in tool_names and key not in _seen_rt:
+                    _seen_rt.add(key)
                     required.append((pred, pm, neg, tool, is_est))
 
             # 1. establishment tools FIRST (login/auth before the reads that depend on them): constraint
