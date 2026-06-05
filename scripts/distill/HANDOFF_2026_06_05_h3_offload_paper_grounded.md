@@ -74,5 +74,16 @@
 
 ---
 
+## §6.5 다음-실험 ToDo — ARGFIX 규칙 R의 완전 일반화 (도메인 특화 제거)
+**배경**: ARGFIX(env `SOPBENCH_ARGFIX`, push 62b5c6c)가 BOTH 15→21(+6, 회귀0) 달성. 코드는 이미 도메인-일반(bank 분기 無)이나 "일반"은 bank LODO 1도메인서만 검증·하버스 offload(A축). 일반 규칙:
+> **R: 도구 인자는 충족하려는 dependency leaf의 `param_mapping`을 요청 파라미터(user_known)에 바인딩한다 — 이름 같다고 단일 default 슬롯에 묶지 않는다.**
+
+**ToDo (다음 세션, 우선순위순):**
+1. **wart 제거 → R 완전 일반화 (무재학습)**: 기존 active-H3의 `"internal_get_database" in tool_names` **리터럴 제거** → 일반 "dirgraph-required 미게더 evidence leaf 구동". (ARGFIX 아님, 기존 active 코드 `two_stage_client.py` ~566.)
+2. **param_mapping 출처를 벤치→inducer로**: 게이트가 지금 `task["constraints"]`(벤치 ground-truth) 소비 → 배포-일반이려면 `induce_ontology_zekun` 출력(NL정책→구조) 소비로. inducer가 param_mapping 정확 생산하는지 검증.
+3. **cross-domain A/B (R 일반성 reliable test)**: 동일 어댑터+ARGFIX를 다른 도메인(online_market/healthcare 등 multi-slot 연산 보유)서 A/B → delta 재현되면 "R=도메인-일반 arg-binding offload" 박제. 무재학습 ~30분 eval.
+4. **B축 내재화 (thesis 본선, weight-전이)**: R을 모델이 체득하게 **DPO/RFT, positive=게이트 fp(R 정답 인자)·negative=오바인딩(source-only/값오염)**. 신호가 param_mapping 기반=도메인무관 → held-out 도메인 weight-전이. = 메모리 A(offload상한)↔B(내재화) 축의 B.
+**주의**: 1·2·3은 무재학습(빠름), 4는 학습(4h). 강한 주장("R 일반")은 3 통과 후 박제. ARGFIX=A축 offload이지 weight-내재화 아님(혼동 금지).
+
 ## §7 reliability 교훈 (이번 세션 4함정, 전부 자가/사용자 교정)
 ①observed-called를 available-tool로 착각 ×2 ②string-search aliasing 아티팩트(0/4189) ③"internal_get_database 필요=bench defect" 점프(빅모델 풂이 반증) ④"정책=dirgraph" 가정(실제: 정책=constraints, dirgraph가 over-require) ⑤**(2026-06-05 PM) paper fast-fetch 요약 과신** — 한 fetch="full SOP/항상 login 강제", 재-fetch="task-specific/sampled" 상충 → 양쪽 다 추론 박지 말 것. **권위=벤치 소스코드**(`evaluator.py:110/267`·`variables.py action_innate_dependencies`)가 tiebreaker: login은 innate 아님·`logged_in_user` required-precond·태스크-특정. **전부 코드·정책 원문·저자 궤적을 *직접 읽어* 정정.** ⇒ **벤치 의미론(정책/success 기준)은 induced 구조·paper 요약 단독 말고 소스코드·정책 원문·저자 궤적이 권위.** 강한 의미론 주장은 (원문 직접인용 ∧ 빅모델 실측 ∧ **소스코드**) 교차 후 박제. [[feedback-check-authority-before-rederive]].
