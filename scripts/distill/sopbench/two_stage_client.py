@@ -324,6 +324,12 @@ class TwoStageClient:
         # measured). env SOPBENCH_OFFLOAD. Decision log -> SOPBENCH_OFFLOAD_LOG (deny-by-unknown census).
         self._offload = bool(os.environ.get("SOPBENCH_OFFLOAD"))
         self._offload_log = os.environ.get("SOPBENCH_OFFLOAD_LOG")
+        # active-H3 (env SOPBENCH_OFFLOAD_ACTIVE): the deterministic gate DRIVES the missing gather
+        # (it knows which evidence leaf is ungathered) instead of passively STOPping -> drives the
+        # ungathered condition getter (so it can verify->permit) AND internal_get_database (the
+        # dirgraph DB-read, not a constraint leaf). No retrain. Loop-guarded by _active_driven.
+        self._offload_active = bool(os.environ.get("SOPBENCH_OFFLOAD_ACTIVE"))
+        self._active_driven = set()
         self._task_db = None            # H3: this task's initial_database (for evidence-gated bench compute)
         self._constraint_params = None  # this task's constraint_parameters (thresholds)
         self._domain = None             # domain name (for dep_full / *_strict construction)
@@ -370,6 +376,7 @@ class TwoStageClient:
         self._task_db = task_db
         self._constraint_params = constraint_params
         self._task_user_known = dict(user_known) if user_known else {}
+        self._active_driven = set()    # active-H3: tools the gate has already driven this task
         if domain:
             self._domain = domain
         self._alias_map = None        # rebuilt lazily on first plan of this task
@@ -548,6 +555,28 @@ class TwoStageClient:
                                              "decision": dec, "reason": reason, **info}) + "\n")
                 except Exception:
                     pass
+            # active-H3: the gate DRIVES the missing gather (no retrain) instead of passive STOP.
+            if self._offload_active:
+                called_now = {m.get("tool_name") for m in messages
+                              if m.get("tool_name") and "tool_call_id" in m
+                              and "Error" not in str(m.get("content", ""))}
+                if dec == "ACT":
+                    # dirgraph requires the DB-read (not a constraint leaf -> check_permitted won't
+                    # flag it); drive it ONCE before acting so dirgraph_satisfied can pass.
+                    if ("internal_get_database" in tool_names
+                            and "internal_get_database" not in called_now
+                            and "internal_get_database" not in self._active_driven):
+                        self._active_driven.add("internal_get_database")
+                        return "internal_get_database"
+                    return self._goal_name or "STOP"
+                # not permitted -> drive the first ungathered EVIDENCE tool (real, callable, new).
+                for entry in info.get("ungathered", []):
+                    tool = entry.rsplit(":", 1)[-1]
+                    if (tool in tool_names and tool not in self._active_driven
+                            and tool not in called_now):
+                        self._active_driven.add(tool)
+                        return tool
+                # nothing new to drive -> fall through to passive (model pick / STOP-deny).
             if dec == "ACT":
                 return self._goal_name or "STOP"           # permitted -> model CALLS goal (arg-correctness)
             # not permitted: keep GATHERING via the model's tool pick; discard its ACT/STOP emit.
