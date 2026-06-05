@@ -123,6 +123,7 @@
 - 신뢰 게이트(clean 48 vs 모델 14)·근본원인 분석(`internal_get_database` ∈dirgraph 46·∉constraints 0·predicate 아님 → teacher가 구조적으로 못 담음)은 **사실로 유효**.
 - **그러나 "DB-read를 게더에 추가" 처방은 철회**: full-success를 내림(constraint 위반). teacher가 constraints를 타깃하고 eval은 dirgraph를 채점하는 **mismatch는 실재**하나, dirgraph를 DB-read로 맞추면 constraint를 깬다 = **벤치 내부 tension**(dirgraph vs constraint). 단순 처방 없음.
 - **★통합 근본원인 (login·DB-read 동일, 사실로 유효)**: teacher 게더타깃=`constraints` / eval 게더metric=`directed_action_graph`. 단 이 mismatch의 *해법*은 미정(DB-read 추가는 역효과). transfer 0/8 = slot-axis(teacher slot-fix됐으나 모델 미준수=별개)·cancel 0/6 = Part A defect(gather 무관).
+- **⚠️⚠️정정 (2026-06-05, 정책 정독 후 — §10.3 참조)**: `internal_get_database`를 "dirgraph가 요구하는 도구"로 본 게 **오류**였다. `bank_assistant.py:372`: 조건은 **`OR(get_account_balance, internal_get_database)`** — internal_get_database는 "전체 DB 읽기" OR-대안(에이전트 **미노출**)이고, **에이전트는 노출된 `get_account_balance`로 충족**(set_safety_box dirgraph 10/10 with exposed getter). ⇒ 진짜 타깃은 **`get_account_balance`**(노출 getter), internal_get_database 아님. leave-one-IN +DB flip은 OR의 한 branch라 맞지만 *해석*이 틀림. = 노출-도구목록 미확인 함정.
 
 ## §9 결정-축 격상 (decision-axis = 소형모델 환각 제거 비교) — 사용자 제안 (2026-06-04)
 
@@ -178,3 +179,29 @@
 **잔여 진단**: augment가 identification 46/48 surface했으나 login=True 30 정체 = login arg-binding 18실패(surfaced cred 미사용/dict-id) = slot축 별개.
 
 **★ordering 정정 (active-H3 먼저 철회)**: (1) zero-cost 진단 2개=완료 → (2) **credential-augment + passive-H3 live rollout**(구현됨; 정직 베이스라인=모델 자율게더∧완벽결정; augment ≤9 전환; offline deny-by-unknown 라이브 확인; 대조 T1c-emit 1/C-none 3) → (3) **active-H3**(gate-DRIVEN gather=배포/LLM-Modulo 증명, axis-A 아님; passive 후라야 자율게더 vs gate-driver 분리). **active-H3 성공=모델이 자율 게더 못 함의 증거라 axis-A와 긴장 — 헤드라인으로 쓰지 말 것.**
+
+### §10.3 active-H3 LIVE 결과 + 정책 정독 → 논문-근거 최종 결론 (2026-06-05) ★★★
+**active-H3 LIVE (env `SOPBENCH_OFFLOAD_ACTIVE`, 게이트가 누락 getter 직접 구동)**: **BOTH 6→15** (honest/40) · acted 19→30 · 무재학습. condition-getter 구동(get_account_balance, getter_map)이 작동 = **BOTH 직접 상승**. 단 part-B(internal_get_database 구동)는 **미작동(0회)** — internal_get_database가 에이전트 미노출(25 도구에 없음).
+
+**★internal_get_database = 결함 아니라 OR-대안 (정책 정독으로 확정)**: `bank_assistant.py:372` `sufficient_account_balance = OR(get_account_balance, internal_get_database)`. internal_get_database="전체 DB 읽기" 시스템 대안(미노출), **에이전트는 노출 `get_account_balance`로 충족**(set_safety_box dirgraph 10/10 with exposed getter). ⇒ §8.1/§10.2의 "internal_get_database 필요" 프레임 **정정**: 진짜 타깃 = **get_account_balance**. (빅 모델 풂 + Part B=6-only가 "결함" 결론을 막음.)
+
+**★★진짜 뿌리 = 정책 vs dirgraph (정책 정독 + 빅모델 궤적 + 논문 확인)**:
+- **정책(verbalize) = per-task `constraints`와 정확 일치**(4 set_safety_box 태스크 대조: 정책이 constraints의 login/admin 유무를 그대로 반영). 
+- **dirgraph ⊋ 정책**: dirgraph는 *항상* login_user(+OR-대안 internal_get_database)를 포함 — per-task 정책/constraints가 login을 빼도(task0). 정책 충실 궤적(no-login)은 dirgraph_satisfied=False → BOTH 실패.
+- **우리는 정책조차 안 읽음**: `_plan_v2:505` `policy=...[:600]` → 전체 10,578자 중 600자(일반 서문)만, **per-action SOP(login 등) 전부 잘림**. 모델은 정책을 못 봄(induced precond rendering으로 대체).
+- **빅 모델(Claude) login 35/35·admin 10/10·set_safety_box 성공 8/10** — full SOP(항상 login) 준수. 자격증명 가용(user_known: identification 8/10·admin_password 6/10).
+
+**★논문(SOPBench/AgentOrca) 권위 판정 (ar5iv 본문 인용)**:
+- 에이전트가 받는 것 = **"the full natural-language SOP/policy"** (per-task subset 아님).
+- **"the agent must first call necessary verification actions... cascading"** = 모든 선행단계(login/auth) 필수.
+- success = **"Directed Action Graph Verification... each service action is preceded by all required verifications"** = full dirgraph 충족.
+- constraints = **"the complete operational dependency structure specified in code"** (sampled 아님).
+- ⇒ **"정책만(=sampled constraints)" 아니라 full SOP(항상 login)를 따라야 함이 논문 의도.** dirgraph의 login 요구 = over-require 아니라 **의도된 full SOP**. per-task 정책이 login 생략한 건 verbalization sampling 아티팩트. **Part B 6 = login필수 ∧ cred불가용 교집합만 진짜 defect; 나머지 solvable(빅모델 풂). 정직분모 34 유지.**
+
+**★★★논문-근거 BOTH 처방 (확정)**:
+1. **게이트 기준 = full SOP(dep_full / operator precond, 항상 login·auth) — sampled `constraints` 아님.** check_permitted를 dep_full로. = dirgraph·빅모델·논문 의도 일치.
+2. **정책 600자 truncation 수정** — 모델에게 full SOP(login 포함) 제시.
+3. active-H3가 full-SOP evidence(login + getters) 구동. 이러면 7B도 항상-login → dirgraph 충족 → **BOTH 천장 34로**.
+- paper-framing: 이는 "정책 충실"이 아니라 **"full SOP(논문이 요구하는 전체 절차) 충실"** — 빅 모델이 하는 것. axis-A(모델 자율학습)와 active-H3(gate-driven)는 여전히 구분.
+
+**★이번 조사 reliability 교훈 (사용자 교정이 막은 함정들)**: ①observed-called를 available-tool로 착각 2회 ②string-search aliasing 아티팩트 ③"internal_get_database 필요=bench 결함" 점프(빅모델 풂이 반증) ④"정책=dirgraph" 가정(정책=constraints, dirgraph가 over-require). **전부 코드/정책/저자출력/논문을 *직접 읽어* 정정.** ⇒ **메트릭/벤치 판정은 induced 구조 말고 정책 원문·저자 궤적·논문으로 검증**([[feedback-check-authority-before-rederive]] 확장: 벤치 의미론은 논문·정책 원문이 권위).
