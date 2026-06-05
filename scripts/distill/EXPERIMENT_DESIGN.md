@@ -260,6 +260,7 @@
 | `GRPO_REWARD_DESIGN.md` | RFT reward 함수·GRPO 루프(Rung2 상세) | detail |
 | **`HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md`** | **★현재 진입점**: H3 offload + ARGFIX→VALFIX→KEEPTUPLE→DGGATE 사다리(BOTH 29)·인프라 레시피 | ★**활성 진입점** |
 | **`RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`** | **★잔여 진단**: login-순서 근본원인·Fix1 LOGINFIRST·Fix2 LOGINCALL·looping→Fix3·cred/PartB 재분류 | ★활성 (다음 실험) |
+| **`FIX3_STOP_AFTER_SUCCESS_DESIGN.md`** | **★다음 설계(DRAFT, 리뷰 대기)**: goal-call looping 차단(STOP-after-success)·BLOCKING 가드·zero-cost 사전검증·A/B 사전등록 | ★활성 (리뷰 대기) |
 | **`LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`** | **★지표 권위**: 리더보드=공식 success(134,tool_full) 확정·BOTH 비교불가·우리 40.30% | ★활성 (지표 근거) |
 | `INTERNAL_GET_DATABASE_GROUNDING_2026_06_05.md` | internal_get_database=offered 아님·react 누수·우리 fc 0회 무관 | 참조 (근거) |
 | `GUARD2_DIRGRAPH_MIRROR_DESIGN.md` · `RESIDUAL11_FIX_DESIGN.md` | DGGATE 재구성 Guard-2(PASS)·4 BLOCKING 가드 설계 | detail (DGGATE 근거) |
