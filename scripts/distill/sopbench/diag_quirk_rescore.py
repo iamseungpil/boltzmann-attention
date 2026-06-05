@@ -20,16 +20,16 @@ def analyze(path):
     try: d=json.load(open(path))
     except Exception: return None
     if not isinstance(d,list): return None
-    n=succ=quirk=clean_login=no_login_call=0
+    # split should_T / should_F; quirk = passed task where an auth tool was CALLED but ALL returned False
+    res={"T":[0,0,0], "F":[0,0,0]}  # bucket -> [success, quirk(failed-auth-but-passed), n]
     for e in d:
         if not isinstance(e,dict): continue
         evs=e.get("evaluations") or []
         if not evs: continue
-        ev=evs[0]
-        n+=1
+        ev=evs[0]; bk="T" if ev.get("action_should_succeed") else "F"
+        res[bk][2]+=1
         if not ev.get("success"): continue
-        succ+=1
-        # collect login_user / admin call return values from trace
+        res[bk][0]+=1
         login_calls=[]; admin_calls=[]
         for il in (e.get("interactions") or []):
             conv=il.get("interaction") if isinstance(il,dict) else None
@@ -39,29 +39,25 @@ def analyze(path):
                 tn=m.get("tool_name")
                 if tn=="login_user": login_calls.append(truthy(m.get("content")))
                 if tn=="authenticate_admin_password": admin_calls.append(truthy(m.get("content")))
-        # quirk: an auth tool was CALLED but NONE succeeded, yet task passed
         login_quirk = login_calls and not any(login_calls)
         admin_quirk = admin_calls and not any(admin_calls)
-        if login_quirk or admin_quirk: quirk+=1
-        elif (login_calls and any(login_calls)) or (admin_calls and any(admin_calls)): clean_login+=1
-        else: no_login_call+=1   # passed without calling any auth tool (OR-branch / no-auth task)
-    return (n, succ, quirk, clean_login, no_login_call)
+        if login_quirk or admin_quirk: res[bk][1]+=1
+    return res
 
-print("quirk = SUCCESS tasks where an auth tool was CALLED but ALL returned False (failed-login-but-passed)")
-print(f"{'model':<46}{'succ/n':>10}{'quirk':>7}{'clean-auth':>11}{'no-auth-call':>13}")
+print("quirk = PASSED task where an auth tool was CALLED but ALL returned False (failed-auth-but-passed).")
+print("split should_T (genuine quirk-exploit candidate) vs should_F (failed-login -> CORRECT refusal = NOT quirk).")
+print(f"{'model':<44}{'T:succ':>8}{'T:quirk':>8}{'F:succ':>8}{'F:quirk':>8}")
 rows=[]
 for fp in sorted(glob.glob("/home/woori/scratch/SOPBench/output/bank/ast_*tool_full*.json")):
     r=analyze(fp)
-    if not r or r[0]==0: continue
-    rows.append((r[1],fp.split("/")[-1].replace("ast_","")[:44],r))
+    if not r or (r["T"][2]+r["F"][2])==0: continue
+    rows.append((r["T"][0]+r["F"][0], fp.split("/")[-1].replace("ast_","")[:42], r))
 for _,name,r in sorted(rows, reverse=True):
-    n,s,q,c,nl=r
-    print(f"{name:<46}{(str(s)+'/'+str(n)):>10}{q:>7}{c:>11}{nl:>13}")
+    print(f"{name:<44}{r['T'][0]:>8}{r['T'][1]:>8}{r['F'][0]:>8}{r['F'][1]:>8}")
 
-print("\n=== OUR runs ===")
+print("\n=== OUR runs (T:succ T:quirk | F:succ F:quirk) ===")
 for nm,fp in [("base_noaug","eval_t1c_base_noaug"),("loginfirst","eval_t1c_l1"),("logincall","eval_t1c_logincall"),("s0(fullstack)","eval_t1c_s0"),("stopsuccess(S1)","eval_t1c_stopsuccess")]:
     p=f"/home/woori/scratch/sft_alias_run/{fp}/bank/ast_tbox_v2-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json"
     r=analyze(p)
     if not r: print(f"  {nm}: NA"); continue
-    n,s,q,c,nl=r
-    print(f"  {nm:<16} succ={s}/{n}  quirk(failed-login-but-passed)={q}  clean-auth={c}  no-auth-call={nl}")
+    print(f"  {nm:<16} should_T: succ={r['T'][0]} quirk={r['T'][1]}   should_F: succ={r['F'][0]} quirk={r['F'][1]}")
