@@ -346,6 +346,11 @@ class TwoStageClient:
         # model establishes login/admin/balance BEFORE acting (premature fix). active-H3 drives missing
         # prereqs from user_known creds (Guard-4: all creds available -> loop-free). Off by default.
         self._dggate = bool(os.environ.get("SOPBENCH_DGGATE"))
+        # Fix-1 LOGINFIRST: the evaluator's dirgraph check is IN-ORDER — a login-gated getter/admin-auth
+        # called BEFORE login_user permanently fails dirgraph_satisfied (late re-drive can't repair).
+        # The constraint-order ungathered list drives the getter first, so front-load login_user (then
+        # admin) before any other gather. Creds from user_known (request params, NOT oracle). Off by default.
+        self._loginfirst = bool(os.environ.get("SOPBENCH_LOGINFIRST"))
         self._dg_cache = None            # (constraint_links, constraint_processes, default_dep, action_params)
         self._task_constraints_original = None
         self._task_sig = None       # content-based task id for offload-log<->eval join (set in reset)
@@ -598,6 +603,21 @@ class TwoStageClient:
                         self._active_driven.add("internal_get_database")
                         return "internal_get_database"
                     return self._goal_name or "STOP"
+                # Fix-1 LOGINFIRST: front-load login_user (then authenticate_admin_password) BEFORE the
+                # constraint-order ungathered loop would drive a login-gated getter. The evaluator records
+                # a getter only if its login prereq preceded it; an out-of-order getter permanently fails
+                # dirgraph (late repair impossible) -> login MUST be the first gather when required.
+                if self._loginfirst:
+                    uk = self._task_user_known or {}
+                    for ctool, ckey in (("login_user", "identification"),
+                                        ("authenticate_admin_password", "admin_password")):
+                        if (ctool in tool_names and ctool not in called_now
+                                and ctool not in self._active_driven
+                                and uk.get(ckey) is not None and uk.get("username") is not None
+                                and self._dg_requires(ctool)):
+                            self._active_driven.add(ctool)
+                            self._force_call = (ctool, {"username": uk.get("username"), ckey: uk.get(ckey)})
+                            return ctool
                 # not permitted -> drive the first ungathered EVIDENCE tool (real, callable, new).
                 for entry in info.get("ungathered", []):
                     tool = entry.rsplit(":", 1)[-1]
@@ -902,6 +922,38 @@ class TwoStageClient:
             for p in prereqs:
                 if not chk(p): collect(p)
         return (dg_ok, missing)
+
+    def _dg_requires(self, tool):
+        """Fix-1 LOGINFIRST helper: does the reconstructed task dirgraph contain `tool` as a node
+        (i.e. is it a required prereq somewhere)? Reuses the Guard-2 reconstruction (no oracle read
+        of directed_action_graph). Returns False on any failure (conservative: no spurious front-load)."""
+        try:
+            from env.variables import domain_assistant_keys, domain_keys
+            from env.helpers import (dfsgather_invfunccalldirgraph,
+                                     gather_action_default_dependencies, get_action_parameters)
+        except Exception:
+            return False
+        dom = self._domain or "bank"
+        if self._dg_cache is None:
+            try:
+                da = domain_assistant_keys[dom]; ds = domain_keys[dom]()
+                add = gather_action_default_dependencies(
+                    da.action_required_dependencies, da.action_customizable_dependencies,
+                    default_dependency_option="full")
+                self._dg_cache = (da.constraint_links, da.constraint_processes, add,
+                                  get_action_parameters(ds, da))
+            except Exception:
+                return False
+        cl, cp, add, ap = self._dg_cache
+        cons_orig = self._task_constraints_original
+        goal = self._goal_name
+        if cons_orig is None or goal not in ap:
+            return False
+        try:
+            g = dfsgather_invfunccalldirgraph(cons_orig, cl, cp, add, ap, (goal, {k: k for k in ap[goal]}))
+            return any((not isinstance(n, str)) and n[0] == tool for n in g["nodes"])
+        except Exception:
+            return False
 
     # ------------------------------------------------------------------
     # STEP 2 — Resolver: action + concrete spec + slot state -> tool call
