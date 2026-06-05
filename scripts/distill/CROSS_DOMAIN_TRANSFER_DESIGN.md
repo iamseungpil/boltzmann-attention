@@ -41,6 +41,15 @@
 4. **ontology↔도구 정합**: `ontology_<domain>.json`의 op/predicate가 벤치 도구셋과 매칭(induce 품질). alias 매핑 깨짐 없는지.
 - **판정**: audit 통과 도메인 = T-A 대상. 부분 실패 도메인 = 원인 표기 후 포함(전이의 정직 범위 = "어디서 그대로 되고 어디서 안 되나"가 결과의 일부).
 
+## §4.5 ★audit 1차 결과 (2026-06-06, `diag_xdomain_audit.py`, zero-cost) — cross-domain 게이트 통과 (조건부)
+| 도메인 | n | OVER | UNDER | login_arg | 판정 |
+|---|---|---|---|---|---|
+| bank·dmv·healthcare·hotel | 134/97/124/195 | **0** | **0** | identification (hotel=NO-LOGIN) | ✓ DGGATE 재구성=evaluator 정확일치 |
+| library·online_market·university | 66/172/42 | =n | =n | **password** | ✗ **login-arg만** 불일치 |
+- **불일치 원인 = 유일, login_user credential arg 이름**: 재구성=`login_user(identification,username)`(bank-ism) vs evaluator=`login_user(password,username)`. **다른 모든 노드 정확일치**(OVER=UNDER=태스크당 정확히 1 = login 노드뿐).
+- ⇒ **DGGATE dirgraph 구조 재구성은 도메인-일반 확증**(4/7 exact; 3/7은 login-arg 한 곳). **수정 = login credential param을 `action_parameters[login_user]−{username}`서 derive**(도메인 분기 아님=B-1 OK; 리뷰 S2 정확 적중). 수정 후 7/7 OVER=0 재검증 = 구현 1차.
+- getter_map: 7도메인 전부 존재(14~39 entries). VALFIX oracle-정당성(§4.2/S1)은 도메인별 manual 후속.
+
 ## §5. BLOCKING 가드 (사전등록)
 1. **B-1 scaffold 무변경**: 전 도메인 **동일 flag·동일 코드**. per-domain `if domain==` 분기 **금지**. (LOGINFIRST credential-arg 같은 bank-리터럴이 발견되면 → ontology서 끌도록 *일반화*하되 도메인-분기 아님; §4.3.)
 2. **B-2 공식 success only**: 모든 수치 공식 success(134-eq, tool_full). BOTH 보고 금지.
