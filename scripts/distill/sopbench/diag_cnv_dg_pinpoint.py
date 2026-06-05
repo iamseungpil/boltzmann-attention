@@ -59,29 +59,45 @@ for e in d:
         fn, ar = c["tool_name"], c["arguments"]
         try:
             if hasattr(dss, fn) and hasattr(ds, fn):
-                gt=(0, copy.deepcopy(getattr(dss, fn)(**ar)))
+                status_id, gtval = 0, copy.deepcopy(getattr(dss, fn)(**ar))
             elif not hasattr(dss, fn) and hasattr(ds, fn):
-                gt=(1, None)
+                status_id, gtval = 1, None
             else:
-                gt=(2, None)
+                status_id, gtval = 2, None
         except Exception as ex:
-            gt=(2, f"EXC:{ex}")
+            status_id, gtval = 2, f"EXC:{ex}"
         agent=c["content"]
-        fl=dfsconvert_tuple_to_list(agent); gl=dfsconvert_tuple_to_list(gt)
+        fl=dfsconvert_tuple_to_list(agent); gl=dfsconvert_tuple_to_list(gtval)
         match = (fl==gl) or ([True, fl]==gl)
-        match = match if gt[0]==0 else True
+        match = match if status_id==0 else True
         flag = "" if match else "  <<< CNV MISMATCH"
-        print(f"     {fn}{ar}  agent={agent!r}  strict={gt!r}  match={match}{flag}")
+        print(f"     {fn}{ar}  agent={agent!r}  strict_val={gtval!r}  match={match}{flag}")
 
     # ---- DG: dirgraph traversal for the goal node ----
     ifcg = copy.deepcopy(t["directed_action_graph"])
     nodes_task = ifcg["nodes"]
     conns_task, invn_task = get_ifg_connections_invnodes(ifcg)
     action_parameters = get_action_parameters(ds, domain_assistant_keys[DOMAIN])
-    print(f"  -- DG: goal '{goal}' node in dirgraph? {goal in invn_task} ; dirgraph nodes={nodes_task}")
-    print(f"     connections={conns_task}")
+    called = set(c["tool_name"] for c in trunc)
+    print(f"  -- DG: called funcs (trunc) = {sorted(called)}")
+    print(f"     dirgraph nodes={nodes_task}")
+    def cg(i):
+        x = conns_task[i] if isinstance(conns_task, list) else conns_task.get(i)
+        return x or set()
+    def describe(ni, depth=0):
+        node = nodes_task[ni]
+        ind = "  " * depth
+        if isinstance(node, str):  # and/or
+            sub = cg(ni)
+            print(f"     {ind}[{ni}] {node} -> {sorted(sub)}")
+            for s in sorted(sub):
+                describe(s, depth+1)
+        else:
+            fn = node[0]
+            ok = fn in called
+            print(f"     {ind}[{ni}] FUNC {fn}  called={ok}{'' if ok else '  <<< NOT CALLED'}")
     if goal in invn_task:
         gi=invn_task[goal]
-        print(f"     goal node idx={gi} prereq-neighbors={conns_task.get(gi)}")
-        for ni in conns_task.get(gi, []):
-            print(f"       prereq node[{ni}]={nodes_task[ni]} -> its neighbors {conns_task.get(ni)}")
+        # goal node points to its prereq subtree
+        for ni in sorted(cg(gi)):
+            describe(ni, 1)
