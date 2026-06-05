@@ -356,6 +356,9 @@ class TwoStageClient:
         # counts the CALL not auth-success, so a failing login satisfies the node (matches released
         # qwen2.5-7b FC). Requires _loginfirst. Off by default.
         self._logincall = bool(os.environ.get("SOPBENCH_LOGINCALL"))
+        # Fix-3 STOPSUCCESS: terminate after the goal action is successfully called once (no re-call loop).
+        # Repeated goal-calls (5-9x to step cap) break official success (cnv/dbm/ntce). Off by default.
+        self._stopsuccess = bool(os.environ.get("SOPBENCH_STOPSUCCESS"))
         self._dg_cache = None            # (constraint_links, constraint_processes, default_dep, action_params)
         self._task_constraints_original = None
         self._task_sig = None       # content-based task id for offload-log<->eval join (set in reset)
@@ -518,6 +521,21 @@ class TwoStageClient:
                     self._render_precond(sub, out, est)
 
     def _plan_v2(self, messages, tools) -> str:
+        # Fix-3 STOPSUCCESS: once the goal action has been SUCCESSFULLY called, TERMINATE (STOP ->
+        # exit_conversation) so the model does not re-call it. The first successful call already
+        # satisfies dg∧acc; repeated goal-calls break the official `success` (cnv/dbm/no_tool_call_error)
+        # via constraint re-violation, non-idempotent DB corruption, and errors on already-changed state.
+        # Parser uses prefix-match (KEEPTUPLE preserves "(True, val)" as a STRING in tool content).
+        if self._stopsuccess and self._goal_name:
+            for m in messages:
+                if not isinstance(m, dict) or m.get("tool_name") != self._goal_name:
+                    continue
+                c = m.get("content")
+                ok = (c is True) \
+                    or (isinstance(c, (list, tuple)) and len(c) and c[0] is True) \
+                    or (isinstance(c, str) and c.strip().startswith(("True", "(True", "[True")))
+                if ok and "Error" not in str(c):
+                    return "STOP"
         ops = self.abox.get("operators", {})
         tool_names = [t.get("function", {}).get("name", "") for t in tools]
         op_descs = {t.get("function", {}).get("name", ""):
