@@ -626,32 +626,31 @@ class TwoStageClient:
                         self._active_driven.add("internal_get_database")
                         return "internal_get_database"
                     return self._goal_name or "STOP"
-                # Fix-1 LOGINFIRST: front-load login_user (then authenticate_admin_password) BEFORE the
-                # constraint-order ungathered loop would drive a login-gated getter. The evaluator records
-                # a getter only if its login prereq preceded it; an out-of-order getter permanently fails
-                # dirgraph (late repair impossible) -> login MUST be the first gather when required.
+                # LOGINFIRST (login-general, 2026-06-06): front-load login_user (then admin auth) BEFORE the
+                # constraint-order ungathered loop would drive a login-gated getter. The evaluator records a
+                # getter only if its login prereq preceded it; an out-of-order getter permanently fails
+                # dirgraph -> login MUST be the first gather when required. NO special-casing: the credential
+                # arg name is DERIVED from the domain's actual auth signature (action_parameters), NOT
+                # hardcoded 'identification' (so it works cross-domain: library/market/university use
+                # 'password'). Args bound from user_known like any tool. LOGINCALL/dummy-login (quirk) DROPPED:
+                # if user_known lacks the credential (cred-absent) we SKIP -> the task fails honestly.
                 if self._loginfirst:
                     uk = self._task_user_known or {}
-                    for ctool, ckey in (("login_user", "identification"),
-                                        ("authenticate_admin_password", "admin_password")):
+                    for ctool in ("login_user", "authenticate_admin_password"):
                         if not (ctool in tool_names and ctool not in called_now
-                                and ctool not in self._active_driven
-                                and uk.get("username") is not None and self._dg_requires(ctool)):
+                                and ctool not in self._active_driven and self._dg_requires(ctool)):
                             continue
-                        cred = uk.get(ckey)
-                        if cred is None:
-                            # Fix-2 LOGINCALL: the evaluator's dirgraph dfscheck counts login as CALLED
-                            # (in order), NOT auth-success. A cred-absent login-required goal whose
-                            # getters need only username (e.g. pay_loan: get_account_balance precond =
-                            # internal_check_username_exist) passes by CALLING login_user with a
-                            # placeholder (login returns False but the node is satisfied). This mirrors
-                            # released qwen2.5-7b FC leaderboard runs (login_user('password123')->False,
-                            # then get_account_balance, then pay_loan => success). login_user only.
-                            if not (self._logincall and ctool == "login_user"):
-                                continue
-                            cred = "__no_credential__"
+                        ap = self._dg_cache[3] if self._dg_cache else {}   # populated by _dg_requires
+                        params = set(ap.get(ctool, set()))
+                        if not params:
+                            continue
+                        args = {k: uk[k] for k in params if k in uk}
+                        # honest login: ALL of the tool's params (username + the domain credential) must be
+                        # bindable from user_known. cred-absent (missing credential) -> skip (no dummy).
+                        if "username" not in args or len(args) < len(params):
+                            continue
                         self._active_driven.add(ctool)
-                        self._force_call = (ctool, {"username": uk.get("username"), ckey: cred})
+                        self._force_call = (ctool, args)
                         return ctool
                 # not permitted -> drive the first ungathered EVIDENCE tool (real, callable, new).
                 for entry in info.get("ungathered", []):
