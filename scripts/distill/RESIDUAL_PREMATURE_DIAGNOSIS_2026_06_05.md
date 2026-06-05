@@ -41,11 +41,31 @@ gate/active-H3가 **login_user를 login-gated getter/admin-auth보다 먼저** d
 - 기존 active-H3 deepest-first가 login을 getter의 prereq로 인식하도록 = getter 노드의 하위 `and{login_user,...}`를 먼저 충족.
 - ⚠️ offline replay이므로 **live rollout A/B로 확정 필요**(메타규칙). 회귀 0·login-uniform 특별취급 금지(T1T2 BOTH4/4 교훈) 확인.
 
-## 5. ⚠️ 천장 재검토 (사용자 결정 필요)
-이 11건은 **cred-부재-불가능(PartB)이 아니라 login-순서로 fixable**(augment creds 가용 시). 현 run은 `SOPBENCH_AUGMENT_CRED=1` 사용 → 실효 천장 = 48 − PartA8 = **40**, 핸드오프 "honest-34"가 아님.
-- "honest-34"는 **unaugmented**(login creds 부재) 기준; 현 파이프는 augment 사용 → `29/34` 헤드라인이 두 세팅을 혼용.
-- 선택지: (a) augment를 정당 scaffold로 보고 천장 40 채택(BOTH 29→최대 40 목표), (b) augment 끄고 unaugmented 34 기준 유지(이 11은 다시 불가능), (c) 두 세팅 분리 보고.
-- 본 진단은 (a)를 지지하나, 최종 프레이밍은 사용자 결정 + live rollout 확정 후 박제.
+## 5. ★★중대 정정 — cred 제공여부가 불가/가능을 가른다 (bug report 정독 후)
+> 초안의 "11건 전부 login-순서 fixable → 천장 40"은 **RETRACTED**. bug report `BUGREPORT_SOPBench_bank_impossible_tasks.md` Part B의 분기 기준(= login cred가 user_known에 제공되는지)을 적용해 재분석.
+
+**`diag_v5_canonical_cred.py`** (canonical bank_tasks.json augment-invariant 매칭): premature 11 =
+- **cred-present 4** (pay_bill fbaa · set_safety_box 1cb22/c6454/79c3): canonical user_known에 identification 있음 → **augment 불요·login-first로 진짜 fixable**(canonical cred만으로 4/4 full success).
+- **cred-absent 7** (get_loan×2 · pay_bill 6058 · pay_loan 92f3/81ba · set_safety_box 48e46/3b48): canonical cred 없음 + dirgraph 강제-login → **AUGMENT_CRED가 cred 줘야만 통과 = bug report fix #2(벤치 결함 보수)이지 모델 능력 아님.**
+
+**`diag_v7_reconcile.py`** (전 48 should_T 정직분해):
+| 분류 | n |
+|---|---|
+| PartA defect (DENY) | 8 |
+| cred-absent · BOTH (**augment-pass only**) | 7 |
+| cred-absent · premature | 7 |
+| cred-present · BOTH (진짜) | 22 |
+| cred-present · premature (**진짜 모델-fixable**) | 4 |
+
+**BOTH 29 = 진짜 22 + augment-pass 7.** 헤드라인 `29/34`는 **내부 불일치**(분자는 augment-pass 포함, 분모 34는 cred-absent 결함 제외). 일관 옵션:
+- (A) augment 정당(fix #2): `29 / (48−PartA8 = 40)`.
+- (B) unaugmented honest: BOTH = cred-present 22 / (cred-present 26, 또는 bug-report 34).
+
+**진짜 모델-능력 타깃 = cred-present 4 (login-순서).** login-first fix는 augment 무관하게 이 4건을 올린다(22→26 가능).
+
+## 6. 미해결 (reliable 확정 필요, GPU 전 offline 가능)
+- pay_loan 92f3/81ba: `diag_payloan_nologin.py` 결과 **no-login 경로 전무**(cred-absent 불가) → bug report가 passable로 제외한 66/67과 **다른 인스턴스**. cred-absent unwinnable 정확수(bug-report 6 vs 본 측정 7+)는 released-model cross-check로 확정.
+- cred-absent BOTH 7건: no-login 경로 통과인지 augment-login 통과인지 offline 테스트 → unaugmented honest BOTH(22 vs 그 이상) 확정.
 
 ## 스크립트 (전부 repo `scripts/distill/sopbench/`)
 - `diag_residual5.py` — census + offload-log task_sig 조인
@@ -53,4 +73,7 @@ gate/active-H3가 **login_user를 login-gated getter/admin-auth보다 먼저** d
 - `diag_residual5_v4.py` — 툴 반환값 포함 trace (반복 goal-call 발견)
 - `diag_truncate_test.py` — 비종료 가설 반사실(0/11 flip → 비종료는 증상)
 - `diag_cnv_dg_pinpoint.py` — strict per-call 불일치 + dirgraph prereq 트리(근본원인 특정)
-- `diag_fix_validate.py` — login-first 순서 fix 검증(11/11 full success)
+- `diag_fix_validate.py` — login-first 순서 fix 검증(augment cred 사용 → 11/11; §5에서 cred-present 4만 정당으로 정정)
+- `diag_v5_canonical_cred.py` — **canonical cred 매칭으로 cred-present 4 / cred-absent 7 분리**
+- `diag_payloan_nologin.py` — pay_loan no-login 경로 부재 확인
+- `diag_v7_reconcile.py` — **전 48 should_T 정직분해 (cred × status)**
