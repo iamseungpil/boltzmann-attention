@@ -49,8 +49,8 @@ for dom in DOMAINS:
         over=list((cr-ct).elements()); under=list((ct-cr).elements())
         over_n+=len(over); under_n+=len(under); over_t+=(1 if over else 0); under_t+=(1 if under else 0)
     # login arg names
-    la = sorted(set(ap.get("login_user",{}).keys()) - {"username"}) if "login_user" in ap else []
-    aa = sorted(set(ap.get("authenticate_admin_password",{}).keys()) - {"username"}) if "authenticate_admin_password" in ap else []
+    la = sorted(set(ap["login_user"]) - {"username"}) if "login_user" in ap else []
+    aa = sorted(set(ap["authenticate_admin_password"]) - {"username"}) if "authenticate_admin_password" in ap else []
     tag = f"{la or 'NO-LOGIN'} / {aa or '-'}"
     flag = "" if over_n==0 else "  <<OVER!=0 (over-deny risk)"
     print(f"{dom:<15}{len(tasks):>5}{over_n:>11}{over_t:>11}{under_n:>12}{under_t:>12}  {tag}{flag}  errs={errs}")
