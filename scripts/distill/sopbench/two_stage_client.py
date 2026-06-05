@@ -335,6 +335,12 @@ class TwoStageClient:
         # deterministically from user_known (+slot) so the goal call isn't re-emitted/value-corrupted
         # by the 7B (pay_bill unit, set_account username). Off by default; A/B vs current.
         self._argfix = bool(os.environ.get("SOPBENCH_ARGFIX"))
+        # VALFIX (2026-06-05): a condition with NO getter route (inducer getter_map => reads no
+        # external state, e.g. maximum_deposit_limit = amount<=const) is a value-restriction; its
+        # params are already in kw. The gate's evidence-gating wrongly denies it (no_evidence_route).
+        # General rule (no domain branch): no-getter + params-resolved => COMPUTE directly (not oracle:
+        # no per-account DB field is read; only request params + domain constants). Off by default.
+        self._valfix = bool(os.environ.get("SOPBENCH_VALFIX"))
         self._task_sig = None       # content-based task id for offload-log<->eval join (set in reset)
         self._force_call = None     # ARGFIX: (tool, args) to drive deterministically next _resolve
         self._active_driven = set()
@@ -732,6 +738,14 @@ class TwoStageClient:
                     self.ungathered.append((base, "args_unresolvable")); return False
                 evs = _evidence_tools(base)
                 if not evs:
+                    if _valfix:                                     # value-restriction: compute directly
+                        try:
+                            val = Dependency_Evaluator._single(self, func, param_mapping, **kw)
+                        except Exception:
+                            self.ungathered.append((base, "no_evidence_route")); return False
+                        if val is False:
+                            self.false_leaves.append((base, fp))
+                        return val
                     self.ungathered.append((base, "no_evidence_route")); return False
                 def matched(tool):
                     for a in called.get(tool, []):
@@ -754,6 +768,7 @@ class TwoStageClient:
                 if val is False:
                     self.false_leaves.append((base, fp))
                 return val
+        _valfix = self._valfix          # closure capture for _GatedDep._single
         ev = _GatedDep()
         # constraint-leaf param VALUES: user_known (request params: username/destination/amount/...)
         # overlaid with any slot state. Without these the bench arg-resolution -> args_unresolvable.
