@@ -57,6 +57,7 @@
 3. **B-3 base 통제**: 각 도메인 base-7B(무 scaffold, 동일 tool_full) 동시 측정 = Δ의 분모. "stack이 base보다"가 1급 비교(리더보드는 2급 참조, scaffold caveat).
 4. **B-4 정직 범위 분리**: ① LOGINCALL quirk-의존분(login-call 없이도 도메인별 재측정 = quirk 기여 격리) ② audit 부분실패 도메인 표기 ③ 어댑터 in-domain(6) vs T-B held-out 구분 명시.
 5. **B-5 통합 stack 정합 + 회귀 (cross-domain 前 BLOCKING, 리뷰 BLOCKING-1)**: bank 50.75%(S1)가 **어느 flag 집합**인지 못박는다 — **S1 = 전 fix 통합**(`ARGFIX VALFIX KEEPTUPLE DGGATE LOGINFIRST LOGINCALL STOPSUCCESS`, `offload_stopsuccess.sh` COMMON+STOPSUCCESS, augment OFF) = **통합 stack은 이미 bank서 함께 검증됨(회귀 0)**. ⚠️**login 3중 처리 compose-audit**: DGGATE(login을 dirgraph prereq로 establishing-구동)·LOGINFIRST(login front-load)·LOGINCALL(login을 call-order로 카운트)가 login_user를 각자 다룸 → **`_active_driven` 가드가 동일 도구 이중구동 차단**(설계상 1회). cross-domain 前 **bank 1회 재실행으로 ① S1=50.75% 재현(±noise) ② login_user 호출수=태스크당 ≤1(이중구동 없음) ③ 내 DGGATE-era BOTH 29/34 = 공식 success 몇 %인지 동시기록**(BOTH↔success 정합). 이게 통과해야 cross-domain.
+  - **★이 bank 런 = LOGINCALL-OFF + login-일반화 통합 stack** (2026-06-06): honest 44.78%는 LOGINCALL-ON re-score(잠정) → 이 런이 **확정 헤드라인**(official=honest, quirk 0) + cross-domain T-A의 bank 기준선. S1은 이미 통합 full-stack 확인됨(COMMON에 ARGFIX/VALFIX/KEEPTUPLE/DGGATE 포함)이라, 이 런은 거기서 LOGINCALL만 끄고 login을 일반 prereq-driving(DGGATE deepest-first)+arg-binding으로 돌린 것.
 
 ## §6. 측정 = 4열 + 사전등록 성공기준
 **★4열 (리뷰 BLOCKING-2 — scaffold Δ 격리, 도메인당, 공식 success):**
