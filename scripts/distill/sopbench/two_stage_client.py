@@ -575,7 +575,7 @@ class TwoStageClient:
         # GATHERED results) makes the ACT/STOP decision. The model's `raw` is used ONLY to pick the
         # next GATHER tool when not-yet-permitted (its learned skill); its ACT/STOP emit is discarded.
         if self._offload:
-            dec, reason, info = self._check_permitted(messages)
+            dec, reason, info = self._check_permitted(messages, tool_names)
             if self._offload_log:
                 try:
                     with open(self._offload_log, "a", encoding="utf-8") as _f:
@@ -654,7 +654,7 @@ class TwoStageClient:
     # ------------------------------------------------------------------
     # H3 decision-OFFLOAD: deterministic check_permitted over GATHERED results
     # ------------------------------------------------------------------
-    def _check_permitted(self, messages):
+    def _check_permitted(self, messages, tool_names=None):
         """H3 offload decision (5 locks). Lock #2: reuse the bench `Dependency_Evaluator` combinators
         AND its per-leaf COMPUTATION (policy conditions e.g. credit_score>=thr). Lock #1: gate EVERY
         leaf by whether its EVIDENCE was actually gathered — the check tool itself / the establishing
@@ -794,7 +794,7 @@ class TwoStageClient:
         # Cause-1 DGGATE: also require the full task dirgraph prereqs (Guard-2 validated, OVER=0 -> no
         # over-deny of current-BOTH). Missing prereqs -> ungathered (active-H3 drives w/ user_known creds).
         if self._dggate and self._goal_name and permitted is not None:
-            dg_ok, dg_missing = self._dggate_check(self._goal_name, called, kw)
+            dg_ok, dg_missing = self._dggate_check(self._goal_name, called, kw, tool_names)
             if not dg_ok:
                 for mt, ma in dg_missing:
                     tag = f"dirgraph:{mt}"
@@ -818,7 +818,7 @@ class TwoStageClient:
             reason = "ungathered"
         return ("STOP", reason, info)
 
-    def _dggate_check(self, goal, called, kw):
+    def _dggate_check(self, goal, called, kw, exposed=None):
         """Cause-1 (SOPBENCH_DGGATE): mirror evaluator dirgraph_satisfied via the Guard-2-validated
         reconstructed graph (Option A: constraints_original + domain rules, opt=full -> OVER=0 UNDER=0).
         Returns (dg_ok, missing) where missing=[(action,args),...] = ungathered prereq actions to drive.
@@ -859,7 +859,7 @@ class TwoStageClient:
                 if fn not in sfc: sfc[fn] = [tuple(sorted(a.keys())), set()]
                 sfc[fn][1].add(tuple(hz(a.get(k)) for k in sfc[fn][0]))
         gp = nodes[0][1]; pm = {gp[k]: kw.get(k) for k in gp}
-        tool_set = set(self.abox.get("operators", {})) if self.abox else set()
+        drivable = set(exposed or [])   # only agent-exposed tools (excludes e.g. internal_get_database)
         def chk(ni):
             n = nodes[ni]
             if not isinstance(n, str):
@@ -878,16 +878,21 @@ class TwoStageClient:
         def collect(ni):
             n = nodes[ni]
             if not isinstance(n, str):
-                if not chk(ni):
-                    fname, fparams = n
-                    if fname in tool_set:
-                        args = {k: pm.get(fparams[k]) for k in fparams if pm.get(fparams[k]) is not None}
-                        if (fname, args) not in missing: missing.append((fname, args))
+                if chk(ni): return
+                fname, fparams = n
+                # POST-ORDER: this action's OWN prereqs must be satisfied first (e.g. login before
+                # get_account_balance) -> recurse them before adding this action => missing is deepest-first
+                # so active-H3 drives login -> then balance, in correct order.
+                for c in conns[ni]:
+                    collect(c)
+                if fname in drivable:
+                    args = {k: pm.get(fparams[k]) for k in fparams if pm.get(fparams[k]) is not None}
+                    if (fname, args) not in missing: missing.append((fname, args))
                 return
             if n == "and":
                 for c in conns[ni]:
                     if not chk(c): collect(c)
-            else:  # or/gate: one satisfied branch suffices -> drive the first branch yielding a drivable leaf
+            else:  # or/gate: one satisfied branch suffices -> drive the first branch yielding a DRIVABLE leaf
                 for c in conns[ni]:
                     before = len(missing); collect(c)
                     if len(missing) > before: break
