@@ -75,6 +75,12 @@
 
 ## §3. ★실험 순서 = 학습 사다리. 핵심 = **게더-act 경합(순서) 해소: "게더 미완이면 ACT 금지"를 *학습*** (가드 아님)
 
+> ★★★**현 로드맵 (2026-06-05 확정) — A축 완성 → B축**:
+> 1. **cross-domain 전이** = A축 scaffold가 ABox-swap·재학습0로 타 도메인 일반화 입증. 설계 = [`CROSS_DOMAIN_TRANSFER_DESIGN.md`](CROSS_DOMAIN_TRANSFER_DESIGN.md) (리뷰 대기). 성립 시 A축 단독 systems 논문 가치.
+> 2. **should_F(거부축)** = bank 공식 success 50.75%의 유일 잔여 레버(should_T는 40/48=천장 도달). should_F 28/86=33%(상위모델 70-85/86) → A축 논문 완성. 설계 = 추후(`SHOULDF_*_DESIGN.md`).
+> 3. **B축 내재화** = A축 scaffold 행동을 verifier-교정 DPO/RFT로 weight에 학습(C축=자기-emit은 LOCK死, B는 음성신호로 우회). novelty = A↔B 전이. = thesis 본선(아래 Phase 1.5/2).
+> ⇒ 아래 Phase 1~3(SFT/DPO/RFT)은 B축의 학습 사다리 상세. A축(scaffold·offload)은 §2 사다리로 50.75% 도달, 현재 1·2 진행 중.
+
 > 병목(전수조사) = 게더는 학습됨(dirgraph 36-45) **but 게더 AND act 공존 못함(BOTH 0-2)**: 게더후 STOP(s1)·안게더 act(s3) = **순서 경합**. bank는 체크 1-3개라 conjunction-*계산*은 안 어려움 → 병목 = **act/STOP 결정·순서**(s1은 READY 보여줘도 over-STOP). 목표 = **"ready(required 전부 게더)면만 ACT"를 weight에 학습**(결정론 가드 offload 아님). 세 레버 = **①SFT readiness-게이트 → ②DPO preference → ③RFT 페널티**. (순서 정당화: process supervision은 통계적 우위 없음[Jia ICML25] → ①② 먼저, ③로 경계.)
 
 ### Phase 1 = Rung 1 = ① SFT: per-step readiness 게이트 토큰 〔현재〕
@@ -261,7 +267,8 @@
 | `GRPO_REWARD_DESIGN.md` | RFT reward 함수·GRPO 루프(Rung2 상세) | detail |
 | **`HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md`** | **★현재 진입점**: H3 offload + ARGFIX→VALFIX→KEEPTUPLE→DGGATE 사다리(BOTH 29)·인프라 레시피 | ★**활성 진입점** |
 | **`RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`** | **★잔여 진단**: login-순서 근본원인·Fix1 LOGINFIRST·Fix2 LOGINCALL·looping→Fix3·cred/PartB 재분류 | ★활성 (다음 실험) |
-| **`FIX3_STOP_AFTER_SUCCESS_DESIGN.md`** | **★다음 설계(DRAFT, 리뷰 대기)**: goal-call looping 차단(STOP-after-success)·BLOCKING 가드·zero-cost 사전검증·A/B 사전등록 | ★활성 (리뷰 대기) |
+| `FIX3_STOP_AFTER_SUCCESS_DESIGN.md` | goal-call looping 차단(STOP-after-success)·BLOCKING 가드·B-3 12/12·LIVE 50.75% | ✅완료 |
+| **`CROSS_DOMAIN_TRANSFER_DESIGN.md`** | **★로드맵 1단계(DRAFT, 리뷰 대기)**: A축 scaffold ABox-swap 재학습0 전이(T-A 6도메인+T-B held-out)·도메인-readiness audit·공식 success | ★활성 (리뷰 대기) |
 | **`LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`** | **★지표 권위**: 리더보드=공식 success(134,tool_full) 확정·BOTH 비교불가·우리 40.30% | ★활성 (지표 근거) |
 | `INTERNAL_GET_DATABASE_GROUNDING_2026_06_05.md` | internal_get_database=offered 아님·react 누수·우리 fc 0회 무관 | 참조 (근거) |
 | `GUARD2_DIRGRAPH_MIRROR_DESIGN.md` · `RESIDUAL11_FIX_DESIGN.md` | DGGATE 재구성 Guard-2(PASS)·4 BLOCKING 가드 설계 | detail (DGGATE 근거) |

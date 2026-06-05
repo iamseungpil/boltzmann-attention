@@ -6,6 +6,10 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★★★★★★★★★ v1.41 (2026-06-05 PM) — 로드맵 확정: cross-domain → should_F → B축 + Fix-3 완료(50.75%)
+> **Fix-3 STOPSUCCESS LIVE**: 공식 success(리더보드 지표) **base 29.85%→…→50.75%(68/134)**, should_T full **40/48=정직천장**(잔여8=PartA버그), 회귀0. base Qwen2.5-7B 5.22%→**50.75%=오픈소스 SOTA(Llama70B 42.54%) 추월**.
+> **★로드맵(확정)**: ① **cross-domain 전이**(A축 scaffold ABox-swap 재학습0 일반화, 설계 [`../../scripts/distill/CROSS_DOMAIN_TRANSFER_DESIGN.md`](../../scripts/distill/CROSS_DOMAIN_TRANSFER_DESIGN.md) 리뷰대기) → ② **should_F 거부축**(전체% 유일 잔여 레버, should_T 천장) = A축 논문 완성 → ③ **B축 weight 내재화**(verifier-DPO/RFT, C축 자기-emit은 LOCK死). **coworker 32B/72B는 ③ B축(decision-emission 스케일) 전용** — 단 ① cross-domain에 32B/72B를 같은 stack으로 태우면 "scaffold 전이 × 스케일" 매트릭스도 가능(공식 success 보고 필수). 인프라: 7도메인 ontology·도메인규칙·getter_map·task 전부 존재(induce 완료)=cross-domain authoring 0.
+
 > ### ★★★★★★★★★★ v1.40 (2026-06-05) — H3 offload 사다리 LIVE + ★지표 정정(공식 success) + 잔여 fix
 > **진입점 = [`../../scripts/distill/HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md`](../../scripts/distill/HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md) + [`../../scripts/distill/RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`](../../scripts/distill/RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md).** 이번 세션(Track A, 7B):
 > 1. **H3 decision-offload LIVE** (`check_permitted` 결정론 게이트 + active-H3) + 무재학습 사다리 **ARGFIX→VALFIX→KEEPTUPLE→DGGATE = BOTH(dg∧acc) 29** (실제 evaluator·회귀0; Guard-2 PASS). + **Fix1 LOGINFIRST**(login front-load)·**Fix2 LOGINCALL**(cred-absent login-call).
