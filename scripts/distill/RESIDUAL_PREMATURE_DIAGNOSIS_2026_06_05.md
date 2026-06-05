@@ -89,6 +89,17 @@ gate/active-H3가 **login_user를 login-gated getter/admin-auth보다 먼저** d
 - **AUGMENT_CRED는 계정 DB의 login 비밀번호(identification)를 user_known에 주입**(`apply_two_stage_patch.py` Edit D). cred-absent 태스크가 통과하면 = 유저가 못 받은 비밀번호 사용(= bug-report fix #2, 모델 능력 아님). admin_password는 미주입.
 - 처방 분리: cred-present 4 = login-first 순서구동(SOPBENCH_LOGINFIRST 후보). pay_loan ×2 = no-login 경로 라우팅(모델이 login-필요 getter 대신 no-login branch 선택). transfer 047d 등 PartB 6 = defect(천장 밖, 손대지 않음).
 
+## 9. ★Fix 1 ROLLOUT 결과 (LIVE, `offload_loginfirst.sh`, augment OFF 양쪽, A/B) — **검증 성공**
+| | BOTH | premature | deny |
+|---|---|---|---|
+| BASE (loginfirst off) | 29 | 11 | 8 |
+| **FIX1 (SOPBENCH_LOGINFIRST=1)** | **33** | 7 | 8 |
+- FLIP not→BOTH = **4** = set_safety_box×3 + pay_bill×1 = **정확히 cred-present 4**. REGRESSION = **0**. (augment-invariant identity 조인, `diag_ab_loginfirst.py`.)
+- **Fix 1 = login front-load이 cred-present 4를 BOTH로 flip 확정. BOTH 29→33.**
+- **★정정: augment는 BOTH에 영향 없었다.** BASE(augment OFF)도 29 = augmented 29. "augment가 047d 통과시킴→정직28" 주장 **철회**. 실제 = **gate가 구동하는 `internal_get_database`**(login의 OR-대안, DB 통독)가 cred-absent transfer 047d의 login-gated 경로를 충족 → augment 무관. (augment 끄는 건 무해 확인.)
+- **새 honest-ceiling 질문**: internal_get_database 구동(DB 비밀 접근, bench상 에이전트 도구 아님)으로 cred-absent defect(047d)가 통과하는 게 정당한가? 부당 시 honest BOTH = 33−1 = 32. → augment와 동류 문제, 사용자 판단 필요.
+- FIX1 잔여 premature 7 = 전부 cred-absent: get_loan×2·pay_bill×1·set_safety_box×2 (PartB defect 5) + pay_loan×2 (Fix 2 대상).
+
 ## 8. Fix 1 설계 확정 (`diag_fix1_order_test.py`, zero-cost) — **front-load 필수**
 evaluator는 func_calls를 **순서대로** 처리하고, getter가 login보다 먼저 호출되면 그 시점 prereq 미충족 → **dirgraph_satisfied 영구 False**(이후 복구 불가).
 - (a) front-load(login→getter→goal) = **통과**.
