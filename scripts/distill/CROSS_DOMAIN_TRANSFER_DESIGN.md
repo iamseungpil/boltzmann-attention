@@ -17,6 +17,14 @@
 - **swap (도메인별 입력)**: ABox = `induced/ontology_<domain>.json`(전 7도메인 이미 존재) + 벤치의 도메인 규칙(`domain_assistant_keys[domain]`: constraint_links/processes/default_dep — 전 7도메인 존재) + `getter_map[domain]`(전 7도메인 domain-keyed 존재) + task set(`data/<domain>_tasks.json`).
 - ⇒ **인프라 사전 확인됨(2026-06-05)**: 7도메인 전부 ontology·도메인규칙·getter_map·task 존재 → 새 authoring 0(induce 파이프라인이 이미 추출). 전이의 "사람 작업"도 낮음(ABox 자동추출분 사용).
 
+## §2.0 ★★타당성 교정 (2026-06-06, 사용자 지적) — held-out 도메인에서만 transfer 측정
+현 어댑터 `lodo_bank`는 **6 non-bank로 학습**(bank held-out). ⇒ **6 non-bank를 테스트하면 in-domain(어댑터가 본 도메인)=transfer 아님.** (초기 T-A가 6 학습도메인을 테스트한 것은 무효 — library 77%는 in-domain 수치, 과대.) **transfer는 held-out 도메인에서만**:
+- **유일 valid 기존 점 = bank**(어댑터 미관찰, held-out): bank stack honest 43.28% = 진짜 transfer 1점.
+- **6 학습도메인 런 = "scaffold 도메인-전반 기능 + login 일반화 작동" in-domain 체크로 강등**(transfer 헤드라인 아님; in-domain *상한* 참조로만 유용).
+- **추가 transfer 점 = held-out 어댑터 재학습 (둘 다 진행, 2026-06-06)**:
+  - **(1) LODO-per-target** (thesis-정합, 다중도메인 혼합 유지): 타깃 X held-out, 나머지 6 학습, X 테스트. X=library·healthcare (+bank 기존) → `xdomain_train.sh t1c_lodo_<X>`.
+  - **(2) train-1-test-6** (사용자 원안, 극저자원 transfer): 1 도메인 학습, 나머지 6 held-out 테스트. train=bank → `t1c_train1_bank`. ⚠️ thesis 설계는 다중도메인 혼합으로 *공통 절차스킬* 추출 → train-1은 학습다양성 부족으로 under-training과 transfer-실패 혼동 가능(해석 시 주의). LODO와 같은 test 도메인(library/healthcare)서 비교하면 다양성 효과 분리.
+
 ## §2. 두 테스트 (전이 강도별)
 ### T-A (primary, 재학습 0) — scaffold 도메인-일반성
 - 현 `lodo_bank` 어댑터 + bank-설계 scaffold(전 flag)를 **다른 6 도메인**(dmv·healthcare·hotel·library·online_market·university)에 ABox-swap, **재학습 0** 실행.
