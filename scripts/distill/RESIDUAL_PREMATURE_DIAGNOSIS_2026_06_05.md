@@ -63,9 +63,31 @@ gate/active-H3가 **login_user를 login-gated getter/admin-auth보다 먼저** d
 
 **진짜 모델-능력 타깃 = cred-present 4 (login-순서).** login-first fix는 augment 무관하게 이 4건을 올린다(22→26 가능).
 
-## 6. 미해결 (reliable 확정 필요, GPU 전 offline 가능)
-- pay_loan 92f3/81ba: `diag_payloan_nologin.py` 결과 **no-login 경로 전무**(cred-absent 불가) → bug report가 passable로 제외한 66/67과 **다른 인스턴스**. cred-absent unwinnable 정확수(bug-report 6 vs 본 측정 7+)는 released-model cross-check로 확정.
-- cred-absent BOTH 7건: no-login 경로 통과인지 augment-login 통과인지 offline 테스트 → unaugmented honest BOTH(22 vs 그 이상) 확정.
+## 6. ★★★확정 (released-model cross-check, bug-report 방법 B) — `diag_v9_crosscheck.py`
+> §5의 "cred-absent = 불가능" 가정과 §6 초안의 "9 unwinnable"은 **둘 다 부정확**. released 53파일 cross-check로 확정.
+
+**14 cred-absent의 정확한 분해** (released 모델 통과수):
+| goal | sig | released pass | 판정 |
+|---|---|---|---|
+| get_loan ×2 | 1e6a5b, afcfdb | 0/43 | **진짜 defect** |
+| pay_bill | 6058 | 0/43 | **진짜 defect** |
+| set_safety_box ×2 | 48e46, 3b48 | 0/43 | **진짜 defect** |
+| transfer | 047d | 0/43 | **진짜 defect** |
+| pay_loan ×2 | 92f3, 81ba | 1/44, 2/43 | 통과가능(defect 아님) |
+| transfer | fc3ed | 23/43 | 통과가능 |
+| apply_credit_card ×2, deposit, exchange ×2 | | (no-login) | 통과가능 |
+
+→ **진짜 PartB defect = 정확히 6** (get_loan×2, pay_bill, set_safety_box×2, transfer 047d) = **bug-report Part B와 정확히 일치. honest 천장 34 확정.**
+→ 나머지 8 cred-absent은 **no-login OR 경로로 통과가능**(cred-absent ≠ 불가능). 그래서 14≠6.
+
+**제 offline no-login 테스트(`diag_v8`/`diag_payloan_nologin`)는 unreliable**: 모델이 실제 쓴 login-필요 getter만 시도→pay_loan/transfer fc3ed의 진짜 no-login 경로 못 찾고 false-"unwinnable". **released cross-check가 권위.** (메타: offline 예측은 run/cross-check로 확정.)
+
+## 7. ★확정된 정직 회계 (이 표가 최종)
+- **honest 천장 = 34** (48 − PartA 8 − PartB 6). "40"·"9 defect" 철회.
+- **honest BOTH = 28/34** (보고 29 중 transfer 047d 1건은 PartB defect인데 AUGMENT_CRED가 비밀번호 줘서만 통과=released 0/43 → 정직지표서 제외).
+- **진짜 fixable 잔여 = 6**: cred-present 4 (pay_bill fbaa·set_safety_box×3 = login-순서) + pay_loan 92f3/81ba (no-login 경로를 모델이 못 찾음). 검산 28+6=34 ✓.
+- **AUGMENT_CRED는 계정 DB의 login 비밀번호(identification)를 user_known에 주입**(`apply_two_stage_patch.py` Edit D). cred-absent 태스크가 통과하면 = 유저가 못 받은 비밀번호 사용(= bug-report fix #2, 모델 능력 아님). admin_password는 미주입.
+- 처방 분리: cred-present 4 = login-first 순서구동(SOPBENCH_LOGINFIRST 후보). pay_loan ×2 = no-login 경로 라우팅(모델이 login-필요 getter 대신 no-login branch 선택). transfer 047d 등 PartB 6 = defect(천장 밖, 손대지 않음).
 
 ## 스크립트 (전부 repo `scripts/distill/sopbench/`)
 - `diag_residual5.py` — census + offload-log task_sig 조인
