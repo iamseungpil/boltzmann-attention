@@ -17,6 +17,7 @@
   1. **LODO 전이** (6도메인 학습 → held-out bank, ABox swap, **재학습 0**) — 1급 결과.
   2. **should_T = dirgraph+ ∩ goal+ 동시충족** (BOTH). ⚠️**총 Mean Pass Rate는 거부로 부풀려져 헤드라인 금지**(s1 0.605=거부 degenerate 함정).
   3. **should_F gross** gain/loss(net 금지).
+  - **★★지표 정정 (2026-06-05) — 리더보드/논문 비교는 공식 `success`로만**: 리더보드 헤드라인 = **공식 `success` pass rate %, 전체 134(should_T48+should_F86), tool_full**(`evaluator.py:277` = ntce∧cnv∧dbm∧acalled∧dg). 검증=오픈소스 전모델 README값=재계산 정확일치. **프로젝트 내부지표 BOTH(dg∧acc, should_T만)는 공식 success를 8~12 과대계상**(goal-call looping이 cnv/dbm 깨도 dg∧acc 통과; should_F 미포함) → **BOTH는 내부 진단용, 리더보드/논문 표는 공식 success로만**. 우리 공식 success: base 29.85%(40/134)→loginfirst 37.31%→logincall 40.30%(54/134); base Qwen2.5-7B 3.73~5.22% → tbox_v2 40.30%(Llama70B 42.54% 근접). 상세 = [`LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`](LEADERBOARD_METRIC_GROUNDING_2026_06_05.md).
 - **평가 세팅**: 현재 정적-user(`default_response` 덤프, leaderboard 정합). **멀티턴 user_sim**(`--user_model`)은 더 어려운 robustness 축(천장 불변 — user_sim도 user_known만 앎; PartB cred-부재 해소 안 됨).
 - **ablation(매 rung)**: 빈/틀린 ABox→붕괴(온톨로지 실사용) · L0 vs L1(in-context) vs L2(학습) · **alias on/off**.
 - **★★TBox/ABox 분리: 강제 메커니즘 + 증명 (transfer 주장의 근간)**: "TBox만 학습·ABox 제외"는 *하드 보장*이 아니라 **3기둥으로 강제 + 전이/ablation으로 증명**.
@@ -50,6 +51,12 @@
     - **★우리와 구분(한 줄)**: 이들은 *사실/엔티티 KG*를 build·retrieve(그래프=검색 인덱스). 우리는 **NL 정책→실행가능 *절차* 그래프(dirgraph)를 *모델이 emit*** (그래프=실행 절차·weight 내재화·ABox swap 전이). RoG(구조 emit)·LLM Wiki(사전컴파일)가 인접하나 **절차 컴파일 + 학습 전이**가 우리 고유.
 
 ## §2. 현재 진단 (어디까지 왔나)
+> ★★★**최신 (2026-06-05) — 진입점 = [`HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md`](HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md)** + 잔여 진단 [`RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`](RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md). **H3 decision-offload LIVE → 무재학습 fix 사다리 → 지표 정정.**
+> - **H3 offload(`check_permitted` 결정론 게이트) + active-H3(게이트가 미충족 prereq 구동)** = BOTH(dg∧acc) 6→15. 이후 무재학습 사다리: **ARGFIX(+6)→VALFIX(+2)→KEEPTUPLE(+3)→DGGATE(+3) = BOTH 29** (전부 실제 evaluator·회귀0·박제; Guard-2 PASS=재구성 dirgraph==evaluator). 상세 = 위 PM 핸드오프 + [`GUARD2_DIRGRAPH_MIRROR_DESIGN.md`](GUARD2_DIRGRAPH_MIRROR_DESIGN.md)·[`RESIDUAL11_FIX_DESIGN.md`](RESIDUAL11_FIX_DESIGN.md).
+> - **잔여 premature 근본원인 = login_user가 login-gated getter보다 먼저 establish 안 됨**(evaluator dirgraph는 in-order; out-of-order getter는 dirgraph 영구 실패). **Fix 1 LOGINFIRST**(login front-load, cred-present 4) + **Fix 2 LOGINCALL**(cred-absent에 login 호출 구동; dirgraph는 auth-성공 아닌 call-order만 봄, released qwen2.5-7b 동일) 구현·LIVE.
+> - **★★지표 정정 (CRITICAL)**: 프로젝트 BOTH(dg∧acc)는 **공식 success를 8~12 과대계상**. 공식 success(리더보드 기준, 134, tool_full)로 재측정: **base 29.85%→Fix1 37.31%→Fix2 40.30%(54/134)**. Fix2의 BOTH 33→40(+7)은 **대부분 허상**(공식 +3). **진짜 잔여 지배 블로커 = goal-call LOOPING**(BOTH-but-not-full 12개 전부 goal 5-9회 반복→cnv/dbm/ntce 실패) → **Fix 3 = STOP-after-success**(should_T full_success 최대레버). 상세 = [`LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`](LEADERBOARD_METRIC_GROUNDING_2026_06_05.md)·[`INTERNAL_GET_DATABASE_GROUNDING_2026_06_05.md`](INTERNAL_GET_DATABASE_GROUNDING_2026_06_05.md)(누수경로 검증: internal_get_database=offered 아님·우리 fc 0회·무관).
+> - **천장 재정리**: PartA 8(credit_card 코드버그)=불가. PartB(cred-absent+강제login)는 BOTH 기준 login-call로 통과되나(bug-report "unwinnable" 반증) 공식 success 기준은 login 실패→cnv/dbm 실패. **profile skew: should_T 강(58%)·should_F 약(30%, 거부축 개선=전체% 레버)**. 아래 06-04 이하 블록은 사다리 이전 진단(역사·유효 근거).
+>
 > ★**최신 전환 (2026-06-04) — 진입점 = [`RUNG1_SOURCE_LADDER_DESIGN.md`](RUNG1_SOURCE_LADDER_DESIGN.md)**. **트리평가-*형식* 라인(단일식·inductive·depth-recurrence) 전부 NULL/비-문제로 종결.** 근거: ①`Exp-4-rung1-v3-AB` "회귀"는 planner max_tokens=24 **truncation 아티팩트**(전수조사), 무재학습 maxtok=1024 재시험 → BOTH 2→5 = **control과 동(무개선)**. ②`Exp-4-rung1-v3ind`(inductive reduction 체인) = **NULL, 단일식보다 나쁨**(BOTH 3<4<5). **★전 궤적 전수조사 근본원인 = 구조 fabrication**(한 agent가 구조추론+실행 동시 → 실제보다 큰 트리 환각, pay_bill 10op/실제3, STOP chain 17/17 fabricate된 `=false`) + **over-gather**(step cap까지). **★조건수별 BOTH = 균일 바닥(1조건도 0) → serial-depth/조건수는 병목 아님**(depth-recurrence/트리평가-깊이는 비-문제). ③deep-research×2(AND/OR 트리평가·depth-recurrence)·CDP/OISA 현장분석(도구폭발·동음이의어·source=1=배포현실)로 방향 확정. **→ 병목 = gather/결정 정책 + 모델이 구조를 *추론/emit*하게 둔 것. 처방 = 구조를 *제공*(source 사다리)하고 *구조추론을 전문 agent로 분리*(2-agent = 단일base+2LoRA, §3.10)·gather-종료(T1c)·거부편향(DPO). 트리-emit 폐기.** 상세·실행순서=새 설계서 §12-13.
 > ★**진척 (2026-06-04 PM)**: ①**`Exp-4-rung1-upperbound`(Agent2@oracle)**: 구조 제공(source=1, C) BOTH **3 = A(s3)** = 구조만으론 BOTH 무개선. 단 게더↑(dirgraph 29→34)·STOP 40→**49%**. **전수조사: gathered_then_REFUSE C 29**(완전게더 후 permitted 콜드붕괴) = 병목은 *결정*(리뷰 A2 적중). ②**★slot-fix**(`_add_req` dedup 키에 args 포함): 같은-pred-다른-args leaf(transfer_funds source+destination username) 누락 버그 수정 → teacher 천장 **34→42**(transfer_funds 8 회복; fallback 14→6=순수 bench-defect). 진단: transfer 8 전부 dirgraph 1회 게더로 충족 → eval realize. ③**`Exp-4-rung1-T1c`**(grounded-permitted @ source=1 = **treeval@s1**+slot-fix; v3 실패=source=3 fabrication, s1이 차단) **학습 중**(s1+s3 slot-fixed 병렬). 사전등록: 성공 BOTH≥12·천장 42. 진입점 = [`RUNG1_T1C_DESIGN.md`](RUNG1_T1C_DESIGN.md).
 > ★★**논문 축 재정렬 (2026-06-04 PM, 박제) — "robust gather 스케일-임계" + 결정 offload**: `Exp-4-rung1-T1c` NULL(grounded-permitted@s1 BOTH 1<3) + LOCK(결정-emission SFT 3-NULL 종결) + **게이트 진단**(login=False ~19/48; ~~"16=credential 진짜부재"~~ → **0a(2026-06-04)로 정정**: 아래 ⊛ 참조) → 데이터가 가리키는 **깨끗한 논문 헤드라인 = 두 축 분리**:
@@ -251,8 +258,13 @@
 | `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 전체 스펙·planner L0/L1/L2·§9 LLM-in-loop·prior art | detail (개념 원본) |
 | `TASK_CONSTRAINT_DESIGN.md` | should_T 병목 진단·게이트·§8.6 전수진단·§8.7 사다리 상세 | detail (Rung1-2 상세) |
 | `GRPO_REWARD_DESIGN.md` | RFT reward 함수·GRPO 루프(Rung2 상세) | detail |
-| **`RUNG1_SOURCE_LADDER_DESIGN.md`** | **★현재 진입점**: source 사다리(s3→budget→s1)·**2-agent(구조추론+실행=2 LoRA, §12)**·upper-bound-first·버그수정·다음세션 순서 | ★**활성 진입점** (§2·§3.10 구체화) |
-| **`RUNG1_T1C_DESIGN.md`** | **★다음 실험**: grounded-permitted @ source=1 (treeval@s1)+결정레버 — upperbound census(gathered_then_REFUSE 29) 처방 | ★활성 (next exp) |
+| **`HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md`** | **★현재 진입점**: H3 offload + ARGFIX→VALFIX→KEEPTUPLE→DGGATE 사다리(BOTH 29)·인프라 레시피 | ★**활성 진입점** |
+| **`RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`** | **★잔여 진단**: login-순서 근본원인·Fix1 LOGINFIRST·Fix2 LOGINCALL·looping→Fix3·cred/PartB 재분류 | ★활성 (다음 실험) |
+| **`LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`** | **★지표 권위**: 리더보드=공식 success(134,tool_full) 확정·BOTH 비교불가·우리 40.30% | ★활성 (지표 근거) |
+| `INTERNAL_GET_DATABASE_GROUNDING_2026_06_05.md` | internal_get_database=offered 아님·react 누수·우리 fc 0회 무관 | 참조 (근거) |
+| `GUARD2_DIRGRAPH_MIRROR_DESIGN.md` · `RESIDUAL11_FIX_DESIGN.md` | DGGATE 재구성 Guard-2(PASS)·4 BLOCKING 가드 설계 | detail (DGGATE 근거) |
+| `HANDOFF_2026_06_05_h3_offload_paper_grounded.md` | H3 offload LIVE·논문-근거 정책 결론(§6.5 일반화·§7 reliability만 유효) | detail (역사·일부유효) |
+| `RUNG1_SOURCE_LADDER_DESIGN.md` · `RUNG1_T1C_DESIGN.md` · `RUNG1_REDESIGN_2026_06_04.md` | 06-04 source-ladder·T1c·재설계(사전등록·leave-one-out) | detail (역사·근거) |
 | `RUNG1_V3_INDUCTIVE_DESIGN.md` | inductive reduction-chain 설계(treeval_reduce) — **NULL 판정(Exp-4-rung1-v3ind)** | detail (종결·역사) |
 | `RUNG1_IMPL_HANDOFF_2026_06_02.md` | T1(login-uniform)·T2(종료) teacher 구현 핸드오프 | detail (Rung1 구현) |
 | `RUNG1_V3_TREE_EVAL_LITREVIEW.md` | grounded 트리평가+derivation 학습 — 적대검증 선행연구(§8 AND/OR 트리평가 재탐색) | detail (§3.10 근거) |

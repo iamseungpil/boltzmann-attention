@@ -2,8 +2,10 @@
 
 > **이 문서가 SOPBench 실험의 유일한 결과 기록 문서다.** 가설·결과·해석·다음 스텝을 누적 기록.
 > coworker와 공유: branch `facet-rft-2026`, `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.
-> 설계 권위본 = `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md §9`.
+> 설계 권위본(마스터) = `scripts/distill/EXPERIMENT_DESIGN.md`. (구: `WORKFLOW_ONTOLOGY_DESIGN.md §9`.)
 > 코워커 실험 계획 = `reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md`.
+> ★**최신 진입점 (2026-06-05)** = `scripts/distill/HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md`(H3 offload+ARGFIX→DGGATE 사다리 BOTH 29) · `RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`(login-순서·Fix1/2·looping→Fix3) · `LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`(★리더보드=공식 success; 우리 40.30%/134) · `INTERNAL_GET_DATABASE_GROUNDING_2026_06_05.md`.
+> ⚠️ **지표 주의**: 본 문서 누적 "BOTH(dg∧acc, should_T)"는 **공식 success(pass@1, 표 참조)를 8~12 과대계상**(2026-06-05 규명). 리더보드/논문 비교는 **공식 success**로만.
 
 ---
 
