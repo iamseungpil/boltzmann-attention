@@ -29,7 +29,7 @@ for fp in sorted(glob.glob("/home/woori/scratch/SOPBench/output/bank/ast_*.json"
     print(f"{name:<58}{pct:>6.2f}%{('('+str(s)+'/'+str(n)+')'):>11}{(str(sT)+'/'+str(nT)):>10}{(str(sF)+'/'+str(nF)):>10}")
 
 print("\n=== OUR runs (same official-success basis) ===")
-for nm,fp in [("base_noaug","eval_t1c_base_noaug"),("l1(loginfirst)","eval_t1c_l1"),("logincall","eval_t1c_logincall"),("s0(fullstack)","eval_t1c_s0"),("stopsuccess(S1)","eval_t1c_stopsuccess"),("dggate(aug)","eval_t1c_dggate")]:
+for nm,fp in [("base_noaug","eval_t1c_base_noaug"),("l1(loginfirst)","eval_t1c_l1"),("logincall","eval_t1c_logincall"),("s0(fullstack)","eval_t1c_s0"),("stopsuccess(S1)","eval_t1c_stopsuccess"),("headline(LOGINCALLoff)","eval_t1c_headline"),("dggate(aug)","eval_t1c_dggate")]:
     p=f"/home/woori/scratch/sft_alias_run/{fp}/bank/ast_tbox_v2-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json"
     r=passrate(p)
     if not r: print(f"  {nm}: NA"); continue
