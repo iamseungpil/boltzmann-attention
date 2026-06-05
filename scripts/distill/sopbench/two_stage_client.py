@@ -341,6 +341,13 @@ class TwoStageClient:
         # General rule (no domain branch): no-getter + params-resolved => COMPUTE directly (not oracle:
         # no per-account DB field is read; only request params + domain constants). Off by default.
         self._valfix = bool(os.environ.get("SOPBENCH_VALFIX"))
+        # DGGATE (Cause-1, GUARD2 PASS): gate on the full task directed_action_graph (reconstructed
+        # Option-A from constraints_original+domain rules, Guard-2 verified == evaluator, OVER=0) so the
+        # model establishes login/admin/balance BEFORE acting (premature fix). active-H3 drives missing
+        # prereqs from user_known creds (Guard-4: all creds available -> loop-free). Off by default.
+        self._dggate = bool(os.environ.get("SOPBENCH_DGGATE"))
+        self._dg_cache = None            # (constraint_links, constraint_processes, default_dep, action_params)
+        self._task_constraints_original = None
         self._task_sig = None       # content-based task id for offload-log<->eval join (set in reset)
         self._force_call = None     # ARGFIX: (tool, args) to drive deterministically next _resolve
         self._active_driven = set()
@@ -376,7 +383,7 @@ class TwoStageClient:
         self.cov_deterministic = 0
 
     def reset(self, task_constraints=None, goal=None, task_db=None,
-              constraint_params=None, domain=None, user_known=None):
+              constraint_params=None, domain=None, user_known=None, constraints_original=None):
         """Call once per task before the interaction. `task_constraints`/`goal` feed mechanism A
         (SOPBENCH_LIGHTEN) and H3 offload. `task_db`/`constraint_params`/`domain`/`user_known`
         (H3 offload only) let check_permitted COMPUTE policy conditions via the bench domain system
@@ -386,6 +393,7 @@ class TwoStageClient:
         self._slot_state = {}
         self._turn = 0
         self._task_constraints = task_constraints
+        self._task_constraints_original = constraints_original   # DGGATE: graph reconstruction (Guard-2)
         self._goal_name = goal
         self._task_db = task_db
         self._constraint_params = constraint_params
@@ -783,6 +791,19 @@ class TwoStageClient:
                 "argmismatch": [f"{b}:{t}" for b, t in ev.argmismatch],
                 "argmismatch_args": [{"tool": t, "args": a} for t, a in ev.argmismatch_fp],
                 "false": [b for b, _ in ev.false_leaves]}
+        # Cause-1 DGGATE: also require the full task dirgraph prereqs (Guard-2 validated, OVER=0 -> no
+        # over-deny of current-BOTH). Missing prereqs -> ungathered (active-H3 drives w/ user_known creds).
+        if self._dggate and self._goal_name and permitted is not None:
+            dg_ok, dg_missing = self._dggate_check(self._goal_name, called, kw)
+            if not dg_ok:
+                for mt, ma in dg_missing:
+                    tag = f"dirgraph:{mt}"
+                    if tag not in info["ungathered"]:
+                        info["ungathered"].append(tag)
+                        if ma:
+                            info["argmismatch_args"].append({"tool": mt, "args": ma})
+                info["n_ungathered"] = len(info["ungathered"])
+                permitted = False
         if permitted is None:
             return ("STOP", "eval_error", info)
         if permitted:
@@ -796,6 +817,86 @@ class TwoStageClient:
         else:
             reason = "ungathered"
         return ("STOP", reason, info)
+
+    def _dggate_check(self, goal, called, kw):
+        """Cause-1 (SOPBENCH_DGGATE): mirror evaluator dirgraph_satisfied via the Guard-2-validated
+        reconstructed graph (Option A: constraints_original + domain rules, opt=full -> OVER=0 UNDER=0).
+        Returns (dg_ok, missing) where missing=[(action,args),...] = ungathered prereq actions to drive.
+        Order-correct by construction: the gate runs BEFORE the goal, so 'gathered so far' = before-goal."""
+        try:
+            from env.variables import domain_assistant_keys, domain_keys
+            from env.helpers import (dfsgather_invfunccalldirgraph, get_ifg_connections_invnodes,
+                                     gather_action_default_dependencies, get_action_parameters)
+        except Exception:
+            return (True, [])
+        dom = self._domain or "bank"
+        if self._dg_cache is None:
+            try:
+                da = domain_assistant_keys[dom]; ds = domain_keys[dom]()
+                add = gather_action_default_dependencies(
+                    da.action_required_dependencies, da.action_customizable_dependencies,
+                    default_dependency_option="full")
+                self._dg_cache = (da.constraint_links, da.constraint_processes, add,
+                                  get_action_parameters(ds, da))
+            except Exception:
+                return (True, [])
+        cl, cp, add, ap = self._dg_cache
+        cons_orig = self._task_constraints_original
+        if cons_orig is None or goal not in ap:
+            return (True, [])
+        try:
+            g = dfsgather_invfunccalldirgraph(cons_orig, cl, cp, add, ap, (goal, {k: k for k in ap[goal]}))
+            nodes = g["nodes"]; conns, _ = get_ifg_connections_invnodes(g)
+        except Exception:
+            return (True, [])
+        def hz(x):
+            if isinstance(x, (list, tuple)): return tuple(hz(v) for v in x)
+            if isinstance(x, dict): return json.dumps(x, sort_keys=True)
+            return x
+        sfc = {}
+        for fn, al in called.items():
+            for a in al:
+                if fn not in sfc: sfc[fn] = [tuple(sorted(a.keys())), set()]
+                sfc[fn][1].add(tuple(hz(a.get(k)) for k in sfc[fn][0]))
+        gp = nodes[0][1]; pm = {gp[k]: kw.get(k) for k in gp}
+        tool_set = set(self.abox.get("operators", {})) if self.abox else set()
+        def chk(ni):
+            n = nodes[ni]
+            if not isinstance(n, str):
+                fname, fparams = n
+                if fname not in sfc: return False
+                kk = sfc[fname][0]
+                exp = tuple(hz(pm[fparams[key]]) if (key in fparams and fparams[key] in pm) else None
+                            for key in kk)
+                if exp in sfc[fname][1]: return True
+                for pfpv in sfc[fname][1]:
+                    if all(exp[i] is None or exp[i] == pfpv[i] for i in range(len(pfpv))): return True
+                return False
+            andn = (n == "and")
+            return all(chk(c) for c in conns[ni]) if andn else any(chk(c) for c in conns[ni])
+        missing = []
+        def collect(ni):
+            n = nodes[ni]
+            if not isinstance(n, str):
+                if not chk(ni):
+                    fname, fparams = n
+                    if fname in tool_set:
+                        args = {k: pm.get(fparams[k]) for k in fparams if pm.get(fparams[k]) is not None}
+                        if (fname, args) not in missing: missing.append((fname, args))
+                return
+            if n == "and":
+                for c in conns[ni]:
+                    if not chk(c): collect(c)
+            else:  # or/gate: one satisfied branch suffices -> drive the first branch yielding a drivable leaf
+                for c in conns[ni]:
+                    before = len(missing); collect(c)
+                    if len(missing) > before: break
+        prereqs = conns[0] if conns else []
+        dg_ok = all(chk(p) for p in prereqs) if prereqs else True
+        if not dg_ok:
+            for p in prereqs:
+                if not chk(p): collect(p)
+        return (dg_ok, missing)
 
     # ------------------------------------------------------------------
     # STEP 2 — Resolver: action + concrete spec + slot state -> tool call
