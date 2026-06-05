@@ -45,7 +45,17 @@ if isinstance(raw_result, tuple): raw_result = raw_result[1]   # success-bool �
 - **⚠️BLOCKING — 전 48 재census**: strip이 asc를 **ALL 태스크에서** 억눌렀다면 현 baseline 23이 **undercount**일 수 있음(현 23은 strip에도 asc 인식된 케이스). 고친 뒤 **23 불변 ∧ 정확히 +3**인지 확인 — 아니면 census 전체 이동. **이게 Cause 2를 먼저 두는 진짜 이유 = 측정축 먼저 고정.**
 - **예상**: exchange 2 + get_account_owed 1 = **+3** (dirgraph 이미 True라 asc만 켜지면 BOTH) — 단 재census로 검증.
 
-## Cause 3 — active-drive 완전성 (transfer 1)
+## ✅ 진행 현황 (2026-06-05 PM)
+- **Cause 2 = DONE**: KEEPTUPLE → BOTH 23→26 (+3 isolated, 회귀 0, BLOCKING 재census 통과). 누적 **26/34 (76%)**, 잔여 8.
+- **Guard-4 (creds 가용성) PASSED**: fixable 8(premature 7 + transfer DENY 1) **전부 creds-OK**(login id 항상·admin_password는 set_safety_box 3+transfer 2에 존재) → **+8 잠재 = 천장 34 도달가능**.
+- **Cause 3 재진단 (folded into Cause 1)**: transfer DENY는 "drive-all"이 아니라 **false-leaf stall + step-cap**(offload trace: turn3 admin auth 구동 후 turn4-9 reason="false"로 active-H3가 구동 못 함→모델 루프, turn10 balance 도달했으나 cap). false leaf = establishing action(admin/login)이 게더됐으나 False. ⇒ **Cause-1의 full-dirgraph establishment 재확립으로 흡수**(별도 drive-all 런 불필요).
+
+## Cause 1 (정밀화) — gate = sampled policy ∪ establishing leaves (NOT policy superset)
+**리뷰 반영 + Cause-3 흡수**: 게이트가 평가할 것 = **sampled `task["constraints"]`(정책축, 현행 유지) ∪ task가 요구하는 establishing/state leaves**(login_user→logged_in_user · authenticate_admin_password→authenticated_admin_password · balance-getter). establishing leaves는 `get_default_dep_full[goal]`에서 **establishable/state-pred만 필터**(정책조건 credit_score 등은 제외 = dep_full 정책 superset over-deny 회피). active-H3가 그 establishing을 user_known creds로 구동(false-stall 해소: false establishable이면 올바른 creds로 재확립).
+- **⚠️Guard-2 (BLOCKING, 미완)**: establishing-filter가 evaluator dirgraph와 leaf-동일한지 ≥3 task(현-BOTH 포함) 단위검증 — 구현 전 필수. evaluator dirgraph_satisfied 정확 메커니즘(graph traversal order-check) 확인 후 mirror.
+- Option A(dep+constraints서 재구성), B(directed_action_graph read=oracle) 금지.
+
+## Cause 3 (구舊) — active-drive 완전성 (transfer 1) — Cause 1에 흡수됨
 **진단**: transfer ungathered `sufficient_account_balance`(getter get_account_balance). active-H3는 turn당 1 evidence만 구동(`two_stage_client.py` active block) → step cap(10) 전 모든 누락 evidence 미도달.
 **수정안**: active-H3가 한 turn에 **다중 evidence 구동**(또는 큐 소진까지). **⚠️dirgraph-required leaf로 한정**(게이트 deny 분해의 `ungathered`/`argmismatch`만) → **over-call 병리 방지**(리뷰 caveat). 현 설계(게이트 산출 큐만 구동)면 안전.
 - **일반성**: 일반(driving 완전성).
