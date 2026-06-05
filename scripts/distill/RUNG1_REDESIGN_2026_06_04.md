@@ -166,4 +166,15 @@
 **② teacher-trace census (coverage-gap vs model-skip)** — `build_tbox_planner_sft.py:282-288` branch 재현(올바른 available tool_names): teacher required-set이 balance 조건을 **branch B(getter_map→get_account_balance)로 GATHERS**(safety_box_eligible·sufficient_account_balance·pay_loan_*_restr 전부; argonly 미게더는 max_deposit/exchange 3건뿐). ⇒ **MODEL-SKIP, coverage gap 아님**: teacher 시범하는데 모델 스킵 = **게더도 SFT-positive 저항**(decision축과 동일 실패모드) = 리뷰어 통합가설 지지. **둘 다 RFT/음성신호 필요.** ⚠️caveat: alias 반-암기(train≠eval salt)로 eval서 의미매칭 실패 가능성 — 단 credit getter는 over-gather·balance만 스킵 = *선택적* → content-bias/SFT-limit 쪽; non-alias 1회로 완전분리.
 - ⚠️신뢰성: 이 진단서 observed-called를 available-tool로 착각 2회 + string-search aliasing 아티팩트 자가검출, 올바른 dss 빌드로 정정.
 
+### §10.2 passive-H3 LIVE rollout (2026-06-05) — BOTH=6, 전수 census로 진짜 원인 규명
+**런**: T1c 어댑터 + `SOPBENCH_OFFLOAD=1`+`AUGMENT_CRED=1` (alias ON, source1). ⚠️1차 BOTH=0 = **wiring 버그**(check_permitted가 slot_state서 username 못 찾아 args_unresolvable·전부 deny) → 수정(user_known을 reset으로 전달)·offline 재검증(ACT10/ung22/argm8, unresolvable 0)·재런.
+**라이브 결과 (should_T 48)**: model ACTED **19** (vs T1c-emit ~3 = offload가 ACT 3→19 lift·decision축 relieve 라이브 확증) · goal-실행성공 **16**(사전등록 10–15 범위) · **BOTH 6** · 누출 없음(6·19 ≪ 34, augment가 truth 안 흘림 — identification만 46/48 surfaced).
+**★전수 census — BOTH=6 진짜 원인 (실제 evaluator leave-one-IN)**: 48 = BOTH **6** / DENY(미act) **29** / acted-success-**dirgraphFALSE 10** / acted-goalFALSE **3**.
+- **원인① (DENY 29 중 ~24)**: 이들 대부분 **`dirgraph_satisfied=True`인데 게이트가 deny** → goal 미호출 → not BOTH. 게이트가 condition getter(**get_account_balance**) 미게더로 deny-by-ungathered. **act만 했으면 BOTH**(dirgraph 이미 충족). 게이트는 *충실*(verify 불가→deny)·모델 gather 결핍이 원인.
+- **원인② (dirgraphFALSE 10 중 8)**: set_safety_box 8 = 게이트 permit·goal 성공했으나 dirgraph가 **internal_get_database** 요구(미호출). leave-one-IN: +DB→dirgraph flip **8/8**. 잔여 2(close_account·set_account_info)=DB 무관 별개.
+- **3 acted-goalFALSE**: cancel_cc(Part A defect)·exchange·get_account_owed.
+- **= 둘 다 모델 gather-타겟팅 결핍**(get_account_balance·internal_get_database 스킵, =§10.1 model-skip). DENY 29 중 ~25가 `dirgraph_satisfied=True`(게더-그래프 충족, gate만 막음).
+**★BOTH 처방 = active-H3 (게이트가 누락 게더 구동)**: 게이트가 ungathered leaf를 알므로(info) passive STOP 대신 ①condition getter 구동(get_account_balance)→verify→permit→act ②dirgraph 노드(internal_get_database) 구동→dirgraph 충족. active-H3 = 배포레버가 아니라 **BOTH의 직접 solver**. ⚠️**정확한 상승폭은 live active-H3 run으로만 측정**(offline forced-ACT는 append-goal이 goal의 dirgraph 선행조건 재검사를 유발 = §8 artifact라 잠재치 offline 추정 금지). 단 paper framing은 gate-driven 명시(axis-A 아님).
+**잔여 진단**: augment가 identification 46/48 surface했으나 login=True 30 정체 = login arg-binding 18실패(surfaced cred 미사용/dict-id) = slot축 별개.
+
 **★ordering 정정 (active-H3 먼저 철회)**: (1) zero-cost 진단 2개=완료 → (2) **credential-augment + passive-H3 live rollout**(구현됨; 정직 베이스라인=모델 자율게더∧완벽결정; augment ≤9 전환; offline deny-by-unknown 라이브 확인; 대조 T1c-emit 1/C-none 3) → (3) **active-H3**(gate-DRIVEN gather=배포/LLM-Modulo 증명, axis-A 아님; passive 후라야 자율게더 vs gate-driver 분리). **active-H3 성공=모델이 자율 게더 못 함의 증거라 axis-A와 긴장 — 헤드라인으로 쓰지 말 것.**
