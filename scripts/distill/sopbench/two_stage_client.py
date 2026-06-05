@@ -329,6 +329,7 @@ class TwoStageClient:
         # ungathered condition getter (so it can verify->permit) AND internal_get_database (the
         # dirgraph DB-read, not a constraint leaf). No retrain. Loop-guarded by _active_driven.
         self._offload_active = bool(os.environ.get("SOPBENCH_OFFLOAD_ACTIVE"))
+        self._task_sig = None       # content-based task id for offload-log<->eval join (set in reset)
         self._active_driven = set()
         self._task_db = None            # H3: this task's initial_database (for evidence-gated bench compute)
         self._constraint_params = None  # this task's constraint_parameters (thresholds)
@@ -376,6 +377,11 @@ class TwoStageClient:
         self._task_db = task_db
         self._constraint_params = constraint_params
         self._task_user_known = dict(user_known) if user_known else {}
+        # content-based task signature for RELIABLE offload-log <-> eval-JSON join (no index/order;
+        # eval JSON recomputes the same hash from task[constraints/user_known/user_goal]). 2026-06-05.
+        import hashlib as _hl
+        self._task_sig = _hl.md5(json.dumps(
+            [goal, task_constraints, user_known], sort_keys=True, default=str).encode()).hexdigest()[:12]
         self._active_driven = set()    # active-H3: tools the gate has already driven this task
         if domain:
             self._domain = domain
@@ -552,6 +558,7 @@ class TwoStageClient:
                 try:
                     with open(self._offload_log, "a", encoding="utf-8") as _f:
                         _f.write(json.dumps({"turn": self._turn, "goal": self._goal_name,
+                                             "task_sig": getattr(self, "_task_sig", None),
                                              "decision": dec, "reason": reason, **info}) + "\n")
                 except Exception:
                     pass
