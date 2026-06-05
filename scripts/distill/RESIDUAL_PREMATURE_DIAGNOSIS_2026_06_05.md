@@ -89,6 +89,14 @@ gate/active-H3가 **login_user를 login-gated getter/admin-auth보다 먼저** d
 - **AUGMENT_CRED는 계정 DB의 login 비밀번호(identification)를 user_known에 주입**(`apply_two_stage_patch.py` Edit D). cred-absent 태스크가 통과하면 = 유저가 못 받은 비밀번호 사용(= bug-report fix #2, 모델 능력 아님). admin_password는 미주입.
 - 처방 분리: cred-present 4 = login-first 순서구동(SOPBENCH_LOGINFIRST 후보). pay_loan ×2 = no-login 경로 라우팅(모델이 login-필요 getter 대신 no-login branch 선택). transfer 047d 등 PartB 6 = defect(천장 밖, 손대지 않음).
 
+## 8. Fix 1 설계 확정 (`diag_fix1_order_test.py`, zero-cost) — **front-load 필수**
+evaluator는 func_calls를 **순서대로** 처리하고, getter가 login보다 먼저 호출되면 그 시점 prereq 미충족 → **dirgraph_satisfied 영구 False**(이후 복구 불가).
+- (a) front-load(login→getter→goal) = **통과**.
+- (b) late-repair(getter→login→getter재구동→goal) = **실패** (dg 영구 False).
+⇒ **Fix 1은 login_user(+admin auth)를 모델의 첫 getter 호출 전에 front-load 구동해야 한다.** 현 active-H3의 "ACT 직전 internal_get_database 늦은 구동" 방식으론 안 됨. 구현=gate가 dirgraph상 login 요구 시 **첫 턴에** login_user 구동(user_known identification, cred-present=request param). flag SOPBENCH_LOGINFIRST.
+- ⚠️ **AUGMENT_CRED OFF 선결**: genuine 6 중 augment 필요한 것 없음(cred-present 4=비번 보유, pay_loan 2=no-login). augment 켜두면 transfer 047d(PartB defect)가 가짜통과→honest baseline 28 대신 29 보고. 끄면 회귀 없이 정직 28(rollout A/B 실측 확인).
+- ⚠️ **task_sig 충돌 주의**: c6454(set_safety_box jane)가 2 엔트리로 충돌(핸드오프 "충돌0"과 상충). 하나는 front-load해도 acc=False(goal 자체 실패, credit_score 700?). cred-present 4 = clean 3 + 충돌/이상 1 가능 → finer identity(+initial_database 해시)로 재확인 필요.
+
 ## 스크립트 (전부 repo `scripts/distill/sopbench/`)
 - `diag_residual5.py` — census + offload-log task_sig 조인
 - `diag_residual5_v3.py` — canonical bank_tasks.json 매칭 + call trace
