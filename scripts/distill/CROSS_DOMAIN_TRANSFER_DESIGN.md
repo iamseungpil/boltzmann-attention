@@ -1,6 +1,6 @@
 # Cross-Domain Transfer 설계서 — A축 scaffold 도메인 전이 (로드맵 1단계)
 
-> **상태: DRAFT — 리뷰 대기. 리뷰 통과 후 구현·실행.** 마스터 = `EXPERIMENT_DESIGN.md`.
+> **상태: 리뷰 1회 반영 (2026-06-06) — APPROVED w/ changes.** 반영: BLOCKING-1(통합 stack 정합·login 3중 compose-audit, cross-domain 前 bank 재실행 §5 B-5) + BLOCKING-2(★adapter-only 4열 대조로 scaffold Δ 격리 §6) + S1(VALFIX oracle-정당성 §4.2) + S2(login-arg unit-verify §4.3) + S3(바=리더보드-상대 격상 §6). 첫 게이트 = §4 audit(6도메인 Guard-2 재구성, zero-cost) — 다음 실행. 마스터 = `EXPERIMENT_DESIGN.md`. (coworker plan = `../../reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md`.)
 > **로드맵 위치**: ① **cross-domain(본 문서) = A축 전이 입증** → ② should_F(거부축) = A축 논문 완성 → ③ B축 weight 내재화.
 > 메타규칙: 강한 주장 reliable test 후 박제 · GPU 전 zero-cost 사전점검 · 공식 success(리더보드 지표)로만 보고 · scaffold 도메인-하드코딩 금지.
 
@@ -36,8 +36,8 @@
 ## §4. ★zero-cost 사전점검 (GPU 전 필수 — 도메인-readiness audit)
 각 타깃 도메인에 대해 **GPU 런 전** 다음을 offline 확인(`diag_xdomain_audit.py`). 하나라도 실패하면 해당 도메인은 scaffold가 그대로는 안 도는 것 → 정직 범위로 분리/표기(per-domain 하드코딩 금지).
 1. **DGGATE Guard-2 재구성 == evaluator** (도메인별 `dfsgather_invfunccalldirgraph(constraints_original,...,opt=full)` vs `task["directed_action_graph"]`, **OVER=0 ∧ UNDER=0**). = DGGATE가 도메인 일반인지 단위검증(bank서 PASS였던 그 검사를 6도메인 확장).
-2. **getter_map[domain] 커버리지**: VALFIX/조건 leaf의 getter route 존재율. 없으면 VALFIX no_evidence_route 과잉-deny 가능 → 표기.
-3. **LOGINFIRST/LOGINCALL 적용성**: 도메인 login_user의 **credential arg 이름**이 bank의 `identification`과 같은가? (다르면 LOGINFIRST 하드코딩 키 일반화 실패 → arg를 ontology서 끌게 일반화 or 도메인 표기). hotel=login 無→no-op(정상).
+2. **getter_map[domain] + ★VALFIX oracle-정당성 (리뷰 S1)**: 커버리지뿐 아니라 — VALFIX는 "getter 없음 ⟺ value-restriction(외부상태 미참조)"이라는 inducer 계약에 의존. 타 도메인서 getter_map이 **상태-읽는 조건의 getter를 놓치면** VALFIX가 DB를 직접 compute = **oracle 누출**. ⇒ per-domain으로 "no-getter 조건이 **진짜 value-restriction(상태 미참조, params만으로 결정)**인지" 검증(누출 도메인은 VALFIX off 또는 표기). 단순 커버리지율 아님.
+3. **LOGINFIRST/LOGINCALL 적용성 + ★login-arg unit-verify (리뷰 S2)**: 도메인 login_user의 **credential arg 이름**(bank=`identification`)을 ontology/도구 시그니처서 derive하도록 일반화하되, **derive된 arg == 그 도메인 실제 login 시그니처인지 Guard-2식 단위검증**(틀리면 LOGINFIRST가 조용히 over-deny). 일반화 패치에 검증 동반. hotel=login 無→no-op(정상).
 4. **ontology↔도구 정합**: `ontology_<domain>.json`의 op/predicate가 벤치 도구셋과 매칭(induce 품질). alias 매핑 깨짐 없는지.
 - **판정**: audit 통과 도메인 = T-A 대상. 부분 실패 도메인 = 원인 표기 후 포함(전이의 정직 범위 = "어디서 그대로 되고 어디서 안 되나"가 결과의 일부).
 
@@ -46,12 +46,19 @@
 2. **B-2 공식 success only**: 모든 수치 공식 success(134-eq, tool_full). BOTH 보고 금지.
 3. **B-3 base 통제**: 각 도메인 base-7B(무 scaffold, 동일 tool_full) 동시 측정 = Δ의 분모. "stack이 base보다"가 1급 비교(리더보드는 2급 참조, scaffold caveat).
 4. **B-4 정직 범위 분리**: ① LOGINCALL quirk-의존분(login-call 없이도 도메인별 재측정 = quirk 기여 격리) ② audit 부분실패 도메인 표기 ③ 어댑터 in-domain(6) vs T-B held-out 구분 명시.
-5. **B-5 회귀**: bank 공식 success(50.75%, S1)는 동일 stack 재실행서 불변(±noise) 확인(파이프 무결성).
+5. **B-5 통합 stack 정합 + 회귀 (cross-domain 前 BLOCKING, 리뷰 BLOCKING-1)**: bank 50.75%(S1)가 **어느 flag 집합**인지 못박는다 — **S1 = 전 fix 통합**(`ARGFIX VALFIX KEEPTUPLE DGGATE LOGINFIRST LOGINCALL STOPSUCCESS`, `offload_stopsuccess.sh` COMMON+STOPSUCCESS, augment OFF) = **통합 stack은 이미 bank서 함께 검증됨(회귀 0)**. ⚠️**login 3중 처리 compose-audit**: DGGATE(login을 dirgraph prereq로 establishing-구동)·LOGINFIRST(login front-load)·LOGINCALL(login을 call-order로 카운트)가 login_user를 각자 다룸 → **`_active_driven` 가드가 동일 도구 이중구동 차단**(설계상 1회). cross-domain 前 **bank 1회 재실행으로 ① S1=50.75% 재현(±noise) ② login_user 호출수=태스크당 ≤1(이중구동 없음) ③ 내 DGGATE-era BOTH 29/34 = 공식 success 몇 %인지 동시기록**(BOTH↔success 정합). 이게 통과해야 cross-domain.
 
-## §6. 사전등록 성공기준
-- **1급(A축 전이 성립)**: 우리 stack이 **≥4/6 도메인서 base-7B를 유의하게 상회**(공식 success) ∧ audit-통과 도메인서 **per-domain 튜닝 0**으로 작동.
-- **2급(경쟁력)**: 상회 도메인서 **open-source 리더보드 중앙값 이상**(가능하면 SOTA 근접). bank 50.75%가 7B로 open-source 70B(42.54%) 추월한 패턴이 ≥1 타 도메인서 재현.
-- **실패/부분**: <4/6 상회 or audit 대량실패 → "scaffold는 bank-tuned, 일반성 제한" 정직 보고 → B축 의존도↑.
+## §6. 측정 = 4열 + 사전등록 성공기준
+**★4열 (리뷰 BLOCKING-2 — scaffold Δ 격리, 도메인당, 공식 success):**
+```
+base(raw 7B)  →  adapter-only(SFT, scaffold OFF)  →  stack(SFT + 전 scaffold flag)  →  리더보드
+              └ 어댑터-gather 기여(6도메인 in-domain)   └ ★scaffold cross-domain 기여 = A축 클레임 = stack − adapter-only
+```
+- **adapter-only** = 어댑터 서빙 + **offload/게이트 flag 전부 OFF**(모델이 직접 도구콜; two-stage offload 없음). = 어댑터 raw 행동. 비용 = 도메인당 eval 1회 추가(무재학습).
+- **scaffold Δ = stack − adapter-only**가 T-A의 진짜 측정치. "stack > base"만으론 어댑터 in-domain 기여와 섞여 scaffold 전이를 격리 못 함.
+- **★1급 성공기준 (리뷰 S3 — 리더보드-상대로 격상)**: ① **scaffold Δ(stack−adapter-only) > 0 유의, ≥4/6 도메인** (scaffold가 cross-domain 기여) ∧ ② **stack이 해당 도메인 open-source 리더보드 중앙값 이상, ≥3/6** (가능하면 bank의 "7B-stack > open-source 70B" 패턴 재현 ≥1) ∧ ③ per-domain 튜닝 0.
+- **2급**: base→adapter-only Δ(어댑터 LODO-gather 전이, 기존 주장 재확인).
+- **실패/부분**: scaffold Δ≈0(다수) or audit 대량실패 → "scaffold bank-tuned, 일반성 제한" 정직 보고 → B축 의존도↑.
 
 ## §7. 정직 범위 / threats (논문 명시)
 - **scaffold 기여 vs 모델**: stack 수치는 "7B+SFT+결정론 scaffold"이지 raw 7B 아님. base 통제(B-3)로 분리.
@@ -65,11 +72,12 @@
 - T-A 6도메인 → 결과 → (양성 시) T-B 1~2 도메인 LODO 재학습.
 
 ## §9. 리뷰 체크리스트
-- [ ] §4 audit(특히 Guard-2 재구성 OVER0/UNDER0)를 GPU 전 전 도메인 실행했는가?
-- [ ] scaffold 무변경(B-1) — LOGINFIRST credential-arg 등 bank 리터럴을 ontology-derived로 일반화(도메인 분기 아님)?
-- [ ] 공식 success only(B-2)·base 통제(B-3)·LOGINCALL quirk 격리(B-4①)?
-- [ ] T-A(scaffold 격리) vs T-B(full held-out) 구분 명시?
-- [ ] 성공기준(≥4/6 상회) 사전등록 고정?
+- [x] **BLOCKING-1**: 통합 stack(전 fix) bank 정합·회귀·login 3중 compose를 cross-domain 前 재실행(§5 B-5).
+- [x] **BLOCKING-2**: base가 아니라 **adapter-only 4열**로 scaffold Δ 격리(§6).
+- [x] S1 VALFIX oracle-정당성·S2 login-arg unit-verify를 audit에(§4.2/4.3). S3 바=리더보드-상대(§6).
+- [ ] §4 audit(Guard-2 재구성 OVER0/UNDER0 6도메인)를 GPU 전 실행 = **첫 게이트**.
+- [ ] scaffold 무변경(B-1) — bank 리터럴(login-arg 등)을 ontology-derived 일반화(도메인 분기 아님)?
+- [ ] T-A(scaffold 격리, adapter-only 대조) vs T-B(full held-out) 구분?
 
 ## §10. 산출물 (리뷰 통과 후)
 1. `diag_xdomain_audit.py`: §4 도메인-readiness(Guard-2 재구성·getter_map·login-arg·ontology 정합).
