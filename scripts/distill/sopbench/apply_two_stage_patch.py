@@ -179,6 +179,20 @@ def main():
          '    ],'),
     ], marker="arm-3 infra: original was []")
 
+    # 6) swarm/core.py — Cause-2 fix (RESIDUAL11_FIX_DESIGN): upstream strips the success-bool from
+    # tuple-return tool results (raw_result = raw_result[1]) -> goal-call content="93.0" (value only)
+    # -> evaluator action_successfully_called (tuple[0] check) can't recognize success for tuple-return
+    # goals (exchange_foreign_currency, get_account_owed_balance). Released runs keep the full tuple
+    # (content "(True, 93.0)", asc 44/86) => preserving the tuple RESTORES the official measurement
+    # (not gaming). Guard behind SOPBENCH_KEEPTUPLE for clean A/B.
+    cc = os.path.join(clone, "swarm", "core.py")
+    _patch(cc, [
+        ("                if isinstance(raw_result, tuple):\n"
+         "                    raw_result = raw_result[1]",
+         "                if isinstance(raw_result, tuple) and not __import__(\"os\").environ.get(\"SOPBENCH_KEEPTUPLE\"):\n"
+         "                    raw_result = raw_result[1]"),
+    ], marker="SOPBENCH_KEEPTUPLE")
+
     print("DONE.")
 
 
