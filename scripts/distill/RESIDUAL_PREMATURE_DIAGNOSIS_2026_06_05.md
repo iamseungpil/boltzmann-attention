@@ -89,6 +89,21 @@ gate/active-H3가 **login_user를 login-gated getter/admin-auth보다 먼저** d
 - **AUGMENT_CRED는 계정 DB의 login 비밀번호(identification)를 user_known에 주입**(`apply_two_stage_patch.py` Edit D). cred-absent 태스크가 통과하면 = 유저가 못 받은 비밀번호 사용(= bug-report fix #2, 모델 능력 아님). admin_password는 미주입.
 - 처방 분리: cred-present 4 = login-first 순서구동(SOPBENCH_LOGINFIRST 후보). pay_loan ×2 = no-login 경로 라우팅(모델이 login-필요 getter 대신 no-login branch 선택). transfer 047d 등 PartB 6 = defect(천장 밖, 손대지 않음).
 
+## 10. ★★Fix 2 결과 + 지표 재구성 (BOTH dg∧acc는 과대계상, full_success가 진짜)
+**Fix 2 LOGINCALL** (`SOPBENCH_LOGINCALL`, `offload_logincall.sh`): pay_loan 통과 기전 = login_user를 **호출**(실패해도)하면 evaluator dirgraph가 충족(dfscheck는 call-order만 봄, auth-성공 아님), getter precond는 username뿐. released qwen2.5-7b fc가 이 방식으로 통과(login('password123')→False→get_account_balance→pay_loan→success).
+
+A/B (augment OFF):
+| run | full_success(공식) | BOTH(dg∧acc) |
+|---|---|---|
+| BASE (fix 없음) | **22** | 29 |
+| + Fix 1 loginfirst | **25** (+3) | 33 (+4) |
+| + Fix 2 logincall | **28** (+3) | 40 (+7) |
+
+- **★지표 경고**: 프로젝트 헤드라인 BOTH=dg∧acc는 **공식 `success`(no_tool_call_error∧cnv∧dbm∧acc∧dg)를 8~12 과대계상**. Fix 2의 BOTH 33→40(+7)은 **대부분 허상**(full_success +3뿐): login-call이 dg∧acc는 통과시키나 login 실패→goal이 잘못된 DB→dbm/cnv 실패.
+- **★진짜 잔여 지배 블로커 = goal-call LOOPING** (`diag_loop_check.py`): BOTH-but-not-full 12개 전부 goal 액션 **5-9회 반복 호출**(step cap). 반복이 cnv=False(반복 제약위반)·dbm=False(비-멱등 DB오염)·ntce=False(닫힌계정 재호출 에러) 유발. login-call과 무관(cred-present도 다수).
+- **⇒ Fix 3 = STOP-after-success** (goal 1회 성공 후 gate가 STOP/exit 반환). `diag_fix_validate`의 ideal trace(login-first + **goal 1회**)가 11/11 full success였음 → Fix1+Fix3 조합이 full_success를 40 근처로 끌 잠재력. **looping이 +최대12의 진짜 레버.**
+- ⚠️ 천장: cred-absent도 login-call로 BOTH 통과 → bug-report "PartB unwinnable"은 BOTH 기준 반증되나, full_success 기준으론 login-call이 cred-absent를 진짜로 풀지 못함(login 실패→dbm/cnv). 정직 full_success 천장·cred-absent 정당성은 Fix 3 후 재판정.
+
 ## 9. ★Fix 1 ROLLOUT 결과 (LIVE, `offload_loginfirst.sh`, augment OFF 양쪽, A/B) — **검증 성공**
 | | BOTH | premature | deny |
 |---|---|---|---|
