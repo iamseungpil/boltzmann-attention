@@ -15,22 +15,27 @@
 - **Option A 정당성 조건**: oracle(`task["directed_action_graph"]` read) 없이, **`task["constraints"]`(배포-가용 정책) + 도메인 dep**로 task-specific graph를 재구성해야 함.
 - **미해결 질문(Guard-2가 답할 것)**: generation의 graph 빌드 경로가 sampled constraints를 입력으로 받는가? 받으면 그 경로를 `task["constraints"]`로 호출해 재구성(Option A 성립). full만 되면 task-specific 재구성 불가 → 아래 §5 대안.
 
-## 3. 재구성 방식 (Option A 후보, 우선순위)
-- **A1**: generation의 task-graph 빌드 함수를 `task["constraints"]`로 직접 호출(가능하면 1급). 입력=domain+goal+task constraints, 출력=graph. evaluator가 쓰는 것과 동일 함수면 정의상 일치.
-- **A2**: `dfsgather_ifg_func(...,"full")` 후 task constraints에 없는 정책 leaf를 **prune**(sampled로 축소). establishing(login/admin/balance)은 유지.
-- **금지(B)**: `task["directed_action_graph"]` 직접 read = per-task 정답 graph = oracle 누출, 배포 부정당. **상한-probe로만.**
+## 3. 재구성 방식 (Option A — A1 확정, 입력 audit BLOCKING)
+**A1 빌더 확정** (generation.py:1287 = evaluator graph 생성 경로): `dfsgather_invfunccalldirgraph(dep_orig, cl, cp, action_default_dep_orig, action_parameters, user_goal_node)` where **`dep_orig = task["constraints_original"]`**(task의 sampled dep = 배포-가용 정책). cl/cp/default_dep/action_parameters = 도메인 dep 규칙(ABox). **task["directed_action_graph"] 안 읽음.**
+- **⚠️Refinement-1 (BLOCKING) 입력 audit**: 재구성 함수의 실제 입력 ⊆ **{domain, goal, `task["constraints_original"]`, 도메인 dep 규칙(cl/cp/default_dep/action_parameters)}** 임을 코드로 assert. `task["directed_action_graph"]` 또는 constraints 밖 sampled 필드 read 시 **FAIL→A2 강등**. **audit 통과 시 A1 exact-match는 순환 아니라 최강결과** = "정책(task constraints)이 cascade 완전결정·숨은 oracle 불요"의 증명(정당성: settled "정책=per-task constraints"=배포가용, 정답 아님). ⇒ A1 채택 = audit 통과 조건부.
+- **A2 (fallback + 삼각측량)**: `dfsgather_ifg_func(...,"full")` 후 constraints 밖 정책 leaf prune. A1==A2==taskgraph 삼각측량으로도 유용.
+- **금지(B)**: `task["directed_action_graph"]` read = oracle 누출. **상한-probe 한정.**
 
-## 4. 단위검증 방법론 (BLOCKING 기준)
-**대상 ≥3 task, 반드시 포함**: ①현-BOTH 1+(over-deny 회귀 관문) ②premature 1+(set_safety_box, login+admin) ③transfer 1(dual-username+admin+balance).
-**절차** (zero-cost, eval JSON + 벤치 import):
-1. 각 task: 재구성 graph(A1/A2) vs `task["directed_action_graph"]`를 **노드 집합 + 엣지(연결) + param_mapping** 수준에서 비교(user_known plug-in 값은 정규화, 구조만).
-2. **PASS 기준 = 3/3 task에서 nodes∪connections leaf-동일**(추가/누락 0). 특히 현-BOTH에서 재구성이 evaluator보다 **더 요구(over)하면 FAIL**(그게 over-deny 회귀 원인).
-3. 추가 확인: 재구성 graph로 현-BOTH 궤적을 dfscheck하면 dirgraph_satisfied=True 재현(회귀 0 사전증명).
-**FAIL 시**: Cause-1 Option-A 중단(drift catastrophic). §5 대안 또는 B는 상한-probe 한정.
+## 4. 단위검증 방법론 (BLOCKING — OVER/UNDER 비대칭, 커버리지 분리)
+**⚠️Refinement-2 (PASS 기준 변경) — 방향 비대칭**:
+- **OVER**(재구성이 evaluator보다 leaf 더 요구) → 현-BOTH **over-deny → catastrophic 회귀**.
+- **UNDER**(leaf 누락) → premature서 그 establishing 미구동 → **이득만 못 봄, 회귀 0(safe)**.
+- ⇒ **안전 게이트(ship 가능) = 현-BOTH에서 OVER 0**. **최적성 게이트 = premature서 evaluator 일치(UNDER 0).** 0/0 exact-match는 *최적성* 목표이지 안전 관문 아님. benign UNDER에 FAIL 금지(불필요 축소판 후퇴 방지).
+**⚠️Refinement-3 (커버리지)**:
+- **안전축 = 현-BOTH 26 전수** OVER-0 확인(위험 모집단=BOTH 전부, zero-cost니 전수). + 각 BOTH 궤적 dfscheck로 dirgraph_satisfied=True 재현(회귀 0 사전증명).
+- **이득축 = premature ≥7 + transfer 1**서 UNDER leaf 식별(어떤 establishing이 빠졌나 = 이득 상한).
+**절차**: A1 재구성 vs `task["directed_action_graph"]` 노드+연결+param_mapping 비교(plug-in 값 정규화, 구조만).
+**판정**: 안전 PASS = BOTH 26 OVER-0 ∧ dfscheck 재현 → Cause-1 ship 가능. 최적 PASS = premature UNDER-0 → +8 상한 실현.
+**FAIL(BOTH OVER>0)**: A1 drift → A2 시도 → 그래도 OVER→ §5 establishing-only 축소판.
 
 ## 5. PASS/FAIL 분기 후 Cause-1 진입
-- **PASS**: 게이트가 재구성 graph의 선행(establishing+check)을 require, active-H3가 미충족 establishing(login/admin/balance)을 user_known creds로 구동. flag `SOPBENCH_DGGATE`, A/B vs 26, 회귀 0 확인. 예상 +최대 8(천장 34).
-- **FAIL(재구성 drift)**: 축소판 = 게이트에 **establishing leaves만 추가**(login_user/authenticate_admin_password + balance-getter, dep_full에서 state-pred 필터 = 정책 superset 회피). graph 순서검증은 포기하되 establishing 충족만 강제 = premature의 주원인(선행 미수립) 부분 해소. 단위검증 = 이 establishing-filter가 evaluator innate/establishing과 일치하는지.
+- **PASS(안전)**: 게이트가 재구성 graph의 선행을 require, active-H3가 미충족 establishing을 **user_known creds로 결정론 구동**(Guard-4 PASSED=8 전부 creds-OK→`_force_call`이 hallucination 없이 구동=loop-free 근거). flag `SOPBENCH_DGGATE`, A/B vs 26, **BOTH 26 비회귀 필수**. 예상 +최대 8(천장 34).
+- **FAIL(BOTH OVER>0)**: 축소판 = 게이트에 **establishing leaves만 추가**. **⚠️Refinement-4: establishing 분류 = ABox predicate kind**(`_evidence_tools`의 `info.get("kind")=="establishable"` = state-pred=login_user/authenticate_admin_password) — **하드코딩 리스트 금지**(drift원·bank특정). balance는 establishable 아니라 **computed-getter**라 별개 취급(코드로 분류 못박기). A2 prune·FAIL-축소판 둘 다 이 predicate-kind 기준 재사용 = 도메인-일반(§6.5 cross-domain 대비).
 
 ## 6. 산출물 (구현 시)
 - `guard2_dirgraph_unitcheck.py`: 재구성 vs task graph 비교 + 현-BOTH dfscheck 재현. PASS/FAIL 출력.
