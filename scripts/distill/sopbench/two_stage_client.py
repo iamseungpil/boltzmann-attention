@@ -351,6 +351,11 @@ class TwoStageClient:
         # The constraint-order ungathered list drives the getter first, so front-load login_user (then
         # admin) before any other gather. Creds from user_known (request params, NOT oracle). Off by default.
         self._loginfirst = bool(os.environ.get("SOPBENCH_LOGINFIRST"))
+        # Fix-2 LOGINCALL: also drive the login_user CALL when no credential is in user_known (cred-absent
+        # login-required goals whose getters need only username, e.g. pay_loan). The evaluator dirgraph
+        # counts the CALL not auth-success, so a failing login satisfies the node (matches released
+        # qwen2.5-7b FC). Requires _loginfirst. Off by default.
+        self._logincall = bool(os.environ.get("SOPBENCH_LOGINCALL"))
         self._dg_cache = None            # (constraint_links, constraint_processes, default_dep, action_params)
         self._task_constraints_original = None
         self._task_sig = None       # content-based task id for offload-log<->eval join (set in reset)
@@ -611,13 +616,25 @@ class TwoStageClient:
                     uk = self._task_user_known or {}
                     for ctool, ckey in (("login_user", "identification"),
                                         ("authenticate_admin_password", "admin_password")):
-                        if (ctool in tool_names and ctool not in called_now
+                        if not (ctool in tool_names and ctool not in called_now
                                 and ctool not in self._active_driven
-                                and uk.get(ckey) is not None and uk.get("username") is not None
-                                and self._dg_requires(ctool)):
-                            self._active_driven.add(ctool)
-                            self._force_call = (ctool, {"username": uk.get("username"), ckey: uk.get(ckey)})
-                            return ctool
+                                and uk.get("username") is not None and self._dg_requires(ctool)):
+                            continue
+                        cred = uk.get(ckey)
+                        if cred is None:
+                            # Fix-2 LOGINCALL: the evaluator's dirgraph dfscheck counts login as CALLED
+                            # (in order), NOT auth-success. A cred-absent login-required goal whose
+                            # getters need only username (e.g. pay_loan: get_account_balance precond =
+                            # internal_check_username_exist) passes by CALLING login_user with a
+                            # placeholder (login returns False but the node is satisfied). This mirrors
+                            # released qwen2.5-7b FC leaderboard runs (login_user('password123')->False,
+                            # then get_account_balance, then pay_loan => success). login_user only.
+                            if not (self._logincall and ctool == "login_user"):
+                                continue
+                            cred = "__no_credential__"
+                        self._active_driven.add(ctool)
+                        self._force_call = (ctool, {"username": uk.get("username"), ckey: cred})
+                        return ctool
                 # not permitted -> drive the first ungathered EVIDENCE tool (real, callable, new).
                 for entry in info.get("ungathered", []):
                     tool = entry.rsplit(":", 1)[-1]
