@@ -7,7 +7,11 @@
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
 > ### ★★★★★★★★★★★★ v1.42 (2026-06-06) — ▶▶ 32B 실험 요청 (구체·우선순위). 가정: 32B > 7B (gather·거부축·base 전반)
-> **7B(Track A) 현 결과 = 비교 타깃**: 통합 scaffold(DGGATE+ARGFIX+VALFIX+KEEPTUPLE+LOGINFIRST+STOPSUCCESS, **LOGINCALL off=honest**, augment off) on bank, **공식 success(pass@1, 134, tool_full)**: official 50.75% / **honest(quirk-out) 44.78%(60/134)** — should_T 32/48(천장40), should_F 28/86(약). base Qwen2.5-7B 5.22%(ReAct)/3.73%(FC). **honest 44.78%가 오픈소스 SOTA(Llama70B 42.54%) 추월.** (honest live 확정 런 진행 중.)
+> **7B(Track A) 현 결과 = 비교 타깃 (live 확정, 2026-06-06)**: 통합 scaffold(DGGATE+ARGFIX+VALFIX+KEEPTUPLE+LOGINFIRST+STOPSUCCESS, augment off) on bank, **공식 success(pass@1, 134, tool_full)**:
+> - **LOGINCALL off (honest, 헤드라인) = 43.28% (58/134)** — should_T 33/48(quirk 1 제거 시 32), should_F 25/86. quirk 1 제거 truly-honest = 57/134 = **42.54%**.
+> - LOGINCALL on (quirk 포함) = 50.75%(68/134) — should_T quirk 8 포함이라 **불공정·드롭**.
+> - base Qwen2.5-7B 5.22%(ReAct)/3.73%(FC). **honest 42.5~43.3% ≈ 오픈소스 SOTA(Llama70B 42.54%)와 동률**(추월 아님, 근소). **should_T는 강(honest 32/48, 리더보드 should_T 25-27 추월)·should_F 약(25/86 vs 51-85)** → 전체는 should_F-bound. **should_F가 명확한 추월의 결정 레버.**
+> - ⇒ **32B 가정의 핵심 기대**: 32B base는 should_F가 강함(레더보드 32B should_F≈51/86) → 32B+scaffold면 should_T(scaffold)+should_F(base) 둘 다 강해 **7B보다 전체% 크게↑·명확한 추월** 가능.
 >
 > **▶ 32B 할 일 (순서대로):**
 > **#0 (먼저 — 저번에 뺐던 것, 이제 필수) leaderboard 재현 sanity 체크.** Qwen2.5-32B-Instruct **vanilla(무 scaffold)** bank, **tool_full, 공식 success(pass@1)** = `env/evaluator.py` (no_tool_call_error∧cnv∧dbm∧action_called_correctly∧dirgraph_satisfied). **README Qwen2.5-32B(ReAct)=40.30% 재현되는지 확인** → 파이프라인 정합 검증. **이게 ±2%p 안 맞으면 이후 수치 전부 무효** → eval/harness부터 점검. (⚠️ v1.39의 "32B vanilla 재측정 금지·인용만"은 **철회** — sanity 재현이 모든 32B 수치의 신뢰 전제. FC base도 병행 = 우리 비교 기준선.)
