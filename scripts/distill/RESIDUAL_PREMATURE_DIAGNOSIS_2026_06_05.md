@@ -102,6 +102,13 @@ gate/active-H3가 **login_user를 login-gated getter/admin-auth보다 먼저** d
 - **★다음 레버 = should_F(거부축) 28/86=33%** (상위모델 70–85/86). should_T는 천장이라 전체%의 유일 잔여 레버 = 거부축.
 - **누적 공식 사다리(end-to-end, delta합산 아님)**: base 29.85→loginfirst 37.31→logincall 40.30→**stopsuccess 50.75%**.
 
+### ★★12. quirk(failed-login-but-passed) 분리 + honest 헤드라인 (2026-06-06, `diag_quirk_rescore.py`)
+- **login-quirk** = dirgraph가 login을 call-order로 카운트(성공 아님) → 가짜 비번 login도 노드 충족. **quirk-악용 정의(좁게)** = should_T가 login 호출했으나 전부 False인데 통과. (should_F failed-login=정당거부, quirk 아님 → should_T 한정.)
+- **★리더보드 모델 should_T quirk ≈ 0** (전 모델 0~2). 리더보드는 quirk로 should_T 부풀리지 않음 → official≈honest. **우리 S1 should_T 40 중 quirk 8**(LOGINCALL 생성; official+3은 전부 quirk, honest should_T 24→불변→stopsuccess로 honest 32). **우리만 quirk 사용=불공정.**
+- **★honest(quirk-out): S1 official 50.75%(68/134) → honest 44.78%(60/134).** 리더보드 quirk≈0(official≈honest). **honest 44.78%도 오픈소스 SOTA(Llama70B 42.54%) 추월** = quirk 불요.
+- **처방: LOGINCALL 드롭**(quirk 제거, 정직·공정). 헤드라인 = honest **44.78%(60/134)** 1급 / official 50.75% 참조. honest should_T 사다리: base 21→loginfirst 24→logincall 24(LOGINCALL=quirk만)→stopsuccess **32/48**.
+- ⚠️ 방법론(자가 2회 정정+사용자 교정): quirk 측정 = should_T/should_F 분리 必 + login OR-분기라 "노드존재=필수" 금지 + 좁은 시그니처(호출됨∧전부False∧should_T)만.
+
 ## 10. ★★Fix 2 결과 + 지표 재구성 (BOTH dg∧acc는 과대계상, full_success가 진짜)
 **Fix 2 LOGINCALL** (`SOPBENCH_LOGINCALL`, `offload_logincall.sh`): pay_loan 통과 기전 = login_user를 **호출**(실패해도)하면 evaluator dirgraph가 충족(dfscheck는 call-order만 봄, auth-성공 아님), getter precond는 username뿐. released qwen2.5-7b fc가 이 방식으로 통과(login('password123')→False→get_account_balance→pay_loan→success).
 

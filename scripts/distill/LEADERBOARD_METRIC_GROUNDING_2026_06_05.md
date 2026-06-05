@@ -1,7 +1,16 @@
-# 리더보드 지표 근거 + 정당 비교 기준 (2026-06-05)
+# 리더보드 지표 근거 + 정당 비교 기준 (2026-06-05, 06-06 quirk 분석 추가)
 
 > 질문: 리더보드가 공식 success를 쓰나? 논문/리더보드 비교 시 정당한 기준인가?
-> 결론: **리더보드 = 공식 `success` pass rate %, 전체 134 태스크(should_T 48 + should_F 86), tool_full.** 프로젝트 헤드라인 BOTH(dg∧acc, should_T만)는 **리더보드와 지표·분모 둘 다 달라 비교 불가**. 정당 비교 기준 = 공식 success. 우리 best(logincall) = **40.30% (54/134)**.
+> 결론: **리더보드 = 공식 `success` pass rate %, 전체 134 태스크(should_T 48 + should_F 86), tool_full.** 프로젝트 헤드라인 BOTH(dg∧acc, should_T만)는 **리더보드와 지표·분모 둘 다 달라 비교 불가**. 정당 비교 기준 = 공식 success.
+
+## ★★0. quirk(failed-login-but-passed) 분석 — honest 비교 (2026-06-06, `diag_quirk_rescore.py`)
+**login-quirk** = evaluator dirgraph가 login을 "성공"이 아니라 "호출(call-order)"로 카운트(`dfscheck_called_functions`) → 가짜 비번 login(False)도 login 노드 충족. (상세 = `INTERNAL_GET_DATABASE_GROUNDING`/사용자 논의.)
+- **quirk-악용의 정의(좁게)**: `should_T` 태스크가 login을 **호출했으나 전부 False**인데도 success. (should_F의 failed-login은 **정당한 거부**=success이지 quirk 아님 → should_T로 한정해야 함.)
+- **★리더보드 모델 should_T quirk ≈ 0** (전 모델 0~2): 리더보드는 quirk로 should_T를 부풀리지 않음. failed-login은 전부 should_F 정당거부. ⇒ 리더보드 공식 success ≈ honest success.
+- **★우리 S1 should_T 40 중 quirk 8** (LOGINCALL이 만든 것; loginfirst 1→logincall 4→S1 8). LOGINCALL의 official +3(should_T 25→28)은 **전부 quirk**(honest should_T 24 불변). ⇒ **우리만 quirk 사용 = 불공정 → LOGINCALL 드롭.**
+- **★honest(quirk-out) 비교**: 우리 S1 official **50.75%(68/134)** → **honest 44.78%(60/134)** (should_T quirk 8 제외). 리더보드는 quirk≈0이라 official≈honest. **honest 44.78%도 오픈소스 SOTA(Llama3.1-70B 42.54%) 추월.** ⇒ **quirk 없이도 7B가 오픈소스 70B 추월** = 더 깨끗한 헤드라인.
+- **헤드라인 권고**: honest(quirk-out) **44.78%(60/134)** 를 1급, official(quirk-in) 50.75% 는 참조. **LOGINCALL 드롭**(quirk 제거)이 정직·공정.
+- ⚠️ 방법론 교훈(자가 2회 정정, 사용자 교정): quirk 측정은 ① should_T/should_F **분리 필수**(should_F failed-login=정당거부) ② login은 OR-분기라 "그래프에 login 노드 있음=필수" 오판 금지(v1 과잉처벌) ③ 좁은 시그니처(호출됨∧전부False∧should_T)만 신뢰.
 
 ## 1. 리더보드 지표 = 공식 success (확정)
 - `env/evaluator.py:277` `success = no_tool_call_error ∧ constraint_not_violated ∧ database_match ∧ action_called_correctly ∧ dirgraph_satisfied`.

@@ -12,7 +12,8 @@
 - **이게 성립하면 A축 단독으로 systems/agent 논문 가치**(LLM-Modulo의 cross-domain SOP-following 일반화). 붕괴하면 scaffold가 bank-overfit → B축(학습)만 일반성 구제.
 
 ## §1. 무엇이 고정 / 무엇이 swap (재학습 0의 정의)
-- **고정 (재학습 0, 도메인 무관)**: ① SFT LoRA 어댑터 `qwen7b_tbox_t1c_lodo_bank`(현행) ② scaffold **코드 전체**(flag 로직: OFFLOAD/ACTIVE/DGGATE/ARGFIX/VALFIX/KEEPTUPLE/LOGINFIRST/LOGINCALL/STOPSUCCESS) — **per-domain 분기 추가 금지**.
+- **고정 (재학습 0, 도메인 무관)**: ① SFT LoRA 어댑터 `qwen7b_tbox_t1c_lodo_bank`(현행) ② scaffold **코드 전체**(flag 로직: OFFLOAD/ACTIVE/DGGATE/ARGFIX/VALFIX/KEEPTUPLE/LOGINFIRST/STOPSUCCESS) — **per-domain 분기 추가 금지**.
+  - **★LOGINCALL 드롭 (2026-06-06)**: LOGINCALL은 cred-absent에 dummy-login으로 quirk(failed-login-but-passed)를 악용 → 우리 should_T 8건이 quirk였고 리더보드는 안 씀(should_T quirk≈0)=불공정. **cross-domain 스택서 LOGINCALL 제외**(honest). cred-absent should_T는 정직하게 실패. honest 44.78%도 오픈소스 70B 추월이라 quirk 불요. (login은 ①②의 일반 prereq-driving + arg-binding으로 cred-present만 정당 처리 — 사용자 통찰대로 특별취급 제거.)
 - **swap (도메인별 입력)**: ABox = `induced/ontology_<domain>.json`(전 7도메인 이미 존재) + 벤치의 도메인 규칙(`domain_assistant_keys[domain]`: constraint_links/processes/default_dep — 전 7도메인 존재) + `getter_map[domain]`(전 7도메인 domain-keyed 존재) + task set(`data/<domain>_tasks.json`).
 - ⇒ **인프라 사전 확인됨(2026-06-05)**: 7도메인 전부 ontology·도메인규칙·getter_map·task 존재 → 새 authoring 0(induce 파이프라인이 이미 추출). 전이의 "사람 작업"도 낮음(ABox 자동추출분 사용).
 
