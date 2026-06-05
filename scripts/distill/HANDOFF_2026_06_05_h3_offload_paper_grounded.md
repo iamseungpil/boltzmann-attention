@@ -27,8 +27,9 @@
 
 ## §2 SETTLED — 재유도/재census 금지 (논문·정책·저자궤적 정독으로 확정)
 1. **BOTH=6 진짜 뿌리 = 정책 vs dirgraph** (전수 census, 실제 evaluator):
-   - **정책(verbalize) = per-task `constraints`** (sampled subset). **dirgraph는 *항상* login_user 포함(⊋정책).**
-   - 우리 7B는 정책(constraints)을 따라 login 생략 → dirgraph 실패. 빅모델(Claude)은 **항상 login(35/35), set_safety_box 성공 8/10**(자격증명 user_known 가용).
+   - **정책(verbalize) = per-task `constraints`** (sampled subset).
+   - **login은 ⚠️innate 아님**(bank `action_innate_dependencies` 0/28, code-verified 2026-06-05 B)·`logged_in_user` 술어로 `get_default_dep_full`(required deps, account 액션 = `AND(internal_check_username_exist, logged_in_user, …)`)에 인코딩 → **태스크-특정**(그 태스크 그래프가 login-gated read를 거칠 때만 필요, leave-one-out 12/17 · "항상/보편" 아님).
+   - 우리 7B는 정책(constraints)을 따라 login-gated downstream(balance read 등) 생략 → dirgraph 실패. 빅모델(Claude)은 방어적으로 **거의 항상 login(35/35), set_safety_box 성공 8/10**(자격증명 user_known 가용) — 단 이는 빅모델 *전략*이지 벤치가 보편 강제해서가 아님.
 2. ⚠️**(2026-06-05 정정 — 이 항목 "SETTLED" 격하, 철회)**: paper-fetch 2개 상충(1차 "full SOP/not sampled" vs 재-fetch "task-specific/permuting constraint subsets") → **paper-요약 권위 불가, 권위=코드(evaluator)**. evaluator의 constraint축은 goal dep를 `task["constraints"]`로 override("match evaluator" `build:219`·`check_permitted:666`)=**task-specific, dep_full(태스크-무관 superset) 아님**. ⇒ "full SOP/항상 login 강제"·"dirgraph login=의도된 보편 선행조건" **철회**. login은 dirgraph-required(leave-one-out 12/17 사실)이나 강제는 BOTH-레버 아님(T1T2 BOTH4/4·특별취급 금지). success=그 태스크의 directed action graph(task constraints+cascade), 모든 도메인 제약 아님.
 3. **internal_get_database = 결함 아니라 OR-대안** (`bank_assistant.py:372` `OR(get_account_balance, internal_get_database)`; 미노출 시스템 도구). **에이전트는 노출 `get_account_balance`로 충족**(set_safety_box dirgraph 10/10 exposed getter). 진짜 게더 타깃=get_account_balance. (§8.1/§10.2의 "internal_get_database 필요" 프레임 폐기.)
 4. **정직분모 = 34/48** (Part A 8 credit_card + Part B 6 login∧cred-불가용). **Part B 6만 진짜 defect**(login필수 ∧ credential 불가용 교집합). 나머지 solvable. ([[reference-sopbench-bench-defects-settled]])
@@ -43,7 +44,7 @@
 3. **★진짜 레버 = gather 완성(active-H3 gate-driven → BOTH 15) + credential 가용**(login=False ≤9). login *유무* 아니라 creds·downstream getter(balance)가 binding. → 다음 = active-H3 라이브로 상승폭 확정 + credential-augment 잔여.
 4. **대조 유지**: T1c-emit(1)/C-none(3) vs passive(6)/active-H3(15).
 5. **login**: dirgraph-required(사실)이나 강제 안 함 — 실패(T1T2 login-uniform BOTH4/4)·금지(특별취급=전이파괴)·moot(모델이 creds 가용 시 자연 login). 모델 gather(active-H3)가 충족.
-6. ⚠️**OPEN(추론 금지)**: 게이트 dirgraph-축 미러링·정확 dep object(`dep_innate`엔 auth無·`dep_innate_full`엔 有)는 실제 evaluator 검증 후에만.
+6. **dep object 정체 (B-체크 2026-06-05, code-verified — OPEN 해소):** evaluator는 goal을 `task["constraints"]`(sampled)로 채점(`evaluator.py:110`) + 호출별 dirgraph로 cascade 적용(`dfsins_cl_cd_aid`, `:267`). login = `logged_in_user` 술어로 `get_default_dep_full`(=ard+acd+cd; `task.py:88`)에 있음 — **`action_innate_dependencies`(=`dep_innate`)엔 0/28**. `get_default_dep_full`은 innate 제외 + 정책 superset → **dep_full 게이트는 login도 안 더하고 policy over-require만 함**(§3 폐기의 2번째 이유). 우리 게이트 `check_permitted:666` `task_dep[goal]=cons`는 `evaluator.py:110`과 동일=이미 mirror. **게이트가 active-H3로 *구동*해야 할 gather-target(login_user+노출 getter)은 evaluator dirgraph(dep_full+dfsins)에서 끌어옴 — accept 기준은 task constraints 유지**(둘은 별개: target=무엇을 게더, accept=무엇을 통과).
 
 ---
 
@@ -74,4 +75,4 @@
 ---
 
 ## §7 reliability 교훈 (이번 세션 4함정, 전부 자가/사용자 교정)
-①observed-called를 available-tool로 착각 ×2 ②string-search aliasing 아티팩트(0/4189) ③"internal_get_database 필요=bench defect" 점프(빅모델 풂이 반증) ④"정책=dirgraph" 가정(실제: 정책=constraints, dirgraph가 over-require). **전부 코드·정책 원문·저자 궤적·논문을 *직접 읽어* 정정.** ⇒ **벤치 의미론(정책/success 기준)은 induced 구조 말고 논문·정책 원문·저자 궤적이 권위.** 강한 주장(헤드룸·결함·LOCK수정)은 reliable test(실제 evaluator) + 원문 후 박제. [[feedback-check-authority-before-rederive]].
+①observed-called를 available-tool로 착각 ×2 ②string-search aliasing 아티팩트(0/4189) ③"internal_get_database 필요=bench defect" 점프(빅모델 풂이 반증) ④"정책=dirgraph" 가정(실제: 정책=constraints, dirgraph가 over-require) ⑤**(2026-06-05 PM) paper fast-fetch 요약 과신** — 한 fetch="full SOP/항상 login 강제", 재-fetch="task-specific/sampled" 상충 → 양쪽 다 추론 박지 말 것. **권위=벤치 소스코드**(`evaluator.py:110/267`·`variables.py action_innate_dependencies`)가 tiebreaker: login은 innate 아님·`logged_in_user` required-precond·태스크-특정. **전부 코드·정책 원문·저자 궤적을 *직접 읽어* 정정.** ⇒ **벤치 의미론(정책/success 기준)은 induced 구조·paper 요약 단독 말고 소스코드·정책 원문·저자 궤적이 권위.** 강한 의미론 주장은 (원문 직접인용 ∧ 빅모델 실측 ∧ **소스코드**) 교차 후 박제. [[feedback-check-authority-before-rederive]].
