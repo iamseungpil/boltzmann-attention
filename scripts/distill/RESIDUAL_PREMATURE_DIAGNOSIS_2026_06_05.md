@@ -95,7 +95,7 @@ evaluator는 func_calls를 **순서대로** 처리하고, getter가 login보다 
 - (b) late-repair(getter→login→getter재구동→goal) = **실패** (dg 영구 False).
 ⇒ **Fix 1은 login_user(+admin auth)를 모델의 첫 getter 호출 전에 front-load 구동해야 한다.** 현 active-H3의 "ACT 직전 internal_get_database 늦은 구동" 방식으론 안 됨. 구현=gate가 dirgraph상 login 요구 시 **첫 턴에** login_user 구동(user_known identification, cred-present=request param). flag SOPBENCH_LOGINFIRST.
 - ⚠️ **AUGMENT_CRED OFF 선결**: genuine 6 중 augment 필요한 것 없음(cred-present 4=비번 보유, pay_loan 2=no-login). augment 켜두면 transfer 047d(PartB defect)가 가짜통과→honest baseline 28 대신 29 보고. 끄면 회귀 없이 정직 28(rollout A/B 실측 확인).
-- ⚠️ **task_sig 충돌 주의**: c6454(set_safety_box jane)가 2 엔트리로 충돌(핸드오프 "충돌0"과 상충). 하나는 front-load해도 acc=False(goal 자체 실패, credit_score 700?). cred-present 4 = clean 3 + 충돌/이상 1 가능 → finer identity(+initial_database 해시)로 재확인 필요.
+- ✅ **task_sig 충돌 해소**: should_T 48개는 충돌0(핸드오프 유효, `diag_sig_collision.py`). c6454가 fix1테스트서 2번 나온 건 **should_F 엔트리(idx88, acc=False 정상)가 같은 content-sig 공유** — should_T(idx85)는 진짜 cred-present로 front-load 통과. **cred-present 4 온전.** 단 should_T↔should_F 조인 키엔 initial_database 포함해야 함(sig만으론 교차충돌 가능).
 
 ## 스크립트 (전부 repo `scripts/distill/sopbench/`)
 - `diag_residual5.py` — census + offload-log task_sig 조인
