@@ -16,8 +16,8 @@ STACK="SOPBENCH_ALIAS=1 SOPBENCH_GATE=1 SOPBENCH_SCRATCHPAD=1 SOPBENCH_SOURCE=1 
 wait_adapter () { for i in $(seq 1 360); do [ -f $RUNS/qwen7b_tbox_$1/adapter_model.safetensors ] && return 0; sleep 60; done; return 1; }
 
 eval_adapter_on () {  # $1=adapter_name  $2=tag  $3..=held-out target domains
-  local AD=$RUNS/qwen7b_tbox_$1; local TAG=$2; shift 2; local DOMS="$@"
-  wait_adapter $1 || { echo "ADAPTER_MISSING $1"; return; }
+  local ADNAME=$1; local AD=$RUNS/qwen7b_tbox_$1; local TAG=$2; shift 2; local DOMS="$@"
+  wait_adapter $ADNAME || { echo "ADAPTER_MISSING $ADNAME"; return; }
   cd $CL && git checkout -- swarm/ run_simulation.py 2>/dev/null || true
   $SEKA $REPO/scripts/distill/sopbench/apply_two_stage_patch.py $CL
   rm -f /dev/shm/vllm* 2>/dev/null
