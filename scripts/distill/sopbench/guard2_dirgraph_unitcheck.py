@@ -21,7 +21,8 @@ from env import helpers as H
 
 EVAL_GLOB = "/home/woori/scratch/sft_alias_run/eval_t1c_keeptuple/bank/*full*shuffle_False.json"
 DOMAIN = "bank"
-DEFAULT_OPT = "required"   # generator/eval default (gather_action_default_dependencies default)
+DEFAULT_OPT = "full"   # CONFIRMED: full + constraints_original => OVER=0 UNDER=0 exact match (48/48).
+                       # (required/none under-cover UNDER=48; constraints[expanded]+full over-covers OVER=44.)
 
 def norm(x):
     """Recursively sort dict keys so comparison ignores key-order (json artifact)."""

@@ -1,6 +1,8 @@
 # 설계서 — Guard-2: dirgraph 재구성 == evaluator 단위검증 (Cause-1 선행, 리뷰 후 구현)
 
-> 상태: **DRAFT, 리뷰 대기.** Cause-1(게이트를 full dirgraph로)의 **유일한 catastrophic 위험 = 재구성 drift(over-deny)**. 회귀는 개념상 불가(현-BOTH는 자기 cascade 충족→permit)지만, 재구성된 graph가 evaluator와 leaf 다르면 현-BOTH를 over-deny. ⇒ **구현 전 재구성==evaluator를 leaf-동일로 단위검증(BLOCKING).** 본 문서 = 그 검증 방법론 + Cause-1 재구성 방식 확정.
+> 상태: **✅ PASS (구현·실행 완료, 2-리뷰어 4 refinement 반영).** **결과 (`guard2_dirgraph_unitcheck.py`, 전 48 should_T)**: A1 재구성 = `dfsgather_invfunccalldirgraph(task["constraints_original"], cl,cp, default_dep(opt=**full**), action_params, goal_node)` → **OVER=0 ∧ UNDER=0 (exact match 48/48)**. INPUT AUDIT 통과(directed_action_graph 안 읽음). SAFETY PASS(BOTH 26 OVER-0=over-deny 회귀 불가) + OPTIMALITY PASS(UNDER-0=+8 상한 실현가능). ⇒ **"정책(constraints_original)+도메인 규칙이 cascade 완전결정·oracle 불요" 증명** = A1 비순환·배포-정당. (대조: required/none=UNDER48 subset, constraints[expanded]+full=OVER44.) **⇒ Cause-1(SOPBENCH_DGGATE) 구현 cleared.**
+>
+> (이하 DRAFT 설계 — 위 PASS로 검증됨.) Cause-1(게이트를 full dirgraph로)의 **유일한 catastrophic 위험 = 재구성 drift(over-deny)**. 회귀는 개념상 불가(현-BOTH는 자기 cascade 충족→permit)지만, 재구성된 graph가 evaluator와 leaf 다르면 현-BOTH를 over-deny. ⇒ **구현 전 재구성==evaluator를 leaf-동일로 단위검증(BLOCKING).** 본 문서 = 그 검증 방법론 + Cause-1 재구성 방식 확정.
 
 ## 1. evaluator `dirgraph_satisfied` 메커니즘 (확정, env/evaluator.py)
 - L229: `ifcg = deepcopy(task["directed_action_graph"])` — **생성시 빌드된 task-specific graph**(user_known 값 plug-in). `nodes_task/connections_task/inv_nodes_task`.
