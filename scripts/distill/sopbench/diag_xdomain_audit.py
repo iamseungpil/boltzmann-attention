@@ -24,7 +24,11 @@ def load_tasks(domain):
     d = json.load(open(f"/home/woori/scratch/SOPBench/data/{domain}_tasks.json"))
     out=[]
     if isinstance(d, dict):
-        for v in d.values(): out += v if isinstance(v,list) else [v]
+        for goalkey, v in d.items():
+            for t in (v if isinstance(v,list) else [v]):
+                if isinstance(t,dict):
+                    t.setdefault("user_goal", goalkey)   # data files key by goal; inject if missing
+                    out.append(t)
     else: out = d
     return [t for t in out if isinstance(t,dict) and "directed_action_graph" in t and "constraints_original" in t and "user_goal" in t]
 
@@ -36,7 +40,7 @@ for dom in DOMAINS:
     add = H.gather_action_default_dependencies(da.action_required_dependencies, da.action_customizable_dependencies, default_dependency_option="full")
     ap = H.get_action_parameters(ds, da)
     tasks = load_tasks(dom)
-    over_n=under_n=over_t=under_t=0; errs=0
+    over_n=under_n=over_t=under_t=0; errs=0; samples=[]
     for t in tasks:
         goal=t["user_goal"]
         if goal not in ap: errs+=1; continue
@@ -44,16 +48,20 @@ for dom in DOMAINS:
             rb=H.dfsgather_invfunccalldirgraph(t["constraints_original"], cl, cp, add, ap, (goal,{k:k for k in ap[goal]}))
             cr=collections.Counter(node_key(n) for n in rb["nodes"])
             ct=collections.Counter(node_key(n) for n in t["directed_action_graph"]["nodes"])
-        except Exception:
+        except Exception as ex:
             errs+=1; continue
         over=list((cr-ct).elements()); under=list((ct-cr).elements())
         over_n+=len(over); under_n+=len(under); over_t+=(1 if over else 0); under_t+=(1 if under else 0)
+        if (over or under) and len(samples)<3:
+            samples.append((goal, over[:3], under[:3]))
     # login arg names
     la = sorted(set(ap["login_user"]) - {"username"}) if "login_user" in ap else []
     aa = sorted(set(ap["authenticate_admin_password"]) - {"username"}) if "authenticate_admin_password" in ap else []
     tag = f"{la or 'NO-LOGIN'} / {aa or '-'}"
     flag = "" if over_n==0 else "  <<OVER!=0 (over-deny risk)"
     print(f"{dom:<15}{len(tasks):>5}{over_n:>11}{over_t:>11}{under_n:>12}{under_t:>12}  {tag}{flag}  errs={errs}")
+    for g,o,u in samples:
+        print(f"      [{g}] OVER={o} UNDER={u}")
 
 print("\n=== getter_map coverage (VALFIX route; oracle-justification = manual S1) ===")
 for dom in DOMAINS:
