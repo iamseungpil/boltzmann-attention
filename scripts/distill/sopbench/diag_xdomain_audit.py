@@ -26,7 +26,7 @@ def load_tasks(domain):
     if isinstance(d, dict):
         for v in d.values(): out += v if isinstance(v,list) else [v]
     else: out = d
-    return [t for t in out if isinstance(t,dict) and "directed_action_graph" in t and "constraints_original" in t]
+    return [t for t in out if isinstance(t,dict) and "directed_action_graph" in t and "constraints_original" in t and "user_goal" in t]
 
 print(f"{'domain':<15}{'n':>5}{'OVER_nodes':>11}{'OVER_tasks':>11}{'UNDER_nodes':>12}{'UNDER_tasks':>12}  login_arg / admin")
 print("="*95)
