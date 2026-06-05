@@ -189,19 +189,21 @@
 - **정책(verbalize) = per-task `constraints`와 정확 일치**(4 set_safety_box 태스크 대조: 정책이 constraints의 login/admin 유무를 그대로 반영). 
 - **dirgraph ⊋ 정책**: dirgraph는 *항상* login_user(+OR-대안 internal_get_database)를 포함 — per-task 정책/constraints가 login을 빼도(task0). 정책 충실 궤적(no-login)은 dirgraph_satisfied=False → BOTH 실패.
 - **우리는 정책조차 안 읽음**: `_plan_v2:505` `policy=...[:600]` → 전체 10,578자 중 600자(일반 서문)만, **per-action SOP(login 등) 전부 잘림**. 모델은 정책을 못 봄(induced precond rendering으로 대체).
-- **빅 모델(Claude) login 35/35·admin 10/10·set_safety_box 성공 8/10** — full SOP(항상 login) 준수. 자격증명 가용(user_known: identification 8/10·admin_password 6/10).
+- **빅 모델(Claude) login 35/35·admin 10/10·set_safety_box 성공 8/10** — creds 가용 시 *자연* login(강제-레버 아님; 아래 정정). 자격증명 가용(user_known: identification 8/10·admin_password 6/10).
 
 **★논문(SOPBench/AgentOrca) 권위 판정 (ar5iv 본문 인용)**:
 - 에이전트가 받는 것 = **"the full natural-language SOP/policy"** (per-task subset 아님).
 - **"the agent must first call necessary verification actions... cascading"** = 모든 선행단계(login/auth) 필수.
 - success = **"Directed Action Graph Verification... each service action is preceded by all required verifications"** = full dirgraph 충족.
 - constraints = **"the complete operational dependency structure specified in code"** (sampled 아님).
-- ⇒ **"정책만(=sampled constraints)" 아니라 full SOP(항상 login)를 따라야 함이 논문 의도.** dirgraph의 login 요구 = over-require 아니라 **의도된 full SOP**. per-task 정책이 login 생략한 건 verbalization sampling 아티팩트. **Part B 6 = login필수 ∧ cred불가용 교집합만 진짜 defect; 나머지 solvable(빅모델 풂). 정직분모 34 유지.**
+- ⚠️**정정 (2026-06-05, 리뷰) — "full SOP / gate on dep_full"는 RETRACTED.** 위 인용은 **1차 paper-fetch**인데 **재-fetch가 정면 반박**("task-specific graph / permuting constraint subsets / login sampled per task") → **fast-model paper 요약 2개 상충 = paper-요약 권위 불가**. **권위 = 코드(evaluator)**: `constraint_not_violated`는 goal dep를 `task["constraints"]`로 override("match evaluator", `build:219`·`check_permitted:666`)이므로 success의 constraint축 = **task-specific(task constraints)**, `dep_full`(태스크-무관 전체 default dep superset) 아님.
 
-**★★★논문-근거 BOTH 처방 (확정)**:
-1. **게이트 기준 = full SOP(dep_full / operator precond, 항상 login·auth) — sampled `constraints` 아님.** check_permitted를 dep_full로. = dirgraph·빅모델·논문 의도 일치.
-2. **정책 600자 truncation 수정** — 모델에게 full SOP(login 포함) 제시.
-3. active-H3가 full-SOP evidence(login + getters) 구동. 이러면 7B도 항상-login → dirgraph 충족 → **BOTH 천장 34로**.
-- paper-framing: 이는 "정책 충실"이 아니라 **"full SOP(논문이 요구하는 전체 절차) 충실"** — 빅 모델이 하는 것. axis-A(모델 자율학습)와 active-H3(gate-driven)는 여전히 구분.
+**★★★BOTH 처방 (정정본)**:
+1. **게이트 = `task["constraints"]` 유지**(현행, evaluator constraint축 미러링). **dep_full로 바꾸지 말 것** — dep_full=태스크-무관 superset → 그 태스크가 sample 안 한 정책조건까지 요구 = **over-deny → active-H3 15 재붕괴**.
+2. **정책 truncation 수정**(`_plan_v2:505 [:600]`→full policy 노출) — 모델 *입력*은 full(success-요구와 무관하게 유효).
+3. **★진짜 레버 = gather 완성(active-H3 gate-driven getter 구동 → BOTH 15) + credential 가용**(login=False ≤9). **login *유무* 아니라 creds·downstream getter(balance)가 binding.**
+- **login은 dirgraph-required**(leave-one-out 12/17, 사실)지만 **BOTH-레버 아님**: 강요 실패(**Exp-4-rung1-T1T2 login-uniform=BOTH 4/4**)·not-binding(LIGHTEN)·**특별취급 금지**(모델측=전이파괴) → 모델 gather가 충족(active-H3 구동), 게이트 강제/특수화 안 함.
+- **⚠️OPEN(추론 금지)**: 게이트가 dirgraph축(login 순서)까지 미러링할지·정확한 dep object(`dep_innate`엔 auth無·`dep_innate_full`엔 有)는 **실제 evaluator로 검증 후에만**. paper-fetch·추론으로 박지 말 것.
+- **Part B 6 = login필수 ∧ cred불가용만 진짜 defect; 정직분모 34 유지.** paper-framing: success=그 태스크의 directed action graph(task constraints + cascade)이지 모든 도메인 제약(dep_full) 아님. axis-A(모델 자율학습)와 active-H3(gate-driven) 여전히 구분.
 
 **★이번 조사 reliability 교훈 (사용자 교정이 막은 함정들)**: ①observed-called를 available-tool로 착각 2회 ②string-search aliasing 아티팩트 ③"internal_get_database 필요=bench 결함" 점프(빅모델 풂이 반증) ④"정책=dirgraph" 가정(정책=constraints, dirgraph가 over-require). **전부 코드/정책/저자출력/논문을 *직접 읽어* 정정.** ⇒ **메트릭/벤치 판정은 induced 구조 말고 정책 원문·저자 궤적·논문으로 검증**([[feedback-check-authority-before-rederive]] 확장: 벤치 의미론은 논문·정책 원문이 권위).
