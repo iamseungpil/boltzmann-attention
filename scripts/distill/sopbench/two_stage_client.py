@@ -329,7 +329,14 @@ class TwoStageClient:
         # ungathered condition getter (so it can verify->permit) AND internal_get_database (the
         # dirgraph DB-read, not a constraint leaf). No retrain. Loop-guarded by _active_driven.
         self._offload_active = bool(os.environ.get("SOPBENCH_OFFLOAD_ACTIVE"))
+        # ARGFIX (2026-06-05): attack the genuine residual (arg/slot-binding). (1) active-H3 drives an
+        # argmismatch leaf with the gate's CORRECT args (e.g. transfer destination-username check that
+        # the resolver kept binding to the source slot); (2) _resolve fills required args
+        # deterministically from user_known (+slot) so the goal call isn't re-emitted/value-corrupted
+        # by the 7B (pay_bill unit, set_account username). Off by default; A/B vs current.
+        self._argfix = bool(os.environ.get("SOPBENCH_ARGFIX"))
         self._task_sig = None       # content-based task id for offload-log<->eval join (set in reset)
+        self._force_call = None     # ARGFIX: (tool, args) to drive deterministically next _resolve
         self._active_driven = set()
         self._task_db = None            # H3: this task's initial_database (for evidence-gated bench compute)
         self._constraint_params = None  # this task's constraint_parameters (thresholds)
@@ -382,6 +389,7 @@ class TwoStageClient:
         import hashlib as _hl
         self._task_sig = _hl.md5(json.dumps(
             [goal, task_constraints, user_known], sort_keys=True, default=str).encode()).hexdigest()[:12]
+        self._force_call = None         # ARGFIX: clear gate-driven forced call per task
         self._active_driven = set()    # active-H3: tools the gate has already driven this task
         if domain:
             self._domain = domain
@@ -583,6 +591,17 @@ class TwoStageClient:
                             and tool not in called_now):
                         self._active_driven.add(tool)
                         return tool
+                # ARGFIX: drive an argmismatch leaf with the gate's CORRECT args (the resolver bound it
+                # to the wrong slot, e.g. transfer destination-username -> source). Keyed by (tool,args)
+                # so it is distinct from any same-tool source call already made.
+                if self._argfix:
+                    for am in info.get("argmismatch_args", []):
+                        tool = am.get("tool"); fpargs = am.get("args") or {}
+                        key = (tool, tuple(sorted((k, str(v)) for k, v in fpargs.items())))
+                        if tool in tool_names and key not in self._active_driven:
+                            self._active_driven.add(key)
+                            self._force_call = (tool, fpargs)
+                            return tool
                 # nothing new to drive -> fall through to passive (model pick / STOP-deny).
             if dec == "ACT":
                 return self._goal_name or "STOP"           # permitted -> model CALLS goal (arg-correctness)
@@ -702,6 +721,7 @@ class TwoStageClient:
                 # lock #4 / reviewer split: two DIFFERENT work-streams behind a deny —
                 self.ungathered = []     # evidence tool NEVER called -> gather-targeting axis
                 self.argmismatch = []    # tool called but args didn't match -> arg-binding/slot axis
+                self.argmismatch_fp = [] # ARGFIX: (tool, correct_args) for gate-driven re-call
             def _single(self, func, param_mapping, **kw):
                 neg = func.startswith("not "); base = func[4:] if neg else func
                 pm = param_mapping or {}
@@ -721,7 +741,11 @@ class TwoStageClient:
                 miss = [tl for tl in evs if not matched(tl)]
                 if miss:                                            # evidence not gathered -> DENY (lock #1)
                     for tl in miss:
-                        (self.argmismatch if called.get(tl) else self.ungathered).append((base, tl))
+                        if called.get(tl):
+                            self.argmismatch.append((base, tl))
+                            self.argmismatch_fp.append((tl, dict(fp)))   # ARGFIX: correct args to drive
+                        else:
+                            self.ungathered.append((base, tl))
                     return False
                 try:                                                # lock #2: bench compute, gated
                     val = Dependency_Evaluator._single(self, func, param_mapping, **kw)
@@ -742,6 +766,7 @@ class TwoStageClient:
                 "n_argmismatch": len(ev.argmismatch),
                 "ungathered": [f"{b}:{t}" for b, t in ev.ungathered],
                 "argmismatch": [f"{b}:{t}" for b, t in ev.argmismatch],
+                "argmismatch_args": [{"tool": t, "args": a} for t, a in ev.argmismatch_fp],
                 "false": [b for b, _ in ev.false_leaves]}
         if permitted is None:
             return ("STOP", "eval_error", info)
@@ -766,19 +791,27 @@ class TwoStageClient:
         # forced tool_choice=action_name -> 400 BadRequest ("tool_choice does not match tools"),
         # silently DROPPING ACT-heavy should_T tasks (treeval n_T 48->45). Fix: only force the tool
         # when it is actually present; otherwise let the model choose from the full list (no 400).
+        # ARGFIX: gate-driven deterministic call with the EXACT correct args (argmismatch re-call).
+        if getattr(self, "_force_call", None) and self._force_call[0] == action_name:
+            tool, fpargs = self._force_call; self._force_call = None
+            self.cov_turns += 1; self.cov_deterministic += 1
+            return self._make_tool_call_completion(tool, fpargs)
         chosen_spec = next((t for t in tools
                             if t.get("function", {}).get("name", "") == action_name), None)
         fn = (chosen_spec or {}).get("function", {})
         required = fn.get("parameters", {}).get("required", [])
 
         self.cov_turns += 1
-        all_in_slots = bool(chosen_spec) and bool(required) and all(r in self._slot_state for r in required)
+        # ARGFIX: bind required args deterministically from user_known(+slot) so the 7B does not
+        # re-emit/value-corrupt them (goal call: pay_bill unit, set_account username, transfer args).
+        src = {**self._task_user_known, **self._slot_state} if self._argfix else self._slot_state
+        all_in_slots = bool(chosen_spec) and bool(required) and all(r in src for r in required)
         if all_in_slots:
             # diagnostic: this turn COULD be resolved deterministically
             self.cov_deterministic += 1
-            if self.use_deterministic_shortcut:
-                # rung (a): build the call from slot state, NO LLM
-                args = {r: self._slot_state[r] for r in required}
+            if self.use_deterministic_shortcut or self._argfix:
+                # rung (a): build the call from user_known/slot, NO LLM
+                args = {r: src[r] for r in required}
                 return self._make_tool_call_completion(action_name, args)
 
         if chosen_spec is not None:
