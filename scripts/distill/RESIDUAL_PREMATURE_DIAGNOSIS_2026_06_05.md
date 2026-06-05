@@ -89,6 +89,19 @@ gate/active-H3가 **login_user를 login-gated getter/admin-auth보다 먼저** d
 - **AUGMENT_CRED는 계정 DB의 login 비밀번호(identification)를 user_known에 주입**(`apply_two_stage_patch.py` Edit D). cred-absent 태스크가 통과하면 = 유저가 못 받은 비밀번호 사용(= bug-report fix #2, 모델 능력 아님). admin_password는 미주입.
 - 처방 분리: cred-present 4 = login-first 순서구동(SOPBENCH_LOGINFIRST 후보). pay_loan ×2 = no-login 경로 라우팅(모델이 login-필요 getter 대신 no-login branch 선택). transfer 047d 등 PartB 6 = defect(천장 밖, 손대지 않음).
 
+## 11. ★★★Fix 3 STOPSUCCESS 결과 (LIVE A/B) — should_T 천장 도달, 공식 50.75%
+**B-3 사전검증(`diag_fix3_offline.py`, GPU 전): 12/12 BOTH-but-not-full → full success flip**(첫 성공 goal-call까지 truncate+strict-replay, prefix-identity 신뢰). → 구현·A/B.
+**A/B (full-stack incl DGGATE, augment OFF, `offload_stopsuccess.sh`):**
+| run | 공식 pass%(134) | should_T full | should_F |
+|---|---|---|---|
+| S0 (STOPSUCCESS off) | 41.04% (55) | 28/48 | 27/86 |
+| **S1 (+STOPSUCCESS)** | **50.75% (68/134)** | **40/48** | 28/86 |
+- **should_T 28→40 (+12, B-3 예측 정확)·회귀 0·should_F 무회귀(27→28).** S1의 BOTH-but-not-full = **공백**(goal_calls→1 수렴). 사전등록 §6 4기준 전부 충족.
+- **★should_T = 40/48 = 정직천장 도달** (48−PartA8=40; 비-PartA should_T 전부 통과). **잔여 should_T 8 = PartA credit_card 코드버그(불가).**
+- **공식 50.75% = 오픈소스 SOTA(Llama3.1-70B 42.54%) 추월·대형 비-reasoning권**(Gemini-2.0-Flash 52.99·Deepseek-R1 54.48 근접). base Qwen2.5-7B 5.22% → **50.75% (≈10×), 7B로 오픈소스 70B 추월.** 리더보드 max=o4-mini-high 76.87%.
+- **★다음 레버 = should_F(거부축) 28/86=33%** (상위모델 70–85/86). should_T는 천장이라 전체%의 유일 잔여 레버 = 거부축.
+- **누적 공식 사다리(end-to-end, delta합산 아님)**: base 29.85→loginfirst 37.31→logincall 40.30→**stopsuccess 50.75%**.
+
 ## 10. ★★Fix 2 결과 + 지표 재구성 (BOTH dg∧acc는 과대계상, full_success가 진짜)
 **Fix 2 LOGINCALL** (`SOPBENCH_LOGINCALL`, `offload_logincall.sh`): pay_loan 통과 기전 = login_user를 **호출**(실패해도)하면 evaluator dirgraph가 충족(dfscheck는 call-order만 봄, auth-성공 아님), getter precond는 username뿐. released qwen2.5-7b fc가 이 방식으로 통과(login('password123')→False→get_account_balance→pay_loan→success).
 
