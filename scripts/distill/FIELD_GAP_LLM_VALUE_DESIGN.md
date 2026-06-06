@@ -94,6 +94,12 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 - **Track/LOCK**: gather-grounding(alive). C 아님. **E1·E5 전에 1급 증거로 박제** — thesis de-risk.
 
 ### E1. NL-only 입력 (D1 제거) — ★핵심 실험 (= 우리 thesis의 정직한 버전)
+- **★(a) NL-정책 정찰 결과 (2026-06-06, 리모트 코드정독) — E1 SOPBench 실현가능(조건부)**:
+  - **NL 정책 존재 O·위치 확정**: `policy` = **시스템 메시지 prose**(benchmark가 `bank_assistant.py:instructions`+`action_descriptions`+`action_returns`로 조립; `get_action_full_description`=desc+return). 우리 `_plan_v2`(`two_stage_client.py:561`)가 이미 이를 `policy`로 뽑아 **source=3에 투입** → source=3 = "NL+도구설명만, 모델이 구조 추론"(=E1 메커니즘 일부 이미 존재; gather가 그 추론=alive·학습됨 0→43%).
+  - ⚠️**2 결함**: ① **`policy`가 `[:600]` 절단**(`:561`) → 모델이 정책을 거의 못 봄(메모리 "잘라 안 봄"). ② **성격 = render(structured)**: NL이 구조화 spec(설명·instructions)에서 생성 → NL→구조 = "렌더된 정책 파싱" = 정당하나 *낮은 바*(약한 순환, 독립-authored prose 아님).
+  - **남은 inherited = GATE만**: 제약 자체는 구조화 predicate 튜플(`action_customizable_dependencies`)이고 source=3는 이를 모델에 안 줌(gather가 추론). 그러나 **DGGATE 게이트가 `constraints_original`(GT 구조) 소비** = 여기가 inherited 잔존.
+  - **⇒ E1 SOPBench 실현 = 2 변경**: (i) policy 절단 `[:600]`→full(모델이 전체 NL 봐야 구조 복원) (ii) 게이트가 GT `constraints_original` 대신 **모델 NL-추론 구조(2-agent Agent1)** 소비 → 완전 NL-sourced. Agent1 구조 vs GT = Guard-2식 독립검증. **(Agent1=분리·검증 = 죽은 Track C 아님.)**
+  - **판정**: E1은 **SOPBench서 정직 가능**(위 2변경 후 + 약한순환 caveat 명시) + **SOP-Bench(Amazon 독립 free-text NL)가 강한 바** → cross-bench가 E1 강화의 필수.
 - **★선행 게이트 (E1 돌리기 전 BLOCKING, 리뷰)**: found vs inherited 분리 절차 확정 必. `induce`(ontology)·`autoderive`(getter_map)가 **벤치의 구조화 산출물(`<domain>_assistant.py`의 constraint 정의·directed_action_graph)에서 추출하면 "우리 0줄"도 벤치 scaffold 상속** = Guard-2 공격이 E1서 재발(구조화 입력 읽기) + 결정론 "0줄" 대조가 조작. ⇒ **기계적 분리**: induce 입력이 (i) NL 정책 텍스트·도구 시그니처(=found, 정당) vs (ii) constraints_original·directed_action_graph 같은 *파싱된 구조*(=inherited, E1서 금지)인지 코드로 판정. inherited 의존이 있으면 그 경로를 NL-only로 대체하거나 E1 범위서 표기. **이 분리가 깨끗하지 않으면 E1 cost 주장 = Guard-2 재현 → 돌리지 말 것.**
 - **regime**: `constraints_original`(구조화 제약) **제거**, 입력 = **NL 정책 + 도구 API 설명만**. 구조는 누군가 생산해야.
 - **arms**: ① 결정론(NL→구조를 *사람이 작성*) = per-domain authoring 필요 ② 우리(모델이 NL→구조 emit: gather-style 또는 2-agent Agent1, Guard-2식 독립검증 후 결정론 게이트(A)에 투입).
