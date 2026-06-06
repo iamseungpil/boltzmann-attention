@@ -394,3 +394,34 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 4. **guard-선언성은 operator-shape만 완화, slot-grounding은 아님.** guard `lhs:<state-ref>`가 가리키는 slot 어휘(auth_history/service_metrics 키)=도구반환 JSON 내부=**blind-미지**(내 probe가 막힌 지점). 학습 타깃=NL→(구조+*grounded* slot refs); **slot-grounding이 진짜 난점**(operator 모양 아님) — §14.4 명기.
 
 **리뷰5 결론**: §14는 표현가능성 *골격*으론 옳고 정직(경계 명시). 단 **(a) bounded-compute 노드 없이는 실도메인 표현불가(customer_service 확정)** → 스키마에 compute 경계 추가가 스키마 확정의 *선결*. (b) 통합 실행기는 미구축. (c) 매핑은 FULL/PARTIAL 혼합. ⇒ 다음 = §14.4 손-검증을 **"compute 노드 포함 시" customer_service 완전표현 + 단일(확장)실행기 1태스크**로 재정의 후 진행.
+
+---
+
+## §15. ★연구 추세 위치 + 실무 의미 비판 — 내구적 moat는 assurance 하나뿐 (2026-06-06, 딥리서치 `wheyskq29` 진행 중)
+> 동기 = "이 방향이 실무적으로 의미 있나"의 *냉정한* 답 + 최대 위협(reasoning-model 조류)에 대한 방어를 문서로 굳힘. ⚠️**일부는 strategic opinion**(인용 명시한 것 외); 진행 중 `wheyskq29`가 reasoning-model-흡수·compliance-determinism을 인용으로 hardening → 완료 시 ✅/정정.
+
+### §15.1 neurosymbolic LLM 추세 (우리 위치)
+1. **LLM-as-formalizer + sound solver = 지배 패러다임** (Logic-LM·SatLM·PAL·LLM+P·L2P; ACL'25 survey `2503.18971`). **→ 우리 방향이 이 계열.**
+2. **LLM-Modulo / Generate-Test-Critique** (`2402.01817`): soundness는 외부 critic서. compound-AI 추세.
+3. **★Reasoning model 부상 = 최대 *역류*** (o1/o3/R1): plan·제약준수·self-verify를 *weight 안*서 개선. Kambhampati 본인 o1=PlanBench "quantum improvement" (`2409.13373`). = verifier-RL이 neurosymbolic 이득을 *가중치로 흡수*하는 경쟁 패러다임.
+4. workflow/structure-guided agents (FlowBench·TaskBench) — 엔터프라이즈 reliability.
+5. autoformalization (Lean/Isabelle).
+6. **learned/distilled formalization = 덜 붐비는 틈** (proScript·PlaSma) → **우리(학습 소형 NL→구조 전이)가 여기.**
+
+### §15.2 실무 의미 — 4 위협 (정직)
+- **①★Reasoning-model 조류 (bitter-lesson, 최대 위협)**: SOPBench 이미 frontier 30–76%. o-class가 SOP-following을 네이티브 신뢰성화하면 "온톨로지+결정론 실행기" 한계가치 ↓. **손-설계 스키마가 스케일링이 1–2년 내 obsolete시킬 과도기 버팀목일 위험.** (= bitter lesson; `wheyskq29`로 검증 중.)
+- **②온톨로지-설계 병목**: 통합 온톨로지는 compute 노드·새 실행기·slot-grounding 필요(§14.5) → 실상 *per-domain DSL*을 설계·유지. **"per-domain 코드 0" 약속이 후퇴(§13.7 probe-2)** → 실무선 결정론 프로그램(OISA) 직접 or frontier+경량 checker가 더 쌀 수.
+- **③"free-text SOP→구조" 킬러 유스케이스가 좁다**: 고위험 절차는 *애초에* free prose로 안 둠(BPMN·결정테이블·애널리스트 1회 구조화) → "애널리스트 amortize"와 경쟁.
+- **④전이의 실무가치**: 재학습0 cross-bench는 학술적; 실무 배포는 보통 한 도메인·fine-tune 기꺼이. 전이는 롱테일·다도메인서만 결정적.
+
+### §15.3 ★내구적 moat = assurance/compliance 하나 (헤드라인 재좌표)
+위 위협(특히 ①)을 견디는 단 하나 = **결정론·감사가능 정책-집행**:
+> **규제 산업(은행·의료)은 stochastic 모델 자기-집행을 준수근거로 *못 씀* — 모델이 아무리 좋아져도.** 더 나은 LLM도 확률적; compliance는 *결정론·감사가능·추적가능*을 요구(=capability와 *직교*). reasoning-model이 *해결 못 하는* 축. (인용 후보: EU AI Act high-risk 조항·SR 11-7 model-risk·AgentSandbox complete-mediation `2505.24019`; `wheyskq29` 검증 중.)
+
+⇒ **판정**:
+- **정확도·비용·전이 헤드라인 = reasoning-model+스케일링에 *침식* = 시한부.** 이걸로 frontier와 싸우면 진다.
+- **assurance 헤드라인 = 내구적 moat** = capability와 직교라 스케일링이 안 풀어줌. **"더 똑똑한 LLM이 아니라, *증명가능하게 정책을 안 어기는* 집행."**
+- ⇒ **프레이밍 재좌표**: neurosymbolic의 *soundness*(축2) 측면으로 걸어야지 *capability*(축3에 짐) 측면으로 걸면 시한부. §9 assurance축(4번째 지표)을 **1급 헤드라인**으로 승격, 정확도는 trade-off로.
+- **정직 scope**: 학습-소형 NL→결정론-온톨로지 컴파일러가 실무 의미 있는 regime = **롱테일 다도메인 × free-text SOP × 규제/감사 × 비용**의 교집합. 그 밖(소수도메인·기구조화·비규제)에선 frontier+checker나 직접 결정론이 우위 — 정직 인정.
+
+> **상태 = DRAFT (opinion+부분인용).** `wheyskq29` 완료 시: ①threat REAL/OVERSTATED/domain-dependent 판정 ② assurance-moat 내구성 규제근거 ③ 정직 scope를 인용으로 확정 → §15 ✅ + §9 assurance 승격 반영 → 타세션 리뷰.
