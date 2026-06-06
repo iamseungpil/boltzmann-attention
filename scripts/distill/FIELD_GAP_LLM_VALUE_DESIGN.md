@@ -39,6 +39,30 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 
 이 셋이 LLM의 대체불가 역할(NL→구조, 대화이해, 변경적응)을 전부 우회시킨다. **효용은 D1–D3를 현장 쪽으로 되돌릴 때만 드러난다.**
 
+## §2.5. ★Capability-source 분해 — 모델-크기 격차가 *어느 하위기술*서 나오나 (E1 동기의 뿌리)
+> **핵심 주장**: "Opus 4.8(기업) vs {7B,32B,72B}+우리방법"의 SOPBench 격차는 균일하지 않다. 격차가 가장 큰 두 하위기술이 *정반대 성질* — 하나는 scaffold가 완전히 지우고(=비판이 옳은 영역), 하나는 scaffold가 전혀 못 건드린다(=LLM load-bearing·E1 타깃). **이 분해가 "왜 구조화-regime 격차는 의도적으로 양보하고 NL-only(E1)로 옮기나"를 자명하게 만든다.**
+
+SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaffold-외부화 가능성)이 다르다:
+
+| 하위기술 | scale 민감도 | scaffold 결정론 외부화? | 7B 단독 | Opus 단독 | 내부 증거 |
+|---|---|---|---|---|---|
+| **결정 계산** (AND/OR 정책트리 충실평가) | **가장 가파름** | **예**(DGGATE/offload) | fabricate·1-false-leaf 붕괴(Track C NULL) | 거의 충실 | offload→BOTH 6→15→29/34 |
+| **순서**(precond establish 순서) | 중간 | **예**(DGGATE) | 부분 | 자연수행 | DGGATE +3 |
+| **arg/slot 바인딩**(transfer dual-username) | 중간-가파름 | **예**(ARGFIX 결정론 resolve) | 오염 | 자연수행 | ARGFIX +6 |
+| **gather 완전성**(dirgraph 순회) | **완만** | 부분(active-gather) | **학습됨 0→43%·전이** | 자연수행 | LODO 전이 |
+| **거부 보정**(should_F, over-refuse 없이) | 중간 | 부분 | over-refuse/over-act | 보정됨 | should_F 회귀모니터 |
+| **NL→구조 컴파일**(D1 제거 시) | **가장 가파름** | **아니오** | 미지(아마 못함) | 네이티브 | E1 미측정 |
+
+**두 갈래 결론**:
+1. **결정·순서·arg 축 = scaffold가 곡선을 평탄화** → 작은 모델도 Opus 근처(honest 천장 34 도달, cross-domain 75–95%). 즉 **이 격차는 *지식*이 아니라 *신뢰가능 계산* 격차**(Guard-2 OVER=0/UNDER=0가 결정론 계산가능 증명). = **"그냥 결정론 프로그램" 비판이 옳은 영역.** compositionality gap(2210.03350)·self-verify 한계(2402.08115)의 발현.
+2. **NL→구조·멀티턴 축 = scaffold가 못 평탄화** → 게이팅할 구조화 입력이 없으니 외부화 불가 → 격차가 **재개방**, Opus ≫ 7B가 **환원불가능**. = **LLM load-bearing·E1 타깃·진짜 헤드라인 숫자.**
+
+**기업 배포 함의**: 구조(dirgraph) 생산 경로는 셋뿐이고 **집행(scaffold)은 셋 모두에 동일** — ① frontier in-context(Opus가 NL→구조+집행 한번에) ② 사람 authoring(OISA/CDP, 변경마다 재작성=§1.1 ~968 LOC/도메인) ③ **학습된 소형 front-end(우리 Agent1/gather)**. ⇒ **Opus-인-기업 vs 소형방법 차이 = 구조를 *누가 만드나*의 차이지 집행능력 차이가 아니다.** thesis의 정당한 자리 = ③.
+
+**★규제-기업 반전 (assurance 축)**: bank substrate가 우연이 아님 — 규제산업선 stochastic 모델의 자기-집행을 준수근거로 못 쓸 수 있다. Opus가 네이티브로 잘해도 감사가능·결정론·증명가능 집행이 요구되면 결정론 게이트가 **독립적으로 필요**(LLM-Modulo soundness). ⇒ scaffold+소형은 Opus와 *비용*뿐 아니라 *assurance*서도 경쟁. Opus조차 "확률적으로 따른다"≠"보증한다". **§9 비용축에 assurance(감사가능 집행 유무)를 4번째 차원으로 추가.**
+
+**측정계획 함의(scaling curve, R1)**: 0.5→72B 곡선을 하위기술별로 분리해 읽는다 — scaffold가 *평탄화하는* 곡선(결정/순서/arg) = 비판 옳은 부분 / scaffold가 *못 평탄화하는* 곡선(NL→구조, E1) = LLM load-bearing. **두 곡선 분리가 §8 양면 ablation의 진짜 목적.** NL→구조가 7B/32B/72B 중 어디서 emerge하나 = thesis 헤드라인.
+
 ## §3. ★이전 Track A/B/C·LOCK과의 정합 (사용자 요구 — 면밀 평가, 죽은 길 재답습 금지)
 > 이 §은 "모델이 NL→구조를 해야 한다"는 본 설계의 핵심 처방이 **이미 7B에서 NULL인 Track C(decision-emission)를 되살리는 게 아님**을 못박는다.
 
@@ -94,6 +118,7 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 - **Track/LOCK**: gather-grounding(alive). C 아님. **E1·E5 전에 1급 증거로 박제** — thesis de-risk.
 
 ### E1. NL-only 입력 (D1 제거) — ★핵심 실험 (= 우리 thesis의 정직한 버전)
+> **근거 = §2.5**: E1이 핵심인 이유 = NL→구조가 scaffold로 *평탄화 불가능한* 유일 하위기술축(나머지 결정/순서/arg는 결정론 외부화됨). 구조화-regime 격차를 의도적으로 양보하고 여기로 옮기는 정당성 전체가 §2.5 분해에 있다.
 - **★(a) NL-정책 정찰 결과 (2026-06-06, 리모트 코드정독) — E1 SOPBench 실현가능(조건부)**:
   - **NL 정책 존재 O·위치 확정**: `policy` = **시스템 메시지 prose**(benchmark가 `bank_assistant.py:instructions`+`action_descriptions`+`action_returns`로 조립; `get_action_full_description`=desc+return). 우리 `_plan_v2`(`two_stage_client.py:561`)가 이미 이를 `policy`로 뽑아 **source=3에 투입** → source=3 = "NL+도구설명만, 모델이 구조 추론"(=E1 메커니즘 일부 이미 존재; gather가 그 추론=alive·학습됨 0→43%).
   - ⚠️**2 결함**: ① **`policy`가 `[:600]` 절단**(`:561`) → 모델이 정책을 거의 못 봄(메모리 "잘라 안 봄"). ② **성격 = render(structured)**: NL이 구조화 spec(설명·instructions)에서 생성 → NL→구조 = "렌더된 정책 파싱" = 정당하나 *낮은 바*(약한 순환, 독립-authored prose 아님).
@@ -153,11 +178,12 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 | **human-author** | 결정론 프로그램 사람작성 | per-domain LOC/시간 = 비용 baseline(§9) |
 - **닫힘 조건**: det-scripted ≫ ours (구조화-입력) 이지만 **det-scripted ≪ ours (NL-only/변경/멀티턴)**, 그리고 **adapter-only ≪ stack** 이되 E5가 adapter-only↑. = 두 컴포넌트(LLM·결정론) 각자 어떤 regime서 load-bearing인지 분리.
 
-## §9. 지표 (3축)
+## §9. 지표 (4축)
 1. **성능**: 공식 success(`evaluator.py:277`, tool_full, BOTH 금지, honest). 도메인·regime별.
 2. **★비용/노력 = amortization regime이 헤드라인 (정적 LOC는 약함, 리뷰)**: "0줄 결정론=0%"는 trivially true라 리뷰어가 *"사람 하루 주고 도메인당 한 번 짜면 그 뒤 수백만 콜서 7B보다 빠르고 정확 — amortize해라"*로 한 방에 받아친다. ⇒ **진짜 전장 = `도메인 수 × 변경 빈도 × 콜당 authoring비`의 amortization.** **LLM이 이기는 regime을 전경화**: 롱테일 다도메인 · 고빈도 정책/도구 변경 · 저~중 콜량(authoring 고정비를 못 amortize하는 영역). 우리 = 1회 고정비(scaffold+SFT) + 한계비용≈0; 결정론 = 작성 선형 + **변경마다 재작성**. **핵심 수치 = 변경당 Δ-LOC**(조건 1개 add/도구 1개 rename당 결정론이 몇 줄 바뀌나 vs 우리 0) — 정적 "도메인당 N줄"보다 이게 변경축의 진짜 탄환(E2 Pareto에 직접 투입).
 3. **robustness**: perturbation Pareto(누적 Δ-edit vs success).
-- ⚠️ **성능 < 결정론이면 "지배" 아님 = trade-off 프레이밍**(0 작성·무재학습·변경robust 대가로 정확도 X% 양보) — Pareto frontier로 정직 보고. 단 amortization·변경 regime서는 *지배* 주장 가능.
+4. **★assurance (감사가능·결정론 집행 유무) — 규제-기업 축 (§2.5 반전)**: bank substrate가 우연 아님 — 규제산업선 stochastic 모델 자기-집행을 준수근거로 못 쓸 수 있다. Opus가 네이티브로 잘해도 **증명가능·감사가능·결정론 집행이 요구되면 결정론 게이트가 독립적으로 필요**(LLM-Modulo soundness). 이진 지표: {LLM 자기-집행=확률적·감사불가} vs {scaffold 게이트=결정론·감사가능·증명가능}. ⇒ scaffold+소형은 frontier와 *비용*뿐 아니라 *assurance*서도 경쟁; "Opus가 in-context로 하면 되잖아"의 직접 반박(Opus조차 "확률적으로 따른다"≠"보증한다").
+- ⚠️ **성능 < 결정론이면 "지배" 아님 = trade-off 프레이밍**(0 작성·무재학습·변경robust 대가로 정확도 X% 양보) — Pareto frontier로 정직 보고. 단 amortization·변경·assurance regime서는 *지배* 주장 가능.
 
 ## §10. 정직 범위 / threats
 1. **found vs authored vs benchmark-inherited 분류 필수**: 우리 per-domain 산출물(ontology=induced, getter_map=auto-derived, 정책=found)을 "작성 0"이라 쓰려면 각각이 NL/API서 자동도출인지 vs 벤치 구조 상속인지 명시(induce는 벤치 구조 추출이라 "0"이 일부 상속). 안 하면 "너희 0도 벤치 덕" 반박.
@@ -180,6 +206,7 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 
 ## §12. 리뷰 훅 (박제 전 확인)
 - [x] §1 메트릭 정정(37=oracle-gather 상한·honest 천장~32·우리33 도달; "결정론이 이김" 철회) 반영 (리뷰 1회)
+- [ ] §2.5 capability-source 분해가 "scaffold-평탄화 가능(결정/순서/arg=비판 옳음) vs 평탄화 불가(NL→구조=E1=LLM load-bearing)" 두 갈래를 명확히 분리하나? E1·§8 양면ablation·assurance축(§9-4)이 거기서 도출되나?
 - [ ] 정면반박(E0 gather-grounding·E5 파일럿)이 *조기* 신호로 배치됐나(맨 끝 아님)? E5 NULL이면 thesis 재골격 인지?
 - [ ] amortization regime(도메인수×변경빈도×콜당비)이 비용 헤드라인이고 정적 LOC가 격하됐나? 변경당 Δ-LOC 카운트하나?
 - [ ] E1 found/inherited 선행게이트 통과 전엔 E1 안 돌리나(Guard-2 재현 차단)?
