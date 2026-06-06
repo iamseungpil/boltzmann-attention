@@ -537,6 +537,49 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 > - **⚠️⓪ credential-augment zero-cost 게이트 (2026-06-04, alias-independent 실제 eval) = ⓪-단독 NULL**: should_T 48 중 login_user=True **30건**, 그 중 **success 0·refused 28·acted 2**. login 이미 성공해도 전멸 → credential-augment(login=False 18 수정)는 should_T 못 올림. 병목 = grounded permitted-gate가 non-login leaf(cold-bias·`op_20=650` emission)에서 붕괴(=LOCK'd decision-emission). ⇒ **레버 = H3 offload**(결정론 `check_permitted` over 게더결과), credential-augment는 그 *필요 입력*(login real-true)이지 단독 아님. **메타규칙이 NULL GPU run 차단.** (재현: eval JSON login_user 반환값 + success 대조, alias map 불요.)
 > - **⚠️⚠️재정정 (2026-06-04, reliable leave-one-out — 위 step-0 결론 반전)**: 위 "over-call dominant / credential-augment 천장 못 올림"은 **`constraints`만 보고 `dirgraph`를 놓친 동일 conflation 오류**. **실제 evaluator로 leave-one-out**(should_T 17건 login∉constraints, 궤적서 login 제거→`evaluator_function_directed_graph` 재채점, 재현 17/17): **login 제거 시 `dirgraph_satisfied` True→False = 12(MANDATORY) / 유지 3(OR-bypass) / 이미 False 2.** ⇒ **login은 dirgraph-REQUIRED**(constraints엔 없어도). 내가 "over-call"이라 한 것의 대부분(12/17)은 **불필요 호출이 아니라 dirgraph-필수 login이 credential 부재로 실패**한 것. **호출 vs 성공 구분**: dirgraph=login *호출*만 요구(반환 무관), grounded 게이트=login *성공* 요구 → cred 부재→login=false→게이트붕괴→STOP. **⇒ 레버 = credential-augment(학습 모델에도 유효, prune 아님)**, 잔여(augment 후) = policy-leaf cold-bias = LOCK'd emission → offload/DPO. 재현 = 본 세션 leave-one-out(설계 `RUNG1_REDESIGN_2026_06_04.md` §1·§7).
 
+---
+
+## Exp-5: ★★Cross-Domain Transfer (held-out, 재학습 0, honest) — A축 scaffold 도메인-전이 (2026-06-06)
+
+> **권위본 진행 = [`../../scripts/distill/HANDOFF_2026_06_06_xdomain_full.md`](../../scripts/distill/HANDOFF_2026_06_06_xdomain_full.md) + 설계 [`../../scripts/distill/CROSS_DOMAIN_TRANSFER_DESIGN.md`](../../scripts/distill/CROSS_DOMAIN_TRANSFER_DESIGN.md).** 집계 = `scripts/distill/sopbench/diag_heldout_summary.py`.
+> **클레임**: bank에서 설계한 A축 scaffold(결정론 게이트 DGGATE/OFFLOAD/ARGFIX/VALFIX/KEEPTUPLE/LOGINFIRST/STOPSUCCESS, **per-domain 분기 0**)가, 안 본 도메인에서 **ABox-swap만으로 재학습 0** 작동하는가. transfer = **held-out only**(어댑터가 안 본 도메인). **지표 = 공식 success(`evaluator.py:277`, tool_full, BOTH 금지)**, **honest(LOGINCALL off, quirk≈0)**.
+
+### Exp-5a — train-1 (단일 도메인 학습 → 6 held-out, 극저자원 전이) ★확정
+`qwen7b_tbox_t1c_train1_bank` = **bank 한 도메인만** SFT(LODO 혼합 아님) → bank-설계 scaffold 그대로 + ABox-swap, 나머지 6 도메인 held-out STACK 평가(`finish_train1bank.sh`, eval_tasks robust). **2026-06-06 완료.**
+
+| held-out D | STACK 공식 success | should_T | LB-max(any) | vs LB-max |
+|---|---|---|---|---|
+| dmv | 71.13% (69/97) | 35/36 | gpt-4o-mini 86.7 | below |
+| healthcare | 64.52% (80/124) | **44/44** | o4-mini-high 92.7 | below |
+| hotel | **83.59% (163/195)** | 58/67 | gpt-5-mini 69.7 | **추월** |
+| library | **71.43% (40/56)** | 14/21 | gpt-5 66.7 | **추월** |
+| online_market | 73.84% (127/172) | 53/59 | o4-mini-high 89.5 | below |
+| university | **97.62% (41/42)** | 6/6 | o4-mini-high 95.2 | **추월** |
+| **rowAvg** | **77.3%** | — | — | **3/6 리더보드-MAX 추월** |
+
+- **★헤드라인**: **단일 도메인(bank)만 학습**한 7B+scaffold가, **재학습 0·ABox-swap**으로 6개 안 본 도메인서 평균 **77.3% 공식 success**, **리더보드 MAX(GPT-5/o4-mini-high 포함 프런티어) 추월 3/6**(hotel·library·university). base Qwen2.5-7B(ReAct full)는 이 도메인들서 0~21%(§v1.33 표).
+- **should_T가 거의 천장**(healthcare 44/44·dmv 35/36·university 6/6·online_market 53/59) → 낮은 도메인(healthcare 64.5%)은 **should_F-bound**(bank 결론과 동일: should_F가 전체% 레버).
+- **정직 범위(threats)**: ① train-1은 STACK만(adapter-only 대조 미측정) → "scaffold Δ 격리"(설계 BLOCKING-2)는 LODO 행에서만. ② 단일도메인 학습은 학습다양성 부족 → under-training과 transfer-실패 혼동 가능(설계 §2.0); 단 **그럼에도 6 held-out 전이가 강함**이 결과의 핵심. ③ honest(LOGINCALL off, quirk≈0).
+
+### Exp-5b — LODO-per-target (다도메인 혼합 학습, 타깃 held-out) 〔진행 중〕
+`qwen7b_tbox_t1c_lodo_<X>` = X 제외 6도메인 학습 → X held-out 평가(STACK + adapter-only 4열). **2026-06-06 현재 bank·healthcare·library 확정, dmv·hotel·online_market·university 학습 큐(GPU 2병렬)·eval 대기.**
+
+| held-out X | STACK 공식 success | should_T | should_F | LB-max | 판정 |
+|---|---|---|---|---|---|
+| bank | 43.3% (58/134) | 33/48 | 25/86 | o4-mini 76.9 | 동률권(난도↑·PartA8) |
+| healthcare | **95.9% (118/123)** | **44/44** | 74/79 | o4-mini 92.7 | **추월** |
+| library | **75.8% (50/66)** | 17/24 | 33/42 | gpt-5 66.7 | **추월** |
+| dmv·hotel·online_market·university | 학습 중 | — | — | — | pending |
+| train-1과 대조 (다양성 효과) | healthcare LODO **95.9%** vs train1 64.5% | | | | **혼합 학습 다양성이 healthcare 전이 +31pp** |
+
+- **scaffold Δ(stack − adapter-only)**: 핸드오프 §1 = adapter-only ~0% → stack 75~95% = scaffold가 전부 들어올림(어댑터가 안 본 도메인에서). adapter-only 4열은 `xdomain_eval_heldout.sh`(학습 큐 완료 후)로 채워짐.
+- **★혼합 vs 단일 다양성 효과**: healthcare에서 LODO(6도메인 혼합) 95.9% ≫ train1(bank only) 64.5% = **학습다양성이 전이 강화**(특히 should_F). 단 hotel·library·university는 train1만으로도 LB-max 추월 → 다양성 효과는 도메인-의존.
+
+### Exp-5 다음 단계
+1. 학습 큐(lodo dmv·hotel·online_market·university + train1 dmv·healthcare·hotel·library·online_market·university) 완료 대기(GPU 2병렬).
+2. `xdomain_eval_heldout.sh` 1회 → LODO 4 held-out(stack+adapter-only) + train1 6×6 매트릭스.
+3. 전체 집계(`diag_heldout_summary.py`) → LODO-7 + train-1 7×6 = transfer 매트릭스 완성 → ① LODO 추월 다도메인 재현 여부 ② train-diversity(혼합 vs 단일) 효과 정량.
+
 > **Exp-4 (분리 학습) 가설** — `WORKFLOW_ONTOLOGY_DESIGN §11` 권위본:
 > - HT1(전이): 6 도메인 학습→held-out ABox swap, **재학습 0** → pass ≥ in-domain의 70%.
 > - HT2(분리증명): **빈/틀린 ABox 주입 → 붕괴**(entangled면 ABox 없이도 동작=실패; 분리면 ABox 필수=성공조건).

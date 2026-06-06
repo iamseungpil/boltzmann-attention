@@ -6,6 +6,12 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
+> ### ★★★★★★★★★★★★★ v1.43 (2026-06-06 PM) — ★cross-domain transfer 확정(7B): 단일도메인 학습→6 held-out 전이 avg 77.3%, 리더보드-MAX 추월 3/6
+> **7B(Track A)가 로드맵 #1(A축 scaffold 도메인-전이)을 입증하기 시작.** 권위본 = `SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-5** · 설계 `../../scripts/distill/CROSS_DOMAIN_TRANSFER_DESIGN.md` §11 · 진입점 `../../scripts/distill/HANDOFF_2026_06_06_xdomain_full.md`. 지표 = **공식 success(tool_full)·honest(LOGINCALL off, quirk≈0)**. transfer = **held-out only**.
+> - **★train-1 (bank 한 도메인만 SFT → scaffold+ABox-swap, 재학습0, 6 held-out)**: avg **77.3%**, **리더보드-MAX(GPT-5/o4-mini-high 포함) 추월 3/6** — hotel 83.6%(>69.7)·library 71.4%(>66.7)·university 97.6%(>95.2); dmv 71.1·healthcare 64.5·online_market 73.8. should_T 거의 천장(healthcare 44/44·dmv 35/36·univ 6/6) → 낮은 도메인은 **should_F-bound**(bank 결론 도메인-일반 재현).
+> - **★LODO (6도메인 혼합→타깃 held-out)**: bank 43.3%·**healthcare 95.9%(sT44/44, >LB 92.7)**·**library 75.8%(>LB 66.7)** 확정; dmv·hotel·online_market·university 학습 중. **혼합 다양성 효과**: healthcare LODO 95.9% ≫ train1 64.5%(+31pp).
+> - **▶ coworker 32B 함의**: ① 이 transfer(재학습0 ABox-swap)는 **32B/72B에도 같은 stack으로 태울 수 있음**(scaffold×스케일 매트릭스) — #1(32B+scaffold on bank) 추월 확인 후 cross-domain로 확장 가치 큼. ② **should_F가 전이서도 전체% 레버**(should_T는 도메인 불문 천장) → 32B base should_F 강세 가정이 맞으면 32B+scaffold가 전 도메인서 7B 추월 기대. ③ 보고 규율 동일: 공식 success·honest(quirk≈0)·held-out only. v1.42(아래) 32B 작업순서는 그대로 유효.
+
 > ### ★★★★★★★★★★★★ v1.42 (2026-06-06) — ▶▶ 32B 실험 요청 (구체·우선순위). 가정: 32B > 7B (gather·거부축·base 전반)
 > **7B(Track A) 현 결과 = 비교 타깃 (live 확정, 2026-06-06)**: 통합 scaffold(DGGATE+ARGFIX+VALFIX+KEEPTUPLE+LOGINFIRST+STOPSUCCESS, augment off) on bank, **공식 success(pass@1, 134, tool_full)**:
 > - **LOGINCALL off (honest, 헤드라인) = 43.28% (58/134)** — should_T 33/48(quirk 1 제거 시 32), should_F 25/86. quirk 1 제거 truly-honest = 57/134 = **42.54%**.

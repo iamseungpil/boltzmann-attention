@@ -1,6 +1,7 @@
 # Cross-Domain Transfer 설계서 — A축 scaffold 도메인 전이 (로드맵 1단계)
 
-> **상태: 리뷰 1회 반영 (2026-06-06) — APPROVED w/ changes.** 반영: BLOCKING-1(통합 stack 정합·login 3중 compose-audit, cross-domain 前 bank 재실행 §5 B-5) + BLOCKING-2(★adapter-only 4열 대조로 scaffold Δ 격리 §6) + S1(VALFIX oracle-정당성 §4.2) + S2(login-arg unit-verify §4.3) + S3(바=리더보드-상대 격상 §6). 첫 게이트 = §4 audit(6도메인 Guard-2 재구성, zero-cost) — 다음 실행. 마스터 = `EXPERIMENT_DESIGN.md`. (coworker plan = `../../reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md`.)
+> **상태: ★결과 진행 중 (2026-06-06) — §11 transfer 확정 채워지는 중.** audit(§4.5) PASS·login-arg 일반화 완료 → train1 6 held-out 확정(avg 77.3%, LB-max 추월 3/6) + LODO 3 확정(healthcare 95.9%·library 75.8% 추월); LODO 4 + train1 6 학습 큐 진행. **결과 = §11**(권위본 `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` Exp-5). 진입점 = `HANDOFF_2026_06_06_xdomain_full.md`. 마스터 = `EXPERIMENT_DESIGN.md`. (coworker plan = `../../reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md`.)
+> 〔리뷰 반영 이력: BLOCKING-1(통합 stack 정합·login 3중 compose-audit §5 B-5) + BLOCKING-2(adapter-only 4열 scaffold Δ 격리 §6) + S1(VALFIX oracle-정당성 §4.2) + S2(login-arg unit-verify §4.3) + S3(바=리더보드-상대 §6) — APPROVED w/ changes.〕
 > **로드맵 위치**: ① **cross-domain(본 문서) = A축 전이 입증** → ② should_F(거부축) = A축 논문 완성 → ③ B축 weight 내재화.
 > 메타규칙: 강한 주장 reliable test 후 박제 · GPU 전 zero-cost 사전점검 · 공식 success(리더보드 지표)로만 보고 · scaffold 도메인-하드코딩 금지.
 
@@ -103,3 +104,34 @@ base(raw 7B)  →  adapter-only(SFT, scaffold OFF)  →  stack(SFT + 전 scaffol
 2. scaffold 일반화 패치(필요시): LOGINFIRST credential-arg를 ontology/도구 시그니처서 derive(도메인 분기 없이).
 3. `xdomain_eval.sh`: 도메인 루프 stack + base 대조.
 4. 결과 → 본 문서 §11 + 마스터 §2 + `LEADERBOARD_METRIC_GROUNDING` 도메인 확장.
+
+## §11. ★결과 (2026-06-06) — held-out transfer 확정 (재학습 0·honest·quirk≈0)
+> 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-5**. 집계 = `sopbench/diag_heldout_summary.py`(LODO-7 + train1 7×6 매트릭스). 지표 = 공식 success(`evaluator.py:277`, tool_full)·honest(LOGINCALL off). transfer = **held-out only**(어댑터 미관찰 도메인).
+
+### §11.1 train-1 (단일 도메인 학습 → 6 held-out, 극저자원) ★확정
+`qwen7b_tbox_t1c_train1_bank` = **bank 한 도메인만** 학습(혼합 아님) → scaffold 그대로 + ABox-swap, 6 held-out STACK:
+
+| held-out | STACK success | should_T | LB-max(any) | vs LB |
+|---|---|---|---|---|
+| dmv | 71.1% (69/97) | 35/36 | 86.7 | below |
+| healthcare | 64.5% (80/124) | **44/44** | 92.7 | below |
+| hotel | **83.6% (163/195)** | 58/67 | 69.7 | **추월** |
+| library | **71.4% (40/56)** | 14/21 | 66.7 | **추월** |
+| online_market | 73.8% (127/172) | 53/59 | 89.5 | below |
+| university | **97.6% (41/42)** | 6/6 | 95.2 | **추월** |
+| **avg** | **77.3%** | | | **3/6 리더보드-MAX 추월** |
+
+- **헤드라인**: 단일 도메인(bank)만 학습 → 재학습 0·ABox-swap으로 6 안 본 도메인 평균 77.3%, 프런티어(GPT-5/o4-mini) 추월 3/6. base 7B 0~21%.
+- should_T 거의 천장(44/44·35/36·6/6) → 낮은 도메인은 should_F-bound(bank 결론 일치). honest(LOGINCALL off).
+
+### §11.2 LODO-per-target (다도메인 혼합, 타깃 held-out) 〔진행 중〕
+`qwen7b_tbox_t1c_lodo_<X>` = X 제외 6학습 → X 평가. 확정 3: **bank 43.3%(58/134) · healthcare 95.9%(118/123, sT 44/44, >LB 92.7) · library 75.8%(50/66, >LB 66.7)**. dmv·hotel·online_market·university = 학습 큐(GPU 2병렬, `xdomain_train_queue.sh`) → `xdomain_eval_heldout.sh`(stack+adapter-only 4열) 대기.
+- **scaffold Δ**: adapter-only ~0% → stack 75~95%(어댑터 안 본 도메인) = §6 BLOCKING-2 4열로 격리(LODO 행, eval 대기).
+
+### §11.3 핵심 관찰
+1. **A축 클레임 1차 입증**: per-domain 분기 0 scaffold가 held-out서 재학습 0 작동 — train1·LODO 양쪽서 다도메인 리더보드 추월.
+2. **학습 다양성 효과(혼합 vs 단일)**: healthcare LODO 95.9% ≫ train1 64.5%(+31pp) = 혼합이 should_F 전이 강화. 단 hotel·library·university는 train1만으로도 LB-max 추월 → 다양성 효과 도메인-의존.
+3. **정직 범위**: ① train1은 STACK만(adapter-only 대조 미측정); LODO 행에서 scaffold Δ 격리. ② 전 도메인 should_T 강·should_F 약 = bank 결론 도메인-일반 재현 → **로드맵 #2 should_F가 전이서도 전체% 레버**.
+
+### §11.4 다음
+학습 큐 완료 → `xdomain_eval_heldout.sh` 1회(LODO 4 held-out + train1 6×6) → `diag_heldout_summary.py` 전체 매트릭스 → ① LODO 추월 다도메인 재현 ② train-diversity(혼합 vs 단일 7×6) 정량 → 로드맵 #2 should_F.

@@ -16,10 +16,22 @@
 | **healthcare (LODO)** | **95.2%**(118/124, sT 44/44) | o4-mini 92.7% | **추월** |
 - **scaffold가 전부 들어올림**(adapter-only ~0% → stack 75~95%), 어댑터가 안 본 도메인에서, **재학습0(ABox-swap만)·quirk0**. transfer gap≈0(held-out≈in-domain). = A축 "도메인-일반 scaffold + 재학습0 전이" 강한 직접 증거.
 
-## §2 진행 중 (취침/세션종료 시점 ~09:40 KST)
-- **학습 큐 `xdomain_train_queue.sh`** (GPU-aware 2병렬, bracket-trick): LODO 4(dmv·hotel·online_market·university) + train-1 6(dmv·healthcare·hotel·library·online_market·university) = **10 어댑터 학습 중**. (현재 lodo_dmv GPU1; train1_bank eval 끝나면 GPU0도 2병렬.)
-- **train1_bank eval `finish_train1bank.sh`** (GPU0): train=bank만 → held-out 6도메인 STACK. 4/6 done(dmv·healthcare·hotel·library), online_market·university 마무리 중.
-- READY 어댑터: lodo_{bank,library,healthcare}, train1_bank (4). 나머지 10 학습 중.
+## §1.5 ★train-1 확정 (2026-06-06 10:05 KST 완료) — bank 한 도메인만 학습 → 6 held-out 전이
+| held-out | STACK success | should_T | LB-max | vs LB |
+|---|---|---|---|---|
+| dmv | 71.1%(69/97) | 35/36 | 86.7 | below |
+| healthcare | 64.5%(80/124) | 44/44 | 92.7 | below |
+| **hotel** | **83.6%(163/195)** | 58/67 | 69.7 | **추월** |
+| **library** | **71.4%(40/56)** | 14/21 | 66.7 | **추월** |
+| online_market | 73.8%(127/172) | 53/59 | 89.5 | below |
+| **university** | **97.6%(41/42)** | 6/6 | 95.2 | **추월** |
+| **avg** | **77.3%** | | | **3/6 LB-MAX 추월** |
+- 단일도메인(bank)만 학습·재학습0·honest(LOGINCALL off). should_T 거의 천장 → 낮은 도메인 should_F-bound. 결과 박제 = `SOPBENCH_EXPERIMENT_RESULTS.md` Exp-5a, 설계 §11.1. 문서 4종(results·EXPERIMENT_DESIGN§2·CROSS_DOMAIN§11·COWORKER v1.43) 업데이트 완료.
+
+## §2 진행 중 (2026-06-06 10:05 KST 갱신)
+- **train1_bank eval = ✅DONE** (`FINISH_TRAIN1BANK_DONE`, §1.5 표). GPU1 vllm 정리됨.
+- **학습 큐 `xdomain_train_queue.sh`** (GPU-aware 2병렬): LODO 4(dmv·hotel·online_market·university) + train-1 6(dmv·healthcare·hotel·library·online_market·university) = **10 어댑터**. 현재 **2병렬 가동**: lodo_dmv(GPU1) + lodo_hotel(GPU0, train1_bank eval 종료 후 기동). 나머지 8 큐 대기.
+- READY 어댑터: lodo_{bank,dmv(학습중),library,healthcare}, train1_bank.
 
 ## §3 다음 단계 (순서·충돌 회피)
 1. 학습 큐 + train1_bank 완료 대기.
