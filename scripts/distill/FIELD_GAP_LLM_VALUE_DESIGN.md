@@ -1,7 +1,7 @@
 # FIELD-GAP / LLM-VALUE 설계서 — "결정론 프로그램 대비 LLM의 효용을 어디서·어떻게 증명하나"
 
 > **신설 2026-06-06.** 동기 = ICLR 리뷰어의 **"이건 그냥 결정론 프로그램 아니냐"** 공격에 대한 정면 방어 + 그 방어를 *정량 실험*으로 박는 설계.
-> **상태**: DRAFT (리뷰 대기). **마스터 = `EXPERIMENT_DESIGN.md`**(목표·순서·지표 권위본; 이 문서는 그 §1/§2의 detail). 관련 = `CROSS_DOMAIN_TRANSFER_DESIGN.md`(Exp-5=A축 transfer) · `RUNG1_SOURCE_LADDER_DESIGN.md`(LOCK·2-agent §11) · `RUNG1_REDESIGN_2026_06_04.md`(decision-axis A/B/C §9). 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.
+> **상태**: 리뷰 1회 반영 (2026-06-06). 반영: ①§1 메트릭 정정(37=scripted-*oracle* 상한, honest 천장~32, 우리 33=천장 도달 → "결정론이 이김" 철회) ②정면반박(E0 gather-grounding 격리·E5 파일럿)을 *조기 신호*로 격상 ③amortization regime을 비용 헤드라인으로(정적 LOC 격하)+Δ-LOC-per-change ④E1 found/inherited 분리를 선행 게이트로 ⑤τ²→SOPBench 통제 멀티턴 래퍼 primary, τ-bench 외부타당성(dual-control 오염 회피) ⑥실행순서 리스크-조정(E2 안전승리→E0/E5 조기신호→E1→E3). **마스터 = `EXPERIMENT_DESIGN.md`**(목표·순서·지표 권위본; 이 문서는 그 §1/§2의 detail). 관련 = `CROSS_DOMAIN_TRANSFER_DESIGN.md`(Exp-5=A축 transfer) · `RUNG1_SOURCE_LADDER_DESIGN.md`(LOCK·2-agent §11) · `RUNG1_REDESIGN_2026_06_04.md`(decision-axis A/B/C §9). 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.
 > **메타규칙(승계)**: 강한 주장은 reliable test 후 박제 · GPU 전 zero-cost 진단 · 공식 success로만 보고 · scaffold 도메인-분기 금지 · **offline forced-ACT 헤드룸 측정 금지(§8 RETRACTED 교훈)**.
 
 ---
@@ -14,10 +14,11 @@
 
 **내부 증거가 이 공격을 떠받친다(인정)**:
 1. **Guard-2 = 절차 결정론 재구성** = 마스터 §1이 금지한 "절차 offload(=답지=L0)"에 근접. `dfsgather_invfunccalldirgraph(constraints_original,...)`는 per-domain 분기 0의 도메인-일반 그래프 알고리즘 = **구조화 입력만 있으면 결정론이 plan을 푼다.**
-2. **결정론이 실행축서 이미 우리를 이김**: `run_scripted`(결정론 직접제어) should_T **37/48** > 우리 stack honest **33/48**.
-3. **Exp-5 cross-domain(77.3% 등)은 전부 decision-axis A(결정론 offload)** = 즉 현 헤드라인 transfer 수치는 *결정론 프로그램의 성능*에 가깝다. "scaffold가 전이된다"는 결정론 알고리즘의 도메인-일반성을 확인한 것 = 공격 강화.
+2. **Exp-5 cross-domain(77.3% 등)은 전부 decision-axis A(결정론 offload)** = 즉 현 헤드라인 transfer 수치는 *결정론 프로그램의 성능*에 가깝다. "scaffold가 전이된다"는 결정론 알고리즘의 도메인-일반성을 확인한 것 = 공격 강화.
 
-⇒ **결정론과 "정확도 누가 높냐"로 싸우면 진다.** 방어는 다른 축에서만.
+**⚠️주의 — "결정론이 정확도서 우리를 이긴다"는 과장(메트릭 정정, 리뷰)**: `run_scripted` **37/48은 명시적으로 scripted-*oracle*(완전 게더)** = oracle-gather 상한이지 *배포 가능한* 결정론 프로그램이 아니다(권위본 `SOPBENCH_EXPERIMENT_RESULTS.md:374`). **정직 천장 = ~32/48**(8 PartA결함+8 자격부재 제거, :388)이고 우리 stack honest **33/48 = 이미 그 천장 도달**. 37은 (a) oracle-gather (b) cred-injection(에이전트 불가, :384)으로 부풀린 비실현 수치다. ⇒ **올바른 문장**: "oracle-gather를 가진 결정론만 37에 닿고, **gather를 스스로 풀어야 하는 *배포 가능* 결정론은 그만큼 못 간다 — 그 gather가 바로 학습되어 전이된 우리 기여(0→43%)다**"(§4·E0와 직결). 즉 메트릭은 공격이 아니라 방어를 떠받친다.
+
+⇒ **결정론과 "정확도 누가 높냐"로 싸우지 말되**(구조화-입력 천장에선 oracle-결정론이 동률권), **진짜 전장 = 배포 가능 결정론이 gather/NL/변경/대화를 못 한다는 것.** 방어는 그 축들에서.
 
 ## §2. 진단 — 왜 SOPBench-기본이 LLM을 underplay하나
 SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 테스트하려고** 설계됐다(NL→구조 컴파일 테스트가 아님). 기본 regime이 어려운 부분을 미리 제거한다:
@@ -74,7 +75,15 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 ## §6. ★실험 — 현장↔SOPBench 차이를 regime으로 (상세)
 각 실험: regime 정의 → 결정론 baseline → 지표 → 사전등록 성공기준 → Track/LOCK 매핑.
 
+### E0. gather-grounding 격리 — ★조기·최저위험 정면증거 (이미 측정된 양성) (리뷰 격상)
+- **동기**: 리뷰어 핵심 공격은 "7B=0 기여". gather-grounding(어떤 getter/precond를 establish할지 결정)은 **이미 측정된, 결정론 아닌, 학습되어 LODO 전이되는 양성**(0→43%, LOCK alive). = "7B가 비결정론적인 뭔가를 배워 전이한다"의 *현존하는 가장 깨끗한 증거* — E5(DPO 도박)보다 빠르고 NULL 위험 없음.
+- **regime**: 동일 scaffold(A 게이트 고정) 위에서 gather 소스만 교체 — ① 학습 모델 gather ② scripted/random gather ③ base-7B gather. A 게이트는 gather된 결과로만 permit하므로 success Δ = gather 품질 기여.
+- **지표**: 공식 success + dirgraph_satisfied(gather 1차지표) + **LODO held-out 전이**(in-domain vs held-out gather 기여 유지율).
+- **성공기준(사전등록)**: 학습-gather success ≫ scripted/base-gather, ∧ held-out서 격차 유지. = "결정론 게이트를 고정해도 *학습된 gather*가 성능을 만든다."
+- **Track/LOCK**: gather-grounding(alive). C 아님. **E1·E5 전에 1급 증거로 박제** — thesis de-risk.
+
 ### E1. NL-only 입력 (D1 제거) — ★핵심 실험 (= 우리 thesis의 정직한 버전)
+- **★선행 게이트 (E1 돌리기 전 BLOCKING, 리뷰)**: found vs inherited 분리 절차 확정 必. `induce`(ontology)·`autoderive`(getter_map)가 **벤치의 구조화 산출물(`<domain>_assistant.py`의 constraint 정의·directed_action_graph)에서 추출하면 "우리 0줄"도 벤치 scaffold 상속** = Guard-2 공격이 E1서 재발(구조화 입력 읽기) + 결정론 "0줄" 대조가 조작. ⇒ **기계적 분리**: induce 입력이 (i) NL 정책 텍스트·도구 시그니처(=found, 정당) vs (ii) constraints_original·directed_action_graph 같은 *파싱된 구조*(=inherited, E1서 금지)인지 코드로 판정. inherited 의존이 있으면 그 경로를 NL-only로 대체하거나 E1 범위서 표기. **이 분리가 깨끗하지 않으면 E1 cost 주장 = Guard-2 재현 → 돌리지 말 것.**
 - **regime**: `constraints_original`(구조화 제약) **제거**, 입력 = **NL 정책 + 도구 API 설명만**. 구조는 누군가 생산해야.
 - **arms**: ① 결정론(NL→구조를 *사람이 작성*) = per-domain authoring 필요 ② 우리(모델이 NL→구조 emit: gather-style 또는 2-agent Agent1, Guard-2식 독립검증 후 결정론 게이트(A)에 투입).
 - **지표**: 공식 success + **도메인당 사람-작성 LOC**(결정론) vs **0**(우리, NL은 *발견*) + 모델이 구조화-입력 천장의 회복률(%).
@@ -109,12 +118,12 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 |---|---|---|
 | **SOPBench** (Zekun Li, `2503.08669`) | 7도메인, **구조화 제약** 제공, rule evaluator | 메커니즘 증명 substrate(학습원). E1에서 구조 제거해 NL-only로 변환 |
 | **SOP-Bench** (Amazon, `2506.08119`) | 12도메인, **free-text NL SOP**(input/decision/outcome 메타·tool I/O·복잡도 7–8/10) | **NL-native 기질** = E1(NL→구조)의 자연 시험대 + **벤치횡단 전이 타깃**(SOPBench 학습→SOP-Bench ABox-swap 재학습0). 8관계 표현적합성 검증완(마스터 §1) |
-| **τ²-bench** (Sierra, dual-control; cf. τ-bench `2406.12045`) | 멀티턴 NL 정책 대화, 실 고객서비스, user-sim | **E3(멀티턴 messy user) 기질.** 정책-준수 대화 = D2 제거 축 |
+| **τ-bench** (Sierra, `2406.12045`) | 멀티턴 NL 정책 대화, 실 고객서비스 | **E3 외부타당성 검증만**(부차). dual-control 아님이라 τ²보다 깨끗 |
 | (선택) **AppWorld** (ACL'24) | 복잡 agentic 도구사용·실앱 | E4 scale/복잡도 stress |
 
-- **횡단 전이 매트릭스**: 학습=SOPBench(LODO/train-1) → 전이 평가=SOP-Bench·τ² ABox-swap **재학습0**. 헤드라인 = "한 벤치서 배운 스킬이 다른 벤치(다른 형식·다른 도메인)서 작동" = LODO보다 강한 주장.
-- **각 벤치가 다른 축 증명**: SOPBench=메커니즘·구조화, SOP-Bench=NL→구조·규모, τ²=멀티턴 대화. 셋이 §4 장점 1·2·5를 분담 커버.
-- ⚠️ τ2는 과거 "user_sim이 핵심실행"으로 피벗-아웃(마스터 §0.0)했으나, **본 설계서는 τ²를 E3 *전용*(멀티턴 NL 강건성 축)으로만** 쓴다(헤드라인 substrate 아님) — 역할 한정으로 그 mismatch 회피.
+- **횡단 전이 매트릭스**: 학습=SOPBench(LODO/train-1) → 전이 평가=SOP-Bench ABox-swap **재학습0**. 헤드라인 = "한 벤치서 배운 스킬이 다른 벤치(다른 형식·다른 도메인)서 작동" = LODO보다 강한 주장.
+- **각 벤치가 다른 축 증명**: SOPBench=메커니즘·구조화, SOP-Bench=NL→구조·규모, (멀티턴=아래 통제 래퍼). 셋이 §4 장점 1·2·5를 분담 커버.
+- **★E3 멀티턴 substrate = τ²가 아니라 SOPBench 위 *통제 멀티턴 래퍼*가 primary (리뷰)**: τ²는 **dual-control**(user_sim이 코어 실행 일부 담당)이라 "역할 한정"으로 상표만 바꿔도 E3 멀티턴 success 지표가 *여전히 오염*된다(마스터 §0.0 피벗-아웃 사유). ⇒ **E3 primary = SOPBench에 우리가 통제하는 멀티턴 래퍼**(paraphrase + 정보 턴-분산 + 명료화-요구; user_sim을 *우리가* 통제 → 에이전트를 깨끗이 측정). **τ-bench/τ²는 외부타당성 *부차* 인용으로만**(dual-control이 문제 핵심이므로 τ-bench가 외부대조로 더 깨끗).
 
 ## §8. 베이스라인 (사전등록) — 양면 ablation
 결정론-프로그램 공격은 **양면 ablation 표**로만 닫힌다(Logic-LM 템플릿):
@@ -129,9 +138,9 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 
 ## §9. 지표 (3축)
 1. **성능**: 공식 success(`evaluator.py:277`, tool_full, BOTH 금지, honest). 도메인·regime별.
-2. **비용/노력**: per-domain 사람-작성 LOC + 변경 적응 Δ-LOC + amortization(우리 1회 고정비 scaffold+SFT vs 결정론 선형 도메인×LOC; crossover 도메인 수).
-3. **robustness**: perturbation Pareto(edit vs success).
-- ⚠️ **성능 < 결정론이면 "지배" 아님 = trade-off 프레이밍**(0 작성·무재학습·변경robust 대가로 정확도 X% 양보) — Pareto frontier로 정직 보고.
+2. **★비용/노력 = amortization regime이 헤드라인 (정적 LOC는 약함, 리뷰)**: "0줄 결정론=0%"는 trivially true라 리뷰어가 *"사람 하루 주고 도메인당 한 번 짜면 그 뒤 수백만 콜서 7B보다 빠르고 정확 — amortize해라"*로 한 방에 받아친다. ⇒ **진짜 전장 = `도메인 수 × 변경 빈도 × 콜당 authoring비`의 amortization.** **LLM이 이기는 regime을 전경화**: 롱테일 다도메인 · 고빈도 정책/도구 변경 · 저~중 콜량(authoring 고정비를 못 amortize하는 영역). 우리 = 1회 고정비(scaffold+SFT) + 한계비용≈0; 결정론 = 작성 선형 + **변경마다 재작성**. **핵심 수치 = 변경당 Δ-LOC**(조건 1개 add/도구 1개 rename당 결정론이 몇 줄 바뀌나 vs 우리 0) — 정적 "도메인당 N줄"보다 이게 변경축의 진짜 탄환(E2 Pareto에 직접 투입).
+3. **robustness**: perturbation Pareto(누적 Δ-edit vs success).
+- ⚠️ **성능 < 결정론이면 "지배" 아님 = trade-off 프레이밍**(0 작성·무재학습·변경robust 대가로 정확도 X% 양보) — Pareto frontier로 정직 보고. 단 amortization·변경 regime서는 *지배* 주장 가능.
 
 ## §10. 정직 범위 / threats
 1. **found vs authored vs benchmark-inherited 분류 필수**: 우리 per-domain 산출물(ontology=induced, getter_map=auto-derived, 정책=found)을 "작성 0"이라 쓰려면 각각이 NL/API서 자동도출인지 vs 벤치 구조 상속인지 명시(induce는 벤치 구조 추출이라 "0"이 일부 상속). 안 하면 "너희 0도 벤치 덕" 반박.
@@ -140,16 +149,24 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 4. **NL→구조 난이도 미지**: gather는 학습됐으나 full NL→dirgraph는 더 큼 → E1은 *비용 대조*가 1급(정확도 지배 아님), 저항 시 E5(B).
 5. **벤치 induce 품질**: SOP-Bench 8관계 적합성(마스터 §1)·τ² 역할한정(§7).
 
-## §11. 실행 순서 (zero-GPU 우선, 학습 큐·GPU 충돌 없이)
-1. **(L0, 지금·무GPU) 비용 baseline 측정**: SOPBench 클론서 도메인당 결정론 작성 LOC 카운트(`<domain>_assistant.py`+constraint 정의+getter) + 우리 repo `if domain==` 분기 grep(B-1=0 확인) + 산출물 found/authored/inherited 분류. → §9 비용축 첫 수치 + §1 공격의 정량 반박.
-2. **(L0) E1/E2 harness 설계**: constraints 제거 토글(NL-only) + perturbation 주입기 + scripted-gather baseline 구현. apply_two_stage_patch에 통합.
-3. **(GPU, 학습 큐 후) E1 NL-only** on bank → 양성 시 SOP-Bench로 확장.
-4. **E2 perturbation** (무재학습, A축 toggle) → Pareto.
-5. **E3 멀티턴**(user_sim) on τ² + SOPBench.
-6. **E5 Track B**(DPO/RFT) = adapter-only 올리기 (가장 비쌈, 마지막).
-> 1–2는 GPU 불요 = 학습 큐와 병행 가능. 3–6은 큐 완료 후.
+## §11. 실행 순서 (리스크-조정, 리뷰 — 정면반박을 조기 신호로)
+> 원칙: ①GPU 불요 먼저 ②안전한 승리로 thesis de-risk ③**정면반박(학습 기여)을 맨 끝 아님 조기에** — 죽으면 thesis 골격을 바꿔야 하므로 일찍 알아야 함.
+1. **(L0, 지금·무GPU·큐 병행) 비용 감사 = 정적 LOC + ★변경당 Δ-LOC**: SOPBench 클론서 도메인당 결정론 작성 LOC(`<domain>_assistant.py`+constraint 정의+getter) **+ perturbation당 변경 Δ-LOC**(조건 add/도구 rename 1건당) + 우리 repo `if domain==` 분기 grep(B-1=0) + 산출물 found/authored/inherited 분류. → §1 정량반박·§9 비용축·§10-1 정직분류·E2 Pareto를 한 번에 먹임.
+2. **(L0) E0/E2/E1 harness 설계**: gather 소스 교체(E0) + constraints 제거 토글(E1 NL-only) + perturbation 주입기 + scripted-gather baseline. apply_two_stage_patch에 통합. **E1은 found/inherited 선행게이트(§6 E1) 통과 후만.**
+3. **(GPU, 큐 후) E2 perturbation = 가장 안전한 승리 먼저** (무재학습 A축 toggle, 결정론이 변경서 논란없이 깨짐, Pareto 정직) → thesis de-risk.
+4. **E0 gather-grounding 격리** (이미 측정된 양성의 1급 격상, NULL 위험 없음) = 정면증거.
+5. **E5 Track B 싼 파일럿** (bank 1도메인·소규모 DPO) — **adapter-only가 0서 움직이나 *조기* 확인**. ⚠️Track C가 7B NULL이었으므로 E5 NULL 사전확률 비낮음 → 이게 죽으면 정확도축 ML 기여 약화·thesis 재골격 → **맨 끝 아님 여기서 신호**. (양성이면 full E5.)
+6. **E1 NL-only** (야심찬 핵심, 최고위험) on bank → 양성 시 SOP-Bench로 확장.
+7. **E3 멀티턴** (SOPBench 통제 래퍼 primary, τ-bench 외부).
+8. **E4 scale** (선택).
+> 1–2 GPU 불요(큐 병행). 3–8 큐 완료 후. **순서 핵심: E2(안전)→E0/E5파일럿(조기 정면신호)→E1(야심)→E3.**
 
 ## §12. 리뷰 훅 (박제 전 확인)
+- [x] §1 메트릭 정정(37=oracle-gather 상한·honest 천장~32·우리33 도달; "결정론이 이김" 철회) 반영 (리뷰 1회)
+- [ ] 정면반박(E0 gather-grounding·E5 파일럿)이 *조기* 신호로 배치됐나(맨 끝 아님)? E5 NULL이면 thesis 재골격 인지?
+- [ ] amortization regime(도메인수×변경빈도×콜당비)이 비용 헤드라인이고 정적 LOC가 격하됐나? 변경당 Δ-LOC 카운트하나?
+- [ ] E1 found/inherited 선행게이트 통과 전엔 E1 안 돌리나(Guard-2 재현 차단)?
+- [ ] E3가 τ²(dual-control 오염) 아니라 SOPBench 통제 멀티턴 래퍼 primary인가?
 - [ ] E1이 죽은 Track C(decision-emission)를 안 되살리나? (gather/Agent1·독립검증·decision-emit 금지 확인)
 - [ ] 양면 ablation(§8)이 det-scripted·adapter-only 양쪽을 *실패*시켜 두 컴포넌트 load-bearing 분리하나?
 - [ ] 비용축(§9)이 found/authored/inherited(§10-1)를 정직 분류했나?
