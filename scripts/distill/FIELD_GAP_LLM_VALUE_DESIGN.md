@@ -20,6 +20,17 @@
 
 ⇒ **결정론과 "정확도 누가 높냐"로 싸우지 말되**(구조화-입력 천장에선 oracle-결정론이 동률권), **진짜 전장 = 배포 가능 결정론이 gather/NL/변경/대화를 못 한다는 것.** 방어는 그 축들에서.
 
+### §1.1 ★L0 비용 감사 결과 (2026-06-06, `diag_cost_audit.py`, zero-GPU) — §1 정량 반박 + 정직 분류
+| 측정 | 수치 | 함의 |
+|---|---|---|
+| **배포 결정론 작성 (assistant.py=순수 SOP 인코딩)** | **~968 LOC/도메인** (7도메인 합 6,777; 백엔드 포함 시 1,546/도메인·합 10,825) | 결정론 SOP-executor의 per-domain 사람 작성 비용 = floor |
+| **변경당 Δ-LOC** (operator/조건 1개당, =assist LOC/#actions) | **47–105 LOC** (bank 47·univ 105) | 정책 1조건 add/도구 rename = 결정론 ~50–105줄 수정 = §9 변경축 탄환 |
+| **우리 scaffold per-domain 코드** | **0 `if domain==` 분기** (`two_stage_client.py` grep 빈 결과) | **B-1 PASS** — scaffold는 진짜 도메인-일반(0줄/도메인) |
+| **우리 ontology_<d>.json 출처** | **INHERITED** (induce가 `domain_assistant_keys`+task `directed_action_graph`+`dep_full` 읽음, **NL 정책 아님**) | "우리 0 작성"은 벤치 NL→구조 노동 상속 ⇒ E1 NL-only는 BLOCKED(NL-source induce 부재) |
+
+- **정직한 1급 반박(메모리 메트릭-규율 준수)**: "우리는 NL서 0줄 작성"은 **거짓**(induce=inherited). 정확한 주장 = **"우리 도메인-일반 scaffold는 per-domain 코드가 *문자 그대로 0*(B-1 검증); 배포 결정론 SOP-executor는 ~968 LOC/도메인 + 변경당 ~50–105 LOC가 든다. LLM이 그 구조를 *NL서* 복원할 수 있는가(현재는 벤치 구조 상속)가 정확히 E1이고, found/inherited 분리 게이트가 선결이다."**
+- **남은 감사 gap(minor)**: `domain_assistant_keys`가 module이라 #constraints 분리 카운트 실패(#actions로 LOC/unit 대용). constraint별 Δ-LOC 정밀화는 후속(E2 harness서).
+
 ## §2. 진단 — 왜 SOPBench-기본이 LLM을 underplay하나
 SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 테스트하려고** 설계됐다(NL→구조 컴파일 테스트가 아님). 기본 regime이 어려운 부분을 미리 제거한다:
 - **(D1) 구조화 제약 떠먹임**: task마다 `constraints_original`(파싱된 정책조건) + 의존규칙 + getter_map 제공 → 결정론 재구성 가능.
@@ -151,7 +162,7 @@ SOPBench(2503.08669)는 **"구조가 주어졌을 때 SOP를 따르는가"를 �
 
 ## §11. 실행 순서 (리스크-조정, 리뷰 — 정면반박을 조기 신호로)
 > 원칙: ①GPU 불요 먼저 ②안전한 승리로 thesis de-risk ③**정면반박(학습 기여)을 맨 끝 아님 조기에** — 죽으면 thesis 골격을 바꿔야 하므로 일찍 알아야 함.
-1. **(L0, 지금·무GPU·큐 병행) 비용 감사 = 정적 LOC + ★변경당 Δ-LOC**: SOPBench 클론서 도메인당 결정론 작성 LOC(`<domain>_assistant.py`+constraint 정의+getter) **+ perturbation당 변경 Δ-LOC**(조건 add/도구 rename 1건당) + 우리 repo `if domain==` 분기 grep(B-1=0) + 산출물 found/authored/inherited 분류. → §1 정량반박·§9 비용축·§10-1 정직분류·E2 Pareto를 한 번에 먹임.
+1. **✅DONE (2026-06-06, `diag_cost_audit.py`) 비용 감사**: 결정론 ~968 LOC/도메인(assist) + 변경당 Δ-LOC 47–105 + B-1 PASS(0 분기) + **ontology=INHERITED 확정**(§1.1). ⚠️induce가 NL 아닌 구조 상속 → **E1 선결게이트 현재 FAIL**(NL-source induce 경로 신설 필요). constraint별 Δ-LOC 정밀화만 E2 harness서 후속.
 2. **(L0) E0/E2/E1 harness 설계**: gather 소스 교체(E0) + constraints 제거 토글(E1 NL-only) + perturbation 주입기 + scripted-gather baseline. apply_two_stage_patch에 통합. **E1은 found/inherited 선행게이트(§6 E1) 통과 후만.**
 3. **(GPU, 큐 후) E2 perturbation = 가장 안전한 승리 먼저** (무재학습 A축 toggle, 결정론이 변경서 논란없이 깨짐, Pareto 정직) → thesis de-risk.
 4. **E0 gather-grounding 격리** (이미 측정된 양성의 1급 격상, NULL 위험 없음) = 정면증거.
