@@ -376,3 +376,13 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 - **open**: ① `guard` 연산자 집합이 전 벤치 결정 충분한가(arithmetic·set·temporal?) ② `subgraph` 재귀깊이 ③ `request` 명료화가 τ² dual-control 오염 회피하나 ④ 웹조사 `w94ywlthc`로 레퍼런스 밖 벤치(WorkflowLLM·AppWorld·NaturalPlan) 사다리 분류 보강 후 스키마 확정.
 
 > **상태 = DRAFT.** 다음: 웹조사 통합 → §14.2 매핑에 외부벤치 추가 → §14.4 손-검증(customer_service `guard` 완전성 + 벤치별 실행기-evaluator 1태스크) → 다른 세션 리뷰 → 방향 재결정.
+
+### §14.5 ★리뷰 (2026-06-06, 리뷰5 — 실 executor·customer_service 대조) — 강점 유지, 4 load-bearing 빈틈
+강점(유지): §14.3 결정론 경계(falsifiable·non-example 명시) · turn-loop≠graph-cycle · "표현≠학습≠blind-induce" caveat.
+
+1. **★(최중요) wrapped-compute 탈출구 = 핵심 긴장 (open-①서 승격).** `decision`+선언적 `guard`("slot OP value")는 단순비교만 표현. **customer_service가 이미 반례**(내 §13 blind-probe 분석): `is_authenticated`=auth_history **JSON 파싱+로직**·`metrics_improved`=service_metrics **dict 산술** → guard 표현불가·**wrapped 코드 필수**; final_status 트리는 branch+guard지만 *리프가 코드*. email_intent `_classify`도 코드. ⇒ 실도메인은 wrapped pure-fn 필수 = §14.3이 금한 "임의 프로그램"이 *wrapped fn으로 새어듦*. **처방: 스키마에 `compute` 노드(pure·total·side-effect-free·SOP-도출·audited) 명시 + assurance를 "선언적 구조 + 감사된 순수함수"로 scope("코드 0" 아님).** §14.4 손-검증("customer_service 순수 branch+guard 표현?")의 답 = **부분 NO(확정).**
+2. **통합 실행기 미구축·두 술어언어 비호환.** CallGraphExecutor(workflow_executor.py)=단일 "slot OP value"·AND/OR 트리 **없음** vs DGGATE=full AND/OR/CHAIN 재구성. §14.1 "통합"은 합집합 지원 **새 실행기 신축 필요 = 미구축**(목표지 완료 아님) — 명기.
+3. **§14.2 매핑 FULL/PARTIAL 구분, "8/9" 과장.** SOP-Maze(산술·HRS 깊은추론=compute 필요)=PARTIAL · τ/τ²(동적 user-sim·자유발화·협상 ≠ 정적+scripted request)=PARTIAL/aspirational · SAGE/TOD/FlowBench 멀티턴 자유분기=부분. ⇒ "구조 골격 매핑·compute/동적대화는 탈출구 필요"로 정직화.
+4. **guard-선언성은 operator-shape만 완화, slot-grounding은 아님.** guard `lhs:<state-ref>`가 가리키는 slot 어휘(auth_history/service_metrics 키)=도구반환 JSON 내부=**blind-미지**(내 probe가 막힌 지점). 학습 타깃=NL→(구조+*grounded* slot refs); **slot-grounding이 진짜 난점**(operator 모양 아님) — §14.4 명기.
+
+**리뷰5 결론**: §14는 표현가능성 *골격*으론 옳고 정직(경계 명시). 단 **(a) bounded-compute 노드 없이는 실도메인 표현불가(customer_service 확정)** → 스키마에 compute 경계 추가가 스키마 확정의 *선결*. (b) 통합 실행기는 미구축. (c) 매핑은 FULL/PARTIAL 혼합. ⇒ 다음 = §14.4 손-검증을 **"compute 노드 포함 시" customer_service 완전표현 + 단일(확장)실행기 1태스크**로 재정의 후 진행.
