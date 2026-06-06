@@ -425,3 +425,25 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 - **정직 scope**: 학습-소형 NL→결정론-온톨로지 컴파일러가 실무 의미 있는 regime = **롱테일 다도메인 × free-text SOP × 규제/감사 × 비용**의 교집합. 그 밖(소수도메인·기구조화·비규제)에선 frontier+checker나 직접 결정론이 우위 — 정직 인정.
 
 > **상태 = DRAFT (opinion+부분인용).** `wheyskq29` 완료 시: ①threat REAL/OVERSTATED/domain-dependent 판정 ② assurance-moat 내구성 규제근거 ③ 정직 scope를 인용으로 확정 → §15 ✅ + §9 assurance 승격 반영 → 타세션 리뷰.
+
+---
+
+## §16. ★학습 설계 — outcome-supervision 디폴트 · distill=커버리지 · 계층=최적화보조 (Jia et al. ICML'25 `2502.10581` 원문분석 근거, 2026-06-06)
+> NL→symbolic 학습을 *어떻게* 하나의 원칙. 근거 = **"Do We Need to Verify Step by Step?"**(Jia·Rakhlin·Xie, ICML'25, `2502.10581`) 원문 정독. = §13.2 Track B 레시피·계층 제안(사용자)·LOCK을 supervision 이론으로 정합.
+
+### §16.1 Jia et al. 정리 (proven)
+- **메인 정리**: outcome supervision으로 step-wise 보상 학습 오차 ≲ **H^{3/2}·√(C_sa·log|ℛ|/|𝒟_O|)** → **outcome은 process보다 통계적으로 더 어렵지 않다(horizon H의 *다항식*까지)**. 핵심 = **state-action 커버리지 C_sa 의존(trajectory 커버리지 C_traj 아님; 후자는 지수적)** → 통념("outcome=trajectory-커버리지로 지수적 손해") **반박**. (엔진=Change of Trajectory Measure Lemma.)
+- ⚠️**3 caveat**: ① 순수 *통계*(표본복잡도) 결과 — process의 *최적화/탐색/credit-assignment* 이점은 **부정 안 함**(저자: 경험적 격차는 *있다면* **알고리즘적 한계**서). ② **커버리지 가정 조건부**(C_sa 큰=bound 공허; LLM서 성립여부 미다룸). ③ H^{3/2} 잔존 + pessimism 알고리즘 + 결정론보상 가정.
+
+### §16.2 우리 학습 레시피 (위 정리 → 정합)
+1. **per-층/중간 process 라벨 *수집 금지* (통계적 불필요, 증명됨).** 우리는 **outcome 보상(실행기 TSR / Guard-2 exact-match)이 이미 있음** → 이게 디폴트. 저자 권고("비싼 process 라벨 → 더 나은 알고리즘에")와 정합. ⇒ §13.2 Track B = **outcome-검증 음성신호(DPO/RFT)**, 중간추론 라벨 아님.
+2. **계층(사용자 제안)은 *최적화/long-horizon 보조*로만 정당, 통계 우위 아님.** Jia가 비운 공간(최적화·탐색·커버리지·H-패널티)이 정확히 계층 효용 자리. ⇒ 계층 = **inference-time 분해 + *outcome* 보상**(per-층 GT 라벨 X). "더 sample-efficient"로 팔면 안 됨(반증됨).
+3. **★distillation 재좌표 = *커버리지 제공*(추론모방 아님).** caveat②가 핵심: 약한 7B는 정답-구조 manifold **커버 못 함**(Track C fabrication=나쁜 커버리지) → outcome 보장 *안 켜짐*. **distill(frontier teacher)이 correct-structure 커버리지를 제공** → 보장 작동. ⇒ distill 목적 = **커버리지**(LOCK-위험인 "reasoning trace 모방" 아니라 *검증된 구조* distill). 
+4. **통일 레시피**: **`distill로 correct-structure 커버리지 → outcome-RFT/RLVR(TSR/Guard-2 보상)로 최적화`**, 계층=최적화보조, process-라벨 금지. = Jia(2502.10581) + LOCK(Track C) + 우리 검증가능-타깃에 *모두* 정합.
+
+### §16.3 검증·open
+- **커버리지 진단 선결**: 우리 base 7B/distill 데이터가 correct-structure를 *커버*하나(C_sa 유한?)가 outcome-보장의 실제 조건 → distill 전후 구조-커버리지 측정 필요(Jia 결과는 *조건부*).
+- **계층=최적화보조 가설은 *flat 실패모드 진단 후*** 결정(§15 ④, "엉킴/long-horizon이면 계층, slot-grounding이면 무효").
+- ⚠️ Jia는 *통계*만; 우리 실 RFT 최적화/탐색 거동은 실측해야(이론이 "RFT가 잘 최적화한다"는 보장 아님).
+
+> **메타교훈 (박제)**: "process가 직관적으로 좋아 보임"≠"통계적 우위"(Jia 반증). 강한 학습-설계 주장은 supervision 이론 원문 확인 후 박제. [[feedback-check-authority-before-rederive]]
