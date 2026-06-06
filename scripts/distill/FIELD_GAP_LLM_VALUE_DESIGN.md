@@ -280,6 +280,22 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 
 ### §13.5 ★다음 단계 (리뷰2 권고 — zero-GPU, 학습 큐 미접촉)
 - **(c) 2차 리서치 = 진행 중(`wi9qegpft`), 재실행 금지** — FlowBench/AgentOrca/TaskBench/ToolChain construct-vs-pathfind + distill-전이 prior 타깃(§5/§10-6 미검증축). §13이 SAGE=그래프제공·FM SO.P/CAP-CPT=전이없음으로 대부분 닫음 → wf 완료를 확정용으로 대기.
-- **(a) P1 *앵커 stress-test* (집필 아님, 1순위)**: P1 설계서를 쓰되 ①헤드라인=**cross-benchmark 전이**(SOPBench-내부 아님) 명시 ②**§1.1 inherited-structure 위협을 P1 중심 정직섹션**으로 박음. *쓰는 행위가 앵커 실재를 드러낸다* — cross-bench 전이가 §1.1을 못 넘으면 "P1=안전" 전제 붕괴 → 집필 투자 전에 알아야. **핵심 미지수 = induce가 다른-스키마 벤치(SOP-Bench/SAGE)서 작동하나(NL-source면 정당, 구조-상속이면 §1.1 재현).**
+- **(a) P1 *앵커 stress-test* — ✅probe 완료(§13.6)**: 핵심 미지수("induce가 다른-스키마 벤치서 작동하나") 판정됨 = **SOP-Bench엔 상속할 구조 없음(NL-only)·도메인-불변 실행기 cross-bench 전이 VALIDATED(TSR≤1.0)·단 ABox 손작성(결정론 prong)**. ⇒ P1 앵커=실행기-전이는 실재, *NL-sourced ABox*가 미구축. 다음 = sop.txt→ontology 자동-induce 시제품(§13.6 최고레버).
 - **(b) B-DPO/B'-critic 설계 병렬(zero-GPU)**: 음성=on-policy 1순위·합성 augmentation·B'-critic 병렬 arm(§13.2). GPU 비면 즉시 E5 파일럿(메타규칙 "정면반박 조기신호").
 - **순서**: (a) P1 앵커 stress-test → 동시 (b) E5/B-DPO 설계 → `wi9qegpft` 결과로 §5 확정. 학습 큐 미접촉.
+
+### §13.6 ★(a) SOP-Bench induce-feasibility probe 결과 (2026-06-06) — §1.1·C2·E1 동시 판정 + 기존 cross-bench 인프라 발견
+**SOP-Bench 네이티브** (clone `/home/woori/scratch/SOP-Bench`): per-domain = **`sop.txt`(free-text NL SOP, human-authored prose)** + `toolspecs.json`/`tools.py` + `test_set_*.csv`(**input→output**). **파싱된 directed-action-graph/dependency 구조파일 = 0**(GT=input→output, 그래프 아님). ⇒ **상속할 벤치-구조가 없다**(SOPBench와 대조: 거기선 induce가 `directed_action_graph`+`dep_full` 상속).
+
+**★이미 구축됨 (이전 세션 05-31, 미커밋)**: `run_domain.py`(TBox=`workflow_executor.CallGraphExecutor`, **도메인-불변**) + `abox/ontology_<domain>.json`(8-관계 ABox: start/steps/realizes/arg/produces/precondition/next/terminate/output) 12–14 도메인. **실행 완료·TSR**: customer_service **1.0**(156/156)·traffic_spoofing **1.0**(200/200)·warehouse **1.0**(150/150)·email_intent 0.92·order_fulfillment 0.87 등.
+- ⚠️**그러나 `model:null`·tool_accuracy 전부 0·실행 μs단위** = **LLM 0, 순수 결정론 실행기**가 *손작성* ABox를 돌림 = §2.5 **②prong(deterministic authoring, OISA류)의 cross-bench 실증**이지 학습/LLM 아님. `?? abox/`(untracked)·sop.txt 자동-induce 스크립트 부재 = ontology **손작성(authored, A7 비용)** — found(NL-auto)도 learned도 아님.
+
+**3 질문 동시 판정**:
+1. **§1.1 (found/inherited)**: SOP-Bench엔 **상속할 벤치-구조 없음** → SOPBench式 inherited 문제 *부재*. 단 현 ABox=**authored(손작성)** → "found(NL-auto)" 주장하려면 sop.txt→ontology **자동-induce 신설 or learned(E1)** 필요.
+2. **C2 (cross-bench 앵커)**: **도메인-불변 TBox 실행기 cross-bench 전이 = VALIDATED**(14 SOP-Bench + 7 SOPBench, 단일 실행기·ABox만 swap, TSR≤1.0). ⇒ **리뷰2 C2 "cross-bench 미구축"은 부분 정정**: *실행기-전이는 구축·검증됨*; **NL-sourced ABox만 미구축.** 가치=단일 실행기가 21도메인 불변 + ABox≪executor-rewrite(A7); 단 ABox 손작성→TSR 1.0 자체는 결정론(§1 공격 순수형, 정직 소유).
+3. **E1 (NL→구조)**: **ENABLED & FORCED**(구조 shortcut 없음). 검증=end-to-end TSR(GT graph 없어 **Guard-2 불가**). 손작성 ontology = 도달가능 *gold-target* 증명 → 남은 일 = 그걸 NL서 자동/학습 생성.
+
+**⇒ P1/P2 재좌표**:
+- **P1** = "**단일 도메인-불변 SOP 실행기 + per-domain ABox가 2벤치/21도메인 전이**" = systems 코어, **이미 실증**(ABox 손작성=A7 정직소유). §1 방어=실행기 일반성+ABox≪rewrite.
+- **P2/E1** = **ABox를 sop.txt(NL)서 자동-induce or 학습 생성** → §1.1 완전해소(authored→found/learned) + "결정론 프로그램 아님" 입증. 손작성 ontology가 gold.
+- **★최고 레버리지 다음 수 = `sop.txt → ontology` 자동-induce 시제품(1 도메인)**: 성공 시 §1.1·E1·P2 동시 진전 + A7 손작성비용 제거 실증. (zero-GPU 또는 1 LLM 호출.)
