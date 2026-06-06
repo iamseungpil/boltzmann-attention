@@ -1,7 +1,7 @@
 # FIELD-GAP / LLM-VALUE 설계서 — "결정론 프로그램 대비 LLM의 효용을 어디서·어떻게 증명하나"
 
 > **신설 2026-06-06.** 동기 = ICLR 리뷰어의 **"이건 그냥 결정론 프로그램 아니냐"** 공격에 대한 정면 방어 + 그 방어를 *정량 실험*으로 박는 설계.
-> **상태**: 리뷰 1회 반영 (2026-06-06). 반영: ①§1 메트릭 정정(37=scripted-*oracle* 상한, honest 천장~32, 우리 33=천장 도달 → "결정론이 이김" 철회) ②정면반박(E0 gather-grounding 격리·E5 파일럿)을 *조기 신호*로 격상 ③amortization regime을 비용 헤드라인으로(정적 LOC 격하)+Δ-LOC-per-change ④E1 found/inherited 분리를 선행 게이트로 ⑤τ²→SOPBench 통제 멀티턴 래퍼 primary, τ-bench 외부타당성(dual-control 오염 회피) ⑥실행순서 리스크-조정(E2 안전승리→E0/E5 조기신호→E1→E3). **마스터 = `EXPERIMENT_DESIGN.md`**(목표·순서·지표 권위본; 이 문서는 그 §1/§2의 detail). 관련 = `CROSS_DOMAIN_TRANSFER_DESIGN.md`(Exp-5=A축 transfer) · `RUNG1_SOURCE_LADDER_DESIGN.md`(LOCK·2-agent §11) · `RUNG1_REDESIGN_2026_06_04.md`(decision-axis A/B/C §9). 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.
+> **상태**: 리뷰 2회 반영 (2026-06-06). **리뷰2(§13)**: A=FM SO.P 34% input-parity 미확인→"생존선" 폐기, 바=우리 stack-vs-adapter (§13.2); B=B-DPO 음성 on-policy 1순위·B'-critic 병렬 arm (§13.2); C=P1 "절반만 준비"·§1.1 inherited 위협 상속·cross-bench 미구축→앵커 stress-test (§13.3·§13.5). **리뷰1**: ①§1 메트릭 정정(37=scripted-*oracle* 상한, honest 천장~32, 우리 33=천장 도달 → "결정론이 이김" 철회) ②정면반박(E0 gather-grounding 격리·E5 파일럿)을 *조기 신호*로 격상 ③amortization regime을 비용 헤드라인으로(정적 LOC 격하)+Δ-LOC-per-change ④E1 found/inherited 분리를 선행 게이트로 ⑤τ²→SOPBench 통제 멀티턴 래퍼 primary, τ-bench 외부타당성(dual-control 오염 회피) ⑥실행순서 리스크-조정(E2 안전승리→E0/E5 조기신호→E1→E3). **마스터 = `EXPERIMENT_DESIGN.md`**(목표·순서·지표 권위본; 이 문서는 그 §1/§2의 detail). 관련 = `CROSS_DOMAIN_TRANSFER_DESIGN.md`(Exp-5=A축 transfer) · `RUNG1_SOURCE_LADDER_DESIGN.md`(LOCK·2-agent §11) · `RUNG1_REDESIGN_2026_06_04.md`(decision-axis A/B/C §9). 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.
 > **메타규칙(승계)**: 강한 주장은 reliable test 후 박제 · GPU 전 zero-cost 진단 · 공식 success로만 보고 · scaffold 도메인-분기 금지 · **offline forced-ACT 헤드룸 측정 금지(§8 RETRACTED 교훈)**.
 
 ---
@@ -246,21 +246,23 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 ### §13.2 ★FM SO.P 레시피 → Track B 채택안 (LOCK-호환 확인)
 **FM SO.P 레시피 = 대조(contrastive InfoNCE, τ=1) SFT + scoring head, 3-stage 누적혼합(α=⅓)**: ①개념변별(유사어 치환 음성, 1:4) ②행동시퀀스(error-injection reorder/omit/insert 음성, 1:4) ③그래프추론(음성그래프 cycle/precond-removal/edge±, 1:8; DAG in-context). AdamW lr1e-4·batch256·12ep. **DPO/RL 없음**(순수 대조).
 - **★LOCK-호환**: FM SO.P는 *대조(정답≻오염)*=음성신호 regime = LOCK이 명시 허용한 길(DPO/RFT). **decision-emission(Track C, dead) 아님.** ⇒ Track B로 *정당* 채택 가능.
-- **채택 2모드**:
-  - **B-DPO(권장·생성정책)**: gold SOPBench 궤적 vs **FM SO.P 3-연산자**(용어치환·시퀀스 error-injection·그래프 corruption)로 만든 dispreferred → DPO로 *생성 어댑터*가 순서/precond/제약 선호 내재화 → **adapter-only ↑**(현 ~0). 누적 커리큘럼(용어→시퀀스→그래프, α=⅓), 음성비 1:4/1:4/1:8 출발.
-  - **B'-critic(LLM-Modulo 학습critic)**: scoring head를 학습해 후보 next-action/궤적 rerank(생성기 위 학습 verifier). A(결정론 offload)와 B' 비교 = "학습 critic이 룰엔진 대체/보완하나".
-- **재현 gap(PDF 필요)**: per-stage 데이터 크기·scoring-head 정의. **B-DPO는 scoring-head 불요(선호쌍만)** → gap 회피하며 즉시 채택 가능.
-- **차별 유지**: 채택 후 (i) **held-out 전이**(FM SO.P 없음·우리 Exp-5) (ii) **A3 결정론 offload 결합**(그들 없음). FM SO.P 7B 34%(in-domain·DAG in-context) vs 우리 목표(adapter-only 전이).
-- **⚠️경쟁 경보**: 학습축에서 FM SO.P(34%)가 현재 우리 adapter-only(~0)를 압도 → **B-DPO가 P2(학습 논문)의 생존선**. E5 파일럿(§11-5)이 곧 이것.
+- **채택 2모드 (★리뷰2: B'-critic을 후순위 아님 *병렬 arm*으로 격상)**:
+  - **B-DPO (생성정책) — ★음성을 on-policy로 (리뷰2 Pushback B)**: ⚠️FM SO.P 3-연산자(용어치환·reorder/omit/insert·그래프 corruption)는 **합성 corruption** = "뻔한 오염"이라 DPO가 *그 특정 오염만 피하는 얕은 판별기*를 학습할 위험(판별 metric↑·생성 adapter-only 不動 = 고전 DPO 실패모드, **Track C 죽은 자리와 인접**). ⇒ **음성 1순위 = 모델 자신의 실패 rollout 채굴(on-policy DPO / rejection-sampling), near-miss**; FM SO.P 합성 연산자는 **augmentation으로만**. on-policy여야 *생성*이 움직인다. 누적 커리큘럼(용어→시퀀스→그래프)·음성비 1:4/1:4/1:8은 augmentation 출발점.
+  - **B'-critic (LLM-Modulo 학습 reranker) — ★병렬 arm (리뷰2)**: scoring head 학습해 후보 next-action/궤적 rerank. **A(결정론 offload) vs B'(학습 critic) 정면 비교 = generation-internalization 리스크 0의 더 깨끗한 novelty(LLM-Modulo 직접 확장).** B-DPO NULL 시(Track C 전례+얕은판별 위험상 확률 비낮음) **B'-critic이 P2 학습기여를 구제** → deferral 아님, *동시* arm.
+- **재현 gap(PDF 필요)**: per-stage 데이터 크기·scoring-head 정의. **B-DPO는 scoring-head 불요(선호쌍만)** → gap 회피.
+- **차별 유지**: 채택 후 (i) **held-out 전이**(FM SO.P 없음·우리 Exp-5) (ii) **A3 결정론 offload 결합**(그들 없음).
+- **⚠️⚠️경쟁 "경보" 철회 = input-parity 미확인 (리뷰2 Pushback A — §1 oracle-함정과 동형)**: 직전 "FM SO.P 34% ≫ 우리 adapter-only ~0 → 34%가 생존선"은 **메트릭-규율 트랩**(메모리 반복함정). FM SO.P 34.3%는 **추론-시 DAG in-context 여부가 논문에 不명시**(2026-06-06 PDF 직접확인: "paper does NOT explicitly state test-time input format"·with/without-graph ablation 없음). 만약 그들도 구조를 in-context로 받으면 그건 "학습+구조화입력=34%"이고 **우리 *stack*(역시 구조 받음)과 비교**해야 공정 — adapter-only(구조 無) 대비는 사과↔오렌지. ⇒ **34% 바 폐기.** **P2 생존선 = 우리 자체 *stack vs adapter-only* 대조**(같은 입력regime 내 학습기여 격리)로 세운다. FM SO.P 비교는 input-parity를 그들이 보고하지 않는 한 *불가*(2차 인용으로만).
 
 ### §13.3 ★논문 분할안 (논점이 2개의 *비충돌* 코어로 갈림)
 8편 대조 결과 우리 기여가 **위협도·준비도가 다른 두 축**으로 깨끗이 갈린다 → 2(+1) 논문 분할 권장:
 
-- **P1 — [ANCHOR, 준비됨, 저위협] 재학습0 cross-domain/bench 전이 + 결정론 감사가능 SOP 집행** (Systems/Agents)
-  - 코어 = **A2(held-out 전이, Exp-5 데이터 존재)** + **A3(full-dirgraph 결정론 집행=assurance)** + A4(변경robust) + A7(amortization).
-  - 全 8편 대비 *un-threatened*: FM SO.P/CAP-CPT 전이 없음·SAGE/AgentSandbox 결정론은 schema/제공그래프뿐·ODCV verifier는 게임가능. 
-  - 벤치: SOPBench(학습) → SOP-Bench/SAGE/SOP-Maze 횡단 전이.
-  - **가장 빨리·강하게 게재가능.**
+- **P1 — [ANCHOR, ★절반만 준비됨 (리뷰2 Pushback C)] 재학습0 cross-*benchmark* 전이 + 결정론 감사가능 SOP 집행** (Systems/Agents)
+  - 코어 = **A2(전이)** + **A3(full-dirgraph 결정론 집행=assurance)** + A4(변경robust) + A7(amortization).
+  - **⚠️C1 — P1이 §1.1 inherited-structure 위협을 *상속***: Exp-5 전이(bank→library 75.8%)는 induce된 ontology가 **벤치 구조에서 상속**(induce가 `directed_action_graph`+`dep_full` 읽음, NL 아님). ⇒ 리뷰어가 §1 결정론-프로그램 공격을 P1에 재조준: "전이가 각 벤치가 떠먹인 구조 위 결정론 알고리즘 = trivial." **P1은 §1 공격에서 자유롭지 않다 → 이 위협이 P1 정직섹션의 *중심*.**
+  - **⚠️C2 — 진짜 앵커 = cross-*BENCHMARK* 전이인데 미구축**: "데이터 존재"인 Exp-5는 **SOPBench-내부** cross-domain. §1.1 위협을 무력화하는 건 *다른 스키마 벤치*(SOP-Bench/SAGE)로의 전이뿐이고, 그건 induce가 *다른 벤치 구조*서 작동해야 = 공짜 아님·**미구축·미검증**. ⇒ "준비됨"은 절반만 참; **방어 가능 코어(cross-bench 전이) = 현재 UNVERIFIED.**
+  - **⚠️C3 — A3 delta 얇음**: A1(NL-compile)을 P2로 보내면 A3엔 "in-loop full-dirgraph 게이트"만 남아 SAGE/AgentSandbox 대비 delta 얇음. ⇒ **P1 헤드라인 = *전이가 별*, 집행은 substrate** 임을 정직 소유.
+  - 全 8편 대비 *전이는* un-threatened(FM SO.P/CAP-CPT 전이 없음)이나 **그 전이가 inherited-structure 위에서임을 cross-bench로 넘어야 실증.**
+  - ⇒ **P1 = "집필" 아니라 *앵커 stress-test*** (§13.5).
 - **P2 — [FRONTIER, 고위험, 조건부] 소형모델에 *전이가능* SOP-컴파일 내재화** (Learning/ML)
   - 코어 = **A6(adapter-only>0, Track B=§13.2 B-DPO)** + **A1(NL→구조 컴파일, E1)**.
   - CAP-CPT(32B·in-domain·변경難) 대비 delta = 소형+전이+변경-trivial; FM SO.P(in-domain) 대비 delta = held-out.
@@ -268,8 +270,16 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 - **P3 — [선택, 포지션/벤치] field-gap 측정** (NL-only·perturbation·멀티턴·cost/assurance)
   - 본 설계서 §6·§9 전체. P1의 평가장(章)으로 흡수 가능, 또는 독립 position/benchmark 논문.
 
-**분할 논리**: P1은 "누가 구조를 만드나 무관하게, *전이*와 *감사가능 집행*이 우리 것" = 8편 누구도 안 함 = 안전. P2는 "구조를 *소형모델이 NL서 학습*" = CAP-CPT/FM SO.P와 정면 경쟁축 = 위험. 섞으면 P1이 P2의 NULL 위험에 인질. **권고: P1 먼저 확정·집필, P2는 E0/E5/E1 신호 본 뒤.**
+**분할 논리 (리뷰2 정정)**: P2("소형모델이 NL서 구조 학습")가 CAP-CPT/FM SO.P 정면 경쟁축=위험인 건 유지. **그러나 P1도 "안전"이 아니라 *조건부 안전*** — P1의 전이가 cross-bench로 §1.1 inherited 위협을 넘어야만 방어된다. 섞으면 안 되는 이유는 동일(P1≠P2 인질). **권고(정정): P1을 먼저 *집필*이 아니라 *앵커 stress-test*(§13.5)하고, P2 설계는 병렬(zero-GPU), E0/E5/E1 신호로 확정.**
 
 ### §13.4 자기-정정 (마스터 §0 "FM SO.P/CAP-CPT weight-baking 격파")
-- ✅**확정 유효**: "전이가 차별점" — FM SO.P=in-domain(전이0), CAP-CPT=새 정책엔 재학습 필요. 
-- ⚠️**라벨 부정확**: FM SO.P은 "weight-baking"이라기보다 *대조학습+DAG in-context*; CAP-CPT가 진짜 CPT weight-baking. 마스터 §0 문구를 "전이 부재"로 정밀화 권장.
+- ✅**확정 유효**: "전이가 차별점" — FM SO.P=in-domain(전이0), CAP-CPT=새 정책엔 재학습 필요. ⚠️**CAP-CPT zero-shot 정밀확인 필요(리뷰2 minor)**: 조금이라도 zero-shot 전이되면 A2 delta 좁아짐(현재 agent 독해=substitution "lags in-context, needs more data"=약/무).
+- ⚠️**라벨 부정확**: FM SO.P은 "weight-baking"이라기보다 *대조학습*(추론입력 미명시); CAP-CPT가 진짜 CPT weight-baking. 마스터 §0 문구를 "전이 부재"로 정밀화 권장.
+- **인용 ID 실존 확인**: FM SO.P 2602.09336·SAGE 2604.09285(미래일자처럼 보이나 오늘=06-06, 에이전트가 HTML 직접 fetch=실존 확인됨).
+- **LogicIFEval → P2 평가 *타깃* 승격(리뷰2 minor)**: B-DPO가 7B를 LogicIFEval-류 faithful-logic서 올리면 = P2 강력 결과(동기 인용에 그치지 말 것).
+
+### §13.5 ★다음 단계 (리뷰2 권고 — zero-GPU, 학습 큐 미접촉)
+- **(c) 2차 리서치 = 진행 중(`wi9qegpft`), 재실행 금지** — FlowBench/AgentOrca/TaskBench/ToolChain construct-vs-pathfind + distill-전이 prior 타깃(§5/§10-6 미검증축). §13이 SAGE=그래프제공·FM SO.P/CAP-CPT=전이없음으로 대부분 닫음 → wf 완료를 확정용으로 대기.
+- **(a) P1 *앵커 stress-test* (집필 아님, 1순위)**: P1 설계서를 쓰되 ①헤드라인=**cross-benchmark 전이**(SOPBench-내부 아님) 명시 ②**§1.1 inherited-structure 위협을 P1 중심 정직섹션**으로 박음. *쓰는 행위가 앵커 실재를 드러낸다* — cross-bench 전이가 §1.1을 못 넘으면 "P1=안전" 전제 붕괴 → 집필 투자 전에 알아야. **핵심 미지수 = induce가 다른-스키마 벤치(SOP-Bench/SAGE)서 작동하나(NL-source면 정당, 구조-상속이면 §1.1 재현).**
+- **(b) B-DPO/B'-critic 설계 병렬(zero-GPU)**: 음성=on-policy 1순위·합성 augmentation·B'-critic 병렬 arm(§13.2). GPU 비면 즉시 E5 파일럿(메타규칙 "정면반박 조기신호").
+- **순서**: (a) P1 앵커 stress-test → 동시 (b) E5/B-DPO 설계 → `wi9qegpft` 결과로 §5 확정. 학습 큐 미접촉.
