@@ -332,8 +332,11 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 | `tool` | 도구/API 호출 | 0 |
 | `verifier` | getter/check, 결과를 state에 bool/value로 produce | 0 |
 | `decision` | 선언적 조건트리로 분류/route (도구 없음, tool-free) | 1 |
+| `compute` | **bounded·audited pure-fn 호출**(parse_json/extract/normalize/arith/compare)로 raw slot→clean state 정규화 | 0 |
 | `request` | user-facing 명료화 질문 emit·답을 state로 ingest | 2 |
 | `subgraph` | 다른 ontology로 확장(계층 sub-workflow) | 2 |
+
+> **★`compute` 노드 = gap-1 탈출구 (§14.5 리뷰 반영, blind-probe 확정)**: 선언적 `guard`("slot OP value")만으론 customer_service `is_authenticated`(auth_history JSON 파싱)·`metrics_improved`(service_metrics dict 산술)을 표현 **불가**(리프가 코드) → §14.4 손-검증 답이 **부분 NO(확정)**. **해법 = `compute` 노드 = BOUNDED·AUDITED pure-function 라이브러리 invocation**(임의 코드 아님; pure·total·side-effect-free·SOP-도출, parse/extract/normalize/arith/compare의 파라미터화 primitive). 모델은 *코드*가 아니라 `{primitive-id, args}` emit(학습 타깃 구조적 유지). ⇒ **assurance 재-scope = "선언적 구조(그래프) + *감사된 순수함수 라이브러리*"**("코드 0" 아님; arbitrary 코드 아님이라 결정론·감사가능 유지). bounded-primitive로 합성 불가한 결정 = 그 도메인 부분-비범위.
 
 **NODE fields**:
 - `realizes`: tool/function 명 (tool/verifier) 또는 decision-id.
@@ -353,31 +356,36 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 ### §14.2 by-construction 표현가능성 (벤치별 매핑 = 증명)
 | 벤치 | 스키마 매핑 | L |
 |---|---|---|
-| **SOPBench** | goal=`tool` 노드, `precondition`=AND/OR/CHAIN 제약트리(login∧balance∨admin), verifier 노드=login_user/getters, `arg`=user_known | 0 |
-| **SOP-Bench** customer_service | `next` 체인(5.1→5.7), `decision` 노드(is_auth/metrics/final_status)에 `guard`(latency≤100), `output`=RSD JSON | 0 |
-| **TaskBench** | 순수 `tool` 의존 DAG, `arg` node→node 전달, precondition/guard 거의 없음 | 0 |
-| **SAGE** | SOP 그래프=node/next/precondition 직접, +멀티턴 적대=turn-loop | 0+2 |
-| **SOP-Maze** | `decision` 노드 + 조건 `branch`(tool-free), tool 노드 없음 | 1 |
-| **TOD-ProcBench** | condition-action 규칙=노드 `precondition`(state 조건)→action, per-turn=turn-loop | 0+2 |
-| **τ/τ²-bench** | 정책규칙=precondition + `tool` 노드 + `request`(명료화) + user-sim turn-loop | 0+2 |
-| **FlowBench** | 워크플로=그래프, 계층=`subgraph` 노드, 멀티턴=turn-loop | 0+2 |
+| 벤치 | 스키마 매핑 | L | 적합 (FULL/PARTIAL) |
+|---|---|---|---|
+| **SOPBench** | goal=`tool`, `precondition`=AND/OR/CHAIN(login∧balance∨admin), verifier=login_user/getters, `arg`=user_known | 0 | **FULL** |
+| **TaskBench** | 순수 `tool` 의존 DAG, `arg` node→node, precondition/guard 거의 없음 | 0 | **FULL** |
+| **SOP-Bench** cust_svc | `next` 체인(5.1→5.7) + `decision`/`branch` + **`compute`**(is_auth JSON파싱·metrics dict산술) + guard | 0 | **FULL*** (compute 노드 필수) |
+| **TOD-ProcBench** | condition-action=`precondition`→action, per-turn=turn-loop | 0+2 | **FULL*** (멀티턴 자유분기 일부) |
+| **SAGE** | SOP 그래프 직접 + 멀티턴 적대=turn-loop | 0+2 | **PARTIAL** (자유분기 대화) |
+| **FlowBench** | 워크플로 그래프 + 계층 `subgraph` + 멀티턴 | 0+2 | **PARTIAL** (자유분기·계층) |
+| **SOP-Maze** | `decision`+`branch` tool-free, **+`compute`**(산술·HRS 깊은추론) | 1 | **PARTIAL** (compute-heavy 추론) |
+| **τ/τ²-bench** | 정책=precondition+`tool`+`request` | 0+2 | **PARTIAL/aspirational** (동적 user-sim·자유발화·협상 ≠ 정적+scripted) |
 
-⇒ **L0+1+2 스키마가 9 벤치 중 8개를 by-construction 표현**(SOPBench·SOP-Bench·TaskBench·SAGE·SOP-Maze·TOD-ProcBench·τ·FlowBench). 핵심 = **그래프는 항상 정적 acyclic DAG**, 멀티턴/분기/계층은 *실행기 의미론·노드타입*으로 흡수 → **결정론·감사가능 불변.**
+⇒ **정직화(§14.5 gap-3): "8/9 표현"은 과장.** 정확히는 **FULL 4**(SOPBench·TaskBench + compute 포함 SOP-Bench·TOD) + **PARTIAL 4**(SAGE·FlowBench·SOP-Maze·τ — compute 또는 동적-대화 탈출구 필요). 공통 = **구조 *골격*(node/precondition/next)은 매핑되나, (a) 실도메인 결정=`compute` 필수 (b) 자유-분기 멀티턴·동적 user-sim은 정적그래프+turn-loop로 부분만**. 핵심 불변 = **그래프는 정적 acyclic + compute=감사된 순수함수** → 결정론·감사가능 유지.
 
 ### §14.3 결정론 경계 (의도적 비범위 = 기여의 정의상 한계)
 - **L3 그래프-cycle/루프** (LogicIFEval iteration): DAG에 cycle 넣으면 유한·감사가능 깨짐 → 비범위. (단 turn-loop=정적그래프 반복적용은 OK; *그래프 내* 루프만 배제.)
 - **soft/LLM-judge 자유생성** (ODCV): 실행기는 결정론 구조 출력만; 주관채점 자유텍스트는 표현 불가 → 비범위.
 - ★이 둘을 *못 담는 게 결함이 아니라* 결정론-감사가능 구조의 정의상 경계(§13 판정). 담으려 확장하면 "임의 프로그램"화 → §1·assurance 논거 자멸.
+- **★경계 정밀화 (§14.5 gap-1)**: `compute` 노드(bounded·audited **pure** fn)는 **경계 *안*** — pure·total·side-effect-free·유한 라이브러리라 여전히 결정론·감사가능. 경계 *밖* = ① 그래프-cycle(무한반복) ② arbitrary/Turing-complete 코드 ③ soft-judge. ⇒ assurance 정확표현 = **"선언적 구조 + 감사된 순수함수 라이브러리"**(코드-0 아님, but arbitrary-코드도 아님).
 
-### §14.4 학습 타깃으로서의 함의 + 검증 필요
-- **결정로직=선언적**(`guard` 데이터)이라 학습 타깃이 *구조적 객체*(JSON-emittable) 유지 → probe-2의 "NL→코드생성" 난점 완화(코드 아닌 조건식 emit). ★단 customer_service의 final_status 트리가 `branch`+`guard`로 완전 표현되는지 **1-도메인 손-검증 필요**.
-- **단일 실행기가 각 벤치 evaluator 통과** 미검증(§13 게이트2): SOPBench(dirgraph-oracle)·SOP-Bench(input→output)·TOD(per-turn)·τ(DB상태)를 한 실행기가 만족하나 = **벤치별 1-태스크 손-검증** 선결.
-- **표현가능 ≠ 학습가능 ≠ blind-induce가능**: §14는 *표현*만 증명; NL서 이 스키마를 모델이 *생성*하나는 frontier-1-call→소형 사다리(§13.5)로 별도 판정.
-- **open**: ① `guard` 연산자 집합이 전 벤치 결정 충분한가(arithmetic·set·temporal?) ② `subgraph` 재귀깊이 ③ `request` 명료화가 τ² dual-control 오염 회피하나 ④ 웹조사 `w94ywlthc`로 레퍼런스 밖 벤치(WorkflowLLM·AppWorld·NaturalPlan) 사다리 분류 보강 후 스키마 확정.
+### §14.4 학습 타깃으로서의 함의 + 검증 필요 (§14.5 리뷰 반영)
+- **결정로직=선언적 `guard`+`compute`**: guard("slot OP value")는 operator-shape만 구조화; **실도메인 결정 리프는 `compute`(감사된 pure-fn) 필수**(customer_service is_auth/metrics = JSON파싱·dict산술 → guard 단독 표현불가, **손-검증 답=부분 NO 확정, §14.5 gap-1**). ⇒ 손-검증 재정의 = **"`compute` 노드 포함 시 customer_service 완전표현되나".** 학습 타깃 = NL→(구조 + guard + **`{primitive-id,args}`**), 코드생성 아님(구조 유지).
+- **★slot-grounding이 진짜 난점 (§14.5 gap-4), operator 아님**: guard `lhs:<state-ref>`가 가리키는 slot 어휘(auth_history/service_metrics 키 + JSON 내부경로)=**도구반환 스키마 내부 = blind-미지**(probe가 막힌 지점). 선언성은 operator *모양*만 완화; **NL→*grounded* slot refs**(NL 언급을 올바른 도구-스키마 필드에 정렬)가 blind-induce의 핵심 미해결. = compute primitive args도 동일 grounding 의존.
+- **단일 실행기 = 미구축, *신축* 필요 (§14.5 gap-2)**: CallGraphExecutor(`workflow_executor.py`, 단일 "slot OP value"·**AND/OR 트리 없음**) vs DGGATE(full AND/OR/CHAIN)는 **술어언어 비호환** → 합집합(+compute+turn-loop) 지원 **새 실행기 신축** = 목표지 완료 아님. 벤치별 evaluator(dirgraph-oracle/input→output/per-turn/DB상태) 통과는 그 위에서 **벤치별 1-태스크 손-검증**.
+- **표현가능 ≠ 학습가능 ≠ blind-induce가능**: §14는 *표현*만 증명; NL서 생성은 frontier-1-call→소형 사다리(§13.5)로 별도 판정. (slot-grounding이 그 사다리의 진짜 bar.)
+- **open**: ① `compute` primitive 라이브러리가 전 벤치 결정 합성 충분한가(parse·arith·set·temporal 범위) ② `subgraph` 재귀깊이 ③ `request`/동적 user-sim이 τ² dual-control 오염 회피하나(τ=PARTIAL/aspirational) ④ 웹조사 `w94ywlthc`로 레퍼런스 밖 벤치 사다리 분류 보강 후 스키마 확정.
 
-> **상태 = DRAFT.** 다음: 웹조사 통합 → §14.2 매핑에 외부벤치 추가 → §14.4 손-검증(customer_service `guard` 완전성 + 벤치별 실행기-evaluator 1태스크) → 다른 세션 리뷰 → 방향 재결정.
+> **상태 = DRAFT (리뷰5/§14.5 반영).** 다음 = **(a) compute 경계 포함 스키마 확정** → (b) customer_service "compute 노드 포함 완전표현" 손-검증 → (c) (확장)실행기 1태스크 신축·벤치별 evaluator 통과 → (d) 웹조사 통합 → 타세션 리뷰 → 방향 재결정.
 
 ### §14.5 ★리뷰 (2026-06-06, 리뷰5 — 실 executor·customer_service 대조) — 강점 유지, 4 load-bearing 빈틈
+> **리뷰5의 4 빈틈은 본문 §14.1–14.4에 반영 완료**(compute 노드·assurance 재scope·FULL/PARTIAL·slot-grounding·새 실행기). 아래는 audit 기록.
 강점(유지): §14.3 결정론 경계(falsifiable·non-example 명시) · turn-loop≠graph-cycle · "표현≠학습≠blind-induce" caveat.
 
 1. **★(최중요) wrapped-compute 탈출구 = 핵심 긴장 (open-①서 승격).** `decision`+선언적 `guard`("slot OP value")는 단순비교만 표현. **customer_service가 이미 반례**(내 §13 blind-probe 분석): `is_authenticated`=auth_history **JSON 파싱+로직**·`metrics_improved`=service_metrics **dict 산술** → guard 표현불가·**wrapped 코드 필수**; final_status 트리는 branch+guard지만 *리프가 코드*. email_intent `_classify`도 코드. ⇒ 실도메인은 wrapped pure-fn 필수 = §14.3이 금한 "임의 프로그램"이 *wrapped fn으로 새어듦*. **처방: 스키마에 `compute` 노드(pure·total·side-effect-free·SOP-도출·audited) 명시 + assurance를 "선언적 구조 + 감사된 순수함수"로 scope("코드 0" 아님).** §14.4 손-검증("customer_service 순수 branch+guard 표현?")의 답 = **부분 NO(확정).**
