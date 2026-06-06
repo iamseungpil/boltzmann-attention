@@ -96,16 +96,25 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 **핵심 프레이밍**: LLM의 가치 = "지저분/변화/자연어 현실 → 결정론 엔진이 먹을 구조" 변환. **결정론과 정확도로 싸우지 말고, 노력·변경·자연어 축으로 싸운다** — 거기선 결정론이 원리상 못 따라온다.
 
 ## §5. ★기존 연구 동향 비교 + 우리 비판 극복법
+> **검증 상태 (deep-research 2026-06-06, `wr7eoeakr`, 25주장 3-vote 적대검증·0 killed)**: 아래 ✅행 = 1차소스 verbatim 확증(vote 표기). ⚠️행 = **미검증**(검증셋 부재; §10-6 정직플래그 + 2차 리서치 대기). **확증된 field-wide 합의**: NL→구조 선행연구는 *전부* 프롬프트(in-context, 비-weight) + 결정론 엔진 offload (ACL'25 survey 2503.18971). ⇒ 우리 novelty는 그 위가 아니라 "구조 *생성*을 소형 weight에 박고 전이"에 있음.
+
 | 계열 | 주장 | 우리와의 관계 / 극복 |
 |---|---|---|
-| **LLM-Modulo** (Kambhampati ICML'24, `2402.01817`) | LLM은 plan·self-verify 못함; 외부 건전 검증기가 soundness, LLM은 후보 생성기 | **A축 인용 권위**. 단 LLM-Modulo는 *LLM이 생성*. 우리가 검증기에 생성(그래프 재구성) 시키고 LLM이 ~0이면 *역전*=인용 안 삶 → LLM을 생성(NL→구조) 자리로 되돌려야 정당 인용 |
-| **Logic-LM / PAL / SatLM / PoT / LINC** (`2305.12295`/`2211.10435`/SatLM NeurIPS'23/`2211.12588`/LINC EMNLP'23) | LLM=NL→형식스펙(파싱), 솔버=건전 실행; **양면 ablation**(솔버 단독·LLM 단독 모두 실패) | **★핵심 템플릿.** 우리 방어 = 정확히 이 양면 ablation. **우리 delta**: 이들은 프롬프트(GPT)+솔버, 우리는 NL→구조 스킬을 *작은모델 weight에 학습·도메인/벤치 전이* |
-| **RoG** (Luo ICLR'24, `2310.01061`) | 7B가 relation-path *구조 생성* + GT 그래프 distill | 방법론 최인접. **차별**: RoG=기존 KG 스키마서 path-finding / 우리=NL서 절차 graph-construction; RoG=KG마다 재instruction-tune(약점) / 우리=재학습0 전이 |
-| **OISA / CDP** (현장 시스템, `/workspace_common/CDP`) | 도메인-특화 파이프라인(코드 AST induce)으로 구조 제공, 도구변경 시 재구축 | **현장 결정론 baseline.** 차별 = Agent1이 구조를 NL서 *학습·전이*로 제공 → 도구/도메인 변경 시 **리스트·NL만 갱신(재학습0)** vs OISA per-domain 재구축. = §6 E2 비용 우위의 실세계 대조군 |
+| ✅**LLM-Modulo** (Kambhampati ICML'24, `2402.01817`) (3-0) | autoregressive LLM은 plan·self-verify 못함; soundness는 외부 critic서 상속, LLM=후보생성기, weight에 구조스킬 **무귀속** | **A축 인용 권위**. 단 LLM-Modulo는 *LLM이 (프롬프트로) 생성*·weight학습/전이 무귀속. 우리=NL→구조를 weight에 학습·전이, 결정론은 *집행*만(생성 아님). ⚠️**범위한정 필수**: o1/LRM이 "LLM plan불가"를 부분완화(Kambhampati 본인 `2409.13373`=o1 PlanBench "quantum improvement") → 동기를 **"autoregressive+self-critique"로 scope** |
+| ✅**Logic-LM / PAL / SatLM / PoT / LINC** (`2305.12295`/`2211.10435`/SatLM `2305.09656`/`2211.12588`/LINC EMNLP'23) (8× 3-0) | LLM=NL→형식스펙(FOL/SMT/Python) 파싱, 솔버=건전 실행; faithfulness=**solver정확도**; **정적추론** 데이터셋(FOLIO/ProofWriter/math) | **★핵심 템플릿(양면 ablation).** **우리 delta**: 이들=프롬프트(GPT)+솔버·정적추론·재학습0전이 無, 우리=agentic tool-use 집행용 dirgraph·*작은모델 weight 학습*·cross-domain/벤치 전이·구조 exact-match faithfulness |
+| ✅**LLM+P / Guan'23 / Oswald'24 / L2P** (`2304.11477`/`2305.14909`/`2405.06650`/L2P PLAN-FM'25) (다수 3-0) | 프롬프트로 PDDL action-model(precond/effect) emit → sound planner가 *solve때* 순서 합성; 정확성=planner보증/validator루프 | **최인접(절차구조).** **차별**: PDDL action-model은 planner가 순서를 *런타임 합성*; 우리는 instance-level 순서(login→balance) **직접 컴파일·weight학습**. 전부 프롬프트·재학습0전이 無. ⚠️인용수정: Oswald'24 저자에 **"Wang" 없음**(Oswald/Srinivas/Kokel/Lee/Katz/Sohrabi) |
+| ✅**ACL'25 survey "LLMs as Planning Formalizers"** (`2503.18971`) (3-0) | 지배 패러다임=LLM-as-formalizer + 결정론 off-the-shelf planner; LLM은 long-horizon 직접플래닝 취약 | **related-work 앵커**: surveyed norm=프롬프트 formalizer→결정론 planner, **weight-baked 전이가능 컴파일러는 norm 아님** = gap주장 문서적 근거 |
+| ⚠️**RoG** (Luo ICLR'24, `2310.01061`) **(미검증)** | 7B가 relation-path *구조 생성* + GT 그래프 distill | 방법론 최인접 후보. **주장 차별**(미검증): RoG=기존 KG 스키마서 path-finding / 우리=NL서 절차 graph-construction; RoG=KG마다 재instruction-tune / 우리=재학습0 전이. **★2차 리서치서 construct-vs-pathfind·재tune 확인 필수(§10-6)** |
+| ⚠️**OISA / CDP** (현장 시스템) **(미검증)** | 도메인-특화 파이프라인(코드 AST induce)으로 구조 제공, 도구변경 시 재구축 | **현장 결정론 baseline.** 차별 = Agent1이 구조를 NL서 *학습·전이* → 변경 시 리스트·NL만 갱신(재학습0) vs OISA per-domain 재구축. = §6 E2 실세계 대조군 |
 | **process-supervision / verifier-RFT** (PRM 등) | 중간단계 보상으로 추론 교정 | **B축 positioning**: 우리 B = verifier 차이를 음성신호 내재화. process-supervision은 통계우위 불명[Jia ICML'25] → 우리는 *전이*로 정당화 |
-| **Self-Ask / compositionality gap** (`2210.03350`) + **LLM self-verify limits** (Kambhampati 2402.08115) | 서브Q는 답하나 *조합* 실패; LLM self-verify 불가 | 우리 Track C NULL의 *이론적 예언*. → 결정 자기-emit 포기·offload/2-agent 정당화 |
+| ✅**Self-Ask / compositionality gap** (`2210.03350`) + **LLM self-verify limits** (`2402.08115`) (보강확증) | 서브Q는 답하나 *조합* 실패; LLM self-verify 불가 | 우리 Track C NULL의 *이론적 예언*. → 결정 자기-emit 포기·offload/2-agent 정당화 |
+| ⚠️**[미검증 위험축] 프로세스-그래프 추출·event-schema induction** (van der Aa·Friedrich·`2104.06344`) | text→business-process/precedence graph·event schema | **★가장 위험한 "이미 했다" 후보(검증셋 전무).** 학습된 directed-precedence graph면 novelty 약화 → 2차 리서치 필수(§10-6) |
+| ⚠️**[미검증 위험축] agent 도구-의존그래프·SOP agent** (FlowBench·AgentOrca·ToolChain·TaskBench) | tool/API 의존그래프 + SOP-following | **★SOPBench-substrate novel 여부를 직접 결정**: NL서 *구성* vs 제공스키마 *path-find*? 프롬프트 vs 학습? 2차 리서치 필수(§10-6) |
+| ⚠️**[미검증 핵심] distill된 NL→구조 zero-shot 전이** (`2305.19472`/`2505.17612`/`2510.19429` 등 후보) | 소형모델에 구조생성 distill·전이 | **★우리 핵심 novelty = 현재 "배제에 의한 gap"일 뿐 positively 미확인 = highest-risk.** 2차 리서치가 닫아야 정당주장(§10-6) |
 
-**극복 요지**: (a) 결정론-프로그램 공격 = Logic-LM 양면 ablation으로(§8); (b) "LLM 효용 없음" = §4 장점을 §6 regime서 측정; (c) LLM-Modulo 역전 비판 = 2-agent Agent1로 LLM을 생성 자리로 복귀; (d) "프롬프트면 충분(학습 불요)" = 작은모델 weight 내재화 + 전이 delta(RoG·Logic-LM 대비).
+**faithfulness eval (✅ 3-0)**: 검증된 priors의 구조평가는 전부 **behavioral**(plan-set 동치·solver정확도·validator+human 루프; Oswald'24 `2405.06650`·Guan'23). **OVER=0/UNDER=0 edge-level exact-match 구현한 prior 없음** → 우리 Guard-2식 구조 exact-match = 검증셋에 부재한 **더 강한 faithfulness 기준** = 별도 기여축.
+
+**극복 요지**: (a) 결정론-프로그램 공격 = Logic-LM 양면 ablation으로(§8); (b) "LLM 효용 없음" = §4 장점을 §6 regime서 측정; (c) LLM-Modulo 역전 비판 = 2-agent Agent1로 LLM을 생성 자리로 복귀; (d) "프롬프트면 충분(학습 불요)" = 작은모델 weight 내재화 + 전이 delta(RoG·Logic-LM 대비). **⚠️(e) novelty 확정 선결 = §10-6 미검증 위험축(프로세스-그래프·agent-의존그래프·distill전이) 2차 리서치 통과.**
 
 ## §6. ★실험 — 현장↔SOPBench 차이를 regime으로 (상세)
 각 실험: regime 정의 → 결정론 baseline → 지표 → 사전등록 성공기준 → Track/LOCK 매핑.
@@ -191,6 +200,7 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 3. **검정력**: should_T effective n 작음 → seed·도메인-mix 고정·사전등록.
 4. **NL→구조 난이도 미지**: gather는 학습됐으나 full NL→dirgraph는 더 큼 → E1은 *비용 대조*가 1급(정확도 지배 아님), 저항 시 E5(B).
 5. **벤치 induce 품질**: SOP-Bench 8관계 적합성(마스터 §1)·τ² 역할한정(§7).
+6. **★novelty가 아직 "배제에 의한 gap" = positively 미확인 (deep-research `wr7eoeakr` 정직플래그)**: 1차 리서치(2026-06-06)는 sub-area 1·2·7(NL→logic·PDDL·faithfulness)만 3-vote 확증; **가장 위험한 priors는 검증셋 부재** — ⓐ프로세스-그래프 추출·event-schema induction(van der Aa·Friedrich·`2104.06344`)이 *학습된 directed-precedence graph*인가, ⓑFlowBench·AgentOrca·ToolChain·TaskBench가 NL서 *구성* vs 제공스키마 *path-find*(=SOPBench-substrate novel 여부 직결), ⓒRoG가 KG마다 재instruction-tune·path-find인가, ⓓ**핵심**: distill된 NL→구조가 cross-domain zero-shot 전이한 prior 존재하나(=우리 헤드라인 주장). **이 4축이 닫히기 전엔 §5 ⚠️행·"gap" 주장을 확정 금지.** → **2차 타깃 리서치 진행 중(launch 2026-06-06)**. 결과 통과 시 §5 ⚠️→✅ 승격, 반례 발견 시 novelty 재좌표.
 
 ## §11. 실행 순서 (리스크-조정, 리뷰 — 정면반박을 조기 신호로)
 > 원칙: ①GPU 불요 먼저 ②안전한 승리로 thesis de-risk ③**정면반박(학습 기여)을 맨 끝 아님 조기에** — 죽으면 thesis 골격을 바꿔야 하므로 일찍 알아야 함.
