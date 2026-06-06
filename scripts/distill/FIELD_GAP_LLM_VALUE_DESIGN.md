@@ -319,3 +319,60 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
   - **email_intent 정밀 라벨 (리뷰4, 과대자책 방지)**: 답 *라벨* copy 아님 — 벤치가 안 뿌린 *입력*(email_body)을 test파일서 복구+손작성 규칙 분류 = **test-파일 커플링 + 규칙 overfit 가능**(answer-copy 아님). 그래도 미인증-blind라 BLOCKING 유효.
   - **★probe-2 (리뷰5, 코드 직독 2026-06-06) — silver lining·"runtime-clean" 둘 다 정정 필요**: `functions.py` 전수 census = **12 도메인 중 11이 per-domain `functions.py` 보유(27–131줄), order_fulfillment만 JSON-only=0.87**. ★이들은 plumbing 아니라 **SOP 결정로직**(customer_service=`is_authenticated`/`metrics_improved`/`final_status`, SOP §5.1/5.5 임계값 latency≤100·jitter≤30 + status 결정트리; warehouse=resolution 매핑). ⇒ **(a) silver lining 정정**: 1.0은 "컴팩트 8관계 ontology"가 아니라 **JSON 스켈레톤 + 27–131줄 손작성 결정 Python**이 운반(order_fulfillment JSON-only=0.87이 증명). "타깃=8관계 표현가능"은 **과소특성화** — 실제 타깃 = NL→(ontology + **결정코드**). **(b) "runtime-clean" 정정**: csv 미참조여도 **warehouse functions.py docstring이 label-coupling 자백** — "labels were frozen from the CSV `problem_type`/`chargeable` columns", 제공 도구가 po_number서 recompute한 값이 **라벨과 47% 불일치**라, 라벨-결정 input 컬럼을 *직접 read*하고 GT-generation을 reverse-engineer해 매칭. ⇒ runtime-clean(csv 미read)≠uncontaminated; warehouse는 email_intent보다 *깊은* 커플링. **(c) auto-induce 타깃 격상**: NL→JSON이 아니라 **NL→(ontology+결정코드 생성)** = frontier-1-call이 customer_service의 final_status 결정트리·임계값을 Python으로 emit해야 = 훨씬 가파른 bar. **(d) A7 비용축 추가 침식**: per-domain authoring = JSON + 27–131줄 결정 Python ≈ OISA류 per-domain 코드(="ABox≪executor-rewrite" 약화). **(e) 프로토콜**: 시제품 도메인 = **customer_service**(결정로직이 SOP §명시 인용·라벨컬럼 아닌 정당 state input[latency/jitter/auth] read = 최-clean) but 타깃에 결정코드 induce 포함. warehouse는 label-coupling으로 **clean셋서 제외**, email_intent도 제외 → clean 1.0 도메인 = **사실상 customer_service·traffic 중 functions.py가 label-컬럼 안 읽는 것만**(traffic도 docstring audit 필요).
 3. **C2 앵커 재격하(리뷰2·3 누적)**: "실행기 cross-bench 전이 VALIDATED·TSR≤1.0"은 *답-가시 손작성 ABox* 위 결과 → **§1 공격에 더 노출**(P1=결정론+test-visible authored). P1 정직섹션에 §13.7 명기. **P1 방어는 blind-induce가 TSR을 유지할 때만 성립** ⇒ auto-induce는 "P2 다음"이 아니라 **P1 앵커 유효성의 선결 게이트**.
+
+---
+
+## §14. ★통합 온톨로지 스키마 설계 (Level 0+1+2) — by-construction 표현가능성 (DRAFT 2026-06-06, 웹조사 `w94ywlthc` 전·리뷰 대기)
+> 목표 = **하나의 온톨로지 스키마 + 하나의 결정론 실행기**가 우리 레퍼런스 벤치들의 절차를 표현 → 모델은 NL→이 스키마만 학습, ABox-swap으로 cross-bench 전이. §13 적합성 사다리(L0 코어 / L1 decision-only / L2 멀티턴 / L3 루프·soft=out-of-scope)의 **L0+1+2를 구체 스키마로 박제.** ★설계 원칙 = **결정론·유한·감사가능 유지**(L3 루프·soft-judge는 의도적 비범위 = 그게 우리 assurance 기여의 정의상 경계, §13 판정).
+
+### §14.1 스키마 명세 (typed nodes + relations + executor)
+**NODE (typed)** — 4 타입:
+| type | 의미 | L |
+|---|---|---|
+| `tool` | 도구/API 호출 | 0 |
+| `verifier` | getter/check, 결과를 state에 bool/value로 produce | 0 |
+| `decision` | 선언적 조건트리로 분류/route (도구 없음, tool-free) | 1 |
+| `request` | user-facing 명료화 질문 emit·답을 state로 ingest | 2 |
+| `subgraph` | 다른 ontology로 확장(계층 sub-workflow) | 2 |
+
+**NODE fields**:
+- `realizes`: tool/function 명 (tool/verifier) 또는 decision-id.
+- `arg`: `{param → source}`, source ∈ {`user_input`, `state.<key>`, `node.<id>.output`, `const`}. (= arg-binding, ARGFIX 일반화)
+- `precondition`: **불리언 트리** `{op: AND|OR|CHAIN, children:[leaf|subtree]}`, leaf = verifier-ref 또는 condition. (=SOPBench AND/OR/CHAIN 일반화)
+- `guard`/`condition`: 선언적 비교식 `{lhs:<state-ref>, op:∈{<=,>=,==,!=,in,exists}, rhs:<value|state-ref>}`. (=결정조건 *선언적* 인코딩, probe-2의 임계값을 코드 아닌 데이터로)
+- `produces`: `{state-keys 설정, 충족하는 verifier-술어}`.
+- `next`: 후속. linear=`goto`; decision=`branch:[{when:<condition>, goto:<node>}]` (조건분기).
+- `terminate`: bool.
+
+**GRAPH-level**: `start`(진입), `state_schema`(L2 지속 슬롯), `output`(최종 출력 스키마=RSD/final_output).
+
+**EXECUTOR semantics (결정론)**:
+- **L0/1 (single-pass)**: start서 traverse, gathered state로 precondition 평가, 의존순서로 fire, decision서 branch, terminate까지 → 도구호출 trajectory + output. (=현 DGGATE/CallGraphExecutor 통합)
+- **L2 (turn-loop)**: state를 턴 넘어 유지; 매 턴 precondition 충족된 노드 fire(verifier/decision), 필요 input 없으면 `request`(명료화) emit, user 답 ingest, terminate까지 반복. **★그래프는 정적·acyclic; 반복은 *실행기*의 turn-loop**(그래프 cycle 아님) → **결정론·유한 유지**(이게 L3 루프와의 결정적 차이).
+
+### §14.2 by-construction 표현가능성 (벤치별 매핑 = 증명)
+| 벤치 | 스키마 매핑 | L |
+|---|---|---|
+| **SOPBench** | goal=`tool` 노드, `precondition`=AND/OR/CHAIN 제약트리(login∧balance∨admin), verifier 노드=login_user/getters, `arg`=user_known | 0 |
+| **SOP-Bench** customer_service | `next` 체인(5.1→5.7), `decision` 노드(is_auth/metrics/final_status)에 `guard`(latency≤100), `output`=RSD JSON | 0 |
+| **TaskBench** | 순수 `tool` 의존 DAG, `arg` node→node 전달, precondition/guard 거의 없음 | 0 |
+| **SAGE** | SOP 그래프=node/next/precondition 직접, +멀티턴 적대=turn-loop | 0+2 |
+| **SOP-Maze** | `decision` 노드 + 조건 `branch`(tool-free), tool 노드 없음 | 1 |
+| **TOD-ProcBench** | condition-action 규칙=노드 `precondition`(state 조건)→action, per-turn=turn-loop | 0+2 |
+| **τ/τ²-bench** | 정책규칙=precondition + `tool` 노드 + `request`(명료화) + user-sim turn-loop | 0+2 |
+| **FlowBench** | 워크플로=그래프, 계층=`subgraph` 노드, 멀티턴=turn-loop | 0+2 |
+
+⇒ **L0+1+2 스키마가 9 벤치 중 8개를 by-construction 표현**(SOPBench·SOP-Bench·TaskBench·SAGE·SOP-Maze·TOD-ProcBench·τ·FlowBench). 핵심 = **그래프는 항상 정적 acyclic DAG**, 멀티턴/분기/계층은 *실행기 의미론·노드타입*으로 흡수 → **결정론·감사가능 불변.**
+
+### §14.3 결정론 경계 (의도적 비범위 = 기여의 정의상 한계)
+- **L3 그래프-cycle/루프** (LogicIFEval iteration): DAG에 cycle 넣으면 유한·감사가능 깨짐 → 비범위. (단 turn-loop=정적그래프 반복적용은 OK; *그래프 내* 루프만 배제.)
+- **soft/LLM-judge 자유생성** (ODCV): 실행기는 결정론 구조 출력만; 주관채점 자유텍스트는 표현 불가 → 비범위.
+- ★이 둘을 *못 담는 게 결함이 아니라* 결정론-감사가능 구조의 정의상 경계(§13 판정). 담으려 확장하면 "임의 프로그램"화 → §1·assurance 논거 자멸.
+
+### §14.4 학습 타깃으로서의 함의 + 검증 필요
+- **결정로직=선언적**(`guard` 데이터)이라 학습 타깃이 *구조적 객체*(JSON-emittable) 유지 → probe-2의 "NL→코드생성" 난점 완화(코드 아닌 조건식 emit). ★단 customer_service의 final_status 트리가 `branch`+`guard`로 완전 표현되는지 **1-도메인 손-검증 필요**.
+- **단일 실행기가 각 벤치 evaluator 통과** 미검증(§13 게이트2): SOPBench(dirgraph-oracle)·SOP-Bench(input→output)·TOD(per-turn)·τ(DB상태)를 한 실행기가 만족하나 = **벤치별 1-태스크 손-검증** 선결.
+- **표현가능 ≠ 학습가능 ≠ blind-induce가능**: §14는 *표현*만 증명; NL서 이 스키마를 모델이 *생성*하나는 frontier-1-call→소형 사다리(§13.5)로 별도 판정.
+- **open**: ① `guard` 연산자 집합이 전 벤치 결정 충분한가(arithmetic·set·temporal?) ② `subgraph` 재귀깊이 ③ `request` 명료화가 τ² dual-control 오염 회피하나 ④ 웹조사 `w94ywlthc`로 레퍼런스 밖 벤치(WorkflowLLM·AppWorld·NaturalPlan) 사다리 분류 보강 후 스키마 확정.
+
+> **상태 = DRAFT.** 다음: 웹조사 통합 → §14.2 매핑에 외부벤치 추가 → §14.4 손-검증(customer_service `guard` 완전성 + 벤치별 실행기-evaluator 1태스크) → 다른 세션 리뷰 → 방향 재결정.
