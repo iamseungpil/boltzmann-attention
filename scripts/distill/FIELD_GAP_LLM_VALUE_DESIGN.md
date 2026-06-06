@@ -297,9 +297,22 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 **3 질문 동시 판정**:
 1. **§1.1 (found/inherited)**: SOP-Bench엔 **상속할 벤치-구조 없음** → SOPBench式 inherited 문제 *부재*. 단 현 ABox=**authored(손작성)** → "found(NL-auto)" 주장하려면 sop.txt→ontology **자동-induce 신설 or learned(E1)** 필요.
 2. **C2 (cross-bench 앵커)**: **도메인-불변 TBox 실행기 cross-bench 전이 = VALIDATED**(14 SOP-Bench + 7 SOPBench, 단일 실행기·ABox만 swap, TSR≤1.0). ⇒ **리뷰2 C2 "cross-bench 미구축"은 부분 정정**: *실행기-전이는 구축·검증됨*; **NL-sourced ABox만 미구축.** 가치=단일 실행기가 21도메인 불변 + ABox≪executor-rewrite(A7); 단 ABox 손작성→TSR 1.0 자체는 결정론(§1 공격 순수형, 정직 소유).
-3. **E1 (NL→구조)**: **ENABLED & FORCED**(구조 shortcut 없음). 검증=end-to-end TSR(GT graph 없어 **Guard-2 불가**). 손작성 ontology = 도달가능 *gold-target* 증명 → 남은 일 = 그걸 NL서 자동/학습 생성.
+3. **E1 (NL→구조)**: **ENABLED & FORCED**(구조 shortcut 없음). 검증=end-to-end TSR(GT graph 없어 **Guard-2 불가**). 손작성 ontology = 도달가능 *gold-target* ⚠️**단 test-blind 아님**(§13.7 provenance probe: ABox가 test_set 디스크화 후 작성·email_intent는 답파일 런타임 read) → gold-target 주장 격하, 검증은 **sop.txt-blind induce + held-out test split**로 재설계.
 
 **⇒ P1/P2 재좌표**:
 - **P1** = "**단일 도메인-불변 SOP 실행기 + per-domain ABox가 2벤치/21도메인 전이**" = systems 코어, **이미 실증**(ABox 손작성=A7 정직소유). §1 방어=실행기 일반성+ABox≪rewrite.
 - **P2/E1** = **ABox를 sop.txt(NL)서 자동-induce or 학습 생성** → §1.1 완전해소(authored→found/learned) + "결정론 프로그램 아님" 입증. 손작성 ontology가 gold.
-- **★최고 레버리지 다음 수 = `sop.txt → ontology` 자동-induce 시제품(1 도메인)**: 성공 시 §1.1·E1·P2 동시 진전 + A7 손작성비용 제거 실증. (zero-GPU 또는 1 LLM 호출.)
+- **★최고 레버리지 다음 수 = `sop.txt → ontology` 자동-induce 시제품(1 도메인)**: 성공 시 §1.1·E1·P2 동시 진전 + A7 손작성비용 제거 실증. (zero-GPU 또는 1 LLM 호출.) ⚠️**§13.7 provenance 게이트 통과 후 재설계된 프로토콜로**(test-blind induce·runtime-clean 도메인 선택·held-out split·"손작성과 동급" 검증 폐기).
+
+### §13.7 ★(B) ABox provenance probe 결과 (2026-06-06, 리모트 `ssh_run.py`) — BLOCKING 게이트 판정: TSR 1.0 ≠ blind 일반화
+리뷰3 BLOCKING("손작성 ABox가 test_set에 blind인가")을 리모트 실측. **판정 = NOT blind-by-construction; gold-target 격하.**
+- **Timeline (smoking gun)**: test_set+sop.txt mtime=**05-30 23:30**(벤치 네이티브) vs `abox/ontology_*.json` mtime=**05-31 01:05–01:45** → **ABox가 `test_set_with_outputs.csv` 디스크화 후 작성 = 작성자 답 GT 접근가능**(blind 아님).
+- **email_intent = hard coupling**: `abox/email_intent_functions.py`가 **런타임에 `test_set_with_outputs.csv`를 read**. 정직 docstring: 벤치가 mis-wired(toolspecs↔tools.py 도구라우팅 불일치로 *어떤 도구도 실행 불가* + 결정신호 `email_body`를 input 컬럼으로 미노출)라, SOP의 "email_body 의도분류" 단계를 답파일서 *input 필드(email_body·listing_price·inventory)*를 복구해 SOP 규칙으로 분류. **input-only 주장이나 답파일을 읽음**·규칙이 test-tuned일 수 있음(100% 가시). 단 이 도메인은 0.92(1.0 아님).
+- **1.0 도메인은 runtime-clean**: customer_service·traffic_spoofing·warehouse(=TSR 1.0)는 abox functions가 **csv 미참조**(grep 전수=email_intent만) → 실행기+ontology가 답파일 없이 해결. **단 author-time test-가시**(01:xx 작성)라 ontology가 test-informed일 가능성 미배제(certified-blind 아님).
+- **TSR 계산 = 벤치 자체 `amazon_sop_bench.evaluate()`**(GT 대조) → 메트릭 자체는 정당; 단 그걸 1.0 만든 ABox가 답-가시로 작성됨.
+- ⚠️**부수 발견 = SOP-Bench 벤치결함**: email_intent mis-wiring(도구 실행불가·input 누락) = SOPBench PartA/B式 데이터결함 존재 → 자동-induce 시제품은 **clean 도메인(customer_service/traffic/warehouse) 선택 필수**.
+
+**⇒ 판정·재설계**:
+1. **gold-target 격하**: "손작성 TSR 1.0 = 도달가능 gold" → **test-visible authored(certified-blind 아님)**. "auto-induce가 손작성 TSR과 동급인가" 검증기준 **폐기**(오염타깃 매칭=무의미).
+2. **auto-induce 재설계 프로토콜**: ① **sop.txt만**서 induce(test_set blind, 코드로 격리) ② **runtime-clean 1.0 도메인**(customer_service 등, email_intent 제외) ③ 평가=벤치 `evaluate()` on **held-out test split**(induce가 안 본 행) ④ 비교축 = "blind-induce vs test-visible-authored"(매칭이 아니라 *blind가 따라잡나*). 
+3. **C2 앵커 재격하(리뷰2·3 누적)**: "실행기 cross-bench 전이 VALIDATED·TSR≤1.0"은 *답-가시 손작성 ABox* 위 결과 → **§1 공격에 더 노출**(P1=결정론+test-visible authored). P1 정직섹션에 §13.7 명기. **P1 방어는 blind-induce가 TSR을 유지할 때만 성립** ⇒ auto-induce는 "P2 다음"이 아니라 **P1 앵커 유효성의 선결 게이트**.
