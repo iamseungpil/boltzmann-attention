@@ -31,7 +31,22 @@ metrics: `{domain}_evalfull_qwen7b/metrics/qwen7b.json` `overall_overall`.
 - **보상 설계 결론 (사전등록 이행)**: exact edge-F1 보상의 GT-관례 오염은 **실재하나 소수(~27%)** → headroom 20pt 중 ~3/4은 진짜 학습가능. ⇒ **outcome-RFT 보상 = exact node+edge-F1로 진행 가능**(차단 사유 아님), 단 ①관례-overfit caveat 보고 병기 ②달성천장 < 100(gold 관례 수준; gpt-4 MM 69가 그 반영) ③matching-F1 전환은 불요(P2: matching도 대안 credit 안 함 — 전환 이득 없음).
 - 부수 발견: pred의 **값-인라이닝**(참조 대신 계산값 기입)은 의미상 옳아도 edge 미스로 잡힘 — RFT가 이를 "참조 표기 관례"로 교정하는 것은 정당(벤치 표기 규약 준수)하나, 이 부분은 capability가 아닌 관례 학습임을 보고 시 구분.
 
-## 3. gold-SFT LODO_mm (학습 중, 2026-06-10 ~12:10 KST 시작)
+## 3. gold-SFT LODO ✅ lodo_mm 완료 (2026-06-10 18:02) — **학습 大·전이 0 분해 확정**
+
+**lodo_mm (HF+daily 학습 → held-out MM)**, Qwen2.5-7B, LoRA r16 2ep:
+
+| 도메인 | 역할 | base node/edge-F1 | gold-SFT node/edge-F1 | Δedge |
+|---|---|---|---|---|
+| data_huggingface | in-domain (sub500) | 73.6 / 32.2 (full) | 84.4 / **47.8** | **+15.6** |
+| data_dailylifeapis | in-domain (sub500) | 90.8 / 68.1 (full) | 96.0 / **75.9** | **+7.8** |
+| data_multimedia | **held-out (full 5548)** | 84.4 / 50.0 | 82.5 / **48.3** | **−1.7** |
+
+- **판정: gold-SFT는 in-domain edge를 크게 올리나(+8~16) held-out 전이는 0(소폭 회귀)** = 배운 것이 도메인-특정 grounding. "학습 불가" 아님·"표현 불가" 아님 — **전이할 공통분이 이 방식으론 안 실림**. SOPBench adapter-only≈0(전이=scaffold가 전부)과 정합 = 2벤치 일관 → **"절차/구조는 weight가 아니라 구조-leg로 전이된다" thesis 보조 증거로 사용 가능.**
+- in-domain 비교의 sub500-vs-full caveat(±수 pt)는 +15.6/+7.8 크기상 결론 불변. held-out은 full-vs-full 동일조건.
+- **다음 분기 (Q2, coworker 위임 = `COWORKER_REQUEST_TB_SCALE.md` P1)**: Qwen2.5-32B 동일-레시피가 held-out을 +로 뒤집나 → 용량-바운드(스케일 투자) vs 방식-바운드(alias-마스킹/RFT 피벗).
+- (보관) 원계획 명세: train = HF 2194(single400/chain1000/dag795) + daily 1675(400/1000/275) = 3869(3792/77 val, 0 overlong), 프롬프트=inference.py 원형(`tb_build_sft.py`), 어댑터 `sft_runs/qwen7b_tb_lodo_mm`. **보고 = supporting 전이**(moat-(3) 금지). alias arm 후속(P3).
+
+### 진행 중 (남은 회전)
 - 레시피: **gold-SFT**(teacher 호출 0 — GT-generator(GPT-4) 순환 caveat 원천 회피, §17.9 리뷰7-2 명명 준수). train = HF 2194(single400/chain1000/dag795) + daily 1675(400/1000/275) = 3869(3792 train/77 val, 0 overlong), held-out = MM 전체.
 - 프롬프트 = inference.py 원형 복제(`tb_build_sft.py`), target = gold graph JSON. LoRA r16, 2ep, seqlen 6144, GPU1. 어댑터 `sft_runs/qwen7b_tb_lodo_mm`.
 - 평가 예정: held-out MM full + in-domain 500-sub sanity (`tb_eval_adapter.sh`). 지표 = edge-F1 중심 + type 층화. **보고 = supporting 전이**. alias-마스킹 arm은 후속(P3).
