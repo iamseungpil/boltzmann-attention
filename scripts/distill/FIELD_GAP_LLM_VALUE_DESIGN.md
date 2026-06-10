@@ -480,3 +480,39 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 - ⚠️ Jia는 *통계*만; 우리 실 RFT 최적화/탐색 거동은 실측해야(이론이 "RFT가 잘 최적화한다"는 보장 아님).
 
 > **메타교훈 (박제)**: "process가 직관적으로 좋아 보임"≠"통계적 우위"(Jia 반증). 강한 학습-설계 주장은 supervision 이론 원문 확인 후 박제. [[feedback-check-authority-before-rederive]]
+
+---
+
+## §17. ★벤치 전략 — (B) 열린벤치 substrate로 orchestration thesis 검증 (2026-06-10, repo 4종 정독 확정)
+> 실문제(CDP 마케팅 오케스트레이션)↔학술벤치 간격 좁히기. **결정 = (B) 열린벤치(TaskBench/ToolRet)를 substrate로** — 이유: AD-Bench 데이터 *비공개*(privacy, substrate 불가) · CDP-substrate=POC*설계*물(authoring 비용+usage-DB 부재→후행) · **열린벤치=결정론·zero-authoring·즉시**. 우리 "검증은 학술벤치 먼저"와 정합.
+
+### §17.1 TaskBench = 우리 thesis의 *최적* 학술 substrate (검증된 실제 포맷, raw 정독)
+- **태스크**: `instruction`(NL) → `task_nodes`[{task:도구명, arguments}] + `task_links`[{source,target}] + `task_steps`. type∈{single,chain,dag}(복잡도).
+- **도구그래프**(`graph_desc.json`): nodes(id·desc·input-type·output-type) + links(input/output 타입호환=의존). multimedia=40도구·568엣지. 3도메인(HuggingFace/Multimedia/DailyLife)·103도구·17,331샘플.
+- **eval**(`evaluate.py`): **결정론**(scikit-learn `prfs`, LLM無) — **Node-F1**(도구명 exact set-F1)·**Edge-F1**((source,target) tuple exact)·**t-F1/v-F1**(param name/value). **standalone 재사용**(스키마만 맞추면 우리 gold/pred에 적용). **Apache-2.0**.
+
+### §17.2 ★TaskBench > SOPBench (orchestration substrate로서)
+- SOPBench = AND/OR/CHAIN *정책제약*·SOP-following(거부/준수). TaskBench = **NL→도구-의존그래프 *구성*·결정론 graph-match**. ⇒ **CDP 오케스트레이션(도구 선택·순서·의존·param-binding)에 *더 가까움*** + 우리 결정론-충실성(Guard-2式)이 **published 표준 메트릭(node/edge-F1)으로 이미 존재**(우리가 새로 안 만들어도 됨). ⇒ orchestration thesis 1차 검증의 *주력* substrate.
+
+### §17.3 (B) 실험 설계 (TaskBench, §16 학습레시피 정합)
+- **헤드라인 = LODO cross-domain 전이**: 2도메인 학습 → **held-out 1도메인** 평가 = thesis 핵심(소형 NL→구조가 *전이*).
+- **지표(결정론)**: Node-F1(도구선택)·Edge-F1(의존/순서)·v-F1(param-binding). type별 층화(single<chain<dag=horizon).
+- **arms**: ①base-small(prompted) ②**우리 learned-small**(§16: *distill로 correct-graph 커버리지* → *outcome-RFT, 보상=node/edge-F1*) ③frontier baseline(published n-F1/e-F1).
+- **판정**: learned-small의 held-out F1이 base ≫ 이고 frontier 근접·전이 유지하나. = "소형이 NL→오케스트레이션-구조를 결정론-충실하게, 전이되게 학습."
+- 인프라: 협업자 H200 stack/adapter-only eval 드라이버를 TaskBench로도 포인팅(SOPBench과 병렬 substrate).
+
+### §17.4 ToolRet = retrieval-at-scale 레이어 (별도·보완)
+TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDCG@10/Recall@K 결정론**·Apache-2.0)로 **도구선택-at-scale** 축 보완. query→labeled relevant tools. best 33.83=난도충분. (CDP 수천도구 차원의 학술 proxy.)
+
+### §17.5 positioning + 조합 (frankenbench 회피)
+- **AD-Bench**(데이터 비공개): 최근접 마케팅 선례 *인용* + 선택적 *leaderboard 제출*(real-domain black-box 숫자). substrate 아님.
+- **EvolveTool-Bench**(MIT): composite/reuse/redundancy 결정론 메트릭 — composite-reuse 차원 추가 시 차용(소스 1단계 확인 남음).
+- **CDP**: *실타깃 도메인*. POC설계물 substrate(PRAXIS)는 *후행*(authoring 의지 있을 때). usage-랭킹은 실데이터 부재로 defer.
+- **조합 = 데이터 합성 0, 열린 결정론 프로토콜 차용·인용** → frankenbench 아님.
+
+### §17.6 즉시 단계
+1. **TaskBench remote clone + eval 검증** — 데이터 로드·`evaluate.py`가 sample pred에 동작·라이선스. (zero-GPU)
+2. base-small baseline(prompted) node/edge-F1 측정 → headroom 확인.
+3. §16 학습(distill-coverage→outcome-RFT) → LODO 전이 측정. (협업자 H200)
+
+> **상태 = (B) 확정·설계 완료.** 다음 = §17.6-1 (TaskBench clone+검증).
