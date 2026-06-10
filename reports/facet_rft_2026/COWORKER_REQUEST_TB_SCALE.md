@@ -83,6 +83,23 @@
 | `../../scripts/distill/taskbench/` | **실행 스크립트** — `tb_build_sft.py`(SFT jsonl)·`tb_build_eval.py`(id정렬/sanitize 내장 평가)·`tb_scale_curve.sh`·`tb_eval_adapter.sh`(견본 드라이버) | §4 재현 절차가 이것들 사용 |
 | `../../scripts/distill/lora_train_chat_toolcall.py` | LoRA 트레이너 (chat-format jsonl, P1 하이퍼 §2 참조) | P1/P2 학습 |
 
+**(보강) 현재 활성 설계서 전체 — SOPBench 트랙 (Track-B 기존 작업 v1.42 #0/#1과 그 배경; TaskBench 요청 실행엔 불요, coworker가 양 트랙을 다 보므로 등재)**:
+
+| 문서 (`../../scripts/distill/`) | 무엇 | 상태 |
+|---|---|---|
+| `HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md` | **게이트 사다리 진입점** — ARGFIX→VALFIX→KEEPTUPLE→DGGATE 무재학습 4-fix, BOTH 15→29/34·천장34 | 활성 (scaffold 플래그 정의 원본 — Track-B #1이 쓰는 통합 scaffold) |
+| `HANDOFF_2026_06_06_xdomain_full.md` | **cross-domain transfer 진입점** — held-out bank 43.3/library 75.8/healthcare 95.2%, 재학습0·scaffold가 전부 | 활성 (v1.43의 근거; "weight 전이 NULL" 맥락의 1차 출처) |
+| `CROSS_DOMAIN_TRANSFER_DESIGN.md` | Exp-5(A축 transfer) 설계 — LODO/train-1·ABox-swap·지표 규율 | 활성 |
+| `RUNG1_REDESIGN_2026_06_04.md` | decision-axis A/B/C 정식화(§8-9)·H3 offload 결론(§10.3)·LOCK 배경 | 참조 (결정축 격상 근거) |
+| `RUNG1_SOURCE_LADDER_DESIGN.md` | **LOCK 원본** — 결정-emission SFT 3-NULL 종결("emission 변종 금지") | 참조 (B축 설계 시 위반 금지 목록) |
+| `GUARD2_DIRGRAPH_MIRROR_DESIGN.md` | Guard-2(게이트=evaluator exact 재구성, OVER0/UNDER0) 검증 설계 | 완료 (precision=1 by-construction의 증명 절차) |
+| `RESIDUAL11_FIX_DESIGN.md` | 잔여11 fix 설계(4 BLOCKING 가드) — KEEPTUPLE/DGGATE의 안전절차 | 완료 |
+| `TASK_CONSTRAINT_DESIGN.md` | TBox/ABox 재해석·alias-마스킹(§8.5★) 설계 — **P3(이름암기 차단) alias 레시피 원본** | 활성 (TaskBench alias arm 때 재사용 예정) |
+| `WORKFLOW_ONTOLOGY_DESIGN.md` | 워크플로 온톨로지 agent 설계(★§9 LLM-in-loop) — Track-B 계획서 모체 | 참조 |
+| `GROUNDED_BIZ_AGENT_BENCH_DESIGN.md` | 신규(06-10 DRAFT): CDP 직접 벤치 설계(T1-T5·GT=검증기·리뷰훅 R1-R8 대기) | DRAFT (실행 전) |
+| `REGULATORY_DETERMINISM_SOURCING.md` | 규제 1차원문 판정(06-10 완료): 로깅+검증으로 충족→결정론-leg 철회·검증가능성 후퇴; SR 26-2 수확 | 완료 (moat 문구에 영향 — 보고 시 "결정론 필수" 주장 금지) |
+| `BUGREPORT_SOPBench_bank_impossible_tasks.md` | bank PartA8/PartB6 벤치 결함 보고 — 정직분모 34의 근거 | 완료 (천장 회계 출처) |
+
 **한 줄 배경 (왜 이 실험인가)**: 동결 thesis = "소형 모델이 경로 *제안*(coverage) + 결정론 게이트가 soundness 보장 + 재학습0 전이" 패키지. TaskBench는 그 중 coverage/구조-예측 leg의 *supporting* 측정(실행·soundness 없음 → moat 주장 불가). 오늘 7B에서 ①edge-F1만 진짜 headroom(node 포화) ②gold-SFT의 held-out 전이 NULL을 확정 → 이 요청의 P1(32B 동일-레시피)이 "NULL=용량 한계인지"를 판정해 Track A의 다음 수(alias-마스킹 vs RFT vs 스케일 투자)를 게이트한다.
 
 ## 6. 일정 제안
