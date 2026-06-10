@@ -119,6 +119,24 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 | Qwen3-14B | 80.6 / 42.2 | 87.2 / 59.1 | 95.0 / 79.9 |
 - 동급 대비 Qwen3 ≥ Qwen2.5 경향(특히 daily edge: 0.6B가 이미 25.8 vs Qwen2.5-0.5B 0.2; 14B edge MM 59.1 vs 52.8) — **곡선 모양(edge 후발 emerge·비포화)은 family-불변** 1차 확인.
 
-## 8. 다음
+## 8. ★궤적 전수조사 (2026-06-11, `tb_census.py` — §3/§5/§6의 해석 *정정*, 이 §이 권위)
+6개 비교쌍 전수(per-id 시그니처: 파싱·도구명 유효율·`<node-j>` 태그/자기참조/dangling·per-id F1·temporal 형식 플래그) + worsened/improved 버킷 궤적 직독. 원본 `/home/woori/scratch/census_*.md`.
+
+**★통일 기제 — gold-SFT의 held-out 효과 = 독립적 두 힘의 합:**
+1. **(+) 참조-인덱싱 규율 전이 (resource 전용, 도메인-일반 — 실제로 weight로 전이됨)**: 태그 채택(1.5B base 0.47→SFT 1.44개/ex)·자기참조 제거(7B 0.218→0.038 = −83%·14B 0.478→**0.010**; 14B improved 버킷 nself 2.0→0.0, edge 0.16→0.85). 이득 크기 ∝ **base의 인덱스-오류율**.
+2. **(−) 도구-어휘 간섭 (보편)**: 유효 도구명 비율 −4~−8pp(7B 0.987→0.946·14B 0.997→0.956·daily 0.978→0.900). 궤적 직독: "Text Paraphraser"→"Paraphrase"·"play_movie_by_title"→"watch_movie" 등 **무효/변형 도구명 침투**. worsened 버킷 공통 시그니처(valid_frac 0.99→0.78~0.83).
+
+**이 두 힘이 §5 U-커브와 §3 daily 붕괴를 전부 설명:** 1.5B +8.7=태그채택≫간섭 · 7B −0.8=소폭 인덱스교정↔간섭 상쇄 · 14B +4.3=base 자기참조율이 7B의 2.2배라 교정이득>간섭 · **daily −8.5=temporal엔 태그-인덱싱 축이 없어(ntag=0) 이득 0, 간섭만 수령.**
+
+**정정/철회 (박제):**
+- ❌ §3 "형식-간섭(출력-관례)" **기각**: daily held-out의 task_links 형식 99.6%·args dict 형식 99.6% 무손상 — 깨진 건 형식이 아니라 **어휘**(valid −7.8pp·node-F1 −5.7pp).
+- ❌ §5 "14B=용량-바운드 부활" **기제 정정**: 용량이 아니라 **base 인덱스-오류율의 함수**. ⇒ 32B(coworker P1) 예측은 "용량"이 아니라 **32B base의 self-ref율·valid_frac census를 먼저 재서** Δ≈(인덱스교정 이득)−(어휘간섭 ~5pp)로 사전 추정 가능.
+- 🔄 "weight 전이 0" **정정**: 도메인-일반 *참조-인덱싱 규율*은 실제 전이됨 — 어휘-간섭에 가려졌을 뿐. 정확한 문구 = "net 전이 ≈ 0~소폭은 (+규율 전이)−(−어휘 간섭)의 상쇄."
+- macro-micro 화해: daily SFT는 single의 가짜링크 제거(improved 886 중 single 506)=micro 무기여, chain 진짜링크 손실=micro 타격 → 공식(micro) −8.5와 census(macro) 양상 모순 없음.
+- RFT 재확인: daily=chain task_links 진짜 구조개선(improved 66 vs worsened 16, 형식변화 0)·HF=wash(25 vs 29).
+
+**처방 갱신 (1순위 레버 교체):** 어휘-간섭 억제가 본명 — ①**RFT round-2 보상에 도구명-유효성 페널티 추가**(구현 쉬움: valid_frac<1 감점) ②grounded-copy(도구명은 컨텍스트 tool list에서 복사 강제) ③alias-마스킹은 여전히 P3 위생(이름암기 통제)이나 간섭 직접 처방 아님.
+
+## 9. 다음
 - LODO_mm eval → (edge-F1 lift 시) LODO_hf/LODO_daily 회전 → outcome-RFT(§2 결론 보상) → alias arm.
 - zero-GPU 병렬(§18.2): 규제 1차원문 sourcing(사활)·bitter-lesson — 별도 세션/딥리서치.
