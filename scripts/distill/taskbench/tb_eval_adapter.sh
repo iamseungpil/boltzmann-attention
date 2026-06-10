@@ -2,7 +2,7 @@
 # Exp-A adapter eval (HANDOFF_2026_06_10 §4): serve base+LoRA on chosen GPU, run held-out
 # full inference + in-domain 500-subset sanity, then eval. Usage:
 #   tb_eval_adapter.sh lodo_mm data_multimedia "data_huggingface data_dailylifeapis" [GPU]
-NAME=$1; HOLDOUT=$2; TRAIN_DOMS=$3; GPU=${4:-0}; PORT=$((8000+GPU))
+NAME=$1; HOLDOUT=$2; TRAIN_DOMS=$3; GPU=${4:-0}; UTIL=${5:-0.85}; PORT=$((8000+GPU))
 TB=/home/woori/scratch/JARVIS_tb/taskbench
 R=/home/woori/workspace_common/boltzmann-attention-pi
 RUNS=$R/reports/facet_rft_2026/phase4_distill/sft_runs
@@ -28,7 +28,7 @@ kill_gpu_vllm
 CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct \
   --port $PORT --served-model-name qwen7b --enable-lora \
   --lora-modules ${TAG}=$RUNS/qwen7b_tb_${NAME} \
-  --max-model-len 8192 --gpu-memory-utilization 0.85 \
+  --max-model-len 8192 --gpu-memory-utilization $UTIL \
   > /home/woori/scratch/vllm_${TAG}.log 2>&1 &
 for i in $(seq 1 90); do
   curl -s localhost:$PORT/v1/models | grep -q "\"$TAG\"" && break
