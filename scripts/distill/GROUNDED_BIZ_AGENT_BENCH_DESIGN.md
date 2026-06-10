@@ -11,7 +11,7 @@
 | **T1** | grounded 마케팅 분석·제안 | NL 요청 + DB + 도구 | 수치 포함 분석·세그먼트 제안 | 수치 fabrication, 스키마 환각, 잘못된 집계 |
 | **T2** | 전략 조언·방향 설정 | NL 질문 + DB + 도구 | 데이터 근거 첨부된 유동적 제안 | 데이터 안 읽고 일반론 답변(=ungrounded), 읽은 데이터와 모순된 결론 |
 | **T3** | 보고서 자동 생성 | **인간 작성 보고서(형식 reference)** + DB(신규 기간/대상) | 형식 보존 + 데이터 추출·분석은 신규 계획·실행한 보고서 | 형식 붕괴, 옛 수치 복사(=reference 컨닝), 신규 수치 fabrication |
-| **T4** | **playbook-conditioned 분석 (§1.6-5 수정)** | **사내 방법론 플레이북/위키**(시드=PoC `marketing_workflow_kb.yaml`·`methodologies/`) + NL 요청 + DB + 도구 | 플레이북 방법을 도구로 구현한 결과 (외부 페이퍼 변형은 부-arm) | 방법 오적용, 플레이북에 없는 절차 fabrication, 도구 선택 오류 |
+| **T4** | **playbook-conditioned 분석 (§1.6-5 수정)** | **사내 방법론 플레이북/위키**(시드=PoC `marketing_workflow_kb.yaml`·`methodologies/`; **입력 형식 = Agent Skills 표준(SKILL.md 폴더), §1.8**) + NL 요청 + DB + 도구 | 플레이북 방법을 도구로 구현한 결과 (외부 페이퍼 변형은 부-arm) | 방법 오적용, 플레이북에 없는 절차 fabrication, 도구 선택 오류 |
 | **T5** | **실시간 마케팅 시나리오 설계 (멀티턴 composite — ★앵커, §0.5)** | 멀티턴 사용자 대화 + DB + 도구 + 실행계 액션 | 퍼널분석→트리거 추천→**복수 방안 제안(모수·예상전환율 추정)**→세부 조정→**승인-게이트 제안 payload**(§1.6-6: autonomous 등록 아님)→최종 종합 | T1·T2의 모든 실패모드 + 추정치 fabrication, payload 오류, 턴-간 상태 불일치 |
 
 **공통 요구 = "산출물의 모든 atomic claim이 logged tool-call로 derivable"** — 이것이 규제 sourcing(`REGULATORY_DETERMINISM_SOURCING.md`) 결론(moat=검증가능성, EU AI Act Art.12 traceability)의 벤치 조작화이기도 함: provenance log가 곧 Art.12-급 감사 추적.
@@ -82,6 +82,25 @@
 - **PII 마스킹 호환성**: 환경 DB에 PII 필드 포함 + Trust-Layer형 마스킹 미들웨어 시뮬레이션(도구 입출력이 placeholder 식별자로 작동) — PII 비노출 채점(기존 제약)에 더해 **마스킹-하 기능 유지**를 측정(실무 미들웨어 표준과 정합).
 - **산출물 형태 재확인**: 금융 실배포 공통형 = "직원에게 제출되는 초안+근거" — T1~T5 산출물·HITL 채점(§1.6-6)과 정합, 변경 불요.
 
+## §1.8 ★4층 스택 정합 — 우리 = 4층 + 집행층 삽입 5층 (2026-06-10, 사용자 승인 반영)
+
+> 가정: 시장 담론의 표준 스택 = ①모델(LLM) ②에이전트/하네스 ③스킬(NL 절차지식, Anthropic Agent Skills 형식) ④도구(MCP). (참조 영상의 4층 원문 미확인 — 분할이 다르면 교정.)
+
+**매핑**: ①=소형 오픈웨이트 front-end(내부망 deployable, §1.7) ②=멀티턴 루프+HITL 승인 큐 ③=NL SOP·플레이북(`marketing_workflow_kb`·`methodologies/`) ④=`unified_tools`/semantic layer. **우리는 4층을 전부 보유 — 채택의 실익은 호환성**: (i) 고객 업무 매뉴얼을 SKILL.md 폴더 표준으로 ingest(온보딩 비용↓, per-도메인 재구축비 제거 주장의 제품 입구) (ii) 전이 배포 단위 = "스킬 팩"(ABox-swap의 시장 어휘) (iii) T4 입력 형식 = SKILL.md(산업 정합).
+
+**★표준 4층의 구멍 = 우리 thesis 자리**: 표준에서 스킬 준수는 **모델 자발(soft)** — ③과 ④ 사이 보장 층이 없음(스킬이 "옵트아웃 제외"라 적혀도 위반 도구호출을 막을 수 없음; SOPBench LOCK 실측 병리와 동일). **⇒ 우리 구조 = 5층**:
+
+```
+①모델 → ②에이전트 → ③a 스킬(NL 원료)
+                       → ③b 컴파일러(front-end: NL→온톨로지·dirgraph·제약)   ← 학습 기여
+                       → ③c 결정론 게이트(검증·집행·provenance)             ← moat(검증가능성)
+                     → ④도구
+```
+
+한 문장: **"시장이 스킬을 '주는' 법을 표준화했다면, 우리는 스킬이 '지켜짐을 보장'하는 층을 판다."** 스킬(NL)=audit 불가, 컴파일된 게이트=audit 가능 — `REGULATORY_DETERMINISM_SOURCING.md` 검증가능성 moat와 접합. 용어 규율: **스킬 ≠ 온톨로지** — 스킬=③a(컴파일 원료), 온톨로지=③b 산출물(이 구분이 지워지면 컴파일 단계=핵심 기여가 지워짐).
+
+**벤치 arm 신설 (Arm-skill: soft vs hard)**: 동일 스킬 내용을 (a) **soft** = 스킬-as-프롬프트(표준 4층 방식) vs (b) **hard** = 스킬→게이트 컴파일(우리 5층)로 제공, **스킬 준수율 갭** 직접 측정 — §3 제약 정책의 "SOP 프롬프트 vs 게이트" 설계와 동일 기제이나 시장 표준 형식 포장 = 제품 가치 정면 실측.
+
 ## §2 ★핵심 설계 원칙 — GT는 "정답 경로"가 아니라 "검증기" (사람 라벨 0, 정답 열거 0)
 
 **★설계 전환(사용자 교정 2026-06-10): 방법 수천·도구 수천의 개집합에서 "유일 정답 도구체인"의 열거는 불가능하고, 열거 시도 자체가 PoC-DAG의 한계를 벤치에 복제하는 것.** 따라서 GT는 두 층으로 분리:
@@ -100,7 +119,7 @@
 - **제약 정책**: 도메인별 NL SOP 문서(옵트아웃·예산·규제문구·금지조합·PII). **Exp-B(NL→구조 induce) 경로와 동일 형식** → 우리 스택은 SOP→게이트 컴파일, baseline은 SOP를 프롬프트로.
 - **PII 마스킹 미들웨어 (§1.7-d, Einstein Trust Layer 동형)**: DB에 PII 필드 포함, 도구 입출력은 placeholder 식별자(`PERSON_n`)로 통과 — PII 비노출 채점 + **마스킹-하 기능 유지**(placeholder 위에서 세그먼트·집계가 깨지지 않는가) 측정.
 - **T3 reference**: 인간 보고서 3~5종(실제 금융 마케팅 월간보고 형식 모사, 섹션·표 스키마 추출해 GT화). **reference의 수치는 구식 데이터의 것** → 복사 시 즉시 fabrication 검출(신규 DB와 불일치하도록 설계).
-- **T4 페이퍼**: RFM·uplift modeling·CLV 등 방법론 페이퍼 요약본(저작권 회피 위해 자체 재서술) + "이 방법으로 X 분석" 요청. GT = 방법의 절차를 도구 체인으로 구현한 결정론 파이프라인.
+- **T4 플레이북**: 사내 방법론(RFM·uplift·CLV 등 자체 재서술본)을 **SKILL.md 폴더 표준(§1.8)으로 패키징** + "이 방법으로 X 분석" 요청. GT = 방법 절차의 결정론 파이프라인(명시 절차일 때만 method-fidelity 적용). 외부 페이퍼 입력은 부-arm.
 
 ## §4 지표 (사전등록 — 총점 헤드라인 금지, 축 분리)
 1. **Fabrication rate** (헤드라인-precision): atomic claim 중 provenance 부재/모순 수치·사실 비율. **목표 주장: 게이트 스택=0 by construction, frontier/LLM-direct >0.**
@@ -118,7 +137,7 @@
 - **P0 (zero-GPU, 1~2일)**: **PoC 자산 인벤토리 확정**(tool_dags 21유형 중 벤치 1차 채택분·unified_tools 추출·schema/semantic_layer 채취·response_templates→claim 스키마 변환) + 스키마·제약·planted-fact 문법 동결 + 본 설계 리뷰(§7) 통과.
 - **P1**: DB 생성기 + **사실-층 GT 계산기**(planted-fact 산출 코드 — 벤치 내부용이지 정답 경로 열거 아님) + **검증기**(도구 typed 명세→플랜 validity 체커; tool_dag 실행기는 실행엔진으로만 재사용). 단위검증 = planted fact 전수 회수 + 검증기 OVER/UNDER 0(알려진 유효/무효 플랜 셋으로 — SOPBench Guard-2 방식).
 - **P2**: back-instruct 태스크 생성 n≈50/도메인/패밀리 + claim-extraction 채점기. **pilot 10태스크로 채점기 신뢰도 먼저**(judge-인간 일치 확인 후 스케일).
-- **P3**: baseline 매트릭스 — **Arm-T(결정론 템플릿 매칭: 열거 21-DAG 중 선택, PoC 방식)** vs frontier API(GPT-5/o4급) vs 우리 스택(소형 front-end+게이트) vs 소형 base — fabrication/coverage/soundness/abstain/plan-validity 축, **Track-C 우선(헤드라인), Track-O는 후행 스트레스**. **arm을 배포가능성으로 층화(§1.7-d)**: deployable(내부망 설치 가능 오픈웨이트+게이트) vs frontier-API(성능 참조 — 한국 금융 내부망 기본 불가 명시). **★Arm-T의 커버리지 절벽(커버된 경로 강함·그 밖 0)과 LLM-arm의 커버리지 확장이 thesis 가치명제의 직접 실측**(결정론 authoring 한계 vs front-end 일반화).
+- **P3**: baseline 매트릭스 — **Arm-T(결정론 템플릿 매칭: 열거 21-DAG 중 선택, PoC 방식)** vs frontier API(GPT-5/o4급) vs 우리 스택(소형 front-end+게이트) vs 소형 base — fabrication/coverage/soundness/abstain/plan-validity 축, **Track-C 우선(헤드라인), Track-O는 후행 스트레스**. **arm을 배포가능성으로 층화(§1.7-d)**: deployable(내부망 설치 가능 오픈웨이트+게이트) vs frontier-API(성능 참조 — 한국 금융 내부망 기본 불가 명시). **+Arm-skill(§1.8)**: 동일 스킬 soft(프롬프트) vs hard(게이트 컴파일) 준수율 갭. **★Arm-T의 커버리지 절벽(커버된 경로 강함·그 밖 0)과 LLM-arm의 커버리지 확장이 thesis 가치명제의 직접 실측**(결정론 authoring 한계 vs front-end 일반화).
 - **P4**: 학습 접합(gold-SFT→RFT, Exp-A 레시피 이식).
 
 ## §6 기존 자산 재사용 맵
