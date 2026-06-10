@@ -36,8 +36,18 @@ metrics: `{domain}_evalfull_qwen7b/metrics/qwen7b.json` `overall_overall`.
 - 프롬프트 = inference.py 원형 복제(`tb_build_sft.py`), target = gold graph JSON. LoRA r16, 2ep, seqlen 6144, GPU1. 어댑터 `sft_runs/qwen7b_tb_lodo_mm`.
 - 평가 예정: held-out MM full + in-domain 500-sub sanity (`tb_eval_adapter.sh`). 지표 = edge-F1 중심 + type 층화. **보고 = supporting 전이**. alias-마스킹 arm은 후속(P3).
 
-## 4. Exp-C scale 곡선 (진행 중, 500-sub/도메인)
-- Qwen2.5-{0.5,1.5,3,14}B 순차 serve→infer→eval (`tb_scale_curve.sh`, GPU0). 7B는 full 수치(§1) 사용.
+## 4. Exp-C scale 곡선 ✅ 2026-06-10 (500-sub/도메인; 7B행만 full)
+| 크기 | HF n/e-F1 | MM n/e-F1 | daily n/e-F1 |
+|---|---|---|---|
+| 0.5B | 10.5 / 0.0 | 17.0 / 0.0 | 5.1 / 0.2 |
+| 1.5B | 50.3 / 2.3 | 55.9 / 3.0 | 54.5 / 18.6 |
+| 3B | 64.4 / 19.1 | 72.6 / 27.6 | 70.5 / 33.9 |
+| **7B (full-domain)** | 73.6 / 32.2 | 84.4 / 50.0 | 90.8 / 68.1 |
+| 14B | 77.5 / 39.6 | 89.5 / 52.8 | 93.5 / 77.4 |
+
+- **edge-구조 emerge 지점 = 1.5B→3B**(전 도메인 edge 0–18→19–34), 이후 **14B까지 가파른 비포화 상승**; node는 7B 이후 수확체감(+~4pt). ⇒ "node~포화·edge=변별 스킬" (§1·§17.8) 의 scale-축 확증. 0.5B는 과제 수행 불능(포맷 붕괴 수준).
+- 14B조차 published gpt-4(MM e-F1 69.3)에 16pt 미달 → 7B 학습으로 edge를 끌어올리는 Exp-A의 가치 공간 확인.
+- caveat: 0.5–14B는 500-sub 단일run(7B만 full); 모델별 동일 sub500이므로 곡선 내 비교는 공정, 절대값은 full 대비 ±수 pt 가능.
 
 ## 5. 다음
 - LODO_mm eval → (edge-F1 lift 시) LODO_hf/LODO_daily 회전 → outcome-RFT(§2 결론 보상) → alias arm.
