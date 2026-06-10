@@ -1,4 +1,11 @@
-# ▶▶ Coworker 요청서 — TaskBench scale 실험 (32B/72B/+초과, 4×A100 80GB) — 2026-06-10
+# ▶▶ Coworker 요청서 — TaskBench scale 실험 (Qwen3 32B/235B-A22B, 4×A100 80GB) — 2026-06-10 **v2**
+
+> **★v2 (2026-06-10 PM, 사용자 결정·정정 반영): 이원화 — Qwen2.5는 비교-통제용 유지 + Qwen3는 곡선-연장용 신규.**
+> - **fact**: 72B는 Qwen2.5에만 존재(Qwen3 dense는 32B 천장, 그 위는 MoE 30B-A3B/235B-A22B). SOPBench 리더보드(Track-B 기준선)도 Qwen2.5 계열 → **SOPBench 작업은 Qwen2.5 유지(전환 아님)**.
+> - **Q2(전이 NULL=용량? — P1)는 동일-family 통제 필수**: 오늘 7B NULL이 Qwen2.5-7B 측정 → **P1 SFT = Qwen2.5-32B**(Qwen3-32B면 family+scale 동시 변경 = confound).
+> - **Q1/Q3(곡선 연장·72B-초과)는 Qwen3**: 단일 family가 0.6B→235B 커버. Track A가 0.6–14B 재측정(전환), coworker가 32B/235B-A22B. 오늘까지의 Qwen2.5 0.5–14B 곡선은 **P0에서 32B/72B만 보태면 완성** = 2-family 증거(곡선 모양의 family-불변성 체크)로 승격.
+> **⚠️전 실험 공통 통제 (신규, 필수)**: Qwen3는 hybrid thinking 모드 → **non-thinking 고정**. 방법 = 요청 body에 `"chat_template_kwargs": {"enable_thinking": false}` (vLLM OpenAI 서버 지원; TaskBench inference.py payload에 1줄 추가) 또는 user 프롬프트에 `/no_think`. **두 트랙 같은 방법 사용**(차이나면 비교 무효). thinking-on은 별도 arm으로만(선택, 비교축 오염 금지).
+> **⚠️MoE 표기**: 235B-A22B는 total 235B/activated 22B — 곡선에 올리되 "MoE(A22B)" 병기(dense 곡선과 시각 구분).
 
 > 발신: Track A (7B/14B, 리모트 2×49GB). 채널 = branch `facet-rft-2026`. 마스터 정합: `scripts/distill/FIELD_GAP_LLM_VALUE_DESIGN.md` §18.1 Exp-A/C + `scripts/distill/HANDOFF_2026_06_10_taskbench_learning.md`. 결과 권위본 = `reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md` (오늘 수치 전부 여기).
 > **보고 규율 (사전등록, 위반 금지)**: ① TaskBench LODO = **supporting 전이만**(moat-(3) 주장 금지, FIELD_GAP §17.9 리뷰7-1) ② 지표 = **edge-F1 중심**(node ~포화) + type(single/chain/dag) 층화 ③ GT=GPT-4 back-instruct → **GPT-4를 teacher/증강에 쓰지 말 것**(순환, 리뷰7-2) ④ exact-match 채점이라 천장<100(valid 대안 penalize; A-0 감사: miss의 ~27%=관례).
@@ -19,29 +26,29 @@
 **(b) gold-SFT LODO 7B 1차 = held-out 전이 NULL/소폭 회귀**: HF+daily 학습(3869ex, LoRA r16 2ep)→held-out MM full: node 84.4→82.5·edge 50.0→**48.3**. 해석(잠정): base가 형식은 이미 보유, SFT가 배운 것=도메인-특정 grounding→전이 없음. **미해결 질문 = 이 NULL이 7B 용량 한계인가(스케일로 풀리나), 방식 한계인가(alias/RFT 필요).**
 
 ## 1. 질문 3개 (이 실험이 답할 것)
-- **Q1 (곡선 연장)**: edge-F1이 32B/72B에서 계속 오르나, 어디서 published gpt-4(69.3 MM)에 접근/포화하나? → "소형 학습으로 frontier-comparable coverage" 주장의 스케일 좌표.
-- **Q2 (★핵심, transfer-vs-scale)**: 7B서 NULL인 gold-SFT held-out 전이가 32B(/72B)서 양(+)으로 뒤집히나? = "전이할 공통 edge-스킬의 학습이 용량-바운드인가" — Exp-A 다음 수(alias/RFT) 설계를 결정.
-- **Q3 (선택, frontier-adjacent 오픈 앵커)**: 72B 초과 오픈모델은 prompted로 어디까지 가나? (단, **Qwen2.5 곡선과 별도 표기** — family/학습데이터 confound로 동일 곡선에 못 올림.)
+- **Q1 (곡선 연장)**: edge-F1이 32B/72B(Qwen2.5)·32B/235B-A22B(Qwen3)에서 계속 오르나, 어디서 published gpt-4(69.3 MM)에 접근/포화하나? + **곡선 모양이 family-불변인가**(Qwen2.5 vs Qwen3 두 곡선 비교).
+- **Q2 (★핵심, transfer-vs-scale, 동일-family 통제 = Qwen2.5)**: 7B서 NULL인 gold-SFT held-out 전이가 **Qwen2.5-32B**(→+면 72B)서 양(+)으로 뒤집히나? = "전이할 공통 edge-스킬의 학습이 용량-바운드인가" — Exp-A 다음 수(alias/RFT) 설계를 결정.
+- **Q3 (선택, frontier-adjacent 오픈 앵커)**: 235B-초과/타-family 오픈모델은 prompted로 어디까지 가나? (별도 표 — family/양자화 confound로 곡선에 못 올림.)
 
-## 2. 실험 arms (우선순위순)
+## 2. 실험 arms (우선순위순; Qwen3 run은 **전부 non-thinking 고정**)
 
-**P0 — prompted baseline 32B/72B (Qwen2.5-Instruct, bf16)**
-- 32B = 1×A100(TP1, ~65GB) 또는 TP2 / 72B = TP4 (~145GB).
-- 데이터 = **500-sub ×3도메인** (Track A와 동일: 각 도메인 `user_requests.json` 앞 500줄 — 재현은 §4 스크립트가 자동 생성, seed 무관 결정론).
-- 견적: 32B ~30-60분, 72B(TP4) ~1.5-3h (vllm throughput 기준).
+**P0 — prompted baseline, 두 family (전부 500-sub ×3도메인, 각 도메인 `user_requests.json` 앞 500줄 — §4 스크립트가 자동 생성)**
+- **P0a (Qwen2.5 곡선 완성)**: Qwen2.5-32B(TP1-2, bf16) + **Qwen2.5-72B(TP4, bf16 ~145GB)** — Track A 기측정 0.5–14B에 보태 Qwen2.5 곡선 완결. 견적 합 ~2-4h.
+- **P0b (Qwen3 곡선 대형단)**: Qwen3-32B(dense, bf16) + Qwen3-235B-A22B(공식 AWQ/GPTQ-INT4 ~120-130GB, TP4). (선택: Qwen3-30B-A3B = dense-32B 동구간 MoE 대조점.) 견적: 32B ~30-60분, 235B-INT4 ~2-4h. Track A가 같은 라인 0.6–14B 측정 → **0.6B→235B 단일-family 곡선 완성.**
+- 산출: 두 family 곡선 분리 표기(같은 그림에 겹쳐도 좋으나 family 라벨 필수).
 
-**P1 — ★gold-SFT LODO_mm @ 32B (Q2 본명)**
+**P1 — ★gold-SFT LODO_mm @ **Qwen2.5-32B** (Q2 본명 — 동일-family 통제)**
 - 학습 데이터 = Track A와 **동일 생성**(아래 §4 `tb_build_sft.py`, seed 42 → byte-동일 jsonl): HF(single400/chain1000/dag전부795=2194) + daily(400/1000/275=1675) = 3869.
 - 레시피 = 7B와 동일 통제: **LoRA r16/alpha32, 2ep, seqlen 6144, lr 1e-4, val 2%** (`scripts/distill/lora_train_chat_toolcall.py` 그대로 사용 가능; 32B는 grad-ckpt+TP/FSDP로 2~4GPU. 자체 트레이너 쓸 경우 위 하이퍼 고정).
 - 평가 = held-out **MM full**(시간 빠듯하면 sub500 먼저→full 보충) + in-domain HF/daily sub500. 비교 4열: `base-32B / 32B+gold-SFT / base-7B / 7B+gold-SFT`(7B 수치는 §0).
 - 견적: 32B LoRA 7584 step seqlen6144 ≈ **12-24h**(설정 따라). 판정: held-out edge-F1 Δ가 7B의 −1.7을 넘어 **+로 뒤집히면 용량-바운드 확정**(→ Track A는 14B 재시도+alias), 32B서도 NULL이면 **방식-바운드**(→ alias-마스킹/RFT로 피벗, 스케일 추가투자 중단).
 - ⚠️ in-domain이 두 스케일 다 평평하면 "gold-SFT 자체 무가치(base 포화)" — 그것도 1급 결과.
 
-**P2 — (P1 신호 시) 72B gold-SFT LODO_mm**: 동일 레시피. 견적 2-3일 → P1이 +면만.
+**P2 — (P1이 + 신호 시) Qwen2.5-72B gold-SFT LODO_mm**: 동일 레시피·동일 family로 용량 축 한 단 더(7B→32B→72B 3점 = 전이-vs-용량 곡선). 견적 2-3일 → P1이 +면만.
 
-**P3 — (선택) 72B-초과 오픈 앵커, prompted-only**
-- 4×A100=320GB 제약 내 현실 후보: **gpt-oss-120b**(MoE, MXFP4 native ~63GB — 1-2 GPU, 최신 vllm 필요) / **Qwen3-235B-A22B-Instruct INT4/AWQ**(~120-130GB, TP4) / (한계 도전) Llama-3.1-405B-INT4(~205GB+KV, TP4 빠듯 — 실패해도 무방).
-- 500-sub ×3도메인 prompted만(SFT 불가/불요). **별도 표** "frontier-adjacent open anchors"로 보고(Qwen2.5 곡선과 분리; 양자화도 병기). 목적 = "오픈 최상위가 published gpt-4(69.3)를 넘나" 단일 질문.
+**P3 — (선택) 타-family 오픈 앵커, prompted-only**
+- 후보: **gpt-oss-120b**(MoE, MXFP4 native ~63GB — 1-2 GPU, 최신 vllm 필요) / (한계 도전) Llama-3.1-405B-INT4(~205GB+KV, TP4 빠듯 — 실패해도 무방). (Qwen3-235B는 P0b로 승격됨.)
+- 500-sub ×3도메인 prompted만(SFT 불가/불요). **별도 표** "frontier-adjacent open anchors"(family·양자화 병기, 곡선과 분리). 목적 = "오픈 최상위가 published gpt-4(69.3)를 넘나" 단일 질문.
 
 ## 3. 지표·산출물 (고정)
 - metrics: `node_micro_f1_no_matching` / `link_binary_f1` (+가능하면 `-m argument`의 t/v-F1). **type 층화**(metrics json에 single/chain/dag split 포함됨).
