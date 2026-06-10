@@ -82,9 +82,13 @@ def main():
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     n = 0
+    skipped = 0
     with open(args.out, "w") as wf:
         for d in picked:
             steps = pj(d["tool_steps"]); nodes = pj(d["tool_nodes"])
+            if not isinstance(nodes, list) or any(not isinstance(x, dict) for x in nodes):
+                skipped += 1  # rare malformed gold (e.g. dict-shaped tool_nodes)
+                continue
             result = {"task_steps": steps,
                       "task_nodes": [{"task": x["task"], "arguments": x.get("arguments", [])} for x in nodes]}
             if dep == "temporal":
@@ -96,7 +100,7 @@ def main():
             wf.write(json.dumps(rec) + "\n")
             n += 1
     from collections import Counter
-    print(f"[sft] {args.domain} dep={dep} wrote {n} -> {args.out}")
+    print(f"[sft] {args.domain} dep={dep} wrote {n} (skipped {skipped} malformed) -> {args.out}")
     print("  picked:", dict(Counter(d.get("type", "single") for d in picked)))
     print("  pool:  ", {t: len(v) for t, v in by_type.items()})
 
