@@ -491,8 +491,9 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 - **도구그래프**(`graph_desc.json`): nodes(id·desc·input-type·output-type) + links(input/output 타입호환=의존). multimedia=40도구·568엣지. 3도메인(HuggingFace/Multimedia/DailyLife)·103도구·17,331샘플.
 - **eval**(`evaluate.py`): **결정론**(scikit-learn `prfs`, LLM無) — **Node-F1**(도구명 exact set-F1)·**Edge-F1**((source,target) tuple exact)·**t-F1/v-F1**(param name/value). **standalone 재사용**(스키마만 맞추면 우리 gold/pred에 적용). **Apache-2.0**.
 
-### §17.2 ★TaskBench > SOPBench (orchestration substrate로서)
-- SOPBench = AND/OR/CHAIN *정책제약*·SOP-following(거부/준수). TaskBench = **NL→도구-의존그래프 *구성*·결정론 graph-match**. ⇒ **CDP 오케스트레이션(도구 선택·순서·의존·param-binding)에 *더 가까움*** + 우리 결정론-충실성(Guard-2式)이 **published 표준 메트릭(node/edge-F1)으로 이미 존재**(우리가 새로 안 만들어도 됨). ⇒ orchestration thesis 1차 검증의 *주력* substrate.
+### §17.2 ~~★TaskBench > SOPBench~~ → 예측축 vs 실행축 (★">" 철회, §17.7-1·§17.8)
+> ⚠️**">" 철회(리뷰)**: TaskBench = NL→도구그래프 *예측*(오프라인 매칭, **도구 미실행**) = *gather/구조-예측* 축. SOPBench/SOP-Bench = 제약·거부·outcome *실행* 축. **conflate였음.** ⇒ **TaskBench=보완(LLM-orchestration *예측*), SOPBench=대체불가(*실행*+outcome+전이). 둘 다 필요·멀티벤치.** (단 §15.4: "assurance moat"는 *별개로 미확정*이라 SOPBench도 과대elevate 금지.) §14.6서 *실행-assurance=게이트의 일*이지 LLM의 일 아님 → TaskBench는 *LLM의 실제 일(예측)* 을 테스트.
+- TaskBench = **NL→도구-의존그래프 *구성*·결정론 graph-match**(node/edge-F1 published 표준). 구조적으로 CDP 오케스트레이션에 가까움(⚠️*구조 proxy*지 마케팅 *도메인* 아님, §17.7-4). = orchestration-*예측* thesis 1차 검증 substrate(실행축은 SOPBench).
 
 ### §17.3 (B) 실험 설계 (TaskBench, §16 학습레시피 정합)
 - **헤드라인 = LODO cross-domain 전이**: 2도메인 학습 → **held-out 1도메인** 평가 = thesis 핵심(소형 NL→구조가 *전이*).
@@ -527,3 +528,10 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 - **메타**: §14–17 설계 누적·새 학습신호 0(Exp-5만) → §17.6-1 빨리 해 falsify 먼저. **TaskBench=SOPBench 실행축 *보완*이지 대체 아님 명기.**
 
 > **상태 = (B) 확정·설계 완료, 리뷰5빈틈 반영(§17.7).** 다음 = §17.6-1 (TaskBench clone+검증, 특히 메트릭 대안-credit·frontier 점수·실행없음 명기).
+
+### §17.8 ★실측 결과 (2026-06-10, 리모트 `JARVIS_tb`·`tbeval_venv`) — §17.6-1 DONE + P2/P5 닫음
+- **✅§17.6-1 DONE (eval 파이프라인 검증)**: TaskBench clone(3도메인 ~17K)·`tbeval_venv`(sklearn·datasets2.14.5·pyarrow12·rouge). **gold-as-pred → Node-F1=1.0**(결정론 prfs, eval에 LLM無 확인). ★**재현 gotcha**: 원본 `data.json`=`tool_nodes`/`sampled_links` → evaluate.py는 `task_nodes`/`task_links` 기대 → **필드변환 전처리 필수**; 메트릭명 = `-m f1`(node), `-m link`, `-m argument`(`-m node`은 무효); pred 경로=`{data_dir}/{prediction_dir}/{llm}.json`.
+- **✅P5 닫음 (frontier 비-포화, rigged 아님)**: published 리더보드 — **gpt-4 n-F1=90.9·e-F1=69.3**; claude-2 80.9/53.0; gpt-3.5 72.8/44.0; **소형 base codellama-7b 53.3/14.8·vicuna-7b 46.1/4.3**. ⇒ **frontier≠천장**(특히 *edge-F1* 큰 headroom), 타깃="frontier-achievable(~91/69)" not 100. 소형→frontier 격차 실재(edge가 discriminating).
+- **✅P2 확정 (협업자 옳음, 내 보정 *철회*)**: `sim(a,b)=1 if a==b else 0` = **순수 exact-match**. matching-mode(Hungarian)도 *alignment*만 다르고 **대안 credit 안 함**(probe: 50% random-교체 → no_match 0.83/match 0.54 둘 다 깎임). ⇒ **valid 대안 decomposition은 penalize됨**, 달성가능 천장<100(gpt-4 90.9가 반영). F1-miss를 real-error vs 대안으로 분해해야(단 *실행 없어* 완전 분해 불가=P1과 연결). **내 "matching이 대안 credit" 보정은 틀림(정정).**
+- **⚠️신규 caveat (GT 품질 도메인편차)**: human-verified 비율 = Multimedia **62.7%** vs HuggingFace **10.8%**(critic-only). ⇒ "human-verified GT 완화"는 *도메인 의존*; LODO서 HF는 약한 GT. (P3 검정력+이 편차 → 도메인 가중 주의.)
+- **⇒ 다음 (설계 그만·측정 시작, 메타-비판 해소)**: base-small(Qwen7B-Instruct) prompted 예측 → multimedia n/e-F1 baseline(headroom 실측) → §16 학습(distill-coverage→outcome-RFT, ⚠️보상=exact-F1이 GT-특이성 overfit 위험[sub]=matching-F1 or SOPBench-실행보상 검토) → LODO+alias-마스킹(P3).
