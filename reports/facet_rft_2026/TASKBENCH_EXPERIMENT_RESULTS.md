@@ -46,7 +46,22 @@ metrics: `{domain}_evalfull_qwen7b/metrics/qwen7b.json` `overall_overall`.
 - **다음 분기 (Q2, coworker 위임 = `COWORKER_REQUEST_TB_SCALE.md` P1)**: Qwen2.5-32B 동일-레시피가 held-out을 +로 뒤집나 → 용량-바운드(스케일 투자) vs 방식-바운드(alias-마스킹/RFT 피벗).
 - (보관) 원계획 명세: train = HF 2194(single400/chain1000/dag795) + daily 1675(400/1000/275) = 3869(3792/77 val, 0 overlong), 프롬프트=inference.py 원형(`tb_build_sft.py`), 어댑터 `sft_runs/qwen7b_tb_lodo_mm`. **보고 = supporting 전이**(moat-(3) 금지). alias arm 후속(P3).
 
-### 진행 중 (남은 회전)
+### ★LODO 3×3 매트릭스 완성 (2026-06-10 20:37, 3회전 전부) — **in-domain +8~18 vs held-out 평균 −2.5**
+
+edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
+
+| 회전 (학습 → held-out) | held-out Δedge | in-domain Δedge |
+|---|---|---|
+| lodo_mm (HF+daily → **MM**) | 50.0→48.3 (**−1.7**) | HF +15.6 · daily +7.8 |
+| lodo_hf (MM+daily → **HF**) | 32.2→35.0 (**+2.8**) | MM +17.7 · daily +13.6 |
+| lodo_daily (HF+MM → **daily**) | 68.1→59.6 (**−8.5**) | HF +17.0 · MM +15.1 |
+| **평균** | **−2.5** | **+14.5** |
+
+- **종합 판정: gold-SFT in-domain 학습은 견고(+8~18 edge, 전 회전·전 도메인) — held-out 전이는 0~음(평균 −2.5).** "학습 불가" 아님, "표현 불가" 아님 — **배운 것이 도메인-특정 + 형식-특정.**
+- **★형식-간섭 패턴 (회전 간 비대칭의 설명)**: held-out 피해가 가장 큰 곳 = daily(**−8.5**) = 유일한 **temporal 형식**(다른 출력 스키마: name/value args+task_links). lodo_daily는 resource 2도메인만 학습 → temporal 형식이 학습에 없던 유일한 회전 = 출력-관례 간섭이 직격. 반면 held-out이 resource이고 학습에 temporal+resource가 섞인 두 회전은 ±소폭(−1.7/+2.8). ⇒ 전이 신호는 "held-out *형식*이 학습에 표현됐는가"와 상관 — **도구-의미 전이가 아니라 출력-관례 수준의 간섭**이 지배.
+- lodo_hf의 +2.8은 base edge가 최저(32.2, headroom 최대)인 도메인에서의 미세 양(+) — in-domain(+14~18) 대비 한 자릿수 분율이라 "전이≈0" 결론 불변.
+- **Q2(coworker P1, Qwen2.5-32B)에의 함의**: 용량-바운드 가설이 약화됨(형식-간섭은 용량으로 안 풀림) — 단 32B 측정은 여전히 가치(간섭 자체가 용량↑로 줄 수 있음). **Track A 다음 수 우선순위 갱신: ①alias-마스킹보다 형식-혼합/형식-불변 타깃이 먼저**(temporal/resource 둘 다 학습 포함은 기본, 출력-관례 분리) **②RFT(in-domain 동일도메인 보상이라 간섭 무관)** ③alias(이름암기 통제는 여전히 P3 위생).
+- 어댑터: `sft_runs/qwen7b_tb_{lodo_mm,lodo_hf,lodo_daily}`. 평가 dir: `{dom}_evalfull_tb_<name>`·`{dom}_sub500_eval_tb_<name>`.
 - 레시피: **gold-SFT**(teacher 호출 0 — GT-generator(GPT-4) 순환 caveat 원천 회피, §17.9 리뷰7-2 명명 준수). train = HF 2194(single400/chain1000/dag795) + daily 1675(400/1000/275) = 3869(3792 train/77 val, 0 overlong), held-out = MM 전체.
 - 프롬프트 = inference.py 원형 복제(`tb_build_sft.py`), target = gold graph JSON. LoRA r16, 2ep, seqlen 6144, GPU1. 어댑터 `sft_runs/qwen7b_tb_lodo_mm`.
 - 평가 예정: held-out MM full + in-domain 500-sub sanity (`tb_eval_adapter.sh`). 지표 = edge-F1 중심 + type 층화. **보고 = supporting 전이**. alias-마스킹 arm은 후속(P3).
