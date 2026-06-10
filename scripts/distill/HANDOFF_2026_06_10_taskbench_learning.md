@@ -1,5 +1,7 @@
 # HANDOFF 2026-06-10 — TaskBench 학습 실험 (thesis 동결 후 *측정* 단계)
 
+> **★STATUS UPDATE (2026-06-10 밤, 측정 1일차 완료 — 결과 권위본 = `reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md`)**: ✅full 3도메인 baseline(HF 73.6/32.2·MM 84.4/50.0·daily 90.8/68.1) ✅A-0 감사(real 73%/대안 27% → exact-F1 RFT 가능) ✅scale곡선 0.5–14B(edge emerge 1.5→3B, 비포화) ✅**LODO 3×3 완성: in-domain edge +8~18 vs held-out 평균 −2.5 = 학습됨·전이 0, 지배 패턴=형식-간섭(temporal held-out −8.5)**. ▶다음: ①RFT(in-domain, A-0 보상) ②형식-불변 타깃/alias arm ③**Qwen3 전환 재측정**(0.6–14B 캐시 중; non-thinking 고정) ④coworker 위임 = `reports/facet_rft_2026/COWORKER_REQUEST_TB_SCALE.md`(P1=Qwen2.5-32B gold-SFT가 Q2 판정). 인프라 신규: `scripts/distill/taskbench/`(빌더·평가·드라이버, GPU/PORT/UTIL 인자화·기형 gold/pred 처리 내장). §18.2 zero-GPU: bitter-lesson ✅(R1-R3 정제 포함)·규제 sourcing ✅(판정(c))·shielding 5축 ✅.
+
 > **진입점.** §14–17 설계는 **동결**(`FIELD_GAP_LLM_VALUE_DESIGN.md` §17.9 = 고정 thesis). **리뷰3(2026-06-10) 반영: 실행 권위 = 설계서 §18**(E0/E2/E5 disposition·§15.4 사활 open 3건[규제원문 sourcing·bitter-lesson·erosion] zero-GPU 병렬 배정 — 특히 **규제 1차원문 sourcing은 moat-leg 사활이라 Exp-A와 병렬 필수**). 이 핸드오프 = 다음 세션이 *측정*(학습 실험)을 바로 실행하기 위한 자족 문서. **메타규칙: 더 이상 thesis 정제 금지(수확체감) — 코드/측정으로 전환.**
 
 ---
