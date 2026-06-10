@@ -94,6 +94,31 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - 14B조차 published gpt-4(MM e-F1 69.3)에 16pt 미달 → 7B 학습으로 edge를 끌어올리는 Exp-A의 가치 공간 확인.
 - caveat: 0.5–14B는 500-sub 단일run(7B만 full); 모델별 동일 sub500이므로 곡선 내 비교는 공정, 절대값은 full 대비 ±수 pt 가능.
 
-## 5. 다음
+## 5. ★전이-vs-용량 (lodo_mm 프로토콜, held-out MM, **sub500 동일-id 정합 비교**) ✅ 2026-06-11 AM
+| scale | base edge | gold-SFT edge | **Δ held-out** | in-domain Δ (HF/daily) |
+|---|---|---|---|---|
+| 1.5B | 3.0 | 11.7 | **+8.7** | +37.0 / +50.7 |
+| 7B | 48.3 | 47.5 | **−0.8** | +15.6 / +7.8 |
+| 14B | 52.8 | 57.1 | **+4.3** | +11.9 / +2.2 |
+
+- **★U자형 비단조**: 1.5B 양(+8.7) → 7B ~0(−0.8) → 14B 양(+4.3). 해석: ①1.5B는 base가 형식조차 못 함 → SFT가 *형식 스킬*(도메인-일반)을 가르쳐 전이 양 ②7B는 형식 기보유 → 도메인-특정만 학습 → 0 ③**14B서 +4.3 재상승 = 용량-바운드 가설 부분 부활**(형식 너머의 전이가능 구조 규칙성 흡수 시작?) → **coworker P1(32B)이 진짜 결정적**(+가 커지면 용량-스케일 투자 정당화).
+- 측정 공정성: 전 행 동일 첫-500 id(`*_sub500x_eval_*`), full-vs-sub 혼용 제거(7B full −1.7 → sub-정합 −0.8).
+
+## 6. RFT round-1 (RAFT: K=8·reward 0.3node+0.7edge·keep≥0.8·warm-start) ✅ 2026-06-11 AM
+- rollout: 3869 프롬프트, kept 2845(73.5%, HF 1391/daily 1454 균형), mean best reward 0.855. 학습: winners 2ep lr5e-5, `qwen7b_tb_rft_mm`.
+- **결과 (vs lodo_mm SFT)**: in-domain **daily 75.9→85.2(+9.3, SFT 너머)** · HF 47.8→46.3(−1.5) · held-out MM(sub500x) 47.5→48.4(+0.9, base 48.3 회복 수준).
+- 판정: **outcome-RFT는 보상이 깨끗한 도메인(daily)에서 SFT 천장을 추가로 밀고**, held-out 회귀를 base 수준으로 복원. HF 정체는 보상-노이즈(관례-mismatch 분율, A-0의 27%) 가설 — round-2는 ①HF-전용 round or ②min_reward 상향/도메인별 임계 검토. 전이는 RFT로도 발생 안 함(예상 내, in-domain 레버).
+
+## 7. Qwen3 곡선 (sub500, non-thinking 고정 — family-불변성 체크) 🔄 부분완료 2026-06-11
+| 크기 | HF n/e | MM n/e | daily n/e |
+|---|---|---|---|
+| Qwen3-0.6B | 41.9 / 0.6 | 42.2 / 4.2 | 63.8 / 25.8 |
+| Qwen3-1.7B | 62.7 / 9.2 | 71.8 / 8.9 | 72.2 / 37.8 |
+| Qwen3-4B | (다운로드 미완 SERVE_FAIL → 재실행 중) | | |
+| Qwen3-8B | (동상, full 3도메인 예정) | | |
+| Qwen3-14B | 80.6 / 42.2 | 87.2 / 59.1 | 95.0 / 79.9 |
+- 동급 대비 Qwen3 ≥ Qwen2.5 경향(특히 daily edge: 0.6B가 이미 25.8 vs Qwen2.5-0.5B 0.2; 14B edge MM 59.1 vs 52.8) — **곡선 모양(edge 후발 emerge·비포화)은 family-불변** 1차 확인.
+
+## 8. 다음
 - LODO_mm eval → (edge-F1 lift 시) LODO_hf/LODO_daily 회전 → outcome-RFT(§2 결론 보상) → alias arm.
 - zero-GPU 병렬(§18.2): 규제 1차원문 sourcing(사활)·bitter-lesson — 별도 세션/딥리서치.
