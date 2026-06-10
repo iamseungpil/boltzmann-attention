@@ -61,6 +61,27 @@
 7. **scope 정직 명시**: 기업 AI 지출 1위는 코딩(55%)·마케팅 AI의 주류는 **콘텐츠 생성**(Agentforce Content Agent 등) — 본 벤치는 그걸 다루지 않고 **분석·세그먼트·보고서 slice**(CDP 제품 도메인, 마케팅 지출 9% 중 분석 부분)를 다룬다. 콘텐츠 생성은 grounding 채점 부적합+thesis 축 아님 — 의도된 제외임을 명시.
 8. (참고) 76% buy-not-build ⇒ 벤치의 타깃 사용자 = 제품에 에이전트를 넣는 벤더(=우리·CDP) — 벤치 존재 이유와 정합.
 
+## §1.7 ★시장 전수 실사 — 마케팅·금융 LLM 제품 지형, 문제점, 데이터주권 (2026-06-10 웹 실사 2차)
+
+### (a) 마케팅 LLM 제품 지형과 문제점
+- **지형**: 콘텐츠 생성(주류 — Jasper·Agentforce Content Agent·Adobe GenStudio) / 세그먼트·오디언스(Agentforce NL→세그먼트, AEP Audience Agent — **본 벤치 영역**) / 캠페인 최적화(Campaign Optimizer) / 분석 copilot(BI 3사).
+- **문제점(실측)**: ①**거버넌스 격차** — F500의 80%가 에이전트 사용하나 거버넌스 체계는 ~25%만(NIST AI Agent Standards, 2026-02) ②**신뢰 침식** — Forrester: 2026년 브랜드 1/3이 성급한 self-service AI로 고객신뢰 훼손 예측, 조직의 <15%만 에이전틱 기능 실제 활성화 ③**ROI 증명 불가** — 마케팅팀 <40%만 AI 투자수익 입증 가능 ④hallucination의 법적 책임화(Air Canada 챗봇 판례 — 환각 정책 안내를 회사가 이행해야 한다고 판결).
+
+### (b) 금융 LLM 실배포 지형과 문제점
+- **지형**: JPMorgan **LLM Suite**(직원 20만+, 100+ genAI 솔루션 production — 단 frontier 모델로의 *통제된 게이트웨이* 형태) / Goldman Sachs **GS AI Assistant**(4.6만 전직원, 모델-불가지론) / Morgan Stanley(GPT-4 + 사내 리서치 10만건 RAG, FA 보조). **공통 패턴 = 직원-보조(초안·요약·검색)이지 자율 의사결정이 아니며, human supervision 전제.**
+- **문제점(당사자 발언)**: GS — "**정확성 보장과 환각 방지가 업계 최대 문제**, human supervision 없이 출력에 의존하기까지 갈 길이 멀다". Gartner: genAI 프로젝트 30%가 PoC 후 폐기(2025), **에이전틱 AI 40%+ 취소 예측(2027 — 비용·불명확한 가치·불충분한 리스크 통제)**. MIT NANDA: 파일럿 95%가 측정가능 ROI 실패 — 원인은 모델 품질이 아니라 통합·learning gap, **예산은 마케팅에 쏠리나 ROI는 back-office서 발생**.
+- **⇒ 벤치 정당화 직결**: 실패원인 1·2위(불명확한 가치·리스크 통제 부재)가 정확히 본 벤치의 측정축 — provenance(가치 측정가능성)·soundness/HITL(리스크 통제 입증).
+
+### (c) ★데이터주권 — 자료 외부유출 불가 환경의 실배포 패턴 3가지
+1. **신뢰경계 내 게이트웨이**(미국 대형사): JPM LLM Suite(통제 포털) / **Salesforce Einstein Trust Layer** — zero-retention 계약(프롬프트·응답을 제공자가 즉시 망각) + **PII 마스킹**(탐지된 개인정보→`PERSON_0` placeholder 치환, 응답 수신 후 demask, 관계는 신뢰경계 내에만 임시 저장) + grounding + audit trail. 흥미: **PII-마스킹 치환은 우리 alias-마스킹과 동형 기법** — 도구·데이터가 마스킹된 식별자 위에서 작동해야 함.
+2. **자체호스팅 오픈웨이트**: 2025년 LLM 지출의 절반+가 on-prem(규제산업 주도); open-weight 로컬 = API 대비 최대 ~18x 저렴/Mtok; air-gapped 사례(LANL 자체호스팅).
+3. **★한국 금융권(=CDP 직접 환경) — 망분리**: 전자금융감독규정 망분리 10년+ → 금융위 「망분리 개선 로드맵」(2024-08) → 혁신금융서비스 특례(74사 141건 신청)로 *인터넷망 상용 AI*는 예외 승인제, **내부망은 "금융권 AI 플랫폼"(2025 상반기)으로 선정된 오픈소스 모델 직접 설치를 공식 지원**. ⇒ **한국 은행 내부망에서 소형 오픈웨이트 sLLM 자체구축은 '저비용 옵션'이 아니라 사실상 유일한 정규 경로**(frontier API는 특례 필요·기본 불가). **thesis의 {소형·저비용}×{게이트} 패키지가 규제 환경의 직접 요구사항과 일치** — 비용 논거에 주권 논거가 추가됨(둘 다 frontier-API-불가 논거).
+
+### (d) 설계 반영 (이 리비전)
+- **배포-제약 축 신설**: P3 baseline 매트릭스에 **deployable-arm 구분** — "내부망 설치 가능 모델만"(오픈웨이트 ≤14B + 게이트) vs frontier-API arm(성능 참조용 — **한국 금융 내부망 기본 적용 불가**임을 보고서에 명시). 우리 스택 = deployable-arm 대표.
+- **PII 마스킹 호환성**: 환경 DB에 PII 필드 포함 + Trust-Layer형 마스킹 미들웨어 시뮬레이션(도구 입출력이 placeholder 식별자로 작동) — PII 비노출 채점(기존 제약)에 더해 **마스킹-하 기능 유지**를 측정(실무 미들웨어 표준과 정합).
+- **산출물 형태 재확인**: 금융 실배포 공통형 = "직원에게 제출되는 초안+근거" — T1~T5 산출물·HITL 채점(§1.6-6)과 정합, 변경 불요.
+
 ## §2 ★핵심 설계 원칙 — GT는 "정답 경로"가 아니라 "검증기" (사람 라벨 0, 정답 열거 0)
 
 **★설계 전환(사용자 교정 2026-06-10): 방법 수천·도구 수천의 개집합에서 "유일 정답 도구체인"의 열거는 불가능하고, 열거 시도 자체가 PoC-DAG의 한계를 벤치에 복제하는 것.** 따라서 GT는 두 층으로 분리:
@@ -77,6 +98,7 @@
   - **주 트랙 (Track-C, curated — 현재 기업 표준 패턴)**: 큐레이트된 도구 **수십 개**(PoC `unified_tools.yaml`서 핵심 분석·세그먼트·보고 도구 추출) + **semantic layer 질의 인터페이스**(metrics/dimension 정의 경유 — Cortex Analyst semantic view·PoC `semantic_layer.yaml` 동형, raw SQL은 보조) + `report_writer`, `playbook_lookup`(T4), `policy_lookup`, 실행계 `register_cep_{trigger,segment}`(승인-게이트 대상). 전부 결정론 스텁(typed 명세 포함) = replay·검증 가능. **본 벤치의 헤드라인 수치는 이 트랙에서.**
   - **스트레스 트랙 (Track-O, open-set — frontier·Patent1 문제 재현)**: 카탈로그를 수백~수천으로 합성 확장(파라미터 변형·도메인 변종·**동음이의어/유사기능 distractor**[Patent1 실측: 도구폭발 82K토큰·동음이의어 58%]) + 컨텍스트에 안 들어가는 스케일 → **도구 위키/GraphRAG/카탈로그 검색**(`tool_search`, `tool_doc_lookup`, capability-graph 질의)으로 발견·조합. 검색 채널도 로깅 = 도구-선택 provenance. **보고 시 "현재 기업 일반 패턴" 주장 금지** — frontier/제품 차별화 트랙으로 라벨.
 - **제약 정책**: 도메인별 NL SOP 문서(옵트아웃·예산·규제문구·금지조합·PII). **Exp-B(NL→구조 induce) 경로와 동일 형식** → 우리 스택은 SOP→게이트 컴파일, baseline은 SOP를 프롬프트로.
+- **PII 마스킹 미들웨어 (§1.7-d, Einstein Trust Layer 동형)**: DB에 PII 필드 포함, 도구 입출력은 placeholder 식별자(`PERSON_n`)로 통과 — PII 비노출 채점 + **마스킹-하 기능 유지**(placeholder 위에서 세그먼트·집계가 깨지지 않는가) 측정.
 - **T3 reference**: 인간 보고서 3~5종(실제 금융 마케팅 월간보고 형식 모사, 섹션·표 스키마 추출해 GT화). **reference의 수치는 구식 데이터의 것** → 복사 시 즉시 fabrication 검출(신규 DB와 불일치하도록 설계).
 - **T4 페이퍼**: RFM·uplift modeling·CLV 등 방법론 페이퍼 요약본(저작권 회피 위해 자체 재서술) + "이 방법으로 X 분석" 요청. GT = 방법의 절차를 도구 체인으로 구현한 결정론 파이프라인.
 
@@ -96,7 +118,7 @@
 - **P0 (zero-GPU, 1~2일)**: **PoC 자산 인벤토리 확정**(tool_dags 21유형 중 벤치 1차 채택분·unified_tools 추출·schema/semantic_layer 채취·response_templates→claim 스키마 변환) + 스키마·제약·planted-fact 문법 동결 + 본 설계 리뷰(§7) 통과.
 - **P1**: DB 생성기 + **사실-층 GT 계산기**(planted-fact 산출 코드 — 벤치 내부용이지 정답 경로 열거 아님) + **검증기**(도구 typed 명세→플랜 validity 체커; tool_dag 실행기는 실행엔진으로만 재사용). 단위검증 = planted fact 전수 회수 + 검증기 OVER/UNDER 0(알려진 유효/무효 플랜 셋으로 — SOPBench Guard-2 방식).
 - **P2**: back-instruct 태스크 생성 n≈50/도메인/패밀리 + claim-extraction 채점기. **pilot 10태스크로 채점기 신뢰도 먼저**(judge-인간 일치 확인 후 스케일).
-- **P3**: baseline 매트릭스 — **Arm-T(결정론 템플릿 매칭: 열거 21-DAG 중 선택, PoC 방식)** vs frontier API(GPT-5/o4급) vs 우리 스택(소형 front-end+게이트) vs 소형 base — fabrication/coverage/soundness/abstain/plan-validity 축, **Track-C 우선(헤드라인), Track-O는 후행 스트레스**. **★Arm-T의 커버리지 절벽(커버된 경로 강함·그 밖 0)과 LLM-arm의 커버리지 확장이 thesis 가치명제의 직접 실측**(결정론 authoring 한계 vs front-end 일반화).
+- **P3**: baseline 매트릭스 — **Arm-T(결정론 템플릿 매칭: 열거 21-DAG 중 선택, PoC 방식)** vs frontier API(GPT-5/o4급) vs 우리 스택(소형 front-end+게이트) vs 소형 base — fabrication/coverage/soundness/abstain/plan-validity 축, **Track-C 우선(헤드라인), Track-O는 후행 스트레스**. **arm을 배포가능성으로 층화(§1.7-d)**: deployable(내부망 설치 가능 오픈웨이트+게이트) vs frontier-API(성능 참조 — 한국 금융 내부망 기본 불가 명시). **★Arm-T의 커버리지 절벽(커버된 경로 강함·그 밖 0)과 LLM-arm의 커버리지 확장이 thesis 가치명제의 직접 실측**(결정론 authoring 한계 vs front-end 일반화).
 - **P4**: 학습 접합(gold-SFT→RFT, Exp-A 레시피 이식).
 
 ## §6 기존 자산 재사용 맵
