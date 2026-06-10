@@ -58,13 +58,28 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 | **평균** | **−2.5** | **+14.5** |
 
 - **종합 판정: gold-SFT in-domain 학습은 견고(+8~18 edge, 전 회전·전 도메인) — held-out 전이는 0~음(평균 −2.5).** "학습 불가" 아님, "표현 불가" 아님 — **배운 것이 도메인-특정 + 형식-특정.**
-- **★형식-간섭 패턴 (회전 간 비대칭의 설명)**: held-out 피해가 가장 큰 곳 = daily(**−8.5**) = 유일한 **temporal 형식**(다른 출력 스키마: name/value args+task_links). lodo_daily는 resource 2도메인만 학습 → temporal 형식이 학습에 없던 유일한 회전 = 출력-관례 간섭이 직격. 반면 held-out이 resource이고 학습에 temporal+resource가 섞인 두 회전은 ±소폭(−1.7/+2.8). ⇒ 전이 신호는 "held-out *형식*이 학습에 표현됐는가"와 상관 — **도구-의미 전이가 아니라 출력-관례 수준의 간섭**이 지배.
+- **★형식-간섭 패턴 (회전 간 비대칭의 설명)** ⚠️**§3.6 전수 census로 메커니즘 정정됨(필독)** — "출력-관례(문법) 전환 실패"는 **반증**, 실제 = ①스키마-경계 직렬화 사고(15% 샘플 손실) + ②미훈련 필드(task_links) 내용 열화: held-out 피해가 가장 큰 곳 = daily(**−8.5**) = 유일한 **temporal 형식**(다른 출력 스키마: name/value args+task_links). lodo_daily는 resource 2도메인만 학습 → temporal 형식이 학습에 없던 유일한 회전. 반면 held-out이 resource이고 학습에 temporal+resource가 섞인 두 회전은 ±소폭(−1.7/+2.8). ⇒ 전이 신호는 "held-out *형식*이 학습에 표현됐는가"와 상관 — 단 그 간섭의 *작동 방식*은 §3.6 census가 확정.
 - lodo_hf의 +2.8은 base edge가 최저(32.2, headroom 최대)인 도메인에서의 미세 양(+) — in-domain(+14~18) 대비 한 자릿수 분율이라 "전이≈0" 결론 불변.
 - **Q2(coworker P1, Qwen2.5-32B)에의 함의**: 용량-바운드 가설이 약화됨(형식-간섭은 용량으로 안 풀림) — 단 32B 측정은 여전히 가치(간섭 자체가 용량↑로 줄 수 있음). **Track A 다음 수 우선순위 갱신: ①alias-마스킹보다 형식-혼합/형식-불변 타깃이 먼저**(temporal/resource 둘 다 학습 포함은 기본, 출력-관례 분리) **②RFT(in-domain 동일도메인 보상이라 간섭 무관)** ③alias(이름암기 통제는 여전히 P3 위생).
 - 어댑터: `sft_runs/qwen7b_tb_{lodo_mm,lodo_hf,lodo_daily}`. 평가 dir: `{dom}_evalfull_tb_<name>`·`{dom}_sub500_eval_tb_<name>`.
 - 레시피: **gold-SFT**(teacher 호출 0 — GT-generator(GPT-4) 순환 caveat 원천 회피, §17.9 리뷰7-2 명명 준수). train = HF 2194(single400/chain1000/dag795) + daily 1675(400/1000/275) = 3869(3792 train/77 val, 0 overlong), held-out = MM 전체.
 - 프롬프트 = inference.py 원형 복제(`tb_build_sft.py`), target = gold graph JSON. LoRA r16, 2ep, seqlen 6144, GPU1. 어댑터 `sft_runs/qwen7b_tb_lodo_mm`.
 - 평가 예정: held-out MM full + in-domain 500-sub sanity (`tb_eval_adapter.sh`). 지표 = edge-F1 중심 + type 층화. **보고 = supporting 전이**. alias-마스킹 arm은 후속(P3).
+
+### §3.6 ★형식-간섭 전수 census (2026-06-10 밤, `tb_format_census.py`, zero-GPU) — 가설을 로그로 검증: **문법-붕괴 반증, 실 메커니즘 2개 확정**
+> 동기 = "점수 패턴 추론으로 두지 말고 prediction 로그 전수 조사"(사용자, 메타규칙 '강한 주장은 reliable test 후 박제' 정합). 대상 = 3회전 held-out full 예측 전부(base `qwen7b.json` vs SFT `tb_lodo_*.json`, 도메인당 3.6k–7.4k).
+
+**판정① — "출력-관례(문법) 전환 실패" = 반증.** lodo_daily SFT의 daily 출력(파싱 성공분)은 temporal 관례를 거의 완벽 유지: dict-args **99.3%**(base 99.6%)·`<node-j>` 태그 **0건**·gold-linked 예제서 task_links 누락 **0.8%**(24/3035). resource 회전들도 역방향 오염 0(dict-args 0%·task_links emit 0건). **모델은 프롬프트가 시키는 문법을 따랐다.**
+
+**판정② — 실 메커니즘 A = 스키마-경계 직렬화 사고 → 15% 샘플 손실 (lodo_daily 전용).** SFT pred n=**3653 vs base 4313 = 666 예제(15.4%) 통째 누락**(base는 7건). 로그 전수: Failed 667, 실패 시그니처 = **task_nodes 직후 JSON 객체를 조기 폐쇄 → 그 *바깥에* `, "task_links": [...]}`를 덧붙임** → ContentFormatError(재시도 소진→드롭). 원인 = resource 학습 타깃에 task_links 필드가 **아예 없어서**("객체는 task_nodes서 끝난다"를 학습) temporal 프롬프트의 task_links 요구와 충돌. 누락 구성 = single 640/chain 24/dag 2.
+- ⚠️**보고치 과소피해 caveat**: eval은 pred-id 조인이라 누락 666은 **제외**되고 채점됨 → held-out 59.6은 생존 서브셋 기준 = **실제 전이 피해는 −8.5보다 큼**(특히 single 다수 누락 = node-F1도 영향).
+
+**판정③ — 실 메커니즘 B = 미훈련 필드의 내용 열화 (파싱 성공분에서도 −13pt).** 같은 예제들에서 edge micro **P 0.749→0.619 · R 0.703→0.573**: 링크를 올바른 *문법*으로 쓰지만 *내용*(source→target 선택)이 나빠짐. 학습 2도메인(resource) 타깃에 task_links가 없어 링크-생성 스킬이 한 번도 훈련되지 않은 채 열화. resource 회전들은 내용-수준 변화만: lodo_mm P −7.6(과예측)·lodo_hf R +6.6/P −3.8(엣지 과생성 8776→11415 = +2.8과 정합).
+
+**⇒ 처방 정밀화 (Track A 우선순위 갱신의 구체화)**:
+1. **최소 수정이 먼저**: "형식-불변 타깃 설계"의 최저비용 형태 = **resource SFT 타깃에도 `task_links` 필드 항상 포함**(gold `sampled_links` 이미 존재, `tb_build_sft.py` 1줄) = uniform output schema. 메커니즘 A(직렬화 사고)는 이것만으로 제거 예상; B(내용 열화)도 링크-생성이 전 도메인서 훈련되므로 직접 완화.
+2. **Q2(32B) 해석 프로토콜 재정련**: A(사고)는 용량↑로 줄 수 있으나(instruction-following 보존) B(내용)는 데이터 구성 문제라 용량과 직교 추정 → 32B 결과는 **이 census 스크립트로 A/B 분리 측정** 후 해석(점수만 보면 또 conflate).
+3. 보고 규율: lodo_daily 행에 누락-제외 caveat 병기(n=3653/4318).
 
 ## 4. Exp-C scale 곡선 ✅ 2026-06-10 (500-sub/도메인; 7B행만 full)
 | 크기 | HF n/e-F1 | MM n/e-F1 | daily n/e-F1 |
