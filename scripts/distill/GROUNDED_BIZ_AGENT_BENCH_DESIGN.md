@@ -11,8 +11,8 @@
 | **T1** | grounded 마케팅 분석·제안 | NL 요청 + DB + 도구 | 수치 포함 분석·세그먼트 제안 | 수치 fabrication, 스키마 환각, 잘못된 집계 |
 | **T2** | 전략 조언·방향 설정 | NL 질문 + DB + 도구 | 데이터 근거 첨부된 유동적 제안 | 데이터 안 읽고 일반론 답변(=ungrounded), 읽은 데이터와 모순된 결론 |
 | **T3** | 보고서 자동 생성 | **인간 작성 보고서(형식 reference)** + DB(신규 기간/대상) | 형식 보존 + 데이터 추출·분석은 신규 계획·실행한 보고서 | 형식 붕괴, 옛 수치 복사(=reference 컨닝), 신규 수치 fabrication |
-| **T4** | paper-conditioned 분석 | **마케팅 방법론 페이퍼** + NL 요청 + DB + 도구 | 페이퍼 방법을 도구로 구현한 결과 | 방법 오적용, 페이퍼에 없는 절차 fabrication, 도구 선택 오류 |
-| **T5** | **실시간 마케팅 시나리오 설계 (멀티턴 composite — ★앵커, §0.5)** | 멀티턴 사용자 대화 + DB + 도구 + 실행계 액션(트리거/고객군 등록) | 퍼널분석→트리거 추천→**복수 방안 제안(모수·예상전환율 추정 포함)**→세부 조정→등록→최종 종합 | T1·T2의 모든 실패모드 + 추정치 fabrication, 등록 payload 오류, 턴-간 상태 불일치 |
+| **T4** | **playbook-conditioned 분석 (§1.6-5 수정)** | **사내 방법론 플레이북/위키**(시드=PoC `marketing_workflow_kb.yaml`·`methodologies/`) + NL 요청 + DB + 도구 | 플레이북 방법을 도구로 구현한 결과 (외부 페이퍼 변형은 부-arm) | 방법 오적용, 플레이북에 없는 절차 fabrication, 도구 선택 오류 |
+| **T5** | **실시간 마케팅 시나리오 설계 (멀티턴 composite — ★앵커, §0.5)** | 멀티턴 사용자 대화 + DB + 도구 + 실행계 액션 | 퍼널분석→트리거 추천→**복수 방안 제안(모수·예상전환율 추정)**→세부 조정→**승인-게이트 제안 payload**(§1.6-6: autonomous 등록 아님)→최종 종합 | T1·T2의 모든 실패모드 + 추정치 fabrication, payload 오류, 턴-간 상태 불일치 |
 
 **공통 요구 = "산출물의 모든 atomic claim이 logged tool-call로 derivable"** — 이것이 규제 sourcing(`REGULATORY_DETERMINISM_SOURCING.md`) 결론(moat=검증가능성, EU AI Act Art.12 traceability)의 벤치 조작화이기도 함: provenance log가 곧 Art.12-급 감사 추적.
 
@@ -27,7 +27,7 @@
 
 **(2) `workflow/tool_dags/*.yaml` (분석유형별 결정론 실행 DAG, `dag_templates.yaml`에 21유형)** — **★결정론 authoring의 한계 실증이자(사용자 교정 2026-06-10), 벤치의 대조군**:
 - 노드 = `{id, type(resolver/param_setter/data_fetch/analysis/reporter), tool, depends_on, parallel_with, condition, params}` + `${node.output}` 데이터플로 바인딩 (예: funnel_analysis = resolve_funnel∥set_period∥resolve_segment → calculate_funnel → analyze_dropoff∥time_analysis → generate_report).
-- **⚠️이 DAG들은 "정답 경로의 열거"가 아니다**: 고객군 생성 방법은 수천 가지·도구도 수천 개이고, PoC의 2방안/21템플릿은 그중 손으로 박은 극소수 = **per-path 결정론 authoring 비용의 실증**(thesis의 "특허=결정론 authoring / front-end가 per-domain·per-path 재구축비 제거" 구도 그대로). **벤치가 측정할 본체 = LLM이 거대 도구 카탈로그(GraphRAG/도구 위키/리스트)를 보고 적절한 조합을 *생성*하는 능력**이지, 열거된 템플릿 중 선택이 아님.
+- **⚠️이 DAG들은 "정답 경로의 열거"가 아니다**: 고객군 생성 방법은 수천 가지·도구도 수천 개이고, PoC의 2방안/21템플릿은 그중 손으로 박은 극소수 = **per-path 결정론 authoring 비용의 실증**(thesis의 "특허=결정론 authoring / front-end가 per-domain·per-path 재구축비 제거" 구도 그대로). **벤치가 측정할 본체 = LLM이 도구 카탈로그(위키/GraphRAG/리스트)를 보고 적절한 조합을 *생성*하는 능력**이지, 열거된 템플릿 중 선택이 아님. (단 조합의 *무대 규모*는 §1.6-4 실사에 따라 2-트랙: 주=큐레이트 수십 개[현 기업 표준], 스트레스=수백~수천 open-set[frontier] — §3.)
 - 따라서 tool_dags의 용도는 둘로 한정: ① **대조군(Arm-T)** — 열거-템플릿 매칭 방식의 커버리지 상한 실측(커버된 경로에선 강하나 그 밖 0 = 결정론 한계 정량화), ② DAG *스키마*(노드/엣지/바인딩 형식)는 모델이 **생성하는 플랜의 표현 형식**으로 재사용(플랜=구조화 산출물→게이트가 검증).
 - SOPBench dirgraph 게이트(DGGATE)와의 접합은 유지하되 방향 정정: 게이트는 *열거된 정답 DAG와 비교*하는 게 아니라 **생성된 플랜의 타당성**(도구 입출력 타입 정합·선행조건 충족·제약 비위반)을 검증.
 
@@ -45,6 +45,22 @@
 - (3) **재학습0 전이** ✓: 도메인(은행/보험/리테일)·스키마 swap held-out.
 - capability 함정 회피: "frontier 이기나"가 아니라 **fabrication=0 보장 여부**가 축. frontier도 fabrication>0이면 우리 패키지({소형}×{게이트}×{전이})가 이기는 좌표.
 
+## §1.6 ★실기업 사용례 정합성 평가 (2026-06-10, 웹 실사 — 설계 수정의 근거)
+
+> 사용자 발주: "엄격하게 실제 기업 사용예를 보고 판단·수정하라." 실사 출처 = Menlo Ventures 2025 enterprise survey(495 결정권자), Snowflake Cortex Analyst/Databricks Genie 공식문서·벤치, 에이전트 도구-스케일 실증(LangChain/MCP 856-tool study/Anthropic code-execution), Salesforce Agentforce·Adobe AEP Audience Agent 제품문서, HITL 거버넌스 가이드(EU AI Act Art.14 정합).
+
+### 정합 (벤치가 실무를 맞게 친 것 — 유지·강화)
+1. **T1/T2 grounded 데이터 Q&A = 실재 대형 제품 카테고리** (BI copilot: Snowflake Cortex Analyst·Databricks Genie·Power BI Copilot). **결정적**: 이 제품들의 production 패턴이 우리 thesis 그대로 — **semantic layer 그라운딩 + Verified Query Repository + 확신 없으면 abstain**(Cortex는 SQL 확신 없으면 답 대신 대안 질문 제시). 실측: raw GPT-4o text-to-SQL 정확도 **51%** vs 전용 스택 79~90% — **fabrication이 실제 production 블로커**임의 산업 실증. PoC의 `semantic_layer.yaml`(197KB)도 동일 패턴. ⇒ fabrication-rate 헤드라인·abstain 설계 = 실무 검증됨.
+2. **T5 세그먼트 생성 = 실재 출시 제품** (Salesforce Agentforce "NL→세그먼트 속성 변환"·Adobe AEP Audience Agent "대화형 오디언스 생성·최적화"). 앵커 태스크가 실제 제품 카테고리와 1:1.
+3. **soundness 게이트·감사추적** = 기업 거버넌스 표준(tiered risk·결정 로깅·audit trail, EU AI Act Art.14 정합)과 일치.
+
+### 불일치 (실무 기준 수정 — 이 리비전에서 반영)
+4. **★"수천 도구 단일-에이전트 자유 조합" ≠ 현재 기업 일반 패턴**: production 합의는 정반대 — **큐레이트된 소수 도구**(실증: ≤12 skills 82% vs sprawl 9%; 도구 20개=토큰 5-10K 오버헤드; 856-tool/103-MCP-server 연구=토큰 인플레), **멀티에이전트 라우팅**(전문 에이전트별 focused toolset), 데이터 질의는 **semantic layer 단일 관문**. 수천-도구 런타임 발견·조합은 *frontier 방향*(MCP progressive discovery·Anthropic code-execution-with-MCP)이지 "일반적 사용법" 아님. ⇒ **수정: 주 트랙 = 큐레이트 체제(실무 그대로), open-set 조합 = 명시적 스트레스/frontier 트랙으로 분리**(§3). 사용자 vision(수천 도구 조합)은 폐기가 아니라 *frontier 트랙*으로 보존 — PoC가 부딪힌 실제 문제(Patent1 도구폭발)이고 산업이 향하는 방향이나, "현재 일반"이라고 주장하면 안 됨.
+5. **T4 "최신 페이퍼 참조" = 실무에서 희소**(연구-flavored). 실무 대응물 = **사내 방법론 플레이북/위키 참조**(마케팅 방법론 KB — PoC에 실물 존재: `marketing_workflow_kb.yaml`·`methodologies/`). ⇒ **수정: T4 = playbook-conditioned 분석**(주), 외부 페이퍼는 변형 arm(부).
+6. **부수효과 액션의 autonomous 실행 ≠ 실무**: 기업 표준 = 되돌릴 수 없는/규제/금전 액션은 **사전 인간 승인 큐**(HITL). ⇒ **수정: T5 산출물 = "승인-게이트에 올라가는 제안 payload"**, 채점 = 승인 시점 payload 정확도(모수·조건·예상치) — autonomous 등록 성공이 아님. 이는 EU AI Act Art.14·규제 sourcing 결론과도 정합.
+7. **scope 정직 명시**: 기업 AI 지출 1위는 코딩(55%)·마케팅 AI의 주류는 **콘텐츠 생성**(Agentforce Content Agent 등) — 본 벤치는 그걸 다루지 않고 **분석·세그먼트·보고서 slice**(CDP 제품 도메인, 마케팅 지출 9% 중 분석 부분)를 다룬다. 콘텐츠 생성은 grounding 채점 부적합+thesis 축 아님 — 의도된 제외임을 명시.
+8. (참고) 76% buy-not-build ⇒ 벤치의 타깃 사용자 = 제품에 에이전트를 넣는 벤더(=우리·CDP) — 벤치 존재 이유와 정합.
+
 ## §2 ★핵심 설계 원칙 — GT는 "정답 경로"가 아니라 "검증기" (사람 라벨 0, 정답 열거 0)
 
 **★설계 전환(사용자 교정 2026-06-10): 방법 수천·도구 수천의 개집합에서 "유일 정답 도구체인"의 열거는 불가능하고, 열거 시도 자체가 PoC-DAG의 한계를 벤치에 복제하는 것.** 따라서 GT는 두 층으로 분리:
@@ -57,8 +73,9 @@
 
 ## §3 환경 스펙
 - **DB**: SQLite/postgres, 도메인 3+(은행 카드·보험·리테일 멤버십), 스키마 의도적 이질화(컬럼명·정규화 수준 상이) → 전이 측정. **기준 도메인 스키마 = PoC `schema_mariadb.yaml`+`semantic_layer.yaml`에서 채취**(은행 행동로그: 페이지 방문·퍼널·세션·상품), planted facts = 최대이탈 단계·기준별 모수·경로별 Removal Effect 값 주입.
-- **도구 = ★대규모 개집합 카탈로그 (수백→수천 스케일)**: PoC 실물(`unified_tools.yaml` 130KB·`tool_capability_graph.yaml`·tool_dags 21유형)을 시드로 **합성 확장**(파라미터 변형·도메인 특화 변종·**동음이의어/유사기능 distractor** — CDP Patent1 실측 함정[도구폭발 82K토큰·동음이의어 58%] 재현) + `sql_query`(읽기 전용), `report_writer`, `paper_retriever`(T4), `policy_lookup`, 실행계 `register_cep_{trigger,segment}`(부수효과·게이트 대상). 전부 결정론 스텁(typed 명세 포함) = replay·검증 가능.
-- **★도구 발견 채널 = 벤치의 1급 환경요소**: 카탈로그가 컨텍스트에 다 안 들어가는 스케일이므로(의도적), 에이전트는 **도구 위키/GraphRAG/카탈로그 검색 도구**(`tool_search`, `tool_doc_lookup`, capability-graph 질의)로 후보를 발견해 조합해야 함. 검색 채널 자체도 로깅 = 도구-선택 provenance.
+- **도구 = 2-트랙 (§1.6-4 수정, 실무 정합)**:
+  - **주 트랙 (Track-C, curated — 현재 기업 표준 패턴)**: 큐레이트된 도구 **수십 개**(PoC `unified_tools.yaml`서 핵심 분석·세그먼트·보고 도구 추출) + **semantic layer 질의 인터페이스**(metrics/dimension 정의 경유 — Cortex Analyst semantic view·PoC `semantic_layer.yaml` 동형, raw SQL은 보조) + `report_writer`, `playbook_lookup`(T4), `policy_lookup`, 실행계 `register_cep_{trigger,segment}`(승인-게이트 대상). 전부 결정론 스텁(typed 명세 포함) = replay·검증 가능. **본 벤치의 헤드라인 수치는 이 트랙에서.**
+  - **스트레스 트랙 (Track-O, open-set — frontier·Patent1 문제 재현)**: 카탈로그를 수백~수천으로 합성 확장(파라미터 변형·도메인 변종·**동음이의어/유사기능 distractor**[Patent1 실측: 도구폭발 82K토큰·동음이의어 58%]) + 컨텍스트에 안 들어가는 스케일 → **도구 위키/GraphRAG/카탈로그 검색**(`tool_search`, `tool_doc_lookup`, capability-graph 질의)으로 발견·조합. 검색 채널도 로깅 = 도구-선택 provenance. **보고 시 "현재 기업 일반 패턴" 주장 금지** — frontier/제품 차별화 트랙으로 라벨.
 - **제약 정책**: 도메인별 NL SOP 문서(옵트아웃·예산·규제문구·금지조합·PII). **Exp-B(NL→구조 induce) 경로와 동일 형식** → 우리 스택은 SOP→게이트 컴파일, baseline은 SOP를 프롬프트로.
 - **T3 reference**: 인간 보고서 3~5종(실제 금융 마케팅 월간보고 형식 모사, 섹션·표 스키마 추출해 GT화). **reference의 수치는 구식 데이터의 것** → 복사 시 즉시 fabrication 검출(신규 DB와 불일치하도록 설계).
 - **T4 페이퍼**: RFM·uplift modeling·CLV 등 방법론 페이퍼 요약본(저작권 회피 위해 자체 재서술) + "이 방법으로 X 분석" 요청. GT = 방법의 절차를 도구 체인으로 구현한 결정론 파이프라인.
@@ -66,19 +83,20 @@
 ## §4 지표 (사전등록 — 총점 헤드라인 금지, 축 분리)
 1. **Fabrication rate** (헤드라인-precision): atomic claim 중 provenance 부재/모순 수치·사실 비율. **목표 주장: 게이트 스택=0 by construction, frontier/LLM-direct >0.**
 2. **Grounded coverage** (헤드라인-recall): 태스크가 요구한 분석 항목(planted facts 기준) 중 올바른 provenance로 회수된 비율. = "precision=1서 recall 최대화" 그대로.
-3. **Soundness violation rate**: 제약 위반(옵트아웃 포함 발송 제안, 예산 초과, 금지조합) — 결정론 체커.
-4. **Plan validity rate**: 모델이 조합한 플랜의 검증기 통과율(타입·선행조건·실행 replay — §2-2). **유일-정답 비교 아님.**
-5. **Tool retrieval/composition**: 대규모 카탈로그에서 (i) 필요 capability 도구 발견율 (ii) distractor(동음이의어·유사기능) 오선택률 (iii) 조합 깊이별 validity.
-6. **Format adherence** (T3): 섹션/표 스키마 매칭률.
-7. **Method fidelity** (T4 한정, 보조): 페이퍼가 절차를 *명시*한 경우만 노드/엣지 F1 — **개집합 태스크(T1/T2/T5)에는 적용 금지**(유일 정답 없음, §2 전환).
-8. **Transfer**: held-out 도메인/스키마 Δ (재학습 0).
-9. *(deferred)* optimality: 제안 효과성 — §17.9 리뷰6-5 정합, 2차 축으로만.
+3. **Soundness violation rate**: 제약 위반(옵트아웃 포함 발송 제안, 예산 초과, 금지조합) — 결정론 체커. **채점 시점 = 승인-게이트 제안 payload**(§1.6-6: 실무 HITL 정합 — "에이전트가 인간 승인 큐에 올린 것이 정확·합규인가").
+4. **Abstain 적정성 (신설, §1.6-1)**: 확신 없을 때 fabricate 대신 abstain/대안질문하는가(Cortex Analyst 실무 패턴) — false-abstain(풀 수 있는데 회피)과 분리 집계.
+5. **Plan validity rate**: 모델이 조합한 플랜의 검증기 통과율(타입·선행조건·실행 replay — §2-2). **유일-정답 비교 아님.**
+6. **Tool retrieval/composition (Track-O 전용)**: 대규모 카탈로그에서 (i) 필요 capability 도구 발견율 (ii) distractor(동음이의어·유사기능) 오선택률 (iii) 조합 깊이별 validity.
+7. **Format adherence** (T3): 섹션/표 스키마 매칭률.
+8. **Method fidelity** (T4 한정, 보조): 플레이북이 절차를 *명시*한 경우만 노드/엣지 F1 — **개집합 태스크(T1/T2/T5)에는 적용 금지**(유일 정답 없음, §2 전환).
+9. **Transfer**: held-out 도메인/스키마 Δ (재학습 0).
+10. *(deferred)* optimality: 제안 효과성 — §17.9 리뷰6-5 정합, 2차 축으로만.
 
 ## §5 구축 단계 (zero-GPU 먼저, 측정 우선)
 - **P0 (zero-GPU, 1~2일)**: **PoC 자산 인벤토리 확정**(tool_dags 21유형 중 벤치 1차 채택분·unified_tools 추출·schema/semantic_layer 채취·response_templates→claim 스키마 변환) + 스키마·제약·planted-fact 문법 동결 + 본 설계 리뷰(§7) 통과.
 - **P1**: DB 생성기 + **사실-층 GT 계산기**(planted-fact 산출 코드 — 벤치 내부용이지 정답 경로 열거 아님) + **검증기**(도구 typed 명세→플랜 validity 체커; tool_dag 실행기는 실행엔진으로만 재사용). 단위검증 = planted fact 전수 회수 + 검증기 OVER/UNDER 0(알려진 유효/무효 플랜 셋으로 — SOPBench Guard-2 방식).
 - **P2**: back-instruct 태스크 생성 n≈50/도메인/패밀리 + claim-extraction 채점기. **pilot 10태스크로 채점기 신뢰도 먼저**(judge-인간 일치 확인 후 스케일).
-- **P3**: baseline 매트릭스 — **Arm-T(결정론 템플릿 매칭: 열거 21-DAG 중 선택, PoC 방식)** vs frontier API(GPT-5/o4급) vs 우리 스택(소형 front-end+게이트) vs 소형 base — fabrication/coverage/soundness/plan-validity 축. **★Arm-T의 커버리지 절벽(커버된 경로 강함·그 밖 0)과 LLM-arm의 커버리지 확장이 thesis 가치명제의 직접 실측**(결정론 authoring 한계 vs front-end 일반화).
+- **P3**: baseline 매트릭스 — **Arm-T(결정론 템플릿 매칭: 열거 21-DAG 중 선택, PoC 방식)** vs frontier API(GPT-5/o4급) vs 우리 스택(소형 front-end+게이트) vs 소형 base — fabrication/coverage/soundness/abstain/plan-validity 축, **Track-C 우선(헤드라인), Track-O는 후행 스트레스**. **★Arm-T의 커버리지 절벽(커버된 경로 강함·그 밖 0)과 LLM-arm의 커버리지 확장이 thesis 가치명제의 직접 실측**(결정론 authoring 한계 vs front-end 일반화).
 - **P4**: 학습 접합(gold-SFT→RFT, Exp-A 레시피 이식).
 
 ## §6 기존 자산 재사용 맵
