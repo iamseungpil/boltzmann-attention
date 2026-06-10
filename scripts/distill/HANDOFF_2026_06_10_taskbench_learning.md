@@ -1,6 +1,6 @@
 # HANDOFF 2026-06-10 — TaskBench 학습 실험 (thesis 동결 후 *측정* 단계)
 
-> **진입점.** §14–17 설계는 **동결**(`FIELD_GAP_LLM_VALUE_DESIGN.md` §17.9 = 고정 thesis). 이 핸드오프 = 다음 세션이 *측정*(학습 실험)을 바로 실행하기 위한 자족 문서. **메타규칙: 더 이상 thesis 정제 금지(수확체감) — 코드/측정으로 전환.**
+> **진입점.** §14–17 설계는 **동결**(`FIELD_GAP_LLM_VALUE_DESIGN.md` §17.9 = 고정 thesis). **리뷰3(2026-06-10) 반영: 실행 권위 = 설계서 §18**(E0/E2/E5 disposition·§15.4 사활 open 3건[규제원문 sourcing·bitter-lesson·erosion] zero-GPU 병렬 배정 — 특히 **규제 1차원문 sourcing은 moat-leg 사활이라 Exp-A와 병렬 필수**). 이 핸드오프 = 다음 세션이 *측정*(학습 실험)을 바로 실행하기 위한 자족 문서. **메타규칙: 더 이상 thesis 정제 금지(수확체감) — 코드/측정으로 전환.**
 
 ---
 
@@ -42,11 +42,12 @@
 - ⚠️ caveat: 150 subset·1도메인·단일run = 노이즈. **첫 할 일 = full 3도메인 안정 baseline.**
 
 ## 4. 실행 큐 (우선순위)
-**Exp-A (1순위) — §16 학습 on TaskBench → LODO 전이 (전이 leg 첫 측정)**
-- 레시피(§16): **distill로 correct-graph 커버리지 → outcome-RFT(보상=node/edge-F1)**. (distill=구조 distill이지 *추론 trace 아님*=LOCK; teacher=gpt-4/frontier가 gold-graph 커버.)
+**Exp-A (1순위) — §16 학습 on TaskBench → LODO (★supporting 전이 — moat-(3) 주장 금지, 설계서 §17.9 리뷰7-1 사전등록)**
+- **(A-0, zero-GPU, RFT 전 BLOCKING)**: 7B edge-miss **~30개 수동 감사** → real-error vs valid-대안 분율 추정(P2: sim()=exact라 대안 penalize → edge 20pt headroom 실제 크기 미지; 결과로 보상 설계 확정).
+- 레시피(§16 정합, ★명명 정정): **gold-SFT**(TaskBench 17K 전 샘플에 gold graph 존재 → teacher 호출 불요; "distill"은 gold 없는 SOPBench-E1용 논거) → **outcome-RFT(보상=node/edge-F1)**. ⚠️**GT-generator 순환 caveat**: GT=back-instruct(GPT-4 생성) → gpt-4를 teacher/증강에 쓰면 frontier-비교 부분 순환; teacher 필요 시 비-GPT-4 frontier.
 - 세팅: 2도메인 학습 → **held-out 1도메인 평가**(LODO). 지표 = **edge-F1 중심**(node는 거의 saturated) + type(single/chain/dag) 층화.
-- arms: ①base-Qwen7B(prompted, baseline) ②learned(SFT/distill+RFT) ③frontier(published).
-- **판정**: learned가 base보다 *edge-F1* 올리고 held-out 전이 유지하나.
+- arms: ①base-Qwen7B(prompted, baseline) ②learned(gold-SFT+RFT) ③frontier(published).
+- **판정**: learned가 base보다 *edge-F1* 올리고 held-out 전이 유지하나. **보고 = "supporting 전이"**(동일벤치·n=3·alias 조건부) — moat-(3)은 cross-bench(SOPBench→SOP-Bench)로만.
 - ⚠️ **보상 설계 caveat**: exact-match F1 보상은 GT-특이성 overfit 위험(P2 실측: sim()=exact, 대안 penalize). → matching-mode-F1 보상 검토 OR soundness가 필요하면 SOPBench-실행보상(아래 Exp-B).
 - ⚠️ **P3(전이 오염)**: 도구명이 NL-기술·암기가능 → **alias-마스킹**(의미매칭 강제, SOPBench alias 교훈) 적용해 "이름암기 전이" 배제.
 

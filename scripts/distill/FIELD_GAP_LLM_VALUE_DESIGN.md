@@ -1,13 +1,13 @@
 # FIELD-GAP / LLM-VALUE 설계서 — "결정론 프로그램 대비 LLM의 효용을 어디서·어떻게 증명하나"
 
 > **신설 2026-06-06.** 동기 = ICLR 리뷰어의 **"이건 그냥 결정론 프로그램 아니냐"** 공격에 대한 정면 방어 + 그 방어를 *정량 실험*으로 박는 설계.
-> **상태**: 리뷰 2회 반영 (2026-06-06). **리뷰2(§13)**: A=FM SO.P 34% input-parity 미확인→"생존선" 폐기, 바=우리 stack-vs-adapter (§13.2); B=B-DPO 음성 on-policy 1순위·B'-critic 병렬 arm (§13.2); C=P1 "절반만 준비"·§1.1 inherited 위협 상속·cross-bench 미구축→앵커 stress-test (§13.3·§13.5). **리뷰1**: ①§1 메트릭 정정(37=scripted-*oracle* 상한, honest 천장~32, 우리 33=천장 도달 → "결정론이 이김" 철회) ②정면반박(E0 gather-grounding 격리·E5 파일럿)을 *조기 신호*로 격상 ③amortization regime을 비용 헤드라인으로(정적 LOC 격하)+Δ-LOC-per-change ④E1 found/inherited 분리를 선행 게이트로 ⑤τ²→SOPBench 통제 멀티턴 래퍼 primary, τ-bench 외부타당성(dual-control 오염 회피) ⑥실행순서 리스크-조정(E2 안전승리→E0/E5 조기신호→E1→E3). **마스터 = `EXPERIMENT_DESIGN.md`**(목표·순서·지표 권위본; 이 문서는 그 §1/§2의 detail). 관련 = `CROSS_DOMAIN_TRANSFER_DESIGN.md`(Exp-5=A축 transfer) · `RUNG1_SOURCE_LADDER_DESIGN.md`(LOCK·2-agent §11) · `RUNG1_REDESIGN_2026_06_04.md`(decision-axis A/B/C §9). 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.
+> **상태**: 리뷰 3회 반영 (최종 2026-06-10). **리뷰3(2026-06-10, 핸드오프 대조)**: ①§0 한줄을 §17.9 thesis로 갱신(구 NL-변환 프레이밍 stale) ②§1 천장회계 통일(34=48−PartA8−PartB6 단일 권위; "~32" 철회, 33>32 산술모순이 증거) ③§11 SUPERSEDED→**실행 권위=§18 신설**(E0=Exp-B 흡수·E2=연기[P1 전 필수 복귀]·E5=협업자 이관 disposition 박제) ④TaskBench-LODO=**supporting 전이만** 사전등록(moat-(3)은 cross-bench만, §17.9 리뷰7) ⑤Exp-A stage1="distill"→**gold-SFT** 정정+GT-generator(GPT-4 back-instruct) 순환 caveat ⑥A-0 edge-miss zero-cost 감사를 RFT 전 BLOCKING으로 ⑦§15.4 사활 open 3건(규제원문·bitter-lesson·erosion)을 §18.2에 배정. **리뷰2(§13)**: A=FM SO.P 34% input-parity 미확인→"생존선" 폐기, 바=우리 stack-vs-adapter (§13.2); B=B-DPO 음성 on-policy 1순위·B'-critic 병렬 arm (§13.2); C=P1 "절반만 준비"·§1.1 inherited 위협 상속·cross-bench 미구축→앵커 stress-test (§13.3·§13.5). **리뷰1**: ①§1 메트릭 정정(37=scripted-*oracle* 상한, honest 천장~32, 우리 33=천장 도달 → "결정론이 이김" 철회) ②정면반박(E0 gather-grounding 격리·E5 파일럿)을 *조기 신호*로 격상 ③amortization regime을 비용 헤드라인으로(정적 LOC 격하)+Δ-LOC-per-change ④E1 found/inherited 분리를 선행 게이트로 ⑤τ²→SOPBench 통제 멀티턴 래퍼 primary, τ-bench 외부타당성(dual-control 오염 회피) ⑥실행순서 리스크-조정(E2 안전승리→E0/E5 조기신호→E1→E3). **마스터 = `EXPERIMENT_DESIGN.md`**(목표·순서·지표 권위본; 이 문서는 그 §1/§2의 detail). 관련 = `CROSS_DOMAIN_TRANSFER_DESIGN.md`(Exp-5=A축 transfer) · `RUNG1_SOURCE_LADDER_DESIGN.md`(LOCK·2-agent §11) · `RUNG1_REDESIGN_2026_06_04.md`(decision-axis A/B/C §9). 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.
 > **메타규칙(승계)**: 강한 주장은 reliable test 후 박제 · GPU 전 zero-cost 진단 · 공식 success로만 보고 · scaffold 도메인-분기 금지 · **offline forced-ACT 헤드룸 측정 금지(§8 RETRACTED 교훈)**.
 
 ---
 
-## §0. 한 줄
-**SOPBench-기본 regime(구조화 제약을 떠먹임)에서는 결정론 프로그램이 LLM을 대체/추월한다 — 이건 벤치의 입력 제시 방식 탓이지 우리 방법 결함이 아니다. LLM의 대체불가 효용은 "지저분하고·변하고·자연어인 현장 입력 → 결정론 엔진이 먹을 구조"로 변환하는 데 있고, 그 효용을 입력-regime을 현장 쪽으로 돌린 실험(NL-only·변경·멀티턴·벤치횡단)으로 정량 증명한다.**
+## §0. 한 줄 (2026-06-10 §17.9 정합 갱신 — 구판은 06-06 NL-변환 프레이밍이라 stale였음)
+**고정 도구 + 사전 결정론 compute 위에서, 소형 모델이 도구-호출 경로를 *제안*(=coverage)하고, 결정론·검사가능 게이트가 soundness를 보장(audited 제약모델 대비, valid 경로 없으면 fail-safe abstain)하며, 재학습0로 도메인 전이한다. 헤드라인 = 보장(검증가능) soundness 하 *높은 coverage*를 {소형·저비용}×{감사가능 결정론게이트}×{재학습0 전이} *패키지*로 (= precision=1서 recall 최대화, §17.9).** 그 하부 논거: SOPBench-기본 regime(구조화 제약 떠먹임)서 결정론이 동률권인 것은 벤치 입력방식 탓이며(§1–2), LLM의 대체불가 효용은 NL/변경/대화 축(§4·§6)과 coverage(valid-path-finding)에 있다.
 
 ## §1. 위협 정식화 (the deterministic-program threat) — 정직하게 인정부터
 리뷰어 steelman: *"Guard-2가 증명했듯 너희 게이트(DGGATE)는 `task["constraints_original"]`+도메인규칙에서 evaluator의 directed_action_graph를 결정론적으로 정확 재구성한다(OVER=0/UNDER=0). 즉 '어떤 precond·순서'(절차)는 학습이 아니라 결정론 알고리즘이 계산한다. 게다가 너희 ablation이 `adapter-only≈0 → stack 75–95%, scaffold가 전부`라 적었다. 그러면 학습 7B는 ~0 기여, 성능 전부가 도메인-일반 결정론 프로그램이다. scaffold+scripted-gather / scaffold+base-7B 베이스라인은?"*
@@ -16,7 +16,7 @@
 1. **Guard-2 = 절차 결정론 재구성** = 마스터 §1이 금지한 "절차 offload(=답지=L0)"에 근접. `dfsgather_invfunccalldirgraph(constraints_original,...)`는 per-domain 분기 0의 도메인-일반 그래프 알고리즘 = **구조화 입력만 있으면 결정론이 plan을 푼다.**
 2. **Exp-5 cross-domain(77.3% 등)은 전부 decision-axis A(결정론 offload)** = 즉 현 헤드라인 transfer 수치는 *결정론 프로그램의 성능*에 가깝다. "scaffold가 전이된다"는 결정론 알고리즘의 도메인-일반성을 확인한 것 = 공격 강화.
 
-**⚠️주의 — "결정론이 정확도서 우리를 이긴다"는 과장(메트릭 정정, 리뷰)**: `run_scripted` **37/48은 명시적으로 scripted-*oracle*(완전 게더)** = oracle-gather 상한이지 *배포 가능한* 결정론 프로그램이 아니다(권위본 `SOPBENCH_EXPERIMENT_RESULTS.md:374`). **정직 천장 = ~32/48**(8 PartA결함+8 자격부재 제거, :388)이고 우리 stack honest **33/48 = 이미 그 천장 도달**. 37은 (a) oracle-gather (b) cred-injection(에이전트 불가, :384)으로 부풀린 비실현 수치다. ⇒ **올바른 문장**: "oracle-gather를 가진 결정론만 37에 닿고, **gather를 스스로 풀어야 하는 *배포 가능* 결정론은 그만큼 못 간다 — 그 gather가 바로 학습되어 전이된 우리 기여(0→43%)다**"(§4·E0와 직결). 즉 메트릭은 공격이 아니라 방어를 떠받친다.
+**⚠️주의 — "결정론이 정확도서 우리를 이긴다"는 과장(메트릭 정정, 리뷰)**: `run_scripted` **37/48은 명시적으로 scripted-*oracle*(완전 게더)** = oracle-gather 상한이지 *배포 가능한* 결정론 프로그램이 아니다(권위본 `SOPBENCH_EXPERIMENT_RESULTS.md:374`). **정직 천장 = 34/48**(48−PartA8−PartB6; released cross-check로 확정된 유일 권위 회계 — 구회계 :388의 "~32 = PartA8+자격부재8"은 **철회**: 우리 33/48이 32를 *초과*하는 산술모순 자체가 자격부재-8 분류 오류의 증거이며, "천장40·9unwinnable·11fixable"과 함께 이미 철회된 계보)이고 우리 stack honest **33/48 = 천장-34의 97% 도달**(게이트-사다리 헤드라인은 BOTH 29/34=85%; 분모 혼용 금지, 천장 인용은 이 한 벌로만). 37은 (a) oracle-gather (b) cred-injection(에이전트 불가, :384)으로 부풀린 비실현 수치다. ⇒ **올바른 문장**: "oracle-gather를 가진 결정론만 37에 닿고, **gather를 스스로 풀어야 하는 *배포 가능* 결정론은 그만큼 못 간다 — 그 gather가 바로 학습되어 전이된 우리 기여(0→43%)다**"(§4·E0와 직결). 즉 메트릭은 공격이 아니라 방어를 떠받친다.
 
 ⇒ **결정론과 "정확도 누가 높냐"로 싸우지 말되**(구조화-입력 천장에선 oracle-결정론이 동률권), **진짜 전장 = 배포 가능 결정론이 gather/NL/변경/대화를 못 한다는 것.** 방어는 그 축들에서.
 
@@ -206,8 +206,9 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 5. **벤치 induce 품질**: SOP-Bench 8관계 적합성(마스터 §1)·τ² 역할한정(§7).
 6. ~~**novelty가 아직 "배제에 의한 gap"**~~ → **✅ RESOLVED (2026-06-06, 2차 리서치 `wi9qegpft` + 4논문 직독)**: 4 위험축 전부 닫힘 — ⓐ프로세스-그래프/event-schema(proScript=learned+graph지만 전이0·commonsense·non-deterministic; Li et al·Pan'20·Chambers 동일류) ⓑagent 도구그래프(TaskBench/FlowBench=그래프 *제공*·GRAFT/GTool=기존그래프 internalize·NL구성 아님 → **SOPBench-substrate novel 확정**) ⓒRoG=기존 KG path-find(NL→구성 아님) ⓓdistill 전이(PlaSma=시퀀스·전이0; `2505.17612`·`2510.19429` 비-스쿱). **판정: 결합 novelty genuinely UNOCCUPIED**(§5 novelty 판정행 참조). §5 ⚠️→✅ 전부 승격 완료. **잔여 미세-caveat**: ① axis-C "unoccupied"는 직독 4편으로 닫았으나 landscape time-sensitive(GRAFT~2026 등 신규 arXiv 모니터) ② proScript ~11B=≤13B 경계(소형 차별점은 soft separator).
 
-## §11. 실행 순서 (리스크-조정, 리뷰 — 정면반박을 조기 신호로)
-> 원칙: ①GPU 불요 먼저 ②안전한 승리로 thesis de-risk ③**정면반박(학습 기여)을 맨 끝 아님 조기에** — 죽으면 thesis 골격을 바꿔야 하므로 일찍 알아야 함.
+## §11. 실행 순서 ⚠️**SUPERSEDED (2026-06-10) → 실행 권위 = §18**
+> **아래는 06-06 시점 순서(역사 기록, 수정 금지).** §17 벤치 결정·§17.9 thesis 고정 후 실행 큐는 §18로 대체됐고, 여기 등장하는 E0/E2/E5의 disposition(흡수/연기/이관)도 §18-C에 박제됨. 다음 세션은 이 §을 실행 계획으로 읽지 말 것.
+> 원칙(승계됨): ①GPU 불요 먼저 ②안전한 승리로 thesis de-risk ③**정면반박(학습 기여)을 맨 끝 아님 조기에** — 죽으면 thesis 골격을 바꿔야 하므로 일찍 알아야 함.
 1. **✅DONE (2026-06-06, `diag_cost_audit.py`) 비용 감사**: 결정론 ~968 LOC/도메인(assist) + 변경당 Δ-LOC 47–105 + B-1 PASS(0 분기) + **ontology=INHERITED 확정**(§1.1). ⚠️induce가 NL 아닌 구조 상속 → **E1 선결게이트 현재 FAIL**(NL-source induce 경로 신설 필요). constraint별 Δ-LOC 정밀화만 E2 harness서 후속.
 2. **(L0) E0/E2/E1 harness 설계**: gather 소스 교체(E0) + constraints 제거 토글(E1 NL-only) + perturbation 주입기 + scripted-gather baseline. apply_two_stage_patch에 통합. **E1은 found/inherited 선행게이트(§6 E1) 통과 후만.**
 3. **(GPU, 큐 후) E2 perturbation = 가장 안전한 승리 먼저** (무재학습 A축 toggle, 결정론이 변경서 논란없이 깨짐, Pareto 정직) → thesis de-risk.
@@ -534,12 +535,16 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 - **✅P5 닫음 (frontier 비-포화, rigged 아님)**: published 리더보드 — **gpt-4 n-F1=90.9·e-F1=69.3**; claude-2 80.9/53.0; gpt-3.5 72.8/44.0; **소형 base codellama-7b 53.3/14.8·vicuna-7b 46.1/4.3**. ⇒ **frontier≠천장**(특히 *edge-F1* 큰 headroom), 타깃="frontier-achievable(~91/69)" not 100. 소형→frontier 격차 실재(edge가 discriminating).
 - **✅P2 확정 (협업자 옳음, 내 보정 *철회*)**: `sim(a,b)=1 if a==b else 0` = **순수 exact-match**. matching-mode(Hungarian)도 *alignment*만 다르고 **대안 credit 안 함**(probe: 50% random-교체 → no_match 0.83/match 0.54 둘 다 깎임). ⇒ **valid 대안 decomposition은 penalize됨**, 달성가능 천장<100(gpt-4 90.9가 반영). F1-miss를 real-error vs 대안으로 분해해야(단 *실행 없어* 완전 분해 불가=P1과 연결). **내 "matching이 대안 credit" 보정은 틀림(정정).**
 - **⚠️신규 caveat (GT 품질 도메인편차)**: human-verified 비율 = Multimedia **62.7%** vs HuggingFace **10.8%**(critic-only). ⇒ "human-verified GT 완화"는 *도메인 의존*; LODO서 HF는 약한 GT. (P3 검정력+이 편차 → 도메인 가중 주의.)
-- **⇒ 다음 (설계 그만·측정 시작, 메타-비판 해소)**: base-small(Qwen7B-Instruct) prompted 예측 → multimedia n/e-F1 baseline(headroom 실측) → §16 학습(distill-coverage→outcome-RFT, ⚠️보상=exact-F1이 GT-특이성 overfit 위험[sub]=matching-F1 or SOPBench-실행보상 검토) → LODO+alias-마스킹(P3).
+- **⇒ 다음 (설계 그만·측정 시작, 메타-비판 해소; 리뷰3 정정 반영)**:
+  1. **(A-0, zero-GPU, RFT 전 BLOCKING — 메타규칙 "GPU 전 zero-cost 진단")**: 7B edge-miss **~30개 수동 감사** → real-error vs valid-대안-분해 분율 추정. P2가 확정했듯 sim()=exact-match라 valid 대안도 penalize → **edge 20pt headroom의 실제 학습가능 크기가 미지**. 대안 분율이 크면 exact-F1 보상 RFT는 GT 관례 overfit을 학습 → 보상/기대치 재조정 후 착수.
+  2. full 3도메인 base baseline 안정화(150 subset·단일run 노이즈 해소).
+  3. **★명명 정정: stage-1 = "distill"이 아니라 `gold-SFT`**. TaskBench는 17K 전 샘플에 gold graph(task_nodes/links)가 있으므로 teacher 호출 불요 — §16의 "distill=커버리지"는 gold가 *없는* substrate(SOPBench E1)용 논거였고, TaskBench선 gold-SFT가 같은 커버리지를 더 싸게 제공. ⚠️**GT-generator 순환 caveat**: TaskBench GT = back-instruct(**GPT-4 생성**, HF human-verified 10.8%뿐) → gpt-4를 teacher/증강으로 쓰면 teacher=GT-generator 동일 = "frontier-comparable coverage" 주장이 부분 순환(GPT-4 그래프 관례 모방이 점수로 잡힘). teacher가 필요해지면 비-GPT-4 frontier(Claude/o-class) 사용 + 보고 시 이 caveat 병기.
+  4. outcome-RFT(보상=node/edge-F1; ⚠️exact-F1의 GT-특이성 overfit 위험 → A-0 결과 따라 matching-F1 or SOPBench-실행보상 검토) → LODO+alias-마스킹(P3). 보고 문구 = **supporting 전이**(§17.9 리뷰7 사전등록).
 
 ### §17.9 ★THESIS 고정 (2026-06-10, 3정밀화+#1/#2 우선순위 → 프로그램-레벨) — §14–17 흩어진 thesis 문장 *대체*
 > 메타-비판("벤치탐색이 capability로 드리프트, SOPBench→TaskBench→AppWorld") 종결. 이 §이 고정 thesis·forward guard.
 
-**★고정 thesis (headline, 리뷰6 흡수·DONE 동결 2026-06-10)**: **고정 도구 + 사전 결정론 compute 위에서, 소형 모델이 도구-호출 경로를 *제안*하고(=coverage, *어렵고 가치 있는* 부분) — 결정론·*검사가능* 게이트가 실행 경로 soundness를 *audited 제약모델 대비* 보장(틀린/환각 호출 0; valid 경로 없으면 fail-safe abstain) — 재학습0로 도메인 전이한다. ★헤드라인 = *보장(검증가능) soundness 하 높은 coverage*를 {소형·저비용} × {감사가능 결정론게이트=soundness *검증가능성*} × {재학습0 전이} *패키지*로 (= precision=1[인코딩제약 대비]서 recall 최대화).** ⚠️soundness 단독은 abstain으로 trivially 100%=공짜·게임가능·*무가치* → 난이도·ML기여·유용성은 전부 *coverage*에. capability("frontier급 생성")·최적성(#2)=supporting/deferred(headline 아님). [근거=아래 리뷰6 #1·#2] **이 §은 동결 — 7번째 정제 금지, 다음은 측정(핸드오프 `HANDOFF_2026_06_10_taskbench_learning.md`).**
+**★고정 thesis (headline, 리뷰6 흡수·DONE 동결 2026-06-10)**: **고정 도구 + 사전 결정론 compute 위에서, 소형 모델이 도구-호출 경로를 *제안*하고(=coverage, *어렵고 가치 있는* 부분) — 결정론·*검사가능* 게이트가 실행 경로 soundness를 *audited 제약모델 대비* 보장(틀린/환각 호출 0; valid 경로 없으면 fail-safe abstain) — 재학습0로 도메인 전이한다. ★헤드라인 = *보장(검증가능) soundness 하 높은 coverage*를 {소형·저비용} × {감사가능 결정론게이트=soundness *검증가능성*} × {재학습0 전이} *패키지*로 (= precision=1[인코딩제약 대비]서 recall 최대화).** ⚠️soundness 단독은 abstain으로 trivially 100%=공짜·게임가능·*무가치* → 난이도·ML기여·유용성은 전부 *coverage*에. capability("frontier급 생성")·최적성(#2)=supporting/deferred(headline 아님). [근거=아래 리뷰6 #1·#2] **thesis 본문은 동결 — 추가 정제 금지, 다음은 측정(핸드오프 `HANDOFF_2026_06_10_taskbench_learning.md`). 단 아래 리뷰7은 *운용 사전등록*(보고 문구·실험 지위 확정)이지 thesis 변경이 아님; 실행 권위 = §18.**
 
 **#1/#2 우선순위 (사용자, 현업 정합 — optimality 확정 처리)**:
 - **#1 코어 = soundness 보장**: 경로후보 중 *틀린/환각/fail 경로를 절대 실행 안 함* = **게이트 속성**(모델 100%정확 아님; 게이트 reject + fail-safe). 메트릭 = (a)soundness(실행경로 valid≈100% by construction·감사) + (b)coverage(모델+게이트가 valid-solving 경로 찾은 task%).
@@ -560,3 +565,36 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 3. **통합 = blind-E1(paused)이 진짜, 현 Exp-5는 §1-노출판**: Exp-5 = 구조화입력 *주어짐*(§1 결정론공격 노출, done) ≠ 통합. 의미있는 통합(NL서 구조 *도출*→게이트→전이) = **blind E1(미구축 + §1.1 inherited)**. "통합=SOPBench"가 구조화입력판으로 *충족된 듯* 보이면 안 됨 → 진짜 통합검증 = E1, 멈춤.
 4. **forward guard 가중(OR 너무 관대)**: (1)충실성-only = *supporting substrate*(TaskBench가 예; §17.9 스스로 "#1 주장 불가"). **moat-검증엔 (2)soundness ∨ (3)전이 필요.** ⇒ moat-substrate = (2)∨(3); (1)-only = supporting-only. 충실성-only 벤치를 moat-검증처럼 admit 금지.
 5. **optimality #2 deferral = CDP 비즈니스가치 일부 미룸(scope 플래그, 도메인 의존)**: 마케팅 ROI 상당부분 = 효과성(최적 세그먼트/접근 = 최적성). "sound but not optimal" = 틀린 건 안 하나 효과적이진 않을 수 → ROI 상당부분 defer. ⇒ 학술 moat(soundness=안전/컴플라이언스) ↔ CDP 가치(효과성) **부분 불일치 = 도메인 의존**: *규제/고위험*(은행=우리 substrate)→soundness=비즈니스가치(thesis 최강) / *마케팅-최적화*(CDP 일반)→optimality=가치(deferred). ⇒ **thesis는 규제/컴플라이언스 orchestration서 최강 위치**; 마케팅-효과성은 별도 deferred 축(블로커 아님·인지 플래그).
+
+**★리뷰7 (2026-06-10, 외부리뷰 — 핸드오프 대조 정합. *운용 사전등록 3건*, thesis 본문 불변)**:
+1. **★TaskBench LODO 전이-지위 사전등록 (Exp-A 보고 전 BLOCKING)**: 핸드오프 Exp-A가 TaskBench LODO를 "전이 leg 첫 측정"으로 표기 → forward-guard 표(TaskBench=(1)충실성-only 통과)와 충돌 — LODO가 (3)전이로 인정되면 TaskBench가 moat-substrate가 되어 리뷰6-4("(1)-only=supporting-only")와 자가모순. **확정: TaskBench LODO = *supporting* 전이 증거만**(동일벤치 내 · n=3 저검정력 · alias-마스킹 조건부) — **moat-(3) 주장은 cross-bench(SOPBench→SOP-Bench) 전이로만 가능.** Exp-A 헤드라인·보고 문구를 "supporting"으로 고정.
+2. **Exp-A stage-1 = gold-SFT 명명 정정 + GT-generator 순환 caveat** (상세 §17.8 "다음" 3항): "distill" 표기 폐기, gpt-4-teacher는 GT(back-instruct=GPT-4)와 생성자 동일 = frontier-비교 부분 순환.
+3. **A-0 zero-cost edge-miss 감사 선행** (상세 §17.8 "다음" 1항): RFT 전 BLOCKING — edge 20pt headroom 중 valid-대안 분율 미지(P2)이므로 실측 후 보상 설계.
+
+---
+
+## §18. ★실행 큐 (권위본, 2026-06-10 리뷰3 — §11 대체 · 핸드오프 통합 · disposition/open 배정 박제)
+> 원칙(§11서 승계): ①zero-GPU 먼저 ②정면반박 조기 ③측정 우선·정제 금지. 핸드오프 `HANDOFF_2026_06_10_taskbench_learning.md`와 1:1 정합(충돌 시 이 §이 권위).
+
+### §18.1 측정 트랙 (GPU/리모트)
+1. **Exp-A (1순위) — TaskBench coverage+supporting-전이** (인프라 READY, 핸드오프 §2):
+   **(A-0, zero-GPU, BLOCKING)** edge-miss ~30개 수동 감사(real-error vs valid-대안 분율) → full 3도메인 base baseline → **gold-SFT**(="distill" 아님, §17.9 리뷰7-2) → outcome-RFT(보상 = A-0 결과 따라 exact-F1/matching-F1/실행보상) → LODO + alias-마스킹. **보고 = supporting 전이**(리뷰7-1; moat-(3) 주장 금지). 지표 = edge-F1 중심(node ~saturated) + type 층화.
+2. **Exp-B (병렬, #1 soundness leg = 진짜 통합) — SOPBench/SOP-Bench blind-E1 재개**:
+   선결 = §1.1/§6-E1 found-inherited 게이트(NL-source induce 경로 신설) + §13.7 재설계 프로토콜(test-blind·held-out split·clean 도메인 — traffic_spoofing docstring audit 포함 14도메인 mis-wiring 전수). 첫 수 = **sop.txt→(ontology+결정코드) frontier-1-call 시제품 on customer_service**(§13.7 probe-2 타깃 격상 반영). 성공 시 소형모델 사다리(=P2/E1 실제 주장).
+3. **Exp-C (선택) — scale 곡선**: Qwen2.5-{0.5,1.5,3,7,14}B edge-F1 (모델 캐시 완비) = "edge-구조 emerge 지점".
+
+### §18.2 zero-GPU 병렬 트랙 — §15.4 사활 open 3건 배정 (큐 누락 해소)
+4. **★규제 1차원문 sourcing (moat-결정론-leg 사활, load-bearing)**: EU AI Act Art.12(기록)/14(인간감독)/Annex IV(추적성)·US SR 11-7·의료규제가 ***결정론/재현가능* 결정로직을 요구하나, 로깅된 stochastic으로 충족되나** 판정. "로깅이면 충분"으로 판명 시 §15.3 moat의 결정론-특정 leg 철회·"검증가능성"으로 완전 후퇴. 딥리서치 1회·Exp-A와 병렬.
+5. **bitter-lesson 1차원문 반박**: Sutton 원문 + neurosymbolic 반박 인용으로 §15.2-① 최대 개념위협 닫기(현재 검증셋 0건 = 미반박 상태).
+6. **agentic-SOP erosion 테스트**: §15.4 c12/13(formalizer-우위 erosion)이 simple-PDDL 넘어 messy-NL-SOP로 확장되나 — Exp-B 인프라 위 후행.
+
+### §18.3 disposition — 구 §11 실험들 (무처분 소멸 금지, 사유 박제)
+| 구 항목 | disposition | 사유 |
+|---|---|---|
+| **E0** (gather-grounding 격리) | **Exp-B로 흡수** (blind-E1의 gather-소스-교체 ablation arm으로 포함) | 단독 실행의 신규 정보가 적음 — Exp-5 LODO(0→43% 전이)가 이미 동등 1급 증거 제공. 폐기 아닌 흡수 |
+| **E2** (perturbation robustness) | **연기 (폐기 금지) — P1 집필 게이트 전 필수 복귀** | §9-2 amortization/Δ-LOC 헤드라인과 P1 비용축(A7)의 **유일 생산처**. 현 시점 미실행 사유 = thesis 헤드라인이 coverage-패키지로 이동(§17.9), 비용축은 P1 supporting으로 강등 — 단 P1 쓸 때 없으면 비용 주장 전체 공허 |
+| **E5** (Track B DPO 파일럿) | **협업자 H200 Track-B로 이관** (32B SFT 진행 중) | adapter-only>0 신호는 여전히 P2 사활 → 협업자 결과를 P2 go/no-go 게이트로 사용. B'-critic 병렬 arm(§13.2)도 그쪽 |
+| **E3** (멀티턴 통제 래퍼)·**E4** (scale stress) | 후행 유지 (변동 없음) | E1/soundness leg 뒤 |
+
+### §18.4 순서 핵심
+**A-0(zero-cost) → Exp-A ∥ {규제 sourcing(4)·bitter-lesson(5)} → Exp-B 선결게이트→시제품 → P1 집필 전 E2 복귀.** 죽으면 일찍 알아야 하는 것 = Exp-B frontier-1-call(NL→구조 feasibility)·규제 sourcing(moat-leg) — 둘 다 큐 앞쪽.
