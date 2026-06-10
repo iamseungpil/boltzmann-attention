@@ -454,7 +454,7 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 **§16 보강 (claim 23, `2605.05226`·`2504.13837`)**: 내재화/RL은 **base capability에 bounded**(약하면 구제 불가; Limit-of-RLVR=base가 안 뽑는 건 RL이 못 풂). 양날 — absorption 위협 약화 *and* **우리 소형모델도 capable-enough base 필요**(§16.3 커버리지 확증). "outcome-only RL이 verification 내재화"는 **REFUTED(1-2)** → 외부검증 유지 지지.
 
 **⇒ 필수 후속(open, 박제)**:
-1. **★규제 1차원문 sourcing**(load-bearing gap): EU AI Act Art.12(기록)·14(인간감독)·Annex IV(추적성)·US SR 11-7이 ***결정론/재현가능* 결정로직을 요구하나, 아니면 *로깅된 stochastic*도 만족할 감사가능/설명가능만 요구하나**? — 이게 §15.3 moat의 사활. *현재 미지원*.
+1. **★규제 1차원문 sourcing**: ✅**CLOSED (2026-06-10)** — `REGULATORY_DETERMINISM_SOURCING.md`(권위). **판정=(c) "로깅+검증+감독이면 충족"** (EU AI Act 전문 grep determin/reproduc/repeatab=0 [OJ authentic 3-vote]; SR 11-7=통계모델 관리 체제) → **결정론-leg 철회 확정, "검증가능성" leg로 후퇴**(=리뷰6-1 좌표, 추가 붕괴 없음). 잔존 textual footholds: ①**SR 26-2(2026-04-17, SR 11-7 대체)가 결정론 rule-based를 '모델' 정의서 명시 제외=MRM 부담 면제 + genAI/agentic=scope 밖(준수경로 미정착)** ②EU MDR Annex I §17.1 "repeatability"(유일 명시, 의료 한정) ③de-facto (b)(충족비용 비대칭). 금지문구: "regulations require deterministic logic".
 2. **bitter-lesson 반박**: ✅**CLOSED (2026-06-10)** — `BITTER_LESSON_REBUTTAL_SOURCES.md`(방어 5라인 A–E + 정직 양보 §7, 인용 전부 1차원문 fetch 검증). 검증셋 3-vote 정식 등재는 후속 옵션(동 문서 §8 우선순위).
 3. **agentic-SOP erosion 테스트**: claim 12/13 erosion이 simple-PDDL 넘어 messy-NL-SOP(SOPBench/AgentOrca/AgentSandbox `2505.24019`)로 확장되나 = scope 결정.
 
@@ -584,7 +584,7 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 3. **Exp-C (선택) — scale 곡선**: Qwen2.5-{0.5,1.5,3,7,14}B edge-F1 (모델 캐시 완비) = "edge-구조 emerge 지점".
 
 ### §18.2 zero-GPU 병렬 트랙 — §15.4 사활 open 3건 배정 (큐 누락 해소)
-4. **★규제 1차원문 sourcing (moat-결정론-leg 사활, load-bearing)**: EU AI Act Art.12(기록)/14(인간감독)/Annex IV(추적성)·US SR 11-7·의료규제가 ***결정론/재현가능* 결정로직을 요구하나, 로깅된 stochastic으로 충족되나** 판정. "로깅이면 충분"으로 판명 시 §15.3 moat의 결정론-특정 leg 철회·"검증가능성"으로 완전 후퇴. 딥리서치 1회·Exp-A와 병렬.
+4. **★규제 1차원문 sourcing (moat-결정론-leg 사활, load-bearing)**: ✅**DONE (2026-06-10)** — `REGULATORY_DETERMINISM_SOURCING.md` 커밋. "로깅+검증이면 충족"(c) 판명 → §15.4 open-1 CLOSED·결정론-leg 철회 실행. 보상 수확=SR 26-2 정의-비대칭(결정론=MRM 면제)+MDR §17.1.
 5. **bitter-lesson 1차원문 반박**: ✅**DONE (2026-06-10)** — `BITTER_LESSON_REBUTTAL_SOURCES.md` 커밋(dbbd529), §15.2-①/§15.4 open-2 갱신 반영.
 6. **agentic-SOP erosion 테스트**: §15.4 c12/13(formalizer-우위 erosion)이 simple-PDDL 넘어 messy-NL-SOP로 확장되나 — Exp-B 인프라 위 후행.
 
