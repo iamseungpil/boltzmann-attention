@@ -539,7 +539,7 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 ### §17.9 ★THESIS 고정 (2026-06-10, 3정밀화+#1/#2 우선순위 → 프로그램-레벨) — §14–17 흩어진 thesis 문장 *대체*
 > 메타-비판("벤치탐색이 capability로 드리프트, SOPBench→TaskBench→AppWorld") 종결. 이 §이 고정 thesis·forward guard.
 
-**★고정 thesis (headline)**: **고정 도구 + 사전 결정론 compute 위에서, 소형 모델이 도구-호출 경로를 *제안*하고 — 결정론 게이트가 *모든 실행 경로의 100% soundness를 보장*(틀린/환각 호출 0; valid 경로 없으면 fail-safe abstain) — 재학습0로 도메인 전이한다. 내구 moat = {소형·저비용} × {게이트-soundness=감사가능 결정론집행} × {재학습0 전이} *패키지*.** frontier급 coverage = supporting("충분하다"), headline 아님. 경로-최적성 = #2 deferred bonus.
+**★고정 thesis (headline, 리뷰6 흡수·DONE 동결 2026-06-10)**: **고정 도구 + 사전 결정론 compute 위에서, 소형 모델이 도구-호출 경로를 *제안*하고(=coverage, *어렵고 가치 있는* 부분) — 결정론·*검사가능* 게이트가 실행 경로 soundness를 *audited 제약모델 대비* 보장(틀린/환각 호출 0; valid 경로 없으면 fail-safe abstain) — 재학습0로 도메인 전이한다. ★헤드라인 = *보장(검증가능) soundness 하 높은 coverage*를 {소형·저비용} × {감사가능 결정론게이트=soundness *검증가능성*} × {재학습0 전이} *패키지*로 (= precision=1[인코딩제약 대비]서 recall 최대화).** ⚠️soundness 단독은 abstain으로 trivially 100%=공짜·게임가능·*무가치* → 난이도·ML기여·유용성은 전부 *coverage*에. capability("frontier급 생성")·최적성(#2)=supporting/deferred(headline 아님). [근거=아래 리뷰6 #1·#2] **이 §은 동결 — 7번째 정제 금지, 다음은 측정(핸드오프 `HANDOFF_2026_06_10_taskbench_learning.md`).**
 
 **#1/#2 우선순위 (사용자, 현업 정합 — optimality 확정 처리)**:
 - **#1 코어 = soundness 보장**: 경로후보 중 *틀린/환각/fail 경로를 절대 실행 안 함* = **게이트 속성**(모델 100%정확 아님; 게이트 reject + fail-safe). 메트릭 = (a)soundness(실행경로 valid≈100% by construction·감사) + (b)coverage(모델+게이트가 valid-solving 경로 찾은 task%).
