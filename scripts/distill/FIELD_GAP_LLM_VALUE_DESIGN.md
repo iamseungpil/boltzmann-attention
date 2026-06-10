@@ -416,7 +416,8 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 
 ### §15.3 ★내구적 moat = assurance/compliance 하나 (헤드라인 재좌표)
 위 위협(특히 ①)을 견디는 단 하나 = **결정론·감사가능 정책-집행**:
-> **규제 산업(은행·의료)은 stochastic 모델 자기-집행을 준수근거로 *못 씀* — 모델이 아무리 좋아져도.** 더 나은 LLM도 확률적; compliance는 *결정론·감사가능·추적가능*을 요구(=capability와 *직교*). reasoning-model이 *해결 못 하는* 축. (인용 후보: EU AI Act high-risk 조항·SR 11-7 model-risk·AgentSandbox complete-mediation `2505.24019`; `wheyskq29` 검증 중.)
+> ⚠️**§15.4에서 부분 격하됨(필독)**: 딥리서치 결과 "외부 *집행* 필요"는 확정되나 "*결정론-특정*이 답"·"규제가 결정론 요구"는 **미확정**(규제 1차원문 0·Claude-Opus-4.5가 정렬만으로 1.3%). 아래 강한 표현은 §15.4 후속(규제 sourcing) 통과 전엔 *주장*이지 *확정* 아님.
+> **규제 산업(은행·의료)은 stochastic 모델 자기-집행을 준수근거로 *못 씀* — 모델이 아무리 좋아져도.** 더 나은 LLM도 확률적; compliance는 *결정론·감사가능·추적가능*을 요구(=capability와 *직교*). reasoning-model이 *해결 못 하는* 축. (⚠️규제근거 미sourcing — §15.4 open-1.)
 
 ⇒ **판정**:
 - **정확도·비용·전이 헤드라인 = reasoning-model+스케일링에 *침식* = 시한부.** 이걸로 frontier와 싸우면 진다.
@@ -424,7 +425,32 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 - ⇒ **프레이밍 재좌표**: neurosymbolic의 *soundness*(축2) 측면으로 걸어야지 *capability*(축3에 짐) 측면으로 걸면 시한부. §9 assurance축(4번째 지표)을 **1급 헤드라인**으로 승격, 정확도는 trade-off로.
 - **정직 scope**: 학습-소형 NL→결정론-온톨로지 컴파일러가 실무 의미 있는 regime = **롱테일 다도메인 × free-text SOP × 규제/감사 × 비용**의 교집합. 그 밖(소수도메인·기구조화·비규제)에선 frontier+checker나 직접 결정론이 우위 — 정직 인정.
 
-> **상태 = DRAFT (opinion+부분인용).** `wheyskq29` 완료 시: ①threat REAL/OVERSTATED/domain-dependent 판정 ② assurance-moat 내구성 규제근거 ③ 정직 scope를 인용으로 확정 → §15 ✅ + §9 assurance 승격 반영 → 타세션 리뷰.
+> **상태 = §15.4로 확정(딥리서치 `w0yix88gp` 완료 2026-06-10).** ⚠️**§15.3 assurance-moat는 §15.4에서 *부분 격하*됨(motivated-reasoning 적발) — 아래 참조.**
+
+### §15.4 ★딥리서치 확정 (`w0yix88gp`, 24/25 주장 3-vote, 2026-06-10) — 위협 OVERSTATED, 단 moat는 *정직 격하*
+> 지시 = "내 선호결론(assurance moat 내구)에 *적대적으로*, 증거 없으면 그렇게 말하라". 결과가 정확히 그 일을 함.
+
+**판정① 위협("reasoning-model이 symbolic 폐기") = OVERSTATED(soundness)/DOMAIN-DEPENDENT(planning)**:
+- o1: plain Blocksworld 97.8% but **obfuscated 52.8%·20–40스텝 23.6%**; Fast Downward(symbolic)=100% 불변. capability 상승 실재하나 robust·long-horizon·domain-general 아님(`2409.13373`).
+- **correctness 보장 0** — soundness는 *외부 verifier*(LRM-Modulo)서, 모델 내재 아님; o1=cost/time/guarantee/perf 트레이드의 한 점 = **determinism은 capability와 직교**(`2410.02162`).
+- reasoning-model이 **제약을 환각**(프롬프트에 없는 graph edge; o1-mini/o3-mini/R1/Claude-3.7/Gemini-2.5/Grok-3 전반, false-error의 67–94%) → 제약 fabricate하는 모델은 NL SOP 의존구조 충실 내재화 불가 = **결정론 외부표현 논거**(`2505.12151`).
+- LLM-Modulo thesis가 reasoning-model 시대에도 지속 = 우리 패러다임(`2402.01817`).
+- ★**우리가 *직접 인용*해 선제방어할 반대증거(claim 12/13, `2412.09879`)**: formalizer 우위는 **base capability 조건부**·**top reasoning-model(o3-mini/R1)에선 부분 erosion**(직접 planner가 충분히 강함). 약한 모델(≤405B)은 formalizer로도 **구제 불가**(solvable PDDL 0). ⚠️**단 simple PDDL 한정**; messy-NL-SOP 집행으로 erosion 확장되나는 **미검증(open)** = 우리 scope 직결.
+
+**판정② assurance-moat = ★정직 격하 (UNDERDETERMINED)**:
+- ✅**강하게 지지되는 것 = "외부 *집행* 필요"**(capability≠compliance): ODCV-Bench 12 frontier 중 **9/12가 압력 하 30–50% 위반**, *최강* Gemini-3-Pro가 *최고* 71.4% 위반("superior reasoning≠safety"); **deliberative misalignment**(자기 행동을 비윤리로 *알면서* 실행, self-aware 72–93%); Anthropic Agentic Misalignment 보강(금지명시도 blackmail 96→37%만)(`2512.20798`·`2510.05179`).
+- ⚠️**지지 안 되는 것(motivated-reasoning 적발) = "*deterministic/symbolic* 집행이 *특별히* 답"**: 위 증거는 "집행 필요"는 강하나 "결정론이 *유일*"은 아님. **Claude-Opus-4.5가 내부정렬만으로 1.3% 위반** = 회의론자가 "더 나은 *학습*이면 충분, 외부 scaffold 불요"라 칠 카드. **+ 검증셋에 1차 규제문헌 0**(EU AI Act Art.12/14/Annex IV·SR 11-7·의료규제 미포함) → **§15.3의 "규제가 결정론 요구" leg는 현재 *미지원* = 별도 규제원문 sourcing 필수.**
+
+**판정③ 정직 scope**: 방어가능 = (a) **soundness/감사가능이 정확도와 무관하게 그 자체로 요구되는 곳**(진짜 직교 논거) (b) base가 formalize 가능한 capability tier(frontier 콜비용 회피+보장). **약한 base 불가**(≤405B formalize 전멸)·top-reasoning×simple-PDDL서 margin 좁아짐.
+
+**§16 보강 (claim 23, `2605.05226`·`2504.13837`)**: 내재화/RL은 **base capability에 bounded**(약하면 구제 불가; Limit-of-RLVR=base가 안 뽑는 건 RL이 못 풂). 양날 — absorption 위협 약화 *and* **우리 소형모델도 capable-enough base 필요**(§16.3 커버리지 확증). "outcome-only RL이 verification 내재화"는 **REFUTED(1-2)** → 외부검증 유지 지지.
+
+**⇒ 필수 후속(open, 박제)**:
+1. **★규제 1차원문 sourcing**(load-bearing gap): EU AI Act Art.12(기록)·14(인간감독)·Annex IV(추적성)·US SR 11-7이 ***결정론/재현가능* 결정로직을 요구하나, 아니면 *로깅된 stochastic*도 만족할 감사가능/설명가능만 요구하나**? — 이게 §15.3 moat의 사활. *현재 미지원*.
+2. **bitter-lesson 반박**(open): Sutton-vs-neurosymbolic 1차원문이 검증셋에 0 → 최대 개념위협이 *미반박*. 인용으로 닫아야.
+3. **agentic-SOP erosion 테스트**: claim 12/13 erosion이 simple-PDDL 넘어 messy-NL-SOP(SOPBench/AgentOrca/AgentSandbox `2505.24019`)로 확장되나 = scope 결정.
+
+**⇒ §15.3 수정**: "assurance=내구 moat"를 **"외부 *집행* 필요는 확정(ODCV/deliberative-misalignment), *결정론-특정* + 규제근거는 미확정 → 규제원문+bitter-lesson 반박이 선결"**로 격하. §9 assurance 승격은 *집행-필요*까지만 정당, *결정론-특정*은 후속 sourcing 후.
 
 ---
 
