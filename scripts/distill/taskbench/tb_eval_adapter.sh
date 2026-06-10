@@ -6,6 +6,9 @@ NAME=$1; HOLDOUT=$2; TRAIN_DOMS=$3; GPU=${4:-0}; UTIL=${5:-0.85}; PORT=$((8000+G
 TB=/home/woori/scratch/JARVIS_tb/taskbench
 R=/home/woori/workspace_common/boltzmann-attention-pi
 RUNS=$R/reports/facet_rft_2026/phase4_distill/sft_runs
+# env overrides for non-7B adapters: BASEM (HF base model id), ADAPTER (adapter dir)
+BASEM=${BASEM:-Qwen/Qwen2.5-7B-Instruct}
+ADAPTER=${ADAPTER:-$RUNS/qwen7b_tb_${NAME}}
 VLLM=/home/woori/venvs/tau2_vllm_env/bin/vllm
 IP=/home/woori/scratch/tbeval_venv/bin/python
 TAG=tb_${NAME}
@@ -25,9 +28,9 @@ kill_gpu_vllm() {
 dep_of() { case $1 in *dailylife*) echo temporal;; *) echo resource;; esac; }
 
 kill_gpu_vllm
-CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct \
-  --port $PORT --served-model-name qwen7b --enable-lora \
-  --lora-modules ${TAG}=$RUNS/qwen7b_tb_${NAME} \
+CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve $BASEM \
+  --port $PORT --served-model-name base_model --enable-lora \
+  --lora-modules ${TAG}=$ADAPTER \
   --max-model-len 8192 --gpu-memory-utilization $UTIL \
   > /home/woori/scratch/vllm_${TAG}.log 2>&1 &
 for i in $(seq 1 90); do
