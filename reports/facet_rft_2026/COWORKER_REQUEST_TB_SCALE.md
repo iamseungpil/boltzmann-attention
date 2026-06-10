@@ -66,5 +66,24 @@
    - `tb_eval_adapter.sh` — 어댑터 서빙+held-out/in-domain 평가 견본(GPU/UTIL/PORT 인자화 돼 있음).
 6. **함정 요약**: pred id 순서≠gold 순서(→`tb_build_eval.py`가 처리) / `-m node`은 무효(`-m f1`이 node-F1) / metrics = `{dst}/metrics/{tag}.json`의 `overall_overall`.
 
-## 5. 일정 제안
+## 5. 설계서·문서 맵 (cold-start용 — 처음이면 위에서 아래 순서로)
+
+**이 요청서만 읽어도 실행 가능**하지만, 배경·판단 기준이 필요할 때 아래를 참조 (전부 repo `facet-rft-2026` branch 내 상대경로):
+
+| 문서 | 무엇 | 이 요청과의 관계 |
+|---|---|---|
+| `../../scripts/distill/HANDOFF_2026_06_10_taskbench_learning.md` | **TaskBench 실험 핸드오프** — 인프라(§2)·converter(§5)·baseline(§3)·실행큐(§4) | 본 요청의 모체. 재현 gotcha 원본 |
+| `reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md` (이 폴더) | **TaskBench 결과 권위본** — full baseline·A-0 감사·scale곡선·LODO 수치 | **결과를 여기에 행 추가** (비교 타깃 수치 전부 이 문서) |
+| `../../scripts/distill/FIELD_GAP_LLM_VALUE_DESIGN.md` | **thesis 설계서 (동결)** — §17.9 고정 thesis(soundness-coverage 패키지)·**§18 실행 권위**(이 요청 = §18.1 Exp-A/C의 scale 위임)·§15 위협/방어 | 보고 규율(supporting-전이·moat 금지)의 출처. 변경 금지(동결) |
+| `../../scripts/distill/EXPERIMENT_DESIGN.md` | **마스터 설계서** — 목표·실험순서·헤드라인 지표 권위본 | Track A/B 분업의 상위 문서 |
+| `reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md` (이 폴더) | **Track-B 협업 채널** — v1.42(32B SOPBench #0 sanity/#1 scaffold)·v1.43(7B transfer)·v1.44(본 요청 포인터) | 기존 SOPBench 32B 작업과의 우선순위 조정(§6 일정) |
+| `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` (이 폴더) | SOPBench 결과 권위본 — 게이트사다리 29/34·transfer 43-95% | "weight 전이 NULL은 SOPBench adapter-only≈0과 정합" 맥락 |
+| `../../scripts/distill/SHIELDING_CBF_RELATED_WORK.md` | 관련연구 5축(shielding/CBF) — 포지셔닝 "제어-패러다임 인스턴스화" | 논문 프레이밍 배경 (실행 무관) |
+| `../../scripts/distill/BITTER_LESSON_REBUTTAL_SOURCES.md` | bitter-lesson 방어 5라인 + 정직 양보 | 동상 (배경) |
+| `../../scripts/distill/taskbench/` | **실행 스크립트** — `tb_build_sft.py`(SFT jsonl)·`tb_build_eval.py`(id정렬/sanitize 내장 평가)·`tb_scale_curve.sh`·`tb_eval_adapter.sh`(견본 드라이버) | §4 재현 절차가 이것들 사용 |
+| `../../scripts/distill/lora_train_chat_toolcall.py` | LoRA 트레이너 (chat-format jsonl, P1 하이퍼 §2 참조) | P1/P2 학습 |
+
+**한 줄 배경 (왜 이 실험인가)**: 동결 thesis = "소형 모델이 경로 *제안*(coverage) + 결정론 게이트가 soundness 보장 + 재학습0 전이" 패키지. TaskBench는 그 중 coverage/구조-예측 leg의 *supporting* 측정(실행·soundness 없음 → moat 주장 불가). 오늘 7B에서 ①edge-F1만 진짜 headroom(node 포화) ②gold-SFT의 held-out 전이 NULL을 확정 → 이 요청의 P1(32B 동일-레시피)이 "NULL=용량 한계인지"를 판정해 Track A의 다음 수(alias-마스킹 vs RFT vs 스케일 투자)를 게이트한다.
+
+## 6. 일정 제안
 P0(반나절) → P1(1-2일) → 판정 공유(채널) → P2/P3(조건부, 1-3일). **P1 결과가 Track A의 다음 수(alias vs RFT vs 스케일)를 게이트하므로 P1 우선 완주 요청.** 기존 Track-B(32B SOPBench SFT, v1.42 #0/#1)와 GPU 경합 시 — Track-B #0 sanity가 먼저, 그 다음 본 요청 P0/P1 권장(어차피 32B 서빙/학습 인프라 공유).
