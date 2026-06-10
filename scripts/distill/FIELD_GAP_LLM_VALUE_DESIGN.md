@@ -535,3 +535,21 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 - **✅P2 확정 (협업자 옳음, 내 보정 *철회*)**: `sim(a,b)=1 if a==b else 0` = **순수 exact-match**. matching-mode(Hungarian)도 *alignment*만 다르고 **대안 credit 안 함**(probe: 50% random-교체 → no_match 0.83/match 0.54 둘 다 깎임). ⇒ **valid 대안 decomposition은 penalize됨**, 달성가능 천장<100(gpt-4 90.9가 반영). F1-miss를 real-error vs 대안으로 분해해야(단 *실행 없어* 완전 분해 불가=P1과 연결). **내 "matching이 대안 credit" 보정은 틀림(정정).**
 - **⚠️신규 caveat (GT 품질 도메인편차)**: human-verified 비율 = Multimedia **62.7%** vs HuggingFace **10.8%**(critic-only). ⇒ "human-verified GT 완화"는 *도메인 의존*; LODO서 HF는 약한 GT. (P3 검정력+이 편차 → 도메인 가중 주의.)
 - **⇒ 다음 (설계 그만·측정 시작, 메타-비판 해소)**: base-small(Qwen7B-Instruct) prompted 예측 → multimedia n/e-F1 baseline(headroom 실측) → §16 학습(distill-coverage→outcome-RFT, ⚠️보상=exact-F1이 GT-특이성 overfit 위험[sub]=matching-F1 or SOPBench-실행보상 검토) → LODO+alias-마스킹(P3).
+
+### §17.9 ★THESIS 고정 (2026-06-10, 3정밀화+#1/#2 우선순위 → 프로그램-레벨) — §14–17 흩어진 thesis 문장 *대체*
+> 메타-비판("벤치탐색이 capability로 드리프트, SOPBench→TaskBench→AppWorld") 종결. 이 §이 고정 thesis·forward guard.
+
+**★고정 thesis (headline)**: **고정 도구 + 사전 결정론 compute 위에서, 소형 모델이 도구-호출 경로를 *제안*하고 — 결정론 게이트가 *모든 실행 경로의 100% soundness를 보장*(틀린/환각 호출 0; valid 경로 없으면 fail-safe abstain) — 재학습0로 도메인 전이한다. 내구 moat = {소형·저비용} × {게이트-soundness=감사가능 결정론집행} × {재학습0 전이} *패키지*.** frontier급 coverage = supporting("충분하다"), headline 아님. 경로-최적성 = #2 deferred bonus.
+
+**#1/#2 우선순위 (사용자, 현업 정합 — optimality 확정 처리)**:
+- **#1 코어 = soundness 보장**: 경로후보 중 *틀린/환각/fail 경로를 절대 실행 안 함* = **게이트 속성**(모델 100%정확 아님; 게이트 reject + fail-safe). 메트릭 = (a)soundness(실행경로 valid≈100% by construction·감사) + (b)coverage(모델+게이트가 valid-solving 경로 찾은 task%).
+- **#2 bonus = 최적경로 선택**: **deferred**(usage-DB 부재·실데이터 필요). CostBench-동적/효율 = 후행 Tier 2.
+
+**moat = 패키지 (정밀화 A+)**: "감사가능 구조생성 capability"는 frontier도 함→침식(§15.4 c12/13)→moat 아님. 내구 = 위 3-팩터 곱. headline=패키지, capability=supporting.
+
+**벤치 분담 (정밀화 B+)**:
+- TaskBench = **충실성 반쪽**(NL→구조 soft-F1, *soundness·실행 없음*) → **#1 보장 주장 불가**.
+- SOPBench/SOP-Bench = **soundness + 제약 + 전이 = #1의 진짜 자리**(실행·게이트·거부).
+- **통합(NL→구조→게이트실행→success+전이) = SOPBench/SOP-Bench + 우리 풀파이프라인(E1/blind-induce) end-to-end** (PRAXIS=실세계 현실성 *추가*, 통합 전용 아님). ⊥ 두 벤치 disjoint → "thesis 검증완료" 과대주장 금지(반쪽씩+통합=E1).
+
+**★forward guard (벤치선택 운용규칙, 박제)**: 어떤 벤치도 **"소형이 frontier 이기나"로 평가 금지**(capability 함정). **평가 3질문 = (1)구조-충실성? (2)감사가능-실행/제약/soundness? (3)재학습0-전이?** 셋 다 ✗면 C1~C6 통과해도 substrate 아님. ⇒ **AppWorld(셋 다 ✗·코드모달리티·capability) 자동탈락**; TaskBench(1)·SOPBench(2,3) 통과.
