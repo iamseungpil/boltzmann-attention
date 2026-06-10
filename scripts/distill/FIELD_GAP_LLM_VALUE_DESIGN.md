@@ -395,6 +395,13 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 
 **리뷰5 결론**: §14는 표현가능성 *골격*으론 옳고 정직(경계 명시). 단 **(a) bounded-compute 노드 없이는 실도메인 표현불가(customer_service 확정)** → 스키마에 compute 경계 추가가 스키마 확정의 *선결*. (b) 통합 실행기는 미구축. (c) 매핑은 FULL/PARTIAL 혼합. ⇒ 다음 = §14.4 손-검증을 **"compute 노드 포함 시" customer_service 완전표현 + 단일(확장)실행기 1태스크**로 재정의 후 진행.
 
+### §14.6 ★기업-현실 reframing (사용자, 2026-06-06) — Pushback 1 해소 + 기여 scope 확정
+사용자 통찰: 실 기업은 **(i) SOP 판단용 compute 함수·(ii) slot-grounding 데이터를 *사전 authoring***하고 **(iii) 도구는 새로 안 만든다**(기존 API 고정 = 100% 신뢰 도구호출의 전제).
+- **⇒ §14.5 Pushback 1 *해소***: compute(`is_authenticated` 파싱·`metrics_improved` 산술)는 **결정론 레이어 사전자산(OISA ②prong)**이지 LLM 즉석생성 아님 → assurance 유지(선언적 구조 + *사전감사된* 순수함수). **slot-grounding도 사전 스키마/데이터로 해결**(내 blind-probe 미지 = 일부러 가린 테스트일 뿐; 실세계선 도구 출력스키마 제공/관찰로 routine).
+- **★확정 기여 scope** = "**고정 도구 + 사전 결정론 compute/verifier 위에서, 작은 모델이 *어떤 도구를 언제 부르고 무엇을 판단·분기·계획하나*를 특정분야 frontier(Opus급)급으로**." = LLM 역할 = **planner/judge(orchestration)**, NOT compute-generator, NOT tool-inventor.
+- **⇒ §14 스키마 재분류**: `compute`/`verifier`/`tool` 노드 = **사전자산(학습 타깃 아님)**; **학습 타깃 = orchestration = {도구선택·순서·분기-판단·precondition-gather·decision-routing}** = 우리 기존 *alive* 축(gather/decision)과 정합. ⇒ §14.5 (a) "compute 학습" 부담 소멸; (b)통합 실행기·(c)FULL/PARTIAL은 유효.
+- **남는 연구질문(명확)** = "고정 도구·사전 compute 위 orchestration/judgment를 작은 모델서 frontier급으로" → 방법론 동향 deep-research(`woxbvzk8t`, distillation·RL/RLVR·verifier-offload·cascade·specialization·test-time) 진행 중 → 결과로 **§15 방법선택** 보강.
+
 ---
 
 ## §15. ★연구 추세 위치 + 실무 의미 비판 — 내구적 moat는 assurance 하나뿐 (2026-06-06, 딥리서치 `wheyskq29` 진행 중)
