@@ -87,6 +87,12 @@ def parse_args() -> argparse.Namespace:
                             "gate_proj", "up_proj", "down_proj"])
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--log-every", type=int, default=20)
+    p.add_argument("--save-every", type=int, default=0,
+                   help="save adapter+optimizer state every N optimizer steps "
+                        "(preemption-safe resume; 0=off)")
+    p.add_argument("--resume", action="store_true",
+                   help="resume from <out-dir>/ckpt_state.pt if present "
+                        "(deterministic per-epoch order; fast-forwards skipped batches)")
     p.add_argument("--encode-only", action="store_true",
                    help="build+report dataset encoding then exit (no model/training)")
     p.add_argument("--mask-toolcalls", action="store_true",
@@ -299,8 +305,6 @@ def main() -> int:
     model.enable_input_require_grads()
 
     pad_id = tok.pad_token_id
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True,
-                              collate_fn=lambda b: collate(b, pad_id))
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False,
                             collate_fn=lambda b: collate(b, pad_id)) if val_ds else None
 
@@ -308,14 +312,46 @@ def main() -> int:
     out_dir = Path(args.out_dir); out_dir.mkdir(parents=True, exist_ok=True)
     best = float("inf")
 
-    for epoch in range(args.epochs):
+    # ---- preemption-safe resume (adapter + optimizer + position) ----
+    start_epoch, resume_step = 0, -1
+    state_path = out_dir / "ckpt_state.pt"
+    if args.resume and state_path.exists():
+        st = torch.load(state_path, map_location="cpu")
+        from safetensors.torch import load_file
+        from peft import set_peft_model_state_dict
+        sd = load_file(str(out_dir / "resume_adapter" / "adapter_model.safetensors"))
+        set_peft_model_state_dict(model, sd)
+        optim.load_state_dict(st["optim"])
+        start_epoch, resume_step = st["epoch"], st["step"]
+        best = st.get("best", best)
+        print(f"[resume] restored ep{start_epoch} step{resume_step} best={best:.4f}",
+              flush=True)
+
+    def _save_ckpt(epoch, step):
+        model.save_pretrained(str(out_dir / "resume_adapter"))
+        tmp = out_dir / "ckpt_state.pt.tmp"
+        torch.save({"epoch": epoch, "step": step, "optim": optim.state_dict(),
+                    "best": best}, tmp)
+        tmp.rename(state_path)
+        print(f"  [ckpt] ep{epoch} step{step}", flush=True)
+
+    for epoch in range(start_epoch, args.epochs):
+        # deterministic per-epoch shuffle so a resumed run replays the same order
+        g = torch.Generator(); g.manual_seed(args.seed * 1000 + epoch)
+        train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True,
+                                  generator=g, collate_fn=lambda b: collate(b, pad_id))
         model.train(); tot = 0.0; n = 0; optim.zero_grad()
         for step, batch in enumerate(train_loader):
+            if epoch == start_epoch and resume_step >= 0 and step <= resume_step:
+                continue  # fast-forward through already-trained batches
             batch = {k: v.to(args.device) for k, v in batch.items()}
             out = model(**batch)
             (out.loss / args.grad_accum).backward()
             if (step + 1) % args.grad_accum == 0:
                 optim.step(); optim.zero_grad()
+                if args.save_every and \
+                        ((step + 1) // args.grad_accum) % args.save_every == 0:
+                    _save_ckpt(epoch, step)
             tot += out.loss.item(); n += 1
             if step % args.log_every == 0:
                 print(f"  ep{epoch} step{step} loss={out.loss.item():.4f}", flush=True)
@@ -336,6 +372,8 @@ def main() -> int:
             best = avg_val if val_loader else tr
             model.save_pretrained(str(out_dir)); tok.save_pretrained(str(out_dir))
             print("  -> saved", flush=True)
+        if args.save_every:
+            _save_ckpt(epoch + 1, -1)  # epoch boundary: resume starts next epoch clean
 
     (out_dir / "train_meta.json").write_text(json.dumps({
         "base_model": args.base_model, "format": "chat_toolcall_v1",

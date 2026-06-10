@@ -31,5 +31,6 @@ CUDA_VISIBLE_DEVICES=${TRAIN_GPU:-0} $PYT $REPO/scripts/distill/lora_train_chat_
   --train-jsonl $CL/sft_tbox/lodo_train_holdout_bank.jsonl \
   --out-dir /scratch/sft_runs/qwen32b_tbox_t1c_lodo_bank \
   --max-seq-len 4096 \
+  --save-every 100 --resume \
   > /scratch/logs/sft32b_lodo_bank.log 2>&1
 echo "SFT_DONE -> /scratch/sft_runs/qwen32b_tbox_t1c_lodo_bank"
