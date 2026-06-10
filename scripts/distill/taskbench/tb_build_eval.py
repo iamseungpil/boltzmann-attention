@@ -26,7 +26,7 @@ def build_eval(src_dir, pred_file, dst, llm):
         d = json.loads(l)
         if d["id"] in pset:
             tn = pj(d["tool_nodes"]); tl = pj(d.get("sampled_links", "[]")); ts = pj(d["tool_steps"])
-            if not isinstance(tn, list) or any(not isinstance(x, dict) for x in tn):
+            if not isinstance(tn, list) or any(not (isinstance(x, dict) and "task" in x) for x in tn):
                 continue  # rare malformed gold (dict-shaped tool_nodes); excluded from eval
             gold[d["id"]] = {
                 "id": d["id"], "type": d.get("type", "single"),

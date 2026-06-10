@@ -86,7 +86,7 @@ def main():
     with open(args.out, "w") as wf:
         for d in picked:
             steps = pj(d["tool_steps"]); nodes = pj(d["tool_nodes"])
-            if not isinstance(nodes, list) or any(not isinstance(x, dict) for x in nodes):
+            if not isinstance(nodes, list) or any(not (isinstance(x, dict) and "task" in x) for x in nodes):
                 skipped += 1  # rare malformed gold (e.g. dict-shaped tool_nodes)
                 continue
             result = {"task_steps": steps,
