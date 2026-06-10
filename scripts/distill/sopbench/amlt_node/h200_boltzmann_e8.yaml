@@ -1,0 +1,51 @@
+description: "boltzmann-attention E8 lane — 2x H200x4 Basic node holders (train + eval) for SOPBench Track-B per COWORKER_EXPERIMENT_PLAN v1.42: #0 32B vanilla sanity (react+fc, 1 GPU serving each, run in parallel on eval node), #1 32B LODO-bank SFT + scaffold eval (train node). Interactive holders: keepalive, env setup via ssh. Replaces killed metacognition_e8 (NODE_POLICY lane owner = boltzmann-attention)."
+
+target:
+  service: sing
+  name: msrresrchbasicvc
+  workspace_name: msra-sh-aml-ws
+
+environment:
+  image: amlt-sing/acpt-torch2.7.1-py3.10-cuda12.6-ubuntu22.04
+
+code:
+  local_dir: $CONFIG_DIR/
+
+jobs:
+  - name: boltzmann_e8_train
+    sku: 141G4-H200
+    sla_tier: Basic
+    priority: high
+    identity: managed
+    submit_args:
+      max_run_duration_seconds: 1209600
+      env:
+        _AZUREML_SINGULARITY_JOB_UAI: "/subscriptions/c4c534bc-9978-4974-9c87-551f7c5754ef/resourceGroups/msra-sh-aml-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/msra-sh-aml-uai"
+        HF_TOKEN: ${HF_TOKEN}
+        HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN}
+        GH_TOKEN: ${GITHUB_TOKEN}
+    command:
+      - nvidia-smi
+      - mkdir -p /scratch/logs /scratch/sopbench_runs /scratch/sft_runs
+      - nohup bash -c 'while true; do sleep 3600; done' &
+      - echo "Keepalive started. boltzmann_e8_train ready (32B SFT + scaffold eval)."
+      - sleep infinity
+
+  - name: boltzmann_e8_eval
+    sku: 141G4-H200
+    sla_tier: Basic
+    priority: high
+    identity: managed
+    submit_args:
+      max_run_duration_seconds: 1209600
+      env:
+        _AZUREML_SINGULARITY_JOB_UAI: "/subscriptions/c4c534bc-9978-4974-9c87-551f7c5754ef/resourceGroups/msra-sh-aml-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/msra-sh-aml-uai"
+        HF_TOKEN: ${HF_TOKEN}
+        HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN}
+        GH_TOKEN: ${GITHUB_TOKEN}
+    command:
+      - nvidia-smi
+      - mkdir -p /scratch/logs /scratch/sopbench_runs
+      - nohup bash -c 'while true; do sleep 3600; done' &
+      - echo "Keepalive started. boltzmann_e8_eval ready (#0 sanity react+fc parallel serving)."
+      - sleep infinity
