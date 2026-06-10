@@ -135,6 +135,10 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - macro-micro 화해: daily SFT는 single의 가짜링크 제거(improved 886 중 single 506)=micro 무기여, chain 진짜링크 손실=micro 타격 → 공식(micro) −8.5와 census(macro) 양상 모순 없음.
 - RFT 재확인: daily=chain task_links 진짜 구조개선(improved 66 vs worsened 16, 형식변화 0)·HF=wash(25 vs 29).
 
+**(보강 2026-06-11, 리뷰 질문 "JSON 미리 닫음 포함?" 답) 두 가지 조기-종결 축의 위치:**
+- **깨진-JSON형(파싱 불가)**: census **미포함이 맞으나 규모 0.2%** — inference.py의 reformat 루프가 수리하고, 영구 실패는 id 드롭(MM full: base 12·SFT 4·RFT 6건/5584; sub500엔 0건) → 해석 불변.
+- **누락형(valid JSON이나 플랜 조기 종결)**: census node_f1에 섞여 있던 것을 분해 — node P/R = base 0.863/0.776(recall-약세=누락 우세), **gold보다 짧은 예측 107/499(21%)·평균 결손 +0.26노드**, SFT 0.814/0.743(+0.23)·RFT 0.823/0.751(+0.24)·14B-SFT 0.883/0.800(+0.25) ⇒ **누락 축은 base부터 존재하고 SFT/RFT가 거의 못 건드림(Δ≈0)** = 두-힘 기제에 더해지는 **제3 불변 축**. 어제 A-0(base miss의 원인 분류: 누락 ~10/22)와 오늘 census(Δ 분석)가 다르게 보인 이유 = 누락은 Δ가 0이라 improved/worsened 버킷에 안 잡혔던 것 — 모순 아님, 이제 정량 분리됨. ⇒ 누락 축의 처방은 별도(coverage-지향 보상: 노드 recall 가점 or 길이-정규화) — RFT round-2 보상 설계에 ①어휘-유효성 페널티와 함께 ②node-recall 항 검토.
+
 **처방 갱신 (1순위 레버 교체):** 어휘-간섭 억제가 본명 — ①**RFT round-2 보상에 도구명-유효성 페널티 추가**(구현 쉬움: valid_frac<1 감점) ②grounded-copy(도구명은 컨텍스트 tool list에서 복사 강제) ③alias-마스킹은 여전히 P3 위생(이름암기 통제)이나 간섭 직접 처방 아님.
 
 ## 9. 다음
