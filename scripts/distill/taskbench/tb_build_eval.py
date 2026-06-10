@@ -40,7 +40,30 @@ def build_eval(src_dir, pred_file, dst, llm):
             fg.write(json.dumps(gold[i]) + "\n")
     for aux in ("tool_desc.json", "graph_desc.json"):
         shutil.copy(f"{src_dir}/{aux}", f"{dst}/{aux}")
-    shutil.copy(pred_file, f"{dst}/predictions/{llm}.json")
+    # sanitize model-emitted malformed structures that crash evaluate.py
+    # (e.g. temporal task_links lacking source/target). A malformed link can never
+    # match gold, so dropping it only makes the entry representable.
+    n_san = 0
+    with open(f"{dst}/predictions/{llm}.json", "w") as fp:
+        for l in open(pred_file):
+            d = json.loads(l)
+            res = d.get("result")
+            if isinstance(res, dict):
+                tl = res.get("task_links")
+                if isinstance(tl, list):
+                    ok = [x for x in tl if isinstance(x, dict) and "source" in x and "target" in x]
+                    if len(ok) != len(tl):
+                        res["task_links"] = ok
+                        n_san += 1
+                tn = res.get("task_nodes")
+                if isinstance(tn, list):
+                    ok = [x for x in tn if isinstance(x, dict) and "task" in x]
+                    if len(ok) != len(tn):
+                        res["task_nodes"] = ok
+                        n_san += 1
+            fp.write(json.dumps(d) + "\n")
+    if n_san:
+        print(f"[build] sanitized {n_san} malformed pred entries")
     return len(pred_ids), len(ids)
 
 
