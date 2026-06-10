@@ -417,7 +417,7 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 6. **learned/distilled formalization = 덜 붐비는 틈** (proScript·PlaSma) → **우리(학습 소형 NL→구조 전이)가 여기.**
 
 ### §15.2 실무 의미 — 4 위협 (정직)
-- **①★Reasoning-model 조류 (bitter-lesson, 최대 위협)**: SOPBench 이미 frontier 30–76%. o-class가 SOP-following을 네이티브 신뢰성화하면 "온톨로지+결정론 실행기" 한계가치 ↓. **손-설계 스키마가 스케일링이 1–2년 내 obsolete시킬 과도기 버팀목일 위험.** (= bitter lesson; `wheyskq29`로 검증 중.)
+- **①★Reasoning-model 조류 (bitter-lesson, 최대 위협)**: SOPBench 이미 frontier 30–76%. o-class가 SOP-following을 네이티브 신뢰성화하면 "온톨로지+결정론 실행기" 한계가치 ↓. **손-설계 스키마가 스케일링이 1–2년 내 obsolete시킬 과도기 버팀목일 위험.** (= bitter lesson; **반박 소싱 완료 `BITTER_LESSON_REBUTTAL_SOURCES.md` 2026-06-10**: ①범주 오류 — Sutton 원문의 금지 대상은 해법-지식 주입('how we think we think')이지 명세-집행 아님; 게이트=search-계열 meta-method(원문이 권장) + 명세는 발견 대상이 아님 ②보장축 직교 — hallucination 불가피성 형식증명(2401.11817)·OpenAI 자체 진단(2509.04664)·compositional collapse(2305.18654/2410.05229) = precision=1은 scale로 구매 불가 ③frontier 자체가 hybrid(AlphaGeometry Nature'24, RLVR의 V=결정론 verifier) ④Sutton 본인이 'LLM은 bitter-lesson-pilled 아님' 진술(2025). **잔존 유효 부분 = capability 헤드라인 침식(§15.3 양보 유지)·front-end 학습 leg 성공 조건부(동 문서 §7-3)**.)
 - **②온톨로지-설계 병목**: 통합 온톨로지는 compute 노드·새 실행기·slot-grounding 필요(§14.5) → 실상 *per-domain DSL*을 설계·유지. **"per-domain 코드 0" 약속이 후퇴(§13.7 probe-2)** → 실무선 결정론 프로그램(OISA) 직접 or frontier+경량 checker가 더 쌀 수.
 - **③"free-text SOP→구조" 킬러 유스케이스가 좁다**: 고위험 절차는 *애초에* free prose로 안 둠(BPMN·결정테이블·애널리스트 1회 구조화) → "애널리스트 amortize"와 경쟁.
 - **④전이의 실무가치**: 재학습0 cross-bench는 학술적; 실무 배포는 보통 한 도메인·fine-tune 기꺼이. 전이는 롱테일·다도메인서만 결정적.
@@ -455,7 +455,7 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 
 **⇒ 필수 후속(open, 박제)**:
 1. **★규제 1차원문 sourcing**(load-bearing gap): EU AI Act Art.12(기록)·14(인간감독)·Annex IV(추적성)·US SR 11-7이 ***결정론/재현가능* 결정로직을 요구하나, 아니면 *로깅된 stochastic*도 만족할 감사가능/설명가능만 요구하나**? — 이게 §15.3 moat의 사활. *현재 미지원*.
-2. **bitter-lesson 반박**(open): Sutton-vs-neurosymbolic 1차원문이 검증셋에 0 → 최대 개념위협이 *미반박*. 인용으로 닫아야.
+2. **bitter-lesson 반박**: ✅**CLOSED (2026-06-10)** — `BITTER_LESSON_REBUTTAL_SOURCES.md`(방어 5라인 A–E + 정직 양보 §7, 인용 전부 1차원문 fetch 검증). 검증셋 3-vote 정식 등재는 후속 옵션(동 문서 §8 우선순위).
 3. **agentic-SOP erosion 테스트**: claim 12/13 erosion이 simple-PDDL 넘어 messy-NL-SOP(SOPBench/AgentOrca/AgentSandbox `2505.24019`)로 확장되나 = scope 결정.
 
 **⇒ §15.3 수정**: "assurance=내구 moat"를 **"외부 *집행* 필요는 확정(ODCV/deliberative-misalignment), *결정론-특정* + 규제근거는 미확정 → 규제원문+bitter-lesson 반박이 선결"**로 격하. §9 assurance 승격은 *집행-필요*까지만 정당, *결정론-특정*은 후속 sourcing 후.
@@ -585,7 +585,7 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 
 ### §18.2 zero-GPU 병렬 트랙 — §15.4 사활 open 3건 배정 (큐 누락 해소)
 4. **★규제 1차원문 sourcing (moat-결정론-leg 사활, load-bearing)**: EU AI Act Art.12(기록)/14(인간감독)/Annex IV(추적성)·US SR 11-7·의료규제가 ***결정론/재현가능* 결정로직을 요구하나, 로깅된 stochastic으로 충족되나** 판정. "로깅이면 충분"으로 판명 시 §15.3 moat의 결정론-특정 leg 철회·"검증가능성"으로 완전 후퇴. 딥리서치 1회·Exp-A와 병렬.
-5. **bitter-lesson 1차원문 반박**: Sutton 원문 + neurosymbolic 반박 인용으로 §15.2-① 최대 개념위협 닫기(현재 검증셋 0건 = 미반박 상태).
+5. **bitter-lesson 1차원문 반박**: ✅**DONE (2026-06-10)** — `BITTER_LESSON_REBUTTAL_SOURCES.md` 커밋(dbbd529), §15.2-①/§15.4 open-2 갱신 반영.
 6. **agentic-SOP erosion 테스트**: §15.4 c12/13(formalizer-우위 erosion)이 simple-PDDL 넘어 messy-NL-SOP로 확장되나 — Exp-B 인프라 위 후행.
 
 ### §18.3 disposition — 구 §11 실험들 (무처분 소멸 금지, 사유 박제)
