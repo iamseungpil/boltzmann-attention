@@ -460,6 +460,10 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 
 **⇒ §15.3 수정**: "assurance=내구 moat"를 **"외부 *집행* 필요는 확정(ODCV/deliberative-misalignment), *결정론-특정* + 규제근거는 미확정 → 규제원문+bitter-lesson 반박이 선결"**로 격하. §9 assurance 승격은 *집행-필요*까지만 정당, *결정론-특정*은 후속 sourcing 후.
 
+**★주권-leg 신설 (2026-06-10, 시장 실사 — `GROUNDED_BIZ_AGENT_BENCH_DESIGN.md` §1.7 권위, 사용자 승인으로 추가)**: 패키지 {소형·저비용}의 "저비용" 논거에 **독립적인 "데이터주권" 논거 추가** — 둘 다 frontier-API-불가 논거이나 주권 쪽이 더 강함(비용은 trade-off, 주권은 *하드 제약*).
+- **근거 3층**: ①2025년 LLM 지출 절반+가 on-prem(규제산업 주도; air-gapped 사례 LANL) ②미국 대형은행도 frontier 사용은 *신뢰경계 내 게이트웨이*(JPM LLM Suite 통제포털·Einstein Trust Layer zero-retention+PII placeholder 마스킹)로만 — 직원-보조+human supervision 한정 ③**★한국 금융권 망분리(=CDP 직접 환경)**: 금융위 「망분리 개선 로드맵」(2024-08) 체제서 인터넷망 상용 AI=혁신금융서비스 *예외 승인제*, **내부망="금융권 AI 플랫폼"으로 선정 오픈소스 모델 직접 설치가 공식 경로** ⇒ **내부망 소형 오픈웨이트 sLLM = 옵션이 아니라 사실상 유일 정규 경로**(frontier API 기본 불가).
+- **thesis 좌표**: capability 스케일링이 풀 수 *없는* 또 하나의 직교축 — 모델이 아무리 좋아져도 *반출이 안 되는* 데이터는 내부망 모델만 만질 수 있고, 내부망에 들어가는 건 소형 오픈웨이트 — **{소형 front-end}×{결정론 게이트}×{재학습0 전이} 패키지가 규제 환경의 직접 요구사항**. ⚠️정직 한계: 망분리 완화가 진행 중(특례 확대 추세)이므로 "영구 하드제약" 주장 금지 — "현행 정규 경로" 수준으로. 벤치 반영=deployable-arm 층화(동 설계서 §1.7-d).
+
 ---
 
 ## §16. ★학습 설계 — outcome-supervision 디폴트 · distill=커버리지 · 계층=최적화보조 (Jia et al. ICML'25 `2502.10581` 원문분석 근거, 2026-06-06)
