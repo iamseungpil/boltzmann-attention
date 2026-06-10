@@ -90,6 +90,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--save-every", type=int, default=0,
                    help="save adapter+optimizer state every N optimizer steps "
                         "(preemption-safe resume; 0=off)")
+    p.add_argument("--init-adapter", default=None,
+                   help="path to an existing LoRA adapter dir to warm-start from "
+                        "(must match lora-r/alpha/target)")
     p.add_argument("--resume", action="store_true",
                    help="resume from <out-dir>/ckpt_state.pt if present "
                         "(deterministic per-epoch order; fast-forwards skipped batches)")
@@ -298,6 +301,13 @@ def main() -> int:
                       lora_dropout=args.lora_dropout, bias="none",
                       task_type=TaskType.CAUSAL_LM, target_modules=args.lora_target)
     model = get_peft_model(model, lcfg)
+    if args.init_adapter:
+        # warm-start LoRA from an existing adapter (e.g. RAFT continuing from SFT)
+        from safetensors.torch import load_file
+        from peft import set_peft_model_state_dict
+        sd = load_file(str(Path(args.init_adapter) / "adapter_model.safetensors"))
+        set_peft_model_state_dict(model, sd)
+        print(f"[init] warm-started LoRA from {args.init_adapter}", flush=True)
     model.print_trainable_parameters()
     # grad-ckpt AFTER peft wrap + enable_input_require_grads so checkpointing actually
     # saves activation memory through the frozen base (else backward OOMs at long seq)
