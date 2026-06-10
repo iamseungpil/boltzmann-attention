@@ -515,4 +515,15 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 2. base-small baseline(prompted) node/edge-F1 측정 → headroom 확인.
 3. §16 학습(distill-coverage→outcome-RFT) → LODO 전이 측정. (협업자 H200)
 
-> **상태 = (B) 확정·설계 완료.** 다음 = §17.6-1 (TaskBench clone+검증).
+### §17.7 ★리뷰 (2026-06-10, 리뷰 — TaskBench 원문확인) — 방향 옳음, 5 빈틈
+원문확인: GT=back-instruct(LLM)**+human-verified**(순수합성 아님, 우려완화) · eval=**오프라인 그래프-예측(TaskEval 3단계), 도구 실행 없음**(확정).
+1. **★TaskBench는 도구 *미실행* → assurance/execution 축 검증불가.** §17.2 ">"는 conflate: TaskBench=NL→그래프 *예측*(gather/구조 축) vs SOPBench/SOP-Bench=제약·거부·outcome *실행*(§14 실행기·§15 assurance moat). 우리 scope(§14.6)="신뢰·감사가능 도구 *실행*"=TaskBench 못 봄. ⇒ **">" 철회; TaskBench=보완(예측), SOPBench/SOP-Bench=대체불가(실행+전이+assurance). 진행중 Exp-5를 대체 금지. 최강=멀티벤치(예측⊕실행).**
+2. **그래프-예측 *분해 모호성*(복수 정답)**: node/edge-F1=단일GT exact-match → valid 대안 오답처리 → F1 천장↓·"frontier급" 흐림. 선결=메트릭이 대안 credit하나 확인 + miss 진짜오류 vs 대안 분해.
+3. **3도메인 LODO=n=3 저검정력 + 도구명 암기위험** → **도구명 alias-마스킹**(SOPBench 교훈) + type(single/chain/dag) 층화로 포인트 확보.
+4. **"CDP 더 가까움"=구조 proxy지 도메인 아님**(HF/멀티미디어/일상≠마케팅). 도메인-관련성 과대주장 금지.
+5. **frontier 천장-아님 확인**(rigged 체크): GT back-instruct 기원→GPT-4가 ~1.0이면 "근접" trivial. §17.6서 frontier n/e-F1 실확인(기억상 ~0.7-0.8=OK일 듯).
+- (부차) arm② 보상=node/edge-F1=깨끗한 RLVR(§16 정합)이나 GT 모호성 상속→exact-match 보상이 GT 특이성 overfit 가능.
+- **강점(유지)**: 열린·결정론·Apache-2.0·zero-authoring·human-verified GT·frankenbench 회피. §17.6-1=옳은 첫 falsifiable.
+- **메타**: §14–17 설계 누적·새 학습신호 0(Exp-5만) → §17.6-1 빨리 해 falsify 먼저. **TaskBench=SOPBench 실행축 *보완*이지 대체 아님 명기.**
+
+> **상태 = (B) 확정·설계 완료, 리뷰5빈틈 반영(§17.7).** 다음 = §17.6-1 (TaskBench clone+검증, 특히 메트릭 대안-credit·frontier 점수·실행없음 명기).
