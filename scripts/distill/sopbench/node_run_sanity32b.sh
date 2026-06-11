@@ -17,8 +17,11 @@ cd /scratch/SOPBench
 # serve (skip if already up)
 if ! curl -s http://localhost:$PORT/v1/models | grep -q qwen2.5-32b-instruct; then
   # TP2 (GPU0+3): 32B bf16 65.5GB + 32k-ctx KV won't fit one 80GB H100
+  # both served names: the sweep uses the short tag but SOPBench's llm handler
+  # canonicalizes to the full HF id (single name -> 404 on every task -> NA)
   CUDA_VISIBLE_DEVICES=${SANITY_GPUS:-0,3} nohup $VLLM serve Qwen/Qwen2.5-32B-Instruct \
-    --served-model-name qwen2.5-32b-instruct --port $PORT --tensor-parallel-size 2 \
+    --served-model-name qwen2.5-32b-instruct Qwen/Qwen2.5-32B-Instruct \
+    --port $PORT --tensor-parallel-size 2 \
     --dtype bfloat16 --gpu-memory-utilization 0.90 --max-model-len 32000 \
     --enable-auto-tool-choice --tool-call-parser hermes --trust-remote-code \
     > /scratch/logs/serve32b.log 2>&1 &
