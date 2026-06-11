@@ -296,6 +296,7 @@
 | `../../reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md` | TaskBench 전 실측(§8 기제·§9.5b guided·§9.6 DPO v2·§10 층위분류·§1.5 외부동결 전수조사) | 결과 권위본 (TB) |
 | **`BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`** | **벤치-불변 규칙 R1-R8 × 어댑터 A1-A5 + 포트폴리오(τ²·Amazon SOP-Bench·AppWorld·ODCV) 선정근거·실행순서** — 마스터 §1.5의 상세 | detail (2026-06-12 신설) |
 | `taskbench/TB_GROUNDED_COPY_V1_DESIGN.md` | guided decoding 구현·선행연구 5-agent 적대검증·§6.5 차별점 표(논문 related-work 재료) | detail (TB) |
+| `taskbench/TB_DIFFUSION_PROPOSER_DESIGN.md` | 이종 제안기(Dream-7B)×결정론 선별 — E6(선별갭 붕괴) 처방, P-D0 형식게이트·P-D1 혼합-풀 oracle 사전등록 | detail (TB, 2026-06-12 — D1/D2 DPO 후 착수) |
 | `COWORKER_EXPERIMENT_PLAN.md` | 32B/72B 분업 | detail (Track B) |
 | `TASK_CONSTRAINT_{DESIGN_REVIEW,IMPL_REVIEW}.md` | 리뷰 라운드 | 참조 |
 | `EXPERIMENT_DESIGN_v1_7_facet_rft.md`, `steering_paper/*` | 구 facet-rft/steering 라인 | ⚠️superseded(개념 참조만) |
