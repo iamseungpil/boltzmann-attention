@@ -125,16 +125,17 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 3. **누락축 "무반응" 완화**: 집계 결손 불변이지만 improved 버킷 내에서는 플랜 길이 +0.17 — recall 항이 **일부(47/487) 케이스에선 작동**. L2 DPO는 이 부분 효과를 전 케이스로 확장하는 시도로 정당.
 4. ⚠️측정 주의: r1/r2 rollout 보상 통계(mean_best·kept%)는 **보상 정의가 달라 round 간 직접 비교 불가** — 정책 개선의 증거는 eval 표만 사용.
 
-## 7. Qwen3 곡선 (sub500, non-thinking 고정 — family-불변성 체크) 🔄 부분완료 2026-06-11
+## 7. Qwen3 곡선 (sub500; 8B만 full. non-thinking 고정 — family-불변성 체크) ✅ 완료 2026-06-11 PM
 | 크기 | HF n/e | MM n/e | daily n/e |
 |---|---|---|---|
 | Qwen3-0.6B | 41.9 / 0.6 | 42.2 / 4.2 | 63.8 / 25.8 |
 | Qwen3-1.7B | 62.7 / 9.2 | 71.8 / 8.9 | 72.2 / 37.8 |
 | Qwen3-4B | 79.8 / 27.1 | 81.9 / 46.4 | 90.4 / 72.0 |
-| Qwen3-8B | (full 3도메인 진행 중, ~14시) | | |
+| **Qwen3-8B (full)** | 77.2 / 39.8 | 83.5 / 51.4 | 93.2 / 79.2 |
 | Qwen3-14B | 80.6 / 42.2 | 87.2 / 59.1 | 95.0 / 79.9 |
 - 동급 대비 Qwen3 ≥ Qwen2.5 경향(특히 daily edge: 0.6B가 이미 25.8 vs Qwen2.5-0.5B 0.2; 14B edge MM 59.1 vs 52.8) — **곡선 모양(edge 후발 emerge·비포화)은 family-불변** 1차 확인.
 - **★Qwen3-4B ≈ Qwen2.5-7B 동급**(79.8/27.1·81.9/46.4·90.4/72.0 vs 73.6/32.2·84.4/50.0·90.8/68.1) = 이 과제에서 family 세대교체가 ~2x 파라미터 효율 — "{소형·저비용}" leg에 유리한 재료(같은 coverage를 절반 크기로).
+- **Qwen3-8B(full-vs-full 직접 비교) > Qwen2.5-7B**: edge HF +7.6·daily +11.1·MM +1.4 — 세대 이득은 주로 **edge(구조) 축**에 실림. Qwen3-8B daily edge 79.2는 Qwen2.5-14B(77.4)도 추월. 14B 점(sub500 59.1 MM)과 함께 Qwen3 곡선도 비포화 — gpt-4(69.3 MM) 격차는 Qwen3-14B 기준 ~10pt로 축소.
 
 ## 8. ★궤적 전수조사 (2026-06-11, `tb_census.py` — §3/§5/§6의 해석 *정정*, 이 §이 권위)
 6개 비교쌍 전수(per-id 시그니처: 파싱·도구명 유효율·`<node-j>` 태그/자기참조/dangling·per-id F1·temporal 형식 플래그) + worsened/improved 버킷 궤적 직독. 원본 `/home/woori/scratch/census_*.md`.
