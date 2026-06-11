@@ -71,6 +71,9 @@ def main():
     for p in ref.parameters():
         p.requires_grad_(False)
     pol.config.use_cache = False
+    # activation memory: 2x 7B + long-seq backward without checkpointing OOMs on 48GB
+    pol.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+    pol.enable_input_require_grads()
 
     pairs = [json.loads(l) for l in open(a.pairs, encoding="utf-8") if l.strip()]
     if a.max_examples:
