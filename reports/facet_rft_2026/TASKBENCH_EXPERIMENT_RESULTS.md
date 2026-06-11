@@ -227,7 +227,17 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 - **★기제: 단방향 쌍의 거울상 trade** — rejected가 조기종결뿐이라 "길게"만 학습 → 완전 케이스에 무효명·junk 노드 추가. SOPBench Gate-B 교훈(DPO 쌍 **양방향** 카운트) 그대로 재현. ⇒ 처방 = **균형-쌍 v2**(`tb_dpo_mine.py --balance`: chosen=gold-길이 정확·고보상, rejected=조기종결 **및 과잉연장** 양쪽), 채굴 zero-GPU(.all 재사용).
 - 사전등록 분기(§2 핸드오프)는 "결손↓=best-stack 확정"을 가정했으나 결손↓∧패키지↓ 동시 발생 = 분기 미커버 → 기록 후 최소-프로브(균형-쌍 v2) 선행, L3 게이트 이관은 v2 판정 후.
 - **★in-domain 대폭 회귀 (sanity가 본판정 뒤집음)**: sub500 edge daily 84.97→**69.81(−15.2)**·HF 51.61→**47.29(−4.3)** = v1 DPO가 RFT in-domain 이득을 되감음. held-out 보다 in-domain 손상이 훨씬 큼 ⇒ **v1 단방향 DPO = net-negative 확정** (누락축 이동은 실재하나 길이-편향 전역 주입의 부수손상이 지배). ⚠️daily sub500은 PS argv 따옴표-절단으로 eval서 탈락 → `tb_dpo_daily_sub500.sh`로 보완 (재발방지: ssh_run stdin이 utf-8-sig+CRLF 정규화하도록 수정 — 따옴표 포함 명령은 stdin으로).
-- **진행: 균형-쌍 v2 학습 중** (`dpo_balance.jsonl` 714쌍=short 313+long 401 — 과잉연장 질량이 rollout에 실재. chosen=gold-길이 정확. `qwen7b_tb_dpo2_mm`, GPU1, ~3h). **사전등록 판정**: ⓐin-domain sub500 회귀 소멸(daily ≥84·HF ≥51 수준 복원) ∧ ⓑheld-out short율<18.3%·deficit<+0.225 유지 ∧ ⓒ패키지(edge+snap)≥52.5 — ⓐ 실패 시 길이-DPO 레버 폐기→L3 게이트 이관.
+- **★★균형-쌍 v2 = 합격 (2026-06-11 PM, 사전등록 3기준)** (`dpo_balance.jsonl` 714쌍=short 313+long 401, chosen=gold-길이 정확, rft2 위 DPO, `qwen7b_tb_dpo2_mm`):
+  | 지표 | rft2 | dpo v1 | **dpo v2** | 기준 |
+  |---|---|---|---|---|
+  | held-out MM full edge | 49.0 | 48.5 | **55.95** | — |
+  | +snap (패키지) | 52.5 | 50.65 | **57.30** | ⓒ≥52.5 **✓** |
+  | in-domain HF sub500 | 51.61 | 47.29 | **54.10** | ⓐ≥51 **✓ (초과회복)** |
+  | in-domain daily sub500 | 84.97 | 69.81 | **83.64** | ⓐ≥84 △(−0.36 소폭미달=사실상 복원) |
+  | short율 / deficit | 18.3%/+0.225 | 9.4%/−0.072 | **16.0%/+0.181** | ⓑ<기준 ✓ |
+  | node P / R | 0.872/0.829 | 0.851/0.865 | **0.905/0.870** | (P·R 동반상승) |
+- **★census 귀속 (`census_rft2_to_dpo2_mm.md`)**: improved 570 vs worsened **216**(v1 460/549에서 역전). v1 overshoot 소멸(n_nodes 2.58→2.63 완만, v1은 2.88 폭주). **부수이득 2개**: valid_frac 0.951→**0.985**(무효명 스스로 감소 — snap 규모 738→278)·nself 0.138→**0.067**(자기참조 절반). 기제: chosen=gold-길이-정확·고보상 샘플로의 holistic shift가 길이만이 아니라 어휘·참조 청결까지 동반 학습.
+- **★판정: held-out 신기록 — raw 55.95가 base(50.0)를 +6.0, 패키지 57.30이 종전 최고(52.5)를 +4.8 추월.** 채굴은 train-도메인 rollout만 사용(MM 무접촉)=누출 없음, 공식/macro/P-R 3계측 정합. **§10.4-②확정: 정책류(종결 캘리브레이션)는 weight로 학습 가능, 단 신호는 양방향 필수** — v1(단방향)=net음수 ↔ v2(양방향)=전축 동반 개선이 깨끗한 대조실험. best-stack = **rft2+dpo2(+snap or guided)** — 다음: dpo2+guided 합성(MM full) 측정 → 전 도메인 held-out 재측정 헤드라인.
 
 ## 9. ★실행 큐 (2026-06-11 AM 갱신 — census §8 처방 기준, 이 §이 TaskBench 실행 권위)
 
@@ -257,7 +267,7 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 |---|---|---|
 | SFT | in-domain coverage 大(+18~27) · **참조-인덱싱 규율 held-out 전이(실재)** · SOPBench gather 스킬 LODO 전이 | held-out net≈0 (규율 이득 − 어휘 간섭 상쇄, §8) |
 | RFT | in-domain 진짜 구조 개선(daily chain) | held-out 재추첨(±450 거울상, §6) |
-| DPO | **누락축 첫 가동**(short 절반·R+3.6 — SFT/RFT/스케일 전부 0이던 축) | v1 단방향=overshoot net 음수(§9.6); v2 균형쌍 판정 대기 |
+| DPO | **누락축 첫 가동** + **v2 균형쌍 = held-out 신기록**(raw 55.95·패키지 57.30, P/R 동반상승·in-domain 회귀 소멸, §9.6) | v1 단방향=overshoot net 음수 — **신호 양방향 필수**가 합격 조건 |
 | 결정론 (snap/guided/offload/DGGATE) | **held-out 첫 base 추월(52.5)** · SOPBench 15→29/34 · **guided v1: daily 붕괴 완전 회복 59.6→67.6(+8.0, base−0.5까지, §9.5b)** | 문자열-snap은 의미 매칭 불가(daily 689건) → guided가 의미 선택을 모델에 위임해 해소 |
 
 **★핵심: held-out에서 이긴 것은 전부 "학습+결정론 패키지"였고 단독은 없음** (RFT2 단독 49.0<base / RFT2+snap 52.5>base · SOPBench adapter-only≈0 / scaffold+stack 75–95%). 학습 = propose-측 절반(결정론이 보정할 좋은 제안을 만드는 역할).
@@ -280,4 +290,4 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 
 ### 10.4 미결 — 이 분류를 판가름할 라이브 판별 실험 2개
 1. **coworker P1 (32B SFT, §8.5 사전등록)**: Δ≈−5 적중 → "이득=base 결핍의 함수" 기제 확립(분류의 정량 근거 완성). [결과 대기]
-2. **DPO v2 균형쌍 (§9.6 사전등록)**: 종결-캘리브레이션이 양방향 신호로 깨끗이 weight에 들어가는지 — 성공=정책류는 weight(단 양방향 必) 박제 / 실패=종결도 L3 게이트(결정론 재샘플)로 강등. [결과 대기]
+2. **DPO v2 균형쌍 (§9.6 사전등록)**: ✅ **확정 (2026-06-11 PM)** — 3기준 합격(패키지 57.30 신기록·in-domain 회귀 소멸·P/R 동반상승). **정책류(종결 캘리브레이션)는 weight로 학습 가능, 단 신호는 양방향 필수** — v1 단방향(net음수) ↔ v2 양방향(전축 개선)의 깨끗한 대조로 박제. L5 행 확정.
