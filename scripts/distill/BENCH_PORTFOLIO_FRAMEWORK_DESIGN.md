@@ -44,6 +44,12 @@
 
 **실행 순서**: ⑴τ² retail 어댑터(A1 기계+A3 래핑+A2 수동-1회 — 수동본이 front-end 자동화의 GT가 됨)→7B+게이트 평가 ⑵Amazon 12-도메인 LODO 행렬 ⑶AppWorld·ODCV 스팟. 대형모델(32B+) arm은 Track-B(coworker) 분담 — `COWORKER_REQUEST_TB_SCALE.md` §8.
 
+## 3.5 τ² retail 어댑터 스코핑 (E3, 2026-06-12 — 리모트 클론·구조 실측)
+- 클론 = woori `/home/woori/scratch/tau2-bench` (sierra-research, depth 1). 도메인 = retail(114 tasks)·airline·telecom·banking_knowledge(τ³)·mock.
+- **A1-A5 추출물 실측**: A2 = `domains/retail/policy.md` **136줄 NL 정책** — 핵심 게이트 4종이 **SOPBench와 동형**: ①**인증-선행**("authenticate ... even when the user already provides the user id" = LOGINFIRST 동형) ②**쓰기-전-확인**(cancel/modify/return/exchange 전 명시 confirm = goal-call 게이트) ③단일-유저 범위(타 유저 요청 deny) ④정책-외 거부 + transfer 규정. / A3 = tau2 evaluator(DB-state 등가 reward) 래핑 / A4 = 도메인 3+1 / A1 = tau2 패키지 내 도구 정의(코드 — 추출 스크립트 필요) / A5 = 대화형(툴콜 스키마 — guided는 tool-call JSON에 적용).
+- **A2 수동 컴파일 v1 전망**: 게이트 4종 + per-action 인자 규칙(나머지 ~100줄) — SOPBench Guard-2 절차(정책→graph 재구성→evaluator 대조) 재사용 가능. 수동본 = front-end 자동화의 GT.
+- 다음: ①A1 도구 추출 스크립트 ②retail 정책 수동 컴파일(게이트 4종) ③7B+게이트 vs 7B-alone pass^1/pass^k 첫 측정.
+
 ## 4. 커버리지 행렬 (벤치 × A1-A5 가용성 × R1-R8 적용처) — [작성 중: landscape census·구조-축 조사 도착 후 완성]
 
 ## 5. 메타 (인용·측정 규율)
