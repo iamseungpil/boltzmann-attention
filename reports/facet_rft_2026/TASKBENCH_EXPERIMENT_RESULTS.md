@@ -119,6 +119,12 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - **★r1의 HF 정체 해소** — census 귀속: HF node P +1.5pp/R +1.6pp(도구 *선택* 개선) + edge macro +2.1pp; daily는 r1 이득 유지. **v2 보상의 in-domain 효과 확인.**
 - **사전등록 판정 (둘 다 불발)**: ⓐheld-out valid_frac 0.952→0.951(어휘-간섭, 보상-side로 held-out 못 닿음 — rollout이 in-domain이므로 구조적 한계) ⓑ누락-길이축 불변(deficit +0.23/+0.20·short율 그대로 — recall 이득은 길이가 아니라 이름 정확도에서 옴). ⇒ **§9 분기 발동: 누락축→L2 DPO(.all 데이터 준비됨)·어휘축(held-out)→grounded-copy.** RFT 수확체감 가시화(r2 held-out·daily 평탄) — in-domain 레버로서의 RFT는 r1+r2로 대부분 수확된 것으로 판단.
 
+### ★round-2 궤적 전수 정밀분석 (2026-06-11 PM — 위 판정의 3가지 정밀 수정, 버킷+예시 직독)
+1. **HF +5.3의 분해 (정직 — 일부는 관례-수렴)**: SFT→r2 improved 버킷(47/487) 시그니처 = valid_frac 0.871→**0.974**(+10.3pp, validity 항 실작동) + n_nodes +0.17 + node_f1 0.678→0.889. 예시 직독: ⓐ"Table Classification"→"Tabular Classification" 류 **무효-이름 교정 = 진짜 개선** ⓑ"ASR→Audio Classification"·"Audio Emotion Analysis→Audio Classification" 류 = **gold 도구-선택 관례로의 수렴**(기능적으론 A안이 동등/우월할 수 있음 — A-0의 27% 관례축이 보상을 통해 학습됨). ⇒ +5.3 중 일부는 capability가 아니라 **GT-관례 적합** — 보고 시 분리 명기.
+2. **held-out wash(421↔451)는 노이즈가 아니라 체계적 양방향 재추첨**: improved 버킷 = valid +16pp·nself 반감 / worsened 버킷 = valid **−13pp**·nself 0.18→**0.64** — 같은 크기·반대 방향·거의 같은 수. 즉 r2 정책은 held-out에서 케이스별 행동을 **재추첨**(불안정)하며 평균만 보존. ⇒ 보상-쉐이핑 추가로 held-out을 미는 것은 무망 — **held-out 처방은 decode/추론-side(grounded-copy·L3 게이트)여야 함**의 직접 증거.
+3. **누락축 "무반응" 완화**: 집계 결손 불변이지만 improved 버킷 내에서는 플랜 길이 +0.17 — recall 항이 **일부(47/487) 케이스에선 작동**. L2 DPO는 이 부분 효과를 전 케이스로 확장하는 시도로 정당.
+4. ⚠️측정 주의: r1/r2 rollout 보상 통계(mean_best·kept%)는 **보상 정의가 달라 round 간 직접 비교 불가** — 정책 개선의 증거는 eval 표만 사용.
+
 ## 7. Qwen3 곡선 (sub500, non-thinking 고정 — family-불변성 체크) 🔄 부분완료 2026-06-11
 | 크기 | HF n/e | MM n/e | daily n/e |
 |---|---|---|---|
