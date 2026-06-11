@@ -172,6 +172,21 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - 판정 규칙(사전등록): ①≈−5 적중 = 기제 확립 ②Δ > 0 = 인덱스 축 외 추가 전이 발견(용량 가설 부분 부활) ③−5보다 더 나쁨 = 32B 고유 변수 재조사.
 - 부수: 32B base가 valid_frac 1.0 → **어휘-간섭도 base엔 없음** — SFT가 주입하는 순수 학습-부작용임을 32B가 가장 깨끗하게 보여줄 표본. P1 eval 후 §9.5 name-snap을 32B-SFT pred에 적용해 간섭 분리 확인 예정(zero-GPU).
 
+**★P1 판정 (2026-06-11 13:10 실측 — 사전등록 ① 적중, 기제 확립)**:
+
+| 평가 | base-32B | 32B+gold-SFT | Δ | (7B 참조: base→SFT) |
+|---|---|---|---|---|
+| **held-out MM sub500 (동일-id)** | **61.9** | **56.5** | **−5.4 (예측 −5.0)** | 48.3→47.5 (−0.8) |
+| in-domain HF sub500 | 43.9 | 49.0 | +5.1 | 32.2→47.8 (+15.6) |
+| in-domain daily sub500 | 80.6 | 84.0 | +3.4 | 68.1→75.9 (+7.8) |
+| held-out MM full (어댑터) | (base full 측정 중) | 58.8 | — | 50.0→48.3 |
+
+- **Δ실측 −5.4 vs 사전예측 −5.0 (오차 0.4pp) = 판정① 기제 확립.** §8 두-힘 기제가 1.5B/7B/14B/32B 4점에서 함수형으로 확인됨: Δ ≈ 19.4×nself(base) − 5.0. **§5 구판 "14B +4.3=용량-부활" 최종 기각** — 32B에서 Δ가 +4.3보다 커지긴커녕 −5.4.
+- **기제 시그니처 census 확인 (base vs SFT, MM sub500 n=498)**: valid_frac **1.000→0.952 (−4.8pp = 예측한 ~5pp 어휘-간섭 그대로**; 7B −4.1pp·14B −4.1pp와 동일 크기) · nself 0.0→0.018(교정할 인덱스 오류가 없으니 이득 0, SFT가 미세 자기참조를 오히려 주입).
+- 뉘앙스(macro-micro 분해, §8 화해 패턴 재현): census per-id macro edge는 0.639→0.690(+5.1)인데 공식 micro link_binary_f1는 −5.4 — 손실이 링크-多 예제에 집중(n_nodes 2.65→2.53 플랜 단축 + 무효명이 링크 통째 kill). improved 69 vs worsened 52.
+- in-domain 이득도 7B(+15.6/+7.8) 대비 1/3 수준(+5.1/+3.4) — base가 높을수록 gold-SFT 가치 자체가 줄어듦(§2-P1 "in-domain 평평=gold-SFT 무가치" 경계의 중간 지점).
+- **함의: 스케일 투자로 held-out 전이는 안 열림(기제상 32B+는 잃기만 함) → Track A 처방(§8/§9.5) 정합 — 전이는 추론-side(grounded-copy/L3 게이트) 레버가 본명.** 32B-SFT pred에 name-snap 적용(zero-GPU)으로 −5.4 중 어휘분 복구 검증 예정.
+
 **Qwen3-32B 관찰 (§7 곡선의 꼭대기)**: Qwen3는 **14B→32B가 사실상 평탄**(MM edge 59.1→58.7·daily 79.9→79.8, HF만 42.2→45.6) — Qwen2.5의 14B→32B(+9.1 MM)와 대조. 세대-이득(§7 "Qwen3-4B≈Qwen2.5-7B")이 32B-class에선 소멸: **Qwen2.5-32B(61.9) > Qwen3-32B(58.7) on MM edge**. 곡선-모양 family-불변 주장은 14B까지만 안전 — 32B-class 분기는 72B/235B 점이 더 말해줄 것.
 
 **SOPBench Track-B #0 sanity (v1.42, 같은 노드)**: react/full/bank **44.78%** (리더보드 40.30 대비 **+4.5pp — ±2pp 재현 밴드 밖**, ⚠️serving 차이(vLLM 0.10.2/bf16/TP2) 추정, 원인 메모 후 4열표에선 우리 서빙 기준 내부-일관 비교로 사용) · fc/full/bank **12.69%** (32B FC base 앵커 신규, 7B 참조 3.7).
