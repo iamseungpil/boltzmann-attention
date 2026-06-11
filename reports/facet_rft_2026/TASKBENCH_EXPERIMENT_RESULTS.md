@@ -89,6 +89,7 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 | 3B | 64.4 / 19.1 | 72.6 / 27.6 | 70.5 / 33.9 |
 | **7B (full-domain)** | 73.6 / 32.2 | 84.4 / 50.0 | 90.8 / 68.1 |
 | 14B | 77.5 / 39.6 | 89.5 / 52.8 | 93.5 / 77.4 |
+| **32B ★Track-B (P0a, H100 노드, 2026-06-11)** | 79.7 / **43.9** | 87.3 / **61.9** | 94.9 / **80.6** |
 
 - **edge-구조 emerge 지점 = 1.5B→3B**(전 도메인 edge 0–18→19–34), 이후 **14B까지 가파른 비포화 상승**; node는 7B 이후 수확체감(+~4pt). ⇒ "node~포화·edge=변별 스킬" (§1·§17.8) 의 scale-축 확증. 0.5B는 과제 수행 불능(포맷 붕괴 수준).
 - 14B조차 published gpt-4(MM e-F1 69.3)에 16pt 미달 → 7B 학습으로 edge를 끌어올리는 Exp-A의 가치 공간 확인.
@@ -133,6 +134,7 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 | Qwen3-4B | 79.8 / 27.1 | 81.9 / 46.4 | 90.4 / 72.0 |
 | **Qwen3-8B (full)** | 77.2 / 39.8 | 83.5 / 51.4 | 93.2 / 79.2 |
 | Qwen3-14B | 80.6 / 42.2 | 87.2 / 59.1 | 95.0 / 79.9 |
+| **Qwen3-32B ★Track-B (P0b, H100 노드, 2026-06-11, non-thinking)** | 81.2 / **45.6** | 87.1 / **58.7** | 94.9 / **79.8** |
 - 동급 대비 Qwen3 ≥ Qwen2.5 경향(특히 daily edge: 0.6B가 이미 25.8 vs Qwen2.5-0.5B 0.2; 14B edge MM 59.1 vs 52.8) — **곡선 모양(edge 후발 emerge·비포화)은 family-불변** 1차 확인.
 - **★Qwen3-4B ≈ Qwen2.5-7B 동급**(79.8/27.1·81.9/46.4·90.4/72.0 vs 73.6/32.2·84.4/50.0·90.8/68.1) = 이 과제에서 family 세대교체가 ~2x 파라미터 효율 — "{소형·저비용}" leg에 유리한 재료(같은 coverage를 절반 크기로).
 - **Qwen3-8B(full-vs-full 직접 비교) > Qwen2.5-7B**: edge HF +7.6·daily +11.1·MM +1.4 — 세대 이득은 주로 **edge(구조) 축**에 실림. Qwen3-8B daily edge 79.2는 Qwen2.5-14B(77.4)도 추월. 14B 점(sub500 59.1 MM)과 함께 Qwen3 곡선도 비포화 — gpt-4(69.3 MM) 격차는 Qwen3-14B 기준 ~10pt로 축소.
@@ -159,7 +161,21 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 
 **처방 갱신 (1순위 레버 교체):** 어휘-간섭 억제가 본명 — ①**RFT round-2 보상에 도구명-유효성 페널티 추가**(구현 쉬움: valid_frac<1 감점) ②grounded-copy(도구명은 컨텍스트 tool list에서 복사 강제) ③alias-마스킹은 여전히 P3 위생(이름암기 통제)이나 간섭 직접 처방 아님.
 
-## 9.5 ★grounded-copy v0 (name-snap, 후처리·zero-GPU) ✅ 2026-06-11 PM — **held-out 첫 base-추월**
+## 8.5 ★Track-B (coworker, H100×4 노드) — P0 32B-class 완료 + **P1 step-0 census 사전등록** (2026-06-11)
+
+**P0 진행**: Qwen2.5-32B ✅(§4 표에 행 추가) · Qwen3-32B ✅(§7 표에 행 추가) · Qwen2.5-72B 추론 중(TP4) · Qwen3-235B-A22B-INT4 대기. 전부 동일 첫-500 sub500, Qwen3는 non-thinking 고정(inference.py payload patch, Track A 동일 방법).
+
+**★P1 step-0 (v3 필수 절차) — 32B base census 측정 + Δ 사전등록 (학습 착수 전 HF 박제, 2026-06-11T09:38Z)**:
+- 32B base (MM sub500, n=496): **nself/ex = 0.000 · valid_frac = 1.000** (참조: 7B 0.218/0.987 · 14B 0.478/0.997 — base 인덱스-오류가 scale 비단조였는데 32B서 소멸).
+- §8 기제 그대로 적용: 인덱스-교정 이득 ∝ base nself = **0** → **Δedge 사전예측 = 19.4×0.0 − 5.0 = −5.0pp** (어휘-간섭만 수령).
+- **이 prereg가 §5-vs-§8을 가르는 판별 실험이 됨**: §5의 구판 "14B +4.3 = 용량-부활" 해석이 맞다면 Δ(32B) > +4.3로 더 커져야 하고, §8(인덱스-오류율의 함수)이 맞다면 Δ(32B) ≈ −5. 32B SFT(r16/a32/2ep/seq6144, 학습 중) 완료 후 실측 대조.
+- 판정 규칙(사전등록): ①≈−5 적중 = 기제 확립 ②Δ > 0 = 인덱스 축 외 추가 전이 발견(용량 가설 부분 부활) ③−5보다 더 나쁨 = 32B 고유 변수 재조사.
+- 부수: 32B base가 valid_frac 1.0 → **어휘-간섭도 base엔 없음** — SFT가 주입하는 순수 학습-부작용임을 32B가 가장 깨끗하게 보여줄 표본. P1 eval 후 §9.5 name-snap을 32B-SFT pred에 적용해 간섭 분리 확인 예정(zero-GPU).
+
+**Qwen3-32B 관찰 (§7 곡선의 꼭대기)**: Qwen3는 **14B→32B가 사실상 평탄**(MM edge 59.1→58.7·daily 79.9→79.8, HF만 42.2→45.6) — Qwen2.5의 14B→32B(+9.1 MM)와 대조. 세대-이득(§7 "Qwen3-4B≈Qwen2.5-7B")이 32B-class에선 소멸: **Qwen2.5-32B(61.9) > Qwen3-32B(58.7) on MM edge**. 곡선-모양 family-불변 주장은 14B까지만 안전 — 32B-class 분기는 72B/235B 점이 더 말해줄 것.
+
+**SOPBench Track-B #0 sanity (v1.42, 같은 노드)**: react/full/bank **44.78%** (리더보드 40.30 대비 **+4.5pp — ±2pp 재현 밴드 밖**, ⚠️serving 차이(vLLM 0.10.2/bf16/TP2) 추정, 원인 메모 후 4열표에선 우리 서빙 기준 내부-일관 비교로 사용) · fc/full/bank **12.69%** (32B FC base 앵커 신규, 7B 참조 3.7).
+
 무효 도구명을 tool list 최근접 유효명으로 스냅(`tb_name_snap.py`, difflib cutoff 0.6) 후 공식 재채점:
 
 | held-out pred | 원본 edge | +snap | Δ |
