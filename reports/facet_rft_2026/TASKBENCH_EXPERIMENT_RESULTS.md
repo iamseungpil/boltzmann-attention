@@ -114,10 +114,11 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 |---|---|---|---|
 | Qwen3-0.6B | 41.9 / 0.6 | 42.2 / 4.2 | 63.8 / 25.8 |
 | Qwen3-1.7B | 62.7 / 9.2 | 71.8 / 8.9 | 72.2 / 37.8 |
-| Qwen3-4B | (다운로드 미완 SERVE_FAIL → 재실행 중) | | |
-| Qwen3-8B | (동상, full 3도메인 예정) | | |
+| Qwen3-4B | 79.8 / 27.1 | 81.9 / 46.4 | 90.4 / 72.0 |
+| Qwen3-8B | (full 3도메인 진행 중, ~14시) | | |
 | Qwen3-14B | 80.6 / 42.2 | 87.2 / 59.1 | 95.0 / 79.9 |
 - 동급 대비 Qwen3 ≥ Qwen2.5 경향(특히 daily edge: 0.6B가 이미 25.8 vs Qwen2.5-0.5B 0.2; 14B edge MM 59.1 vs 52.8) — **곡선 모양(edge 후발 emerge·비포화)은 family-불변** 1차 확인.
+- **★Qwen3-4B ≈ Qwen2.5-7B 동급**(79.8/27.1·81.9/46.4·90.4/72.0 vs 73.6/32.2·84.4/50.0·90.8/68.1) = 이 과제에서 family 세대교체가 ~2x 파라미터 효율 — "{소형·저비용}" leg에 유리한 재료(같은 coverage를 절반 크기로).
 
 ## 8. ★궤적 전수조사 (2026-06-11, `tb_census.py` — §3/§5/§6의 해석 *정정*, 이 §이 권위)
 6개 비교쌍 전수(per-id 시그니처: 파싱·도구명 유효율·`<node-j>` 태그/자기참조/dangling·per-id F1·temporal 형식 플래그) + worsened/improved 버킷 궤적 직독. 원본 `/home/woori/scratch/census_*.md`.
