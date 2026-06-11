@@ -124,3 +124,24 @@
 
 ## 6. 일정 제안
 P0(반나절) → P1(1-2일) → 판정 공유(채널) → P2/P3(조건부, 1-3일). **P1 결과가 Track A의 다음 수(alias vs RFT vs 스케일)를 게이트하므로 P1 우선 완주 요청.** 기존 Track-B(32B SOPBench SFT, v1.42 #0/#1)와 GPU 경합 시 — Track-B #0 sanity가 먼저, 그 다음 본 요청 P0/P1 권장(어차피 32B 서빙/학습 인프라 공유).
+
+## 7. ★P2 — 대형-모델 결정론-leg 2×2 (2026-06-12 신규, P0/P1 완료 후 다음 큐)
+
+> 배경: P1 사전등록 적중(Δ −5.4 vs 예측 −5.0, §8.5)으로 "대형은 SFT 잃기만 함" 확정 → 대형 모델의 레버는 결정론-leg(guided decoding)뿐이라는 게 thesis 예측. **이번 P2 = 그 예측을 32B/72B/235B에서 직접 검증** (Track A는 7B에서 guided 완료: daily +8.0·MM 합성 57.22, 결과문서 §9.5b). 전부 추론-only(학습 0) — A100×4에서 서빙만.
+
+**키트 (repo에 전부 있음)**: `tb_guided_schema.py`(--dep resource/temporal)·`tb_guided_patch.py`(inference.py에 env-게이트 no-op 패치)·드라이버 견본 `tb_guided_mm_dpo2.sh`. vllm 요청 문법 = `extra_body={"structured_outputs": {"json": <schema>}}`(0.10.x+ 지원; 구버전이면 guided_json fallback — deprecation 경고만). 도메인당 더미 1요청으로 grammar pre-warm.
+
+**arms (전부 MM sub500, 동일 첫-500 — 사전등록 예측 동결 2026-06-12, Track A가 trackb_raw 원본 census로 산출)**:
+| # | arm | 서빙 | base census (실측) | ★사전예측 |
+|---|---|---|---|---|
+| P2a-1 | **lodo_mm_32b(SFT)+guided** | 32B+LoRA TP2 | SFT valid 0.952(간섭 −4.8pp) | **micro 56.5→+3~5 (어휘분 회복)** — base 61.9 미복원분 = 플랜-단축/구조축 귀속(census로 분해) |
+| P2a-2 | **base-32B+guided** (통제) | 32B TP2 | valid 1.000·nself 0 | **Δ≈0** (고칠 어휘 없음 — "guided=0-cost 보험" 행) |
+| P2b-1 | base-72B+guided | 72B TP4 | valid 0.998·nself 0.030·deficit +0.09 | **+0~0.5** (잔여 어휘 미세) |
+| P2b-2 | base-235B+guided | 235B-INT4 TP4 | valid 1.000·**nself 0.143**(Qwen3 대형도 인덱스 오류 잔존=family-의존) | **Δ≈0** (guided는 어휘만 — nself는 못 고침 = 음성 통제) |
+| P2c | base-32B+guided+**promptslim**(desc 제거 tool_desc) | 32B TP2 | 7B 실측: 목록 51% 절감=−3.1 edge | **−3.1보다 작은 손실** 예측(대형=이름만으로 의미매칭 ↑) — "names-only 사정거리 × 스케일" 곡선의 32B 점 |
+
+**비권장 (기록만, 실행 불요)**: ①32B 균형-DPO — Track A 측정상 32B base 누락축 거의 소멸(deficit +0.024 vs 7B +0.256) → 기대이득 작음 ②72B/235B gold-SFT — 기제 예측 Δ=19.4×nself−5.0 → 72B −4.4·235B −2.2 (둘 다 음수; 235B-INT4 MoE LoRA는 비용도 비현실적).
+
+**산출물**: trackb_raw 동일 구조로 preds/metrics push + §8.5에 행 추가. 판정 기준: P2a-1이 +3 이상이면 "대형의 결정론-leg 회복" 확정 → §10 분류의 32B 열 완성; P2c가 −1.5 이내면 비용-leg(도구폭발 컨텍스트 절감)에 대형-모델 행 추가.
+
+**일정**: P2a(반나절, 32B 서빙 재사용) → P2b/P2c(반나절). 전부 추론-only라 Track-B 학습 잡과 GPU 경합 시 빈틈에 끼워도 됨.
