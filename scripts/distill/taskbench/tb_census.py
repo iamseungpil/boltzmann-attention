@@ -124,6 +124,12 @@ def main():
     gold_a, preds_a = load(a.dir_a, a.llm_a)
     gold_b, preds_b = load(a.dir_b, a.llm_b)
     ids = sorted(set(gold_a) & set(preds_a) & set(gold_b) & set(preds_b))
+    # malformed-gold skip (same trap tb_build_eval handles): a few data.json records
+    # lack task_nodes and would KeyError inside sig()
+    n_raw = len(ids)
+    ids = [i for i in ids if "task_nodes" in gold_a[i] and "task_nodes" in gold_b[i]]
+    if len(ids) != n_raw:
+        print(f"[census] skipped {n_raw - len(ids)} malformed gold (no task_nodes)")
 
     KEYS = ["parse", "n_nodes", "valid_frac", "ntag", "nself", "ndangle",
             "node_f1", "edge_f1", "links_ok", "argdict_frac"]

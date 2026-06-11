@@ -21,17 +21,22 @@ OUT=/scratch/taskbench_runs
 DONE=$OUT/p0_done
 mkdir -p $DONE /scratch/logs
 
-kill_port_vllm() {
+kill_port_vllm() {  # kill_port_vllm GPUS  — also reaps orphaned TP workers, whose
+  # cmdlines don't contain "vllm serve" and so survive the pkill holding GPU memory
   pkill -9 -f "vllm serve.*--port $PORT"
-  for i in $(seq 1 24); do pgrep -f "vllm serve.*--port $PORT" >/dev/null || break; sleep 5; done
-  sleep 10
+  for g in $(echo ${1:-} | tr , ' '); do
+    for p in $(nvidia-smi --id=$g --query-compute-apps=pid --format=csv,noheader); do
+      kill -9 $p 2>/dev/null || true
+    done
+  done
+  sleep 15
 }
 
 run_model() {  # run_model TAG HF_ID GPUS TPN NOTHINK_SANITY(0/1)
   local tag=$1 hfid=$2 gpus=$3 tpn=$4 nothink=${5:-0}
   [ -f $DONE/$tag ] && { echo "SKIP_DONE_$tag"; return 0; }
   $HF download "$hfid" >> /scratch/logs/hfdl_${tag}.log 2>&1
-  kill_port_vllm
+  kill_port_vllm $gpus
   CUDA_VISIBLE_DEVICES=$gpus setsid nohup $VLLM serve "$hfid" \
     --port $PORT --served-model-name $tag --tensor-parallel-size $tpn \
     --max-model-len 8192 --gpu-memory-utilization 0.90 \
@@ -39,7 +44,7 @@ run_model() {  # run_model TAG HF_ID GPUS TPN NOTHINK_SANITY(0/1)
   for i in $(seq 1 180); do
     curl -s localhost:$PORT/v1/models | grep -q "\"$tag\"" && break; sleep 10
   done
-  curl -s localhost:$PORT/v1/models | grep -q "\"$tag\"" || { echo "SERVE_FAIL_$tag"; kill_port_vllm; return 1; }
+  curl -s localhost:$PORT/v1/models | grep -q "\"$tag\"" || { echo "SERVE_FAIL_$tag"; kill_port_vllm $gpus; return 1; }
   if [ "$nothink" = "1" ]; then
     SAN=$(curl -s localhost:$PORT/v1/chat/completions -H "Content-Type: application/json" \
       -d "{\"model\":\"$tag\",\"messages\":[{\"role\":\"user\",\"content\":\"say ok\"}],\"max_tokens\":50,\"chat_template_kwargs\":{\"enable_thinking\":false}}")
@@ -55,7 +60,7 @@ run_model() {  # run_model TAG HF_ID GPUS TPN NOTHINK_SANITY(0/1)
       --pred_file $TB/${1}_sub500/predictions/${tag}.json \
       --dst $OUT/${1}_sub500_eval_${tag} --llm $tag || ok=0
   done
-  kill_port_vllm
+  kill_port_vllm $gpus
   [ "$ok" = "1" ] && touch $DONE/$tag
   echo "MODEL_DONE_$tag ok=$ok $(date)"
 }

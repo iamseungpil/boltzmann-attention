@@ -23,7 +23,8 @@ TB=/scratch/JARVIS/taskbench
 [ -d /scratch/venvs/tb_env ] || python3 -m venv /scratch/venvs/tb_env
 TPIP=/scratch/venvs/tb_env/bin/pip
 $TPIP install -q --upgrade pip
-$TPIP install -q numpy scikit-learn networkx python-Levenshtein "datasets==2.14.5" \
+# numpy<2: pyarrow 12 wheels are compiled against numpy 1.x ABI
+$TPIP install -q "numpy<2" scikit-learn networkx python-Levenshtein "datasets==2.14.5" \
   "pyarrow==12.0.0" rouge_score aiohttp emoji click requests
 
 # 3. inference.py patches (idempotent)

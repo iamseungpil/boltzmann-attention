@@ -26,8 +26,15 @@ mkdir -p $OUT/sft /scratch/logs
 
 kill_port_vllm() {
   pkill -9 -f "vllm serve.*--port $PORT"
-  for i in $(seq 1 24); do pgrep -f "vllm serve.*--port $PORT" >/dev/null || break; sleep 5; done
-  sleep 10
+  # vLLM TP workers don't carry "vllm serve" in their cmdline and survive that
+  # pkill as orphans holding GPU memory (caused the first P1 train OOM) ->
+  # also kill every compute proc on OUR gpus (never GPU0,1 = SOPBench trainer)
+  for g in $(echo $GPUS | tr , ' '); do
+    for p in $(nvidia-smi --id=$g --query-compute-apps=pid --format=csv,noheader); do
+      kill -9 $p 2>/dev/null || true
+    done
+  done
+  sleep 15
 }
 
 serve_and_wait() {  # serve_and_wait NAME_GREP <vllm serve args...>
@@ -54,13 +61,16 @@ if [ ! -f $OUT/p1_census_prereg.json ]; then
   serve_and_wait qwen25_32b $BASE --port $PORT --served-model-name qwen25_32b \
     --tensor-parallel-size 2 --max-model-len 8192 --gpu-memory-utilization 0.90 || exit 1
   infer_eval data_multimedia_sub500 data_multimedia qwen25_32b resource
+  # census reads the id-aligned eval dir (task_nodes format), NOT the raw sub500
+  # (raw data.json keys are tool_nodes/tool_links -> KeyError)
+  EVALDIR=$OUT/data_multimedia_sub500_eval_qwen25_32b
   $IP $R/scripts/distill/taskbench/tb_census.py \
-    --dir_a $TB/data_multimedia_sub500 --llm_a qwen25_32b \
-    --dir_b $TB/data_multimedia_sub500 --llm_b qwen25_32b \
+    --dir_a $EVALDIR --llm_a qwen25_32b \
+    --dir_b $EVALDIR --llm_b qwen25_32b \
     --tool_desc $TB/data_multimedia/tool_desc.json --dep resource \
-    --out $OUT/p1_census_32b_base.md
+    --out $OUT/p1_census_32b_base.md || exit 1
   $IP $R/scripts/distill/taskbench/tb_p1_prereg.py \
-    $OUT/p1_census_32b_base.md $OUT/p1_census_prereg.json
+    $OUT/p1_census_32b_base.md $OUT/p1_census_prereg.json || exit 1
   # freeze: push the prereg to HF immediately (sync loop would also catch it, but
   # the timestamped commit IS the 박제)
   $HF upload $HFREPO $OUT/p1_census_prereg.json train/taskbench_runs/p1_census_prereg.json \
