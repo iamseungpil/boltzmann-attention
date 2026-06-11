@@ -218,3 +218,37 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 6. (조건부) 형식-혼합 재학습 — ~~형식-간섭~~ 철회됐으므로 우선순위 강등; 어휘-간섭 처방(2·grounded-copy)이 daily 회복을 못 하면만 재고.
 
 **원칙 (승계)**: 한 번에 한 변수·census로 귀속·강한 주장은 궤적 전수 후 박제. zero-GPU 병렬(§18.2)은 전부 ✅(규제·bitter-lesson·shielding).
+
+## 10. ★층위별 분업 종합 — "무엇을 weight로 학습하고, 무엇을 결정론으로 하나" (2026-06-11 PM 박제)
+
+> SOPBench(무재학습 사다리 15→29/34·3-NULL LOCK·offload)와 TaskBench(SFT/RFT/DPO/snap/guided 전 레버 측정)의 증거를 단일 분류로 통합. thesis(propose+결정론-gate)의 정량 장부. 빈칸 2개(P1·DPO-v2)는 판별 실험 결과로 채움.
+
+### 10.1 레버 장부 — "학습 전부 무용"은 절반만 참
+| 레버 | 산 것 | 못 산 것 |
+|---|---|---|
+| SFT | in-domain coverage 大(+18~27) · **참조-인덱싱 규율 held-out 전이(실재)** · SOPBench gather 스킬 LODO 전이 | held-out net≈0 (규율 이득 − 어휘 간섭 상쇄, §8) |
+| RFT | in-domain 진짜 구조 개선(daily chain) | held-out 재추첨(±450 거울상, §6) |
+| DPO | **누락축 첫 가동**(short 절반·R+3.6 — SFT/RFT/스케일 전부 0이던 축) | v1 단방향=overshoot net 음수(§9.6); v2 균형쌍 판정 대기 |
+| 결정론 (snap/guided/offload/DGGATE) | **held-out 첫 base 추월(52.5)** · SOPBench 15→29/34 · guided valid 1.0 강제(라이브 실측 0/3035) | 의미 매칭 불가(snap이 daily 689건 무력 → guided로 모델에 위임) |
+
+**★핵심: held-out에서 이긴 것은 전부 "학습+결정론 패키지"였고 단독은 없음** (RFT2 단독 49.0<base / RFT2+snap 52.5>base · SOPBench adapter-only≈0 / scaffold+stack 75–95%). 학습 = propose-측 절반(결정론이 보정할 좋은 제안을 만드는 역할).
+
+### 10.2 층위 분류 (표면→심층; 증거 박힌 것만)
+| 층위 | 내용 | 승자 | 증거 |
+|---|---|---|---|
+| L1 도메인 심볼 | 도구명·credential·ID·파라미터값 | **결정론**(컨텍스트 복사·enum 제약) | 어휘간섭 −4~−8pp(§8)·32B base 이미 1.0(§8.5)·snap +3.5(§9.5)·guided 무효 0/3035 |
+| L2 인스턴스 사실 | DB 상태·유저-특정 값 | **결정론**(gather 실행·retrieval) | 정의상 weight 불가(=ABox) |
+| L3 게이트 연산 | permitted?·제약 트리 평가 | **결정론**(offload) | SOPBench 3-NULL LOCK(모델이 faithful gate *생성* 불가)·offload ACT 3→19·DGGATE +3 |
+| L4 의미 매칭 | 패러프레이즈→정준 도구 | **하이브리드**(모델이 제안, 결정론이 출력공간 제한) | daily 689건=문자열 매칭 밖(§9.5)·guided v1=모델이 enum 안에서 의미 선택 |
+| L5 절차 규율 | 참조-인덱싱·gather-먼저-act·종결 캘리브레이션·형식 준수 | **weight ✓** | 태그채택 1.5B 0.47→1.44·자기참조 −83~−98%(§8)·gather LODO 전이(SOPBench)·DPO 종결축 이동(§9.6) |
+| L6 구성 구조 | edge 연결(어느 노드를 어떻게) | weight(in-domain)+scale 비포화 | RFT daily chain 개선·edge=후발 emerge 스킬(§4·§7)·held-out 구조이득 미해결 |
+
+### 10.3 결정 변수와 비대칭
+- 분류 축 = "깊이" 자체가 아니라 **(도메인-일반성)×(절차성)×(인스턴스-독립성)**: weight가 이기는 것=인스턴스 불변 절차 규율(L5), 지는 것=인스턴스에 닿는 모든 것(L1–L3).
+- **이득 크기 ∝ base의 해당-규율 결핍** (§8 기제): 1.5B +8.7(결핍 大) ↔ 32B 사전예측 −5.0(규율 완비→간섭만, §8.5). ⇒ **weight-보강 = 소형모델 절차규율 주입 수단** = thesis 주권-leg(망분리 내부망 sLLM, FIELD_GAP §15.4)와 정합: 대형=결정론만 얹음 / 소형=L5 학습 후 결정론 얹음.
+- L5 정책류 학습은 **신호가 양방향이어야 함**(DPO v1 단방향 overshoot = SOPBench Gate-B 교훈 재현).
+- xattn-LoRA(RUNG1 §3.10 B5*)의 위치: 구조를 출력 어휘에 굽지 않고 별도 conditioning 채널로 → L5(규율)는 weight·L1(심볼)은 채널 복사로 분리 = 어휘-간섭의 구조적 원인(규율과 심볼이 같은 토큰 스트림에 혼합 학습) 차단. 단 retrofit 비용 → guided(추론-side)가 같은 효과를 공짜로 내는지 먼저 측정(진행 중).
+
+### 10.4 미결 — 이 분류를 판가름할 라이브 판별 실험 2개
+1. **coworker P1 (32B SFT, §8.5 사전등록)**: Δ≈−5 적중 → "이득=base 결핍의 함수" 기제 확립(분류의 정량 근거 완성). [결과 대기]
+2. **DPO v2 균형쌍 (§9.6 사전등록)**: 종결-캘리브레이션이 양방향 신호로 깨끗이 weight에 들어가는지 — 성공=정책류는 weight(단 양방향 必) 박제 / 실패=종결도 L3 게이트(결정론 재샘플)로 강등. [결과 대기]
