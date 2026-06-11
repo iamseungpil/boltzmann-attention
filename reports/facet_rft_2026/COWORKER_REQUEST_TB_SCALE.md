@@ -151,6 +151,8 @@ P0(반나절) → P1(1-2일) → 판정 공유(채널) → P2/P3(조건부, 1-3�
 
 **일정**: P2a(반나절, 32B 서빙 재사용) → P2b/P2c(반나절). 전부 추론-only라 Track-B 학습 잡과 GPU 경합 시 빈틈에 끼워도 됨.
 
+> **✅Track A 드라이버 리뷰 (2026-06-12, `node_run_taskbench_p2.sh` 951eb71)**: 5-arm 구성·이중 served-name·멱등 done-marker·schema/slim1 생성 전부 §7 정합 — 승인. **리스크 2건만**: ①**P2b-2 (Qwen3-235B + non-thinking + structured_outputs)**: vLLM issue #18819(Qwen3 enable_thinking=False가 guided를 깨는 버전 존재 — 우리 litreview서 확인) — `guided_run`의 sanity curl이 있긴 한데 **결과를 assert 안 함** → 권장: sanity 출력에 유효 도구명 enum이 보이는지 grep 후 실패 시 해당 arm skip-marker(`p2b2_SKIP_18819`)로 기록하고 진행(전체 중단 금지) ②`kill_gpus`가 GPU0-3 전체 compute PID kill — P2 시점엔 P1 종료라 OK이나 다른 잡 공존 시 주의. 그 외 변경 불요.
+
 ## 8. ★프레임워크 목적·벤치 포트폴리오 공유 (2026-06-12 — Track-B 향후 분담 예고)
 > **권위 = `../../scripts/distill/BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`** (요약 = `TASKBENCH_EXPERIMENT_RESULTS.md` §10.5).
 
