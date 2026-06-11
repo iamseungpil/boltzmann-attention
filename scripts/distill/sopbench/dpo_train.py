@@ -59,17 +59,14 @@ def main():
     a = parse_args()
     dtype = torch.bfloat16
     tok = AutoTokenizer.from_pretrained(a.base)
-    print("[load] policy = base + SFT adapter (trainable)", flush=True)
+    # single base + dual adapters: "default"=policy (trainable), "ref"=frozen copy.
+    # (two full 7B models + both policy graphs OOM on 48GB at long seq)
+    print("[load] base + dual adapters (policy trainable / ref frozen)", flush=True)
     pol = PeftModel.from_pretrained(
         AutoModelForCausalLM.from_pretrained(a.base, torch_dtype=dtype, device_map=a.device),
-        a.sft_adapter, is_trainable=True)
-    print("[load] ref = base + SFT adapter (frozen)", flush=True)
-    ref = PeftModel.from_pretrained(
-        AutoModelForCausalLM.from_pretrained(a.base, torch_dtype=dtype, device_map=a.device),
-        a.sft_adapter)
-    ref.eval()
-    for p in ref.parameters():
-        p.requires_grad_(False)
+        a.sft_adapter, adapter_name="default", is_trainable=True)
+    pol.load_adapter(a.sft_adapter, adapter_name="ref")
+    pol.set_adapter("default")
     pol.config.use_cache = False
     # activation memory: 2x 7B + long-seq backward without checkpointing OOMs on 48GB
     pol.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
@@ -82,11 +79,13 @@ def main():
     step = 0
     for ep in range(a.epochs):
         for i, ex in enumerate(pairs):
+            with torch.no_grad():
+                pol.set_adapter("ref")
+                lp_ref_c = seq_logp(pol, tok, ex["prompt"], ex["chosen"], a.device, a.max_seq_len)
+                lp_ref_r = seq_logp(pol, tok, ex["prompt"], ex["rejected"], a.device, a.max_seq_len)
+            pol.set_adapter("default")
             lp_pol_c = seq_logp(pol, tok, ex["prompt"], ex["chosen"], a.device, a.max_seq_len)
             lp_pol_r = seq_logp(pol, tok, ex["prompt"], ex["rejected"], a.device, a.max_seq_len)
-            with torch.no_grad():
-                lp_ref_c = seq_logp(ref, tok, ex["prompt"], ex["chosen"], a.device, a.max_seq_len)
-                lp_ref_r = seq_logp(ref, tok, ex["prompt"], ex["rejected"], a.device, a.max_seq_len)
             margin = (lp_pol_c - lp_ref_c) - (lp_pol_r - lp_ref_r)
             loss = -torch.nn.functional.logsigmoid(a.beta * margin) / a.grad_accum
             loss.backward()
@@ -96,7 +95,7 @@ def main():
                     acc = (margin > 0).float().item()
                     print(f"  ep{ep} step{step} loss={loss.item()*a.grad_accum:.4f} "
                           f"margin={margin.item():.3f} chosen>rej={acc:.0f}", flush=True)
-    pol.save_pretrained(a.out_dir); tok.save_pretrained(a.out_dir)
+    pol.save_pretrained(a.out_dir, selected_adapters=["default"]); tok.save_pretrained(a.out_dir)
     print(f"[done] DPO adapter -> {a.out_dir}", flush=True)
 
 
