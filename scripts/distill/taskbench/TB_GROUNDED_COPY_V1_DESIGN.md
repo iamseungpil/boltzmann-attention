@@ -1,4 +1,5 @@
 # grounded-copy v1 — 추론-시 도구명 제약 디코딩 (설계 노트, 2026-06-11)
+> 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > 배경: 결과문서 §9.5 — v0(name-snap 후처리)로 RFT2+snap=52.5(held-out 첫 base 추월).
 > v0 한계 실측: daily 미스냅 689건 = 의미적 패러프레이즈("install software"→`software_management`) = 문자열 매칭 사정거리 밖.

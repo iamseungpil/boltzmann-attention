@@ -1,4 +1,5 @@
 # GROUNDED_BIZ_AGENT_BENCH — DB-grounded 금융·마케팅 에이전트 벤치마크 설계 (DRAFT v0.1, 리뷰 대기)
+> 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 > 2026-06-10. 사용자 발주: "할루시네이션 없이 DB 조회 등으로 확보된 자료로 정확한 금융 마케팅·전략 조언·보고서 자동생성·paper-conditioned 분석을 오류 없이 수행하는가"를 테스트할 벤치마크.
 > 지위 = **CDP/OISA 1차 타겟 도메인의 직접 벤치** — TaskBench(충실성)·SOPBench(soundness)가 못 덮는 "**산출물-수준 grounding**"(모든 수치·주장 ↔ 실데이터 provenance) 측정. thesis(`FIELD_GAP_LLM_VALUE_DESIGN.md` §17.9) 헤드라인을 사업 도메인에서 그대로 조작화: **fabrication=0(precision=1) 보장 하 grounded coverage(recall) 최대화**.
 

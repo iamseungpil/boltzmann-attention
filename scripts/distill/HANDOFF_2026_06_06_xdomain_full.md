@@ -1,4 +1,5 @@
 # HANDOFF 2026-06-06 — cross-domain transfer (held-out) 전수 학습+eval 진행 중
+> 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > **진입점 = 이 문서.** 환경 = [[reference-remote-server-environment]] (메모리, 세션 시작 필독). 설계 = `CROSS_DOMAIN_TRANSFER_DESIGN.md`(§2.0 held-out 교정). 마스터 = `EXPERIMENT_DESIGN.md`. 결과 권위본 = `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.
 

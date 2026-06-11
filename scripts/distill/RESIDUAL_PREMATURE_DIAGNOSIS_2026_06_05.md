@@ -1,4 +1,5 @@
 # 잔여 premature 진단 — login-before-getter 순서 (2026-06-05, DGGATE 후속)
+> 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > zero-cost(GPU 0), 전부 **권위 evaluator(`env/evaluator.py`) 재실행**으로 확정. 진입점 핸드오프 `HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md` §0.2 잔여 진단의 결말.
 

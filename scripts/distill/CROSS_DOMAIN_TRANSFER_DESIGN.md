@@ -1,4 +1,5 @@
 # Cross-Domain Transfer 설계서 — A축 scaffold 도메인 전이 (로드맵 1단계)
+> 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > **상태: ★결과 진행 중 (2026-06-06) — §11 transfer 확정 채워지는 중.** audit(§4.5) PASS·login-arg 일반화 완료 → train1 6 held-out 확정(avg 77.3%, LB-max 추월 3/6) + LODO 3 확정(healthcare 95.9%·library 75.8% 추월); LODO 4 + train1 6 학습 큐 진행. **결과 = §11**(권위본 `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` Exp-5). 진입점 = `HANDOFF_2026_06_06_xdomain_full.md`. 마스터 = `EXPERIMENT_DESIGN.md`. (coworker plan = `../../reports/facet_rft_2026/COWORKER_EXPERIMENT_PLAN.md`.)
 > 〔리뷰 반영 이력: BLOCKING-1(통합 stack 정합·login 3중 compose-audit §5 B-5) + BLOCKING-2(adapter-only 4열 scaffold Δ 격리 §6) + S1(VALFIX oracle-정당성 §4.2) + S2(login-arg unit-verify §4.3) + S3(바=리더보드-상대 §6) — APPROVED w/ changes.〕

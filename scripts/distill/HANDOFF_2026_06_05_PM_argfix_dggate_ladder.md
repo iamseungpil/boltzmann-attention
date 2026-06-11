@@ -1,4 +1,5 @@
 # HANDOFF 2026-06-05 PM — ARGFIX→VALFIX→KEEPTUPLE→DGGATE 사다리 (BOTH 15→29/34, 다음 세션 진입점)
+> 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > **진입점 = 이 문서.** 권위본 결과 = `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`(active-H3 census~DGGATE 행). 설계 = `RESIDUAL11_FIX_DESIGN.md`(2-리뷰어 엔도스·4 BLOCKING 가드) + `GUARD2_DIRGRAPH_MIRROR_DESIGN.md`(PASS). 직전 진입점 `HANDOFF_2026_06_05_h3_offload_paper_grounded.md`는 SUPERSEDED(단 §6.5 일반화 ToDo·§7 reliability는 유효).
 

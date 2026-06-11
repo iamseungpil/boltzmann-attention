@@ -1,4 +1,5 @@
 > ⚠️ **마스터 = `EXPERIMENT_DESIGN.md`** (목표·실험 순서·헤드라인 지표 권위본). 이 문서는 **detail**(should_T 병목 진단 + §8.6 전수진단 + §8.7 학습 사다리 상세 = Rung1-2 구현). 방향은 마스터에서 고정.
+> 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 # Task-Instance Constraint 설계서 — should_T 병목(과잉 게이팅 + full-tool 부담) 해소
 

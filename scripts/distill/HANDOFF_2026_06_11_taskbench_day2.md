@@ -1,4 +1,5 @@
 # HANDOFF 2026-06-11 — TaskBench 측정 2일차 종료 (census-기제 확립 → 처방 단계 진입점)
+> 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > **다음 세션 진입점.** 권위: 결과 = `reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md` **§8(3축 기제)·§9(실행 큐·분기 사전등록)·§9.5(snap)·§9.6(DPO)**. thesis = `FIELD_GAP_LLM_VALUE_DESIGN.md` §17.9(동결)·§18. 구 핸드오프 `HANDOFF_2026_06_10_taskbench_learning.md`(인프라 §2·converter §5는 여전히 유효 참조).
 > 리모트 규칙은 memory `reference-remote-server-environment` 그대로 (**ssh_run은 반드시 `/c/workspace`에서** — cd 후 호출이 이번 세션 최다 반복 실수).
