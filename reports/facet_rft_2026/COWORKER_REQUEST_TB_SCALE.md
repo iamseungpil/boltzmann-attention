@@ -27,11 +27,11 @@
 | 14B | 77.5 / 39.6 | 89.5 / 52.8 | 93.5 / 77.4 |
 | (published gpt-4) | — | 90.9 / 69.3 | — |
 
-**(b) gold-SFT LODO 7B 1차 = held-out 전이 NULL/소폭 회귀**: HF+daily 학습(3869ex, LoRA r16 2ep)→held-out MM full: node 84.4→82.5·edge 50.0→**48.3**. 해석(잠정): base가 형식은 이미 보유, SFT가 배운 것=도메인-특정 grounding→전이 없음. **미해결 질문 = 이 NULL이 7B 용량 한계인가(스케일로 풀리나), 방식 한계인가(alias/RFT 필요).**
+**(b) gold-SFT LODO — v3 갱신 (전이-vs-용량 3점 + census 기제, 상세=결과문서 §5/§8)**: held-out MM Δedge(sub500 동일-id) = **1.5B +8.7 / 7B −0.8 / 14B +4.3** (U자형). 전수조사 기제 = (+)인덱스-규율 전이(이득∝base 자기참조율) ⊕ (−)어휘-간섭(~5pp) ⊕ (0)누락-불변. **미해결 질문(v3) = 이 기제-예측이 32B에서도 맞나** — P1 step-0의 base census로 Δ를 사전 예측하고 학습으로 검증.
 
 ## 1. 질문 3개 (이 실험이 답할 것)
 - **Q1 (곡선 연장)**: edge-F1이 32B/72B(Qwen2.5)·32B/235B-A22B(Qwen3)에서 계속 오르나, 어디서 published gpt-4(69.3 MM)에 접근/포화하나? + **곡선 모양이 family-불변인가**(Qwen2.5 vs Qwen3 두 곡선 비교).
-- **Q2 (★핵심, transfer-vs-scale, 동일-family 통제 = Qwen2.5)**: 7B서 NULL인 gold-SFT held-out 전이가 **Qwen2.5-32B**(→+면 72B)서 양(+)으로 뒤집히나? = "전이할 공통 edge-스킬의 학습이 용량-바운드인가" — Exp-A 다음 수(alias/RFT) 설계를 결정.
+- **Q2 (★핵심, v3 정련 — 기제 검증, 동일-family 통제 = Qwen2.5)**: census 기제(Δ ≈ 인덱스-교정 이득[∝base 자기참조율] − 어휘-간섭[~5pp])가 **Qwen2.5-32B에서도 예측대로 맞나?** step-0 base census로 Δ 사전 예측·박제 → SFT로 검증. 맞으면 기제 확립(전이의 함수형 확보), 틀리면 새 변수 발견 — 어느 쪽이든 1급. (→+면 72B로 3점째.)
 - **Q3 (선택, frontier-adjacent 오픈 앵커)**: 235B-초과/타-family 오픈모델은 prompted로 어디까지 가나? (별도 표 — family/양자화 confound로 곡선에 못 올림.)
 
 ## 2. 실험 arms (우선순위순; Qwen3 run은 **전부 non-thinking 고정**)
@@ -46,7 +46,7 @@
 - 학습 데이터 = Track A와 **동일 생성**(아래 §4 `tb_build_sft.py`, seed 42 → byte-동일 jsonl): HF(single400/chain1000/dag전부795=2194) + daily(400/1000/275=1675) = 3869.
 - 레시피 = 7B와 동일 통제: **LoRA r16/alpha32, 2ep, seqlen 6144, lr 1e-4, val 2%** (`scripts/distill/lora_train_chat_toolcall.py` 그대로 사용 가능; 32B는 grad-ckpt+TP/FSDP로 2~4GPU. 자체 트레이너 쓸 경우 위 하이퍼 고정).
 - 평가 = held-out **MM full**(시간 빠듯하면 sub500 먼저→full 보충) + in-domain HF/daily sub500. 비교 4열: `base-32B / 32B+gold-SFT / base-7B / 7B+gold-SFT`(7B 수치는 §0).
-- 견적: 32B LoRA 7584 step seqlen6144 ≈ **12-24h**(설정 따라). 판정: held-out edge-F1 Δ가 7B의 −1.7을 넘어 **+로 뒤집히면 용량-바운드 확정**(→ Track A는 14B 재시도+alias), 32B서도 NULL이면 **방식-바운드**(→ alias-마스킹/RFT로 피벗, 스케일 추가투자 중단).
+- 견적: 32B LoRA 7584 step seqlen6144 ≈ **12-24h**(설정 따라). **판정(v3)**: 실측 Δ를 step-0 사전예측과 대조 — ①예측 적중 = 기제 확립(이후 스케일 투자 여부는 함수형으로 계산) ②예측 대비 초과 = 인덱스 축 외 추가 전이 발견(용량 가설 부분 부활) ③미달 = 32B 고유 변수 census로 재조사. (구판 "용량-바운드 확정/방식-바운드" 이분법은 철회 — 결과문서 §8.)
 - ⚠️ in-domain이 두 스케일 다 평평하면 "gold-SFT 자체 무가치(base 포화)" — 그것도 1급 결과.
 
 **P2 — (P1이 + 신호 시) Qwen2.5-72B gold-SFT LODO_mm**: 동일 레시피·동일 family로 용량 축 한 단 더(7B→32B→72B 3점 = 전이-vs-용량 곡선). 견적 2-3일 → P1이 +면만.
