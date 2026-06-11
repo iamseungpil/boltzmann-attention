@@ -19,6 +19,26 @@ metrics: `{domain}_evalfull_qwen7b/metrics/qwen7b.json` `overall_overall`.
 - **edge-F1이 전 도메인 진짜 headroom** (HF 32 ≪ MM 50 < daily 68). HF 최저 = human-verified 10.8%(GT 약함)·도구 다수와 정합 — LODO 시 도메인 가중 주의(§17.8 caveat).
 - 재현 gotcha 추가분: ①daily는 `--dependency_type temporal`(tool_desc에 input-type 없음) ②기형 gold(tool_nodes가 dict/no-task) HF2·MM3건 skip ③모델 emit 기형 link(source/target 결손, daily 153줄)는 sanitize(매칭불가 link 제거, task는 유지) — `tb_build_eval.py`.
 
+## 1.5 ★TaskBench 외부 수치 전수조사 (2026-06-12, 3-agent 적대조사 — 인용 ~150편 전수 스크리닝)
+> 동기: "리더보드 69.3은 2023 수치 — 이후 팔로우업 전수 조사"(사용자). 결론 먼저: **벤치는 외부적으로 사실상 동결(dead)** — 단 내부-일관 비교·기제 발견은 유효, 외부 비교가능성만 사망.
+
+**①벤치 생사**: 리더보드 2023-11 동결·maintainer 무응답(2024 결과요청 이슈 방치)·**공식 evaluation.py에 도메인-이름 뒤바뀜 버그 open(2025-07 이슈)**·커뮤니티는 후속 벤치(WorFBench/UltraTool/ToolHop 등)로 이동.
+
+**②수치 보고 논문 = ~150편 중 단 8-9편** (나머지는 cite-only/파생 벤치; 스크리닝 음성 목록 박제됨). 전부 표:
+| 라인 | 프로토콜 | 최고 edge (MM/HF/daily) | 비교가능성 |
+|---|---|---|---|
+| **원판 gpt-4 (2023)** | full·zero-shot | 69.27 / 54.70 / 80.53 | 기준 |
+| GNN4Plan(NeurIPS'24)→GNNVerifier('26) 계보 | **500-test 재분할(≥2-task 필터)**+GPT-4-turbo/4o+학습된 GNN/검증루프 | **73.73 / 60.79 / 87.61** (GPT-4o+ReAct+verifier) | ✗ 재분할·추가 추론·학습 컴포넌트 — 본인들도 리더보드 추월 주장 안 함 |
+| GTool('25) | 자체 분할(726/597/558)·in-domain 학습·Llama-2-7B | 68.92 / 54.03 / 83.75 | ✗ (7B로 gpt-4 급은 주목할 만 — 단 학습+자체분할) |
+| GRAFT·DiG-Plan('26) | chain-only 선형화 EM / "TaskBench-23" 501 풀드·EdgeRec(recall-only) | 비표준 지표 | ✗✗ e-F1 매핑 불가 |
+| ToLeaP('25, 41모델) | 원판 harness 재런 | 오픈 최고 link ~38(Qwen2.5-32B) | ⚠️**인용 금지**: "GPT-4o" 행=원판 gpt-4 수치의 도메인-전치 복사(공식 스크립트 버그 시그니처)·전모델 일률붕괴=파서깨짐 신호 |
+
+**③판정**: ⓐ**엄밀 원판 프로토콜에서 2023 gpt-4 행을 넘은 보고 없음**(to our knowledge — ICPE'26 1편 페이월 미확인) ⓑ유일한 fresh frontier 점 = GNNVerifier의 GPT-4o Direct **64.36 MM(서브셋)** = 원판 gpt-4보다 *낮음* — **frontier가 이 벤치에서 2023 수준 정체** ⓒGemini/o1/DeepSeek/405B의 수치는 어디에도 없음(부재 자체가 발견).
+
+**④인용 위생 (논문 작성 시 필수)**: gpt-4 "공식" 수치 **두 벌** 존재 — README(54.70/69.27/**80.53**) vs arXiv v4 표(55.73/69.29/**83.47**) — 출처 명시 必. 프로토콜 함정 6종(재분할/필터·백본 드리프트·지표 약화(EdgeRec≠e-F1)·파이프라인 재구성·in-domain 학습 vs prompting 비교·도메인 전치) 체크 후 인용.
+
+**⑤우리 위치 재산정 (서브셋-차이 명시 전제)**: 72B base 63.5·32B base 61.9 ≈ GPT-4o 64.4(서브셋) — **오픈웨이트 대형 base = 현대 frontier 동급**; 7B best-stack 57.3도 사정거리. 보고 문구는 "frozen 2023 리더보드 대비"+"내부-일관 비교" 프레임 유지, GNNVerifier-계보와 비교 시 프로토콜 차이 병기.
+
 ## 2. A-0 edge-miss 수동 감사 (zero-GPU, RFT 전 BLOCKING — FIELD_GAP §18.1) ✅ 2026-06-10
 - 대상: MM full baseline, edge-miss 보유 1852/5540(33.4%) 중 seed=42 무작위 30케이스 전수 수동 판정. 추출기 `tb_a0_audit.py`(evaluate.py 링크재구성 복제: `<node-j>` 태그·`_`→` `), 원본 `/home/woori/scratch/tb_a0_audit_mm.md`.
 - **헤드라인: real-error ≈ 22/30 (73%) vs valid-대안/GT-관례 ≈ 8/30 (27%)**.
