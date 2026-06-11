@@ -1,5 +1,7 @@
 # HANDOFF 2026-06-10 — TaskBench 학습 실험 (thesis 동결 후 *측정* 단계)
 
+> ⚠️**SUPERSEDED (2026-06-11): 진입점 = `HANDOFF_2026_06_11_taskbench_day2.md`** (census 3축 기제·처방 단계·DPO 인수인계). 이 문서의 §2 인프라·§5 converter는 유효 참조로 유지.
+
 > **★STATUS UPDATE (2026-06-11 AM, 측정 2일차 — 결과·실행 권위 = `reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md` §8(기제)·§9(실행 큐))**: ✅baseline·A-0·scale곡선(Qwen2.5 0.5–14B + Qwen3 0.6/1.7/14B)·LODO 3×3·RFT r1·전이-vs-용량(1.5/7/14B = +8.7/−0.8/+4.3) ✅**궤적 전수조사가 해석 정정(§8 권위)**: held-out 효과 = (+)참조-인덱싱 규율 전이 ⊕ (−)도구-어휘 간섭 ⊕ (0)누락-불변 3축 — ~~"형식-간섭"~~·~~"14B=용량"~~·~~"전이0"~~ 철회/정정 ✅L3 type-closure probe(탐지 47%·수리 1.7% → flag-게이트) 🔄**RFT round-2 가동**(보상 v2=recall+validity, 판정·분기 = §9 사전등록). ▶큐 = 결과문서 §9(이게 권위; round-2 분기→L2 DPO/grounded-copy→coworker P1[32B base census 선행]→L3 통합→alias). 인프라: `scripts/distill/taskbench/` 풀 파이프라인 + `tb_census.py`·`tb_typeclosure_probe.py`·`tb_rft_*`. §18.2 zero-GPU 전부 ✅.
 
 > **진입점.** §14–17 설계는 **동결**(`FIELD_GAP_LLM_VALUE_DESIGN.md` §17.9 = 고정 thesis). **리뷰3(2026-06-10) 반영: 실행 권위 = 설계서 §18**(E0/E2/E5 disposition·§15.4 사활 open 3건[규제원문 sourcing·bitter-lesson·erosion] zero-GPU 병렬 배정 — 특히 **규제 1차원문 sourcing은 moat-leg 사활이라 Exp-A와 병렬 필수**). 이 핸드오프 = 다음 세션이 *측정*(학습 실험)을 바로 실행하기 위한 자족 문서. **메타규칙: 더 이상 thesis 정제 금지(수확체감) — 코드/측정으로 전환.**
