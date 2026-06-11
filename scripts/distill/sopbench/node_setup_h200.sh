@@ -31,6 +31,17 @@ $PIP install -q "transformers>=4.55.2,<5" peft accelerate datasets
 grep -q HF_HUB_CACHE ~/.bashrc 2>/dev/null || echo "export HF_HUB_CACHE=/scratch/hf_cache" >> ~/.bashrc
 [ -n "${HF_TOKEN:-}" ] && /scratch/venvs/sop_env/bin/hf auth login --token "$HF_TOKEN" > /dev/null 2>&1 || true
 
-# 6. background-download Qwen2.5-32B-Instruct weights (~62GB)
+# 6. download Qwen2.5-32B-Instruct weights (~62GB) — wait via PID, never pgrep:
+#    a pgrep-based wait self-matches the caller's cmdline and hangs forever
 nohup /scratch/venvs/sop_env/bin/hf download Qwen/Qwen2.5-32B-Instruct > /scratch/logs/hfdl_32b.log 2>&1 &
-echo "SETUP_DONE (32B download continues in background: tail /scratch/logs/hfdl_32b.log)"
+DL_PID=$!
+echo "SETUP_DONE (waiting for 32B download pid $DL_PID)"
+wait $DL_PID || true
+
+# 7. dispatch role workload here (NOT in the yaml command: its pgrep wait-loop
+#    self-matched and hung, so node_resume never ran on the first deployment)
+case "${AMLT_JOB_NAME:-}${AMLT_EXPERIMENT_NAME:-}" in
+  *train*) bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_resume.sh train;;
+  *eval*)  bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_resume.sh eval;;
+  *)       echo "NO_ROLE_DETECTED (AMLT_JOB_NAME/AMLT_EXPERIMENT_NAME unset) — run node_resume.sh manually";;
+esac

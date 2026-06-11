@@ -27,7 +27,7 @@ jobs:
     command:
       - nvidia-smi
       - mkdir -p /scratch/logs
-      - bash -c 'git clone -b facet-rft-2026 https://$${GH_TOKEN}@github.com/iamseungpil/boltzmann-attention.git /scratch/boltzmann-attention || (cd /scratch/boltzmann-attention && git pull --ff-only); bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_setup_h200.sh; while pgrep -f "hf download Qwen/Qwen2.5-32B" >/dev/null; do sleep 20; done; bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_resume.sh train' > /scratch/logs/job_bootstrap.log 2>&1
+      - bash -c 'git clone -b facet-rft-2026 https://$${GH_TOKEN}@github.com/iamseungpil/boltzmann-attention.git /scratch/boltzmann-attention || (cd /scratch/boltzmann-attention && git pull --ff-only); bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_setup_h200.sh' > /scratch/logs/job_bootstrap.log 2>&1
       - echo "auto-bootstrap done (role=train); holder alive"
       - sleep infinity
 
@@ -46,6 +46,6 @@ jobs:
     command:
       - nvidia-smi
       - mkdir -p /scratch/logs
-      - bash -c 'git clone -b facet-rft-2026 https://$${GH_TOKEN}@github.com/iamseungpil/boltzmann-attention.git /scratch/boltzmann-attention || (cd /scratch/boltzmann-attention && git pull --ff-only); bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_setup_h200.sh; while pgrep -f "hf download Qwen/Qwen2.5-32B" >/dev/null; do sleep 20; done; bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_resume.sh eval' > /scratch/logs/job_bootstrap.log 2>&1
+      - bash -c 'git clone -b facet-rft-2026 https://$${GH_TOKEN}@github.com/iamseungpil/boltzmann-attention.git /scratch/boltzmann-attention || (cd /scratch/boltzmann-attention && git pull --ff-only); bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_setup_h200.sh' > /scratch/logs/job_bootstrap.log 2>&1
       - echo "auto-bootstrap done (role=eval); holder alive"
       - sleep infinity
