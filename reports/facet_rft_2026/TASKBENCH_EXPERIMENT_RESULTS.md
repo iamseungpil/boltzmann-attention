@@ -196,6 +196,16 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 
 **SOPBench Track-B #0 sanity (v1.42, 같은 노드)**: react/full/bank **44.78%** (리더보드 40.30 대비 **+4.5pp — ±2pp 재현 밴드 밖**, ⚠️serving 차이(vLLM 0.10.2/bf16/TP2) 추정, 원인 메모 후 4열표에선 우리 서빙 기준 내부-일관 비교로 사용) · fc/full/bank **12.69%** (32B FC base 앵커 신규, 7B 참조 3.7).
 
+## 8.6 ★Track-B 전수 궤적 census (Track A 분석, 2026-06-12 — trackb_raw 16 preds × 우리 빌더·gold·census 전수)
+> 보고서 원본: 리모트 `census_tb_{mm_q25_vs_q3_32b, mm_32b_vs_72b, hf_base_vs_sft32b, daily_base_vs_sft32b, daily_32b_vs_235b}.md` + verify-dir 15개(`{dom}_verify_{model}`).
+
+1. **무결성 — 15/15 공식수치 원본 재현**: 모델 5(q25-32B/72B·q3-32B/235B·SFT) × 도메인 3의 micro edge 전부 coworker 표와 일치 — Track-B 표는 전수 검증됨.
+2. **누락축 × 스케일 × 도메인 (PR census 15셋)**: deficit — MM·daily는 전 대형모델 ≈0(조기종결 소멸) **but HF만 +0.09~+0.14 잔존(235B도 +0.135)** = 누락축은 도메인-의존(HF=GT-약함·최난 도메인). +**SFT가 전 도메인서 deficit 증가**(MM +0.024→+0.152·HF +0.119→+0.178) = parsimony 과교정의 공통 시그니처(7B DPO-v1 거울상의 약형).
+3. **★Qwen3 평탄의 정체 (q25-32B→q3-32B, MM 궤적 직독)**: 시그니처 차이 미미(valid 0.994·nself 0.036) — worsened 45(chain 31) 원문 = **유효명 안에서의 구조-선택 차이**(노드 재배열·그럴듯한 추가 스텝 삽입(Video Downloader)·유효 도구 치환(Text Downloader→Keyword 직행)). macro +2.4 ↔ micro −3.2(손실이 링크-多 체인에 집중). ⇒ **family 격차 = L6(구성 구조) 축 — L1/L5 시그니처로 설명 안 됨** = guided/snap이 못 고치는 축(P2b-2 음성통제 설계 정합).
+4. **32B→72B 스케일 step**: improved 68 vs worsened 27·macro +8.0·**P 0.873→0.908** — 스케일은 정밀도·macro를 계속 올리나 micro edge는 +1.6뿐(개선이 single/저링크 예제에 집중 = §4 "edge 비포화"의 미세구조).
+5. **in-domain SFT @32B 분해**: HF +5.1 micro/+12.4 macro(improved 104 vs 25 = 진짜 구조 이득) — **★단 valid 0.995→0.935(−6.0pp): 어휘-간섭은 in-domain에서도 발생**(P2 함의: SFT+guided는 in-domain HF에도 +α 예측). daily +3.4(valid −0.8pp뿐).
+6. **temporal 형식 @대형**: 32B/72B/235B 전부 links_ok 1.000·argdict 1.000 — 7B의 형식 사고(§3.6 직렬화/링크열화)는 대형 base에 전무 = 형식축도 base-결핍 함수.
+
 무효 도구명을 tool list 최근접 유효명으로 스냅(`tb_name_snap.py`, difflib cutoff 0.6) 후 공식 재채점:
 
 | held-out pred | 원본 edge | +snap | Δ |
