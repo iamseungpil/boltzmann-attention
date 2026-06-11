@@ -172,9 +172,16 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - **★의미: weight-학습(in-domain coverage) + 추론-side 결정론 보정(held-out 어휘)의 *패키지*가 처음으로 held-out 순이득** — thesis의 propose+결정론-보정 구조의 TaskBench 인스턴스. 스냅 규모: SFT preds 무효명 7.2%(912+138) vs base 1.7%(228+22) = census 간섭 발견의 독립 재확인.
 - **★v0/v1 경계 실측 (daily가 그어줌)**: daily 미스냅 689건의 정체 = 오타가 아니라 **의미적 패러프레이즈**("install software"→`software_management`·"watch movie"→`play_movie_by_title`·"pay bill"→bill-payment류, top15 전수확인) → 문자열 매칭 사정거리 밖. **처방 v1 = 추론-시 제약 선택(constrained/guided decoding: valid 이름 집합 안에서만 생성 — 의미 매칭은 모델 자신이 수행)** — MM/HF의 형태-변형은 v0로 충분, daily의 의미-변형은 v1 필요.
 
-## 9.6 L2 DPO (조기종결 쌍) 🔄 진행
+## 9.6 L2 DPO (조기종결 쌍) ✅ 측정 완료 2026-06-11 PM — **누락축 첫 가동·but 단방향 overshoot로 패키지 무이득**
 - 채굴: `.all`(K=8 전샘플)에서 [완전·고보상 chosen / 조기종결 rejected] = **318쌍**(3869 프롬프트 중 — 'no_short' 2528 = 정책이 in-domain 샘플링에선 조기종결을 드물게 냄 = 누락 질량은 greedy-선택/held-out 측이라는 진단과 정합). `tb_dpo_mine.py`.
-- 학습: rft2 위 DPO(beta 0.1, lr 5e-6, 2ep). ⚠️인프라: 2×7B(policy+ref)가 48GB서 OOM → grad-ckpt 패치 + seq-len 3072(머리-절단은 chosen/rejected 동일 = 차분 신호 보존)로 우회. 평가 예정.
+- 학습: rft2 위 DPO(beta 0.1, lr 5e-6, 2ep). ⚠️인프라: 2×7B(policy+ref)가 48GB서 OOM → **dpo_train 4-fix**(단일 base+이중 어댑터·completion-span logits·`.train()` 필수·grad-ckpt)로 18.4GB 안정.
+- **★판정 (held-out MM full, 어댑터 `qwen7b_tb_dpo_mm`)**:
+  - **①누락축 = 첫 가동 성공**: short 18.3%→**9.4%**(1017→523)·deficit +0.225→**−0.072**·node-R 0.829→**0.865**(+3.6pp) — SFT/RFT/스케일이 전부 Δ≈0이던 제3축을 DPO가 처음 움직임 (`tb_pr_census.py`).
+  - **②but 패키지 무이득**: 공식 edge 49.0→**48.46**(−0.5)·+snap **50.65** vs rft2+snap 52.5(−1.9). node-P 0.872→0.851(−2.1pp).
+  - **③census 귀속 (`census_rft2_to_dpo_mm.md`)**: improved 460=원래 짧고-깨진 케이스 정확 수리(edge 0.20→0.72·nself 0.50→0.16·valid 0.86→0.97) ↔ worsened 549=**이미 완전하던 플랜 과잉-연장**(n_nodes 2.88→3.85·valid 0.97→0.90·ndangle ×9·edge 0.86→0.28). 같은 81.8%.
+- **★기제: 단방향 쌍의 거울상 trade** — rejected가 조기종결뿐이라 "길게"만 학습 → 완전 케이스에 무효명·junk 노드 추가. SOPBench Gate-B 교훈(DPO 쌍 **양방향** 카운트) 그대로 재현. ⇒ 처방 = **균형-쌍 v2**(`tb_dpo_mine.py --balance`: chosen=gold-길이 정확·고보상, rejected=조기종결 **및 과잉연장** 양쪽), 채굴 zero-GPU(.all 재사용).
+- 사전등록 분기(§2 핸드오프)는 "결손↓=best-stack 확정"을 가정했으나 결손↓∧패키지↓ 동시 발생 = 분기 미커버 → 기록 후 최소-프로브(균형-쌍 v2) 선행, L3 게이트 이관은 v2 판정 후.
+- in-domain sanity: HF sub500 edge 47.29/node 84.11. ⚠️daily sub500은 PS argv 따옴표-절단으로 eval서 탈락(TRAIN_DOMS 2번째 인자 증발) → `tb_dpo_daily_sub500.sh`로 보완 (재발방지: ssh_run에 따옴표 포함 명령은 stdin으로).
 
 ## 9. ★실행 큐 (2026-06-11 AM 갱신 — census §8 처방 기준, 이 §이 TaskBench 실행 권위)
 
