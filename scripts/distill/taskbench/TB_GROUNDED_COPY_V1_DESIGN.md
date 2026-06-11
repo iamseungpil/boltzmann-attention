@@ -46,3 +46,15 @@
 
 ## 5. 출처 (조사 에이전트 2026-06-11)
 - vLLM structured outputs 문서(v0.10.1/v0.11.0)·release notes(0.12 제거)·PR#22740(per-request backend deprecate)·issue#15762(xgrammar enum)·SqueezeBits 벤치(스키마-재사용 시 오버헤드 미미)·Qwen 문서(프롬프트 형식 설명 유지 권고). Qwen3 thinking-모드 이슈는 Qwen2.5 비해당.
+
+## 6. ★선행연구 (litreview 2026-06-11, 적대검증 — 메커니즘 novelty 주장 금지)
+**기제 자체는 확립된 계보 — 절대 novelty 주장 금지:**
+- **GENRE** (De Cao et al., ICLR'21 spotlight, 2010.00904): 고정 이름 집합(위키 엔티티 6M)을 prefix-trie 제약 빔서치로 생성 — "유효 이름만 생성"의 정전.
+- **PICARD** (EMNLP'21)·**Synchromesh** (ICLR'22)·**Geng et al. GCD** (EMNLP'23): 점진 파서/completion-engine/입력-종속 문법 제약 디코딩 — 우리 per-domain enum은 Geng의 input-dependent grammar 인스턴스.
+- **★ToolDec** (2310.07075, NeurIPS'23 MATH-AI 워크숍 — 본회의 아님): **도구명 토큰-trie + 인자 FSM 마스킹, 가장 근접 선행**. v2 제목이 "Don't Fine-Tune, Decode" = FT-적대 프레이밍. **FANTASE** (Findings EMNLP'24, 2407.13945): API명 trie+reranker. **ToolGen** (ICLR'25, 2410.03439): 도구=단일 토큰화+제약 빔서치(임베딩-레벨 변형).
+- 인프라 상품화: Outlines(2307.09702)·xgrammar(2411.15100, vLLM 기본 백엔드=우리 스택)·OpenAI Structured Outputs(2024-08, adherence 93%→100%)·GBNF/Guidance.
+- 단점 이론: **Grammar-Aligned Decoding** (NeurIPS'24, 2405.21047) — per-step 마스킹은 LM 분포를 왜곡(greedy trie-커밋) ⇒ 우리 worsened 77/3647이 그 비용의 실측(작음). Tam et al.(EMNLP'24 Ind., 제약이 추론 저해) vs dottxt 반박 — 논쟁 live.
+**미점유 영역 (novelty는 여기) — 검증 결과 선행 0건:**
+1. **TaskBench/도구-그래프 플랜 생성에 CD 적용 수치** (TaskBench는 측정만, DiG-Plan은 diffusion).
+2. **★FT×CD 요인분해 (2×2: base/FT × free/constrained) + census 귀속** — ToolDec=적대 프레이밍만, ToolGen=결합하되 미분해. 우리 §10(레버 장부: DPO v2 55.95 + guided 57.22, 각 축 귀속)이 정확히 이 빈칸. "Don't Fine-Tune, Decode"에 대한 답 = "둘은 다른 층을 푼다(합성이 최선)".
+3. **제약이 해/독이 되는 조건의 실증** (GAD 이론 ↔ 우리 daily +8.0·worsened 77 실측).

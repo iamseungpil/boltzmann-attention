@@ -215,7 +215,8 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 - **★의미: snap(v0)이 Δ0이던 의미-패러프레이즈 축이 제약-선택으로 완전 해소** — guided가 SFT의 daily 붕괴(−8.5, §3·§8 어휘-간섭)를 **base 수준(−0.5)까지 전량 회복**. daily는 태그-인덱싱 축이 없어(ntag=0) SFT 규율-이득 자체가 0인 도메인 → base 회복 = 이 처방의 이론적 상한 달성.
 - **귀속 (census `census_guided_daily.md` + `tb_pr_census.py`)**: ①valid_frac 0.900→**1.000**(공유 id, 무효명 0/13k+) ②**parse 회복 663건**(문법이 valid JSON 보장 — 깨진-JSON 축도 동시 해소) ③공유-id macro edge 0.650→0.717·node 0.822→0.892, improved 505 vs worsened **77** ④P/R 동반 상승 0.835/0.813→0.912/0.891 = 정밀도 손실 없는 회복(DPO v1과 대조). 라이브 중간검증: 3035노드 무효 0건.
 - **★thesis 격상**: propose(weight-학습 SFT) + 결정론-gate(디코딩 제약)의 **2번째 held-out 실증**(1번째=RFT2+snap 52.5) — §10.2 L4(하이브리드: 모델이 enum 안에서 의미 선택) 행의 직접 증거. 비용: 도메인당 schema 1개+grammar 컴파일 1회(캐시), 추론 오버헤드 체감 없음(4320건 ~50분, unguided와 동급).
-- 다음: MM/HF에도 guided 적용해 snap을 대체하는지(v0 상위호환 여부) — zero-GPU 아님(재추론 필요)이라 v2 판정 후 우선순위 결정.
+- **★MM 합성 실측 (2026-06-11 밤, `tb_guided_mm_dpo2.sh`)**: dpo2+guided MM full edge **57.22**/node 87.37 = dpo2+snap 57.30과 동급(−0.08)·raw 55.95 대비 +1.27 ⇒ **guided = snap 완전 상위호환 확정** (MM 동급 + daily +8.0(snap 0) + parse 보장) — 패키지의 결정론-leg를 guided 하나로 통일 가능. **최종 best-stack = rft2+dpo2+guided = 57.2~57.3 (base 50.0 대비 +7.2~+7.3).**
+- **선행연구 (적대검증 litreview, `TB_GROUNDED_COPY_V1_DESIGN.md` §6 권위)**: 기제(이름-enum 마스킹)는 GENRE(ICLR'21)→PICARD/Synchromesh→ToolDec('23, 최근접)→FANTASE(EMNLP'24)→ToolGen(ICLR'25)+xgrammar/OpenAI 상품화로 **확립 — novelty 주장 금지**. 미점유 = ①TaskBench에 CD 수치 첫 보고 ②**FT×CD 2×2 요인분해+census 귀속**(ToolDec "Don't Fine-Tune, Decode" 적대 프레이밍에 "다른 층을 푼다, 합성이 최선"으로 답) ③제약 득실 조건 실증(GAD 이론↔daily +8.0·worsened 77).
 
 ## 9.6 L2 DPO (조기종결 쌍) ✅ 측정 완료 2026-06-11 PM — **누락축 첫 가동·but 단방향 overshoot로 패키지 무이득**
 - 채굴: `.all`(K=8 전샘플)에서 [완전·고보상 chosen / 조기종결 rejected] = **318쌍**(3869 프롬프트 중 — 'no_short' 2528 = 정책이 in-domain 샘플링에선 조기종결을 드물게 냄 = 누락 질량은 greedy-선택/held-out 측이라는 진단과 정합). `tb_dpo_mine.py`.
