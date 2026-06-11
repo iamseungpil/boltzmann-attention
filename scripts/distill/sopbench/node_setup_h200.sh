@@ -21,7 +21,8 @@ $PIP install -q --upgrade pip
 $PIP install -q "vllm==0.10.2" openai tqdm termcolor colorama pydantic anthropic "huggingface_hub[cli]"
 
 # 3. training env deps (train node; harmless on eval node)
-$PIP install -q "transformers>=4.51" peft accelerate datasets
+# <5 pin: trainer targets 4.x API (torch_dtype etc.); >=4.55.2 keeps vllm 0.10.2 happy
+$PIP install -q "transformers>=4.55.2,<5" peft accelerate datasets
 
 # 4. deploy two-stage patch into the SOPBench clone (idempotent, .bak backups)
 /scratch/venvs/sop_env/bin/python /scratch/boltzmann-attention/scripts/distill/sopbench/apply_two_stage_patch.py /scratch/SOPBench

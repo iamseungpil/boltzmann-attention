@@ -13,11 +13,16 @@ ROLE=$1
 REPO=/scratch/boltzmann-attention
 HFREPO=iamseungpil/sopbench-trackb-h200
 HF=/scratch/venvs/sop_env/bin/hf
-mkdir -p /scratch/logs /scratch/sopbench_runs /scratch/sft_runs
+mkdir -p /scratch/logs /scratch/sopbench_runs /scratch/sft_runs /scratch/taskbench_runs
+
+# 0. taskbench bootstrap (idempotent; creates JARVIS clone, tb_env, sub500+symlinks
+#    BEFORE restore so restored preds land behind the symlinks)
+bash $REPO/scripts/distill/taskbench/node_setup_taskbench.sh \
+  > /scratch/logs/tb_setup.log 2>&1 || echo "TB_SETUP_FAILED (see tb_setup.log)"
 
 # 1. restore state (ok if the dataset is still empty)
 $HF download $HFREPO --repo-type dataset --local-dir /scratch/hf_state >> /scratch/logs/hf_sync.log 2>&1 || true
-for d in sopbench_runs sft_runs; do
+for d in sopbench_runs sft_runs taskbench_runs; do
   if [ -d /scratch/hf_state/$ROLE/$d ]; then
     cp -rn /scratch/hf_state/$ROLE/$d/* /scratch/$d/ 2>/dev/null || true
   fi
@@ -30,14 +35,22 @@ pgrep -f "node_sync_hf.sh $ROLE" > /dev/null || \
 # 3. dispatch workload (single instance)
 case $ROLE in
   eval)
+    # SOPBench #0 sanity (GPU0) + TaskBench P0 curves (GPU1,2 then TP4 after sanity)
     pgrep -f node_run_sanity32b.sh > /dev/null || \
       nohup bash $REPO/scripts/distill/sopbench/node_run_sanity32b.sh \
         > /scratch/logs/run_sanity_driver.log 2>&1 &
+    pgrep -f node_run_taskbench_p0.sh > /dev/null || \
+      nohup bash $REPO/scripts/distill/taskbench/node_run_taskbench_p0.sh \
+        > /scratch/logs/run_tb_p0_driver.log 2>&1 &
     ;;
   train)
+    # SOPBench #1 SFT (GPU0,1) + TaskBench P1 census->SFT->eval (GPU2,3)
     pgrep -f node_run_sft32b.sh > /dev/null || \
       nohup bash $REPO/scripts/distill/sopbench/node_run_sft32b.sh \
         > /scratch/logs/run_sft_driver.log 2>&1 &
+    pgrep -f node_run_taskbench_p1.sh > /dev/null || \
+      nohup bash $REPO/scripts/distill/taskbench/node_run_taskbench_p1.sh \
+        > /scratch/logs/run_tb_p1_driver.log 2>&1 &
     ;;
 esac
 echo "RESUME_DISPATCHED role=$ROLE"

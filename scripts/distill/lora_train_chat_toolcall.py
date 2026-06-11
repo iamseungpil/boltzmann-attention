@@ -295,6 +295,9 @@ def main() -> int:
         args.base_model, torch_dtype=dtype, device_map=args.device,
         attn_implementation=args.attn, low_cpu_mem_usage=True)
     model.config.use_cache = False
+    # --device auto shards across visible GPUs (accelerate hooks move activations);
+    # batches then go to the first shard's device, not the literal string "auto"
+    input_device = model.device if args.device == "auto" else args.device
 
     from peft import LoraConfig, get_peft_model, TaskType
     lcfg = LoraConfig(r=args.lora_r, lora_alpha=args.lora_alpha,
@@ -354,7 +357,7 @@ def main() -> int:
         for step, batch in enumerate(train_loader):
             if epoch == start_epoch and resume_step >= 0 and step <= resume_step:
                 continue  # fast-forward through already-trained batches
-            batch = {k: v.to(args.device) for k, v in batch.items()}
+            batch = {k: v.to(input_device) for k, v in batch.items()}
             out = model(**batch)
             (out.loss / args.grad_accum).backward()
             if (step + 1) % args.grad_accum == 0:
@@ -372,7 +375,7 @@ def main() -> int:
             model.eval(); vl = 0.0; vn = 0
             with torch.no_grad():
                 for batch in val_loader:
-                    batch = {k: v.to(args.device) for k, v in batch.items()}
+                    batch = {k: v.to(input_device) for k, v in batch.items()}
                     vl += model(**batch).loss.item(); vn += 1
             avg_val = vl / max(vn, 1)
         print(f"[ep{epoch}] train_loss={tr:.4f} val_loss={avg_val:.4f}", flush=True)

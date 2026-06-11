@@ -25,9 +25,10 @@ if [ ! -f sft_tbox/lodo_train_holdout_bank.jsonl ]; then
 fi
 wc -l sft_tbox/lodo_train_holdout_bank.jsonl   # expect 4189
 
-# 2. train (GPU pick via CUDA_VISIBLE_DEVICES, default 0)
-CUDA_VISIBLE_DEVICES=${TRAIN_GPU:-0} $PYT $REPO/scripts/distill/lora_train_chat_toolcall.py \
-  --base-model Qwen/Qwen2.5-32B-Instruct \
+# 2. train — 32B bf16 (~65GB) needs 2x H100 80GB: --device auto shards across the pair
+CUDA_VISIBLE_DEVICES=${TRAIN_GPUS:-0,1} PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+  $PYT $REPO/scripts/distill/lora_train_chat_toolcall.py \
+  --base-model Qwen/Qwen2.5-32B-Instruct --device auto \
   --train-jsonl $CL/sft_tbox/lodo_train_holdout_bank.jsonl \
   --out-dir /scratch/sft_runs/qwen32b_tbox_t1c_lodo_bank \
   --max-seq-len 4096 \
