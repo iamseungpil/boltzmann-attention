@@ -1,4 +1,8 @@
-# ▶▶ Coworker 요청서 — TaskBench scale 실험 (Qwen3 32B/235B-A22B, 4×A100 80GB) — 2026-06-10 **v2**
+# ▶▶ Coworker 요청서 — TaskBench scale 실험 (Qwen2.5/Qwen3 이원화, 4×A100 80GB) — 2026-06-10 **v3** (06-11 census 정정 반영)
+
+> **★v3 변경 (2026-06-11, 궤적 전수조사 — 결과문서 §8이 권위)**: Track A가 {1.5, 7, 14}B 전이-vs-용량을 로컬 측정(held-out Δedge = **+8.7 / −0.8 / +4.3**, sub500 동일-id 정합) 후 **전수조사로 기제 확정**: held-out 효과 = **(+)참조-인덱싱 규율 전이**(`<node-j>` 자기참조 제거: 7B −83%·14B 0.478→0.010/ex) ⊕ **(−)도구-어휘 간섭**(유효 도구명 −4~−8pp, train-도메인 이름 침투) ⊕ **(0)누락-불변**. ~~"형식-간섭"~~·~~"14B=용량 효과"~~ 철회 — 14B의 +4.3은 *base의 인덱스-오류율이 7B의 2.2배*라 교정 이득이 컸던 것.
+> **⇒ P1 프로토콜 변경 (필수)**: 32B SFT **착수 전에 32B base census 선행** — P0a의 32B base 예측(MM sub500)에 `scripts/distill/taskbench/tb_census.py` 시그니처(자기참조율 nself/ex·유효 도구명 비율 valid_frac)를 재서 **Δ(32B) ≈ (인덱스-교정 이득 ∝ base nself) − (어휘 간섭 ~5pp)을 사전 예측·등록**한 뒤 학습. Q2의 질문 자체가 "용량이 +로 뒤집나"에서 **"기제-예측이 32B서도 맞나(맞으면 기제 확립, 틀리면 새 변수)"**로 정련됨 — 어느 쪽이든 1급 결과.
+> (참고: RFT round-1/2는 Track A 로컬 진행 — round-2 = recall+validity 보상, 결과문서 §9 분기 사전등록.)
 
 > **★v2 (2026-06-10 PM, 사용자 결정·정정 반영): 이원화 — Qwen2.5는 비교-통제용 유지 + Qwen3는 곡선-연장용 신규.**
 > - **fact**: 72B는 Qwen2.5에만 존재(Qwen3 dense는 32B 천장, 그 위는 MoE 30B-A3B/235B-A22B). SOPBench 리더보드(Track-B 기준선)도 Qwen2.5 계열 → **SOPBench 작업은 Qwen2.5 유지(전환 아님)**.
@@ -38,6 +42,7 @@
 - 산출: 두 family 곡선 분리 표기(같은 그림에 겹쳐도 좋으나 family 라벨 필수).
 
 **P1 — ★gold-SFT LODO_mm @ **Qwen2.5-32B** (Q2 본명 — 동일-family 통제)**
+- **(v3 신규, step-0 필수) 32B base census 선행**: P0a 32B base의 MM sub500 pred에 `tb_census.py` 시그니처 측정(자기참조율·valid_frac; --dir_a/--dir_b에 같은 dir 넣고 aggregate-A만 읽어도 됨) → **Δedge 사전 예측 박제 후 학습 착수**. 참조점: nself/ex = 7B 0.218→Δ−0.8 · 14B 0.478→Δ+4.3 (간섭 ~5pp 공제).
 - 학습 데이터 = Track A와 **동일 생성**(아래 §4 `tb_build_sft.py`, seed 42 → byte-동일 jsonl): HF(single400/chain1000/dag전부795=2194) + daily(400/1000/275=1675) = 3869.
 - 레시피 = 7B와 동일 통제: **LoRA r16/alpha32, 2ep, seqlen 6144, lr 1e-4, val 2%** (`scripts/distill/lora_train_chat_toolcall.py` 그대로 사용 가능; 32B는 grad-ckpt+TP/FSDP로 2~4GPU. 자체 트레이너 쓸 경우 위 하이퍼 고정).
 - 평가 = held-out **MM full**(시간 빠듯하면 sub500 먼저→full 보충) + in-domain HF/daily sub500. 비교 4열: `base-32B / 32B+gold-SFT / base-7B / 7B+gold-SFT`(7B 수치는 §0).
@@ -80,7 +85,7 @@
 | `reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` (이 폴더) | SOPBench 결과 권위본 — 게이트사다리 29/34·transfer 43-95% | "weight 전이 NULL은 SOPBench adapter-only≈0과 정합" 맥락 |
 | `../../scripts/distill/SHIELDING_CBF_RELATED_WORK.md` | 관련연구 5축(shielding/CBF) — 포지셔닝 "제어-패러다임 인스턴스화" | 논문 프레이밍 배경 (실행 무관) |
 | `../../scripts/distill/BITTER_LESSON_REBUTTAL_SOURCES.md` | bitter-lesson 방어 5라인 + 정직 양보 | 동상 (배경) |
-| `../../scripts/distill/taskbench/` | **실행 스크립트** — `tb_build_sft.py`(SFT jsonl)·`tb_build_eval.py`(id정렬/sanitize 내장 평가)·`tb_scale_curve.sh`·`tb_eval_adapter.sh`(견본 드라이버) | §4 재현 절차가 이것들 사용 |
+| `../../scripts/distill/taskbench/` | **실행 스크립트** — `tb_build_sft.py`(SFT jsonl)·`tb_build_eval.py`(id정렬/sanitize 평가)·`tb_census.py`(궤적 전수 시그니처 — P1 step-0 필수)·`tb_typeclosure_probe.py`·`tb_rft_rollout.py`/`tb_rft_round.sh`(RFT)·`tb_scale_curve*.sh`·`tb_eval_adapter.sh`/`tb_train_lodo.sh`(BASE/PREFIX 인자화 드라이버) | §4 재현 절차가 이것들 사용 |
 | `../../scripts/distill/lora_train_chat_toolcall.py` | LoRA 트레이너 (chat-format jsonl, P1 하이퍼 §2 참조) | P1/P2 학습 |
 
 **(보강) 현재 활성 설계서 전체 — SOPBench 트랙 (Track-B 기존 작업 v1.42 #0/#1과 그 배경; TaskBench 요청 실행엔 불요, coworker가 양 트랙을 다 보므로 등재)**:

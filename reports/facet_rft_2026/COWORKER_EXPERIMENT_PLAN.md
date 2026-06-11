@@ -6,7 +6,8 @@
 > **★ 모델 분업 (확정 2026-06-01)**: **coworker = Qwen2.5-32B + Qwen2.5-72B** / **Track A(우리) = Qwen2.5-7B + Qwen2.5-14B**. 동일 arm·설정으로 돌려 모델 크기 효과 비교. coworker는 대형모델(32B/72B) arm-0~4 매트릭스에 집중; Track A는 소형(7B/14B) 파일럿·구현·검증.
 > 본 계획은 `reports/EXPERIMENT_DESIGN_v1_7_facet_rft.md` **§16(SOP-Bench 피벗)**을 구현한다. **먼저 §16 + `scripts/distill/WORKFLOW_ONTOLOGY_DESIGN.md`(특히 ★§9 LLM-in-loop)를 읽을 것.** (§15.9~15.14 = tau2 기반 개념 원본, substrate만 SOP-Bench로 이전.)
 
-> ### ★★★★★★★★★★★★★★ v1.44-**v2** (2026-06-10 PM) — ▶▶ 신규 요청: TaskBench scale 실험 (이원화: Qwen2.5 통제 + Qwen3 곡선연장) = `COWORKER_REQUEST_TB_SCALE.md`
+> ### ★★★★★★★★★★★★★★ v1.44-**v3** (2026-06-11 — census 정정: P1 step-0=32B base census 선행·Δ 사전예측 등록, 기제="용량"→"인덱스-오류율×어휘-간섭". 상세 = 요청서 v3 헤더 + TASKBENCH_EXPERIMENT_RESULTS.md §8)
+> ### (구) v1.44-**v2** (2026-06-10 PM) — ▶▶ 신규 요청: TaskBench scale 실험 (이원화: Qwen2.5 통제 + Qwen3 곡선연장) = `COWORKER_REQUEST_TB_SCALE.md`
 > **별도 요청서 = `reports/facet_rft_2026/COWORKER_REQUEST_TB_SCALE.md` v2 (자족 — 재현절차·함정 전부 박제, 그것만 읽으면 실행 가능).** 배경: Track A가 오늘 TaskBench full 3도메인 baseline + Qwen2.5 0.5–14B 곡선(edge-F1 비포화) + **gold-SFT LODO 7B held-out 전이 NULL(edge −1.7)** 확정. **★v2 이원화(사용자 결정)**: 72B는 Qwen2.5에만 존재 + SOPBench 리더보드=Qwen2.5 → **SOPBench(Track-B 기존)·Q2 통제는 Qwen2.5 유지, 곡선-연장만 Qwen3**(dense 0.6→32B+MoE 235B-A22B; Track A도 0.6–14B Qwen3 재측정 예정·non-thinking 고정). arms: **P0a=Qwen2.5-32B/72B prompted(곡선 완성)** · P0b=Qwen3-32B/235B-A22B-INT4 prompted · **P1=★Qwen2.5-32B gold-SFT LODO_mm(7B NULL과 동일-family 대조 — Track A 다음 수를 게이트, 최우선)** · P2=Qwen2.5-72B SFT(P1 + 시) · P3=타family 앵커(gpt-oss-120b 등, 선택). 규율: supporting-전이만(moat-(3) 금지)·edge-F1 중심·GPT-4 teacher/증강 금지(GT=back-instruct 순환)·Qwen3=non-thinking 고정. 결과 = `TASKBENCH_EXPERIMENT_RESULTS.md`에 행 추가. 기존 Track-B(v1.42 #0/#1)와 경합 시 #0 sanity 먼저 → 본 요청 P0a/P1.
 >
 > ### ★★★★★★★★★★★★★ v1.43 (2026-06-06 PM) — ★cross-domain transfer 확정(7B): 단일도메인 학습→6 held-out 전이 avg 77.3%, 리더보드-MAX 추월 3/6
