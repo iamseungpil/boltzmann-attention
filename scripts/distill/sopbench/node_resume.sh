@@ -51,6 +51,13 @@ case $ROLE in
     pgrep -f node_run_taskbench_p1.sh > /dev/null || \
       nohup bash $REPO/scripts/distill/taskbench/node_run_taskbench_p1.sh \
         > /scratch/logs/run_tb_p1_driver.log 2>&1 &
+    # 신판 P2 (요청서 v4 §7, 추론-only) — P1 완료(어댑터 존재) 후에만; P1 드라이버와
+    # GPU 비충돌(P1 done-marker 상태에선 P1이 아무것도 안 띄움)
+    if [ -f /scratch/taskbench_runs/p1_eval_done ]; then
+      pgrep -f node_run_taskbench_p2.sh > /dev/null || \
+        nohup bash $REPO/scripts/distill/taskbench/node_run_taskbench_p2.sh \
+          > /scratch/logs/run_tb_p2_driver.log 2>&1 &
+    fi
     ;;
 esac
 echo "RESUME_DISPATCHED role=$ROLE"
