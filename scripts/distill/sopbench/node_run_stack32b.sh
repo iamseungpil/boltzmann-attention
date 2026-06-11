@@ -15,8 +15,10 @@ PORT=${PORT:-8351}
 cd $CL
 
 if ! curl -s http://localhost:$PORT/v1/models | grep -q tbox_32b; then
-  CUDA_VISIBLE_DEVICES=${SERVE_GPU:-1} nohup $VLLM serve Qwen/Qwen2.5-32B-Instruct \
-    --port $PORT --enable-lora --lora-modules tbox_32b=$ADAPTER \
+  # TP2 (default GPU0,1 — freed after #1 SFT): 32B bf16+LoRA tight on one 80GB H100
+  CUDA_VISIBLE_DEVICES=${SERVE_GPUS:-0,1} nohup $VLLM serve Qwen/Qwen2.5-32B-Instruct \
+    --port $PORT --tensor-parallel-size 2 \
+    --enable-lora --lora-modules tbox_32b=$ADAPTER \
     --enable-auto-tool-choice --tool-call-parser hermes --max-model-len 8192 \
     --gpu-memory-utilization 0.90 --dtype bfloat16 --trust-remote-code \
     > /scratch/logs/serve_stack32b.log 2>&1 &
