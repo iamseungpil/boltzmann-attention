@@ -73,13 +73,27 @@ def f1(p, g):
     return 2 * pr * rc / (pr + rc) if pr + rc else 0.0
 
 
+def load_graph(paths):
+    """graph_desc.json들 → 유효 간선 집합 + 도구 타입 맵 (스코어러 v1)."""
+    edges, types = set(), {}
+    for p in paths or []:
+        g = json.load(open(p))
+        for l in g.get("links", g.get("edges", [])):
+            if isinstance(l, dict) and "source" in l and "target" in l:
+                edges.add((norm(l["source"]), norm(l["target"])))
+    return edges, types
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--all", required=True)
     ap.add_argument("--sft_jsonl", required=True)
     ap.add_argument("--tool_desc", action="append", required=True)
+    ap.add_argument("--graph_desc", action="append", default=None,
+                    help="graph_desc.json (v1 scorer: 링크의 그래프-멤버십 가점)")
     a = ap.parse_args()
 
+    gedges, _ = load_graph(a.graph_desc)
     valid = set()
     for td in a.tool_desc:
         valid |= {norm(t["id"]) for t in json.load(open(td))["nodes"]}
@@ -107,9 +121,11 @@ def main():
             names = [norm(n["task"]) for n in nodes]
             vfrac = sum(x in valid for x in names) / max(len(names), 1)
             edge = f1(pl, gl)
-            # gold-free deterministic gate score (lexicographic)
+            # v1: 링크의 도구그래프-멤버십 비율 (gold 아님 — 도메인 그래프 사전)
+            gmem = (sum(l in gedges for l in pl) / len(pl)) if (gedges and pl) else 0.0
+            # gold-free deterministic gate score (lexicographic; v1=gmem 추가)
             scored.append({"edge": edge, "reward": s.get("reward", 0.0),
-                           "gate": (1, vfrac, -(nself + ndangle), ntag)})
+                           "gate": (1, gmem, vfrac, -(nself + ndangle), ntag)})
         if not scored:
             continue
         n_prompts += 1
