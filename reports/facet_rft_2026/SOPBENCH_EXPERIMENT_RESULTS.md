@@ -589,6 +589,22 @@ database_mismatches 103 · incorrect_action_calls 72 · tool_call_errors 14.
 
 ---
 
+## ★Track-B 32B 4열표 (v1.42 #0/#1 완료, H100×4 노드, 2026-06-11)
+
+bank(정직분모 134), official success(run_evaluation rule oracle), 단일 run. SFT = t1c LODO **holdout=bank**(6도메인 4189ex, r16/a32/3ep) → **bank는 weight 기준 held-out**:
+
+| 열 | 구성 | bank official |
+|---|---|---|
+| ① vanilla react/full | 리더보드 프로토콜 | **44.78%** ⚠️(리더보드 40.30 +4.5pp, ±2 밴드 밖 — serving差(vllm 0.10.2/bf16/TP2) 추정, 내부-일관 비교로만 사용) |
+| ② vanilla fc/full | FC base | **12.69%** |
+| ③ adapter-only | ②+SFT planner+t1c regime 5-flag (ALIAS/GATE/SCRATCHPAD/SOURCE/MAXTOK) | **26.87%** |
+| ④ 32B+scaffold STACK | ③+OFFLOAD(ACTIVE)/ARGFIX/VALFIX/KEEPTUPLE/DGGATE/LOGINFIRST/STOPSUCCESS (LOGINCALL off) | **47.76%** |
+
+- **scaffold 이득은 32B에서도 유지·지배적**: ②→④ +35.1pp 중 게이트사다리 분(③→④)이 **+20.9pp**. Track-A 7B honest 43.28% 대비 32B 스택 +4.5pp — **scale 7B→32B(4.5×)의 이득(+4.5pp) < scaffold 이득(+20.9pp)** = "구조-leg가 본명" 32B 재확인 (TaskBench P1 결론과 정합).
+- ④(fc, 47.76) > ①(react 리더보드 프로토콜, 44.78): 스택이 react 프로토콜을 추월.
+- ②→③ +14.2pp는 adapter+regime-flag 혼합 효과(분리 ablation 미실시) — held-out bank에서 SFT planner가 0이 아님은 t1c 데이터의 도메인-일반 성분(getter/소스 규율) 시사, 단 순수 adapter 분리는 후속.
+- raw: HF dataset `iamseungpil/sopbench-trackb-h200` `train/sopbench_runs/{stack32b_bank,adonly32b_bank}` (134/134 완주, 채점 = 로컬 oracle 재현 — 노드 paused 중 수행).
+
 ## 인프라 메모
 
 - SOPBench clone: `/home/woori/scratch/SOPBench`
