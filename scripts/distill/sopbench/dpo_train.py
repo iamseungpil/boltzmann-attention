@@ -49,10 +49,16 @@ def seq_logp(model, tok, prompt, completion, device, max_len):
     if len(full) > max_len:                      # keep the TAIL (completion intact), drop prompt head
         full = full[len(full) - max_len:]
     ids = torch.tensor([full], device=device)
-    out = model(ids).logits[:, :-1, :]                       # logits[t] predicts token t+1
-    logprobs = torch.log_softmax(out.float(), dim=-1)
-    tok_lp = logprobs.gather(-1, ids[:, 1:].unsqueeze(-1)).squeeze(-1)[0]   # len = len(full)-1
-    return tok_lp[-comp_len:].sum()              # completion = last comp_len tokens
+    # memory: full-seq logits (seq x 152K vocab, x2 graphs) OOM at long seq -> run the
+    # transformer body on the full sequence but apply lm_head ONLY to the completion span.
+    core = model.get_base_model() if hasattr(model, "get_base_model") else model
+    hidden = core.model(input_ids=ids).last_hidden_state          # [1, L, H] (LoRA active)
+    span = hidden[:, -(comp_len + 1):-1, :]                       # states predicting completion tokens
+    logits = core.lm_head(span)                                   # [1, comp_len, V] only
+    logprobs = torch.log_softmax(logits.float(), dim=-1)
+    targets = ids[:, -comp_len:].unsqueeze(-1)
+    tok_lp = logprobs.gather(-1, targets).squeeze(-1)[0]
+    return tok_lp.sum()
 
 
 def main():
