@@ -59,6 +59,21 @@
 - metrics: `node_micro_f1_no_matching` / `link_binary_f1` (+가능하면 `-m argument`의 t/v-F1). **type 층화**(metrics json에 single/chain/dag split 포함됨).
 - 산출물: ① 위 표 형식으로 `TASKBENCH_EXPERIMENT_RESULTS.md`에 추가(§1 표에 32B/72B행, §3에 P1 4열표, P3는 별도표) ② pred/metrics json은 자체 보관+경로 공유(대용량이라 커밋 불요, metrics json만 커밋 권장).
 
+## 3.5 ★raw 궤적 커밋 요청 (2026-06-11 신규 — Track A 전수 census용, §3의 "커밋 불요" 일부 정정)
+> 목적: Track A에서 우리 census 도구(`tb_census.py`/`tb_pr_census.py`+궤적 직독)로 ①32B base nself=0·valid=1.0 **독립 재검증** ②32B 잔여 오류축 분해(누락/edge-구조/인자 — 32B+ 개선 레버 선정의 입력) ③Qwen3-32B 평탄(14B→32B) 원인 ④(P1 학습 후) Δ=−5 적중 검증+간섭 census. sub500 pred는 파일당 500행(~1-3MB)이라 git 무리 없음.
+
+**커밋 위치**: `reports/facet_rft_2026/trackb_raw/` (구조 유지: `preds/<dir>/<tag>.json`)
+
+| # | 파일 (노드 경로 기준) | 비고 |
+|---|---|---|
+| 1 | `/scratch/taskbench_runs/preds/data_{multimedia,huggingface,dailylifeapis}_sub500/qwen25_32b.json` | P0a 3도메인 (최우선) |
+| 2 | 동일 경로 `qwen3_32b.json` ×3 | P0b |
+| 3 | `$OUT/<dom>_sub500_eval_<tag>/metrics/<tag>.json` (위 6런 전부) | 공식수치 교차확인용, 수 KB |
+| 4 | `$OUT/p1_census_prereg.json` + step-0 census 원본 md | 사전등록 동결본 |
+| 5 | `preds/<dir>/<tag>.log` (inference 로그) | failed/드롭 id 확인 — 크면 `grep -E "Failed|Success" \| wc` 요약만 |
+| 6 | (완료 시) `qwen25_72b`·`qwen3_235b_a22b_int4` 동일 세트 | P0 후속 |
+| 7 | (P1 완료 시) 32B-SFT held-out MM sub500 + in-domain pred/metrics | Δ=−5 검증 + 간섭 census의 본체 |
+
 ## 4. 재현 절차 (전부 박제됨 — 재발견 금지)
 1. **클론**: `git clone https://github.com/microsoft/JARVIS && cd JARVIS/taskbench` (Apache-2.0). 데이터 3도메인 동봉(`data_huggingface` 7458 / `data_multimedia` 5555 / `data_dailylifeapis` 4318).
 2. **venv**: python3.10+; `pip install numpy scikit-learn networkx python-Levenshtein "datasets==2.14.5" "pyarrow==12.0.0" rouge_score aiohttp emoji click` + vllm(서빙용; P3 모델은 최신 vllm).
