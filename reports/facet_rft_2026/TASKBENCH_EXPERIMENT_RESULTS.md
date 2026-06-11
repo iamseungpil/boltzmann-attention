@@ -189,6 +189,8 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - 뉘앙스(macro-micro 분해, §8 화해 패턴 재현): census per-id macro edge는 0.639→0.690(+5.1)인데 공식 micro link_binary_f1는 −5.4 — 손실이 링크-多 예제에 집중(n_nodes 2.65→2.53 플랜 단축 + 무효명이 링크 통째 kill). improved 69 vs worsened 52.
 - in-domain 이득도 7B(+15.6/+7.8) 대비 1/3 수준(+5.1/+3.4) — base가 높을수록 gold-SFT 가치 자체가 줄어듦(§2-P1 "in-domain 평평=gold-SFT 무가치" 경계의 중간 지점).
 - **함의: 스케일 투자로 held-out 전이는 안 열림(기제상 32B+는 잃기만 함) → Track A 처방(§8/§9.5) 정합 — 전이는 추론-side(grounded-copy/L3 게이트) 레버가 본명.** 32B-SFT pred에 name-snap 적용(zero-GPU)으로 −5.4 중 어휘분 복구 검증 예정.
+- **★Track A 독립 재검증 (2026-06-12, trackb_raw 원본 궤적 → 우리 빌더+gold+census 재계산)**: base valid_frac **1.0000·nself 0.0000** 재현 ✓·SFT 0.9521/0.018 ✓·micro 61.89→56.47(−5.4) ✓·macro +6.0/improved 76·worsened 52 ✓ — 집계 아티팩트 아님 확정(`mm_sub500_verify_*`, `census_verify_32b.md`).
+- **★32B 누락축 신규 측정 (`tb_pr_census`, Track A 추가)**: base-32B deficit **+0.024**·short 13.9% (7B base +0.256/21.7%) = **조기종결 축도 32B base서 거의 소멸** ⇒ 7B 처방(균형-DPO·L3 게이트)의 32B 기대이득 작음 — "32B+ 개선 레버" 질문의 정량 답: 잔여 headroom(61.9→gold)은 누락도 어휘도 아닌 **구조-선택(edge 조합)·gold-관례 정합 축**. 단 SFT가 deficit을 +0.152로 늘림(parsimony 과교정의 미세 거울상 — 7B DPO-v1 교훈의 약한 재현).
 
 **Qwen3-32B 관찰 (§7 곡선의 꼭대기)**: Qwen3는 **14B→32B가 사실상 평탄**(MM edge 59.1→58.7·daily 79.9→79.8, HF만 42.2→45.6) — Qwen2.5의 14B→32B(+9.1 MM)와 대조. 세대-이득(§7 "Qwen3-4B≈Qwen2.5-7B")이 32B-class에선 소멸: **Qwen2.5-32B(61.9) > Qwen3-32B(58.7) on MM edge**. 곡선-모양 family-불변 주장은 14B까지만 안전 — 32B-class 분기는 72B/235B 점이 더 말해줄 것.
 
@@ -219,6 +221,7 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 - **귀속 (census `census_guided_daily.md` + `tb_pr_census.py`)**: ①valid_frac 0.900→**1.000**(공유 id, 무효명 0/13k+) ②**parse 회복 663건**(문법이 valid JSON 보장 — 깨진-JSON 축도 동시 해소) ③공유-id macro edge 0.650→0.717·node 0.822→0.892, improved 505 vs worsened **77** ④P/R 동반 상승 0.835/0.813→0.912/0.891 = 정밀도 손실 없는 회복(DPO v1과 대조). 라이브 중간검증: 3035노드 무효 0건.
 - **★thesis 격상**: propose(weight-학습 SFT) + 결정론-gate(디코딩 제약)의 **2번째 held-out 실증**(1번째=RFT2+snap 52.5) — §10.2 L4(하이브리드: 모델이 enum 안에서 의미 선택) 행의 직접 증거. 비용: 도메인당 schema 1개+grammar 컴파일 1회(캐시), 추론 오버헤드 체감 없음(4320건 ~50분, unguided와 동급).
 - **★MM 합성 실측 (2026-06-11 밤, `tb_guided_mm_dpo2.sh`)**: dpo2+guided MM full edge **57.22**/node 87.37 = dpo2+snap 57.30과 동급(−0.08)·raw 55.95 대비 +1.27 ⇒ **guided = snap 완전 상위호환 확정** (MM 동급 + daily +8.0(snap 0) + parse 보장) — 패키지의 결정론-leg를 guided 하나로 통일 가능. **최종 best-stack = rft2+dpo2+guided = 57.2~57.3 (base 50.0 대비 +7.2~+7.3).**
+- **★프롬프트-절감×guided (2026-06-12 0시, `tb_guided_promptslim.sh`, MM sub500 held-out·dpo2+guided)**: 도구목록 desc 제거(=목록 51% 절감) 시 edge 56.19→53.12/53.35(2-arm 재현 ±0.2)·node 86.66→84.4 = **절감 51%의 가격 −2.8~−3.1 edge**. 해석: 집행(유효명)은 마스크가 공짜 대체하나 **의미 정보(desc)는 held-out서 ~3pt 값** — ToolDec-v1 "names-only 충분" 주장(v2서 철회)의 TaskBench 반례 데이터. in-domain(weight가 의미 보유)은 미실측 — 절감 폭이 더 클 것으로 예상(도구폭발 82K 페인포인트의 비용-leg 후보, CDP Score-Prune-Present와 상보).
 - **선행연구 (5-에이전트 전문 적대검증 완료 2026-06-11, `TB_GROUNDED_COPY_V1_DESIGN.md` §6·§6.5 권위)**: 기제(이름-enum 마스킹)는 GENRE(ICLR'21)→PICARD/Synchromesh→ToolDec(v3'24, 최근접)→FANTASE(EMNLP'24)→ToolGen(ICLR'25)+xgrammar/OpenAI 상품화로 **확립 — novelty 주장 금지**. ⚠️FT+CD *결합 자체도* 선행에 있음(ToolDec Table1 stacking·§5 "complementary" 자인·FANTASE SFT±SCD) — 미점유는 좁은 형태: ①**TaskBench 표준 프로토콜에 inference-time·training-free CD 첫 수치**(GRAFT=학습 토큰·DiG-Plan=diffusion 구분 명시) ②**same-base 통제 2×2+census 귀속+발생론**(선행은 전부 ±FT축 base 상이·기제 부재 — "complementary" 관찰을 정량 분해로 완성) ③제약 득실의 task-수준 조건 실증(GAD=KL·소규모뿐↔daily +8.0·worsened 2.1%).
 
 ## 9.6 L2 DPO (조기종결 쌍) ✅ 측정 완료 2026-06-11 PM — **누락축 첫 가동·but 단방향 overshoot로 패키지 무이득**
@@ -243,24 +246,20 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 - **★census 귀속 (`census_rft2_to_dpo2_mm.md`)**: improved 570 vs worsened **216**(v1 460/549에서 역전). v1 overshoot 소멸(n_nodes 2.58→2.63 완만, v1은 2.88 폭주). **부수이득 2개**: valid_frac 0.951→**0.985**(무효명 스스로 감소 — snap 규모 738→278)·nself 0.138→**0.067**(자기참조 절반). 기제: chosen=gold-길이-정확·고보상 샘플로의 holistic shift가 길이만이 아니라 어휘·참조 청결까지 동반 학습.
 - **★판정: held-out 신기록 — raw 55.95가 base(50.0)를 +6.0, 패키지 57.30이 종전 최고(52.5)를 +4.8 추월.** 채굴은 train-도메인 rollout만 사용(MM 무접촉)=누출 없음, 공식/macro/P-R 3계측 정합. **§10.4-②확정: 정책류(종결 캘리브레이션)는 weight로 학습 가능, 단 신호는 양방향 필수** — v1(단방향)=net음수 ↔ v2(양방향)=전축 동반 개선이 깨끗한 대조실험. best-stack = **rft2+dpo2(+snap or guided)** — 다음: dpo2+guided 합성(MM full) 측정 → 전 도메인 held-out 재측정 헤드라인.
 
-## 9. ★실행 큐 (2026-06-11 AM 갱신 — census §8 처방 기준, 이 §이 TaskBench 실행 권위)
+## 9. ★실행 큐 (2026-06-12 0시 전면 갱신 — §9.6 v2 합격·§9.5b guided·§8.5 P1 적중 이후, 이 §이 TaskBench 실행 권위)
 
-**진행 중:**
-1. **RFT round-2** (GPU1, 체인: rollout→train→eval, ~15-16시 완료 예상): 보상 v2 = node-F1 0.10 + **recall 0.25**(누락축) + edge 0.55 + **validity 0.10**(어휘축). `--save_all`로 L2용 전샘플 동시 수집. **사전등록 판정**: held-out MM census에서 ⓐvalid_frac 회복(어휘) ⓑnode-recall 상승(누락)을 *각각* 측정 — 어느 항이 일했는지 census로 귀속.
-2. Qwen3 4B/8B 보완 (GPU0, 다운로드→곡선 4B→8B full 자동 체인).
+**✅ 이번 사이클 완료 (06-11~12)**: RFT r2 → DPO v1(net−) → **균형-DPO v2 합격(55.95/57.30)** → guided v1 daily(+8.0)·MM 합성(57.22=snap 상위호환) → promptslim(−51% 목록=−3 edge) → P1 32B prereg **적중**(−5.4 vs −5.0)+Track A 독립 재검증 → 선행연구 5-agent 적대검증·§6.5 차별점 경화. §10 분류의 판별실험 2개 모두 확정.
 
-**round-2 결과 분기 (사전 명시):**
-- ⓐⓑ 모두 + → round-3 여부 판단 or 측정 종료·보고 정리.
-- 누락축 무반응 → **L2: 조기종결 DPO**(rollout `.all`에서 [완전=chosen, 조기종결=rejected] 채굴 — 데이터 이미 수집 중, `dpo_train.py` 재사용).
-- 어휘축 무반응 → **grounded-copy**(도구명 컨텍스트-복사 강제; validity-보상의 강한 버전).
+**대기 큐 (우선순위 순) — "더 할 것":**
+1. **base+guided 1런** (MM full, GPU0 ~50분): §6.5 ToolDec-대조 2×2의 마지막 빈 셀 — related-work 방어 완결. 예측: base+snap +0.4와 동급.
+2. **전 도메인 best-stack 헤드라인**: rft2+dpo2+guided를 HF held-out 트랙에도 — 필요물: lodo_hf 트랙 RFT rollout(.all)→균형쌍 채굴→DPO→guided. daily 트랙은 lodo_daily+guided(67.6) 완료, DPO만 잔여. 논문 헤드라인 표(3도메인 패키지)의 본체.
+3. **coworker P2 제안 (32B 후속, `COWORKER_REQUEST_TB_SCALE.md`에 추가할 것)**: ①**32B-SFT+guided/snap**(간섭 −4.8pp 회복 검증 — §8.5 예고 항목, 예측 ≈base 복원) ②(선택) 32B 균형-DPO 재현 — 단 §8.5 누락축 측정상 32B 기대이득 작음(deficit +0.024) → 우선순위 낮음·기제 확인용.
+4. **promptslim in-domain arm** (zero-GPU에 가까움, sub500 2런): in-domain서 desc 제거 비용 측정 — "weight가 의미를 알면 프롬프트 더 절감" 가설 완결(비용-leg).
+5. **L3 type-closure 게이트** (K=4 재샘플): 7B 잔여 누락(v2 후 short 16%)의 추론-side 보완 — DPO v2 성공으로 우선순위 하락, 패키지 +α 필요 시.
+6. **E2 복귀·논문 정리** (FIELD_GAP §18.3): §10 분류 + 2-벤치 실증 + census→처방 절차를 본문 골격으로. **⚠️작성 규율(2026-06-12, coworker 전달)**: arXiv 제재 강화 — AI-작성 미검토 문장·허위 레퍼런스 시 전저자 1개월 제출 금지. **모든 인용 = 원문 검증 후**(5-agent 검증 패턴 표준화: §6.5처럼 버전·venue·인용문 박제), 수치는 결과문서 §번호 역추적 가능해야.
+7. alias-마스킹 arm (P3 위생) · 형식-혼합 재학습 (조건부) — 변동 없음, 후순위.
 
-**대기 큐 (우선순위 순):**
-3. coworker P0/P1 (`COWORKER_REQUEST_TB_SCALE.md` v2; ★P1 착수 전 **32B base census**(self-ref율·valid_frac) 선행 — §8 정정에 따라 Δ 사전예측 가능).
-4. **L3 type-closure 게이트 통합**: probe 완료(탐지 47%/수리 1.7% → "탐지→flag/재샘플" 형태) — 통합 시 평가축 신설 필요(coverage@gate, abstain율 동시 보고). TaskBench를 propose-then-gate 패키지의 2번째 실증으로 격상하는 본명 작업.
-5. alias-마스킹 arm (P3 위생 — 간섭 직접 처방 아님, §8 정정).
-6. (조건부) 형식-혼합 재학습 — ~~형식-간섭~~ 철회됐으므로 우선순위 강등; 어휘-간섭 처방(2·grounded-copy)이 daily 회복을 못 하면만 재고.
-
-**원칙 (승계)**: 한 번에 한 변수·census로 귀속·강한 주장은 궤적 전수 후 박제. zero-GPU 병렬(§18.2)은 전부 ✅(규제·bitter-lesson·shielding).
+**원칙 (승계)**: 한 번에 한 변수·census로 귀속·강한 주장은 궤적 전수 후 박제·**인용은 원문 검증 후 버전 명시**. zero-GPU 병렬(§18.2)은 전부 ✅.
 
 ## 10. ★층위별 분업 종합 — "무엇을 weight로 학습하고, 무엇을 결정론으로 하나" (2026-06-11 PM 박제)
 
@@ -293,5 +292,5 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 - xattn-LoRA(RUNG1 §3.10 B5*)의 위치: 구조를 출력 어휘에 굽지 않고 별도 conditioning 채널로 → L5(규율)는 weight·L1(심볼)은 채널 복사로 분리 = 어휘-간섭의 구조적 원인(규율과 심볼이 같은 토큰 스트림에 혼합 학습) 차단. 단 retrofit 비용 → guided(추론-side)가 같은 효과를 공짜로 내는지 먼저 측정(진행 중).
 
 ### 10.4 미결 — 이 분류를 판가름할 라이브 판별 실험 2개
-1. **coworker P1 (32B SFT, §8.5 사전등록)**: Δ≈−5 적중 → "이득=base 결핍의 함수" 기제 확립(분류의 정량 근거 완성). [결과 대기]
+1. **coworker P1 (32B SFT, §8.5 사전등록)**: ✅ **확정 (2026-06-11 실측·06-12 Track A 독립 재검증)** — Δ실측 −5.4 vs 예측 −5.0 (오차 0.4pp) = 판정① 기제 확립. **"이득=base 결핍의 함수" Δ≈19.4×nself−5.0이 1.5B/7B/14B/32B 4점 함수형으로 성립**, "14B=용량-부활" 최종 기각. 간섭 −4.8pp도 예측 그대로. L1/L5 행과 §10.3 비대칭 전부 정량 근거 완성.
 2. **DPO v2 균형쌍 (§9.6 사전등록)**: ✅ **확정 (2026-06-11 PM)** — 3기준 합격(패키지 57.30 신기록·in-domain 회귀 소멸·P/R 동반상승). **정책류(종결 캘리브레이션)는 weight로 학습 가능, 단 신호는 양방향 필수** — v1 단방향(net음수) ↔ v2 양방향(전축 개선)의 깨끗한 대조로 박제. L5 행 확정.
