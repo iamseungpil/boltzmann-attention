@@ -52,9 +52,7 @@
 
 **P2 — (P1이 + 신호 시) Qwen2.5-72B gold-SFT LODO_mm**: 동일 레시피·동일 family로 용량 축 한 단 더(7B→32B→72B 3점 = 전이-vs-용량 곡선). 견적 2-3일 → P1이 +면만.
 
-**P3 — (선택) 타-family 오픈 앵커, prompted-only**
-- 후보: **gpt-oss-120b**(MoE, MXFP4 native ~63GB — 1-2 GPU, 최신 vllm 필요) / (한계 도전) Llama-3.1-405B-INT4(~205GB+KV, TP4 빠듯 — 실패해도 무방). (Qwen3-235B는 P0b로 승격됨.)
-- 500-sub ×3도메인 prompted만(SFT 불가/불요). **별도 표** "frontier-adjacent open anchors"(family·양자화 병기, 곡선과 분리). 목적 = "오픈 최상위가 published gpt-4(69.3)를 넘나" 단일 질문.
+**P3 — (선택) 타-family 오픈 앵커, prompted-only** ⚠️**SUPERSEDED (2026-06-12)** — TaskBench 외부동결 판정(TB결과 §1.5: 리더보드 2023-11 동결·frontier 정체)으로 "gpt-4(69.3)를 넘나" 질문의 외부 가치 소멸. **신판 P3 = §9 (신규 벤치 포트폴리오 대형 arm)**. (구안 보존: gpt-oss-120b / Llama-3.1-405B-INT4 anchor — 필요 시 §9와 병행 가능하나 비권장.)
 
 ## 3. 지표·산출물 (고정)
 - metrics: `node_micro_f1_no_matching` / `link_binary_f1` (+가능하면 `-m argument`의 t/v-F1). **type 층화**(metrics json에 single/chain/dag split 포함됨).
@@ -155,3 +153,22 @@ P0(반나절) → P1(1-2일) → 판정 공유(채널) → P2/P3(조건부, 1-3�
 **포트폴리오 (확정분)**: TaskBench·SOPBench(완료) → **τ²/τ³-bench**(신규 1순위 — 순수 NL정책=A2 끝점+유일 활성 frontier 리더보드) → **Amazon SOP-Bench**(12도메인 LODO 스케일업; ⚠️우리 SOPBench와 이름충돌 — 표기 구분) → AppWorld·ODCV-Bench(스팟).
 
 **Track-B 함의 (P2 이후 예고 — 지금 액션 불요)**: 대형모델(32B/72B) arm은 향후 ①τ²-bench pass^k에서 "대형 base±게이트" (R3·일관성 이득) ②Amazon SOP-Bench 12도메인에서 32B base census→처방(R7) 적용이 자연 후속. P2(§7) 완료 후 구체 명세 추가 예정. TaskBench 외부 동결 판정(§ = TB결과 §1.5: 리더보드 2023-11 동결·frontier 정체 64.4·ToLeaP GPT-4o 행 인용금지)도 보고서 작성 시 참조.
+
+## 9. ★P3 (신판, 2026-06-12) — 신규 벤치 포트폴리오 대형-모델 arm (P2 완료 후 순차)
+> 구판 P3(§2, 타-family 앵커)는 supersede — TaskBench 외부동결로 질문 가치 소멸. 포트폴리오 권위 = `../../scripts/distill/EXPERIMENT_DESIGN.md` **§1.5** + `BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`(§8 요약 참조). **Track-B 몫 = 대형(32B/72B) arm만** — 어댑터(A1-A5)·정책 컴파일(A2)·7B 기준선은 Track A가 먼저 깔고 인계. 전부 추론-only(학습 0).
+
+**P3c — ODCV-Bench 스팟 (순서상 먼저: 즉시 가능·최저비용, 40 시나리오)**
+- 32B/72B base(prompted) **위반율** 측정 vs +결정론 게이트 0% — "KPI-유혹 위반은 크기로 안 풀리고 게이트로 풀린다" 단일-주장 실험. 공개 기준선: frontier 30~50% 위반 (McGill, arXiv 2512.20798, repo `McGill-DMaS/ODCV-Bench`).
+- 사전예측: 대형 base도 위반 >0 (크기 비단조 가능 — KPI-유혹은 capability 축이 아님), +게이트=0.
+
+**P3b — Amazon SOP-Bench 12도메인 대형 census + 기준선** (`amazon-science/SOP-Bench`, arXiv 2506.08119, CC-BY-NC)
+- step-0 (R7 절차): 12도메인 **base census**(위반/누락/어휘 시그니처) → 처방 사전등록 → Qwen2.5-32B/72B base 성적 행렬(Task Success/Execution Completion/Tool Accuracy).
+- 논문 보고 open-weights 행(DeepSeek-R1·Llama-3.3 ≈ proprietary)과 교차 검증. 대형 SFT arm은 **기제상 비권장 예상**(P1 −5.4 외삽) — census가 뒤집으면만 재고.
+- ⚠️표기: 우리 SOPBench(UCSB)와 **이름충돌** — 문서·코드에서 "SOP-Bench(Amazon)" 표기 통일.
+
+**P3a — τ²-bench 대형 arm (Track A 어댑터 인계 후 — 대기)**
+- 32B/72B base ± 결정론 게이트(Track A가 컴파일한 retail 제약 구조 사용 — **Track-B는 정책 authoring 안 함**), 지표 pass^1 / **pass^k(k=4)**.
+- 사전예측: ①게이트 이득은 pass^1보다 **pass^k에서 더 큼**(일관성=분산 억제 — 7B 검증 효과의 대형 재현) ②대형 base 위반 클래스는 7B와 동형(비율만 상이 — census 귀속).
+- 외부 가치: 유일 활성 frontier 리더보드(~30모델)라 "오픈 대형±게이트 vs frontier"가 공인 무대에서 찍힘.
+
+**산출물·순서**: trackb_raw 동일 구조 push + 결과는 TB결과 §8.5 형식(사전등록→실측→census). **P2(§7) → P3c → P3b(step-0 census부터) → P3a(인계 대기).** 일정 견적: P3c 반나절·P3b census+기준선 1-2일·P3a 어댑터 도착 후 1일.
