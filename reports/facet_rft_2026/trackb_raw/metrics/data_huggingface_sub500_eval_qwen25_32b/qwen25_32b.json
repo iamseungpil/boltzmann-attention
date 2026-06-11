@@ -1,0 +1,1888 @@
+{
+  "overall_overall": {
+    "all_samples": 488,
+    "step_supports": 0,
+    "node_supports": 488,
+    "link_supports": 488,
+    "argument_supports": 488,
+    "node_micro_precision_no_matching": 0.7847571189279732,
+    "node_micro_recall_no_matching": 0.8105536332179931,
+    "node_micro_f1_no_matching": 0.7974468085106383,
+    "node_macro_precision_no_matching": 0.7966133103487935,
+    "node_macro_recall_no_matching": 0.7947139252039603,
+    "node_macro_f1_no_matching": 0.7824376166867844,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 0.8888888888888888,
+        "recall": 0.7692307692307693,
+        "f1-score": 0.8247422680412371,
+        "support": 52
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 0.9841269841269841,
+        "f1-score": 0.992,
+        "support": 63
+      },
+      "Summarization": {
+        "precision": 0.8,
+        "recall": 0.8888888888888888,
+        "f1-score": 0.8421052631578947,
+        "support": 63
+      },
+      "Question Answering": {
+        "precision": 0.5714285714285714,
+        "recall": 0.7111111111111111,
+        "f1-score": 0.6336633663366337,
+        "support": 45
+      },
+      "Conversational": {
+        "precision": 0.782608695652174,
+        "recall": 0.7659574468085106,
+        "f1-score": 0.7741935483870968,
+        "support": 47
+      },
+      "Text Generation": {
+        "precision": 0.6170212765957447,
+        "recall": 0.6170212765957447,
+        "f1-score": 0.6170212765957447,
+        "support": 47
+      },
+      "Sentence Similarity": {
+        "precision": 0.9302325581395349,
+        "recall": 0.9302325581395349,
+        "f1-score": 0.9302325581395349,
+        "support": 43
+      },
+      "Tabular Classification": {
+        "precision": 0.8,
+        "recall": 0.7804878048780488,
+        "f1-score": 0.7901234567901234,
+        "support": 41
+      },
+      "Object Detection": {
+        "precision": 0.7962962962962963,
+        "recall": 0.9148936170212766,
+        "f1-score": 0.8514851485148515,
+        "support": 47
+      },
+      "Image Classification": {
+        "precision": 0.9534883720930233,
+        "recall": 0.7592592592592593,
+        "f1-score": 0.845360824742268,
+        "support": 54
+      },
+      "Image-to-Image": {
+        "precision": 0.5555555555555556,
+        "recall": 0.625,
+        "f1-score": 0.5882352941176471,
+        "support": 24
+      },
+      "Image-to-Text": {
+        "precision": 0.5348837209302325,
+        "recall": 0.92,
+        "f1-score": 0.6764705882352942,
+        "support": 50
+      },
+      "Text-to-Image": {
+        "precision": 0.8305084745762712,
+        "recall": 0.8909090909090909,
+        "f1-score": 0.8596491228070176,
+        "support": 55
+      },
+      "Text-to-Video": {
+        "precision": 0.9183673469387755,
+        "recall": 1.0,
+        "f1-score": 0.9574468085106383,
+        "support": 45
+      },
+      "Visual Question Answering": {
+        "precision": 0.7931034482758621,
+        "recall": 0.48936170212765956,
+        "f1-score": 0.6052631578947368,
+        "support": 47
+      },
+      "Document Question Answering": {
+        "precision": 0.8695652173913043,
+        "recall": 0.6451612903225806,
+        "f1-score": 0.7407407407407407,
+        "support": 62
+      },
+      "Image Segmentation": {
+        "precision": 0.875,
+        "recall": 0.7,
+        "f1-score": 0.7777777777777778,
+        "support": 40
+      },
+      "Depth Estimation": {
+        "precision": 0.9782608695652174,
+        "recall": 0.8653846153846154,
+        "f1-score": 0.9183673469387755,
+        "support": 52
+      },
+      "Text-to-Speech": {
+        "precision": 0.9558823529411765,
+        "recall": 0.8904109589041096,
+        "f1-score": 0.9219858156028369,
+        "support": 73
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.5434782608695652,
+        "recall": 0.9615384615384616,
+        "f1-score": 0.6944444444444444,
+        "support": 52
+      },
+      "Audio-to-Audio": {
+        "precision": 0.7608695652173914,
+        "recall": 0.8333333333333334,
+        "f1-score": 0.7954545454545454,
+        "support": 42
+      },
+      "Audio Classification": {
+        "precision": 0.7777777777777778,
+        "recall": 0.35,
+        "f1-score": 0.4827586206896552,
+        "support": 40
+      },
+      "Image Editing": {
+        "precision": 0.7888888888888889,
+        "recall": 0.9861111111111112,
+        "f1-score": 0.8765432098765432,
+        "support": 72
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.6737614678899082,
+    "argument_task_argname_value_binary_f1_no_matching": 0.47600391772771794,
+    "link_binary_f1": 0.43872919818456885
+  },
+  "single_overall": {
+    "all_samples": 204,
+    "step_supports": 0,
+    "node_supports": 204,
+    "link_supports": 204,
+    "argument_supports": 204,
+    "node_micro_precision_no_matching": 0.7258064516129032,
+    "node_micro_recall_no_matching": 0.9230769230769231,
+    "node_micro_f1_no_matching": 0.8126410835214447,
+    "node_macro_precision_no_matching": 0.7944474131259028,
+    "node_macro_recall_no_matching": 0.9152173913043479,
+    "node_macro_f1_no_matching": 0.8212114063833592,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 0.8888888888888888,
+        "recall": 1.0,
+        "f1-score": 0.9411764705882353,
+        "support": 8
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 9
+      },
+      "Summarization": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
+        "support": 12
+      },
+      "Question Answering": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
+        "support": 6
+      },
+      "Conversational": {
+        "precision": 0.42857142857142855,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.5217391304347826,
+        "support": 9
+      },
+      "Text Generation": {
+        "precision": 0.55,
+        "recall": 1.0,
+        "f1-score": 0.7096774193548387,
+        "support": 11
+      },
+      "Sentence Similarity": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 4
+      },
+      "Tabular Classification": {
+        "precision": 0.7777777777777778,
+        "recall": 0.875,
+        "f1-score": 0.8235294117647058,
+        "support": 8
+      },
+      "Object Detection": {
+        "precision": 0.7777777777777778,
+        "recall": 1.0,
+        "f1-score": 0.875,
+        "support": 7
+      },
+      "Image Classification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 5
+      },
+      "Image-to-Image": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1-score": 0.8571428571428571,
+        "support": 3
+      },
+      "Image-to-Text": {
+        "precision": 0.6842105263157895,
+        "recall": 1.0,
+        "f1-score": 0.8125,
+        "support": 13
+      },
+      "Text-to-Image": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
+        "support": 10
+      },
+      "Text-to-Video": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 8
+      },
+      "Visual Question Answering": {
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "f1-score": 0.5,
+        "support": 6
+      },
+      "Document Question Answering": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1-score": 0.8888888888888888,
+        "support": 10
+      },
+      "Image Segmentation": {
+        "precision": 0.7692307692307693,
+        "recall": 1.0,
+        "f1-score": 0.8695652173913043,
+        "support": 10
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 10
+      },
+      "Text-to-Speech": {
+        "precision": 0.9166666666666666,
+        "recall": 1.0,
+        "f1-score": 0.9565217391304348,
+        "support": 11
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1-score": 0.6666666666666666,
+        "support": 10
+      },
+      "Audio-to-Audio": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
+        "support": 8
+      },
+      "Audio Classification": {
+        "precision": 1.0,
+        "recall": 0.375,
+        "f1-score": 0.5454545454545454,
+        "support": 8
+      },
+      "Image Editing": {
+        "precision": 0.5625,
+        "recall": 1.0,
+        "f1-score": 0.72,
+        "support": 9
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.7408829174664108,
+    "argument_task_argname_value_binary_f1_no_matching": 0.5152542372881356,
+    "link_binary_f1": 0.0
+  },
+  "chain_overall": {
+    "all_samples": 235,
+    "step_supports": 0,
+    "node_supports": 235,
+    "link_supports": 235,
+    "argument_supports": 235,
+    "node_micro_precision_no_matching": 0.7917205692108668,
+    "node_micro_recall_no_matching": 0.7737041719342604,
+    "node_micro_f1_no_matching": 0.782608695652174,
+    "node_macro_precision_no_matching": 0.8034386905011065,
+    "node_macro_recall_no_matching": 0.7560477425966146,
+    "node_macro_f1_no_matching": 0.7626198992319148,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 0.8620689655172413,
+        "recall": 0.6944444444444444,
+        "f1-score": 0.7692307692307693,
+        "support": 36
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 0.9782608695652174,
+        "f1-score": 0.989010989010989,
+        "support": 46
+      },
+      "Summarization": {
+        "precision": 0.825,
+        "recall": 0.868421052631579,
+        "f1-score": 0.8461538461538461,
+        "support": 38
+      },
+      "Question Answering": {
+        "precision": 0.5945945945945946,
+        "recall": 0.6470588235294118,
+        "f1-score": 0.6197183098591549,
+        "support": 34
+      },
+      "Conversational": {
+        "precision": 0.9230769230769231,
+        "recall": 0.75,
+        "f1-score": 0.8275862068965517,
+        "support": 32
+      },
+      "Text Generation": {
+        "precision": 0.5909090909090909,
+        "recall": 0.4482758620689655,
+        "f1-score": 0.5098039215686274,
+        "support": 29
+      },
+      "Sentence Similarity": {
+        "precision": 0.9,
+        "recall": 0.9,
+        "f1-score": 0.9,
+        "support": 30
+      },
+      "Tabular Classification": {
+        "precision": 0.8333333333333334,
+        "recall": 0.7142857142857143,
+        "f1-score": 0.7692307692307693,
+        "support": 28
+      },
+      "Object Detection": {
+        "precision": 0.7941176470588235,
+        "recall": 0.8709677419354839,
+        "f1-score": 0.8307692307692308,
+        "support": 31
+      },
+      "Image Classification": {
+        "precision": 0.9354838709677419,
+        "recall": 0.7073170731707317,
+        "f1-score": 0.8055555555555556,
+        "support": 41
+      },
+      "Image-to-Image": {
+        "precision": 0.5217391304347826,
+        "recall": 0.5714285714285714,
+        "f1-score": 0.5454545454545454,
+        "support": 21
+      },
+      "Image-to-Text": {
+        "precision": 0.5,
+        "recall": 0.8709677419354839,
+        "f1-score": 0.6352941176470588,
+        "support": 31
+      },
+      "Text-to-Image": {
+        "precision": 0.8611111111111112,
+        "recall": 0.8378378378378378,
+        "f1-score": 0.8493150684931506,
+        "support": 37
+      },
+      "Text-to-Video": {
+        "precision": 0.8709677419354839,
+        "recall": 1.0,
+        "f1-score": 0.9310344827586207,
+        "support": 27
+      },
+      "Visual Question Answering": {
+        "precision": 0.7391304347826086,
+        "recall": 0.6296296296296297,
+        "f1-score": 0.68,
+        "support": 27
+      },
+      "Document Question Answering": {
+        "precision": 0.8518518518518519,
+        "recall": 0.5609756097560976,
+        "f1-score": 0.6764705882352942,
+        "support": 41
+      },
+      "Image Segmentation": {
+        "precision": 0.9411764705882353,
+        "recall": 0.5925925925925926,
+        "f1-score": 0.7272727272727273,
+        "support": 27
+      },
+      "Depth Estimation": {
+        "precision": 0.9705882352941176,
+        "recall": 0.8461538461538461,
+        "f1-score": 0.9041095890410958,
+        "support": 39
+      },
+      "Text-to-Speech": {
+        "precision": 0.9777777777777777,
+        "recall": 0.88,
+        "f1-score": 0.9263157894736842,
+        "support": 50
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.5161290322580645,
+        "recall": 0.9696969696969697,
+        "f1-score": 0.6736842105263158,
+        "support": 33
+      },
+      "Audio-to-Audio": {
+        "precision": 0.8518518518518519,
+        "recall": 0.7931034482758621,
+        "f1-score": 0.8214285714285714,
+        "support": 29
+      },
+      "Audio Classification": {
+        "precision": 0.8,
+        "recall": 0.27586206896551724,
+        "f1-score": 0.41025641025641024,
+        "support": 29
+      },
+      "Image Editing": {
+        "precision": 0.8181818181818182,
+        "recall": 0.9818181818181818,
+        "f1-score": 0.8925619834710744,
+        "support": 55
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.6508549365692223,
+    "argument_task_argname_value_binary_f1_no_matching": 0.4507874015748031,
+    "link_binary_f1": 0.4467483506126296
+  },
+  "dag_overall": {
+    "all_samples": 49,
+    "step_supports": 0,
+    "node_supports": 49,
+    "link_supports": 49,
+    "argument_supports": 49,
+    "node_micro_precision_no_matching": 0.838150289017341,
+    "node_micro_recall_no_matching": 0.8529411764705882,
+    "node_micro_f1_no_matching": 0.8454810495626822,
+    "node_macro_precision_no_matching": 0.826494519972781,
+    "node_macro_recall_no_matching": 0.8291257052126617,
+    "node_macro_f1_no_matching": 0.8030090879946618,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1-score": 0.9333333333333333,
+        "support": 8
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 8
+      },
+      "Summarization": {
+        "precision": 0.9166666666666666,
+        "recall": 0.8461538461538461,
+        "f1-score": 0.88,
+        "support": 13
+      },
+      "Question Answering": {
+        "precision": 0.4,
+        "recall": 0.8,
+        "f1-score": 0.5333333333333333,
+        "support": 5
+      },
+      "Conversational": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 6
+      },
+      "Text Generation": {
+        "precision": 1.0,
+        "recall": 0.7142857142857143,
+        "f1-score": 0.8333333333333334,
+        "support": 7
+      },
+      "Sentence Similarity": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 9
+      },
+      "Tabular Classification": {
+        "precision": 0.7142857142857143,
+        "recall": 1.0,
+        "f1-score": 0.8333333333333334,
+        "support": 5
+      },
+      "Object Detection": {
+        "precision": 0.8181818181818182,
+        "recall": 1.0,
+        "f1-score": 0.9,
+        "support": 9
+      },
+      "Image Classification": {
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1-score": 0.9333333333333333,
+        "support": 8
+      },
+      "Image-to-Image": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Image-to-Text": {
+        "precision": 0.46153846153846156,
+        "recall": 1.0,
+        "f1-score": 0.631578947368421,
+        "support": 6
+      },
+      "Text-to-Image": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 8
+      },
+      "Text-to-Video": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 10
+      },
+      "Visual Question Answering": {
+        "precision": 1.0,
+        "recall": 0.2857142857142857,
+        "f1-score": 0.4444444444444444,
+        "support": 14
+      },
+      "Document Question Answering": {
+        "precision": 0.8181818181818182,
+        "recall": 0.8181818181818182,
+        "f1-score": 0.8181818181818182,
+        "support": 11
+      },
+      "Image Segmentation": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.8,
+        "support": 3
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.8,
+        "support": 3
+      },
+      "Text-to-Speech": {
+        "precision": 0.9090909090909091,
+        "recall": 0.8333333333333334,
+        "f1-score": 0.8695652173913043,
+        "support": 12
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.8,
+        "recall": 0.8888888888888888,
+        "f1-score": 0.8421052631578947,
+        "support": 9
+      },
+      "Audio-to-Audio": {
+        "precision": 0.5714285714285714,
+        "recall": 0.8,
+        "f1-score": 0.6666666666666666,
+        "support": 5
+      },
+      "Audio Classification": {
+        "precision": 0.6,
+        "recall": 1.0,
+        "f1-score": 0.75,
+        "support": 3
+      },
+      "Image Editing": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 8
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.690537084398977,
+    "argument_task_argname_value_binary_f1_no_matching": 0.5396825396825397,
+    "link_binary_f1": 0.5047619047619047
+  },
+  "overall_1": {
+    "all_samples": 198,
+    "step_supports": 0,
+    "node_supports": 198,
+    "link_supports": 198,
+    "argument_supports": 198,
+    "node_micro_precision_no_matching": 0.7322175732217573,
+    "node_micro_recall_no_matching": 0.9210526315789473,
+    "node_micro_f1_no_matching": 0.8158508158508159,
+    "node_macro_precision_no_matching": 0.7993147218614979,
+    "node_macro_recall_no_matching": 0.9152173913043479,
+    "node_macro_f1_no_matching": 0.8248533777837627,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 0.8888888888888888,
+        "recall": 1.0,
+        "f1-score": 0.9411764705882353,
+        "support": 8
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 9
+      },
+      "Summarization": {
+        "precision": 0.6470588235294118,
+        "recall": 1.0,
+        "f1-score": 0.7857142857142857,
+        "support": 11
+      },
+      "Question Answering": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
+        "support": 6
+      },
+      "Conversational": {
+        "precision": 0.42857142857142855,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.5217391304347826,
+        "support": 9
+      },
+      "Text Generation": {
+        "precision": 0.55,
+        "recall": 1.0,
+        "f1-score": 0.7096774193548387,
+        "support": 11
+      },
+      "Sentence Similarity": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 4
+      },
+      "Tabular Classification": {
+        "precision": 0.7777777777777778,
+        "recall": 0.875,
+        "f1-score": 0.8235294117647058,
+        "support": 8
+      },
+      "Object Detection": {
+        "precision": 0.7777777777777778,
+        "recall": 1.0,
+        "f1-score": 0.875,
+        "support": 7
+      },
+      "Image Classification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 5
+      },
+      "Image-to-Image": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1-score": 0.8571428571428571,
+        "support": 3
+      },
+      "Image-to-Text": {
+        "precision": 0.6842105263157895,
+        "recall": 1.0,
+        "f1-score": 0.8125,
+        "support": 13
+      },
+      "Text-to-Image": {
+        "precision": 0.6923076923076923,
+        "recall": 1.0,
+        "f1-score": 0.8181818181818182,
+        "support": 9
+      },
+      "Text-to-Video": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 8
+      },
+      "Visual Question Answering": {
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "f1-score": 0.5,
+        "support": 6
+      },
+      "Document Question Answering": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1-score": 0.8888888888888888,
+        "support": 10
+      },
+      "Image Segmentation": {
+        "precision": 0.7692307692307693,
+        "recall": 1.0,
+        "f1-score": 0.8695652173913043,
+        "support": 10
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 9
+      },
+      "Text-to-Speech": {
+        "precision": 0.9090909090909091,
+        "recall": 1.0,
+        "f1-score": 0.9523809523809523,
+        "support": 10
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1-score": 0.6666666666666666,
+        "support": 10
+      },
+      "Audio-to-Audio": {
+        "precision": 0.7272727272727273,
+        "recall": 1.0,
+        "f1-score": 0.8421052631578947,
+        "support": 8
+      },
+      "Audio Classification": {
+        "precision": 1.0,
+        "recall": 0.375,
+        "f1-score": 0.5454545454545454,
+        "support": 8
+      },
+      "Image Editing": {
+        "precision": 0.6153846153846154,
+        "recall": 1.0,
+        "f1-score": 0.7619047619047619,
+        "support": 8
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.7595959595959596,
+    "argument_task_argname_value_binary_f1_no_matching": 0.5330948121645797,
+    "link_binary_f1": 0.0
+  },
+  "overall_2": {
+    "all_samples": 29,
+    "step_supports": 0,
+    "node_supports": 29,
+    "link_supports": 29,
+    "argument_supports": 29,
+    "node_micro_precision_no_matching": 0.7857142857142857,
+    "node_micro_recall_no_matching": 0.88,
+    "node_micro_f1_no_matching": 0.8301886792452831,
+    "node_macro_precision_no_matching": 0.7391304347826085,
+    "node_macro_recall_no_matching": 0.7789855072463767,
+    "node_macro_f1_no_matching": 0.7291737248258987,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 4
+      },
+      "Summarization": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Question Answering": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
+        "support": 2
+      },
+      "Conversational": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Text Generation": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.8,
+        "support": 3
+      },
+      "Sentence Similarity": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 3
+      },
+      "Tabular Classification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Object Detection": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Image Classification": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Image-to-Image": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Image-to-Text": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1-score": 0.6666666666666666,
+        "support": 3
+      },
+      "Text-to-Image": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1-score": 0.6666666666666666,
+        "support": 1
+      },
+      "Text-to-Video": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Visual Question Answering": {
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1-score": 0.8571428571428571,
+        "support": 4
+      },
+      "Document Question Answering": {
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "f1-score": 0.5714285714285714,
+        "support": 4
+      },
+      "Image Segmentation": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Text-to-Speech": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 5
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1-score": 0.9090909090909091,
+        "support": 5
+      },
+      "Audio-to-Audio": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1-score": 0.6666666666666666,
+        "support": 1
+      },
+      "Audio Classification": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Image Editing": {
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "f1-score": 0.5,
+        "support": 1
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.6825396825396826,
+    "argument_task_argname_value_binary_f1_no_matching": 0.5405405405405406,
+    "link_binary_f1": 0.6382978723404256
+  },
+  "overall_3": {
+    "all_samples": 114,
+    "step_supports": 0,
+    "node_supports": 114,
+    "link_supports": 114,
+    "argument_supports": 114,
+    "node_micro_precision_no_matching": 0.8012618296529969,
+    "node_micro_recall_no_matching": 0.8167202572347267,
+    "node_micro_f1_no_matching": 0.8089171974522293,
+    "node_macro_precision_no_matching": 0.8133288823220175,
+    "node_macro_recall_no_matching": 0.7859820566729302,
+    "node_macro_f1_no_matching": 0.7758730490628586,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 1.0,
+        "recall": 0.6470588235294118,
+        "f1-score": 0.7857142857142857,
+        "support": 17
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 16
+      },
+      "Summarization": {
+        "precision": 0.8421052631578947,
+        "recall": 1.0,
+        "f1-score": 0.9142857142857143,
+        "support": 16
+      },
+      "Question Answering": {
+        "precision": 0.631578947368421,
+        "recall": 0.75,
+        "f1-score": 0.6857142857142857,
+        "support": 16
+      },
+      "Conversational": {
+        "precision": 0.9166666666666666,
+        "recall": 0.7857142857142857,
+        "f1-score": 0.8461538461538461,
+        "support": 14
+      },
+      "Text Generation": {
+        "precision": 0.3333333333333333,
+        "recall": 0.2857142857142857,
+        "f1-score": 0.3076923076923077,
+        "support": 7
+      },
+      "Sentence Similarity": {
+        "precision": 0.9333333333333333,
+        "recall": 1.0,
+        "f1-score": 0.9655172413793104,
+        "support": 14
+      },
+      "Tabular Classification": {
+        "precision": 0.8,
+        "recall": 0.6153846153846154,
+        "f1-score": 0.6956521739130435,
+        "support": 13
+      },
+      "Object Detection": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1-score": 0.8571428571428571,
+        "support": 9
+      },
+      "Image Classification": {
+        "precision": 0.9230769230769231,
+        "recall": 0.8571428571428571,
+        "f1-score": 0.8888888888888888,
+        "support": 14
+      },
+      "Image-to-Image": {
+        "precision": 0.8571428571428571,
+        "recall": 0.75,
+        "f1-score": 0.8,
+        "support": 8
+      },
+      "Image-to-Text": {
+        "precision": 0.48148148148148145,
+        "recall": 0.8666666666666667,
+        "f1-score": 0.6190476190476191,
+        "support": 15
+      },
+      "Text-to-Image": {
+        "precision": 0.7692307692307693,
+        "recall": 1.0,
+        "f1-score": 0.8695652173913043,
+        "support": 10
+      },
+      "Text-to-Video": {
+        "precision": 0.9090909090909091,
+        "recall": 1.0,
+        "f1-score": 0.9523809523809523,
+        "support": 10
+      },
+      "Visual Question Answering": {
+        "precision": 0.8333333333333334,
+        "recall": 0.35714285714285715,
+        "f1-score": 0.5,
+        "support": 14
+      },
+      "Document Question Answering": {
+        "precision": 0.875,
+        "recall": 0.8235294117647058,
+        "f1-score": 0.8484848484848485,
+        "support": 17
+      },
+      "Image Segmentation": {
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "f1-score": 0.6,
+        "support": 7
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1-score": 0.9333333333333333,
+        "support": 16
+      },
+      "Text-to-Speech": {
+        "precision": 0.9523809523809523,
+        "recall": 1.0,
+        "f1-score": 0.975609756097561,
+        "support": 20
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.5416666666666666,
+        "recall": 0.9285714285714286,
+        "f1-score": 0.6842105263157895,
+        "support": 14
+      },
+      "Audio-to-Audio": {
+        "precision": 0.8333333333333334,
+        "recall": 0.9375,
+        "f1-score": 0.8823529411764706,
+        "support": 16
+      },
+      "Audio Classification": {
+        "precision": 0.6666666666666666,
+        "recall": 0.2222222222222222,
+        "f1-score": 0.3333333333333333,
+        "support": 9
+      },
+      "Image Editing": {
+        "precision": 0.8571428571428571,
+        "recall": 0.9473684210526315,
+        "f1-score": 0.9,
+        "support": 19
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.6749654218533887,
+    "argument_task_argname_value_binary_f1_no_matching": 0.48175182481751827,
+    "link_binary_f1": 0.4782608695652174
+  },
+  "overall_4": {
+    "all_samples": 88,
+    "step_supports": 0,
+    "node_supports": 88,
+    "link_supports": 88,
+    "argument_supports": 88,
+    "node_micro_precision_no_matching": 0.8126984126984127,
+    "node_micro_recall_no_matching": 0.7950310559006211,
+    "node_micro_f1_no_matching": 0.8037676609105181,
+    "node_macro_precision_no_matching": 0.8076268424360826,
+    "node_macro_recall_no_matching": 0.7804632851257566,
+    "node_macro_f1_no_matching": 0.7749492647095022,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 0.875,
+        "recall": 0.7777777777777778,
+        "f1-score": 0.8235294117647058,
+        "support": 18
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 0.9473684210526315,
+        "f1-score": 0.972972972972973,
+        "support": 19
+      },
+      "Summarization": {
+        "precision": 0.8125,
+        "recall": 0.8125,
+        "f1-score": 0.8125,
+        "support": 16
+      },
+      "Question Answering": {
+        "precision": 0.5,
+        "recall": 0.5454545454545454,
+        "f1-score": 0.5217391304347826,
+        "support": 11
+      },
+      "Conversational": {
+        "precision": 0.9230769230769231,
+        "recall": 0.8571428571428571,
+        "f1-score": 0.8888888888888888,
+        "support": 14
+      },
+      "Text Generation": {
+        "precision": 0.7272727272727273,
+        "recall": 0.6153846153846154,
+        "f1-score": 0.6666666666666666,
+        "support": 13
+      },
+      "Sentence Similarity": {
+        "precision": 0.8461538461538461,
+        "recall": 0.7857142857142857,
+        "f1-score": 0.8148148148148148,
+        "support": 14
+      },
+      "Tabular Classification": {
+        "precision": 0.7777777777777778,
+        "recall": 1.0,
+        "f1-score": 0.875,
+        "support": 7
+      },
+      "Object Detection": {
+        "precision": 0.8888888888888888,
+        "recall": 0.8888888888888888,
+        "f1-score": 0.8888888888888888,
+        "support": 18
+      },
+      "Image Classification": {
+        "precision": 1.0,
+        "recall": 0.7619047619047619,
+        "f1-score": 0.8648648648648649,
+        "support": 21
+      },
+      "Image-to-Image": {
+        "precision": 0.42857142857142855,
+        "recall": 0.6,
+        "f1-score": 0.5,
+        "support": 5
+      },
+      "Image-to-Text": {
+        "precision": 0.42105263157894735,
+        "recall": 1.0,
+        "f1-score": 0.5925925925925926,
+        "support": 8
+      },
+      "Text-to-Image": {
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1-score": 0.9333333333333333,
+        "support": 16
+      },
+      "Text-to-Video": {
+        "precision": 0.875,
+        "recall": 1.0,
+        "f1-score": 0.9333333333333333,
+        "support": 14
+      },
+      "Visual Question Answering": {
+        "precision": 0.5714285714285714,
+        "recall": 0.36363636363636365,
+        "f1-score": 0.4444444444444444,
+        "support": 11
+      },
+      "Document Question Answering": {
+        "precision": 0.8,
+        "recall": 0.5,
+        "f1-score": 0.6153846153846154,
+        "support": 16
+      },
+      "Image Segmentation": {
+        "precision": 1.0,
+        "recall": 0.5833333333333334,
+        "f1-score": 0.7368421052631579,
+        "support": 12
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 0.9166666666666666,
+        "f1-score": 0.9565217391304348,
+        "support": 12
+      },
+      "Text-to-Speech": {
+        "precision": 1.0,
+        "recall": 0.8421052631578947,
+        "f1-score": 0.9142857142857143,
+        "support": 19
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1-score": 0.6666666666666666,
+        "support": 11
+      },
+      "Audio-to-Audio": {
+        "precision": 0.875,
+        "recall": 0.7777777777777778,
+        "f1-score": 0.8235294117647058,
+        "support": 9
+      },
+      "Audio Classification": {
+        "precision": 0.8571428571428571,
+        "recall": 0.5,
+        "f1-score": 0.631578947368421,
+        "support": 12
+      },
+      "Image Editing": {
+        "precision": 0.896551724137931,
+        "recall": 1.0,
+        "f1-score": 0.9454545454545454,
+        "support": 26
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.6810228802153432,
+    "argument_task_argname_value_binary_f1_no_matching": 0.4909310761789601,
+    "link_binary_f1": 0.5239179954441914
+  },
+  "overall_5": {
+    "all_samples": 40,
+    "step_supports": 0,
+    "node_supports": 40,
+    "link_supports": 40,
+    "argument_supports": 40,
+    "node_micro_precision_no_matching": 0.7423312883435583,
+    "node_micro_recall_no_matching": 0.6994219653179191,
+    "node_micro_f1_no_matching": 0.7202380952380952,
+    "node_macro_precision_no_matching": 0.7423432847345893,
+    "node_macro_recall_no_matching": 0.683028083028083,
+    "node_macro_f1_no_matching": 0.6923168355558753,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 0.8333333333333334,
+        "recall": 0.7142857142857143,
+        "f1-score": 0.7692307692307693,
+        "support": 7
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 7
+      },
+      "Summarization": {
+        "precision": 0.8461538461538461,
+        "recall": 0.8461538461538461,
+        "f1-score": 0.8461538461538461,
+        "support": 13
+      },
+      "Question Answering": {
+        "precision": 0.5555555555555556,
+        "recall": 0.625,
+        "f1-score": 0.5882352941176471,
+        "support": 8
+      },
+      "Conversational": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.8,
+        "support": 6
+      },
+      "Text Generation": {
+        "precision": 0.8,
+        "recall": 0.4444444444444444,
+        "f1-score": 0.5714285714285714,
+        "support": 9
+      },
+      "Sentence Similarity": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 6
+      },
+      "Tabular Classification": {
+        "precision": 0.8571428571428571,
+        "recall": 0.75,
+        "f1-score": 0.8,
+        "support": 8
+      },
+      "Object Detection": {
+        "precision": 0.625,
+        "recall": 0.7142857142857143,
+        "f1-score": 0.6666666666666666,
+        "support": 7
+      },
+      "Image Classification": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 8
+      },
+      "Image-to-Image": {
+        "precision": 0.25,
+        "recall": 0.16666666666666666,
+        "f1-score": 0.2,
+        "support": 6
+      },
+      "Image-to-Text": {
+        "precision": 0.5,
+        "recall": 0.8333333333333334,
+        "f1-score": 0.625,
+        "support": 6
+      },
+      "Text-to-Image": {
+        "precision": 0.8571428571428571,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.75,
+        "support": 9
+      },
+      "Text-to-Video": {
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1-score": 0.9090909090909091,
+        "support": 5
+      },
+      "Visual Question Answering": {
+        "precision": 0.8571428571428571,
+        "recall": 0.75,
+        "f1-score": 0.8,
+        "support": 8
+      },
+      "Document Question Answering": {
+        "precision": 0.8,
+        "recall": 0.5,
+        "f1-score": 0.6153846153846154,
+        "support": 8
+      },
+      "Image Segmentation": {
+        "precision": 0.8,
+        "recall": 0.8,
+        "f1-score": 0.8,
+        "support": 5
+      },
+      "Depth Estimation": {
+        "precision": 0.8333333333333334,
+        "recall": 0.625,
+        "f1-score": 0.7142857142857143,
+        "support": 8
+      },
+      "Text-to-Speech": {
+        "precision": 0.9090909090909091,
+        "recall": 0.8333333333333334,
+        "f1-score": 0.8695652173913043,
+        "support": 12
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.5,
+        "recall": 0.8571428571428571,
+        "f1-score": 0.631578947368421,
+        "support": 7
+      },
+      "Audio-to-Audio": {
+        "precision": 0.25,
+        "recall": 0.25,
+        "f1-score": 0.25,
+        "support": 4
+      },
+      "Audio Classification": {
+        "precision": 0.5,
+        "recall": 0.16666666666666666,
+        "f1-score": 0.25,
+        "support": 6
+      },
+      "Image Editing": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
+        "support": 10
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.5648854961832062,
+    "argument_task_argname_value_binary_f1_no_matching": 0.38724373576309795,
+    "link_binary_f1": 0.33992094861660077
+  },
+  "overall_6": {
+    "all_samples": 14,
+    "step_supports": 0,
+    "node_supports": 14,
+    "link_supports": 14,
+    "argument_supports": 14,
+    "node_micro_precision_no_matching": 0.8,
+    "node_micro_recall_no_matching": 0.7567567567567568,
+    "node_micro_f1_no_matching": 0.7777777777777778,
+    "node_macro_precision_no_matching": 0.8252587991718426,
+    "node_macro_recall_no_matching": 0.7347826086956522,
+    "node_macro_f1_no_matching": 0.7418617614269788,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 6
+      },
+      "Summarization": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Question Answering": {
+        "precision": 0.25,
+        "recall": 0.5,
+        "f1-score": 0.3333333333333333,
+        "support": 2
+      },
+      "Conversational": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Text Generation": {
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "f1-score": 0.5714285714285714,
+        "support": 4
+      },
+      "Sentence Similarity": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Tabular Classification": {
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.6666666666666666,
+        "support": 3
+      },
+      "Object Detection": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1-score": 0.8571428571428571,
+        "support": 3
+      },
+      "Image Classification": {
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.6666666666666666,
+        "support": 3
+      },
+      "Image-to-Image": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1-score": 0.6666666666666666,
+        "support": 1
+      },
+      "Image-to-Text": {
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.6666666666666666,
+        "support": 3
+      },
+      "Text-to-Image": {
+        "precision": 0.8571428571428571,
+        "recall": 1.0,
+        "f1-score": 0.9230769230769231,
+        "support": 6
+      },
+      "Text-to-Video": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 7
+      },
+      "Visual Question Answering": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "f1-score": 0.5,
+        "support": 2
+      },
+      "Document Question Answering": {
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1-score": 0.5714285714285714,
+        "support": 5
+      },
+      "Image Segmentation": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.8,
+        "support": 3
+      },
+      "Text-to-Speech": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 4
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.6,
+        "recall": 1.0,
+        "f1-score": 0.75,
+        "support": 3
+      },
+      "Audio-to-Audio": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Audio Classification": {
+        "precision": 1.0,
+        "recall": 0.3333333333333333,
+        "f1-score": 0.5,
+        "support": 3
+      },
+      "Image Editing": {
+        "precision": 0.8571428571428571,
+        "recall": 1.0,
+        "f1-score": 0.9230769230769231,
+        "support": 6
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.6242774566473989,
+    "argument_task_argname_value_binary_f1_no_matching": 0.35789473684210527,
+    "link_binary_f1": 0.27586206896551724
+  },
+  "overall_7": {
+    "all_samples": 3,
+    "step_supports": 0,
+    "node_supports": 3,
+    "link_supports": 3,
+    "argument_supports": 3,
+    "node_micro_precision_no_matching": 0.8947368421052632,
+    "node_micro_recall_no_matching": 0.8095238095238095,
+    "node_micro_f1_no_matching": 0.85,
+    "node_macro_precision_no_matching": 0.5507246376811594,
+    "node_macro_recall_no_matching": 0.4855072463768116,
+    "node_macro_f1_no_matching": 0.5043478260869565,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Translation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Summarization": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Question Answering": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Conversational": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Text Generation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Sentence Similarity": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Tabular Classification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Object Detection": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Image Classification": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Image-to-Image": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Image-to-Text": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Text-to-Image": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.8,
+        "support": 3
+      },
+      "Text-to-Video": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Visual Question Answering": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Document Question Answering": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Image Segmentation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Text-to-Speech": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1-score": 0.8,
+        "support": 2
+      },
+      "Audio-to-Audio": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Audio Classification": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Image Editing": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.7906976744186046,
+    "argument_task_argname_value_binary_f1_no_matching": 0.6382978723404256,
+    "link_binary_f1": 0.7058823529411765
+  },
+  "overall_8": {
+    "all_samples": 2,
+    "step_supports": 0,
+    "node_supports": 2,
+    "link_supports": 2,
+    "argument_supports": 2,
+    "node_micro_precision_no_matching": 0.9333333333333333,
+    "node_micro_recall_no_matching": 0.9333333333333333,
+    "node_micro_f1_no_matching": 0.9333333333333333,
+    "node_macro_precision_no_matching": 0.4782608695652174,
+    "node_macro_recall_no_matching": 0.4782608695652174,
+    "node_macro_f1_no_matching": 0.4782608695652174,
+    "node_per_type_no_matchcing": {
+      "Token Classification": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Translation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Summarization": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 1
+      },
+      "Question Answering": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Conversational": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Text Generation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Sentence Similarity": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Tabular Classification": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Object Detection": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Image Classification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Image-to-Image": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Image-to-Text": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Text-to-Image": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Text-to-Video": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Visual Question Answering": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Document Question Answering": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Image Segmentation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      },
+      "Depth Estimation": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Text-to-Speech": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Automatic Speech Recognition": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Audio-to-Audio": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1
+      },
+      "Audio Classification": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0
+      },
+      "Image Editing": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2
+      }
+    },
+    "argument_task_argname_binary_f1_no_matching": 0.4827586206896552,
+    "argument_task_argname_value_binary_f1_no_matching": 0.3225806451612903,
+    "link_binary_f1": 0.1111111111111111
+  },
+  "overall_9": {
+    "all_samples": 0,
+    "step_supports": 0,
+    "node_supports": 0,
+    "link_supports": 0,
+    "argument_supports": 0
+  },
+  "overall_10": {
+    "all_samples": 0,
+    "step_supports": 0,
+    "node_supports": 0,
+    "link_supports": 0,
+    "argument_supports": 0
+  }
+}

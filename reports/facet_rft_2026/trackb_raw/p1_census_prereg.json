@@ -1,0 +1,37 @@
+{
+  "experiment": "P1 gold-SFT LODO_mm @ Qwen2.5-32B (COWORKER_REQUEST_TB_SCALE v3)",
+  "registered_utc": "2026-06-11T09:38:04.167206+00:00",
+  "base_census_aggregate": {
+    "parse": 1.0,
+    "n_nodes": 2.6546184738955825,
+    "valid_frac": 1.0,
+    "ntag": 1.6566265060240963,
+    "nself": 0.0,
+    "ndangle": 0.0,
+    "node_f1": 0.8665368767778414,
+    "edge_f1": 0.6388970021500141,
+    "links_ok": null,
+    "argdict_frac": null
+  },
+  "mechanism": "delta_edge ~= slope*nself - interference (결과문서 §8)",
+  "anchors": {
+    "7B": {
+      "nself": 0.218,
+      "delta": -0.8
+    },
+    "14B": {
+      "nself": 0.478,
+      "delta": 4.3
+    }
+  },
+  "slope_per_anchor": {
+    "7B": 19.26605504587156,
+    "14B": 19.456066945606697
+  },
+  "slope_used": 19.36106099573913,
+  "interference_pp": 5.0,
+  "nself_32b_base": 0.0,
+  "valid_frac_32b_base": 1.0,
+  "predicted_delta_edge_mm_sub500": -5.0,
+  "verdict_rule": "①pred 적중=기제 확립 ②초과=인덱스 외 추가 전이(용량 부분 부활) ③미달=32B 고유 변수 재조사 (v3 §2-P1)"
+}

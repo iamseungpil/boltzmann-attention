@@ -90,6 +90,7 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 | **7B (full-domain)** | 73.6 / 32.2 | 84.4 / 50.0 | 90.8 / 68.1 |
 | 14B | 77.5 / 39.6 | 89.5 / 52.8 | 93.5 / 77.4 |
 | **32B ★Track-B (P0a, H100 노드, 2026-06-11)** | 79.7 / **43.9** | 87.3 / **61.9** | 94.9 / **80.6** |
+| **72B ★Track-B (P0a, TP4, 2026-06-11)** | 80.6 / **45.8** | 88.7 / **63.5** | 95.4 / **83.1** |
 
 - **edge-구조 emerge 지점 = 1.5B→3B**(전 도메인 edge 0–18→19–34), 이후 **14B까지 가파른 비포화 상승**; node는 7B 이후 수확체감(+~4pt). ⇒ "node~포화·edge=변별 스킬" (§1·§17.8) 의 scale-축 확증. 0.5B는 과제 수행 불능(포맷 붕괴 수준).
 - 14B조차 published gpt-4(MM e-F1 69.3)에 16pt 미달 → 7B 학습으로 edge를 끌어올리는 Exp-A의 가치 공간 확인.
@@ -135,6 +136,7 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 | **Qwen3-8B (full)** | 77.2 / 39.8 | 83.5 / 51.4 | 93.2 / 79.2 |
 | Qwen3-14B | 80.6 / 42.2 | 87.2 / 59.1 | 95.0 / 79.9 |
 | **Qwen3-32B ★Track-B (P0b, H100 노드, 2026-06-11, non-thinking)** | 81.2 / **45.6** | 87.1 / **58.7** | 94.9 / **79.8** |
+| **Qwen3-235B-A22B-INT4 ★Track-B (P0b, MoE(A22B)·GPTQ-Int4·TP4, non-thinking)** | 82.8 / **45.6** | 86.7 / **56.4** | 95.8 / **80.5** |
 - 동급 대비 Qwen3 ≥ Qwen2.5 경향(특히 daily edge: 0.6B가 이미 25.8 vs Qwen2.5-0.5B 0.2; 14B edge MM 59.1 vs 52.8) — **곡선 모양(edge 후발 emerge·비포화)은 family-불변** 1차 확인.
 - **★Qwen3-4B ≈ Qwen2.5-7B 동급**(79.8/27.1·81.9/46.4·90.4/72.0 vs 73.6/32.2·84.4/50.0·90.8/68.1) = 이 과제에서 family 세대교체가 ~2x 파라미터 효율 — "{소형·저비용}" leg에 유리한 재료(같은 coverage를 절반 크기로).
 - **Qwen3-8B(full-vs-full 직접 비교) > Qwen2.5-7B**: edge HF +7.6·daily +11.1·MM +1.4 — 세대 이득은 주로 **edge(구조) 축**에 실림. Qwen3-8B daily edge 79.2는 Qwen2.5-14B(77.4)도 추월. 14B 점(sub500 59.1 MM)과 함께 Qwen3 곡선도 비포화 — gpt-4(69.3 MM) 격차는 Qwen3-14B 기준 ~10pt로 축소.
@@ -163,7 +165,8 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 
 ## 8.5 ★Track-B (coworker, H100×4 노드) — P0 32B-class 완료 + **P1 step-0 census 사전등록** (2026-06-11)
 
-**P0 진행**: Qwen2.5-32B ✅(§4 표에 행 추가) · Qwen3-32B ✅(§7 표에 행 추가) · Qwen2.5-72B 추론 중(TP4) · Qwen3-235B-A22B-INT4 대기. 전부 동일 첫-500 sub500, Qwen3는 non-thinking 고정(inference.py payload patch, Track A 동일 방법).
+**P0 ✅ 전체 완료 (4모델, 2026-06-11)**: Qwen2.5-{32B,72B}(§4 행) + Qwen3-{32B,235B-A22B-INT4}(§7 행). 전부 동일 첫-500 sub500, Qwen3는 non-thinking 고정(inference.py payload patch, Track A 동일 방법). **raw 궤적/metrics/prereg = `trackb_raw/` 커밋 (§3.5 이행)**.
+- **Q1 판정 재료**: Qwen2.5 곡선은 72B에서도 오르나 **기울기 급감**(MM edge 61.9→63.5, 2.25× 파라미터에 +1.6) — gpt-4(69.3)에 72B로도 −5.8pt 미달 = prompted-만의 천장 시사. **Qwen3 곡선은 14B 이후 평탄~역행**(MM 59.1→58.7→**56.4**(235B-A22B); MoE·INT4 confound 병기) — **곡선 모양 family-불변 가설은 14B-이하에서만 성립**, 대형단은 family-의존.
 
 **★P1 step-0 (v3 필수 절차) — 32B base census 측정 + Δ 사전등록 (학습 착수 전 HF 박제, 2026-06-11T09:38Z)**:
 - 32B base (MM sub500, n=496): **nself/ex = 0.000 · valid_frac = 1.000** (참조: 7B 0.218/0.987 · 14B 0.478/0.997 — base 인덱스-오류가 scale 비단조였는데 32B서 소멸).
