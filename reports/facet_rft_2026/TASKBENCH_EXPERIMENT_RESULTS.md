@@ -159,6 +159,23 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 
 **처방 갱신 (1순위 레버 교체):** 어휘-간섭 억제가 본명 — ①**RFT round-2 보상에 도구명-유효성 페널티 추가**(구현 쉬움: valid_frac<1 감점) ②grounded-copy(도구명은 컨텍스트 tool list에서 복사 강제) ③alias-마스킹은 여전히 P3 위생(이름암기 통제)이나 간섭 직접 처방 아님.
 
+## 9.5 ★grounded-copy v0 (name-snap, 후처리·zero-GPU) ✅ 2026-06-11 PM — **held-out 첫 base-추월**
+무효 도구명을 tool list 최근접 유효명으로 스냅(`tb_name_snap.py`, difflib cutoff 0.6) 후 공식 재채점:
+
+| held-out pred | 원본 edge | +snap | Δ |
+|---|---|---|---|
+| **RFT2 (MM full)** | 49.0 | **52.5** | **+3.5 → base 50.0을 +2.5 추월 (첫 held-out 순이득)** |
+| SFT (MM full) | 48.3 | 50.1 | +1.8 (어휘-간섭 손상 복구 = base 동급) |
+| lodo_daily (daily full) | 59.6 | 59.6 | 0 (아래 경계) |
+| base 통제 (MM) | 50.0 | 50.4 | +0.4 (통제 통과 — 스냅 인플레 없음) |
+
+- **★의미: weight-학습(in-domain coverage) + 추론-side 결정론 보정(held-out 어휘)의 *패키지*가 처음으로 held-out 순이득** — thesis의 propose+결정론-보정 구조의 TaskBench 인스턴스. 스냅 규모: SFT preds 무효명 7.2%(912+138) vs base 1.7%(228+22) = census 간섭 발견의 독립 재확인.
+- **★v0/v1 경계 실측 (daily가 그어줌)**: daily 미스냅 689건의 정체 = 오타가 아니라 **의미적 패러프레이즈**("install software"→`software_management`·"watch movie"→`play_movie_by_title`·"pay bill"→bill-payment류, top15 전수확인) → 문자열 매칭 사정거리 밖. **처방 v1 = 추론-시 제약 선택(constrained/guided decoding: valid 이름 집합 안에서만 생성 — 의미 매칭은 모델 자신이 수행)** — MM/HF의 형태-변형은 v0로 충분, daily의 의미-변형은 v1 필요.
+
+## 9.6 L2 DPO (조기종결 쌍) 🔄 진행
+- 채굴: `.all`(K=8 전샘플)에서 [완전·고보상 chosen / 조기종결 rejected] = **318쌍**(3869 프롬프트 중 — 'no_short' 2528 = 정책이 in-domain 샘플링에선 조기종결을 드물게 냄 = 누락 질량은 greedy-선택/held-out 측이라는 진단과 정합). `tb_dpo_mine.py`.
+- 학습: rft2 위 DPO(beta 0.1, lr 5e-6, 2ep). ⚠️인프라: 2×7B(policy+ref)가 48GB서 OOM → grad-ckpt 패치 + seq-len 3072(머리-절단은 chosen/rejected 동일 = 차분 신호 보존)로 우회. 평가 예정.
+
 ## 9. ★실행 큐 (2026-06-11 AM 갱신 — census §8 처방 기준, 이 §이 TaskBench 실행 권위)
 
 **진행 중:**
