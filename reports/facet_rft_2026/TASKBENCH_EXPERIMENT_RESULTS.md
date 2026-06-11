@@ -181,7 +181,8 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
   - **③census 귀속 (`census_rft2_to_dpo_mm.md`)**: improved 460=원래 짧고-깨진 케이스 정확 수리(edge 0.20→0.72·nself 0.50→0.16·valid 0.86→0.97) ↔ worsened 549=**이미 완전하던 플랜 과잉-연장**(n_nodes 2.88→3.85·valid 0.97→0.90·ndangle ×9·edge 0.86→0.28). 같은 81.8%.
 - **★기제: 단방향 쌍의 거울상 trade** — rejected가 조기종결뿐이라 "길게"만 학습 → 완전 케이스에 무효명·junk 노드 추가. SOPBench Gate-B 교훈(DPO 쌍 **양방향** 카운트) 그대로 재현. ⇒ 처방 = **균형-쌍 v2**(`tb_dpo_mine.py --balance`: chosen=gold-길이 정확·고보상, rejected=조기종결 **및 과잉연장** 양쪽), 채굴 zero-GPU(.all 재사용).
 - 사전등록 분기(§2 핸드오프)는 "결손↓=best-stack 확정"을 가정했으나 결손↓∧패키지↓ 동시 발생 = 분기 미커버 → 기록 후 최소-프로브(균형-쌍 v2) 선행, L3 게이트 이관은 v2 판정 후.
-- in-domain sanity: HF sub500 edge 47.29/node 84.11. ⚠️daily sub500은 PS argv 따옴표-절단으로 eval서 탈락(TRAIN_DOMS 2번째 인자 증발) → `tb_dpo_daily_sub500.sh`로 보완 (재발방지: ssh_run에 따옴표 포함 명령은 stdin으로).
+- **★in-domain 대폭 회귀 (sanity가 본판정 뒤집음)**: sub500 edge daily 84.97→**69.81(−15.2)**·HF 51.61→**47.29(−4.3)** = v1 DPO가 RFT in-domain 이득을 되감음. held-out 보다 in-domain 손상이 훨씬 큼 ⇒ **v1 단방향 DPO = net-negative 확정** (누락축 이동은 실재하나 길이-편향 전역 주입의 부수손상이 지배). ⚠️daily sub500은 PS argv 따옴표-절단으로 eval서 탈락 → `tb_dpo_daily_sub500.sh`로 보완 (재발방지: ssh_run stdin이 utf-8-sig+CRLF 정규화하도록 수정 — 따옴표 포함 명령은 stdin으로).
+- **진행: 균형-쌍 v2 학습 중** (`dpo_balance.jsonl` 714쌍=short 313+long 401 — 과잉연장 질량이 rollout에 실재. chosen=gold-길이 정확. `qwen7b_tb_dpo2_mm`, GPU1, ~3h). **사전등록 판정**: ⓐin-domain sub500 회귀 소멸(daily ≥84·HF ≥51 수준 복원) ∧ ⓑheld-out short율<18.3%·deficit<+0.225 유지 ∧ ⓒ패키지(edge+snap)≥52.5 — ⓐ 실패 시 길이-DPO 레버 폐기→L3 게이트 이관.
 
 ## 9. ★실행 큐 (2026-06-11 AM 갱신 — census §8 처방 기준, 이 §이 TaskBench 실행 권위)
 
