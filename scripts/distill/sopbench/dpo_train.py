@@ -85,11 +85,13 @@ def main():
     step = 0
     for ep in range(a.epochs):
         for i, ex in enumerate(pairs):
+            pol.eval()  # ref pass deterministic (no dropout)
             with torch.no_grad():
                 pol.set_adapter("ref")
                 lp_ref_c = seq_logp(pol, tok, ex["prompt"], ex["chosen"], a.device, a.max_seq_len)
                 lp_ref_r = seq_logp(pol, tok, ex["prompt"], ex["rejected"], a.device, a.max_seq_len)
             pol.set_adapter("default")
+            pol.train()  # REQUIRED: transformers gradient checkpointing only fires when training=True
             lp_pol_c = seq_logp(pol, tok, ex["prompt"], ex["chosen"], a.device, a.max_seq_len)
             lp_pol_r = seq_logp(pol, tok, ex["prompt"], ex["rejected"], a.device, a.max_seq_len)
             margin = (lp_pol_c - lp_ref_c) - (lp_pol_r - lp_ref_r)
