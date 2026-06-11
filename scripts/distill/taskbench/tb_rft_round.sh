@@ -5,6 +5,9 @@
 NAME=${1:-rft_mm}; GPU=${2:-0}; SRC=${3:-lodo_mm}
 HOLDOUT=${4:-data_multimedia}; TRAIN_DOMS=${5:-"data_huggingface data_dailylifeapis"}
 PORT=$((8000+GPU))
+# env overrides: PROMPTS (rollout prompt jsonl), RWARGS (reward weights etc.)
+PROMPTS=${PROMPTS:-/home/woori/scratch/tb_sft/train_lodo_mm.jsonl}
+RWARGS=${RWARGS:-}
 R=/home/woori/workspace_common/boltzmann-attention-pi
 RUNS=$R/reports/facet_rft_2026/phase4_distill/sft_runs
 EP=/home/woori/scratch/tbeval_venv/bin/python
@@ -15,11 +18,11 @@ mkdir -p $RFT
 exec > $LOG 2>&1
 set -x
 
-# 1) rollout (K=8, reward 0.3node+0.7edge, keep >=0.8)
+# 1) rollout (K=8; reward weights via RWARGS, default = round-1 0.3node+0.7edge)
 $EP $R/scripts/distill/taskbench/tb_rft_rollout.py \
-  --sft_jsonl /home/woori/scratch/tb_sft/train_${SRC}.jsonl \
+  --sft_jsonl $PROMPTS \
   --api http://localhost:$PORT/v1/chat/completions --model tb_${SRC} \
-  --k 8 --temp 1.0 --min_reward 0.8 --concurrency 16 \
+  --k 8 --temp 1.0 --min_reward 0.8 --concurrency 16 $RWARGS \
   --out $RFT/winners_${NAME}.jsonl || exit 1
 wc -l $RFT/winners_${NAME}.jsonl
 

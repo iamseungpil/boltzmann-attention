@@ -70,7 +70,11 @@ def parse_result(text):
     return d if isinstance(d, dict) else None
 
 
-def reward(sample_text, gold_result, dep):
+def reward(sample_text, gold_result, dep, valid_tools=None, w=(0.3, 0.0, 0.7, 0.0)):
+    """w = (w_nodeF1_or_P, w_nodeR, w_edge, w_valid).
+    Round-1: (0.3, 0, 0.7, 0) — node-F1 symmetric.
+    Round-2: (0.10, 0.25, 0.55, 0.10) — recall term targets omission (census 제3축),
+    validity term targets tool-vocab interference (census 제2축)."""
     d = parse_result(sample_text)
     if d is None:
         return 0.0, False
@@ -78,7 +82,14 @@ def reward(sample_text, gold_result, dep):
     if not isinstance(pn, list) or any(not isinstance(x, dict) for x in pn):
         return 0.0, False
     gn = gold_result["task_nodes"]
-    node_f1 = f1({norm(x.get("task", "")) for x in pn}, {norm(x["task"]) for x in gn})
+    pset = {norm(x.get("task", "")) for x in pn}
+    gset = {norm(x["task"]) for x in gn}
+    node_f1 = f1(pset, gset)
+    node_r = (len(pset & gset) / len(gset)) if gset else 1.0
+    valid = 1.0
+    if valid_tools:
+        names = [norm(x.get("task", "")) for x in pn]
+        valid = sum(n in valid_tools for n in names) / max(len(names), 1)
     if dep == "temporal":
         gl = {(norm(l["source"]), norm(l["target"])) for l in gold_result.get("task_links", [])}
         pl_raw = d.get("task_links")
@@ -89,13 +100,15 @@ def reward(sample_text, gold_result, dep):
         edge_f1 = f1(pl, gl)
     else:
         edge_f1 = f1(tag_links(pn), tag_links(gn))
-    return 0.3 * node_f1 + 0.7 * edge_f1, True
+    return w[0] * node_f1 + w[1] * node_r + w[2] * edge_f1 + w[3] * valid, True
 
 
-async def roll_one(session, sem, rec, args):
+async def roll_one(session, sem, rec, args, valid_by_dom):
     user = rec["messages"][0]["content"]
     gold = json.loads(rec["messages"][1]["content"])
-    dep = "temporal" if rec.get("meta", {}).get("domain", "").find("dailylife") >= 0 else "resource"
+    dom = rec.get("meta", {}).get("domain", "")
+    dep = "temporal" if dom.find("dailylife") >= 0 else "resource"
+    w = (args.w_node, args.w_recall, args.w_edge, args.w_valid)
     payload = {"model": args.model,
                "messages": [{"role": "user", "content": user}],
                "n": args.k, "temperature": args.temp, "top_p": 0.95,
@@ -113,14 +126,16 @@ async def roll_one(session, sem, rec, args):
                 await asyncio.sleep(5)
     best_r, best_t = -1.0, None
     parsed_ok = 0
+    samples = []
     for ch in resp.get("choices", []):
         t = ch["message"]["content"] or ""
-        rw, ok = reward(t, gold, dep)
+        rw, ok = reward(t, gold, dep, valid_by_dom.get(dom), w)
         parsed_ok += ok
+        samples.append({"reward": rw, "text": t})
         if rw > best_r:
             best_r, best_t = rw, t
-    return {"id": rec.get("meta", {}).get("id"), "domain": rec.get("meta", {}).get("domain"),
-            "best_reward": best_r, "parsed": parsed_ok,
+    return {"id": rec.get("meta", {}).get("id"), "domain": dom,
+            "best_reward": best_r, "parsed": parsed_ok, "samples": samples,
             "winner": {"messages": [{"role": "user", "content": user},
                                     {"role": "assistant", "content": best_t}],
                        "meta": {**rec.get("meta", {}), "rft_reward": best_r}}}
@@ -130,12 +145,21 @@ async def main_async(args):
     recs = [json.loads(l) for l in open(args.sft_jsonl)]
     if args.max_prompts:
         recs = recs[:args.max_prompts]
+    valid_by_dom = {}
+    if args.tb_dir:
+        for dom in {r.get("meta", {}).get("domain", "") for r in recs}:
+            try:
+                tl = json.load(open(os.path.join(args.tb_dir, dom, "tool_desc.json")))["nodes"]
+                valid_by_dom[dom] = {norm(t["id"]) for t in tl}
+            except Exception:
+                pass
     sem = asyncio.Semaphore(args.concurrency)
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     kept = 0
     rewards = []
+    af = open(args.out + ".all", "w") if args.save_all else None
     async with aiohttp.ClientSession() as session:
-        tasks = [roll_one(session, sem, r, args) for r in recs]
+        tasks = [roll_one(session, sem, r, args, valid_by_dom) for r in recs]
         with open(args.out, "w") as wf, open(args.out + ".stats", "w") as sf:
             done = 0
             for fut in asyncio.as_completed(tasks):
@@ -145,12 +169,17 @@ async def main_async(args):
                     continue
                 rewards.append(res["best_reward"])
                 sf.write(json.dumps({k: res[k] for k in ("id", "domain", "best_reward", "parsed")}) + "\n")
+                if af:
+                    af.write(json.dumps({"id": res["id"], "domain": res["domain"],
+                                         "samples": res["samples"]}) + "\n")
                 if res["best_reward"] >= args.min_reward:
                     wf.write(json.dumps(res["winner"]) + "\n")
                     kept += 1
                 if done % 200 == 0:
                     print(f"[rft] {done}/{len(recs)} kept={kept} "
                           f"mean_best={sum(rewards)/len(rewards):.3f}", flush=True)
+    if af:
+        af.close()
     print(f"[rft] DONE prompts={len(recs)} kept={kept} ({100*kept/max(len(recs),1):.1f}%) "
           f"mean_best_reward={sum(rewards)/max(len(rewards),1):.3f} -> {args.out}", flush=True)
     print("ROLLOUT_DONE", flush=True)
@@ -167,6 +196,12 @@ def main():
     ap.add_argument("--concurrency", type=int, default=8)
     ap.add_argument("--max_prompts", type=int, default=0)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--tb_dir", default=None, help="taskbench root (enables validity term)")
+    ap.add_argument("--save_all", action="store_true", help="dump all K samples (.all, for DPO mining)")
+    ap.add_argument("--w_node", type=float, default=0.3)
+    ap.add_argument("--w_recall", type=float, default=0.0)
+    ap.add_argument("--w_edge", type=float, default=0.7)
+    ap.add_argument("--w_valid", type=float, default=0.0)
     args = ap.parse_args()
     asyncio.run(main_async(args))
 
