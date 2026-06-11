@@ -109,6 +109,16 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - **결과 (vs lodo_mm SFT)**: in-domain **daily 75.9→85.2(+9.3, SFT 너머)** · HF 47.8→46.3(−1.5) · held-out MM(sub500x) 47.5→48.4(+0.9, base 48.3 회복 수준).
 - 판정: **outcome-RFT는 보상이 깨끗한 도메인(daily)에서 SFT 천장을 추가로 밀고**, held-out 회귀를 base 수준으로 복원. HF 정체는 보상-노이즈(관례-mismatch 분율, A-0의 27%) 가설 — round-2는 ①HF-전용 round or ②min_reward 상향/도메인별 임계 검토. 전이는 RFT로도 발생 안 함(예상 내, in-domain 레버).
 
+### RFT round-2 ✅ 2026-06-11 13:08 (보상 v2 = +recall 0.25·+validity 0.10, r1에서 warm-start)
+| 도메인 | SFT | r1 | **r2** |
+|---|---|---|---|
+| held-out MM (full) | 48.3 | 49.6 | 49.0 (≈불변) |
+| in-domain HF (sub500) | 47.8 | 46.3 | **51.6 (+5.3 vs r1)** |
+| in-domain daily (sub500) | 75.9 | 85.2 | 85.0 (유지) |
+
+- **★r1의 HF 정체 해소** — census 귀속: HF node P +1.5pp/R +1.6pp(도구 *선택* 개선) + edge macro +2.1pp; daily는 r1 이득 유지. **v2 보상의 in-domain 효과 확인.**
+- **사전등록 판정 (둘 다 불발)**: ⓐheld-out valid_frac 0.952→0.951(어휘-간섭, 보상-side로 held-out 못 닿음 — rollout이 in-domain이므로 구조적 한계) ⓑ누락-길이축 불변(deficit +0.23/+0.20·short율 그대로 — recall 이득은 길이가 아니라 이름 정확도에서 옴). ⇒ **§9 분기 발동: 누락축→L2 DPO(.all 데이터 준비됨)·어휘축(held-out)→grounded-copy.** RFT 수확체감 가시화(r2 held-out·daily 평탄) — in-domain 레버로서의 RFT는 r1+r2로 대부분 수확된 것으로 판단.
+
 ## 7. Qwen3 곡선 (sub500, non-thinking 고정 — family-불변성 체크) 🔄 부분완료 2026-06-11
 | 크기 | HF n/e | MM n/e | daily n/e |
 |---|---|---|---|
