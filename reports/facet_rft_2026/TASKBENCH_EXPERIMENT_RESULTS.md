@@ -188,6 +188,20 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - **★의미: weight-학습(in-domain coverage) + 추론-side 결정론 보정(held-out 어휘)의 *패키지*가 처음으로 held-out 순이득** — thesis의 propose+결정론-보정 구조의 TaskBench 인스턴스. 스냅 규모: SFT preds 무효명 7.2%(912+138) vs base 1.7%(228+22) = census 간섭 발견의 독립 재확인.
 - **★v0/v1 경계 실측 (daily가 그어줌)**: daily 미스냅 689건의 정체 = 오타가 아니라 **의미적 패러프레이즈**("install software"→`software_management`·"watch movie"→`play_movie_by_title`·"pay bill"→bill-payment류, top15 전수확인) → 문자열 매칭 사정거리 밖. **처방 v1 = 추론-시 제약 선택(constrained/guided decoding: valid 이름 집합 안에서만 생성 — 의미 매칭은 모델 자신이 수행)** — MM/HF의 형태-변형은 v0로 충분, daily의 의미-변형은 v1 필요.
 
+## 9.5b ★grounded-copy v1 (guided decoding, 추론-시 제약) ✅ 2026-06-11 PM — **daily 어휘-붕괴 완전 회복 (+8.0, snap-불가 축)**
+vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/links source·target)만 enum-제약. 구현: `tb_guided_{schema,patch}.py`+`tb_guided_daily.sh`(inference.py에 env-게이트 no-op 패치, A/B 동일 파이프). 설계·출처 = `TB_GROUNDED_COPY_V1_DESIGN.md`.
+
+| lodo_daily, daily full (held-out) | edge | node | parse | valid_frac |
+|---|---|---|---|---|
+| unguided (§3) | 59.55 | 88.24 | 3651/4320 | 0.900 |
+| **+guided v1** | **67.60 (+8.05)** | **90.90 (+2.65)** | **4314/4320** | **1.000** |
+| base 참조 (§4) | 68.1 | 90.8 | — | 0.978 |
+
+- **★의미: snap(v0)이 Δ0이던 의미-패러프레이즈 축이 제약-선택으로 완전 해소** — guided가 SFT의 daily 붕괴(−8.5, §3·§8 어휘-간섭)를 **base 수준(−0.5)까지 전량 회복**. daily는 태그-인덱싱 축이 없어(ntag=0) SFT 규율-이득 자체가 0인 도메인 → base 회복 = 이 처방의 이론적 상한 달성.
+- **귀속 (census `census_guided_daily.md` + `tb_pr_census.py`)**: ①valid_frac 0.900→**1.000**(공유 id, 무효명 0/13k+) ②**parse 회복 663건**(문법이 valid JSON 보장 — 깨진-JSON 축도 동시 해소) ③공유-id macro edge 0.650→0.717·node 0.822→0.892, improved 505 vs worsened **77** ④P/R 동반 상승 0.835/0.813→0.912/0.891 = 정밀도 손실 없는 회복(DPO v1과 대조). 라이브 중간검증: 3035노드 무효 0건.
+- **★thesis 격상**: propose(weight-학습 SFT) + 결정론-gate(디코딩 제약)의 **2번째 held-out 실증**(1번째=RFT2+snap 52.5) — §10.2 L4(하이브리드: 모델이 enum 안에서 의미 선택) 행의 직접 증거. 비용: 도메인당 schema 1개+grammar 컴파일 1회(캐시), 추론 오버헤드 체감 없음(4320건 ~50분, unguided와 동급).
+- 다음: MM/HF에도 guided 적용해 snap을 대체하는지(v0 상위호환 여부) — zero-GPU 아님(재추론 필요)이라 v2 판정 후 우선순위 결정.
+
 ## 9.6 L2 DPO (조기종결 쌍) ✅ 측정 완료 2026-06-11 PM — **누락축 첫 가동·but 단방향 overshoot로 패키지 무이득**
 - 채굴: `.all`(K=8 전샘플)에서 [완전·고보상 chosen / 조기종결 rejected] = **318쌍**(3869 프롬프트 중 — 'no_short' 2528 = 정책이 in-domain 샘플링에선 조기종결을 드물게 냄 = 누락 질량은 greedy-선택/held-out 측이라는 진단과 정합). `tb_dpo_mine.py`.
 - 학습: rft2 위 DPO(beta 0.1, lr 5e-6, 2ep). ⚠️인프라: 2×7B(policy+ref)가 48GB서 OOM → **dpo_train 4-fix**(단일 base+이중 어댑터·completion-span logits·`.train()` 필수·grad-ckpt)로 18.4GB 안정.
@@ -229,7 +243,7 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 | SFT | in-domain coverage 大(+18~27) · **참조-인덱싱 규율 held-out 전이(실재)** · SOPBench gather 스킬 LODO 전이 | held-out net≈0 (규율 이득 − 어휘 간섭 상쇄, §8) |
 | RFT | in-domain 진짜 구조 개선(daily chain) | held-out 재추첨(±450 거울상, §6) |
 | DPO | **누락축 첫 가동**(short 절반·R+3.6 — SFT/RFT/스케일 전부 0이던 축) | v1 단방향=overshoot net 음수(§9.6); v2 균형쌍 판정 대기 |
-| 결정론 (snap/guided/offload/DGGATE) | **held-out 첫 base 추월(52.5)** · SOPBench 15→29/34 · guided valid 1.0 강제(라이브 실측 0/3035) | 의미 매칭 불가(snap이 daily 689건 무력 → guided로 모델에 위임) |
+| 결정론 (snap/guided/offload/DGGATE) | **held-out 첫 base 추월(52.5)** · SOPBench 15→29/34 · **guided v1: daily 붕괴 완전 회복 59.6→67.6(+8.0, base−0.5까지, §9.5b)** | 문자열-snap은 의미 매칭 불가(daily 689건) → guided가 의미 선택을 모델에 위임해 해소 |
 
 **★핵심: held-out에서 이긴 것은 전부 "학습+결정론 패키지"였고 단독은 없음** (RFT2 단독 49.0<base / RFT2+snap 52.5>base · SOPBench adapter-only≈0 / scaffold+stack 75–95%). 학습 = propose-측 절반(결정론이 보정할 좋은 제안을 만드는 역할).
 
@@ -239,7 +253,7 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 | L1 도메인 심볼 | 도구명·credential·ID·파라미터값 | **결정론**(컨텍스트 복사·enum 제약) | 어휘간섭 −4~−8pp(§8)·32B base 이미 1.0(§8.5)·snap +3.5(§9.5)·guided 무효 0/3035 |
 | L2 인스턴스 사실 | DB 상태·유저-특정 값 | **결정론**(gather 실행·retrieval) | 정의상 weight 불가(=ABox) |
 | L3 게이트 연산 | permitted?·제약 트리 평가 | **결정론**(offload) | SOPBench 3-NULL LOCK(모델이 faithful gate *생성* 불가)·offload ACT 3→19·DGGATE +3 |
-| L4 의미 매칭 | 패러프레이즈→정준 도구 | **하이브리드**(모델이 제안, 결정론이 출력공간 제한) | daily 689건=문자열 매칭 밖(§9.5)·guided v1=모델이 enum 안에서 의미 선택 |
+| L4 의미 매칭 | 패러프레이즈→정준 도구 | **하이브리드**(모델이 제안, 결정론이 출력공간 제한) | daily 689건=문자열 매칭 밖(§9.5)·**guided v1 확정: +8.0, base 수준 완전 회복·worsened 77/3647뿐(§9.5b)** |
 | L5 절차 규율 | 참조-인덱싱·gather-먼저-act·종결 캘리브레이션·형식 준수 | **weight ✓** | 태그채택 1.5B 0.47→1.44·자기참조 −83~−98%(§8)·gather LODO 전이(SOPBench)·DPO 종결축 이동(§9.6) |
 | L6 구성 구조 | edge 연결(어느 노드를 어떻게) | weight(in-domain)+scale 비포화 | RFT daily chain 개선·edge=후발 emerge 스킬(§4·§7)·held-out 구조이득 미해결 |
 
