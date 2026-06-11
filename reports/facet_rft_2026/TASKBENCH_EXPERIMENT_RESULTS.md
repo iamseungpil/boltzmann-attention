@@ -330,6 +330,7 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 
 ### 10.5 ★벤치-불변 규칙 vs 벤치-어댑터 분리 (2026-06-12, 사용자 목적 재정렬 — "벤치 선택"이 아니라 "전 벤치 커버 프레임워크")
 > **목적 명제 (사용자)**: 다양한 벤치를 **최소한의 자동 노력**으로 전부 커버하는, 기본 규칙을 내재한 프레임워크. 벤치 전수조사(§1.5·실행-축 보고서)는 선택용이 아니라 **커버리지 행렬의 타깃 목록**. (τ2/SOPBench/SOP-Bench/AppWorld는 기검토 — 재발견 금지.)
+> **★권위본 = `scripts/distill/BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`** — R1-R8×A1-A5 전체표 + **벤치 포트폴리오 6+1**(완료 TaskBench·SOPBench / 신규 ★τ²=NL정책 front-end 무대·Amazon SOP-Bench=12도메인 LODO·AppWorld·ODCV 스팟 / 조건부 WorFBench) + 실행순서(τ² retail 어댑터→Amazon 행렬→스팟) + 커버리지 행렬. 아래는 요약.
 
 **벤치-불변 규칙 R1-R8 (프레임워크 내재 — 전부 본 문서·SOPBench 결과로 실측 근거 보유):**
 | # | 규칙 | 근거 |

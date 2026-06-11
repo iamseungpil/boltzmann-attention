@@ -145,3 +145,12 @@ P0(반나절) → P1(1-2일) → 판정 공유(채널) → P2/P3(조건부, 1-3�
 **산출물**: trackb_raw 동일 구조로 preds/metrics push + §8.5에 행 추가. 판정 기준: P2a-1이 +3 이상이면 "대형의 결정론-leg 회복" 확정 → §10 분류의 32B 열 완성; P2c가 −1.5 이내면 비용-leg(도구폭발 컨텍스트 절감)에 대형-모델 행 추가.
 
 **일정**: P2a(반나절, 32B 서빙 재사용) → P2b/P2c(반나절). 전부 추론-only라 Track-B 학습 잡과 GPU 경합 시 빈틈에 끼워도 됨.
+
+## 8. ★프레임워크 목적·벤치 포트폴리오 공유 (2026-06-12 — Track-B 향후 분담 예고)
+> **권위 = `../../scripts/distill/BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`** (요약 = `TASKBENCH_EXPERIMENT_RESULTS.md` §10.5).
+
+**한 줄 요약**: 목적은 특정 벤치가 아니라 **벤치-불변 규칙(R1-R8: 심볼=컨텍스트 복사+enum 집행·gather 선행·결정=게이트 offload·의미매칭=모델/공간=제약·정책행동=양방향 on-policy만·구조선택=K+검증선별·base census→레버·궤적 census 규율)을 내재한 프레임워크**로 전 벤치를 최소 어댑터(A1-A5)로 커버하는 것. 새 벤치 비용은 A2(정책 NL→제약 구조)로 수렴하고, 그걸 학습 front-end가 대체하는 게 thesis.
+
+**포트폴리오 (확정분)**: TaskBench·SOPBench(완료) → **τ²/τ³-bench**(신규 1순위 — 순수 NL정책=A2 끝점+유일 활성 frontier 리더보드) → **Amazon SOP-Bench**(12도메인 LODO 스케일업; ⚠️우리 SOPBench와 이름충돌 — 표기 구분) → AppWorld·ODCV-Bench(스팟).
+
+**Track-B 함의 (P2 이후 예고 — 지금 액션 불요)**: 대형모델(32B/72B) arm은 향후 ①τ²-bench pass^k에서 "대형 base±게이트" (R3·일관성 이득) ②Amazon SOP-Bench 12도메인에서 32B base census→처방(R7) 적용이 자연 후속. P2(§7) 완료 후 구체 명세 추가 예정. TaskBench 외부 동결 판정(§ = TB결과 §1.5: 리더보드 2023-11 동결·frontier 정체 64.4·ToLeaP GPT-4o 행 인용금지)도 보고서 작성 시 참조.

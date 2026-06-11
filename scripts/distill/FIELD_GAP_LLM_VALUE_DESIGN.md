@@ -603,3 +603,6 @@ TaskBench 도구수 적음(103) → **ToolRet**(43K corpus·7.6K태스크·**nDC
 
 ### §18.4 순서 핵심
 **A-0(zero-cost) → Exp-A ∥ {규제 sourcing(4)·bitter-lesson(5)} → Exp-B 선결게이트→시제품 → P1 집필 전 E2 복귀.** 죽으면 일찍 알아야 하는 것 = Exp-B frontier-1-call(NL→구조 feasibility)·규제 sourcing(moat-leg) — 둘 다 큐 앞쪽.
+
+### §18.5 ★벤치-불변 프레임워크·포트폴리오 (2026-06-12 신설 — 목적 명제 재정렬, 권위 = `BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`)
+**목적(사용자)**: 벤치 선택이 아니라 **전 벤치를 최소 자동 노력으로 커버하는 기본 규칙 내재 프레임워크.** 규칙 R1-R8(실측 근거 완비) × 어댑터 A1-A5 분리 — **새 벤치 비용은 A2(정책 NL→제약 구조)로 수렴하고, A2를 학습 front-end가 대체하는 것이 곧 thesis(§17.9)의 상품 형태.** 포트폴리오 = TaskBench·SOPBench(완료) + ★τ²(NL정책=A2 끝점·활성 frontier 리더보드·pass^k=게이트 일관성) + Amazon SOP-Bench(12도메인 LODO) + AppWorld·ODCV(스팟). TaskBench 외부 동결 판정·frontier 정체(64.4)는 TB결과 §1.5. 요약 = TB결과 §10.5 / coworker 분담 예고 = `COWORKER_REQUEST_TB_SCALE.md` §8.

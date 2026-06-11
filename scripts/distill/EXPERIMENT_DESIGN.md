@@ -51,6 +51,11 @@
     - **엔지니어링 도구(arXiv 아님, 명시)**: **LLM Wiki**(`nashsu/llm_wiki`·Karpathy 개념) = RAG의 매번-재검색 대신 *persistent 위키로 사전컴파일*(부분적 구조화 but *지식* 위키지 실행 *절차* 아님·학습/전이 아님). **Graphiti**(Zep/Neo4j) = temporal KG 에이전트 메모리. **Graphify**(`safishamsi/graphify`) = 구조적 지식 도구.
     - **★우리와 구분(한 줄)**: 이들은 *사실/엔티티 KG*를 build·retrieve(그래프=검색 인덱스). 우리는 **NL 정책→실행가능 *절차* 그래프(dirgraph)를 *모델이 emit*** (그래프=실행 절차·weight 내재화·ABox swap 전이). RoG(구조 emit)·LLM Wiki(사전컴파일)가 인접하나 **절차 컴파일 + 학습 전이**가 우리 고유.
 
+### §1.5 ★벤치 포트폴리오 (2026-06-12 신설 — 목적 명제: "벤치 선택"이 아니라 "전 벤치 최소노력 커버 프레임워크")
+- **목적(사용자)**: 벤치-불변 규칙 R1-R8을 내재한 프레임워크가 벤치당 어댑터 A1-A5만으로 전부 커버 — **새 벤치 비용은 A2(정책 NL→제약 구조)로 수렴하고, A2를 학습 front-end가 대체하는 것이 §0 목표의 상품 형태.** 상세 = `BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`(detail)·요약 = TB결과 `TASKBENCH_EXPERIMENT_RESULTS.md` §10.5·thesis 좌표 = `FIELD_GAP` §18.5.
+- **포트폴리오 (A2 난이도 스펙트럼)**: TaskBench(A2 없음)·SOPBench(구조 제공) = ✅완료 → **★τ²/τ³-bench**(순수 NL정책 = A2 끝점·유일 활성 frontier 리더보드·pass^k=게이트 일관성) → **Amazon SOP-Bench**(SOP 텍스트·**12도메인 LODO** 스케일업; ⚠️우리 SOPBench와 이름충돌 표기주의) → AppWorld·ODCV-Bench(스팟) → (조건부) WorFBench.
+- **순서**: τ² retail 어댑터(A2 수동-1회 = front-end 자동화의 GT) → Amazon 12-도메인 행렬 → 스팟. 대형모델 arm = Track-B(`COWORKER_REQUEST_TB_SCALE.md` §8). TaskBench는 외부 동결(TB결과 §1.5: frontier 정체 64.4) — 내부-일관 비교로 유지.
+
 ## §2. 현재 진단 (어디까지 왔나)
 > ★★★★**최신 (2026-06-06) — cross-domain transfer 확정(held-out·재학습0·honest) = 로드맵 #1 입증 중. 진입점 = [`HANDOFF_2026_06_06_xdomain_full.md`](HANDOFF_2026_06_06_xdomain_full.md)** + 설계 [`CROSS_DOMAIN_TRANSFER_DESIGN.md`](CROSS_DOMAIN_TRANSFER_DESIGN.md), 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-5**.
 > - **A축 scaffold(bank 설계, per-domain 분기 0)가 안 본 도메인서 ABox-swap만으로 재학습 0 작동 = 강한 직접 증거.** 지표 = 공식 success(tool_full, BOTH 금지)·honest(LOGINCALL off, quirk≈0).
@@ -288,6 +293,9 @@
 | `RUNG1_V3_TREE_EVAL_LITREVIEW.md` | grounded 트리평가+derivation 학습 — 적대검증 선행연구(§8 AND/OR 트리평가 재탐색) | detail (§3.10 근거) |
 | `SEARCH_INTERNALIZATION_LITREVIEW.md` | 탐색→weight 내재화(Searchformer·TS-LLM) + §9 depth-recurrence(Universal/Looped TF) 재탐색 | detail (§3.10 근거) |
 | `SOPBENCH_EXPERIMENT_RESULTS.md` | 모든 실측 결과(Exp-1~4) 누적 | 결과 권위본 |
+| `../../reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md` | TaskBench 전 실측(§8 기제·§9.5b guided·§9.6 DPO v2·§10 층위분류·§1.5 외부동결 전수조사) | 결과 권위본 (TB) |
+| **`BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`** | **벤치-불변 규칙 R1-R8 × 어댑터 A1-A5 + 포트폴리오(τ²·Amazon SOP-Bench·AppWorld·ODCV) 선정근거·실행순서** — 마스터 §1.5의 상세 | detail (2026-06-12 신설) |
+| `taskbench/TB_GROUNDED_COPY_V1_DESIGN.md` | guided decoding 구현·선행연구 5-agent 적대검증·§6.5 차별점 표(논문 related-work 재료) | detail (TB) |
 | `COWORKER_EXPERIMENT_PLAN.md` | 32B/72B 분업 | detail (Track B) |
 | `TASK_CONSTRAINT_{DESIGN_REVIEW,IMPL_REVIEW}.md` | 리뷰 라운드 | 참조 |
 | `EXPERIMENT_DESIGN_v1_7_facet_rft.md`, `steering_paper/*` | 구 facet-rft/steering 라인 | ⚠️superseded(개념 참조만) |
