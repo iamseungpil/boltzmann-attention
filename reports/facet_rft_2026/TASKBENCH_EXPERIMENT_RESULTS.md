@@ -141,6 +141,21 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 
 **처방 갱신 (1순위 레버 교체):** 어휘-간섭 억제가 본명 — ①**RFT round-2 보상에 도구명-유효성 페널티 추가**(구현 쉬움: valid_frac<1 감점) ②grounded-copy(도구명은 컨텍스트 tool list에서 복사 강제) ③alias-마스킹은 여전히 P3 위생(이름암기 통제)이나 간섭 직접 처방 아님.
 
-## 9. 다음
-- LODO_mm eval → (edge-F1 lift 시) LODO_hf/LODO_daily 회전 → outcome-RFT(§2 결론 보상) → alias arm.
-- zero-GPU 병렬(§18.2): 규제 1차원문 sourcing(사활)·bitter-lesson — 별도 세션/딥리서치.
+## 9. ★실행 큐 (2026-06-11 AM 갱신 — census §8 처방 기준, 이 §이 TaskBench 실행 권위)
+
+**진행 중:**
+1. **RFT round-2** (GPU1, 체인: rollout→train→eval, ~15-16시 완료 예상): 보상 v2 = node-F1 0.10 + **recall 0.25**(누락축) + edge 0.55 + **validity 0.10**(어휘축). `--save_all`로 L2용 전샘플 동시 수집. **사전등록 판정**: held-out MM census에서 ⓐvalid_frac 회복(어휘) ⓑnode-recall 상승(누락)을 *각각* 측정 — 어느 항이 일했는지 census로 귀속.
+2. Qwen3 4B/8B 보완 (GPU0, 다운로드→곡선 4B→8B full 자동 체인).
+
+**round-2 결과 분기 (사전 명시):**
+- ⓐⓑ 모두 + → round-3 여부 판단 or 측정 종료·보고 정리.
+- 누락축 무반응 → **L2: 조기종결 DPO**(rollout `.all`에서 [완전=chosen, 조기종결=rejected] 채굴 — 데이터 이미 수집 중, `dpo_train.py` 재사용).
+- 어휘축 무반응 → **grounded-copy**(도구명 컨텍스트-복사 강제; validity-보상의 강한 버전).
+
+**대기 큐 (우선순위 순):**
+3. coworker P0/P1 (`COWORKER_REQUEST_TB_SCALE.md` v2; ★P1 착수 전 **32B base census**(self-ref율·valid_frac) 선행 — §8 정정에 따라 Δ 사전예측 가능).
+4. **L3 type-closure 게이트 통합**: probe 완료(탐지 47%/수리 1.7% → "탐지→flag/재샘플" 형태) — 통합 시 평가축 신설 필요(coverage@gate, abstain율 동시 보고). TaskBench를 propose-then-gate 패키지의 2번째 실증으로 격상하는 본명 작업.
+5. alias-마스킹 arm (P3 위생 — 간섭 직접 처방 아님, §8 정정).
+6. (조건부) 형식-혼합 재학습 — ~~형식-간섭~~ 철회됐으므로 우선순위 강등; 어휘-간섭 처방(2·grounded-copy)이 daily 회복을 못 하면만 재고.
+
+**원칙 (승계)**: 한 번에 한 변수·census로 귀속·강한 주장은 궤적 전수 후 박제. zero-GPU 병렬(§18.2)은 전부 ✅(규제·bitter-lesson·shielding).
