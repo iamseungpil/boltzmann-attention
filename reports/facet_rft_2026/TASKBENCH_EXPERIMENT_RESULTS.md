@@ -213,6 +213,22 @@ edge-F1 (base → gold-SFT, Δ). held-out=full, in-domain=sub500:
 - **★Track A 독립 재검증 (2026-06-12, trackb_raw 원본 궤적 → 우리 빌더+gold+census 재계산)**: base valid_frac **1.0000·nself 0.0000** 재현 ✓·SFT 0.9521/0.018 ✓·micro 61.89→56.47(−5.4) ✓·macro +6.0/improved 76·worsened 52 ✓ — 집계 아티팩트 아님 확정(`mm_sub500_verify_*`, `census_verify_32b.md`).
 - **★32B 누락축 신규 측정 (`tb_pr_census`, Track A 추가)**: base-32B deficit **+0.024**·short 13.9% (7B base +0.256/21.7%) = **조기종결 축도 32B base서 거의 소멸** ⇒ 7B 처방(균형-DPO·L3 게이트)의 32B 기대이득 작음 — "32B+ 개선 레버" 질문의 정량 답: 잔여 headroom(61.9→gold)은 누락도 어휘도 아닌 **구조-선택(edge 조합)·gold-관례 정합 축**. 단 SFT가 deficit을 +0.152로 늘림(parsimony 과교정의 미세 거울상 — 7B DPO-v1 교훈의 약한 재현).
 
+**★P2 (v4 §7 — 대형 결정론-leg 2×2) 판정 (2026-06-12 실측, MM sub500 동일 첫-500; 본명 적중)**:
+
+| arm | unguided | +guided | Δ | 사전예측 | 판정 |
+|---|---|---|---|---|---|
+| **P2a-1 lodo_mm_32b(SFT)+guided** | 56.5 | **60.4** | **+3.9** | +3~5 | **✅적중 — "대형의 결정론-leg 회복" 확정** |
+| P2a-2 base-32B+guided (통제) | 61.9 | 60.0 | −1.9 | ≈0 | ~적중 (소폭 음수 — 아래 비고) |
+| P2b-1 base-72B+guided | 63.5 | 63.7 | +0.2 | +0~0.5 | ✅적중 |
+| P2b-2 base-235B-INT4+guided (음성 통제) | 56.4 | 57.2 | +0.8 | ≈0 | ✅적중 |
+| P2c base-32B+guided+slim1(desc 제거, prompt 49%) | 60.0 (guided-full) | 55.7 | **−4.3** | 손실<3.1 | ❌초과 — 예측 빗나감 |
+
+- **헤드라인: SFT 손상 −5.4 중 +3.9를 guided가 회복** (§7 판정 기준 "+3 이상" 충족) — 미복원 ~1.5pt = 구조축(플랜-단축) 귀속. census(SFT vs SFT+guided, n=499): **valid_frac 0.951→1.000(by-construction 검증)**, node_f1 0.867→0.902. **P1(−5.4)+P2a-1(+3.9) 합산 = "대형은 SFT로 잃고 결정론-leg로 되찾는다" 패키지의 32B 완결.**
+- P2a-2 −1.9: base는 고칠 어휘가 없는데(valid 1.0) 문법 강제가 자유필드 생성에 소폭 세금 — "0-cost 보험"이 아니라 **소액 보험료**. 72B/235B에선 +0.2/+0.8 (세금 없음/혼합).
+- P2c: 대형에서도 desc 의존이 7B보다 크면 컸지 작지 않음(−4.3 vs 7B −3.1) — "대형=이름만으로 의미매칭" 가설 기각. (부수: v1 무효-실행이 우연히 만든 slim1 *unguided* 점 −5.4 → guided가 slim 손실을 1.1pt만 완화 — 마스크는 어휘 집행이지 의미정보 대체가 아님.)
+- ⚠️재현 함정 박제: **vllm 0.10.x는 per-request `structured_outputs`(0.11+ 문법)를 경고만 내고 무시** — 1차 5-arm이 조용히 unguided로 돌았고 census valid_frac≠1.0이 들통냄. v2 = `guided_json` fallback + **바인딩 게이트**(1콜 content가 JSON-강제인지 확인 후 진행, `node_run_taskbench_p2.sh`). guided 실험은 반드시 valid_frac=1.0으로 바인딩 검증할 것.
+- raw: `trackb_raw/preds`(guided 5종)+`metrics`+`p2_guided_mm_schema.json`+`p2v2_census_sft_vs_guided.md` 커밋.
+
 **Qwen3-32B 관찰 (§7 곡선의 꼭대기)**: Qwen3는 **14B→32B가 사실상 평탄**(MM edge 59.1→58.7·daily 79.9→79.8, HF만 42.2→45.6) — Qwen2.5의 14B→32B(+9.1 MM)와 대조. 세대-이득(§7 "Qwen3-4B≈Qwen2.5-7B")이 32B-class에선 소멸: **Qwen2.5-32B(61.9) > Qwen3-32B(58.7) on MM edge**. 곡선-모양 family-불변 주장은 14B까지만 안전 — 32B-class 분기는 72B/235B 점이 더 말해줄 것.
 
 **SOPBench Track-B #0 sanity (v1.42, 같은 노드)**: react/full/bank **44.78%** (리더보드 40.30 대비 **+4.5pp — ±2pp 재현 밴드 밖**, ⚠️serving 차이(vLLM 0.10.2/bf16/TP2) 추정, 원인 메모 후 4열표에선 우리 서빙 기준 내부-일관 비교로 사용) · fc/full/bank **12.69%** (32B FC base 앵커 신규, 7B 참조 3.7).
