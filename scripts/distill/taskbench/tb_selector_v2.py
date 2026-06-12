@@ -28,7 +28,7 @@ def load_gold(tb_dir):
         if isinstance(links, str):  # data.json은 필드를 JSON-문자열로 이중 인코딩
             links = json.loads(links)
         gl = {(norm(e["source"]), norm(e["target"])) for e in links
-              if isinstance(e, dict) and "source" in e}
+              if isinstance(e, dict) and "source" in e and "target" in e}
         gold[d["id"]] = gl
     return gold
 
