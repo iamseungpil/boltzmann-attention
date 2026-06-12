@@ -22,6 +22,9 @@ def main():
     ap.add_argument("--user_llm", default=None,
                     help="full litellm model string override (e.g. openrouter/openai/gpt-4.1-mini; "
                          "key는 env OPENROUTER_API_KEY) — judge도 이 모델을 따름")
+    ap.add_argument("--agent_llm", default=None,
+                    help="full litellm AGENT override (예 openrouter/openai/gpt-4.1) — "
+                         "frontier-arm F4b census용; 지정 시 로컬 vllm 불요")
     ap.add_argument("--num_trials", type=int, default=1)
     ap.add_argument("--num_tasks", type=int, default=None)
     ap.add_argument("--max_concurrency", type=int, default=8)
@@ -56,11 +59,16 @@ def main():
     from tau2.data_model.simulation import TextRunConfig
     from tau2.run import run_domain
 
+    if a.agent_llm:
+        llm_agent, llm_args_agent = a.agent_llm, {"temperature": 0.0}
+    else:
+        llm_agent = f"openai/{a.agent_model}"
+        llm_args_agent = {"api_base": a.agent_base, "api_key": "dummy", "temperature": 0.0}
     cfg = TextRunConfig(
         domain=a.domain,
         agent="llm_agent",
-        llm_agent=f"openai/{a.agent_model}",
-        llm_args_agent={"api_base": a.agent_base, "api_key": "dummy", "temperature": 0.0},
+        llm_agent=llm_agent,
+        llm_args_agent=llm_args_agent,
         llm_user=user_llm,
         llm_args_user=user_args,
         num_trials=a.num_trials,
