@@ -1,0 +1,157 @@
+{
+ "enum": [
+  "disable_roaming",
+  "enable_roaming",
+  "get_bills_for_customer",
+  "get_customer_by_id",
+  "get_customer_by_name",
+  "get_customer_by_phone",
+  "get_data_usage",
+  "get_details_by_id",
+  "refuel_data",
+  "resume_line",
+  "send_payment_request",
+  "suspend_line",
+  "transfer_to_human_agents"
+ ],
+ "tools": {
+  "get_customer_by_phone": {
+   "type": "READ",
+   "required": [
+    "phone_number"
+   ],
+   "params": [
+    "phone_number"
+   ]
+  },
+  "get_customer_by_id": {
+   "type": "READ",
+   "required": [
+    "customer_id"
+   ],
+   "params": [
+    "customer_id"
+   ]
+  },
+  "get_customer_by_name": {
+   "type": "READ",
+   "required": [
+    "full_name",
+    "dob"
+   ],
+   "params": [
+    "dob",
+    "full_name"
+   ]
+  },
+  "get_details_by_id": {
+   "type": "READ",
+   "required": [
+    "id"
+   ],
+   "params": [
+    "id"
+   ]
+  },
+  "suspend_line": {
+   "type": "WRITE",
+   "required": [
+    "customer_id",
+    "line_id",
+    "reason"
+   ],
+   "params": [
+    "customer_id",
+    "line_id",
+    "reason"
+   ]
+  },
+  "resume_line": {
+   "type": "WRITE",
+   "required": [
+    "customer_id",
+    "line_id"
+   ],
+   "params": [
+    "customer_id",
+    "line_id"
+   ]
+  },
+  "get_bills_for_customer": {
+   "type": "READ",
+   "required": [
+    "customer_id"
+   ],
+   "params": [
+    "customer_id",
+    "limit"
+   ]
+  },
+  "send_payment_request": {
+   "type": "WRITE",
+   "required": [
+    "customer_id",
+    "bill_id"
+   ],
+   "params": [
+    "bill_id",
+    "customer_id"
+   ]
+  },
+  "get_data_usage": {
+   "type": "READ",
+   "required": [
+    "customer_id",
+    "line_id"
+   ],
+   "params": [
+    "customer_id",
+    "line_id"
+   ]
+  },
+  "enable_roaming": {
+   "type": "WRITE",
+   "required": [
+    "customer_id",
+    "line_id"
+   ],
+   "params": [
+    "customer_id",
+    "line_id"
+   ]
+  },
+  "disable_roaming": {
+   "type": "WRITE",
+   "required": [
+    "customer_id",
+    "line_id"
+   ],
+   "params": [
+    "customer_id",
+    "line_id"
+   ]
+  },
+  "transfer_to_human_agents": {
+   "type": "GENERIC",
+   "required": [
+    "summary"
+   ],
+   "params": [
+    "summary"
+   ]
+  },
+  "refuel_data": {
+   "type": "WRITE",
+   "required": [
+    "customer_id",
+    "line_id",
+    "gb_amount"
+   ],
+   "params": [
+    "customer_id",
+    "gb_amount",
+    "line_id"
+   ]
+  }
+ }
+}
