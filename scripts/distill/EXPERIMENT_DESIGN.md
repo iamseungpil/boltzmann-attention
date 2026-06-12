@@ -56,6 +56,21 @@
 - **포트폴리오 (A2 난이도 스펙트럼)**: TaskBench(A2 없음)·SOPBench(구조 제공) = ✅완료 → **★τ²/τ³-bench**(순수 NL정책 = A2 끝점·유일 활성 frontier 리더보드·pass^k=게이트 일관성) → **Amazon SOP-Bench**(SOP 텍스트·**12도메인 LODO** 스케일업; ⚠️우리 SOPBench와 이름충돌 표기주의) → AppWorld·ODCV-Bench(스팟) → (조건부) WorFBench.
 - **순서**: τ² retail 어댑터(A2 수동-1회 = front-end 자동화의 GT) → Amazon 12-도메인 행렬 → 스팟. 대형모델 arm = Track-B(`COWORKER_REQUEST_TB_SCALE.md` §8). TaskBench는 외부 동결(TB결과 §1.5: frontier 정체 64.4) — 내부-일관 비교로 유지.
 
+### §1.6 ★framework-tier 메트릭 배터리 (2026-06-12 신설, 사전등록 v1 — 문헌 확정 대기)
+**2-tier 규율(불변)**: ①**헤드라인 tier = 각 벤치의 네이티브 공식 지표만**(TB F1·SOPBench 공식 success·τ² pass^1/pass_hat_k·ODCV 위반율) — 자체 지표를 헤드라인화하면 우리가 비판한 "지표 약화"(TB결과 §1.5 ④)를 자범. ②**framework tier = 프레임워크 *주장*을 판별하는 교차-벤치 2차 배터리** — census 급으로만 보고·전부 사전등록. 근거: 프레임워크 주장(최소노력 커버·재학습0 전이·일관성·무위반)은 per-bench 점수에 직접 안 잡히며, 비공식 발명품들(honest 분모·BOTH·회수율·deficit)이 이미 판별력을 입증.
+
+| # | 축 | 잠정 정의·추정량 | 판별하는 주장 | 실측 선례 | 상태 |
+|---|---|---|---|---|---|
+| F1 | **어댑터 비용 곡선** | 벤치당 수동 LOC/시간 + 기계화율%(A1/A3-A5=기계 vs A2=수동) | **thesis: A2 비용이 front-end로 소거** | τ² 게이트 ~130줄 vs SOPBench DGGATE graph 재구성(§3.6 "더 얇음") | ★신규 발명 — novelty 위험 플래그, census-tier 한정 |
+| F2 | 전이 보존율 | held-out/in-domain 공식 success 비 (재학습0) | R7·LODO 전이 | Exp-5a/5b·TB lodo | 관행 정합 |
+| F3 | 일관성 | pass_hat_k 곡선(k=1..4)·**Δpass_hat_4 vs Δpass^1 분리** | R3 게이트=분산 제거(평균 아님) | τ² ±게이트 측정 예정 | 표준(τ-bench 계보) |
+| F4 | 무위반 soundness | 위반 *건수*(0-타깃) + 0-관측 상한 CI(rule-of-three류) | R3 결정론 집행 | ODCV·τ² G1-G3·SOPBench cnv | 통계 절차 문헌 확정 대기 |
+| F5 | 선별 회수율 | (선별−mean)/(oracle−mean), paired bootstrap CI | R6 선별 레버 | TB §8.9b 44% | 문헌 표준명 확정 대기 |
+| F6 | abstain 품질 | risk-coverage 곡선/AURC | CDP 벤치 abstain=thesis 검증 | GROUNDED_BIZ GT 설계 | 표준(selective prediction) |
+| F7 | 비용-정규화 | 고정-점수 토큰/추론 비용(cost-of-pass류) | 비용-leg(주권 보조) | promptslim·멀티-LoRA 1서버(§8.9) | 문헌 확정 대기 |
+
+**사전등록 예측 (v1)**: ⓟ1 τ² retail ±게이트에서 **Δpass_hat_4 > Δpass^1** (게이트의 본질=일관성 레버; 평균만 오르고 일관성 동일이면 게이트 해석 기각). ⓟ2 F5 보고는 paired bootstrap 95% CI 동반(±단일점 금지). **진행**: 메트릭 문헌 deep-research(2026-06-12 발사) 합류 후 추정량·CI 절차를 문헌 표준으로 치환해 v2 동결 — F1처럼 표준이 없는 축은 "우리 발명"임을 명시하고 헤드라인 침범 금지.
+
 ## §2. 현재 진단 (어디까지 왔나)
 > ★★★★**최신 (2026-06-06) — cross-domain transfer 확정(held-out·재학습0·honest) = 로드맵 #1 입증 중. 진입점 = [`HANDOFF_2026_06_06_xdomain_full.md`](HANDOFF_2026_06_06_xdomain_full.md)** + 설계 [`CROSS_DOMAIN_TRANSFER_DESIGN.md`](CROSS_DOMAIN_TRANSFER_DESIGN.md), 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-5**.
 > - **A축 scaffold(bank 설계, per-domain 분기 0)가 안 본 도메인서 ABox-swap만으로 재학습 0 작동 = 강한 직접 증거.** 지표 = 공식 success(tool_full, BOTH 금지)·honest(LOGINCALL off, quirk≈0).
