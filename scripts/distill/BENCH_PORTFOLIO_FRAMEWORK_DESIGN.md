@@ -79,6 +79,7 @@
 - **잔여 음성**: pass^4 0.0625→0.0179(matched) — 일관성 축은 여전히 악화(전-trial 통과 태스크 7→2개, 소수-n 노이즈 유의·user-sim temp 0.7 분산). ⓟ1(게이트=일관성 레버)은 이 구성에서 계속 기각.
 - 영구실패 4 sims(task17×3·task99×1) = `infrastructure_error`·대화 0건 — OpenRouter측 에러, 모델 무관. n=452/456. G2 deny 8→13(G1 54·G3 0).
 - **다음 처방 후보**: deny-복구는 종결 — 남은 갭은 base 능력(nogate 81.6% 실패·DB-state 지배). 게이트-side 추가 레버 없음 ⇒ A2 front-end(§3.8-3.9)·base 학습 라인으로 이관.
+- ⚠️**프로토콜 드리프트 경고 (메트릭 리서치 2026-06-12)**: τ² 공식 리더보드는 user-sim을 병기하며 현재 **gpt-5.2 권장** — 본 행렬(run7/r2)은 gpt-4.1-2025-04-14. **외부 리더보드 숫자와 비교 시 user-sim 4-tuple(user-sim·judge·trials·split) 명시 필수**, 내부 ±게이트 비교는 무영향. 보고 표준형(paired Δpass^1+bootstrap CI·0/N+rule-of-three 상한·구조적0/표본적0 분리) = `reports/facet_rft_2026/research_framework_metrics_2026_06_12.md` §2.2.4 — §1.6 v2 동결 시 채택.
 
 ### 3.8 ★A2 산출물 ↔ R3 템플릿 분리 (2026-06-12 사용자 지시 — 수동 프롬프트 금지)
 - 구조: **A2 컴파일 산출물 = `GATE_SPEC` 구조 데이터**(JSON 덤프 `tau2_adapter/retail_gate_spec.json`: predicate·satisfier도구→필요입력·applies_to·terminal여부) / **R3-side 불변 템플릿 `render_recovery`**가 전 deny 메시지를 spec에서 *생성* — 도메인 문자열 hand-authoring 0. 새 도메인 비용 = spec 컴파일뿐(메시지·게이트 자동).

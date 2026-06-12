@@ -7,7 +7,7 @@
 1. ~~N3 수확~~ ✅완료 → **PORTFOLIO §3.7b** (사전등록 conj FAIL이나 기준① 오캘리브레이션 판명 — 헤드라인 = 게이트 pass^1 무비용화: matched 0.1853 vs nogate 0.1830·write 44→0·deny 한계피해 +7.9pp→−0.7pp 소거. 복구 *행동*은 r1에서도 96% — 메시지는 복구 *품질*을 바꿈 4/41→9/36).
 2. ~~P-A2-0b 로컬 + S0 스모크~~ ✅완료 → **A2_FRONTEND §6** (7B 0.333 > 14B 0.167 = 1-shot 과앵커링·둘 다 frontier 미달 / S0: holdout gate_recall 0.564→**1.000**·airline 전이 0.333→0.167 = 분포갭 실측·S1 정당화·structure-EM 지표 필요).
 3. **데이터 생성 계속**: ✅batch5b(15)+batch6(30, sampler v2 어휘+게이트7) 전부 QC 무손실 → **dataset v5 = 180쌍**. 잔여 = **batch7 +20 → 200 목표** (seed 7 → 6스타일 로테이션 → join_qc → v6 병합).
-4. **딥 리서치 2건**: 백그라운드 에이전트로 재발사됨(2026-06-12 저녁) — 산출 예정 `reports/facet_rft_2026/research_selector_lit_2026_06_12.md`·`research_framework_metrics_2026_06_12.md`. **도착 확인→검수(인용 원문검증 여부)→커밋** → 선별기 설계서(detail, 마스터 §7 경유) + §1.6 v2 동결.
+4. **딥 리서치 2건**: ✅완료·검수·커밋 (`reports/facet_rft_2026/research_selector_lit_2026_06_12.md` 31검증인용 · `research_framework_metrics_2026_06_12.md` 26검증인용). **다음 = 이 둘을 합류시켜 ①선별기 설계서(detail, 마스터 §7 경유 — 1순위 레버: Smoothie-prior 가중 prop-MBR(0원)→soft-approval votes→7B reverse-likelihood; novelty=상관-소스 보정·게이트 역선택 미보고) ②§1.6 v2 동결(F3=τ pass^k n=4 확정·F4=0/N+rule-of-three·구조적0/표본적0 분리·ⓟ1=paired bootstrap DiD·F6=AURC/E-AURC·F7=cost-of-pass)**. ⚠️드리프트: τ² 리더보드 user-sim gpt-5.2 권장(우리 gpt-4.1) — 외부비교 시 4-tuple 명시(PORTFOLIO §3.7b 박제). 잔여: τ-bench pass^k 원문 PDF 눈검증 1회 권고.
 5. **coworker**: P4(A2 크기 census, 32B/72B/235B) — trackb_raw/p4_a2_census 도착 감시 (06-12 저녁 기준 미도착).
 6. **잔여 GPU 큐**: **S0-v2 재학습 후보**(dataset v5 180쌍 + structure-EM 평가 추가) · v4 재채굴 사이클 검토 · 선별기 합성(v3+guided 57.90 위에 N2-식 이종풀+선별) · P-D0 diffusion(조건부 강등 유지).
 
