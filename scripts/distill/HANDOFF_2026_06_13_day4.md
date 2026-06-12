@@ -3,13 +3,19 @@
 
 > **다음 세션 진입점.** 결과 권위 = `reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md`(TB) **§8.9/8.9b/8.10/8.10b + Day-4 한눈표(§8.10 머리)** · τ²/A2 = `scripts/distill/BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md` **§3.6-3.9** · A2 학습 = `scripts/distill/A2_FRONTEND_DISTILL_DESIGN.md`. 리모트 규칙 = memory `reference-remote-server-environment` (ssh stdin 파이프·cd /c/workspace 먼저).
 
-## 0. ★첫 행동 (순서대로)
-1. **N3 수확 (τ² G1 deny-복구 메시지 게이트 재실행)**: clear 시점 438/456(96%)·영구실패 3. `grep -a "t2_run RESULT" /home/woori/scratch/t2_gate_r2.log`. **판정(사전등록)**: deny→fail 92%→**<50%** ∧ gate pass^1 0.147→**≥0.184**(nogate 동등 회복) ∧ write-차단 ~98% 유지. census는 `t2_passk_census.py`가 arm명 nogate/gate 하드코딩 — gate_r2는 results.json 직접 분석(데이터 = `tau2-bench/data/simulations/retail_7b_gate_r2/results.json`). 영구실패 3건 부검 포함. 결과 → PORTFOLIO §3.7에 행 추가.
-2. **GPU 회수 후 (N3 종료 시 양쪽 빔)**: ①**P-A2-0b 로컬 7B/14B census** (`t2_a2_size_census.py` — vllm serve 후 `--model name:http://localhost:PORT/v1:HFmodel`, ref=`specs/*_gate_spec_fable5.json`, 예측 7B<0.5) ②**S0 스모크 학습**: 135쌍(`specs/a2_s0_dataset_v3.jsonl`)으로 7B LoRA SFT(기존 dpo_train 아닌 SFT — build 스크립트 신규 필요: prompt=정책NL+카탈로그, target=spec JSON, guided는 추론시) → 학습 전후 7B census 비교 = **front-end 첫 학습 신호**. 순서: census 먼저(baseline)→S0→재census.
-3. **데이터 생성 계속 (Fable-5 직접, 사용자 지시 누적)**: batch5b = `specs_synth_b5.jsonl`(리모트)의 id 15-29 잔여 15개 렌더 → batch6+(seed 6+) → **목표 200쌍**. 절차: 샘플 fetch→6스타일 로테이션 렌더(part jsonl)→`t2_a2_join_qc.py`(이중언어 토큰 병기=exact pass)→dataset 병합 push. 누적 135 전부 QC 무손실.
-4. **딥 리서치 2건 재발사 (clear로 소실 — resume은 same-session only)**: ①이종-풀 robust 선별기 문헌(브리프 핵심=TB §8.9b: MBR 0.753·proposer-1표·게이트 역선택·gold-free/결정론/7B 제약) ②framework-tier 메트릭(브리프=마스터 §1.6 표: pass_hat_k 추정량·0-위반 CI·AURC·비용곡선 표준). 합류 후 → 선별기 설계서(detail, 마스터 §7 경유) + §1.6 v2 동결 (task #7이었음).
-5. **coworker**: P4(A2 크기 census, 32B/72B/235B) 요청 발행됨(요청서 §10·턴키 `node_run_a2_census_p4.sh`) — trackb_raw/p4_a2_census 도착 감시. P2 적중(+3.9) 도착 확인됨. P3a 사전예측에 run7 게이트 발견 주석 전달됨.
-6. **잔여 GPU 큐**: v4 재채굴 사이클 검토(v3 rollout K=8→재채굴) · 선별기 합성(v3+guided 57.90 위에 N2-식 이종풀+선별 = 72B 앵커 63.5 추격) · P-D0 diffusion(조건부 강등 유지).
+## 0. ★첫 행동 (순서대로) — [2026-06-12 저녁 세션이 1·2·3 상당 부분 완료, §0b 참조]
+1. ~~N3 수확~~ ✅완료 → **PORTFOLIO §3.7b** (사전등록 conj FAIL이나 기준① 오캘리브레이션 판명 — 헤드라인 = 게이트 pass^1 무비용화: matched 0.1853 vs nogate 0.1830·write 44→0·deny 한계피해 +7.9pp→−0.7pp 소거. 복구 *행동*은 r1에서도 96% — 메시지는 복구 *품질*을 바꿈 4/41→9/36).
+2. ~~P-A2-0b 로컬 + S0 스모크~~ ✅완료 → **A2_FRONTEND §6** (7B 0.333 > 14B 0.167 = 1-shot 과앵커링·둘 다 frontier 미달 / S0: holdout gate_recall 0.564→**1.000**·airline 전이 0.333→0.167 = 분포갭 실측·S1 정당화·structure-EM 지표 필요).
+3. **데이터 생성 계속**: ✅batch5b(15)+batch6(30, sampler v2 어휘+게이트7) 전부 QC 무손실 → **dataset v5 = 180쌍**. 잔여 = **batch7 +20 → 200 목표** (seed 7 → 6스타일 로테이션 → join_qc → v6 병합).
+4. **딥 리서치 2건**: 백그라운드 에이전트로 재발사됨(2026-06-12 저녁) — 산출 예정 `reports/facet_rft_2026/research_selector_lit_2026_06_12.md`·`research_framework_metrics_2026_06_12.md`. **도착 확인→검수(인용 원문검증 여부)→커밋** → 선별기 설계서(detail, 마스터 §7 경유) + §1.6 v2 동결.
+5. **coworker**: P4(A2 크기 census, 32B/72B/235B) — trackb_raw/p4_a2_census 도착 감시 (06-12 저녁 기준 미도착).
+6. **잔여 GPU 큐**: **S0-v2 재학습 후보**(dataset v5 180쌍 + structure-EM 평가 추가) · v4 재채굴 사이클 검토 · 선별기 합성(v3+guided 57.90 위에 N2-식 이종풀+선별) · P-D0 diffusion(조건부 강등 유지).
+
+### 0b. 2026-06-12 저녁 세션 산출물 (이 핸드오프 §0 실행분)
+- N3 판정 스크립트 `tau2/t2_gate_r2_verdict.py` (pass^k+deny-census+F4 replay+복구행동 census+matched 비교) — 결과 권위 = PORTFOLIO §3.7b.
+- P-A2-0b 하네스 가동(파싱 버그 수정)·S0 파이프라인 신규: `t2_a2_s0_build_sft.py`(census-프롬프트 일치 빌드)·`t2_a2_s0_eval.py`(holdout 평가)·`driver_a2_s0_sft.sh`·어댑터 `sft_runs/qwen7b_a2_s0`.
+- 렌더 part: `synth_b5_renders_fable5_part4/5.jsonl`·`synth_b6_renders_fable5_part1-3.jsonl`. 샘플러 v2(어휘 확장+게이트≤7).
+- τ² 영구실패 4 sims = OpenRouter infrastructure_error(빈 대화) — 모델 무관, n=452.
 
 ## 1. day-4 확정 결과 (Day-4 한눈표 = TB §8.10 머리; 상세 각 §)
 - **★D1 구조-DPO 채택**(3관문 적중: in-dom +1.9/+2.7·**held-out MM +4.5**·nself −77%/ndangle −93%) / **★D2 비용-DPO 기각**(전수 부검: edge −2.0·R −4.8 = brevity prior, 학습어휘 겹침 10%) ⇒ **★기제 명제(논문감): DPO는 쌍의 대조축을 도메인-일반 prior로 전이** (배선=이롭게/길이=해롭게). 비용은 ε-타이브레이크 선별로(노드 −3%에 edge −0.2).
