@@ -28,11 +28,15 @@ Emit a gate for every policy rule that blocks a tool BEFORE the tool's own check
 
 def call(endpoint, model, sys, usr, max_tokens=2000):
     url = endpoint.rstrip("/") + "/chat/completions"
-    body = json.dumps({
+    payload = {
         "model": model, "temperature": 0.0, "max_tokens": max_tokens,
         "messages": [{"role": "system", "content": sys}, {"role": "user", "content": usr}],
         "response_format": {"type": "json_object"},
-    }).encode()
+    }
+    if "openrouter" not in endpoint:
+        # 로컬 vllm: Qwen3류 thinking 차단 (P2 교훈 — non-thinking 고정; Qwen2.5는 무해 무시)
+        payload["chat_template_kwargs"] = {"enable_thinking": False}
+    body = json.dumps(payload).encode()
     hdr = {"Content-Type": "application/json", "Authorization": "Bearer dummy"}
     import os
     if "openrouter" in endpoint:

@@ -180,3 +180,13 @@ P0(반나절) → P1(1-2일) → 판정 공유(채널) → P2/P3(조건부, 1-3�
 - 외부 가치: 유일 활성 frontier 리더보드(~30모델)라 "오픈 대형±게이트 vs frontier"가 공인 무대에서 찍힘.
 
 **산출물·순서**: trackb_raw 동일 구조 push + 결과는 TB결과 §8.5 형식(사전등록→실측→census). **P2(§7) → P3c → P3b(step-0 census부터) → P3a(인계 대기).** 일정 견적: P3c 반나절·P3b census+기준선 1-2일·P3a 어댑터 도착 후 1일.
+> ⚠️**P3a 사전예측 갱신 정보 (2026-06-12, `BENCH_PORTFOLIO` §3.7)**: Track A 7B base±게이트 1차 측정 — 게이트가 write-위반 43→1(98% 차단)이지만 **pass^1 −3.7pp** (deny 경험 에피소드의 92%가 복구 실패). ⇒ P3a의 실질 질문에 "**대형은 deny에서 복구하는가**"가 추가됨 (위 예측 ①은 7B+passive-deny 구성에선 기각됨 — 복구-메시지 개선판 결과도 곧 도착). P3a 사전등록 시 반영 요망.
+
+## 10. ★P4 (2026-06-12 신규) — A2-컴파일러 크기 하한 census (추론-only·모델당 1콜·P2 후 아무 때나)
+> 배경(Track A 오늘 실측): **A2 front-end 라인 가동** — frontier(Fable-5)가 미답 airline 정책(166줄)을 6-게이트 `GATE_SPEC`으로 단일샷 컴파일, 상태-추적 replay **over-deny 0/108** (`BENCH_PORTFOLIO` §3.9·설계 `A2_FRONTEND_DISTILL_DESIGN.md`). **질문 = "Fable-5급 컴파일이 가능한 오픈-가중치 모델의 크기 하한선"** (R7 base-census를 A2 과제에 적용) — 하한 위 모델=생성기로 즉시 활용, 하한 아래=증류 사다리(S0-S2)의 타깃·기대이득 정량화.
+
+- **분담**: 7B/14B = Track A 로컬 / **P4a 72B(TP4)·P4b 32B(TP2)·P4c 235B-A22B-Int4(TP4, non-thinking) = Track B**.
+- **턴키**: `scripts/distill/taskbench/node_run_a2_census_p4.sh` — 입력 전부 repo 내장(`tau2/specs/`: 정책·A1 카탈로그·Fable-5 reference), 외부 다운로드 0·학습 0·**모델당 컴파일 1콜**(비용의 전부 = vllm 기동, 총 ~2-3h). per-arm done-marker 멱등. vllm response_format silent-ignore여도 채점기가 brace-추출로 강등 — sanity 출력만 로그 확인.
+- **지표 (v1, 채점기 내장)**: gate_recall(reference 6게이트 술어 포착률)·applies_F1(게이트별 적용-도구 집합)·n_gates·parsed. v2 replay-tier 채점은 Track A가 생성 spec 원본으로 수행.
+- **사전예측 (동결)**: P4a 72B **gate_recall ≥0.8 ∧ applies_F1 ≥0.7**(Fable-5 근접) / P4b 32B **0.5~0.8 중간대 = 하한 후보 구간** / P4c ≈72B ±0.05(크기 포화 통제). Track A 측 7B 예측 <0.5.
+- **산출물**: 생성 spec JSON 원본 + score 텍스트 → `trackb_raw/p4_a2_census/` (드라이버가 자동 commit+push).
