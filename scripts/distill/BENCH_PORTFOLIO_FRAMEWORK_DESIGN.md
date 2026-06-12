@@ -79,7 +79,13 @@
 - **잔여 음성**: pass^4 0.0625→0.0179(matched) — 일관성 축은 여전히 악화(전-trial 통과 태스크 7→2개, 소수-n 노이즈 유의·user-sim temp 0.7 분산). ⓟ1(게이트=일관성 레버)은 이 구성에서 계속 기각.
 - 영구실패 4 sims(task17×3·task99×1) = `infrastructure_error`·대화 0건 — OpenRouter측 에러, 모델 무관. n=452/456. G2 deny 8→13(G1 54·G3 0).
 - **★벤치 pass는 compliance-blind (2026-06-12 심야 census)**: nogate에서 인증-전 WRITE를 실행한 21 sims 중 **6건이 bench-pass** — τ² 보상(DB-state 등가+NL assertion)은 절차 위반을 직접 벌점화하지 않음(gold가 인증 READ 생략 46/114 — §3.6 동형; 정책 원문은 "have to authenticate ... even when the user already provides the user id"로 의무 명시). ⇒ **F3(pass)×F4(위반) 2축 분리 보고가 필수**인 직접 증거.
-- **★F4b compliant-pass (2026-06-13, 사용자 발의 — 마스터 §1.6 등재·사후-정의·census-tier)**: pass∧위반-무. **nogate compliant-pass^1 = 0.1711(write-clean)/0.1601(strict) vs gate_r2 0.1908** — 이 척도에선 게이트가 parity가 아니라 **+2.0~+3.1pp 우위**(점추정; CI 동반 전 단정 금지). 게이트 arm은 구조적 0이라 conjunction이 pass로 붕괴 = "위반 0 보장"이 메트릭 이점으로 직접 전환되는 형태. ⚠️nogate 측은 G1형 위반만 산입한 **상한**(G2/G3 미검출) — 진짜 격차는 이보다 큼.
+- **★F4b compliant-pass (2026-06-13, 사용자 발의 — 마스터 §1.6 등재·사후-정의·census-tier)**: pass∧위반-무. 변형 3종 실측 (n=456/arm):
+  | arm | bench pass^1 | write-clean | strict-clean | **FULL-clean (G1+G2+G3+G4)** | 위반 sims |
+  |---|---|---|---|---|---|
+  | nogate | 0.1842 | 0.1711 | 0.1601 | **0.1425** | G1=56·**G2=44**·G3=3·G4=1 |
+  | gate r1 | 0.1469 | 0.1469 | 0.1469 | 0.1469 | G4=2뿐 (G1/G2/G3=0) |
+  | **gate r2** | **0.1908** | 0.1908 | 0.1908 | **0.1908** | **전부 0** |
+  ①**FULL-clean에선 게이트 우위 +4.8pp**(0.1908 vs 0.1425; 점추정 — CI 동반 전 단정 금지). ②**교차검증**: 동일 사후-replay 검출기가 게이트 arm서 G1/G2/G3=0 — live 게이트와 사후-검출기의 상호 검증. ③nogate 제2 위반축 = **G2 미확인-WRITE 44 sims**(G1 56과 비슷한 규모 — "확인 없이 변경"이 인증-생략만큼 흔함). ④G4(transfer 문구)는 게이트 비집행(post-hoc 헬퍼) — r1서 2건 잔존·r2 0. ⑤pass^4(일관성)는 FULL-clean에서도 nogate 0.0263 > r2 0.0179 (정직 기록). 검출기 = `t2_gate_r2_verdict.py --tau2_src`(G3 주문-소유자 DB resolve).
 - **다음 처방 후보**: deny-복구는 종결 — 남은 갭은 base 능력(nogate 81.6% 실패·DB-state 지배). 게이트-side 추가 레버 없음 ⇒ A2 front-end(§3.8-3.9)·base 학습 라인으로 이관.
 - ⚠️**프로토콜 드리프트 경고 (메트릭 리서치 2026-06-12)**: τ² 공식 리더보드는 user-sim을 병기하며 현재 **gpt-5.2 권장** — 본 행렬(run7/r2)은 gpt-4.1-2025-04-14. **외부 리더보드 숫자와 비교 시 user-sim 4-tuple(user-sim·judge·trials·split) 명시 필수**, 내부 ±게이트 비교는 무영향. 보고 표준형(paired Δpass^1+bootstrap CI·0/N+rule-of-three 상한·구조적0/표본적0 분리) = `reports/facet_rft_2026/research_framework_metrics_2026_06_12.md` §2.2.4 — §1.6 v2 동결 시 채택.
 
