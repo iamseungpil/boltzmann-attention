@@ -17,7 +17,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from t2_gate import AUTH_TOOLS, RetailGate  # noqa: E402
+from t2_gate import AUTH_TOOLS, TRANSFER_MSG, RetailGate  # noqa: E402
 
 GATE_DOMAINS = {"retail"}  # airline 등은 게이트 컴파일 후 추가
 
@@ -35,13 +35,15 @@ def apply():
         if gate is None:
             gate = self._t2_gate = RetailGate(db=env.tools.db)
         last_user = _last_user_text(self)
+        tms = _transfer_msg_sent(self)
 
         results = []
         for tc in tool_calls:
             if getattr(tc, "requestor", "assistant") != "assistant":
                 results.extend(orig(self, [tc]))  # user-side 툴콜(타 도메인)은 비대상
                 continue
-            ok, g, why = gate.check(tc.name, tc.arguments or {}, last_user_msg=last_user)
+            ok, g, why = gate.check(tc.name, tc.arguments or {}, last_user_msg=last_user,
+                                    transfer_msg_sent=tms)
             if not ok:
                 self.num_errors += 1
                 results.append(_deny_msg(tc, g, why))
@@ -64,6 +66,19 @@ def _last_user_text(orch):
     except Exception:
         pass
     return None
+
+
+def _transfer_msg_sent(orch):
+    """G4: 고정 transfer 문구가 어시스턴트 발화로 이미 송신됐는가 (불가 판단 시 None)."""
+    try:
+        for m in orch.get_messages():
+            if getattr(m, "role", None) == "assistant":
+                c = getattr(m, "content", None)
+                if isinstance(c, str) and TRANSFER_MSG in c:
+                    return True
+        return False
+    except Exception:
+        return None
 
 
 def _content_str(tool_msg):

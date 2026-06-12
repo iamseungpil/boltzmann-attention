@@ -63,6 +63,16 @@ GATE_SPEC = {
                     "in this conversation",
         "applies_to": sorted(USER_SCOPED),
     },
+    # G4 의무형(transfer 후 고정문구)의 deny-형 차선 집행 (2026-06-13, 사용자 결정):
+    # 문구 미송신 상태의 transfer 호출을 deny + 복구 절차(문구 송신 후 재시도) 안내.
+    # 보장 아님(모델이 따라야 함) — offload(scaffold 직접 송신)가 정공법이나 비침습 우선.
+    "G4_TRANSFER_MSG": {
+        "predicate": "the mandatory transfer notice has been communicated to the user",
+        "satisfiers": {},  # 대화로 충족 (어시스턴트가 고정 문구 송신)
+        "ask": f'send the user exactly this message first: "{TRANSFER_MSG}" '
+               "— then retry the transfer",
+        "applies_to": ["transfer_to_human_agents"],
+    },
 }
 
 
@@ -107,9 +117,14 @@ class RetailGate:
         order = self.db.orders.get(order_id)
         return order.user_id if order else None
 
-    def check(self, tool_name, args, last_user_msg=None):
+    def check(self, tool_name, args, last_user_msg=None, transfer_msg_sent=None):
         """returns (allowed: bool, gate: str|None, reason: str|None)
-        메시지는 전부 render_recovery(GATE_SPEC)에서 생성 — 수동 문자열 없음."""
+        메시지는 전부 render_recovery(GATE_SPEC)에서 생성 — 수동 문자열 없음.
+        transfer_msg_sent: None=판단 불가(replay 등)→G4 skip / False=미송신→deny."""
+        # G4: transfer 전 고정문구 송신 (live 전용 — 어시스턴트 발화 이력 필요)
+        if tool_name == "transfer_to_human_agents" and transfer_msg_sent is False:
+            return False, "G4_TRANSFER_MSG", render_recovery(
+                "G4_TRANSFER_MSG", GATE_SPEC["G4_TRANSFER_MSG"])
         # G1: 인증 선행 (복구 절차 포함 메시지 — run7 census: deny→fail 92%의 처방, N3)
         if tool_name in USER_SCOPED and self.auth_user is None:
             return False, "G1_AUTH_FIRST", render_recovery(

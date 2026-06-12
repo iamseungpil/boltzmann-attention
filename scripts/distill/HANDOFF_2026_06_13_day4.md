@@ -15,7 +15,7 @@
 - ✅**§1.6 v2 동결**(마스터 — F3 τ pass^k n=4·F4 0/N+rule-of-three+구조적/표본적0 분리·ⓟ3 게이트-관할 census 신설·4-tuple 인용 규율) + ✅**`SELECTOR_DESIGN.md` 신설**(SEL-1~5 사다리, 마스터 §7 등재).
 - ✅**SEL-1~3 즉시 실측 (0원, `tb_selector_v2.py`)**: **SEL-1 채택** — Smoothie-식 proposer-prior 가중(β=2) SIG, **공식 link F1 66.48→67.22 = k0 대비 +9.5pp 갱신** / SEL-2 기각(ns) / SEL-3 작동(confidence=승자합의 u1 — 갭-기반은 만장일치 역전 결함, top-20% risk 절반). 권위 = TB결과 **§8.9c**.
 - ✅**F4b compliant-pass 신설+상시화 (2026-06-13 새벽, 사용자 발의)**: pass∧위반-무 — **FULL-clean(G1+G2+G3+G4)에서 nogate 0.1425 vs gate_r2 0.1908 = 게이트 +4.8pp 우위**(parity 아님). nogate 신규 census: G2 미확인-WRITE 44 sims(제2 위반축). 공용 모듈 `tau2/t2_compliance.py` + `t2_run_gated` 자동 후크(compliance.json 사이드카) — 이후 모든 τ² 평가에 공짜 병기. 마스터 §1.6 F4b(사후-정의 플래그)·PORTFOLIO §3.7b 표. **airline에서 사전등록 재검증이 논문 절차.**
-- **다음 세션 1순위 후보**: ①**S1 설계+발사**(A2 실-도메인 verified distill — S0-v2가 합성 과적합 확정) ②SEL-4(7B reverse-likelihood) 판단 ③P4 도착 감시 ④batch8+(200쌍 달성으로 완화) ⑤F4b 비교주장용 paired bootstrap CI 추가.
+- **다음 세션 1순위 후보**: ①**S1 설계+발사**(A2 실-도메인 verified distill — S0-v2가 합성 과적합 확정) ②SEL-4(7B reverse-likelihood) 판단 ③P4 도착 감시 ④batch8+(200쌍 달성으로 완화) ⑤F4b 비교주장용 paired bootstrap CI 추가 ⑥**G4 deny-게이트 검증 (구현 완료 2026-06-13 — PORTFOLIO §3.8)**: 차선책(의무→사전조건 변환, 문구 미송신 transfer를 deny) 코드 반영됨 — 다음 τ² gate 실행(airline 번들)에서 사전등록 검증(G4≈0·pass ±0). offload(scaffold 직접송신)는 보류 대안.
 
 ### 0b. 2026-06-12 저녁 세션 산출물 (이 핸드오프 §0 실행분)
 - N3 판정 스크립트 `tau2/t2_gate_r2_verdict.py` (pass^k+deny-census+F4 replay+복구행동 census+matched 비교) — 결과 권위 = PORTFOLIO §3.7b.

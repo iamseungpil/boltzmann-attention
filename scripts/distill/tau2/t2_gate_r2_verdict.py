@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from t2_gate import (AUTH_TOOLS, USER_SCOPED, WRITE_TOOLS,  # noqa: E402
                      CONFIRM_RE, TRANSFER_MSG)
 
-GATES = ["G1_AUTH_FIRST", "G2_CONFIRM_WRITE", "G3_SINGLE_USER"]
+GATES = ["G1_AUTH_FIRST", "G2_CONFIRM_WRITE", "G3_SINGLE_USER", "G4_TRANSFER_MSG"]
 ORDER_OWNER = {}  # order_id -> user_id (G3 full-replay용; --tau2_src 시 채움)
 
 
