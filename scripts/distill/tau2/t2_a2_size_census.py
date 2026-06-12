@@ -122,7 +122,9 @@ def main():
 
     rows = []
     for m in a.model:
-        name, endpoint, served = m.split(":", 2) if m.count(":") >= 2 else (m, m, m)
+        # name:endpoint:served — endpoint에 ://·:port 콜론 포함되므로 양끝에서 분리
+        name, rest = m.split(":", 1)
+        endpoint, served = rest.rsplit(":", 1)
         try:
             txt = call(endpoint, served, PROMPT_SYS, usr)
             gen = parse(txt)
