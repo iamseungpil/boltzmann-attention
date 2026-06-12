@@ -350,6 +350,7 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 | **SEL-4**: v3g-풀 + 7B Reviewer(p(instr\|plan)) z-합성 | **0.6671** | ≥SEL-1 동풀 | **적중** (+0.73pp vs C1 0.6598) |
 - **★기제 종합 (2 음성의 일관된 그림)**: 선별 이득은 proposer *강도*가 아니라 **다양성**의 함수 — ①대형 단일샷 추가(ND)는 합의와 중복 = 무이득 ②**더 강한 단일 모델(v3g)의 K8 풀이 선별에선 오히려 약함**(DPO가 분포를 날카롭게 → 후보 다양성↓ → MBR headroom↓; E6 "동질 풀 MBR=mean" 소견·bias-diversity 분해와 정합). **dpo2g-AR8+H6 = 현 최적 풀 유지(67.22), 풀 조성은 동결**.
 - **SEL-4 채택 후보**: Reviewer 신호가 동일 풀에서 +0.73pp = 직교성 입증(예측 적중) — **다음 1수: dpo2g-풀에 SEL-4 적용**(67.22+α 기대, 후보당 1 pass 비용). 구현 = `tb_reviewer_select.py`.
+- **★SEL-4 최적-풀 신기록 (2026-06-13 아침, 사전등록 >0.6722 적중)**: dpo2g-AR8+H6 풀에 7B Reviewer 합성 → **공식 link F1 0.6803** (SEL-1 단독 0.6722 → **+0.81pp 신기록**). Reviewer p(instr\|plan)가 MBR 합의와 직교해 소수-정답을 구제 — **선별기 사다리 SEL-1+SEL-4 = best-stack 확정**. 비용 = 후보당 1 forward pass(7B). 이로써 zero-training 추론-side 선별만으로 단일-정책(k0 57.7) 대비 **+10.3pp 공식**(66.0→68.0). 구현·재현 = `driver_sel4_dpo2g.sh`.
 
 ## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
 
