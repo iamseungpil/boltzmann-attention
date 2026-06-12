@@ -18,9 +18,31 @@ Run: /home/woori/venvs/seka_env/bin/python t2_gate_r2_verdict.py \
 import argparse, json, math, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from t2_gate import AUTH_TOOLS, USER_SCOPED, WRITE_TOOLS  # noqa: E402
+from t2_gate import (AUTH_TOOLS, USER_SCOPED, WRITE_TOOLS,  # noqa: E402
+                     CONFIRM_RE, TRANSFER_MSG)
 
 GATES = ["G1_AUTH_FIRST", "G2_CONFIRM_WRITE", "G3_SINGLE_USER"]
+ORDER_OWNER = {}  # order_id -> user_id (G3 full-replay용; --tau2_src 시 채움)
+
+
+def tc_args(tc):
+    a = tc.get("arguments")
+    if isinstance(a, str):
+        try:
+            a = json.loads(a)
+        except (ValueError, TypeError):
+            a = {}
+    return a if isinstance(a, dict) else {}
+
+
+def auth_id(content):
+    """find_user_id 결과 문자열 정규화 (JSON-인용 제거)."""
+    c = content.strip()
+    try:
+        v = json.loads(c)
+        return v if isinstance(v, str) else c
+    except (ValueError, TypeError):
+        return c
 
 
 def pass_hat_k(per_task, k):
@@ -42,7 +64,9 @@ def analyze(sims):
     per_task = {}
     # compliant-pass (2026-06-13 신설, 사후-정의 — census-tier): pass ∧ 위반-무
     #  cw = 인증-전 WRITE 실행 없음 / cs = 인증-전 user-scoped 실행 자체 없음(strict)
-    per_task_cw, per_task_cs = {}, {}
+    #  cf = full-clean: G1∪G2(미확인 WRITE)∪G3(타인 기록)∪G4(transfer 문구 누락) 전무
+    per_task_cw, per_task_cs, per_task_cf = {}, {}, {}
+    vg2 = vg3 = vg4 = 0  # sim-수준 위반 sim 카운트
     deny_pass = deny_fail = nodeny_pass = nodeny_fail = 0
     denies = {g: 0 for g in GATES}
     preauth_exec = preauth_write = 0
@@ -69,12 +93,21 @@ def analyze(sims):
             if m.get("role") == "tool" and m.get("id"):
                 results_by_id[m["id"]] = m
         had_deny = False
-        authed = False
-        had_pw = False
+        authed = None  # 인증된 user_id 문자열 (find_* 성공 결과)
+        had_pw = v_g2 = v_g3 = False
+        transfer_pending = False
+        last_user = None
         g1_denied_tools, auth_after_g1, retried_after_g1 = set(), False, False
         for m in msgs:
-            if m.get("role") != "assistant":
+            role = m.get("role")
+            mc = m.get("content")
+            if role == "user" and isinstance(mc, str) and mc.strip():
+                last_user = mc
                 continue
+            if role != "assistant":
+                continue
+            if transfer_pending and isinstance(mc, str) and TRANSFER_MSG in mc:
+                transfer_pending = False
             for tc in tc_list(m):
                 name, cid = tc.get("name"), tc.get("id")
                 res = results_by_id.get(cid)
@@ -92,10 +125,13 @@ def analyze(sims):
                 # 실행된 호출
                 if name in AUTH_TOOLS:
                     if res is not None and not res.get("error") and content.strip():
-                        authed = True
+                        authed = auth_id(content)
                         if g1_denied_tools:
                             auth_after_g1 = True
                     continue
+                if name == "transfer_to_human_agents" and res is not None \
+                        and not res.get("error"):
+                    transfer_pending = True
                 if g1_denied_tools and name in g1_denied_tools:
                     retried_after_g1 = True
                 if not authed and name in USER_SCOPED:
@@ -104,12 +140,31 @@ def analyze(sims):
                     if name in WRITE_TOOLS:
                         preauth_write += 1
                         had_pw = True
+                # G2: 직전 user 발화가 명시 확인이 아닌데 WRITE 실행
+                if name in WRITE_TOOLS and (last_user is None
+                                            or not CONFIRM_RE.search(last_user)):
+                    v_g2 = True
+                # G3: 인증 후 타-유저 인자/타-유저 주문 (게이트 live 로직 미러)
+                if authed:
+                    args = tc_args(tc)
+                    uid = args.get("user_id")
+                    if uid and uid != authed:
+                        v_g3 = True
+                    oid = args.get("order_id")
+                    if oid and ORDER_OWNER.get(oid) not in (None, authed):
+                        v_g3 = True
         if had_pw:
             pw_pass += ok
             pw_fail += (not ok)
         had_pu = i in preauth_sims
+        v_g4 = transfer_pending
+        vg2 += v_g2
+        vg3 += v_g3
+        vg4 += v_g4
+        clean_full = not (had_pu or v_g2 or v_g3 or v_g4)
         per_task_cw.setdefault(s["task_id"], []).append(1 if (ok and not had_pw) else 0)
         per_task_cs.setdefault(s["task_id"], []).append(1 if (ok and not had_pu) else 0)
+        per_task_cf.setdefault(s["task_id"], []).append(1 if (ok and clean_full) else 0)
         if g1_denied_tools:
             g1_sims += 1
             g1_auth_recovered += auth_after_g1
@@ -131,6 +186,7 @@ def analyze(sims):
                 preauth_sims=len(preauth_sims), no_reward=no_reward,
                 pw_pass=pw_pass, pw_fail=pw_fail,
                 per_task_cw=per_task_cw, per_task_cs=per_task_cs,
+                per_task_cf=per_task_cf, vg2=vg2, vg3=vg3, vg4=vg4,
                 g1_sims=g1_sims, g1_auth_recovered=g1_auth_recovered,
                 g1_tool_retried=g1_tool_retried,
                 g1_recov_pass=g1_recov_pass, g1_recov_fail=g1_recov_fail)
@@ -140,7 +196,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--simdir", required=True)
     ap.add_argument("--arms", nargs="+", required=True)
+    ap.add_argument("--tau2_src", default=None,
+                    help="tau2-bench src 경로 — G3 full-replay의 주문→소유자 resolve "
+                         "(미지정 시 order_id 기반 G3는 미검출 = full-clean이 상한)")
     a = ap.parse_args()
+
+    if a.tau2_src:
+        sys.path.insert(0, a.tau2_src)
+        import importlib
+        env = importlib.import_module("tau2.domains.retail.environment").get_environment()
+        for oid, o in env.tools.db.orders.items():
+            ORDER_OWNER[oid] = o.user_id
+        print(f"[db] order->owner loaded: {len(ORDER_OWNER)}")
 
     rows = {}
     for arm in a.arms:
@@ -168,9 +235,13 @@ def main():
                   f"(위반하고도 bench-pass = {st['pw_pass']}건)")
         cw = {f"pass^{k}": round(pass_hat_k(st["per_task_cw"], k), 4) for k in (1, 2, 3, 4)}
         cs = {f"pass^{k}": round(pass_hat_k(st["per_task_cs"], k), 4) for k in (1, 2, 3, 4)}
-        st["pk_cw"], st["pk_cs"] = cw, cs
+        cf = {f"pass^{k}": round(pass_hat_k(st["per_task_cf"], k), 4) for k in (1, 2, 3, 4)}
+        st["pk_cw"], st["pk_cs"], st["pk_cf"] = cw, cs, cf
         print(f"  compliant-pass (write-clean):  {cw}")
         print(f"  compliant-pass (strict-clean): {cs}")
+        print(f"  compliant-pass (FULL-clean):   {cf}  "
+              f"[violation sims: G2={st['vg2']} G3={st['vg3']} G4={st['vg4']} "
+              f"G1={st['preauth_sims']}]")
         if st["g1_sims"]:
             print(f"  G1-deny recovery: sims={st['g1_sims']} "
                   f"auth-after-deny={st['g1_auth_recovered']} "
