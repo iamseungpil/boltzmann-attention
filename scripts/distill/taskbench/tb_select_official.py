@@ -39,17 +39,28 @@ def main():
     ap.add_argument("--prior_beta", type=float, default=0.0,
                     help="SEL-1 (SELECTOR_DESIGN §2): Smoothie-식 label-free proposer prior"
                          " 가중 w=(1/cnt)*prior^beta. 0=v1(미가중) 동작 보존")
+    ap.add_argument("--ar_tag", default="tb_dpo2g_mmk",
+                    help="AR8 풀 파일 접두 (predictions/{ar_tag}{0..7}.json) — "
+                         "v3g 등 다른 K8 풀로 교체용")
+    ap.add_argument("--ar_group", default="dpo2g", help="AR8 풀의 proposer 그룹명")
+    ap.add_argument("--extra", action="append", default=[],
+                    help="추가 proposer 'name=path.json' (예: Track-B 32B/72B preds — "
+                         "그룹명=name, 풀 확장)")
     a = ap.parse_args()
     TB = a.tb_dir
     valid = {norm(t["id"]) for t in json.load(open(f"{TB}/data_multimedia/tool_desc.json"))["nodes"]}
 
     pools, groups = [], []
     for k in range(8):
-        pools.append(load_records(f"{TB}/data_multimedia_sub500/predictions/tb_dpo2g_mmk{k}.json"))
-        groups.append("dpo2g")
+        pools.append(load_records(f"{TB}/data_multimedia_sub500/predictions/{a.ar_tag}{k}.json"))
+        groups.append(a.ar_group)
     for m in HM:
         pools.append(load_records(f"{TB}/data_multimedia_sub500_eval_{m}/predictions/{m}.json"))
         groups.append(m)
+    for ex in a.extra:
+        name, path = ex.split("=", 1)
+        pools.append(load_records(path))
+        groups.append(name)
 
     ids = sorted(set.intersection(*[set(p) for p in pools[:8]]))
 
@@ -105,7 +116,7 @@ def main():
                 if u > bu:
                     bu, best = u, j
             rec, g, _, _ = use[best]
-            if g != "dpo2g":
+            if g != a.ar_group:
                 n_sel_hetero += 1
             wf.write(json.dumps(rec) + "\n")
     print(f"[select_official] ids={len(ids)} hetero-selected={n_sel_hetero} -> {a.out}")
