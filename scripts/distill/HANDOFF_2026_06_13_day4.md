@@ -17,6 +17,12 @@
 - ✅**F4b compliant-pass 신설+상시화 (2026-06-13 새벽, 사용자 발의)**: pass∧위반-무 — **FULL-clean(G1+G2+G3+G4)에서 nogate 0.1425 vs gate_r2 0.1908 = 게이트 +4.8pp 우위**(parity 아님). nogate 신규 census: G2 미확인-WRITE 44 sims(제2 위반축). 공용 모듈 `tau2/t2_compliance.py` + `t2_run_gated` 자동 후크(compliance.json 사이드카) — 이후 모든 τ² 평가에 공짜 병기. 마스터 §1.6 F4b(사후-정의 플래그)·PORTFOLIO §3.7b 표. **airline에서 사전등록 재검증이 논문 절차.**
 - **다음 세션 1순위 후보**: ①**S1 설계+발사**(A2 실-도메인 verified distill — S0-v2가 합성 과적합 확정) ②SEL-4(7B reverse-likelihood) 판단 ③P4 도착 감시 ④batch8+(200쌍 달성으로 완화) ⑤F4b 비교주장용 paired bootstrap CI 추가 ⑥**G4 deny-게이트 검증 (구현 완료 2026-06-13 — PORTFOLIO §3.8)**: 차선책(의무→사전조건 변환, 문구 미송신 transfer를 deny) 코드 반영됨 — 다음 τ² gate 실행(airline 번들)에서 사전등록 검증(G4≈0·pass ±0). offload(scaffold 직접송신)는 보류 대안. ⑦**★0원 발견: 선별기 풀 확장 — Track-B 기존 예측 재사용**: `trackb_raw/preds/data_multimedia_sub500/`에 32B/72B/235B(±guided) 예측 이미 커밋돼 있음 — `tb_selector_v2.py`/`tb_select_official.py` HM 풀에 합류만 하면 됨(신규 요청 불요). 예측: oracle 천장 0.896↑·SEL-1 prior가 대형모델에 고가중→선별 67.2↑. ⑧coworker 요청서 **v5** 발행됨: P4 보강(로컬 결과·앵커링 주의)+**P5 신설**(S1 교사-풀 컴파일, `node_run_s1_compile_p5.sh`·s1_inputs/telecom 커밋됨 — S1 크리티컬 패스라 P3보다 우선 권고).
 
+### 0c. ★야간 배치 0613→14 가동 중 (다음 세션 첫 행동 = 수확)
+- **드라이버 = `taskbench/tb_night_0614.sh`** (detached, 사전등록 머리 동결) · log `/home/woori/scratch/tb_night14.log` · sentinel **NIGHT14_DONE** (부분: ND/NB/NC/NA_DONE).
+- **NA (GPU0+OpenRouter)**: τ² retail **gate r3** = G4 deny-게이트+중립템플릿 검증 — 예측 ①G4 위반 0 ②G4 deny 1~3건 ③pass^1 r2 동등 ④G1-G3 위반 0. compliance.json 자동(후크 첫 실전). 수확 = `t2_compliance.py`/`t2_gate_r2_verdict.py` --arms에 r3 추가.
+- **NB (GPU1)**: v3mix+guided **K=8 temp0.8 샘플링** sub500 → `tb_v3g_mmk0-7`. **NC (CPU)**: C0=v3g k0 단일 / C1=v3g-AR8+H6 선별(예측 ≥68) / C2=C1+Track-B 6종.
+- **ND ✅완료 (조기 결과 — 사전등록 미달 정직 기록)**: 기존 dpo2g-풀 + **Track-B 6 proposer 확장 = link F1 0.6703 < 무확장 0.6722** (예측 ≥68 기각) — hetero-선택 89→120으로 늘었는데 공식 F1 정체/소폭 하락 = **대형 단일샷 proposer는 합의와 중복, 풀 확장 단독 무이득**(MBR bias-diversity의 bias 항 해석 후보). 72B prior 0.768=최고(품질 서열은 정확) — 선별 천장은 풀 크기가 아니라 **후보 다양성**의 함수라는 N2 기제 재확인. NC C2와 교차 확인 예정.
+
 ### 0b. 2026-06-12 저녁 세션 산출물 (이 핸드오프 §0 실행분)
 - N3 판정 스크립트 `tau2/t2_gate_r2_verdict.py` (pass^k+deny-census+F4 replay+복구행동 census+matched 비교) — 결과 권위 = PORTFOLIO §3.7b.
 - P-A2-0b 하네스 가동(파싱 버그 수정)·S0 파이프라인 신규: `t2_a2_s0_build_sft.py`(census-프롬프트 일치 빌드)·`t2_a2_s0_eval.py`(holdout 평가)·`driver_a2_s0_sft.sh`·어댑터 `sft_runs/qwen7b_a2_s0`.
