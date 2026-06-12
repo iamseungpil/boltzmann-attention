@@ -331,6 +331,7 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 - **v0 특징의 재배치**: lexicographic *서열*로는 이종 풀에서 역선택(0.54), 후보 *필터*(invalid명·self/dangle 제거 후 MBR)로는 +0.2~1.4 한계 기여 = "검증 특징은 거부권, 선택권은 합의에" 분업.
 - 동질 AR8에선 MBR=mean(0.706, 변별 불가) — E6 수렴 소견과 정합; 이 선별기는 이종-풀 전용 레버.
 - 다음 = deep-research(이종-풀 선별 문헌) 합류 후 선별기 설계서(detail) — 잔여 후보: proposer 품질 prior(보정 필요)·pairwise 7B judge·실행-가능성 체크·공식 edge-F1 확정 측정.
+- **★N2 공식-척도 확정 (2026-06-12 야간, `tb_select_official.py`·사전등록 ≥+2)**: filter+propMBR 선별(AR8+H6, hetero-선택 88/500) **공식 link F1 66.5 vs k0 단일 통제 57.7 = +8.8** — census 갭(+8.2)이 공식 척도에 그대로 실현, 예측 4배 초과. ⚠️sub500 내부-일관 비교(MM full 수치와 직접 비교 금지·K-샘플 추론 비용 명시). **의미: zero-training 추론-side 합성(같은 base 멀티-LoRA 풀+결정론 선별)만으로 단일-정책 대비 +8.8 공식** — 선별기 라인의 1급 양성.
 
 ## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
 
