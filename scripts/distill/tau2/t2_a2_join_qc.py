@@ -15,7 +15,11 @@ def main():
     ap.add_argument("--specs", required=True)
     ap.add_argument("--renders", nargs="+", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--allow", default="",
+                    help="'id:style,id:style' — QC-miss이지만 수동검증 통과(패러프레이즈/번역) "
+                         "쌍을 qc=paraphrase-manual-verified로 보존")
     a = ap.parse_args()
+    allow = {tuple(x.split(":", 1)) for x in a.allow.split(",") if x}
 
     specs = {}
     for l in open(a.specs):
@@ -44,12 +48,16 @@ def main():
                     for arg in args:
                         if arg.replace("_", " ") not in nl_sp:
                             missing.append((g, "ARG:" + arg))
+            qc = "exact"
             if missing:
-                dropped += 1
-                print("QC-MISS", r["id"], r["style"], missing[:8])
-                continue
+                if (str(r["id"]), r["style"]) in allow:
+                    qc = "paraphrase-manual-verified"
+                else:
+                    dropped += 1
+                    print("QC-MISS", r["id"], r["style"], missing[:8])
+                    continue
             kept += 1
-            out.write(json.dumps({"id": r["id"], "style": r["style"],
+            out.write(json.dumps({"id": r["id"], "style": r["style"], "qc": qc,
                                   "domain_hint": s["domain_hint"], "catalog": s["catalog"],
                                   "spec": s["spec"], "policy_nl": nl}) + "\n")
     print(f"[join-qc] kept={kept} dropped={dropped} -> {a.out}")
