@@ -85,7 +85,8 @@
   | nogate | 0.1842 | 0.1711 | 0.1601 | **0.1425** | G1=56·**G2=44**·G3=3·G4=1 |
   | gate r1 | 0.1469 | 0.1469 | 0.1469 | 0.1469 | G4=2뿐 (G1/G2/G3=0) |
   | **gate r2** | **0.1908** | 0.1908 | 0.1908 | **0.1908** | **전부 0** |
-  ①**FULL-clean에선 게이트 우위 +4.8pp**(0.1908 vs 0.1425; 점추정 — CI 동반 전 단정 금지). ②**교차검증**: 동일 사후-replay 검출기가 게이트 arm서 G1/G2/G3=0 — live 게이트와 사후-검출기의 상호 검증. ③nogate 제2 위반축 = **G2 미확인-WRITE 44 sims**(G1 56과 비슷한 규모 — "확인 없이 변경"이 인증-생략만큼 흔함). ④G4(transfer 문구)는 게이트 비집행(post-hoc 헬퍼) — r1서 2건 잔존·r2 0. ⑤pass^4(일관성)는 FULL-clean에서도 nogate 0.0263 > r2 0.0179 (정직 기록). 검출기 = `t2_gate_r2_verdict.py --tau2_src`(G3 주문-소유자 DB resolve).
+  ①**FULL-clean에선 게이트 우위 +4.8pp**(0.1908 vs 0.1425; 점추정 — CI 동반 전 단정 금지). ②**교차검증**: 동일 사후-replay 검출기가 게이트 arm서 G1/G2/G3=0 — live 게이트와 사후-검출기의 상호 검증. ③nogate 제2 위반축 = **G2 미확인-WRITE 44 sims**(G1 56과 비슷한 규모 — "확인 없이 변경"이 인증-생략만큼 흔함). ④G4(transfer 문구)는 게이트 비집행(post-hoc 헬퍼) — r1서 2건 잔존·r2 0. ⑤pass^4(일관성)는 FULL-clean에서도 nogate 0.0263 > r2 0.0179 (정직 기록).
+- **★F4b eval-후크 상시화 (2026-06-13, 사용자 발의 "SOPBench처럼")**: 검사기를 공용 모듈 `tau2/t2_compliance.py`로 분리(spec 상태기계 replay = **A2 산출물 3중 재사용**: 집행/측정/GT) — `t2_run_gated`가 **모든 평가 직후 자동 산출** + `simulations/<arm>/compliance.json` 사이드카. 3-arm 회귀검증 동일치 재현. 원칙: τ² 네이티브 evaluator는 불변(벤치 동결·리더보드 비교 보존) — compliance는 2-tier 분리 산출. SOPBench는 evaluator가 경로-채점 내장이라 공식 success가 이미 compliant-pass = 이 갭은 τ²류(결과-채점 벤치) 전용 어댑터 비용.
 - **다음 처방 후보**: deny-복구는 종결 — 남은 갭은 base 능력(nogate 81.6% 실패·DB-state 지배). 게이트-side 추가 레버 없음 ⇒ A2 front-end(§3.8-3.9)·base 학습 라인으로 이관.
 - ⚠️**프로토콜 드리프트 경고 (메트릭 리서치 2026-06-12)**: τ² 공식 리더보드는 user-sim을 병기하며 현재 **gpt-5.2 권장** — 본 행렬(run7/r2)은 gpt-4.1-2025-04-14. **외부 리더보드 숫자와 비교 시 user-sim 4-tuple(user-sim·judge·trials·split) 명시 필수**, 내부 ±게이트 비교는 무영향. 보고 표준형(paired Δpass^1+bootstrap CI·0/N+rule-of-three 상한·구조적0/표본적0 분리) = `reports/facet_rft_2026/research_framework_metrics_2026_06_12.md` §2.2.4 — §1.6 v2 동결 시 채택.
 
