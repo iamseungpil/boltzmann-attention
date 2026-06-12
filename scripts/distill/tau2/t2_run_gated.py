@@ -30,6 +30,14 @@ def main():
         t2_gate_patch.apply()
         print("[t2_run] gate ON")
 
+    # NL-assertion judge가 gpt-4.1 하드 기본값(config.py) → 로컬 user-sim 모델로 재바인딩
+    # (40/114 태스크가 nl_assertions 보유 — 미패치 시 키 부재로 영구 실패, 2026-06-12 사고)
+    import tau2.evaluator.evaluator_nl_assertions as _nle
+    _nle.DEFAULT_LLM_NL_ASSERTIONS = f"openai/{a.user_model}"
+    _nle.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {
+        "temperature": 0.0, "api_base": a.user_base, "api_key": "dummy"}
+    print(f"[t2_run] nl-assertion judge -> local {a.user_model}")
+
     from tau2.data_model.simulation import TextRunConfig
     from tau2.run import run_domain
 

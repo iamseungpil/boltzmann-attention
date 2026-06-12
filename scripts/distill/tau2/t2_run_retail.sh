@@ -11,7 +11,10 @@ exec > $S/t2_retail.log 2>&1
 set -x
 cd $R && git pull --ff-only -q
 
-# 사전-kill (gotcha: 잔여 vllm OOM)
+# 양 포트가 이미 건강하면 serve 재사용 (재시작 경로), 아니면 사전-kill 후 기동
+if curl -s localhost:8351/v1/models | grep -q Qwen && curl -s localhost:8352/v1/models | grep -q Qwen; then
+  echo "REUSING_LIVE_VLLMS"
+else
 for g in 0 1; do
   for p in $(nvidia-smi --id=$g --query-compute-apps=pid --format=csv,noheader); do
     kill -9 $p 2>/dev/null; done; done
@@ -22,6 +25,7 @@ CUDA_VISIBLE_DEVICES=0 $VLLM serve Qwen/Qwen2.5-7B-Instruct --port 8351 \
   > $S/vllm_t2_agent.log 2>&1 &
 CUDA_VISIBLE_DEVICES=1 $VLLM serve Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8 --port 8352 \
   --max-model-len 16384 > $S/vllm_t2_user.log 2>&1 &
+fi
 
 for port in 8351 8352; do
   ok=0
