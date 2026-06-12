@@ -25,17 +25,22 @@ open('/home/woori/scratch/tb_rft/dpo_v3mix.jsonl', 'w').writelines(rows)
 print(f'[v3mix] {len(a)}+{len(b)}={len(rows)} pairs')
 EOF
 
-# 사전-kill (gotcha: 잔여 vllm/EngineCore)
+# 학습이 이미 완료돼 있으면 skip (τ²와 병렬로 별도 선행 학습한 경우 — 2026-06-12)
+if ! grep -q "\[done\]" $S/tb_train_qwen7b_tb_dpo_v3mix.log 2>/dev/null; then
+# 사전-kill (gotcha: 잔여 vllm/EngineCore) — V3_SKIP_KILL=1이면 생략(타 작업 공존 시)
+if [ "${V3_SKIP_KILL:-0}" != "1" ]; then
 for g in 0 1; do
   for p in $(nvidia-smi --id=$g --query-compute-apps=pid --format=csv,noheader); do
     kill -9 $p 2>/dev/null; done; done
 sleep 10
+fi
 
-CUDA_VISIBLE_DEVICES=1 $PY $R/scripts/distill/sopbench/dpo_train.py \
+CUDA_VISIBLE_DEVICES=${V3_TRAIN_GPU:-1} $PY $R/scripts/distill/sopbench/dpo_train.py \
   --base Qwen/Qwen2.5-7B-Instruct --sft-adapter $RUNS/qwen7b_tb_rft2_mm \
   --pairs $S/tb_rft/dpo_v3mix.jsonl --out-dir $RUNS/qwen7b_tb_dpo_v3mix \
   --max-seq-len 6144 --epochs 2 --beta 0.1 --lr 5e-6 \
   > $S/tb_train_qwen7b_tb_dpo_v3mix.log 2>&1
+fi
 grep -q "\[done\]" $S/tb_train_qwen7b_tb_dpo_v3mix.log || { echo V3MIX_TRAIN_FAIL; exit 1; }
 
 # ★저장↔serve 레이스 가드 (2026-06-12 사고 재발 방지): safetensors 크기 안정 확인
