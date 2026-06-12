@@ -85,37 +85,73 @@ def check_transfer_msg(messages_after_transfer):
 
 
 def validate(domain="retail"):
-    """Guard-2 동형: gold actions replay -> G1+G3 over-deny=0 검증 (G2 off)."""
+    """Guard-2 동형 2-pass 검증 (G2는 gold에 user 발화 없어 live 전용).
+
+    ⚠️ gold actions는 DB-state 보상에 필요한 액션만 담아 인증 READ가 생략될 수 있음
+    (46/114 실측) — 단순 replay의 G1 deny는 observed-proxy 아티팩트라 검증으로 무효.
+    Pass A (G1 순서): gold에 auth가 *있는* 태스크에서 auth가 user-scoped보다 선행하는지.
+    Pass B (G3 스코프): GT 유저(gold 인자의 order owner·user_id 합의)로 auth 시드 후
+                        타-유저 deny=0 확인. GT 합의 실패(2-유저 태스크)는 별도 보고.
+    """
     import importlib
     mod = importlib.import_module(f"tau2.domains.{domain}.environment")
     env = mod.get_environment()
     db = env.tools.db
     tasks = mod.get_tasks(None)
 
-    over_deny, no_auth_gold, n_actions = [], [], 0
+    g1_violation, g3_over, multi_user, no_auth_gold = [], [], [], []
+    n_actions = 0
     for t in tasks:
-        gate = RetailGate(db=db, enable_g2=False)
-        actions = t.evaluation_criteria.actions if t.evaluation_criteria else None
+        actions = (t.evaluation_criteria.actions if t.evaluation_criteria else None) or []
         if not actions:
             continue
-        if not any(a.name in AUTH_TOOLS for a in actions):
-            no_auth_gold.append(t.id)  # gold가 인증 act 없이 시작 -> G1 전제 점검용
+        n_actions += len(actions)
+        # GT 유저 유도: user_id 인자 + order_id -> db owner 의 합의
+        gt = set()
         for a in actions:
-            n_actions += 1
+            args = a.arguments or {}
+            if args.get("user_id"):
+                gt.add(args["user_id"])
+            if args.get("order_id"):
+                owner = db.orders.get(args["order_id"])
+                if owner is not None:
+                    gt.add(owner.user_id)
+        if len(gt) > 1:
+            multi_user.append((t.id, sorted(gt)))
+            continue
+        gt_user = gt.pop() if gt else None
+
+        has_auth = any(a.name in AUTH_TOOLS for a in actions)
+        if not has_auth:
+            no_auth_gold.append(t.id)
+        # Pass A: auth 포함 gold에서 순서 위반 (auth 이전의 user-scoped 호출)
+        if has_auth:
+            gate = RetailGate(db=db, enable_g2=False)
+            for a in actions:
+                ok, g, why = gate.check(a.name, a.arguments or {})
+                if not ok and g == "G1_AUTH_FIRST":
+                    g1_violation.append((t.id, a.name))
+                if a.name in AUTH_TOOLS:
+                    gate.observe(a.name, a.arguments,
+                                 _resolve_find(db, a.name, a.arguments or {}))
+        # Pass B: auth 시드 후 G3 over-deny
+        gate = RetailGate(db=db, enable_g2=False)
+        gate.auth_user = gt_user
+        for a in actions:
             ok, g, why = gate.check(a.name, a.arguments or {})
             if not ok:
-                over_deny.append((t.id, a.name, g, why))
-            # replay: 실행됐다 치고 상태 갱신 (find는 db에서 실답 resolve)
-            if a.name in AUTH_TOOLS:
-                uid = _resolve_find(db, a.name, a.arguments or {})
-                gate.observe(a.name, a.arguments, uid)
-    print(f"[validate] tasks={len(tasks)} gold_actions={n_actions} "
-          f"OVER_DENY={len(over_deny)} no_auth_gold={len(no_auth_gold)}")
-    for row in over_deny[:20]:
-        print("  OVER:", row)
-    if no_auth_gold:
-        print("  no-auth-gold task ids:", no_auth_gold[:20])
-    return len(over_deny)
+                g3_over.append((t.id, a.name, g, why))
+
+    print(f"[validate] tasks={len(tasks)} gold_actions={n_actions}")
+    print(f"  PassA G1-ordering violations = {len(g1_violation)} (expect 0)")
+    print(f"  PassB G3 over-deny           = {len(g3_over)} (expect 0)")
+    print(f"  gold-without-auth (bench property, live G1 무관) = {len(no_auth_gold)}")
+    print(f"  multi-user GT (단일-유저 정책과 긴장 — 점검 대상) = {len(multi_user)}")
+    for row in (g1_violation + g3_over)[:20]:
+        print("  FAIL:", row)
+    for row in multi_user[:10]:
+        print("  MULTI:", row)
+    return len(g1_violation) + len(g3_over)
 
 
 def _resolve_find(db, name, args):
