@@ -13,7 +13,8 @@ set -x
 cd $R && git pull --ff-only -q
 
 source /home/woori/.openrouter_key  # 파일 = `export OPENROUTER_API_KEY=...` 형식
-USER_LLM="openrouter/openai/gpt-4.1-mini"
+# 리더보드 표준 user-sim = gpt-4.1 (tau2 config.py 기본 gpt-4.1-2025-04-14 — OR가 정확히 이 버전으로 해석, 스모크 확인)
+USER_LLM="openrouter/openai/gpt-4.1"
 
 # agent vllm(8351)이 살아있으면 재사용, 아니면 GPU0 정리 후 기동
 if curl -s localhost:8351/v1/models | grep -q Qwen; then
