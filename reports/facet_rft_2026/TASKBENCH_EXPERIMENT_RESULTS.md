@@ -318,7 +318,11 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 
 ## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
 배경 = §8.8 레버 비선형의 처방 ④. 쌍 채굴 `tb_dpo_mine.py` (structure 1017 / cost 376), base=rft2, v2 하이퍼.
-- **★D2 (비용-표적) = 기각 (1급 음성)**: ⓐ평균 n_nodes 2.582→2.400 ✓(parsimony 신호 학습됨) BUT ⓑ**공식 edge MM full 49.0→47.0 (−2.0, 사전등록 ±1 밖)** ✗ · held-out HF 51.6→48.4(−3.2) · daily 85.0→84.6 · census node_f1 −2.3·improved 315 < worsened 478. **해석: edge-동률·여분-노드 rejected 쌍이 "노드 수 줄이기"를 가르치되 필요 구조까지 깎음 = v1 거울상(사전등록 감시 항목 그대로 발현) — 비용-leg은 DPO 쌍이 아니라 promptslim/추론-side로.**
+- **★D2 (비용-표적) = 기각 — 전수 궤적 부검으로 확정 (`tb_d2_autopsy.py`, n=5547 전수, d2_autopsy.md)**:
+  - ⓐ n_nodes 2.582→2.400 ✓ ⓑ공식 edge 49.0→47.0(−2.0, ±1 밖) ✗ ⓒ**(1차 보고 누락분 실측) short 1017→1545(+52%)·deficit 노드 1395→2287(+64%)·R 0.773→0.724(−4.8)·P +0.7** = 사전등록 감시 항목(v1 거울상) 정량 발현 → 즉시-기각 조항 충족.
+  - **손상 해부 (worsened 478 전수)**: needed-removed(gold-필요 노드 삭제) 584 vs spurious-removed(여분 삭제) 94 = **6.2:1 손상 우위**·정답 엣지 711 상실(획득 6)·형태=순수삭제 227+치환 228(=95%가 삭제-관여). improved 315는 의도대로(spurious 269 vs needed 110, 정답엣지 +355) — 레버 자체는 여분이 실재할 때 작동.
+  - **★귀속 (예상 뒤집힘)**: worsened needed-removed 어휘의 학습 제거-어휘(376쌍 rejected−chosen) 겹침 = **10%(59/584)** — 어휘-수준 과일반화가 *아님*. 학습 제거-어휘 상위는 타 도메인 도구(daily 'auto housework'·HF 'VQA' 등)인데 손상은 MM 도구에 발생 ⇒ **DPO가 배운 것 = 표적 여분-삭제가 아니라 도메인-일반 "짧게" 길이-prior**(P↑·R↓의 전형적 brevity bias). 사후 추정 hindsight: edge-동률 조건만으론 "무엇이 여분인가"의 표적 신호가 약해 길이축만 전달됨.
+  - **일반 교훈 (R5 보강)**: parsimony도 종결·길이와 같은 '정책류 행동' — on-policy 양방향이어도 **대조축이 길이와 교락된 쌍 설계는 길이-prior로 붕괴**. 비용-leg은 promptslim/추론-side(또는 R6 선별의 비용-인지 utility)로.
 - **D1 (구조-표적)**: 학습 완료(ep1 step120). ⚠️1차 평가 실패 = vllm serve가 adapter 저장과 동시 기동(10:51 레이스)→엔진 초기화 실패. 12:00 재평가 진행 중 — 수치는 도착 후 이 행에 추가.
 - 인프라 사건 3건(핸드오프 박제 예정): ①day 배치 이중 기동(1차=야간 잔여 vllm OOM→재기동 래퍼가 2차 기동, 1차 시체가 빈 보고서 push) ②adapter-저장↔serve 레이스(드라이버에 저장 완료 후 sleep/검증 필요) ③eval 후 EngineCore 고아 42GB 잔존(tb_eval_adapter가 시작 시만 kill — 종료 후 정리 추가 필요).
 
