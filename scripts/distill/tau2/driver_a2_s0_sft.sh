@@ -6,10 +6,14 @@
 set -u
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
 T2=$REPO/scripts/distill/tau2
-OUT=/home/woori/scratch/a2_s0
 RUNS=$REPO/reports/facet_rft_2026/phase4_distill/sft_runs
 PY=/home/woori/venvs/seka_env/bin/python
-ADAPTER=$RUNS/qwen7b_a2_s0
+# 파라미터 (env 오버라이드): TAG=실행 접미사, DATASET=학습쌍 jsonl, HOLDOUT=held-out 수
+TAG=${TAG:-}
+DATASET=${DATASET:-$T2/specs/a2_s0_dataset_v3.jsonl}
+HOLDOUT=${HOLDOUT:-15}
+OUT=/home/woori/scratch/a2_s0${TAG}
+ADAPTER=$RUNS/qwen7b_a2_s0${TAG}
 mkdir -p $OUT
 exec > $OUT/s0_driver.log 2>&1
 cd $REPO && git pull --ff-only
@@ -21,8 +25,8 @@ if nvidia-smi --id=0 --query-compute-apps=pid --format=csv,noheader | grep -q .;
 fi
 
 # 1. build
-$PY $T2/t2_a2_s0_build_sft.py --dataset $T2/specs/a2_s0_dataset_v3.jsonl \
-  --out $OUT/sft_a2_s0.jsonl --holdout 15 || { echo S0_BUILD_FAIL; exit 1; }
+$PY $T2/t2_a2_s0_build_sft.py --dataset $DATASET \
+  --out $OUT/sft_a2_s0.jsonl --holdout $HOLDOUT || { echo S0_BUILD_FAIL; exit 1; }
 
 # 2. encode sanity (CPU)
 $PY $REPO/scripts/distill/lora_train_chat_toolcall.py --train-jsonl $OUT/sft_a2_s0.jsonl \

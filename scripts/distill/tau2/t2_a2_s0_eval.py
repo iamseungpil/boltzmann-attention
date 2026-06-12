@@ -19,6 +19,22 @@ def canon(o):
     return json.dumps(o, sort_keys=True, separators=(",", ":"))
 
 
+def struct_canon(spec):
+    """structure-EM 키: 게이트 kind + applies_to + satisfiers만 (prose 필드 제외).
+
+    EM 0/15 부검(2026-06-12): canonical-EM은 predicate/ask 문구 변주에 깨짐 —
+    구조 동등성만 비교하는 지표가 G-A2-1의 실질 기준.
+    """
+    items = []
+    for k, v in (spec or {}).items():
+        if k.startswith("_"):
+            continue
+        kind = k.split("_", 1)[1] if "_" in k else k  # G1_AUTH_FIRST -> AUTH_FIRST
+        items.append((kind, canon(sorted(v.get("applies_to", []) or [])),
+                      canon(v.get("satisfiers") or {})))
+    return canon(sorted(items))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--holdout", required=True)
@@ -31,7 +47,7 @@ def main():
     print(f"[s0-eval] holdout n={len(recs)}")
     for m in a.model:
         name, served = m.split(":", 1)
-        em = grs = afs = parsed = 0
+        em = sem = grs = afs = parsed = 0
         details = []
         for r in recs:
             sysm = r["messages"][0]["content"]
@@ -47,14 +63,16 @@ def main():
                 parsed += 1
             gr, af, ng = score(gt, gen)
             ok_em = gen is not None and canon(gen) == canon(gt)
+            ok_sem = gen is not None and struct_canon(gen) == struct_canon(gt)
             em += ok_em
+            sem += ok_sem
             grs += gr
             afs += af
             details.append({"id": r["meta"]["id"], "style": r["meta"]["style"],
-                            "em": ok_em, "gate_recall": round(gr, 3),
+                            "em": ok_em, "structEM": ok_sem, "gate_recall": round(gr, 3),
                             "applies_F1": round(af, 3), "n_gates": ng})
         n = len(recs)
-        print(f"{name}: EM={em}/{n} gate_recall={grs / n:.3f} "
+        print(f"{name}: EM={em}/{n} structEM={sem}/{n} gate_recall={grs / n:.3f} "
               f"applies_F1={afs / n:.3f} parsed={parsed}/{n}")
         json.dump(details, open(f"{a.out}.{name}.json", "w"), indent=1)
 
