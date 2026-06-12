@@ -79,6 +79,19 @@ def main():
     else:
         print(f"[t2_run RESULT] gate={a.gate} no rewards parsed — check save file")
 
+    # eval-후크: compliant-pass(F4b) 자동 산출 — 저장된 results.json 위 replay,
+    # compliance.json 사이드카. 실패해도 본 결과에 영향 없음.
+    try:
+        import os
+        from t2_compliance import report_for_dir
+        sim_dir = os.path.join("data", "simulations", a.save_to)
+        if os.path.exists(os.path.join(sim_dir, "results.json")):
+            report_for_dir(sim_dir, domain=a.domain)
+        else:
+            print(f"[t2_run] compliance hook: {sim_dir}/results.json 없음 — skip")
+    except Exception as e:
+        print(f"[t2_run] compliance hook failed: {type(e).__name__}: {e}")
+
 
 if __name__ == "__main__":
     main()
