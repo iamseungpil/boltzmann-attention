@@ -56,11 +56,14 @@ class RetailGate:
 
     def check(self, tool_name, args, last_user_msg=None):
         """returns (allowed: bool, gate: str|None, reason: str|None)"""
-        # G1: 인증 선행
+        # G1: 인증 선행 (deny 메시지에 복구 절차 명시 — run7 census: deny→fail 92%의 처방, N3)
         if tool_name in USER_SCOPED and self.auth_user is None:
             return False, "G1_AUTH_FIRST", (
-                "authenticate the user first via find_user_id_by_email or "
-                "find_user_id_by_name_zip (required even if the user gave a user id)")
+                "you must authenticate the user before this action (required even if the "
+                "user already gave a user id or order id). Recovery procedure: (1) do NOT "
+                "retry this tool now; (2) ask the user for their email, OR first name + last "
+                "name + zip code; (3) call find_user_id_by_email or find_user_id_by_name_zip "
+                "with that info; (4) after it returns a user id, retry this action")
         # G3: 단일-유저 범위
         if self.auth_user is not None:
             uid = args.get("user_id")
