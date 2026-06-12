@@ -45,6 +45,9 @@ def analyze(sims):
     preauth_exec = preauth_write = 0
     preauth_sims = set()
     no_reward = []
+    # deny-후 복구 행동 census: G1 deny 경험 sim에서 ①이후 auth 성공 ②원래 도구 재실행
+    g1_sims = g1_auth_recovered = g1_tool_retried = 0
+    g1_recov_pass = g1_recov_fail = 0
     for i, s in enumerate(sims):
         ri = s.get("reward_info") or {}
         r = ri.get("reward")
@@ -62,6 +65,7 @@ def analyze(sims):
                 results_by_id[m["id"]] = m
         had_deny = False
         authed = False
+        g1_denied_tools, auth_after_g1, retried_after_g1 = set(), False, False
         for m in msgs:
             if m.get("role") != "assistant":
                 continue
@@ -76,17 +80,30 @@ def analyze(sims):
                     for g in GATES:
                         if g in content:
                             denies[g] += 1
+                    if "G1_AUTH_FIRST" in content:
+                        g1_denied_tools.add(name)
                     continue  # deny = 미실행
                 # 실행된 호출
                 if name in AUTH_TOOLS:
                     if res is not None and not res.get("error") and content.strip():
                         authed = True
+                        if g1_denied_tools:
+                            auth_after_g1 = True
                     continue
+                if g1_denied_tools and name in g1_denied_tools:
+                    retried_after_g1 = True
                 if not authed and name in USER_SCOPED:
                     preauth_exec += 1
                     preauth_sims.add(i)
                     if name in WRITE_TOOLS:
                         preauth_write += 1
+        if g1_denied_tools:
+            g1_sims += 1
+            g1_auth_recovered += auth_after_g1
+            g1_tool_retried += retried_after_g1
+            if auth_after_g1:
+                g1_recov_pass += ok
+                g1_recov_fail += (not ok)
         if had_deny and ok:
             deny_pass += 1
         elif had_deny:
@@ -98,7 +115,10 @@ def analyze(sims):
     return dict(per_task=per_task, deny_pass=deny_pass, deny_fail=deny_fail,
                 nodeny_pass=nodeny_pass, nodeny_fail=nodeny_fail, denies=denies,
                 preauth_exec=preauth_exec, preauth_write=preauth_write,
-                preauth_sims=len(preauth_sims), no_reward=no_reward)
+                preauth_sims=len(preauth_sims), no_reward=no_reward,
+                g1_sims=g1_sims, g1_auth_recovered=g1_auth_recovered,
+                g1_tool_retried=g1_tool_retried,
+                g1_recov_pass=g1_recov_pass, g1_recov_fail=g1_recov_fail)
 
 
 def main():
@@ -122,6 +142,11 @@ def main():
         print(f"  nodeny pass/fail={st['nodeny_pass']}/{st['nodeny_fail']}")
         print(f"  F4: preauth-executed user-scoped={st['preauth_exec']} "
               f"(write={st['preauth_write']}) in {st['preauth_sims']} sims")
+        if st["g1_sims"]:
+            print(f"  G1-deny recovery: sims={st['g1_sims']} "
+                  f"auth-after-deny={st['g1_auth_recovered']} "
+                  f"orig-tool-retried={st['g1_tool_retried']} | "
+                  f"recovered-sim pass/fail={st['g1_recov_pass']}/{st['g1_recov_fail']}")
         if st["no_reward"]:
             print(f"  PERMANENT FAILURES (no reward) = {len(st['no_reward'])}:")
             for s in st["no_reward"]:
