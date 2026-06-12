@@ -153,7 +153,9 @@ def main():
         soft = [c[5] for c in use]
         b, us = mbr_pick(use, w_s1, soft=soft, lam=a.lam)
         arms["sel2"][i] = use[b][4]
-        margins[i] = (us[0] - us[1]) if len(us) > 1 else 1.0
+        # confidence = 승자의 합의 수준 u1 (갭 u1-u2 아님 — 만장일치면 갭 0이 되는 역전 결함;
+        # 단일후보 id는 합의 증거 0 = 최저 confidence)
+        margins[i] = us[0] if len(us) > 1 else 0.0
 
     n = len(per_id)
     mean_of = {k: sum(v.values()) / n for k, v in arms.items()}
