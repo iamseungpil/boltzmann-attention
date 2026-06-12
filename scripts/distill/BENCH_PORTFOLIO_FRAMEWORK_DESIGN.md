@@ -48,7 +48,14 @@
 - 클론 = woori `/home/woori/scratch/tau2-bench` (sierra-research, depth 1). 도메인 = retail(114 tasks)·airline·telecom·banking_knowledge(τ³)·mock.
 - **A1-A5 추출물 실측**: A2 = `domains/retail/policy.md` **136줄 NL 정책** — 핵심 게이트 4종이 **SOPBench와 동형**: ①**인증-선행**("authenticate ... even when the user already provides the user id" = LOGINFIRST 동형) ②**쓰기-전-확인**(cancel/modify/return/exchange 전 명시 confirm = goal-call 게이트) ③단일-유저 범위(타 유저 요청 deny) ④정책-외 거부 + transfer 규정. / A3 = tau2 evaluator(DB-state 등가 reward) 래핑 / A4 = 도메인 3+1 / A1 = tau2 패키지 내 도구 정의(코드 — 추출 스크립트 필요) / A5 = 대화형(툴콜 스키마 — guided는 tool-call JSON에 적용).
 - **A2 수동 컴파일 v1 전망**: 게이트 4종 + per-action 인자 규칙(나머지 ~100줄) — SOPBench Guard-2 절차(정책→graph 재구성→evaluator 대조) 재사용 가능. 수동본 = front-end 자동화의 GT.
-- 다음: ①A1 도구 추출 스크립트 ②retail 정책 수동 컴파일(게이트 4종) ③7B+게이트 vs 7B-alone pass^1/pass^k 첫 측정.
+- 다음: ✅①A1 도구 추출 스크립트 ✅②retail 정책 수동 컴파일(게이트 4종) — §3.6 / ③7B+게이트 vs 7B-alone pass^1/pass^k 첫 측정 (GPU 가용 시).
+
+## 3.6 τ² retail A1+A2 구현·검증 결과 (2026-06-12 — push)
+- **A1 완료** = `tau2/t2_extract_tools.py` → 16 도구(READ 7·WRITE 7·GENERIC 2) openai-schema+enum+타입맵 (`/home/woori/scratch/tau2_adapter/`).
+- **A2 완료** = `tau2/t2_gate.py`: G1 인증-선행(user-scoped 9종 = WRITE 7+get_user/order_details; 카탈로그 READ·calculate 면제)·G2 쓰기-전-확인(직전 user 턴 확인-regex, live 전용)·G3 단일-유저(user_id 인자 + order_id→db owner resolve)·G4 transfer 고정문구(post-hoc 헬퍼).
+- **★스코핑 발견**: per-action 인자규칙(~100줄: status·reason enum·동일상품·잔액·환불처·1회성)은 **tools.py가 전부 자체 집행(raise)** — 게이트 가치는 대화-수준 G1-G3에 집중. SOPBench(DGGATE가 graph 전체 재구성)보다 어댑터가 더 얇음 = 프레임워크 주장(A2 비용↓) 강화.
+- **Guard-2 동형 검증 PASS** (gold 114 태스크·550 액션 replay): PassA G1-순서 위반 **0** / PassB G3 over-deny **0** (GT 유저=gold 인자 order-owner·user_id 합의, multi-user 0). ⚠️naive replay는 G1 deny 86 — **gold가 인증 READ 생략(46/114, DB-state 보상이라 READ 불요)**한 observed-proxy 아티팩트로 무효 처리 (SOPBench 함정 동형 — 재발견 금지).
+- 다음 = ③측정: tau2 orchestrator에 게이트 hook(에이전트 툴콜 인터셉트→deny 시 게이트 메시지 반환, SOPBench two_stage_client 패턴) + 7B(vllm OpenAI-호환)±게이트 pass^1/pass^k retail 114.
 
 ## 4. 커버리지 행렬 (벤치 × A1-A5 가용성 × R1-R8 적용처) — [작성 중: landscape census·구조-축 조사 도착 후 완성]
 
