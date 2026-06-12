@@ -9,7 +9,7 @@
 3. **데이터 생성 계속**: ✅batch5b(15)+batch6(30, sampler v2 어휘+게이트7) 전부 QC 무손실 → **dataset v5 = 180쌍**. 잔여 = **batch7 +20 → 200 목표** (seed 7 → 6스타일 로테이션 → join_qc → v6 병합).
 4. **딥 리서치 2건**: ✅완료·검수·커밋 (`reports/facet_rft_2026/research_selector_lit_2026_06_12.md` 31검증인용 · `research_framework_metrics_2026_06_12.md` 26검증인용). **다음 = 이 둘을 합류시켜 ①선별기 설계서(detail, 마스터 §7 경유 — 1순위 레버: Smoothie-prior 가중 prop-MBR(0원)→soft-approval votes→7B reverse-likelihood; novelty=상관-소스 보정·게이트 역선택 미보고) ②§1.6 v2 동결(F3=τ pass^k n=4 확정·F4=0/N+rule-of-three·구조적0/표본적0 분리·ⓟ1=paired bootstrap DiD·F6=AURC/E-AURC·F7=cost-of-pass)**. ⚠️드리프트: τ² 리더보드 user-sim gpt-5.2 권장(우리 gpt-4.1) — 외부비교 시 4-tuple 명시(PORTFOLIO §3.7b 박제). 잔여: τ-bench pass^k 원문 PDF 눈검증 1회 권고.
 5. **coworker**: P4(A2 크기 census, 32B/72B/235B) — trackb_raw/p4_a2_census 도착 감시 (06-12 저녁 기준 미도착).
-6. **잔여 GPU 큐**: **S0-v2 재학습 후보**(dataset v5 180쌍 + structure-EM 평가 추가) · v4 재채굴 사이클 검토 · 선별기 합성(v3+guided 57.90 위에 N2-식 이종풀+선별) · P-D0 diffusion(조건부 강등 유지).
+6. **잔여 GPU 큐**: ~~S0-v2~~ ✅완료(200쌍: held-in **structEM 70%·EM 40% 창발**·airline 전이 추가악화 0.528 → **S1 실-도메인 verified distill이 다음 rung**, A2_FRONTEND §6) · v4 재채굴 사이클 검토 · 선별기 합성(v3+guided 57.90 위에 N2-식 이종풀+선별) · P-D0 diffusion(조건부 강등 유지). GPU 양쪽 해제 상태.
 
 ### 0b. 2026-06-12 저녁 세션 산출물 (이 핸드오프 §0 실행분)
 - N3 판정 스크립트 `tau2/t2_gate_r2_verdict.py` (pass^k+deny-census+F4 replay+복구행동 census+matched 비교) — 결과 권위 = PORTFOLIO §3.7b.
