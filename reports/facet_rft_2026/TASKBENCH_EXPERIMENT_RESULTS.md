@@ -309,6 +309,13 @@ H6 = {qwen3b 0.348, qwen14b 0.656, qwen3_4b 0.537, qwen3_14b 0.682, **tb_lodo_hf
 - **처방 재배열**: ⑴**선별기 연구가 1순위로 승격**(이종-풀 위 robust 스코어러 — 후보: 타입-호환·실행-가능성·pairwise 비교·verifier) ⑵P-D0/P-D1(diffusion)은 **조건부 강등**: Dream의 한계가치는 AR8+H6 위(0.856→cap)에서만 측정 의미 — "더 싼 대안 대비 순이득" 입증 부담(설계서 v2 사전등록대로). ⑶배포 비용: H6 = 같은 base의 LoRA 어댑터들 = vllm 멀티-LoRA 1서버로 서빙 가능 ≈ 추가비 ~0 (diffusion 2-모델 대비 압도).
 - ⚠️척도 주의: census-식 링크 채점(상대 비교만, 공식수치 비교 금지)·empty-gold 259/499 포함(양 풀 동일 적용). 공식 edge-F1 실현이득은 선별기 개선 후 P-D2-형 측정에서.
 
+### 8.9b ★선별기 1차 zero-cost 실측 (2026-06-12 — MBR/합의 계열, 전부 gold-free·학습0·결정론)
+AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / raw MBR(edge-F1 utility) 0.716 / 풀dedup MBR 0.711 / ★proposer-가중 MBR 0.751 / ★validity-필터+prop-MBR 0.753 / oracle 0.856** — 회수율 44%(동질 풀 v1의 22.6% 대비 ~2×), 기존 최고 실현치(동질 gate_v1 0.714)도 +3.9 추월.
+- **기제 분해(3-변형 사다리)**: ①raw MBR=다수-블록 편향(동일정책 8표가 합의 지배: AR8+H6 0.716 < H6only 0.731) ②full dedup=과교정(**다중성=증거** 소거 — 서로 다른 모델의 일치가 신호인데 1표화: H6only 0.731→0.471 붕괴) ③**proposer-당 1표(상관 샘플=합산 1표, 이종 모델 일치=독립 증거)가 정답** — 0.751. MBR utility는 edge-F1(평가척도 동형)이 node-Jaccard보다 우월.
+- **v0 특징의 재배치**: lexicographic *서열*로는 이종 풀에서 역선택(0.54), 후보 *필터*(invalid명·self/dangle 제거 후 MBR)로는 +0.2~1.4 한계 기여 = "검증 특징은 거부권, 선택권은 합의에" 분업.
+- 동질 AR8에선 MBR=mean(0.706, 변별 불가) — E6 수렴 소견과 정합; 이 선별기는 이종-풀 전용 레버.
+- 다음 = deep-research(이종-풀 선별 문헌) 합류 후 선별기 설계서(detail) — 잔여 후보: proposer 품질 prior(보정 필요)·pairwise 7B judge·실행-가능성 체크·공식 edge-F1 확정 측정.
+
 ## 9. ★실행 큐 (2026-06-12 0시 전면 갱신 — §9.6 v2 합격·§9.5b guided·§8.5 P1 적중 이후, 이 §이 TaskBench 실행 권위)
 
 **✅ 이번 사이클 완료 (06-11~12)**: RFT r2 → DPO v1(net−) → **균형-DPO v2 합격(55.95/57.30)** → guided v1 daily(+8.0)·MM 합성(57.22=snap 상위호환) → promptslim(−51% 목록=−3 edge) → P1 32B prereg **적중**(−5.4 vs −5.0)+Track A 독립 재검증 → 선행연구 5-agent 적대검증·§6.5 차별점 경화. §10 분류의 판별실험 2개 모두 확정.
