@@ -47,6 +47,16 @@ def main():
                     gt.add(r.user_id)
         gt_user = gt.pop() if len(gt) == 1 else None
 
+        # ★상태-추적 replay: 선행 gold WRITE의 효과(cabin/flights 변경)를 적용하며 진행
+        # (task 7·32 교훈: cabin 업그레이드 후 취소/추가 변경은 새 상태 기준 적격 — static-DB 평가는 가짜 over-deny)
+        st = {}  # rid -> {"cabin": str, "flights": set[(fn,date)]}
+
+        def cur(res):
+            s = st.get(res.reservation_id, {})
+            cab = s.get("cabin", str(res.cabin))
+            fls = s.get("flights", {(x.flight_number, x.date) for x in res.flights})
+            return cab, fls
+
         for a in actions:
             args = a.arguments or {}
             rid = args.get("reservation_id")
@@ -61,7 +71,9 @@ def main():
 
             if a.name == "cancel_reservation" and res:
                 stats["G4"][0] += 1
-                sts = [seg_status(db, s) for s in res.flights]
+                cab, fls = cur(res)
+                sts = [seg_status(db, type("S", (), {"flight_number": fn, "date": dt})())
+                       for fn, dt in fls]
                 flown = any(s in FLOWN for s in sts)
                 try:
                     within24 = (NOW - datetime.fromisoformat(res.created_at)) < timedelta(hours=24)
@@ -69,22 +81,25 @@ def main():
                     within24 = False
                 eligible = (not flown) and (
                     within24 or any(s == "cancelled" for s in sts)
-                    or str(res.cabin) == "business" or str(res.insurance) == "yes")
+                    or cab == "business" or str(res.insurance) == "yes")
                 if not eligible:
                     deny("G4", t.id, a.name,
-                         f"flown={flown} 24h={within24} cabin={res.cabin} ins={res.insurance} sts={sts}")
+                         f"flown={flown} 24h={within24} cabin={cab} ins={res.insurance} sts={sts}")
 
             if a.name == "update_reservation_flights" and res:
                 stats["G5"][0] += 1
+                cab0, fls0 = cur(res)
                 newf = {(f.get("flight_number"), f.get("date")) if isinstance(f, dict)
                         else (f.flight_number, f.date) for f in (args.get("flights") or [])}
-                oldf = {(s.flight_number, s.date) for s in res.flights}
                 cab = args.get("cabin")
-                sts = [seg_status(db, s) for s in res.flights]
-                if newf != oldf and str(res.cabin) == "basic_economy":
+                sts = [seg_status(db, type("S", (), {"flight_number": fn, "date": dt})())
+                       for fn, dt in fls0]
+                if newf != fls0 and cab0 == "basic_economy":
                     deny("G5", t.id, a.name, "flight-change on basic_economy")
-                if cab and cab != str(res.cabin) and any(s in FLOWN for s in sts):
+                if cab and cab != cab0 and any(s in FLOWN for s in sts):
                     deny("G5", t.id, a.name, "cabin-change with flown segment")
+                # 상태 적용 (gold는 정책-적합 가정 — 효과 반영)
+                st[rid] = {"cabin": cab or cab0, "flights": newf or fls0}
             if a.name == "update_reservation_passengers" and res:
                 stats["G5"][0] += 1
                 if len(args.get("passengers") or []) != len(res.passengers):
