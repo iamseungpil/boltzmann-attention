@@ -90,6 +90,15 @@
 - **다음 처방 후보**: deny-복구는 종결 — 남은 갭은 base 능력(nogate 81.6% 실패·DB-state 지배). 게이트-side 추가 레버 없음 ⇒ A2 front-end(§3.8-3.9)·base 학습 라인으로 이관.
 - ⚠️**프로토콜 드리프트 경고 (메트릭 리서치 2026-06-12)**: τ² 공식 리더보드는 user-sim을 병기하며 현재 **gpt-5.2 권장** — 본 행렬(run7/r2)은 gpt-4.1-2025-04-14. **외부 리더보드 숫자와 비교 시 user-sim 4-tuple(user-sim·judge·trials·split) 명시 필수**, 내부 ±게이트 비교는 무영향. 보고 표준형(paired Δpass^1+bootstrap CI·0/N+rule-of-three 상한·구조적0/표본적0 분리) = `reports/facet_rft_2026/research_framework_metrics_2026_06_12.md` §2.2.4 — §1.6 v2 동결 시 채택.
 
+### 3.7c ★N4 = gate r3 (G4 deny-게이트 + 중립템플릿) 사전등록 판정 (2026-06-13 새벽, 114×4 재실행)
+| arm | pass^1 | pass^2 | pass^3 | pass^4 | 위반(G1/G2/G3/G4) | denies |
+|---|---|---|---|---|---|---|
+| nogate | 0.1842 | 0.0892 | 0.0680 | 0.0614 | 56/44/3/1 | — |
+| gate r2 | 0.1908 | 0.0737 | 0.0354 | 0.0179 | 0/0/0/0(운) | 52 sims |
+| **gate r3** | **0.1952** | **0.1038** | **0.0708** | 0.0541 | **0/0/0/0(집행)** | 105 sims (G4 **65**) |
+- **판정**: ①G4 위반 0 **PASS**(이번엔 운 아닌 집행 — G4 deny 65건이 문구 송신을 유도) ②pass^1 r2 동등 **PASS**(0.1952, 오히려 +0.4pp) ③G4 deny "1~3건" 예측은 **대폭 기각**(65건 — transfer 시도가 예상보다 훨씬 빈번; r2의 G4=0은 그 65건 중 우연히 문구가 앞섰던 게 아니라 deny 없이도 따라온 운이었음을 시사... 부검 필요시 r2 transfer 빈도 census).
+- **★pass^2-4 대폭 회복**: r2의 일관성 붕괴(pass^4 0.0179)가 r3에서 **0.0541**로 — nogate(0.0614) 근접. **compliant-pass FULL = bench pass = 0.1952** → nogate FULL-clean 0.1425 대비 **+5.3pp 우위로 확대**. ⓟ1(Δpass^4>Δpass^1)도 r3-vs-nogate에선 거의 회복(−0.7pp). ⚠️**혼입 주의(정직)**: r3 = G4 게이트 + 템플릿 문구 변경("once this is done") 동시 적용 — 일관성 회복의 귀속은 분리 불가(소수-n 분산도 잔존). compliance 후크 첫 실전 = 자동 산출 작동 확인.
+
 ### 3.8 ★A2 산출물 ↔ R3 템플릿 분리 (2026-06-12 사용자 지시 — 수동 프롬프트 금지)
 - 구조: **A2 컴파일 산출물 = `GATE_SPEC` 구조 데이터**(JSON 덤프 `tau2_adapter/retail_gate_spec.json`: predicate·satisfier도구→필요입력·applies_to·terminal여부) / **R3-side 불변 템플릿 `render_recovery`**가 전 deny 메시지를 spec에서 *생성* — 도메인 문자열 hand-authoring 0. 새 도메인 비용 = spec 컴파일뿐(메시지·게이트 자동).
 - 검증: 생성 메시지 3종이 수동본과 의미 동등(G1 복구 4단계·G2 확인 절차·G3 terminal 거부 안내) ∧ replay 재검증 PASS(0/0). N3(진행 중)는 수동본으로 시작했으나 생성본과 의미 동등이라 결과 대표성 유지.
