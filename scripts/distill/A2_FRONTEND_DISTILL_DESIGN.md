@@ -58,5 +58,6 @@ P-A2-0 (zero-GPU): frontier로 retail+airline 컴파일 → replay 검증 — GT
   **✅PASS (2026-06-12)**: Fable-5 in-session airline 단일샷 → 상태-추적 replay **over-deny 0/108** (PORTFOLIO §3.9).
 **P-A2-0b 크기 하한 census (사용자 지시 2026-06-12 — R7을 A2 컴파일에 적용)**: 동일 프롬프트(스키마+retail 1-shot+airline 정책+A1 카탈로그)로 **7B/14B/32B-Int8(로컬)·72B(OpenRouter)** zero-shot 컴파일 → Fable-5 reference 대비 채점(게이트 매칭률·applies_to F1·핵심술어 recall) — **"Fable-5급 생성기의 모델 하한선" 확정**이 목적. 하한 위 모델=즉시 활용 가능, 하한 아래=증류 사다리(S0-S2)의 타깃·기대이득 정량화. ⚠️v1 채점은 구조·키워드 tier (생성 spec의 db_check prose replay는 DSL 후 = P-A2-1). 컨텍스트-공정성 각주는 외적-타당성 행에만 해당 — 하한 질문엔 무관(교사=컨텍스트 보유 Fable-5가 오히려 자산).
 P-A2-1: spec 샘플러 + 역방향 렌더 5k → S0 SFT → G-A2-1.
+  **✅부트스트랩 PASS (2026-06-12)**: ①spec 샘플러(`t2_a2_spec_sampler.py`, 프로그램·결정론·난이도손잡이) ②Fable-5 역렌더 시드(`specs/synth_seed_pairs_fable5.jsonl`, telecom-0 spec→formal/casual 정책NL) ③round-trip 검증기(`t2_a2_roundtrip.py`: 렌더NL 재컴파일→원spec 일치도=데이터청정 게이트) — self-sanity 1.0 ∧ Fable-5 재컴파일 **KEEP 2/2**(gate_recall·applies_F1·kind_match 전부 1.0). **루프 폐쇄 증명**: spec 무한생성→NL렌더→round-trip 필터로 청정 (NL,spec) 쌍 자동 확보. 다음 = 규모화(샘플러 N=5k + frontier 배치 렌더 + round-trip 필터 → S0 학습셋).
 P-A2-2: 실 22 도메인 verified distill + LODO → G-A2-2.
 P-A2-3: on-policy DPO → G-A2-3 → 세-컴파일러 표 완성 = thesis front-end 헤드라인.
