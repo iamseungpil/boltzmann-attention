@@ -134,14 +134,11 @@ def main():
         rows[arm] = st
         pk = {f"pass^{k}": round(pass_hat_k(st["per_task"], k), 4) for k in (1, 2, 3, 4)}
         st["pk"] = pk
-        # sensitivity: infra-error로 trial 누락된 태스크 제외 (full-trial 태스크만)
+        # sensitivity: infra-error로 trial 누락된 태스크 표시 (matched 비교는 루프 후)
         ntr = max(len(v) for v in st["per_task"].values())
-        full = {t: v for t, v in st["per_task"].items() if len(v) == ntr}
-        st["pk_full"] = {f"pass^{k}": round(pass_hat_k(full, k), 4) for k in (1, 2, 3, 4)}
-        if len(full) != len(st["per_task"]):
-            part = {t: (sum(v), len(v)) for t, v in st["per_task"].items() if len(v) < ntr}
-            print(f"  [sens] full-trial tasks={len(full)}: {st['pk_full']} "
-                  f"| partial tasks={part}")
+        st["full_tasks"] = {t for t, v in st["per_task"].items() if len(v) == ntr}
+        st["partial"] = {t: (sum(v), len(v)) for t, v in st["per_task"].items()
+                         if len(v) < ntr}
         nd = st["deny_pass"] + st["deny_fail"]
         df = st["deny_fail"] / nd if nd else float("nan")
         print(f"\n=== {arm}: sims={len(sims)} tasks={len(st['per_task'])} {pk}")
@@ -169,9 +166,21 @@ def main():
                 print(f"   - task={s.get('task_id')} trial={s.get('trial')} "
                       f"term={term} nmsg={len(msgs)} last='{tail}'")
 
+    # matched 비교: 전 arm 공통 full-trial 태스크만으로 pass^k (infra-error 왜곡 제거)
+    common = None
+    for st in rows.values():
+        common = st["full_tasks"] if common is None else (common & st["full_tasks"])
+        if st["partial"]:
+            print(f"\n  [sens] partial tasks: {st['partial']}")
+    if common is not None and any(len(common) != len(st["per_task"]) for st in rows.values()):
+        print(f"[matched] common full-trial tasks = {len(common)}")
+        for arm, st in rows.items():
+            sub = {t: v for t, v in st["per_task"].items() if t in common}
+            mpk = {f"pass^{k}": round(pass_hat_k(sub, k), 4) for k in (1, 2, 3, 4)}
+            st["pk_matched"] = mpk
+            print(f"  {arm}: {mpk}")
+
     # 사전등록 판정 (r2 vs r1/nogate)
-    def get(arm):
-        return rows.get(arm)
     r2 = next((rows[k] for k in rows if k.endswith("_r2")), None)
     ng = next((rows[k] for k in rows if "nogate" in k), None)
     if r2:
@@ -184,6 +193,10 @@ def main():
         print(f"\n[N3 verdict] ①deny->fail {df:.1%} (<50%? {'PASS' if c1 else 'FAIL'}) "
               f"②pass^1 {p1:.4f} (>=0.184? {'PASS' if c2 else 'FAIL'}) "
               f"③preauth-write {r2['preauth_write']} (<=3? {'PASS' if c3 else 'FAIL'})")
+        if ng and "pk_matched" in r2:
+            print(f"[N3 verdict ② matched] r2 {r2['pk_matched']['pass^1']:.4f} vs "
+                  f"nogate {ng['pk_matched']['pass^1']:.4f} "
+                  f"(parity? {'PASS' if r2['pk_matched']['pass^1'] >= ng['pk_matched']['pass^1'] - 0.005 else 'FAIL'})")
         print(f"[N3 verdict] OVERALL = {'PASS' if (c1 and c2 and c3) else 'FAIL'}")
 
 
