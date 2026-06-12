@@ -71,6 +71,7 @@
 - 구조: **A2 컴파일 산출물 = `GATE_SPEC` 구조 데이터**(JSON 덤프 `tau2_adapter/retail_gate_spec.json`: predicate·satisfier도구→필요입력·applies_to·terminal여부) / **R3-side 불변 템플릿 `render_recovery`**가 전 deny 메시지를 spec에서 *생성* — 도메인 문자열 hand-authoring 0. 새 도메인 비용 = spec 컴파일뿐(메시지·게이트 자동).
 - 검증: 생성 메시지 3종이 수동본과 의미 동등(G1 복구 4단계·G2 확인 절차·G3 terminal 거부 안내) ∧ replay 재검증 PASS(0/0). N3(진행 중)는 수동본으로 시작했으나 생성본과 의미 동등이라 결과 대표성 유지.
 - 다음 검증 목표(사전등록 후보): **airline 도메인 spec만 컴파일해 게이트+메시지 무수정 작동** = "새 벤치 비용=A2" 주장의 2-도메인 실증.
+- **★A2 생성기 문제의 좌표 (2026-06-12 문답 박제)**: 산출물(GATE_SPEC)+결정론 검증기(replay) 인터페이스 확립으로 **생성기가 교체-가능 부품화** — ①프로그램 파서=L0(NL 이해 천장 낮음) ②frontier LLM 1회 컴파일=실용 최적(도메인당 1회라 비용 무관·검증기 동반 필수) ③훈련 소형 LLM=thesis(주권/Δ-robustness/전이 주장에서만 정당화). 셋은 경쟁이 아니라 파이프라인(검증기 불변·frontier가 GT 생성·소형이 내재화). ⇒ 마스터의 "세 컴파일러 대조군"(NL→graph 천장)이 GATE_SPEC 컴파일을 무대로 실측 가능: 동일 검증기로 L0/frontier/소형 채점, retail+airline 2-도메인.
 
 ## 4. 커버리지 행렬 (벤치 × A1-A5 가용성 × R1-R8 적용처) — [작성 중: landscape census·구조-축 조사 도착 후 완성]
 
