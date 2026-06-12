@@ -21,6 +21,9 @@
 - **드라이버 = `taskbench/tb_night_0614.sh`** (detached, 사전등록 머리 동결) · log `/home/woori/scratch/tb_night14.log` · sentinel **NIGHT14_DONE** (부분: ND/NB/NC/NA_DONE).
 - **NA (GPU0+OpenRouter)**: τ² retail **gate r3** = G4 deny-게이트+중립템플릿 검증 — 예측 ①G4 위반 0 ②G4 deny 1~3건 ③pass^1 r2 동등 ④G1-G3 위반 0. compliance.json 자동(후크 첫 실전). 수확 = `t2_compliance.py`/`t2_gate_r2_verdict.py` --arms에 r3 추가.
 - **NB (GPU1)**: v3mix+guided **K=8 temp0.8 샘플링** sub500 → `tb_v3g_mmk0-7`. **NC (CPU)**: C0=v3g k0 단일 / C1=v3g-AR8+H6 선별(예측 ≥68) / C2=C1+Track-B 6종.
+- **★후속 드라이버 = `tau2/driver_s1_sel4.sh`** (NIGHT14_DONE 게이트 후 이어받기 — GPU 끊김 0) · log `/home/woori/scratch/a2_s1/s1_sel4_driver.log` · sentinel **S1_SEL4_ALL_DONE**.
+  - **S1 (GPU0)**: 실-도메인 verified-distill 스모크 — 합성200+실(retail 3게이트+telecom 6게이트 Fable-5 spec, oversample8)=216쌍 LoRA SFT → **airline held-out census** (예측 applies_F1 **>0.528**=S0-v2 = 실-spec이 분포갭 교정). 수확 = `$OUT/s1_census.txt`. 설계 = A2_FRONTEND §S1.
+  - **SEL-4 (GPU1)**: 7B reverse-likelihood Reviewer(`tb_reviewer_select.py`, Coder-Reviewer p(instr\|plan)) — v3g 풀(NB 산출) 위 MBR+Reviewer z-합성 재선별 → 공식 채점(예측 ≥SEL-1 단독). v3g 미생성 시 dpo2g 폴백. 수확 = `$OUT/sel4_*.txt`.
 - **ND ✅완료 (조기 결과 — 사전등록 미달 정직 기록)**: 기존 dpo2g-풀 + **Track-B 6 proposer 확장 = link F1 0.6703 < 무확장 0.6722** (예측 ≥68 기각) — hetero-선택 89→120으로 늘었는데 공식 F1 정체/소폭 하락 = **대형 단일샷 proposer는 합의와 중복, 풀 확장 단독 무이득**(MBR bias-diversity의 bias 항 해석 후보). 72B prior 0.768=최고(품질 서열은 정확) — 선별 천장은 풀 크기가 아니라 **후보 다양성**의 함수라는 N2 기제 재확인. NC C2와 교차 확인 예정.
 
 ### 0b. 2026-06-12 저녁 세션 산출물 (이 핸드오프 §0 실행분)
