@@ -80,6 +80,25 @@ def main():
     print(f"[selector-v2] ids={len(ids)} pool={len(pools)} "
           f"(dpo2g x8 + {len(HM)} hetero)")
 
+    # 진단: 풀별 sig 성공/validity/링크-보유/edge>0 비율 (포맷 드랍 검출)
+    for p, grp in zip(pools, groups):
+        tot = ok = haslink = pos = 0
+        for i in ids[:200]:
+            rec = p.get(i)
+            if rec is None:
+                continue
+            tot += 1
+            s = sig(rec, valid)
+            if s is None:
+                continue
+            ok += 1
+            pl, _ = s
+            if pl:
+                haslink += 1
+                if f1(pl, gold[i]) > 0:
+                    pos += 1
+        print(f"  [diag] {grp:13s} rec={tot} sig_ok={ok} has_links={haslink} edge>0={pos}")
+
     # 후보 수집 (use-셋 = validity 하드필터 적용 후, §8.9b v1과 동일)
     per_id = {}
     for i in ids:
