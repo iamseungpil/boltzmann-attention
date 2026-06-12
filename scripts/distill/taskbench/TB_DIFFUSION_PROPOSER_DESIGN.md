@@ -16,17 +16,38 @@
 | **Dream-7B** (`Dream-org/Dream-v0-Instruct-7B`) | 7B, bf16 ~16GB | DiG-Plan이 쓴 라인. HF 공개. 자체 diffusion generate 루프(vllm 불가) |
 | LLaDA-8B-Instruct (`GSAI-ML/LLaDA-8B-Instruct`) | 8B | 대안/2차 |
 
-## 3. 실험 단계 (사전등록)
+## 3. 실험 단계 (사전등록 — 2026-06-12 리뷰 반영 v2: P-D(-1) 신설·분해행·ⓑ전제조건·P-D2 채택기준)
+**★P-D(-1) 이종-AR 풀 census (zero-GPU, P-D0 선행 — 메타규칙 "GPU 전 zero-cost 진단")**:
+  디스크의 기존 sub500 MM 예측으로 "이종이면 되는가"를 공짜로 분리. 풀(사전등록):
+  AR8 = `tb_dpo2g_mmk0-7`(E6 동일) / **H6** = {qwen3b, qwen14b, qwen3_4b, qwen3_14b, tb_lodo_hf, tb_lodo_daily}
+  (family×size×학습변형 3축 이종; id 겹침 486-500/500 실측). 행: oracle(AR8) [E6 재현 통제] /
+  oracle(AR8+H6) / oracle(AR4=k0-3 고정) / oracle(AR4+H6).
+  - **판정**: Δhetero=oracle(AR8+H6)−oracle(AR8) **≥+2** → 싼-이종성으로 충분 ⇒ P-D1 성공 기준 상향
+    ("Dream 한계가치 > 이종-AR 한계가치"; 배포 2-모델 비용 정당화 부담) / **<+2** → AR끼리 닮게 틀림의
+    1차 증거 ⇒ H-D 본형(비-AR 기제 필요) 강화. ⚠️해석 가드: H6=greedy 단일샘플=싼-이종성의 *하한*
+    (temp0.8 K-샘플 이종-AR 아님) — 음성이어도 "AR 다양성 한계 확정"으로 과대해석 금지.
 **P-D0 스모크 (반나절, GPU 1장)**: Dream-7B로 MM 프롬프트 50개 × K=4 생성 →
-  ①**형식 준수율 측정이 1차 관문**: diffusion은 vllm structured_outputs 불가 → JSON 파싱율·valid_frac 실측
-  (회복 경로 = name-snap v0 후처리 — MM에선 guided와 동급, §9.5b). 파싱율 <50%면 템플릿/few-shot 보강 1회 재시도, 그래도 <50%면 LLaDA로 교체.
-  ②다양성 즉정: 50개 풀에서 distinct-plan율·노드셋 Jaccard.
-**P-D1 본 측정 (1일, GPU 1장)**: MM sub500 × K_d=8 생성 → 풀 분석 3종 (`tb_kgate_heldout.py` 확장):
-  - AR-only 풀(기존 tb_dpo2g_mmk0-7) vs **혼합 풀(AR 4 + Dream 4)** vs Dream-only 풀
-  - **판정(사전등록)**: ⓐ혼합-풀 oracle > AR-풀 oracle +2 이상 = H-D 채택 → 게이트-선별 실측으로 진행
-    ⓑoracle 상승 없음 = H-D 기각 (diffusion 다양성이 우리 표준 프로토콜로 전이 안 됨 — 그 자체로 DiG-Plan 비표준-프로토콜 의존성의 증거, 1급 음성결과)
+  ①**형식 준수 관문(이중)**: JSON 파싱율 ≥0.5 **∧ snap-후 valid_frac ≥0.8**(게이트가 실제 소비 가능한
+  비율 — 파싱돼도 구조 전파손 케이스 차단). 미달이면 템플릿/few-shot 보강 1회 재시도, 그래도 미달 시 LLaDA로 교체.
+  ②다양성 측정: distinct-plan율·노드셋 Jaccard.
+**P-D1 본 측정 (1일, GPU 1장)**: MM sub500 × K_d=4 생성 → 풀 분해 4행(`tb_kgate_heldout.py`, 동일 id셋):
+  - **oracle(AR4=k0-3) / oracle(AR4+D4) / oracle(AR8) / oracle(AR8+D4)** + Dream-only oracle
+  - **검정(사전등록)**: Dream 한계가치 = oracle(AR4+D4)−oracle(AR4) vs AR 한계가치 = oracle(AR8)−oracle(AR4).
+    ⓐ Dream 한계가치 > AR 한계가치 ∧ oracle(AR8+D4)−oracle(AR8) ≥ +2 (P-D(-1)이 Δhetero≥2면 "> 이종-AR 한계가치"도 요구)
+      = H-D 채택 → P-D2. **+2 임계는 paired bootstrap 95% CI(id-단위 resample) 병기** — CI가 0 걸치면 보류.
+    ⓑ 상승 없음 = 기각. **단 (iii)"diffusion 다양성이 표준 프로토콜로 전이 안 됨" 해석은 전제 2개 충족 시만**:
+      P-D0 형식 관문 통과 ∧ Dream-only oracle ≥ 0.7×oracle(AR8). 미달 → "형식/모델 한계로 측정불가" 강등
+      (형식 사고가 음성결과로 둔갑 금지 — LODO 직렬화-범인 함정 동형).
   - 선별 후 공식 edge(tb_build_eval)도 병기 — census-식과 분리 보고.
-**P-D2 (조건부, ⓐ시)**: 혼합-풀 + 강화 게이트(v1+) 선별의 best-stack 대비 순이득 → 패키지 갱신 여부.
+  - 공정성 한계(명시): unguided AR K-샘플 디스크에 없음(재생성=GPU 비용) → AR8=guided. 비대칭은 Dream에
+    불리한 방향=ⓐ에 보수적이므로 채택 결론엔 안전, ⓑ 해석에만 위 전제조건으로 방어.
+**P-D2 (조건부, ⓐ시)**: 혼합-풀 + 게이트(v1+) 선별의 best-stack 대비 **공식 edge-F1 순이득 ≥ +1 = 채택**
+  (E6 교훈: oracle↑≠실현이득 — 현 게이트 회수 18-22.6%라 oracle+2≈실현+0.4뿐; 게이트가 AR 오류형태에
+  튜닝돼 diffusion 제안을 더 못 고를 위험 포함). 미달 = "oracle-only 호기심" 분류. 채택 시 패키지 보고에
+  **배포 비용 열(제안기 2-모델 = 추론비 ~2×) 병기** — {소형·저비용} 주장과 충돌 방지.
+
+> 인용위생 체크박스: DiG-Plan(2606.05728) 1차 검증 = 프로토콜 디테일(TaskBench-23 501, Pass@10 수치) 원문 확인됨
+> · 논문 본문 인용 전 R8 절차(버전 명시·수치 재검증) 필수, 수치 이식 금지 유지.
 
 ## 4. 구현 노트
 - 생성 루프: Dream repo의 diffusion_generate API(HF transformers 기반, trust_remote_code) — `tb_diffusion_sample.py` 신규 (프롬프트 = inference.py와 동일 문자열 재사용, 출력 = inference.py 호환 predictions jsonl로 기록 → 기존 채점·조인 도구 전부 재사용).
