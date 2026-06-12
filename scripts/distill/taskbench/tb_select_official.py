@@ -36,6 +36,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tb_dir", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--prior_beta", type=float, default=0.0,
+                    help="SEL-1 (SELECTOR_DESIGN §2): Smoothie-식 label-free proposer prior"
+                         " 가중 w=(1/cnt)*prior^beta. 0=v1(미가중) 동작 보존")
     a = ap.parse_args()
     TB = a.tb_dir
     valid = {norm(t["id"]) for t in json.load(open(f"{TB}/data_multimedia/tool_desc.json"))["nodes"]}
@@ -49,6 +52,28 @@ def main():
         groups.append(m)
 
     ids = sorted(set.intersection(*[set(p) for p in pools[:8]]))
+
+    # SEL-1 prior (gold-free): 전 id 평균의 [그룹 후보 vs 타-그룹 후보 합의 f1]
+    prior = {}
+    if a.prior_beta:
+        asum, an = {}, {}
+        for i in ids:
+            cands = []
+            for p, g in zip(pools, groups):
+                rec = p.get(i)
+                s = sig(rec, valid) if rec is not None else None
+                if s is not None:
+                    cands.append((g, s[0]))
+            for gj, plj in cands:
+                others = [c for c in cands if c[0] != gj]
+                if not others:
+                    continue
+                v = sum(f1(plj, pl2) for _, pl2 in others) / len(others)
+                asum[gj] = asum.get(gj, 0.0) + v
+                an[gj] = an.get(gj, 0) + 1
+        prior = {g: asum[g] / an[g] for g in asum}
+        print("[prior]", {k: round(v, 3) for k, v in sorted(prior.items())})
+
     n_sel_hetero = 0
     with open(a.out, "w") as wf:
         for i in ids:
@@ -67,7 +92,8 @@ def main():
             flt = [c for c in cands if c[3]]
             use = flt if flt else cands
             cnt = Counter(g for _, g, _, _ in use)
-            w = [1.0 / cnt[g] for _, g, _, _ in use]
+            w = [(1.0 / cnt[g]) * (prior.get(g, 1.0) ** a.prior_beta)
+                 for _, g, _, _ in use]
             best, bu = 0, -1.0
             for j in range(len(use)):
                 if len(use) == 1:
