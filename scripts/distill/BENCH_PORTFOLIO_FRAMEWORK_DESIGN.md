@@ -73,6 +73,11 @@
 - 다음 검증 목표(사전등록 후보): **airline 도메인 spec만 컴파일해 게이트+메시지 무수정 작동** = "새 벤치 비용=A2" 주장의 2-도메인 실증.
 - **★A2 생성기 문제의 좌표 (2026-06-12 문답 박제)**: 산출물(GATE_SPEC)+결정론 검증기(replay) 인터페이스 확립으로 **생성기가 교체-가능 부품화** — ①프로그램 파서=L0(NL 이해 천장 낮음) ②frontier LLM 1회 컴파일=실용 최적(도메인당 1회라 비용 무관·검증기 동반 필수) ③훈련 소형 LLM=thesis(주권/Δ-robustness/전이 주장에서만 정당화). 셋은 경쟁이 아니라 파이프라인(검증기 불변·frontier가 GT 생성·소형이 내재화). ⇒ 마스터의 "세 컴파일러 대조군"(NL→graph 천장)이 GATE_SPEC 컴파일을 무대로 실측 가능: 동일 검증기로 L0/frontier/소형 채점, retail+airline 2-도메인.
 
+### 3.9 ★P-A2-0 실행 = PASS — frontier(Fable-5 in-session) airline 컴파일 replay-clean (2026-06-12)
+- **결과**: airline policy.md(166줄, 미답 도메인) → `specs/airline_gate_spec_fable5.json` 6게이트 단일샷 컴파일 → 상태-추적 replay 검증(50태스크 gold 전수) **over-deny 0/108** (G3 소유권 39·G4 취소적격 11·G5 수정규칙 28·G6 지불조성 30). G1/G2는 대화-전용이라 replay 불가(retail 동일 한계). **GT 파이프라인 생존성 확인 + frontier 단일샷 baseline 확보** (`A2_FRONTEND_DISTILL` P-A2-0 게이트 통과 → P-A2-1 합성 데이터엔진 진행 가능).
+- **★도메인-간 A2 두께 실측**: retail=도구 자체집행이라 대화-게이트 4종뿐 ↔ **airline="The API does not check" 명시 2회 = 결정론 인자-게이트가 본체**(취소적격·수정규칙·지불조성). A2 비용·게이트 가치가 도메인의 함수 — 커버리지 행렬(§4)의 실측 첫 행.
+- **부수 실증 2건**: ①스키마 한계 — db_check가 서술 문자열(검증기가 의미 구현) = `A2_FRONTEND_DISTILL` 리스크④ 실증, DSL 필요 ②**검증기도 상태-추적 필수** — 초판 static-DB replay의 over-deny 2건이 전부 "선행 gold WRITE 효과 미적용" 아티팩트(cabin 업그레이드→취소 적격 등). 부검으로 컴파일 무결 확인 후 검증기 수정.
+
 ## 4. 커버리지 행렬 (벤치 × A1-A5 가용성 × R1-R8 적용처) — [작성 중: landscape census·구조-축 조사 도착 후 완성]
 
 ## 5. 메타 (인용·측정 규율)
