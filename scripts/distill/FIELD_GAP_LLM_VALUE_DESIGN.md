@@ -121,6 +121,20 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 
 **극복 요지**: (a) 결정론-프로그램 공격 = Logic-LM 양면 ablation으로(§8); (b) "LLM 효용 없음" = §4 장점을 §6 regime서 측정; (c) LLM-Modulo 역전 비판 = 2-agent Agent1로 LLM을 생성 자리로 복귀; (d) "프롬프트면 충분(학습 불요)" = 작은모델 weight 내재화 + 전이 delta(RoG·Logic-LM 대비). ✅(e) novelty = **확정**(위 판정, ⚠️ 해제).
 
+### §5.5 ★추세-인접 6편 직독 갱신 (2026-06-14, 4-agent 병렬 원문 정독 — runtime-enforcement·verifier-TTS 2026 좌표)
+> 동기 = 2026 추세 리뷰서 게이트-라인 최인접 선행(AgentSpec) 발견 → 인용 규율(1차 검증·verbatim·버전 명시)로 6편 전부 직독. **종합 판정 맨 아래 필독.**
+
+| 계열 | 주장 (원문 verbatim 확인) | 우리와의 관계 / 극복 |
+|---|---|---|
+| ✅**AgentSpec** (`2503.18666` v2, **ICSE'26**) ★게이트-라인 최인접 신규 | event-condition-action 가드레일 DSL(rule/trigger/check/enforce) + enforcement 4종(stop·user_inspection·llm_self_examine·invoke_action). RedCode-Exec "prevents unsafe executions in over 90%"·SafeAgentBench 안전과제 58.62→54.26%(=compliance 비용 보고) | **차별 4축 확정(직독)**: ①규칙=**손작성**("Initially, the rules were manually developed based on detailed risk descriptions"); o1-생성 실험도 입력=도구목록+예시규칙 few-shot — **NL 정책문서→규칙 자동 컴파일 부재** = 우리 A2가 메우는 칸 ②도메인별 predicate 수작업·**cross-domain 전이 주장 0**(RQ3=도메인 내 커버리지+프레임워크 이식성뿐) ③안전-금지 규칙 중심 — SOP 절차/순서 의무·복구-후-재시도 시퀀스(우리 N3 무비용화) 미다룸 ④compliant-pass류 2축 측정 없음. **활용**: runtime-enforcement published 선례 = 관련연구 **1순위 인용 의무** + enforcement 어휘 차용. **위협 관리**: G1-G4 게이트 *단독*은 이제 novelty 아님 — 헤드라인은 **A2 컴파일+전이+compliant-pass 측정**임을 전 문서서 유지 |
+| ✅**VB/VF 분리정리** (Setlur+ `2502.12118` v2) | "verifier-based가 verifier-free 대비 **Ω̃(H/√n)** 우위 — 전제 = base 분포 **heterogeneity** σ̃b=Ω(H) + **anti-concentration**" | **선별기 라인의 이론 닻**: 검증-채널 이득은 후보 분포 이질성이 전제 → P-D(-1) Δhetero +13.6·N2 "다양성 함수" census의 이론 대응물. ⚠️정식 대상=파인튜닝 알고리즘 — test-time 선별 사상은 **확장 해석임을 인용 시 명시** |
+| ✅**MAV** (`2502.20379` v1) | BoN-MAV = 다축 약-검증기 이진 승인 합산. 작동 전제 = 검증기 다양성 + **held-in validation으로 검증기 부분집합 선별**; GPQA tie·HumanEval 역전(=무조건 작동 아님) | **SEL-2 기각 해석 확정**: 우리 NS 기각은 MAV와 모순 아닌 **조건차**(검증기 수·축 다양성·validation-선별 미충족). SELECTOR_DESIGN §5 반영 |
+| ✅**NSVIF** (`2601.17789` v1) | LLM이 제약→Z3 CSP 변환(formulation agent=GPT-4.1), semantic 제약=LLM-predicate+실패 시 LLM fallback. VIFBENCH F1 94.8 vs judge 69.1. 자인: "does not escape from the fundamental paradox—using LLMs to verify instruction following of LLMs"·**변환 검증 단계 부재** | **보완적 verifier 라인 + 우리 갭의 문서 근거**: 그들 런타임에 LLM 판정 잔존 vs 우리 게이트=**결정론(런타임 LLM 0)**; **A2는 컴파일 산출물의 검증기-통과를 채택 기준으로** = NSVIF가 비운 변환-신뢰성 칸. 대상도 영어 작문 제약 vs 우리 도구호출 정책 |
+| ✅**Agent-TTS 탐색** (`2506.12928` v1) | GAIA 에이전트 TTS 첫 체계 탐색: BoN +8pt·**list-wise(후보 상대비교) > scoring > voting**·상시 reflection 해로움("may also disrupt the model's reasoning flow") | K-제안+상대비교-선별(MBR)의 에이전트-도메인 **독립 외부증거** = R6/SEL 동기 보강. 차별: 프롬프트 선별기·단일벤치 vs 우리 구조적 MBR+거부권 게이트+벤치횡단 |
+| ✅**DeepVerifier** (`2601.15808` v2, **ACL'26 Findings**) | 검증-측 추론 스케일링(루브릭 반복검증) GAIA-Web +12.2; 천장 = **오기각(correct→incorrect) 지속** | 게이트 오캘리브·역선택(SELECTOR §0)의 외부 정량 동형 — "검증기 오기각이 스케일링 천장". 순차 검증-수정 vs 우리 병렬 선별 = 직교(결합 후보) |
+
+**★종합 (2026-06 novelty 좌표 재확정)**: runtime enforcement(AgentSpec)·NeSy verifier(NSVIF)·verifier-TTS(이론 2502.12118+실증 2506.12928/2601.15808)는 전부 published. ⇒ **빈 칸 = {NL정책→스펙 자동 컴파일(A2)} × {도메인 전이} × {compliant-pass 2축 측정} × {결정론 런타임(LLM-free)}의 교집합** — §5 결합-novelty 판정이 더 좁고 명확한 형태로 유지됨. **게이트 자체는 더 이상 단독 novelty 아님** = §17.9("coverage가 헤드라인·게이트는 검증가능성")·§13.3 C3("A3 delta 얇음")의 외부 재확인. 부수: EU AI Act 고위험 의무 **2026-08-02 발효** — §15.4 open-1은 이미 ✅CLOSED(판정=(c) 로깅+검증 충족, 결정론-leg 철회)이므로 이 발효는 *결정론 요구*가 아니라 **"검증가능성/추적성 수요의 제도화"** 근거로만 인용(금지문구 "regulations require deterministic logic" 준수). AgentSpec류 runtime-enforcement 시장 형성과 합쳐 "집행-필요" leg의 실무 수요 증거.
+
 ## §6. ★실험 — 현장↔SOPBench 차이를 regime으로 (상세)
 각 실험: regime 정의 → 결정론 baseline → 지표 → 사전등록 성공기준 → Track/LOCK 매핑.
 

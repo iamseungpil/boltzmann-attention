@@ -301,7 +301,7 @@
 | **`RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`** | **★잔여 진단**: login-순서 근본원인·Fix1 LOGINFIRST·Fix2 LOGINCALL·looping→Fix3·cred/PartB 재분류 | ★활성 (다음 실험) |
 | `FIX3_STOP_AFTER_SUCCESS_DESIGN.md` | goal-call looping 차단(STOP-after-success)·BLOCKING 가드·B-3 12/12·LIVE 50.75% | ✅완료 |
 | **`CROSS_DOMAIN_TRANSFER_DESIGN.md`** | **★로드맵 1단계**: A축 scaffold ABox-swap 재학습0 전이(Exp-5: train1 6 held-out avg 77.3%·LODO healthcare/library 추월)·§11 결과 | ★활성 (결과 진행중) |
-| **`FIELD_GAP_LLM_VALUE_DESIGN.md`** | **★결정론-프로그램 방어 + LLM 효용 정량화(DRAFT, 리뷰 대기)**: SOPBench-기본이 LLM underplay(결정론 천장)→현장 regime(NL-only·변경·멀티턴·벤치횡단)서 효용 증명·양면 ablation·Track A/B/C·LOCK 정합(C=dead 재답습 금지)·cross-bench(SOPBench+SOP-Bench+τ²) | ★활성 (리뷰 대기) |
+| **`FIELD_GAP_LLM_VALUE_DESIGN.md`** | **★결정론-프로그램 방어 + LLM 효용 정량화 + 관련연구 권위**: SOPBench-기본이 LLM underplay(결정론 천장)→현장 regime(NL-only·변경·멀티턴·벤치횡단)서 효용 증명·양면 ablation·Track A/B/C·LOCK 정합(C=dead 재답습 금지)·cross-bench(SOPBench+SOP-Bench+τ²). **§5.5(2026-06-14 신설) = 추세-인접 6편 직독**: ★AgentSpec(ICSE'26)=게이트-라인 최인접(규칙 손작성·NL→컴파일 부재·전이 0 = A2가 메우는 칸, **관련연구 1순위 인용 의무**)·VB/VF 분리정리(다양성→검증이득 이론 닻)·MAV(SEL-2 기각=조건차)·NSVIF(변환-검증 부재=우리 갭)·agent-TTS 2편. **종합: 게이트 단독은 novelty 아님 — 빈 칸 = A2컴파일×전이×compliant-pass×결정론-런타임 교집합** | ★활성 (관련연구 §5/§5.5/§13) |
 | **`LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`** | **★지표 권위**: 리더보드=공식 success(134,tool_full) 확정·BOTH 비교불가·우리 40.30% | ★활성 (지표 근거) |
 | `INTERNAL_GET_DATABASE_GROUNDING_2026_06_05.md` | internal_get_database=offered 아님·react 누수·우리 fc 0회 무관 | 참조 (근거) |
 | `GUARD2_DIRGRAPH_MIRROR_DESIGN.md` · `RESIDUAL11_FIX_DESIGN.md` | DGGATE 재구성 Guard-2(PASS)·4 BLOCKING 가드 설계 | detail (DGGATE 근거) |
