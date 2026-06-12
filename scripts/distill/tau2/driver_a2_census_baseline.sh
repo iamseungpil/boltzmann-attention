@@ -1,6 +1,8 @@
 #!/bin/bash
 # P-A2-0b baseline census driver (HANDOFF day4 §0.2-①):
 # 7B(GPU0:8000) + 14B(GPU1:8001) serve -> t2_a2_size_census airline -> GPU 해제.
+# ⚠️동시 기동 금지: torch.distributed 내부 포트 레이스(둘 다 8010 선점 시도, 2026-06-12
+#   실측 EADDRINUSE) — VLLM_PORT를 인스턴스별 분리.
 # Run: setsid bash driver_a2_census_baseline.sh </dev/null >/dev/null 2>&1 &
 set -u
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
@@ -11,10 +13,10 @@ exec > $OUT/census_baseline.log 2>&1
 cd $REPO && git pull --ff-only
 
 VLLM=/home/woori/venvs/tau2_vllm_env/bin/vllm
-CUDA_VISIBLE_DEVICES=0 $VLLM serve Qwen/Qwen2.5-7B-Instruct --port 8000 \
+CUDA_VISIBLE_DEVICES=0 VLLM_PORT=8100 $VLLM serve Qwen/Qwen2.5-7B-Instruct --port 8000 \
   --max-model-len 16384 > $OUT/vllm7b.log 2>&1 &
 P7=$!
-CUDA_VISIBLE_DEVICES=1 $VLLM serve Qwen/Qwen2.5-14B-Instruct --port 8001 \
+CUDA_VISIBLE_DEVICES=1 VLLM_PORT=8200 $VLLM serve Qwen/Qwen2.5-14B-Instruct --port 8001 \
   --max-model-len 16384 > $OUT/vllm14b.log 2>&1 &
 P14=$!
 
