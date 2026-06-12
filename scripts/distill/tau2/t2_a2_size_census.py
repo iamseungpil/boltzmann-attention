@@ -108,9 +108,13 @@ def main():
     ap.add_argument("--model", action="append", required=True,
                     help="name:endpoint:served_model (endpoint contains openrouter for OR)")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--gen_only", action="store_true",
+                    help="P5(S1 교사-컴파일): reference 무 도메인 — 채점 생략, spec 생성/저장만"
+                         " (검증은 Track A replay가 사후 수행)")
     a = ap.parse_args()
 
-    ref = json.load(open(f"{a.ref_dir}/{a.target}_gate_spec_fable5.json"))
+    ref = None if a.gen_only else json.load(
+        open(f"{a.ref_dir}/{a.target}_gate_spec_fable5.json"))
     retail_ref = json.load(open(f"{a.ref_dir}/retail_gate_spec_fable5.json"))
     policy = open(a.policy).read()
     catalog = json.load(open(a.catalog))
@@ -128,15 +132,20 @@ def main():
         try:
             txt = call(endpoint, served, PROMPT_SYS, usr)
             gen = parse(txt)
+            json.dump(gen, open(f"{a.out}.{name}.json", "w"), indent=1)
+            if a.gen_only:
+                ng = len([k for k in (gen or {}) if not k.startswith("_")])
+                print(f"{name}: n_gates={ng} parsed={gen is not None} (gen-only)")
+                continue
             gr, af, ng = score(ref, gen)
             rows.append((name, gr, af, ng, gen is not None))
-            json.dump(gen, open(f"{a.out}.{name}.json", "w"), indent=1)
             print(f"{name}: gate_recall={gr:.3f} applies_F1={af:.3f} n_gates={ng} parsed={gen is not None}")
         except Exception as e:
             rows.append((name, 0, 0, 0, False))
             print(f"{name}: ERROR {type(e).__name__}: {str(e)[:120]}")
-    print(f"\n[size-census] ref gates={len([k for k in ref if not k.startswith('_')])} "
-          f"(Fable-5 reference). 하한 = gate_recall·applies_F1이 reference에 근접하는 최소 크기.")
+    if not a.gen_only:
+        print(f"\n[size-census] ref gates={len([k for k in ref if not k.startswith('_')])} "
+              f"(Fable-5 reference). 하한 = gate_recall·applies_F1이 reference에 근접하는 최소 크기.")
 
 
 if __name__ == "__main__":
