@@ -148,11 +148,14 @@ def analyze(sims):
                 if authed:
                     args = tc_args(tc)
                     uid = args.get("user_id")
-                    if uid and uid != authed:
-                        v_g3 = True
+                    for u in (uid if isinstance(uid, list) else [uid]):
+                        if isinstance(u, str) and u and u != authed:
+                            v_g3 = True
                     oid = args.get("order_id")
-                    if oid and ORDER_OWNER.get(oid) not in (None, authed):
-                        v_g3 = True
+                    for o_ in (oid if isinstance(oid, list) else [oid]):
+                        if isinstance(o_, str) and \
+                                ORDER_OWNER.get(o_) not in (None, authed):
+                            v_g3 = True
         if had_pw:
             pw_pass += ok
             pw_fail += (not ok)
