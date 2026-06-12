@@ -316,6 +316,12 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 - 동질 AR8에선 MBR=mean(0.706, 변별 불가) — E6 수렴 소견과 정합; 이 선별기는 이종-풀 전용 레버.
 - 다음 = deep-research(이종-풀 선별 문헌) 합류 후 선별기 설계서(detail) — 잔여 후보: proposer 품질 prior(보정 필요)·pairwise 7B judge·실행-가능성 체크·공식 edge-F1 확정 측정.
 
+## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
+배경 = §8.8 레버 비선형의 처방 ④. 쌍 채굴 `tb_dpo_mine.py` (structure 1017 / cost 376), base=rft2, v2 하이퍼.
+- **★D2 (비용-표적) = 기각 (1급 음성)**: ⓐ평균 n_nodes 2.582→2.400 ✓(parsimony 신호 학습됨) BUT ⓑ**공식 edge MM full 49.0→47.0 (−2.0, 사전등록 ±1 밖)** ✗ · held-out HF 51.6→48.4(−3.2) · daily 85.0→84.6 · census node_f1 −2.3·improved 315 < worsened 478. **해석: edge-동률·여분-노드 rejected 쌍이 "노드 수 줄이기"를 가르치되 필요 구조까지 깎음 = v1 거울상(사전등록 감시 항목 그대로 발현) — 비용-leg은 DPO 쌍이 아니라 promptslim/추론-side로.**
+- **D1 (구조-표적)**: 학습 완료(ep1 step120). ⚠️1차 평가 실패 = vllm serve가 adapter 저장과 동시 기동(10:51 레이스)→엔진 초기화 실패. 12:00 재평가 진행 중 — 수치는 도착 후 이 행에 추가.
+- 인프라 사건 3건(핸드오프 박제 예정): ①day 배치 이중 기동(1차=야간 잔여 vllm OOM→재기동 래퍼가 2차 기동, 1차 시체가 빈 보고서 push) ②adapter-저장↔serve 레이스(드라이버에 저장 완료 후 sleep/검증 필요) ③eval 후 EngineCore 고아 42GB 잔존(tb_eval_adapter가 시작 시만 kill — 종료 후 정리 추가 필요).
+
 ## 9. ★실행 큐 (2026-06-12 0시 전면 갱신 — §9.6 v2 합격·§9.5b guided·§8.5 P1 적중 이후, 이 §이 TaskBench 실행 권위)
 
 **✅ 이번 사이클 완료 (06-11~12)**: RFT r2 → DPO v1(net−) → **균형-DPO v2 합격(55.95/57.30)** → guided v1 daily(+8.0)·MM 합성(57.22=snap 상위호환) → promptslim(−51% 목록=−3 edge) → P1 32B prereg **적중**(−5.4 vs −5.0)+Track A 독립 재검증 → 선행연구 5-agent 적대검증·§6.5 차별점 경화. §10 분류의 판별실험 2개 모두 확정.
