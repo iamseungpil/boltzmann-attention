@@ -333,6 +333,13 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 - 다음 = deep-research(이종-풀 선별 문헌) 합류 후 선별기 설계서(detail) — 잔여 후보: proposer 품질 prior(보정 필요)·pairwise 7B judge·실행-가능성 체크·공식 edge-F1 확정 측정.
 - **★N2 공식-척도 확정 (2026-06-12 야간, `tb_select_official.py`·사전등록 ≥+2)**: filter+propMBR 선별(AR8+H6, hetero-선택 88/500) **공식 link F1 66.5 vs k0 단일 통제 57.7 = +8.8** — census 갭(+8.2)이 공식 척도에 그대로 실현, 예측 4배 초과. ⚠️sub500 내부-일관 비교(MM full 수치와 직접 비교 금지·K-샘플 추론 비용 명시). **의미: zero-training 추론-side 합성(같은 base 멀티-LoRA 풀+결정론 선별)만으로 단일-정책 대비 +8.8 공식** — 선별기 라인의 1급 양성.
 
+### 8.9c ★SEL-1~3 실측 (2026-06-12 심야 — `tb_selector_v2.py`, SELECTOR_DESIGN §2 사다리 첫 판정, 0원)
+- **유틸리티/평가 주의**: 본 절 edge-F1은 gold=`data.json tool_links`(이중 JSON-인코딩 주의) 기준 — §8.9b census-edge와 절대값 비교 금지(동일 풀에서 v1 재현치 0.826/회수 58.7%로 스케일 상이). 전부 within-run 내부-일관 + paired bootstrap 95% CI(ⓟ2, n=2000).
+- **SEL-1 (Smoothie-식 proposer-prior 가중, label-free)**: prior=전역 타-그룹 합의(qwen3b 0.371↔tb_lodo_hf 0.754 — 품질 서열을 라벨 0으로 복원). **β=2: +0.40pp, CI [+0.0006,+0.0081] SIG** (회수율 58.7→61.1%); β=1은 +0.31pp ns. ⚠️β∈{1,2} 스윕 중 선택 = 다중비교 약점 → 공식-척도 재확인 수행(아래). **공식 확정: link F1 66.48→**67.22 (+0.73pp)**·node 90.67→91.09, k0 대비 총 **+9.5pp**(+8.8에서 갱신) — `tb_select_official.py --prior_beta 2`.
+- **SEL-2 (soft-approval, graph-membership λ-합성)**: λ∈{0.1,0.3} 전부 CI 0 포함(+0.1pp대) — **사전등록 즉시-기각 조항 발동, 단 폐기**. (graded 신호가 gmem뿐이라 정보량 부족 — hard-filter가 이미 대부분 회수.)
+- **SEL-3 (abstention, F6 기계)**: confidence=**승자 합의수준 u1** (1위-2위 갭은 만장일치→갭0 역전 결함 — 첫 구현서 실측·수정). risk-coverage: **top-20% risk 0.070 vs 전체 0.169** (β=2 arm) — margin-기반 HITL 라우팅이 작동, F6 곡선 첫 산출.
+- **결론**: 사다리 ⑴완료 — SEL-1 채택(0원·SIG·공식 확인)·SEL-2 기각·SEL-3 작동. 다음 = SEL-4(7B reverse-likelihood, GPU 소량)는 잔여 oracle 갭(0.83→0.90, 회수 61%)에서 판단.
+
 ## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
 
 ### ★Day-4 종합 한눈표 (2026-06-12 — 상세는 각 §)
