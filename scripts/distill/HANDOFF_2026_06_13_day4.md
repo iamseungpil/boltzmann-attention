@@ -11,6 +11,11 @@
 5. **coworker**: P4(A2 크기 census, 32B/72B/235B) — trackb_raw/p4_a2_census 도착 감시 (06-12 저녁 기준 미도착).
 6. **잔여 GPU 큐**: ~~S0-v2~~ ✅완료(200쌍: held-in **structEM 70%·EM 40% 창발**·airline 전이 추가악화 0.528 → **S1 실-도메인 verified distill이 다음 rung**, A2_FRONTEND §6) · v4 재채굴 사이클 검토 · 선별기 합성(v3+guided 57.90 위에 N2-식 이종풀+선별) · P-D0 diffusion(조건부 강등 유지). GPU 양쪽 해제 상태.
 
+### 0a. ★심야 추가분 (2026-06-12 심야 — 다음 세션 1순위 갱신)
+- ✅**§1.6 v2 동결**(마스터 — F3 τ pass^k n=4·F4 0/N+rule-of-three+구조적/표본적0 분리·ⓟ3 게이트-관할 census 신설·4-tuple 인용 규율) + ✅**`SELECTOR_DESIGN.md` 신설**(SEL-1~5 사다리, 마스터 §7 등재).
+- ✅**SEL-1~3 즉시 실측 (0원, `tb_selector_v2.py`)**: **SEL-1 채택** — Smoothie-식 proposer-prior 가중(β=2) SIG, **공식 link F1 66.48→67.22 = k0 대비 +9.5pp 갱신** / SEL-2 기각(ns) / SEL-3 작동(confidence=승자합의 u1 — 갭-기반은 만장일치 역전 결함, top-20% risk 절반). 권위 = TB결과 **§8.9c**.
+- **다음 세션 1순위 후보**: ①**S1 설계+발사**(A2 실-도메인 verified distill — S0-v2가 합성 과적합 확정) ②SEL-4(7B reverse-likelihood) 판단 ③P4 도착 감시 ④batch8+(200쌍 달성으로 완화).
+
 ### 0b. 2026-06-12 저녁 세션 산출물 (이 핸드오프 §0 실행분)
 - N3 판정 스크립트 `tau2/t2_gate_r2_verdict.py` (pass^k+deny-census+F4 replay+복구행동 census+matched 비교) — 결과 권위 = PORTFOLIO §3.7b.
 - P-A2-0b 하네스 가동(파싱 버그 수정)·S0 파이프라인 신규: `t2_a2_s0_build_sft.py`(census-프롬프트 일치 빌드)·`t2_a2_s0_eval.py`(holdout 평가)·`driver_a2_s0_sft.sh`·어댑터 `sft_runs/qwen7b_a2_s0`.
