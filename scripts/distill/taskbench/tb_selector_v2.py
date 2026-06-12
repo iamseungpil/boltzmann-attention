@@ -25,6 +25,8 @@ def load_gold(tb_dir):
     for l in open(f"{tb_dir}/data_multimedia/data.json", encoding="utf-8"):
         d = json.loads(l)
         links = d.get("tool_links") or d.get("sampled_links") or []
+        if isinstance(links, str):  # data.json은 필드를 JSON-문자열로 이중 인코딩
+            links = json.loads(links)
         gl = {(norm(e["source"]), norm(e["target"])) for e in links
               if isinstance(e, dict) and "source" in e}
         gold[d["id"]] = gl
