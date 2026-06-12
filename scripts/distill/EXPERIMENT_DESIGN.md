@@ -71,6 +71,7 @@
 
 **사전등록 (v2)**: ⓟ1 τ² ±게이트 **Δpass^4 > Δpass^1** — 판정 = **paired(task-matched) bootstrap difference-in-differences**(단일-arm 점추정 비교 금지; CLT 금지 — 수백 태스크 미만은 bootstrap, Bowyer ICML'25). 현 데이터(run7/r2)로는 기각 유지. ⓟ2 F5 = paired bootstrap 95% CI 동반(±단일점 금지). **ⓟ3(신설)**: 게이트 관할 커버리지 census — 게이트 관할이 write-기회의 ≥95%일 때만 "compliance" 헤드라인 사용. **"compliance free at pass^1" 표준 보고형**: paired Δpass^1 + bootstrap CI **폭 명시**("CI가 0 포함" 금지) + 0/N+3/N 상한 + 구조적/표본적 0 분리.
 **집계·인용 규율**: 교차-벤치 평균 금지(HELM MWR 비판·BenchBench) — per-bench 개별 보고만. 리더보드 인용 시 **(user-sim·judge·trials·split) 4-tuple 명시 필수** — ⚠️τ² 리더보드 user-sim **gpt-5.2 권장으로 드리프트**(우리 run7/r2 = gpt-4.1-2025-04-14; 내부 비교 무영향). 잔여 1건: τ-bench pass^k 원문 PDF 눈검증(교차검증 2중은 완료 — 2412.13147 전문 동일식 확인).
+**F4b compliant-pass (2026-06-13 추가 등재 — 사용자 발의·★사후-정의 명시·census-tier·우리 발명)**: pass ∧ 위반-무의 conjunction에 pass^k 추정량 적용 — 벤치 pass가 compliance-blind(τ² 실측: 위반-pass 6/21)인 갭을 한 숫자로 메움. 변형 2종 = write-clean(인증-전 WRITE 무)·strict-clean(인증-전 user-scoped 실행 자체 무). **게이트 arm에선 구조적으로 compliant-pass=pass**(conjunction 붕괴 = 구조적 0의 이점). ⚠️커버리지 한계: 사후-replay 검출은 G1형만 — nogate의 G2/G3 위반 미산입 = nogate 측 수치는 **상한**(진짜 compliant-pass는 더 낮음). 헤드라인 침범 금지·비교 주장 시 paired bootstrap CI 동반(ⓟ2 준용).
 
 ## §2. 현재 진단 (어디까지 왔나)
 > ★★★★**최신 (2026-06-06) — cross-domain transfer 확정(held-out·재학습0·honest) = 로드맵 #1 입증 중. 진입점 = [`HANDOFF_2026_06_06_xdomain_full.md`](HANDOFF_2026_06_06_xdomain_full.md)** + 설계 [`CROSS_DOMAIN_TRANSFER_DESIGN.md`](CROSS_DOMAIN_TRANSFER_DESIGN.md), 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-5**.
