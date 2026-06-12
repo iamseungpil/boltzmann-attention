@@ -19,6 +19,9 @@ def main():
     ap.add_argument("--agent_base", default="http://localhost:8351/v1")
     ap.add_argument("--user_model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--user_base", default="http://localhost:8352/v1")
+    ap.add_argument("--user_llm", default=None,
+                    help="full litellm model string override (e.g. openrouter/openai/gpt-4.1-mini; "
+                         "key는 env OPENROUTER_API_KEY) — judge도 이 모델을 따름")
     ap.add_argument("--num_trials", type=int, default=1)
     ap.add_argument("--num_tasks", type=int, default=None)
     ap.add_argument("--max_concurrency", type=int, default=8)
@@ -30,15 +33,25 @@ def main():
         t2_gate_patch.apply()
         print("[t2_run] gate ON")
 
-    # NL-assertion judge가 gpt-4.1 하드 기본값(config.py) → 로컬 user-sim 모델로 재바인딩
-    # (40/114 태스크가 nl_assertions 보유 — 미패치 시 키 부재로 영구 실패, 2026-06-12 사고)
+    # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
+    if a.user_llm:
+        user_llm, user_args = a.user_llm, {"temperature": 0.7}
+        judge_model, judge_args = a.user_llm, {"temperature": 0.0,
+                                               "response_format": {"type": "json_object"}}
+    else:
+        user_llm = f"openai/{a.user_model}"
+        user_args = {"api_base": a.user_base, "api_key": "dummy", "temperature": 0.7}
+        judge_model = f"openai/{a.user_model}"
+        judge_args = {"temperature": 0.0, "api_base": a.user_base, "api_key": "dummy",
+                      "response_format": {"type": "json_object"}}
+
+    # NL-assertion judge가 gpt-4.1 하드 기본값(config.py) → 재바인딩
+    # (40/114 태스크가 nl_assertions 보유 — 미패치 시 키 부재로 영구 실패, 2026-06-12 사고.
+    #  judge가 json.loads(content) 직접 호출 — response_format으로 코드펜스/서문 차단)
     import tau2.evaluator.evaluator_nl_assertions as _nle
-    _nle.DEFAULT_LLM_NL_ASSERTIONS = f"openai/{a.user_model}"
-    _nle.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {
-        "temperature": 0.0, "api_base": a.user_base, "api_key": "dummy",
-        # judge가 json.loads(content) 직접 호출 — 로컬 모델의 코드펜스/서문 차단 (vllm 검증됨)
-        "response_format": {"type": "json_object"}}
-    print(f"[t2_run] nl-assertion judge -> local {a.user_model}")
+    _nle.DEFAULT_LLM_NL_ASSERTIONS = judge_model
+    _nle.DEFAULT_LLM_NL_ASSERTIONS_ARGS = judge_args
+    print(f"[t2_run] user-sim={user_llm} judge={judge_model}")
 
     from tau2.data_model.simulation import TextRunConfig
     from tau2.run import run_domain
@@ -48,8 +61,8 @@ def main():
         agent="llm_agent",
         llm_agent=f"openai/{a.agent_model}",
         llm_args_agent={"api_base": a.agent_base, "api_key": "dummy", "temperature": 0.0},
-        llm_user=f"openai/{a.user_model}",
-        llm_args_user={"api_base": a.user_base, "api_key": "dummy", "temperature": 0.7},
+        llm_user=user_llm,
+        llm_args_user=user_args,
         num_trials=a.num_trials,
         num_tasks=a.num_tasks,
         max_concurrency=a.max_concurrency,
