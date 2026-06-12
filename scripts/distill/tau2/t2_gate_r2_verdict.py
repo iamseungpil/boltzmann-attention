@@ -134,6 +134,14 @@ def main():
         rows[arm] = st
         pk = {f"pass^{k}": round(pass_hat_k(st["per_task"], k), 4) for k in (1, 2, 3, 4)}
         st["pk"] = pk
+        # sensitivity: infra-error로 trial 누락된 태스크 제외 (full-trial 태스크만)
+        ntr = max(len(v) for v in st["per_task"].values())
+        full = {t: v for t, v in st["per_task"].items() if len(v) == ntr}
+        st["pk_full"] = {f"pass^{k}": round(pass_hat_k(full, k), 4) for k in (1, 2, 3, 4)}
+        if len(full) != len(st["per_task"]):
+            part = {t: (sum(v), len(v)) for t, v in st["per_task"].items() if len(v) < ntr}
+            print(f"  [sens] full-trial tasks={len(full)}: {st['pk_full']} "
+                  f"| partial tasks={part}")
         nd = st["deny_pass"] + st["deny_fail"]
         df = st["deny_fail"] / nd if nd else float("nan")
         print(f"\n=== {arm}: sims={len(sims)} tasks={len(st['per_task'])} {pk}")
