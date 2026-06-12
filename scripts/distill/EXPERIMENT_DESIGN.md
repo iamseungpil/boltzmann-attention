@@ -56,20 +56,21 @@
 - **포트폴리오 (A2 난이도 스펙트럼)**: TaskBench(A2 없음)·SOPBench(구조 제공) = ✅완료 → **★τ²/τ³-bench**(순수 NL정책 = A2 끝점·유일 활성 frontier 리더보드·pass^k=게이트 일관성) → **Amazon SOP-Bench**(SOP 텍스트·**12도메인 LODO** 스케일업; ⚠️우리 SOPBench와 이름충돌 표기주의) → AppWorld·ODCV-Bench(스팟) → (조건부) WorFBench.
 - **순서**: τ² retail 어댑터(A2 수동-1회 = front-end 자동화의 GT) → Amazon 12-도메인 행렬 → 스팟. 대형모델 arm = Track-B(`COWORKER_REQUEST_TB_SCALE.md` §8). TaskBench는 외부 동결(TB결과 §1.5: frontier 정체 64.4) — 내부-일관 비교로 유지.
 
-### §1.6 ★framework-tier 메트릭 배터리 (2026-06-12 신설, 사전등록 v1 — 문헌 확정 대기)
+### §1.6 ★framework-tier 메트릭 배터리 (2026-06-12 신설 → **v2 동결 2026-06-12 야간** — 근거 = `reports/facet_rft_2026/research_framework_metrics_2026_06_12.md`, 26 fetch-검증 인용)
 **2-tier 규율(불변)**: ①**헤드라인 tier = 각 벤치의 네이티브 공식 지표만**(TB F1·SOPBench 공식 success·τ² pass^1/pass_hat_k·ODCV 위반율) — 자체 지표를 헤드라인화하면 우리가 비판한 "지표 약화"(TB결과 §1.5 ④)를 자범. ②**framework tier = 프레임워크 *주장*을 판별하는 교차-벤치 2차 배터리** — census 급으로만 보고·전부 사전등록. 근거: 프레임워크 주장(최소노력 커버·재학습0 전이·일관성·무위반)은 per-bench 점수에 직접 안 잡히며, 비공식 발명품들(honest 분모·BOTH·회수율·deficit)이 이미 판별력을 입증.
 
-| # | 축 | 잠정 정의·추정량 | 판별하는 주장 | 실측 선례 | 상태 |
-|---|---|---|---|---|---|
-| F1 | **어댑터 비용 곡선** | 벤치당 수동 LOC/시간 + 기계화율%(A1/A3-A5=기계 vs A2=수동) | **thesis: A2 비용이 front-end로 소거** | τ² 게이트 ~130줄 vs SOPBench DGGATE graph 재구성(§3.6 "더 얇음") | ★신규 발명 — novelty 위험 플래그, census-tier 한정 |
-| F2 | 전이 보존율 | held-out/in-domain 공식 success 비 (재학습0) | R7·LODO 전이 | Exp-5a/5b·TB lodo | 관행 정합 |
-| F3 | 일관성 | pass_hat_k 곡선(k=1..4)·**Δpass_hat_4 vs Δpass^1 분리** | R3 게이트=분산 제거(평균 아님) | τ² ±게이트 측정 예정 | 표준(τ-bench 계보) |
-| F4 | 무위반 soundness | 위반 *건수*(0-타깃) + 0-관측 상한 CI(rule-of-three류) | R3 결정론 집행 | ODCV·τ² G1-G3·SOPBench cnv | 통계 절차 문헌 확정 대기 |
-| F5 | 선별 회수율 | (선별−mean)/(oracle−mean), paired bootstrap CI | R6 선별 레버 | TB §8.9b 44% | 문헌 표준명 확정 대기 |
-| F6 | abstain 품질 | risk-coverage 곡선/AURC | CDP 벤치 abstain=thesis 검증 | GROUNDED_BIZ GT 설계 | 표준(selective prediction) |
-| F7 | 비용-정규화 | 고정-점수 토큰/추론 비용(cost-of-pass류) | 비용-leg(주권 보조) | promptslim·멀티-LoRA 1서버(§8.9) | 문헌 확정 대기 |
+| # | 축 | **v2 확정 정의·추정량·CI** | 판별하는 주장 | 상태 (v2) |
+|---|---|---|---|---|
+| F1 | **어댑터 비용 곡선** | 벤치당 수동 LOC/시간 + 기계화율%(A1/A3-A5=기계 vs A2=수동) | **thesis: A2 비용이 front-end로 소거** | **우리 발명 확정**(문헌 무표준 — 최근접 HAL 3차원 분해도 비용축 아님). census-tier 한정·novelty 플래그 유지 |
+| F2 | 전이 보존율 | held-out/in-domain 공식 success 비 (재학습0) + **per-domain 개별 보고(집계 단일값 금지)** + task-level bootstrap CI | R7·LODO 전이 | 관행 정합 (집계 규율 추가) |
+| F3 | 일관성 | **τ-bench unbiased pass^k = E_task[C(c,k)/C(n,k)], n=4, k=1..4** (리더보드 프로토콜 일치). 민감도 옵션 = G-Pass@k_τ(2412.13147) | R3 게이트=분산 제거(평균 아님) | **확정** ⚠️114태스크서 pass^4 SE ±3-7pp — 단일-arm 점추정 금지 |
+| F4 | 무위반 soundness | **위반 0/N(N=게이트 관할 기회 수, 사전 census) + one-sided 95% Clopper-Pearson 상한 1−0.05^(1/N)≈3/N**(rule of three), Jeffreys ≈1.9/N 민감도. **★구조적 0(게이트 구성상 불가 — CI 불요, spec 검증으로 뒷받침) vs 표본적 0(미관측 — CI 적용) 분리 보고** | R3 결정론 집행 | **확정** |
+| F5 | 선별 회수율 | (선별−mean)/(oracle−mean), **paired bootstrap 95% CI**(Koehn'04 계보; E-AURC oracle-정규화와 친족) | R6 선별 레버 | **우리 발명 확정**(표준명 부재 검증) |
+| F6 | abstain 품질 | **RC-curve + AURC + E-AURC(oracle-정규화) + coverage@risk≤r\***(배포 단일점) | CDP 벤치 abstain=thesis 검증 | **확정** (agent 변형 표준은 미성립 — selectively-quitting·Trust-or-Escalate로 포지셔닝) |
+| F7 | 비용-정규화 | 토큰(모델-불변) + USD(**가격 스냅샷 날짜 명시**) + **cost-of-pass = E[비용]/pass^1**(2504.13359) + accuracy×cost Pareto. 확장 cost-of-consistent-pass(비용/pass^4) = 발명 표시 | 비용-leg(주권 보조) | **확정** |
 
-**사전등록 예측 (v1)**: ⓟ1 τ² retail ±게이트에서 **Δpass_hat_4 > Δpass^1** (게이트의 본질=일관성 레버; 평균만 오르고 일관성 동일이면 게이트 해석 기각). ⓟ2 F5 보고는 paired bootstrap 95% CI 동반(±단일점 금지). **진행**: 메트릭 문헌 deep-research(2026-06-12 발사) 합류 후 추정량·CI 절차를 문헌 표준으로 치환해 v2 동결 — F1처럼 표준이 없는 축은 "우리 발명"임을 명시하고 헤드라인 침범 금지.
+**사전등록 (v2)**: ⓟ1 τ² ±게이트 **Δpass^4 > Δpass^1** — 판정 = **paired(task-matched) bootstrap difference-in-differences**(단일-arm 점추정 비교 금지; CLT 금지 — 수백 태스크 미만은 bootstrap, Bowyer ICML'25). 현 데이터(run7/r2)로는 기각 유지. ⓟ2 F5 = paired bootstrap 95% CI 동반(±단일점 금지). **ⓟ3(신설)**: 게이트 관할 커버리지 census — 게이트 관할이 write-기회의 ≥95%일 때만 "compliance" 헤드라인 사용. **"compliance free at pass^1" 표준 보고형**: paired Δpass^1 + bootstrap CI **폭 명시**("CI가 0 포함" 금지) + 0/N+3/N 상한 + 구조적/표본적 0 분리.
+**집계·인용 규율**: 교차-벤치 평균 금지(HELM MWR 비판·BenchBench) — per-bench 개별 보고만. 리더보드 인용 시 **(user-sim·judge·trials·split) 4-tuple 명시 필수** — ⚠️τ² 리더보드 user-sim **gpt-5.2 권장으로 드리프트**(우리 run7/r2 = gpt-4.1-2025-04-14; 내부 비교 무영향). 잔여 1건: τ-bench pass^k 원문 PDF 눈검증(교차검증 2중은 완료 — 2412.13147 전문 동일식 확인).
 
 ## §2. 현재 진단 (어디까지 왔나)
 > ★★★★**최신 (2026-06-06) — cross-domain transfer 확정(held-out·재학습0·honest) = 로드맵 #1 입증 중. 진입점 = [`HANDOFF_2026_06_06_xdomain_full.md`](HANDOFF_2026_06_06_xdomain_full.md)** + 설계 [`CROSS_DOMAIN_TRANSFER_DESIGN.md`](CROSS_DOMAIN_TRANSFER_DESIGN.md), 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-5**.
@@ -312,6 +313,7 @@
 | `SOPBENCH_EXPERIMENT_RESULTS.md` | 모든 실측 결과(Exp-1~4) 누적 | 결과 권위본 |
 | `../../reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md` | TaskBench 전 실측(§8 기제·§9.5b guided·§9.6 DPO v2·§10 층위분류·§1.5 외부동결 전수조사) | 결과 권위본 (TB) |
 | **`BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`** | **벤치-불변 규칙 R1-R8 × 어댑터 A1-A5 + 포트폴리오(τ²·Amazon SOP-Bench·AppWorld·ODCV) 선정근거·실행순서** — 마스터 §1.5의 상세 | detail (2026-06-12 신설) |
+| **`SELECTOR_DESIGN.md`** | **★이종-풀 선별기 사다리 SEL-1~5 (2026-06-12 야간 신설)**: 문헌 deep-research 합류판 — veto/chooser 분업 불변·Smoothie-prior 가중(0원)→soft-approval→7B reverse-likelihood→pairwise judge·novelty=상관-소스 보정+게이트 역선택 첫 보고. 근거=`research_selector_lit_2026_06_12.md` | ★활성 (R6 레버, 다음 GPU 큐 ⑴=0원) |
 | `taskbench/TB_GROUNDED_COPY_V1_DESIGN.md` | guided decoding 구현·선행연구 5-agent 적대검증·§6.5 차별점 표(논문 related-work 재료) | detail (TB) |
 | `taskbench/TB_DIFFUSION_PROPOSER_DESIGN.md` | 이종 제안기(Dream-7B)×결정론 선별 — E6(선별갭 붕괴) 처방, P-D0 형식게이트·P-D1 혼합-풀 oracle 사전등록 | detail (TB, 2026-06-12 — D1/D2 DPO 후 착수) |
 | `COWORKER_EXPERIMENT_PLAN.md` | 32B/72B 분업 | detail (Track B) |
