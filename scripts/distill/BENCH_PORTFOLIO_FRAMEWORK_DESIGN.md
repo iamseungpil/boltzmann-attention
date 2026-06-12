@@ -67,6 +67,11 @@
 - **SOPBench 동형 해석**: passive deny의 한계 = SOPBench passive-H3(6)와 동형 — 거기선 active-H3(게이트가 누락 getter 구동)로 6→15. τ²의 G1은 대화 정보(이메일/이름+zip)가 필요해 자동-구동 불가 ⇒ 처방 후보: ①**사전 scaffold**(시스템 프롬프트에 게이트 규칙 명시 = 사후 deny→사전 회피) ②deny-시 복구 절차 주입 ③compliance-first 배포 regime에선 현 트레이드오프 자체가 가치(위반 0 보장 헤드라인 + 성공비용 명시).
 - 절대좌표: 표준 user-sim이라 리더보드-비교 가능 — 7B base 18.4%는 frontier(60-80%대)와의 갭 실측. 인프라: judge 하드 gpt-4.1 기본값·json.loads 직접 호출(json_object 강제 필요)·resume 대화형 프롬프트 — 3함정 전부 수정 커밋.
 
+### 3.8 ★A2 산출물 ↔ R3 템플릿 분리 (2026-06-12 사용자 지시 — 수동 프롬프트 금지)
+- 구조: **A2 컴파일 산출물 = `GATE_SPEC` 구조 데이터**(JSON 덤프 `tau2_adapter/retail_gate_spec.json`: predicate·satisfier도구→필요입력·applies_to·terminal여부) / **R3-side 불변 템플릿 `render_recovery`**가 전 deny 메시지를 spec에서 *생성* — 도메인 문자열 hand-authoring 0. 새 도메인 비용 = spec 컴파일뿐(메시지·게이트 자동).
+- 검증: 생성 메시지 3종이 수동본과 의미 동등(G1 복구 4단계·G2 확인 절차·G3 terminal 거부 안내) ∧ replay 재검증 PASS(0/0). N3(진행 중)는 수동본으로 시작했으나 생성본과 의미 동등이라 결과 대표성 유지.
+- 다음 검증 목표(사전등록 후보): **airline 도메인 spec만 컴파일해 게이트+메시지 무수정 작동** = "새 벤치 비용=A2" 주장의 2-도메인 실증.
+
 ## 4. 커버리지 행렬 (벤치 × A1-A5 가용성 × R1-R8 적용처) — [작성 중: landscape census·구조-축 조사 도착 후 완성]
 
 ## 5. 메타 (인용·측정 규율)
