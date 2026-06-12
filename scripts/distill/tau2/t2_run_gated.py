@@ -35,7 +35,9 @@ def main():
     import tau2.evaluator.evaluator_nl_assertions as _nle
     _nle.DEFAULT_LLM_NL_ASSERTIONS = f"openai/{a.user_model}"
     _nle.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {
-        "temperature": 0.0, "api_base": a.user_base, "api_key": "dummy"}
+        "temperature": 0.0, "api_base": a.user_base, "api_key": "dummy",
+        # judge가 json.loads(content) 직접 호출 — 로컬 모델의 코드펜스/서문 차단 (vllm 검증됨)
+        "response_format": {"type": "json_object"}}
     print(f"[t2_run] nl-assertion judge -> local {a.user_model}")
 
     from tau2.data_model.simulation import TextRunConfig
