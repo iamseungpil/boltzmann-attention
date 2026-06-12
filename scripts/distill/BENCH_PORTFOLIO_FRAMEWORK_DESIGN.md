@@ -57,6 +57,16 @@
 - **Guard-2 동형 검증 PASS** (gold 114 태스크·550 액션 replay): PassA G1-순서 위반 **0** / PassB G3 over-deny **0** (GT 유저=gold 인자 order-owner·user_id 합의, multi-user 0). ⚠️naive replay는 G1 deny 86 — **gold가 인증 READ 생략(46/114, DB-state 보상이라 READ 불요)**한 observed-proxy 아티팩트로 무효 처리 (SOPBench 함정 동형 — 재발견 금지).
 - 다음 = ③측정: tau2 orchestrator에 게이트 hook(에이전트 툴콜 인터셉트→deny 시 게이트 메시지 반환, SOPBench two_stage_client 패턴) + 7B(vllm OpenAI-호환)±게이트 pass^1/pass^k retail 114.
 
+## 3.7 ★τ² retail 7B base ±게이트 1차 측정 (2026-06-12 — run7, 표준 user-sim·judge=gpt-4.1-2025-04-14 via OpenRouter = 리더보드 프로토콜-호환)
+| arm | pass^1 | pass^2 | pass^3 | pass^4 | 실행된 인증-전 위반 (write) |
+|---|---|---|---|---|---|
+| 7B base (nogate) | 0.184 | 0.089 | 0.068 | 0.061 | 121 (**43 write**) / 53 sims |
+| 7B base + 게이트 | 0.147 | 0.061 | 0.044 | 0.035 | 53 시도→deny (write 실행 **~1**) |
+- **양축 판정 (F3×F4 분리 — 마스터 §1.6)**: ⓕ4 soundness = **write-위반 43→1 (≈98% 차단)** — 결정론-leg 설계대로 작동. ⓕ3 helpfulness = pass^1 −3.7pp·pass^4 −2.6pp — **ⓟ1(Δpass^4>Δpass^1, 양수 전제) 기각**: 이 7B+passive-deny 구성에선 게이트가 일관성 레버가 아님.
+- **궤적 census 귀속**: deny 65건(G1 86%·G2 12%·G3 2%)·**deny 경험 sim의 92%(48/52)가 실패** = 7B가 deny 메시지("authenticate first via find_user_id_...")로부터 복구 못 함. 단 base 자체가 nogate 81.6% 실패(DB-state 295 지배) = R7 base census가 가리키는 능력 바닥이 1차 병목.
+- **SOPBench 동형 해석**: passive deny의 한계 = SOPBench passive-H3(6)와 동형 — 거기선 active-H3(게이트가 누락 getter 구동)로 6→15. τ²의 G1은 대화 정보(이메일/이름+zip)가 필요해 자동-구동 불가 ⇒ 처방 후보: ①**사전 scaffold**(시스템 프롬프트에 게이트 규칙 명시 = 사후 deny→사전 회피) ②deny-시 복구 절차 주입 ③compliance-first 배포 regime에선 현 트레이드오프 자체가 가치(위반 0 보장 헤드라인 + 성공비용 명시).
+- 절대좌표: 표준 user-sim이라 리더보드-비교 가능 — 7B base 18.4%는 frontier(60-80%대)와의 갭 실측. 인프라: judge 하드 gpt-4.1 기본값·json.loads 직접 호출(json_object 강제 필요)·resume 대화형 프롬프트 — 3함정 전부 수정 커밋.
+
 ## 4. 커버리지 행렬 (벤치 × A1-A5 가용성 × R1-R8 적용처) — [작성 중: landscape census·구조-축 조사 도착 후 완성]
 
 ## 5. 메타 (인용·측정 규율)
