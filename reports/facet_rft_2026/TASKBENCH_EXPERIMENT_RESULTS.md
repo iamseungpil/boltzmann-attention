@@ -345,6 +345,12 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
   - **부검 (n=5542 전수, D2와 동일 도구)**: improved 508 vs worsened 241(2.1:1)·정답엣지 +813/−293(순+520)·improved 형태=치환 301+순수재배선 134(배선-주도, 순수삭제 19뿐)·spurious:needed 제거 = **10:1 의도 우위**(D2 worsened의 정확한 거울상). **길이-prior 시그니처 0**: P +1.7 ∧ R +2.0 동반상승·short 18.3→17.4%·deficit ↓. improved의 A-상태 nself 평균 0.817 = 개선이 구조-파손 플랜에 집중.
   - **★대칭 기제 발견 (D1·D2 부검 통합)**: 학습-어휘 겹침이 양쪽 모두 ~8-10%뿐 = DPO는 쌍의 *대조축*을 도메인-일반 prior로 추출·전이시킨다 — 대조축=길이면 해롭게(D2 brevity), **대조축=배선이면 이롭게(D1 wiring 규율: self-loop·dangling-ref 제거·참조 정확성)**. 쌍 설계에서 길이 탈교락이 작동한 직접 증거.
   - **분기 발동 (§0.3)**: D1 held-out + → **혼합쌍 v3 (균형714+구조1017) best-stack 재학습** 검토 진입. 참고좌표: dpo_struct 53.5 vs dpo2(균형) 55.95 — 서로 다른 축이라 합집합 기대.
+
+### 8.10b ★혼합쌍 v3 = 신기록 — 사전등록 적중 (2026-06-12 18:22, `tb_v3_mix.sh`·v3mix_autopsy.md)
+- **공식 (MM full / HF sub500 / daily sub500)**: **56.46** / **54.78** / 85.55 — 사전등록 "≥ max(dpo2 55.95, struct 53.5)" **적중**(+0.5 vs dpo2·+3.0 vs struct). held-out 합산: rft2 49.0 → v3 **+7.5**. raw weight만으로 best-stack(dpo2+guided 57.22)에 −0.8 근접.
+- **두 축 합집합 확인**: 균형축(short 16.0→**15.0%**·deficit +0.181→**+0.152** = dpo2보다 개선) ∧ 구조축(HF +3.2 = struct의 in-domain 이득 승계). P 0.897·R 0.868.
+- **부검 (vs rft2, n=5540)**: improved 665 vs worsened 266 (2.5:1)·spurious:needed 제거 **14.5:1**(D1 10:1보다 청정)·정답엣지 +1095/−13. 길이-prior 시그니처 0 (P·R 동반↑·short↓).
+- **다음**: v3+guided 합성(→58+ 기대, 72B 앵커 63.5와의 갭 추격) + K-rollout 재채굴로 v4 사이클 여부.
 - 인프라 사건 3건(핸드오프 박제 예정): ①day 배치 이중 기동(1차=야간 잔여 vllm OOM→재기동 래퍼가 2차 기동, 1차 시체가 빈 보고서 push) ②adapter-저장↔serve 레이스(드라이버에 저장 완료 후 sleep/검증 필요) ③eval 후 EngineCore 고아 42GB 잔존(tb_eval_adapter가 시작 시만 kill — 종료 후 정리 추가 필요).
 
 ## 9. ★실행 큐 (2026-06-12 0시 전면 갱신 — §9.6 v2 합격·§9.5b guided·§8.5 P1 적중 이후, 이 §이 TaskBench 실행 권위)
