@@ -27,10 +27,16 @@ PRED_TYPES = [
     {"id": "STATE_INVARIANT", "predicate": "resource not in a frozen/terminal state",
      "kind": "terminal", "db": True},
 ]
-VERBS = ["create", "update", "cancel", "modify", "issue", "transfer", "adjust", "close", "renew"]
-NOUNS = ["reservation", "order", "account", "policy", "claim", "subscription", "ticket", "loan"]
-READS = ["get", "lookup", "find", "search", "list"]
-ATTRS = ["id", "email", "name", "zip", "date_of_birth", "membership", "reason", "amount"]
+VERBS = ["create", "update", "cancel", "modify", "issue", "transfer", "adjust", "close", "renew",
+         "suspend", "reinstate", "escalate", "approve", "reject", "archive", "merge", "split",
+         "freeze", "unfreeze", "extend"]
+NOUNS = ["reservation", "order", "account", "policy", "claim", "subscription", "ticket", "loan",
+         "shipment", "invoice", "refund", "voucher", "warranty", "appointment", "quote",
+         "contract", "deposit", "complaint", "membership_plan", "device"]
+READS = ["get", "lookup", "find", "search", "list", "fetch", "retrieve", "check"]
+ATTRS = ["id", "email", "name", "zip", "date_of_birth", "membership", "reason", "amount",
+         "phone", "address", "tier", "start_date", "end_date", "tracking_number",
+         "serial_number", "invoice_number"]
 
 
 def sample_catalog(rng, n_write, n_read):
@@ -49,7 +55,7 @@ def build_spec(rng, catalog):
     writes = [t for t, c in catalog.items() if c["type"] == "WRITE"]
     reads = [t for t, c in catalog.items() if c["type"] == "READ"]
     user_scoped = writes + rng.sample(reads, min(len(reads), rng.randint(0, len(reads))))
-    n_gates = rng.randint(2, 5)
+    n_gates = rng.randint(2, 6)
     chosen = rng.sample(PRED_TYPES, min(n_gates, len(PRED_TYPES)))
     spec = {}
     for i, p in enumerate(chosen, 1):
