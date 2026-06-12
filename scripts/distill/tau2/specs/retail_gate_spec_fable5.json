@@ -1,0 +1,6 @@
+{
+ "_meta": {"compiler": "Fable-5 in-session (= t2_gate.py GATE_SPEC, validated replay PASS)", "source": "retail policy.md 136줄"},
+ "G1_AUTH_FIRST": {"predicate": "authenticated user identity", "satisfiers": {"find_user_id_by_email": ["email"], "find_user_id_by_name_zip": ["first_name", "last_name", "zip"]}, "applies_to": ["cancel_pending_order","exchange_delivered_order_items","get_order_details","get_user_details","modify_pending_order_address","modify_pending_order_items","modify_pending_order_payment","modify_user_address","return_delivered_order_items"]},
+ "G2_CONFIRM_WRITE": {"predicate": "explicit user confirmation (yes)", "satisfiers": {}, "ask": "list action details and ask confirm", "applies_to": ["cancel_pending_order","exchange_delivered_order_items","modify_pending_order_address","modify_pending_order_items","modify_pending_order_payment","modify_user_address","return_delivered_order_items"]},
+ "G3_SINGLE_USER": {"predicate": "target belongs to authenticated user", "satisfiers": {}, "terminal": "deny other-user requests", "applies_to": ["cancel_pending_order","exchange_delivered_order_items","get_order_details","get_user_details","modify_pending_order_address","modify_pending_order_items","modify_pending_order_payment","modify_user_address","return_delivered_order_items"]}
+}

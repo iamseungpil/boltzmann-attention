@@ -55,6 +55,8 @@ K-샘플+검증기-선별 가능(R6)·검증 통화가 결정론(replay over/und
 
 ## 6. 실행 순서 (큐 등재용)
 P-A2-0 (zero-GPU): frontier로 retail+airline 컴파일 → replay 검증 — GT 파이프라인 생존성 + frontier 단일샷 baseline 수치 확보.
+  **✅PASS (2026-06-12)**: Fable-5 in-session airline 단일샷 → 상태-추적 replay **over-deny 0/108** (PORTFOLIO §3.9).
+**P-A2-0b 크기 하한 census (사용자 지시 2026-06-12 — R7을 A2 컴파일에 적용)**: 동일 프롬프트(스키마+retail 1-shot+airline 정책+A1 카탈로그)로 **7B/14B/32B-Int8(로컬)·72B(OpenRouter)** zero-shot 컴파일 → Fable-5 reference 대비 채점(게이트 매칭률·applies_to F1·핵심술어 recall) — **"Fable-5급 생성기의 모델 하한선" 확정**이 목적. 하한 위 모델=즉시 활용 가능, 하한 아래=증류 사다리(S0-S2)의 타깃·기대이득 정량화. ⚠️v1 채점은 구조·키워드 tier (생성 spec의 db_check prose replay는 DSL 후 = P-A2-1). 컨텍스트-공정성 각주는 외적-타당성 행에만 해당 — 하한 질문엔 무관(교사=컨텍스트 보유 Fable-5가 오히려 자산).
 P-A2-1: spec 샘플러 + 역방향 렌더 5k → S0 SFT → G-A2-1.
 P-A2-2: 실 22 도메인 verified distill + LODO → G-A2-2.
 P-A2-3: on-policy DPO → G-A2-3 → 세-컴파일러 표 완성 = thesis front-end 헤드라인.
