@@ -1,4 +1,4 @@
-# ▶▶ Coworker 요청서 — TaskBench scale 실험 (Qwen2.5/Qwen3 이원화, 4×A100 80GB) — 2026-06-10 **v4** (06-12 P2/P3 전면 교체)
+# ▶▶ Coworker 요청서 — TaskBench scale 실험 (Qwen2.5/Qwen3 이원화, 4×A100 80GB) — 2026-06-10 **v5** (06-12 P2/P3 전면 교체)
 
 > 🚨 **v4 액션 알림 (2026-06-12) — 착수 전 필독**:
 > - **구 P2(72B gold-SFT)·구 P3(타-family 앵커) = SUPERSEDED.** 만약 구판 기준으로 이미 착수했다면 **중단 요청** (근거: P1 판정=①적중 −5.4라 구 P2의 "+ 신호" 전제 불발 + 기제 예측 72B SFT −4.4 + TaskBench 외부동결로 구 P3 질문 가치 소멸). 단, 구 P2 게이트("P1이 + 시")가 불발이므로 **착수 안 했을 것으로 추정** — 했더라도 sunk cost 작을 때 끊는 게 이득.
@@ -190,3 +190,13 @@ P0(반나절) → P1(1-2일) → 판정 공유(채널) → P2/P3(조건부, 1-3�
 - **지표 (v1, 채점기 내장)**: gate_recall(reference 6게이트 술어 포착률)·applies_F1(게이트별 적용-도구 집합)·n_gates·parsed. v2 replay-tier 채점은 Track A가 생성 spec 원본으로 수행.
 - **사전예측 (동결)**: P4a 72B **gate_recall ≥0.8 ∧ applies_F1 ≥0.7**(Fable-5 근접) / P4b 32B **0.5~0.8 중간대 = 하한 후보 구간** / P4c ≈72B ±0.05(크기 포화 통제). Track A 측 7B 예측 <0.5.
 - **산출물**: 생성 spec JSON 원본 + score 텍스트 → `trackb_raw/p4_a2_census/` (드라이버가 자동 commit+push).
+- **★Track A 로컬분 결과 도착 (2026-06-12 — 실행 전 필독)**: **7B 0.333/0.815/9게이트 > 14B 0.167/0.698/4게이트** — 예측(7B<0.5) 적중, 단 **14B 역전 = retail 1-shot 과앵커링 발견**(1-shot 게이트 3종만 복사, airline 본체[취소적격·수정규칙·지불조성] 통째 누락). ⇒ P4 해석 시 **n_gates≈4 + retail 게이트명 복사 패턴 = 앵커링**으로 분류(크기 효과와 분리). 인프라: census `--model` 파싱 버그(URL 콜론) 수정 커밋 — 드라이버 머리 git pull로 자동 반영. 컨텍스트: 하한 아래 7B도 합성 200쌍 SFT(S0-v2)로 held-in structEM 70% — "하한 위=즉시 활용 vs 아래=증류" 프레임 유지.
+
+## 11. ★P5 (2026-06-13 신규) — S1 교사-풀 컴파일 (추론-only·P4 인프라 그대로·P4 직후 연속 실행 권장)
+> 배경: S0-v2 판정(`A2_FRONTEND_DISTILL_DESIGN.md` §6) — 합성 데이터 규모 확대는 held-in만 올리고 **실-도메인 전이는 악화**(airline applies_F1 0.876→0.528) ⇒ **S1 = 실-도메인 verified distill이 다음 rung**. S1 학습쌍 = (실 정책 NL, 대형모델 컴파일 spec) 중 **Track A 결정론 replay 검증 통과분만**. 너희 대형모델 3종이 교사-풀이다.
+
+- **할 일**: `scripts/distill/tau2/specs/s1_inputs/manifest.txt`의 도메인(현재 telecom 1개 — 158줄·13도구; Track A가 SOPBench 7도메인 등을 manifest에 추가 예정 — manifest만 늘면 같은 스크립트 재실행으로 증분 처리)을 **모델당 도메인당 1콜** 컴파일.
+- **턴키**: `scripts/distill/taskbench/node_run_s1_compile_p5.sh` — P4와 동일 골격(같은 venv·같은 모델 3종·per-arm done-marker 멱등). **P4 직후 같은 serve가 떠 있을 때 이어 돌리면 vllm 기동 비용 0**(현 스크립트는 독립 기동 — 합쳐 돌리려면 P4 run_arm에 P5 호출을 끼워도 됨, 자유).
+- **채점 없음**(reference 부재 도메인 — `--gen_only` 플래그): spec JSON 생성·저장만. 수용 판정 = Track A replay(over/under-deny)가 사후 수행 — 점수 걱정 말고 원본만 커밋.
+- **산출물**: `trackb_raw/p5_s1_compile/` (자동 commit+push).
+- **우선순위**: P4 > P5 (P5는 P4 serve 재사용 시 한계비용 ~분 단위). P3보다 P5를 먼저 권장 — S1 발사가 Track A 다음 세션 1순위라 교사 spec이 크리티컬 패스.
