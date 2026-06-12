@@ -29,14 +29,23 @@ PRED_TYPES = [
 ]
 VERBS = ["create", "update", "cancel", "modify", "issue", "transfer", "adjust", "close", "renew",
          "suspend", "reinstate", "escalate", "approve", "reject", "archive", "merge", "split",
-         "freeze", "unfreeze", "extend"]
+         "freeze", "unfreeze", "extend",
+         # v2 확장 (batch6+, 조합 재등장 완화 — HANDOFF day4 다양성 손잡이)
+         "activate", "deactivate", "register", "revoke", "downgrade", "upgrade", "settle"]
 NOUNS = ["reservation", "order", "account", "policy", "claim", "subscription", "ticket", "loan",
          "shipment", "invoice", "refund", "voucher", "warranty", "appointment", "quote",
-         "contract", "deposit", "complaint", "membership_plan", "device"]
-READS = ["get", "lookup", "find", "search", "list", "fetch", "retrieve", "check"]
+         "contract", "deposit", "complaint", "membership_plan", "device",
+         # v2 확장
+         "mortgage", "rebate", "consignment", "rider", "annuity", "manifest", "endorsement",
+         "grievance"]
+READS = ["get", "lookup", "find", "search", "list", "fetch", "retrieve", "check",
+         # v2 확장
+         "view", "inspect"]
 ATTRS = ["id", "email", "name", "zip", "date_of_birth", "membership", "reason", "amount",
          "phone", "address", "tier", "start_date", "end_date", "tracking_number",
-         "serial_number", "invoice_number"]
+         "serial_number", "invoice_number",
+         # v2 확장
+         "branch_code", "currency", "iban", "case_number"]
 
 
 def sample_catalog(rng, n_write, n_read):
@@ -55,7 +64,7 @@ def build_spec(rng, catalog):
     writes = [t for t, c in catalog.items() if c["type"] == "WRITE"]
     reads = [t for t, c in catalog.items() if c["type"] == "READ"]
     user_scoped = writes + rng.sample(reads, min(len(reads), rng.randint(0, len(reads))))
-    n_gates = rng.randint(2, 6)
+    n_gates = rng.randint(2, 7)  # v2: 7유형 전부 동시 등장 허용 (게이트 수 6+ 손잡이)
     chosen = rng.sample(PRED_TYPES, min(n_gates, len(PRED_TYPES)))
     spec = {}
     for i, p in enumerate(chosen, 1):
