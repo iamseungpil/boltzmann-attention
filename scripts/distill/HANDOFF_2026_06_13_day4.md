@@ -27,6 +27,7 @@
 5. **데스크톱 앱 업그레이드 = 로컬 폴러·워크플로 전멸**: 리모트 detached+git 채널은 생존. workflow resume은 **same-session only** → clear 후엔 재발사.
 6. printf %·heredoc 이스케이프 충돌 잦음 — 분석은 전부 repo 스크립트로 커밋 후 실행. pkill은 EXIT -1 시 드롭 — 상태 검증 후 재시도.
 7. 원격 push 충돌 잦음(coworker·자동push) — `git pull --rebase` 또는 stash 시퀀스, 원격 미스테이징 잔재는 stash 우회(커밋 금지).
+8. **vllm 2개 동시 기동 = torch.distributed 내부 포트 레이스** (둘 다 8010 선점 시도 → 한쪽 EADDRINUSE 즉사, 2026-06-12 실측): API `--port`만 달라선 부족 — **`VLLM_PORT`를 인스턴스별 분리**(예: 8100/8200) 또는 순차 기동.
 
 ## 3. 메타 (day-4 규율 수확)
 - **zero-cost 진단 최강 사례 박제**: P-D(-1)이 GPU 1.5일 diffusion 라인을 0원 census로 선별기 연구로 교체 — GPU 설계 사전등록에 "기존 산출물로 분리 가능?" 체크 강제 (memory `feedback-zero-cost-diagnosis-strongest-case`).
