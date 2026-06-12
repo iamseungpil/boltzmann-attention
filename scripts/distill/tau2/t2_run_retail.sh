@@ -12,7 +12,7 @@ exec > $S/t2_retail.log 2>&1
 set -x
 cd $R && git pull --ff-only -q
 
-export OPENROUTER_API_KEY=$(cat /home/woori/.openrouter_key)
+source /home/woori/.openrouter_key  # 파일 = `export OPENROUTER_API_KEY=...` 형식
 USER_LLM="openrouter/openai/gpt-4.1-mini"
 
 # agent vllm(8351)이 살아있으면 재사용, 아니면 GPU0 정리 후 기동
