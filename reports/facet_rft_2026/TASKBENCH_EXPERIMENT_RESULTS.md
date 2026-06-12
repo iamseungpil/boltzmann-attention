@@ -293,6 +293,22 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 - **판정: L6 선별 레버(§10.5 R6) 실재** — 제안 분포에 +17.2pt(DiG-Plan Pass@K의 우리-데이터 재현), v0 게이트는 그중 18%만 회수 ⇒ **다음 정밀 타깃 = 게이트 스코어 강화(그래프-멤버십·타입-호환을 스코어러로 — 마스킹 아닌 선별이라 GAD 왜곡 무관)**. ⚠️caveat: in-domain(train 도메인) 프롬프트·census-식 채점(상대 갭만 신뢰·공식수치와 비교 금지); held-out 확장은 K-샘플 추론 필요(GPU).
 - **★E5/E6 야간 확정 (2026-06-12) — 선별 레버의 결정적 한정**: ①E5 스코어러 v1(+그래프-멤버십): 회수 18%→**22.6%**(예측 ≥30% ✗ — 멤버십 기여 소폭) ②**E6 held-out (dpo2+guided 위, MM sub500, K=8 temp0.8): mean 70.6 / gate 71.1~71.4 / oracle 72.0 = 선별 갭 +1.4뿐**(예측 >+5 ✗). **해석(중요): in-domain rft2 rollout의 +17.2 갭은 대부분 "우리 레버가 이미 제거한 분산"** — guided=어휘 분산·DPO=길이/정책 분산 제거로 정책이 수렴해 K-샘플이 서로 닮음. ⇒ **레버는 비선형 합성: 선별은 best-stack 위에선 천장 +1.4** — 잔여 L6(57→관례천장 ~69)는 수렴 정책의 K-분포 밖 = ④구조-표적 DPO(weight) 또는 제안 다양화(고온/이종 제안기 — DiG-Plan의 diffusion 논거)가 필요. E6 분석버그 1건 수리(도메인 data.json은 task_nodes 비표준 → eval-dir gold로 조인).
 
+## 8.9 ★P-D(-1) 이종-AR 풀 census (2026-06-12 — zero-GPU, 리뷰 권고 신설 단계; `TB_DIFFUSION_PROPOSER_DESIGN.md` §3 v2)
+디스크의 기존 sub500 MM 예측만으로 "제안 이종성이 풀-oracle을 올리는가"를 diffusion 없이 분리 (E6 동일 채점·동일 id셋 499·gold=eval-dir 조인).
+| 풀 | mean | gate_v0 | gate_v1 | oracle |
+|---|---|---|---|---|
+| AR8 (`tb_dpo2g_mmk0-7`, E6 통제 재현) | 0.706 | 0.711 | 0.714 | 0.720 |
+| AR4 (k0-3 고정) | 0.707 | 0.712 | 0.712 | 0.718 |
+| **AR8+H6** | 0.671 | 0.525 | 0.541 | **0.856** |
+| AR4+H6 | 0.657 | 0.526 | 0.541 | 0.856 |
+| H6 단독 | 0.624 | 0.523 | 0.540 | 0.847 |
+
+H6 = {qwen3b 0.348, qwen14b 0.656, qwen3_4b 0.537, qwen3_14b 0.682, **tb_lodo_hf 0.757, tb_lodo_daily 0.745**} (solo mean; lodo 둘은 MM-포함 학습-혼합 상이 어댑터).
+- **판정 ①: Δhetero = +13.6 (0.720→0.856) ≫ 사전등록 임계 +2** — E6의 "수렴 정책 K-분포 밖" 잔여 L6는 **이종-AR 제안만으로 대부분 도달 가능**. 검증 census(R8): H6-승리 112/499 중 empty-gold 24뿐(88=비자명 gold, mean Δ0.61) → f1(빈,빈)=1 인플레이션 가설 기각. CI 생략(Δ≫임계).
+- **판정 ②(신규 병목): 혼합 풀에서 게이트 붕괴** — v0/v1이 0.71→0.52-0.54로 **mean보다도 낮아짐**(이종 후보 사이에서 역선택). oracle 헤드룸 +13.6이 있어도 현 스코어러로는 실현 0 이하. ⇒ **L6의 binding constraint = 제안 다양성(해결됨, 공짜)이 아니라 선별기**.
+- **처방 재배열**: ⑴**선별기 연구가 1순위로 승격**(이종-풀 위 robust 스코어러 — 후보: 타입-호환·실행-가능성·pairwise 비교·verifier) ⑵P-D0/P-D1(diffusion)은 **조건부 강등**: Dream의 한계가치는 AR8+H6 위(0.856→cap)에서만 측정 의미 — "더 싼 대안 대비 순이득" 입증 부담(설계서 v2 사전등록대로). ⑶배포 비용: H6 = 같은 base의 LoRA 어댑터들 = vllm 멀티-LoRA 1서버로 서빙 가능 ≈ 추가비 ~0 (diffusion 2-모델 대비 압도).
+- ⚠️척도 주의: census-식 링크 채점(상대 비교만, 공식수치 비교 금지)·empty-gold 259/499 포함(양 풀 동일 적용). 공식 edge-F1 실현이득은 선별기 개선 후 P-D2-형 측정에서.
+
 ## 9. ★실행 큐 (2026-06-12 0시 전면 갱신 — §9.6 v2 합격·§9.5b guided·§8.5 P1 적중 이후, 이 §이 TaskBench 실행 권위)
 
 **✅ 이번 사이클 완료 (06-11~12)**: RFT r2 → DPO v1(net−) → **균형-DPO v2 합격(55.95/57.30)** → guided v1 daily(+8.0)·MM 합성(57.22=snap 상위호환) → promptslim(−51% 목록=−3 edge) → P1 32B prereg **적중**(−5.4 vs −5.0)+Track A 독립 재검증 → 선행연구 5-agent 적대검증·§6.5 차별점 경화. §10 분류의 판별실험 2개 모두 확정.
@@ -302,7 +318,7 @@ vllm 0.11 `structured_outputs`(xgrammar, per-request)로 도구명 슬롯(task/l
 2. **전 도메인 best-stack 헤드라인**: rft2+dpo2+guided를 HF held-out 트랙에도 — 필요물: lodo_hf 트랙 RFT rollout(.all)→균형쌍 채굴→DPO→guided. daily 트랙은 lodo_daily+guided(67.6) 완료, DPO만 잔여. 논문 헤드라인 표(3도메인 패키지)의 본체.
 3. **coworker P2 제안 (32B 후속, `COWORKER_REQUEST_TB_SCALE.md`에 추가할 것)**: ①**32B-SFT+guided/snap**(간섭 −4.8pp 회복 검증 — §8.5 예고 항목, 예측 ≈base 복원) ②(선택) 32B 균형-DPO 재현 — 단 §8.5 누락축 측정상 32B 기대이득 작음(deficit +0.024) → 우선순위 낮음·기제 확인용.
 4. **promptslim in-domain arm** (zero-GPU에 가까움, sub500 2런): in-domain서 desc 제거 비용 측정 — "weight가 의미를 알면 프롬프트 더 절감" 가설 완결(비용-leg).
-5. **L3 type-closure 게이트** (K=4 재샘플): 7B 잔여 누락(v2 후 short 16%)의 추론-side 보완 — DPO v2 성공으로 우선순위 하락, 패키지 +α 필요 시.
+5. **★이종-풀 robust 선별기 (§8.9로 1순위 승격)**: oracle 헤드룸 +13.6 실재·현 게이트는 역선택(0.52<mean) — 후보: 타입-호환/실행-가능성/pairwise/verifier 스코어러. P-D0/P-D1(diffusion)은 이것 이후 조건부. L3 type-closure 게이트(K=4 재샘플)는 이 항목에 흡수.
 6. **E2 복귀·논문 정리** (FIELD_GAP §18.3): §10 분류 + 2-벤치 실증 + census→처방 절차를 본문 골격으로. **⚠️작성 규율(2026-06-12, coworker 전달)**: arXiv 제재 강화 — AI-작성 미검토 문장·허위 레퍼런스 시 전저자 1개월 제출 금지. **모든 인용 = 원문 검증 후**(5-agent 검증 패턴 표준화: §6.5처럼 버전·venue·인용문 박제), 수치는 결과문서 §번호 역추적 가능해야.
 7. alias-마스킹 arm (P3 위생) · 형식-혼합 재학습 (조건부) — 변동 없음, 후순위.
 
