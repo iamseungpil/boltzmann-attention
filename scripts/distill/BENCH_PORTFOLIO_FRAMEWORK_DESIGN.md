@@ -67,6 +67,19 @@
 - **SOPBench 동형 해석**: passive deny의 한계 = SOPBench passive-H3(6)와 동형 — 거기선 active-H3(게이트가 누락 getter 구동)로 6→15. τ²의 G1은 대화 정보(이메일/이름+zip)가 필요해 자동-구동 불가 ⇒ 처방 후보: ①**사전 scaffold**(시스템 프롬프트에 게이트 규칙 명시 = 사후 deny→사전 회피) ②deny-시 복구 절차 주입 ③compliance-first 배포 regime에선 현 트레이드오프 자체가 가치(위반 0 보장 헤드라인 + 성공비용 명시).
 - 절대좌표: 표준 user-sim이라 리더보드-비교 가능 — 7B base 18.4%는 frontier(60-80%대)와의 갭 실측. 인프라: judge 하드 gpt-4.1 기본값·json.loads 직접 호출(json_object 강제 필요)·resume 대화형 프롬프트 — 3함정 전부 수정 커밋.
 
+### 3.7b ★N3 = gate_r2 (G1 deny→복구절차 메시지) 사전등록 판정 (2026-06-12 — 114×4 full 재실행, 동일 프로토콜)
+| arm | pass^1 | pass^2 | pass^3 | pass^4 | deny→fail | 인증-전 write 실행 |
+|---|---|---|---|---|---|---|
+| nogate | 0.184 | 0.089 | 0.068 | 0.061 | — | 44 |
+| gate r1 (단순 deny) | 0.147 | 0.061 | 0.044 | 0.035 | 92.3% (48/52) | 0 |
+| **gate r2 (복구 메시지)** | **0.191** | 0.074 | 0.035 | 0.018 | **80.8% (42/52)** | **0** |
+- **사전등록 판정: ①deny→fail<50% FAIL · ②pass^1≥0.184 PASS · ③write-차단 유지 PASS ⇒ conjunction FAIL** (정직 기록). 단 ①은 **오캘리브레이션 판명**: r2의 nodeny 실패율 81.5% ≈ deny→fail 80.8% — deny-sim 실패율은 base 실패율 아래로 내려갈 수 없는데 기준을 50%로 걸었음. **올바른 척도 = deny의 한계 피해(deny−nodeny 실패율 갭): r1 +7.9pp → r2 −0.7pp = 소거.**
+- **★헤드라인: 게이트가 pass^1에서 무비용화** — matched 112-태스크(infra-error 4 sims 제외 동일셋) r2 0.1853 vs nogate 0.1830 = parity. **write-위반 44→0 유지** ⇒ "compliance 무료(pass^1 기준)" 달성. 분석 = `tau2/t2_gate_r2_verdict.py`.
+- **★귀속 (복구 census — r1 재분석 포함)**: 복구 *행동*은 r1에서도 이미 96%(G1-deny 47 sims 중 auth-after-deny 45·원도구 재시도 42) — **r1의 단순 deny 메시지("authenticate first")로도 모델은 기계적으로 복구했음**. r2 메시지가 바꾼 건 행동이 아니라 **복구 후 성공률**(4/41→9/36 pass): 4단계 절차(재시도 금지→필요입력 질문→satisfier 호출→원행동 재개)가 복구 *품질*(대화 흐름 보존)을 올림. "deny→fail 92%=복구 불능" 해석(§3.7)은 절반만 옳았음 — 병목은 복구 여부가 아니라 복구 과정의 대화 붕괴.
+- **잔여 음성**: pass^4 0.0625→0.0179(matched) — 일관성 축은 여전히 악화(전-trial 통과 태스크 7→2개, 소수-n 노이즈 유의·user-sim temp 0.7 분산). ⓟ1(게이트=일관성 레버)은 이 구성에서 계속 기각.
+- 영구실패 4 sims(task17×3·task99×1) = `infrastructure_error`·대화 0건 — OpenRouter측 에러, 모델 무관. n=452/456. G2 deny 8→13(G1 54·G3 0).
+- **다음 처방 후보**: deny-복구는 종결 — 남은 갭은 base 능력(nogate 81.6% 실패·DB-state 지배). 게이트-side 추가 레버 없음 ⇒ A2 front-end(§3.8-3.9)·base 학습 라인으로 이관.
+
 ### 3.8 ★A2 산출물 ↔ R3 템플릿 분리 (2026-06-12 사용자 지시 — 수동 프롬프트 금지)
 - 구조: **A2 컴파일 산출물 = `GATE_SPEC` 구조 데이터**(JSON 덤프 `tau2_adapter/retail_gate_spec.json`: predicate·satisfier도구→필요입력·applies_to·terminal여부) / **R3-side 불변 템플릿 `render_recovery`**가 전 deny 메시지를 spec에서 *생성* — 도메인 문자열 hand-authoring 0. 새 도메인 비용 = spec 컴파일뿐(메시지·게이트 자동).
 - 검증: 생성 메시지 3종이 수동본과 의미 동등(G1 복구 4단계·G2 확인 절차·G3 terminal 거부 안내) ∧ replay 재검증 PASS(0/0). N3(진행 중)는 수동본으로 시작했으나 생성본과 의미 동등이라 결과 대표성 유지.
