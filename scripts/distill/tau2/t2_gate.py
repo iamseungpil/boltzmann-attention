@@ -34,6 +34,59 @@ CONFIRM_RE = re.compile(
     r"please do|that works|do it)\b", re.I)
 TRANSFER_MSG = "YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON."
 
+# ──────────────────────────────────────────────────────────────────────────
+# A2 컴파일 산출물 (구조 데이터) — 수동 프롬프트 문자열 금지 (2026-06-12 분리 지시).
+# 복구 메시지는 아래 render_recovery(R3-side 불변 템플릿)가 이 데이터에서 *생성*한다.
+# 새 도메인 = 이 spec만 컴파일하면 메시지·게이트가 따라옴 (airline 무수정 작동이 검증 목표).
+GATE_SPEC = {
+    "G1_AUTH_FIRST": {
+        "predicate": "authenticated user identity",
+        # satisfier 도구 -> 유저에게 받아야 하는 입력 (A1 카탈로그의 required와 일치)
+        "satisfiers": {
+            "find_user_id_by_email": ["email"],
+            "find_user_id_by_name_zip": ["first_name", "last_name", "zip"],
+        },
+        "applies_to": sorted(USER_SCOPED),
+        "note": "required even if the user already gave a user id or order id",
+    },
+    "G2_CONFIRM_WRITE": {
+        "predicate": "explicit user confirmation (yes) of the action details "
+                     "in the latest user message",
+        "satisfiers": {},  # 도구가 아니라 대화로 충족
+        "ask": "list the action details to the user and ask them to confirm",
+        "applies_to": sorted(WRITE_TOOLS),
+    },
+    "G3_SINGLE_USER": {
+        "predicate": "target belongs to the authenticated user",
+        "satisfiers": {},  # 충족 불가 — 정책상 거부가 정답
+        "terminal": "deny the request: you can only help the authenticated user "
+                    "in this conversation",
+        "applies_to": sorted(USER_SCOPED),
+    },
+}
+
+
+def render_recovery(gate, spec, detail=""):
+    """R3-side 불변 템플릿: 게이트 spec(A2 산출물) -> 복구 메시지. 도메인 문자열 없음."""
+    head = f"blocked by policy gate: {spec['predicate']} not established"
+    if spec.get("note"):
+        head += f" ({spec['note']})"
+    if detail:
+        head += f" [{detail}]"
+    if spec.get("terminal"):
+        return f"{head}. This cannot be satisfied — {spec['terminal']}."
+    steps = ["(1) do NOT retry this tool now"]
+    if spec.get("satisfiers"):
+        asks = " OR ".join(", ".join(v) for v in spec["satisfiers"].values())
+        calls = " or ".join(f"{t}({', '.join(v)})" for t, v in spec["satisfiers"].items())
+        steps += [f"(2) ask the user for: {asks}",
+                  f"(3) call {calls} with that info",
+                  "(4) once it succeeds, retry the original action"]
+    elif spec.get("ask"):
+        steps += [f"(2) {spec['ask']}",
+                  "(3) once the user confirms, retry the original action"]
+    return f"{head}. Recovery: " + "; ".join(steps)
+
 
 class RetailGate:
     """대화-수준 결정론 게이트. 도구 실행 *전* check(), 실행 *후* observe()."""
@@ -55,30 +108,31 @@ class RetailGate:
         return order.user_id if order else None
 
     def check(self, tool_name, args, last_user_msg=None):
-        """returns (allowed: bool, gate: str|None, reason: str|None)"""
-        # G1: 인증 선행 (deny 메시지에 복구 절차 명시 — run7 census: deny→fail 92%의 처방, N3)
+        """returns (allowed: bool, gate: str|None, reason: str|None)
+        메시지는 전부 render_recovery(GATE_SPEC)에서 생성 — 수동 문자열 없음."""
+        # G1: 인증 선행 (복구 절차 포함 메시지 — run7 census: deny→fail 92%의 처방, N3)
         if tool_name in USER_SCOPED and self.auth_user is None:
-            return False, "G1_AUTH_FIRST", (
-                "you must authenticate the user before this action (required even if the "
-                "user already gave a user id or order id). Recovery procedure: (1) do NOT "
-                "retry this tool now; (2) ask the user for their email, OR first name + last "
-                "name + zip code; (3) call find_user_id_by_email or find_user_id_by_name_zip "
-                "with that info; (4) after it returns a user id, retry this action")
-        # G3: 단일-유저 범위
+            return False, "G1_AUTH_FIRST", render_recovery(
+                "G1_AUTH_FIRST", GATE_SPEC["G1_AUTH_FIRST"])
+        # G3: 단일-유저 범위 (terminal — 복구 아닌 정중 거부 안내)
         if self.auth_user is not None:
             uid = args.get("user_id")
             if uid and uid != self.auth_user:
-                return False, "G3_SINGLE_USER", f"user_id {uid} != authenticated {self.auth_user}"
+                return False, "G3_SINGLE_USER", render_recovery(
+                    "G3_SINGLE_USER", GATE_SPEC["G3_SINGLE_USER"],
+                    detail=f"user_id {uid} != authenticated {self.auth_user}")
             oid = args.get("order_id")
             if oid:
                 owner = self._order_owner(oid)
                 if owner is not None and owner != self.auth_user:
-                    return False, "G3_SINGLE_USER", f"order {oid} belongs to {owner}"
+                    return False, "G3_SINGLE_USER", render_recovery(
+                        "G3_SINGLE_USER", GATE_SPEC["G3_SINGLE_USER"],
+                        detail=f"order {oid} belongs to another user")
         # G2: 쓰기-전-확인 (live 전용 — last_user_msg=None이면 skip)
         if self.enable_g2 and tool_name in WRITE_TOOLS and last_user_msg is not None:
             if not CONFIRM_RE.search(last_user_msg):
-                return False, "G2_CONFIRM_WRITE", (
-                    "list the action details and obtain explicit user confirmation (yes) first")
+                return False, "G2_CONFIRM_WRITE", render_recovery(
+                    "G2_CONFIRM_WRITE", GATE_SPEC["G2_CONFIRM_WRITE"])
         return True, None, None
 
 
@@ -175,6 +229,15 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--validate", action="store_true")
     ap.add_argument("--domain", default="retail")
+    ap.add_argument("--export-spec", default=None,
+                    help="A2 산출물(JSON)로 GATE_SPEC 덤프 (tau2_adapter/에 A1 카탈로그와 동거)")
+    ap.add_argument("--render", action="store_true", help="생성 메시지 3종 미리보기")
     a = ap.parse_args()
+    if a.export_spec:
+        json.dump(GATE_SPEC, open(a.export_spec, "w"), indent=1)
+        print(f"[gate-spec] -> {a.export_spec}")
+    if a.render:
+        for g, s in GATE_SPEC.items():
+            print(f"--- {g}\n{render_recovery(g, s)}")
     if a.validate:
         raise SystemExit(1 if validate(a.domain) else 0)
