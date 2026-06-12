@@ -24,7 +24,8 @@ def load_gold(tb_dir):
     gold = {}
     for l in open(f"{tb_dir}/data_multimedia/data.json", encoding="utf-8"):
         d = json.loads(l)
-        gl = {(norm(e["source"]), norm(e["target"])) for e in d.get("task_links", [])
+        links = d.get("tool_links") or d.get("sampled_links") or []
+        gl = {(norm(e["source"]), norm(e["target"])) for e in links
               if isinstance(e, dict) and "source" in e}
         gold[d["id"]] = gl
     return gold
