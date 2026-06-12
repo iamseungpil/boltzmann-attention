@@ -44,6 +44,8 @@ def analyze(sims):
     denies = {g: 0 for g in GATES}
     preauth_exec = preauth_write = 0
     preauth_sims = set()
+    # 위반-sim의 과제 성공 교차 (벤치가 위반을 벌점화하는지 직접 측정)
+    pw_pass = pw_fail = 0
     no_reward = []
     # deny-후 복구 행동 census: G1 deny 경험 sim에서 ①이후 auth 성공 ②원래 도구 재실행
     g1_sims = g1_auth_recovered = g1_tool_retried = 0
@@ -65,6 +67,7 @@ def analyze(sims):
                 results_by_id[m["id"]] = m
         had_deny = False
         authed = False
+        had_pw = False
         g1_denied_tools, auth_after_g1, retried_after_g1 = set(), False, False
         for m in msgs:
             if m.get("role") != "assistant":
@@ -97,6 +100,10 @@ def analyze(sims):
                     preauth_sims.add(i)
                     if name in WRITE_TOOLS:
                         preauth_write += 1
+                        had_pw = True
+        if had_pw:
+            pw_pass += ok
+            pw_fail += (not ok)
         if g1_denied_tools:
             g1_sims += 1
             g1_auth_recovered += auth_after_g1
@@ -116,6 +123,7 @@ def analyze(sims):
                 nodeny_pass=nodeny_pass, nodeny_fail=nodeny_fail, denies=denies,
                 preauth_exec=preauth_exec, preauth_write=preauth_write,
                 preauth_sims=len(preauth_sims), no_reward=no_reward,
+                pw_pass=pw_pass, pw_fail=pw_fail,
                 g1_sims=g1_sims, g1_auth_recovered=g1_auth_recovered,
                 g1_tool_retried=g1_tool_retried,
                 g1_recov_pass=g1_recov_pass, g1_recov_fail=g1_recov_fail)
@@ -147,6 +155,10 @@ def main():
         print(f"  nodeny pass/fail={st['nodeny_pass']}/{st['nodeny_fail']}")
         print(f"  F4: preauth-executed user-scoped={st['preauth_exec']} "
               f"(write={st['preauth_write']}) in {st['preauth_sims']} sims")
+        if st["pw_pass"] + st["pw_fail"]:
+            print(f"  F4-x-F3: preauth-WRITE sims pass/fail = "
+                  f"{st['pw_pass']}/{st['pw_fail']} "
+                  f"(위반하고도 bench-pass = {st['pw_pass']}건)")
         if st["g1_sims"]:
             print(f"  G1-deny recovery: sims={st['g1_sims']} "
                   f"auth-after-deny={st['g1_auth_recovered']} "
