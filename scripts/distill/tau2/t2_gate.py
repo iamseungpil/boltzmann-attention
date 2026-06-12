@@ -93,8 +93,9 @@ def render_recovery(gate, spec, detail=""):
                   f"(3) call {calls} with that info",
                   "(4) once it succeeds, retry the original action"]
     elif spec.get("ask"):
+        # 게이트-중립 마감 문구 (G2=확인 수령 후 / G4=송신 완료 후 — "this is done"으로 통일)
         steps += [f"(2) {spec['ask']}",
-                  "(3) once the user confirms, retry the original action"]
+                  "(3) once this is done, retry the original action"]
     return f"{head}. Recovery: " + "; ".join(steps)
 
 
