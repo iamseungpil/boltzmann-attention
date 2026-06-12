@@ -18,7 +18,9 @@ HF=/scratch/venvs/sop_env/bin/hf
 IP=/scratch/venvs/tb_env/bin/python
 PORT=${TB_PORT:-8500}
 OUT=/scratch/taskbench_runs
-DONE=$OUT/p2_done
+# v2 markers: 1차(p2_done)는 vllm 0.10.2가 structured_outputs를 조용히 무시해 무효
+# (사실상 unguided) — 새 이름으로 stale-marker 복원 차단
+DONE=$OUT/p2v2_done
 ADAPTER=$OUT/sft/qwen32b_tb_lodo_mm
 SCHEMA=$OUT/p2_guided_mm_schema.json
 mkdir -p $DONE /scratch/logs
@@ -34,6 +36,23 @@ kill_gpus() {
 
 # 0. patches + schema + slim1 variant (desc 제거 tool_desc) + preds symlink
 $IP $R/scripts/distill/taskbench/tb_guided_patch.py $TB/inference.py || exit 1
+# vllm 0.10.2 fallback: per-request 키는 guided_json — structured_outputs(0.11+)는
+# protocol.py가 "ignored" 경고만 내고 무시 (P2 1차 무효의 원인, vllm 로그로 확인)
+$IP - <<'EOF'
+import re
+p = "/scratch/JARVIS/taskbench/inference.py"
+s = open(p).read()
+s2 = re.sub(
+    r'\{"structured_outputs":\s*\{"json":\s*(_tb_json\.load\(open\(_tb_os\.environ\["TB_GUIDED_SCHEMA"\]\)\))\}\}',
+    r'{"guided_json": \1}', s)
+if s2 != s:
+    open(p, "w").write(s2); print("[fallback] structured_outputs -> guided_json (vllm 0.10.x)")
+elif '"guided_json"' in s:
+    print("[fallback] already guided_json")
+else:
+    raise SystemExit("[fallback] FAIL: helper pattern not found")
+EOF
+[ $? -eq 0 ] || exit 1
 $IP $R/scripts/distill/taskbench/tb_guided_schema.py \
   --tool_desc $TB/data_multimedia/tool_desc.json --dep resource --out $SCHEMA || exit 1
 if [ ! -f $TB/data_multimedia_sub500_slim1/tool_desc.json ]; then
@@ -72,11 +91,15 @@ serve() {  # serve GPUS TPN PROBE_NAME <vllm serve args...>
 
 guided_run() {  # guided_run TAG DATA_DIR
   local tag=$1 ddir=$2
-  # guided sanity: structured_outputs 요청이 enum-유효 도구명만 내는지 1콜 확인
-  curl -s -m 180 localhost:$PORT/v1/chat/completions -H "Content-Type: application/json" -d "{
-    \"model\": \"$tag\", \"max_tokens\": 64,
+  # 바인딩 게이트: guided_json 1콜의 content가 JSON으로 강제되는지 확인 — 안 묶이면
+  # 즉시 중단 (1차처럼 조용한 unguided 재실행을 결과로 오인하는 사고 방지)
+  SAN=$(curl -s -m 300 localhost:$PORT/v1/chat/completions -H "Content-Type: application/json" -d "{
+    \"model\": \"$tag\", \"max_tokens\": 128,
     \"messages\": [{\"role\": \"user\", \"content\": \"emit a tiny plan\"}],
-    \"structured_outputs\": {\"json\": $(cat $SCHEMA)}}" | head -c 200; echo
+    \"guided_json\": $(cat $SCHEMA)}")
+  echo "$SAN" | head -c 200; echo
+  echo "$SAN" | grep -q '"content":"{' || { echo "GUIDED_NOT_BINDING_$tag"; return 1; }
+  rm -f $TB/$ddir/predictions/${tag}.json   # 1차 unguided 잔재 제거 (강제 재추론)
   (cd $TB && TB_GUIDED=1 TB_GUIDED_SCHEMA=$SCHEMA $IP inference.py --data_dir $ddir \
     --api_addr localhost --api_port $PORT --api_key dummy --llm $tag --multiworker 8 \
     --dependency_type resource) || return 1
