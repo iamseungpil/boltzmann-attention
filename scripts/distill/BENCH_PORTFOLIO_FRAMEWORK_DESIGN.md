@@ -78,6 +78,7 @@
 - **★귀속 (복구 census — r1 재분석 포함)**: 복구 *행동*은 r1에서도 이미 96%(G1-deny 47 sims 중 auth-after-deny 45·원도구 재시도 42) — **r1의 단순 deny 메시지("authenticate first")로도 모델은 기계적으로 복구했음**. r2 메시지가 바꾼 건 행동이 아니라 **복구 후 성공률**(4/41→9/36 pass): 4단계 절차(재시도 금지→필요입력 질문→satisfier 호출→원행동 재개)가 복구 *품질*(대화 흐름 보존)을 올림. "deny→fail 92%=복구 불능" 해석(§3.7)은 절반만 옳았음 — 병목은 복구 여부가 아니라 복구 과정의 대화 붕괴.
 - **잔여 음성**: pass^4 0.0625→0.0179(matched) — 일관성 축은 여전히 악화(전-trial 통과 태스크 7→2개, 소수-n 노이즈 유의·user-sim temp 0.7 분산). ⓟ1(게이트=일관성 레버)은 이 구성에서 계속 기각.
 - 영구실패 4 sims(task17×3·task99×1) = `infrastructure_error`·대화 0건 — OpenRouter측 에러, 모델 무관. n=452/456. G2 deny 8→13(G1 54·G3 0).
+- **★벤치 pass는 compliance-blind (2026-06-12 심야 census)**: nogate에서 인증-전 WRITE를 실행한 21 sims 중 **6건이 bench-pass** — τ² 보상(DB-state 등가+NL assertion)은 절차 위반을 직접 벌점화하지 않음(gold가 인증 READ 생략 46/114 — §3.6 동형). ⇒ **F3(pass)×F4(위반) 2축 분리 보고가 필수**인 직접 증거; "pass^1 parity + 위반 0"이 올바른 주장 형태이고, 게이트의 가치는 pass 축에 원천적으로 안 잡힘.
 - **다음 처방 후보**: deny-복구는 종결 — 남은 갭은 base 능력(nogate 81.6% 실패·DB-state 지배). 게이트-side 추가 레버 없음 ⇒ A2 front-end(§3.8-3.9)·base 학습 라인으로 이관.
 - ⚠️**프로토콜 드리프트 경고 (메트릭 리서치 2026-06-12)**: τ² 공식 리더보드는 user-sim을 병기하며 현재 **gpt-5.2 권장** — 본 행렬(run7/r2)은 gpt-4.1-2025-04-14. **외부 리더보드 숫자와 비교 시 user-sim 4-tuple(user-sim·judge·trials·split) 명시 필수**, 내부 ±게이트 비교는 무영향. 보고 표준형(paired Δpass^1+bootstrap CI·0/N+rule-of-three 상한·구조적0/표본적0 분리) = `reports/facet_rft_2026/research_framework_metrics_2026_06_12.md` §2.2.4 — §1.6 v2 동결 시 채택.
 
