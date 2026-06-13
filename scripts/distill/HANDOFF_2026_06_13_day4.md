@@ -11,6 +11,12 @@
 5. **coworker**: P4(A2 크기 census, 32B/72B/235B) — trackb_raw/p4_a2_census 도착 감시 (06-12 저녁 기준 미도착).
 6. **잔여 GPU 큐**: ~~S0-v2~~ ✅완료(200쌍: held-in **structEM 70%·EM 40% 창발**·airline 전이 추가악화 0.528 → **S1 실-도메인 verified distill이 다음 rung**, A2_FRONTEND §6) · v4 재채굴 사이클 검토 · 선별기 합성(v3+guided 57.90 위에 N2-식 이종풀+선별) · P-D0 diffusion(조건부 강등 유지). GPU 양쪽 해제 상태.
 
+### 0a-1. ★★★주간 무인 배치 0613 09:30→17:00 가동 중 (사용자 외출 — 귀가 시 첫 행동 = 수확)
+- **수확 = `cat /home/woori/scratch/day13_summary.txt`** (sentinel DAY13_DONE) + `substrate_hf.log`·`frontier_f4b.log`(완료분). 드라이버 `taskbench/driver_day13.sh` — 사전등록은 드라이버 머리 + SELECTOR_DESIGN ⑸/§6 + TB_DIFFUSION §3b.
+- 돌고 있는 것: **[A]** P-temp(temp 0.5-1.4×2)+P-unguided(guided OFF) 각 K8 (GPU0) **[B]** P-lora 이종-목적 어댑터 8종(dpo2/v3mix/struct/cost/lodomm/daily/rft2/rft) 각 1샘플 (GPU1, substrate 후) **[C]** 다양성 분석+gain~diversity 회귀+공식 eval **[D]** P-D0 Dream-7B 형식게이트 스모크(timeout 격리) **[E]✅** V-1/V-2 완료 — **lex 음성통제 적중(0.730 ≪ sel1 0.831 = 역선택 재현 ⓥ2 PASS)**·greedy가 val에서 축 0개 채택(ⓥ1 엄밀 기각 — approve-전축 +0.31pp는 val-동결 아닌 탐색적, 정직 기록 필요) **[F]** ⓟ1 분산통제 arm(user-sim temp 0.0 ×4, `retail_7b_gate_r3_ut0` — flaky↓면 user-sim 분산원 확정).
+- P-prompt arm 제외 사유: inference.py에 system 주입점 부재 (설계서 기록 — 차기 patch 후보).
+- 완료된 오전분: **frontier F4b ✅**(§3.7e — 게이트 model-agnostic·frontier 위반 G2 4건뿐 = 강형 기각·정직 서사) · **hf 둘째-기판 🔄**(substrate_hf.log) · 다양성 딥리서치 ✅(35인용 — P-unguided 신설 근거).
+
 ### 0a0. ★★야간 0613→14 수확 완료 + 전수 부검 (2026-06-13 아침 — 최신)
 - **τ² gate r3 (G4 deny-게이트) = PASS**: 위반 0/0/0/0 집행(G4 deny 65)·pass^1 0.1952(r2 동등+)·**pass^2-4 회복**(pass^4 0.018→0.054)·compliant FULL +5.3pp. PORTFOLIO §3.7c.
 - **★SEL-4 신기록**: dpo2g-풀+7B Reviewer = **공식 0.6803**(SEL-1 0.6722 → +0.81pp, 사전등록 적중) = k0 대비 **+10.3pp**. best-stack=SEL-1+SEL-4. TB §8.9d/SEL-4 행.
