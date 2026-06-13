@@ -86,3 +86,21 @@
 - **D-unique = 정답(edge-F1=1 또는 ≥τ) 후보의 distinct 링크집합 수** : "서로 다른 *정답* 경로 수"(ND 교훈의 unique-correct census와 동형).
 - **회귀 재설계**: per-policy(점=정책, n=4~6)로 **D-oracle ~ 다양성** + **선별이득 ~ D-oracle** 2단 — per-id 노이즈 회피. 사전등록: 선별이득/D-oracle = 회수율이 핵심 지표(현 18% → SEL-1+4 적용 후 ↑ 목표). ⓡ1 D-oracle이 1−F1보다 선별이득과 상관 강함(R² 비교).
 - **연결**: 회수율이 진짜 병목이므로 **다음 GPU 1순위 = P-lora 풀 + SEL-1+SEL-4 본격 적용**(oracle 0.874 회수 시도) — 측도 보강은 그 이득을 정확히 귀속(다양성-기여 vs 선별-회수 분해).
+
+## 7. ★XGrammar validity-floor 설계 실험 (2026-06-14, `tb_validity_floor.py`, zero-GPU — relwork_arch §3b#1)
+> 질문: grammar-constrained decoding(enum 스키마 = `taskbench/tb_guided_schema.py`)이 보장하는 "valid JSON-DAG 하한"이 **선별기 D-oracle 분모를 안정화**하는가. floor 부재 시 후보가 새는 2층 = tier-1 sig=None(구조파손→완전드롭)·tier-2 ok=False(도구명 enum위반→격하).
+
+**실측 (dpo2g best-stack 8 AR + 6 hetero, n=6980)**:
+| 풀군 | valid% | invalid-name | name-snap 회수 |
+|---|---|---|---|
+| guided AR8 (dpo2g0-7) | 94~95% | 24~30/500 | 0 (오타 아님) |
+| **qwen3b (약 hetero)** | **56.5%** | 216 | 52→66.9% |
+| qwen14b/3_4b/3_14b | 74~79% | 102~128 | 3~6 |
+| tb_lodo_hf/daily | 96~98% | 12~19 | 6 |
+- **tier-1(구조파손) = 전 풀 0** → 파스-레벨 floor 이미 충족. 갭은 전부 **tier-2(도구명)**.
+- **name-snap repair = 78/806(9.7%)만 회수** — 무효 도구명 대부분이 **오타 아닌 의미적 환각**(최근접 valid 부재).
+- **D-oracle 분모 영향 = +0.16 cand/id (12.35→12.50)** = 한계적.
+
+**★결론 (다소 negative·전략 강화)**: validity floor의 분모-안정화는 **한계적 = 위생 레버지 선별 레버 아님**. ①강한 arm(dpo2g·lodo)은 이미 94%+ ②약한 arm(qwen3b 56.5%)의 무효는 **의미적 환각**이라 snap-repair(9.7%)도 XGrammar enum-강제도 **valid-but-wrong**(=day-5 "다르게 틀림" MBR 합의 교란)으로 바꿀 뿐 D-oracle 무기여. ⇒ **validity ≠ D-oracle 재확인**(§0 게이트 역선택·§7 D-oracle 측도와 동일 족보). XGrammar는 (a)강한 arm의 ~5% enum 누수 정리 = 최종출력 위생 floor로만 채택 (b)약한 arm을 풀에 넣을 땐 enum-강제가 **denominator를 valid-wrong 잡음으로 부풀려 오히려 해로울 수 있음**(D-oracle 게이트 우선 원칙 §6/§7과 정합). **결합제약=선별기** 결론 강화 — floor는 선별기 천장을 못 올림.
+
+**floor 2-arm 비교(GPU 차기, 본 실험이 동기 약화)**: A guided-at-gen(현 AR8, 다양성↓ per P-unguided) vs B unguided+snap-repair-floor(다양성 보존) — 단 본 측정상 B의 snap 회수가 9.7%뿐이라 "unguided+repair가 guided를 대체"는 약함. unguided arm의 *다양성* 이득이 floor 손실을 상쇄하는지는 ⑸ P-unguided 결과와 결합해 판단(생성기-arm 강등 하에 후순위).
