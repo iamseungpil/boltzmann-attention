@@ -1,0 +1,32 @@
+description: "boltzmann-attention P3c holder — single 4xH100 node, ODCV-Bench(요청서 v4 §9 P3c) 대형 base 위반 측정용. job 이름에 train/eval 없음 -> node_setup의 role-dispatch가 NO_ROLE_DETECTED -> 드라이버 미기동 -> GPU 4장 전부 ODCV 서빙에 free. bootstrap = clone + node_setup_h200(venv/vllm/sop_env) only. preempt 시 p3c_autopilot.sh가 재신청·재서빙·idempotent backfill."
+
+target:
+  service: sing
+  name: msrresrchbasicvc
+  workspace_name: msra-sh-aml-ws
+
+environment:
+  image: amlt-sing/acpt-torch2.7.1-py3.10-cuda12.6-ubuntu22.04
+
+code:
+  local_dir: $CONFIG_DIR/
+
+jobs:
+  - name: boltzmann_e8_p3c
+    sku: 80G4-H100
+    sla_tier: standard
+    priority: high
+    identity: managed
+    submit_args:
+      max_run_duration_seconds: 1209600
+      env:
+        _AZUREML_SINGULARITY_JOB_UAI: "/subscriptions/c4c534bc-9978-4974-9c87-551f7c5754ef/resourceGroups/msra-sh-aml-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/msra-sh-aml-uai"
+        HF_TOKEN: ${HF_TOKEN}
+        HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN}
+        GH_TOKEN: ${GITHUB_TOKEN}
+    command:
+      - nvidia-smi
+      - mkdir -p /scratch/logs
+      - bash -c 'git clone -b facet-rft-2026 https://$${GH_TOKEN}@github.com/iamseungpil/boltzmann-attention.git /scratch/boltzmann-attention || (cd /scratch/boltzmann-attention && git pull --ff-only); bash /scratch/boltzmann-attention/scripts/distill/sopbench/node_setup_h200.sh' > /scratch/logs/job_bootstrap.log 2>&1
+      - echo "p3c holder bootstrap done; GPUs free for ODCV serving"
+      - sleep infinity
