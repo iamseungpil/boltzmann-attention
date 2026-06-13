@@ -16,7 +16,11 @@
 - **★SEL-4 신기록**: dpo2g-풀+7B Reviewer = **공식 0.6803**(SEL-1 0.6722 → +0.81pp, 사전등록 적중) = k0 대비 **+10.3pp**. best-stack=SEL-1+SEL-4. TB §8.9d/SEL-4 행.
 - **음성 2건 + S1 기각**: 풀 확장(ND 0.6703)·v3g 풀(NC 0.660) 둘 다 기각 / S1 스모크 0.528 변화0(n_gates 5→1).
 - **★전수 궤적 부검 3건 (사용자 발주 — PORTFOLIO §3.7d)**: ①**pass^4 정체 = user-sim 분산**(fail 종결 user_stop 압도, 게이트 무관 — ⓟ1 측정 불가·base 능력 라인 이관) ②**r3 성공 = transfer 차단의 net 양성**(transfer 실행 63→0, 원래 11% 성공 경로라 차단=이득; 단 DOWN 20 = G4 deny가 transfer-필요 태스크 죽임 → **G4 offload 전환이 데이터로 정당화**) ③**v3g 음성 = oracle 동일(0.896)·다양성 −33%**(0.024→0.016, DPO가 후보 동질화 → 선별 headroom 붕괴 = "선별=다양성 함수" 확정).
-- **다음 1순위(부검 도출)**: ①G4 deny→**offload 전환**(transfer-필요 태스크 구제, PORTFOLIO §3.8 큐 승격) ②선별 풀 **다양성 명시 증대**(이종 temp/base) + SEL-4 상시화 ③F3 user-sim seed 분산 보고 ④P5 도착 → S1-v2(규모).
+- **★실행 큐 (2026-06-14 리뷰어 우선순위 채택 — 전부 사전등록 완료)**:
+  1. **(a) 둘째-기판 hf** 🔄실행 중 `driver_substrate_hf.sh`(AR8 샘플링→SEL-1+4 best-stack, 예측 ≥k0+3pp) **(b) frontier F4b** 🔄실행 중 `driver_frontier_f4b.sh`(FA nogate avg 0.82 진행·FB gate — {7B,frontier}×{±게이트} 비교표).
+  2. **다양성-생성 실험** (SELECTOR_DESIGN 큐 ⑸ 사전등록): matched-K8 3정책(temp-sweep/LoRA혼합/prompt-변주)→다양성→이득 회귀 = 예측법칙 승격 + **P-D(diffusion) 선결 게이트**. 딥리서치(research_diversity_2026_06_14.md) 합류 후 발사.
+  3. **S1-v2 dose-response** (A2_FRONTEND 사전등록): P5 도착 시 real 1/3/6/9 층화 곡선. 하네스 준비 완료.
+  4. 측정위생: ⓟ1 분산통제 1-arm(user-sim temp 고정 — 가능 판정 후 불가면 ⓟ1 영구 철회 박제) · τ² turn-level 선별 이식(중기, 1·2 종료 후). G4 offload는 r3 부검 근거로 §3.8 큐 유지.
 
 ### 0a. ★심야 추가분 (2026-06-12 심야 — 다음 세션 1순위 갱신)
 - ✅**§1.6 v2 동결**(마스터 — F3 τ pass^k n=4·F4 0/N+rule-of-three+구조적/표본적0 분리·ⓟ3 게이트-관할 census 신설·4-tuple 인용 규율) + ✅**`SELECTOR_DESIGN.md` 신설**(SEL-1~5 사다리, 마스터 §7 등재).
