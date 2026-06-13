@@ -2,9 +2,13 @@
 > 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > 동기 = E6 확정 (TB결과 §8.8): best-stack(dpo2+guided) 정책은 K=8 샘플이 수렴 → 선별 갭 +1.4뿐.
-> 잔여 L6는 **수렴 정책의 샘플 분포 밖** ⇒ 처방 = 제안 다양성의 인위적 복원. 외부 근거 = DiG-Plan
-> (arXiv 2606.05728): 도구-셋 제안 커버리지 AR Pass@10 0.32 vs **diffusion 0.94** (단, 그들 프로토콜
-> = "TaskBench-23" 501개 비표준 — 수치 이식 금지, 기제만 차용. TB결과 §1.5 인용위생 준수).
+> 잔여 L6는 **수렴 정책의 샘플 분포 밖** ⇒ 처방 = 제안 다양성의 인위적 복원. 외부 근거 = DiG-Plan.
+> ⚠️**수치 정정 (2026-06-14 정독, `research_digplan_deepread_2026_06_14.md`)**: 기존에 "AR Pass@10 0.32
+> vs diffusion 0.94 = TaskBench-23 501"로 기록했으나 **틀림** — 0.32/0.94는 **합성 토이**(2층·128dim·
+> 23bit 벡터, 논문 Table 1)이고 TaskBench가 아님. **실제 TaskBench 이득은 ~10% 상대**(ToolF1 0.661→0.729·
+> held-out Oracle@10 0.735→0.787)이며 **단일샷 ToolF1은 무승부**(0.355 vs 0.349). 0.32 vs 0.94는
+> greedy(T=0, Pass@10≡Pass@1) AR ↔ 확률 diffusion 비교라 **모델클래스 아닌 샘플링-엔트로피 측정** = tilt.
+> 기제(early-commitment 회피)만 차용·수치 이식 금지 (인용위생 — 허위 레퍼런스 제재 규율 준수).
 
 ## 1. 가설·프레임 정합
 - **가설 H-D**: 이종(비-AR) 제안기를 풀에 섞으면 **풀-oracle이 상승**한다 (다르게 틀리는 제안 → 정답 구조가 풀에 들어올 확률↑). 선별은 기존 결정론 게이트(R6) — 마스킹 아닌 선별이라 GAD 왜곡 무관.
@@ -67,6 +71,11 @@
 - **P-D2' (선별 실현, 2-arm 분해 — 신규)**: 혼합-풀 위 **P-D2a = SEL-1만 / P-D2b = SEL-1+SEL-4**.
   **사전등록 예측: Δ(P-D2b) > Δ(P-D2a)** — D-후보는 구조적으로 소수파라 합의(MBR)가 못 고르고, Reviewer(p(instr|plan))가 소수-정답 구제 채널 (SEL-4 +0.81pp 기제의 직접 시험). 채택 = 공식 link F1 ≥ **68.03+1.0**. 배포 비용 열(2-모델 추론비) 병기 의무 유지.
 - **★P-D-alt (신설 — 싼 아키텍처-이종성 대조군, P-D0 실패 시 1순위 폴백)**: **cross-family AR + guided** (Llama-3.1-8B-Instruct 또는 Mistral-7B-Instruct + 동일 JSON 스키마 guided). 근거: guided가 형식을 균일화하므로 family-혼합의 형식 리스크 소거; H6은 전부 Qwen-family = family 축 미개척. vLLM 표준 서빙(Dream 대비 인프라 비용 ~0). 판정 = P-D1'와 동일 3행 — **Dream vs cross-family의 unique-correct 비교가 "비-AR 기제 필요성"의 최종 분리 실험** (cross-family로 충분하면 diffusion 기각·논문엔 "아키텍처-이종성이면 충분" 더 강한 결론).
+
+## 3c. ★DiG-Plan 정독 + 수학적 우위 분석 (2026-06-14, `research_digplan_deepread_2026_06_14.md`)
+- **DiG-Plan = 실재** (arXiv:2606.05728 v1, 2026-06-04, Yansi Li & Zhuosheng Zhang, "Mitigating Early Commitment for Tool-Graph Planning via Diffusion Guidance"). **최종 시스템 = diffusion-proposer + AR-refiner 하이브리드**(diffusion-only는 edge ToolF1 0.128 처참 — 저자 자인). ★**= 사용자 제안("형식=AR·다양성=diffusion")이 논문의 최종 구조와 일치** → AR-refiner 경로(§3b P-D 형식구제)가 정공법임을 외부 확증.
+- **수학적 우위 — 증명가능 부분(조건부)**: ①**고정순서 AR은 order-invariant(집합) 타깃에 ≥0 KL 페널티** [XLNet·ARDM] — 도구-SET·DAG는 부분순서라 좌→우 factorization이 가짜 순서비용 부과 ②**AR 오류는 최대 quadratic 누적** T·ε≤R≤T²·ε [Arora `2204.01171`] — early-commitment 연쇄오류. **단 정직한 한계(증명가능)**: AR·diffusion 둘 다 joint의 universal approximator → "diffusion 항상 승"은 **거짓**. 이득은 **모델 클래스가 아니라 디코딩 regime(Pass@k spread)** — DiG-Plan 단일샷 무승부(0.355 vs 0.349)가 확증. ③우리 VB/VF 정리(`2502.12118`): 선별 이득은 풀 heterogeneity 전제 — **"diffusion이 heterogeneity를 높이는가"는 경험적 = P-D가 측정할 것**.
+- **P-D 프로토콜 갱신(정독 반영)**: ⓐ**비교 baseline = hot-T AR**(temp>0·다양 — greedy 금지, 논문 tilt 재현 회피) ⓑ**주 지표 = Δheterogeneity + unique-correct(D-oracle)**(단일샷 우위 아님 — 기대값을 coverage/tool-set-recall로 하향, §8.9h 곱-부검 정합) ⓒ채택 시 **AR-refiner 하이브리드**(diffusion 골격→AR 형식화, 사용자 제안=DiG-Plan 구조). 기대 = "modest D-oracle"(논문 실제 +10% 상대), 단일샷 대박 아님.
 
 ## 4. 구현 노트
 - 생성 루프: Dream repo의 diffusion_generate API(HF transformers 기반, trust_remote_code) — `tb_diffusion_sample.py` 신규 (프롬프트 = inference.py와 동일 문자열 재사용, 출력 = inference.py 호환 predictions jsonl로 기록 → 기존 채점·조인 도구 전부 재사용).
