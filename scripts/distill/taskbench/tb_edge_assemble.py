@@ -162,10 +162,28 @@ def main():
                 cand = {e for e, s2 in edge_src.items() if len(s2) >= a.out_t and type_ok(e)}
                 cand = make_acyclic(cand, score)
                 if cand:
-                    tools = sorted({x for e in cand for x in e})
+                    tools = {x for e in cand for x in e}
+                    # 공식 eval은 node arguments의 <node-j> 참조로 엣지 복원 → 토폴로지 순서+인덱스 인코딩
+                    from collections import deque
+                    adj = defaultdict(list); indeg = {x: 0 for x in tools}
+                    for s, t in cand:
+                        adj[s].append(t); indeg[t] += 1
+                    q = deque([x for x in tools if indeg[x] == 0]); order = []
+                    while q:
+                        x = q.popleft(); order.append(x)
+                        for nb in adj[x]:
+                            indeg[nb] -= 1
+                            if indeg[nb] == 0:
+                                q.append(nb)
+                    for x in tools:
+                        if x not in order:
+                            order.append(x)
+                    idx = {t: j for j, t in enumerate(order)}
+                    tnodes = [{"task": t, "arguments": [f"<node-{idx[s]}>" for (s, tt) in cand if tt == t]}
+                              for t in order]
                     rec = {"id": i, "user_request": (selected.get(i, {}) or {}).get("user_request", ""),
                            "result": {"task_steps": [],
-                                      "task_nodes": [{"task": t, "arguments": []} for t in tools],
+                                      "task_nodes": tnodes,
                                       "task_links": [{"source": e[0], "target": e[1]} for e in cand]}}
                 else:  # 엣지 없음(단일노드/전부탈락) = best-stack 폴백
                     nfb += 1
