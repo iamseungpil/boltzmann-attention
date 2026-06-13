@@ -59,7 +59,8 @@ def main():
     gen_limited = 0          # 커버리지<1 = gold 엣지 일부가 풀에 아예 없음
     asm_beats_best = 0       # 조립 천장 > 단일최대 (선택기-조립 여지)
     gold_edge_redund = Counter()   # gold 엣지가 몇 개 독립소스서 나왔나
-    n_gold_edges = 0
+    wrong_edge_redund = Counter()  # 오답 엣지의 소스 수 (검증기 변별성)
+    n_gold_edges = n_wrong_edges = 0
     distractor_per_task = []       # task별 오답 엣지 종류 수
     n = 0
     for i in ids:
@@ -88,7 +89,11 @@ def main():
         for e in present_gold:
             gold_edge_redund[len(edge_src[e])] += 1
             n_gold_edges += 1
-        distractor_per_task.append(len(set(edge_src) - G))
+        wrong = set(edge_src) - G
+        for e in wrong:
+            wrong_edge_redund[len(edge_src[e])] += 1
+            n_wrong_edges += 1
+        distractor_per_task.append(len(wrong))
         if selected:
             ss = sig(selected.get(i, {}), valid)
             sel_sum += f1(ss[0], G) if ss else 0.0
@@ -109,6 +114,19 @@ def main():
     import statistics
     print(f"  gold엣지 중 단일소스(redund=1) 비율 = "
           f"{gold_edge_redund.get(1,0)/max(n_gold_edges,1)*100:.1f}% (합의로 못 집는 취약 엣지)")
+    print(f"=== ★오답 엣지 redundancy (검증기 변별성 — 정답과 분리되나) ===")
+    for k in sorted(set(gold_edge_redund) | set(wrong_edge_redund)):
+        gp = gold_edge_redund.get(k, 0) / max(n_gold_edges, 1) * 100
+        wp = wrong_edge_redund.get(k, 0) / max(n_wrong_edges, 1) * 100
+        print(f"  {k}개 소스: gold {gp:>5.1f}%  vs  wrong {wp:>5.1f}%")
+    # 엣지-빈도 임계분리: redund>=t 면 정답으로 채택 시 precision/recall
+    print(f"  [엣지-빈도 검증기 가능성] redund≥t 채택 시:")
+    for t in (2, 3, 4, 5):
+        gkeep = sum(v for k, v in gold_edge_redund.items() if k >= t)
+        wkeep = sum(v for k, v in wrong_edge_redund.items() if k >= t)
+        prec = gkeep / max(gkeep + wkeep, 1)
+        rec = gkeep / max(n_gold_edges, 1)
+        print(f"    t={t}: 채택 gold={gkeep} wrong={wkeep} → precision={prec:.3f} recall={rec:.3f}")
     print(f"=== distractor(오답 엣지) 부하 — 검증기 난이도 ===")
     print(f"  task당 오답 엣지 종류 중앙값 = {statistics.median(distractor_per_task):.0f} "
           f"평균 = {sum(distractor_per_task)/n:.1f}  (gold 엣지 평균 {n_gold_edges/n:.1f}개 대비)")
