@@ -61,4 +61,4 @@
 - **S1-v2 템플릿**: StepFun ThinkingF dual-stream(verifier-filtered 지식 + 템플릿-가이드 추론; **템플릿>raw frontier CoT**) = S0-v2 합성과적합 설명. (nlformalize §8c)
 - **v4 retrain 게이트**: GEM(+7.6 HumanEval Pass@100 verified)/DivPO(rare∧high-quality) = 가치 있으나 **게이트 "k0 강도 ∧ 풀 D-oracle ≥ baseline" 유지**(tool-DAG 미검증). (diversity §6b)
 - **ⓟ1 재개**: ≥0.11.1 + `VLLM_BATCH_INVARIANT=1` + TP=1 + CC≥8.0 → 4-trial bitwise 동일이 성공기준. (determinism §8b)
-- **P-D 판정**: A3(`2601.13228`) 공정성 정정으로 "diffusion 불요" 닻 약화되지 않음(표준AR 우위) — DiG-Plan은 coverage(oracle)지 realized 아님·P-D(-1) census +13.6이 선행. 주지표=unique-correct(D-oracle)·hot-T AR. (arch + diversity §4)
+- **★P-D 판정 확정 (2026-06-14)**: **diffusion 보류 + A3 실험 기각 + 생성기-arm 전체 선별기 대비 강등**. 근거: ①DiG-Plan이 diffusion-only 직렬화 실패·하이브리드 필수 이미 확증(raw parse 게이트=settled 재검증) ②P-D0 전수부검 = 0%는 decode-붕괴 artifact(steps<gen_len)+직렬화 약점(DiG-Plan 재현)으로 분해·diffusion verdict 불가 ③A3(`2601.13228`)는 표준AR에 짐 = framing 닻만(relwork_arch §3c "distraction") ④§3.7d 결합제약=선별기·day-5 헤드라인 +12.9pp. **생성기-side 유일 즉시후보 = XGrammar validity-floor**(zero-retrain·선별기 D-oracle 분모 안정화·다양성원 아님). 상세 = `TB_DIFFUSION_PROPOSER_DESIGN.md` §3 부검·결정.

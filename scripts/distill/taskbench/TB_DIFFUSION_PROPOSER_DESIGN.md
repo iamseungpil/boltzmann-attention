@@ -63,6 +63,12 @@
 - **★진짜 신호 — diffusion은 *내용*은 되고 *직렬화*가 깨짐**: ⓑ 9건 전부 **올바른 도구**(Audio-to-Video·Topic Generator·Audio Splicer·Text-to-Image) + **지시-정합 인자**(example.wav/mp4·environmental conservation) 선택, 단 **국소 괄호/따옴표 손상**(`]]]`·`]"}`·`,}]}`·stray `"`)으로 parse 실패. = **diffusion any-order 직렬화 약점**(닫는 토큰이 내용 확정 전 배치) = §3c DiG-Plan(diffusion-only edge 0.128)·§3d A3 예측과 정합. **⇒ AR-refiner 하이브리드(§3b·사용자 제안)가 정공임을 실측이 재확인**; parse_rate 단독 게이트는 *planning을 serialization과 혼동*해 diffusion을 과소평가.
 - **clean 재실행 config(교란 제거)**: ①**steps = max_new_tokens**(full denoise·mask 잔류 0) ②**temp 0(형식게이트는 결정론; 다양성은 P-D1 별건)** ③**N=50 전수** ④**mask-잔류/미충전 위치 카운터를 로깅에 추가**(디코드 완결성 확증) ⑤alg_temp·Dream 권장 preset 검증. 재실행 전엔 형식게이트 PASS/FAIL 판정 보류.
 
+### ★결정 (2026-06-14, 사용자 승인 "A3로 피벗·diffusion 보류" + 본 부검·relwork 종합)
+1. **diffusion 라인 보류**: DiG-Plan(§3c)이 이미 diffusion-only 직렬화 실패·AR-refiner-하이브리드 필수를 외부확증 → **raw parse_rate 게이트는 settled 질문 재검증**. 본 부검의 22% near-complete-but-bracket-corrupt = DiG-Plan **재현**(새 결과 아님). v2 재실행 **kill**(GPU1 회수, b495330 이후 미발사). 형식게이트 자체가 잘못된 게이트 — 올바른 질문은 "하이브리드/snap-후 D-oracle>0?"이며 그조차 선별기 대비 저순위.
+2. **A3 any-order AR 실험 = 기각(compute 금지)**: relwork_arch §3(c) 명시 — A3(`2601.13228`)는 표준 AR에 짐(TriviaQA 19.4 vs 52.1)·diffusion 필적은 2B-vs-65B 효율정규화 framing뿐. **"diffusion 불요" 개념 닻으로만 유지**, 7B any-order objective swap은 unverified·high-risk distraction.
+3. **생성기 다양성 arm 전체(diffusion·A3·Planning-Token·SoS) = 선별기 대비 조건부 강등 유지**(§3.7d "binding constraint=선별기"·day-5 선별기 +12.9pp 헤드라인). 신규 생성기 베팅은 **선별기 천장 확인 후** 재고.
+4. **생성기-side 유일 즉시-가치 = XGrammar validity-floor**(relwork_arch §3b #1): zero-retrain·vLLM-native·기존 의존성. A2 JSON-DAG 스키마에 grammar-constrained decoding을 명시 층으로 → K-샘플 "valid 하한" 보장 = **D-oracle 분모 안정화(선별기 지원)**. 다양성 원천 아닌 floor — 생성기 베팅이 아니라 선별기 인프라라 강등과 무모순. = 다음 생성기-side 단일 후보.
+
 > 인용위생 체크박스: DiG-Plan(2606.05728) 1차 검증 = 프로토콜 디테일(TaskBench-23 501, Pass@10 수치) 원문 확인됨
 > · 논문 본문 인용 전 R8 절차(버전 명시·수치 재검증) 필수, 수치 이식 금지 유지.
 
