@@ -77,6 +77,14 @@
 - **수학적 우위 — 증명가능 부분(조건부)**: ①**고정순서 AR은 order-invariant(집합) 타깃에 ≥0 KL 페널티** [XLNet·ARDM] — 도구-SET·DAG는 부분순서라 좌→우 factorization이 가짜 순서비용 부과 ②**AR 오류는 최대 quadratic 누적** T·ε≤R≤T²·ε [Arora `2204.01171`] — early-commitment 연쇄오류. **단 정직한 한계(증명가능)**: AR·diffusion 둘 다 joint의 universal approximator → "diffusion 항상 승"은 **거짓**. 이득은 **모델 클래스가 아니라 디코딩 regime(Pass@k spread)** — DiG-Plan 단일샷 무승부(0.355 vs 0.349)가 확증. ③우리 VB/VF 정리(`2502.12118`): 선별 이득은 풀 heterogeneity 전제 — **"diffusion이 heterogeneity를 높이는가"는 경험적 = P-D가 측정할 것**.
 - **P-D 프로토콜 갱신(정독 반영)**: ⓐ**비교 baseline = hot-T AR**(temp>0·다양 — greedy 금지, 논문 tilt 재현 회피) ⓑ**주 지표 = Δheterogeneity + unique-correct(D-oracle)**(단일샷 우위 아님 — 기대값을 coverage/tool-set-recall로 하향, §8.9h 곱-부검 정합) ⓒ채택 시 **AR-refiner 하이브리드**(diffusion 골격→AR 형식화, 사용자 제안=DiG-Plan 구조). 기대 = "modest D-oracle"(논문 실제 +10% 상대), 단일샷 대박 아님.
 
+## 3d. ★비-diffusion 대안 — 아키텍처 서베이 (2026-06-14, `research_arch_planning_survey_2026_06_14.md`)
+diffusion이 "AR-밖 다양성"의 유일 후보가 아님. 검증된 대안 3종(전부 1차 검증):
+- **★A3 any-order AR (`2601.13228`)**: plain any-order AR이 any-order(집합·무순서) 생성에서 **diffusion에 필적/능가** = **"set/DAG 다양성에 diffusion 인프라 불요" 닻**. 우리 도구-SET 출력에 직접적 — diffusion의 무거운 서빙(vLLM 비호환·HF 추론) 대비 잠재적 저비용 대안. ⚠️objective swap = 7B 재학습 위험 → **framing 닻으로 인용, 고위험 학습은 보류**.
+- **grammar-constrained decoding (XGrammar `2411.15100`)**: retraining-free·vLLM 호환 = **우리가 이미 쓰는 guided의 정식화**. A2 출력 스키마 층으로 K-샘플 풀의 "valid JSON-DAG(=right의 하한)" 보장 — diffusion 형식 리스크(P-D0)의 정공 대안.
+- **Stream-of-Search trace-distill (`2404.03683`)**: 검증기로 비용-인지 탐색 trace(실패·백트랙 포함) 생성→SFT, teacher-exceeding = §3.10 빌드 경로 일치.
+- **회의(게이트)**: "Transformers Struggle to Learn to Search" (`2412.04703`) — 큰 그래프는 파라미터↑로 안 풀림 = search-internalization 라인 전체 천장 경고. 함정(채택 금지): Coconut/latent-CoT(retrofit 불가·math서 짐), pause/filler 토큰(+1%p), insertion/Levenshtein 재구현.
+- **종합 함의(P-D 우선순위 재평가)**: diffusion 라인은 ①형식 리스크(P-D0) ②인프라 비용(vLLM 비호환) ③DiG-Plan 실제 이득 ~10%(§3c)에 더해, **④A3 any-order AR이라는 더 싼 대안 존재**. ⇒ **P-D0 형식게이트 결과 + P-D-alt(cross-family AR) + A3-닻을 종합 후 착수 판단** — diffusion 자체보다 "AR-밖 다양성이 D-oracle>0인가"가 본질이고, A3가 그 답을 더 싸게 줄 수 있음.
+
 ## 4. 구현 노트
 - 생성 루프: Dream repo의 diffusion_generate API(HF transformers 기반, trust_remote_code) — `tb_diffusion_sample.py` 신규 (프롬프트 = inference.py와 동일 문자열 재사용, 출력 = inference.py 호환 predictions jsonl로 기록 → 기존 채점·조인 도구 전부 재사용).
 - 후처리 사다리: parse-fix(reformat) → name-snap(v0) → 풀 합류. guided는 불가(서빙 스택 비호환) — **불공정 비교 방지를 위해 AR 풀도 snap-기준으로 정렬한 변형 병기**.
