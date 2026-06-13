@@ -79,6 +79,32 @@ def dep_levels(nodes, links):
     return [bylevel[k] for k in sorted(bylevel)]
 
 
+def node_args(n, schema):
+    """TaskBench arguments is dirty — 5 formats observed across domains:
+      list-dict [{"name","value"}] (daily) / list-str ["example.mp4"] (mm·HF, dominant)
+      / dict {..} / bare str / none. Bind bare values positionally to schema param
+      names (R1 = verbatim copy; names recovered from tool_desc)."""
+    raw = n.get("arguments")
+    if not raw:
+        return {}
+    pnames = list(schema["function"]["parameters"]["properties"].keys())
+    if isinstance(raw, dict):
+        return raw
+    if isinstance(raw, str):
+        return {pnames[0] if pnames else "arg0": raw}
+    if isinstance(raw, list):
+        if raw and isinstance(raw[0], dict):  # list-dict (may be mixed with bare values)
+            out = {}
+            for i, a in enumerate(raw):
+                if isinstance(a, dict):
+                    out[a.get("name", "arg%d" % i)] = a.get("value")
+                else:
+                    out[pnames[i] if i < len(pnames) else "arg%d" % i] = a
+            return out
+        return {(pnames[i] if i < len(pnames) else "arg%d" % i): v for i, v in enumerate(raw)}
+    return {}
+
+
 def synth_result(name, args):
     h = hashlib.md5((name + json.dumps(args, sort_keys=True)).encode()).hexdigest()[:8]
     return json.dumps({"status": "ok", "tool": name, "ref": h})
@@ -88,11 +114,15 @@ def convert(sample, schemas):
     instr = sample.get("instruction", "")
     nodes = maybe_json(sample.get("tool_nodes", "[]"))
     links = maybe_json(sample.get("tool_links", "[]"))
-    if not nodes:
+    if not isinstance(nodes, list) or not nodes:
         return None
-    # 모든 노드 도구가 schema에 있어야 변환(없으면 스킵=청정 분모)
+    # malformed nodes (str instead of dict / no task) or unknown tool -> skip (clean denom)
+    if any(not isinstance(n, dict) or "task" not in n for n in nodes):
+        return None
     if any(n["task"] not in schemas for n in nodes):
         return None
+    if not isinstance(links, list):
+        links = []
     levels = dep_levels(nodes, links)
     seen, toolset = set(), []
     for n in nodes:
@@ -105,7 +135,7 @@ def convert(sample, schemas):
         tcs, results = [], []
         for i in lvl:
             n = nodes[i]
-            args = {a["name"]: a.get("value") for a in n.get("arguments", [])}
+            args = node_args(n, schemas[n["task"]])
             cid += 1
             tcid = "call_%d" % cid
             tcs.append({"id": tcid, "type": "function",
