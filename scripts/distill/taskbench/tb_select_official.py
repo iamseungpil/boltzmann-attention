@@ -46,16 +46,22 @@ def main():
     ap.add_argument("--extra", action="append", default=[],
                     help="추가 proposer 'name=path.json' (예: Track-B 32B/72B preds — "
                          "그룹명=name, 풀 확장)")
+    ap.add_argument("--domain", default="data_multimedia",
+                    help="둘째-기판(⑷) 일반화: tool_desc/예측 경로의 도메인 디렉토리")
+    ap.add_argument("--hm", default=None,
+                    help="hetero 모델 목록 콤마구분 (기본=MM HM 리스트; hf 등은 명시)")
     a = ap.parse_args()
     TB = a.tb_dir
-    valid = {norm(t["id"]) for t in json.load(open(f"{TB}/data_multimedia/tool_desc.json"))["nodes"]}
+    D = a.domain
+    hm_list = a.hm.split(",") if a.hm else HM
+    valid = {norm(t["id"]) for t in json.load(open(f"{TB}/{D}/tool_desc.json"))["nodes"]}
 
     pools, groups = [], []
     for k in range(8):
-        pools.append(load_records(f"{TB}/data_multimedia_sub500/predictions/{a.ar_tag}{k}.json"))
+        pools.append(load_records(f"{TB}/{D}_sub500/predictions/{a.ar_tag}{k}.json"))
         groups.append(a.ar_group)
-    for m in HM:
-        pools.append(load_records(f"{TB}/data_multimedia_sub500_eval_{m}/predictions/{m}.json"))
+    for m in hm_list:
+        pools.append(load_records(f"{TB}/{D}_sub500_eval_{m}/predictions/{m}.json"))
         groups.append(m)
     for ex in a.extra:
         name, path = ex.split("=", 1)

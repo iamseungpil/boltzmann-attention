@@ -68,19 +68,28 @@ def main():
     ap.add_argument("--lam", type=float, default=1.0)
     ap.add_argument("--prior_beta", type=float, default=2.0)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--domain", default="data_multimedia")
+    ap.add_argument("--hm", default=None, help="hetero 모델 콤마구분 (기본=MM HM)")
+    ap.add_argument("--extra", action="append", default=[], help="'name=path.json' 추가 proposer")
     a = ap.parse_args()
     TB = a.tb_dir
+    D = a.domain
+    hm_list = a.hm.split(",") if a.hm else HM
     valid = {norm(t["id"]) for t in
-             json.load(open(f"{TB}/data_multimedia/tool_desc.json"))["nodes"]}
+             json.load(open(f"{TB}/{D}/tool_desc.json"))["nodes"]}
     # instruction(user_request)은 pred 레코드에 동봉됨 — 후보에서 직접 읽음
 
     pools, groups = [], []
     for k in range(8):
-        pools.append(load_records(f"{TB}/data_multimedia_sub500/predictions/{a.ar_tag}{k}.json"))
+        pools.append(load_records(f"{TB}/{D}_sub500/predictions/{a.ar_tag}{k}.json"))
         groups.append(a.ar_group)
-    for m in HM:
-        pools.append(load_records(f"{TB}/data_multimedia_sub500_eval_{m}/predictions/{m}.json"))
+    for m in hm_list:
+        pools.append(load_records(f"{TB}/{D}_sub500_eval_{m}/predictions/{m}.json"))
         groups.append(m)
+    for ex in a.extra:
+        name, path = ex.split("=", 1)
+        pools.append(load_records(path))
+        groups.append(name)
 
     ids = sorted(set.intersection(*[set(p) for p in pools[:8]]))
     # SEL-1 prior (재사용)
