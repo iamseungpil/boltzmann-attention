@@ -104,3 +104,12 @@
 **★결론 (다소 negative·전략 강화)**: validity floor의 분모-안정화는 **한계적 = 위생 레버지 선별 레버 아님**. ①강한 arm(dpo2g·lodo)은 이미 94%+ ②약한 arm(qwen3b 56.5%)의 무효는 **의미적 환각**이라 snap-repair(9.7%)도 XGrammar enum-강제도 **valid-but-wrong**(=day-5 "다르게 틀림" MBR 합의 교란)으로 바꿀 뿐 D-oracle 무기여. ⇒ **validity ≠ D-oracle 재확인**(§0 게이트 역선택·§7 D-oracle 측도와 동일 족보). XGrammar는 (a)강한 arm의 ~5% enum 누수 정리 = 최종출력 위생 floor로만 채택 (b)약한 arm을 풀에 넣을 땐 enum-강제가 **denominator를 valid-wrong 잡음으로 부풀려 오히려 해로울 수 있음**(D-oracle 게이트 우선 원칙 §6/§7과 정합). **결합제약=선별기** 결론 강화 — floor는 선별기 천장을 못 올림.
 
 **floor 2-arm 비교(GPU 차기, 본 실험이 동기 약화)**: A guided-at-gen(현 AR8, 다양성↓ per P-unguided) vs B unguided+snap-repair-floor(다양성 보존) — 단 본 측정상 B의 snap 회수가 9.7%뿐이라 "unguided+repair가 guided를 대체"는 약함. unguided arm의 *다양성* 이득이 floor 손실을 상쇄하는지는 ⑸ P-unguided 결과와 결합해 판단(생성기-arm 강등 하에 후순위).
+
+## 8. ★천장 진단 라운드: C(갭분해) + B1-zero(자기일치) (2026-06-14 — "0.6803=천장?" 정밀 검증)
+> 사용자 비판("①②는 강등/예정이라 새 경로 아님")이 촉발. 천장 단정 전 zero-GPU 진단.
+
+**C — oracle 갭 분해 (`tb_gap_decompose.py`)**: no_gap 84.6%. 갭(독립-group 기준): **selectable 50.7%**(oracle를 ≥2독립그룹 달성인데 더 지지받는 *오답*에 밀림)·needle 42.4%(1그룹뿐)·gold-limited 6.9%. ⚠️**기준 민감**: distinct-plan 기준이면 selectable 3.6%로 붕괴(정답 그래프는 보통 1종류라 거의 다 needle로 오분류) → **독립-group이 정확**. ⇒ 갭의 ~절반은 *원리상* 선별가능.
+
+**B1-zero — 자기-일치도 빈도 = 확신 신호? (`tb_selfagree.py`, 사용자 발의·zero-GPU)**: 확신 = AR 8샘플 중 동일답 빈도. ①진단: **8/8 만장일치 92%(3648/3950)→F1 0.795**·분리(8%)는 비단조 저F1. ②선별: **MBR+agree=0.6726 ≈ SEL-1 0.6722(무변화)**·AR-mode 단독=0.6024(<SEL-1). ⇒ **agreement = MBR 합의와 중복 = 선별 레버 아님**(92% 만장일치라 고를 게 없고, 분리 시 빈도가 정답 안 가리킴).
+
+**★종합 — 천장 주장의 정밀화**: 갭의 ~50%는 "selectable"이나, 그건 *정답이 더 인기있는 오답에 outvoted*된 케이스라 — **합의(MBR)로도(이미 짐) 자기확신(agreement, 곧 B1 logprob도)으로도 못 건짐**(모델이 그 소수정답을 더 확신하지 않음). ⇒ **same-base 신호(합의·자기확신) 소진 확정**. selectable 갭은 **생성기와 독립인 신호**(다른-base 검증기 / 다수오류를 잡는 결정론 체커 = ②/V-line §6)로만. needle 42%는 ①(생성-다양: 정답을 더 많은 독립출처가 내게)로만. **메타: 사용자의 "zero-GPU 먼저" 지시가 GPU B1을 (예측적으로) 대체** — agreement 무력 = 같은 "모델 자기확신"인 B1도 ≈SEL-1 예측(B1 완료 시 확인).
