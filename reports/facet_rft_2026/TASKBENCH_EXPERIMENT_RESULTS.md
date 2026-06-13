@@ -394,6 +394,11 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 - **판정**: 사전등록(≥+3pp) **4배 초과 적중** — MM(+10.3pp)보다 큼. **"MM-특이" 우려 해소 = 선별기 라인 헤드라인 자격**(이종 도메인×전이-설정 재현). base가 약할수록(0.35) 선별 이득이 커지는 R7-정합 패턴.
 - **정직 기록**: SEL-4가 hf에선 SEL-1을 못 넘음(−0.3pp) — **Reviewer 이득은 기판-의존**(MM +0.81/hf −0.27). best-stack 정정: "SEL-1 = 코어(양 기판 +12.9/+9.5), SEL-4 = 기판-의존 옵션" — 헤드라인은 SEL-1로, SEL-4는 per-기판 검증 후 적용.
 
+### 8.9i ★SEL-5 기각 + XGrammar floor 음성 = 선별 천장 확정 (2026-06-14, `tb_pairwise_select.py`·`tb_validity_floor.py`)
+- **SEL-5 (MBR-shortlist + 7B pairwise judge 토너먼트, best-stack dpo2g)**: shortlist=3 **0.6690**(26 flips/499)·shortlist=5 **0.6635**(41 flips) — **둘 다 SEL-1 0.6722·SEL-4 0.6803 미달, 단조 악화**(개입↑=flip↑=점수↓). same-base 7B judge가 MBR 합의를 뒤집을 때 net-음성. ⇒ **SEL-2에 이어 2번째 verifier/judge-주도 기각 = 설계원칙 #2(불완전-verifier 천장, Stroebl) 실증**. 잔여 oracle 갭(0.680→0.856)은 same-base judge로 불가 — **D-oracle>0 풀 admission 또는 다른-base/축-다양 검증기(MAV 조건)만 경로**.
+- **XGrammar validity-floor (zero-GPU census, SELECTOR §7)**: tier-1 구조파손 전 풀 0·tier-2 도구명 갭(강arm 94%/qwen3b 56.5%)·name-snap 회수 9.7%(의미적 환각)·**D-oracle 분모 +0.16/id = 한계적**. **validity≠D-oracle 재확인** — floor는 위생 레버지 선별 레버 아님.
+- **★수렴 결론**: 두 음성(judge 강화·validity floor)이 함께 → **현 best-stack 0.6803 = same-base·gold-free 선별 레짐의 실효 천장**. 갭 공략은 선별기 기교 아닌 **풀 다양성(D-oracle)** 또는 **검증기 축-다양화**.
+
 ## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
 
 ### ★Day-4 종합 한눈표 (2026-06-12 — 상세는 각 §)
