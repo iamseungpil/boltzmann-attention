@@ -76,6 +76,14 @@ def main():
     def type_ok(e):
         return bool(otype.get(e[0], set()) & itype.get(e[1], set()))
 
+    # ★A2 replay-동형 결정론 검증기: graph_desc = 도메인 valid 의존성 엣지(gold-free 스키마, task 답 아님)
+    gdesc = json.load(open(f"{TB}/{D}/graph_desc.json"))
+    gvalid = {(norm(l["source"]), norm(l["target"])) for l in gdesc.get("links", [])
+              if "source" in l and "target" in l}
+
+    def graph_ok(e):
+        return e in gvalid
+
     gold = load_gold(TB, D)
 
     pools, groups = [], []
@@ -93,9 +101,11 @@ def main():
 
     ts = [1, 2, 3, 4, 5]
     asm_sum = {t: 0.0 for t in ts}
-    asm_type_sum = {t: 0.0 for t in ts}   # 빈도 ∧ 타입-호환
+    asm_type_sum = {t: 0.0 for t in ts}    # 빈도 ∧ 타입-호환
+    asm_graph_sum = {t: 0.0 for t in ts}   # 빈도 ∧ graph_desc valid-edge (A2 replay-동형)
     sel_sum = best_sum = asmoracle_sum = 0.0
-    g_tok = g_tot = w_tok = w_tot = 0     # 타입-호환 진단 (gold vs wrong)
+    g_tok = g_tot = w_tok = w_tot = 0      # 타입-호환 진단 (gold vs wrong)
+    gg_tok = gg_tot = wg_tok = wg_tot = 0   # graph_desc 진단
     n = 0
     for i in ids:
         G = gold[i]
@@ -119,17 +129,20 @@ def main():
         # 타입-호환 진단: 풀에 존재하는 gold/wrong 엣지가 타입검증을 통과하나
         for e in set(edge_src):
             if e in G:
-                g_tot += 1; g_tok += type_ok(e)
+                g_tot += 1; g_tok += type_ok(e); gg_tot += 1; gg_tok += graph_ok(e)
             else:
-                w_tot += 1; w_tok += type_ok(e)
+                w_tot += 1; w_tok += type_ok(e); wg_tot += 1; wg_tok += graph_ok(e)
         for t in ts:
             cand = {e for e, srcs in edge_src.items() if len(srcs) >= t}
             ctype = {e for e in cand if type_ok(e)}
+            cgraph = {e for e in cand if graph_ok(e)}
             if a.acyclic:
                 cand = make_acyclic(cand, score)
                 ctype = make_acyclic(ctype, score)
+                cgraph = make_acyclic(cgraph, score)
             asm_sum[t] += f1(cand, G)
             asm_type_sum[t] += f1(ctype, G)
+            asm_graph_sum[t] += f1(cgraph, G)
         if selected:
             ss = sig(selected.get(i, {}), valid)
             sel_sum += f1(ss[0], G) if ss else 0.0
@@ -137,13 +150,13 @@ def main():
     print(f"[엣지-조립] n={n} (비-단일노드){' ·acyclic' if a.acyclic else ''}")
     print(f"  기준선:  best-stack 선택 {sel_sum/n:.3f}  |  단일최대 {best_sum/n:.3f}  |  "
           f"조립-oracle {asmoracle_sum/n:.3f}")
-    print(f"  ★타입-호환 진단(결정론 검증기 변별): "
-          f"gold {g_tok/max(g_tot,1)*100:.1f}% vs wrong {w_tok/max(w_tot,1)*100:.1f}% 통과 "
-          f"(gold-wrong 분리 클수록 타입검증 유효)")
-    print(f"  엣지-조립(redund≥t):  [빈도단독]  [빈도∧타입]")
+    print(f"  ★결정론 검증기 변별 (gold vs wrong 통과율):")
+    print(f"     타입-호환:    gold {g_tok/max(g_tot,1)*100:.1f}% vs wrong {w_tok/max(w_tot,1)*100:.1f}%")
+    print(f"     graph_desc(A2 replay-동형): gold {gg_tok/max(gg_tot,1)*100:.1f}% vs wrong {wg_tok/max(wg_tot,1)*100:.1f}%")
+    print(f"  엣지-조립(redund≥t): [빈도] [빈도∧타입] [빈도∧graph_desc]")
     for t in ts:
-        print(f"    t={t}: {asm_sum[t]/n:.3f} ({asm_sum[t]/n-sel_sum/n:+.3f})   "
-              f"{asm_type_sum[t]/n:.3f} ({asm_type_sum[t]/n-sel_sum/n:+.3f} vs 선택)")
+        print(f"    t={t}: {asm_sum[t]/n:.3f}  {asm_type_sum[t]/n:.3f}  "
+              f"{asm_graph_sum[t]/n:.3f} ({asm_graph_sum[t]/n-sel_sum/n:+.3f} vs 선택)")
 
     # 공식-eval용 예측본 출력 (전 id; 빈도≥out_t ∧ 타입 ∧ acyclic; 엣지 없으면 best-stack 폴백)
     if a.out_pred:
