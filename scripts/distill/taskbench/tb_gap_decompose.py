@@ -48,10 +48,14 @@ def main():
     valid = {norm(t["id"]) for t in json.load(open(f"{TB}/{D}/tool_desc.json"))["nodes"]}
     gold = load_gold(TB, D)
 
-    pools = [load_records(f"{TB}/{D}_sub500/predictions/{a.ar_tag}{k}.json") for k in range(8)]
+    pools, groups = [], []
+    for k in range(8):
+        pools.append(load_records(f"{TB}/{D}_sub500/predictions/{a.ar_tag}{k}.json"))
+        groups.append(a.ar_group)  # AR8 K-샘플 = 같은 정책 1그룹(상관 투표)
     for m in hm_list:
         try:
             pools.append(load_records(f"{TB}/{D}_sub500_eval_{m}/predictions/{m}.json"))
+            groups.append(m)  # 이종 모델 = 각 독립 그룹
         except FileNotFoundError:
             pass
     selected = load_records(a.selected)
@@ -63,19 +67,19 @@ def main():
     for i in ids:
         g = gold[i]
         cand_f1 = []
-        for p in pools:
+        for p, grp in zip(pools, groups):
             rec = p.get(i)
             if rec is None:
                 continue
             s = sig(rec, valid)
             if s is None:
                 continue
-            cand_f1.append((f1(s[0], g), s[0]))
+            cand_f1.append((f1(s[0], g), s[0], grp))
         if not cand_f1:
             continue
         oracle = max(c[0] for c in cand_f1)
-        n_at = sum(1 for c in cand_f1 if abs(c[0] - oracle) < 1e-6)
-        n_distinct_at = len({frozenset(c[1]) for c in cand_f1 if abs(c[0] - oracle) < 1e-6})
+        # 독립 소스(group) 수 = 진짜 합의지지 (같은 정책 K샘플=1그룹·상관투표)
+        n_groups_at = len({c[2] for c in cand_f1 if abs(c[0] - oracle) < 1e-6})
         ssig = sig(selected[i], valid)
         sel_f1 = f1(ssig[0], g) if ssig else 0.0
         gap = oracle - sel_f1
@@ -85,7 +89,7 @@ def main():
             buckets["no_gap"].append((i, gap, oracle))
         elif oracle < a.tau_low:
             buckets["gold_limited"].append((i, gap, oracle))
-        elif n_distinct_at == 1:
+        elif n_groups_at <= 1:
             buckets["needle"].append((i, gap, oracle))
         else:
             buckets["selectable"].append((i, gap, oracle))
@@ -100,8 +104,8 @@ def main():
           f"mean_gap={total_gap:.4f}")
     print(f"{'bucket':>14} {'n_ids':>6} {'%ids':>6} {'sum_gap':>8} {'%of_total_gap':>13}  설명")
     desc = {"no_gap": "선택=oracle(손실0)", "gold_limited": "oracle<τ=gold한계(비가역)",
-            "needle": "oracle 단1후보=gold-free 난(≈비가역)",
-            "selectable": "oracle≥2후보=합의지지=선별여지"}
+            "needle": "oracle를 독립소스 1그룹만=합의지지無(≈비가역)",
+            "selectable": "oracle를 ≥2독립그룹 달성=합의지지=선별여지"}
     tot_gap_sum = sum(g for b in buckets.values() for _, g, _ in b)
     for name in ["no_gap", "gold_limited", "needle", "selectable"]:
         bl = buckets[name]
