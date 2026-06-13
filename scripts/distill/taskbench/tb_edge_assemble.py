@@ -65,7 +65,15 @@ def main():
     a = ap.parse_args()
     TB, D = a.tb_dir, a.domain
     hm_list = a.hm.split(",") if a.hm else HM
-    valid = {norm(t["id"]) for t in json.load(open(f"{TB}/{D}/tool_desc.json"))["nodes"]}
+    nodes = json.load(open(f"{TB}/{D}/tool_desc.json"))["nodes"]
+    valid = {norm(t["id"]) for t in nodes}
+    # 결정론 타입 검증기: 엣지 A→B 호환 ⇔ output-type(A) ∩ input-type(B) ≠ ∅
+    otype = {norm(t["id"]): set(t.get("output-type", [])) for t in nodes}
+    itype = {norm(t["id"]): set(t.get("input-type", [])) for t in nodes}
+
+    def type_ok(e):
+        return bool(otype.get(e[0], set()) & itype.get(e[1], set()))
+
     gold = load_gold(TB, D)
 
     pools, groups = [], []
@@ -83,7 +91,9 @@ def main():
 
     ts = [1, 2, 3, 4, 5]
     asm_sum = {t: 0.0 for t in ts}
+    asm_type_sum = {t: 0.0 for t in ts}   # 빈도 ∧ 타입-호환
     sel_sum = best_sum = asmoracle_sum = 0.0
+    g_tok = g_tot = w_tok = w_tot = 0     # 타입-호환 진단 (gold vs wrong)
     n = 0
     for i in ids:
         G = gold[i]
@@ -104,11 +114,20 @@ def main():
         best_sum += best_single
         asmoracle_sum += f1(G & set(edge_src), G)
         score = {e: len(srcs) for e, srcs in edge_src.items()}
+        # 타입-호환 진단: 풀에 존재하는 gold/wrong 엣지가 타입검증을 통과하나
+        for e in set(edge_src):
+            if e in G:
+                g_tot += 1; g_tok += type_ok(e)
+            else:
+                w_tot += 1; w_tok += type_ok(e)
         for t in ts:
             cand = {e for e, srcs in edge_src.items() if len(srcs) >= t}
+            ctype = {e for e in cand if type_ok(e)}
             if a.acyclic:
                 cand = make_acyclic(cand, score)
+                ctype = make_acyclic(ctype, score)
             asm_sum[t] += f1(cand, G)
+            asm_type_sum[t] += f1(ctype, G)
         if selected:
             ss = sig(selected.get(i, {}), valid)
             sel_sum += f1(ss[0], G) if ss else 0.0
@@ -116,10 +135,13 @@ def main():
     print(f"[엣지-조립] n={n} (비-단일노드){' ·acyclic' if a.acyclic else ''}")
     print(f"  기준선:  best-stack 선택 {sel_sum/n:.3f}  |  단일최대 {best_sum/n:.3f}  |  "
           f"조립-oracle {asmoracle_sum/n:.3f}")
-    print(f"  엣지-조립(redund≥t):")
+    print(f"  ★타입-호환 진단(결정론 검증기 변별): "
+          f"gold {g_tok/max(g_tot,1)*100:.1f}% vs wrong {w_tok/max(w_tot,1)*100:.1f}% 통과 "
+          f"(gold-wrong 분리 클수록 타입검증 유효)")
+    print(f"  엣지-조립(redund≥t):  [빈도단독]  [빈도∧타입]")
     for t in ts:
-        print(f"    t={t}: edge-F1 = {asm_sum[t]/n:.3f}  ({'+' if asm_sum[t]/n>sel_sum/n else ''}"
-              f"{asm_sum[t]/n - sel_sum/n:+.3f} vs 선택)")
+        print(f"    t={t}: {asm_sum[t]/n:.3f} ({asm_sum[t]/n-sel_sum/n:+.3f})   "
+              f"{asm_type_sum[t]/n:.3f} ({asm_type_sum[t]/n-sel_sum/n:+.3f} vs 선택)")
 
 
 if __name__ == "__main__":
