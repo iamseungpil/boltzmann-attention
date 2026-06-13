@@ -53,6 +53,12 @@ K-샘플+검증기-선별 가능(R6)·검증 통화가 결정론(replay over/und
 ③긴 정책(10k라인 타깃)의 globality — 청크 교차참조 (2단계 stress-test로 분리, §1 RAG-대조 계획과 합류)
 ④spec 스키마의 표현력 한계 — 새 predicate 유형 등장 시 스키마 확장 비용 (버전 관리).
 
+## 5b. ★NL→formalize 서베이 반영 (2026-06-14, `research_nl_formalize_2026_06_14.md` — 1차 검증·수치는 load-bearing 전 재확인)
+- **★분야 표준 레시피 = generate→sound check→keep/repair/abstain→aggregate** = 우리 replay-검증기 형태와 동일 (= 방향 정합 확인).
+- **★검증기 사각지대 — faithfulness (리스크② 정밀화)**: "Do LLMs Game Formalization?"(`2604.19459`)·FormalAlign(`2410.10135`) = **compile-pass ≠ NL-faithful**. 우리 replay는 *행동*(over/under-deny)만 잡고 — **fabricated gate가 우연히 replay 통과하면 못 잡음**. **처방(채택) = cross-stage faithfulness 검사**: 모델이 생성한 각 gate의 NL-gloss를 source 정책 절과 대조(저비용) → replay와 직교 검사 추가. VeriEquivBench(`2510.06296`)=ground-truth-free 등가 검사의 SOTA 천장.
+- **★S1 직계 템플릿 = StepFun-Formalizer(`2508.04440`)**: 7B/32B dual-dataset(ThinkingF) distill+RLVR = **유일한 검증된 소형-formalizer 선례** — S1-v2(P5 도착 후)의 레시피 모델. ⚠️math-only·헤드라인은 32B(7B 아님) — 전이 한계 명시.
+- **★A2 novelty 좌표 확정 (FIELD_GAP §5.6 박제)**: 최근접 과제 analog = **Prose2Policy(`2603.15799`, Apple — NL→Rego 95.3% compile)** = A2와 가장 가까운 published 과제. **단 frontier-prompt-only·증류/전이/주권 無**. ⇒ **리뷰어 필수 질문 "왜 그냥 frontier 프롬프트(P2P) 안 쓰나"의 답 = raw accuracy 아닌 ①주권(on-prem 소형) ②cross-domain 전이(LODO)** — A2 헤드라인을 이 둘로 고정. 4-way 교집합(swappable 소형생성기 + 고정 검증기를 *런타임 계약*으로 + verified-distill + SOP+주권)을 점유한 단일 논문 부재 = 검증된 공백.
+
 ## 6. 실행 순서 (큐 등재용)
 P-A2-0 (zero-GPU): frontier로 retail+airline 컴파일 → replay 검증 — GT 파이프라인 생존성 + frontier 단일샷 baseline 수치 확보.
   **✅PASS (2026-06-12)**: Fable-5 in-session airline 단일샷 → 상태-추적 replay **over-deny 0/108** (PORTFOLIO §3.9).

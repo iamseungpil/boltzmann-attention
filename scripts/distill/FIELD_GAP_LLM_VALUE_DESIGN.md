@@ -135,6 +135,15 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 
 **★종합 (2026-06 novelty 좌표 재확정)**: runtime enforcement(AgentSpec)·NeSy verifier(NSVIF)·verifier-TTS(이론 2502.12118+실증 2506.12928/2601.15808)는 전부 published. ⇒ **빈 칸 = {NL정책→스펙 자동 컴파일(A2)} × {도메인 전이} × {compliant-pass 2축 측정} × {결정론 런타임(LLM-free)}의 교집합** — §5 결합-novelty 판정이 더 좁고 명확한 형태로 유지됨. **게이트 자체는 더 이상 단독 novelty 아님** = §17.9("coverage가 헤드라인·게이트는 검증가능성")·§13.3 C3("A3 delta 얇음")의 외부 재확인. 부수: EU AI Act 고위험 의무 **2026-08-02 발효** — §15.4 open-1은 이미 ✅CLOSED(판정=(c) 로깅+검증 충족, 결정론-leg 철회)이므로 이 발효는 *결정론 요구*가 아니라 **"검증가능성/추적성 수요의 제도화"** 근거로만 인용(금지문구 "regulations require deterministic logic" 준수). AgentSpec류 runtime-enforcement 시장 형성과 합쳐 "집행-필요" leg의 실무 수요 증거.
 
+## §5.6 ★NL→formalize 분야 서베이 — A2 novelty 좌표 (2026-06-14, `research_nl_formalize_2026_06_14.md`, 1차 검증·수치 재확인 단서)
+| 계열 | 대표 (검증) | A2와의 관계 |
+|---|---|---|
+| ★최근접 과제 analog | **Prose2Policy** (`2603.15799`, Apple — NL→Rego 95.3% compile) | A2와 가장 가까운 published 과제 — **단 frontier-prompt-only·증류/전이/주권 無**. 리뷰어 "왜 P2P처럼 frontier 프롬프트 안 쓰나"의 직격 좌표 |
+| ★소형 formalizer 증류 | **StepFun-Formalizer** (`2508.04440`, 7B/32B dual-dataset distill+RLVR) | **유일한 검증된 소형-formalizer 선례** = S1-v2 레시피 템플릿. ⚠️math-only·헤드라인 32B(7B 아님) |
+| ★faithfulness 검사 | "Do LLMs Game Formalization?"(`2604.19459`)·FormalAlign(`2410.10135`)·VeriEquivBench(`2510.06296`) | compile-pass≠NL-faithful 증명 = 우리 replay 사각지대(fabricated gate가 replay 통과) → **cross-stage NL-gloss↔source 대조 검사 추가**(A2 §5b) |
+| PDDL/verifier-in-loop | PDDL agentic refinement(`2512.09629`, VAL-in-loop) | 우리 hardcoded-verifier(replay) analog — 분야 표준 = generate→sound check→keep/repair/abstain |
+- **★A2 novelty 확정**: 4-way 교집합 = **{swappable 소형 생성기} × {고정 결정론 검증기를 *런타임 계약*으로(eval 아닌)} × {verified-distill} × {business-SOP 집행 + on-prem 주권}** — 점유 단일 논문 **부재**. StepFun=verified-distill but math / Prose2Policy=정책 과제 but frontier-prompt-only·전이/주권 無. ⇒ **A2 헤드라인 방어 = raw accuracy 아닌 ①주권(on-prem 소형) ②cross-domain 전이(LODO)** (§5 결합-novelty·§17.9 coverage-헤드라인과 정합). 분야 표준 신뢰레시피(verifier-in-loop+faithfulness)는 방향 정합 확인.
+
 ## §6. ★실험 — 현장↔SOPBench 차이를 regime으로 (상세)
 각 실험: regime 정의 → 결정론 baseline → 지표 → 사전등록 성공기준 → Track/LOCK 매핑.
 
