@@ -25,6 +25,8 @@ def main():
     ap.add_argument("--agent_llm", default=None,
                     help="full litellm AGENT override (예 openrouter/openai/gpt-4.1) — "
                          "frontier-arm F4b census용; 지정 시 로컬 vllm 불요")
+    ap.add_argument("--user_temp", type=float, default=0.7,
+                    help="user-sim temperature (ⓟ1 분산통제 arm = 0.0)")
     ap.add_argument("--num_trials", type=int, default=1)
     ap.add_argument("--num_tasks", type=int, default=None)
     ap.add_argument("--max_concurrency", type=int, default=8)
@@ -38,7 +40,7 @@ def main():
 
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
-        user_llm, user_args = a.user_llm, {"temperature": 0.7}
+        user_llm, user_args = a.user_llm, {"temperature": a.user_temp}
         judge_model, judge_args = a.user_llm, {"temperature": 0.0,
                                                "response_format": {"type": "json_object"}}
     else:
