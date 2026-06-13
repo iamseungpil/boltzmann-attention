@@ -87,14 +87,17 @@ JUDGE_SYS = """You verify FAITHFULNESS of a compiled policy gate against the sou
 Given ONE gate (natural-language gloss) and several candidate source-policy clauses, decide whether
 ANY clause ENTAILS the gate's requirement — i.e. the policy actually mandates this restriction.
 A gate is SUPPORTED only if a clause states (or directly implies) the same precondition over the same
-kind of action. A gate with no entailing clause is FABRICATED (the compiler invented a rule).
-Output ONLY JSON: {"supported": true|false, "clause": <0-based index or null>, "confidence": 0.0-1.0,
-"reason": "<short>"}. Be strict: if the match is only superficial keyword overlap, set supported=false."""
+kind of action. Judge by MEANING, not surface wording (e.g. "authenticate the user" entails an
+"authenticated user identity" gate even if the words differ). A gate with NO entailing clause anywhere
+in the policy is FABRICATED (the compiler invented a rule the policy does not contain).
+Output ONLY JSON: {"supported": true|false, "evidence": "<verbatim quote of the entailing clause, or
+empty string>", "confidence": 0.0-1.0, "reason": "<short>"}."""
 
 
-def judge_call(endpoint, model, gtext, cands):
-    cand_block = "\n".join(f"[{j}] {c}" for j, (_, _, c) in enumerate(cands)) or "[none]"
-    usr = f"GATE:\n{gtext}\n\nCANDIDATE SOURCE CLAUSES:\n{cand_block}"
+def judge_call(endpoint, model, gtext, clauses):
+    # 정책 전체 clause를 번호와 함께 제시 — retrieval recall 병목 제거(짧은 SOP 정책 전제, 필요시 청크).
+    clause_block = "\n".join(f"- {c}" for c in clauses) or "(empty policy)"
+    usr = f"GATE TO VERIFY:\n{gtext}\n\nFULL SOURCE POLICY (clause per line):\n{clause_block}"
     url = endpoint.rstrip("/") + "/chat/completions"
     payload = {"model": model, "temperature": 0.0, "max_tokens": 300,
                "messages": [{"role": "system", "content": JUDGE_SYS},
@@ -118,20 +121,22 @@ LEX_HI, LEX_LO = 0.34, 0.17
 
 def classify_lexical(cands):
     best = cands[0][1] if cands else 0.0
+    ev = cands[0][2] if cands else None
     if best >= LEX_HI:
-        return "supported", best, (cands[0][0] if cands else None)
+        return "supported", best, ev
     if best < LEX_LO:
         return "fabricated", best, None
-    return "uncertain", best, (cands[0][0] if cands else None)
+    return "uncertain", best, ev
 
 
 def classify_judge(v):
     sup, conf = bool(v.get("supported")), float(v.get("confidence", 0.0))
+    ev = (v.get("evidence") or "").strip() or None
     if sup and conf >= 0.5:
-        return "supported", conf, v.get("clause")
+        return "supported", conf, ev
     if (not sup) and conf >= 0.5:
         return "fabricated", conf, None
-    return "uncertain", conf, v.get("clause")
+    return "uncertain", conf, ev
 
 
 def audit(spec, clauses, mode, judge=None, judgments=None):
@@ -139,20 +144,16 @@ def audit(spec, clauses, mode, judge=None, judgments=None):
     rows = []
     for gid, g in gates.items():
         gtext = gloss(gid, g)
-        # 검색·lexical 채점은 *predicate*(정책-의미) 키워드 기준 — gloss의 도구명 토큰이 희석하지 않도록.
-        # judge에는 full gloss(맥락)를 넘기되 후보는 predicate로 검색.
-        cands = retrieve(g.get("predicate", "") + " " + gid.replace("_", " "), clauses)
         if mode == "judgments":
-            v = judgments.get(gid, {})
-            verdict, conf, cl = classify_judge(v)
+            verdict, conf, ev = classify_judge(judgments.get(gid, {}))
         elif mode == "judge":
-            v = judge_call(judge[1], judge[2], gtext, cands)
-            verdict, conf, cl = classify_judge(v)
-        else:  # lexical
-            verdict, conf, cl = classify_lexical(cands)
+            # judge에 정책 전체 clause를 넘김(retrieval 병목 제거) — verbatim 근거 quote를 받음.
+            verdict, conf, ev = classify_judge(judge_call(judge[1], judge[2], gtext, clauses))
+        else:  # lexical: predicate(정책-의미) 키워드 기준 검색 — gloss 도구명 토큰 희석 방지
+            cands = retrieve(g.get("predicate", "") + " " + gid.replace("_", " "), clauses)
+            verdict, conf, ev = classify_lexical(cands)
         rows.append({"gate": gid, "verdict": verdict, "score": round(conf, 3),
-                     "clause": cl, "gloss": gtext,
-                     "evidence": (clauses[cl] if cl is not None and cl < len(clauses) else None)})
+                     "gloss": gtext, "evidence": ev})
     return rows
 
 
@@ -166,8 +167,8 @@ def report(rows, abstain_thresh):
     abstain = (fab > 0) or (sup_frac < abstain_thresh)
     for r in rows:
         tag = {"supported": "OK ", "fabricated": "FAB", "uncertain": "UNC"}[r["verdict"]]
-        print(f"  [{tag}] {r['gate']:<22} score={r['score']:.2f} "
-              f"clause={r['clause']}  {('<- ' + r['evidence'][:60]) if r['evidence'] else '(no entailing clause)'}")
+        print(f"  [{tag}] {r['gate']:<22} score={r['score']:.2f}  "
+              f"{('<- ' + r['evidence'][:64]) if r['evidence'] else '(no entailing clause)'}")
     print(f"[faithfulness] n={n} supported={sup} fabricated={fab} uncertain={unc} "
           f"(sup_frac={sup_frac:.2f}); spec -> {'ABSTAIN->HITL' if abstain else 'TRUST'}")
     return {"n_gates": n, "supported": sup, "fabricated": fab, "uncertain": unc,
