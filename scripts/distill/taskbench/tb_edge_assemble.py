@@ -62,6 +62,8 @@ def main():
     ap.add_argument("--hm", default=None)
     ap.add_argument("--selected", default=None)
     ap.add_argument("--acyclic", action="store_true")
+    ap.add_argument("--out_pred", default=None, help="빈도×타입 조립을 공식-eval용 예측본으로 출력")
+    ap.add_argument("--out_t", type=int, default=2, help="out_pred 채택 임계 (기본 2)")
     a = ap.parse_args()
     TB, D = a.tb_dir, a.domain
     hm_list = a.hm.split(",") if a.hm else HM
@@ -142,6 +144,34 @@ def main():
     for t in ts:
         print(f"    t={t}: {asm_sum[t]/n:.3f} ({asm_sum[t]/n-sel_sum/n:+.3f})   "
               f"{asm_type_sum[t]/n:.3f} ({asm_type_sum[t]/n-sel_sum/n:+.3f} vs 선택)")
+
+    # 공식-eval용 예측본 출력 (전 id; 빈도≥out_t ∧ 타입 ∧ acyclic; 엣지 없으면 best-stack 폴백)
+    if a.out_pred:
+        allids = sorted(set.intersection(*[set(p) for p in pools[:8]]))
+        nfb = 0
+        with open(a.out_pred, "w") as w:
+            for i in allids:
+                edge_src = defaultdict(set)
+                for p, g in zip(pools, groups):
+                    s = sig(p.get(i), valid) if p.get(i) else None
+                    if s:
+                        for e in s[0]:
+                            if e[0] != e[1]:
+                                edge_src[e].add(g)
+                score = {e: len(s2) for e, s2 in edge_src.items()}
+                cand = {e for e, s2 in edge_src.items() if len(s2) >= a.out_t and type_ok(e)}
+                cand = make_acyclic(cand, score)
+                if cand:
+                    tools = sorted({x for e in cand for x in e})
+                    rec = {"id": i, "user_request": (selected.get(i, {}) or {}).get("user_request", ""),
+                           "result": {"task_steps": [],
+                                      "task_nodes": [{"task": t, "arguments": []} for t in tools],
+                                      "task_links": [{"source": e[0], "target": e[1]} for e in cand]}}
+                else:  # 엣지 없음(단일노드/전부탈락) = best-stack 폴백
+                    nfb += 1
+                    rec = selected.get(i) or pools[0][i]
+                w.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        print(f"[out_pred] wrote {a.out_pred} (t={a.out_t}∧type∧acyclic; best-stack 폴백 {nfb}/{len(allids)})")
 
 
 if __name__ == "__main__":
