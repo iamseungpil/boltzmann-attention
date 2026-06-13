@@ -21,7 +21,7 @@
 | **SEL-2** | **soft-approval validity votes**: 게이트/검증 신호를 이진 veto가 아닌 **연속 승인 점수의 보조 투표**로 합산 (lexicographic 서열화 금지) | 0원 | Multi-Agent Verification [2502.20379] (약-verifier 승인 집계 = weak-to-strong) | SEL-1 위에 +1~3%p (역선택 신호의 정보 회수) |
 | **SEL-3** | **margin-기반 abstention**: 1위-2위 utility 갭 + 승자-클러스터 점유율 → confidence → risk-coverage 운용(F6 기계 그대로) | 0원 | Geifman&El-Yaniv'17 · semantic-entropy 클러스터 엔트로피 [2302.09664] | 비-회수 56%의 고위험 부분을 HITL로 — **coverage@risk 곡선 신규 산출**(점수 예측 아님) |
 | **SEL-4** | **7B reverse-likelihood 합성**: p(instruction\|plan)을 7B로 채점해 MBR utility와 곱/합성 (Reviewer 항) | 후보당 1 pass | Coder-Reviewer [2211.16490, ICML'23 — 최대 +17%p] | 회수율 **≥60%** 후보 (MBR과 직교 — 소수-정답 구제) |
-| **SEL-5** | **MBR-shortlist(top-3~5) + 7B pairwise judge 토너먼트**: train-time gold로 judge 미세조정 합법 | shortlist당 ~10 pass | LLM-Blender PairRanker [2306.02561] · PoLL [2404.18796] · Prometheus 2 [2405.01535] | 최종 단 — SEL-4까지의 잔여 oracle 갭에서 판단 |
+| **SEL-5** | **MBR-shortlist(top-3~5) + 7B pairwise judge 토너먼트**: train-time gold로 judge 미세조정 합법 | shortlist당 ~10 pass | LLM-Blender PairRanker [2306.02561] (ranker=**DeBERTa-400M**·O(n²) → shortlist 압축 정당) · **Prometheus 2 [2405.01535]**(=실재 7B 오픈 evaluator·on-prem 닻) · ⚠️PoLL [2404.18796] | 최종 단 — SEL-4까지의 잔여 oracle 갭에서 판단. ⚠️**PoLL 인용 규율(relwork_selector §C)**: 패널=Command-R-35B+Haiku+GPT-3.5(proprietary API) = "**frontier 단일 judge 불필요**"의 일반근거로만 인용, **≤7B/on-prem 주권-leg 근거로는 금지** |
 - **판정 규율(전 단 공통)**: F5 회수율 = (선별−mean)/(oracle−mean), **paired bootstrap 95% CI 동반**(ⓟ2) · 내부-일관 비교(동일 풀·동일 평가) · 공식 척도 확인은 sub500 N2-프로토콜 재사용 · 단별 즉시-기각 조항 = CI가 직전 단 대비 0 이득 포함 시 그 단 폐기.
 - **시드 확장 별도 축**: MBR 수렴 O(n^-1/2) [2502.12685] — K=14는 추정분산 잔존, 풀 확대는 선별기와 독립 레버(GPU 비용 발생 — 후순위).
 
@@ -47,7 +47,7 @@
 1. **이론 닻 신규 — VB/VF 분리정리** [`2502.12118` v2]: 검증-채널 이득 **Ω̃(H/√n)**의 전제 = base 분포 **heterogeneity + anti-concentration** → §0 Δhetero +13.6·N2 "다양성 함수" 기제의 이론 대응물 = **"다양성 없으면 검증-선별 이득도 없다"가 정리 수준에서 성립**(우리 E6 실측과 동형). ⚠️정식 대상=파인튜닝 — 선별 사상은 확장해석 명시 후 인용.
 2. **SEL-2 기각 해석 확정 — MAV 직독** [`2502.20379` v1]: BoN-MAV 작동 전제 = 다축 검증기 다양성 + **held-in validation으로 검증기 부분집합 선별**; GPQA tie·HumanEval 역전 = 무조건 작동 아님. ⇒ 우리 NS 기각 = **모순 아닌 조건차**(단일 게이트 신호·축 다양성 0·validation-선별 무). 재도전 조건 = 검증기 축 다양화+집합 선별 — 현 우선순위 낮음(SEL-4/5가 선행).
 3. **설계 원칙 1 외부증거** [`2506.12928` v1, GAIA agent-TTS]: **list-wise(후보 상대비교) > scoring > voting** + 상시 reflection 해로움 = "병렬 K-제안+상대비교 선별 > 순차 수정"의 에이전트-도메인 독립 증거.
-4. **게이트 역선택의 외부 동형** [`2601.15808` v2, ACL'26 Findings]: 검증-측 스케일링 천장 = **오기각(correct→incorrect) 지속** — §0 역선택·F6 오캘리브와 같은 족보의 정량 보고. 순차 검증-수정 루프와 우리 병렬 선별은 직교 = 결합 후보(후순위).
+4. ❌**철회 (2026-06-14, relwork_diversity §5 — 내용 불일치)**: `2601.15808`을 "게이트 역선택의 외부 동형(검증-측 스케일링 천장 = 오기각 지속)"으로 인용한 것은 **오인용**. 직독 abstract상 실제 논문 = Wan et al. *"Inference-Time Scaling of Verification: Self-Evolving Deep Research Agents"*(GAIA/XBench 검증-스케일, ACL'26 Findings)로 "오기각(correct→incorrect) 천장"과 무관. ⇒ **게이트 역선택의 외부 동형은 imperfect-verifier 천장 정리 [`2411.17501`, Stroebl+24: FP>0 ⇒ resampling 정확도 상한·최적 K 매우 작음]로 대체**(relwork_selector §5/§B). 본 ID 재인용은 full-text 재검증 후에만.
 ## 6. ★V-라인: 검증-다양성 (multi-axis soft 재진입 — 2026-06-14 정밀 설계, SEL-2 기각의 조건 충족판)
 > 재진입 조건(§5 MAV 직독에서 박제): ①검증기 축 *다양화* ②held-in validation으로 부분집합 선별. SEL-2 기각 = 단일 축(gmem)의 soft화 — 정보가 하드필터에 이미 소진된 신호의 재포장이었음. SEL-4(+0.81pp)가 soft 신호 성공례인 이유 = **직교 축**. ⇒ V-라인 = 직교 축을 *체계적으로* 늘리고 MAV-레시피로 집계.
 

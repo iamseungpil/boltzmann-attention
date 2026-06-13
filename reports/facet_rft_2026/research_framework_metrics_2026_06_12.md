@@ -219,7 +219,7 @@ E-AURC(κ, f | V_n) = AURC(κ, f | V_n) − AURC(κ*, f | V_n)
 9. Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations, E. Miller, arXiv:2411.00640**v1**, 2024. [A]
 10. Selective Classification for Deep Neural Networks, Y. Geifman & R. El-Yaniv, NeurIPS 2017. [P: proceedings.neurips.cc]
 11. Bias-Reduced Uncertainty Estimation for Deep Neural Classifiers, Y. Geifman, G. Uziel & R. El-Yaniv, arXiv:1805.08206**v4**, ICLR 2019. [A][F: AURC·E-AURC 수식]
-12. A Call to Reflect on Evaluation Practices for Failure Detection in Image Classification, P.F. Jaeger et al., arXiv:2211.15259, ICLR 2023 (oral). [A(검색 스니펫)+P: iclr.cc oral 페이지 확인]
+12. A Call to Reflect on Evaluation Practices for Failure Detection in Image Classification, P.F. Jaeger et al., arXiv:2211.15259, ICLR 2023 (oral). **[F]**(2026-06-14 전문 정독, relwork_metrics §1.12: verbatim "We propose to use AURC as the primary metric" 확인 → 스니펫 태그서 승격) [+P: iclr.cc oral 페이지 확인]
 13. Know Your Limits: A Survey of Abstention in Large Language Models, B. Wen et al., arXiv:2407.18418**v3**, TACL. [A]
 14. Check Yourself Before You Wreck Yourself: Selectively Quitting Improves LLM Agent Safety, V.K. Bonagiri et al., arXiv:2510.16492**v3**, 2025–26. [A]
 15. Trust or Escalate: LLM Judges with Provable Guarantees for Human Agreement, J. Jung, F. Brahman, Y. Choi, arXiv:2407.18370, ICLR 2025. [A]
@@ -227,7 +227,7 @@ E-AURC(κ, f | V_n) = AURC(κ, f | V_n) − AURC(κ*, f | V_n)
 17. Cost-of-Pass: An Economic Framework for Evaluating Language Models, M.H. Erol et al., arXiv:2504.13359**v2** (2026-02-26). [A]
 18. Holistic Agent Leaderboard: The Missing Infrastructure for AI Agent Evaluation, S. Kapoor, B. Stroebl, P. Kirgis et al. (31인), arXiv:2510.11977**v1**, 2025. [A]
 19. Towards a Science of AI Agent Reliability, S. Rabanser, S. Kapoor, P. Kirgis, K. Liu, S. Utpala, A. Narayanan, arXiv:2602.16666**v3**, ICML 2026. [A][F: 12 metrics·K=5 runs·Cout 수식]
-20. Holistic Evaluation of Language Models (HELM), P. Liang, R. Bommasani et al., arXiv:2211.09110**v2**, 2022. [A]
+20. Holistic Evaluation of Language Models (HELM), P. Liang, R. Bommasani et al., arXiv:2211.09110**v2 (rev 2023-10-01**; 최초 제출 2022-11). [A] — 4-tuple/버전 규율상 인용 시 **v2 개정일 2023-10-01 핀**(relwork_metrics §1.10).
 21. Do These LLM Benchmarks Agree? Fixing Benchmark Evaluation with BenchBench, Y. Perlitz et al., arXiv:2407.13696**v2**, 2024. [A]
 22. Risk Aware Benchmarking of Large Language Models, A. Nitsure, Y. Mroueh et al., arXiv:2310.07132, ICML 2024. [A(부분)+검색으로 저자·venue 확인(IBM Research 페이지)]
 23. Mind the Sim2Real Gap in User Simulation for Agentic Tasks, X. Zhou et al., arXiv:2603.11245**v1**, 2026. [A]
