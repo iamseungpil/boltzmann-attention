@@ -352,6 +352,14 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 - **SEL-4 채택 후보**: Reviewer 신호가 동일 풀에서 +0.73pp = 직교성 입증(예측 적중) — **다음 1수: dpo2g-풀에 SEL-4 적용**(67.22+α 기대, 후보당 1 pass 비용). 구현 = `tb_reviewer_select.py`.
 - **★SEL-4 최적-풀 신기록 (2026-06-13 아침, 사전등록 >0.6722 적중)**: dpo2g-AR8+H6 풀에 7B Reviewer 합성 → **공식 link F1 0.6803** (SEL-1 단독 0.6722 → **+0.81pp 신기록**). Reviewer p(instr\|plan)가 MBR 합의와 직교해 소수-정답을 구제 — **선별기 사다리 SEL-1+SEL-4 = best-stack 확정**. 비용 = 후보당 1 forward pass(7B). 이로써 zero-training 추론-side 선별만으로 단일-정책(k0 57.7) 대비 **+10.3pp 공식**(66.0→68.0). 구현·재현 = `driver_sel4_dpo2g.sh`.
 
+### 8.9f ★다양성-생성 실험 부분결과 (2026-06-13 day13 [A], MM sub500 K=8 정책별, `tb_divgen_analyze.py`)
+| 정책 | 풀 다양성(평균 쌍별 1-F1) | mean | oracle | 선별 이득 |
+|---|---|---|---|---|
+| P-temp (단일 dpo2, temp 0.5-1.4) | 0.0114 | 0.768 | 0.774 | +0.0011 |
+| **P-unguided** (단일 dpo2, guided OFF) | **0.0167 (+46%)** | 0.763 | 0.771 | +0.0014 |
+| (참조) H6 이종-어댑터 풀 | 0.024 | — | — | (N2 +10.3pp) |
+- **★사전등록 적중**: P-unguided 다양성 > P-temp = **guided JSON이 다양성을 깎는다 실측 확인**(딥리서치 GAD/Price-of-Format 정합). 단 ①둘 다 H6(0.024)에 못 미침 ②선별 이득 미미(+0.001) — **단일-정책은 temp/guided 손잡이로도 이종-어댑터 풀 다양성에 못 닿음**. ⇒ **P-D(diffusion) 정당화의 선결 결과 충족**: AR-내(단일정책) 다양성 천장 < 이종-풀 = "AR로 못 만드는 다양성"이 실재. ⚠️P-lora arm(이종-목적 어댑터)은 multi-LoRA 서빙 버그로 미완 → 순차-서빙 재발사 큐.
+
 ### 8.9e ★둘째-기판 재현 = 대폭 적중 — 선별기 헤드라인 자격 획득 (2026-06-13, 사전등록 ≥+3pp, `driver_substrate_hf.sh`)
 | TB-**huggingface** sub500 (AR8=tb_lodo_hf+guided temp0.8 — **LODO held-out 전이 설정** / hetero=qwen 4종+Track-B 4종) | 공식 link F1 |
 |---|---|
