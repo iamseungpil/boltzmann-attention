@@ -399,7 +399,8 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 - **XGrammar validity-floor (zero-GPU census, SELECTOR §7)**: tier-1 구조파손 전 풀 0·tier-2 도구명 갭(강arm 94%/qwen3b 56.5%)·name-snap 회수 9.7%(의미적 환각)·**D-oracle 분모 +0.16/id = 한계적**. **validity≠D-oracle 재확인** — floor는 위생 레버지 선별 레버 아님.
 - **★수렴 결론 (2026-06-14 정정 — 과대진술 축소)**: 검증된 음성 = **same-base judge/pairwise/soft-validity류 한정**. "0.6803 = 실효 천장" 주장은 **보류**. (C 진단으로 부분 해소 — 아래.)
 - **★C: oracle 갭 분해 (2026-06-14, `tb_gap_decompose.py`, zero-GPU)**: best-stack vs oracle 갭(census-scale mean_gap 0.064)을 분해. **no_gap=84.6%**(선택=oracle). 갭 분해(독립-group 기준 — 같은정책 K샘플=1상관그룹): **selectable 50.7%**(oracle를 ≥2독립그룹 달성인데 더 지지받는 *틀린* 답에 밀림 = **선별기 여지**)·**needle 42.4%**(oracle 독립소스 1그룹뿐=합의지지無·≈비가역)·gold-limited 6.9%(oracle<0.5). ⚠️**기준 민감**: distinct-plan 기준이면 selectable 3.6%로 붕괴(동일 oracle 다수복제를 needle로 오분류) → **독립-group이 정확**(SEL-1 group-aware 투표와 정합). near-miss: gap-id서 선택본 f1-순위 중앙값=3.
-- **⇒ 정정된 결론**: "선별기 천장" **부분 반증** — 갭의 **~50%가 선별가능** → B1/B2/B3(신호개선)에 실질 헤드룸. 나머지 ~49%(needle+gold-limited)는 **선별기로 불가 = 풀/생성(needle을 합의지지로) 또는 강한/다른-base 검증기**. ⇒ 차기: **B1 self-certainty(GPU1 1-pass, 선별여지 검증)** + needle은 ①(생성-다양)로만.
+- **★자기확신 신호 음성 (2026-06-14, `tb_selfagree.py` zero-GPU + `tb_selfcert_select.py` GPU1)**: C의 selectable~50%를 same-base 자기확신이 건지나? ①**agreement(8중 빈도, 사용자발의 zero-GPU)**: MBR+agree **0.6726 ≈ SEL-1 0.6722**(중립·92% 만장일치라 고를 게 없음)·AR-mode 0.6024. ②**logprob(B1)**: MBR+logprob **0.6644 < SEL-1**(−0.8pp 해로움·퇴화-해 선호 #3)·pure 0.5933. ⇒ **자기확신은 빈도든 logprob이든 무력~해로움**.
+- **⇒ 최종 결론**: 갭의 ~50% selectable은 *정답이 오답에 outvoted*된 것 = **same-base 신호(합의·reverse-LL·judge·validity·자기확신) 5종 전부로 못 건짐**. selectable은 **생성기-독립 검증기(②/V-line)**·needle 42%는 **①생성-다양**으로만. "0.6803 천장"은 *same-base 선별 한정*으로 확정(반증 시도 소진). **메타**: 사용자 "zero-GPU agreement 먼저"가 GPU B1을 정확히 예측-대체.
 
 ## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
 
