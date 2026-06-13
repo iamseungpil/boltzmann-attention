@@ -86,7 +86,9 @@ def main():
     vfracs, plans_by_id = [], {}
     writers = [open(f"{a.out_prefix}_k{k}.json", "w") for k in range(a.k)]
     for ri, rec in enumerate(records):
-        msgs = [{"role": "user", "content": build_prompt(tool_string, rec["user_request"])}]
+        # data.json 키 = 'instruction' (predictions만 'user_request') — 양쪽 호환
+        req = rec.get("user_request") or rec.get("instruction") or ""
+        msgs = [{"role": "user", "content": build_prompt(tool_string, req)}]
         inputs = tok.apply_chat_template(msgs, return_tensors="pt", return_dict=True,
                                          add_generation_prompt=True)
         ids = inputs.input_ids.cuda()

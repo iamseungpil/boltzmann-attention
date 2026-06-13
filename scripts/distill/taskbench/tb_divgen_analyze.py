@@ -50,6 +50,9 @@ def main():
                     continue
                 flt = [c for c in cands if c[2]]
                 use = flt if flt else cands
+                if len(use) < 2:  # validity 필터 후 단일 후보 = 다양성 미정의 → 선별 trivial
+                    wf.write(json.dumps(use[0][0]) + "\n")
+                    continue
                 links = [c[1] for c in use]
                 pairs = [1 - f1(x, y) for x, y in itertools.combinations(links, 2)]
                 d = sum(pairs) / len(pairs)
