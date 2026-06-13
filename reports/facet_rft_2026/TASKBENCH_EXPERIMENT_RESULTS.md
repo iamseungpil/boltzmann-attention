@@ -397,7 +397,7 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 ### 8.9i ★SEL-5 기각 + XGrammar floor 음성 = 선별 천장 확정 (2026-06-14, `tb_pairwise_select.py`·`tb_validity_floor.py`)
 - **SEL-5 (MBR-shortlist + 7B pairwise judge 토너먼트, best-stack dpo2g)**: shortlist=3 **0.6690**(26 flips/499)·shortlist=5 **0.6635**(41 flips) — **둘 다 SEL-1 0.6722·SEL-4 0.6803 미달, 단조 악화**(개입↑=flip↑=점수↓). same-base 7B judge가 MBR 합의를 뒤집을 때 net-음성. ⇒ **SEL-2에 이어 2번째 verifier/judge-주도 기각 = 설계원칙 #2(불완전-verifier 천장, Stroebl) 실증**. 잔여 oracle 갭(0.680→0.856)은 same-base judge로 불가 — **D-oracle>0 풀 admission 또는 다른-base/축-다양 검증기(MAV 조건)만 경로**.
 - **XGrammar validity-floor (zero-GPU census, SELECTOR §7)**: tier-1 구조파손 전 풀 0·tier-2 도구명 갭(강arm 94%/qwen3b 56.5%)·name-snap 회수 9.7%(의미적 환각)·**D-oracle 분모 +0.16/id = 한계적**. **validity≠D-oracle 재확인** — floor는 위생 레버지 선별 레버 아님.
-- **★수렴 결론**: 두 음성(judge 강화·validity floor)이 함께 → **현 best-stack 0.6803 = same-base·gold-free 선별 레짐의 실효 천장**. 갭 공략은 선별기 기교 아닌 **풀 다양성(D-oracle)** 또는 **검증기 축-다양화**.
+- **★수렴 결론 (2026-06-14 정정 — 과대진술 축소)**: 검증된 음성 = **same-base judge/pairwise/soft-validity류 한정**. "0.6803 = 실효 천장" 주장은 **보류** — 미검증 레버 잔존: **(B1) self-certainty/logprob**(우리 shared-base = 비교가능 희귀 레짐·zero-GPU·SEL-5 음성과 다른 신호) · **(C) 갭 0.176의 eval-tie/노이즈 분해**(선별가능분 미측정 = 천장 선결 진단) · (B2) utility · (B3) 결합 튜닝. ※"풀 다양성①"=새 proposer 추가는 생성기-강등과 충돌(또는 오라클 0.856-bounded curation), "축-다양 검증기②"=이미 V-line(SELECTOR §6)·V-2 MAV(day13) 예정 — 둘 다 새 경로 아님. **차기 zero-cost = B1+C.**
 
 ## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
 
