@@ -111,6 +111,9 @@ def main():
     ap.add_argument("--gen_only", action="store_true",
                     help="P5(S1 교사-컴파일): reference 무 도메인 — 채점 생략, spec 생성/저장만"
                          " (검증은 Track A replay가 사후 수행)")
+    ap.add_argument("--no_oneshot", action="store_true",
+                    help="S1-diag H3: retail 1-shot 예시 제거 — zero-shot 평가"
+                         "(학습 프롬프트 형식과 일치, 형식-불일치 가설 분리)")
     a = ap.parse_args()
 
     ref = None if a.gen_only else json.load(
@@ -120,9 +123,14 @@ def main():
     catalog = json.load(open(a.catalog))
     oneshot = ("# EXAMPLE (retail policy -> spec):\n" + json.dumps(
         {k: v for k, v in retail_ref.items() if not k.startswith("_")}, indent=1))
-    usr = (f"{oneshot}\n\n# NOW compile THIS policy ({a.target}):\n{policy}\n\n"
-           f"# tool catalog (name: type, required args):\n"
-           + json.dumps(catalog["tools"], indent=1) + "\n\nOutput the gate spec JSON:")
+    if a.no_oneshot:
+        usr = (f"# Compile THIS policy ({a.target}):\n{policy}\n\n"
+               f"# tool catalog (name: type, required args):\n"
+               + json.dumps(catalog["tools"], indent=1) + "\n\nOutput the gate spec JSON:")
+    else:
+        usr = (f"{oneshot}\n\n# NOW compile THIS policy ({a.target}):\n{policy}\n\n"
+               f"# tool catalog (name: type, required args):\n"
+               + json.dumps(catalog["tools"], indent=1) + "\n\nOutput the gate spec JSON:")
 
     rows = []
     for m in a.model:
