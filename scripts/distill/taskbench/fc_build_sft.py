@@ -68,6 +68,8 @@ def main():
     ap.add_argument("--no_alias", action="store_true")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--max_per_source", type=int, default=0)
+    ap.add_argument("--max_per_bench", type=int, default=0,
+                    help="벤치별 궤적 상한(균형=리스크#2 합성결과 오염 통제). 0=무제한")
     a = ap.parse_args()
     rng = random.Random(a.seed)
     allex = []
@@ -77,6 +79,14 @@ def main():
             recs = recs[:a.max_per_source]
         allex.extend(recs)
     rng.shuffle(allex)
+    if a.max_per_bench:
+        kept, perb = [], Counter()
+        for ex in allex:
+            b = ex["_meta"]["bench"]
+            if perb[b] < a.max_per_bench:
+                perb[b] += 1
+                kept.append(ex)
+        allex = kept
 
     bench = Counter()
     sT = sF = 0
