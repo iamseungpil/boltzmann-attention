@@ -15,6 +15,7 @@
 - **수확 = `cat /home/woori/scratch/day13_summary.txt`** (sentinel DAY13_DONE) + `substrate_hf.log`·`frontier_f4b.log`(완료분). 드라이버 `taskbench/driver_day13.sh` — 사전등록은 드라이버 머리 + SELECTOR_DESIGN ⑸/§6 + TB_DIFFUSION §3b.
 - 돌고 있는 것: **[A]** P-temp(temp 0.5-1.4×2)+P-unguided(guided OFF) 각 K8 (GPU0) **[B]** P-lora 이종-목적 어댑터 8종(dpo2/v3mix/struct/cost/lodomm/daily/rft2/rft) 각 1샘플 (GPU1, substrate 후) **[C]** 다양성 분석+gain~diversity 회귀+공식 eval **[D]** P-D0 Dream-7B 형식게이트 스모크(timeout 격리) **[E]✅** V-1/V-2 완료 — **lex 음성통제 적중(0.730 ≪ sel1 0.831 = 역선택 재현 ⓥ2 PASS)**·greedy가 val에서 축 0개 채택(ⓥ1 엄밀 기각 — approve-전축 +0.31pp는 val-동결 아닌 탐색적, 정직 기록 필요) **[F]** ⓟ1 분산통제 arm(user-sim temp 0.0 ×4, `retail_7b_gate_r3_ut0` — flaky↓면 user-sim 분산원 확정).
 - P-prompt arm 제외 사유: inference.py에 system 주입점 부재 (설계서 기록 — 차기 patch 후보).
+- **[G] S1-diag 체인 추가 (DAY13_DONE 후 GPU0 자동, `tau2/driver_s1d.sh`)**: S1 기각의 경쟁가설 분리 — **H4 구체성 갭**(구체-술어 합성 60쌍 `t2_a2_concrete_gen.py` → v7 재학습 s1d; 사전등록 airline applies_F1>0.528 ∧ n_gates≥3) + **H3 형식 불일치**(census `--no_oneshot` — 어댑터↑/base↓ 예상). arms {base,s0v2,s1d}×{1shot,0shot}. 결과도 day13_summary.txt에 append. 둘 다 기각 시 = P5 dose-response만 잔존(가설 공간 축소).
 - 완료된 오전분: **frontier F4b ✅**(§3.7e — 게이트 model-agnostic·frontier 위반 G2 4건뿐 = 강형 기각·정직 서사) · **hf 둘째-기판 🔄**(substrate_hf.log) · 다양성 딥리서치 ✅(35인용 — P-unguided 신설 근거).
 
 ### 0a0. ★★야간 0613→14 수확 완료 + 전수 부검 (2026-06-13 아침 — 최신)
