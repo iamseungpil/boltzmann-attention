@@ -8,7 +8,8 @@
 4. **잔여 큐**: ①A2 faithfulness 검사 구현(NL-gloss↔source 대조 — replay 사각지대, relwork_nlformalize 처방) ②S1-v2(P5 도착 → dose-response 1/3/6/9·StepFun dual-dataset 템플릿) ③τ² G4 deny-게이트는 다음 gate 실행서 검증 대기 ④coworker P4/P5 도착 감시(trackb_raw).
 
 ## 0.1 clear 시점 백그라운드 상태 (재발사 불요·결과만 수확)
-- **GPU**: GPU1 P-D0(Dream diffusion, ~2.8h timeout 거의 종료) → 종료 시 **determinism 드라이버 자동 시작**(GPU0, PLORA_PD0_DONE 게이트)→DET_DONE. day13 ✅완료.
+- **GPU (clear 직전 실측 21:13 KST — 양쪽 가동)**: **GPU0 = 결정론 실험 실행 중**(`/home/woori/scratch/driver_det_now.sh` — PLORA_PD0_DONE 게이트를 제거한 즉시-실행본, 사용자 지시로 P-D0 대기 없이 GPU0 활용). serve(7B `--enforce-eager --max-num-seqs 1 --seed 0`, port 8351)+τ² retail 40태스크×4 순차 → 끝나면 `t2_p1_autopsy.py` 자동 재측정 → **`/home/woori/scratch/det_autopsy.txt`·day13_summary.txt**. 판정 = 4-trial seq 동일률 0%→≥70%면 배칭이 ⓟ1 비결정 주범 확정·ⓟ1 재개. **GPU1 = P-D0**(Dream diffusion, ~21:40 timeout 종료). ⚠️구 `driver_determinism.sh`(게이트본)는 kill됨 — 재실행 말 것(즉시본이 대체). day13 ✅완료.
+- ⚠️**보안 gotcha (day-5 추가)**: 드라이버가 `set -x` 상태에서 `source .openrouter_key`를 실행하면 **OpenRouter API 키가 로그(determinism.log 등)에 평문 노출**. scratch(git 밖)라 외부유출은 아니나, **다음 드라이버부터 키 export 줄을 `set +x` … `set -x`로 감싸 가릴 것**. (필요 시 노출된 키 회전 고려.)
 - **에이전트 7개**(6 relwork + diffusion 전반): clear로 세션 소실되나 **별도 .md 파일은 디스크 잔존**. **완료=파일 존재 / 미완=파일 없음→다음 세션 재발사 필요**. ls `reports/facet_rft_2026/relwork_*.md`로 확인.
   - ✅**relwork_arch 완료**: A3 정정(표준AR에 짐·diffusion 필적은 2B-vs-65B 효율정규화 = framing 닻만) / **ATLAS-RTC `2603.27905` 가짜→bib drop** / PLaT `2601.21358`·OATS `2603.13426` 실재 / top-2=XGrammar·SoS-distill.
   - ✅**relwork_determinism 완료**: §1.6 estimator 무오류. **★vLLM 결정론 recipe = ≥0.11.1(0.11.0 미탑재 확인) + `VLLM_BATCH_INVARIANT=1` + TP=1 + compute≥8.0, ~1.6× 지연**. **ⓟ1 재개 가능**(우리 enforce-eager+seqs1은 진단 A/B일 뿐, 정공=batch-invariant). 미래ID 4개 전부 resolve. 2506.09501=LayerCast(FP32) fix(precision-observation 아님).
@@ -34,6 +35,8 @@
 3. **divgen/census 단일후보 가드**: validity 필터 후 후보 1개면 쌍별 계산 ZeroDivision — skip 가드 필수(`tb_divgen_analyze` 수정분).
 4. **data.json gold = tool_links(이중 JSON 인코딩)**·predictions = user_request — diffusion 샘플러는 instruction 키. 키 혼동 주의.
 5. **선별기 풀 그룹**: 같은-정책 K샘플=1그룹(ar_group) / 이종 어댑터=각 독립그룹(--ar_group_per_slot) — proposer-1표 가중의 전제.
+6. **★API 키 로그 노출**: `set -x` + `source .openrouter_key` = 키 평문이 로그에 박힘(determinism.log 실측). 키 export는 `set +x; source ...; set -x`로 감싸기. (scratch=git 밖이라 유출 아니나 위생.)
+7. **드라이버 게이트 재고**: detached 드라이버를 "앞 작업 sentinel 대기"로 게이트하면 GPU가 분리돼도 유휴 GPU를 못 씀(P-D0가 GPU1만 쓰는데 결정론이 GPU0 놀리며 대기한 사고). **GPU별 독립 작업은 게이트 말고 빈-GPU 확인만으로 즉시 발사**.
 
 ## 3. 메타 (day-5 규율 수확)
 - **인용규율 작동 사례**: DiG-Plan 0.32/0.94를 그대로 박았으면 허위 레퍼런스. 정독으로 "합성 토이"임을 잡아 정정 = 원문검증·수치이식금지 규율의 값.
