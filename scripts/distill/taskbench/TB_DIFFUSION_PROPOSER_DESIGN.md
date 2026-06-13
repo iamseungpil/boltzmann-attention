@@ -54,6 +54,20 @@
 > 인용위생 체크박스: DiG-Plan(2606.05728) 1차 검증 = 프로토콜 디테일(TaskBench-23 501, Pass@10 수치) 원문 확인됨
 > · 논문 본문 인용 전 R8 절차(버전 명시·수치 재검증) 필수, 수치 이식 금지 유지.
 
+## 3b. ★v3 승격 설계 (2026-06-14 — §3.7d 다양성 부검 후 "조건부 강등" 해제 경로)
+**승격 근거(실측 3건, PORTFOLIO §3.7d)**: ①v3g 부검 — oracle 동일(0.896=0.895)·AR8 내부다양성 −33%만으로 선별이득 붕괴 = **AR 자기-샘플 다양성은 정책이 강해질수록 고갈** ②대형 AR 단일샷 추가 무이득(중복) ③H6(싼-이종성)은 이미 풀에 소진. ⇒ AR-밖 생성기제 = 풀에 남은 마지막 다양성 공급원 후보. **선결 게이트 = SELECTOR_DESIGN 큐 ⑸(다양성-생성 실험)가 AR-내 천장을 먼저 확정** — temp/prompt 변주로 닿는 다양성이면 diffusion 불요(비용 우위).
+
+**단계 갱신 (P-D1/2를 현-최적 풀·현-최적 선별기 기준으로 재정의)**:
+- **P-D0 (불변)**: §3 형식 이중관문 그대로 (파싱 ≥0.5 ∧ snap-후 valid_frac ≥0.8; 실패 시 few-shot 보강 1회→LLaDA 교체). `tb_diffusion_sample.py` 기존.
+- **P-D1' (혼합-풀 census, zero-eval)**: 현-최적 풀(dpo2g-AR8+H6, oracle 0.896) + D4 — 판정 3행:
+  ⓐ oracle Δ = oracle(+D4)−0.896 (paired bootstrap CI)
+  ⓑ **★unique-correct census**: D-후보만 정답(edge-F1 1위가 D이며 전 AR/H 후보 < 0.5)인 id 수 — **직교 기여의 정밀 척도** (oracle Δ보다 민감; ND 교훈 = 중복 proposer는 oracle도 못 올림)
+  ⓒ 풀 다양성 Δ (평균 쌍별 1-F1) + D↔AR 평균 거리 (이종성 정량)
+  **채택 기준**: ⓐ CI>0 ∧ ⓑ ≥10 ids → P-D2. ⓑ<10 = "중복-이종" 기각(ND와 동일 분류).
+- **P-D2' (선별 실현, 2-arm 분해 — 신규)**: 혼합-풀 위 **P-D2a = SEL-1만 / P-D2b = SEL-1+SEL-4**.
+  **사전등록 예측: Δ(P-D2b) > Δ(P-D2a)** — D-후보는 구조적으로 소수파라 합의(MBR)가 못 고르고, Reviewer(p(instr|plan))가 소수-정답 구제 채널 (SEL-4 +0.81pp 기제의 직접 시험). 채택 = 공식 link F1 ≥ **68.03+1.0**. 배포 비용 열(2-모델 추론비) 병기 의무 유지.
+- **★P-D-alt (신설 — 싼 아키텍처-이종성 대조군, P-D0 실패 시 1순위 폴백)**: **cross-family AR + guided** (Llama-3.1-8B-Instruct 또는 Mistral-7B-Instruct + 동일 JSON 스키마 guided). 근거: guided가 형식을 균일화하므로 family-혼합의 형식 리스크 소거; H6은 전부 Qwen-family = family 축 미개척. vLLM 표준 서빙(Dream 대비 인프라 비용 ~0). 판정 = P-D1'와 동일 3행 — **Dream vs cross-family의 unique-correct 비교가 "비-AR 기제 필요성"의 최종 분리 실험** (cross-family로 충분하면 diffusion 기각·논문엔 "아키텍처-이종성이면 충분" 더 강한 결론).
+
 ## 4. 구현 노트
 - 생성 루프: Dream repo의 diffusion_generate API(HF transformers 기반, trust_remote_code) — `tb_diffusion_sample.py` 신규 (프롬프트 = inference.py와 동일 문자열 재사용, 출력 = inference.py 호환 predictions jsonl로 기록 → 기존 채점·조인 도구 전부 재사용).
 - 후처리 사다리: parse-fix(reformat) → name-snap(v0) → 풀 합류. guided는 불가(서빙 스택 비호환) — **불공정 비교 방지를 위해 AR 풀도 snap-기준으로 정렬한 변형 병기**.

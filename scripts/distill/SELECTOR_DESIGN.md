@@ -43,3 +43,33 @@
 2. **SEL-2 기각 해석 확정 — MAV 직독** [`2502.20379` v1]: BoN-MAV 작동 전제 = 다축 검증기 다양성 + **held-in validation으로 검증기 부분집합 선별**; GPQA tie·HumanEval 역전 = 무조건 작동 아님. ⇒ 우리 NS 기각 = **모순 아닌 조건차**(단일 게이트 신호·축 다양성 0·validation-선별 무). 재도전 조건 = 검증기 축 다양화+집합 선별 — 현 우선순위 낮음(SEL-4/5가 선행).
 3. **설계 원칙 1 외부증거** [`2506.12928` v1, GAIA agent-TTS]: **list-wise(후보 상대비교) > scoring > voting** + 상시 reflection 해로움 = "병렬 K-제안+상대비교 선별 > 순차 수정"의 에이전트-도메인 독립 증거.
 4. **게이트 역선택의 외부 동형** [`2601.15808` v2, ACL'26 Findings]: 검증-측 스케일링 천장 = **오기각(correct→incorrect) 지속** — §0 역선택·F6 오캘리브와 같은 족보의 정량 보고. 순차 검증-수정 루프와 우리 병렬 선별은 직교 = 결합 후보(후순위).
+## 6. ★V-라인: 검증-다양성 (multi-axis soft 재진입 — 2026-06-14 정밀 설계, SEL-2 기각의 조건 충족판)
+> 재진입 조건(§5 MAV 직독에서 박제): ①검증기 축 *다양화* ②held-in validation으로 부분집합 선별. SEL-2 기각 = 단일 축(gmem)의 soft화 — 정보가 하드필터에 이미 소진된 신호의 재포장이었음. SEL-4(+0.81pp)가 soft 신호 성공례인 이유 = **직교 축**. ⇒ V-라인 = 직교 축을 *체계적으로* 늘리고 MAV-레시피로 집계.
+
+### V-1 결정론 축 라이브러리 (0원·CPU — 즉시 구현 가능, `tb_axes.py` 신규)
+| 축 | 정의 | 상태 |
+|---|---|---|
+| A1 gmem | 링크의 도메인-그래프 멤버십 비율 | 기존 (SEL-2 단독 기각분) |
+| A2 valid_frac | 노드명 카탈로그 유효 비율 | 기존 (하드필터와 중복 주의) |
+| A3 struct | nself+ndangle (음수화) | 기존 |
+| **A4 인자-정합** | 노드별 arguments 수/형이 tool_desc params와 일치하는 비율 — **"유사-실행" 정적분석의 1보** (§3 novelty #3 구현 시작) | ★신규 |
+| **A5 DAG-위상** | 고립 노드 수·약연결 컴포넌트 수(음수화)·루트/리프 존재 | ★신규 |
+| A6 reviewer | SEL-4 p(instr\|plan) z-점수 | 기존 (LLM-soft 축) |
+- 전 축 후보-단위 스칼라로 정규화(0원 — 기존 preds 재분석). A4/A5가 진짜 신규 정보(하드필터·gmem과 비중복).
+
+### V-2 MAV-식 validation-선별 집계 (0원 — V-1 후 즉시)
+- **분할 규율**: sub500 → val 100 / test 400 (id-층화, seed 고정·사전 공개). val gold 사용은 합법(train-gold 동급) — 분할·동결 절차 보고 의무.
+- **집계 3형 비교** (val에서 cutpoint/가중 보정 → 동결 → test 1회):
+  (i) **이진 승인 합산** (MAV-충실: 축별 val-보정 cutpoint → 승인 수 합산을 MBR utility에 가산)
+  (ii) **z-선형 결합** (SEL-4 일반화: val에서 ridge/grid 가중)
+  (iii) lexicographic 서열 (v0 동형 — **음성 통제**: 역선택 재현 예상)
+- **축 부분집합 선별**: val에서 greedy forward selection (축 추가가 val 선별-F1 올릴 때만 채택 — MAV의 "검증기 엔지니어링" 대응).
+- **사전등록**: ⓥ1 test에서 (i) 또는 (ii) ≥ SEL-1+4 베이스라인(0.6803) **+0.5pp** → V 채택 / ⓥ2 (iii)이 최하 = 역선택 기제의 내부 통제 적중 / ⓥ3 A4·A5 중 ≥1축이 greedy 선별에 잔존(신규 축의 정보성). 전 판정 paired bootstrap CI.
+
+### V-3 합성 2×2 (capstone — 후보-다양성 × 검증-다양성 가산성)
+- arms: {풀: 현최적(dpo2g-AR8+H6), +D4(또는 +cross-family — P-D1' 승자)} × {선별: SEL-1+4, +V축}.
+- **사전등록**: ①두 처방 가산적(상호작용 ≥ −0.3pp — 잠식 없음) ②최종 stack 공식 link F1 **≥ 69** ③D-기여는 V축 있을 때 더 큼(소수-정답 구제 채널 강화 — P-D2' 예측과 일관).
+- 의의: "다양성 처방의 두 면(후보/검증)"이 합성 가능함을 보이면 R6의 완성형 = **diverse-propose → multi-axis-verify → consensus+rescue-select**.
+
+### 실행 순서·비용 (GPU 큐 조율)
+0원 즉시: V-1 구현 → V-2 (기존 풀 재분석) ∥ GPU 순서: SEL-q⑸(AR-내 천장) → P-D0/P-D1'(또는 P-D-alt) → V-3. 전 단계 즉시-기각 조항 = CI 0 포함 시 해당 단 폐기.
