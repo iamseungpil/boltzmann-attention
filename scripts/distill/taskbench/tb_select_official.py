@@ -43,6 +43,9 @@ def main():
                     help="AR8 풀 파일 접두 (predictions/{ar_tag}{0..7}.json) — "
                          "v3g 등 다른 K8 풀로 교체용")
     ap.add_argument("--ar_group", default="dpo2g", help="AR8 풀의 proposer 그룹명")
+    ap.add_argument("--ar_group_per_slot", action="store_true",
+                    help="P-lora: AR8 슬롯 8개가 서로 다른 어댑터 = 각 독립 그룹"
+                         "(prior-1표가 8종 이종성 살림; 같은 정책 K샘플이면 OFF)")
     ap.add_argument("--extra", action="append", default=[],
                     help="추가 proposer 'name=path.json' (예: Track-B 32B/72B preds — "
                          "그룹명=name, 풀 확장)")
@@ -50,16 +53,17 @@ def main():
                     help="둘째-기판(⑷) 일반화: tool_desc/예측 경로의 도메인 디렉토리")
     ap.add_argument("--hm", default=None,
                     help="hetero 모델 목록 콤마구분 (기본=MM HM 리스트; hf 등은 명시)")
+    ap.add_argument("--no_hm", action="store_true", help="H6 hetero 풀 제외 (순수 AR풀만)")
     a = ap.parse_args()
     TB = a.tb_dir
     D = a.domain
-    hm_list = a.hm.split(",") if a.hm else HM
+    hm_list = [] if a.no_hm else (a.hm.split(",") if a.hm else HM)
     valid = {norm(t["id"]) for t in json.load(open(f"{TB}/{D}/tool_desc.json"))["nodes"]}
 
     pools, groups = [], []
     for k in range(8):
         pools.append(load_records(f"{TB}/{D}_sub500/predictions/{a.ar_tag}{k}.json"))
-        groups.append(a.ar_group)
+        groups.append(f"{a.ar_group}{k}" if a.ar_group_per_slot else a.ar_group)
     for m in hm_list:
         pools.append(load_records(f"{TB}/{D}_sub500_eval_{m}/predictions/{m}.json"))
         groups.append(m)

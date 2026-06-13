@@ -69,12 +69,15 @@ def main():
     ap.add_argument("--prior_beta", type=float, default=2.0)
     ap.add_argument("--out", required=True)
     ap.add_argument("--domain", default="data_multimedia")
+    ap.add_argument("--ar_group_per_slot", action="store_true",
+                    help="P-lora: AR8 슬롯 8개가 서로 다른 어댑터 = 각 독립 그룹")
     ap.add_argument("--hm", default=None, help="hetero 모델 콤마구분 (기본=MM HM)")
+    ap.add_argument("--no_hm", action="store_true", help="H6 hetero 풀 제외 (순수 AR풀만)")
     ap.add_argument("--extra", action="append", default=[], help="'name=path.json' 추가 proposer")
     a = ap.parse_args()
     TB = a.tb_dir
     D = a.domain
-    hm_list = a.hm.split(",") if a.hm else HM
+    hm_list = [] if a.no_hm else (a.hm.split(",") if a.hm else HM)
     valid = {norm(t["id"]) for t in
              json.load(open(f"{TB}/{D}/tool_desc.json"))["nodes"]}
     # instruction(user_request)은 pred 레코드에 동봉됨 — 후보에서 직접 읽음
@@ -82,7 +85,7 @@ def main():
     pools, groups = [], []
     for k in range(8):
         pools.append(load_records(f"{TB}/{D}_sub500/predictions/{a.ar_tag}{k}.json"))
-        groups.append(a.ar_group)
+        groups.append(f"{a.ar_group}{k}" if a.ar_group_per_slot else a.ar_group)
     for m in hm_list:
         pools.append(load_records(f"{TB}/{D}_sub500_eval_{m}/predictions/{m}.json"))
         groups.append(m)
