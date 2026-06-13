@@ -60,13 +60,40 @@ def normalize(m, ctr):
     return out
 
 
+STATIC_PREFIXES = ("Here is all the information I can provide", "If you have completed my request")
+
+
+def clean(raw):
+    """SOPBench 스캐폴드 아티팩트 제거: 빈 assistant 턴·반복 정적-user·exit 후 종료."""
+    out = []
+    seen_static = False
+    for mm in raw:
+        r = mm["role"]
+        if r == "assistant":
+            if not mm.get("tool_calls") and not (mm.get("content") or "").strip():
+                continue  # 빈 assistant 턴 제거(빈 출력 supervise 방지)
+            out.append(mm)
+            if mm.get("tool_calls") and any(tc["function"]["name"] == "exit_conversation" for tc in mm["tool_calls"]):
+                break  # 종료
+        elif r == "user":
+            c = (mm.get("content") or "").lstrip()
+            if any(c.startswith(p) for p in STATIC_PREFIXES):
+                if seen_static:
+                    continue  # 반복 정적-user 덤프 제거(정보는 첫 요청에 이미 존재)
+                seen_static = True
+            out.append(mm)
+        else:  # tool
+            out.append(mm)
+    return out
+
+
 def convert_task(task, tools):
     inter = task["interactions"][0]
     prompt = inter.get("prompt", "")
     sys_msg = {"role": "system", "content": prompt if isinstance(prompt, str) else json.dumps(prompt)}
     ctr = [0]
-    msgs = [sys_msg] + [normalize(m, ctr) for m in inter["interaction"]]
-    # require >=1 assistant tool_call (skip pure-text refusals w/o any call? keep — refusal via exit_conversation has a call)
+    msgs = [sys_msg] + clean([normalize(m, ctr) for m in inter["interaction"]])
+    # require >=1 assistant tool_call
     has_call = any(mm.get("tool_calls") for mm in msgs if mm["role"] == "assistant")
     if not has_call:
         return None
