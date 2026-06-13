@@ -106,6 +106,16 @@
 - **★음성 ND(풀 확장) = 개선·악화 상쇄 (tb_pool_autopsy B)**: 선택 변경 69건 중 improved 29 vs worsened 24(net +5뿐)·새↔기존 중복성 0.469. worsened의 새-선택이 qwen32b/72b 15/7 = **대형 단일샷이 가끔 합의를 이기지만 틀린 합의를 이기는 만큼 맞는 합의도 깨뜨림**. ⇒ 풀 무차별 확장 금지, 다양성-기여 검증된 proposer만 선별 편입.
 - **종합 개선 3방향**: ①F3/pass^4는 user-sim seed 분산 보고로 정직화(게이트 일관성 주장 철회·base 능력 라인으로 이관) ②G4 deny→**offload 전환**(transfer-필요 태스크 구제) — PORTFOLIO §3.8 큐의 정공법을 데이터가 승격 ③선별 풀은 **다양성 명시 증대**(이종 temp/base/프롬프트)가 강한-단일 K샘플보다 우월 + SEL-4 직교 신호.
 
+### 3.7e ★frontier F4b census (2026-06-13 — 추세리뷰 숙제②, retail 114×1 census-tier, agent=gpt-4.1·4-tuple 동일)
+| arm | bench pass^1 | **FULL-clean** | 위반 sims |
+|---|---|---|---|
+| 7B nogate | 0.184 | 0.143 | **56** (G1+G2+G3+G4) |
+| 7B + gate (r3) | 0.195 | **0.195** | 0 |
+| **gpt-4.1 nogate** | **0.816** | 0.798 | **4** (전부 G2 미확인-WRITE) |
+| **gpt-4.1 + gate** | 0.788 | 0.788 | **0** |
+- **사전등록 판정**: ⓕA 위반>0 **PASS**(4 sims — 단 ODCV-외삽보다 약함: G1 인증은 frontier가 자발 준수 0건, 위반축은 G2 확인-생략) · ⓕA FULL<bench PASS(−1.8pp) · ⓕB 위반 0 **PASS = 게이트 model-agnostic 입증** · ⓕB pass FA±3pp PASS(−2.8pp, 경계; FULL-기준 −1.1pp). bench 0.816은 예측 상한(0.80) +1.6pp 초과(정직).
+- **정직한 서사(과대주장 금지)**: frontier는 네이티브 compliance가 상당히 좋다(위반 4/114) — "frontier도 크게 깎인다"는 강형 주장은 **기각**. 성립하는 주장: ①소형에선 게이트가 FULL-clean을 **+5.3pp 올리며** 위반 56→0 (변혁적) ②frontier에선 게이트가 **−1.1pp FULL 비용으로 구조적-0 보장**(보험·감사가능성 — 표본적 0이 아닌 구조적 0의 제도 가치, §1.6 F4 분리 그대로) ③게이트는 모델 불문 동작 = 인프라. ⚠️trials=1·n=114 — 위반율 CI 넓음(4/114, 95% 상한 ~8.9%), 비교주장 시 CI 동반.
+
 ### 3.8 ★A2 산출물 ↔ R3 템플릿 분리 (2026-06-12 사용자 지시 — 수동 프롬프트 금지)
 - 구조: **A2 컴파일 산출물 = `GATE_SPEC` 구조 데이터**(JSON 덤프 `tau2_adapter/retail_gate_spec.json`: predicate·satisfier도구→필요입력·applies_to·terminal여부) / **R3-side 불변 템플릿 `render_recovery`**가 전 deny 메시지를 spec에서 *생성* — 도메인 문자열 hand-authoring 0. 새 도메인 비용 = spec 컴파일뿐(메시지·게이트 자동).
 - 검증: 생성 메시지 3종이 수동본과 의미 동등(G1 복구 4단계·G2 확인 절차·G3 terminal 거부 안내) ∧ replay 재검증 PASS(0/0). N3(진행 중)는 수동본으로 시작했으나 생성본과 의미 동등이라 결과 대표성 유지.

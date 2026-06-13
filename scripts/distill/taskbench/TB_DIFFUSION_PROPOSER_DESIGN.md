@@ -58,7 +58,7 @@
 **승격 근거(실측 3건, PORTFOLIO §3.7d)**: ①v3g 부검 — oracle 동일(0.896=0.895)·AR8 내부다양성 −33%만으로 선별이득 붕괴 = **AR 자기-샘플 다양성은 정책이 강해질수록 고갈** ②대형 AR 단일샷 추가 무이득(중복) ③H6(싼-이종성)은 이미 풀에 소진. ⇒ AR-밖 생성기제 = 풀에 남은 마지막 다양성 공급원 후보. **선결 게이트 = SELECTOR_DESIGN 큐 ⑸(다양성-생성 실험)가 AR-내 천장을 먼저 확정** — temp/prompt 변주로 닿는 다양성이면 diffusion 불요(비용 우위).
 
 **단계 갱신 (P-D1/2를 현-최적 풀·현-최적 선별기 기준으로 재정의)**:
-- **P-D0 (불변)**: §3 형식 이중관문 그대로 (파싱 ≥0.5 ∧ snap-후 valid_frac ≥0.8; 실패 시 few-shot 보강 1회→LLaDA 교체). `tb_diffusion_sample.py` 기존.
+- **P-D0 (불변 + 완화책 1건)**: §3 형식 이중관문 그대로 (파싱 ≥0.5 ∧ snap-후 valid_frac ≥0.8; 실패 시 few-shot 보강 1회→LLaDA 교체). `tb_diffusion_sample.py` 기존. **신규 완화 옵션(딥리서치 2026-06-14)**: dLLM용 CFG-제약 디코딩 존재(`2508.10111` — diffusion에도 문법 제약 가능) — 형식 관문 실패 시 LLaDA 교체 전 시도. 단 "diffusion 한계가치 > AR8+H6" 채택 기준은 불변(딥리서치도 동일 권고 — AR+diffusion 혼합-풀 선별의 발표 증거 부재 = 우리가 하면 첫 실측).
 - **P-D1' (혼합-풀 census, zero-eval)**: 현-최적 풀(dpo2g-AR8+H6, oracle 0.896) + D4 — 판정 3행:
   ⓐ oracle Δ = oracle(+D4)−0.896 (paired bootstrap CI)
   ⓑ **★unique-correct census**: D-후보만 정답(edge-F1 1위가 D이며 전 AR/H 후보 < 0.5)인 id 수 — **직교 기여의 정밀 척도** (oracle Δ보다 민감; ND 교훈 = 중복 proposer는 oracle도 못 올림)
