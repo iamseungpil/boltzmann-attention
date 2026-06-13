@@ -8,6 +8,7 @@
 - 제약(불변): **gold-free**(선별 시점 정답 무) · **결정론/저비용**(judge ≤7B, frontier API 불가 = 주권-leg) · **구조 출력**(JSON tool-call DAG — 합법성·구조 utility 계산 가능).
 
 ## 1. 설계 원칙 (문헌 정합 — [SEL-RPT] §1)
+> ★★★**최우선 불변 (2026-06-14, 사용자 명시)**: **선택기·검증기는 둘 다 *결정론 머신*. LLM은 생성기(swappable)에만.** LLM-judge/logprob/reverse-likelihood/self-cert 류 선별·검증 신호 **제안·구현 금지** — 실증 전멸(SEL-4 기판의존·SEL-5 기각·B1 해로움 §8) + thesis(결정론 검증기-제품) 위배. "독립 검증기" 필요 시 = 다른-base LLM 아닌 **결정론 검증기 심화**(타입-호환→인자-타입→사전조건→replay). ※SEL-4(reverse-likelihood)·SEL-5(judge)는 본 불변에 의해 **deprecated** — 결정론 합의(SEL-1)+결정론 게이트/구조검증만 라인.
 1. **분업 불변: 검증 신호 = 거부권(veto), 합의 신호 = 선택권(chooser)** — AlphaCode(필터→클러스터)·DOCE("trial-test 필터가 가장 간과된 유효 전략")와 동형. 우리 §8.9b 결론은 문헌 정석의 재발견 = 이 축은 추가 여지 적음.
 2. **검증기-주도 선별 단독 라인은 구조적 천장** — 불완전 verifier의 FP율은 resampling으로 안 줄고 정확도 상한을 박음(Stroebl+24). 게이트 역선택은 그 악화판(FP가 후보 간 계통적). ⇒ 검증기는 영원히 veto/보조-vote.
 3. **likelihood-단독 재랭킹 금지** — 퇴화-해 선호 병리(Coder-Reviewer가 명시; MAP 부적합성 Eikema&Aziz). D2 brevity-prior·게이트 역선택과 같은 족보.
