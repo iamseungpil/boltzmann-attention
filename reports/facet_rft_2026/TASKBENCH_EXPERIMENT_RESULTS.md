@@ -362,6 +362,18 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 - **★★P-lora 완성 (순차-서빙 재발사, `driver_plora_pd0.sh`) = 다양성 법칙 확정**: 목적-다양 어댑터 8종(dpo2/v3mix/struct/cost/lodo/daily/rft2/rft) 각 1샘플 → **다양성 0.1535(단일정책 0.011~0.017의 ~10배·H6 0.024의 6배)·oracle 0.874(타 0.77)·선별이득 +0.0175(타 +0.001)**. ★**회귀: gain~diversity 기울기 +0.077, 95%CI[+0.020,+0.140] SIG**(n=1989) ⇒ **"선별=다양성 함수"가 사후 부검에서 예측 법칙으로 승격**(사전등록 ⓢ적중). 정책 순위 P-lora≫P-unguided>P-temp≈REF 적중.
 - **★기제·함의**: 단일정책 K샘플은 다양성 천장 0.017(=거의 동일 후보, DPO 날카로움) ↔ **목적-다양 어댑터 풀은 0.15(주성분)** — H6(+10.3pp)의 메커니즘이 "이종성"임을 정량 확정. **단 회수 갭 큼**(oracle 0.874 vs 현 선별 0.792 = ~18% 회수) → 다음 = **P-lora 풀에 SEL-1+SEL-4 본격 선별 적용**(다양성은 만들었으니 선별기가 따라잡을 여지 大). LoRA-풀을 MBR 후보생성기로 = 발표 공백(딥리서치 확인) + 자체 최강 다양성원.
 
+### 8.9g ★P-lora 풀 본격 선별 = "다양성≠전부, 개별품질도" nuance 확정 (2026-06-13, `driver_plora_select.sh`)
+| arm (MM sub500 공식 link F1) | F1 | vs C0 |
+|---|---|---|
+| C0 = P-lora 단일(tb_dl_0) | 0.5669 | — |
+| SEL-1 순수 P-lora 8종(per-slot prior-MBR) | 0.6038 | +3.7pp |
+| **SEL-1 + H6 (P-lora8+이종6=14종)** | **0.6328** | **+6.6pp** |
+| SEL-4 순수 P-lora + 7B Reviewer | 0.6147 | +4.8pp (SEL-1 대비 +1.1) |
+| (참조) dpo2g-AR8+H6 best-stack | **0.6803** | — |
+- **사전등록 판정**: SEL-1>C0+5pp = 순수 +3.7(미달)·**+H6 +6.6(충족)** / SEL-4≥SEL-1(순수끼리 0.6147>0.6038 = **Reviewer가 P-lora서도 +1.1pp** — MM dpo2g +0.81과 일관·hf −0.3과 대비 = 기판-의존 재확인, MM 계열선 안정).
+- **★핵심 nuance (다양성 법칙의 경계)**: P-lora는 **다양성 최고(0.1535)·oracle 최고(0.874)인데 선별 결과는 dpo2g+H6(0.680)에 못 미침**(0.633). 이유 = **개별 후보 품질↓**(목적-편향 어댑터 struct/cost/rft는 각자 균형 안 잡힘 → mean 낮음). 선별 결과 ≈ mean + 회수율×(oracle−mean): P-lora는 oracle 높지만 mean 낮고 회수 못함 / dpo2g는 oracle 낮지만 mean 높고 회수 좋음. ⇒ **"선별=다양성 함수"는 oracle(천장)엔 맞지만 실현 선별엔 mean(개별품질)도 하한을 박음** — 다양성과 품질의 곱이 실현이득.
+- **다음 1수 = 통합 풀(dpo2g8 + P-lora8 + H6 = 22종)**: 품질(dpo2g)+다양성(P-lora)+이종(H6) 합산 → oracle 더 ↑ 예상, 선별기가 회수하면 0.68 돌파 후보. + 측도 보강(§7 D-oracle)으로 다양성-기여 vs 회수 분해.
+
 ### 8.9e ★둘째-기판 재현 = 대폭 적중 — 선별기 헤드라인 자격 획득 (2026-06-13, 사전등록 ≥+3pp, `driver_substrate_hf.sh`)
 | TB-**huggingface** sub500 (AR8=tb_lodo_hf+guided temp0.8 — **LODO held-out 전이 설정** / hetero=qwen 4종+Track-B 4종) | 공식 link F1 |
 |---|---|

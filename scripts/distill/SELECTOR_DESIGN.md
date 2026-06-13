@@ -41,7 +41,7 @@
   - P-prompt 근거 확보: multi-prompt bank→MBR (Heineman+ 2407.15343, EMNLP'24 — 이득이 "더 다양한 후보공간" 귀속 명시)·Verbalized Sampling(1.6-2.1× 다양성)·arithmetic sampling(+3-5pp SC).
   - v3g 붕괴의 정준 인용 확보: Kirk+ 2310.06452(RLHF 다양성 절감)·DivPO 2501.18101("post-training sharpens the distribution") — **v4 재채굴 사이클에 DivPO-식 쌍선별/GEM 도입 prereg**(이중 게이트: k0 강도 ∧ 풀 다양성 ≥ rft2 수준).
   - LoRA-풀을 MBR 후보 생성기로 쓰는 발표 선행 **부재 확인** = +10.3pp 스택의 기여 좌표(검증된 공백).
-  - ✅**실행 완료 (2026-06-13, TB §8.9f)**: **P-lora(목적-다양 어댑터 8종) 다양성 0.1535 = 단일정책 ~10배·H6 6배**·oracle 0.874·이득 +0.0175 / **회귀 gain~diversity 기울기 +0.077 SIG[CI 0.020,0.140]** = 예측 법칙 승격(사전등록 적중). P-unguided>P-temp = guided 다양성 자해 확인. **다음 1수 = P-lora 풀에 SEL-1+SEL-4 본격 적용**(oracle 0.874 vs 현 선별 0.792 = 회수 여지 大).
+  - ✅**실행 완료 (2026-06-13, TB §8.9f)**: **P-lora(목적-다양 어댑터 8종) 다양성 0.1535 = 단일정책 ~10배·H6 6배**·oracle 0.874·이득 +0.0175 / **회귀 gain~diversity 기울기 +0.077 SIG[CI 0.020,0.140]** = 예측 법칙 승격(사전등록 적중). P-unguided>P-temp = guided 다양성 자해 확인. ✅**P-lora 본격 선별 완료 (2026-06-13, TB §8.9g)**: C0 0.567→SEL-1 0.604(+3.7)→+H6 0.633(+6.6)→SEL-4 0.615. **nuance = 다양성 최고인데 best-stack(0.680) 미달** = 개별품질↓(목적-편향 어댑터) → sel≈mean+회수×(oracle-mean). **다음 = 통합 풀(dpo2g8+P-lora8+H6=22종): 품질+다양성+이종 합산으로 0.68 돌파 시도.**
 
 ## 5. 외부근거 직독 추가 (2026-06-14, 4편 원문 정독 — 상세·verbatim = `FIELD_GAP_LLM_VALUE_DESIGN.md` §5.5)
 1. **이론 닻 신규 — VB/VF 분리정리** [`2502.12118` v2]: 검증-채널 이득 **Ω̃(H/√n)**의 전제 = base 분포 **heterogeneity + anti-concentration** → §0 Δhetero +13.6·N2 "다양성 함수" 기제의 이론 대응물 = **"다양성 없으면 검증-선별 이득도 없다"가 정리 수준에서 성립**(우리 E6 실측과 동형). ⚠️정식 대상=파인튜닝 — 선별 사상은 확장해석 명시 후 인용.
