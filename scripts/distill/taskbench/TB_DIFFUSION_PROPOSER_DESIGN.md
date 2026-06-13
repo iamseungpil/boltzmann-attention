@@ -79,7 +79,7 @@
 
 ## 3d. ★비-diffusion 대안 — 아키텍처 서베이 (2026-06-14, `research_arch_planning_survey_2026_06_14.md`)
 diffusion이 "AR-밖 다양성"의 유일 후보가 아님. 검증된 대안 3종(전부 1차 검증):
-- **★A3 any-order AR (`2601.13228`)**: plain any-order AR이 any-order(집합·무순서) 생성에서 **diffusion에 필적/능가** = **"set/DAG 다양성에 diffusion 인프라 불요" 닻**. 우리 도구-SET 출력에 직접적 — diffusion의 무거운 서빙(vLLM 비호환·HF 추론) 대비 잠재적 저비용 대안. ⚠️objective swap = 7B 재학습 위험 → **framing 닻으로 인용, 고위험 학습은 보류**.
+- **★A3 any-order AR (`2601.13228`)** — ⚠️**정독 정정 (relwork_arch 2026-06-14)**: A3-8B는 **표준 좌→우 AR에 크게 짐**(TriviaQA 19.4 vs LLaMA-3.1-8B 52.1)·"diffusion 필적"은 **2B vs 65B 토큰 효율-정규화 한정**(동일-예산 비교 행 없음·약한 diffusion baseline). ⇒ **인용 형태 = "any-order 생성이 AR 패러다임 내 달성가능·동급-스케일 diffusion과 (데이터 소량으로) 경쟁" framing 닻으로만** — "AR이 diffusion 이긴다"·"강한 생성기" 주장 **금지**. 우리 7B 스케일선 강한 생성기로 부적합. diffusion-not-required는 *framing*으로 유지하되 P-D 대체 후보로는 약함.
 - **grammar-constrained decoding (XGrammar `2411.15100`)**: retraining-free·vLLM 호환 = **우리가 이미 쓰는 guided의 정식화**. A2 출력 스키마 층으로 K-샘플 풀의 "valid JSON-DAG(=right의 하한)" 보장 — diffusion 형식 리스크(P-D0)의 정공 대안.
 - **Stream-of-Search trace-distill (`2404.03683`)**: 검증기로 비용-인지 탐색 trace(실패·백트랙 포함) 생성→SFT, teacher-exceeding = §3.10 빌드 경로 일치.
 - **회의(게이트)**: "Transformers Struggle to Learn to Search" (`2412.04703`) — 큰 그래프는 파라미터↑로 안 풀림 = search-internalization 라인 전체 천장 경고. 함정(채택 금지): Coconut/latent-CoT(retrofit 불가·math서 짐), pause/filler 토큰(+1%p), insertion/Levenshtein 재구현.
