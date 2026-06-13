@@ -125,6 +125,11 @@
 - **사전등록 판정**: ⓕA 위반>0 **PASS**(4 sims — 단 ODCV-외삽보다 약함: G1 인증은 frontier가 자발 준수 0건, 위반축은 G2 확인-생략) · ⓕA FULL<bench PASS(−1.8pp) · ⓕB 위반 0 **PASS = 게이트 model-agnostic 입증** · ⓕB pass FA±3pp PASS(−2.8pp, 경계; FULL-기준 −1.1pp). bench 0.816은 예측 상한(0.80) +1.6pp 초과(정직).
 - **정직한 서사(과대주장 금지)**: frontier는 네이티브 compliance가 상당히 좋다(위반 4/114) — "frontier도 크게 깎인다"는 강형 주장은 **기각**. 성립하는 주장: ①소형에선 게이트가 FULL-clean을 **+5.3pp 올리며** 위반 56→0 (변혁적) ②frontier에선 게이트가 **−1.1pp FULL 비용으로 구조적-0 보장**(보험·감사가능성 — 표본적 0이 아닌 구조적 0의 제도 가치, §1.6 F4 분리 그대로) ③게이트는 모델 불문 동작 = 인프라. ⚠️trials=1·n=114 — 위반율 CI 넓음(4/114, 95% 상한 ~8.9%), 비교주장 시 CI 동반.
 
+### 3.7f ★프레임 천장 = frontier A2 + frontier 생성기 K=4 (2026-06-14 사용자 "프레임 천장 확인", `driver_frontier_ceiling.sh`)
+- **질문**: frontier(Fable-5)로 만든 A2 GATE_SPEC를 결정론 검증기로, frontier 생성기(gpt-4.1)로 retail K=4 생성 → compliant pass^k 천장. **gpt-4.1 + gate × 4-trial × 40태스크 (n=160)**.
+- **결과**: **위반 0 (g1-g4 전부 0)** · **compliant pass^1=0.81·pass^2=0.73·pass^3=0.68·pass^4=0.65** (bench=write=strict=full 동일 = gate가 모든 pass를 compliant화). vs **7B+gate**(determinism 런): pass^1 0.17·pass^4 0.026·oracle@4 0.41.
+- **★결론 (프레임 부분검증)**: ①**결정론 A2 gate = compliance 천장 보장**(frontier·7B 둘 다 위반0 = model-agnostic 재확인) ②**compliant-pass 천장 = 생성기 품질** (frontier 0.81 vs 7B 0.17) = 생성기가 레버(oracle 엣지분석·diffusion 재검토와 수렴) ③프레임이 강한 생성기서 **compliant pass^1 0.81 천장 도달** = "결정론 A2 + 다양생성기 → compliant-pass" 프레임 작동 실증. ④frontier pass^4 0.65(>>7B 0.026) = gpt-4.1이 user-sim 변동에도 일관 = pass^k 분산은 생성기-능력 의존(determinism 라인 강등과 정합). ⚠️num_tasks=40·user-sim=gpt-4.1(비결정). **A2를 *학습 front-end*로 자동생성(§0 thesis)이 다음 — 지금은 frontier-A2로 프레임 천장만 확인.**
+
 ### 3.8 ★A2 산출물 ↔ R3 템플릿 분리 (2026-06-12 사용자 지시 — 수동 프롬프트 금지)
 - 구조: **A2 컴파일 산출물 = `GATE_SPEC` 구조 데이터**(JSON 덤프 `tau2_adapter/retail_gate_spec.json`: predicate·satisfier도구→필요입력·applies_to·terminal여부) / **R3-side 불변 템플릿 `render_recovery`**가 전 deny 메시지를 spec에서 *생성* — 도메인 문자열 hand-authoring 0. 새 도메인 비용 = spec 컴파일뿐(메시지·게이트 자동).
 - 검증: 생성 메시지 3종이 수동본과 의미 동등(G1 복구 4단계·G2 확인 절차·G3 terminal 거부 안내) ∧ replay 재검증 PASS(0/0). N3(진행 중)는 수동본으로 시작했으나 생성본과 의미 동등이라 결과 대표성 유지.
