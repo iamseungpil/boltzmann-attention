@@ -352,6 +352,15 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 - **SEL-4 채택 후보**: Reviewer 신호가 동일 풀에서 +0.73pp = 직교성 입증(예측 적중) — **다음 1수: dpo2g-풀에 SEL-4 적용**(67.22+α 기대, 후보당 1 pass 비용). 구현 = `tb_reviewer_select.py`.
 - **★SEL-4 최적-풀 신기록 (2026-06-13 아침, 사전등록 >0.6722 적중)**: dpo2g-AR8+H6 풀에 7B Reviewer 합성 → **공식 link F1 0.6803** (SEL-1 단독 0.6722 → **+0.81pp 신기록**). Reviewer p(instr\|plan)가 MBR 합의와 직교해 소수-정답을 구제 — **선별기 사다리 SEL-1+SEL-4 = best-stack 확정**. 비용 = 후보당 1 forward pass(7B). 이로써 zero-training 추론-side 선별만으로 단일-정책(k0 57.7) 대비 **+10.3pp 공식**(66.0→68.0). 구현·재현 = `driver_sel4_dpo2g.sh`.
 
+### 8.9e ★둘째-기판 재현 = 대폭 적중 — 선별기 헤드라인 자격 획득 (2026-06-13, 사전등록 ≥+3pp, `driver_substrate_hf.sh`)
+| TB-**huggingface** sub500 (AR8=tb_lodo_hf+guided temp0.8 — **LODO held-out 전이 설정** / hetero=qwen 4종+Track-B 4종) | 공식 link F1 |
+|---|---|
+| C0 = k0 단일 | 0.3504 |
+| **SEL-1 (prior-가중 MBR β2)** | **0.4791 (+12.9pp)** |
+| SEL-1+SEL-4 | 0.4764 (+12.6pp) |
+- **판정**: 사전등록(≥+3pp) **4배 초과 적중** — MM(+10.3pp)보다 큼. **"MM-특이" 우려 해소 = 선별기 라인 헤드라인 자격**(이종 도메인×전이-설정 재현). base가 약할수록(0.35) 선별 이득이 커지는 R7-정합 패턴.
+- **정직 기록**: SEL-4가 hf에선 SEL-1을 못 넘음(−0.3pp) — **Reviewer 이득은 기판-의존**(MM +0.81/hf −0.27). best-stack 정정: "SEL-1 = 코어(양 기판 +12.9/+9.5), SEL-4 = 기판-의존 옵션" — 헤드라인은 SEL-1로, SEL-4는 per-기판 검증 후 적용.
+
 ## 8.10 D1 구조-표적 / D2 비용-표적 DPO (2026-06-12 day 배치 — 사전등록 판정)
 
 ### ★Day-4 종합 한눈표 (2026-06-12 — 상세는 각 §)
