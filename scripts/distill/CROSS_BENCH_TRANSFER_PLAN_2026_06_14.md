@@ -24,6 +24,17 @@
   - 즉 검증된 시퀀싱 규율 + R1/R4/R6을 **native tool-calling 포맷으로 SOPBench+TaskBench 도메인 위에 재학습**.
   - 역할-파이프라인(멀티-LoRA on 공유 base) 옵션은 유지 — 단 인터페이스도 native로.
 
+### 2b. ★공통표현 = vLLM-native function-calling (발명 불요)
+"native 공통표현 정의" 선결이 사라진다 — **표준 OpenAI function-calling을 그대로 채택**, vLLM이 config로 I/O를 제공:
+| vLLM config | 역할 | 우리 매핑 |
+|---|---|---|
+| `--enable-auto-tool-choice --tool-call-parser qwen`(또는 hermes) | 출력 native 포맷 → OpenAI `tool_calls{name,arguments}` 파싱 | 출력 포맷 정의 |
+| `--chat-template <jinja>` | 도구정의·도구결과 → 프롬프트 렌더(입력) | A1/A5 입력 |
+| `guided_json`/`response_format:{json_schema}`/`guided_grammar` (백엔드=**XGrammar**) | 출력을 스키마로 제약(디코딩 마스크) | **R1 집행**=A1 enum+A5 문법 |
+
+- **config가 정의·강제 = *포맷*(validity)** / **학습이 채움 = *내용*(어느 도구·올바른 인자=R2/R4/R1 학습분).** XGrammar validity ≠ correctness(무효 0/13k지만 name-snap 9.7%=유효-오답). ⇒ **config(포맷) + native 재학습(내용) 둘 다 필요**; config만으로 기존 `ready;op_X` 모델을 못 씀(인자 학습한 적 없음).
+- **τ² 하네스(`t2_run_gated`)가 이미 이 native 인터페이스**(OpenAI tool-calling 엔드포인트) → **브리지 불요**. SOP-Bench도 동일 인터페이스로 ABox-swap.
+
 ## 3. 컴포넌트 ↔ R/A 매핑 (불변)
 - 학습 TBox(weight) = R1 grounding·R2 gather·R4 매칭·R6 *제안* (행동 규율).
 - 결정론 스캐폴드(불변·학습 아님) = R1 enforce(XGrammar)·R3 게이트(GATE_SPEC replay)·R6 선별·검증기. [[feedback-selector-verifier-deterministic]]
@@ -31,9 +42,9 @@
 - 대화(ask-user) = base 모델 능력(도메인-일반).
 
 ## 4. 다음 행동
-1. **표현/포맷 = native tool-calling 확정** → SOPBench+TaskBench를 native 포맷 통합 학습셋으로 빌드(공통표현 정의).
-2. 학습 → SOP-Bench(직접 ABox-swap)·τ²(native, 브리지 불요) 전이 테스트.
-3. F1 비용장부 갱신·ABox-ablation(빈/틀린 A1/A2→붕괴) 동반.
+1. **공통표현 = vLLM-native function-calling 확정**(§2b — 발명 불요). 입구 = **SOPBench/TaskBench → native tool-call 궤적 변환기** 설계: SOPBench op-graph(`ready;op_X`)·TaskBench tool-graph → {tools 스키마(A1) + assistant `tool_calls{name,args}` + tool 결과} 궤적. R-규율(R2 gather·R4 매칭·R1 grounding-타깃) supervise·alias 유지·loss=assistant-only.
+2. 학습(공유 base + LoRA) → **SOP-Bench(직접 ABox-swap)·τ²(native 엔드포인트, 브리지 불요)** 전이 테스트. 추론 config = `--tool-call-parser`+`--chat-template`+`guided_json`(R1/XGrammar).
+3. F1 비용장부 갱신·ABox-ablation(빈/틀린 A1/A2→붕괴)·per-domain 분기0 동반.
 
 ## 5. 공격 방어 체크리스트 (리뷰어 사전대응)
 - [ ] 포맷매칭에 per-domain 분기 0 (grep `if domain`).
