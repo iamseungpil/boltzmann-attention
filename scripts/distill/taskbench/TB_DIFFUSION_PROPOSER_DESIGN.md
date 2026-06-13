@@ -69,6 +69,11 @@
 3. **생성기 다양성 arm 전체(diffusion·A3·Planning-Token·SoS) = 선별기 대비 조건부 강등 유지**(§3.7d "binding constraint=선별기"·day-5 선별기 +12.9pp 헤드라인). 신규 생성기 베팅은 **선별기 천장 확인 후** 재고.
 4. **생성기-side 유일 즉시-가치 = XGrammar validity-floor**(relwork_arch §3b #1): zero-retrain·vLLM-native·기존 의존성. A2 JSON-DAG 스키마에 grammar-constrained decoding을 명시 층으로 → K-샘플 "valid 하한" 보장 = **D-oracle 분모 안정화(선별기 지원)**. 다양성 원천 아닌 floor — 생성기 베팅이 아니라 선별기 인프라라 강등과 무모순. = 다음 생성기-side 단일 후보.
 
+### ★재검토 (2026-06-14 — 사용자 "diffusion 생성기 재검토" + oracle 엣지분석 후, `EDGE_LEVEL_REDESIGN §5`)
+- **위 "보류"는 *선별기-레버* framing 하의 강등이었다.** oracle 엣지분석이 **생성기가 진짜 레버**임을 확정(엣지 커버리지 0.828·17% 부재·결정론 검증기는 지시-맹목이라 천장 근접) → **diffusion-as-generator 재검토는 정당**(생성기는 결정론 불변과 무관·swappable).
+- **단 수치 규율**: DiG-Plan 0.943 = 합성토이(23bit)·greedy-AR 기울임 = **plan 정합도 아님**(§3c·인용규율). 실제 TaskBench = Oracle@10 0.735→0.787(+0.052)·UnionPrec +0.117 = **tool-SET coverage 이득**. ⚠diffusion은 **노드/세트엔 강·엣지엔 약**(0.128) — **우리 병목은 엣지** → 측정 단위 = *엣지* 커버리지·**matched-entropy(hot) AR 대조**(greedy 금지). 더 싼 불변-호환 대안 = hot-AR·cross-family AR(P-D-alt §3b).
+- **즉 "보류 해제"가 아니라 "올바른 질문으로 재발사"**: P-D0 형식게이트(잘못된 질문) 아닌 **"diffusion proposer + AR-refiner가 엣지 커버리지를 matched-entropy AR 위로 올리나"**가 사전등록 질문. 선택기/검증기는 결정론(A2 이식: graph_desc=replay·MBR·snap·abstain)으로 고정.
+
 > 인용위생 체크박스: DiG-Plan(2606.05728) 1차 검증 = 프로토콜 디테일(TaskBench-23 501, Pass@10 수치) 원문 확인됨
 > · 논문 본문 인용 전 R8 절차(버전 명시·수치 재검증) 필수, 수치 이식 금지 유지.
 
