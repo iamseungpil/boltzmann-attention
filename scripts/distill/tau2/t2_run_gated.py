@@ -27,6 +27,8 @@ def main():
                          "frontier-arm F4b census용; 지정 시 로컬 vllm 불요")
     ap.add_argument("--user_temp", type=float, default=0.7,
                     help="user-sim temperature (ⓟ1 분산통제 arm = 0.0)")
+    ap.add_argument("--agent_seed", type=int, default=None,
+                    help="agent 요청 seed 고정 (결정론 실험; 로컬 vllm arm 전용)")
     ap.add_argument("--num_trials", type=int, default=1)
     ap.add_argument("--num_tasks", type=int, default=None)
     ap.add_argument("--max_concurrency", type=int, default=8)
@@ -66,6 +68,10 @@ def main():
     else:
         llm_agent = f"openai/{a.agent_model}"
         llm_args_agent = {"api_base": a.agent_base, "api_key": "dummy", "temperature": 0.0}
+    # 결정론 실험(p1 재개): agent 요청에 seed 고정 (vLLM은 seed param 지원 — 배칭
+    # 비결정성은 serve-side enforce-eager/max-num-seqs=1로, seed는 샘플링-RNG 보조)
+    if a.agent_seed is not None and not a.agent_llm:
+        llm_args_agent["seed"] = a.agent_seed
     cfg = TextRunConfig(
         domain=a.domain,
         agent="llm_agent",
