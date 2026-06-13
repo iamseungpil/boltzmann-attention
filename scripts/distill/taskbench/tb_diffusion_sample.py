@@ -61,9 +61,13 @@ def main():
     ap.add_argument("--k", type=int, default=4)
     ap.add_argument("--temperature", type=float, default=0.8)
     ap.add_argument("--top_p", type=float, default=0.95)
-    ap.add_argument("--steps", type=int, default=512)
-    ap.add_argument("--max_new_tokens", type=int, default=768)
+    ap.add_argument("--steps", type=int, default=0,
+                    help="denoise 스텝 (0=max_new_tokens와 동일=full denoise; P-D0 부검: steps<gen_len이면 "
+                         "mask 잔류로 빈/스텁 디코드 68%% — steps>=max_new_tokens 권장)")
+    ap.add_argument("--max_new_tokens", type=int, default=512)
     a = ap.parse_args()
+    # P-D0 부검 교정: 과소-denoise(steps<gen_len) = mask 잔류 → 디코드 붕괴 주범. 미지정 시 full denoise.
+    steps = a.steps if a.steps > 0 else a.max_new_tokens
 
     import torch
     from transformers import AutoModel, AutoTokenizer
@@ -82,7 +86,9 @@ def main():
                                       trust_remote_code=True).cuda().eval()
 
     os.makedirs(os.path.dirname(a.out_prefix), exist_ok=True)
-    n_parse = n_total = 0
+    print(f"[pd0 cfg] steps={steps} max_new_tokens={a.max_new_tokens} temp={a.temperature} "
+          f"alg=entropy alg_temp=0.0 n={a.n} k={a.k}", flush=True)
+    n_parse = n_total = n_degen = 0  # n_degen = 디코드 붕괴(<=20자) 카운터 (P-D0 부검 모니터)
     vfracs, plans_by_id = [], {}
     writers = [open(f"{a.out_prefix}_k{k}.json", "w") for k in range(a.k)]
     for ri, rec in enumerate(records):
@@ -98,12 +104,14 @@ def main():
             out = model.diffusion_generate(
                 ids, attention_mask=am, max_new_tokens=a.max_new_tokens,
                 output_history=False, return_dict_in_generate=True,
-                steps=a.steps, temperature=a.temperature, top_p=a.top_p,
+                steps=steps, temperature=a.temperature, top_p=a.top_p,
                 alg="entropy", alg_temp=0.0)
             text = tok.decode(out.sequences[0][ids.shape[1]:].tolist(),
                               skip_special_tokens=True)
             parsed = extract_json(text)
             n_total += 1
+            if len(text.strip()) <= 20:  # 디코드 붕괴 (P-D0 부검: mask 잔류 artifact)
+                n_degen += 1
             res = parsed if isinstance(parsed, dict) else {"raw": text[:2000]}
             if isinstance(parsed, dict) and isinstance(parsed.get("task_nodes"), list):
                 n_parse += 1
@@ -130,8 +138,9 @@ def main():
     nid = max(len(plans_by_id), 1)
     print(f"[pd0 VERDICT] parse_rate={n_parse}/{n_total}={n_parse / max(n_total, 1):.3f} "
           f"valid_frac={sum(vfracs) / max(len(vfracs), 1):.3f} "
+          f"degenerate(<=20ch)={n_degen}/{n_total}={n_degen / max(n_total, 1):.3f} "
           f"distinct_plan={dis / nid:.3f} mean_jaccard={jacc / max(npairs, 1):.3f} "
-          f"(관문: parse>=0.5)")
+          f"(관문: parse>=0.5; degen 높으면 디코드붕괴=형식게이트 무효 — P-D0 부검)")
 
 
 if __name__ == "__main__":

@@ -55,6 +55,14 @@
   튜닝돼 diffusion 제안을 더 못 고를 위험 포함). 미달 = "oracle-only 호기심" 분류. 채택 시 패키지 보고에
   **배포 비용 열(제안기 2-모델 = 추론비 ~2×) 병기** — {소형·저비용} 주장과 충돌 방지.
 
+### ★P-D0 실행 부검 (2026-06-14 전수 궤적조사 — `dream_p_d0/dream_k{0..3}.json`, 사용자 발주 "엄격 원인분석")
+**판정: parse_rate=0/41=0% 는 diffusion 음성으로 *해석 불가* — 설계서 line 47-49 가드레일("형식 사고가 음성결과로 둔갑 금지") 발동 확정. 두 교란(런 미완 + seed-구동 디코드 붕괴)을 제거하기 전 형식게이트 수치 무의미.**
+- **표본**: 11/50 레코드만 처리(handoff "~21:40 timeout 종료" — N=50 미달) × k4 = 41샘플. 인자 = **defaults**(`steps=512 < max_new_tokens=768`·`temp=0.8`·`top_p=0.95`·`alg=entropy`·`alg_temp=0.0`; ps 실측).
+- **3 실패모드 (전수 census)**: ⓐ**붕괴 ≤17자 = 28/41(68%)**(empty 15 + 스텁 `{"task_steps": ["` 13). ⓑ**near-complete ≥100자 = 9/41(22%)**. ⓒ partial 4.
+- **★결정적 증거 — 붕괴는 레코드 난이도 아닌 *seed 확률성*에 지배**: 같은 레코드가 k에 따라 **0↔141로 요동**(10074769: k0=141·k1-3=0 / 10010819: k1=112·나머지 0 / 10076784: 141·0·0·143). **4/11 레코드가 한 입력에서 붕괴와 near-complete를 동시 산출**. `n_tools`도 무상관(nt=1이 전부붕괴[10090642 all-0]·전부성공[10103534 all~125] 양쪽). ⇒ ⓐ붕괴 = **디코드 불안정 artifact**(능력·난이도 아님). 1순위 기제 = **steps(512) < max_new_tokens(768)** 과소-denoise로 mask 잔류 → `skip_special_tokens`가 제거 → 빈/스텁 디코드; temp 0.8 가중.
+- **★진짜 신호 — diffusion은 *내용*은 되고 *직렬화*가 깨짐**: ⓑ 9건 전부 **올바른 도구**(Audio-to-Video·Topic Generator·Audio Splicer·Text-to-Image) + **지시-정합 인자**(example.wav/mp4·environmental conservation) 선택, 단 **국소 괄호/따옴표 손상**(`]]]`·`]"}`·`,}]}`·stray `"`)으로 parse 실패. = **diffusion any-order 직렬화 약점**(닫는 토큰이 내용 확정 전 배치) = §3c DiG-Plan(diffusion-only edge 0.128)·§3d A3 예측과 정합. **⇒ AR-refiner 하이브리드(§3b·사용자 제안)가 정공임을 실측이 재확인**; parse_rate 단독 게이트는 *planning을 serialization과 혼동*해 diffusion을 과소평가.
+- **clean 재실행 config(교란 제거)**: ①**steps = max_new_tokens**(full denoise·mask 잔류 0) ②**temp 0(형식게이트는 결정론; 다양성은 P-D1 별건)** ③**N=50 전수** ④**mask-잔류/미충전 위치 카운터를 로깅에 추가**(디코드 완결성 확증) ⑤alg_temp·Dream 권장 preset 검증. 재실행 전엔 형식게이트 PASS/FAIL 판정 보류.
+
 > 인용위생 체크박스: DiG-Plan(2606.05728) 1차 검증 = 프로토콜 디테일(TaskBench-23 501, Pass@10 수치) 원문 확인됨
 > · 논문 본문 인용 전 R8 절차(버전 명시·수치 재검증) 필수, 수치 이식 금지 유지.
 
