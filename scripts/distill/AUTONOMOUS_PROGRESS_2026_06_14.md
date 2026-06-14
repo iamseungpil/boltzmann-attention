@@ -104,6 +104,15 @@
 - **⇒ v7 = SOPBench + TaskBench + Seal-Tools**(2-hop 소스). 헤드라인 = R4 커플전이 + 부재 2-hop 소싱. 커플링 재검증 = v7 후. 설계서 §8b 박제.
 - 도구: `scripts/distill/tau2/coupling_eval.sh`(어댑터1개 SOPBench채점+τ² 동시). ⚠️lora명 재사용시 SOPBench output(ast_<name>) 충돌주의(순차 OK).
 
+## ★★v7 = ComplexFuncBench(grounded 2-hop) 합류·발사 (2026-06-15)
+- **결정(사용자)**: 3번째 벤치 = **ComplexFuncBench(논문용)**. Seal-Tools 드롭(단발-심볼형=TaskBench 동류·v6 불충분 입증). ToU = 논문 LOW·**특허/프로덕션은 clean 소스 재생성 필수**(우리 user-sim withholding 등·설계서 §8c-BLOCKING#2).
+- **변환기 `fc_convert_complexfuncbench.py`**: conversations(user/assistant.function_call/observation/final)→native FC. functions→tools·observation→tool(녹화 Booking 응답)·parallel-call obs 분할. **850 traj(Flights 150 제외=airline 근접)·avg 5.02 call·observe→arg fetch-chain 100%**(`Search_Car_Location→obs{lat}→Search_Car_Rentals(pick_up_latitude=lat)` = grounded 2-hop·v6이 못한 그 스킬).
+- **value-randomize**: cfb 3x 재-randomize(seed42/43/44=복사본마다 다른 랜덤값·암기불가) → copy 강제. fetchable-vals 4042/traj.
+- **sft_v7 = sop_rand2 + d5_ask2 + tb_all_v4 + cfb×3 = 16054**(tb7000·sop6780·**cfb 2274~14%**). QC bad-args 294(randomizer가 cfb 복잡JSON ~11% 손상→드롭·v8 harden). cfb 토큰 median 9452·**23% >14336**(skip-overlong 드롭=최장 2-hop 손실·v8 value-aware truncation으로 회수).
+- **발사**: v7 GPU1(PID 3997341·v4/v5/v6 동일 config). v6 GPU0 계속(in-dist baseline 앵커).
+- **다음 ④**: v7 ep 후 `coupling_eval.sh`(SOPBench dirgraph+τ²) + `tau2_autopsy.py` — **핵심: order_id가 이제 observe→fetch되나(#W0000000 날조↓·get_user_details 호출↑)·τ²가 0 넘나.** 양성이면 "grounded 2-hop 소싱이 전이 갭 닫음" 헤드라인. 음성이면 어느 층(관찰·추출·의미매핑) binding인지 진단.
+- 도구: `scripts/distill/taskbench/fc_convert_complexfuncbench.py`(repo). 데이터 = `/home/woori/scratch/ComplexFuncBench/`(HF zai-org).
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
