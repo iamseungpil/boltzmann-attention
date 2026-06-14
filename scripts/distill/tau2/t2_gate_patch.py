@@ -65,8 +65,9 @@ def _provenance_deny(tc, ctx):
                 continue
             if s.lower() not in ctx:
                 return ("PROVENANCE_R1B",
-                        f"argument '{k}'='{s}' was not provided by the user nor returned by any tool. "
-                        "Do not invent values — ask the user for it, or look it up with a read tool first.")
+                        f"argument '{k}'='{s}' was not provided by the user nor returned by any tool — it looks invented. "
+                        "STOP and ask the user a question to get this value now (e.g. 'Could you provide your ...?'). "
+                        "Do NOT call any tool again with a guessed/placeholder value.")
     return None
 
 
