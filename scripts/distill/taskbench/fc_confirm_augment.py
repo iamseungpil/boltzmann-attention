@@ -21,6 +21,10 @@ import argparse, json, random, re
 AUTH_CARVEOUT = {"login_user", "logout_user", "authenticate_admin_password",
                  "authenticate_password", "verify_identity"}
 META = {"exit_conversation", "transfer_to_human_agents", "transfer_to_human"}
+# ★read-술어 prefix (bare bool 반환해도 write 아님 — QC 반증: internal_is_loyalty_member→False=read).
+#   get_ 는 *제외 안 함*(get_loan=write는 output-shape로 잡음). 반환시그니처+이 배제 = 이중안전.
+READ_PREFIX = ("internal_", "is_", "has_", "check_", "verify_", "show_",
+               "list_", "view_", "search_", "find_", "query_", "lookup_")
 
 CONFIRM_TMpl = [
     "To confirm: I'll {act} with {args}. Shall I proceed?",
@@ -71,7 +75,7 @@ def write_indices(msgs):
         # v1: 단일 tool_call 메시지 가정(SOPBench 궤적 구조). 다중이면 첫 write 기준.
         for tc in tcs:
             nm = tc.get("function", {}).get("name", "")
-            if nm in AUTH_CARVEOUT or nm in META:
+            if nm in AUTH_CARVEOUT or nm in META or nm.startswith(READ_PREFIX):
                 continue
             nxt = msgs[i + 1] if i + 1 < len(msgs) else {}
             if nxt.get("role") == "tool" and is_bare_bool(nxt.get("content")):
