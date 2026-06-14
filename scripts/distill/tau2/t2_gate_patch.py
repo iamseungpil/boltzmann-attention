@@ -88,11 +88,10 @@ def apply():
         last_user = _last_user_text(self)
         tms = _transfer_msg_sent(self)
 
+        # T2_PROVENANCE=1 = orchestrator-레벨 게이트(날조 호출을 *실행 전* deny→error로 surface).
+        #   ⚠️ 이건 모델이 user에게 묻게 만들고 error budget 소모 → 차선. 권장 = apply_provenance_regen
+        #   (agent 생성-레벨 내부 재생성; 벤치 측정 무변경). T2_PROV_SOFT(budget 안 셈)=metric gaming이라 폐기.
         prov_on = os.environ.get("T2_PROVENANCE") == "1"
-        # T2_PROV_SOFT=1: provenance 거부(가로채기+redirect)를 hard-error로 안 셈 — budget 보존
-        #   (사용자 Q1: 거부가 10-error budget 까먹으면 효과 안 보임). 무한루프 방지=별도 cap.
-        prov_soft = os.environ.get("T2_PROV_SOFT") == "1"
-        prov_cap = int(os.environ.get("T2_PROV_CAP", "12"))
         ctx = _context_text(self) if prov_on else None
 
         results = []
@@ -103,13 +102,7 @@ def apply():
             if prov_on:  # L2 provenance: 날조 인자값 차단 (R1B)
                 pd = _provenance_deny(tc, ctx)
                 if pd:
-                    n_prov = getattr(self, "_t2_prov_denies", 0) + 1
-                    self._t2_prov_denies = n_prov
-                    if prov_soft:
-                        if n_prov > prov_cap:  # 무한 redirect 방지
-                            self.num_errors += 1
-                    else:
-                        self.num_errors += 1
+                    self.num_errors += 1
                     results.append(_deny_msg(tc, pd[0], pd[1]))
                     continue
             ok, g, why = gate.check(tc.name, tc.arguments or {}, last_user_msg=last_user,
@@ -168,6 +161,80 @@ def _deny_msg(tc, gate_name, reason):
         id=tc.id, role="tool", requestor="assistant", error=True,
         content=f"Error: [POLICY GATE {gate_name}] {reason}",
     )
+
+
+# ─── ★권장 설계: agent 생성-레벨 내부 재생성 (T2_PROV_REGEN=1) ───
+# 검증기가 날조 인자 감지 → state.messages(공식 대화) 오염 없이 *작업본*에 거부 피드백 추가
+# → generate() 재호출(최대 K) → 유효 호출만 반환. 거부 시도는 벤치(턴·error budget·user-sim)
+# 에 *안 보임* = constrained-decoding의 call-레벨 resample. 측정 무변경(가드된 시스템을 정직 측정).
+# 피드백 = "lookup으로 obtain·user에 묻지 마·placeholder 금지"(gather 유도).
+REGEN_FEEDBACK = (
+    "Error: [PROVENANCE] argument '{k}'='{s}' was not provided by the user nor returned by any tool "
+    "— it looks invented (e.g. a schema example value). Do NOT use placeholder/example values and do NOT "
+    "ask the user. Instead call a lookup/getter tool that produces this value (e.g. get_user_details to "
+    "retrieve the user's orders, payment methods, or addresses) and read the real value from its output. "
+    "Now emit a corrected tool call."
+)
+
+
+def _ctx_from_messages(msgs):
+    parts = []
+    for m in msgs:
+        r = getattr(m, "role", None)
+        c = getattr(m, "content", None)
+        if r in ("user", "tool") and c is not None:
+            parts.append(c if isinstance(c, str) else str(c))
+    return " ".join(parts).lower()
+
+
+def _first_fab_call(am, ctx):
+    """am.tool_calls 중 첫 날조 호출 (tc, k, s) 또는 None."""
+    for tc in (getattr(am, "tool_calls", None) or []):
+        pd = _provenance_deny(tc, ctx)
+        if pd:
+            args = tc.arguments or {}
+            for k, v in (args.items() if isinstance(args, dict) else []):
+                for val in _flatten(v):
+                    s = str(val).strip()
+                    if any(h in k.lower() for h in PROV_ARG_HINT) and len(s) >= 4 and s.lower() not in ctx:
+                        return (tc, k, s)
+            return (tc, "?", "?")
+    return None
+
+
+def apply_provenance_regen(max_retries=4):
+    """LLMAgent._generate_next_message 패치 — 날조 호출을 내부 재생성으로 교정."""
+    from tau2.agent.llm_agent import LLMAgent
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import ToolMessage
+
+    orig = LLMAgent._generate_next_message
+
+    def patched(self, message, state):
+        am = orig(self, message, state)  # 첫 시도 (message가 state.messages에 append됨)
+        ctx = _ctx_from_messages(state.messages)
+        work = list(state.messages)
+        n = 0
+        while n < max_retries:
+            fab = _first_fab_call(am, ctx)
+            if fab is None:
+                break
+            n += 1
+            self._t2_regen = getattr(self, "_t2_regen", 0) + 1  # 카운트(측정용·budget 무관)
+            tc, k, s = fab
+            work = work + [am]  # 거부된 assistant 턴 (작업본만)
+            for c in (am.tool_calls or []):
+                reason = REGEN_FEEDBACK.format(k=k, s=s) if c is tc else \
+                    "Error: [PROVENANCE] resolve the invented value first; do not call this yet."
+                work.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
+                                        error=True, content=reason))
+            am = la.generate(model=self.llm, tools=self.tools,
+                             messages=state.system_messages + work,
+                             call_name="agent_response_regen", **self.llm_args)
+        return am
+
+    LLMAgent._generate_next_message = patched
+    return orig
 
 
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 #!/bin/bash
-# R1b provenance 게이트 프로토타입 (무재학습): 날조 인자 차단 시 τ² pass 변화 측정.
-# Arm A = T2_PROVENANCE=1(거부=error) / Arm B = +T2_PROV_SOFT=1(거부 budget 안 셈).
-# baseline = 게이트 없음(별도·coupling_v7 0.05). 한 번 serve → 두 arm.
+# R1b provenance 프로토타입 (무재학습): 날조 인자 차단 시 τ² pass 변화.
+# ★권장 arm = REGEN(T2_PROV_REGEN=1): agent 생성-레벨 내부 재생성(검증기 거부→작업본에 피드백→
+#   regenerate→유효호출만 제출). 벤치 턴·error budget·user-sim 무변경(=측정 정직). gather 유도.
+# 비교 arm = ERR(T2_PROVENANCE=1): orchestrator deny→error surface(차선·budget 소모·모델이 ask 가능).
+# baseline = 게이트만(provenance off·별도 coupling_v7 0.05). 한 번 serve → 두 arm.
 # Usage: prov_eval.sh <adapter> <lora_name> <gpu> <port> <n> <label>
 set -u
 ADAPTER=${1:?adapter}; NAME=${2:?lora}; GPU=${3:?gpu}; PORT=${4:?port}; N=${5:-20}; LABEL=${6:?label}
@@ -12,7 +14,6 @@ S=/home/woori/scratch
 LOG=$S/prov_${LABEL}.log
 exec > $LOG 2>&1; set -x; date
 
-# serve
 for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 4
 CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve Qwen/Qwen2.5-7B-Instruct --port $PORT \
   --enable-auto-tool-choice --tool-call-parser hermes --max-model-len 16384 \
@@ -34,9 +35,8 @@ run_arm () {  # $1=armtag  $2..=env assigns
   grep -E "violations=" $S/t2_${LABEL}_${tag}.log | tail -1
 }
 
-run_arm A T2_PROVENANCE=1
-run_arm B T2_PROVENANCE=1 T2_PROV_SOFT=1
+run_arm REGEN T2_PROV_REGEN=1
+run_arm ERR   T2_PROVENANCE=1
 
-# free
 for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done
 echo "===== PROV DONE [$LABEL] ====="; date; echo PROV_DONE_${LABEL}

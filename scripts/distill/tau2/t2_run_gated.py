@@ -9,6 +9,7 @@ Run: cd /home/woori/scratch/tau2-bench && PYTHONPATH=src:$REPO/scripts/distill/t
   --gate 1 --num_trials 4 --save_to retail_7b_gate
 """
 import argparse
+import os
 
 
 def main():
@@ -39,6 +40,10 @@ def main():
         import t2_gate_patch
         t2_gate_patch.apply()
         print("[t2_run] gate ON")
+        if os.environ.get("T2_PROV_REGEN") == "1":
+            t2_gate_patch.apply_provenance_regen(
+                max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")))
+            print("[t2_run] provenance-regen ON (internal resample, no user-ask)")
 
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
