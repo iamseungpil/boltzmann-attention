@@ -36,13 +36,16 @@ META_NAMES = ("transfer_to_human_agents", "think", "transfer_to_human")
 AUTH_PREFIXES = ("find_user", "find_customer", "authenticate", "verify_identity")
 
 
-def load_tools(tools_py):
-    """도메인 tools.py서 공개 메서드(tool) 추출·@is_tool(ToolType.WRITE) 표식으로 write 분류.
+def load_tools(*tools_files):
+    """도메인 tools.py(+user_tools.py dual-control)서 @is_tool(ToolType.X)로 도구 분류.
     반환시그니처 원칙(prefix 아님): 데코레이터가 권위. 미발견 시 retail 기본값 유지."""
     global WRITE_TOOLS, AUTH_TOOLS, GETTER_TOOLS, META_TOOLS, ALL_KNOWN
-    if not tools_py or not os.path.exists(tools_py):
+    files = [f for f in tools_files if f and os.path.exists(f)]
+    if not files:
         return False
-    lines = open(tools_py, encoding="utf-8").read().splitlines()
+    lines = []
+    for f in files:
+        lines += open(f, encoding="utf-8").read().splitlines()
     writes, getters, auths, metas = set(), set(), set(), set()
     pending = None  # 최근 @is_tool(ToolType.X) 의 X ("WRITE"/"READ"/"GENERIC"/"THINK")
     for ln in lines:
@@ -191,10 +194,13 @@ def main():
 
     # 도메인 tools.py 동적 로드 (반환시그니처 분류)
     tp = a.tools_py
+    extra = []
     if tp is None and "/data/tau2/domains/" in a.domain_dir:
-        tp = os.path.join(a.domain_dir.replace("/data/tau2/domains/", "/src/tau2/domains/"), "tools.py")
-    loaded = load_tools(tp)
-    print("[tools.py] %s → write=%d getter=%d auth=%d %s" %
+        srcdir = a.domain_dir.replace("/data/tau2/domains/", "/src/tau2/domains/")
+        tp = os.path.join(srcdir, "tools.py")
+        extra = [os.path.join(srcdir, "user_tools.py")]  # dual-control(telecom 등)
+    loaded = load_tools(tp, *extra)
+    print("[tools.py] %s (+user_tools) → write=%d getter=%d auth=%d %s" %
           (tp, len(WRITE_TOOLS), len(GETTER_TOOLS), len(AUTH_TOOLS),
            "(동적)" if loaded else "(retail 기본값)"))
 
