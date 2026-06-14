@@ -304,6 +304,7 @@
 | **이 문서** `EXPERIMENT_DESIGN.md` | **목표·순서·지표 권위본** | ★마스터 |
 | **`CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`** | **★★★현 진입점 (plan X)**: 학습 SOPBench+TaskBench native-FC → 7B TBox / 테스트 SOP-Bench+τ² 벤치-횡단 전이. 공통표현=vLLM-native FC. | ★★★현재 진입점 |
 | **`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`** | plan X 변환기 설계 v2: SOPBench FC rollout·TaskBench DAG→native 궤적·전역alias(R1)·loss=assistant-only·QC | ★활성 (plan X 구현) |
+| **`R1B_PROVENANCE_DESIGN_2026_06_14.md`** | **R1b 값-provenance 집행 (리뷰용)**: 3레이어(XGrammar 원천차단 + provenance 검증기 + 학습된 복구순서 fetch→ask). τ² 날조 실증 처방. | ★활성 (리뷰 대기) |
 | **`A2_FRONTEND_DISTILL_DESIGN.md`** | **★A2 생성기 학습 구조 (2026-06-12 신설)**: 역방향 렌더링 데이터엔진(spec→NL=GT 구성보장)·S0합성SFT→S1 verified-distill(실 22도메인 LODO)→S2 on-policy DPO·판정="시스템(소형K+검증기-선별) vs frontier 단일샷"·LOCK 비적용 논증(§0). ⚠️t1c-소스 부분은 plan X가 FC-rollout으로 대체(NATIVE_FC §3a) — A2=NL→GATE_SPEC 컴파일러(per-domain ABox)는 유효 | ★활성 (A2 컴파일러=thesis core·유효) |
 | `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 개념 원본(planner L0/L1/L2) | ⚠️superseded (개념=유효·dirgraph-emit 표현은 native-FC가 대체) |
 | `TASK_CONSTRAINT_DESIGN.md` | SOPBench should_T 게이트 진단(Rung1-2) | ⚠️superseded (scaffold-line·plan X 무관) |
