@@ -135,6 +135,19 @@
   - **다음**: v8 ep0 후 `coupling_eval.sh`(키수정본) → v7 vs v8 P6 준수율(write 전 user-yes)·neg-준수율(no→미실행)·τ² 비교.
 - **gotcha**: ①coupling_eval τ² 키 필수(위) ②P6 write분류=output-shape+read-prefix배제(prefix 단독 금지) ③sft_v8 셔플 빌드(`fc_build/sft_v8.jsonl`).
 
+## ★★★2026-06-15 (세션재개 #3) — v7 결정적 eval = NEGATIVE (CFB 2-hop 전이 실패·gen_synth_2hop 게이트 발동)
+- **v7 정지(step7100)·키수정 coupling_eval로 결정적 eval(`v7_eval_s7050`·GPU1)**:
+  - **in-dist 최고**: SOPBench online_market success **0.90**·dirgraph **0.95**(v6 0.80·v4보다↑·v7 in-dist 완전학습).
+  - **★τ² = 0.05** (genuine·auth_errors 0·violations 0). **v6(0.10)/v4(0.10)보다 낮음·base 0.17 미달.**
+- **★★결정적 진단 = grounded 2-hop CFB가 τ² 전이 실패 (NEGATIVE·사전등록 예측 음성분기)**:
+  - **order_id/product_id 날조 여전**: `get_order_details` 64회 중 **44회 `#W000` 날조**·`get_user_details`(fetch 경로) **8회뿐**. autopsy: fab_auth 10·agent_collapse 9·PASS 1·auth provenance grounded 9/fab 10(v6 step2599 grounded 18/19보다 **퇴행**).
+  - **궤적 확정(task1)**: product_id `6086499569` 날조→"not found"→**동일 호출 10연타**(전략전환 0)→too_many_errors. 인증·주문fetch 없이 ID 지어내 루프.
+  - **기제**: CFB = *linear observe→use*(값이 출력에 이미 있어 복사). τ² = *proactive gather*(없는 arg 인지→**생산 getter 능동선택**→호출→출력서 **select**). **'생산도구 능동선택+select'(R4) 층이 미학습·CFB가 안 가르침.** = 데이터-소스 문제 아닌 **R4 의미-전이** 문제.
+- **★gen_synth_2hop(Path B) 게이트 발동 = 짓지 않음** (SYNTHESIS_IMPL_SPEC §C 사전등록: "CFB 전이 안 되면=문제는 데이터-소스 아니라 R4 의미-전이→같은 primitive 다른 소스도 무효→진단 선행"). **매몰비용 회피 확정.**
+- **★재방향(중요)**: gap=데이터부재 아님 → ①**proactive-gather**(unguided: 없는 arg→producer getter 능동선택·CFB의 linear chain로는 미학습) ②**P7 recovery**(동일-호출 루프=지배적 실패·`fc_recovery_augment` 직격). **P7이 차기 최고가치**(retry-loop collapse 9/20). P6(v8 학습중)는 write 도달 후라 현 단계 부분적.
+- **매트릭스 갱신**: cfb P2b = 데이터존재 ✓ but **전이 ✗(검증됨)** — 리뷰#3 ✓!→✗! 전환. gap 재확정 = P2b(R4 의미전이)·P6·P7.
+- 도구: 결과 = `coupling_v7_s7050.log`·`retail_v7_s7050`·autopsy `tau2_autopsy.py`.
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.

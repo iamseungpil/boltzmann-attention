@@ -75,7 +75,7 @@ agentic tool은 게이트로 보호됨. 게이트 타입(G1-G4 분류=auth / con
 |---|---|---|---|---|---|---|---|---|---|---|
 | **SOPBench**(train,V) | ✓ | ✓ | ◐(1.9%) | ✓ | ◐ | ✓ | ◐ | ◐(success-only=thin) | ✓ | ✗ |
 | **TaskBench**(train,V) | ✓ | ✗ | ◐(symbolic·plan-given) | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
-| **ComplexFuncBench**(train,V) | ✓ | ◐ | ✓✓(grounded·inferred·100%) | ✓ | ✓ | ◐ | ✗ | ?(미검증) | ✗ | ◐ |
+| **ComplexFuncBench**(train,V) | ✓ | ◐ | ✓데이터·**✗!전이**(v7 음성) | ✓ | ✓ | ◐ | ✗ | ?(미검증) | ✗ | ◐ |
 | **τ²**(test,V autopsy) | 필요✓ | — | **필요✓(v6 binding)** | 필요✓ | 필요✓ | 필요✓ | **필요✓(G2)** | **필요✓(retry-loop)** | 필요✓(G1/G3) | — |
 | **SOP-Bench**(test,R) | 필요✓ | 필요✓ | 필요? | 필요✓ | ? | 필요✓ | ? | ? | 필요✓ | ? |
 | **BFCL V3 mt**(cand,R) | ✓ | ◐ | ◐(state-val·id아님) | ✓ | ◐ | ✗ | ✗ | ? | ✗ | ◐ |
@@ -89,7 +89,7 @@ agentic tool은 게이트로 보호됨. 게이트 타입(G1-G4 분류=auth / con
 - **★남은 gap (잠정·2개)**: **P6 confirm-gate** + **P7 recovery**.
 - **★순환성 차단 (리뷰 #4a)**: "task17 gap=P6+P7"은 동어반복 위험. 탈출 = (i)**재발**(P6/P7이 task17 아닌 *여러* held-out·v4 20태스크 전반서 반복=아티팩트 아님) + (ii)**v7 예측 적중**(사전등록). §4 포화와 연결.
 - **★"정확히 2개" 방어 — census ✓완료(06-15·`tau2_primitive_census.py`·전 τ² 도메인)**: **orphan 도구=0 (retail114·airline50·telecom2285·mock·~2450 task 전수)** — 모든 gold 도구가 P1-P9 매핑·분류밖 연산 0=**P10 없음**. retail 요구집합 ⊆ {P1,P2a,P2b,P3,P4,P5,P6,P8}+잠재P7. 분포: P1 112·P5/P6 104(91%)·P2b 97(85%)·P3 92·P8 66·P2a 52·P4 28·**P7 0(gold·reactive)·P9 0(sequential)**. ⇒ **gap=P6+P7이 task17 아닌 전수서 성립**(P6 91% write-task 지배·P7 gold-부재=잠재 89/114). transform=`calculate`(13)도 tool-call→P2b 환원(seam β 닫힘·companion §3b). **"정확히 2"=섰음**(미-autopsy P-something 없음).
-- ⇒ **v7 예측(사전등록)**: P2b/P4 ✓→✓!(전이검증)·order_id 날조↓·부분개선하나 **P6+P7 미커버라 τ² 완전돌파 아직**. 테스트 가능.
+- ⇒ ~~**v7 예측(사전등록)**: P2b/P4 ✓→✓!~~ **★v7 eval = NEGATIVE (2026-06-15)**: τ² 0.05(v6 0.10보다↓)·order_id 날조 여전(44/64)·get_user_details 8회뿐. **grounded 2-hop CFB가 전이 실패** = P2b 미해결. **기제 = CFB linear observe→use ≠ τ² proactive gather(없는 arg→producer getter 능동선택→select)=R4 의미전이 층 미학습.** ⇒ gen_synth_2hop(Path B) 게이트 발동=짓지 않음(데이터-소스 아닌 R4 문제). **gap 재확정 = P2b(R4 의미전이)+P6+P7**. P7(동일-호출 루프 9/20 지배)=차기 최고가치.
 - **★P6 vs P7 획득경로 분리 (리뷰 #5·중요)**: 대칭 아님.
   - **P6=전방(proactive)**: confirm-then-write가 *gold 궤적에 존재* → 벤치/gold 소싱·SFT 가능(SOPBench 정책게이트·D5·When2Call).
   - **P7=반응형(reactive)**: deny/error에 대한 반응 → **성공-gold엔 절대 없음**(성공경로는 deny 안 당함). static-gold로 소싱 불가 → **gate-in-loop 데이터 필요**: (a)error-injection augmentation(SFT 근사·합성설계) + (b)**deny→recovery RL/DPO(원본)=FIELD_GAP Track B 재진입.** P6과 같은 줄에 두면 계획 틀어짐.
