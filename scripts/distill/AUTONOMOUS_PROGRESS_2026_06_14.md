@@ -43,7 +43,9 @@
 - **★대조 신호 확인**: user는 ID/타입/identity 제공(ask) vs 시스템은 details/status fetch — `product_id`(ask)↔`product_details`(fetch)·`order_id`↔`order_details/history`·`room_type`↔`room_assignment`·`test_type`↔`test_details`. 새 게이트가 구 휴리스틱이 **놓친** 정당 user-param(room_type·check_in_date·plate_num·foreign_currency_type 등)도 ask.
 - **★sft_v5 빌드 완료**(`fc_build/sft_v5.jsonl`·13781 traj): = sop_rand(5028) + **sop_d5_ask40(1753·게이트 ask, frac0.40)** + tb(7000). **v4(13789)와 동일 구조, ask만 휴리스틱(1761)→D5 게이트(1753) 교체 = 깨끗한 A/B**(volume 일치, 선택만 변경). QC 클린·d5_branch 라벨 보존(ask 1753).
 - **fetch/upfront 예시 = sop_rand 자체**(이미 자연 fetch-then-use 포함) → 별도 합성 불요(날조 위험 회피). 대조는 데이터셋 레벨(ask-when-no-getter ∪ fetch-when-getter) + over_ask=0 보장.
-- **다음(미결·GPU 결정)**: v5 학습 launch 보류 — GPU0=v4 학습 in-flight(ep0 step6550·32 ckpt·죽이지 말 것), GPU1=21GB 점유(우리 compute-app 0개=coworker 가능성). **launch 판단 사용자 대기**: ①v4 수렴 후 GPU0 ②GPU1 free 확인 후 ③coworker A100/H200 노드. 학습 시 = lora_train_chat_toolcall.py·flash-attn·grad-accum4, then τ² A/B(driver 패턴) vs v4 — over-ask율·compliant-pass 비교.
+- **★v5 학습 launch (GPU1·woori)**: GPU1 실제 free 확인(41MiB·21GB는 v4btest vllm 잔여로 이미 종료) → **v5 학습 시작**(PID 3977030·`sft_runs/qwen7b_fc_tbox_v5`·`v5_train.log`). 설정 = **v4와 동일**(epochs2·lora-r16·alpha32·grad-accum4·max-seq-len14336·flash_attn2·CUDA_VISIBLE_DEVICES=1·save-every50·val-frac0.02) → 데이터만 sft_v5 = 깨끗한 A/B. v4(GPU0) 결과 후 v5(GPU1)와 τ² 비교(over-ask율·compliant-pass).
+- **★coworker 동기화 (캐노니컬)**: ①`getter_map.json` repo 박제(7도메인) ②`node_run_planx.sh`에 §2b 값-randomize+§2c D5 대조 ask 반영·§4 보류해제 ③`COWORKER_REQUEST_TB_SCALE.md` **v8**(v7 보류 해제·"지금 돌려라"). coworker = 전 teacher×7도메인 대규모. 전부 push.
+- **다음**: ①v5 인코딩→학습 수렴 모니터 ②v4 vs v5 τ² A/B(driver 패턴·over-ask율·compliant-pass) ③coworker 캐노니컬 산출 합류 ④전이(SOP-Bench·τ² held-out).
 
 ## 인프라 메모
 - ⚠️ git: 원격 워크스페이스 cat-append 커밋이 백틱 명령치환 + rebase 충돌 유발 → **진행로그는 로컬 클론서만 편집**(원격은 pull). 원격 dirty(offload_*.sh)는 coworker 것 — 건드리지 않음.
