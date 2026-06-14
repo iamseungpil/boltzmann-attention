@@ -1,4 +1,9 @@
 #!/bin/bash
+# 🚨 2026-06-14 WARNING (Track A woori fast-check): 현 데이터(ask-user 무)로 학습 시
+#   base ask-user 파국적 망각 → 인자값 날조 → τ² compliant-pass 0.10/0.05 < base 0.17 (단조하락).
+#   R1 도구이름 grounding은 전이 작동. 처방 = R1b ask-user 합성 augmentation 후 재학습.
+#   상세 = COWORKER_REQUEST_TB_SCALE.md v7 · CROSS_BENCH_TRANSFER_PLAN §2c · TB결과 §10.5 R1b.
+#   ⇒ R1b 변환기 augment 반영 전엔 이 스크립트 학습부(§4) 실행 보류 (데이터 빌드부 §1-3는 무관).
 # node_run_planx.sh — CROSS_BENCH_TRANSFER_PLAN (plan X) P3 on an amlt node.
 #   SOPBench(output/ fc-full success rollouts, all teachers×7 domains)
 #   + TaskBench(3 domains tool-graph) -> native OpenAI function-calling 궤적

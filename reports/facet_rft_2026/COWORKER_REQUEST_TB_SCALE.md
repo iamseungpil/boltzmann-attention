@@ -1,3 +1,10 @@
+> # 🚨🚨 v7 긴급 (2026-06-14 PM) — node_run_planx.sh 현 데이터로 돌리지 마라 (catastrophic forgetting 실증)
+> **발견 (woori 빠른-확인, fctbox τ²)**: 현 plan-X 학습데이터(SOPBench+TaskBench = **정보 upfront·ask-user 무**)로 7B TBox를 학습하면 **base의 ask-user 능력을 파국적 망각** → 사용자에게 묻지 않고 인자값을 *날조* → **compliant-pass 0.10(50-up)→0.05(250-up) < base 0.17** (더 학습=더 나쁨·단조하락). base-Instruct는 ask-user 156/160·날조0인데 LoRA가 덮음.
+> - ✅ **R1 도구-이름 grounding은 전이 작동**(τ² 실도구명 컨텍스트 복사 = 별칭학습 일반화 — thesis 코어 검증됨). 망가진 건 **인자-값 provenance(ask-user)** 한 축뿐.
+> - ❌ **`usr_*` 멀티턴 rollout도 깨끗한 ask-user 아님**(정보 여전히 upfront + adversarial) → 그냥 합류로 안 고쳐짐.
+> - **처방 = R1b 신설**(TB §10.5·CROSS_BENCH §2c·NATIVE_FC 리스크#1): "인자값 provenance·무날조 — user/tool 출처만·부재시 ask-user/read-tool 획득·자가생성 금지". **변환기에 ask-user 합성 augmentation 추가**(정보-upfront 궤적 일부를 ask-then-provide로 변환; creds=첫 tool-call 인자서 결정론 추출) + 결정론 값-provenance 검증기.
+> - **⇒ node_run_planx.sh는 R1b 데이터(ask-user augment) 반영 *후* 재학습.** 그 전엔 base보다 나쁜 모델만 나옴 = 컴퓨트 낭비. Track A가 augment 변환기 작업 중 — 완료 시 repo 동기화.
+
 > # ▶▶▶ v6 갱신 (2026-06-14) — ★현 방향 = plan X (cross-bench 전이). 착수 전 필독.
 > **권위본 = `scripts/distill/CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`** + 변환기 `NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md` + 마스터 `EXPERIMENT_DESIGN.md` §0 배너.
 > - **plan X**: 학습 = SOPBench(FC 성공 rollout) + TaskBench(tool-graph)를 **native OpenAI function-calling 궤적**으로 변환 → 단일 7B TBox LoRA(R1-R8). 테스트 = **SOP-Bench·τ² held-out 벤치 ABox-swap 재학습0 전이**. 공통표현 = vLLM-native FC.
