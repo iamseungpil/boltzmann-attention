@@ -1,9 +1,10 @@
 #!/bin/bash
-# 🚨 2026-06-14 WARNING (Track A woori fast-check): 현 데이터(ask-user 무)로 학습 시
-#   base ask-user 파국적 망각 → 인자값 날조 → τ² compliant-pass 0.10/0.05 < base 0.17 (단조하락).
-#   R1 도구이름 grounding은 전이 작동. 처방 = R1b ask-user 합성 augmentation 후 재학습.
-#   상세 = COWORKER_REQUEST_TB_SCALE.md v7 · CROSS_BENCH_TRANSFER_PLAN §2c · TB결과 §10.5 R1b.
-#   ⇒ R1b 변환기 augment 반영 전엔 이 스크립트 학습부(§4) 실행 보류 (데이터 빌드부 §1-3는 무관).
+# ✅ 2026-06-14 UPDATE (R1b/D5 반영 — 학습부 보류 해제): 구 데이터(ask-user 무·값 memorize)는
+#   base ask-user 파국적 망각 → 인자값 날조 → τ² compliant-pass 0.10/0.05 < base 0.17 이었음.
+#   ⇒ 이제 §2b 값-randomization(memorize 차단) + §2c D5 대조 ask(fetch-우선 카탈로그 게이트)를
+#   파이프라인에 반영. 모델은 "tools= 카탈로그 보고 분기"(getter 有→fetch / 無→ask) 학습 = always-ask 붕괴 방지.
+#   woori 실측: v4(값랜덤+ask) τ² 날조 0-90%→0-5%. v5 = v4와 동일 레시피·ask만 D5 게이트(over_ask=0 보장).
+#   상세 = COWORKER_REQUEST_TB_SCALE.md · R1B_PROVENANCE_DESIGN_2026_06_14.md §3a/D5 · TB결과 §10.5 R1b.
 # node_run_planx.sh — CROSS_BENCH_TRANSFER_PLAN (plan X) P3 on an amlt node.
 #   SOPBench(output/ fc-full success rollouts, all teachers×7 domains)
 #   + TaskBench(3 domains tool-graph) -> native OpenAI function-calling 궤적
@@ -59,10 +60,28 @@ if [ ! -f $OUT/fc/.tb_done ]; then
 fi
 wc -l $OUT/fc/sop_*.jsonl | tail -1; wc -l $OUT/fc/tb_*.jsonl | tail -1
 
-# 3. unified builder (alias=R1 on; balance benches so TaskBench 15k doesn't drown SOPBench 5.6k)
+# 2b. R1b 값-randomization: user-제공 식별값을 포맷-보존 랜덤토큰으로 일관치환 → memorize 차단,
+#     컨텍스트서 복사 강제(R1b). 모든 SOPBench fc 궤적 concat 후 일괄 (seed 고정).
+if [ ! -f $OUT/fc/.rand_done ]; then
+  cat $OUT/fc/sop_*.jsonl > $OUT/fc/sop_all.jsonl
+  $PY $CV/fc_value_randomize.py --in $OUT/fc/sop_all.jsonl --out $OUT/fc/sop_rand.jsonl --seed 42 \
+    >> $OUT/logs/build.log 2>&1
+  touch $OUT/fc/.rand_done
+fi
+
+# 2c. D5 대조 ask: ask/fetch 분기를 카탈로그-결정론 게이트로(provenance + getter_map). 휴리스틱 폐기.
+#     getter_map = repo 박제본($CV/getter_map.json, 결정론 산물). frac 0.40 = v4 ask volume 일치(깨끗 A/B).
+if [ ! -f $OUT/fc/.d5_done ]; then
+  $PY $CV/fc_d5_contrastive.py --in $OUT/fc/sop_rand.jsonl --getter_map $CV/getter_map.json \
+    --out_ask $OUT/fc/sop_d5_ask.jsonl --frac 0.40 --seed 42 >> $OUT/logs/build.log 2>&1
+  touch $OUT/fc/.d5_done
+fi
+
+# 3. unified builder (alias=R1 on; balance benches). 입력 = sop_rand(fetch+upfront) + sop_d5_ask(게이트 ask) + tb.
+#    fetch/upfront 예시 = sop_rand 자체(자연 fetch-then-use). ask 예시 = D5 게이트(over_ask=0). 대조는 데이터셋 레벨.
 if [ ! -f $OUT/planx_sft.jsonl ]; then
-  $PY $CV/fc_build_sft.py --inputs $OUT/fc/sop_*.jsonl $OUT/fc/tb_*.jsonl \
-    --out $OUT/planx_sft.jsonl --max_per_bench 6000 --seed 42 > $OUT/logs/build.log 2>&1
+  $PY $CV/fc_build_sft.py --inputs $OUT/fc/sop_rand.jsonl $OUT/fc/sop_d5_ask.jsonl $OUT/fc/tb_*.jsonl \
+    --out $OUT/planx_sft.jsonl --max_per_bench 7000 --seed 42 >> $OUT/logs/build.log 2>&1
 fi
 cat $OUT/logs/build.log
 

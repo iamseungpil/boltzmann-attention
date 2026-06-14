@@ -1,4 +1,13 @@
-> # 🚨🚨 v7 긴급 (2026-06-14 PM) — node_run_planx.sh 현 데이터로 돌리지 마라 (catastrophic forgetting 실증)
+> # ✅✅ v8 (2026-06-14 저녁) — v7 보류 **해제**: node_run_planx.sh 갱신 완료(R1b/D5 반영) → **지금 돌려라**
+> **무엇이 바뀜**: v7의 catastrophic-forgetting 근본원인 = ①값 memorize(placeholder 날조) ②**fetch-우선이어야 하는데 ask(always-ask 붕괴)**. 둘 다 데이터로 수정해 `node_run_planx.sh`에 반영함:
+> - **§2b 값-randomization**(`fc_value_randomize.py`): user-제공 식별값 → 포맷-보존 랜덤토큰 일관치환 = memorize 차단·컨텍스트 복사 강제. woori 실측: τ² 날조 **0-90%→0-5%**.
+> - **§2c D5 대조 ask**(`fc_d5_contrastive.py`): ask/fetch 분기를 **카탈로그-결정론 게이트**로(provenance[값∈user 발화 &∉tool 출력] + `getter_map.json`[arg_key가 getter 생산-슬롯이면 fetchable→ask 금지]). 구 키워드 휴리스틱 폐기. **OVER-ASK=0 보장**(fetch 슬롯을 절대 ask 안 함). 대조 = `product_id`→ask vs `product_details`→fetch 등.
+> - **getter_map.json = repo 박제**(`scripts/distill/taskbench/getter_map.json`·7도메인·결정론 산물) → 노드서 autoderive 불요, 바로 읽음.
+> - **§3 build**: `sop_rand`(fetch+upfront 자연 예시) + `sop_d5_ask`(게이트 ask) + tb → fetch/ask 대조는 데이터셋 레벨.
+> **⇒ 액션**: `git pull` 후 **`node_run_planx.sh` 그대로 실행**(빌드부가 D5 자동 적용·idempotent·resume). 산출 후 전이 테스트는 아래 v6 §13-③ 그대로(τ² retail·SOP-Bench).
+> **병렬**: woori가 **v5**(=v4 동일 레시피·ask만 D5 게이트로 교체·sft_v5 13781)를 GPU1서 학습 중(빠른 A/B 확인용). **coworker = 캐노니컬·대규모**(전 teacher×7도메인). 결과는 결과문서/핸드오프에 합류.
+>
+> # 🚨🚨 v7 긴급 (2026-06-14 PM) — ~~node_run_planx.sh 현 데이터로 돌리지 마라~~ (v8서 해제됨·아래는 근본원인 기록)
 > **발견 (woori 빠른-확인, fctbox τ²)**: 현 plan-X 학습데이터(SOPBench+TaskBench = **정보 upfront·ask-user 무**)로 7B TBox를 학습하면 **base의 ask-user 능력을 파국적 망각** → 사용자에게 묻지 않고 인자값을 *날조* → **compliant-pass 0.10(50-up)→0.05(250-up) < base 0.17** (더 학습=더 나쁨·단조하락). base-Instruct는 ask-user 156/160·날조0인데 LoRA가 덮음.
 > - ✅ **R1 도구-이름 grounding은 전이 작동**(τ² 실도구명 컨텍스트 복사 = 별칭학습 일반화 — thesis 코어 검증됨). 망가진 건 **인자-값 provenance(ask-user)** 한 축뿐.
 > - ❌ **`usr_*` 멀티턴 rollout도 깨끗한 ask-user 아님**(정보 여전히 upfront + adversarial) → 그냥 합류로 안 고쳐짐.
