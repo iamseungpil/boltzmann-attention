@@ -124,6 +124,17 @@
 - **gotcha**: census 파서 = 멀티라인 def 시그니처(`def f(`+다음줄 `self`) 처리·`@is_tool(ToolType.X)` 데코레이터 타입으로 분류·dual-control은 `user_tools.py` 병합 필수(telecom 누락 시 device-write가 가짜 orphan).
 - **다음**: ①v7 step3000 도달 시 `coupling_eval.sh`+`tau2_autopsy.py`(order_id fetch?·τ²>0?·#3 P2b/P4 ✓→✓!) ②적대탐색(#6)=층B 게이트유한 반증=out-of-genre P10 사냥(τ²동일장르 saturation=self-fulfilling) ③P6/P7 합성(리뷰 후).
 
+## ★★2026-06-15 (세션재개 #2) — v6 정지·eval(정정)·P6 합성 실험(v8) 발사
+- **v6 정지·최종 eval(step6950)**: 사용자 지시로 v6 트레이너 정지(GPU0 free)·`v6_eval_final` 스냅샷.
+  - **★in-dist 향상**: SOPBench online_market success **0.65→0.80**·dirgraph **0.70→0.80**(더 학습=in-dist 계속↑·과적합 아님).
+  - **★진짜 τ² = 0.10**(genuine·violations 0·no_reward 0). v4(0.10)와 동급. **디커플링 확정**: in-dist 0.80 ≫ τ² 0.10(<base 0.17). 더 학습해도 τ² 정체=2-hop binding(P2b) gap.
+- **★★coupling_eval.sh 키-버그 발견·정정 (중요)**: `coupling_eval.sh`가 openrouter user-sim 키(`/home/woori/.openrouter_key`)를 source 안 해 τ² 전 task `AuthenticationError(401)`→`infrastructure_error`(0 calls)=**false 0.0**. **이전 coupling 런(v6_s2599/s3999)의 "τ² 0.0"도 전부 동일 키-버그 아티팩트**(autopsy n_auth_call=0 확인) — 진짜 모델 0 아님. (단 디커플링 결론은 유효: 키 source하는 `tau2_eval_adapter.sh` 진짜 τ²[v4 0.10·v5 0.105·v6 0.10]도 ≪ in-dist.) **수정**: `set +x; source key; SSL_CERT_FILE; set -x`(로그 노출 방지) 커밋 `6ac9187`. ⚠️gotcha: 원격 워킹카피 coupling_eval.sh가 0-내용(line-ending) M로 ff-pull 차단(launch 시 "중지함")→`git checkout -- <file>` 후 pull 필요.
+- **★P6 confirm-gate 합성 실험(v8) — GPU0 발사**: 매트릭스 census 지목 gap(P6=91% write-task) 직격. **v7(P2b만·GPU1) ∥ v8(P2b+P6·GPU0) = P6 ablation.**
+  - **`fc_confirm_augment.py`(신규·커밋)**: SOPBench FC 궤적에 confirm-then-write 주입(pos 902·neg 462). **★write 분류=반환시그니처**(궤적 tool-output shape: bare bool=write·tuple `(bool,val)`=getter) **+ read-술어 prefix 배제**(internal_/is_/check_… — QC 반증: `internal_is_loyalty_member→False`=read를 write 오분류·수정). get_loan→bare bool=write 정확. sop_confirm=**1364**(7도메인 실 action만·예: exchange_product·transfer_funds·get_loan·book_room).
+  - **sft_v8 = sft_v7(16054) + sop_confirm(1364) = 17418**(7.8% P6·중복 안 함=암기회피·val-random 일관). config=v6/v7 동일. **GPU0 학습중**(`v8_train.log`).
+  - **다음**: v8 ep0 후 `coupling_eval.sh`(키수정본) → v7 vs v8 P6 준수율(write 전 user-yes)·neg-준수율(no→미실행)·τ² 비교.
+- **gotcha**: ①coupling_eval τ² 키 필수(위) ②P6 write분류=output-shape+read-prefix배제(prefix 단독 금지) ③sft_v8 셔플 빌드(`fc_build/sft_v8.jsonl`).
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
