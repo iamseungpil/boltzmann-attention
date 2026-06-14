@@ -43,6 +43,23 @@
 
 ---
 
+## 3b. ★실증 census — seam β 해소 + P7 구조부재 확인 (net-new·zero-cost)
+`tau2_primitive_census.py`(retail n=114·정적: gold action + `@is_tool(ToolType.WRITE)` 분류 + scenario). 모델 실행 0.
+- **orphan 도구 = 0 / 114** — 전 gold 도구가 P1-P9로 매핑. **분류 밖 연산(P10) 0**(전수). §2 두 seam의 *경험* 시험 = 통과(이 도메인서).
+- **요구 분포**: P1 112·P5 104·**P6 104(91%)**·**P2b 97(85%)**·P3 92·P8 66·P2a 52·P4 28·**P7 0(gold)**·**P9 0**.
+- **★seam β 해소(τ²)**: 유일 변환도구 `calculate`(13/114)도 *tool-call* → 모델이 변환을 환경에 offload·결과를 **P2b로 소비**. ⇒ in-model 변환 primitive 불요·**β는 "변환 도구 부재 시에만 열림"**. 잘 설계된 벤치(τ²)는 변환을 도구로 제공 → β = scope 경계선이지 유한성 위협 아님. **§2 결론 강화: live seam = α(층B) 하나.**
+- **★P7 구조부재 확인**: gold P7=0·잠재(unknown_info fallback) 89/114. §1 흡수(iter→무계 retry만 P7)·"성공-gold에 deny 없음"을 **census가 독립 확증** → P7 SFT-소싱 불가·gate-in-loop RL(리뷰#5) 재확인.
+- **gap 재발(리뷰#4a/#4b)**: P6 91%·P2b 85% = task17 아티팩트 아닌 **전수 지배** → "남은 gap=P6(+P7)" 동어반복 탈출. ("정확히 N" 1차 방어 = orphan 0 + 요구집합 ⊆ {P1-P9}.)
+
+## 3c. ★교차층 구조 — P7·P8 = A×B (net-new 부산물)
+§3의 "P8 = provenance(=P1) ⊕ auth-gate"는 P8이 **층 A·B 교차**임을 함의. P7도 iter(A)×verdict(B) 교차. ⇒ 10셀 정연 분해:
+| 분류 | primitive | 수 |
+|---|---|---|
+| 순수 층 A | P1·P2a·P2b·P3·P4·P9 | 6 |
+| 순수 층 B | P5·P6 | 2 |
+| **교차 A×B** | **P7**(iter×verdict)·**P8**(provenance×auth-gate) | **2** |
+- **예측 적중(post-hoc 아님)**: 교차층 2개(P7·P8)가 정확히 *가장 어려운* primitive — P7=RL 필요(리뷰#5)·P8=fab/auth 실패 클러스터(autopsy 지배·census P8 66/114). **난이도가 구조(교차층)서 도출**됨. ⇒ 학습 우선순위 = 교차층(P7·P8) 최후·최난(현 gap과 정합).
+
 ## 4. 정직 경계 (본체 §7과 동일·재확인)
 - 닫힘 = **구조적·상대적**(control=정리 잠김 / data=S 상대 / policy=게이트유한 상대). 학습가능성 증명 아님 — 전이는 ✓→✓! 경험 측정으로만.
 - 도출의 효과 = 포화를 **"증명→확인"으로 강등**할 자격. 실증(적대 포화 §4#6 + held-out 전이)을 *대체*하지 않음.

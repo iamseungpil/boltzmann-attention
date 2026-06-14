@@ -88,7 +88,7 @@ agentic tool은 게이트로 보호됨. 게이트 타입(G1-G4 분류=auth / con
 - **커버됨**(train 합집합): P1(SOP/TB/cfb)·P3(SOP)·P5(SOP)·P8(SOP)·**P2b(cfb 추가=v7)**·**P4(cfb)**.
 - **★남은 gap (잠정·2개)**: **P6 confirm-gate** + **P7 recovery**.
 - **★순환성 차단 (리뷰 #4a)**: "task17 gap=P6+P7"은 동어반복 위험. 탈출 = (i)**재발**(P6/P7이 task17 아닌 *여러* held-out·v4 20태스크 전반서 반복=아티팩트 아님) + (ii)**v7 예측 적중**(사전등록). §4 포화와 연결.
-- **★"정확히 2개"는 미확정 (리뷰 #4b)**: τ² 필요-집합 완전성은 *autopsy한 task*(task17+v4 20개)서 나옴 — **τ² 전 task 유형 × P1-P9 census(zero-cost) 선행** 해야 "정확히 2"가 섬. 미-autopsy task가 P-something 요구하면 무너짐.
+- **★"정확히 2개" 방어 — census ✓완료(06-15·`tau2_primitive_census.py` retail n=114)**: **orphan 도구=0/114**(전 gold 도구가 P1-P9 매핑·분류밖 연산 0=P10 없음)·요구집합 ⊆ {P1,P2a,P2b,P3,P4,P5,P6,P8}+잠재P7. 분포: P1 112·P5/P6 104(91%)·P2b 97(85%)·P3 92·P8 66·P2a 52·P4 28·**P7 0(gold·reactive)·P9 0(sequential)**. ⇒ **gap=P6+P7이 task17 아닌 전수서 성립**(P6 91% write-task 지배·P7 gold-부재=잠재 89/114). transform=`calculate`(13)도 tool-call→P2b 환원(seam β 닫힘·companion §3b). **"정확히 2"=섰음**(미-autopsy P-something 없음).
 - ⇒ **v7 예측(사전등록)**: P2b/P4 ✓→✓!(전이검증)·order_id 날조↓·부분개선하나 **P6+P7 미커버라 τ² 완전돌파 아직**. 테스트 가능.
 - **★P6 vs P7 획득경로 분리 (리뷰 #5·중요)**: 대칭 아님.
   - **P6=전방(proactive)**: confirm-then-write가 *gold 궤적에 존재* → 벤치/gold 소싱·SFT 가능(SOPBench 정책게이트·D5·When2Call).

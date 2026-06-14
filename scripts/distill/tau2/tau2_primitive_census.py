@@ -16,7 +16,8 @@ Usage: tau2_primitive_census.py <domain_dir> [--task-file tasks.json] [--dump-or
 import argparse, json, os, re, sys
 from collections import Counter, defaultdict
 
-# retail tools.py @is_tool(ToolType.WRITE) (권위본 분류)
+# ── 도구 분류: 도메인 tools.py 의 @is_tool(ToolType.WRITE) 동적 파싱 (반환시그니처 원칙) ──
+# retail 기본값(tools.py 부재 시 fallback). load_tools()로 도메인별 갱신.
 WRITE_TOOLS = {
     "cancel_pending_order", "exchange_delivered_order_items",
     "modify_pending_order_address", "modify_pending_order_items",
@@ -30,6 +31,48 @@ GETTER_TOOLS = {
 }
 META_TOOLS = {"transfer_to_human_agents", "think"}
 ALL_KNOWN = WRITE_TOOLS | AUTH_TOOLS | GETTER_TOOLS | META_TOOLS
+
+META_NAMES = ("transfer_to_human_agents", "think", "transfer_to_human")
+AUTH_PREFIXES = ("find_user", "find_customer", "authenticate", "verify_identity")
+
+
+def load_tools(tools_py):
+    """도메인 tools.py서 공개 메서드(tool) 추출·@is_tool(ToolType.WRITE) 표식으로 write 분류.
+    반환시그니처 원칙(prefix 아님): 데코레이터가 권위. 미발견 시 retail 기본값 유지."""
+    global WRITE_TOOLS, AUTH_TOOLS, GETTER_TOOLS, META_TOOLS, ALL_KNOWN
+    if not tools_py or not os.path.exists(tools_py):
+        return False
+    src = open(tools_py, encoding="utf-8").read()
+    lines = src.splitlines()
+    writes, getters, auths, metas = set(), set(), set(), set()
+    pending_write = False
+    for ln in lines:
+        s = ln.strip()
+        if s.startswith("@is_tool") and "ToolType.WRITE" in s:
+            pending_write = True
+            continue
+        m = re.match(r"def ([a-z][a-z0-9_]*)\s*\(\s*self", s)
+        if m:
+            name = m.group(1)
+            # 들여쓰기 1단(클래스 메서드)·비-helper(_시작 제외)만 tool
+            indent = len(ln) - len(ln.lstrip())
+            if indent > 0 and not name.startswith("_"):
+                if pending_write:
+                    writes.add(name)
+                elif name in META_NAMES:
+                    metas.add(name)
+                elif any(name.startswith(p) for p in AUTH_PREFIXES):
+                    auths.add(name)
+                else:
+                    getters.add(name)
+            pending_write = False
+        elif s and not s.startswith("@"):
+            pending_write = False
+    if not (writes or getters):
+        return False
+    WRITE_TOOLS, AUTH_TOOLS, GETTER_TOOLS, META_TOOLS = writes, auths, getters, metas
+    ALL_KNOWN = WRITE_TOOLS | AUTH_TOOLS | GETTER_TOOLS | META_TOOLS
+    return True
 
 # 결정/조건 언어 (P2a gather-for-decision = 출력→조건분기)
 COND_RE = re.compile(
@@ -95,7 +138,8 @@ def census_task(t):
     if writes:
         req.add("P5")
         req.add("P6")
-    # P2b gather-for-arg(2-hop) — write/하류 인자값이 known에 없고 getter 생산
+    # P2b gather-for-arg(2-hop) — 하류(write) 인자값이 known-context에 없음 = fetch 필요(도메인-일반).
+    #   known 키 + 도메인-일반(write 인자값 ∉ known & 식별자형)으로 검출.
     p2b = False
     for a in writes + getters:
         args = a.get("arguments") or {}
@@ -103,7 +147,11 @@ def census_task(t):
             vals = v if isinstance(v, list) else [v]
             for vv in vals:
                 s = str(vv)
-                if k in FETCH_ARG_KEYS and len(s) >= 2 and s.lower() not in known:
+                key_hit = k in FETCH_ARG_KEYS
+                # 도메인-일반: 식별자형(len≥4·영숫자/특수)이고 known에 없음 = 상류서 fetch
+                gen_hit = (len(s) >= 4 and s.lower() not in known
+                           and any(c.isdigit() for c in s) and not s.replace(".", "").isdigit())
+                if (key_hit or gen_hit) and len(s) >= 2 and s.lower() not in known:
                     p2b = True
                     notes.append("2hop:%s=%s" % (k, s[:14]))
                     break
@@ -134,9 +182,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("domain_dir")
     ap.add_argument("--task-file", default="tasks.json")
+    ap.add_argument("--tools-py", default=None, help="도메인 tools.py(미지정 시 data→src 경로 유도)")
     ap.add_argument("--dump-orphans", action="store_true")
     ap.add_argument("--show", type=int, default=0, help="첫 N task 상세")
     a = ap.parse_args()
+
+    # 도메인 tools.py 동적 로드 (반환시그니처 분류)
+    tp = a.tools_py
+    if tp is None and "/data/tau2/domains/" in a.domain_dir:
+        tp = os.path.join(a.domain_dir.replace("/data/tau2/domains/", "/src/tau2/domains/"), "tools.py")
+    loaded = load_tools(tp)
+    print("[tools.py] %s → write=%d getter=%d auth=%d %s" %
+          (tp, len(WRITE_TOOLS), len(GETTER_TOOLS), len(AUTH_TOOLS),
+           "(동적)" if loaded else "(retail 기본값)"))
 
     path = os.path.join(a.domain_dir, a.task_file)
     tasks = json.load(open(path, encoding="utf-8"))
