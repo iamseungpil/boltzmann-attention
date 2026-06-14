@@ -91,6 +91,13 @@
 - **pass 하락 기제**: 모델이 *더 정직*해져(날조 후 진행 대신 막혀 멈춤/포기) collapse↑(12). = honest-but-stuck.
 - **함의/다음(v7)**: ①**proactive 2-hop gather 학습**(없는 arg→생산 getter 선택→호출→출력서 select). threading을 *guided*서 *unguided 선택*으로(예: user 발화서 값 빼고 getter 호출 강제). ②에러-복구(#W0000000 error→get_user_details 전환). ③order_id류 placeholder도 randomize 대상에. **v6 ep0 완주 후 재eval하되 기제상 이 2-hop 미해결 시 0.17 미달 예상.**
 
+## ★★SOPBench in-dist eval (사용자 진단: 전이 아니라 in-dist도 떨어졌나?)
+- **v6 in-dist online_market(N=10·step2599): Mean Pass 0.60·success 0.33·action-called 0.83·db-match 0.67·dirgraph 0.33.**
+- **vs base 7B 0~21% → in-dist 안 떨어짐. 모델은 학습벤치 스킬 제대로 학습.** ⇒ **τ² 0.05는 "in-dist 미학습"이 아니라 *순수 전이 문제(R4)* 확정**(모델 정상).
+- census 정합: in-dist 성공 본체=gather-to-decide+user-arg write(2-hop 1.9% 희소). **dirgraph 0.33 최약=시퀀싱이 in-dist도 부분학습=R4 전이 타깃**(step2599 중간·성장여지).
+- 도구 = `scripts/distill/tau2/sopbench_indist_eval.sh`(run_simulation+SOPBENCH_VLLM_BASE_URL·OSS_MODELS+FCM[vllm] lora 등록). 채점 = `run_evaluation.py`(★output_v2/서 읽음·run_simulation은 output/에 씀 → **cp 필요**, 메모리 "run_evaluation 크래시" 원인).
+- ⚠️ **coworker 파일 사고·복원**: SOPBench `swarm/constants.py`의 arm-3 FCM[vllm](qwen/llama 등록)이 *uncommitted*였는데 내 `git checkout`이 되돌림 → **arm-3 내용 복원 완료**(+v6tbox). SOPBench 클론 파일 `git checkout` 금지(coworker dirty). FCM[vllm]에 v6tbox 중복 1개=cosmetic.
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
