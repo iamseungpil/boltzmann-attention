@@ -1,0 +1,67 @@
+# 설계서 v7: proactive 2-hop gather (R2 gather + R4 select) — 2026-06-14 (리뷰용 DRAFT)
+
+> 상위 = `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md` · 진단 = `AUTONOMOUS_PROGRESS_2026_06_14.md`(v4 autopsy·v6 중간eval) · 불변 = memory `feedback-thesis-tbox-transfer-direction`(★★★ TBox는 SOPBench/TaskBench서만 학습·ABox-swap 전이·타깃벤치 특화 금지) · `feedback-selector-verifier-deterministic`(★★★).
+> **상태: DRAFT — 사용자 리뷰 후 구현.**
+
+## 0. 동기 (autopsy → v6 → 남은 한 칸)
+- **v4 τ² 전수 autopsy**: pass 2/20(둘다 read-only)·write필요 태스크 전멸. 지배 실패 = **tool-fetchable 값(order_id `#W0000000`·주소) 날조** + 재시도 루프 붕괴.
+- **v6(fetch-teaching: TaskBench `<node-N>` threading + fetchable-randomize)**: ✅**identity 값 날조 잡힘**(auth grounded 18/19, v4/v5는 fab ~半). ❌**order_id 여전히 날조**(task5 dump: user_id 획득 후에도 `get_user_details`로 주문목록 fetch 안 하고 `#W0000000` 날조→error→포기).
+- **남은 한 칸 = "2-hop proactive gather"**: *없는* arg 값을, *이미 가진* 다른 값(user_id)을 입력으로 받는 **lookup 도구(get_user_details)를 능동 선택·호출해 그 출력서 획득/select.* 
+
+## 1. 스킬 분해 (무엇을 가르치나)
+τ² order_id 사례의 일반형:
+```
+가진 것: user_id (find_user로 grounded 획득)
+필요한 것: order_id (대화에 없음·user가 withhold)
+가용 도구: get_user_details(user_id) -> 주문목록(order_id들 포함)
+정답 행동: get_user_details 호출(R2 gather) → 출력서 올바른 order 선택(R4 select) → 사용
+실패 행동(현 7B): order_id placeholder 날조
+```
+= **R2(gather-before-act) + R4(select-from-output)**, 단 **inferred**(user/instruction이 "먼저 조회하라"고 안 말함). 벤치-일반 규율.
+
+## 2. 왜 현 학습데이터에 없나 (autopsy의 더 깊은 층)
+| 벤치 | gather 추론? | 출력값→arg? | 결론 |
+|---|---|---|---|
+| SOPBench (ast_*fc) | ✅ 정책서 getter 추론 | ❌ getter=*decision* 입력(균형·점수)·arg 아님 | inferred-ask는 있으나 fetch-**arg** 희소(1.9%) |
+| TaskBench (threaded) | ❌ 그래프/지시문 given | ✅ 출력→입력(41%) | 구조는 있으나 *선택*은 복제(inferred 아님) |
+| **교집합(inferred + 출력값→arg)** | — | — | **두 벤치 어디에도 풍부하게 없음 = v7이 채울 칸** |
+
+## 3. ★lever = SOPBench LLM user-sim + withholding 페르소나 (벤치 task 불변)
+**핵심: 벤치 task를 *수정/합성*하지 않는다. SOPBench 기존 user-sim 인프라를 쓰되 user가 *공개하는 정보*만 바꾼다.**
+- **확인된 사실**(`run_simulation.py`): user-sim 3모드 = `usr_adv`(dump)·**`usr_gpt`(LLM user-sim = τ²와 동일 패러다임)**·`usr_human`. user가 공개하는 정보 = **`task["user_known"]`**(per-task 필드·L159/L308). 비-LLM은 "Here is all the information I can provide: {user_known}"; LLM user-sim은 user_known을 갖고 user 연기.
+- **withholding 구성**: `user_known`을 **{goal + leaf identity(username/name/zip 등)}만** 남기고 **getter-생산 가능 값(getter_map 출력 슬롯)·lookup-획득 값은 제거** → user가 그 값을 안 줌 → 모델이 **lookup 도구를 능동 호출해 획득**해야 함.
+- **thesis 순수성**: withholding 정책 = *user 측 = ABox/A2*. 벤치 task(도구·정책·DB)는 불변. SOPBench서 학습 → τ²(역시 user-sim·withhold)로 전이. = `feedback-thesis-tbox-transfer-direction` 부합(타깃벤치 특화 0).
+
+## 4. ★정직한 뉘앙스 (리뷰 포인트) — withholding이 만드는 두 종류
+1. **ask-gather** (user-only 값·getter 없음): user가 withhold → 모델이 **묻는다**. = D5/L3 ask 분기의 자연 버전. SOPBench 대부분 write-arg(amount 등)가 여기 해당.
+2. **fetch-gather** (getter-생산 값): user가 withhold → 모델이 **getter 호출**(= τ² order_id 핵심). SOPBench서 **희소**(getter 출력=arg인 1.9% 케이스 = pay_loan(amount=owed_balance) 류).
+- ⇒ **withholding 단독으론 fetch-gather가 여전히 희소.** 처방:
+  - (a) **타깃 오버샘플**: getter-출력이 write-arg인 태스크(getter_map로 결정론 식별)를 우선 withhold·오버샘플.
+  - (b) **TaskBench threading(v6) 유지**: 구조적 fetch-then-use(41%) 보강 — inferred는 아니나 "출력값을 arg로"의 양을 받침.
+  - (c) **2-hop 합성 식별**: getter의 *입력*이 다른 getter의 *출력*인 체인(예: user_id→get_user_details→order_id→get_order_details)이 SOPBench에 있나 census 후, 있으면 그 체인 withhold로 정조준. (없으면 한계 정직 보고.)
+
+## 5. 파이프라인 (기존 자산 재사용)
+1. **withholding 태스크 변형 생성**: 각 SOPBench 태스크의 `user_known`을 identity-only로 재구성(getter_map으로 getter-생산 슬롯 제거). 결정론 스크립트(휴리스틱 아님).
+2. **teacher rollout 생성**: `run_simulation.py --user_model <LLM>`(user-sim) + assistant=**강한 teacher**(gpt-4.1 FC). 학생7B는 아직 2-hop 불가 → teacher가 *성공 gather* 궤적 생성(SOPBench usr_gpt가 원래 teacher 생성). mode_fc·tool_full.
+3. **success 필터**: `action_should_succeed` 매칭 성공만(결정론 평가기) → 날조/실패 궤적 배제.
+4. **변환+randomize**: 기존 `fc_convert_sopbench`(+`fc_randomize_fetchable`) → fetch-gather 값도 randomize(copy 강제). = v6 파이프라인에 합류.
+5. **v7 SFT**: v6 데이터(threading) + withholding-gather rollout(신규) → 7B LoRA.
+6. **eval**: 3-way+ (`tau2_eval_adapter.sh`) + `tau2_autopsy.py` — **핵심 지표 = order_id가 이제 get_user_details로 fetch되나**(autopsy: get_user_details 호출율↑·#W0000000 날조율↓) + compliant-pass.
+
+## 6. 결정론·검증기 불변 (준수)
+- 생성기(teacher)=LLM은 허용(생성기에만 LLM). **success 필터=결정론 평가기**(action_should_succeed)·**withholding 구성=결정론**(getter_map). 선별/검증에 LLM-judge 도입 0 = `feedback-selector-verifier-deterministic` 부합.
+
+## 7. 리스크 / 열린 질문 (리뷰)
+- **R1**: SOPBench에 "getter-입력이 다른 getter-출력"인 진짜 2-hop 체인이 있나? (§4c census 선행 — 없으면 v7은 1-hop fetch-gather만 강화, order_id류 2-hop은 부분 전이만 기대.)
+- **R2**: withholding 시 teacher가 실제로 gather하나, 아니면 teacher도 묻기만/날조? (teacher 품질 = 데이터 품질 상한 — 소량 파일럿으로 선검증.)
+- **R3**: user_known에서 무엇이 "getter-생산"인지 결정론 매핑 — getter_map은 *condition→getter*. user_known 키↔getter 출력 슬롯 매핑 정합성 확인 필요.
+- **R4**: τ² 전이 = SOPBench getter-슬롯 의미(balance·score)와 τ² order_id 의미가 달라도 *규율*(없으면 lookup 호출)이 전이되나 = R1 도구이름 전이 실증의 값-버전. 미지수(이게 thesis 핵심 베팅).
+- **R5**: 비용 — teacher rollout 생성 = API 비용. 규모 산정 필요(파일럿 N=50/도메인 후 확대).
+
+## 8. 성공 기준 (사전등록)
+- **1차(기제)**: v7 autopsy서 **get_user_details(또는 lookup) 호출율 ↑ & order_id 날조(#W0000000) ↓** vs v6. (날조→fetch 전환 실증.)
+- **2차(점수)**: τ² compliant-pass v6 대비 ↑·base 0.17 돌파 지향. 0.3+면 강한 전이.
+- 음성(2-hop 미전이)도 1급 진단(어느 층서 막히나: gather 추론 vs select vs 의미매핑).
+
+## 9. 마일스톤
+M1 §4c census(2-hop 체인 유무) + §7-R3 매핑 확인 → M2 withholding 구성 스크립트(결정론) → M3 teacher 파일럿(N=50·R2 검증) → M4 전량 생성+변환+SFT(v7) → M5 eval(3-way+autopsy).
