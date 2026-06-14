@@ -54,6 +54,17 @@
 - **★해석(중요)**: v4는 이미 value-random이라 **날조는 잡힘**(fab 0-5%·핸드오프). 그런데 pass 0.10<base 0.17 정체 = **잔여 갭은 날조 아님·SFT가 τ² capability를 오히려 저하**(over-ask + task-해결 능력). ⇒ **v5(D5 fetch-우선 게이트)가 결정적 테스트**: D5가 over-ask 잡아 0.10→0.17+ 회복하면 fetch-우선 처방 작동 입증. v5도 ~0.10이면 ask/fetch보다 깊은 capability 문제(generator-gap).
 - **현재**: GPU0 free·v5 GPU1 무중단(ep0 step3550·~26%). v5 ep0 완료 후 동일 `tau2_eval_adapter.sh`로 A/B.
 
+## ★★v4 τ² 전수 궤적 autopsy — 근본원인 확정 (`tau2_autopsy.py`·20개 전수)
+- **pass 2/20=0.10. ★두 PASS 모두 write 불요(read-only) 태스크. write 필요 태스크는 전멸**(gold write 매치 거의 전부 0/X).
+- **실패분포**: fab_auth 6·agent_collapse 5·no_auth 2·**over_ask 2**·premature_refuse 2·wrong_write 1.
+- **★진짜 근본원인 (dump 확정·핸드오프 §54 해석 정정)**:
+  1. **tool-fetchable 값의 *날조* (지배적)** — fetch해야 하는데 placeholder를 지어냄. task13: 인증성공 후 `get_order_details(order_id='#W0000000')` 날조, user가 "주문번호 안 줬다·이메일로 찾아달라" 명시해도 **get_user_details로 order 목록 fetch할 줄 모르고** 동일 날조 무한반복→too_many_errors. task17: email·order_id·주소(`123 Main St` 통째) 날조(현재주소 fetch 안 함·user는 suite만 변경 원함). **★value-random은 identity(email/name)만 grounded(10/18)·order_id·주소 등 비-identity tool-fetchable 값 날조는 그대로** = **사용자 지목 "fetch 우선" 문제의 진짜 형태(ask 아니라 placeholder 날조)**.
+  2. **에러/게이트 후 재시도 루프 붕괴 (5건)** — task17: G2_CONFIRM_WRITE(user yes 필요)에 막히자 **확인 없이 같은 modify 8연타**→too_many_errors. 에러 시 전략전환(fetch/ask) 없이 동일호출 반복.
+  3. **read 과수집·write 미도달** ~13/20.
+- **★왜 LoRA(0.10)<base(0.17)**: SFT가 gather/read 규율은 강화했으나 ①없는 값 fetch-체인(get_user_details→order_id) ②에러 복구 미학습 → placeholder 날조+read 루프 *증폭* → base보다 나빠짐.
+- **★D5/v5 함의(정직)**: D5 fetch-우선 원칙은 (1)을 정조준=방향 맞음. **단 현 value-random/D5는 identity에만 적용 → order_id·주소 등 *전 tool-fetchable 값*으로 확장 + "없으면 get_user_details로 fetch"하는 체인 학습 필요.** **(2)재시도-루프 붕괴는 D5 미해결 → 별도 처방(L2 deny→recover·에러 시 전략전환·RL).** ⇒ v5는 (1) 부분개선 기대·0.10→0.17+ 도약엔 (1)확장+(2) 동반 필요.
+- 도구 = `scripts/distill/tau2/tau2_autopsy.py`(repo·`--dump TASK`·`--full`).
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
