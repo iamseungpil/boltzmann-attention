@@ -21,6 +21,54 @@ from t2_gate import AUTH_TOOLS, TRANSFER_MSG, RetailGate  # noqa: E402
 
 GATE_DOMAINS = {"retail"}  # airline 등은 게이트 컴파일 후 추가
 
+# ─── L2 provenance 게이트 (R1B, env T2_PROVENANCE=1; D1 직교·G1-G4와 합성) ───
+PROV_ARG_HINT = ("email", "name", "zip", "user_id", "order_id", "username", "id",
+                 "payment", "address", "phone", "item")
+
+
+def _flatten(v):
+    if isinstance(v, (list, tuple)):
+        for x in v:
+            yield from _flatten(x)
+    elif isinstance(v, dict):
+        for x in v.values():
+            yield from _flatten(x)
+    else:
+        yield v
+
+
+def _context_text(orch):
+    """provenance 출처 = 모든 user 발화 + 도구 출력(assistant 제외)."""
+    parts = []
+    try:
+        for m in orch.get_messages():
+            r = getattr(m, "role", None)
+            c = getattr(m, "content", None)
+            if r in ("user", "tool") and c is not None:
+                parts.append(c if isinstance(c, str) else str(c))
+    except Exception:
+        pass
+    return " ".join(parts).lower()
+
+
+def _provenance_deny(tc, ctx):
+    """identifying 인자값이 컨텍스트에 없으면 fabricated → (gate, reason) 반환, 아니면 None."""
+    args = tc.arguments or {}
+    if not isinstance(args, dict):
+        return None
+    for k, v in args.items():
+        if not any(h in k.lower() for h in PROV_ARG_HINT):
+            continue
+        for val in _flatten(v):
+            s = str(val).strip()
+            if len(s) < 4:
+                continue
+            if s.lower() not in ctx:
+                return ("PROVENANCE_R1B",
+                        f"argument '{k}'='{s}' was not provided by the user nor returned by any tool. "
+                        "Do not invent values — ask the user for it, or look it up with a read tool first.")
+    return None
+
 
 def apply():
     from tau2.orchestrator.orchestrator import BaseOrchestrator
@@ -37,11 +85,20 @@ def apply():
         last_user = _last_user_text(self)
         tms = _transfer_msg_sent(self)
 
+        prov_on = os.environ.get("T2_PROVENANCE") == "1"
+        ctx = _context_text(self) if prov_on else None
+
         results = []
         for tc in tool_calls:
             if getattr(tc, "requestor", "assistant") != "assistant":
                 results.extend(orig(self, [tc]))  # user-side 툴콜(타 도메인)은 비대상
                 continue
+            if prov_on:  # L2 provenance: 날조 인자값 차단 (R1B)
+                pd = _provenance_deny(tc, ctx)
+                if pd:
+                    self.num_errors += 1
+                    results.append(_deny_msg(tc, pd[0], pd[1]))
+                    continue
             ok, g, why = gate.check(tc.name, tc.arguments or {}, last_user_msg=last_user,
                                     transfer_msg_sent=tms)
             if not ok:
