@@ -53,7 +53,7 @@ SOPBench(FC rollout)·TaskBench(tool-graph)를 **단일 native OpenAI function-c
 두 출력 = 동일 native 포맷 → concat. **SOPBench:TaskBench 비율을 R2 보존이 측정되는 선에서 통제**(리스크#2). 전역 alias 공간·도메인-mix LODO.
 
 ## 6. 리스크 (본문 결정 승격)
-- **★#1 ask-user 부재 = τ² 전이의 미검증 gate** (본문 승격): SOPBench FC rollout 다수가 정적-user(명료화 질문 없음). 멀티턴 명료화는 τ² 난이도 본체인데 동결 thesis가 base 능력에 둔 가정은 *어디서도 미검증*. **결정: 변환기 범위 밖으로 두되 — "τ² 전이는 이 미검증 가정에 gated"를 명시·전이 실패 시 #1 의심처로 등록.** (완화 후보: SOPBench `usr_adv-*`/`usr_gpt-4o-*` 멀티턴-user rollout 일부 합류로 대화 노출.)
+- **★#1 ask-user 갭 = 실증됨·정정 (2026-06-14 fctbox τ² 빠른-확인)**: ~~"구조적 미검증 gate"~~ → **데이터-커리큘럼 + 파국적 망각으로 정정.** 실측: **base Qwen2.5-7B-Instruct는 ask-user 156/160·날조0**(대화능력 base에 온전) ↔ ask-user 무 데이터로 학습한 fctbox는 base를 덮어 *날조* → **compliant-pass 0.10 < base 0.17**. **R1-도구이름 grounding은 전이 작동**(τ² 실도구명 복사). ⇒ **구조적 갭 아님 = SFT로 학습 가능**(ask-user는 base에 있음). **처방 = R1b(값-provenance·무날조, TB §10.5) 학습**: ⓐask-user 궤적 SFT 포함(SOPBench `usr_adv-*`/`usr_gpt-4o-*` 멀티턴-user rollout 합류) + 일반 instruction 소량 혼합(망각방지) ⓑ결정론 **값-provenance 검증기**(인자값이 user/tool 출처에 없으면 reject)를 검증기 스택 등재. ⚠️coworker `node_run_planx.sh`도 동일 데이터→동일 문제, 변환기에 ask-user 커버리지 추가 필요.
 - **★#2 TaskBench 합성결과 오염** (본문 승격·이제 TaskBench *전용* — SOPBench는 실결과): 통합셋에 무의미 결과가 섞이면 "tool 결과 무시" 전역 학습 → R2 오염. **완화: (a) 인자서 결정론 plausible 값 (b) SOPBench:TaskBench 비율 통제 (c) 결과-민감도 census(D7⑤)로 오염 실측.**
 - **#3 커버리지/규모**: SOPBench=5599 성공(충분). TaskBench=깨끗. P0 잔여 = 도메인 균형·교사 선택 정책.
 - **#4 스키마 추출** (P0 측정): SOPBench 도메인 tool 카탈로그→JSON schema(parameters 타입) 정합 확인. TaskBench tool_desc→schema는 깨끗.

@@ -35,11 +35,16 @@
 - **config가 정의·강제 = *포맷*(validity)** / **학습이 채움 = *내용*(어느 도구·올바른 인자=R2/R4/R1 학습분).** XGrammar validity ≠ correctness(무효 0/13k지만 name-snap 9.7%=유효-오답). ⇒ **config(포맷) + native 재학습(내용) 둘 다 필요**; config만으로 기존 `ready;op_X` 모델을 못 씀(인자 학습한 적 없음).
 - **τ² 하네스(`t2_run_gated`)가 이미 이 native 인터페이스**(OpenAI tool-calling 엔드포인트) → **브리지 불요**. SOP-Bench도 동일 인터페이스로 ABox-swap.
 
+## 2c. ★τ² 빠른-확인 결과 (2026-06-14, fctbox 50-update woori 체크포인트)
+- **compliant-pass 0.10 < base 0.17** (위반0·n=20). **단 진단이 핵심**: ✅**R1-도구이름 grounding 전이 작동**(τ² 실도구명 컨텍스트서 복사=별칭학습 일반화) / ❌**인자-값 grounding 실패=날조**(`jane.doe@example.com`·`#W00000000`).
+- **기제 확정**: base-Instruct는 ask-user **156/160·날조0**인데, **ask-user 무 데이터 LoRA가 base 대화를 덮음**(파국적 망각) → 날조 → base보다 나쁨. = 구조적 갭 아님·**데이터-커리큘럼 문제**.
+- **처방 = R1b 신설**(TB §10.5): 값-provenance·무날조. ⓐask-user 궤적 SFT(SOPBench `usr_*` 멀티턴 합류)+instruction 혼합 ⓑ결정론 값-provenance 검증기. → 다음 학습은 ask-user 커버리지 포함.
+
 ## 3. 컴포넌트 ↔ R/A 매핑 (불변)
-- 학습 TBox(weight) = R1 grounding·R2 gather·R4 매칭·R6 *제안* (행동 규율).
-- 결정론 스캐폴드(불변·학습 아님) = R1 enforce(XGrammar)·R3 게이트(GATE_SPEC replay)·R6 선별·검증기. [[feedback-selector-verifier-deterministic]]
+- 학습 TBox(weight) = R1 grounding·**R1b 값-provenance/ask-user**·R2 gather·R4 매칭·R6 *제안* (행동 규율).
+- 결정론 스캐폴드(불변·학습 아님) = R1a enforce(XGrammar)·**R1b 값-provenance 검증기**·R3 게이트(GATE_SPEC replay)·R6 선별·검증기. [[feedback-selector-verifier-deterministic]]
 - ABox(per-domain swap) = A1(도구 카탈로그·기계)·A2(정책→GATE_SPEC·front-end 난제)·A4(LODO 분할)·A5(출력 문법).
-- 대화(ask-user) = base 모델 능력(도메인-일반).
+- 대화(ask-user) = **R1b로 학습**(base에 있던 능력 복원·SFT 커버리지). ~~base 모델 능력 의존~~ 정정.
 
 ## 4. 다음 행동
 1. **공통표현 = vLLM-native function-calling 확정**(§2b — 발명 불요). 입구 = **SOPBench/TaskBench → native tool-call 궤적 변환기** 설계: SOPBench op-graph(`ready;op_X`)·TaskBench tool-graph → {tools 스키마(A1) + assistant `tool_calls{name,args}` + tool 결과} 궤적. R-규율(R2 gather·R4 매칭·R1 grounding-타깃) supervise·alias 유지·loss=assistant-only.
