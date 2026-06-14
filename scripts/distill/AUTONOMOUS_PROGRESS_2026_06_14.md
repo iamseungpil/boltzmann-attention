@@ -47,5 +47,15 @@
 - **★coworker 동기화 (캐노니컬)**: ①`getter_map.json` repo 박제(7도메인) ②`node_run_planx.sh`에 §2b 값-randomize+§2c D5 대조 ask 반영·§4 보류해제 ③`COWORKER_REQUEST_TB_SCALE.md` **v8**(v7 보류 해제·"지금 돌려라"). coworker = 전 teacher×7도메인 대규모. 전부 push.
 - **다음**: ①v5 인코딩→학습 수렴 모니터 ②v4 vs v5 τ² A/B(driver 패턴·over-ask율·compliant-pass) ③coworker 캐노니컬 산출 합류 ④전이(SOP-Bench·τ² held-out).
 
+## ★v4 정지 + 학습량 vs τ² 전이 곡선 (20:45~20:51)
+- **loss 판단**: v4 train-loss 구간평균 0-1k 0.35 → 2.5-4.5k 0.19 → 4.5-6.5k **0.16(평탄)** → 6.5-9k **0.21(소폭상승)**. **step~4500서 수렴·이후 학습신호 소진**. val-loss 미측정(트레이너 인코딩만). → **ep2 무의미·과적합 위험**(부검 "더학습=망각 단조" 사전증거) 판단으로 **v4 정지**(ep0 step10199서·snapshot `v4_final_adapter`).
+- **★v4_final τ² eval(GPU0·v4 정지로 해제·v5 무중단)**: `tau2_eval_adapter.sh`(repo·git전송)로 serve→t2_run_gated without-L2 n=20 → **pass^1=0.10**.
+- **★학습량 vs τ² 곡선 (전부 v4=value-random+휴리스틱ask)**: step150 **0.10** / step1200 **0.11** / step10199 **0.10** = **완전 평탄·base 0.17 미달**. **학습 68배 늘려도 τ² 전이 0 개선** → 정지 판단 실증·ep2 불요 확정.
+- **★해석(중요)**: v4는 이미 value-random이라 **날조는 잡힘**(fab 0-5%·핸드오프). 그런데 pass 0.10<base 0.17 정체 = **잔여 갭은 날조 아님·SFT가 τ² capability를 오히려 저하**(over-ask + task-해결 능력). ⇒ **v5(D5 fetch-우선 게이트)가 결정적 테스트**: D5가 over-ask 잡아 0.10→0.17+ 회복하면 fetch-우선 처방 작동 입증. v5도 ~0.10이면 ask/fetch보다 깊은 capability 문제(generator-gap).
+- **현재**: GPU0 free·v5 GPU1 무중단(ep0 step3550·~26%). v5 ep0 완료 후 동일 `tau2_eval_adapter.sh`로 A/B.
+
 ## 인프라 메모
+- ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
+- ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
+- ⚠️ git: 원격 워크스페이스 cat-append 커밋이 백틱 명령치환 + rebase 충돌 유발 → **진행로그는 로컬 클론서만 편집**(원격은 pull). 원격 dirty(offload_*.sh)는 coworker 것 — 건드리지 않음.
 - ⚠️ git: 원격 워크스페이스 cat-append 커밋이 백틱 명령치환 + rebase 충돌 유발 → **진행로그는 로컬 클론서만 편집**(원격은 pull). 원격 dirty(offload_*.sh)는 coworker 것 — 건드리지 않음.
