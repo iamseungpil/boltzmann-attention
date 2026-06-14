@@ -60,12 +60,6 @@ def dep_levels(nodes, links):
             for si in byname.get(s, []):
                 if si != ti:
                     deps[ti].add(si)
-    # ★<node-K> 참조도 의존성으로(1-based) → threading한 출력이 항상 하류 호출보다 먼저 나오게 보장
-    for i, n in enumerate(nodes):
-        for m in NODE_REF.finditer(json.dumps(n.get("arguments"), ensure_ascii=False)):
-            k = int(m.group(1)) - 1
-            if 0 <= k < len(nodes) and k != i:
-                deps[i].add(k)
     level = {}
 
     def lev(i, stack):
@@ -126,18 +120,47 @@ def node_refs(sample, nodes):
             for i in range(len(nodes))]
 
 
-def resolve_refs(val, refs):
-    """인자값의 <node-K>(1-based) → 노드 (K-1) 출력 ref로 치환 = 출력→입력 threading."""
-    if isinstance(val, str):
-        def sub(m):
-            k = int(m.group(1)) - 1
-            return refs[k] if 0 <= k < len(refs) else m.group(0)
-        return NODE_REF.sub(sub, val)
-    if isinstance(val, list):
-        return [resolve_refs(v, refs) for v in val]
-    if isinstance(val, dict):
-        return {k: resolve_refs(v, refs) for k, v in val.items()}
-    return val
+def dep_sources(nodes, links):
+    """노드 index -> 의존성 source 노드 index 목록(self 제외·정렬). <node-N>은 링크로 해석(R 참조-규율: 자기참조 금지)."""
+    byname = defaultdict(list)
+    for i, n in enumerate(nodes):
+        byname[n["task"]].append(i)
+    src = {i: [] for i in range(len(nodes))}
+    for l in links:
+        s, t = l.get("source"), l.get("target")
+        for ti in byname.get(t, []):
+            for si in byname.get(s, []):
+                if si != ti and si not in src[ti]:
+                    src[ti].append(si)
+    for i in src:
+        src[i].sort()
+    return src
+
+
+def resolve_node_refs(val, srcs, refs):
+    """<node-N> → 이 노드의 의존성 source 출력 ref로 치환. N 오름차순 rank를 srcs(정렬)에 매핑.
+    ★self-reference 금지(srcs는 self 제외) — 미해결 시 원본 유지(threading 안 함)."""
+    blob = val if isinstance(val, str) else json.dumps(val, ensure_ascii=False)
+    ns = sorted({int(m.group(1)) for m in NODE_REF.finditer(blob)})
+    if not ns or not srcs:
+        return val, 0
+    nmap = {n: refs[srcs[min(rank, len(srcs) - 1)]] for rank, n in enumerate(ns)}
+    cnt = [0]
+
+    def repl_str(x):
+        return NODE_REF.sub(lambda m: (cnt.__setitem__(0, cnt[0] + 1) or nmap[int(m.group(1))])
+                            if int(m.group(1)) in nmap else m.group(0), x)
+
+    def walk(v):
+        if isinstance(v, str):
+            return repl_str(v)
+        if isinstance(v, list):
+            return [walk(z) for z in v]
+        if isinstance(v, dict):
+            return {k: walk(z) for k, z in v.items()}
+        return v
+
+    return walk(val), cnt[0]
 
 
 def convert(sample, schemas):
@@ -159,6 +182,7 @@ def convert(sample, schemas):
         if n["task"] not in seen:
             seen.add(n["task"]); toolset.append(schemas[n["task"]])
     refs = node_refs(sample, nodes)
+    srcs = dep_sources(nodes, links)
     messages = [{"role": "system", "content": "You are a tool-using assistant. Call the appropriate functions to fulfill the user request."},
                 {"role": "user", "content": instr}]
     cid = 0
@@ -168,12 +192,11 @@ def convert(sample, schemas):
         for i in lvl:
             n = nodes[i]
             args = node_args(n, schemas[n["task"]])
-            # ★출력→입력 threading: <node-K> → 노드 K-1 출력 ref (fetch-to-obtain-arg 강제)
+            # ★출력→입력 threading: <node-N> → 의존성 source 출력 ref (링크 기반·self 금지·fetch 강제)
             resolved = {}
             for k, v in args.items():
-                rv = resolve_refs(v, refs)
-                if rv != v:
-                    n_chain += 1
+                rv, c = resolve_node_refs(v, srcs[i], refs)
+                n_chain += c
                 resolved[k] = rv
             cid += 1
             tcid = "call_%d" % cid
