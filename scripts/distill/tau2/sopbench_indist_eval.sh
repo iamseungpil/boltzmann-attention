@@ -18,13 +18,13 @@ exec > $LOG 2>&1; set -x; date
 $PY - <<PYEOF
 p="$SOP/swarm/constants.py"
 s=open(p).read(); ch=False
-if '"$NAME": "$NAME"' not in s:
+if '"$NAME": "$NAME"' not in s:                              # OSS_MODELS (콜론형)
     s=s.replace("OSS_MODELS = {", 'OSS_MODELS = {\n    "$NAME": "$NAME",', 1); ch=True; print("[oss] added $NAME")
 else: print("[oss] $NAME present")
-fc_block = s.split("FUNCTION_CALLING_MODELS")[1].split("]")[0]
-anchor = '"vllm": [  # arm-3 infra'   # FUNCTION_CALLING_MODELS의 vllm 블록 고유 앵커
-if '"$NAME"' not in fc_block and anchor in s:
-    s=s.replace(anchor, anchor + '\n        "$NAME",', 1); ch=True; print("[fc] added $NAME to FCM[vllm]")
+fc_anchor='"qwen2.5-3b-instruct", "qwen2.5-7b-instruct"'      # FCM[vllm] 첫줄(콤마형=FCM, OSS와 구분)
+fc_block=s.split("FUNCTION_CALLING_MODELS")[1].split("]")[0]
+if '"$NAME"' not in fc_block and fc_anchor in s:
+    s=s.replace(fc_anchor, '"$NAME", '+fc_anchor, 1); ch=True; print("[fc] added $NAME to FCM[vllm]")
 else: print("[fc] $NAME present or anchor missing")
 if ch: open(p,"w").write(s)
 PYEOF
