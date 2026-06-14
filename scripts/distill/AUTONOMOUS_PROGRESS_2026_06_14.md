@@ -113,6 +113,17 @@
 - **다음 ④**: v7 ep 후 `coupling_eval.sh`(SOPBench dirgraph+τ²) + `tau2_autopsy.py` — **핵심: order_id가 이제 observe→fetch되나(#W0000000 날조↓·get_user_details 호출↑)·τ²가 0 넘나.** 양성이면 "grounded 2-hop 소싱이 전이 갭 닫음" 헤드라인. 음성이면 어느 층(관찰·추출·의미매핑) binding인지 진단.
 - 도구: `scripts/distill/taskbench/fc_convert_complexfuncbench.py`(repo). 데이터 = `/home/woori/scratch/ComplexFuncBench/`(HF zai-org).
 
+## ★★2026-06-15 (세션재개) — zero-GPU 최고가치 2건 완료 (#2 도출 닫힘 + #4b census)
+- **상태 확인**: v6(GPU0)·v7(GPU1) 학습 계속(세션재개 시 v6 step6200/v7 step600 → 작업 중 v6 6600/v7 1000). v7 cfb 장궤적=느림·loss 0.16~0.58 미수렴. **v7 eval(#3)은 step600에선 시기상조** → v6-성숙도(~step3000)까지 대기·백그라운드 모니터(step3000 도달 알림) 가동. 그동안 zero-GPU 진행.
+- **★#2 대수적 도출 닫힘 완료**(매트릭스 §1.5b 확장 + 형식 companion `ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`): **층 A(control×data) = 구성상 닫힘**(Böhm–Jacopini+동시성·provenance 완전분할·흡수 메커니즘). **층 B = 유한 게이트-타입 상대 닫힘 = 유일 live seam(α)**. seam β(transform)=census로 해소(아래). 부산물: ①날조=¬P1의 구조적 위치 ②P2 lettering 정당화 ③P7 RL-필연성 ④**교차층 6+2+2**(P7=iter×verdict·P8=provenance×auth-gate가 가장 어려운 primitive=구조서 도출). coworker가 companion에 net-new 3 작성(흡수/seam화해/P8↔P1 merge)→내 census 실증·교차층 통합.
+- **★#4b τ² primitive census 완료**(`tau2/tau2_primitive_census.py`·정적·zero-cost): 도구 분류=도메인 `tools.py`+`user_tools.py`의 `@is_tool(ToolType.WRITE)` 동적 파싱(반환시그니처 원칙). **전 τ² 도메인 orphan=0**: retail114·airline50·telecom2285(dual-control)·mock = **~2450 task 모든 gold 도구가 P1-P9 매핑·P10 없음.** "분류 밖 연산 0" 전수 실증.
+  - retail 요구분포: P1 112·P2b **110(96%)**·P5/P6 **104(91%)**·P3 92·P8 66·P2a 52·P4 28·**P7 0(gold)/89 잠재·P9 0**. ⇒ **gap=P6+P7이 task17 아닌 전수 지배**(리뷰#4a/#4b 동어반복 탈출).
+  - **seam β 해소**: 유일 변환도구 `calculate`(13)도 tool-call→P2b 환원 = in-model 변환 primitive 불요. **live seam=α(층B 게이트유한) 하나로 확정.**
+  - **P7 구조부재 확증**: 전 도메인 gold P7=0(reactive·성공-gold에 deny 없음) = 도출 예측 census 독립확인 → SFT 소싱불가·gate-in-loop RL(리뷰#5).
+  - ★telecom: device-actuation write(toggle_*/reboot)도 P5/P6 = GUI-인접이나 tool-call control/data-flow → 새 primitive 아님(scope §5 자인).
+- **gotcha**: census 파서 = 멀티라인 def 시그니처(`def f(`+다음줄 `self`) 처리·`@is_tool(ToolType.X)` 데코레이터 타입으로 분류·dual-control은 `user_tools.py` 병합 필수(telecom 누락 시 device-write가 가짜 orphan).
+- **다음**: ①v7 step3000 도달 시 `coupling_eval.sh`+`tau2_autopsy.py`(order_id fetch?·τ²>0?·#3 P2b/P4 ✓→✓!) ②적대탐색(#6)=층B 게이트유한 반증=out-of-genre P10 사냥(τ²동일장르 saturation=self-fulfilling) ③P6/P7 합성(리뷰 후).
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
