@@ -1,3 +1,11 @@
+> # ✅✅✅ v9 (2026-06-14 밤) — v6 파이프라인: fetch-to-obtain-arg 복원 (τ² 전수 autopsy 처방)
+> **무엇/왜**: v4 τ² 전수 autopsy(pass 2/20·write필요 태스크 전멸) 근본원인 = 모델이 **tool-fetchable 값(order_id `#W0000000`·주소)을 fetch 안 하고 placeholder 날조**. 더 파보니 **"tool 출력서 값 가져와 인자로 쓰는"(fetch-to-obtain-arg) 스킬이 학습데이터에 부재**(SOPBench **1.9%**=getter가 fetch-to-DECIDE 위주 / TaskBench **0%**=변환기가 출력을 합성 ok-stub로 버림). = 모델이 그 스킬을 배운 적 없음.
+> **복원(벤치-무관·thesis 순수·node_run_planx.sh에 반영 완료)**:
+> - **TaskBench `<node-N>` threading**(`fc_convert_taskbench.py`): HF 57%·MM 59% 궤적의 `<node-N>`(상류출력→하류입력) 체인을 구 변환기가 버렸음 → 이제 **상류 출력 ref(res_xxx)로 threading**. ★규약: `<node-N>`=리스트인덱스 아님 → **링크(의존성 edge)로 해석**(R 참조-규율: self-reference 금지). 해소불가 비정합 데이터(no-link/cycle/dup-task ~0.4%)는 **결정론 drop**. → tb fetch-chain **0%→41%**. ref=궤적-고유 md5=비-memorizable → **copy(fetch) 강제**.
+> - **fetchable randomize**(`fc_randomize_fetchable.py`, §2b 교체): identity + tool-출력 재사용 값 모두 randomize.
+> **⇒ 액션**: `git pull` 후 **`node_run_planx.sh` 그대로 재실행** — 변환기·randomizer가 repo서 갱신돼 **v6 파이프라인 자동 적용**(`.sop_done`/`.tb_done`/`.rand_done` sentinel 있으면 `rm $OUT/fc/.tb_done $OUT/fc/.rand_done $OUT/fc/.d5_done` 후 재빌드해야 threading 반영됨). 산출 후 전이 테스트는 아래 v6 §13-③(τ² retail·SOP-Bench).
+> **병렬(woori)**: GPU0=**v6**(fetch-teaching: threading+fetchable-random)·GPU1=v5(D5 ask만)·v4=정지(τ² 0.10 평탄). 곧 3-way τ² A/B.
+>
 > # ✅✅ v8 (2026-06-14 저녁) — v7 보류 **해제**: node_run_planx.sh 갱신 완료(R1b/D5 반영) → **지금 돌려라**
 > **무엇이 바뀜**: v7의 catastrophic-forgetting 근본원인 = ①값 memorize(placeholder 날조) ②**fetch-우선이어야 하는데 ask(always-ask 붕괴)**. 둘 다 데이터로 수정해 `node_run_planx.sh`에 반영함:
 > - **§2b 값-randomization**(`fc_value_randomize.py`): user-제공 식별값 → 포맷-보존 랜덤토큰 일관치환 = memorize 차단·컨텍스트 복사 강제. woori 실측: τ² 날조 **0-90%→0-5%**.

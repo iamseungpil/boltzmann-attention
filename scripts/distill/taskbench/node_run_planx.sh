@@ -5,6 +5,12 @@
 #   파이프라인에 반영. 모델은 "tools= 카탈로그 보고 분기"(getter 有→fetch / 無→ask) 학습 = always-ask 붕괴 방지.
 #   woori 실측: v4(값랜덤+ask) τ² 날조 0-90%→0-5%. v5 = v4와 동일 레시피·ask만 D5 게이트(over_ask=0 보장).
 #   상세 = COWORKER_REQUEST_TB_SCALE.md · R1B_PROVENANCE_DESIGN_2026_06_14.md §3a/D5 · TB결과 §10.5 R1b.
+# ✅✅ 2026-06-14 v6 UPDATE (τ² 전수 autopsy 처방 — fetch-to-obtain-arg): order_id 등 tool-fetchable 값
+#   날조의 뿌리 = "출력→인자" 스킬이 학습데이터에 부재(SOPBench 1.9%·TaskBench 0%). 복원:
+#   ① fc_convert_taskbench가 <node-N>을 상류 출력 ref로 threading(링크-기반·self-ref 금지=R 참조규율;
+#      해소불가 비정합 데이터는 결정론 drop) → tb fetch-chain 0%→41%.
+#   ② §2b가 fc_randomize_fetchable(identity+fetchable)로 교체 → fetch 값도 copy 강제.
+#   = 이 스크립트 그대로 돌리면 v6 파이프라인 자동 적용(변환기·randomizer가 repo서 갱신됨).
 # node_run_planx.sh — CROSS_BENCH_TRANSFER_PLAN (plan X) P3 on an amlt node.
 #   SOPBench(output/ fc-full success rollouts, all teachers×7 domains)
 #   + TaskBench(3 domains tool-graph) -> native OpenAI function-calling 궤적
@@ -60,11 +66,13 @@ if [ ! -f $OUT/fc/.tb_done ]; then
 fi
 wc -l $OUT/fc/sop_*.jsonl | tail -1; wc -l $OUT/fc/tb_*.jsonl | tail -1
 
-# 2b. R1b 값-randomization: user-제공 식별값을 포맷-보존 랜덤토큰으로 일관치환 → memorize 차단,
-#     컨텍스트서 복사 강제(R1b). 모든 SOPBench fc 궤적 concat 후 일괄 (seed 고정).
+# 2b. v6 값-randomization (identity + tool-fetchable): user-제공 식별값 + tool-출력서 재사용되는 값을
+#     포맷-보존 랜덤토큰으로 일관치환 → memorize 차단·컨텍스트 복사(fetch) 강제 = R1/R2.
+#     (fc_value_randomize=identity-only는 구버전; fc_randomize_fetchable이 상위호환.)
+#     ★주 fetch-to-obtain-arg 신호는 TaskBench <node-N> threading(§2 변환기, 자동). SOPBench fetchable은 희소(1.9%).
 if [ ! -f $OUT/fc/.rand_done ]; then
   cat $OUT/fc/sop_*.jsonl > $OUT/fc/sop_all.jsonl
-  $PY $CV/fc_value_randomize.py --in $OUT/fc/sop_all.jsonl --out $OUT/fc/sop_rand.jsonl --seed 42 \
+  $PY $CV/fc_randomize_fetchable.py --in $OUT/fc/sop_all.jsonl --out $OUT/fc/sop_rand.jsonl --seed 42 \
     >> $OUT/logs/build.log 2>&1
   touch $OUT/fc/.rand_done
 fi

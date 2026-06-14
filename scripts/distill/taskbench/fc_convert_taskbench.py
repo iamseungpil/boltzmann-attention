@@ -16,6 +16,7 @@ import argparse, json, hashlib, re
 from collections import defaultdict
 
 NODE_REF = re.compile(r"<node-(\d+)>")
+RES_REF = re.compile(r"res_[0-9a-f]{8}")
 
 TYPE_MAP = {"string": "string", "str": "string", "int": "integer", "integer": "integer",
             "float": "number", "number": "number", "bool": "boolean", "boolean": "boolean",
@@ -206,6 +207,21 @@ def convert(sample, schemas):
         messages.append({"role": "assistant", "tool_calls": tcs, "_supervise": True})
         for tcid, res in results:
             messages.append({"role": "tool", "tool_call_id": tcid, "content": res})
+    # ★정합성 post-check (결정론 drop): TaskBench 원본 비정합(no-link/cycle/dup-task)으로
+    #   <node-N>이 못 풀리면(literal 잔존) 또는 res_가 산출 전 사용(forward/self-ref)되면 = 더러운 데이터 →
+    #   억지 resolution 대신 trajectory 통째 drop(=fetch-to-obtain-arg 학습 오염 방지).
+    produced = set()
+    for m in messages:
+        if m["role"] == "assistant":
+            for tc in m.get("tool_calls", []):
+                argstr = tc["function"]["arguments"]
+                if "<node-" in argstr:
+                    return None                      # no-link: 못 푼 literal 잔존
+                for r in RES_REF.findall(argstr):
+                    if r not in produced:
+                        return None                  # cycle/dup: 산출 전 사용(forward/self-ref)
+        elif m["role"] == "tool":
+            produced.update(RES_REF.findall(str(m.get("content") or "")))
     return {"tools": toolset, "messages": messages,
             "_meta": {"bench": "taskbench", "id": sample.get("id"), "type": sample.get("type"),
                       "n_nodes": len(nodes), "n_levels": len(levels), "n_chain": n_chain}}
@@ -230,7 +246,7 @@ def main():
             out.append(c)
     # stats
     par = sum(1 for c in out if c["_meta"]["n_nodes"] > c["_meta"]["n_levels"])
-    print("converted=%d skip=%d (no-schema/empty)  parallel-graphs=%d  tools_total=%d"
+    print("converted=%d skip=%d (no-schema/empty/dirty-ref:no-link·cycle·dup)  parallel-graphs=%d  tools_total=%d"
           % (len(out), n_skip, par, len(schemas)))
     if a.sample:
         for c in out[:a.sample]:
