@@ -65,9 +65,11 @@ def _provenance_deny(tc, ctx):
                 continue
             if s.lower() not in ctx:
                 return ("PROVENANCE_R1B",
-                        f"argument '{k}'='{s}' was not provided by the user nor returned by any tool — it looks invented. "
-                        "STOP and ask the user a question to get this value now (e.g. 'Could you provide your ...?'). "
-                        "Do NOT call any tool again with a guessed/placeholder value.")
+                        f"argument '{k}'='{s}' was not provided by the user nor returned by any tool — it looks invented "
+                        "(possibly copied from a schema example value). Do NOT call any tool with a guessed/placeholder value. "
+                        "Instead OBTAIN the real value first: if a lookup/getter tool can produce it "
+                        "(e.g. call get_user_details to retrieve the user's orders, payment methods, or addresses), call that and read the value from its output; "
+                        "otherwise ASK the user for it.")
     return None
 
 
@@ -87,6 +89,10 @@ def apply():
         tms = _transfer_msg_sent(self)
 
         prov_on = os.environ.get("T2_PROVENANCE") == "1"
+        # T2_PROV_SOFT=1: provenance 거부(가로채기+redirect)를 hard-error로 안 셈 — budget 보존
+        #   (사용자 Q1: 거부가 10-error budget 까먹으면 효과 안 보임). 무한루프 방지=별도 cap.
+        prov_soft = os.environ.get("T2_PROV_SOFT") == "1"
+        prov_cap = int(os.environ.get("T2_PROV_CAP", "12"))
         ctx = _context_text(self) if prov_on else None
 
         results = []
@@ -97,7 +103,13 @@ def apply():
             if prov_on:  # L2 provenance: 날조 인자값 차단 (R1B)
                 pd = _provenance_deny(tc, ctx)
                 if pd:
-                    self.num_errors += 1
+                    n_prov = getattr(self, "_t2_prov_denies", 0) + 1
+                    self._t2_prov_denies = n_prov
+                    if prov_soft:
+                        if n_prov > prov_cap:  # 무한 redirect 방지
+                            self.num_errors += 1
+                    else:
+                        self.num_errors += 1
                     results.append(_deny_msg(tc, pd[0], pd[1]))
                     continue
             ok, g, why = gate.check(tc.name, tc.arguments or {}, last_user_msg=last_user,
