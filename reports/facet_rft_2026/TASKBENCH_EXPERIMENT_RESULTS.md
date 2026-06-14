@@ -501,7 +501,7 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 | # | 규칙 | 근거 |
 |---|---|---|
 | R1a | 닫힌 심볼(도구명·enum 필드)은 생성하지 않고 컨텍스트서 베낀다 — enum/문법 마스크 집행 | §9.5b guided +8.0·무효 0/13k |
-| **R1b** | **인자 *값* provenance·무날조 (2026-06-14 신설, τ² 실증)**: 모든 인자값은 출처 필수 — (a)사용자 발화 또는 (b)도구 출력. 필요한데 부재 시 *획득*(ask-user/read-tool) 후 사용·**자가생성(날조) 금지.** ⓐ학습측=ask-user 궤적 SFT ⓑ결정론 검증측=**값-provenance 검증기**(인자값이 이전 user/tool 출력에 등장? 아니면 reject) | ★τ²: base-Instruct ask-user 156/160·날조0 ↔ ask-user 무 데이터 LoRA가 base 덮음→날조→fctbox 0.10<base 0.17. **R1-이름 전이는 작동**(τ² 실도구명 복사). 처방=R1b 학습+검증 |
+| **R1b** | **인자 *값* provenance·무날조 (2026-06-14 신설, τ² 실증)**: 모든 인자값은 출처 필수 — (a)사용자 발화 또는 (b)도구 출력. 필요한데 부재 시 *획득*(ask-user/read-tool) 후 사용·**자가생성(날조) 금지.** ⓐ학습측=ask-user 궤적 SFT ⓑ결정론 검증측=**값-provenance 검증기**(인자값이 이전 user/tool 출력에 등장? 아니면 reject) | ★τ² provenance(첫 인증-call 인자): base 날조 **7%**(grounded 88%)→fctbox 50-up **40%**→250-up **60%**(단조=망각)·compliant-pass 0.10/0.05<base 0.17. **R1-이름 전이는 작동**(τ² 실도구명 복사). 처방=R1b 학습+검증 |
 | R2 | 인스턴스 사실은 act 전에 gather (정보수집 선행) | SOPBench active-H3 6→15·gather LODO 전이 |
 | R3 | 허가/결정 판단은 모델 emit 금지 — 결정론 게이트 offload | SOPBench 3-NULL LOCK·DGGATE 15→29 |
 | R4 | 의미 매칭은 모델이, 출력 공간은 제약이 (하이브리드) | daily 의미-패러프레이즈 해소(§9.5b) |

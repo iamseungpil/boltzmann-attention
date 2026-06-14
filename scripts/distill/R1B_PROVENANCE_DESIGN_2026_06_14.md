@@ -4,7 +4,7 @@
 > **v2 변경(리뷰)**: ①진단을 *망각* vs *규칙결손* 분리(ask-rate eval 추가) ②novelty 정직화(provenance=필요조건·인증게이트와 직교) ③L1 보장 = verbatim 타입·추출기 recall 조건부(구현전 recall 실측 BLOCKING) ④D4 verbatim-only 스코프 ⑤L3 SFT 데이터의 converter 의존 명시. D1=별도-합성·D2=타입별·D5=대조쌍 확정.
 
 ## 0. 동기 + ★두 근본원인 분리 (리뷰1)
-τ² 실증: plan-X 7B TBox가 인자값 날조 → compliant-pass **0.10(50-up)→0.05(250-up) < base 0.17**. **0.10→0.05 단조하락(더 학습=악화) = 전형적 *망각* 시그니처** — 모델이 base의 ask-user를 *잊은* 것이지 provenance 규칙을 *모르는* 게 아닐 수 있다. base-Instruct ask-user 156/160·날조0.
+τ² 실증: plan-X 7B TBox가 인자값 날조 → compliant-pass **0.10(50-up)→0.05(250-up) < base 0.17**. **★provenance 실측(첫 인증-call 인자 grounded vs fabricated)**: base-7B **fab 7%**(grounded 88%) → fctbox 50-up **fab 40%** → 250-up **fab 60%** = **날조율 단조 증가** = **파국적 *망각* 확정**(모델이 grounding을 *갖고 있었는데* 학습으로 *잃음*). (⚠️앞선 "ask 156/160"은 greeting `?` 오염·폐기 — 올바른 지표는 인자 provenance.)
 - ⇒ **두 원인 분리**: ⓐ**망각**(τ² *숫자* 붕괴의 주 기제) — 처방 = **L3(ask-user 재학습/replay)이 숫자 회복의 주역.** ⓑ**provenance 규칙 부재**(자가생성 가능성) — 처방 = **L1/L2가 *결정론 보장*을 위에 얹음.**
 - **프레이밍 규율**: **L3가 τ² 숫자를 회복시키고, L1/L2는 그 위에 결정론 보장을 추가한다.** L1/L2를 "τ² 점수 수정책"으로 팔지 말 것. 어느 게 숫자를 고치는지는 **측정으로 가른다**(§7 ask-rate).
 
@@ -56,8 +56,7 @@
 - R1a(닫힌 심볼) → R1b(열린 값 provenance) = grounding 규율 일반화.
 
 ## 7. eval (★ask-rate 추가 — 리뷰: 진단 가르는 결정타)
-- **★ask-user rate** (값 부재 시 묻나): base **156/160** → fctbox(현재) ? → L3 후 ? — **이 한 숫자가 "묻는 법을 잊음(망각)" vs "알지만 날조(규칙결손)"를 가른다.** L3 효과 분리 측정.
-- 날조-호출 비율(궤적 census): base 0 ↔ fctbox 다수 → v3 감소?
+- **★provenance 날조율** (첫 인증-call 인자가 user/tool 출처에 없으면 fabricated): **base 7% → fctbox 50-up 40% → 250-up 60%**(단조=망각). **L3(v3) 후 = base 7% 쪽 회복?** — 이 지표가 "묻는 법을 잊음(망각)" vs "알지만 날조"를 가르고 L3 효과를 분리. (greeting 오염 주의 — ask 텍스트율 아닌 *인자 provenance*로 측정. 계측 = `t2_run_gated` 후 첫-AUTH-call 인자 ∈ 이전 user 발화?)
 - compliant-pass 회복(L3) / provenance-위반 검출율(L2, 주입 날조) / L1 false-block율(verbatim 타입).
 - 전이: SOP-Bench·τ² held-out 동일 측정.
 
