@@ -14,6 +14,7 @@ G2(쓰기-전-확인)는 직전 user 발화를 메시지 이력에서 추출. us
 """
 import json
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -37,6 +38,49 @@ def _flatten(v):
         yield v
 
 
+def _args_dict(tc):
+    """ToolCall.arguments 를 dict로 (string JSON도 robust 파싱)."""
+    a = getattr(tc, "arguments", None)
+    if isinstance(a, dict):
+        return a
+    if isinstance(a, str):
+        try:
+            return json.loads(a)
+        except Exception:
+            return {}
+    return {}
+
+
+# ─── ★L1 bad_words 블랙리스트 (스키마-example + 흔한 placeholder; 동적=세션-flagged) ───
+_SUCH_AS_RE = re.compile(r"such as ['\"]([^'\"]+)['\"]|e\.g\.,?\s*['\"]?([^'\".)]+)", re.I)
+COMMON_PLACEHOLDERS = {
+    "#W0000000", "something@example.com", "jane_doe@example.com",
+    "john.doe@example.com", "johndoe@example.com", "john@example.com",
+    "jane@example.com", "user@example.com", "test@example.com",
+    "example@example.com", "123 Main St", "123 Main Street",
+}
+
+
+def _blacklist_worthy(v):
+    """generic 단어(John·CA·12345) 차단 회피: len>=6 & (이메일/숫자 포함) = ID/placeholder형만."""
+    v = (v or "").strip()
+    return len(v) >= 6 and (("@" in v) or any(c.isdigit() for c in v))
+
+
+def _static_blacklist(tools):
+    bl = set(COMMON_PLACEHOLDERS)
+    for t in (tools or []):
+        try:
+            txt = json.dumps(t.openai_schema)
+        except Exception:
+            txt = str(getattr(t, "description", "") or "")
+        for m in _SUCH_AS_RE.finditer(txt):
+            v = next((g for g in m.groups() if g), "").strip()
+            if _blacklist_worthy(v):
+                bl.add(v)
+    return bl
+
+
 def _context_text(orch):
     """provenance 출처 = 모든 user 발화 + 도구 출력(assistant 제외)."""
     parts = []
@@ -53,8 +97,8 @@ def _context_text(orch):
 
 def _provenance_deny(tc, ctx):
     """identifying 인자값이 컨텍스트에 없으면 fabricated → (gate, reason) 반환, 아니면 None."""
-    args = tc.arguments or {}
-    if not isinstance(args, dict):
+    args = _args_dict(tc)
+    if not args:
         return None
     for k, v in args.items():
         if not any(h in k.lower() for h in PROV_ARG_HINT):
@@ -190,10 +234,8 @@ def _ctx_from_messages(msgs):
 def _first_fab_call(am, ctx):
     """am.tool_calls 중 첫 날조 호출 (tc, k, s) 또는 None."""
     for tc in (getattr(am, "tool_calls", None) or []):
-        pd = _provenance_deny(tc, ctx)
-        if pd:
-            args = tc.arguments or {}
-            for k, v in (args.items() if isinstance(args, dict) else []):
+        if _provenance_deny(tc, ctx):
+            for k, v in _args_dict(tc).items():
                 for val in _flatten(v):
                     s = str(val).strip()
                     if any(h in k.lower() for h in PROV_ARG_HINT) and len(s) >= 4 and s.lower() not in ctx:
@@ -202,39 +244,65 @@ def _first_fab_call(am, ctx):
     return None
 
 
-def apply_provenance_regen(max_retries=4):
-    """LLMAgent._generate_next_message 패치 — 날조 호출을 내부 재생성으로 교정."""
+def apply_provenance_regen(max_retries=4, use_badwords=True):
+    """LLMAgent._generate_next_message 패치 — R1b 통합:
+      L1 = bad_words 디코드-마스크(정적 블랙리스트 + 세션-flagged − 현재 context).
+      L2 = provenance 검증기 + 내부 재생성(verifier가 날조 잡으면 작업본서 regen·세션 블랙리스트 추가).
+    use_badwords=False면 L2만. max_retries=0이면 L1만."""
     from tau2.agent.llm_agent import LLMAgent
     import tau2.agent.llm_agent as la
-    from tau2.data_model.message import ToolMessage
+    from tau2.data_model.message import ToolMessage, UserMessage, MultiToolMessage
 
-    orig = LLMAgent._generate_next_message
+    def _append(state, message):
+        if isinstance(message, UserMessage) and getattr(message, "is_audio", False):
+            raise ValueError("audio not supported")
+        if isinstance(message, MultiToolMessage):
+            state.messages.extend(message.tool_messages)
+        else:
+            state.messages.append(message)
+
+    def _gen(self, work, bad_words, call_name):
+        kw = dict(self.llm_args)
+        if use_badwords and bad_words:
+            eb = dict(kw.get("extra_body") or {})
+            eb["bad_words"] = sorted(bad_words)
+            kw["extra_body"] = eb
+        return la.generate(model=self.llm, tools=self.tools,
+                           messages=self._system_messages + work, call_name=call_name, **kw)
 
     def patched(self, message, state):
-        am = orig(self, message, state)  # 첫 시도 (message가 state.messages에 append됨)
+        if not hasattr(self, "_t2_static_bl"):
+            self._t2_static_bl = _static_blacklist(self.tools)
+            self._t2_session_bl = set()
+        self._system_messages = state.system_messages
+        _append(state, message)
         ctx = _ctx_from_messages(state.messages)
+
+        def bw():  # 동적: 정적∪세션 − context (진짜 값은 안 막음)
+            return [v for v in (self._t2_static_bl | self._t2_session_bl) if v.lower() not in ctx]
+
         work = list(state.messages)
+        am = _gen(self, work, bw(), "agent_response")
         n = 0
         while n < max_retries:
             fab = _first_fab_call(am, ctx)
             if fab is None:
                 break
             n += 1
-            self._t2_regen = getattr(self, "_t2_regen", 0) + 1  # 카운트(측정용·budget 무관)
             tc, k, s = fab
-            work = work + [am]  # 거부된 assistant 턴 (작업본만)
+            self._t2_session_bl.add(s)  # 동적 블랙리스트: 날조값 → 다음 gen bad_words 차단(루프 방지)
+            self._t2_regen = getattr(self, "_t2_regen", 0) + 1
+            work = work + [am]  # 거부된 assistant 턴 (작업본만·state 무오염)
             for c in (am.tool_calls or []):
                 reason = REGEN_FEEDBACK.format(k=k, s=s) if c is tc else \
                     "Error: [PROVENANCE] resolve the invented value first; do not call this yet."
                 work.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                         error=True, content=reason))
-            am = la.generate(model=self.llm, tools=self.tools,
-                             messages=state.system_messages + work,
-                             call_name="agent_response_regen", **self.llm_args)
+            am = _gen(self, work, bw(), "agent_response_regen")
         return am
 
     LLMAgent._generate_next_message = patched
-    return orig
+    return patched
 
 
 if __name__ == "__main__":

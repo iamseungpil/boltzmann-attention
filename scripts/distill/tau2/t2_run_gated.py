@@ -40,10 +40,13 @@ def main():
         import t2_gate_patch
         t2_gate_patch.apply()
         print("[t2_run] gate ON")
-        if os.environ.get("T2_PROV_REGEN") == "1":
+        regen_on = os.environ.get("T2_PROV_REGEN") == "1"
+        badwords_on = os.environ.get("T2_PROV_BADWORDS", "0") == "1"
+        if regen_on or badwords_on:
             t2_gate_patch.apply_provenance_regen(
-                max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")))
-            print("[t2_run] provenance-regen ON (internal resample, no user-ask)")
+                max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")) if regen_on else 0,
+                use_badwords=badwords_on)
+            print("[t2_run] provenance L1(badwords)=%s L2(regen)=%s" % (badwords_on, regen_on))
 
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
