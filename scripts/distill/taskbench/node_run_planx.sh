@@ -29,16 +29,32 @@ HFREPO=iamseungpil/sopbench-trackb-h200
 HF=/scratch/venvs/sop_env/bin/hf
 mkdir -p $OUT/fc $OUT/logs
 
-# 0. restore prior state (preemption wipes /scratch): pull planx/ from HF if present
+# 0. restore prior state (preemption wipes /scratch): pull planx_v6/ from HF if present.
+#    ★v6 namespace: isolates from the SUPERSEDED v5 state store (ask-무·값-memorize 데이터)
+#    so a preempt-restore can't re-pollute the build with pre-v7 SFT/adapter.
 $HF download $HFREPO --repo-type dataset --local-dir /scratch/hf_planx \
-  --include "planx/*" >> $OUT/logs/restore.log 2>&1 || true
-[ -d /scratch/hf_planx/planx ] && cp -rn /scratch/hf_planx/planx/* $OUT/ 2>/dev/null || true
+  --include "planx_v6/*" >> $OUT/logs/restore.log 2>&1 || true
+[ -d /scratch/hf_planx/planx_v6 ] && cp -rn /scratch/hf_planx/planx_v6/* $OUT/ 2>/dev/null || true
+
+# 0a. ★DATA-VERSION GATE (preemption-safe v9 adoption): if local /scratch survived a preempt
+#     with pre-v6 artifacts (stale sentinels / SFT / adapter trained on superseded data), wipe
+#     them so the build regenerates with the v9 converters. The marker is a NON-hidden file =
+#     synced+restored with v6 state, so a LEGIT in-progress v6 run is NOT re-wiped on later preempt.
+DATA_VERSION=v6_fetchteach
+if [ "$(cat $OUT/planx_data_version.txt 2>/dev/null)" != "$DATA_VERSION" ]; then
+  echo "[version-gate] stale/absent data version -> wiping pre-v6 build artifacts" >> $OUT/logs/restore.log
+  rm -f $OUT/fc/.sop_done $OUT/fc/.tb_done $OUT/fc/.rand_done $OUT/fc/.d5_done \
+        $OUT/planx_sft.jsonl $OUT/planx_train_done 2>/dev/null
+  rm -rf $OUT/planx_tbox_7b 2>/dev/null
+  mkdir -p $OUT/fc
+  echo "$DATA_VERSION" > $OUT/planx_data_version.txt
+fi
 
 # 0b. background sync loop: push planx (adapter ckpt + data + logs) every 10min so a
 #     mid-training preemption resumes from the last checkpoint, not from scratch
 ( while true; do
-    $HF upload $HFREPO $OUT planx --repo-type dataset \
-      --commit-message "planx sync $(date -u +%FT%TZ)" >> $OUT/logs/sync.log 2>&1
+    $HF upload $HFREPO $OUT planx_v6 --repo-type dataset \
+      --commit-message "planx_v6 sync $(date -u +%FT%TZ)" >> $OUT/logs/sync.log 2>&1
     sleep 600
   done ) &
 SYNC_PID=$!
@@ -108,6 +124,6 @@ tail -3 $OUT/logs/train.log
 
 # 5. final sync (stop the loop, one authoritative push)
 kill $SYNC_PID 2>/dev/null || true
-$HF upload $HFREPO $OUT planx --repo-type dataset \
-  --commit-message "planx FINAL $(date -u +%FT%TZ)" >> $OUT/logs/sync.log 2>&1 || true
+$HF upload $HFREPO $OUT planx_v6 --repo-type dataset \
+  --commit-message "planx_v6 FINAL $(date -u +%FT%TZ)" >> $OUT/logs/sync.log 2>&1 || true
 echo "PLANX_DONE $(date)"
