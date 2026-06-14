@@ -78,6 +78,11 @@
 - **★coworker 동기화**: node_run_planx.sh = §변환기 threading 자동 + §2b `fc_randomize_fetchable`로 교체 + v6 배너. 요청서 **v9**(fetch-to-obtain-arg 복원·sentinel rm 안내). 전부 push.
 - **다음**: ①v6/v5 ep0 후 `tau2_eval_adapter.sh` 3-way A/B + `tau2_autopsy.py`(order_id 날조율↓?) ②양성이면 ⓠ2/ⓠ3(에러-복구·A2 retry) v7.
 
+## ★v5 조기-eval (step4999·D5 ask-only) — autopsy 예측 적중
+- **v5 pass^1 = 0.105 ≈ v4(0.10)**: **D5 ask-게이트 단독은 τ² 개선 0.** loss 평탄(step~1500 수렴) 확인 후 stop→eval→`--resume`(`tau2_eval_resume_v5.sh`·GPU1·v6 무영향).
+- v5 autopsy = v4와 동일 프로파일: PASS 2(write 있는 태스크)·나머지 **agent_collapse(too_many_errors·aw=10=재시도 루프 망치질)+fab_auth 지배**. ⇒ **ask/fetch *선택*은 병목 아님**(over_ask 2/20 예측대로)·**병목=fetch-실행(v6)+에러-복구(v7)**.
+- **3-way 현황**: v4(휴리스틱 ask) 0.10 / v5(D5 ask) 0.105 / **v6(fetch-teaching) 학습중**. v5는 ≈v4 확정(dead-end) → 완주 무의미·GPU1은 v6 eval에 쓰는 게 나음(권고).
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
