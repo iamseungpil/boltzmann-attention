@@ -73,7 +73,10 @@
 - **★fetchable randomize**(`fc_randomize_fetchable.py`): SOPBench tool-출력서 와 재사용되는 값도 randomize(identity+fetchable). sop만은 1.9%로 희소 → 주 신호는 TaskBench threading.
 - **★sft_v6 = sop_rand2 + sop_d5_ask2 + tb_all_v3c**(13780). fetch-to-obtain-arg 신호 강함(tb 41%). **GPU0서 v6 학습 시작**(PID 3983897·`qwen7b_fc_tbox_v6`·v4/v5 동일 config). **GPU1=v5(D5 ask만) 계속** → v4(0.10)/v5(D5)/v6(fetch-teaching) 3-way.
 - **★설계질문 답(벤치-무관 전제)**: ⓠ1 "전부 randomize하면 fetch?" = **부분 Yes·필요충분 아님**: randomize는 memorize 차단일 뿐, **fetch STRUCTURE(출력→인자)가 데이터에 있어야** 함 — 없었음(1.9%/0%) → **threading으로 *생성*** 후 randomize=copy강제. ⓠ2 "에러 재시도 룰 벤치-무관 학습?" = **Yes**: 룰=R3 일반("에러 시 동일호출 금지·re-gather/ask"). 단 success-rollout은 에러 희소→**에러→복구 augmentation 필요**(정답값 사용=날조0)+결정론 가드(동일-실패 반복차단). ⓠ3 "재시도 A2 정의대로?" = **Yes·최고 thesis-순수**: 게이트 복구절차=정책(A2) 정의·모델은 "게이트 막히면 A2 명시 전제 충족 후 retry" 일반스킬 학습·ABox-swap 전이. (ⓠ2/ⓠ3=v7 후속, v6은 ⓠ1 fetch 부재 복원에 집중.)
-- **다음**: ①v6/v5 ep0 후 `tau2_eval_adapter.sh` 3-way A/B + `tau2_autopsy.py`(order_id 날조율↓?) ②양성이면 ⓠ2/ⓠ3(에러-복구·A2 retry) v7 ③coworker node_run_planx에도 threading 반영 필요(현재 미반영).
+- **★변환기 정합성 수정**(사용자 지적: 결정론 알고리즘인데 self-ref 왜?): 원인=**TaskBench 원본 데이터 비정합**(알고리즘 버그 아님). 84/20404 ref-노드(0.41%): no_link_source 62(`<node-N>`있는데 링크 없음)·dup_task 12·cycle/same-level 10. → 변환기에 **post-check 결정론 drop**(literal `<node-` 잔존 or res_ 산출-전-사용 시 trajectory 통째 drop) 추가. 재변환 tb_all_v4 = **residual 0·fetch-chain 41% 유지**(15711·dirty 99 drop).
+- **★v6 클린 재시작**: 첫 v6(PID 3983897)는 tb_all_v3c(~0.26% literal 노이즈)·인코딩만 하고 정지 → **클린 tb_all_v4로 sft_v6 재빌드·재시작**(PID 3984552·GPU0). v5(GPU1) 계속.
+- **★coworker 동기화**: node_run_planx.sh = §변환기 threading 자동 + §2b `fc_randomize_fetchable`로 교체 + v6 배너. 요청서 **v9**(fetch-to-obtain-arg 복원·sentinel rm 안내). 전부 push.
+- **다음**: ①v6/v5 ep0 후 `tau2_eval_adapter.sh` 3-way A/B + `tau2_autopsy.py`(order_id 날조율↓?) ②양성이면 ⓠ2/ⓠ3(에러-복구·A2 retry) v7.
 
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
