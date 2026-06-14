@@ -1,6 +1,11 @@
-# 대수적 도출 닫힘 — 형식 companion (2026-06-15)
+# 대수적 도출: control 정리-잠김 + data/policy scope-상대 닫힘 — 형식 companion (2026-06-15)
+> ⚠️**제목 정직화(리뷰 #1)**: "닫힘"은 3층 중 **control만 정리-급**(Böhm–Jacopini 표현완전성). data=제약 S 상대·policy=게이트유한 상대(§2·§4). 무조건 "닫힘"은 과대 — 이 caveat가 제목·매트릭스 §1.5(b) 헤드라인에 동행해야 함.
 
 > **도출 본체 = 매트릭스 `PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md` §1.5(b)** (Böhm–Jacopini control × provenance-완전분할 data × 게이트-타입 policy·닫힘 판정표·부산물 4·정직잔여 3). 이 문서는 그 도출을 *대체하지 않고* 형식적으로 보강하는 companion — net-new 3건만 담는다. 본체와 충돌 시 **본체가 권위**.
+
+## 0′. ★전면화 (리뷰 2026-06-15 — 진짜 상 + 개수 잠정성)
+- **★진짜 성과 = control 층 정리-급 닫힘(전면 배치)**: Böhm–Jacopini는 "임의 제어흐름 = {순차·선택·반복} 표현가능"(표현 완전성). primitive가 (가지치기 후) 이 basis를 덮으면 **새 control-flow primitive는 원리상 불가**(control 축 P10 불가능) = 경험적 포화 아닌 **정리**. 1/3 층에서 "whack-a-mole 끝" 증명. ⇒ §2 표 한 칸에 묻지 말고 헤드라인.
+- **★유한성(robust) vs 개수(잠정) 분리(필독)**: whack-a-mole 반박 = *유한성*이지 *9*가 아님. 유한성 = control 정리 + provenance 완전분할로 **robust**. 정확한 개수 = leave-one-out 후 **~7–9 잠정**(merge 후보 = P1↔P8-provenance §3·**P3↔P9** §2-#2). merge가 풀려도 thesis 무손상 — 오히려 더 깨끗(개수↓=더 강한 압축). **개수-논쟁이 thesis를 흔든다는 인상 차단.**
 
 ## 0. companion이 더하는 것 (net-new 3)
 1. **흡수 메커니즘 + 두 개별화 기준의 통합** — 왜 순수 branch·유계 loop가 primitive가 *아닌가*를 명시하고, 그로써 §1.5(a)(separable-learnability)와 §1.5(b)(대수)가 **한 파이프라인의 두 단계**임을 박제(§1).
@@ -22,9 +27,11 @@
 ## 2. 두 후보 seam의 화해 — 1차 = 층B (net-new 화해)
 닫힘이 **정리로 잠기지 않은** 곳 = 정확히 둘. §1.5(b) 판정표를 seam-언어로 재진술:
 
+> **★#2 (리뷰): par는 공리·BJ 아님 + P9 merge-후보.** Böhm–Jacopini = {순차·선택·반복} 3개뿐, **병렬은 정리에 없음** → "BJ+par"의 par는 bolt-on 공리(아래 표 "정리 잠김"은 par 성분엔 약간 과대). 더: 도구호출 병렬 = "데이터 의존 없는 호출집합" = **순서 제약의 부재** = P3(시퀀싱)의 뒷면. ⇒ P9의 내용 = "독립성 인식해 *가짜 순서 안 매김*" → **(P3,P9)를 (P1,P8-prov)와 같은 merge-scrutiny**(census P9=0[τ²]도 P9=default/null 시사). 개수 ~7-9 잠정(§0′).
+
 | 축 | 닫힘 근거 | seam 지위 |
 |---|---|---|
-| 층A control | Böhm–Jacopini + par | **잠김**(정리) — seam 아님 |
+| 층A control | Böhm–Jacopini(순차·선택·반복=정리) **+ par(공리 bolt-on)** | **잠김**(정리, par 제외) — seam 아님 |
 | 층A data | provenance 완전분할 — **단 transform 제외(제약 S) 하에서** | **2차 seam**: S는 scope-자인이지 정리가 아님. 실타깃이 *계산된 인자*(obs→fn→arg)를 요구하면 P10 발화. **census 조건부.** |
 | 층B policy | 게이트-타입당 1 primitive — **단 타입이 유한이라는 경험적 가정** | **★1차 live seam**: G5 게이트타입 출현 시 P10. 적대 벤치탐색(§4 #6)의 정조준 대상. |
 
@@ -45,7 +52,9 @@
 
 ## 3b. ★실증 census — seam β 해소 + P7 구조부재 확인 (net-new·zero-cost)
 `tau2_primitive_census.py`(retail n=114·정적: gold action + `@is_tool(ToolType.WRITE)` 분류 + scenario). 모델 실행 0.
-- **★orphan 도구 = 0 — 전 τ² 도메인 전수**: retail(114)·airline(50)·telecom(2285·dual-control)·mock 모든 gold 도구(~2450 task)가 P1-P9로 매핑. **분류 밖 연산(P10) 0**. 도구 분류=각 도메인 `tools.py`+`user_tools.py`의 `@is_tool(ToolType.WRITE)` 동적 파싱(반환시그니처 원칙). §2 두 seam의 *경험* 시험 = 통과(전 도메인). ★telecom 주의: device-actuation write(toggle_*·reboot_device)도 P5/P6(상태변경 게이트)에 매핑 — GUI-인접이나 여전히 tool-call control/data-flow → 새 primitive 아님(scope 경계 §5 1줄 자인).
+- **★orphan 도구 = 0 — 전 τ² 도메인 전수**: retail(114)·airline(50)·telecom(2285·dual-control)·mock 모든 gold 도구(~2450 task)가 P1-P9로 매핑. **분류 밖 연산(P10) 0**. 도구 분류=각 도메인 `tools.py`+`user_tools.py`의 `@is_tool(ToolType.WRITE)` 동적 파싱(반환시그니처 원칙). §2 두 seam의 *경험* 시험 = 통과(전 도메인).
+  - ⚠️**#4 (리뷰) 주장범위 정밀화**: orphan=0은 **도구-분류 커버리지**(개별 도구∈P1-P9) — **스킬-조합 커버리지**(task 요구 *패턴* call→observe→branch→confirm ∈ P1-P9)는 한 단계 강한 주장. 요구분포(P1 112…)가 스킬-수준에 근접하나, **그 task별 primitive 태깅이 수동검증인지 도구-타입 자동도출인지 명시 필요**(후자면 도구-수준 한계 상속). 현 census = 도구-커버리지 확정·스킬-조합은 요구분포로 *근사*.
+  - ★**#6 (리뷰) telecom device-actuation 경계**: `toggle_*`·`reboot_device` write도 P5/P6 매핑. **in/out 기준 = 구조화 tool-call(=in) vs 픽셀/DOM 조작(=out)** — device-actuation은 API 호출이라 **명확히 in**(GUI-grounding 제외축과 구분됨). "GUI-인접" 모호표현 폐기·이 기준으로 대체.
 - **요구 분포**: P1 112·P5 104·**P6 104(91%)**·**P2b 97(85%)**·P3 92·P8 66·P2a 52·P4 28·**P7 0(gold)**·**P9 0**.
 - **★seam β 해소(τ²)**: 유일 변환도구 `calculate`(13/114)도 *tool-call* → 모델이 변환을 환경에 offload·결과를 **P2b로 소비**. ⇒ in-model 변환 primitive 불요·**β는 "변환 도구 부재 시에만 열림"**. 잘 설계된 벤치(τ²)는 변환을 도구로 제공 → β = scope 경계선이지 유한성 위협 아님. **§2 결론 강화: live seam = α(층B) 하나.**
 - **★P7 구조부재 확인**: gold P7=0·잠재(unknown_info fallback) 89/114. §1 흡수(iter→무계 retry만 P7)·"성공-gold에 deny 없음"을 **census가 독립 확증** → P7 SFT-소싱 불가·gate-in-loop RL(리뷰#5) 재확인.
@@ -58,7 +67,7 @@
 | 순수 층 A | P1·P2a·P2b·P3·P4·P9 | 6 |
 | 순수 층 B | P5·P6 | 2 |
 | **교차 A×B** | **P7**(iter×verdict)·**P8**(provenance×auth-gate) | **2** |
-- **예측 적중(post-hoc 아님)**: 교차층 2개(P7·P8)가 정확히 *가장 어려운* primitive — P7=RL 필요(리뷰#5)·P8=fab/auth 실패 클러스터(autopsy 지배·census P8 66/114). **난이도가 구조(교차층)서 도출**됨. ⇒ 학습 우선순위 = 교차층(P7·P8) 최후·최난(현 gap과 정합).
+- **구조-난이도 상관 = 일치(N=2, 적중 아님 — #5 리뷰 정정)**: 교차층 2개(P7·P8)가 가장 어려운 primitive — P7=RL 필요·P8=fab/auth 실패 클러스터(autopsy 지배·census P8 66/114). 구조적 정의(P7=iter×verdict·P8=provenance×auth)는 난이도와 **독립**이라 genuine prediction 자격은 있음. ⚠️**단 교차층 셀=2개뿐·둘 다 어려움 → 반증 불가**(쉬운 교차층 셀 부재로 "교차층→어려움" falsify 불가). ⇒ "예측 적중·post-hoc 아님" → **"구조-난이도 상관과 일치(N=2)"로 강등**. 학습 우선순위(교차층 최후·최난)는 현 gap과 정합하나 N=2 근거.
 
 ## 4. 정직 경계 (본체 §7과 동일·재확인)
 - 닫힘 = **구조적·상대적**(control=정리 잠김 / data=S 상대 / policy=게이트유한 상대). 학습가능성 증명 아님 — 전이는 ✓→✓! 경험 측정으로만.
