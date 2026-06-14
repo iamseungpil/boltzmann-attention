@@ -36,5 +36,14 @@
 ## 16:53 v4 최신 체크포인트(opt-step~1200) 재테스트
 - v4 ep0 계속 학습(step4850·24체크포인트). 최신 체크포인트 A/B(driver_v4b.sh) → 더 학습 시 pass↑·날조 유지? 결과 ~17:10·sentinel V4BTEST_DONE.
 
+## ★D5 대조쌍 (fetch-우선 게이트) 구현·빌드 완료 (day-7 PM 이어서)
+- **근본원인(사용자 교정)**: τ² over-ask = "fetch 우선이어야 하는데 ask함". v4 ask-aug(`fc_askuser_augment.py`)이 키워드 휴리스틱(dob/birthday/income/amount/member...)으로 무차별 ask → getter-output 슬롯까지 ask 학습 → always-ask 붕괴(R1b §3a D5).
+- **구현(`fc_d5_contrastive.py`·커밋)**: ask/fetch 분기를 **카탈로그-결정론**으로. 게이트 = **provenance(값∈user 발화 & ∉tool 출력·정확 신호) + getter_map(arg_key 토큰 ⊆ getter 생산-슬롯이면 fetchable=ask 금지)**. 휴리스틱 폐기.
+- **빌드 census(sop_rand 5028)**: 자연 fetch-then-use **3024 traj(60%)** = fetch 분기 풍부 / ask-적격 4414 / **OVER-ASK=0 ✓**(ask한 키 중 fetchable 0). 1st-call provenance = user 7750·none 86·tool 0(첫 호출=순수 identity).
+- **★대조 신호 확인**: user는 ID/타입/identity 제공(ask) vs 시스템은 details/status fetch — `product_id`(ask)↔`product_details`(fetch)·`order_id`↔`order_details/history`·`room_type`↔`room_assignment`·`test_type`↔`test_details`. 새 게이트가 구 휴리스틱이 **놓친** 정당 user-param(room_type·check_in_date·plate_num·foreign_currency_type 등)도 ask.
+- **★sft_v5 빌드 완료**(`fc_build/sft_v5.jsonl`·13781 traj): = sop_rand(5028) + **sop_d5_ask40(1753·게이트 ask, frac0.40)** + tb(7000). **v4(13789)와 동일 구조, ask만 휴리스틱(1761)→D5 게이트(1753) 교체 = 깨끗한 A/B**(volume 일치, 선택만 변경). QC 클린·d5_branch 라벨 보존(ask 1753).
+- **fetch/upfront 예시 = sop_rand 자체**(이미 자연 fetch-then-use 포함) → 별도 합성 불요(날조 위험 회피). 대조는 데이터셋 레벨(ask-when-no-getter ∪ fetch-when-getter) + over_ask=0 보장.
+- **다음(미결·GPU 결정)**: v5 학습 launch 보류 — GPU0=v4 학습 in-flight(ep0 step6550·32 ckpt·죽이지 말 것), GPU1=21GB 점유(우리 compute-app 0개=coworker 가능성). **launch 판단 사용자 대기**: ①v4 수렴 후 GPU0 ②GPU1 free 확인 후 ③coworker A100/H200 노드. 학습 시 = lora_train_chat_toolcall.py·flash-attn·grad-accum4, then τ² A/B(driver 패턴) vs v4 — over-ask율·compliant-pass 비교.
+
 ## 인프라 메모
 - ⚠️ git: 원격 워크스페이스 cat-append 커밋이 백틱 명령치환 + rebase 충돌 유발 → **진행로그는 로컬 클론서만 편집**(원격은 pull). 원격 dirty(offload_*.sh)는 coworker 것 — 건드리지 않음.
