@@ -69,7 +69,21 @@
 - **★헤드라인 재서술(사용자)**: "빈 칸 채우기" → **"R(특히 R4/dirgraph 시퀀싱)을 SOPBench/TaskBench서 학습·ABox-swap으로 각 벤치 base→frontier로 올리면 τ²/SOP-Bench로 *커플 전이*"**. 학습신호 = **in-dist dirgraph↑가 τ²↑와 커플되는 부분**(커플링 실험으로 실증 중).
 - **★2-gap**: τ² = (i)시퀀싱(R4·SOPBench 있음·전이가능) + (ii)2-hop id-lookup gather(부재). (i)이 (ii) binding까지 끌어올림 → (ii) 소스 = 3번째 벤치.
 - **★3번째 벤치 = Seal-Tools**(딥리서치 확정): 현실 서비스-API 엔티티·`API_call_N` 출력→arg·586 nested·Apache-2.0·gold JSON(결과 합성)·변환 LOW-MED. **반드시 value-randomization 결합**(심볼참조→복사강제). 2순위 BFCL V3 multi-turn(grounded). 보조 NESTful(수학만·gap 불충족). 기각: ToolBench(CC-BY-NC=주권충돌)·AppWorld(REPL+Amazon중첩)·API-Bank(API-검색≠값-fetch).
-- **⇒ v7 학습 = SOPBench + TaskBench + Seal-Tools(2-hop 소스). 헤드라인 = 커플 전이(R4) + 부재 스킬(2-hop) 소싱.**
+- ~~⇒ v7 학습 = SOPBench + TaskBench + Seal-Tools~~ → **★★정정(2026-06-15): Seal-Tools 강등·ComplexFuncBench 승격 (§8c).**
+
+## 8c. ★★3번째 벤치 재순위 (2026-06-15, 추가 딥리서치 3클러스터 + ComplexFuncBench 1차 데이터 검증 — §8b Seal-Tools 결정 정정)
+> 동기 = "AppWorld/ToolBench 외 2-hop 벤치 더 탐색"(사용자). 3 병렬 에이전트(전부 arXiv+repo+라이선스 1차 검증). **핵심 = Seal-Tools 1순위는 잘못된 축 가중.**
+
+- **★결정적 구분 = 단발-심볼형 vs 멀티턴 observe-then-use**:
+  - **단발 DAG 생성**(Seal-Tools·TaskBench·NESTful): 지시문→전체 plan 한 번에, 심볼참조(`API_call_N`/`<node-N>`) threading. **실제 출력 관찰 없음.**
+  - **멀티턴 observe-then-use**(ComplexFuncBench·BFCL·RestBench·τ²): 호출→**실제 응답 관찰**→출력서 값 추출→사용.
+  - **우리 gap(order_id fetch해 쓰기)은 후자.** Seal-Tools=전자=**TaskBench 동류**(사용자 "동형" 관찰 확인). **v6은 이미 TaskBench threading(41%)로도 order_id 날조** → Seal-Tools 추가 = v6이 불충분 입증한 종류를 더 넣는 것. 관찰할 실제 출력이 없어 grounded fetch 학습 구조적 불가.
+- **★새 1순위 = ComplexFuncBench** (arXiv `2501.10132` v1, HF `zai-org/ComplexFuncBench`, apache-2.0): Booking.com 실 API(호텔/항공/렌터카/택시/관광), **추론형+grounded**. verbatim: *"LLMs are expected to infer the correct parameter values based on user constraints **and API responses**."* 1,000샘플·평균 5.07 call·3단계 인간검수. Seal-Tools 약점 두 축(추론형·grounded) 둘 다 충족 + 멀티턴 observe-then-use = 우리 native-FC 타깃과 *동형*(변환 더 쉬움).
+  - **✅BLOCKING #1 해소(1차 데이터 검증)**: gold에 **녹화 API 응답 포함**(`role:"observation"`에 Booking JSON verbatim; 위경도 `32.873055/-117.215935`가 다음 호출 `pick_up_latitude/longitude`로 threading 실증) → **라이브 RapidAPI 없이 SFT 소스 가능.**
+  - ⚠️**남은 BLOCKING(채택 전)**: ①**라이선스 공백** — zai-org 선언 apache-2.0이나 GitHub LICENSE 부재 + 데이터=Booking/RapidAPI 파생→**하류 ToU가 응답값 재배포에 별도 적용 가능**(카드 미언급). 주권 프레이밍상 실사 필수. ②**flights↔airline 근접도메인**=τ² 전이가 근접이라 SOP-Bench 원거리보다 약한 증거(헤드라인=원거리·근접=보조). ③**ComplexEval=LLM-judge 혼합**→불변 위배→**gold 궤적만 소스, eval은 결정론 재구현**(타입→인자-타입→사전조건→replay).
+- **보강**: RestBench(`2306.06624`, **MIT**)=추론형 전형(TMDB/Spotify `user_id`/`playlist_id` threading·명시단서 없음) 단 소규모(2도메인~157). BFCL V3 Miss-Params(apache-2.0·grounded·결정론)=**D5 ask/fetch 게이트 직결**·ask-eval 최적.
+- **강등/제외**: Seal-Tools=단발-심볼형(TaskBench 동류·신규정보≈0)→선택 augmentation·저우선. ToolHop(apache/cc-by)=합성코드→시퀀싱 보조만. ToolSandbox(Apple 비상업)·ToolBench(데이터 research-only)·τ²(contamination)=제외.
+- **⇒ v7 2-hop 소스 = ComplexFuncBench**(Seal-Tools 대체). 레시피 정정: `sft_v7 = sop_rand2 + d5_ask2 + tb_all_v4 + complexfuncbench`. 단 라이선스 ToU 실사 통과 후. **tb_all_v4가 이미 단발-threading 운반 → seal_tools는 이중 잉여.**
 
 ## 9. 마일스톤
 M1 §4c census(2-hop 체인 유무) + §7-R3 매핑 확인 → M2 withholding 구성 스크립트(결정론) → M3 teacher 파일럿(N=50·R2 검증) → M4 전량 생성+변환+SFT(v7) → M5 eval(3-way+autopsy).
