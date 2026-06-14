@@ -21,9 +21,11 @@ s=open(p).read(); ch=False
 if '"$NAME": "$NAME"' not in s:
     s=s.replace("OSS_MODELS = {", 'OSS_MODELS = {\n    "$NAME": "$NAME",', 1); ch=True; print("[oss] added $NAME")
 else: print("[oss] $NAME present")
-if '"$NAME"' not in s.split("FUNCTION_CALLING_MODELS")[1].split("]")[0]:
-    s=s.replace('"vllm": [', '"vllm": [\n        "$NAME",', 1); ch=True; print("[fc] added $NAME to vllm")
-else: print("[fc] $NAME present")
+fc_block = s.split("FUNCTION_CALLING_MODELS")[1].split("]")[0]
+anchor = '"vllm": [  # arm-3 infra'   # FUNCTION_CALLING_MODELS의 vllm 블록 고유 앵커
+if '"$NAME"' not in fc_block and anchor in s:
+    s=s.replace(anchor, anchor + '\n        "$NAME",', 1); ch=True; print("[fc] added $NAME to FCM[vllm]")
+else: print("[fc] $NAME present or anchor missing")
 if ch: open(p,"w").write(s)
 PYEOF
 
