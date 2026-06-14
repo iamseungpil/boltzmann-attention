@@ -87,7 +87,7 @@ def clean(raw):
     return out
 
 
-def convert_task(task, tools):
+def convert_task(task, tools, domain=None):
     inter = task["interactions"][0]
     prompt = inter.get("prompt", "")
     sys_msg = {"role": "system", "content": prompt if isinstance(prompt, str) else json.dumps(prompt)}
@@ -99,7 +99,7 @@ def convert_task(task, tools):
         return None
     ev = next((e for e in task["evaluations"] if e.get("success")), task["evaluations"][0])
     return {"tools": tools, "messages": msgs,
-            "_meta": {"bench": "sopbench", "domain": task.get("domain"),
+            "_meta": {"bench": "sopbench", "domain": task.get("domain") or domain,
                       "goal": ev.get("user_goal"), "should_succeed": ev.get("action_should_succeed"),
                       "n_calls": ctr[0]}}
 
@@ -119,7 +119,7 @@ def main():
     succ = [t for t in data if any(e.get("success") for e in t["evaluations"])]
     out, skip = [], 0
     for t in succ:
-        c = convert_task(t, tools)
+        c = convert_task(t, tools, a.domain)
         if c is None:
             skip += 1
         else:
