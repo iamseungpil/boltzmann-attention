@@ -45,8 +45,9 @@ $PY run_evaluation.py --assistant_model $NAME --domain $DOM --tool_call_mode fc 
   --default_constraint_option full --constraint_descr_format structured 2>&1 | \
   grep -E "percentage_success|dirgraph_satisfied|Mean Pass Rate|database_match|action_successfully" | head
 
-# 3. τ²
+# 3. τ²  (★openrouter user-sim 키 필수 — 부재 시 전 task infrastructure_error=false 0.0)
 unset SOPBENCH_VLLM_BASE_URL
+set +x; source /home/woori/.openrouter_key; export SSL_CERT_FILE=$($PY -c "import certifi;print(certifi.where())"); set -x
 cd $S/tau2-bench; export PYTHONPATH=src:$T2
 rm -rf data/simulations/retail_${LABEL}
 $PY $T2/t2_run_gated.py --gate 1 --num_trials 1 --num_tasks $N --agent_model $NAME \
