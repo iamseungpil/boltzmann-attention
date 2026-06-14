@@ -103,7 +103,6 @@ def main():
     # eval-후크: compliant-pass(F4b) 자동 산출 — 저장된 results.json 위 replay,
     # compliance.json 사이드카. 실패해도 본 결과에 영향 없음.
     try:
-        import os
         from t2_compliance import report_for_dir
         sim_dir = os.path.join("data", "simulations", a.save_to)
         if os.path.exists(os.path.join(sim_dir, "results.json")):
