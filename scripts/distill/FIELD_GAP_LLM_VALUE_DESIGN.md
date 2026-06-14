@@ -135,6 +135,8 @@ SOPBench success = 6 하위기술의 곱. 각 기술의 (scale 민감도 × scaf
 
 **★종합 (2026-06 novelty 좌표 재확정)**: runtime enforcement(AgentSpec)·NeSy verifier(NSVIF)·verifier-TTS(이론 2502.12118+실증 2506.12928; ⚠️2601.15808은 §134 내용정정으로 제외)는 전부 published. ⇒ **빈 칸 = {NL정책→스펙 자동 컴파일(A2)} × {도메인 전이} × {compliant-pass 2축 측정} × {결정론 런타임(LLM-free)}의 교집합** — §5 결합-novelty 판정이 더 좁고 명확한 형태로 유지됨. **게이트 자체는 더 이상 단독 novelty 아님** = §17.9("coverage가 헤드라인·게이트는 검증가능성")·§13.3 C3("A3 delta 얇음")의 외부 재확인. 부수: EU AI Act 고위험 의무 **2026-08-02 발효** — §15.4 open-1은 이미 ✅CLOSED(판정=(c) 로깅+검증 충족, 결정론-leg 철회)이므로 이 발효는 *결정론 요구*가 아니라 **"검증가능성/추적성 수요의 제도화"** 근거로만 인용(금지문구 "regulations require deterministic logic" 준수). AgentSpec류 runtime-enforcement 시장 형성과 합쳐 "집행-필요" leg의 실무 수요 증거.
 
+**★위험 인용 — 명시 차별 의무 (2026-06-15 딥리서치, `ALGEBRAIC_DERIVATION_CLOSURE` §4.1)**: `2510.06002` **"Deterministic Legal Agents: A Canonical Primitive API"** = 우리 키워드 3개(**deterministic + primitive + provenance**) 동시 등장 = 리뷰어가 "이미 했다" 오해할 최고위험 인접. **직독 확인된 차별(점유 아님)**: ① 법률 도메인 **손-나열 primitive**(control/data/policy *도출* 0) ② "**representative core subset**" 자인(유한·완전·닫힘 **무주장**) ③ **벤치-횡단 전이 0**. ⇒ 우리 = "도메인 손나열이 아니라 **3축(Böhm–Jacopini control + provenance-semiring data + Schneider/TAM policy) 대수적 도출 + 벤치횡단 전이 완전성 검증 + 결정론 게이트**". 인접 차용: component-synthesis 상대완전성(Jha–Seshia)·Böhm–Jacopini(IPARC `2506.13820`=인용만). **공백 확정**: "에이전트 스킬 유한 생성집합 + 형식 도출 + 전이 검증"은 무주공산(BFCL/τ-bench=경험 카테고리·완전성 무주장).
+
 ## §5.6 ★NL→formalize 분야 서베이 — A2 novelty 좌표 (2026-06-14, `research_nl_formalize_2026_06_14.md`, 1차 검증·수치 재확인 단서)
 | 계열 | 대표 (검증) | A2와의 관계 |
 |---|---|---|

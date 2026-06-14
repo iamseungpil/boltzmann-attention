@@ -39,6 +39,23 @@
 - **그러나 S도 공짜 아님**: 층A-data의 "완전분할 강함"은 *S 상대*다 — 즉 층B의 "게이트타입 유한 상대"와 **같은 종류의 상대성**(하나는 scope-제외, 하나는 경험-미관측). 차이는 S는 *우리가 명시적으로 그은 경계*(§5 무거운 짐), G5는 *아직 안 본 것*. ⇒ **정직 진술**: 정리로 잠긴 축은 control 하나, data·policy는 각각 S·게이트유한에 *상대적으로* 닫힘.
 - **그래서 census가 둘 다 시험**: §6.2 τ²/CDP census는 (1)*계산된 인자* 요구 task 수(=S 시험) (2)G1-G4 밖 게이트 유형(=층B 시험) **둘 다** 세야 한다. 0/0이면 닫힘 경험확정, >0이면 해당 축서 P10 발화·매트릭스 1행 추가(여전히 유한).
 
+### 2.1 ★★두 seam의 진짜 해소 = ABox/A2 재배치 (사용자 통찰 2026-06-15 — §2 재진술, 위 "경험으로 메울 구멍" 프레임 격상)
+> **핵심 전환**: 두 열린 seam(data-transform·policy-게이트타입)은 **"모델 스킬-basis의 구멍"이 아니라 "ABox/A2로 올바로 격리된 도메인 *내용*"이다.** 무한은 사라지지 않고 *전이 TBox가 아닌 swap ABox*로 이동 — 도메인 지식이 있어야 할 정확한 자리.
+
+- **공통 성질**: 두 seam 모두 도메인 *내용*(content)이지 전이가능 *스킬*이 아니다.
+  - data `computed`(임의 변환·Turing-완전) = `is_authenticated` 파싱·금액 산술·날짜 정규화 → **per-domain authored `compute` 노드**(§14 bounded·audited pure-fn·§14.6 "사전 authoring 결정론 자산").
+  - policy 게이트-타입(HRU 무한) = G5("예산초과→승인자2") → **그 도메인 A2/GATE_SPEC**에 인코딩.
+- **★구성상 유한 논증(경험 포화보다 강함)**: 모델 쪽 *상호작용 어휘*가 유한이라 **새 변환·새 게이트가 새 *모델* primitive(P10)를 강제할 수 없다** — 강제 가능한 건 새 *A2 항목*뿐.
+  - 임의 compute여도 모델은 *호출+출력 threading* = **P2b**(census 실증: τ² `calculate`→도구offload→P2b 소비).
+  - 새 게이트(G5)여도 모델은 *제안→deny 관찰→복구(승인자 fetch/ask)* = **P5+P7+P2a**. 게이트의 *내용*(precond X)은 임의(A2)나 모델의 *충족 수단*(fetch/ask/선행행동/confirm)은 유한.
+  - ⇒ **"G5→P10" 질문 해소**: G5는 P10이 아니라 A2 항목 하나를 요구. live seam(§2 표)이 "경험적 위협"에서 "A2 표현가능성 질문"으로 강등.
+- **★단 하나의 구분(섞으면 과대) — A2 *소비* vs *생산***:
+  - (a) A2 **소비**(주어진 GATE_SPEC/카탈로그 안에서 제안·복구) = **P1+P5/P6/P7 = 이미 유한집합 안. 새 R 불요.** ← 닫힘 성립 영역.
+  - (b) A2 **생산**(정책 NL→GATE_SPEC 컴파일) = **NL→구조 front-end = thesis core 미해결**(§17.9·E1). **이 닫힘 논증이 덮지 않음.**
+  - = **2-prong**: prong②(OISA·A2 authored→모델은 소비만→유한 primitive 충분) / prong③(학습 front-end가 A2 자동생산→hard 열림). "A2 쓰는 R이면 충분"은 **(a)에서 정확히 참**.
+- **CDP census 재정의(정련)**: "모델 basis 완전한가"는 이 논증으로 닫힘 → census가 실제 시험하는 것 = ①**A2가 CDP 게이트·compute를 표현가능한가**(prong② authoring-feasibility) ②**front-end가 CDP NL서 A2 생산가능한가**(prong③ 진짜 hard). 더 정직·정확한 시험.
+- **deterministic 불변 정합**: 게이트 집행(A2+scaffold)·compute 모두 결정론 사전자산. 모델은 생성기 역할만(게이트로직 생성 0) = `feedback-selector-verifier-deterministic` 부합.
+
 ---
 
 ## 3. P8 ↔ P1 provenance 중복 — merge-후보 flag (net-new)
@@ -69,7 +86,17 @@
 | **교차 A×B** | **P7**(iter×verdict)·**P8**(provenance×auth-gate) | **2** |
 - **구조-난이도 상관 = 일치(N=2, 적중 아님 — #5 리뷰 정정)**: 교차층 2개(P7·P8)가 가장 어려운 primitive — P7=RL 필요·P8=fab/auth 실패 클러스터(autopsy 지배·census P8 66/114). 구조적 정의(P7=iter×verdict·P8=provenance×auth)는 난이도와 **독립**이라 genuine prediction 자격은 있음. ⚠️**단 교차층 셀=2개뿐·둘 다 어려움 → 반증 불가**(쉬운 교차층 셀 부재로 "교차층→어려움" falsify 불가). ⇒ "예측 적중·post-hoc 아님" → **"구조-난이도 상관과 일치(N=2)"로 강등**. 학습 우선순위(교차층 최후·최난)는 현 gap과 정합하나 N=2 근거.
 
-## 4. 정직 경계 (본체 §7과 동일·재확인)
-- 닫힘 = **구조적·상대적**(control=정리 잠김 / data=S 상대 / policy=게이트유한 상대). 학습가능성 증명 아님 — 전이는 ✓→✓! 경험 측정으로만.
+## 4. 정직 경계 (본체 §7과 동일·재확인 — ★§2.1 재배치 + 딥리서치 반영 2026-06-15)
+- ⚠️**구판("data=S 상대 / policy=게이트유한 상대")은 §2.1로 격상**: 열림은 *모델 스킬-basis*가 아니라 *A2 내용*에 있음. **모델 basis는 닫힘**(상호작용 어휘 구성상 유한). 단 A2-생산(NL→구조 front-end·prong③)은 별개 미해결.
 - 도출의 효과 = 포화를 **"증명→확인"으로 강등**할 자격. 실증(적대 포화 §4#6 + held-out 전이)을 *대체*하지 않음.
 - 유한 생성 = control/data-flow 슬라이스 한정(P1-P9). 계산·장기계획·GUI·세션메모리 = 도출 밖(§5 무거운 짐).
+
+### 4.1 ★딥리서치 — data/policy 정리-닫힘 선행연구 (2026-06-15, 3클러스터 1차소스. ⚠️일부 verbatim PDF 미추출=secondary 교차확인·박제 전 원문 재검)
+- **data 축 = 부분 정리-닫힘 + 원리적 잔여**:
+  - **출처·결합·추출·배선 = 정리-닫힘**: Green–Karvounarakis–Tannen *provenance semirings*(PODS'07) — 다항식반환 **ℕ[X] universal**(모든 provenance 모델이 factor through), +/×=대안/결합 유도 닫힌 대수(threading=×). **Codd 정리**(rel-algebra=rel-calculus=FO·유한 연산자 완전) = data축 Böhm–Jacopini 최근접 유사물. **SSA** 참조투명성=배선 정규형. **Denning 격자**(1976)=출처라벨 join 닫힘(`fc_d5` 라벨전파와 일치).
+  - **`computed` 분할 = 원리적 열림**: 임의 변환=Turing-완전 → **Church–Turing/Rice로 유한 기본형 닫힘 불가**. ⇒ **§2 제약 S가 "임의 scope결정"에서 "Turing-완전성이 강제하는 경계"로 격상**(훨씬 방어적). ⚠️"computed=Turing이라 닫힘불가"는 *우리 도출*(특정논문 정리 아님·인용없는 우리주장 표기).
+- **policy 축 = 쪼개진 정리(당신 구분 정확)**:
+  - **집행가능성=정리-닫힘**: Schneider *Enforceable Security Policies*(TISSEC'00) — 런타임 모니터(EM) 집행가능 = **정확히 safety property**. G1-G4 전부 prefix-closed safety → **집행가능 증명**. (edit-automata[Ligatti]·BLS monitorability는 safety 넘어 확장=P7 recovery 자리.)
+  - **게이트-타입 유한성=정리 불가(부정결과)**: **HRU(1976)** 일반 access-matrix safety **결정불가능** → 일반 정책공간 정리-닫힘 불가 = "게이트유한"이 보편정리일 수 없는 *이유*(우리 실패 아닌 근본장벽).
+  - **탈출구=타입제약**: **Sandhu TAM**(1992) typed·monotonic·acyclic → 결정가능(ternary 다항시간) = **우리 "타입→인자타입→선행조건→replay" 결정론 검증기와 동형**. ⇒ G5부재 = 보편정리 아니라 **TAM-제약 하 산물**(§2.1 ABox-재배치와 정합: 게이트내용=A2, 모델상호작용=유한).
+- **빈 칸 + 위험 인용**: "control·data·policy 도출 + 벤치횡단 전이 완전성검증"은 **무주공산**(BFCL/τ-bench=경험 카테고리·완전성 무주장). 차용=component-synthesis 상대완전성[Jha-Seshia]·Böhm–Jacopini[IPARC `2506.13820` 인용만]. ⚠️**위험 인용 = `2510.06002` "Deterministic Legal Agents: Canonical Primitive API"**(deterministic+primitive+provenance 키워드 3개 동시·단 법률도메인 손나열·도출/전이 0) → **FIELD_GAP §5.5에 명시 차별 문장 필수**(리뷰어 "이미 했다" 오해 차단).
