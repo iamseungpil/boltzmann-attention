@@ -98,6 +98,12 @@
 - 도구 = `scripts/distill/tau2/sopbench_indist_eval.sh`(run_simulation+SOPBENCH_VLLM_BASE_URL·OSS_MODELS+FCM[vllm] lora 등록). 채점 = `run_evaluation.py`(★output_v2/서 읽음·run_simulation은 output/에 씀 → **cp 필요**, 메모리 "run_evaluation 크래시" 원인).
 - ⚠️ **coworker 파일 사고·복원**: SOPBench `swarm/constants.py`의 arm-3 FCM[vllm](qwen/llama 등록)이 *uncommitted*였는데 내 `git checkout`이 되돌림 → **arm-3 내용 복원 완료**(+v6tbox). SOPBench 클론 파일 `git checkout` 금지(coworker dirty). FCM[vllm]에 v6tbox 중복 1개=cosmetic.
 
+## ★★커플링 실험(A) + 3번째 벤치 딥리서치(B) — 둘 다 v7=3벤치로 수렴 (2026-06-15)
+- **A 커플링(v6 step2599·step3999·N=20·`coupling_eval.sh`)**: 두 점 모두 **SOPBench in-dist success 0.65·dirgraph 0.70(잘 배움)·τ² 0.0(전이 완전실패)**. = **현 상태 디커플링: in-dist 높아도 τ² 0**. (앞선 N=10 dirgraph 0.33=small-N 노이즈·N=20서 0.70 안정.) 기제 = τ²는 **(ii)2-hop id-lookup binding**(v6 auth는 grounding=부분전이·order_id fetch 못해 stuck). ⇒ **in-dist 시퀀싱↑가 τ²↑로 커플되려면 2-hop 선결**(census 논증→실증). caveat: 두 ckpt 근접→*궤적*아닌 *엔드포인트* 디커플링(저-dirgraph 초기점 미스냅샷). v6 τ²0.0<v4 0.10=honest-but-stuck(autopsy).
+- **B 딥리서치(3번째 벤치)**: **1순위 Seal-Tools**(현실 서비스-API 엔티티·`API_call_N` 출력→arg·586 nested·Apache-2.0·gold JSON 결과합성·변환 LOW-MED·**value-randomize 필수**=심볼참조). 2순위 BFCL V3 multi-turn(grounded·rollout 필요). 보조 NESTful(수학만·gap불충족). 기각: ToolBench(CC-BY-NC=주권충돌)·AppWorld(REPL+Amazon중첩)·API-Bank(API검색≠값fetch).
+- **⇒ v7 = SOPBench + TaskBench + Seal-Tools**(2-hop 소스). 헤드라인 = R4 커플전이 + 부재 2-hop 소싱. 커플링 재검증 = v7 후. 설계서 §8b 박제.
+- 도구: `scripts/distill/tau2/coupling_eval.sh`(어댑터1개 SOPBench채점+τ² 동시). ⚠️lora명 재사용시 SOPBench output(ast_<name>) 충돌주의(순차 OK).
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.

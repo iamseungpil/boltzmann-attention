@@ -63,5 +63,13 @@
 - **2차(점수)**: τ² compliant-pass v6 대비 ↑·base 0.17 돌파 지향. 0.3+면 강한 전이.
 - 음성(2-hop 미전이)도 1급 진단(어느 층서 막히나: gather 추론 vs select vs 의미매핑).
 
+## 8b. ★재좌표 (사용자 리뷰 + M1 census + in-dist eval, 2026-06-15)
+- **M1 census 확정**: 학습 7도메인서 tool-출력→arg(2-hop) = **1.9% 희소**(online_market b=0). customer_service(session_token 2-hop)는 **참조 온톨로지·executor 없음=학습불가**. 변환기는 보존함(P0 아님)·소스가 구조적 부재.
+- **★in-dist eval(v6 online_market): mean-pass 0.60·success 0.33·dirgraph 0.33 ≫ base 0~21%** → in-dist 안 떨어짐·**τ² 0.05는 순수 전이 문제(R4)**. 모델 정상. dirgraph가 최약=전이 타깃.
+- **★헤드라인 재서술(사용자)**: "빈 칸 채우기" → **"R(특히 R4/dirgraph 시퀀싱)을 SOPBench/TaskBench서 학습·ABox-swap으로 각 벤치 base→frontier로 올리면 τ²/SOP-Bench로 *커플 전이*"**. 학습신호 = **in-dist dirgraph↑가 τ²↑와 커플되는 부분**(커플링 실험으로 실증 중).
+- **★2-gap**: τ² = (i)시퀀싱(R4·SOPBench 있음·전이가능) + (ii)2-hop id-lookup gather(부재). (i)이 (ii) binding까지 끌어올림 → (ii) 소스 = 3번째 벤치.
+- **★3번째 벤치 = Seal-Tools**(딥리서치 확정): 현실 서비스-API 엔티티·`API_call_N` 출력→arg·586 nested·Apache-2.0·gold JSON(결과 합성)·변환 LOW-MED. **반드시 value-randomization 결합**(심볼참조→복사강제). 2순위 BFCL V3 multi-turn(grounded). 보조 NESTful(수학만·gap 불충족). 기각: ToolBench(CC-BY-NC=주권충돌)·AppWorld(REPL+Amazon중첩)·API-Bank(API-검색≠값-fetch).
+- **⇒ v7 학습 = SOPBench + TaskBench + Seal-Tools(2-hop 소스). 헤드라인 = 커플 전이(R4) + 부재 스킬(2-hop) 소싱.**
+
 ## 9. 마일스톤
 M1 §4c census(2-hop 체인 유무) + §7-R3 매핑 확인 → M2 withholding 구성 스크립트(결정론) → M3 teacher 파일럿(N=50·R2 검증) → M4 전량 생성+변환+SFT(v7) → M5 eval(3-way+autopsy).
