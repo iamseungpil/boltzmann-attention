@@ -42,32 +42,34 @@ def load_tools(tools_py):
     global WRITE_TOOLS, AUTH_TOOLS, GETTER_TOOLS, META_TOOLS, ALL_KNOWN
     if not tools_py or not os.path.exists(tools_py):
         return False
-    src = open(tools_py, encoding="utf-8").read()
-    lines = src.splitlines()
+    lines = open(tools_py, encoding="utf-8").read().splitlines()
     writes, getters, auths, metas = set(), set(), set(), set()
-    pending_write = False
+    pending = None  # 최근 @is_tool(ToolType.X) 의 X ("WRITE"/"READ"/"GENERIC"/"THINK")
     for ln in lines:
         s = ln.strip()
-        if s.startswith("@is_tool") and "ToolType.WRITE" in s:
-            pending_write = True
-            continue
-        m = re.match(r"def ([a-z][a-z0-9_]*)\s*\(\s*self", s)
+        if s.startswith("#"):
+            continue  # 주석처리된 데코레이터(예: # @is_tool(...)) 무시
+        m = re.match(r"@is_tool\(\s*ToolType\.([A-Z]+)", s)
         if m:
-            name = m.group(1)
-            # 들여쓰기 1단(클래스 메서드)·비-helper(_시작 제외)만 tool
-            indent = len(ln) - len(ln.lstrip())
-            if indent > 0 and not name.startswith("_"):
-                if pending_write:
-                    writes.add(name)
-                elif name in META_NAMES:
-                    metas.add(name)
-                elif any(name.startswith(p) for p in AUTH_PREFIXES):
-                    auths.add(name)
-                else:
-                    getters.add(name)
-            pending_write = False
+            pending = m.group(1)
+            continue
+        dm = re.match(r"def ([a-z][a-z0-9_]*)\s*\(", s)  # self 다음 줄 가능(멀티라인 sig)
+        if dm and pending is not None:
+            name = dm.group(1)
+            if name.startswith("_"):
+                pending = None
+                continue
+            if pending == "WRITE":
+                writes.add(name)
+            elif name in META_NAMES or pending == "THINK":
+                metas.add(name)
+            elif any(name.startswith(p) for p in AUTH_PREFIXES):
+                auths.add(name)
+            else:  # READ / GENERIC(calculate 등) = getter(값 소스)
+                getters.add(name)
+            pending = None
         elif s and not s.startswith("@"):
-            pending_write = False
+            pending = None
     if not (writes or getters):
         return False
     WRITE_TOOLS, AUTH_TOOLS, GETTER_TOOLS, META_TOOLS = writes, auths, getters, metas
