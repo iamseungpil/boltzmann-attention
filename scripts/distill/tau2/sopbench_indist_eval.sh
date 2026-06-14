@@ -14,15 +14,17 @@ S=/home/woori/scratch
 LOG=$S/sopindist_${NAME}.log
 exec > $LOG 2>&1; set -x; date
 
-# 0. OSS_MODELS에 lora 엔트리 idempotent 추가 (요청 모델명=lora 이름이 되도록)
+# 0. lora 엔트리 idempotent 추가: OSS_MODELS(요청명=lora) + FUNCTION_CALLING_MODELS[vllm](fc assert 통과)
 $PY - <<PYEOF
-import re
 p="$SOP/swarm/constants.py"
-s=open(p).read()
-if '"$NAME"' not in s:
-    s=s.replace("OSS_MODELS = {", 'OSS_MODELS = {\n    "$NAME": "$NAME",', 1)
-    open(p,"w").write(s); print("[oss] added $NAME")
+s=open(p).read(); ch=False
+if '"$NAME": "$NAME"' not in s:
+    s=s.replace("OSS_MODELS = {", 'OSS_MODELS = {\n    "$NAME": "$NAME",', 1); ch=True; print("[oss] added $NAME")
 else: print("[oss] $NAME present")
+if '"$NAME"' not in s.split("FUNCTION_CALLING_MODELS")[1].split("]")[0]:
+    s=s.replace('"vllm": [', '"vllm": [\n        "$NAME",', 1); ch=True; print("[fc] added $NAME to vllm")
+else: print("[fc] $NAME present")
+if ch: open(p,"w").write(s)
 PYEOF
 
 # 1. serve base + lora on GPU
