@@ -83,6 +83,14 @@
 - v5 autopsy = v4와 동일 프로파일: PASS 2(write 있는 태스크)·나머지 **agent_collapse(too_many_errors·aw=10=재시도 루프 망치질)+fab_auth 지배**. ⇒ **ask/fetch *선택*은 병목 아님**(over_ask 2/20 예측대로)·**병목=fetch-실행(v6)+에러-복구(v7)**.
 - **3-way 현황**: v4(휴리스틱 ask) 0.10 / v5(D5 ask) 0.105 / **v6(fetch-teaching) 학습중**. v5는 ≈v4 확정(dead-end) → 완주 무의미·GPU1은 v6 eval에 쓰는 게 나음(권고).
 
+## ★★v6 중간 eval (step2599·fetch-teaching) — 부분성공·진짜 블로커 노출
+- **v6 pass^1 = 0.05** (v4/v5 0.10보다 낮음·단 step2599=ep0 19% 중간). GPU1 eval·v6 GPU0 무중단.
+- **★identity 날조 잡힘**: auth provenance **grounded 18/19**(v4/v5는 fab ~8-10) = **fetch-teaching/fetchable-randomize가 identity 값 grounding 성공**.
+- **★그러나 order_id 여전히 `#W0000000` 날조**(task5 dump): user가 "주문ID 없음·이름/zip으로 찾아달라"→ find_user 성공(user_id 획득)→ **get_user_details로 주문목록 fetch 안 하고** get_order_details('#W0000000') 날조→error→반복→transfer(포기).
+- **★진짜 블로커 = 2-hop proactive gather 부재**: threading은 "이전 출력 ref를 인자로 *복사*"를 가르침. 하지만 τ² order_id는 **"없는 값→생산 도구(get_user_details)를 *능동 선택해 먼저 호출*→출력서 order 선택"**(R2 gather + R4 select)이 필요. SOPBench getter는 username(기지)만 받아 2-hop 아님·TaskBench는 그래프 given이라 *선택* 학습 안 됨. = **이 스킬이 학습데이터에 없음**(autopsy SOP 1.9%/TB 0% 발견의 더 깊은 층).
+- **pass 하락 기제**: 모델이 *더 정직*해져(날조 후 진행 대신 막혀 멈춤/포기) collapse↑(12). = honest-but-stuck.
+- **함의/다음(v7)**: ①**proactive 2-hop gather 학습**(없는 arg→생산 getter 선택→호출→출력서 select). threading을 *guided*서 *unguided 선택*으로(예: user 발화서 값 빼고 getter 호출 강제). ②에러-복구(#W0000000 error→get_user_details 전환). ③order_id류 placeholder도 randomize 대상에. **v6 ep0 완주 후 재eval하되 기제상 이 2-hop 미해결 시 0.17 미달 예상.**
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
