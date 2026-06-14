@@ -1,0 +1,437 @@
+{
+  "bank": {
+    "call_get_database": [],
+    "get_loan_owed_balance_restr": [
+      "get_account_owed_balance"
+    ],
+    "internal_check_credit_card_exist": [],
+    "internal_check_foreign_currency_available": [],
+    "internal_check_username_exist": [],
+    "maximum_deposit_limit": [],
+    "maximum_exchange_amount": [],
+    "minimal_elgibile_credit_score": [
+      "internal_get_credit_score"
+    ],
+    "no_credit_card_balance": [
+      "get_credit_cards"
+    ],
+    "no_credit_card_balance_on_card": [
+      "get_credit_card_info"
+    ],
+    "no_owed_balance": [
+      "get_account_owed_balance"
+    ],
+    "not_over_credit_limit": [
+      "get_credit_card_info"
+    ],
+    "pay_loan_account_balance_restr": [
+      "get_account_balance",
+      "get_account_owed_balance"
+    ],
+    "pay_loan_amount_restr": [
+      "get_account_balance"
+    ],
+    "safety_box_eligible": [
+      "get_account_balance"
+    ],
+    "sufficient_account_balance": [
+      "get_account_balance"
+    ]
+  },
+  "dmv": {
+    "above_minimum_age": [
+      "internal_get_interaction_time",
+      "internal_get_user_birthday"
+    ],
+    "before_test_date": [
+      "internal_get_interaction_time",
+      "internal_get_test_details"
+    ],
+    "drive_test_ready": [
+      "internal_get_test_details"
+    ],
+    "internal_check_test_slot_available": [],
+    "internal_check_username_exist": [],
+    "internal_has_dl": [],
+    "internal_has_vehicle": [],
+    "internal_valid_test_type": [],
+    "internal_vehicle_registered": [],
+    "is_dl_address_different": [
+      "internal_get_dl_details"
+    ],
+    "is_vehicle_address_different": [
+      "internal_get_vehicle_details"
+    ],
+    "test_scheduled": [
+      "internal_get_test_details"
+    ],
+    "test_type_is_drive": [],
+    "valid_vehicle_insurance": [
+      "internal_get_vehicle_details"
+    ],
+    "within_attempt_limit": [
+      "internal_get_test_details"
+    ],
+    "within_dl_renewal_period": [
+      "internal_get_dl_details",
+      "internal_get_interaction_time"
+    ],
+    "within_vehicle_renewal_period": [
+      "internal_get_interaction_time",
+      "internal_get_vehicle_details"
+    ]
+  },
+  "healthcare": {
+    "appointment_date_valid": [
+      "internal_get_interaction_time"
+    ],
+    "claim_status_denied": [
+      "get_claim_details"
+    ],
+    "claim_within_coverage_amount": [
+      "get_claim_history",
+      "get_policy_details"
+    ],
+    "claim_within_limits": [],
+    "income_proof_enough": [],
+    "internal_check_claim_exists": [],
+    "internal_check_provider_exists": [],
+    "internal_check_username_exist": [],
+    "no_pending_claims": [
+      "get_claim_history"
+    ],
+    "policy_active": [
+      "get_policy_details"
+    ],
+    "policy_inactive": [
+      "get_policy_details"
+    ],
+    "policy_type_valid": [],
+    "provider_authorized": [
+      "get_policy_details"
+    ],
+    "provider_available": [
+      "get_provider_details"
+    ],
+    "provider_covers_policy": [
+      "get_policy_details",
+      "get_provider_details"
+    ],
+    "provider_not_already_authorized": [
+      "get_policy_details"
+    ],
+    "within_appeal_period": [
+      "get_claim_details",
+      "internal_get_interaction_time"
+    ],
+    "within_enrollment_period": [
+      "get_policy_details",
+      "internal_get_interaction_time"
+    ]
+  },
+  "hotel": {
+    "after_check_in_time": [
+      "internal_get_interaction_time"
+    ],
+    "amount_positive_restr": [],
+    "before_check_out_time": [
+      "internal_get_interaction_time"
+    ],
+    "before_modification_deadline": [
+      "internal_get_interaction_time"
+    ],
+    "guest_already_checked_in": [
+      "internal_get_booking_details",
+      "internal_get_room_checkin_details"
+    ],
+    "has_confirmed_reservation": [
+      "internal_get_booking_details"
+    ],
+    "has_exceeded_maximum_stays": [],
+    "has_overlapping_booking_for_booking": [
+      "internal_get_booking_details"
+    ],
+    "has_overlapping_booking_for_modification": [
+      "internal_get_booking_details"
+    ],
+    "has_remaining_nights": [
+      "internal_get_booking_details",
+      "internal_get_interaction_time"
+    ],
+    "internal_is_loyalty_member": [],
+    "internal_valid_room_change_reason": [],
+    "internal_valid_room_id": [],
+    "internal_valid_room_service_item": [],
+    "internal_valid_room_service_payment_method": [],
+    "internal_valid_room_type": [],
+    "is_booking_date_within_lead_time_range": [
+      "internal_get_interaction_time"
+    ],
+    "is_gold_or_higher_member": [
+      "internal_get_loyalty_member_info"
+    ],
+    "payment_with_loyalty_points": [],
+    "room_key_returned": [],
+    "room_type_available_for_dates": [],
+    "room_type_available_for_room_change": [
+      "internal_get_booking_details",
+      "internal_get_interaction_time"
+    ],
+    "sufficient_amount_for_booking": [],
+    "sufficient_amount_for_reservation_modification": [
+      "internal_get_booking_details"
+    ],
+    "sufficient_amount_for_room_change_fee": [
+      "internal_get_booking_details",
+      "internal_get_interaction_time"
+    ],
+    "sufficient_payment_for_room_service": [
+      "internal_get_loyalty_member_info"
+    ],
+    "valid_booking_date_pair": [],
+    "valid_identification": [
+      "internal_get_interaction_time"
+    ],
+    "within_max_room_changes": [
+      "internal_get_booking_details"
+    ],
+    "within_room_service_hours": [
+      "internal_get_interaction_time"
+    ],
+    "within_room_service_order_daily_limit": [
+      "internal_get_booking_details",
+      "internal_get_interaction_time",
+      "internal_get_room_assignment"
+    ]
+  },
+  "library": {
+    "database_book_not_borrowed": [
+      "internal_get_user_borrowed"
+    ],
+    "internal_all_slots_available_for_the_room_on_the_date": [],
+    "internal_check_book_available": [],
+    "internal_check_book_exist": [],
+    "internal_check_username_exist": [],
+    "internal_is_admin": [],
+    "internal_is_restricted": [],
+    "sufficient_account_balance_for_late_fee": [
+      "get_account_balance"
+    ],
+    "sufficient_account_balance_for_membership": [
+      "get_account_balance",
+      "internal_get_membership_fee"
+    ],
+    "user_book_borrowed": [
+      "internal_get_user_borrowed"
+    ],
+    "user_book_not_borrowed": [
+      "internal_get_user_borrowed"
+    ],
+    "valid_membership": [
+      "internal_get_interaction_date",
+      "internal_get_membership_status"
+    ],
+    "within_borrow_limit": [
+      "internal_get_user_num_borrowed"
+    ],
+    "within_max_reservation_slots": [
+      "internal_get_num_reserved_slots"
+    ]
+  },
+  "online_market": {
+    "coupon_not_already_used": [
+      "get_coupons_used"
+    ],
+    "coupon_not_expired": [
+      "internal_get_coupon_details",
+      "internal_get_interaction_time"
+    ],
+    "coupon_valid": [
+      "get_order_details",
+      "internal_get_coupon_details"
+    ],
+    "credit_status_excellent": [
+      "internal_check_user_credit_status"
+    ],
+    "credit_status_not_restricted_or_suspended": [
+      "internal_check_user_credit_status"
+    ],
+    "credit_status_not_suspended": [
+      "internal_check_user_credit_status"
+    ],
+    "enough_stock": [
+      "get_product_details"
+    ],
+    "has_items_in_cart": [
+      "view_cart"
+    ],
+    "has_shipping_address": [
+      "view_shipping_addresses"
+    ],
+    "internal_check_coupon_exist": [],
+    "internal_check_order_exist": [],
+    "internal_check_product_exist": [],
+    "internal_check_username_exist": [],
+    "less_than_max_exchanges": [
+      "get_order_details"
+    ],
+    "not_already_added_shipping_address": [
+      "view_shipping_addresses"
+    ],
+    "order_delivered": [
+      "get_order_details"
+    ],
+    "order_processing": [
+      "get_order_details"
+    ],
+    "product_bought_by_user": [
+      "view_order_history"
+    ],
+    "product_exists_in_order": [
+      "get_order_details"
+    ],
+    "unique_review": [
+      "get_product_details"
+    ],
+    "within_exchange_period": [
+      "get_order_details",
+      "internal_get_interaction_time"
+    ],
+    "within_return_period": [
+      "get_order_details",
+      "internal_get_interaction_time"
+    ],
+    "within_review_limits": []
+  },
+  "university": {
+    "before_graduation_deadline": [
+      "internal_get_academic_calendar",
+      "internal_get_interaction_time"
+    ],
+    "course_enrolled_by_user": [
+      "internal_get_student_info"
+    ],
+    "course_has_capacity": [
+      "internal_get_course_info"
+    ],
+    "course_not_completed": [
+      "internal_get_student_info"
+    ],
+    "credit_requirement_met": [
+      "internal_get_student_info"
+    ],
+    "credits_within_limit": [
+      "internal_get_course_info",
+      "internal_get_student_info"
+    ],
+    "financial_aid_quota_available": [
+      "internal_get_student_info"
+    ],
+    "gen_ed_requirements_met": [
+      "internal_get_student_info"
+    ],
+    "gpa_requirement_met": [
+      "internal_get_student_info"
+    ],
+    "has_completed_prerequisites": [
+      "internal_get_course_info",
+      "internal_get_student_info"
+    ],
+    "has_min_credits_for_major_change": [
+      "internal_get_student_info"
+    ],
+    "internal_check_course_exists": [],
+    "internal_check_major_exists": [],
+    "internal_check_minor_exists": [],
+    "internal_check_username_exists": [],
+    "maintains_min_credits": [
+      "internal_get_course_info",
+      "internal_get_student_info"
+    ],
+    "major_has_capacity": [
+      "internal_get_major_info",
+      "internal_get_number_of_students_for_major"
+    ],
+    "major_requirements_met": [
+      "internal_get_major_info",
+      "internal_get_student_info"
+    ],
+    "meets_division_requirements": [
+      "internal_get_course_info",
+      "internal_get_student_info"
+    ],
+    "meets_half_time_enrollment": [
+      "internal_get_student_info"
+    ],
+    "meets_income_requirements": [
+      "internal_get_student_info"
+    ],
+    "meets_major_gpa_requirement": [
+      "internal_get_major_info",
+      "internal_get_student_info"
+    ],
+    "meets_major_restriction": [
+      "internal_get_course_info",
+      "internal_get_student_info"
+    ],
+    "meets_min_gpa_for_aid": [
+      "internal_get_student_info"
+    ],
+    "meets_minor_gpa_requirement": [
+      "internal_get_minor_info",
+      "internal_get_student_info"
+    ],
+    "meets_minor_prerequisites": [
+      "internal_get_minor_info",
+      "internal_get_student_info"
+    ],
+    "minor_compatible_with_major": [
+      "internal_get_minor_info",
+      "internal_get_student_info"
+    ],
+    "minor_course_overlap_check": [
+      "internal_get_major_info",
+      "internal_get_minor_info",
+      "internal_get_student_info"
+    ],
+    "no_exam_conflict": [
+      "internal_get_course_info",
+      "internal_get_student_info"
+    ],
+    "no_schedule_conflict": [
+      "internal_get_course_info",
+      "internal_get_student_info"
+    ],
+    "not_on_probation": [
+      "internal_get_student_info"
+    ],
+    "tuition_balance_zero": [
+      "internal_get_student_info"
+    ],
+    "under_max_major_changes": [
+      "internal_get_student_info"
+    ],
+    "under_max_minors": [
+      "internal_get_student_info"
+    ],
+    "valid_residency_status": [
+      "internal_get_student_info"
+    ],
+    "within_major_change_period": [
+      "internal_get_academic_calendar",
+      "internal_get_interaction_time"
+    ],
+    "within_minor_declaration_period": [
+      "internal_get_academic_calendar",
+      "internal_get_interaction_time"
+    ],
+    "within_registration_period": [
+      "internal_get_academic_calendar",
+      "internal_get_interaction_time"
+    ],
+    "within_withdrawal_period": [
+      "internal_get_academic_calendar",
+      "internal_get_interaction_time"
+    ]
+  }
+}
