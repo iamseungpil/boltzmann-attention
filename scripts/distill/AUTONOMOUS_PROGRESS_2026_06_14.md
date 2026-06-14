@@ -65,6 +65,16 @@
 - **★D5/v5 함의(정직)**: D5 fetch-우선 원칙은 (1)을 정조준=방향 맞음. **단 현 value-random/D5는 identity에만 적용 → order_id·주소 등 *전 tool-fetchable 값*으로 확장 + "없으면 get_user_details로 fetch"하는 체인 학습 필요.** **(2)재시도-루프 붕괴는 D5 미해결 → 별도 처방(L2 deny→recover·에러 시 전략전환·RL).** ⇒ v5는 (1) 부분개선 기대·0.10→0.17+ 도약엔 (1)확장+(2) 동반 필요.
 - 도구 = `scripts/distill/tau2/tau2_autopsy.py`(repo·`--dump TASK`·`--full`).
 
+## ★★★v6 — fetch-to-obtain-arg 스킬이 학습데이터에 부재함을 발견·복원 (벤치-무관 처방)
+- **사용자 방향(불변)**: tau2-도메인 특화 함수 처방 금지. R(카탈로그)에 도구 있으면 placeholder 날조 금지하는 **R1/R3 벤치-무관 규율**을 SOPBench/TaskBench서 학습→전이.
+- **★진단(전수 검증)**: "tool 출력서 값 가져와 인자로 쓰는"(fetch-to-obtain-arg) 스킬이 **학습데이터에 사실상 부재**. SOPBench=**1.9%**(getter 대부분 fetch-to-**DECIDE**=조건게이팅이지 obtain-arg 아님)·TaskBench=**0%**(변환기가 출력을 합성 `ok/ref` 스텁으로·인자는 instruction 복사). = **order_id 날조의 진짜 뿌리: 모델이 그 스킬을 배운 적 없음.**
+- **★발견 = TaskBench `<node-N>`**: HF **57%**·MM **59%** 궤적이 `<node-N>`(상류 출력→하류 입력) 체인 보유하나 **구 변환기가 전부 버림**. = fetch-to-obtain-arg의 벤치-무관 천연 출처.
+- **★변환기 수정**(`fc_convert_taskbench.py`): `<node-N>`을 **상류 출력 ref(res_xxx)로 threading**. ★규약 정정(사용자: R 자기참조 금지 규율): `<node-N>`=리스트인덱스 아님 → **링크(의존성 source)로 해석**(self-ref 제거). 재변환 tb_all_v3 = fetch-chain **41%**(6473)·self/forward-ref 13개만(드롭). ref=md5 궤적-고유=비-memorizable→**copy 강제**(placeholder 날조 시 gold 불일치로 패널티).
+- **★fetchable randomize**(`fc_randomize_fetchable.py`): SOPBench tool-출력서 와 재사용되는 값도 randomize(identity+fetchable). sop만은 1.9%로 희소 → 주 신호는 TaskBench threading.
+- **★sft_v6 = sop_rand2 + sop_d5_ask2 + tb_all_v3c**(13780). fetch-to-obtain-arg 신호 강함(tb 41%). **GPU0서 v6 학습 시작**(PID 3983897·`qwen7b_fc_tbox_v6`·v4/v5 동일 config). **GPU1=v5(D5 ask만) 계속** → v4(0.10)/v5(D5)/v6(fetch-teaching) 3-way.
+- **★설계질문 답(벤치-무관 전제)**: ⓠ1 "전부 randomize하면 fetch?" = **부분 Yes·필요충분 아님**: randomize는 memorize 차단일 뿐, **fetch STRUCTURE(출력→인자)가 데이터에 있어야** 함 — 없었음(1.9%/0%) → **threading으로 *생성*** 후 randomize=copy강제. ⓠ2 "에러 재시도 룰 벤치-무관 학습?" = **Yes**: 룰=R3 일반("에러 시 동일호출 금지·re-gather/ask"). 단 success-rollout은 에러 희소→**에러→복구 augmentation 필요**(정답값 사용=날조0)+결정론 가드(동일-실패 반복차단). ⓠ3 "재시도 A2 정의대로?" = **Yes·최고 thesis-순수**: 게이트 복구절차=정책(A2) 정의·모델은 "게이트 막히면 A2 명시 전제 충족 후 retry" 일반스킬 학습·ABox-swap 전이. (ⓠ2/ⓠ3=v7 후속, v6은 ⓠ1 fetch 부재 복원에 집중.)
+- **다음**: ①v6/v5 ep0 후 `tau2_eval_adapter.sh` 3-way A/B + `tau2_autopsy.py`(order_id 날조율↓?) ②양성이면 ⓠ2/ⓠ3(에러-복구·A2 retry) v7 ③coworker node_run_planx에도 threading 반영 필요(현재 미반영).
+
 ## 인프라 메모
 - ⚠️ **모든 스크립트/문서 = git push/pull 전송**(사용자 지시 2026-06-14). 리모트는 pull만. eval 드라이버도 repo(`scripts/distill/tau2/tau2_eval_adapter.sh`). base64/직접전송 금지.
 - ⚠️ eval 드라이버 `set -x` + `source .openrouter_key` → 로그에 키 노출. 차후 키 라인 `set +x`로 감쌀 것.
