@@ -44,6 +44,9 @@
 - **핵심 신호**: 에러 후 **다른 행동**(V'≠V·re-fetch/ask) = no-loop. 복구는 *원 rollout의 실제 V* 사용 = 날조 0.
 - **게이트-복구 변형(P6 연계·A2)**: write가 confirm-gate 에러 반환 → 복구=확인 요청 후 retry(=R3·A2 정의 retry). autopsy task17(8연타) 직접 처방.
 - value-randomize 후속. clean·특허 OK.
+- **★딥리서치 확인(2026-06-15)**: clean-ish 전용 소스 *존재*하나 우리 핵심 클래스 결핍 → **합성 유지**.
+  - **포맷 템플릿/seed = Tool-Reflection-Bench**(MeiGen·arXiv 2509.18847·**OpenAI FC JSON**·4,928 train·`error→<reflect>진단→corrected tool_call→success`·헤드라인 예시="이전 tool 출력값 안 쓰고 잘못된 값"=우리 autopsy 그대로). **단 에러분류=Argument/Call-Order/Missing/Redundant 뿐 → not-found→lookup·policy-gate-block(우리 최고가치) 없음**·data 라이선스 미명시(특허=템플릿으로만). ⇒ **이 포맷(reflect+corrected-call)을 차용 + §위 우리 error-injection으로 빠진 클래스(not-found→lookup·policy-block) 주입** = 학습벤치 유지·특허 clean.
+  - #2 ToolBench-R(3625·Python포맷·host미확인), #3 BFCL(recovery gold 없음=avoidance·Apache=P7-adjacent eval). 기각: CFB/ToolACE(clean success only)·ToolEmu(LLM-judge)·MINT/InterCode(code).
 
 ## P2b — gather-for-arg(2-hop) clean (CFB 대체·특허용)
 SOPBench는 P2b 구조 희소(census 1.9%·getter=decision 위주)라 **두 경로 병행**:
