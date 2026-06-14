@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — SOPBench bank 결정-emission source-ladder; plan X는 native-FC를 verified rollout서 학습. 역사·근거 보존용(삭제 아님).
+
 # RUNG1 — source ablation 사다리 + gather-종료 + 거부편향: 설계서 (다음 세션 진입점)
 
 > 2026-06-04. 작성=Opus(이번 세션). **다른 세션에서 ①리뷰 → ②구현 → ③실험.**

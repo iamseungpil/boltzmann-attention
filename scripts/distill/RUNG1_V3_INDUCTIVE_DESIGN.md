@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — tree-eval/derivation-emission 변종 = 3-NULL LOCK. 역사·근거 보존용(삭제 아님).
+
 # Rung1 v3-inductive — 단계별(bottom-up) reduction 트리평가 게이트: 설계서
 
 > 2026-06-03. 진입점=`HANDOFF_2026_06_03_v3_treeval.md`. 마스터=`EXPERIMENT_DESIGN.md §3`.

@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — SOPBench bank scaffold-fix 구현 상세; native-FC가 hand-fix 제거. 역사·근거 보존용(삭제 아님).
+
 # 설계서 — 잔여 11 (BOTH 23→천장 34) 원인별 수정 계획 (리뷰 후 구현)
 
 > 상태: **REVIEWED (2-리뷰어 엔도스, 4 가드 반영), 구현 진입.** 현재 active-H3+ARGFIX+VALFIX = **BOTH 23/34 (68%), 회귀 0**. 잔여 fixable = 11 (= 34 − 23). 정직천장 34 = 48 − Part A 8 − Part B 6 (변동 없음; 아래 Cause 2 검증으로 exchange/get_account_owed는 defect 아님 확정 = 천장 34 유지). 모든 수치는 `eval_t1c_argvalfix` + `offload_log_argvalfix.jsonl` (task_sig 조인) + 실제 evaluator + released output 대조로 확정.

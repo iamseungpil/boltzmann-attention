@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — SOPBench bank login-순서 scaffold 진단. 역사·근거 보존용(삭제 아님).
+
 # 잔여 premature 진단 — login-before-getter 순서 (2026-06-05, DGGATE 후속)
 > 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 

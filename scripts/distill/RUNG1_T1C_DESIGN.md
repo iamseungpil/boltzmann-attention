@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — t1c grounded-permitted 스캐폴드 = 변환기 v2가 폐기(NATIVE_FC_CONVERTER §3a, FC success rollout 채택). 역사·근거 보존용(삭제 아님).
+
 # RUNG1 T1c — grounded-permitted @ source=1 (treeval@s1) + 결정 레버: 정밀 설계서
 
 > 2026-06-04. 진입점 체인: `EXPERIMENT_DESIGN.md §2` → `RUNG1_SOURCE_LADDER_DESIGN.md §11-12` → **이 문서**.

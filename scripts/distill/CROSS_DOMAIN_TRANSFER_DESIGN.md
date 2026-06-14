@@ -1,3 +1,5 @@
+> ⚠️ **방법 SUPERSEDED by plan X** — scaffold-bridge cross-domain 전이는 native-FC + ABox-swap(plan X)이 대체. **단 Exp-5 결과(77.3% LODO 전이)는 여전히 헤드라인 증거**로 유효. 전이 주장은 cross-domain→cross-bench로 격상.
+
 # Cross-Domain Transfer 설계서 — A축 scaffold 도메인 전이 (로드맵 1단계)
 > 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 

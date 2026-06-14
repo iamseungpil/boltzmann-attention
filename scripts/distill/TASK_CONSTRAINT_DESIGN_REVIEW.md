@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — 위 task-constraint 라인 리뷰. 역사·근거 보존용(삭제 아님).
+
 # 리뷰 — `TASK_CONSTRAINT_DESIGN.md` (should_T 병목 설계서)
 
 > 상태: **리뷰 완료 (구현 게이트 제안)**. 작성 2026-06-02.

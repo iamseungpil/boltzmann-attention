@@ -6,7 +6,15 @@
 ---
 
 ## §0. 목표 (한 문장, 변하지 않음)
-**자연어 멀티턴 요청을, 도메인별 구조화 온톨로지(ABox)로 재해석해 내부적으로 절차(dirgraph)를 추론·실행하는 agentic planner를, 작은 모델 weight(TBox)에 학습시키고, 본 적 없는 도메인은 ABox 교체만으로 재학습 0 전이한다.**
+
+> **★★★ 현 구현 방향 = plan X (2026-06-14 확정 · 권위본 = [`CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`](CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md) + 변환기 [`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`](NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md))**:
+> thesis(아래 문장)는 **불변** — 단 *"절차"의 표현*은 커스텀 dirgraph가 아니라 **표준 OpenAI function-calling(`tool_calls{name,args}`)을 모델이 직접 emit**한다(vLLM-native·표현 발명 불요·config가 포맷 강제[XGrammar]·학습이 내용).
+> - **학습** = SOPBench(FC 성공 rollout) + TaskBench(tool-graph)를 native-FC 궤적으로 변환 → 단일 7B TBox LoRA(R1-R8 규율, §10.5 / `BENCH_PORTFOLIO`).
+> - **테스트** = **SOP-Bench(직접 ABox-swap) · τ²(native 엔드포인트)** held-out 벤치 재학습0 전이.
+> - **헤드라인** = 주권 + LODO **벤치-횡단 전이**(raw accuracy 아님).
+> - ⚠️ **deprecated (native-emit가 대체)**: 구 `ready;op_X`·dirgraph-emit 스캐폴드·RUNG1 source-ladder·§3 Phase 1-3 학습사다리·xattn/steering·LLM-기반 선별기(SEL-2/4/5)·diffusion 라인·ⓟ1 결정론(=리더보드/RL/디버깅 한정, 핵심 비요구). 상세 = §7 상태열.
+
+**자연어 멀티턴 요청을, 도메인별 구조화 온톨로지(ABox)로 재해석해 내부적으로 절차(=plan X에선 native function-calling 시퀀스)를 추론·실행하는 agentic planner를, 작은 모델 weight(TBox)에 학습시키고, 본 적 없는 도메인은 ABox 교체만으로 재학습 0 전이한다.**
 - **TBox(weight, 학습·전이)** = "NL 요청 + ABox 어휘 → dirgraph(절차) 도출 + 실행" 스킬. **★TBox는 NL 정책도 dirgraph도 *아니다* — 둘 사이의 *컴파일 스킬*(도메인-일반)**. NL 정책 = ABox(도메인-특수 *입력*, swap) / dirgraph = **모델 *출력***(컨닝 아님, 도메인-특수). 정책을 weight에 구우면=FM weight-baking(전이 불가); 정책은 ABox에 두고 *컴파일 스킬*만 weight = 새 도메인은 정책 교체로 전이. L0(결정론)는 NL→dirgraph 불가(난이도 주장, §1에서 정량 검증) → 이 매핑이 비자명·대체불가 기여.
 - **ABox(in-context swap, 후속 xattn)** = 도메인 도구 affordance + NL 정책. goal precondition '정답 구조'는 안 떠먹임.
 - injection/steering(구 라인)은 agentic서 null로 폐기됐다 재정의(§3 Rung3). FM SO.P/CAP-CPT의 weight-baking과 달리 **TBox/ABox 분리 → 전이**가 핵심 차별.
@@ -294,30 +302,30 @@
 | 문서 | 역할 | 상태 |
 |---|---|---|
 | **이 문서** `EXPERIMENT_DESIGN.md` | **목표·순서·지표 권위본** | ★마스터 |
-| **`A2_FRONTEND_DISTILL_DESIGN.md`** | **★A2 생성기 학습 구조 (2026-06-12 신설)**: 역방향 렌더링 데이터엔진(spec→NL=GT 구성보장)·S0합성SFT→S1 verified-distill(실 22도메인 LODO)→S2 on-policy DPO·판정="시스템(소형K+검증기-선별) vs frontier 단일샷"·LOCK 비적용 논증(§0) | ★활성 (thesis front-end 실행계획) |
-| `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 전체 스펙·planner L0/L1/L2·§9 LLM-in-loop·prior art | detail (개념 원본) |
-| `TASK_CONSTRAINT_DESIGN.md` | should_T 병목 진단·게이트·§8.6 전수진단·§8.7 사다리 상세 | detail (Rung1-2 상세) |
+| **`CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`** | **★★★현 진입점 (plan X)**: 학습 SOPBench+TaskBench native-FC → 7B TBox / 테스트 SOP-Bench+τ² 벤치-횡단 전이. 공통표현=vLLM-native FC. | ★★★현재 진입점 |
+| **`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`** | plan X 변환기 설계 v2: SOPBench FC rollout·TaskBench DAG→native 궤적·전역alias(R1)·loss=assistant-only·QC | ★활성 (plan X 구현) |
+| **`A2_FRONTEND_DISTILL_DESIGN.md`** | **★A2 생성기 학습 구조 (2026-06-12 신설)**: 역방향 렌더링 데이터엔진(spec→NL=GT 구성보장)·S0합성SFT→S1 verified-distill(실 22도메인 LODO)→S2 on-policy DPO·판정="시스템(소형K+검증기-선별) vs frontier 단일샷"·LOCK 비적용 논증(§0). ⚠️t1c-소스 부분은 plan X가 FC-rollout으로 대체(NATIVE_FC §3a) — A2=NL→GATE_SPEC 컴파일러(per-domain ABox)는 유효 | ★활성 (A2 컴파일러=thesis core·유효) |
+| `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 개념 원본(planner L0/L1/L2) | ⚠️superseded (개념=유효·dirgraph-emit 표현은 native-FC가 대체) |
+| `TASK_CONSTRAINT_DESIGN.md` | SOPBench should_T 게이트 진단(Rung1-2) | ⚠️superseded (scaffold-line·plan X 무관) |
 | `GRPO_REWARD_DESIGN.md` | RFT reward 함수·GRPO 루프(Rung2 상세) | detail |
-| **`HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md`** | **★현재 진입점**: H3 offload + ARGFIX→VALFIX→KEEPTUPLE→DGGATE 사다리(BOTH 29)·인프라 레시피 | ★**활성 진입점** |
-| **`RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`** | **★잔여 진단**: login-순서 근본원인·Fix1 LOGINFIRST·Fix2 LOGINCALL·looping→Fix3·cred/PartB 재분류 | ★활성 (다음 실험) |
+| `HANDOFF_2026_06_05_PM_argfix_dggate_ladder.md` | SOPBench bank DGGATE 사다리(BOTH 29) 결과·인프라 레시피 | 역사·결과참조 (구 진입점 — 현=plan X) |
+| `RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md` | SOPBench bank login-순서 진단·Fix1/2/3 | ⚠️superseded (plan X native-FC가 scaffold-fix 대체) |
 | `FIX3_STOP_AFTER_SUCCESS_DESIGN.md` | goal-call looping 차단(STOP-after-success)·BLOCKING 가드·B-3 12/12·LIVE 50.75% | ✅완료 |
-| **`CROSS_DOMAIN_TRANSFER_DESIGN.md`** | **★로드맵 1단계**: A축 scaffold ABox-swap 재학습0 전이(Exp-5: train1 6 held-out avg 77.3%·LODO healthcare/library 추월)·§11 결과 | ★활성 (결과 진행중) |
+| `CROSS_DOMAIN_TRANSFER_DESIGN.md` | A축 scaffold cross-*domain* 전이(Exp-5: 77.3% 결과 = **여전히 헤드라인 증거**) | 결과참조 (방법=scaffold-bridge는 plan X가 native-FC로 대체·전이 주장=cross-bench로 격상) |
 | **`FIELD_GAP_LLM_VALUE_DESIGN.md`** | **★결정론-프로그램 방어 + LLM 효용 정량화 + 관련연구 권위**: SOPBench-기본이 LLM underplay(결정론 천장)→현장 regime(NL-only·변경·멀티턴·벤치횡단)서 효용 증명·양면 ablation·Track A/B/C·LOCK 정합(C=dead 재답습 금지)·cross-bench(SOPBench+SOP-Bench+τ²). **§5.5(2026-06-14 신설) = 추세-인접 6편 직독**: ★AgentSpec(ICSE'26)=게이트-라인 최인접(규칙 손작성·NL→컴파일 부재·전이 0 = A2가 메우는 칸, **관련연구 1순위 인용 의무**)·VB/VF 분리정리(다양성→검증이득 이론 닻)·MAV(SEL-2 기각=조건차)·NSVIF(변환-검증 부재=우리 갭)·agent-TTS 2편. **종합: 게이트 단독은 novelty 아님 — 빈 칸 = A2컴파일×전이×compliant-pass×결정론-런타임 교집합** | ★활성 (관련연구 §5/§5.5/§13) |
 | **`LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`** | **★지표 권위**: 리더보드=공식 success(134,tool_full) 확정·BOTH 비교불가·우리 40.30% | ★활성 (지표 근거) |
 | `INTERNAL_GET_DATABASE_GROUNDING_2026_06_05.md` | internal_get_database=offered 아님·react 누수·우리 fc 0회 무관 | 참조 (근거) |
 | `GUARD2_DIRGRAPH_MIRROR_DESIGN.md` · `RESIDUAL11_FIX_DESIGN.md` | DGGATE 재구성 Guard-2(PASS)·4 BLOCKING 가드 설계 | detail (DGGATE 근거) |
 | `HANDOFF_2026_06_05_h3_offload_paper_grounded.md` | H3 offload LIVE·논문-근거 정책 결론(§6.5 일반화·§7 reliability만 유효) | detail (역사·일부유효) |
-| `RUNG1_SOURCE_LADDER_DESIGN.md` · `RUNG1_T1C_DESIGN.md` · `RUNG1_REDESIGN_2026_06_04.md` | 06-04 source-ladder·T1c·재설계(사전등록·leave-one-out) | detail (역사·근거) |
-| `RUNG1_V3_INDUCTIVE_DESIGN.md` | inductive reduction-chain 설계(treeval_reduce) — **NULL 판정(Exp-4-rung1-v3ind)** | detail (종결·역사) |
-| `RUNG1_IMPL_HANDOFF_2026_06_02.md` | T1(login-uniform)·T2(종료) teacher 구현 핸드오프 | detail (Rung1 구현) |
+| `RUNG1_*` (SOURCE_LADDER·T1C·REDESIGN_06_04·V3_INDUCTIVE·IMPL_HANDOFF_06_02) | SOPBench bank 결정-emission/source-ladder/t1c 스캐폴드 라인 | ⚠️**superseded by plan X** (native-FC가 verified rollout서 학습·t1c 소스 폐기[NATIVE_FC D2]·decision-emission=3-NULL LOCK) |
 | `RUNG1_V3_TREE_EVAL_LITREVIEW.md` | grounded 트리평가+derivation 학습 — 적대검증 선행연구(§8 AND/OR 트리평가 재탐색) | detail (§3.10 근거) |
 | `SEARCH_INTERNALIZATION_LITREVIEW.md` | 탐색→weight 내재화(Searchformer·TS-LLM) + §9 depth-recurrence(Universal/Looped TF) 재탐색 | detail (§3.10 근거) |
 | `SOPBENCH_EXPERIMENT_RESULTS.md` | 모든 실측 결과(Exp-1~4) 누적 | 결과 권위본 |
 | `../../reports/facet_rft_2026/TASKBENCH_EXPERIMENT_RESULTS.md` | TaskBench 전 실측(§8 기제·§9.5b guided·§9.6 DPO v2·§10 층위분류·§1.5 외부동결 전수조사) | 결과 권위본 (TB) |
 | **`BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`** | **벤치-불변 규칙 R1-R8 × 어댑터 A1-A5 + 포트폴리오(τ²·Amazon SOP-Bench·AppWorld·ODCV) 선정근거·실행순서** — 마스터 §1.5의 상세 | detail (2026-06-12 신설) |
-| **`SELECTOR_DESIGN.md`** | **★이종-풀 선별기 사다리 SEL-1~5 (2026-06-12 야간 신설)**: 문헌 deep-research 합류판 — veto/chooser 분업 불변·Smoothie-prior 가중(0원)→soft-approval→7B reverse-likelihood→pairwise judge·novelty=상관-소스 보정+게이트 역선택 첫 보고. 근거=`research_selector_lit_2026_06_12.md` | ★활성 (R6 레버, 다음 GPU 큐 ⑴=0원) |
+| `SELECTOR_DESIGN.md` | 선별기 사다리. **§1 결정론 선택기·검증기 불변 = 유효(★★★)**·SEL-1(결정론 합의) 유효. ⚠️**SEL-2/4/5·B1(LLM-judge/logprob) = 전수 음성·deprecated** | 참조 (§1 불변만 유효·LLM-rung 死) |
 | `taskbench/TB_GROUNDED_COPY_V1_DESIGN.md` | guided decoding 구현·선행연구 5-agent 적대검증·§6.5 차별점 표(논문 related-work 재료) | detail (TB) |
-| `taskbench/TB_DIFFUSION_PROPOSER_DESIGN.md` | 이종 제안기(Dream-7B)×결정론 선별 — E6(선별갭 붕괴) 처방, P-D0 형식게이트·P-D1 혼합-풀 oracle 사전등록 | detail (TB, 2026-06-12 — D1/D2 DPO 후 착수) |
+| `taskbench/TB_DIFFUSION_PROPOSER_DESIGN.md` | 이종 제안기(Dream-7B)×결정론 선별 | ⚠️superseded (selector study가 대체·P-D0 verdict 불가·plan X 무관) |
 | `COWORKER_EXPERIMENT_PLAN.md` | 32B/72B 분업 | detail (Track B) |
 | `TASK_CONSTRAINT_{DESIGN_REVIEW,IMPL_REVIEW}.md` | 리뷰 라운드 | 참조 |
 | `EXPERIMENT_DESIGN_v1_7_facet_rft.md`, `steering_paper/*` | 구 facet-rft/steering 라인 | ⚠️superseded(개념 참조만) |

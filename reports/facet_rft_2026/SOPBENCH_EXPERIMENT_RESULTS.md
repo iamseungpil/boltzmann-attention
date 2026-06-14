@@ -1,4 +1,11 @@
 # SOPBench Experiment Results (2026-05-31~)
+
+> ### 📑 논문 헤드라인 vs 내부 구분 (2026-06-14 추가 — paper 명료화)
+> - **★헤드라인 확정**: **Exp-5a cross-domain 전이**(train1 bank→6 held-out **avg 77.3% 공식 success**·리더보드 MAX 추월 3/6·재학습0 ABox-swap) = "주권+LODO 전이"의 1급 증거. **Track-B 32B "structure>scale"**(scaffold +20.9 > scale +4.5).
+> - **⚠️ 부분/진행중 (논문서 partial로 표기)**: **Exp-5b LODO-7 매트릭스 = 3/7 타깃만 완료**(dmv·hotel·online_market·university 학습중). 헤드라인=Exp-5a(완료), Exp-5b는 partial.
+> - **⚠️ 내부 working**: §223 결과요약 대시보드("갱신 예정")·Exp-0/2/4 "(예정)" 가설블록. Track-B vanilla 44.78%=serving-discrepancy(±2밴드 밖)→내부일관만, 절대인용 금지.
+> - 현 방향 = plan X(마스터 §0): 방법(scaffold-bridge)은 native-FC가 대체하나 **Exp-5 전이 *결과*는 헤드라인 유효**.
+
 > 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > **이 문서가 SOPBench 실험의 유일한 결과 기록 문서다.** 가설·결과·해석·다음 스텝을 누적 기록.

@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — decision-emission SFT 구현 핸드오프 = 死라인. 역사·근거 보존용(삭제 아님).
+
 # Rung1 구현 핸드오프 — login 특별취급 제거 + required_set 균일화 + R3 종료
 
 > 작성 2026-06-02. 대상 = 구현 세션(이 대화 맥락 없음 가정·단독 실행 가능).

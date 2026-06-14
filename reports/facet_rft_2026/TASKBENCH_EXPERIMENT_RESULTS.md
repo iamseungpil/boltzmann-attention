@@ -1,4 +1,11 @@
 # TASKBENCH 실험 결과 (권위본) — Exp-A/C (FIELD_GAP §18.1, HANDOFF_2026_06_10)
+
+> ### 📑 논문 헤드라인 vs 진단/내부 구분 (2026-06-14 추가 — paper 명료화)
+> - **헤드라인 (paper spine)**: **§10.5 R1-R8 × A1-A5**(프레임 골격·A2=유일 난제) · **§10.1-10.4 층위 원장** · **§9.5b grounded-copy +8.0**(R1 증거) · **§3/§3.6 honest LODO baseline** · **§1.5 외부수치 census**.
+> - **⚠️ 진단/내부 — 논문 헤드라인 아님**: **§8.9 전체(selector·diffusion convenience-pool 사다리 8.9–8.9i)** · §8.7/§8.8 · §8.10/§9.6(DPO) · §7 Qwen3 곡선 · §8.6 Track-B census · ⓟ1 결정론 micro. **이들은 *기제*만 일반화**(§8.9i line 403 자기정정: pool-한정 진단치)이고 풀-한정 수치(예: **0.6803=천장 인용 금지·보류**)는 논문 반입 금지.
+> - **정정 관계**: **§8이 §3/§5/§6 해석을 supersede**(§8 권위). DiG-Plan 0.94 인용 시 "합성 토이" caveat 필수.
+> - 현 방향 = plan X(마스터 §0). 이 결과들은 R1-R8 grounding의 *근거*로 인용.
+
 > 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 
 > 시작 2026-06-10. SOPBench 결과 권위본(`SOPBENCH_EXPERIMENT_RESULTS.md`)의 TaskBench 대응물.

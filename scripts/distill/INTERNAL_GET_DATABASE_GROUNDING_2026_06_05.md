@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — SOPBench metric grounding(scaffold-era). 역사·근거 보존용(삭제 아님).
+
 # internal_get_database 근거 조사 (2026-06-05) — 사전 논문/리더보드 사용 여부
 
 > 질문: internal_get_database를 쓰는 이전 논문/리더보드 결과가 있나? 정당한가?

@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — 위 task-constraint 라인 구현 리뷰. 역사·근거 보존용(삭제 아님).
+
 # 리뷰 — `TASK_CONSTRAINT_DESIGN.md` §8 (b) 구현 설계 (완전 검증 게더 + resolver)
 
 > 상태: **리뷰 (구현 착수 게이트 제안)**. 작성 2026-06-02.

@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — SOPBench bank credential-augment/decision-offload rung; native-FC retrain이 대체. 역사·근거 보존용(삭제 아님).
+
 # RUNG1 재설계 (2026-06-04) — credential-augment(⓪) → gather 스케일-임계 + 결정 offload
 
 > **수정 이력**: 최초 §1은 "over-call=teacher dep 결함→prune(H1)"로 LOCK 수정을 시도했으나 **reliable leave-one-out(실제 evaluator)로 철회** — login은 dirgraph-REQUIRED(12/17), 실패원인은 credential 부재. 레버 = **credential-augment**(prune 아님). LOCK 유지.

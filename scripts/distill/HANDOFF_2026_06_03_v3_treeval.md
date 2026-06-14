@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — v3 tree-eval(decision-emission) 진입점 = LOCK. 역사·근거 보존용(삭제 아님).
+
 # 핸드오프 (2026-06-03) — v3 grounded 트리평가 A/B 실행 중 + 다음 세션 진입점
 
 > 진입점. 마스터=`EXPERIMENT_DESIGN.md`(§3.10 북극성·§3 사다리). 결과권위본=`reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md`.

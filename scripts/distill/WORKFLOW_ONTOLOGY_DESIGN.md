@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — TBox/ABox 개념은 유효하나 dirgraph-emit 표현은 native-FC가 대체. 역사·근거 보존용(삭제 아님).
+
 > ⚠️ **마스터 = `EXPERIMENT_DESIGN.md`** (목표·실험 순서·헤드라인 지표 권위본). 이 문서는 **detail**(TBox/ABox 전체 스펙·planner L0/L1/L2·§9 LLM-in-loop·prior art). 방향은 마스터에서 고정.
 > 📌 **구조 안내**: 모든 설계·실험 문서의 단일 마스터 = repo `scripts/distill/EXPERIMENT_DESIGN.md` (**§7 문서지도**에서 각 문서의 역할·상태 확인; 목표·순서 변경은 마스터 §0-§4에서만). 처음 읽는다면 마스터부터.
 

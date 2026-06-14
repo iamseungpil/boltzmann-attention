@@ -1,3 +1,14 @@
+> # ▶▶▶ v6 갱신 (2026-06-14) — ★현 방향 = plan X (cross-bench 전이). 착수 전 필독.
+> **권위본 = `scripts/distill/CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`** + 변환기 `NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md` + 마스터 `EXPERIMENT_DESIGN.md` §0 배너.
+> - **plan X**: 학습 = SOPBench(FC 성공 rollout) + TaskBench(tool-graph)를 **native OpenAI function-calling 궤적**으로 변환 → 단일 7B TBox LoRA(R1-R8). 테스트 = **SOP-Bench·τ² held-out 벤치 ABox-swap 재학습0 전이**. 공통표현 = vLLM-native FC.
+> - ✅ **coworker가 `scripts/distill/taskbench/node_run_planx.sh` 구축 = plan X P3 그 자체**(preemption-safe·HF ckpt sync·resume·전 teacher×7도메인 + TaskBench 3도메인). **이게 캐노니컬 학습** — 그대로 돌려 TBox 어댑터 산출.
+> - **Track A(woori) 분담**: 변환기 3종(fc_convert_sopbench/taskbench·fc_build_sft) 구현·검증 완료(repo) + 7B flash-attn 빠른 1차 컷 진행 중. **coworker(노드)=캐노니컬·대규모·강건**.
+> - **★coworker 신규 요청 (plan X 산출 후)**:
+>   1. **node_run_planx.sh로 7B TBox 학습 완주** → 어댑터 HF push(이미 sync 구현).
+>   2. **전이 테스트 ②곳**: ⓐ **τ² retail** = 어댑터를 native FC 에이전트로 serve → `t2_run_gated.py --gate 1 --num_trials 4 --num_tasks 40 --agent_model <adapter>` → compliant-pass (비교 base 0.17 / frontier 0.81). ⓑ **SOP-Bench(Amazon)** = 8관계 표현호환 → ABox-swap held-out LODO.
+>   3. **스케일 질문(선택)**: TBox를 14B/32B로도 학습해 *전이가 스케일로 좋아지나* (Q1 곡선과 합류).
+> - ⚠️ **아래 v5(TaskBench 스케일 곡선·census 기제 Q1/Q2/Q3)** = TaskBench-외부동결 supporting 라인으로 **유효하되 헤드라인 아님**(plan X 전이가 헤드라인). 미착수면 plan X 우선.
+
 # ▶▶ Coworker 요청서 — TaskBench scale 실험 (Qwen2.5/Qwen3 이원화, 4×A100 80GB) — 2026-06-10 **v5** (06-12 P2/P3 전면 교체)
 
 > 🚨 **v4 액션 알림 (2026-06-12) — 착수 전 필독**:

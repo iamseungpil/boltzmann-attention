@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — SOPBench goal-looping 스캐폴드 fix. 역사·근거 보존용(삭제 아님).
+
 # Fix-3 설계서 — STOP-after-success (goal-call looping 차단)
 
 > **상태: 리뷰 1회 반영 (2026-06-05) — APPROVED w/ changes. 구현 가능.** 리뷰: 진단 reliable·가드 모범·메트릭 pivot 정당(leaderboard exact-match) → 승인. 반영: 🔴§3 파서 정확일치→prefix-매칭(KEEPTUPLE `"(True,v)"` 포맷 누락=B-3 오염 차단) + Refinement 1(delta 합산 금지·end-to-end 재측정 §0) + 2(S0/S1 DGGATE 포함 full-stack §6) + 3(B-3 prefix-identity 논거 §5) + 4(turn당 1-call 확인 §7 R1b). 마스터 = `EXPERIMENT_DESIGN.md`. 진단 근거 = [`RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md`](RESIDUAL_PREMATURE_DIAGNOSIS_2026_06_05.md) §10, [`LEADERBOARD_METRIC_GROUNDING_2026_06_05.md`](LEADERBOARD_METRIC_GROUNDING_2026_06_05.md).

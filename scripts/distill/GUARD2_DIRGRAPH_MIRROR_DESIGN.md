@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by plan X (2026-06-14 · `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`)** — SOPBench DGGATE Guard-2 미러(scaffold 근거). 역사·근거 보존용(삭제 아님).
+
 # 설계서 — Guard-2: dirgraph 재구성 == evaluator 단위검증 (Cause-1 선행, 리뷰 후 구현)
 
 > 상태: **✅ PASS (구현·실행 완료, 2-리뷰어 4 refinement 반영).** **결과 (`guard2_dirgraph_unitcheck.py`, 전 48 should_T)**: A1 재구성 = `dfsgather_invfunccalldirgraph(task["constraints_original"], cl,cp, default_dep(opt=**full**), action_params, goal_node)` → **OVER=0 ∧ UNDER=0 (exact match 48/48)**. INPUT AUDIT 통과(directed_action_graph 안 읽음). SAFETY PASS(BOTH 26 OVER-0=over-deny 회귀 불가) + OPTIMALITY PASS(UNDER-0=+8 상한 실현가능). ⇒ **"정책(constraints_original)+도메인 규칙이 cascade 완전결정·oracle 불요" 증명** = A1 비순환·배포-정당. (대조: required/none=UNDER48 subset, constraints[expanded]+full=OVER44.) **⇒ Cause-1(SOPBENCH_DGGATE) 구현 cleared.**
