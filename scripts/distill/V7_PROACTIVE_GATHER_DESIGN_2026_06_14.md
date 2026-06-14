@@ -83,7 +83,15 @@
   - ⚠️**남은 BLOCKING(채택 전)**: ①**라이선스 공백** — zai-org 선언 apache-2.0이나 GitHub LICENSE 부재 + 데이터=Booking/RapidAPI 파생→**하류 ToU가 응답값 재배포에 별도 적용 가능**(카드 미언급). 주권 프레이밍상 실사 필수. ②**flights↔airline 근접도메인**=τ² 전이가 근접이라 SOP-Bench 원거리보다 약한 증거(헤드라인=원거리·근접=보조). ③**ComplexEval=LLM-judge 혼합**→불변 위배→**gold 궤적만 소스, eval은 결정론 재구현**(타입→인자-타입→사전조건→replay).
 - **보강**: RestBench(`2306.06624`, **MIT**)=추론형 전형(TMDB/Spotify `user_id`/`playlist_id` threading·명시단서 없음) 단 소규모(2도메인~157). BFCL V3 Miss-Params(apache-2.0·grounded·결정론)=**D5 ask/fetch 게이트 직결**·ask-eval 최적.
 - **강등/제외**: Seal-Tools=단발-심볼형(TaskBench 동류·신규정보≈0)→선택 augmentation·저우선. ToolHop(apache/cc-by)=합성코드→시퀀싱 보조만. ToolSandbox(Apple 비상업)·ToolBench(데이터 research-only)·τ²(contamination)=제외.
-- **⇒ v7 2-hop 소스 = ComplexFuncBench**(Seal-Tools 대체). 레시피 정정: `sft_v7 = sop_rand2 + d5_ask2 + tb_all_v4 + complexfuncbench`. 단 라이선스 ToU 실사 통과 후. **tb_all_v4가 이미 단발-threading 운반 → seal_tools는 이중 잉여.**
+- **⇒ v7 2-hop 소스 = ComplexFuncBench**(Seal-Tools 대체). 레시피 정정: `sft_v7 = sop_rand2 + d5_ask2 + tb_all_v4 + complexfuncbench`. **tb_all_v4가 이미 단발-threading 운반 → seal_tools는 이중 잉여.**
+
+### 8c-BLOCKING#2 해소 — ToU 실사 결론 + 논문/특허 소스 분리 (2026-06-15)
+- **1차 소스 확인**: HF `zai-org/ComplexFuncBench` 메타=apache-2.0이나 **GitHub `THUDM/ComplexFuncBench` LICENSE 파일 404(부재)** → repo 적용 라이선스 모호. 데이터=**Booking.com API via RapidAPI**(43 API·5도메인·repo가 response-eval에 RapidAPI 구독 요구). 응답=curated 저장(gold 포함). **HF·repo·논문 어디에도 Booking/RapidAPI 파생 응답의 사용/재배포 ToU 진술 없음 = 공백.**
+- **판정**: apache-2.0(설령 적용돼도)은 저자 코드·주석만 덮음 — **Booking의 응답 *콘텐츠*는 재라이선스 불가**(Booking/RapidAPI ToU는 통상 응답 caching·재배포 제한). 공백=미해결(안전 아님).
+- **리스크 보정**: 연구/논문 **LOW**(널리 인용되는 벤치 표준사용) · **상업/주권/특허 MED-HIGH**(재배포권 불명확 데이터로 배포모델 학습=책임 + clean-provenance 셀링 훼손).
+- **★결정(사용자 2026-06-15): ComplexFuncBench로 *논문 먼저*** — 방법-검증(observe-then-infer-gather 전이) 연구단계는 LOW 리스크로 진행. ToU caveat 박제.
+- **★★특허/프로덕션 = clean 소스 필수(명시)**: **ComplexFuncBench 응답으로 학습한 모델은 특허·배포에 사용 금지.** 방법 검증 후 **clean-provenance 소스로 동등 gather-데이터를 *재생성*** 해 특허·프로덕션 모델 학습. clean 후보: **우리 SOPBench user-sim withholding(완전 소유=최우선)** / RestBench(MIT) / BFCL(apache·단 데이터 출처 재확인). = 주권/특허 셀링 보존·ToU 노출은 연구단계 국한.
+- **eval 불변(BLOCKING #3 재확인)**: ComplexEval LLM-judge 미사용 — gold 궤적만 SFT 소스, eval=결정론 재구현.
 
 ## 9. 마일스톤
 M1 §4c census(2-hop 체인 유무) + §7-R3 매핑 확인 → M2 withholding 구성 스크립트(결정론) → M3 teacher 파일럿(N=50·R2 검증) → M4 전량 생성+변환+SFT(v7) → M5 eval(3-way+autopsy).
