@@ -144,7 +144,17 @@
   - **궤적 확정(task1)**: product_id `6086499569` 날조→"not found"→**동일 호출 10연타**(전략전환 0)→too_many_errors. 인증·주문fetch 없이 ID 지어내 루프.
   - **기제**: CFB = *linear observe→use*(값이 출력에 이미 있어 복사). τ² = *proactive gather*(없는 arg 인지→**생산 getter 능동선택**→호출→출력서 **select**). **'생산도구 능동선택+select'(R4) 층이 미학습·CFB가 안 가르침.** = 데이터-소스 문제 아닌 **R4 의미-전이** 문제.
 - **★gen_synth_2hop(Path B) 게이트 발동 = 짓지 않음** (SYNTHESIS_IMPL_SPEC §C 사전등록: "CFB 전이 안 되면=문제는 데이터-소스 아니라 R4 의미-전이→같은 primitive 다른 소스도 무효→진단 선행"). **매몰비용 회피 확정.**
-- **★재방향(중요)**: gap=데이터부재 아님 → ①**proactive-gather**(unguided: 없는 arg→producer getter 능동선택·CFB의 linear chain로는 미학습) ②**P7 recovery**(동일-호출 루프=지배적 실패·`fc_recovery_augment` 직격). **P7이 차기 최고가치**(retry-loop collapse 9/20). P6(v8 학습중)는 write 도달 후라 현 단계 부분적.
+- **★재방향(잠정·전수 census로 정정됨 아래 ★★ 참조)**: ~~P7이 차기 최고가치(retry-loop 9/20)~~ → **틀림. 아래 root-cause census가 P7 기각·P2b(스키마-example 날조)로 정정.**
+
+## ★★★2026-06-15 (세션재개 #4) — 전수 root-cause census = 근본 P7 아니라 P2b(스키마-example 날조) 확정·정정
+> 사용자 지시("전수 궤적 조사해 P7 문제인지 정확히 재확정"). `tau2_rootcause_census.py`(신규·per-traj 첫에러+에러후행동). **이전 #3의 "P7 차기 최고가치"를 기각·정정.**
+- **★root 분포(n=20)**: **날조-trigger(P2b) 17/20**(auth_fab 7·fab_then_switch 8·fab_then_loop 2)·gate-trigger 2·pass 1. **에러후 행동: 동일호출 하드루프(P7 미작동) 3뿐·다른시도(P7 작동) 9.**
+- **★근본 = P2b 'fetchable 값 날조-FIRST'(P7 아님)**: 모델이 없는 값에 **τ² tool 스키마의 example 값을 복사**(`tools.py`: `order_id ... such as '#W0000000'`·`email ... such as 'something@example.com'`) → `#W0000000`(order_id)·`jane_doe@example.com`(email·7회)·`6086499569`(product_id) 날조. = R1/P1 provenance 위반(스키마 example은 합법 소스 아님).
+- **★결정적 반례(task6 dump)**: 모델은 proactive 2-hop gather도 P7 복구도 *할 줄 안다* — email 날조→"not found"→**name+zip 요청(P7 복구 작동)**→성공→order_id `#W0000000` 날조→"not found"→user "다른 방법?"→**`get_user_details`→`get_order_details('#W6390527')` 진짜 order_id로 성공(2-hop gather 작동)**. **문제=날조를 *먼저* 하는 기본행동**(턴 낭비→user_stop 전 미완성)이지 능력부재 아님.
+- **★정정된 처방 우선순위**: ~~P7 recovery~~ **기각**(9/20 작동·하드루프 3뿐). **진짜 타깃 = 날조-FIRST 차단 = R1b provenance**(arg값 ∈ {user 발화, tool 출력}만·**스키마 example 값 거부**) + D5 fetch-first를 *전* fetchable값(order_id·email)으로 확장(현 D5/value-random은 identity만). 디코드-제약(스키마-example 블록) or 학습(없는값→gather/ask-first 기본화). [[R1B_PROVENANCE_DESIGN_2026_06_14]]가 정조준.
+- **함의**: CFB(v7) 실패도 이 렌즈서 재해석 — CFB는 observe→use 가르치나 **'없는 값→날조 안 하고 gather'**를 안 가르침(스키마 example 유혹은 inference-time). 도구=`scripts/distill/tau2/tau2_rootcause_census.py`.
+
+## 인프라 메모(구)
 - **매트릭스 갱신**: cfb P2b = 데이터존재 ✓ but **전이 ✗(검증됨)** — 리뷰#3 ✓!→✗! 전환. gap 재확정 = P2b(R4 의미전이)·P6·P7.
 - 도구: 결과 = `coupling_v7_s7050.log`·`retail_v7_s7050`·autopsy `tau2_autopsy.py`.
 
