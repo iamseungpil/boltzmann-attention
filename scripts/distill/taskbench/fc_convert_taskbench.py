@@ -12,8 +12,10 @@
 
 Usage: fc_convert_taskbench.py --data <data.json> --tool_desc <tool_desc.json> --out <out.jsonl> [--sample 5]
 """
-import argparse, json, hashlib
+import argparse, json, hashlib, re
 from collections import defaultdict
+
+NODE_REF = re.compile(r"<node-(\d+)>")
 
 TYPE_MAP = {"string": "string", "str": "string", "int": "integer", "integer": "integer",
             "float": "number", "number": "number", "bool": "boolean", "boolean": "boolean",
@@ -58,6 +60,12 @@ def dep_levels(nodes, links):
             for si in byname.get(s, []):
                 if si != ti:
                     deps[ti].add(si)
+    # ★<node-K> 참조도 의존성으로(1-based) → threading한 출력이 항상 하류 호출보다 먼저 나오게 보장
+    for i, n in enumerate(nodes):
+        for m in NODE_REF.finditer(json.dumps(n.get("arguments"), ensure_ascii=False)):
+            k = int(m.group(1)) - 1
+            if 0 <= k < len(nodes) and k != i:
+                deps[i].add(k)
     level = {}
 
     def lev(i, stack):
@@ -105,9 +113,31 @@ def node_args(n, schema):
     return {}
 
 
-def synth_result(name, args):
-    h = hashlib.md5((name + json.dumps(args, sort_keys=True)).encode()).hexdigest()[:8]
-    return json.dumps({"status": "ok", "tool": name, "ref": h})
+def synth_result(name, args, out_ref):
+    """합성 결과 = 이 노드의 *출력 ref*를 담음(다운스트림 <node-N>이 이걸 fetch해 인자로 씀).
+    ref = 궤적-고유·비-memorizable(md5) → 다운스트림 인자값의 유일 출처 = 이 출력 = fetch 강제(R1/R2)."""
+    return json.dumps({"status": "ok", "tool": name, "result": out_ref})
+
+
+def node_refs(sample, nodes):
+    """노드별 출력 ref(궤적-고유). e.g. res_1a2b3c4d."""
+    sid = str(sample.get("id"))
+    return ["res_%s" % hashlib.md5((sid + "|" + str(i) + "|" + str(nodes[i].get("task", ""))).encode()).hexdigest()[:8]
+            for i in range(len(nodes))]
+
+
+def resolve_refs(val, refs):
+    """인자값의 <node-K>(1-based) → 노드 (K-1) 출력 ref로 치환 = 출력→입력 threading."""
+    if isinstance(val, str):
+        def sub(m):
+            k = int(m.group(1)) - 1
+            return refs[k] if 0 <= k < len(refs) else m.group(0)
+        return NODE_REF.sub(sub, val)
+    if isinstance(val, list):
+        return [resolve_refs(v, refs) for v in val]
+    if isinstance(val, dict):
+        return {k: resolve_refs(v, refs) for k, v in val.items()}
+    return val
 
 
 def convert(sample, schemas):
@@ -128,25 +158,34 @@ def convert(sample, schemas):
     for n in nodes:
         if n["task"] not in seen:
             seen.add(n["task"]); toolset.append(schemas[n["task"]])
+    refs = node_refs(sample, nodes)
     messages = [{"role": "system", "content": "You are a tool-using assistant. Call the appropriate functions to fulfill the user request."},
                 {"role": "user", "content": instr}]
     cid = 0
+    n_chain = 0
     for lvl in levels:
         tcs, results = [], []
         for i in lvl:
             n = nodes[i]
             args = node_args(n, schemas[n["task"]])
+            # ★출력→입력 threading: <node-K> → 노드 K-1 출력 ref (fetch-to-obtain-arg 강제)
+            resolved = {}
+            for k, v in args.items():
+                rv = resolve_refs(v, refs)
+                if rv != v:
+                    n_chain += 1
+                resolved[k] = rv
             cid += 1
             tcid = "call_%d" % cid
             tcs.append({"id": tcid, "type": "function",
-                        "function": {"name": n["task"], "arguments": json.dumps(args, ensure_ascii=False)}})
-            results.append((tcid, synth_result(n["task"], args)))
+                        "function": {"name": n["task"], "arguments": json.dumps(resolved, ensure_ascii=False)}})
+            results.append((tcid, synth_result(n["task"], resolved, refs[i])))
         messages.append({"role": "assistant", "tool_calls": tcs, "_supervise": True})
         for tcid, res in results:
             messages.append({"role": "tool", "tool_call_id": tcid, "content": res})
     return {"tools": toolset, "messages": messages,
             "_meta": {"bench": "taskbench", "id": sample.get("id"), "type": sample.get("type"),
-                      "n_nodes": len(nodes), "n_levels": len(levels)}}
+                      "n_nodes": len(nodes), "n_levels": len(levels), "n_chain": n_chain}}
 
 
 def main():
