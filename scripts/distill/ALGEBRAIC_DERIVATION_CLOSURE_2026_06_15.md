@@ -45,7 +45,7 @@
 
 ## 3b. ★실증 census — seam β 해소 + P7 구조부재 확인 (net-new·zero-cost)
 `tau2_primitive_census.py`(retail n=114·정적: gold action + `@is_tool(ToolType.WRITE)` 분류 + scenario). 모델 실행 0.
-- **orphan 도구 = 0 / 114** — 전 gold 도구가 P1-P9로 매핑. **분류 밖 연산(P10) 0**(전수). §2 두 seam의 *경험* 시험 = 통과(이 도메인서).
+- **★orphan 도구 = 0 — 전 τ² 도메인 전수**: retail(114)·airline(50)·telecom(2285·dual-control)·mock 모든 gold 도구(~2450 task)가 P1-P9로 매핑. **분류 밖 연산(P10) 0**. 도구 분류=각 도메인 `tools.py`+`user_tools.py`의 `@is_tool(ToolType.WRITE)` 동적 파싱(반환시그니처 원칙). §2 두 seam의 *경험* 시험 = 통과(전 도메인). ★telecom 주의: device-actuation write(toggle_*·reboot_device)도 P5/P6(상태변경 게이트)에 매핑 — GUI-인접이나 여전히 tool-call control/data-flow → 새 primitive 아님(scope 경계 §5 1줄 자인).
 - **요구 분포**: P1 112·P5 104·**P6 104(91%)**·**P2b 97(85%)**·P3 92·P8 66·P2a 52·P4 28·**P7 0(gold)**·**P9 0**.
 - **★seam β 해소(τ²)**: 유일 변환도구 `calculate`(13/114)도 *tool-call* → 모델이 변환을 환경에 offload·결과를 **P2b로 소비**. ⇒ in-model 변환 primitive 불요·**β는 "변환 도구 부재 시에만 열림"**. 잘 설계된 벤치(τ²)는 변환을 도구로 제공 → β = scope 경계선이지 유한성 위협 아님. **§2 결론 강화: live seam = α(층B) 하나.**
 - **★P7 구조부재 확인**: gold P7=0·잠재(unknown_info fallback) 89/114. §1 흡수(iter→무계 retry만 P7)·"성공-gold에 deny 없음"을 **census가 독립 확증** → P7 SFT-소싱 불가·gate-in-loop RL(리뷰#5) 재확인.
