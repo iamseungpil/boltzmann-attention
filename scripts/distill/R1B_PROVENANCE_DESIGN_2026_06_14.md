@@ -1,70 +1,69 @@
-# 설계서: R1b 값-provenance 집행 (XGrammar 원천차단 + 검증기 + 학습된 복구순서) — 2026-06-14, 리뷰용
+# 설계서 v2: R1b 값-provenance 집행 (리뷰 반영) — 2026-06-14
 
-> 상위 = `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md` §2c · 규칙 = `TASKBENCH_EXPERIMENT_RESULTS.md` §10.5 R1b · 불변 = `feedback-selector-verifier-deterministic`. **구현 전 리뷰 대기.**
+> 상위 = `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md` §2c · 규칙 = `TASKBENCH_EXPERIMENT_RESULTS.md` §10.5 R1b · 변환기 의존 = `NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md` · 불변 = `feedback-selector-verifier-deterministic`.
+> **v2 변경(리뷰)**: ①진단을 *망각* vs *규칙결손* 분리(ask-rate eval 추가) ②novelty 정직화(provenance=필요조건·인증게이트와 직교) ③L1 보장 = verbatim 타입·추출기 recall 조건부(구현전 recall 실측 BLOCKING) ④D4 verbatim-only 스코프 ⑤L3 SFT 데이터의 converter 의존 명시. D1=별도-합성·D2=타입별·D5=대조쌍 확정.
 
-## 0. 동기 (τ² 실증)
-plan-X 학습(SOPBench+TaskBench = 정보 upfront·ask-user 무)의 7B TBox가 τ²서 **인자값을 날조**(`jane.doe@example.com`·`#W00000000`) → 인증실패 → compliant-pass **0.10(50-up)→0.05(250-up) < base 0.17**(단조하락 = 파국적 망각). base-Instruct는 ask-user 156/160·날조0. **R1-도구이름 grounding은 전이 작동.** ⇒ 결손은 **인자-값 provenance** 한 축. 이 설계는 그 축을 *학습 + 결정론 보장* 둘 다로 닫는다.
+## 0. 동기 + ★두 근본원인 분리 (리뷰1)
+τ² 실증: plan-X 7B TBox가 인자값 날조 → compliant-pass **0.10(50-up)→0.05(250-up) < base 0.17**. **0.10→0.05 단조하락(더 학습=악화) = 전형적 *망각* 시그니처** — 모델이 base의 ask-user를 *잊은* 것이지 provenance 규칙을 *모르는* 게 아닐 수 있다. base-Instruct ask-user 156/160·날조0.
+- ⇒ **두 원인 분리**: ⓐ**망각**(τ² *숫자* 붕괴의 주 기제) — 처방 = **L3(ask-user 재학습/replay)이 숫자 회복의 주역.** ⓑ**provenance 규칙 부재**(자가생성 가능성) — 처방 = **L1/L2가 *결정론 보장*을 위에 얹음.**
+- **프레이밍 규율**: **L3가 τ² 숫자를 회복시키고, L1/L2는 그 위에 결정론 보장을 추가한다.** L1/L2를 "τ² 점수 수정책"으로 팔지 말 것. 어느 게 숫자를 고치는지는 **측정으로 가른다**(§7 ask-rate).
 
-## 1. 규칙 R1b (TB §10.5 신설)
-> **모든 인자 *값*은 출처가 있어야 한다 — (a)사용자 발화 또는 (b)도구 출력. 필요한데 부재 시 *획득*(read-tool 호출 / ask-user) 후 사용. 자가생성(날조) 금지.**
+## 1. 규칙 R1b
+> 모든 인자 *값*은 출처 필수 — (a)user 발화 또는 (b)도구 출력. 부재 시 획득(read-tool/ask-user) 후 사용·자가생성 금지. 두 출처 = (b)tool-fetch(DB-파생) / (a)ask-user(user-only).
 
-- R1a(닫힌 심볼·enum) = grammar mask로 이미 집행. R1b = **열린 값**(id·email·name·금액)으로 확장.
-- 두 합법 출처: **(b) tool-fetch**(DB-파생값 — 읽기도구 출력) / **(a) ask-user**(사용자만 아는 값).
-
-## 2. ★3-레이어 아키텍처 (직교 분업)
-| 레이어 | 역할 | 종류 | 보장/학습 |
+## 2. 3-레이어 (직교·역할 분리)
+| L | 역할 | 종류 | 무엇을 |
 |---|---|---|---|
-| **L1 XGrammar 디코딩-마스크** | 인자값을 *컨텍스트-등장 후보*로 제약 → 못 지어냄 | 결정론·하드 | **날조 구조적 0**(원천차단) |
-| **L2 provenance 검증기** | 값이 user/tool 출처에 없으면 reject·플래그 | 결정론·검출 | 잔여 날조 포착 + 학습 보상신호 |
-| **L3 학습된 복구순서** | 값 부재 시 **fetch-우선 → 없으면 ask** | 학습(SFT/RL) | "언제 가져오고/묻나" |
+| **L3 학습된 복구순서** | 값 부재 시 fetch-우선→없으면 ask | 학습 | **τ² *숫자* 회복** (주역) |
+| **L2 provenance 검증기** | 출처 없으면 reject·플래그 | 결정론·검출 | 잔여 날조 포착 + 학습 보상신호 |
+| **L1 XGrammar 디코딩-마스크** | 인자값을 컨텍스트-후보로 제약 | 결정론·하드 | **날조 보장**(조건부, §3c) |
 
-**핵심**: L1이 "절대 못 지어내게", L2가 "실패 검출", L3가 "그럼 어떻게 복구"를 담당. L1이 호출을 *차단*하면 모델은 날조 못 하니 **L3(획득)로 강제**된다 — 제약이 복구를 *유도*.
-
-## 3. 컴포넌트 상세
-### 3a. L3 — 학습된 복구순서 (fetch-우선 → ask)
-- 모델은 **tools= 카탈로그(A1)를 보고 분기**: 그 값을 주는 읽기도구가 *있으면* 호출(tool-fetch=R2, SOPBench gather 궤적에 이미 존재) / *없으면* ask-user.
+## 3. 컴포넌트
+### 3a. L3 — 학습된 복구순서 (fetch→ask) + ★소스 의존 (리뷰6)
+- tools= 카탈로그(A1)에 **그 슬롯을 생산하는 read-tool이 있나**로 결정론 분기: 있으면 tool-fetch(R2 gather) / 없으면 ask-user.
 - **SFT 데이터**:
-  - tool-fetch-then-use = 기존 gather 궤적(R2).
-  - **ask-user-then-use = augmentation**(`fc_askuser_augment.py`, 정보-upfront → ask-then-provide; creds=첫 tool-call 인자서 결정론 추출; user-only 키[username·id·email…]만 물음 → DB-파생값은 fetch 유지). v3서 검증 중.
-  - **대조 케이스**(같은 값이 fetch가능 vs user-only)를 섞어 "카탈로그 보고 분기" 날카롭게.
-- **RL/DPO(후속)**: L2 검증기 신호로 (성공복구, 날조시도) 쌍 → 복구순서 강화.
+  - tool-fetch-then-use = **FC-rollout 변환 궤적**(NATIVE_FC §3a). ★**의존 명시**: 이 데이터는 *converter가 인자-운반 궤적을 내놓아야* 존재 — **t1c(단발·인자0)면 없음**. 우리는 이미 **FC 성공 rollout**(실인자/결과)로 전환했으므로 충족. **R1B-L3 데이터 = converter의 P0(rollout 소스) 산물** — 두 설계서가 이 한 점에서 만남.
+  - ask-user-then-use = augmentation(`fc_askuser_augment.py`·user-only 키만 물음). v3서 검증.
+  - **대조쌍(D5)**: 같은 값이 한 도메인엔 fetcher 有·한 도메인엔 無 → 모델이 "카탈로그 보고 분기" 학습(없으면 always-ask/always-fetch 붕괴). **분기는 카탈로그서 결정론 도출**(휴리스틱 금지).
+- RL/DPO(후속): L2 신호로 (성공복구, 날조시도) 쌍.
 
-### 3b. L2 — provenance 검증기 (결정론)
-- 각 tool-call 인자값 v에 대해: v가 (이전 user 메시지 ∪ 이전 tool 출력)의 부분문자열/정규화-매치인가? 아니면 **fabricated → reject**.
-- 게이트(R3)와 동형 인터셉트: 날조 호출 deny + 복구 메시지("그 값을 먼저 획득하라"). day-6 A2 faithfulness 게이트와 직교·가산.
-- **쉬운 첫걸음**(L1보다 단순) + L3 학습 보상신호 제공.
+### 3b. L2 — provenance 검증기 (결정론·별도)
+- 각 인자값 v: (이전 user ∪ 이전 tool 출력)의 **타입별 매치**인가? 아니면 fabricated→reject + 복구 메시지.
+- **D1 = 별도 검증기 + 게이트 합성**(R3에 병합 금지): provenance를 정책-게이트(G1-G4)와 **직교** 유지 → "게이트당 한 속성"·독립 ablation 보존. 같은 인터셉션 지점에서 합성.
 
-### 3c. L1 — XGrammar 컨텍스트-제약 디코딩 (원천차단)
-- per-request 동적 제약: 인자값 생성 시 **컨텍스트서 추출한 후보값 집합**으로 `guided_choice`/동적 문법 마스크. 후보 비면 그 호출 불가 → L3 강제.
-- 후보 추출 = 컨텍스트의 id/email/숫자/인용 span(정규식·NER-lite).
-- ⚠️ vLLM 기본 flag 아님 = **커스텀 엔지니어링**(per-request 문법 빌드). 가장 하드.
+### 3c. L1 — XGrammar 컨텍스트-제약 (★보장은 조건부, 리뷰3)
+- per-request 동적 제약: 인자값을 **컨텍스트서 추출한 타입별 후보**(D2)로 마스크. 후보 비면 호출 불가→L3 강제.
+- **★보장의 정직한 형태**: "**verbatim-copyable 타입(id·email·name·account#)에 한해, *추출기 recall 조건부*로 구조적 0**" — 무조건 아님. 추출기가 valid span을 놓치면(recall<100%) **합법 호출 false-block → 날조보다 나쁨**(net-negative).
+- **★BLOCKING(구현 전 zero-cost)**: 실제 τ² 인자값에서 **타입별 추출기 recall 선실측.** recall 85%면 합법 15% false-block = L1 net-negative → 그 타입은 L1 제외, L2(사후·관대)로만. (§13.7 "인코딩 제약 대비만 sound" 규율 동형.)
+- ⚠️ vLLM 기본 flag 아님 = 커스텀(per-request 문법).
 
-## 4. 단계 (staging — 쉬운 것부터)
-1. **L3 SFT (지금·v3)**: ask-user augmentation → 복구순서 학습. **판정 = τ² compliant-pass 0.10/0.05 → base 0.17 회복?** 회복 시 L3 작동 확정.
-2. **L2 provenance 검증기**: 결정론 값-출처 검사 + 복구 deny 메시지. compliant-pass에 "날조-위반 0" 축 추가. RL 보상신호.
-3. **L1 XGrammar 원천차단**: 컨텍스트-제약 디코딩. 날조 구조적 0 보장.
+## 4. 단계 (staging)
+1. **L3 SFT (지금·v3)**: ask-user augmentation. **판정 = ① ask-user rate 회복(§7, 망각 가설 직접) ② compliant-pass 0.10/0.05→base 0.17 회복.** 둘 다 = L3가 숫자 회복 확정.
+2. **L2 검증기**: 타입별 provenance + 복구 deny. RL 보상신호.
+3. **L1 XGrammar**: 추출기 recall 실측(BLOCKING) 후 verbatim 타입만 원천차단.
 
-## 5. 정직한 한계
-1. **정규화 필요 값**: user "September 29th" → tool "2026-09-29" = 부분문자열-복사 깨짐 → L1 완화문법 또는 결정론 정규화기. L2도 정규화-매치 필요.
-2. **validity ≠ correctness**: L1/L2는 *날조*는 막아도 *옳은 span 선택*은 보장 안 함(틀린 id 복사 가능) — 올바른 선택은 R4(의미매칭)·gather 품질.
-3. **tool-output 값은 *호출 후*에만 후보** → gather 선행(R2) 필수. 순서 의존.
-4. **augmentation 품질**: 템플릿 어법 어색("apply credit card") = v1. 부족 시 frontier-rewrite 업그레이드.
-5. **catastrophic forgetting 잔여**: ask-user 데이터 비율·일반 instruction 혼합·epoch 통제로 base 대화 보존 — v3 결과로 충분비율 판정.
+## 5. 정직한 한계 (6)
+1. **정규화 값**: date/amount는 verbatim 아님 → L1/L2 보장 제외(D4). locale·상대날짜("next Tuesday")서 정규화기 깨짐.
+2. **validity ≠ correctness**: L1/L2는 *날조*만 막음, *옳은 span 선택*은 R4·gather.
+3. **tool-output 값은 호출 후에만 후보** → gather 선행(R2) 필수.
+4. **augmentation 품질**: 템플릿 어법 어색 = v1. 부족 시 frontier-rewrite.
+5. **잔여 망각**: ask-user 비율·instruction 혼합·epoch로 통제 — v3로 비율 판정.
+6. **★L3 소스 의존(리뷰6)**: fetch-then-use 데이터는 converter의 인자-운반(FC-rollout) 산물 — converter P0 충족 시 존재. 두 설계서 결합 의존.
 
-## 6. 논문 기여 (novelty)
-- **no-fabrication = 결정론 보장**(L1 마스크 = 위반 구조적 0·감사가능) + **복구순서 학습**(L3). AgentSpec/guardrail은 런타임 *규칙*은 하나 **인자-provenance 결정론 보장 + fetch/ask 복구학습**을 묶은 칸 비어있음(FIELD_GAP §5.5 위 추가).
-- compliant-pass에 "값-provenance 위반 0" 축 = 새 결정론 compliance 속성.
-- R1a(닫힌 심볼 mask) → R1b(열린 값 provenance) = grounding 규율의 일반화.
+## 6. 논문 기여 (★정직화 — 리뷰2)
+- **provenance = compliance의 *필요조건*이지 충분조건 아님.** 반례: user가 *남의* 이메일 발화 제공 → provenance-clean(user 출처) but **G3(단일-유저) 위반.** ⇒ **provenance-0 ≠ 정책준수.** 인증/인가 게이트(G1/G3)는 여전히 load-bearing·**직교 가산.** ("게이트 단독 ≠ novelty"[AgentSpec]와 동형: provenance 단독 ≠ compliance.)
+- 성립하는 기여: **no-fabrication을 *결정론 보장*(L1, verbatim·recall조건부)으로 + fetch/ask 복구순서 *학습*(L3)으로** 묶은 칸이 빔(AgentSpec/guardrail은 런타임 규칙만). compliant-pass에 "값-provenance 위반 0" 축 = **인증 게이트와 *직교 추가* 속성**(대체 아님).
+- R1a(닫힌 심볼) → R1b(열린 값 provenance) = grounding 규율 일반화.
 
-## 7. 검증 (eval)
-- **L3(SFT)**: τ² compliant-pass(회복?) + 날조-호출 비율(궤적 census, base 0 ↔ fctbox 다수 → v3서 감소?).
-- **L2**: provenance-위반 검출율(주입 날조 포착) + 복구추종율.
-- **L1**: 마스크 후 날조-호출 = 구조적 0 실측 + 정규화-값 false-block율.
-- 전이: SOP-Bench·τ² held-out 동일 측정(벤치-횡단 R1b 전이).
+## 7. eval (★ask-rate 추가 — 리뷰: 진단 가르는 결정타)
+- **★ask-user rate** (값 부재 시 묻나): base **156/160** → fctbox(현재) ? → L3 후 ? — **이 한 숫자가 "묻는 법을 잊음(망각)" vs "알지만 날조(규칙결손)"를 가른다.** L3 효과 분리 측정.
+- 날조-호출 비율(궤적 census): base 0 ↔ fctbox 다수 → v3 감소?
+- compliant-pass 회복(L3) / provenance-위반 검출율(L2, 주입 날조) / L1 false-block율(verbatim 타입).
+- 전이: SOP-Bench·τ² held-out 동일 측정.
 
-## 8. 미해결 결정 (리뷰 포인트)
-- D1: L2를 게이트(R3)에 통합 vs 별도 검증기?
-- D2: L1 후보추출 = 정규식 span vs 타입별(email/id/금액) 추출기?
-- D3: augmentation frac(현 0.4)·일반 instruction 혼합 비율 = v3 결과 후 튜닝.
-- D4: 정규화 값(날짜·금액) 처리 = L1/L2 정규화기 범위.
-- D5: 대조 케이스(fetch vs ask 분기) 합성을 augmentation에 추가할지.
+## 8. 결정 D1-D5 (확정·리뷰)
+- **D1 = 별도 검증기 + 게이트 합성** (R3 병합 금지·provenance 직교·독립 ablation).
+- **D2 = 타입별 추출기**(email/id/amount) — 정규화 타입-특이·타입당 recall 측정·도메인-일반(per-domain 분기 없음).
+- **D3 = augmentation frac/instruction 혼합 = 주 레버 승격**(망각이 주 기제면 replay 비율이 붕괴 방지 본체). "ask-user 보존"을 측정량으로(§7).
+- **D4 = verbatim-only 스코프**: id/email/name/account#만 L1/L2 구조적 0, date/amount는 L3+R4 + 알려진 갭 정직보고. (절반의 진짜 보장 > 전체의 새는 보장.)
+- **D5 = 대조쌍 합성 추가**(yes·강력): 분기는 카탈로그서 결정론 도출.
