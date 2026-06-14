@@ -26,3 +26,15 @@
 2. 양성 → 학습 수렴까지(ep2) 후속 체크포인트 재테스트·날조율 추세.
 3. 음성/막힘 → 기제 진단·다음 안 박제.
 4. 전이(SOP-Bench·τ²) 측정은 v4 검증 후.
+
+## 14:02 ★Stage B/C 결과 — 값-randomization이 날조 제거 (핵심 성공)
+- **v4 (값-random + ask-user) ~150-up**: without-L2 pass **0.10·날조 0%**(grounded 19/20) / with-L2 pass **0.15·날조 5%**.
+- vs v3(ask-user만) 날조 40-90% → **v4 날조 0-5%** = **값-randomization이 placeholder 날조 제거**(모델이 컨텍스트서 값 복사). root-cause 수정 실증.
+- L2도 약간 도움(0.10→0.15·base 0.17 근접)·위반 0 유지.
+- ⇒ **R1b 학습-측(값랜덤+ask-user) 작동 확정.** 남은 gap(→base/frontier)은 날조 아닌 task-해결 능력.
+
+## 16:53 v4 최신 체크포인트(opt-step~1200) 재테스트
+- v4 ep0 계속 학습(step4850·24체크포인트). 최신 체크포인트 A/B(driver_v4b.sh) → 더 학습 시 pass↑·날조 유지? 결과 ~17:10·sentinel V4BTEST_DONE.
+
+## 인프라 메모
+- ⚠️ git: 원격 워크스페이스 cat-append 커밋이 백틱 명령치환 + rebase 충돌 유발 → **진행로그는 로컬 클론서만 편집**(원격은 pull). 원격 dirty(offload_*.sh)는 coworker 것 — 건드리지 않음.
