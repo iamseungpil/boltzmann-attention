@@ -18,6 +18,8 @@
 | R7 | 배포 전 base census → 레버 선택 (이득 = base 결핍의 함수; 크기·family 불문) | TB §8/§8.5/§8.6 (1.5B~235B 실측) |
 | R8 | 측정 규율: 집계 후 즉시 궤적 census·사전등록·내부-일관 비교·인용=원문 검증 | 전 문서의 방법론 + arXiv 규율 |
 
+> **★격상 (2026-06-15) — R1-R8 → 유한 primitive P1-P9** (권위본 = `PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md` + 형식 `ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md` · 같은 `scripts/distill/`): 위 R-규칙을 **도메인-독립 control/data-flow 연산**으로 정련. P1 grounding(R1)·P2a gather-decision(R2)·P2b gather-arg 2hop(R2+R4)·P3 시퀀싱(R4·R6)·P4 select(R4)·P5 policy-gate(R3)·P6 confirm(R3하위)·P7 recovery(R3하위)·P8 provenance/auth(R1b·G1·G3)·P9 parallel(R6). **커버 단위 = 벤치별(∞)→primitive별(유한 ~9)**. **대수적 도출 닫힘**(층 A control×data 구성상 닫힘·층 B policy 유한 게이트-타입 상대) + **census 실증**(전 τ² 도메인 orphan=0·~2450 task·P10 없음·gap=P6+P7). A2(정책 NL→구조)=P5/P6/P8(층 B) 커버=여전히 유일 난제. saturation 곡선(벤치 추가 시 새-primitive→0)이 유한-생성 증거.
+
 ## 2. 벤치-어댑터 A1-A5 (벤치당 새로 쓰는 유일한 것)
 | # | 추출물 | 자동화 | 견본 |
 |---|---|---|---|

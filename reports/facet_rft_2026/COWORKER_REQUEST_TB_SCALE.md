@@ -197,6 +197,11 @@ P0(반나절) → P1(1-2일) → 판정 공유(채널) → P2/P3(조건부, 1-3�
 
 **Track-B 함의 (P2 이후 예고 — 지금 액션 불요)**: 대형모델(32B/72B) arm은 향후 ①τ²-bench pass^k에서 "대형 base±게이트" (R3·일관성 이득) ②Amazon SOP-Bench 12도메인에서 32B base census→처방(R7) 적용이 자연 후속. P2(§7) 완료 후 구체 명세 추가 예정. TaskBench 외부 동결 판정(§ = TB결과 §1.5: 리더보드 2023-11 동결·frontier 정체 64.4·ToLeaP GPT-4o 행 인용금지)도 보고서 작성 시 참조.
 
+> **★격상 (2026-06-15) — R1-R8 → 유한 primitive P1-P9 + plan X 현황** (권위본 = `../../scripts/distill/PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md` + 형식 `../../scripts/distill/ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md` · 현 진입점 = `../../scripts/distill/HANDOFF_2026_06_15.md`):
+> - **커버 단위 격상**: R-규칙 → 유한 primitive P1-P9(도메인-독립 control/data-flow). 커버는 벤치별(∞)→primitive별(유한). 대수적 도출 닫힘 + census 실증(전 τ² 도메인 orphan=0·~2450 task·P10 없음·**gap=P6 confirm+P7 recovery**).
+> - **plan X 학습 현황**: 7B TBox = SOPBench+TaskBench native-FC 학습. **in-dist 학습됨**(SOPBench online_market success 0.65·dirgraph 0.70≫base) but **τ² 전이=0**(v4 0.10/v5 0.105/v6 0.0<base 0.17) = 2-hop binding 디커플링(P2b 미커버). **v6**=fetch-to-obtain-arg 복원(TaskBench `<node-N>` threading)·identity 날조는 잡힘·order_id 2-hop 여전. **v7=ComplexFuncBench 합류**(grounded observe→arg 2-hop 100%·sft_v7 16054·cfb~14%·GPU1 학습중) = P2b/P4 소싱 타깃. coworker `node_run_planx.sh`에 v6 파이프라인(threading+값-randomize+D5 게이트) 반영됨.
+> - **Track-B 무영향**: 대형-모델 arm 분담(§7/§9)은 불변. primitive 격상은 *코디네이트 프레임*이지 Track-B 액션 변경 아님. v7 합성설계(P6/P7)는 patent-line owned 합성(외부 ToU 0)·CFB 응답 학습모델 배포 금지(논문-라인만).
+
 ## 9. ★P3 (신판, 2026-06-12) — 신규 벤치 포트폴리오 대형-모델 arm (P2 완료 후 순차)
 > 구판 P3(§2, 타-family 앵커)는 supersede — TaskBench 외부동결로 질문 가치 소멸. 포트폴리오 권위 = `../../scripts/distill/EXPERIMENT_DESIGN.md` **§1.5** + `BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`(§8 요약 참조). **Track-B 몫 = 대형(32B/72B) arm만** — 어댑터(A1-A5)·정책 컴파일(A2)·7B 기준선은 Track A가 먼저 깔고 인계. 전부 추론-only(학습 0).
 

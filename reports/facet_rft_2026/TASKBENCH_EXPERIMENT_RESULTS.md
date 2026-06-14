@@ -520,3 +520,5 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 | A5 | 출력 스키마 → guided 문법 (형식 분기 포함) | 기계적 | schema --dep 분기 |
 
 **⇒ 프레임워크 주장 형태**: "새 벤치 커버 비용 = A1/A4/A5(기계적)+A3(래핑)+A2" — A2가 병목이고, **A2를 학습 front-end가 대체하는 것이 thesis의 상품 가치**(per-domain authoring 비용 제거). 커버리지 행렬(벤치 × A1-A5 가용성 × R1-R8 적용처)은 landscape census 도착 후 작성.
+
+> **★격상 (2026-06-15) — R1-R8 → 유한 primitive P1-P9** (권위본 = `../../scripts/distill/PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md` + 형식 `../../scripts/distill/ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`): 위 R-규칙을 도메인-독립 control/data-flow **연산**으로 정련(P1 grounding·P2a/b gather·P3 시퀀싱·P4 select·P5 policy-gate·P6 confirm·P7 recovery·P8 provenance/auth·P9 parallel). **커버 단위 = 벤치별(∞)→primitive별(유한 ~9)**. 대수적 도출 닫힘(층 A 구성상·층 B 게이트유한 상대) + census 실증(전 τ² 도메인 orphan=0·~2450 task·P10 없음·**τ² gap=P6+P7**). 커버리지 행렬 = 매트릭스 §2(6벤치 × P1-P9). saturation 곡선(벤치 추가 시 새-primitive→0)이 유한-생성 증거.

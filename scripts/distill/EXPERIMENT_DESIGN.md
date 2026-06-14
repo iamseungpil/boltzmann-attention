@@ -14,6 +14,13 @@
 > - **헤드라인** = 주권 + LODO **벤치-횡단 전이**(raw accuracy 아님).
 > - ⚠️ **deprecated (native-emit가 대체)**: 구 `ready;op_X`·dirgraph-emit 스캐폴드·RUNG1 source-ladder·§3 Phase 1-3 학습사다리·xattn/steering·LLM-기반 선별기(SEL-2/4/5)·diffusion 라인·ⓟ1 결정론(=리더보드/RL/디버깅 한정, 핵심 비요구). 상세 = §7 상태열.
 
+> **★★★ 프레이밍 격상 (2026-06-15 · 권위본 = [`PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md`](PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md) + 형식 도출 [`ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`](ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md))**: §0 목표는 불변 — 단 *커버 단위*가 격상. 동기(사용자) = "추론룰이 무한하면 whack-a-mole 아닌가". 답 = **tool-use 스킬은 유한 primitive(P1-P9)로 생성**된다(반증가능·구성적). ⇒ 커버는 **벤치별(∞) 아니라 primitive별(유한)** — 전 primitive 커버 후 held-out 벤치가 무재학습 전이(=R7=thesis). 새 벤치가 P10 요구 = 분류 미완 신호(1행 추가로 그 P10 쓰는 모든 벤치 일반화).
+> - **R1-R8 정련 → P1-P9** (도메인-독립 control/data-flow 연산): P1 grounding·P2a/b gather(decision/arg-2hop)·P3 시퀀싱·P4 select·P5 policy-gate·P6 confirm·P7 recovery·P8 provenance/auth·P9 parallel. 매핑·매트릭스 = 권위본 §1·§2.
+> - **★대수적 도출 닫힘 (06-15 완료)**: P1-P9 = 2층 calculus 연산자-닫힘 — 층 A(control×data) **구성상 닫힘**(Böhm–Jacopini+provenance 완전분할)·층 B(policy-overlay) **유한 게이트-타입 상대 닫힘=유일 live seam**. ⇒ 포화=증명 아닌 *확인*으로 강등. 교차층 6+2+2(P7·P8=가장 어려운 primitive=구조서 도출).
+> - **★census 실증 (06-15·zero-cost `tau2/tau2_primitive_census.py`)**: 전 τ² 도메인(retail114·airline50·telecom2285·mock·~2450 task) **orphan 도구=0** = 모든 gold 도구 P1-P9 매핑·**P10 없음**. τ² 필요 gap = **P6+P7**(retail P6 91%·P7 gold-부재=reactive). transform=`calculate`→P2b 환원(seam 닫힘).
+> - **scope 경계(과대주장 금지)**: 유한성 = **control/data-flow tool-use 슬라이스 한정**(장기계획·코드실행·GUI-grounding·세션메모리·수치연산 제외). 헤드라인 = "경계 있는 슬라이스서 유한 생성 + held-out 전이".
+> - **현 전이 상태**: in-dist 학습됨(SOPBench online_market success 0.65·dirgraph 0.70≫base) but τ² 전이=0(v4 0.10/v5 0.105/v6 0.0<base 0.17) = **2-hop binding 디커플링** → **v7=ComplexFuncBench(grounded 2-hop 100%) 학습중**(P2b/P4 소싱·#3 전이검증 대기).
+
 **자연어 멀티턴 요청을, 도메인별 구조화 온톨로지(ABox)로 재해석해 내부적으로 절차(=plan X에선 native function-calling 시퀀스)를 추론·실행하는 agentic planner를, 작은 모델 weight(TBox)에 학습시키고, 본 적 없는 도메인은 ABox 교체만으로 재학습 0 전이한다.**
 - **TBox(weight, 학습·전이)** = "NL 요청 + ABox 어휘 → dirgraph(절차) 도출 + 실행" 스킬. **★TBox는 NL 정책도 dirgraph도 *아니다* — 둘 사이의 *컴파일 스킬*(도메인-일반)**. NL 정책 = ABox(도메인-특수 *입력*, swap) / dirgraph = **모델 *출력***(컨닝 아님, 도메인-특수). 정책을 weight에 구우면=FM weight-baking(전이 불가); 정책은 ABox에 두고 *컴파일 스킬*만 weight = 새 도메인은 정책 교체로 전이. L0(결정론)는 NL→dirgraph 불가(난이도 주장, §1에서 정량 검증) → 이 매핑이 비자명·대체불가 기여.
 - **ABox(in-context swap, 후속 xattn)** = 도메인 도구 affordance + NL 정책. goal precondition '정답 구조'는 안 떠먹임.
@@ -63,6 +70,7 @@
 - **목적(사용자)**: 벤치-불변 규칙 R1-R8을 내재한 프레임워크가 벤치당 어댑터 A1-A5만으로 전부 커버 — **새 벤치 비용은 A2(정책 NL→제약 구조)로 수렴하고, A2를 학습 front-end가 대체하는 것이 §0 목표의 상품 형태.** 상세 = `BENCH_PORTFOLIO_FRAMEWORK_DESIGN.md`(detail)·요약 = TB결과 `TASKBENCH_EXPERIMENT_RESULTS.md` §10.5·thesis 좌표 = `FIELD_GAP` §18.5.
 - **포트폴리오 (A2 난이도 스펙트럼)**: TaskBench(A2 없음)·SOPBench(구조 제공) = ✅완료 → **★τ²/τ³-bench**(순수 NL정책 = A2 끝점·유일 활성 frontier 리더보드·pass^k=게이트 일관성) → **Amazon SOP-Bench**(SOP 텍스트·**12도메인 LODO** 스케일업; ⚠️우리 SOPBench와 이름충돌 표기주의) → AppWorld·ODCV-Bench(스팟) → (조건부) WorFBench.
 - **순서**: τ² retail 어댑터(A2 수동-1회 = front-end 자동화의 GT) → Amazon 12-도메인 행렬 → 스팟. 대형모델 arm = Track-B(`COWORKER_REQUEST_TB_SCALE.md` §8). TaskBench는 외부 동결(TB결과 §1.5: frontier 정체 64.4) — 내부-일관 비교로 유지.
+- **★격상 (2026-06-15) — R1-R8 → primitive P1-P9·"벤치 커버"를 "primitive 커버"로** (§0 ★★★ 격상 참조): 커버리지 행렬의 *행*이 벤치-불변 규칙(R)에서 **유한 primitive(P)**로 정련. 권위본 = [`PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md`](PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md)(분류·매트릭스·도출·census)+[`ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`](ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md)(형식). A2(정책 NL→구조)는 P5/P6/P8(policy-overlay 층 B) 커버 = 여전히 유일 연구난제. saturation 곡선(벤치 추가 시 새-primitive→0) = §4 일반화 증거. 적대탐색(out-of-genre P10 사냥)=층 B 게이트유한 반증.
 
 ### §1.6 ★framework-tier 메트릭 배터리 (2026-06-12 신설 → **v2 동결 2026-06-12 야간** — 근거 = `reports/facet_rft_2026/research_framework_metrics_2026_06_12.md`, 26 fetch-검증 인용)
 **2-tier 규율(불변)**: ①**헤드라인 tier = 각 벤치의 네이티브 공식 지표만**(TB F1·SOPBench 공식 success·τ² pass^1/pass_hat_k·ODCV 위반율) — 자체 지표를 헤드라인화하면 우리가 비판한 "지표 약화"(TB결과 §1.5 ④)를 자범. ②**framework tier = 프레임워크 *주장*을 판별하는 교차-벤치 2차 배터리** — census 급으로만 보고·전부 사전등록. 근거: 프레임워크 주장(최소노력 커버·재학습0 전이·일관성·무위반)은 per-bench 점수에 직접 안 잡히며, 비공식 발명품들(honest 분모·BOTH·회수율·deficit)이 이미 판별력을 입증.
@@ -302,9 +310,15 @@
 | 문서 | 역할 | 상태 |
 |---|---|---|
 | **이 문서** `EXPERIMENT_DESIGN.md` | **목표·순서·지표 권위본** | ★마스터 |
-| **`CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`** | **★★★현 진입점 (plan X)**: 학습 SOPBench+TaskBench native-FC → 7B TBox / 테스트 SOP-Bench+τ² 벤치-횡단 전이. 공통표현=vLLM-native FC. | ★★★현재 진입점 |
+| **`CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`** | **plan X 계획 (구 진입점)**: 학습 SOPBench+TaskBench native-FC → 7B TBox / 테스트 SOP-Bench+τ² 벤치-횡단 전이. 공통표현=vLLM-native FC. (현 진입점=HANDOFF_2026_06_15) | ★활성 (plan X 계획·진입점은 06-15로 이동) |
 | **`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`** | plan X 변환기 설계 v2: SOPBench FC rollout·TaskBench DAG→native 궤적·전역alias(R1)·loss=assistant-only·QC | ★활성 (plan X 구현) |
 | **`R1B_PROVENANCE_DESIGN_2026_06_14.md`** | **R1b 값-provenance 집행 (리뷰용)**: 3레이어(XGrammar 원천차단 + provenance 검증기 + 학습된 복구순서 fetch→ask). τ² 날조 실증 처방. | ★활성 (리뷰 대기) |
+| **`HANDOFF_2026_06_15.md`** | **★★★현 진입점 (세션 시작 필독)**: primitive-유한성 격상·v6/v7·P2b(CFB)·P6/P7 gap·합성설계. 진행로그=`AUTONOMOUS_PROGRESS_2026_06_14.md`. | ★★★현재 진입점 (06-15) |
+| **`PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md`** | **★primitive 유한성 권위본**: P1-P9 분류(R1-R8 정련)·커버리지 매트릭스(6벤치)·§1.5 개별화기준+대수적도출·§3 τ² gap(P6+P7)·census(orphan=0 전수)·§4 saturation·scope경계 | ★★권위본 (primitive·06-15) |
+| **`ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`** | **★도출 형식 companion**: 흡수 메커니즘(branch/loop≠primitive)·두 seam 화해(α 층B 게이트유한=live·β transform=census해소)·P8↔P1 merge-후보·교차층 6+2+2·census 실증. 본체=매트릭스 §1.5b가 권위 | detail (06-15·매트릭스 동반) |
+| **`V7_PROACTIVE_GATHER_DESIGN_2026_06_14.md`** | **proactive 2-hop gather 설계**: 없는 arg→생산 getter 선택→호출→출력서 select(P2b 근본). v6 디커플링 진단→v7 CFB 합류 근거. | ★활성 (v7 근거) |
+| **`SYNTHESIS_DESIGN_PRIMITIVES_2026_06_15.md` · `SYNTHESIS_IMPL_SPEC_2026_06_15.md`** | **P6/P7 합성설계(patent-line)**: P6 confirm SFT(★분류=반환시그니처)·P7 error-injection SFT+gate-in-loop RL(Track B)·P2b clean(gen_synth_2hop). 전부 owned 합성·외부 ToU 0. | ★활성 (합성·리뷰 후 구현) |
+| **`AUTONOMOUS_PROGRESS_2026_06_14.md`** | **진행로그(시각순)**: R1b·v4정지·τ² autopsy·v6 fetch-teaching·v7 CFB·06-15 도출닫힘+census. 핸드오프 보조. | 진행로그 (시각순) |
 | **`A2_FRONTEND_DISTILL_DESIGN.md`** | **★A2 생성기 학습 구조 (2026-06-12 신설)**: 역방향 렌더링 데이터엔진(spec→NL=GT 구성보장)·S0합성SFT→S1 verified-distill(실 22도메인 LODO)→S2 on-policy DPO·판정="시스템(소형K+검증기-선별) vs frontier 단일샷"·LOCK 비적용 논증(§0). ⚠️t1c-소스 부분은 plan X가 FC-rollout으로 대체(NATIVE_FC §3a) — A2=NL→GATE_SPEC 컴파일러(per-domain ABox)는 유효 | ★활성 (A2 컴파일러=thesis core·유효) |
 | `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 개념 원본(planner L0/L1/L2) | ⚠️superseded (개념=유효·dirgraph-emit 표현은 native-FC가 대체) |
 | `TASK_CONSTRAINT_DESIGN.md` | SOPBench should_T 게이트 진단(Rung1-2) | ⚠️superseded (scaffold-line·plan X 무관) |
