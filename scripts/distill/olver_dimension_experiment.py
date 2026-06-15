@@ -97,26 +97,25 @@ def augment(spec, cond):
             else:
                 newargs[k] = v
         cargs2 = newargs
-    # format: 구조 렌더 변형 (유한 선택)
-    fmt = RND.choice(range(4)) if cond == "format" else 0
-    return render(spec["sys"], user2, tnames2, cname2, cargs2, fmt)
+    # format: 고차원 연속 섭동 (4-템플릿=저차원·magnitude 아티팩트 → arg-순서 셔플 +
+    #         무작위 구분자/공백 = 많은 독립 dim·군차원 진짜 증가). naming/value는 fmt=고정.
+    fmt_random = (cond == "format")
+    return render(spec["sys"], user2, tnames2, cname2, cargs2, fmt_random)
 
 
-def render(sysm, user, tnames, cname, cargs, fmt):
-    argstr = ", ".join("%s=%s" % (k, v) for k, v in cargs.items())
-    if fmt == 0:
-        tools = "Available tools: " + ", ".join(tnames)
-        action = "%s(%s)" % (cname, argstr)
-    elif fmt == 1:
-        tools = "TOOLS | " + " | ".join(tnames)
-        action = "%s {%s}" % (cname, "; ".join("%s: %s" % (k, v) for k, v in cargs.items()))
-    elif fmt == 2:
-        tools = "[tools]\n- " + "\n- ".join(tnames)
-        action = "call %s with %s" % (cname, argstr)
+def render(sysm, user, tnames, cname, cargs, fmt_random):
+    items = list(cargs.items())
+    if fmt_random:
+        RND.shuffle(tnames)          # tool-list 순서 (permutation dim)
+        RND.shuffle(items)           # arg-pair 순서 (permutation dim)
+        sep = RND.choice([", ", " , ", ",  ", ", "])  # 무작위 구분자/공백
+        tsep = RND.choice([", ", " | ", " / ", "  "])
+        eq = RND.choice(["=", " = ", ": ", "="])
     else:
-        tools = "tools=" + "/".join(tnames)
-        action = "%s <- (%s)" % (cname, argstr)
-    return "%s\n%s\nUser: %s\nAssistant action: %s" % (sysm, tools, user, action)
+        sep, tsep, eq = ", ", ", ", "="
+    argstr = sep.join("%s%s%s" % (k, eq, v) for k, v in items)
+    tools = "Available tools: " + tsep.join(tnames)
+    return "%s\n%s\nUser: %s\nAssistant action: %s(%s)" % (sysm, tools, user, cname, argstr)
 
 
 # ── 표현 추출 ──
