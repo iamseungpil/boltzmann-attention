@@ -20,6 +20,8 @@
 
 > **★격상 (2026-06-15) — R1-R8 → 유한 primitive P1-P9** (권위본 = `PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md` + 형식 `ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md` · 같은 `scripts/distill/`): 위 R-규칙을 **도메인-독립 control/data-flow 연산**으로 정련. P1 grounding(R1)·P2a gather-decision(R2)·P2b gather-arg 2hop(R2+R4)·P3 시퀀싱(R4·R6)·P4 select(R4)·P5 policy-gate(R3)·P6 confirm(R3하위)·P7 recovery(R3하위)·P8 provenance/auth(R1b·G1·G3)·P9 parallel(R6). **커버 단위 = 벤치별(∞)→primitive별(유한 ~9)**. **대수적 도출 닫힘**(층 A control×data 구성상 닫힘·층 B policy 유한 게이트-타입 상대) + **census 실증**(전 τ² 도메인 orphan=0·~2450 task·P10 없음·gap=P6+P7). A2(정책 NL→구조)=P5/P6/P8(층 B) 커버=여전히 유일 난제. saturation 곡선(벤치 추가 시 새-primitive→0)이 유한-생성 증거.
 
+> **★★thesis 심화 (2026-06-15) — 유한-학습 LLM + 결정론 offload** (마스터 `EXPERIMENT_DESIGN.md` §0 ★★★★ · 권위 = `ALGEBRAIC_DERIVATION_CLOSURE` §2.1·§5): R1-R8/P1-P9가 *왜* 유한이고 *무엇이* offload돼야 하는가의 원리. **LLM 학습 = 유한-도메인 학습 → 무한(임의)은 유한 basis로 못 닫음.** ⇒ ①**임의 계산**(수학·AND·정규화) = Turing-완전·**Rice 정리**로 닫힘불가 → compute-as-tool offload ②**임의 정책게이트** = **HRU 결정불가** → A2/scaffold 결정론 집행. **offload = 약점-회피 아니라 정확성이 원리적으로 학습 밖이라 *옳은 분리***(빅모델도 내재화 시 환각·결정론 도구는 정확). **작은 모델 충분 = 추상화가 저차원 불변량(Olver)이라 scale 불요.** 어댑터 A2가 메우는 칸 = 정확히 offload된 (b) 도메인-내용.
+
 ## 2. 벤치-어댑터 A1-A5 (벤치당 새로 쓰는 유일한 것)
 | # | 추출물 | 자동화 | 견본 |
 |---|---|---|---|

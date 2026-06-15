@@ -21,6 +21,16 @@
 > - **scope 경계(과대주장 금지)**: 유한성 = **control/data-flow tool-use 슬라이스 한정**(장기계획·코드실행·GUI-grounding·세션메모리·수치연산 제외). 헤드라인 = "경계 있는 슬라이스서 유한 생성 + held-out 전이".
 > - **현 전이 상태**: in-dist 학습됨(SOPBench online_market success 0.65·dirgraph 0.70≫base) but τ² 전이=0(v4 0.10/v5 0.105/v6 0.0<base 0.17) = **2-hop binding 디커플링** → **v7=ComplexFuncBench(grounded 2-hop 100%) 학습중**(P2b/P4 소싱·#3 전이검증 대기).
 
+> **★★★★ thesis 심화 = "유한-학습 LLM 추상화 + 결정론 offload" (2026-06-15 확정 · 권위 = [`ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`](ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md) §2.1·§5)**. 증명하려는 핵심 = **"작은 모델이 *진짜로* 학습할 수 있는 것은 무엇인가"** — 빅모델은 전부 파라미터 확장으로 풀지만, 효율·주권·신뢰엔 *결정론 도구*(계산기·메모장처럼)가 필요. 단 **추상화(planning)는 LLM의 본질 역할**이고, 작은 LLM이 그 추상화를 내재화 + 외부 결정론 보강 = 빅모델 *이상의 실용성*.
+> - **분업 (분해 정리, §5.5–5.13)**: 에이전트 competence = **(a) 유한·저차원 추상 스킬-basis**(control/data-flow planning·NL→구조 grounding = P1-P9) **+ (b) 무한 정확-실행**(임의 계산·논리 AND·정책 게이팅·검증). (a)=LLM 학습·(b)=결정론 offload.
+> - **★offload는 약점-회피가 아니라 *수학적 필연* (핵심·명시)**: **LLM 학습 = 유한-도메인 학습 → 무한(임의)은 유한 basis로 못 닫는다.**
+>   - **임의 계산** = Turing-완전 → **Rice 정리**로 유한 기본형 닫힘 불가 (수학·AND·날짜정규화·금액산술). ⇒ compute-as-tool(`calculate`류)로 offload (§2.1·보조정리3).
+>   - **임의 정책 게이트** = **HRU(1976) 결정불가** → 유한 학습 불가. ⇒ A2/GATE_SPEC 결정론 scaffold replay 집행 (Schneider EM=safety, 보조정리4).
+>   - ⇒ 빅모델조차 (b)를 파라미터로 내재화하면 **근사**(math·compliance 환각)일 뿐. **결정론 도구는 *정확히* 한다.** offload는 효율 트릭이 아니라 *정확성이 원리적으로 학습 밖이라 옳은 분리*. (`feedback-selector-verifier-deterministic` 정합.)
+> - **★왜 *작은* 모델로 충분한가**: 추상화 = **표면군 저차원 불변량**(Olver n−s·§5.13·`olver_dimension_experiment.py`로 측정중). **scale이 사는 것 = 암기 + 정확-실행 근사, *추상화가 아님*(저차원)** → 작은 모델도 저차원 추상화엔 용량 충분. "작은 모델이 추상화서 빅모델에 안 진다"는 추상화가 scale을 *불요*하기 때문.
+> - **★"빅모델 초과"의 정확한 scope (over-claim 금지)**: raw capability 아니라 **(i) 효율(비용·지연) (ii) 주권(on-prem·open-weight) (iii) 검증가능 신뢰성(결정론 게이트=compliance 환각 0)**. 빅모델도 도구 쓰므로 비교 = "동급 capability를 저비용·주권·신뢰로".
+> - **★증명 상태 (정직 분리)**: 수학 = **필요조건**(basis 유한·추상 저차원·offload가능 = §5 *증명됨*). **충분조건**(작은 모델이 추상화를 *학습·전이*) = **열린 경험 질문·현 음성**(τ² 0.05–0.10<base 0.17). ⇒ 무조건화 잔벽 = "grounding-skill 표면-불변 학습-coverage" *하나*(§5.12). v9/P6/P7/프로토타입 = 이 충분조건 증명 시도.
+
 **자연어 멀티턴 요청을, 도메인별 구조화 온톨로지(ABox)로 재해석해 내부적으로 절차(=plan X에선 native function-calling 시퀀스)를 추론·실행하는 agentic planner를, 작은 모델 weight(TBox)에 학습시키고, 본 적 없는 도메인은 ABox 교체만으로 재학습 0 전이한다.**
 - **TBox(weight, 학습·전이)** = "NL 요청 + ABox 어휘 → dirgraph(절차) 도출 + 실행" 스킬. **★TBox는 NL 정책도 dirgraph도 *아니다* — 둘 사이의 *컴파일 스킬*(도메인-일반)**. NL 정책 = ABox(도메인-특수 *입력*, swap) / dirgraph = **모델 *출력***(컨닝 아님, 도메인-특수). 정책을 weight에 구우면=FM weight-baking(전이 불가); 정책은 ABox에 두고 *컴파일 스킬*만 weight = 새 도메인은 정책 교체로 전이. L0(결정론)는 NL→dirgraph 불가(난이도 주장, §1에서 정량 검증) → 이 매핑이 비자명·대체불가 기여.
 - **ABox(in-context swap, 후속 xattn)** = 도메인 도구 affordance + NL 정책. goal precondition '정답 구조'는 안 떠먹임.
