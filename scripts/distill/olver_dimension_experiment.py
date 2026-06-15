@@ -85,10 +85,17 @@ def augment_frac(spec, f):
     surf_vals = [str(v) for v in cargs.values() if isinstance(v, str) and len(str(v)) >= 4]
     pool = [("T", t) for t in surf_tools] + [("F", x) for x in surf_fields] + [("V", v) for v in surf_vals]
     m = int(round(f * len(pool)))
-    chosen = set(id(x) for x in RND.sample(pool, m)) if m else set()
-    tmap = {t: ("tool_" + rand_tok(6)) for (k, t) in pool if k == "T" and id((k, t)) in chosen}
-    fmap = {x: ("arg_" + rand_tok(5)) for (k, x) in pool if k == "F" and id((k, x)) in chosen}
-    vmap = {v: fmt_preserve(v) for (k, v) in pool if k == "V" and id((k, v)) in chosen}
+    chosen_idx = set(RND.sample(range(len(pool)), m)) if m and len(pool) else set()
+    tmap, fmap, vmap = {}, {}, {}
+    for j, (kind, val) in enumerate(pool):
+        if j not in chosen_idx:
+            continue
+        if kind == "T":
+            tmap[val] = "tool_" + rand_tok(6)
+        elif kind == "F":
+            fmap[val] = "arg_" + rand_tok(5)
+        else:
+            vmap[val] = fmt_preserve(val)
     tnames2 = [tmap.get(t, t) for t in tnames]
     cname2 = tmap.get(cname, cname)
     cargs2 = {fmap.get(k, k): vmap.get(str(v), v) for k, v in cargs.items()}
@@ -123,6 +130,8 @@ def eff_dim(X):
     C = X.T @ X / max(1, len(X))
     ev = np.linalg.eigvalsh(C)
     ev = ev[ev > 1e-10]
+    if ev.size == 0 or (ev ** 2).sum() == 0:
+        return 0.0
     return float((ev.sum() ** 2) / (ev ** 2).sum())
 
 
