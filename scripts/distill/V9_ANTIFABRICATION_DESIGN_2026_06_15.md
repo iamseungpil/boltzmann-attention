@@ -67,9 +67,21 @@
 4. **스키마-example 일반화** — 날조는 inference-time τ² 스키마서 옴. SOPBench 학습이 *못 본* τ² 스키마-example을 어떻게 거부 일반화하나? (학습 신호 = "스키마 텍스트의 값은 무효"라는 *추상 규칙*을 배워야 — 특정 literal 암기 아님.) 이게 핵심 전이 가설.
 5. **검증기 false-positive 비용** — 학습 보상으로 쓸 때 오판(legit 값 reject)이 모델을 잘못 학습시킴. 감사·고정밀(스키마-example literal blocklist) 선행.
 6. **write-완성 천장 분리** — v9는 P2b 전담, write-완성(P6/payment)은 v8/별도. 헤드라인서 혼선 방지.
+7. **★(M0 신설) 날조가 유일 병목 아님** — prototype 실측: 날조 차단해도 gather-완성 6/20·write-완성 1/20. ⇒ anti-fab 단독 pass 기여 제한적. **v9 = 전-체인(gather→use→write) RLVR(보상=task성공) 필요? 아니면 anti-fab(v9) + write-완성(v8/P6/payment) *동반*?** 이게 최대 설계 결정.
+
+## ★M0 결과 (2026-06-15·3-arm prototype 완료) — 메커니즘 확정·but pass 정체·천장=다단계 복합
+| arm | pass^1 | 날조(#W000/email) | get_user_details |
+|---|---|---|---|
+| BASE | 0.05 | 72 | 10 |
+| L1(bad_words 정적) | 0.05 | 58 | **44** |
+| L1L2(+동적+regen) | 0.0* | **17** | 19 |
+- **★레버 작동 확정**: 날조 차단 → **gather로 전환**(get_user_details 10→44·날조 72→17). 행동이 정확히 의도대로 바뀜.
+- **★그러나 pass 정체(~0·*n20 노이즈*)**: L1 arm 정밀분석 — **날조-trigger 여전 17/20**(정적 bad_words가 `#W0000000`은 막아도 모델이 **변형 `#W0000001`·새 이메일 날조** = 정적 구멍 → 동적 L2 필요)·**gather 성공(read≥2) 6/20·write 매치 1/20**.
+- **★확정 함의(V9 재형성)**: **날조 차단은 필요하나 *불충분*.** τ² 천장 = **다단계 복합**: ①날조-변형(동적 차단 필요) ②**gather-완성**(맞는 값 추출·6/20만) ③**write-완성**(payment_method_id 2-hop·과잉거부·1/20=task6). 날조만 막으면 병목이 *다운스트림으로 이동*하지 pass로 안 감.
+- **⇒ V9 방향 조정**: 단일 anti-fab(C-only/D) 아니라 **전-체인 신호**(gather→extract→use→write 전체 정확)가 필요 → **RLVR 보상 = task 성공**(날조-무만 아님)이 전-체인을 on-policy 최적화 = 사용자 RLVR 아이디어 강화. randomization은 fetch-first 강제(긍정)·DPO는 변형-날조 페널티(부정)·**RLVR이 전-체인 묶음**. ⓠ"날조가 *유일* 병목 아니라면 v9 anti-fab의 pass 기여는 제한적 — write-완성(P6/payment)과 *동반* 필요"를 리뷰 훅 #7로.
 
 ## 8. 마일스톤 (리뷰 후 갱신)
-- **M0 (진행중)**: 3-arm prototype(BASE/L1/L1L2) → "날조 막으면 pass↑?" 판정. **이게 C/D/E 투자 게이트.**
+- ~~**M0**: 3-arm prototype~~ **✅완료(위)** — 레버 확정·pass 정체·천장 다단계. C/D/E 투자는 *전-체인* 타깃으로 조정.
 - **M1**: `fc_randomize_fetchable` 확장(전 fetchable 값·SOPBench) + QC. 검증기 강화(literal blocklist·false-pos 감사).
 - **M2**: DPO 쌍 합성(chosen/rejected·검증기 라벨) + 양방향 DPO 학습(v9-dpo).
 - **M3**: v9-dpo τ² 전이 eval(fab율·fetch-first율·pass) + ablation(randomize-only vs +DPO).
