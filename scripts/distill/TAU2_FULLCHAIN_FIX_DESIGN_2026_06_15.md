@@ -128,6 +128,21 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
 - **★측정 = 절차판 산술-토큰화 clean experiment(§5.15 step-2 실증 차용)**: dim4가 가장 깨끗 — **without-등방화(LODO·단일 format 학습)=약 vs with-등방화(format-uniform)=강**. 산술의 Nogueira/McLeish("표현 교체→약→강")의 *절차 인스턴스*. ⚠§5.15 잔여④: 원리는 차용·절차서 약→강은 *이 측정으로만* 확정(편의데이터 격상 금지).
 - **★비자명 예측(§5.15)**: 절차는 step-3(궤적) 공짜라 **step-2 fix(등방화) 하나로 전이 복원** — 산술처럼 CoT(step-3) 추가 불요. ⇒ format-uniform 단독이 LODO 전이실패를 뒤집으면 = "절차가 산술보다 구제 쉬움" 실증 + step-2 단독충분 확인.
 
+### 9.7 ★★orbit-consistency = 명시적 불변-손실 (데이터-노출 → 불변 *강제*·`ALGEBRAIC_DERIVATION_CLOSURE` §5.11/5.12, 2026-06-15)
+> 사용자 통찰: 저차원 불변 전이의 실제 구현. **전이 메커니즘 불변(동결 LoRA+ABox-swap=재학습0)** — orbit-consistency는 *학습-시점* LoRA를 불변 부분공간에 정렬시키는 손실. = §9 데이터-등방화의 "노출"을 "강제"로 격상.
+
+**기제.** 한 task의 *궤도(orbit)* = 표면군 G 변형들(alias·format·value-rand)의 집합. 손실 `L_inv = ‖h(x) − h(g·x)‖²` (g∈G) → 변형 표현을 *같게 강제* → 변형 간 *불변(추상)* 살아남고 *변이(표면)* 페널티. = **Reynolds 투영 P_G의 *학습판***(§5.11)·**대조학습(SimCLR/BYOL invariance)과 동원리**(augment 군=우리 표면군).
+- **노출(§9) vs 강제(9.7)**: 데이터-randomize=표면 *노출*(무시 *희망*) / orbit-consistency=표면-민감도 *직접 페널티*(불변 *강제*). 더 강한 신호.
+- **전이 불변**: LoRA가 학습 중 불변하게 변할 뿐, 전이=동결 LoRA+ABox-swap 그대로(웨이트 변경 0). "TBox 웨이트 변경?"=학습 중 YES·전이 시 NO.
+
+**★결정적 caveat 2(설계 제약)**:
+1. **변환 G = *구성상 의미보존*만**: order_id가 표면-placeholder 아닌 *실제 fetch대상*이면 randomize 금지(consistency가 *주의할 값 무시* 오학습). 이름·포맷·직렬화=OK / 실제 결정값=NO(=dim3 prior와 별·§9.6). Locatello/coverage 핵.
+2. **★계획-수준만·실행 grounding 표면-가독 유지(binding 긴장)**: 전체 불변화하면 `get_user_details`를 *읽어 호출* 못함. **계획구조(어느 의존)=불변·실행 grounding(지금 어느 도구)=표면가독** 둘 다 필요 → orbit-consistency = **soft 정규화·계획-수준 표현 한정**(blanket 하드 제약 금지). = §5.10/5.12 binding 잔여의 구체판.
+
+**★probe 게이트(선행)**: invariant-probe(`olver_definitive.py`·`0fe14a6`)가 **불변 부분공간이 실제 task 전이하나** 먼저 측정 → 양성(caveat2 안깨짐)이면 soft orbit-consistency를 §9에 얹음·음성이면 불변≠task라 헛수고. **진단→양성 시 구현.**
+
+**위치(§5.16 원장)**: orbit-consistency = **C8(전이) 음성→양성 후보 메커니즘**(데이터-등방화보다 강한 레버)·아직 결과 아님=가설/방법. invariant-probe 결과로 판정.
+
 ## 6. scope / caveat (정직)
 - **프로토타입=천장 추정·가드는 결정론(프로덕션 가드로도 유효)·학습=내재화**. 둘 다 보고.
 - **write 천장 다인자**: P6(confirm)·P5(정책 위반 적응)·P7(루프). G-loop이 공통 분모(연타 차단)지만 P5 정책-적응(대안 행동)은 별 능력일 수 있음 → Phase P서 분해.
@@ -157,5 +172,6 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
 - **M3**: Stage A 학습(v9) — **§9.4 재정의**: dim2(값·유지) + **dim3 DPO negative(스키마-example)+bad_words** + **dim4 format-randomize(신규·LODO 처방)**. ~~"값 더 randomize"~~ 아님.
 - **M3.5 (선행·이론검증)**: ①**Olver inv-측 재측정**(비판1·사전등록) — trained adapter(v7)·O(d) 연속회전·중간층 pooling·깊은층 둔감을 *예측-후-측정* → inv_dim=n−s 수vs수 통과 여부 확정(현=consistent-with). ②**Olver dim별 coverage 진단(§9.5)** — dim1-5 전부 augment 후 잔여 표면-상관=0인가(dim6 탐지·완전성). ③ 둘 다 inv-측 판정(var=동어반복).
 - **M3.6 (★절차판 clean experiment·§9.6)**: dim4(format)로 **without-등방화(단일 format)=약 vs with-등방화(format-uniform)=강** A/B = 산술-토큰화(Nogueira/McLeish)의 절차 인스턴스. 사전등록 예측: **format-uniform 단독이 LODO 전이실패를 뒤집음**(step-2 단독충분·절차>산술 구제용이 §5.15). 음성=step-2 외 잔여(dim6 or prior) 재진단.
+- **M3.7 (★orbit-consistency·§9.7·probe 게이트後)**: invariant-probe(olver_definitive) 양성 시 → **soft orbit-consistency 손실**(`L_inv=‖h(x)−h(g·x)‖²`·의미보존 G·계획-수준 한정)을 v-final LoRA 학습에 추가 → 전이 eval. 전이 메커니즘 불변(동결+ABox-swap). 데이터-등방화(M3.6) 대비 *강제* 레버.
 - **M4**: 통합 v-final + RLVR(E) + 전이 eval(chain-census 단계별).
 - **M5**: 논문/특허 — 결정론 검증기 through-line(가드/라벨/보상)·2-stage 전이·**원리(유한-학습+offload+표면등방화+LLM강약기준 §5.15)** 헤드라인.
