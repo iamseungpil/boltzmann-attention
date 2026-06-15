@@ -67,7 +67,7 @@ def load_specs(path, n):
             continue
         tnames = [t["function"]["name"] for t in tools]
         fields = sorted({k for t in tools for k in (t["function"].get("parameters", {}).get("properties", {}) or {})})
-        specs.append({"sys": sys_m[:300], "user": usr_m[:300], "tnames": tnames[:27],
+        specs.append({"sys": "You are a tool-using assistant.", "user": usr_m[:200], "tnames": tnames[:27],
                       "fields": fields[:40], "call": call})
         if len(specs) >= n:
             break
@@ -122,15 +122,16 @@ def render(sysm, user, tnames, cname, cargs, fmt):
 # ── 표현 추출 ──
 @torch.no_grad()
 def reps(model, tok, texts, layers, device, bs=8):
+    """last non-pad 토큰 표현 (action에 민감; mean-pool은 불변 system에 희석됨)."""
     out = {L: [] for L in layers}
     for i in range(0, len(texts), bs):
         batch = texts[i:i + bs]
         enc = tok(batch, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
         hs = model(**enc, output_hidden_states=True).hidden_states  # tuple [n+1] of [b,seq,d]
-        mask = enc["attention_mask"].unsqueeze(-1).float()
+        last = enc["attention_mask"].sum(1) - 1  # 마지막 non-pad 인덱스 (right-pad 가정)
+        bidx = torch.arange(len(batch), device=device)
         for L in layers:
-            h = hs[L]
-            pooled = (h * mask).sum(1) / mask.sum(1)  # mean-pool non-pad
+            pooled = hs[L][bidx, last]  # [b, d] last-token
             out[L].append(pooled.float().cpu().numpy())
     return {L: np.concatenate(v, 0) for L, v in out.items()}
 
@@ -158,6 +159,7 @@ def main():
     specs = load_specs(a.data, a.n)
     print("[data] %d input specs" % len(specs), flush=True)
     tok = AutoTokenizer.from_pretrained(a.model)
+    tok.padding_side = "right"
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     model = AutoModelForCausalLM.from_pretrained(a.model, torch_dtype=torch.bfloat16, device_map="cuda:0")
