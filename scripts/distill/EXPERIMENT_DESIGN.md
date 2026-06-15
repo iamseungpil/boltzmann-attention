@@ -328,7 +328,10 @@
 | **`ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`** | **★도출 형식 companion**: 흡수 메커니즘(branch/loop≠primitive)·두 seam 화해(α 층B 게이트유한=live·β transform=census해소)·P8↔P1 merge-후보·교차층 6+2+2·census 실증. 본체=매트릭스 §1.5b가 권위 | detail (06-15·매트릭스 동반) |
 | **`V7_PROACTIVE_GATHER_DESIGN_2026_06_14.md`** | **proactive 2-hop gather 설계**: 없는 arg→생산 getter 선택→호출→출력서 select(P2b 근본). v6 디커플링 진단→v7 CFB 합류 근거. | ★활성 (v7 근거) |
 | **`SYNTHESIS_DESIGN_PRIMITIVES_2026_06_15.md` · `SYNTHESIS_IMPL_SPEC_2026_06_15.md`** | **P6/P7 합성설계(patent-line)**: P6 confirm SFT(★분류=반환시그니처)·P7 error-injection SFT+gate-in-loop RL(Track B)·P2b clean(gen_synth_2hop). 전부 owned 합성·외부 ToU 0. | ★활성 (합성·리뷰 후 구현) |
-| **`AUTONOMOUS_PROGRESS_2026_06_14.md`** | **진행로그(시각순)**: R1b·v4정지·τ² autopsy·v6 fetch-teaching·v7 CFB·06-15 도출닫힘+census. 핸드오프 보조. | 진행로그 (시각순) |
+| **`TAU2_FULLCHAIN_FIX_DESIGN_2026_06_15.md`** | **★통합 운영 설계 (현 작업 권위)**: 2-stage gate 병목(상류 P2b 날조 + write P6/P7)·프로토타입-우선 방법론·**§9 randomization 전수 재검토=표면등방화(dim1-5 감사·v8/v9 재정의)**. chain-census 근거. | ★★활성 (현 작업·06-15) |
+| **`V9_ANTIFABRICATION_DESIGN_2026_06_15.md`** | **anti-fab 설계**: randomization(긍정)+DPO/RLVR(부정·스키마-example 페널티)·검증기 through-line(가드/라벨/보상)·M0 prototype 결과(레버 작동·write 벽). | ★활성 (v9·리뷰됨) |
+| **`olver_dimension_experiment.py`** | **§5.14 실험2 (Olver 차원법칙)**: 표면군 등방화→불변 eff-dim 측정. 1차 결과=var-side robust·불변 저차원(추상=저차원 thesis 지지). coverage 진단으로 확장(§9.5). | ★활성 (이론검증·측정) |
+| **`AUTONOMOUS_PROGRESS_2026_06_14.md`** | **진행로그(시각순)**: R1b·v4정지·τ² autopsy·v6 fetch-teaching·v7 CFB·06-15 도출닫힘+census+v6/v7 eval+provenance+Olver. 핸드오프 보조. | 진행로그 (시각순) |
 | **`A2_FRONTEND_DISTILL_DESIGN.md`** | **★A2 생성기 학습 구조 (2026-06-12 신설)**: 역방향 렌더링 데이터엔진(spec→NL=GT 구성보장)·S0합성SFT→S1 verified-distill(실 22도메인 LODO)→S2 on-policy DPO·판정="시스템(소형K+검증기-선별) vs frontier 단일샷"·LOCK 비적용 논증(§0). ⚠️t1c-소스 부분은 plan X가 FC-rollout으로 대체(NATIVE_FC §3a) — A2=NL→GATE_SPEC 컴파일러(per-domain ABox)는 유효 | ★활성 (A2 컴파일러=thesis core·유효) |
 | `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 개념 원본(planner L0/L1/L2) | ⚠️superseded (개념=유효·dirgraph-emit 표현은 native-FC가 대체) |
 | `TASK_CONSTRAINT_DESIGN.md` | SOPBench should_T 게이트 진단(Rung1-2) | ⚠️superseded (scaffold-line·plan X 무관) |

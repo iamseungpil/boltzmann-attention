@@ -66,6 +66,40 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
 - **예측**: Phase P full → write_ok↑·pass↑(상류+write 동시 해소). Phase T가 그 천장을 weight로 재현하면 전이 성립.
 - ablation: 각 가드/처방 leave-one(어느 단계가 어느 처방에 의존).
 
+## ★★9. Randomization 전수 재검토 = 표면 등방화 (원리 반영·2026-06-15 사용자 지시)
+> 원리(마스터 §0 ★★★★ + `ALGEBRAIC_DERIVATION_CLOSURE` §5.10/5.11/5.14): **전이 = 모델이 표면-불변(저차원 추상) 부분공간에 안착.** randomization = 표면군 G 등방화 → 불변(추상) 강제. **§5.10 LODO 교훈(정리): *덮인 표면 차원만* 전이 → train↔test서 *변하는 모든 표면 dim*을 randomize해야** (미커버 dim = 과적합 = 전이실패). Olver 실험 = 등방화 작동 확증(var-side robust). **⇒ randomization 설계 = "값 더 섞기"가 아니라 *미커버 표면 dim 전수 식별·커버*.**
+
+### 9.1 표면-차원 감사 (train SOPBench ↔ test τ²)
+| # | 표면 dim | 표면군 | train↔test 갭 | 현 status | 처방 | primitive | enforce=offload? |
+|---|---|---|---|---|---|---|---|
+| 1 | tool/field **이름** | naming(치환) | τ² 다른 이름 | alias 부분(native-FC R1) | 전역 alias-mask 강화 | P1 | 학습 |
+| 2 | **fetchable 값**(order_id·payment·item) | value(reformat) | τ² placeholder | ✅ **v6 `fc_randomize_fetchable`**(identity+fetchable) | 커버됨·τ² 값-형식 span 확인 | P2b | 학습(+검증 offload) |
+| 3 | **스키마-example 값**(`#W0000000`) | (artifact·**pretraining prior**) | τ² tool 스키마 example | ✗ 미커버 | **★randomize로 불가**(pretrain prior) → **DPO negative + runtime blocklist**(bad_words) | P1 | runtime gate offload |
+| 4 | **출력/직렬 format** | format | LODO resource↔temporal | ✗ **미randomize=전이실패 실증** | **format-uniform/randomize**(신규) | R4 표면 | 학습 |
+| 5 | **게이트 phrasing**(confirm Q·error/deny msg·정책 NL) | (speech-act surface) | τ² 다른 wording | ◐ sop_confirm 4템플릿(스펙) | template+LLM paraphrase randomize | P6/P7 | enforce=offload·phrasing=학습 |
+
+### 9.2 ★핵심 통찰 (왜 v6 값-randomize했는데 τ² 전이 실패했나)
+- **dim 2(값)는 이미 대부분 커버** — but 전이 실패. 원리가 정확히 진단: **미커버 dim 3·4·5가 전이 안 됨**(§5.10).
+  - **dim 3(스키마-example)**: 날조의 *진짜* 소스(이번 세션 root-cause). **pretraining prior라 randomize로 못 지움** → DPO negative(스키마-example=rejected) + runtime bad_words. ← v6 값-randomize가 *놓친* 축.
+  - **dim 4(format)**: LODO가 *직접 실패*로 입증(resource↔temporal 직렬화 미randomize→전이실패). **format randomization 신규 필수.**
+  - **dim 5(gate phrasing)**: P6/P7 전이의 표면 — confirm/error/정책 NL을 randomize해야 *추상 speech-act*(confirm·recover) 학습(특정 문구 과적합 아님).
+- **offload 분리(원리 반영)**: 각 dim의 *enforcement*(게이트 집행·값 검증)=결정론 offload / *abstract interaction*(언제 confirm·어떻게 gather·deny후 recover)=LLM 학습. **randomization은 후자의 표면만 등방화**(전자는 결정론이라 randomize 무관).
+
+### 9.3 v8 (P6) 재검토 — 원리 반영
+- P6 = 층B policy primitive. 게이트(G2 confirm)=결정론 offload(됨)·모델은 *추상 confirm speech-act* 학습.
+- **전이 위해 sop_confirm이 전 randomization 상속 필요**: 값(dim2)·이름(dim1)=sop_rand2 상속 ✅ / **confirm phrasing(dim5)=template+LLM paraphrase 강화**(현 4템플릿→다양화). → 모델이 특정 문구 아닌 추상 "비가역 write 전 확인" 학습.
+- **현 v8 gap**: sop_confirm이 sop_rand2(값/이름 randomized) 기반이나 **confirm Q 문구 다양성 부족**(dim5 미흡) → 재빌드 시 paraphrase 확대.
+
+### 9.4 v9 (anti-fab) 재검토 — 원리 반영 (Stage A 재정의)
+- ~~"값 더 randomize"~~ → **미커버 dim 추가가 핵심**:
+  - dim 2(값): 이미 v6 커버 — 유지.
+  - **dim 3(스키마-example)**: DPO negative 쌍(chosen=fetch·rejected=스키마-example 날조) + runtime bad_words. ← Stage A의 *진짜 신규*.
+  - **dim 4(format)**: 학습데이터 출력-format randomize(JSON 직렬·key순·separator) = LODO 처방을 등방화 framing이 예측(§5.10).
+- ⇒ **v9 Stage A = dim3(DPO/blocklist) + dim4(format-rand) 신규** (dim2는 유지). RLVR 보상 = 전-체인 task성공(§4).
+
+### 9.5 Olver 진단 확장 (randomization coverage 사전탐지)
+- Olver 실험(`olver_dimension_experiment.py`)을 **dim별 coverage 진단**으로: 각 표면 dim을 augment群에 넣고 그 dim이 isotropize되는지(var↑·inv↓) 측정 → **미isotropize dim = 전이 위험 사전탐지**(학습 전 zero-cost). 특히 dim4(format)·dim5(phrasing)가 모델 표현서 분리 등방화되는지 확인.
+
 ## 6. scope / caveat (정직)
 - **프로토타입=천장 추정·가드는 결정론(프로덕션 가드로도 유효)·학습=내재화**. 둘 다 보고.
 - **write 천장 다인자**: P6(confirm)·P5(정책 위반 적응)·P7(루프). G-loop이 공통 분모(연타 차단)지만 P5 정책-적응(대안 행동)은 별 능력일 수 있음 → Phase P서 분해.
@@ -83,7 +117,8 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
 ## 8. 마일스톤
 - **M0 ✅**: 3-arm provenance prototype → 상류 P2b 레버 확정·**write가 진짜 벽**(체인-census). 본 문서의 출발.
 - **M1 (다음·프로토타입-우선)**: **G-loop 구현**(`t2_gate_patch` orchestrator·동일-실패 차단) → **full 가드레일 4-arm 프로토타입**(BASE/+fab/+loop/+confirm) → pass 이동 판정. **이게 본 학습 게이트.**
-- **M2 (양성 시)**: Stage B 학습 — v8(P6·진행중) 완주 eval + `fc_recovery_augment`(P7) 구현·학습.
-- **M3**: Stage A 학습 — 확장 randomize + DPO(v9).
+- **M2 (양성 시)**: Stage B 학습 — v8(P6) 완주 eval + **sop_confirm 재빌드(dim5 confirm-phrasing 다양화·§9.3)** + `fc_recovery_augment`(P7·dim5 error/deny phrasing randomize) 구현·학습.
+- **M3**: Stage A 학습(v9) — **§9.4 재정의**: dim2(값·유지) + **dim3 DPO negative(스키마-example)+bad_words** + **dim4 format-randomize(신규·LODO 처방)**. ~~"값 더 randomize"~~ 아님.
+- **M3.5 (zero-GPU·선행)**: **Olver dim별 coverage 진단(§9.5)** — dim4(format)·dim5(phrasing)가 모델 표현서 등방화되는지 학습 전 측정 → 미커버 dim 사전탐지.
 - **M4**: 통합 v-final + RLVR(E) + 전이 eval(chain-census 단계별).
-- **M5**: 논문/특허 — 결정론 검증기 through-line(가드/라벨/보상)·2-stage 전이 헤드라인.
+- **M5**: 논문/특허 — 결정론 검증기 through-line(가드/라벨/보상)·2-stage 전이·**원리(유한-학습+offload+표면등방화)** 헤드라인.
