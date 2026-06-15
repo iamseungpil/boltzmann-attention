@@ -2,7 +2,8 @@
 
 > 상태 = **리뷰용 DRAFT** (승인 후 구현). 진입점 = `HANDOFF_2026_06_15_pm.md`. 직전 진단 = `TAU2_FULLCHAIN_FIX_DESIGN_2026_06_15.md`(2-stage gate).
 > 불변 = `feedback-thesis-tbox-transfer-direction`(SOPBench/TaskBench 학습·τ² held-out)·`feedback-selector-verifier-deterministic`(검증기·선택기=결정론)·`feedback-nl-formalize-llm-selection-deterministic`(LLM=NL→formalize·concrete=결정론).
-> 메모리 = `reference-abox-config-formalization-architecture`.
+> 이론 권위 = `PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md`(P1-P9 유한성)·`ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`(§5 형식도출·증명지위 원장). 메모리 = `reference-abox-config-formalization-architecture`.
+> **★개정(2026-06-16)**: 이론 정독 후 정합 §1.5 추가 + 핵심 교정 3 — ①σ-경계는 *고정 정리 아니라 C8×비용 경험-보정*(§1.5) ②계획쪽 = *증분 typed-action*(full-DAG 생성 아님)·DAG=결정론 검증구조(§6.5 개정) ③비용-인지 σ-경계(§6.6 신설). 딥리서치 3건 진행중(경로우선순위·결정론비용·NL→SQL/semantic-parsing) → 도착 시 §1.5/§6.6/§7 정련.
 
 ---
 
@@ -22,6 +23,32 @@
 
 ---
 
+## 1.5 ★이론 정합 — P1-P9 매핑 + 증명-지위 + σ-경계 보정 (2026-06-16 정독 후)
+> 이론(`ALGEBRAIC` §5·`PRIMITIVE_MATRIX`) 정독 결과 본 설계는 ~80% 이론의 *구현*이나, 3곳 교정 필요. 핵심 = **이론을 거스르지 않되, σ-경계를 *고정 주장*에서 *경험-보정*으로 격상**(이론 개선).
+
+### (a) 세션 개념 → 이론 매핑
+| 세션 개념 | 이론 좌표 | 정합 |
+|---|---|---|
+| provenance 검증기(값∈{U,T,K}) | **§5.2 보조정리1**(provenance 완전분할 U/T/K/C)을 런타임 fact-gate로 | ✅ fact-offload |
+| ABox config(catalog·gate·variant) | **§5.12 (I−P_G) 구체부 = A2(D)** | ✅ |
+| "formalize \| resolve" | **§5.10 σ(추상·전이)\|γ(binding)** | ✅ 동형 |
+| order_id 날조 | ¬P1(C-fabricated·§5.2) | ✅ |
+| 변형 오선택 | **P4(select-from-output)** | ✅ 이미 basis |
+| config-conditioned formalize | TBox=NL→구조 컴파일(§0.34) | ✅ |
+
+### (b) σ-경계는 *고정 정리 아님* — G-의존·경험보정 (핵심 교정)
+- §5.13(b)·§5.16-C7: 추상화 σ = **표면군 G의 불변량(im P_G)**·**canonical G 없음(Locatello, 주입 必)**. ⇒ **"무엇이 σ(학습)인가"는 설계 선택**이지 정리 아님.
+- 이론이 *강제*하는 양 끝만 고정: **반드시 offload**=compute(Rice·C1)·게이트집행(HRU·C2) / **반드시 학습**=NL→구조(안 하면 run_scripted=전이소멸·§0.60). **중간(P2b·P4·P5-7 메커니즘)=움직이는 자유도.**
+- ⇒ **basis 멤버십(학습 vs offload)을 primitive별 *C8 경험-보정* 결정으로**: (등방화 하 전이 통과?)×(비용). 통과→학습·완고히 실패→offload(=basis 발견·C4 정정, cheat 아님). §5.6(개수 잠정)·§5.16(C8 경험)의 명시 확장. **단 선제 offload 금지**(C8 한 번은 시험).
+
+### (c) 증명-지위 (§5.16 원장 — 드리프트 가드)
+- **정리-급(C1-5·C9·C11)**: 분해·offload필연·유한basis·게이트 필요충분·무손실재합성. **구조는 증명됨.**
+- **C8(표면등방화→불변학습→전이) = 미확정·현 음성**(τ² 0.05–0.10<base). **thesis는 이론 아니라 C8 측정으로 서고 넘어짐.**
+- ⇒ **이 설계의 위험 = C8을 *offload로 우회*하려는 경향.** 정정: offload는 {compute·gate집행·fact-match·verify}에 한정, **σ-primitive(P1-P9 추상·selector 결정)는 *학습*(C8 정면)**. 값-binding 실패의 *1차 처방 = 등방화*(§9·§5.15 step-2 재표현)·offload는 soundness 안전망.
+- **v9 DPO(날조14→10)=올바른 C8 시도**(offload 아닌 학습)·단 표면 미덮음(retail order_id) = 등방화-coverage 부족.
+
+---
+
 ## 2. 지배 원리
 - **LLM** = NL→**formalize** (유한·저차원 추상·전이학습=TBox). *무엇을 의도하는가*.
 - **결정기** = formalize→**concrete 해결 + 검증 + 게이트 집행** (무한 정확-실행·Rice/HRU 결정불가 → offload 필연). *정확히 어느 값/허용되나*.
@@ -36,7 +63,7 @@
 
 | 축 | **LLM** (NL→formalize) | **xgrammar** (type강제) | **결정기** (concrete) | **오케스트레이터** |
 |---|---|---|---|---|
-| **계획(plan)** | 추상 plan DAG(단계·의존)=R4/R6 | plan 스키마 conform | plan 실행가능성·게이트적합 검증 | 단계실행·결과주입·상태 |
+| **계획(plan)** | **증분 typed-action 1개**(NL+history+config→다음 행동)=R4/R6·*full-DAG 생성 아님*(§6.5) | action 스키마 conform | **trace+A2로 DAG *구성*해 검증**(sub-DAG⊆A2)·실행가능성 | 단계실행·결과주입·상태·재호출 |
 | **도구(tool)** | 추상 action 인식=의도 formalize | action enum conform | action→정확 tool명(A1)·getter 라우팅 | 현단계 허용 tool만 노출(distractor 억제) |
 | **파라미터(param)** | param **의도** formalize(참조·속성·user리터럴) | param 스키마(enum/nested) conform | formal ref/변형→**concrete 값**·provenance 검증 | formal call→벤치 concrete call 변환 |
 | **게이트(gate)** | (오프라인 A2) 정책 NL→GATE_SPEC | — | (런타임) GATE_SPEC 결정론 집행=R5/P5 | 비가역 write 전 게이트 호출·block 라우팅 |
@@ -97,32 +124,54 @@ exchange_delivered_order_items(order_id="#W2890441", item_ids=["8069050545"],
 
 ---
 
-## 6.5 ★DAG-level formalization — A2(정책)·NL모호성을 같은 원리로 (2026-06-15 사용자 설계)
-§10의 "진짜 난제"(A2 정책·NL모호성)를 **param-level formalization의 plan-level 일반화**로 흡수. param=leaf 슬롯, plan=DAG 구조 — 동일 원리(config-conditioned NL→formal-structure·xgrammar 강제·결정론 검증/해결).
+## 6.5 ★계획쪽 NL→formalize = 증분 typed-action (DAG 생성 아님·2026-06-16 교정)
+> **교정(이전 "LLM이 sub-plan DAG 생성" 철회)**: 계획쪽은 **DAG를 *생성*하는 별도 문제가 아니다.** (1)병목이 plan *구조*가 아니라 *값*(census: 구조는 in-dist 1.0)·(2)데이터-의존 분기(P2a)는 *관측 후*에야 결정→full-DAG 선행생성 불가·(3)분기(if-else) 학습엔 *반사실 경로* 필요한데 gold rollout=한 경로(=P7 소싱벽). ⇒ **계획쪽 = 증분 typed-action 방출**, DAG는 *결정론 쪽 검증구조*.
 
-| level | LLM 출력 | config(ABox) | xgrammar | 결정기 |
-|---|---|---|---|---|
-| param | typed 슬롯 | param 스키마 | 슬롯 type | ref/변형→concrete |
-| **plan** | **sub-plan DAG**(노드=action/gate/**clarify**·엣지=의존) | **full A2 policy-DAG** | DAG 스키마 | **sub-DAG ⊆ A2 검증**(=dirgraph_satisfied) |
+| 부분 | 담당 | 비고 |
+|---|---|---|
+| 다음 행동 1개(provenance-typed) | **LLM**(NL+history+config) | control-flow는 *방출 아니라 발현*: 순서=시퀀스·분기=관측후 재호출·게이트=결정론집행 |
+| plan-DAG | **결정론이 trace+A2로 *구성*** | LLM 생성 아님. **sub-DAG ⊆ A2 검증**(dirgraph_satisfied)·게이트 사전체크 |
+| (선택) 짧은 subgoal | LLM 보조 방출 | coarse-to-fine 약형·검증기가 A2 대비 체크. *주방법 아님* |
+
+**★계획쪽 *진짜* 학습 타깃 = primitive-수준(DAG-생성 아님)**: P3 시퀀싱(됨·dirgraph 0.70)·P2a 분기(gold서 소싱)·**P5/P6 게이트 타이밍**(σ·v8 진행)·**P7 복구**(reactive·gold無→gate-in-loop RL). ⇒ "DAG 어떻게 생성"은 *풀 필요 없는 문제*(발현+검증으로 충분)·실제 작업은 P5/P6/P7 primitive.
+**선행 = sketch-then-fill 계보**(Dong&Lapata 2018 coarse-to-fine·delexicalization·copy-mechanism)·ReAct(증분)·executor 분리. = selector-접점의 plan판. (③ 딥리서치 incremental vs explicit-plan 증거로 확정.)
+
+### A2(정책)는 여전히 plan-수준 formalize 대상 — 단 LLM이 *전체 DAG* 아님
+A2 정책·NL모호성은 §10 난제. 처방은 위 증분-방출 안에서:
+- **A2 정책** ✅ 게이트=결정론 집행(GATE_SPEC)·LLM은 *언제 게이트 충족 행동을 하나*(P5/P6 σ)만. 결정기가 trace를 full A2 policy-DAG 대비 검증.
+- **NL 모호성** ✅ LLM이 **clarify action** 방출 → 오케스트레이터 결정론 되물음.
+- **비-enum 속성** ◐ leaf 문제·**predicate-select 확장**("현재보다 싼"=구조화 술어→결정기 평가)로 부분·자유텍스트 변형 잔여.
 
 ### A2 2-level (사용자)
-- **빌드타임 A2 생성기**: NL 정책문서 → **도메인 전체 policy-DAG(GATE_SPEC)**. 오프라인·frontier+검증·도메인당 1회 = **ABox config**. (frontier A2+gate 위반0 일부 실증.)
-- **런타임 A2**: NL + 전체 A2(참조) → **sub-plan DAG**(이 요청의 gate-sub-graph instantiate). LLM 몫·전이 타깃. 정책 *발명* 아님 = 전체 A2서 *선택/instantiate*.
-
-### 난제 처방
-- **A2 정책** ✅ NL→sub-plan DAG(gate 노드)·결정기 ⊆A2 검증(dirgraph 인프라 재사용).
-- **NL 모호성** ✅ sub-plan에 **clarify 노드** → 오케스트레이터가 결정론으로 되물음(DAG가 "물어봐야 함" 표현).
-- **비-enum 속성** ◐ leaf 문제(plan 아님)·**predicate-select 확장**("현재보다 싼"=구조화 술어→결정기 평가)로 부분해결·자유텍스트 변형 잔여.
+- **빌드타임 A2 생성기**(prong③·하드 front-end): NL 정책문서 → **도메인 전체 policy-DAG(GATE_SPEC)**. 오프라인·frontier+검증·도메인당 1회 = **ABox config**. (frontier A2+gate 위반0 일부 실증.) = §1.5 "A2 생산"·미해결.
+- **런타임 A2**(prong②·닫힘): NL + 전체 A2(참조) → **증분 gate-충족 행동 시퀀스**(전체 A2서 적용 게이트 *선택/instantiate*, 정책 발명 아님). = §2.1 "A2 소비"(P1+P5/P6/P7 유한). LLM은 *전체 DAG 아니라 다음 행동*; 결정기가 trace를 full A2 대비 검증.
 
 ### 6.5b full-A2 context 비용 → retrieval (단 soundness 보존)
 대형 도메인 full-A2 long-context → **임베딩 retrieval로 생성기 context만 축소**. ⚠**집행/검증은 항상 full-A2 결정론**(retrieval로 집행 금지).
 ```
 NL → [1]임베딩 retrieval(근사·관련 policy 진입점) → [2]결정론 그래프-closure(진입점의 선행 gate/의존 전부=완전성)
-   → [3]LLM: sub-A2 + NL → sub-plan DAG → [4]결정론 검증=FULL A2(retrieval 누락분까지·soundness) → 위반시 augment·재생성
+   → [3]LLM: sub-A2 + NL → 증분 gate-충족 행동 → [4]결정론 검증=FULL A2(retrieval 누락분까지·soundness) → 위반시 augment·재생성
 ```
 - **근사 선택(임베딩) + 완전성(그래프-closure) + soundness(full-A2 검증) 3분할.** 임베딩 retrieval=*context 선택*(허용)이지 *정책 집행*(불가). flat-RAG는 선행 gate 누락 → DAG closure가 보완.
 - **전이**: 도메인별 A2 재-인덱싱(ABox-swap)·임베더 동결·도메인일반 → LLM/임베더 재학습 0.
 - 리스크: recall 누락(→full-A2 피드백 루프·반복비용)·임베딩 품질(policy jargon·도메인튜닝시 전이순수성↓)·소형도메인은 retrieval 불요(최적화).
+
+---
+
+## 6.6 ★비용-인지 σ-경계 — "결정론=경직" 반박 (2026-06-16·실무 균형)
+> σ-경계는 **C8(전이가능)뿐 아니라 변경빈도×변경비용**으로도 그어야(실무). 사용자 우려("결정론이면 도구 변경 시 모든 소스 수정")는 **하드코딩 결정론에만** 해당 — *선언적(config-driven)* 결정론은 변경면이 데이터(config)라 싸다.
+
+| 구현 | 정확도 | 변경비용(도구추가) | 유연성 |
+|---|---|---|---|
+| 하드코딩 결정론(도구별 resolver) | 高 | **高(코드 재작성·전 소스)** | 低 |
+| **config-driven 결정론**(generic core+선언 config) | 高 | **低(config 편집)** | 中-高 |
+| config + **LLM-자동 config 생성**(OpenAPI/docstring→config) | 高 | **最低** | 高 |
+| 순수 LLM(resolver 無) | **低(우리 실패)** | 最低 | 高 |
+
+- **핵심: 변경면을 *코드→데이터(config=ABox)*로 옮기면 결정론이 정확도 유지+유연.** "전 소스 수정"이 "config 편집"으로.
+- **비용-인지 분할**: 안정+정확도-critical+도메인일반 → **generic 결정론 core(1회·불변)** / 변동(도구·스키마) → **config(선언·싼 변경면)** / NL-대면·표면가변 → **LLM 런타임(formalize·전이)**.
+- **LLM 2접점**: 런타임=NL→formalize(σ) / **빌드타임=도구문서→config 자동생성**(A2 생산비용↓·단 correctness=결정론 검증). prong③(A2 생산)이 *비용 절감*으로 재등장.
+- **잔여 비용 = config 작성/유지** → LLM-자동생성이 깎되 검증 필요. (② 딥리서치=TCO·declarative 변경비용 증거로 정량화 예정.)
 
 ---
 
@@ -145,6 +194,8 @@ NL → [1]임베딩 retrieval(근사·관련 policy 진입점) → [2]결정론 
 8. **non-enum 속성**: select_by 속성이 enum화 불가(자유 텍스트 변형)면? variant-select 적용 한계 → §6.5 predicate-select로 부분.
 9. **(§6.5) DAG-level 전이**: 런타임 sub-plan(전체 A2 읽고 conform)이 도메인 간 전이되나? param-level과 같은 전이 가설.
 10. **(§6.5) retrieval recall**: 임베딩이 관련 policy 진입점을 놓치면 full-A2 검증서 잡히나 재생성 반복. recall 천장·closure 충분성?
+11. **(§1.5b) σ-경계 보정**: 어느 primitive를 학습(σ) vs offload? leave-one-primitive-out + C8(등방화→전이) 테스트로 결정. 어디까지 offload해도 thesis(transfer) 안 깨나(run_scripted 하한)?
+12. **(§10) path-prioritization scope**: "다수 valid plan"이 실제로 발생하나, 아니면 A2 불완전의 신호인가? A2 완성으로 닫히는 비율 vs 진짜 search 필요 비율 (① 딥리서치)?
 
 ---
 
@@ -159,6 +210,9 @@ NL → [1]임베딩 retrieval(근사·관련 policy 진입점) → [2]결정론 
 
 ## 10. scope / caveat (정직)
 - **닫히는 것**: controlled-vocab/entity-ref/variant-select로 떨어지는 값(order_id·item_id·payment) = 이 설계로 닫힘. xgrammar가 type 보장·결정기가 concrete.
-- **안 닫히는 것(→§6.5서 흡수 시도)**: ①A2 정책=plan-level DAG formalization ②NL 모호=clarify 노드 ③비-enum=predicate-select(부분). 잔여 핵 = 빌드타임 A2 컴파일(하드 front-end·오프라인) + 자유텍스트 변형 + DAG-level 전이 미검증(§8.9-10).
-- **전이 미보장**: config-conformance가 학습-전이되는지는 §7 측정 전 가설. 프로토타입(M-A)이 싸게 분리.
-- **이 설계는 값-정확성(write 벽·order_id) 문제의 처방**이지, 상류 plan/gather 능력은 별도(기존 TBox R1-R8).
+- **안 닫히는 것**: ①빌드타임 A2 컴파일(NL→GATE_SPEC·prong③·하드 front-end·오프라인) ②자유텍스트 변형(비-enum) ③전이 학습성(C8·현 음성). 런타임 A2 소비·NL모호(clarify)·계획 control-flow는 §6.5서 흡수.
+- **★σ-경계 = 경험-보정(§1.5b)**: 학습 vs offload는 primitive별 *C8×비용* 결정·고정 아님. **선제 offload 금지**(C8 한 번 시험)·**offload는 {compute·gate집행·fact-match·verify}에 한정·σ-primitive는 학습**(C8 정면, 등방화-우선).
+- **★path-prioritization/MCTS = scope-out flag**: 다수 valid plan 우선순위·실패경로 학습회피 = §5 제외축(장기계획). thesis 입장 = 올바른 plan은 P1-P9+A2로 *결정*·결정론 검증. "다수 valid plan" = 보통 **A2/formalization 불완전 신호** → thesis-순정 우선책 = *A2 완성*(실패경로=형식적 invalid化)·search는 최후. (① 딥리서치로 경계 확정.)
+- **전이 미보장**: config-conformance 학습-전이는 §7 측정 전 가설(C8). 프로토타입(M-A)이 싸게 분리.
+- **이 설계 범위 = 값-정확성(write 벽·order_id) + NL→formalize 접점**. 상류 plan/gather σ-능력은 기존 TBox(R1-R8/P1-P9) 학습(별 트랙·v8 P6 등).
+- **딥리서치 3건 대기**: ①경로우선순위(scope경계) ②결정론-비용(§6.6 정량) ③NL→SQL/semantic-parsing(접점 granularity·sketch-then-fill·schema 전이). 도착 시 §1.5/§6.5/§6.6/§7 정련·박제.
