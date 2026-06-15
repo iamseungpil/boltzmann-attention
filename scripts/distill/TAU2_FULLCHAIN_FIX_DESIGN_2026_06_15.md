@@ -42,7 +42,12 @@
 - 구현 = `t2_gate_patch.py` 확장: 기존 G1-G4(작동중) + provenance-regen(G-fab·구현됨) + **G-loop 추가**(orchestrator: 직전 실패와 동일 (name,args) 호출 시 실행 차단·강한 redirect) + G-confirm 안내 강화(이미 G2 surface·G-loop이 반응 강제).
 - **측정**: `tau2_chain_census.py` 단계별 통과율 + pass^1 + 게이트별 준수율(confirm-before-write·no-loop·no-fab).
 - **arm**: BASE / +G-fab / +G-fab+G-loop / +G-fab+G-loop+G-confirm(full). 단조 개선 + 어느 게이트가 어느 단계를 푸는지 분해.
-- **★판정 게이트**: full 가드레일서 **write_ok 1→다수·pass 0.05→유의(예: 0.3+)** = 원인 확정·학습 정당. 미이동 = 더 깊은 원인(재진단). **caveat: 프로토타입은 천장 추정(런타임 가드의 상한)** — 학습이 그만큼 내재화하는지는 별도.
+- **★판정 게이트**: full 가드레일서 **write_ok 1→다수·pass 0.05→유의(예: 0.3+)** = 원인 확정·학습 정당. 미이동 = 더 깊은 원인(재진단).
+- **★★가드 2분류 (리뷰 비판4 — 천장 gap이 아니라 scaffold 분담)**: Phase P가 측정하는 건 **{모델+scaffold} 천장**. 가드를 명시 구분:
+  - **(a) 남는 것 = 결정론 soundness leg** (G_term·G1-G4 게이트 집행·값 *검증*) — **내재화 대상 아님**. 결정론으로 영구 담당이 *정답*(thesis 정합·§5.12 구체/게이트=A2·scaffold).
+  - **(b) 학습 타깃 = 추상 interaction** (P2b gather·P6 *timing*[언제 confirm]·P7 *전략전환*[deny후 무엇]) — 모델이 내재화할 저차원 추상.
+  - ⇒ "Phase P 천장 0.3인데 학습이 0.1만 내재화"는 **gap 아니라 "0.2는 scaffold가 영구 분담"** (§5.12 추상-전이+구체-A2·scaffold 정합). **= §7-Q4 답.** ⚠️단 가드 일부(G-fab 재생성)는 env가 값 알아야 가능 → 그 부분은 (a)로 분류(모델이 fetch 없이 못 함=결정론 보강이 옳음).
+- **caveat**: 프로토타입 천장 = (a)+(b) 합. *전이 헤드라인*은 (b) 내재화분만 + (a) scaffold 상시동반 명시.
 - **비용**: GPU 1개·~30분/arm·무재학습. (학습 1회 = 수 시간 + eval → 프로토타입이 10배 싸다.)
 
 ## 4. Phase T — 본 학습 (Phase P 양성 후에만) — 가드를 weight에 내재화
@@ -78,9 +83,14 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
 | 4 | **출력/직렬 format** | format | LODO resource↔temporal | ✗ **미randomize=전이실패 실증** | **format-uniform/randomize**(신규) | R4 표면 | 학습 |
 | 5 | **게이트 phrasing**(confirm Q·error/deny msg·정책 NL) | (speech-act surface) | τ² 다른 wording | ◐ sop_confirm 4템플릿(스펙) | template+LLM paraphrase randomize | P6/P7 | enforce=offload·phrasing=학습 |
 
+### 9.1b ★감사 완전성 = load-bearing (리뷰 비판2 — G_term 맹점 재발 방지)
+- **위험**: 원리("train↔test 변하는 *모든* dim randomize") → **미커버 dim 하나가 전이를 죽임**(§5.10). ⇒ 감사 *완전성*이 load-bearing인데 dim 1-5는 **육안 나열** = τ²-경험이 G1-G4 주고 **G_term 놓친 그 맹점과 동형**. dim 6 부재 보장 없음.
+- **★처방 (육안→도출)**: dim 목록을 **표면 군 구조서 도출** — "SOPBench 궤적 → τ² 궤적 *presentation*으로 보내는 변환들의 군 G"의 **생성자가 곧 dim**(육안 아님). G = (이름치환 × 값reformat × 직렬format × 게이트-phrasing × ...) → 생성자 전수가 dim 전수.
+- **★자기-검증 (Olver-per-dim 완전성 체크·§9.5)**: dim 1-5 *전부 커버 후* **잔여 전이가능-분산이 0인가** 측정 → **>0이면 dim 6 존재**(미식별 표면). 이래야 감사가 자기-검증(육안 신뢰 아님). = G1-G4 맹점의 구조적 재발방지.
+
 ### 9.2 ★핵심 통찰 (왜 v6 값-randomize했는데 τ² 전이 실패했나)
 - **dim 2(값)는 이미 대부분 커버** — but 전이 실패. 원리가 정확히 진단: **미커버 dim 3·4·5가 전이 안 됨**(§5.10).
-  - **dim 3(스키마-example)**: 날조의 *진짜* 소스(이번 세션 root-cause). **pretraining prior라 randomize로 못 지움** → DPO negative(스키마-example=rejected) + runtime bad_words. ← v6 값-randomize가 *놓친* 축.
+  - **dim 3(스키마-example) — ★재프레임(리뷰 비판3): 새 dim 아니라 dim-2를 이긴 prior.** v6가 dim2(fetchable 값)를 randomize *했는데도* 모델이 `#W0000000` emit = **미커버 dim 아니라 dim-2 커버리지가 pretraining prior에 *패배***. ⇒ dim3 = "이미 커버한 dim에서 pretrain prior > 훈련신호인 실패모드". **함의(핵심)**: 레버 = ~~"dim 더 커버"~~ 만이 아니라 **"이미 커버한 dim에서 훈련신호가 prior를 *압도*해야"** → 답 = 더 많은 randomization 아니라 **더 강한 신호(DPO-negative)** + runtime bad_words(prior 직접차단). randomization(등방화)은 *훈련서 랜덤화 가능한 dim*에만 작동·prior-collapsed dim은 다른 도구(대조신호) 필요 = isotropization 원리의 *경계*.
   - **dim 4(format)**: LODO가 *직접 실패*로 입증(resource↔temporal 직렬화 미randomize→전이실패). **format randomization 신규 필수.**
   - **dim 5(gate phrasing)**: P6/P7 전이의 표면 — confirm/error/정책 NL을 randomize해야 *추상 speech-act*(confirm·recover) 학습(특정 문구 과적합 아님).
 - **offload 분리(원리 반영)**: 각 dim의 *enforcement*(게이트 집행·값 검증)=결정론 offload / *abstract interaction*(언제 confirm·어떻게 gather·deny후 recover)=LLM 학습. **randomization은 후자의 표면만 등방화**(전자는 결정론이라 randomize 무관).
@@ -97,8 +107,11 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
   - **dim 4(format)**: 학습데이터 출력-format randomize(JSON 직렬·key순·separator) = LODO 처방을 등방화 framing이 예측(§5.10).
 - ⇒ **v9 Stage A = dim3(DPO/blocklist) + dim4(format-rand) 신규** (dim2는 유지). RLVR 보상 = 전-체인 task성공(§4).
 
-### 9.5 Olver 진단 확장 (randomization coverage 사전탐지)
-- Olver 실험(`olver_dimension_experiment.py`)을 **dim별 coverage 진단**으로: 각 표면 dim을 augment群에 넣고 그 dim이 isotropize되는지(var↑·inv↓) 측정 → **미isotropize dim = 전이 위험 사전탐지**(학습 전 zero-cost). 특히 dim4(format)·dim5(phrasing)가 모델 표현서 분리 등방화되는지 확인.
+### 9.5 Olver 진단 확장 (randomization coverage 사전탐지 + 완전성 자기검증)
+- Olver 실험(`olver_dimension_experiment.py`)을 **dim별 coverage 진단**으로: 각 표면 dim을 augment群에 넣고 그 dim이 isotropize되는지 측정 → **미isotropize dim = 전이 위험 사전탐지**(학습 전 zero-cost).
+- **★완전성 자기검증(§9.1b)**: dim 1-5 *전부* augment群에 넣고 **잔여 between-input 분산(불변부)이 task-구조만 남기는가** 측정 → 잔여에 *아직 표면-상관* 성분 있으면(probe로 surface 예측 가능) **dim 6 존재** = 감사 미완. = G_term 맹점의 구조적 탐지.
+- **★just-so 회피(비판1 준용)**: 이 진단도 **inv-측(불변 붕괴)으로 판정**(var-측은 거의 동어반복). dim 커버 시 *inv_dim이 그 dim 방향만큼 감소*하는지 — 사전등록. var만 보면 무정보.
+- caveat: §9.5 진단은 **base/trained 둘 다** (전제-스크린은 base·전이주장은 trained). 현 Olver 1차=base=전제-스크린(§5.14 M-Olver 강등 참조).
 
 ## 6. scope / caveat (정직)
 - **프로토타입=천장 추정·가드는 결정론(프로덕션 가드로도 유효)·학습=내재화**. 둘 다 보고.
@@ -114,11 +127,19 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
 5. **검증기 false-positive 비용**: 학습 보상으로 쓸 때 오판이 모델 오학습 → 고정밀 선결.
 6. **순서**: Phase P 어느 arm까지 확인 후 학습 착수? (full 양성만? 아니면 G-fab+G-loop만 양성이어도 v9+P7 착수?)
 
+### 7.1 ★Q-판정 (리뷰 2026-06-15 — 답 박제)
+- **Q1 G-loop 정의** → **exact-same 먼저**(정당 재시도 false-positive 0)·그 다음 데이터서 "유사-arg 루프"가 지배적이면 완화. 보수적 시작.
+- **Q2 G-confirm 자가-ask?** → Phase P에 **loop-only vs loop+confirm-guidance 두 arm** 넣어 실측(task6=낙관적이나 측정으로).
+- **Q3 P5 정책-적응(대안행동)** → **가장 깊은 잔여**. "반복 금지"(G-loop)는 유한하나 "**대안 찾기**"(re-plan)는 열린 search 스킬 = **P7 recovery의 어려운 절반**(§5.13: 게이트-상호작용은 닫히나 *어느 대안*인지는 search). **별 능력으로 플래그**(닫힘 주장서 분리).
+- **Q4 프로토타입 천장 gap** → **§3 가드 2분류로 해소**: (a)남는 게이트=결정론 soundness·(b)학습타깃=추상 interaction. 천장=(a)+(b)·내재화는 (b)만·(a)는 scaffold 영구분담 = §5.12 정합(gap 아님).
+- **Q5 검증기 false-positive** → §6 L1L2 auth FP(17→9·legit name/email 차단)는 **학습 보상으로 쓰기 *전* 선결**(오판=오학습). 고정밀 blocklist(스키마-example literal)·context-subtraction 정확도 선행.
+- **Q6 순서** → **chain-census가 단계 귀속을 깨끗이 하면 G-fab+G-loop 양성만으로 Stage A(v9) 착수 가능**(full 양성 안 기다려도). 단 write-단계(P6/P7)는 G-confirm arm 양성 확인 후 Stage B.
+
 ## 8. 마일스톤
 - **M0 ✅**: 3-arm provenance prototype → 상류 P2b 레버 확정·**write가 진짜 벽**(체인-census). 본 문서의 출발.
 - **M1 (다음·프로토타입-우선)**: **G-loop 구현**(`t2_gate_patch` orchestrator·동일-실패 차단) → **full 가드레일 4-arm 프로토타입**(BASE/+fab/+loop/+confirm) → pass 이동 판정. **이게 본 학습 게이트.**
 - **M2 (양성 시)**: Stage B 학습 — v8(P6) 완주 eval + **sop_confirm 재빌드(dim5 confirm-phrasing 다양화·§9.3)** + `fc_recovery_augment`(P7·dim5 error/deny phrasing randomize) 구현·학습.
 - **M3**: Stage A 학습(v9) — **§9.4 재정의**: dim2(값·유지) + **dim3 DPO negative(스키마-example)+bad_words** + **dim4 format-randomize(신규·LODO 처방)**. ~~"값 더 randomize"~~ 아님.
-- **M3.5 (zero-GPU·선행)**: **Olver dim별 coverage 진단(§9.5)** — dim4(format)·dim5(phrasing)가 모델 표현서 등방화되는지 학습 전 측정 → 미커버 dim 사전탐지.
+- **M3.5 (선행·이론검증)**: ①**Olver inv-측 재측정**(비판1·사전등록) — trained adapter(v7)·O(d) 연속회전·중간층 pooling·깊은층 둔감을 *예측-후-측정* → inv_dim=n−s 수vs수 통과 여부 확정(현=consistent-with). ②**Olver dim별 coverage 진단(§9.5)** — dim1-5 전부 augment 후 잔여 표면-상관=0인가(dim6 탐지·완전성). ③ 둘 다 inv-측 판정(var=동어반복).
 - **M4**: 통합 v-final + RLVR(E) + 전이 eval(chain-census 단계별).
 - **M5**: 논문/특허 — 결정론 검증기 through-line(가드/라벨/보상)·2-stage 전이·**원리(유한-학습+offload+표면등방화)** 헤드라인.
