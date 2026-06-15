@@ -80,6 +80,23 @@
 - **★확정 함의(V9 재형성)**: **날조 차단은 필요하나 *불충분*.** τ² 천장 = **다단계 복합**: ①날조-변형(동적 차단 필요) ②**gather-완성**(맞는 값 추출·6/20만) ③**write-완성**(payment_method_id 2-hop·과잉거부·1/20=task6). 날조만 막으면 병목이 *다운스트림으로 이동*하지 pass로 안 감.
 - **⇒ V9 방향 조정**: 단일 anti-fab(C-only/D) 아니라 **전-체인 신호**(gather→extract→use→write 전체 정확)가 필요 → **RLVR 보상 = task 성공**(날조-무만 아님)이 전-체인을 on-policy 최적화 = 사용자 RLVR 아이디어 강화. randomization은 fetch-first 강제(긍정)·DPO는 변형-날조 페널티(부정)·**RLVR이 전-체인 묶음**. ⓠ"날조가 *유일* 병목 아니라면 v9 anti-fab의 pass 기여는 제한적 — write-완성(P6/payment)과 *동반* 필요"를 리뷰 훅 #7로.
 
+### ★★M0 체인-census (전수·`tau2_chain_census.py`) — 진짜 병목 = write 단계의 P6+P7 (확정)
+| 단계 통과 | BASE | **L1** | L1L2 |
+|---|---|---|---|
+| auth | 13 | **17** | 9 |
+| gather | 8 | **12** | 9 |
+| real_order 추출 | 8 | **12** | 9 |
+| write 시도 | 7 | **10** | 8 |
+| **write 성공(PASS)** | 1 | **1** | 0 |
+- **★①anti-fab가 상류를 뚫음**: L1이 auth·gather·추출·write도달 *전부* 개선(7→10 write도달) = **날조 차단이 더 많은 태스크를 write까지 보냄**(레버 유효).
+- **★②gather는 100% 생산적**: gather한 태스크 전부 real-order 추출·**gather 후 날조 0**. 추출/select 실패 *없음*(P4 문제 아님).
+- **★③진짜 벽 = write 단계(write_ok 1/20)**, 기제 = **dump 확정**:
+  - **P6 confirm 미수행**(task3: `G2_CONFIRM_WRITE blocked` → confirm 없이 **동일 write 6연타** → too_many_errors).
+  - **P5 정책 위반**(task0: `Non-delivered cannot be exchanged` → **동일 호출 9연타**).
+  - **= P7 retry-loop가 write 단계 지배**(상류선 P7 작동했으나 *게이트-블록 write*엔 무력).
+- **★결론(병목의 *단계 분리*)**: 체인에 **두 게이트 단계**: ⓐ상류 auth/order = **P2b 날조**(→v9 anti-fab) ⓑwrite = **P6 confirm + P7 recovery**(게이트-블록 후 루프)(→v8 P6 + P7 recovery). **둘 다 고쳐야 pass 이동** — anti-fab만으론 write까지 보내고 거기서 막힘. ⇒ **v9(상류) + v8/P6+P7(write) *동반*이 정답**(리뷰 훅 #7 해소: 동반 필요 확정).
+- ⚠️L1L2 auth 17→9 퇴행 = **regen/동적-블랙리스트의 auth false-positive**(legit name/email 차단 의심) → 검증기 고정밀화 선결(§7 #5).
+
 ## 8. 마일스톤 (리뷰 후 갱신)
 - ~~**M0**: 3-arm prototype~~ **✅완료(위)** — 레버 확정·pass 정체·천장 다단계. C/D/E 투자는 *전-체인* 타깃으로 조정.
 - **M1**: `fc_randomize_fetchable` 확장(전 fetchable 값·SOPBench) + QC. 검증기 강화(literal blocklist·false-pos 감사).
