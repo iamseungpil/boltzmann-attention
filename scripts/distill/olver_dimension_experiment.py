@@ -143,6 +143,7 @@ def main():
     ap.add_argument("--k", type=int, default=16)
     ap.add_argument("--layers", default="14,21,28")
     ap.add_argument("--fracs", default="0.0,0.25,0.5,0.75,1.0")
+    ap.add_argument("--adapter", default=None, help="LoRA adapter dir (trained 모델 측정·비판1 재측정)")
     ap.add_argument("--out", default="/home/woori/scratch/olver_result.json")
     a = ap.parse_args()
     layers = [int(x) for x in a.layers.split(",")]
@@ -155,10 +156,15 @@ def main():
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     model = AutoModelForCausalLM.from_pretrained(a.model, torch_dtype=torch.bfloat16, device_map="cuda:0")
+    if a.adapter:
+        from peft import PeftModel
+        model = PeftModel.from_pretrained(model, a.adapter)
+        print("[adapter] loaded %s (trained 모델 측정)" % a.adapter, flush=True)
     model.eval()
     device = "cuda:0"
 
-    result = {"layers": layers, "n": len(specs), "k": a.k, "fracs": fracs, "by_layer": {}}
+    result = {"layers": layers, "n": len(specs), "k": a.k, "fracs": fracs,
+              "adapter": a.adapter, "by_layer": {}}
     for L in layers:
         result["by_layer"][L] = {}
 
