@@ -113,6 +113,21 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
 - **★just-so 회피(비판1 준용)**: 이 진단도 **inv-측(불변 붕괴)으로 판정**(var-측은 거의 동어반복). dim 커버 시 *inv_dim이 그 dim 방향만큼 감소*하는지 — 사전등록. var만 보면 무정보.
 - caveat: §9.5 진단은 **base/trained 둘 다** (전제-스크린은 base·전이주장은 trained). 현 Olver 1차=base=전제-스크린(§5.14 M-Olver 강등 참조).
 
+### 9.6 ★★LLM 강/약 기준 역적용 — dim 분류 + "절차의 로마→아라비아" (`ALGEBRAIC_DERIVATION_CLOSURE` §5.15, 2026-06-15)
+> §5.15 3단계 기준(유한생성×표현노출×깊이외부화)을 §9.1 감사에 *역적용*. **핵심 결과: dim 1·2·4·5 = step-2 표면(등방화로 노출=절차판 아라비아숫자) / dim 3 = step-2 아님(가중치-내 prior).** 절차는 step-1(BJ 유한)·step-3(궤적이 루프 외부화·공짜) 통과 → **step-2 하나만 문제 → 절차가 산술보다 구제 쉬움**(§5.15 예측).
+
+| dim | 가린 불변량 | §5.15 분류 | fix 원리 | 측정(약→강) |
+|---|---|---|---|---|
+| 1 이름 | 역할(의존구조) | **step-2 데이터-표면** | 등방화(alias) → 역할 노출 | alias on/off LODO |
+| 2 fetchable 값 | provenance(tool출력) | **step-2 데이터-표면** | 등방화(rand) → fetch 강제 | ✅v6 |
+| **3 스키마-example** | (없음·이미 노출) | **★step-2 아님 = 가중치-내 prior** | **재표현 불가**(데이터 randomize는 *데이터* 표면만 등방화·*가중치* prior 못 건드림) → DPO-neg+blocklist(prior 압도/차단) | DPO A/B |
+| 4 format | 추상 시퀀스 | **step-2 데이터-표면(★clean)** | 등방화(format-rand) = 로마→아라비아 정본 | **LODO=without arm·format-uniform=with arm** |
+| 5 phrasing | speech-act(confirm/recover) | **step-2 데이터-표면** | 등방화(paraphrase) → act 노출 | phrasing on/off |
+
+- **★dim 3 재확정(비판3 정리화)**: 데이터-등방화는 *데이터 표면*만 등방화. dim3(`#W0000000`)은 **pretraining이 가중치에 박은 고정 비등방 방향** → 데이터 randomize 도달불가(=v6 값-randomize했는데 날조한 이유). step-2 표면 dim이 *아니라* "가중치-prior가 이미 노출된 불변량을 *이김*". fix = 재표현 아닌 **prior 압도(DPO-neg 강신호)+runtime 차단**. ⇒ 감사 taxonomy = {데이터-표면 1·2·4·5: 등방화} ⊎ {가중치-prior 3: 압도/차단}.
+- **★측정 = 절차판 산술-토큰화 clean experiment(§5.15 step-2 실증 차용)**: dim4가 가장 깨끗 — **without-등방화(LODO·단일 format 학습)=약 vs with-등방화(format-uniform)=강**. 산술의 Nogueira/McLeish("표현 교체→약→강")의 *절차 인스턴스*. ⚠§5.15 잔여④: 원리는 차용·절차서 약→강은 *이 측정으로만* 확정(편의데이터 격상 금지).
+- **★비자명 예측(§5.15)**: 절차는 step-3(궤적) 공짜라 **step-2 fix(등방화) 하나로 전이 복원** — 산술처럼 CoT(step-3) 추가 불요. ⇒ format-uniform 단독이 LODO 전이실패를 뒤집으면 = "절차가 산술보다 구제 쉬움" 실증 + step-2 단독충분 확인.
+
 ## 6. scope / caveat (정직)
 - **프로토타입=천장 추정·가드는 결정론(프로덕션 가드로도 유효)·학습=내재화**. 둘 다 보고.
 - **write 천장 다인자**: P6(confirm)·P5(정책 위반 적응)·P7(루프). G-loop이 공통 분모(연타 차단)지만 P5 정책-적응(대안 행동)은 별 능력일 수 있음 → Phase P서 분해.
@@ -141,5 +156,6 @@ v-final = sft_v7(P2b소스) + 확장-randomize SOPBench(C) + sop_confirm(P6·v8)
 - **M2 (양성 시)**: Stage B 학습 — v8(P6) 완주 eval + **sop_confirm 재빌드(dim5 confirm-phrasing 다양화·§9.3)** + `fc_recovery_augment`(P7·dim5 error/deny phrasing randomize) 구현·학습.
 - **M3**: Stage A 학습(v9) — **§9.4 재정의**: dim2(값·유지) + **dim3 DPO negative(스키마-example)+bad_words** + **dim4 format-randomize(신규·LODO 처방)**. ~~"값 더 randomize"~~ 아님.
 - **M3.5 (선행·이론검증)**: ①**Olver inv-측 재측정**(비판1·사전등록) — trained adapter(v7)·O(d) 연속회전·중간층 pooling·깊은층 둔감을 *예측-후-측정* → inv_dim=n−s 수vs수 통과 여부 확정(현=consistent-with). ②**Olver dim별 coverage 진단(§9.5)** — dim1-5 전부 augment 후 잔여 표면-상관=0인가(dim6 탐지·완전성). ③ 둘 다 inv-측 판정(var=동어반복).
+- **M3.6 (★절차판 clean experiment·§9.6)**: dim4(format)로 **without-등방화(단일 format)=약 vs with-등방화(format-uniform)=강** A/B = 산술-토큰화(Nogueira/McLeish)의 절차 인스턴스. 사전등록 예측: **format-uniform 단독이 LODO 전이실패를 뒤집음**(step-2 단독충분·절차>산술 구제용이 §5.15). 음성=step-2 외 잔여(dim6 or prior) 재진단.
 - **M4**: 통합 v-final + RLVR(E) + 전이 eval(chain-census 단계별).
-- **M5**: 논문/특허 — 결정론 검증기 through-line(가드/라벨/보상)·2-stage 전이·**원리(유한-학습+offload+표면등방화)** 헤드라인.
+- **M5**: 논문/특허 — 결정론 검증기 through-line(가드/라벨/보상)·2-stage 전이·**원리(유한-학습+offload+표면등방화+LLM강약기준 §5.15)** 헤드라인.
