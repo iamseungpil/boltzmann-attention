@@ -97,6 +97,35 @@ exchange_delivered_order_items(order_id="#W2890441", item_ids=["8069050545"],
 
 ---
 
+## 6.5 ★DAG-level formalization — A2(정책)·NL모호성을 같은 원리로 (2026-06-15 사용자 설계)
+§10의 "진짜 난제"(A2 정책·NL모호성)를 **param-level formalization의 plan-level 일반화**로 흡수. param=leaf 슬롯, plan=DAG 구조 — 동일 원리(config-conditioned NL→formal-structure·xgrammar 강제·결정론 검증/해결).
+
+| level | LLM 출력 | config(ABox) | xgrammar | 결정기 |
+|---|---|---|---|---|
+| param | typed 슬롯 | param 스키마 | 슬롯 type | ref/변형→concrete |
+| **plan** | **sub-plan DAG**(노드=action/gate/**clarify**·엣지=의존) | **full A2 policy-DAG** | DAG 스키마 | **sub-DAG ⊆ A2 검증**(=dirgraph_satisfied) |
+
+### A2 2-level (사용자)
+- **빌드타임 A2 생성기**: NL 정책문서 → **도메인 전체 policy-DAG(GATE_SPEC)**. 오프라인·frontier+검증·도메인당 1회 = **ABox config**. (frontier A2+gate 위반0 일부 실증.)
+- **런타임 A2**: NL + 전체 A2(참조) → **sub-plan DAG**(이 요청의 gate-sub-graph instantiate). LLM 몫·전이 타깃. 정책 *발명* 아님 = 전체 A2서 *선택/instantiate*.
+
+### 난제 처방
+- **A2 정책** ✅ NL→sub-plan DAG(gate 노드)·결정기 ⊆A2 검증(dirgraph 인프라 재사용).
+- **NL 모호성** ✅ sub-plan에 **clarify 노드** → 오케스트레이터가 결정론으로 되물음(DAG가 "물어봐야 함" 표현).
+- **비-enum 속성** ◐ leaf 문제(plan 아님)·**predicate-select 확장**("현재보다 싼"=구조화 술어→결정기 평가)로 부분해결·자유텍스트 변형 잔여.
+
+### 6.5b full-A2 context 비용 → retrieval (단 soundness 보존)
+대형 도메인 full-A2 long-context → **임베딩 retrieval로 생성기 context만 축소**. ⚠**집행/검증은 항상 full-A2 결정론**(retrieval로 집행 금지).
+```
+NL → [1]임베딩 retrieval(근사·관련 policy 진입점) → [2]결정론 그래프-closure(진입점의 선행 gate/의존 전부=완전성)
+   → [3]LLM: sub-A2 + NL → sub-plan DAG → [4]결정론 검증=FULL A2(retrieval 누락분까지·soundness) → 위반시 augment·재생성
+```
+- **근사 선택(임베딩) + 완전성(그래프-closure) + soundness(full-A2 검증) 3분할.** 임베딩 retrieval=*context 선택*(허용)이지 *정책 집행*(불가). flat-RAG는 선행 gate 누락 → DAG closure가 보완.
+- **전이**: 도메인별 A2 재-인덱싱(ABox-swap)·임베더 동결·도메인일반 → LLM/임베더 재학습 0.
+- 리스크: recall 누락(→full-A2 피드백 루프·반복비용)·임베딩 품질(policy jargon·도메인튜닝시 전이순수성↓)·소형도메인은 retrieval 불요(최적화).
+
+---
+
 ## 7. 평가 / 사전등록
 - **전이 헤드라인**: **held-out config(새 ABox)** 에서 LLM이 config 읽고 conform하는 **content 정확도**(slot-fill F1·entity-ref 정확도). = config-conformance 전이.
 - **기제 지표**: ①TYPE-위반율(xgrammar로 0 보장 확인) ②CONTENT 정확도(올바른 enum/ref) ③결정기 resolve 성공률 ④end-to-end 벤치 pass(부산물).
@@ -113,7 +142,9 @@ exchange_delivered_order_items(order_id="#W2890441", item_ids=["8069050545"],
 5. **scaffold 변환의 충실도**: formal→벤치 concrete 변환에서 결정기가 틀리면(resolver 버그·매칭 실패) 책임 분리. 결정기 검증 정밀도 선결.
 6. **벤치 호환**: τ²·SOPBench·TaskBench 함수 시그니처가 다른데 scaffold가 도메인별 formal-스키마+resolver를 ABox서 자동생성 가능한가(A1 기계파생 범위).
 7. **xgrammar 강제 vs 학습**: type을 xgrammar로 강제하면 학습은 content만 — 강제 없이 학습만으로도 conform하나(강제는 프로덕션 안전망·학습은 전이 본질) 분리 측정?
-8. **non-enum 속성**: select_by 속성이 enum화 불가(자유 텍스트 변형)면? variant-select 적용 한계.
+8. **non-enum 속성**: select_by 속성이 enum화 불가(자유 텍스트 변형)면? variant-select 적용 한계 → §6.5 predicate-select로 부분.
+9. **(§6.5) DAG-level 전이**: 런타임 sub-plan(전체 A2 읽고 conform)이 도메인 간 전이되나? param-level과 같은 전이 가설.
+10. **(§6.5) retrieval recall**: 임베딩이 관련 policy 진입점을 놓치면 full-A2 검증서 잡히나 재생성 반복. recall 천장·closure 충분성?
 
 ---
 
@@ -128,6 +159,6 @@ exchange_delivered_order_items(order_id="#W2890441", item_ids=["8069050545"],
 
 ## 10. scope / caveat (정직)
 - **닫히는 것**: controlled-vocab/entity-ref/variant-select로 떨어지는 값(order_id·item_id·payment) = 이 설계로 닫힘. xgrammar가 type 보장·결정기가 concrete.
-- **안 닫히는 것**: ①A2 정책(의미컴파일) ②비-enum 속성 ③NL 모호→되물음(clarification dialogue). 이 셋은 별 처방.
+- **안 닫히는 것(→§6.5서 흡수 시도)**: ①A2 정책=plan-level DAG formalization ②NL 모호=clarify 노드 ③비-enum=predicate-select(부분). 잔여 핵 = 빌드타임 A2 컴파일(하드 front-end·오프라인) + 자유텍스트 변형 + DAG-level 전이 미검증(§8.9-10).
 - **전이 미보장**: config-conformance가 학습-전이되는지는 §7 측정 전 가설. 프로토타입(M-A)이 싸게 분리.
 - **이 설계는 값-정확성(write 벽·order_id) 문제의 처방**이지, 상류 plan/gather 능력은 별도(기존 TBox R1-R8).
