@@ -6,6 +6,7 @@
 
 ## 0. 한 줄
 **τ² retail exchange 1태스크류를 "LLM이 concrete id emit" 대신 "LLM이 provenance-typed selector(추상 criteria) emit + 결정기가 concrete resolve"로 재구성해, base 모델(무재학습)서 `new_item_ids` 값-정확성이 concrete-emit 대비 오르는지 싸게 검증.** = 아키텍처 1차 분리검증(M-A).
+- **★프레이밍(리뷰 2026-06-16)**: M-A는 **"승리(B>A)를 기대하는 실험"이 아니라 root cause를 *fabrication인지 reasoning인지* 최종 가리는 *진단***이다. 설계 자신의 §4 fallback이 추론 잔여(size 분해)를 시연하고 그게 데이터서 *우연히* 통과하는 정황상, 변형 오선택의 본체는 resolver로 안 닫히고 **σ(NL→formalize) 학습**으로 갈 가능성이 높다 — §7⑥ 분해가 그 신호를 정량으로 준다. ⇒ **B>A·B≈A 둘 다 1급 결과**(승리=아키텍처 닫음 / 무차·wrong-criteria=σ 학습 필요 증명).
 
 ## 1. 가설 (사전등록)
 - **H1 (주)**: formal-selector + 결정기 resolver의 `new_item_ids`(=write-벽 정밀원인·[[project-tau2-write-failure-rootcause]]) 정확도 > concrete-emit. 기제 = LLM이 **원하는 variant 옵션**(clicky·Google Home)만 emit·결정기가 옵션→item_id 결정론 매칭.
@@ -96,6 +97,7 @@ resolve(formal, env):
 
 ## 9. 구현 단계 (다음 작업)
 1. **`ma_resolver.py`**: retail db.json 로드 + §5 resolve() + exchange_delivered_order_items 직접 호출(tau2 environment 재사용). 단위테스트 = task 0 gold 재현(new_item_ids 일치).
+   - **★적대적 단위테스트(리뷰·우연-통과 가림 잡기)**: task 0 gold 재현만으로 부족(§4: available clicky+none이 full-size 1개뿐이라 *size-누락 fallback도 우연 통과*). **db.json을 인위 교란**: ①clicky+none+full을 unavailable로 막고 ②clicky+none+**non-full**을 available로 추가 → **size 누락 fallback이면 틀린 variant(non-full) 선택·size 보존 fallback이면 FAIL/정답**. = fallback 인코딩(§4 size 보존)이 *실제로* 검증되는지 분리. resolver는 교란 db서도 §4 수정 인코딩이 옳게 동작해야 통과.
 2. **`ma_gold_extract.py`**: tasks.json → exchange 태스크의 (NL, gold call) 추출·write-필요분 필터.
 3. **`ma_eval.sh`**: base vllm(GPU0·guided_json) → A/B/C 3-arm 생성 → resolver 적용 → §7 지표.
 4. **결과 박제**: `M_A_RESULTS.md`(권위본·[[feedback_results_master_doc]]) + 설계서 §7 예측 대조.
