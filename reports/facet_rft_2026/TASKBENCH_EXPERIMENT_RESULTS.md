@@ -524,3 +524,11 @@ AR8+H6 (동일 id 499, census-edge): **mean 0.671 / gate_v1 0.541(역선택) / r
 > **★격상 (2026-06-15) — R1-R8 → 유한 primitive P1-P9** (권위본 = `../../scripts/distill/PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md` + 형식 `../../scripts/distill/ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`): 위 R-규칙을 도메인-독립 control/data-flow **연산**으로 정련(P1 grounding·P2a/b gather·P3 시퀀싱·P4 select·P5 policy-gate·P6 confirm·P7 recovery·P8 provenance/auth·P9 parallel). **커버 단위 = 벤치별(∞)→primitive별(유한 ~9)**. 대수적 도출 닫힘(층 A 구성상·층 B 게이트유한 상대) + census 실증(전 τ² 도메인 orphan=0·~2450 task·P10 없음·**τ² gap=P6+P7**). 커버리지 행렬 = 매트릭스 §2(6벤치 × P1-P9). saturation 곡선(벤치 추가 시 새-primitive→0)이 유한-생성 증거.
 
 > **★★thesis 심화 (2026-06-15) — 유한-학습 LLM + 결정론 offload** (마스터 `EXPERIMENT_DESIGN.md` §0 ★★★★): P1-P9가 유한인 *원리* = **LLM 학습=유한-도메인 학습 → 무한(임의 계산=Rice·임의 게이트=HRU)은 유한 basis로 닫힘불가 → 결정론 offload는 필연**(약점 아님·빅모델도 내재화=환각). **작은 모델 충분 = 추상화가 저차원 불변량(Olver)이라 scale 불요.** A1-A5 어댑터(특히 A2) = offload된 (b)도메인-내용 인코딩. 빅모델 초과 = 효율·주권·신뢰 scope.
+
+### 10.6 ★Track-B 노드 좌표 (2026-06-15, coworker) — plan X v9 캐노니컬 학습 완주 / 전이 eval 미실행 / ODCV 실패
+> Track-A(woori-fast)와 조율용. 캐노니컬 대규모 어댑터 상태 공유.
+- **★plan X v9 학습 = 완주·HF 보존** (`tb-h100-0614-planx`, 학습 완료 후 idle 중 preempt — 무해): Qwen2.5-7B native-FC TBox LoRA, **val_loss 0.1196**, n_train 10766(13841 빌드−overlong), 2ep·r16/α32·seq6144. 어댑터 = `iamseungpil/sopbench-trackb-h200` 데이터셋 **`planx_v6/planx_tbox_7b/`** (data-version 게이트 + planx_v6 네임스페이스 = preempt-안전 v9 채택, node fix c45f5cc).
+  - **v9 데이터 무결성 확인**: TaskBench `<node-N>` threading 반영(로컬 mm 58% fetch-chain), fetchable-randomize(SOPBench 1.9% 희소·예상대로), **D5 대조 OVER-ASK=0 ✓**(domain 하드닝 2e6359d 후 — card/order/product/room 등 진짜 ask/fetch 대조), 최종 mix taskbench 7000 + sopbench 6841, should_T:should_F 1880:4961, synthetic frac 43.5%, QC 0.
+- **⚠️전이 eval = 미실행 (헤드라인 미측정)**: 노드 yaml은 학습-only. **C8(이 어댑터가 τ²서 base 0.17 / v6 0.0 넘나) = 아직 0건.** 어댑터는 준비됨 → τ² retail(`t2_run_gated`) + SOP-Bench ABox-swap 전이가 다음 실행. = 이번 라인의 다음 헤드라인 숫자.
+- **❌ ODCV P3c(요청서 v4 §9·대형 base 위반율) = 전멸**: `tb-h100-0613-p3c-{1,2}` 160/160 시나리오(32b/72b × mandated/incentivized) 전부 `BUILD_OR_RUN_FAILURE`(container_failure) = 진짜 평가 0건. docker 하네스 빌드/서빙 반복 실패(autopilot "serve cmd failed"). 인프라(backfill·autopilot)는 있으나 컨테이너 미구동 = **막힘**(완료 아님). 위반율 데이터 없음.
+- **노드 현황**: 4개 전부 paused(H100 표준 풀 reclaim 지속). 진척은 HF planx_v6에 보존됨.
