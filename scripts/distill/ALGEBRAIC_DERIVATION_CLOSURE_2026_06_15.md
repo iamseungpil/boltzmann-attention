@@ -100,3 +100,58 @@
   - **게이트-타입 유한성=정리 불가(부정결과)**: **HRU(1976)** 일반 access-matrix safety **결정불가능** → 일반 정책공간 정리-닫힘 불가 = "게이트유한"이 보편정리일 수 없는 *이유*(우리 실패 아닌 근본장벽).
   - **탈출구=타입제약**: **Sandhu TAM**(1992) typed·monotonic·acyclic → 결정가능(ternary 다항시간) = **우리 "타입→인자타입→선행조건→replay" 결정론 검증기와 동형**. ⇒ G5부재 = 보편정리 아니라 **TAM-제약 하 산물**(§2.1 ABox-재배치와 정합: 게이트내용=A2, 모델상호작용=유한).
 - **빈 칸 + 위험 인용**: "control·data·policy 도출 + 벤치횡단 전이 완전성검증"은 **무주공산**(BFCL/τ-bench=경험 카테고리·완전성 무주장). 차용=component-synthesis 상대완전성[Jha-Seshia]·Böhm–Jacopini[IPARC `2506.13820` 인용만]. ⚠️**위험 인용 = `2510.06002` "Deterministic Legal Agents: Canonical Primitive API"**(deterministic+primitive+provenance 키워드 3개 동시·단 법률도메인 손나열·도출/전이 0) → **FIELD_GAP §5.5에 명시 차별 문장 필수**(리뷰어 "이미 했다" 오해 차단).
+
+---
+
+## 5. ★★소진 보조정리 형식화 — "카탈로그 차용자"에서 "조건부 closure 정리 보유자"로 (2026-06-15)
+> 동기 = `2510.06002` 정독(법률 카탈로그·정리 0건) 대비 우리 형식성 위치 확정 + 메모리 "대수적도출 2층 closure=최고가치미완"의 **모델-쪽 절반을 §2.1로 증명**. 이 §은 *준-형식* 증명(워크숍 rigor; Coq 미검증). 차용정리/우리-신정리/경험을 **엄격 구분**.
+
+### 5.1 프레임 (정의)
+- **궤적** τ = (m₀,o₀,m₁,o₁,…): mᵢ=에이전트 move(tool-call f(a₁..aₖ) | ask-user | terminal), oᵢ=관측(tool 출력 또는 user 발화).
+- **가용집합** Aᵢ at step i = (역할=user인 o_{<i}) ∪ (tool 출력 o_{j<i}) ∪ (스키마 상수 어휘 A1). *유한*.
+- **primitive(competence)** = 도메인-독립 ∧ 분리학습가능(§1.5a-ii)한 *다음-move 산출 하위결정*.
+- **아키텍처 전제(우리 설계 = prong②·결정론 불변, 명시)**: (i) 계산은 결정론 도구/A2로 offload(compute-as-tool) (ii) 게이트는 A2-인코딩 spec을 결정론 scaffold가 replay 집행 (iii) 행동 = 유한 스키마 A1 위 tool-call/ask/terminal emit.
+
+### 5.2 ★보조정리 1 (Provenance 완전성) — **우리 신정리·완전증명**
+**진술.** step i의 tool-call 인자값 v에 대해, 우선순위 U≻T≻K≻C로 다음이 *상호배타·전수망라*:
+- (U) v가 user 입력 o_{<i}에 **verbatim** 등장
+- (T) v가 선행 tool 출력 o_{j<i}에 verbatim 등장
+- (K) v가 스키마 상수(A1)
+- (C) 위 어디에도 없음(=모델-내부: 변환 또는 날조)
+
+**증명.** v는 유한 문자열. Aᵢ는 유한. "v ∈ verbatim-가용(Aᵢ)"의 배중률: 참이면 최고우선 출처(U≻T≻K)에 배정, 거짓이면 정의상 C. 배타는 우선순위로, 망라는 배중률로. ∎
+
+**따름.** {U,T,K}=유한 primitive {P1 ground, P2a/P2b from-obs, P4 select}가 처리. C는 둘로:
+- **C-computed** (v=g(Aᵢ), g=도메인 변환): 전제(i)로 **compute-도구 호출 후 T로 재진입** → 모델은 C-computed를 *직접 emit 안 함*. (정규화 "tomorrow"→date도 C=offload.)
+- **C-fabricated** (provenance 0): = P1 위반 = **금지 대상**.
+⇒ **모델이 emit해야 할 인자값은 {U,T,K}(유한 primitive) ∪ offload된 T뿐; 5번째 data-competence 없음.** Turing-잔여(`computed`)는 전제(i)로 A2/도구에 격리. □
+
+### 5.3 ★보조정리 2 (게이트-상호작용 닫힘) — **우리 신정리·구조적 귀납**
+**진술.** 게이트 g=(선행조건 술어 X, 충족자집합 S_X). 모델의 g-상호작용 competence는 X 내용과 *무관하게* {P5 respect-deny, P6 confirm, P7 recover} ∪ (이미 계상된 establishment primitive)로 닫힌다 — 어떤 새 게이트타입 G5도 새 모델 primitive 불요.
+
+**증명(구조적 귀납).** 모델의 게이트 상호작용 = "move 제안 → deny 관측 → X 확립 → 재시도". X 확립 = 세계상태를 X-참으로 변경 또는 결손정보 제공. 세계상태 변경 수단 = 유한 도구집합 A1의 tool-call(=서브궤적). 정보제공 = ask/fetch. ⇒ "X 확립"은 **같은 basis 위 서브궤적**으로 재귀 → 구조적 귀납으로 basis 내 닫힘(바닥=단일 fetch/ask/prereq-action/confirm). 게이트의 *내용*(X,S_X)=도메인 데이터(A2·HRU-wild), 모델의 *상호작용*=관측-deny-확립(유한). ∎
+
+**따름.** G5는 A2 항목(X,S_X) 하나를 요구·**P10 불요**(§2.1 "G5→P10 해소"의 형식 근거). Schneider EM=safety로 g 집행가능성은 차용-정리로 닫힘; 본 보조정리는 그 위 *모델-쪽* 닫힘. □
+
+### 5.4 ★control 소진 (차용 BJ + 흡수)
+Böhm–Jacopini(차용): 임의 제어흐름 = {순차·선택·반복} 구조적 합성. 흡수(§1·정의적): 선택=술어 grounded면 자명(→P2a/P5 흡수)·유계반복=P4×(P3|P9) 흡수·무계retry만 잔존(→P7). par=독립성(공리). ⇒ control-competence ⊆ {P3,P9, P7-제어부}. *차용정리 + 흡수(분리학습가능성 기준 상대)*.
+
+### 5.5 ★정리 (Tool-Use Skill-Basis 소진, 조건부) — **우리 정리**
+**전제** 5.1-(i)(ii)(iii) 하에서, 올바른 에이전트 move 산출에 필요한 도메인-독립·분리학습가능 competence 집합은 **유한**이며 다음의 닫힘과 같다:
+- control {P3,P9} (BJ+흡수) · data {P1,P2a,P2b,P4} (보조정리1+offload) · policy {P5,P6,P7} (보조정리2) · 교차 P7=iter×verdict·P8=prov×auth.
+**어떤 도메인 내용도 이 닫힘 밖 competence를 강제하지 않는다**(새 변환·새 게이트타입 = A2 항목만 요구).
+**증명개요.** "다음 move 산출"의 하위결정 = control(5.4 BJ 망라)·data(보조정리1 망라)·policy(보조정리2 망라) 3분할이 전수; 전제(i)(ii)가 유일 비유한 잔여(Turing-computed·HRU-wild 게이트타입)를 모델-쪽서 A2로 제거. ∎
+
+### 5.6 ★엄격 3분 — 무엇이 정리이고 무엇이 열렸나 (정직)
+| 층위 | 내용 | 지위 |
+|---|---|---|
+| **차용 정리** | BJ(control)·provenance-semiring ℕ[X]·Codd·Schneider EM=safety·HRU·Sandhu TAM | ✅ 증명된 수학(차용) |
+| **우리 신정리(준-형식)** | **보조정리1 Provenance 완전성**(완전증명)·**보조정리2 게이트-상호작용 닫힘**(구조적 귀납)·정리 5.5(조건부 소진) | ◐→✅ **모델-쪽 closure = 본 §이 닫음**(메모리 "2층 closure 미완"의 절반 해소). Coq 미검증=워크숍 rigor |
+| **정의적/상대** | 흡수(§5.4)·분리학습가능성 개별화 기준 | leave-one-out 경험 확인 필요(개수 P1/P8·P3/P9 merge — *유한성 불변·개수만*) |
+| **아키텍처 전제** | (i)compute-as-tool (ii)gate-as-A2(scaffold) (iii)유한 A1 | 우리 *설계*(prong②·결정론 불변)·증명 아닌 명시 가정 → 정리는 *조건부* |
+| **순수 경험** | 벤치횡단 전이 완전성(basis 학습→전이) | ✗ 정리 아님·반증가능. 현 τ² 음성(0.0–0.105<base0.17)=미지지 → "basis 닫혔으나 전이학습 미흡" vs "basis 불완전" 구분이 v7/P6·P7 |
+
+### 5.7 ⇒ 위치 확정 (vs 2510.06002)
+- 2510.06002 = 손-나열 카탈로그·정리 0·완전성 무주장(v3 "representative core subset"·"does not claim every interaction deterministic").
+- **우리 = 차용정리 위 *연역*을 넘어 모델-쪽 *closure 정리*(보조정리1·2 + 정리5.5) 보유.** "증명했다" 선 = **차용정리 + 보조정리1·2 + 조건부 정리5.5(모델 skill-basis 유한)**. *열린 것* = (a)개수(merge·유한성 불변) (b)아키텍처 전제의 경험 타당성(=CDP census: A2가 compute·gate 표현가능?) (c)전이 완전성(경험·현 음성).
+- **상승 판정**: "카탈로그 차용자"→**"조건부 closure 정리 보유자"**. 미완 = 전제(i)(ii)를 *경험 사실*로 승격(census)하고 전이를 *양성*으로(P6/P7·front-end). 이 둘은 정리 아니라 측정 — 정직 보존.
