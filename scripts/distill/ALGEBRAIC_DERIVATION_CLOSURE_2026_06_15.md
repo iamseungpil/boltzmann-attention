@@ -214,3 +214,39 @@ Böhm–Jacopini(차용): 임의 제어흐름 = {순차·선택·반복} 구조�
 | 환원불가 핵 | "학습 다양성이 임의 unseen 표면 덮나"=no-free-lunch·선험 보장 불가 |
 - **공학가능 처방**: 안 덮인 *알려진* 차원(포맷·naming·값형식)을 합성회전으로 덮음 = format-uniform + alias-mask + value-rand → 잔여를 *진짜-신규* 표면차원(드묾)으로 축소. **LODO 처방(uniform-schema)을 등방화 framing이 예측**.
 - **결론**: 전이 = "두 DAG라 자동" 아니라 **"표면 벗기면 자동(덮인 방향)·벗기는 건 우리가 구성(합성회전)·임의 unseen 표면만 환원불가 경험"**. 무조건화 잔벽 = 이제 "전이 일반"이 아니라 **"테스트 표면-차원의 학습-coverage" 하나로 정밀 축소**.
+
+### 5.11 ★★추상화 연산자 𝒜 = T_k ∘ P_G — "랜덤화 등방화 후 압축" (사용자 통찰 2026-06-15)
+> 사용자 명제: 추상화 = (1) randomness로 등방화 → (2) 압축(상위만 유지) → 구체 사라지고 추상 남음. 이게 *증명된 성분*을 가진 연산자임을 박제. ⚠️신경망 *구현* 주장은 렌즈(추측)·성분은 정리. 인용규율: 정리/우리확장/렌즈 3분.
+
+**겉보기 모순 해소(핵심).** "등방화(균일)" vs "상위유지(지배방향)"는 싸우는 듯하나 — **randomness가 *모든 것*이 아니라 *nuisance(표면) 군 G*만 등방화**하면 풀림: G-평균이 비불변(표면)→0쪽 등방 floor, 불변(추상)→보존·집중. 압축이 에너지로 분리(신호 유지·floor 폐기). ⇒ "구체 사라짐 = floor truncate, 추상 남음 = 집중 불변." **조건: randomness가 신호 아닌 nuisance에 정렬(=올바른 G)** — 신호까지 랜덤화하면 추상 파괴(§5.10 coverage·Locatello 핵).
+
+**연산자.** **𝒜 = T_k ∘ P_G**:
+- **P_G = Reynolds 사영** (1/|G|)Σ_g ρ(g) = **불변 부분공간 사영**(idempotent). **V = im(P_G) ⊕ ker(P_G) 직합**(Maschke 완전가약성·교과서 정리). 불변(추상) 보존·변이(구체) 소거.
+- **T_k = 상위-k 압축**(truncate/양자화/비선형 임계). 고에너지(집중 불변) 유지·저에너지(등방 floor) 폐기.
+- **𝒜 = G-불변 지배구조 추출 = 추상화.**
+
+**증명된 성분(1차)**:
+- **랜덤화 저랭크 = 𝒜의 literal 인스턴스**: Halko–Martinsson–Tropp 2011, *SIAM Rev.* 53(2):217–288, arXiv:**0909.4061**. **Thm 1.1(verbatim)**: 𝔼‖A−QQ*A‖ ≤ [1+4√(k+p)/(p−1)·√min{m,n}]·σ_{k+1} (Q=AΩ range, Ω 가우시안). = **무작위 사영→상위 truncate가 최적 rank-k 오차에 다항인자만 초과**. ⚠️"지배구조 추출"은 우리 해석적 확장(논문은 오차 bound). (Thm 10.5/10.6 2항상수=미확인.)
+- **군증강 = orbit 평균 = 불변사영·분산감소**: Chen–Dobriban–Lee, *JMLR* 21(245), arXiv:**1907.10905**(★정정): 증강 = "averaging over orbits of a group ... variance reduction"(Rao–Blackwell류). = P_G의 학습판. ⚠정리번호 verbatim 미확인.
+- **압축 정식화 = IB**: Tishby–Pereira–Bialek 1999(arXiv:physics/0004057) min I(X̃;X) s.t. I(X̃;Y) = T_k의 정보이론판(✅검증). ⚠압축⇒일반화는 활성함수 의존(Saxe 2018).
+- **종착점 = Neural Collapse**: Papyan–Han–Donoho, *PNAS* 117(40), arXiv:**2008.08186**: NC1 within-class 변이붕괴(Σ_W→0)·NC2 class-means→Simplex ETF(등노름·등각·최대분리). = "표면(class내 구체) 제거 + 등방 구조"=𝒜 완성형. ETF=global minimizer 증명: Zhu et al, NeurIPS'21, arXiv:**2105.02375**(⚠unconstrained-features 가정 명시 필수).
+
+**신경망 재해석(렌즈·추측)**: 층 = 혼합(spread·init random feature) ∘ 비선형(압축) = 1회 𝒜; 깊은 망 = 𝒜 반복 = coarse-to-fine 구체 폐기 = 추상 위계; randomness 출처 = **init/SGD노이즈/데이터증강**(학습된 가중치 아님 — 학습은 무작위서 멀어짐). ⚠"깊은 망이 𝒜를 구현"은 닫힌 정리 아님(성분만 정리).
+
+**환원불가 핵 = Locatello et al, ICML'19, arXiv:1811.12359 Thm 1**(✅검증): inductive bias/supervision 없이 무감독 추상화 **증명적 불가** → **nuisance 군 G를 반드시 주입**해야(=어느 표면 랜덤화할지 알아야). 세 경로(등방화/압축/불변사영) 공통 전제·제거불가 하한.
+
+### 5.12 ★★재합성 정리 — 추상은 전이·구체는 A2 복원·직합 무손실 (사용자 2026-06-15)
+> 사용자 명제: 전이서 *추상만* 넘어가고 *구체*는 A2로 보강하면 원 도메인특성 복원해 푼다. = 추상-전이가 *시스템 수준 무손실*임을 증명(버린 구체가 정확히 A2의 일).
+
+**정리 (Abstract-Transfer + Concrete-Recomposition).** 범위내 도메인 D(유한정책+safety)에서:
+$$\pi^*_D = \mathrm{Compose}\big(\underbrace{P_G(\pi^*)}_{\text{추상·전이}},\ \underbrace{(I-P_G)(\pi^*_D)}_{\text{구체·A2(D)}}\big)$$
+- **직합 무손실**: V = im(P_G) ⊕ ker(P_G)(Maschke). 정책 = 불변(추상) ⊕ 변이(구체), **유일·무중복·무잔여 분해**.
+- **추상 전이**: P_G(π*)=σ(추상 solver+grounding-skill) = 도메인-일반 = R/TBox가 운반(§5.5/5.10 σ-전이, 증명).
+- **구체 복원**: (I−P_G)(π*_D)=도메인 변이(게이트조건·compute·도구카탈로그·값형식) = **정확히 A2(D)가 인코딩**, 그리고 A2(D) **존재·구성가능**(§5.8 정리, 증명).
+- **재합성이 푼다**: scaffold가 전이된 σ(추상 DAG 위 올바른 행동 제안) + A2(이 도메인 concrete로 grounding·집행)를 합성 = 완전 도메인정책 = **풀림**(§5.9 게이트완전성: {G_tool,G_user,G_agent}(A2)+G_term(scaffold)이 임의 유한-DAG 닫음). ∎
+
+**따름 — 추상-전이는 solvability를 잃지 않는다.** 추상화가 버린 건 정확히 ker(P_G)=구체이고, 그건 A2(D)가 복원하므로(직합이라 gap 0), **전이 손실 = 0**. "추상만 전이 + 구체 A2 보강 = 원 도메인 복원·해결"이 *직합 분해*로 정리.
+
+**잔여 = 단 하나(일관).** 재합성의 *binding 단계*(전이된 grounding-skill을 D의 A2에 적용해 concrete binding 산출)는 grounding-skill이 **표면-불변**일 때 성립 = §5.10/5.11 등방화-coverage 조건. ⇒ 구조(직합·A2복원·해결)는 정리, binding의 표면-불변성만 환원불가 학습핵(공학가능·Locatello 하한).
+
+**⇒ 전체 아크 닫힘(요약).** 모델 basis 유한(§5.5)·A2 구성가능(§5.8)·게이트 필요충분(§5.9)·전이 σ증명+γ등방화(§5.10)·추상화연산자 𝒜=T_k∘P_G(§5.11)·**재합성 무손실(§5.12)**. **무조건화 잔벽 = "grounding-skill의 표면-불변 학습-coverage" 단 하나** — 종이 아닌 측정(v7/P6·P7), 알려진 표면차원은 공학가능(alias/value/format-randomization), 환원불가 핵은 Locatello(nuisance군 주입 필수).
