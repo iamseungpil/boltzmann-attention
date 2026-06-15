@@ -74,48 +74,30 @@ def load_specs(path, n):
     return specs
 
 
-# ── 표면군 변환 (누적) ──
-def augment(spec, cond):
-    """cond ∈ {naming, value, format}. 누적: value⊃naming, format⊃value+naming."""
+# ── ★통제 sweep: 표면토큰의 fraction f 만 무작위 relabel/reformat (같은 변환·분량만 증가) ──
+# 군차원 s ∝ (relabel된 토큰수) ∝ f → Olver n−s 직선 테스트 ("수 vs 수" 최강).
+def augment_frac(spec, f):
     tnames, fields = spec["tnames"], spec["fields"]
     cname, cargs = spec["call"]
-    # naming: tool/field 재명명 (bijection)
-    tmap = {t: "tool_" + rand_tok(6) for t in tnames}
-    fmap = {f: "arg_" + rand_tok(5) for f in fields}
-    tnames2 = [tmap[t] for t in tnames]
+    # 후보 표면토큰 = tool명 ∪ field명 ∪ 값(len>=4). 각각 독립 relabel-가능 dim.
+    surf_tools = list(tnames)
+    surf_fields = list(fields)
+    surf_vals = [str(v) for v in cargs.values() if isinstance(v, str) and len(str(v)) >= 4]
+    pool = [("T", t) for t in surf_tools] + [("F", x) for x in surf_fields] + [("V", v) for v in surf_vals]
+    m = int(round(f * len(pool)))
+    chosen = set(id(x) for x in RND.sample(pool, m)) if m else set()
+    tmap = {t: ("tool_" + rand_tok(6)) for (k, t) in pool if k == "T" and id((k, t)) in chosen}
+    fmap = {x: ("arg_" + rand_tok(5)) for (k, x) in pool if k == "F" and id((k, x)) in chosen}
+    vmap = {v: fmt_preserve(v) for (k, v) in pool if k == "V" and id((k, v)) in chosen}
+    tnames2 = [tmap.get(t, t) for t in tnames]
     cname2 = tmap.get(cname, cname)
-    cargs2 = {fmap.get(k, k): v for k, v in cargs.items()}
+    cargs2 = {fmap.get(k, k): vmap.get(str(v), v) for k, v in cargs.items()}
     user2 = spec["user"]
-    # value: 식별자 값 reformat (naming 위에)
-    if cond in ("value", "format"):
-        newargs = {}
-        for k, v in cargs2.items():
-            if isinstance(v, str) and len(v) >= 4:
-                v2 = fmt_preserve(v)
-                user2 = user2.replace(v, v2)  # user 발화의 동일값도 일관 치환
-                newargs[k] = v2
-            else:
-                newargs[k] = v
-        cargs2 = newargs
-    # format: 고차원 연속 섭동 (4-템플릿=저차원·magnitude 아티팩트 → arg-순서 셔플 +
-    #         무작위 구분자/공백 = 많은 독립 dim·군차원 진짜 증가). naming/value는 fmt=고정.
-    fmt_random = (cond == "format")
-    return render(spec["sys"], user2, tnames2, cname2, cargs2, fmt_random)
-
-
-def render(sysm, user, tnames, cname, cargs, fmt_random):
-    items = list(cargs.items())
-    if fmt_random:
-        RND.shuffle(tnames)          # tool-list 순서 (permutation dim)
-        RND.shuffle(items)           # arg-pair 순서 (permutation dim)
-        sep = RND.choice([", ", " , ", ",  ", ", "])  # 무작위 구분자/공백
-        tsep = RND.choice([", ", " | ", " / ", "  "])
-        eq = RND.choice(["=", " = ", ": ", "="])
-    else:
-        sep, tsep, eq = ", ", ", ", "="
-    argstr = sep.join("%s%s%s" % (k, eq, v) for k, v in items)
-    tools = "Available tools: " + tsep.join(tnames)
-    return "%s\n%s\nUser: %s\nAssistant action: %s(%s)" % (sysm, tools, user, cname, argstr)
+    for v, v2 in vmap.items():
+        user2 = user2.replace(v, v2)
+    argstr = ", ".join("%s=%s" % (k, v) for k, v in cargs2.items())
+    tools = "Available tools: " + ", ".join(tnames2)
+    return "%s\n%s\nUser: %s\nAssistant action: %s(%s)" % (spec["sys"], tools, user2, cname2, argstr)
 
 
 # ── 표현 추출 ──
@@ -151,9 +133,11 @@ def main():
     ap.add_argument("--n", type=int, default=40)
     ap.add_argument("--k", type=int, default=16)
     ap.add_argument("--layers", default="14,21,28")
+    ap.add_argument("--fracs", default="0.0,0.25,0.5,0.75,1.0")
     ap.add_argument("--out", default="/home/woori/scratch/olver_result.json")
     a = ap.parse_args()
     layers = [int(x) for x in a.layers.split(",")]
+    fracs = [float(x) for x in a.fracs.split(",")]
 
     specs = load_specs(a.data, a.n)
     print("[data] %d input specs" % len(specs), flush=True)
@@ -165,43 +149,42 @@ def main():
     model.eval()
     device = "cuda:0"
 
-    conditions = ["naming", "value", "format"]
-    result = {"layers": layers, "n": len(specs), "k": a.k, "conditions": conditions, "by_layer": {}}
+    result = {"layers": layers, "n": len(specs), "k": a.k, "fracs": fracs, "by_layer": {}}
     for L in layers:
         result["by_layer"][L] = {}
 
-    for cond in conditions:
-        # 각 입력 i에 K augmentation → 표현
+    for f in fracs:
         all_texts, idx = [], []
         for i, sp in enumerate(specs):
             for _ in range(a.k):
-                all_texts.append(augment(sp, cond))
+                all_texts.append(augment_frac(sp, f))
                 idx.append(i)
         R = reps(model, tok, all_texts, layers, device)
         idx = np.array(idx)
         for L in layers:
-            X = R[L]  # [n*k, d]
-            # orbit-mean per input = 불변부 P_G 추정
-            mus = np.stack([X[idx == i].mean(0) for i in range(len(specs))])  # [n, d]
-            # 변이부 잔차 (within-orbit) pooled
+            X = R[L]
+            mus = np.stack([X[idx == i].mean(0) for i in range(len(specs))])
             resid = np.concatenate([X[idx == i] - X[idx == i].mean(0) for i in range(len(specs))], 0)
-            inv_dim = eff_dim(mus)        # 불변 유효차원 (between-input orbit-means)
-            var_dim = eff_dim(resid)      # 변이 유효차원 (≈ 궤도차원 s)
-            var_frac = float(resid.var() / X.var())  # 변이 분산 비율
-            result["by_layer"][L][cond] = {"inv_dim": inv_dim, "var_dim": var_dim, "var_frac": var_frac}
-            print("[%s L%d] inv_dim=%.2f var_dim=%.2f var_frac=%.3f" % (cond, L, inv_dim, var_dim, var_frac), flush=True)
+            inv_dim = eff_dim(mus)
+            var_dim = eff_dim(resid) if f > 0 else 0.0
+            var_frac = float(resid.var() / X.var()) if f > 0 else 0.0
+            result["by_layer"][L]["%.2f" % f] = {"inv_dim": inv_dim, "var_dim": var_dim, "var_frac": var_frac}
+            print("[f=%.2f L%d] inv_dim=%.2f var_dim=%.2f var_frac=%.3f" % (f, L, inv_dim, var_dim, var_frac), flush=True)
 
     json.dump(result, open(a.out, "w"), indent=1)
-    # 사전등록 판정
-    print("\n=== ★H-차원 판정 (예측: inv_dim 단조↓·var_dim 단조↑) ===", flush=True)
+    # 사전등록 판정: f↑(군차원↑) → inv_dim 단조↓ (Olver n−s), var_dim 단조↑
+    print("\n=== ★H-차원 판정 (예측: f↑ → inv_dim 단조↓·var_dim 단조↑) ===", flush=True)
     for L in layers:
-        iv = [result["by_layer"][L][c]["inv_dim"] for c in conditions]
-        vv = [result["by_layer"][L][c]["var_dim"] for c in conditions]
-        inv_mono = iv[0] > iv[1] > iv[2]
-        var_mono = vv[0] < vv[1] < vv[2]
-        print("  L%d: inv_dim %s %s | var_dim %s %s" %
-              (L, [round(x, 1) for x in iv], "✓단조↓" if inv_mono else "✗",
-               [round(x, 1) for x in vv], "✓단조↑" if var_mono else "✗"), flush=True)
+        iv = [result["by_layer"][L]["%.2f" % f]["inv_dim"] for f in fracs]
+        vv = [result["by_layer"][L]["%.2f" % f]["var_dim"] for f in fracs]
+        # Spearman 류 단조성: 인접쌍 감소/증가 비율
+        inv_dec = sum(iv[j] > iv[j + 1] for j in range(len(iv) - 1))
+        var_inc = sum(vv[j] < vv[j + 1] for j in range(len(vv) - 1))
+        # 선형 상관 (f vs inv_dim)
+        corr = float(np.corrcoef(fracs, iv)[0, 1])
+        print("  L%d: inv_dim %s (감소쌍 %d/%d·corr=%.2f) | var_dim %s (증가쌍 %d/%d)" %
+              (L, [round(x, 1) for x in iv], inv_dec, len(iv) - 1, corr,
+               [round(x, 1) for x in vv], var_inc, len(vv) - 1), flush=True)
     print("DONE", flush=True)
 
 
