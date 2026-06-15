@@ -8,7 +8,8 @@
 **τ² retail exchange 1태스크류를 "LLM이 concrete id emit" 대신 "LLM이 provenance-typed selector(추상 criteria) emit + 결정기가 concrete resolve"로 재구성해, base 모델(무재학습)서 `new_item_ids` 값-정확성이 concrete-emit 대비 오르는지 싸게 검증.** = 아키텍처 1차 분리검증(M-A).
 
 ## 1. 가설 (사전등록)
-- **H1 (주)**: formal-selector + 결정기 resolver의 `new_item_ids`(=write-벽 정밀원인·[[project-tau2-write-failure-rootcause]]) 정확도 > concrete-emit. 기제 = LLM이 **원하는 variant 옵션**(clicky·Google Home)만 emit·결정기가 옵션→item_id 결정론 매칭 → "변형 오선택"(옛 id 재사용·날조) 제거.
+- **H1 (주)**: formal-selector + 결정기 resolver의 `new_item_ids`(=write-벽 정밀원인·[[project-tau2-write-failure-rootcause]]) 정확도 > concrete-emit. 기제 = LLM이 **원하는 variant 옵션**(clicky·Google Home)만 emit·결정기가 옵션→item_id 결정론 매칭.
+  - **★H1 기제 강등(리뷰 2026-06-16·데이터 확인)**: 아키텍처는 **fabrication(concrete id 날조)을 제거**하나 **criteria-오해석(추론)은 제거 *안* 함.** root cause([[project-tau2-write-failure-rootcause]])=order/item/payment 다 맞고 *new_item_ids만 틀림*=변형 *오선택*=**추론** 오류(날조 아님). resolver는 *틀린 criteria*도 충실히 resolve → **NL fallback을 "무엇 완화·무엇 유지"로 정확 분해**하는 어려운 추론은 *여전히 LLM*. ⇒ H1 정확 형태 = **"fabrication 제거; criteria-추론 잔여는 §7 분해지표로 별도 측정."** (설계 자신의 §4 fallback이 그 잔여 시연 — size 누락.)
 - **H2 (보)**: order_id·payment_method_id도 selector(ref)로 두면 동일하게 정확(이미 concrete-emit서 grounded 정확 = 회귀 없음 확인).
 - **H3 (전이 예고·M-A 범위 밖)**: 같은 selector 스키마가 SOPBench 등 타 도메인 config-swap서 동작(M-C/M-D).
 - **반례 가드(문헌)**: xgrammar는 **type(form)만 보장·meaning 아님** → 값-정확성은 학습+resolver 몫. M-A서 정확도 이득은 **resolver의 결정론 매칭**서 와야지 xgrammar 단독서 오면 안 됨(분리 측정).
@@ -45,12 +46,13 @@
   "exchanges":[
     {"old_item":{"item_name":"mechanical keyboard"},
      "desired_variant":{"select_by":{"switch":"clicky","backlight":"RGB","size":"full size"},
-                        "fallback":[{"switch":"clicky","backlight":"none"}]}},
+                        "fallback":[{"switch":"clicky","backlight":"none","size":"full size"}]}},  // ★size 유지(완화 안 한 제약 보존)
     {"old_item":{"item_name":"smart thermostat"},
      "desired_variant":{"select_by":{"compatibility":"Google Home"}}}],
   "payment_ref":{"source":"original"} }
 ```
 - ★LLM은 **옵션 criteria + 선호순서**만 냄(item_id 안 냄). order_id_hint는 NL에 주어진 리터럴(U-provenance) — 결정기가 검증·정규화.
+- **★fallback 인코딩 수정(리뷰·데이터 확인)**: 원안 `{switch:clicky, backlight:none}`은 **size 제약 누락**=under-constrained(available clicky+none을 size 무관 매칭). NL "no backlight"=backlight만 완화·**clicky+full size 유지** → fallback에 `size:"full size"` 보존 必. ⚠**실 keyboard(20 variant)서 available clicky+none이 7706410293(full size) *하나*뿐 → 원안이 *우연히* gold 일치** = **worked-example 통과가 인코딩을 검증하지 *않음***(clicky+none+60% available였으면 틀림). 실데이터 키名=`switch type`(≠`switch`)→§5 값-역매칭 필수.
 
 ## 5. 결정기 resolver 스펙 (결정론·grounded)
 ```
@@ -80,11 +82,14 @@ resolve(formal, env):
 - 대상 = τ² retail tasks.json **exchange 태스크 46개** 중 write-필요 부분집합(deterministic gold 추출 가능분).
 - gold = tasks.json `evaluation_criteria.actions`서 exchange 액션의 (order_id·item_ids·new_item_ids·payment_method_id) 추출.
 - **지표**: ①`new_item_ids` 정확율(주·집합일치) ②order_id·item_ids·payment 정확율(보·회귀가드) ③type-violation율(xgrammar=0) ④resolver FAIL율(매칭실패=정직 분모) ⑤end call 완전일치율. A vs B vs C.
+- **★⑥ B-실패 분해(리뷰·핵심)**: B 오답을 **(i) 틀린 criteria 방출=추론오류**(LLM이 fallback/criteria 오분해·예 size 누락) **(ii) resolver 매칭 FAIL**(값-역매칭 모호·키 disjoint 깨짐) **(iii) 정확 criteria인데 tie 모호**(복수 variant 충족)로 분류. ⇒ "아키텍처가 *돕나*(criteria<id) vs 추론 *재배치*만 하나" 판별. **wrong-criteria율이 root cause=reasoning인지 fabrication인지 최종 확정.**
 - ★주의: **offline 값-정확성**(gold call 대비)이지 full τ² rollout 아님(user-sim·multi-turn 제외). M-A는 "값-정확성 분리검증"·rollout pass는 M-E.
+- **★gold/availability 일관성(리뷰)**: resolver가 `available` 필터 → gold new_item_id가 *같은 db.json availability 상태*서 추출됐는지 확인(다르면 gold 불일치=거짓 음성). §8 gold 신뢰성과 연결.
 
 ## 8. Scope / 위험 (정직)
 - **닫음**: controlled-vocab variant-select·entity-ref(order/item/payment)·선호순서 폴백(구조화 술어). = write-벽 정밀원인(변형 오선택) 직격.
-- **안 닫음**: ①옵션 키名/값이 자유텍스트(enum 아님)면 매칭 모호(§6 값-역매칭으로 부분완화·잔여=predicate-select) ②NL이 product/옵션을 모호하게 말함(clarify 필요) ③payment "original" 의미해석 ④여러 variant가 criteria 동시충족(tie-break 규칙 필요).
+- **안 닫음**: ①옵션 키名/값이 자유텍스트(enum 아님)면 매칭 모호(§6 값-역매칭으로 부분완화·잔여=predicate-select) ②NL이 product/옵션을 모호하게 말함(clarify 필요) ③payment "original" 의미해석 ④여러 variant가 criteria 동시충족(**tie-break 규칙 명시 必**: 가격? 첫매칭? gold 가정 확인).
+- **★값-역매칭 disjointness 사전체크(리뷰·데이터)**: 값-역매칭(키名 모름→어느 키든 값 일치)은 **키 간 값空間이 disjoint해야** 정확(실 keyboard=switch type/backlight/size 값 분리라 작동·우연). **도메인별 cross-key 값-중복 사전 audit**(중복 시 역매칭 모호→키名 필수 or predicate-select). §8① 격상.
 - **반례 가드 재확인**: 이득이 xgrammar(form)서 오면 가설 오귀속 → ablation C로 분리(resolver 없는 formal은 여전히 값 틀려야 정상).
 - **전이는 M-A 범위 밖**: single-config(retail)만. multi-config 전이=M-C/M-D.
 - **gold 추출 신뢰성**: tasks.json 액션이 항상 단일 gold variant인가(폴백 분기 시 gold 모호)? task별 검수 필요(소수=수동확인).
@@ -100,3 +105,4 @@ resolve(formal, env):
 - **강 성공**: B의 new_item_ids 정확율 ≫ A·이득이 ablation C 대비 resolver서 옴(xgrammar 단독 아님)·order/payment 회귀 없음.
 - **약 성공**: B≈A이나 type-violation·FAIL이 진단가능(어디서 막히는지)·predicate-select 필요범위 정량.
 - **음성**: B<A(resolver 매칭이 LLM emit criteria 오류를 증폭) → criteria-emit 자체가 어려운지(=NL→formalize σ 학습 필요·M-A가 그 신호) 분석.
+- **★음성=diagnostic gold(리뷰 격상)**: B≈A이고 원인=wrong-criteria(§7⑥-i)면 = **root cause가 fabrication 아닌 NL→formalize *추론*(σ-학습 필요·thesis A2 front-end)임을 *증명***. M-A의 최대 가치 = "B>A 승리"보다 **§7⑥ 분해로 root cause(fabrication vs reasoning) 최종 확정** = σ 학습 필요여부 판가름. 음성도 1급 결과.
