@@ -44,6 +44,11 @@ CONCRETE_SCHEMA = {
 }
 
 
+# cost instrumentation: chat() appends each call's token usage here; the driver clears
+# it before each case and attaches the totals to the result (accuracy-PER-COST analysis).
+_USAGE = []
+
+
 def chat(base, model, messages, guided_json=None, max_tokens=512, temperature=0.0):
     payload = {"model": model, "messages": messages, "max_tokens": max_tokens,
                "temperature": temperature}
@@ -51,7 +56,9 @@ def chat(base, model, messages, guided_json=None, max_tokens=512, temperature=0.
         payload["guided_json"] = guided_json  # vLLM extension (xgrammar)
     r = requests.post(f"{base}/chat/completions", json=payload, timeout=120)
     r.raise_for_status()
-    return r.json()["choices"][0]["message"]["content"]
+    j = r.json()
+    _USAGE.append(j.get("usage", {}) or {})
+    return j["choices"][0]["message"]["content"]
 
 
 def extract_json(text, key):
@@ -298,6 +305,9 @@ def summarize(results):
         a["item_correct"] += sum(r["item_correct"])
         a["case_correct"] += int(all(r["item_correct"]))
         a["parse_fail"] += int(r.get("parse_fail", False))
+        a["calls"] = a.get("calls", 0) + r.get("n_calls", 0)
+        a["ptok"] = a.get("ptok", 0) + r.get("prompt_tokens", 0)
+        a["ctok"] = a.get("ctok", 0) + r.get("completion_tokens", 0)
         for k in r.get("fail_kind", []):
             if k != "ok":
                 a["kinds"][k.split(":")[0]] = a["kinds"].get(k.split(":")[0], 0) + 1
@@ -317,11 +327,16 @@ if __name__ == "__main__":
     with open(args.out, "w", encoding="utf-8") as f:
         for arm in args.arms.split(","):
             for c in cases:
+                _USAGE.clear()
                 try:
                     r = eval_case(c, args.base, args.model, arm)
                 except Exception as e:
                     r = {"task_id": c["task_id"], "arm": arm, "n": c["n_items"],
                          "error": str(e), "item_correct": [False]*c["n_items"]}
+                # cost proxies (attached regardless of eval_case's internal early returns)
+                r["n_calls"] = len(_USAGE)
+                r["prompt_tokens"] = sum(u.get("prompt_tokens", 0) for u in _USAGE)
+                r["completion_tokens"] = sum(u.get("completion_tokens", 0) for u in _USAGE)
                 results.append(r)
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
             print(f"arm {arm} done ({len(cases)} cases)")
@@ -329,6 +344,8 @@ if __name__ == "__main__":
     for arm, a in sorted(summarize(results).items()):
         ic = a["item_correct"] / max(a["items"], 1)
         cc = a["case_correct"] / max(a["cases"], 1)
+        tot_tok = a.get("ptok", 0) + a.get("ctok", 0)
         print(f"arm {arm}: item-acc={ic:.3f} ({a['item_correct']}/{a['items']}) "
               f"case-acc={cc:.3f} ({a['case_correct']}/{a['cases']}) "
-              f"parse_fail={a['parse_fail']} fail_kinds={a['kinds']}")
+              f"parse_fail={a['parse_fail']} fail_kinds={a['kinds']} | "
+              f"calls={a.get('calls',0)} tok={tot_tok} (p{a.get('ptok',0)}/c{a.get('ctok',0)})")
