@@ -5,6 +5,9 @@
 #   72B-bf16 served TP4. Preemption-safe: idempotent markers + HF result sync.
 #   Pre-flight GATEs mirror the local run (29 cases + resolver) so we never fire a blind sweep.
 set -u
+# ★COST-INCIDENT defense (2026-06-16): local vLLM only; clear inference keys so this node
+# can never bill the shared OpenRouter key even on an accidental agentic call.
+unset OPENROUTER_API_KEY ANTHROPIC_API_KEY OPENAI_API_KEY 2>/dev/null || true
 REPO=/scratch/boltzmann-attention
 MA=$REPO/scripts/distill/ma
 PY=/scratch/venvs/sop_env/bin/python

@@ -5,6 +5,9 @@
 #   4 arms in PARALLEL (one GPU each) -> ~1.5h vs ~5h sequential. NO tau2 in training (transfer target).
 #   Preemption-safe: per-arm FACTORIAL_<arm>_DONE markers + HF sync to factorial_iso/.
 set -u
+# ★COST-INCIDENT defense (2026-06-16): this node must NEVER bill the shared OpenRouter key.
+# It uses local vLLM only; clear any inference keys so even an accidental agentic call can't drain.
+unset OPENROUTER_API_KEY ANTHROPIC_API_KEY OPENAI_API_KEY 2>/dev/null || true
 REPO=/scratch/boltzmann-attention
 PIP=/scratch/venvs/sop_env/bin/pip
 HF=/scratch/venvs/sop_env/bin/hf
