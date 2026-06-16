@@ -18,12 +18,20 @@ set -x
 # 0. env: sop_env has vllm+transformers (node_setup_h200); ADD peft for LoRA SFT (lora_train needs it)
 $PIP install -q peft >> $WS/logs/pip.log 2>&1 || true
 
-# 1. ★symlink woori's hardcoded tree -> node paths (so the committed batch runs UNMODIFIED)
-mkdir -p /home/woori/workspace_common /home/woori/venvs
-ln -sfn $REPO            /home/woori/workspace_common/boltzmann-attention-pi
-ln -sfn $WS             /home/woori/scratch
-ln -sfn /scratch/venvs/sop_env /home/woori/venvs/seka_env
-ln -sfn /scratch/venvs/sop_env /home/woori/venvs/tau2_vllm_env
+# 1. ★symlink woori's hardcoded tree -> node paths (so the committed batch runs UNMODIFIED).
+#    ★FIX (2026-06-16): the JOB runs as aiscuser (NOT root) so plain `mkdir /home/woori` is DENIED
+#    -> symlinks silently absent -> arms die on `cd /home/woori/...` (0 results, GPUs idle 1h).
+#    Use sudo (container allows it); then FAIL LOUD if symlinks didn't materialize.
+SUDO=""; command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null && SUDO="sudo -n"
+$SUDO mkdir -p /home/woori/workspace_common /home/woori/venvs 2>/dev/null || mkdir -p /home/woori/workspace_common /home/woori/venvs 2>/dev/null || true
+$SUDO chmod -R 777 /home/woori 2>/dev/null || true
+ln -sfn $REPO            /home/woori/workspace_common/boltzmann-attention-pi 2>/dev/null
+ln -sfn $WS             /home/woori/scratch 2>/dev/null
+ln -sfn /scratch/venvs/sop_env /home/woori/venvs/seka_env 2>/dev/null
+ln -sfn /scratch/venvs/sop_env /home/woori/venvs/tau2_vllm_env 2>/dev/null
+[ -d /home/woori/scratch ] && [ -d /home/woori/workspace_common/boltzmann-attention-pi ] || {
+  echo "FATAL: /home/woori symlinks failed (job not root + no sudo) — woori batch would die on cd. ABORT (no silent idle)."; exit 1; }
+echo "[symlinks OK]"
 
 # 2. tau2-bench retail data at woori's expected path (gold_extract default = /home/woori/scratch/tau2-bench)
 [ -f $WS/tau2-bench/data/tau2/domains/retail/tasks.json ] || \
