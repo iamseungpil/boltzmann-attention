@@ -9,7 +9,7 @@
 
 ## 1. ★다음 세션 첫 행동
 1. **M-σ v2 설계서 완성·리뷰** (사용자 지시): `ma/M_SIGMA_V2_SYNTH_DESIGN.md` §0-9 이미 초안. **다음 세션서 정련**(특히 §1 NL-grounding·§9 ablation 매트릭스). 리뷰 후 구현.
-2. **딥리서치 `w3l415qh5` 수확**: binding-다양 학습벤치 + 합성 선행연구(controllable-binding) → §1 합성 충실도·§9 입력. (완료 알림 확인.)
+2. **★딥리서치 `w3l415qh5`(binding-다양 학습벤치 + controllable-binding 합성 선행연구) = 세션종료로 KILLED될 것**(로컬 워크플로는 세션묶임·직전 3건도 그랬음). ⇒ **다음 세션서 재실행**(args 파라미터화·재실행하면 full synthesis) *또는* killed 트랜스크립트 salvage(부분·세션시작 salvage 패턴). 질문="selection-by-criteria 가르칠 binding-다양 벤치 + 합성이 나은가". → §1 합성 충실도·§9 입력. (스크립트=`workflows/scripts/deep-research-wf_2b381fba-308.js`.)
 3. **구현(리뷰 후)**: `synth_selection.py`(추상 도메인/카탈로그/NL-요청/gold + knob 플래그 `--iso/--nl/--prov/--sem` + round-trip 검증) → resolver 확장(`$select`/`$ref`/literal) → `ma_synth_ablation_batch.sh`(config별 생성→7B LoRA SFT→M-D τ² eval→집계·2-GPU·~2.5-3h).
 
 ## 2. ★이번 세션 핵심 결과 (전부 `ma/M_A_RESULTS.md`)
