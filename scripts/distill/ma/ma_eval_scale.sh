@@ -14,6 +14,7 @@ exec > $LOG 2>&1; set -x; date
 
 MODELS="${1:-Qwen/Qwen2.5-7B-Instruct Qwen/Qwen2.5-14B-Instruct}"
 ARMS="${2:-A,Acot,Atwo,B,Bcot,Btwo,C}"
+SUFFIX="${3:-}"   # output -> ma_eval_<tag><SUFFIX>.jsonl (avoid clobbering prior runs)
 cd $REPO && git pull --ff-only
 $PY $MA/ma_gold_extract.py --out $S/ma_eval_cases.jsonl
 
@@ -26,7 +27,7 @@ for M in $MODELS; do
   ok=0; for i in $(seq 1 90); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "$M" && ok=1 && break; sleep 10; done
   [ $ok = 1 ] || { echo "SERVE_FAIL $M"; tail -30 $S/vllm_ma_$tag.log; continue; }
   $PY $MA/ma_eval.py --cases $S/ma_eval_cases.jsonl --base http://localhost:$PORT/v1 \
-    --model $M --arms $ARMS --out $S/ma_eval_$tag.jsonl
+    --model $M --arms $ARMS --out $S/ma_eval_${tag}${SUFFIX}.jsonl
   for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 3
 done
 echo MA_SCALE_DONE; date
