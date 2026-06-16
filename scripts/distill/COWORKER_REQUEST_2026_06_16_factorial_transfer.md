@@ -1,3 +1,5 @@
+> ⚠️ **대체됨(2026-06-16)**: 이 v3 요청(ISO=ON half)은 **`COWORKER_REQUEST_2026_06_16_v4_factorial.md`로 대체**(v4 통일코퍼스·harness v4·순수-synth factorial 전체). 이 파일은 이력용.
+
 # Coworker 요청 (2026-06-16) — M-σ v3 전이 factorial: ISO=ON 절반 4 arm 실행
 
 > 자기완결 요청서. 직전 요청서(`COWORKER_REQUEST_2026_06_16_scale_floor.md`·floor/scale)는 **완료·무관**. 이것만 보면 됨.
