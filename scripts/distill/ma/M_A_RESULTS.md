@@ -100,3 +100,19 @@ B가 emit한 select_by를 gold/old와 대조하면 지배 패턴 = **"X만 바�
 - 32B=Int8 → **coworker 32B-bf16**이 (reasoning-floor vs Int8-cap)·(L2b +9pp 진위)·(14B→32B A 평탄 0.719=quant-cap?) 확정.
 - model-내 L2a/L2b/L3 델타=노이즈(±6pp)·예외=32B L1→L2b +9pp.
 - ⇒ 최적성 갱신: **분담은 *비용*서 이김(formalize=Pareto)·*capability(reasoning)*는 scale 필요**. floor가 조건#4를 reasoning-limited로 판정.
+
+---
+
+## 9. ★Sstep (강한형·scaffolded 증분 typed스텝+per-step 검증) 결과 (2026-06-16)
+| arm | 7B | 14B | 32B-Int8 | tok/case | calls |
+|---|---|---|---|---|---|
+| A (forced) | 0.438 | 0.719 | 0.719 | ~918 | 1 |
+| Acot | 0.531 | 0.781 | 0.719 | ~1400 | 1 |
+| Atwo (2-call) | 0.656 | 0.719 | 0.781 | ~2900 | 2 |
+| **Sstep** | **0.656** | **0.719** | **0.750** | **~528** | ~1.6 |
+
+### 판정 (★capability 음성·비용 양성)
+1. **Sstep는 capability 못 올림**: 7B 0.656(=Atwo)·자유CoT 최고 *안 넘고 동률*·32B-L2b 0.844 미달. **7B ~0.656 천장 = reasoning(binding) floor 지속.**
+2. **★Sstep = 비용-Pareto 승리**: ~528 tok/case(Atwo 2900의 **1/6**·A의 절반)·calls 1.6. scaffold가 구조 결정론처리→LLM은 작은 typed스텝만. **best-elicitation 정확도를 최저비용에.**
+3. **★리뷰 확증**: scaffold 검증(타입/vocab)은 *날조/형식*만 잡고 **grounded-but-wrong 변형선택(binding)은 못 잡음**(valid하지만 틀린 변형 emit). ⇒ capability 벽=binding·Sstep typed-검증으론 안 닫힘 → **M-σ v2 5번째 축(typed-derivation+resolver 관계계산)이 유일 장치**([[project-tau2-write-failure-rootcause]]·`M_SIGMA_DESIGN_2026_06_16.md §0b`).
+- 대기: Snover(검증 OFF·Sstep≈Snover면 검증조차 무효 시사)·SCv(self-consistency)·coworker scale. `ma_overnight_summary.log`.
