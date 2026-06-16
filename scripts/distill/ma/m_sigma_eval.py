@@ -11,10 +11,11 @@ sys.path.insert(0, "/home/woori/workspace_common/boltzmann-attention-pi/scripts/
 from m_sigma_data import build_example  # noqa
 
 
-def chat(base, model, messages, max_tokens=512):
-    r = requests.post(f"{base}/chat/completions",
-                      json={"model": model, "messages": messages, "max_tokens": max_tokens, "temperature": 0.0},
-                      timeout=120)
+def chat(base, model, messages, tools=None, max_tokens=512):
+    payload = {"model": model, "messages": messages, "max_tokens": max_tokens, "temperature": 0.0}
+    if tools:
+        payload["tools"] = tools; payload["tool_choice"] = "auto"
+    r = requests.post(f"{base}/chat/completions", json=payload, timeout=120)
     r.raise_for_status()
     return r.json()["choices"][0]["message"]
 
@@ -26,13 +27,14 @@ def first_threaded_call(rec):
     if nr == 0 or nr != nrt:
         return None
     msgs = triple["messages"]
+    tools = triple.get("tools")
     ctx = []
     for m in msgs:
         if m.get("role") == "assistant" and m.get("tool_calls"):
             tc = m["tool_calls"][0]
             args = json.loads(tc["function"]["arguments"])
             if any(isinstance(v, dict) and "$ref" in v for v in args.values()):
-                return ctx + [{"role": m["role"], "content": m.get("content")}], tc["function"]["name"], args
+                return ctx, tools, tc["function"]["name"], args  # ctx ENDS before target (fix)
             ctx.append({k: m[k] for k in ("role", "content", "tool_calls") if k in m})
         else:
             ctx.append({k: m[k] for k in ("role", "content") if k in m})
@@ -56,8 +58,8 @@ def parse_call(msg):
 
 def score(base, model, cases, tag):
     n = ref_total = ref_correct = name_ok = emitted_ref = 0
-    for ctx, gname, gargs in cases:
-        msg = chat(base, model, ctx)
+    for ctx, tools, gname, gargs in cases:
+        msg = chat(base, model, ctx, tools=tools)
         pn, pargs = parse_call(msg)
         n += 1
         if pn == gname: name_ok += 1
