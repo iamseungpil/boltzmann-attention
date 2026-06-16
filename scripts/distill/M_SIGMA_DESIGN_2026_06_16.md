@@ -39,6 +39,12 @@
 - **★in-dist↑를 게이트로 쓰지 말 것**: v4 SOPBench in-dist 0.65인데 τ² 0(필요·오도신호). 게이트 = 표면/binding overlap이지 in-dist 점수 아님.
 - **★orphan 발견 시 = 전이불가 *단정* 아니라 설계변수**([[feedback-no-fundamental-claims-from-convenience-data]]): orphan binding/표면 = **등방화 차원 *추가* 대상**(덮으면 전이)·범위 명시. "교집합 비면 중단"은 binding이 *구조적으로* 부재(유도관계 자체 없음)일 때만.
 
+### ★census 실행결과 (2026-06-16·확정)
+- **TaskBench(sft_v1 tool-output 41%)=스텁 `{status,ref}` → binding 데이터 *부재***. = v4-v7 전이0의 binding-레벨 원인. **TaskBench-스텁으로 학습=binding 못 배움(v4-v7 재현).**
+- **cfb(ComplexFuncBench)=binding-rich**: prior 출력 필드(lat/lng)→다음 arg 유도(grounded 2-hop·copy-threading). ✓ binding 존재.
+- **★granularity 잔여**: cfb=*copy-threading*(값 복사)·τ² exchange=*relational-selection-by-criteria*(후보 중 기준매칭+fallback). cfb는 threading 있으나 selection-by-criteria 부분 → **orphan-binding-granularity**.
+- **게이트 판정 = 조건부 GREEN**: M-σ 데이터=**cfb-소스(binding)·TaskBench-스텁 아님**·**derivation-레벨**(v7은 cfb-concrete→실패·M-σ=cfb-derivation+등방화). selection-by-criteria 부족분=합성 증강 or τ²-유사 selection 태스크 추가(등방화 차원). **데이터 파이프 round-trip 검증 후 학습**(검증=derivation-spec이 gold 재현).
+
 ## 4. 평가 (M-D 전이 = 헤드라인)
 - **in-dist**: M-σ가 학습-도메인(SOPBench/TaskBench) formalize 정확도 올리나(학습 작동 확인).
 - **★전이(헤드라인·C8)**: held-out **τ²(retail/airline) config-swap·무재학습** → M-σ-7B의 NL→formalize(+Sstep scaffold) 정확도가 **base 7B 능가·큰모델 근접·도메인-SFT(과적합 baseline) 능가**.
