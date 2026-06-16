@@ -39,7 +39,7 @@ new_item_ids: [ { "$select": [
 - (relax/tie-break는 §3.1대로 보류 — 데이터가 요구할 때.)
 
 ### 3.3 IR이 무엇을 하나 (정직: 제거 아니라 형태 단순화 — 리뷰 보강2)
-- **F1 over-spec *손해* 흡수**: 실패조건 restate(RGB·full)는 *안 바뀐 old 값*이라 `{backlight:RGB}` 적용=**no-op·무해**. 단 **올바른 fallback 델타({backlight:none})는 여전히 emit해야** — 그 *어떤* 델타냐는 잔여 formalize 추론(=F3).
+- **F1 over-spec *손해* 흡수**: 실패조건 restate(RGB·full)가 **old와 일치하는 경우** *안 바뀐 값*이라 `{backlight:RGB}` 적용=**no-op·무해**. 단 **올바른 fallback 델타({backlight:none})는 여전히 emit해야** — 그 *어떤* 델타냐는 잔여 formalize 추론(=F3). (restate 값이 old와 *다른* 1차-미가용 criteria면 누적이 같은 미가용 타깃 재생산 → 그건 델타-emit 추론이 잡아야.)
 - **F2 keep-rest 자동**(누적). **F3/F4 = 중첩분기→평평한 리스트로 *형태 단순화***(추론 제거 아님). ⇒ **§4 CoT probe가 이 "형태 단순화 이득"을 *측정*** (P-new-CoT vs P-old-CoT).
 - additive·revising fallback 둘 다 override 폴드로 일반 처리.
 
@@ -68,7 +68,7 @@ GBW가 *크기(capability)* 문제인지 *형식(artifact)* 문제인지를 [[fe
 | 14B | ○ | ○ |
 | 32B (coworker) | ○ | ○ |
 | 72B (coworker) | ○ | ○ |
-- **★n 확장이 선결(리뷰 보강B)**: GBW 4/29(±2~3)·interaction ±1~2는 scale 추세 분해 불가. τ² exchange는 29 상한일 공산 → **§4b는 *synth 평가셋*(n≥100·controllable fallback 난이도)으로 능력 측정**, τ²-29는 transfer 헤드라인 유지. synth→synth 약점은 *capability 측정*엔 무해(전이 주장 아님).
+- **★n 확장이 선결(리뷰 보강B)**: GBW 4/29(±2~3)·interaction ±1~2는 scale 추세 분해 불가. τ² exchange는 29 상한일 공산 → **§4b는 *synth 평가셋*(n≥100·controllable fallback 난이도)으로 능력 측정**, τ²-29는 transfer 헤드라인 유지. synth→synth 약점은 *capability 측정*엔 무해(전이 주장 아님). **★스코프: synth GBW-sweep은 *구조적 fallback-추론* 능력을 잼**(어느 속성 change/keep/순서); τ² GBW의 *어휘/의미* 성분(synonym "Google Home"→값)은 **ABox 제공 몫·모델 일 아님**([[feedback-nl-formalize-llm-selection-deterministic]]) → 오히려 구조를 어휘서 *격리*해 더 깨끗.
 - **지표 = (i) GBW율 격리**(`ok_wrong_variant`·계측 `1ffd176`) **(ii) new_item_ids 정확도 (iii) structural-fail율** (scale이 어디서 돕나 분해) **(iv) ★retry-수렴률(리뷰 보강C)**: §5b reject 후 재시도가 통과하나 — *크기별*. 탈출구(아래)가 "가정"이 아니라 *검증*이 되게. retry cap = §6-4 spraying 규율 공유.
 - **싼 셀 먼저**(7B/14B × both), **그 다음 coworker 32/72B**.
 - **판정 = 조건#4**([[project-decomposition-optimality-contribution]]): GBW가 소형으로 닫히면 LLM-leg가 sLLM 충분=주권 성립·큰 모델 요구면 sovereignty-leg 위협. **§5b catch + retry-수렴과 교차**(전략 묶음).
@@ -79,7 +79,7 @@ GBW가 *크기(capability)* 문제인지 *형식(artifact)* 문제인지를 [[fe
 - (relax/tie-break는 §3.1대로 보류 — set-only 출하·데이터 요구 시만.)
 
 ## 5b. ★GBW catch = 결정론 diff-grounding 검증기 (LLM-judge 아님)
-resolver 단독은 GBW를 못 잡는다(criteria 구조적 유효). **출력에 둘째 결정론 검증기**를 건다([[feedback-selector-verifier-deterministic]] 준수). **양방향 검사**(리뷰 보강A):
+resolver 단독은 GBW를 못 잡는다(criteria 구조적 유효). **출력에 둘째 결정론 검증기**를 건다([[feedback-selector-verifier-deterministic]] 준수). **이중 역할**: (i)*진단* — catchable GBW율 측정(§8-1·탈출구 크기) (ii)*배포 루프* — catch→retry로 정확도↑(§4b-iv retry-수렴이 이걸 크기별 측정). **양방향 검사**(리뷰 보강A):
 - **(a) commission(주):** `old → 선택 variant` diff의 **바뀐 모든 속성 새 값이 NL grounding**되나·아니면 reject. 예: backlight→white인데 "white"가 NL에 없음 → GBW 포착.
 - **(b) omission(약·보강A):** NL에 attest된 *카탈로그-값 토큰*이 old∨chosen에 다 출현하나 — 빠진 required-change 부분 포착. 단 *완전 결정론 불가*(어느 NL언급이 required냐 = 모델이 실패하는 그 comprehension) → weak 근사·false-reject 위험(multi-primary+revert 케이스).
 - **★synonym-precision 한계(실측 박제)**: gold fallback `none`이 NL엔 "**no backlight**" → substring 미스 → **synonym map(ABox) 없으면 정답을 false-reject**. negation 값(none/no/without)이 대표 함정. ⇒ **검증기 정밀도 = synonym map 품질에 의존**·runner의 false-reject 타일리가 실측(catch율과 *함께* 봐야 함). 값→속성 grounding = 카탈로그 value-space + synonym(ABox)·**LLM 판단 0**.
