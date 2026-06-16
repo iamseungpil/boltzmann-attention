@@ -143,3 +143,17 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **형식 전이 ✓**($ref 25/29 emit·새 도메인) **but 내용 음성**: base가 맞히는 arg를 over-$ref로 망침(all 0.41→0.03).
 - **원인 3**: (a) **over-$ref/provenance 미구분**(order_id=NL 리터럴인데 $ref 시도) — cfb는 threadable만 있어 "리터럴 vs derived" 못 가르침 (b) **payment 0.07 = harness 아티팩트**(gold pm_id를 dict 키로 둠→값-walk로 $ref불가·M-σ 불공정) (c) **new_item_ids 0.34 = selection orphan**(threading≠selection).
 - **C8 1차 = 음성**(v4-v7 cfb-전이 패턴 정합). ⇒ **데이터 v2 3요건**: ①selection-by-criteria(DR `w3l415qh5`) ②**provenance 학습**(리터럴/키 vs $ref·리터럴-arg 섞기) ③harness 수정(payment=값·n 확장).
+
+## 12. ★M-σ v4 factorial — ISO=ON half (coworker, 2026-06-16·node tb-h100-0616-factiso)
+> primary = held-out τ² `$select`(new_item_ids 선택 정확률). base inference·NO τ² in training·NO openrouter(키 없음·로컬 vllm). split json = HF `factorial_iso/split_*.json`. **OFF-half(woori) 도착 시 ΔISO main effect 집계.**
+
+| arm | ISO/NL/PROV | **$select** | all | item_ids | autopsy ok/no_avail/unresolved | emit |
+|---|---|---|---|---|---|---|
+| A-iso | 1/0/0 | **0.38** (11/29) | 0.38 | 0.79 | 18/9/2 | literal84·ref0 |
+| C-in  | 1/1/0 | **0.41** (12/29) | 0.34 | 0.66 | 17/8/2 | literal78·ref0 |
+| C-ip  | 1/0/1 | **0.41** (12/29) | 0.41 | 0.86 | 18/7/1 | ref79·over_$ref5 |
+| FULL  | 1/1/1 | **0.38** (11/29) | 0.38 | 0.86 | 20/3/3 | ref81·over_$ref4 |
+
+- **ON-half $select = 0.38–0.41 (mean ~0.40)·전 cell 평탄**(±1 case): ISO 위에 NL·PROV 추가해도 selection 정확률 불변 → NL/PROV main effect(ISO=on 하) ≈ 0.
+- **잔여 실패 = M_A selection-reasoning 벽 그대로**: fail_no_available(가용성-blind 3–9)·unresolved(wrong criteria 1–3). **ISO 등방화 단독으로 이 벽 안 닫힘.**
+- ⚠️ **ISO main effect 판정 보류**: ΔISO = mean(ON)−mean(OFF), OFF-half(M0/A-nl/A-prov/C-np)=woori 미도착. M0 대비 ON이 높으면 ISO 구동(Olver 실증)·M0도 ~0.40이면 ISO 무효(추상→실 갭). **§3 판독은 OFF-half 합류 후.**
