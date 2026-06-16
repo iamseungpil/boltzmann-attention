@@ -69,3 +69,34 @@ B가 emit한 select_by를 gold/old와 대조하면 지배 패턴 = **"X만 바�
 
 ### 7d. 그 다음
 - 교란 배제·scale 기울기 확인 후 → **M-σ: NL→formalize 선택 reasoning(γ-grounding) 학습**(SOPBench/TaskBench 궤적→(NL,config,target-spec) 삼중쌍·"change-X-keep-rest"·등방화로 표면덮음)→ held-out config 전이(M-D). σ=증명·γ=등방화구성+실증(§5.10).
+
+---
+
+## 8. ★★FLOOR SWEEP 결과 (2026-06-16·decisive) — A·Bfair·L0–L3 × {7B,14B,32B-Int8} + 비용
+> 출력=concrete 고정(입력 효과 분리)·`ma_eval_scale.sh _floor`·비용계측. ⚠29케이스(±~6pp 노이즈)·32B=GPTQ-Int8·L1≈A(±2 item=프롬프트문구).
+
+| arm (입력수준) | 7B | 14B | 32B-Int8 | tok/case |
+|---|---|---|---|---|
+| L0 (availability 없음) | 0.375 | 0.531 | 0.594 | ~855 |
+| L1 (full+avail) | 0.531 | 0.688 | 0.750 | ~900 |
+| L2a (가용필터·raw) | 0.406 | 0.656 | 0.812 | ~625 |
+| **L2b (가용·표 formalized)** | 0.531 | 0.625 | **0.844** | **~508** |
+| L3 (diff 주석) | 0.406 | 0.656 | 0.750 | ~628 |
+| A (concrete baseline) | 0.438 | 0.719 | 0.719 | ~918 |
+| Bfair (공정-정보 selector) | 0.375 | 0.500 | 0.656 | ~810 |
+
+### 4 확정 (정직·일부 음성)
+1. **정보 floor 실재·scale-불변**: L0→L1 = **+16pp 모든 scale 동일**. availability=fallback 필수=info-limited 성분 → **정보 제공(MSC/scaffold)으로 닫힘·모델크기 무관**.
+2. **★MSC가 scale 대체 *못 함*(음성)**: L2b@7B=0.531 ≪ L1@14B=0.688 ≪ L2b@32B=0.844. **7B는 입력수준 무관 ~0.53 천장**(L0–L3 0.38–0.53)=**reasoning-limited·scale-bound**. ⇒ [[project-decomposition-optimality-contribution]] **조건#4(잔여추론⊆작은모델) 위배 for 7B**. sovereignty "작은+MSC≈큰" 미지지.
+3. **★formalize(L2b)는 비용-Pareto 우월(양성)**: 같은/높은 정확도에 **토큰 최소**(L2b~508 vs A~918). 32B서 L2b=0.844(최고)@최저토큰. ⇒ MSC 가치 = scale 대체 아니라 **정보floor 보장 + 비용효율 + *큰* 모델 증폭**.
+4. **★selector(Bfair) 공정정보로도 concrete에 짐(음성)**: Bfair < A 전 scale(14B 0.50<0.72). 카탈로그 보이면 id 직접선택 > criteria round-trip. ⇒ **selector offline 가치 음성**·가치는 *전이/multi-turn 날조방지*에만.
+
+### ★딥리서치(`w2i00droj`) 검증·scoping
+- **input-offload가 scale 대체 = task-narrow서만**(PAL 소형>PaLM-540B). **일반 "작은+offload≈큰"은 REFUTED(1-2)**·crossover 태스크별. ⇒ **우리 floor 음성(MSC≠scale대체 on exchange)은 문헌과 정합**(보편법칙 아님).
+- **floor 측정 근접선행 = "Sufficient Context"(Joren et al·ICLR25)**: 충분-context autorater·**소형은 충분해도 환각(reasoning-limited)·대형은 불충분해도 abstain 안 함(info-limited)** = 우리 info/reasoning 분리와 동일. ⇒ floor *개념* 신규 아님·우리 신규=**typed-DAG closure + tool-use exchange + scale-trade**(deterministic scaffold·미출판 gap).
+- **입력 formalize↑ = 확립**(PoT/PAL ~12% over CoT·표 serialization ±0.22·structural +0.8~5.7) **단 전부 *LLM-driven* pre-formalizer**(Visconde·DeepSieve·autorater) → **deterministic scaffold가 world-state pre-formalize는 미출판** = 우리 메서드 gap.
+
+### caveat / 후속
+- 32B=Int8 → **coworker 32B-bf16**이 (reasoning-floor vs Int8-cap)·(L2b +9pp 진위)·(14B→32B A 평탄 0.719=quant-cap?) 확정.
+- model-내 L2a/L2b/L3 델타=노이즈(±6pp)·예외=32B L1→L2b +9pp.
+- ⇒ 최적성 갱신: **분담은 *비용*서 이김(formalize=Pareto)·*capability(reasoning)*는 scale 필요**. floor가 조건#4를 reasoning-limited로 판정.
