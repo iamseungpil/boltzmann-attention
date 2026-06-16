@@ -127,6 +127,28 @@ def prompt_formal(case, cot=False):
     return [{"role": "user", "content": "\n".join(lines)}]
 
 
+def prompt_formal_fair(case, cot=False):
+    """FAIR formal arm: shows the SAME catalog (options + availability) as the concrete
+    arm, but asks for an abstract selector (criteria) instead of an item_id. Removes the
+    info asymmetry of prompt_formal (which hid availability) — isolates 'emit criteria vs
+    emit id GIVEN IDENTICAL INFO'."""
+    lines = ["You are a retail agent processing an exchange. For each item, describe the DESIRED "
+             "new variant by its OPTION VALUES — NOT an item_id. The new item is the SAME product "
+             "changed ONLY as the user requests; unmentioned options stay the SAME as the current "
+             "item. Choose values that correspond to an AVAILABLE variant (respect any fallback "
+             "preference). Use the exact option values shown.",
+             f"\nUser request: {case['nl']}\n"]
+    for i, e in enumerate(case["exchanges"]):
+        lines.append(f"Item {i+1}: {e['old_item_name']} (current options: {json.dumps(e['old_options'])})")
+        lines.append("Variants (choose options matching an available one):")
+        for v in e["variant_catalog"]:
+            lines.append(f"  options={json.dumps(v['options'])} available={v['available']}")
+    tail = ('{"selectors": [{"select_by": {"<opt>": "<value>", ...}, '
+            '"fallback": [{"<opt>": "<value>"}]}, ...]} in item order.')
+    lines.append(("\nReason, then output " + tail + _COT) if cot else ("\nOutput JSON only: " + tail))
+    return [{"role": "user", "content": "\n".join(lines)}]
+
+
 def resolve_one(case_exchange, selector):
     """Map one formal selector to an item_id via the deterministic resolver."""
     prod = {"name": case_exchange["product_name"],
@@ -145,7 +167,11 @@ ARM_SPEC = {
     "B": ("formal", False, True, False), "Bcot": ("formal", True, False, False),
     "Btwo": ("formal", True, True, True),
     "C": ("formal", False, False, False),
+    # FAIR formal arms: same catalog+availability info as concrete (no asymmetry).
+    "Bfair": ("formalfair", False, True, False), "Bfaircot": ("formalfair", True, False, False),
+    "Bfairtwo": ("formalfair", True, True, True),
 }
+PROMPT_FN = {"formal": prompt_formal, "formalfair": prompt_formal_fair}
 
 
 def _twocall(base, model, prompt_msgs, schema, key):
@@ -178,12 +204,13 @@ def eval_case(case, base, model, arm):
         out.update(parse_fail=False, pred=pred,
                    item_correct=[pred[i] == golds[i] for i in range(n)])
         return out
-    # formal (B / C / Bcot / Btwo)
+    # formal family (B/C/Bcot/Btwo + Bfair*): mode picks the prompt builder; resolve path shared
+    pf = PROMPT_FN[mode]
     if twocall:
-        obj, _ = _twocall(base, model, prompt_formal(case, cot=True), SELECTOR_SCHEMA, "selectors")
+        obj, _ = _twocall(base, model, pf(case, cot=True), SELECTOR_SCHEMA, "selectors")
     else:
         gj = SELECTOR_SCHEMA if grammar else None
-        txt = chat(base, model, prompt_formal(case, cot), guided_json=gj, max_tokens=1024 if cot else 512)
+        txt = chat(base, model, pf(case, cot), guided_json=gj, max_tokens=1024 if cot else 512)
         obj = extract_json(txt, "selectors")
     if not obj:
         out.update(parse_fail=True, pred=None, item_correct=[False]*n, fail_kind=["parse"]*n); return out
