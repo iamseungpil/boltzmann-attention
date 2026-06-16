@@ -72,18 +72,19 @@ B가 emit한 select_by를 gold/old와 대조하면 지배 패턴 = **"X만 바�
 
 ---
 
-## 8. ★★FLOOR SWEEP 결과 (2026-06-16·decisive) — A·Bfair·L0–L3 × {7B,14B,32B-Int8} + 비용
-> 출력=concrete 고정(입력 효과 분리)·`ma_eval_scale.sh _floor`·비용계측. ⚠29케이스(±~6pp 노이즈)·32B=GPTQ-Int8·L1≈A(±2 item=프롬프트문구).
+## 8. ★★FLOOR SWEEP 결과 (2026-06-16·decisive) — A·Bfair·L0–L3 × {7B,14B,32B-Int8,32B-bf16,72B-AWQ4} + 비용
+> 출력=concrete 고정(입력 효과 분리)·`ma_eval_scale.sh _floor`·비용계측. ⚠29케이스(±~6pp 노이즈)·32B-Int8=GPTQ·L1≈A(±2 item=프롬프트문구).
+> **coworker 추가 (2026-06-16, 단일 A100 80GB TP1, `autoresearch/ma-scale-260616/`): 32B-bf16 + 72B-AWQ-Int4** (72B-bf16은 145GB라 80GB 단일 GPU 불가→AWQ-Int4가 로컬 천장·노드bf16 별도). 사전검증 GATE1-5 통과(tau2 29케이스·resolver 4/4·7B 스모크 14/14 실레코드).
 
-| arm (입력수준) | 7B | 14B | 32B-Int8 | tok/case |
-|---|---|---|---|---|
-| L0 (availability 없음) | 0.375 | 0.531 | 0.594 | ~855 |
-| L1 (full+avail) | 0.531 | 0.688 | 0.750 | ~900 |
-| L2a (가용필터·raw) | 0.406 | 0.656 | 0.812 | ~625 |
-| **L2b (가용·표 formalized)** | 0.531 | 0.625 | **0.844** | **~508** |
-| L3 (diff 주석) | 0.406 | 0.656 | 0.750 | ~628 |
-| A (concrete baseline) | 0.438 | 0.719 | 0.719 | ~918 |
-| Bfair (공정-정보 selector) | 0.375 | 0.500 | 0.656 | ~810 |
+| arm (입력수준) | 7B | 14B | 32B-Int8 | **32B-bf16** | **72B-AWQ4** | tok/case |
+|---|---|---|---|---|---|---|
+| L0 (availability 없음) | 0.375 | 0.531 | 0.594 | 0.625 | 0.562 | ~855 |
+| L1 (full+avail) | 0.531 | 0.688 | 0.750 | 0.719 | 0.688 | ~900 |
+| L2a (가용필터·raw) | 0.406 | 0.656 | 0.812 | 0.812 | 0.781 | ~625 |
+| **L2b (가용·표 formalized)** | 0.531 | 0.625 | **0.844** | **0.844** | 0.719 | **~508** |
+| L3 (diff 주석) | 0.406 | 0.656 | 0.750 | 0.750 | 0.719 | ~628 |
+| A (concrete baseline) | 0.438 | 0.719 | 0.719 | 0.719 | 0.688 | ~918 |
+| Bfair (공정-정보 selector) | 0.375 | 0.500 | 0.656 | 0.656 | 0.594 | ~810 |
 
 ### 4 확정 (정직·일부 음성)
 1. **정보 floor 실재·scale-불변**: L0→L1 = **+16pp 모든 scale 동일**. availability=fallback 필수=info-limited 성분 → **정보 제공(MSC/scaffold)으로 닫힘·모델크기 무관**.
@@ -97,7 +98,7 @@ B가 emit한 select_by를 gold/old와 대조하면 지배 패턴 = **"X만 바�
 - **입력 formalize↑ = 확립**(PoT/PAL ~12% over CoT·표 serialization ±0.22·structural +0.8~5.7) **단 전부 *LLM-driven* pre-formalizer**(Visconde·DeepSieve·autorater) → **deterministic scaffold가 world-state pre-formalize는 미출판** = 우리 메서드 gap.
 
 ### caveat / 후속
-- 32B=Int8 → **coworker 32B-bf16**이 (reasoning-floor vs Int8-cap)·(L2b +9pp 진위)·(14B→32B A 평탄 0.719=quant-cap?) 확정.
+- ✅ **coworker 확정 (2026-06-16·32B-bf16 + 72B-AWQ4 로컬)**: (a) **14B→32B 평탄 = reasoning-FLOOR** — 32B-bf16 A=0.719=Int8=14B (양자화 무죄·Int8-cap 기각). (b) **L2b formalize 견고** — bf16 0.844=Int8 (최고·최저비용 유지). (c) **selector(Bfair) bf16서도 짐** (0.656<A 0.719). (d) ⚠️**Q2 천장 미확정(confounded)**: 72B-AWQ-Int4가 32B-bf16보다 전 arm 낮음(A 0.688·L2b 0.719=−0.125)은 **Int4 아티팩트 의심**(32B서 Int8≈bf16였으나 AWQ-Int4는 2배 공격적·formalize arm 최대 손상) → 평탄 시사하나 단정불가, **72B-bf16(H100x4 노드) 필요**. 상세=`autoresearch/ma-scale-260616/FINDINGS.md`.
 - model-내 L2a/L2b/L3 델타=노이즈(±6pp)·예외=32B L1→L2b +9pp.
 - ⇒ 최적성 갱신: **분담은 *비용*서 이김(formalize=Pareto)·*capability(reasoning)*는 scale 필요**. floor가 조건#4를 reasoning-limited로 판정.
 
