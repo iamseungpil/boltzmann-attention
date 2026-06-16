@@ -135,33 +135,56 @@ def resolve_one(case_exchange, selector):
     return select_variant(prod, case_exchange["old_options"], selector)
 
 
-# arm -> (mode, cot, grammar)
+# arm -> (mode, cot, grammar, twocall)
+#  twocall: free-reasoning call (no grammar) THEN a strict guided_json transcription call.
+#  => preserves reasoning AND guarantees schema validity, with no per-token gating
+#     (the 'constrain only the final segment' idea; portable, works on any backend).
 ARM_SPEC = {
-    "A": ("concrete", False, True), "Acot": ("concrete", True, False),
-    "B": ("formal", False, True), "Bcot": ("formal", True, False),
-    "C": ("formal", False, False),
+    "A": ("concrete", False, True, False), "Acot": ("concrete", True, False, False),
+    "Atwo": ("concrete", True, True, True),
+    "B": ("formal", False, True, False), "Bcot": ("formal", True, False, False),
+    "Btwo": ("formal", True, True, True),
+    "C": ("formal", False, False, False),
 }
+
+
+def _twocall(base, model, prompt_msgs, schema, key):
+    """Call 1: free CoT reasoning (unconstrained). Call 2: strict guided_json transcription
+    of the decided answer, with the reasoning in context."""
+    r1 = chat(base, model, prompt_msgs, guided_json=None, max_tokens=1024)
+    body = prompt_msgs[0]["content"]
+    msgs2 = [{"role": "user", "content": body},
+             {"role": "assistant", "content": r1},
+             {"role": "user", "content": "Now output ONLY the final JSON object — no other text, no markdown."}]
+    txt = chat(base, model, msgs2, guided_json=schema, max_tokens=512)
+    return extract_json(txt, key), r1
 
 
 def eval_case(case, base, model, arm):
     n = case["n_items"]
     golds = [e["gold_new_item_id"] for e in case["exchanges"]]
     out = {"task_id": case["task_id"], "arm": arm, "n": n, "gold": golds}
-    mode, cot, grammar = ARM_SPEC[arm]
+    mode, cot, grammar, twocall = ARM_SPEC[arm]
     if mode == "concrete":
-        gj = CONCRETE_SCHEMA if grammar else None
-        txt = chat(base, model, prompt_concrete(case, cot), guided_json=gj, max_tokens=1024 if cot else 512)
-        obj = extract_json(txt, "new_item_ids")
+        if twocall:
+            obj, _ = _twocall(base, model, prompt_concrete(case, cot=True), CONCRETE_SCHEMA, "new_item_ids")
+        else:
+            gj = CONCRETE_SCHEMA if grammar else None
+            txt = chat(base, model, prompt_concrete(case, cot), guided_json=gj, max_tokens=1024 if cot else 512)
+            obj = extract_json(txt, "new_item_ids")
         if not obj:
             out.update(parse_fail=True, pred=None, item_correct=[False]*n); return out
         pred = (list(obj["new_item_ids"]) + [None]*n)[:n]
         out.update(parse_fail=False, pred=pred,
                    item_correct=[pred[i] == golds[i] for i in range(n)])
         return out
-    # formal (B / C / Bcot)
-    gj = SELECTOR_SCHEMA if grammar else None
-    txt = chat(base, model, prompt_formal(case, cot), guided_json=gj, max_tokens=1024 if cot else 512)
-    obj = extract_json(txt, "selectors")
+    # formal (B / C / Bcot / Btwo)
+    if twocall:
+        obj, _ = _twocall(base, model, prompt_formal(case, cot=True), SELECTOR_SCHEMA, "selectors")
+    else:
+        gj = SELECTOR_SCHEMA if grammar else None
+        txt = chat(base, model, prompt_formal(case, cot), guided_json=gj, max_tokens=1024 if cot else 512)
+        obj = extract_json(txt, "selectors")
     if not obj:
         out.update(parse_fail=True, pred=None, item_correct=[False]*n, fail_kind=["parse"]*n); return out
     sels = (obj["selectors"] + [{}]*n)[:n]
@@ -201,7 +224,7 @@ if __name__ == "__main__":
     ap.add_argument("--cases", default="/home/woori/scratch/ma_eval_cases.jsonl")
     ap.add_argument("--base", default="http://localhost:8013/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-7B-Instruct")
-    ap.add_argument("--arms", default="A,Acot,B,Bcot,C")
+    ap.add_argument("--arms", default="A,Acot,Atwo,B,Bcot,Btwo,C")
     ap.add_argument("--out", default="/home/woori/scratch/ma_eval_results.jsonl")
     args = ap.parse_args()
     cases = [json.loads(l) for l in open(args.cases, encoding="utf-8")]

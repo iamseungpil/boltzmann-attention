@@ -13,7 +13,7 @@ LOG=$S/ma_eval_scale.log
 exec > $LOG 2>&1; set -x; date
 
 MODELS="${1:-Qwen/Qwen2.5-7B-Instruct Qwen/Qwen2.5-14B-Instruct}"
-ARMS="${2:-A,Acot,B,Bcot,C}"
+ARMS="${2:-A,Acot,Atwo,B,Bcot,Btwo,C}"
 cd $REPO && git pull --ff-only
 $PY $MA/ma_gold_extract.py --out $S/ma_eval_cases.jsonl
 
