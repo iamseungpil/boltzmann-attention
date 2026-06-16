@@ -3,13 +3,13 @@
 # (A/Acot/B/Bcot/C). Rules out the forced-JSON reasoning-suppression confound (CoT arms)
 # and gives the first scale-gradient point (7B vs 14B). GPU0 only; never touch GPU1.
 set -u
-GPU=0; PORT=8013
+GPU="${4:-0}"; PORT="${5:-8013}"   # 4th/5th args: run on a chosen GPU/port (concurrency)
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
 MA=$REPO/scripts/distill/ma
 PY=/home/woori/venvs/seka_env/bin/python
 VLLM=/home/woori/venvs/tau2_vllm_env/bin/vllm
 S=/home/woori/scratch
-LOG=$S/ma_eval_scale.log
+LOG=$S/ma_eval_scale_p${PORT}.log
 exec > $LOG 2>&1; set -x; date
 
 MODELS="${1:-Qwen/Qwen2.5-7B-Instruct Qwen/Qwen2.5-14B-Instruct}"
