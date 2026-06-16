@@ -38,9 +38,13 @@ def _resolve(prior_outputs, ref):
     return None
 
 
-def build_example(rec):
-    """Return (triple|None, n_args, n_ref, n_roundtrip_ok). triple has messages with the
-    assistant targets' threaded args replaced by $ref."""
+def build_example(rec, target="typed"):
+    """Return (triple|None, n_args, n_ref, n_roundtrip_ok).
+    target='typed'    -> threaded args replaced by {"$ref": ...} (the M-sigma learn target).
+    target='concrete' -> args left as original concrete values (the v4-v7 NEGATIVE CONTROL).
+    BOTH share the IDENTICAL threading detection / round-trip gate, so generating the matched
+    pair = run twice with the same --src/filter, only the emitted target format differs
+    (M_SIGMA_V4_UNION_CORPUS_DESIGN.md §2: clean negative control = same data, only target-level)."""
     msgs = rec.get("messages", [])
     prior_outputs = []  # parsed tool outputs in order
     out_msgs = []
@@ -68,9 +72,10 @@ def build_example(rec):
                         n_ref += 1
                         if _resolve(prior_outputs, ref) == v:
                             n_rt += 1
-                        new_args[k] = {"$ref": ref}
+                        # typed -> emit the $ref relation; concrete -> keep the literal value (neg control)
+                        new_args[k] = {"$ref": ref} if target == "typed" else v
                     else:
-                        new_args[k] = v  # literal / from-NL
+                        new_args[k] = v  # literal / from-NL (identical in both targets)
                 nf = dict(fn); nf["arguments"] = json.dumps(new_args, ensure_ascii=False)
                 new_tcs.append({**tc, "function": nf})
             out_msgs.append({**m, "tool_calls": new_tcs})
@@ -80,7 +85,7 @@ def build_example(rec):
                 try: prior_outputs.append(json.loads(m.get("content", "{}")))
                 except Exception: prior_outputs.append({})
     triple = {"tools": rec.get("tools"), "messages": out_msgs, "supervise": "assistant",
-              "_meta": {**(rec.get("_meta") or {}), "msigma": True}}
+              "_meta": {**(rec.get("_meta") or {}), "msigma": True, "target": target}}
     return triple, n_args, n_ref, n_rt
 
 
@@ -100,6 +105,9 @@ if __name__ == "__main__":
     ap.add_argument("--src", default="/home/woori/scratch/fc_build/cfb.jsonl")
     ap.add_argument("--out", default="/home/woori/scratch/fc_build/msigma_train.jsonl")
     ap.add_argument("--iso", type=int, default=1, help="isotropization copies per example (0=off)")
+    ap.add_argument("--target", choices=["typed", "concrete"], default="typed",
+                    help="typed=$ref relation (M-sigma) | concrete=literal values (v4-v7 neg control). "
+                         "Run twice (same --src) for the matched pair (experiment 0).")
     ap.add_argument("--validate_only", action="store_true")
     args = ap.parse_args()
     rng = random.Random(0)
@@ -109,7 +117,7 @@ if __name__ == "__main__":
             try: rec = json.loads(l)
             except Exception: continue
             n_rec += 1
-            triple, na, nr, nrt = build_example(rec)
+            triple, na, nr, nrt = build_example(rec, target=args.target)
             tot_args += na; tot_ref += nr; tot_rt += nrt
             if nr == 0:  # no binding in this example -> skip (we want binding-rich)
                 continue
@@ -121,4 +129,4 @@ if __name__ == "__main__":
                     w.write(json.dumps(isotropize(triple, rng), ensure_ascii=False) + "\n"); n_emit += 1
     print(f"records={n_rec}  args={tot_args}  threaded-refs={tot_ref} ({tot_ref/max(tot_args,1):.2f})  "
           f"round-trip-ok={tot_rt}/{tot_ref} ({tot_rt/max(tot_ref,1):.2f})")
-    print(f"emitted (binding-rich, clean round-trip) = {n_emit} lines -> {args.out}")
+    print(f"emitted (binding-rich, clean round-trip, target={args.target}) = {n_emit} lines -> {args.out}")
