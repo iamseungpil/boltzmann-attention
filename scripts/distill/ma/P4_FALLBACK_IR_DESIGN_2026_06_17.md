@@ -5,7 +5,7 @@
 ## 0. 한 줄
 **조건분기("1차 없으면 2차")는 결정론 영역인데 LLM 출력에 잘못 맡겨져 있었다. 트리거("available 없으면")는 resolver의 본업이므로 resolver가 소유하고, LLM은 *순서 있는 연산 리스트*(set/relax)만 emit한다. 그러면 분기 표현이 평평한 리스트가 되어 구조적 실패(F1-F4)가 무력화된다. grounded-but-wrong(GBW)은 구조로 안 고쳐지나 *결정론 diff-grounding 검증기*(§5b)로 *포착·회복*된다 — LLM-judge 아님. 학습 처방 전, CoT probe로 capability vs artifact를 가르고(§4), GBW는 크기×elicitation 2D sweep으로 조건#4(잔여추론⊆소형)를 시험한다(§4b).**
 
-**★전략 묶음**: GBW catch(§5b 결정론 검증기+retry)는 GBW 크기-sweep(§4b)의 *탈출구*다 — 잡히는 GBW는 소형 모델로도 닫혀 주권 thesis 보존. §5b가 못 잡는 잔여(primary↔fallback 혼동) ∩ §4b의 scale-저항 = P4가 thesis를 위협하는 진짜 교집합. 둘이 함께 P4의 주권 양립성을 판정한다.
+**★전략 묶음**: GBW catch(§5b 결정론 검증기+retry)는 GBW 크기-sweep(§4b)의 *탈출구*다 — 잡히는 GBW는 소형 모델로도 닫혀 주권 thesis 보존. **단 탈출구는 retry-수렴(P7)에 기대고 그것도 scale-bound일 수 있다(재귀·리뷰 보강C)** → §4b가 retry-수렴률을 크기별 *측정*해 "탈출구"를 가정→검증으로. §5b가 못 잡는 잔여(primary↔fallback) ∩ §4b scale-저항 ∩ retry-비수렴 = P4가 thesis 위협하는 진짜 교집합.
 
 ## 1. 진단 결박 (autopsy 권위본 = `M_A_RESULTS §12`/exp0)
 - 실패 분류(M0·n=29·*구 계측*): **STRUCTURAL `fail_no_available`=8**(criteria target 미가용) + **GBW ~9 (추론치**·구 계측이 `ok`=21에 뭉뚱·case-correct 12와의 산술차로 추정) + LEXICAL≈0.
@@ -68,18 +68,21 @@ GBW가 *크기(capability)* 문제인지 *형식(artifact)* 문제인지를 [[fe
 | 14B | ○ | ○ |
 | 32B (coworker) | ○ | ○ |
 | 72B (coworker) | ○ | ○ |
-- **지표 = GBW율 격리**(`ok_wrong_variant`·계측 `1ffd176`). + new_item_ids 정확도 + structural-fail율 동반(scale이 *어디서* 돕나 분해).
+- **★n 확장이 선결(리뷰 보강B)**: GBW 4/29(±2~3)·interaction ±1~2는 scale 추세 분해 불가. τ² exchange는 29 상한일 공산 → **§4b는 *synth 평가셋*(n≥100·controllable fallback 난이도)으로 능력 측정**, τ²-29는 transfer 헤드라인 유지. synth→synth 약점은 *capability 측정*엔 무해(전이 주장 아님).
+- **지표 = (i) GBW율 격리**(`ok_wrong_variant`·계측 `1ffd176`) **(ii) new_item_ids 정확도 (iii) structural-fail율** (scale이 어디서 돕나 분해) **(iv) ★retry-수렴률(리뷰 보강C)**: §5b reject 후 재시도가 통과하나 — *크기별*. 탈출구(아래)가 "가정"이 아니라 *검증*이 되게. retry cap = §6-4 spraying 규율 공유.
 - **싼 셀 먼저**(7B/14B × both), **그 다음 coworker 32/72B**.
-- **판정 = 조건#4**([[project-decomposition-optimality-contribution]]): GBW가 소형으로 닫히면 LLM-leg가 sLLM 충분=주권 성립·큰 모델 요구면 sovereignty-leg 위협. **§5b catch와 교차**(아래 전략 묶음).
+- **판정 = 조건#4**([[project-decomposition-optimality-contribution]]): GBW가 소형으로 닫히면 LLM-leg가 sLLM 충분=주권 성립·큰 모델 요구면 sovereignty-leg 위협. **§5b catch + retry-수렴과 교차**(전략 묶음).
 
 ## 5. GBW + capability 결핍 레버 (구조와 별도)
 - **CoT 추출(④)**: emit 전 "(a)요청 변경 (b)*이건 품절목표 묘사지 새 변경 아님* (c)fallback 델타" 명시 → F1·GBW.
 - **대조 synth(③)**: 미니멀 페어 — 같은 NL, (a)실패조건이 1차목표 restate(criteria 아님) vs (b)진짜 다속성 변경. + GBW 하드네거티브(유혹적 오답 속성변경을 정답으로 교정).
-- **tie-break 명문(§3.2)**: relax 후 다수 available → old-근접 결정론 규칙.
+- (relax/tie-break는 §3.1대로 보류 — set-only 출하·데이터 요구 시만.)
 
 ## 5b. ★GBW catch = 결정론 diff-grounding 검증기 (LLM-judge 아님)
-resolver 단독은 GBW를 못 잡는다(criteria 구조적 유효). **출력에 둘째 결정론 검증기**를 건다([[feedback-selector-verifier-deterministic]] 준수):
-- **★diff-grounding(주):** resolve 후 `old_options → 선택 variant` **diff 계산** → **바뀐 모든 속성의 새 값이 NL에 grounding되는지** 검사·아니면 **reject**. 예: backlight→white인데 "white"가 NL에 없음 → GBW 포착. clicky·none(fallback)은 NL에 있음 → 통과. 실패조건의 RGB·full은 안 바뀐 old값이라 diff에 안 뜸. 값→속성 grounding = 카탈로그 value-space + synonym(ABox 제공)·**LLM 판단 0**.
+resolver 단독은 GBW를 못 잡는다(criteria 구조적 유효). **출력에 둘째 결정론 검증기**를 건다([[feedback-selector-verifier-deterministic]] 준수). **양방향 검사**(리뷰 보강A):
+- **(a) commission(주):** `old → 선택 variant` diff의 **바뀐 모든 속성 새 값이 NL grounding**되나·아니면 reject. 예: backlight→white인데 "white"가 NL에 없음 → GBW 포착.
+- **(b) omission(약·보강A):** NL에 attest된 *카탈로그-값 토큰*이 old∨chosen에 다 출현하나 — 빠진 required-change 부분 포착. 단 *완전 결정론 불가*(어느 NL언급이 required냐 = 모델이 실패하는 그 comprehension) → weak 근사·false-reject 위험(multi-primary+revert 케이스).
+- **★synonym-precision 한계(실측 박제)**: gold fallback `none`이 NL엔 "**no backlight**" → substring 미스 → **synonym map(ABox) 없으면 정답을 false-reject**. negation 값(none/no/without)이 대표 함정. ⇒ **검증기 정밀도 = synonym map 품질에 의존**·runner의 false-reject 타일리가 실측(catch율과 *함께* 봐야 함). 값→속성 grounding = 카탈로그 value-space + synonym(ABox)·**LLM 판단 0**.
 - **emit-gate(보조):** `set(attr,val)`을 *val이 NL attest된* 경우만 허용(사전 차단·D5/getter_map 동형).
 - **back-translation(보조):** 선택 criteria를 템플릿 문장 렌더 → NL overlap 검사.
 - **retry 회복:** 검증기 reject → 모델 재시도(다른 속성)·결정론 통과까지 = GBW를 *silent 오답→포착·회복 오류*로 전환(P4+P7 통합 지점·§6-5).
@@ -102,10 +105,11 @@ resolver 단독은 GBW를 못 잡는다(criteria 구조적 유효). **출력에 
 1. **diff-grounding 검증기 선구현**(§5b) — 지금 base에 얹어 "잡히는 GBW 비율" 측정 = thesis 탈출구 크기 정량화·§4b 해석틀.
 2. **CoT probe**(§4·GPU≈0·base는 기존 vLLM에 얹기) — **2-stage(free CoT→추출)** + **카탈로그-withhold 셀 병행** → capability vs artifact + 재구성 inference 검증(regime 스코프).
 3. resolver에 **순서-연산 `set`-only 지원**(폴드·구 스키마 호환). relax/tie-break는 벤치 딥리서치가 free-attribute fallback 확인 후에만.
-4. **GBW 2D 크기 sweep**(§4b·7B/14B 먼저·coworker 32/72B) — 조건#4 시험.
-5. dump+probe="artifact" → 재구성+CoT+검증기 종결. "capability 결핍" → synth gold 순서-연산 IR 재추출 + 대조 synth(§5).
-6. 단발 천장 시 → 멀티턴 회복(P4+P7 통합·§6-5).
-- 결과 박제 `M_A_RESULTS §13`.
+4. **n 확장(선결·보강B)**: synth 평가셋 n≥100(controllable fallback) — §4b sweep이 GBW 추세 분해 가능하게(τ²-29는 transfer 헤드라인 유지).
+5. **GBW 2D 크기 sweep**(§4b·7B/14B 먼저·coworker 32/72B) — GBW율 + new_item + retry-수렴률(보강C) — 조건#4 시험.
+6. dump+probe="artifact" → 재구성+CoT+검증기 종결. "capability 결핍" → synth gold 순서-연산 IR 재추출 + 대조 synth(§5).
+7. 단발 천장 시 → 멀티턴 회복(P4+P7 통합·§6-5).
+- 결과 박제 `M_A_RESULTS §13` — **factorial은 3-seed band로**(C-in 0.52 추월=n=29 1~2케이스·점추정 금지).
 
 ## 9. 한 줄
-**fallback의 조건분기를 LLM에서 resolver로 옮긴다(또 하나의 결정론-offload). LLM=순서-연산(set/relax) 리스트만 emit·resolver=트리거+누적+tie-break. 누적-override가 F1(no-op흡수)·F2(keep-rest)·F3/F4(평평한 리스트)를 구조적으로 무력화. GBW는 결정론 diff-grounding 검증기+retry로 *포착·회복*(§5b·LLM-judge 아님)·잔여=primary↔fallback. dump로 실패분포 측정 → CoT probe로 capability vs artifact → GBW 2D 크기 sweep으로 조건#4 시험. ★검증기 catch(§5b)가 크기 sweep(§4b)의 탈출구 — 잡히는 GBW는 소형으로 닫혀 주권 보존·둘이 함께 P4의 thesis 양립성 판정.**
+**fallback의 조건분기를 LLM에서 resolver로 옮긴다(또 하나의 결정론-offload). LLM=순서-연산(set-only) 리스트만 emit·resolver=트리거+누적(relax/tie-break는 데이터 요구 시만). 누적-override가 F1(no-op흡수)·F2(keep-rest)·F3/F4(평평한 리스트)를 구조적으로 단순화(추론 제거 아님·probe가 이득 측정). GBW는 결정론 diff-grounding 검증기(commission+omission)+retry로 *포착·회복*(§5b·LLM-judge 아님·정밀도는 synonym/ABox 의존)·잔여=primary↔fallback. dump로 실패분포 측정 → CoT probe로 capability vs artifact → n≥100 synth로 GBW 2D 크기 sweep(GBW율+retry-수렴)으로 조건#4 시험. ★검증기 catch+retry-수렴(§5b/§4b)이 크기 sweep의 탈출구 — 단 retry도 scale-bound일 수 있어 *측정*으로 검증.**

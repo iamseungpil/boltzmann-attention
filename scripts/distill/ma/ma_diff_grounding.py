@@ -43,12 +43,26 @@ def value_grounded(val, nl, synonyms=None):
     return False
 
 
-def verify(old_options, chosen_options, nl, synonyms=None):
-    """(accept, ungrounded_changes). accept=True -> all changed attrs NL-grounded (pass).
-    accept=False -> a changed attr's value not attested -> GBW caught -> REJECT."""
+def verify(old_options, chosen_options, nl, synonyms=None, value_space=None):
+    """(accept, diag). Two-sided (review boost A):
+      (a) commission: every CHANGED attr's new value must be NL-grounded (catches backlight->white).
+      (b) omission (weak): every NL-attested catalog VALUE token must appear in old OR chosen
+          (catches a dropped required change). Weak: a fallback/failure-condition value not equal
+          to old nor gold can FALSE-REJECT -> the runner's FP tally is the empirical guard.
+    accept=False (reject) if either fires -> GBW caught."""
     ch = changed_attrs(old_options, chosen_options)
-    ungrounded = [(k, v) for k, v in ch.items() if not value_grounded(v, nl, synonyms)]
-    return (len(ungrounded) == 0, ungrounded)
+    commission = [(k, v) for k, v in ch.items() if not value_grounded(v, nl, synonyms)]
+    omission = []
+    if value_space:
+        nln = _norm(nl)
+        present = {_norm(v) for v in old_options.values()} | {_norm(v) for v in chosen_options.values()}
+        for k, vals in value_space.items():
+            for v in vals:
+                nv = _norm(v)
+                if nv and nv in nln and nv not in present:
+                    omission.append((k, v))     # NL-mentioned catalog value in neither -> dropped change
+    accept = (not commission) and (not omission)
+    return accept, {"commission": commission, "omission": omission}
 
 
 # ----------------------------- offline runner -----------------------------
@@ -81,14 +95,19 @@ def run(dump_path, cases_path, synonyms=None):
             if chosen is None:
                 stat["no_variant"] += 1
                 continue
-            old = case["exchanges"][i]["old_options"]
-            accept, ung = verify(old, chosen, nl, synonyms)
+            ex = case["exchanges"][i]
+            old = ex["old_options"]
+            vspace = {}
+            for v in ex["variant_catalog"]:
+                for k, val in v["options"].items():
+                    vspace.setdefault(k, set()).add(val)
+            accept, diag = verify(old, chosen, nl, synonyms, value_space=vspace)
             kind = det.get("kind", "")
             if kind == "ok_wrong_variant":                 # this is GBW (ground truth)
                 if not accept:
                     stat["gbw_caught"] += 1
                     if len(examples["caught"]) < 5:
-                        examples["caught"].append({"task": d.get("task_id"), "ungrounded": ung})
+                        examples["caught"].append({"task": d.get("task_id"), "diag": diag})
                 else:
                     stat["gbw_missed"] += 1
                     if len(examples["missed"]) < 5:
@@ -99,7 +118,7 @@ def run(dump_path, cases_path, synonyms=None):
                 else:
                     stat["correct_falsereject"] += 1
                     if len(examples["falsereject"]) < 5:
-                        examples["falsereject"].append({"task": d.get("task_id"), "ungrounded": ung})
+                        examples["falsereject"].append({"task": d.get("task_id"), "diag": diag})
             else:
                 stat["other"] += 1
     gbw_total = stat["gbw_caught"] + stat["gbw_missed"]
