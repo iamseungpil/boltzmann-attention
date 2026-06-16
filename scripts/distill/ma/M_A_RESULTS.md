@@ -129,3 +129,17 @@ M-σ = cfb-derivation SFT(copy-threaded args→typed `$ref`·등방화·val_loss
 - **base 0% → M-σ 96%**: M-σ가 typed-derivation을 학습(어느 prior-output 필드 참조인지 정확). **v4-v7이 못한 *derivation-레벨* 학습이 가능함을 실증**(concrete-emit 아님).
 - **★한계(과독 금지)**: (a) **in-dist(cfb train-set)·일반화 아님**(held-out cfb 미분리) (b) 학습 타입=**copy-threading**(cfb 유일)·**τ² selection-by-criteria 아님**(orphan) → threading-96%가 τ²-selection 전이 의미 안 함.
 - **다음=M-D 전이**(held-out τ²·$ref-resolver·C8). selection-binding 데이터 v2 필요(딥리서치 `w3l415qh5`).
+
+## 11. ★M-D 전이 결과 (C8 1차·2026-06-16) — 음성 (진단적)
+M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·per-arg-type):
+| arg | base | M-σ |
+|---|---|---|
+| used_$ref | 0/29 | 25/29 |
+| order_id | 1.00 | 0.90 |
+| item_ids | 0.93 | 0.79 |
+| new_item_ids | 0.41 | 0.34 |
+| payment_method_id | 1.00 | **0.07** |
+| **all** | **0.41** | **0.03** |
+- **형식 전이 ✓**($ref 25/29 emit·새 도메인) **but 내용 음성**: base가 맞히는 arg를 over-$ref로 망침(all 0.41→0.03).
+- **원인 3**: (a) **over-$ref/provenance 미구분**(order_id=NL 리터럴인데 $ref 시도) — cfb는 threadable만 있어 "리터럴 vs derived" 못 가르침 (b) **payment 0.07 = harness 아티팩트**(gold pm_id를 dict 키로 둠→값-walk로 $ref불가·M-σ 불공정) (c) **new_item_ids 0.34 = selection orphan**(threading≠selection).
+- **C8 1차 = 음성**(v4-v7 cfb-전이 패턴 정합). ⇒ **데이터 v2 3요건**: ①selection-by-criteria(DR `w3l415qh5`) ②**provenance 학습**(리터럴/키 vs $ref·리터럴-arg 섞기) ③harness 수정(payment=값·n 확장).
