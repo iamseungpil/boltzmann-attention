@@ -32,8 +32,12 @@ $PY $MA/m_sigma_data.py --src $CFB --out $RUN/cfb_concrete.jsonl --iso 1 --targe
 wc -l $RUN/cfb_typed.jsonl $RUN/cfb_concrete.jsonl   # MUST be equal (matched)
 
 # ---- 2. SFT two arms, IDENTICAL hyperparams (confound control: only train data differs) ----
+# cfb full-catalog convs are long (median ~7.6k tok, max ~65k) -> cap 6144 + skip-overlong
+# (drops pathological full-catalog examples; threading binding survives in shorter ones) +
+# expandable_segments to avoid fragmentation OOM. Both arms share this -> matched preserved.
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 HP="--base-model Qwen/Qwen2.5-7B-Instruct --epochs 2 --lr 1e-4 --lora-r 32 --lora-alpha 64 \
-    --max-seq-len 14336 --seed 42 --device cuda:0"
+    --max-seq-len 6144 --skip-overlong --seed 42 --device cuda:0"
 for arm in typed concrete; do
   for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 3
   CUDA_VISIBLE_DEVICES=$GPU $PY $TR $HP --train-jsonl $RUN/cfb_${arm}.jsonl --out-dir $S/sft_runs/exp0_${arm} \

@@ -33,8 +33,11 @@ $PY $MA/synth_selection.py --out $RUN/synth_${ARM}.jsonl --n 2000 --seed 0 --iso
 wc -l $RUN/synth_${ARM}.jsonl
 
 # ---- 2. SFT (PINNED recipe, identical to every arm + exp0) ----
+# synth convs are short (~1-2k tok); cap/skip are inert here but kept IDENTICAL to exp0 for
+# cross-experiment comparability + OOM safety.
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 HP="--base-model Qwen/Qwen2.5-7B-Instruct --epochs 2 --lr 1e-4 --lora-r 32 --lora-alpha 64 \
-    --max-seq-len 14336 --seed 42 --device cuda:0"
+    --max-seq-len 6144 --skip-overlong --seed 42 --device cuda:0"
 for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 3
 CUDA_VISIBLE_DEVICES=$GPU $PY $TR $HP --train-jsonl $RUN/synth_${ARM}.jsonl --out-dir $S/sft_runs/fact_${ARM} \
   || { echo "TRAIN_FAIL"; exit 1; }
