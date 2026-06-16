@@ -18,6 +18,12 @@ Scores any served model the same way; the {concrete-target vs typed-target} cont
 is two TRAINED models evaluated by this one harness. Honest: this proves NEGATIVE+SIZING only
 (does target-level bind the re-extractable part, and how big is the synth-exclusive residual);
 "synth FIXES it" is the factorial's job (v4 §7).
+
+v4-autopsy fixes (2026-06-17):
+  (6) ok vs CORRECT split: resolve_select kind=ok only means "unique available match to the MODEL's
+      criteria", NOT "matches gold". ok_wrong_variant = grounded-but-wrong (criteria cleanly resolve
+      to a real-but-wrong variant; the deterministic resolver CANNOT catch it). Was hidden under 'ok'.
+  (7) --dump writes per-case detail (gold, emitted args, resolved, per-arg ok, select kind+correct).
 """
 import json, argparse, copy
 
@@ -189,12 +195,15 @@ def chat(base, model, messages):
     return r.json()["choices"][0]["message"]
 
 
-def score(base, model, cases, tag):
+def score(base, model, cases, tag, dump_path=""):
     agg = {k: [0, 0] for k in ("order_id", "item_ids", "new_item_ids", "payment_method_id")}
     bucket = {"passive_ref": [0, 0], "select": [0, 0], "all": [0, 0]}
     emit = {"ref": 0, "select": 0, "literal": 0}
     over_ref = 0            # NL-literal arg emitted as $ref
-    sel_fail = {"fail_unresolved_criteria": 0, "fail_no_available": 0, "fail_tie": 0, "ok": 0, "ok_fallback": 0}
+    # ok split (fix 6): ok=correct gold match; ok_wrong_variant=grounded-but-wrong (resolver can't catch)
+    sel_fail = {"ok_correct": 0, "ok_fallback_correct": 0, "ok_wrong_variant": 0,
+                "fail_unresolved_criteria": 0, "fail_no_available": 0, "fail_tie": 0}
+    dump = []
     for case, obs in cases:
         gold = {"order_id": case["order_id"], "item_ids": [e["old_item_id"] for e in case["exchanges"]],
                 "new_item_ids": [e["gold_new_item_id"] for e in case["exchanges"]],
@@ -205,6 +214,7 @@ def score(base, model, cases, tag):
             try: args = json.loads(msg["tool_calls"][0]["function"]["arguments"])
             except Exception: args = {}
         nl = _norm(case["nl"])
+        sel_detail = []
         # provenance + over-$ref + select autopsy
         for k, v in args.items():
             kind = classify(v)
@@ -217,24 +227,51 @@ def score(base, model, cases, tag):
                 for i, x in enumerate(v if isinstance(v, list) else [v]):
                     if isinstance(x, dict) and "$select" in x and i < len(case["exchanges"]):
                         e = case["exchanges"][i]
-                        _, kd = resolve_select(x["$select"], e["old_options"], e["variant_catalog"])
+                        rid, kd = resolve_select(x["$select"], e["old_options"], e["variant_catalog"])
+                        # fix (6): a resolver "ok" is only CORRECT if it lands on the gold variant.
+                        if kd in ("ok", "ok_fallback"):
+                            correct = (rid == e["gold_new_item_id"])
+                            if correct:
+                                kd = "ok_correct" if kd == "ok" else "ok_fallback_correct"
+                            else:
+                                kd = "ok_wrong_variant"   # grounded-but-wrong
+                            sel_detail.append({"i": i, "spec": x["$select"], "resolved": rid,
+                                               "gold": e["gold_new_item_id"], "kind": kd, "correct": correct})
+                        else:
+                            sel_detail.append({"i": i, "spec": x["$select"], "resolved": rid,
+                                               "gold": e["gold_new_item_id"], "kind": kd, "correct": False})
                         sel_fail[kd] = sel_fail.get(kd, 0) + 1
         # resolve + per-arg score
         resolved = {k: resolve_arg(k, v, case, obs) for k, v in args.items()}
         allok = True
+        per_arg_ok = {}
         for k in agg:
             ok = resolved.get(k) == gold[k]
+            per_arg_ok[k] = ok
             agg[k][1] += 1; agg[k][0] += int(ok); allok = allok and ok
             b = "passive_ref" if k in PASSIVE else "select"
             bucket[b][1] += 1; bucket[b][0] += int(ok)
         bucket["all"][1] += 1; bucket["all"][0] += int(allok)
+        if dump_path:
+            dump.append({"task_id": case.get("task_id"), "all_ok": allok,
+                         "per_arg_ok": per_arg_ok, "gold": gold,
+                         "emit": {k: classify(v) for k, v in args.items()},
+                         "args": args, "resolved": resolved, "select_detail": sel_detail})
     n = len(cases)
     f = lambda a: f"{a[0]}/{a[1]}({a[0]/max(a[1],1):.2f})"
     print(f"=== V4 SPLIT [{tag}] n={n} ===")
     print("  per-arg : " + "  ".join(f"{k}={f(a)}" for k, a in agg.items()))
     print(f"  BUCKETS : passive_ref={f(bucket['passive_ref'])}  $select={f(bucket['select'])}  all={f(bucket['all'])}")
     print(f"  emit    : ref={emit['ref']} select={emit['select']} literal={emit['literal']}  over_$ref={over_ref}")
+    okc = sel_fail['ok_correct'] + sel_fail['ok_fallback_correct']
     print(f"  select_autopsy: {sel_fail}")
+    print(f"  ->  CORRECT(gold)={okc}  WRONG_VARIANT(grounded-but-wrong)={sel_fail['ok_wrong_variant']}  "
+          f"STRUCT_fail={sel_fail['fail_no_available'] + sel_fail['fail_tie']}  LEXICAL_fail={sel_fail['fail_unresolved_criteria']}")
+    if dump_path:
+        with open(dump_path, "w", encoding="utf-8") as w:
+            for d in dump:
+                w.write(json.dumps(d, ensure_ascii=False) + "\n")
+        print("wrote per-case dump", dump_path, f"({len(dump)} cases)")
     return {"tag": tag, "n": n, "per_arg": agg, "buckets": bucket, "emit": emit,
             "over_ref": over_ref, "select_autopsy": sel_fail}
 
@@ -247,11 +284,12 @@ if __name__ == "__main__":
     ap.add_argument("--tag", default="model")
     ap.add_argument("--withhold", default="", help="comma tool names to drop (proactive-gather probe)")
     ap.add_argument("--out", default="")
+    ap.add_argument("--dump", default="", help="jsonl path for per-case detail (gold/emit/resolved/select kind)")
     args = ap.parse_args()
     wh = set(t.strip() for t in args.withhold.split(",") if t.strip())
     cases = [(c, build_obs(c, withhold=wh)) for c in (json.loads(l) for l in open(args.cases, encoding="utf-8"))]
     print(f"loaded {len(cases)} tau2 exchange cases" + (f" (withhold={sorted(wh)})" if wh else ""))
-    res = score(args.base, args.model, cases, args.tag)
+    res = score(args.base, args.model, cases, args.tag, dump_path=args.dump)
     if args.out:
         with open(args.out, "w", encoding="utf-8") as w:
             json.dump(res, w, ensure_ascii=False, indent=2)
