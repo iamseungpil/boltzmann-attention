@@ -30,6 +30,7 @@
 > - **★왜 *작은* 모델로 충분한가**: 추상화 = **표면군 저차원 불변량**(Olver n−s·§5.13·`olver_dimension_experiment.py`로 측정중). **scale이 사는 것 = 암기 + 정확-실행 근사, *추상화가 아님*(저차원)** → 작은 모델도 저차원 추상화엔 용량 충분. "작은 모델이 추상화서 빅모델에 안 진다"는 추상화가 scale을 *불요*하기 때문.
 > - **★"빅모델 초과"의 정확한 scope (over-claim 금지)**: raw capability 아니라 **(i) 효율(비용·지연) (ii) 주권(on-prem·open-weight) (iii) 검증가능 신뢰성(결정론 게이트=compliance 환각 0)**. 빅모델도 도구 쓰므로 비교 = "동급 capability를 저비용·주권·신뢰로".
 > - **★증명 상태 (정직 분리)**: 수학 = **필요조건**(basis 유한·추상 저차원·offload가능 = §5 *증명됨*). **충분조건**(작은 모델이 추상화를 *학습·전이*) = **열린 경험 질문·현 음성**(τ² 0.05–0.10<base 0.17). ⇒ 무조건화 잔벽 = "grounding-skill 표면-불변 학습-coverage" *하나*(§5.12). v9/P6/P7/프로토타입 = 이 충분조건 증명 시도.
+> - **★★★ thesis 수렴본 (2026-06-16·5 딥리서치+floor) = [`THESIS_STATEMENT_2026_06_16.md`](THESIS_STATEMENT_2026_06_16.md)**: 위 §0 심화를 결정화 — capability 날개(**분해+결정론 per-step 검증**·자유 CoT/self-correct 아님) + 비용·전이 날개(**MSC**[입력 minimal formalize·비용-Pareto]+**ABox/retrieval**[도메인지식 제공]+도메인-일반 학습). 신규성=미점유 교차점(결정론검증·typed증분·tool-use·ABox-swap)+**floor 측정**(info/reasoning/knowledge-limited 분리). 라우팅·최적성=[`DECOMPOSITION_OPTIMALITY.md`](DECOMPOSITION_OPTIMALITY.md)·MSC=[`MIN_CONTEXT_FORMALIZER_DESIGN.md`](MIN_CONTEXT_FORMALIZER_DESIGN.md)·실측=[`ma/M_A_RESULTS.md`](ma/M_A_RESULTS.md §8)·선행연구=`deepresearch/`(5건).
 
 **자연어 멀티턴 요청을, 도메인별 구조화 온톨로지(ABox)로 재해석해 내부적으로 절차(=plan X에선 native function-calling 시퀀스)를 추론·실행하는 agentic planner를, 작은 모델 weight(TBox)에 학습시키고, 본 적 없는 도메인은 ABox 교체만으로 재학습 0 전이한다.**
 - **TBox(weight, 학습·전이)** = "NL 요청 + ABox 어휘 → dirgraph(절차) 도출 + 실행" 스킬. **★TBox는 NL 정책도 dirgraph도 *아니다* — 둘 사이의 *컴파일 스킬*(도메인-일반)**. NL 정책 = ABox(도메인-특수 *입력*, swap) / dirgraph = **모델 *출력***(컨닝 아님, 도메인-특수). 정책을 weight에 구우면=FM weight-baking(전이 불가); 정책은 ABox에 두고 *컴파일 스킬*만 weight = 새 도메인은 정책 교체로 전이. L0(결정론)는 NL→dirgraph 불가(난이도 주장, §1에서 정량 검증) → 이 매핑이 비자명·대체불가 기여.
@@ -320,6 +321,13 @@
 | 문서 | 역할 | 상태 |
 |---|---|---|
 | **이 문서** `EXPERIMENT_DESIGN.md` | **목표·순서·지표 권위본** | ★마스터 |
+| **★2026-06-16 라인 (분담·MSC·floor·강한형) ↓↓↓** | | |
+| **`THESIS_STATEMENT_2026_06_16.md`** | **★★crystallized thesis (5 딥리서치+floor 수렴)**: 작은 on-prem LLM이 큰모델 tool-use 도달 = 기능분담(결정론 scaffold+typed증분+per-step 결정론검증 / MSC+ABox+도메인일반학습). 두 날개·신규성=미점유 교차점·floor 측정 | ★★권위 (06-16 thesis 수렴본) |
+| **`DECOMPOSITION_OPTIMALITY.md`** | **★기여 진술**: 분담 라우팅 기준(정확명세→결정론/도메인불변추론→LLM학습/도메인사실→retrieval) + 협업이 monolith를 비용·성능 **Pareto-지배**(LLM에 못하는 일 안 시킴)·조건#1-5 | ★활성 (06-16) |
+| **`MIN_CONTEXT_FORMALIZER_DESIGN.md`** | **MSC (입력측 offload)**: DAG 결정노드별 typed-dependency closure로 최소-충분 context formalize. Bfair-게이트 가설·reasoning floor·info-limited 한정 scope | ★활성 (06-16·floor서 검증) |
+| **`M_A_PROTOTYPE_DESIGN.md` · `ma/M_A_RESULTS.md`** | **M-A 프로토타입+결과 권위본**: selector+resolver vs concrete·write-벽 root cause=NL→formalize reasoning·§8 **FLOOR SWEEP**(A·Bfair·L0–L3×{7,14,32B}+비용·4 verdict). 도구 `ma/*.py` | ★★결과 권위 (06-16) |
+| **`deepresearch/*.md` (5건)** | **선행연구 권위**: NL→SQL decouple / det-vs-learned TCO / plan-selection / constrained-decode(CRANE) / input-formalize / **small-model reasoning(분해+외부검증)**. 인용규율 검증분 | ★활성 (06-16·인용용) |
+| **`COWORKER_REQUEST_2026_06_16_scale_floor.md`** | **현 coworker 요청**: 32B-bf16+72B floor sweep(Int8-cap vs reasoning-floor·천장위치) | ★활성 (06-16·전달됨) |
 | **`CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`** | **plan X 계획 (구 진입점)**: 학습 SOPBench+TaskBench native-FC → 7B TBox / 테스트 SOP-Bench+τ² 벤치-횡단 전이. 공통표현=vLLM-native FC. (현 진입점=HANDOFF_2026_06_15) | ★활성 (plan X 계획·진입점은 06-15로 이동) |
 | **`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`** | plan X 변환기 설계 v2: SOPBench FC rollout·TaskBench DAG→native 궤적·전역alias(R1)·loss=assistant-only·QC | ★활성 (plan X 구현) |
 | **`R1B_PROVENANCE_DESIGN_2026_06_14.md`** | **R1b 값-provenance 집행 (리뷰용)**: 3레이어(XGrammar 원천차단 + provenance 검증기 + 학습된 복구순서 fetch→ask). τ² 날조 실증 처방. | ★활성 (리뷰 대기) |

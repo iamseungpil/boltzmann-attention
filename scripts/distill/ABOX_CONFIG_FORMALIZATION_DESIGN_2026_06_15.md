@@ -4,6 +4,7 @@
 > 불변 = `feedback-thesis-tbox-transfer-direction`(SOPBench/TaskBench 학습·τ² held-out)·`feedback-selector-verifier-deterministic`(검증기·선택기=결정론)·`feedback-nl-formalize-llm-selection-deterministic`(LLM=NL→formalize·concrete=결정론).
 > 이론 권위 = `PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md`(P1-P9 유한성)·`ALGEBRAIC_DERIVATION_CLOSURE_2026_06_15.md`(§5 형식도출·증명지위 원장). 메모리 = `reference-abox-config-formalization-architecture`.
 > **★개정(2026-06-16)**: 이론 정독 후 정합 §1.5 추가 + 핵심 교정 3 — ①σ-경계는 *고정 정리 아니라 C8×비용 경험-보정*(§1.5) ②계획쪽 = *증분 typed-action*(full-DAG 생성 아님)·DAG=결정론 검증구조(§6.5 개정) ③비용-인지 σ-경계(§6.6 신설). 딥리서치 3건 진행중(경로우선순위·결정론비용·NL→SQL/semantic-parsing) → 도착 시 §1.5/§6.6/§7 정련.
+> **★★후속 라인 (2026-06-16-PM·이 설계 발전)**: M-A 프로토타입이 selector(출력)는 in-domain 약함을 보임 → 레버가 *입력*(MSC)·*step분해+결정론검증*으로 이동. 후속 권위 = `THESIS_STATEMENT_2026_06_16.md`(수렴 thesis)·`MIN_CONTEXT_FORMALIZER_DESIGN.md`(MSC=입력측 offload)·`DECOMPOSITION_OPTIMALITY.md`(분담 Pareto)·`ma/M_A_RESULTS.md`(§8 floor 실측)·`deepresearch/`(5 선행연구). 이 §6.5 "증분 typed-action"의 실현 = `ma_eval.py` arm `Sstep`(결정론 scaffold+per-step 검증).
 
 ---
 
