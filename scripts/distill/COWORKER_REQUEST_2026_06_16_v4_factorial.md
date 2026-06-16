@@ -4,10 +4,10 @@
 > 권위: `scripts/distill/ma/M_SIGMA_V4_UNION_CORPUS_DESIGN.md`(§7 factorial)·`M_SIGMA_V3_TRANSFER_FACTORIAL_DESIGN.md`(2³ 상세)·`M_SIGMA_V4_SUBTRACT_MAP.md`(provenance 버킷).
 > 불변(必): [[feedback-thesis-tbox-transfer-direction]](**τ²로 학습/튜닝 절대 금지**·τ²=전이 타깃)·[[feedback-selector-verifier-deterministic]]·[[feedback-nl-formalize-llm-selection-deterministic]](resolver=결정론·concrete는 학습타깃 아님).
 
-## 0. TL;DR — 분담
-- **나(병행)**: 실험0(cfb matched-pair 진단·GPU0 가동 중) + 공유 생성기 `synth_selection.py` 커밋 + 이후 union-ablation.
-- **coworker(이 요청)**: **순수-synth 2³ factorial 8 arm**(mechanism: 어느 축이 *왜* 전이?). exp0와 **완전 독립**(다른 데이터=순수 추상·다른 GPU). v4 §7 = "union 부호와 무관·독립 실행".
-- **왜 독립인가**: factorial은 순수 추상 substrate만 학습·held-out τ² eval. exp0(cfb)·union(실벤치)와 데이터·GPU 안 겹침. 라운드 합의 = "union·factorial 서로 비-게이트".
+## 0. TL;DR — 분담 (3 레인 병렬)
+- **나**: exp0(cfb matched-pair·GPU0 가동중) + 공유 생성기 `synth_selection.py` 커밋 + **factorial ISO=OFF half {M0·A-nl·A-prov·C-np} (GPU1)** + 이후 union-ablation·bridge.
+- **coworker(이 요청)**: **factorial ISO=ON half {A-iso·C-in·C-ip·FULL} (4 arm)** — 다른 GPU/노드. 합치면 2³ 완성.
+- **왜 독립인가**: factorial은 순수 추상 substrate만 학습·held-out τ² eval. exp0(cfb)·union(실벤치)와 데이터·GPU 안 겹침. v4 §7 = "union 부호 무관·독립". GPU1(나)+coworker로 8 arm 반반 = 순차 대비 절반 시간.
 
 ## 1. 측정 (mechanism)
 전이 구동 후보 3축 {**ISO** 등방화·**NL** grounding·**PROV** provenance}를 직교 축으로 2³ 완전요인 → **main effect**(각 축 *단독* 전이?) + **interaction**(*합쳐서* 시너지?). 순수 추상 selection-by-criteria substrate(도메인 0) 위. = "전이를 만드는 게 어느 축인가"를 비교군으로.
@@ -25,15 +25,12 @@
 cd <REPO> && git pull --ff-only
 ls scripts/distill/ma/ma_factorial_batch.sh   # 없으면 대기
 
-# 8 arm (셀코드 ISO·NL·PROV). GPU/PORT는 빈 자원·arm마다 분리. 순차 권장.
-for ARM in M0 A-iso A-nl A-prov FULL ; do      # tier1(main effect 근사 + FULL) 먼저
-  bash scripts/distill/ma/ma_factorial_batch.sh $ARM <GPU> <PORT>
-done
-for ARM in C-in C-ip C-np ; do                  # tier2(interaction 완성)·tier1 후
+# ISO=ON half 4 arm. GPU/PORT는 빈 자원·arm마다 분리. 순차 권장.
+for ARM in A-iso FULL C-in C-ip ; do            # A-iso·FULL(헤드라인) 먼저, 조합 다음
   bash scripts/distill/ma/ma_factorial_batch.sh $ARM <GPU> <PORT>
 done
 ```
-- arm 매핑: M0=000·A-iso=100·A-nl=010·A-prov=001·C-in=110·C-ip=101·C-np=011·FULL=111.
+- arm 매핑(전체 2³·**coworker=ISO=ON 4개**): M0=000·A-iso=**100**·A-nl=010·A-prov=001·C-in=**110**·C-ip=**101**·C-np=011·FULL=**111**. (나=ISO=OFF {M0·A-nl·A-prov·C-np} GPU1.)
 - `ma_factorial_batch.sh <arm> <gpu> <port>` = synth 생성(arm→`--iso/--nl/--prov` 매핑·**시드 고정**·round-trip 검증) → 7B LoRA SFT(**frozen 레시피**·전 arm 동일) → **harness v4**(`m_sigma_transfer_eval_v4.py`·held-out τ²·per-provenance split) → 집계.
 - 비용: arm당 합성 빠름 + SFT ~1h + eval ~10분. tier1 5 arm 순차 ~5h·병렬이면 ~1.5h. tier2 +3.
 
