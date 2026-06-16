@@ -7,6 +7,8 @@
 
 ## §0. 목표 (한 문장, 변하지 않음)
 
+> **★★★★★ 현재 도달 (2026-06-16 · 권위 = [`THESIS_STATEMENT_2026_06_16.md`](THESIS_STATEMENT_2026_06_16.md))**: thesis 문장(아래 §0 핵심)은 불변. *현 라인* = plan-X native-FC 전이가 음성 종결(τ² 0.05–0.10<base)·M-A가 write-벽 원인을 **NL→formalize reasoning**으로 확정 → 레버가 **(A)분해+결정론 per-step 검증(Sstep)** + **(B)입력 formalize(MSC)·도메인지식 제공(ABox/retrieval)·도메인-일반 학습(ABox-swap 전이)** 두 날개로 발전. 5 딥리서치가 메커니즘 검증·신규성=미점유 교차점+floor 측정. 진단 현황 = §2 최상단. ↓아래 plan-X/primitive 블록은 *직전 라인*(근거·역사).
+>
 > **★★★ 현 구현 방향 = plan X (2026-06-14 확정 · 권위본 = [`CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`](CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md) + 변환기 [`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`](NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md))**:
 > thesis(아래 문장)는 **불변** — 단 *"절차"의 표현*은 커스텀 dirgraph가 아니라 **표준 OpenAI function-calling(`tool_calls{name,args}`)을 모델이 직접 emit**한다(vLLM-native·표현 발명 불요·config가 포맷 강제[XGrammar]·학습이 내용).
 > - **학습** = SOPBench(FC 성공 rollout) + TaskBench(tool-graph)를 native-FC 궤적으로 변환 → 단일 7B TBox LoRA(R1-R8 규율, §10.5 / `BENCH_PORTFOLIO`).
@@ -102,7 +104,21 @@
 **F1 비용 장부 상시화 (2026-06-14, 추세리뷰 위험1[손공학 creep] 방어 — 게이트/스펙 변경마다 갱신 의무)**: A2 자동화 속도 > 손작성 속도인 한 "벤치-불변" 주장 유지. 현 장부: τ²-retail 수동 spec ~40줄(GT용 1회·front-end 자동화 타깃) / **airline 0줄**(Fable-5 컴파일·replay 0/108) / **telecom 0줄**(Fable-5 컴파일) / G4-게이트 추가 +13줄(spec 엔트리·템플릿 불변) / 복구 템플릿 = 도메인-불변 0줄. 대조축 = SOPBench DGGATE(graph 수동 재구성)·AgentSpec "manually developed"(FIELD_GAP §5.5).
 
 ## §2. 현재 진단 (어디까지 왔나)
-> ★★★★**최신 (2026-06-06) — cross-domain transfer 확정(held-out·재학습0·honest) = 로드맵 #1 입증 중. 진입점 = [`HANDOFF_2026_06_06_xdomain_full.md`](HANDOFF_2026_06_06_xdomain_full.md)** + 설계 [`CROSS_DOMAIN_TRANSFER_DESIGN.md`](CROSS_DOMAIN_TRANSFER_DESIGN.md), 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-5**.
+> ★★★★★**현재 도달 (2026-06-16) — 권위 수렴본 = [`THESIS_STATEMENT_2026_06_16.md`](THESIS_STATEMENT_2026_06_16.md)**. 아래 06-06 이하 블록은 직전 라인(SOPBench scaffold·plan-X native-FC — 역사·근거).
+> **(1) plan-X/v7 native-FC 전이 = 음성 종결** (τ² 0.05–0.10 < base 0.17). 원인 분해: write-벽 = *날조 아님* — **NL→formalize *reasoning* 실패**(변형 오선택·"X만 바꾸고 유지" 오계산·synonym 미매핑). [`ma/M_A_RESULTS.md`](ma/M_A_RESULTS.md).
+> **(2) M-A 프로토타입 (무재학습·retail exchange 29태스크)**: selector(출력측 추상 emit)+resolver는 **in-domain서 concrete-emit에 짐** — 공정정보(Bfair)로도 전 scale 음성. ⇒ 레버가 *출력 포맷*이 아니라 **입력(정보·formalize)·*추론 분해*** 에 있음.
+> **(3) ★FLOOR SWEEP (A·Bfair·L0–L3 × {7B,14B,32B-Int8}+비용·§8)** — capability vs cost 분리 측정:
+>   - **정보 floor 실재·scale-불변**(L0→L1 +16pp 전 scale) = info-limited 성분은 *정보 제공*으로 닫힘.
+>   - **MSC(입력 minimal formalize)는 scale 대체 *못 함***: 7B는 입력수준 무관 **~0.53 천장 = reasoning-limited·scale-bound**. 단 **formalize(L2b 표)=비용-Pareto 우월**(토큰 절반·동급↑정확도).
+>   - **자유 CoT(2-call)는 7B를 0.656(≈14B 0.719)까지** = step-reasoning이 7B→14B 갭 거의 닫음(단 plateau).
+> **(4) 5 딥리서치(`deepresearch/`)가 메커니즘 검증**: 작은모델 reasoning↑ = **분해 + *외부* step-검증**(자유 CoT·self-correct 아님)·input-formalize↑·decouple-then-resolve·det gate. 전부 *발명 아님*·우리 신규 = **미점유 교차점**(결정론검증·typed증분·tool-use·ABox-swap)+floor 측정.
+> **★현재 목표 (두 날개)**:
+>   - **A. capability 날개**: **Sstep**(결정론 scaffold가 typed 증분스텝 강제+per-step 결정론검증) → 자유 CoT 0.656 넘어 큰모델(L2b 0.844) 닿나 = *작은+분해+검증 ≈ 큰모델* 입증. [실행중]
+>   - **B. 비용·전이 날개**: MSC(비용-Pareto) + ABox/retrieval(도메인지식 제공) + 도메인-일반 학습 → ABox-swap 무재학습 전이(C8·미증명·핵심 리스크).
+> **진행중**: Sstep sweep(3모델)·coworker 32B-bf16/72B floor([`COWORKER_REQUEST_2026_06_16_scale_floor.md`](COWORKER_REQUEST_2026_06_16_scale_floor.md)·Int8-cap vs reasoning-floor 확정). 다음=M-σ(도메인-일반 NL→formalize 학습→전이).
+> **정직**: "작은>큰"은 task-narrow·math 헤드라인 많음→exchange서 *측정*으로(보편주장 금지). ABox-swap 전이 양성 미증명. 32B=Int8(bf16 대기).
+>
+> ★★★★**(2026-06-06) — cross-domain transfer 확정(held-out·재학습0·honest) = 로드맵 #1 입증 중. 진입점 = [`HANDOFF_2026_06_06_xdomain_full.md`](HANDOFF_2026_06_06_xdomain_full.md)** + 설계 [`CROSS_DOMAIN_TRANSFER_DESIGN.md`](CROSS_DOMAIN_TRANSFER_DESIGN.md), 결과 권위본 = `../../reports/facet_rft_2026/SOPBENCH_EXPERIMENT_RESULTS.md` **Exp-5**.
 > - **A축 scaffold(bank 설계, per-domain 분기 0)가 안 본 도메인서 ABox-swap만으로 재학습 0 작동 = 강한 직접 증거.** 지표 = 공식 success(tool_full, BOTH 금지)·honest(LOGINCALL off, quirk≈0).
 > - **★Exp-5a train-1 확정 (bank 한 도메인만 학습 → 6 held-out 전이, 극저자원)**: 평균 **77.3% 공식 success**, **리더보드 MAX(GPT-5/o4-mini-high 포함) 추월 3/6** — hotel 83.6%(>69.7)·library 71.4%(>66.7)·university 97.6%(>95.2). dmv 71.1·healthcare 64.5·online_market 73.8(이 셋은 should_F-bound, should_T는 거의 천장: healthcare 44/44·dmv 35/36·univ 6/6). base 7B는 0~21%.
 > - **★Exp-5b LODO-per-target (다도메인 혼합 학습, 타깃 held-out)**: bank 43.3%·**healthcare 95.9%(sT 44/44, >LB 92.7)**·**library 75.8%(>LB 66.7)** 확정; dmv·hotel·online_market·university 학습 큐 진행(GPU 2병렬). scaffold Δ = adapter-only ~0%→stack 75~95%(어댑터 안 본 도메인). **혼합 다양성 효과**: healthcare LODO 95.9% ≫ train1 64.5%(+31pp) = 학습다양성이 should_F 전이 강화(도메인-의존).
