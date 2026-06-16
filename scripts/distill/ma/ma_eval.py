@@ -107,6 +107,52 @@ def prompt_concrete(case, cot=False):
     return [{"role": "user", "content": "\n".join(lines)}]
 
 
+def prompt_concrete_level(case, level, cot=False):
+    """Information-FLOOR ladder (MSC §6, 3-way). Output mode held CONSTANT (concrete
+    item_id pick) so deltas isolate INPUT effects. Levels:
+      L0  catalog WITHOUT availability  -> info-limited for fallback cases (floor below)
+      L1  catalog + availability (== arm A baseline)
+      L2a available-filtered, raw list  -> decision-space shrink (filter)
+      L2b available, formalized TABLE + current-item row -> formatting (on top of filter)
+      L3  available, each annotated with its DIFF from the current item -> pre-computed
+          comparison (extreme deterministic offload; diff is deterministic, no NL needed)
+    (L1->L2a)=filter, (L2a->L2b)=format, (L2b->L3)=pre-resolution, (L0->L1)=info floor."""
+    lines = ["You are a retail agent processing an exchange. For each item, pick the new "
+             "variant's item_id that best satisfies the request (respect any fallback "
+             "preference). Only available variants can be chosen.",
+             f"\nUser request: {case['nl']}\n"]
+    for i, e in enumerate(case["exchanges"]):
+        old = e["old_options"]; cat = e["variant_catalog"]; avail = [v for v in cat if v["available"]]
+        lines.append(f"Item {i+1}: {e['old_item_name']} (current options: {json.dumps(old)})")
+        if level == "L0":
+            lines.append("Variants:")
+            for v in cat:
+                lines.append(f"  item_id={v['item_id']} options={json.dumps(v['options'])}")
+        elif level == "L1":
+            lines.append("Available variants:")
+            for v in cat:
+                lines.append(f"  item_id={v['item_id']} options={json.dumps(v['options'])} available={v['available']}")
+        elif level == "L2a":
+            lines.append("Available variants:")
+            for v in avail:
+                lines.append(f"  item_id={v['item_id']} options={json.dumps(v['options'])}")
+        elif level == "L2b":
+            keys = sorted({k for v in avail for k in v["options"]})
+            lines.append("Available variants (table):")
+            lines.append("  | item_id | " + " | ".join(keys) + " |")
+            for v in avail:
+                lines.append("  | " + v["item_id"] + " | " + " | ".join(str(v["options"].get(k, "-")) for k in keys) + " |")
+            lines.append("  current item: | " + " | ".join(str(old.get(k, "-")) for k in keys) + " |")
+        elif level == "L3":
+            lines.append("Available variants (each annotated with how it differs from your current item):")
+            for v in avail:
+                diff = {k: f"{old.get(k)}->{v['options'][k]}" for k in v["options"] if old.get(k) != v["options"][k]}
+                lines.append(f"  item_id={v['item_id']} differs_from_current={json.dumps(diff) if diff else 'identical'}")
+    tail = '{"new_item_ids": ["<id for item 1>", ...]} in item order.'
+    lines.append(("\nReason, then output " + tail + _COT) if cot else ("\nOutput JSON only: " + tail))
+    return [{"role": "user", "content": "\n".join(lines)}]
+
+
 def prompt_formal(case, cot=False):
     lines = ["You are a retail agent processing an exchange. For each item, describe the DESIRED "
              "new variant by its OPTION VALUES — NOT an item_id. The new item is the SAME product "
@@ -186,10 +232,22 @@ def _twocall(base, model, prompt_msgs, schema, key):
     return extract_json(txt, key), r1
 
 
+LEVEL_ARMS = ("L0", "L1", "L2a", "L2b", "L3")
+
+
 def eval_case(case, base, model, arm):
     n = case["n_items"]
     golds = [e["gold_new_item_id"] for e in case["exchanges"]]
     out = {"task_id": case["task_id"], "arm": arm, "n": n, "gold": golds}
+    # info-FLOOR ladder: concrete output held constant, input info level varies
+    if arm in LEVEL_ARMS:
+        txt = chat(base, model, prompt_concrete_level(case, arm), guided_json=CONCRETE_SCHEMA)
+        obj = extract_json(txt, "new_item_ids")
+        if not obj:
+            out.update(parse_fail=True, pred=None, item_correct=[False]*n); return out
+        pred = (list(obj["new_item_ids"]) + [None]*n)[:n]
+        out.update(parse_fail=False, pred=pred, item_correct=[pred[i] == golds[i] for i in range(n)])
+        return out
     mode, cot, grammar, twocall = ARM_SPEC[arm]
     if mode == "concrete":
         if twocall:
