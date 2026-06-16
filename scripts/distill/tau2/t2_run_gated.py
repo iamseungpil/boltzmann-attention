@@ -30,11 +30,33 @@ def main():
                     help="user-sim temperature (ⓟ1 분산통제 arm = 0.0)")
     ap.add_argument("--agent_seed", type=int, default=None,
                     help="agent 요청 seed 고정 (결정론 실험; 로컬 vllm arm 전용)")
+    ap.add_argument("--allow-frontier", action="store_true", dest="allow_frontier",
+                    help="COST GUARD override: explicitly allow Claude/Anthropic (expensive) models "
+                         "on the shared OpenRouter key. Default REFUSES — user-sim must be gpt-4.1.")
     ap.add_argument("--num_trials", type=int, default=1)
     ap.add_argument("--num_tasks", type=int, default=None)
     ap.add_argument("--max_concurrency", type=int, default=8)
     ap.add_argument("--save_to", required=True)
     a = ap.parse_args()
+
+    # ---- COST GUARD (2026-06-16 incident: ~$600 OpenRouter drain via Claude on the shared key) ----
+    # The "facet-rft-tau2-user-sim" OpenRouter key bills ALL calls incl. the AGENT. Claude is
+    # ~15-30x gpt-4.1 and agentic runs are token-heavy, so a single mis-called --agent_llm/--user_llm
+    # = anthropic/claude-* drains the budget. user-sim MUST be gpt-4.1. Refuse unless --allow-frontier.
+    def _is_claude(m):
+        return bool(m) and any(t in str(m).lower() for t in ("anthropic", "claude", "opus", "sonnet", "haiku"))
+    _bad = [(n, v) for n, v in (("--user_llm", a.user_llm), ("--agent_llm", a.agent_llm)) if _is_claude(v)]
+    if _bad and not a.allow_frontier:
+        raise SystemExit(
+            "[COST GUARD] REFUSING Claude/Anthropic model(s) on the shared OpenRouter key: "
+            + ", ".join(f"{n}={v}" for n, v in _bad)
+            + "\n  user-sim MUST be gpt-4.1 (openrouter/openai/gpt-4.1). Claude is ~15-30x the price"
+              " and the AGENT calls bill to this key too — this is the 2026-06-16 $600 drain.\n"
+            "  If you REALLY intend an expensive frontier arm: set an OpenRouter per-key spend cap"
+            " FIRST, then re-run with --allow-frontier.")
+    if _bad:  # allowed but loud
+        print("[COST GUARD][WARN] frontier override ON — billing Claude to the OpenRouter key: "
+              + ", ".join(f"{n}={v}" for n, v in _bad))
 
     if a.gate:
         import t2_gate_patch
