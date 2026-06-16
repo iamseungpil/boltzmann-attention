@@ -14,7 +14,7 @@ decompose failures (§7⑥): wrong_criteria (resolved != gold but mapped), resol
 errors are dominated by wrong_criteria, the write-wall root cause is reasoning (sigma /
 NL->formalize), not fabrication -> first-class result.
 """
-import json, argparse, sys, re
+import json, argparse, sys, re, collections
 import requests
 sys.path.insert(0, "/home/woori/workspace_common/boltzmann-attention-pi/scripts/distill/ma")
 from ma_resolver import select_variant, _option_value_space, _norm  # noqa: E402
@@ -217,13 +217,18 @@ def _snap(vocab, k, v):
     return owners[0] if len(owners) == 1 else None
 
 
-def step_resolve(nl, ex, base, model):
+def step_resolve(nl, ex, base, model, verify=True):
     """STRONG FORM: deterministic scaffold drives typed incremental steps with deterministic
     per-step verification (THESIS_STATEMENT §2A). Step1: LLM emits {key:value} CHANGES ->
     scaffold verifies against vocab, feeds back errors (caps compounding/mis-decomposition,
     catches synonyms like 'Google Home'). Step2: scaffold deterministically builds target =
     old (+) changes (keep-rest free) and checks availability. Step3 (if unavailable): LLM emits
-    ONE relaxation -> verified -> retried. Returns (item_id|None, trace)."""
+    ONE relaxation -> verified -> retried. Returns (item_id|None, trace).
+    verify=False (ABLATION/Snover): same decomposition but NO per-step verify/feedback retry
+    (single attempt per step) — isolates whether external verification (not mere decomposition)
+    is the load-bearing ingredient."""
+    n_try = 3 if verify else 1
+    n_fb = 2 if verify else 1
     prod = {"variants": {v["item_id"]: {"options": v["options"], "available": v["available"]} for v in ex["variant_catalog"]}}
     vocab = _option_value_space(prod)
     old = ex["old_options"]; keys = sorted(vocab)
@@ -236,7 +241,7 @@ def step_resolve(nl, ex, base, model):
                 "Which option(s) does the user want CHANGED for THIS item, and to what value? Use EXACT keys/values "
                 'above; unmentioned options stay the same.\nOutput JSON only: {"changes": {"<key>": "<value>"}}')
     msgs = [{"role": "user", "content": base_msg}]; changes = {}
-    for _ in range(3):
+    for _ in range(n_try):
         txt = chat(base, model, msgs, guided_json=_CHANGES_SCHEMA)
         cand = (extract_json(txt, "changes") or {}).get("changes", {}) or {}
         errs, norm = [], {}
@@ -248,7 +253,7 @@ def step_resolve(nl, ex, base, model):
                 errs.append(f"value '{v}' invalid for '{k}' (valid: {sorted(vocab[k])})")
             else:
                 errs.append(f"'{v}'/'{k}' not a valid option (keys: {keys})")
-        if not errs:
+        if not errs or not verify:  # verify=False: best-effort (use snapped subset, no feedback)
             changes = norm; break
         msgs = [{"role": "user", "content": base_msg}, {"role": "assistant", "content": txt},
                 {"role": "user", "content": "Invalid: " + "; ".join(errs) + ". Re-output corrected JSON only."}]
@@ -266,7 +271,7 @@ def step_resolve(nl, ex, base, model):
           f"Available variants: {json.dumps(avail)}\nPer the user's fallback preference, change EXACTLY the option(s) "
           'needed to reach an available variant.\nOutput JSON only: {"relax": {"<key>": "<value>"}}')
     msgs = [{"role": "user", "content": fb}]
-    for _ in range(2):
+    for _ in range(n_fb):
         txt = chat(base, model, msgs, guided_json=_RELAX_SCHEMA)
         rel = (extract_json(txt, "relax") or {}).get("relax", {}) or {}
         norm = {}
@@ -327,12 +332,23 @@ def eval_case(case, base, model, arm):
     n = case["n_items"]
     golds = [e["gold_new_item_id"] for e in case["exchanges"]]
     out = {"task_id": case["task_id"], "arm": arm, "n": n, "gold": golds}
-    # STRONG FORM: scaffolded incremental typed-step + deterministic per-step verification
-    if arm == "Sstep":
-        preds = []
-        for e in case["exchanges"]:
-            nid, _tr = step_resolve(case["nl"], e, base, model)
-            preds.append(nid)
+    # STRONG FORM + ablation: scaffolded incremental typed-step (Sstep=verify ON / Snover=OFF)
+    if arm in ("Sstep", "Snover"):
+        preds = [step_resolve(case["nl"], e, base, model, verify=(arm == "Sstep"))[0] for e in case["exchanges"]]
+        out.update(parse_fail=False, pred=preds, item_correct=[preds[i] == golds[i] for i in range(n)])
+        return out
+    # SELF-CONSISTENCY baseline: A-style concrete sampled N times (temp>0), majority vote per item
+    if arm == "SCv":
+        N = 5
+        votes = [collections.Counter() for _ in range(n)]
+        for _ in range(N):
+            txt = chat(base, model, prompt_concrete_level(case, "L1"), guided_json=CONCRETE_SCHEMA, temperature=0.7)
+            obj = extract_json(txt, "new_item_ids")
+            ids = (list(obj["new_item_ids"]) + [None] * n)[:n] if obj else [None] * n
+            for i in range(n):
+                if ids[i] is not None:
+                    votes[i][ids[i]] += 1
+        preds = [v.most_common(1)[0][0] if v else None for v in votes]
         out.update(parse_fail=False, pred=preds, item_correct=[preds[i] == golds[i] for i in range(n)])
         return out
     # info-FLOOR ladder: concrete output held constant, input info level varies
