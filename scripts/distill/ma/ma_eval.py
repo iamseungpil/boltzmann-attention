@@ -54,20 +54,44 @@ def chat(base, model, messages, guided_json=None, max_tokens=512, temperature=0.
     return r.json()["choices"][0]["message"]["content"]
 
 
-def _parse_json(text):
-    try:
-        return json.loads(text)
-    except Exception:
-        m = re.search(r"\{.*\}", text, re.DOTALL)
-        if m:
-            try:
-                return json.loads(m.group(0))
-            except Exception:
-                return None
+def extract_json(text, key):
+    """Return the LAST balanced {...} object in text that parses and contains `key`.
+    Robust to CoT prose preceding the JSON (and to a 'FINAL' marker)."""
+    if not text:
         return None
+    # prefer content after a FINAL marker if present
+    mk = re.split(r"FINAL[^\n:{]*[:\n]", text, flags=re.IGNORECASE)
+    scan = mk[-1] if len(mk) > 1 else text
+    cands = []
+    for region in (scan, text):
+        starts = [i for i, c in enumerate(region) if c == "{"]
+        for s in starts:
+            depth = 0
+            for j in range(s, len(region)):
+                if region[j] == "{":
+                    depth += 1
+                elif region[j] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        try:
+                            o = json.loads(region[s:j + 1])
+                            if isinstance(o, dict) and key in o:
+                                cands.append(o)
+                        except Exception:
+                            pass
+                        break
+        if cands:
+            return cands[-1]
+    return None
 
 
-def prompt_concrete(case):
+_COT = ("\nFirst REASON step by step (a) which option(s) the user wants CHANGED and which "
+        "stay the SAME as the current item, (b) map any synonym/brand the user says to the "
+        "exact catalog option value, (c) handle any fallback/preference. THEN on the final "
+        "line write 'FINAL: ' followed by the JSON.")
+
+
+def prompt_concrete(case, cot=False):
     lines = ["You are a retail agent processing an exchange. The user wants to exchange items "
              "for new variants of the SAME product. For each item, pick the new variant's item_id "
              "from the catalog that best satisfies the request (respect any fallback preference). "
@@ -78,11 +102,12 @@ def prompt_concrete(case):
         lines.append("Available variants:")
         for v in e["variant_catalog"]:
             lines.append(f"  item_id={v['item_id']} options={json.dumps(v['options'])} available={v['available']}")
-    lines.append('\nOutput JSON only: {"new_item_ids": ["<id for item 1>", ...]} in item order.')
+    tail = '{"new_item_ids": ["<id for item 1>", ...]} in item order.'
+    lines.append(("\nReason, then output " + tail + _COT) if cot else ("\nOutput JSON only: " + tail))
     return [{"role": "user", "content": "\n".join(lines)}]
 
 
-def prompt_formal(case):
+def prompt_formal(case, cot=False):
     lines = ["You are a retail agent processing an exchange. For each item, describe the DESIRED "
              "new variant by its OPTION VALUES — NOT an item_id. The new item is the SAME product "
              "as the current one, changed ONLY as the user requests; options the user does not "
@@ -96,8 +121,9 @@ def prompt_formal(case):
         vspace = {k: sorted(vals) for k, vals in _option_value_space(prod).items()}
         lines.append(f"Item {i+1}: {e['old_item_name']} (current options: {json.dumps(e['old_options'])})")
         lines.append(f"  valid option values: {json.dumps(vspace)}")
-    lines.append('\nOutput JSON only: {"selectors": [{"select_by": {"<opt>": "<value>", ...}, '
-                 '"fallback": [{"<opt>": "<value>"}]}, ...]} in item order.')
+    tail = ('{"selectors": [{"select_by": {"<opt>": "<value>", ...}, '
+            '"fallback": [{"<opt>": "<value>"}]}, ...]} in item order.')
+    lines.append(("\nReason, then output " + tail + _COT) if cot else ("\nOutput JSON only: " + tail))
     return [{"role": "user", "content": "\n".join(lines)}]
 
 
@@ -109,25 +135,34 @@ def resolve_one(case_exchange, selector):
     return select_variant(prod, case_exchange["old_options"], selector)
 
 
+# arm -> (mode, cot, grammar)
+ARM_SPEC = {
+    "A": ("concrete", False, True), "Acot": ("concrete", True, False),
+    "B": ("formal", False, True), "Bcot": ("formal", True, False),
+    "C": ("formal", False, False),
+}
+
+
 def eval_case(case, base, model, arm):
     n = case["n_items"]
     golds = [e["gold_new_item_id"] for e in case["exchanges"]]
     out = {"task_id": case["task_id"], "arm": arm, "n": n, "gold": golds}
-    if arm == "A":
-        txt = chat(base, model, prompt_concrete(case), guided_json=CONCRETE_SCHEMA)
-        obj = _parse_json(txt)
-        if not obj or "new_item_ids" not in obj:
+    mode, cot, grammar = ARM_SPEC[arm]
+    if mode == "concrete":
+        gj = CONCRETE_SCHEMA if grammar else None
+        txt = chat(base, model, prompt_concrete(case, cot), guided_json=gj, max_tokens=1024 if cot else 512)
+        obj = extract_json(txt, "new_item_ids")
+        if not obj:
             out.update(parse_fail=True, pred=None, item_correct=[False]*n); return out
-        pred = obj["new_item_ids"]
-        pred = (pred + [None]*n)[:n]
+        pred = (list(obj["new_item_ids"]) + [None]*n)[:n]
         out.update(parse_fail=False, pred=pred,
                    item_correct=[pred[i] == golds[i] for i in range(n)])
         return out
-    # arm B / C
-    gj = SELECTOR_SCHEMA if arm == "B" else None
-    txt = chat(base, model, prompt_formal(case), guided_json=gj)
-    obj = _parse_json(txt)
-    if not obj or "selectors" not in obj:
+    # formal (B / C / Bcot)
+    gj = SELECTOR_SCHEMA if grammar else None
+    txt = chat(base, model, prompt_formal(case, cot), guided_json=gj, max_tokens=1024 if cot else 512)
+    obj = extract_json(txt, "selectors")
+    if not obj:
         out.update(parse_fail=True, pred=None, item_correct=[False]*n, fail_kind=["parse"]*n); return out
     sels = (obj["selectors"] + [{}]*n)[:n]
     pred, kinds = [], []
@@ -166,7 +201,7 @@ if __name__ == "__main__":
     ap.add_argument("--cases", default="/home/woori/scratch/ma_eval_cases.jsonl")
     ap.add_argument("--base", default="http://localhost:8013/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-7B-Instruct")
-    ap.add_argument("--arms", default="A,B,C")
+    ap.add_argument("--arms", default="A,Acot,B,Bcot,C")
     ap.add_argument("--out", default="/home/woori/scratch/ma_eval_results.jsonl")
     args = ap.parse_args()
     cases = [json.loads(l) for l in open(args.cases, encoding="utf-8")]
