@@ -117,3 +117,15 @@ B가 emit한 select_by를 gold/old와 대조하면 지배 패턴 = **"X만 바�
 2. **★Sstep = 비용-Pareto 승리**: ~528 tok/case(Atwo 2900의 **1/6**·A의 절반)·calls 1.6. scaffold가 구조 결정론처리→LLM은 작은 typed스텝만. **best-elicitation 정확도를 최저비용에.**
 3. **★리뷰 확증**: scaffold 검증(타입/vocab)은 *날조/형식*만 잡고 **grounded-but-wrong 변형선택(binding)은 못 잡음**(valid하지만 틀린 변형 emit). ⇒ capability 벽=binding·Sstep typed-검증으론 안 닫힘 → **M-σ v2 5번째 축(typed-derivation+resolver 관계계산)이 유일 장치**([[project-tau2-write-failure-rootcause]]·`M_SIGMA_DESIGN_2026_06_16.md §0b`).
 - 대기: Snover(검증 OFF·Sstep≈Snover면 검증조차 무효 시사)·SCv(self-consistency)·coworker scale. `ma_overnight_summary.log`.
+
+---
+
+## 10. ★M-σ in-dist 결과 (2026-06-16) — derivation-레벨 학습 *가능* 실증
+M-σ = cfb-derivation SFT(copy-threaded args→typed `$ref`·등방화·val_loss 0.0101). in-dist($ref-emit) eval (cfb·`m_sigma_eval.py`·고친 harness):
+| | name_ok | $ref-emitted | $ref-CORRECT-path |
+|---|---|---|---|
+| base 7B | 79/80 | 0/280 | 0/280 (0.00) |
+| **M-σ** | 80/80 | 270/280 | **268/280 (0.96)** |
+- **base 0% → M-σ 96%**: M-σ가 typed-derivation을 학습(어느 prior-output 필드 참조인지 정확). **v4-v7이 못한 *derivation-레벨* 학습이 가능함을 실증**(concrete-emit 아님).
+- **★한계(과독 금지)**: (a) **in-dist(cfb train-set)·일반화 아님**(held-out cfb 미분리) (b) 학습 타입=**copy-threading**(cfb 유일)·**τ² selection-by-criteria 아님**(orphan) → threading-96%가 τ²-selection 전이 의미 안 함.
+- **다음=M-D 전이**(held-out τ²·$ref-resolver·C8). selection-binding 데이터 v2 필요(딥리서치 `w3l415qh5`).
