@@ -58,3 +58,22 @@
 
 ## 8. 한 줄
 **순수 추상 selection-by-criteria(+provenance+fallback·NL-패러프레이즈·등방화) 합성 학습 → τ² 전이 = C8의 가장 깨끗한 시험.** M-D 음성 3원인(selection orphan·over-$ref·harness) 정면 해결. ★성패 갈림 = §6-1 NL-grounding(추상에도 자연어 요청 필수).
+
+---
+
+## 9. ★합성 ablation 매트릭스 (단일 레시피 베팅 X·어느 축이 전이를 만드나) — 2026-06-16 리뷰
+하나의 합성에 베팅 대신, **이미 이론화한 설계축을 통제 변주**해 *전이 구동축*을 측정. 각 config = 데이터 생성→7B LoRA SFT→M-D τ² 전이 eval. **baseline + 단일-knob-off**(전체 factorial 16개 회피·각 축 기여 격리):
+
+| config | 등방화(iso) | NL-패러프레이즈 | provenance-혼합 | 추상도 | 측정 질문 |
+|---|---|---|---|---|---|
+| **B (baseline)** | ON | ON | literal+$ref+$select | random-token | 전체 레시피 전이? |
+| **−iso** | **OFF**(고정 스키마명/값) | ON | mix | random | **등방화가 전이 구동? (§5.10 이론 실증)** |
+| **−NL** | ON | **literal attr=val** | mix | random | NL→criteria grounding이 전이에 필수? (§6-1 caveat) |
+| **−prov** | ON | ON | **$select-only** | mix | provenance-구분이 over-$ref 교정·전이? |
+| (opt) +sem | ON | ON | mix | **weak-semantic**(중립영어) | 약한 의미근거가 전이 도움? |
+
+- **결정 출력**: τ² 전이율을 config간 비교. **B 전이 ∧ −iso 미전이 → 등방화가 구동축**(이론 실증·헤드라인). −NL 미전이 → grounding 필수. −prov서 over-$ref 재발 → provenance 필수.
+- **사전등록 예측**(우리 이론): iso·NL·provenance 모두 전이에 기여(특히 iso=§5.10 표면-불변)·−iso가 가장 크게 떨어짐(미덮인 표면 과적합).
+- **비용**: 5 config × (빠른 합성 + 소형 LoRA SFT ~1h + M-D eval). 2-GPU 병렬 ~2.5-3h batch. 합성 작아 학습 빠름.
+- **구현**: `synth_selection.py`에 knob 플래그(`--iso/--nl/--prov/--sem`)·`ma_synth_ablation_batch.sh`(config별 생성→학습→eval→집계). round-trip 검증 공통.
+- ★**thesis 가치**: 등방화→전이는 현재 *이론 논증*(§5.10·analogy)·이 ablation이 **−iso vs +iso로 *실증***. 양성이면 등방화 라인이 추측→측정.
