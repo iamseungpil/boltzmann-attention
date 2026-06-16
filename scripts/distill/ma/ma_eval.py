@@ -17,7 +17,7 @@ NL->formalize), not fabrication -> first-class result.
 import json, argparse, sys, re
 import requests
 sys.path.insert(0, "/home/woori/workspace_common/boltzmann-attention-pi/scripts/distill/ma")
-from ma_resolver import select_variant, _option_value_space  # noqa: E402
+from ma_resolver import select_variant, _option_value_space, _norm  # noqa: E402
 
 SELECTOR_SCHEMA = {
     "type": "object",
@@ -202,6 +202,87 @@ def prompt_formal_fair(case, cot=False):
     return [{"role": "user", "content": "\n".join(lines)}]
 
 
+_CHANGES_SCHEMA = {"type": "object", "properties": {"changes": {"type": "object", "additionalProperties": {"type": "string"}}}, "required": ["changes"]}
+_RELAX_SCHEMA = {"type": "object", "properties": {"relax": {"type": "object", "additionalProperties": {"type": "string"}}}, "required": ["relax"]}
+
+
+def _snap(vocab, k, v):
+    """If (k,v) or value v maps to a real (key,canonical-value), return (key,canon) else None."""
+    if k in vocab:
+        for x in vocab[k]:
+            if _norm(v) == _norm(x):
+                return k, x
+        return None  # key valid, value invalid
+    owners = [(ok, x) for ok in vocab for x in vocab[ok] if _norm(v) == _norm(x)]
+    return owners[0] if len(owners) == 1 else None
+
+
+def step_resolve(nl, ex, base, model):
+    """STRONG FORM: deterministic scaffold drives typed incremental steps with deterministic
+    per-step verification (THESIS_STATEMENT §2A). Step1: LLM emits {key:value} CHANGES ->
+    scaffold verifies against vocab, feeds back errors (caps compounding/mis-decomposition,
+    catches synonyms like 'Google Home'). Step2: scaffold deterministically builds target =
+    old (+) changes (keep-rest free) and checks availability. Step3 (if unavailable): LLM emits
+    ONE relaxation -> verified -> retried. Returns (item_id|None, trace)."""
+    prod = {"variants": {v["item_id"]: {"options": v["options"], "available": v["available"]} for v in ex["variant_catalog"]}}
+    vocab = _option_value_space(prod)
+    old = ex["old_options"]; keys = sorted(vocab)
+    vdisp = {k: sorted(vocab[k]) for k in keys}
+    trace = []
+
+    # STEP 1 — changes, with verify+feedback loop
+    base_msg = (f"User request: {nl}\nFocus item: {ex['old_item_name']} (current options: {json.dumps(old)})\n"
+                f"Valid option values: {json.dumps(vdisp)}\n"
+                "Which option(s) does the user want CHANGED for THIS item, and to what value? Use EXACT keys/values "
+                'above; unmentioned options stay the same.\nOutput JSON only: {"changes": {"<key>": "<value>"}}')
+    msgs = [{"role": "user", "content": base_msg}]; changes = {}
+    for _ in range(3):
+        txt = chat(base, model, msgs, guided_json=_CHANGES_SCHEMA)
+        cand = (extract_json(txt, "changes") or {}).get("changes", {}) or {}
+        errs, norm = [], {}
+        for k, v in cand.items():
+            snapped = _snap(vocab, k, v)
+            if snapped:
+                norm[snapped[0]] = snapped[1]
+            elif k in vocab:
+                errs.append(f"value '{v}' invalid for '{k}' (valid: {sorted(vocab[k])})")
+            else:
+                errs.append(f"'{v}'/'{k}' not a valid option (keys: {keys})")
+        if not errs:
+            changes = norm; break
+        msgs = [{"role": "user", "content": base_msg}, {"role": "assistant", "content": txt},
+                {"role": "user", "content": "Invalid: " + "; ".join(errs) + ". Re-output corrected JSON only."}]
+    trace.append(("changes", changes))
+
+    # STEP 2 — deterministic construct + availability
+    target = {**old, **changes}
+    hit = [v["item_id"] for v in ex["variant_catalog"] if v["available"] and v["options"] == target]
+    if len(hit) == 1:
+        return hit[0], trace + [("ok", target)]
+
+    # STEP 3 — fallback relaxation (<=2), verified
+    avail = [v["options"] for v in ex["variant_catalog"] if v["available"]]
+    fb = (f"User request: {nl}\nFor item {ex['old_item_name']}, desired options {json.dumps(target)} are NOT available.\n"
+          f"Available variants: {json.dumps(avail)}\nPer the user's fallback preference, change EXACTLY the option(s) "
+          'needed to reach an available variant.\nOutput JSON only: {"relax": {"<key>": "<value>"}}')
+    msgs = [{"role": "user", "content": fb}]
+    for _ in range(2):
+        txt = chat(base, model, msgs, guided_json=_RELAX_SCHEMA)
+        rel = (extract_json(txt, "relax") or {}).get("relax", {}) or {}
+        norm = {}
+        for k, v in rel.items():
+            snapped = _snap(vocab, k, v)
+            if snapped:
+                norm[snapped[0]] = snapped[1]
+        target2 = {**target, **norm}
+        hit = [v["item_id"] for v in ex["variant_catalog"] if v["available"] and v["options"] == target2]
+        if len(hit) == 1:
+            return hit[0], trace + [("relax", norm), ("ok", target2)]
+        msgs = [{"role": "user", "content": fb}, {"role": "assistant", "content": txt},
+                {"role": "user", "content": "That did not reach an available variant. Try a different single relaxation. JSON only."}]
+    return None, trace + [("fail", target)]
+
+
 def resolve_one(case_exchange, selector):
     """Map one formal selector to an item_id via the deterministic resolver."""
     prod = {"name": case_exchange["product_name"],
@@ -246,6 +327,14 @@ def eval_case(case, base, model, arm):
     n = case["n_items"]
     golds = [e["gold_new_item_id"] for e in case["exchanges"]]
     out = {"task_id": case["task_id"], "arm": arm, "n": n, "gold": golds}
+    # STRONG FORM: scaffolded incremental typed-step + deterministic per-step verification
+    if arm == "Sstep":
+        preds = []
+        for e in case["exchanges"]:
+            nid, _tr = step_resolve(case["nl"], e, base, model)
+            preds.append(nid)
+        out.update(parse_fail=False, pred=preds, item_correct=[preds[i] == golds[i] for i in range(n)])
+        return out
     # info-FLOOR ladder: concrete output held constant, input info level varies
     if arm in LEVEL_ARMS:
         txt = chat(base, model, prompt_concrete_level(case, arm), guided_json=CONCRETE_SCHEMA)
