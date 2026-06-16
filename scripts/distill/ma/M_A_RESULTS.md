@@ -52,4 +52,19 @@ B가 emit한 select_by를 gold/old와 대조하면 지배 패턴 = **"X만 바�
 ## 7. 한계/후속 (정직)
 - offline 값-정확성(gold call 대비)·full τ² rollout 아님(M-E). base 모델 1개(7B)·29케이스(소수)·retail single-config.
 - selector availability-blind 한계(§4)=설계 보정 필요(resolver가 "가용 중 best-match" 폴백 자동확장 or 모델에 availability 노출).
-- 다음: **M-σ — NL→formalize 선택 reasoning을 학습**(SOPBench/TaskBench 궤적→(NL,config,target-options) 삼중쌍·"change-X-keep-rest" 패턴 SFT)→ held-out config 전이(M-D). = 본체 닫기.
+
+### ★7b. 교란변수 — "reasoning 실패" 결론은 미완 (2026-06-16 정밀화·[[feedback-capability-vs-artifact-elicitation]])
+§3 "wrong_criteria=reasoning" 결론엔 **두 교란**이 남아 capability 단정 못 함:
+1. **forced-JSON이 추론 억압**: arm A/B는 `guided_json`으로 JSON 즉시 강제(추론공간 0). NL→SQL 딥리서치 경고 = constrained decoding이 reasoning 떨어뜨림([[reference-nl-formal-decouple-literature]]). ⇒ **CoT-then-formalize 미시험** = "reasoning 실패"가 아티팩트일 수 있음.
+2. **과다호출(별 실험·§5)은 capability 아님·SFT 손상**(base 7B 멀쩡 2.65≈gold·dist만 6.02). scale로 푸는 게 아니라 그 SFT 안 하면 사라짐.
+
+### ★7c. 다음 실험 = scale × elicitation × arm 2D (1D scale 금지)
+| | forced-JSON | **CoT-then-formalize** |
+|---|---|---|
+| 7B / 14B (로컬·먼저) | 기준 | ? (교란 배제) |
+| 32B / 72B (coworker) | ? | ? |
+- arm A(concrete) vs B(formal+resolver). **결정질문 = "결정론 offload(B)가 scale을 *대체*하나?"** — B가 7B를 32B-A 수준으로 끌면 아키텍처가 capability 대체(강한 주권결과). γ천장이 offload 무관 scale로만 닫히면 γ=환원불가 capability 핵.
+- **구현됨**: `ma_eval.py` arm Acot/Bcot(CoT·trailing JSON·grammar끔)·`ma_eval_scale.sh`(7B+14B 스윕). **싼것 먼저→그 다음 coworker 32/72B**(node_run·AWQ/2-GPU·사양=A/B×scale×CoT). 교란 미배제 상태서 큰모델 compute 금지.
+
+### 7d. 그 다음
+- 교란 배제·scale 기울기 확인 후 → **M-σ: NL→formalize 선택 reasoning(γ-grounding) 학습**(SOPBench/TaskBench 궤적→(NL,config,target-spec) 삼중쌍·"change-X-keep-rest"·등방화로 표면덮음)→ held-out config 전이(M-D). σ=증명·γ=등방화구성+실증(§5.10).
