@@ -77,6 +77,7 @@ M-A 전수추적(`M_A_RESULTS.md §3`)이 확정한 write-벽 = **wrong_criteria
 ---
 
 ## 9. ★합성 ablation 매트릭스 (단일 레시피 베팅 X·어느 축이 전이를 만드나) — 2026-06-16 리뷰
+> ⚠️ **대체됨(2026-06-16)**: 이 §9의 single-knob-off(전부 ON 기준 하나씩 OFF = 조건부 marginal)는 **`M_SIGMA_V3_TRANSFER_FACTORIAL_DESIGN.md`의 2³ 완전요인 비교군**(각 축 *단독* 전이 + *조합* 전이)으로 격상. 실험설계 권위 = v3. 본 §1-8(substrate/provenance/root-cause 결박)은 v3가 substrate로 재사용.
 하나의 합성에 베팅 대신, **이미 이론화한 설계축을 통제 변주**해 *전이 구동축*을 측정. 각 config = 데이터 생성→7B LoRA SFT→M-D τ² 전이 eval. **baseline + 단일-knob-off**(전체 factorial 16개 회피·각 축 기여 격리):
 
 | config | 등방화(iso) | NL-패러프레이즈 | provenance-혼합 | 추상도 | 측정 질문 |
