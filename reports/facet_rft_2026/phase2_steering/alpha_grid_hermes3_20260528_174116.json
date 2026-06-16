@@ -4,7 +4,7 @@
     "steer_base_model": "hermes3-steer",
     "user_llm": "openrouter/openai/gpt-4o-mini",
     "user_base_url": "https://openrouter.ai/api/v1",
-    "user_api_key": "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",
+    "user_api_key": "sk-or-v1-REDACTED_LEAKED_KEY_REVOKED_2026_06_16",
     "relation": "validates",
     "layers": "14,15,16",
     "alphas": "0.0,0.1,0.3,0.5,1.0,2.0",
