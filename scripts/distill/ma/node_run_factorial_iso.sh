@@ -15,8 +15,10 @@ HFREPO=iamseungpil/sopbench-trackb-h200
 WS=/scratch/woori_scratch; mkdir -p $WS/logs
 set -x
 
-# 0. env: sop_env has vllm+transformers (node_setup_h200); ADD peft for LoRA SFT (lora_train needs it)
-$PIP install -q peft >> $WS/logs/pip.log 2>&1 || true
+# 0. env: sop_env has vllm+transformers (node_setup_h200); ADD peft (LoRA SFT) + pin fastapi/starlette
+#    to the vllm-0.10.2-compatible versions. node_setup's fresh pip pulls a too-new fastapi whose
+#    starlette routing crashes vllm serve ('_IncludedRouter' has no attribute 'path') -> SERVE_FAIL.
+$PIP install -q peft "fastapi==0.136.3" "starlette==1.2.1" >> $WS/logs/pip.log 2>&1 || true
 
 # 1. ★symlink woori's hardcoded tree -> node paths (so the committed batch runs UNMODIFIED).
 #    ★FIX (2026-06-16): the JOB runs as aiscuser (NOT root) so plain `mkdir /home/woori` is DENIED

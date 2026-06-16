@@ -27,8 +27,10 @@ $HF download $HFREPO --repo-type dataset --include "ma_scale/*" --local-dir /scr
 [ -d /scratch/hf_ma/ma_scale ] && cp -rn /scratch/hf_ma/ma_scale/* $OUT/ 2>/dev/null || true
 [ -f $OUT/ma_72b_done ] && { echo "ALREADY DONE"; cat $OUT/eval_72b.log | grep -A12 SUMMARY; exit 0; }
 
-# 0b. deps the eval needs beyond node_setup (vllm brings xgrammar; ensure requests)
-$PIP install -q requests xgrammar >> $OUT/logs/pip.log 2>&1 || true
+# 0b. deps beyond node_setup: requests + xgrammar, AND pin fastapi/starlette to vllm-0.10.2-compatible
+#     versions (node_setup's fresh pip pulls a too-new fastapi -> vllm serve crashes with
+#     '_IncludedRouter' has no attribute 'path' = SERVE_FAIL; this killed the first ma72b run).
+$PIP install -q requests xgrammar "fastapi==0.136.3" "starlette==1.2.1" >> $OUT/logs/pip.log 2>&1 || true
 
 # 0c. background HF sync so a preempt keeps partial logs/result
 ( while true; do $HF upload $HFREPO $OUT ma_scale --repo-type dataset \
