@@ -65,6 +65,7 @@ B가 emit한 select_by를 gold/old와 대조하면 지배 패턴 = **"X만 바�
 | 32B / 72B (coworker) | ? | ? |
 - arm A(concrete) vs B(formal+resolver). **결정질문 = "결정론 offload(B)가 scale을 *대체*하나?"** — B가 7B를 32B-A 수준으로 끌면 아키텍처가 capability 대체(강한 주권결과). γ천장이 offload 무관 scale로만 닫히면 γ=환원불가 capability 핵.
 - **구현됨**: `ma_eval.py` arm Acot/Bcot(CoT·trailing JSON·grammar끔)·`ma_eval_scale.sh`(7B+14B 스윕). **싼것 먼저→그 다음 coworker 32/72B**(node_run·AWQ/2-GPU·사양=A/B×scale×CoT). 교란 미배제 상태서 큰모델 compute 금지.
+- **★선행연구 = 설계서 §11**: forced-format이 추론 해침(Tam EMNLP24·GCD-parser ACL25)·**CRANE**(`arXiv:2502.09061`·ICML25·자유추론+제약된최종·+10pp)·**vLLM `structural_tag`**(0.11 내장·CRANE delimiter-gating 제품화·코드검증). ⇒ arm **Bstag**(structural_tag=자유CoT+최종만 strict-grammar) 추가 예정 — Bcot(grammar끔·무보장)보다 엄격유효성 유지. **신규성 경계(정직)**: 디코딩 처방(CRANE/structural_tag)은 *채택*이지 기여 아님·기여=selector+resolver+전이 분담. 전수 신규성=딥리서치 `wf_3f814306-3e4` 확정중.
 
 ### 7d. 그 다음
 - 교란 배제·scale 기울기 확인 후 → **M-σ: NL→formalize 선택 reasoning(γ-grounding) 학습**(SOPBench/TaskBench 궤적→(NL,config,target-spec) 삼중쌍·"change-X-keep-rest"·등방화로 표면덮음)→ held-out config 전이(M-D). σ=증명·γ=등방화구성+실증(§5.10).

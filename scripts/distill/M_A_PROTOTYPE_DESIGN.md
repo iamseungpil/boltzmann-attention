@@ -108,3 +108,36 @@ resolve(formal, env):
 - **약 성공**: B≈A이나 type-violation·FAIL이 진단가능(어디서 막히는지)·predicate-select 필요범위 정량.
 - **음성**: B<A(resolver 매칭이 LLM emit criteria 오류를 증폭) → criteria-emit 자체가 어려운지(=NL→formalize σ 학습 필요·M-A가 그 신호) 분석.
 - **★음성=diagnostic gold(리뷰 격상)**: B≈A이고 원인=wrong-criteria(§7⑥-i)면 = **root cause가 fabrication 아닌 NL→formalize *추론*(σ-학습 필요·thesis A2 front-end)임을 *증명***. M-A의 최대 가치 = "B>A 승리"보다 **§7⑥ 분해로 root cause(fabrication vs reasoning) 최종 확정** = σ 학습 필요여부 판가름. 음성도 1급 결과.
+
+---
+
+## 11. ★관련연구 / 선행연구 경계 — forced-format vs reasoning (2026-06-16·정독+코드검증)
+> **목적**: 우리가 *무엇을 빌리고 무엇이 새로운지* 명확히. forced-JSON 교란(§7b)·CoT arm(Acot/Bcot)·structural_tag 처방은 **전부 선행연구 영역**. 우리 신규성은 그 *밖*에 있어야 한다. (전수 문헌·신규성 = 발주 딥리서치 `wf_3f814306-3e4`가 확정 — 도착 시 본 절 정련.)
+
+### 11.1 forced-format이 reasoning을 해친다 (선행·검증된 현상)
+- **"Let Me Speak Freely?"** (Tam et al., **EMNLP 2024**, `arXiv:2408.02442`): 포맷-제약 출력이 자유생성 대비 추론 저하 — 우리 NL→SQL DR서 corroborated.
+- **GCD-as-logical-parser** (ACL 2025 Industry Track 34): grammar 강제는 executable rate↑이나 **대형 모델 few-shot서 semantic accuracy *역전*** = "grammar=form-not-meaning"([[reference-nl-formal-decouple-literature]]). DR서 "consistently improves semantic"은 REFUTED.
+- Ye et al. 2025(constrained-decoding KL/분포 왜곡) — DR서 언급·1차 미정독(약).
+- ⇒ **우리 M-A arm A/B(`guided_json` 전체출력 강제)는 정확히 이 regime** = "reasoning 실패"가 교란일 수 있음(§7b).
+
+### 11.2 ★CRANE — "reasoning + constrained" 선행 해법 (직접 정독)
+**`arXiv:2502.09061`·ICML 2025**·Banerjee, Suresh, Ugare, Misailovic, Singh. "CRANE: Reasoning with Constrained LLM Generation".
+- **이론**: 출력을 *유한* 문법(유효 최종답만)으로 조이면 답을 **single autoregressive step**으로 내야 함 → 고정깊이 트랜스포머 = 고정깊이 회로(TC⁰급·약). CoT 중간토큰이 추가 계산스텝(다항시간 흉내)을 주는데 grammar가 그 스크래치패드를 금지 → 추론력 붕괴. (한계: *유한* 문법에만 증명.)
+- **방법**: 증강문법 **Gₐ → R·G**(R=자유추론·G=최종출력). delimiter `S₁`…`S₂`로 **무제약↔제약 토큰단위 교대**(밖=자유CoT·안=grammar강제). logit 접근 필요(closed-API 불가).
+- **결과**: GSM-symbolic·FOLIO서 **순수제약 *및* 무제약-CoT 둘 다보다 최대 +10pp**·최종 parse 100% 유효(Qwen2.5 1.5/7/14B·Llama3.1-8B·R1-distill·QwQ-32B).
+- ⇒ **"자유추론 + 제약된 최종" 일반개념 = CRANE 소유(ICML2025).** 우리 신규성 아님.
+
+### 11.3 ★vLLM `structural_tag` — CRANE 메커니즘의 제품화 (코드검증·우리 스택)
+- **vLLM 0.11.0 + xgrammar**에 `StructuralTagResponseFormat` 내장(`{type:"structural_tag", structures:[{begin,schema,end}], triggers:[str]}`). trigger 전=자유생성·`begin`~`end`=schema(xgrammar) 강제 = **CRANE delimiter-gating을 API 인자로**(커스텀 코드 0). xgrammar `GrammarMatcher`도 `accept_token`/`fill_next_token_bitmask`/`rollback` 노출 → ③ 커스텀 게이팅도 가능(불요).
+- ⇒ **strict-schema + 추론보존 = 우리 스택서 즉시 가능·기성기술.** arm **Bstag**(structural_tag)로 추가 예정 = Bcot(grammar 끔)보다 엄격유효성 유지하며 추론.
+
+### 11.4 ★신규성 경계 (정직)
+| 요소 | 지위 |
+|---|---|
+| forced-format이 추론 해침 | **선행**(Tam·GCD-parser·CRANE 이론) |
+| 자유추론 + 제약된 최종(delimiter-gating) | **선행**(CRANE ICML2025·vLLM structural_tag 제품화) |
+| in-schema reasoning 필드 | **선행**(관행·OpenAI 구조출력) |
+| **provenance-typed *selector*(추상 criteria·concrete id 아님) emit** | **우리 후보**(딥리서치 확인중) |
+| **결정론 *resolver*(selector→concrete) + selector/verifier 결정론 분담** | **우리 후보** |
+| **agentic NL→tool-action 세팅서 selector+resolver+전이(ABox-swap)** | **우리 후보**(NL→SQL DR 커버리지 갭) |
+- **결론**: 디코딩-레벨 처방(structural_tag·CRANE)은 *채택*이지 기여 아님. 기여 = **"무엇을 LLM이 emit하나(추상 selector)"의 분담·전이**. M-A는 그 분담을 *진단*(reasoning vs fabrication)·M-σ가 *학습*. 디코딩 처방은 reasoning을 *살려서* σ 학습/측정을 공정하게 만드는 *도구*.
