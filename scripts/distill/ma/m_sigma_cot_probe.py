@@ -4,6 +4,10 @@
 2-STAGE (review boost 4): free CoT FIRST -> SEPARATE extraction. Forcing CoT->schema in one
 shot lets forced-JSON distortion (CRANE) contaminate the probe; staging isolates capability.
 
+HINT axis (review): --hints neutral = the §4 capability probe (NEUTRAL stage-1, no F1 hint);
+--hints guided = the §5 F1-lever test (stage-1 tells the model "fallback is not a new
+constraint"). Default neutral so the probe measures raw capability, not "model + hint".
+
 Cells (each scored on new_item_ids accuracy vs gold, n=29 held-out tau2):
   P-lit     : free CoT -> extract final item_id(s) as a literal list   (in-head selection)
   P-old-CoT : free CoT -> extract {by, fallback} spec                  (current schema)
@@ -43,10 +47,20 @@ def conv_prefix(case, obs):
     return msgs
 
 
-STAGE1 = ("Think step by step about the exchange. Identify: (a) which attribute(s) the user "
-          "wants to CHANGE and to what value; (b) any CONDITIONAL FALLBACK ('if not available, "
-          "then ...') — note this describes a backup, it is NOT a new constraint; (c) which "
-          "attributes stay the SAME. Do NOT output the final answer yet — reason only.")
+# §4 capability probe MUST use the NEUTRAL stage-1 (no F1 hint), else it measures "model + hint"
+# not raw capability (review: the "fallback is NOT a new constraint" clause IS the §5 F1-lever and
+# was contaminating the probe). The guided stage-1 is kept as a SEPARATE axis (--hints guided) =
+# the §5 CoT-extraction lever test, so capability(neutral) / guided(§5) / forced-JSON(IR cell) stay
+# cleanly separated (P4 §6-6 "§4·§5 섞지 말 것").
+STAGE1 = {
+    "neutral": ("Think step by step about this order exchange: which product variant does the user "
+                "want? Reason fully about the requested changes and any conditions, but do NOT output "
+                "the final answer yet — reason only."),
+    "guided":  ("Think step by step about the exchange. Identify: (a) which attribute(s) the user "
+                "wants to CHANGE and to what value; (b) any CONDITIONAL FALLBACK ('if not available, "
+                "then ...') — note this describes a backup, it is NOT a new constraint; (c) which "
+                "attributes stay the SAME. Do NOT output the final answer yet — reason only."),
+}
 
 STAGE2 = {
     "P-lit":     ('Now output ONLY a JSON object {"new_item_ids": ["<item_id>", ...]} with the '
@@ -135,7 +149,7 @@ def resolve_new_item(cell, val, case):
     return out
 
 
-def run_cell(base, model, cases, cell, withhold):
+def run_cell(base, model, cases, cell, withhold, hint="neutral"):
     wh = {"get_product_details"} if withhold else None
     ok = 0
     n = 0
@@ -143,7 +157,7 @@ def run_cell(base, model, cases, cell, withhold):
         obs = build_obs(case, withhold=wh)
         gold = [e["gold_new_item_id"] for e in case["exchanges"]]
         msgs = conv_prefix(case, obs)
-        msgs.append({"role": "user", "content": STAGE1})
+        msgs.append({"role": "user", "content": STAGE1[hint]})
         r1 = chat(base, model, msgs, max_tokens=512)
         reasoning = r1.get("content") or ""
         msgs.append({"role": "assistant", "content": reasoning})
@@ -164,6 +178,8 @@ if __name__ == "__main__":
     ap.add_argument("--model", required=True)
     ap.add_argument("--cells", default="P-lit,P-old-CoT,P-new-CoT")
     ap.add_argument("--regimes", default="given,withheld", help="given,withheld (catalog visibility)")
+    ap.add_argument("--hints", default="neutral",
+                    help="neutral (§4 capability probe) , guided (§5 F1-lever test). default=neutral")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
     cases = [json.loads(l) for l in open(args.cases, encoding="utf-8")]
@@ -171,10 +187,13 @@ if __name__ == "__main__":
     res = {}
     for cell in [c.strip() for c in args.cells.split(",") if c.strip()]:
         for regime in [r.strip() for r in args.regimes.split(",") if r.strip()]:
-            ok, n = run_cell(args.base, args.model, cases, cell, withhold=(regime == "withheld"))
-            res[f"{cell}/{regime}"] = [ok, n]
-            print(f"  {cell:12s} [{regime:8s}] new_item_ids = {ok}/{n} ({ok/max(n,1):.2f})")
-    print("baseline refs: base-no-CoT-lit/given=0.48  M0-forced/given=0.41")
+            for hint in [h.strip() for h in args.hints.split(",") if h.strip()]:
+                ok, n = run_cell(args.base, args.model, cases, cell,
+                                 withhold=(regime == "withheld"), hint=hint)
+                res[f"{cell}/{regime}/{hint}"] = [ok, n]
+                print(f"  {cell:12s} [{regime:8s}/{hint:7s}] new_item_ids = {ok}/{n} ({ok/max(n,1):.2f})")
+    print("baseline refs: base-no-CoT-lit/given=0.48  M0-forced/given=0.41 "
+          "| neutral=§4 capability, guided=§5 F1-lever")
     if args.out:
         json.dump(res, open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
         print("wrote", args.out)
