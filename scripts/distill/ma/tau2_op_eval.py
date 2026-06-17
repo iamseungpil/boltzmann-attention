@@ -21,7 +21,7 @@ SUP = re.compile(r'\b(cheap|expensive|highest|lowest|larg|small|biggest|bigger|s
                  r'least|better|brighter|faster|bigger|longer|shorter|more|less|prefer|further|farther)\w*', re.I)
 
 
-def build_user(nl, ex, gloss):
+def build_user(nl, ex, gloss, synth_format=False):
     catalog = ex["variant_catalog"]
     attrs = sorted({k for it in catalog for k in it["options"]})
     ords = {}
@@ -30,6 +30,15 @@ def build_user(nl, ex, gloss):
             vals = sorted({it["options"][a] for it in catalog if a in it["options"]},
                           key=lambda v: ordkey(a, v) if ordkey(a, v) is not None else 0)
             ords[a] = vals
+    if synth_format:
+        # MATCH synth arm_B structure exactly (format-control diagnostic): "Query / attributes /
+        # the ordinal attribute is X / OP_SPEC". Isolates whether op-slot collapse (op=exchange)
+        # is NL-verb copying (survives format match) vs OOD-format breakage (heals under it).
+        ordattr = next(iter(ords), attrs[0] if attrs else "")
+        return (f"Query: {nl}\n\n"
+                f"The catalog items have these attributes: {attrs}.\n"
+                f"The ordinal/numeric attribute is '{ordattr}'.\n\n"
+                f"{build_spec(gloss)}")
     return (f"Query: {nl}\n\n"
             f"This exchanges the item: {ex['old_item_name']} "
             f"(current options: {json.dumps(ex['old_options'])}, id={ex['old_item_id']}).\n"
@@ -50,6 +59,7 @@ def main():
     ap.add_argument("--base", default="http://localhost:8025/v1")
     ap.add_argument("--model", required=True)
     ap.add_argument("--gloss", type=int, default=0)
+    ap.add_argument("--synth_format", type=int, default=0, help="1=match synth arm_B prompt structure (format-control)")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
     cases = [json.loads(l) for l in open(args.cases, encoding="utf-8")]
@@ -60,7 +70,7 @@ def main():
     for c in cases:
         for ex in c["exchanges"]:
             ex["_nl"] = c["nl"]
-            user = build_user(c["nl"], ex, bool(args.gloss))
+            user = build_user(c["nl"], ex, bool(args.gloss), synth_format=bool(args.synth_format))
             out = chat(args.base, args.model, [{"role": "system", "content": "Output ONLY JSON."},
                                                {"role": "user", "content": user}], 256)
             ir = extract_json(out)
