@@ -79,6 +79,36 @@
 - 인지: **표상효과**(Zhang&Norman·왜 아라비아 곱셈이 쉽고 로마는 어려운가)·외재인지.
 → Lie(§1-7)는 *연속/생성* 특수예·이 표기론(절차-내장·복잡도류·notationality)이 *일반 골격*.
 
+## 7c. ★표기 깊이(notation depth) — 측정법 (2026-06-17 사용자 지시)
+NL 표기는 *깊이*가 다르다: 상형문자처럼 대상에 **1:1 매핑(denotation·깊이0)**부터, **알고리즘·추상화를 내장한 표기**(깊음)까지. **깊을수록 LLM의 탐색·분류가 어렵다.** ⇒ 깊이 `d(e)`를 *측정*해야 — 그게 LLM-실행가능 경계를 *예측*한다.
+
+### 정의: d(e) = e를 denotational normal form으로 펼치는 *연산자-중첩 깊이*
+e를 *절차 골격*으로 파싱해, **순수 denotation(값·개체 lookup)에 닿을 때까지의 unfold(환원) 단계 수** = 중첩된 연산자(양화·extremum·비교·집계·조건)의 깊이.
+| d | 정체 | τ² 예 |
+|---|---|---|
+| **0** | 순수 denotation(1:1) | "주문 #W123"·"the keyboard" (이름→사물) |
+| **1** | denotational 항 위 *연산자 1개* | "clicky 스위치"(필터)·"the cheapest"(extremum) |
+| **2** | 연산자∘연산자 | "the cheapest **waterproof**"(extremum∘filter)·"현재보다 **less bright**"(anchor-비교) |
+| **≥3** | 중첩·관계 | "두번째로 싼 방수 + 현재보다 가벼운"·다단 조건 fallback |
+
+### 3개의 *수렴하는* 형식 측도 (다 같은 깊이를 다른 각도로)
+1. **연산자-중첩 깊이 / quantifier rank** — 논리형의 최대 중첩(superlative=∃∀ rank2…). *구문적·계산가능.* (1차 측도·실용.)
+2. **의미 타입 차수(type order)** — entity(0)·predicate⟨e,t⟩(1)·양화/extremum⟨⟨e,t⟩,·⟩(2)·중첩(3+). *더 추상 객체 위 연산일수록 깊음.*
+3. **van Benthem semantic-automata 류** — 각 연산자의 *평가 복잡도*(유한상태<계수<…). *깊이의 계산적 무게* — 같은 rank라도 "most"(계수)가 "every"(유한상태)보다 깊음.
+→ **정초 측도 = Bennett의 *logical depth***(콤팩트 기호를 denotation으로 펼치는 *계산시간*) = "기호에 *압축된 알고리즘의 양*". 위 1-3은 그 계산가능 대리. 상형=O(1)·"best over n"=O(n log n)·중첩=합성.
+
+### ★측정 프로토콜 (실측·반증가능)
+1. τ² 각 요청 e를 절차골격으로 파싱 → `d(e)` 계산(rank + type-order, automata류로 가중).
+2. **`d(e)` vs LLM per-case 분류/선택 실패율 상관**(전수추적 데이터 재사용). 
+3. **예측**: 실패율 ↑ in d·**임계 `d*`**(LLM 분류 지평) 존재·결정론 엔진은 **d-불변**(어떤 깊이도 실행). ⇒ **분담 경계 = `d*`**: LLM은 `d ≤ d*` 골격 인식·emit / 엔진은 실행.
+4. **scale 의존성**: `d*`가 모델크기로 *얕게* 오르나(§4b sweep과 교차)·아니면 *결정론 offload*가 유효 `d*`를 ∞로(깊이는 엔진이 흡수). thesis = 후자.
+
+### IR 설계 함의 (Arabic-numeral 교훈의 정량화)
+**좋은 표기 = 깊은 연산을 *얕게* 조작가능케 함**(아라비아 숫자가 곱셈을 얕은 기호조작으로). 우리 정적 `$select`는 깊은 연산을 *LLM에 깊게* 떠넘겨 실패. ⇒ **IR 목표 = LLM-대면 `d`를 최소화**(절차를 얕은 생성원-단어로 노출·실행 깊이는 엔진이 흡수). `d(e)` 측정이 *어떤 IR이 깊이를 더 얕게 만드나*의 비교 척도가 된다.
+
+### 측정 도구 (구현)
+`notation_depth.py`(신규): τ² 요청 → 연산자-골격 파싱(superlative/comparative/filter/conditional/relational 태깅) → d(rank·type-order·automata가중) → per-case d + 실패율 상관표(`M_A §14`). 딥리서치 `w3d906s6n`(semantic automata·Goodman notationality·logical depth)가 측도 선택·가중을 정련.
+
 ## 8. 정직 (이론 지위)
 - 이건 *생산적 형식틀*(Lie 대수↔군 = name↔execute의 동형)이지 증명된 정리 아님. "가해성=추상화레벨"은 *은유적 위계*(엄밀 Galois 군 아님)·반증가능 예측(§6)으로 검증.
 - 엄밀화 경로: (i)tool-use primitive를 실제 유한생성 대수로 구성(닫힘 companion 확장) (ii)생성원-수 = eff-dim 측정(olver_dimension_experiment 재사용) (iii)§6 예측 실험.
