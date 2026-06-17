@@ -306,3 +306,17 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **★천장 ~0.44 = 성분 B(§20)**: 학습본 잔여 miss = missing_key(retail 12)·wrong_value(airline 6) = multi-attr `set` 과소추출. width-1~2 synth가 retail/airline의 multi-attr·값정규화를 과소커버해 못 메움. → width 실험(§22)·wider-synth·decomposition-offload 동기.
 - **함의**: 전이의 *라우팅* 축은 닫힘(내재화+도메인일반). 남은 벽 = *인자(set) formalize* = width-budget. 이게 scale로 풀리나 offload(분해)가 필연이냐 = §22 width×scale(frontier 포함).
 - 정직: ep1·6000·7B 한정·multidomain_route는 anchor-fix 전 resolver로 평가(재해결로 동일 0.44 확인)·n 작음(32/27).
+
+## 22. ★★★성분 B(width)는 스케일로 해소 = offload 필요성은 *소형 모델 조건부* (2026-06-18·`width_eval.py`·통제 width substitute·n=60/width)
+> 질문: multi-attr `set` 추출 벽이 *근본*(전 스케일 지속→decomposition-offload 필연)이냐, *소형 한정*(frontier가 흡수→offload 불요)이냐. frontier gpt-4.1(openrouter)로 width 1~5 측정.
+
+| width | 1 | 2 | 3 | 4 | 5 | 패턴 |
+|---|---|---|---|---|---|---|
+| **gpt-4.1 SET_EXACT** (요청 k개 전부 추출) | 0.88 | 0.93 | 0.80 | 0.82 | 0.95 | **평탄·벽 없음** |
+| gpt-4.1 arm A (in-head 전부) | 1.00 | 0.93 | 0.85 | 0.90 | 0.97 | 평탄 |
+| 7B (τ² base, §20) | 0.64 | 0.40 | 0.29 | 0.25 | — | **급락** |
+
+- **★확정**: frontier는 width 1→5서 SET_EXACT ~0.8~0.95 **평탄**(벽 없음)·7B는 급락. ⇒ **width 벽 = 소형 모델 현상·스케일로 해소**. (gpt-4.1 width3~4서 size_bias −0.57/−0.73 = 경미한 under-spec 잔존이나 붕괴 아님.)
+- **★offload 필요성 = 주권(소형 on-prem) 조건부**: frontier 있으면 width offload(분해) *불요*(native 처리). **소형 on-prem 7B(=thesis 타깃)엔 벽이 실재→decomposition-offload가 7B를 frontier 수준으로 끌어올리는 구조**. = thesis "소형+구조=대형" **정합·강화**(frontier가 native로 하는 걸 7B는 분해로 달성). depth 축(엔진 offload)과 동형 결론.
+- **다음**: (1) 7B를 *동일* synth width_eval로(τ²→synth substrate 통일·redo 후 GPU). (2) coworker 32/72/235B width 스윕(`width_scale_batch.sh`)→ S\*(width) 임계 스케일 위치. (3) **decomposition arm**(per-attr emit+엔진 조립) 구현→소형서 width 벽 우회 *충분성* 실증.
+- 정직: gpt-4.1 단일 frontier(추가 모델 권장)·n=60·synth 한정·7B 비교점은 아직 τ² 기반(동일-substrate 보강 중)·SET_EXACT<1.0(frontier도 완벽 아님).
