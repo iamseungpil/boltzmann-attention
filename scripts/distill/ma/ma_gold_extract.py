@@ -68,20 +68,84 @@ def build_cases(tasks, db):
     return cases, skipped
 
 
+CABINS = ["basic_economy", "economy", "business"]  # ordinal class hierarchy
+
+
+def _cabin_catalog():
+    return [{"item_id": c, "options": {"cabin": c}, "available": True} for c in CABINS]
+
+
+def build_cases_airline(tasks, db):
+    """Airline content cases on the CABIN dimension (the cross-domain twin of retail variant-exchange:
+    cabin is an ordinal class hierarchy basic_economy<economy<business). update_reservation_flights that
+    keep the flights and change cabin = pure keep-rest SUBSTITUTE; book_reservation = CREATE. We score
+    the cabin selection (honest: book is multi-field; cabin is the comparable content slot). Schema is
+    ISOMORPHIC to retail cases (variant_catalog + gold_new_item_id) so tau2_op_resolver/eval reuse."""
+    res = db["reservations"]
+    cases, skipped = [], []
+    for t in tasks:
+        actions = (t.get("evaluation_criteria") or {}).get("actions") or []
+        nl = ((t.get("user_scenario") or {}).get("instructions") or {}).get("reason_for_call") or ""
+        for a in actions:
+            name = a.get("name"); arg = a.get("arguments") or {}
+            if name == "update_reservation_flights":
+                rid = arg.get("reservation_id"); r = res.get(rid)
+                if r is None:
+                    skipped.append((t["id"], f"reservation {rid} missing")); continue
+                old_cab = r.get("cabin"); new_cab = arg.get("cabin")
+                if old_cab not in CABINS or new_cab not in CABINS:
+                    skipped.append((t["id"], f"cabin not in enum ({old_cab}->{new_cab})")); continue
+                if old_cab == new_cab:
+                    skipped.append((t["id"], "cabin unchanged (no content selection)")); continue
+                of = [(f.get("flight_number"), f.get("date")) for f in r.get("flights", [])]
+                nf = [(f.get("flight_number"), f.get("date")) for f in arg.get("flights", [])]
+                cases.append({
+                    "task_id": t["id"], "nl": nl, "order_id": rid, "n_items": 1,
+                    "case_op": "substitute", "flights_kept": of == nf,
+                    "exchanges": [{
+                        "old_item_id": old_cab, "old_item_name": f"reservation {rid}",
+                        "old_options": {"cabin": old_cab}, "product_id": rid, "product_name": "reservation",
+                        "variant_catalog": _cabin_catalog(),
+                        "gold_new_item_id": new_cab, "gold_new_options": {"cabin": new_cab},
+                    }]})
+            elif name == "book_reservation":
+                cab = arg.get("cabin")
+                if cab not in CABINS:
+                    skipped.append((t["id"], f"book cabin not in enum ({cab})")); continue
+                cases.append({
+                    "task_id": t["id"], "nl": nl, "order_id": None, "n_items": 1,
+                    "case_op": "create", "flights_kept": False,
+                    "exchanges": [{
+                        "old_item_id": "", "old_item_name": "(new reservation)",
+                        "old_options": {}, "product_id": None, "product_name": "reservation",
+                        "variant_catalog": _cabin_catalog(),
+                        "gold_new_item_id": cab, "gold_new_options": {"cabin": cab},
+                    }]})
+    return cases, skipped
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tasks", default="/home/woori/scratch/tau2-bench/data/tau2/domains/retail/tasks.json")
-    ap.add_argument("--db", default="/home/woori/scratch/tau2-bench/data/tau2/domains/retail/db.json")
-    ap.add_argument("--out", default="/home/woori/scratch/ma_eval_cases.jsonl")
+    ap.add_argument("--domain", default="retail", choices=["retail", "airline"])
+    ap.add_argument("--tasks", default="")
+    ap.add_argument("--db", default="")
+    ap.add_argument("--out", default="")
     args = ap.parse_args()
-    tasks = json.load(open(args.tasks, encoding="utf-8"))
-    db = json.load(open(args.db, encoding="utf-8"))
-    cases, skipped = build_cases(tasks, db)
-    with open(args.out, "w", encoding="utf-8") as f:
+    base = f"/home/woori/scratch/tau2-bench/data/tau2/domains/{args.domain}"
+    tasks = json.load(open(args.tasks or f"{base}/tasks.json", encoding="utf-8"))
+    db = json.load(open(args.db or f"{base}/db.json", encoding="utf-8"))
+    out = args.out or ("/home/woori/scratch/ma_eval_cases.jsonl" if args.domain == "retail"
+                       else f"/home/woori/scratch/ma_eval_cases_{args.domain}.jsonl")
+    if args.domain == "airline":
+        cases, skipped = build_cases_airline(tasks, db)
+    else:
+        cases, skipped = build_cases(tasks, db)
+    with open(out, "w", encoding="utf-8") as f:
         for c in cases:
             f.write(json.dumps(c, ensure_ascii=False) + "\n")
-    n_multi = sum(1 for c in cases if c["n_items"] > 1)
-    print(f"extracted {len(cases)} exchange cases ({n_multi} multi-item) -> {args.out}")
+    from collections import Counter
+    opd = Counter(c.get("case_op", "exchange") for c in cases)
+    print(f"[{args.domain}] extracted {len(cases)} cases -> {out} | op-types: {dict(opd)}")
     print(f"skipped {len(skipped)} non-extractable:")
     for tid, why in skipped[:20]:
         print(f"  task {tid}: {why}")

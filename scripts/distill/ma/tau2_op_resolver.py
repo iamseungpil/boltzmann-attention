@@ -19,6 +19,7 @@ ORD_WORDS = {
     "backrest height": ["standard", "high-back"],
     "water resistance": ["not resistant", "IPX4", "IPX7"],
     "resolution": ["1080p", "4K", "5K"],  # video line; MP cameras fall through to numeric
+    "cabin": ["basic_economy", "economy", "business"],  # airline class hierarchy (ordinal)
 }
 
 

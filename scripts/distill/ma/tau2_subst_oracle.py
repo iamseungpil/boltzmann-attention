@@ -26,13 +26,17 @@ def main():
     nch_dist = Counter()
     fails = []
     for c in cases:
+        case_op = c.get("case_op", "substitute")
         for ex in c["exchanges"]:
             old = ex["old_options"]; new = ex["gold_new_options"]
             setv = {k: v for k, v in new.items() if str(old.get(k)) != str(v)}
             n_changed = len(setv)
             n_total = len(new)
             nch_dist[(n_changed, n_total)] += 1
-            op_ir = {"op": "substitute", "anchor_id": ex["old_item_id"], "set": setv}
+            if case_op == "create":
+                op_ir = {"op": "create", "set": dict(new)}
+            else:
+                op_ir = {"op": "substitute", "anchor_id": ex["old_item_id"], "set": setv}
             rid = resolve_op_tau2(op_ir, ex["variant_catalog"], anchor_id=ex["old_item_id"])
             hit = int(rid == ex["gold_new_item_id"])
             n += 1; ok += hit
