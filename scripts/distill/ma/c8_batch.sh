@@ -26,7 +26,7 @@ serve(){ # $1=served-id  $2=lora_path(empty=base)
     CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve $BASE --port $PORT --max-model-len 16384 \
       > $S/logs/serve_base_g${GPU}.log 2>&1 &
   fi
-  for i in $(seq 1 100); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "$1" && return 0; sleep 6; done
+  for i in $(seq 1 100); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q '"id"' && return 0; sleep 6; done
   echo "SERVE_FAIL $1"; tail -20 $S/logs/serve_${1}_g${GPU}.log; return 1
 }
 
@@ -60,8 +60,8 @@ if [ "$LINE" = "A" ]; then
     $PY $MA/depth_eval.py --data $S/c8_eval_heldout.jsonl --base http://localhost:$PORT/v1 --model $BASE --arms B --gloss 0 --out $S/results/BASE_S0__heldout.json || true
     $PY $MA/depth_eval.py --data $S/c8_eval_heldout.jsonl --base http://localhost:$PORT/v1 --model $BASE --arms B --gloss 1 --out $S/results/BASE_S1__heldout.json || true
     $PY $MA/depth_eval.py --data $S/c8_eval_indist.jsonl  --base http://localhost:$PORT/v1 --model $BASE --arms B --gloss 0 --out $S/results/BASE_S0__indist.json || true
-    kill_gpu
   fi
+  kill_gpu   # ALWAYS free the gpu before training (serve-fail must not leave a zombie -> OOM)
   # learning-curve line (full 5-op, gloss-free)
   variant A1_ep1 $S/c8_train_sft.jsonl 1 2e-4
   variant A2_ep3 $S/c8_train_sft.jsonl 3 2e-4
