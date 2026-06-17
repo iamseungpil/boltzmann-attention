@@ -109,6 +109,40 @@ e를 *절차 골격*으로 파싱해, **순수 denotation(값·개체 lookup)에
 ### 측정 도구 (구현)
 `notation_depth.py`(신규): τ² 요청 → 연산자-골격 파싱(superlative/comparative/filter/conditional/relational 태깅) → d(rank·type-order·automata가중) → per-case d + 실패율 상관표(`M_A §14`). 딥리서치 `w3d906s6n`(semantic automata·Goodman notationality·logical depth)가 측도 선택·가중을 정련.
 
+## 7d. ★시간(절차) vs 공간(파라미터) — 깊이를 *어디에* 지불하나 (thesis의 아키텍처적 근거·2026-06-17)
+사용자 통찰: 빅모델이 작은모델보다 깊은 표기를 잘 매핑하는 건 *시간적 절차*가 아니라 *공간적 파라미터*를 키워 극복한 것. 그리고 시간↔공간은 *LLM 아키텍처의 호환성*에 기초. → Transformer 복잡도이론으로 형식화하면 thesis의 *뿌리*가 나온다.
+
+### 사실 1: forward pass = *유계-깊이* 병렬회로
+- log-정밀 Transformer 1회 forward = **uniform TC⁰**(상수-깊이 threshold 회로·Merrill-Sabharwal). *직렬 계산깊이 ≈ layer 수 L*(상수)·나머지는 병렬(width).
+- ⇒ **forward pass의 직렬-깊이 예산 = L**. scale은 L을 *느리게*(~log) 키우고 width/암기회로를 *크게* 키운다.
+
+### 사실 2: 표기깊이 d(e) = 직렬 unfold 깊이 (= Bennett logical depth)
+"best/most/중첩"을 펼치는 건 본질상 *직렬*(정렬·계수·재귀). d(e) = 그 직렬 깊이.
+
+### ★깊이를 지불하는 3가지 길 (= 시간/공간/offload 삼분)
+| 지불 | 메커니즘 | 한계 | 우리 실측 |
+|---|---|---|---|
+| **공간(scale)** | 더 큰 L + 암기 병렬회로로 unfold를 *병렬화/암기* | **d ≤ L만**. 상수-깊이 회로는 *직렬-깊이 d≫L*를 **크기 무관 못 함**(AC⁰의 PARITY 불가류 하한) | **floor sweep: 32B/72B도 binding 벽 못 깸** = binding이 logically-deep → 어떤 forward pass도 불가 |
+| **시간-in-LLM(CoT)** | 토큰마다 직렬스텝 추가 → 깊이 무계(Li et al: CoT면 직렬/P-complete 가능) | **스텝당 오차 누적** → 소형은 plateau | **Sstep: CoT 7B→0.656≈14B 후 평탄** |
+| **시간-in-엔진(결정론)** | 실제 직렬기계가 unfold 실행 | **무계·오차0·저비용** | **offload 승리(thesis)** |
+
+### ★시간↔공간 호환성의 정확한 의미
+- forward-pass 깊이 L(병렬-시간/공간)과 CoT 길이 T(직렬-시간)는 *같은 계산의 두 축* — **CoT = 고정-깊이 회로를 시간축으로 *펼침***(Merrill-Sabharwal CoT 확장·Feng et al). 둘은 아키텍처적으로 교환가능, **단 비대칭**: 공간(L)은 *상수 깊이*(유계)·시간(CoT/엔진)만 *무계 깊이*.
+- **빅모델 = 직렬 unfold를 *병렬회로로 암기/근사*해 공간으로 지불** — 빠르나(1패스) *유계 깊이*·파라미터 낭비·주권 위배. **logically-deep(병렬화 불가) 연산은 크기 무관 forward pass로 못 함.**
+
+### ★thesis의 아키텍처적 정당화 (왜 작은모델+scaffold ≥ 빅모델)
+1. 깊은 d는 **어떤 forward pass(어떤 크기)도** 못 함(유계-깊이 하한) → scale 무효(=floor sweep).
+2. CoT는 무계지만 *LLM이 매스텝 정확*해야 → 소형 오차누적 plateau.
+3. **결정론 엔진 = 완벽·저비용 직렬기계** → unfold를 무계·정확 실행.
+⇒ **LLM은 *얕은 분류*(d ≤ d*·절차-타입 인식·소형 L 예산 안)만·깊은 unfold는 엔진에 offload.** 빅모델은 (a)깊은 d서 어차피 유계한계에 막히고 (b)얕은-d 회로 암기에 파라미터 낭비 → **소형+엔진이 지배.** = `DECOMPOSITION_OPTIMALITY`·"binding 벽≠scale"의 *근본 이유*.
+
+### 예측 (반증가능)
+- (a) forward-pass(no-CoT) regime서 **d* ∝ L(layer 수)이지 total-params 아님** — 깊이천장은 깊이예산(L)이 정함.
+- (b) CoT가 유효 d*를 늘리나 *오차율×깊이*로 소형 plateau(Sstep 정합).
+- (c) **결정론 offload가 유효 d* = ∞**(엔진이 직렬깊이 흡수) → 소형+엔진이 d-불변.
+- (d) 분류(절차-타입 인식)는 d-얕음 → 소형 L 예산 안 → 학습·전이(§7b 학습가능성과 정합).
+→ 딥리서치(`w3d906s6n` notationality·`wuwr9839y` routing) + **Transformer-복잡도 문헌**(Merrill-Sabharwal TC⁰·CoT 확장·Feng/Li serial·Bennett depth)이 이 절을 정련·검증.
+
 ## 8. 정직 (이론 지위)
 - 이건 *생산적 형식틀*(Lie 대수↔군 = name↔execute의 동형)이지 증명된 정리 아님. "가해성=추상화레벨"은 *은유적 위계*(엄밀 Galois 군 아님)·반증가능 예측(§6)으로 검증.
 - 엄밀화 경로: (i)tool-use primitive를 실제 유한생성 대수로 구성(닫힘 companion 확장) (ii)생성원-수 = eff-dim 측정(olver_dimension_experiment 재사용) (iii)§6 예측 실험.
