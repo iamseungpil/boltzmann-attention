@@ -157,3 +157,19 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **ON-half $select = 0.38–0.41 (mean ~0.40)·전 cell 평탄**(±1 case): ISO 위에 NL·PROV 추가해도 selection 정확률 불변 → NL/PROV main effect(ISO=on 하) ≈ 0.
 - **잔여 실패 = M_A selection-reasoning 벽 그대로**: fail_no_available(가용성-blind 3–9)·unresolved(wrong criteria 1–3). **ISO 등방화 단독으로 이 벽 안 닫힘.**
 - ⚠️ **ISO main effect 판정 보류**: ΔISO = mean(ON)−mean(OFF), OFF-half(M0/A-nl/A-prov/C-np)=woori 미도착. M0 대비 ON이 높으면 ISO 구동(Olver 실증)·M0도 ~0.40이면 ISO 무효(추상→실 갭). **§3 판독은 OFF-half 합류 후.**
+
+## 15. ★★★7B N-sweep = thesis 직접 증거 (2026-06-17·통제 합성·`synth_depth.py`+`depth_eval.py`·raw `/home/woori/scratch/depth/depth_7B_N{5,10,20,50}.json`)
+> 설계 = `../NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md`(이론)·`../B_BUDGET_SCALE_DESIGN_2026_06_17.md`(실험). **arm A**(catalog+in-head 단독)·**arm B**(NL→연산-IR `{op,attr,among}` *명명*→결정론 엔진 `resolve_operation` 실행)·**arm D**(oracle). 각 N=op 5종(filter·argmax·argmin·rank·comparative)×50=250케이스. base Qwen2.5-7B·무재학습. **raw 전수 검증 완료(아래 분수=원본 그대로).**
+
+| N (리스트 길이) | A in-head | **B 구조(IR+엔진)** | D oracle | 격차 B−A | rank A→B | argmax A→B | recognition(op-명명) |
+|---|---|---|---|---|---|---|---|
+| 5  | 0.68 (170/250) | **0.80 (200/250)** | 1.00 | **+0.12** | 0.42→1.00 | 0.82→1.00 | 0.60 (151/250) |
+| 10 | 0.56 (141/250) | **0.80 (199/250)** | 1.00 | **+0.24** | 0.30→0.98 | 0.74→1.00 | 0.60 (150/250) |
+| 20 | 0.50 (125/250) | **0.80 (199/250)** | 1.00 | **+0.30** | 0.12→1.00 | 0.80→1.00 | 0.60 (150/250) |
+| 50 | **0.34 (86/250)** | **0.80 (200/250)** | 1.00 | **+0.46** | **0.10→1.00** | 0.40→1.00 | 0.60 (150/250) |
+
+- **★헤드라인: in-head A는 N↑서 무너짐(0.68→0.34)·구조 B는 *N-불변 0.80*·격차 +0.12→+0.46(N로 단조 *벌어짐*).** = 유계 절차예산 B(L,width) 초과를 결정론 엔진(B=∞)이 흡수 → **문제 클수록 offload가 더 지배** = thesis 핵심 직접 증거.
+- **rank(가장 깊은 절차·d 최대): N=50서 in-head 5/50=0.10(≈random) → 구조 1.00.** argmax도 N=50서 0.40→1.00. argmin N=50 0.28→1.00. = 깊은 절차일수록 in-head 붕괴가 가파르고 엔진 흡수가 완전.
+- **★recognition(op-명명)도 N-불변 0.60**(150/250 전 N 고정): LLM의 본업(절차-타입 *분류/명명*)은 N에 안 무너짐. N로 무너지는 건 *실행*뿐(offload 대상). = "얕은 명명 LLM / 깊은 실행 결정론" 분담선의 직접 실측.
+- **유일 잔여 = comparative 전 N서 B = 0/50 = 0.00**(A도 18/7/8/2로 붕괴). 엔진은 무오류(D=1.00)니 **실행 아니라 *인식(명명)* 병목** — anchor-참조 "nearest-above" 의미가 sub-personal·명명 어려움(문헌 정합). recognition 0.60의 미달분(100/250)이 주로 comparative(50)+여유. = §2 다음행동 "comparative 명명 고치기"의 정량 표적.
+- **함의(B-budget 스케일로 이어짐)**: 7B+구조가 N-불변 0.80인데 in-head는 대형모델이라야 무릎이 우측이동(14B d3 0.50>7B 0.20). arm C(32/72/235B in-head 매핑 임계 S\*(d,N))로 "거대모델조차 N↑서 매핑비용 지불 vs 7B+엔진 무비용"을 박을 것(coworker `COWORKER_REQUEST_2026_06_17_B_budget_scale.md`).
