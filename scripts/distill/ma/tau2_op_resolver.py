@@ -71,7 +71,10 @@ def resolve_op_tau2(op_ir, catalog, anchor_id=None):
         return None
     if op == "substitute":
         # SAME as the reference (anchor=old item) on every option EXCEPT `set` overrides. = τ² exchange.
-        aid = op_ir.get("anchor_id") or anchor_id
+        # GROUND the anchor: the item being modified is given by context (the fetched old item), NOT an
+        # LLM decision. Prefer the context anchor_id; ignore a model-emitted one (it hallucinates plausible
+        # ids — reservation codes / random skus — that break resolution). Concrete id = offload, not formalize.
+        aid = anchor_id or op_ir.get("anchor_id")
         anchor = next((it for it in catalog if it["item_id"] == aid), None)
         if anchor is None:
             return None
