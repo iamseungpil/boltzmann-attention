@@ -171,5 +171,22 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **★헤드라인: in-head A는 N↑서 무너짐(0.68→0.34)·구조 B는 *N-불변 0.80*·격차 +0.12→+0.46(N로 단조 *벌어짐*).** = 유계 절차예산 B(L,width) 초과를 결정론 엔진(B=∞)이 흡수 → **문제 클수록 offload가 더 지배** = thesis 핵심 직접 증거.
 - **rank(가장 깊은 절차·d 최대): N=50서 in-head 5/50=0.10(≈random) → 구조 1.00.** argmax도 N=50서 0.40→1.00. argmin N=50 0.28→1.00. = 깊은 절차일수록 in-head 붕괴가 가파르고 엔진 흡수가 완전.
 - **★recognition(op-명명)도 N-불변 0.60**(150/250 전 N 고정): LLM의 본업(절차-타입 *분류/명명*)은 N에 안 무너짐. N로 무너지는 건 *실행*뿐(offload 대상). = "얕은 명명 LLM / 깊은 실행 결정론" 분담선의 직접 실측.
-- **유일 잔여 = comparative 전 N서 B = 0/50 = 0.00**(A도 18/7/8/2로 붕괴). 엔진은 무오류(D=1.00)니 **실행 아니라 *인식(명명)* 병목** — anchor-참조 "nearest-above" 의미가 sub-personal·명명 어려움(문헌 정합). recognition 0.60의 미달분(100/250)이 주로 comparative(50)+여유. = §2 다음행동 "comparative 명명 고치기"의 정량 표적.
-- **함의(B-budget 스케일로 이어짐)**: 7B+구조가 N-불변 0.80인데 in-head는 대형모델이라야 무릎이 우측이동(14B d3 0.50>7B 0.20). arm C(32/72/235B in-head 매핑 임계 S\*(d,N))로 "거대모델조차 N↑서 매핑비용 지불 vs 7B+엔진 무비용"을 박을 것(coworker `COWORKER_REQUEST_2026_06_17_B_budget_scale.md`).
+- **(v1 시점) 유일 잔여 = comparative 전 N서 B = 0/50 = 0.00**(A도 18/7/8/2로 붕괴). → **아래 v2서 진단·해소.**
+- **함의(B-budget 스케일로 이어짐)**: 7B+구조가 N-불변인데 in-head는 대형모델이라야 무릎이 우측이동(14B d3 0.50>7B 0.20). arm C(32/72/235B in-head 매핑 임계 S\*(d,N))로 "거대모델조차 N↑서 매핑비용 지불 vs 7B+엔진 무비용"을 박을 것(coworker, 진행중).
+
+### 15-bis. ★comparative 진단·수정 = v2 (2026-06-17·`comparative_diag.py`·`comparative_fix.py`·raw `depth_7Bv2_N*.json`)
+**진단(전수)**: comparative B=0.00은 "절차의미 명명 불가"가 *아님*. 7B는 **피연산자를 완벽 추출**(`attr·among·dir·anchor_id` — 긴 랜덤 id까지 verbatim) — **틀린 건 연산자 *라벨* 하나**(op="comparative" 대신 "filter"·N=10/50 둘 다 50/50). 원인=NL 도입부 "Among items where {filter}…"가 `filter` 토큰 priming + IR spec에 연산자-*어휘 정의*(gloss) 부재 → default 라벨 붕괴.
+**수정(A/B)**: spec에 op-gloss(생성원 어휘 정의) 추가 → comparative **0.00→1.00 즉시·N-불변**(`comparative_fix` B1). NL 재배열(B2)은 불요. = 병목은 *어휘/라벨링*(깊이 아님)·gloss=형식 IR의 정당한 어휘정의.
+
+**v2 전체 N-sweep (gloss spec·per-op recognition·`depth_eval --gloss 1`)**:
+| N | A in-head | **B 구조** | recognition | 격차 B−A | comparative B | filter/argmax/argmin/rank B |
+|---|---|---|---|---|---|---|
+| 5  | 0.68 | **0.99 (248/250)** | **1.00 (250/250)** | **+0.31** | 0.96 | 1.00/1.00/1.00/1.00 |
+| 10 | 0.56 | **1.00 (250/250)** | **1.00** | **+0.44** | 1.00 | 1.00/1.00/1.00/0.98 |
+| 20 | 0.50 | **0.99 (248/250)** | **1.00** | **+0.49** | 0.98 | 1.00/1.00/0.98/1.00 |
+| 50 | **0.34** | **1.00 (250/250)** | **1.00** | **+0.66** | 1.00 | 1.00/1.00/1.00/1.00 |
+
+- **comparative 0.00→0.96–1.00 전 N·다른 4 op 무회귀**(0.98–1.00) = gloss가 안 깨뜨림.
+- **recognition 0.60→1.00**: (i) filter artifact 해소(gold filter엔 attr 없어 v1이 attr-mismatch로 오집계 → op-only 채점으로 교정) (ii) comparative 회복. **이제 per-op recognition 전부 1.00** = 𝔤-식별(생성원 명명)이 *어휘만 정의되면* 소형서 완전·N-불변.
+- **격차 B−A = +0.31→+0.66**(N로 단조·v1 +0.12→+0.46보다 큼): comparative 회복으로 B가 ~1.00 → in-head 붕괴(0.68→0.34) 대비 구조 우위 *더 선명*. = §6 예측 (a)(b) 강화 실증.
+- **이론 함의(§9-A 교정·§7f 다리)**: "절차의미 sub-personal=명명불가"는 *과장*이었음. 명명은 *어휘 정의*로 즉발(보간 아님의 방증). 단 gloss는 *in-context* 떠먹이기 = C8 시험의 *상한*. **C8 = 이 라우팅을 weight 내재화해 gloss 없는 held-out 도메인서도 되나**(진행중·`C8_PROCEDURE_ROUTING_TRANSFER_DESIGN`).
