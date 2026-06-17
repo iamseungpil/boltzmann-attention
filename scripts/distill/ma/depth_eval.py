@@ -67,24 +67,41 @@ def arm_A(base, model, ex, cot=False):
 # "Among items where {filter}" primes it). The gloss DEFINES the operator vocabulary (a formal
 # IR always specifies its ops) and recovers comparative 0.00->1.00 (N-invariant) with no regression
 # on the other ops. Original spec (no gloss) kept in git history; v1 numbers = depth_7B_N*.json.
-OP_SPEC = ('Output ONLY a JSON OPERATION (do NOT compute the answer): '
-           '{"op": "argmax"|"argmin"|"rank"|"filter"|"comparative", "attr": "<ordinal attr name>", '
-           '"among": {"<attr>": "<value>", ...}, "k": <int for rank>, "dir": "greater"|"less", '
-           '"anchor_id": "<item id for comparative>"}. Name the operation the query asks for.\n'
-           'Operation meanings — pick the one the query asks for:\n'
-           '- filter: a single item is pinned by attribute equalities alone (no ranking, no reference item).\n'
-           '- argmax: the item with the HIGHEST ordinal value (within `among`).\n'
-           '- argmin: the item with the LOWEST ordinal value (within `among`).\n'
-           '- rank: the k-th highest ordinal value (k from "second/third highest").\n'
-           '- comparative: the item whose ordinal value is the CLOSEST one strictly ABOVE (dir=greater) '
-           'or BELOW (dir=less) a REFERENCE item named by anchor_id. Use this whenever the query compares '
-           'to "that of item <id>" / "just greater/less than item <id>".')
+# v1 plain spec = enum only (no operator semantics). v2 = + GLOSS. The gloss DEFINES the operator
+# vocabulary (a formal IR always specifies its ops) and recovers comparative 0.00->1.00 (N-invariant).
+# C8 (transfer) trains/evals with gloss=0 to test whether the routing is INTERNALISED in weights
+# rather than spoon-fed in-context. v1 numbers = depth_7B_N*.json; v2 = depth_7Bv2_N*.json.
+OP_SPEC_BASE = ('Output ONLY a JSON OPERATION (do NOT compute the answer): '
+                '{"op": "argmax"|"argmin"|"rank"|"filter"|"comparative", "attr": "<ordinal attr name>", '
+                '"among": {"<attr>": "<value>", ...}, "k": <int for rank>, "dir": "greater"|"less", '
+                '"anchor_id": "<item id for comparative>"}. Name the operation the query asks for.')
+OP_GLOSS = ('\nOperation meanings — pick the one the query asks for:\n'
+            '- filter: a single item is pinned by attribute equalities alone (no ranking, no reference item).\n'
+            '- argmax: the item with the HIGHEST ordinal value (within `among`).\n'
+            '- argmin: the item with the LOWEST ordinal value (within `among`).\n'
+            '- rank: the k-th highest ordinal value (k from "second/third highest").\n'
+            '- comparative: the item whose ordinal value is the CLOSEST one strictly ABOVE (dir=greater) '
+            'or BELOW (dir=less) a REFERENCE item named by anchor_id. Use this whenever the query compares '
+            'to "that of item <id>" / "just greater/less than item <id>".')
 
 
-def arm_B(base, model, ex):
+def build_spec(gloss=True):
+    return OP_SPEC_BASE + (OP_GLOSS if gloss else "")
+
+
+def build_arm_B_user(ex, gloss=True):
+    """The exact arm-B user prompt (shared by eval and the C8 SFT data builder)."""
     attrs = ex["cat_attrs"] + [ex["ord_attr"]]
-    user = (f"Query: {ex['nl']}\n\nThe catalog items have these attributes: {attrs}.\n"
-            f"The ordinal/numeric attribute is '{ex['ord_attr']}'.\n\n{OP_SPEC}")
+    return (f"Query: {ex['nl']}\n\nThe catalog items have these attributes: {attrs}.\n"
+            f"The ordinal/numeric attribute is '{ex['ord_attr']}'.\n\n{build_spec(gloss)}")
+
+
+# back-compat alias (v2 default = gloss on)
+OP_SPEC = build_spec(True)
+
+
+def arm_B(base, model, ex, gloss=True):
+    user = build_arm_B_user(ex, gloss)
     out = chat(base, model, [{"role": "system", "content": "Output ONLY JSON."},
                              {"role": "user", "content": user}], 200)
     op_ir = extract_json(out)
@@ -98,7 +115,7 @@ def arm_B(base, model, ex):
     return rid, recog
 
 
-def score(base, model, exs, arms):
+def score(base, model, exs, arms, gloss=True):
     agg = {a: [0, 0] for a in arms}
     recog = [0, 0]
     by_op = {}
@@ -111,7 +128,7 @@ def score(base, model, exs, arms):
             if a == "A": rid = arm_A(base, model, ex, cot=False)
             elif a == "Acot": rid = arm_A(base, model, ex, cot=True)
             elif a == "B":
-                rid, rc = arm_B(base, model, ex)
+                rid, rc = arm_B(base, model, ex, gloss=gloss)
                 recog[1] += 1; recog[0] += int(rc)
                 by_op_recog[op][1] += 1; by_op_recog[op][0] += int(rc)
             elif a == "D": rid = resolve_operation(ex["op_ir"], ex["items"])
@@ -139,12 +156,13 @@ if __name__ == "__main__":
     ap.add_argument("--base", default="http://localhost:8021/v1")
     ap.add_argument("--model", required=True)
     ap.add_argument("--arms", default="A,B,D")
+    ap.add_argument("--gloss", type=int, default=1, help="1=v2 op-gloss spec, 0=v1 plain (C8 transfer)")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
     exs = [json.loads(l) for l in open(args.data, encoding="utf-8")]
     arms = [a.strip() for a in args.arms.split(",") if a.strip()]
-    print(f"loaded {len(exs)} | model={args.model} | arms={arms}")
-    res = score(args.base, args.model, exs, arms)
+    print(f"loaded {len(exs)} | model={args.model} | arms={arms} | gloss={args.gloss}")
+    res = score(args.base, args.model, exs, arms, gloss=bool(args.gloss))
     if args.out:
         json.dump(res, open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
         print("wrote", args.out)
