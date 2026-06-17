@@ -349,3 +349,20 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 **E. ★op-IR 어댑터 native agent 불가 = *출력 포맷 비호환*(궤적 전수):** MD_route/widesubst를 native τ² agent로 → pass^1 **0.075/0.077**(<base 0.17). 궤적=모델이 함수콜 JSON을 **hermes tool_call 아닌 텍스트 content로** 출력→파서 미인식→도구 실행0→인자 날조(order_id `#W0000000`·이름 "John Doe")→**no_auth 31·agent_collapse**. = "Output ONLY JSON" op-IR SFT가 native tool-call 프로토콜 덮어씀. ⇒ offload 통합 시 **write-tool resolver만 끼워야**(포맷 전체 교체 금지)·agent는 native tool_call 유지.
 
 **함의:** 라우팅(§21 내재화+도메인일반)·표현(§22 다양성 D\*)은 닫힘. 남은 τ² 벽 = **(i) 실-카탈로그 값-grounding(wrong_value 정규화·offload로 스냅)** + **(ii) write-step offload 통합**(native tool_call 유지한 채 변형 의도→resolver). wide-train·op-IR-native 둘 다 폐기(전이손상·포맷붕괴). base e2e GBW headroom = 측정 중(§24 예정).
+
+## 24. ★★★base τ² e2e GBW headroom = GBW는 *소수*(5%)·지배는 FLOW collapse(60%) (2026-06-18·`tau2_autopsy`·40 tasks·gated pass^1)
+> 질문: "GBW(변형 오선택)만 고치면 e2e 얼마 오르나?" → base 7B 풀 rollout 실패모드 전수분류로 정량.
+
+| 실패모드 | 수/40 | 축 |
+|---|---|---|
+| PASS | 7 (**0.175**≈문서 0.17 재현) | — |
+| **agent_collapse** | **24 (60%)** | **FLOW**(루프·max_steps·too_many_errors) |
+| wrong_write (=GBW) | **2 (5%)** | CONTENT(변형 오선택) |
+| premature_refuse | 2 | FLOW(조기거부) |
+| over_ask | 1 | FLOW(묻기만) |
+| other | 4 | — |
+
+- **★GBW headroom = 2/40 (5%)**: GBW만 고치면 0.175→~0.225(+2). **작다.** auth provenance **grounded 39/39·날조 0**(base는 인증 grounding 정상·날조는 op-IR 어댑터 §23E 현상).
+- **★e2e 지배 벽 = FLOW collapse 60%**: base 7B는 변형 선택 *이전에* 멀티턴 시퀀스서 루프/에러로 붕괴(P1–P9 orchestration·에러복구 실패). content/width offline diagnostic이 닫는 건 **e2e의 5% 슬라이스**.
+- **함의(정직·중요)**: 우리 content축(substitute/width §19–23)은 **grounded-but-wrong write 결정**을 닫지만, **base 7B e2e의 본체는 FLOW축(agent_collapse)**. ⇒ e2e 큰 레버 = FLOW 생성원(P1–P9·시퀀싱·복구·non-loop) 전이. GBW가 지배가 되려면 FLOW 먼저 닫혀야(anti-fab v8/v9선 GBW 노출됐던 것과 정합: 모델별 GBW몫 다름).
+- 정직: 40 tasks·gated without-L2·base 7B 단일·agent_collapse 내부 세분(어느 도구단계 루프) 미규명(후속).
