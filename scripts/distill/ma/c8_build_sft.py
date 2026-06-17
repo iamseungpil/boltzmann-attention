@@ -13,12 +13,13 @@ Modes:
 """
 import json, random, argparse, os
 from collections import Counter
-from synth_depth import gen_example, render_nl, OPS
+from synth_depth import gen_example, render_nl, render_nl_diverse, OPS
 from depth_eval import build_arm_B_user
 
 
-def make_raw(seed, n, Ns, op_weights=None, iso=1):
-    """op_weights: dict op->relative weight (None=uniform). Builds a weighted op schedule."""
+def make_raw(seed, n, Ns, op_weights=None, iso=1, diverse=False):
+    """op_weights: dict op->relative weight (None=uniform). diverse=True => expression-isotropic NL
+    (verb/op decorrelated; see synth_depth.render_nl_diverse)."""
     rng = random.Random(seed)
     ops = list(OPS)
     if op_weights:
@@ -35,7 +36,7 @@ def make_raw(seed, n, Ns, op_weights=None, iso=1):
         ex = gen_example(rng, iso, op, N)
         if ex is None:
             continue
-        ex["nl"] = render_nl(ex, iso)
+        ex["nl"] = render_nl_diverse(ex, rng) if diverse else render_nl(ex, iso)
         out.append(ex)
     return out
 
@@ -67,20 +68,23 @@ if __name__ == "__main__":
     ap.add_argument("--Ns", default="5,10,20,50")
     ap.add_argument("--gloss_in_sft", type=int, default=0, help="0=gloss-free (transfer); 1=gloss ablation")
     ap.add_argument("--cmp_heavy", type=int, default=0, help="1=weight comparative 3x (others 1x)")
+    ap.add_argument("--diverse", type=int, default=0, help="1=expression-isotropic NL (verb/op decorrelated)")
     args = ap.parse_args()
     os.makedirs(args.outdir, exist_ok=True)
     Ns = [int(x) for x in args.Ns.split(",")]
+    dv = bool(args.diverse)
 
     if args.mode == "eval":
-        indist = make_raw(args.train_seed + 1, args.n_eval, Ns)   # fresh, same seed-stream = convergence sanity
-        heldout = make_raw(args.heldout_seed, args.n_eval, Ns)     # different seed = new vocab/schema = transfer
-        dump(f"{args.outdir}/c8_eval_indist.jsonl", indist)
-        dump(f"{args.outdir}/c8_eval_heldout.jsonl", heldout)
+        indist = make_raw(args.train_seed + 1, args.n_eval, Ns, diverse=dv)   # fresh, same seed-stream = convergence
+        heldout = make_raw(args.heldout_seed, args.n_eval, Ns, diverse=dv)     # different seed = new vocab/schema = transfer
+        sfx = "_div" if dv else ""
+        dump(f"{args.outdir}/c8_eval_indist{sfx}.jsonl", indist)
+        dump(f"{args.outdir}/c8_eval_heldout{sfx}.jsonl", heldout)
         print("indist ops:", dict(Counter(e["op"] for e in indist)))
         print("heldout ops:", dict(Counter(e["op"] for e in heldout)))
     else:
         ow = {"comparative": 3} if args.cmp_heavy else None
-        train = make_raw(args.train_seed, args.n, Ns, op_weights=ow)
+        train = make_raw(args.train_seed, args.n, Ns, op_weights=ow, diverse=dv)
         out = args.out or f"{args.outdir}/c8_train_sft.jsonl"
         dump(out, [to_chat(e, gloss=bool(args.gloss_in_sft)) for e in train])
         print("train ops:", dict(Counter(e["op"] for e in train)))

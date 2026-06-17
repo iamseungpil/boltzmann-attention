@@ -147,6 +147,52 @@ def render_nl(ex, iso):
     return ""
 
 
+# ----------------------------- DIVERSE renderer (expression-isotropy) -----------------------------
+# Goal (feedback-expression-diversity-required-for-transfer): break the SURFACE<->op correlation that
+# the single-template render_nl injected (verb "exchange" -> op=exchange on tau2). The VERB is sampled
+# from a POOL SHARED across ALL ops (so the verb carries NO op information); the op is decided ONLY by
+# the MEANING phrase, itself drawn from several paraphrases. Deeper ops get more paraphrases (K scales
+# with depth). A learner can only fit op from meaning, not from a surface token.
+VERBS = ["Select", "Pick", "Choose", "Find", "Get me", "I want", "I'd like", "Give me",
+         "Exchange it for", "Swap it to", "Show me", "Return the one and take"]
+AMONG = ["among items where {f}", "out of the ones with {f}", "from variants where {f}",
+         "restricting to items with {f}", "considering only {f}", "within the {f} options"]
+OP_PHRASES = {
+    # filter: pin by the (ordinal-value) equality; among carries the constraint
+    "filter": ["the item where {f}", "the one with {f}", "the variant that has {f}",
+               "the item matching {f}", "the one for which {f}"],
+    "argmax": ["the one with the HIGHEST {o}", "the one with the most {o}", "the top-{o} one",
+               "the maximum-{o} variant", "the largest {o}", "the one that maxes out {o}",
+               "the {o} leader", "whichever has the greatest {o}"],
+    "argmin": ["the one with the LOWEST {o}", "the one with the least {o}", "the bottom-{o} one",
+               "the minimum-{o} variant", "the smallest {o}", "whichever has the least {o}",
+               "the one that minimizes {o}", "the {o} laggard"],
+    "rank": ["the one with the SECOND highest {o}", "the runner-up in {o}", "the next-to-top {o} one",
+             "the 2nd-best by {o}", "the one just below the {o} maximum", "the second-place {o} variant"],
+    "comparative": ["the one whose {o} is just above item {a}'s", "the one with slightly more {o} than item {a}",
+                    "the next step up in {o} from item {a}", "the closest {o} above item {a}",
+                    "the one a notch higher than item {a} in {o}", "the smallest {o} that still beats item {a}",
+                    "the one barely exceeding item {a} in {o}", "the immediately-higher-{o} option vs item {a}"],
+}
+
+
+def render_nl_diverse(ex, rng):
+    """Expression-isotropic surface: verb (op-agnostic pool) + meaning phrase (op-deciding paraphrase)
+    + among clause. Surface<->op correlation ~0 so the learner must use meaning, not a surface token."""
+    f = ex["filter"]; o = ex["ord_attr"]; op = ex["op"]
+    fstr = " and ".join(f"{k} = {v}" for k, v in f.items())
+    verb = rng.choice(VERBS)
+    phrase = rng.choice(OP_PHRASES[op]).format(o=o, f=fstr, a=ex["op_ir"].get("anchor_id", ""))
+    if op == "filter":
+        # filter's constraint IS the meaning phrase (fstr is the ordinal-value lookup); no extra among
+        return f"{verb} {phrase}."
+    among = rng.choice(AMONG).format(f=fstr)
+    # randomize clause order too (among-first vs op-first) to avoid positional shortcut
+    if rng.random() < 0.5:
+        return f"{verb} {phrase}, {among}."
+    return f"{among.capitalize()}, {verb.lower()} {phrase}."
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="")
