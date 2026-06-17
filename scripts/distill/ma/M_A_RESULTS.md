@@ -366,3 +366,20 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **★e2e 지배 벽 = FLOW collapse 60%**: base 7B는 변형 선택 *이전에* 멀티턴 시퀀스서 루프/에러로 붕괴(P1–P9 orchestration·에러복구 실패). content/width offline diagnostic이 닫는 건 **e2e의 5% 슬라이스**.
 - **함의(정직·중요)**: 우리 content축(substitute/width §19–23)은 **grounded-but-wrong write 결정**을 닫지만, **base 7B e2e의 본체는 FLOW축(agent_collapse)**. ⇒ e2e 큰 레버 = FLOW 생성원(P1–P9·시퀀싱·복구·non-loop) 전이. GBW가 지배가 되려면 FLOW 먼저 닫혀야(anti-fab v8/v9선 GBW 노출됐던 것과 정합: 모델별 GBW몫 다름).
 - 정직: 40 tasks·gated without-L2·base 7B 단일·agent_collapse 내부 세분(어느 도구단계 루프) 미규명(후속).
+
+## 25. ★★★§24 정정 — agent_collapse 본체 = fetchable 구체값 *날조*(offload 대상)이지 generic FLOW 아님 (2026-06-18·`tau2_collapse_autopsy`·전수 궤적·base 7B·27 collapsed)
+> 사용자 교정: collapse 원인 = 파라미터 오예측. 전수확인 결과 정확. §24의 "FLOW축"은 **잘못된 일반화**였고, 본체는 **구체값 날조/오포맷 = offload-addressable**.
+
+**collapsed 27/40·에러난 도구콜 파라미터 전수분류:**
+| 오예측 파라미터 | 건수 | 성격 |
+|---|---|---|
+| **order_id 날조** | **79** | placeholder 발명(`#W0000001`·`#W000000123`) |
+| order_id 포맷(# 누락) | 12 | `W2378156`·`100238`(user값 오포맷) |
+| item_id 날조 | 15 | fetch 안 하고 발명(`1008292230`) |
+| user_id/payment/기타 | ~30 | |
+- 도구: `get_order_details` 84 에러 지배. **retry-same-args loop 16/27**(동일 틀린 콜 반복→too_many_errors·복구 0).
+- **★본체 = tool-fetchable 구체값 날조**: order_id·item_id·payment를 *get_order/get_user에서 fetch*해야 하는데 **모델이 발명**→not found→무한재시도→collapse. base auth는 grounded(39/39·§24)나 **다운스트림 fetch-id는 날조**(다른 grounding 차원).
+- **★§24 재구성**: e2e 벽 = (i) **GBW 변형선택**(new_item_ids·5%·content) + (ii) **fetch-id 날조**(order_id/item_id·collapse 구동·훨씬 큼) + (iii) **retry-same 복구실패**. (i)(ii) 둘 다 **offload 핵심**(=구체값 LLM 발명 금지·결정론 fetch/resolve). ⇒ **offload thesis가 e2e 벽의 대부분을 덮음**(5% 아님)·잔여 = 복구(iii).
+- **선행 정합**: 옛 v4 write-벽 autopsy "tool-fetchable 값(order_id) 날조"와 동일 기제([[project-tau2-write-failure-rootcause]]·메모리 핸드오프) — base서 정량확인(order_id 날조 91). [[feedback-nl-formalize-llm-selection-deterministic]] 정확 정합.
+- **함의(처방)**: write-step뿐 아니라 **read-step도 offload** = 모델은 "주문 조회/교환" *의도*만 명명, order_id/item_id/payment는 **결정론 resolver가 직전 tool 결과서 grounding**(날조 차단)+에러시 재-fetch(복구). = thesis "구체선택=offload"의 e2e 실증 경로.
+- 정직: base 7B·40 tasks·gated·order_id 날조 vs 포맷 비율(79:12)은 user가 번호 제공한 태스크 비중에 의존·retry-loop은 복구프롬프트로 일부 완화가능(별도).
