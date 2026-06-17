@@ -7,7 +7,15 @@
 
 ## §0. 목표 (한 문장, 변하지 않음)
 
-> **★★★★★★ 현재 도달 (2026-06-17 · 이론 정초 + thesis 직접 실측 · 권위 = [`NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md`](NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md) + 실험 [`B_BUDGET_SCALE_DESIGN_2026_06_17.md`](B_BUDGET_SCALE_DESIGN_2026_06_17.md))**: §0 목표 문장 불변. **이론 정초 = "LLM이 왜 NL을 잘 푸나 + 무엇을 결정론에 넘기나"의 *철학·과학 이론*** (§9 선행연구로 *엄밀히* 정초):
+> **★★★★★★★ 현재 도달 (2026-06-17 PM · 생성원-대수 정초 + 실증 사이클 + 에너지-Lie 통합 · ★방향 재정렬)**: §0 목표 불변. 오전 이론(연산-IR·B-budget) 위에 *생성원 수준* 정초 + 다중벤치 닫힘 + 실증:
+> - **① 생성원 2축 closure** (권위 = [`GENERATOR_ALGEBRA_DESIGN_2026_06_17.md`](GENERATOR_ALGEBRA_DESIGN_2026_06_17.md)): tool-use = **flow 생성원(P1-P9·[`PRIMITIVE_COVERAGE_MATRIX`](PRIMITIVE_COVERAGE_MATRIX_2026_06_15.md))** + **content 생성원(8 op: filter/argmax/argmin/rank/comparative/substitute/create/project)** 두 직교 축. content = *벤치 귀납 아닌 연역*(관계대수 Codd + 함수형 변환). **25벤치 적대적 딥리서치 닫힘**(§8): "예외없이"=FALSE·단 **transactional tool-orchestration scope서 닫힘**(FLOW=Böhm–Jacopini·CONTENT=Codd+Libkin-Wong aggregate확장이 도출 *지지*)·**value-derivation=P2b offload(NESTful 식·§9)**·scope밖 4축(G_loop/csp/ground/plan=AppWorld/TravelPlanner/WebArena/OSWorld) **명시 제외**. 우리 2축 finite-closure=문헌 whitespace. ★정직: **finiteness/closure만·minimality 금지**(Kozen-Tseng).
+> - **② 실증 사이클** ([`ma/M_A_RESULTS.md`](ma/M_A_RESULTS.md) §15-18): comparative=op-mislabel 진단→**gloss(어휘정의)로 0.00→1.00·N-불변**(명명불가 아님·§15)→C8 1차 합성양성=*표면매핑 아티팩트*(§16)→**τ² 2차 음성**(C8-trained 역전이·op=exchange 동사복사·§17)→다양성 부분양성(표면붕괴 13→3·정확도 미회복·§18). = **다양성(𝔥)은 표면 고치나 생성원(𝔤) 완전성이 선행**(궤적 전수규명: τ² substitution 누락).
+> - **③ 표현 다양성 D\*** (권위 = [`EXPRESSION_DIVERSITY_TRANSFER_DESIGN_2026_06_17.md`](EXPRESSION_DIVERSITY_TRANSFER_DESIGN_2026_06_17.md)·리뷰 5보강 반영): 전이=f(D) not f(K)·**D\*(depth)=비용효율 추상교육 기준**(빅모델 brute-force→측정된 최소 다양성)·축분해 L×S×P×R·K-sweep(진행중). 정직: Y 유일 정보값·축커버리지 주지표·matched-D 디커플링·D\* 3-way(curable/capped/gated).
+> - **④ 에너지-Lie 통합** ([`NL_PROCEDURE_OFFLOAD_THEORY §10`](NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md)·메모리 `reference-repo-energy-lie-prior-work`): repo 선행작업(boltzmann-attention·`math/paper/lie_group/`·8논문) 발굴→통합. **절차=energy basin·다양성=온도 T·D\*=상전이 β\*·생성원=Lie subgroup 위계**. 현상=실증 Lie정리 인스턴스(표면붕괴=Cor 6.9.6 off-manifold +68.5pp·gloss=Lipschitz gate). 정직: Lie geometry 실증/에너지 정식화-only/T_eff GQA-rejected.
+> - **★★방향 재정렬 = 3층 아키텍처**: **층1 *무엇* = 생성원 대수**(도메인-일반·연역·닫힘) · **층2 *어떻게* = 표현 다양성**(표면-무관 라우팅·D\*) · **층3 *분담* = offload**(LLM 명명/결정론 실행·value-derivation=P2b). 다음 = **생성원 완전화(substitute/create/derivation 추가) + 다도메인 content-routing 학습**(retail+airline 동시 전이 = 도메인-일반 *실증*) → K-sweep 곡선이 "다양성≠충분·생성원 선행" 입증.
+> - **불변 정합**: `feedback-thesis-tbox-transfer-direction`(도메인-타깃 금지)·`feedback-expression-diversity-required-for-transfer`·`feedback-arxiv-citation-discipline`. ↓아래 06-17 오전 블록 = 직전(연산-IR·B-budget — *흡수*: 연산-IR = content 생성원 *명명*의 특수예·rank 0.17→1.00 = argmax 생성원 offload).
+
+> **★★★★★★ 현재 도달 (2026-06-17 오전 · 이론 정초 + thesis 직접 실측 · 권위 = [`NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md`](NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md) + 실험 [`B_BUDGET_SCALE_DESIGN_2026_06_17.md`](B_BUDGET_SCALE_DESIGN_2026_06_17.md))**: §0 목표 문장 불변. **이론 정초 = "LLM이 왜 NL을 잘 푸나 + 무엇을 결정론에 넘기나"의 *철학·과학 이론*** (§9 선행연구로 *엄밀히* 정초):
 > - **역할분담의 *왜***: 언어 = 유계-깊이 병렬 인지를 위해 진화한 *압축 인터페이스* → 대부분 *얕은 병렬 연상*(=Transformer forward pass=TC⁰가 잘하는 일). NL 곳곳의 *깊은 알고리즘 주머니*(most/best/비교·산술·다단 = §7c **표기-깊이 d(e)**)는 **인간도 외부도구(아라비아-알고리즘·계산기)로 offload**하는 지점. ⇒ **LLM=얕은 연상+*절차-타입 분류* / 결정론=깊은 실행**(인간 뇌+외부도구 모사).
 > - **유계 절차예산 B(L,width)**(§7d-bis): 고정모델 forward pass는 *직렬-깊이 유계*(TC⁰·점근 아님). d(e)≤B 성공·>B 하락(7B: d3 0.20). **scale은 B를 내부암기로 키우고(유계·비쌈)·CoT는 외부토큰으로(오차누적)·결정론 엔진은 B=∞(정확·저비용)** 지불. = "binding 벽≠scale"의 *근본 이유*.
 > - **★thesis 직접 실측 (7B·`M_A_RESULTS §15` 예정)**: 정적 $select(답-criteria 강제)는 *해롭다*. 고친 **연산-IR**(LLM이 *연산 명명* argmax-over-X·엔진 실행) = **7B가 혼자 rank 0.17 못 풀던 걸 *결정론 구조로 1.00 극복*** (argmax/argmin/rank 확인)·comparative만 *명명* 실패(절차의미=sub-personal·문헌 정합). = **"작은 모델이 결정론 구조로 most/best 극복" thesis 직접 증거**.
@@ -350,6 +358,11 @@
 | 문서 | 역할 | 상태 |
 |---|---|---|
 | **이 문서** `EXPERIMENT_DESIGN.md` | **목표·순서·지표 권위본** | ★마스터 |
+| **★★2026-06-17 PM 라인 (생성원-대수 + 다양성 + 에너지-Lie) ↓↓↓** | | |
+| **`GENERATOR_ALGEBRA_DESIGN_2026_06_17.md`** | **★★생성원 2축 closure (현 최상위 골격)**: flow(P1-P9)+content(8 op) 연역·도메인독립·tau2 5도메인 실증(substitute 일반)·§8 **25벤치 적대적 딥리서치 닫힘**(scope=transactional·4축 제외·문헌 정당화)·§9 value-derivation=P2b offload | ★★권위 (06-17 PM) |
+| **`EXPRESSION_DIVERSITY_TRANSFER_DESIGN_2026_06_17.md`** | **★표현 다양성 D\* (비용효율 기준)**: 전이=f(D) not f(K)·D\*(depth)·축분해 L×S×P×R·K-sweep·리뷰 5보강(Y 유일 정보값·matched-D·순환성·tier·D\* 3-way)·τ²-blind | ★활성 (06-17 PM·K-sweep 진행중) |
+| **`C8_PROCEDURE_ROUTING_TRANSFER_DESIGN_2026_06_17.md` · `C8_TAU2_SELECTION_TRANSFER_DESIGN_2026_06_17.md`** | **C8 전이 설계 (1차 합성·2차 τ²)**: gloss-free op-IR 라우팅 weight 내재화→held-out 전이. 결과 = `ma/M_A_RESULTS §16-17`(1차 양성-표면·2차 음성) | ★활성 (06-17 PM·진단완료) |
+| **`NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md §10`** | **에너지-Lie 통합**: 이중군(실행 𝔤/표면 𝔥)·절차=basin·다양성=온도·D\*=상전이·repo 선행작업(boltzmann·lie_group) 정합·정직 라벨(Lie 실증/에너지 정식화-only) | ★활성 (06-17 PM) |
 | **★2026-06-16 라인 (분담·MSC·floor·강한형) ↓↓↓** | | |
 | **`THESIS_STATEMENT_2026_06_16.md`** | **★★crystallized thesis (5 딥리서치+floor 수렴)**: 작은 on-prem LLM이 큰모델 tool-use 도달 = 기능분담(결정론 scaffold+typed증분+per-step 결정론검증 / MSC+ABox+도메인일반학습). 두 날개·신규성=미점유 교차점·floor 측정 | ★★권위 (06-16 thesis 수렴본) |
 | **`DECOMPOSITION_OPTIMALITY.md`** | **★기여 진술**: 분담 라우팅 기준(정확명세→결정론/도메인불변추론→LLM학습/도메인사실→retrieval) + 협업이 monolith를 비용·성능 **Pareto-지배**(LLM에 못하는 일 안 시킴)·조건#1-5 | ★활성 (06-16) |
