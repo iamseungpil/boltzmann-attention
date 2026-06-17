@@ -78,3 +78,12 @@ tool-use 절차 = 두 직교 축의 생성원으로 분해:
 ### 8.3 ⇒ thesis 재정식 (경계 강화)
 - **헤드라인 정정**: "모든 벤치 닫힘" 아님 → **"policy-governed transactional tool-orchestration(FLOW+CONTENT)서 유한 생성·닫힘"** + scope 밖 4축(loop/code·CSP·grounding·planning)·value-derivation은 **명시 out-of-scope or offload**. = 위배 아닌 *경계 정밀화*([[reference-repo-energy-lie-prior-work]] 정직 라벨 규율).
 - **arxiv 검증**: 핵심 id 검증됨(2407.18901 AppWorld·2402.01622 TravelPlanner·2406.12045 τ²·2501.10132 CFB·2409.03797 NESTful·2305.16291 Voyager·2210.03629 ReAct·Codd1972·Libkin-Wong JCSS1997·Böhm-Jacopini CACM1966·Kozen-Tseng MPC2008). snippet-only(2602.*·2603.*·2508.*) = 인용 전 재검증([[feedback-arxiv-citation-discipline]]).
+
+## 9. ★value-derivation 결정 = NESTful 식 offload = P2b 환원 (2026-06-17·사용자)
+딥리서치가 드러낸 유일 CONTENT 누락(value-derivation: relative-date·unit/currency normalize)을 **content 생성원에 추가하지 않고 flow P2b(gather-for-arg)로 환원**:
+- NESTful이 `divide($a,$b)`를 *tool-call*로 emit·엔진이 계산하듯, `"tomorrow"→date`=`date_resolver(relative)` 호출→출력 인자(**P2b**)·`100USD→EUR`=`currency_convert(...)`→출력(P2b).
+- = `PRIMITIVE_MATRIX §3` "calculate→tool-call→P2b 환원(seam β 닫힘)" 확증(이미 도출됨·딥리서치 재확인).
+- **⇒ CONTENT 생성원 8개 *불변***(filter·argmax·argmin·rank·comparative·substitute·create·project)·value-derivation=flow P2b·**양 축 닫힘 강화**.
+- **처방**: 도메인-일반 derivation 도구(date-resolver·unit-convert·calculator)를 **scaffold/엔진 제공**→모델은 *계산 안 함*·P2b 호출만(offload thesis 정합·LLM=명명/결정론=실행).
+- **CFB value_error 진단**: CFB는 derivation 도구 *미제공*→모델 직접계산 강요→실패. 처방=도구 scaffold 추가시 P2b로 풀림.
+- anti-targeting 안전: calculator/date-resolver=도메인-일반(retail 특화 아님).
