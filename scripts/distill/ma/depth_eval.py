@@ -62,10 +62,23 @@ def arm_A(base, model, ex, cot=False):
     return (j or {}).get("id")
 
 
+# v2 (2026-06-17): per-op GLOSS added. Diagnosis showed the 7B extracts every operand
+# (attr/among/dir/anchor_id) correctly for comparative but mislabels op="filter" (the leading
+# "Among items where {filter}" primes it). The gloss DEFINES the operator vocabulary (a formal
+# IR always specifies its ops) and recovers comparative 0.00->1.00 (N-invariant) with no regression
+# on the other ops. Original spec (no gloss) kept in git history; v1 numbers = depth_7B_N*.json.
 OP_SPEC = ('Output ONLY a JSON OPERATION (do NOT compute the answer): '
            '{"op": "argmax"|"argmin"|"rank"|"filter"|"comparative", "attr": "<ordinal attr name>", '
            '"among": {"<attr>": "<value>", ...}, "k": <int for rank>, "dir": "greater"|"less", '
-           '"anchor_id": "<item id for comparative>"}. Name the operation the query asks for.')
+           '"anchor_id": "<item id for comparative>"}. Name the operation the query asks for.\n'
+           'Operation meanings — pick the one the query asks for:\n'
+           '- filter: a single item is pinned by attribute equalities alone (no ranking, no reference item).\n'
+           '- argmax: the item with the HIGHEST ordinal value (within `among`).\n'
+           '- argmin: the item with the LOWEST ordinal value (within `among`).\n'
+           '- rank: the k-th highest ordinal value (k from "second/third highest").\n'
+           '- comparative: the item whose ordinal value is the CLOSEST one strictly ABOVE (dir=greater) '
+           'or BELOW (dir=less) a REFERENCE item named by anchor_id. Use this whenever the query compares '
+           'to "that of item <id>" / "just greater/less than item <id>".')
 
 
 def arm_B(base, model, ex):
@@ -78,7 +91,10 @@ def arm_B(base, model, ex):
     rid = resolve_operation(op_ir, ex["items"]) if op_ir else None
     # recognition = emitted op matches gold op (structural)
     g = ex["op_ir"]
-    recog = bool(op_ir) and op_ir.get("op") == g.get("op") and str(op_ir.get("attr")) == str(g.get("attr"))
+    # recognition = named the right OPERATOR (+ attr when the op uses one). filter has no attr in gold,
+    # so don't penalise an emitted attr there (v1 mismeasured filter as recog-fail = artifact).
+    recog = (bool(op_ir) and op_ir.get("op") == g.get("op")
+             and (g.get("attr") is None or str(op_ir.get("attr")) == str(g.get("attr"))))
     return rid, recog
 
 
@@ -86,14 +102,18 @@ def score(base, model, exs, arms):
     agg = {a: [0, 0] for a in arms}
     recog = [0, 0]
     by_op = {}
+    by_op_recog = {}
     for ex in exs:
         gold = ex["gold_id"]; op = ex["op"]
         by_op.setdefault(op, {a: [0, 0] for a in arms})
+        by_op_recog.setdefault(op, [0, 0])
         for a in arms:
             if a == "A": rid = arm_A(base, model, ex, cot=False)
             elif a == "Acot": rid = arm_A(base, model, ex, cot=True)
             elif a == "B":
-                rid, rc = arm_B(base, model, ex); recog[1] += 1; recog[0] += int(rc)
+                rid, rc = arm_B(base, model, ex)
+                recog[1] += 1; recog[0] += int(rc)
+                by_op_recog[op][1] += 1; by_op_recog[op][0] += int(rc)
             elif a == "D": rid = resolve_operation(ex["op_ir"], ex["items"])
             else: rid = None
             ok = int(rid == gold)
@@ -107,8 +127,10 @@ def score(base, model, exs, arms):
         print(f"  op-RECOGNITION (B): {f(recog)}")
     print("=== by op ===")
     for op in by_op:
-        print(f"  {op:>11}: " + "  ".join(f"{a}={f(by_op[op][a])}" for a in arms))
-    return {"overall": {a: agg[a] for a in arms}, "recognition": recog, "by_op": by_op}
+        extra = f"  recog={f(by_op_recog[op])}" if "B" in arms else ""
+        print(f"  {op:>11}: " + "  ".join(f"{a}={f(by_op[op][a])}" for a in arms) + extra)
+    return {"overall": {a: agg[a] for a in arms}, "recognition": recog,
+            "by_op": by_op, "by_op_recog": by_op_recog}
 
 
 if __name__ == "__main__":
