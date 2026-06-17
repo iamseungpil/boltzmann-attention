@@ -2,6 +2,29 @@
 
 > 명제(사용자): "the most/the better"는 알고리즘 혼재지만 **파라미터가 충분히 크면 *얕은 모델도 forward-pass 매핑*으로 푼다**(절차 직렬실행 X·병렬회로 학습). **어느 크기서 풀리는지 측정.** = 유계 절차예산 B(L,width)가 연산 깊이 d를 넘는 *임계 크기* 측정. 상위 = `LIE_ABSTRACTION_THEORY_2026_06_17.md §7c-7d-bis`.
 
+## 0-bis. ★★THESIS 재정렬 (2026-06-17·사용자) — *작은 모델이 결정론 구조로 superlative를 극복하나*가 핵심
+스케일 사다리(언제 매핑으로 풀리나·§아래)는 **baseline**이고, **우리 thesis = 7B(소형·주권타깃)가 *결정론 구조의 도움*으로 most/best/better를 극복해 *거대모델 매핑을 비용·정확서 지배*하나**다.
+
+### 핵심 교정 — 연산-IR (정적 $select 폐기)
+우리 정적 `$select`가 superlative서 실패한 건 **답-criteria("zoom=max")를 강제**했기 때문(max는 값이 아님). **고친 결정론 구조**:
+- **LLM = 연산 *명명*(얕은 인식·B 안)**: `{op: argmax/argmin/rank-k/filter/comparative, attr: <X>, among: {filter}, anchor: <현재>, fallback: [...]}`. 답이 아니라 *어떤 연산*인지.
+- **엔진 = 실행(깊은·B=∞)**: filter→sort by attr→extremum/rank/anchor-비교→id. 정확·임의 N·임의 깊이.
+- 예 "highest resolution waterproof": LLM `{op:argmax, attr:resolution, among:{waterproof:yes}}` → 엔진이 max 계산. ("less bright": `{op:comparative, attr:brightness, dir:less, anchor:current}` → 엔진.)
+
+### ★THESIS 시험 (4 arm·superlative/comparative 케이스)
+| arm | 정체 | 예측 |
+|---|---|---|
+| **A. 7B in-head 단독** | NL→답 id 직접 | **실패**(파일럿 d3=0.20) |
+| **B. 7B + 결정론 구조** | NL→연산-IR(LLM 명명)→엔진 실행 | **≈ oracle**(극복) |
+| **C. 거대(32/72B) in-head 단독** | 매핑 | 부분(d3≈0.50)·비쌈 |
+| **D. oracle** | gold 연산 직접 | 1.0 |
+- **thesis 주장: B ≈ D ≫ A · 그리고 B ≥ C (구조가 scale을 대체·소형으로 거대 매핑 지배).**
+- **분해 측정**: (i)*연산-인식 정확도*(LLM이 옳은 op-IR emit하나 = 얕은 분류·소형도 높아야·이론 예측) (ii)*end-to-end*(인식+엔진). (i) 높으면 (ii)≈oracle = thesis.
+- 실패 분해: 연산-오인(argmax↔argmin·"less"방향·attr오인·filter누락) = 인식 실패(개선타깃)·엔진은 무오류.
+
+### 스케일 사다리의 역할 (baseline)
+거대모델 in-head 매핑의 *임계크기/비용*(아래 §1-7)이 = **arm C가 *얼마나 비싼지*** = B(작은+엔진)가 지배하는 폭. "풀린다(매핑)"의 증명이 곧 "그 비용을 offload가 친다"의 증명.
+
 ## 0. 한 줄
 **합성 통제-깊이 selection 과제를 *in-head(CoT 없음)*로 1.5B→235B 스케일 사다리에 돌려, superlative(max/min)·ranked(2nd)·comparative(anchor)·nested 각각이 *매핑만으로* 풀리는 *임계 파라미터*를 측정. + 결정론 offload(=1.0·B=∞) 대조로 "임계가 크면 offload가 비용 지배"를 박는다.**
 
