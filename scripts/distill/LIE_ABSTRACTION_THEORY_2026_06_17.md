@@ -214,6 +214,40 @@ v4-v7·M-σ 음성 = **flat/concrete를 학습타깃화**(표면결합·암기) 
 ### ⇒ 정정된 결론
 "binding/깊이 실패"는 **(a)하드 회로-한계**(틀림·TC⁰)도 **(b)순수 forced-JSON 아티팩트**(틀림·base도 깊이서 실패)도 아니라 **(c)유계 절차예산 B(L,width)를 d(e)가 초과**다. scale은 B를 *키우나*(무릎 우측이동 시험중)·결정론 offload는 B=∞로 *깊이를 흡수*(주권·비용 우월). 측정이 내 양쪽 과장(전부-아티팩트 / 전부-회로한계)을 다 깎았다 — **데이터정합 = 유계예산.**
 
+## 9. ★선행연구 정초 (딥리서치 salvage 합성·2026-06-17) — 이론이 문헌에 *엄밀히* 선다 + 1 교정
+> 두 딥리서치(routing `wuwr9839y`·notation `w3d906s6n`)는 synthesis 직전 killed됐으나 search/fetch/verify 완료 → 검증된 claim 207건 salvage(`_dr_salvage`). 핵심만 합성. **대부분 우리 이론을 *발명 아닌 검증된 조각의 미점유 교차점*으로 확인**하고, **한 곳(Roman/Arabic)을 교정**한다.
+
+### A. "절차-내장 표기"는 *실재하는 형식 범주* (§7b 정초)
+- **Relevance Theory 절차 vs 개념 의미**(Blakemore·Wilson): 언어요소는 *개념*(denotation·계산에 들어가는 표상)을 부호화하거나 *절차*(추론 계산 자체·따라야 할 추론-루트)를 부호화. "but/so/this"는 *개념 아니라 절차*. = 우리 denotation vs 절차-내장 분리 *그대로*. ★"절차의미는 sub-personal *machine-language*·의식화 저항" → **왜 comparative/anchor를 *명명* 못 했나**(7B 실측 B=0.00) 설명: 절차의미는 명명 어렵다.
+- **동적의미론**(Groenendijk-Stokhof-Veltman·Heim): 의미 = *context-change potential*(정보상태 업데이트 *명령*)·정적 진리조건 아님. ★denotation·절차의미 *공존*(진리조건=업데이트의 *전제조건*) = 우리 "애매경계=둘 다·병합" 정합.
+- **Goodman notationality**(Languages of Art): 기호계가 *모호성 없는 기계조작*을 지원할 조건 = disjointness + finite differentiation. notational(digital·결정) vs dense(analog·기계화 불가). 그림=실패·악보=통과. = 우리 "결정론 실행가능 표기" 형식 기준.
+
+### B. 복잡도 위계가 *정확*하고 *인지적으로 실재* (§7c-7d 정초)
+- **★van Benthem semantic automata (정확)**: "every/some"=permutation-invariant *acyclic 유한상태*·"짝수개"=*cyclic 유한상태*·**"most/less-than-half"=유한상태 불가·*pushdown(스택)* 필요**(Chomsky 한 단계 위·context-free). = "단어가 *특정 복잡도 알고리즘*을 내장"의 *증명*. 우리 superlative=pushdown류.
+- **★인지 실재(fMRI/RT)**: pushdown("most")은 *작업기억(PFC) 동원*·유한상태("all")는 안 함·RT가 *최소-오토마타 복잡도로 스케일*. = 우리 "깊은 d=무너짐"의 *생물학적* 대응(d↑=작업기억↑).
+- **학습성 ∝ 복잡도**: monotone/quantity 양화사가 LSTM서 빨리 학습·**NN이 "most" 검증서 *비율-민감(ANS) 절차를 자발 재현*** = *내장 절차(집합구성+크기비교)가 학습됨*(lookup 아님). LZ/Kolmogorov로 양화사 복잡도 *측정가능*. = 우리 §7c d(e) 측정 정당.
+- **RASP-L**: Transformer length-일반화 ⟺ *짧은 길이-독립 RASP 프로그램* = 절차의 구조복잡도가 학습성 결정. = 우리 유계예산 B(§7d-bis) 정합.
+- **iterated 양화사 = pushdown으로 *합성***(자동기계 합성) = 우리 "깊이=연산 중첩" 정합.
+
+### C. ★교정 — 표기는 *계산가능성*이 아니라 *비용*을 정한다 (Zhang-Norman·내 Roman 비유 정정)
+- **★Roman·Arabic은 *계산적으로 유사*** — Roman이 알고리즘 계산에 *부적합한 게 아니라 단지 *기본단계 수가 많을* 뿐. **표상은 *계산가능성*이 아니라 *비용 프로파일*을 정한다.** → 내 "Roman엔 알고리즘 없다"는 *틀림*. 옳은 진술 = **위치표기는 곱셈을 *싸게*(적은 단계) 만들지 *가능*하게가 아니다.**
+- **★Arabic vs Roman = *반대 비용 트레이드오프***: Arabic=큰 *내부* 자원(100 덧셈사실·작업기억) / Roman=적은 내부·많은 *외부*(지각-운동) 단계(Roman 덧셈 ~30× 더 많은 READ). **= 우리 §7d-bis의 *공간(내부 B) vs 외부(CoT/엔진) 단계* 트레이드오프 그 자체.** 표기/IR의 가치 = *LLM-대면 단계수(비용)*를 줄이는 것(아라비아=내부암기로·우리 IR=엔진 offload로).
+- ⇒ 교정이 이론을 *강화*한다: "깊이"는 *계산가능성 한계*가 아니라 *단계-비용*이고(B 초과 시 무너짐도 비용/오차), scale은 내부비용으로·offload는 외부 결정론으로 지불 — §7d-bis 유계예산 그림과 정확히 일치.
+
+### D. 라우팅/분류는 *학습되고 전이된다* — 단 *자기평가는 불신* (§7e-7f 정초)
+- **학습된 라우팅**(발명 아님·검증됨): **RTR**(model+추론전략 공동 라우팅·OOD 전이·71.7%↓토큰)·**A2FM**(instant/reasoning/agentic 모드 RL 라우팅·비용 45%↓)·**xRouter**(answer-vs-delegate RL)·**ARM2**(NL/code/vision 포맷 RL 선택·code offload)·**ToolkenGPT**(tool 호출=토큰예측). = "LLM이 분류·라우팅을 *학습*"이 *기성 패러다임*.
+- **★전이**: **RITE**(math-only RL 학습 → *교차도메인 SOTA*) = 분해/도구-라우팅이 *학습·전이 가능 스킬*(우리 §7f C8 핵심 *지지*).
+- **When2Call**: when-to-call이 *학습됨*(RPO≫SFT·8B F1 31.9→52.4·hallucination 1.2%)·기성모델 불신(Qwen72B F1 32.8·23% 환각). **tool-necessity가 hidden state서 *생성 전* 선형해독(AUROC 0.89-0.96)** = 라우팅 신호 *내부 존재*(우리 "얕은 분류=내재화가능" 정합).
+- **★자기평가 불신**(중요·[[feedback-selector-verifier-deterministic]] 강화): verbalized confidence는 *과신*·OOD서 붕괴·Type-2 SDT로 "겉보기 calibration=criterion-placement지 진짜 메타인지 아님". **⇒ 라우팅을 *introspection 아니라 *학습/외부신호*로*** = 우리 "검증기=결정론" 정합.
+
+### E. offload 경계 — 확립됐으나 *항상 이기진 않음* (정직)
+- **PAL**: LLM 분해 / 결정론 interpreter 실행 = 우리 경계 *그대로*·직접 CoT를 큰 차로 이김.
+- **LLM-as-formalizer 스케일**: NL→PDDL formalizer가 직접 planner 압도(100 blocks 100% vs 직접 20%)·"NL→formal은 LLM·지수탐색은 결정론 solver"가 *경험 최적 분담*. = thesis 핵심.
+- **★반례(정직)**: LLM-as-formalizer가 직접 solver에 *15/24서 짐*·formalize 시 *해결추론 누출*(hard-code). ⇒ **offload가 *항상* 우월 아님** — search-heavy/스케일서 이기고, 단순서 formalize 오버헤드가 짐. 우리 7B 실측(comparative B=0.00)도 *명명 실패* 반례와 정합. **경계 자체가 측정 대상**(§7c d·B-budget 실험).
+
+### 종합 (이론 지위 상향)
+**우리 이론은 발명이 아니라 *검증된 조각들*(절차의미·semantic automata·notationality·representational-effect·학습된 라우팅·formalize-offload)의 *미점유 교차점***: **유계예산 B(L,width) × 표기-깊이 d(e) × 결정론 offload로 깊이흡수 × 분류는 학습·전이**. 1 교정(Roman=비용 아닌 가능성)이 오히려 §7d-bis(공간/시간/단계-비용)를 강화. 반례(formalize 항상은 아님·comparative 명명실패)가 *경계를 측정 대상*으로 못박음.
+
 ## 8. 정직 (이론 지위)
 - 이건 *생산적 형식틀*(Lie 대수↔군 = name↔execute의 동형)이지 증명된 정리 아님. "가해성=추상화레벨"은 *은유적 위계*(엄밀 Galois 군 아님)·반증가능 예측(§6)으로 검증.
 - 엄밀화 경로: (i)tool-use primitive를 실제 유한생성 대수로 구성(닫힘 companion 확장) (ii)생성원-수 = eff-dim 측정(olver_dimension_experiment 재사용) (iii)§6 예측 실험.
