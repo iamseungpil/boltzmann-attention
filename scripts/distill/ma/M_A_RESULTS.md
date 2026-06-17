@@ -237,3 +237,16 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **op-슬롯 붕괴 = NL 동사 복사 확정**(형식 아님): 합성 형식서도 exchange8 잔존 → τ² *동사*가 원인.
 - **★SFT가 표면 매핑을 *주입***: **base는 exchange 0회**(filter/rank로 감)·**trained만 exchange emit**. 게다가 base(0.16) > trained(0.09) = **좁은 단일-템플릿 SFT가 "NL동사→op" 표면매핑을 심어 역전이**.
 - ⇒ **결론 = §16 합성 양성은 표면 매핑 아티팩트**(좁은 표현 분포). **처방 = 표현/구조 다양성**(어휘 등방화 불충분·깊이 비례). 다양성-전이 곡선 K×depth 설계 예정.
+
+## 18. ★표현 다양화 → τ² 재전이 = 부분양성 (표면붕괴 끊김·정확도 미회복·2026-06-17·`render_nl_diverse`·DIV_ep3)
+> 다양화 = 동사 풀 op-무관·op은 의미표현으로만 결정(`synth_depth.render_nl_diverse`)·표면-op 상관 0. 3000샘플 ep1 LoRA → τ² offline + held-out diverse.
+
+| | 표면붕괴(op=exchange/replace 복사) | τ² 정확도 | in-dist diverse |
+|---|---|---|---|
+| 단일템플릿 S2 | **13/32** | 1/32 (0.03) | — |
+| **다양화 DIV** | **3/32** | 2/32 (0.06) | **250/250 (1.00)** |
+
+- **★표면붕괴 13→3**: 다양화가 "NL동사→op 복사"를 끊음(exchange 11→3·comparative/argmax 정상 emit). = 사용자 명제(표면-op 상관 끊기) **표면붕괴 차원 확증** = **Cor 6.9.6 off-manifold→on-manifold 복귀** 신호.
+- **★정확도 미회복(2/32·floor 0.25 이하)**: in-dist diverse=1.00인데 τ²=0.06. on-manifold 복귀해도 *올바른 basin* 못 찾음 — over-comparative(23/32·substitution도 comparative)·인자(attr/among/anchor) 오류·합성 표현풀이 τ² 표현/구조 미커버.
+- ⇒ **표면 다양성 = 필요조건 *한 겹*·충분 아님**. 정확도 전이엔 (a) 구조 다양성(과제형태·multi-attr) (b) D 증대(K-sweep) (c) 인자 reasoning 필요. = `EXPRESSION_DIVERSITY_TRANSFER_DESIGN` K-sweep 곡선으로 표면붕괴율 vs D / 정확도 vs D *분리* 추적.
+- 정직: n=32·합성 표현풀 한정·over-comparative는 다양화 데이터 op-편향 가능성(별도 진단).
