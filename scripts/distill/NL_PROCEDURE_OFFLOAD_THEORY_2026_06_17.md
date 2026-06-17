@@ -1,4 +1,6 @@
-# Lie-대수적 추상화 위계 — LLM이 잘하는 것 vs 못하는 것의 수학적 골격 (이론 DRAFT) — 2026-06-17
+# NL→절차 offload 이론 — LLM이 왜 NL을 잘 푸나 + 무엇을 결정론에 넘기나 (역할분담·표기깊이 d(e)·유계예산 B(L,width)·정초) — 2026-06-17
+
+> ★개명: `NL_PROCEDURE_OFFLOAD_THEORY` (구 `LIE_ABSTRACTION_THEORY`). Lie 군은 §1-7의 *한 특수예*로 강등·본체 = §7b-7f + §9. 핵심 = **LLM=얕은연상+절차-타입 분류 / 결정론=깊은 실행(offload)**. 토대=§7e·전이재정식화=§7f·깊이측정=§7c·시간/공간=§7d-bis·선행연구정초=§9.
 
 > 동기: τ² write-벽 전수추적서 "best/most/더 밝은" 류가 실패. 이건 *단어 하나*가 아니라 **리스트-구성 → 정렬 → 첫째 선택**이라는 *연산을 품은 개념*이다. = 십진 위치표기가 무한집합을 유한과정으로 바꾸는 것과 동형. 추상화 *레벨*이 LLM 적성을 가른다는 thesis를 Lie 군으로 형식화.
 > 상위/연결: Olver 표면군 저차원불변(`EXPERIMENT_DESIGN §5.13-5.14`)·`ALGEBRAIC_DERIVATION_CLOSURE`·`PRIMITIVE_COVERAGE_MATRIX`·[[feedback-nl-formalize-llm-selection-deterministic]]·[[project-decomposition-optimality-contribution]].

@@ -1,4 +1,4 @@
-> **★격상 (2026-06-17) = [`../LIE_ABSTRACTION_THEORY_2026_06_17.md`](../LIE_ABSTRACTION_THEORY_2026_06_17.md)**: P4(변형선택/superlative)는 표기-깊이 d(e)↑ 케이스. **정적 순서-연산 IR도 정적이면 해로움**(CoT probe 실측) → **연산-IR(LLM이 argmax/comparative *명명*·엔진 실행)로 격상**. 7B 실측: argmax/rank=극복(1.00)·**comparative만 명명 실패**(절차의미=명명 어려움) = P4의 진짜 잔여. 통제 측정 = `../B_BUDGET_SCALE_DESIGN_2026_06_17.md`.
+> **★격상 (2026-06-17) = [`../NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md`](../NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md)**: P4(변형선택/superlative)는 표기-깊이 d(e)↑ 케이스. **정적 순서-연산 IR도 정적이면 해로움**(CoT probe 실측) → **연산-IR(LLM이 argmax/comparative *명명*·엔진 실행)로 격상**. 7B 실측: argmax/rank=극복(1.00)·**comparative만 명명 실패**(절차의미=명명 어려움) = P4의 진짜 잔여. 통제 측정 = `../B_BUDGET_SCALE_DESIGN_2026_06_17.md`.
 
 # P4 fallback 해결 (리뷰용 DRAFT) — 조건 제어흐름 결정론-offload + 순서-연산 IR + CoT probe — 2026-06-17
 

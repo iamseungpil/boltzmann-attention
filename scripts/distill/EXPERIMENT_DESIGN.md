@@ -7,7 +7,7 @@
 
 ## §0. 목표 (한 문장, 변하지 않음)
 
-> **★★★★★★ 현재 도달 (2026-06-17 · 이론 정초 + thesis 직접 실측 · 권위 = [`LIE_ABSTRACTION_THEORY_2026_06_17.md`](LIE_ABSTRACTION_THEORY_2026_06_17.md) + 실험 [`B_BUDGET_SCALE_DESIGN_2026_06_17.md`](B_BUDGET_SCALE_DESIGN_2026_06_17.md))**: §0 목표 문장 불변. **이론 정초 = "LLM이 왜 NL을 잘 푸나 + 무엇을 결정론에 넘기나"의 *철학·과학 이론*** (§9 선행연구로 *엄밀히* 정초):
+> **★★★★★★ 현재 도달 (2026-06-17 · 이론 정초 + thesis 직접 실측 · 권위 = [`NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md`](NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md) + 실험 [`B_BUDGET_SCALE_DESIGN_2026_06_17.md`](B_BUDGET_SCALE_DESIGN_2026_06_17.md))**: §0 목표 문장 불변. **이론 정초 = "LLM이 왜 NL을 잘 푸나 + 무엇을 결정론에 넘기나"의 *철학·과학 이론*** (§9 선행연구로 *엄밀히* 정초):
 > - **역할분담의 *왜***: 언어 = 유계-깊이 병렬 인지를 위해 진화한 *압축 인터페이스* → 대부분 *얕은 병렬 연상*(=Transformer forward pass=TC⁰가 잘하는 일). NL 곳곳의 *깊은 알고리즘 주머니*(most/best/비교·산술·다단 = §7c **표기-깊이 d(e)**)는 **인간도 외부도구(아라비아-알고리즘·계산기)로 offload**하는 지점. ⇒ **LLM=얕은 연상+*절차-타입 분류* / 결정론=깊은 실행**(인간 뇌+외부도구 모사).
 > - **유계 절차예산 B(L,width)**(§7d-bis): 고정모델 forward pass는 *직렬-깊이 유계*(TC⁰·점근 아님). d(e)≤B 성공·>B 하락(7B: d3 0.20). **scale은 B를 내부암기로 키우고(유계·비쌈)·CoT는 외부토큰으로(오차누적)·결정론 엔진은 B=∞(정확·저비용)** 지불. = "binding 벽≠scale"의 *근본 이유*.
 > - **★thesis 직접 실측 (7B·`M_A_RESULTS §15` 예정)**: 정적 $select(답-criteria 강제)는 *해롭다*. 고친 **연산-IR**(LLM이 *연산 명명* argmax-over-X·엔진 실행) = **7B가 혼자 rank 0.17 못 풀던 걸 *결정론 구조로 1.00 극복*** (argmax/argmin/rank 확인)·comparative만 *명명* 실패(절차의미=sub-personal·문헌 정합). = **"작은 모델이 결정론 구조로 most/best 극복" thesis 직접 증거**.
@@ -111,7 +111,7 @@
 **F1 비용 장부 상시화 (2026-06-14, 추세리뷰 위험1[손공학 creep] 방어 — 게이트/스펙 변경마다 갱신 의무)**: A2 자동화 속도 > 손작성 속도인 한 "벤치-불변" 주장 유지. 현 장부: τ²-retail 수동 spec ~40줄(GT용 1회·front-end 자동화 타깃) / **airline 0줄**(Fable-5 컴파일·replay 0/108) / **telecom 0줄**(Fable-5 컴파일) / G4-게이트 추가 +13줄(spec 엔트리·템플릿 불변) / 복구 템플릿 = 도메인-불변 0줄. 대조축 = SOPBench DGGATE(graph 수동 재구성)·AgentSpec "manually developed"(FIELD_GAP §5.5).
 
 ## §2. 현재 진단 (어디까지 왔나)
-> ★★★★★★**현재 도달 (2026-06-17) — 권위 = [`LIE_ABSTRACTION_THEORY_2026_06_17.md`](LIE_ABSTRACTION_THEORY_2026_06_17.md)**:
+> ★★★★★★**현재 도달 (2026-06-17) — 권위 = [`NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md`](NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md)**:
 > - **★thesis 직접 실측(7B·통제 합성)**: in-head 단독은 깊은 연산서 무너짐(argmax 0.61·**rank 0.17**)·**결정론 구조(연산-IR 명명+엔진 실행)로 argmax/argmin/rank = 1.00 극복**(전체 0.51→0.80). = *작은 모델이 결정론 구조로 most/best 극복* 직접 증거. **잔여 = comparative 명명 실패**(절차의미=명명 어려움·문헌 정합) → 다음 = 절차-분류 *학습*.
 > - **표기-깊이 d(e) × 크기**(파일럿·τ²): in-head 정확도 d↑서 하락(7B 0.83→0.20)·**무릎이 크기로 우측이동**(d3: 7B 0.20→14B 0.50) = 유계예산 B(L,width) 성장(§7d-bis). 단 32B-Int8 평탄=양자화 confound → bf16 사다리 필요.
 > - **정적 IR=해롭다**(CoT probe: set-ops emit 0.34<base 0.48)·free-CoT 소폭(0.55) → 정적 criteria 폐기·**연산-명명 IR로 전환**.

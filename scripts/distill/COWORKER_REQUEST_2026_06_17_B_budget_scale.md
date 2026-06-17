@@ -1,6 +1,6 @@
 # Coworker 요청 (2026-06-17) — B(절차예산) 스케일 실험: 대형 32B/72B/235B in-head 매핑 임계 측정
 
-> 자기완결. 권위 = `scripts/distill/B_BUDGET_SCALE_DESIGN_2026_06_17.md`·`LIE_ABSTRACTION_THEORY_2026_06_17.md §7d-bis`. 직전 요청서(floor·factorial)는 완료·무관.
+> 자기완결. 권위 = `scripts/distill/B_BUDGET_SCALE_DESIGN_2026_06_17.md`·`NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md §7d-bis`. 직전 요청서(floor·factorial)는 완료·무관.
 > 불변: 추론-only(학습 0)·결정론 분담([[feedback-selector-verifier-deterministic]])·**τ² 무관**(이건 합성 통제실험).
 
 ## 0. TL;DR — 무엇을/왜

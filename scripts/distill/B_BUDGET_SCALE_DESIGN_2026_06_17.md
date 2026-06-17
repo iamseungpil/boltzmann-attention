@@ -1,6 +1,6 @@
 # B(절차예산) 스케일 실험 — superlative/comparative를 *in-head 매핑*으로 푸는 임계 크기 측정 (설계) — 2026-06-17
 
-> 명제(사용자): "the most/the better"는 알고리즘 혼재지만 **파라미터가 충분히 크면 *얕은 모델도 forward-pass 매핑*으로 푼다**(절차 직렬실행 X·병렬회로 학습). **어느 크기서 풀리는지 측정.** = 유계 절차예산 B(L,width)가 연산 깊이 d를 넘는 *임계 크기* 측정. 상위 = `LIE_ABSTRACTION_THEORY_2026_06_17.md §7c-7d-bis`.
+> 명제(사용자): "the most/the better"는 알고리즘 혼재지만 **파라미터가 충분히 크면 *얕은 모델도 forward-pass 매핑*으로 푼다**(절차 직렬실행 X·병렬회로 학습). **어느 크기서 풀리는지 측정.** = 유계 절차예산 B(L,width)가 연산 깊이 d를 넘는 *임계 크기* 측정. 상위 = `NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md §7c-7d-bis`.
 
 ## 0-bis. ★★THESIS 재정렬 (2026-06-17·사용자) — *작은 모델이 결정론 구조로 superlative를 극복하나*가 핵심
 스케일 사다리(언제 매핑으로 풀리나·§아래)는 **baseline**이고, **우리 thesis = 7B(소형·주권타깃)가 *결정론 구조의 도움*으로 most/best/better를 극복해 *거대모델 매핑을 비용·정확서 지배*하나**다.
