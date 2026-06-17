@@ -61,6 +61,7 @@ def build_cases(tasks, db):
             "task_id": t["id"],
             "nl": nl,
             "order_id": order_id,
+            "case_op": "substitute",  # retail exchange = keep-rest variant substitution (gold op-routing)
             "exchanges": exchanges,
             "gold_payment_method_id": a.get("payment_method_id"),
             "n_items": len(exchanges),
