@@ -264,3 +264,13 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **함의**: §17/§18 음성 = *표현 부재*(𝔤 불완전)였지 다양성(𝔥) 부족이 주인이 아님 → 생성원 완전성이 선행(HANDOFF §1.2 진단 정량 확증).
 - **다음(학습-전이)**: 이 오라클은 *표현* 적합성만(IR을 손으로 줌). 미해결 = **모델이 τ² NL서 substitute를 *명명*하는가**(C8-route 학습 후). = §20 다도메인 동시 전이 매트릭스(retail+airline·`tau2_op_eval` 확장·GPU 학습 필요).
 - 정직: n=32·retail exchange 한정·오라클(IR 수동)=학습 전이 아님·airline 미포함(추출 진행 중).
+
+**★교차도메인 추가 (2026-06-17 PM·`ma_gold_extract --domain airline`·`tau2_subst_oracle`):** airline cabin 차원(basic_economy<economy<business ordinal) 추출 = update_reservation_flights(cabin 변경·flights 유지=keep-rest substitute) **17** + book_reservation(create) **10**.
+
+| 도메인 | 오라클 | op-IR |
+|---|---|---|
+| retail exchange | **32/32 (1.000)** | substitute(keep-rest, 25진성+7 full) |
+| **airline cabin** | **27/27 (1.000)** | substitute 17 + create 10 |
+
+- **★교차도메인 twin 입증(표현)**: *동일* op-IR 어휘·*동일* resolver(`resolve_op_tau2`·cabin을 ORD_WORDS 등록)로 retail variant-exchange와 airline cabin-update 둘 다 닫힘 = substitute가 도메인-일반(공격 "retail 특화" 표현차원 반박). HANDOFF §2 가설(substitute가 두 도메인 지배)의 표현측 확증.
+- 정직: airline cabin=단일 ordinal attr → catalog 레벨 keep-rest 구조 degenerate(유지되는 "rest"=flights는 cabin-catalog 밖) → airline 케이스는 multi-attr keep-rest보다 **op-라우팅(substitute vs comparative vs create)**을 시험. retail이 multi-attr keep-rest 담당. 학습-전이(모델이 NL서 op 명명)=§20 미해결(GPU 학습 필요).

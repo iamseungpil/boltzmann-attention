@@ -39,11 +39,14 @@ def build_user(nl, ex, gloss, synth_format=False):
                 f"The catalog items have these attributes: {attrs}.\n"
                 f"The ordinal/numeric attribute is '{ordattr}'.\n\n"
                 f"{build_spec(gloss)}")
-    return (f"Query: {nl}\n\n"
-            f"This exchanges the item: {ex['old_item_name']} "
-            f"(current options: {json.dumps(ex['old_options'])}, id={ex['old_item_id']}).\n"
-            f"The product's variant options are: {attrs}.\n"
-            f"Ordinal options (listed low to high): {json.dumps(ords)}.\n\n"
+    ordline = f"Ordinal options (listed low to high): {json.dumps(ords)}.\n" if ords else ""
+    if ex.get("old_options"):  # substitute/exchange: there IS a reference item to keep-rest from
+        ref = (f"This changes the item: {ex['old_item_name']} "
+               f"(current options: {json.dumps(ex['old_options'])}, id={ex['old_item_id']}).\n")
+    else:  # create: no reference item, build fresh
+        ref = f"This creates a new {ex.get('product_name','item')} (no existing item to keep options from).\n"
+    return (f"Query: {nl}\n\n{ref}"
+            f"The available options are: {attrs}.\n{ordline}\n"
             f"{build_spec(gloss)}")
 
 
@@ -67,7 +70,9 @@ def main():
     by_type = {}            # type -> [ok, total]
     op_dist = Counter()
     rows = []
+    recog = [0, 0]  # gold op-routing recognition (emitted op == gold case_op), when case_op is known
     for c in cases:
+        case_op = c.get("case_op")
         for ex in c["exchanges"]:
             ex["_nl"] = c["nl"]
             user = build_user(c["nl"], ex, bool(args.gloss), synth_format=bool(args.synth_format))
@@ -76,19 +81,25 @@ def main():
             ir = extract_json(out)
             rid = resolve_op_tau2(ir, ex["variant_catalog"], anchor_id=ex["old_item_id"]) if ir else None
             hit = int(rid == ex["gold_new_item_id"])
-            t, nch = case_item_type(ex)
+            sup_t, nch = case_item_type(ex)
+            t = case_op or sup_t  # prefer gold op-type breakdown (airline); fall back to regex (retail)
             by_type.setdefault(t, [0, 0]); by_type[t][1] += 1; by_type[t][0] += hit
-            op_dist[(ir or {}).get("op")] += 1
+            emitted_op = (ir or {}).get("op")
+            op_dist[emitted_op] += 1
+            if case_op:
+                recog[1] += 1; recog[0] += int(emitted_op == case_op)
             n += 1; ok += hit
-            rows.append({"task": c["task_id"], "type": t, "n_changed": nch, "op": (ir or {}).get("op"),
-                         "rid": rid, "gold": ex["gold_new_item_id"], "hit": hit, "ir": ir})
+            rows.append({"task": c["task_id"], "type": t, "case_op": case_op, "n_changed": nch,
+                         "op": emitted_op, "rid": rid, "gold": ex["gold_new_item_id"], "hit": hit, "ir": ir})
     f = lambda x: f"{x[0]}/{x[1]}({x[0]/max(x[1],1):.2f})"
     print(f"model={args.model} gloss={args.gloss} | items={n}")
     print(f"  overall new_item_id acc: {ok}/{n}({ok/max(n,1):.2f})")
     for t in by_type:
         print(f"  {t:>13}: {f(by_type[t])}")
+    if recog[1]:
+        print(f"  op-ROUTING recognition (emitted op == gold case_op): {f(recog)}")
     print(f"  emitted op dist: {dict(op_dist)}")
-    res = {"model": args.model, "gloss": args.gloss, "overall": [ok, n],
+    res = {"model": args.model, "gloss": args.gloss, "overall": [ok, n], "recognition": recog,
            "by_type": by_type, "op_dist": {str(k): v for k, v in op_dist.items()}, "rows": rows}
     if args.out:
         json.dump(res, open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
