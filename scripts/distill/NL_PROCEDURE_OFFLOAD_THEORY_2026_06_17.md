@@ -259,3 +259,38 @@ comparative gloss 실험(위 §9-A 교정·`M_A_RESULTS §15`)이 C8의 *무엇�
 - 이건 *생산적 형식틀*(Lie 대수↔군 = name↔execute의 동형)이지 증명된 정리 아님. "가해성=추상화레벨"은 *은유적 위계*(엄밀 Galois 군 아님)·반증가능 예측(§6)으로 검증.
 - 엄밀화 경로: (i)tool-use primitive를 실제 유한생성 대수로 구성(닫힘 companion 확장) (ii)생성원-수 = eff-dim 측정(olver_dimension_experiment 재사용) (iii)§6 예측 실험.
 - 한 줄: **LLM=대수(생성원 명명·저차원·학습·전이)·결정론=군(exp 실행·무계). 추상화 레벨=가해성 위계. 설계=군을 대수로 들어올려 명명은 LLM·실행은 엔진. 십진 위치표기가 무한을 유한 생성원으로 바꾼 바로 그 수.**
+
+## 10. ★이중 군 + 에너지–Lie 통합 (repo 선행작업 정합·2026-06-17·정직 상태라벨)
+> 동기 = 사용자: 깊은 추상·다축 랜덤화를 Lie/에너지로 정식화 + repo의 boltzmann-attention·lie_group 선행작업 통합. 권위 = `math/paper/lie_group/`(실증 Lie)·`math/paper/iclr2027/BOLTZMANN_ENERGY_FRAMEWORK_v1.md`(에너지 정식화-only)·`M_A_RESULTS §16-18`(실증).
+
+### 10.1 두 군 (실행 𝔤 / 표면 𝔥)
+- **𝔤 / G_exec = exp(𝔤)**: 절차 *실행* 군(Lie·연속·결정론 offload). 깊이 d = 가해성 위계 높이.
+- **𝔥 / H_surf**: 절차 *표현* 변환군(의미보존 paraphrase·혼합군·다축 𝔥_L⊕𝔥_S⊕𝔥_P⊕𝔥_R = 어휘⊕구문⊕화용⊕우회).
+- **학습 = H_surf-불변·𝔤-equivariant 맵** ρ⁻¹: E→𝔤(표면→생성원). Noether: 𝔥-대칭 → 보존량 = 절차 라벨. 표면 다양성 D = 활성 𝔥 차원(effective rank).
+
+### 10.2 에너지 좌표 (Boltzmann)
+attention = Boltzmann: `P(t|q)=exp(−βE)/Z`, `E=−⟨q,k_t⟩+V(t,q)`, `β=1/√d_head`, `F=E−TS`. 절차/온톨로지 = V의 energy basin. **다양성 D = 온도 T=1/β. D\*(depth) = 상전이 임계 β\*.** 표면붕괴 = 고온/저-다양성 basin 혼합.
+
+### 10.3 ★repo 실증 정리와의 동형 (이식 가능)
+우리 현 현상이 *증명·실측된* Lie 정리의 인스턴스(`lie_group/`):
+| 현 작업 | 실증 정리 | 검증 |
+|---|---|---|
+| 표면붕괴(op=exchange)·단일템플릿 | **Cor 6.9.6 off-manifold template-collapse**(α>α\*) | +68.5pp F1 gap |
+| **D\*(depth) 상전이** | **Cor 6.9.6 on→off manifold**(on: KL≤C₂α²+C₃α⁴ / off: 붕괴) | 〃 |
+| **gloss 작동** | **Cor 6.7 reframe — Hyp(R): gate Lipschitz**(hard threshold 실패 MMLU −10.5pp) | 〃 |
+| 단일 op-IR multi-facet 불가 | **Cor 6.9 AdaSEKA rank-r saturation**(gap r(F−1)) | 〃 |
+| 가해성 위계(filter<argmax<comparative) | **SO(2)⊂SO(3)⊂…⊂SO(d) subgroup 위계** | 〃 |
+| comparative=anchor(history) 실패 | **steering: no-memory theorem**(stationary 연산자 history 인코딩 불가) | τ² +5.98/+26.76/+3.84pp |
+- **Hamiltonian backbone**: RoPE `e^{iHt}=Σ_f e^{iλ_f t}Π_f`·λ_f=subspace 중요도. 단 이 energy는 *rotation generator*지 Boltzmann `E=−⟨q,k⟩` 아님(별 좌표).
+- **join(spec-only)**: facet projector `B_fB_f^⊤`(Cor 6.7) = energy potential V(H-V-Hopfield) = 같은 geometric object 두 관점(rotation-subspace vs energy-basin)·`Ẽ=[K;√λΞ]`.
+
+### 10.4 실증 (DIV·§18)
+표면 다양성 → 표면붕괴 13→3(off→on manifold 복귀·**Cor 6.9.6 부분검증**) but τ² 정확도 미회복(2/32·on-manifold 안 올바른 basin 못찾음). = 다양성은 *한 겹*. D-전이 곡선(K-sweep)으로 표면붕괴율 vs D / 정확도 vs D 분리.
+
+### 10.5 ★정직 상태 라벨 (과장 금지)
+- **Lie geometry(SO(2)·torus·Cor 6.7-6.12·phase transition) = 실증**(Pre-RoPE PCA 최적 +14.4%·112/112 head·+68.5pp). **이식 가능한 정리.**
+- **에너지(E=−⟨q,k⟩+V·basin hierarchy=레이어=추상) = 정식화-only·실험 0**(BOLTZMANN_v1 brainstorm-locked). basin-hierarchy(lexical 얕음/추상 깊음)는 *미실행 예측*(C4)·확정 아님.
+- **Lie↔Boltzmann proven bridge 없음**(conceptual·unvalidated). Hamiltonian-eigenvalue energy ≠ Boltzmann E.
+- **Boltzmann T_eff prescriptive = rejected**(GQA가 cooling 파괴 ρ=+0.108). 우리 *데이터* 온도 ≠ attention T_eff.
+- **최강 실증 = PCA optimality**(quantization)지 에너지 basin 아님. ⇒ 에너지=동기/언어·Lie 상전이(Cor 6.9.6)=이식 정리.
+- 죽음: F13 K-rotation(seed불안정)·Berry phase(skip_layer no-op). geometry는 살아있음.
