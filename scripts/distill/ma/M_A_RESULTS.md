@@ -250,3 +250,17 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **★정확도 미회복(2/32·floor 0.25 이하)**: in-dist diverse=1.00인데 τ²=0.06. on-manifold 복귀해도 *올바른 basin* 못 찾음 — over-comparative(23/32·substitution도 comparative)·인자(attr/among/anchor) 오류·합성 표현풀이 τ² 표현/구조 미커버.
 - ⇒ **표면 다양성 = 필요조건 *한 겹*·충분 아님**. 정확도 전이엔 (a) 구조 다양성(과제형태·multi-attr) (b) D 증대(K-sweep) (c) 인자 reasoning 필요. = `EXPRESSION_DIVERSITY_TRANSFER_DESIGN` K-sweep 곡선으로 표면붕괴율 vs D / 정확도 vs D *분리* 추적.
 - 정직: n=32·합성 표현풀 한정·over-comparative는 다양화 데이터 op-편향 가능성(별도 진단).
+
+## 19. ★★★생성원 적합성 = substitute op-IR가 τ² exchange 전건 재현 (오라클·2026-06-17 PM·`tau2_subst_oracle.py`·offline 키0·GPU0·n=32)
+> §17/§18 정확도 미회복의 **근본원인 확정 후 닫기**: over-comparative(23/32)는 학습 편향이 아니라 **5-op 어휘가 τ² substitution을 *표현 불가***였기 때문(`GENERATOR_ALGEBRA §3`·HANDOFF_PM §1: 모델이 exchange→comparative 강제 + `to:` 발명). 처방 = content 생성원 5→7(**substitute**·create 추가). substitute op-IR = `{op:substitute, anchor_id:old_item_id, set:{변경된 옵션}}`·엔진 = anchor 옵션 ⊕ set override로 target 구성 후 유일 variant 매칭(`synth_depth.resolve_operation`·`tau2_op_resolver.resolve_op_tau2`).
+
+| 검증 | 결과 |
+|---|---|
+| **substitute 오라클** (gold IR → τ² retail exchange) | **32/32 (1.000)** new_item_id 재현 |
+| synth round-trip (전 7-op·N∈{5,10,20}·각 60) | **420/420 (1.000)** |
+
+- **★표현 적합성 입증**: gold substitute IR이 τ² retail exchange 32건 전부를 결정론적으로 재현. = 생성원 대수 gap(2nd-gate 음성 근본)이 **표현 차원서 닫힘** — 학습 무관·thesis offload 구조 그대로.
+- **keep-rest가 진짜 난점 확증**(HANDOFF §2.3 gotcha): 변경/전체 옵션 분포 = keep-rest 진성 substitute **25건**(일부 유지: (1,2)·(1,3)·(2,3)·(2,4)·(3,5)·(4,5))·full-change(=create-shaped) 7건((3,3)·(4,4)). substitute 엔진이 두 경우 모두 처리(target=old⊕set).
+- **함의**: §17/§18 음성 = *표현 부재*(𝔤 불완전)였지 다양성(𝔥) 부족이 주인이 아님 → 생성원 완전성이 선행(HANDOFF §1.2 진단 정량 확증).
+- **다음(학습-전이)**: 이 오라클은 *표현* 적합성만(IR을 손으로 줌). 미해결 = **모델이 τ² NL서 substitute를 *명명*하는가**(C8-route 학습 후). = §20 다도메인 동시 전이 매트릭스(retail+airline·`tau2_op_eval` 확장·GPU 학습 필요).
+- 정직: n=32·retail exchange 한정·오라클(IR 수동)=학습 전이 아님·airline 미포함(추출 진행 중).
