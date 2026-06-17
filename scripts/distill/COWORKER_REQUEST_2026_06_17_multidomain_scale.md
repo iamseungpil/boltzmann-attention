@@ -6,7 +6,9 @@
 ## 0. TL;DR — 무엇을/왜
 오늘 woori가 **content 생성원 5→7**(substitute=keep-rest·create) 추가 → *동일* op-IR/결정론 resolver로 **retail exchange 32/32 + airline cabin 27/27** 표현적합성 증명(`M_A_RESULTS §19`). 그리고 7B에 **synth-only 라우팅 LoRA**를 학습해 retail+airline config-swap 전이를 측정 중(§20).
 
-**coworker가 답할 질문**: *도메인-일반 op-라우팅(substitute vs comparative vs create를 두 도메인서 옳게 명명)이 **학습**(7B LoRA)을 요하나, 아니면 **스케일 + in-context 연산정의(gloss)**로 충분한가?* → 32B/72B(/235B) **base 모델**(학습 0)을 동봉 케이스에 돌려 floor(gloss0)·ceiling(gloss1) 라우팅 곡선을 측정. woori 7B-LoRA(§20)와 합쳐 **"offload 구조가 소형+학습 = 대형+gloss를 따라잡나"** 판정.
+**coworker가 답할 질문**: *도메인-일반 op-라우팅이 **학습**을 요하나, **스케일+gloss**로 충분한가?* → 32B/72B(/235B) **base**(학습 0)를 동봉 케이스에 floor(gloss0)·ceiling(gloss1)로 돌려 측정. woori 7B-LoRA(§20)와 합쳐 **"offload 구조가 소형+학습 = 대형+gloss를 따라잡나"** 판정.
+
+> ★**초점 갱신 (woori `M_A_RESULTS §20` 인자 궤적 전수조사 후)**: 7B서 op-라우팅 **recognition은 이미 높음**(retail 0.94·airline 0.93) — 라우팅은 문제 아님. 정확도 낮음(0.19~0.44)의 원인 2성분 확정: **(A) anchor_id 환각**=우리 resolver 결함(수정 완료·anchor grounding→airline 0.44→0.78), **(B) `set` 과소추출**=요청된 multi-attr 변경 중 일부만 추출(retail missing_key 지배·genuine LLM formalize 과제). ⇒ **스케일 핵심 질문 = "큰 모델이 성분 B(multi-attr delta `set` 정확 추출)를 올리나"**. recognition 아니라 **`set` 인자 정확도** 곡선이 관심. (resolver는 git pull로 anchor grounding 반영됨 → 측정은 성분 B에 집중됨.)
 
 ## 1. 실행 (스크립트·케이스 전부 커밋됨 — git pull만)
 ```bash
@@ -28,11 +30,11 @@ bash scripts/distill/ma/multidomain_scale_eval.sh "Qwen/Qwen3-235B-A22B"      23
 - 모델 메타(L·d_model·총/active params) — B_budget 요청과 동일 규율(S* ∝ L vs params 분리).
 
 ## 3. 핵심 질문 (이론 판정)
-1. **ceiling(gloss1)**: 큰 base가 두 도메인서 substitute/comparative/create를 **옳게 명명**하나(recognition↑·op분포 정상)? = 라우팅 인식이 스케일+in-context 능력인가.
-2. **floor(gloss0)**: gloss 없이도 라우팅되나? **S1−S0 gap** = 명시적 연산어휘의 가치(7B서 gloss가 comparative 0→1.00 회복: `M_A_RESULTS §15-bis`).
-3. **도메인-일반성**: retail·airline 라우팅 정확도/recognition가 **같이** 높나(한쪽만↑=특화)? — 스케일이 도메인-일반을 *학습 없이* 주나.
-4. **소형+학습 vs 대형+gloss**: woori 7B-LoRA 전이(§20)가 큰-base-gloss1에 근접/초과하나? = offload 구조가 scale 대체(thesis 핵심).
-5. (대조) **over-comparative 회귀** 여부: 7B-LoRA가 substitution을 comparative로 오라우팅했던 §17/§18 병리가 큰 base서도 나타나나, 아니면 스케일이 해소하나.
+1. **★성분 B (핵심)**: 큰 base가 retail **missing_key**(요청 multi-attr 변경 중 일부만 `set`에 추출)를 줄이나? = `set` 인자 정확도 vs 크기 곡선. 7B retail acc 0.28(g0)/0.44(g1)가 32/72B서 오르나.
+2. **ceiling(gloss1) vs floor(gloss0)**: S1−S0 gap = 명시적 연산어휘의 가치(크기 따라 줄어드나).
+3. **도메인-일반성**: retail·airline 정확도가 **같이** 오르나(한쪽만↑=특화).
+4. **소형+학습 vs 대형+gloss**: woori 7B-LoRA(§20·grounded) acc가 큰-base-gloss1에 근접/초과하나? = offload+학습이 scale 대체(thesis 핵심).
+5. **wrong_value**: 큰 모델이 카탈로그 enum 미정규화("Google Assistant"→"Google Home" 류)를 줄이나.
 
 ## 4. 하지 말 것 / 규율
 - **학습 0**(base inference만)·`tau2_op_eval.py`·`tau2_op_resolver.py`·케이스·프롬프트/gloss **편집 금지**(크기간 동일해야 유효).
