@@ -320,3 +320,32 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **★offload 필요성 = 주권(소형 on-prem) 조건부**: frontier 있으면 width offload(분해) *불요*(native 처리). **소형 on-prem 7B(=thesis 타깃)엔 벽이 실재→decomposition-offload가 7B를 frontier 수준으로 끌어올리는 구조**. = thesis "소형+구조=대형" **정합·강화**(frontier가 native로 하는 걸 7B는 분해로 달성). depth 축(엔진 offload)과 동형 결론.
 - **다음**: (1) 7B를 *동일* synth width_eval로(τ²→synth substrate 통일·redo 후 GPU). (2) coworker 32/72/235B width 스윕(`width_scale_batch.sh`)→ S\*(width) 임계 스케일 위치. (3) **decomposition arm**(per-attr emit+엔진 조립) 구현→소형서 width 벽 우회 *충분성* 실증.
 - 정직: gpt-4.1 단일 frontier(추가 모델 권장)·n=60·synth 한정·7B 비교점은 아직 τ² 기반(동일-substrate 보강 중)·SET_EXACT<1.0(frontier도 완벽 아님).
+
+## 23. ★★★밤샘 종합 (2026-06-18·width×scale·decomp·§17 closure·wide-train·op-IR e2e) — 권위본
+> `morning_readout.sh` 집계. raw=`/home/woori/scratch/depth/c8/width/*.json`·`…/multidomain/results/*`·`…/tau2-bench/data/simulations/*`.
+
+**A. §17 closure = airtight (동일 케이스·resolver·base/5op/7op 3-way):**
+| 모델 | retail acc | op_dist |
+|---|---|---|
+| base 7B | 0.28 | substitute 30 |
+| 5-op-C8 A2_ep3 (narrow) | **0.12** | substitute 30 (값틀림) |
+| 5-op-C8 DIV_ep3 (diverse) | **0.03** | cancel/argmax/comparative (substitute 못 emit) |
+| **7-op-C8 MD_route** | **0.44** | substitute 27 |
+→ 5-op은 base 미만(역전이 §17 재현)·7-op은 초과. **누락 생성원(substitute)이 §17 음성 원인 박제.**
+
+**B. width×scale S\*(width) (synth `width_eval`·SET_EXACT one-shot):**
+| 모델 | w1 | w3 | w5 | 패턴 |
+|---|---|---|---|---|
+| 1.5B | 0.00 | 0.00 | 0.00 | op-IR 포맷 붕괴(0.5B serve실패) |
+| 3B/7B/14B | 0.74/0.66/0.88 | 0.71/0.52/0.62 | 0.66/0.56/0.77 | **synth선 완만**(τ² 0.64→0.25보다 약함) |
+| gpt-4.1 | 0.88 | 0.80 | 0.95 | frontier 평탄 |
+- **★decomposition-offload가 7B 회복**: one-shot w4 0.51 → **decomp 0.87**(Qwen 3/7/14B 회복·llama8b 무효=모델별). = offload 충분성 부분입증.
+- **중요**: synth 벽 완만·τ² 벽 급함 ⇒ **τ² 성분 B 잔여는 width/arity 아니라 실-카탈로그 값-grounding/정규화**(아래 D).
+
+**C. 다양성 (clean 7-op K1–K32):** surface-collapse→**K4서 0**·held-out recognition→**1.00**·kcenter 효율(무릎 K4)·τ² acc 캡(성분 B). 층 분리 확증.
+
+**D. ★wide-substitute 학습 τ² 전이 실패 = *라우팅 퇴행*(궤적 전수·`tau2_arg_autopsy`):** synth SET_EXACT **1.00**(완벽) but τ² retail 0.44→**0.47**·airline 0.44→**0.30 퇴행**. 원인=set 아니라 **op-라우팅 깨짐**: retail miss 지배 **op_mismatch 9**(substitute→comparative/argmax/argmin)·recognition 27→20↓·airline **mixed_keys 10**(create를 cabin아닌 origin/dest/date로 emit)+op_mismatch 8(substitute→argmin). = **한 축(set-binding) 고치니 다른 축(routing) 손상**(skewed SFT 전이손상). 잔여 recognition-correct miss=wrong_value(값정규화)·missing_key(width4 색누락).
+
+**E. ★op-IR 어댑터 native agent 불가 = *출력 포맷 비호환*(궤적 전수):** MD_route/widesubst를 native τ² agent로 → pass^1 **0.075/0.077**(<base 0.17). 궤적=모델이 함수콜 JSON을 **hermes tool_call 아닌 텍스트 content로** 출력→파서 미인식→도구 실행0→인자 날조(order_id `#W0000000`·이름 "John Doe")→**no_auth 31·agent_collapse**. = "Output ONLY JSON" op-IR SFT가 native tool-call 프로토콜 덮어씀. ⇒ offload 통합 시 **write-tool resolver만 끼워야**(포맷 전체 교체 금지)·agent는 native tool_call 유지.
+
+**함의:** 라우팅(§21 내재화+도메인일반)·표현(§22 다양성 D\*)은 닫힘. 남은 τ² 벽 = **(i) 실-카탈로그 값-grounding(wrong_value 정규화·offload로 스냅)** + **(ii) write-step offload 통합**(native tool_call 유지한 채 변형 의도→resolver). wide-train·op-IR-native 둘 다 폐기(전이손상·포맷붕괴). base e2e GBW headroom = 측정 중(§24 예정).
