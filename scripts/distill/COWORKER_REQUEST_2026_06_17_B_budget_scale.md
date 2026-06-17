@@ -19,6 +19,16 @@ bash scripts/distill/ma/depth_scale_batch.sh "Qwen/Qwen3-235B-A22B"       235B <
 - **양자화 불가피하면 tag에 명시**(_awq 등)·235B는 active≠total 별표.
 - ⚠ TP 필요(32B+)·serve 전 GPU kill·port/log 분리.
 
+### 1b. ★추가 (2026-06-18) — WIDTH 스윕 (B의 width 축·depth의 쌍둥이)
+**왜**: `M_A_RESULTS §20-21`서 transfer 천장 = **multi-attr `set` 과소추출**(요청 변경 k개 중 일부만). base 7B set-추출 정확도가 width 1→4서 0.64→0.25 하락(width-budget 벽). **이게 scale로 풀리나(=offload 불요)·frontier도 못 맞추나(=decomposition-offload 필연) 판정**. depth와 같은 모델·serve로 width_eval 추가 실행:
+```bash
+bash scripts/distill/ma/width_scale_batch.sh "Qwen/Qwen2.5-32B-Instruct" 32B "0,1"     8065
+bash scripts/distill/ma/width_scale_batch.sh "Qwen/Qwen2.5-72B-Instruct" 72B "0,1,2,3" 8066
+bash scripts/distill/ma/width_scale_batch.sh "Qwen/Qwen3-235B-A22B"      235B "0,1,2,3" 8067
+```
+- `width_scale_batch.sh` = serve(TP) → `width_eval.py`(통제-width substitute·arm A in-head + arm B **set-추출**·width∈{1..5}·n=100·gloss=1) → `depth/c8/width/width_<tag>.json`(width별 arm_A_item·SET_EXACT·set_recall).
+- **핵심 지표 = SET_EXACT(width)**: 모델이 요청된 k개 변경을 *전부* 추출하나. 높게 유지=scale이 width 맞춤(offload 불요)·하락=width 벽(offload 필연). woori 7B + frontier(gpt-4.1, 진행중) 곡선과 합쳐 S*(width).
+
 ## 2. coworker가 답할 것 (집계는 내가)
 - 각 크기의 **acc(d, N, condition)** — in-head / +CoT.
 - **모델 메타: L(layers)·d_model·총params·(MoE면 active)** 꼭 기록(S* ∝ L vs params 분리용).
