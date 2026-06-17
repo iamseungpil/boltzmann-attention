@@ -27,6 +27,17 @@ d=json.load(open(sys.argv[1])); o=d["overall"]
 print(f"  {sys.argv[1].split('/')[-1]:42s} acc={o[0]}/{o[1]}({o[0]/max(o[1],1):.2f}) recog={d.get('recognition')} op_dist={d.get('op_dist')}")
 PYEOF
 done
+echo; echo "############ 3c. tau2 END-TO-END (gated compliant pass^1, full agentic; base 0.17 / frontier 0.81 ref) ############"
+for SV in retail_base_anchor retail_md_route retail_md_widesubst; do
+  f=/home/woori/scratch/tau2-bench/data/simulations/$SV/compliance.json
+  if [ -f "$f" ]; then
+    printf "  %-22s pass^1 = " "$SV"
+    $PY -c "import json;print(json.load(open('$f'))['bench']['pass^1'])" 2>/dev/null || echo NA
+  else
+    echo "  $SV : (not done yet)"
+  fi
+done
+echo "  NOTE: MD_* run as NATIVE agents (op-IR-SFT) = as-is transfer diagnostic, NOT offload-integrated."
 echo; echo "############ 4. JOB STATUS ############"
 for p in width_eval.py widen_retrain.sh width_ladder_local width_overnight_or kshot_sweep; do
   echo "  $p: $(pgrep -fc "[${p:0:1}]${p:1}" 2>/dev/null) running"
