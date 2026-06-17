@@ -68,7 +68,13 @@ def main():
     ap.add_argument("--api_key_file", default="")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
-    api_key = open(args.api_key_file).read().strip() if args.api_key_file else None
+    api_key = None
+    if args.api_key_file:
+        raw = open(args.api_key_file).read().strip()
+        # tolerate `export OPENROUTER_API_KEY='sk-...'` shell-export format, not just a bare key
+        if "=" in raw:
+            raw = raw.split("=", 1)[1]
+        api_key = raw.strip().strip("'").strip('"').strip()
     widths = [int(x) for x in args.widths.split(",")]
     arms = [a.strip() for a in args.arms.split(",")]
     res = {"model": args.model, "tag": args.tag, "by_width": {}}
