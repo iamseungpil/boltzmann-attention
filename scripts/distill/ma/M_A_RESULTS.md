@@ -274,3 +274,20 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 
 - **★교차도메인 twin 입증(표현)**: *동일* op-IR 어휘·*동일* resolver(`resolve_op_tau2`·cabin을 ORD_WORDS 등록)로 retail variant-exchange와 airline cabin-update 둘 다 닫힘 = substitute가 도메인-일반(공격 "retail 특화" 표현차원 반박). HANDOFF §2 가설(substitute가 두 도메인 지배)의 표현측 확증.
 - 정직: airline cabin=단일 ordinal attr → catalog 레벨 keep-rest 구조 degenerate(유지되는 "rest"=flights는 cabin-catalog 밖) → airline 케이스는 multi-attr keep-rest보다 **op-라우팅(substitute vs comparative vs create)**을 시험. retail이 multi-attr keep-rest 담당. 학습-전이(모델이 NL서 op 명명)=§20 미해결(GPU 학습 필요).
+
+## 20. ★★★인자(`set`) 실패 궤전수조사 = 원인 2성분 확정 (2026-06-17 PM·base 7B·`tau2_arg_autopsy.py`+`tau2_reresolve.py`·offline 키0·GPU0·retail n=32/airline n=27)
+> base 7B(학습0)는 op-라우팅 **recognition 높음**(retail g1 0.94·airline g1 0.93)인데 new_item_id **정확도 낮음**(0.19~0.44). = op은 맞히고 *인자*가 틀림. 전 miss를 결정론 분류(emitted `set`/`anchor_id` vs gold)해 원인 확정. **두 성분이 도메인별로 분리**:
+
+**성분 A — anchor_id 환각 (우리 설계 결함·수정 완료·airline 지배):** op-IR이 LLM에게 `anchor_id`(수정대상 item) emit을 강제 → 모델이 **그럴듯한 id 환각**(airline=예약코드 "M05KNL"·task18 5회 전부 다른 환각·retail=카탈로그 부재 10자리). resolver가 `aid=op_ir.anchor_id or 문맥anchor`로 **환각을 grounded 문맥보다 우선** → anchor 못찾음/오인 → None. **수정 = anchor grounding**(`aid=문맥anchor or …`·concrete id=offload, LLM 결정 아님·[[feedback-nl-formalize-llm-selection-deterministic]]).
+
+| | acc 원본 | acc grounded | 회복 |
+|---|---|---|---|
+| airline g0 | 0.19 | **0.37** | +5 |
+| airline g1 | 0.44 | **0.78** | +9 |
+| retail g0/g1 | 0.28 / 0.44 | 0.28 / 0.44 | **0** |
+
+**성분 B — `set` 과소추출 (genuine LLM 과제·retail 지배·anchor-무관):** retail miss 지배 = **missing_key**(요청된 변경 attr 중 *일부만* 추출·g0 14/22·g1 11/17). 예: gold_set={color:silver,brightness:low,power:battery}, emit={brightness:low,power:battery}(color 누락). anchor grounding이 retail서 0 회복 = **set 자체가 불완전**(target=old⊕부분set→누락 attr는 old값 유지→오매칭). 부차: **wrong_value**(카탈로그 enum 미정규화: "Google Assistant"→"Google Home")·**no_set**(op만 명명·set 공란). = *어떤 attr를 무엇으로 바꾸고 나머지 유지*의 multi-attr delta 추출 = HANDOFF §2.3가 예고한 "keep-rest reasoning" 진짜 난점 = **formalize 단계**(offload 불가).
+
+- **★확정**: airline 갭 ≈ 전부 성분 A(설계결함·결정론 수정으로 닫힘·thesis 정합). retail 갭 ≈ 전부 성분 B(genuine·LLM이 풀어야). 정확도-낮음≠라우팅 실패·≠모델 무능(recognition 높음)·**인자 추출/grounding 문제**.
+- **함의 (다음)**: (1) **anchor grounding 적용**(완료) → airline base+gloss 0.78. §20 학습본도 재해결(`tau2_reresolve`) 필요(multidomain_route는 수정 전 pull). (2) **synth substitute가 multi-attr 과소커버**(n_change=1~2 vs retail 1~4)→3~4 attr 변경 합성 추가해야 성분 B 학습. (3) wrong_value→**값 스냅 offload**(모델은 attr+의도 명명·엔진이 카탈로그 enum 최근접 스냅) 여지. (4) coworker 스케일 질문 초점 = "스케일이 multi-attr delta 추출(성분 B)을 올리나"로 좁혀짐.
+- 정직: base 7B 한정(학습본 §21 예정)·retail n=32/airline n=27·anchor grounding은 grounded 문맥 전제(τ² 실제 fetch와 정합).
