@@ -97,9 +97,22 @@ if __name__ == "__main__":
         out = args.out or f"{args.outdir}/c8_train_sft.jsonl"
         dump(out, [to_chat(e, gloss=bool(args.gloss_in_sft)) for e in train])
         print("train ops:", dict(Counter(e["op"] for e in train)))
-        # record train-expression diversity D (for the K-sweep curve)
+        # record EXPRESSION-STRUCTURE diversity D (fixed schema so vocab randomness is excluded;
+        # train NL D would be dominated by random attr tokens and miss the K effect). Per-op + overall.
         if args.K > 0:
+            from synth_expr import select_combos, _dummy_render
             from expr_diversity import diversity
-            dd = diversity([e["nl"] for e in train])
-            json.dump({"K": args.K, "method": args.method, "D": dd}, open(out + ".D.json", "w"))
-            print(f"D(K={args.K},{args.method}): eff_rank={dd['eff_rank']:.2f} mean_dist={dd['mean_dist']:.3f}")
+            per_op = {}
+            all_texts = []
+            for op in OPS:
+                combos = select_combos(op, args.K, args.method, args.train_seed)
+                texts = [_dummy_render(op, c) for c in combos]
+                per_op[op] = diversity(texts)
+                all_texts += texts
+            dd = diversity(all_texts)
+            import numpy as _np
+            mean_eff = float(_np.mean([v["eff_rank"] for v in per_op.values()]))
+            json.dump({"K": args.K, "method": args.method, "D_overall": dd,
+                       "D_per_op": per_op, "mean_eff_rank": mean_eff}, open(out + ".D.json", "w"))
+            print(f"D(K={args.K},{args.method}): overall eff_rank={dd['eff_rank']:.2f} "
+                  f"mean_per_op_eff_rank={mean_eff:.2f} mean_dist={dd['mean_dist']:.3f}")
