@@ -209,3 +209,19 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **= 사용자 질문 1차 답**: 절차어휘(op 라우팅)를 *gloss 없이* weight에 내재화(TBox 고정) → 새 도메인 어휘 전이 = **"절차 TBox 고정 / 도메인 ABox swap" 합성서 입증.** base가 gloss 없이 comparative 0.00인데 학습 후 1.00 = 학습이 라우팅을 분명히 내재화(floor-ceiling 대비 명확).
 - ⚠️ **정직 한계(과대해석 금지·[[feedback-no-fundamental-claims-from-convenience-data]])**: (1) **합성 1차**·held-out은 새 *attr 어휘·스키마*지만 **NL 템플릿은 동일**(synth_depth op별 고정 문구) → **어휘-전이 입증·표현-전이 아님**. (2) 진짜 표현/도메인 전이 = τ²(2차·`C8_TAU2_SELECTION_TRANSFER_DESIGN`). (3) 1ep 100%는 라우팅이 *쉬운 저차원*이란 방증이자 동시에 시험이 *쉬웠단* 뜻 — τ²가 난이도 시험.
 - **⇒ τ² 2차 게이트 통과**: "합성서 안 되면 τ²는 더 안 됨"의 전제가 깨짐 → τ² 어댑터(M-A static-select를 op-IR로 재무장) 구현이 의미를 얻음. 다음 = `C8_TAU2_SELECTION_TRANSFER_DESIGN` Phase 1(offline·키 불필요).
+
+## 17. ★★C8 2차 = τ² selection 표현-전이 = 음성 (진단적·2026-06-17·`tau2_op_eval.py`·offline 키0·32 items)
+> 설계 = `../C8_TAU2_SELECTION_TRANSFER_DESIGN_2026_06_17.md`. resolver sanity = oracle filter(gold_opts) **32/32(1.00)**(엔진·catalog 정합). arm = S2(C8-trained A2_ep3·gloss0)·S1(base·gloss1)·S0(base·gloss0).
+
+| arm | overall new_item_id | substitution(13) | superlative(19) | emitted op 분포 |
+|---|---|---|---|---|
+| **S2 C8-trained** | **1/32 (0.03)** | 1/13 | 0/19 | comparative12·**exchange11·replace1·update1**·argmax4·argmin3 |
+| S1 base+gloss | 9/32 (0.28) | 4/13 | 5/19 | comparative29·filter2·argmax1 |
+| S0 base | 8/32 (0.25) | 3/13 | 5/19 | filter17·argmax6·comparative6·argmin2 |
+| (참고) M-A static select_by | 15/32 (0.469·§1) | — | — | — |
+
+- **★C8-trained = 역전이**(0.03 ≪ floor 0.25): 합성 SFT가 τ²서 *깨짐*. **결정 단서 = emitted op에 `exchange/replace/update`**(τ² NL 동사를 op 슬롯에 복사) → 합성 학습이 *절차 추상*이 아니라 **"NL 동사→op" 얕은 표면 매핑**을 내재화했을 가능성. 합성선 "select the highest"→argmax 맞았지만 τ² "exchange…for a bigger"→op=exchange로 붕괴.
+- **= §16 정직 한계의 실증·폭로**: 합성 1차 양성(0.00→1.00)은 *NL 템플릿 고정* = **어휘 전이**였고, τ²의 *자유 표현*엔 안 옮음(**표현 전이 음성**). "절차어휘 TBox 고정"은 *같은 표현 분포* 내에서만 성립(이번 증거).
+- **op-IR 재무장 자체도 τ²서 무이득**: base op-IR(S0 0.25)도 M-A static select_by(0.469)보다 *낮음*. τ² selection(substitution 다수·multi-categorical)에 단일-ordinal 합성 op-IR 형식이 부적합(설계서 §3 리스크 실현).
+- ⚠️ **진단 범위(과대해석 금지·[[feedback-no-fundamental-claims-from-convenience-data]]·[[feedback-capability-vs-artifact-elicitation]])**: n=32·retail single-domain·**프롬프트 형식 confound 미배제**(τ² prompt가 합성과 형식 달라 C8-trained OOD 붕괴일 수 있음 — "표면 매핑" 단정 전 형식-통제 필요). ep3 1개 어댑터만(ep1 robustness 미확인).
+- **⇒ 함의**: C8이 실벤치 전이로 닫히려면 (a) **합성 NL 표현 다양화** 재학습(템플릿 고정 제거→표현 전이 시험) 또는 (b) 합성↔실벤치 표현 갭 중간층. 현 단일-템플릿 합성 양성은 *필요조건이지 충분조건 아님*. = thesis에 중요한 음성(C8 핵심 미해결 재확인).
