@@ -68,6 +68,17 @@
 - **신규 도구**: `tau2_subst_oracle.py`·`multidomain_route.sh`·`md_wait_launch.sh`·`ma_gold_extract.py --domain airline`.
 - **정직(이 세션)**: 오라클=IR 수동(학습 전이 아님)·airline cabin=단일 ordinal attr(catalog-레벨 keep-rest degenerate→op-라우팅 시험 위주)·project(8번째 content op)=read/getter-shaped라 보류(offload).
 
+## 8. ★밤샘 실험 (2026-06-18 새벽 가동·아침 readout) — width×scale + decomposition-offload
+> 한 줄 readout: `bash scripts/distill/ma/morning_readout.sh`(seka py). 권위 결과 = `M_A_RESULTS §20-22`.
+- **질문**: 성분 B(multi-attr `set` 추출)가 ① scale로 풀리나(임계 S*(width) 어디?) ② decomposition-offload로 소형서 회복되나(충분성) ③ wide-substitute 학습으로 풀리나.
+- **가동 잡**(전부 detached):
+  1. **로컬 width ladder**(GPU1·`width_ladder_local.sh`): Qwen2.5 {0.5,1.5,3,7,14}B × width1-5 × arms A,B,**Decomp** → `…/c8/width/width_<size>.json`. = S*(width) 임계 스케일 onset.
+  2. **openrouter ladder**(`width_overnight_or.sh`): llama8b·gpt4o-mini·qwen7b·mistral7b(+Decomp)·gpt4.1-mini·llama70b·qwen72b → 광역 scale/family.
+  3. **widen_retrain**(GPU0·`widen_retrain.sh`): 7B 라우팅 LoRA를 substitute width 1-4로 학습 → retail/airline 전이 + width 곡선(학습이 성분 B 고치나).
+  4. 완료: gpt-4.1 width(평탄 0.8-0.95·§22)·redo K1/K2(다양성 K1-K32 전부 7-op).
+- **아침 판정**: width_summary로 SET_EXACT(소형 급락? 어느 size서 평탄?)·DECOMP_item(소형이 분해로 회복?)·widen_retrain(학습이 회복?). **벽이 소형서만→offload는 주권-조건부 필연(§22)·decomp가 회복하면 충분성 입증**.
+- gotcha: openrouter chat 재시도 내장(transient 무사)·로컬 GPU1/widen GPU0 분리·결과 json은 scratch(미커밋).
+
 ## 6. 정직 라벨 (과대주장 금지)
 - finiteness/closure만·**minimality 금지**(Kozen-Tseng). scope=transactional tool-orchestration.
 - 생성원 닫힘=경험검증(다도메인 전이가 시험). substitute 일반=실증(tau2 5도메인)이나 학습-전이는 미증명(이 작업이 시험).
