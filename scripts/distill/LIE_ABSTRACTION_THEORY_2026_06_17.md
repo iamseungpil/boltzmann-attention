@@ -58,6 +58,27 @@
 3. **LLM-분류 = 𝔤-사영**: 요청을 생성원(대수=LLM)과 실행(군=엔진)으로 분해. *전체 context 위에서* 명명(필터 먼저 금지 — 명명은 전체 위에서).
 4. **측정 = 군→대수 lift가 base를 넘나**: (LLM 생성원 emit + 엔진 실행) vs (base in-head 군-실행) vs (정적 IR = 군을 LLM에 떠넘김). 3-way.
 
+## 7b. ★재정초 (2026-06-17 교정) — Lie/산수는 특수예·진짜 축 = *표기가 알고리즘을 내장하는가*
+사용자 교정: Lie-산수 비유에 갇혔다. 핵심은 **표기(notation)가 *denotation만* 하는가 vs *알고리즘을 내장*하는가**다.
+- **denotation-only 표기**(로마/한자 숫자·리터럴 값·개체명): 기호가 *사물을 가리킴*. 조작 절차 없음. → **결정론 ground/lookup**.
+- **알고리즘-내장 표기**(아라비아 위치표기·"best/most/more-than"·비교급·양화사): 한 기호가 *절차를 압축*(집합구성→순서→extremum) — *기호 조작으로 연산*. 아라비아 숫자가 수학을 가능케 한 이유 = **표기에 산술 알고리즘이 결합**(로마숫자엔 없음). → **그 절차를 펼쳐 실행**.
+- **난이도 축 = 내장 절차의 *복잡도류*** (van Benthem **semantic automata**): "every/some"=유한상태(자명)·**"most/짝수개"=계수 필요**(push-down↑)·superlative=리스트+전순서+extremum·"제약하 최적"=무계탐색. **양화사/비교급이 *오토마타 복잡도류를 내장*한다는 게 "단어가 알고리즘을 품는다"의 엄밀판.**
+
+### 분류(LLM)의 정체 — 3단
+1. **denotation vs 절차-내장** 인식(기호의 종류).
+2. 절차-내장이면 **절차 *타입*과 복잡도류** 인식(어떤 semantic automaton).
+3. 라우팅: denotation→결정론 ground / 절차→(저복잡=유한상태면 LLM 직접·계수↑/무계면 절차-spec emit→엔진 실행).
+
+### ★학습가능성의 정답 (딥리서치 질문)
+**절차-타입을 *인식*(분류)하는 것은 저복잡도** — 기호의 범주를 *읽는* 것이지 *실행*이 아니다(van Benthem: 오토마타 *타입*은 유한 라벨·데이터 위 *실행*이 무계). ⇒ **소형 학습자가 고복잡 절차를 *실행* 못 해도 *분류*는 학습가능·전이가능.** 이게 "LLM이 잘하는 것/못하는 것의 구분을 학습할 수 있나"의 이론적 답 = **구분(절차-타입 인식)은 denotational-저차원이라 학습됨·실행은 결정론.**
+
+### 선행연구 결박 (딥리서치 `w3d906s6n` 체계화 대상)
+- 수학사: Cajori·Netz·Rotman·Nesselmann(수사→음절→기호)·Iverson "notation as tool of thought"·Leibniz characteristica.
+- 언어학: 절차적 vs 개념적 의미(Relevance Theory·Blakemore)·**van Benthem semantic automata**·일반양화사(Barwise-Cooper)·동적의미론(meaning-as-instruction).
+- 기호학: **Goodman 표기 이론**(notationality=모호성없는 기계조작 가능조건)·Peirce 도형추론.
+- 인지: **표상효과**(Zhang&Norman·왜 아라비아 곱셈이 쉽고 로마는 어려운가)·외재인지.
+→ Lie(§1-7)는 *연속/생성* 특수예·이 표기론(절차-내장·복잡도류·notationality)이 *일반 골격*.
+
 ## 8. 정직 (이론 지위)
 - 이건 *생산적 형식틀*(Lie 대수↔군 = name↔execute의 동형)이지 증명된 정리 아님. "가해성=추상화레벨"은 *은유적 위계*(엄밀 Galois 군 아님)·반증가능 예측(§6)으로 검증.
 - 엄밀화 경로: (i)tool-use primitive를 실제 유한생성 대수로 구성(닫힘 companion 확장) (ii)생성원-수 = eff-dim 측정(olver_dimension_experiment 재사용) (iii)§6 예측 실험.
