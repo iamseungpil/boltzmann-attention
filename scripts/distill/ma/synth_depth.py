@@ -41,6 +41,24 @@ def resolve_operation(op_ir, items):
     attr = op_ir.get("attr")
     if op == "filter":
         return cands[0]["id"] if len(cands) == 1 else None
+    if op == "substitute":
+        # produce the variant SAME as the anchor on every option EXCEPT those in `set`.
+        # target = anchor options (categorical only; ord attr is None for subst/create) <- set overrides.
+        anchor = next((it for it in items if it["id"] == op_ir.get("anchor_id")), None)
+        if anchor is None:
+            return None
+        setv = op_ir.get("set") or {}
+        target = {k: anchor[k] for k in anchor if k != "id" and anchor[k] is not None}
+        target.update({k: v for k, v in setv.items() if k in target})
+        m = [it for it in items if all(str(it.get(k)) == str(v) for k, v in target.items())]
+        return m[0]["id"] if len(m) == 1 else None
+    if op == "create":
+        # build a NEW item fully specified by `set` (no reference); match the unique item with those options.
+        setv = op_ir.get("set") or {}
+        if not setv:
+            return None
+        m = [it for it in items if all(str(it.get(k)) == str(v) for k, v in setv.items())]
+        return m[0]["id"] if len(m) == 1 else None
     if attr is None:
         return None
     try:
@@ -68,10 +86,77 @@ def resolve_operation(op_ir, items):
 
 
 # ----------------------------- generator -----------------------------
-OPS = {"filter": 1, "argmax": 2, "argmin": 2, "rank": 3, "comparative": 2}  # op -> depth d
+OPS = {"filter": 1, "argmax": 2, "argmin": 2, "rank": 3, "comparative": 2,
+       "substitute": 2, "create": 1}  # op -> depth d
+
+
+def gen_subst_create(rng, iso, op, N):
+    """substitute = same-as-anchor-except-`set` (keep-rest, the τ² exchange shape); create = fully
+    specified `set` (the τ² book shape). PURELY CATEGORICAL catalog (options like color/size/material,
+    no ordinal) — these content ops are about identity/override, not ranking. Gold is PLANTED and
+    de-duplicated so the target combo is unique (accuracy well-defined)."""
+    n_cat = 3
+    cat, ordk = gen_schema(rng, iso, n_cat=n_cat)
+    catk = list(cat)
+    for _ in range(200):
+        items = []
+        for _ in range(N):
+            it = {"id": f"I{_tok(rng,8)}"}
+            for k, vs in cat.items():
+                it[k] = rng.choice(vs)
+            it[ordk] = None  # categorical-only catalog
+            items.append(it)
+        if op == "substitute":
+            anchor = rng.choice(items)
+            n_change = rng.randint(1, min(2, n_cat))
+            change_attrs = rng.sample(catk, n_change)
+            setv = {}
+            for a in change_attrs:
+                alts = [v for v in cat[a] if v != anchor[a]]
+                if not alts:
+                    break
+                setv[a] = rng.choice(alts)
+            if len(setv) != n_change:
+                continue
+            target = {k: anchor[k] for k in catk}; target.update(setv)
+            op_ir = {"op": "substitute", "anchor_id": anchor["id"], "set": setv}
+            label = "substitute"; filt = setv
+            gold_pool = [it for it in items if it is not anchor]
+        else:  # create
+            anchor = None
+            target = {k: rng.choice(cat[k]) for k in catk}
+            op_ir = {"op": "create", "set": dict(target)}
+            label = "create"; filt = dict(target)
+            gold_pool = list(items)
+        if not gold_pool:
+            continue
+        # plant gold = one pool item set to target; perturb any OTHER collision so target is unique
+        gold_it = rng.choice(gold_pool)
+        for k in catk:
+            gold_it[k] = target[k]
+        ok = True
+        for it in items:
+            if it is gold_it:
+                continue
+            if all(it[k] == target[k] for k in catk):
+                a = rng.choice(catk)
+                alts = [v for v in cat[a] if v != target[a]]
+                if not alts:
+                    ok = False; break
+                it[a] = rng.choice(alts)
+        if not ok:
+            continue
+        gold = gold_it["id"]
+        if resolve_operation(op_ir, items) != gold:
+            continue
+        return {"items": items, "ord_attr": ordk, "cat_attrs": catk, "filter": filt,
+                "op": op, "depth": OPS[op], "gold_id": gold, "op_ir": op_ir, "label": label}
+    return None
 
 
 def gen_example(rng, iso, op, N):
+    if op in ("substitute", "create"):
+        return gen_subst_create(rng, iso, op, N)
     cat, ordk = gen_schema(rng, iso)
     catk = list(cat)
     n_filters = 1 if op in ("filter", "argmax", "argmin", "comparative") else 2
@@ -144,6 +229,11 @@ def render_nl(ex, iso):
         aid = ex["op_ir"]["anchor_id"]
         return (f"Among items where {fstr}, select the one whose {o} is just GREATER than "
                 f"that of item {aid} (the closest one above it).")
+    if op == "substitute":
+        aid = ex["op_ir"]["anchor_id"]
+        return f"Exchange item {aid}: keep its other options unchanged but set {fstr}."
+    if op == "create":
+        return f"Create a new item with {fstr}."
     return ""
 
 
@@ -173,6 +263,16 @@ OP_PHRASES = {
                     "the next step up in {o} from item {a}", "the closest {o} above item {a}",
                     "the one a notch higher than item {a} in {o}", "the smallest {o} that still beats item {a}",
                     "the one barely exceeding item {a} in {o}", "the immediately-higher-{o} option vs item {a}"],
+    # substitute: SAME as reference item {a} on everything EXCEPT {f} (keep the rest). The op is decided
+    # by the keep-rest + reference structure, NOT by the verb (verbs are op-agnostic, shared pool above).
+    "substitute": ["the same as item {a} but with {f}", "item {a} except changed to {f}",
+                   "a variant just like item {a}, only {f} instead", "item {a}'s configuration but {f}",
+                   "what item {a} is, keeping the rest, but {f}", "item {a} with {f} swapped in and nothing else changed",
+                   "the match that keeps item {a}'s other options and sets {f}", "item {a} reconfigured so that {f}"],
+    # create: a NEW item fully given by {f}; no reference, nothing kept.
+    "create": ["a new item with {f}", "a fresh one specified as {f}", "an item configured as {f}",
+               "a brand-new variant with {f}", "one built from scratch with {f}", "a new record where {f}",
+               "a newly made item having {f}", "an entirely new one set to {f}"],
 }
 
 
@@ -183,8 +283,9 @@ def render_nl_diverse(ex, rng):
     fstr = " and ".join(f"{k} = {v}" for k, v in f.items())
     verb = rng.choice(VERBS)
     phrase = rng.choice(OP_PHRASES[op]).format(o=o, f=fstr, a=ex["op_ir"].get("anchor_id", ""))
-    if op == "filter":
-        # filter's constraint IS the meaning phrase (fstr is the ordinal-value lookup); no extra among
+    if op in ("filter", "substitute", "create"):
+        # constraint/identity IS the meaning phrase (no subset-restriction `among` clause): filter pins by
+        # value, substitute keeps-rest-from-anchor, create fully specifies. The catalog is the whole pool.
         return f"{verb} {phrase}."
     among = rng.choice(AMONG).format(f=fstr)
     # randomize clause order too (among-first vs op-first) to avoid positional shortcut

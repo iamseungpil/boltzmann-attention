@@ -68,6 +68,28 @@ def resolve_op_tau2(op_ir, catalog, anchor_id=None):
         if len(cands) == 1:
             return cands[0]["item_id"]
         return None
+    if op == "substitute":
+        # SAME as the reference (anchor=old item) on every option EXCEPT `set` overrides. = τ² exchange.
+        aid = op_ir.get("anchor_id") or anchor_id
+        anchor = next((it for it in catalog if it["item_id"] == aid), None)
+        if anchor is None:
+            return None
+        setv = op_ir.get("set") or {}
+        target = dict(anchor.get("options") or {})
+        target.update({k: v for k, v in setv.items() if k in target})
+        m = [it for it in catalog if all(str(it["options"].get(k)) == str(v) for k, v in target.items())]
+        ma = [it for it in m if it.get("available")]
+        pool2 = ma or m
+        return pool2[0]["item_id"] if len(pool2) == 1 else None
+    if op == "create":
+        # NEW item fully specified by `set` (no reference). = τ² book.
+        setv = op_ir.get("set") or {}
+        if not setv:
+            return None
+        m = [it for it in catalog if all(str(it["options"].get(k)) == str(v) for k, v in setv.items())]
+        ma = [it for it in m if it.get("available")]
+        pool2 = ma or m
+        return pool2[0]["item_id"] if len(pool2) == 1 else None
     attr = op_ir.get("attr")
     if attr is None or not pool:
         return None

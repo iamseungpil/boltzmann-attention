@@ -72,9 +72,10 @@ def arm_A(base, model, ex, cot=False):
 # C8 (transfer) trains/evals with gloss=0 to test whether the routing is INTERNALISED in weights
 # rather than spoon-fed in-context. v1 numbers = depth_7B_N*.json; v2 = depth_7Bv2_N*.json.
 OP_SPEC_BASE = ('Output ONLY a JSON OPERATION (do NOT compute the answer): '
-                '{"op": "argmax"|"argmin"|"rank"|"filter"|"comparative", "attr": "<ordinal attr name>", '
-                '"among": {"<attr>": "<value>", ...}, "k": <int for rank>, "dir": "greater"|"less", '
-                '"anchor_id": "<item id for comparative>"}. Name the operation the query asks for.')
+                '{"op": "argmax"|"argmin"|"rank"|"filter"|"comparative"|"substitute"|"create", '
+                '"attr": "<ordinal attr name>", "among": {"<attr>": "<value>", ...}, "k": <int for rank>, '
+                '"dir": "greater"|"less", "anchor_id": "<reference item id>", '
+                '"set": {"<attr>": "<value>", ...}}. Name the operation the query asks for.')
 OP_GLOSS = ('\nOperation meanings — pick the one the query asks for:\n'
             '- filter: a single item is pinned by attribute equalities alone (no ranking, no reference item).\n'
             '- argmax: the item with the HIGHEST ordinal value (within `among`).\n'
@@ -82,7 +83,12 @@ OP_GLOSS = ('\nOperation meanings — pick the one the query asks for:\n'
             '- rank: the k-th highest ordinal value (k from "second/third highest").\n'
             '- comparative: the item whose ordinal value is the CLOSEST one strictly ABOVE (dir=greater) '
             'or BELOW (dir=less) a REFERENCE item named by anchor_id. Use this whenever the query compares '
-            'to "that of item <id>" / "just greater/less than item <id>".')
+            'to "that of item <id>" / "just greater/less than item <id>".\n'
+            '- substitute: the variant that is the SAME as a REFERENCE item (anchor_id) on every option '
+            'EXCEPT the ones the query changes, which go in `set`; keep all unmentioned options equal to the '
+            'reference. Use for "exchange/change item <id> to ... (keeping the rest)".\n'
+            '- create: a NEW item fully specified by `set` (no reference item, nothing kept). Use for '
+            '"book/create a new ... with these options".')
 
 
 def build_spec(gloss=True):
@@ -91,6 +97,10 @@ def build_spec(gloss=True):
 
 def build_arm_B_user(ex, gloss=True):
     """The exact arm-B user prompt (shared by eval and the C8 SFT data builder)."""
+    # substitute/create are purely CATEGORICAL (no ordinal attr) — don't claim a bogus ordinal slot.
+    if ex["op"] in ("substitute", "create"):
+        return (f"Query: {ex['nl']}\n\nThe catalog items have these option attributes: {ex['cat_attrs']}.\n\n"
+                f"{build_spec(gloss)}")
     attrs = ex["cat_attrs"] + [ex["ord_attr"]]
     return (f"Query: {ex['nl']}\n\nThe catalog items have these attributes: {attrs}.\n"
             f"The ordinal/numeric attribute is '{ex['ord_attr']}'.\n\n{build_spec(gloss)}")
