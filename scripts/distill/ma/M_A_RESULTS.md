@@ -291,3 +291,18 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **★확정**: airline 갭 ≈ 전부 성분 A(설계결함·결정론 수정으로 닫힘·thesis 정합). retail 갭 ≈ 전부 성분 B(genuine·LLM이 풀어야). 정확도-낮음≠라우팅 실패·≠모델 무능(recognition 높음)·**인자 추출/grounding 문제**.
 - **함의 (다음)**: (1) **anchor grounding 적용**(완료) → airline base+gloss 0.78. §20 학습본도 재해결(`tau2_reresolve`) 필요(multidomain_route는 수정 전 pull). (2) **synth substitute가 multi-attr 과소커버**(n_change=1~2 vs retail 1~4)→3~4 attr 변경 합성 추가해야 성분 B 학습. (3) wrong_value→**값 스냅 offload**(모델은 attr+의도 명명·엔진이 카탈로그 enum 최근접 스냅) 여지. (4) coworker 스케일 질문 초점 = "스케일이 multi-attr delta 추출(성분 B)을 올리나"로 좁혀짐.
 - 정직: base 7B 한정(학습본 §21 예정)·retail n=32/airline n=27·anchor grounding은 grounded 문맥 전제(τ² 실제 fetch와 정합).
+
+## 21. ★★★§20 다도메인 라우팅 전이 매트릭스 = 도메인-일반 양성·천장은 성분 B (2026-06-18·`multidomain_route.sh`·7B 라우팅 LoRA·synth-only 학습·ep1·6000·gloss-free)
+> synth(7-op 등방화 라우팅)만 학습 → retail+airline config-swap 전이(재학습0). 학습본은 grounded-anchor 재해결로 0 회복(=학습이 anchor 환각도 교정).
+
+| | base g0 | base g0 grounded | **학습본 g0** | base g1 (gloss 천장) |
+|---|---|---|---|---|
+| retail | 0.28 | 0.28 | **0.44** | 0.44 |
+| airline | 0.19 | 0.37 | **0.44** | 0.44 |
+| synth held-out (gloss-free) | — | — | **1.00 (250/250)** | — |
+
+- **★라우팅 내재화**: synth held-out 1.00(새 어휘/스키마·gloss-free) = NL→op 라우팅이 weight에 완전 내재화·전이.
+- **★도메인-일반 확증(§20 헤드라인)**: *동일* synth-학습 라우팅이 retail·airline **동시** 상승(둘 다 0.28/0.37→0.44) = "도메인-일반 생성원" 학습-입증(한쪽만 아님). 학습본 recognition retail 27/32·airline 24/27.
+- **★천장 ~0.44 = 성분 B(§20)**: 학습본 잔여 miss = missing_key(retail 12)·wrong_value(airline 6) = multi-attr `set` 과소추출. width-1~2 synth가 retail/airline의 multi-attr·값정규화를 과소커버해 못 메움. → width 실험(§22)·wider-synth·decomposition-offload 동기.
+- **함의**: 전이의 *라우팅* 축은 닫힘(내재화+도메인일반). 남은 벽 = *인자(set) formalize* = width-budget. 이게 scale로 풀리나 offload(분해)가 필연이냐 = §22 width×scale(frontier 포함).
+- 정직: ep1·6000·7B 한정·multidomain_route는 anchor-fix 전 resolver로 평가(재해결로 동일 0.44 확인)·n 작음(32/27).
