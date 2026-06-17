@@ -90,12 +90,16 @@ OPS = {"filter": 1, "argmax": 2, "argmin": 2, "rank": 3, "comparative": 2,
        "substitute": 2, "create": 1}  # op -> depth d
 
 
-def gen_subst_create(rng, iso, op, N):
+def gen_subst_create(rng, iso, op, N, width=0):
     """substitute = same-as-anchor-except-`set` (keep-rest, the τ² exchange shape); create = fully
     specified `set` (the τ² book shape). PURELY CATEGORICAL catalog (options like color/size/material,
     no ordinal) — these content ops are about identity/override, not ranking. Gold is PLANTED and
-    de-duplicated so the target combo is unique (accuracy well-defined)."""
-    n_cat = 3
+    de-duplicated so the target combo is unique (accuracy well-defined).
+
+    width>0 = WIDTH-CONTROLLED substitute: change EXACTLY `width` attrs (the rest kept). Probes the
+    B(L,width) budget axis (multi-attr delta = parallel binding). n_cat = width+2 so >=2 attrs are
+    always kept (keep-rest non-trivial). width=0 => default 1-2 changes (training mix)."""
+    n_cat = (width + 2) if (op == "substitute" and width > 0) else 3
     cat, ordk = gen_schema(rng, iso, n_cat=n_cat)
     catk = list(cat)
     for _ in range(200):
@@ -108,7 +112,8 @@ def gen_subst_create(rng, iso, op, N):
             items.append(it)
         if op == "substitute":
             anchor = rng.choice(items)
-            n_change = rng.randint(1, min(2, n_cat))
+            n_change = width if width > 0 else rng.randint(1, min(2, n_cat))
+            n_change = min(n_change, n_cat)
             change_attrs = rng.sample(catk, n_change)
             setv = {}
             for a in change_attrs:
@@ -154,9 +159,9 @@ def gen_subst_create(rng, iso, op, N):
     return None
 
 
-def gen_example(rng, iso, op, N):
+def gen_example(rng, iso, op, N, width=0):
     if op in ("substitute", "create"):
-        return gen_subst_create(rng, iso, op, N)
+        return gen_subst_create(rng, iso, op, N, width=width)
     cat, ordk = gen_schema(rng, iso)
     catk = list(cat)
     n_filters = 1 if op in ("filter", "argmax", "argmin", "comparative") else 2
@@ -302,6 +307,7 @@ if __name__ == "__main__":
     ap.add_argument("--ops", default="filter,argmax,argmin,rank,comparative")
     ap.add_argument("--iso", type=int, default=1)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--width", type=int, default=0, help="substitute: change EXACTLY this many attrs (B-width sweep); 0=default mix")
     ap.add_argument("--validate_only", action="store_true")
     args = ap.parse_args()
     rng = random.Random(args.seed)
@@ -310,7 +316,7 @@ if __name__ == "__main__":
     n_emit = 0; per = {o: 0 for o in ops}
     while n_emit < args.n:
         op = ops[n_emit % len(ops)]
-        ex = gen_example(rng, args.iso, op, args.N)
+        ex = gen_example(rng, args.iso, op, args.N, width=args.width)
         if ex is None:
             continue
         ex["nl"] = render_nl(ex, args.iso)
