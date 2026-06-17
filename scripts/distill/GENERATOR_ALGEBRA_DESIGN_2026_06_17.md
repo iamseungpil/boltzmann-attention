@@ -58,3 +58,23 @@ tool-use 절차 = 두 직교 축의 생성원으로 분해:
 - tau2 5도메인은 *서비스-API 트랜잭션*에 편중 — 적대적 벤치(다른 content 패턴)로 닫힘 반증 시도 필요(`PRIMITIVE_MATRIX` §4 리뷰#6 content판).
 - command-trivial=flow 분류는 경계 사례(set_mode=X는 substitute-single vs command 모호) — leave-one-out로 판정.
 - SOPBench/TaskBench/CFB/BFCL content 매핑 미완(문서 기반·실데이터 분석 다음).
+
+## 8. ★다중벤치 닫힘 검증 = 적대적 딥리서치 (2026-06-17·3 agent·arxiv 검증)
+> "모든 도구계획 벤치가 예외없이 생성원으로 닫히나"를 *반증 시도*로 검증(self-fulfilling 회피). FC 11벤치·agentic 14벤치·taxonomy 이론.
+
+### 8.1 판정 = "예외없이"는 FALSE·단 scope 안에선 닫힘 (정직)
+**3층 결과:**
+1. **FLOW(P1-P9) = 닫힘** (transactional tool agents): FC 11벤치(BFCL·API-Bank·ToolBench·Seal-Tools·NESTful·CFB·τ²·RestBench·API-BLEND·ToolAlpaca) 전부 FLOW 닫힘·agentic 6벤치(ToolEmu·TaskBench·WorkBench·SOPBench·MetaTool·AgentBoard-tool) 닫힘. **P1·P3·P4 = irreducible core(전 벤치)**. **P10 elicit/abstain**(BFCL Miss-Parameter/Function·"호출 안 함" 결정)=추가 후보(여전히 유한).
+2. **CONTENT = Codd6 + aggregate확장 + functional-transform**: **문헌이 도출을 *지지***(Agent C) — Codd6(σπ×∪−ρ)는 filter/project만·**argmax/rank/aggregate는 증명상 밖**(Libkin-Wong JCSS 1997·aggregate=relational algebra 확장 필요)·create/substitute=functional-transform 층. ⇒ 우리 "관계대수+함수형" 도출 *정확·필요*. **단 value-derivation**(CFB relative-date "tomorrow"→concrete·unit/currency normalize)=filter/argmax/…/project 밖 = **`derive/normalize` 누락**(또는 offload·NESTful 선례).
+3. **scope 밖 4축 = 이미 자인한 제외 축**(`PRIMITIVE_MATRIX §5`)·딥리서치가 *어느 벤치인지 확정*:
+   - **G_loop**(stateful fold·AppWorld Python for-loop+aggregate)=코드실행. **G_csp**(TravelPlanner budget 결합제약·GPT-4 0.6%)=combinatorial solve. **G_ground**(WebArena·Mind2Web·OSWorld·VisualWebArena DOM/pixel)=GUI-grounding. **G_plan**(OSWorld·AgentBoard·Aquawar 부분관측 search)=장기계획.
+   - **★NESTful math = 예외 아님**(argmax/divide를 *tool-call*로 emit·엔진 계산=offload) = **thesis 직접 지지**(벤치가 스스로 computation 외부화).
+
+### 8.2 ★이론 정당화 + caveat (Agent C·문헌)
+- **FLOW 닫힘 = Böhm–Jacopini**(CACM 1966·sequence/selection/iteration로 모든 제어 생성). **★단 "auxiliary state 허용·*minimal 아님*"**(Kozen-Tseng MPC 2008 propositional 반례·Kosaraju 위계). **⇒ "finiteness·closure" 주장 OK·"unique minimal basis" 주장 금지**(반증가능). **parallelism(P9)은 Böhm–Jacopini 밖**(sequential 정리)·structured-concurrency로 별도 정당화 필요.
+- **CONTENT = Codd 정리(완전성)+Libkin-Wong(aggregate 필요성)** 가 2-part 도출 지지(반박 아님·강점).
+- **우리 2축 finite closure-justified 집합 = 문헌 whitespace**(아무도 안 함). rival = Voyager(2305.16291·open-ended skill·단 *library층* 무한이지 *operator층* 아님)·BFCL(flow-only enumeration)·ReAct(2210.03629). 반례(tool-use 무한생성 증명) = **없음**.
+
+### 8.3 ⇒ thesis 재정식 (경계 강화)
+- **헤드라인 정정**: "모든 벤치 닫힘" 아님 → **"policy-governed transactional tool-orchestration(FLOW+CONTENT)서 유한 생성·닫힘"** + scope 밖 4축(loop/code·CSP·grounding·planning)·value-derivation은 **명시 out-of-scope or offload**. = 위배 아닌 *경계 정밀화*([[reference-repo-energy-lie-prior-work]] 정직 라벨 규율).
+- **arxiv 검증**: 핵심 id 검증됨(2407.18901 AppWorld·2402.01622 TravelPlanner·2406.12045 τ²·2501.10132 CFB·2409.03797 NESTful·2305.16291 Voyager·2210.03629 ReAct·Codd1972·Libkin-Wong JCSS1997·Böhm-Jacopini CACM1966·Kozen-Tseng MPC2008). snippet-only(2602.*·2603.*·2508.*) = 인용 전 재검증([[feedback-arxiv-citation-discipline]]).
