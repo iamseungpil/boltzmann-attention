@@ -1,5 +1,7 @@
 # THESIS STATEMENT (crystallized·2026-06-16) — 5 딥리서치 + floor 실험 수렴본
 
+> **★★심화 (2026-06-17) = 이론 정초 + thesis 직접 실측 · 권위 = [`LIE_ABSTRACTION_THEORY_2026_06_17.md`](LIE_ABSTRACTION_THEORY_2026_06_17.md)**: 아래 명제(분담)의 *왜*가 형식화됨. **(a) 역할분담의 근거** = 언어=얕은-병렬 진화 인터페이스(LLM=TC⁰ forward pass가 잘함)·깊은 절차주머니(most/best·**표기-깊이 d(e)**)는 인간도 외부도구로 offload → **LLM=얕은연상+절차-타입 분류 / 결정론=깊은 실행**. **(b) 유계 절차예산 B(L,width)**(§7d-bis)=고정모델 직렬-깊이 유계·d(e)>B 하락·scale은 내부암기로 키움(유계)·결정론 offload는 B=∞ → "binding 벽≠scale" 근본이유. **(c) 직접 실측**: 정적 $select=해로움·**연산-IR**(LLM이 연산 *명명*·엔진 실행)로 **7B가 rank 0.17→1.00 극복**(thesis 직접 증거). **(d) §9 선행연구 정초**(semantic automata·절차의미·학습되는 라우팅·Roman=비용교정). ⇒ 아래 "두 날개"는 이 역할분담의 *특수예*(capability날개=깊은실행 offload·비용/전이날개=얕은 분류 학습+ABox). 다음 실험 = `B_BUDGET_SCALE_DESIGN_2026_06_17.md`(연산-IR thesis × 스케일).
+
 > 5 딥리서치(NL→SQL·det-vs-learned TCO·plan-selection·constrained-decode·input-formalize·small-model-reasoning) + M-A/floor 실험이 한 명제로 수렴. 권위 컨텍스트: `deepresearch/`(5 보고서)·`ma/M_A_RESULTS.md`·`DECOMPOSITION_OPTIMALITY.md`·`MIN_CONTEXT_FORMALIZER_DESIGN.md`. 불변: [[feedback-thesis-tbox-transfer-direction]]·[[feedback-selector-verifier-deterministic]]·[[feedback-nl-formalize-llm-selection-deterministic]].
 
 ## 1. 명제 (한 문단)

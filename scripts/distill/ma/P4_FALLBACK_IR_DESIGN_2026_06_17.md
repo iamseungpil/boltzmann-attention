@@ -1,3 +1,5 @@
+> **★격상 (2026-06-17) = [`../LIE_ABSTRACTION_THEORY_2026_06_17.md`](../LIE_ABSTRACTION_THEORY_2026_06_17.md)**: P4(변형선택/superlative)는 표기-깊이 d(e)↑ 케이스. **정적 순서-연산 IR도 정적이면 해로움**(CoT probe 실측) → **연산-IR(LLM이 argmax/comparative *명명*·엔진 실행)로 격상**. 7B 실측: argmax/rank=극복(1.00)·**comparative만 명명 실패**(절차의미=명명 어려움) = P4의 진짜 잔여. 통제 측정 = `../B_BUDGET_SCALE_DESIGN_2026_06_17.md`.
+
 # P4 fallback 해결 (리뷰용 DRAFT) — 조건 제어흐름 결정론-offload + 순서-연산 IR + CoT probe — 2026-06-17
 
 > 출처: 06-17 τ² write-벽 전수 autopsy(`m_sigma_transfer_eval_v4.py` + gold-reachability 검사). 확정: write-벽 = **조건부 fallback / 다속성 변경 reasoning**(gold 21/32가 다속성)·resolver는 sound(oracle criteria→gold 32/32 unique)·실패는 STRUCTURAL(lexical≈0)·`ok`에 숨은 **grounded-but-wrong(~9건)**. 상위 = `M_SIGMA_V4_UNION_CORPUS_DESIGN.md`. 불변 = [[feedback-nl-formalize-llm-selection-deterministic]]·[[feedback-selector-verifier-deterministic]]·[[feedback-capability-vs-artifact-elicitation]].

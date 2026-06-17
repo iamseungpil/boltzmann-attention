@@ -7,6 +7,13 @@
 
 ## §0. 목표 (한 문장, 변하지 않음)
 
+> **★★★★★★ 현재 도달 (2026-06-17 · 이론 정초 + thesis 직접 실측 · 권위 = [`LIE_ABSTRACTION_THEORY_2026_06_17.md`](LIE_ABSTRACTION_THEORY_2026_06_17.md) + 실험 [`B_BUDGET_SCALE_DESIGN_2026_06_17.md`](B_BUDGET_SCALE_DESIGN_2026_06_17.md))**: §0 목표 문장 불변. **이론 정초 = "LLM이 왜 NL을 잘 푸나 + 무엇을 결정론에 넘기나"의 *철학·과학 이론*** (§9 선행연구로 *엄밀히* 정초):
+> - **역할분담의 *왜***: 언어 = 유계-깊이 병렬 인지를 위해 진화한 *압축 인터페이스* → 대부분 *얕은 병렬 연상*(=Transformer forward pass=TC⁰가 잘하는 일). NL 곳곳의 *깊은 알고리즘 주머니*(most/best/비교·산술·다단 = §7c **표기-깊이 d(e)**)는 **인간도 외부도구(아라비아-알고리즘·계산기)로 offload**하는 지점. ⇒ **LLM=얕은 연상+*절차-타입 분류* / 결정론=깊은 실행**(인간 뇌+외부도구 모사).
+> - **유계 절차예산 B(L,width)**(§7d-bis): 고정모델 forward pass는 *직렬-깊이 유계*(TC⁰·점근 아님). d(e)≤B 성공·>B 하락(7B: d3 0.20). **scale은 B를 내부암기로 키우고(유계·비쌈)·CoT는 외부토큰으로(오차누적)·결정론 엔진은 B=∞(정확·저비용)** 지불. = "binding 벽≠scale"의 *근본 이유*.
+> - **★thesis 직접 실측 (7B·`M_A_RESULTS §15` 예정)**: 정적 $select(답-criteria 강제)는 *해롭다*. 고친 **연산-IR**(LLM이 *연산 명명* argmax-over-X·엔진 실행) = **7B가 혼자 rank 0.17 못 풀던 걸 *결정론 구조로 1.00 극복*** (argmax/argmin/rank 확인)·comparative만 *명명* 실패(절차의미=sub-personal·문헌 정합). = **"작은 모델이 결정론 구조로 most/best 극복" thesis 직접 증거**.
+> - **선행연구 정초 + 1 교정 (§9·딥리서치 salvage 207건)**: van Benthem **semantic automata**("most"=pushdown·fMRI 작업기억 실재)·**절차 vs 개념 의미**(Relevance Theory)·**학습+전이되는 라우팅**(RTR/When2Call/RITE)·**자기평가 불신**→학습/외부신호. ★교정: Roman/Arabic=*계산가능성 아닌 비용*(Zhang-Norman) → §7d-bis 강화.
+> - **다음 실험**: ① B-budget 스케일(1.5B→235B·연산-IR thesis × 매핑 임계 S\*(d,N)·coworker [`COWORKER_REQUEST_2026_06_17_B_budget_scale.md`]) ② 절차-분류 *학습·전이*(comparative 명명 + held-out 도메인 = §7f C8) ③ notation_depth d(e)×실패 상관. ↓아래 06-16 블록 = 직전 라인(plan-X·M-A·두날개 — 흡수됨: 두날개=이 역할분담의 특수예).
+
 > **★★★★★ 현재 도달 (2026-06-16 · 권위 = [`THESIS_STATEMENT_2026_06_16.md`](THESIS_STATEMENT_2026_06_16.md))**: thesis 문장(아래 §0 핵심)은 불변. *현 라인* = plan-X native-FC 전이가 음성 종결(τ² 0.05–0.10<base)·M-A가 write-벽 원인을 **NL→formalize reasoning**으로 확정 → 레버가 **(A)분해+결정론 per-step 검증(Sstep)** + **(B)입력 formalize(MSC)·도메인지식 제공(ABox/retrieval)·도메인-일반 학습(ABox-swap 전이)** 두 날개로 발전. 5 딥리서치가 메커니즘 검증·신규성=미점유 교차점+floor 측정. 진단 현황 = §2 최상단. ↓아래 plan-X/primitive 블록은 *직전 라인*(근거·역사).
 >
 > **★★★ 현 구현 방향 = plan X (2026-06-14 확정 · 권위본 = [`CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`](CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md) + 변환기 [`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`](NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md))**:
@@ -104,6 +111,12 @@
 **F1 비용 장부 상시화 (2026-06-14, 추세리뷰 위험1[손공학 creep] 방어 — 게이트/스펙 변경마다 갱신 의무)**: A2 자동화 속도 > 손작성 속도인 한 "벤치-불변" 주장 유지. 현 장부: τ²-retail 수동 spec ~40줄(GT용 1회·front-end 자동화 타깃) / **airline 0줄**(Fable-5 컴파일·replay 0/108) / **telecom 0줄**(Fable-5 컴파일) / G4-게이트 추가 +13줄(spec 엔트리·템플릿 불변) / 복구 템플릿 = 도메인-불변 0줄. 대조축 = SOPBench DGGATE(graph 수동 재구성)·AgentSpec "manually developed"(FIELD_GAP §5.5).
 
 ## §2. 현재 진단 (어디까지 왔나)
+> ★★★★★★**현재 도달 (2026-06-17) — 권위 = [`LIE_ABSTRACTION_THEORY_2026_06_17.md`](LIE_ABSTRACTION_THEORY_2026_06_17.md)**:
+> - **★thesis 직접 실측(7B·통제 합성)**: in-head 단독은 깊은 연산서 무너짐(argmax 0.61·**rank 0.17**)·**결정론 구조(연산-IR 명명+엔진 실행)로 argmax/argmin/rank = 1.00 극복**(전체 0.51→0.80). = *작은 모델이 결정론 구조로 most/best 극복* 직접 증거. **잔여 = comparative 명명 실패**(절차의미=명명 어려움·문헌 정합) → 다음 = 절차-분류 *학습*.
+> - **표기-깊이 d(e) × 크기**(파일럿·τ²): in-head 정확도 d↑서 하락(7B 0.83→0.20)·**무릎이 크기로 우측이동**(d3: 7B 0.20→14B 0.50) = 유계예산 B(L,width) 성장(§7d-bis). 단 32B-Int8 평탄=양자화 confound → bf16 사다리 필요.
+> - **정적 IR=해롭다**(CoT probe: set-ops emit 0.34<base 0.48)·free-CoT 소폭(0.55) → 정적 criteria 폐기·**연산-명명 IR로 전환**.
+> - **이론 지위 = 발명 아닌 검증된 조각의 미점유 교차점**(§9 딥리서치 salvage 207건). 아래 06-16 블록 = 직전 라인.
+
 > ★★★★★**현재 도달 (2026-06-16) — 권위 수렴본 = [`THESIS_STATEMENT_2026_06_16.md`](THESIS_STATEMENT_2026_06_16.md)**. 아래 06-06 이하 블록은 직전 라인(SOPBench scaffold·plan-X native-FC — 역사·근거).
 > **(1) plan-X/v7 native-FC 전이 = 음성 종결** (τ² 0.05–0.10 < base 0.17). 원인 분해: write-벽 = *날조 아님* — **NL→formalize *reasoning* 실패**(변형 오선택·"X만 바꾸고 유지" 오계산·synonym 미매핑). [`ma/M_A_RESULTS.md`](ma/M_A_RESULTS.md).
 > **(2) M-A 프로토타입 (무재학습·retail exchange 29태스크)**: selector(출력측 추상 emit)+resolver는 **in-domain서 concrete-emit에 짐** — 공정정보(Bfair)로도 전 scale 음성. ⇒ 레버가 *출력 포맷*이 아니라 **입력(정보·formalize)·*추론 분해*** 에 있음.
