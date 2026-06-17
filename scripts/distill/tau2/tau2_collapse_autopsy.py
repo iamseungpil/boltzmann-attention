@@ -55,8 +55,13 @@ def main():
     args = ap.parse_args()
     d = json.load(open(args.dir.rstrip("/") + "/results.json", encoding="utf-8"))
     sims = d.get("simulations") or d.get("results") or []
-    collapsed = [s for s in sims if term(s).lower() in ("too_many_errors", "max_steps") or "error" in term(s).lower()]
-    print(f"collapsed tasks: {len(collapsed)} / {len(sims)}")
+
+    def n_tool_err(s):
+        return sum(1 for m in msgs_of(s) if m.get("role") == "tool" and is_err(m))
+    # match tau2_autopsy's agent_collapse: terminal error/max_steps OR >=3 tool errors
+    collapsed = [s for s in sims if term(s).lower() in ("too_many_errors", "max_steps")
+                 or "error" in term(s).lower() or n_tool_err(s) >= 3]
+    print(f"collapsed tasks (term-collapse or >=3 tool errors): {len(collapsed)} / {len(sims)}")
     cat = Counter(); tool_err = Counter(); rep = Counter()
     examples = []
     for s in collapsed:
