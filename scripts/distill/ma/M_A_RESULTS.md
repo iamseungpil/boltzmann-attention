@@ -225,3 +225,15 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **op-IR 재무장 자체도 τ²서 무이득**: base op-IR(S0 0.25)도 M-A static select_by(0.469)보다 *낮음*. τ² selection(substitution 다수·multi-categorical)에 단일-ordinal 합성 op-IR 형식이 부적합(설계서 §3 리스크 실현).
 - ⚠️ **진단 범위(과대해석 금지·[[feedback-no-fundamental-claims-from-convenience-data]]·[[feedback-capability-vs-artifact-elicitation]])**: n=32·retail single-domain·**프롬프트 형식 confound 미배제**(τ² prompt가 합성과 형식 달라 C8-trained OOD 붕괴일 수 있음 — "표면 매핑" 단정 전 형식-통제 필요). ep3 1개 어댑터만(ep1 robustness 미확인).
 - **⇒ 함의**: C8이 실벤치 전이로 닫히려면 (a) **합성 NL 표현 다양화** 재학습(템플릿 고정 제거→표현 전이 시험) 또는 (b) 합성↔실벤치 표현 갭 중간층. 현 단일-템플릿 합성 양성은 *필요조건이지 충분조건 아님*. = thesis에 중요한 음성(C8 핵심 미해결 재확인).
+
+### 17b. ★형식 통제 진단 = 표면 매핑 *확정* (SFT 주입·2026-06-17·`tau2_op_eval --synth_format`)
+프롬프트 구조를 합성 arm_B와 동일하게 맞춰 형식 confound 배제:
+| arm | overall | emitted op |
+|---|---|---|
+| A2_ep3 synth-fmt | 0.09 | filter11·**exchange8·modify2**·comparative4·argmax4·argmin3 |
+| A1_ep1 synth-fmt | 0.09 | comparative11·**exchange6·modify2** |
+| A1_ep1 τ²-fmt | 0.00 | comparative17·exchange10 |
+| **base synth-fmt** | **0.16** | filter20·rank6·comparative3·**exchange 0** |
+- **op-슬롯 붕괴 = NL 동사 복사 확정**(형식 아님): 합성 형식서도 exchange8 잔존 → τ² *동사*가 원인.
+- **★SFT가 표면 매핑을 *주입***: **base는 exchange 0회**(filter/rank로 감)·**trained만 exchange emit**. 게다가 base(0.16) > trained(0.09) = **좁은 단일-템플릿 SFT가 "NL동사→op" 표면매핑을 심어 역전이**.
+- ⇒ **결론 = §16 합성 양성은 표면 매핑 아티팩트**(좁은 표현 분포). **처방 = 표현/구조 다양성**(어휘 등방화 불충분·깊이 비례). 다양성-전이 곡선 K×depth 설계 예정.
