@@ -23,7 +23,8 @@ ok=0; for i in $(seq 1 150); do curl -s localhost:$PORT/v1/models 2>/dev/null | 
 [ $ok = 1 ] || { echo SERVE_FAIL; tail -40 $SCRATCH/vllm_width_${TAG}.log; exit 1; }
 
 # gloss=1 (give the operator definition) so failure = genuine width-binding, not op-recognition.
+# arms: A (in-head), B (one-shot set extraction), Decomp (per-attr width-1 queries = offload sufficiency).
 $PY $MA/width_eval.py --base http://localhost:$PORT/v1 --model "$MODEL" --tag $TAG \
-  --widths 1,2,3,4,5 --n 100 --arms A,B --gloss 1 --out $OUT/width_${TAG}.json
+  --widths 1,2,3,4,5 --n 100 --arms A,B,Decomp --gloss 1 --out $OUT/width_${TAG}.json
 for p in $(nvidia-smi --id=$G0 --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done
 echo "WIDTH_${TAG}_DONE"; date

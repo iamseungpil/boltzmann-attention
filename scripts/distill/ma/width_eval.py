@@ -57,6 +57,34 @@ def arm_A_user(ex):
             'item with the resulting options. Output ONLY {"id": "<that item id>"}.')
 
 
+def arm_decomp(base, model, ex, api_key):
+    """OFFLOAD by decomposition: instead of one width-k binding, ask ONE width-1 question per attribute
+    ('does the request change <a>? to what?'), engine assembles the set. Each query is within any model's
+    budget. If a SMALL model recovers high width accuracy here = width-offload SUFFICIENCY (thesis: small
+    + structure = big). Returns (item_hit, set_exact, set_recall)."""
+    from collections import defaultdict
+    aid = ex["op_ir"]["anchor_id"]
+    old = next((it for it in ex["items"] if it["id"] == aid), None) or {}
+    vals = defaultdict(set)
+    for it in ex["items"]:
+        for a in ex["cat_attrs"]:
+            vals[a].add(it[a])
+    setv = {}
+    for a in ex["cat_attrs"]:
+        opts = sorted(vals[a])
+        user = (f"Request: {ex['nl']}\n"
+                f"The item currently has {a} = {old.get(a)}.\n"
+                f"Does the request change '{a}'? If yes, to which value (one of {opts})?\n"
+                'Output ONLY {"change": true|false, "value": "<new value, or null>"}.')
+        j = extract_json(chat(base, model, [{"role": "system", "content": "Output ONLY JSON."},
+                                            {"role": "user", "content": user}], 40, api_key)) or {}
+        if j.get("change") and j.get("value") is not None and str(j.get("value")) != str(old.get(a)):
+            setv[a] = j["value"]
+    ir = {"op": "substitute", "anchor_id": aid, "set": setv}
+    r, exact = set_match(setv, ex["op_ir"]["set"])
+    return int(resolve_operation(ir, ex["items"]) == ex["gold_id"]), exact, r
+
+
 def set_match(emit, gold):
     if not isinstance(emit, dict):
         return 0.0, False
@@ -100,7 +128,11 @@ def main():
             ex["nl"] = render_nl_diverse(ex, rng)
             exs.append(ex)
         a_ok = b_ok = sx = 0; rec = 0.0; szbias = 0
+        d_ok = d_sx = 0; d_rec = 0.0
         for ex in exs:
+            if "Decomp" in arms:
+                di, dx, dr = arm_decomp(args.base, args.model, ex, api_key)
+                d_ok += di; d_sx += dx; d_rec += dr
             if "A" in arms:
                 outA = chat(args.base, args.model, [{"role": "system", "content": "Output ONLY JSON."},
                             {"role": "user", "content": arm_A_user(ex)}], 80, api_key)
@@ -122,12 +154,16 @@ def main():
                "arm_B_item": b_ok / n if "B" in arms else None,
                "set_exact": sx / n if "B" in arms else None,
                "set_recall": rec / n if "B" in arms else None,
-               "set_size_bias": szbias / n if "B" in arms else None}
+               "set_size_bias": szbias / n if "B" in arms else None,
+               "decomp_item": d_ok / n if "Decomp" in arms else None,
+               "decomp_set_exact": d_sx / n if "Decomp" in arms else None,
+               "decomp_set_recall": d_rec / n if "Decomp" in arms else None}
         res["by_width"][W] = row
+        rd = lambda x: round(x, 3) if isinstance(x, float) else x
         print(f"[{args.tag}] width={W} n={n} | "
-              f"A_item={row['arm_A_item']} B_item={row['arm_B_item']} "
-              f"SET_EXACT={row['set_exact']} set_recall={row['set_recall'] and round(row['set_recall'],3)} "
-              f"size_bias={row['set_size_bias'] and round(row['set_size_bias'],2)}")
+              f"A_item={rd(row['arm_A_item'])} B_item={rd(row['arm_B_item'])} "
+              f"SET_EXACT={rd(row['set_exact'])} | DECOMP_item={rd(row['decomp_item'])} "
+              f"DECOMP_set_exact={rd(row['decomp_set_exact'])}", flush=True)
     if args.out:
         json.dump(res, open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
         print("wrote", args.out)
