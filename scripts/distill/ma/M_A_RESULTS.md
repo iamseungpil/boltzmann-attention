@@ -190,3 +190,22 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **recognition 0.60→1.00**: (i) filter artifact 해소(gold filter엔 attr 없어 v1이 attr-mismatch로 오집계 → op-only 채점으로 교정) (ii) comparative 회복. **이제 per-op recognition 전부 1.00** = 𝔤-식별(생성원 명명)이 *어휘만 정의되면* 소형서 완전·N-불변.
 - **격차 B−A = +0.31→+0.66**(N로 단조·v1 +0.12→+0.46보다 큼): comparative 회복으로 B가 ~1.00 → in-head 붕괴(0.68→0.34) 대비 구조 우위 *더 선명*. = §6 예측 (a)(b) 강화 실증.
 - **이론 함의(§9-A 교정·§7f 다리)**: "절차의미 sub-personal=명명불가"는 *과장*이었음. 명명은 *어휘 정의*로 즉발(보간 아님의 방증). 단 gloss는 *in-context* 떠먹이기 = C8 시험의 *상한*. **C8 = 이 라우팅을 weight 내재화해 gloss 없는 held-out 도메인서도 되나**(진행중·`C8_PROCEDURE_ROUTING_TRANSFER_DESIGN`).
+
+## 16. ★★★C8 1차 = 절차-라우팅 weight 내재화 → held-out 어휘 전이 = 양성 (2026-06-17·`c8_batch.sh`·`c8_summary.py`·raw `/home/woori/scratch/depth/c8/results/`)
+> 설계 = `../C8_PROCEDURE_ROUTING_TRANSFER_DESIGN_2026_06_17.md`. **시험**: NL→op-IR 라우팅을 *gloss 없이* SFT(학습 prompt에 연산어휘 정의 제거) → 학습에 안 나온 *다른 seed*(새 attr 토큰·스키마=전이 도메인) held-out서 gloss 없이 라우팅되나. base Qwen2.5-7B·LoRA·합성 등방화.
+
+**floor S0(base·gloss off)=comparative 0.00 / ceiling S1(base·gloss on)=1.00. 7 변형 전수 held-out comparative recognition:**
+| 변형 | 학습 | held-out cmp recog | in-dist | 판정 |
+|---|---|---|---|---|
+| A1_ep1 | ep1 | **1.00** | 1.00 | TRANSFER |
+| A2_ep3 | ep3 | **1.00** | 1.00 | TRANSFER |
+| A3_ep6 | ep6 | **1.00** | 1.00 | TRANSFER |
+| B1_cmpheavy | cmp 3x·ep3 | **1.00** | 1.00 | TRANSFER |
+| B2_glossin | gloss-IN·ep3 | **0.98** | 1.00 | TRANSFER |
+| B3_big | 8k·ep2 | **1.00** | 1.00 | TRANSFER |
+| B4_lr3 | lr3e-4·ep3 | **1.00** | 1.00 | TRANSFER |
+
+- **★전 변형 양성·강건**: 학습량(ep1–6)·LR·데이터량(3k/8k)·comparative집중·gloss유무 무관하게 held-out comparative 0.00→~1.00. **1 epoch이면 충분**(저차원 라우팅·§7e 예측 "𝔤-식별은 소형도 즉발·전이" 정합). in-dist=held-out=1.00 → 과적합 아닌 어휘-무관 일반화. 나머지 4 op도 전 변형 1.00.
+- **= 사용자 질문 1차 답**: 절차어휘(op 라우팅)를 *gloss 없이* weight에 내재화(TBox 고정) → 새 도메인 어휘 전이 = **"절차 TBox 고정 / 도메인 ABox swap" 합성서 입증.** base가 gloss 없이 comparative 0.00인데 학습 후 1.00 = 학습이 라우팅을 분명히 내재화(floor-ceiling 대비 명확).
+- ⚠️ **정직 한계(과대해석 금지·[[feedback-no-fundamental-claims-from-convenience-data]])**: (1) **합성 1차**·held-out은 새 *attr 어휘·스키마*지만 **NL 템플릿은 동일**(synth_depth op별 고정 문구) → **어휘-전이 입증·표현-전이 아님**. (2) 진짜 표현/도메인 전이 = τ²(2차·`C8_TAU2_SELECTION_TRANSFER_DESIGN`). (3) 1ep 100%는 라우팅이 *쉬운 저차원*이란 방증이자 동시에 시험이 *쉬웠단* 뜻 — τ²가 난이도 시험.
+- **⇒ τ² 2차 게이트 통과**: "합성서 안 되면 τ²는 더 안 됨"의 전제가 깨짐 → τ² 어댑터(M-A static-select를 op-IR로 재무장) 구현이 의미를 얻음. 다음 = `C8_TAU2_SELECTION_TRANSFER_DESIGN` Phase 1(offline·키 불필요).
