@@ -17,9 +17,11 @@ from synth_depth import gen_example, render_nl, render_nl_diverse, OPS
 from depth_eval import build_arm_B_user
 
 
-def make_raw(seed, n, Ns, op_weights=None, iso=1, diverse=False, renderer=None):
+def make_raw(seed, n, Ns, op_weights=None, iso=1, diverse=False, renderer=None, subst_width=0):
     """op_weights: dict op->relative weight. diverse=True => expression-isotropic NL.
-    renderer (fn(ex,rng)->nl) overrides => K-controlled expression pool (synth_expr.make_renderer)."""
+    renderer (fn(ex,rng)->nl) overrides => K-controlled expression pool (synth_expr.make_renderer).
+    subst_width>0 => substitute examples draw width uniformly in [1,subst_width] (multi-attr coverage,
+    to test if covering the B-width axis in training fixes component B; M_A_RESULTS §20-22)."""
     rng = random.Random(seed)
     ops = list(OPS)
     if op_weights:
@@ -33,7 +35,8 @@ def make_raw(seed, n, Ns, op_weights=None, iso=1, diverse=False, renderer=None):
     while len(out) < n:
         op = sched[i % len(sched)]; N = Ns[i % len(Ns)]
         i += 1
-        ex = gen_example(rng, iso, op, N)
+        w = rng.randint(1, subst_width) if (op == "substitute" and subst_width > 0) else 0
+        ex = gen_example(rng, iso, op, N, width=w)
         if ex is None:
             continue
         if renderer is not None:
@@ -72,6 +75,7 @@ if __name__ == "__main__":
     ap.add_argument("--gloss_in_sft", type=int, default=0, help="0=gloss-free (transfer); 1=gloss ablation")
     ap.add_argument("--cmp_heavy", type=int, default=0, help="1=weight comparative 3x (others 1x)")
     ap.add_argument("--diverse", type=int, default=0, help="1=expression-isotropic NL (verb/op decorrelated)")
+    ap.add_argument("--subst_width", type=int, default=0, help=">0 = substitute width drawn uniform in [1,W] (multi-attr B-width coverage)")
     ap.add_argument("--K", type=int, default=0, help=">0 = K-controlled expression pool (synth_expr)")
     ap.add_argument("--method", default="random", choices=["random", "axis", "kcenter"])
     args = ap.parse_args()
@@ -93,7 +97,8 @@ if __name__ == "__main__":
         print("heldout ops:", dict(Counter(e["op"] for e in heldout)))
     else:
         ow = {"comparative": 3} if args.cmp_heavy else None
-        train = make_raw(args.train_seed, args.n, Ns, op_weights=ow, diverse=dv, renderer=renderer)
+        train = make_raw(args.train_seed, args.n, Ns, op_weights=ow, diverse=dv, renderer=renderer,
+                         subst_width=args.subst_width)
         out = args.out or f"{args.outdir}/c8_train_sft.jsonl"
         dump(out, [to_chat(e, gloss=bool(args.gloss_in_sft)) for e in train])
         print("train ops:", dict(Counter(e["op"] for e in train)))
