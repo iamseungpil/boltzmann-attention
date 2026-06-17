@@ -38,6 +38,11 @@ for SV in retail_base_anchor retail_md_route retail_md_widesubst; do
   fi
 done
 echo "  NOTE: MD_* run as NATIVE agents (op-IR-SFT) = as-is transfer diagnostic, NOT offload-integrated."
+echo "  -- GBW headroom (base failure modes): wrong_write=GBW(content-fixable) vs fab/over_ask/collapse=FLOW --"
+for SV in retail_base_anchor retail_md_route; do
+  a=/home/woori/scratch/tau2-bench/data/simulations/$SV/autopsy.txt
+  [ -f "$a" ] && { echo "  [$SV]"; grep -iE "PASS|wrong_write|fab_auth|over_ask|agent_collapse|no_write|premature|^ *[a-z_]+ +[0-9]+" "$a" | head -12 | sed 's/^/    /'; }
+done
 echo; echo "############ 4. JOB STATUS ############"
 for p in width_eval.py widen_retrain.sh width_ladder_local width_overnight_or kshot_sweep; do
   echo "  $p: $(pgrep -fc "[${p:0:1}]${p:1}" 2>/dev/null) running"

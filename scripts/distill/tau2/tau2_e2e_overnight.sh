@@ -49,4 +49,16 @@ run_e2e(){  # $1=name $2=adapter_dir(empty=base) $3=save_to
 run_e2e "Qwen/Qwen2.5-7B-Instruct" "" retail_base_anchor
 [ -d $ADP/MD_route_ep1 ]     && run_e2e MD_route_ep1     $ADP/MD_route_ep1     retail_md_route
 [ -d $ADP/MD_widesubst_w4 ]  && run_e2e MD_widesubst_w4  $ADP/MD_widesubst_w4  retail_md_widesubst
+
+# ---- GBW headroom autopsy: classify base failures into wrong_write (=GBW, content/offload-addressable)
+# vs FLOW (fab_auth/over_ask/agent_collapse/no_write). wrong_write count = max e2e gain from the content
+# fix ALONE (answers: does fixing GBW alone improve e2e, and by how much?).
+cd $S/tau2-bench; export PYTHONPATH=src:$T2
+for SV in retail_base_anchor retail_md_route retail_md_widesubst; do
+  D=$S/tau2-bench/data/simulations/$SV
+  [ -d "$D" ] || continue
+  echo "===== GBW AUTOPSY $SV ====="
+  $PY $T2/tau2_autopsy.py "$D" 2>&1 | tee "$D/autopsy.txt" | tail -25
+done
+cd $R
 echo "TAU2_E2E_OVERNIGHT_DONE (base 0.17 / frontier 0.81 ref)"; date
