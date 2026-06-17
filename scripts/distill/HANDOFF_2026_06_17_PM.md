@@ -55,6 +55,19 @@
 - [`NL_PROCEDURE_OFFLOAD_THEORY §10`](NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md) — 에너지-Lie 통합.
 - 메모리 `reference-repo-energy-lie-prior-work`(boltzmann·lie_group 인벤토리·재census 금지).
 
+## 7. ★진행 추가 (2026-06-17 PM(2) — 이 세션) = 생성원 5→7 + 표현적합성 양도메인 증명 + §20 큐잉
+- **생성원 5→7 구현 완료**(전부 repo `ma/`·커밋·로컬 round-trip 420/420):
+  - `synth_depth.py` = substitute(keep-rest: anchor⊕set)·create(full set) 생성기+엔진(`resolve_operation`)+diverse 표현풀(verb op-무관).
+  - `depth_eval.py` = op-IR spec/gloss에 substitute/create·`build_arm_B_user` 범주형(ord 없음) 처리.
+  - `tau2_op_resolver.py` = substitute/create(τ² nested options)·cabin ORD_WORDS 등록.
+  - `ma_gold_extract.py` = `--domain airline`(cabin 차원: update_flights=substitute·book=create·retail과 동형 스키마).
+  - `tau2_op_eval.py` = multi-domain(`--cases`)·create-aware prompt·by case_op + op-routing recognition.
+- **★★표현적합성 양도메인 증명**(`tau2_subst_oracle.py`·`M_A_RESULTS §19`·키0·GPU0): **retail 32/32 + airline 27/27** = *동일* op-IR/resolver로 두 도메인 닫힘. §17/§18 over-comparative 근본=5-op 표현부재 확정·substitute가 닫음. = 생성원 도메인-일반(표현측).
+- **§20 학습-전이 = 큐잉됨**(GPU-blocked·K-sweep 점유): 데이터 전부 빌드 검증(remote `…/c8/multidomain/route_sft.jsonl` 6000·7-op 균형·`c8_eval_heldout_div.jsonl` 250·retail/airline 케이스). **detached 워처 `md_wait_launch.sh`(PID 가동중)가 K-sweep 종료 자동감지→`multidomain_route.sh <GPU> 8027 1 6000` 실행**(synth-only 7-op 라우팅 LoRA→retail+airline config-swap 전이·base floor/ceiling 포함).
+- **★다음 세션 첫 행동**: ① K-sweep 종료확인 + `ksweep_summary.py`(다양성 곡선). ② `…/c8/multidomain/logs/wait_launch.log` + `…/multidomain/results/MD_route_ep1__{retail,airline}_g0.json`(§20 매트릭스) 확인 → **판정: 두 도메인 동시 ↑(같은 라우팅)=도메인-일반 입증 / 한쪽만=특화 위험**. `M_A_RESULTS §20` 박제. ③ 음성 시 궤적 규명(over-comparative 잔존? substitute 미명명? airline cabin 단일attr degenerate?).
+- **신규 도구**: `tau2_subst_oracle.py`·`multidomain_route.sh`·`md_wait_launch.sh`·`ma_gold_extract.py --domain airline`.
+- **정직(이 세션)**: 오라클=IR 수동(학습 전이 아님)·airline cabin=단일 ordinal attr(catalog-레벨 keep-rest degenerate→op-라우팅 시험 위주)·project(8번째 content op)=read/getter-shaped라 보류(offload).
+
 ## 6. 정직 라벨 (과대주장 금지)
 - finiteness/closure만·**minimality 금지**(Kozen-Tseng). scope=transactional tool-orchestration.
 - 생성원 닫힘=경험검증(다도메인 전이가 시험). substitute 일반=실증(tau2 5도메인)이나 학습-전이는 미증명(이 작업이 시험).
