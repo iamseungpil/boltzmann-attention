@@ -383,3 +383,15 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **선행 정합**: 옛 v4 write-벽 autopsy "tool-fetchable 값(order_id) 날조"와 동일 기제([[project-tau2-write-failure-rootcause]]·메모리 핸드오프) — base서 정량확인(order_id 날조 91). [[feedback-nl-formalize-llm-selection-deterministic]] 정확 정합.
 - **함의(처방)**: write-step뿐 아니라 **read-step도 offload** = 모델은 "주문 조회/교환" *의도*만 명명, order_id/item_id/payment는 **결정론 resolver가 직전 tool 결과서 grounding**(날조 차단)+에러시 재-fetch(복구). = thesis "구체선택=offload"의 e2e 실증 경로.
 - 정직: base 7B·40 tasks·gated·order_id 날조 vs 포맷 비율(79:12)은 user가 번호 제공한 태스크 비중에 의존·retry-loop은 복구프롬프트로 일부 완화가능(별도).
+
+## 26. ★★★수렴 진단 — peeling이 *단일 근원(concrete-value offload)*으로 수렴 (2026-06-18·전 §의 통합)
+> 사용자 관찰: "하나 풀면 다음이 나타나 결국 GBW까지 왔다." = peeling 시퀀스. 한 발 물러서 보면 **모든 벽이 한 뿌리**.
+
+**peeling 궤적**: 0.17 write-벽 →(학습)order_id 날조·루프 →(anti-fab)GBW →(substitute)표현적합 →offline 0.44 →(autopsy)anchor환각+width →(§22)width=소형·decomp회복 →(e2e §25)**다시 order_id 날조**.
+
+**전 벽 = 동일 근원**: write-벽(order_id/item_id 날조)=GBW(new_item_ids 오선택)=width(multi-attr binding)=collapse(fetch-id 날조) = **LLM이 구체값을 만들려다 실패**. 처방 하나: **LLM=의도/op 명명+attr별 결정만, 구체값(read-id·write-변형·조합)=결정론 resolver.**
+
+- **무한 regress 아님·수렴**: 구체값 생산을 다 offload하면 잔여=retry-복구+진짜 routing 모호성(유계·종류 다름).
+- **전략**: offline 잔여 추격 중단(점점 작은 슬라이스). **통합 offload 1회 구현→e2e 측정**이 탑(fabrication+GBW+width)을 한 번에 무너뜨림.
+- **wide-학습 폐기 근거 재확인(§23D)**: binding을 모델에 학습시키면 routing 퇴행(트레이드오프). offload는 routing-clean 모델 위에서 재학습0으로 회복(§22)=트레이드오프 회피. ⇒ **학습 말고 offload.**
+- 설계 = `UNIFIED_OFFLOAD_DESIGN_2026_06_18.md`(아래).
