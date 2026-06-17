@@ -24,13 +24,25 @@ from depth_eval import build_arm_B_user, extract_json
 
 
 def chat(base, model, messages, max_tokens=256, api_key=None):
-    import requests
+    """Robust to transient provider errors (429/5xx/missing 'choices'): retry with backoff so one bad
+    call does not kill a whole sweep. Returns "" (logged) only after persistent failure = counts as a
+    miss; rare given retries."""
+    import requests, time
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
-    r = requests.post(f"{base}/chat/completions", headers=headers,
-                      json={"model": model, "messages": messages, "max_tokens": max_tokens, "temperature": 0.0},
-                      timeout=180)
-    r.raise_for_status()
-    return r.json()["choices"][0]["message"].get("content") or ""
+    payload = {"model": model, "messages": messages, "max_tokens": max_tokens, "temperature": 0.0}
+    last = ""
+    for attempt in range(5):
+        try:
+            r = requests.post(f"{base}/chat/completions", headers=headers, json=payload, timeout=180)
+            j = r.json()
+            if isinstance(j, dict) and j.get("choices"):
+                return j["choices"][0]["message"].get("content") or ""
+            last = f"status={r.status_code} body={str(j)[:160]}"
+        except Exception as e:
+            last = repr(e)[:160]
+        time.sleep(3 * (attempt + 1))
+    print(f"  [CHAT_FAIL {model}] {last}", flush=True)
+    return ""
 
 
 def arm_A_user(ex):
