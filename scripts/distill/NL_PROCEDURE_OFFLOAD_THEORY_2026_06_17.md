@@ -53,6 +53,7 @@
 - **학습 대상 = 𝔤-식별**(NL → 어떤 연산·어떤 순서관계·어떤 생성원). 이건 **저차원·도메인불변 불변량** → *학습가능·전이가능*(ABox-swap). 군 실행은 학습 안 함(엔진).
 - **분류/라우팅(직전 턴)의 정체 = "이 부분은 대수(명명·LLM)냐 군(실행·결정론)이냐"를 LLM이 식별** = 𝔤로의 사영(projection onto algebra). 이 사영이 저차원이라 학습·전이된다는 게 예측.
 - **예측(반증가능)**: (a) 생성원 emit으로 재표상하면 superlative/조건 성공률이 base in-head을 *넘는다*(LLM 명명 + 엔진 실행 > LLM 군-실행). (b) 𝔤-식별 정확도는 scale-둔감(저차원)·실행 정확도는 결정론이라 100%. (c) 𝔤-식별은 도메인 전이(불변). (d) 비가해 연산(무계 탐색)서만 둘 다 무너짐 = thesis 경계.
+  - **★(a)(b) 실측 확증(2026-06-17·`M_A_RESULTS §15`)**: 7B N-sweep에서 (a) 구조 B는 in-head A를 N↑서 +0.12→+0.46 *넘음*·B N-불변 0.80; (b) comparative는 어휘-정의(gloss) 후 𝔤-식별 N=10/50 *둘 다 50/50(1.00)*·실행 D=1.00. **(b)의 "scale-둔감"은 *N-둔감*으로 1차 확인**(같은 7B서 리스트크기 무관 100%)·*params-둔감*은 arm C(32/72B) 대기. (c)(d)는 C8(§7f)·B-budget서 시험.
 
 ## 7. 설계 함의 (P4 재설계 = 군→대수 lift)
 1. **IR = 생성원-단어**: `{op, order/relation, params}` (extremum·filter·copy·fallback-seq). 정적 결과 아님. LLM이 *연산을 명명*.
@@ -193,9 +194,12 @@ e를 *절차 골격*으로 파싱해, **순수 denotation(값·개체 lookup)에
 ### 과거 전이실패의 재해석 (이론이 *예측*했어야 할 것)
 v4-v7·M-σ 음성 = **flat/concrete를 학습타깃화**(표면결합·암기) → 무전이는 *당연*. 이론 함의: 그건 "내재화 불가한 것"을 학습시킨 것. **처방 = 내재화가능한 절차-분류(진짜 추상)만 고립 학습.**
 
+### ★comparative 진단이 준 다리 (2026-06-17·C8 학습타깃 정체 확정)
+comparative gloss 실험(위 §9-A 교정·`M_A_RESULTS §15`)이 C8의 *무엇을 학습시키나*를 구체화한다: **생성원 명명 = NL표면→IR연산자-어휘 라우팅**이고, 이건 *어휘만 정의되면(in-context gloss) 소형서 100%·N-불변*. 즉 𝔤-식별은 실재하고 즉발적이다(보간 아님의 *방증*). **그러나 gloss는 *프롬프트로 떠먹인* 라우팅**이다 — C8 시험의 본질은 이걸 *가중치로 내재화*시켜 **gloss 없는 held-out 도메인**서도 라우팅되나다. (gloss-in-context 성공 = 시험의 *상한*·전이 = 그 상한이 학습으로 닫히나.)
+
 ### ★핵심 미해결 = 깨끗한 C8 시험 (반증가능)
 **LLM의 "추상화 내재화"가 *진짜*(전이)냐 *정교한 표면보간*(비전이)이냐** = 이론의 사활.
-- 시험: **고립된 절차-타입 분류**(denotation/superlative/comparative/conditional…)를 *등방화 추상 데이터*로 학습 → *held-out 도메인* 전이 측정.
+- 시험: **고립된 절차-타입 분류**(denotation/superlative/comparative/conditional…)를 *등방화 추상 데이터*로 학습(gloss 제거) → *held-out 도메인* 전이 측정.
 - **전이 → LLM이 진짜 추상(절차-타입)을 내재화·C8 양성** = thesis 입증.
 - **무전이 → 분류*조차* 표면결합** = "내재화"는 보간이었음 → 무엇이 내재화가능인지 재정의.
 - = §7e-(b)(분류정확도≫실행·소형서도 높음) × 도메인전이를 *함께* 측정. 우리 등방화-synth(M-σ v3/v4) 골격 재사용·**타깃만 concrete→절차-타입으로 교체.**
@@ -220,7 +224,8 @@ v4-v7·M-σ 음성 = **flat/concrete를 학습타깃화**(표면결합·암기) 
 > 두 딥리서치(routing `wuwr9839y`·notation `w3d906s6n`)는 synthesis 직전 killed됐으나 search/fetch/verify 완료 → 검증된 claim 207건 salvage(`_dr_salvage`). 핵심만 합성. **대부분 우리 이론을 *발명 아닌 검증된 조각의 미점유 교차점*으로 확인**하고, **한 곳(Roman/Arabic)을 교정**한다.
 
 ### A. "절차-내장 표기"는 *실재하는 형식 범주* (§7b 정초)
-- **Relevance Theory 절차 vs 개념 의미**(Blakemore·Wilson): 언어요소는 *개념*(denotation·계산에 들어가는 표상)을 부호화하거나 *절차*(추론 계산 자체·따라야 할 추론-루트)를 부호화. "but/so/this"는 *개념 아니라 절차*. = 우리 denotation vs 절차-내장 분리 *그대로*. ★"절차의미는 sub-personal *machine-language*·의식화 저항" → **왜 comparative/anchor를 *명명* 못 했나**(7B 실측 B=0.00) 설명: 절차의미는 명명 어렵다.
+- **Relevance Theory 절차 vs 개념 의미**(Blakemore·Wilson): 언어요소는 *개념*(denotation·계산에 들어가는 표상)을 부호화하거나 *절차*(추론 계산 자체·따라야 할 추론-루트)를 부호화. "but/so/this"는 *개념 아니라 절차*. = 우리 denotation vs 절차-내장 분리 *그대로*. ★"절차의미는 sub-personal *machine-language*·의식화 저항" = 우리 §7e의 "대수는 명명·군은 실행" 정합(절차=어떤 *연산*인지).
+  - **★교정(2026-06-17 진단·`M_A_RESULTS §15`)**: 직전엔 comparative B=0.00을 "절차의미가 sub-personal이라 *명명 불가*"로 읽었으나 **전수 진단(`comparative_diag.py`)이 이를 반박**: 7B는 피연산자를 *완벽히* 추출한다 — `attr·among·dir·anchor_id`(긴 랜덤 id까지 verbatim) 전부 정확. **틀린 건 연산자 *라벨* 하나**(op="comparative" 대신 "filter"·N=10/50 둘 다 50/50). 원인 = NL 도입부 "Among items where {filter}…"가 `filter` 토큰을 priming하는데 IR spec에 연산자-*어휘 정의*(gloss)가 없어 default 라벨로 붕괴. **spec에 op-gloss(생성원 어휘 정의) 추가 → 0.00→1.00 즉시 회복·N-불변**(`comparative_fix.py` B1). ⇒ 절차의미가 "의식화 저항"이어도 **𝔤-식별(생성원 명명)은 *어휘만 정의되면* 소형서 100%·N-불변** = §6 예측 (a)(b) 직접 양성. "명명 불가"가 아니라 "*우리 IR 어휘 미정의 시* default 붕괴". = C8 전이(§7f)의 학습타깃이 바로 이 *생성원 어휘 라우팅*임을 시사.
 - **동적의미론**(Groenendijk-Stokhof-Veltman·Heim): 의미 = *context-change potential*(정보상태 업데이트 *명령*)·정적 진리조건 아님. ★denotation·절차의미 *공존*(진리조건=업데이트의 *전제조건*) = 우리 "애매경계=둘 다·병합" 정합.
 - **Goodman notationality**(Languages of Art): 기호계가 *모호성 없는 기계조작*을 지원할 조건 = disjointness + finite differentiation. notational(digital·결정) vs dense(analog·기계화 불가). 그림=실패·악보=통과. = 우리 "결정론 실행가능 표기" 형식 기준.
 
