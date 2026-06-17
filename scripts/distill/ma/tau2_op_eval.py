@@ -89,8 +89,12 @@ def main():
             if case_op:
                 recog[1] += 1; recog[0] += int(emitted_op == case_op)
             n += 1; ok += hit
+            gold_set = {k: v for k, v in ex["gold_new_options"].items()
+                        if str(ex["old_options"].get(k)) != str(v)}
             rows.append({"task": c["task_id"], "type": t, "case_op": case_op, "n_changed": nch,
-                         "op": emitted_op, "rid": rid, "gold": ex["gold_new_item_id"], "hit": hit, "ir": ir})
+                         "op": emitted_op, "rid": rid, "gold": ex["gold_new_item_id"], "hit": hit, "ir": ir,
+                         "old_options": ex["old_options"], "gold_options": ex["gold_new_options"],
+                         "gold_set": gold_set, "emitted_set": (ir or {}).get("set")})
     f = lambda x: f"{x[0]}/{x[1]}({x[0]/max(x[1],1):.2f})"
     print(f"model={args.model} gloss={args.gloss} | items={n}")
     print(f"  overall new_item_id acc: {ok}/{n}({ok/max(n,1):.2f})")
