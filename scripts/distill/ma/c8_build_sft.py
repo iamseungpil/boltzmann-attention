@@ -1,25 +1,36 @@
 #!/usr/bin/env python3
 """C8 data builder (C8_PROCEDURE_ROUTING_TRANSFER_DESIGN_2026_06_17).
-Builds: (1) chat SFT JSONL teaching NL->op-IR routing for all 5 generators, GLOSS-FREE prompt
-(the routing must be learned in weights, not spoon-fed); (2) two eval sets — in-dist holdout
-(train seed, fresh examples = convergence sanity) and held-out (DIFFERENT seed = different attr
-tokens/schema = the transfer 'domain'). Because synth_depth re-isotropises every example (new
-random vocab per item), the SFT itself forbids vocab memorisation — so transfer to a new seed
-isolates pure procedure-type routing. SFT target = gold op_ir JSON; assistant-only loss via
-lora_train_chat_toolcall.py.
+Builds chat SFT JSONL teaching NL->op-IR routing for the 5 generators, GLOSS-FREE prompt by default
+(the routing must be learned in weights, not spoon-fed). Eval sets: in-dist holdout (train seed,
+fresh examples = convergence sanity) and held-out (DIFFERENT seed = different attr tokens/schema =
+the transfer 'domain'). synth_depth re-isotropises every example, so the SFT forbids vocab
+memorisation; transfer to a new seed isolates pure procedure-type routing. arm_B prompts carry NO
+catalog (only NL + attr names) so sequences are short and training is fast.
+
+Modes:
+  --mode eval  : write c8_eval_indist.jsonl + c8_eval_heldout.jsonl (shared across all variants)
+  --mode train : write ONE chat SFT file (--out) with options n / gloss_in_sft / cmp_heavy
 """
-import json, random, argparse
+import json, random, argparse, os
+from collections import Counter
 from synth_depth import gen_example, render_nl, OPS
 from depth_eval import build_arm_B_user
 
 
-def make_raw(seed, n, Ns, iso=1):
+def make_raw(seed, n, Ns, op_weights=None, iso=1):
+    """op_weights: dict op->relative weight (None=uniform). Builds a weighted op schedule."""
     rng = random.Random(seed)
     ops = list(OPS)
+    if op_weights:
+        sched = []
+        for op in ops:
+            sched += [op] * int(op_weights.get(op, 1))
+    else:
+        sched = ops
     out = []
     i = 0
     while len(out) < n:
-        op = ops[i % len(ops)]; N = Ns[i % len(Ns)]
+        op = sched[i % len(sched)]; N = Ns[i % len(Ns)]
         i += 1
         ex = gen_example(rng, iso, op, N)
         if ex is None:
@@ -46,27 +57,30 @@ def dump(path, rows):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
+    ap.add_argument("--mode", choices=["eval", "train"], required=True)
     ap.add_argument("--outdir", default="/home/woori/scratch/depth/c8")
-    ap.add_argument("--n_train", type=int, default=4000)
+    ap.add_argument("--out", default="", help="train mode: output jsonl path")
+    ap.add_argument("--n", type=int, default=3000)
     ap.add_argument("--n_eval", type=int, default=250)
     ap.add_argument("--train_seed", type=int, default=0)
     ap.add_argument("--heldout_seed", type=int, default=777)
     ap.add_argument("--Ns", default="5,10,20,50")
-    ap.add_argument("--gloss_in_sft", type=int, default=0, help="0=gloss-free SFT (transfer test); 1=ablation")
+    ap.add_argument("--gloss_in_sft", type=int, default=0, help="0=gloss-free (transfer); 1=gloss ablation")
+    ap.add_argument("--cmp_heavy", type=int, default=0, help="1=weight comparative 3x (others 1x)")
     args = ap.parse_args()
-    import os; os.makedirs(args.outdir, exist_ok=True)
+    os.makedirs(args.outdir, exist_ok=True)
     Ns = [int(x) for x in args.Ns.split(",")]
 
-    # train (seed 0) — chat SFT, gloss-free
-    train = make_raw(args.train_seed, args.n_train, Ns)
-    dump(f"{args.outdir}/c8_train_sft.jsonl", [to_chat(e, gloss=bool(args.gloss_in_sft)) for e in train])
-    # in-dist holdout = fresh examples from the SAME seed stream (convergence sanity)
-    indist = make_raw(args.train_seed + 1, args.n_eval, Ns)
-    dump(f"{args.outdir}/c8_eval_indist.jsonl", indist)
-    # held-out = DIFFERENT seed = different vocab/schema = transfer domain
-    heldout = make_raw(args.heldout_seed, args.n_eval, Ns)
-    dump(f"{args.outdir}/c8_eval_heldout.jsonl", heldout)
-    # per-op counts (balance check)
-    from collections import Counter
-    print("train ops:", dict(Counter(e["op"] for e in train)))
-    print("heldout ops:", dict(Counter(e["op"] for e in heldout)))
+    if args.mode == "eval":
+        indist = make_raw(args.train_seed + 1, args.n_eval, Ns)   # fresh, same seed-stream = convergence sanity
+        heldout = make_raw(args.heldout_seed, args.n_eval, Ns)     # different seed = new vocab/schema = transfer
+        dump(f"{args.outdir}/c8_eval_indist.jsonl", indist)
+        dump(f"{args.outdir}/c8_eval_heldout.jsonl", heldout)
+        print("indist ops:", dict(Counter(e["op"] for e in indist)))
+        print("heldout ops:", dict(Counter(e["op"] for e in heldout)))
+    else:
+        ow = {"comparative": 3} if args.cmp_heavy else None
+        train = make_raw(args.train_seed, args.n, Ns, op_weights=ow)
+        out = args.out or f"{args.outdir}/c8_train_sft.jsonl"
+        dump(out, [to_chat(e, gloss=bool(args.gloss_in_sft)) for e in train])
+        print("train ops:", dict(Counter(e["op"] for e in train)))
