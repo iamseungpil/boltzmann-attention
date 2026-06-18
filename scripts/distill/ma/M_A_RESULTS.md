@@ -432,3 +432,9 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **함의①**: facet 4(operand·hard multi-attr keep-rest) = **학습-전이 안 됨 → offload(§22 decomposition)**. theory-vs-리뷰어서 hard operand는 **리뷰어(offload) 편**.
 - **함의②(진단 필요)**: 내 facet3_native(0.19) < §21 MD_route op-IR(0.44) → 순수 native-실패 아니라 **synth_to_nativefc 데이터가 MD_route보다 좁을 가능성**. 분리 필요: 데이터 다양성 vs native 포맷 vs operand-비학습. (op-naming 자체는 native서 살아있음 §28·recognition 0.88.)
 - 정직: n 작음(32/27)·retail은 op 자명(전부 substitute)이라 operand가 차별점·airline 16→7 격차 큼.
+
+### 29-bis. ★정정 (사용자 교정) — retail 단일-op라 "recognition 중립" 무효·op-명명은 mixed-op서만 분석
+- **retail = 전부 substitute(1 op)** → recognition은 "항상 substitute 뱉기"로 trivially 높음·**op-*구분* 시험 아님**. §29의 "facet 3 native 중립" **철회**.
+- **op-명명 구분의 진짜 시험 = mixed-op만**: synth held-out 7-op(§28)=trained 1.00 vs base 0.76(양성·in-substrate)·τ² airline 2-op(substitute+create)=base recog **0.89 → trained 0.81**(약간 역전이·spurious comparative emit).
+- **정정된 게이트① 본질**: 학습본이 τ²서 *두 축 다 약하게 역전이* — op-구분(airline 0.89→0.81) + operand(new_item_id 크게↓·지배). = §17 reverse-transfer. synth 1.00(통제)이 τ² 보장 못 함.
+- **방법론 박제**: op-명명 전이를 real 벤치서 시험하려면 **mixed-op 벤치 필요**·τ²(retail) 단일-op라 부적합 → τ² 병목=operand(facet 4)·op-구분 시험은 synth(7-op)가 담당. (벤치-타당성: 단일-op 데이터로 op-명명 분석 금지.)
