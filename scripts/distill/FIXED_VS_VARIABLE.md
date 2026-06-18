@@ -19,9 +19,26 @@
 - Scaffold = **ONE 구현·per-bench 분기 0**(grep `if bench`/`if domain` = 0)·절대 per-bench 미수정.
 
 ## 2. ★변경 (VARIABLE) — swap되는 *유일한* 것 (데이터지 코드 아님)
-| | 정체 | 구성 |
-|---|---|---|
-| **ABox** | 구체(이 카탈로그·값·정책) | A1(도구 카탈로그·기계)·**A2(정책 NL→GATE_SPEC·유일 난제)**·A5(출력 문법)·vocabulary |
+**ABox = 도메인별 *구조화 config 데이터 묶음*** (§2bis가 실무 정의). 구체(이 카탈로그·값·정책). 코드 아님·DAG 아님·무거운 OWL 온톨로지 아님.
+
+## 2bis. ★★ABox 실무 정의 (고정·2026-06-18 — "ABox가 뭐냐" 재론 금지)
+ABox = **4개 typed 파트의 config 데이터**(JSON/dict). 벤치/도메인마다 *이것만* swap. 형태는 config/spec, 내용은 온톨로지-적(도구 affordance + 정책).
+
+| 파트 | 정체 | 구체 형태 | 생산(누가 만드나) | 실물 |
+|---|---|---|---|---|
+| **A1 도구 카탈로그** | 어떤 도구가 있나·인자·반환 | OpenAI function JSON schema 리스트 `[{name,params,description}]` | **기계추출**(벤치 도구정의) | τ² tools |
+| **A2 GATE_SPEC** | 정책(어느 도구가 어떤 사전조건·인증·확인·순서 필요) | **선언적 gate dict**: 각 gate=`{predicate, satisfiers:{tool→[inputs]}, applies_to:[gated tools], ask?/terminal?/note?}` | **정책 NL→spec 컴파일 = 유일 난제(A2 front-end)** | `tau2/t2_gate.py GATE_SPEC`(G1-G4 실재) |
+| **attr-type / vocab** | content-op용: 어느 attr이 ordinal/categorical·값 어휘 | dict `{attr: ord|cat}` + ORD_WORDS | 카탈로그서 도출(+소량 수동) | `tau2_op_resolver`(is_ordinal·ORD_WORDS) |
+| **A5 출력 문법** | 유효 도구/인자 디코딩 제약 | xgrammar grammar | **A1서 파생**(기계) | guided_json |
+
+**핵심**: 고정 scaffold(`GateInterpreter`·`render_recovery`)가 이 데이터를 *읽어* 게이트 집행·복구메시지 생성 — `t2_gate.py:38` 주석 명시 *"A2 컴파일 산출물(구조 데이터)... 새 도메인 = 이 spec만 컴파일하면 메시지·게이트가 따라옴(airline 무수정 작동이 검증 목표)."* ⇒ GATE_SPEC dict가 *바로 그 ABox A2*.
+
+**아닌 것 (혼동 금지)**:
+- **DAG/dirgraph ≠ ABox** — DAG는 *모델의 출력*(태스크별 절차)이지 ABox(읽는 사실)가 아님.
+- **무거운 OWL 온톨로지 아님** — 형태는 가벼운 config/spec(JSON dict).
+- **free-text 정책 아님** — A2는 정책 *프로즈*를 컴파일한 *구조 spec*(프롬프트 문자열 금지·`t2_gate.py:38`).
+
+**비용 분해(실무)**: A1·A5 = 기계(0 수동). attr-type = 소량. **재발 비용 본체 = A2(정책→GATE_SPEC) 컴파일** = front-end 자동화 타깃(airline/telecom 이미 Fable-5 **0줄** 컴파일·F1 장부 실측). 통일된 GateInterpreter는 이 데이터만 읽으므로 per-bench 코드=0.
 
 ## 3. ★전이의 정의
 **전이 ≡ ABox만 swap, TBox·Scaffold는 unchanged (재학습0·코드수정0).**

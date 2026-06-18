@@ -21,7 +21,7 @@
 |---|---|---|
 | **고정: TBox (LLM weights)** | 𝔤-식별 = **NL→formalize**(4 facet)+환원불가 추론 | 1회 학습 후 **FROZEN** |
 | **고정: Scaffold (결정론 엔진 코드)** | 군-실행 = **GateInterpreter**(GATE_SPEC 해석)·resolve·per-step verify·step-orchestrator·**per-bench 분기 0** | 학습 아님·절대 미수정 |
-| **변경: ABox (데이터)** | 구체 = A1(카탈로그)·**A2(정책 NL→GATE_SPEC·유일 난제)**·A5(문법)·vocab | per-bench **swap** |
+| **변경: ABox (데이터)** | 구체 = A1(카탈로그)·**A2(정책 NL→GATE_SPEC·유일 난제)**·A5(문법)·attr-type/vocab. **실무 정의 = `FIXED_VS_VARIABLE §2bis`**(config 데이터·DAG 아님·온톨로지 아님·GATE_SPEC dict가 실물) | per-bench **swap** |
 
 - **NL→formalize 4 facet** (LLM이 *intensional* selector emit·concrete 아님): (1) flow-타입/순서[SOPBench]·(2) data-flow threading[TaskBench]·(3) content op-명명[Synth]·(4) operand formalize(attr/set·keep-rest)[Synth/CFB]. ("오케스트레이션"=facet 1뿐.)
 - **offload 경계 = 둘**: ①스텝내부 typed-selector[LLM] │ concrete-resolution+assembly+deep-exec[엔진] ②스텝사이 결합 verdict→emit/defer(decidable-비율 측정).
