@@ -395,3 +395,12 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **전략**: offline 잔여 추격 중단(점점 작은 슬라이스). **통합 offload 1회 구현→e2e 측정**이 탑(fabrication+GBW+width)을 한 번에 무너뜨림.
 - **wide-학습 폐기 근거 재확인(§23D)**: binding을 모델에 학습시키면 routing 퇴행(트레이드오프). offload는 routing-clean 모델 위에서 재학습0으로 회복(§22)=트레이드오프 회피. ⇒ **학습 말고 offload.**
 - 설계 = `UNIFIED_OFFLOAD_DESIGN_2026_06_18.md`(아래).
+
+## 27. ★★★정정 (2026-06-18) — §25-26·UNIFIED는 표류·order_id 날조 = *기존* P2b/P1 벽 (권위본 재독 후)
+> 사용자 교정: P9·R8 필수 결론을 재론(원점회귀)하지 말 것. THESIS_STATEMENT·NL_PROCEDURE_OFFLOAD_THEORY·PRIMITIVE_COVERAGE_MATRIX 재독 후 정정.
+
+- **§24-25 "발견"(order_id `#W0000001` 날조→collapse)은 신규 아님 = `PRIMITIVE_COVERAGE_MATRIX §3`(2026-06-15·`tau2_rootcause_census.py`)서 이미 확립된 P2b 'fetchable 값 날조-FIRST'(17/20·스키마 example 복사)**. 처방도 이미 = **R1b provenance(arg∈{user,tool}·스키마-example 거부)+fetch-first**([[R1B_PROVENANCE_DESIGN_2026_06_14]]).
+- **UNIFIED_OFFLOAD_DESIGN = 폐기(표류)**: base 7B + 손-짠 bespoke resolver·학습0 = thesis의 **학습-leg(P1-P9 도메인일반)·전이-leg(ABox-swap) 둘 다 버림**. thesis는 "**P1-P9·생성원 어휘를 *학습*·ABox로 사실제공·결정론은 decidable·전이=ABox-swap**"(THESIS §1-3). bespoke는 그 정반대.
+- **이번 세션 결과의 *올바른* 자리**: §17(content 생성원 𝔤 완성·P4-content)·§21(**𝔤-식별 학습·전이=C8 양성**·heldout 1.00·도메인일반=thesis 예측 적중)·§22-23(실행=offload·명명만 학습·wide-train 퇴행이 "execution 학습 금지" 확증)·§24-25(=기존 P2b/P1·신규 아님). **전부 이론 정합·이론이 예측한 것**.
+- **올바른 다음(bespoke 아님)**: 확립된 프로그램 진행 — **P2b(R1b provenance·fetch-first)·P6(confirm)·P7(recovery)를 도메인-일반 *학습* + content 생성원 + ABox-swap 전이 검증**(THESIS §7 증명경로). agent_collapse는 P2b 학습으로 닫고, GBW/width는 §21-22(명명 학습+실행 offload)로. **e2e 통합 = P-primitive 학습된 모델 + 결정론 실행·ABox config**(손-짜기 아님).
+- 교훈(박제): 권위본 먼저 grep([[feedback_check_authority_before_rederive]])·"하나 풀면 다음" peeling을 *새 발견*으로 격상 말 것·각 벽을 P1-P9에 매핑부터.

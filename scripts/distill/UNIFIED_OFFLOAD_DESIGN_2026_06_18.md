@@ -1,4 +1,6 @@
-# Unified Concrete-Value Offload — τ² e2e (2026-06-18)
+> ⛔ **DEPRECATED (2026-06-18·표류) — `M_A_RESULTS §27` 참조.** 이 설계(base 7B + 손-짠 τ²-bespoke resolver·학습0)는 thesis의 **학습-leg(P1-P9 도메인일반)·전이-leg(ABox-swap)을 둘 다 버린 회귀**. order_id 날조는 신규 아님 = `PRIMITIVE_COVERAGE_MATRIX §3`의 기존 **P2b/P1 날조-FIRST**(처방=R1b provenance·*학습*). 아키텍처 골격(referent 도구·staged 수집·per-attr decomp)은 **결정론 실행-leg**으로는 재사용 가능하나, **반드시 (i)학습된 P1-P9 𝔤-식별 + (ii)ABox-config 자동도출 resolver**와 결합해야 thesis. 단독 bespoke는 폐기.
+
+# Unified Concrete-Value Offload — τ² e2e (2026-06-18) [DEPRECATED]
 
 > 권위 = `ma/M_A_RESULTS.md §19-26`. 불변 = `feedback-nl-formalize-llm-selection-deterministic`·`feedback-selector-verifier-deterministic`·`feedback-thesis-tbox-transfer-direction`.
 
