@@ -91,6 +91,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--save-every", type=int, default=0,
                    help="save adapter+optimizer state every N optimizer steps "
                         "(preemption-safe resume; 0=off)")
+    p.add_argument("--ckpt-steps", type=int, default=0,
+                   help="ALSO save a NUMBERED, eval-able adapter snapshot to "
+                        "<out-dir>/step{opt_step}/ every N optimizer steps (0=off). "
+                        "Lets us pick the checkpoint before overfit/forgetting sets in.")
     p.add_argument("--init-adapter", default=None,
                    help="path to an existing LoRA adapter dir to warm-start from "
                         "(must match lora-r/alpha/target)")
@@ -364,9 +368,14 @@ def main() -> int:
             (out.loss / args.grad_accum).backward()
             if (step + 1) % args.grad_accum == 0:
                 optim.step(); optim.zero_grad()
-                if args.save_every and \
-                        ((step + 1) // args.grad_accum) % args.save_every == 0:
+                opt_step = (step + 1) // args.grad_accum
+                if args.save_every and opt_step % args.save_every == 0:
                     _save_ckpt(epoch, step)
+                if args.ckpt_steps and opt_step % args.ckpt_steps == 0:
+                    snap = out_dir / f"step{opt_step}"
+                    model.save_pretrained(str(snap)); tok.save_pretrained(str(snap))
+                    print(f"  [snap] eval-able ckpt ep{epoch} opt_step{opt_step} -> {snap}",
+                          flush=True)
             tot += out.loss.item(); n += 1
             if step % args.log_every == 0:
                 _el = time.time() - _t0
