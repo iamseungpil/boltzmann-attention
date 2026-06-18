@@ -1,5 +1,7 @@
 # 통합 TBox 설계 (2026-06-18) — 4벤치(SOPBench+TaskBench+CFB+Synth) = 분해된 멀티-스페셜리스트 NL→formalize
 
+> ★★★ **v2 전환 (2026-06-18 PM · C0 실측 · 사용자 결정)**: **분해 멀티-스페셜리스트 → 단독 통합 LoRA**(SOP+TaskBench+Synth content-op · **CFB 폐기**). 근거: facet3 *단독* 어댑터가 τ² 전체 e2e 맥락서 resolve_selection **0회 호출**(synth 격리선 §28 1.00) = 맥락 불일치. **폐기: step-orchestrator·route·combine·decidable-비율**(아래 §5). **유지: operand offload(§23D)·GateInterpreter·resolve wiring·고정/변경 경계·실 e2e 측정.** 구현 권위 = `INTEGRATED_SCAFFOLD_IMPL_DESIGN_2026_06_18.md (v2)`·메모리 `06-NOW`. ↓ 아래 §5 분해 내용 = *이력*(폐기됨).
+
 > ★아키텍처 = 단일 merged LoRA 폐기. per-bench 스페셜리스트 LoRA(기존 자산) + 얽힌 결정의 typed-스텝 분해 + 결합(결정론 우선·잔여만 consensus LoRA) + 결정론 offload + ABox-swap. "통합"=weight 머지 아니라 *분해 협업*. (§5가 핵심.)
 > ⚠️ **용어 정정(2026-06-18)**: LLM의 역할 = **NL→formalize(4 facet) + 환원불가 추론**이지 "오케스트레이션"이 아님. 오케스트레이션(순서)은 facet 하나뿐. §1.5 필독.
 > ★★고정/변경 경계 = **`FIXED_VS_VARIABLE.md`(단일 권위)·메모리 `05-fixed-vs-variable`**: 고정={TBox weights + Scaffold 엔진}·변경={ABox}만. ⚠️ 현 `tau2/t2_gate.py RetailGate`=retail 하드코딩=**위반** → `GateInterpreter(gate_spec)` 통일이 *선행* keystone(전이 주장의 전제). resolve_selection/provenance/gate = 그 *고정 엔진*의 일부.
