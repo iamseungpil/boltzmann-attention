@@ -39,7 +39,7 @@
 
 0. **★소형 모델이 우리 *바로 그* τ²-bench서 GPT-5를 추월(80.2% vs 77.7%)·~1/3 비용** = **ToolOrchestra 2511.21689** (monolithic 8B RL). ⇒ ★**"소형이 대형 tool-use 성능 도달"은 우리 헤드라인이 될 수 없다 — monolithic-learned로 이미 됨, 그것도 우리 벤치에서.** 우리 차별은 *결과*가 아니라 *방식*(아래 §6).
 1. **NL 정책 → 형식제약 → 런타임 결정론 게이트가 위반 차단·정확도 유지 (τ-bench airline)** = **2603.20449**. ⇒ 우리 **GateInterpreter의 gate-compliance leg는 novelty 아님 = 재현.** "게이트가 작동함" 단독 실험 불요.
-2. **LLM=NL→형식 + 결정론 symbolic engine + verify/swap 형식 KB + 결정론 + injection 면역** = **ATA 2510.16381**. ⇒ 이 *framing*은 이미 실증됨(단 단발 보험 reasoning·자동은 대형 *못* 넘고 human-KB만 넘음·도메인마다 KB 재구축 = 우리 델타 여지 §4).
+2. **"LLM은 NL→형식화, 건전 판단은 결정론/기호"라는 신경-기호 *분업 원리*** = **ATA 2510.16381**(+LLM-Modulo·neurosymbolic). ⇒ 이 *원리*는 이미 확립됨 = **우리 발명 아님·헤드라인 못 함**(운영 방법은 전혀 다름·§4 가). 단발 보험 reasoning·자동은 대형 못넘음(human-KB만)·KB 재구축.
 3. **calibrated-threshold deferral이 대형 품질을 일부 비용에 달성** = **ReDAct 2604.07036**. ⇒ "불확실하면 미루기·calibration"은 확정.
 4. **결정론 monitor→diagnose→recover→verify 루프가 cascade 오류 대부분 복구** = **Self-Healing 2606.01416** + **AgentDebug 2509.25370**. ⇒ 우리 facet_check→regen·오차교정 결합은 *패턴으로 확정*.
 5. **selective-classification 게이밍 + 사전 threshold + 다중-threshold 곡선(AUGRC) 규율** = **Traub 2407.01032**. ⇒ 측정 방법론 확정 = 채택만(발명 아님). 우리 decidable-비율 = AUGRC식 곡선으로 보고.
@@ -47,18 +47,29 @@
 
 ---
 
-## 4. 버킷 B — 유사하나 실제 델타 있음 (논문서 델타 *명시* 필수)
+## 4. ★방법적으로 닮은 선행 = 없다 (정정 2026-06-18·사용자 교정)
 
-**vs 2603.20449 (gate-leg 최근접·검증)** — 같은 NL→형식→런타임 게이트·같은 τ-bench. 단 **airline만·게이트 compliance만·정책 human-번역·전이 없음·decidable-비율 미측정**.
-- 우리 델타: (a) 그들은 **게이트 compliance only** — 우리는 + content-op resolve(argmax/substitute) + threading + 학습 라우팅. (b) **유한 typed-gate kind 폐포**(P5/P6/P8) vs 임의 per-policy SMT. (c) **ABox-swap 무재학습 전이** vs 정책마다 human SMT 번역(= 우리가 없애려는 A2 비용·그들 한계로 명시됨).
-- ⚠️ 정직: gate-leg 자체("게이트가 위반 줄임 on τ-bench")는 그들 것 = 인용. 우리는 "게이트는 한 facet일 뿐 + 더 일반·전이·content-op 포함"으로 포지셔닝.
+이전 판의 "유사하나 델타 있음" 프레이밍은 **틀렸다.** 정독 결과 **운영 방법이 우리와 닮은 선행은 하나도 없다.** 선행은 *부분*만 겹치고, 4종으로 분류된다 — **어느 것도 방법 쌍둥이 아님**:
 
-**vs ATA 2510.16381 (framing 최근접·검증)** — 같은 "LLM→형식 + 결정론 엔진 + verify/swap KB + 결정론." 단 **단발 보험청구 reasoning(tool-use 아님)·자동은 대형 못넘음(72.94<76.50)·human-KB만 추월·도메인마다 KB 재구축·decidable-비율 미측정**.
-- 우리 델타: (a) **학습된 content-op 라우팅이 *전이*함**(§21) — ATA는 순수 encode-then-solve. (b) **멀티턴 tool-use 벤치**(ATA=단발 claims). (c) **decidable-비율 *측정***. (d) **ABox-swap 무재학습**(ATA=KB 재구축·human 보정). (e) **완전 자동서 우위**(ATA 자동은 대형 못넘음).
-- ⚠️ (a)가 실재 델타이려면 *학습 라우팅이 순수 encode 대비 가치 더함*을 보여야 → C0 실험.
+**(가) 원리-족보만 공유 (방법 ❌·*원리*만)** — ATA `2510.16381`·LLM-Modulo `2402.01817`·neurosymbolic `2502.17216`·Solver-gate `2603.20449`.
+- 공유 = **"LLM은 NL→형식화, 건전 판단은 결정론/기호"라는 신경-기호 *분업 원리* 한 줄.** 그게 전부. 운영은 전부 다름(ATA=프롬프트 encoder+100% 기호 솔버+단발 청구+KB 재구축 / 우리=SFT 학습 에이전트+멀티턴 도구행동+결정론은 인자/게이트만+ABox-swap).
+- ⇒ 인용 이유 = **"분업 *원리*는 우리 발명 아님(가족 것)"을 정직하게 자리매김**. 방법 경쟁 아님. **원리는 헤드라인 못 함·구현만 우리 것.**
 
-**vs ReDAct 2604.07036** — 둘 다 calibrated-threshold defer.
-- 우리 델타: 우리는 **결정론 엔진으로 defer(decidability)**·그들은 **대형 모델로 defer(cost)**. META_DECIDE의 defer 대상이 모델이 아니라 엔진.
+**(나) 결과·벤치 baseline만 겹침 (방법 ❌·*결과*만)** — ToolOrchestra `2511.21689`.
+- 공유 = τ²서 "소형 싸게 대형 추월" *결과* + 벤치. 방법 무관(RL model-selection = 모델 중 택일·우리는 객체-수준 도메인 도구호출).
+- ⇒ 인용 이유 = "소형>대형은 됐다" 헤드라인 방어용 한 줄. **방법 차별 노력 쓰지 말 것**(다른 문제).
+
+**(다) 구조적 사촌 — 구별 필요 (방법 ❌·*구조*만)** — Schema-Guided Dialogue(Rastogi 2020)·Voyager `2305.16291`.
+- SGD = 유한 act + schema로 미관측 서비스 전이(구조 사촌) — 단 **DST이지 tool-use planning 아님·act=고정 annotation(닫힘증명 없음)·*학습 전이 기저* 아님.** Voyager = *열린* skill library(무한·도메인특정·우리와 반대).
+- ⇒ reviewer가 "이거랑 같지 않냐" 1순위 → **명시 구별만**.
+
+**(라) 도구로 채택 (우리가 빌려 씀)** — Traub `2407.01032`(측정=AUGRC 곡선)·Codd 1972/Böhm-Jacopini 1966(closure 수학)·Description Logic TBox/ABox(용어 분리·단 그들=손작성 symbolic·우리=*학습* TBox).
+- ⇒ 발명 말고 채택·인용.
+
+**★결론**: 우리 구현 — *유한 생성원 기저를 학습해 벤치 횡단 ABox-swap 전이 + 멀티턴 tool-use 에이전트 + 결정론 offload* — 과 방법이 겹치는 선행은 **없음**. 비어 있는 칸. (단 §4.5 불편한 진실: 그 빈칸의 *핵심 학습-전이*가 아직 미증명.)
+
+### 4.1 벤치 현실 (τ² = 우리 포트폴리오 중 하나일 뿐)
+- rival들은 τ²/τ-bench를 *주 타깃*으로 씀(ToolOrchestra·2603.20449 airline). **우리는 τ²가 SOPBench+TaskBench+CFB+Synth*에 더해진* 하나** — 벤치 횡단 포트폴리오 자체가 우리 셋업이고, **그 포트폴리오를 가로지르는 단일 시스템 = 어떤 rival도 없음.** ⇒ "같은 벤치" 겹침도 부분적(우리=다벤치·그들=단벤치). 벤치-횡단이 차별의 일부.
 
 ---
 
