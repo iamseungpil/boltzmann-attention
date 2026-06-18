@@ -502,3 +502,19 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - spurious_key(trained 10/base 2) = trained 역전이 아티팩트(좁은 synth·§29-30).
 - **도메인 분리**: retail 실패=under-extraction(decomp)·airline 실패=**wrong-value-selection(decomp/snap 둘다 못고침)**. = airline single-attr cabin이라 누락 없고 값 오독.
 - **★확정 결론**: operand 잔여 = (i)under-extraction→**decomp** (ii)wrong-value-selection→**neither(순수 formalize 정확도·NL 값 정확히 읽기)** (iii)snap=무시. **"decomp+snap만"=거짓·제3원인(값-선택 정확도)이 airline 지배.** = facet-4의 진짜 hard core는 *값-comprehension*(offload 불가·formalize)·decomp는 retail under-extraction만.
+
+## 33. ★확정 — width×scale(under-extraction) 전체표 (어제 openrouter 스케일 결과 finalize·n=100/width)
+| 모델 | w1 | w2 | w3 | w4 | w5 | decomp w1/w4 |
+|---|---|---|---|---|---|---|
+| 1.5B | 0 | 0 | 0 | 0 | 0 | 0.11/0(포맷붕괴) |
+| 3B | 0.74 | 0.81 | 0.71 | 0.72 | 0.66 | 0.68/0.68 |
+| 7B | 0.66 | 0.64 | 0.52 | 0.51 | 0.56 | 0.33/0.87 |
+| 14B | 0.88 | 0.75 | 0.62 | 0.62 | 0.77 | 0.98/1.00 |
+| qwen-7b | 0.63 | 0.70 | 0.43 | 0.50 | 0.50 | 0.23/0.65 |
+| llama-8b | 0.78 | 0.75 | 0.52 | 0.65 | 0.43 | 0.15/0.18(실패) |
+| gpt-4o-mini | 0.65 | 0.75 | 0.62 | 0.55 | 0.62 | 0.83/0.70 |
+| **gpt-4.1** | 0.88 | 0.93 | 0.80 | 0.82 | 0.95 | —(평탄·벽없음) |
+
+- **확정**: under-extraction = **소형 조건부**(frontier gpt-4.1 평탄 0.80-0.95·미만 하락)·decomp capable만 회복(7B 0.87·14B 1.0·llama-8b 실패 0.18=모델별).
+- ⚠️ **미완(정직)**: 계획된 **llama-70b·qwen-72b·gpt-4.1-mini·mistral 미완료**(width 파일 없음) → frontier 단일점(gpt-4.1)+하락추세만·중간 스케일곡선 비어있음. 14B 비단조(noisy).
+- ⚠️ **scope**: under-extraction(synth width) 축뿐 — **airline keep-rest/wrong-value(§32)와 무관**(별 실험 필요).
