@@ -1,0 +1,845 @@
+{
+  "model": "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+  "gloss": 1,
+  "overall": [
+    19,
+    27
+  ],
+  "recognition": [
+    27,
+    27
+  ],
+  "by_type": {
+    "substitute": [
+      15,
+      17
+    ],
+    "create": [
+      4,
+      10
+    ]
+  },
+  "op_dist": {
+    "substitute": 17,
+    "create": 10
+  },
+  "rows": [
+    {
+      "task": "7",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "basic_economy",
+      "gold": "business",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "basic_economy",
+        "set": {
+          "cabin": "basic_economy"
+        },
+        "attr": "cabin",
+        "among": {
+          "cabin": "basic_economy"
+        }
+      },
+      "old_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "basic_economy"
+      }
+    },
+    {
+      "task": "8",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": null,
+      "gold": "economy",
+      "hit": 0,
+      "ir": {
+        "op": "create",
+        "set": {
+          "cabin": "economy",
+          "origin": "ORD",
+          "destination": "PHL",
+          "date": "May 26",
+          "flight_type": "one-way"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy",
+        "origin": "ORD",
+        "destination": "PHL",
+        "date": "May 26",
+        "flight_type": "one-way"
+      }
+    },
+    {
+      "task": "11",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "business",
+      "gold": "basic_economy",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "business",
+        "set": {
+          "cabin": "business"
+        },
+        "among": {
+          "cabin": "business"
+        }
+      },
+      "old_options": {
+        "cabin": "business"
+      },
+      "gold_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_set": {
+        "cabin": "basic_economy"
+      },
+      "emitted_set": {
+        "cabin": "business"
+      }
+    },
+    {
+      "task": "14",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": "basic_economy",
+      "gold": "business",
+      "hit": 0,
+      "ir": {
+        "op": "create",
+        "set": {
+          "cabin": "basic_economy"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "basic_economy"
+      }
+    },
+    {
+      "task": "15",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "business",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "business"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "16",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "business",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "business"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "17",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "basic_economy",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "18",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "business",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "business"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "18",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "business",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "business"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "18",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "business",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "business"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "18",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "business",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "business"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "18",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "business",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "business"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "20",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": null,
+      "gold": "economy",
+      "hit": 0,
+      "ir": {
+        "op": "create",
+        "set": {
+          "cabin": "economy",
+          "origin": "New York",
+          "destination": "Seattle",
+          "date": "May 20",
+          "direction": "one way"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy",
+        "origin": "New York",
+        "destination": "Seattle",
+        "date": "May 20",
+        "direction": "one way"
+      }
+    },
+    {
+      "task": "22",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "basic_economy",
+        "set": {
+          "cabin": "economy",
+          "checked_bags": 3
+        }
+      },
+      "old_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy",
+        "checked_bags": 3
+      }
+    },
+    {
+      "task": "23",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": "business",
+      "gold": "business",
+      "hit": 1,
+      "ir": {
+        "op": "create",
+        "set": {
+          "cabin": "business"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "business"
+      }
+    },
+    {
+      "task": "23",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": "business",
+      "gold": "business",
+      "hit": 1,
+      "ir": {
+        "op": "create",
+        "set": {
+          "cabin": "business"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "business"
+      }
+    },
+    {
+      "task": "23",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": "business",
+      "gold": "business",
+      "hit": 1,
+      "ir": {
+        "op": "create",
+        "set": {
+          "cabin": "business"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "business"
+      }
+    },
+    {
+      "task": "24",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": "economy",
+      "gold": "basic_economy",
+      "hit": 0,
+      "ir": {
+        "op": "create",
+        "attr": "cabin",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_set": {
+        "cabin": "basic_economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "25",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "create",
+        "set": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "29",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": null,
+      "gold": "economy",
+      "hit": 0,
+      "ir": {
+        "op": "create",
+        "attr": "cabin",
+        "set": {
+          "origin": "DTW",
+          "destination": "JFK",
+          "return_origin": "JFK",
+          "return_destination": "DTW",
+          "nonstop": true,
+          "cabin": "economy"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "origin": "DTW",
+        "destination": "JFK",
+        "return_origin": "JFK",
+        "return_destination": "DTW",
+        "nonstop": true,
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "32",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "basic_economy",
+        "set": {
+          "cabin": "economy"
+        },
+        "among": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "32",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "economy",
+      "gold": "economy",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "basic_economy",
+        "set": {
+          "cabin": "economy"
+        },
+        "among": {
+          "cabin": "economy"
+        }
+      },
+      "old_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy"
+      }
+    },
+    {
+      "task": "35",
+      "type": "create",
+      "case_op": "create",
+      "n_changed": 1,
+      "op": "create",
+      "rid": null,
+      "gold": "economy",
+      "hit": 0,
+      "ir": {
+        "op": "create",
+        "set": {
+          "cabin": "economy",
+          "origin": "JFK",
+          "destination": "SFO",
+          "date": "May 24"
+        }
+      },
+      "old_options": {},
+      "gold_options": {
+        "cabin": "economy"
+      },
+      "gold_set": {
+        "cabin": "economy"
+      },
+      "emitted_set": {
+        "cabin": "economy",
+        "origin": "JFK",
+        "destination": "SFO",
+        "date": "May 24"
+      }
+    },
+    {
+      "task": "37",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "business",
+      "gold": "business",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "M20IZO",
+        "set": {
+          "cabin": "business"
+        }
+      },
+      "old_options": {
+        "cabin": "economy"
+      },
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "business"
+      }
+    },
+    {
+      "task": "44",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "business",
+      "gold": "business",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "basic_economy",
+        "set": {
+          "cabin": "business"
+        }
+      },
+      "old_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "business"
+      }
+    },
+    {
+      "task": "44",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "business",
+      "gold": "business",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "basic_economy",
+        "set": {
+          "cabin": "business"
+        }
+      },
+      "old_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "business"
+      }
+    },
+    {
+      "task": "44",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "business",
+      "gold": "business",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "attr": "cabin",
+        "anchor_id": "basic_economy",
+        "set": {
+          "cabin": "business"
+        }
+      },
+      "old_options": {
+        "cabin": "basic_economy"
+      },
+      "gold_options": {
+        "cabin": "business"
+      },
+      "gold_set": {
+        "cabin": "business"
+      },
+      "emitted_set": {
+        "cabin": "business"
+      }
+    }
+  ]
+}
