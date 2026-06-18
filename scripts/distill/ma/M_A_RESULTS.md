@@ -483,3 +483,22 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - diversity는 **op-routing recognition을 올리나 τ² new_item_id는 operand에 캡**(§23C). = 다양성≠operand 해결.
 
 **★결론(operand 문제의 *이미-확정* 답·§22-23)**: operand = (1)과소추출=**decomposition-offload 회복**(per-attr·§22·width 0.51→0.87) (2)값 enum-정규화=**offload 스냅**(§23B) (3)monolithic 학습=**퇴행**(§23D=§29-30) (4)diversity=**캡**(§23C) (5)scale=frontier native·소형은 decomp(§22). **§29-30(facet-3 native)은 §23D를 native서 재확인한 것·신규 아님.** ⇒ 처방 확정: **per-attr 명명(decomp·monolithic 학습 금지) + 엔진 enum-스냅.** 재유도 말 것.
+
+## 32. ★★★operand 잔여원인 *전수확정* (enum-snap 시뮬레이션·`tau2_operand_cause_confirm.py`) — "decomp+snap만"은 거짓·제3원인=wrong-value-selection
+> 사용자 교정: "decomp+snap만 남았나"를 *주장* 말고 *시뮬*로 확인. enum-snap을 실제 적용해 재해결→잔여 전수분류.
+
+| 원인 | base retail | base airline | trained retail | trained airline |
+|---|---|---|---|---|
+| already_ok | 11 | 16 | 6 | 7 |
+| needs_DECOMP(과소추출) | **13** | 0 | 13 | 0 |
+| **RESIDUAL_OTHER(틀린값 선택)** | 3 | **8** | 0 | **7** |
+| spurious_key | 2 | 0 | 10 | 10 |
+| **SNAP_FIXES** | **1** | 0 | 1 | 0 |
+| op_wrong | 2 | 3 | 2 | 3 |
+
+- **★enum-snap = 거의 0(1)**: §30/§31 "snap이 원인2(정규화) 푼다" **정정/철회** — 값들은 exact거나 *유효하지만 틀린* 값이라 snap 무용. **snap은 레버 아님.**
+- **under-extraction(decomp) = retail 13**(base=trained 동일·진짜 operand 난점·multi-attr keep-rest). decomp가 답(§22).
+- **★RESIDUAL_OTHER = 제3원인(사용자 의심 적중)**: `retail length "31 inch"→gold "28 inch"·airline cabin "cancel"→gold "business"` = **유효 enum인데 틀린값·NL 값 오독**. snap 못고침(유효)·decomp 못고침(누락 아님)·**offload 아님(값이 NL에 있음·모델 오독) = 순수 formalize 정확도 잔여.** airline 8(지배)·retail 3.
+- spurious_key(trained 10/base 2) = trained 역전이 아티팩트(좁은 synth·§29-30).
+- **도메인 분리**: retail 실패=under-extraction(decomp)·airline 실패=**wrong-value-selection(decomp/snap 둘다 못고침)**. = airline single-attr cabin이라 누락 없고 값 오독.
+- **★확정 결론**: operand 잔여 = (i)under-extraction→**decomp** (ii)wrong-value-selection→**neither(순수 formalize 정확도·NL 값 정확히 읽기)** (iii)snap=무시. **"decomp+snap만"=거짓·제3원인(값-선택 정확도)이 airline 지배.** = facet-4의 진짜 hard core는 *값-comprehension*(offload 불가·formalize)·decomp는 retail under-extraction만.
