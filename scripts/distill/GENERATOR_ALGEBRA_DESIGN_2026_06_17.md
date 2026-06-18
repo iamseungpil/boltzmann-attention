@@ -87,3 +87,11 @@ tool-use 절차 = 두 직교 축의 생성원으로 분해:
 - **처방**: 도메인-일반 derivation 도구(date-resolver·unit-convert·calculator)를 **scaffold/엔진 제공**→모델은 *계산 안 함*·P2b 호출만(offload thesis 정합·LLM=명명/결정론=실행).
 - **CFB value_error 진단**: CFB는 derivation 도구 *미제공*→모델 직접계산 강요→실패. 처방=도구 scaffold 추가시 P2b로 풀림.
 - anti-targeting 안전: calculator/date-resolver=도메인-일반(retail 특화 아님).
+
+## 10. ★flow 축 = 추상화(학습) vs 집행(scaffold) 분리 + 전이 가설 (2026-06-19 추가)
+> §0 flow 축(P1-P9)의 *학습가능성* 관점. 상세·실험 = `CLOSURE_PAYOFF_EXPERIMENT_DESIGN_2026_06_18.md §4.7`. 근거 = `PRIMITIVE_COVERAGE_MATRIX:29`(모델=coverage 학습/게이트=soundness 집행).
+
+flow도 content처럼 **도메인-일반 추상화(학습 TBox) + 구체술어 집행(결정론 게이트/ABox)**로 갈린다 — "flow=전부 scaffold"는 *인식/구조*(학습)와 *평가/집행*(결정론)의 혼동:
+- **추상화(학습·도메인일반·A1-A7)** = 선행/provenance/의존 *규율의 SHAPE*: A1 provenance·A2 gather-before-use·A3 identity-before-scoped·A4 dependency-order·A5 confirm-before-write·A6 precond-recognition·A7 recovery. 모델이 "이 action 타입엔 *어떤 타입*의 선행이·어느 순서로 필요한가"를 학습(coverage).
+- **집행(결정론·ABox)** = "그 구체 선행이 *지금 충족됐나*"(G1-G4 평가) + 구체 술어테이블(gate_spec)·의존그래프(catalog). A6 예: 모델=정책선행 *인식+gather*(학습)/게이트=*충족 평가*(결정론). (앞 "gate=LOCK 학습불가"는 *평가* 한정·인식/구조는 학습.)
+- **★전이 가설(sharp·falsifiable)**: 추상규칙이 *순수 구조적*이면 전이(A1=provenance·도메인무관·`PRIMITIVE_MATRIX:72` ✓!검증)·*도메인-의미 인식*을 요하면 미전이(A2=어느 getter가 필요값 생산=R4 의미층·v7 전이실패). ⇒ **"계획-규칙 추상화 전이"는 *순수구조 facet*으로 좁히되 살림**(flow에 학습-전이 추상화 A1+ 실재 → 학습-전이=content-op뿐 아님). *어느 A_k가 전이하나*=`CLOSURE_PAYOFF §5` primitive별 측정 대상.

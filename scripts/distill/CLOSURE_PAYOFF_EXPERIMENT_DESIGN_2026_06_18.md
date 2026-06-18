@@ -46,12 +46,30 @@
 - **contamination 0**: held-out 벤치·도메인은 학습서 제외.
 - **★scaffold vs weight 분리 (헤드라인 폭 결정·매트릭스보다 *먼저*)**: flow 전이가 결정론 scaffold가 나르는지(전수본 adapter held-out≈0·`SOP:583`) vs 학습 weight인지 *분리 측정*(adapter-only arm). **flow가 scaffold면 "*학습된* 규칙추상화 전이"는 content-op(resolve_selection)로 좁혀진다** → 헤드라인을 미리 줄여 정직하게: "학습=content-op 추상화(관계대수-확장 selection 명명), flow=closure-정당화 결정론 scaffold." 이 분리를 §5 매트릭스 전에 해야 무엇을 주장할지 정해짐(위험: content-op의 *학습된* 전이조차 실 e2e 미입증 — §6 S0).
 
-## 5. 다벤치 전이 매트릭스 (cross-bench = schema-guided DST와 차별점)
+## 4.7 ★flow 추상화 = A1-A7 (학습) vs 집행/평가 (scaffold) — "flow=scaffold" 뭉뚱그림 해소
+**정정(2026-06-19)**: 앞 §4가 "flow=scaffold"로 뭉갠 건 *인식/구조(추상화·학습)*와 *평가/집행(결정론)*을 혼동한 것. `PRIMITIVE_COVERAGE_MATRIX:29` = **모델=coverage(학습)/게이트=soundness(집행)** 분리. flow에 *학습가능 도메인-일반 추상화*가 실재 → "학습-전이=content-op뿐"(위험4)은 *부분* 완화.
+
+**일반화 flow-TBox (도메인-일반 *규율*·학습 / 구체 술어·평가=ABox+게이트·벤치 횡단 구성)**:
+| # | 추상 규칙(TBox·학습) | P-prim·벤치 | ABox/scaffold(도메인특정) | 전이 실태 |
+|---|---|---|---|---|
+| **A1** | provenance: 인자값∈{user,상류출력}·날조금지 | P1·전벤치 | 어느 tool이 어느 값 생산 | ✅ **전이 검증(단독)** |
+| **A2** | gather-before-use: 없는 값→생산 getter 먼저 bind | P2a/b·CFB/τ² | 어느 getter·필드 | ❌ v7 전이실패(R4 의미층) |
+| **A3** | identity-before-scoped: user-scoped는 신원 선행 | P8·SOP/τ² | 어느 auth·scope | ◐ in-dist |
+| **A4** | dependency-order: produce→consume 순서·독립 병렬 | P3/P9·TaskBench | 구체 의존그래프 | ◐ in-dist(graph-F1) |
+| **A5** | confirm-before-irreversible: write 전 confirm | P6·τ²/SOP | 어느 action 비가역 | ◐ task17 전이실패 |
+| **A6** | precond-recognition: 정책-선행 action은 선행값 gather 후 호출 | P5·SOP/τ² | 정책 술어(gate_spec) | ◐ in-dist |
+| **A7** | recovery-on-deny: deny/error→re-gather/ask·무한루프 금지 | P7·전벤치 | — (반응형) | ✗ static불가·RL |
+
+- **★A6이 핵심 예시**: 모델=정책선행 *인식+gather*(추상 SHAPE·학습) / 게이트=그 선행 *충족 평가*(결정론). 앞서 "gate=LOCK 학습불가"는 *평가*에 한함·인식/구조는 coverage=학습. ⇒ "flow=scaffold" 오류 정정.
+- **★전이 패턴 가설(sharp·falsifiable)**: 추상규칙이 *순수 구조적*이면 전이(A1=provenance·도메인무관)·*도메인-의미 인식*을 요하면 미전이(A2=어느 getter가 필요값 생산=R4 의미). ⇒ **"계획-규칙 추상화 전이"를 *순수구조* 부분으로 좁히되 *살림*** — flow에 학습-전이 추상화 실재(A1+)이므로 "content-op뿐" 아님. 정직한 주장 = **"순수구조 flow 규율은 전이·의미인식은 offload/미해결"**, *어느 A_k가 전이하는지 = 측정 대상*.
+
+## 5. 다벤치 전이 매트릭스 (cross-bench = schema-guided DST와 차별점·★primitive별 A1-A7 분해)
 | 학습 | held-out(도메인) | held-out(★벤치) |
 |---|---|---|
 | SOPBench(일부 도메인) + TaskBench + Synth | SOPBench 잔여 도메인 | **τ²(retail·airline)·SOP-Bench(Amazon)** |
 - **cross-domain 셀** = schema-guided DST도 함(차별 약). **cross-bench 셀**(다른 벤치·포맷·task 패러다임) = DST는 한 포맷 내라 *안 함* → **여기가 우리 고유**. 매트릭스가 "닫힌 기저는 패러다임 횡단도 전이"를 보이면 ①이 capability 기여로 섬.
 - ABox-swap: A_closed는 unchanged·catalog/gate_spec(ABox)만 교체. 재학습 0.
+- **★primitive별 분해 (위험4/6 해소 = "flow=scaffold" 뭉뚱그림 금지)**: 각 셀의 전이 보존율을 **단일 숫자 아닌 A1-A7 + content-op별로 분해 보고**(§4.7). 예측(패턴 가설): A1(provenance·순수구조) 전이 / A2(getter-selection·의미인식) 미전이 / content-op(§21) 전이. ⇒ **"어느 추상화 facet이 전이하는가"가 진짜 결과** — 이게 "계획-규칙 추상화 전이"를 *순수구조 facet*으로 정직히 좁히거나(flow=scaffold면) 넓힌다(A3-A6도 전이하면). scaffold/weight 분리(§4)를 *primitive별로* 실시.
 
 ## 6. 빌드 단계 (증분·각 단계 실측·기존 자산 재사용)
 - **★S0 (전제 관문·실 e2e — 미통과면 S1+ 전부 모래)**: *학습된* content-op(resolve_selection)가 **실 retail user-sim e2e서 발화 + base 대비 도움**인가. 판정 = (a) resolve_selection assistant 호출 ≥ 유의 횟수 (b) base(pass^1 0.205) 대비 Δ≥3-4 pass (분산 ±2-3·multi-trial). **오프라인 op-eval 금지([[03-anti-drift]]).** 진행: `qwen7b_solo_sts`(lr2e-4·r64·loss→0) = **0/80·NO-GO**(익명툴 망각+operand bleed+캐논ID 환각) → `qwen7b_solo_lite`(lr↓r↓+중간ckpt) 재학습 중. **S0 음성이면 closure-payoff 이전에 "학습된 전이"가 성립 안 함 = 명제 재구성.**
