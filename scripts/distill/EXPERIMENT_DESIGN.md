@@ -59,11 +59,21 @@
 - **메트릭 = §1.6 배터리**(`reports/facet_rft_2026/research_framework_metrics_2026_06_12.md`): 헤드라인 tier=각 벤치 네이티브 공식(TB F1·SOPBench success·τ² pass^1/pass^k)·framework tier=교차벤치 census(F1 어댑터비용·F2 전이보존·F3 일관성·F4 무위반·F5 회수율·F6 abstain·F7 비용). 집계평균 금지·per-bench 개별·리더보드 4-tuple(user-sim·judge·trials·split) 명시.
 - 보상 전부 결정론(LLM-judge 0).
 
+## §5b. 비용 회계 (LOCKED — thesis 핵심 = 싸게 먹혀야·이미 committed)
+**비용-효율이 헤드라인의 절반**(나머지=전이). 두 축 + 3 비교대상 모두 *측정*(추정 금지). 권위 = §1.6 배터리 F1·F7·`DECOMPOSITION_OPTIMALITY §B`·`FIELD_GAP` 비용축.
+
+- **축1 = ABox 생성 비용**(one-time·벤치당·amortize) = **F1**: 벤치당 수동 LOC + 기계화율%(A1/A5=기계·**A2=유일 수동**). **F1 장부 상시 갱신**(게이트/스펙 변경마다·손공학 creep 방어). 실측: retail ~40줄 / **airline·telecom 0줄(Fable-5 컴파일)** / 복구템플릿 0줄. thesis = A2가 front-end로 소거 → 새 벤치 → 0.
+- **축2 = 추론 비용**(recurring·쿼리당) = **F7**: 토큰(모델-불변) + USD(스냅샷) + **cost-of-pass=E[비용]/R** + accuracy×cost Pareto. 소형 7B + 결정론 엔진(0-model-recurring) + MSC(최소입력).
+- **TCO**(DECOMP §B): on-prem은 recurring 지배 → 분담이 최소화.
+- **★3 비교대상**: (a) monolith 빅LLM = 추론비용 높음·도메인별 프롬프트 / (b) run_scripted(결정론 전부) = 도메인별 절차 손코딩 비용 높음·**전이 불가** / (c) 우리 = A2만(자동화)·7B 추론·ABox-swap. **= monolith를 추론비용서·run_scripted를 전이서 Pareto-지배.**
+- 정직: F1=우리 발명 지표(문헌 무표준)·novelty 플래그. cost는 per-bench 개별·가격 스냅샷 날짜 명시.
+
 ## §6. 성공 게이트 (사전등록)
 - **G-②(facet 전이)**: 고정 TBox+ABox-swap으로 facet formalize-출력 held-out≈in-domain·base 초과. facet별 판정.
 - **G-③(scaffold)**: 한 GateInterpreter+ABox-only가 retail+airline+SOP 작동·grep `if bench`=0·ABox-ablation(빈/틀린 spec→붕괴).
 - **G-전이(헤드라인)**: 같은 TBox+엔진 unchanged·ABox swap만으로 held-out 벤치 작동·재학습0.
 - **G-Pareto**: 협업(TBox+엔진+ABox) > base·monolith(탐지가능 오차클래스서 상대 지배).
+- **G-비용(§5b)**: 새 벤치 ABox 생성비용(F1) 하향·추론비용(F7) < monolith·cost×accuracy Pareto서 우리가 지배점. A2 자동화로 벤치당 수동 LOC→0 추세.
 - **정직**: 절대수 약속 금지(라우팅 천장 ~0.44·§5b Risk B)·헤드라인=상대 Pareto+전이.
 
 ## §7. 인프라 불변 (`30-remote-env`·반복사고 방지)
