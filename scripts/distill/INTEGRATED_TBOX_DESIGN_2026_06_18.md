@@ -15,18 +15,27 @@
 ## 1. 목표 (thesis 헤드라인)
 **4벤치의 NL→formalize facet을 per-bench 스페셜리스트 LoRA(기존 자산)로 두고, 얽힌 결정을 typed 스텝으로 *분해*** + facet-결합은 결정론-우선·잔여만 consensus LoRA + 결정론 offload(concrete resolution·deep exec·gate) + ABox-swap 전이. (단일 merged LoRA = 폐기·§5.) 헤드라인 = **분해된 협업이 base와 monolith를 상대 Pareto-지배 + ABox-swap 무재학습 전이(retail→airline·τ²→SOP-Bench) + 결합의 decidable-비율 실측**. (절대수 약속 금지·§5b.)
 
-## 1.5. ★LLM의 역할 = NL→formalize (4 facet) + 환원불가 추론 (오케스트레이션 아님·2026-06-18 정정)
-thesis(DECOMP §A): LLM 학습-일반 = **NL→formalize 메타스킬 + 도메인-불변 추론**. NL→formalize = NL→typed 형식구조, **4 facet**:
-| facet | 무엇 | 벤치 | 비고 |
-|---|---|---|---|
-| (1) flow-타입 & 순서 | P1-P9 명명(fetch?gate?confirm?)·gather-first 시퀀싱 | SOPBench | = "오케스트레이션"은 *이것뿐* |
-| (2) data-flow threading | 출력→입력 바인딩 | TaskBench | |
-| (3) content op-명명 | filter/argmax/substitute 생성원 | Synth | |
-| (4) **operand formalize** | attr·among·set·criteria + per-attr delta(keep-rest §20-B) | Synth/CFB | **genuine 추론·가장 어려움** |
+## 1.5. ★LLM 역할 = NL→formalize(intensional) + 환원불가 추론 (정정·2026-06-18·리뷰 검증·DECOMP §A 대조)
+**분담 = 3 버킷(2분법 아님·B)**:
+- **LEARN(LLM·도메인-일반·고정·전이)** = NL→formalize 메타스킬 + 환원불가 추론.
+- **PROVIDE(ABox/retrieval·도메인-특정·*swap*)** = 카탈로그·정책·vocab. ★offload(DETERMINISTIC)와 *별개 버킷* — **ABox-swap 전이 = PROVIDE를 갈고 LEARN을 고정**. PROVIDE를 offload에 합치면 전이 메커니즘이 흐려짐.
+- **DETERMINISTIC(decidable·고정·일반)** = concrete resolution·deep-exec·gate·verify.
 
-- **★offload(외재화) 경계 정정**: offload = ① concrete denotation(typed selector→order_id/item_id·anchor grounding) ② deep op 실행(op-IR+catalog→item·resolve 엔진·§19) ③ gate enforce·verify. **operand의 *추출/명명*(facet 4)은 LLM이지 offload 아님** — concrete 값 *해소*만 offload. (이전 "잔여=오케스트레이션뿐"은 facet 3·4를 누락한 오류.)
-- **기여(DECOMP §B)**: 이 NL→formalize(4 facet)+환원불가 추론을 *학습*·ABox-swap 전이 / decidable(concrete resolution·deep exec·gate)은 외재화 → 세 오류클래스(날조·환각·과다호출) 소멸 → Pareto-지배.
-- decidable의 *정밀 경계*(어느 facet/결합이 offload·어느 게 학습) = 리뷰어 의견 후 별도 검토(TODO).
+NL→formalize = NL→typed 형식구조. LLM=**intensional**(내포: "유저가 가리킨 그 item의 color를 silver로·나머지 유지") emit / 결정론=**extensional**(외연: concrete item_id) 계산. **4 facet**:
+| facet | 무엇 | 벤치 | ABox-swap 전이 증거 |
+|---|---|---|---|
+| (1) flow-타입 & 순서 | P1-P9 명명(fetch?gate?confirm?)·gather-first 시퀀싱 | SOPBench | op-routing = **증명**(§21) |
+| (2) data-flow threading | 출력→입력 바인딩 | TaskBench | (op-routing 계열) |
+| (3) content op-명명 | filter/argmax/substitute 생성원 | Synth | op-routing = **증명**(§21 0.03→0.44·held-out 1.00) |
+| (4) **operand formalize** | attr·among·set·criteria + per-attr delta(keep-rest §20-B) | Synth/CFB | **미증명·측정 대상**(C·아래) |
+("오케스트레이션"=facet 1뿐. operand의 *추출/명명*은 LLM·genuine 추론·가장 어려움.)
+
+- **★offload 경계 = 둘(혼동 금지·D·"잔여=오케스트레이션뿐" 오류의 정체)**:
+  - **경계 ①(스텝 내부)**: typed-selector[LLM·intensional] │ concrete-resolution + assembly + deep-exec[offload·§19·§22]. **이미 그어짐**([10]·§22). ← 정정 전 오류 = 이걸 통째로 지우고 ②만 "잔여"라 부름.
+  - **경계 ②(스텝 사이·결합)**: facet-verdict 튜플 → emit/defer. decidable-비율(#2·딥리서치 중).
+  - 정확: LLM = formalize(① 위·분량·난이도 **대부분**) + 결합-잔여(② 위·작을 수 있음). **#2는 ②만 측정·①은 이미 그어짐 — 두 측정 한 숫자로 합치지 말 것.**
+- **★전이 증거 = facet-의존(C·과주장 금지·anti-drift 6)**: op-naming(facet 1·3) 전이 **증명**(§21). **operand-formalize(facet 4·typed selector 명명) 전이 = 미증명·측정 대상.** §22(0.51→0.87)는 decomposition-offload(per-attr+엔진)지 operand-명명 retail→airline 전이 증거 아님. intensional이라 도메인일반 개연성↑이나 증거는 op-routing뿐 = 딥리서치 Q4 + 다음 측정이 닫을 빈칸. (스페셜리스트별 전이 보장도 facet-의존·A.)
+- **기여(DECOMP §B)**: LEARN(formalize+추론) 학습·ABox-swap 전이 / DETERMINISTIC 외재화 → 세 오류클래스(날조·환각·과다호출) 소멸 → Pareto-지배(단 *탐지가능* 오차클래스서·Risk 3). decidable 정밀경계(②) = 딥리서치 후 #2.
 
 ## 2. 공통 표현 = native tool-calling (Option B)
 표준 OpenAI function-calling(`{tools, messages: [...tool_calls{name,arguments}...]}`)·vLLM `--tool-call-parser hermes`. 포맷매칭 브리지 제거 = 공격표면 소멸. config=포맷 validity(XGrammar) / 학습=내용(어느 도구·인자). **전 4벤치를 이 한 포맷으로.** (op-IR "Output ONLY JSON"은 §23E서 native agent 붕괴 → 폐기.)
