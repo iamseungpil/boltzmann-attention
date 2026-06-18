@@ -18,9 +18,11 @@ import urllib.request
 def chat_toolcall(base, model, tools, messages, timeout=60):
     body = json.dumps({"model": model, "messages": messages, "tools": tools,
                        "tool_choice": "auto", "temperature": 0.0, "max_tokens": 256}).encode()
+    import os
+    key = os.environ.get("OPENROUTER_API_KEY") or "dummy"  # openrouter base면 실키·로컬 vllm은 dummy
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=body,
                                  headers={"Content-Type": "application/json",
-                                          "Authorization": "Bearer dummy"})
+                                          "Authorization": f"Bearer {key}"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         resp = json.load(r)
     msg = resp["choices"][0]["message"]
