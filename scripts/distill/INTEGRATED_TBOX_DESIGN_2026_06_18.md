@@ -1,4 +1,6 @@
-# 통합 TBox 설계 (2026-06-18) — 4벤치(SOPBench+TaskBench+CFB+Synth)를 한 native-FC TBox로
+# 통합 TBox 설계 (2026-06-18) — 4벤치(SOPBench+TaskBench+CFB+Synth) = 분해된 멀티-스페셜리스트 오케스트레이션
+
+> ★아키텍처 = 단일 merged LoRA 폐기. per-bench 스페셜리스트 LoRA(기존 자산) + 얽힌 결정의 typed-스텝 분해 + 결합(결정론 우선·잔여만 consensus LoRA) + 결정론 offload + ABox-swap. "통합"=weight 머지 아니라 *오케스트레이션*. (§5가 핵심.)
 
 > 진입 = 메모리 `01-four-bench-tbox`·`04-current-position`. 불변 = `03-anti-drift`·`11-transfer-direction`·`10-roles-deterministic`. 상위 = `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`(Option B native)·`THESIS_STATEMENT_2026_06_16.md §7`·`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`. 사용자 지시 = "통합 TBox 설계하라"·"설계먼저→리뷰→구현".
 
@@ -10,7 +12,7 @@
 - **4벤치를 한 native 포맷으로 묶은 데이터·모델 = 없음.** v7 = SOPBench+TaskBench(+CFB), synth content-routing 미포함. ⇒ 통합 TBox = 신규 학습.
 
 ## 1. 목표 (thesis 헤드라인)
-**4벤치(P1-P9 flow + content 생성원)를 한 native-FC 포맷으로 내재화한 도메인-일반 TBox** + 그 위 결정론 offload + ABox → e2e. (단일 merged LoRA vs 멀티-LoRA = §5 데이터-게이트·선커밋 아님.) 헤드라인 = **협업(TBox+offload)이 base와 bare-TBox를 상대 Pareto-지배 + ABox-swap 무재학습 전이(retail→airline·τ²→SOP-Bench)**. (절대수 약속 금지·§5b.)
+**4벤치의 facet을 per-bench 스페셜리스트 LoRA(기존 자산)로 두고, 얽힌 결정을 typed 스텝으로 *분해*해 오케스트레이션** + 결합은 결정론-우선·잔여만 consensus LoRA + 결정론 offload(resolve/provenance/gate) + ABox-swap 전이. (단일 merged LoRA = 폐기·§5.) 헤드라인 = **분해된 협업이 base와 monolith를 상대 Pareto-지배 + ABox-swap 무재학습 전이(retail→airline·τ²→SOP-Bench) + 결합의 decidable-비율 실측**. (절대수 약속 금지·§5b.)
 
 ## 2. 공통 표현 = native tool-calling (Option B)
 표준 OpenAI function-calling(`{tools, messages: [...tool_calls{name,arguments}...]}`)·vLLM `--tool-call-parser hermes`. 포맷매칭 브리지 제거 = 공격표면 소멸. config=포맷 validity(XGrammar) / 학습=내용(어느 도구·인자). **전 4벤치를 이 한 포맷으로.** (op-IR "Output ONLY JSON"은 §23E서 native agent 붕괴 → 폐기.)
@@ -46,19 +48,24 @@ resolve_selection(op: argmax|argmin|rank|filter|comparative|substitute|create,
 - **gate** = G1-G4 정책 replay(SOPBench가 학습한 순서/confirm의 결정론 집행·GATE_SPEC).
 - 전부 **ABox/스키마 도출·도메인-일반**(per-domain 분기0). [[10-roles-deterministic]]·[[11-transfer-direction]].
 
-## 5. 학습 아키텍처 = ★데이터-게이트 결정 (단일 LoRA 선커밋 금지)
-**execution을 외재화(resolve/provenance/gate=엔진·도구)하면 LoRA가 내재화할 잔여 = *오케스트레이션*(언제 fetch·게이트·위임·action, 어떤 순서)뿐.** 단일이냐 멀티냐 = 이 오케스트레이션이 4벤치 통틀어 *하나의 역량*으로 공존 가능한가 = **미검증 가설**. 선커밋하지 말고 측정으로 결정([[03-anti-drift]] 7):
+## 5. ★아키텍처 = 분해된 멀티-스페셜리스트 (단일 merged LoRA 폐기)
+**단일 merged LoRA = 폐기**(monolith=thesis 반대). 얽힌 결정(한 tool-call이 게이트+grounding+threading 동시 요구)을 *합쳐 한 LoRA에 내재화*하는 건 틀림 — 얽힘은 머지의 이유가 아니라 **분해의 이유**. 분해를 오케스트레이션 레벨까지:
 
-- **Path S (단일 merged LoRA)**: 한 어댑터·4벤치 nfc 혼합. *장점* = 한 tool-call 결정이 여러 facet 동시 요구(게이트+grounding+threading=한 generation, 스텝별 분리 불가) → co-내재화 필요 + thesis "하나의 도메인-일반 역량". *위험* = **Risk A 간섭**(아래).
-- **Path M (멀티-LoRA·기존 자산 재사용)**: 이미 학습된 per-bench LoRA(SOPBench tbox·TaskBench tb_lodo·CFB v7·synth MD_route-native화)를 함께 serve·per-step 라우팅. *장점* = 간섭 없음·기존 자산 활용. *위험* = per-step 라우팅 meta-결정·entangled 스텝(한 스텝이 2 facet) 분리 불가·LoRA 전환 간 상태연속성.
-- **결정 = 데이터-게이트**: merged 후보의 **per-bench held-out을 standalone LoRA 대비** 측정 → 어느 벤치도 회귀 임계 이하면 **S 채택**, 회귀하면 **M fallback**(또는 curriculum). 기존 standalone = baseline 겸 fallback.
+- **스페셜리스트 LoRA = 기존 학습 자산 재사용**(per-facet·머지 안 함): SOP(게이트-상태)·TaskBench(threading)·CFB(grounding)·synth(content-op 명명). 각자 자기 facet을 *한 스텝*에 산출. 각 LoRA는 도메인-일반 TBox·ABox-swap 전이.
+- **얽힌 결정 → 순차 typed 스텝**(결정론 scaffold가 몰아감·thesis §2 "typed 증분 스텝"): 예 "지금 exchange 호출?" = (1)게이트-상태 확인[SOP/det-gate] (2)인자 grounding 확인[CFB/provenance] (3)order_id threading 확인[TaskBench/det] (4)content-op resolve[synth→resolve 엔진·§3a].
+- **★결합(combine) = 별도 *다음* 스텝**: facet 출력들을 "emit / 보류 / 어느 도구" 결정으로 합침.
+  - **결합 규칙이 decidable → 결정론 알고리즘**(offload·예: gate∧grounded∧resolved → emit).
+  - **decidable 아님 → consensus/통합 LoRA를 *그 결합 결정만* 학습**(작은 잔여 학습·다른 facet 학습 안 건드림).
+- **★이게 측정하는 것 = thesis 핵심**: 결합의 *얼마가 decidable(offload)이고 얼마가 학습(consensus LoRA) 필요*인가. 대부분 decidable이면 = offload 지배·소형 충분. = "decidable→결정론 / 환원불가→학습" 분담선을 오케스트레이션 레벨서 직접 실측.
 
-공통: base Qwen2.5-7B·LoRA(r16·native target_modules)·`lora_train_chat_toolcall.py`(loss=assistant-only). 혼합 = SOPBench-nfc ∪ TaskBench-nfc ∪ CFB-nfc ∪ **Synth-nfc(신규)**·표현 다양성 유지([[12-diversity-required]]·단일템플릿 금지). ep1~3 sweep.
-- ⚠️ **wide-train 교훈(§23D)**: binding(set 추출)을 모델에 욱여넣으면 라우팅 퇴행 → set/concrete는 offload(resolve-tool)로, 학습은 op-명명·순서·fetch-first·threading만.
+**효과**: ⓐ Risk A(벤치 간 간섭) 소멸 — blend 없음·각 LoRA 스페셜리스트 유지. ⓑ 기존 학습 LoRA 그대로 사용(신규 대량학습 불요). ⓒ 신규 학습은 synth→native 스페셜리스트 + (필요시)결합 consensus LoRA만.
+
+**내재화/외재화**: 내재화 = 스페셜리스트 LoRA들 + (필요시)consensus LoRA(전부 TBox·weight) / 외재화 = 결합 알고리즘·resolve 엔진·provenance·gate·ABox·step-scaffold.
+- ⚠️ **wide-train 교훈(§23D)**: binding(set)을 모델에 욱여넣으면 라우팅 퇴행 → 각 facet 스페셜리스트는 자기 facet만·결합도 det 우선.
 
 ## 5b. ★Risk 사전등록 (낮은 절대수를 나중에 "새 벽"으로 격상하는 표류 차단·[[03-anti-drift]] 6)
-- **Risk A — 벤치 간 행동 간섭 = 통합의 미검증 핵심.** SOPBench "gather/confirm 전 act 금지" vs TaskBench "eager multi-call DAG" = 거의 반대 정책. 한 모델이 blend 말고 "지금 게이트 도메인 / 지금 DAG"를 도구-카탈로그 신호로 조건부 활성화해야 — 충분한지 미검증. → §5 데이터-게이트로 판정(per-bench 회귀 배터리).
-- **Risk B — 절대 e2e 천장은 offload 아니라 real-domain 라우팅 *인식*일 공산.** 증명된 전이 = **0.44(op-선택 정확도)지 1.00 아님**(§21). 이게 **통합 TBox 라우팅-leg의 예상 천장**. τ² 3-way는 offload가 collapse(order_id 날조)를 소멸시키는 **상대 우위(Pareto-지배)**를 보일 것·절대수는 messy real NL op-인식에 묶임. **헤드라인 = 상대(Pareto-지배). 절대수 약속 금지.**
+- ~~Risk A (벤치 간 간섭)~~ = **분해 아키텍처(§5)로 소멸**(blend 없음). 잔여 위험 = 스텝-scaffold가 얽힌 facet을 올바른 순서로 분해하는가 + 결합 consensus LoRA가 실제로 필요한 결합 수(decidable 비율).
+- **Risk B — 절대 e2e 천장은 offload 아니라 real-domain 라우팅 *인식*일 공산.** 증명된 전이 = **0.44(op-선택 정확도)지 1.00 아님**(§21). 이게 **라우팅-leg 예상 천장**. τ² 측정은 offload가 collapse(order_id 날조)를 소멸시키는 **상대 우위(Pareto-지배)**를 보일 것·절대수는 messy real NL op-인식에 묶임. **헤드라인 = 상대(Pareto-지배). 절대수 약속 금지.**
 
 ## 6. ABox (per-domain swap·재학습 0)
 - A1 = 도구 카탈로그(도메인 도구 + resolve_selection + getter) — 기계 생성.
@@ -66,11 +73,11 @@ resolve_selection(op: argmax|argmin|rank|filter|comparative|substitute|create,
 - A2 = 정책→GATE_SPEC(front-end 난제).
 - **swap 시험**: retail↔airline(같은 시스템 unchanged)·τ²→SOP-Bench(Amazon). 빈/틀린 A1/A2 → 붕괴(ablation).
 
-## 7. 측정 (synth-first·단 게이트 보강)
-1. **synth(통제) closure**: 통합 TBox가 7-op 라우팅 held-out 유지(§21 1.00 회귀 없나)·native 포맷서. ⚠️ synth만으론 Risk A 못 잡음(SOPBench 게이팅 회귀가 synth엔 안 뜸).
-2. **★4벤치 per-bench 회귀 배터리**(τ² *전*·Risk A 게이트): merged의 SOPBench/TaskBench/CFB/synth held-out을 각 standalone LoRA 대비 → 회귀 판정 → Path S/M 확정.
-3. **τ² e2e 3-way**: base(0.17 floor) / **TBox-bare**(라우팅O·offload 없이) / **TBox+offload**(resolve-tool+provenance+gate). **헤드라인 = 협업 > 둘 다(상대 Pareto-지배)**. autopsy: collapse(order_id 날조) 소멸? (절대수 약속 금지·§5b Risk B.)
-4. **전이 매트릭스**: 같은 통합 TBox+offload, ABox만 swap → retail·airline·(SOP-Bench) 동시 작동. 재학습0. **= offload-일반성의 유일 증거**(§8b).
+## 7. 측정 (synth-first)
+1. **스페셜리스트 sanity**: 각 LoRA(SOP·TaskBench·CFB·synth-native)가 자기 facet held-out서 작동(synth는 §21 1.00 회귀 없나·native 포맷서). = 스텝 출력 신뢰.
+2. **★결합 decidable-비율**(thesis 핵심): τ² 궤적서 "emit/보류/도구" 결합 결정 중 결정론 알고리즘으로 닫히는 비율 vs consensus LoRA 필요 비율. 대부분 det = offload 지배.
+3. **τ² e2e 3-way**: base(0.17 floor) / **스페셜리스트-only**(분해 오케스트레이션·결정론 결합/offload 없이) / **스페셜리스트+분해결합+offload**(resolve/provenance/gate). **헤드라인 = > 둘 다(상대 Pareto-지배)**. autopsy: collapse(order_id 날조) 소멸? (절대수 약속 금지·§5b Risk B.)
+4. **전이 매트릭스**: 같은 시스템(스페셜리스트+결합+offload), ABox만 swap → retail·airline·(SOP-Bench) 동시 작동. 재학습0. **= offload-일반성의 유일 증거**(§8b).
 5. 보상 = 결정론(τ² DB∧NL∧comm·compliant-pass gated).
 
 ## 8. ★자가심사 (리뷰 안건)
@@ -86,16 +93,17 @@ synth는 정의상 *라우팅 벤치* → resolve_selection이 일의 100%를 �
 
 ## 9. 결정 (리뷰 1차 반영·확정/잔여)
 1. **[확정] resolve_selection 스키마 = 기존 op-IR 그대로**(`{op,attr?,among?,dir?,k?,set?}`·신규 설계 불요)·**anchor_id 모델-가시 제외**(offload가 context anchor grounding·§3a). synth-nfc = 생성기 직생성.
-2. **[데이터-게이트·선커밋 금지] 단일(S) vs 멀티(M) LoRA** = §5 per-bench 회귀 배터리로 판정. 기존 standalone LoRA = baseline/fallback. (단일은 thesis가 원하는 끝점이되 미검증 가설.)
+2. **[확정] 단일 merged LoRA 폐기 = 분해된 멀티-스페셜리스트**(기존 per-bench LoRA 재사용·머지 안 함). 얽힌 결정=typed 스텝 분해·결합=결정론 우선·잔여만 consensus LoRA(§5).
 3. **[확정] 노출(expose)** — 내재화/외재화 경계상 정합(위임=내재화·실행=외재화·§3b). 인터셉트 폐기. anchor_id grounding 보정과 묶음.
 4. **[확정] synth-first + 4벤치 회귀 배터리**(τ² 전·Risk A·§7.2).
-5. **[잔여] 혼합 비율**·resolve_selection을 τ²에 노출하는 정확한 wiring(t2 도구 레지스트리 추가).
+5. **[잔여] 스텝-scaffold 설계**(얽힌 결정→typed 스텝 분해 순서)·**결합 알고리즘 명세**(어느 결합이 decidable·언제 consensus LoRA)·resolve_selection의 t2 도구 레지스트리 wiring.
 
 ## 10. 단계
-1. 리뷰(이 문서·§5b·§8·§9) → 확정.
-2. `synth_to_nativefc.py`(신규·`synth_depth.py` 생성기서 native-FC 직생성·resolve_selection tool_calls·anchor_id 제외) + resolve_selection 도구 스키마/구현. 기존 native-FC 3벤치 데이터 정리.
-3. 혼합 학습(GPU) → in-dist + **4벤치 per-bench 회귀 배터리**(§7.2) → Path S/M 확정.
-4. e2e 측정(§7.3) → autopsy → ABox-swap 전이 매트릭스(§7.4) → `M_A_RESULTS §28` 박제.
+1. 리뷰(이 문서·§5 분해 아키텍처·§5b·§8·§9) → 확정.
+2. synth 스페셜리스트: `synth_to_nativefc.py`(신규·`synth_depth.py` 생성기서 native-FC 직생성·resolve_selection tool_calls·anchor_id 제외) → synth-native LoRA 학습 + resolve_selection 도구 스키마/구현. (SOP·TaskBench·CFB는 기존 LoRA 재사용.)
+3. **스텝-scaffold + 결합 알고리즘**(결정론 우선) 구현 — facet 스페셜리스트 오케스트레이션. 스페셜리스트 sanity(§7.1).
+4. **결합 decidable-비율 측정**(§7.2) → 잔여 결합만 consensus LoRA 학습(필요시).
+5. e2e 3-way(§7.3) → autopsy → ABox-swap 전이 매트릭스(§7.4) → `M_A_RESULTS §28` 박제.
 
 ## 11. 공격 방어 체크리스트 (리뷰어 사전대응·CROSS_BENCH §5)
 - [ ] 포맷매칭/resolve-tool에 per-domain 분기 0 (grep `if domain`).
