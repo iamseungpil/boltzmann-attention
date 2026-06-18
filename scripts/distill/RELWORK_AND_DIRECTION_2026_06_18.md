@@ -1,12 +1,37 @@
 # 선행연구 리뷰 + 방향 명시 (2026-06-18) — 무엇이 이미 확정됐고, 우리 고유 기여는 무엇인가
 
 > **목적**: 통합 TBox/Scaffold 설계(`INTEGRATED_TBOX_DESIGN_2026_06_18.md`·`INTEGRATED_SCAFFOLD_IMPL_DESIGN_2026_06_18.md`)를 *구현 착수 전*에, 딥리서치(52 검증 claim·~20 출처) + 핵심 4편 primary 재검증으로 정렬한다. **coworker 공유용 자립 문서** — 아래 §1만 읽으면 thesis 프레임이 선다.
-> **한 줄 결론**: 우리 시스템의 *결정론 leg*(게이트·복구·소형+symbolic·deferral)는 **전부 이미 발표됨**(특히 [2603.20449]가 우리 게이트를 τ-bench에서 선점). 남은 고유 기여 = **(1) 학습된 content-op 라우팅의 ABox-swap 전이 (2) 사전고정 술어로 decidable-비율 *측정* (3) 멀티-facet verdict 결합** 셋뿐. ⇒ 실험을 이 셋에 집중.
+> **한 줄 결론 (정독 종료·2026-06-18)**: "전이"는 우리 신규성이 *아니다*(D3ST/STAR/ToolLLM/TGRL가 schema·tool·습관 전이를 이미 함). **우리 신규 = "tool-use 계획규칙이 *닫힌(closure) 유한 생성원 기저*로 환원되고, *그 규칙-추상화*를 작은 모델이 학습·전이한다"** — 스키마도 도구도 실행도 습관도 아닌 **규칙의 추상화** 전이. 전이는 닫힘의 *귀결*(데모)이지 신규 주장이 아님. 결정론 leg(게이트·복구·deferral·측정)는 전부 발표됨 = 재사용·인용. ⇒ §1.5 핵심주장·§4 차별·§6 keystone.
 
 ---
 
 ## 1. thesis 한 문단 (coworker용 프레임)
 자연어 멀티턴 요청을 도메인 온톨로지(ABox)로 재해석해 native function-calling 시퀀스를 추론·실행하는 agentic planner를, **작은 모델 weight(TBox)에 학습**시키고, 본 적 없는 도메인은 **ABox 교체만으로 재학습 0 전이**한다. 분담 = **LEARN**(LLM·NL→formalize·도메인일반·전이) / **PROVIDE**(ABox·도메인특정·swap) / **DETERMINISTIC**(decidable: gate·resolve·verify·고정). 벤치 = τ²-bench·SOPBench·TaskBench·ComplexFuncBench. 측정 = 실 τ² user-sim e2e + 전이 매트릭스.
+
+---
+
+## 1.5 ★우리 핵심 주장 (정독 종료 후 확정) + related work 차별
+
+**핵심 주장 (한 문장)**:
+> **Tool-use 계획(planning)은 *닫힌(closure-justified) 유한 생성원 기저*로 환원된다 — flow 기본형(P1-P9·Böhm–Jacopini) + content 연산(Codd 관계대수). 작은 모델은 *이 계획-규칙의 추상화*를 학습하고, 새 도메인엔 *그 추상화를 재조합* + ABox(사실)만 교체해 재학습 0 전이한다. decidable한 부분은 결정론 엔진에 offload.**
+
+**무엇이 *추상화(전이대상)*이고 무엇이 *데이터*인가 — 이게 차별의 핵심축**:
+| | 전이되는 것 = *추상화* | 데이터(= 안 배움·제공) | 닫힘? |
+|---|---|---|---|
+| **D3ST** (schema-guided DST) | 스키마 *읽기*(NL설명→슬롯) | 스키마 텍스트 | — (기저 없음) |
+| **STAR** | 순서도 *따라가기*(실행) | **순서도(=계획규칙!)** ← 규칙이 데이터 | ❌ 명시적 비폐포(이탈→학습) |
+| **ToolLLM** | 도구 *사용*(문서→호출) | API 문서 | ❌ open set(16k·무한) |
+| **TGRL** | 도구사용 *습관*(opaque RL) | 도구 인터페이스 | ❌ 기저·closure 주장 없음 |
+| **ATA·LLM-Modulo** | (LLM은 학습 안 함·프롬프트 인코딩) | symbolic KB(도메인마다 재구축) | — |
+| **★우리** | **계획-규칙의 추상화**(닫힌 생성원 기저) | **ABox(카탈로그·정책 사실)** | ✅ closure-정당화(scope 내) |
+
+**차별 한 줄**: 남들은 **스키마·도구·실행·습관**을 전이하거나(D3ST·ToolLLM·STAR·TGRL), 계획규칙을 *데이터에 둔다*(STAR 순서도·ATA KB). **우리만 *계획규칙 자체를 닫힌 추상화로 학습해 전이*하고, 데이터엔 사실(ABox)만 둔다.** STAR는 정확히 *반대*(규칙=데이터/실행=학습) → 대비가 가장 선명.
+
+**왜 "닫힘"이 신규의 핵심인가**: ToolLLM=open set(무한·완결 없음)·STAR=비폐포(유한이나 샘·땜빵). **우리만 closure**(유한 기저가 scope 내 *모든* 계획을 생성·증명상). ⇒ 전이가 "요행"이 아니라 **원리적·완전**(새 도메인 = 같은 기저 재조합 + ABox). **"전이"가 신규가 아니라 "닫힌 규칙-기저라서 전이가 원리적"이 신규.**
+
+**대조 판정 (우리 3후보 × schema-transfer 문헌·정독 2026-06-18)**: ① **closure-정당화 유한 기저 = 생존(clean·아무도 closure 주장 안 함)** / ② 결정론 offload+전이 결합 = ◐ STAR 부분선점(단 그들=schema-graph 추종·우리=decidable 계산 offload) / ③ 벤치횡단 = ❌ ToolLLM 부분선점(cross-API OOD). ⇒ **신규의 무게중심 = ①(닫힘 기저)**, ②③는 보조·차별 sharpening 필요.
+
+⚠️ **정직(과몰입 방지)**: (a) closure는 *scope 한정*(transactional control/data-flow·flow층 강·policy층 상대닫힘). (b) "규칙 추상화가 *weight로* 전이"는 *주장* — 실증은 content-op 라우팅(§21)만·flow는 결정론 scaffold가 나름(adapter held-out≈0). ⇒ **남은 핵심 실험 = "닫힌 기저 학습이 open(ToolLLM류)·비폐포(STAR류) 대비 전이·커버리지에서 이득"을 보이는 것** + C0(라우팅 native 전이).
 
 ---
 
@@ -70,7 +95,7 @@
 - ★**우리가 "핵심 신규"라 한 전이("소형+교체 schema→미관측 도메인 zero-shot")는 신규 메커니즘이 아니라 *변종*이다.** schema-guided DST 커뮤니티가 수년간 한 것: 여러 schema 학습→미관측 schema 일반화·schema=swappable inductive bias·소형모델 cross-task. = 우리 ABox-swap과 구체적으로 동형.
 - ⚠️ 이전 딥리서치가 "typed-verdict→decidable combine"으로 좁혀 **이 문헌 전체를 누락**. 가장 관련된 곳을 안 봄 = 신규성 과대평가의 원인.
 
-**★결론 (정정)**: 우리 *부분*은 대부분 구체 선행이 있다 — 전이 메커니즘(가-마의 마), 게이트(2603.20449), 분업 원리(가). **전체 시스템 그대로**는 없으나, "비어 있는 칸"은 **과장**이었다. 안 겹치는 좁은 조합만 신규 후보: ① **닫힘(Codd+Böhm-Jacopini)-정당화 유한 생성원 기저**(DST schema=slot/intent ontology지 closure-기저 아님) ② **결정론 decidable offload를 전이와 결합**(DST 전이=순수 모델·offload 없음) ③ **벤치 *횡단***(다른 벤치·포맷·DST는 한 schema 포맷 내 도메인 전이). **이 셋이 SGD/Description-Driven/TGRL 대비 진짜 다른지 = 아직 대조 안 됨(§8 TODO).**
+**★결론 (정정·대조 완료)**: 우리 *부분*은 대부분 구체 선행이 있다 — 전이 메커니즘(마), 게이트(2603.20449), 분업 원리(가). **전체 시스템 그대로**는 없으나 "비어 있는 칸"은 **과장**이었다. 좁은 신규 후보 3 × schema-transfer 문헌 **대조 완료(§1.5·정독 2026-06-18)**: ① **closure-정당화 유한 기저 = 생존(clean)** ② offload+전이 결합 = ◐STAR 부분선점 ③ 벤치횡단 = ❌ToolLLM 부분선점. ⇒ **신규 무게중심 = ①(닫힘 규칙-기저) 단독.** 핵심 주장 = §1.5.
 
 ### 4.1 벤치 현실 (τ² = 우리 포트폴리오 중 하나일 뿐)
 - rival들은 τ²/τ-bench를 *주 타깃*으로 씀(ToolOrchestra·2603.20449 airline). **우리는 τ²가 SOPBench+TaskBench+CFB+Synth*에 더해진* 하나** — 벤치 횡단 포트폴리오 자체가 우리 셋업이고, **그 포트폴리오를 가로지르는 단일 시스템 = 어떤 rival도 없음.** ⇒ "같은 벤치" 겹침도 부분적(우리=다벤치·그들=단벤치). 벤치-횡단이 차별의 일부.
@@ -91,15 +116,18 @@
 
 **🟰 이미 남이 한 것(우리 novelty 아님·정정)**: "**소형 모델 + 교체 schema → 미관측 도메인 zero-shot 전이**" = schema-guided DST(SGD/Description-Driven)·tool-FC(ToolLLM)가 **수년간 한 구체 메커니즘**. ⇒ 우리 "ABox-swap 전이"는 *변종*이지 신규 메커니즘 아님. ("무재학습 전이"·"학습 라우팅 스킬 전이" 둘 다 이미 됨.)
 
-**🆚 좁아진 신규 후보(미대조)**: ① closure(Codd+Böhm-Jacopini)-정당화 **유한 생성원 기저**(DST schema=ontology지 기저 아님) ② **결정론 offload를 전이와 결합**(DST=순수 모델) ③ **벤치 횡단**(DST=한 포맷 내 도메인). ⚠️ **이 셋이 SGD/Description-Driven/TGRL 대비 진짜 다른지 미검증** = 전이를 "핵심 신규"로 못 박지 말 것. §8 대조 후 결정.
+**🆚 좁아진 신규 후보 — 대조 완료(§1.5)**: ① closure-정당화 **유한 기저 = 생존(clean·아무도 closure 주장 안 함·DST는 ontology지 기저 아님·STAR 명시 비폐포·ToolLLM open)** ② offload+전이 = ◐STAR 부분선점 ③ 벤치횡단 = ❌ToolLLM 부분선점. ⇒ **신규=①(닫힘 규칙-기저). "전이"는 신규 아님 — 닫힘이 신규·전이는 귀결.**
 
 **★불편한 진실**: 위 차별 3축이 정확히 *아직 미증명* 부분이다. 이미 증명된 우리 전이(synth `§21` retail+airline 0.44)는 (a) op-IR 포맷(`§23E`로 native서 깨짐→축①미확보) (b) 도메인 *내*(retail/airline 둘 다 τ²→축②미확보) (c) 전수본상 cross-domain은 **결정론 scaffold가 나르고 학습 adapter는 held-out≈0**(`SOP:583`→축③약함). ⇒ **증명된 전이는 rival과 덜 구별되고, 우리만의 전이(벤치횡단·ABox-swap·학습스킬)는 아직 결과 없음.** C0(native 라우팅 전이)+벤치횡단 매트릭스 = **논문 존립 실험**(양성이면 3축 동시 확보·음성이면 rival과 구별 안 됨).
 
-## 5. 버킷 C — 우리 고유 whitespace (선행 없음 = 실험이 *세워야* 함)
+## 5. 버킷 C — 우리 고유 whitespace (대조 후 *남은* 것)
 
-1. **사전고정 verdict-튜플 술어로 decidable-비율을 *측정***. 확인: 2603.20449·ATA·Self-Healing 누구도 측정 안 함; SketchAdapt(1902.06349)는 경계를 *학습*함. = **가장 깨끗한 단독 novelty.**
-2. **학습된 부분의 ABox-swap 무재학습 전이**. rival = 학습 일반화(ToolOrchestra) 또는 도메인마다 KB 재구축(ATA·2603.20449 human 번역). 우리 = 학습 facet(§21 routing) + 결정론 결합이 **gate_spec/catalog swap만**으로 전이.
-3. **typed *멀티-facet* verdict 튜플**(gate×ground×thread×content) 고정 술어 결합. 선행 reject-option은 단일예측/2분류뿐.
+**★유일하게 깨끗한 whitespace = closure-정당화 유한 생성원 기저** (§1.5). tool-use 계획규칙이 닫힌 유한 기저(flow P1-P9·Böhm–Jacopini + content·Codd)로 환원·*그 규칙추상화*를 학습·전이. 아무도 closure 주장 안 함(ToolLLM=open·STAR=명시 비폐포·D3ST/TGRL=기저 없음·ATA=KB 재구축).
+
+**보조(부분 선점·sharpening 필요)**:
+- 사전고정 verdict-튜플 decidable-비율 *측정* — Traub식 측정 자체는 채택(발명 아님)·tool-use facet-verdict에 적용은 신규 여지(단 보조).
+- ABox-swap 무재학습 전이 — **메커니즘은 선점**(schema-guided DST·ToolLLM). 우리 차별은 *전이 대상*이 닫힌 규칙-기저라는 점뿐(= ①에 흡수).
+- 멀티-facet verdict 결합 — reject-option은 단일/2분류뿐(여지 있으나 보조).
 
 ---
 
@@ -137,7 +165,8 @@
 - [x] **Traub 2407.01032** ✅: 지표=AUGRC(다중-threshold 곡선)·단일 working point 게이밍.
 - [ ] **SketchAdapt 1902.06349** — PDF 렌더 실패. 2019 확립 논문·"경계 학습"이 알려진 thesis라 신뢰하되, 인용 시 html/semantic-scholar로 재확인.
 - [ ] 잔여 post-cutoff snippet(2603.04474 등) — 사용 시 primary 검증(현재 미사용).
-- [ ] **★최우선 (전이 신규성 판정) — schema-transfer 문헌 정독**: Description-Driven TOD `2201.08904`·SGD/STAR `2010.11853`·ToolLLM `2307.16789`·TGRL `2510.11184`. 질문: 우리 좁아진 신규 후보 3(closure-기저·offload+전이 결합·벤치횡단)이 이들 대비 진짜 다른가. **이 대조 전엔 "전이=핵심 신규" 주장 금지.** (이전 딥리서치가 이 문헌 누락 = 신규성 과대평가 원인.)
+- [x] **schema-transfer 문헌 정독 완료(2026-06-18)**: D3ST `2201.08904`(pure neural·DST내·closure無)·STAR `2010.11853`(유한act·명시 비폐포·순서도=데이터·우리 반대)·ToolLLM `2307.16789`(open set·cross-bench OOD有·pure LLM)·TGRL `2510.11184`(RL 습관 전이·기저無). **판정(§1.5): ①closure 기저=생존 / ②offload+전이=STAR 부분선점 / ③벤치횡단=ToolLLM 부분선점.** ⇒ 신규=①. "전이=핵심신규" 폐기.
+- [ ] **다음 핵심 실험**: 닫힌 기저 학습이 open(ToolLLM류)·비폐포(STAR류) baseline 대비 전이·커버리지 이득을 보이나 (closure의 *payoff*) + C0(라우팅 native 전이).
 
 ---
 
