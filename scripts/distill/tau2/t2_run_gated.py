@@ -64,11 +64,15 @@ def main():
         print("[t2_run] gate ON")
         regen_on = os.environ.get("T2_PROV_REGEN") == "1"
         badwords_on = os.environ.get("T2_PROV_BADWORDS", "0") == "1"
-        if regen_on or badwords_on:
+        ground_on = os.environ.get("T2_PROV_GROUND", "0") == "1"
+        if regen_on or badwords_on or ground_on:
+            # GROUND는 regen 인프라(생성-레벨 작업본) 위에서 동작 → regen 경로 활성 필요
             t2_gate_patch.apply_provenance_regen(
-                max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")) if regen_on else 0,
-                use_badwords=badwords_on)
-            print("[t2_run] provenance L1(badwords)=%s L2(regen)=%s" % (badwords_on, regen_on))
+                max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")) if (regen_on or ground_on) else 0,
+                use_badwords=badwords_on,
+                ground=ground_on)
+            print("[t2_run] provenance L1(badwords)=%s L2(regen)=%s GROUND=%s"
+                  % (badwords_on, regen_on, ground_on))
 
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
