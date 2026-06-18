@@ -28,7 +28,9 @@
 ## 4. (B) resolve_selection wiring + operand offload (구현됨)
 - 카탈로그 노출: `resolve_selection(op, attr?, among?, dir?, k?, set?)` (anchor_id 모델-가시 제외·`tau2_op_resolver:74-77`). `Environment.get_tools` 패치(검증: env에 17개·resolve 포함).
 - 실행: `_execute_tool_calls`서 `tau2_op_resolver.resolve_op_tau2` 호출 · catalog/anchor를 직전 fetch(get_product_details/get_order_details)서 grounding.
-- **operand = LLM delta 명명 + 엔진 조립**: LoRA가 op + intensional delta(`set`) emit · 엔진이 keep-rest copy + multi-attr 조립 + concrete item_id 해소(extensional). multi-attr 과소추출은 per-attr 분해 명명(LLM)→엔진 조립으로 회피(§22). **operand 전용 학습 금지**(§23D 퇴행).
+- **operand = LLM delta 명명 + 엔진 조립**: LoRA가 op + intensional delta(`set`) emit · 엔진이 keep-rest copy + multi-attr 조립 + concrete item_id 해소(extensional). multi-attr 과소추출은 per-attr 분해 명명(LLM)→엔진 조립으로 회피(§22).
+  - **operand *조립/concrete/keep-rest* = offload = 결론**(§19 오라클: gold op-IR 주면 retail 32/32·airline 27/27·신뢰).
+  - ⚠️ **operand *명명*을 전용/wide 학습하면 해로운가**(§23D·τ² 0.44→0.30)는 **오프라인 op-eval = 신뢰불가 → 실 e2e 재확인 대상**(확정 근거로 쓰지 말 것). 본 단독 LoRA가 operand delta를 표준 width로 합본 학습 중 → **실 e2e가 명명 학습의 도움/해를 판정**.
 
 ---
 
@@ -65,6 +67,6 @@
 
 ## 9. 결정 로그
 - **단독 전환**(2026-06-18·C0 facet3 0회 실측·사용자): 분해 멀티/step-orchestrator/route/combine/decidable-비율 폐기.
-- **operand offload 유지**(§23D)·CFB 폐기·synth no_alias·anchor_id 제외(`_emit_args`).
+- **operand 조립 offload 유지 = 결론**(§19 오라클·신뢰)·**operand 명명 학습 가/부 = 실 e2e 재확인**(§23D τ² 0.44→0.30 = 오프라인 op-eval·신뢰불가·확정 아님)·CFB 폐기·synth no_alias·anchor_id 제외(`_emit_args`).
 - **측정**: 통합 Pareto+전이. base 분산 ±2-3 pass → 유의 Δ≥3-4 또는 multi-trial.
 - **유지**: GateInterpreter 통일(A)·resolve wiring(B)·고정/변경 경계·실 e2e만.
