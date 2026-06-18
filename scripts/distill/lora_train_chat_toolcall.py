@@ -86,6 +86,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--lora-target", nargs="+",
                    default=["q_proj", "k_proj", "v_proj", "o_proj",
                             "gate_proj", "up_proj", "down_proj"])
+    p.add_argument("--lora-layers", default="",
+                   help="restrict LoRA to a SUBSET of decoder layers (else all). "
+                        "Spec: 'A-B' inclusive range (e.g. '8-19') or comma list "
+                        "'8,9,10'. Hypothesis: planning abstraction lives in MIDDLE "
+                        "layers; freezing early(surface)/late(output) layers installs "
+                        "the routing skill without the output-level forgetting "
+                        "(operand bleed / canonical-id hallucination).")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--log-every", type=int, default=20)
     p.add_argument("--save-every", type=int, default=0,
@@ -310,9 +317,19 @@ def main() -> int:
     input_device = model.device if args.device == "auto" else args.device
 
     from peft import LoraConfig, get_peft_model, TaskType
+    _layers = None
+    if args.lora_layers.strip():
+        s = args.lora_layers.strip()
+        if "-" in s:
+            a, b = s.split("-"); _layers = list(range(int(a), int(b) + 1))
+        else:
+            _layers = [int(x) for x in s.split(",") if x.strip()]
+        print(f"[lora-layers] restricting LoRA to decoder layers: {_layers}", flush=True)
     lcfg = LoraConfig(r=args.lora_r, lora_alpha=args.lora_alpha,
                       lora_dropout=args.lora_dropout, bias="none",
-                      task_type=TaskType.CAUSAL_LM, target_modules=args.lora_target)
+                      task_type=TaskType.CAUSAL_LM, target_modules=args.lora_target,
+                      layers_to_transform=_layers,
+                      layers_pattern=("layers" if _layers is not None else None))
     model = get_peft_model(model, lcfg)
     if args.init_adapter:
         # warm-start LoRA from an existing adapter (e.g. RAFT continuing from SFT)
