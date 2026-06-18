@@ -39,6 +39,7 @@ import json
 import os
 import random
 import sys
+import time
 from pathlib import Path
 
 os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
@@ -354,6 +355,7 @@ def main() -> int:
         train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True,
                                   generator=g, collate_fn=lambda b: collate(b, pad_id))
         model.train(); tot = 0.0; n = 0; optim.zero_grad()
+        _t0 = time.time(); _total = len(train_loader)
         for step, batch in enumerate(train_loader):
             if epoch == start_epoch and resume_step >= 0 and step <= resume_step:
                 continue  # fast-forward through already-trained batches
@@ -367,7 +369,10 @@ def main() -> int:
                     _save_ckpt(epoch, step)
             tot += out.loss.item(); n += 1
             if step % args.log_every == 0:
-                print(f"  ep{epoch} step{step} loss={out.loss.item():.4f}", flush=True)
+                _el = time.time() - _t0
+                _eta = _el / (step + 1) * (_total - step - 1)
+                print(f"  ep{epoch} step{step}/{_total} loss={out.loss.item():.4f} "
+                      f"el={_el/60:.1f}m eta={_eta/60:.1f}m", flush=True)
         tr = tot / max(n, 1)
 
         avg_val = float("nan")
