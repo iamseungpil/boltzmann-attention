@@ -21,7 +21,7 @@ SUP = re.compile(r'\b(cheap|expensive|highest|lowest|larg|small|biggest|bigger|s
                  r'least|better|brighter|faster|bigger|longer|shorter|more|less|prefer|further|farther)\w*', re.I)
 
 
-def build_user(nl, ex, gloss, synth_format=False):
+def build_user(nl, ex, gloss, synth_format=False, native=False):
     catalog = ex["variant_catalog"]
     attrs = sorted({k for it in catalog for k in it["options"]})
     ords = {}
@@ -45,6 +45,9 @@ def build_user(nl, ex, gloss, synth_format=False):
                f"(current options: {json.dumps(ex['old_options'])}, id={ex['old_item_id']}).\n")
     else:  # create: no reference item, build fresh
         ref = f"This creates a new {ex.get('product_name','item')} (no existing item to keep options from).\n"
+    if native:  # tool 스키마가 OP_SPEC을 대체 → build_spec 생략 (op-IR 텍스트 강제 안 함)
+        return (f"Query: {nl}\n\n{ref}"
+                f"The available options are: {attrs}.\n{ordline}")
     return (f"Query: {nl}\n\n{ref}"
             f"The available options are: {attrs}.\n{ordline}\n"
             f"{build_spec(gloss)}")
@@ -63,8 +66,12 @@ def main():
     ap.add_argument("--model", required=True)
     ap.add_argument("--gloss", type=int, default=0)
     ap.add_argument("--synth_format", type=int, default=0, help="1=match synth arm_B prompt structure (format-control)")
+    ap.add_argument("--native", type=int, default=0, help="1=native resolve_selection tool_call (facet-3·op-IR 폐기)")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
+    if args.native:
+        from synth_native_eval import chat_toolcall
+        from synth_to_nativefc import RESOLVE_SELECTION_SCHEMA, SYSTEM as NATIVE_SYS
     cases = [json.loads(l) for l in open(args.cases, encoding="utf-8")]
     n = ok = 0
     by_type = {}            # type -> [ok, total]
@@ -75,10 +82,17 @@ def main():
         case_op = c.get("case_op")
         for ex in c["exchanges"]:
             ex["_nl"] = c["nl"]
-            user = build_user(c["nl"], ex, bool(args.gloss), synth_format=bool(args.synth_format))
-            out = chat(args.base, args.model, [{"role": "system", "content": "Output ONLY JSON."},
-                                               {"role": "user", "content": user}], 256)
-            ir = extract_json(out)
+            user = build_user(c["nl"], ex, bool(args.gloss), synth_format=bool(args.synth_format),
+                              native=bool(args.native))
+            if args.native:  # native resolve_selection tool_call (op-IR 폐기·§23E 회피)
+                emit, _content = chat_toolcall(args.base, args.model, [RESOLVE_SELECTION_SCHEMA],
+                                               [{"role": "system", "content": NATIVE_SYS},
+                                                {"role": "user", "content": user}])
+                ir = emit["args"] if emit else None
+            else:
+                out = chat(args.base, args.model, [{"role": "system", "content": "Output ONLY JSON."},
+                                                   {"role": "user", "content": user}], 256)
+                ir = extract_json(out)
             rid = resolve_op_tau2(ir, ex["variant_catalog"], anchor_id=ex["old_item_id"]) if ir else None
             hit = int(rid == ex["gold_new_item_id"])
             sup_t, nch = case_item_type(ex)
