@@ -28,7 +28,8 @@ serve(){ # $1=served-id $2=lora(empty=base)
     CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve $BASE --port $PORT --max-model-len 8192 \
       --enable-auto-tool-choice --tool-call-parser hermes > $OUT/logs/serve_base.log 2>&1 &
   fi
-  for i in $(seq 1 70); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "$1" && return 0; sleep 10; done
+  # base는 모델명이 Qwen2.5-7B-Instruct(서빙id "base" 아님) → 둘 다 매치
+  for i in $(seq 1 70); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -qE "${1}|Qwen2.5-7B" && return 0; sleep 10; done
   echo "SERVE_FAIL $1"; tail -20 $OUT/logs/serve_${1}.log; return 1
 }
 
