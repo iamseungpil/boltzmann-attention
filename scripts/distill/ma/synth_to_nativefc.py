@@ -84,7 +84,7 @@ def to_native(ex):
                                    ensure_ascii=False)},
         ],
         "_meta": {"op": ex["op"], "N": len(ex["items"]), "label": ex.get("label"),
-                  "gold_op_ir": ex["op_ir"]},
+                  "gold_op_ir": ex["op_ir"], "bench": "synth", "should_succeed": True},
     }
 
 
