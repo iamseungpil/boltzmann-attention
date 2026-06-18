@@ -2,6 +2,7 @@
 
 > ★아키텍처 = 단일 merged LoRA 폐기. per-bench 스페셜리스트 LoRA(기존 자산) + 얽힌 결정의 typed-스텝 분해 + 결합(결정론 우선·잔여만 consensus LoRA) + 결정론 offload + ABox-swap. "통합"=weight 머지 아니라 *분해 협업*. (§5가 핵심.)
 > ⚠️ **용어 정정(2026-06-18)**: LLM의 역할 = **NL→formalize(4 facet) + 환원불가 추론**이지 "오케스트레이션"이 아님. 오케스트레이션(순서)은 facet 하나뿐. §1.5 필독.
+> ★★고정/변경 경계 = **`FIXED_VS_VARIABLE.md`(단일 권위)·메모리 `05-fixed-vs-variable`**: 고정={TBox weights + Scaffold 엔진}·변경={ABox}만. ⚠️ 현 `tau2/t2_gate.py RetailGate`=retail 하드코딩=**위반** → `GateInterpreter(gate_spec)` 통일이 *선행* keystone(전이 주장의 전제). resolve_selection/provenance/gate = 그 *고정 엔진*의 일부.
 
 > 진입 = 메모리 `01-four-bench-tbox`·`04-current-position`. 불변 = `03-anti-drift`·`11-transfer-direction`·`10-roles-deterministic`. 상위 = `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`(Option B native)·`THESIS_STATEMENT_2026_06_16.md §7`·`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`. 사용자 지시 = "통합 TBox 설계하라"·"설계먼저→리뷰→구현".
 

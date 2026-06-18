@@ -3,7 +3,8 @@
 > 동기: 지금까지 전이 해석이 흔들린 근본원인 = 실험이 전부 **e2e/STACK/net**으로 측정 → LLM의 NL→formalize가 scaffold(실행)·offload(resolve)·어휘(도구명)와 *섞임*. theory는 명확(LLM = flow·data 양쪽서 NL→formalize·intensional typed 구조). ⇒ **각 facet의 formalize *출력*을 직접 채점·confound 격리·ABox-swap 전이 측정**. 진입=메모리 `04`·`01`. 불변 = formalize 출력 채점(e2e 아님)·재학습0 swap·결정론 채점.
 
 ## 0. ★maximal thesis = ⟨TBox 고정 + scaffold 고정⟩ + ABox-only swap → transactional 벤치 전부 (가능성 분해)
-명제(최강형·사용자 2026-06-18): **TBox(학습·weight)와 scaffold(결정론)는 도메인·벤치 무관하게 *미수정*, ABox config만 swap**으로 새 벤치(tau2·SOP-Bench·…)를 푼다. = 전이.
+> ★고정/변경 경계 = **`FIXED_VS_VARIABLE.md`(단일 권위)·메모리 `05-fixed-vs-variable`** — 여기서 재정의 안 함.
+명제(최강형·사용자 2026-06-18): **TBox(학습·weight)와 scaffold(결정론 엔진)는 도메인·벤치 무관하게 *미수정*, ABox config만 swap**으로 새 벤치(tau2·SOP-Bench·…)를 푼다. = 전이. (scaffold는 *전이하는* 게 아니라 *불변*·ABox가 전이.)
 
 가능 조건 4개 (각 실태·정직):
 1. **closure**: 벤치 primitive ⊆ P1-P9 ∪ 생성원. transactional는 닫힘(census·생성원대수 §8). **AppWorld(G_loop)·WebArena(G_ground)·TravelPlanner(G_csp)는 scope-out** → "25개 전부"=과주장·정직형=**transactional ~17-19개**.
@@ -56,7 +57,8 @@
 - 주의: set이 deep multi-attr이면 per-attr 명명(LLM)+assembly(engine) 경계(§22)·여기선 *명명*만 채점.
 - 자산: `synth_depth.py`(multi-attr substitute·있음)·`ma_gold_extract`(τ² set gold·있음)·`tau2_op_eval`(by-op·있음). 신규=set-formalize 격리 채점(engine 전).
 
-## §S. ★scaffold 벤치-일반성 keystone (조건 ③ — maximal thesis의 가장 어려운 leg)
+## §S. ★★scaffold 통일 = *처음부터* 핵심 keystone (조건 ③·`FIXED_VS_VARIABLE §4-5`)
+> ⚠️ 직교 사이드 트랙 아님 — **선행 prerequisite**. scaffold가 bench-baked(현 `RetailGate`)면 "fix scaffold·swap ABox"라는 전이 주장 *자체가 성립 안 함*. facet TBox 전이(②)는 *고정 scaffold + ABox swap* 전제 하에서만 의미.
 - **질문**: 한 결정론 엔진(GATE_SPEC 해석기 + resolve + step-orchestrator)을 ABox(정책→GATE_SPEC·카탈로그)로만 파라미터화 → SOPBench·tau2 둘 다 **per-bench 코드분기 0**(grep `if bench`/`if domain` = 0)으로 작동하나.
 - **현 실태**: 별도 scaffold(t2_gate·RetailGate) → 통일 필요. plan §2b "GATE_SPEC replay=일반"이 설계.
 - **실험**: ① 두 벤치의 게이트/순서를 **GATE_SPEC(ABox)로 표현** → 일반 해석기가 replay. ② grep `if bench`=0 검증. ③ ABox-ablation(빈/틀린 GATE_SPEC→붕괴). ④ 동일 엔진 unchanged로 SOPBench+tau2+(airline) 작동.
