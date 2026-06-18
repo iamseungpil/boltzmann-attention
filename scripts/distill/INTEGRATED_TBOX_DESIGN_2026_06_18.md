@@ -24,17 +24,17 @@
 NL→formalize = NL→typed 형식구조. LLM=**intensional**(내포: "유저가 가리킨 그 item의 color를 silver로·나머지 유지") emit / 결정론=**extensional**(외연: concrete item_id) 계산. **4 facet**:
 | facet | 무엇 | 벤치 | LEARN(학습-facet) ABox-swap 전이 증거 |
 |---|---|---|---|
-| (1) flow-타입 & 순서 | P1-P9 명명(fetch?gate?confirm?)·gather-first 시퀀싱 | SOPBench | ❌ **미증명·측정 대상**. (SOPBench cross-domain bank/lib/health은 *DETERMINISTIC scaffold* 전이·**adapter-only ~0%**·`HANDOFF_06_06:18` — 학습-facet 아님. SOPBench→τ² 학습전이=M-D 1차 **음성** §12.) |
-| (2) data-flow threading | 출력→입력 바인딩 | TaskBench | ❌ **미증명·권위본 명시 반박**(`M_A_RESULTS:130` "threading-96%≠τ²-selection 전이·과독금지") |
-| (3) content op-명명 | filter/argmax/substitute 생성원 | Synth | ✅ **증명**(§21 synth-only *LoRA* 0.03→0.44·held-out 1.00) = **유일한 학습-전이 양성** |
-| (4) **operand formalize** | attr·among·set·criteria + per-attr delta(keep-rest §20-B) | Synth/CFB | ❌ **미증명·측정 대상**(§22=decomp-offload지 operand-명명 전이 아님) |
-**★LEARN 전이 *증명* = facet (3) 단독. (1)(2)(4) = 이 실험의 측정 대상이지 기반 가정 아님.** SOPBench cross-domain은 *DETERMINISTIC* 버킷 일반성 증거지 LEARN 전이 아님. ("오케스트레이션"=facet 1뿐. operand 추출/명명은 LLM·genuine 추론.)
+| (1) flow-타입 & 순서 | P1-P9 명명(fetch?gate?confirm?)·gather-first 시퀀싱 | SOPBench | ✅ **cross-domain 전이 양성**(`SOPBENCH_RESULTS:4` Exp-5a bank→6 held-out avg **77.3%**·리더보드 MAX 추월 3/6·재학습0; `:283-4` Exp-4a 학습 TBox "게이팅 전이 성공"). 단 77.3%=**STACK**(scaffold DETERMINISTIC + 학습 adapter)·LEARN-격리분=LODO 행서 분리(refinement). within-SOPBench·SOPBench→τ²는 측정 대상 |
+| (2) data-flow threading | 출력→입력 바인딩 | TaskBench | ◐ **규율 전이 실증·간섭에 가려짐**(`TASKBENCH_RESULTS:184` census: net≈0 = +참조인덱싱 규율 전이(self-ref −83%·14B 0.478→0.010) − 도구-어휘 간섭). 간섭은 **grounded-copy/ABox로 제거**(:192 = 우리 PROVIDE+DETERMINISTIC). within-TaskBench LODO·τ² 미측정 |
+| (3) content op-명명 | filter/argmax/substitute 생성원 | Synth | ✅ **격리 전이 양성·가장 깨끗**(§21 synth-only *LoRA*→retail+airline 0.03→0.44·held-out 1.00·τ²-도메인) |
+| (4) **operand formalize** | attr·among·set·criteria + per-attr delta(keep-rest §20-B) | Synth/CFB | ◐ **진짜 최약**(§21 천장 0.44=성분 B multi-attr set 과소추출)·**4 중 유일하게 궤적 census가 정정 안 함** = #2/딥리서치 초점 |
+**★정정(2026-06-18·궤적 census 권위본 `reports/facet_rft_2026/`·두 턴 전 over-correction 철회)**: (1)(2)(3)은 전이 *증거 있음*(강도·깨끗함 차이)·(4)만 진짜 최약. 단 전부 **cross-bench→τ² ABox-swap은 이 실험의 측정 대상**(기반 가정 아님). (두 턴 전 "(1)(2) 미증명"은 틀린 트리 `scripts/distill/`만 grep한 오류.) "오케스트레이션"=facet 1뿐·operand 추출/명명=LLM·genuine 추론.
 
 - **★offload 경계 = 둘(혼동 금지·D·"잔여=오케스트레이션뿐" 오류의 정체)**:
   - **경계 ①(스텝 내부)**: typed-selector[LLM·intensional] │ concrete-resolution + assembly + deep-exec[offload·§19·§22]. **이미 그어짐**([10]·§22). ← 정정 전 오류 = 이걸 통째로 지우고 ②만 "잔여"라 부름.
   - **경계 ②(스텝 사이·결합)**: facet-verdict 튜플 → emit/defer. decidable-비율(#2·딥리서치 중).
   - 정확: LLM = formalize(① 위·분량·난이도 **대부분**) + 결합-잔여(② 위·작을 수 있음). **#2는 ②만 측정·①은 이미 그어짐 — 두 측정 한 숫자로 합치지 말 것.**
-- **★전이 증거 = facet-의존(C·과주장 금지·anti-drift 6·표 참조)**: **LEARN 전이 증명 = facet (3) content op-명명 단독**(§21 synth-only LoRA). facet (1) flow·(2) threading·(4) operand-formalize = **전부 미증명**(측정 대상)·(2)는 권위본 명시 반박(:130)·(1)은 scaffold 전이만(adapter-only ~0%)·(1) 학습전이 M-D 음성(§12). intensional이라 도메인일반 개연성↑이나 증거는 facet (3)뿐 = 딥리서치 Q4/Q5 + 이 실험이 닫을 빈칸. **헤드라인 전이-주장은 기반 가정 아니라 측정 대상.**
+- **★전이 증거 = facet-의존(표 참조·궤적 census 후·과주장/과소진술 둘 다 금지·anti-drift 6)**: (1)(2)(3) 전이 증거 있음(깨끗함: 3>1>2)·(4)만 진짜 최약. **단 전부 cross-bench→τ² ABox-swap은 이 실험의 측정 대상**(기반 가정 아님). 핵심 refinement: (1) 77.3%는 STACK이라 **LEARN vs DETERMINISTIC 분할을 LODO 행서 분리**(§7 추가)·(2) 간섭 제거(grounded-copy/ABox)가 숨은 전이 드러냄(=분해+ABox-swap의 실증 정당화·`TASKBENCH:192`). #2/딥리서치 초점 = **facet (4) operand-formalize**(유일 미정정 최약).
 - **기여(DECOMP §B)**: LEARN(formalize+추론) 학습·ABox-swap 전이 / DETERMINISTIC 외재화 → 세 오류클래스(날조·환각·과다호출) 소멸 → Pareto-지배(단 *탐지가능* 오차클래스서·Risk 3). decidable 정밀경계(②) = 딥리서치 후 #2.
 
 ## 2. 공통 표현 = native tool-calling (Option B)
