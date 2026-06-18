@@ -438,3 +438,20 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **op-명명 구분의 진짜 시험 = mixed-op만**: synth held-out 7-op(§28)=trained 1.00 vs base 0.76(양성·in-substrate)·τ² airline 2-op(substitute+create)=base recog **0.89 → trained 0.81**(약간 역전이·spurious comparative emit).
 - **정정된 게이트① 본질**: 학습본이 τ²서 *두 축 다 약하게 역전이* — op-구분(airline 0.89→0.81) + operand(new_item_id 크게↓·지배). = §17 reverse-transfer. synth 1.00(통제)이 τ² 보장 못 함.
 - **방법론 박제**: op-명명 전이를 real 벤치서 시험하려면 **mixed-op 벤치 필요**·τ²(retail) 단일-op라 부적합 → τ² 병목=operand(facet 4)·op-구분 시험은 synth(7-op)가 담당. (벤치-타당성: 단일-op 데이터로 op-명명 분석 금지.)
+
+## 30. ★★★operand 전수 궤적조사 = 진짜 원인 3분해 (2026-06-18·`tau2_native_operand_autopsy.py`·gate① rows·base+trained × retail/airline)
+> "operand 역전이"(§29) aggregate가 아니라 케이스별 emitted_set vs gold_set 전수분류. 진짜 원인 = 3개(섞임).
+
+| | base retail | trained retail | base airline | trained airline |
+|---|---|---|---|---|
+| resolved_ok | 0.34 | 0.19 | 0.59 | 0.26 |
+| missing_key(과소추출) | 9 | 6 | — | — |
+| mixed_error(누락+오값) | 7 | **16** | — | **10** |
+| wrong_value | 3 | 2 | 8 | 7 |
+
+**원인 1 — 과소추출(missing_key·base 지배·§20-B 진성)**: `emit={brightness:low} gold={color:silver,brightness:low,power:battery}` = 3 중 1만 추출. base는 *보수적*(추출분 맞음·나머지 놓침). = multi-attr keep-rest formalize 난점.
+**원인 2 — 값 enum-정규화(wrong_value·base+trained 공통·OFFLOAD-able)**: `"Google Home"→"Google Assistant"·"basic_economy"→"business"` = 개념 맞고 카탈로그 enum 부정확. **엔진 최근접 스냅으로 풀림(§20 값-스냅 offload)**·neither 안 함.
+**원인 3 — 값 환각+spurious 키(trained 전용·역전이 아티팩트)**: trained `power="AC"`(gold battery·NL에 없음)·airline `emit={reservation_id:"XEHM4B"}`(set 키에 예약번호·§23D mixed_keys). = 좁은 synth가 synth 값-분포 주입 → τ² 틀린값/비-attr키. **trained만**.
+
+- **★결론(operand=offload냐 learned냐 정답)**: **둘 다 아님·분해됨** — (1)어느 attr 바꾸나=formalize·LLM(missing_key·§22 per-attr decomp) (2)값→카탈로그 enum=**offload**(스냅·§20) (3)monolithic set 학습=**해롭다**(환각/spurious 주입·§17/§23D). **처방 = 모델은 attr+근사값 명명(per-attr·narrow-train 금지) + 엔진이 값 enum 스냅.** trained<base는 "operand 학습 불가"가 아니라 **좁은 synth가 환각 주입**.
+- 정직: n 작음(retail 32·airline 27)·wrong_value의 enum-close vs 진짜환각 자동분리는 미정밀(예시로 질적 확인). 다음=enum-snap offload 구현→스냅 후 재채점(원인2 회수율).
