@@ -15,6 +15,15 @@ variant not found in db) are skipped with a logged reason (honest denominator).
 import json, argparse, sys
 
 
+def _full_nl(t):
+    """user가 *아는* 전체(=user-sim이 대화로 드러내는 것): reason_for_call(요약) + task_instructions(detail).
+    reason_for_call만 쓰면 cabin/multi-attr 명시가 누락돼 case가 underspecified처럼 보임(하네스 버그·2026-06-18)."""
+    ins = (t.get("user_scenario") or {}).get("instructions") or {}
+    parts = [ins.get("reason_for_call") or "", ins.get("task_instructions") or "",
+             ins.get("known_info") or ""]
+    return "\n".join(p for p in parts if p).strip()
+
+
 def build_cases(tasks, db):
     cases, skipped = [], []
     for t in tasks:
@@ -56,7 +65,7 @@ def build_cases(tasks, db):
             })
         if bad:
             skipped.append((t["id"], bad)); continue
-        nl = ((t.get("user_scenario") or {}).get("instructions") or {}).get("reason_for_call") or ""
+        nl = _full_nl(t)  # ★task_instructions 전체(=user-sim이 대화로 드러내는 것)·reason_for_call 요약만 쓰면 cabin/attr 명시 누락(2026-06-18 버그수정)
         cases.append({
             "task_id": t["id"],
             "nl": nl,
@@ -86,7 +95,7 @@ def build_cases_airline(tasks, db):
     cases, skipped = [], []
     for t in tasks:
         actions = (t.get("evaluation_criteria") or {}).get("actions") or []
-        nl = ((t.get("user_scenario") or {}).get("instructions") or {}).get("reason_for_call") or ""
+        nl = _full_nl(t)  # ★task_instructions 전체(=user-sim이 대화로 드러내는 것)·reason_for_call 요약만 쓰면 cabin/attr 명시 누락(2026-06-18 버그수정)
         for a in actions:
             name = a.get("name"); arg = a.get("arguments") or {}
             if name == "update_reservation_flights":
