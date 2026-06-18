@@ -41,7 +41,7 @@
 |---|---|---|---|
 | **① closure** | 벤치 primitive ⊆ P1-P9 ∪ 생성원 | transactional 닫힘(census)·**AppWorld/WebArena/TravelPlanner/OSWorld scope-out**("25 전부"=과주장) | census·적대탐색 |
 | **② TBox formalize-전이** | 고정 TBox가 새 벤치서 NL→formalize 정확(ABox swap) | facet 3 cross-bench **증명**(§21)·1·2 within-bench 전이증거·4 최약 | **4-facet 격리실험**(formalize 출력 채점·confound 제거·재학습0) |
-| **③ scaffold 벤치-일반성** | 한 엔진+ABox-only·per-bench 분기 0 | **현재 FALSE**(RetailGate=retail 하드코딩) | **GateInterpreter 통일 keystone**(prerequisite)+분기0 grep+ABox-ablation+다벤치 unchanged 작동 |
+| **③ scaffold 벤치-일반성** | 한 엔진+ABox-only·per-bench 분기 0 | **현재 FALSE**(RetailGate=retail 하드코딩) | **GateInterpreter 통일 keystone**(prerequisite)·설계=`GATE_INTERPRETER_UNIFICATION_DESIGN_2026_06_18.md`(유한 5 gate-kind·gate_spec ABox·분기0 grep·ABox-ablation·retail+airline+SOP unchanged) |
 | **④ ABox 충분성** | per-bench ABox 기계도출 | A1=기계·**A2(정책→GATE_SPEC)=유일 난제** | A2 front-end 자동화·LODO |
 
 **측정 규율(불변)**: formalize *출력* 채점(e2e/STACK/net 아님 — 이게 전이 해석 진동의 원인)·ABox-swap 재학습0·per-bench 분기 0(grep `if bench`)·결정론 보상·in-domain ceiling+base floor 동시(전이 gap 정의).
@@ -87,6 +87,7 @@
 |---|---|
 | **`FIXED_VS_VARIABLE.md`** | ★★고정/변경 경계 단일 권위(§2 전문) |
 | **`ISOLATION_EXPERIMENTS_2026_06_18.md`** | ★★조건 ②③ 격리 실험(4 facet + 스캐폴드 통일 §S) |
+| **`GATE_INTERPRETER_UNIFICATION_DESIGN_2026_06_18.md`** | ★★조건 ③ keystone: RetailGate/SOP gate → 하나의 GateInterpreter(유한 gate-kind·gate_spec=ABox·분기0) |
 | **`INTEGRATED_TBOX_DESIGN_2026_06_18.md`** | ★분해 멀티-스페셜리스트 + resolve_selection + ABox-swap |
 | **`NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md`** | ★★이론(𝔤/G/구체·B-budget·offload 필연·§10 에너지-Lie) |
 | **`GENERATOR_ALGEBRA_DESIGN_2026_06_17.md`** | ★★생성원 2축 closure·25벤치 적대 딥리서치 |
