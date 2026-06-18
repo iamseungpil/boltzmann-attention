@@ -455,3 +455,31 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 
 - **★결론(operand=offload냐 learned냐 정답)**: **둘 다 아님·분해됨** — (1)어느 attr 바꾸나=formalize·LLM(missing_key·§22 per-attr decomp) (2)값→카탈로그 enum=**offload**(스냅·§20) (3)monolithic set 학습=**해롭다**(환각/spurious 주입·§17/§23D). **처방 = 모델은 attr+근사값 명명(per-attr·narrow-train 금지) + 엔진이 값 enum 스냅.** trained<base는 "operand 학습 불가"가 아니라 **좁은 synth가 환각 주입**.
 - 정직: n 작음(retail 32·airline 27)·wrong_value의 enum-close vs 진짜환각 자동분리는 미정밀(예시로 질적 확인). 다음=enum-snap offload 구현→스냅 후 재채점(원인2 회수율).
+
+## 31. ★★★operand 문제 = 새벽(K-sweep·width) 실험이 *이미* 답함 — §29-30은 §23D 재현(정리+반영)
+> 사용자 교정: operand(역전이·offload vs learned)는 어제 새벽 K/width로 이미 분석·실험된 문제. §29-30이 그걸 참조 안 하고 재유도(anti-drift 위반). raw 정리(summary 파일 부재였음) + §22-23에 반영.
+
+**A. width SET_EXACT (operand=multi-attr 과소추출·decomp-offload 회복·`width/width_*.json` 정리):**
+| 모델 | w1 | w2 | w3 | w4 | w5 | decomp w4 |
+|---|---|---|---|---|---|---|
+| 1.5B | 0 | 0 | 0 | 0 | 0 | 0(포맷붕괴) |
+| 3B | 0.74 | 0.81 | 0.71 | 0.72 | 0.66 | 0.68 |
+| **7B** | 0.66 | 0.64 | 0.52 | **0.51** | 0.56 | **0.87** |
+| **14B** | 0.88 | 0.75 | 0.62 | 0.62 | 0.77 | **1.0** |
+| gpt-4.1 | 0.88 | 0.93 | 0.80 | 0.82 | 0.95 | — (frontier native) |
+| gpt4o-mini | 0.65 | 0.75 | 0.62 | 0.55 | 0.62 | 0.70 |
+| llama8b | 0.78 | 0.75 | 0.52 | 0.65 | 0.43 | **0.18(실패)** |
+| qwen7b-or | 0.63 | 0.70 | 0.43 | 0.50 | 0.50 | 0.65 |
+| **MD_widesubst(wide-train)** | **1.0** | **1.0** | **1.0** | **1.0** | 0.99 | — |
+- set_size_bias 음수 단조(7B w4 −1.82 = ~1.8 attr 누락) = **과소추출**(=§30 missing_key). **decomp_set_recall≈1.0**(per-attr 물으면 다 추출) → **under-extraction은 decomposition-offload로 회복**(7B 0.51→0.87·14B 1.0)·단 llama8b 0.18=모델별. frontier(gpt41)=평탄=width 소형현상(§22).
+- **MD_widesubst(wide-train)=synth 1.0** but **τ²서 퇴행**(§23D 0.44→0.30·mixed_keys·op_mismatch) = **monolithic set 학습이 라우팅 손상.**
+
+**B. K-sweep τ² (diversity가 operand 전이 고치나·`ksweep/tau2_K*.json` 정리):**
+| K | τ²_acc | recog |
+|---|---|---|
+| 1 | 0.22(kc)/0.34(rd) | 0.91/0.59 |
+| 2 | 0.38/0.41 | 0.78 |
+| 4-32 | **캡(§23C)** | recog→높음 |
+- diversity는 **op-routing recognition을 올리나 τ² new_item_id는 operand에 캡**(§23C). = 다양성≠operand 해결.
+
+**★결론(operand 문제의 *이미-확정* 답·§22-23)**: operand = (1)과소추출=**decomposition-offload 회복**(per-attr·§22·width 0.51→0.87) (2)값 enum-정규화=**offload 스냅**(§23B) (3)monolithic 학습=**퇴행**(§23D=§29-30) (4)diversity=**캡**(§23C) (5)scale=frontier native·소형은 decomp(§22). **§29-30(facet-3 native)은 §23D를 native서 재확인한 것·신규 아님.** ⇒ 처방 확정: **per-attr 명명(decomp·monolithic 학습 금지) + 엔진 enum-스냅.** 재유도 말 것.
