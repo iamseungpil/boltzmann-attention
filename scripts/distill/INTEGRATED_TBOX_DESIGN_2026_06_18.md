@@ -1,6 +1,7 @@
-# 통합 TBox 설계 (2026-06-18) — 4벤치(SOPBench+TaskBench+CFB+Synth) = 분해된 멀티-스페셜리스트 오케스트레이션
+# 통합 TBox 설계 (2026-06-18) — 4벤치(SOPBench+TaskBench+CFB+Synth) = 분해된 멀티-스페셜리스트 NL→formalize
 
-> ★아키텍처 = 단일 merged LoRA 폐기. per-bench 스페셜리스트 LoRA(기존 자산) + 얽힌 결정의 typed-스텝 분해 + 결합(결정론 우선·잔여만 consensus LoRA) + 결정론 offload + ABox-swap. "통합"=weight 머지 아니라 *오케스트레이션*. (§5가 핵심.)
+> ★아키텍처 = 단일 merged LoRA 폐기. per-bench 스페셜리스트 LoRA(기존 자산) + 얽힌 결정의 typed-스텝 분해 + 결합(결정론 우선·잔여만 consensus LoRA) + 결정론 offload + ABox-swap. "통합"=weight 머지 아니라 *분해 협업*. (§5가 핵심.)
+> ⚠️ **용어 정정(2026-06-18)**: LLM의 역할 = **NL→formalize(4 facet) + 환원불가 추론**이지 "오케스트레이션"이 아님. 오케스트레이션(순서)은 facet 하나뿐. §1.5 필독.
 
 > 진입 = 메모리 `01-four-bench-tbox`·`04-current-position`. 불변 = `03-anti-drift`·`11-transfer-direction`·`10-roles-deterministic`. 상위 = `CROSS_BENCH_TRANSFER_PLAN_2026_06_14.md`(Option B native)·`THESIS_STATEMENT_2026_06_16.md §7`·`NATIVE_FC_CONVERTER_DESIGN_2026_06_14.md`. 사용자 지시 = "통합 TBox 설계하라"·"설계먼저→리뷰→구현".
 
@@ -12,18 +13,31 @@
 - **4벤치를 한 native 포맷으로 묶은 데이터·모델 = 없음.** v7 = SOPBench+TaskBench(+CFB), synth content-routing 미포함. ⇒ 통합 TBox = 신규 학습.
 
 ## 1. 목표 (thesis 헤드라인)
-**4벤치의 facet을 per-bench 스페셜리스트 LoRA(기존 자산)로 두고, 얽힌 결정을 typed 스텝으로 *분해*해 오케스트레이션** + 결합은 결정론-우선·잔여만 consensus LoRA + 결정론 offload(resolve/provenance/gate) + ABox-swap 전이. (단일 merged LoRA = 폐기·§5.) 헤드라인 = **분해된 협업이 base와 monolith를 상대 Pareto-지배 + ABox-swap 무재학습 전이(retail→airline·τ²→SOP-Bench) + 결합의 decidable-비율 실측**. (절대수 약속 금지·§5b.)
+**4벤치의 NL→formalize facet을 per-bench 스페셜리스트 LoRA(기존 자산)로 두고, 얽힌 결정을 typed 스텝으로 *분해*** + facet-결합은 결정론-우선·잔여만 consensus LoRA + 결정론 offload(concrete resolution·deep exec·gate) + ABox-swap 전이. (단일 merged LoRA = 폐기·§5.) 헤드라인 = **분해된 협업이 base와 monolith를 상대 Pareto-지배 + ABox-swap 무재학습 전이(retail→airline·τ²→SOP-Bench) + 결합의 decidable-비율 실측**. (절대수 약속 금지·§5b.)
+
+## 1.5. ★LLM의 역할 = NL→formalize (4 facet) + 환원불가 추론 (오케스트레이션 아님·2026-06-18 정정)
+thesis(DECOMP §A): LLM 학습-일반 = **NL→formalize 메타스킬 + 도메인-불변 추론**. NL→formalize = NL→typed 형식구조, **4 facet**:
+| facet | 무엇 | 벤치 | 비고 |
+|---|---|---|---|
+| (1) flow-타입 & 순서 | P1-P9 명명(fetch?gate?confirm?)·gather-first 시퀀싱 | SOPBench | = "오케스트레이션"은 *이것뿐* |
+| (2) data-flow threading | 출력→입력 바인딩 | TaskBench | |
+| (3) content op-명명 | filter/argmax/substitute 생성원 | Synth | |
+| (4) **operand formalize** | attr·among·set·criteria + per-attr delta(keep-rest §20-B) | Synth/CFB | **genuine 추론·가장 어려움** |
+
+- **★offload(외재화) 경계 정정**: offload = ① concrete denotation(typed selector→order_id/item_id·anchor grounding) ② deep op 실행(op-IR+catalog→item·resolve 엔진·§19) ③ gate enforce·verify. **operand의 *추출/명명*(facet 4)은 LLM이지 offload 아님** — concrete 값 *해소*만 offload. (이전 "잔여=오케스트레이션뿐"은 facet 3·4를 누락한 오류.)
+- **기여(DECOMP §B)**: 이 NL→formalize(4 facet)+환원불가 추론을 *학습*·ABox-swap 전이 / decidable(concrete resolution·deep exec·gate)은 외재화 → 세 오류클래스(날조·환각·과다호출) 소멸 → Pareto-지배.
+- decidable의 *정밀 경계*(어느 facet/결합이 offload·어느 게 학습) = 리뷰어 의견 후 별도 검토(TODO).
 
 ## 2. 공통 표현 = native tool-calling (Option B)
 표준 OpenAI function-calling(`{tools, messages: [...tool_calls{name,arguments}...]}`)·vLLM `--tool-call-parser hermes`. 포맷매칭 브리지 제거 = 공격표면 소멸. config=포맷 validity(XGrammar) / 학습=내용(어느 도구·인자). **전 4벤치를 이 한 포맷으로.** (op-IR "Output ONLY JSON"은 §23E서 native agent 붕괴 → 폐기.)
 
-## 3. ★핵심 설계 — 4벤치 → 공통 native 포맷 (각 벤치의 학습 primitive 보존)
-| 벤치 | 학습 primitive | native 포맷 매핑 | 데이터 |
+## 3. ★핵심 설계 — 4벤치 → 공통 native 포맷 (각 벤치 = NL→formalize의 한 facet·§1.5)
+| 벤치 | 학습 facet(NL→formalize) | native 포맷 매핑 | 데이터 |
 |---|---|---|---|
-| SOPBench | gather-first(R2)·gate/decision-offload(R3)·순서·write-confirm(P5/P6/P8) | 도메인 도구 tool_calls + 순서/게이트 규율 supervise | 재사용(native 변환 존재) |
-| TaskBench | tool-DAG threading·node/edge 선택(R1/R4/R6·P2a/P3) | 멀티 tool_calls·출력→인자 threading | 재사용(`tb_sft`·`tbnfc_*`) |
-| CFB | grounded 2-hop fetch-first(R1b·P2b) | getter tool_call → 결과서 인자 grounding → action tool_call | 재사용(v7 데이터) |
-| **Synth** | content 생성원 op-routing(filter/argmax/.../substitute/create) | **★resolve-tool로의 native tool_call** (아래 3a·op-IR 폐기) | **신규 변환 필요** |
+| SOPBench | facet1 flow-타입/순서: gather-first(R2)·gate(R3)·write-confirm(P5/P6/P8) | 도메인 도구 tool_calls + 순서/게이트 규율 supervise | 재사용(native 변환 존재) |
+| TaskBench | facet2 data-flow threading(R1/R4/R6·P2a/P3) | 멀티 tool_calls·출력→인자 threading | 재사용(`tb_sft`·`tbnfc_*`) |
+| CFB | facet4 operand-grounding 분기 + fetch-first(R1b·P2b) | getter tool_call → 결과서 인자 grounding → action tool_call | 재사용(v7 데이터) |
+| **Synth** | facet3 content op-명명 + facet4 operand formalize(attr/set·keep-rest) | **★resolve-tool로의 native tool_call** (아래 3a·op-IR 폐기) | **신규 변환 필요** |
 
 ### 3a. ★Synth → native: content-op = resolve-tool 호출 (신규·핵심 기여)
 op-IR(`{"op":"argmax",...}` 텍스트 출력)을 폐기하고, **도구 카탈로그(ABox)에 결정론 `resolve_selection` 도구를 노출**:
@@ -51,7 +65,7 @@ resolve_selection(op: argmax|argmin|rank|filter|comparative|substitute|create,
 ## 5. ★아키텍처 = 분해된 멀티-스페셜리스트 (단일 merged LoRA 폐기)
 **단일 merged LoRA = 폐기**(monolith=thesis 반대). 얽힌 결정(한 tool-call이 게이트+grounding+threading 동시 요구)을 *합쳐 한 LoRA에 내재화*하는 건 틀림 — 얽힘은 머지의 이유가 아니라 **분해의 이유**. 분해를 오케스트레이션 레벨까지:
 
-- **스페셜리스트 LoRA = 기존 학습 자산 재사용**(per-facet·머지 안 함): SOP(게이트-상태)·TaskBench(threading)·CFB(grounding)·synth(content-op 명명). 각자 자기 facet을 *한 스텝*에 산출. 각 LoRA는 도메인-일반 TBox·ABox-swap 전이.
+- **스페셜리스트 LoRA = 기존 학습 자산 재사용**(per-facet·머지 안 함·각 facet=NL→formalize §1.5): SOP(facet1 flow/gate)·TaskBench(facet2 threading)·CFB(facet4 grounding-분기)·synth(facet3 op-명명 + facet4 operand formalize). 각자 자기 facet을 *한 스텝*에 산출. 각 LoRA는 도메인-일반 TBox·ABox-swap 전이. (operand *추출*은 LLM·concrete *해소*만 offload.)
 - **얽힌 결정 → 순차 typed 스텝**(결정론 scaffold가 몰아감·thesis §2 "typed 증분 스텝"): 예 "지금 exchange 호출?" = (1)게이트-상태 확인[SOP/det-gate] (2)인자 grounding 확인[CFB/provenance] (3)order_id threading 확인[TaskBench/det] (4)content-op resolve[synth→resolve 엔진·§3a].
 - **★결합(combine) = 별도 *다음* 스텝**: facet 출력들을 "emit / 보류 / 어느 도구" 결정으로 합침.
   - **결합 규칙이 decidable → 결정론 알고리즘**(offload·예: gate∧grounded∧resolved → emit).
