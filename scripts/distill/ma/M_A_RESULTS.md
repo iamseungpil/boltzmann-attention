@@ -404,3 +404,16 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **이번 세션 결과의 *올바른* 자리**: §17(content 생성원 𝔤 완성·P4-content)·§21(**𝔤-식별 학습·전이=C8 양성**·heldout 1.00·도메인일반=thesis 예측 적중)·§22-23(실행=offload·명명만 학습·wide-train 퇴행이 "execution 학습 금지" 확증)·§24-25(=기존 P2b/P1·신규 아님). **전부 이론 정합·이론이 예측한 것**.
 - **올바른 다음(bespoke 아님)**: 확립된 프로그램 진행 — **P2b(R1b provenance·fetch-first)·P6(confirm)·P7(recovery)를 도메인-일반 *학습* + content 생성원 + ABox-swap 전이 검증**(THESIS §7 증명경로). agent_collapse는 P2b 학습으로 닫고, GBW/width는 §21-22(명명 학습+실행 offload)로. **e2e 통합 = P-primitive 학습된 모델 + 결정론 실행·ABox config**(손-짜기 아님).
 - 교훈(박제): 권위본 먼저 grep([[feedback_check_authority_before_rederive]])·"하나 풀면 다음" peeling을 *새 발견*으로 격상 말 것·각 벽을 P1-P9에 매핑부터.
+
+## 28. ★★★facet (3) native keystone = op-IR(§21)이 native 형식서 재현 = §23E 다리 확보 (2026-06-18·`facet3_native.sh`+`synth_to_nativefc.py`+`synth_native_eval.py`·held-out 252·새 어휘)
+> §21 cross-bench 양성(op-naming 전이)이 op-IR 포맷이라 native agent 깸(§23E pass^1 0.075). 격리실험 facet(3)=op-naming을 **native `resolve_selection` tool_call**로 재학습(op-IR 폐기·anchor_id 모델제외)→held-out(새 어휘) op-naming/operand 채점(formalize 출력만·e2e 아님).
+
+| | recognition | operand_acc | no_tool_call |
+|---|---|---|---|
+| base (native·무학습) | 0.758 | **0.286** | 0.008 |
+| **trained (native·synth-only LoRA)** | **1.000** | **1.000** | 0.000 |
+
+- per-op 전 7개(filter/argmax/argmin/rank/comparative/substitute/create) recognition·operand **모두 1.00**·emit 균형(각 36). base는 op-name 어렴풋(0.76) but operand 붕괴(comparative/filter/substitute 0~0.03·create 0.14).
+- **★§21이 native 형식서 1.00 재현**: op-IR held-out 1.00 → native resolve_selection held-out **1.00**(recognition+operand). **형식 변경(op-IR→native tool_call)이 스킬 안 깸** = §23E 다리가 *formalize 레벨*서 확보. native라 agent-호환(op-IR처럼 텍스트 안 뱉음).
+- 정직: held-out **synth 새-어휘(오프라인 단발 op-naming)**·§21 synth held-out과 동급 측정(이번엔 native). **미측정**: ① native cross-bench τ²(retail+airline·§21은 op-IR로 0.44) ② e2e multi-turn agent(§23E 진짜 시험). 다음 = 둘.
+- 도구: `synth_to_nativefc.py`(생성기→native·anchor_id 제외)·`synth_native_eval.py`(tool_call 파싱 채점)·adapter `facet3_native_ep1`(7B·6020·ep1).
