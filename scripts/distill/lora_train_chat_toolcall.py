@@ -95,6 +95,11 @@ def parse_args() -> argparse.Namespace:
                    help="ALSO save a NUMBERED, eval-able adapter snapshot to "
                         "<out-dir>/step{opt_step}/ every N optimizer steps (0=off). "
                         "Lets us pick the checkpoint before overfit/forgetting sets in.")
+    p.add_argument("--ckpt-at", default="",
+                   help="comma-list of EXPLICIT optimizer-steps to snapshot, e.g. "
+                        "'5,10,20,40'. Captures the pre-collapse regime (loss often "
+                        "memorizes by opt-step ~25) without a fine global interval "
+                        "exploding disk. Combines with --ckpt-steps.")
     p.add_argument("--init-adapter", default=None,
                    help="path to an existing LoRA adapter dir to warm-start from "
                         "(must match lora-r/alpha/target)")
@@ -329,6 +334,9 @@ def main() -> int:
     optim = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
     out_dir = Path(args.out_dir); out_dir.mkdir(parents=True, exist_ok=True)
     best = float("inf")
+    ckpt_at = {int(x) for x in args.ckpt_at.split(",") if x.strip()}
+    if ckpt_at:
+        print(f"[ckpt-at] explicit snapshot opt-steps: {sorted(ckpt_at)}", flush=True)
 
     # ---- preemption-safe resume (adapter + optimizer + position) ----
     start_epoch, resume_step = 0, -1
@@ -371,7 +379,8 @@ def main() -> int:
                 opt_step = (step + 1) // args.grad_accum
                 if args.save_every and opt_step % args.save_every == 0:
                     _save_ckpt(epoch, step)
-                if args.ckpt_steps and opt_step % args.ckpt_steps == 0:
+                if (args.ckpt_steps and opt_step % args.ckpt_steps == 0) \
+                        or opt_step in ckpt_at:
                     snap = out_dir / f"step{opt_step}"
                     model.save_pretrained(str(snap)); tok.save_pretrained(str(snap))
                     print(f"  [snap] eval-able ckpt ep{epoch} opt_step{opt_step} -> {snap}",
