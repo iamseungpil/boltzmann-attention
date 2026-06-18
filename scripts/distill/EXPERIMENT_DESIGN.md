@@ -62,7 +62,7 @@
 ## §5b. 비용 회계 (LOCKED — thesis 핵심 = 싸게 먹혀야·이미 committed)
 **비용-효율이 헤드라인의 절반**(나머지=전이). 두 축 + 3 비교대상 모두 *측정*(추정 금지). 권위 = §1.6 배터리 F1·F7·`DECOMPOSITION_OPTIMALITY §B`·`FIELD_GAP` 비용축.
 
-- **축1 = ABox 생성 비용**(one-time·벤치당·amortize) = **F1**: 벤치당 수동 LOC + 기계화율%(A1/A5=기계·**A2=유일 수동**). **F1 장부 상시 갱신**(게이트/스펙 변경마다·손공학 creep 방어). 실측: retail ~40줄 / **airline·telecom 0줄(Fable-5 컴파일)** / 복구템플릿 0줄. thesis = A2가 front-end로 소거 → 새 벤치 → 0.
+- **축1 = ABox 생성 비용**(one-time·벤치당·amortize) = **F1**: per-part 정직(`FIXED_VS_VARIABLE §2bis`) — **A1=전 tool-use 공통(차등 아님·상쇄)·A5=파생(0)·attr-vocab=소량 수동(비숫자 ordinal 순서)·A2(정책→GATE_SPEC)=차등 비용 본체·front-end 자동화 타깃**. F1 장부 상시 갱신. 실측 "airline/telecom 0줄"=*A2 컴파일*(Fable-5)이 0·A1/attr-vocab은 별도. thesis = A2가 front-end로 소거.
 - **축2 = 추론 비용**(recurring·쿼리당) = **F7**: 토큰(모델-불변) + USD(스냅샷) + **cost-of-pass=E[비용]/R** + accuracy×cost Pareto. 소형 7B + 결정론 엔진(0-model-recurring) + MSC(최소입력).
 - **TCO**(DECOMP §B): on-prem은 recurring 지배 → 분담이 최소화.
 - **★3 비교대상**: (a) monolith 빅LLM = 추론비용 높음·도메인별 프롬프트 / (b) run_scripted(결정론 전부) = 도메인별 절차 손코딩 비용 높음·**전이 불가** / (c) 우리 = A2만(자동화)·7B 추론·ABox-swap. **= monolith를 추론비용서·run_scripted를 전이서 Pareto-지배.**

@@ -38,7 +38,12 @@ ABox = **4개 typed 파트의 config 데이터**(JSON/dict). 벤치/도메인마
 - **무거운 OWL 온톨로지 아님** — 형태는 가벼운 config/spec(JSON dict).
 - **free-text 정책 아님** — A2는 정책 *프로즈*를 컴파일한 *구조 spec*(프롬프트 문자열 금지·`t2_gate.py:38`).
 
-**비용 분해(실무)**: A1·A5 = 기계(0 수동). attr-type = 소량. **재발 비용 본체 = A2(정책→GATE_SPEC) 컴파일** = front-end 자동화 타깃(airline/telecom 이미 Fable-5 **0줄** 컴파일·F1 장부 실측). 통일된 GateInterpreter는 이 데이터만 읽으므로 per-bench 코드=0.
+**비용 분해(실무·정직 — "A2만 0" 아님)**:
+- **A1 도구 카탈로그** = 벤치는 주어짐·실배포는 도구 스키마 정의 필요. ⚠️ **전 tool-use 시스템 공통**(monolith도 도구정의 프롬프트 필요) → *우리 대비 차등 비용 아님*(비교서 상쇄). 0이 아니라 "공통".
+- **A5 문법** = A1서 기계 파생 = **~0**.
+- **attr-vocab** = 숫자 attr 자동·**비숫자 ordinal 순서(cabin basic<eco<biz)는 수동 등록**(실제 `tau2_op_resolver` cabin ORD_WORDS 수동) = **소량 수동**(일부 자동화 가능).
+- **A2 GATE_SPEC** = 정책 NL→spec 컴파일 = **우리 차등·재발 비용 본체·front-end 자동화 타깃**. F1 장부 "airline/telecom 0줄"은 *A2(정책) 컴파일*이 0이란 뜻(Fable-5)·**A1·attr-vocab은 별도로 있었음**.
+- ⇒ **차등 수동 비용 = A2(정책) + attr-vocab(소량)**·A1=공통(상쇄)·A5=파생. 통일 GateInterpreter는 데이터만 읽으므로 per-bench *코드*=0(데이터 비용과 별개).
 
 ## 3. ★전이의 정의
 **전이 ≡ ABox만 swap, TBox·Scaffold는 unchanged (재학습0·코드수정0).**
