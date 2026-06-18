@@ -417,3 +417,18 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **★§21이 native 형식서 1.00 재현**: op-IR held-out 1.00 → native resolve_selection held-out **1.00**(recognition+operand). **형식 변경(op-IR→native tool_call)이 스킬 안 깸** = §23E 다리가 *formalize 레벨*서 확보. native라 agent-호환(op-IR처럼 텍스트 안 뱉음).
 - 정직: held-out **synth 새-어휘(오프라인 단발 op-naming)**·§21 synth held-out과 동급 측정(이번엔 native). **미측정**: ① native cross-bench τ²(retail+airline·§21은 op-IR로 0.44) ② e2e multi-turn agent(§23E 진짜 시험). 다음 = 둘.
 - 도구: `synth_to_nativefc.py`(생성기→native·anchor_id 제외)·`synth_native_eval.py`(tool_call 파싱 채점)·adapter `facet3_native_ep1`(7B·6020·ep1).
+
+## 29. ★facet (3) gate① = native op-naming의 진짜 τ² 전이 = 음성·역전이 (2026-06-18·`facet3_tau2_native.sh`·`tau2_op_eval --native`·base+trained × retail+airline)
+> §28(synth held-out native 1.00) 후 진짜 τ² NL 전이 시험. facet3_native_ep1 vs base, new_item_id acc.
+
+| arm | new_item_id | recognition | 비고 |
+|---|---|---|---|
+| base retail | **0.34**(11/32) | 0.88 | — |
+| trained retail | **0.19**(6/32) | 0.88 | **base 미만(역전이)** |
+| base airline | **0.59**(16/27) | 0.89 | — |
+| trained airline | **0.26**(7/27) | 0.81 | **base 미만** |
+
+- **★역전이**: 학습본 < base (retail 0.34→0.19·airline 0.59→0.26). recognition은 비슷(~0.88·op은 맞힘·retail 전부 substitute) → **operand(set)을 base보다 더 틀림** = facet 4 학습이 τ²서 *해롭다*. = **§17/§23D "좁은 synth SFT 표면매핑 역전이" 재현**·synth held-out 1.00(§28)이 τ² 전이 보장 안 함.
+- **함의①**: facet 4(operand·hard multi-attr keep-rest) = **학습-전이 안 됨 → offload(§22 decomposition)**. theory-vs-리뷰어서 hard operand는 **리뷰어(offload) 편**.
+- **함의②(진단 필요)**: 내 facet3_native(0.19) < §21 MD_route op-IR(0.44) → 순수 native-실패 아니라 **synth_to_nativefc 데이터가 MD_route보다 좁을 가능성**. 분리 필요: 데이터 다양성 vs native 포맷 vs operand-비학습. (op-naming 자체는 native서 살아있음 §28·recognition 0.88.)
+- 정직: n 작음(32/27)·retail은 op 자명(전부 substitute)이라 operand가 차별점·airline 16→7 격차 큼.
