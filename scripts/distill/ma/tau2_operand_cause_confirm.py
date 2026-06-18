@@ -69,14 +69,7 @@ def main():
         n += 1
         ir = r.get("ir") or {}
         op = ir.get("op")
-        # 케이스 카탈로그 찾기 (task + old item)
-        key = None
-        for (tid, oid) in cases:
-            if tid == r.get("task") and oid == r.get("gold") or tid == r.get("task"):
-                key = (tid, oid)
-                if oid == r.get("ir", {}).get("anchor_id"):
-                    break
-        # fallback: task만으로 첫 케이스
+        # 케이스 카탈로그 찾기 (task로 매칭)
         cobj = None
         for (tid, oid), v in cases.items():
             if tid == r.get("task"):
