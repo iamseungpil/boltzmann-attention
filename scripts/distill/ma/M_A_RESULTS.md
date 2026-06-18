@@ -518,3 +518,16 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **확정**: under-extraction = **소형 조건부**(frontier gpt-4.1 평탄 0.80-0.95·미만 하락)·decomp capable만 회복(7B 0.87·14B 1.0·llama-8b 실패 0.18=모델별).
 - ⚠️ **미완(정직)**: 계획된 **llama-70b·qwen-72b·gpt-4.1-mini·mistral 미완료**(width 파일 없음) → frontier 단일점(gpt-4.1)+하락추세만·중간 스케일곡선 비어있음. 14B 비단조(noisy).
 - ⚠️ **scope**: under-extraction(synth width) 축뿐 — **airline keep-rest/wrong-value(§32)와 무관**(별 실험 필요).
+
+## 34. ★★★[CONFIRMED CAUSE·§29-34 정정] airline 실패 = *하네스 추출 버그*(reason_for_call 사용)·벤치/모델 결함 아님 (2026-06-18·사용자 교정 "리더보드가 작동하는데 벤치 결함은 말이 안 됨")
+> 사용자: "벤치 문제면 다른 리더보드도 다 틀린 건가? 말이 안 됨." → 실제 τ² 태스크 전수확인.
+
+**확정**: cabin은 **항상 `task_instructions`(전체 user 지시)에 명시**돼 있는데 `ma_gold_extract`가 **`reason_for_call`(요약)만** 사용 → cabin 명시를 버림.
+| task | reason_for_call(추출에 씀) | task_instructions(진짜) | gold |
+|---|---|---|---|
+| 7 | "cancel flights" | "**upgrade to business** then cancel" | business |
+| 14 | "change reservation" | "cheapest **business** round trip" | business |
+| 29 | "change to nonstop, same dates" | "cheapest **Economy** (not basic)" | economy |
+- 실제 τ² 에이전트는 user-sim 대화로 `task_instructions` 받음 → cabin 도출가능·**리더보드 정상**(벤치 멀쩡). 제 오프라인 eval만 요약으로 잘라 underspecified처럼 보임 = **하네스 버그.**
+- **★대규모 정정**: §32(airline=formalize 잔여)·§34(케이스 결함) **둘 다 철회** = 추출 버그. §29-31 airline 수치·§30 retail missing_key(reason_for_call이 attr 누락?)도 **오염 가능** → task_instructions로 재추출·재측정 필요.
+- 교훈: 오프라인 eval의 입력이 실벤치 에이전트 입력과 다르면(요약 vs 전체 지시) 전부 무효 — "NL→graph 실현가능 천장"(EXPERIMENT_DESIGN §1) 동형(답이 입력에 있나 먼저 확인). 사용자 "리더보드 교차조사" 규율이 잡음.
