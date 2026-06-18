@@ -15,6 +15,8 @@ import os
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gate", type=int, default=0)
+    ap.add_argument("--resolve", type=int, default=0,
+                    help="resolve_selection live wiring (t2_resolve_patch) on — 실 e2e operand offload")
     ap.add_argument("--domain", default="retail")
     ap.add_argument("--agent_model", default="Qwen/Qwen2.5-7B-Instruct")
     ap.add_argument("--agent_base", default="http://localhost:8351/v1")
@@ -57,6 +59,11 @@ def main():
     if _bad:  # allowed but loud
         print("[COST GUARD][WARN] frontier override ON — billing Claude to the OpenRouter key: "
               + ", ".join(f"{n}={v}" for n, v in _bad))
+
+    if a.resolve:
+        import t2_resolve_patch
+        t2_resolve_patch.apply()
+        print("[t2_run] resolve_selection wiring ON")
 
     if a.gate:
         import t2_gate_patch

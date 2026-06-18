@@ -123,7 +123,7 @@ combine(steps, verdicts, state):
 |---|---|---|---|---|
 | facet1 flow/gate | SOPBench LoRA | `phase4/qwen7b_tbox_*`(LODO) | 도메인 tool_calls | ⚠️ **e2e 기여=측정 대상**(held-out adapter 기여≈0·scaffold 우위·SOP:583) |
 | facet2 threading | TaskBench LoRA | `qwen7b_tb_*`·`qwen7b_nfc_lodo_*` | 멀티 tool_calls·threading | ⚠️ **TaskBench→τ² 0건 미실행=측정 대상** |
-| facet3 content-op | Synth LoRA | `synth_to_nativefc.py` 재생성 | **resolve_selection(op + intensional delta)** | 🔄 ★C0 keystone(native τ² 전이=§21 동급?) |
+| facet3 content-op | Synth LoRA | `synth_to_nativefc.py` 재생성 | **resolve_selection(op + intensional delta)** | 🔄 ★C0 keystone(실 e2e서 base 0.205 대비 향상?) |
 | operand 조립 | **엔진(offload)** | `tau2_op_resolver` + GROUND + per-attr decomp | keep-rest·multi-attr·concrete 해소 | = 결정론·**학습 아님**(§23D 퇴행) |
 | gate/concrete | **엔진(offload)** | GateInterpreter + provenance/GROUND | enforce·grounding | = 결정론·ABox-도출 |
 
@@ -144,11 +144,11 @@ combine(steps, verdicts, state):
 ---
 
 ## 8. ★단계 빌드 (각 단계 실측·작은 증분)
-- **C0 ★GO/NO-GO keystone (sanity 아님·리뷰 ④·동전던지기·임계경로)**: native facet3가 **retail+airline τ² ABox-swap 전이를 op-IR §21(0.44)과 동급 재현하나.**
-  - 배경: §28 = native synth held-out **1.00**(op-naming 보존·신뢰·*synth-level만*) / §29 = facet3_native_ep1 τ² **역전이 0.19<base 0.34**(단 **오프라인 op-eval=신뢰불가·철회**·HANDOFF §3). ⇒ **C0 = §29를 실 user-sim e2e로 재시험**(오프라인 프록시 폐기).
-  - §33 진단(역전이 3원인): (a)`synth_to_nativefc` 데이터가 MD_route보다 좁음(다양성) (b)native 포맷 근본(§23E) (c)operand 과적합(facet3가 `set`까지 gold 학습→§23D 퇴행).
-  - **GO** = §21 동급 → 진행.
-  - **★NO-GO Plan B (갈림은 autopsy로)**: ① op 맞힘(recognition↑)·operand만 틀림 → **데이터 다양성↑ 재생성 + operand SFT-가중 축소**(`set`을 loss서 약화·routing 보존) ② native emit 자체 실패(op도 틀림) → 학습데이터/converter 포맷 문제 ③ 둘 다 OK인데 전이 degrade → **§23E 근본 = resolve_selection 접근 재설계**. (막지 말고 *가장 먼저·작게* 던질 것.)
+- **C0 ★GO/NO-GO keystone (sanity 아님·리뷰 ④·동전던지기·임계경로)**: native facet3 + resolve offload 시스템이 **실 user-sim e2e서 base(retail pass^1 0.205·신뢰 실측)를 상대적으로 올리나** (Pareto-지배·절대수 약속 금지·§7).
+  - **신뢰 가능 배경만**: §28 = native synth held-out op-naming **1.00**(synth-level·신뢰). §23E = op-IR→native 전환서 붕괴 *전례*(native 포맷 위험 환기·정성).
+  - ⚠️ **§21(retail+airline 0.44)·§29-32(τ² 역전이·operand 분석)는 오프라인 op-eval = 신뢰불가·철회**(`HANDOFF §0·§3`·`06-NOW`) → **C0 설계의 기준·근거로 쓰지 않음.** C0가 실 e2e로 *처음부터* 측정(선험 수치 닻내림 금지).
+  - **GO** = 실 e2e서 base 대비 상대 향상 + op-naming 전이가 native서 살아있음.
+  - **★NO-GO Plan B (원인은 *실 e2e autopsy로 그때* 분류·선험 진단 금지)**: ① native emit 자체 실패(op 못 맞힘) → 학습데이터/converter 포맷 ② op는 맞히나 operand 조립 실패 → 엔진 offload(keep-rest·concrete) 점검 ③ 포맷·op 다 OK인데 전이 degrade → native 접근 재설계. (막지 말고 *가장 먼저·작게* 던질 것.)
   - 병행: SOP·TaskBench native-FC emit·로드 확인(기여는 측정 대상).
 - **A GateInterpreter 통일** + retail/airline grep-clean 검증 (keystone·먼저).
 - **B resolve wiring** + facet3 스페셜리스트가 resolve_selection emit→엔진(operand 조립 포함) 실행 e2e 1태스크 smoke.
