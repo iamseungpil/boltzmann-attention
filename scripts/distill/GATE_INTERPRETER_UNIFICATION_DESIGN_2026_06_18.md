@@ -12,9 +12,12 @@
 | **confirm** | 쓰기-전 확인(P6) | 직전 user 턴 = 명시 yes | G2_CONFIRM | — |
 | **ownership** | 대상이 auth user 소유(P5) | resolver-path(target→owner) == auth_user | G3_SINGLE | — |
 | **notice** | 의무 고지 송신(P5 obligation) | 고정문구가 assistant 발화로 송신됨 | G4_TRANSFER | — |
-| **preconditions** | goal 사전조건 전부 확립(P5 sequence) | required_set ⊆ established_set | — | dirgraph/gather-first |
+| **preconditions** | goal 사전조건 전부 확립(P5 sequence) | required_set ⊆ established_set | — | gather-first |
 
 **= 5 kind가 transactional 게이트 closure.** 새 벤치가 새 kind 요구 = 해석기 +1 dispatch(그 kind 쓰는 *전* 벤치로 일반화·여전히 유한·census가 반증탐색).
+
+### ★preconditions의 required_set = ABox 정책서 도출 (모델 dirgraph 아님 — cheatable 방지)
+**dirgraph 둘·주체 다름**: ① **모델(TBox) dirgraph** = facet-1 NL→formalize 출력(어느 precond·순서) = **학습·측정 대상** / ② **게이트 enforce용 ground-truth required_set** = **엔진이 ABox 정책(goal→precond)서 *결정론* 도출** = gate enforcement 소스. **게이트는 ②로 enforce**(모델 ①로 하면 모델이 틀린 precond 주장으로 우회=cheatable). SOPBench DGGATE도 GT dirgraph(constraints 재구성·Guard-2 exact) 사용·모델출력 아님. ⇒ `gate_spec`의 preconditions = goal→precond *정책*(ABox)·모델 dirgraph 미포함.
 
 ## 2. gate_spec (ABox A2) 스키마 — 데이터
 ```jsonc
@@ -70,7 +73,7 @@ class GateInterpreter:                       # FIXED·벤치 무관·절대 미�
 ## 4. Migration (구체)
 1. **RetailGate → GateInterpreter(retail_gate_spec)**: `AUTH_TOOLS`/`WRITE_TOOLS`/`USER_SCOPED` module global → `applies_to` 데이터로 이동(이미 거기 참조). G1-G4 → kind=auth/confirm/ownership/notice. db(G3) → ownership `resolver_path`(order_id→get_order_details→user_id)·`resolvers`에 결정론 lookup. `t2_gate_patch.py`의 `RetailGate(db=...)` → `GateInterpreter(load_gate_spec("retail"), resolvers)`.
 2. **airline_gate_spec** = 같은 스키마·값만(update_reservation_* = write·cabin attr). **무수정 GateInterpreter로 작동 = 통일 검증.**
-3. **SOPBench gate → GateInterpreter(sop_<domain>_gate_spec)**: kind=**preconditions**(required_set = goal operator precond from dirgraph·`_required`가 resolvers["dirgraph"]서 읽음) + auth(login = 평범한 satisfier). dirgraph는 *모델 출력*(ABox 아님)·gate_spec은 "precond source=dirgraph"만 명시.
+3. **SOPBench gate → GateInterpreter(sop_<domain>_gate_spec)**: kind=**preconditions**(required_set = **ABox 정책 goal→precond**서 엔진 결정론 도출·`_required`가 gate_spec 정책+resolvers로 계산·**모델 dirgraph 아님**) + auth(login = 평범한 satisfier). 모델 dirgraph = facet-1 출력(측정)이지 enforcement 소스 아님(§1 preconditions 참조).
 4. `render_recovery`(기존·일반)·`GateState` 신규(작음). 폐기 = `RetailGate` 클래스·module global 도구셋.
 
 ## 5. 검증 (조건 ③ = 통일 실증)
@@ -86,5 +89,5 @@ class GateInterpreter:                       # FIXED·벤치 무관·절대 미�
 ## 7. 정직 (경계)
 - 유한 gate-kind closure가 bound — P10 census=0이나 **적대탐색 지속**(out-of-genre 게이트 사냥). 새 kind=+1(유한·일반화).
 - **ownership resolver_path**가 가장 도메인-가까움 → *선언적 path*(데이터)로 유지·손코딩 분기 금지(path를 gate_spec에).
-- **preconditions kind**는 dirgraph(모델 출력)에 의존 → gate_spec은 "source=dirgraph"만·dirgraph 자체는 TBox 출력(ABox 아님).
+- **preconditions kind**의 required_set = **ABox 정책(goal→precond)서 엔진 결정론 도출**(모델 dirgraph 아님 — 모델출력으로 enforce하면 cheatable·§1). 모델 dirgraph = facet-1 formalize 출력(측정 대상)·gate enforcement와 분리.
 - 통일 *후* facet TBox 전이(조건 ②) 재측정 = 이번엔 "고정 scaffold + ABox swap"이 진짜 성립한 채로.
