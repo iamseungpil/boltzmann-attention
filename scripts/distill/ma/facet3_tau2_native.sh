@@ -34,17 +34,18 @@ $PY $MA/ma_gold_extract.py --domain retail  --out $S/ma_eval_cases.jsonl
 $PY $MA/ma_gold_extract.py --domain airline --out $S/ma_eval_cases_airline.jsonl
 RETAIL=$S/ma_eval_cases.jsonl; AIR=$S/ma_eval_cases_airline.jsonl
 
-evalarm(){ # $1=served-id $2=domain-tag $3=cases
-  $PY $MA/tau2_op_eval.py --native 1 --cases "$3" --base http://localhost:$PORT/v1 --model "$1" \
-    --out $OUT/results/t2native_${1}__$2.json 2>&1 | sed "s/^/[$1 $2] /" || echo "EVAL_FAIL $1 $2"; }
+evalarm(){ # $1=served model(API) $2=label(filename·/ 없음) $3=domain $4=cases
+  $PY $MA/tau2_op_eval.py --native 1 --cases "$4" --base http://localhost:$PORT/v1 --model "$1" \
+    --out $OUT/results/t2native_${2}__${3}.json > $OUT/logs/ev_${2}_${3}.log 2>&1 || echo "EVAL_FAIL $2 $3"
+  echo "[$2 $3] done"; }
 
-# arm 1 = base (no lora·served name=BASE)
+# arm 1 = base (no lora·served name=BASE·label=base)
 if serve base ""; then
-  evalarm "$BASE" retail "$RETAIL"; evalarm "$BASE" airline "$AIR"
+  evalarm "$BASE" base retail "$RETAIL"; evalarm "$BASE" base airline "$AIR"
 fi
-# arm 2 = trained (lora·served name=TAG)
+# arm 2 = trained (lora·served name=TAG·label=trained)
 if serve "$TAG" "$S/adapters/$TAG"; then
-  evalarm "$TAG" retail "$RETAIL"; evalarm "$TAG" airline "$AIR"
+  evalarm "$TAG" trained retail "$RETAIL"; evalarm "$TAG" trained airline "$AIR"
 fi
 
 for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done
