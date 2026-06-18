@@ -88,6 +88,7 @@
 | **`FIXED_VS_VARIABLE.md`** | ★★고정/변경 경계 단일 권위(§2 전문) |
 | **`ISOLATION_EXPERIMENTS_2026_06_18.md`** | ★★조건 ②③ 격리 실험(4 facet + 스캐폴드 통일 §S) |
 | **`GATE_INTERPRETER_UNIFICATION_DESIGN_2026_06_18.md`** | ★★조건 ③ keystone: RetailGate/SOP gate → 하나의 GateInterpreter(유한 gate-kind·gate_spec=ABox·분기0) |
+| **`ABOX_CONFIG_FORMALIZATION_DESIGN_2026_06_15.md`** | ★ABox=JSON config로 출력형식 고정(xgrammar TYPE강제·rigid-forcing 아님)·4-way(TYPE=xgrammar/CONTENT=LLM/concrete=결정기/변환=scaffold)·config-conditioned FC output-type 학습=전이메커니즘 |
 | **`INTEGRATED_TBOX_DESIGN_2026_06_18.md`** | ★분해 멀티-스페셜리스트 + resolve_selection + ABox-swap |
 | **`NL_PROCEDURE_OFFLOAD_THEORY_2026_06_17.md`** | ★★이론(𝔤/G/구체·B-budget·offload 필연·§10 에너지-Lie) |
 | **`GENERATOR_ALGEBRA_DESIGN_2026_06_17.md`** | ★★생성원 2축 closure·25벤치 적대 딥리서치 |

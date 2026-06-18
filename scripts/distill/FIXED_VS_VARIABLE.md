@@ -24,12 +24,14 @@
 ## 2bis. ★★ABox 실무 정의 (고정·2026-06-18 — "ABox가 뭐냐" 재론 금지)
 ABox = **4개 typed 파트의 config 데이터**(JSON/dict). 벤치/도메인마다 *이것만* swap. 형태는 config/spec, 내용은 온톨로지-적(도구 affordance + 정책).
 
-| 파트 | 정체 | 구체 형태 | 생산(누가 만드나) | 실물 |
+ABox = **2개 주요 config 아티팩트**: ① **함수-스키마 config**(A1+A5+resolver-spec+enum/attr-vocab *통합 단일원천*) ② **GATE_SPEC**(A2 정책). 권위 = `ABOX_CONFIG_FORMALIZATION_DESIGN_2026_06_15.md`(사용자 설계).
+
+| 파트 | 정체 | 구체 형태 | 생산 | 실물 |
 |---|---|---|---|---|
-| **A1 도구 카탈로그** | 어떤 도구가 있나·인자·반환 | OpenAI function JSON schema 리스트 `[{name,params,description}]` | **기계추출**(벤치 도구정의) | τ² tools |
-| **A2 GATE_SPEC** | 정책(어느 도구가 어떤 사전조건·인증·확인·순서 필요) | **선언적 gate dict**: 각 gate=`{predicate, satisfiers:{tool→[inputs]}, applies_to:[gated tools], ask?/terminal?/note?}` | **정책 NL→spec 컴파일 = 유일 난제(A2 front-end)** | `tau2/t2_gate.py GATE_SPEC`(G1-G4 실재) |
-| **attr-type / vocab** | content-op용: 어느 attr이 ordinal/categorical·값 어휘 | dict `{attr: ord|cat}` + ORD_WORDS | 카탈로그서 도출(+소량 수동) | `tau2_op_resolver`(is_ordinal·ORD_WORDS) |
-| **A5 출력 문법** | 유효 도구/인자 디코딩 제약 | xgrammar grammar | **A1서 파생**(기계) | guided_json |
+| **① 함수-스키마 config** = A1 도구 + **A5 출력 type-schema** + resolver-spec + enum/attr-vocab | LLM이 in-context로 읽어 conform할 *출력 TYPE 고정*. param type 3종: enum(controlled-vocab)·entity-ref(+resolver getter)·user-literal | **JSON 함수-스키마** (`guided_json`로 xgrammar에 전달) | A1=기계추출·enum/ref=카탈로그+소량·resolver=getter 매핑 | `ABOX_CONFIG_FORMALIZATION` §구현·tau2 tools+ORD_WORDS |
+| **② A2 GATE_SPEC** | 정책(어느 도구가 어떤 사전조건·인증·확인·순서) | **선언적 gate dict** `{predicate, satisfiers, applies_to, kind, ...}` | **정책 NL→spec 컴파일 = 유일 난제(A2 front-end)** | `tau2/t2_gate.py GATE_SPEC` |
+
+**★형식 고정 = 이 config가 한다(xgrammar rigid-forcing 아님)** — `ABOX_CONFIG_FORMALIZATION`: xgrammar JSON-rigid-강제는 **validity≠correctness**(유효-오답)+**"Output ONLY JSON" native agent 깸(§23E)** 문제 → **형식을 ABox config(type-schema)로 고정**·xgrammar는 *TYPE만* 강제(`guided_json`=ABox 스키마)·concrete 미강제·LLM이 스키마 안서 content·결정기가 concrete. = 4-way 분담(TYPE=xgrammar / CONTENT=LLM / concrete=결정기 / 변환=scaffold). ⇒ "A5=파생 문법"이 아니라 **출력 형식을 *고정하는* ABox config 핵심부**.
 
 **핵심**: 고정 scaffold(`GateInterpreter`·`render_recovery`)가 이 데이터를 *읽어* 게이트 집행·복구메시지 생성 — `t2_gate.py:38` 주석 명시 *"A2 컴파일 산출물(구조 데이터)... 새 도메인 = 이 spec만 컴파일하면 메시지·게이트가 따라옴(airline 무수정 작동이 검증 목표)."* ⇒ GATE_SPEC dict가 *바로 그 ABox A2*.
 
@@ -39,11 +41,9 @@ ABox = **4개 typed 파트의 config 데이터**(JSON/dict). 벤치/도메인마
 - **free-text 정책 아님** — A2는 정책 *프로즈*를 컴파일한 *구조 spec*(프롬프트 문자열 금지·`t2_gate.py:38`).
 
 **비용 분해(실무·정직 — "A2만 0" 아님)**:
-- **A1 도구 카탈로그** = 벤치는 주어짐·실배포는 도구 스키마 정의 필요. ⚠️ **전 tool-use 시스템 공통**(monolith도 도구정의 프롬프트 필요) → *우리 대비 차등 비용 아님*(비교서 상쇄). 0이 아니라 "공통".
-- **A5 문법** = A1서 기계 파생 = **~0**.
-- **attr-vocab** = 숫자 attr 자동·**비숫자 ordinal 순서(cabin basic<eco<biz)는 수동 등록**(실제 `tau2_op_resolver` cabin ORD_WORDS 수동) = **소량 수동**(일부 자동화 가능).
-- **A2 GATE_SPEC** = 정책 NL→spec 컴파일 = **우리 차등·재발 비용 본체·front-end 자동화 타깃**. F1 장부 "airline/telecom 0줄"은 *A2(정책) 컴파일*이 0이란 뜻(Fable-5)·**A1·attr-vocab은 별도로 있었음**.
-- ⇒ **차등 수동 비용 = A2(정책) + attr-vocab(소량)**·A1=공통(상쇄)·A5=파생. 통일 GateInterpreter는 데이터만 읽으므로 per-bench *코드*=0(데이터 비용과 별개).
+- **① 함수-스키마 config**(A1 도구 + A5 type-schema + enum/attr-vocab + resolver): 도구 스키마 = **전 tool-use 공통**(monolith도 필요·차등 아님·상쇄)·type-schema/grammar = 스키마서 기계 파생·enum/ordinal 순서(cabin) = **소량 수동**·resolver-spec(ref→getter) = 소량.
+- **② A2 GATE_SPEC**(정책) = **우리 차등·재발 비용 본체·front-end 자동화 타깃**. F1 장부 "airline/telecom 0줄"은 *A2 컴파일*이 0(Fable-5)·**①은 별도로 있었음**.
+- ⇒ **차등 수동 비용 = A2(정책) + ①의 소량(enum/ordinal/resolver)**·도구스키마=공통(상쇄). 통일 GateInterpreter·결정기는 *데이터만* 읽으므로 per-bench *코드*=0(데이터 비용과 별개).
 
 ## 3. ★전이의 정의
 **전이 ≡ ABox만 swap, TBox·Scaffold는 unchanged (재학습0·코드수정0).**
