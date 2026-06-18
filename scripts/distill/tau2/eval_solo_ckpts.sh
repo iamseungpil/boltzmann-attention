@@ -29,9 +29,9 @@ for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader);
 CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve $BASE --port $PORT \
   --enable-auto-tool-choice --tool-call-parser hermes --max-model-len 16384 \
   --enable-lora --max-lora-rank 64 --max-loras 6 --lora-modules $MODS \
-  > $S/vllm_eval_ckpts.log 2>&1 &
+  > $S/vllm_eval_${ADTAG}.log 2>&1 &
 ok=0; for i in $(seq 1 80); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "final\|step" && ok=1 && break; sleep 10; done
-[ $ok = 1 ] || { echo SERVE_FAIL; tail -30 $S/vllm_eval_ckpts.log; exit 1; }
+[ $ok = 1 ] || { echo SERVE_FAIL; tail -30 $S/vllm_eval_${ADTAG}.log; exit 1; }
 
 set +x; source /home/woori/.openrouter_key; export SSL_CERT_FILE=$($PY -c "import certifi;print(certifi.where())"); set -x
 cd $S/tau2-bench; export PYTHONPATH=src:$T2
