@@ -263,7 +263,8 @@ def _ground(outs, gspec, want_keys=None):
     return catalog, anchor, producer_present
 
 
-def _log_event(orch, op_ir, producer_present, producer_called, n_cand, ground_ok, routed, anchor, err):
+def _log_event(orch, op_ir, producer_present, producer_called, n_cand, ground_ok, routed, anchor, err,
+               dropped_nav=None):
     """§7 계측: 매 resolve_selection emission을 JSONL로(T2_GROUND_LOG). 미설정이면 무동작."""
     path = os.environ.get("T2_GROUND_LOG")
     if not path:
@@ -279,6 +280,7 @@ def _log_event(orch, op_ir, producer_present, producer_called, n_cand, ground_ok
         "routed": routed,                          # ok | fetch | ask_refine
         "anchor": anchor,
         "err": err,
+        "dropped_nav": dropped_nav or [],          # T2_GROUND_DROP_NAVKEYS arm: 행-필터서 제외한 비스키마 키
     }
     try:
         with open(path, "a") as f:
@@ -298,6 +300,19 @@ def _resolve(orch, tc):
     catalog, anchor, producer_present = _ground(outs, _GSPEC, want_keys=want_keys)
     producer = _GSPEC["candidate_source"]["producer"]
     producer_called = producer in _tools_called(orch)
+    # ablation(T2_GROUND_DROP_NAVKEYS=1): among의 비-스키마 키=네비게이션 힌트(which-output에 이미 사용·
+    # 카탈로그가 그 entity로 scoped)로 보고 행-필터서 제외. 관계대수상 존재안하는 속성 제약=vacuous.
+    dropped_nav = []
+    if catalog and os.environ.get("T2_GROUND_DROP_NAVKEYS") == "1":
+        optkeys = set()
+        for r in catalog:
+            optkeys |= set((r.get("options") or {}).keys())
+        among = op_ir.get("among")
+        if isinstance(among, dict):
+            dropped_nav = [k for k in among if k not in optkeys]
+            if dropped_nav:
+                op_ir = dict(op_ir)
+                op_ir["among"] = {k: v for k, v in among.items() if k in optkeys}
     rid, err = None, None
     if catalog:
         try:
@@ -324,7 +339,8 @@ def _resolve(orch, tc):
                    "operation/constraints, or ask the user to clarify. Do NOT guess an id.")
         msg = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=True, content=content)
 
-    _log_event(orch, op_ir, producer_present, producer_called, n_cand, bool(rid), routed, anchor, err)
+    _log_event(orch, op_ir, producer_present, producer_called, n_cand, bool(rid), routed, anchor, err,
+               dropped_nav=dropped_nav)
     return msg
 
 
