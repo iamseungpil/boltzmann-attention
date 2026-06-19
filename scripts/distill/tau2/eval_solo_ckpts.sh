@@ -53,11 +53,18 @@ try: d=json.load(open(p))
 except Exception as e: print("  NA",e); raise SystemExit
 sims=d.get("simulations",[]); rew=[(s.get("reward_info") or {}).get("reward") for s in sims]
 rew=[r for r in rew if r is not None]
-resolve_calls=0; bleed=0; canon=0; names=collections.Counter()
+resolve_calls=0; bleed=0; canon=0; fab=0; tool_err=0; tool_tot=0; sims_fab=0; names=collections.Counter()
 CANON={"sara_doe_496","#W0000000","6086499569"}
 OPERAND={"op","attr","among","dir","set"}
 for s in sims:
+  sfab=False
   for m in s.get("messages",[]):
+    if m.get("role")=="tool":
+      tool_tot+=1; c=str(m.get("content") or "")
+      if m.get("error") or "Error" in c[:8]:
+        tool_err+=1
+        if "not found" in c.lower(): fab+=1; sfab=True   # 날조 proxy: fetch 안 한 id로 호출
+      continue
     if m.get("role")!="assistant": continue
     for tc in (m.get("tool_calls") or []):
       nm=tc.get("name"); names[nm]+=1
@@ -68,8 +75,9 @@ for s in sims:
       if nm=="resolve_selection": resolve_calls+=1
       elif isinstance(args,dict) and (set(args)&OPERAND): bleed+=1
       if any(str(v) in CANON for v in (args.values() if isinstance(args,dict) else [])): canon+=1
-print(f"  pass1={sum(r>=1 for r in rew)}/{len(rew)} resolve_calls={resolve_calls} "
-      f"operand_bleed_nonresolve={bleed} canon_id_halluc={canon}")
+  if sfab: sims_fab+=1
+print(f"  pass1={sum(r>=1 for r in rew)}/{len(rew)} resolve={resolve_calls} bleed={bleed} canon={canon} "
+      f"FAB(not-found)={fab} sims_fab={sims_fab}/{len(sims)} toolerr={tool_err}/{tool_tot}")
 PY
   set -x
 done
