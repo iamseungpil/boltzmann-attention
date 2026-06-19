@@ -12,12 +12,19 @@ S=/home/woori/scratch
 LOG=$S/overnight_${TAG}.log
 exec > $LOG 2>&1; set -x; date; echo "MODEL=$MODEL NT=$NT TR=$TR"
 
-for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 4
+for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 12
+# --enforce-eager: CUDA-graph capture(엔진 사망 지점) 회피 = 무인 안정성(overnight라 속도 무관)
 CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve $MODEL --port $PORT \
-  --enable-auto-tool-choice --tool-call-parser hermes --max-model-len 16384 $EXTRA \
+  --enable-auto-tool-choice --tool-call-parser hermes --max-model-len 16384 --enforce-eager $EXTRA \
   > $S/vllm_overnight_${TAG}.log 2>&1 &
 ok=0; for i in $(seq 1 120); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "$MODEL" && ok=1 && break; sleep 10; done
-[ $ok = 1 ] || { echo SERVE_FAIL; tail -40 $S/vllm_overnight_${TAG}.log; exit 1; }
+[ $ok = 1 ] || { echo SERVE_FAIL_MODELS; tail -40 $S/vllm_overnight_${TAG}.log; exit 1; }
+# ★실제 생성 health-check: 엔진이 살아 응답하나(죽은 엔진에 arm 돌리는 garbage 방지)
+hc=$(curl -s localhost:$PORT/v1/chat/completions -H "Content-Type: application/json" \
+  -d "{\"model\":\"$MODEL\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"max_tokens\":3}" 2>/dev/null)
+echo "$hc" | grep -q '"content"' || { echo "SERVE_FAIL_HEALTHCHECK: $hc"; tail -40 $S/vllm_overnight_${TAG}.log; \
+  for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; exit 1; }
+echo "[healthcheck OK] engine alive"
 
 set +x; source /home/woori/.openrouter_key; export SSL_CERT_FILE=$($PY -c "import certifi;print(certifi.where())"); set -x
 cd $S/tau2-bench; export PYTHONPATH=src:$T2
