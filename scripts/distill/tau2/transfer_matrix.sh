@@ -33,13 +33,14 @@ set +x; source /home/woori/.openrouter_key; export SSL_CERT_FILE=$($PY -c "impor
 cd $S/tau2-bench; export PYTHONPATH=src:$T2
 
 run_cell () {  # $1=model(served name) $2=cond(tbox|abox)
-  local M=$1 C=$2 SAVE GATE RES
+  local M=$1 C=$2 SAVE GATE RES MS
+  MS=$M; [ "$M" = "base" ] && MS=$BASE   # base 셀 = 실제 base 모델명(LoRA 미적용)
   SAVE=mtx_${M}_${C}
   if [ "$C" = "abox" ]; then GATE=1; RES=1; export T2_PROVENANCE=1; else GATE=0; RES=0; unset T2_PROVENANCE; fi
   rm -rf data/simulations/$SAVE
   echo "######## CELL $M / $C (gate=$GATE resolve=$RES prov=${T2_PROVENANCE:-0}) ########"; date
   $PY $T2/t2_run_gated.py --gate $GATE --resolve $RES --domain retail --num_trials 1 --num_tasks $NT \
-    --agent_model "$M" --agent_base http://localhost:$PORT/v1 \
+    --agent_model "$MS" --agent_base http://localhost:$PORT/v1 \
     --user_llm "openrouter/openai/gpt-4.1" --user_temp 0.0 --save_to $SAVE > $S/mtx_${M}_${C}.log 2>&1 || echo "FAIL"
   local PASS=$(grep -oE "pass1=[0-9]+/[0-9]+" $S/mtx_${M}_${C}.log | tail -1)
   local FAB=$($PY $T2/t2_failcensus_deep.py data/simulations/$SAVE 2>/dev/null | grep -E "A_notfound|실패" | tr '\n' ' ')
