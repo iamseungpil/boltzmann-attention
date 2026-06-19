@@ -53,8 +53,17 @@ def main():
     ap.add_argument("--model", required=True)
     ap.add_argument("--base", default="http://localhost:8351/v1")
     ap.add_argument("--drop", action="store_true", help="navigation-key drop arm(autopsy --drop과 동일)")
+    ap.add_argument("--clarify", action="store_true",
+                    help="#6 instruction-clarity: 검색키≠선택키를 도메인-일반으로 강하게 명시(학습 0)")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
+    # #6 arm: 도메인-일반 명시(retail/airline 특정 안 함·'후보 간 차이나는 속성' vs '검색/카테고리어')
+    CLARIFY = ("\n\nIMPORTANT — name ONLY attributes that DIFFER between the candidate items in the "
+               "fetched data (the per-item option fields, e.g. color/size/cabin/price). Do NOT use the "
+               "search/query parameters or category labels you used to FIND the candidates (such as the "
+               "product type/category, or the origin/destination/date you searched) — those already "
+               "located the candidate set and are NOT selection attributes. Pick the ONE item by its "
+               "differentiating attributes." if a.clarify else "")
     with open(a.spec, encoding="utf-8") as f:
         spec = json.load(f)
     cs = spec["candidate_source"]
@@ -78,7 +87,7 @@ def main():
                 user = (f"Conversation so far:\n{convo}\n\n"
                         f"Data you have already fetched (the actual catalog/records):\n{data}\n\n"
                         f"Now call resolve_selection to identify the exact item the user wants, "
-                        f"naming it by its selectable attributes (from the fetched data).")
+                        f"naming it by its selectable attributes (from the fetched data).{CLARIFY}")
                 emit, _content = chat_toolcall(a.base, a.model, [RESOLVE_SELECTION_SCHEMA],
                                                [{"role": "system", "content": SYSTEM},
                                                 {"role": "user", "content": user}])

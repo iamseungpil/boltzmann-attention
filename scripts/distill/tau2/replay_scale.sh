@@ -27,7 +27,7 @@ for d in retail airline; do
   $PY $T2/t2_selection_replay.py \
     --sim $S/tau2-bench/data/simulations/real_ground_solo_cfb_mid_${d} \
     --spec $T2/a2/${d}.grounding.json --model "$MODEL" --base http://localhost:$PORT/v1 \
-    --out $S/replay_${TAG}_${d}.json 2>&1
+    ${REPLAY_FLAGS:-} --out $S/replay_${TAG}_${d}.json 2>&1
 done
 for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done
 echo "=== REPLAY_SCALE DONE ($TAG) ==="; date; echo REPLAY_SCALE_DONE
