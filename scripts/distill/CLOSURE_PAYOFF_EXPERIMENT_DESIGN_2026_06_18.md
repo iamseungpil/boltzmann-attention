@@ -47,15 +47,18 @@
 - **★scaffold vs weight 분리 (헤드라인 폭 결정·매트릭스보다 *먼저*)**: flow 전이가 결정론 scaffold가 나르는지(전수본 adapter held-out≈0·`SOP:583`) vs 학습 weight인지 *분리 측정*(adapter-only arm). **flow가 scaffold면 "*학습된* 규칙추상화 전이"는 content-op(resolve_selection)로 좁혀진다** → 헤드라인을 미리 줄여 정직하게: "학습=content-op 추상화(관계대수-확장 selection 명명), flow=closure-정당화 결정론 scaffold." 이 분리를 §5 매트릭스 전에 해야 무엇을 주장할지 정해짐(위험: content-op의 *학습된* 전이조차 실 e2e 미입증 — §6 S0).
 
 ## 4.7 ★추상화 = *다층 최소 구조* — 무엇을 전이하나 (관건 정의·2026-06-19)
-**관건(연구질문)**: 도메인/벤치 특화가 아닌 **도구계획에 필요한 *최소 다층 추상화 구조*를 학습해 전이하나.** 한 규칙(verify-before-advance)도 전체추론도 아님 — *구조화된 층 객체*의 전이.
+**관건(연구질문)**: 도메인/벤치 특화가 아닌 **도구계획에 필요한 *비잉여·충분한 다층 추상화 구조*를 학습해 전이하나.** 한 규칙(verify-before-advance)도 전체추론도 아님 — *구조화된 stratum 객체*의 전이.
 
-**다층 구조(flat 아님)**:
+> **★용어 고정(충돌 방지)**: 본 문서의 **"층/stratum/tier" = *추상화* 구조의 단계**(축·층A/B·일반성tier·A1-A7). **트랜스포머 네트워크 깊이는 "decoder layer(네트워크 층)"로만** 부른다(예: LoRA를 mid decoder layer 8-19에만). 둘은 *다른 referent* — 라이브 mid arm(네트워크 layer subset 실험)과 이 §의 추상화 stratum을 혼동 금지. (단 mid arm = "네트워크 층이 추상화 stratum을 담나"의 구조적 탐침이라 *연결될 수 있음* → 그래서 더더욱 명칭 분리.)
+
+**다층 구조(flat 아님·= 추상화 stratum)**:
 - **축**: flow 생성원(P1-P9) ⊥ content 생성원(8-op).
 - **flow 내부**: 층A(control×data·*구성적* 닫힘) / 층B(policy overlay·*상대* 닫힘).
 - **횡단**: 인식/구조화(*학습* 추상화) / 평가·집행(*결정론* 게이트).
 - **일반성 tier**: 보편 규율(provenance·grounding·모든 단계)→구조(의존·순서)→인식(어느 primitive).
 
-**★"최소(minimal)" = 두 뜻 고정**: (1) **경험적 비잉여+충분**(ablation=각 층 비잉여 ∘ orphan=0=충분)이지 **minimality *정리* 아님**(Kozen-Tseng 자제·과주장 금지). (2) **"최소=저차원"이 소형-학습·전이의 *근거***(§0 Olver n−s·scale=암기지 추상화 아님). ⇒ 최소는 economy 아니라 *왜 소형으로 되나*의 메커니즘.
+**★"최소(minimal)" = 두 뜻 고정**: (1) **경험적 비잉여+충분**(ablation=각 stratum 비잉여 ∘ orphan=0=충분)이지 **minimality *정리* 아님**(Kozen-Tseng 자제·과주장 금지). ⚠️ ablation은 *테스트된 벤치서* 비잉여만 → **전역 최소 아님**. "**the** 최소 구조"라 쓰지 말 것(자제한 정리로 회귀) → **"비잉여·충분한 *한* 기저"**로 일관. (2) **"최소=저차원"이 소형-학습·전이의 *근거***(§0 Olver n−s·scale=암기지 추상화 아님). ⇒ 최소는 economy 아니라 *왜 소형으로 되나*의 메커니즘.
+- **★sense-2를 *실측가능*하게 (Olver 유추 → 측정)**: 추상화의 **내재차원 프록시 = 그 facet을 설치하는 최소 LoRA rank + 학습 step 수.** 우리 라이브 실험이 직접 측정: `step5`(델타 극소·opt 5)가 이미 resolve 호출 = **매우 저차원** 직접 증거. → "각 facet의 install-rank/steps"를 보고하면 sense-2가 유추 아닌 **실측**(rank 스윕 arm: r4/r8/r16서 스킬 발화점). low-dim일수록 소형 학습·전이 용이의 *경험적* 근거.
 
 **정정(2026-06-19)**: 앞 §4 "flow=scaffold"는 *인식/구조(학습)*와 *평가/집행(결정론)* 혼동. `PRIMITIVE_COVERAGE_MATRIX:29` = **모델=coverage(학습)/게이트=soundness(집행)**. flow에 *학습가능 추상화* 실재 → "학습-전이=content-op뿐"(위험4) *부분* 완화. 아래 A1-A7 = *일반성 tier × flow층*의 인스턴스(flat 목록 아님).
 
@@ -73,14 +76,17 @@
 - **★A6이 핵심 예시**: 모델=정책선행 *인식+gather*(추상 SHAPE·학습) / 게이트=그 선행 *충족 평가*(결정론). 앞서 "gate=LOCK 학습불가"는 *평가*에 한함·인식/구조는 coverage=학습. ⇒ "flow=scaffold" 오류 정정.
 - **★전이 패턴 가설(sharp·falsifiable)**: 추상규칙이 *순수 구조적*이면 전이(A1=provenance·도메인무관)·*도메인-의미 인식*을 요하면 미전이(A2=어느 getter가 필요값 생산=R4 의미). ⇒ **"계획-규칙 추상화 전이"를 *순수구조* 부분으로 좁히되 *살림*** — flow에 학습-전이 추상화 실재(A1+)이므로 "content-op뿐" 아님. 정직한 주장 = **"순수구조 flow 규율은 전이·의미인식은 offload/미해결"**, *어느 A_k가 전이하는지 = 측정 대상*.
 
-## 5. 다벤치 전이 매트릭스 (cross-bench = schema-guided DST와 차별점·★primitive별 A1-A7 분해)
+## 5. 다벤치 전이 매트릭스 (cross-bench = schema-guided DST와 차별점·★stratum-분해 전이 지도)
 | 학습 | held-out(도메인) | held-out(★벤치) |
 |---|---|---|
 | SOPBench(일부 도메인) + TaskBench + Synth | SOPBench 잔여 도메인 | **τ²(retail·airline)·SOP-Bench(Amazon)** |
 - **cross-domain 셀** = schema-guided DST도 함(차별 약). **cross-bench 셀**(다른 벤치·포맷·task 패러다임) = DST는 한 포맷 내라 *안 함* → **여기가 우리 고유**. 매트릭스가 "닫힌 기저는 패러다임 횡단도 전이"를 보이면 ①이 capability 기여로 섬.
 - ABox-swap: A_closed는 unchanged·catalog/gate_spec(ABox)만 교체. 재학습 0.
-- **★*층-분해* 전이 지도 (단일 숫자·flat 목록 둘 다 금지·§4.7 다층)**: 각 셀의 전이 보존율을 **층 구조로 분해**: 축(flow/content) → flow층(A 구성/B 정책) → 일반성 tier(보편 규율/구조/인식) → 인스턴스(A1-A7·content-op). 보고 = **"어느 *층*이 전이하나"의 지도**, 단일 평균 아님.
-- **층-분해 패턴 가설(falsifiable)**: 일반성·순수구조 tier(A1 provenance) 전이 / 도메인-의미 인식 tier(A2 getter-selection·R4) 미전이 / content축(§21) 전이 / 층B(정책 평가)=결정론(애초 학습 아님). ⇒ **진짜 결과 = "최소 다층 구조가 *통째* 전이가 아니라 *층별 부분* 전이"일 수 있음**(정직한 결과 형태). 이게 "계획-규칙 추상화 전이"를 전이하는 층으로 좁히거나(순수구조·content) 넓힌다(인식 tier도 전이 시). scaffold/weight 분리(§4)를 *층별로* 실시.
+- **★*stratum-분해* 전이 지도 (단일 숫자·flat 목록 둘 다 금지·§4.7 다층)**: 각 셀의 전이 보존율을 **추상화 stratum으로 분해**: 축(flow/content) → flow stratum(A 구성/B 정책) → 일반성 tier(보편 규율/구조/인식) → 인스턴스(A1-A7·content-op). 보고 = **"어느 *stratum*이 전이하나"의 지도**, 단일 평균 아님.
+- **★sharp 핵심 = *tier-단조성*(binary보다 강한 falsifiable)**: "A1 전이/A2 미전이"는 §4.7 표 재확인이라 신규성 약함. 더 강한 예측 = **전이율이 일반성 tier를 따라 *단조 감소*(보편 규율 > 구조 > 인식).** 여러 벤치서 단조성 성립 = *예측 법칙*(헤드라인 falsifiable). 반증 = 비단조(인식 tier가 구조 tier보다 더 전이 등).
+- **stratum-분해 패턴 가설**: 보편·순수구조 tier(A1 provenance) 전이 / 도메인-의미 인식 tier(A2 getter·R4) 미전이 / content축(§21) 전이 / 층B(정책 평가)=결정론(애초 학습 아님). ⇒ **정직한 결과 형태 = "비잉여 다층 구조가 *통째* 전이가 아니라 *stratum별 부분* 전이"** = [[00-thesis]] 학습/결정론 경계를 *측정으로 그린 것*(부분전이=실패 아니라 경계 특성화=기여).
+- **⚠️ 셀 검정력 사전지정 (분해 입도 vs 통계력)**: 4직교 cut(축×flow-stratum×tier×인스턴스)→셀 폭증·벤치 유한→셀당 n 과소·빈 셀. **검정력 있는 셀만 사전지정**(빈 셀 노이즈 보고 금지)·*성긴* 해상도가 정직.
+- **순서 의존**: 이 지도는 **S0 하류** — 깨끗+스킬있는 checkpoint(§6 S0) 없이는 측정 불가(현 mid/cons arm이 S0 생산 중). "지금 측정가능"으로 읽지 말 것. scaffold/weight 분리(§4)를 *stratum별로* 실시.
 
 ## 6. 빌드 단계 (증분·각 단계 실측·기존 자산 재사용)
 - **★S0 (전제 관문·실 e2e — 미통과면 S1+ 전부 모래)**: *학습된* content-op(resolve_selection)가 **실 retail user-sim e2e서 발화 + base 대비 도움**인가. 판정 = (a) resolve_selection assistant 호출 ≥ 유의 횟수 (b) base(pass^1 0.205) 대비 Δ≥3-4 pass (분산 ±2-3·multi-trial). **오프라인 op-eval 금지([[03-anti-drift]]).** 진행: `qwen7b_solo_sts`(lr2e-4·r64·loss→0) = **0/80·NO-GO**(익명툴 망각+operand bleed+캐논ID 환각) → `qwen7b_solo_lite`(lr↓r↓+중간ckpt) 재학습 중. **S0 음성이면 closure-payoff 이전에 "학습된 전이"가 성립 안 함 = 명제 재구성.**
