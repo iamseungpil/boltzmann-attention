@@ -30,8 +30,8 @@ def census(sim_dir):
         if r is not None and r >= 1:
             npass += 1
         else:
-            basis = ri.get("reward_basis", [])
-            rb = ri.get("reward_breakdown", {})
+            basis = ri.get("reward_basis") or []
+            rb = ri.get("reward_breakdown") or {}
             db_ok = (ri.get("db_check") or {}).get("db_match", True)
             nl = ri.get("nl_assertions") or []
             nl_unmet = any(not a.get("met", True) for a in nl)
