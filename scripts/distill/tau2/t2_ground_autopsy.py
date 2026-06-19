@@ -44,7 +44,7 @@ def _outs_before(msgs, idx):
     return outs
 
 
-def _classify(args, cat, anchor, present, cs):
+def _classify(args, cat, anchor, present, cs, drop=False):
     if not present or not cat:
         return "NO_CATALOG", {}
     among = args.get("among") or {}
@@ -56,6 +56,10 @@ def _classify(args, cat, anchor, present, cs):
             valsets.setdefault(k, set()).add(str(v))
     # key mismatch
     bad_keys = [k for k in among if k not in optkeys]
+    if drop and bad_keys:
+        # drop-on arm: 비스키마 키=네비게이션 → 행필터서 제외하고 나머지로 재판정
+        among = {k: v for k, v in among.items() if k in optkeys}
+        bad_keys = []
     if bad_keys:
         return "KEY_MISMATCH", {"bad_keys": bad_keys, "optkeys": sorted(optkeys)}
     # value mismatch (key ok, value not in that key's enum)
@@ -81,6 +85,8 @@ def main():
     ap.add_argument("--sim", required=True)
     ap.add_argument("--spec", required=True)
     ap.add_argument("--show", type=int, default=8)
+    ap.add_argument("--drop", action="store_true",
+                    help="drop-on arm: among의 비스키마 키 제외 후 재판정(오프라인 ablation·동일 발화)")
     a = ap.parse_args()
     with open(a.spec, encoding="utf-8") as f:
         P._GSPEC = json.load(f)
@@ -109,7 +115,7 @@ def main():
                 if (args or {}).get("attr"):
                     wk.add(args["attr"])
                 cat, anchor, present = P._ground(outs, P._GSPEC, want_keys=wk)
-                c, info = _classify(args or {}, cat, anchor, present, cs)
+                c, info = _classify(args or {}, cat, anchor, present, cs, drop=a.drop)
                 cls[c] += 1
                 if c in ("VALUE_MISMATCH", "KEY_MISMATCH", "UNDER_DET") and len(samples) < a.show:
                     samples.append((c, {k: args.get(k) for k in ("op", "attr", "among", "set")}, info))
