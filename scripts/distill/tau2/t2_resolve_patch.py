@@ -40,6 +40,12 @@ def resolve_selection(op: str, attr: str = None, among: dict = None,
     flight search). For a modification, name only the changed attribute(s) in `set`; the engine
     keeps every other attribute of the current item.
 
+    IMPORTANT — use ONLY attributes that DIFFER between the candidate items you fetched (their
+    per-item option fields, e.g. color/size/cabin/price). Do NOT use the search/query parameters or
+    category labels you used to FIND the candidates (such as the product type/category, or the
+    origin/destination/date you searched) — those already located the candidate set and are NOT
+    selection attributes. Pick the ONE item by its differentiating attributes.
+
     Args:
         op: one of filter, argmax, argmin, rank, comparative, substitute, create.
         attr: the ordinal/numeric attribute (for argmax/argmin/rank/comparative), e.g. price.
