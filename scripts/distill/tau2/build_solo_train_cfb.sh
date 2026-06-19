@@ -10,6 +10,7 @@ DIST=$REPO/scripts/distill
 PY=/home/woori/venvs/seka_env/bin/python
 S=/home/woori/scratch; FC=$S/fc_build
 TAG=qwen7b_solo_cfb; [ -n "$LAYERS" ] && TAG=qwen7b_solo_cfb_mid   # mid-layer 변형 = 별 tag
+[ "$R" != "16" ] && TAG="${TAG}_r${R}"                              # rank 스윕 = 별 tag(충돌 방지)
 LOG=$S/build_${TAG}.log
 exec > $LOG 2>&1; set -x; date
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True

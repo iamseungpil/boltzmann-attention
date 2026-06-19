@@ -36,11 +36,26 @@ $PY $T2/t2_run_gated.py --gate 1 --resolve 1 --domain retail --num_trials $TR --
 
 set +x
 echo "=== RESULT (RESULT/pass1 line) ==="; grep -E "RESULT|pass1|resolve_selection wiring" $S/t2_real_solo_${TAG}_retail.log | tail -5
-echo "=== (a) resolve_selection 호출 횟수 (results.json grep) ==="
-grep -o "resolve_selection" $S/tau2-bench/data/simulations/real_solo_${TAG}_retail/results.json 2>/dev/null | wc -l
-echo "=== (b) pass^1 (compliance.json) ==="
-$PY -c "import json;print('retail pass^1',json.load(open('$S/tau2-bench/data/simulations/real_solo_${TAG}_retail/compliance.json'))['bench']['pass^1'])" 2>/dev/null || \
-$PY -c "import json;d=json.load(open('$S/tau2-bench/data/simulations/real_solo_${TAG}_retail/results.json'));r=[s['reward_info']['reward'] for s in d['simulations'] if s.get('reward_info')];print('retail mean_reward',sum(r)/max(len(r),1),'pass1',sum(x>=1 for x in r),'/',len(r))" 2>/dev/null || echo NA
+echo "=== [$TAG] full metrics (pass·resolve grounding ok/fail=ε·FAB) ==="
+$PY - "$S/tau2-bench/data/simulations/real_solo_${TAG}_retail/results.json" "$TAG" <<'PY'
+import json,sys
+try: d=json.load(open(sys.argv[1]))
+except Exception as e: print("NA",e); raise SystemExit
+sims=d.get("simulations",[]); rew=[(s.get("reward_info") or {}).get("reward") for s in sims]; rew=[r for r in rew if r is not None]
+rcall=gok=gfail=fab=0
+for s in sims:
+  for m in s.get("messages",[]):
+    if m.get("role")=="assistant":
+      for tc in (m.get("tool_calls") or []):
+        if tc.get("name")=="resolve_selection": rcall+=1
+    elif m.get("role")=="tool":
+      c=str(m.get("content") or "")
+      if '"tool": "resolve_selection"' in c or '"tool":"resolve_selection"' in c: gok+=1
+      elif "resolve_selection could not ground" in c: gfail+=1
+      if "not found" in c.lower(): fab+=1
+print(f"[{sys.argv[2]}] n={len(rew)} pass1={sum(r>=1 for r in rew)}/{len(rew)} ({sum(r>=1 for r in rew)/max(len(rew),1):.3f})  "
+      f"resolve_calls={rcall} ground_OK={gok} ground_FAIL={gfail} (ε-unmask: OK>0 = P2b 살아 도달)  FAB(not-found)={fab}")
+PY
 
 for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done
 echo "=== REAL E2E SOLO DONE (qwen7b_solo_sts·retail·gate+resolve·trials=$TR) ==="; date; echo REAL_E2E_SOLO_DONE
