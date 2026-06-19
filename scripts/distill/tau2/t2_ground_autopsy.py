@@ -112,7 +112,7 @@ def main():
                         args = {}
                 outs = _outs_before(msgs, i)
                 wk = set(((args or {}).get("among") or {}).keys())
-                if (args or {}).get("attr"):
+                if isinstance((args or {}).get("attr"), str):
                     wk.add(args["attr"])
                 cat, anchor, present = P._ground(outs, P._GSPEC, want_keys=wk)
                 c, info = _classify(args or {}, cat, anchor, present, cs, drop=a.drop)

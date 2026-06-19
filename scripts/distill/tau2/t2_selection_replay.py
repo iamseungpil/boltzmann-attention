@@ -90,7 +90,7 @@ def main():
                 n_emit += 1
                 outs = _outs_before(msgs, i)                 # 동일 prefix의 raw 출력으로 채점
                 wk = set((args.get("among") or {}).keys())
-                if args.get("attr"):
+                if isinstance(args.get("attr"), str):
                     wk.add(args["attr"])
                 cat, anchor, present = _ground(outs, spec, want_keys=wk)
                 rid = resolve_op_tau2(args, cat, anchor_id=anchor) if cat else None

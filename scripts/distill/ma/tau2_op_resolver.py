@@ -95,6 +95,8 @@ def resolve_op_tau2(op_ir, catalog, anchor_id=None):
         pool2 = ma or m
         return pool2[0]["item_id"] if len(pool2) == 1 else None
     attr = op_ir.get("attr")
+    if not isinstance(attr, str):  # 모델이 attr를 dict/list 등으로 잘못 emit → 해석 불가(formalize 오류)
+        attr = None
     if attr is None or not pool:
         return None
     keyed = [(it, ordkey(attr, it["options"].get(attr))) for it in pool]

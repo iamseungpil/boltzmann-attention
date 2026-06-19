@@ -295,7 +295,7 @@ def _resolve(orch, tc):
     op_ir = {k: v for k, v in args.items() if v is not None and k != "anchor_id"}
     outs = _tool_outputs(orch)
     want_keys = set((op_ir.get("among") or {}).keys())
-    if op_ir.get("attr"):
+    if isinstance(op_ir.get("attr"), str):
         want_keys.add(op_ir["attr"])
     catalog, anchor, producer_present = _ground(outs, _GSPEC, want_keys=want_keys)
     producer = _GSPEC["candidate_source"]["producer"]
