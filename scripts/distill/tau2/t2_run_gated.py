@@ -17,6 +17,9 @@ def main():
     ap.add_argument("--gate", type=int, default=0)
     ap.add_argument("--resolve", type=int, default=0,
                     help="resolve_selection live wiring (t2_resolve_patch) on — 실 e2e operand offload")
+    ap.add_argument("--resolve_spec", default=None,
+                    help="A2 grounding-spec 경로. 미지정 시 a2/<domain>.grounding.json (런처가 파일 선택·"
+                         "코드 분기 아님). 도메인별 grounding은 *오직 이 spec 차이*.")
     ap.add_argument("--domain", default="retail")
     ap.add_argument("--agent_model", default="Qwen/Qwen2.5-7B-Instruct")
     ap.add_argument("--agent_base", default="http://localhost:8351/v1")
@@ -62,8 +65,11 @@ def main():
 
     if a.resolve:
         import t2_resolve_patch
-        t2_resolve_patch.apply()
-        print("[t2_run] resolve_selection wiring ON")
+        spec = a.resolve_spec or os.path.join(
+            os.path.dirname(os.path.abspath(t2_resolve_patch.__file__)),
+            "a2", f"{a.domain}.grounding.json")
+        t2_resolve_patch.apply(spec)
+        print(f"[t2_run] resolve_selection wiring ON · spec={spec}")
 
     if a.gate:
         import t2_gate_patch

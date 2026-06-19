@@ -1,0 +1,12 @@
+{
+  "_doc": "A2 grounding-spec (A2_GROUNDING_WIRING_DESIGN §4). airline selection-grounding. explode=관계대수 unnest(nested enum-keyed dict→행). 같은 엔진·같은 resolve_op_tau2가 retail(map·평면)과 airline(list·explode)을 *오직 spec 차이*로 처리.",
+  "candidate_source": {
+    "producer": "search_direct_flight",
+    "field": "",
+    "container": "list",
+    "id_key": "flight_number",
+    "fields": {"departure": "scheduled_departure_time_est", "date": "date"},
+    "explode": {"key_attr": "cabin", "from": {"price": "prices", "seats": "available_seats"}},
+    "available": {"attr": "seats", "pred": "gt", "value": 0}
+  }
+}

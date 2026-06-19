@@ -1,6 +1,7 @@
 # A2-최소화 프론티어 설계 — 모델크기 × 최소 A2 × 변경비용 (2026-06-19)
 
 > **자립 문서·핵심 실험 프로그램**(리뷰용). 목표 = on-prem 배포 가치(비용·재사용)의 정량 실증. 권위 = `dr_deterministic_vs_learned_tradeoff`(비용·change-surface)·`dr_nl_to_formal_interface_granularity`(formalize=선행·차별=target)·`COWORKER_RESULTS_2026_06_17_scale`(scale 인프라). 메모리 = `00-thesis`·`05-fixed-vs-variable`·`41-relwork`·`30-remote-env`.
+> **연결 설계서**: `A2_GROUNDING_WIRING_DESIGN`(S0 decidable-ablation 구현·grounding-spec=고정 PROVIDE) · `ABSTENTION_AS_DECIDABLE`(기권=decidable 구조조건·**"correct-or-abstain"은 과주장 → 구조적-sound-or-abstain**·의미 잔여=측정 대상) · `BENCH_A2_PROFILE_CENSUS`(★§2 "도메인/벤치" 축의 구체화 = 25벤치 A2-프로파일·scaffold-고정성 판정·in-scope=고정 scaffold+프로파일 swap·out-of-scope 4축=경계). compliance/보장 축은 앞 두 문서·벤치 확장은 census로 정밀화.
 > 분리: A2 자동생성기(frontier·ATA-like) = 별도 논문 / 본 문서 = **실행 + A2-최소화 측정**(A2는 주어진 것으로 가정).
 
 ## 0. 목표 (배포 제약이 정의)
