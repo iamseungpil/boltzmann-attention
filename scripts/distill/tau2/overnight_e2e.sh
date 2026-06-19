@@ -34,9 +34,11 @@ run_arm () {  # $1=armtag $2=rulesflag
   SAVE=on_${TAG}_${ARM}_retail; GLOG=$S/ground_on_${TAG}_${ARM}.jsonl
   export T2_GROUND_LOG=$GLOG; rm -f "$GLOG"
   local RARG=""; [ "$RULES" = "1" ] && RARG="--rules_prompt $T2/a2/RULES_PROMPT.txt"
+  # tau2: num_tasks=0 → "No tasks to run". 전체는 --num_tasks 생략(None). NT>0이면 그 수만.
+  local NTARG=""; [ "$NT" != "0" ] && NTARG="--num_tasks $NT"
   rm -rf data/simulations/$SAVE
   echo "######## ARM $ARM (rules=$RULES) ########"; date
-  $PY $T2/t2_run_gated.py --gate 0 --resolve 1 --domain retail --num_trials $TR --num_tasks $NT \
+  $PY $T2/t2_run_gated.py --gate 0 --resolve 1 --domain retail --num_trials $TR $NTARG \
     $RARG --agent_model "$MODEL" --agent_base http://localhost:$PORT/v1 \
     --user_llm "openrouter/openai/gpt-4.1" --user_temp 0.0 --save_to $SAVE \
     > $S/t2_on_${TAG}_${ARM}.log 2>&1 || echo "FAIL $ARM"
