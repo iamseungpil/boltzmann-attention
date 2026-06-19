@@ -20,6 +20,9 @@ def main():
     ap.add_argument("--resolve_spec", default=None,
                     help="A2 grounding-spec 경로. 미지정 시 a2/<domain>.grounding.json (런처가 파일 선택·"
                          "코드 분기 아님). 도메인별 grounding은 *오직 이 spec 차이*.")
+    ap.add_argument("--rules_prompt", default=None,
+                    help="도메인-일반 rules-prompt 파일(닫힌 기저 명시) 주입 = prompt-vs-SFT arm B. "
+                         "비지정 시 미주입(floor/SFT arm).")
     ap.add_argument("--domain", default="retail")
     ap.add_argument("--agent_model", default="Qwen/Qwen2.5-7B-Instruct")
     ap.add_argument("--agent_base", default="http://localhost:8351/v1")
@@ -70,6 +73,11 @@ def main():
             "a2", f"{a.domain}.grounding.json")
         t2_resolve_patch.apply(spec)
         print(f"[t2_run] resolve_selection wiring ON · spec={spec}")
+
+    if a.rules_prompt:
+        import t2_agent_rules_patch
+        t2_agent_rules_patch.apply(a.rules_prompt)
+        print(f"[t2_run] rules-prompt 주입 ON · {a.rules_prompt}")
 
     if a.gate:
         import t2_gate_patch
