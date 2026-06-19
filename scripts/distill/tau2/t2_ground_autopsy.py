@@ -24,7 +24,12 @@ import t2_resolve_patch as P  # noqa: E402
 
 
 def _outs_before(msgs, idx):
-    """idx 이전 tool 메시지들을 _tool_outputs와 동일 순서(최근→과거)로 파싱."""
+    """idx 이전 tool 메시지 → [(parsed, producer_name)] (최근→과거·_tool_outputs와 동일)."""
+    id2name = {}
+    for m in msgs[:idx]:
+        for tc in (m.get("tool_calls") or []):
+            if tc.get("id") and tc.get("name"):
+                id2name[tc["id"]] = tc["name"]
     outs = []
     for m in reversed(msgs[:idx]):
         if m.get("role") != "tool" or m.get("error"):
@@ -33,7 +38,7 @@ def _outs_before(msgs, idx):
         if not isinstance(c, str):
             continue
         try:
-            outs.append(json.loads(c))
+            outs.append((json.loads(c), id2name.get(m.get("id"))))
         except Exception:
             pass
     return outs
@@ -100,7 +105,10 @@ def main():
                     except Exception:
                         args = {}
                 outs = _outs_before(msgs, i)
-                cat, anchor, present = P._ground(outs, P._GSPEC)
+                wk = set(((args or {}).get("among") or {}).keys())
+                if (args or {}).get("attr"):
+                    wk.add(args["attr"])
+                cat, anchor, present = P._ground(outs, P._GSPEC, want_keys=wk)
                 c, info = _classify(args or {}, cat, anchor, present, cs)
                 cls[c] += 1
                 if c in ("VALUE_MISMATCH", "KEY_MISMATCH", "UNDER_DET") and len(samples) < a.show:

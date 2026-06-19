@@ -76,6 +76,23 @@ def main():
     rid = P.resolve_op_tau2({"op": "argmin", "attr": "price", "among": {"cabin": "basic_economy"}}, cat)
     fails += not _check("argmin price among cabin=basic_economy (avail)", rid, "HAT2")
 
+    # ── which-output 일반화: 여러 상품 fetch 시 among 키-커버리지로 올바른 카탈로그 선택 ──
+    multi_outs = [
+        # 최근=키보드(switch type/backlight/size), 그 전=스마트기기(compatibility/color)
+        {"product_id": "PKB", "variants": {
+            "K1": {"options": {"switch type": "clicky", "backlight": "RGB", "size": "full size"}, "available": True}}},
+        {"product_id": "PSM", "variants": {
+            "S1": {"options": {"compatibility": "Google Assistant", "color": "black"}, "available": True},
+            "S2": {"options": {"compatibility": "Alexa", "color": "white"}, "available": True}}},
+    ]
+    print("which-output(multi-product):")
+    # among={compatibility,color} → 스마트기기(PSM) 카탈로그 선택해야(최근=키보드 아님)
+    cat, _, _ = P._ground(multi_outs, rspec, want_keys={"compatibility", "color"})
+    keys = sorted({k for r in cat for k in r["options"]}) if cat else []
+    fails += not _check("among 키-커버리지로 스마트기기 카탈로그 선택", keys, ["color", "compatibility"])
+    rid = P.resolve_op_tau2({"op": "filter", "among": {"compatibility": "Google Assistant", "color": "black"}}, cat)
+    fails += not _check("filter on chosen catalog → S1", rid, "S1")
+
     # ── fetch routing 신호: 후보 컨테이너 부재 → producer_present False ──
     cat, anchor, present = P._ground([{"user_id": "U1", "name": "x"}], rspec)
     print("fetch-routing:")

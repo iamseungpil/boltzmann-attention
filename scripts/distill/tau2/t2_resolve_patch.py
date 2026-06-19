@@ -67,13 +67,25 @@ def _args_dict(tc):
     return {}
 
 
+def _callid_to_name(msgs):
+    """assistant tool_call id → tool 이름. tool 출력에 producer명을 붙이기 위함(which-producer)."""
+    m2 = {}
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            cid, nm = getattr(tc, "id", None), getattr(tc, "name", None)
+            if cid and nm:
+                m2[cid] = nm
+    return m2
+
+
 def _tool_outputs(orch):
-    """role==tool·비-error 메시지 content를 JSON 파싱(최근→과거 순)."""
+    """[(parsed_json, producer_name)] — role==tool·비-error, 최근→과거 순. producer명은 id→name."""
     outs = []
     try:
         msgs = orch.get_messages()
     except Exception:
         return outs
+    id2name = _callid_to_name(msgs)
     for m in reversed(msgs):
         if getattr(m, "role", None) != "tool" or getattr(m, "error", False):
             continue
@@ -81,9 +93,10 @@ def _tool_outputs(orch):
         if not isinstance(c, str):
             continue
         try:
-            outs.append(json.loads(c))
+            parsed = json.loads(c)
         except Exception:
             continue
+        outs.append((parsed, id2name.get(getattr(m, "id", None))))
     return outs
 
 
@@ -184,29 +197,61 @@ def _project_rows(eid, elem, cs):
     return rows
 
 
-def _ground(outs, gspec):
-    """(catalog, anchor, producer_present) — A2 spec 구동 투영. retail/airline 무관·동일 코드."""
+def _build_catalog(out, cs):
+    """한 출력 → relational rows(없으면 None)."""
+    elems = _container_elems(out, cs)
+    if elems is None:
+        return None
+    cat = []
+    for eid, elem in elems:
+        for rid, opts, src in _project_rows(eid, elem, cs):
+            cat.append({"item_id": rid, "options": opts, "available": _avail(opts, src, cs)})
+    return cat
+
+
+def _ground(outs, gspec, want_keys=None):
+    """(catalog, anchor, producer_present) — A2 spec 구동 투영. retail/airline 무관·동일 코드.
+
+    which-output 일반화(§7 NO-GO-a): 여러 후보 출력 중 (1)spec producer명 일치 우선
+    (2)among/attr 키-커버리지 최대(want_keys ∩ optkeys) (3)최근 순으로 *올바른* 출력 선택.
+    tool 출력에 producer명이 붙으면(id→name) 그걸로 좁히고, 없으면 구조-매칭으로 폴백.
+    """
     cs = gspec["candidate_source"]
-    catalog, cand_out, producer_present = None, None, False
-    for out in outs:
-        elems = _container_elems(out, cs)
-        if elems is None:
+    producer = cs.get("producer")
+    want = set(want_keys or [])
+    # 후보 출력 = 컨테이너 추출 가능한 것 전부 (producer명 일치 우선)
+    cands = []  # (catalog, cand_out, name, recency_idx)
+    for idx, item in enumerate(outs):
+        out, name = item if isinstance(item, tuple) else (item, None)
+        cat = _build_catalog(out, cs)
+        if cat is None:
             continue
+        cands.append((cat, out, name, idx))
+    catalog, cand_out, producer_present = None, None, False
+    if cands:
         producer_present = True
-        cand_out = out
-        catalog = []
-        for eid, elem in elems:
-            for rid, opts, src in _project_rows(eid, elem, cs):
-                catalog.append({"item_id": rid, "options": opts,
-                                "available": _avail(opts, src, cs)})
-        break
+        named = [c for c in cands if c[2] == producer]
+        pool = named or cands  # producer명 일치분 우선·없으면 전체
+        def _score(c):
+            cat = c[0]
+            optkeys = set()
+            for r in cat:
+                optkeys |= set((r.get("options") or {}).keys())
+            cover = len(want & optkeys) if want else 0
+            return (cover, -c[3])  # 키-커버리지↑, 그다음 최근(idx작음)
+        best = max(pool, key=_score)
+        catalog, cand_out = best[0], best[1]
     anchor = None
     asrc = gspec.get("anchor_source")
     if asrc and cand_out is not None:
         m = asrc.get("match", {})
         pid = _get_path(cand_out, m.get("producer_field"))
         if pid is not None:
-            for out in outs:
+            a_producer = asrc.get("producer")
+            for item in outs:
+                out, name = item if isinstance(item, tuple) else (item, None)
+                if a_producer and name is not None and name != a_producer:
+                    continue
                 cont = _get_path(out, asrc.get("field", ""))
                 if not isinstance(cont, list):
                     continue
@@ -247,7 +292,10 @@ def _resolve(orch, tc):
     args = _args_dict(tc)
     op_ir = {k: v for k, v in args.items() if v is not None and k != "anchor_id"}
     outs = _tool_outputs(orch)
-    catalog, anchor, producer_present = _ground(outs, _GSPEC)
+    want_keys = set((op_ir.get("among") or {}).keys())
+    if op_ir.get("attr"):
+        want_keys.add(op_ir["attr"])
+    catalog, anchor, producer_present = _ground(outs, _GSPEC, want_keys=want_keys)
     producer = _GSPEC["candidate_source"]["producer"]
     producer_called = producer in _tools_called(orch)
     rid, err = None, None
