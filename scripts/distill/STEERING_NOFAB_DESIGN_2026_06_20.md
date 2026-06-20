@@ -7,7 +7,8 @@
 **order_id 날조(스키마 예시값 #W0000000 복사) 행동을, 가중치 무변경·일반능력 보존하며 추론 시 *방향벡터*로 억제**한다. = "fetch-first/provenance" 룰을 외과적으로 강화. forgetting 0.
 
 ## 0.5 ★리뷰 반영 — 위험·재프레임 (steering 부스터리즘 경계)
-- **(A) 팀의 steering 논문이 *철회됨*** (`paper/archive_neurips2026_withdrawn/neurips2026_steering*`) — steering이 헤드라인으로 *안 섰다*는 강한 경고. 자산이자 *경고*. **빌드 전 *왜 철회됐는지* 먼저 확인**(어느 한계서 깨졌나) = S0 선결.
+- **(A) ★팀 steering 논문 철회 원인 *확인 완료*(2026-06-20·FACT_BASE 정독) = steering이 *같은 agentic 영역서 약함***: MetaTool multi-tool-selection서 best steering F1 0.731→0.747 **(+1.6점뿐)**·β=-0.1서만 양성·"더 키우면 급격 붕괴"·K-side 증폭은 *음성*(Qwen 0.73→0.685·Llama→0.31 파탄). 헤드라인 못 세워 철회. ⇒ **no-fab(절차규칙·selection보다 어려움) steering도 약할 강한 사전경고.** 단 철회본=*Q-side ontology* 방법·내 제안=*residual-CAA*라 동일결론 아님(약한 prior).
+- **★결론(우선순위 강등)**: no-fab steering = 저가치(약한 레버 실증 × 게이트가 이미 해결). **배포 답=게이트.** 싼 내재화 1순위 = **ReST/context-distill**(→ `REST_INTERNALIZE_DESIGN`)로 이동. steering/SAE는 ReST가 막히거나 *비-게이트 규칙*서 더 정밀 필요할 때 *작게* 재시도(residual-CAA만·기대 ±2점).
 - **(B) steering은 *거친 방향*(sentiment·refusal·단일개념)엔 강하나 *절차·조건부 규칙*("값 없으면 producer 먼저 호출")엔 약할 수 있음** — 단일 선형방향이 조건부 procedural 로직을 못 잡을 위험(딥리서치 caveat·GCD=form-not-meaning 동류). ⇒ no-fab이 *clean linear direction*인지 자체가 가설.
 - **(C) ★no-fab은 *이미 게이트가 결정론으로 해결*** (`T2_PROVENANCE`: 날조 id 실행 전 차단·무비용·무망각·decidable→offload thesis 정합). ⇒ **배포용 no-fab 답 = 게이트**, steering 아님. **steering의 진짜 가치 = 게이트 *불가*한 규칙**(semantic operand-selection·clarify 타이밍·judgment).
 - **★재프레임**: 이 설계의 1차 산출 = "*가중치 무변경 surgical 강화가 되는가·한계가 무엇인가*"(**method 검증**)·no-fab은 *깨끗이 측정되는 testbed*. **게이트(≈perfect)가 baseline** — steering이 게이트를 *못 이기면* no-fab은 게이트로 두고 **steering은 비-게이트 규칙(§5b)으로 옮긴다.** 즉 본 실험의 진짜 질문 = "surgical-steering이 *어떤 클래스의 룰*에 *얼마나* 먹히나", no-fab 절대수치 아님.
