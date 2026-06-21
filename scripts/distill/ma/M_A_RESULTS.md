@@ -583,3 +583,11 @@ S-min 3-arm 전수 궤적(db_match·n=114):
 - **retry-controller**: too_many **15→6(−60%·loop 깸·decidable 작동)** + pass **14→23(거버넌스 손상 회복)**. 단 **pass 23 ≈ floor 22** = **floor 초과 못함.**
 - ★**판정 = loop-only 경계**(설계 §7 예측 적중): retry가 loop를 깨나(decidable), **풀려난 sims가 올바른 복구 못하고 A(not-found)로 이동**(A 31→40). = **복구의 decidable 부분(loop-탐지)만 cheap-offload·완전복구(실패후 성공)는 모델 몫.**
 - ⇒ C8 = **부분-decidable 경계 데이터점**(C3=완전대체와 대비): recovery의 loop-break는 scaffold가 싸게, correct-action은 아님. C3(grounding 엔진)+C8(loop scaffold) 결합 시 풀려난 A를 C3가 받을 가능성(미측정·후속).
+
+### 35c-traj. ★[전수 3-arm 교차 궤적 재확정 2026-06-22·`c8_cross_autopsy.py`·`c8_crux.py`·n=114×3] loop-only 경계 = *값-부재*(grounding) 결함 (recovery는 잘못된 레버)
+> 사용자 지시 "원인 다시 확정". c8_eval.sh:30 = **`unset T2_PROVENANCE T2_AUTOFETCH`**(recovery 단독 격리). 즉 §35b autofetch(실값-주입) 부재.
+- **마커 전수 확인**: AUTOFETCH-inject msgs = **0/0/0**(전 arm) = C8엔 실값-주입 메커니즘 없음(설계대로). retry-fire = gate_retry 119회 발동(작동).
+- **★crux = "인증 성공 후 producer 미호출·placeholder 날조"**(A-fab 실패궤적): floor 57건 중 인증✓ 53·**get_user_details 호출 28·#W000000x 날조 41·인증✓∧producer미호출 25** / gate 62(인증61·gud32·날조43·인증✓미호출29) / gate_retry 46(인증45·**gud 18**·날조38·인증✓미호출27). ⇒ **에이전트는 user_id를 얻고도 get_user_details(주문목록 producer)를 안 부르고 #W0000001~ placeholder를 날조한다**(=`PRIMITIVE_MATRIX:92` "날조-FIRST default" 재확정). retry는 producer 호출을 *유도 못함*(gate_retry는 오히려 gud 28→18·"diversify"=새 날조 #W0000001→0002).
+- **task16 대조(=사용자 예시 fatima_johnson_7581)**: gold = `get_user_details(fatima)`→실 order **#W5199551·#W8665881·#W9389413**→cancel/return. 에이전트 궤적 = 인증→`get_order_details(#W0000001/2/3/4)` 날조 연쇄·get_user_details 0회. **사용자가 지목한 #W9389413 = 진짜 gold order**·autofetch(엔진이 get_user_details 대신 호출→실 목록 주입)가 정확히 이 갭을 닫는 메커니즘(§35b-traj task15와 동형).
+- **gate(−8)/retry(+9) pass 델타 = 대부분 노이즈**: gate_HURT 13건 중 10건이 **gate-deny=0**(게이트 미발동인데 실패=run-to-run 변동·7B 확률성)·flip 양방향 다발. denoise(§overnight) 정합 = "gate·gate+retry 둘 다 pass ≈ floor"가 정직 신호.
+- **★재확정 결론**: ① **지배 실패 = entity-id grounding(producer 미호출·placeholder 날조) = 값-부재·decidable**, recovery/loop 문제 *아님*. ② retry-controller는 loop(too_many 15→6)만 깸·실값을 못 줘 pass 정체(풀린 turn→새 날조→user_stop/transfer). ③ **정확한 처방 = autofetch/grounding(C3·§35b, A33→9·pass2×)이지 retry(C8) 아님.** C8 = "recovery-without-grounding은 지배 실패 못 고침"의 정직 경계. (cf. [[13-absorption-priority]]: 엔진 offload > scaffold-recovery.)
