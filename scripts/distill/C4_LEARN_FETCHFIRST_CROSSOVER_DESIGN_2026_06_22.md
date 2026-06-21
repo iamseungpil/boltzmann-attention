@@ -1,6 +1,7 @@
-# C4-LEARN FETCH-FIRST CROSSOVER — autofetch 원칙 결정실험 (2026-06-22)
+# FETCH-FIRST 규칙 × 전 레버 비용-효율 곡선 (구 C4-LEARN CROSSOVER·2026-06-22)
 
-> **설계서(빌드 전·GPU 0).** 상위 = `LLM_CONTROL_EXPERIMENT_REDESIGN_2026_06_22 §4-①`(강제강도 crossover).
+> ★**확장(사용자 지시 2026-06-22)**: fetch-first를 prompt/skill/hook/learn *전 레버*로 측정 = `RULE_LEVER_COST_EFFICIENCY_PROGRAM`의 첫 곡선(worked example). autofetch 원칙 결정 = 그 곡선의 한 비교(learn vs hook-perform).
+> **설계서(빌드 전·GPU 0).** 상위 = `RULE_LEVER_COST_EFFICIENCY_PROGRAM_2026_06_22` + `LLM_CONTROL_EXPERIMENT_REDESIGN_2026_06_22 §4-①`.
 > 진입 = 메모리 `06-NOW`·[[05-fixed-vs-variable]]·[[07-control-not-prompt]]·[[11-transfer-direction]].
 > 관련 = `R1B_PROVENANCE_DESIGN`·`V7_PROACTIVE_GATHER_DESIGN`·`CROSS_BENCH_TRANSFER_PLAN`·`CFBSYNTH_P2B_P4_DESIGN`·`REST_INTERNALIZE_DESIGN`(데이터-기근 교훈).
 
@@ -26,20 +27,26 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 ---
 
-## §2. Arms (4-way·동일 ABox·동일 eval 코드)
+## §2. Arms = fetch-first 규칙의 *전 레버 곡선* (사용자 지시 2026-06-22·`RULE_LEVER_COST_EFFICIENCY_PROGRAM` 첫 곡선)
 
-retail+airline τ²·base = Qwen2.5-7B·평가 = e2e pass^1 + 실패 census(`t2_failcensus`).
+★fetch-first(C3/P8)를 **prompt/skill/hook/learn 4레버 전부**로 측정 = 이 규칙의 비용-효율 곡선 1개 완성. retail+airline τ²·base=Qwen2.5-7B·평가=pass^1 + 실패 census(`t2_failcensus`). **동일 ABox·동일 eval 코드.**
 
-| arm | 통제점·강도 | 구현 | [[05]] |
-|---|---|---|---|
-| **A0 base** | 없음 | base 7B·gate0·autofetch off | 기준선 |
-| **A1 C1-deny** | C1 gate deny-only | gate1(provenance 사실게이트)·autofetch **off**·날조 id deny | 최소 enforced·동결 0 |
-| **A2 C4-learn** | C4 weights | base + **fetch-first LoRA**(§3·도메인-일반)·gate1-deny·autofetch off | ★원칙 후보·동결 0 |
-| **A3 C1-perform** | C1 autofetch | gate1 + autofetch on(현 engine arm·§5 A=12) | 비교군·위반축 |
+| arm | 레버(통제점·강도) | 구현 | 곡선 x위치(생애비용) | [[05]] |
+|---|---|---|---|---|
+| **A0 base** | (없음·기준선) | base 7B·gate0·autofetch off | 0 | 기준 |
+| **A0' scale** | scale 기준선 | 14/32B base as-is | (수평선) | 대체대상 |
+| **Ap prompt** | C0 prompt | 도메인-일반 fetch-first 지시(도구명 무·=C3 sweep fetchfirst/nofab) | 최저 | soft·동결0 |
+| **As skill** | C0+ skill | 온-디맨드 "값없음→생산도구 호출" 절차모듈+exemplar(발동시 invoke) | 저-중 | soft·동결0 |
+| **Ah-deny** | hook C1-deny | gate1(provenance 사실게이트)·autofetch off·날조 id deny | 중 | 최소 enforced·동결0 |
+| **Ah-perform** | hook C1-perform | gate1 + autofetch on(현 engine arm·§5 A=12) | 중-고 | ★위반축(perform·A2성장) |
+| **Al learn** | C4 learn | base + fetch-first LoRA(§3·도메인-일반)→ABox-swap·autofetch off | 고(build)·OpEx0 | ★원칙 후보·동결0 |
 
-- A1 vs A0 = §35b "deny-only가 7B서 stall" 재확인(예측: A1≈A0·7B가 deny 후 복구 못 함).
-- **A2 vs A3 = 핵심 대조**: C4-learn이 autofetch만큼 A 닫나(동결·A2성장 없이).
-- A2 vs A1 = 학습이 deny-only stall을 깨나(= fetch-first 내재화 증거).
+**곡선 판독(예측·반증가능)**:
+- Ap(prompt) = C3 sweep 실측 A 17~28(**못 닫음**) → 곡선 왼쪽 낮음(soft 불충분).
+- Ah-deny = §35b "7B stall" 예측(A≈base) → enforced여도 *복구 능력* 없으면 deny만으론 부족.
+- **Ah-perform = A=12 닫음**(실측) → 단 perform=A2성장·동결(비용 높은 x).
+- **As(skill)·Al(learn) = 빈칸 = 이 실험 핵심**: skill(온-디맨드 절차)이 prompt보다 닫나? learn(내재화)이 perform 없이 닫나(동결·A2성장 0)?
+- **knee = reliability 포화 최소비용 레버 = fetch-first 배정.** learn이 perform만큼 닫으면 → autofetch 강등(§5).
 
 ---
 
