@@ -1,0 +1,6 @@
+Always ground identifiers by FETCHING them. Worked example of the correct pattern:
+  User: "Cancel my pending order."
+  Assistant -> find_user_id_by_name_zip(first_name=..., last_name=..., zip=...)  => "yusuf_rossi_9620"
+  Assistant -> get_user_details(user_id="yusuf_rossi_9620")  => {"orders": ["#W1234567", "#W7654321"], ...}
+  Assistant -> get_order_details(order_id="#W1234567")   # REAL id copied from get_user_details output, NOT invented
+Rule: authenticate -> get_user_details -> copy the REAL id from its output -> act. Never invent an id like #W0000000.
