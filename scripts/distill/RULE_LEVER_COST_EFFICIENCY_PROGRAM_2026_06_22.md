@@ -59,7 +59,7 @@
 |---|---|---|---|---|
 | **(scale)** | 기준선 | 큰 base(14/32/72B) as-is | soft | OpEx 영구최고(대체대상) |
 | **prompt** | C0 | 도메인-일반 시스템 규칙/few-shot(도구명·정책 무) | soft(게임가능) | build 최저·OpEx 토큰·**작은모델 무효 가능** |
-| **skill** | C0+ | 온-디맨드 구조화 절차모듈+exemplar(규칙 발동시 invoke·retrieval) | soft·타깃 | build 중·OpEx 발동시만·소형서 prompt보다↑? |
+| **skill** | C0+ | **온-디맨드 절차모듈**(사용자 확정 2026-06-22): 규칙 발동 시 retrieval/router로 *invoke*되는 구조화 절차+few-shot exemplar. 컨텍스트 비용=발동시만. soft(모델이 따를지 선택)·단 prompt(always-on)보다 타깃·구조화 | soft·타깃 | build 중(모듈+라우터)·OpEx 발동시만·소형서 prompt보다↑? |
 | **hook** | C1/C2 | gate 엔진(grep if-domain=0·A2-gated)·**deny<substitute<perform** 하위사다리 | **enforced** | build 중·도구왕복 OpEx·**flexibility-loss·A2-growth**(perform) |
 | **learn** | C4 | primitive-벤치 학습 LoRA(small-rank+replay·무붕괴)→ABox-swap 전이 | **internalized** | build 최고(데이터+학습)·OpEx 0·**무망각 필요·flexibility-loss 0** |
 

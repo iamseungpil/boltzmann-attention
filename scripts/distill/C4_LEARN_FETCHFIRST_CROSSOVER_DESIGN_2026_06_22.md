@@ -36,7 +36,7 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 | **A0 base** | (없음·기준선) | base 7B·gate0·autofetch off | 0 | 기준 |
 | **A0' scale** | scale 기준선 | 14/32B base as-is | (수평선) | 대체대상 |
 | **Ap prompt** | C0 prompt | 도메인-일반 fetch-first 지시(도구명 무·=C3 sweep fetchfirst/nofab) | 최저 | soft·동결0 |
-| **As skill** | C0+ skill | 온-디맨드 "값없음→생산도구 호출" 절차모듈+exemplar(발동시 invoke) | 저-중 | soft·동결0 |
+| **As skill** | C0+ skill | 온-디맨드 절차모듈(확정): 미해결 entity-ref 감지(router)→"생산도구 먼저 호출해 실값 복사" 절차+exemplar invoke·발동시만 컨텍스트 | 저-중 | soft·동결0 |
 | **Ah-deny** | hook C1-deny | gate1(provenance 사실게이트)·autofetch off·날조 id deny | 중 | 최소 enforced·동결0 |
 | **Ah-perform** | hook C1-perform | gate1 + autofetch on(현 engine arm·§5 A=12) | 중-고 | ★위반축(perform·A2성장) |
 | **Al learn** | C4 learn | base + fetch-first LoRA(§3·도메인-일반)→ABox-swap·autofetch off | 고(build)·OpEx0 | ★원칙 후보·동결0 |
