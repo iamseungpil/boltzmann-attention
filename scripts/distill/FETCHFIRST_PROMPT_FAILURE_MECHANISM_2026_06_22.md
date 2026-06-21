@@ -63,6 +63,40 @@ fetch-first = 4 sub-rule. 단독·조합 arm으로 격리(7B 중심·핵심은 1
 4. §4 배제 체크.
 5. 결정 → DPO/RLVR 설계서(M4 시) 또는 SFT 확정(M1/M2).
 
+## ★§RESULTS (2026-06-22·확정) — M4 schema-example-copy prior
+
+**도구 `c4_prompt_mechanism.py`(grounding 버그=토큰-마침표글루 수정 후·궤적 전수). 핵심신호=schema_copy(스키마 예시값 #W0000001 emit).**
+
+**(1) 7B 메커니즘 분포 (실패 nfail 정규화·retail)**
+| arm | nfail | no_gather | schema_copy | gather_wrong(M2) | grounded_other(B) |
+|---|---|---|---|---|---|
+| base | 91 | 44 | **43(.47)** | 5 | 42 |
+| nofab | 87 | 39 | 38 | 8 | 40 |
+| fetchfirst | 91 | 28 | **28(.31)** | 9 | 54 |
+| fewshot | 88 | **0** | **0** | 20 | 68 |
+| structured | 87 | 28 | 27 | 8 | 51 |
+- ★**no_gather ≈ schema_copy 전 arm 일치** ⇒ 7B의 날조는 *거의 전부 스키마 예시값 복사*(랜덤 invention 아님).
+
+**(2) 스케일 축 (schema_copy 율)**: 7B 0.47 → **14B 0.045 → 32B 0.006**. = 강한 크기-의존·7B-특이 prior.
+
+**(3) 궤적 확정**(task2·fetchfirst arm): 모델이 get_user_details로 실제 order_id(#W2378156…) 관측 후에도 첫 get_order_details=**#W0000001**(스키마 예시). = gathered-then-ignored.
+
+### ★확정 = M4 (schema-example-copy prior)·대안 배제
+- **non-attend(M1) 배제**: 프롬프트가 "#W0000000 ALWAYS fail"로 *그 토큰을 명시*함에도 28/91 여전히 emit·동일 프롬프트가 큰 모델선 작동 → 주의실패 아님.
+- **capability(M2) 배제**: fewshot서 no_gather→0(gather 능력 有)·gather_wrong 낮음.
+- **format/harness·user-sim·task-confound 배제**: raw 궤적 실값 확인·paired 동일 태스크/user_llm.
+- ⇒ **7B fetch-first 프롬프트 실패 원인 = 스키마 예시값 복사 prior**(크기로 획득되나 7B엔 부재)·**NL 지시로 override 불가**(예시값 명시해도)·**시연(fewshot)/scale만 억제**.
+
+### ★learn 방법 함의 (SFT vs DPO/RLVR)
+- prior가 **시연-민감**(fewshot→0) ⇒ **SFT(cfbsynth=gradient 시연)이 억제할 공산**(내재화된 fewshot). 현 cfbsynth SFT가 정확히 이 시험.
+- prior가 **특정 나쁜 행동**(예시값 emit) ⇒ **DPO/RLVR penalty가 더 표적적**(verifier=provenance gate·#W-placeholder=reward<0·grounded-copy=reward≥1). SFT 잔여 schema_copy 시 escalate.
+- ★**예측 검증법**: 학습 후 이 census 재실행 → schema_copy 율이 fewshot처럼 ~0이면 성공. (SFT<DPO 예측은 잔여로 판정.)
+- ⇒ cfbsynth-SFT 정당화됨(시연이 시연-민감 prior 죽임)·DPO-penalty=fallback. 진행 중 SFT가 1차 답·잔여시 DPO 설계.
+
+### 남은 (선택·belt-and-suspenders)
+- P-restate arm(복창 후 행동): 현 증거(예시값 명시-저항+scale+시연대조)로 M4 충분 — P-restate는 추가확인용·우선순위 낮음.
+- 14B/32B에 *동일 C4_FETCHFIRST 프롬프트* 직접 실행(현재는 floor/rules만): prompt가 14B서 prior 더 누르나(현 floor만으로도 prior 거의 없음=무관할 수 있음).
+
 ## §7. GO/NO-GO (원인 확정)
 - **확정 = M-분포가 한 메커니즘 지배 + 대안 배제 + P-restate 결정자 통과.** 예: "7B 실패의 X%가 M4(복창정확+날조)·P-restate로 안 닫힘·schema-copy Y% = prior-override 확정 → DPO-penalty."
 - 모호(분포 혼재)면 추가 분할·표본↑.
