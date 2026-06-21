@@ -571,3 +571,15 @@ S-min 3-arm 전수 궤적(db_match·n=114):
 - **C3 메커니즘 궤적 확정**: autofetch 발동 54 sims·**모델이 주입 실값 사용 54/54(100%)**. 날조→실 전환 직접관측(task15: `get_order_details(#W00000001)`날조→deny+주입→`get_order_details(#W9389413)`실값). = 엔진이 *실값 공급*으로 grounding-날조 해결(차단 아님).
 - **★잔여 실패 근거 = operand(B) 다운스트림**: autofetch가 grounding 고쳐 실 id 얻어도 **다운스트림 write/operand서 실패**(task15=실주문 얻고 write 틀림). 잔여 A(not-found) 41 = autofetch-미발동 21(커버리지갭·provenance-deny 경로 밖) + **autofetch-발동·실값사용했으나 operand 실패 20**. ⇒ **A=엔진 닫음 확정·잔여=B(operand)가 A처럼 새어나옴=C10 정조준.**
 - 함의: §35(A=엔진·B=학습잔여)·§35b(C3) 구조 궤적 검증. C10(operand)이 이 다운스트림 잔여의 타깃·"실값 줘도 operand 틀리면 fail"이 C10 정당성의 궤적 근거.
+
+### 35c. ★[C8 recovery 완료 2026-06-21·`c8_eval.sh`] retry-controller = loop는 깸·pass는 floor 수준 = loop-only 경계
+3-arm (base 7B·retail n~114):
+| arm | pass^1 | too_many_errors | A_notfound | B_operand |
+|---|---|---|---|---|
+| floor (gate0) | 22/114 | 9 | 32 | 34 |
+| gate (gate1·retry0) | 14/112 | **15**↑ | 34 | 31 |
+| **gate_retry (gate1·retry1)** | 23/111 | **6**↓ | 40 | 19 |
+- **gate 단독이 해침**(too_many 9→15·pass 22→14): 거부가 에러↑·복구 없으니 loop↑. (C3의 "차단 단독 무효"와 동일 패턴.)
+- **retry-controller**: too_many **15→6(−60%·loop 깸·decidable 작동)** + pass **14→23(거버넌스 손상 회복)**. 단 **pass 23 ≈ floor 22** = **floor 초과 못함.**
+- ★**판정 = loop-only 경계**(설계 §7 예측 적중): retry가 loop를 깨나(decidable), **풀려난 sims가 올바른 복구 못하고 A(not-found)로 이동**(A 31→40). = **복구의 decidable 부분(loop-탐지)만 cheap-offload·완전복구(실패후 성공)는 모델 몫.**
+- ⇒ C8 = **부분-decidable 경계 데이터점**(C3=완전대체와 대비): recovery의 loop-break는 scaffold가 싸게, correct-action은 아님. C3(grounding 엔진)+C8(loop scaffold) 결합 시 풀려난 A를 C3가 받을 가능성(미측정·후속).
