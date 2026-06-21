@@ -64,28 +64,35 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 ---
 
-## §4. 메트릭 (목적함수 분모 포함)
+## §4. 메트릭 (★y=격리코드·리뷰 #2·#4)
 
 | 메트릭 | 정의 | 왜 |
 |---|---|---|
-| **A_notfound** | entity-id grounding 실패율(`t2_failcensus`) | ★핵심신호(닫혔나) |
-| **pass^1** | e2e DB-match | 전체효과 |
-| **flexibility-loss** | false-block rate(옳은 툴콜 차단)·over-deny(validate) | ★C1 enforced의 숨은비용·A2-동결 측정 |
-| **A2-growth** | arm이 요구하는 A2 필드 수(autofetch producer-map·placeholders) | ★[[05]] minimize-A2 |
-| **no-collapse** | held-out 일반 tool-use(tbnfc 등) 불변 | C4 무붕괴(§3 replay) |
-| **transfer** | **airline held-out**(동일 LoRA·ABox-swap만) A_notfound·pass | ★[[11]] 도메인-일반 입증(retail 학습 아님→자동 충족·cfbsynth 추상합성이라 도메인 무관) |
+| **A_notfound** (★y축) | entity-id grounding *격리* 실패율(`t2_failcensus` A코드) | ★핵심신호·**곡선 y(global pass 아님)** |
+| (보조) pass^1 | e2e DB-match | 전체효과·⚠️B(operand)가 천장 결정→confound 주의·보조만 |
+| **flexibility-loss** | held-out 정상경로 **false-block rate**(§4a 라벨셋·enforced arm만) | ★offload 날개의 숨은비용·동결 측정 |
+| **A2-growth** | arm이 요구하는 A2 필드 수(delta·**키스톤 정리 후 baseline**) | ★[[05]] minimize-A2 |
+| **no-collapse** | held-out 일반 tool-use(tbnfc 등) 불변 | learn 무붕괴(§3 replay) |
+| **transfer** | **airline held-out**(동일 LoRA·ABox-swap만) A_notfound | ★[[11]]·cfbsynth 추상합성이라 도메인 무관(retail·airline 둘 다 held-out) |
 
-**핵심: learn arm(SHAPE)은 flexibility-loss=0(weights)·전이=cfbsynth 추상합성이라 retail·airline 둘 다 held-out.** 단 fetch-first 완전동작엔 ②A2 의존맵(어느 getter)·③hook 가드가 동반(3분해·§3)·순수 learn-단독 닫힘은 SHAPE만. A3(autofetch)는 A2-growth>0(producer-map)·동결로 ②③을 엔진이 대신 수행.
+### §4a. ★flexibility-loss 조작적 정의 (리뷰 #4·빌드 선결·비-GPU)
+"false-block rate"는 **held-out 정상경로 라벨셋** 필요(validate over-deny=0은 학습/검증셋이지 held-out 아님·이 메트릭이 offload-날개 비용 기둥 전체를 떠받침).
+- **라벨셋 = held-out τ² 태스크 중 *게이트가 발동할 수 있으나 정당한* 툴콜 시퀀스**: ⓐ user가 *이미 실값 제공*(provenance OK인데 gate가 의심?) ⓑ producer 이미 호출됨(중복 fetch 강요?) ⓒ 정상 multi-step write. 각 시퀀스에 "정당(block돼선 안 됨)" gold 라벨.
+- **메트릭 = block된 정당콜 / 전체 정당콜**(hook arm: deny/perform이 정상흐름 가로챈 비율). learn/prompt/skill arm = 0(enforced 아님·구조적).
+- **소스**: retail+airline held-out split서 정상경로 추출(`t2_failcensus` 정상-종료 sim의 툴콜 시퀀스)·수동 라벨 소량. **빌드 전 이 라벨셋 파일 박기**(`flex_loss_labels.json`·grep tau2-도구명 OK=eval셋이라).
+
+**핵심: learn arm(SHAPE)은 flex-loss=0(weights·구조적)·전이=cfbsynth라 retail·airline held-out.** 단 fetch-first 완전동작엔 ②A2 의존맵·③hook 가드 동반(3분해·§3). A3(autofetch)=A2-growth>0·동결로 ②③ 엔진 대행→flex-loss 측정대상.
 
 ---
 
 ## §5. GO/NO-GO (autofetch 원칙 결정)
 
-- **GO(autofetch 강등)**: A2(C4-learn) A_notfound ≈ A3(autofetch) **그리고** A2-growth=0·flexibility-loss≈0·무붕괴·airline 전이. ⇒ **기본 = gate-only(C1-deny) + C4-learn fetch-first.** autofetch 폐기 또는 측정-비용옵션으로만.
-- **NO-GO(autofetch 정당)**: 오직 A3만 A 닫고 A2(C4-learn)는 stall. ⇒ autofetch를 **measured-justified** 비용옵션으로 명시(정직 경계)·단 A2-growth/동결 비용 계상.
-- **중간**: A2가 부분 닫음(A1<A2<A3) → C4+잔여 deny 조합·crossover 점 보고.
+★이건 **두 날개 crossover**(내재화 learn vs offload hook-perform·`PROGRAM §4a/§5(a)`)·단일곡선 knee 아님. y=A_notfound(격리). A2-growth는 **키스톤 정리 후 baseline** delta로(리뷰 #3·오염 회피).
+- **GO(autofetch 강등)**: Al(learn) A_notfound ≈ Ah-perform(autofetch) **그리고** A2-growth=0·flex-loss≈0·무붕괴·airline 전이. ⇒ **기본 = hook-deny(가드)+A2(의존맵)+learn(SHAPE)·autofetch(perform) 불필요.** = thesis 핵심(내재화가 offload의 flex/A2 비용 없이 동등).
+- **NO-GO(autofetch 정당)**: 오직 Ah-perform만 닫고 Al(learn)·As(skill) stall. ⇒ autofetch를 **measured-justified** 비용옵션 명시(정직 경계)·A2-growth/동결 비용 계상.
+- **중간**: 부분 닫음(deny<skill<learn<perform) → 날개별 Pareto 점 보고(가중합 금지).
 
-= `LLM_CONTROL §4-①` crossover의 A-leg 채움. autofetch 원칙(§2.3)·C10(B-leg) 동시 정보.
+= `LLM_CONTROL §4-①` A-leg + `PROGRAM` 헤드라인 (a) 첫 시험. autofetch 원칙(§2.3)·C10(B-leg) 동시 정보.
 
 ---
 
@@ -109,11 +116,12 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 ## §8. 빌드 순서 (GPU = 리뷰 후)
 
-1. ✅ 이 설계서 (GPU 0).
-2. **사용자 리뷰** ← 여기서 멈춤.
-3. C4 데이터 = cfbsynth 생성(`ma/synth_fetch_nativefc.py`·랜덤id·익명툴·hops/list_n 변주·`CFBSYNTH §2`)·과대표현 감시.
-4. C4 학습(small-rank LoRA+replay·진행률 가시·무붕괴 check).
-5. 4-arm eval(retail+airline·A_notfound·pass·flexibility-loss·A2-growth) → GO/NO-GO §5.
+1. ✅ 이 설계서 + 리뷰 픽스(#2 격리 y·#4 flex-loss 라벨셋·#1 두날개 판독).
+2. **⚠️ #3 게이팅 결정**(사용자): 키스톤 A2 과성장 정리(placeholders·arg-types→scaffold 기본값)를 **빌드 전 선결**(권장·A2-growth/flex-loss baseline 비오염) vs **병행+주석**. → Ah-perform A2-growth 숫자가 이에 좌우.
+3. **flex-loss 라벨셋 박기**(`flex_loss_labels.json`·§4a·비-GPU).
+4. C4 데이터 = cfbsynth 생성(`ma/synth_fetch_nativefc.py`·랜덤id·익명툴·hops/list_n 변주·`CFBSYNTH §2`)·과대표현 감시.
+5. C4 학습(small-rank LoRA+replay·진행률 가시·무붕괴 check).
+6. 7-arm eval(retail+airline·**y=A_notfound 격리**·flex-loss·A2-growth·보조 pass) → 두날개 GO/NO-GO §5.
 
 ---
 

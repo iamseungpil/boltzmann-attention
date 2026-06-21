@@ -63,47 +63,54 @@
 | **hook** | C1/C2 | gate 엔진(grep if-domain=0·A2-gated)·**deny<substitute<perform** 하위사다리 | **enforced** | build 중·도구왕복 OpEx·**flexibility-loss·A2-growth**(perform) |
 | **learn** | C4 | primitive-벤치 학습 LoRA(small-rank+replay·무붕괴)→ABox-swap 전이 | **internalized** | build 최고(데이터+학습)·OpEx 0·**무망각 필요·flexibility-loss 0** |
 
+- **★두 날개(§4a)**: prompt/skill/learn = *내재화 날개*(모델이 갖춤·flex/A2=0) / hook = *offload 날개*(결정론이 떼냄·flex/A2>0). 한 x축 아님.
 - **hook 내부 강제강도 사다리**(`LLM_CONTROL §2`): deny(거부·유동성보존) < require(선행강제) < substitute(인자교정) < perform(엔진이 행동수행=autofetch). ★최소행동 원칙.
-- **skill vs prompt 구분(핵심)**: prompt=always-on 정적 / skill=on-demand 구조화 절차(발동시만 컨텍스트)·composable. 비용·신뢰 다름 → 곡선상 별점.
-- **레버 결합 가능**(곡선=envelope): 예 hook-deny + learn(=fetch-first crossover A1/A2 조합).
+- **skill vs prompt 구분**: prompt=always-on 정적 / skill=on-demand 구조화 절차(발동시만 컨텍스트)·composable. 내재화 날개 *내부* 사다리.
+- **레버 결합 = 분해 책임**(envelope 아님): 예 fetch-first = learn(SHAPE)+A2(의존맵)+hook(가드) 3분해(`CFBSYNTH §9`).
 
 ---
 
-## §4. 비용-효율 메트릭 + 곡선 정의 (셀 균일)
+## §4. 메트릭 — ★Pareto + 두-날개 (단일 스칼라 efficiency·단일 knee 폐기·리뷰 #1·#2)
 
-**셀 = (규칙 C, 레버 L) → 측정:**
+### §4a. ⛔ 폐기: 단일 cost선 위 knee (리뷰 #1)
+**prompt<skill<hook<learn을 *한 x축*에 놓고 단일 knee를 읽는 건 잘못된 객체.** prompt/skill/learn = **모델이 그 능력을 갖추나(내재화 날개)** · hook = **능력을 불필요하게 만드는 결정론 offload 날개**([[00-thesis]] 두 날개). 종류 선택이지 단조곡선 한 점 아님. 한 축에 섞으면 "얕음/깊음"이 *"작은 모델이 학습가능한가"* 와 *"결정론으로 떼낼 수 있는가"* 를 뒤섞음. **6항 이종단위·가중치 미지정 스칼라로 collapse하면 레버 순위 안 나옴.**
 
-```
-efficiency(C,L) = reliability_gain(C,L)
-                / ( build + inference_OpEx + flexibility_loss
-                    + A2_growth + learn_cost + maintenance )
-```
+### §4b. ✅ 규칙당 산출 = Pareto 집합 + 어느 날개가 이기나
+각 (규칙 C, 레버 L) → **벡터** `(reliability, flexibility_loss, A2_growth, lifecycle_cost)` 측정 → 규칙당:
+1. **Pareto 집합**(지배되는 레버 버림·가중치 부여 거부=정직).
+2. **두 날개 판정**: ⓐ**내재화 날개**(prompt→skill→learn) = 모델이 규칙 갖추나·flex_loss·A2_growth=0. ⓑ**offload 날개**(hook-deny→substitute→perform) = 결정론이 규칙 떼내나·flex_loss·A2_growth>0. **규칙당 "어느 날개가 Pareto-지배하나".**
+3. **곡선/knee는 *날개 내부에서만***: 내재화 날개의 soft 사다리(prompt→skill→learn·"작은모델이 scale선 도달하나")에 knee 의미 有. hook 진입 = **별 분기**(곡선 위 한 점 아님·"decidable해서 떼냄").
+
+### §4c. ★y축 = 규칙-격리 failure-census Δ (global pass 아님·리뷰 #2)
+control §5 denoise 교훈: pass^1 천장은 B(operand)가 결정·autofetch는 A_notfound만 닫음. **단일규칙 곡선 y에 global pass 쓰면 규칙 confound→곡선 노이즈.** ⇒ **y = 그 규칙의 *격리된 실패코드* Δ**(fetch-first=ΔA_notfound·gate=Δgate-violation 등·`t2_failcensus` 규칙별 코드). **global pass^1 = 보조 지표로 강등**(전체효과 참고만).
 
 | 측정량 | 정의 | 도구 |
 |---|---|---|
-| reliability_gain | 그 규칙의 failure 닫힘(Δpass·Δfailure-census) | `t2_failcensus`(규칙별 실패코드) |
-| flexibility_loss | false-block·over-constrain rate(enforced만) | validate over-deny·held-out 정상경로 차단 |
-| A2_growth | 그 레버가 요구하는 A2 필드 수 | gate.json diff |
-| OpEx | 추론 토큰·도구왕복·레이턴시 | 런 telemetry |
-| no_collapse | held-out 일반능력 불변(learn) | tbnfc eval |
+| **reliability(규칙격리)** | 그 규칙의 *격리 실패코드* Δ(global pass 아님) | `t2_failcensus` 규칙별 코드 |
+| flexibility_loss | held-out 정상경로 false-block rate(§fetch-first doc §4 라벨셋·enforced만) | held-out 정상경로 라벨셋 |
+| A2_growth | 그 레버가 요구하는 A2 필드 수(delta·**키스톤 정리 후 baseline**) | gate.json diff |
+| lifecycle_cost | build+OpEx(토큰·왕복·레이턴시)+maintenance | telemetry |
+| no_collapse | held-out 일반능력 불변(learn 날개) | tbnfc eval |
 | transfer | airline held-out(ABox-swap만) 유지 | 동일 LoRA/엔진·A2-swap |
+| (보조) global pass^1 | e2e DB-match·confound 주의 | `t2_failcensus` |
 
-**★곡선 = 규칙 C마다: x축=레버(생애주기비용 오름차순) · y축=reliability.**
-- **knee = reliability 포화하는 최소비용 레버 = 그 규칙의 배정.**
-- **얕은 규칙** = knee가 prompt/skill(왼쪽·싸다). **깊은 규칙** = knee가 hook/learn(오른쪽·비싸다). **decidable 규칙** = hook-deny가 싸게 포화(왕복비용만).
-- 곡선에 flexibility-loss·A2-growth 주석(같은 reliability면 이 둘 작은 레버 승).
-- **scale 기준선 = 수평선**(큰모델 도달치)·각 레버가 작은모델로 그 선 도달하나(=cheap-replication·[[13]] 둘째기둥).
+- **scale 기준선 = 수평선**(큰모델 격리코드 도달치)·내재화 날개가 작은모델로 그 선 도달하나(=cheap-replication·[[13]]).
+- **레버 결합 가능**(예 hook-deny + learn): 날개 혼합 셀은 *분해 책임*으로 표기(fetch-first 3분해=learn SHAPE + A2 의존맵 + hook 가드).
 
 ---
 
-## §5. a-priori 깊이 분류 (검증할 가설·§2 표)
+## §5. a-priori 분류 + ★진짜 헤드라인 (리뷰 #1 꼬리·헤드라인 재배치)
 
-§35 scale분해 + CAPABILITY_LEVER가 예측:
-- **얕음(decidable→hook-deny 싸게·또는 promptable)**: C1·C2·C4·C5·C6·C7·C11. 곡선 knee 왼쪽 예상.
-- **깊음(scale-emergent·learn/방법집)**: C3(fetch-first)·C8(recovery)·C10(operand)·C12(NL). 곡선 knee 오른쪽 예상.
-- **혼합**: C9(selection·operand 얽힘)·content-op(rank=gloss로 얕아짐·comparative=명명 깊음).
+§35 scale분해 + CAPABILITY_LEVER 예측(검증할 가설·§2 표):
+- **offload 날개로 떼냄(decidable)**: C1·C2·C4·C5·C6·C7·C9(filter). hook-deny가 싸게 닫음 예상.
+- **내재화 날개 필요(scale-emergent·learn)**: C3(fetch-first SHAPE)·C8(recovery)·C10(operand)·C12(NL). promptable=C11.
+- **혼합/분해**: C3(SHAPE=learn·의존맵=A2·가드=hook)·content-op(rank=gloss 얕음·comparative 깊음).
 
-**★헤드라인 가설 = 곡선 모양이 규칙마다 다르다**(얕음≠깊음). 깊은 규칙에서만 learn 정당·얕은 규칙은 hook/prompt로 충분 = **레버 낭비 회피 지도.** 반증 = 다 똑같은 곡선이면 프레임 무효.
+### ★헤드라인 재배치 ("곡선 다양"은 약한 가설 — 폐기)
+"곡선이 규칙마다 다르다"는 **거의 자명**(decidable provenance < NL operand = a priori 참·NO-GO 사실상 불가). **진짜 헤드라인 둘:**
+- **(a) ★thesis-load-bearing**: *깊은 규칙*에서 **learn(내재화)이 hook-perform(offload)을 flex_loss=0·A2_growth=0으로 *동률* 닫나** = 두 날개 crossover. = 바로 fetch-first crossover(§첫 곡선). GO=동률→learn 우위(offload의 flex/A2 비용 없이)·NO-GO=learn 못 따라옴→offload 정당.
+- **(b) 예측 오류**: a-priori 깊이 분류가 *틀리는* 규칙(얕다 했는데 깊음·decidable 예상인데 학습 필요 등). = 가이드라인의 *비자명* 정보가.
+- 부산물 = "곡선 다양"은 결과로 따라옴(헤드라인 아님).
 
 ---
 
@@ -117,35 +124,37 @@ efficiency(C,L) = reliability_gain(C,L)
 
 ---
 
-## §7. 시퀀싱 (한 번에 불가·곡선 모양 다양 먼저 입증)
+## §7. 시퀀싱 (한 번에 불가·헤드라인 (a)/(b) 먼저 시험)
 
-전 매트릭스(12규칙×5레버×전이×scale) = 큰 프로그램. **곡선-모양-다양 가설을 먼저 입증할 spread 선정:**
+전 매트릭스(12규칙×레버×전이×scale) = 큰 프로그램. **헤드라인 (a)thesis-crossover + (b)예측오류를 싸게 시험할 spread 선정:**
 
-1. **C3 fetch-first(깊음 예상)** = `C4_LEARN_FETCHFIRST_CROSSOVER`(이미 설계·4레버로 확장) — knee 오른쪽?
-2. **C11 flow-rule following(얕음·promptable 예상)** = prompt만으로 포화? knee 왼쪽 대조.
-3. **C1 provenance-check(decidable·hook-deny 싸게 예상)** = hook 한 점 포화 대조.
-4. → 3 규칙이 (오른·왼·hook) 서로 다른 곡선 = 가설 입증 → 나머지 규칙으로 확장.
+1. **C3 fetch-first** = `C4_LEARN_FETCHFIRST_CROSSOVER`(전 레버) — ★헤드라인 (a) 직접: learn이 hook-perform을 flex/A2=0으로 동률 닫나. 가장 정보가 높음.
+2. **C11 flow-rule following(내재화 날개·promptable 예상)** = prompt로 닫히나(scale선 도달) 대조.
+3. **C1 provenance-check(offload 날개·hook-deny 예상)** = decidable로 떼냄 대조.
+4. → 3 규칙이 (crossover·내재화·offload) 서로 다른 날개-판정 = 프레임 판별력 + (b)예측오류 노출 → 나머지 규칙 확장.
 5. **C10 operand**·**C8 recovery** = 최깊음·둘째기둥 핵심(별 설계서 상속).
 
 각 규칙 = design→review→build→eval(GPU 리뷰 후). 진행률 가시([[30]]).
 
 ---
 
-## §8. 결과물·GO/NO-GO
+## §8. 결과물·GO/NO-GO (헤드라인 재배치)
 
-- **결과물 = 규칙별 비용-효율 곡선 아틀라스 + 최소-레버 배정 가이드라인**(measured). = `EXPERIMENT_DESIGN eval#1` 충족.
-- **GO**: 곡선이 규칙마다 다르고(얕음/깊음 분리)·각 규칙 최소-레버가 측정으로 정해지고·전이 도메인-일반·scale-bound 규칙은 정직 식별 ⇒ 논문1 배정 가이드라인 성립.
-- **NO-GO**: 곡선 구분 안 됨(다 prompt로 되거나 다 learn 필요) → 프레임 무효(정직 보고).
-- **경계지도**: genuinely scale-bound(어느 레버로도 작은모델서 안 닫힘·C12 후보) = 정직 한계 기여.
+- **결과물 = 규칙별 Pareto/두-날개 판정 아틀라스 + 최소-레버 배정 가이드라인**(measured). = `EXPERIMENT_DESIGN eval#1`.
+- **GO (a)**: 깊은 규칙(C3 등)서 learn이 hook-perform을 flex_loss=0·A2_growth=0으로 동률 닫음 ⇒ 두-날개 thesis(내재화가 offload의 숨은비용 없이 동등) 성립.
+- **GO (b)**: a-priori 깊이 분류의 *비자명 오류*(예측↔측정 불일치) 식별 = 가이드라인 정보가.
+- **NO-GO**: 깊은 규칙서 learn이 hook-perform 못 따라옴 → offload 정당(정직)·또는 모든 규칙이 한 날개로 collapse → 프레임 약함(정직 보고).
+- **경계지도**: genuinely scale-bound(어느 내재화 레버로도 작은모델 안 닫힘·C12 후보) = 정직 한계.
+- ⚠️ "곡선 다양"은 자명 부산물(헤드라인 아님·리뷰 #1).
 
 ---
 
 ## §9. 빌드 순서
 
-1. ✅ 이 프로그램 설계서.
-2. **사용자 리뷰** ← 멈춤(행/열/메트릭/시퀀싱 확정).
-3. C3 fetch-first 4레버 확장(`C4_..CROSSOVER` 업데이트)·C11·C1 = spread 첫 3곡선.
-4. eval → 곡선 모양 다양 입증 → 나머지 규칙.
+1. ✅ 이 프로그램 설계서 + 리뷰 픽스(#1 Pareto/두날개·#2 격리 y).
+2. **#3 결정**(키스톤 A2 정리 선결 vs 병행) ← 사용자 확인.
+3. fetch-first 설계서에 #2(격리 y)·#4(flex-loss 라벨셋) 박기(완료) → C3 fetch-first 빌드(spread 1).
+4. C11·C1 빌드(spread 2·3) → 날개-판정 다양 + (b)예측오류 → 나머지 규칙.
 
 ---
 
