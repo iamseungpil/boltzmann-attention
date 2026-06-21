@@ -564,3 +564,10 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - **B(operand) 33→22 잔존** = 엔진 불가·유일 학습 잔여 재확인.
 - 정직 경계: 7B+엔진 0.264 < 14B 0.52 < 32B 0.60 → grounding은 회복·나머지 gap(operand·recovery C8·NL)은 §5 방법집 대상. (autofetch=`t2_gate_patch T2_AUTOFETCH`·producer=get_user_details·A2-derivable.)
 - ⚠️ 실무비용 주의(§3c): autofetch=도구 왕복 추가(레이턴시)·단 결정론·감사가능.
+
+### 35b-traj. ★[전수 궤적 확정 2026-06-21·`/tmp/traj_census.sh`·`/tmp/chain_dump.sh`] C3 메커니즘 + 잔여=operand 확정
+S-min 3-arm 전수 궤적(db_match·n=114):
+- **집계 정정**: arm0 base **21** / arm1a provenance-차단만 **21**(=arm0·pass 이득 0·not-found 82→51 막기만·모델 stall) / arm1b +autofetch **36**. ⇒ **pass +15 전부 autofetch(주입)·차단 단독은 무효.** (이전 SMIN_ROW pass1 16/18/29 = 다른 메트릭/n·정정.)
+- **C3 메커니즘 궤적 확정**: autofetch 발동 54 sims·**모델이 주입 실값 사용 54/54(100%)**. 날조→실 전환 직접관측(task15: `get_order_details(#W00000001)`날조→deny+주입→`get_order_details(#W9389413)`실값). = 엔진이 *실값 공급*으로 grounding-날조 해결(차단 아님).
+- **★잔여 실패 근거 = operand(B) 다운스트림**: autofetch가 grounding 고쳐 실 id 얻어도 **다운스트림 write/operand서 실패**(task15=실주문 얻고 write 틀림). 잔여 A(not-found) 41 = autofetch-미발동 21(커버리지갭·provenance-deny 경로 밖) + **autofetch-발동·실값사용했으나 operand 실패 20**. ⇒ **A=엔진 닫음 확정·잔여=B(operand)가 A처럼 새어나옴=C10 정조준.**
+- 함의: §35(A=엔진·B=학습잔여)·§35b(C3) 구조 궤적 검증. C10(operand)이 이 다운스트림 잔여의 타깃·"실값 줘도 operand 틀리면 fail"이 C10 정당성의 궤적 근거.
