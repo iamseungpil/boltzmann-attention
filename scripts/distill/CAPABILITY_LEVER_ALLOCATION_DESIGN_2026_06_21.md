@@ -17,6 +17,13 @@
 **★긴장·knee (정직)**: 모델을 더 줄이면(①②↓) 같은 능력에 *더 많은 구조/학습 필요* → 단 그게 **고정·전이형**이면 ③④ 안 오름(1회), **A2/도메인-타깃형**이면 ③④ 폭증. ⇒ 답 = "가장 작은 모델"이 아니라 **총비용(①+②+③+④) 최소 *크기*** = 06-NOW 곡선의 knee. 구조 추가가 ③④를 안 올리게(=고정·전이형으로만) 하는 게 knee를 *작은 쪽*으로 미는 핵심.
 - **양자화**(int8/int4)=② 직접 절감 레버(같은 모델 더 싼 VRAM)·단 능력 손실 측정 필요(매트릭스 축에 포함).
 
+## 0'''. ★일반화 비용 = 5번째 축 + 다양-벤치 확장 목표 (사용자 2026-06-21)
+실무 다분야 사용(금융→의료)의 핵심: **고정부(모델·scaffold·학습 TBox)는 재사용, 변경부는 *한정·쉽게 swap*.** 분야 바뀔 때 모델/규칙/scaffold 다 바꾸면 = 실패.
+- **일반화 비용 = 새 *field* 1개 추가의 한계비용.** 이상 = **A2-swap만**(모델·scaffold·TBox·재학습 0). 측정: N개 *구조적으로 다른* field서 ⓐ고정부 진짜 불변(grep `if field`=0·재학습0) ⓑA2-swap 노력 ⓒ성능 유지.
+- **★retail↔airline은 약한 증거**(둘 다 고객서비스·유사구조). **진짜 일반화 = 구조 다른 field 횡단**: 고객서비스(tau2 retail/airline/telecom) × 금융(banking) × 의료/행정(SOPBench healthcare/DMV/bank) × …
+- **⇒ 다양-벤치 확장이 연구 목표**(이 일반화 비용을 *실측*하는 instrument). 학습 = 도메인-일반 primitive 벤치(SOP+TB+Synth+CFB·[[01-four-bench-tbox]])·전이 타깃 = 다양 field 벤치. 고정부가 field 횡단 재사용되면 = 일반화 비용 ≈ A2-swap = thesis 최종 증명.
+- **목적함수 갱신**: min { ①GPU ②VRAM ③유지보수 ④인간전문가 **⑤일반화비용(새 field당 = A2-swap만)** } 동시. ⑤도 A2가 적·고정부 클수록 작아짐 = ③④와 같은 방향(공통 적=A2·공통 친구=고정 scaffold+전이 TBox 재확인·field 횡단으로).
+
 ## 0. 논문 목표 (두 기둥)
 1. **배정 가이드라인**: agentic tool-use를 *세분 능력*으로 분해 → 각 능력을 *비용-효과 최소 레버*(prompt / 결정론 scaffold / A2-config / 최소학습 / scale)에 배정하는 측정-보정 의사결정 프레임워크.
 2. **★스케일-대체 방법집(less structure/learning)**: *스케일이 사는* 능력 각각을, 작은 모델 + *최소* 개입(엔진 offload·최소 전이학습·구조변경)으로 따라잡는 구체 방법 — **"scale은 단일체 아니라 *분해가능 번들*이고, 각 조각이 scale보다 싸게 얻어진다"** 를 실증.
@@ -103,11 +110,12 @@ build(CapEx)와 *별개*. 배포 후 매 요청·매일 드는 비용 = 소형-o
 - **C10 operand**: 최소-rank LoRA + replay + 무망각(딥리서치 §3) — 유일 학습 잔여.
 - ★공통 제약(사용자): **less structure / less learning** = 최소개입·붕괴망각 0·일반화 손상 0. 딥리서치가 PEFT/steering/distill/구조변경 중 최소비용·무붕괴 방법 확정.
 
-## 6. 실증 = 능력×레버×스케일 매트릭스 (보정)
-- 축: 능력(C1-C12) × 레버(5) × 크기(7/14/32B·frontier).
-- 측정됨: 스케일 분해(§M_A_RESULTS §35)·프롬프트 크기의존·provenance gate(A 33→15)·operand plateau.
-- 진행: arm1b(autofetch=C3 대체)·딥리서치(C8/C10 방법·무붕괴).
-- 펜딩: C8 retry-controller 실험·operand 최소LoRA·전이(airline ABox-swap)·각 셀 GO/NO-GO.
+## 6. 실증 = 능력×레버×스케일×**field** 매트릭스 (보정)
+- 축: 능력(C1-C12) × 레버(5) × 크기(7/14/32B·frontier·**양자화 int8/int4**) × **field(구조 다른 분야)**.
+- **field 다양성**(일반화 비용 §0''' 검증): 고객서비스(tau2 retail/airline/telecom) → 금융(banking) → 의료/행정(SOPBench healthcare/DMV/bank) → … 각 field서 고정부 불변·A2-swap만 확인.
+- 측정됨: 스케일 분해(§M_A_RESULTS §35)·프롬프트 크기의존·provenance gate(A 33→15)·operand plateau·C3 autofetch(§35b).
+- 진행: 딥리서치(C8/C10 방법·무붕괴).
+- 펜딩: C8 retry-controller·operand 최소LoRA·**field-횡단 전이(retail→banking→healthcare ABox-swap·일반화비용 실측)**·양자화 능력손실·각 셀 GO/NO-GO.
 
 ## 7. GO/NO-GO (가이드라인 검증)
 - **GO**: 각 scale-bound 능력이 §5 방법으로 *작은모델+최소개입 = 큰모델*에 도달(무붕괴·전이) → 가이드라인 실증·"scale 분해가능" 입증.
