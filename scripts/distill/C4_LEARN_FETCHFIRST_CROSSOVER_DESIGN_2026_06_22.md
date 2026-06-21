@@ -76,11 +76,12 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 | **no-collapse** | held-out 일반 tool-use(tbnfc 등) 불변 | learn 무붕괴(§3 replay) |
 | **transfer** | **airline held-out**(동일 LoRA·ABox-swap만) A_notfound | ★[[11]]·cfbsynth 추상합성이라 도메인 무관(retail·airline 둘 다 held-out) |
 
-### §4a. ★flexibility-loss 조작적 정의 (리뷰 #4·빌드 선결·비-GPU)
-"false-block rate"는 **held-out 정상경로 라벨셋** 필요(validate over-deny=0은 학습/검증셋이지 held-out 아님·이 메트릭이 offload-날개 비용 기둥 전체를 떠받침).
-- **라벨셋 = held-out τ² 태스크 중 *게이트가 발동할 수 있으나 정당한* 툴콜 시퀀스**: ⓐ user가 *이미 실값 제공*(provenance OK인데 gate가 의심?) ⓑ producer 이미 호출됨(중복 fetch 강요?) ⓒ 정상 multi-step write. 각 시퀀스에 "정당(block돼선 안 됨)" gold 라벨.
-- **메트릭 = block된 정당콜 / 전체 정당콜**(scaffold arm: deny/perform이 정상흐름 가로챈 비율). learn/prompt/skill arm = 0(enforced 아님·구조적).
-- **소스**: retail+airline held-out split서 정상경로 추출(`t2_failcensus` 정상-종료 sim의 툴콜 시퀀스)·수동 라벨 소량. **빌드 전 이 라벨셋 파일 박기**(`flex_loss_labels.json`·grep tau2-도구명 OK=eval셋이라).
+### §4a. ★flexibility-loss 조작적 정의 (리뷰 #4·정정: live false-block census)
+"false-block rate" = **enforced arm(scaffold-deny/perform)의 게이트가 *정당한* 툴콜을 막은 비율.** 정직 측정 = **held-out e2e sim 로그서 live census**(validate over-deny=0은 *gate-tuning에 쓰인* gold셋이라 #4 우려 — live eval 태스크는 tuning셋 아님·모델 생성콜=fresh = held-out 충족).
+- **메트릭 = gold-매칭(정당) 툴콜 중 게이트가 deny/가로챈 수 / 전체 gold-매칭 콜.** (정당=그 콜이 gold action과 일치 or gold DB-state로 이어짐.)
+- **소스 = eval sim 로그**(별 static 라벨파일 불요): scaffold-deny/perform arm의 sim서 deny 이벤트 ∩ gold-매칭 콜 census. learn/prompt/skill arm = 0(enforced 아님·구조적).
+- **도구**: `t2_failcensus_deep`에 deny∩gold 카운트 추가(eval 후 sim 로그 분석·비-GPU). retail+airline 둘 다.
+- (구안 static `flex_loss_labels.json` = 폐기·live census가 더 충실·tuning셋 회피.)
 
 **핵심: learn arm(SHAPE)은 flex-loss=0(weights·구조적)·전이=cfbsynth라 retail·airline held-out.** 단 fetch-first 완전동작엔 ②A2 의존맵·③scaffold 가드 동반(3분해·§3). A3(autofetch)=A2-growth>0·동결로 ②③ 엔진 대행→flex-loss 측정대상.
 
@@ -119,10 +120,9 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 1. ✅ 이 설계서 + 리뷰 픽스(#2 격리 y·#4 flex-loss 라벨셋·#1 두날개 판독).
 2. **⚠️ #3 게이팅 결정**(사용자): 키스톤 A2 과성장 정리(placeholders·arg-types→scaffold 기본값)를 **빌드 전 선결**(권장·A2-growth/flex-loss baseline 비오염) vs **병행+주석**. → Asc-perform A2-growth 숫자가 이에 좌우.
-3. **flex-loss 라벨셋 박기**(`flex_loss_labels.json`·§4a·비-GPU).
-4. C4 데이터 = cfbsynth 생성(`ma/synth_fetch_nativefc.py`·랜덤id·익명툴·hops/list_n 변주·`CFBSYNTH §2`)·과대표현 감시.
-5. C4 학습(small-rank LoRA+replay·진행률 가시·무붕괴 check).
-6. 7-arm eval(retail+airline·**y=A_notfound 격리**·flex-loss·A2-growth·보조 pass) → 두날개 GO/NO-GO §5.
+3. ✅ C4 데이터 = cfbsynth 생성+tbnfc replay 1:1(`c4_fetchfirst_build.sh`·train3800/val200·tau2-grep0 통과)·학습 중(r16·ETA~67min·loss~0.001).
+4. ✅ 7-arm eval 드라이버 준비(`c4_fetchfirst_eval.sh`·base+LoRA 한 serve·도메인-일반 prompt/skill: `C4_FETCHFIRST_DG.txt`·`C4_SKILL.txt`).
+5. 🔜 학습 완료→eval(retail NT=114·**y=A_notfound 격리**·보조 pass)→airline 전이→flex-loss live census(§4a·sim 로그 deny∩gold)→A2-growth(키스톤 정리 후)→두날개 GO/NO-GO §5.
 
 ---
 
