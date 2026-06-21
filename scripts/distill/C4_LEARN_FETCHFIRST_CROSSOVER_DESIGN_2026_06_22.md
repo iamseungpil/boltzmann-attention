@@ -9,7 +9,7 @@
 
 ## §0. 착수 전 [[05]] 결정질문 (이 실험 + C4 학습)
 
-1. **도메인-특화 순증?** — ❌ **C4 학습 = 도메인-일반 primitive 벤치(CFB grounded-fetch + SOP R1b provenance/P8)서만.** tau2(retail/airline) = **held-out eval *only***. ⛔ **tau2 학습 절대 금지**(= 2026-06-20 ReST-on-tau2 드리프트·killed·[[11]] 정면위반). 전이 = ABox-swap·재학습0.
+1. **도메인-특화 순증?** — ❌ **C4 학습 = canonical learn 벤치 = SOPBench + TaskBench + Synth서만**(★CFB 폐기·`INTEGRATED_TBOX v2`). fetch-first는 SOP(gather R2)+TaskBench(threading P2b). tau2(retail/airline) = **held-out eval *only***. ⛔ **tau2 학습 절대 금지**(= 2026-06-20 ReST-on-tau2 드리프트·killed·[[11]] 정면위반). 전이 = ABox-swap·재학습0.
 2. **유동성 동결?** — ⚠️ **이 실험이 그 측정 자체.** C4-learn(weights·유동성 보존)이 C1-perform(autofetch·결정론 동결)을 *대체*하는지를 flexibility-loss 축(§4)으로 비교. null = "autofetch가 공짜" 기각.
 3. **scaffold가 도메인 행동 수행?** — C4-learn arm = scaffold 무증설(모델이 fetch-first 수행). C1-perform(autofetch) arm = 비교군(=현 [[05]] 위반축·이 실험이 강등 정당성 판정).
 
@@ -52,13 +52,14 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 ## §3. C4-learn 데이터 (★도메인-일반·tau2 아님)
 
-**fetch-first discipline = "값이 없으면 *생산 도구를 먼저 호출*해 실값을 복사·날조 금지"**(R1b/P8 provenance + V7 proactive gather + CFB grounded-fetch). 이건 도메인-불변 규율 → primitive 벤치서 학습.
+**fetch-first discipline = "값이 없으면 *생산 도구를 먼저 호출*해 실값을 복사·날조 금지"**(R1b/P8 provenance + V7 proactive gather). 이건 도메인-불변 규율 → **canonical learn 벤치 = SOPBench + TaskBench + Synth**서 학습(★CFB 폐기됨·`INTEGRATED_TBOX v2`·2026-06-18 사용자결정·사용자 확인 2026-06-22).
 
-- **소스**: **CFB(grounded-fetch P2b)** + **SOPBench provenance(P8·R1b)** 궤적. 기존 자산 = `build_solo_data_cfb.sh`·`build_solo_train_cfb.sh`·`R1B_PROVENANCE_DESIGN`. 추상 alias 도구(`lookup_*`)로 fetch-first 패턴 학습.
+- **소스**(CFB 아님): **SOPBench(gather-first R2·P2a)** + **TaskBench(data-flow threading = 2-hop arg-binding·P2b/P3·id-grounding·R1)** 궤적. = CFB가 담던 grounded 2-hop을 TaskBench threading + SOP gather가 커버. 기존 자산 = SOP/TaskBench native-FC LoRA·`R1B_PROVENANCE_DESIGN`·`CROSS_BENCH_TRANSFER_PLAN`.
+- **★설계 함의**: CFB 폐기 논리(grounding=결정론 게이트=hook·not learn·`INTEGRATED_TBOX:73`) ⇒ fetch-first의 **learn arm이 설계상 약할 수 있음**(P8 provenance는 hook로·P2b threading만 learn). 이게 곡선의 *발견*(knee가 hook쪽?). §35 "A=엔진·B=learn"과 정합.
 - **⛔ 금지**: tau2 retail/airline 궤적 학습(`sft_rest_s0_retail.jsonl` 등 = 드리프트·미사용). tau2는 **전이 측정 타깃**.
 - **무붕괴**: replay 1:1(일반 tool-use·tbnfc/tb_all) 혼합·small-rank LoRA(r16류). held-out 일반능력 불변 확인.
-- **데이터-기근 위험(REST 교훈·`REST §4.2`)**: base-7B 자기생성 = HOLE. 단 *여기 타깃은 도메인-일반 fetch-first 규율*(narrow·CFB서 풍부)이지 tau2 task 커버가 아니므로 데이터-기근 양상 다름. 그래도 **coverage 진단 내장**(fetch-first 패턴이 학습셋에 충분히 대표되나).
-- **다양성**([[12]]): 표현/구조 다양 필수(단일템플릿 SFT=표면매핑 역전이). CFB+SOP 두 소스·alias 다양.
+- **데이터-기근 위험(REST 교훈·`REST §4.2`)**: base-7B 자기생성 = HOLE. 단 *여기 타깃은 도메인-일반 fetch-first 규율*(narrow·SOP gather + TaskBench threading서 풍부)이지 tau2 task 커버가 아니므로 데이터-기근 양상 다름. 그래도 **coverage 진단 내장**(fetch-first 패턴이 학습셋에 충분히 대표되나).
+- **다양성**([[12]]): 표현/구조 다양 필수(단일템플릿 SFT=표면매핑 역전이). SOP+TaskBench 두 소스·표현 다양.
 
 ---
 
@@ -71,9 +72,9 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 | **flexibility-loss** | false-block rate(옳은 툴콜 차단)·over-deny(validate) | ★C1 enforced의 숨은비용·A2-동결 측정 |
 | **A2-growth** | arm이 요구하는 A2 필드 수(autofetch producer-map·placeholders) | ★[[05]] minimize-A2 |
 | **no-collapse** | held-out 일반 tool-use(tbnfc 등) 불변 | C4 무붕괴(§3 replay) |
-| **transfer** | **airline held-out**(동일 LoRA·ABox-swap만) A_notfound·pass | ★[[11]] 도메인-일반 입증(retail 학습 아님→자동 충족·CFB/SOP 학습이라) |
+| **transfer** | **airline held-out**(동일 LoRA·ABox-swap만) A_notfound·pass | ★[[11]] 도메인-일반 입증(retail 학습 아님→자동 충족·SOP+TaskBench 학습이라) |
 
-**핵심: A2 arm(C4-learn)은 A2-growth=0·flexibility-loss=0(weights·gate-deny만)·전이=CFB/SOP 학습이라 retail·airline 둘 다 held-out.** A3(autofetch)는 A2-growth>0(producer-map)·동결.
+**핵심: A2 arm(C4-learn)은 A2-growth=0·flexibility-loss=0(weights·gate-deny만)·전이=SOP+TaskBench 학습이라 retail·airline 둘 다 held-out.** A3(autofetch)는 A2-growth>0(producer-map)·동결.
 
 ---
 
@@ -89,7 +90,7 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 ## §6. 위험·함정
 
-- **tau2 학습 유혹**(반복 드리프트 1순위): C4 데이터는 CFB/SOP만. 코드리뷰 게이트 = 학습 jsonl에 tau2 도구명 grep=0.
+- **tau2 학습 유혹**(반복 드리프트 1순위): C4 데이터는 SOP+TaskBench(+Synth)만·CFB 폐기. 코드리뷰 게이트 = 학습 jsonl에 tau2 도구명 grep=0.
 - **deny-only stall**(§35b): A1이 stall이면 정상(가설). 단 A2(C4-learn)도 stall이면 → fetch-first가 7B서 학습불가(=genuinely scale-bound or operand-entangled) → 경계지도 기여.
 - **single-facet→full-agent mismatch**([[05]]·2026-06-20 죄): fetch-first LoRA를 *full-agent*로 평가 = OK(이건 규율 내재화지 narrow 선택기 아님). 단 데이터=full-agent concrete-arg 궤적이어야(추상 단일도구 금지·`SFT_COLLAPSE_AUTOPSY` 교훈).
 - **A2-growth 잠입**: A2(C4-learn) arm이 placeholders/producer-map 안 쓰는지 확인(autofetch off). 키스톤 A2 과성장 정리(§2.5)와 동반.
@@ -109,7 +110,7 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 1. ✅ 이 설계서 (GPU 0).
 2. **사용자 리뷰** ← 여기서 멈춤.
-3. C4 데이터 빌드(CFB+SOP fetch-first·coverage 진단·tau2-grep0 게이트).
+3. C4 데이터 빌드(SOP gather + TaskBench threading fetch-first·coverage 진단·tau2-grep0 게이트).
 4. C4 학습(small-rank LoRA+replay·진행률 가시·무붕괴 check).
 5. 4-arm eval(retail+airline·A_notfound·pass·flexibility-loss·A2-growth) → GO/NO-GO §5.
 

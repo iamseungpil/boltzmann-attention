@@ -23,7 +23,7 @@
 실무 다분야 사용(금융→의료)의 핵심: **고정부(모델·scaffold·학습 TBox)는 재사용, 변경부는 *한정·쉽게 swap*.** 분야 바뀔 때 모델/규칙/scaffold 다 바꾸면 = 실패.
 - **일반화 비용 = 새 *field* 1개 추가의 한계비용.** 이상 = **A2-swap만**(모델·scaffold·TBox·재학습 0). 측정: N개 *구조적으로 다른* field서 ⓐ고정부 진짜 불변(grep `if field`=0·재학습0) ⓑA2-swap 노력 ⓒ성능 유지.
 - **★retail↔airline은 약한 증거**(둘 다 고객서비스·유사구조). **진짜 일반화 = 구조 다른 field 횡단**: 고객서비스(tau2 retail/airline/telecom) × 금융(banking) × 의료/행정(SOPBench healthcare/DMV/bank) × …
-- **⇒ 다양-벤치 확장이 연구 목표**(이 일반화 비용을 *실측*하는 instrument). 학습 = 도메인-일반 primitive 벤치(SOP+TB+Synth+CFB·[[01-four-bench-tbox]])·전이 타깃 = 다양 field 벤치. 고정부가 field 횡단 재사용되면 = 일반화 비용 ≈ A2-swap = thesis 최종 증명.
+- **⇒ 다양-벤치 확장이 연구 목표**(이 일반화 비용을 *실측*하는 instrument). 학습 = 도메인-일반 primitive 벤치(**SOPBench + TaskBench + Synth**·CFB 폐기 `INTEGRATED_TBOX v2`·[[01-four-bench-tbox]])·전이 타깃 = 다양 field 벤치. 고정부가 field 횡단 재사용되면 = 일반화 비용 ≈ A2-swap = thesis 최종 증명.
 - **목적함수 갱신**: min { ①GPU ②VRAM ③유지보수 ④인간전문가 **⑤일반화비용(새 field당 = A2-swap만)** } 동시. ⑤도 A2가 적·고정부 클수록 작아짐 = ③④와 같은 방향(공통 적=A2·공통 친구=고정 scaffold+전이 TBox 재확인·field 횡단으로).
 
 ## 0. 논문 목표 (두 기둥)
