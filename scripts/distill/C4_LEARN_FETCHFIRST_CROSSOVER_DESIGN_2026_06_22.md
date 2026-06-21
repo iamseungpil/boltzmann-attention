@@ -1,6 +1,6 @@
 # FETCH-FIRST 규칙 × 전 레버 비용-효율 곡선 (구 C4-LEARN CROSSOVER·2026-06-22)
 
-> ★**확장(사용자 지시 2026-06-22)**: fetch-first를 prompt/skill/hook/learn *전 레버*로 측정 = `RULE_LEVER_COST_EFFICIENCY_PROGRAM`의 첫 곡선(worked example). autofetch 원칙 결정 = 그 곡선의 한 비교(learn vs hook-perform).
+> ★**확장(사용자 지시 2026-06-22)**: fetch-first를 prompt/skill/scaffold/learn *전 레버*로 측정 = `RULE_LEVER_COST_EFFICIENCY_PROGRAM`의 첫 곡선(worked example). autofetch 원칙 결정 = 그 곡선의 한 비교(learn vs scaffold-perform).
 > **설계서(빌드 전·GPU 0).** 상위 = `RULE_LEVER_COST_EFFICIENCY_PROGRAM_2026_06_22` + `LLM_CONTROL_EXPERIMENT_REDESIGN_2026_06_22 §4-①`.
 > 진입 = 메모리 `06-NOW`·[[05-fixed-vs-variable]]·[[07-control-not-prompt]]·[[11-transfer-direction]].
 > 관련 = `R1B_PROVENANCE_DESIGN`·`V7_PROACTIVE_GATHER_DESIGN`·`CROSS_BENCH_TRANSFER_PLAN`·`CFBSYNTH_P2B_P4_DESIGN`·`REST_INTERNALIZE_DESIGN`(데이터-기근 교훈).
@@ -29,7 +29,7 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 ## §2. Arms = fetch-first 규칙의 *전 레버 곡선* (사용자 지시 2026-06-22·`RULE_LEVER_COST_EFFICIENCY_PROGRAM` 첫 곡선)
 
-★fetch-first(C3/P8)를 **prompt/skill/hook/learn 4레버 전부**로 측정 = 이 규칙의 비용-효율 곡선 1개 완성. retail+airline τ²·base=Qwen2.5-7B·평가=pass^1 + 실패 census(`t2_failcensus`). **동일 ABox·동일 eval 코드.**
+★fetch-first(C3/P8)를 **prompt/skill/scaffold/learn 4레버 전부**로 측정 = 이 규칙의 비용-효율 곡선 1개 완성. retail+airline τ²·base=Qwen2.5-7B·평가=pass^1 + 실패 census(`t2_failcensus`). **동일 ABox·동일 eval 코드.**
 
 | arm | 레버(통제점·강도) | 구현 | 곡선 x위치(생애비용) | [[05]] |
 |---|---|---|---|---|
@@ -37,16 +37,17 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 | **A0' scale** | scale 기준선 | 14/32B base as-is | (수평선) | 대체대상 |
 | **Ap prompt** | C0 prompt | 도메인-일반 fetch-first 지시(도구명 무·=C3 sweep fetchfirst/nofab) | 최저 | soft·동결0 |
 | **As skill** | C0+ skill | 온-디맨드 절차모듈(확정): 미해결 entity-ref 감지(router)→"생산도구 먼저 호출해 실값 복사" 절차+exemplar invoke·발동시만 컨텍스트 | 저-중 | soft·동결0 |
-| **Ah-deny** | hook C1-deny | gate1(provenance 사실게이트)·autofetch off·날조 id deny | 중 | 최소 enforced·동결0 |
-| **Ah-perform** | hook C1-perform | gate1 + autofetch on(현 engine arm·§5 A=12) | 중-고 | ★위반축(perform·A2성장) |
+| **Asc-deny** | scaffold C1-deny | gate1(provenance 사실게이트)·autofetch off·날조 id deny | 중 | 최소 enforced·동결0 |
+| **Asc-perform** | scaffold C1-perform | gate1 + autofetch on(현 engine arm·§5 A=12) | 중-고 | ★위반축(perform·A2성장) |
 | **Al learn** | C4 learn | base + fetch-first LoRA(§3·도메인-일반)→ABox-swap·autofetch off | 고(build)·OpEx0 | ★원칙 후보·동결0 |
 
 **곡선 판독(예측·반증가능)**:
 - Ap(prompt) = C3 sweep 실측 A 17~28(**못 닫음**) → 곡선 왼쪽 낮음(soft 불충분).
-- Ah-deny = §35b "7B stall" 예측(A≈base) → enforced여도 *복구 능력* 없으면 deny만으론 부족.
-- **Ah-perform = A=12 닫음**(실측) → 단 perform=A2성장·동결(비용 높은 x).
+- Asc-deny = §35b "7B stall" 예측(A≈base) → enforced여도 *복구 능력* 없으면 deny만으론 부족.
+- **Asc-perform = A=12 닫음**(실측) → 단 perform=A2성장·동결(비용 높은 x).
 - **As(skill)·Al(learn) = 빈칸 = 이 실험 핵심**: skill(온-디맨드 절차)이 prompt보다 닫나? learn(내재화)이 perform 없이 닫나(동결·A2성장 0)?
 - **knee = reliability 포화 최소비용 레버 = fetch-first 배정.** learn이 perform만큼 닫으면 → autofetch 강등(§5).
+- **grammar/config(xgrammar) = fetch-first엔 N/A**(사용자 지적 정합): xgrammar는 출력 TYPE/format만 강제·fetch-first는 *행동* 규율("먼저 fetch")이라 출력문법으로 표현 불가 → grammar arm 없음. (grammar는 C9 operand-enum·output-format 규칙서 등장.)
 
 ---
 
@@ -55,7 +56,7 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 **fetch-first discipline = "값이 없으면 *생산 도구를 먼저 호출*해 그 출력서 실값을 *복사*·리스트면 매칭 선택·날조 금지"**(P2b gather-for-arg + P4 filter + P1 copy). = COPY stratum(얕음·in-head 가능·`CFBSYNTH §3`).
 
 - **★소스 = 추상 synth(cfbsynth)** = Synth 벤치의 한 stratum (`CFBSYNTH_P2B_P4_DESIGN_2026_06_19`·사용자 결정·확인 2026-06-22). **CFB 직접 아님**(표면매핑 역전이 위험·[[12]])·**SOP/TaskBench 자연발생도 아님.** = CFB의 P2b/P4 *구조만* 추상합성: per-traj **랜덤화 id**(gold id가 오직 getter 출력에만→복사강제·암기불가)·**익명 툴/필드명**(lexical 단축 차단)·hops∈{2,3}·list_n∈{1..5}·표현 다양. 자산 = `ma/synth_fetch_nativefc.py`·`tau2/build_solo_data_cfb.sh`·`build_solo_train_cfb.sh`(이름은 cfb지만 *추상 synth* 파이프라인).
-- **★fetch-first는 단일레버 아님 = 3분해**(`CFBSYNTH §9`): **①구조 SHAPE(copy-no-fabricate) = learn(cfbsynth/Synth)** · **②의미 의존(어느 getter가 order_id 생산) = A2(ABox value-type→producer map)·학습불가** · **③집행(상류/user에 없는 id 거부) = hook(provenance 가드)**. ⇒ 이 규칙의 곡선은 *레버 결합*(learn SHAPE + A2 의존맵 + hook 가드)·순수 단일레버 비교가 아니라 *분해된 책임*의 비용배분.
+- **★fetch-first는 단일레버 아님 = 3분해**(`CFBSYNTH §9`): **①구조 SHAPE(copy-no-fabricate) = learn(cfbsynth/Synth)** · **②의미 의존(어느 getter가 order_id 생산) = A2(ABox value-type→producer map)·학습불가** · **③집행(상류/user에 없는 id 거부) = scaffold(provenance 가드)**. ⇒ 이 규칙의 곡선은 *레버 결합*(learn SHAPE + A2 의존맵 + scaffold 가드)·순수 단일레버 비교가 아니라 *분해된 책임*의 비용배분.
 - **★COPY vs COMPUTE 경계**(`CFBSYNTH §3`·resolve_selection과 무충돌): cfbsynth=P4 *filter*(매칭·복사·모델이 id emit)·resolve_selection=P4 *argmax/rank*(계산·offload·엔진 grounds). 모델은 "관찰됐으면 복사, 계산필요면 op명명" 구분 학습.
 - **⛔ 금지**: tau2 retail/airline 궤적 학습(`sft_rest_s0_retail.jsonl` 등 = 드리프트·미사용). tau2는 **전이 측정 타깃**.
 - **무붕괴**: replay 1:1(일반 tool-use·tbnfc/tb_all) 혼합·small-rank LoRA(r16류). held-out 일반능력 불변 확인.
@@ -78,18 +79,18 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 ### §4a. ★flexibility-loss 조작적 정의 (리뷰 #4·빌드 선결·비-GPU)
 "false-block rate"는 **held-out 정상경로 라벨셋** 필요(validate over-deny=0은 학습/검증셋이지 held-out 아님·이 메트릭이 offload-날개 비용 기둥 전체를 떠받침).
 - **라벨셋 = held-out τ² 태스크 중 *게이트가 발동할 수 있으나 정당한* 툴콜 시퀀스**: ⓐ user가 *이미 실값 제공*(provenance OK인데 gate가 의심?) ⓑ producer 이미 호출됨(중복 fetch 강요?) ⓒ 정상 multi-step write. 각 시퀀스에 "정당(block돼선 안 됨)" gold 라벨.
-- **메트릭 = block된 정당콜 / 전체 정당콜**(hook arm: deny/perform이 정상흐름 가로챈 비율). learn/prompt/skill arm = 0(enforced 아님·구조적).
+- **메트릭 = block된 정당콜 / 전체 정당콜**(scaffold arm: deny/perform이 정상흐름 가로챈 비율). learn/prompt/skill arm = 0(enforced 아님·구조적).
 - **소스**: retail+airline held-out split서 정상경로 추출(`t2_failcensus` 정상-종료 sim의 툴콜 시퀀스)·수동 라벨 소량. **빌드 전 이 라벨셋 파일 박기**(`flex_loss_labels.json`·grep tau2-도구명 OK=eval셋이라).
 
-**핵심: learn arm(SHAPE)은 flex-loss=0(weights·구조적)·전이=cfbsynth라 retail·airline held-out.** 단 fetch-first 완전동작엔 ②A2 의존맵·③hook 가드 동반(3분해·§3). A3(autofetch)=A2-growth>0·동결로 ②③ 엔진 대행→flex-loss 측정대상.
+**핵심: learn arm(SHAPE)은 flex-loss=0(weights·구조적)·전이=cfbsynth라 retail·airline held-out.** 단 fetch-first 완전동작엔 ②A2 의존맵·③scaffold 가드 동반(3분해·§3). A3(autofetch)=A2-growth>0·동결로 ②③ 엔진 대행→flex-loss 측정대상.
 
 ---
 
 ## §5. GO/NO-GO (autofetch 원칙 결정)
 
-★이건 **두 날개 crossover**(내재화 learn vs offload hook-perform·`PROGRAM §4a/§5(a)`)·단일곡선 knee 아님. y=A_notfound(격리). A2-growth는 **키스톤 정리 후 baseline** delta로(리뷰 #3·오염 회피).
-- **GO(autofetch 강등)**: Al(learn) A_notfound ≈ Ah-perform(autofetch) **그리고** A2-growth=0·flex-loss≈0·무붕괴·airline 전이. ⇒ **기본 = hook-deny(가드)+A2(의존맵)+learn(SHAPE)·autofetch(perform) 불필요.** = thesis 핵심(내재화가 offload의 flex/A2 비용 없이 동등).
-- **NO-GO(autofetch 정당)**: 오직 Ah-perform만 닫고 Al(learn)·As(skill) stall. ⇒ autofetch를 **measured-justified** 비용옵션 명시(정직 경계)·A2-growth/동결 비용 계상.
+★이건 **두 날개 crossover**(내재화 learn vs offload scaffold-perform·`PROGRAM §4a/§5(a)`)·단일곡선 knee 아님. y=A_notfound(격리). A2-growth는 **키스톤 정리 후 baseline** delta로(리뷰 #3·오염 회피).
+- **GO(autofetch 강등)**: Al(learn) A_notfound ≈ Asc-perform(autofetch) **그리고** A2-growth=0·flex-loss≈0·무붕괴·airline 전이. ⇒ **기본 = scaffold-deny(가드)+A2(의존맵)+learn(SHAPE)·autofetch(perform) 불필요.** = thesis 핵심(내재화가 offload의 flex/A2 비용 없이 동등).
+- **NO-GO(autofetch 정당)**: 오직 Asc-perform만 닫고 Al(learn)·As(skill) stall. ⇒ autofetch를 **measured-justified** 비용옵션 명시(정직 경계)·A2-growth/동결 비용 계상.
 - **중간**: 부분 닫음(deny<skill<learn<perform) → 날개별 Pareto 점 보고(가중합 금지).
 
 = `LLM_CONTROL §4-①` A-leg + `PROGRAM` 헤드라인 (a) 첫 시험. autofetch 원칙(§2.3)·C10(B-leg) 동시 정보.
@@ -117,7 +118,7 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 ## §8. 빌드 순서 (GPU = 리뷰 후)
 
 1. ✅ 이 설계서 + 리뷰 픽스(#2 격리 y·#4 flex-loss 라벨셋·#1 두날개 판독).
-2. **⚠️ #3 게이팅 결정**(사용자): 키스톤 A2 과성장 정리(placeholders·arg-types→scaffold 기본값)를 **빌드 전 선결**(권장·A2-growth/flex-loss baseline 비오염) vs **병행+주석**. → Ah-perform A2-growth 숫자가 이에 좌우.
+2. **⚠️ #3 게이팅 결정**(사용자): 키스톤 A2 과성장 정리(placeholders·arg-types→scaffold 기본값)를 **빌드 전 선결**(권장·A2-growth/flex-loss baseline 비오염) vs **병행+주석**. → Asc-perform A2-growth 숫자가 이에 좌우.
 3. **flex-loss 라벨셋 박기**(`flex_loss_labels.json`·§4a·비-GPU).
 4. C4 데이터 = cfbsynth 생성(`ma/synth_fetch_nativefc.py`·랜덤id·익명툴·hops/list_n 변주·`CFBSYNTH §2`)·과대표현 감시.
 5. C4 학습(small-rank LoRA+replay·진행률 가시·무붕괴 check).

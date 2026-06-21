@@ -22,7 +22,7 @@
 - (a) **frontier-나의 autofetch 드리프트**: ★★★★★ 메모리로도 [[05]]를 우회 = prompt-following이 *크기 무관* hard-constraint엔 약함(`07-control-not-prompt`).
 - (b) **§35b/C3 sweep**(2026-06-22 회수): gate deny-only(=prompt "실값 obtain")가 7B서 stall. 아래 §5 표가 실측.
 
-⇒ **hard-constraint = enforced(hook/gate) 또는 learn(weights) 필요.** 논문1의 질문이 "무엇을 offload하나"에서 **"어느 통제점에서 어느 강제강도로 거나"** 로 한 단계 올라감.
+⇒ **hard-constraint = enforced(★레버명=scaffold·결정론 gate/resolve·구 "hook") 또는 learn(weights) 필요.** (xgrammar=별개 메커니즘=decode-time TYPE 강제 config·scaffold-gate 아님·`PROGRAM §3`.) 논문1의 질문이 "무엇을 offload하나"에서 **"어느 통제점에서 어느 강제강도로 거나"** 로 한 단계 올라감.
 
 **★우리 scaffold = 모델 툴콜에 건 hook**(`t2_gate_patch._execute_tool_calls` 몽키패치 = PreToolUse on the model). self-hook(`scaffold_guard.py`)이 *나*에게 같은 걸 건 게 동형 검증.
 
