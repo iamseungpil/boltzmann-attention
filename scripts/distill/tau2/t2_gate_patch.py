@@ -137,6 +137,11 @@ def _autofetch_text(self, orig, gate):
     return ""
 
 
+def _call_key(tc):
+    """(도구명, 정규화 인자) = 동일-호출 식별 (retry-loop 탐지·decidable)."""
+    return (getattr(tc, "name", "") or "") + "::" + json.dumps(_args_dict(tc), sort_keys=True, ensure_ascii=False)
+
+
 def apply():
     from tau2.orchestrator.orchestrator import BaseOrchestrator
 
@@ -153,31 +158,66 @@ def apply():
         tms = _transfer_msg_sent(self)
 
         # T2_PROVENANCE=1 = orchestrator-레벨 게이트(날조 호출을 *실행 전* deny→error로 surface).
-        #   ⚠️ 이건 모델이 user에게 묻게 만들고 error budget 소모 → 차선. 권장 = apply_provenance_regen
-        #   (agent 생성-레벨 내부 재생성; 벤치 측정 무변경). T2_PROV_SOFT(budget 안 셈)=metric gaming이라 폐기.
         prov_on = os.environ.get("T2_PROVENANCE") == "1"
         ctx = _context_text(self) if prov_on else None
+        # T2_RETRY_CONTROLLER=1 = C8 recovery: 반복-동일-실패호출 차단+다양화 지시 (decidable·offload·무학습).
+        retry_on = os.environ.get("T2_RETRY_CONTROLLER") == "1"
+        retry_k = int(os.environ.get("T2_RETRY_K", "3"))  # rule②: 연속 실패 K회 가드
+        failed = getattr(self, "_t2_failed", None)
+        if failed is None:
+            failed = self._t2_failed = {}
+        DIVERSIFY = ("Take a DIFFERENT action: (a) FETCH a missing value from the tool that produces it, "
+                     "(b) ASK the user for the correct value, or (c) if you genuinely cannot proceed, "
+                     "transfer to a human agent.")
+
+        def _mark_fail(k, why):  # rule①·② 공통: 실패 기록 + 연속카운트++
+            if retry_on:
+                if k is not None:
+                    failed[k] = why
+                self._t2_consec = getattr(self, "_t2_consec", 0) + 1
 
         results = []
         for tc in tool_calls:
             if getattr(tc, "requestor", "assistant") != "assistant":
                 results.extend(orig(self, [tc]))  # user-side 툴콜(타 도메인)은 비대상
                 continue
+            key = _call_key(tc) if retry_on else None
+            # rule① 정확-반복 차단 (순환 loop·census ~70%)
+            if retry_on and key in failed:
+                self.num_errors += 1
+                _mark_fail(key, failed[key])
+                results.append(_deny_msg(tc, "RETRY_LOOP",
+                    f"You ALREADY called {tc.name} with these exact arguments and it FAILED: {failed[key][:160]}. "
+                    "Do NOT repeat the identical call. " + DIVERSIFY))
+                continue
+            # rule② 연속-실패 K 가드 (다양-실패 loop·census ~17%)
+            if retry_on and getattr(self, "_t2_consec", 0) >= retry_k:
+                self.num_errors += 1
+                self._t2_consec = 0  # 가드 발동 후 리셋(매콜 발동 방지)
+                results.append(_deny_msg(tc, "RETRY_ESCALATE",
+                    f"You have failed {retry_k}+ tool calls in a row. STOP this approach. " + DIVERSIFY))
+                continue
             if prov_on:  # L2 provenance: 날조 인자값 차단 (R1B)
                 pd = _provenance_deny(tc, ctx)
                 if pd:
                     self.num_errors += 1
                     extra = _autofetch_text(self, orig, gate) if os.environ.get("T2_AUTOFETCH") == "1" else ""
+                    _mark_fail(key, pd[1])
                     results.append(_deny_msg(tc, pd[0], pd[1] + extra))
                     continue
             ok, g, why = gate.check(tc.name, tc.arguments or {}, last_user_msg=last_user,
                                     transfer_msg_sent=tms)
             if not ok:
                 self.num_errors += 1
+                _mark_fail(key, why)
                 results.append(_deny_msg(tc, g, why))
                 continue
             out = orig(self, [tc])
             results.extend(out)
+            if out and getattr(out[0], "error", False):
+                _mark_fail(key, _content_str(out[0]))
+            elif retry_on:
+                self._t2_consec = 0  # 성공 → 연속카운트 리셋
             if tc.name in AUTH_TOOLS and out and not out[0].error:
                 gate.observe(tc.name, tc.arguments, _content_str(out[0]))
         return results
