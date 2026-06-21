@@ -105,6 +105,17 @@ fetch-first = 4 sub-rule. 단독·조합 arm으로 격리(7B 중심·핵심은 1
 - P-restate arm(복창 후 행동): 현 증거(예시값 명시-저항+scale+시연대조)로 M4 충분 — P-restate는 추가확인용·우선순위 낮음.
 - 14B/32B에 *동일 C4_FETCHFIRST 프롬프트* 직접 실행(현재는 floor/rules만): prompt가 14B서 prior 더 누르나(현 floor만으로도 prior 거의 없음=무관할 수 있음).
 
+## ★§MAXPROMPT 결과 (2026-06-22·프롬프트 한계 실증·진행중)
+최대-강도(C4_MAXPROMPT·금지값 명시·caps·persona·self-check) × 위치반복:
+| arm | pass | schema_copy | 대조 |
+|---|---|---|---|
+| 7B base | ~23 | 43 | 기준 |
+| 7B fetchfirst(보통지시) | ~26 | 28 | |
+| **7B max_begin**(최강·앞) | **15** | **43** | ★base와 동일·fetchfirst보다 **나쁨**·pass도 하락 |
+| max_be(앞+끝) | (진행) | | |
+| max_bme(앞+중간+끝) | (진행) | | |
+- ★**최대-강도 프롬프트가 역효과**: schema_copy 안 줄고(43=base) pass 하락(15<23). = 선행연구 정합 — **금지값을 강하게·반복 명시하니 priming↑**(Rana 87.5%·Elkins)·긴 프롬프트=7B distraction(cognitive load·white-bear). **프롬프트 한계 1차 실증**(강도↑가 prior 못 닫음·오히려 해침). max_be/bme로 위치반복 효과 확정 예정(lit 예측: 무효/plateau).
+
 ## ★§PRIOR-WORK (딥리서치 2026-06-22·프롬프트 한계 선행연구·우리 결과를 예측)
 > 풀 리포트=세션 transcript. 핵심: **우리 schema-copy 결과 3특성이 문헌이 예측하는 정확한 패턴.**
 - **prior-override = scale-emergent**(Wei et al. 2023 `2303.03846`): *작은* 모델은 pretraining/in-context prior를 못 누름·*큰* 모델만 override. flipped-label도 소형은 무시·semantic prior 의존. ⇒ 7B 0.47→14B→32B(우리)=교과서적 인스턴스(이상치 아님).
