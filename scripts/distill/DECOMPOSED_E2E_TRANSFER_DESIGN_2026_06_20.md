@@ -68,3 +68,7 @@ router는 **절차를 발명하면 안 됨**(procedure-offload=thesis 무효·[[
 - §3a router 신호 구현 = 순수 구조 함수(절차 0) — 코드 리뷰로 검증.
 - §3b 격리 = SOP-native 포맷 변환기 — 0.62 재현 조건 대조.
 - S-min facet = order_id(엔진-grounding) + flow(SOP) 분담 맞나.
+
+---
+## ★[DATA 2026-06-21·M_A_RESULTS §35] 스케일 분해가 타깃을 B(operand)로 좁힘
+3점 스케일(7B 0.24/14B 0.52/32B 0.60) floor 실패분해: **A(provenance/recovery) 76→23→3 = 스케일/엔진이 해결**(§1 ENGINE 정합·autofetch 실증중) / **B(operand/selection) 83→62 plateau = 스케일-불변 잔여 = 유일 학습타깃**. ⇒ §6 단계 정정: S-min은 A(엔진 autofetch·arm1b)로 "A=엔진" 먼저 실증 → 그 후 **학습은 B(operand) 최소 LoRA만**(flow/grounding 학습 아님). 스페셜리스트=flow도 §35가 약화: flow(A 일부)도 스케일/엔진 몫일 수 있음 → S-min 데이터로 flow-스페셜리스트 증분 재확인.

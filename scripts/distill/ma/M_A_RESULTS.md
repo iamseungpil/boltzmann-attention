@@ -531,3 +531,24 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - 실제 τ² 에이전트는 user-sim 대화로 `task_instructions` 받음 → cabin 도출가능·**리더보드 정상**(벤치 멀쩡). 제 오프라인 eval만 요약으로 잘라 underspecified처럼 보임 = **하네스 버그.**
 - **★대규모 정정**: §32(airline=formalize 잔여)·§34(케이스 결함) **둘 다 철회** = 추출 버그. §29-31 airline 수치·§30 retail missing_key(reason_for_call이 attr 누락?)도 **오염 가능** → task_instructions로 재추출·재측정 필요.
 - 교훈: 오프라인 eval의 입력이 실벤치 에이전트 입력과 다르면(요약 vs 전체 지시) 전부 무효 — "NL→graph 실현가능 천장"(EXPERIMENT_DESIGN §1) 동형(답이 입력에 있나 먼저 확인). 사용자 "리더보드 교차조사" 규율이 잡음.
+
+## 35. ★★★[CONFIRMED·스케일 분해] 스케일이 *무엇을* 사는가 = A(provenance/recovery)·B(operand)는 스케일-불변 = 유일 학습 타깃 (2026-06-21·retail n=342 denoised·`/tmp/curve.sh`·t2_failcensus_deep)
+> 사용자: "7B↔32B 격차 엄밀 분석·스케일이 가져가는 것 명확히·작은 모델에 깨끗이 학습시킬 것만 찾아라."
+
+**스케일 곡선 (pass^1·retail·tau2 학습0):** 7B 0.240 / 14B 0.518 / 32B 0.596. knee=7B→14B(+0.28). 프롬프트 효과 = **32B만 +0.047**·7B −0.015(역효과)·14B +0.009(null) = **instruction-following 크기-의존**.
+
+**스케일이 사는 것 (floor 실패수 분해):**
+| 실패(→규칙) | 7B | 14B | 32B | 판정 |
+|---|---|---|---|---|
+| **A** provenance/recovery(order_id 날조·R1/R8) | **76** | 23 | **3** | ★스케일 최대선물(96%↓)·**단 decidable→엔진이 7B에 줌** |
+| INFO(NL) | 47 | 11 | 7 | 스케일 |
+| D(미시도) | 21 | 11 | 10 | 스케일 |
+| **B** operand/selection(write 인자·facet4) | **83** | 66 | **62** | ✗**plateau=스케일-불변 잔여** |
+| E(partial) | 33 | 54 | 56 | ↑(거친실패↓→이동) |
+
+**★확정 결론 (두 갈래·역할 다름):**
+- **(가) 7B→32B 격차를 만드는 것 = A**(76→3). decidable(provenance check + fetch-first + A2-producer) → **엔진 offload가 7B에 줌**(학습 아님). = `t2_gate_patch` autofetch(`T2_AUTOFETCH`)로 실증 중(S-min arm1b).
+- **(나) 스케일이 *못 고치는* 잔여 = B(operand/selection)**(83→62 plateau·32B도 62 실패=모두의 천장). 스케일도 32B-프롬프트(−10)만 약간·**스케일로는 안 줄어듦**. = §32-34 operand-formalize "진짜 hard core"와 동일. forced-replay 격리시 instruction으로 0.62 = **학습/내재화 가능.**
+- ⇒ **작은 모델에 깨끗이 학습시킬 유일 타깃 = B(operand-formalize). A는 엔진·나머지는 스케일.** = 사용자 최초 operand 직관 적중(중간 "flow" 흔들림 정정).
+
+**per-규칙 promptability 발현 = 스케일 임계:** A는 14B서 발현(7B 역효과 +11 → 14B 도움 −6 → 32B base near-0)·B는 32B만(−10). ⇒ 7B는 A·B 둘 다 프롬프트로 못 받음(A는 엔진, B는 학습).
