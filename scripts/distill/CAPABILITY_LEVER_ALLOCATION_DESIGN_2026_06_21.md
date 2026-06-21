@@ -33,6 +33,17 @@
 ## 1. 신규성 (rival 회피)
 **"작은>큰"(ToolOrchestra가 다툼) 아님.** 기여 = (a) 측정-보정 *배정 가이드라인* + (b) *스케일-대체 방법집* + (c) 명제 "scale 능력은 decidable/behavior/irreducible로 분해되고 대부분 scale보다 싸게 설치된다 — *어디까지 가능하고 어디서 막히는지*(genuinely scale-bound) 경계를 측정." = systematization + cheap-replication + honest boundary.
 
+### 1a. ★ToolOrchestra(2511.21689) 정독 대조 — 우리 whitespace 확인 (2026-06-21·본문 정독)
+ToolOrchestra 본문 실측: action space = "GPT-5, GPT-5-mini, Qwen2.5-Coder-32B, Qwen2.5-Math-72B, search, code"·"calling a large model (GPT-5) in only ∼40% of the steps"·"**No explicit capability matching**...Tool selection **emerges from RL**."
+| 축 | ToolOrchestra | 우리 |
+|---|---|---|
+| 오케스트레이션 단위 | **per-step**(ReAct 루프·매 스텝 도구/모델) | **per-function**(C1-C12 세분 능력) |
+| 선택 대상 | **모델+도구**(frontier 포함) | **방법**(scaffold/prompt/소형학습/escalate) |
+| 결정 | **학습 RL·black-box·emergent** | **명시·측정된 cost-method** |
+| 결정론 scaffold(=모델 0) | ❌(항상 모델 추론) | ✅(decidable→엔진) |
+| frontier | ✅ GPT-5 40% step | ❌ on-prem only |
+⇒ **선행 = 문제/스텝별 *모델* 라우팅(frontier·emergent). 없음 = 기능 세분 + 각 기능의 *가장 싼 방법*(결정론 offload 포함) *명시* 배정 + on-prem fleet.** = 우리 기여의 핵심 whitespace(확인됨).
+
 ## 2. ★세분 능력 분류 (atomic·정의속성·스케일거동·증거)
 | # | atomic 능력 | 정의 속성 | 스케일 거동(실측) | 레버 |
 |---|---|---|---|---|
@@ -133,3 +144,33 @@ build(CapEx)와 *별개*. 배포 후 매 요청·매일 드는 비용 = 소형-o
 - **응용 타깃 = 금융 마케팅·의료 운영 시스템**: 고정부(모델·scaffold·TBox)는 그대로, **최소 수정(A2 config)** 으로 배치. 사람 노력↓·운영비↓·변경비↓ = §0''/§0''' 목적함수 그대로.
 - **딥리서치 wo3v3kmw3** = Palantir Ontology/AIP/배포·비용·전문가구조 정독 → 우리 레버 매핑·whitespace(어디서 더 싼가)·Palantir가 진짜 강한 곳 확정. 회수 후 이 §9 채움.
 - ⚠️ 정직: Palantir governance/scale/통합 성숙도는 강함 — 우리 주장 = *비용*(소형·최소전문가·field 일반화)이지 기능 우위 아님. 경계 측정.
+
+## 10. ★Cost-optimal heterogeneous fleet — L-vs-E 크로스오버·난이도 사이징·싼 라우터 (사용자 2026-06-21)
+model-size를 **per-capability 레버**로 추가 → 능력별 *효과 있는 최소비용 tier*. ToolOrchestra(문제/스텝별 emergent 모델라우팅·frontier)와 구별 = **기능별 명시 cost-method + on-prem fleet + 결정론 offload 우선**(§1a).
+
+### 10.1 L-vs-E 크로스오버 (사용자 둘째 통찰·핵심)
+능력 X마다:
+```
+cost_L(작은모델에 학습 내재화) = 학습 CapEx / 빈도 + 작은모델 OpEx
+cost_E(적정 큰모델에 escalate) = escalation OpEx × 빈도 + 큰모델 CapEx 분담
+→ min(scaffold, prompt, cost_L, cost_E) 선택  (scaffold=decidable이면 0순위)
+```
+- **빈번+싸게 학습가능 → L** (학습 상각). **희소+학습 비쌈 → E** (작은 몫 위해 큰 학습 CapEx 쓰지 마라·그냥 라우팅). ← 작은 몫은 큰 모델에.
+- ⚠️ **"큰 모델 특화 학습"은 보통 불필요** — 큰 모델은 크기로 zero-shot 처리 → 작은 몫이면 *as-is 라우팅*이 최저(추가 학습 CapEx 0). 특화 학습은 그 몫이 충분 빈번할 때만.
+
+### 10.2 난이도-사이징 fleet (ToolOrchestra와 차별)
+- frontier 0·**on-prem fleet**(예 10×7B + 4×32B + 1×72B)을 *난이도 분포에 맞춰* 사이징. 대부분 쉬움→7B 多·측정된 5-10% 하드→72B 소수.
+- **동질 all-72B보다 쌈**(용량을 수요 분포에 매칭). "CapEx 함정"은 *불필요한* 큰 tier 추가 때만 — 측정된 하드 fraction에 사이징하면 정당.
+- ToolOrchestra(40% frontier)와 달리 **5-10%만·on-prem·measured residual에만.**
+
+### 10.3 성립 조건 (make-or-break)
+1. **라우터 싸고 정확**: "어느 tier 필요"를 *작은* 판정기(decidable confidence/난이도 신호)로. 큰 모델이 라우팅 결정 금지(비용 그대로). 오라우팅(쉬운걸 큰모델·하드를 작은모델)이 절감 잠식. ← 연구 sub-problem.
+2. **하드 fraction 진짜 작아야**(측정)·큰 tier를 그 fraction에 사이징.
+3. fleet 운영복잡도(서빙·라우팅·유지보수·§3c/④) bounded.
+
+### 10.4 우리 실험이 크로스오버를 *실측*
+- C3 grounding = 7B+엔진(L 승·tier↓ 실증 §35b). C8 recovery = 측정중(c8_eval). operand = L(최소LoRA) vs E. path-selection = H_abstract(작게) vs H_offload(외부탐색)·둘다 235B 상시추론 아님.
+- ⇒ **fleet 믹스 = 정적 가정 아니라 능력별 크로스오버 *데이터*로 결정.** = 06-NOW "②총비용-최적 크기"를 "**총비용-최적 fleet 믹스**"로 일반화.
+
+### 10.5 thesis 진화 (정직·더 방어가능)
+"작은 모델이 *전부*"(데이터상 거짓·operand/path 일부 scale-bound) → **"작은모델+scaffold가 *대부분*, 측정된 환원불가 소수만 적정-크기 on-prem 모델에, 총비용 최소"**. 큰 모델을 *쓰는 게* 기여가 아니라 *안 쓰게(최소화) 만드는* 게 기여.
