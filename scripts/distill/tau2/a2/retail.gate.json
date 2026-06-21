@@ -1,0 +1,71 @@
+{
+  "_meta": {
+    "domain": "retail",
+    "source": "retail policy.md 136줄 (= t2_gate.py GATE_SPEC, validated replay PASS)",
+    "compiler": "Fable-5 in-session + A2_DRIVEN_SCAFFOLD_KEYSTONE_IMPL_2026_06_21 (kind/producers/arg-types/placeholders 통합)"
+  },
+  "gates": [
+    {
+      "id": "G1_AUTH_FIRST",
+      "kind": "auth",
+      "predicate": "authenticated user identity",
+      "satisfiers": {
+        "find_user_id_by_email": ["email"],
+        "find_user_id_by_name_zip": ["first_name", "last_name", "zip"]
+      },
+      "applies_to": [
+        "cancel_pending_order", "exchange_delivered_order_items", "get_order_details",
+        "get_user_details", "modify_pending_order_address", "modify_pending_order_items",
+        "modify_pending_order_payment", "modify_user_address", "return_delivered_order_items"
+      ],
+      "note": "required even if the user already gave a user id or order id"
+    },
+    {
+      "id": "G2_CONFIRM_WRITE",
+      "kind": "confirm",
+      "predicate": "explicit user confirmation (yes) of the action details in the latest user message",
+      "satisfiers": {},
+      "ask": "list the action details to the user and ask them to confirm",
+      "applies_to": [
+        "cancel_pending_order", "exchange_delivered_order_items", "modify_pending_order_address",
+        "modify_pending_order_items", "modify_pending_order_payment", "modify_user_address",
+        "return_delivered_order_items"
+      ]
+    },
+    {
+      "id": "G3_SINGLE_USER",
+      "kind": "ownership",
+      "predicate": "target belongs to the authenticated user",
+      "satisfiers": {},
+      "owner_field": "user_id",
+      "resolver_path": ["order_id", "get_order_details", "user_id"],
+      "terminal": "deny the request: you can only help the authenticated user in this conversation",
+      "applies_to": [
+        "cancel_pending_order", "exchange_delivered_order_items", "get_order_details",
+        "get_user_details", "modify_pending_order_address", "modify_pending_order_items",
+        "modify_pending_order_payment", "modify_user_address", "return_delivered_order_items"
+      ]
+    },
+    {
+      "id": "G4_TRANSFER_MSG",
+      "kind": "notice",
+      "predicate": "the mandatory transfer notice has been communicated to the user",
+      "satisfiers": {},
+      "notice_text": "YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.",
+      "ask": "send the user exactly this message first: \"YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.\" — then retry the transfer",
+      "applies_to": ["transfer_to_human_agents"]
+    }
+  ],
+  "producers": {
+    "authenticated_user_record": {"tool": "get_user_details", "args_from": {"user_id": "@auth_user"}}
+  },
+  "identifying_arg_types": [
+    "email", "name", "zip", "user_id", "order_id", "username", "id",
+    "payment", "address", "phone", "item"
+  ],
+  "placeholders": [
+    "#W0000000", "something@example.com", "jane_doe@example.com", "john.doe@example.com",
+    "johndoe@example.com", "john@example.com", "jane@example.com", "user@example.com",
+    "test@example.com", "example@example.com", "123 Main St", "123 Main Street"
+  ]
+}

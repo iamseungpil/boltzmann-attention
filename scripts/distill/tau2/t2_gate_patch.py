@@ -1,16 +1,13 @@
 #!/usr/bin/env python
-"""tau2 게이트 hook: BaseOrchestrator._execute_tool_calls 몽키패치 (BENCH_PORTFOLIO §3.6 ③).
+"""tau2 게이트 hook: BaseOrchestrator._execute_tool_calls 몽키패치 — A2-구동(키스톤 후).
 
-SOPBench two_stage_client 패턴 동형 — 에이전트 툴콜을 실행 *전* RetailGate로 검사,
-deny면 실행 없이 게이트 메시지를 ToolMessage(error)로 반환(모델이 보고 교정),
-allow면 원본 실행 후 결과로 게이트 상태 갱신(find 성공 -> 인증 확립).
+★엔진 = `gate_interpreter.GateInterpreter`(벤치-일반·도메인 분기 0). 이 패치는 wiring만:
+  에이전트 툴콜을 실행 *전* GateInterpreter로 검사, deny면 실행 없이 게이트 메시지를
+  ToolMessage(error)로 반환, allow면 원본 실행 후 결과로 게이트 상태 갱신.
+도메인 활성화·도구셋·autofetch producer·식별arg-types·placeholder = 전부 `a2/<domain>.gate.json`서
+로드(env.domain_name로 선택). 코드 하드코딩(retail 도구명·GATE_DOMAINS) 폐기(2026-06-21 키스톤).
 
-활성화: 시뮬 실행 파이썬에서 `import t2_gate_patch; t2_gate_patch.apply()`
-또는 환경변수 T2_GATE=1 로 sitecustomize 류에서 호출. 게이트는 orchestrator
-인스턴스당 1개(_t2_gate) — 대화별 인증 상태 분리.
-
-G2(쓰기-전-확인)는 직전 user 발화를 메시지 이력에서 추출. user 턴이 아직 없으면
-(이론상 WRITE가 첫 액션일 수 없음) deny 쪽으로 떨어짐 — 정책 부합.
+활성화: `import t2_gate_patch; t2_gate_patch.apply()`. 게이트는 orchestrator 인스턴스당 1개.
 """
 import json
 import os
@@ -18,13 +15,39 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from t2_gate import AUTH_TOOLS, TRANSFER_MSG, RetailGate  # noqa: E402
+from gate_interpreter import (  # noqa: E402
+    GateInterpreter, auth_satisfier_tools, load_domain_a2, resolvers_from_env)
 
-GATE_DOMAINS = {"retail"}  # airline 등은 게이트 컴파일 후 추가
+# ── 도메인-일반 기본값 (A2가 override·enrich; retail/도메인 하드코딩 아님) ──
+DEFAULT_ARG_HINTS = ("email", "name", "zip", "user_id", "order_id", "username", "id",
+                     "payment", "address", "phone", "item", "reservation")
+DEFAULT_PLACEHOLDERS = {
+    "#W0000000", "something@example.com", "jane_doe@example.com",
+    "john.doe@example.com", "johndoe@example.com", "john@example.com",
+    "jane@example.com", "user@example.com", "test@example.com",
+    "example@example.com", "123 Main St", "123 Main Street",
+}
+PROV_ARG_HINT = DEFAULT_ARG_HINTS          # 호환 alias
+COMMON_PLACEHOLDERS = DEFAULT_PLACEHOLDERS  # 호환 alias
 
-# ─── L2 provenance 게이트 (R1B, env T2_PROVENANCE=1; D1 직교·G1-G4와 합성) ───
-PROV_ARG_HINT = ("email", "name", "zip", "user_id", "order_id", "username", "id",
-                 "payment", "address", "phone", "item")
+_A2_CACHE = {}
+
+
+def _domain_a2(domain):
+    """env.domain_name → augmented A2 dict (없으면 None=게이트 비활성). 캐시."""
+    if domain in _A2_CACHE:
+        return _A2_CACHE[domain]
+    a2 = load_domain_a2(domain) if domain else None
+    if a2 is not None:
+        a2 = dict(a2)
+        a2["_auth_tools"] = auth_satisfier_tools(a2["gates"])
+        a2["_hints"] = tuple(a2.get("identifying_arg_types") or DEFAULT_ARG_HINTS)
+        a2["_placeholders"] = set(a2.get("placeholders") or ()) | DEFAULT_PLACEHOLDERS
+        a2["_producer"] = (a2.get("producers") or {}).get("authenticated_user_record")
+        a2["_notice_text"] = next(
+            (g.get("notice_text") for g in a2["gates"] if g.get("kind") == "notice"), "")
+    _A2_CACHE[domain] = a2
+    return a2
 
 
 def _flatten(v):
@@ -51,14 +74,8 @@ def _args_dict(tc):
     return {}
 
 
-# ─── ★L1 bad_words 블랙리스트 (스키마-example + 흔한 placeholder; 동적=세션-flagged) ───
+# ─── ★L1 bad_words 블랙리스트 (스키마-example + placeholder; 동적=세션-flagged) ───
 _SUCH_AS_RE = re.compile(r"such as ['\"]([^'\"]+)['\"]|e\.g\.,?\s*['\"]?([^'\".)]+)", re.I)
-COMMON_PLACEHOLDERS = {
-    "#W0000000", "something@example.com", "jane_doe@example.com",
-    "john.doe@example.com", "johndoe@example.com", "john@example.com",
-    "jane@example.com", "user@example.com", "test@example.com",
-    "example@example.com", "123 Main St", "123 Main Street",
-}
 
 
 def _blacklist_worthy(v):
@@ -67,8 +84,8 @@ def _blacklist_worthy(v):
     return len(v) >= 6 and (("@" in v) or any(c.isdigit() for c in v))
 
 
-def _static_blacklist(tools):
-    bl = set(COMMON_PLACEHOLDERS)
+def _static_blacklist(tools, placeholders=None):
+    bl = set(placeholders or DEFAULT_PLACEHOLDERS)
     for t in (tools or []):
         try:
             txt = json.dumps(t.openai_schema)
@@ -95,13 +112,13 @@ def _context_text(orch):
     return " ".join(parts).lower()
 
 
-def _provenance_deny(tc, ctx):
+def _provenance_deny(tc, ctx, hints=DEFAULT_ARG_HINTS):
     """identifying 인자값이 컨텍스트에 없으면 fabricated → (gate, reason) 반환, 아니면 None."""
     args = _args_dict(tc)
     if not args:
         return None
     for k, v in args.items():
-        if not any(h in k.lower() for h in PROV_ARG_HINT):
+        if not any(h in k.lower() for h in hints):
             continue
         for val in _flatten(v):
             s = str(val).strip()
@@ -112,22 +129,24 @@ def _provenance_deny(tc, ctx):
                         f"argument '{k}'='{s}' was not provided by the user nor returned by any tool — it looks invented "
                         "(possibly copied from a schema example value). Do NOT call any tool with a guessed/placeholder value. "
                         "Instead OBTAIN the real value first: if a lookup/getter tool can produce it "
-                        "(e.g. call get_user_details to retrieve the user's orders, payment methods, or addresses), call that and read the value from its output; "
+                        "(e.g. call a getter to retrieve the user's records, payment methods, or addresses), call that and read the value from its output; "
                         "otherwise ASK the user for it.")
     return None
 
 
-def _autofetch_text(self, orig, gate):
-    """T2_AUTOFETCH: provenance-deny 시, 인증됐으면 producer(get_user_details)를 결정론 호출해
+def _autofetch_text(self, orig, gate, producer):
+    """T2_AUTOFETCH: provenance-deny 시, 인증됐으면 A2 producer(getter)를 결정론 호출해
     그 출력을 텍스트로 반환(모델에 *실값* 제공). = '날조-FIRST' default를 엔진이 결정론으로 메움.
-    decidable: producer 도출=A2(여기 retail=get_user_details, airline swap)·인자=auth_user(gate 추적).
-    side-effect 0(getter)·error budget 무소비(성공). 실패시 ''."""
-    if getattr(gate, "auth_user", None) is None:
+    producer = A2 producers.authenticated_user_record {tool, args_from:{argname:@auth_user}}.
+    decidable·도메인-일반(도구·인자 = A2서 도출·airline swap = 동일 메커니즘)·side-effect 0(getter)."""
+    if producer is None or getattr(gate, "auth_user", None) is None:
         return ""
     try:
         from tau2.data_model.message import ToolCall
-        ptc = ToolCall(id="autofetch", name="get_user_details",
-                       arguments={"user_id": gate.auth_user}, requestor="assistant")
+        pargs = {k: (gate.auth_user if v == "@auth_user" else v)
+                 for k, v in (producer.get("args_from") or {}).items()}
+        ptc = ToolCall(id="autofetch", name=producer["tool"],
+                       arguments=pargs, requestor="assistant")
         out = orig(self, [ptc])
         if out and not getattr(out[0], "error", False):
             return ("\nI have fetched the authenticated user's actual record for you — copy a REAL value "
@@ -149,13 +168,17 @@ def apply():
 
     def gated(self, tool_calls):
         env = self.environment
-        if getattr(env, "domain_name", None) not in GATE_DOMAINS:
+        a2 = _domain_a2(getattr(env, "domain_name", None))
+        if a2 is None:
             return orig(self, tool_calls)
         gate = getattr(self, "_t2_gate", None)
         if gate is None:
-            gate = self._t2_gate = RetailGate(db=env.tools.db)
+            gate = self._t2_gate = GateInterpreter(a2["gates"], resolvers=resolvers_from_env(env))
+        auth_tools = a2["_auth_tools"]
+        producer = a2["_producer"]
+        hints = a2["_hints"]
         last_user = _last_user_text(self)
-        tms = _transfer_msg_sent(self)
+        tms = _transfer_msg_sent(self, a2["_notice_text"])
 
         # T2_PROVENANCE=1 = orchestrator-레벨 게이트(날조 호출을 *실행 전* deny→error로 surface).
         prov_on = os.environ.get("T2_PROVENANCE") == "1"
@@ -198,10 +221,10 @@ def apply():
                     f"You have failed {retry_k}+ tool calls in a row. STOP this approach. " + DIVERSIFY))
                 continue
             if prov_on:  # L2 provenance: 날조 인자값 차단 (R1B)
-                pd = _provenance_deny(tc, ctx)
+                pd = _provenance_deny(tc, ctx, hints)
                 if pd:
                     self.num_errors += 1
-                    extra = _autofetch_text(self, orig, gate) if os.environ.get("T2_AUTOFETCH") == "1" else ""
+                    extra = _autofetch_text(self, orig, gate, producer) if os.environ.get("T2_AUTOFETCH") == "1" else ""
                     _mark_fail(key, pd[1])
                     results.append(_deny_msg(tc, pd[0], pd[1] + extra))
                     continue
@@ -218,7 +241,7 @@ def apply():
                 _mark_fail(key, _content_str(out[0]))
             elif retry_on:
                 self._t2_consec = 0  # 성공 → 연속카운트 리셋
-            if tc.name in AUTH_TOOLS and out and not out[0].error:
+            if tc.name in auth_tools and out and not out[0].error:
                 gate.observe(tc.name, tc.arguments, _content_str(out[0]))
         return results
 
@@ -236,13 +259,15 @@ def _last_user_text(orch):
     return None
 
 
-def _transfer_msg_sent(orch):
-    """G4: 고정 transfer 문구가 어시스턴트 발화로 이미 송신됐는가 (불가 판단 시 None)."""
+def _transfer_msg_sent(orch, notice_text):
+    """notice: 고정 transfer 문구가 어시스턴트 발화로 이미 송신됐는가 (불가 판단 시 None)."""
+    if not notice_text:
+        return None
     try:
         for m in orch.get_messages():
             if getattr(m, "role", None) == "assistant":
                 c = getattr(m, "content", None)
-                if isinstance(c, str) and TRANSFER_MSG in c:
+                if isinstance(c, str) and notice_text in c:
                     return True
         return False
     except Exception:
@@ -270,14 +295,12 @@ def _deny_msg(tc, gate_name, reason):
 
 # ─── ★권장 설계: agent 생성-레벨 내부 재생성 (T2_PROV_REGEN=1) ───
 # 검증기가 날조 인자 감지 → state.messages(공식 대화) 오염 없이 *작업본*에 거부 피드백 추가
-# → generate() 재호출(최대 K) → 유효 호출만 반환. 거부 시도는 벤치(턴·error budget·user-sim)
-# 에 *안 보임* = constrained-decoding의 call-레벨 resample. 측정 무변경(가드된 시스템을 정직 측정).
-# 피드백 = "lookup으로 obtain·user에 묻지 마·placeholder 금지"(gather 유도).
+# → generate() 재호출(최대 K) → 유효 호출만 반환. 측정 무변경(가드된 시스템을 정직 측정).
 REGEN_FEEDBACK = (
     "Error: [PROVENANCE] argument '{k}'='{s}' was not provided by the user nor returned by any tool "
     "— it looks invented (e.g. a schema example value). Do NOT use placeholder/example values and do NOT "
-    "ask the user. Instead call a lookup/getter tool that produces this value (e.g. get_user_details to "
-    "retrieve the user's orders, payment methods, or addresses) and read the real value from its output. "
+    "ask the user. Instead call a lookup/getter tool that produces this value (e.g. a getter to "
+    "retrieve the user's records, payment methods, or addresses) and read the real value from its output. "
     "Now emit a corrected tool call."
 )
 
@@ -292,24 +315,21 @@ def _ctx_from_messages(msgs):
     return " ".join(parts).lower()
 
 
-def _first_fab_call(am, ctx):
+def _first_fab_call(am, ctx, hints=DEFAULT_ARG_HINTS):
     """am.tool_calls 중 첫 날조 호출 (tc, k, s) 또는 None."""
     for tc in (getattr(am, "tool_calls", None) or []):
-        if _provenance_deny(tc, ctx):
+        if _provenance_deny(tc, ctx, hints):
             for k, v in _args_dict(tc).items():
                 for val in _flatten(v):
                     s = str(val).strip()
-                    if any(h in k.lower() for h in PROV_ARG_HINT) and len(s) >= 4 and s.lower() not in ctx:
+                    if any(h in k.lower() for h in hints) and len(s) >= 4 and s.lower() not in ctx:
                         return (tc, k, s)
             return (tc, "?", "?")
     return None
 
 
-# ─── ★GROUND (T2_PROV_GROUND=1): config-도출 candidate-surfacing resolver (read-id grounding leg) ───
-# §25 처방: 모델은 *의도/op* 명명만, 구체값(order_id/item_id/payment)은 결정론이 직전 tool 출력서 grounding.
-# deny-only(L2)는 "obtain하라"만 해 모델이 getter 출력서 *추출*을 못해 실패(v7 0.05→0.0). GROUND는
-# (a) 같은 타입 후보를 tool 출력서 *추출해 제시*(retry-loop 차단) + (b) 단일후보면 *자동 치환*(true offload).
-# 추출 = arg-key 토큰 매치 ∪ 값-시그니처 매치 = 도메인-일반(ABox-swap = airline 출력에 동일 적용). bespoke 아님.
+# ─── ★GROUND (T2_PROV_GROUND=1): config-도출 candidate-surfacing resolver ───
+# 모델은 *의도/op* 명명만, 구체값은 결정론이 직전 tool 출력서 grounding (추출 = 도메인-일반).
 
 def _sig(s):
     s = str(s).strip()
@@ -333,11 +353,10 @@ def _key_tokens(arg_key):
 
 
 def _iter_scalars(obj, key=None):
-    """JSON에서 (enclosing_key, scalar) 재귀 수집 + dict-key 자체(예 payment_method id 'paypal_..')."""
+    """JSON에서 (enclosing_key, scalar) 재귀 수집 + dict-key 자체(ID형)."""
     if isinstance(obj, dict):
         for kk, vv in obj.items():
             if isinstance(vv, (dict, list)):
-                # dict-key가 ID형이면 후보(payment_methods의 'paypal_7644869')
                 if isinstance(kk, str) and any(c.isdigit() for c in kk) and len(kk) >= 5:
                     yield (key or kk, kk)
                 yield from _iter_scalars(vv, kk)
@@ -353,7 +372,7 @@ def _iter_scalars(obj, key=None):
 def _parse_tool_outputs(msgs):
     """role==tool·비-error 메시지 content를 JSON 파싱(최근→과거 순)."""
     outs = []
-    for m in reversed(msgs):  # 최근 우선
+    for m in reversed(msgs):
         if getattr(m, "role", None) != "tool":
             continue
         if getattr(m, "error", False):
@@ -364,7 +383,7 @@ def _parse_tool_outputs(msgs):
         try:
             outs.append(json.loads(c))
         except Exception:
-            outs.append(c)  # 비-JSON 문자열도 보관(부분 매치용)
+            outs.append(c)
     return outs
 
 
@@ -388,7 +407,6 @@ def _grounded_candidates(arg_key, fab_value, msgs, limit=8):
             elif want_sig != "other" and _sig(s) == want_sig:
                 seen.add(s)
                 sig_cands.append(s)
-    # arg-key 매치가 있으면 그것만(정밀) — 없을 때만 값-시그니처 후보로 폴백
     return (key_cands or sig_cands)[:limit]
 
 
@@ -396,21 +414,24 @@ GROUND_FEEDBACK = (
     "Error: [PROVENANCE] argument '{k}'='{s}' is invented — never use placeholder/guessed IDs. "
     "The real, grounded {k} value(s) already available from prior tool results are: {cands}. "
     "Use ONLY one of these. If you must determine WHICH one matches what the user described "
-    "(e.g. which order contains that item), call the appropriate getter (e.g. get_order_details) "
-    "on these candidates and read the answer from its output. Now emit a corrected tool call."
+    "(e.g. which order contains that item), call the appropriate getter on these candidates "
+    "and read the answer from its output. Now emit a corrected tool call."
 )
 
 
-def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False):
-    """LLMAgent._generate_next_message 패치 — R1b 통합:
-      L1 = bad_words 디코드-마스크(정적 블랙리스트 + 세션-flagged − 현재 context).
-      L2 = provenance 검증기 + 내부 재생성(verifier가 날조 잡으면 작업본서 regen·세션 블랙리스트 추가).
-      GROUND(ground=True) = config-도출 candidate-surfacing: 단일후보 자동치환(true offload)·
-        다중후보는 grounded 집합을 피드백에 제시(retry-loop 차단·모델은 enumerate/select만).
-    use_badwords=False면 L2만. max_retries=0이면 L1만."""
+def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domain=None):
+    """LLMAgent._generate_next_message 패치 — R1b 통합 (A2-구동 hints/placeholders).
+      L1 = bad_words 디코드-마스크(정적 블랙리스트=A2 placeholders ∪ 스키마-example + 세션-flagged − context).
+      L2 = provenance 검증기 + 내부 재생성.
+      GROUND = config-도출 candidate-surfacing.
+    domain 주면 A2서 hints/placeholders 도출(없으면 도메인-일반 기본)."""
     from tau2.agent.llm_agent import LLMAgent
     import tau2.agent.llm_agent as la
     from tau2.data_model.message import ToolMessage, UserMessage, MultiToolMessage
+
+    a2 = _domain_a2(domain) if domain else None
+    hints = a2["_hints"] if a2 else DEFAULT_ARG_HINTS
+    placeholders = a2["_placeholders"] if a2 else DEFAULT_PLACEHOLDERS
 
     def _append(state, message):
         if isinstance(message, UserMessage) and getattr(message, "is_audio", False):
@@ -431,7 +452,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False):
 
     def patched(self, message, state):
         if not hasattr(self, "_t2_static_bl"):
-            self._t2_static_bl = _static_blacklist(self.tools)
+            self._t2_static_bl = _static_blacklist(self.tools, placeholders)
             self._t2_session_bl = set()
         self._system_messages = state.system_messages
         _append(state, message)
@@ -443,14 +464,13 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False):
         work = list(state.messages)
         am = _gen(self, work, bw(), "agent_response")
         n = 0
-        subs = 0  # 결정론 자동치환 횟수 (regen budget n과 분리)
+        subs = 0
         while n < max_retries:
-            fab = _first_fab_call(am, ctx)
+            fab = _first_fab_call(am, ctx, hints)
             if fab is None:
                 break
             tc, k, s = fab
 
-            # ── GROUND: 단일 grounded 후보 → 결정론 자동치환 (regen 소모 없음·true offload) ──
             if ground and subs < 8:
                 cands = _grounded_candidates(k, s, state.messages)
                 if len(cands) == 1 and cands[0] != s:
@@ -459,14 +479,14 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False):
                     tc.arguments = d
                     self._t2_ground_sub = getattr(self, "_t2_ground_sub", 0) + 1
                     subs += 1
-                    continue  # 같은 am 재검사(다른 fab arg 있을 수 있음)
+                    continue
 
             n += 1
-            self._t2_session_bl.add(s)  # 동적 블랙리스트: 날조값 → 다음 gen bad_words 차단(루프 방지)
+            self._t2_session_bl.add(s)
             self._t2_regen = getattr(self, "_t2_regen", 0) + 1
-            work = work + [am]  # 거부된 assistant 턴 (작업본만·state 무오염)
+            work = work + [am]
             cands = _grounded_candidates(k, s, state.messages) if ground else []
-            if ground and cands:  # 다중후보 → grounded 집합 제시
+            if ground and cands:
                 main_reason = GROUND_FEEDBACK.format(k=k, s=s, cands=", ".join(repr(c) for c in cands))
             else:
                 main_reason = REGEN_FEEDBACK.format(k=k, s=s)

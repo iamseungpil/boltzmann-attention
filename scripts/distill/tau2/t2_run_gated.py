@@ -91,7 +91,8 @@ def main():
             t2_gate_patch.apply_provenance_regen(
                 max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")) if (regen_on or ground_on) else 0,
                 use_badwords=badwords_on,
-                ground=ground_on)
+                ground=ground_on,
+                domain=a.domain)
             print("[t2_run] provenance L1(badwords)=%s L2(regen)=%s GROUND=%s"
                   % (badwords_on, regen_on, ground_on))
 
