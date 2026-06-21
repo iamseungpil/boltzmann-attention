@@ -100,6 +100,11 @@ def validate(domain="retail"):
     gates = (load_domain_a2(domain) or {"gates": []})["gates"]
     auth_tools = auth_satisfier_tools(gates)
     resolvers = resolvers_from_env(env)
+    # GT 유저 도출 = A2 ownership 게이트(owner_field + resolver_path) 구동 — 도메인-일반(retail order·airline reservation 동일).
+    own_gate = next((g for g in gates if g.get("kind") == "ownership"), {})
+    owner_field = own_gate.get("owner_field", "user_id")
+    resolver_path = own_gate.get("resolver_path")
+    resolve_owner = resolvers.get("resolve_owner")
 
     g1_violation, g3_over, multi_user, no_auth_gold = [], [], [], []
     n_actions = 0
@@ -111,12 +116,12 @@ def validate(domain="retail"):
         gt = set()
         for a in actions:
             args = a.arguments or {}
-            if args.get("user_id"):
-                gt.add(args["user_id"])
-            if args.get("order_id"):
-                owner = db.orders.get(args["order_id"])
+            if args.get(owner_field):
+                gt.add(args[owner_field])
+            if resolver_path and resolve_owner and args.get(resolver_path[0]):
+                owner = resolve_owner(resolver_path, args)
                 if owner is not None:
-                    gt.add(owner.user_id)
+                    gt.add(owner)
         if len(gt) > 1:
             multi_user.append((t.id, sorted(gt)))
             continue
