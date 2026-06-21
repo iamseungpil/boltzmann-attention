@@ -9,7 +9,7 @@
 
 ## §0. 착수 전 [[05]] 결정질문 (이 프로그램이 정의하는 전 실험 cell)
 
-1. **도메인-특화 순증?** — ❌ 모든 레버를 **도메인-일반 전이**로만 측정: learn=**canonical learn 벤치 = SOPBench + TaskBench + Synth**(★CFB 폐기·`INTEGRATED_TBOX v2`·2026-06-18 사용자결정·확인 2026-06-22) 학습→ABox-swap·hook=grep `if domain`/도구명 0·prompt/skill=도메인-일반 텍스트(특정 도구명/정책 금지). **tau2(retail/airline)=held-out 전이 eval *only*·학습 금지([[11]]).**
+1. **도메인-특화 순증?** — ❌ 모든 레버를 **도메인-일반 전이**로만 측정: learn=**canonical learn 벤치 = SOPBench + TaskBench + Synth**(★CFB 직접 폐기·그 P2b/P4=Synth의 cfbsynth 추상합성 stratum이 대체·`CFBSYNTH_P2B_P4_DESIGN`·`INTEGRATED_TBOX v2`·확인 2026-06-22) 학습→ABox-swap·hook=grep `if domain`/도구명 0·prompt/skill=도메인-일반 텍스트(특정 도구명/정책 금지). **tau2(retail/airline)=held-out 전이 eval *only*·학습 금지([[11]]).**
 2. **유동성 동결?** — ⚠️ **측정대상.** flexibility-loss = 모든 셀의 비용항(§4). enforced 레버가 정당 유동성 죽이면 비용으로 계상.
 3. **scaffold가 도메인 행동 수행?** — hook-perform(autofetch류)=레버 사다리 *최강*·결정질문3 yes ⇒ 측정으로만 정당화. 기본=더 약한 레버.
 
@@ -34,7 +34,7 @@
 |---|---|---|---|---|---|---|
 | C1 | provenance-check | P8/P1·R1b | decidable 술어 | — | hook(deny) | 얕음(decidable) |
 | C2 | producer-식별 | P2b부분 | decidable I/O스키마 | — | hook/A2 | 얕음 |
-| **C3** | **fetch-first default** | **P2b/P8** | scale-emergent behavior | A 76→3 | hook-perform or learn | **깊음(=worked ex)** |
+| **C3** | **fetch-first default** | **P2b/P8** | scale-emergent behavior | A 76→3 | ★3분해: SHAPE=learn(cfbsynth)·의존맵=A2·집행=hook (`CFBSYNTH §9`) | **깊음(=worked ex)** |
 | C4 | dependency/sequencing | P3·R4/R6 | decidable DAG | — | hook | 얕음 |
 | C5 | identity-before-scoped | P8·G1/G3 | decidable precond | — | A2-gate+hook | 얕음 |
 | C6 | precondition/policy gate | P5·G4 | decidable policy-replay | — | A2-gate+hook | 얕음(A2=난제) |

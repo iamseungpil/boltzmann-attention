@@ -9,7 +9,7 @@
 
 ## §0. 착수 전 [[05]] 결정질문 (이 실험 + C4 학습)
 
-1. **도메인-특화 순증?** — ❌ **C4 학습 = canonical learn 벤치 = SOPBench + TaskBench + Synth서만**(★CFB 폐기·`INTEGRATED_TBOX v2`). fetch-first는 SOP(gather R2)+TaskBench(threading P2b). tau2(retail/airline) = **held-out eval *only***. ⛔ **tau2 학습 절대 금지**(= 2026-06-20 ReST-on-tau2 드리프트·killed·[[11]] 정면위반). 전이 = ABox-swap·재학습0.
+1. **도메인-특화 순증?** — ❌ **C4 학습 = canonical learn 벤치 SOPBench + TaskBench + Synth서만·fetch-first는 Synth의 cfbsynth stratum(추상 synth·P2b/P4)**(★CFB 직접 폐기·`CFBSYNTH_P2B_P4_DESIGN`·`INTEGRATED_TBOX v2`). tau2(retail/airline) = **held-out eval *only***. ⛔ **tau2 학습 절대 금지**(= 2026-06-20 ReST-on-tau2 드리프트·killed·[[11]] 정면위반). 전이 = ABox-swap·재학습0.
 2. **유동성 동결?** — ⚠️ **이 실험이 그 측정 자체.** C4-learn(weights·유동성 보존)이 C1-perform(autofetch·결정론 동결)을 *대체*하는지를 flexibility-loss 축(§4)으로 비교. null = "autofetch가 공짜" 기각.
 3. **scaffold가 도메인 행동 수행?** — C4-learn arm = scaffold 무증설(모델이 fetch-first 수행). C1-perform(autofetch) arm = 비교군(=현 [[05]] 위반축·이 실험이 강등 정당성 판정).
 
@@ -52,14 +52,15 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 ## §3. C4-learn 데이터 (★도메인-일반·tau2 아님)
 
-**fetch-first discipline = "값이 없으면 *생산 도구를 먼저 호출*해 실값을 복사·날조 금지"**(R1b/P8 provenance + V7 proactive gather). 이건 도메인-불변 규율 → **canonical learn 벤치 = SOPBench + TaskBench + Synth**서 학습(★CFB 폐기됨·`INTEGRATED_TBOX v2`·2026-06-18 사용자결정·사용자 확인 2026-06-22).
+**fetch-first discipline = "값이 없으면 *생산 도구를 먼저 호출*해 그 출력서 실값을 *복사*·리스트면 매칭 선택·날조 금지"**(P2b gather-for-arg + P4 filter + P1 copy). = COPY stratum(얕음·in-head 가능·`CFBSYNTH §3`).
 
-- **소스**(CFB 아님): **SOPBench(gather-first R2·P2a)** + **TaskBench(data-flow threading = 2-hop arg-binding·P2b/P3·id-grounding·R1)** 궤적. = CFB가 담던 grounded 2-hop을 TaskBench threading + SOP gather가 커버. 기존 자산 = SOP/TaskBench native-FC LoRA·`R1B_PROVENANCE_DESIGN`·`CROSS_BENCH_TRANSFER_PLAN`.
-- **★설계 함의**: CFB 폐기 논리(grounding=결정론 게이트=hook·not learn·`INTEGRATED_TBOX:73`) ⇒ fetch-first의 **learn arm이 설계상 약할 수 있음**(P8 provenance는 hook로·P2b threading만 learn). 이게 곡선의 *발견*(knee가 hook쪽?). §35 "A=엔진·B=learn"과 정합.
+- **★소스 = 추상 synth(cfbsynth)** = Synth 벤치의 한 stratum (`CFBSYNTH_P2B_P4_DESIGN_2026_06_19`·사용자 결정·확인 2026-06-22). **CFB 직접 아님**(표면매핑 역전이 위험·[[12]])·**SOP/TaskBench 자연발생도 아님.** = CFB의 P2b/P4 *구조만* 추상합성: per-traj **랜덤화 id**(gold id가 오직 getter 출력에만→복사강제·암기불가)·**익명 툴/필드명**(lexical 단축 차단)·hops∈{2,3}·list_n∈{1..5}·표현 다양. 자산 = `ma/synth_fetch_nativefc.py`·`tau2/build_solo_data_cfb.sh`·`build_solo_train_cfb.sh`(이름은 cfb지만 *추상 synth* 파이프라인).
+- **★fetch-first는 단일레버 아님 = 3분해**(`CFBSYNTH §9`): **①구조 SHAPE(copy-no-fabricate) = learn(cfbsynth/Synth)** · **②의미 의존(어느 getter가 order_id 생산) = A2(ABox value-type→producer map)·학습불가** · **③집행(상류/user에 없는 id 거부) = hook(provenance 가드)**. ⇒ 이 규칙의 곡선은 *레버 결합*(learn SHAPE + A2 의존맵 + hook 가드)·순수 단일레버 비교가 아니라 *분해된 책임*의 비용배분.
+- **★COPY vs COMPUTE 경계**(`CFBSYNTH §3`·resolve_selection과 무충돌): cfbsynth=P4 *filter*(매칭·복사·모델이 id emit)·resolve_selection=P4 *argmax/rank*(계산·offload·엔진 grounds). 모델은 "관찰됐으면 복사, 계산필요면 op명명" 구분 학습.
 - **⛔ 금지**: tau2 retail/airline 궤적 학습(`sft_rest_s0_retail.jsonl` 등 = 드리프트·미사용). tau2는 **전이 측정 타깃**.
 - **무붕괴**: replay 1:1(일반 tool-use·tbnfc/tb_all) 혼합·small-rank LoRA(r16류). held-out 일반능력 불변 확인.
-- **데이터-기근 위험(REST 교훈·`REST §4.2`)**: base-7B 자기생성 = HOLE. 단 *여기 타깃은 도메인-일반 fetch-first 규율*(narrow·SOP gather + TaskBench threading서 풍부)이지 tau2 task 커버가 아니므로 데이터-기근 양상 다름. 그래도 **coverage 진단 내장**(fetch-first 패턴이 학습셋에 충분히 대표되나).
-- **다양성**([[12]]): 표현/구조 다양 필수(단일템플릿 SFT=표면매핑 역전이). SOP+TaskBench 두 소스·표현 다양.
+- **데이터-기근 위험 회피 = 합성**: cfbsynth는 *생성기*라 데이터-기근 없음(REST HOLE 문제 무관·원하는 만큼 P2b/P4 합성). 단 **과대표현 감시**(`CFBSYNTH §8`·6000=synth/taskbench 비등·다른 primitive 희석 곡선서 감시).
+- **다양성**([[12]]·치팅면 `CFBSYNTH §5`): per-traj 랜덤 id(복사강제·암기불가)·익명 툴/필드(lexical 단축 차단)·hops/list_n/포맷 변주. ⚠️ *충분한가*는 실 e2e 전이가 판정(C8식 역전이 재발 위험·미확정).
 
 ---
 
@@ -72,9 +73,9 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 | **flexibility-loss** | false-block rate(옳은 툴콜 차단)·over-deny(validate) | ★C1 enforced의 숨은비용·A2-동결 측정 |
 | **A2-growth** | arm이 요구하는 A2 필드 수(autofetch producer-map·placeholders) | ★[[05]] minimize-A2 |
 | **no-collapse** | held-out 일반 tool-use(tbnfc 등) 불변 | C4 무붕괴(§3 replay) |
-| **transfer** | **airline held-out**(동일 LoRA·ABox-swap만) A_notfound·pass | ★[[11]] 도메인-일반 입증(retail 학습 아님→자동 충족·SOP+TaskBench 학습이라) |
+| **transfer** | **airline held-out**(동일 LoRA·ABox-swap만) A_notfound·pass | ★[[11]] 도메인-일반 입증(retail 학습 아님→자동 충족·cfbsynth 추상합성이라 도메인 무관) |
 
-**핵심: A2 arm(C4-learn)은 A2-growth=0·flexibility-loss=0(weights·gate-deny만)·전이=SOP+TaskBench 학습이라 retail·airline 둘 다 held-out.** A3(autofetch)는 A2-growth>0(producer-map)·동결.
+**핵심: learn arm(SHAPE)은 flexibility-loss=0(weights)·전이=cfbsynth 추상합성이라 retail·airline 둘 다 held-out.** 단 fetch-first 완전동작엔 ②A2 의존맵(어느 getter)·③hook 가드가 동반(3분해·§3)·순수 learn-단독 닫힘은 SHAPE만. A3(autofetch)는 A2-growth>0(producer-map)·동결로 ②③을 엔진이 대신 수행.
 
 ---
 
@@ -90,7 +91,7 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 ## §6. 위험·함정
 
-- **tau2 학습 유혹**(반복 드리프트 1순위): C4 데이터는 SOP+TaskBench(+Synth)만·CFB 폐기. 코드리뷰 게이트 = 학습 jsonl에 tau2 도구명 grep=0.
+- **tau2 학습 유혹**(반복 드리프트 1순위): C4 데이터 = cfbsynth(추상 synth·익명 툴)만. 코드리뷰 게이트 = 학습 jsonl에 tau2 도구명 grep=0(애초 익명이라 0).
 - **deny-only stall**(§35b): A1이 stall이면 정상(가설). 단 A2(C4-learn)도 stall이면 → fetch-first가 7B서 학습불가(=genuinely scale-bound or operand-entangled) → 경계지도 기여.
 - **single-facet→full-agent mismatch**([[05]]·2026-06-20 죄): fetch-first LoRA를 *full-agent*로 평가 = OK(이건 규율 내재화지 narrow 선택기 아님). 단 데이터=full-agent concrete-arg 궤적이어야(추상 단일도구 금지·`SFT_COLLAPSE_AUTOPSY` 교훈).
 - **A2-growth 잠입**: A2(C4-learn) arm이 placeholders/producer-map 안 쓰는지 확인(autofetch off). 키스톤 A2 과성장 정리(§2.5)와 동반.
@@ -110,7 +111,7 @@ C3 sweep(§35b·`LLM_CONTROL §5`) 부분실측: C0(prompt) 전부 A 못 닫음(
 
 1. ✅ 이 설계서 (GPU 0).
 2. **사용자 리뷰** ← 여기서 멈춤.
-3. C4 데이터 빌드(SOP gather + TaskBench threading fetch-first·coverage 진단·tau2-grep0 게이트).
+3. C4 데이터 = cfbsynth 생성(`ma/synth_fetch_nativefc.py`·랜덤id·익명툴·hops/list_n 변주·`CFBSYNTH §2`)·과대표현 감시.
 4. C4 학습(small-rank LoRA+replay·진행률 가시·무붕괴 check).
 5. 4-arm eval(retail+airline·A_notfound·pass·flexibility-loss·A2-growth) → GO/NO-GO §5.
 
