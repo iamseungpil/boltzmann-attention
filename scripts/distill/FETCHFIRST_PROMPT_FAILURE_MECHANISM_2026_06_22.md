@@ -87,6 +87,14 @@ fetch-first = 4 sub-rule. 단독·조합 arm으로 격리(7B 중심·핵심은 1
 - **format/harness·user-sim·task-confound 배제**: raw 궤적 실값 확인·paired 동일 태스크/user_llm.
 - ⇒ **7B fetch-first 프롬프트 실패 원인 = 스키마 예시값 복사 prior**(크기로 획득되나 7B엔 부재)·**NL 지시로 override 불가**(예시값 명시해도)·**시연(fewshot)/scale만 억제**.
 
+### ★★fewshot vs learn 비용 질문 (사용자 2026-06-22)
+- **★C3_FEWSHOT 오염 발견**: 기존 fewshot(schema_copy 0.00) 예시가 **retail-특정**(`find_user_id_by_name_zip`·`get_user_details`·실 tau2 유저 `yusuf_rossi_9620`·#W 포맷) ⇒ [[05]] 위반·전이 주장 불가. **"일반 fewshot이 fetch-first 닫나"=미검증.**
+- **사용자 논리(옳음)**: 도메인-일반 fewshot이 닫으면 = learn보다 싼 minimal-lever(규칙+generic 예시 항상 첨부). 단:
+  - **검증**: `C4_FEWSHOT_DG.txt`(익명 도구·generic id·2 worked example) arm 추가(eval). 닫으면 싼 승자·도메인-특정만 닫으면 learn 필요.
+  - **fewshot도 비용 有**: 예시=매 요청·매 턴 컨텍스트 토큰(recurring OpEx+latency) vs learn=1회 build·추론 OpEx 0. **crossover=배포 volume**(고-volume→learn 장기 TCO 승·`CAPABILITY_LEVER §3d`). 두 날개로 보면 fewshot=내재화 날개의 *soft 끝*(weights 안 바꿈)·learn=*weight 끝*.
+  - **brittleness**: c3_fewshot서 gather_wrong 0.09→0.22↑(시연이 gather 유도하나 threading 오류 유입)·실패가 operand로 이동(grounded_other 0.74).
+- ⇒ **eval arm = prompt(DG지시) < skill(DG절차+1예) < fewshot-dg(DG 2예) < scaffold < learn**·각각 schema_copy + OpEx(토큰) 측정 → fetch-first의 *진짜 최소비용 레버* 곡선. cfbsynth SFT(진행중)는 이제 "싼 fewshot baseline을 *비용 정당화하며* 이기나"로 재정의(zero-OpEx·잔여 0).
+
 ### ★learn 방법 함의 (SFT vs DPO/RLVR)
 - prior가 **시연-민감**(fewshot→0) ⇒ **SFT(cfbsynth=gradient 시연)이 억제할 공산**(내재화된 fewshot). 현 cfbsynth SFT가 정확히 이 시험.
 - prior가 **특정 나쁜 행동**(예시값 emit) ⇒ **DPO/RLVR penalty가 더 표적적**(verifier=provenance gate·#W-placeholder=reward<0·grounded-copy=reward≥1). SFT 잔여 schema_copy 시 escalate.

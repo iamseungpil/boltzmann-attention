@@ -38,13 +38,17 @@ cell () {  # $1=tag $2=model $3=gate $4=prov $5=autofetch $6=promptfile(or -)
     --user_llm "openrouter/openai/gpt-4.1" --user_temp 0.0 --save_to $SAVE > $S/c4ff_${DOM}_${TAG}.log 2>&1 || echo FAIL
   local P=$(grep -oE "pass1=[0-9]+/[0-9]+" $S/c4ff_${DOM}_${TAG}.log | tail -1)
   local F=$($PY $T2/t2_failcensus_deep.py data/simulations/$SAVE 2>/dev/null | grep -E "A_notfound|B_wrong" | tr '\n' ' ')
+  local M=$($PY $T2/c4_prompt_mechanism.py data/simulations/$SAVE 2>/dev/null | grep M_MECH_ROW)
   echo "C4FFROW $DOM $TAG pass=$P | $F"
+  echo "C4FF_MECH $DOM $TAG | $M"
 }
 
 #    tag             model  gate prov af  prompt
 cell base            $BASE  0    0    0   -
 cell prompt          $BASE  0    0    0   C4_FETCHFIRST_DG.txt
 cell skill           $BASE  0    0    0   C4_SKILL.txt
+cell fewshot-dg      $BASE  0    0    0   C4_FEWSHOT_DG.txt
+cell fewshot-retail  $BASE  0    0    0   C3_FEWSHOT.txt
 cell scaffold-deny   $BASE  1    1    0   -
 cell scaffold-perform $BASE 1    1    1   -
 cell learn           c4ff   1    1    0   -

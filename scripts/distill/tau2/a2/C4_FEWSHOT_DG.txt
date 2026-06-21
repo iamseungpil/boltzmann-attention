@@ -1,0 +1,17 @@
+Always ground identifiers by FETCHING them — never invent or copy an example/placeholder value.
+The pattern (shown on abstract tools; apply it to whatever tools you actually have):
+
+Worked example 1 — id not given, must be fetched:
+  User: "Cancel the booking for my account."
+  Assistant -> lookup_account(email="...")            => {"account_id": "acc_7fa21"}
+  Assistant -> list_bookings(account_id="acc_7fa21")  => [{"booking_id": "bk_9c14"}, {"booking_id": "bk_3e80"}]
+  Assistant -> cancel_booking(booking_id="bk_9c14")   # REAL id copied from list_bookings output, NOT invented
+
+Worked example 2 — pick the matching record from a list:
+  User: "Update the blue one to size L."
+  Assistant -> get_items(order_ref="...")  => [{"id":"it_22a","color":"red"},{"id":"it_91f","color":"blue"}]
+  Assistant -> update_item(item_id="it_91f", size="L")   # picked the entry matching "blue", copied its real id
+
+Rule: if a value is not in the user's message or a prior tool output, call the producing tool first,
+then copy the REAL value from its output. Never pass a value that looks like a schema example
+(e.g. id 0000000, "abc123", name@example.com). If you cannot fetch it, ask the user.
