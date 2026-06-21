@@ -117,6 +117,26 @@ def _provenance_deny(tc, ctx):
     return None
 
 
+def _autofetch_text(self, orig, gate):
+    """T2_AUTOFETCH: provenance-deny 시, 인증됐으면 producer(get_user_details)를 결정론 호출해
+    그 출력을 텍스트로 반환(모델에 *실값* 제공). = '날조-FIRST' default를 엔진이 결정론으로 메움.
+    decidable: producer 도출=A2(여기 retail=get_user_details, airline swap)·인자=auth_user(gate 추적).
+    side-effect 0(getter)·error budget 무소비(성공). 실패시 ''."""
+    if getattr(gate, "auth_user", None) is None:
+        return ""
+    try:
+        from tau2.data_model.message import ToolCall
+        ptc = ToolCall(id="autofetch", name="get_user_details",
+                       arguments={"user_id": gate.auth_user}, requestor="assistant")
+        out = orig(self, [ptc])
+        if out and not getattr(out[0], "error", False):
+            return ("\nI have fetched the authenticated user's actual record for you — copy a REAL value "
+                    "from it, never a placeholder: " + _content_str(out[0])[:1800])
+    except Exception:
+        pass
+    return ""
+
+
 def apply():
     from tau2.orchestrator.orchestrator import BaseOrchestrator
 
@@ -147,7 +167,8 @@ def apply():
                 pd = _provenance_deny(tc, ctx)
                 if pd:
                     self.num_errors += 1
-                    results.append(_deny_msg(tc, pd[0], pd[1]))
+                    extra = _autofetch_text(self, orig, gate) if os.environ.get("T2_AUTOFETCH") == "1" else ""
+                    results.append(_deny_msg(tc, pd[0], pd[1] + extra))
                     continue
             ok, g, why = gate.check(tc.name, tc.arguments or {}, last_user_msg=last_user,
                                     transfer_msg_sent=tms)
