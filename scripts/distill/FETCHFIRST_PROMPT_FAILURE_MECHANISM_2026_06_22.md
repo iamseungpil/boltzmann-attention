@@ -97,6 +97,17 @@ fetch-first = 4 sub-rule. 단독·조합 arm으로 격리(7B 중심·핵심은 1
 - P-restate arm(복창 후 행동): 현 증거(예시값 명시-저항+scale+시연대조)로 M4 충분 — P-restate는 추가확인용·우선순위 낮음.
 - 14B/32B에 *동일 C4_FETCHFIRST 프롬프트* 직접 실행(현재는 floor/rules만): prompt가 14B서 prior 더 누르나(현 floor만으로도 prior 거의 없음=무관할 수 있음).
 
+## ★§PRIOR-WORK (딥리서치 2026-06-22·프롬프트 한계 선행연구·우리 결과를 예측)
+> 풀 리포트=세션 transcript. 핵심: **우리 schema-copy 결과 3특성이 문헌이 예측하는 정확한 패턴.**
+- **prior-override = scale-emergent**(Wei et al. 2023 `2303.03846`): *작은* 모델은 pretraining/in-context prior를 못 누름·*큰* 모델만 override. flipped-label도 소형은 무시·semantic prior 의존. ⇒ 7B 0.47→14B→32B(우리)=교과서적 인스턴스(이상치 아님).
+- **copy = induction-head 회로**(Olsson et al. 2022 `2209.11895`·"copy bias" Ali 2024 `2410.01288`·Z-ICL copying-effect): 트랜스포머에 박힌 literal match-and-copy = schema-example 복사의 *구조적 뿌리*.
+- **negation/prohibition = 약한 channel·금지가 오히려 priming**(Truong 2023 `2306.08189`·Elkins 2026 `2601.21433`: 금지행동 77%(단순)/100%(복합) endorse·"should not"을 긍정으로·Rana 2026 `2601.08070`: 위반의 87.5%=priming). ⇒ "#W0000000 쓰지마"가 그 토큰을 활성화 = 우리 28/91 잔존 설명. **positive reframing > 금지**.
+- **위치(lost-in-middle)**(Liu 2024 `2307.03172`): begin/end(primacy/recency) 최고·middle 최악(closed-book 이하). 반복은 돕다 plateau(Leviathan 2025 `2512.14982`)·**triple(앞중끝)이 dual(앞끝) 못 이김·middle copy는 약지대**. ⇒ 우리 max_bme가 max_be 크게 못 넘을 것 예측.
+- **시연>지시**(Min 2022 `2202.12837`): demo는 format/input→output mapping(ICL 실채널) 전달·지시는 분포 안 바꿈. ⇒ fewshot→0(우리) 설명. 단 *최소* 모델은 시연으로도 prior override 못함(7B는 됨=floor 위).
+- **prompt vs train 경계**: SFT=행동 *추가*·**DPO/NPO/RLVR=prior *억제*(다른 연산)**. NPO(`2404.05868`)=collapse 없이 unlearn 표준. SFT Memorizes·RL Generalizes(`2501.17161`). LoRA=forget 적음(`2405.09673`).
+- **★직접 답(딥리서치)**: "7B에서 최대/반복 프롬프트가 scale-획득 prior를 닫나? **아니오(신뢰성 없음).** 반복/positive-reframe/위치최적은 위반율 *감소*시키나 *제거 못함*(prior-override는 capacity-gated지 instruction-strength 문제 아님). 닫는 둘=**scale 또는 weight-update**(SFT 설치 + DPO/NPO/RLVR penalty 억제). + 결정론 validator(우리 scaffold)가 3번째 training-free 닫개." ⇒ **우리 maxprompt 실험은 이 예측의 *실증*·DPO/NPO penalty 정당화.**
+- 주의(딥리서치): emergence는 논쟁(Schaeffer metric-artifact)·scaling 비단조(family별)·2026 prohibition 수치는 preprint·few-shot이 *최소*모델 万能 아님.
+
 ## §7. GO/NO-GO (원인 확정)
 - **확정 = M-분포가 한 메커니즘 지배 + 대안 배제 + P-restate 결정자 통과.** 예: "7B 실패의 X%가 M4(복창정확+날조)·P-restate로 안 닫힘·schema-copy Y% = prior-override 확정 → DPO-penalty."
 - 모호(분포 혼재)면 추가 분할·표본↑.
