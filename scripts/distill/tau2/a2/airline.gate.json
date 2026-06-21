@@ -47,12 +47,6 @@
   "producers": {
     "authenticated_user_record": {"tool": "get_user_details", "args_from": {"user_id": "@auth_user"}}
   },
-  "identifying_arg_types": [
-    "email", "name", "user_id", "reservation_id", "id", "payment", "flight",
-    "passenger", "certificate", "membership"
-  ],
-  "placeholders": [
-    "something@example.com", "john.doe@example.com", "johndoe@example.com", "user@example.com",
-    "test@example.com", "example@example.com", "ABC123", "XYZ789"
-  ]
+  "identifying_arg_types": ["flight", "passenger", "certificate", "membership"],
+  "_note_minimize_a2": "generic hints(email/name/id/payment/…)·placeholders 제거 = 도메인-일반→scaffold DEFAULT (union·minimize-A2·2026-06-22). 남은 4개 = airline 도메인-특화 identifying arg(DEFAULT 미포함)=정당 A2 사실."
 }

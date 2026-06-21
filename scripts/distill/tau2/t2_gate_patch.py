@@ -26,6 +26,7 @@ DEFAULT_PLACEHOLDERS = {
     "john.doe@example.com", "johndoe@example.com", "john@example.com",
     "jane@example.com", "user@example.com", "test@example.com",
     "example@example.com", "123 Main St", "123 Main Street",
+    "ABC123", "XYZ789",  # 도메인-일반 영숫자 placeholder 패턴 (구 airline A2서 이관·minimize-A2)
 }
 PROV_ARG_HINT = DEFAULT_ARG_HINTS          # 호환 alias
 COMMON_PLACEHOLDERS = DEFAULT_PLACEHOLDERS  # 호환 alias
@@ -41,7 +42,7 @@ def _domain_a2(domain):
     if a2 is not None:
         a2 = dict(a2)
         a2["_auth_tools"] = auth_satisfier_tools(a2["gates"])
-        a2["_hints"] = tuple(a2.get("identifying_arg_types") or DEFAULT_ARG_HINTS)
+        a2["_hints"] = tuple(set(DEFAULT_ARG_HINTS) | set(a2.get("identifying_arg_types") or ()))
         a2["_placeholders"] = set(a2.get("placeholders") or ()) | DEFAULT_PLACEHOLDERS
         a2["_producer"] = (a2.get("producers") or {}).get("authenticated_user_record")
         a2["_notice_text"] = next(

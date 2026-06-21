@@ -59,13 +59,5 @@
   "producers": {
     "authenticated_user_record": {"tool": "get_user_details", "args_from": {"user_id": "@auth_user"}}
   },
-  "identifying_arg_types": [
-    "email", "name", "zip", "user_id", "order_id", "username", "id",
-    "payment", "address", "phone", "item"
-  ],
-  "placeholders": [
-    "#W0000000", "something@example.com", "jane_doe@example.com", "john.doe@example.com",
-    "johndoe@example.com", "john@example.com", "jane@example.com", "user@example.com",
-    "test@example.com", "example@example.com", "123 Main St", "123 Main Street"
-  ]
+  "_note_minimize_a2": "identifying_arg_types·placeholders 제거 = 도메인-일반→scaffold DEFAULT_ARG_HINTS/DEFAULT_PLACEHOLDERS 폴백 (minimize-A2·2026-06-22). A2=도메인 사실(gates·producers·resolver_path)만."
 }
