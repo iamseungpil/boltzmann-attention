@@ -552,3 +552,15 @@ M-σ(cfb-threading)를 held-out τ² exchange서 (`m_sigma_transfer_eval.py`·pe
 - ⇒ **작은 모델에 깨끗이 학습시킬 유일 타깃 = B(operand-formalize). A는 엔진·나머지는 스케일.** = 사용자 최초 operand 직관 적중(중간 "flow" 흔들림 정정).
 
 **per-규칙 promptability 발현 = 스케일 임계:** A는 14B서 발현(7B 역효과 +11 → 14B 도움 −6 → 32B base near-0)·B는 32B만(−10). ⇒ 7B는 A·B 둘 다 프롬프트로 못 받음(A는 엔진, B는 학습).
+
+### 35b. ★[CONFIRMED 2026-06-21·S-min] C3(fetch-first) = 엔진 autofetch가 scale 없이 grounding 대체 (`rest_smin_eval.sh`·retail n~110)
+3-arm within-batch: arm0 base / arm1a +provenance(차단) / arm1b +autofetch(producer 결정론 호출→실값 주입).
+| arm | pass^1 | A(grounding) | B(operand) |
+|---|---|---|---|
+| base | 0.140 | 33 | 33 |
+| +provenance(차단) | 0.167 | 15 | 26 |
+| **+autofetch** | **0.264** | **9** | 22 |
+- **엔진 autofetch가 A 33→9(−73%)·pass 0.14→0.264(≈2×)·학습0·scale0·최소구조**(provenance-deny→producer 1호출). = §35 "A=엔진" 확정 + 논문 둘째기둥(scale 능력의 cheap-replication) 첫 실증.
+- **B(operand) 33→22 잔존** = 엔진 불가·유일 학습 잔여 재확인.
+- 정직 경계: 7B+엔진 0.264 < 14B 0.52 < 32B 0.60 → grounding은 회복·나머지 gap(operand·recovery C8·NL)은 §5 방법집 대상. (autofetch=`t2_gate_patch T2_AUTOFETCH`·producer=get_user_details·A2-derivable.)
+- ⚠️ 실무비용 주의(§3c): autofetch=도구 왕복 추가(레이턴시)·단 결정론·감사가능.
