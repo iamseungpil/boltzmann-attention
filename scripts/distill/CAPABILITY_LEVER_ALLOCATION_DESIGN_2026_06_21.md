@@ -123,3 +123,11 @@ build(CapEx)와 *별개*. 배포 후 매 요청·매일 드는 비용 = 소형-o
 
 ## 8. 정직 한계 (bitter-lesson 대비)
 일부 능력(C12? 복합추론?)은 scale-bound로 남을 수 있음. 논문 주장 = "*전부* 싸게 대체"가 아니라 **"어느 능력이 어느 레버로 얼마에 회복되고, 어디가 진짜 scale 벽인지의 *측정된 지도*."** = 과주장 금지·경계가 곧 기여.
+
+## 9. ★응용 타깃·포지셔닝 = Palantir 레퍼런스 (사용자 2026-06-21·딥리서치 wo3v3kmw3)
+**비전**: **Palantir 결정론(Foundry Ontology) + frontier의 agentic customer AI를, *최소 비용*으로 달성** (소형 on-prem + 고정 scaffold + 최소 A2 + 전이 TBox).
+- **매핑**: Palantir Ontology(객체·속성·링크·action·function·governance) ≈ 우리 **결정론 scaffold + per-domain A2** / AIP-LLM(ontology-grounded agent) ≈ 우리가 **소형+TBox**로 싸게 얻으려는 agentic 능력.
+- **차별(가설·딥리서치 검증)**: Palantir = frontier-LLM + *전문가-집약 ontology 저작*(forward-deployed engineer·고객당 구축). 우리 = **소형 모델(싼 HW) + 학습된 도메인-일반 TBox(전이) + 최소 A2(field-swap)** → ① HW CapEx/OpEx↓ ② 전문가 노력↓(고정부 재사용·A2만) ③ field 횡단 일반화(config-only) ④ 데이터 반출 0. = "Palantir-급 결정론·거버넌스 + frontier-급 agentic AI를 최소 비용에."
+- **응용 타깃 = 금융 마케팅·의료 운영 시스템**: 고정부(모델·scaffold·TBox)는 그대로, **최소 수정(A2 config)** 으로 배치. 사람 노력↓·운영비↓·변경비↓ = §0''/§0''' 목적함수 그대로.
+- **딥리서치 wo3v3kmw3** = Palantir Ontology/AIP/배포·비용·전문가구조 정독 → 우리 레버 매핑·whitespace(어디서 더 싼가)·Palantir가 진짜 강한 곳 확정. 회수 후 이 §9 채움.
+- ⚠️ 정직: Palantir governance/scale/통합 성숙도는 강함 — 우리 주장 = *비용*(소형·최소전문가·field 일반화)이지 기능 우위 아님. 경계 측정.
