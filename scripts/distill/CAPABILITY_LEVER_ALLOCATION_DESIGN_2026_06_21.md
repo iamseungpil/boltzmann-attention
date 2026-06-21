@@ -1,5 +1,7 @@
 # 능력×레버 배정 가이드라인 — ★논문 목표 (2026-06-21·사용자 reframe)
 
+> ★**마스터 진입점 = [`EXPERIMENT_DESIGN.md §0★★`](EXPERIMENT_DESIGN.md)** (이 문서가 그 spine·평가항목·마스터 실험·문서정렬은 거기). 메모리 `06-NOW`.
+
 > **사용자 지시**: "기능을 더 세분화하고, 비용-효과 관점에서 각 기능을 효율적으로 *조합할 가이드라인을 설계*하는 것이 논문 목표. + 큰 모델이 하는 일을 작은 모델에서 *더 적은 구조/학습으로* 따라잡는 방법을 제시."
 > 상위 = `THESIS_STATEMENT_2026_06_16`(분담 명제·이 doc가 §3 라우팅표를 *완전 가이드라인*으로 확장)·`A2_MINIMIZATION_FRONTIER_DESIGN`·`M_A_RESULTS §35`. 불변 = [[00-thesis]][[05-fixed-vs-variable]][[13-absorption-priority]].
 

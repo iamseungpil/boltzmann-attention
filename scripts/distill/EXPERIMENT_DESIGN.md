@@ -5,6 +5,42 @@
 
 ---
 
+## §0★★ (2026-06-21 — ★현재 최상위 권위·아래 06-18/06-17 §0 블록은 *흡수·역사*) — 비용-효과 배정 가이드라인 reframe
+> **권위 spine = [`CAPABILITY_LEVER_ALLOCATION_DESIGN_2026_06_21.md`](CAPABILITY_LEVER_ALLOCATION_DESIGN_2026_06_21.md)**. 메모리 `06-NOW`. 이 블록 = 오늘 논의 전체 그림의 공식화.
+
+**■ 목표 reframe (사용자 2026-06-21)**: 논문 = "작은>큰"(ToolOrchestra 다툼) **아님** = **① 능력별 *비용-효과 최소 레버 배정 가이드라인* + ② scale 능력의 *cheap-replication 방법집*(less structure/learning·무붕괴) + ③ genuinely scale-bound *경계지도*.** = systematization + cheap-replication + honest boundary.
+
+**■ 목적함수 (전 생애주기·5축 *동시* 최소화)**: min { ①싼GPU ②적은VRAM(양자화) ③유지보수(변경 재구성범위) ④인간전문가 ⑤일반화비용(새 field당=A2-swap만) } + HW인프라 CapEx + 추론 OpEx. **공통 적 = A2**(③④⑤ 다 올림→최소화가 다 품)·**공통 친구 = 고정 scaffold + 전이 TBox**. **답 = 총비용 *knee* 크기(최소 모델 아님)**·구조추가가 고정·전이형이면 knee가 작은쪽.
+
+**■ Payoff/포지셔닝**: **Palantir 결정론(Foundry Ontology) + frontier agentic customer AI를 *최소 비용*으로** (소형 on-prem + 고정 scaffold + 최소 A2 + 전이 TBox). Ontology≈scaffold+A2·AIP-LLM≈소형+TBox. 응용 = **금융 마케팅·의료 운영**(고정부 그대로·A2만 수정). 차별=*비용*(HW·전문가·일반화·데이터반출)지 기능 아님(정직). 딥리서치 `wo3v3kmw3`.
+
+**■ 오늘 핵심 실측**: scale 분해(`ma/M_A_RESULTS.md §35`·n=342) 7B 0.24/14B 0.52/32B 0.60 — **A(provenance/recovery)=엔진/scale·B(operand)=scale-불변 학습잔여**·프롬프트 크기의존(32B만+). **C3 autofetch(§35b)**: 엔진이 grounding A 33→9·pass 0.14→0.264(2×)·학습0 = 둘째기둥 첫 증거.
+
+**■ ★평가 항목 (마스터 체크리스트)**:
+1. **배정 정당성**: C1-C12 각 능력의 decidable/domain-fact/promptable@크기/irreducible 분류가 census로 맞나.
+2. **scale 분해 곡선**: 1.5/7/14/32/72B × 양자화 — 각 능력 scale거동(어느 게 A류=엔진대체·어느 게 B류=학습·어느 게 genuinely scale-bound).
+3. **cheap-replication 효과**: 각 scale-bound 능력(C3엔진·C8 recovery·C10 operand·C12 NL)이 §5 방법으로 작은모델서 회복(vs base·vs 32B).
+4. **무붕괴**: 학습 개입 후 held-out 일반능력 불변(forgetting 통제·일반화 손상0).
+5. **일반화 비용**: field 횡단(retail→airline→telecom→banking→healthcare) 고정부 불변(grep `if field`=0·재학습0)·A2-swap만·성능 유지.
+6. **전 생애주기 비용 정량**: 레버별 HW-CapEx+OpEx+유지보수+인간전문가+일반화 — Palantir 대비.
+7. **경계지도**: genuinely scale-bound 능력 식별(어디서 막히나=정직 한계).
+8. **knee**: 총비용 최소 모델크기 실측.
+
+**■ ★마스터 실험 = 능력×레버×스케일×양자화×field 매트릭스**: 셀 = pass^1 + 비용(HW/OpEx/expert/change/일반화) + 무붕괴(held-out). 헤드라인 = (a)가이드라인이 능력별 최소비용 레버 맞춘다 (b)cheap-replication이 scale 대체 (c)일반화비용≈A2-swap (d)경계지도. tau2 학습0(전이 타깃)·학습=primitive 벤치(SOP+TB+Synth+CFB).
+
+**■ 문서 정렬 (2026-06-21 — 각 doc의 마스터 내 역할)**:
+- **spine** = `CAPABILITY_LEVER_ALLOCATION_DESIGN_2026_06_21`(목표·목적함수·능력분류·가이드라인·방법집·Palantir §9).
+- **이론 기반** = `THESIS_STATEMENT_2026_06_16`(분담 명제)·`GENERATOR_ALGEBRA`·`PRIMITIVE_COVERAGE_MATRIX`(능력 분류 기반).
+- **비용·경계** = `A2_MINIMIZATION_FRONTIER_DESIGN`(③④⑤·프론티어)·`FIXED_VS_VARIABLE`(고정/변경).
+- **TBox·전이** = `INTEGRATED_TBOX_DESIGN`·`CROSS_BENCH_TRANSFER_PLAN`·`DECOMPOSED_E2E_TRANSFER_DESIGN`(단 스케일분해가 학습타깃을 B로 좁힘).
+- **엔진(scaffold·C1-C9 decidable)** = `A2_GROUNDING_WIRING`·`ABSTENTION_AS_DECIDABLE`·`GATE_INTERPRETER_UNIFICATION`.
+- **벤치·일반화(⑤)** = `BENCH_A2_PROFILE_CENSUS`·`BENCH_PORTFOLIO_FRAMEWORK`.
+- **결과 원장** = `ma/M_A_RESULTS.md`(§35 scale분해·§35b C3).
+- **딥리서치** = `w23rp33zx`(방법집·둘째기둥)·`wo3v3kmw3`(Palantir 포지셔닝).
+- ⚠️ 아래 06-18/06-17 §0 블록 = 이 reframe에 *흡수*(고정/변경·분해·생성원은 유효·단 목표 표현은 이 §0★★가 최상위).
+
+---
+
 ## §0. 목표 (한 문장, 변하지 않음)
 
 > **★★★★★★★★ 현재 도달 (2026-06-18 · ★고정/변경 경계 LOCKED + maximal thesis 4조건 + 격리실험)**: §0 목표 불변. 이번 세션 = 표류의 뿌리(무엇 고정/무엇 변경이 단일권위로 박제 안 됨)를 종결.
