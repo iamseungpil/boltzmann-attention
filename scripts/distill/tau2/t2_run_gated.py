@@ -79,6 +79,10 @@ def main():
         t2_agent_rules_patch.apply(a.rules_prompt)
         print(f"[t2_run] rules-prompt 주입 ON · {a.rules_prompt}")
 
+    if os.environ.get("T2_MAXPROMPT"):  # 최대-강도·위치반복 프롬프트(프롬프트 한계 실험)
+        import t2_agent_maxprompt_patch
+        t2_agent_maxprompt_patch.apply()
+
     if a.gate:
         import t2_gate_patch
         t2_gate_patch.apply()

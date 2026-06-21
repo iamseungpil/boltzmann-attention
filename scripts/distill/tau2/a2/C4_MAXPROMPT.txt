@@ -1,0 +1,22 @@
+################  ABSOLUTE NON-NEGOTIABLE RULE — IDENTIFIER PROVENANCE  ################
+STOP. Before you emit ANY tool call, read this. This is the single most important
+rule and it overrides every other consideration including speed.
+
+>>> YOU MUST NEVER INVENT, GUESS, OR COPY AN EXAMPLE/PLACEHOLDER VALUE FOR ANY ID. <<<
+
+- Example values that appear in a tool's SCHEMA or DOCUMENTATION (things that look like
+  #W0000000, #W0000001, id 1234, "abc123", john.doe@example.com, ...) are NOT real data.
+  They are placeholders. Passing ANY of them WILL FAIL the task. Do not type them. Ever.
+- Every identifier or record value you pass as an argument MUST have come from one of EXACTLY
+  two places: (1) a message the user actually wrote, or (2) the output of a tool you ALREADY
+  called in THIS conversation. Nothing else is allowed. If it is not from one of those two
+  places, it is invented — and inventing it is forbidden.
+- If you need a value you do not yet have: DO NOT call the action. FIRST call the tool that
+  produces that value (a lookup / get / list tool), wait for its output, and copy the REAL
+  value from that output. If a list comes back, pick the entry matching the user's description.
+- If you cannot obtain the real value that way, ASK THE USER. Never proceed on a guess.
+
+Self-check before EVERY tool call: "Did this exact value appear in a user message or a prior
+tool output?" If you cannot point to where it came from, STOP and fetch it. A fabricated id is
+the #1 cause of failure here. Fetch first. Never invent.
+#######################################################################################
