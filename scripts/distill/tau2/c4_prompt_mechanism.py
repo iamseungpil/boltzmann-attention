@@ -37,13 +37,17 @@ def _args(tc):
     return a if isinstance(a, dict) else {}
 
 
-def _grounded_strings(msgs, upto):
-    """upto 인덱스 이전의 tool 출력 + user 메시지에 등장한 모든 문자열 값."""
-    g = set()
-    for m in msgs[:upto]:
-        if m.get("role") in ("tool", "user"):
-            g |= set(re.findall(r"#?[A-Za-z0-9_@.\-]{4,}", str(m.get("content") or "")))
-    return g
+def _grounded_text(msgs, upto):
+    """upto 이전 tool 출력 + user 메시지의 원문 concat(정규화·substring 매치용).
+    ★정규식 토큰화는 'W2378156.'(마침표글루)로 idv와 불일치하는 버그 → 정규화 substring으로 교체."""
+    t = " ".join(str(m.get("content") or "") for m in msgs[:upto]
+                 if m.get("role") in ("tool", "user"))
+    return t.lower().replace("#", "")
+
+
+def _grounded(idv, text):
+    v = idv.lower().replace("#", "").strip().strip(".,;:")
+    return len(v) >= 4 and v in text
 
 
 def classify(s):
@@ -61,9 +65,8 @@ def classify(s):
                 idv = next((str(a[k]) for k in a if any(idk in k.lower() for idk in ID_KEYS)), None)
                 if not idv:
                     continue
-                g = _grounded_strings(msgs, i)
-                if idv in g:
-                    continue  # grounded → 이 콜은 fetch-first 위반 아님
+                if _grounded(idv, _grounded_text(msgs, i)):
+                    continue  # grounded(정규화 substring) → fetch-first 위반 아님
                 # 날조 id 발견
                 if PLACEHOLDER.search(idv):
                     return "M1M4_no_gather", "schema_copy"
