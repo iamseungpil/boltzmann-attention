@@ -66,6 +66,14 @@ def main():
         print("[COST GUARD][WARN] frontier override ON — billing Claude to the OpenRouter key: "
               + ", ".join(f"{n}={v}" for n, v in _bad))
 
+    if a.domain == "banking_knowledge":  # 기본 alltools=grep-shell 샌드박스(srt/rg/socat) 필요 → 회피.
+        # openai_embeddings 변종 = dense KB(OPENAI_API_KEY 사용·1회 캐시)·샌드박스 불요. bench 소스 미편집.
+        from functools import partial
+        from tau2.registry import registry as _reg
+        from tau2.domains.banking_knowledge.environment import get_environment as _bank_ge
+        _reg.register_domain(partial(_bank_ge, retrieval_variant="openai_embeddings"), "banking_knowledge")
+        print("[t2_run] banking_knowledge -> openai_embeddings variant (no shell sandbox)")
+
     if a.resolve:
         import t2_resolve_patch
         spec = a.resolve_spec or os.path.join(
