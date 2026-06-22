@@ -33,6 +33,14 @@
 - 복구는 [[42]]/딥리서치가 retry-controller/reflection/최소LoRA로 지목·§35c C8서 "retry=잘못된 레버"였으나 그건 *grounding* 맥락·여기선 *완수/포기* 맥락 → 재검토 가치.
 - REVERSE(32B 풀고 frontier 실패)=10 task(frontier 약점·user-sim 노이즈 가능·부차).
 
+## §6b. ★Opus-4.8 직접 풀이 검증 (사용자: "당신이 frontier니 직접") — T105
+- 대상 = **32B(3시행)·gpt-4.1 둘 다 실패**한 both-fail 11개 중 T105(1-action·top-frontier-only). 무결성: 시나리오+실 variant 카탈로그만 보고(gold 비공개) Opus가 풀이 → 사후 gold 대조.
+- **task**: 두 Tea Kettle(glass/2L/induction)을 ①{ceramic,gas} ②{1.5L,gas}로 교환. **부분-스펙 규칙**(명시 안 한 속성=현재값 유지): ①=ceramic·**2L유지**·gas=`3761330360` ②=**glass유지**·1.5L·gas=`9647374798`.
+- **Opus 답 = GOLD 정확 일치** `exchange(item=[7292993796×2], new=[3761330360, 9647374798], gift_card_7245904)` 1회. ✅
+- **★why gpt-4.1 실패(진단)**: gpt-4.1 *첫* 교환 new=[3761330360, 9647374798] = **gold와 동일(operand 정답!)**. 그런데 *둘째* 틀린 교환[4238115171,3909406921] 추가 → 최종상태 오염·reward0. = **operand 아닌 flow 규율 실패**(정답 후 멈춤 못 함·재시도 폭주).
+- ⇒ **top-frontier(Opus) 우위 = "정답 한 번 내고 STOP"(flow 규율)**. 중상위(gpt-4.1)도 operand는 맞히나 flow서 무너짐. = §2/§4 "갭의 최대=flow완수+복구(53%)" *직접 실증*·operand(40%)는 둘 다 통과 가능.
+- 함의 강화: 32B→top-frontier cheap-replication 1순위 = **flow 규율/완수/멈춤**(redundant-redo 금지·루프탈출) > operand. = C8 recovery 재부상(단 "완수/멈춤" 프레임).
+
 ## §6. 다음
 1. B1-select 결과 회수(operand 40% 레버 검증).
 2. flow-완수+복구 census 심화(DIFF-ACTION 8개의 세부: 루프 vs 포기 vs 불완전 분해) → 복구 레버 설계.
