@@ -71,8 +71,9 @@ def main():
         from functools import partial
         from tau2.registry import registry as _reg
         from tau2.domains.banking_knowledge.environment import get_environment as _bank_ge
-        _reg._domains["banking_knowledge"] = partial(_bank_ge, retrieval_variant="openai_embeddings")  # 덮어쓰기(register는 중복거부)
-        print("[t2_run] banking_knowledge -> openai_embeddings variant (no shell sandbox)")
+        # no_knowledge = KB 도구 없음(파이프라인/샌드박스/임베딩 전부 불요)·DB 도구만 = id-grounding 테스트에 충분.
+        _reg._domains["banking_knowledge"] = partial(_bank_ge, retrieval_variant="no_knowledge")  # 덮어쓰기(register는 중복거부)
+        print("[t2_run] banking_knowledge -> no_knowledge variant (DB tools only, no KB/sandbox/embeddings)")
 
     if a.resolve:
         import t2_resolve_patch
