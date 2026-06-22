@@ -71,9 +71,13 @@ def main():
         from functools import partial
         from tau2.registry import registry as _reg
         from tau2.domains.banking_knowledge.environment import get_environment as _bank_ge
-        # no_knowledge = KB 도구 없음(파이프라인/샌드박스/임베딩 전부 불요)·DB 도구만 = id-grounding 테스트에 충분.
+        # no_knowledge = KB 도구 없음(임베딩 불요)·DB 도구만 = id-grounding 테스트에 충분.
         _reg._domains["banking_knowledge"] = partial(_bank_ge, retrieval_variant="no_knowledge")  # 덮어쓰기(register는 중복거부)
-        print("[t2_run] banking_knowledge -> no_knowledge variant (DB tools only, no KB/sandbox/embeddings)")
+        # build_tools가 변종 무관 _create_sandbox(터미널 도구) 호출 → 샌드박스 binaries(srt/rg/socat) 요구.
+        # DB-only 태스크는 shell 도구 안 씀 → 의존성 체크 no-op stub(실제 sandbox 미사용).
+        import tau2.knowledge.sandbox_manager as _sbm
+        _sbm._check_sandbox_dependencies = lambda *a, **k: None
+        print("[t2_run] banking_knowledge -> no_knowledge variant + sandbox-check stubbed (DB tools only)")
 
     if a.resolve:
         import t2_resolve_patch
