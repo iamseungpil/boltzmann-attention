@@ -1,3 +1,5 @@
+> 🚧 **DRAFT — 보류(아직 coworker에 보내지 않음)**. 사용자 결정(2026-06-22): **우리쪽 7B/14B/32B cross-domain(floor+deploy·compliant-pass) outline 먼저 확보 → 그 결과로 이 요청서 검증·확정 후 push.** 그 전 prereq(airline user-id auth 런타임 배선·banking.gate.json·compliance auth-establishment 일반화)를 우리가 해결해야 cross-domain scaffold/compliant가 성립. 아래는 확정안의 초안.
+
 # Coworker 실험 요청 — Scale 축 확장 (32B-fp16 · 72B · ~225B) × 다도메인 (retail·airline·banking) (2026-06-22)
 
 > 요청자 컨텍스트 = 아래 §참조 링크. **한 줄 요청**: 큰 GPU에서 **32B-fp16 · 72B · ~225B** 세 모델을 tau2 **retail·airline·banking** e2e로 돌려 — **(A) 전 도메인 floor(scaffold 없음) bench-pass** [즉시 가능·핵심 scale×domain 그리드] + **(B) retail full-scaffold(deploy) + compliant-pass** [즉시 가능] 을 측정하고 census 회수해 주세요. 코드·하네스 준비됨(`--agent_model`/`--domain`/TP만 교체). **★주의: airline/banking의 *scaffold(게이트)* arm은 아직 prereq 차단(아래 §3b)** — 그쪽은 floor만 돌리고, 게이트 transfer는 우리가 엔진 배선 후 phase-2.
