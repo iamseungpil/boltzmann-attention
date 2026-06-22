@@ -18,7 +18,8 @@ ok=0; for i in $(seq 1 120); do curl -s localhost:$PORT/v1/models 2>/dev/null | 
 [ $ok = 1 ] || { echo SERVE_FAIL; tail -40 $S/vllm_bankprobe.log; exit 1; }
 echo "[serve OK]"
 
-set +x; source /home/woori/.openrouter_key; export SSL_CERT_FILE=$($PY -c "import certifi;print(certifi.where())"); set -x
+set +x; source /home/woori/.openrouter_key; source /home/woori/.openai_key; export SSL_CERT_FILE=$($PY -c "import certifi;print(certifi.where())"); set -x
+echo "[keys] openrouter(user-sim)=${OPENROUTER_API_KEY:+SET} openai(embed)=${OPENAI_API_KEY:+SET}"
 cd $S/tau2-bench; export PYTHONPATH=src:$T2
 unset T2_PROVENANCE T2_AUTOFETCH T2_MAXPROMPT
 rm -rf data/simulations/c4bank_base
