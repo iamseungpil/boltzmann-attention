@@ -30,6 +30,34 @@ def _tc(name, args):  # hermes tool_call 텍스트(Qwen 생성 포맷)
     return '<tool_call>\n{"name": "' + name + '", "arguments": ' + json.dumps(args) + '}\n</tool_call>'
 
 
+def make_select(rng):
+    """B1-selection penalty: 후보가 *주어진* 상태(autofetch가 제공)서 user 기술에 맞는 하나 고르기.
+    chosen=매칭 후보 id / rejected=*다른 실후보* id(틀린 매칭). = 의미적 discrimination 학습(schema-example 아님).
+    날조 confound 제거(후보 전부 실값)·순수 select(B1·`FETCH_SELECT_DIVISION §4`)."""
+    getter = "lookup_" + _rid(rng, 4); consumer = "act_" + _rid(rng, 4)
+    idfield = rng.choice(["id", "ref", "code", "number"])
+    attr = rng.choice(["color", "name", "type", "label", "status", "city", "brand"])
+    val = rng.choice(["blue", "red", "alpha", "gamma", "open", "north", "acme"])
+    key = "key_" + _rid(rng, 3); keyval = _rid(rng, 5)
+    n = rng.randint(2, 5)
+    recs = [{idfield: _rid(rng, 7), attr: _rid(rng, 4)} for _ in range(n)]
+    match = rng.randrange(n); recs[match][attr] = val
+    real_id = recs[match][idfield]
+    wrong = rng.choice([j for j in range(n) if j != match]); wrong_id = recs[wrong][idfield]
+    tools = [
+        {"type": "function", "function": {"name": getter, "description": "look up records",
+         "parameters": {"type": "object", "properties": {key: {"type": "string"}}, "required": [key]}}},
+        {"type": "function", "function": {"name": consumer, "description": "act on a record",
+         "parameters": {"type": "object", "properties": {idfield: {"type": "string"}}, "required": [idfield]}}},
+    ]
+    user = f"Please {consumer} the record where {attr} is {val}. My {key} is {keyval}. I don't have the {idfield}."
+    sys_user = f"[SYSTEM]\n{SYS}\n\n[TOOLS]\n{json.dumps(tools)}\n\n[USER]\n{user}"
+    p = (sys_user + "\n\n[ASSISTANT]\n" + _tc(getter, {key: keyval}) + "\n\n[TOOL OUTPUT]\n"
+         + json.dumps(recs) + "\n\nWhat is your next tool call?")
+    return [{"prompt": p, "chosen": _tc(consumer, {idfield: real_id}),
+             "rejected": _tc(consumer, {idfield: wrong_id}), "_kind": "select"}]
+
+
 def make(rng):
     getter = "lookup_" + _rid(rng, 4)
     consumer = "act_" + _rid(rng, 4)
@@ -77,13 +105,16 @@ def make(rng):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
-    ap.add_argument("--n", type=int, default=3000, help="총 페어 수(태스크당 2)")
+    ap.add_argument("--n", type=int, default=3000, help="총 페어 수")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--mode", choices=["fab", "select"], default="fab",
+                    help="fab=rejected는 schema-example(A·날조억제) / select=rejected는 틀린 실후보(B1·의미선택)")
     a = ap.parse_args()
     rng = random.Random(a.seed)
+    gen = make_select if a.mode == "select" else make
     out = []
     while len(out) < a.n:
-        out.extend(make(rng))
+        out.extend(gen(rng))
     out = out[:a.n]
     with open(a.out, "w", encoding="utf-8") as f:
         for ex in out:
