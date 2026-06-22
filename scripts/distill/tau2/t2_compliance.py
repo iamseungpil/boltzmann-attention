@@ -18,8 +18,21 @@ GATE_SPEC 상태기계를 종료된 trajectory 위에 replay = A2 산출물 3중
 import argparse, json, math, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from t2_gate import (AUTH_TOOLS, USER_SCOPED, WRITE_TOOLS,  # noqa: E402
-                     CONFIRM_RE, TRANSFER_MSG)
+from gate_interpreter import (CONFIRM_RE, auth_satisfier_tools,  # noqa: E402
+                              load_domain_a2)
+
+
+def domain_constants(domain):
+    """compliance 제약 정의를 *해당 도메인* gate.json서 도출 = A2-구동(retail 하드코딩 제거).
+    = 구 t2_gate AUTH_TOOLS/WRITE_TOOLS/USER_SCOPED 도출 로직을 도메인-일반화 → 어느 도메인이든
+    그 gate.json만 있으면 compliant-pass 산출(retail+airline+banking 동일 코드·ABox-swap)."""
+    gates = (load_domain_a2(domain) or {"gates": []})["gates"]
+    return {
+        "AUTH_TOOLS": auth_satisfier_tools(gates),
+        "WRITE_TOOLS": {t for g in gates if g.get("kind") == "confirm" for t in g.get("applies_to", [])},
+        "USER_SCOPED": {t for g in gates if g.get("kind") == "auth" for t in g.get("applies_to", [])},
+        "TRANSFER_MSG": next((g.get("notice_text") for g in gates if g.get("kind") == "notice"), ""),
+    }
 
 
 def pass_hat_k(per_task, k):
@@ -52,8 +65,11 @@ def _auth_id(content):
         return c
 
 
-def violations_of_sim(sim, order_owner=None):
-    """종료 trajectory 1건의 위반 플래그 (게이트-deny된 호출 = 미실행 = 비위반)."""
+def violations_of_sim(sim, C, order_owner=None):
+    """종료 trajectory 1건의 위반 플래그 (게이트-deny된 호출 = 미실행 = 비위반).
+    C = domain_constants(domain) (AUTH_TOOLS/WRITE_TOOLS/USER_SCOPED/TRANSFER_MSG)."""
+    AUTH_TOOLS, USER_SCOPED, WRITE_TOOLS, TRANSFER_MSG = (
+        C["AUTH_TOOLS"], C["USER_SCOPED"], C["WRITE_TOOLS"], C["TRANSFER_MSG"])
     msgs = sim.get("messages") or []
     results_by_id = {m["id"]: m for m in msgs
                      if m.get("role") == "tool" and m.get("id")}
@@ -109,7 +125,7 @@ def violations_of_sim(sim, order_owner=None):
     return v
 
 
-def compliance_report(sims, order_owner=None):
+def compliance_report(sims, C, order_owner=None):
     pt = {"bench": {}, "write": {}, "strict": {}, "full": {}}
     counts = {"g1": 0, "g1w": 0, "g2": 0, "g3": 0, "g4": 0, "no_reward": 0}
     for s in sims:
@@ -118,7 +134,7 @@ def compliance_report(sims, order_owner=None):
             counts["no_reward"] += 1
             continue
         ok = r >= 1
-        v = violations_of_sim(s, order_owner)
+        v = violations_of_sim(s, C, order_owner)
         for k in ("g1", "g1w", "g2", "g3", "g4"):
             counts[k] += v[k]
         t = s["task_id"]
@@ -152,9 +168,16 @@ def report_for_dir(sim_dir, domain="retail", tau2_src=None, write_sidecar=True):
     """results.json이 있는 시뮬 디렉토리에 대해 보고서 출력 + compliance.json 사이드카."""
     path = os.path.join(sim_dir, "results.json")
     sims = json.load(open(path))["simulations"]
-    rep = compliance_report(sims, load_order_owner(tau2_src, domain))
-    print(f"[compliance] {sim_dir} n={rep['n_sims']} "
+    C = domain_constants(domain)   # A2-구동 제약 정의(도메인 gate.json서 도출)
+    rep = compliance_report(sims, C, load_order_owner(tau2_src, domain))
+    rep["_domain"] = domain
+    rep["_constants_nonempty"] = {k: len(v) if hasattr(v, "__len__") else bool(v)
+                                  for k, v in C.items()}
+    print(f"[compliance] {sim_dir} domain={domain} n={rep['n_sims']} "
           f"violations={rep['violation_sims']}")
+    if not C["AUTH_TOOLS"]:
+        print(f"  [warn] domain={domain} gate.json에 auth gate 없음 → G1/strict 무의미"
+              " (gate.json 미비 도메인은 bench-pass만 신뢰)")
     for variant in ("bench", "write", "strict", "full"):
         print(f"  {variant:6s}: {rep[variant]}")
     if write_sidecar:
