@@ -15,7 +15,8 @@ NT="${1:-1}"                       # num_trials (default 1)
 LOG=$S/flow_disc_measure.log
 exec > $LOG 2>&1; set -x; date
 cd $REPO && git pull --ff-only
-export OPENROUTER_API_KEY=$(cat /home/woori/.openrouter_key)
+source /home/woori/.openrouter_key                                  # = export OPENROUTER_API_KEY=...
+export SSL_CERT_FILE=$($PY -c "import certifi;print(certifi.where())")
 export PYTHONPATH=src:$T2
 
 run_arm () {  # $1=save_to  $2..=env assignments
@@ -30,15 +31,19 @@ run_arm () {  # $1=save_to  $2..=env assignments
   echo "ARM_DONE $save"; date
 }
 
-# ---- serve 32B-int8 on GPU0 (tool-calling: hermes parser·enforce-eager) ----
-for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 4
-CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve "$M" --port $PORT \
-  --enable-auto-tool-choice --tool-call-parser hermes \
-  --max-model-len 16384 --enforce-eager --gpu-memory-utilization 0.92 \
-  > $S/vllm_flowdisc.log 2>&1 &
-ok=0; for i in $(seq 1 120); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "$M" && ok=1 && break; sleep 10; done
-[ $ok = 1 ] || { echo "SERVE_FAIL"; tail -40 $S/vllm_flowdisc.log; exit 1; }
-echo "SERVE_OK port=$PORT"; date
+# ---- serve 32B-int8 on GPU0 (tool-calling: hermes parser·enforce-eager); reuse if already healthy ----
+if curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "$M"; then
+  echo "SERVE_REUSE port=$PORT (already up)"; date
+else
+  for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 4
+  CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve "$M" --port $PORT \
+    --enable-auto-tool-choice --tool-call-parser hermes \
+    --max-model-len 16384 --enforce-eager --gpu-memory-utilization 0.92 \
+    > $S/vllm_flowdisc.log 2>&1 &
+  ok=0; for i in $(seq 1 120); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "$M" && ok=1 && break; sleep 10; done
+  [ $ok = 1 ] || { echo "SERVE_FAIL"; tail -40 $S/vllm_flowdisc.log; exit 1; }
+  echo "SERVE_OK port=$PORT"; date
+fi
 
 # ---- arm② G5-only (precondition-steering 격리) ----
 run_arm on_n32int8_g5_retail T2_GATE_KINDS=preconditions
