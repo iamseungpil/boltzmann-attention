@@ -41,11 +41,15 @@
 - ⇒ **top-frontier(Opus) 우위 = "정답 한 번 내고 STOP"(flow 규율)**. 중상위(gpt-4.1)도 operand는 맞히나 flow서 무너짐. = §2/§4 "갭의 최대=flow완수+복구(53%)" *직접 실증*·operand(40%)는 둘 다 통과 가능.
 - 함의 강화: 32B→top-frontier cheap-replication 1순위 = **flow 규율/완수/멈춤**(redundant-redo 금지·루프탈출) > operand. = C8 recovery 재부상(단 "완수/멈춤" 프레임).
 
-## §6c. ★Opus-4.8 직접 풀이 = both-fail 11개 전수 (2026-06-22 PM·사용자 지시 완료)
+## §6c. Opus-4.8 both-fail 11개 풀이 (2026-06-22 PM·★결론1=오라클-프록시·실 e2e pass 아님·⚠️정정)
 방법: `frontier_solve_kit.py --task N --brief`(시나리오+실 카탈로그·gold 숨김) → Opus 추론 → `--check`(gold 대조). 32B/gpt-4.1 = `results.json` write-action+termination 추출(`/tmp/extract.sh`).
 
-### ★결론 1 = **11/11 전부 Opus가 풀이(write=gold 정확 일치)**. unsolvable/mislabeled/ambiguous = **0개**.
-- writes-only gold(99,100,103,109,110) = literal `SOLVED ✓`. full-trajectory gold(2,3,4,20,21·읽기까지 로깅) = **write 전부 일치**(MISS는 읽기 미열거 탓·DB-state 무관). ⇒ 갭은 *진짜 능력*·라벨노이즈 아님 → cheap-replication 정당.
+### ⚠️ 결론 1 (정정·과대주장 교정) = **오라클-프록시서 write 결정가능 11/11**. 실 e2e pass 아님.
+- ★**이 "풀이"=오프라인 오라클 프록시**(brief가 시나리오+user/orders/**variant 카탈로그 pre-fetch**까지 제공·`--check`=write **집합** 대조·communicate-check 미채점·`_norm` list정렬로 pairing 무시). = [[04-current-position]] 경고 "오프라인 op-eval≠멀티턴 τ²". **leaderboard 0.91/0.92(Opus4.6 실 멀티턴 pass^1 전 태스크 평균)와 동치 아님.**
+- 프록시가 우회한 실-e2e 난이도: ①멀티턴 elicitation(user-sim이 점진공개·"private") ②read 도구 자가호출(카탈로그 발견) ③**communicate/NL-assertion**(★T2/3/4 실패의 정체="가용 옵션 *카운트*"=프록시가 *미채점*·즉 그 셋은 프록시서도 write만 맞춘 *부분*해결) ④전 대화서 틀린 write 0 + pass^1 + user-sim 노이즈.
+- ✅ **유효한 좁은 주장**: writes-only gold(99,100,103,109,110)=`SOLVED ✓`·full-trajectory gold(2,3,4,20,21)=write 집합 일치 → **올바른 write 시퀀스가 데이터서 결정가능** = 11개 *genuinely unsolvable/mislabeled 아님*(narrow). **단 "Opus가 실 e2e서 11/11 pass"는 미검증·1.00 비현실**(0.92 천장·info/communicate가 사각).
+- ✅ **변치 않는 부분**: §아래 32B/gpt-4.1 실패유형 분류는 *실 e2e 궤적*(`results.json`) 기반 = 유효.
+- ★진짜 검증 = **Opus-4.8을 *agent*로 실 tau2 멀티턴 e2e**(gpt-4.1 user-sim·실 reward incl communicate·오라클 없음)로 이 11개 돌리기. (COST GUARD: agent=Claude 15-30x.)
 
 ### 전수 분석표 (gpt-4.1 1trial·32B 3trial·gold write 대조)
 | T | gold write | Opus | gpt-4.1 실패 정체(full-args 확인) | 32B 실패 정체 | 1차 갭축 |
