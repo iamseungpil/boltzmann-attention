@@ -1,6 +1,6 @@
-# Coworker 실험 요청 — Scale 축 확장 (32B-fp16 · 72B · ~225B) on tau2 retail (2026-06-22)
+# Coworker 실험 요청 — Scale 축 확장 (32B-fp16 · 72B · ~225B) × 다도메인 (retail·airline·banking) (2026-06-22)
 
-> 요청자 컨텍스트 = 아래 §참조 링크. **한 줄 요청**: 큰 GPU에서 **32B-fp16 · 72B · ~225B** 세 모델을 tau2 retail e2e로 돌려, 각 모델에 대해 **floor(scaffold 없음)** 와 **deploy(flow-discipline scaffold full)** 두 arm(+여유 시 분해 arm)을 측정하고 **표준 pass + compliant-pass + 실패-클래스 census**를 회수해 주세요. 코드·하네스 전부 준비돼 있습니다(`--agent_model`/TP만 바꾸면 됨).
+> 요청자 컨텍스트 = 아래 §참조 링크. **한 줄 요청**: 큰 GPU에서 **32B-fp16 · 72B · ~225B** 세 모델을 tau2 **retail·airline·banking** e2e로 돌려 — **(A) 전 도메인 floor(scaffold 없음) bench-pass** [즉시 가능·핵심 scale×domain 그리드] + **(B) retail full-scaffold(deploy) + compliant-pass** [즉시 가능] 을 측정하고 census 회수해 주세요. 코드·하네스 준비됨(`--agent_model`/`--domain`/TP만 교체). **★주의: airline/banking의 *scaffold(게이트)* arm은 아직 prereq 차단(아래 §3b)** — 그쪽은 floor만 돌리고, 게이트 transfer는 우리가 엔진 배선 후 phase-2.
 
 ---
 
@@ -29,7 +29,18 @@ $VLLM serve <MODEL> --port 8360 --tensor-parallel-size <N> \
 - **★tool-parser**: Qwen2.5(32B/72B)=`hermes` 검증됨. **비-Qwen2.5(225B/Qwen3 등)는 tool-parser가 다를 수 있음** → serve 후 **1-task 스모크**로 tool-call이 파싱되는지 먼저 확인(파싱 깨지면 전 sim이 빈 응답 → 무효). Qwen3는 `--tool-call-parser hermes` 또는 전용 파서 시도.
 - `--enforce-eager` 유지(결정론 진단 관행). fp16 72B/225B는 KV 캐시 위해 TP/`--max-model-len` 조정 가능(retail 대화는 16k 충분).
 
-## 3. Arm 매트릭스 (모델당) — env 플래그로만 분기, 코드수정 0
+## 3b. ★도메인별 readiness (정직 — 무엇이 지금 돌아가나)
+| 도메인 | floor bench-pass | scaffold(게이트) arm | compliant-pass | 비고 |
+|---|---|---|---|---|
+| **retail** | ✅ 즉시 | ✅ G1-G5+retry (완비·검증) | ✅ full(G1-G4) 검증·회귀무손상 | 완전 ready |
+| **airline** | ✅ 즉시 (`--domain airline`) | ⛔ phase-2 | ⚠️ 부분 | 게이트 G1-G3 gate.json 있으나 **런타임 auth가 user-제공-id 모델**(retail lookup과 다름)이라 엔진 미배선→G1 오작동. G5=no-op(airline write에 status-precond 없음). |
+| **banking** | ✅ 즉시 (`--domain banking_knowledge`) | ⛔ phase-2 | ⚠️ 부분 | **banking.gate.json 부재**(작성 필요). 실행분기(no_knowledge+sandbox stub)는 `t2_run_gated`에 기존재. |
+- ⇒ **coworker가 지금 돌릴 것 = (A) 3 도메인 × 3 스케일 × floor [bench-pass·핵심] + (B) retail × 3 스케일 × {floor, deploy} + compliant-pass.**
+- airline/banking scaffold transfer(같은 엔진·gate.json swap이 lift하나)는 **우리가 phase-2 prereq 해결 후**(airline user-id auth 런타임 배선·banking.gate.json 작성·compliance auth-모델 일반화). 그때 동일 요청서로 추가.
+- ★compliant-pass는 retail만 완전 신뢰. airline/banking은 `compliance.json` 나오나 auth-모델 caveat(bench-pass를 1차 신뢰).
+
+## 3. Arm 매트릭스 (도메인 × 모델) — env 플래그로만 분기, 코드수정 0
+**도메인 선택 = `--domain {retail|airline|banking_knowledge}`** (banking은 t2_run_gated가 no_knowledge 변종+sandbox stub 자동 적용). 아래 arm은 도메인마다 동일 env 스킴(단 §3b readiness대로 airline/banking은 floor만).
 하네스 = `t2_run_gated.py`. gate 활성 시 `t2_gate_patch` 적용·env 플래그로 어느 게이트/레버를 켤지 결정.
 
 | arm | 설명 | `--gate` | env | save_to |
@@ -57,7 +68,8 @@ env T2_GATE_KINDS=auth,confirm,ownership,notice,preconditions T2_RETRY_CONTROLLE
 ```
 
 ## 4. 메트릭 (둘 다 필수) & 산출
-- **표준 pass + compliant-pass = 자동**: `t2_run_gated` 가 평가 후 `compliance.json` 사이드카 산출(각 save 디렉토리). 변형: `bench`(=표준 pass^k) / `write` / `strict` / **`full` = compliant-pass^k = pass ∧ G1-G4 무위반**(배포-실제 지표). 회수 = `cat data/simulations/<save>/compliance.json`.
+- **표준 pass + compliant-pass = 자동**: `t2_run_gated` 가 평가 후 `compliance.json` 사이드카 산출(각 save 디렉토리·**도메인 gate.json서 제약 도출=A2-구동**). 변형: `bench`(=표준 pass^k) / `write` / `strict` / **`full` = compliant-pass^k = pass ∧ G1-G4 무위반**(배포-실제 지표). 회수 = `cat data/simulations/<save>/compliance.json`.
+- ★**compliant-pass 신뢰도 (도메인별)**: **retail = full 신뢰**(검증). **airline/banking = bench-pass 1차 신뢰**(compliant도 산출되나 auth-모델이 retail형이라 G1/strict 해석 주의·`compliance.json`의 `_constants_nonempty`·warn 로그 확인). 즉 다도메인 1차 비교축 = **bench-pass**.
 - **실패-클래스 census** (`scripts/distill/tau2/t2_failcensus.py`): floor 대비 deploy서 eligibility/wrong-tool·loop·no-write 실패가 줄었는지. (우리 census 스크립트 패턴은 `THIRTYB §6c` 참조.)
 - **false-block 점검**: deploy서 *floor-pass였던 task가 깨졌나*(scaffold over-block). 있으면 보고(우리 NO-GO 신호).
 
@@ -71,12 +83,13 @@ env T2_GATE_KINDS=auth,confirm,ownership,notice,preconditions T2_RETRY_CONTROLLE
 - **GPU**: 우리는 49GB A6000 2장(GPU0/1)·int8만 가능. 당신 환경의 fp16/TP·VRAM에 맞게 `--tensor-parallel-size` 조정.
 
 ## 6. 회수물 (요청)
-모델 3 × arm 2(이상)에 대해:
-1. `data/simulations/cw_<tag>_<arm>_retail/` (results.json + compliance.json) — repo 커밋 또는 경로 공유.
-2. **요약 표**: model × arm × {bench pass^1, compliant(full) pass^1, eligibility/wrong-tool 실패수, loop 실패수, false-block 수}.
-3. tool-parser 스모크 결과(특히 225B) + serve config(TP/VRAM).
+**save_to 명명 = `cw_<tag>_<arm>_<domain>`** (예 `cw_n72_floor_airline`, `cw_n32fp16_deploy_retail`). 우선순위:
+1. **(A) 핵심 그리드 = 3 도메인 × 3 스케일 × floor** (= 9 런·bench-pass). + **(B) retail × 3 스케일 × {floor, deploy} + compliant**.
+2. 산출물: `data/simulations/cw_*/` (results.json + compliance.json) — repo 커밋 또는 경로 공유.
+3. **요약 표**: domain × model × arm × {bench pass^1, (retail만)compliant full pass^1, eligibility/wrong-tool 실패수, loop 실패수, false-block 수}.
+4. tool-parser 스모크 결과(특히 225B·도메인별 tool-call 파싱 확인) + serve config(TP/VRAM).
 
-이걸로 H1(addressable 수축 곡선)·H2(크로스오버)·H3(int8 confound)·H4(frontier 도달)를 채웁니다.
+이걸로 H1(addressable 수축 곡선·retail)·H2(크로스오버)·H3(int8 confound·32fp16 vs 우리 int8)·H4(frontier 도달) + **도메인별 scale-gradient**(난이도·frontier 거리)를 채웁니다.
 
 ## 7. 참조 (현재까지 방향·결과 — 링크)
 - **갭 분석 + 실패-클래스 census(이 실험의 동기)**: [THIRTYB_VS_FRONTIER_GAP §6c](scripts/distill/THIRTYB_VS_FRONTIER_GAP_2026_06_22.md) — 32B→gpt-4.1 갭=flow-discipline+info/communicate>operand; both-fail 11 분석; scaffold-addressable ~25%.
@@ -87,6 +100,7 @@ env T2_GATE_KINDS=auth,confirm,ownership,notice,preconditions T2_RETRY_CONTROLLE
 - **코드**: 러너 [t2_run_gated.py](scripts/distill/tau2/t2_run_gated.py) · 게이트엔진 [gate_interpreter.py](scripts/distill/tau2/gate_interpreter.py) · wiring [t2_gate_patch.py](scripts/distill/tau2/t2_gate_patch.py) · A2 [retail.gate.json](scripts/distill/tau2/a2/retail.gate.json) · compliant-pass [t2_compliance.py](scripts/distill/tau2/t2_compliance.py) · census [t2_failcensus.py](scripts/distill/tau2/t2_failcensus.py) · 드라이버 템플릿 [flow_disc_fullgate.sh](scripts/distill/tau2/flow_disc_fullgate.sh).
 
 ## 8. 현재 진행 상태 (참고)
-- 32B-int8: floor bench pass^1 ≈ 0.55 / **compliant(full) 0.491** (gap 주로 G2 confirm 위반). flow-discipline arm(G5-only·G5+retry) 측정 *진행 중*(G5가 라이브서 wrong-tool→steer 작동 확인). full-gate(G1-G5) compliant-pass arm 후속.
-- leaderboard(6/22): retail Claude Opus4.6 0.92 · gpt-4.1 0.82 · Qwen32B 미등재(Simia-Tau FT 0.617).
-- **불변**: tau2 학습 금지(scaffold만·도메인-일반)·user-sim=gpt-4.1·grep if-domain=0.
+- 32B-int8 retail: floor bench pass^1 ≈ 0.55 / **compliant(full) 0.491** (gap 주로 G2 confirm 위반). flow-discipline arm(G5-only·G5+retry) 측정 *진행 중*(G5 라이브서 wrong-tool→steer 작동 확인). full-gate(G1-G5) compliant arm 후속.
+- leaderboard(6/22): **retail** Claude Opus4.6 0.92 · gpt-4.1 0.82 · Qwen32B 미등재(Simia-Tau FT 0.617) / **airline** LongCat 0.765 · GPT-5.1 0.67.
+- **★우리(요청자)가 처리할 phase-2 prereq**(이거 끝나면 airline/banking scaffold arm 추가 요청): (1) airline **user-제공-id auth** 런타임 배선(GateInterpreter가 `satisfied_by:user_provided_user_id` 처리) (2) **banking.gate.json** 작성(auth=get_user_information_by_name/email·write/ownership) (3) compliance auth-establishment 도메인-일반화(현재 lookup-tool 모델). compliance *상수 도출*은 이미 A2-구동화 완료(retail 회귀 무손상).
+- **불변**: tau2 학습 금지(scaffold만·도메인-일반)·user-sim=gpt-4.1(Claude 금지)·grep if-domain=0.
