@@ -71,7 +71,7 @@ def main():
         from functools import partial
         from tau2.registry import registry as _reg
         from tau2.domains.banking_knowledge.environment import get_environment as _bank_ge
-        _reg.register_domain(partial(_bank_ge, retrieval_variant="openai_embeddings"), "banking_knowledge")
+        _reg._domains["banking_knowledge"] = partial(_bank_ge, retrieval_variant="openai_embeddings")  # 덮어쓰기(register는 중복거부)
         print("[t2_run] banking_knowledge -> openai_embeddings variant (no shell sandbox)")
 
     if a.resolve:
