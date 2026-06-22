@@ -23,6 +23,7 @@ run_arm () {  # $1=save_to  $2..=env assignments
   local save=$1; shift
   echo "######## ARM $save (env: $*) ########"; date
   cd $TB
+  rm -rf "$TB/data/simulations/$save"   # 멱등: stale 체크포인트 제거(detached서 resume-prompt EOFError 회피)
   env "$@" PYTHONPATH=src:$T2 $PY $T2/t2_run_gated.py \
     --gate 1 --domain retail \
     --agent_model "$M" --agent_base http://localhost:$PORT/v1 \
