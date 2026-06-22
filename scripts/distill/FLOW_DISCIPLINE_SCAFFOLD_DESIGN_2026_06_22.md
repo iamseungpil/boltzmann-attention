@@ -104,6 +104,17 @@
 - **★GO(재설정)** = ①eligibility/wrong-tool 클래스 ≥50%↓ ②loop 클래스 ≥50%↓(且 fail→success 전환 입증·#4) ③**false-block ≈ 0** ④airline transfer 동일 ⑤잔여 75% 정직 분해. (pass^1 게인=부차·0.82는 scaffold 단독 임계 아님.)
 - **NO-GO** = 클래스 안 닫힘 OR false-block>0 OR airline transfer 실패 OR 72B 붕괴.
 
+## 8b. ✅ STEP 1-3 구현 완료 (2026-06-22·commit 8646636)
+- **엔진**(`gate_interpreter.py`): `preconditions` 분기 + `pick_steer`(status-class·_acted 우선) + `resolve_field`(resolve_owner 일반화·status는 캐시금지 fresh read). grep if-domain/도구명=0(주석 제외).
+- **A2**(`retail.gate.json` G5): 검증된 4 도구만(modify/cancel→pending·exchange/return→delivered)·address/payment 제외(status-무관→false-block 회피)·정확-매칭 도구-정렬.
+- **로컬 스모크 PASS**: pick_steer 전 status-class(특히 "pending (item modified)"→_acted) + preconditions allow/deny + false-block 회피(resolver None / order_id 부재 → allow).
+- **`--validate` 결과**: retail PassA=0·**PassB ownership over-deny=0(무회귀)**·G5 gold-replay deny=1(task64=benign·도구-정렬·gold가 같은 pending 주문에 exchange+modify 동시기재) / airline PassA/B=0(G5 부재 no-op·무회귀). validate를 precondition-aware로 분리(ownership PassB 깨끗).
+
+## 8c. ⚠️★airline transfer 발견 (리뷰#1④ GO에 영향·정직 기록)
+- **리모트 tools.py 확인: airline write 도구(book/cancel/update_reservation_*)에 status-precondition 전무**(유일 status 체크=flight 검색 availability). ⇒ **retail의 status-lifecycle precondition = retail-특유 정책 형태**. 엔진(pick_steer+kind)은 도메인-일반이나, **airline엔 동형 status-precondition 인스턴스가 없어 G5의 효과-transfer를 airline status-swap으로 *실증 불가*.**
+- **그러나 airline에도 *attribute*-precondition은 존재**(정책: basic-economy는 항공편 변경불가·24h 무료취소·cabin 규칙). = 같은 `preconditions` kind로 인코딩 가능(resolver가 reservation.cabin/created_at 읽고 allow 판정). ⇒ **transfer 데모 경로 = airline attribute-precondition을 G5 동형으로 추가**(engine 코드0·A2만)·step4 prep. 이게 "kind 일반성"의 진짜 transfer 증거.
+- **[[05]] 함의(정직)**: G5의 *retail status 내용*은 transfer 안 됨(retail 정책). transfer되는 건 **엔진 + preconditions kind**(airline attribute-precond로 실증해야). status-string 형태로 airline 무효는 도메인특화가 아니라 *도메인이 그 정책을 안 가짐*(airline엔 notice 게이트밖에 없는 것과 동형). GO④ 재정의: "airline에 attribute-precond G5 추가 → 동일 엔진으로 동작 + class-감소" (status-swap 아님).
+
 ## 8. 빌드 순서 (★리뷰 조건부승인: step1-3 즉시 OK·step4 전 #1·#2·#3 박기 = 완료)
 - ✅ **리뷰 전제 3건 반영 완료**: #3(리모트 tools.py 정확-매칭 확인→steer status-aware·§4a)·#1(census→target 재설정·§0/§1b)·#2(false-block 메트릭·§6). step4 진행 가능.
 1. `gate_interpreter.py`: `check()`에 `preconditions` 분기 + status-aware steer(`steer_by_status_class`·`_acted` 패턴). 로컬 스모크(retail+airline 동형).
