@@ -172,9 +172,16 @@ def apply():
         a2 = _domain_a2(getattr(env, "domain_name", None))
         if a2 is None:
             return orig(self, tool_calls)
+        # T2_GATE_KINDS = 측정-격리 플래그(콤마구분 kind 화이트리스트). 미지정=전체.
+        # 예 "preconditions"=G5만(flow-discipline 격리·floor 대비 confound 배제). 도메인-일반.
+        _kinds = os.environ.get("T2_GATE_KINDS")
+        _gate_list = a2["gates"]
+        if _kinds:
+            _allow = {k.strip() for k in _kinds.split(",") if k.strip()}
+            _gate_list = [g for g in a2["gates"] if g.get("kind") in _allow]
         gate = getattr(self, "_t2_gate", None)
         if gate is None:
-            gate = self._t2_gate = GateInterpreter(a2["gates"], resolvers=resolvers_from_env(env))
+            gate = self._t2_gate = GateInterpreter(_gate_list, resolvers=resolvers_from_env(env))
         auth_tools = a2["_auth_tools"]
         producer = a2["_producer"]
         hints = a2["_hints"]
