@@ -5,6 +5,9 @@
 ## 0. Root 진단 — 왜 frontier도 같은 병
 LLM 학습은 전부 **P(다음토큰|문맥) 형성**일 뿐, *그 분포의 신뢰도(메타)*를 학습하지 않는다. 그래서 **"모른다"를 토큰으로 만들기가 구조적으로 어렵다**(자기 출력분포 내성이 목적함수 밖). RLHF는 단정적·도움되는 답을 보상 → 환각 인센티브화. ⇒ **scale 문제 아님·모든 frontier 동일.**
 
+> **★선행 정합 (인용·확정)**: Kalai, Nachum, Vempala, Zhang, *"Why Language Models Hallucinate"*, OpenAI, 2025 (arXiv:2509.04664). **핵심 = hallucination은 평가/채점이 "추측(guessing)"을 "기권(abstain·IDK)"보다 보상하기 때문에 지속·불가피.** 시험 비유: 0/1 채점에서 틀려도 감점 없으면 빈칸(0점 확정)보다 찍기(기대값 양수)가 *수학적으로 최적* → 모델은 "좋은 시험꾼"=허세(bluff)를 학습. 처방 = "scoreboard를 바꿔라"(틀린 자신감 감점·보정된 IDK 부분점수) + **explicit confidence targets**. ⇒ 본 §0(불가피·scale무관·목적함수/인센티브 산물)을 *독립 논증으로 직접 지지*하고, §4 abstain 커리큘럼 ≈ 논문의 "explicit confidence targets".
+> - **단(정직·확정 vs 논쟁 구분)**: 논문의 처방은 "인센티브 고치면 모델이 기권을 *배울 수 있다*"는 쪽 = base 모델에 쓸 만한 calibration 신호가 *있고* post-training/RLHF가 그걸 망가뜨린다는 통설을 전제. 그렇다면 본 §0의 "**구조적으로 내성 불가**"는 다소 강한 표현 — "calibration 신호는 있으나 인센티브가 죽인다"가 더 정확할 수 있음. **§3 외부화는 그보다 한 걸음 더** = calibration 자체가 모델 내성에 의존하는 잔여를 scaffold-계산 빈관계로 우회(논문 미다룸·우리 추가 기여). (base-calibration 단서는 딥리서치 calibration 갈래서 재확인.)
+
 ## 1. 실패의 통일 (epistemic)
 32B capability-gap(gpt-4.1 pass∧32B fail) 전수분해 = **wrong-ORDER 선택 47% · wrong-ACTION 20% · operand 13% · 예산 13% · over-action 7%**, 2차증상=loop/복구실패. 스케일별: gap 7B 50%→14B 20%→32B 13%(경계는 밖으로) **단 실패 *종류*는 스케일-불변**(loop/복구 ~35% 전 스케일 1위). 공통 메타원인 = **"모름/불확실(어느 후보·행동·해 있나)"을 표현·행동 못 함** = "K개 보기 학습 → 5번째 '정답 없음' 선택 불가". (cf. G5(precondition-steering) 인과효과=0: 가이드를 줘도 *쓰도록 학습 안 됨*. 편차=gpt-4.1 user-sim 비결정성 카오스증폭(flip 절반)→pass^1 점비교 무효·결정론 신호만 신뢰.)
 
