@@ -51,6 +51,14 @@
 - 32B banking floor = 진행중(마지막 arm).
 - ABLATION 미포함(추후): false-block 직접수치(floor-pass였다 깨진 task)·#4 loop→success vs →다른실패 전환.
 
+## ★★★★ 전수 궤적 원인 확정 (2026-06-23·`/tmp/census*.sh`) = G5 인과효과 ZERO
+**G5(precondition-steering)의 net 인과 = 0 (전 scale·궤적 전수 검증):**
+- 발동량: **7B 19회/10task · 14B 0 · 32B 0.** (wrong-tool 에러=소형모델 현상·14B서 소멸.)
+- 7B G5-발동 10task를 g15(G5) vs floor(無G5) 동일-task 비교: **도움0·해악0·동일10**(8 fail-fail·2 pass-pass). steer가 도구선택 교정해도 출력 불변.
+- ⇒ **"G5 +0.042"(nt1)·"G5 −0.080"(nt3 trial-0) 둘 다 샘플링노이즈·G5 진짜효과=0.** 14/32B의 g14/g15/g15retry 차이=노이즈(G5 미발동·retry 43발동 net+1).
+- **메커니즘**: wrong-tool/eligibility=capability *증상*이지 binding 원인 아님. 올바른 도구 짚어줘도 약한모델은 완수능력 없어 실패. = §1b "addressable 닫아도 capability 벽 binding" 정밀확증.
+- **★결론: G5 폐기. 유일 진짜 레버 = G1-G4 compliance게이트**(결정론 위반제거→compliant 0.544→0.589). 잔여 gap(32B 0.59 vs gpt41 0.81)=순수 capability(scaffold 불가).
+
 ## ★★★ 정정 = 깨끗한 nt=3 (2026-06-23·API-throttle sim 제외)·nt=1 헤드라인 뒤집힘
 **이전 nt=1(g15 compliant 0.573·"G5 +0.042")은 노이즈. 깨끗한 nt=3(throttle 제외):**
 | 32B arm | bench(clean) | compliant(clean) |
