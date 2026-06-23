@@ -51,6 +51,13 @@
 - 32B banking floor = 진행중(마지막 arm).
 - ABLATION 미포함(추후): false-block 직접수치(floor-pass였다 깨진 task)·#4 loop→success vs →다른실패 전환.
 
+## ★★★★★★★ 편차(variance) 원인 확정 = user-sim 비결정성의 카오스 증폭 (2026-06-23·`/tmp/varcensus.sh`·`divergence.sh`·`example.sh`)
+- **flip task(trial마다 pass↔fail) = floor 56/114(절반)·g14 42/114** = 편차의 정체.
+- **첫 분기 화자: user 52/56(93%)·assistant 4/56(7%).** 다수가 turn 1(user 첫 발화)부터 갈림.
+- **구체(T7)**: PASS trial "items I **bought recently**" vs FAIL "items I **recently bought**" — 의미 동일·어순만 다름(gpt-4.1 user-sim이 temp=0에도 표현 변동) → 이후 대화 카오스적 발산 → 결과 flip.
+- **⇒ 편차원 = gpt-4.1 user-sim 비결정 표현(씨앗) + 멀티턴 루프 증폭(butterfly). 에이전트(32B) 자체 비결정성은 minor(7%).**
+- **방법론 함의**: ①편차원이 *API user-sim*이라 에이전트 결정론수정(seed·max-num-seqs1·[[30]])으로 *못 없앰*·완화=다수trial 평균뿐. ②pass^1 CI~±0.06→**<0.05 레버 탐지불가**(flow-discipline 측정 검정력부족 근본이유). ③**신뢰신호=결정론적인 것만**: compliance 위반-카운트(게이트 결정론제거)·궤적-수준 실패클래스 census(읽음·trial robust). → G5=0·capability-gap 분류(wrong-order 47% 등)=유효·pass^1 점비교=무효.
+
 ## ★★★★★★ 32B capability-gap 전수 분해 (2026-06-23·`/tmp/gapcensus.sh`·`/tmp/decompose.sh`)
 **gap = gpt-4.1 pass ∧ 32B floor 3시행 fail = 15 task.** 실제 write 인자로 정밀 분해:
 - **① wrong-ORDER 선택 (7·47%·최대)**: 여러 주문 中 *엉뚱한 주문*에 작업. T71/72 gold #W5270061(DC주문)←32B #W5782623·T41 #W4082615←#W9583042·T101/102 주문 뒤바꿈·T29/74. = "DC로 간 그 주문"/"시계 두개 주문" *식별*(상세 읽고 매칭) grounding 실패.
