@@ -23,11 +23,18 @@
 | latency /req | 분~십분 | **30.5s**(실측) | **178s**(실측·~6× 느림) |
 | tool-roundtrips | – | 7.6 | 8.1 |
 | VRAM/HW | – | API(on-prem 불가) | **~33GB·1×A6000** |
-| **$ /req (추정)** | **~$5–7**(콜센터 contact·문헌) | **~$0.05–0.12**(40k tok×gpt-4.1단가·추정) | **~$0.002–0.005**(A6000 ~$0.3/GPU-hr ÷ ~160 req/hr@conc8) |
+| **$ /req** (computed·`tco_cost.py`) | ~$5–7(콜센터·문헌가정) | **$0.044**(18.3k in/1.0k out × $2/$8 per 1M) | **$0.0019**(A6000 $0.3/hr ÷ 162 req/hr@conc8) |
 | 데이터반출 | – | ❌(API 전송) | ✅ on-prem |
 | 감사가능 | 부분 | ❌ black-box | ✅(결정론 게이트·궤적) |
 
-**★order-of-magnitude 헤드라인(추정이라도 강건)**: on-prem 32B ≈ **frontier-API보다 req당 ~1–2 자릿수 싸고**, **인간보다 ~3 자릿수 싸다** — *동등 compliance(위반0)·on-prem·감사가능*. 트레이드오프 = **레이턴시 ~6× (178s vs 30s)**. 이게 cost-efficiency 헤드라인이지 "0.573 vs 0.82"가 아님.
+(7B on-prem $0.0008/74s·14B $0.0012/119s — 더 싸고 빠르나 compliance↓. 전 행 `tco_cost.py` 실측 latency + 추정 token/\$.)
+
+**★computed 헤드라인(assumption robust)**: 32B-on-prem **$0.0019/req = gpt-4.1 API $0.044보다 ~24× 쌈**(GPU $0.2–0.5/hr 범위서 16–40×)·**인간 ~$6보다 ~3000× 쌈** — on-prem·감사가능·결정론게이트. 트레이드오프 = 레이턴시 ~6×(178s vs 30s). ★단 **compliance 0.573 < 0.82 = "동등" 아님**(아래 fleet).
+
+### ★fleet 투영 = "동등 compliance를 더 싸게" (정직한 cost-efficiency 셀·`CAPABILITY_LEVER §10`)
+- 순수 32B는 0.573(< 0.82)이라 "동등 더 쌈" 주장 *불가*. **fleet(쉬운req=32B·어려운req=frontier escalate)**로 blended:
+  - blended $ ≈ p·$0.0019 + (1−p)·$0.044 (p=32B가 처리하는 비율). p=0.57이면 ≈ **$0.020/req**·blended compliance≈0.82(32B 성공분 + frontier가 나머지). vs 순수 frontier $0.044@0.82 = **~2.2× 쌈·동등 compliance**.
+- ⇒ **두 헤드라인 셀**: (A) "동등 compliance(fleet)를 ~2× 싸게" (B) "근접 compliance(0.573)를 순수-on-prem ~24× 싸게". 단 fleet는 *cheap·decidable 라우터* 전제(§10 크로스오버·미구현=다음 instrument).
 
 ## 3. ★헤드라인 재서술 (리뷰#2 반영)
 - ❌ 옛: "32B가 0.82 맞췄다/맞추는 중"(=ToolOrchestra 패리티 재탕·rival 영역).
