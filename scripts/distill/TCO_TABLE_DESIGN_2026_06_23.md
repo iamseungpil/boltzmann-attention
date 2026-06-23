@@ -36,6 +36,21 @@
   - blended $ ≈ p·$0.0019 + (1−p)·$0.044 (p=32B가 처리하는 비율). p=0.57이면 ≈ **$0.020/req**·blended compliance≈0.82(32B 성공분 + frontier가 나머지). vs 순수 frontier $0.044@0.82 = **~2.2× 쌈·동등 compliance**.
 - ⇒ **두 헤드라인 셀**: (A) "동등 compliance(fleet)를 ~2× 싸게" (B) "근접 compliance(0.573)를 순수-on-prem ~24× 싸게". 단 fleet는 *cheap·decidable 라우터* 전제(§10 크로스오버·미구현=다음 instrument).
 
+## 2c. ✅ 조립된 결과 (2026-06-23·`tco_table.py`)
+| | compliance(full pass^1) | latency/req | $/req | n |
+|---|---|---|---|---|
+| gpt-4.1 (API) | 0.798 | 30.5s | $0.0445 | 114 |
+| 32B-int8 g15 (on-prem·nt1) | 0.573 | 178s | $0.0019 | 114 |
+| 32B-int8 nt3 denoise | g14 0.605·g15 0.550·(g15retry) | ~178s | ~$0.0019 | ~330 |
+| 14B g15 (on-prem) | 마무리중 | 127s | $0.0013 | 339 |
+| 7B g15 (on-prem·nt3) | 0.162 | 76s | $0.0008 | 342 |
+| 32B floor | 0.491 | 226s | $0.0024 | 342 |
+
+**★FLEET 헤드라인(B)**: 32B-on-prem(p=0.55 처리)+gpt-4.1 escalate(0.45) → **blended compliance 0.860 (>순수 gpt-4.1 0.816)·blended $0.021/req (순수 gpt-4.1 $0.044의 2.1× 쌈)**. = "동등 이상 compliance를 절반 비용으로". (oracle routing=상한.)
+**★PURE 헤드라인(A)**: 32B-on-prem 근접 compliance(0.55-0.57)를 gpt-4.1 API 대비 **~23× 싼 $/req**(0.0019 vs 0.044)·단 레이턴시 ~6×.
+
+⚠️ **caveat(정직)**: ① nt=3 denoise 런이 **OpenRouter API throttle(429/502/503 다수)** 중 진행 → 일부 sim이 *비-모델* 사유로 실패(too_many)→pass 약간 저평가(특히 t3). fleet 헤드라인은 *clean* 데이터(nt1 32B+gpt-4.1)서 계산=신뢰. ② $ token=chars/4 추정. ③ 32B t3 naming(`on_`)이 tco_table(`ours_`)와 불일치→표는 nt1 사용(t3는 별도). ④ gpt-4.1도 full<bench(0.798<0.816)=violation 존재(우리 게이트는 위반0).
+
 ## 3. ★헤드라인 재서술 (리뷰#2 반영)
 - ❌ 옛: "32B가 0.82 맞췄다/맞추는 중"(=ToolOrchestra 패리티 재탕·rival 영역).
 - ✅ 새: **"동등 compliance를 frontier-API 대비 ~X배·인간 대비 ~Y배 싼 req당 TCO로(on-prem·감사가능·결정론 게이트)" + "능력별 최소비용 레버 배정 가이드라인".** pass 0.573/0.82 = 본문 증거 한 셀(레이턴시·정확도 트레이드오프 곡선의 한 점).
