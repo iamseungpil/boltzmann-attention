@@ -51,6 +51,11 @@
 - 32B banking floor = 진행중(마지막 arm).
 - ABLATION 미포함(추후): false-block 직접수치(floor-pass였다 깨진 task)·#4 loop→success vs →다른실패 전환.
 
+## ★false-block 검증 (헤드라인 빠진 메트릭·2026-06-23 추가)
+- **궤적-수준 false-block(게이트가 *gold-정답 write*를 deny) = 0** (전 arm 7B/14B/32B g15·g15retry). 게이트 deny는 전부 정당: G4 notice(transfer 전 문구)·G1 auth(인증 전)·G5(7B 4건=*비-gold* wrong-tool 차단)·RETRY_LOOP(반복실패). **write-deny가 gold와 일치한 건 0.**
+- ⚠️ **task-level 1-trial "false-block"(24-32·net −22) = 전부 샘플링 노이즈**: floor pass-any-3(0.77)를 gate trial-0(0.57)과 비교한 trial-비대칭 + 1-trial churn(~20% 무작위 뒤집힘). **게이트 잘못 아님**(궤적검증 0). = 리뷰 #4("작은n/노이즈→점추정 불신") 적중·신뢰메트릭=궤적수준.
+- ⇒ **게이트는 안전**(올바른 행동 0건 차단·#3 NO-GO 조건 통과) + compliant 향상(32B 0.491→0.573). 잔여 gap(0.573<0.82)=capability/operand(§1b·scaffold-addressable~25%). nt=3 denoise(GPU0 진행중)로 pass 수치 확정 예정.
+
 ## 다음
 1. GPU0 nt=3 denoise 회수 → 32B 행 확정.
 2. 32B banking floor 마무리.
