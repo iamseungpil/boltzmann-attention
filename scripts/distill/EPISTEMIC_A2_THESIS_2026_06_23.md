@@ -39,4 +39,5 @@ LLM 학습은 전부 **P(다음토큰|문맥) 형성**일 뿐, *그 분포의 �
 - 측정 주의: user-sim 편차~0.11 → gap=fail-all-3 같은 robust 신호 + 결정론 신호(위반카운트·궤적 census) + 다수trial. pass^1 점추정 단독 무효.
 
 ## 7. 분담 한 줄 (최종)
-**A2=유한관계(내용만 도메인) · scaffold=관계 집행(빈결과 판정) · 모델=관계 formalize+check+select+빈→ASK(학습·전이) · 모름=빈관계에 grounding해 *외부신호 응답*으로 학습(내성 아님·abstain 커리큘럼).**
+**A2=유한관계(내용만 도메인) · scaffold=관계 집행(빈결과 판정) · 모델=관계 formalize+check+select+빈→ASK(학습·전이) · 모름=빈관계에 grounding해 *외부신호 응답*으로 학습(내성 아님·abstain 커리큘럼·대칭 결정가능→행동).**
+> ★범위(§3): escape는 *빈/모호로 표면화되는* 모름만 잡음. 오해결(σ=1·틀림)은 명세-충실 formalize가 닫아야 할 침묵 잔여 = make-or-break 첫 측정(ⓐ/ⓑ split).
