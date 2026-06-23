@@ -51,6 +51,19 @@
 - 32B banking floor = 진행중(마지막 arm).
 - ABLATION 미포함(추후): false-block 직접수치(floor-pass였다 깨진 task)·#4 loop→success vs →다른실패 전환.
 
+## ★★★ 정정 = 깨끗한 nt=3 (2026-06-23·API-throttle sim 제외)·nt=1 헤드라인 뒤집힘
+**이전 nt=1(g15 compliant 0.573·"G5 +0.042")은 노이즈. 깨끗한 nt=3(throttle 제외):**
+| 32B arm | bench(clean) | compliant(clean) |
+|---|---|---|
+| floor | 0.596 | 0.544 |
+| **g14 (G1-G4)** | 0.589 | **0.589** |
+| g15 (+G5) | 0.509 | **0.509** |
+| g15retry (+retry) | 0.596 | **0.596** |
+- ✅ **G1-G4(compliance 게이트)=진짜 레버**: compliant 0.544→**0.589**(+0.045)·위반0·bench비용~0.
+- ❌ **G5(precondition)=净-음성 −0.080**(g14 0.589→g15 0.509). ★false-block=0인데도 pass↓ → 올바른 write 차단 아님·**steer+매-write get_order_details 추가읽기가 에이전트 흐름 교란**. eligibility 클래스 닫음(census 25→0)이 **pass전환 실패**(§1b capability벽 + 개입비용).
+- retry=G5 손실 복구(0.509→0.596). ⇒ **최적 배포=G1-G4만·G5 제외.**
+- 교훈: nt=1 task-level 신호 신뢰불가(리뷰 #4)·denoise+throttle필터 필수. (throttle: OpenRouter 429/502/503 → arm당 ~12 sim 비-모델 실패·제외함.)
+
 ## ★false-block 검증 (헤드라인 빠진 메트릭·2026-06-23 추가)
 - **궤적-수준 false-block(게이트가 *gold-정답 write*를 deny) = 0** (전 arm 7B/14B/32B g15·g15retry). 게이트 deny는 전부 정당: G4 notice(transfer 전 문구)·G1 auth(인증 전)·G5(7B 4건=*비-gold* wrong-tool 차단)·RETRY_LOOP(반복실패). **write-deny가 gold와 일치한 건 0.**
 - ⚠️ **task-level 1-trial "false-block"(24-32·net −22) = 전부 샘플링 노이즈**: floor pass-any-3(0.77)를 gate trial-0(0.57)과 비교한 trial-비대칭 + 1-trial churn(~20% 무작위 뒤집힘). **게이트 잘못 아님**(궤적검증 0). = 리뷰 #4("작은n/노이즈→점추정 불신") 적중·신뢰메트릭=궤적수준.
