@@ -51,6 +51,24 @@
 - 32B banking floor = 진행중(마지막 arm).
 - ABLATION 미포함(추후): false-block 직접수치(floor-pass였다 깨진 task)·#4 loop→success vs →다른실패 전환.
 
+## ★★★★★★ 32B capability-gap 전수 분해 (2026-06-23·`/tmp/gapcensus.sh`·`/tmp/decompose.sh`)
+**gap = gpt-4.1 pass ∧ 32B floor 3시행 fail = 15 task.** 실제 write 인자로 정밀 분해:
+- **① wrong-ORDER 선택 (7·47%·최대)**: 여러 주문 中 *엉뚱한 주문*에 작업. T71/72 gold #W5270061(DC주문)←32B #W5782623·T41 #W4082615←#W9583042·T101/102 주문 뒤바꿈·T29/74. = "DC로 간 그 주문"/"시계 두개 주문" *식별*(상세 읽고 매칭) grounding 실패.
+- **② wrong-ACTION 유형 (3·20%)**: 의도→도구. T34 주소바꿔야 하는데 아이템수정·T38 취소해야 하는데 수정·T85 수정해야 하는데 교환.
+- **③ operand/verbatim (2·13%)**: T17 "123 Elm **Street**"←"123 Elm **St**"(축약)·T8 틀린 variant 2회.
+- **④ 예산추론+루프 (2·13%)**: T36/37 "예산부족→어느 아이템 빼면 맞나" 추론 못 하고 빈 new_item_ids 루프.
+- **⑤ 과행동 (1·7%)**: T62 어드버서리얼·gold 무행동인데 modify+cancel.
+- **★2차 증상=에러루프/복구실패**: 틀린 선택 후 *같은 행동 4-6회 반복*(nerr 4-6·T34/38/41/71). 루프=근본 아닌 증상(wrong선택+재계획실패).
+- **쉬운 요약**: 32B의 gap 핵심 = **"여러 주문 中 어디에·어떤 행동을" 못 고름(grounding+intent매핑) + 한번 틀리면 반복(복구불능)**. operand는 소수(13%).
+- **★G5 무익 이유 확정**: G5는 *도구-status* 오류(delivered인데 modify) 잡는데, 실제 gap=wrong-ORDER+wrong-ACTION+no-recovery → G5 적용지점 아님. ⇒ **레버 재타깃**: 주문-disambiguation(grounding: 상세읽고 매칭)+복구(에러후 재계획)·intent→action. precondition 아님. = learn/scale 또는 grounding/recovery scaffold.
+
+## ★★★★★ 정밀 원인 = 큰 에이전트 비결정성 (2026-06-23·`/tmp/precise.sh`·`/tmp/trajdiff.sh`)
+- **차이가 큰 건 노이즈가 작아서가 아니라 *에이전트 비결정성이 커서***: floor 자기 3-trial = 0.596/0.482/0.561 = **spread 0.114**(vllm 배칭·conc8·seed無·17턴 누적). 단일 trial pass 신뢰불가 ±0.06.
+- **g14-pass∧g15-fail 21 task 전부 G5 0발동인데 에이전트 궤적 다름**(예 T17: g14 get_order_details 거침/PASS vs g15 건너뜀/FAIL). = pass 차이=100% 에이전트 RNG·G5 무관.
+- pooled(3-trial): floor 0.547·**g14 0.605**·g15 0.550·g15retry 0.574. g14-g15 0.055=~1.4σ(유의X)·게다가 G5 0발동이라 인과상 G5 불가→런타임/throttle confound.
+- **★단 G1-G4 compliant 상승(+0.045)은 진짜**: bench 차이는 노이즈밴드나, compliant 상승=floor 위반율(G2-confirm~0.05)을 게이트가 *결정론적*으로 제거(위반 카운트로 측정·샘플링 아님).
+- **방법론**: 현 측정 검정력 부족(노이즈~0.11)→<0.05 레버 탐지하려면 결정론 serve(seed+max-num-seqs1·[[30]]) 필요. 단 G5=0(작은게 아닌 0)이라 결론 강건.
+
 ## ★★★★ 전수 궤적 원인 확정 (2026-06-23·`/tmp/census*.sh`) = G5 인과효과 ZERO
 **G5(precondition-steering)의 net 인과 = 0 (전 scale·궤적 전수 검증):**
 - 발동량: **7B 19회/10task · 14B 0 · 32B 0.** (wrong-tool 에러=소형모델 현상·14B서 소멸.)
