@@ -17,20 +17,25 @@ LLM 학습은 전부 **P(다음토큰|문맥) 형성**일 뿐, *그 분포의 �
 목적함수가 내성형 IDK를 못 만드니, **모름을 외부화**한다:
 - scaffold가 σ 계산 → **빈/모호 결과가 모델 문맥에 *토큰*으로 등장.** 1개→선택·**0개→모름→질문**·>1개→모호→질문.
 - 모델은 모름을 *무에서 생성* 안 하고 **보이는 빈-결과에 "ask"를 출력**(평범한 입력→출력 매핑·학습가능). ⇒ **불가능한 메타과제를 학습가능한 구체과제로 변환.** 목적함수 한계 우회.
-- formalize의 "none"도 **A2 유한 predicate 어휘**로 → "유한 후보 中 맞는 것 없음"=checkable 유한조건(열린 내성 아님).
+- **★escape 범위(정직·load-bearing)**: 이 우회는 **올바르게 formalize됐는데 빈/모호한** 실패만 잡는다. *오해결*(모델이 σ predicate를 틀리게 formalize→scaffold가 틀린 관계에 σ 계산→**비어있지 않은 틀린 1개** 반환→ask 트리거 안 됨)은 **침묵 잔여**로 escape 통과. ⇒ "모호(σ=0/>1)"와 "오해결(σ=1·틀림)"은 다르고, 관찰가능한 빈-관계로 표면화되는 건 *전자뿐*. **출구 = 명세-충실 formalize(섣불리 1개로 narrowing 금지·"조건 맞는 *모든* tuple")**면 진짜 모호가 cardinality로 표면화. 잔여 침묵 = 진짜 mis-formalize.
+- formalize의 "none"은 **scaffold가 각 유한 predicate를 입력에 대조해 "매치 없음"을 판정**할 때만 외부화된다(checkable). 모델이 "none"을 *emit*하면 = §0 내성 문제가 formalize 단계로 올라온 것일 뿐(외부화 *안* 됨) → **그 경우는 외부화 안 된 잔여로 표시**(escape 적용 불가).
 
 ## 4. 학습 대상 확정 — 무엇을 배우나 (내용 아님)
 **도메인-일반 스킬 = "관계규칙 따라 formalize → check+select → 빈/모호면 ASK"** + **abstain 커리큘럼**(학습데이터에 빈/모호→ASK 케이스 *명시 포함*=‘5번째 보기 존재’를 예시로 가르침). 
+- **★대칭 필수(over-ask 방지)**: "빈/모호→ASK"만 가르치면 모델은 *항상 묻기*를 학습(false-ASK=결정가능한데 물음=tau2 pass 붕괴·과거 false-block의 쌍대). 커리큘럼에 **"결정가능(σ=1)→행동, 묻지 마" 케이스를 균형있게** 포함. learning-to-defer(`w0r8slp20`)의 threshold 트레이드오프 = 이 균형의 방법.
 - 왜 *학습*(프롬프트 아님): [[42]] 소형은 in-context 규칙 무시(prompt-ceiling)→학습이 설치.
 - 왜 *외부신호-응답*(내성 아님): 목적함수가 내성 IDK 못 만듦→빈-관계가 외부 손잡이.
 - G5 null 해소: scaffold가 가리켜도(외부) 모델이 *쓰도록 학습* 안 됨 → **곱(scaffold×A2-사용학습)** 이어야. G5는 첫 항만 켠 것.
 
-## 5. 기여 (frontier 미보유)
-frontier도 *외부 손잡이 없이 내성*하라 요구받아 confabulate. **소형 + 관계형 scaffold(외부 손잡이) + 모름 커리큘럼**은 손잡이가 있어 **frontier가 못 하는 grounded-abstain을 함** = 비용우위(~23×·TCO) + 능력. [[41]] "소형>큰"이 아니라 *systematization+grounded-abstain+경계지도*.
+## 5. 기여 (아키텍처·크기무관 + 소형=배포비용)
+- **기여의 본체 = *아키텍처*(크기무관)**: 모름을 외부 빈-관계로 표면화 + 그 사용을 학습(내성 우회). frontier도 *같은 관계-scaffold + 같은 커리큘럼*이면 grounded-abstain을 함 → "frontier가 *못* 함"은 과주장(깨짐). 기여 = 이 **factoring**이지 소형 고유 해자 아님.
+- **소형 각도 = 그 아키텍처를 *배포하는 비용*** → [[06]] TCO 헤드라인으로 회귀(~23×). 이 메커니즘 = **싼 다리를 *더 싸고* + *더 신뢰가능(grounded-abstain)*하게** 만드는 것(헤드라인 비선결·싼 다리 개선).
+- 포지셔닝: [[41]] "소형>큰" 아님 = *systematization + (아키텍처)grounded-abstain + 경계지도*. **§6 미실증 위에 co-헤드라인 금지**(measured 후 격상).
 
 ## 6. ★중심 실험 (make-or-break)
-**A2-규칙-사용 학습**: 벤치(SOP/TB/CFB/Synth)서 "유한 관계규칙 제시→formalize/check/select·빈→ASK" 궤적 SFT(도메인-일반·내용X·abstain 케이스 포함) → {base vs A2-trained} × scaffold(A2 집행) on tau2(**A2-swap·재학습0**). 검정: ①G5서 0이던 게 학습 후 *pass 전환* ②새 도메인 A2-swap 전이 ③모름-커리큘럼이 over-action↓·loop↓·wrong-order→ask↑. per-scale(7/14/32/72B) = **hook 커버리지×학습 곡선**(어느 크기서 닫히나·어디부터 escalate).
-- 정직 NO-GO: (a) 5개가 유한관계로 깔끔 표현 안 되거나 (b) "관계-사용/formalize-none"이 그 크기서 capability-bound면 → 그게 진짜 경계(escalate/scale).
+**A2-규칙-사용 학습**: 벤치(SOP/TB/CFB/Synth)서 "유한 관계규칙 제시→formalize/check/select·빈→ASK" 궤적 SFT(도메인-일반·내용X·abstain 케이스 포함·**결정가능→행동 대칭케이스 포함**) → {base vs A2-trained} × scaffold(A2 집행) on tau2(**A2-swap·재학습0**). 검정: ①G5서 0이던 게 학습 후 *pass 전환* ②새 도메인 A2-swap 전이 ③모름-커리큘럼이 over-action↓·loop↓·wrong-order→ask↑ **④over-ask/false-defer rate(결정가능한데 물음)=대칭 비용**.
+- **★선행 진단(기존 데이터·GPU0·escape 범위 측정)**: gap task를 formalize→σ로 돌려 5개 실패가 **ⓐ빈/모호 관계(escape가 잡음) vs ⓑ비어있지않은-틀림(오해결·escape 통과)**로 분류. 대부분 ⓑ면 escape는 좁음 → 명세-충실 formalize(§3) 비중이 결정적. = make-or-break의 *첫* 측정.
+- 정직 NO-GO: (a) 5개가 유한관계로 깔끔 표현 안 되거나 (b) "관계-사용/formalize"가 그 크기서 capability-bound(특히 mis-formalize=ⓑ가 학습으로 안 줄거나)면 → 그게 진짜 경계(escalate/scale).
 - 측정 주의: user-sim 편차~0.11 → gap=fail-all-3 같은 robust 신호 + 결정론 신호(위반카운트·궤적 census) + 다수trial. pass^1 점추정 단독 무효.
 
 ## 7. 분담 한 줄 (최종)
