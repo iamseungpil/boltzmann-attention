@@ -3,6 +3,14 @@
 > 진입: [05-fixed-vs-variable] · [A2_GENERALIZATION_DESIGN](A2_GENERALIZATION_DESIGN_2026_06_23.md) · 상위 [RULE_LEVER_COST_EFFICIENCY_PROGRAM](RULE_LEVER_COST_EFFICIENCY_PROGRAM_2026_06_22.md).
 > 사용자 지시(2026-06-23): **원래 하려던 "A2 최소화 + scaffold 인자/role 추론"을 1안, 행동탐지를 2안으로 두고, 실험에서 효과·비용을 비교**하라. (이전 "scaffold 추측=더 나쁘다"는 단정이 아니라 1안의 *가설적 위험*으로 두고 실험이 판정.) 본 문서=구현 전 설계(리뷰 대상).
 
+## ★리뷰 반영 v4 (2026-06-23·사용자 리뷰)
+- **#5 시퀀싱(결정)**: 헤드라인 = `06-NOW` 최상위 **32B→gpt-4.1 0.82**(FLOW_DISCIPLINE). retail write7=이미 수동검증 → **검증된 role로 32B 측정을 *먼저* 돌린다**(false-block 메트릭 포함·decomposed GO). role-sourcing(S2+)은 *그 후/병행* 전이-배관으로 분리 — 헤드라인이 배관에 막히면 안 됨. ⚠️ **단 S2(gate_rules 리팩터)는 FLOW_DISCIPLINE이 쓰는 scaffold를 건드림** → S2를 먼저 하면 헤드라인을 새 형태 위에서 재측정해야 함 ⇒ **헤드라인 먼저, S2 나중**(behavior-preserving·--validate로 무회귀 보장 후 carry-over).
+- **#1 oracle = 정책명세 삼각측량**(소스 재읽기 금지=1안과 맹점 공유): oracle 근거 = **policy.md/taubench 명세**(precond는 정책 명시·taubench.txt:856·864 "pending이어야 cancel/modify") + gold궤적 일관성 + (보조)실행. 단일 재읽기 아님. **★범위 축소**: confirm/ownership/precond는 *정책*서 옴 → 1안/2안 진짜 비교 잔여 ≈ **"write 여부" 한 축**. 명시.
+- **#2 idiom-동질 한계**: tau2 3도메인 같은 코드베이스·같은 변경 idiom(`obj.field=`) → retail-튜닝 AST가 공짜로 맞아 **1안 transfer~0=가짜 자신감**([[12]] 위반). → idiom 다른 도구(ORM/`self.db.update()`) 최소 1개 섞거나, 없으면 "transfer 일반성=idiom-동질 한계 내"로 **down-weight 보고**. 2안(실행)은 소스-불가지=이 축 구조적 우위.
+- **#3 결정축 = silent-vs-visible 실패 비대칭**(P/R 아님): 1안 미인식=**침묵 under-gate**(컴플라이언스 구멍)·2안 미커버=**가시 미분류**(플래그). 안전게이트엔 가시실패 압도적 우위.
+- **#4 1차 산출물 = 불일치 카탈로그**(P/R은 보조·n≈25라 통계 무의미): 1안 vs 2안 vs oracle 불일치 + 케이스별 근본원인 taxonomy.
+- **§8 답 확정**: M4(LLM-A2생성)=제외([[32]]반출·생성레버=축다름·미래참조만). 미커버 기본=**write-class fail-loud/over-gate·read-only만 under-gate**. precond=write와 **분리 측정**(실패모드 다름·"pending (item modified)" 이슈). **동률기준(사전확정)=silent-robustness > 전이일반성 > A2-surface.**
+
 ## 0. 목표
 게이트(G1-G5)가 도메인마다 도구 role(write·user-scoped·owned-entity·handoff·precond-status)을 알아야 함. 목표 = **A2를 최소화하고 role을 정확 분류**해 전이를 "거의 빈 A2-swap"으로. **그 role 출처를 두 안으로 두고 실험으로 결정**(단정 금지).
 
