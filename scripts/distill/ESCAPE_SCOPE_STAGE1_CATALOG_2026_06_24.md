@@ -41,24 +41,33 @@
 - **(C) ⓑ-op 분리**: verbatim-copy(17)·availability-filter-miss(8) = mis-ground(entity 틀림)과 다른 *attr/operand* 오류. 별도 태그.
 - **(D) "branch 선택"(34·38·62)**: 조건부 의도("if X then... else...")의 *어느 가지*인지 = 계산/정책으로 결정(결정론)·단 의도 formalize 필요. = L0의 서브타입(eligibility/arith branch).
 
-## 5. ★Arm-II select-probe 결과 (2026-06-25·`escape_arm2_probe.py`·32B-int8·3 trial)
-**5개 ⓑ 전부 후보집합+질문 떠먹이니 정답 = 15/15 (전 trial).**
-| task | gold | 32B picks (3 trial) | 판정 |
-|---|---|---|---|
-| 71 | #W5270061(DC) | 5270061×3 | **GROUNDED** |
-| 72 | #W5270061(DC) | 5270061×3 | **GROUNDED** |
-| 74 | #W3189752(5-item) | 3189752×3 | **GROUNDED** |
-| 101 | #W4219264(2-watch) | 4219264×3 | **GROUNDED** |
-| 102 | #W4219264(2-watch) | 4219264×3 | **GROUNDED** |
+## 5. ★Arm-II select-probe — v1 결함 + Probe-B(raw) 교정 (2026-06-25·다른세션 리뷰)
+- **v1(`escape_arm2_probe.py`)=무효(spoonfeed)**: 후보를 판별필드 *추출·라벨*("shipped to Washington, DC | 5 item(s)")해 표로 줌 → "어느 게 DC?"=라벨 컬럼 lookup(formalize 아님). 진짜 ⓑ=①criterion formalize ②전 주문 fetch ③raw 중첩 address dict서 추출 ④매칭인데 v1은 ①②③ collapse·④만 격리 → 자명한 15/15. **+ 102는 실패한 ⋈(주소출처) 아니라 watch-id(안 실패한 부분) probe = 오-probe.**
+- **Probe-B(`escape_arm2_probe_v2.py`·raw)**: 후보=raw 주문 dict(중첩 address·미카운트 items)·criterion 필드 *미라벨*·102/101은 실제 ⋈(NY주소=다른주문) probe. → 모델이 formalize+extract+⋈ 직접.
 
-- **★판정 = capability-bound 아님.** 후보+질문 주면 32B의 **SELECT(매칭)는 완벽**(DC·five-items·two-watches 전부). 원래 ⓑ 실패는 *select 능력*이 아니라 **멀티스텝 흐름 속 FETCH+formalize-orchestration**(모든 주문 모으기 + "DC가 disambiguator"임을 그 순간 집중)에 있었음. cf. 71 원궤적: get_user_details로 주문 *받았는데도* 틀린 주문 수정 = 데이터는 있고 그 순간 집중/formalize 실패.
-- **★[[10]]·FETCH_SELECT 재유도**: **FETCH(후보 조립)=실패점·SELECT(매칭)=작동.** FETCH=결정론 offload(유저 주문 σ retrieve)·SELECT=모델(작동). ⇒ ⓑ 닫는 길 = **scaffold가 결정점서 σ_{criterion} 계산·후보 제시(autofetch) → 모델 select(이미 작동)**. = [[06]]/§35 autofetch 패턴과 연결(이미 부분 구현).
+| probe | 테스트 | gold | 32B (3 trial) | 판정 |
+|---|---|---|---|---|
+| 71·72 | DC주문(address.state 추출) | #W5270061 | 3/3 | GROUNDED |
+| 74 | 5-item(items 카운트) | #W3189752 | 3/3 | GROUNDED |
+| 101·102w | 2-watch(카운트) | #W4219264 | 3/3 | GROUNDED |
+| **101x·102x** | **⋈ NY주소(다른주문서 추출)** | 144 Lakeview Drive | **3/3** | **GROUNDED** |
 
-## 6. ★종합 판정 (Stage-1 + Arm-II)
-- **escape(ⓐ-ask)=0** + **ⓑ=GROUNDED(scaffold-addressable·capability-bound 아님)** + **결정론 본체(B2/eligibility/stop)** ⇒ **사전등록 트리거(§6.5) 점화 쪽 강하게 확증**: 학습-first(abstain-SFT)는 표면 없음·gap은 *결정론 scaffold(autofetch-σ+gate+B2) + 작동하는 모델-select*로 닫힐 형상.
-- **★단 확정 아님(lever-type≠해결·§6 caveat)**: probe는 *단일턴 SELECT 격리*만 입증 — **"autofetch-scaffold + select가 *풀 멀티턴 task*를 pass로 전환하나"는 미입증**(over-action·stop·multi-step orchestration 잔존). **이것이 다음 실런(autofetch arm on gap·FLOW_DISCIPLINE류)의 몫.** [[06]] eligibility-steer=0 전례 경계.
-- **make-or-break 재정의 확정**: "abstain 학습"→**"결정론 autofetch-σ scaffold(FETCH offload) + 작동 select"**, 잔여 학습은 thin(formalize-criterion·orchestration). thesis §2 boundary-translator의 *SELECT는 됨, FETCH/orchestration이 관건* 으로 정밀화.
+- **★Probe-B 판정**: raw·중첩추출·**⋈까지 7/7** → 리뷰어 가설("raw면 formalize 드러나 실패")은 **반증**. **disambiguation·formalize-from-raw·extract·⋈ = 32B에 *존재*(capability-bound 아님)** — v1보다 *엄밀히*.
+- **★단 교훈은 남음(정직)**: Probe-B도 **단일턴·focused 격리**(풀-플로우 orchestration 부하 제거). 원궤적 ⓑ(71: 데이터 있었는데 틀림)와 차이 = *멀티스텝 부하 속 그 순간 disambiguation에 집중* 실패. ⇒ **스킬은 있음·orchestration-under-load가 실패원.** = autofetch-σ-present(결정점서 focused 후보제시)가 *그 부하를 덜어주면* 작동 스킬이 carry. **여전히 풀-플로우 전환은 미입증(=arm).**
+
+## 5.5 ★S2 multi-label 재집계 (리뷰 반영·"결정론 지배" 정정)
+카탈로그 §1이 일부 lever를 오배정 → 재집계:
+- **task 8**: primary = **σ-filter-miss(formalize·availability=False 무시)** 이지 B2 아님(prefer-X는 secondary). → **formalize.**
+- **29·102**: **⋈(cross-entity join)=primary** → ⋈-formalize(단일σ/B2 아님).
+- **72**: gold 양 op 다 #W5270061(DC)·traj 2×items on #W7032009(wrong) → **ⓑ mis-ground**(L0는 정렬 artifact·확인됨).
+- **재집계(정성·n=15)**: **formalize-ⓑ ≈ 8~9**(71·72·74·101·102·8·17·29·102 ⋈/verbatim/mis-ground) = *단독 최대* · 순수 결정론(34·38·36·37·62)= 5 · **abstain=0** · MISS=2. ⇒ **"결정론 지배" 아니라 "formalize 지배 + 결정론 공동 + abstain=0".**
+
+## 6. ★종합 판정 (정정·Probe-B 후)
+- **escape(ⓐ-ask)=0** (확고) · **formalize-ⓑ = 단독 최대 클래스**(결정론 공동·지배 아님·§5.5) · **formalize 스킬은 capability-bound 아님**(Probe-B 7/7 incl ⋈) · 실패원 = **orchestration-under-load**.
+- ⇒ 그림 = thesis §2 정합 강화: **LLM의 formalize/select는 *있고 작동*(translator 본령)·scaffold가 FETCH+orchestration 부하를 덜면 carry.** "결정론이 다 닫고 LLM 미미"가 아니라 **"LLM 스킬 present·orchestration 부하가 그걸 무너뜨림 → scaffold가 부하 offload"**.
+- **★트리거 = 아직 점화 보류(정정)**: v1 근거(spoonfeed)는 무효였고, Probe-B는 *스킬 존재*만 입증·**풀-플로우 전환(autofetch-σ-present가 부하 덜어 pass로?)은 미측정.** [[06]] eligibility-steer=0 전례 = 경계. **arm이 점화/기각.**
+- **make-or-break(정정)**: "abstain 학습"(표면0) → **"autofetch-σ-present scaffold(orchestration 부하 offload) + 작동 formalize/select"**. 잔여 학습 = orchestration robustness(or thin). formalize 지배라 *모델 역할이 "결정론 지배"가 시사한 것보다 큼*.
 
 ## 7. 다음
-- **(결정)** autofetch-σ scaffold arm = gap 5개(+retail 전체)에 *결정점 σ 후보제시*하고 풀 e2e pass 전환 측정(=lever-type→해결 검증). [[05]] 가드: σ/autofetch=도메인-일반(A2 producer-map)·retail 하드코딩 0.
-- S2 대면검증(σ 판단·⋈ 서브클래스·taxonomy 구멍 A-D) → S4(retail 전체 실패 비율·harness).
+- **(결정·task #4)** autofetch-σ arm(`AUTOFETCH_SIGMA_ARM_DESIGN_2026_06_25`) = 결정점 σ 후보제시 → gap 풀 e2e pass 전환(=lever-type→해결·orchestration 부하 덜면 작동 스킬 carry?). [[05]] 도메인-일반.
+- S2 잔여: ⋈ 서브클래스(A) 정식화·taxonomy 구멍 B-D·정렬 모호. S4(retail 전체 비율).
