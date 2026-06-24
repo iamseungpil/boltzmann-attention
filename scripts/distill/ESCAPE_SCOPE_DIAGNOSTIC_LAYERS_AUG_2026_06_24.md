@@ -49,14 +49,18 @@ write tool call = (operator, order_id, item_ids, new_item_ids, options/payment).
 
 | 층/라벨 | 레버 | 종류 |
 |---|---|---|
-| **ⓐ-ask** | ASK(빈관계 escape) | **학습**(abstain 커리큘럼) |
+| **ⓐ-ask** | ASK(빈관계 escape) | **학습**(abstain 커리큘럼) — *Stage-1 표면=0* |
 | **L0 operator** (modify↔exchange) | eligibility/status gate(pending→modify·delivered→exchange) | **결정론**(G-gate·[[06]]) |
-| **OVER** (여분 write) | stop-when-satisfied / commit-once gate | **결정론**(G-gate) |
-| **ⓐ-resolve ordinal** (prefer grey/cheapest) | argmax/rank | **결정론**(B2 offload·[[10]]) |
-| **ⓐ-resolve semantic** ("eco-friendly") | 의미매칭 | **학습**(B1) |
-| **ⓑ** (σ=1·model 틀림) | faithful-formalize | **학습** *또는* **capability-bound**(escalate) |
+| **L0 branch** (조건부 "if X then…else") | 정책/계산 분기(partial-cancel 불가→addr·cheapest-sum>thresh→cancel) | **결정론**(eligibility/arith·hole-D) |
+| **OVER** (여분 write·gold=0 write 포함) | stop-when-satisfied / commit-once gate | **결정론**(G-gate) |
+| **ⓐ-resolve ordinal** (prefer grey/cheapest/most-expensive) | argmax/rank | **결정론**(B2 offload·[[10]]) |
+| **ⓐ-resolve semantic** ("eco-friendly") | 의미매칭 | **학습**(B1) — *Stage-1 표면≈0(tiebreaker 전부 ordinal)* |
+| **⋈-join** (hole-A·"다른 주문의 주소"·"pending 주문의 그 type") | cross-entity 관계조인(σ 아님·B2 아님) | **혼합**: scaffold ⋈ 가능(결정론) + 모델이 cross-ref *formalize*(학습)·**Probe-B서 present→7/7 작동** |
+| **ⓑ mis-ground** (σ=1·model 딴 entity) | faithful-formalize(present로 해소) | **학습**·*capability-bound 아님*(Probe-B raw 7/7) |
+| **ⓑ-op** (hole-C·verbatim "St"≠"Street"·availability 무시) | formalize-fidelity / copy-scaffold | **학습**(operand·B1 아님) |
 
-→ **학습 잔여 = ⓐ-ask + ⓑ-formalize-fixable + B1-semantic 뿐.** 나머지(L0·OVER·ⓐ-resolve-ordinal)=결정론 게이트/offload(이미 연구된 레버=[[06]] G1-G4).
+→ **S2 재집계(정정·`STAGE1_CATALOG` §5.5)**: formalize-ⓑ(mis-ground+⋈+op) ≈ 8~9/15 *단독 최대* · 순수 결정론(L0/OVER/B2-ord)= 5 · **ⓐ-ask=0·B1-semantic≈0** · MISS=2. ⇒ **"학습 잔여=formalize 지배(ask/semantic 아님)" + 결정론 공동.** ⓑ·⋈ 모두 *present(Probe-B)로 작동* → 잔여의 정확한 위치 = **"σ_criterion 결과를 결정점에 선택지로 *제시*"**(autofetch arm이 e2e 전환 검정).
+- **정렬 모호 해소**: 72=ⓑ mis-ground(gold 양 op 다 #W5270061·L0는 정렬 artifact·dump 확인) · 102=⋈(주소출처)+L1.
 
 ## 4. 분류 절차 (harness)
 1. gold write-actions vs 궤적 write-calls 정렬. **★L0/L1 divergence가 정렬키를 깬다(리뷰#4·순환)**: operator 틀리면 operator로·order 틀리면 order_id로 정렬 불가 → **폴백 = gold action-index 순서 우선, 동률이면 best-field-overlap**(어느 traj-call이 어느 gold-action 대응인지 측정대상에 비의존). 정렬 모호 케이스는 카탈로그에 플래그.
