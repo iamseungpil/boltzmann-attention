@@ -41,7 +41,24 @@
 - **(C) ⓑ-op 분리**: verbatim-copy(17)·availability-filter-miss(8) = mis-ground(entity 틀림)과 다른 *attr/operand* 오류. 별도 태그.
 - **(D) "branch 선택"(34·38·62)**: 조건부 의도("if X then... else...")의 *어느 가지*인지 = 계산/정책으로 결정(결정론)·단 의도 formalize 필요. = L0의 서브타입(eligibility/arith branch).
 
-## 5. 함의 + 다음
-- **make-or-break 재중심 확정 쪽**: 학습 타깃 = **faithful-formalize**(ⓑ mis-ground: NL 제약→σ filter 충실 인코딩)·abstain-ASK 아님(=0 표면). thesis §2 boundary-translator·§6.5 트리거와 정합.
-- **다음 = Arm-II select-probe(필수·결정적)**: 5개 ⓑ(71·72·74·101·102)에 32B에게 후보집합(유저 주문들)+질문("어느 게 DC?/5-item?/2-watch?") 떠먹여 → **맞히면 학습여지(formalize-from-scratch만 실패·GO)·틀리면 capability-bound(번역 자체 32B 한계·NO-GO escalate).** 로컬 32B(GPU)·throttle 없음.
-- 그 후 S2 대면검증(σ 판단·⋈ 처리·taxonomy 구멍 A-D) → S4(retail 전체 실패 비율·harness는 여기서).
+## 5. ★Arm-II select-probe 결과 (2026-06-25·`escape_arm2_probe.py`·32B-int8·3 trial)
+**5개 ⓑ 전부 후보집합+질문 떠먹이니 정답 = 15/15 (전 trial).**
+| task | gold | 32B picks (3 trial) | 판정 |
+|---|---|---|---|
+| 71 | #W5270061(DC) | 5270061×3 | **GROUNDED** |
+| 72 | #W5270061(DC) | 5270061×3 | **GROUNDED** |
+| 74 | #W3189752(5-item) | 3189752×3 | **GROUNDED** |
+| 101 | #W4219264(2-watch) | 4219264×3 | **GROUNDED** |
+| 102 | #W4219264(2-watch) | 4219264×3 | **GROUNDED** |
+
+- **★판정 = capability-bound 아님.** 후보+질문 주면 32B의 **SELECT(매칭)는 완벽**(DC·five-items·two-watches 전부). 원래 ⓑ 실패는 *select 능력*이 아니라 **멀티스텝 흐름 속 FETCH+formalize-orchestration**(모든 주문 모으기 + "DC가 disambiguator"임을 그 순간 집중)에 있었음. cf. 71 원궤적: get_user_details로 주문 *받았는데도* 틀린 주문 수정 = 데이터는 있고 그 순간 집중/formalize 실패.
+- **★[[10]]·FETCH_SELECT 재유도**: **FETCH(후보 조립)=실패점·SELECT(매칭)=작동.** FETCH=결정론 offload(유저 주문 σ retrieve)·SELECT=모델(작동). ⇒ ⓑ 닫는 길 = **scaffold가 결정점서 σ_{criterion} 계산·후보 제시(autofetch) → 모델 select(이미 작동)**. = [[06]]/§35 autofetch 패턴과 연결(이미 부분 구현).
+
+## 6. ★종합 판정 (Stage-1 + Arm-II)
+- **escape(ⓐ-ask)=0** + **ⓑ=GROUNDED(scaffold-addressable·capability-bound 아님)** + **결정론 본체(B2/eligibility/stop)** ⇒ **사전등록 트리거(§6.5) 점화 쪽 강하게 확증**: 학습-first(abstain-SFT)는 표면 없음·gap은 *결정론 scaffold(autofetch-σ+gate+B2) + 작동하는 모델-select*로 닫힐 형상.
+- **★단 확정 아님(lever-type≠해결·§6 caveat)**: probe는 *단일턴 SELECT 격리*만 입증 — **"autofetch-scaffold + select가 *풀 멀티턴 task*를 pass로 전환하나"는 미입증**(over-action·stop·multi-step orchestration 잔존). **이것이 다음 실런(autofetch arm on gap·FLOW_DISCIPLINE류)의 몫.** [[06]] eligibility-steer=0 전례 경계.
+- **make-or-break 재정의 확정**: "abstain 학습"→**"결정론 autofetch-σ scaffold(FETCH offload) + 작동 select"**, 잔여 학습은 thin(formalize-criterion·orchestration). thesis §2 boundary-translator의 *SELECT는 됨, FETCH/orchestration이 관건* 으로 정밀화.
+
+## 7. 다음
+- **(결정)** autofetch-σ scaffold arm = gap 5개(+retail 전체)에 *결정점 σ 후보제시*하고 풀 e2e pass 전환 측정(=lever-type→해결 검증). [[05]] 가드: σ/autofetch=도메인-일반(A2 producer-map)·retail 하드코딩 0.
+- S2 대면검증(σ 판단·⋈ 서브클래스·taxonomy 구멍 A-D) → S4(retail 전체 실패 비율·harness).
