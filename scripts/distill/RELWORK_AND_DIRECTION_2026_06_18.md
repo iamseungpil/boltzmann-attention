@@ -175,3 +175,44 @@
 - 결과 권위본: `ma/M_A_RESULTS.md`(§21 라우팅 전이·§23D operand 퇴행·§23E native 붕괴)·`reports/facet_rft_2026/{SOPBENCH,TASKBENCH}_EXPERIMENT_RESULTS.md`.
 - thesis·경계: `THESIS_STATEMENT_2026_06_16.md`·`DECOMPOSITION_OPTIMALITY.md`·마스터 `EXPERIMENT_DESIGN.md §1`(fact-offload OK·procedure-offload 금지 경계).
 - 딥리서치 원본: 세션 워크플로 `wf_30a790e2-566`(52 claim·journal.jsonl).
+
+---
+
+## 10. ★인지아키텍처(SOAR/ACT-R)×LLM 계보 (2026-06-24 추가·전부 primary 정독) — epistemic-A2 방향 전용
+
+> **맥락**: §1-9는 closure/전이 축의 rival을 다룸. 본 §10은 *다른 클러스터* = **인지아키텍처×LLM** 계보로, 새 방향 `EPISTEMIC_A2_THESIS_2026_06_23.md`(§3 SOAR impasse↔빈관계 매핑·scaffold=SOAR 결정코어 최소판)의 related work다. 6편 모두 2026-06-24 다중-fetch 정독(🟢). **결론 먼저**: 이 계보는 우리 SOAR 프레이밍을 *지지*하고(특히 Wray-Kirk-Laird·CoALA), 가장 가까운 이웃(NL2GenSym)조차 우리 세 델타(추론시 유한관계 *적용*·빈관계 abstention·A2-swap 전이)를 안 가짐. 단 NL2GenSym은 "소형+기호프레임워크>대형" 헤드라인을 또 선점하므로(ToolOrchestra와 같은 줄) 차별은 *방식*(abstain·전이·비용)에 둬야 함.
+
+| arxiv | 제목(약칭) | 저자·날짜 | 티어 | 우리와의 관계 |
+|---|---|---|---|---|
+| **2510.09355** | NL2GenSym (NL→SOAR rule via LLM) | Yuan·Zeng·Hu·Zhu·Yin·Xie, 2025-10 | 🟢 | ★**가장 가까운 이웃** — LLM이 NL→SOAR production *생성*·실행-grounded Generator-Critic·**소형+프레임워크>대형** |
+| **2505.07087** | Applying Cognitive Design Patterns to General LLM Agents | Wray·Kirk·**Laird**, 2025(AGI) | 🟢 | ★**우리 SOAR 프레이밍 권위 지지** — impasse/subgoaling·propose-select-reconsider를 정전 패턴으로·LLM 자기반성 불신뢰 명시 |
+| **2309.02427** | CoALA (Cognitive Architectures for Language Agents) | Sumers·Yao·Narasimhan·Griffiths, 2024(TMLR) | 🟢 | ★**우리가 속하는 우산 프레임워크** — LLM=확률적 production·memory/action/decision 3축·우리는 그 안의 한 인스턴스 |
+| **2408.09176** | Cognitive LLMs / LLM-ACTR | Wu·Oltramari·Francis·Giles·Ritter, 2024 | 🟢 | CA→LLM *반대* 방향(ACT-R 정책을 LoRA로 *가중치에 구움*)·전이/abstain 없음·제조 의사결정 |
+| **2403.00810** | Bootstrapping Cognitive Agents with a LLM | Zhu·Simmons, 2024(AAAI) | 🟢 | LLM이 SOAR-류 production *부트스트랩*→기호측 검증·**결정론-우선/LLM-폴백**·토큰 50-100×↓·GPT-4(대형) |
+| **2309.14945** | LLM in Cognitive Architecture (MERLIN2 로봇) | González-Santamarta 등, 2023 | 🟢 | (★예상과 다름=SOAR 아닌 ROS 로봇 MERLIN2)·GBNF 문법제약 디코딩으로 NL→PDDL·기호계획기 검증 |
+
+### 10.1 편별 내용 + 우리 델타
+
+1. **NL2GenSym (2510.09355)** — LLM(Generator)이 자연어 문제를 SOAR production 규칙으로 변환→**실제 SOAR에서 실행**(trace+decision-cycle이 결정론적 grounding)→Critic LLM이 실행결과 분석해 NL 개선제안→반복. RAG 자기진화 KB(SOAR 문법 13모듈 + 케이스풀). **Water Jug 100케이스: 성공률 86%(Gemini-Flash)~91%(Qwen)·decision-cycle 최적의 1.76~1.98배(기존 ~1/1000)·소형+프레임워크가 대형+one-shot 능가**(Flash 86% vs Pro 55%). 한계(저자): 단일 깨끗한 도메인·iterative 비용·"진짜 SOAR 이해는 미지수". 
+   - **우리 델타(3)**: ⓐ 그들=**오프라인 규칙 *합성*(program induction)**, 우리=**추론시 유한관계에 σ/⋈/agg *적용***(규칙 생성 아님). ⓑ 그들=abstention 없음(성공/500k타임아웃까지 iterate), 우리=**빈관계→ASK epistemic abstention**(핵심 escape). ⓒ 그들=도메인별 케이스풀 성장(전이 미검증·future work), 우리=**A2-swap 재학습0 전이**. ★단 "소형>대형" 헤드라인 겹침→[[41]] ToolOrchestra와 함께 *방식 차별*로 대응.
+
+2. **Wray·Kirk·Laird (2505.07087)** — SOAR 창시자 Laird 포함. 고전 인지아키텍처의 "인지 설계패턴"(observe-decide-act·제안-선택-재고 3단계 commitment·**impasse 기반 subgoaling**·knowledge compilation·memory 종류)을 정리, 현 LLM 에이전트(ReAct/Voyager/ToT…)에 매핑, **결함 예측**(LLM은 신뢰가능 commitment·비단조 제어 결여). *position 논문(실험無)*. ★중요: impasse는 본문서 *한 셀*(operator no-change=hierarchical decomposition 예시)로만 등장—**taxonomy·LLM매핑은 안 함** → 우리 impasse↔빈관계 매핑은 *중복 아닌 보완*.
+   - **우리에게**: (a) impasse/subgoaling이 일반지능 정전 패턴이라는 **권위 근거**(scaffold=최소 SOAR 결정코어 주장 정당화). (b) **"LLM 자기반성은 초기응답만큼 불신뢰·재귀무한"** 명시 → "왜 LLM 내성으로 모름판정 안 하나"에 대한 직접 방어(=우리 비내성·빈관계 외재화 지지). scoop 위험 없음(그들은 빈관계-abstain 미제안).
+
+3. **CoALA (2309.02427)** — LLM 에이전트를 인지아키텍처·production system 관점으로 재정식화한 **우산 프레임워크**. LLM=텍스트편집 *확률분포*=확률적 production. 3축: memory(working/episodic/semantic/procedural)·action(내부 reasoning/retrieval/learning·외부 grounding)·decision(제안-평가-선택 루프). 미래과제로 "코드 결정로직+LLM 추론 혼합" 권고.
+   - **우리에게**: 우리 설계가 **이 분류 안에 정확히 안착**(A2=semantic+procedural memory·scaffold=procedural+실행단계·"LLM생성/결정론실행·선택"=권고하는 혼합의 *구체 구현*). 단 CoALA가 *일반 축·미해결*로 남긴 것 — **관계대수로 명시한 결정론 substrate·빈관계 epistemic abstention·A2-swap 전이·TCO** — 이 우리 고유 기여. ⇒ "CoALA 인스턴스이자 그 whitespace를 메커니즘으로 구체화".
+
+4. **LLM-ACTR (2408.09176)** — ACT-R 인지모델(제조 의사결정)을 시뮬레이션해 그 결정·RL trace를 임베딩/라벨로 추출→**LlaMa-2 13B LoRA에 미세조정 주입**(CA→LLM·정책을 *가중치에 구움*). 결과: LLM-ACTR acc 0.66 > 무조정 LlaMa 0.36(chance 이하). 한계: 인간정렬 불완전·full-trace 융합 negative·**과제 간 일반화 불가**(저자 명시).
+   - **우리 델타**: 방향이 *반대* — 그들=추론시 기호계 *사라짐*(가중치 흡수)·도메인별 재미세조정·abstain無. 우리=기호엔진 추론시 *살아있음*·도메인학습0·A2-swap 전이·빈관계 abstain. ⇒ *인접 whitespace, 우리 칸 아님*.
+
+5. **Bootstrapping (2403.00810)** — GPT-4가 SOAR-syntax production을 *부트스트랩 생성*→기호 에이전트가 replay/critic/utility로 검증·정련. 런타임=**production 있으면 결정론 발화·없으면 LLM 폴백**(=우리 "scaffold 실행·열린 경우만 LLM"과 동형). AI2-THOR 주방: 순수 LLM과 동등 성공률·**추론 토큰 50-100×↓**(학습후 0토큰), 신규객체 전이.
+   - **우리 델타**: 그들=**대형(GPT-4)·가중치 학습0·production을 LLM이 ad-hoc 저작**(드리프트 가능 soft 권한). 우리=**소형 LLM의 도메인일반 스킬을 가중치 학습·scaffold는 고정(LLM이 엔진 안 씀)·스키마-일반 A2 고정+내용swap·빈관계→ASK 일급화**. ★"결정론-우선/LLM-폴백 + 비용절감"의 가장 가까운 선행 = **인용 정본**(단 우리 소형-학습-전이·abstain은 미선점).
+
+6. **MERLIN2 통합 (2309.14945)** — (예상과 달리 SOAR survey 아님) ROS 로봇 인지아키텍처에 LLM 통합·**GBNF 문법제약 디코딩**으로 NL→PDDL 구조출력·기호계획기가 검증·로컬추론. = "LLM=생성/기호=실행·검증" 분담의 로봇 사례. 문법제약 디코딩 = 우리 "LLM이 NL→술어 formalize"의 가장 가까운 선행 형태.
+   - **우리 델타**: 그들=배치마다 도메인 재작성(전이無)·LLM은 제약된 *추측*만(abstain無). 우리=A2-swap 전이·빈관계 abstain·문법(출력형식)이 아니라 scaffold(어느 관계연산이 언제)가 강제.
+
+### 10.2 종합 위치 (epistemic-A2 방향)
+- **공통 패턴(이 계보 전체)**: "LLM=생성/형식화, 결정론·기호계=실행·검증"의 분담 + 다수 사례서 "결정론-우선/LLM-폴백" + "소형/적은비용이 충분"([[41]] 정합). ⇒ 분담 *원리*·소형 결과는 **우리 발명 아님**(가족 것·인용).
+- **우리 고유(이 계보가 안 가진 것)**: ① **빈관계로 외재화된 epistemic abstention + 학습된 `empty→ASK`**(내성 우회·SOAR impasse의 LLM판·아무도 안 함) ② **스키마-일반 A2 고정 + 내용 swap 재학습0 전이**(LLM-ACTR/MERLIN2=전이無·Bootstrapping=도메인내 production성장) ③ **소형 LLM의 도메인일반 스킬을 *가중치 학습*하되 도메인은 안 굽음**(NL2GenSym/Bootstrapping=대형·LLM-ACTR=도메인 가중치주입) ④ TCO/비용 명시.
+- **권위 활용**: Wray-Kirk-Laird = impasse 패턴·반(反)내성 설계의 권위 인용. CoALA = 우산 위치설정. NL2GenSym = 가장 가까운 이웃이자 "소형>대형" 헤드라인 공동선점자 → 방식차별(abstain·전이·비용)로 응대.
+- ⚠️ [[05]]/[[03]] 드리프트 차단: SOAR/이 계보는 **framing·선행근거·실패 census 재라벨**로만 사용·결정사이클/chunking 엔진 *이식 금지*(우리 scaffold가 이미 최소판). 상세 = `EPISTEMIC_A2_THESIS §3` SOAR 블록 delta.
