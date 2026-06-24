@@ -81,6 +81,7 @@ write tool call = (operator, order_id, item_ids, new_item_ids, options/payment).
 - ⓐ-ask 작음 → **abstain-ASK 커리큘럼은 좁은 레버.** 진짜 본체 = **(i) 결정론 게이트(L0 eligibility·OVER stop·B2 ordinal=[[06]] G1-G4 영역) + (ii) faithful-formalize 학습(ⓑ) + (iii) B1-semantic 학습**. ([[10]] B2=결정론·B1=학습 정정 반영.)
 - NO-GO(b 강화): ⓑ·B1 케이스 select-probe서 **후보 줘도 32B 틀림** 압도 → capability-bound(escalate). 후보 주면 맞힘 → 학습여지(부분 GO).
 - **★전략 함의(리뷰#2·표류방지 못박기)**: **escape narrow ⇒ 학습 잔여 전체가 좁음(ⓐ-ask+ⓑ-fixable+B1) ⇒ 헤드라인은 epistemic-abstain이 *아니라* 결정론게이트(offload된 decidable)+TCO/전이([[06]] 북극성).** epistemic-abstain은 *잔여 보조 기여*. = thesis §4가 예고한 정밀화. 나중에 "escape가 헤드라인인 줄"로 표류 금지.
+- **★★레버-종류 분할 ≠ 해결 분할 (대칭 함정 차단·정적진단 범위)**: 이 진단은 정적이라 **"어느 레버 *종류*가 적용표면인가"만 측정**하지 **"그 레버가 task를 pass로 *전환*하나"는 측정 못 함.** 결정론 다리(L0/OVER)엔 불리한 전례: [[06]] **G5(eligibility-steer) 인과효과=0·G1-G4 닫아도 7B capability 벽**(eligibility 클래스=닫혀도 미전환 전례). L0를 "결정론 G-gate"로 분류하는 건 *deny/enforce면 전환되리란 가정*인데 **미입증**(G5는 steer였고 inert)·Arm-II는 L1-L3 전환만 봄(L0/OVER 비대상·§4.7). ⇒ **진단 산출 = *레버-종류* 분할이지 *해결* 분할 아님. L0/OVER 적용→pass 전환은 별도(FLOW_DISCIPLINE류 실런이 답할 몫·이 정적진단 밖).** abstain 과대평가를 막은 자리서 *결정론게이트 과대평가*도 똑같이 금지.
 - ★단 이것이 SOAR 반박은 아님 → §9.
 
 ## 6.5 ★사전등록 재설계 트리거 (선언 아니라 진단의 귀결·리뷰 수용·[[03]] 표류방지)
@@ -104,7 +105,7 @@ write tool call = (operator, order_id, item_ids, new_item_ids, options/payment).
 ## 9. ★SOAR 정합 재검토 — "결정론으로 기움"은 SOAR 반박 아님 (엄밀)
 이 진단의 결론이 결정론게이트로 기울 때 SOAR 선행과 *다른 결론*인가? **아니다 — SOAR 자신의 예측이고, 우리 delta를 날카롭게 한다.**
 - **(1) 크기**: SOAR도 *유능한* 행동의 대부분 = recognition(직접 발화)이고 **impasse는 지식 프런티어에만**·chunking이 프런티어를 뒤로 밈 → 숙련될수록 결정론 결정절차 지배·impasse(학습)는 잔여. ⇒ "결정론 우세·학습 잔여"는 SOAR와 **정합**.
-- **(2) 혼동의 정체**: SOAR에서 그 결정론 게이트(eligibility/precond/stop)는 **chunking이 학습으로 컴파일한 산물**(결정화된 학습·학습의 대안 아님). 우리는 decidable을 **손작성 도메인-일반 scaffold + A2-swap으로 offload**([[10]] decidable→offload·[[05]]). ⇒ **같은 종착점, 다른 획득경로**: SOAR=runtime chunk·도메인마다 재학습 / 우리=design-time author·relation-swap. **이게 delta(+TCO 효율)이지 반박 아님.**
+- **(2) 혼동의 정체**: SOAR에서 그 결정론 게이트(eligibility/precond/stop)는 **chunking이 학습으로 컴파일한 산물**(결정화된 학습·학습의 대안 아님). 우리는 decidable을 **손작성 도메인-일반 scaffold + A2-swap으로 offload**([[10]] decidable→offload·[[05]]). ⇒ **같은 종착점, 다른 획득경로**: SOAR=runtime chunk·도메인마다 재학습 / 우리=design-time author·relation-swap. **이게 delta(+TCO 효율)이지 반박 아님.** ★**단 조건부(정직)**: 이 획득경로 delta(재학습0·TCO 우위)는 **우리 A2-swap 전이가 실재할 때만 성립** — 전이는 아직 미입증(증명=도메인 내·cross-domain scaffold는 부분, [[06]]·[[11]]·RELWORK §4.5). 전이 깨지면 "SOAR chunking은 *자동* 학습+전이인데 손작성+A2가 왜 우위?"에 무방비 → **delta는 "A2-swap 전이 GO"를 선결로 단다.**
 - **(3) ⓐ-resolve vs ⓐ-ask = SOAR 결정절차 그 자체**: SOAR "선호 충분→impasse 아님"(=ⓐ-resolve) vs "선호 부족 tie→subgoal"(=ⓐ-ask·외부 subgoal=ASK). 우리 split이 SOAR 결정절차를 문자 그대로 인스턴스화.
 - **(4) 유일 divergence = 아키텍처 아닌 LLM-capability**: SOAR의 유일 낙관=프런티어가 *학습가능*(chunking 신뢰). 우리 잔여(formalize/B1)가 LLM에서 capability-bound(§6 NO-GO-b)면 그게 *다른* 결론 — 단 LLM 사실이지 아키텍처 아님. 게다가 SOAR도 **chunking 과일반화/mis-chunk**(=우리 ⓑ 동형) 알려진 실패모드 → SOAR조차 프런티어 학습 공짜라 안 함. **정면충돌 아님.**
 - **(5) [[06]]과 비중복**: [[06]] "learn inert"는 *왜*(decidable? G5 틀린타깃? capability?)를 구분 못 함. 층화 진단은 셋 분리→**진짜 학습 잔여(ⓐ-ask+ⓑ-fixable+B1) 격리** = abstain-SFT 조준 표면 제공.
