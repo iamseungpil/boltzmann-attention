@@ -7,12 +7,14 @@
 - **가설(H)**: 결정점서 scaffold가 **(a)후보 컬렉션 FETCH(결정론)+(b)discriminating-attr로 명시 제시(σ-present)** 하면 → 모델 SELECT(작동)로 ⓑ가 **pass 전환**. = FETCH=offload·SELECT=모델([[10]]/FETCH_SELECT).
 - **반가설(H0·정직)**: 후보 제시해도 풀-플로우서 전환 안 됨 → 실패가 candidate-presentation보다 깊음(orchestration/multi-step capability) → autofetch 가설 기각·escalate. ([[06]] eligibility-steer(G5)=0 전례 = 경계등.)
 
-## 1. 메커니즘 (write-time select-confirm gate·신규 kind)
+> **★Probe-B(raw·⋈)가 H를 *정밀화*(2026-06-25·다른세션 리뷰)**: 가설 "raw면 formalize-from-raw 실패 드러남"은 **반증**(7/7 GROUNDED·⋈ 포함). ⇒ select·formalize-from-raw(criterion 추출·count·⋈) **둘 다 작동(후보 제시되면)**. **유일 잔여 = σ_{criterion} 결과를 *결정점에 명시 선택지로 올리는* 단계.** 71 원실패 = get_user_details 데이터 *있었는데도* 무시 → **"fetch"가 아니라 "*제시*(explicit choice-set)"가 핵심.** mere-fetch는 또 무시될 수 있음(71). Probe-B가 통한 *이유*=그 제시. = arm 메커니즘의 본체는 (2) 제시이지 (1) fetch 아님.
+
+## 1. 메커니즘 (write-time select-confirm gate·신규 kind·★제시-중심)
 owned-entity write(modify/cancel/exchange on order/item/variant) 시도 시 scaffold 개입:
-1. **FETCH(결정론)**: 그 entity-type의 *전체* 후보 컬렉션 retrieve — order→user의 orders / item→order의 items / variant→product의 variants. (A2 producer-map·기존 autofetch [[06]]/§35 재사용.)
-2. **σ-present(신규)**: 후보를 *discriminating attr*와 함께 명시 리스트로 모델 문맥에 주입(order: id+status+ship-to+item수/이름 / variant: options+available). = Arm-II probe가 통했던 *그* 형태.
-3. **select-confirm**: 모델이 (자기 formalize한 criterion으로) 후보서 타깃 *재확인* 후 write 커밋. criterion formalize = 모델 몫(thin 잔여·translator).
-- ※ 원실패(71)는 get_user_details 데이터 *있었는데도* 틀림 → **단순 데이터 보유 ≠ select-ready 제시.** 핵심 = (b) *결정점서 명시 후보 리스트*.
+1. **FETCH(결정론·전제)**: entity-type 전체 후보 retrieve — order→user의 orders / item→order의 items / variant→product의 variants. (A2 producer-map·기존 autofetch [[06]]/§35.) *단 fetch 자체는 충분조건 아님(71).*
+2. **★σ-present = 핵심(신규)**: 후보를 *discriminating attr*와 함께 **명시 선택지 리스트로 결정점에 주입** = **Probe-B가 통한 *그* 형태**(order: id+status+ship-to+items / variant: options+available). 모델이 안 모아도 scaffold가 한자리에 올려줌.
+3. **select-confirm**: 모델이 자기 formalize한 criterion으로 후보서 타깃 *재확인* 후 write 커밋. criterion formalize·select = 모델 몫(Probe-B로 작동 입증·thin·translator).
+- ※ **잔여의 정확한 위치(Probe-B 확정)**: select❌·raw-formalize❌·fetch△ → **"σ_{criterion} 결과를 결정점에 선택지로 *제시*"** 단계. 그래서 (2)가 본체.
 
 ## 2. A2-구동 candidate-source (도메인-일반·[[05]] keystone)
 - candidate-source = A2 producer-map(entity-type→producer·field). retail: order→`get_user_details.orders`·item→`get_order_details.items`(anchor_source)·variant→`get_product_details.variants`(candidate_source·grounding.json 실물). **retail 하드코딩 0·grep if-domain=0.**

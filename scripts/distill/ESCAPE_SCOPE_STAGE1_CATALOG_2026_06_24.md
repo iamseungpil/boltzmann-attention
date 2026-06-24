@@ -67,6 +67,7 @@
 - ⇒ 그림 = thesis §2 정합 강화: **LLM의 formalize/select는 *있고 작동*(translator 본령)·scaffold가 FETCH+orchestration 부하를 덜면 carry.** "결정론이 다 닫고 LLM 미미"가 아니라 **"LLM 스킬 present·orchestration 부하가 그걸 무너뜨림 → scaffold가 부하 offload"**.
 - **★트리거 = 아직 점화 보류(정정)**: v1 근거(spoonfeed)는 무효였고, Probe-B는 *스킬 존재*만 입증·**풀-플로우 전환(autofetch-σ-present가 부하 덜어 pass로?)은 미측정.** [[06]] eligibility-steer=0 전례 = 경계. **arm이 점화/기각.**
 - **make-or-break(정정)**: "abstain 학습"(표면0) → **"autofetch-σ-present scaffold(orchestration 부하 offload) + 작동 formalize/select"**. 잔여 학습 = orchestration robustness(or thin). formalize 지배라 *모델 역할이 "결정론 지배"가 시사한 것보다 큼*.
+- **★Probe-B가 잔여를 *정밀화*(가설 반증=결과)**: select·raw-formalize·⋈ 다 작동 → **유일 잔여 = "σ_{criterion} 결과를 결정점에 *명시 선택지로 제시*"** 단계(71: 데이터 *있었는데* 무시 → "fetch" 아니라 "제시"). ⇒ arm 메커니즘 본체 = Probe-B 제시 형식 재현(`AUTOFETCH_SIGMA_ARM_DESIGN` §1 제시-중심). "raw면 formalize 실패"는 *반증됨*(7/7).
 
 ## 7. 다음
 - **(결정·task #4)** autofetch-σ arm(`AUTOFETCH_SIGMA_ARM_DESIGN_2026_06_25`) = 결정점 σ 후보제시 → gap 풀 e2e pass 전환(=lever-type→해결·orchestration 부하 덜면 작동 스킬 carry?). [[05]] 도메인-일반.
