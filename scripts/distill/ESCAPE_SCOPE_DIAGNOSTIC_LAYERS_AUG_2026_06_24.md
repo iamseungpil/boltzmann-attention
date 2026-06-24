@@ -30,40 +30,74 @@ write tool call = (operator, order_id, item_ids, new_item_ids, options/payment).
 - **|σ|=1** → 유일정답: 궤적이 그걸 골랐나 → 아니면 **ⓑ**(mis-resolve·침묵)
 - **L0/OVER** = impasse 아님 → **ⓑ-act**(escape 밖·operator-select/over-action)
 
-## 3. ★핵심 정밀화 — tie의 절반은 escape 아님 (B2-resolve)
-**rev2가 놓친 것**: |σ|>1(tie)이라도 **유저가 tiebreaker를 줬으면 escape-ASK가 *아니라* compute-resolvable(B2 argmax/rank)**.
-- 예 task 71: "backpack medium polyester, **if multiple colors prefer grey**" → color tie를 유저가 *미리 해소*. → σ_{size=medium∧material=polyester} = {grey, ...} 다중이라도 **B2-resolve(prefer grey)**지 ASK 아님.
-- ⇒ ⓐ-tie를 둘로 쪼갬: **ⓐ-ask**(tiebreaker 없음·진짜 모호→ASK) vs **ⓐ-B2**(tiebreaker 있음·내부 결정론 resolve·SOAR 내부 subgoal·[[10]] B2).
-- **escape(ASK)가 잡는 건 ⓐ-ask 뿐.** ⓐ-B2·ⓑ·L0·OVER = 전부 escape 밖(B2학습/operand/action). → **escape 너비는 rev2 추정보다 더 좁아질 전망**(정직·게이트에 직접 반영).
+## 3. ★핵심 정밀화 — tie의 절반은 escape 아님 (resolve)
+**rev2가 놓친 것**: |σ|>1(tie)이라도 **유저가 tiebreaker를 줬으면 escape-ASK가 *아니라* 내부 resolve**.
+- 예 task 71: "backpack medium polyester, **if multiple colors prefer grey**" → color tie를 유저가 *미리 해소*. → σ_{size=medium∧material=polyester} 다중이라도 **prefer grey로 resolve**지 ASK 아님.
+- ⇒ ⓐ-tie를 쪼갬: **ⓐ-ask**(tiebreaker 없음·진짜 모호→ASK) vs **ⓐ-resolve**(tiebreaker 있음·SOAR 선호충분→impasse 아님).
+- **★ⓐ-resolve를 또 갈라야 함([[10]] B1/B2 정정·리뷰#1)**: tiebreaker가 **ordinal(prefer grey·cheapest·max)** 이면 **B2=argmax/rank=결정론 offload**(학습 아님); **semantic("eco-friendly"·"a warm color")** 이면 **B1=의미매칭=학습**. → rev2의 "B2-resolve 학습"은 용어오류(B2=결정론). 학습은 B1뿐.
+- **escape(ASK)가 잡는 건 ⓐ-ask 뿐.**
+
+### 3.1 ★filter vs tiebreaker 조작 규칙 (헤드라인 좌우·리뷰#3·S2-(f) 게이트)
+ⓐ-ask/ⓐ-resolve를 가르는 게 escape 너비를 직접 결정 → 큐레이터-의존 뒤집힘 방지 위해 규칙 명문화:
+- **hard requirement**(size=medium·material=polyester·state=DC) → **filter**(σ에 넣음).
+- **선호/순서 표현**("prefer X"·"cheapest"·"max"·"if multiple…") → **tiebreaker**(σ에서 빼고 → ordinal=B2 / semantic=B1).
+- **모호 표현**("a nice one"·미지정) → **ⓐ-ask 후보**(tiebreaker 아님·진짜 모호).
+- 규칙 적용 후 S2-(f) spot-check. 규칙으로 안 갈리는 경계는 케이스별 *근거 명시*(카탈로그에 기록).
+
+## 3.5 ★층 → 레버 매핑 (리뷰#1·#2 핵심 — 진단의 본체)
+진단은 escape 너비만이 아니라 **gap을 {결정론-게이트 / 결정론-resolve / 학습 / capability}로 분할**한다. 각 층/라벨의 레버:
+
+| 층/라벨 | 레버 | 종류 |
+|---|---|---|
+| **ⓐ-ask** | ASK(빈관계 escape) | **학습**(abstain 커리큘럼) |
+| **L0 operator** (modify↔exchange) | eligibility/status gate(pending→modify·delivered→exchange) | **결정론**(G-gate·[[06]]) |
+| **OVER** (여분 write) | stop-when-satisfied / commit-once gate | **결정론**(G-gate) |
+| **ⓐ-resolve ordinal** (prefer grey/cheapest) | argmax/rank | **결정론**(B2 offload·[[10]]) |
+| **ⓐ-resolve semantic** ("eco-friendly") | 의미매칭 | **학습**(B1) |
+| **ⓑ** (σ=1·model 틀림) | faithful-formalize | **학습** *또는* **capability-bound**(escalate) |
+
+→ **학습 잔여 = ⓐ-ask + ⓑ-formalize-fixable + B1-semantic 뿐.** 나머지(L0·OVER·ⓐ-resolve-ordinal)=결정론 게이트/offload(이미 연구된 레버=[[06]] G1-G4).
 
 ## 4. 분류 절차 (harness)
-1. gold write-actions vs 궤적 write-calls 정렬(operator+order_id 매칭).
+1. gold write-actions vs 궤적 write-calls 정렬. **★L0/L1 divergence가 정렬키를 깬다(리뷰#4·순환)**: operator 틀리면 operator로·order 틀리면 order_id로 정렬 불가 → **폴백 = gold action-index 순서 우선, 동률이면 best-field-overlap**(어느 traj-call이 어느 gold-action 대응인지 측정대상에 비의존). 정렬 모호 케이스는 카탈로그에 플래그.
 2. **first-divergence 층** 판정(L0→L1→L2→L3→OVER 순).
 3. 그 층의 candidate collection 로드(L1=orders·L2=order items[anchor_source]·L3=variants[candidate_source]).
 4. 그 층 faithful 술어(큐레이션) → σ(결정점 state) → |σ|.
-5. tiebreaker 유무 판정(유저 발화) → ⓐ-ask vs ⓐ-B2.
-6. 궤적선택 대조 → 최종 라벨 + impasse 타입.
-7. (Arm-II) ⓐ·ⓑ 케이스 후보집합 떠먹여 32B select-probe → capability.
+5. tiebreaker 유무 판정(§3.1 규칙) → ⓐ-ask vs ⓐ-resolve(ordinal/semantic).
+6. 궤적선택 대조 → 최종 라벨 + impasse 타입 + §3.5 레버.
+7. (Arm-II·★스코프 리뷰#5) select-probe = **L1/L2/L3 entity 선택에만**(후보집합 떠먹이고 32B가 고르나). **L0=변형**("유효 operator 집합서 선택"=status로 결정되는 eligibility를 줄 수 있나) · **OVER=probe 대상 아님**(stop 판단=결정론·후보선택 형태 아님).
 
-## 5. 출력 (rev2 §5 확장)
+## 5. 출력 (rev2 §5 확장·★정성/비율 분리 리뷰#5)
 1. **층별 실패 분포**(L0/L1/L2/L3/OVER) — gap의 어디서 깨지나.
-2. 층별 **ⓐ-ask / ⓐ-B2 / ⓑ** split.
-3. **escape-catchable = Σ ⓐ-ask** (전 층)= 진짜 escape 너비(헤드라인).
-4. ⓑ·ⓐ-B2의 select-probe pass율(grounding-됨=학습여지 vs capability-bound).
+2. 층별 **ⓐ-ask / ⓐ-resolve(ord/sem) / ⓑ** split + §3.5 레버 집계(결정론 vs 학습 vs capability).
+3. **escape-catchable = Σ ⓐ-ask** = 진짜 escape 너비.
+4. ⓑ·ⓐ-resolve·L1-3 케이스 select-probe pass율(grounding-됨=학습여지 vs capability-bound).
 5. impasse×층×gap-class 교차표.
+- **★n=15는 비율 아님**: 15 task × 5층 × 라벨 ≈ 셀당 0-2 → Stage-1 분포·비율 통계 무의미. **Stage-1=정성 카탈로그(방향: escape narrow? 어느 층 지배? 결정론 vs 학습 어디로?)·케이스별 근거**, **비율은 S4(retail 전체 실패)**.
 
-## 6. GO/NO-GO 영향 (rev2 §6 정밀화)
-- **escape-catchable(ⓐ-ask) 비율이 헤드라인**. preview는 이게 *작을* 조짐(다수=gold-order-picked→하류 ⓑ / tiebreaker 있는 tie=ⓐ-B2).
-- ⓐ-ask 작음 + ⓑ·ⓐ-B2 큼 → **abstain-ASK 커리큘럼은 좁은 레버**. 진짜 본체 = **(i) faithful-formalize(ⓑ mis-resolve 닫기) + (ii) B2-resolve 학습(ⓐ-B2)**. = thesis §4 "대칭(결정가능→행동)" + [[10]] B2가 ASK보다 비중 큼.
-- NO-GO(b 강화): ⓑ·ⓐ-B2 케이스 select-probe서 **후보 줘도 32B 틀림** 압도 → capability-bound(escalate). 후보 주면 맞힘 → self-formalize/B2 학습여지(부분 GO).
-- **정직 재포지셔닝**: 이 진단이 "escape narrow + B2/formalize가 본체"를 확증하면 thesis §4 학습대상의 *무게중심*이 ASK→formalize+B2로 이동(escape는 잔여 보조). thesis 깨는 게 아니라 *정밀화*.
+## 6. GO/NO-GO 영향 (rev2 §6 정밀화·★방향+케이스, 비율 아님)
+- **헤드라인 = 비율이 아니라 *방향+케이스***(n=15): escape narrow한가? gap이 결정론게이트로 기우나 학습으로 기우나?
+- preview 조짐: 다수=gold-order-picked→하류 / tiebreaker 있는 tie=ⓐ-resolve / 틀린주문=σ=1 ⓑ → **ⓐ-ask(진짜 escape) 작고, 본체가 결정론(L0/OVER/B2)+formalize(ⓑ)로 기움.**
+- ⓐ-ask 작음 → **abstain-ASK 커리큘럼은 좁은 레버.** 진짜 본체 = **(i) 결정론 게이트(L0 eligibility·OVER stop·B2 ordinal=[[06]] G1-G4 영역) + (ii) faithful-formalize 학습(ⓑ) + (iii) B1-semantic 학습**. ([[10]] B2=결정론·B1=학습 정정 반영.)
+- NO-GO(b 강화): ⓑ·B1 케이스 select-probe서 **후보 줘도 32B 틀림** 압도 → capability-bound(escalate). 후보 주면 맞힘 → 학습여지(부분 GO).
+- **★전략 함의(리뷰#2·표류방지 못박기)**: **escape narrow ⇒ 학습 잔여 전체가 좁음(ⓐ-ask+ⓑ-fixable+B1) ⇒ 헤드라인은 epistemic-abstain이 *아니라* 결정론게이트(offload된 decidable)+TCO/전이([[06]] 북극성).** epistemic-abstain은 *잔여 보조 기여*. = thesis §4가 예고한 정밀화. 나중에 "escape가 헤드라인인 줄"로 표류 금지.
+- ★단 이것이 SOAR 반박은 아님 → §9.
 
 ## 7. 구현 (rev2 §8에 추가)
-- S1b: `escape_scope_diag.py`에 **layer_decompose(gold, traj)** + L2/L3 σ(grounding.json anchor/candidate_source 재사용·`t2_resolve_patch._ground` 참조) + tiebreaker 검출.
-- `escape_predicates.json`을 **층별 술어**로 확장(task별 L1/L2/L3 + tiebreaker 플래그).
-- S2 대면검증 항목 추가: (e) first-divergence 층 판정 정확 (f) tiebreaker 유무 판정 정확(ⓐ-ask/ⓐ-B2 갈림이 여기 달림).
-- S3 정성 카탈로그 = 15 task 층별 분류. S4 비율 = retail 전체 실패 층화.
+- S1b: `escape_scope_diag.py`에 **layer_decompose(gold, traj·§4 폴백정렬)** + L2/L3 σ(grounding.json anchor/candidate_source 재사용·`t2_resolve_patch._ground` 참조) + **§3.1 tiebreaker 규칙 검출**(ordinal/semantic 구분) + §3.5 레버 태깅 + select-probe(L1-3·L0 변형).
+- `escape_predicates.json`을 **층별 술어**로 확장(task별 L1/L2/L3 filter + tiebreaker{type:ordinal/semantic/none}).
+- S2 대면검증 항목: (e) first-divergence 층 판정 (f) **tiebreaker 유무+종류(ord/sem)** 판정 (= ⓐ-ask/resolve·B1/B2 갈림이 여기 달림).
+- S3 정성 카탈로그 = 15 task 층별·레버별 분류. S4 비율 = retail 전체 실패 층화.
 
 ## 8. 불변
-- 정적·tau2 학습0·A2 σ(grounding.json 재사용)·도메인분기0·gpt-4.1 불요([[05]][[11]]).
-- **S2 (a)~(f) 대면검증 전 무인 전수 금지.** tiebreaker 오판=ⓐ-ask/ⓐ-B2 뒤집힘=헤드라인 오도.
+- 정적·tau2 학습0·A2 σ(grounding.json 재사용)·도메인분기0·gpt-4.1 불요(select-probe=로컬 32B)([[05]][[11]]).
+- **S2 (a)~(f) 대면검증 전 무인 전수 금지.** tiebreaker/층 오판=헤드라인(escape 너비·결정론vs학습) 오도.
+
+## 9. ★SOAR 정합 재검토 — "결정론으로 기움"은 SOAR 반박 아님 (엄밀)
+이 진단의 결론이 결정론게이트로 기울 때 SOAR 선행과 *다른 결론*인가? **아니다 — SOAR 자신의 예측이고, 우리 delta를 날카롭게 한다.**
+- **(1) 크기**: SOAR도 *유능한* 행동의 대부분 = recognition(직접 발화)이고 **impasse는 지식 프런티어에만**·chunking이 프런티어를 뒤로 밈 → 숙련될수록 결정론 결정절차 지배·impasse(학습)는 잔여. ⇒ "결정론 우세·학습 잔여"는 SOAR와 **정합**.
+- **(2) 혼동의 정체**: SOAR에서 그 결정론 게이트(eligibility/precond/stop)는 **chunking이 학습으로 컴파일한 산물**(결정화된 학습·학습의 대안 아님). 우리는 decidable을 **손작성 도메인-일반 scaffold + A2-swap으로 offload**([[10]] decidable→offload·[[05]]). ⇒ **같은 종착점, 다른 획득경로**: SOAR=runtime chunk·도메인마다 재학습 / 우리=design-time author·relation-swap. **이게 delta(+TCO 효율)이지 반박 아님.**
+- **(3) ⓐ-resolve vs ⓐ-ask = SOAR 결정절차 그 자체**: SOAR "선호 충분→impasse 아님"(=ⓐ-resolve) vs "선호 부족 tie→subgoal"(=ⓐ-ask·외부 subgoal=ASK). 우리 split이 SOAR 결정절차를 문자 그대로 인스턴스화.
+- **(4) 유일 divergence = 아키텍처 아닌 LLM-capability**: SOAR의 유일 낙관=프런티어가 *학습가능*(chunking 신뢰). 우리 잔여(formalize/B1)가 LLM에서 capability-bound(§6 NO-GO-b)면 그게 *다른* 결론 — 단 LLM 사실이지 아키텍처 아님. 게다가 SOAR도 **chunking 과일반화/mis-chunk**(=우리 ⓑ 동형) 알려진 실패모드 → SOAR조차 프런티어 학습 공짜라 안 함. **정면충돌 아님.**
+- **(5) [[06]]과 비중복**: [[06]] "learn inert"는 *왜*(decidable? G5 틀린타깃? capability?)를 구분 못 함. 층화 진단은 셋 분리→**진짜 학습 잔여(ⓐ-ask+ⓑ-fixable+B1) 격리** = abstain-SFT 조준 표면 제공.
+- **한 줄**: 결정론으로 기움 = SOAR와 *결론* 차이 아니라 *획득경로* 차이(우리=offload·SOAR=chunk). thesis §3 SOAR 블록 delta-ⓐ/ⓑ와 정합·강화.
