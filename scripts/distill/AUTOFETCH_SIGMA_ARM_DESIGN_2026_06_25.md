@@ -1,6 +1,8 @@
 # Autofetch-σ Scaffold Arm — 설계 (2026-06-25): make-or-break 전환검증 (lever-type→해결)
 
 > **위치**: escape-scope 진단(`ESCAPE_SCOPE_STAGE1_CATALOG_2026_06_24` §6-7)의 *확정* 실런. Arm-II가 **단일턴 SELECT=15/15 GROUNDED**를 입증 → 이 arm은 **"FETCH offload + 작동 select가 *풀 멀티턴* task를 pass로 전환하나"**를 측정. = 사전등록 트리거(§6.5)를 데이터로 확정. [[05]]·[[06]]·[[10]]·[[11]] 준수.
+>
+> **★[[05]] 가드-기록 (scaffold_guard 3문·정직)**: (1)A2 도메인특화 순증? = candidate-source producer-map 1개 추가(get_user_details.orders)·단 candidate_source/anchor_source는 grounding.json에 부분 실물=*최소*. (2)유동판단 동결? = **No**·select(formalize+매칭)=모델 유지(Probe-B 작동)·scaffold는 제시만. (3)도메인 행동 수행? = **★Yes**·후보 조립·제시=**autofetch류 절차 offload**(read-only·write 아님). ⇒ **Q3=yes→기본 NO·*측정으로만* 정당화.** 그래서 이건 default scaffold 변경이 *아니라* **측정 arm**(flag-gated `select_confirm`·floor 대비·GO/NO-GO). arm=이 절차-offload가 pass 전환하나의 측정기. GO=정당화·NO-GO=기각(adopt 안 함).
 
 ## 0. 핵심 가설 (진단이 세움)
 - **진단 사실**: ⓑ mis-ground(71·72·74·101·102)는 capability-bound 아님 — 후보+criterion 떠먹이면 SELECT 완벽. 실패는 멀티스텝 속 **FETCH+orchestration**(후보 조립+criterion 집중)에.

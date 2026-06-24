@@ -10,13 +10,25 @@
       "kind": "auth",
       "predicate": "authenticated user identity",
       "satisfiers": {
-        "find_user_id_by_email": ["email"],
-        "find_user_id_by_name_zip": ["first_name", "last_name", "zip"]
+        "find_user_id_by_email": [
+          "email"
+        ],
+        "find_user_id_by_name_zip": [
+          "first_name",
+          "last_name",
+          "zip"
+        ]
       },
       "applies_to": [
-        "cancel_pending_order", "exchange_delivered_order_items", "get_order_details",
-        "get_user_details", "modify_pending_order_address", "modify_pending_order_items",
-        "modify_pending_order_payment", "modify_user_address", "return_delivered_order_items"
+        "cancel_pending_order",
+        "exchange_delivered_order_items",
+        "get_order_details",
+        "get_user_details",
+        "modify_pending_order_address",
+        "modify_pending_order_items",
+        "modify_pending_order_payment",
+        "modify_user_address",
+        "return_delivered_order_items"
       ],
       "note": "required even if the user already gave a user id or order id"
     },
@@ -27,8 +39,12 @@
       "satisfiers": {},
       "ask": "list the action details to the user and ask them to confirm",
       "applies_to": [
-        "cancel_pending_order", "exchange_delivered_order_items", "modify_pending_order_address",
-        "modify_pending_order_items", "modify_pending_order_payment", "modify_user_address",
+        "cancel_pending_order",
+        "exchange_delivered_order_items",
+        "modify_pending_order_address",
+        "modify_pending_order_items",
+        "modify_pending_order_payment",
+        "modify_user_address",
         "return_delivered_order_items"
       ]
     },
@@ -38,12 +54,22 @@
       "predicate": "target belongs to the authenticated user",
       "satisfiers": {},
       "owner_field": "user_id",
-      "resolver_path": ["order_id", "get_order_details", "user_id"],
+      "resolver_path": [
+        "order_id",
+        "get_order_details",
+        "user_id"
+      ],
       "terminal": "deny the request: you can only help the authenticated user in this conversation",
       "applies_to": [
-        "cancel_pending_order", "exchange_delivered_order_items", "get_order_details",
-        "get_user_details", "modify_pending_order_address", "modify_pending_order_items",
-        "modify_pending_order_payment", "modify_user_address", "return_delivered_order_items"
+        "cancel_pending_order",
+        "exchange_delivered_order_items",
+        "get_order_details",
+        "get_user_details",
+        "modify_pending_order_address",
+        "modify_pending_order_items",
+        "modify_pending_order_payment",
+        "modify_user_address",
+        "return_delivered_order_items"
       ]
     },
     {
@@ -53,21 +79,49 @@
       "satisfiers": {},
       "notice_text": "YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.",
       "ask": "send the user exactly this message first: \"YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.\" — then retry the transfer",
-      "applies_to": ["transfer_to_human_agents"]
+      "applies_to": [
+        "transfer_to_human_agents"
+      ]
     },
     {
       "id": "G5_STATUS_PRECONDITION",
       "kind": "preconditions",
       "predicate": "the target order is in a status that permits this action",
       "applies_to": [
-        "modify_pending_order_items", "cancel_pending_order",
-        "exchange_delivered_order_items", "return_delivered_order_items"
+        "modify_pending_order_items",
+        "cancel_pending_order",
+        "exchange_delivered_order_items",
+        "return_delivered_order_items"
       ],
       "checks": [
-        {"applies_to": ["modify_pending_order_items", "cancel_pending_order"],
-         "allow": ["pending"], "resolver_path": ["order_id", "get_order_details", "status"]},
-        {"applies_to": ["exchange_delivered_order_items", "return_delivered_order_items"],
-         "allow": ["delivered"], "resolver_path": ["order_id", "get_order_details", "status"]}
+        {
+          "applies_to": [
+            "modify_pending_order_items",
+            "cancel_pending_order"
+          ],
+          "allow": [
+            "pending"
+          ],
+          "resolver_path": [
+            "order_id",
+            "get_order_details",
+            "status"
+          ]
+        },
+        {
+          "applies_to": [
+            "exchange_delivered_order_items",
+            "return_delivered_order_items"
+          ],
+          "allow": [
+            "delivered"
+          ],
+          "resolver_path": [
+            "order_id",
+            "get_order_details",
+            "status"
+          ]
+        }
       ],
       "steer_by_status_class": {
         "delivered": "this order is delivered — use exchange_delivered_order_items or return_delivered_order_items instead",
@@ -76,10 +130,38 @@
         "_acted": "this order has already been acted on (its status reflects a prior modify/exchange/return/cancel) — do NOT retry; the requested change is already recorded"
       },
       "_note": "retail-특유 status-lifecycle precondition (verified: only these 4 tools status-gate; address/payment 도구는 status-무관→제외=false-block 회피). 도구 정확-매칭 != \"pending\"/\"delivered\"와 정렬. engine=도메인-일반(pick_steer)·이 specs=retail 정책사실(transfer는 airline 속성-precondition 별도)."
+    },
+    {
+      "id": "G6_SELECT_CONFIRM",
+      "kind": "select_confirm",
+      "applies_to": [
+        "modify_pending_order_address",
+        "modify_pending_order_items",
+        "modify_pending_order_payment",
+        "cancel_pending_order",
+        "return_delivered_order_items",
+        "exchange_delivered_order_items"
+      ],
+      "user_id_arg": "user_id",
+      "user_producer": "get_user_details",
+      "orders_field": "orders",
+      "detail_producer": "get_order_details",
+      "detail_id_arg": "order_id",
+      "present_fields": [
+        "status",
+        "address",
+        "items"
+      ],
+      "message": "DISAMBIGUATION CHECK — before committing this write, here are ALL of this customer's orders. Re-read the customer's request and verify the order_id you are about to use is the one they mean (disambiguate by shipping address, item contents/count, status). If it is wrong, call the write again with the correct order_id."
     }
   ],
   "producers": {
-    "authenticated_user_record": {"tool": "get_user_details", "args_from": {"user_id": "@auth_user"}}
+    "authenticated_user_record": {
+      "tool": "get_user_details",
+      "args_from": {
+        "user_id": "@auth_user"
+      }
+    }
   },
   "_note_minimize_a2": "identifying_arg_types·placeholders 제거 = 도메인-일반→scaffold DEFAULT_ARG_HINTS/DEFAULT_PLACEHOLDERS 폴백 (minimize-A2·2026-06-22). A2=도메인 사실(gates·producers·resolver_path)만."
 }

@@ -18,7 +18,7 @@ CONFIRM_RE = re.compile(
     r"please do|that works|do it)\b", re.I)
 
 # deny-message 우선순위 (원 RetailGate 의미 보존: notice→auth→ownership→confirm→preconditions).
-_KIND_PRIORITY = {"notice": 0, "auth": 1, "ownership": 2, "confirm": 3, "preconditions": 4}
+_KIND_PRIORITY = {"notice": 0, "auth": 1, "ownership": 2, "confirm": 3, "preconditions": 4, "select_confirm": 5}
 
 # 이미-행동(intermediate) status 토큰 — 정확-매칭 allow에 없어도 "use other tool"이 아니라
 # "already acted, do not retry"로 steer해야 하는 상태(예: "pending (item modified)", "return requested").
@@ -80,6 +80,7 @@ class GateState:
     def __init__(self):
         self.auth_user = None       # 인증 확립된 user id
         self.notice_sent = False    # notice 고정문구 송신 여부(=transfer_msg_sent)
+        self.presented_select = False  # select_confirm: 후보집합 1회 제시 여부(중복방지)
 
 
 class GateInterpreter:
@@ -126,6 +127,32 @@ class GateInterpreter:
         if path and fn and args.get(path[0]):
             return fn(path, args)
         return None
+
+    def _present_candidates(self, gate):
+        """select_confirm: owned-entity 전체 후보를 명시 선택지로 제시 (도메인-일반·Probe-B 형식).
+        >1 후보일 때만(disambiguation 필요·1개=false-friction 회피). A2:
+        user_producer/orders_field=인증user의 후보 id 목록 · detail_producer/present_fields=각 후보 표시."""
+        rf = self.resolvers.get("resolve_field")
+        fr = self.resolvers.get("fetch_record")
+        if not rf or not fr:
+            return None
+        ua = gate.get("user_id_arg", "user_id")
+        ids = rf([ua, gate.get("user_producer"), gate.get("orders_field")], {ua: self.state.auth_user})
+        if not ids or not isinstance(ids, (list, tuple)) or len(ids) <= 1:
+            return None
+        id_arg = gate.get("detail_id_arg", "order_id")
+        fields = gate.get("present_fields") or []
+        lines = []
+        for cid in ids:
+            rec = fr(gate.get("detail_producer"), id_arg, cid)
+            if not isinstance(rec, dict):
+                continue
+            shown = {f: rec.get(f) for f in fields}
+            lines.append(f"- {cid}: {json.dumps(shown, default=str, ensure_ascii=False)}")
+        if not lines:
+            return None
+        head = gate.get("message", "DISAMBIGUATION CHECK — verify the target id matches the customer's request.")
+        return head + "\n" + "\n".join(lines)
 
     def check(self, tool_name, args, last_user_msg=None, transfer_msg_sent=None):
         """returns (allowed, gate_id|None, reason|None).
@@ -176,6 +203,15 @@ class GateInterpreter:
                             f"(required: {chk.get('allow')}). {steer} "
                             f"Do NOT retry {tool_name} on this order.").strip()
 
+            elif kind == "select_confirm":
+                # 절차-offload(측정 arm·[[05]] Q3=yes·flag-gated): 결정점서 owned-entity 후보집합을
+                # 1회 명시 제시(Probe-B 형식) → 모델이 *재확인/재선택*(select=모델 몫·동결 아님).
+                if self.state.auth_user is not None and not self.state.presented_select:
+                    msg = self._present_candidates(g)
+                    if msg:
+                        self.state.presented_select = True
+                        return False, g["id"], msg
+
         return True, None, None
 
 
@@ -206,7 +242,29 @@ def resolvers_from_env(env):
             return out.get(field)
         return getattr(out, field, None)
 
-    return {"resolve_owner": resolve_field, "resolve_field": resolve_field}
+    def fetch_record(producer, id_arg, id_val):
+        """select_confirm 후보 표시용: producer(id_arg=id_val) → 전체 record(dict). read-only."""
+        if tools is None or not id_val or not producer:
+            return None
+        fn = getattr(tools, producer, None)
+        if fn is None:
+            return None
+        try:
+            out = fn(**{id_arg: id_val})
+        except Exception:
+            return None
+        if isinstance(out, dict):
+            return out
+        for m in ("model_dump", "dict"):
+            f = getattr(out, m, None)
+            if callable(f):
+                try:
+                    return f()
+                except Exception:
+                    pass
+        return None
+
+    return {"resolve_owner": resolve_field, "resolve_field": resolve_field, "fetch_record": fetch_record}
 
 
 def auth_satisfier_tools(gates):
