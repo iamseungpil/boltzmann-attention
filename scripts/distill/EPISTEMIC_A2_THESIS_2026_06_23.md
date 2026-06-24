@@ -5,7 +5,7 @@
 ## 0. Root 진단 — 왜 frontier도 같은 병
 LLM 학습은 전부 **P(다음토큰|문맥) 형성**일 뿐, *그 분포의 신뢰도(메타)*를 학습하지 않는다. 그래서 **"모른다"를 토큰으로 만들기가 구조적으로 어렵다**(자기 출력분포 내성이 목적함수 밖). RLHF는 단정적·도움되는 답을 보상 → 환각 인센티브화. ⇒ **scale 문제 아님·모든 frontier 동일.**
 
-> **★선행 정합 (인용·확정)**: Kalai, Nachum, Vempala, Zhang, *"Why Language Models Hallucinate"*, OpenAI, 2025 (arXiv:2509.04664). **핵심 = hallucination은 평가/채점이 "추측(guessing)"을 "기권(abstain·IDK)"보다 보상하기 때문에 지속·불가피.** 시험 비유: 0/1 채점에서 틀려도 감점 없으면 빈칸(0점 확정)보다 찍기(기대값 양수)가 *수학적으로 최적* → 모델은 "좋은 시험꾼"=허세(bluff)를 학습. 처방 = "scoreboard를 바꿔라"(틀린 자신감 감점·보정된 IDK 부분점수) + **explicit confidence targets**. ⇒ 본 §0(불가피·scale무관·목적함수/인센티브 산물)을 *독립 논증으로 직접 지지*하고, §4 abstain 커리큘럼 ≈ 논문의 "explicit confidence targets".
+> **★선행 정합 (인용·확정)**: Kalai, Nachum, Vempala, Zhang, *"Why Language Models Hallucinate"*, OpenAI, 2025 (arXiv:2509.04664). **핵심 = hallucination은 평가/채점이 "추측(guessing)"을 "기권(abstain·IDK)"보다 보상하기 때문에 지속·불가피.** 시험 비유: 0/1 채점에서 틀려도 감점 없으면 빈칸(0점 확정)보다 찍기(기대값 양수)가 *수학적으로 최적* → 모델은 "좋은 시험꾼"=허세(bluff)를 학습. 처방 = "scoreboard를 바꿔라"(틀린 자신감 감점·보정된 IDK 부분점수) + **explicit confidence targets**. ⇒ 본 §0(불가피·scale무관·목적함수/인센티브 산물)을 *독립 논증으로 직접 지지*하고, §4 abstain 커리큘럼 ≈ 논문의 "explicit confidence targets". (cf. §3 SOAR impasse = *비내성·구조적* 결정불능 감지의 더 오래된 선행 — 내성 calibration을 아예 우회.)
 > - **단(정직·확정 vs 논쟁 구분)**: 논문의 처방은 "인센티브 고치면 모델이 기권을 *배울 수 있다*"는 쪽 = base 모델에 쓸 만한 calibration 신호가 *있고* post-training/RLHF가 그걸 망가뜨린다는 통설을 전제. 그렇다면 본 §0의 "**구조적으로 내성 불가**"는 다소 강한 표현 — "calibration 신호는 있으나 인센티브가 죽인다"가 더 정확할 수 있음. **§3 외부화는 그보다 한 걸음 더** = calibration 자체가 모델 내성에 의존하는 잔여를 scaffold-계산 빈관계로 우회(논문 미다룸·우리 추가 기여). (base-calibration 단서는 딥리서치 calibration 갈래서 재확인.)
 
 ## 1. 실패의 통일 (epistemic)
@@ -23,6 +23,11 @@ LLM 학습은 전부 **P(다음토큰|문맥) 형성**일 뿐, *그 분포의 �
 - **★escape 범위(정직·load-bearing)**: 이 우회는 **올바르게 formalize됐는데 빈/모호한** 실패만 잡는다. *오해결*(모델이 σ predicate를 틀리게 formalize→scaffold가 틀린 관계에 σ 계산→**비어있지 않은 틀린 1개** 반환→ask 트리거 안 됨)은 **침묵 잔여**로 escape 통과. ⇒ "모호(σ=0/>1)"와 "오해결(σ=1·틀림)"은 다르고, 관찰가능한 빈-관계로 표면화되는 건 *전자뿐*. **출구 = 명세-충실 formalize(섣불리 1개로 narrowing 금지·"조건 맞는 *모든* tuple")**면 진짜 모호가 cardinality로 표면화. 잔여 침묵 = 진짜 mis-formalize.
 - formalize의 "none"은 **scaffold가 각 유한 predicate를 입력에 대조해 "매치 없음"을 판정**할 때만 외부화된다(checkable). 모델이 "none"을 *emit*하면 = §0 내성 문제가 formalize 단계로 올라온 것일 뿐(외부화 *안* 됨) → **그 경우는 외부화 안 된 잔여로 표시**(escape 적용 불가).
 
+> **★선행 정합 (SOAR·인용·확정)**: Newell·Laird·Rosenbloom, *SOAR: An Architecture for General Intelligence* (1987); Laird, *The Soar Cognitive Architecture* (2012). **핵심 = SOAR는 결정불능을 *모델 내성*이 아니라 *아키텍처가 선호(preference)의 부재로 관찰*해 1급 사건 `impasse`로 표면화하고 자동 subgoal을 생성**(universal subgoaling). 즉 본 §3 "모름을 관찰가능한 빈-관계로 외부화"는 SOAR impasse 메커니즘의 재발견 — *구조적·비내성 결정불능 감지*를 40년 전 형식화한 선행. §0(내성 IDK 불가)을 *독립 선행으로 지지*하고, Kalai et al.의 "학습된 calibration" 노선과 대비해 **impasse=아키텍처 산물(구조적 기권)** 각도를 보탬.
+>   - **동형 매핑**: tie impasse(후보 여럿·선호 부족)=σ>1 모호→ASK · no-change impasse(적용 operator 없음)=σ=0 빈→ASK · constraint-failure=precondition 위반(G-gate) · operator propose→select→apply = 모델 formalize→check→select · productions(균일 if-then)=A2 유한관계 · 결정사이클(결정론)+impasse 감지=scaffold(σ+gate). ⇒ 우리 scaffold = **SOAR 결정론 코어의 최소판**(σ+gate). [[10]] 선택기·검증기=결정론과 정합.
+>   - **★우리가 소유하는 delta (= 인용해도 안 잡아먹히는 이유·load-bearing)**: ⓐ **SOAR는 production이 *옳다*고 전제**(손으로 짠 심볼 규칙)이라 본 §3 ⓑ "비어있지않은-틀림(mis-formalize)" 침묵 잔여가 *없음* — 우리 난제는 **LLM의 formalize(NL→관계)가 틀릴 수 있음**이고 그게 §6 make-or-break 첫 측정(ⓐ/ⓑ split). ⓑ **impasse 해소 방향 분담**: SOAR는 *내부* subgoal(하위공간 탐색)로 품; 우리는 "0개→모름"=*외부* ASK(정보부재라 내부탐색으로 못 만듦)·operand/ranking(B2)=*내부* 결정론 resolve(=SOAR subgoal 방향). ⇒ SOAR가 우리 A/B 분담에 impasse taxonomy를 줌(계산으로 푸는 impasse vs 물어야 하는 impasse). ⓒ **chunking ≠ 우리 SFT**(온라인 심볼 컴파일  vs 오프라인 gradient): 비유 느슨함; 단 chunking 과일반화 문헌 = 우리 ⓑ 잔여(틀린 impasse 해소를 규칙으로 굳힘)의 경고등.
+>   - **★스코프 한계([[05]]·[[03]] 드리프트 차단)**: SOAR는 **framing/선행근거 + 실패 census 정밀화(gap을 impasse 타입으로 재라벨)**로만 사용 — 결정사이클·chunking 엔진 *이식 금지*(우리 scaffold가 이미 최소판). 리뷰어 "LLM 붙인 SOAR impasse 아님?" 선제 차단 = 위 delta(LLM formalize 불확실성 + 학습된 ASK + 배포비용 각도).
+
 ## 4. 학습 대상 확정 — 무엇을 배우나 (내용 아님)
 **도메인-일반 스킬 = "관계규칙 따라 formalize → check+select → 빈/모호면 ASK"** + **abstain 커리큘럼**(학습데이터에 빈/모호→ASK 케이스 *명시 포함*=‘5번째 보기 존재’를 예시로 가르침). 
 - **★대칭 필수(over-ask 방지)**: "빈/모호→ASK"만 가르치면 모델은 *항상 묻기*를 학습(false-ASK=결정가능한데 물음=tau2 pass 붕괴·과거 false-block의 쌍대). 커리큘럼에 **"결정가능(σ=1)→행동, 묻지 마" 케이스를 균형있게** 포함. learning-to-defer(`w0r8slp20`)의 threshold 트레이드오프 = 이 균형의 방법.
@@ -37,7 +42,7 @@ LLM 학습은 전부 **P(다음토큰|문맥) 형성**일 뿐, *그 분포의 �
 
 ## 6. ★중심 실험 (make-or-break)
 **A2-규칙-사용 학습**: 벤치(SOP/TB/CFB/Synth)서 "유한 관계규칙 제시→formalize/check/select·빈→ASK" 궤적 SFT(도메인-일반·내용X·abstain 케이스 포함·**결정가능→행동 대칭케이스 포함**) → {base vs A2-trained} × scaffold(A2 집행) on tau2(**A2-swap·재학습0**). 검정: ①G5서 0이던 게 학습 후 *pass 전환* ②새 도메인 A2-swap 전이 ③모름-커리큘럼이 over-action↓·loop↓·wrong-order→ask↑ **④over-ask/false-defer rate(결정가능한데 물음)=대칭 비용**.
-- **★선행 진단(기존 데이터·GPU0·escape 범위 측정)**: gap task를 formalize→σ로 돌려 5개 실패가 **ⓐ빈/모호 관계(escape가 잡음) vs ⓑ비어있지않은-틀림(오해결·escape 통과)**로 분류. 대부분 ⓑ면 escape는 좁음 → 명세-충실 formalize(§3) 비중이 결정적. = make-or-break의 *첫* 측정.
+- **★선행 진단(기존 데이터·GPU0·escape 범위 측정)**: gap task를 formalize→σ로 돌려 5개 실패가 **ⓐ빈/모호 관계(escape가 잡음) vs ⓑ비어있지않은-틀림(오해결·escape 통과)**로 분류. 대부분 ⓑ면 escape는 좁음 → 명세-충실 formalize(§3) 비중이 결정적. = make-or-break의 *첫* 측정. **(이 ⓐ/ⓑ split = SOAR가 *안 풀어도 됐던* 영역: SOAR는 production이 옳다고 전제했기에 mis-formalize=ⓑ가 없음 → 우리 고유 기여 지점. §3 SOAR 블록 delta-ⓐ.)** 실패를 impasse 타입(tie/no-change/constraint)으로 재라벨하면 분류가 더 원칙적.
 - 정직 NO-GO: (a) 5개가 유한관계로 깔끔 표현 안 되거나 (b) "관계-사용/formalize"가 그 크기서 capability-bound(특히 mis-formalize=ⓑ가 학습으로 안 줄거나)면 → 그게 진짜 경계(escalate/scale).
 - 측정 주의: user-sim 편차~0.11 → gap=fail-all-3 같은 robust 신호 + 결정론 신호(위반카운트·궤적 census) + 다수trial. pass^1 점추정 단독 무효.
 
