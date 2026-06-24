@@ -83,6 +83,14 @@ write tool call = (operator, order_id, item_ids, new_item_ids, options/payment).
 - **★전략 함의(리뷰#2·표류방지 못박기)**: **escape narrow ⇒ 학습 잔여 전체가 좁음(ⓐ-ask+ⓑ-fixable+B1) ⇒ 헤드라인은 epistemic-abstain이 *아니라* 결정론게이트(offload된 decidable)+TCO/전이([[06]] 북극성).** epistemic-abstain은 *잔여 보조 기여*. = thesis §4가 예고한 정밀화. 나중에 "escape가 헤드라인인 줄"로 표류 금지.
 - ★단 이것이 SOAR 반박은 아님 → §9.
 
+## 6.5 ★사전등록 재설계 트리거 (선언 아니라 진단의 귀결·리뷰 수용·[[03]] 표류방지)
+결정론 수렴은 현재 *3중 신호*(경험 [[06]] G1-G4=레버·G5/SFT inert · 진단예측 L0/OVER/B2=결정론 · 선행 SOAR/CoALA control=결정론). **단 3 모두 *예측/선행*이지 *이 진단 데이터* 아님** → 지금 갈아엎으면 [[03]] 표류. 그래서 *사전등록*:
+- **트리거 충족** = 진단이 (i)escape-narrow(ⓐ-ask 작음) **AND** (ii)결정론-층(L0/OVER/B2-ordinal) 지배 **AND** (iii)Arm-II서 ⓑ가 후보 줘도 안 닫힘(번역 capability-bound) 중 *방향이 확증*되면:
+  → **중심실험 재설계**: learn-first(abstain-SFT) → **"SOAR-최소 결정론 impasse-엔진 + LLM=boundary translator(§2) + 측정된 learn 잔여(faithful-formalize·B1)"**. escape=external-ask 슬라이스로 *종속*(폐기 아님).
+- **반대 결과** = Arm-II서 ⓑ가 *후보 주면 닫힘*(=free-formalize만 실패·번역 학습가능) → **learn 잔여가 본체로 생존**·재설계 보류·learn-first 유지.
+- **★[[05]] 가드(결정론 재설계의 최대 함정)**: 재설계가 "failure-type마다 retail 게이트 더 박기"=도메인특화 scaffold 순증=반복위반. **척추는 SOAR-최소 *일반* 엔진(kind/decision-cycle)+A2(어느 status·tiebreaker)** 여야지 게이트 증식 아님.
+- **공정성 가드(rig 방지)**: "결정론으로 기움"이 결정론 결론으로 쉽게 가려는 편향 안 되게 — **Arm-II select-probe가 adjudicator**(ⓑ=capability-bound→결정론/escalate vs 학습여지→learn). 반드시 유지.
+
 ## 7. 구현 (rev2 §8에 추가)
 - S1b: `escape_scope_diag.py`에 **layer_decompose(gold, traj·§4 폴백정렬)** + L2/L3 σ(grounding.json anchor/candidate_source 재사용·`t2_resolve_patch._ground` 참조) + **§3.1 tiebreaker 규칙 검출**(ordinal/semantic 구분) + §3.5 레버 태깅 + select-probe(L1-3·L0 변형).
 - `escape_predicates.json`을 **층별 술어**로 확장(task별 L1/L2/L3 filter + tiebreaker{type:ordinal/semantic/none}).

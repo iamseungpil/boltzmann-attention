@@ -19,6 +19,7 @@ LLM 학습은 전부 **P(다음토큰|문맥) 형성**일 뿐, *그 분포의 �
 - **A2 = 효과적으로 유한한 *관계/규칙*.** *관계 스키마(predicate·rule 형태)=도메인-일반*(retail/airline/banking 동일)·*내용(tuple·값)=도메인별 swap*. = DB 스키마(고정 관계)+도메인 row. 유한성=[[02]] 생성원 closure. (현 `grounding.json` π/⋈/σ·`gate.json` 관계형이 부분 실물.)
 - **scaffold(고정)** = 관계 연산 *집행*(σ/⋈/agg·빈결과 판정 = decidable).
 - **모델(학습·TBox)** = (1)NL→관계 predicate *formalize* (2)규칙따라 내용 *확인·선택* (3)**빈/모호 결과면 ASK**. 도메인-일반·A2-swap 전이.
+- **★모델의 환원불가 본질 = 개방↔폐쇄 *boundary translator*** (결정론 3중수렴 후 "그럼 LLM은 왜?"의 답·`ESCAPE_SCOPE..LAYERS_AUG` §9·delta-ⓓ): 결정론 scaffold는 *전부 폐쇄(형식)세계*에 살아 σ/gate/B2/stop/impasse-detect를 *형식화된 입력 위에서만* 집행 — **개방 NL에서 술어를 *만드는*(formalize) 문이 없다**(LLM 이전 NLU 실패점). LLM만이 그 문: **(a)intent→operator/predicate (b)semantic ground(B1·"eco-friendly"→속성·유한관계 밖·세계지식) (c)비정형/멀티턴 이해 (d)NL 생성.** ⇒ **control=결정론, *번역*=LLM(controller 아님·translator).** ★단 정직: 우리 실패 ⓑ(mis-formalize)는 *유일하게 LLM만 할 일(번역)을 불안정하게 함*([[42]] 연상엔 강·규칙엔 약). ⇒ **learn 타깃 = abstain(좁음) 아니라 *faithful formalize*(번역 충실도)**. CoALA(LLM=모듈·control=절차)·SOAR(LLM=open-NL proposal)·[[10]] 정합. 범위정직: 폐쇄-정책 tool-use서 control 결정론-환원·*개방 planning*선 LLM↑.
 
 ## 3. ★핵심 escape — "모름"을 내성이 아니라 *관찰가능한 빈-관계*로
 목적함수가 내성형 IDK를 못 만드니, **모름을 외부화**한다:
