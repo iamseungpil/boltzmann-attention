@@ -64,28 +64,33 @@ def write_calls(sim):
     return out
 
 def resolve_user_orders(db, task, sim):
-    """user_id 해석 → 그 user의 orders(enriched)를 candidate collection으로."""
+    """user_id 해석 → 그 user의 orders(enriched)를 candidate collection으로.
+    ★궤적이 *실제로 해석한* user_id를 쓴다(중복이름 버그 차단·find_user 결과/get_user_details arg)."""
     users, orders = db["users"], db["orders"]
     uid = None
-    # 1) 궤적의 find_user 결과 args에서 이름/zip → user 매칭
-    name = zipc = None
+    # 1) get_user_details 호출 arg = 모델이 확정한 user_id (가장 신뢰)
     for m in sim.get("messages", []):
         for tc in (m.get("tool_calls") or []):
-            if tc.get("name", "").startswith("find_user_id"):
-                a = tc.get("arguments") or {}
-                name = (a.get("first_name"), a.get("last_name")); zipc = a.get("zip")
-    if name and name[0]:
-        for k, v in users.items():
-            nm = v.get("name", {})
-            if nm.get("first_name") == name[0] and nm.get("last_name") == name[1]:
-                uid = k; break
-    if uid is None:  # fallback: known_info 파싱
+            if tc.get("name") == "get_user_details":
+                u = (tc.get("arguments") or {}).get("user_id")
+                if u in users: uid = u
+    # 2) find_user 결과(tool role content = bare user_id) fallback
+    if uid is None:
+        for m in sim.get("messages", []):
+            if m.get("role") == "tool":
+                c = str(m.get("content", "")).strip().strip('"')
+                if c in users: uid = c
+    # 3) 최후: known_info 이름+zip (zip로 중복이름 disambiguate)
+    if uid is None:
         ki = task["user_scenario"]["instructions"].get("known_info", "")
         m = re.search(r"name is (\w+)\s+(\w+)", ki or "")
+        z = re.search(r"zip code is (\d+)", ki or "")
         if m:
             for k, v in users.items():
                 nm = v.get("name", {})
                 if nm.get("first_name") == m.group(1) and nm.get("last_name") == m.group(2):
+                    if z and str(v.get("address", {}).get("zip")) != z.group(1):
+                        continue
                     uid = k; break
     cands = []
     if uid:
