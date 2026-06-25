@@ -2,6 +2,19 @@
 
 > 근거 = `NESTED_ARM_FAILURE_CENSUS_2026_06_25.md` §2A: 지배 실패 = operation-semantic 정책위반(bizrule ~132). 전부 (proposed args + DB state)로 *decidable* → 결정론 게이트가 *사후 env 거부+모델 루프*를 *사전 steer*로 전환. [[05]] 준수(엔진=일반 연산·A2=retail 규칙)·[[03]] 설계먼저·flag-gated 측정 arm.
 
+## ★측정-전 deprioritize (2026-06-25 정적 gold-read 회계·결정 (b)) — [[03]]/[[06]] 실증
+GPU 측정 *전* 정적 gold-read로 pass-lever 천장 확정 → **count-match·payment 빌드 보류·new≠old만 동승**(`ASSEMBLED_STACK_CENSUS_DESIGN` §5).
+
+| 규칙 | err | uniq task | LEVER(gold=유효행동) | hygiene | LEVER∧현재실패(진짜 flip후보) |
+|---|--:|--:|--:|--:|---|
+| count-match | 69 | 14 | 4 | **10** | t36/37/63+t56부분 ≈3-4·**단 operand로 더 깎임**(count만 강제·어느item 못강제) |
+| new≠old(disjoint) | 11 | 4 | 3 | 1 | t20/36/63 ≈3 (36·63 count-match와 중복) |
+| payment-original | 46 | 11 | 9 | 2 | t13/53/82/100 ≈4 (단 t11/14/51 *이미 pass*=에러후 복구) |
+
+- **"126 bizrule 에러" → pass-flip 천장 ≈8 고유 task**(union·114중 ~7pp·operand 장벽으로 더 깎임). present+g15(+12.3pp)보다 작은 레버.
+- count-match=**순수 hygiene**(refuse-gold 10·loop-death 0). payment=marginal~4(다수 이미 복구·[[05]] 파생필드 _orig_payment/_gift_cards 위험·policy.md 미확인). → **둘 다 빌드 보류·정적 천장만 기록.** new≠old(3·깨끗·false-block0)만 census arm 동승.
+- 이 정적 deprioritize 자체가 기여(측정 전 능력→레버 배정·GPU 절약).
+
 ## 0. 무엇을 게이트하나 (census → 스코프)
 | census 규칙 | n | decidable 출처 | 게이트화 | 비고 |
 |---|---|---|---|---|
