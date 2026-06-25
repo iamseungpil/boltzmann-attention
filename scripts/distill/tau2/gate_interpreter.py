@@ -267,6 +267,35 @@ def resolvers_from_env(env):
     return {"resolve_owner": resolve_field, "resolve_field": resolve_field, "fetch_record": fetch_record}
 
 
+def candidate_summary(resolvers, gate, uid):
+    """REPLAY-SAFE 후보 제시: owned-entity 후보를 *읽기-응답에 덧붙일* clean 요약으로 (deny 아님).
+    읽기 tool은 evaluation replay서 skip되므로 content 증강이 안전(write-deny=replay 깨짐과 대조).
+    >1 후보일 때만(disambiguation 필요). gate=select_confirm A2(producer-map). 도메인-일반."""
+    rf = resolvers.get("resolve_field"); fr = resolvers.get("fetch_record")
+    if not rf or not fr or not uid:
+        return None
+    ua = gate.get("user_id_arg", "user_id")
+    ids = rf([ua, gate.get("user_producer"), gate.get("orders_field")], {ua: uid})
+    if not ids or not isinstance(ids, (list, tuple)) or len(ids) <= 1:
+        return None
+    id_arg = gate.get("detail_id_arg", "order_id")
+    lines = []
+    for cid in ids:
+        rec = fr(gate.get("detail_producer"), id_arg, cid)
+        if not isinstance(rec, dict):
+            continue
+        ad = rec.get("address") or {}
+        items = rec.get("items") or []
+        names = ", ".join(str(it.get("name")) for it in items if isinstance(it, dict))
+        lines.append(f"- {cid}: status={rec.get('status')}, ship_to={ad.get('city')},{ad.get('state')}, "
+                     f"{len(items)} item(s): {names}")
+    if not lines:
+        return None
+    return ("\n\n[DISAMBIGUATION NOTE — this customer's full order list]\n" + "\n".join(lines) +
+            "\nBefore any modify/cancel/exchange, pick the order_id matching the customer's request "
+            "(disambiguate by shipping address, item contents, or item count).")
+
+
 def auth_satisfier_tools(gates):
     """A2 gates서 auth satisfier 도구 집합 도출 (= 구 AUTH_TOOLS·호환 export)."""
     s = set()

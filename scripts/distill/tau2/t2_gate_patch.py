@@ -16,7 +16,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gate_interpreter import (  # noqa: E402
-    GateInterpreter, auth_satisfier_tools, load_domain_a2, resolvers_from_env)
+    GateInterpreter, auth_satisfier_tools, load_domain_a2, resolvers_from_env, candidate_summary)
 
 # ── 도메인-일반 기본값 (A2가 override·enrich; retail/도메인 하드코딩 아님) ──
 DEFAULT_ARG_HINTS = ("email", "name", "zip", "user_id", "order_id", "username", "id",
@@ -188,6 +188,9 @@ def apply():
         last_user = _last_user_text(self)
         tms = _transfer_msg_sent(self, a2["_notice_text"])
 
+        # T2_PRESENT_READS=1 = REPLAY-SAFE present: 후보-producer 읽기응답에 clean 요약 덧붙임(deny 아님·측정 arm).
+        present_on = os.environ.get("T2_PRESENT_READS") == "1"
+        g6 = next((g for g in a2["gates"] if g.get("kind") == "select_confirm"), None) if present_on else None
         # T2_PROVENANCE=1 = orchestrator-레벨 게이트(날조 호출을 *실행 전* deny→error로 surface).
         prov_on = os.environ.get("T2_PROVENANCE") == "1"
         ctx = _context_text(self) if prov_on else None
@@ -251,6 +254,17 @@ def apply():
                 self._t2_consec = 0  # 성공 → 연속카운트 리셋
             if tc.name in auth_tools and out and not out[0].error:
                 gate.observe(tc.name, tc.arguments, _content_str(out[0]))
+            # ★REPLAY-SAFE present (T2_PRESENT_READS=1): 후보-producer 읽기 응답에 clean 요약 덧붙임.
+            # 읽기는 evaluation replay서 skip → content 증강 안전(write-deny=replay 깨짐과 대조).
+            if (present_on and out and not getattr(out[0], "error", False)
+                    and g6 is not None and tc.name == g6.get("user_producer")):
+                uid = (tc.arguments or {}).get(g6.get("user_id_arg", "user_id"))
+                summ = candidate_summary(gate.resolvers, g6, uid)
+                if summ:
+                    try:
+                        out[0].content = _content_str(out[0]) + summ
+                    except Exception:
+                        pass
         return results
 
     BaseOrchestrator._execute_tool_calls = gated
