@@ -78,14 +78,24 @@
 | (14B) DB_other/other | — | ~15% | 혼합 |
 - **operand L2/L3 = robust #1, 양 스케일 일치(~30%)**=make-or-break 핵심 타깃.
 - **calc_NL robust 확인(32B 24%)**=노이즈 아님·content-op COMPUTE 결정론 레버 정당.
-- **★trial간 블로커 *불일치* = 32B 9/25·14B 11/28 (~40%)**: robust 실패의 ~40%가 trial마다 다른 이유=한 깨끗한 블로커 아니라 **여러 축 동시 marginal = capability-under-load**(orchestration 부하·Probe-B "스킬 있되 부하서 무너짐"의 robust 실증).
 - **db_match=True인데 reward=0 = 26%** = write 맞아도 전달/계산 실패 → operand만 보면 놓침.
 
-### make-or-break 함의 (robust)
-robust 잔여 = **~20% 결정론-fixable(calc_NL content-op) + ~30% operand(Phase3) + ~40% capability-under-load(불일치·흩어짐)**.
-- calc_NL(~20%)=깨끗한 결정론 레버(미적용). operand(~30%)→Phase3가 present-개선/learn/capability 가름.
-- **~40% capability-under-load=깨끗한 learn 타깃 아님**(orchestration-marginal→scaffold-offload/scale·faithful-formalize SFT 아님).
-- ⇒ **순수 learn 잔여(operand-comprehension)는 ~30% operand의 일부로 상한·present-개선/capability 제외 시 더 작음 → learn NO-GO 방향 강화.**
+### ★disentangle: "40% capability-under-load" 반증 (2026-06-25 사용자·중대 교정)
+- 가설(기각): trial간 블로커 불일치=capability-under-load. **검증=불일치 task의 user-sim 메시지 trial간 비교.**
+- 결과(robust 27): **blocker-일치(전 trial 동일원인)=20/27(74%)·불일치=7/27(26%)·그 7건 *전부* user-sim 경로분산**(turn수 trial마다 제멋대로: t13[8,8,0]·t63[8,7,16]·t109[8,8,0]=대화 0~16턴=완전 다른 경로) · **AGENT-capability(동일입력→다른실패)=0건.** 불일치=0.19 노이즈밴드 만든 그 user-sim 비결정.
+- ⇒ **"40% capability-under-load"는 미지지·기각.** 실제=26% 불일치·그것도 capability 아닌 user-sim 노이즈. **그 버킷을 write-off 불가.**
+- ⇒ **그 40%가 learn-NO-GO를 강화하던 근거였음 → 다리 빠짐 → learn 질문 *재오픈*.** robust 잔여=20 stable-cause로 깨끗 귀속·"learn 타깃 있나"는 오직 **stable operand 분율이 learn-able인가(=make-or-break (b))**에 환원.
+
+### ★정본 레버 지도 (robust·stable-20·gold-diff·user-sim 노이즈 7 분리)
+| 원인 | n | % | 레버 | 종류 |
+|---|--:|--:|---|---|
+| **operand-comprehension** (PARTIAL 5·WRONG_OP 2·OTHER 2) | 9 | **45%** | **make-or-break (b)** | present / capability / learn? |
+| calc_NL (communicate) | 4 | 20% | COMPUTE+보고 offload (a) | 결정론(+report-conversion) |
+| no-write / orchestration | 4 | 20% | recovery/auth | — |
+| over-action | 3 | 15% | stop gate(g15 일부) | 결정론 |
+- **operand 45% 압도 = (b)가 유일 thesis-결정자**(40% 지름길 소멸·operand가 그 자리 채움). learn 질문 = 이 9건이 present-fixable / capability / learn 중 무엇.
+- 7 불일치(user-sim 노이즈)는 잔여서 분리(다수-trial/user-sim 고정으로 해소·capability 축 아님).
+- (flag) 32B calc_NL>14B = 큰모델이 communicate 더 실패=이상신호·1회 확인 권장.
 
 ## 5. 함의 / 다음
 - **학습 NO-GO 방향 유지·근거 정정**: "not_found=C4 지배"가 아니라 **지배 잔여=결정론-게이트-able 정책위반(A) + operand(B·C4계열)**. 둘 다 학습 아님(A=게이트·B=전이음성).
