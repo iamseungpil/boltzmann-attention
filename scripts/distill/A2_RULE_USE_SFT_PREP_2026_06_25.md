@@ -26,9 +26,9 @@
 | `escape_scope_diag.py`·`escape_layer_decomp.py`·`escape_det_census.py` | ⓐ/ⓑ·층(L0/L1/L2/L3)·결정론 census | **SFT 전후 결정론 측정 도구**(이미 가동·검증됨). |
 
 ### ★Builder 감사 (2026-06-25 실코드 대조·D3 잔여-직결)
-- **SOP operator/order = `sopbench/build_tbox_planner_sft.py` 거의 준비됨**: input=planner prompt+READY/BLOCKED(gate σ)·target=next operator NAME or STOP·prompt mask·tool순서 shuffle(positional memorize 차단)·ABox=prompt(swappable·weights에 안 구움)·LODO. = "control-flow 규칙(operator/order) 사용" SFT 그 자체. L0(operator)·order(L1) 잔여 직결.
-- **Synth operand = `ma/m_sigma_data.py` 핵심 레버**: (NL,config,DERIVATION-spec) triple — copy-threaded operand을 `{"$ref":"prior_tool#path"}`로 치환 → 모델이 *값 날조 아니라 관계(어느 출력서 복사)*를 학습·결정론 resolver가 추론시 채움·round-trip 검증(정직 분모). **= 이번 포렌식 operand/⋈ 잔여의 직접 학습 레버**(task58 wrong-variant·101/102 "123 Elm St" 날조 = operand을 관계로 안 보고 fabricate). L2/L3/⋈ 직결.
-- 함의: D3 두 절반 *빌더 대부분 존재* → 신규작업은 (i)format 정렬(학습 σ-제시 = 런타임 present/nested 형식·train=infer 일치) (ii)abstain+대칭 (iii)formalize 평가셋. 데이터빌더 재건 *불요*.
+- **SOP operator/order = `sopbench/build_tbox_planner_sft.py` 빌더 있음**(input=planner prompt+READY/BLOCKED·target=operator/STOP·mask·shuffle·ABox=prompt·LODO). **⚠️ 단 L0 분리 선결(2026-06-25 리뷰 #2)**: L0(operator)는 두 종류 — **eligibility-operator**(modify↔exchange를 status로 결정 = [[catalog]]§3.5 *결정론 게이트*·present+g15가 이미 26→16 닫음) vs **control-flow operator-sequencing**(*학습가능*). **g15 후 *남는* L0 잔여가 어느 쪽인지 확인이 선결** — eligibility-잔여면 결정론게이트 몫(SOP-SFT로 또 닫음=[[05]]/[[13]] 위반). 학습은 sequencing 잔여에만.
+- **Synth operand = `ma/m_sigma_data.py` $ref ⚠️ C4/M-σ settled 음성 계열 (2026-06-25 리뷰 #1·★최중요 화해)**: $ref(operand=값날조 아닌 *관계*로 학습)는 **이미 시도·전이 실패한 그것** — [[20]] 확정: **"M-σ in-dist 96%(derivation 학습가능)·M-D 전이 음성(C8 1차)"**·[[06]] C4 확정: cfbsynth SFT(52)/DPO(35) abstract→real **전이 실패·autofetch(결정론)만 작동**. 101/102 "123 Elm St" 날조 = copy-prior fabrication = **C4가 다룬 바로 그 클래스**. → **operand $ref-SFT는 settled 음성 재유도 위험**([[20]][[40]]). **operand의 *검증된* 레버 = 결정론 present/autofetch**(present-nested arm이 지금 측정 중). **블로커: "왜 이번 $ref가 cfbsynth/M-σ 전이실패한 곳서 성공하나"를 명시 못 하면 → operand-learn 보류·결정론 present로.**
+- 함의(정정): 빌더는 있으나 **두 절반 다 "학습 vs 결정론" 경계 화해가 선결** — operand=C4/M-σ 전이음성 계열(보류 위험)·operator=eligibility 부분 게이트-redundant. 데이터빌더 재건은 불요지만 *타깃 정당성*이 미확정. 신규작업(format정렬·abstain·평가셋)은 화해 통과분에만.
 
 ### 신규 (gap·만들어야 함)
 1. **A2-σ-use 궤적 빌더** — 기존 build_abstract_sft를 확장: 각 결정점에 *A2가 제시한 candidate-set/gate-verdict*를 컨텍스트로, 타깃=formalize 선택(어느 predicate/entity/operator/operand). present/nested(이미 구현)와 *동형*인 입력형. ⚠️ M_A 교훈: concrete-emit SFT=over-calling 아티팩트(2× gold) → **abstract+mask·diversity 필수**([[12]]).
@@ -62,12 +62,13 @@ S1  (옵션) GRPO RFT (grpo_reward·결정론) — SFT가 *잔여*를 못 닫으
 
 ## 5. NO-GO (정직·thesis line51·우선 게이트)
 - **(0·선결) 잔여 부재**: present/nested+gate가 잔여를 다 닫으면 → 학습 잔여 없음 → **SFT 불요**(결정론+TCO 헤드라인 강화·[[06]]). priority-2 회수가 1차 판정.
+- **(0'·★선결 화해·2026-06-25 리뷰) settled 음성 재유도 차단**: 이 arc는 학습으로 **3회 실패·결정론으로 성공** 패턴 — C4(cfbsynth SFT/DPO copy)·M-σ(derivation 전이음성·[[20]])·G5(eligibility-steer≈0). 따라서 SFT 착수 전 잔여가 **(a)실재**(present-nested 후 남음)·**(b)C4/M-σ 계열 아님**(operand-copy/derivation이면 전이음성 재유도)·**(c)gate-redundant 아님**(eligibility-operator이면 결정론 몫)·**(d)Probe-B처럼 격리하면 됨**(capability-bound 아님)을 *모두* 통과해야. 못 통과하는 잔여는 결정론(present/autofetch/gate) 몫 → SFT 제외.
 - **(a) 표현불가**: 남은 잔여가 유한관계로 깔끔 표현 안 되면.
 - **(b) capability-bound**: "formalize"가 그 크기서 학습으로 *안* 줄면(특히 mis-formalize=ⓑ) → 진짜 경계 = escalate/scale([[13]]). 결론 = "scaffold offload 천장 + 학습 한계 지도".
 
 ## 6. 결정 (D1·D3 확정 2026-06-25·D2 게이트)
 - **D1 (확정)**: **{7B,14B} 멀티스케일**·단 *단계적* — **14B 단독 SFT-only 먼저**(빠른 GO/NO-GO·M_A: 7B reasoning-bound) → 7B는 NO-GO 경계/스케일-floor 확인용 추가. GRPO(S1)=SFT가 잔여 못 닫을 때만.
-- **D3 (확정)**: 잔여-직결 **Synth(operand L2/L3·`m_sigma_data.py` $ref)+SOP(operator/order·`build_tbox_planner_sft.py`)** 우선. 3벤치 균형은 1차 GO 후.
+- **D3 (확정·단 화해 게이트)**: 잔여-직결 우선 — 단 §5(0') 통과분에만. **operand(Synth $ref) = C4/M-σ 전이음성 계열 → 화해 못 하면 *보류*(결정론 present로)**. **operator(SOP) = eligibility-잔여 분리 후 sequencing분만**. 즉 D3는 "벤치 선택"은 확정이나 *어느 잔여를 학습 타깃으로 삼나*는 §5(0') 통과가 선결. 3벤치 균형은 1차 GO 후.
 - **D2 (확정·게이트)**: **GPU-free 준비물 = 지금 착수 OK**(평가셋·궤적빌더 프로토·커리큘럼 스펙·§7). **단 SFT *실행* 결정 = priority-2(present-nested) 회수 게이트** — "결정론이 *안* 닫는 operand/criterion-formalize 잔여가 실재하고 학습 여지(Probe-B처럼 격리하면 됨) 있음"이 확인될 때만. 잔여 비거나 capability-bound면 §5 NO-GO 직행.
 
 ## 7. 지금 GPU-free 착수 가능 (D2=지금이면)
