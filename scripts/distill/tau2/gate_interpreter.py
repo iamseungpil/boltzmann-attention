@@ -296,6 +296,41 @@ def candidate_summary(resolvers, gate, uid):
             "by comparing the fields above to what the customer described.")
 
 
+def nested_candidate_summary(output_record, spec):
+    """REPLAY-SAFE operand 후보 제시(L2 item / L3 variant): read 응답 record 안의 nested
+    list/dict를 *명시 choice-set*으로 (deny 아님·읽기증강). order.items·product.variants류.
+    spec(A2): {nested_field, id_field, fields, label}. 도메인-일반 — 필드 구조 해석 0·grep retail=0.
+    >1 후보일 때만(disambiguation 필요·단일이면 noise)."""
+    if not isinstance(output_record, dict):
+        return None
+    nested = output_record.get(spec.get("nested_field"))
+    if isinstance(nested, dict):
+        items = list(nested.values())
+    elif isinstance(nested, list):
+        items = nested
+    else:
+        return None
+    if len(items) <= 1:
+        return None
+    id_field = spec.get("id_field", "id")
+    fields = spec.get("fields") or []
+    label = spec.get("label", "option")
+    lines = []
+    for rec in items:
+        if not isinstance(rec, dict):
+            continue
+        cid = rec.get(id_field)
+        shown = ({f: rec.get(f) for f in fields} if fields
+                 else {k: v for k, v in rec.items() if k != id_field})
+        lines.append(f"- {id_field}={cid}: {json.dumps(shown, default=str, ensure_ascii=False)}")
+    if not lines:
+        return None
+    return (f"\n\n[OPERAND DISAMBIGUATION — every {label} with its {id_field}]\n" + "\n".join(lines) +
+            f"\nWhen the action needs a {id_field}, copy the EXACT {id_field} above for the {label} "
+            "the customer described (match by the fields shown). Never guess, invent, or carry an "
+            f"{id_field} from a different {label}.")
+
+
 def auth_satisfier_tools(gates):
     """A2 gates서 auth satisfier 도구 집합 도출 (= 구 AUTH_TOOLS·호환 export)."""
     s = set()

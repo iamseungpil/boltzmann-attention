@@ -156,6 +156,31 @@
       "present_label": "order"
     }
   ],
+  "present_specs": [
+    {
+      "trigger_tool": "get_order_details",
+      "nested_field": "items",
+      "id_field": "item_id",
+      "fields": [
+        "name",
+        "product_id",
+        "options"
+      ],
+      "label": "item line in this order"
+    },
+    {
+      "trigger_tool": "get_product_details",
+      "nested_field": "variants",
+      "id_field": "item_id",
+      "fields": [
+        "options",
+        "available",
+        "price"
+      ],
+      "label": "purchasable variant of this product"
+    }
+  ],
+  "_note_present_specs": "operand-grounding(L2 item·L3 variant) present 확장 (2026-06-25 priority-2). engine nested_candidate_summary가 generic 소비(필드=여기 그대로 dump). retail 사실(order.items list·product.variants dict). airline swap=다른 specs(flights/passengers). flag=T2_PRESENT_NESTED.",
   "producers": {
     "authenticated_user_record": {
       "tool": "get_user_details",
