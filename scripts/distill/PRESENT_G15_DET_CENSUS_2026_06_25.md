@@ -49,5 +49,6 @@ present+g15   .857   .781    .658   29.9%   32  36  15  43   36   312   .497   .
 ## 다음 (핸드오프 §2 순)
 2. operand grounding(item/variant) 학습없이: present를 `get_order_details`(items)·`get_product_details`(variants) 읽기로 확장(replay-safe 동일패턴) → L2/L3 잔여 닫나.
 3. ⋈ 주소(present에 전체주소).
-4. ★faithful-formalize 학습(잔여 원천)+A2_FRONTEND.
+4. ★faithful-formalize 학습(잔여 원천·A2-규칙사용 SFT→tau2 A2-swap).
 - (부수) precondition-gate sparse infra_error(빈 sim 12~19) 원인 조사.
+- ★범위: A2_FRONTEND(NL→A2 자동생성)=별도 논문(2026-06-25 결정)→현 논문 제외. 현 논문=A2 수작성·고정 전제.
