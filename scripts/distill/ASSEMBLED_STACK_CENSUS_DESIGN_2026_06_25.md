@@ -10,12 +10,20 @@
 - 드라이버: 기존 `reexp_present_nested.sh` 패턴 + `T2_GATE_KINDS=...,constraints` (A2엔 disjoint 인스턴스만 활성). 32B+14B·retail t3·gpt-4.1 user-sim·replay-safe.
 - 회수: `escape_det_census.py --clean`(L0-L3·MATCH·over·pass^k) + 종료분포 + 전수 에러 taxonomy(`NESTED_ARM_FAILURE_CENSUS` 도구 재사용).
 
-## 2. Phase-2 — 잔여 태깅 (정밀화 1·오염 방지)
-reward=0 task(trial 다수)를 실패원으로 태깅 — **이미 있는 분류기 재사용**:
-- **`constraint-addressable`** (기지·미빌드): 실패가 count-match(refuse-gold 제외·exchange-gold만) 또는 payment 위반 = "결정론으로 더 닫을 수 *있었으나* 안 빌드". 정적 회계 ~8 task. **operand에 섞지 말 것**(operand 과대계상 차단).
-- **`operand`** (진짜 질문): silent-wrong-write L2/L3(wrong item/variant) 또는 operand not_found(item/variant id 그라운딩). → Phase-3로.
-- **`other`**: MISS/상류(auth·communicate)·bizrule-기타·comprehension-비operand.
-- 출력: 잔여의 {constraint-addressable / operand / other} 분포 = "결정론 천장 위치".
+## 2. Phase-2 — 전체-궤적 pass-블로커 태깅 (★사용자 directive·eval 분해 기반)
+**단위 게이트 아니라 전체 궤적서 pass 막는 원인.** reward_info(db_check·action_checks·nl_assertions·reward_basis)로 각 reward=0 task의 *진짜* 블로커 분류. **7-블로커 taxonomy**(present+nest+g15 trial0 실측·`NESTED_ARM_FAILURE_CENSUS` §4.5):
+| 블로커 | 측정%(n=42) | 다음 레버 |
+|---|--:|---|
+| operand L2/L3 (item/variant write) | 29% | → **Phase-3** (present-개선/capability/learn) |
+| **계산/수치 NL** (filter·count·total) | 19% | **content-op COMPUTE offload(Synth·결정론)·신규** |
+| MISSING_write | 12% | 상류/comprehension |
+| L1_orderpick | 12% | present(order-list) 잔여 |
+| over-action | 12% | stop/commit 게이트 |
+| L0_operator | 7% | eligibility 게이트 |
+| 누락 NL | 7% | communication |
+- **constraint-addressable**(over+operator ~19%·대부분 hygiene)는 별도 태그(operand 과대계상 차단·정적 회계 ~8 pass-천장).
+- **출력 = pass-블로커 분포**(흩어짐·silver bullet 없음 확인) → 레버별 다음 결정.
+- **★신규 레버 후보 = 계산/수치 NL(19%)**: db 맞아도 전달서 filter/count/total 오산 → **결정론 content-op offload**(엔진이 available-필터·count·sum, 모델은 보고). 별도 arm 설계 가치(present/gate/operand 다 아님).
 
 ## 3. Phase-3 — ★operand 잔여 3분해 (정밀화 2·crux·Probe-B 모순 해소)
 **모순**: Probe-B=후보 떠먹이면 select 7/7 작동 ↔ present-arm=결정점 present해도 L2/L3 약간만(32B wMatch+.021·14B neutral). ⇒ operand 잔여를 learn/capability로 *뭉치면 오류*. 3분해:

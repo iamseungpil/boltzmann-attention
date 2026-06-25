@@ -57,6 +57,21 @@
 - **container not_found(C) → 대부분 양성**(실패원 아님)·날조 소수=provenance 게이트(기존).
 - **gate(D) → 정상.**
 
+## 4.5 ★전체-궤적 pass-블로커 지도 (2026-06-25 사용자 directive·eval 분해 기반·trial0 n=42)
+> "단위 게이트 말고 전체 궤적서 pass 막는 원인" — reward_info(db_check·action_checks·nl_assertions·reward_basis)로 각 실패의 *진짜* 블로커 분류. pass = DB일치 ∧ NL_ASSERTION충족.
+| 블로커 | n | % | 레버 |
+|---|--:|--:|---|
+| operand L2/L3 (item/variant write) | 12 | 29% | present/nested 부분 + Phase3(present-개선/learn/capability) |
+| **계산/수치 NL** (filter·count·total·amount) | 8 | 19% | **content-op COMPUTE offload (Synth·결정론)·미적용 레버** |
+| MISSING_write (필수 write 누락) | 5 | 12% | 상류/comprehension |
+| L1_orderpick | 5 | 12% | present(order-list)·잔여 |
+| over-action (여분 write) | 5 | 12% | stop/commit 게이트 |
+| L0_operator (틀린 연산) | 3 | 7% | eligibility 게이트(G5) |
+| 누락 NL (정보 전달) | 3 | 7% | communication |
+- **silver bullet 없음·7가지 흩어짐**(whack-a-mole 정량화). constraint-gate-addressable(over+operator ~19%)은 대부분 hygiene(곁가지).
+- **★계산/수치 NL 19%** = 모델이 available 필터 안 해 "12개"(실제 10개)·총액 오산 = **Synth content-op COMPUTE 결정론 offload 영역**·tau2 미적용 신규 레버.
+- **db_match=True인데 reward=0 = 11건(26%)** = write 다 맞아도 *전달/계산* 실패 → operand만 보면 놓침.
+
 ## 5. 함의 / 다음
 - **학습 NO-GO 방향 유지·근거 정정**: "not_found=C4 지배"가 아니라 **지배 잔여=결정론-게이트-able 정책위반(A) + operand(B·C4계열)**. 둘 다 학습 아님(A=게이트·B=전이음성).
 - **다음 결정론 레버 = bizrule 정책위반의 게이트화 census** — A의 6규칙을 A2 constraint-gate로 표현가능한지·G5 family 확장. present/nested/학습 아님.
