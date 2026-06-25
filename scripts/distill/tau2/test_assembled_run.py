@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""test_assembled_run.py — ⓑ 구현 게이트 (단위테스트로 [[05]] 드리프트 강제 차단).
+사용자 리뷰 2026-06-25: 구현 중 "도와주려다" [[05]] 반복위반(autofetch/RetailGate) → 코드리뷰 아닌 *테스트 게이트*.
+실행: python test_assembled_run.py  (GPU-free·전부 통과해야 full-run 자격)
+게이트4(operand make-or-break task 71/74/101/102 스모크)=GPU 필요 → 드라이버 pre-run(reexp_assembled.sh)서.
+"""
+import os
+import re
+import sys
+import inspect
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gate_interpreter as gi
+from gate_interpreter import (GateInterpreter, compute_facts, candidate_summary,
+                              resolvers_from_env, load_domain_a2)
+
+RETAIL_FIELDS = ["variants", "available", "item_ids", "new_item_ids", "payment_method_id",
+                 "options", "product_id", "orders_field"]
+_fails = []
+
+
+def check(name, cond, detail=""):
+    print(f"  [{'PASS' if cond else 'FAIL'}] {name}" + (f" — {detail}" if detail and not cond else ""))
+    if not cond:
+        _fails.append(name)
+
+
+# ─── 게이트1: join-resolver 금지 (#1·make-or-break rig 차단) ───
+# present는 raw 엔티티 *열거*만·criterion pre-filter/join pre-resolve 금지.
+print("게이트1 — join-resolver 금지 (enumerate-not-resolve):")
+# (a) 행동: 2주문(서로 다른 주소) → present가 *둘 다* 열거·하나 pre-select 안 함
+_orders = {"#A": {"order_id": "#A", "status": "delivered", "address": {"city": "NYC"}, "items": []},
+           "#B": {"order_id": "#B", "status": "pending", "address": {"city": "LA"}, "items": []}}
+_rv = {"resolve_field": lambda path, a: ["#A", "#B"] if path[-1] == "orders" else None,
+       "fetch_record": lambda prod, idarg, idv: _orders.get(idv)}
+g6 = {"kind": "select_confirm", "user_id_arg": "user_id", "user_producer": "get_user_details",
+      "orders_field": "orders", "detail_producer": "get_order_details", "detail_id_arg": "order_id",
+      "present_fields": ["status", "address"], "present_label": "order"}
+summ = candidate_summary(_rv, g6, "u1")
+check("present가 모든 주문 열거(둘 다)", summ and "#A" in summ and "#B" in summ and "NYC" in summ and "LA" in summ)
+check("present가 단일 source pre-select 안 함(둘 다 노출)", summ and summ.count("city") == 2)
+# (b) 구조: resolvers_from_env는 read-only 3개만 (신규 cross-entity join resolver 0)
+class _Env:
+    tools = None
+_res = resolvers_from_env(_Env())
+check("resolvers = {resolve_owner,resolve_field,fetch_record}만 (신규 join-resolver 0)",
+      set(_res.keys()) == {"resolve_owner", "resolve_field", "fetch_record"}, str(set(_res.keys())))
+
+# ─── 게이트2: 엔진 [[05]] — compute_facts·constraints에 retail 필드 리터럴 0 ───
+print("게이트2 — 엔진 도메인-특화 0 (calc/constraints):")
+src_calc = inspect.getsource(compute_facts)
+hits_calc = [f for f in RETAIL_FIELDS if re.search(r'["\']' + re.escape(f) + r'["\']', src_calc)]
+check("compute_facts 소스에 retail 필드 리터럴 0", not hits_calc, f"hits={hits_calc}")
+# constraints 분기 소스 추출(check 메서드서 'elif kind == \"constraints\"' 블록)
+src_check = inspect.getsource(GateInterpreter.check)
+m = re.search(r'kind == "constraints":(.*?)elif kind ==', src_check, re.S)
+src_con = m.group(1) if m else ""
+hits_con = [f for f in RETAIL_FIELDS if re.search(r'["\']' + re.escape(f) + r'["\']', src_con)]
+check("constraints 분기에 retail 필드 리터럴 0", not hits_con, f"hits={hits_con}")
+
+# ─── 게이트3: report-conversion 계측 (#3·calc 주입이 파싱가능 마커) ───
+print("게이트3 — report-conversion 계측:")
+prod = {"variants": {"a": {"available": True}, "b": {"available": False}, "c": {"available": True}}}
+facts = compute_facts(prod, [{"op": "count_where", "nested_field": "variants",
+                              "cond_field": "available", "cond_value": True, "label": "available variants"}])
+check("calc 주입에 [COMPUTED FACTS] 마커", facts and "[COMPUTED FACTS" in facts)
+check("calc 주입이 파싱가능 'label: value'", facts and re.search(r"- available variants: 2", facts))
+
+# ─── A2 정합 (calc_specs·G7 로드·disjoint 동작) ───
+print("A2 정합:")
+a2 = load_domain_a2("retail")
+check("calc_specs 2개 로드", len(a2.get("calc_specs") or []) == 2)
+check("G7_OP_CONSTRAINTS(disjoint) 로드", any(g.get("id") == "G7_OP_CONSTRAINTS" for g in a2["gates"]))
+gi_c = GateInterpreter([g for g in a2["gates"] if g.get("kind") == "constraints"])
+ok1, _, _ = gi_c.check("exchange_delivered_order_items", {"item_ids": ["x"], "new_item_ids": ["x"]})
+ok2, _, _ = gi_c.check("exchange_delivered_order_items", {"item_ids": ["x"], "new_item_ids": ["y"]})
+check("disjoint: new==old → deny", not ok1)
+check("disjoint: new!=old → allow", ok2)
+
+print()
+if _fails:
+    print(f"❌ {len(_fails)} GATE FAIL → full-run 자격 없음: {_fails}")
+    sys.exit(1)
+print("✅ 게이트1-3 + A2 전부 PASS — (게이트4=드라이버 task-smoke 후) full-run 자격")

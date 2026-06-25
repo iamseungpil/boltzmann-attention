@@ -18,7 +18,8 @@ CONFIRM_RE = re.compile(
     r"please do|that works|do it)\b", re.I)
 
 # deny-message 우선순위 (원 RetailGate 의미 보존: notice→auth→ownership→confirm→preconditions).
-_KIND_PRIORITY = {"notice": 0, "auth": 1, "ownership": 2, "confirm": 3, "preconditions": 4, "select_confirm": 5}
+_KIND_PRIORITY = {"notice": 0, "auth": 1, "ownership": 2, "confirm": 3, "preconditions": 4,
+                  "constraints": 4.5, "select_confirm": 5}
 
 # 이미-행동(intermediate) status 토큰 — 정확-매칭 allow에 없어도 "use other tool"이 아니라
 # "already acted, do not retry"로 steer해야 하는 상태(예: "pending (item modified)", "return requested").
@@ -203,6 +204,23 @@ class GateInterpreter:
                             f"(required: {chk.get('allow')}). {steer} "
                             f"Do NOT retry {tool_name} on this order.").strip()
 
+            elif kind == "constraints":
+                # operation-semantic 정책 불변식(순수-args로 decidable·env-mirror). 무효 write 사전차단+steer.
+                # 엔진=general op{disjoint·equal_len}·필드=A2(retail 0). 둘 다 env가 이미 강제=false-block 0.
+                # (member_of/payment=파생필드 [[05]] 위험으로 미포함·정적 deprioritize·CONSTRAINT_GATE_DESIGN §accounting.)
+                for chk in (g.get("checks") or []):
+                    if tool_name not in (chk.get("applies_to") or []):
+                        continue
+                    op = chk.get("op")
+                    f1, f2 = chk.get("fields", [None, None])
+                    v1, v2 = args.get(f1), args.get(f2)
+                    if op == "disjoint":
+                        if v1 and v2 and (set(map(str, v1)) & set(map(str, v2))):
+                            return False, g["id"], chk.get("steer")
+                    elif op == "equal_len":
+                        if v1 is not None and v2 is not None and len(v1) != len(v2):
+                            return False, g["id"], chk.get("steer")
+
             elif kind == "select_confirm":
                 # 절차-offload(측정 arm·[[05]] Q3=yes·flag-gated): 결정점서 owned-entity 후보집합을
                 # 1회 명시 제시(Probe-B 형식) → 모델이 *재확인/재선택*(select=모델 몫·동결 아님).
@@ -329,6 +347,42 @@ def nested_candidate_summary(output_record, spec):
             f"\nWhen the action needs a {id_field}, copy the EXACT {id_field} above for the {label} "
             "the customer described (match by the fields shown). Never guess, invent, or carry an "
             f"{id_field} from a different {label}.")
+
+
+def compute_facts(record, specs):
+    """REPLAY-SAFE 결정론 집계 주입(calc_NL offload·measurement arm): read record서 A2-spec aggregate 계산.
+    엔진=general op{count_where·count·sum·lookup}만·nested_field/cond_field/item_field=A2 calc_specs(retail 필드 0).
+    모델이 *틀리는* 산술/집계(available 필터·총액)를 결정론 계산·주입 → 보고는 모델(report-conversion 측정).
+    반환=주입 텍스트(파싱가능 'label: value' = report-conversion census 마커)·없으면 None."""
+    if not isinstance(record, dict):
+        return None
+    out = []
+    for sp in (specs or []):
+        op = sp.get("op")
+        label = sp.get("label", "value")
+        nf = sp.get("nested_field")
+        coll = record.get(nf) if nf else record
+        items = list(coll.values()) if isinstance(coll, dict) else (coll if isinstance(coll, list) else None)
+        val = None
+        if op == "count_where" and items is not None:
+            cf, cv = sp.get("cond_field"), sp.get("cond_value")
+            val = sum(1 for it in items if isinstance(it, dict) and it.get(cf) == cv)
+        elif op == "count" and items is not None:
+            val = len(items)
+        elif op == "sum" and items is not None:
+            itf = sp.get("item_field")
+            try:
+                val = round(sum(float(it.get(itf, 0)) for it in items if isinstance(it, dict)), 2)
+            except (TypeError, ValueError):
+                val = None
+        elif op == "lookup":
+            val = record.get(sp.get("field"))
+        if val is not None:
+            out.append(f"- {label}: {val}")
+    if not out:
+        return None
+    return ("\n\n[COMPUTED FACTS — deterministic; when you report any of these, use these EXACT values]\n"
+            + "\n".join(out))
 
 
 def auth_satisfier_tools(gates):

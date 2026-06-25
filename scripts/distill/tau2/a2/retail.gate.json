@@ -154,6 +154,29 @@
       ],
       "message": "DISAMBIGUATION CHECK — before committing this write, here are ALL of this customer's orders. Re-read the customer's request and verify the order_id you are about to use is the one they mean (disambiguate by shipping address, item contents/count, status). If it is wrong, call the write again with the correct order_id.",
       "present_label": "order"
+    },
+    {
+      "id": "G7_OP_CONSTRAINTS",
+      "kind": "constraints",
+      "applies_to": [
+        "modify_pending_order_items",
+        "exchange_delivered_order_items"
+      ],
+      "checks": [
+        {
+          "op": "disjoint",
+          "fields": [
+            "item_ids",
+            "new_item_ids"
+          ],
+          "applies_to": [
+            "modify_pending_order_items",
+            "exchange_delivered_order_items"
+          ],
+          "steer": "[constraint] Each new_item_id must be a DIFFERENT variant than the item it replaces — you reused an id that is also in item_ids (a no-op exchange). Pick a different variant (e.g. a different size/color/capacity) for each item you are exchanging, or do not include that item."
+        }
+      ],
+      "_note": "retail 정책 인스턴스(new≠old). 엔진=general disjoint op·env가 이미 강제(false-block 0). count-match(equal_len)·payment(member_of)=정적 deprioritize(hygiene·파생필드 위험)·미포함."
     }
   ],
   "present_specs": [
@@ -181,6 +204,24 @@
     }
   ],
   "_note_present_specs": "operand-grounding(L2 item·L3 variant) present 확장 (2026-06-25 priority-2). engine nested_candidate_summary가 generic 소비(필드=여기 그대로 dump). retail 사실(order.items list·product.variants dict). airline swap=다른 specs(flights/passengers). flag=T2_PRESENT_NESTED.",
+  "calc_specs": [
+    {
+      "trigger_tool": "get_product_details",
+      "op": "count_where",
+      "nested_field": "variants",
+      "cond_field": "available",
+      "cond_value": true,
+      "label": "number of CURRENTLY AVAILABLE variants of this product"
+    },
+    {
+      "trigger_tool": "get_order_details",
+      "op": "sum",
+      "nested_field": "items",
+      "item_field": "price",
+      "label": "sum of current item prices in this order (USD)"
+    }
+  ],
+  "_note_calc_specs": "calc_NL offload(계산/수치 NL 실패·~20%). engine compute_facts=general op{count_where·sum}만·경로(variants/available·items/price)=여기 retail 사실. flag=T2_CALC·report-conversion 측정. airline swap=다른 calc_specs. (refund-of-subset=operand 의존이라 미포함·available-count·order-total=깨끗.)",
   "producers": {
     "authenticated_user_record": {
       "tool": "get_user_details",

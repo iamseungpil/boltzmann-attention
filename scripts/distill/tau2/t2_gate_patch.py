@@ -17,7 +17,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gate_interpreter import (  # noqa: E402
     GateInterpreter, auth_satisfier_tools, load_domain_a2, resolvers_from_env,
-    candidate_summary, nested_candidate_summary)
+    candidate_summary, nested_candidate_summary, compute_facts)
 
 # ── 도메인-일반 기본값 (A2가 override·enrich; retail/도메인 하드코딩 아님) ──
 DEFAULT_ARG_HINTS = ("email", "name", "zip", "user_id", "order_id", "username", "id",
@@ -195,6 +195,9 @@ def apply():
         # T2_PRESENT_NESTED=1 = operand-grounding present 확장(L2 item/L3 variant): read record의
         # nested list/dict를 명시 choice-set으로 (priority-2·replay-safe·A2 present_specs 구동).
         nested_specs = (a2.get("present_specs") or []) if os.environ.get("T2_PRESENT_NESTED") == "1" else []
+        # T2_CALC=1 = calc_NL offload(측정 arm): read record서 결정론 집계(available count·order total) 계산·주입.
+        # 보고는 모델 → report-conversion 측정([COMPUTED FACTS] 블록=census 마커). A2 calc_specs 구동·엔진 general op.
+        calc_specs = (a2.get("calc_specs") or []) if os.environ.get("T2_CALC") == "1" else []
         # T2_PROVENANCE=1 = orchestrator-레벨 게이트(날조 호출을 *실행 전* deny→error로 surface).
         prov_on = os.environ.get("T2_PROVENANCE") == "1"
         ctx = _context_text(self) if prov_on else None
@@ -279,6 +282,18 @@ def apply():
                     if summ:
                         try:
                             out[0].content = _content_str(out[0]) + summ
+                        except Exception:
+                            pass
+            # ★calc_NL offload (T2_CALC=1): read record서 결정론 집계 계산·주입(보고는 모델).
+            # 읽기증강=replay-safe. [COMPUTED FACTS] 블록=report-conversion census 마커.
+            if calc_specs and out and not getattr(out[0], "error", False):
+                cs = [s for s in calc_specs if s.get("trigger_tool") == tc.name]
+                if cs:
+                    rec = _parse_json(_content_str(out[0]))
+                    facts = compute_facts(rec, cs)
+                    if facts:
+                        try:
+                            out[0].content = _content_str(out[0]) + facts
                         except Exception:
                             pass
         return results
