@@ -57,20 +57,35 @@
 - **container not_found(C) → 대부분 양성**(실패원 아님)·날조 소수=provenance 게이트(기존).
 - **gate(D) → 정상.**
 
-## 4.5 ★전체-궤적 pass-블로커 지도 (2026-06-25 사용자 directive·eval 분해 기반·trial0 n=42)
-> "단위 게이트 말고 전체 궤적서 pass 막는 원인" — reward_info(db_check·action_checks·nl_assertions·reward_basis)로 각 실패의 *진짜* 블로커 분류. pass = DB일치 ∧ NL_ASSERTION충족.
-| 블로커 | n | % | 레버 |
+## 4.5 ★전체-궤적 pass-블로커 지도 (2026-06-25 사용자 directive·eval reward_info 분해)
+> "단위 게이트 말고 전체 궤적서 pass 막는 원인" — db_check·action_checks·nl_assertions·reward_basis로 각 실패의 *진짜* 블로커 분류. pass = DB일치 ∧ NL_ASSERTION충족.
+
+### pass^1 + robust 지표 (present+nest+g15)
+| | pass^1 | pass^all(robust) | fail-all task |
+|---|--:|--:|--:|
+| 32B | 0.591 (n=328) | 0.402 | 25/112 |
+| 14B | 0.503 (n=324) | 0.232 | 28/112 |
+- pass^1↔pass^all 간극(32B 0.19) = flaky/노이즈 밴드(user-sim ~0.11-0.19 일치). **trial0 실패 42 중 17=노이즈-flip**(타 trial pass) → pass^1 단독 위험 재확인·robust=fail-all 사용.
+
+### ★robust(fail-all-3) 블로커 분포 — 노이즈 제거·양 스케일
+| 블로커 | 32B(n=25) | 14B(n=28) | 레버 |
 |---|--:|--:|---|
-| operand L2/L3 (item/variant write) | 12 | 29% | present/nested 부분 + Phase3(present-개선/learn/capability) |
-| **계산/수치 NL** (filter·count·total·amount) | 8 | 19% | **content-op COMPUTE offload (Synth·결정론)·미적용 레버** |
-| MISSING_write (필수 write 누락) | 5 | 12% | 상류/comprehension |
-| L1_orderpick | 5 | 12% | present(order-list)·잔여 |
-| over-action (여분 write) | 5 | 12% | stop/commit 게이트 |
-| L0_operator (틀린 연산) | 3 | 7% | eligibility 게이트(G5) |
-| 누락 NL (정보 전달) | 3 | 7% | communication |
-- **silver bullet 없음·7가지 흩어짐**(whack-a-mole 정량화). constraint-gate-addressable(over+operator ~19%)은 대부분 hygiene(곁가지).
-- **★계산/수치 NL 19%** = 모델이 available 필터 안 해 "12개"(실제 10개)·총액 오산 = **Synth content-op COMPUTE 결정론 offload 영역**·tau2 미적용 신규 레버.
-- **db_match=True인데 reward=0 = 11건(26%)** = write 다 맞아도 *전달/계산* 실패 → operand만 보면 놓침.
+| **operand L2/L3** | **32%** | **29%** | Phase3 (present-개선/capability/learn) |
+| **calc_NL** (filter·count·total) | 24% | 14% | **content-op COMPUTE offload(Synth·결정론)·미적용** |
+| MISSING_write | 20% | 11% | 상류/comprehension |
+| over+operator (게이트) | 16% | 25% | 게이트·대부분 hygiene |
+| L1_orderpick | 8% | 7% | present 잔여 |
+| (14B) DB_other/other | — | ~15% | 혼합 |
+- **operand L2/L3 = robust #1, 양 스케일 일치(~30%)**=make-or-break 핵심 타깃.
+- **calc_NL robust 확인(32B 24%)**=노이즈 아님·content-op COMPUTE 결정론 레버 정당.
+- **★trial간 블로커 *불일치* = 32B 9/25·14B 11/28 (~40%)**: robust 실패의 ~40%가 trial마다 다른 이유=한 깨끗한 블로커 아니라 **여러 축 동시 marginal = capability-under-load**(orchestration 부하·Probe-B "스킬 있되 부하서 무너짐"의 robust 실증).
+- **db_match=True인데 reward=0 = 26%** = write 맞아도 전달/계산 실패 → operand만 보면 놓침.
+
+### make-or-break 함의 (robust)
+robust 잔여 = **~20% 결정론-fixable(calc_NL content-op) + ~30% operand(Phase3) + ~40% capability-under-load(불일치·흩어짐)**.
+- calc_NL(~20%)=깨끗한 결정론 레버(미적용). operand(~30%)→Phase3가 present-개선/learn/capability 가름.
+- **~40% capability-under-load=깨끗한 learn 타깃 아님**(orchestration-marginal→scaffold-offload/scale·faithful-formalize SFT 아님).
+- ⇒ **순수 learn 잔여(operand-comprehension)는 ~30% operand의 일부로 상한·present-개선/capability 제외 시 더 작음 → learn NO-GO 방향 강화.**
 
 ## 5. 함의 / 다음
 - **학습 NO-GO 방향 유지·근거 정정**: "not_found=C4 지배"가 아니라 **지배 잔여=결정론-게이트-able 정책위반(A) + operand(B·C4계열)**. 둘 다 학습 아님(A=게이트·B=전이음성).
