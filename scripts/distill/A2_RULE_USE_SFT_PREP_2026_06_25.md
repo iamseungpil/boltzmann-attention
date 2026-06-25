@@ -19,6 +19,11 @@
 | `gate_interpreter.py`·`t2_gate_patch.py`·`a2/{retail,airline}.gate.json` | A2 집행 scaffold(고정·도메인-일반) | tau2 전이 평가 기반. |
 | `escape_scope_diag.py`·`escape_layer_decomp.py`·`escape_det_census.py` | ⓐ/ⓑ·층(L0/L1/L2/L3)·결정론 census | **SFT 전후 결정론 측정 도구**(이미 가동·검증됨). |
 
+### ★Builder 감사 (2026-06-25 실코드 대조·D3 잔여-직결)
+- **SOP operator/order = `sopbench/build_tbox_planner_sft.py` 거의 준비됨**: input=planner prompt+READY/BLOCKED(gate σ)·target=next operator NAME or STOP·prompt mask·tool순서 shuffle(positional memorize 차단)·ABox=prompt(swappable·weights에 안 구움)·LODO. = "control-flow 규칙(operator/order) 사용" SFT 그 자체. L0(operator)·order(L1) 잔여 직결.
+- **Synth operand = `ma/m_sigma_data.py` 핵심 레버**: (NL,config,DERIVATION-spec) triple — copy-threaded operand을 `{"$ref":"prior_tool#path"}`로 치환 → 모델이 *값 날조 아니라 관계(어느 출력서 복사)*를 학습·결정론 resolver가 추론시 채움·round-trip 검증(정직 분모). **= 이번 포렌식 operand/⋈ 잔여의 직접 학습 레버**(task58 wrong-variant·101/102 "123 Elm St" 날조 = operand을 관계로 안 보고 fabricate). L2/L3/⋈ 직결.
+- 함의: D3 두 절반 *빌더 대부분 존재* → 신규작업은 (i)format 정렬(학습 σ-제시 = 런타임 present/nested 형식·train=infer 일치) (ii)abstain+대칭 (iii)formalize 평가셋. 데이터빌더 재건 *불요*.
+
 ### 신규 (gap·만들어야 함)
 1. **A2-σ-use 궤적 빌더** — 기존 build_abstract_sft를 확장: 각 결정점에 *A2가 제시한 candidate-set/gate-verdict*를 컨텍스트로, 타깃=formalize 선택(어느 predicate/entity/operator/operand). present/nested(이미 구현)와 *동형*인 입력형. ⚠️ M_A 교훈: concrete-emit SFT=over-calling 아티팩트(2× gold) → **abstract+mask·diversity 필수**([[12]]).
 2. **abstain+대칭 커리큘럼 데이터** — empty-σ→ASK·σ>1→ASK·σ=1→act 케이스 *명시 합성*(벤치 변형). 균형(act:ask)·over-ask 비용 측정용.
