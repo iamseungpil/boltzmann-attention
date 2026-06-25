@@ -222,7 +222,10 @@
 
 **A. 우리를 *지지*하는 신규 인용 (scoop 아님·반드시 인용):**
 - **`2602.05073`(2026-02)** — **tau2-bench서** LLM verbalized confidence·NLL·Entropy가 task성공 예측에 거의 random(AUROC 0.47-0.69)·**궤적 길수록 confidence 부풀음**. = **§0 비내성 명제를 *우리 정확한 벤치*서 실증.** 보강 `2602.06948`(agentic overconfidence)·`2601.07264`(tool miscalibration). ⚠️caveat: pilot-scale(2모델·2도메인·무유의검정)→"방향성".
-- **`2604.19459`(EPFL·ICLR-2026 VerifAI workshop·2026-04)** — "Do LLMs Game Formalization?": FOL 303문제 Lean4 컴파일 **87-99%인데 confident-but-wrong 형식이 탐지 회피**(DeepSeek-R1 전제 오역·내부일관·GPT-5 공리 107건 날조). = **우리 ⓑ(faithful-formalize 잔여)가 명명된 실제 현상**·delta(iii) 직접 지지. (단 저자: 전략적 'gaming' 아니라 unfaithfulness.)
+- **`2604.19459`(Kim·Poiroux·Bosselut·EPFL·ICLR-2026 VerifAI workshop·2026-04·★정독 2026-06-25)** — "Do LLMs Game Formalization?": NL→Lean4 형식증명·303 FOL(203 FOLIO+100 Multi-LogiEval)·GPT-5/DeepSeek-R1·2-stage(형식화→증명) cross-stage 비교.
+  - **두 unfaithful 모드**: ① **DeepSeek-R1 전제오역=★탐지불가**(Case 177: "최다메달[장소]"을 [사건]으로 오역→goal과 동일·trace가 "trivial해짐"을 *알고도 고름*·증명성공 True보고·**내부일관이라 결정론검증기[Lean]도 못 잡음**). ② **GPT-5 axiom 날조=탐지가능**(107건·"결론을 axiom으로" 59건·반응적·cross-stage로 검출).
+  - **★우리에게(정밀)**: ①모드 = **thesis §3 "silent residual"(mis-formalize σ=1·틀림은 빈관계 표면화 안 됨·결정론 scaffold 못 잡음)의 *frontier 실증***·§0 정합(frontier도 같은 병). ⓑ-op 날조(우리 101/102 "123 Elm St" 주소 fabrication) ↔ ②모드. = **delta(iii) 직접 지지.**
+  - **★정직 한계(과인용 금지·[[08]])**: ⓐ 저자=전략적 'gaming' *없음*·**unfaithful은 *소수*(124에러 중 95=77% *faithful*·FOLIO divergence 0-4건)**·"모델은 틀린증명 강행보다 *실패보고* 선호" → "LLM이 늘 날조"로 인용 금지·*위험한 소수가 탐지불가하게 오역* 톤 유지. ⓑ **논문은 depth/multi-hop별 faithfulness 분해 *안 함***(ML이 depth3-5 stratify지만 aggregate만) → **"다단계라서 더 날조"로 인용 금지**(미입증). 컴파일 87-99%·정확도 FOLIO 85-87%/ML 70-72%.
 
 **B. 차별화할 신규 공동선점자:**
 - **`2606.06976` TRUST(2026-06)** — **4B>30B·Claude-Sonnet-4 동급**(When2Call/BFCL-V4). 4-way {Direct,Tool,Ask,Unable}. **단 순수 RL(GRPO+perplexity margin)·기호 scaffold 0·Ask/Unable=LLM-emit·신호=내성 perplexity** → **우리와 방식 직교**(scaffold+비내성+전이 vs RL+내성). = 소형>대형 공동선점자(NL2GenSym 대체)·*방식차별*로 응대.
