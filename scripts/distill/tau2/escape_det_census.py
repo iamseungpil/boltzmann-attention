@@ -42,16 +42,21 @@ def all_sims(sim_dir):
     return r["simulations"]
 
 
-def census(sim_dir, taskset):
+def census(sim_dir, taskset, clean=False):
     tasks = {str(t["id"]): t for t in load_json(os.path.join(DOM, "tasks.json"))}
     lc = defaultdict(int)          # layer -> gold-write 수
     n_gold = 0                     # gold-write 합
     n_sims = 0                     # 대상 sim 수
     over_writes = 0                # 여분 write 총수
     sims_with_over = 0
+    n_excluded = 0                 # ★[[08]] crash/infra 배제 수
+    bp = {}                        # task -> per-trial pass(0/1)
     for s in all_sims(sim_dir):
         tid = str(s["task_id"])
         if tid not in taskset:
+            continue
+        if clean and (s.get("termination_reason") not in (None, "user_stop")):
+            n_excluded += 1
             continue
         t = tasks.get(tid)
         if t is None:
@@ -68,9 +73,10 @@ def census(sim_dir, taskset):
         if over:
             sims_with_over += 1
             over_writes += len(over)
-    # pass^k (보조)
-    bp = per_task_pass(sim_dir)
-    bp = {tid: v for tid, v in bp.items() if tid in taskset}
+        ri = s.get("reward_info") or {}
+        rew = ri.get("reward")
+        bp.setdefault(tid, []).append(1 if (rew is not None and float(rew) >= 0.999) else 0)
+    # pass^k (보조·동일 필터 적용)
     flat = [x for v in bp.values() for x in v]
     pass1 = sum(flat) / len(flat) if flat else 0.0
     pass_all = sum(1 for v in bp.values() if v and all(v)) / len(bp) if bp else 0.0
@@ -86,6 +92,7 @@ def census(sim_dir, taskset):
         "over_rate": sims_with_over / max(n_sims, 1),
         "over_writes": over_writes,
         "pass1": pass1, "pass_all": pass_all, "pass_any": pass_any, "n_tasks": len(bp),
+        "n_excluded": n_excluded,
     }
 
 
@@ -94,6 +101,7 @@ def main():
     ap.add_argument("--dirs", required=True, help="label:dir,label:dir,...")
     ap.add_argument("--tasks", default="all", choices=["all", "gap"])
     ap.add_argument("--floor", default="on_n32int8_floor_retail", help="gap anchor (--tasks gap)")
+    ap.add_argument("--clean", action="store_true", help="★[[08]] non-user_stop(infra/crash) sim 배제")
     args = ap.parse_args()
 
     if args.tasks == "gap":
@@ -112,14 +120,15 @@ def main():
     rows = []
     for label, d in pairs:
         try:
-            c = census(d, taskset)
+            c = census(d, taskset, clean=args.clean)
         except Exception as e:
             print(f"{label:<16} ERROR {e}")
             continue
         rows.append((label, c))
-        print("{:<16}{:>8.3f}{:>8.3f}{:>8.3f}{:>6.1f}%{:>5}{:>5}{:>5}{:>5}{:>6}{:>7}{:>7.3f}{:>8.3f}".format(
+        ex = f" [excl {c['n_excluded']}]" if c["n_excluded"] else ""
+        print("{:<16}{:>8.3f}{:>8.3f}{:>8.3f}{:>6.1f}%{:>5}{:>5}{:>5}{:>5}{:>6}{:>7}{:>7.3f}{:>8.3f}{}".format(
             label, c["operator_correct"], c["orderpick_correct"], c["write_match"], 100 * c["over_rate"],
-            c["L0"], c["L1"], c["L2"], c["L3"], c["MISS"], c["MATCH"], c["pass1"], c["pass_all"]))
+            c["L0"], c["L1"], c["L2"], c["L3"], c["MISS"], c["MATCH"], c["pass1"], c["pass_all"], ex))
 
     # 누적 delta vs 첫 항(floor)
     if len(rows) >= 2:
