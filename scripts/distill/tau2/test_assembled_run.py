@@ -77,6 +77,21 @@ ok2, _, _ = gi_c.check("exchange_delivered_order_items", {"item_ids": ["x"], "ne
 check("disjoint: new==old → deny", not ok1)
 check("disjoint: new!=old → allow", ok2)
 
+# ─── 게이트5: deny-present 부활 차단 (리뷰 2026-06-26·config 불변식) ───
+# present는 read-증강(candidate_summary)만·select_confirm deny-경로는 replay 깸([[06]] 폐기).
+# 드라이버 env가 select_confirm을 T2_GATE_KINDS서 제외 + T2_PRESENT_READS=1(read-aug 활성)을 강제하는지 test로 박음.
+print("게이트5 — deny-present 부활 차단 (드라이버 config 불변식):")
+_drv = os.path.join(os.path.dirname(os.path.abspath(__file__)), "reexp_assembled.sh")
+if os.path.exists(_drv):
+    _txt = open(_drv, encoding="utf-8").read()
+    _gk = re.search(r"T2_GATE_KINDS=([^\s]+)", _txt)
+    _kinds = (_gk.group(1) if _gk else "")
+    check("드라이버 T2_GATE_KINDS에 select_confirm 없음(deny-present 제외)", "select_confirm" not in _kinds, _kinds)
+    check("드라이버 T2_PRESENT_READS=1 (read-aug present 활성)", "T2_PRESENT_READS=1" in _txt)
+    check("드라이버 T2_CALC=1 (calc arm 활성)", "T2_CALC=1" in _txt)
+else:
+    check("reexp_assembled.sh 존재", False, "드라이버 없음")
+
 print()
 if _fails:
     print(f"❌ {len(_fails)} GATE FAIL → full-run 자격 없음: {_fails}")

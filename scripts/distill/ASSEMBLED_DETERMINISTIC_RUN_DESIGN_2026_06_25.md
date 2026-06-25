@@ -41,7 +41,9 @@
 |---|---|---|
 | **present-closed operand** | present-개선이 닫음 | **결정론 승리**(learn 아님) |
 | **present-but-wrong operand** | raw choice-set 줘도 틀림 | **capability-or-learn = priority-4 SFT 유일 타깃** |
-| calc_NL-but-not-reported | 계산 주입했으나 보고 실패 | report-conversion(prompt/scaffold) |
+| **calc_NL (★2-way 분리·리뷰 2026-06-26)** | calc 범위 = available-count(count_where)·order-total(sum)만 | ↓ |
+| ── 계산 주입했으나 미보고 | report-conversion 실패 | prompt/scaffold |
+| ── 애초에 calc 범위 밖 | **subset-refund($918.43=반품품목만 합·t104/t28류)·tracking#(lookup spec 無)** | **calc 확장 필요**(report-conv 실패 아님) |
 | no-write/orchestration | 도달 실패 | recovery/auth·user-sim |
 - **★공정 present → copy축 소거 (#2·종착 질문 단순화)**: present가 *값을 열거*하면(주소·item_id·변형 화면에 있음) **copy-fabrication이 구조적으로 제거**(날조할 게 없음). ⇒ **present-but-wrong = 순수 selection/criterion-formalize = non-C4 (by construction).** 즉 §5의 "C4-copy vs criterion-formalize" 갈림이 present가 값 열거하는 한 *자동 해소* → present-but-wrong = **learn-able criterion-formalize 한 종류 = learn-GO 후보**(C4 전이음성 아님). *단 #1 경계(enumerate-not-resolve) 지킬 때만.*
 - **present-but-wrong operand = 이 arc 전체의 종착 질문**·위 #2로 learn-GO 후보(criterion-formalize)로 깔끔히 떨어짐(C4 dead-end 아님).
