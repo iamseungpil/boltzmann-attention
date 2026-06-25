@@ -433,7 +433,7 @@
 | **`V9_ANTIFABRICATION_DESIGN_2026_06_15.md`** | **anti-fab 설계**: randomization(긍정)+DPO/RLVR(부정·스키마-example 페널티)·검증기 through-line(가드/라벨/보상)·M0 prototype 결과(레버 작동·write 벽). | ★활성 (v9·리뷰됨) |
 | **`olver_dimension_experiment.py`** | **§5.14 실험2 (Olver 차원법칙)**: 표면군 등방화→불변 eff-dim 측정. 1차 결과=var-side robust·불변 저차원(추상=저차원 thesis 지지). coverage 진단으로 확장(§9.5). | ★활성 (이론검증·측정) |
 | **`AUTONOMOUS_PROGRESS_2026_06_14.md`** | **진행로그(시각순)**: R1b·v4정지·τ² autopsy·v6 fetch-teaching·v7 CFB·06-15 도출닫힘+census+v6/v7 eval+provenance+Olver. 핸드오프 보조. | 진행로그 (시각순) |
-| **`A2_FRONTEND_DISTILL_DESIGN.md`** | **★A2 생성기 학습 구조 (2026-06-12 신설)**: 역방향 렌더링 데이터엔진(spec→NL=GT 구성보장)·S0합성SFT→S1 verified-distill(실 22도메인 LODO)→S2 on-policy DPO·판정="시스템(소형K+검증기-선별) vs frontier 단일샷"·LOCK 비적용 논증(§0). ⚠️t1c-소스 부분은 plan X가 FC-rollout으로 대체(NATIVE_FC §3a) — A2=NL→GATE_SPEC 컴파일러(per-domain ABox)는 유효 | ★활성 (A2 컴파일러=thesis core·유효) |
+| **`A2_FRONTEND_DISTILL_DESIGN.md`** | **★A2 생성기 학습 구조 (2026-06-12 신설)**: 역방향 렌더링 데이터엔진(spec→NL=GT 구성보장)·S0합성SFT→S1 verified-distill(실 22도메인 LODO)→S2 on-policy DPO·판정="시스템(소형K+검증기-선별) vs frontier 단일샷"·LOCK 비적용 논증(§0). ⚠️t1c-소스 부분은 plan X가 FC-rollout으로 대체(NATIVE_FC §3a) — A2=NL→GATE_SPEC 컴파일러(per-domain ABox)는 유효 | ⏸️별도 논문 (2026-06-25 [[06]] 범위분리·NL→A2 자동생성=후속 논문. 현 논문=A2 수작성·고정 전제) |
 | `WORKFLOW_ONTOLOGY_DESIGN.md` | TBox/ABox 개념 원본(planner L0/L1/L2) | ⚠️superseded (개념=유효·dirgraph-emit 표현은 native-FC가 대체) |
 | `TASK_CONSTRAINT_DESIGN.md` | SOPBench should_T 게이트 진단(Rung1-2) | ⚠️superseded (scaffold-line·plan X 무관) |
 | `GRPO_REWARD_DESIGN.md` | RFT reward 함수·GRPO 루프(Rung2 상세) | detail |

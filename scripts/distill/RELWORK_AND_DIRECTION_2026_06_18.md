@@ -236,7 +236,7 @@
 - **`2402.00367`(ACL2024) Don't Hallucinate Abstain** — abstain을 multi-LLM 협력으로 외재화(*자기반성·held-out 실패 때문에* 명시) = 우리 비내성 동기 지지.
 - ⇒ 비내성·구조적 외재화는 *활발*하나 **학습된 빈관계 사건은 0** → delta(i) 방식상 생존.
 
-**D. A2_FRONTEND 직접 선행 (방금 논의 연결):**
+**D. A2_FRONTEND 직접 선행 (⏸️별도 논문·2026-06-25 [[06]] 범위분리 — 현 논문 제외·NL→A2 자동생성=후속 논문. 아래 cite는 그 후속 논문 relwork용):**
 - **`2512.18189` NL2CA(2025-12)** — **fine-tuned Qwen3-0.6B**가 NL→LTL→unsupervised Critic Tree→**pyactr(ACT-R) production 컴파일·완전자동·human 0.** = **"NL→A2 생성기"(`A2_FRONTEND_DISTILL`)의 직접 선행·0.6B로 됨**(소형 NL→기호 컴파일 입증·NL2GenSym과 같은 Generator-Critic). A2_FRONTEND 재개 시 방법 참조. 단 단일 깨끗 파이프라인.
 
 **E. open question / 정밀필요:** ① AAAI-26(Jones/Wray/Laird·`41081`) "no-compliant-action=구조적 사건"=검증실패(1-2)·close-read 필요 ② delta(ii) 청구자 0은 *음성증거*(약함)→cognitive-arch 전이·ABox-swap 문헌 표적탐색 권고 ③ ACT-R+LLM(LLM-ACTR 후속) bake vs swap 대조 확인.
