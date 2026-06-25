@@ -214,5 +214,28 @@
 ### 10.2 종합 위치 (epistemic-A2 방향)
 - **공통 패턴(이 계보 전체)**: "LLM=생성/형식화, 결정론·기호계=실행·검증"의 분담 + 다수 사례서 "결정론-우선/LLM-폴백" + "소형/적은비용이 충분"([[41]] 정합). ⇒ 분담 *원리*·소형 결과는 **우리 발명 아님**(가족 것·인용).
 - **우리 고유(이 계보가 안 가진 것)**: ① **빈관계로 외재화된 epistemic abstention + 학습된 `empty→ASK`**(내성 우회·SOAR impasse의 LLM판·아무도 안 함) ② **스키마-일반 A2 고정 + 내용 swap 재학습0 전이**(LLM-ACTR/MERLIN2=전이無·Bootstrapping=도메인내 production성장) ③ **소형 LLM의 도메인일반 스킬을 *가중치 학습*하되 도메인은 안 굽음**(NL2GenSym/Bootstrapping=대형·LLM-ACTR=도메인 가중치주입) ④ TCO/비용 명시.
-- **권위 활용**: Wray-Kirk-Laird = impasse 패턴·반(反)내성 설계의 권위 인용. CoALA = 우산 위치설정. NL2GenSym = 가장 가까운 이웃이자 "소형>대형" 헤드라인 공동선점자 → 방식차별(abstain·전이·비용)로 응대.
+- **권위 활용**: Wray-Kirk-Laird = impasse 패턴·반(反)내성 설계의 권위 인용. CoALA = 우산 위치설정. NL2GenSym = 가장 가까운 *방법* 이웃(LLM→SOAR 규칙 생성). **⚠️정정(2026-06-25 딥리서치 적대검증 1-2 killed)**: NL2GenSym "소형>대형" 헤드라인은 *검증 실패* → 공동선점자로 인용 금지. **소형>대형 공동선점자 = TRUST(2606.06976)로 교체**(§10.3).
 - ⚠️ [[05]]/[[03]] 드리프트 차단: SOAR/이 계보는 **framing·선행근거·실패 census 재라벨**로만 사용·결정사이클/chunking 엔진 *이식 금지*(우리 scaffold가 이미 최소판). 상세 = `EPISTEMIC_A2_THESIS §3` SOAR 블록 delta.
+
+### 10.3 ★2025 H2 – 2026 갱신 (딥리서치 2026-06-25·23/25 적대검증·전부 primary)
+**결론: 신규 문헌이 세 델타로 *수렴*하나 어느 것도 완전 scoop 안 함. (iii) 검증·(i) 방식상 미scoop·(ii) 청구자 0.**
+
+**A. 우리를 *지지*하는 신규 인용 (scoop 아님·반드시 인용):**
+- **`2602.05073`(2026-02)** — **tau2-bench서** LLM verbalized confidence·NLL·Entropy가 task성공 예측에 거의 random(AUROC 0.47-0.69)·**궤적 길수록 confidence 부풀음**. = **§0 비내성 명제를 *우리 정확한 벤치*서 실증.** 보강 `2602.06948`(agentic overconfidence)·`2601.07264`(tool miscalibration). ⚠️caveat: pilot-scale(2모델·2도메인·무유의검정)→"방향성".
+- **`2604.19459`(EPFL·ICLR-2026 VerifAI workshop·2026-04)** — "Do LLMs Game Formalization?": FOL 303문제 Lean4 컴파일 **87-99%인데 confident-but-wrong 형식이 탐지 회피**(DeepSeek-R1 전제 오역·내부일관·GPT-5 공리 107건 날조). = **우리 ⓑ(faithful-formalize 잔여)가 명명된 실제 현상**·delta(iii) 직접 지지. (단 저자: 전략적 'gaming' 아니라 unfaithfulness.)
+
+**B. 차별화할 신규 공동선점자:**
+- **`2606.06976` TRUST(2026-06)** — **4B>30B·Claude-Sonnet-4 동급**(When2Call/BFCL-V4). 4-way {Direct,Tool,Ask,Unable}. **단 순수 RL(GRPO+perplexity margin)·기호 scaffold 0·Ask/Unable=LLM-emit·신호=내성 perplexity** → **우리와 방식 직교**(scaffold+비내성+전이 vs RL+내성). = 소형>대형 공동선점자(NL2GenSym 대체)·*방식차별*로 응대.
+
+**C. delta(i) 이웃(=경계·미scoop 확정):** 우리 "학습된 빈관계→ASK"의 이웃들 — 전부 *학습 아님*:
+- **`2511.08798` SAGE-Agent** — tool-parameter 도메인 위 구조적 belief state(LLM confidence 무관)+**결정론 EVPI 정지규칙**. 비내성·구조적·*그러나 hand-specified Bayesian*(학습 아님). 7-39% coverage↑·질문 1.5-2.7×↓.
+- **`2603.26233` Ask-or-Assume** — underspecification 탐지를 실행서 분리(별 agent)·*그러나 탐지기=LLM judge*.
+- **`2402.00367`(ACL2024) Don't Hallucinate Abstain** — abstain을 multi-LLM 협력으로 외재화(*자기반성·held-out 실패 때문에* 명시) = 우리 비내성 동기 지지.
+- ⇒ 비내성·구조적 외재화는 *활발*하나 **학습된 빈관계 사건은 0** → delta(i) 방식상 생존.
+
+**D. A2_FRONTEND 직접 선행 (방금 논의 연결):**
+- **`2512.18189` NL2CA(2025-12)** — **fine-tuned Qwen3-0.6B**가 NL→LTL→unsupervised Critic Tree→**pyactr(ACT-R) production 컴파일·완전자동·human 0.** = **"NL→A2 생성기"(`A2_FRONTEND_DISTILL`)의 직접 선행·0.6B로 됨**(소형 NL→기호 컴파일 입증·NL2GenSym과 같은 Generator-Critic). A2_FRONTEND 재개 시 방법 참조. 단 단일 깨끗 파이프라인.
+
+**E. open question / 정밀필요:** ① AAAI-26(Jones/Wray/Laird·`41081`) "no-compliant-action=구조적 사건"=검증실패(1-2)·close-read 필요 ② delta(ii) 청구자 0은 *음성증거*(약함)→cognitive-arch 전이·ABox-swap 문헌 표적탐색 권고 ③ ACT-R+LLM(LLM-ACTR 후속) bake vs swap 대조 확인.
+
+**F. 종합 위치 변화**: 세 델타 *강화*. 특히 §0(비내성)과 ⓑ(faithful-formalize)가 *2026 1차문헌으로 외부 검증*됨 = 우리 진단의 신뢰도↑. 헤드라인 정정: 소형>대형=TRUST 대비 *방식*(scaffold·비내성·전이·TCO)으로 차별.
