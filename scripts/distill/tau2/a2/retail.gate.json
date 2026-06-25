@@ -152,7 +152,8 @@
         "address",
         "items"
       ],
-      "message": "DISAMBIGUATION CHECK — before committing this write, here are ALL of this customer's orders. Re-read the customer's request and verify the order_id you are about to use is the one they mean (disambiguate by shipping address, item contents/count, status). If it is wrong, call the write again with the correct order_id."
+      "message": "DISAMBIGUATION CHECK — before committing this write, here are ALL of this customer's orders. Re-read the customer's request and verify the order_id you are about to use is the one they mean (disambiguate by shipping address, item contents/count, status). If it is wrong, call the write again with the correct order_id.",
+      "present_label": "order"
     }
   ],
   "producers": {

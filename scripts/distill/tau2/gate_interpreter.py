@@ -279,21 +279,21 @@ def candidate_summary(resolvers, gate, uid):
     if not ids or not isinstance(ids, (list, tuple)) or len(ids) <= 1:
         return None
     id_arg = gate.get("detail_id_arg", "order_id")
+    fields = gate.get("present_fields") or []
+    label = gate.get("present_label", "entity")  # A2: 도메인 명칭(order/reservation…)
     lines = []
     for cid in ids:
         rec = fr(gate.get("detail_producer"), id_arg, cid)
         if not isinstance(rec, dict):
             continue
-        ad = rec.get("address") or {}
-        items = rec.get("items") or []
-        names = ", ".join(str(it.get("name")) for it in items if isinstance(it, dict))
-        lines.append(f"- {cid}: status={rec.get('status')}, ship_to={ad.get('city')},{ad.get('state')}, "
-                     f"{len(items)} item(s): {names}")
+        # ★도메인-일반: A2가 정한 present_fields를 *그대로* dump (필드 구조 해석 0·grep retail=0).
+        shown = {f: rec.get(f) for f in fields} if fields else rec
+        lines.append(f"- {cid}: {json.dumps(shown, default=str, ensure_ascii=False)}")
     if not lines:
         return None
-    return ("\n\n[DISAMBIGUATION NOTE — this customer's full order list]\n" + "\n".join(lines) +
-            "\nBefore any modify/cancel/exchange, pick the order_id matching the customer's request "
-            "(disambiguate by shipping address, item contents, or item count).")
+    return (f"\n\n[DISAMBIGUATION NOTE — this customer's full {label} list]\n" + "\n".join(lines) +
+            f"\nBefore any write, pick the {id_arg} matching the customer's request "
+            "by comparing the fields above to what the customer described.")
 
 
 def auth_satisfier_tools(gates):
