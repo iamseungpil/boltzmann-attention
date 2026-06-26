@@ -34,9 +34,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--agent_base", default="http://localhost:8360/v1")
     ap.add_argument("--agent_model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
-    ap.add_argument("--max", type=int, default=120)
+    ap.add_argument("--max", type=int, default=100000)
+    ap.add_argument("--quiet", action="store_true", help="실패만 출력(컨텍스트 절약)")
     a = ap.parse_args()
     rows = []
+    orow = []  # ⋈ order-pick rows
     for t in TASKS:
         tid = str(t["id"])
         reason = str(t.get("user_scenario", {}).get("instructions", {}).get("reason_for_call", ""))[:700]
@@ -63,16 +65,32 @@ def main():
                           f"\n\nWhich item_id should this {p['name']} be changed to? Output ONLY the item_id.")
                 ans = ask(prompt, a.agent_model, a.agent_base)
                 pick = next((vid for vid in vs if vid in ans), None)
-                rows.append(dict(tid=tid, kind="variant", gold=gold_new, pick=pick, ok=(gold_new in ans),
-                                 gold_argmax=(gold_new == maxp), gold_argmin=(gold_new == minp),
-                                 pick_argmax=(pick == maxp), pick_argmin=(pick == minp),
-                                 gold_avail=avail.get(gold_new), compound=compound, budget=budget_dep, nvar=len(vs)))
-                if len(rows) >= a.max:
-                    break
-            if len(rows) >= a.max:
-                break
-        if len(rows) >= a.max:
-            break
+                r = dict(tid=tid, kind="variant", gold=gold_new, pick=pick, ok=(gold_new in ans),
+                         gold_argmax=(gold_new == maxp), gold_argmin=(gold_new == minp),
+                         pick_argmax=(pick == maxp), pick_argmin=(pick == minp),
+                         gold_avail=avail.get(gold_new), compound=compound, budget=budget_dep, nvar=len(vs))
+                rows.append(r)
+                if not a.quiet or not r["ok"]:
+                    print(f"t{tid} variant {old_id}->{gold_new}: {'OK' if r['ok'] else 'X '+str(pick)}")
+        # ── ⋈ order-pick (전 task·gold write의 order_id·user>1 order·decision당 1회) ──
+        seen_dec = set()
+        for act in (t.get("evaluation_criteria", {}) or {}).get("actions", []):
+            goid = (act.get("arguments") or {}).get("order_id")
+            if not goid or goid not in orders or goid in seen_dec:
+                continue
+            uid = orders[goid].get("user_id")
+            uords = {oid: o for oid, o in orders.items() if o.get("user_id") == uid}
+            if len(uords) <= 1:
+                continue
+            seen_dec.add(goid)
+            lines = [f"  {oid}: status={o['status']} ship_to={o['address'].get('city')},{o['address'].get('state')} items={[i['name'] for i in o['items']][:4]}" for oid, o in uords.items()]
+            prompt = (f"Customer's request:\n{reason}\n\nThe customer's orders:\n" + "\n".join(lines) +
+                      f"\n\nWhich order_id is the one the customer is referring to for this change/return? Output ONLY the order_id.")
+            ans = ask(prompt, a.agent_model, a.agent_base)
+            ok = str(goid) in ans
+            orow.append(dict(tid=tid, gold=goid, ok=ok, nord=len(uords)))
+            if not a.quiet or not ok:
+                print(f"t{tid} ⋈order ->{goid}: {'OK' if ok else 'X'}")
     # ── aggregate ──
     n = len(rows); ok = sum(r["ok"] for r in rows)
     print(f"=== isolated variant-pick n={n} · 정답 {ok}/{n} ({ok/n:.0%}) ===\n")
@@ -98,6 +116,15 @@ def main():
     print(f"\n단순기준(non-compound/budget) 정답률: {sum(r['ok'] for r in simple)}/{len(simple)} ({(sum(r['ok'] for r in simple)/max(len(simple),1)):.0%})")
     comp = [r for r in rows if r["compound"] or r["budget"]]
     print(f"복합/예산기준 정답률: {sum(r['ok'] for r in comp)}/{len(comp)} ({(sum(r['ok'] for r in comp)/max(len(comp),1)):.0%})")
+    # ── ⋈ order-pick 집계 ──
+    if orow:
+        ook = sum(r["ok"] for r in orow)
+        print(f"\n=== isolated ⋈ order-pick n={len(orow)} · 정답 {ook}/{len(orow)} ({ook/len(orow):.0%}) ===")
+        multi = [r for r in orow if r["nord"] >= 3]
+        print(f"  (orders>=3인 어려운 케이스: {sum(r['ok'] for r in multi)}/{len(multi)})")
+    # ── 전체 operand 종합 ──
+    alln = n + len(orow); allok = ok + (sum(r["ok"] for r in orow) if orow else 0)
+    print(f"\n=== ★전체 operand-pick(변형+⋈) n={alln} · 정답 {allok}/{alln} ({allok/alln:.0%}) ===")
 
 
 if __name__ == "__main__":
