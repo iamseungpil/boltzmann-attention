@@ -1,7 +1,9 @@
 # ORCHESTRATION-UNDER-LOAD = 능력 공개 기술 + plan/execute 분리 + 3-레버 통제 비교 (설계서)
 
-> **상태**: 설계(리뷰 대기). 구현은 리뷰 후. 진입=`06-NOW`·`HANDOFF_2026_06_26`·`MAKEORBREAK_VERDICT_2026_06_26`.
-> **한 줄**: operand make-or-break NO-GO 이후 32B의 *진짜 미해결 잔여*=orchestration-under-load. 이를 단일 능력이 아닌 **5기능으로 공개 기술**하고, 각 기능을 **{LLM 짧은 번역 / 결정론 controller}**로 귀속한 뒤, 닫는 레버를 **{query-method / scaffold-controller / learn-rules}** 3축으로 **통제 비교**한다. 비용=gpt-4.1 0(로컬 우선).
+> **상태**: 설계(리뷰#1 반영·2026-06-26). 진입=`06-NOW`·`HANDOFF_2026_06_26`·`MAKEORBREAK_VERDICT_2026_06_26`.
+> **한 줄**: operand make-or-break NO-GO 이후 32B의 *진짜 미해결 잔여*=orchestration-under-load. 이를 단일 능력이 아닌 **5기능으로 공개 기술**하고, 각 기능을 **{LLM 짧은 번역 / 결정론 controller}**로 귀속한 뒤, 닫는 레버를 **{결정론-orchestration-scaffold / learn-rules}** 2분류로 **통제 비교**한다. 비용=gpt-4.1 0(로컬 우선).
+>
+> **★리뷰#1 반영 요지(2026-06-26)**: (1) **빌드 범위=Phase-0 `plan_probe.py` 단 1개로 시작**(나머지 phase는 결과가 요구할 때만·미리 짓지 말 것). (2) **유료 경로는 무료 probe 뒤로 게이팅**: H1은 plan_probe(무료)+이미측정된 atomic-isolation(GIVEN-SPEC 100%)으로 답 가능→end-to-end(유료/비싼 user-sim)는 결론 후 승인후 1회 확인만. (3) **plan_probe는 "plan-correct-in-isolation"을 잼**(planning이 블로커냐 실행이냐)·**(i)SELECT/(ii)GENERATE 구분은 출력만으론 불가→부차로 강등**. (4) **n=5는 rate 아님→C3 트리거=케이스 기반**("격리서도 plan-틀림 genuine 케이스 ≥1 생존?")·% 폐기. (5) 레버=깨끗한 query-vs-scaffold A/B 아님→**{baseline / 결정론-orchestration / learn} 3분류**(C1/C2=내부 진단증분). (6) **순환 주의**: 5-셋=orchestration-fail로 정의됨→"닫힘"이 "orchestration 일반 닫힘" 주장 못 함(일반화=후행).
 
 ---
 
@@ -112,9 +114,16 @@ tau2는 트랜잭션 closure 유한([[02]])→**대부분 (i) 추정**. 그러�
 
 ---
 
-## §7. 비용규율 ([[09]]·엄수)
+## §7. 비용규율 ([[09]]·엄수·★리뷰#1 교정)
 
-- **gpt-4.1 user-sim=유일 유료.** Phase 0/C1 atomic-probe/plan-probe=전부 로컬 32B(gpt-4.1 0). full-flow robust도 **Claude-user-sim 먼저**, gpt-4.1는 **최종 확인 1회·승인후·1스케일.**
+- **user-sim 무료/유료 정명**(혼동의 뿌리였음):
+  | 모드 | 비용 | 정체 |
+  |---|---|---|
+  | **scripted-replay** (`claude_user_batch.py`·고정턴 JSON) | **무료** | 로컬 32B 전용·user 턴=정적 문자열·Claude/gpt-4.1 API 0 |
+  | live user-sim — gpt-4.1 | 유료(최저) | OpenRouter 예산 |
+  | live user-sim — Claude API | 유료(**최악 15-30x**·[[30]] COST GUARD) | 절대 기본 아님 |
+  - 즉 지금까지 돌린 배치=이미 무료. "Claude-user-sim"이 {무료 스크립트 / 유료 live}를 한 이름으로 덮어 위험했음→분리 명명.
+- **유료 게이팅(엄수)**: Phase-0 `plan_probe`=로컬 32B 무료. atomic-isolation=이미 측정(GIVEN-SPEC 100%). → **H1/H2 무료로 답** → live user-sim end-to-end는 **결론 선 뒤·승인후·1회 확인만**(탐색목적 금지).
 - **결과 즉시 영속화**([[30]]): gzip→`reports/facet_rft_2026/sim_results/`→`git add -f`+push. 재런=distinct tag.
 - **full-run 전 SMOKE**(레버 실발화·크래시0). 천장주장 전 발화율 전수.
 
@@ -161,9 +170,9 @@ tau2는 트랜잭션 closure 유한([[02]])→**대부분 (i) 추정**. 그러�
 
 ---
 
-## §12. 리뷰 질문 (사용자 확인용)
+## §12. 리뷰#1 합의 (확정)
 
-1. **범위**: 1차 task셋=orchestration-잔여 5+family로 충분한가, 아니면 retail 전 task로 넓히나?
-2. **C1 우선**: plan-execute 하네스(C1)부터 짤지, controller(C2)와 한 묶음으로 설계할지?
-3. **적응형 user-sim**: end-to-end 비교용 적응형 Claude-user-sim을 이번에 만들지(고정턴 confound 제거), 아니면 Phase 0 plan-probe만으로 1차 판정하고 미룰지?
-4. **C3 트리거**: plan-generate 잔여 임계(예: (ii)≥몇%)를 얼마로 둘지 — 그 미만이면 learn NO-GO 선언.
+1. **범위**: 1차=orchestration-잔여 5+family+대조군(case-level·무료). retail 전task 확대=레버 유망+rate 필요 시 승인후 후행.
+2. **빌드 순서**: C1/C2 하네스·adaptive user-sim **미리 짓지 말 것.** **Phase-0 `plan_probe` 1개만** 먼저→그 결과가 C1/C2 필요여부 결정.
+3. **adaptive user-sim**: 이번에 안 만듦(유료 end-to-end 전제). Phase-0=turn-confound 면역·무료→1차 판정 거기서.
+4. **C3 트리거**: **%가 아니라 케이스 기반** — C1/C2 후에도 "격리서 plan-틀림"인 genuine 케이스 ≥1 생존 시만 별도 GO. % 폐기([[06]] n=5).
