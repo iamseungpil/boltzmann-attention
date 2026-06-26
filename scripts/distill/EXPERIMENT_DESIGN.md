@@ -5,6 +5,27 @@
 
 ---
 
+## §0★★★ (2026-06-26 — ★현재 최상위 정렬·아래 §0★★(06-21)는 *유효·이 블록이 그 위에 실측 수렴 정렬*) — make-or-break 결과로 레버배정 갱신 + 비용규율
+> **이 블록 = §0★★ 마스터 매트릭스(능력×레버×스케일×field+비용)에 2026-06-26 실측을 정렬.** 새 프레임 아님 — §0★★ 그대로가 "비용-효율 능력 지도". 정본 결과 = `MAKEORBREAK_VERDICT_2026_06_26.md`. 메모리 `06-NOW`.
+
+**■ make-or-break 1차 측정 결과 (tau2 retail·32B·통제실험·gpt-4.1 0원)**:
+- **operand 실행능력 = 100% (GIVEN-SPEC·88/88)**: spec 주면 32B base가 매번 정확. → **C10(operand/value-formalize)의 "minimal LoRA" 배정은 32B서 *갱신*** — operand는 capability gap 아님. "operand 실패"=GOAL→spec criterion-해석(갭30%) = **C9 resolve(argmax/argmin/filter=결정론 compute) + ⋈(present) + user-sim 대화-아티팩트**. **faithful-formalize SFT = 32B서 NO-GO.**
+- ⇒ §0★★ "B(operand)=scale-불변 학습잔여" 정정: **B의 *실행*분은 32B서 닫힘·잔여는 criterion-compute(C9)/⋈/측정아티팩트**. C10 학습은 *소형(7B)서 base가 GIVEN-SPEC도 약할 때만* 정당(미측정·아래 계획).
+- **측정교훈(R8 강화)**: operand "실패"는 측정/대화 fidelity 산물(calc버그→t71성급→⋈probe아티팩트→통제하니 100%). 집계→결론 직행 반복 위반. 통제변인(GIVEN-SPEC vs GOAL·order ID-given vs DESCRIBED) 분리 필수.
+
+**■ scaffold 2종 정밀화 (5-레버·F3/F4 정렬)**:
+- **능력-scaffold(present·calc·resolve)** = 없는 스킬 대체 → **scale와 함께 물러남**(F3 pass·능력-출현 지도·§0★★ 매트릭스의 scale축).
+- **보장-scaffold(gates: auth/confirm/ownership/precond)** = 결정론 정책집행 → **scale 무관 항상 가치**(F4 compliant-pass·frontier도 "보장" 위해 씀). 
+- ⇒ "왜 큰 모델도 scaffold 일부 쓰나" = 보장-scaffold는 scale-invariant 신뢰층.
+
+**■ 비용규율 (예산 치명·엄수)**: gpt-4.1 user-sim=유일 유료. **로컬 검증(Claude-as-user-sim·기존데이터·isolated 통제probe·전부 gpt-4.1 0) 먼저 천장 *정확히* 확정 → full-run=*확인 1회만*·최소scope(1스케일)·승인후.** 탐색목적 full-run 금지. 도구: `claude_user_sim.py`/`claude_user_batch.py`/`gen_turns.py`/`operand_controlled.py`. 결과 영속화=`reports/facet_rft_2026/sim_results/`(gitignore 우회·소실방지).
+
+**■ 스케일 계획 (§0★★ scale축 채우기·사용자 2026-06-26)**: **32B base+scaffold/A2 천장 확정 → 7B/14B 같은 scaffold 그대로(빈약해 못하면 *그때* 학습=C10 벤치 필요성 경험판정) → 72B 같은 scaffold(큰 모델이 *더* 하는 것=headroom).** = 능력×scale 매트릭스 = 능력-출현 지도. tau2 시작 → 멀티벤치(airline/bank A2-swap·SOP/TB/Synth).
+
+**■ 이 블록이 갱신하는 doc**: `CAPABILITY_LEVER`(C9/C10 배정)·`EPISTEMIC_A2_THESIS §6`(make-or-break 결과)·`TCO_TABLE`(compliant-pass 천장 측정 후). A2_FRONTEND=별도 논문([[06]] 2026-06-25).
+
+---
+
 ## §0★★ (2026-06-21 — ★현재 최상위 권위·아래 06-18/06-17 §0 블록은 *흡수·역사*) — 비용-효과 배정 가이드라인 reframe
 > **권위 spine = [`CAPABILITY_LEVER_ALLOCATION_DESIGN_2026_06_21.md`](CAPABILITY_LEVER_ALLOCATION_DESIGN_2026_06_21.md)**. 메모리 `06-NOW`. 이 블록 = 오늘 논의 전체 그림의 공식화.
 

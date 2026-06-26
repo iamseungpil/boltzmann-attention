@@ -1,6 +1,8 @@
 # 능력×레버 배정 가이드라인 — ★논문 목표 (2026-06-21·사용자 reframe)
 
-> ★**마스터 진입점 = [`EXPERIMENT_DESIGN.md §0★★`](EXPERIMENT_DESIGN.md)** (이 문서가 그 spine·평가항목·마스터 실험·문서정렬은 거기). 메모리 `06-NOW`.
+> ★**마스터 진입점 = [`EXPERIMENT_DESIGN.md §0★★/§0★★★`](EXPERIMENT_DESIGN.md)** (이 문서가 그 spine·평가항목·마스터 실험·문서정렬은 거기). 메모리 `06-NOW`.
+
+> **★2026-06-26 배정 갱신 (make-or-break 통제실험·정본 `MAKEORBREAK_VERDICT_2026_06_26.md`·gpt-4.1 0)**: tau2 retail·32B서 **C10(operand/value-formalize) "minimal LoRA" 배정 갱신** — operand *실행*=GIVEN-SPEC 100%(32B base 네이티브·gap 아님). "operand 실패"=GOAL→spec criterion-해석 = **C9(selection-resolution: argmax/argmin/filter=결정론 compute) + ⋈(present) + user-sim 대화-아티팩트**. ⇒ **C10 minimal-LoRA는 32B서 NO-GO**(닫을 학습잔여 없음)·**소형(7B)서 base가 GIVEN-SPEC도 약할 때만 정당**(미측정·scale 스윕이 판정). 즉 §4 decidability-first가 더 강하게 성립: B(operand)의 실행분도 32B선 scaffold/compute(C9 resolve)로 닫힘, 학습은 최후. scaffold 2종 구분 추가: **능력-scaffold(present/calc/resolve)=scale로 물러남(F3) · 보장-scaffold(gates)=scale-invariant(F4 compliance)**.
 
 > **사용자 지시**: "기능을 더 세분화하고, 비용-효과 관점에서 각 기능을 효율적으로 *조합할 가이드라인을 설계*하는 것이 논문 목표. + 큰 모델이 하는 일을 작은 모델에서 *더 적은 구조/학습으로* 따라잡는 방법을 제시."
 > 상위 = `THESIS_STATEMENT_2026_06_16`(분담 명제·이 doc가 §3 라우팅표를 *완전 가이드라인*으로 확장)·`A2_MINIMIZATION_FRONTIER_DESIGN`·`M_A_RESULTS §35`. 불변 = [[00-thesis]][[05-fixed-vs-variable]][[13-absorption-priority]].
