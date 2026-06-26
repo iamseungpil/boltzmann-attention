@@ -1,0 +1,23 @@
+% =====================================================================
+% Section 04 — Method
+% CONTENT PLAN: benchmarks as instruments (tau2-retail primary; SOPBench/
+%   TaskBench/Synth training substrate; tau2 held out). Scale axis (Qwen2.5
+%   7/14/32B measured; 72B/235B projected). Cost discipline (frontier-API-free;
+%   local user-sim for discovery, paid GPT-4.1 sim only for final confirmation).
+%   Conditions (floor vs g15/present/nested/assembled; given-spec vs goal).
+%   Metrics (robust pass^all; F3/F4; per-dim partial correlation; cost row).
+% NOTE(experiments): the 72B/235B and 2nd-model-family points, the >=2 extra
+%   violation classes, the gate trade-off table, and the equivalence test are
+%   the experiments to be ADDED (see 07_future_work). Update this section's
+%   scale list and metrics when those land.
+% SUBSECTION TITLES: optional 4.1 Benchmarks / 4.2 Cost discipline /
+%   4.3 Conditions / 4.4 Metrics.
+% =====================================================================
+\section{Method}\label{sec:method}
+\textbf{Benchmarks as instruments.} $\tau^2$-retail is primary; SOPBench, TaskBench, and Synth are the training substrate for the lever allocation, while $\tau^2$ is held out as a transfer target and is never trained on. Scale axis: Qwen2.5 at 7B, 14B, and 32B (GPTQ int8), all measured; 72B and 235B projected (\S\ref{sec:future}).
+
+\textbf{Cost discipline.} The only paid component of the evaluation is a GPT-4.1 user simulator, which we avoid during discovery; capability is measured with isolated single-shot probes, existing multi-scale runs, and a local user simulator (faithful scripted turns over a local base model) for full-flow checks. Paid full runs serve only as a final confirmation of a conclusion already reached without them, at minimal scope.
+
+\textbf{Conditions.} A \emph{floor} condition (no scaffold) versus capability- and guarantee-scaffold conditions (\emph{g15}, \emph{present}, \emph{nested}, \emph{assembled}); a \emph{given-spec} versus \emph{goal} manipulation separates operand execution from criterion interpretation.
+
+\textbf{Metrics.} A robust pass rate (pass over all repeated trials per item; the user-simulator noise is $\approx0.11$, so single-trial figures are not reported as findings); a raw task-pass rate F3; a compliant-pass rate F4 (F3 less policy violations); per-dimension partial correlation of failure with each load feature (controlling for operand difficulty); controlled accuracy-versus-load onset curves; and a cost row per cell (latency, tool round-trips, memory and GPU tier, cost per request).

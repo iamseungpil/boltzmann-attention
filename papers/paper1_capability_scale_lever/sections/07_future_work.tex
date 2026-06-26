@@ -1,0 +1,14 @@
+% =====================================================================
+% Section 07 — Future Work
+% CONTENT PLAN: neutral prose (NO dollar amounts, NO "funded plan", NO eval-item
+%   numbers). The experiments that strengthen the claims, in order of value:
+%   72B (+ ideally a 2nd model family) compliance point; >=2 more violation
+%   classes; controlled multi-turn / length / conditional load probes;
+%   independent dL test; cross-field A2-swap; measured token accounting.
+%   Also (added per reviewer): a deterministic-gate trade-off table (ask-rate,
+%   false-block, latency, pass delta) and an equivalence/trend test on the flat
+%   per-write rate.
+% SUBSECTION TITLES: optional.
+% =====================================================================
+\section{Future Work}\label{sec:future}
+Several cells of the map are measured here and several remain projected; the natural next steps, in order of value, are as follows. The most consequential is a compliance measurement at 72B and above, ideally with a second model family, which would extend the F3/F4 scale-invariance result beyond 32B and separate a scale effect from a model-family effect. Second, the compliance result should be replicated across additional policy-violation classes and additional benchmarks (SOPBench in particular), since it currently rests on one violation class on one benchmark; alongside this, the deterministic gate should be reported with its utility cost---ask rate, blocked-action count, false positives, and latency---so that its benefit is weighed against its trade-off rather than asserted by construction. Third, the flat per-write-opportunity rate should be tested with an equivalence or trend test, not only by overlapping confidence intervals. Fourth, controlled multi-turn probes for the state and contradiction load dimensions, and controlled onset curves for length and conditional depth, would complete the load decomposition; an independent estimate of $\Delta L$ and a test of the load-reduction prediction at two or more scales would move the scaffold-as-load-reduction operator from hypothesis to validated relation. Fifth, a cross-field A2-swap (for example to airline or banking domains), with the fixed component held invariant and no retraining, would upgrade transfer from a design premise to a partially measured result. Finally, enabling measured token accounting would turn the cost-per-request figures from estimates into measurements and allow a sweep of size against total cost to locate the knee and the fleet mixture.

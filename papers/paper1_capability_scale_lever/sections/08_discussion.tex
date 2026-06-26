@@ -1,0 +1,11 @@
+% =====================================================================
+% Section 08 — Discussion
+% CONTENT PLAN: reframe deployment from model size to lever allocation under
+%   cost. Two asymmetries (capability scale-retired in order; compliance
+%   scale-invariant). Training a model to tolerate load = doing the controller's
+%   job; route to determinism by default, learning for the scale-dependent
+%   residual -> why the knee, not a fixed size, is the right object.
+% SUBSECTION TITLES: optional.
+% =====================================================================
+\section{Discussion}\label{sec:discussion}
+The result reframes the deployment question from model size to lever allocation under cost. Two asymmetries do the work: capability is scale-retired \emph{in a definite order} (a recede-able capability scaffold buys a small model the dimensions scale would otherwise provide), and compliance is \emph{scale-invariant} (a guarantee scaffold is retained even at the frontier). Training a model to tolerate load is training it to do the deterministic controller's job; the design instead routes that work to determinism by default and to learning only for the residual---a residual that is itself scale-dependent (empty for operand execution at 32B, non-empty at 7B), which is why the cost knee, rather than a fixed model size, is the right object.

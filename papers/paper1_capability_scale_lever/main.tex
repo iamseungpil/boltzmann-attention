@@ -1,0 +1,54 @@
+% =====================================================================
+% What Scale Buys in Tool-Use Agents — section-based LaTeX project.
+% Built with the academic-latex-pipeline skill (section folder + BibTeX).
+% Compile (3-pass): pdflatex main ; bibtex main ; pdflatex main ; pdflatex main
+%   or run ./build_and_compile.sh . Compiles on Overleaf (pdflatex+bibtex).
+% Paper is English -> pdflatex. (For a Korean build, switch to xelatex +
+% Noto Sans CJK KR per the latex-pipeline skill preamble.)
+% =====================================================================
+\documentclass[10pt]{article}
+\usepackage[letterpaper,margin=1.7cm]{geometry}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+
+% --- Overfull hbox prevention (latex-pipeline Phase 2.6) ---
+\tolerance=1000
+\emergencystretch=3em
+\hfuzz=2pt
+
+\graphicspath{{figures/}}
+
+\title{\textbf{What Scale Buys in Tool-Use Agents, and How to Buy It Cheaply:\\
+A Capability\,$\times$\,Scale\,$\times$\,Lever\,$\times$\,Cost Map Where Compliance Is Scale-Invariant}}
+\author{Anonymous submission}
+\date{}
+
+\begin{document}
+\maketitle
+
+% --- Section files (one \section per file). Order = reading order. ---
+% To restructure the paper, reorder / comment these \input lines.
+\input{sections/00_frontmatter}   % abstract
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_framework}
+\input{sections/04_method}
+\input{sections/05_results}
+\input{sections/06_lever_allocation}
+\input{sections/07_future_work}
+\input{sections/08_discussion}
+\input{sections/09_limitations}
+\input{sections/10_conclusion}
+\input{sections/99_bibliography}
+
+\end{document}

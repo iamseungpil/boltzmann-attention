@@ -1,0 +1,11 @@
+% =====================================================================
+% Section 10 — Conclusion
+% CONTENT PLAN: scale buys capability (retires load in order, lifts pass) but
+%   not compliance (g2 flat 7B->32B; gate removes it). Right object = the map:
+%   small base + receding capability scaffold + scale-invariant guarantee
+%   scaffold + A2 + learning for the residual, at the knee. Motivates companion
+%   work (A2 generation; learned path-selection).
+% SUBSECTION TITLES: n/a.
+% =====================================================================
+\section{Conclusion}\label{sec:conclusion}
+Scaling a tool-use agent buys capability---it retires load dimensions in a definite order and lifts task pass---but it does \textbf{not} buy compliance: policy-semantic violations are flat across 7B$\to$32B even as pass climbs, and a deterministic gate removes them at every scale. The right object of optimization is not the model size but the capability$\times$scale$\times$lever$\times$cost map: a small base, a capability scaffold that recedes as scale grows, a scale-invariant guarantee scaffold, authored A2, and learning reserved for the scale-dependent residual, assembled at the total-cost knee. This is why even frontier systems should use deterministic scaffolding and authored relations, and it motivates the companion work that generates the A2 and learns the path-selection residual.

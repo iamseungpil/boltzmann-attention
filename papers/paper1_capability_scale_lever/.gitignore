@@ -1,0 +1,14 @@
+# LaTeX build artifacts (academic-latex-pipeline Phase 5)
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+.DS_Store
+# Keep the rendered submission PDF (what_scale_buys.pdf) tracked; ignore the
+# transient main.pdf produced by local 3-pass builds.
+main.pdf

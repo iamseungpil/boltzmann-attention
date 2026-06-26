@@ -1,0 +1,86 @@
+% =====================================================================
+% Section 05 — Results
+% CONTENT PLAN (insight-first, 의도->방법->결과->해석 per result):
+%   5.1 operand saturates by 32B (88/88 given-spec; 70% goal; large-N flat)
+%   5.2 load retires in order (partial-corr table; controlled interference probe
+%       overturns observational signal; orchestration residual)
+%   5.3 CENTRAL: compliance scale-invariant (F3/F4 table; g1 collapses, g2 flat;
+%       per-write-opportunity rate flat with Wilson CIs; gate zeros it)
+%   5.4 cheap replication (fetch-first doubles pass; lever audit)
+%   5.5 the map, filled (summary table)
+%   5.6 cost payoff (23x estimate; fleet projection)
+% FIGURE 1: the headline — task-pass UP vs g1 DOWN vs g2/write FLAT across scale.
+%   Placeholder below; generate figures/fig1_scale_vs_compliance.pdf then
+%   uncomment the \includegraphics. (Both reference drafts lead with a figure.)
+% SUBSECTION TITLES: TODO(아버지) — set the 5.x titles. Keep the \label{} keys
+%   (referenced from intro/discussion) when renaming.
+% =====================================================================
+\section{Results}\label{sec:results}
+
+% --- Figure 1 (headline). Uncomment when the asset exists. ---
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.8\textwidth]{fig1_scale_vs_compliance.pdf}
+%   \caption{Task success and authorization-type violations respond to scale,
+%   but the policy-semantic write-violation rate does not. Across Qwen2.5
+%   7B/14B/32B on $\tau^2$-retail: task pass rises (0.19$\to$0.55) and g1
+%   (authorization) violations collapse (57$\to$6), while the per-write-
+%   opportunity g2 (policy-semantic) rate stays flat ($\approx$0.07--0.10,
+%   overlapping 95\% Wilson intervals). A deterministic gate zeros the residual
+%   at every scale.}
+%   \label{fig:headline}
+% \end{figure}
+
+\subsection{Operand execution is scale-saturated, not a learnable gap at 32B}\label{sec:results-operand}% TODO(아버지): subsection 제목
+Varying only the user-simulator input: given an explicit specification (\textbf{given-spec}) the 32B base is \textbf{88/88 (100\%)}; given only the goal (\textbf{goal}) it is 62/88 (70\%), the gap being criterion interpretation (argmax/argmin computation, multi-attribute reasoning, conversational fidelity) rather than execution. Genuine join and disambiguation is 7/13 (54\%) and is addressable by presenting the candidate records. Operand execution is therefore not a 32B capability gap, and faithful-formalization fine-tuning is unwarranted at that scale. (Every earlier ``operand failure'' in our forensics dissolved into a measurement artifact---a computation bug, a premature case split, or a probe that supplied the identifier---until the controlled probe read 100\%. The cost corollary: at 7B the base may be genuinely weak even given a specification, so the learning lever can re-acquire a role at small scale; see \S\ref{sec:future}.) A complementary limit: large-candidate selection does not scale in-head---comparative selection at 50 candidates scores 0.02 and ranking at 50 scores $\approx0.30$ even including a 235B model, whereas a deterministic engine scores 1.00. (The 235B figure appears only in this large-candidate probe; the scale-axis compliance and load runs span 7B--32B, with 72B and 235B projected.)
+
+\subsection{Capability-type load retires with scale, in a definite order}\label{sec:results-load}% TODO(아버지): subsection 제목
+Partial correlation of \emph{floor} failure with each load feature (controlling for operand difficulty):
+\begin{center}\small\begin{tabular}{lccc}
+\toprule dimension & 7B & 14B & 32B \\ \midrule
+$L_{\mathrm{len}}$ (length) & $+0.20$ & $+0.33$ & $\mathbf{+0.37}$ \\
+$L_{\mathrm{state}}$ & $\mathbf{+0.24}$ & $\mathbf{+0.21}$ & $+0.06$ \\
+$L_{\mathrm{branch}}$ (conditional) & $+0.20$ & $+0.13$ & $\mathbf{+0.26}$ \\
+$L_{\mathrm{interf}}$ & $\mathbf{+0.30}$ & $\mathbf{+0.20}$ & $+0.08$ \\
+$L_{\mathrm{contra}}$ & $+0.06$ & $+0.13$ & $+0.04$ \\ \bottomrule
+\end{tabular}\end{center}
+The binding set is scale-dependent: four dimensions at 7B/14B, only length and conditional depth surviving by 32B (interference and state retire first). $L_{\mathrm{contra}}$ is too sparse in $\tau^2$ to fit reliably. A controlled interference probe (fix the operand; vary only the number of confusable variants) does \emph{not} reproduce the strong 7B signal:
+\begin{center}\small\begin{tabular}{lccccc}
+\toprule $N$ & 1 & 2 & 4 & 8 & 16 \\ \midrule
+32B & 1.00 & 1.00 & 1.00 & 0.97 & 0.87 \\
+7B  & 1.00 & 1.00 & 1.00 & 0.90 & 0.80 \\ \bottomrule
+\end{tabular}\end{center}
+the gap at $N=16$ is only $0.80$ versus $0.87$, so the observational interference correlation was largely a size confound. (Single-shot probes under-test the inherently multi-turn dimensions $L_{\mathrm{state}}$ and $L_{\mathrm{contra}}$; controlled multi-turn probes are left to future work.)
+
+\paragraph{The residual is orchestration, not operand.} Under faithful local turns, 2/10 of the robust fail-all set are simulator-noise flips; the dominant residual is orchestration under load (precondition-violating batching; multi-order tracking that drops an order and fabricates an identifier; conditional sequencing; context overflow). An isolation plan probe (eliciting the abstract plan with all reads supplied, grading only structure) yields correct structure on 6/10---roughly half execution load (closable by separating planning from execution deterministically) and roughly half an in-isolation planning miss (the candidate for a learned path-selection lever, left to future work). The assembled-stack ceiling is a robust pass rate of $0.402$.
+
+\subsection{Compliance is scale-invariant --- the central finding}\label{sec:results-compliance}% TODO(아버지): subsection 제목
+Separating F3 (task pass) from F4 (compliant pass) on \emph{floor} (no gate):
+\begin{center}\small\begin{tabular}{lccccc}
+\toprule scale & F3 & F4 & gap & violations (g1 auth / g2 policy) & total viol.\% \\ \midrule
+7B  & 0.189 & 0.130 & 0.059 & 57 / 31 & 33.6\% \\
+14B & 0.468 & 0.404 & 0.064 & 38 / 38 & 26.3\% \\
+32B & 0.547 & 0.491 & 0.056 & 6 / \textbf{41} & 14.3\% \\ \bottomrule
+\end{tabular}\end{center}
+The absolute F3--F4 gap is roughly flat (0.059/0.064/0.056), and policy-semantic violations (g2) do not fall ($31\to41$) even as authorization-type violations (g1) collapse ($57\to6$). With the gate (g15): F3${=}$F4, gap ${=}0.000$, violations ${=}0.0\%$ at every scale. Scale solves capability-type compliance (g1) but not policy-semantic compliance (g2); the gate zeros the residual at every scale, frontier included---the policy-enforcement analogue of hallucination inevitability and the backbone of the two-kind scaffold.
+
+\paragraph{Resolving the completion-rate confound.} The absolute g2 count ($31\to41$) and total violation percentage ($33.6\to14.3$) are confounded by completion: a higher-pass model completes more trajectories and attempts more writes ($526\to683\to680$ across 7B/14B/32B), so raw counts conflate ability with exposure. Normalizing to the per-write-opportunity rate removes this confound: the g2 rate per write opportunity is $0.103$ (95\% Wilson interval $[0.080,0.132]$) at 7B, $0.070$ ($[0.053,0.092]$) at 14B, and $0.075$ ($[0.058,0.097]$) at 32B---flat across scale, with overlapping confidence intervals and no significant downward trend (if anything the 7B rate is marginally higher). Scale therefore does not reduce the confirm-before-write violation rate ($\sim$1 in 10--14 writes at every scale), while the gate zeros it everywhere; the strong scale-invariant form holds, not merely the differential (authorization-type violations still collapse while policy-semantic violations persist). This range is 7B--32B; the projected 72B point (\S\ref{sec:future}) would extend it. This result currently rests on one violation class (confirm-before-write) on one benchmark, a scope limit we return to in \S\ref{sec:limits}.
+
+\subsection{Cheap replication: a capability scaffold substitutes for scale}\label{sec:results-cheaprep}% TODO(아버지): subsection 제목
+Raw task pass rises monotonically (single-trial pass $=$ 7B 0.24 / 14B 0.52 / 32B 0.60, $n{=}342$). (This single-trial pass rate comes from a separate scale-decomposition run and is a different estimator from the \S\ref{sec:results-compliance} floor-compliance F3 of $0.189$ to $0.547$, which is robust over three trials; both measure raw task pass, differing by estimator and run, not by contradiction.) Each piece is obtainable more cheaply than scale: a deterministic fetch-first engine (deny ungrounded provenance, call the producer, inject the real value) moves grounding errors $33\to9$ and roughly doubles pass ($0.14\to0.264$) with no learning. A lever audit: authorization, confirmation, ownership, and precondition gates are genuine levers, whereas an eligibility-\emph{steering} gate has essentially no causal effect and naive retry is counterproductive.
+
+\subsection{The map, filled}\label{sec:results-map}% TODO(아버지): subsection 제목
+\begin{center}\small\begin{tabular}{p{3.1cm}p{2.8cm}p{1.4cm}p{4.4cm}}
+\toprule function & scale response & limit? & efficient lever \\ \midrule
+operand execution & saturates by 32B & no (at 32B) & base; learning may re-acquire a role at 7B \\
+interference / state load & retire by 32B & no & capability scaffold (present), or scale \\
+length / conditional load & persist at 32B & partial & capability scaffold (partial); conditional $\to$ controller or learn \\
+large-candidate selection & flat at all scales & yes (in-head) & deterministic computation \\
+policy compliance (g2) & \textbf{scale-invariant (per-write rate flat)} & \textbf{yes (guarantee)} & \textbf{guarantee scaffold (gate)} \\
+domain facts & --- & --- & A2 / retrieval \\ \bottomrule
+\end{tabular}\end{center}
+
+\subsection{Cost: the deployment payoff}\label{sec:results-cost}% TODO(아버지): subsection 제목
+On $\tau^2$-retail, using existing runs, a 32B int8 base with a deterministic gate runs on-premises at $\approx\$0.0019$ per request versus a frontier API at $\approx\$0.044$ per request, a ratio of about 23$\times$ (and 16--40$\times$ over a GPU priced at \$0.2--0.5 per hour); it is $\sim$3000$\times$ cheaper than a human agent at $\sim\$6$ per contact, and is auditable with zero data egress. The trade-offs are honest: latency is $\sim$6$\times$ higher (178s versus 30.5s), and pure on-premises compliance (0.573) is below the frontier value (0.82), so the claim is near-equal compliance at $\approx$23$\times$ lower cost, not equal compliance. (The 0.573 figure is gated 32B compliance from the deployment run at a single trial, distinct from \S\ref{sec:results-compliance}'s 0.547 over three trials---the same quantity on a different trial count and run. Cost per request is estimated from a token count of approximately characters-over-four with an assumed GPU utilization; the ratio is robust to an order of magnitude, but the exact multiple awaits measured token accounting, \S\ref{sec:future}.)
+
+A heterogeneous fleet is projected to improve on this: routing easy requests to the 32B on-premises model and hard requests to a frontier model yields a blended compliance of 0.860 (above the pure-frontier 0.816) at \$0.021 per request, $\sim$2.1$\times$ cheaper, on clean data. We report this as a projection, not a measurement: an arithmetic upper bound that assumes a cheap decidable router. Such a router is feasible---it can reuse the decidable gate and uncertainty mechanism of \S\ref{sec:results-compliance} with no new learned component---but is not yet implemented.

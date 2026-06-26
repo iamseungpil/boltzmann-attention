@@ -1,0 +1,16 @@
+% =====================================================================
+% Section 03 — The Capability x Scale x Lever x Cost Framework
+% CONTENT PLAN: three structural claims (operand/orchestration/compliance fail
+%   differently; decidability-first lever routing; two kinds of scaffold). Then
+%   load-as-a-vector (5 dims) and scaffold-as-load-reduction operator
+%   (L_eff = L - dL; pass iff L_eff < L*(N)) presented as a HYPOTHESIS.
+% SUBSECTION TITLES: optional 3.1 Three claims / 3.2 Load vector / 3.3 Operator.
+% =====================================================================
+\section{The Capability$\times$Scale$\times$Lever$\times$Cost Framework}\label{sec:framework}
+For each function $f$ we populate a row indexed by scale $N$, lever $\ell \in \{\text{base, capability scaffold, guarantee scaffold, A2, learning}\}$, and assembled cost. The framework rests on three structural claims.
+\begin{itemize}\itemsep1pt
+\item \textbf{Operand vs.\ orchestration vs.\ compliance} fail for different reasons and respond to different levers: operand execution is atomic execution given a criterion; orchestration is holding interdependent steps coherent under load; compliance is obeying policy with a guarantee.
+\item \textbf{Decidability-first lever routing} (cost-ascending short-circuit): decidable from schema, policy, and state $\to$ scaffold; else a domain fact $\to$ A2; else promptable at the available size $\to$ prompt; else scale-emergent and affordable $\to$ scale or replicate cheaply; else an irreducible natural-language-to-formal step $\to$ a minimal transferable adapter (last resort). This inverts the ``scale it'' reflex.
+\item \textbf{Two kinds of scaffold.} A \emph{capability scaffold} (presenting records, computing a value, resolving a reference) substitutes for a missing skill and recedes as scale grows (F3, raw pass). A \emph{guarantee scaffold} (policy gates) supplies a property no probabilistic model provides and is scale-invariant (F4, compliant pass). Section~\ref{sec:results-compliance} measures this split---why even a frontier system retains a deterministic trust layer.
+\end{itemize}
+\textbf{Load as a vector.} Orchestration load is not scalar: $L_{\mathrm{len}}$ (context to retain), $L_{\mathrm{state}}$ (interdependent state), $L_{\mathrm{branch}}$ (conditional depth), $L_{\mathrm{interf}}$ (confusable entities), $L_{\mathrm{contra}}$ (mid-stream revision), with load orthogonal to operand difficulty. \textbf{Scaffold as a load-reduction operator:} each scaffold removes a dimension (present/autofetch lower $L_{\mathrm{len}},L_{\mathrm{interf}}$; compute lowers $L_{\mathrm{state}}$; gates lower $L_{\mathrm{branch}}$; a controller lowers $L_{\mathrm{state}},L_{\mathrm{len}}$), giving $L_{\mathrm{eff}} = L - \Delta L_{\mathrm{scaffold}}$ and the prediction $\mathrm{pass}(f,N) \Leftrightarrow L_{\mathrm{eff}}(f) < L^*(N)$, where $L^*(N)$ is the load tolerance at scale $N$. To avoid tautology, $\Delta L$ should be estimated independently (from the mechanical feature reduction the scaffold performs) and shown to predict the shift in failure onset. We establish the components here and defer the full predictive test above 32B to \S\ref{sec:future}, presenting the operator as a hypothesis rather than a validated law.
