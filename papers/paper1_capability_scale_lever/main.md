@@ -77,6 +77,8 @@ where `L*(N)` is the model's load-tolerance at scale `N`. To avoid tautology, `�
 
 A controlled experiment varies only the user-simulator input. Given an explicit option specification (**GIVEN-SPEC**), the 32B base selects the correct variant **88/88 (100%)**. Given only the goal (**GOAL**), it is 62/88 (70%); the 30% gap is criterion interpretation (argmax/argmin = deterministic compute, multi-attribute reasoning, conversational fidelity), not execution. Genuine join/disambiguation (user describes, does not name, the order) is 7/13 (54%) and is present-addressable. **Implication:** operand is not a capability gap at 32B, and faithful-formalize SFT is **NO-GO** — there is no residual to learn. (Forensic note: every prior "operand failure" we chased dissolved into a measurement artifact — a calc bug, a premature single case, an ID-given probe artifact — until the controlled probe read 100%.)
 
+The complementary limit is that *selection over a large candidate set does not scale in-head*: on a depth-scale probe, `comparative` over 50 candidates scores **0.02** and `rank@50 ≈ 0.30` even including a 235B model, while the deterministic engine is trivial (1.00) **[SETTLED]**. So "pick the best/most among many" is not done by raw abstraction at any scale; it is offloaded. Operand thus splits cleanly: *atomic execution given a spec* is saturated (base, 100%), and *large-N selection* is a deterministic-compute lever — neither is a learning target.
+
 ### 5.2 Capability-type load retires with scale, in order [SETTLED 7B–32B]
 
 Across the five candidate load dimensions, partial correlation of *floor* failure with each feature (controlling operand difficulty) gives:
@@ -91,7 +93,16 @@ Across the five candidate load dimensions, partial correlation of *floor* failur
 
 The **binding set is scale-dependent**: at 7B/14B four dimensions predict failure; by 32B only length and conditional-depth survive. Scale *retires* interference and state-multiplicity first; length and conditional-depth persist. L_contra is too sparse in τ² to fit. This is the precise empirical form of "scale buys capability": it removes load dimensions in a definite order.
 
-**Controlled > observational.** The above is observational and confounded with task size. A *controlled* interference probe (fix operand; vary only the number N of confusable variants) does **not** reproduce the strong 7B interference signal: at N=16, 7B scores 0.80 vs 32B 0.87 — a small gap. The observational L_interf correlation was largely a size confound. This is the methodological payoff of controlled generation, and a caution: single-shot probes also under-test the inherently *multi-turn* dimensions (L_state, L_contra) **[EST: multi-turn controlled probes pending]**.
+**Controlled > observational.** The above is observational and confounded with task size. A *controlled* interference probe (fix operand; vary only the number N of confusable variants) does **not** reproduce the strong 7B interference signal:
+
+| N (distractors) | 1 | 2 | 4 | 8 | 16 |
+|---|---:|---:|---:|---:|---:|
+| 32B | 1.00 | 1.00 | 1.00 | 0.97 | 0.87 |
+| 7B | 1.00 | 1.00 | 1.00 | 0.90 | 0.80 |
+
+The 7B–32B gap is small (0.80 vs 0.87 at N=16); the observational L_interf correlation was largely a size confound. This is the methodological payoff of controlled generation, and a caution: single-shot probes under-test the inherently *multi-turn* dimensions (L_state, L_contra) **[EST: multi-turn controlled probes pending]**.
+
+**The residual is orchestration, not operand.** Forensically re-running the robust fail-all set under faithful (local, gpt-4.1-free) turns: 2/10 are user-simulator-noise flips, while the dominant residual is *orchestration-under-load* — multi-item batching that violates a non-pending precondition, multi-order tracking that drops an order and fabricates a placeholder id, conditional-branch sequencing, and context-window overflow. An isolation **plan probe** (elicit the abstract action plan with reads pre-supplied, grade structure only) shows the core action structure is planned correctly in 6/10 cases (e.g. the batch the live run split is batched correctly in isolation), i.e. roughly half the orchestration residual is *execution-load* (closable by deterministic plan/execute separation) and half is genuine in-isolation planning miss (conditional / multi-order grounding) — the irreducible piece that motivates a learned path-selection lever (companion Paper 3), not a bigger base. **[SETTLED, forensic; the assembled present+nested+gate stack ceiling is robust pass^all = 0.402.]**
 
 ### 5.3 Compliance is scale-invariant — the central finding [SETTLED 7B–32B]
 
@@ -112,6 +123,10 @@ Capability (F3) climbs steeply with scale, but **the F3–F4 gap is flat (~0.056
 | 32B | 0.547 | 0.547 | 0.000 | 0.0% |
 
 **Interpretation.** Scale solves *capability-type* violations (g1, auth) but **not** *policy-semantic compliance* (g2): the compliant-pass gap is scale-invariant. The gate zeros it at every scale, including the most capable. Therefore a probabilistic model — frontier included — cannot be trusted to *guarantee* policy compliance, and a deterministic guarantee-scaffold is needed at all scales. This is the policy-enforcement analogue of the scale-invariance of hallucination (§2), and it is the empirical backbone of the two-kind scaffold (F3 recedes / F4 invariant). *(Caveat: range is 7B–32B; the gated gap=0 holds by construction, so the informative quantity is the non-closing floor gap; the frontier projection rests on the flat trend plus the hallucination-inevitability priors, not on a >72B measurement.)*
+
+### 5.3b Cheap-replication: a capability-scaffold substitutes for scale [SETTLED]
+
+Raw task-pass rises monotonically with scale (pass^1 = 7B 0.24 / 14B 0.52 / 32B 0.60, n=342) — the headline "scale buys capability" curve, consistent with the floor F3 trend of §5.3. The point of the map is that *each piece scale buys can be obtained more cheaply than scale*. A direct instance: a deterministic **fetch-first** engine (provenance-deny → deterministic producer call → inject the real value) moves grounding errors 33 → 9 and roughly **doubles pass (0.14 → 0.264) with zero learning** — a capability-scaffold standing in for scale. On the lever side, not every scaffold helps: an eligibility-steering gate (G5) has ~zero causal effect (the model does not learn to use the guidance) and a naive retry is counter-productive, while the auth/confirm/ownership/precondition gates (G1–G4) are genuine levers. These results populate the "capability-scaffold recedes / guarantee-scaffold invariant" split with measured cells, and ground the cheap-replication thesis of the companion system paper.
 
 ### 5.4 The map, filled
 
