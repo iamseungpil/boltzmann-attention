@@ -102,28 +102,42 @@ def parse_plan(txt):
 
 
 def grade(gold, plan):
-    """구조 비교 → (label, issues). missing/extra/batch-split/wrong-action."""
+    """2축 채점 → (core_ok, has_extra, label, issues).
+    축1 coverage/batching(=gold 필수구조): MISSING/BATCH_SPLIT 없으면 core_ok (planning-of-required OK).
+    축2 over-reach: gold에 없는 (action,order)=EXTRA (criterion/scope·t71류·별개 레버).
+    core_ok=planning이 블로커냐(NO)의 핵심 신호. EXTRA는 분리 보고."""
     if plan is None:
-        return "PARSE_FAIL", ["plan JSON 파싱 실패"]
+        return False, False, "PARSE_FAIL", ["plan JSON 파싱 실패"]
     gold_keys = set(gold.keys())
     plan_by_key = defaultdict(list)
     for (n, oid, items) in plan:
         plan_by_key[(n, oid)].append(items)
     plan_keys = set(plan_by_key.keys())
     issues = []
-    missing = gold_keys - plan_keys
-    extra = plan_keys - gold_keys
+    missing = gold_keys - plan_keys      # 축1: 필수 누락 (t99류)
+    extra = plan_keys - gold_keys        # 축2: over-reach (t71류)
     for k in sorted(missing):
         issues.append(f"MISSING {k}")
+    for k in sorted(gold_keys & plan_keys):   # 축1: batching split (t20류)
+        if len(gold[k]) == 1 and len(plan_by_key[k]) > 1:
+            issues.append(f"BATCH_SPLIT {k} (gold 1 / plan {len(plan_by_key[k])})")
+    has_split = any(i.startswith("BATCH_SPLIT") for i in issues)
+    core_ok = (not missing) and (not has_split)   # 필수구조 다 맞고 batching 정확
     for k in sorted(extra):
         issues.append(f"EXTRA {k}")
-    # batching: gold가 (action,order)당 1 call인데 plan이 split → BATCH_SPLIT
-    for k in gold_keys & plan_keys:
-        gcalls, pcalls = gold[k], plan_by_key[k]
-        if len(gcalls) == 1 and len(pcalls) > 1:
-            issues.append(f"BATCH_SPLIT {k} (gold 1 call / plan {len(pcalls)})")
-    label = "STRUCT_OK" if not issues else ("/".join(sorted({i.split()[0] for i in issues})))
-    return label, issues
+    has_extra = bool(extra)
+    if not issues:
+        label = "STRUCT_OK"
+    else:
+        parts = []
+        if core_ok and has_extra:
+            parts.append("CORE_OK+EXTRA")   # planning OK, over-reach만 (criterion 레버)
+        else:
+            if missing: parts.append("MISSING")
+            if has_split: parts.append("BATCH_SPLIT")
+            if has_extra: parts.append("EXTRA")
+        label = "/".join(parts)
+    return core_ok, has_extra, label, issues
 
 
 def main():
@@ -156,19 +170,24 @@ def main():
         except Exception as e:
             print(f"\n### t{tid}: ASK_ERR {type(e).__name__}: {str(e)[:80]}"); continue
         plan = parse_plan(out)
-        label, issues = grade(gold, plan)
-        summary.append((tid, label))
-        print(f"\n### t{tid}: {label}")
+        core_ok, has_extra, label, issues = grade(gold, plan)
+        summary.append((tid, core_ok, has_extra, label))
+        print(f"\n### t{tid}: {label}  [core_ok={core_ok} extra={has_extra}]")
         print(f"  GOLD struct: { {f'{n}|{o}': [sorted(s) for s in v] for (n,o),v in gold.items()} }")
         print(f"  PLAN parsed: {[(n, o, sorted(it)) for (n,o,it) in plan] if plan else 'PARSE_FAIL'}")
         if issues:
             print(f"  ISSUES: {issues}")
         print(f"  RAW: {out.strip()[:600]}")
     print("\n\n=== SUMMARY (plan-in-isolation·구조채점·gpt-4.1 0) ===")
-    ok = sum(1 for _, l in summary if l == "STRUCT_OK")
-    for tid, l in summary:
+    n = len(summary)
+    core = sum(1 for _, c, _, _ in summary if c)
+    clean = sum(1 for _, c, e, _ in summary if c and not e)
+    for tid, c, e, l in summary:
         print(f"  t{tid}: {l}")
-    print(f"  STRUCT_OK {ok}/{len(summary)}  (OK=planning OK→실행부하 / 그외=planning이 블로커→learn 후보)")
+    print(f"\n  축1 core_ok (필수구조·batching 정확=planning-of-required OK): {core}/{n}")
+    print(f"  완전 STRUCT_OK (core_ok ∧ over-reach 없음):              {clean}/{n}")
+    print(f"  해석: core_ok 높음→planning 블로커 아님→실행부하(C1/C2 결정론). "
+          f"MISSING/BATCH_SPLIT 살아남은 케이스만=planning 진짜 잔여(learn 후보).")
 
 
 if __name__ == "__main__":
