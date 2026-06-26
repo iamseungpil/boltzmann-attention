@@ -86,6 +86,9 @@ def main():
     curve = []
     for lv in levels:
         insts = GEN[a.dim](lv, a.k)
+        if not insts:
+            print(f"  {lv:>6} {'SKIP':>6} {0:>4}   (생성 0건·이 차원/level 미지원=결과 아님·[[08]])")
+            continue
         ok = 0
         wrong = []
         for prompt, ans in insts:
