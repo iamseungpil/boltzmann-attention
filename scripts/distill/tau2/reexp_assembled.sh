@@ -39,4 +39,16 @@ run ${TAG}_assembled_retail_t3 \
   T2_GATE_KINDS=auth,confirm,ownership,notice,preconditions,constraints \
   T2_PRESENT_READS=1 T2_PRESENT_NESTED=1 T2_CALC=1
 for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done
+# ★결과 영속화 (gitignore 우회·소실방지·재사용): gzip → repo tracked path → commit+push.
+RES=$TB/data/simulations/${TAG}_assembled_retail_t3/results.json
+PERSIST=$REPO/reports/facet_rft_2026/sim_results; mkdir -p $PERSIST
+if [ -f "$RES" ]; then
+  gzip -c "$RES" > $PERSIST/${TAG}_assembled_retail_t3.results.json.gz
+  cd $REPO && git pull --rebase -q origin facet-rft-2026 2>/dev/null
+  git add -f $PERSIST/${TAG}_assembled_retail_t3.results.json.gz
+  git commit -q -m "persist sim results: ${TAG}_assembled_retail_t3 (auto·소실방지)" 2>/dev/null
+  for try in 1 2 3; do git pull --rebase -q origin facet-rft-2026 2>/dev/null; git push -q origin facet-rft-2026 && { echo "PERSISTED_${TAG}"; break; }; sleep 5; done
+else
+  echo "PERSIST_SKIP_NO_RESULTS_${TAG}"
+fi
 echo "REEXP_ASM_${TAG}_DONE"; date

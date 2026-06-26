@@ -174,9 +174,21 @@
             "exchange_delivered_order_items"
           ],
           "steer": "[constraint] Each new_item_id must be a DIFFERENT variant than the item it replaces — you reused an id that is also in item_ids (a no-op exchange). Pick a different variant (e.g. a different size/color/capacity) for each item you are exchanging, or do not include that item."
+        },
+        {
+          "op": "equal_len",
+          "fields": [
+            "item_ids",
+            "new_item_ids"
+          ],
+          "applies_to": [
+            "modify_pending_order_items",
+            "exchange_delivered_order_items"
+          ],
+          "steer": "[constraint] This tool EXCHANGES items 1-for-1: new_item_ids must have the SAME count as item_ids. There is NO operation to simply REMOVE an item from an order. If the customer wants to drop an item without a replacement, that is not possible — explain this and do NOT retry with an empty/short new_item_ids. (To change the whole order they must cancel it if pending.)"
         }
       ],
-      "_note": "retail 정책 인스턴스(new≠old). 엔진=general disjoint op·env가 이미 강제(false-block 0). count-match(equal_len)·payment(member_of)=정적 deprioritize(hygiene·파생필드 위험)·미포함."
+      "_note": "retail 정책 인스턴스: new≠old(disjoint)·count-match(equal_len·remove 연산 없음 교시). 둘 다 env가 이미 강제=false-block 0(env-mirror). 엔진=general op. payment(member_of)=파생필드 [[05]] 위험·미포함."
     }
   ],
   "present_specs": [

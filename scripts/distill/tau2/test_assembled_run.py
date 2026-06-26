@@ -76,6 +76,10 @@ ok1, _, _ = gi_c.check("exchange_delivered_order_items", {"item_ids": ["x"], "ne
 ok2, _, _ = gi_c.check("exchange_delivered_order_items", {"item_ids": ["x"], "new_item_ids": ["y"]})
 check("disjoint: new==old → deny", not ok1)
 check("disjoint: new!=old → allow", ok2)
+ok3, _, _ = gi_c.check("modify_pending_order_items", {"item_ids": ["a", "b"], "new_item_ids": ["c"]})
+ok4, _, _ = gi_c.check("modify_pending_order_items", {"item_ids": ["a"], "new_item_ids": ["c"]})
+check("equal_len: count mismatch(2≠1) → deny (remove 차단)", not ok3)
+check("equal_len: count match(1=1) → allow", ok4)
 
 # ─── 게이트5: deny-present 부활 차단 (리뷰 2026-06-26·config 불변식) ───
 # present는 read-증강(candidate_summary)만·select_confirm deny-경로는 replay 깸([[06]] 폐기).
