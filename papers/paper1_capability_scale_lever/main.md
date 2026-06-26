@@ -156,8 +156,6 @@ Scaling a tool-use agent buys capability — it retires load dimensions in a def
 
 ---
 
-## References
+*The complete bibliography (229 entries, organized by theme, deduplicated across the project's deep-research and literature-review corpus) follows below. Entries flagged `[unverified]` / future-dated are to be re-checked before submission.*
 
-*(Bibliography assembled from the project's literature docs; arXiv ids verbatim. Full list in `../../scripts/distill/` litreview docs.)*
-
-ToolOrchestra (2511.21689); ATA (2510.16381); LLM-Modulo, Kambhampati et al. (2402.01817, ICML 2024); Tülu 3, Lambert et al. (2411.15124); AlphaGeometry, Trinh et al. (Nature 625, 2024); Garcez & Lamb (2012.05876); Kautz (AI Magazine 43(1), 2022); Marcus (2002.06177); Alshiekh et al. (AAAI 2018); Jansen et al. (1807.06096); Wabersich & Zeilinger (Automatica 2021); ShieldAgent (2503.22738); AgentSpec (2503.18666); Formal-LLM (2402.00798); Xu, Jain, Kankanhalli (2401.11817); Kalai, Nachum, Vempala, Zhang (2509.04664); Dziri et al., Faith and Fate (2305.18654, NeurIPS 2023); Mirzadeh et al., GSM-Symbolic (2410.05229); Valmeekam et al. (2409.13373); Merrill & Sabharwal (2207.00729); Feng et al. (2305.15408, NeurIPS 2023; 2402.12875, ICLR 2024); τ²-bench (2406.12045); SOPBench (2503.08669); CFB (2501.10132); Joren et al., Sufficient Context (ICLR 2025).
+---
