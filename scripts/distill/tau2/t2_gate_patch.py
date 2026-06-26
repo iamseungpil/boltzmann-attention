@@ -272,25 +272,27 @@ def apply():
                         out[0].content = _content_str(out[0]) + summ
                     except Exception:
                         pass
-            # ★operand-grounding present (T2_PRESENT_NESTED=1): read record의 nested operand를
-            # 명시 choice-set으로 (L2 item/L3 variant). 읽기증강=replay-safe. A2 present_specs 구동.
-            if nested_specs and out and not getattr(out[0], "error", False):
+            # ★read-augment(nested present + calc): RAW 응답을 augment *전* 1회 파싱·공유.
+            # (버그수정 2026-06-26: nested가 out.content에 텍스트 append하면 calc의 _parse_json이
+            #  오염 content서 실패→calc 미발화 31/342. raw 1회 파싱으로 두 증강 모두 정상.)
+            _rec = None
+            if (nested_specs or calc_specs) and out and not getattr(out[0], "error", False):
+                _rec = _parse_json(_content_str(out[0]))
+            # operand-grounding present (T2_PRESENT_NESTED=1): nested operand 명시 choice-set(L2/L3).
+            if nested_specs and _rec is not None:
                 spec = next((s for s in nested_specs if s.get("trigger_tool") == tc.name), None)
                 if spec is not None:
-                    rec = _parse_json(_content_str(out[0]))
-                    summ = nested_candidate_summary(rec, spec)
+                    summ = nested_candidate_summary(_rec, spec)
                     if summ:
                         try:
                             out[0].content = _content_str(out[0]) + summ
                         except Exception:
                             pass
-            # ★calc_NL offload (T2_CALC=1): read record서 결정론 집계 계산·주입(보고는 모델).
-            # 읽기증강=replay-safe. [COMPUTED FACTS] 블록=report-conversion census 마커.
-            if calc_specs and out and not getattr(out[0], "error", False):
+            # calc_NL offload (T2_CALC=1): 결정론 집계 계산·주입(보고는 모델). [COMPUTED FACTS]=census 마커.
+            if calc_specs and _rec is not None:
                 cs = [s for s in calc_specs if s.get("trigger_tool") == tc.name]
                 if cs:
-                    rec = _parse_json(_content_str(out[0]))
-                    facts = compute_facts(rec, cs)
+                    facts = compute_facts(_rec, cs)
                     if facts:
                         try:
                             out[0].content = _content_str(out[0]) + facts

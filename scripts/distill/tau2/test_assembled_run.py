@@ -92,6 +92,23 @@ if os.path.exists(_drv):
 else:
     check("reexp_assembled.sh 존재", False, "드라이버 없음")
 
+# ─── 게이트6: calc-주입 회귀 차단 (버그 2026-06-26·nested 오염→calc 미발화) ───
+# nested가 out.content에 텍스트 append 후 calc가 *오염된* content를 재파싱하면 실패→calc 미발화(31/342).
+# 수정 불변식: raw를 augment 전 1회 파싱(_rec) 후 nested·calc 둘 다 _rec 공유.
+print("게이트6 — calc-주입 회귀 차단 (nested 오염 후에도 calc 발화):")
+import t2_gate_patch as _tg
+_src = inspect.getsource(_tg.apply)
+check("calc 블록이 공유 _rec 사용(오염 content 재파싱 안 함)",
+      "compute_facts(_rec" in _src and "compute_facts(_parse_json" not in _src and "compute_facts(rec" not in _src)
+check("_rec를 augment 전 1회 파싱", "_rec = _parse_json(_content_str(out[0]))" in _src)
+# 행동: nested가 먼저 append해도 calc가 raw _rec로 정상 계산
+_prod = {"name": "T", "product_id": "p", "variants": {"a": {"item_id": "a", "available": True, "options": {}},
+         "b": {"item_id": "b", "available": False, "options": {}}, "c": {"item_id": "c", "available": True, "options": {}}}}
+_polluted = '{"x":1}' + "\n\n[OPERAND DISAMBIGUATION ...]\n- item_id=a: {}"  # nested가 오염시킨 형태
+check("교훈: 오염 content는 JSON 파싱 실패(버그 재현)", _tg._parse_json(_polluted) is None)
+check("교훈: raw record는 calc 정상", isinstance(compute_facts(_prod, [{"op": "count_where", "nested_field": "variants",
+      "cond_field": "available", "cond_value": True, "label": "x"}]), str))
+
 print()
 if _fails:
     print(f"❌ {len(_fails)} GATE FAIL → full-run 자격 없음: {_fails}")
