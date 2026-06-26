@@ -72,6 +72,17 @@ The loop (sampler → render → round-trip filter) is closed and demonstrated: 
 
 ---
 
+## 4.5 Related work — NL → symbolic-rule / spec generation (the generator lineage)
+
+Beyond the policy-compiler rivals (§5), an established lineage learns to compile **NL → executable symbolic rules**, mostly in cognitive architectures and neurosymbolic planning. Our generator inherits this shape (LLM proposes a formal spec, a symbolic engine grounds/verifies) and differs in target (policy **GATE_SPEC**, not planning rules), in *verified-distillation + reverse-rendering* data, in *cross-domain LODO transfer*, and in the *fixed verifier as runtime contract*.
+
+- **NL2CA** (arXiv 2512.18189) — the **direct precedent for a *small* NL→symbolic-spec generator**: a fine-tuned **Qwen3-0.6B** compiles NL → LTL → an unsupervised Critic-Tree → `pyactr` (ACT-R) productions, **fully automatic, zero human**. Establishes that a sub-1B model can compile NL to a formal rule artifact (same Generator–Critic shape as NL2GenSym). Our delta: policy-compliance spec (not ACT-R), cross-domain transfer, runtime-contract verifier, abstain-on-fabrication. *(NL2CA is also the direct precedent flagged in our authoritative related-work synthesis for this exact "NL→A2 generator" task.)*
+- **NL2GenSym** (arXiv 2510.09355) — LLM Generator → **SOAR production rules**, execution-grounded Generator–Critic with a RAG self-evolving KB; small+framework beats large one-shot. Our delta: A2-swap transfer + learned empty→abstain (NL2GenSym iterates to success/timeout, no abstention).
+- **Bootstrapping cognitive agents** (Zhu & Simmons, arXiv 2403.00810) — GPT-4 bootstraps SOAR-syntax productions → symbolic replay/critic/utility verification; runtime = deterministic-if-production-exists / LLM-fallback. The closest precedent for "deterministic-first + verified rule authoring," but large-model, ad-hoc authoring, in-domain growth (no transfer).
+- **MERLIN2 / grammar-constrained NL→PDDL** (arXiv 2309.14945) — GBNF grammar-constrained decoding forces structured NL→PDDL output, validated by a symbolic planner — the nearest analogue of our guided-JSON *type*-forcing (we force type, leave content to the model, and verify behavior + faithfulness separately).
+- **Solver-aided policy compliance** (arXiv 2603.20449) — NL policy → SMT-LIB → Z3 runtime gate; closest on the *NL→formal-policy* axis, but **human-guided SMT translation** (the cost we automate) and gate-only (no transfer/distillation).
+- **Intermediate Languages Matter** (arXiv 2502.17216) — the choice of formal IR is the first-order decision variable in NL→formal; supports our spec-schema design and the round-trip cleanliness filter.
+
 ## 5. Expected contribution & positioning
 
 **The unoccupied 4-way intersection.** No single published work occupies: **(swappable small generator) × (fixed verifier as a *runtime contract*) × (verified distillation) × (SOP/policy domain + sovereignty)**. The nearest analogs each miss most of it:
