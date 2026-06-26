@@ -6,7 +6,17 @@
 >
 > **★리뷰#2 반영(2026-06-26·falsification-first)**: (1) **무료 관측 2개를 construct-validity 게이트로 격상·먼저**(기존데이터·gpt-4.1 0). 통과해야 생성·onset(L1+)으로. (2) **L1~L4 미약속**(예산위기·헤드라인 settled·load theory=modest 설명층·예산 승인 시만). (3) **§3 "증명형태"→"예측틀"**: `pass⇔L_eff<L*`는 ΔL·L* 둘 다 fit하면 동어반복→**ΔL을 scaffold의 *기계적* feature-감소량(결과 아닌 동작서)으로 독립추정**해 onset-shift를 *예측*해야 비순환. (4) **5차원=canonical 아님·후보**: 데이터가 collinear/sparse로 줄임(관측이 실제로 2로 줄임·아래). (5) 관측=약한 스크린(난이도 교락)·인과는 통제생성.
 >
-> **★★Phase-L0 관측 결과(2026-06-26·`load_obs.py`·n=112·gpt-4.1 0)**: **게이트 통과 — 단 좁게.** operand 공변량(r=+0.39) 통제 후 **L_len(r|op=+0.37·p<.001)·L_branch(+0.26·p<.01)만 생존**·L_state/L_interf=operand 교락으로 소멸·L_contra=무의미+희소(12/112). **유효 load축=2개**(리뷰어 붕괴예측 확증). 약한 ΔL 스크린: **현 scaffold(present+nest+g15)가 L_branch를 안 깎음**(고분기 task 잔존·조건트리 executor 공백·t37 정합)·L_len은 약하게 감소. ⇒ 이론 무근거 아님이나 **2차원으로 좁혀짐**·proof-form은 미입증(L1+ 필요).
+> **★★Phase-L0 관측 결과(2026-06-26·`load_obs.py`·n≈112·gpt-4.1 0)**: **게이트 통과.** operand 공변량 통제 후 fail↔load 상관 실재 → 이론 무근거 아님.
+> **★★★멀티스케일(7B/14B/32B floor·핵심)**: **생존 차원 집합이 scale 함수**(load theory의 정확한 예측 형태). operand-통제 partial r:
+> | 차원 | 7B | 14B | 32B |
+> |---|---|---|---|
+> | L_len | +0.20 | +0.33 | **+0.37** |
+> | L_state | **+0.24** | **+0.21** | +0.06(소멸) |
+> | L_branch | +0.20 | +0.13 | **+0.26** |
+> | L_interf | **+0.30** | **+0.20** | +0.08(소멸) |
+> | L_contra | +0.06 | +0.13 | +0.04(희소·폐기) |
+>
+> → **scale은 차원을 *순서대로 은퇴*시킨다**: interference·state(L_interf·L_state)=7B→32B 사이 scale이 흡수(32B서 소멸)·**length·conditional(L_len·L_branch)=32B서도 잔존.** "5→2 붕괴"는 **32B 특정**이었음(7B/14B≈4차원 binding). 약한 ΔL: **L_branch는 모든 scale서 scaffold-저항**(branch-executor 공백). ⇒ **(B) 통제생성=4차원{L_len·L_state·L_branch·L_interf} 커버**(L_contra만 폐기)·핵심측정=**차원별 L\*(N) scale-response**(위 표를 인과확정).
 
 ---
 
@@ -106,12 +116,12 @@ closed-form 유도는 과욕. **측정가능 규칙성**만 주장:
 ## §7. 단계 (design-first·각 단계 게이트)
 
 0. **Phase L0 — 무료 관측 게이트 ✅완료(2026-06-26)**: ① construct-validity(fail↔load 상관·operand 통제)=**통과 좁게**(L_len·L_branch 생존) ② 약한 ΔL 스크린(floor vs scaffold)=**L_branch 미감소·L_len 약감소**. 결과=`sim_results/load_obs_phase0`. → 이론 무근거 아님·2차원으로 좁힘.
-1. **Phase L1 — load-response probe(조건부·미약속)**: **L_len·L_branch만** load-graded 격리 probe·7B/14B/32B·onset. → L*(N) monotone? **예산 승인 시만.**
-2. **Phase L2 — scaffold ΔL 독립추정(조건부)**: ΔL=scaffold 기계적 feature-감소량(독립)→onset-shift 예측(비순환). **orchestration controller 빌드 시 묶음.**
+1. **Phase L1 — load-response 통제 probe(GO·★무료)**: **4차원{L_len·L_state·L_branch·L_interf}** load-graded *격리* probe(plan_probe류·operand 고정·한 차원씩 증감)·7B/14B/32B·onset. → **차원별 L*(N) scale-response**(멀티스케일 표를 인과확정). **격리 probe=로컬·gpt-4.1 0=무료**(리뷰어 예산게이트는 full-run user-sim 대상). 사용자 (B) 채택.
+2. **Phase L2 — scaffold ΔL 독립추정(GO·무료)**: ΔL=scaffold 기계적 feature-감소량(독립)→onset-shift 예측(비순환). 격리 probe scaffold on/off. **orchestration controller 빌드 시 묶음.**
 3. **Phase L3 — SOPBench 일반화(조건부)**: control-flow 복잡도 load-response가 tau2와 정합 + 예산 승인 시.
 4. **Phase L4 — live 확인(조건부·유료 1회)**: 곡선 확정 후 end-to-end 1 스케일.
 
-**★현재 GO = L0(완료)까지.** L1~L4 = 미약속·예산 게이트([[09]]/[[03]]). 헤드라인 settled → load theory는 modest 설명층.
+**★현재 GO = L0(완료)+L1/L2(무료 격리 probe·사용자 B 채택).** L3/L4=조건부·예산게이트. 헤드라인 settled → load theory는 modest 설명층.
 
 ---
 
