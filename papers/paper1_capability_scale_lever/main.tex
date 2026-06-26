@@ -1,0 +1,189 @@
+% Paper 1 — submission draft (LaTeX).
+% Engine: pdflatex/xelatex + bibtex (bibtex main; or use natbib). Compiles on Overleaf.
+% To target the official venue, replace the geometry/preamble below with, e.g.:
+%   \usepackage{iclr2026_conference}  \usepackage{times}
+% and drop \geometry. The body and \bibliography below are venue-agnostic.
+\documentclass[10pt]{article}
+
+\usepackage[letterpaper,margin=1.7cm]{geometry}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\newcommand{\est}{\textcolor{gray}{\small[EST]}}
+\newcommand{\settled}{\textcolor{gray}{\small[SETTLED]}}
+
+\title{\textbf{What Does Scale Buy in Tool-Use Agents?\\
+A Capability\,$\times$\,Scale\,$\times$\,Lever Map Showing Compliance Is Scale-Invariant}}
+\author{Anonymous submission}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Tool-use agents (NL request $\to$ tool calls under a policy) are usually improved by scaling the base model. We instead ask, function by function: \emph{what does scale actually buy, what can a model genuinely not do at any scale, and what is cheaply covered by deterministic scaffold or by per-domain authored relations (A2)?} Treating four benchmarks ($\tau^2$-bench, SOPBench, TaskBench, Synth) purely as measurement instruments, we decompose tool-use failure into \emph{operand execution}, \emph{orchestration load}, and \emph{compliance/guarantee}, and chart each across model scale (7B--32B measured; 72B--235B \est) and across levers (base / scaffold / A2 / learning). Three findings organize the map. (1)~\textbf{Operand execution saturates early}: given an explicit specification a 32B base is exactly correct 88/88 (100\%), so the residual ``operand failures'' are not a learnable capability gap. (2)~\textbf{Capability-type load retires with scale in a definite order}: of five candidate load dimensions, interference and state-multiplicity predict failure at 7B/14B but vanish by 32B, while length and conditional-depth persist. (3)~\textbf{Compliance is scale-invariant.} As scale rises, task-pass climbs (7B $0.19 \to$ 32B $0.55$) but the \emph{compliant}-pass gap stays flat ($\sim$0.056) and policy-violations do \emph{not} fall (g2-class $31\to41$ across 7B$\to$32B); a deterministic gate eliminates them at every scale. Scale buys \emph{capability} but not \emph{guarantee}, so even a frontier model needs a deterministic guarantee-layer --- and a small base + capability-scaffold (which recedes as scale grows) + a scale-invariant guarantee-scaffold + authored A2 is the cost-efficient route to frontier-level tool-use. We frame deterministic scaffold as a \textbf{load-reduction operator} and give the function$\times$scale$\times$lever map as the paper's contribution.
+\end{abstract}
+
+\section{Introduction}
+A tool-use agent maps a natural-language request to a sequence of tool calls that must satisfy a domain policy. The default recipe for better agents is a bigger base model --- but ``bigger'' conflates distinct things and is expensive: model size roughly doubles inference OpEx and hardware CapEx. The practical question for on-premise deployment is not ``how big a model'' but \textbf{which capabilities must scale up, which can be handed to cheap deterministic structure, and which no model --- frontier included --- can be trusted to do.}
+
+We answer this with a \textbf{function $\times$ scale $\times$ lever} decomposition. For each functional sub-capability of tool-use we ask, across model scale, whether it (a)~grows with scale, (b)~is a genuine model limit scale does not fix, (c)~is efficiently covered by deterministic \emph{scaffold}, or (d)~is covered by per-domain authored relations/policies (\emph{A2}). The benchmarks are instruments for filling cells of this map, not the object of study.
+
+\paragraph{Contributions.}
+(1)~A controlled, \textbf{frontier-API-free} methodology isolating operand / orchestration-load / compliance across scale (\S\ref{sec:method}).
+(2)~\textbf{Operand execution is scale-saturated, not learnable} (\S\ref{sec:operand}): a 32B base is 100\% given a specification; the apparent gap is criterion interpretation handled deterministically. Faithful-formalize SFT is NO-GO at 32B.
+(3)~A \textbf{load decomposition} and its \textbf{scale-response} (\S\ref{sec:load}): the binding load dimensions are \emph{scale-dependent}; controlled probes overturn an observational correlation.
+(4)~The central finding: \textbf{compliance/guarantee is scale-invariant} (\S\ref{sec:compliance}); capability rises with scale but the policy-violation rate of the \emph{compliant}-pass metric does not, while a deterministic gate closes it at every scale --- the empirical backbone of a \textbf{two-kind scaffold} thesis (capability-scaffold recedes, F3; guarantee-scaffold scale-invariant, F4).
+(5)~A unifying frame: \textbf{scaffold = a load-reduction operator}, giving $\mathrm{pass} \Leftrightarrow L_{\mathrm{eff}} < L^*(N)$ with $L_{\mathrm{eff}} = L - \Delta L_{\mathrm{scaffold}}$ and an \emph{independent} estimate of $\Delta L$.
+
+Our headline is deliberately \emph{not} ``small beats large'': that result is already held by RL-routing systems (\S\ref{sec:related}). Our contribution is \emph{which} parts of the gap are scale-invariant and must be offloaded, and a map telling a deployer which lever to pull per capability.
+
+\section{Related Work}\label{sec:related}
+Our contribution sits at the intersection of \emph{verified prior pieces}; the central lineage is conceptual (why an LLM is good at language but must offload deep procedures and cannot self-guarantee compliance), not the recent ``small-beats-large'' routing systems, which address a narrower problem.
+
+\paragraph{Why language is shallow-parallel and deep procedures must be offloaded.}
+A bounded-depth Transformer forward pass is, asymptotically, a constant-depth parallel circuit \citep[uniform TC$^0$;][]{ax2207_00729}, and chain-of-thought escapes this only by unrolling depth into serial tokens \citep{ax2305_15408,ax2402_12875}. Natural language \emph{embeds} procedures of definite computational class: van Benthem's semantic automata make ``every/some'' finite-state but ``most/less-than-half'' provably pushdown, and this hierarchy is cognitively real (working-memory recruitment and reaction-time scale with the minimal-automaton class). Relevance Theory distinguishes \emph{conceptual} from \emph{procedural} meaning, and Goodman's notationality gives the condition under which a symbol system supports unambiguous mechanical manipulation; the representational-effect correction (Zhang \& Norman) clarifies that notation sets \emph{cost}, not computability. Together: classifying \emph{which} deep procedure a request embeds is shallow (LLM-learnable, transferable), but \emph{executing} it is serial-deep and must be offloaded.
+
+\paragraph{Cognitive architectures, non-introspective decidability, scale-invariant epistemic limits.}
+Our system instantiates the cognitive-architectures-for-language-agents umbrella \citep[CoALA;][]{ax2309_02427}: an LLM as a probabilistic production in a memory/action/decision loop; we make concrete the substrate CoALA leaves general (a relational-algebra deterministic core, an empty-relation abstention, zero-retrain A2-swap). SOAR \citep{ax2505_07087} surfaces indecision \emph{architecturally} --- an \texttt{impasse} from the absence of a preference, not introspection --- the precedent for our ``uncertainty $\to$ observable empty/ambiguous relation $\to$ ASK''. The \emph{deterministic-first / LLM-fallback} pattern is established \citep[50--100$\times$ fewer reasoning tokens;][]{ax2403_00810,ax2510_09355}. We add a \textbf{formalize-faithfulness} axis (SOAR assumes productions correct), a \emph{learned} empty$\to$ASK, and weight-learned domain-general skill with A2-swap transfer. \textbf{Hallucination is provably scale-invariant} \citep{ax2401_11817,ax2509_04664}, and verbalized self-confidence is non-diagnostic \emph{on our exact benchmark} ($\tau^2$ confidence $\approx$ random, AUROC 0.47--0.69; \citealp{ax2602_05073}, pilot-scale). The mis-formalize failure we target --- a wrong-but-non-empty formalization a deterministic checker cannot catch --- is now observed in \emph{frontier} models \citep{ax2604_19459}, a detection-evading premise-mistranslation mode (minority but checker-invisible), the analogue of our silent residual. \textbf{Our compliance result (\S\ref{sec:compliance}) is the policy-enforcement analogue}: just as no model self-guarantees truthfulness, none self-guarantees \emph{compliance} --- both scale-invariant, both demanding an external deterministic mechanism. \emph{(Honesty: faithfulness-gaming is a minority mode --- most errors are faithful --- and the cited works do not show ``more deep $\Rightarrow$ more fabrication''; we do not claim that.)}
+
+\paragraph{LLM-proposes / deterministic-executes (offload boundary).}
+Mainstream: LLM-Modulo \citep{ax2402_01817}, PAL \citep{ax2211_10435}, NL$\to$PDDL formalizers that beat direct planning, and RLVR systems whose ``V'' is a deterministic checker (AlphaGeometry; Tülu~3, \citealp{ax2411_15124}). \textbf{Honest boundary:} offload does not always win --- formalizers lose to direct solving on simple cases and can leak solution reasoning into the spec; the boundary is itself a measurement object.
+
+\paragraph{Guarantees / shielding.}
+From safe-RL shielding \citep{ax1807_06096} and predictive safety filters to LLM-agent instances: ShieldAgent \citep[probabilistic rule circuits, precision $<1$;][]{ax2503_22738}, AgentSpec \citep[hand-written DSL;][]{ax2503_18666}, Formal-LLM \citep{ax2402_00798}. These supply a \emph{blocking} layer with hand-authored specs or probabilistic checks; our gate is deterministic, \emph{drives} preconditions, and pairs a learned proposer with zero-retrain transfer.
+
+\paragraph{Learned routing and ``small-model orchestration'' (the narrow rivals).}
+Routing of LLM behaviour is a learned, transferable skill (RTR; A2FM; When2Call, tool-necessity linearly decodable AUROC 0.89--0.96; RITE), while verbalized self-confidence is distrusted. \textbf{ToolOrchestra} \citep{ax2511_21689} belongs here and is narrower than it appears: an 8B model RL-trained to decide \emph{when to delegate to a frontier model vs.\ answer locally} --- learned \textbf{cost-routing of frontier calls} over black-box components (80.2\%@10.3\textcent\ vs.\ GPT-5 77.7\%@31.3\textcent\ on $\tau^2$). It optimizes \emph{cost given} the components; it does \textbf{not} provide deterministic offload, by-construction compliance, decidable-vs-learned accounting, or zero-retrain transfer, and it \emph{relies on frontier delegation} --- disqualifying for the on-prem / no-data-egress regime. It establishes that a cost-favorable small-model result \emph{exists}, which is why our contribution is the \emph{analysis and method}. TRUST \citep{ax2606_06976} (4B $>$ 30B by RL) is orthogonal (black-box, introspective). ATA \citep{ax2510_16381} (FOL+Z3, training-free) is per-domain with no transfer.
+
+\paragraph{Load, long-context, benchmarks.}
+We defer to cognitive-load theory and long-context ``lost-in-the-middle'' degradation; novelty is only \emph{load-decomposition $\times$ scaffold-load-reduction for tool-use}. Benchmarks as instruments: $\tau^2$-bench \citep{ax2406_12045}, SOPBench \citep{ax2503_08669}, TaskBench, Synth/CFB \citep{ax2501_10132}; the floor-measurement precedent is Sufficient Context (Joren et al., ICLR 2025).
+
+\paragraph{Whitespace.}
+Prior work supplies each piece; the unoccupied intersection \emph{this paper} occupies is the \textbf{empirical function$\times$scale$\times$lever map}: which capabilities scale retires, which are genuine scale-invariant limits (compliance, measured), and which lever covers each. The recent routing systems optimize cost over black boxes; we open the box. \emph{(Portfolio note: the ``closure-justified finite generator basis + learned rule-abstraction transfer'' claim of our prior related-work synthesis is, after the operand make-or-break verdict, re-assigned to companion papers on A2 generation, path-selection, and the cost-optimal system; this paper claims the scale-invariance map, not the transfer mechanism --- which prior schema-guided-DST / ToolLLM work already established as a variant.)}
+
+\section{The Capability$\times$Scale$\times$Lever Framework}\label{sec:framework}
+We decompose a tool-use trajectory into typed functional steps and, for each function $f$, populate a map row indexed by scale $N$ and lever $\ell \in \{\text{base, capability-scaffold, guarantee-scaffold, A2, learning}\}$. Each cell records: does capability on $f$ grow with $N$; is $f$ a genuine model limit; does a lever cover $f$ efficiently. Three claims organize it:
+\begin{itemize}\itemsep1pt
+\item \textbf{Operand vs.\ orchestration vs.\ compliance.} Operand = atomic execution given a criterion; orchestration = holding interdependent steps coherent under \emph{load}; compliance = obeying policy with a \emph{guarantee}. These fail for different reasons and respond to different levers.
+\item \textbf{Decidability-first lever routing.} An exactly-specifiable function (resolution, eligibility, aggregation, provenance) goes to deterministic scaffold; domain facts are \emph{provided} via A2/retrieval; only domain-general translation/reasoning is \emph{learned}. This inverts the ``scale it'' reflex.
+\item \textbf{Two kinds of scaffold.} \emph{Capability-scaffold} (present/compute/resolve) substitutes for a missing skill and therefore \textbf{recedes as scale grows} (F3, pass). \emph{Guarantee-scaffold} (policy gates) provides a property no probabilistic model gives and is therefore \textbf{scale-invariant} (F4, compliant-pass).
+\end{itemize}
+
+\paragraph{Load as a vector.}
+Orchestration ``load'' is not scalar. From failure forensics we operationalize five computable candidate dimensions: $L_{\mathrm{len}}$ (context to retain), $L_{\mathrm{state}}$ (interdependent state carried), $L_{\mathrm{branch}}$ (conditional-resolution depth), $L_{\mathrm{interf}}$ (confusable similar entities), $L_{\mathrm{contra}}$ (mid-stream contradiction). Crucially \textbf{load $\perp$ operand difficulty}: load can be raised while operand difficulty is held fixed.
+
+\paragraph{Scaffold as a load-reduction operator.}
+Each scaffold component removes a load dimension (present externalizes reads: $\downarrow L_{\mathrm{len}}, \downarrow L_{\mathrm{interf}}$; compute offloads aggregation: $\downarrow L_{\mathrm{state}}$; gates enforce eligibility: $\downarrow L_{\mathrm{branch}}$; a controller holds state). This gives effective load $L_{\mathrm{eff}} = L - \Delta L_{\mathrm{scaffold}}$ and the prediction $\mathrm{pass}(f,N) \Leftrightarrow L_{\mathrm{eff}}(f) < L^*(N)$, where $L^*(N)$ is the model's load-tolerance at scale $N$. To avoid tautology, $\Delta L$ must be estimated \emph{independently} (from the mechanical feature-reduction the scaffold performs) and then shown to predict the failure-onset shift --- not read off it. The full predictive test needs the controlled curves of \S\ref{sec:load} at more scales \est; here we establish the components.
+
+\section{Method}\label{sec:method}
+\paragraph{Benches as instruments.} We measure on $\tau^2$-bench retail (primary), with SOPBench/TaskBench/Synth as the canonical \emph{training} substrate that companion papers build on; $\tau^2$ is a \emph{transfer} target, never trained on. Scale: Qwen2.5 7B / 14B / 32B-GPTQ-Int8 \settled; 72B / 235B \est.
+
+\paragraph{Cost discipline (frontier-API-free).} The only paid component would be a GPT-4.1 user-simulator; we avoid it. Capability is measured with \textbf{isolated single-shot probes} (one decision with a fixed specification) and \textbf{existing multi-scale agent runs}; a local scripted user-simulator replaces the paid one for full-flow checks. All results are persisted.
+
+\paragraph{Conditions \& metrics.} \emph{floor} (no scaffold) isolates the base; \emph{g15/present/nested/assembled} add scaffold; \emph{GIVEN-SPEC vs.\ GOAL} controls the simulator input to separate operand execution from criterion interpretation. We report robust \textbf{pass$^{\mathrm{all}}$}; \textbf{F3} = raw pass; \textbf{F4} = compliant pass (deducting policy violations); per-dimension partial correlation of failure with each load feature (controlling operand difficulty); controlled accuracy-vs-load onset curves. Single-trial point estimates are not reported as findings (user-sim noise $\approx 0.11$).
+
+\section{Results}
+\subsection{Operand execution is scale-saturated, not a learnable gap \settled}\label{sec:operand}
+A controlled experiment varies only the simulator input. Given an explicit specification (\textbf{GIVEN-SPEC}), the 32B base selects the correct variant \textbf{88/88 (100\%)}. Given only the goal (\textbf{GOAL}), it is 62/88 (70\%); the 30\% gap is criterion interpretation (argmax/argmin = deterministic compute, multi-attribute reasoning, conversational fidelity), not execution. Genuine join/disambiguation is 7/13 (54\%) and present-addressable. \textbf{Operand is not a capability gap at 32B}, and faithful-formalize SFT is NO-GO. The complementary limit: \emph{selection over a large candidate set does not scale in-head} --- \texttt{comparative}@50 scores 0.02 and \texttt{rank}@50 $\approx 0.30$ even including a 235B model, while the deterministic engine is trivial (1.00). Operand splits cleanly: atomic execution (base, 100\%) and large-$N$ selection (deterministic-compute lever); neither is a learning target.
+
+\subsection{Capability-type load retires with scale, in order \settled}\label{sec:load}
+Partial correlation of \emph{floor} failure with each load feature (controlling operand difficulty):
+\begin{center}\small
+\begin{tabular}{lccc}
+\toprule
+dimension & 7B & 14B & 32B \\
+\midrule
+$L_{\mathrm{len}}$ (length) & $+0.20$ & $+0.33$ & $\mathbf{+0.37}$ \\
+$L_{\mathrm{state}}$ (state) & $\mathbf{+0.24}$ & $\mathbf{+0.21}$ & $+0.06$ \\
+$L_{\mathrm{branch}}$ (conditional) & $+0.20$ & $+0.13$ & $\mathbf{+0.26}$ \\
+$L_{\mathrm{interf}}$ (interference) & $\mathbf{+0.30}$ & $\mathbf{+0.20}$ & $+0.08$ \\
+$L_{\mathrm{contra}}$ (revision) & $+0.06$ & $+0.13$ & $+0.04$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The \textbf{binding set is scale-dependent}: four dimensions predict failure at 7B/14B; by 32B only length and conditional-depth survive. Scale retires interference and state-multiplicity first. $L_{\mathrm{contra}}$ is too sparse in $\tau^2$ to fit.
+
+\paragraph{Controlled $>$ observational.} The above is confounded with task size. A \emph{controlled} interference probe (fix operand; vary only the number $N$ of confusable variants) does \textbf{not} reproduce the strong 7B signal:
+\begin{center}\small
+\begin{tabular}{lccccc}
+\toprule
+$N$ (distractors) & 1 & 2 & 4 & 8 & 16 \\
+\midrule
+32B & 1.00 & 1.00 & 1.00 & 0.97 & 0.87 \\
+7B  & 1.00 & 1.00 & 1.00 & 0.90 & 0.80 \\
+\bottomrule
+\end{tabular}
+\end{center}
+The gap is small (0.80 vs.\ 0.87 at $N{=}16$); the observational $L_{\mathrm{interf}}$ correlation was largely a size confound --- the payoff of controlled generation. (Single-shot probes under-test the inherently multi-turn dimensions $L_{\mathrm{state}}, L_{\mathrm{contra}}$ \est.)
+
+\paragraph{The residual is orchestration, not operand.} Re-running the robust fail-all set under faithful local turns: 2/10 are simulator-noise flips, while the dominant residual is \emph{orchestration-under-load} --- multi-item batching that violates a non-pending precondition, multi-order tracking that drops an order and fabricates a placeholder id, conditional-branch sequencing, context overflow. An isolation \textbf{plan probe} (elicit the abstract action plan, grade structure only) shows correct core structure in 6/10 (the batch the live run split is batched correctly in isolation): roughly half the orchestration residual is \emph{execution-load} (closable by plan/execute separation) and half is genuine in-isolation planning miss (conditional / multi-order grounding) --- the irreducible piece motivating a learned path-selection lever (companion paper), not a bigger base. \settled\ (assembled stack ceiling: robust pass$^{\mathrm{all}} = 0.402$.)
+
+\subsection{Compliance is scale-invariant --- the central finding \settled}\label{sec:compliance}
+We separate \textbf{F3} (task pass) from \textbf{F4} (compliant pass). On \emph{floor} (no gate):
+\begin{center}\small
+\begin{tabular}{lccccc}
+\toprule
+scale & F3 (pass) & F4 (compliant) & gap & viol.\ (g1/g2) & total viol.\% \\
+\midrule
+7B  & 0.189 & 0.130 & 0.058 & 57 / 31 & 33.6\% \\
+14B & 0.468 & 0.404 & 0.064 & 38 / 38 & 26.3\% \\
+32B & 0.547 & 0.491 & 0.056 & 6 / \textbf{41} & 14.3\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+Capability (F3) climbs steeply, but \textbf{the F3--F4 gap is flat ($\sim$0.056) and the policy-violation class g2 does not fall ($31\to41$) --- it slightly rises} even as auth-type g1 collapses ($57\to6$). With the deterministic gate (g15) it is uniform across scale:
+\begin{center}\small
+\begin{tabular}{lcccc}
+\toprule
+scale & F3 & F4 & gap & viol.\% \\
+\midrule
+7B  & 0.162 & 0.162 & \textbf{0.000} & \textbf{0.0\%} \\
+14B & 0.469 & 0.469 & 0.000 & 0.0\% \\
+32B & 0.547 & 0.547 & 0.000 & 0.0\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Scale solves capability-type violations (g1) but not policy-semantic compliance (g2)}: the compliant-pass gap is scale-invariant, and the gate zeros it at every scale, including the most capable. A probabilistic model --- frontier included --- cannot be trusted to \emph{guarantee} compliance; a deterministic guarantee-scaffold is needed at all scales. This is the policy-enforcement analogue of the scale-invariance of hallucination, and the empirical backbone of the two-kind scaffold. \emph{(Caveat: range 7B--32B; the gated gap${=}0$ holds by construction, so the informative quantity is the non-closing floor gap; the frontier projection rests on the flat trend plus hallucination-inevitability priors, not a $>$72B measurement.)}
+
+\subsection{Cheap-replication: a capability-scaffold substitutes for scale \settled}
+Raw pass rises monotonically (pass$^1 =$ 7B 0.24 / 14B 0.52 / 32B 0.60, $n{=}342$), consistent with the floor F3 trend. The map's point is that \emph{each piece scale buys is obtainable more cheaply than scale}: a deterministic \textbf{fetch-first} engine (provenance-deny $\to$ deterministic producer call $\to$ inject the real value) moves grounding errors $33\to9$ and roughly \textbf{doubles pass ($0.14\to0.264$) with zero learning} --- a capability-scaffold standing in for scale. Not every scaffold helps: an eligibility-steering gate (G5) has $\sim$zero causal effect and a naive retry is counter-productive, while auth/confirm/ownership/precondition gates (G1--G4) are genuine levers.
+
+\subsection{The map, filled}
+\begin{center}\small
+\begin{tabular}{p{3.3cm}p{3.0cm}p{1.6cm}p{4.0cm}}
+\toprule
+function & scale-response & genuine limit? & efficient lever \\
+\midrule
+operand execution & saturates by 32B (100\% given-spec) & no & base (no learning) \\
+interference / state load & retire by 32B & no & capability-scaffold (present), or scale \\
+length / conditional load & persist at 32B & partial & capability-scaffold (partial); conditional $\to$ controller/learn \\
+policy compliance (g2) & \textbf{scale-invariant} & \textbf{yes (guarantee)} & \textbf{guarantee-scaffold (gate)} \\
+domain facts & --- & --- & A2 / retrieval \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Discussion}
+The map yields a deployment rule that inverts ``scale it'': \textbf{reduce the load, don't train the model to tolerate it.} Capability-scaffold removes the load dimensions scale would otherwise buy (and recedes when scale is available); guarantee-scaffold supplies the property scale never buys (and is kept at every scale, frontier included). Where a load is irreducible by scaffold --- conditional-depth / path-search is our candidate --- the lever shifts to a \emph{learned, transferable} heuristic, not a bigger model. Training a model to tolerate load is, in our framing, training it to do the deterministic controller's job; the two-wing thesis routes that work to determinism by default and to learning only for the residual.
+
+\section{Limitations}
+\textbf{Scale range:} measured 7B--32B; 72B/235B and true frontier are \est; the scale-invariance claim is a flat-trend projection plus priors. \textbf{Observational vs.\ controlled:} \S\ref{sec:load}'s correlations are size-confounded; only the controlled $L_{\mathrm{interf}}$ probe is causal; $L_{\mathrm{branch}}/L_{\mathrm{len}}$ controlled curves and multi-turn probes are \est. \textbf{Single bench for compliance:} F3/F4 on $\tau^2$ retail; cross-domain/cross-bench replication \est. \textbf{Transfer:} zero-retrain ABox-swap is the design premise; cross-field validation is the companion system paper (\est/partial here). \textbf{Construction artifact:} the gated gap${=}0$ is by construction; the substantive claim rests on the \emph{floor} gap's non-closure.
+
+\section{Conclusion}
+Scaling a tool-use agent buys capability --- it retires load dimensions in a definite order and lifts task pass --- but it does \textbf{not} buy compliance: policy-violation rates are flat across 7B$\to$32B while pass climbs, and a deterministic gate removes them at every scale. The right object is therefore not the model size but the \textbf{function$\times$scale$\times$lever map}: a small base, a capability-scaffold that recedes as scale grows, a scale-invariant guarantee-scaffold, and authored A2 --- with learning reserved for the domain-general residual. This is why even frontier systems should use deterministic scaffold and A2, and it sets up the system that optimizes the lever mix by cost, the methods that generate A2, and the learned heuristics for the irreducible path-search residual.
+
+\small
+\bibliographystyle{plainnat}
+\nocite{*}
+\bibliography{references}
+
+\end{document}
