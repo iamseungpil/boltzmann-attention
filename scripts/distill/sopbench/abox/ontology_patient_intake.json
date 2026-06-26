@@ -1,0 +1,78 @@
+{
+  "domain": "patient_intake",
+  "start": "ins",
+  "steps": ["ins", "rx", "pharm", "life", "overall", "register", "emit"],
+  "realizes": {
+    "ins": "validateInsurance",
+    "rx": "validatePrescriptionBenefits",
+    "pharm": "verifyPharmacy",
+    "life": "calculateLifestyleRisk",
+    "overall": "calculateOverallRisk",
+    "register": "registerPatient",
+    "emit": "_emit"
+  },
+  "arg": {
+    "validateInsurance": {
+      "patient_id": "patient_id",
+      "insurance_provider": "insurance_provider",
+      "policy_number": "policy_number",
+      "group_number": "group_number",
+      "coverage_start_date": "coverage_start_date",
+      "insurance_type": "insurance_type"
+    },
+    "validatePrescriptionBenefits": {
+      "patient_id": "patient_id",
+      "insurance_provider": "insurance_provider",
+      "policy_number": "policy_number"
+    },
+    "verifyPharmacy": {
+      "patient_id": "patient_id",
+      "preferred_pharmacy_name": "preferred_pharmacy_name",
+      "preferred_pharmacy_address": "preferred_pharmacy_address",
+      "pharmacy_phone": "pharmacy_phone"
+    },
+    "calculateLifestyleRisk": {
+      "patient_id": "patient_id",
+      "smoking_status": "smoking_status",
+      "alcohol_consumption": "alcohol_consumption",
+      "exercise_frequency": "exercise_frequency"
+    },
+    "calculateOverallRisk": {
+      "patient_id": "patient_id",
+      "previous_surgeries": "previous_surgeries",
+      "chronic_conditions": "chronic_conditions",
+      "life_style_risk_level": "life_style_risk_level"
+    },
+    "registerPatient": {
+      "patient_id": "patient_id",
+      "insurance_validation": "insurance_validation",
+      "prescription_insurance_validation": "prescription_insurance_validation",
+      "life_style_risk_level": "life_style_risk_level",
+      "overall_risk_level": "overall_risk_level",
+      "pharmacy_check": "pharmacy_check"
+    }
+  },
+  "produces": {},
+  "precondition": {},
+  "next": {
+    "ins": "rx",
+    "rx": "pharm",
+    "pharm": "life",
+    "life": "overall",
+    "overall": "register",
+    "register": "emit",
+    "emit": null
+  },
+  "terminate": [],
+  "output": {
+    "required": [
+      "prescription_insurance_validation",
+      "insurance_validation",
+      "life_style_risk_level",
+      "overall_risk_level",
+      "user_registration",
+      "pharmacy_check"
+    ],
+    "format": "xml"
+  }
+}

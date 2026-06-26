@@ -1,0 +1,94 @@
+{
+  "domain": "aircraft_inspection",
+  "start": "clear",
+  "steps": ["clear", "mech", "elec", "incident", "mismatch", "crosscheck", "crossreport", "emit"],
+  "realizes": {
+    "clear": "VerifyAircraftClearance",
+    "mech": "VerifyMechanicalComponents",
+    "elec": "VerifyElectricalSystems",
+    "incident": "ReportComponentIncident",
+    "mismatch": "ReportComponentMismatch",
+    "crosscheck": "CrossCheckSpecifications",
+    "crossreport": "ReportCrossCheck",
+    "emit": "_emit"
+  },
+  "arg": {
+    "VerifyAircraftClearance": {
+      "aircraft_id": "aircraft_id",
+      "tail_number": "tail_number",
+      "maintenance_record_id": "maintenance_record_id",
+      "expected_departure_time": "expected_departure_time"
+    },
+    "VerifyMechanicalComponents": {
+      "aircraft_id": "aircraft_id",
+      "component_serial_number": "component_serial_number",
+      "inspection_location_id": "inspection_location_id",
+      "component_weight": "component_weight",
+      "physical_condition_observation": "physical_condition_observation",
+      "installation_time": "installation_time"
+    },
+    "VerifyElectricalSystems": {
+      "aircraft_id": "aircraft_id",
+      "battery_status": "battery_status",
+      "circuit_continuity_check": "circuit_continuity_check",
+      "avionics_diagnostics_response": "avionics_diagnostics_response"
+    },
+    "ReportComponentIncident": {
+      "aircraft_id": "aircraft_id",
+      "mechanical_inspection_result": "mechanical_inspection_result",
+      "electrical_inspection_result": "electrical_inspection_result"
+    },
+    "ReportComponentMismatch": {
+      "aircraft_id": "aircraft_id",
+      "component_serial_number": "component_serial_number",
+      "installed_component_serial_number": "installed_component_serial_number",
+      "inspection_location_id": "inspection_location_id"
+    },
+    "CrossCheckSpecifications": {
+      "aircraft_id": "aircraft_id",
+      "component_weight": "component_weight",
+      "expected_component_weight": "expected_component_weight",
+      "installation_time": "installation_time",
+      "actual_inspection_time": "actual_inspection_time"
+    },
+    "ReportCrossCheck": {
+      "maintenance_record_id": "maintenance_record_id",
+      "aircraft_id": "aircraft_id",
+      "component_incident_response": "component_incident_response",
+      "component_mismatch_response": "component_mismatch_response"
+    }
+  },
+  "produces": {
+    "VerifyAircraftClearance": {"aircraft_ready": "aircraft_ready"},
+    "VerifyMechanicalComponents": {"mechanical_inspection_result": "mechanical_inspection_result"},
+    "VerifyElectricalSystems": {"electrical_inspection_result": "electrical_inspection_result"},
+    "ReportComponentIncident": {"component_incident_response": "component_incident_response"},
+    "ReportComponentMismatch": {"component_mismatch_response": "component_mismatch_response"},
+    "CrossCheckSpecifications": {"cross_check_response": "cross_check_response"},
+    "ReportCrossCheck": {"cross_check_reporting_response": "cross_check_reporting_response"}
+  },
+  "precondition": {},
+  "next": {
+    "clear": "mech",
+    "mech": "elec",
+    "elec": "incident",
+    "incident": "mismatch",
+    "mismatch": "crosscheck",
+    "crosscheck": "crossreport",
+    "crossreport": "emit",
+    "emit": null
+  },
+  "terminate": [],
+  "output": {
+    "required": [
+      "aircraft_ready",
+      "mechanical_inspection_result",
+      "electrical_inspection_result",
+      "component_incident_response",
+      "component_mismatch_response",
+      "cross_check_response",
+      "cross_check_reporting_response"
+    ],
+    "format": "xml"
+  }
+}

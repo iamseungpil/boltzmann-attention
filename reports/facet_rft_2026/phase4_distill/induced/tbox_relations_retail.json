@@ -1,0 +1,637 @@
+{
+  "domain": "retail",
+  "meta": {
+    "n_teacher_sims": 1824,
+    "n_teacher_success": 1324,
+    "n_fail_sims": 500,
+    "n_tasks": 114,
+    "min_support": 5,
+    "min_frac": 0.4,
+    "fail_sources": []
+  },
+  "repairs_state": [
+    {
+      "read": "get_order_details",
+      "fix_tool": "return_delivered_order_items",
+      "support": 279,
+      "frac": 0.541
+    },
+    {
+      "read": "get_product_details",
+      "fix_tool": "exchange_delivered_order_items",
+      "support": 264,
+      "frac": 0.68
+    },
+    {
+      "read": "get_product_details",
+      "fix_tool": "modify_pending_order_items",
+      "support": 211,
+      "frac": 0.53
+    },
+    {
+      "read": "get_order_details",
+      "fix_tool": "cancel_pending_order",
+      "support": 134,
+      "frac": 0.434
+    },
+    {
+      "read": "get_order_details",
+      "fix_tool": "transfer_to_human_agents",
+      "support": 25,
+      "frac": 0.658
+    },
+    {
+      "read": "get_order_details",
+      "fix_tool": "modify_pending_order_payment",
+      "support": 16,
+      "frac": 1.0
+    }
+  ],
+  "diagnosis_sufficient_for": [
+    {
+      "goal": "exchange_delivered_order_items",
+      "n": 260,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "exchange_delivered_order_items"
+    },
+    {
+      "goal": "return_delivered_order_items",
+      "n": 210,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "return_delivered_order_items"
+    },
+    {
+      "goal": "cancel_pending_order",
+      "n": 89,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "cancel_pending_order"
+    },
+    {
+      "goal": "modify_pending_order_items",
+      "n": 81,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_pending_order_items"
+    },
+    {
+      "goal": "cancel_pending_order+return_delivered_order_items",
+      "n": 74,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "cancel_pending_order"
+    },
+    {
+      "goal": "modify_pending_order_address+modify_pending_order_items",
+      "n": 66,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_pending_order_address"
+    },
+    {
+      "goal": "calculate+modify_pending_order_items",
+      "n": 56,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_pending_order_items"
+    },
+    {
+      "goal": "transfer_to_human_agents",
+      "n": 38,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "transfer_to_human_agents"
+    },
+    {
+      "goal": "calculate+return_delivered_order_items",
+      "n": 29,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "return_delivered_order_items"
+    },
+    {
+      "goal": "modify_pending_order_address+modify_user_address",
+      "n": 29,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_user_address"
+    },
+    {
+      "goal": "modify_pending_order_address+modify_pending_order_items+modify_user_address",
+      "n": 28,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_user_address"
+    },
+    {
+      "goal": "exchange_delivered_order_items+modify_pending_order_items",
+      "n": 25,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "exchange_delivered_order_items"
+    },
+    {
+      "goal": "modify_user_address",
+      "n": 25,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_user_address"
+    },
+    {
+      "goal": "calculate+exchange_delivered_order_items",
+      "n": 24,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "exchange_delivered_order_items"
+    },
+    {
+      "goal": "modify_pending_order_items+return_delivered_order_items",
+      "n": 22,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "return_delivered_order_items"
+    },
+    {
+      "goal": "modify_pending_order_address",
+      "n": 17,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details"
+      ],
+      "then_commit": "modify_pending_order_address"
+    },
+    {
+      "goal": "return_delivered_order_items+transfer_to_human_agents",
+      "n": 16,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "return_delivered_order_items"
+    },
+    {
+      "goal": "modify_pending_order_payment",
+      "n": 16,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_pending_order_payment"
+    },
+    {
+      "goal": "modify_pending_order_address+modify_pending_order_items+return_delivered_order_items",
+      "n": 16,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "return_delivered_order_items"
+    },
+    {
+      "goal": "modify_pending_order_items+modify_user_address",
+      "n": 15,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_user_address"
+    },
+    {
+      "goal": "cancel_pending_order+modify_pending_order_address+modify_pending_order_items",
+      "n": 14,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_pending_order_address"
+    },
+    {
+      "goal": "exchange_delivered_order_items+modify_pending_order_address+modify_pending_order_items",
+      "n": 14,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_pending_order_address"
+    },
+    {
+      "goal": "calculate+cancel_pending_order+return_delivered_order_items",
+      "n": 12,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "cancel_pending_order"
+    },
+    {
+      "goal": "exchange_delivered_order_items+return_delivered_order_items",
+      "n": 11,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "return_delivered_order_items"
+    },
+    {
+      "goal": "calculate+cancel_pending_order",
+      "n": 10,
+      "sufficient_reads": [
+        "find_user_id_by_email",
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "cancel_pending_order"
+    },
+    {
+      "goal": "cancel_pending_order+modify_pending_order_items",
+      "n": 9,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_user_details"
+      ],
+      "then_commit": "modify_pending_order_items"
+    },
+    {
+      "goal": "cancel_pending_order+modify_pending_order_address",
+      "n": 7,
+      "sufficient_reads": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_user_details"
+      ],
+      "then_commit": "cancel_pending_order"
+    }
+  ],
+  "distractor_for": [
+    {
+      "goal": "exchange_delivered_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "return_delivered_order_items",
+          "count": 15
+        },
+        {
+          "wrong_tool": "cancel_pending_order",
+          "count": 11
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 9
+        },
+        {
+          "wrong_tool": "calculate",
+          "count": 8
+        },
+        {
+          "wrong_tool": "modify_user_address",
+          "count": 1
+        },
+        {
+          "wrong_tool": "modify_pending_order_items",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "modify_pending_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "cancel_pending_order",
+          "count": 12
+        },
+        {
+          "wrong_tool": "calculate",
+          "count": 11
+        },
+        {
+          "wrong_tool": "exchange_delivered_order_items",
+          "count": 4
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "modify_pending_order_address",
+      "distractors": [
+        {
+          "wrong_tool": "cancel_pending_order",
+          "count": 7
+        },
+        {
+          "wrong_tool": "modify_pending_order_items",
+          "count": 5
+        },
+        {
+          "wrong_tool": "return_delivered_order_items",
+          "count": 3
+        },
+        {
+          "wrong_tool": "calculate",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "calculate+return_delivered_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "cancel_pending_order",
+          "count": 12
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 2
+        },
+        {
+          "wrong_tool": "modify_pending_order_items",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "cancel_pending_order",
+      "distractors": [
+        {
+          "wrong_tool": "modify_pending_order_items",
+          "count": 7
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 3
+        },
+        {
+          "wrong_tool": "calculate",
+          "count": 2
+        },
+        {
+          "wrong_tool": "return_delivered_order_items",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "modify_pending_order_address+modify_pending_order_items+modify_user_address",
+      "distractors": [
+        {
+          "wrong_tool": "exchange_delivered_order_items",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "goal": "modify_user_address",
+      "distractors": [
+        {
+          "wrong_tool": "cancel_pending_order",
+          "count": 3
+        },
+        {
+          "wrong_tool": "modify_pending_order_items",
+          "count": 3
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 3
+        },
+        {
+          "wrong_tool": "return_delivered_order_items",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "return_delivered_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "exchange_delivered_order_items",
+          "count": 5
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 3
+        },
+        {
+          "wrong_tool": "cancel_pending_order",
+          "count": 1
+        },
+        {
+          "wrong_tool": "calculate",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "modify_pending_order_address+modify_pending_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "exchange_delivered_order_items",
+          "count": 4
+        },
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 2
+        },
+        {
+          "wrong_tool": "modify_pending_order_payment",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "goal": "transfer_to_human_agents",
+      "distractors": [
+        {
+          "wrong_tool": "return_delivered_order_items",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "goal": "cancel_pending_order+return_delivered_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 3
+        },
+        {
+          "wrong_tool": "calculate",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "goal": "calculate+modify_pending_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "cancel_pending_order",
+          "count": 2
+        },
+        {
+          "wrong_tool": "exchange_delivered_order_items",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "goal": "cancel_pending_order+modify_pending_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "return_delivered_order_items",
+          "count": 3
+        },
+        {
+          "wrong_tool": "exchange_delivered_order_items",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "modify_pending_order_items+return_delivered_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 2
+        },
+        {
+          "wrong_tool": "exchange_delivered_order_items",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "modify_pending_order_address+modify_user_address",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "goal": "cancel_pending_order+modify_pending_order_address+modify_pending_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "exchange_delivered_order_items",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "goal": "exchange_delivered_order_items+modify_pending_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "cancel_pending_order",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "calculate+cancel_pending_order",
+      "distractors": [
+        {
+          "wrong_tool": "modify_pending_order_items",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "goal": "modify_pending_order_address+modify_pending_order_items+return_delivered_order_items",
+      "distractors": [
+        {
+          "wrong_tool": "transfer_to_human_agents",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "escalate_when": {
+    "escalation_tool": "transfer_to_human_agents",
+    "n_tasks_requiring": 4,
+    "fault_conditions": [],
+    "co_required_writes": [
+      {
+        "tool": "return_delivered_order_items",
+        "count": 1
+      }
+    ]
+  }
+}

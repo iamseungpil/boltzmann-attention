@@ -1,0 +1,1208 @@
+{
+  "model": "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+  "gloss": 1,
+  "overall": [
+    13,
+    32
+  ],
+  "recognition": [
+    31,
+    32
+  ],
+  "by_type": {
+    "substitute": [
+      13,
+      32
+    ]
+  },
+  "op_dist": {
+    "substitute": 31,
+    "argmax": 1
+  },
+  "rows": [
+    {
+      "task": "0",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": "9025753381",
+      "gold": "7706410293",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "1151293680",
+        "set": {
+          "switch type": "clicky",
+          "backlight": "RGB",
+          "size": "full size"
+        }
+      },
+      "old_options": {
+        "switch type": "linear",
+        "backlight": "RGB",
+        "size": "full size"
+      },
+      "gold_options": {
+        "switch type": "clicky",
+        "backlight": "none",
+        "size": "full size"
+      },
+      "gold_set": {
+        "switch type": "clicky",
+        "backlight": "none"
+      },
+      "emitted_set": {
+        "switch type": "clicky",
+        "backlight": "RGB",
+        "size": "full size"
+      }
+    },
+    {
+      "task": "0",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": null,
+      "gold": "7747408585",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "4983901480",
+        "set": {
+          "compatibility": "Google Home"
+        }
+      },
+      "old_options": {
+        "compatibility": "Apple HomeKit",
+        "color": "black"
+      },
+      "gold_options": {
+        "compatibility": "Google Assistant",
+        "color": "black"
+      },
+      "gold_set": {
+        "compatibility": "Google Assistant"
+      },
+      "emitted_set": {
+        "compatibility": "Google Home"
+      }
+    },
+    {
+      "task": "1",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": null,
+      "gold": "7747408585",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "4983901480",
+        "set": {
+          "compatibility": "Google Home"
+        }
+      },
+      "old_options": {
+        "compatibility": "Apple HomeKit",
+        "color": "black"
+      },
+      "gold_options": {
+        "compatibility": "Google Assistant",
+        "color": "black"
+      },
+      "gold_set": {
+        "compatibility": "Google Assistant"
+      },
+      "emitted_set": {
+        "compatibility": "Google Home"
+      }
+    },
+    {
+      "task": "6",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 3,
+      "op": "substitute",
+      "rid": null,
+      "gold": "7453605304",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "8384507844",
+        "set": {
+          "power source": "battery",
+          "brightness": "low"
+        }
+      },
+      "old_options": {
+        "color": "white",
+        "brightness": "medium",
+        "power source": "USB"
+      },
+      "gold_options": {
+        "color": "silver",
+        "brightness": "low",
+        "power source": "battery"
+      },
+      "gold_set": {
+        "color": "silver",
+        "brightness": "low",
+        "power source": "battery"
+      },
+      "emitted_set": {
+        "power source": "battery",
+        "brightness": "low"
+      }
+    },
+    {
+      "task": "7",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 3,
+      "op": "substitute",
+      "rid": null,
+      "gold": "1569765161",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "8384507844",
+        "set": {
+          "brightness": "low",
+          "power source": "AC adapter"
+        }
+      },
+      "old_options": {
+        "color": "white",
+        "brightness": "medium",
+        "power source": "USB"
+      },
+      "gold_options": {
+        "color": "silver",
+        "brightness": "low",
+        "power source": "AC adapter"
+      },
+      "gold_set": {
+        "color": "silver",
+        "brightness": "low",
+        "power source": "AC adapter"
+      },
+      "emitted_set": {
+        "brightness": "low",
+        "power source": "AC adapter"
+      }
+    },
+    {
+      "task": "8",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "1270145486",
+      "gold": "9083642334",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "attr": "brightness",
+        "anchor_id": "8384507844",
+        "set": {
+          "brightness": "high",
+          "power source": "battery"
+        }
+      },
+      "old_options": {
+        "color": "white",
+        "brightness": "medium",
+        "power source": "USB"
+      },
+      "gold_options": {
+        "color": "white",
+        "brightness": "high",
+        "power source": "USB"
+      },
+      "gold_set": {
+        "brightness": "high"
+      },
+      "emitted_set": {
+        "brightness": "high",
+        "power source": "battery"
+      }
+    },
+    {
+      "task": "9",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 3,
+      "op": "substitute",
+      "rid": "4385534692",
+      "gold": "7624783998",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "8384507844",
+        "set": {
+          "brightness": "high",
+          "power source": "AC adapter"
+        }
+      },
+      "old_options": {
+        "color": "white",
+        "brightness": "medium",
+        "power source": "USB"
+      },
+      "gold_options": {
+        "color": "black",
+        "brightness": "high",
+        "power source": "AC adapter"
+      },
+      "gold_set": {
+        "color": "black",
+        "brightness": "high",
+        "power source": "AC adapter"
+      },
+      "emitted_set": {
+        "brightness": "high",
+        "power source": "AC adapter"
+      }
+    },
+    {
+      "task": "18",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": "1071497737",
+      "gold": "1071497737",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "8069050545",
+        "set": {
+          "color": "gray",
+          "armrest": "fixed",
+          "material": "leather"
+        }
+      },
+      "old_options": {
+        "material": "leather",
+        "color": "blue",
+        "armrest": "none",
+        "backrest height": "high-back"
+      },
+      "gold_options": {
+        "material": "leather",
+        "color": "gray",
+        "armrest": "fixed",
+        "backrest height": "high-back"
+      },
+      "gold_set": {
+        "color": "gray",
+        "armrest": "fixed"
+      },
+      "emitted_set": {
+        "color": "gray",
+        "armrest": "fixed",
+        "material": "leather"
+      }
+    },
+    {
+      "task": "23",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": null,
+      "gold": "8573379326",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "3358616356",
+        "set": {
+          "size": "medium",
+          "ventilation": "high"
+        }
+      },
+      "old_options": {
+        "size": "S",
+        "color": "red",
+        "ventilation": "low"
+      },
+      "gold_options": {
+        "size": "M",
+        "color": "red",
+        "ventilation": "high"
+      },
+      "gold_set": {
+        "size": "M",
+        "ventilation": "high"
+      },
+      "emitted_set": {
+        "size": "medium",
+        "ventilation": "high"
+      }
+    },
+    {
+      "task": "27",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "8277474082",
+      "gold": "8277474082",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "8118291112",
+        "set": {
+          "waterproof": "yes"
+        }
+      },
+      "old_options": {
+        "size": "12",
+        "material": "leather",
+        "waterproof": "no"
+      },
+      "gold_options": {
+        "size": "12",
+        "material": "leather",
+        "waterproof": "yes"
+      },
+      "gold_set": {
+        "waterproof": "yes"
+      },
+      "emitted_set": {
+        "waterproof": "yes"
+      }
+    },
+    {
+      "task": "29",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "8176740019",
+      "gold": "8176740019",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "4293355847",
+        "set": {
+          "length": "28 inch"
+        }
+      },
+      "old_options": {
+        "deck material": "bamboo",
+        "length": "31 inch",
+        "design": "plain"
+      },
+      "gold_options": {
+        "deck material": "bamboo",
+        "length": "28 inch",
+        "design": "plain"
+      },
+      "gold_set": {
+        "length": "28 inch"
+      },
+      "emitted_set": {
+        "length": "28 inch"
+      }
+    },
+    {
+      "task": "45",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": "7958300294",
+      "gold": "7958300294",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "6259501109",
+        "set": {
+          "type": "canister",
+          "bagged/bagless": "bagless"
+        }
+      },
+      "old_options": {
+        "type": "robotic",
+        "bagged/bagless": "bagged",
+        "features": "pet hair removal"
+      },
+      "gold_options": {
+        "type": "canister",
+        "bagged/bagless": "bagless",
+        "features": "pet hair removal"
+      },
+      "gold_set": {
+        "type": "canister",
+        "bagged/bagless": "bagless"
+      },
+      "emitted_set": {
+        "type": "canister",
+        "bagged/bagless": "bagless"
+      }
+    },
+    {
+      "task": "49",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": null,
+      "gold": "1646531091",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "2757705742",
+        "set": {
+          "color": null,
+          "battery life": null
+        }
+      },
+      "old_options": {
+        "color": "blue",
+        "battery life": "4 hours",
+        "water resistance": "IPX7"
+      },
+      "gold_options": {
+        "color": "blue",
+        "battery life": "6 hours",
+        "water resistance": "IPX4"
+      },
+      "gold_set": {
+        "battery life": "6 hours",
+        "water resistance": "IPX4"
+      },
+      "emitted_set": {
+        "color": null,
+        "battery life": null
+      }
+    },
+    {
+      "task": "52",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": null,
+      "gold": "9228757377",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "5996159312",
+        "set": {
+          "zoom": "10x"
+        }
+      },
+      "old_options": {
+        "resolution": "24MP",
+        "zoom": "3x",
+        "storage": "SD card"
+      },
+      "gold_options": {
+        "resolution": "30MP",
+        "zoom": "10x",
+        "storage": "SD card"
+      },
+      "gold_set": {
+        "resolution": "30MP",
+        "zoom": "10x"
+      },
+      "emitted_set": {
+        "zoom": "10x"
+      }
+    },
+    {
+      "task": "58",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": null,
+      "gold": "3815173328",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "7441167885",
+        "set": {
+          "pressure": "8 bar"
+        },
+        "among": {
+          "pressure": [
+            "7 bar",
+            "8 bar",
+            "9 bar"
+          ]
+        }
+      },
+      "old_options": {
+        "pressure": "15 bar",
+        "capacity": "1.5L",
+        "type": "capsule"
+      },
+      "gold_options": {
+        "pressure": "9 bar",
+        "capacity": "1.5L",
+        "type": "capsule"
+      },
+      "gold_set": {
+        "pressure": "9 bar"
+      },
+      "emitted_set": {
+        "pressure": "8 bar"
+      }
+    },
+    {
+      "task": "58",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 3,
+      "op": "substitute",
+      "rid": null,
+      "gold": "6017636844",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "3478699712",
+        "set": {
+          "processor": "i7"
+        }
+      },
+      "old_options": {
+        "screen size": "15-inch",
+        "processor": "i5",
+        "ram": "16GB",
+        "storage": "512GB SSD",
+        "color": "space grey"
+      },
+      "gold_options": {
+        "screen size": "15-inch",
+        "processor": "i7",
+        "ram": "32GB",
+        "storage": "1TB SSD",
+        "color": "space grey"
+      },
+      "gold_set": {
+        "processor": "i7",
+        "ram": "32GB",
+        "storage": "1TB SSD"
+      },
+      "emitted_set": {
+        "processor": "i7"
+      }
+    },
+    {
+      "task": "64",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 3,
+      "op": "substitute",
+      "rid": "1586641416",
+      "gold": "6700049080",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "1810466394",
+        "set": {
+          "resolution": "5K",
+          "waterproof": "yes"
+        }
+      },
+      "old_options": {
+        "resolution": "1080p",
+        "waterproof": "no",
+        "color": "silver"
+      },
+      "gold_options": {
+        "resolution": "4K",
+        "waterproof": "yes",
+        "color": "black"
+      },
+      "gold_set": {
+        "resolution": "4K",
+        "waterproof": "yes",
+        "color": "black"
+      },
+      "emitted_set": {
+        "resolution": "5K",
+        "waterproof": "yes"
+      }
+    },
+    {
+      "task": "70",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 3,
+      "op": "substitute",
+      "rid": "9013366374",
+      "gold": "9013366374",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "3358616356",
+        "set": {
+          "size": "M",
+          "ventilation": "high",
+          "color": "blue"
+        }
+      },
+      "old_options": {
+        "size": "S",
+        "color": "red",
+        "ventilation": "low"
+      },
+      "gold_options": {
+        "size": "M",
+        "color": "blue",
+        "ventilation": "high"
+      },
+      "gold_set": {
+        "size": "M",
+        "color": "blue",
+        "ventilation": "high"
+      },
+      "emitted_set": {
+        "size": "M",
+        "ventilation": "high",
+        "color": "blue"
+      }
+    },
+    {
+      "task": "75",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 3,
+      "op": "substitute",
+      "rid": "4063058357",
+      "gold": "4063058357",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "8555936349",
+        "set": {
+          "color": "black",
+          "battery life": "4 hours",
+          "water resistance": "not resistant"
+        }
+      },
+      "old_options": {
+        "color": "blue",
+        "battery life": "8 hours",
+        "water resistance": "IPX4"
+      },
+      "gold_options": {
+        "color": "black",
+        "battery life": "4 hours",
+        "water resistance": "not resistant"
+      },
+      "gold_set": {
+        "color": "black",
+        "battery life": "4 hours",
+        "water resistance": "not resistant"
+      },
+      "emitted_set": {
+        "color": "black",
+        "battery life": "4 hours",
+        "water resistance": "not resistant"
+      }
+    },
+    {
+      "task": "77",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "argmax",
+      "rid": null,
+      "gold": "3399869890",
+      "hit": 0,
+      "ir": {
+        "op": "argmax",
+        "attr": "size",
+        "among": {
+          "size": [
+            "30ml",
+            "50ml",
+            "100ml"
+          ]
+        }
+      },
+      "old_options": {
+        "scent family": "woody",
+        "size": "30ml",
+        "gender": "men"
+      },
+      "gold_options": {
+        "scent family": "woody",
+        "size": "100ml",
+        "gender": "men"
+      },
+      "gold_set": {
+        "size": "100ml"
+      },
+      "emitted_set": null
+    },
+    {
+      "task": "80",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 4,
+      "op": "substitute",
+      "rid": "9354168549",
+      "gold": "9354168549",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "5047954489",
+        "set": {
+          "color": "red",
+          "size": "XXL",
+          "material": "cotton",
+          "style": "crew neck"
+        }
+      },
+      "old_options": {
+        "color": "blue",
+        "size": "S",
+        "material": "polyester",
+        "style": "v-neck"
+      },
+      "gold_options": {
+        "color": "red",
+        "size": "XXL",
+        "material": "cotton",
+        "style": "crew neck"
+      },
+      "gold_set": {
+        "color": "red",
+        "size": "XXL",
+        "material": "cotton",
+        "style": "crew neck"
+      },
+      "emitted_set": {
+        "color": "red",
+        "size": "XXL",
+        "material": "cotton",
+        "style": "crew neck"
+      }
+    },
+    {
+      "task": "91",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "7609274509",
+      "gold": "7609274509",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "9494281769",
+        "set": {
+          "storage": "32GB"
+        }
+      },
+      "old_options": {
+        "screen size": "8-inch",
+        "connectivity": "Wi-Fi",
+        "storage": "8GB"
+      },
+      "gold_options": {
+        "screen size": "8-inch",
+        "connectivity": "Wi-Fi",
+        "storage": "32GB"
+      },
+      "gold_set": {
+        "storage": "32GB"
+      },
+      "emitted_set": {
+        "storage": "32GB"
+      }
+    },
+    {
+      "task": "93",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 4,
+      "op": "substitute",
+      "rid": null,
+      "gold": "9844888101",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "2216662955",
+        "set": {
+          "processor": "i7",
+          "ram": "8GB",
+          "storage": "1TB SSD"
+        }
+      },
+      "old_options": {
+        "screen size": "15-inch",
+        "processor": "i5",
+        "ram": "32GB",
+        "storage": "256GB SSD",
+        "color": "space grey"
+      },
+      "gold_options": {
+        "screen size": "15-inch",
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD",
+        "color": "black"
+      },
+      "gold_set": {
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD",
+        "color": "black"
+      },
+      "emitted_set": {
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD"
+      }
+    },
+    {
+      "task": "94",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 4,
+      "op": "substitute",
+      "rid": null,
+      "gold": "9844888101",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "3478699712",
+        "set": {
+          "processor": "i7",
+          "ram": "8GB",
+          "storage": "1TB SSD"
+        }
+      },
+      "old_options": {
+        "screen size": "15-inch",
+        "processor": "i5",
+        "ram": "16GB",
+        "storage": "512GB SSD",
+        "color": "space grey"
+      },
+      "gold_options": {
+        "screen size": "15-inch",
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD",
+        "color": "black"
+      },
+      "gold_set": {
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD",
+        "color": "black"
+      },
+      "emitted_set": {
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD"
+      }
+    },
+    {
+      "task": "95",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 4,
+      "op": "substitute",
+      "rid": null,
+      "gold": "9844888101",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "3478699712",
+        "set": {
+          "processor": "i7",
+          "ram": "8GB",
+          "storage": "1TB SSD"
+        }
+      },
+      "old_options": {
+        "screen size": "15-inch",
+        "processor": "i5",
+        "ram": "16GB",
+        "storage": "512GB SSD",
+        "color": "space grey"
+      },
+      "gold_options": {
+        "screen size": "15-inch",
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD",
+        "color": "black"
+      },
+      "gold_set": {
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD",
+        "color": "black"
+      },
+      "emitted_set": {
+        "processor": "i7",
+        "ram": "8GB",
+        "storage": "1TB SSD"
+      }
+    },
+    {
+      "task": "98",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "8363011723",
+      "gold": "8363011723",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "5996159312",
+        "set": {
+          "resolution": "20MP"
+        }
+      },
+      "old_options": {
+        "resolution": "24MP",
+        "zoom": "3x",
+        "storage": "SD card"
+      },
+      "gold_options": {
+        "resolution": "20MP",
+        "zoom": "3x",
+        "storage": "SD card"
+      },
+      "gold_set": {
+        "resolution": "20MP"
+      },
+      "emitted_set": {
+        "resolution": "20MP"
+      }
+    },
+    {
+      "task": "99",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "8363011723",
+      "gold": "8363011723",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "5996159312",
+        "set": {
+          "resolution": "20MP"
+        }
+      },
+      "old_options": {
+        "resolution": "24MP",
+        "zoom": "3x",
+        "storage": "SD card"
+      },
+      "gold_options": {
+        "resolution": "20MP",
+        "zoom": "3x",
+        "storage": "SD card"
+      },
+      "gold_set": {
+        "resolution": "20MP"
+      },
+      "emitted_set": {
+        "resolution": "20MP"
+      }
+    },
+    {
+      "task": "102",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 1,
+      "op": "substitute",
+      "rid": "8302289002",
+      "gold": "8302289002",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "6341716129",
+        "set": {
+          "room size": "large",
+          "features": "night mode"
+        }
+      },
+      "old_options": {
+        "room size": "large",
+        "filter type": "HEPA",
+        "features": "smart sensors"
+      },
+      "gold_options": {
+        "room size": "large",
+        "filter type": "HEPA",
+        "features": "night mode"
+      },
+      "gold_set": {
+        "features": "night mode"
+      },
+      "emitted_set": {
+        "room size": "large",
+        "features": "night mode"
+      }
+    },
+    {
+      "task": "105",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": "7497340597",
+      "gold": "3761330360",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "7292993796",
+        "set": {
+          "material": "ceramic",
+          "capacity": "1.5 liters",
+          "stovetop compatibility": "gas"
+        }
+      },
+      "old_options": {
+        "material": "glass",
+        "capacity": "2 liters",
+        "stovetop compatibility": "induction"
+      },
+      "gold_options": {
+        "material": "ceramic",
+        "capacity": "2 liters",
+        "stovetop compatibility": "gas"
+      },
+      "gold_set": {
+        "material": "ceramic",
+        "stovetop compatibility": "gas"
+      },
+      "emitted_set": {
+        "material": "ceramic",
+        "capacity": "1.5 liters",
+        "stovetop compatibility": "gas"
+      }
+    },
+    {
+      "task": "105",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": "7497340597",
+      "gold": "9647374798",
+      "hit": 0,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "7292993796",
+        "set": {
+          "material": "ceramic",
+          "capacity": "1.5 liters",
+          "stovetop compatibility": "gas"
+        }
+      },
+      "old_options": {
+        "material": "glass",
+        "capacity": "2 liters",
+        "stovetop compatibility": "induction"
+      },
+      "gold_options": {
+        "material": "glass",
+        "capacity": "1.5 liters",
+        "stovetop compatibility": "gas"
+      },
+      "gold_set": {
+        "capacity": "1.5 liters",
+        "stovetop compatibility": "gas"
+      },
+      "emitted_set": {
+        "material": "ceramic",
+        "capacity": "1.5 liters",
+        "stovetop compatibility": "gas"
+      }
+    },
+    {
+      "task": "106",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": "2060066974",
+      "gold": "2060066974",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "9354168549",
+        "set": {
+          "size": "XL",
+          "color": "black"
+        }
+      },
+      "old_options": {
+        "color": "red",
+        "size": "XXL",
+        "material": "cotton",
+        "style": "crew neck"
+      },
+      "gold_options": {
+        "color": "black",
+        "size": "XL",
+        "material": "cotton",
+        "style": "crew neck"
+      },
+      "gold_set": {
+        "color": "black",
+        "size": "XL"
+      },
+      "emitted_set": {
+        "size": "XL",
+        "color": "black"
+      }
+    },
+    {
+      "task": "107",
+      "type": "substitute",
+      "case_op": "substitute",
+      "n_changed": 2,
+      "op": "substitute",
+      "rid": "8106223139",
+      "gold": "8106223139",
+      "hit": 1,
+      "ir": {
+        "op": "substitute",
+        "anchor_id": "1615379700",
+        "set": {
+          "size": "9",
+          "material": "leather"
+        }
+      },
+      "old_options": {
+        "size": "10",
+        "material": "synthetic",
+        "waterproof": "yes"
+      },
+      "gold_options": {
+        "size": "9",
+        "material": "leather",
+        "waterproof": "yes"
+      },
+      "gold_set": {
+        "size": "9",
+        "material": "leather"
+      },
+      "emitted_set": {
+        "size": "9",
+        "material": "leather"
+      }
+    }
+  ]
+}

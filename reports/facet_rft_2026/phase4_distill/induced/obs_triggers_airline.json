@@ -1,0 +1,287 @@
+{
+  "domain": "airline",
+  "observation_triggers": {
+    "transfer_to_human_agents": {
+      "n": 114,
+      "triggers": [
+        {
+          "pred": "get_reservation_details|destination=PHX",
+          "support": 19,
+          "precision": 0.95,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_reservation_details|flights.1.destination=PHX",
+          "support": 19,
+          "precision": 0.95,
+          "recall": 0.17
+        },
+        {
+          "pred": "get_reservation_details|origin=ORD",
+          "support": 17,
+          "precision": 0.89,
+          "recall": 0.15
+        },
+        {
+          "pred": "get_reservation_details|flights.0.origin=ORD",
+          "support": 17,
+          "precision": 0.89,
+          "recall": 0.15
+        },
+        {
+          "pred": "get_reservation_details|destination=ATL",
+          "support": 12,
+          "precision": 0.92,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_reservation_details|origin=JFK",
+          "support": 12,
+          "precision": 0.86,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_reservation_details|flights.0.origin=JFK",
+          "support": 12,
+          "precision": 0.86,
+          "recall": 0.11
+        },
+        {
+          "pred": "get_user_details|payment_methods.gift_card_2550356.source=gift_card",
+          "support": 11,
+          "precision": 0.92,
+          "recall": 0.1
+        }
+      ]
+    },
+    "book_reservation": {
+      "n": 32,
+      "triggers": [
+        {
+          "pred": "get_user_details|payment_methods.credit_card_4421486.source=credit_card",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.19
+        },
+        {
+          "pred": "get_user_details|payment_methods.credit_card_4421486.brand=visa",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.19
+        },
+        {
+          "pred": "get_user_details|payment_methods.certificate_4856383.source=certificate",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.19
+        },
+        {
+          "pred": "get_user_details|payment_methods.certificate_7504069.source=certificate",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.19
+        },
+        {
+          "pred": "get_user_details|payment_methods.credit_card_1955700.source=credit_card",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.19
+        },
+        {
+          "pred": "get_user_details|payment_methods.credit_card_1955700.brand=visa",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.19
+        },
+        {
+          "pred": "get_user_details|reservations.0=NO6JO3",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.19
+        },
+        {
+          "pred": "get_user_details|reservations.1=AIXC49",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.19
+        }
+      ]
+    },
+    "cancel_reservation": {
+      "n": 28,
+      "triggers": [
+        {
+          "pred": "get_reservation_details|flights.1.destination=EWR",
+          "support": 11,
+          "precision": 1.0,
+          "recall": 0.39
+        },
+        {
+          "pred": "get_reservation_details|destination=DFW",
+          "support": 6,
+          "precision": 1.0,
+          "recall": 0.21
+        },
+        {
+          "pred": "get_reservation_details|origin=MSP",
+          "support": 5,
+          "precision": 0.83,
+          "recall": 0.18
+        },
+        {
+          "pred": "get_reservation_details|destination=ORD",
+          "support": 5,
+          "precision": 1.0,
+          "recall": 0.18
+        },
+        {
+          "pred": "get_reservation_details|flights.0.origin=MSP",
+          "support": 5,
+          "precision": 0.83,
+          "recall": 0.18
+        },
+        {
+          "pred": "search_direct_flight|0.destination=EWR",
+          "support": 5,
+          "precision": 0.83,
+          "recall": 0.18
+        },
+        {
+          "pred": "search_direct_flight|0.scheduled_departure_time_est=08:00:00",
+          "support": 5,
+          "precision": 1.0,
+          "recall": 0.18
+        },
+        {
+          "pred": "search_direct_flight|0.scheduled_arrival_time_est=11:00:00",
+          "support": 5,
+          "precision": 1.0,
+          "recall": 0.18
+        }
+      ]
+    },
+    "update_reservation_flights": {
+      "n": 77,
+      "triggers": [
+        {
+          "pred": "search_onestop_flight|4.0.status=available",
+          "support": 32,
+          "precision": 0.84,
+          "recall": 0.42
+        },
+        {
+          "pred": "search_onestop_flight|4.1.status=available",
+          "support": 32,
+          "precision": 0.84,
+          "recall": 0.42
+        },
+        {
+          "pred": "search_onestop_flight|0.0.origin=ATL",
+          "support": 24,
+          "precision": 1.0,
+          "recall": 0.31
+        },
+        {
+          "pred": "search_onestop_flight|0.0.scheduled_departure_time_est=14:00:00",
+          "support": 24,
+          "precision": 0.96,
+          "recall": 0.31
+        },
+        {
+          "pred": "search_onestop_flight|1.0.origin=ATL",
+          "support": 24,
+          "precision": 1.0,
+          "recall": 0.31
+        },
+        {
+          "pred": "search_onestop_flight|1.0.scheduled_departure_time_est=14:00:00",
+          "support": 24,
+          "precision": 1.0,
+          "recall": 0.31
+        },
+        {
+          "pred": "search_onestop_flight|2.0.origin=ATL",
+          "support": 24,
+          "precision": 1.0,
+          "recall": 0.31
+        },
+        {
+          "pred": "search_onestop_flight|2.1.scheduled_departure_time_est=18:00:00",
+          "support": 24,
+          "precision": 1.0,
+          "recall": 0.31
+        }
+      ]
+    }
+  },
+  "arg_source": {
+    "book_reservation": {
+      "user_id": {
+        "source": "get_user_details.user_id",
+        "support": 52,
+        "frac": 0.98
+      },
+      "origin": {
+        "source": "get_reservation_details.origin",
+        "support": 40,
+        "frac": 0.75
+      },
+      "destination": {
+        "source": "get_reservation_details.destination",
+        "support": 40,
+        "frac": 0.75
+      },
+      "flight_type": {
+        "source": "get_reservation_details.flight_type",
+        "support": 40,
+        "frac": 1.0
+      },
+      "cabin": {
+        "source": "get_reservation_details.cabin",
+        "support": 39,
+        "frac": 1.0
+      },
+      "nonfree_baggages": {
+        "source": "get_reservation_details.nonfree_baggages",
+        "support": 26,
+        "frac": 0.6
+      },
+      "insurance": {
+        "source": "get_reservation_details.insurance",
+        "support": 14,
+        "frac": 1.0
+      }
+    },
+    "update_reservation_passengers": {
+      "reservation_id": {
+        "source": "get_reservation_details.reservation_id",
+        "support": 18,
+        "frac": 0.6
+      }
+    },
+    "update_reservation_flights": {
+      "cabin": {
+        "source": "get_reservation_details.cabin",
+        "support": 59,
+        "frac": 1.0
+      }
+    },
+    "update_reservation_baggages": {
+      "reservation_id": {
+        "source": "get_reservation_details.reservation_id",
+        "support": 19,
+        "frac": 0.58
+      },
+      "nonfree_baggages": {
+        "source": "get_reservation_details.total_baggages",
+        "support": 26,
+        "frac": 0.79
+      },
+      "payment_id": {
+        "source": "get_reservation_details.payment_history.0.payment_id",
+        "support": 18,
+        "frac": 0.56
+      }
+    }
+  }
+}

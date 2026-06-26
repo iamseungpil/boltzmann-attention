@@ -1,0 +1,7 @@
+started=2026-05-27 15:57:51 KST
+pid=3769305
+host=localhost.localdomain
+agent: Qwen2.5-7B-Instruct (local vLLM GPU1:9000 max-model-len 32K)
+user_sim: GPT-4o (OpenAI API, leaderboard standard)
+args: --task-split base --num-trials 4 --max-steps 200 --max-concurrency 8
+preflight=ok

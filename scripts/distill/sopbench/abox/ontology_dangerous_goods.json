@@ -1,0 +1,44 @@
+{
+  "domain": "dangerous_goods",
+  "start": "sds",
+  "steps": ["sds", "handling", "transport", "disposal", "classify"],
+  "realizes": {
+    "sds": "calculate_sds_label_score",
+    "handling": "calculate_handling_score",
+    "transport": "calculate_transportation_score",
+    "disposal": "calculate_disposal_score",
+    "classify": "_classify"
+  },
+  "arg": {
+    "calculate_sds_label_score": {
+      "product_id": "product_id",
+      "sds_label_text": "sds_label_text"
+    },
+    "calculate_handling_score": {
+      "product_id": "product_id",
+      "handling_and_storage_guidelines": "handling_and_storage_guidelines"
+    },
+    "calculate_transportation_score": {
+      "product_id": "product_id",
+      "transportation_requirements": "transportation_requirements"
+    },
+    "calculate_disposal_score": {
+      "product_id": "product_id",
+      "disposal_guidelines": "disposal_guidelines"
+    }
+  },
+  "produces": {},
+  "precondition": {},
+  "next": {
+    "sds": "handling",
+    "handling": "transport",
+    "transport": "disposal",
+    "disposal": "classify",
+    "classify": null
+  },
+  "terminate": [],
+  "output": {
+    "required": ["hazard_class"],
+    "format": "xml"
+  }
+}

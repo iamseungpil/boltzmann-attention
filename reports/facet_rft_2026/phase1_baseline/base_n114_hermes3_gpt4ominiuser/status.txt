@@ -1,0 +1,8 @@
+started=2026-05-27 17:22:51 KST
+pid=3773548
+host=localhost.localdomain
+agent: Hermes-3-Llama-3.1-8B (NousResearch FC fine-tune, BFCL ~80%, local vLLM GPU0:9001, hermes parser)
+user_sim: GPT-4o-mini (OpenAI API, Tier 1 200K TPM)
+purpose: separate Llama 0/456 cause — Hermes-3 = Llama base + FC tune
+args: --task-split base --num-trials 4 --max-steps 200 --max-concurrency 4 (8→6 OpenAI rate limit/vLLM batch 완화)
+preflight=ok

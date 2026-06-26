@@ -1,0 +1,5630 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "task": "metatool_st4",
+  "schema_path": "data/facet_schemas/metatool_st4.yaml",
+  "n_samples": 64,
+  "max_new_tokens": 192,
+  "conditions": [
+    "nl_full",
+    "facet_full",
+    "list_only",
+    "list_anon",
+    "facet_anon"
+  ],
+  "summary": {
+    "nl_full": {
+      "f1_mean": 0.7494791666666667,
+      "f_05_mean": 0.8054315476190477,
+      "eu_mean": 0.296875,
+      "jaccard_mean": 0.6770833333333333,
+      "exact_mean": 0.46875,
+      "precision_mean": 0.8619791666666667,
+      "recall_mean": 0.6953125,
+      "n_pred_mean": 1.640625,
+      "prompt_len_mean": 145.9375,
+      "prompt_len_min": 132,
+      "prompt_len_max": 176
+    },
+    "facet_full": {
+      "f1_mean": 0.8203125,
+      "f_05_mean": 0.8828125,
+      "eu_mean": 0.46875,
+      "jaccard_mean": 0.75,
+      "exact_mean": 0.546875,
+      "precision_mean": 0.9453125,
+      "recall_mean": 0.7578125,
+      "n_pred_mean": 1.625,
+      "prompt_len_mean": 311.6875,
+      "prompt_len_min": 284,
+      "prompt_len_max": 340
+    },
+    "list_only": {
+      "f1_mean": 0.21354166666666663,
+      "f_05_mean": 0.26302083333333337,
+      "eu_mean": -0.671875,
+      "jaccard_mean": 0.1640625,
+      "exact_mean": 0.015625,
+      "precision_mean": 0.3125,
+      "recall_mean": 0.1640625,
+      "n_pred_mean": 0.375,
+      "prompt_len_mean": 94.9375,
+      "prompt_len_min": 81,
+      "prompt_len_max": 125
+    },
+    "list_anon": {
+      "f1_mean": 0.7083333333333333,
+      "f_05_mean": 0.8229166666666666,
+      "eu_mean": 0.1875,
+      "jaccard_mean": 0.59375,
+      "exact_mean": 0.25,
+      "precision_mean": 0.9375,
+      "recall_mean": 0.59375,
+      "n_pred_mean": 1.234375,
+      "prompt_len_mean": 173.046875,
+      "prompt_len_min": 159,
+      "prompt_len_max": 202
+    },
+    "facet_anon": {
+      "f1_mean": 0.8015625,
+      "f_05_mean": 0.8470982142857143,
+      "eu_mean": 0.359375,
+      "jaccard_mean": 0.7291666666666666,
+      "exact_mean": 0.53125,
+      "precision_mean": 0.8932291666666667,
+      "recall_mean": 0.7578125,
+      "n_pred_mean": 1.703125,
+      "prompt_len_mean": 386.171875,
+      "prompt_len_min": 356,
+      "prompt_len_max": 414
+    }
+  },
+  "details": {
+    "nl_full": [
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool",
+          "ChartTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool",
+          "ChartTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool",
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "TripAdviceTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool",
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "WeatherTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "WeatherTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "WeatherTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "WeatherTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "HousePurchasingTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "HousePurchasingTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MapTool",
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "JobTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ResearchFinder"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ResearchHelper"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ResearchHelper"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.8,
+        "f_05": 0.7142857142857142,
+        "eu": 0.0,
+        "jaccard": 0.6666666666666666,
+        "exact": 0.0,
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "pred": [
+          "ProductSearch",
+          "FinanceTool",
+          "ChartTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool",
+          "FinanceTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "CourseTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "CourseTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool",
+          "Substack_IQ"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      }
+    ],
+    "facet_full": [
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "CourseTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool",
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "TripAdviceTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "TripAdviceTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "WeatherTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "WeatherTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "WeatherTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "HousePurchasingTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "HousePurchasingTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ResearchFinder"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "ResearchFinder",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "web_requests"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ResearchHelper"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "ProductSearch",
+          "ChartTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "CourseTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool",
+          "Substack_IQ"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      }
+    ],
+    "list_only": [
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "ChartTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "hacktrack"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      }
+    ],
+    "list_anon": [
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "TripAdviceTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "WeatherTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "HousePurchasingTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "HousePurchasingTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "HousePurchasingTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "HousePurchasingTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ResearchFinder"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ResearchHelper"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ProductSearch"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "ProductSearch"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "TripTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      }
+    ],
+    "facet_anon": [
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "NewsTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "TripTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool",
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "TripAdviceTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "chatspot",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "chatspot",
+          "MusicTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "MusicTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "WeatherTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "WeatherTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "ChartTool",
+          "WeatherTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "WeatherTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "WeatherTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "HousePurchasingTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "HousePurchasingTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "HousePurchasingTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "JobTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "JobTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "JobTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "ResearchFinder"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "ResearchFinder"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchFinder"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.0,
+        "f_05": 0.0,
+        "eu": -1.0,
+        "jaccard": 0.0,
+        "exact": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "pred": [
+          "MixerBox_WebSearchG_web_search"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ResearchHelper"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "ProductSearch",
+          "ChartTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "ProductSearch",
+          "FinanceTool"
+        ],
+        "gt": [
+          "FinanceTool",
+          "ProductSearch"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "universal",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 0.8,
+        "f_05": 0.7142857142857142,
+        "eu": 0.0,
+        "jaccard": 0.6666666666666666,
+        "exact": 0.0,
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "pred": [
+          "chatspot",
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "Discount"
+        ],
+        "gt": [
+          "FinanceTool",
+          "Discount"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "FinanceTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "MixerBox_WebSearchG_web_search",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "FinanceTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "FinanceTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "CourseTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "CourseTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "CourseTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "CourseTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "PDF&URLTool",
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "PDF&URLTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool",
+          "Substack_IQ"
+        ],
+        "gt": [
+          "NewsTool",
+          "PDF&URLTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 1.0,
+        "f_05": 1.0,
+        "eu": 1.0,
+        "jaccard": 1.0,
+        "exact": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "pred": [
+          "NewsTool",
+          "TripTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripTool"
+        ]
+      },
+      {
+        "f1": 0.6666666666666666,
+        "f_05": 0.8333333333333334,
+        "eu": 0.0,
+        "jaccard": 0.5,
+        "exact": 0.0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "pred": [
+          "NewsTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      },
+      {
+        "f1": 0.5,
+        "f_05": 0.5,
+        "eu": -1.0,
+        "jaccard": 0.3333333333333333,
+        "exact": 0.0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "pred": [
+          "TripAdviceTool",
+          "ExchangeTool"
+        ],
+        "gt": [
+          "NewsTool",
+          "TripAdviceTool"
+        ]
+      }
+    ]
+  },
+  "prompt_lengths": {
+    "nl_full": [
+      140,
+      141,
+      144,
+      146,
+      133,
+      133,
+      142,
+      140,
+      150,
+      154,
+      147,
+      147,
+      154,
+      145,
+      148,
+      147,
+      144,
+      157,
+      158,
+      139,
+      141,
+      141,
+      143,
+      138,
+      135,
+      137,
+      138,
+      145,
+      139,
+      145,
+      145,
+      159,
+      155,
+      154,
+      176,
+      139,
+      146,
+      135,
+      143,
+      152,
+      139,
+      145,
+      157,
+      161,
+      160,
+      150,
+      137,
+      138,
+      142,
+      146,
+      132,
+      143,
+      144,
+      139,
+      137,
+      149,
+      149,
+      155,
+      156,
+      155,
+      154,
+      151,
+      145,
+      141
+    ],
+    "facet_full": [
+      310,
+      311,
+      314,
+      316,
+      297,
+      297,
+      306,
+      304,
+      304,
+      308,
+      301,
+      301,
+      310,
+      301,
+      304,
+      303,
+      311,
+      324,
+      325,
+      310,
+      312,
+      312,
+      314,
+      298,
+      295,
+      297,
+      298,
+      318,
+      312,
+      318,
+      318,
+      323,
+      319,
+      318,
+      340,
+      288,
+      295,
+      284,
+      306,
+      315,
+      302,
+      308,
+      327,
+      331,
+      330,
+      320,
+      307,
+      308,
+      312,
+      316,
+      295,
+      306,
+      307,
+      302,
+      310,
+      322,
+      322,
+      328,
+      335,
+      334,
+      333,
+      330,
+      315,
+      311
+    ],
+    "list_only": [
+      89,
+      90,
+      93,
+      95,
+      82,
+      82,
+      91,
+      89,
+      99,
+      103,
+      96,
+      96,
+      103,
+      94,
+      97,
+      96,
+      93,
+      106,
+      107,
+      88,
+      90,
+      90,
+      92,
+      87,
+      84,
+      86,
+      87,
+      94,
+      88,
+      94,
+      94,
+      108,
+      104,
+      103,
+      125,
+      88,
+      95,
+      84,
+      92,
+      101,
+      88,
+      94,
+      106,
+      110,
+      109,
+      99,
+      86,
+      87,
+      91,
+      95,
+      81,
+      92,
+      93,
+      88,
+      86,
+      98,
+      98,
+      104,
+      105,
+      104,
+      103,
+      100,
+      94,
+      90
+    ],
+    "list_anon": [
+      167,
+      168,
+      171,
+      173,
+      160,
+      160,
+      169,
+      167,
+      178,
+      182,
+      175,
+      175,
+      183,
+      174,
+      177,
+      176,
+      172,
+      185,
+      186,
+      167,
+      169,
+      169,
+      171,
+      166,
+      163,
+      165,
+      166,
+      171,
+      165,
+      171,
+      171,
+      185,
+      181,
+      180,
+      202,
+      164,
+      171,
+      160,
+      170,
+      179,
+      165,
+      171,
+      185,
+      189,
+      188,
+      178,
+      164,
+      165,
+      169,
+      173,
+      159,
+      170,
+      171,
+      166,
+      163,
+      175,
+      175,
+      181,
+      183,
+      182,
+      181,
+      178,
+      172,
+      168
+    ],
+    "facet_anon": [
+      384,
+      385,
+      388,
+      390,
+      372,
+      372,
+      381,
+      379,
+      380,
+      384,
+      377,
+      377,
+      386,
+      377,
+      380,
+      379,
+      386,
+      399,
+      400,
+      386,
+      388,
+      388,
+      390,
+      373,
+      370,
+      372,
+      373,
+      391,
+      385,
+      391,
+      391,
+      397,
+      393,
+      392,
+      414,
+      360,
+      367,
+      356,
+      380,
+      389,
+      375,
+      381,
+      403,
+      407,
+      406,
+      396,
+      381,
+      382,
+      386,
+      390,
+      370,
+      381,
+      382,
+      377,
+      383,
+      395,
+      395,
+      401,
+      409,
+      408,
+      407,
+      404,
+      389,
+      385
+    ]
+  },
+  "generations_sample": {
+    "nl_full": [
+      "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {\"query\": \"latest news about Tesla and its impact on the stock market\"}}<|im_end|>",
+      "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}<|im_end|>",
+      "<tool_call>{\"name\": \"MixerBox_WebSearchG_web_search\", \"arguments\": {\"query\": \"top trending stocks and recent news affecting them\"}}<|im_end|>"
+    ],
+    "facet_full": [
+      "{\"name\": \"NewsTool\", \"arguments\": {\"query\": \"Tesla stock market impact\"}}<|im_end|>",
+      "{\"name\": \"FinanceTool\", \"arguments\": {}}\n{\"name\": \"NewsTool\", \"arguments\": {}}<|im_end|>",
+      "{\"name\": \"FinanceTool\", \"arguments\": {}}\n{\"name\": \"NewsTool\", \"arguments\": {}}<|im_end|>"
+    ],
+    "list_only": [
+      "<tool_call>{\"name\":\"NewsTool\",\"arguments\":{\"query\":\"Tesla stock market impact latest news\"}}<|im_end|>",
+      "<tool_call>{\"name\":\"FinanceTool\",\"arguments\":{\"company\":\"Apple\"}}<|im_end|>",
+      "Sure, I can help with that. Let's start by checking the top trending stocks and any recent news that might be impacting their performance.\n\nFirst, I'll use use the `NewsTool` to gather recent news articles related to top-performing stocks.\n<tool_call>{\"name\":\"NewsTool\",\"arguments\":{\"query\":\"top trending stocks\"}}<|im_end|>"
+    ],
+    "list_anon": [
+      "{\"name\":\"NewsTool\",\"arguments\":{\"query\":\"Tesla stock market impact latest news\"}}<|im_end|>",
+      "{\"name\":\"FinanceTool\",\"arguments\":{}}\n{\"name\":\"NewsTool\",\"arguments\":{}}<|im_end|>",
+      "<tool_call>{\"name\":\"NewsTool\",\"arguments\":{}}<|im_end|>"
+    ],
+    "facet_anon": [
+      "<tool_call>{\"name\": \"NewsTool\", \"arguments\": {}}\n<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}<|im_end|>",
+      "<tool_call>{\"name\": \"FinanceTool\", \"arguments\": {}}</tool_call>\n<|im_start|> \u82e5\u8981\u540c\u65f6\u83b7\u53d6\u82f9\u679c\u516c\u53f8\u7684\u6700\u65b0\u80a1\u4ef7\u548c\u76f8\u5173\u65b0\u95fb\uff0c\u6211\u4eec\u9700\u8981\u8c03\u7528\u4e24\u4e2a\u5de5\u5177\u3002\u9996\u5148\u8c03\u7528FinanceTool\u6765\u83b7\u53d6\u6700\u65b0\u7684\u80a1\u7968\u4ef7\u683c\u4fe1\u606f\uff0c\u7136\u540e\u8c03\u7528NewsTool\u6765\u83b7\u53d6\u76f8\u5173\u7684\u65b0\u95fb\u8d44\u8baf\u3002\n<|im_end|>",
+      "[\n    {\"name\": \"FinanceTool\", \"arguments\": {}},\n    {\"name\": \"NewsTool\", \"arguments\": {}}\n]<|im_end|>"
+    ]
+  },
+  "wall_seconds": 407.4053056240082
+}

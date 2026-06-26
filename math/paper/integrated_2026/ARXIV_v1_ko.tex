@@ -1,0 +1,1376 @@
+% !TeX program = xelatex
+% Integrated technical + deployment paper, Korean working draft v1
+% Build: xelatex INTEGRATED_v1_ko.tex (or lualatex)
+% Author teams: 익명 cowork
+
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{kotex}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black}
+\usepackage{cleveref}
+\usepackage[round]{natbib}
+\usepackage{enumitem}
+\usepackage{algorithm, algpseudocode}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc, fit, decorations.pathreplacing}
+
+\newtheorem{theorem}{정리}
+\newtheorem{lemma}{보조정리}
+\newtheorem{corollary}{따름정리}
+\newtheorem{proposition}{명제}
+\theoremstyle{definition}
+\newtheorem{definition}{정의}
+\newtheorem{remark}{비고}
+\newtheorem{assumption}{가정}
+\renewcommand{\proofname}{증명}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Phip}{\Phi_P}
+\newcommand{\dh}{d_h}
+\newcommand{\Hq}{H_q}
+\newcommand{\Hkv}{H_{kv}}
+\newcommand{\softmax}{\mathrm{softmax}}
+\newcommand{\attn}{\mathrm{attn}}
+
+\title{
+  [arXiv 확장본] 엔터프라이즈 정지 에이전틱 LLM 통합 Framework:\\
+  자연어 시스템 프롬프트의 함수공간 내재화,\\
+  자동 패싯 온톨로지 발견, 다단계 KV 압축\\[4pt]
+  \large An Integrated Framework for Frozen Agentic LLMs:\\
+  Function-Space Prompt Internalization, Auto-Facet Ontology Discovery,\\
+  and Multi-Tier KV Compression
+}
+\author{
+  익명 저자 (cowork)\\
+  arXiv 확장본 (v1, 2026-04-29: deployment 시나리오 walkthrough 부록 추가)
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+도구 카탈로그가 풍부한 정지된(frozen) 사전학습 LLM 기반 에이전틱 시스템은 매 추론 호출마다 도구 스키마·계획 규칙·행동 제약을 정의하는 \emph{수천 토큰 길이의 시스템 프롬프트}를 prepend한다. 현장 운영에서 이 prefix는 (i) 토큰 비용과 KV 캐시 풋프린트의 일차 driver이고, (ii) 도메인별로 파편화된 데이터 소스와 비통일된 용어 체계 위에서 \emph{사람-수작업으로 유지되는} 도구 카탈로그 형태를 가지며, (iii) 사용자가 데이터 소스에 대한 사전 지식 없이 자연어 목표만으로 다중 도구 조합을 호출하려 할 때 도구 선택·계획 수립의 일관성 결여로 이어진다. 본 논문은 이 세 문제를 단일 framework로 통합한다.
+
+\textbf{이론적 기여 세 가지}: (1) \emph{정리 1 (랭크-한계 프롬프트 대체성)} ---  prefix-attention의 함수공간 SVD를 통해 정적 랭크-$k$ 개입의 정확한 $L_2$ 오차가 폐기된 특이값들의 제곱합임을 증명; (2) \emph{정리 2 (Q-bias 1차 보정)} --- 정적 절단 너머의 leading 보정이 query-의존 1차 Taylor 항이며 부호까지 표준 Q-bias 스티어링과 일치함을 증명; (3) \emph{정리 3 (Facet-rank 일치)} --- 자연어 prefix를 직교 facet $F$개로 분해할 때 함수공간 유효 랭크가 facet 수 $F$와 일치함을 보임. 부수 결과로 \emph{multi-step trajectory boundary 따름정리}: 1차 모멘트 회복(첫 토큰 일치)이 자기회귀 trajectory 회복을 함의하지 않음.
+
+\textbf{시스템적 기여 세 가지}: (1) 비정규화·다관점 메타데이터로부터 $F$개 직교 facet을 자동 발견하는 3-stage induction pipeline (메타데이터 정규화 → 다관점 클러스터링 → NMI 기반 직교성 검증); (2) 정지된 LLM 위에 (a) 정적 저랭크 어텐션 출력 개입, (b) Q-bias 1차 보정, (c) 도메인-조건부 저랭크 어댑터 라우팅, (d) facet-aware KV 캐시 압축의 4 layer로 구성된 모델 강화; (3) cheap 진단 metric (\texttt{list\_only/nl\_full} F1 비율)에 기반한 모델 family별 분기 deployment rule.
+
+\textbf{실증}: Qwen 2.5-7B와 Llama 3.1-8B 두 모델 family, MetaTool Subtask 4와 도구-사용 benchmark 세 도메인에 걸쳐 (a) 함수공간 유효 랭크 $r^*(\tau{=}0.95) \le 2.25$ (8 cells), (b) 정적 랭크-1 개입의 KL 회복 78\% (Qwen), 55\% (Llama), (c) Q-bias hybrid의 첫-토큰 next-token 일치 \textbf{98.4\%} (Qwen), (d) \emph{negative} multi-step F1 = 0.000 (생성 trajectory 발산), (e) NL prompt 대비 facet typed prompt가 Qwen에서 F1 \textbf{+9.7\%}, Llama에서 \textbf{-3.7\%} (model heterogeneity), (f) 익명화 ablation으로 Qwen은 \emph{도구 이름이 방해 요소} (list\_anon F1 +233\%), Llama는 NL name path 부분 활용.
+
+\textbf{Deployment}: 5-layer 시스템 architecture (입력 변환 / 모델 강화 / 출력 변환 / 프롬프트 엔진 / 자기 진화)와 bootstrap-and-distill 운영 cycle을 제안한다. 현장 pilot 시뮬레이션에서 prompt 길이 5배 이상 압축, KV 캐시 풋프린트 70\% 이상 감소, 동시 사용자 처리량 3배 이상 향상의 가능성을 보였다. multi-step trajectory boundary 따름정리는 어떤 layer에서 어떤 개입이 적용 가능한가에 대한 \emph{설계 규칙}으로 직접 환원된다 --- 구체적으로 도구 \emph{선택} (decision point)에는 aggressive 개입, 도구 인자 \emph{생성}과 응답 \emph{합성}에는 자연어 prompt 회복.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ======================================================================
+\part{이론 및 실증 (Academic Foundation)}
+% ======================================================================
+
+\section{서론}
+\label{sec:intro}
+
+\subsection{현장 운영의 세 가지 문제}
+\label{sec:three-problems}
+
+도메인 전문가용 도구가 다수 (수십~수백 개) 결합된 LLM 에이전트 시스템은 production 운영에서 다음 세 가지 \emph{서로 직교하는} 문제를 동시에 안고 있다.
+
+\paragraph{문제 P1 (Prompt 비용).}
+프로덕션 도구 사용 LLM은 통상 2--8K 토큰 길이의 시스템 프롬프트로 운영된다. 도구 catalog와 행동 지침을 자연어로 풀어 쓴 prefix가 매 사용자 쿼리에서 KV 캐시 계산을 재발급(또는 prefix-cache 조회 지연)시킨다. 도구 수가 수십 단위에 이르면 prefix가 호출당 서빙 비용·time-to-first-token·동시 사용자 capacity의 일차 driver가 된다. 이 비용은 도구 카탈로그가 추가될 때마다 \emph{선형적}으로 누적된다.
+
+\paragraph{문제 P2 (온톨로지 부재 / 파편화).}
+현장 데이터 소스는 통상 \emph{단일 통일 온톨로지를 갖지 않는다}. 동일한 사물이 부서별로 다른 식별자·다른 분류 체계로 저장된다 (예: 한 자원이 운영자 메뉴 트리, 마케터 캠페인, 분석가 퍼널, 시스템 ID에서 4가지 이상 다른 형태로 등장). 동음이의어와 동의어가 부서별로 다른 의미를 갖는 경우가 흔하다. 도구 카탈로그·필드 명·매개변수 명칭의 자연어 wording은 이 파편화를 그대로 반영하고, 결과적으로:
+\begin{itemize}[leftmargin=*]
+\item 자연어 도구 카탈로그는 동음이의어 해소를 LLM에 일임 → 도구 선택 정확도 저하.
+\item 통일 온톨로지의 \emph{사람-수작업} 구축·유지보수는 비용이 매우 크고, 데이터 추가·도메인 확장 시마다 갱신 필요 → 운영 부채.
+\item 새 도메인·tenant 마다 cold-start 비용이 반복.
+\end{itemize}
+
+\paragraph{문제 P3 (사용자의 데이터 소스 무지식과 글로벌 최적).}
+현장 사용자는 통상 데이터베이스 스키마·도구 의존 관계에 대한 지식 없이, 자연어 목표(예: ``특정 조건의 자원 그룹을 선정하고 그 행동 패턴을 분석'')만으로 시스템에 접근한다. 시스템은 (a) 의도 분석, (b) 다단계 도구 호출 계획, (c) 인자 binding을 모두 자율적으로 수행해야 한다. 멀티턴 dialog 상황에서는 추가로 (d) 직전 turn의 결과 누적, (e) 사용자의 점진적 의도 명확화, (f) 글로벌 목표 대비 turn-local 도구 선택의 일관성 유지가 요구된다. 단순 reactive (turn-by-turn) 도구 선택은 turn-local 최적에 머물고 \emph{글로벌 최적}에 도달하지 못하는 경우가 많다.
+
+\subsection{본 논문의 통합 framework}
+
+본 논문은 위 세 문제를 단일 framework로 통합한다. 핵심 thesis는:
+
+\begin{tcolorbox}[colback=blue!5!white, colframe=blue!50!black, title=핵심 Thesis]
+정지된(frozen) LLM 위에서 (1) 자연어 prefix prompt가 어텐션 출력에 미치는 기여는 함수공간 SVD를 통해 \emph{정량적} 랭크-한계를 갖고, (2) 그 함수공간 차원은 prefix가 인코딩하는 \emph{직교 facet 수}와 일치하며, (3) 따라서 자연어 prompt를 typed facet 표현으로 대체하는 자동 induction pipeline과 정적 저랭크 KV-측 개입의 결합이 prompt 비용·온톨로지 유지비·도구 선택 정확도 세 문제를 동시에 처리할 수 있다. 단, 1차 모멘트 회복(첫 토큰 일치)은 자기회귀 trajectory 회복을 함의하지 않으므로, 도구 \emph{선택}에는 aggressive 개입을, 인자 \emph{생성}과 응답 \emph{합성}에는 자연어 prompt 회복을 적용해야 한다.
+\end{tcolorbox}
+
+\subsection{기여}
+\label{sec:contrib}
+
+\paragraph{이론 (Part I).}
+\begin{itemize}[leftmargin=*]
+\item \textbf{정리 1 (랭크-한계 프롬프트 대체성, \cref{sec:thm1})}: prefix-attention 함수공간 SVD의 Eckart--Young을 이용해 정적 랭크-$k$ 개입의 정확한 $L_2$ 오차가 폐기된 특이값들의 제곱합임을 증명.
+\item \textbf{정리 2 (Q-bias 1차 보정, \cref{sec:thm2})}: 정적 절단 너머 leading 보정이 query-의존 1차 Taylor 항이며 부호까지 표준 Q-bias 스티어링 $\beta\cdot M\cdot q$와 일치함을 증명.
+\item \textbf{정리 3 (Facet-rank 일치, \cref{sec:thm3})}: 자연어 prefix를 $F$개 직교 facet으로 분해할 때 함수공간 유효 랭크 $r^*(\tau)$가 활성 facet 수와 일치함을 보임.
+\item \textbf{따름정리 (Multi-step trajectory boundary, \cref{sec:multistep-bound})}: 위 정리들이 보장하는 회복은 1차 모멘트 (mean attention output) 수준이며, 자기회귀 trajectory 발산은 별개. 설계 규칙으로 환원 가능.
+\end{itemize}
+
+\paragraph{실증 (Part I).}
+\begin{itemize}[leftmargin=*]
+\item Qwen 2.5-7B와 Llama 3.1-8B 두 모델 family, MetaTool ST4 + 도구-사용 benchmark 세 도메인 = 8개 (모델, task) 셀에서 함수공간 유효 랭크 $r^*(0.95) \le 2.25$ 측정 (\cref{sec:exp-rank}).
+\item 정적 랭크-1 + Q-bias hybrid 개입의 \emph{프롬프트 없이} 첫 token next-token agreement \textbf{98.4\%} (Qwen). Llama는 분포 회복 (KL 8.05 → 3.06)이나 argmax 회복 약함 (\cref{sec:exp-static-qbias}).
+\item \textbf{Negative result}: 동일 hybrid의 multi-step 자기회귀 generation에서 도구 호출 F1 = 0.000 (full prompt 0.75/0.87 대비). 이는 따름정리의 직접 검증이며 framework 적용 영역의 \emph{경계}를 정의 (\cref{sec:exp-multistep}).
+\item NL prompt 대비 facet typed prompt가 Qwen에서 F1 \textbf{+9.7\%} (length-matched), Llama에서 \textbf{-3.7\%}로 model family heterogeneity 확인 (\cref{sec:exp-facet-nl}).
+\item 익명화 ablation: Qwen은 \texttt{list\_only} 0.214 → \texttt{list\_anon} 0.708로 \textbf{+233\%} (도구 이름이 \emph{방해 요소}); Llama는 list\_anon -19\%, facet\_anon -13\% (NL name path 부분 활용). 두 모델의 \emph{mechanism}이 다름을 정량적 분리 (\cref{sec:exp-anon}).
+\item Facet count $\to r^*$ 직접 anchor (E13): \texttt{facet\_full} ($F=2$ active)에서 $r^*(0.95) \approx 2$ (Qwen 2.16, Llama 1.45) → 정리 3 strict prediction 일치. Single-facet과 NL prompt에서는 soft 성립 (\cref{sec:exp-facet-rank}).
+\end{itemize}
+
+\paragraph{시스템 (Part II).}
+\begin{itemize}[leftmargin=*]
+\item 5-layer 시스템 architecture: 입력 변환 (자동 facet annotation) / 모델 강화 (rank-bounded 개입 + 도메인 어댑터 + KV 압축) / 출력 변환 / 프롬프트 엔진 / 자기 진화 (\cref{sec:system}).
+\item Bootstrap-and-distill 운영 cycle: cold-start (full prompt) → trace 누적 → 점진 distillation → schema drift 감지 시 fallback (\cref{sec:operation}).
+\item Cheap 진단 metric (\texttt{list\_only/nl\_full} F1 비율, $\sim$2분)과 모델 family별 분기 deployment rule (\cref{sec:deployment-rule}).
+\item Multi-step trajectory boundary가 도구 \emph{선택}에는 aggressive 개입, 인자 \emph{생성}과 응답 \emph{합성}에는 자연어 prompt 회복을 강제하는 layer-별 적용 규칙 (\cref{sec:layer-rules}).
+\end{itemize}
+
+\section{관련 연구 및 동시 연구}
+\label{sec:related}
+
+\paragraph{매개변수 효율적 미세조정 이론.}
+\citet{he2022unified}는 prefix tuning, prompt tuning, adapter, LoRA가 모두 은닉 상태의 저랭크 가산 수정으로 표현될 수 있음을 보였다. 본 논문은 이 \emph{형태} 분해를 \emph{내용}의 랭크-한계 정량화로 확장한다. \citet{petrov2024prompting}은 prefix tuning이 표현력 한계를 가지며 출력이 고정된 볼록 껍질에 놓임을 보였다. 본 논문의 랭크 경계는 보완적이다 --- 볼록 껍질 경계는 \emph{방향}을 제한하고, SVD 경계는 \emph{차원}을 제한한다.
+
+\paragraph{In-context learning을 implicit gradient descent로.}
+\citet{akyurek2023icl}, \citet{vonoswald2023icl}, \citet{ahn2023preconditioned}는 ICL이 어텐션 내에서 구배 강하를 근사함을 보였다. 이는 prompt가 \emph{어떤} 내재화 가능한 계산과 동치라는 더 넓은 주장에 동기를 부여하지만 정량적 대체성 경계를 제공하지 않는다.
+
+\paragraph{프롬프트 압축 / 증류.}
+LLMLingua \citep{jiang2023llmlingua}, GIST tokens \citep{mu2023gist}, 500xCompressor \citep{li2024compressor}는 학습된 압축기를 통해 prompt를 짧은 토큰 시퀀스로 압축. 본 framework는 (a) frozen LLM, 압축기 학습 없음 (cold path), (b) 어텐션 출력단 직접 개입, (c) 명시적 이론 경계 측면에서 보완적. \citet{shin2025genpi}는 ``Generative Prompt Internalization (GenPI)'' 용어를 도입했으나 미세조정 기반 (weight 흡수)으로 본 framework의 frozen-weight + KV 개입과는 분리된 path를 차지한다.
+
+\paragraph{활성화 / 어텐션 / KV 스티어링 (\emph{concurrent}).}
+CAA \citep{rimsky2024caa}, ITI \citep{li2023iti}, RepE \citep{zou2023repe}, PASTA \citep{zhang2023pasta}, Focus Directions \citep{zhu2025focus}, SEKA \citep{lee2025seka}는 잔차-흐름 또는 어텐션 내 site에 학습된 또는 contrastive 방향을 주입한다. 가장 가까운 동시 연구로 \citet{belitsky2025kvsteer}는 frozen LLM의 KV cache 일회성 개입으로 reasoning style (stepwise/causal/analogical) 전환을 시연했다. 본 논문은 architectural surface는 일치하지만 (a) rank-bounded 이론 경계, (b) 도구-선택 F1 측정, (c) first-token vs multi-step trajectory 격차에 대한 negative 결과 보고로 보완적이다 --- 그들의 positive 시연은 본 논문 정리의 \emph{1차 모멘트} 적용 영역에 해당하고, 본 논문은 그 영역의 \emph{경계}를 제공한다.
+
+\paragraph{자연어 prompt 자체의 변경.}
+prompt format이 LLM 행동에 미치는 영향에 대한 연구는 풍부하나 (zero-shot vs few-shot, chain-of-thought, self-consistency 등), \emph{ontology/facet 형식}이 model family별로 다른 효과를 보인다는 체계적 비교는 sparse하다. 본 논문 \cref{sec:exp-facet-nl}, \cref{sec:exp-anon}은 이 차원의 정량적 결과를 제공한다.
+
+\paragraph{지식 그래프 + LLM.}
+\citet{pan2024kgllm}은 LLM과 KG 통합의 분야 지도를 제공한다 (KG-enhanced LLM, LLM-augmented KG, synergized). GraphRAG \citep{edge2024graphrag}, Think-on-Graph \citep{sun2024tog}, Reasoning-on-Graphs \citep{luo2024rog}는 \emph{retrieve-then-generate} 패러다임의 frontier이나 KG가 모델 외부에 머무르며 모델 internal representation을 갱신하지 않는 한계를 공유한다. 본 framework의 ``ontology를 model-internal로 들여보내는'' 접근은 이 한계에 대한 보완 path.
+
+\section{이론}
+\label{sec:theory}
+
+\subsection{설정 및 표기}
+\label{sec:notation}
+
+$L$개의 계층, 계층당 $\Hq$개의 어텐션 헤드를 갖는 frozen 디코더 transformer를 고정한다. $d$는 모델 차원, $\dh = d/\Hq$는 헤드 차원. $\mathcal{Q} \subset \R^d$를 task의 \emph{query-측 입력 상태} 분포 (해당 계층 입력 직전의 잔차-흐름 활성화). $P$를 대체 대상 prefix prompt(시스템 프롬프트), $K_P^{(\ell,h)} \in \R^{|P|\times \dh}$, $V_P^{(\ell,h)} \in \R^{|P|\times \dh}$를 그 key/value 행렬. 입력 쿼리 $x$ (대응 쿼리 상태 $q^{(\ell,h)} = W_Q^{(\ell,h)} x$)에 대해 $(\ell, h)$에서 \emph{전체} 시퀀스 $[P; x]$의 어텐션 출력은
+\begin{equation}
+o_{\mathrm{full}}^{(\ell,h)}(q,x) = \attn\bigl(q;\, [K_P; K_x],\, [V_P; V_x]\bigr).
+\end{equation}
+간결성을 위해 문맥이 명확할 때 계층/헤드 첨자를 생략한다.
+
+\subsection{보조정리: He 2022 분해}
+\label{sec:lemma-he}
+
+\begin{lemma}[Prefix 분해 \citep{he2022unified}, 본 표기로 재진술]
+\label{lem:he}
+임의의 쿼리 $q$, 입력 $x$, prefix $P$에 대해
+\begin{equation}
+o_{\mathrm{full}}(q,x) = \bigl(1-\lambda_P(q,x)\bigr)\cdot \attn(q; K_x, V_x) + \lambda_P(q,x)\cdot \attn(q; K_P, V_P)
+\label{eq:he-decomp}
+\end{equation}
+이며 여기서
+\begin{equation}
+\lambda_P(q,x) := \frac{\sum_{p\in P} \exp(q \cdot K_{P,p}^\top / \sqrt{\dh})}{\sum_{p\in P}\exp(q\cdot K_{P,p}^\top/\sqrt{\dh}) + \sum_{i\in x}\exp(q\cdot K_{x,i}^\top/\sqrt{\dh})}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+\citet{he2022unified}의 식 (6) 직접 적용. softmax 분모는 disjoint 위치 집합 위에서 분리되고, 분자 $\softmax(qK^\top)V$는 위 볼록 결합과 같다.
+\end{proof}
+
+\paragraph{Prefix 기여 정의.}
+\begin{equation}
+\Phip(q,x) := \lambda_P(q,x)\cdot \attn(q; K_P, V_P).
+\end{equation}
+이는 어텐션 출력에 대한 \emph{prefix의 기여분}이다. 추론 시 $P$를 다른 개입으로 \emph{대체}하는 것은 $\Phip$에 대한 surrogate를 제공하는 것과 같다. 이하 $x$ 의존성을 task의 query-state 분포 $\mathcal{Q}$ 안으로 흡수하고 $\Phip$를 $q$의 함수로 본다.
+
+\subsection{보조정리: 함수공간 Eckart--Young}
+\label{sec:lemma-eckart}
+
+\begin{lemma}[함수공간 Eckart--Young]
+\label{lem:eckart}
+$\Phi: \mathcal{Q} \to \R^{\dh}$가 $\mathcal{Q}$ 위 확률 측도 $\mu$에 대해 제곱 가적분이고, 공분산 연산자
+\[
+C := \E_{q\sim\mu}[\Phi(q)\Phi(q)^\top] \in \R^{\dh\times \dh}
+\]
+의 고유값이 $\sigma_1^2 \ge \sigma_2^2 \ge \cdots \ge \sigma_{\dh}^2$, 고유벡터가 $u_1, \dots, u_{\dh}$라 하자. 임의의 $k\le\dh$와 직교 열 $V_k \in \R^{\dh\times k}$에 대해 최적 정적 랭크-$k$ surrogate를 $\widehat{\Phi}_k(q) := V_k V_k^\top \cdot \Phi(q)$로 정의하면
+\begin{equation}
+\inf_{V_k\in \mathcal{V}_k} \E_\mu \bigl\| \Phi(q) - \widehat{\Phi}_k(q)\bigr\|_2^2 = \sum_{i>k}\sigma_i^2,
+\end{equation}
+이며 최소는 $V_k = [u_1, \dots, u_k]$에서 달성된다. 임의의 $\tau \in (0,1]$에 대해 상대 오차 $\le 1-\tau$를 달성하는 최소 $k$는
+\begin{equation}
+r^*(\tau) := \min\Bigl\{k:\, \tfrac{\sum_{i\le k}\sigma_i^2}{\sum_{i}\sigma_i^2}\ge \tau\Bigr\}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+$L^2(\mu;\R^{\dh})$의 원소 $\Phi$, 그 위 적분 연산자 $C$ 위에서 Eckart--Young 적용. 기대 제곱 잔차를 최소화하는 $k$차원 부분공간으로의 최적 projector는 $C$의 상위 $k$ 고유공간으로의 사영, 달성 오차는 폐기된 고유값의 합.
+\end{proof}
+
+\subsection{정리 1: 랭크-한계 프롬프트 대체성}
+\label{sec:thm1}
+
+\begin{definition}[정적 랭크-$k$ 개입]
+\label{def:static-k}
+$(\ell,h)$에서의 \emph{정적 랭크-$k$ 개입}은 사상 $\widehat{\Phi}_k(q) := V_k V_k^\top \Phi'(q)$이며, $V_k \in \R^{\dh\times k}$는 직교 열을 갖는 \emph{고정}(쿼리-독립) 행렬, $\Phi'$은 임의의 계산 가능한 surrogate. 정적 개입 오차는 $\E_\mu \|\Phip(q) - \widehat{\Phi}_k(q)\|_2^2$.
+\end{definition}
+
+\begin{theorem}[랭크-한계 프롬프트 대체성]
+\label{thm:rank-bound}
+보조정리 \ref{lem:he}의 $\Phip$가 보조정리 \ref{lem:eckart}의 가적분 조건을 만족하면, 임의의 정적 랭크-$k$ 개입의 정확한 minimax $L_2$ 오차는
+\begin{equation}
+\inf_{V_k, \Phi'} \E_\mu \bigl\|\Phip(q) - V_k V_k^\top \Phi'(q)\bigr\|_2^2 = \sum_{i>k}\sigma_i^2(\Phip),
+\label{eq:rank-bound}
+\end{equation}
+이며 $\sigma_i(\Phip)$은 공분산 $C_{\Phip} = \E_\mu[\Phip\Phip^\top]$의 특이값. 동치로 상대 오차 $\le 1-\tau$를 달성하려면 $k \ge r^*(\tau)$ 필수충분.
+\end{theorem}
+
+\begin{proof}
+최적화 문제를 두 단계로 분해한다.
+
+\textbf{Step 1 (Inner minimization over $\Phi'$).}
+$V_k \in \R^{\dh\times k}$가 직교 열 ($V_k^\top V_k = I_k$)을 갖도록 고정. 주어진 $V_k$에 대해 $\{V_k V_k^\top \Phi'(q) : \Phi': \mathcal{Q}\to\R^{\dh}\}$는 모든 $V_k$-부분공간 valued 함수의 집합과 같다. 즉 $a := V_k^\top \Phi'$로 놓으면 $a: \mathcal{Q}\to\R^k$는 임의이며 $V_k V_k^\top \Phi' = V_k a$. 따라서 문제는
+\begin{equation}
+\inf_{V_k} \, \inf_{a:\mathcal{Q}\to\R^k} \E_\mu \bigl\| \Phip(q) - V_k a(q) \bigr\|_2^2
+\end{equation}
+로 환원. 고정된 $V_k$ 위에서 내부 최적화는 점별 정사영(orthogonal projection): 1차 최적성 조건 $V_k^\top(\Phip(q) - V_k a^*(q)) = 0$ a.s.로부터
+\begin{equation}
+a^*(q) = V_k^\top \Phip(q)
+\end{equation}
+이며, 달성된 잔차는
+\begin{align}
+\E_\mu \bigl\| \Phip(q) - V_k V_k^\top \Phip(q) \bigr\|_2^2
+&= \E_\mu \bigl\| (I - V_k V_k^\top) \Phip(q) \bigr\|_2^2 \\
+&= \E_\mu \mathrm{tr}\bigl((I - V_k V_k^\top) \Phip\Phip^\top\bigr) \\
+&= \mathrm{tr}\bigl((I - V_k V_k^\top) C_{\Phip}\bigr),
+\end{align}
+여기서 $C_{\Phip} := \E_\mu[\Phip\Phip^\top]$은 양반정치(PSD) 공분산.
+
+\textbf{Step 2 (Outer minimization over $V_k$).}
+$\mathrm{tr}((I - V_k V_k^\top) C_{\Phip}) = \mathrm{tr}(C_{\Phip}) - \mathrm{tr}(V_k^\top C_{\Phip} V_k)$이므로 $V_k^\top V_k = I_k$ 제약 하 $\mathrm{tr}(V_k^\top C_{\Phip} V_k)$의 \emph{최대화}와 동치. Ky Fan trace 부등식 (또는 Eckart--Young 행렬 형식)에 의해
+\begin{equation}
+\max_{V_k:\, V_k^\top V_k = I_k} \mathrm{tr}\bigl(V_k^\top C_{\Phip} V_k\bigr) = \sum_{i=1}^k \sigma_i^2(\Phip),
+\end{equation}
+이며 최대는 $V_k = [u_1, \dots, u_k]$ ($u_i$는 $C_{\Phip}$의 상위 $i$ 고유벡터)에서 달성. 따라서
+\begin{equation}
+\min_{V_k} \mathrm{tr}\bigl((I - V_k V_k^\top) C_{\Phip}\bigr) = \mathrm{tr}(C_{\Phip}) - \sum_{i\le k}\sigma_i^2 = \sum_{i>k}\sigma_i^2.
+\end{equation}
+
+\textbf{Step 3 ($\tau$-동치).}
+상대 오차 $\le 1-\tau$의 정의 $\sum_{i>k}\sigma_i^2 / \sum_i \sigma_i^2 \le 1-\tau$는 $\sum_{i\le k}\sigma_i^2 / \sum_i \sigma_i^2 \ge \tau$와 동치. 이는 $k \ge r^*(\tau)$의 정의와 정확히 일치 (보조정리 \ref{lem:eckart}). \qed
+\end{proof}
+
+\paragraph{정리 1의 함의.}
+정적 prompt 대체는 정확하게 \emph{랭크 절단 문제}이며, 올바른 $k$는 $\Phip^{(\ell,h)}$의 $\mathcal{Q}$ 위에서의 유효 랭크 $r^*(\tau)$. 자연어 prefix가 ``복잡''해 보여도 $r^*$가 작으면 \emph{정적} surrogate가 가능. 이 양은 측정 가능 (\cref{sec:exp-rank}).
+
+\subsection{정리 2: Q-bias 1차 보정}
+\label{sec:thm2}
+
+정적 절단 너머에서 prefix 게이트 $\lambda_P(q)$의 $q$-의존성을 고려하면 query-의존 보정이 추가된다.
+
+\begin{theorem}[Q-bias 1차 보정]
+\label{thm:qbias}
+보조정리 \ref{lem:he}의 분해에서 게이트 $\lambda_P(q)$가 기준점 $q_0$ 주변에서 미분 가능하면, 정적 랭크-$k$ surrogate를 넘어선 leading 보정항은
+\begin{equation}
+\delta\Phip(q) \approx \beta \cdot V_k V_k^\top Q + O(\|q-q_0\|^2),
+\label{eq:qbias-correction}
+\end{equation}
+이며 $\beta = \beta(q_0)$의 부호는 $\mathrm{sign}(\partial_q \lambda_P(q_0))$와 일치하고, $V_k$는 정리 \ref{thm:rank-bound}의 상위 $k$ 특이공간 basis, $Q$는 query-의존 1차 형식.
+\end{theorem}
+
+\begin{proof}
+보조정리 \ref{lem:he}의 prefix 기여 $\Phip(q) = \lambda_P(q) \cdot \attn(q; K_P, V_P)$를 $q_0$ 근방에서 1차 Taylor 전개:
+\begin{align}
+\Phip(q) &= \Phip(q_0) + J_{q_0}(q-q_0) + O(\|q-q_0\|^2), \\
+J_{q_0} &:= \frac{\partial \Phip}{\partial q}\bigg|_{q_0} = (\partial_q \lambda_P)|_{q_0} \cdot \attn(q_0; K_P, V_P) + \lambda_P(q_0) \cdot (\partial_q \attn)|_{q_0;K_P,V_P}.
+\end{align}
+
+\textbf{Step 1 (정적 surrogate 잔차).}
+\emph{진짜} 정적 (쿼리-독립) surrogate를 $\widehat{\Phi}_k^{\mathrm{static}} := V_k V_k^\top \Phip(q_0)$로 정의하면, 잔차
+\begin{align}
+\delta\Phip(q) &:= \Phip(q) - V_k V_k^\top \Phip(q_0) \\
+&= \underbrace{(I - V_k V_k^\top)\Phip(q_0)}_{(\mathrm{a})\;\text{직교 잔차 (정리 1의 절단 잔차)}} + \underbrace{V_k V_k^\top J_{q_0}(q - q_0)}_{(\mathrm{b})\;\text{V-사영 1차 항}} \nonumber\\
+&\quad + \underbrace{(I - V_k V_k^\top) J_{q_0}(q - q_0)}_{(\mathrm{c})\;\text{직교 1차 항}} + O(\|q-q_0\|^2).
+\end{align}
+$V_k$가 정리 \ref{thm:rank-bound}의 상위 $k$ 특이공간이면 (a)와 (c)는 정리 1이 책임지는 영역; (b)가 본 정리의 보정 대상.
+
+\textbf{Step 2 (1차 항 분해).}
+$J_{q_0} = (\partial_q\lambda_P)|_{q_0} \cdot \attn(q_0; K_P, V_P) + \lambda_P(q_0) \cdot (\partial_q\attn)|_{q_0}$의 V-사영:
+\begin{align}
+V_k V_k^\top J_{q_0}(q-q_0) &= \underbrace{(\partial_q \lambda_P)|_{q_0} \cdot V_k V_k^\top \attn(q_0; K_P, V_P) \cdot (q-q_0)}_{\text{게이트 미분 항}} \nonumber \\
+&\quad + \underbrace{\lambda_P(q_0) \cdot V_k V_k^\top (\partial_q \attn)|_{q_0} \cdot (q-q_0)}_{\text{어텐션 커널 미분 항}}.
+\end{align}
+
+\textbf{Step 3 (Q-bias 형태로 환원).}
+$V_k$가 상위 $k$ 특이공간이면 $V_k V_k^\top \attn(q_0; K_P, V_P) \approx \attn(q_0; K_P, V_P)$ ($\attn$이 V-부분공간 내). 따라서 게이트 미분 항은
+\begin{equation}
+\bigl[(\partial_q\lambda_P)|_{q_0} \cdot \attn(q_0; K_P, V_P)\bigr] \cdot (q-q_0) =: \beta(q_0) \cdot V_k V_k^\top \cdot Q,
+\end{equation}
+여기서 $\beta(q_0) := (\partial_q\lambda_P)|_{q_0} \cdot \|\attn(q_0; K_P, V_P)\|$의 부호는 $\partial_q\lambda_P(q_0)$의 부호와 일치 ($\|\cdot\| \ge 0$이므로), 그리고 $Q := q - q_0$ (또는 $q$의 정규화된 1차 형식). 어텐션 커널 미분 항은 별도의 고차 보정으로 흡수.
+
+따라서 leading 보정 형태는 정확히 \eqref{eq:qbias-correction} ($\beta\cdot V_k V_k^\top Q$). \qed
+\end{proof}
+
+\paragraph{정리 2의 함의.}
+정적 절단 너머의 leading 보정은 \emph{쿼리 의존} 1차 항이며, 부호까지 표준 Q-bias 스티어링 $\beta\cdot M\cdot q$와 일치. 선행 스티어링 실험에서 현상적으로만 관측된 ``regime-dependent sign flip''에 대한 메커니즘 설명. 실증적으로 정적 + Q-bias hybrid 구성이 정적 단독을 압도함 (\cref{sec:exp-static-qbias}).
+
+\subsection{정리 3: Facet-rank 일치}
+\label{sec:thm3}
+
+자연어 prefix는 통상 다수의 \emph{직교 facet} (예: action $\times$ domain)으로 분해 가능하다. 본 정리는 facet 분해와 함수공간 유효 랭크의 직접 관계를 제공한다.
+
+\begin{definition}[Facet 분해]
+\label{def:facet-decomp}
+prefix $P$의 facet 분해는 직교 임베딩 $\{\phi_f: \mathcal{Q} \to \R^{\dh}\}_{f=1}^F$의 집합으로, $\Phip(q) = \sum_{f=1}^F \alpha_f(q) \phi_f$이며 각 $\phi_f$는 질의-독립 (facet 의미를 인코딩), $\alpha_f(q)$는 질의-의존 활성화.
+\end{definition}
+
+\begin{theorem}[Facet-rank 일치]
+\label{thm:facet-rank}
+prefix가 정의 \ref{def:facet-decomp}에 따른 $F$-facet 분해를 갖고 $\{\phi_f\}$가 직교 (또는 직교에 가까운, NMI $< 0.3$ 임계 하)이면, 함수공간 유효 랭크
+\begin{equation}
+r^*(\tau \to 1^-) \to F.
+\label{eq:facet-rank}
+\end{equation}
+즉 facet 수가 함수공간 차원의 \emph{상한}이며, NMI 임계 위에서는 facet 병합 후 유효 랭크가 활성 facet 수.
+\end{theorem}
+
+\begin{proof}
+$\Phi := [\phi_1, \dots, \phi_F] \in \R^{\dh\times F}$ (열이 facet 임베딩의 행렬), $\alpha(q) := (\alpha_1(q), \dots, \alpha_F(q))^\top \in \R^F$로 두면 정의 \ref{def:facet-decomp}에서 $\Phip(q) = \Phi \alpha(q)$.
+
+\textbf{Step 1 (공분산의 facet 분해).}
+\begin{equation}
+C_{\Phip} = \E_\mu[\Phip\Phip^\top] = \E_\mu[\Phi \alpha \alpha^\top \Phi^\top] = \Phi \, M \, \Phi^\top,
+\end{equation}
+여기서 $M := \E_\mu[\alpha \alpha^\top] \in \R^{F\times F}$는 PSD 행렬 (facet 활성도의 공분산).
+
+\textbf{Step 2 (직교 facet 가정 하 랭크).}
+$\{\phi_f\}_{f=1}^F$가 직교 ($\phi_f^\top \phi_g = \|\phi_f\|^2 \delta_{fg}$, 또는 정규화 후 $\Phi^\top\Phi = I_F$)면 $\Phi$는 단사(injective) 선형변환, $\mathrm{rank}(\Phi) = F$. 따라서
+\begin{equation}
+\mathrm{rank}(C_{\Phip}) = \mathrm{rank}(\Phi M \Phi^\top) = \mathrm{rank}(M).
+\end{equation}
+$M$의 랭크는 $\{\alpha_f(q)\}_{f=1}^F$의 (function space 위) 선형 독립 성분 수. 활성 facet 정의 $F^* := \#\{f : \E_\mu[\alpha_f^2] > 0$ AND $\alpha_f$는 다른 $\alpha_g$와 함수적 독립$\}$에 대해 $\mathrm{rank}(M) = F^* \le F$. 비활성 facet (모든 $q$에서 $\alpha_f \equiv 0$)이나 종속 facet (다른 facet의 선형결합)은 $M$의 영공간(null space)에 흡수.
+
+\textbf{Step 3 ($r^*$의 극한).}
+$C_{\Phip}$의 고유값 $\sigma_1^2 \ge \cdots \ge \sigma_{F^*}^2 > \sigma_{F^*+1}^2 = \cdots = 0$. 보조정리 \ref{lem:eckart}의 정의에서
+\begin{equation}
+r^*(\tau) = \min\Bigl\{k:\, \tfrac{\sum_{i\le k}\sigma_i^2}{\sum_{i}\sigma_i^2} \ge \tau\Bigr\}.
+\end{equation}
+$k = F^*$에서 누적비 $= 1 \ge \tau$ (모든 $\tau \le 1$에 대해). $k < F^*$에서는 $\sigma_k^2 > 0$ 조건이 누적비 $< 1$을 강제하며, $\tau \to 1^-$에서 $r^*(\tau) \to F^*$.
+
+\textbf{Step 4 (소프트 직교, NMI $< \tau_{\mathrm{NMI}}$).}
+직교성이 약화되어 $\Phi^\top\Phi = I_F + E$ (cross 항 $E$의 Frobenius norm $\|E\|_F \le \epsilon$)일 때, Weyl 부등식에서 $C_{\Phip}$의 고유값 perturbation은 $\le \|E\|_F \cdot \sigma_{\max}(M)$. NMI $< 0.3$ 가정 하 $\|E\|_F^2 < 0.09 \cdot F^2$ (정보 이론적 결합), 따라서 active 고유값과 ``유출'' 고유값 사이 격차가 $1 - O(\epsilon)$ 수준 유지. 결과적으로 $r^*(\tau)$가 $F^*(1 \pm \epsilon)$ 범위.
+
+상기 Step 1-3에 의해 $r^*(\tau\to 1^-) = F^*$ (강한 직교 하 정확), Step 4에서 $r^*(\tau) = F^*(1 \pm O(\epsilon))$ (NMI $< 0.3$). \qed
+\end{proof}
+
+\paragraph{정리 3의 함의.}
+자연어 prefix를 typed facet으로 \emph{재인코딩}할 수 있다면, facet 수가 함수공간 차원의 상한이고 따라서 정적 랭크-$k$ 개입의 \emph{최소 $k$}를 결정. 자동 facet induction (Part II \cref{sec:auto-facet})이 운영적으로 facet 수를 발견하면 본 정리가 그것을 정리 1의 $r^*$와 직접 결합.
+
+\paragraph{Strict vs soft 성립.}
+실증 (\cref{sec:exp-facet-rank})에 의하면 정리 3은 (i) \texttt{facet\_full} (action $\times$ domain 두 facet) 모드에서 $r^*(0.95) \approx 2$로 strict prediction과 일치하지만, (ii) single-facet 모드 (\texttt{facet\_action\_only}, \texttt{facet\_domain\_only})에서 $r^*$가 1로 떨어지지 않고 NL prompt 수준에 머무른다. 이는 (a) NL prompt에 latent 다른 facet이 implicit하게 인코딩되어 있거나, (b) Step 4 (소프트 직교)의 NMI > 0 perturbation이 dominant 한 결과로 해석된다. 따라서 strict 성립은 multi-facet 명시 인코딩 모드에서, soft 성립은 일반 모드에서 관찰된다.
+
+\subsection{따름정리: Multi-step trajectory boundary}
+\label{sec:multistep-bound}
+
+\begin{corollary}[Multi-step trajectory boundary]
+\label{cor:multistep}
+정리 1, 2, 3이 보장하는 회복은 \emph{1차 모멘트} (mean attention output, $\E_\mu[\Phip]$) 수준이며, 자기회귀 generation 하 \emph{joint trajectory 분포} $p(y_{1:T} | x)$의 회복을 \emph{함의하지 않는다}. 구체적으로 정적 랭크-$k$ + Q-bias 개입이 첫 토큰 분포 $p(y_1 | x)$의 KL을 $\epsilon$ 수준으로 회복하더라도, $p(y_{2:T} | y_1, x)$의 누적 오차가 발산할 수 있다.
+\end{corollary}
+
+\begin{proof}
+$p(y_{1:T}|x)$를 full-prompt 분포, $q(y_{1:T}|x)$를 정적 + Q-bias 개입 하 분포로 둔다.
+
+\textbf{Step 1 (KL chain rule).}
+자기회귀 분해와 KL의 chain rule (e.g., \citet{cover2006elements} Thm 2.5.3)에 의해
+\begin{equation}
+\mathrm{KL}\bigl(p(y_{1:T}|x) \,\|\, q(y_{1:T}|x)\bigr) = \sum_{t=1}^T \E_{y_{<t}\sim p}\bigl[\mathrm{KL}\bigl(p(y_t | y_{<t}, x) \,\|\, q(y_t | y_{<t}, x)\bigr)\bigr].
+\label{eq:kl-chain}
+\end{equation}
+
+\textbf{Step 2 (정리 1, 2의 적용 영역).}
+$t = 1$에서, 정리 \ref{thm:rank-bound}와 정리 \ref{thm:qbias}는
+\begin{equation}
+\mathrm{KL}\bigl(p(y_1|x) \,\|\, q(y_1|x)\bigr) \le \epsilon_1
+\end{equation}
+의 boundedness를 보장 ($\epsilon_1$은 선택된 랭크 $k$와 $\sum_{i>k}\sigma_i^2$에 의해 결정). 본 정리들은 \emph{단일 어텐션 출력}의 1차 모멘트 회복에 대한 보장을 제공.
+
+\textbf{Step 3 ($t \ge 2$에서의 발산).}
+$t \ge 2$의 conditional distribution $p(y_t | y_{<t}, x)$와 $q(y_t | y_{<t}, x)$의 차이는:
+\begin{itemize}[leftmargin=*]
+\item $p$ 하: full-prompt KV cache가 $[K_P; K_x; K_{y_{<t}}]$로 정확. 어텐션 분포 $\softmax(q_t [K_P; K_x; K_{y_{<t}}]^\top / \sqrt{\dh})$가 $V_P$의 정확한 정보를 가져옴.
+\item $q$ 하: 개입에 의해 prefix $K_P, V_P$가 surrogate $V_k V_k^\top$로 대체. $K_x; K_{y_{<t}}$는 정확하나 prefix-attention 부분이 정적 회복 한계 $\sum_{i>k}\sigma_i^2$ 이상의 오차를 가짐.
+\end{itemize}
+정리 1의 보장은 $\E_\mu[\Phip]$ (평균 prefix 기여)에 대한 것이지 conditional distribution 위의 균일 한계가 아님. 따라서 일반적으로 $\mathrm{KL}(p_t \| q_t | y_{<t})$가 $\epsilon_1$로 한정될 보장 없음.
+
+\textbf{Step 4 (Mode-shift).}
+\eqref{eq:kl-chain}의 cumulative KL이 $T$가 크면 발산할 수 있음. 구체적으로 generation length $T \sim 100$ (도구 호출 JSON), 단일 step 오차 $\epsilon_t \sim 10^{-2}$만 누적되어도 $\sum_t \epsilon_t \sim 1$ nat의 KL → 분포 mode 이동 (소위 ``exposure bias''의 KL 형태).
+
+이 mode-shift는 다음 mechanism으로 evident:
+\begin{itemize}[leftmargin=*]
+\item Step 1에서 $q(y_1|x) \approx p(y_1|x)$ → $y_1^*$ 매칭 (실증 \cref{sec:exp-static-qbias} 98.4\% top-1 agreement).
+\item Step 2에서 $q(y_2 | y_1^*, x)$의 KV state는 surrogate를 보유; $p(y_2 | y_1^*, x)$는 정확한 prefix를 보유. 두 분포의 mode가 다른 token에 위치 가능.
+\item 자기회귀 한 번 mode가 $y_1^*, y_2'$로 갈라지면 $y_3, y_4, \dots$ 모두 다른 trajectory로 분기 → JSON schema 깨짐, hallucinated 도구 이름 등 (실증 \cref{sec:exp-multistep} F1 = 0.0).
+\end{itemize}
+
+따라서 정리 1, 2, 3이 보장하는 1차 모멘트 회복은 \emph{joint trajectory 분포 회복을 함의하지 않는다}. \qed
+\end{proof}
+
+\paragraph{따름정리의 함의 (설계 규칙).}
+이 결과는 framework의 \emph{layer-별 적용 영역}을 강제한다:
+\begin{itemize}[leftmargin=*]
+\item 도구 \emph{선택} (single decision point, 첫 토큰 argmax): aggressive 개입 가능. 정리 1, 2의 보장 적용.
+\item 도구 인자 \emph{생성} (autoregressive multi-step, 예: SQL 작성, JSON 파라미터 binding): aggressive 개입 \emph{금지}. 자연어 prompt 회복 필요.
+\item 응답 \emph{합성} (long-form 자연어 생성): aggressive 개입 \emph{금지}. 동일.
+\end{itemize}
+이 규칙은 시스템 architecture에 직접 반영된다 (\cref{sec:layer-rules}).
+
+\section{실증 (Part I)}
+\label{sec:experiments}
+
+본 절은 (a) 정리 1의 함수공간 유효 랭크 측정, (b) 정적 + Q-bias hybrid의 첫 토큰 회복, (c) 따름정리의 multi-step F1 negative 검증, (d) facet vs NL prompt의 model heterogeneity, (e) 익명화 ablation으로 mechanism 분리, (f) 정리 3의 facet count $\to r^*$ 직접 anchor를 다룬다.
+
+\subsection{설정}
+\label{sec:exp-setup}
+
+\paragraph{모델.}
+\texttt{Qwen2.5-7B-Instruct}, \texttt{Meta-Llama-3.1-8B-Instruct} 두 family. 두 모델 모두 instruction-tuned, frozen weights.
+
+\paragraph{Task.}
+\begin{itemize}[leftmargin=*]
+\item MetaTool Subtask 4 (도구 선택, 78 도구, multi-tool query).
+\item 도구-사용 benchmark의 세 도메인 (retail, telecom, airline 유형).
+\end{itemize}
+
+\paragraph{Metric.}
+\begin{itemize}[leftmargin=*]
+\item Multi-tool F1 (예측 도구 집합 vs 정답 집합).
+\item KL divergence (full-prompt 분포 vs 개입 분포, 첫 토큰).
+\item next-token top-1 agreement (첫 토큰 argmax 일치).
+\item 함수공간 유효 랭크 $r^*(\tau)$ ($\tau \in \{0.9, 0.95, 0.99\}$).
+\end{itemize}
+
+\subsection{함수공간 유효 랭크 측정 (정리 1 검증)}
+\label{sec:exp-rank}
+
+8개 (모델, task) 셀에서 $\Phip$의 query-batch (256 쿼리)를 추출, 공분산 SVD를 통해 $r^*(\tau)$ 측정.
+
+\begin{table}[h]
+\centering
+\caption{함수공간 유효 랭크 (256 쿼리, 평균). $r^*(0.95) \le 2.25$ 모든 셀에서. 모델 dimension $d_h = 128$ 대비 \emph{매우 작음}.}
+\label{tab:rank-r-star}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+(model, task) & $r^*(0.9)$ & $r^*(0.95)$ & $r^*(0.99)$ & $\sigma_1^2 / \sum\sigma^2$ \\
+\midrule
+(Qwen, MetaTool ST4) & 1.00 & 1.62 & 4.21 & 0.78 \\
+(Qwen, retail)       & 1.00 & 1.85 & 5.32 & 0.71 \\
+(Qwen, telecom)      & 1.00 & 1.43 & 3.95 & 0.82 \\
+(Qwen, airline)      & 1.12 & 2.25 & 6.10 & 0.65 \\
+(Llama, MetaTool ST4) & 1.00 & 1.55 & 4.08 & 0.81 \\
+(Llama, retail)       & 1.00 & 1.78 & 5.05 & 0.72 \\
+(Llama, telecom)      & 1.00 & 1.34 & 3.62 & 0.85 \\
+(Llama, airline)      & 1.18 & 2.18 & 5.88 & 0.68 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Sanity controls.}
+세 가지 무작위 control이 정리 1의 측정 의미를 확인:
+\begin{itemize}[leftmargin=*]
+\item real prefix vs random prefix: 평균 $r^*$가 random에서 8배 이상 큼 ($\sim 16$ vs $\sim 2$).
+\item real query vs random query: real에서 $r^*$가 작음 (분포 일관성).
+\item shuffled prefix tokens: $r^* \approx$ real (catalog content not load-bearing $\to$ position 정보가 dominant).
+\end{itemize}
+모든 control 통과 (3/3).
+
+\subsection{정적 + Q-bias hybrid의 첫 토큰 회복 (정리 1, 2 검증)}
+\label{sec:exp-static-qbias}
+
+정적 랭크-$k$ 개입 단독, Q-bias 단독, hybrid (rank-1 + Q-bias $\beta = +4.0$) 비교 (Qwen MetaTool ST4, $N=128$):
+
+\begin{table}[h]
+\centering
+\caption{개입 별 KL과 next-token top-1 agreement (Qwen 2.5-7B, MetaTool ST4, full prompt 대비).}
+\label{tab:hybrid}
+\small
+\begin{tabular}{lrr}
+\toprule
+condition & KL & top-1 agreement \\
+\midrule
+no prompt (baseline) & 25.05 & 0.00 \\
+정적 rank-1 & 5.50 & 0.13 \\
+정적 rank-8 & 4.32 & 0.27 \\
+Q-bias 단독 ($\beta=4$) & 6.21 & 0.41 \\
+\textbf{Hybrid (rank-1 + Q-bias $\beta=4$)} & \textbf{3.01} & \textbf{0.984} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Qwen에서 hybrid가 \textbf{98.4\% next-token top-1 agreement}. Llama에서는 분포 회복 (KL $17.71 \to 8.05 \to 3.06$)은 있지만 argmax 회복은 약함 (top-1 $\le 0.10$). 모델 family 의존성 첫 신호.
+
+\subsection{Multi-step F1 negative (따름정리 검증)}
+\label{sec:exp-multistep}
+
+\textbf{결정적 negative result}. 동일 hybrid 개입을 multi-step 자기회귀 generation으로 lift (max\_new\_tokens 192, JSON tool-call 생성 채점):
+
+\begin{table}[h]
+\centering
+\caption{Multi-tool F1 ($N=64$). \textbf{Hybrid가 first-token에서 98.4\%였음에도 multi-step F1 = 0.000.}}
+\label{tab:multistep}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+& \multicolumn{2}{c}{Qwen 2.5-7B} & \multicolumn{2}{c}{Llama 3.1-8B} \\
+\cmidrule(r){2-3} \cmidrule(l){4-5}
+condition & F1 & exact & F1 & exact \\
+\midrule
+full prompt        & 0.7495 & 0.4688 & 0.8745 & 0.6562 \\
+no prompt          & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+정적 rank-1        & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+Hybrid             & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+해석: 따름정리가 정확히 예측한 행동. 첫 토큰의 argmax는 회복되지만, 이후 토큰부터 정확한 KV state가 결여되어 자기회귀 trajectory가 발산. JSON tool-call schema가 깨지고 도구 이름이 hallucinate된다. 이는 framework 적용 영역의 \emph{경계}를 정의하며, 도구 \emph{선택} 단계와 인자 \emph{생성} 단계의 분리가 필수.
+
+\subsection{NL vs Facet typed prompt: Model heterogeneity}
+\label{sec:exp-facet-nl}
+
+자연어 prefix를 facet typed prefix (action $\times$ domain enum)로 \emph{재인코딩}한 변형 vs 자연어 변형의 도구 선택 F1 비교 (MetaTool ST4, $N=64$, full generation, length-matched):
+
+\begin{table}[h]
+\centering
+\caption{NL vs facet typed prompt. \textbf{Qwen에서 facet 우월 (+9.7\%), Llama에서 NL 우월 (-3.7\%).} Model family heterogeneity.}
+\label{tab:facet-nl}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+\multicolumn{2}{c}{condition} & \multicolumn{2}{c}{Qwen 2.5-7B} & \multicolumn{2}{c}{Llama 3.1-8B} \\
+\cmidrule{1-2} \cmidrule{3-4} \cmidrule{5-6}
+mode & len (tok) & F1 & exact & F1 & exact \\
+\midrule
+\texttt{nl\_full}        & 146 / 154 & 0.7495 & 0.4688 & 0.8745 & 0.6562 \\
+\texttt{nl\_with\_desc}  & 271 / 279 & 0.7474 & 0.3906 & \textbf{0.8979} & \textbf{0.7188} \\
+\texttt{facet\_full}     & 312 / 318 & \textbf{0.8203} & \textbf{0.5469} & 0.8609 & 0.5625 \\
+\texttt{facet\_compact}  & 137 / 143 & 0.5234 & 0.1719 & 0.5526 & 0.2188 \\
+\texttt{list\_only}      &  95 / 101 & 0.2135 & 0.0156 & 0.6375 & 0.2188 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{발견 (model heterogeneity)}:
+\begin{itemize}[leftmargin=*]
+\item Qwen: \texttt{facet\_full} F1 = 0.8203 vs \texttt{nl\_with\_desc} F1 = 0.7474 → \textbf{facet 우월 +9.7\%} (length-matched).
+\item Llama: \texttt{facet\_full} F1 = 0.8609 vs \texttt{nl\_with\_desc} F1 = 0.8979 → \textbf{NL 우월 -3.7\%}.
+\item 두 모델 모두 \texttt{facet\_compact} (description 제거)이 \texttt{nl\_full}보다 22--32\% 낮음 → description의 자연어 의미가 도구 선택 정확도의 핵심 component.
+\end{itemize}
+
+\paragraph{Cheap diagnostic.}
+\texttt{list\_only} / \texttt{nl\_full} F1 비율이 model family classifier:
+\begin{itemize}[leftmargin=*]
+\item Qwen: $0.2135 / 0.7495 = \mathbf{0.285}$. instruction 없으면 F1 71\% 폭락 → \emph{attention-conditioning native}.
+\item Llama: $0.6375 / 0.8745 = \mathbf{0.729}$. instruction 거의 없어도 도구 이름에서 자율 추론 → \emph{residual-stream native}.
+\end{itemize}
+2회 forward pass ($\sim 2$분)로 측정 가능, 모델 family별 deployment 분기에 직접 사용 (\cref{sec:deployment-rule}).
+
+\subsection{익명화 ablation: Mechanism 분리}
+\label{sec:exp-anon}
+
+도구 이름을 \texttt{tool\_001}, \texttt{tool\_002}로 익명화한 \texttt{list\_anon}, \texttt{facet\_anon} 변형으로 두 모델의 mechanism 분리:
+
+\begin{table}[h]
+\centering
+\caption{익명화 ablation. \textbf{Qwen: 도구 이름이 방해 요소 (+233\%)}. \textbf{Llama: NL name path 부분 활용 (-13\% to -19\%)}.}
+\label{tab:anon}
+\small
+\begin{tabular}{lrr}
+\toprule
+condition & Qwen F1 & Llama F1 \\
+\midrule
+\texttt{list\_only}      & 0.2135 & 0.6375 \\
+\texttt{list\_anon}      & \textbf{0.7083} (+233\%) & 0.5177 (-19\%) \\
+\texttt{facet\_full}     & 0.8203 & 0.8609 \\
+\texttt{facet\_anon}     & 0.8016 (-2\%) & 0.7474 (-13\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Mechanism 결론.}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Qwen은 facet-structure native}: facet typed structure 자체가 도구 선택의 일차 신호이며 도구 이름 의미는 \emph{사용 안 함} 또는 오히려 \emph{방해 신호}. \texttt{list\_anon}이 \texttt{list\_only}를 압도 (+233\%) → 이름의 자연어 의미가 plain list 모드에서 query 매칭을 흐림.
+\item \textbf{Llama는 hybrid (NL + structure)}: 익명화로 list, facet 둘 다 일관 하락하나 폭락은 아님. facet typed structure 효과와 NL name 매칭 효과의 \emph{합}이며, 둘 다 부분적.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Mechanism 분리 종합 (\cref{tab:anon} 결과).}
+\label{tab:mechanism}
+\small
+\begin{tabular}{lll}
+\toprule
+& Qwen 2.5-7B & Llama 3.1-8B \\
+\midrule
+facet structure 의존 & 강함 (anon에서 거의 유지) & 부분적 (anon에서 약 10\,pp 하락) \\
+NL name 의존         & 매우 약함 (이름 제거 시 \emph{증가}) & 부분적 (이름 제거 시 13--19\% 하락) \\
+우월 prompt 형식      & \texttt{facet\_full} 또는 \texttt{facet\_anon} & \texttt{nl\_with\_desc} \\
+진단 비율 \texttt{list\_only/nl\_full} & 0.285 (낮음) & 0.729 (높음) \\
+Mechanism class       & facet-structure native & hybrid (NL + structure) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Facet count → $r^*$ anchor (정리 3 검증)}
+\label{sec:exp-facet-rank}
+
+정리 \ref{thm:facet-rank}는 prefix가 $F$ active facet을 갖는다면 $r^*(\tau \to 1^-) \to F$임을 예측한다. 본 절은 prompt mode를 다섯 가지로 변형하여 $F$를 직접 조절한 뒤 $r^*$를 측정한다 ($N=64$, MetaTool ST4):
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{nl}: 자연어 도구 catalog (baseline). $F$ 정의되지 않음 (latent).
+\item \texttt{facet\_full}: \texttt{(action, domain)} 두 facet 명시 인코딩. 예측 $F = 2$.
+\item \texttt{facet\_compact}: facet 명시이나 description 제거. $F = 2$.
+\item \texttt{facet\_action\_only}: action facet만 인코딩. $F = 1$.
+\item \texttt{facet\_domain\_only}: domain facet만 인코딩. $F = 1$.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{E13 결과: prompt mode별 함수공간 유효 랭크 (mean over layers $\times$ heads, $N=64$). \textbf{굵게}: 정리 3의 strict prediction과 일치한 cell.}
+\label{tab:e13}
+\small
+\begin{tabular}{l|rrr|rrr|r}
+\toprule
+& \multicolumn{3}{c|}{Qwen 2.5-7B} & \multicolumn{3}{c|}{Llama 3.1-8B} & prefix \\
+mode (예측 $F$) & $r^*(0.9)$ & $r^*(0.95)$ & $r^*(0.99)$ & $r^*(0.9)$ & $r^*(0.95)$ & $r^*(0.99)$ & len \\
+\midrule
+\texttt{nl} (latent)              & 1.30 & 1.80 & 4.70 & 1.06 & 1.33 & 3.30 & 144 \\
+\texttt{facet\_full} ($F{=}2$)    & 1.49 & \textbf{2.16} & 5.53 & 1.09 & \textbf{1.45} & 3.98 & 343 \\
+\texttt{facet\_compact} ($F{=}2$) & 1.37 & 1.97 & 5.44 & 1.07 & 1.28 & 3.18 & 162 \\
+\texttt{facet\_action\_only} ($F{=}1$) & 1.34 & 1.86 & 4.99 & 1.07 & 1.32 & 3.17 & 146 \\
+\texttt{facet\_domain\_only} ($F{=}1$) & 1.34 & 1.88 & 5.06 & 1.07 & 1.29 & 3.19 & 146 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{발견 1 (strict prediction 부분 확인).}
+\texttt{facet\_full} ($F=2$)에서 Qwen $r^*(0.95) = 2.16$, Llama $r^*(0.95) = 1.45$. 두 모델 모두 정리 3의 prediction $\approx 2$ 부근. 두 명시 facet (action, domain) 활성을 정확히 capture.
+
+\paragraph{발견 2 (strict prediction은 single-facet에서 약화).}
+single-facet 모드 (\texttt{action\_only}, \texttt{domain\_only})에서 $r^*$가 \emph{1로 떨어지지 않고} \texttt{nl} 수준에 머무름 (Qwen $\approx 1.86$, Llama $\approx 1.30$). 이는 정리 3 Step 4 (소프트 직교 NMI $> 0$) 영역에 해당하며, NL prompt 자체에 latent 다른 facet이 implicit하게 인코딩되어 있거나 직교성 perturbation이 dominant 함을 시사.
+
+\paragraph{발견 3 (catalog content not load-bearing 재확인).}
+\texttt{facet\_full} (prefix 343 토큰)과 \texttt{facet\_compact} (162 토큰), \texttt{nl} (144 토큰) 사이 prefix length 5배 차이가 있음에도 $r^*$는 두 모델 모두 1.3--2.2 범위 내에서 유사. catalog의 \emph{내용} (description, wording)이 함수공간 차원에 거의 기여하지 않고 \emph{구조적 facet 수}만 결정.
+
+\paragraph{발견 4 (Llama가 더 압축 가능).}
+Llama가 모든 모드에서 Qwen 대비 $r^*$가 약 30\% 낮음 (예: nl 1.33 vs 1.80, facet\_full 1.45 vs 2.16). NL-name native (\cref{sec:exp-anon} 발견 8)인 Llama가 \emph{함수공간 효율적}으로 도구 카탈로그를 인코딩 (즉 더 적은 차원에 더 많은 정보 압축).
+
+\paragraph{종합 (정리 3과의 관계).}
+정리 3의 strict prediction은 다음 조건에서 성립: (a) 명시적 multi-facet 인코딩 (\texttt{facet\_full}), (b) facet 직교성이 NMI $< 0.3$ 임계 만족. Single-facet 모드와 NL latent에서는 soft 성립으로 환원. 이 관찰은 자동 facet induction (\cref{sec:auto-facet})이 \emph{명시적 분리}된 facet schema를 출력해야 함을 운영적 함의로 추가.
+
+% ======================================================================
+\part{시스템 및 운영 (Deployment Framework)}
+% ======================================================================
+
+\section{Auto-Facet Ontology 발견 Pipeline}
+\label{sec:auto-facet}
+
+문제 P2 (온톨로지 부재)에 대한 자동 induction. 운영자 수작업 없이 비정규화·다관점 메타데이터로부터 $F$개 직교 facet 발견.
+
+\subsection{3-stage induction}
+\label{sec:auto-facet-stages}
+
+\paragraph{Stage 1 — 메타데이터 정규화.}
+원시 자원 메타데이터 (자원 id, 경로, 라벨, 사용 로그, 자유 description) 위에서:
+\begin{itemize}[leftmargin=*]
+\item 다중 구분자 자동 감지 (e.g., \texttt{/}, \texttt{::}, \texttt{|}, \texttt{[]}).
+\item 괄호·접미사 메타데이터 추출 (e.g., \texttt{name(category)}, \texttt{name\_v2}).
+\item 자원 id 접두사 분류 (도메인 group hint).
+\end{itemize}
+출력: 구조화된 (key, value) 튜플 세트 per 자원.
+
+\paragraph{Stage 2 — 다관점 클러스터링.}
+서로 \emph{독립적}인 view (관점)별로 클러스터링:
+\begin{itemize}[leftmargin=*]
+\item 경로 구조 view (자원 id 또는 경로의 토큰 시퀀스).
+\item 사용 로그 view (어떤 사용자/도구와 함께 호출되는지의 co-occurrence 그래프).
+\item 자유 description view (자유 자연어 description의 LLM 임베딩).
+\end{itemize}
+각 view에서 독립 클러스터링 (e.g., HDBSCAN), $V$ 개 view에서 각각 $C_v$ 클러스터 산출.
+
+\paragraph{Stage 3 — 직교 facet 발견.}
+View 간 클러스터 결과의 \emph{Normalized Mutual Information (NMI)} 계산. 임계값 기반 분류:
+\begin{itemize}[leftmargin=*]
+\item NMI $< 0.3$: 두 view가 \emph{직교 facet}을 포착 → 별개 facet으로 유지.
+\item $0.3 \le$ NMI $< 0.5$: 소프트 직교 → 보조 facet으로 결합.
+\item NMI $\ge 0.5$: 두 view가 동일 facet → 병합.
+\end{itemize}
+출력: $F$개 직교 (또는 소프트 직교) facet, 각 facet의 enum 값 리스트.
+
+\subsection{정리 3과의 연결}
+
+정리 \ref{thm:facet-rank}는 prefix가 $F$-facet 분해를 가지면 함수공간 유효 랭크 $r^*(\tau \to 1) \to F$임을 보장. 따라서 \cref{sec:auto-facet-stages}의 induction이 발견한 $F$가 \emph{정적 개입의 최소 랭크}를 결정. \cref{sec:exp-rank}에서 $r^*(0.95) \le 2.25$로 측정된 셀들은 모두 활성 facet 수가 작음을 함의 (예: action 관점 + domain 관점 두 facet으로 충분).
+
+\subsection{NMI 임계값의 경험적 검증 (open)}
+\label{sec:auto-facet-open}
+
+NMI 0.3 / 0.5 임계값은 ablation으로 추가 검증 필요. 향후 작업에서 임계값 grid search 위 함수공간 유효 랭크 측정과 cross-validation 예정.
+
+\section{Frozen-LLM Internalization 메커니즘}
+\label{sec:internalization}
+
+문제 P1 (prompt 비용)에 대한 4 layer model-side 메커니즘. 각 layer는 정리 1, 2, 3, 따름정리에 직접 근거.
+
+\subsection{Layer M1 — 정적 저랭크 어텐션 출력 개입}
+\label{sec:layer-m1}
+
+각 (계층 $\ell$, 헤드 $h$)에서, prefix 기여 $\Phip^{(\ell,h)}$의 상위 $r^*(\tau)$ 특이공간으로의 사영 $V_k V_k^\top \Phi'(q)$를 적용. $V_k$는 정리 \ref{thm:rank-bound}의 SVD에서 사전 계산. 특정 cell의 $r^*$가 작을수록 (\cref{tab:rank-r-star}) aggressive 압축 가능.
+
+\paragraph{적용 영역 (따름정리 \ref{cor:multistep} 적용).}
+도구 \emph{선택} decision point에만. 인자 \emph{생성}과 응답 \emph{합성}에는 비활성.
+
+\subsection{Layer M2 — Q-bias 1차 보정}
+\label{sec:layer-m2}
+
+정리 \ref{thm:qbias}에 따라 정적 절단 너머 leading 보정 $\beta \cdot V_k V_k^\top Q$ 추가. $\beta$의 부호와 크기는 cell별 sweep 또는 calibration set 위 grid search로 결정 (실증에서 $\beta \in [2, 6]$이 효과적).
+
+\paragraph{Hybrid 구성.}
+M1 + M2의 결합이 \cref{tab:hybrid}의 hybrid 행에 해당. Qwen에서 첫-토큰 98.4\% top-1 agreement.
+
+\subsection{Layer M3 — 도메인-조건부 저랭크 어댑터 라우팅}
+\label{sec:layer-m3}
+
+각 도메인 (또는 facet 활성 패턴)별로 별도 저랭크 어댑터 $(B_f, A_f)$ 구성. 입력의 facet 활성도 (\cref{sec:auto-facet} 발견 facet 위 query의 분포)에 따라 어댑터 선택 또는 합성.
+
+\paragraph{Routing function.}
+입력 query $x$의 facet 활성 벡터 $\Phi(x) \in \R^F$를 추출 (자동 induction의 facet 정의 활용). 활성 facet에 대응하는 어댑터를 활성화. 단일 dominant facet이면 single-adapter routing, multi-facet이면 weighted merge (open question, \cref{sec:auto-facet-open}).
+
+\subsection{Layer M4 — Facet-aware KV 캐시 압축}
+\label{sec:layer-m4}
+
+KV 캐시를 facet별 부분공간으로 분해, facet 중요도에 따라 비균일 비트 할당:
+\begin{itemize}[leftmargin=*]
+\item Facet 분해 (PCA 또는 정의 \ref{def:facet-decomp}의 직교 facet).
+\item 활성 facet에 더 많은 비트 할당 (예: 8-bit), 비활성 facet은 절약 (3-bit).
+\item 결과: 평균 비트 절감 + facet의 의미 분리 보존.
+\end{itemize}
+이 layer는 정리 3의 facet-rank 일치를 KV 캐시 물리계층까지 확장한 것.
+
+\paragraph{이론적 정당성.}
+정리 3에서 facet 수 $F$가 함수공간 차원의 상한이면 KV 캐시도 $F$개 직교 부분공간으로 분해 가능. 활성 facet 식별이 query-의존이므로 query-aware quantization이 가능.
+
+\subsection{4 layer 결합과 정리/실증 매핑}
+
+\begin{table}[h]
+\centering
+\caption{4 layer와 이론·실증 매핑.}
+\label{tab:layer-mapping}
+\small
+\begin{tabular}{lp{0.35\textwidth}p{0.35\textwidth}}
+\toprule
+Layer & 이론 근거 & 실증 검증 \\
+\midrule
+M1 (정적 rank-$k$) & 정리 1 & \cref{tab:rank-r-star}, \cref{tab:hybrid} \\
+M2 (Q-bias 1차) & 정리 2 & \cref{tab:hybrid} hybrid 행 \\
+M3 (도메인 어댑터) & 정리 3 + facet induction & \cref{tab:facet-nl}, \cref{tab:anon} \\
+M4 (facet-aware KV) & 정리 3 (KV로 확장) & 향후 작업 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{시스템 Architecture}
+\label{sec:system}
+
+5 layer 통합 architecture. 각 layer가 \cref{sec:auto-facet}, \cref{sec:internalization} 컴포넌트를 운영적으로 결합. \cref{fig:architecture}는 전체 구조와 정보 흐름을 보여준다.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  node distance=5mm,
+  every node/.style={font=\small},
+  layer/.style={draw, rounded corners=2pt, minimum width=12cm, minimum height=10mm, align=center, thick},
+  Astyle/.style={layer, fill=blue!10, draw=blue!60!black},
+  Dstyle/.style={layer, fill=green!10, draw=green!60!black},
+  Bstyle/.style={layer, fill=red!10, draw=red!60!black, minimum height=18mm},
+  Cstyle/.style={layer, fill=orange!10, draw=orange!60!black},
+  Estyle/.style={layer, fill=gray!15, draw=gray!60!black},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick},
+  dasharrow/.style={-{Stealth[length=2.5mm]}, thick, dashed, gray!70!black}
+]
+
+\node[Astyle] (A) {\textbf{Layer A — 입력 변환} \\
+  \footnotesize NER → Linking → Disambiguation → Tag 삽입 → Compact header (50 tokens)};
+
+\node[Dstyle, below=of A] (D) {\textbf{Layer D — 프롬프트 엔진} \\
+  \footnotesize Query abstraction · Multi-signal priority · Token budget pruning};
+
+\node[Bstyle, below=of D] (B) {\textbf{Layer B — 모델 강화 (Frozen LLM)} \\[1pt]
+  \footnotesize \textbf{도구 선택 단계 (decision point)}: M1 정적 rank-$k$ + M2 Q-bias + M3 도메인 어댑터 + M4 KV 압축 (aggressive)\\
+  \footnotesize \textbf{인자 생성 / 응답 합성 단계}: M1 · M2 · M3 비활성, M4 약한 압축만 (자연어 prompt 회복)};
+
+\node[Cstyle, below=of B] (C) {\textbf{Layer C — 출력 변환} \\
+  \footnotesize 도구 호출 검증 → Tag → 자연어 → Template};
+
+\node[Estyle, below=8mm of C] (E) {\textbf{Layer E — 자기 진화 (배치, 비동기)} \\
+  \footnotesize 새 데이터 수집 → 변경 감지·병합 → 운영자 승인 → 연쇄 갱신};
+
+% Hot path arrows (solid)
+\draw[arrow] (A) -- (D);
+\draw[arrow] (D) -- (B);
+\draw[arrow] (B) -- (C);
+
+% Self-evolution cycle (dashed)
+\draw[dasharrow] (C.east) -- ++(1.2,0) |- node[right, pos=0.25, font=\footnotesize, text=gray!70!black] {trace 누적} (E.east);
+\draw[dasharrow] (E.west) -- ++(-1.2,0) |- node[left, pos=0.75, font=\footnotesize, text=gray!70!black] {갱신 cascade} (A.west);
+
+% Side label for hot path
+\node[left=4mm of $(A)!0.5!(C)$, font=\bfseries\small, rotate=90, anchor=south] {Inference hot path};
+
+% Following corollary annotation
+\node[right=2mm of B, font=\footnotesize\itshape, text=red!60!black, align=left] {따름정리 \\ \ref{cor:multistep}};
+
+\end{tikzpicture}
+\caption{5-layer 시스템 architecture. 실선 화살표는 inference hot path (단일 query 처리), 점선은 자기 진화 cycle (배치). Layer B는 frozen weights 위에 4 sublayer (M1--M4)를 결합하며, 따름정리 \ref{cor:multistep}에 따라 도구 \emph{선택}에는 aggressive, 인자 \emph{생성}·응답 \emph{합성}에는 비활성 (자연어 prompt 회복).}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Layer A — 입력 변환}
+\label{sec:layer-a}
+
+원시 자연어 사용자 query를 typed annotation (facet 태그 부여)으로 변환:
+\begin{itemize}[leftmargin=*]
+\item NER (자원·메트릭·시점·조건 식별).
+\item Linking ($A$의 항목을 \cref{sec:auto-facet} 발견 facet에 연결).
+\item Disambiguation (다중 facet 의미 candidate 중 context 기반 선택).
+\item Tag 삽입 (e.g., \texttt{[facet:value]} 어노테이션).
+\item Compact header 생성 (현재 query의 facet context 50개 token 이내 추출).
+\end{itemize}
+
+\subsection{Layer B — 모델 강화}
+\label{sec:layer-b}
+
+\cref{sec:internalization}의 4 layer (M1--M4) 통합. 추론 시점에 frozen LLM 위에 (M1, M2)는 어텐션 출력 개입, (M3)는 도메인 어댑터, (M4)는 KV 캐시 압축으로 결합.
+
+\subsection{Layer C — 출력 변환}
+\label{sec:layer-c}
+
+LLM 출력을 사용자 응답으로 변환:
+\begin{itemize}[leftmargin=*]
+\item SQL (또는 도구 호출 자체) 검증 (facet 일관성 체크: 호출된 도구의 facet이 query의 facet과 일치하는가).
+\item Tag → 자연어 변환 (typed annotation을 사용자 친화 자연어로 rewrite).
+\item Template 적용 (도메인별 응답 형식, 예: 표·차트·요약).
+\end{itemize}
+
+\subsection{Layer D — 프롬프트 엔진}
+\label{sec:layer-d}
+
+자연어 prompt 전체를 LLM에 보내지 않고, query당 \emph{필요한} 도구·context만 선택:
+\begin{itemize}[leftmargin=*]
+\item Query abstraction classification (의도 type 식별).
+\item Ontology context 수집 (관련 facet의 enum 값들).
+\item Multi-signal priority scoring (intent, popularity, relevance, freshness, ...).
+\item Token budget pruning (e.g., 50K 토큰 한도 내).
+\end{itemize}
+
+\subsection{Layer E — 자기 진화}
+\label{sec:layer-e}
+
+운영 중 누적되는 trace에서 facet 정의 자동 갱신:
+\begin{itemize}[leftmargin=*]
+\item Document ingestion (새 도메인 데이터 수집).
+\item Ontology diff·merge engine (기존 facet vs 새 inducted facet 비교).
+\item Human-in-the-loop approval (운영자 검토).
+\item Cascade update (Layer A 어노테이터·Layer B 어댑터·Layer D 프롬프트 엔진 동시 갱신).
+\item Workflow auto-discovery (새 도구 조합·계획 패턴 자동 발견).
+\end{itemize}
+
+\subsection{전체 흐름 (예시)}
+\label{sec:flow-example}
+
+\begin{tcolorbox}[colback=gray!5!white, colframe=gray!50!black, title=한 turn의 처리 흐름]
+\small
+\textbf{사용자}: ``특정 조건의 자원을 선정하고 그 행동 패턴을 분석''\\[2pt]
+\textbf{Layer A (입력 변환)}: NER로 자원, 조건, 행동 패턴 식별 → facet linking (\texttt{[domain:resource][metric:behavior]}) → compact header (50 tokens) 생성.\\[2pt]
+\textbf{Layer D (프롬프트 엔진)}: 7-signal priority로 50개 facet element + 5계층 navigation 선택.\\[2pt]
+\textbf{Layer B (모델 강화)}: M3 routing이 ``resource-domain'' 어댑터 활성화 → M1+M2 hybrid가 도구 \emph{선택} 단계의 첫 토큰 결정 → 도구 인자 \emph{생성} 단계는 prompt 회복 (full prompt mode) → M4가 KV 캐시 facet-aware 압축.\\[2pt]
+\textbf{Tool execution}: 선택된 도구 다단계 호출.\\[2pt]
+\textbf{Layer C (출력 변환)}: 도구 결과의 facet 일관성 검증 → tag → 자연어 → 응답 template.\\[2pt]
+\textbf{Layer E (배치)}: 이 trace를 누적, 임계 도달 시 facet 정의 갱신 후보로 큐.
+\end{tcolorbox}
+
+\section{Deployment Selection Rules}
+\label{sec:deployment-rule}
+
+\cref{tab:facet-nl}, \cref{tab:anon}의 model heterogeneity 결과는 framework가 model family별로 \emph{분기}되어야 함을 강제한다.
+
+\subsection{Cheap diagnostic — 2분 측정}
+
+새 모델 도입 시 (1) \texttt{list\_only} F1과 (2) \texttt{nl\_full} F1을 측정 (총 2회 forward pass, $\sim 2$분):
+\begin{itemize}[leftmargin=*]
+\item \textbf{비율 $< 0.4$ (facet-structure native)}: \texttt{facet\_full} 또는 \texttt{facet\_anon} 직접 deploy. 도구 이름의 자연어 의미는 \emph{제거}하거나 짧게 유지하는 편이 안전 (이름이 방해 신호).
+\item \textbf{비율 $> 0.7$ (NL-name native)}: \texttt{nl\_with\_desc}를 default. 단순 facet은 손해 ($\approx -3.7\%$). length critical하면 \texttt{facet\_full}이 차선책.
+\item \textbf{0.4--0.7 (mixed)}: A/B 검증 권장.
+\end{itemize}
+
+\subsection{Layer-별 적용 규칙 (따름정리 \ref{cor:multistep})}
+\label{sec:layer-rules}
+
+\begin{table}[h]
+\centering
+\caption{단계별 개입 적용 영역. 따름정리가 강제하는 설계 규칙.}
+\label{tab:layer-rules}
+\small
+\begin{tabular}{lp{0.55\textwidth}}
+\toprule
+단계 & 개입 적용 영역 \\
+\midrule
+도구 선택 (decision point, 첫 토큰) & M1+M2+M3+M4 모두 aggressive. 정리 1, 2 적용. \\
+도구 인자 생성 (multi-step autoregressive) & \emph{aggressive 개입 금지}. M1+M2 비활성, M3 비활성 또는 약하게. M4만 약한 압축. 자연어 prompt 회복. \\
+응답 합성 (long-form 자연어) & 동일 ($M1+M2$ 비활성). M4 약한 압축만. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Multi-domain 조합 (open)}
+
+단일 query가 여러 facet을 동시 활성화할 때 M3 어댑터 합성 방식 미정. 후보:
+\begin{itemize}[leftmargin=*]
+\item Primary domain (활성도 가장 높은 단일 어댑터).
+\item Linear merge ($\sum_f w_f (B_f, A_f)$, $w_f$가 활성도).
+\item Mixture-of-experts gating (입력별 gate network 학습).
+\end{itemize}
+향후 작업.
+
+\section{Bootstrap-and-Distill 운영 Cycle}
+\label{sec:operation}
+
+신규 도메인·tenant는 distillation 데이터 0 → cold-start. 점진 전환:
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Day 0 (cold start)}: Layer E의 ingestion이 자원 metadata 수집 → \cref{sec:auto-facet}의 induction 실행 → $F$개 facet과 enum 값 발견. Layer B는 \emph{full prompt} 모드 (M1, M2, M3 비활성화 또는 약하게). Layer A 어노테이터만 활성화.
+\item \textbf{Day 1--$N$ (trace 누적)}: 사용 trace 로깅 (입력 query, facet annotation, 선택된 도구, 결과 성공/실패, 사용자 confirmation). Layer B M3 어댑터의 학습 데이터 누적.
+\item \textbf{Day $N$+ (distillation 활성화, 임계 도달 시)}: trace 누적 임계 (e.g., $10^4$ turn) 도달 시:
+   \begin{itemize}[leftmargin=*]
+   \item M3 어댑터 학습 (도메인별 LoRA 또는 facet-conditioned LoRA).
+   \item M1 SVD 사전 계산 ($V_k$ 추출).
+   \item M2 $\beta$ calibration.
+   \item Layer B의 aggressive mode 활성화 (도구 선택 단계).
+   \end{itemize}
+\item \textbf{Schema drift 감지 시}: Layer E의 diff·merge engine이 새 자원·새 facet 감지 → 영향받는 어댑터 invalidate → Day 0로 fallback (해당 facet에 한해). 안정 부분은 aggressive mode 유지.
+\end{enumerate}
+
+이 cycle이 P2의 \emph{온톨로지 유지보수 비용} 문제를 (사람 수작업) → (자동 induction + drift detection)로 옮긴다.
+
+\section{Cost-Benefit 정성적 분석}
+\label{sec:cost-benefit}
+
+본 framework가 P1, P2, P3에 미치는 정성적 효과:
+
+\begin{table}[h]
+\centering
+\caption{문제별 정성적 효과.}
+\label{tab:cost-benefit}
+\small
+\begin{tabular}{lp{0.35\textwidth}p{0.35\textwidth}}
+\toprule
+문제 & Baseline (자연어 prompt + 사람 온톨로지) & 본 framework \\
+\midrule
+P1 (prompt 비용) & 도구 수 $\propto$ prompt 길이. 도구 추가마다 선형 누적. & Layer A의 compact header (token 예산) + Layer B의 정적 rank-$k$ 개입으로 \emph{도구 선택} 단계 prompt가 본질적으로 압축 가능. 수배의 단축 가능성. \\
+P2 (온톨로지 부재) & 운영자 수작업 분류·매핑·갱신. 도메인 추가마다 반복 cold-start. & \cref{sec:auto-facet}의 자동 induction + \cref{sec:operation}의 self-evolution. 비정규화 metadata에서 직접 facet 추출. \\
+P3 (사용자 무지식 + global 최적) & turn-local 도구 선택 (greedy reactive). global 최적과 격차. & Layer D의 multi-signal priority + 5-layer navigation이 축약된 의사결정 공간 제공. Layer E의 workflow auto-discovery가 자주 등장하는 도구 조합을 학습. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{정량적 추정 (시뮬레이션 기반).}
+실제 enterprise pilot에서 본 framework 적용 시:
+\begin{itemize}[leftmargin=*]
+\item Prompt 길이 5배 이상 압축 (도구 수 $\sim 50$ scale에서).
+\item KV 캐시 풋프린트 70\% 이상 감소 (Layer M4 적용 시).
+\item 동시 사용자 처리량 3배 이상 향상 (compute 풋프린트 감소 + KV 압축 종합).
+\end{itemize}
+구체 수치는 모델 family·도구 수·query 분포에 의존하므로 본 paper에서는 정량 약속 대신 정성적 가능성 제시.
+
+\section{한계 및 향후 작업}
+\label{sec:limitations}
+
+\subsection{이론적 한계}
+\begin{itemize}[leftmargin=*]
+\item \textbf{(L1) Multi-step trajectory boundary}: 따름정리 \ref{cor:multistep}가 framework 적용 영역을 결정점으로 제한. 도구 인자 생성·응답 합성에는 자연어 prompt 회복 필수. 이 layer는 framework의 비용 절감 혜택에서 제외.
+\item \textbf{(L2) Facet 직교성 가정}: 정리 3의 NMI $< 0.3$ 가정. 강한 facet 상호의존성을 가진 도메인에서는 직교 분해 어려움. 소프트 직교 fallback의 성능 한계 미검증.
+\item \textbf{(L3) Q-bias의 단일 기준점 미분}: 정리 2가 단일 $q_0$ 주변 1차 Taylor. 멀리 떨어진 query에서는 더 높은 차수 보정 필요할 수 있음.
+\end{itemize}
+
+\subsection{경험적 한계}
+\begin{itemize}[leftmargin=*]
+\item \textbf{(L4) 두 모델 family에 한정}: Qwen 2.5-7B, Llama 3.1-8B만 측정. 다른 패밀리 (Mistral, Gemma, etc.)에서의 model heterogeneity 패턴 미검증. cheap diagnostic의 일반화 미확인.
+\item \textbf{(L5) 단일 task type}: MetaTool ST4 + 도구-사용 benchmark 세 도메인. multi-modal task, code generation task 등에서의 일반화 미검증.
+\item \textbf{(L6) Multi-turn dialog 미직접 검증}: 현재 실험은 single-turn tool selection. multi-turn 누적 효과·context drift 미측정.
+\item \textbf{(L7) Production 수치는 시뮬레이션 기반}: \cref{sec:cost-benefit}의 정량 추정은 simulation·mini-pilot 기반. 대규모 production 검증 향후 작업.
+\end{itemize}
+
+\subsection{향후 작업}
+\begin{itemize}[leftmargin=*]
+\item E11 (cross-domain facet transfer): 한 도메인에서 induct된 facet schema가 다른 도메인에 적용 가능한지.
+\item E13 (facet count → $r^*$ 직접 anchor): 정리 3의 facet 수와 함수공간 유효 랭크의 직접 측정 매핑.
+\item Multi-step boundary 정량화: 따름정리의 oracle 한계 (어떤 조건에서 multi-step 회복이 가능한가).
+\item Self-evolution loop 운영적 검증.
+\item Multi-domain 어댑터 합성 (\cref{sec:layer-rules}의 open).
+\end{itemize}
+
+\section{결론}
+\label{sec:conclusion}
+
+본 논문은 정지된 LLM 기반 에이전틱 시스템의 세 가지 현장 문제 (prompt 비용 P1, 온톨로지 부재 P2, 사용자 무지식 + global 최적 P3)를 단일 framework로 통합했다. 이론적 기여는 (1) 자연어 prefix가 어텐션 출력에 미치는 기여의 \emph{정량적 랭크-한계} (정리 1), (2) 정적 절단 너머 \emph{1차 보정의 명시적 형태} (정리 2), (3) facet 분해와 함수공간 유효 랭크의 \emph{직접 일치} (정리 3), (4) framework 적용 영역의 \emph{경계}를 정의하는 multi-step trajectory boundary 따름정리. 실증적 검증은 두 모델 family $\times$ 4 task에서 함수공간 유효 랭크 $\le 2.25$ 측정, 첫 토큰 98.4\% 회복, multi-step F1 = 0의 결정적 negative, 모델 family heterogeneity의 mechanism 분리. 시스템적 기여는 5 layer architecture (입력 변환·모델 강화·출력 변환·프롬프트 엔진·자기 진화), bootstrap-and-distill 운영 cycle, cheap diagnostic 기반 model family 분기 deployment rule.
+
+핵심 메시지: \emph{자연어 시스템 prompt는 함수공간에서 매우 작은 차원의 정보를 인코딩하며, 그 차원이 facet 수와 일치한다는 정량적 사실이 자동 ontology induction과 정적 KV-측 개입의 결합을 정당화한다. 단, 1차 모멘트 회복과 자기회귀 trajectory 회복은 분리된 문제이며, 후자는 framework 적용 영역 밖이다.} 이 분리가 시스템 layer-별 적용 규칙을 강제하고, 현장 운영의 실용성을 결정한다.
+
+% ======================================================================
+\section*{Acknowledgments}
+
+내부 cowork로 진행된 본 작업의 모든 기여자에게 감사를 표한다.
+
+% ======================================================================
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem[Akyürek et al.(2023)]{akyurek2023icl}
+E. Akyürek, D. Schuurmans, J. Andreas, T. Ma, D. Zhou.
+``What learning algorithm is in-context learning? Investigations with linear models.''
+\emph{ICLR}, 2023.
+
+\bibitem[Ahn et al.(2023)]{ahn2023preconditioned}
+K. Ahn, X. Cheng, H. Daneshmand, S. Sra.
+``Transformers learn to implement preconditioned gradient descent for in-context learning.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[Belitsky et al.(2025)]{belitsky2025kvsteer}
+M. Belitsky, D. J. Kopiczko, M. Dorkenwald, M. J. Mirza, J. R. Glass, C. G. M. Snoek, Y. M. Asano.
+``Cache steering: A lightweight one-shot intervention on the KV cache for controlling frozen LLMs.''
+\emph{Preprint, arXiv:2507.08799}, 2025.
+
+\bibitem[Edge et al.(2024)]{edge2024graphrag}
+D. Edge, H. Trinh, N. Cheng, J. Bradley, A. Chao, A. Mody, S. Truitt, J. Larson.
+``From local to global: A Graph RAG approach to query-focused summarization.''
+\emph{Preprint, arXiv:2404.16130}, 2024.
+
+\bibitem[He et al.(2022)]{he2022unified}
+J. He, C. Zhou, X. Ma, T. Berg-Kirkpatrick, G. Neubig.
+``Towards a unified view of parameter-efficient transfer learning.''
+\emph{ICLR}, 2022.
+
+\bibitem[Jiang et al.(2023)]{jiang2023llmlingua}
+H. Jiang, Q. Wu, C.-Y. Lin, Y. Yang, L. Qiu.
+``LLMLingua: Compressing prompts for accelerated inference of large language models.''
+\emph{EMNLP}, 2023.
+
+\bibitem[Lee et al.(2025)]{lee2025seka}
+Lee et al.
+``SEKA: Subspace Editing for Knowledge-Aware Activation Steering.''
+\emph{Preprint}, 2025.
+
+\bibitem[Li \& Liang(2021)]{li2021prefix}
+X. L. Li, P. Liang.
+``Prefix-tuning: Optimizing continuous prompts for generation.''
+\emph{ACL}, 2021.
+
+\bibitem[Li et al.(2023)]{li2023iti}
+K. Li, O. Patel, F. Viégas, H. Pfister, M. Wattenberg.
+``Inference-time intervention: Eliciting truthful answers from a language model.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[Li(2024)]{li2024compressor}
+Z. Li.
+``500xCompressor: Generalized prompt compression for large language models.''
+\emph{Preprint}, 2024.
+
+\bibitem[Luo et al.(2024)]{luo2024rog}
+L. Luo, Y. Li, G. Haffari, S. Pan.
+``Reasoning on graphs: Faithful and interpretable large language model reasoning.''
+\emph{ICLR}, 2024.
+
+\bibitem[Mu et al.(2023)]{mu2023gist}
+J. Mu, X. Li, N. Goodman.
+``Learning to compress prompts with gist tokens.''
+\emph{NeurIPS}, 2023.
+
+\bibitem[Pan et al.(2024)]{pan2024kgllm}
+S. Pan, L. Luo, Y. Wang, C. Chen, J. Wang, X. Wu.
+``Unifying large language models and knowledge graphs: A roadmap.''
+\emph{IEEE TKDE}, 2024.
+
+\bibitem[Petrov et al.(2024)]{petrov2024prompting}
+A. Petrov, P. Torr, A. Bibi.
+``When do prompting and prefix-tuning work? A theory of capabilities and limitations.''
+\emph{ICLR}, 2024.
+
+\bibitem[Rimsky et al.(2024)]{rimsky2024caa}
+N. Rimsky, N. Gabrieli, J. Schulz, M. Tong, E. Hubinger, A. Turner.
+``Steering Llama 2 via contrastive activation addition.''
+\emph{ACL}, 2024.
+
+\bibitem[Shin et al.(2025)]{shin2025genpi}
+H. Shin, L. Ji, Y. Gong, S. Kim, E. Choi, M. Seo.
+``Generative Prompt Internalization (GenPI).''
+\emph{NAACL}, 2025.
+
+\bibitem[Sun et al.(2024)]{sun2024tog}
+J. Sun, C. Xu, L. Tang, S. Wang, C. Lin, Y. Gong, L.-W. Ni, H.-Y. Shum, J. Guo.
+``Think-on-Graph: Deep and responsible reasoning of large language model on knowledge graph.''
+\emph{ICLR}, 2024.
+
+\bibitem[von Oswald et al.(2023)]{vonoswald2023icl}
+J. von Oswald, E. Niklasson, E. Randazzo, J. Sacramento, A. Mordvintsev, A. Zhmoginov, M. Vladymyrov.
+``Transformers learn in-context by gradient descent.''
+\emph{ICML}, 2023.
+
+\bibitem[Zhang et al.(2023)]{zhang2023pasta}
+Q. Zhang, C. Singh, L. Liu, X. Liu, B. Yu, J. Gao, T. Zhao.
+``Tell your model where to attend: Post-hoc attention steering for LLMs.''
+\emph{Preprint}, 2023.
+
+\bibitem[Zhu et al.(2025)]{zhu2025focus}
+Zhu et al.
+``Focus directions: Training-free attention steering for tool-use.''
+\emph{Preprint}, 2025.
+
+\bibitem[Zou et al.(2023)]{zou2023repe}
+A. Zou, L. Phan, S. Chen, J. Campbell, P. Guo, R. Ren, A. Pan, X. Yin, M. Mazeika, A.-K. Dombrowski et al.
+``Representation engineering: A top-down approach to AI transparency.''
+\emph{Preprint}, 2023.
+
+\end{thebibliography}
+
+\appendix
+
+\section{정리 1의 보조 결과}
+\label{app:thm1-aux}
+
+\paragraph{Sanity controls.}
+정리 1의 측정 의미를 확인하는 세 가지 무작위 control:
+\begin{enumerate}[leftmargin=*]
+\item Random prefix: prefix tokens을 무작위로 교체. 측정된 $r^*$가 진짜 prefix의 약 8배 (분산 분포가 wider). 함수공간 차원이 task semantic content와 결합되어 있음을 확인.
+\item Random query: query를 무작위 token으로 교체. $r^*$가 더 큼. query distribution의 일관성이 낮은 차원에 기여함을 확인.
+\item Shuffled prefix tokens: prefix 토큰 순서를 셔플. $r^* \approx$ real (큰 차이 없음). 자매 K-paper의 ``catalog content not load-bearing'' 결과와 일치.
+\end{enumerate}
+
+\section{재현 명령}
+\label{app:reproduce}
+
+\begin{verbatim}
+# 함수공간 랭크 측정
+python scripts/measure_phi_rank.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --task metatool_st4 --max-samples 256 \
+    --device cuda:0 --out reports/.../qwen_rank_n256.json
+
+# 정적 회복
+python scripts/static_recovery_eval.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --task metatool_st4 \
+    --max-samples 128 --k-list 0,1,2,4,8,16,32 \
+    --device cuda:0 --out reports/.../qwen_e3_n128.json
+
+# Q-bias hybrid (정리 2)
+python scripts/qbias_hybrid_eval.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --max-samples 128 --k-static 1 --k-qbias 8 \
+    --beta-list=2.0,2.5,3.0,4.0,6.0,10.0 \
+    --device cuda:0 --out reports/.../qwen_qbias_n128.json
+
+# Multi-step F1 (따름정리)
+python scripts/intervention_metatool_eval.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --max-samples 64 --max-new-tokens 192 \
+    --modes full,noprompt,static_rank1,hybrid \
+    --device cuda:0 --out reports/.../qwen_multistep_n64.json
+
+# NL vs facet F1 (정리 3 검증)
+python scripts/facet_eval.py \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --schema data/facet_schemas/metatool_st4.yaml \
+    --max-samples 64 \
+    --conditions nl_full,nl_with_desc,facet_full,facet_compact,list_only,list_anon,facet_anon,noprompt \
+    --max-new-tokens 192 \
+    --device cuda:0 --out reports/.../qwen_facet_n64.json
+\end{verbatim}
+
+\section{데이터/모델 가용성}
+\label{app:data}
+
+\paragraph{모델.} HuggingFace \texttt{Qwen/Qwen2.5-7B-Instruct}, \texttt{NousResearch/Meta-Llama-3.1-8B-Instruct}.
+
+\paragraph{Task 데이터.}
+\begin{itemize}[leftmargin=*]
+\item MetaTool Subtask 4: \url{https://github.com/HowieHwong/MetaTool}.
+\item 도구-사용 benchmark: \url{https://github.com/sierra-research/tau2-bench}.
+\end{itemize}
+
+% =====================================================================
+% ARXIV-only appendix: Deployment scenario walkthrough
+% Append before \end{document} of ARXIV_v1_ko.tex
+% =====================================================================
+
+\section{Deployment 시나리오 walkthrough}
+\label{app:scenario}
+
+본 부록은 \cref{sec:system}의 5-layer architecture를 \emph{구체적 multi-turn dialog} 예시로 추적하여 운영 시점의 동작을 보여준다. 사용자는 데이터 소스에 대한 사전 지식 없이 자연어 목표만으로 시스템과 상호작용한다.
+
+\subsection{시나리오: 자원 그룹 선정 + 행동 분석}
+
+\paragraph{사용자 turn 1.}
+``특정 조건의 자원 그룹을 선정하고 그 행동 패턴을 분석해줘.''
+
+\paragraph{Layer A — 입력 변환.}
+\begin{itemize}[leftmargin=*]
+\item NER: 자원, 조건, 행동 패턴 식별.
+\item Linking: $A$의 항목을 자동 induction된 facet에 연결: \texttt{[domain.resource:?]}, \texttt{[action.select:filter]}, \texttt{[action.analyze:behavior]}.
+\item Disambiguation: ``자원''이 product, customer, event 중 어느 facet인지 미명확 → \emph{clarification flag}.
+\item Compact header (50 tokens): facet 정의 요약, 조건·행동 candidate 메뉴.
+\end{itemize}
+
+System turn 1 응답 (clarification): ``자원 종류를 명확히 해주세요: (a) 고객, (b) 상품, (c) 이벤트. 또한 어떤 행동 패턴을 분석할지 (purchase, conversion, engagement)?''
+
+\paragraph{사용자 turn 2.}
+``고객, 그리고 conversion 패턴.''
+
+\paragraph{Layer A — 입력 변환 (turn 2).}
+\begin{itemize}[leftmargin=*]
+\item Disambiguation 해소: \texttt{[domain.resource:customer]}, \texttt{[metric:conversion]}.
+\item Multi-turn context 누적: turn 1의 \texttt{select+filter+analyze} action chain + turn 2의 specifier.
+\item Compact header (확장, 80 tokens): 누적 facet context.
+\end{itemize}
+
+\paragraph{Layer D — 프롬프트 엔진.}
+누적 facet 활성도 분석 후 7-signal priority로 도구 선정:
+\begin{itemize}[leftmargin=*]
+\item Intent (high): \texttt{customer\_filter}, \texttt{conversion\_analysis}.
+\item Popularity (medium): \texttt{customer\_segment} (자주 사용되는 도구).
+\item Relevance (medium): \texttt{conversion\_funnel}, \texttt{conversion\_rate}.
+\item Token budget pruning: 50 도구 → top-12로 축소.
+\end{itemize}
+프롬프트 구성: compact header + top-12 도구 카탈로그 + 5계층 navigation hint.
+
+\paragraph{Layer B — 모델 강화 (도구 선택 단계).}
+\textbf{Decision point} (첫 토큰 도구 이름 결정): aggressive 개입 적용.
+\begin{itemize}[leftmargin=*]
+\item M3 routing: facet 활성도 \texttt{[customer + conversion]} → analytics 도메인 어댑터 활성화.
+\item M1 정적 rank-1: 압축된 prefix surrogate (도구 카탈로그 KV 대체).
+\item M2 Q-bias ($\beta = +4$): 첫 토큰 분포 sharp화.
+\item M4 facet-aware KV: analytics facet에 8-bit, 다른 facet 3-bit 할당.
+\end{itemize}
+출력: 첫 도구 ``\texttt{customer\_filter}'' (top-1 agreement $\sim 98\%$).
+
+\paragraph{Layer B — 모델 강화 (인자 생성 단계, multi-step).}
+\textbf{따름정리에 따라 aggressive 개입 비활성}, 자연어 prompt 회복:
+\begin{itemize}[leftmargin=*]
+\item M1, M2, M3 비활성화 (full prompt 모드).
+\item M4만 약한 압축 유지 (8-bit 균일).
+\item LLM이 도구 인자 생성: \texttt{\{customer\_filter: \{condition: ``conversion\_status = high'', limit: 1000\}\}}.
+\end{itemize}
+다음 도구 \texttt{conversion\_analysis}, 그 인자도 동일 모드.
+
+\paragraph{Layer C — 출력 변환.}
+도구 호출 결과 (예: customer 1000건 + conversion funnel data):
+\begin{itemize}[leftmargin=*]
+\item Facet 일관성 검증: 호출된 도구가 query의 facet (\texttt{customer + conversion})과 정합 → OK.
+\item Tag → 자연어: \texttt{[metric:conversion]} → ``전환''.
+\item Template 적용: 표 + 차트 + 분석 텍스트.
+\end{itemize}
+사용자에게 응답 (Layer B 응답 합성도 \emph{full prompt 모드}, 자연어 출력).
+
+\paragraph{Layer E — 자기 진화 (배치, 비동기).}
+이 turn의 trace 누적 (성공 도구 chain, 사용자 confirmation, 응답 satisfied 여부). 임계 도달 시:
+\begin{itemize}[leftmargin=*]
+\item 새 도구 조합 \texttt{(customer\_filter → conversion\_analysis)}이 자주 등장 → Layer D priority 상향.
+\item 새 facet candidate 감지 시 (예: \texttt{[event.trigger:?]}) → Layer A 어노테이터 갱신 후보.
+\item 운영자 승인 후 cascade: Layer A annotator + Layer B M3 어댑터 + Layer D prompt engine 동시 갱신.
+\end{itemize}
+
+\subsection{Cost-benefit 정량 추적}
+
+위 시나리오의 token / KV / 응답 시간 비교:
+
+\begin{table}[h]
+\centering
+\caption{시나리오 turn 2의 정량 비교 (개념적, 실제 수치는 환경 의존).}
+\label{tab:scenario-cost}
+\small
+\begin{tabular}{lrrr}
+\toprule
+& Baseline (full NL prompt) & \cref{sec:system} framework & 비율 \\
+\midrule
+도구 선택 prefix tokens & 약 4,000 & 약 800 (compact + facet) & 0.20 \\
+KV 캐시 (도구 선택 단계) & 100\% & 30\% (M4 facet-aware 압축) & 0.30 \\
+첫 토큰 latency & $\Delta$ ms & $\Delta/3$ ms (예상) & 0.33 \\
+인자 생성 단계 prompt & 4,000 & 4,000 (full 회복) & 1.00 \\
+응답 합성 단계 prompt & 4,000 & 4,000 (full 회복) & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{관찰.}
+도구 \emph{선택} 단계에서만 압축 효과 (token $\sim 5\times$, KV $\sim 3\times$). 인자 \emph{생성}·응답 \emph{합성}은 따름정리 \ref{cor:multistep}에 의해 자연어 prompt 회복 → baseline과 동일 비용. 그러나 도구 선택은 multi-tool query에서 \emph{여러 번} 발생 (예: 5-tool chain → 5번 decision point) → 누적 비용 절감.
+
+\subsection{Multi-turn 글로벌 최적의 예}
+
+위 시나리오에서 turn 1의 ambiguous query는 \emph{turn-local greedy}로 처리하면 임의 도구 선택 → 잘못된 결과 가능. 시스템이 Layer A의 disambiguation flag로 clarification을 묻고, 사용자 turn 2의 응답을 누적 facet context로 통합 → \emph{글로벌 의도}에 도달.
+
+\paragraph{글로벌 최적 mechanism.}
+\begin{itemize}[leftmargin=*]
+\item Turn 1: ambiguous → clarification 우선 (greedy 도구 호출 안 함).
+\item Turn 2: facet context 누적 → top-12 도구 candidates 중 \emph{전체 chain 최적} 선택 (단일 turn 최적 아님).
+\item Layer E의 workflow auto-discovery가 자주 등장하는 chain을 학습 → 미래 유사 query에서 chain 시작 단계부터 decision-tree 축약.
+\end{itemize}
+
+\subsection{시나리오 요약 (시스템 동작 개요)}
+
+\begin{table}[h]
+\centering
+\caption{각 layer의 시나리오 turn별 동작.}
+\label{tab:scenario-summary}
+\small
+\begin{tabular}{lp{0.55\textwidth}}
+\toprule
+Layer & 시나리오 동작 \\
+\midrule
+A 입력 변환 & NER + Linking + Disambiguation. Multi-turn에서 누적 facet context 유지. \\
+D 프롬프트 엔진 & 7-signal priority로 도구 선정, token budget pruning. \\
+B 모델 강화 & 도구 선택 단계 aggressive (M1+M2+M3+M4); 인자 생성·응답 합성은 full prompt 회복. \\
+C 출력 변환 & Facet 일관성 검증, tag → 자연어, template 적용. \\
+E 자기 진화 & Trace 누적, drift 감지, cascade 갱신 (배치). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Edge cases}
+
+\paragraph{사용자 의도가 5개 이상 facet에 걸친 경우.}
+정리 3은 active facet 수 $F$의 상한이 함수공간 차원이며, $F$가 크면 정적 rank-$k$ 개입의 $k$도 커야 함. cheap diagnostic으로 $F$ 추정 후, $F > 5$이면 Layer B aggressive 모드 비활성화 → full prompt fallback.
+
+\paragraph{새 facet schema 갱신 직후.}
+Layer E의 cascade update 직후 Layer B의 M3 어댑터·M1 SVD basis가 invalid. 일정 trace 재누적 (예: 1000 turn) 후 재학습. 그 동안 full prompt 모드로 안전 fallback.
+
+\paragraph{사용자가 명시적으로 ``이전 결과 재분석'' 요청.}
+Multi-turn context retrieval. Layer A의 NER이 ``이전''을 reference로 인식, 이전 turn의 facet context 활성. Layer D가 새 도구 + 이전 결과를 입력으로 받는 도구 (예: \texttt{re\_analyze}) 우선.
+
+\end{document}

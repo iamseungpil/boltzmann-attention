@@ -1,0 +1,26 @@
+{
+  "domain": "video_classification",
+  "start": "validate",
+  "steps": ["validate", "assign", "review", "decide"],
+  "realizes": {
+    "validate": "validateVideo",
+    "assign": "assignReviewer",
+    "review": "getReview",
+    "decide": "_decide"
+  },
+  "arg": {
+    "validateVideo": {"video_id": "video_id", "video_path": "video_path"},
+    "assignReviewer": {"video_id": "video_id", "video_language": "video_language", "region": "region"},
+    "getReview": {"video_id": "video_id", "initial_reviewer_id": "initial_reviewer_id"}
+  },
+  "produces": {},
+  "precondition": {},
+  "next": {
+    "validate": "assign",
+    "assign": "review",
+    "review": "decide",
+    "decide": null
+  },
+  "terminate": [],
+  "output": {"required": ["final_decision"], "format": "xml"}
+}

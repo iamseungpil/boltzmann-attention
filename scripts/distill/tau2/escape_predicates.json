@@ -1,0 +1,7 @@
+{
+  "_doc": "Arm-I faithful 술어 (ESCAPE_SCOPE_DIAGNOSTIC rev2 §4.1). 조작정의=유저 발화의 리터럴 disambiguation 제약을 정확히 인코딩(제약 누락=가짜 tie/제약 발명=가짜 ⓑ 둘다 금지). filter=candidate dict에 field==value(또는 {contains:...}). S3에서 15 gap 전수 큐레이션. S2 대면검증 핵심=술어가 유저 제약 빠짐없이·없는것없이.",
+  "71": {
+    "filter": {"state": "DC"},
+    "note": "유저: 'an order sent to your son's address in Washington DC' → 리터럴 제약=배송지 DC. status=pending은 precondition(별도)·disambiguation 제약 아님."
+  }
+}

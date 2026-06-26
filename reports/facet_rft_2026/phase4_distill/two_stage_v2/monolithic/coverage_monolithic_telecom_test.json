@@ -1,0 +1,13 @@
+{
+  "mode": "monolithic",
+  "domain": "telecom",
+  "ontology_domain": "telecom",
+  "tool_turns": 307,
+  "deterministic": 0,
+  "miss": 0,
+  "no_step": 0,
+  "deterministic_coverage": 0.0,
+  "by_tool_det": {},
+  "by_step_det": {},
+  "by_step_miss": {}
+}

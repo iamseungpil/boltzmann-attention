@@ -1,0 +1,8 @@
+started=2026-05-27 23:47:19 KST
+pid=3785321
+host=localhost.localdomain
+agent: Hermes-3-Llama-3.1-8B (NousResearch FC tune, local vLLM GPU0:9001, hermes parser)
+user_sim: gpt-4o-mini via OpenRouter (RPD limit 우회, OpenAI 동일 모델)
+purpose: FC tune 효과 + leaderboard fair (gpt-4o-mini user_sim)
+args: --task-split base --num-trials 4 --max-steps 200 --max-concurrency 3
+preflight=ok

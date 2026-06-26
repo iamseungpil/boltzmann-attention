@@ -1,0 +1,261 @@
+{
+  "label": "B0",
+  "results_path": "reports/facet_rft_2026/phase1_baseline/base_n114/B0_telecom_base.json/results.json",
+  "info": {
+    "num_trials": 4,
+    "max_steps": 200,
+    "max_errors": 10,
+    "seed": 42,
+    "git_commit": "unknown",
+    "agent_info": {
+      "implementation": "llm_agent",
+      "llm": "openai/Qwen2.5-7B-Instruct",
+      "llm_args": {
+        "api_base": "http://127.0.0.1:8000/v1",
+        "api_key": "sk-noauth",
+        "temperature": 0.0
+      },
+      "voice_settings": null
+    },
+    "user_info": {
+      "implementation": "user_simulator",
+      "llm": "openai/Qwen2.5-7B-Instruct",
+      "llm_args": {
+        "api_base": "http://127.0.0.1:8000/v1",
+        "api_key": "sk-noauth",
+        "temperature": 0.5
+      },
+      "global_simulation_guidelines": "# User Simulation Guidelines\nYou are playing the role of a customer contacting a customer service representative. \nYour goal is to simulate realistic customer interactions while following specific scenario instructions.\n\n## Core Principles\n- Generate one message at a time, maintaining natural conversation flow.\n- Strictly follow the scenario instructions you have received.\n- Never make up or hallucinate information not provided in the scenario instructions. Information that is not provided in the scenario instructions should be considered unknown or unavailable.\n- Avoid repeating the exact instructions verbatim. Use paraphrasing and natural language to convey the same information\n- Disclose information progressively. Wait for the agent to ask for specific information before providing it.\n\n## Task Completion\n- The goal is to continue the conversation until the task is complete.\n- If the instruction goal is satisified, generate the '###STOP###' token to end the conversation.\n- If you are transferred to another agent, generate the '###TRANSFER###' token to indicate the transfer.\n- If you find yourself in a situation in which the scenario does not provide enough information for you to continue the conversation, generate the '###OUT-OF-SCOPE###' token to end the conversation.\nRemember: The goal is to create realistic, natural conversations while strictly adhering to the provided instructions and maintaining character consistency.\n",
+      "voice_settings": null,
+      "persona_config": null
+    }
+  },
+  "counts": {
+    "tasks": 114,
+    "simulations": 456,
+    "evaluated": 421,
+    "infrastructure_errors": 35,
+    "too_many_errors": 14
+  },
+  "termination": {
+    "user_stop": 254,
+    "max_steps": 153,
+    "infrastructure_error": 35,
+    "too_many_errors": 14
+  },
+  "reward": {
+    "avg_reward_evaluated": 0.047505938242280284,
+    "avg_reward_all": 0.043859649122807015,
+    "full_credit_evaluated_count": 20,
+    "full_credit_evaluated_rate": 0.047505938242280284,
+    "wilson_95_ci_low": 0.030960152778541705,
+    "wilson_95_ci_high": 0.07223501454970485,
+    "pass_threshold": 1.0
+  },
+  "pass_k": {
+    "1": 0.017543859649122806,
+    "2": 0.07017543859649122,
+    "3": 0.09649122807017543,
+    "4": 0.13157894736842105
+  },
+  "pass_k_counts": {
+    "1": 2,
+    "2": 8,
+    "3": 11,
+    "4": 15
+  },
+  "trial_variance": {
+    "mean_per_task_std": 0.06918202935042218,
+    "n_tasks_with_variance": 114
+  },
+  "duration_seconds": {
+    "mean_all": 128.2600462015559,
+    "median_all": 112.20016762870364,
+    "p95_all": 269.9264920768328,
+    "min_all": 0.0,
+    "max_all": 322.7897794027813,
+    "mean_evaluated": 138.92299541071137
+  },
+  "termination_x_reward": {
+    "user_stop": {
+      "n": 254,
+      "sum_reward": 20.0,
+      "n_pass": 20,
+      "avg_reward": 0.07874015748031496,
+      "pass_rate": 0.07874015748031496
+    },
+    "max_steps": {
+      "n": 153,
+      "sum_reward": 0.0,
+      "n_pass": 0,
+      "avg_reward": 0.0,
+      "pass_rate": 0.0
+    },
+    "infrastructure_error": {
+      "n": 35,
+      "sum_reward": 0.0,
+      "n_pass": 0,
+      "avg_reward": 0.0,
+      "pass_rate": 0.0
+    },
+    "too_many_errors": {
+      "n": 14,
+      "sum_reward": 0.0,
+      "n_pass": 0,
+      "avg_reward": 0.0,
+      "pass_rate": 0.0
+    }
+  },
+  "reward_basis_counts": {
+    "ENV_ASSERTION": 254,
+    "ACTION": 60
+  },
+  "db_match_evaluated": {
+    "matched": 37,
+    "total": 254,
+    "rate": 0.14566929133858267
+  },
+  "categories": {
+    "mobile_data_issue": {
+      "n_sims": 144,
+      "avg_reward": 0.027777777777777776,
+      "termination": {
+        "user_stop": 76,
+        "max_steps": 50,
+        "infrastructure_error": 11,
+        "too_many_errors": 7
+      }
+    },
+    "service_issue": {
+      "n_sims": 116,
+      "avg_reward": 0.13793103448275862,
+      "termination": {
+        "user_stop": 81,
+        "max_steps": 33,
+        "too_many_errors": 2
+      }
+    },
+    "mms_issue": {
+      "n_sims": 196,
+      "avg_reward": 0.0,
+      "termination": {
+        "user_stop": 97,
+        "max_steps": 70,
+        "too_many_errors": 5,
+        "infrastructure_error": 24
+      }
+    }
+  },
+  "personas": {
+    "None": {
+      "n_total": 160,
+      "n_evaluated": 145,
+      "avg_reward_evaluated": 0.027586206896551724
+    },
+    "Easy": {
+      "n_total": 152,
+      "n_evaluated": 140,
+      "avg_reward_evaluated": 0.04285714285714286
+    },
+    "Hard": {
+      "n_total": 144,
+      "n_evaluated": 136,
+      "avg_reward_evaluated": 0.07352941176470588
+    }
+  },
+  "worst_tasks_by_avg_reward": [
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_usage_exceeded[PERSONA:None]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|data_saver_mode_on|data_usage_exceeded[PERSONA:Hard]",
+      "avg_reward": 0.0
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+      "avg_reward": 0.0
+    }
+  ],
+  "best_tasks_by_avg_reward": [
+    {
+      "task_id": "[service_issue]airplane_mode_on|break_apn_settings|contract_end_suspension|lock_sim_card_pin[PERSONA:None]",
+      "avg_reward": 0.5
+    },
+    {
+      "task_id": "[service_issue]break_apn_settings|lock_sim_card_pin|overdue_bill_suspension|unseat_sim_card[PERSONA:Easy]",
+      "avg_reward": 0.5
+    },
+    {
+      "task_id": "[service_issue]airplane_mode_on|contract_end_suspension|lock_sim_card_pin|unseat_sim_card[PERSONA:Hard]",
+      "avg_reward": 0.5
+    },
+    {
+      "task_id": "[service_issue]airplane_mode_on|lock_sim_card_pin[PERSONA:Easy]",
+      "avg_reward": 0.5
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]",
+      "avg_reward": 0.5
+    },
+    {
+      "task_id": "[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bill_suspension[PERSONA:Hard]",
+      "avg_reward": 0.25
+    },
+    {
+      "task_id": "[service_issue]airplane_mode_on|break_apn_settings|contract_end_suspension|lock_sim_card_pin|unseat_sim_card[PERSONA:Easy]",
+      "avg_reward": 0.25
+    },
+    {
+      "task_id": "[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin[PERSONA:None]",
+      "avg_reward": 0.25
+    },
+    {
+      "task_id": "[service_issue]airplane_mode_on|lock_sim_card_pin|overdue_bill_suspension|unseat_sim_card[PERSONA:Easy]",
+      "avg_reward": 0.25
+    },
+    {
+      "task_id": "[service_issue]contract_end_suspension|lock_sim_card_pin[PERSONA:Hard]",
+      "avg_reward": 0.25
+    }
+  ],
+  "hallucination": {
+    "total_retries": 0,
+    "sims_with_retries": 0
+  },
+  "message_count_per_sim": {
+    "mean": 96.08114035087719,
+    "median": 56.0,
+    "p95": 201,
+    "min": 0,
+    "max": 206
+  }
+}

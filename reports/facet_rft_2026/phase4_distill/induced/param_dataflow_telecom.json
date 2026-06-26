@@ -1,0 +1,63 @@
+{
+  "domain": "telecom",
+  "entity_keys": [
+    "bill_id",
+    "customer_id",
+    "line_id"
+  ],
+  "provenance": {
+    "bill_id": [
+      "get_bills_for_customer",
+      "get_details_by_id"
+    ],
+    "customer_id": [
+      "get_bills_for_customer",
+      "get_customer_by_id",
+      "get_customer_by_phone",
+      "get_details_by_id"
+    ],
+    "line_id": [
+      "get_data_usage",
+      "get_details_by_id"
+    ]
+  },
+  "action_params": {
+    "suspend_line": [
+      "customer_id",
+      "line_id",
+      "reason"
+    ],
+    "resume_line": [
+      "customer_id",
+      "line_id"
+    ],
+    "send_payment_request": [
+      "customer_id",
+      "bill_id"
+    ],
+    "enable_roaming": [
+      "customer_id",
+      "line_id"
+    ],
+    "disable_roaming": [
+      "customer_id",
+      "line_id"
+    ],
+    "transfer_to_human_agents": [
+      "summary"
+    ],
+    "refuel_data": [
+      "customer_id",
+      "line_id",
+      "gb_amount"
+    ]
+  },
+  "read_tools": [
+    "get_customer_by_phone",
+    "get_customer_by_id",
+    "get_customer_by_name",
+    "get_details_by_id",
+    "get_bills_for_customer",
+    "get_data_usage"
+  ]
+}

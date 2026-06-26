@@ -1,0 +1,8 @@
+started=2026-05-27 16:01:45 KST
+pid=3770073
+host=localhost.localdomain
+agent: Llama-3.1-8B-Instruct (local vLLM GPU0:9001 max-model-len 32K, tool-call-parser llama3_json)
+user_sim: GPT-4o (OpenAI API, leaderboard standard)
+purpose: separate Llama 0/456 cause — model deficit vs self-play deficit
+args: --task-split base --num-trials 4 --max-steps 200 --max-concurrency 8
+preflight=ok

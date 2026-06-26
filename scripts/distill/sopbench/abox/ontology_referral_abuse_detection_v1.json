@@ -1,0 +1,19 @@
+{
+  "start": "investigate",
+  "steps": ["investigate", "traffic", "decide"],
+  "realizes": {
+    "investigate": "investigate_account",
+    "traffic": "analyze_traffic_patterns",
+    "decide": "_decide"
+  },
+  "arg": {
+    "investigate_account": {"account_id": "account_id"},
+    "analyze_traffic_patterns": {"account_id": "account_id"}
+  },
+  "next": {
+    "investigate": "traffic",
+    "traffic": "decide",
+    "decide": null
+  },
+  "output": {"required": ["enforcement_action"], "format": "xml"}
+}

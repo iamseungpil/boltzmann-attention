@@ -60,12 +60,13 @@ _METATOOL_TOOL_RE = __import__("re").compile(
 )
 
 
-def load_metatool_st4(dataset_path: str, n: int) -> List[dict]:
-    """Returns list of {query, candidates, gt} dicts.
+def load_metatool_st4(dataset_path: str, n: int, full_schema: bool = False) -> List[dict]:
+    """Returns list of {query, candidates, gt, system_full?} dicts.
 
     MetaTool ST4 schema: {action_prompt, thought_prompt, tool, query}.
-    Candidates are embedded inside action_prompt (numbered list); we parse them
-    via regex.
+    Candidates parsed via regex from action_prompt. If full_schema=True,
+    we attach the action_prompt itself (rich tool descriptions) as the
+    system content, producing a substantially longer prefix.
     """
     with open(dataset_path) as f:
         raw = json.load(f)
@@ -77,7 +78,13 @@ def load_metatool_st4(dataset_path: str, n: int) -> List[dict]:
         cands = [m.strip().strip('"').strip("'") for m in _METATOOL_TOOL_RE.findall(action)]
         if not query or not cands:
             continue
-        out.append({"query": str(query), "candidates": cands, "gt": gt})
+        item = {"query": str(query), "candidates": cands, "gt": gt}
+        if full_schema:
+            # action_prompt is a full prompt with tool descriptions embedded.
+            # Strip surrounding quotes (the dataset wraps it in ").
+            sys_full = action.strip().strip('"').strip()
+            item["system_full"] = sys_full
+        out.append(item)
     return out
 
 
@@ -96,17 +103,97 @@ def _extract_domain_tools(tasks: List[dict]) -> List[str]:
     return sorted(names)
 
 
-def load_tau2(domain: str, n: int) -> List[dict]:
-    """Loads tau2 retail/telecom/airline tasks. Returns list of {query, candidates, gt}.
+# Minimal tool descriptions for tau2 (retail set imported from eval_tau2_bench.py
+# convention; non-retail domains fall back to generic descriptions). Used when
+# full_schema=True to expand the prefix to a more production-realistic length.
+_TAU2_TOOL_DESCRIPTIONS = {
+    # Retail
+    "calculate": "Calculate the result of a mathematical expression.",
+    "cancel_pending_order": "Cancel a pending order. Status changes to 'cancelled' and payment refunded.",
+    "exchange_delivered_order_items": "Exchange items in a delivered order to new items of same product type.",
+    "find_user_id_by_email": "Find user id by email address.",
+    "find_user_id_by_name_zip": "Find user id by first name, last name, and zip code.",
+    "get_item_details": "Get inventory details of an item by item id.",
+    "get_order_details": "Get status and details of an order by order id.",
+    "get_product_details": "Get inventory details of a product by product id.",
+    "get_user_details": "Get details of a user, including their orders.",
+    "modify_pending_order_address": "Modify shipping address of a pending order.",
+    "modify_pending_order_items": "Modify items in a pending order to new items of same product type.",
+    "modify_pending_order_payment": "Modify payment method of a pending order.",
+    "modify_user_address": "Modify default address of a user.",
+    "return_delivered_order_items": "Return items of a delivered order. Status changes to 'return requested'.",
+    "transfer_to_human_agents": "Transfer the user to a human agent with summary of the issue.",
+    # Telecom (descriptive fallbacks)
+    "toggle_roaming": "Enable or disable international roaming on a customer's line.",
+    "check_data_balance": "Check the remaining data balance on a customer's plan.",
+    "reset_pin": "Reset the customer's account PIN to a new value.",
+    "verify_otp": "Verify a one-time password sent to the customer's device.",
+    "change_plan": "Switch the customer to a new mobile plan.",
+    "suspend_line": "Temporarily suspend service on a customer's line.",
+    "activate_line": "Activate or reactivate a customer's mobile line.",
+    "report_issue": "Open a service issue ticket for the customer.",
+    "check_coverage": "Look up cellular coverage at a customer's address.",
+    # Airline (descriptive fallbacks)
+    "search_flights": "Search for available flights given origin, destination, and date.",
+    "book_flight": "Book a specific flight for the customer.",
+    "cancel_reservation": "Cancel an existing flight reservation.",
+    "modify_reservation": "Change the flight or date on an existing reservation.",
+    "get_baggage_policy": "Retrieve the baggage allowance policy for a fare class.",
+    "check_in_passenger": "Perform online check-in for a passenger on a booked flight.",
+    "select_seat": "Reserve a specific seat on a booked flight.",
+    "request_refund": "Initiate a refund request for an eligible reservation.",
+}
 
-    Domain tool list is shared across all queries (the realistic agentic prompt
-    structure), so each item gets the same `candidates` set. The user query is
-    extracted from the task's instructions field.
+
+def _build_full_tau2_schema(tools: List[str]) -> str:
+    """Build a JSON-array string with name + description per tool. Generic
+    fallback for tools not in _TAU2_TOOL_DESCRIPTIONS."""
+    schemas = []
+    for name in tools:
+        desc = _TAU2_TOOL_DESCRIPTIONS.get(
+            name, f"Tool '{name}'. Operates on the customer service domain."
+        )
+        # Mimic OpenAI function-calling JSON shape (compact)
+        schemas.append({
+            "type": "function",
+            "function": {
+                "name": name,
+                "description": desc,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "args": {
+                            "type": "object",
+                            "description": "Tool-specific arguments.",
+                        }
+                    },
+                    "required": [],
+                },
+            },
+        })
+    return json.dumps(schemas, indent=2)
+
+
+def load_tau2(
+    domain: str,
+    n: int,
+    full_schema: bool = False,
+    query_mode: str = "dict",
+    gt_mode: str = "full",
+) -> List[dict]:
+    """Loads tau2 retail/telecom/airline tasks.
+
+    Args:
+        query_mode: "dict" (legacy — str(instructions_dict)) |
+                    "native" (D0 fix-나: reason_for_call + known_info natural language)
+        gt_mode:    "full" (legacy — all trajectory actions, may include duplicates) |
+                    "unique" (D0 fix-가: ordered dedup of tool names)
     """
     path = f"{DEFAULT_TAU2_BASE}/domains/{domain}/tasks.json"
     with open(path) as f:
         tasks = json.load(f)
     domain_tools = _extract_domain_tools(tasks)
+    schema_str = _build_full_tau2_schema(domain_tools) if full_schema else None
     out = []
     for t in tasks[:n]:
         if isinstance(t, dict):
@@ -119,16 +206,34 @@ def load_tau2(domain: str, n: int) -> List[dict]:
                 or t.get("query")
                 or json.dumps(t)[:512]
             )
+            # D0 fix-(나): extract natural-language query from instructions dict
+            if query_mode == "native" and isinstance(instr, dict):
+                reason = (instr.get("reason_for_call") or "").strip()
+                known = (instr.get("known_info") or "").strip()
+                instr = f"{reason}\n{known}".strip() if known else reason
             gt_actions = (t.get("evaluation_criteria") or {}).get("actions") or []
             gt = [a.get("name") for a in gt_actions if isinstance(a, dict) and a.get("name")]
         else:
             instr = str(t)[:512]
             gt = []
-        out.append({
+        # D0 fix-(가): deduplicate GT tool list (ordered unique set)
+        if gt_mode == "unique":
+            seen: dict = {}
+            gt = [seen.setdefault(g, g) for g in gt if g not in seen]
+        item = {
             "query": str(instr)[:1024],
             "candidates": domain_tools,
             "gt": gt,
-        })
+        }
+        if schema_str is not None:
+            item["system_full"] = (
+                "You are a customer service agent. Use the tools listed below "
+                "to resolve the customer's issue. Output the tool calls needed "
+                "in JSON format.\n\n"
+                "Available tools (full schema):\n"
+                + schema_str
+            )
+        out.append(item)
     return out
 
 
@@ -162,26 +267,91 @@ def _random_words(n_words: int, rng=None) -> str:
     return " ".join(rng.choice(_LOREM_BASE) for _ in range(n_words))
 
 
+def _build_catalog_text(
+    cands: List[str],
+    tool_system_prompt: str,
+    prompt_mode: str,
+    facet_schema: dict,
+) -> str:
+    """Generate the catalog portion of the system prompt under a given
+    prompt_mode (form), assuming the underlying tool list is `cands`.
+
+    prompt_mode:
+      - nl: bullet list of tool names (current default; matches E1/E3 behavior)
+      - facet_full: per-tool typed row "name | action | domain : desc" (length-similar to nl_with_desc)
+      - facet_compact: typed compact "name|a|domain" (no desc)
+      - facet_action_only: typed compact with action only (single facet, drops domain)
+      - facet_domain_only: typed compact with domain only (single facet, drops action)
+
+    facet_schema is the {tool_name: {action, domain, desc_short}} dict; if a
+    tool is missing from the schema, falls back to default "read"/"general".
+    """
+    if not cands:
+        return tool_system_prompt
+
+    if prompt_mode == "nl":
+        cand_str = "\n".join(f"- {c}" for c in cands)
+        return f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
+
+    rows: List[str] = []
+    for c in cands:
+        s = facet_schema.get(c, {}) if facet_schema else {}
+        action = s.get("action", "read")
+        domain = s.get("domain", "general")
+        desc = s.get("desc_short", "")
+        if prompt_mode == "facet_full":
+            rows.append(f"- {c} | {action} | {domain} : {desc}")
+        elif prompt_mode == "facet_compact":
+            rows.append(f"{c}|{action[:1]}|{domain}")
+        elif prompt_mode == "facet_action_only":
+            rows.append(f"{c}|{action}")
+        elif prompt_mode == "facet_domain_only":
+            rows.append(f"{c}|{domain}")
+        else:
+            raise ValueError(f"unknown prompt_mode={prompt_mode}")
+
+    if prompt_mode == "facet_full":
+        cand_str = "\n".join(rows)
+        return (
+            f"{tool_system_prompt}\n\nAvailable tools "
+            f"(format: name | action | domain : desc):\n{cand_str}"
+        )
+    cand_str = " ".join(rows)
+    return f"{tool_system_prompt}\n\nTools: {cand_str}"
+
+
 def build_messages(
     item: dict,
     tool_system_prompt: str,
     prefix_mode: str = "real",
     rng=None,
+    prompt_mode: str = "nl",
+    facet_schema: dict = None,
 ) -> List[dict]:
     """Builds [system, user] messages.
 
-    prefix_mode:
+    prefix_mode (carries the perturbation kind for E1 sanity controls):
       - real: real system prompt + real candidates + real user query
       - random_prefix: replace system content with random words (≈ same length)
       - random_query: real prefix, but user message replaced with random words
       - shuffled_prefix: real candidates list shuffled (control for ordering)
+
+    prompt_mode (NEW for E13, only takes effect when prefix_mode == real and
+    item lacks a system_full field):
+      - nl, facet_full, facet_compact, facet_action_only, facet_domain_only
+      see _build_catalog_text.
+
+    If item has 'system_full' field (set when load_*(full_schema=True)),
+    the real system uses that instead of the names-only catalog (E9).
     """
     cands = item.get("candidates") or []
     rng = rng or _RNG
+    facet_schema = facet_schema or {}
 
-    if cands:
-        cand_str = "\n".join(f"- {c}" for c in cands)
-        real_system = f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
+    if item.get("system_full"):
+        real_system = item["system_full"]
+    elif cands:
+        real_system = _build_catalog_text(cands, tool_system_prompt, prompt_mode, facet_schema)
     else:
         real_system = tool_system_prompt
 
@@ -198,12 +368,14 @@ def build_messages(
         n_words = max(8, len(item["query"].split()))
         user_content = _random_words(n_words, rng)
     elif prefix_mode == "shuffled_prefix":
-        # Shuffle candidate order only (keep system text + user query intact)
+        # Shuffle candidate order only (keep system text + user query intact).
+        # Honors prompt_mode so we can shuffle facet rows too.
         if cands:
             shuffled = list(cands)
             rng.shuffle(shuffled)
-            cand_str = "\n".join(f"- {c}" for c in shuffled)
-            sys_content = f"{tool_system_prompt}\n\nAvailable tools:\n{cand_str}"
+            sys_content = _build_catalog_text(
+                shuffled, tool_system_prompt, prompt_mode, facet_schema
+            )
         else:
             sys_content = real_system
         user_content = item["query"]
@@ -392,6 +564,27 @@ def parse_args() -> argparse.Namespace:
         default="real",
     )
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument(
+        "--tool-schema-mode",
+        choices=["names", "full"],
+        default="names",
+        help="'names' = current behavior (tool list as bullet names). "
+             "'full' = production-scale schema with descriptions+params (E9).",
+    )
+    p.add_argument(
+        "--prompt-mode",
+        choices=["nl", "facet_full", "facet_compact", "facet_action_only", "facet_domain_only"],
+        default="nl",
+        help="Catalog encoding form (E13). 'nl' = current default natural-language "
+             "bullet list. facet_* = typed schema using --facet-schema YAML. "
+             "Only takes effect when prefix-mode=real and item lacks system_full.",
+    )
+    p.add_argument(
+        "--facet-schema",
+        default=None,
+        help="Path to facet schema YAML (data/facet_schemas/*.yaml). "
+             "Required when prompt-mode startswith 'facet'.",
+    )
     return p.parse_args()
 
 
@@ -402,17 +595,44 @@ def main() -> int:
     taus = [float(t) for t in args.tau_list.split(",")]
 
     # Load data
+    full_schema = args.tool_schema_mode == "full"
     if args.task == "metatool_st4":
-        items = load_metatool_st4(args.metatool_path, args.max_samples)
+        items = load_metatool_st4(args.metatool_path, args.max_samples, full_schema=full_schema)
     elif args.task.startswith("tau2_"):
         domain = args.task.split("_", 1)[1]
-        items = load_tau2(domain, args.max_samples)
+        items = load_tau2(domain, args.max_samples, full_schema=full_schema)
     else:
         raise ValueError(args.task)
     print(f"[data] task={args.task} N={len(items)}", flush=True)
     if len(items) == 0:
         print("ERROR: zero items loaded", file=sys.stderr)
         return 2
+
+    # Load facet schema if needed for prompt-mode (E13).
+    facet_schema: dict = {}
+    if args.prompt_mode != "nl":
+        if not args.facet_schema:
+            print(
+                f"ERROR: --prompt-mode={args.prompt_mode} requires --facet-schema",
+                file=sys.stderr,
+            )
+            return 2
+        # Reuse facet_eval.load_facet_schema (no PyYAML dep).
+        try:
+            from facet_eval import load_facet_schema  # type: ignore
+        except ImportError:
+            print(
+                "ERROR: cannot import facet_eval.load_facet_schema "
+                "(needed for --prompt-mode != nl)",
+                file=sys.stderr,
+            )
+            return 2
+        facet_schema = load_facet_schema(args.facet_schema)
+        print(
+            f"[facet] loaded {len(facet_schema)} entries from {args.facet_schema} "
+            f"(prompt_mode={args.prompt_mode})",
+            flush=True,
+        )
 
     # Load model
     print(f"[model] loading {args.model} (dtype={args.dtype}, device={args.device})", flush=True)
@@ -453,6 +673,7 @@ def main() -> int:
             messages = build_messages(
                 item, DEFAULT_TOOL_SYSTEM_PROMPT,
                 prefix_mode=args.prefix_mode, rng=rng,
+                prompt_mode=args.prompt_mode, facet_schema=facet_schema,
             )
             try:
                 prompt_text = tokenizer.apply_chat_template(
@@ -549,6 +770,8 @@ def main() -> int:
         "model": args.model,
         "task": args.task,
         "prefix_mode": args.prefix_mode,
+        "prompt_mode": args.prompt_mode,
+        "facet_schema": args.facet_schema,
         "seed": int(args.seed),
         "n_samples": int(N),
         "n_layers": int(L),

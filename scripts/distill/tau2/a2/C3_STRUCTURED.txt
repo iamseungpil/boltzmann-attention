@@ -1,0 +1,7 @@
+Procedure for ANY action that needs an id or value you were not given:
+  1. Check: is the value in the user's message or a prior tool output? If NO, do not guess.
+  2. Authenticate the user first (find_user_id_by_email or find_user_id_by_name_zip).
+  3. Call get_user_details to retrieve the user's real orders / payment methods / addresses.
+  4. Copy the EXACT real value from that output.
+  5. Only then call the action tool with that real value.
+Never use placeholder/example values (e.g. #W0000000, johndoe@example.com). A guessed id always fails.

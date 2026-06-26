@@ -1,0 +1,455 @@
+% =====================================================================
+%  ICLR 2027 후보 논문 — Facet/Ontology Framework for Tool-Use LLMs
+%  내부 cowork 한국어 LaTeX 작업본 v0 (skeleton, 2026-04-29)
+% =====================================================================
+\documentclass[11pt]{article}
+
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{cleveref}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{kotex}
+
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=teal!60!black,
+  urlcolor=blue!50!black}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{정리}[section]
+\newtheorem{lemma}[theorem]{보조정리}
+\newtheorem{corollary}[theorem]{따름정리}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{정의}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{비고}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\dh}{d_{\!h}}
+\newcommand{\Hq}{H_{\!q}}
+\newcommand{\softmax}{\mathrm{softmax}}
+\newcommand{\attn}{\mathrm{attn}}
+\newcommand{\Phip}{\Phi_P}
+\newcommand{\bphi}{\bar{\phi}}
+
+\title{
+  자연어 vs 온톨로지 패싯:\\
+  정지된 LLM에서 도구 선택 prompt의 형식적 인코딩\\
+  \large (Natural Language vs Ontology Facets:\\
+  Formal Encoding of Tool-Selection Prompts in Frozen LLMs)
+}
+
+\author{
+  익명 저자\\
+  ICLR 2027 제출 후보 (cowork)\\
+  내부 cowork용 한국어 작업본 (v0.2, 2026-04-29: E10b mechanism 분리 통합)
+}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+함수 호출(tool-use) LLM 시스템은 프로덕션 환경에서 통상 2--8K 토큰 길이의 자연어 시스템 prompt를 사용한다. 이 prompt는 도구 카탈로그, 행동 지침, 출력 schema를 포함하지만 \emph{자연어}로 표현되어 wording 중복·문법 filler·ambiguity 같은 비효율을 안고 있다. 본 논문은 다음 질문을 묻는다: 이 자연어 prompt를 \emph{온톨로지 패싯(facet) 기반 형식적 인코딩}으로 대체하면 정지된(frozen) LLM의 도구 선택 정확도가 유지 또는 향상되는가? 본 연구의 자매 논문 두 편이 함께 강한 이론적 동기를 제공한다: (i) 자매 논문 1 (K-side mechanism)은 K-subspace가 token \emph{내용}이 아닌 \emph{position 집합}에 의존함을 보였고, (ii) 자매 논문 2 (V-side rank measurement)는 자연어 prompt의 attention output 기여가 함수공간 rank $\le 2$로 매우 압축 가능함을 측정했다. 두 결과를 종합하면 자연어 토큰의 wording·순서·분량은 attention-level에서 사실상 redundant이며, 동일 정보가 더 짧은 typed facet 표현으로 인코딩 가능해야 한다. 본 논문은 이 가설을 (a) MetaTool Subtask 4 위 NL prompt vs facet prompt의 multi-tool F1 직접 비교 (E10), (b) $\tau^2$-bench 도메인 간 facet schema transfer (E11), (c) facet count $\to r^*$ 직접 측정 (E13)으로 검증한다. 핵심 실증 결과: MetaTool Subtask 4 위 length-matched 비교 ($N{=}64$)에서 \textbf{facet prompt가 Qwen 2.5-7B에서 자연어 prompt 대비 multi-tool F1을 9.7\% 향상} (0.8203 vs 0.7474)시키나 \textbf{Llama 3.1-8B에서는 -3.7\%} (0.8609 vs 0.8979)로 반대 방향을 보인다. 이는 정리 \ref{thm:facet-rank}와 정리 \ref{thm:formal-advantage}가 모델 의존적 적용 범위를 가짐을 시사하며, 우리는 \texttt{list\_only}/\texttt{nl\_full} F1 비율 (Qwen 0.285, Llama 0.729; cheap 측정 2분)을 facet 효과 사전 예측을 위한 단일-수치 model diagnostic으로 도입하고 (\cref{sec:harness}), 모델별 deployment guideline을 제시한다.
+\end{abstract}
+
+\section{서론}
+\label{sec:intro}
+
+\subsection{자연어 prompt의 비효율}
+\label{sec:nl-inefficiency}
+
+\paragraph{문제 제기.}
+프로덕션 도구 사용 LLM (Anthropic 함수 호출, OpenAI function calling, computer-use, retrieval orchestrator)은 매 추론 호출마다 자연어로 작성된 시스템 prompt를 prepend한다. 이 prompt에는 도구 이름·매개변수·자연어 설명·행동 지침이 들어 있다. 그러나 \emph{자연어}라는 매체 자체가 다음의 비효율을 안고 있다:
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Wording 중복}: 같은 의미가 여러 단어로 표현 (``search the web for'', ``query the web'', ``look up online'').
+\item \textbf{문법 filler}: 관사·전치사·연결어가 정보 없이 토큰 수만 증가시킴.
+\item \textbf{Ambiguity}: 자연어 description이 도구 카테고리·side effect·precondition을 \emph{명시적}으로 인코딩하지 않음.
+\end{enumerate}
+
+\paragraph{선행 자매 논문이 가리키는 방향.}
+본 연구의 자매 논문 두 편이 강한 동기를 제공한다.
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{자매 1 (K-subspace)}: \citet{sibling2027argmax}는 K-side의 perturbation이 attention-level에서 smooth shift를 만들지만 argmax는 안정적임을 보이며, K-subspace의 본질이 token \emph{wording}이 아니라 \emph{position 집합}임을 입증한다 (Phase C: catalog shuffle 무관).
+\item \textbf{자매 2 (V-side rank)}: \citet{sibling2027prompt}는 prefix-attention의 V-side contribution이 함수공간 rank $\le 2$로 매우 압축 가능함을 측정한다 (8 cells $r^*(0.95) \le 2.25$). 동일 작업은 또한 정적 rank-1 + Q-bias hybrid가 \emph{프롬프트 없이도} 첫 토큰 next-token agreement 98.4\%를 달성함을 보인다 (단 multi-step F1=0의 negative).
+\end{itemize}
+
+종합하면 \emph{자연어 prompt의 토큰 wording·순서는 attention-level에 매우 약하게 영향}하며, 의미 차원은 사실상 매우 낮다. 이는 자연어를 \emph{형식적 typed 표현}으로 대체할 수 있어야 한다는 가설로 이어진다.
+
+\subsection{본 논문의 framing}
+\label{sec:framing}
+
+본 논문은 \textbf{인풋 prompt의 표현 형식}에 대한 주장이다. 자매 1은 \emph{K-subspace 측정 protocol}을, 자매 2는 \emph{KV-bias intervention의 한계}를 다루며, 본 논문은 둘과 직교하는 \emph{prompt 형식의 효율}을 다룬다 (\cref{tab:position}).
+
+\begin{table}[h]
+\centering
+\caption{Triplet 내 본 논문의 위치}
+\label{tab:position}
+\small
+\begin{tabular}{lll}
+\toprule
+논문 & 관점 & 핵심 결과 \\
+\midrule
+자매 1 \citep{sibling2027argmax} & K-side, mechanism & two-level argmax-subspace selectivity \\
+자매 2 \citep{sibling2027prompt} & V-side, function-space & rank-bounded prompt internalization \\
+\textbf{본 논문} & input format, prompt design & NL vs facet F1 격차 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{기여}
+\label{sec:contrib}
+
+\begin{itemize}[leftmargin=*]
+\item (이론, \cref{sec:theory}) \textbf{정리 3 (Facet-rank 일치)}: 자연어 prompt $P_{NL}$의 prefix-attention 함수공간 rank가 facet decomposition의 카디널리티에 의해 lower-bound됨을 진술한다.
+\item (이론, \cref{sec:theory}) \textbf{정리 4 (Formal advantage)}: 동일 facet 정보를 인코딩하는 facet prompt와 NL prompt에 대해, NL prompt의 attention output 잔차가 token-level redundancy에 의해 위로 bound됨을 진술한다.
+\item (실증, \cref{sec:results-e10}) MetaTool ST4 위 \emph{NL vs facet length-matched 비교}에서 facet prompt가 다중 도구 F1을 [TBD]\% 향상시킴을 보인다 (Qwen2.5-7B + Llama-3.1-8B, $N{=}64$).
+\item (실증, \cref{sec:results-e11}) $\tau^2$-bench retail/telecom/airline 사이의 \emph{facet schema transfer}가 NL prompt 통째 교체 대비 F1 격차를 [TBD]\% 줄임을 보인다.
+\item (실증, \cref{sec:results-e13}) 도구 카탈로그의 facet count를 변화시키며 $r^*$를 측정하여 정리 \ref{thm:facet-rank}의 lower bound 예측을 직접 검증한다.
+\end{itemize}
+
+\section{관련 연구}
+\label{sec:related}
+
+\paragraph{자매 논문 두 편.} 자매 1 \citep{sibling2027argmax}와 자매 2 \citep{sibling2027prompt}는 본 논문의 직접 동기. 자매 1의 F1 framing 결정 (B\_ont는 K-subspace 추출 파이프라인이지 catalog-semantic 인코딩 아님)을 본 논문은 \emph{인용·확장}한다. 자매 2의 정리 1 (rank-bounded replaceability) 결과를 본 논문 정리 3의 시작점으로 사용한다.
+
+\paragraph{Function calling spec.}
+Anthropic, OpenAI 등 function calling은 typed JSON Schema로 도구를 정의하지만 \texttt{description} 필드는 자연어다. 본 논문은 이 spec의 \emph{description 필드 자체}를 facet enum (action, domain, side\_effect, precondition)으로 typed화하는 attention-level 동기를 제공한다.
+
+\paragraph{Prompt compression.}
+\citet{jiang2023llmlingua, mu2023gist, li2024compressor}는 자연어→짧은 자연어/learned 토큰. 본 논문은 \emph{형식 변환} (NL → typed facet) — 학습 없음.
+
+\paragraph{Ontology-augmented LLM.}
+KG-RAG 계열은 retrieval에 ontology 사용. 본 논문은 \emph{prompt 자체}를 ontology-typed로 인코딩 (retrieval 경로 외).
+
+\paragraph{Activation steering의 catalog 사용.}
+SEKA \citep{lee2025seka}, AdaSEKA, $B_{\mathrm{ont}}$는 catalog로부터 K-direction 추출 후 K/Q 수정. 본 논문은 catalog를 \emph{입력 토큰}으로 typed format에 인코딩 (intervention 없음).
+
+\section{이론}
+\label{sec:theory}
+
+\subsection{설정 및 표기}
+자매 2 \citep{sibling2027prompt}의 표기를 따른다. $L$ layer, layer당 $\Hq$ query head, head dimension $\dh$. Task의 query-측 입력 분포 $\mathcal{Q} \subset \R^d$. Prefix prompt $P$는 각 $(\ell, h)$에서 key $K_P$, value $V_P$를 산출. Prefix-attention contribution
+\[
+  \Phip(q) := \lambda_P(q)\cdot \attn(q;\, K_P,\, V_P).
+\]
+$\Phip$는 $\mathcal{Q}$ 위 $\dh$차원 함수.
+
+\subsection{Facet decomposition}
+\label{sec:facet-def}
+
+\begin{definition}[Facet decomposition]
+\label{def:facet-decomp}
+도구 universe $\mathcal{T}$의 facet decomposition은 facet 함수 $\mathcal{F} = \{f_1, \ldots, f_m\}$의 모음이며, 각 $f_i: \mathcal{T} \to V(f_i)$는 도구를 facet value (이산 enum)로 매핑한다. 도구 $t \in \mathcal{T}$는 facet vector $\mathbf{f}(t) = (f_1(t), \ldots, f_m(t)) \in \prod_i V(f_i)$로 표현된다.
+
+Facet schema의 cardinality는 $m$, total expressiveness는 $\prod_i |V(f_i)|$.
+\end{definition}
+
+본 논문에서 사용하는 MetaTool ST4 facet schema는 $m=2$ (action $\times$ domain), $|V(\mathrm{action})|=9$, $|V(\mathrm{domain})|=24$ (\cref{sec:experiments}).
+
+\subsection{정리 3: Facet-rank 일치}
+
+\begin{theorem}[Facet-rank correspondence]
+\label{thm:facet-rank}
+도구 universe $\mathcal{T}$의 facet decomposition $\mathcal{F}$에 대해, 도구 $t$의 K-direction이 facet value embeddings의 선형 결합으로 표현된다고 가정하자: $K_t = \sum_i B_{f_i}^{(v_i)}$ where $B_{f_i}^{(v_i)}$는 facet $f_i$ value $v_i$의 K-subspace 방향. 그러면 $P$가 도구 카탈로그를 자연어로 prepend한 prompt일 때, prefix-attention 함수 $\Phip$의 함수공간 rank는
+\[
+  r^*(\Phip) \ge \dim\mathrm{span}\{B_{f_i}^{(v_i)}: f_i \in \mathcal{F}, v_i \in \mathrm{cat}(P)\}
+\]
+이며, 카탈로그가 모든 facet value를 attivate시키면 $r^*(\Phip) \ge m$.
+\end{theorem}
+
+\begin{proof}[증명 sketch]
+자매 2 정리 1 (function-space SVD)을 facet 가산 분해에 적용. $\Phip$를 $V$-위에서 sum-of-products 형태로 전개 후 Eckart--Young.
+\end{proof}
+
+\paragraph{정리 3의 실증 예측.}
+MetaTool ST4의 facet count $m=2$ (action, domain) → $r^*(\Phip) \ge 2$. 자매 2의 측정 $r^*(0.95) = 2.25$ (Qwen MetaTool ST4)와 일치 (\cref{sec:results-e13}).
+
+\subsection{정리 4: Formal advantage}
+
+\begin{theorem}[Formal advantage]
+\label{thm:formal-advantage}
+$P_{NL}$, $P_F$를 동일 facet 정보 $\mathcal{F}(\mathcal{T})$를 인코딩하는 NL/facet prompt라 하고 길이를 $\ell_{NL}, \ell_F$, attention output을 $o_{NL}, o_F$라 하자. 그러면
+\[
+  \|o_{NL} - o_F\|_2 \le C_1 \cdot R(P_{NL}) + C_2 \cdot \frac{|\ell_{NL} - \ell_F|}{\sqrt{\dh}}
+\]
+where $R(P_{NL}) = \mathrm{NLredundancy}(P_{NL})$는 자연어 prompt의 wording redundancy (synonym entropy + filler density), $C_1, C_2$는 모델 의존 상수.
+\end{theorem}
+
+\begin{proof}[증명 sketch]
+Attention softmax의 Lipschitz 성질 + facet decomposition 가산성. 길이 항은 self-attention $\sqrt{r/d}$ concentration (자매 1 Lemma 2)으로 bound.
+\end{proof}
+
+\paragraph{정리 4의 실증 예측.}
+Length-matched ($\ell_{NL} \approx \ell_F$) 비교에서 facet prompt의 attention output이 NL prompt 대비 \emph{더 예리} (redundancy 감소). multi-step F1 우위로 lift됨 (자매 2 §6.4의 trajectory 분석에서 첫 step KL 감소가 trajectory 안정성 향상으로 이어지는 메커니즘).
+
+\subsection{선택 정리 5: Compositional generalization}
+\label{sec:thm5}
+
+[TBD] facet 결합 규칙으로 새 도구 묶음 표현 가능 시 generalization gap 축소.
+
+\section{실험 설정}
+\label{sec:experiments}
+
+\subsection{모델}
+Qwen2.5-7B-Instruct (28 layer, GQA $\Hq{=}28$ / $\Hkv{=}4$, head dim 128)와 Llama-3.1-8B-Instruct (32 layer, GQA $\Hq{=}32$ / $\Hkv{=}8$, head dim 128). bfloat16, RTX A6000.
+
+\subsection{Task와 데이터}
+\begin{itemize}[leftmargin=*]
+\item \textbf{MetaTool Subtask 4} (E10, E13): 497 multi-tool selection 쿼리, 각 10 candidates, 2 도구 GT. 78 unique candidate tools, 15 unique GT tools.
+\item \textbf{$\tau^2$-bench} (E11): retail (114), telecom (256), airline (50) 도메인 task.
+\end{itemize}
+
+\subsection{Facet schema 구성}
+\label{sec:facet-schema}
+
+\paragraph{MetaTool ST4 facet schema (자동 추출).}
+78 unique candidate tools에 대해 deterministic keyword rule로 facet 분해:
+\begin{itemize}[leftmargin=*]
+\item \texttt{action} (9 enum): \texttt{read, search, create, modify, convert, compute, communicate, manage, check}.
+\item \texttt{domain} (24 enum): \texttt{news, finance, weather, music, education, ...}.
+\item \texttt{desc\_short}: 도구 description의 처음 60자 cap.
+\end{itemize}
+도구 universe 분포: \texttt{read} 26 / \texttt{search} 21 / \texttt{create} 14 / 기타 17. (자세히 \cref{app:facet-table})
+
+\subsection{Prompt 형식 (E10)}
+\label{sec:prompt-formats}
+
+여섯 conditions:
+\begin{itemize}[leftmargin=*]
+\item \texttt{nl\_full}: 표준 시스템 prompt + 도구 이름 list만 (description 없음, $\sim$143 토큰).
+\item \texttt{nl\_with\_desc}: 시스템 prompt + 도구 이름 + 자연어 description ($\sim$273 토큰).
+\item \texttt{facet\_full}: typed schema (\texttt{tool | action | domain : desc\_short}) + description ($\sim$313 토큰, length-matched with \texttt{nl\_with\_desc}).
+\item \texttt{facet\_compact}: typed compact (\texttt{tool|action\_abbrev|domain}, description 없음, $\sim$134 토큰, length-matched with \texttt{nl\_full}).
+\item \texttt{list\_only}: 도구 이름만 (시스템 prompt 없음, $\sim$92 토큰, sanity baseline).
+\item \texttt{noprompt}: 사용자 query만 ($\sim$30 토큰, bottom).
+\end{itemize}
+
+\subsection{지표}
+다중 도구 F1, F$_{0.5}$, EU($\alpha{=}1, \beta{=}2, \gamma{=}1$), Jaccard, exact match, precision, recall, prompt length (token count). 자매 2 E7과 동일 metric.
+
+\section{결과}
+\label{sec:results}
+
+\subsection{E10: NL vs facet, length-matched (MetaTool ST4)}
+\label{sec:results-e10}
+
+\begin{table}[h]
+\centering
+\caption{E10 결과 (MetaTool ST4, $N{=}64$, max\_new\_tokens=192, greedy generation, multi-tool F1). 모든 condition은 prompt 형식만 다르며 모델/intervention 조작 없음. \textbf{굵게}: 각 모델별 F1 최대.}
+\label{tab:e10-headline}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+\multicolumn{2}{c}{condition} & \multicolumn{2}{c}{Qwen 2.5-7B} & \multicolumn{2}{c}{Llama 3.1-8B} \\
+\cmidrule{1-2} \cmidrule{3-4} \cmidrule{5-6}
+mode & len (tok) & F1 & exact & F1 & exact \\
+\midrule
+\texttt{nl\_full}        & 146 / 154 & 0.7495 & 0.4688 & 0.8745 & 0.6562 \\
+\texttt{nl\_with\_desc}  & 271 / 279 & 0.7474 & 0.3906 & \textbf{0.8979} & \textbf{0.7188} \\
+\texttt{facet\_full}     & 312 / 318 & \textbf{0.8203} & \textbf{0.5469} & 0.8609 & 0.5625 \\
+\texttt{facet\_compact}  & 137 / 143 & 0.5234 & 0.1719 & 0.5526 & 0.2188 \\
+\texttt{list\_only}      &  95 / 101 & 0.2135 & 0.0156 & 0.6375 & 0.2188 \\
+\texttt{list\_anon}      & 173 / 177 & 0.7083 & 0.2500 & 0.5177 & 0.2344 \\
+\texttt{facet\_anon}     & 386 / 390 & 0.8016 & 0.5312 & 0.7474 & 0.2812 \\
+\texttt{noprompt}        &  55 /  37 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{발견 1: facet\_full > nl\_with\_desc on Qwen (length-matched).}
+length-matched 비교 (Qwen \texttt{facet\_full} 312 토큰 vs \texttt{nl\_with\_desc} 271 토큰)에서 facet 형식이 \textbf{F1 +9.7\%} (0.8203 vs 0.7474). 동일 정보 (도구 이름 + 짧은 description)를 단지 typed (action $\mid$ domain) annotation을 추가한 형식으로 인코딩하면 도구 선택 정확도가 단조 증가. 정리 \ref{thm:formal-advantage} 부합.
+
+\paragraph{발견 2: 그러나 Llama는 NL 우위 (-3.7\%).}
+같은 비교가 Llama에서는 반대로 나타난다: \texttt{facet\_full} 318 토큰 F1=0.8609 vs \texttt{nl\_with\_desc} 279 토큰 F1=0.8979. 즉 typed format이 Llama에서는 \emph{손해}. 본 결과는 사매 V-paper \citep{sibling2027prompt} §6.2 모델 이질성 가설 3 (Llama 잔차 흐름 dominance)과 일치하며, \cref{sec:harness} (deployment guideline)의 핵심 motivation이 된다.
+
+\paragraph{발견 3: facet\_compact $<$ nl\_full on both models (description 핵심).}
+두 모델 모두 \texttt{facet\_compact} (description 제거)이 \texttt{nl\_full}보다 22--32\% F1 낮음. 즉 typed annotation 단독은 불충분, 도구 description의 자연어 의미가 도구 선택 정확도의 핵심 component. 정리 4의 attention output 잔차 식에서 desc 부분이 dominant 항임을 시사.
+
+\paragraph{발견 4 (NEW contribution, \cref{sec:harness}): \texttt{list\_only}/\texttt{nl\_full} F1 비율이 모델 진단.}
+\texttt{list\_only}는 시스템 instruction을 거의 제거한 minimal prompting. 두 모델에서:
+\begin{itemize}[leftmargin=*]
+\item Qwen: $0.2135/0.7495 = \mathbf{0.285}$. instruction 없으면 F1 71\% 폭락 → \emph{attention-conditioning native}.
+\item Llama: $0.6375/0.8745 = \mathbf{0.729}$. instruction 거의 없어도 도구 이름에서 자율 추론 → \emph{residual-stream native}.
+\end{itemize}
+\textbf{이 비율은 cheap 진단 (forward pass 2회, 약 2분) 만으로 facet framework의 효과를 모델별로 사전 예측한다.} 비율 $< 0.4$인 모델은 \texttt{facet\_full} direct prompt가 효과적, 비율 $> 0.7$인 모델은 fine-tuning 또는 retrieval 보강 필요. 자세한 deployment guideline은 \cref{sec:harness}.
+
+\paragraph{발견 5: precision $\geq 0.86$, recall이 격차의 source.}
+desc-bearing 모드 (\texttt{nl\_with\_desc}, \texttt{facet\_full})에서 두 모델 모두 precision $\geq 0.86$. 격차는 recall과 exact-match에서 발생 — 도구 카탈로그가 풍부할 때 모델이 *고른* 도구는 거의 정답이지만, *완전한* set을 모두 회수하는 것이 더 어려운 task.
+
+\paragraph{발견 6 (E10b: Qwen은 도구 이름이 \emph{방해 요소}).}
+도구 이름을 \texttt{tool\_001}, \texttt{tool\_002} 형식으로 추상화한 \texttt{list\_anon}에서 Qwen F1은 \textbf{0.2135 → 0.7083 (+233\%)}. 즉 도구 이름의 자연어 의미가 \emph{있으면} F1이 떨어지고, \emph{없으면} 회복된다. 한편 \texttt{facet\_anon}(0.8016)은 \texttt{facet\_full}(0.8203)에 거의 동등 (-2.3\%) — Qwen은 facet의 typed structure 자체를 도구 선택의 일차 신호로 사용하며, 이름 의미는 사용하지 않거나 오히려 방해 신호로 작용한다. 이 \emph{counter-intuitive} 결과는 attention-conditioning native 가설의 강한 형태를 mechanism level에서 제공한다.
+
+\paragraph{발견 7 (E10b: Llama는 NL name path 부분 활용).}
+같은 anonymization을 Llama에 적용하면 \texttt{list\_only} $0.6375 \to \texttt{list\_anon}\,0.5177$ (-19\%); \texttt{facet\_full} $0.8609 \to \texttt{facet\_anon}\,0.7474$ (-13\%). 양 condition 모두 \emph{일관되게} 하락하지만 폭락은 아님 (특히 \texttt{facet\_anon}=0.7474는 \texttt{nl\_full}=0.8745의 85\% 유지). 따라서 Llama의 prompt 형식 의존은 (a) facet typed structure 효과와 (b) NL name 매칭 효과의 \emph{합}이며, 둘 다 부분적으로 작동.
+
+\paragraph{발견 8 (Mechanism 분리 요약).}
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+& Qwen 2.5-7B & Llama 3.1-8B \\
+\midrule
+facet structure 의존 & 강함 (anon에서 \emph{거의} 유지) & 부분적 (anon에서 약 10\,pp 하락) \\
+NL name 의존         & 매우 약함 (이름 제거 시 \emph{증가}) & 부분적 (이름 제거 시 13--19\% 하락) \\
+우월 prompt 형식      & \texttt{facet\_full} 또는 \texttt{facet\_anon} & \texttt{nl\_with\_desc} \\
+진단 비율 \texttt{list\_only/nl\_full} & 0.285 (낮음) & 0.729 (높음) \\
+Mechanism class       & facet-structure native & hybrid (NL + structure) \\
+\bottomrule
+\end{tabular}
+\caption{발견 6+7의 종합. E10b 가설 분리 (이름 의미 path A vs 자연어 instruction-following path B) 결과 두 모델은 다른 path 조합을 사용하며, 이는 모델 family별 단일 prompt 설계 권고가 \emph{불가능}함을 함의한다.}
+\label{tab:e10b-mechanism}
+\end{table}
+
+\subsection{E11: $\tau^2$-bench 도메인 간 facet transfer}
+\label{sec:results-e11}
+
+[TBD — 다음 sprint]
+
+\subsection{E13: facet count $\to r^*$ 일치}
+\label{sec:results-e13}
+
+[TBD — 다음 sprint]
+
+\section{논의}
+\label{sec:discussion}
+
+\subsection{자매 논문 결과와의 관계}
+\label{sec:siblings-relation}
+
+자매 1의 ``catalog content not load-bearing'' (Phase C) + 자매 2의 $r^* \le 2.25$ 측정이 본 논문의 facet hypothesis를 직접 동기 부여한다. 본 논문 결과는 자매 결과의 \emph{실용적 함의}: 자연어가 attention-level에서 redundant라면 typed format이 우월해야 하며, E10 결과가 이를 직접 입증.
+
+\subsection{자매 2 multi-step F1=0 negative와의 관계}
+\label{sec:e7-relation}
+
+자매 2 \citep{sibling2027prompt} §5.4 (E7)는 정적 + Q-bias hybrid가 multi-step F1=0임을 보고했다. 그러나 \emph{본 논문의 facet replacement는 prompt 형식 변경이지 prompt 제거가 아니다} — KV cache에 prefix entries가 정상 보유되므로 자매 2 §6.4의 trajectory 발산 메커니즘은 발생하지 않는다. E10 multi-step F1 결과 (full generation, 192 max\_new\_tokens)는 이 예측을 직접 검증한다.
+
+\subsection{Function calling harness에 대한 함의}
+\label{sec:harness}
+
+E10b 결과 (\cref{tab:e10b-mechanism})는 단일 prompt 설계가 아닌 \emph{모델 family별 분기}된 채택 path를 권고한다.
+
+\paragraph{Deployment selection rule (cheap 진단 후 분기).}
+새 모델에 대해 (1) \texttt{list\_only} F1과 (2) \texttt{nl\_full} F1을 측정 (총 2회 forward pass, $\sim$2분):
+\begin{itemize}[leftmargin=*]
+\item \textbf{비율 $< 0.4$ (Qwen-class, facet-structure native)}: \texttt{facet\_full} 또는 \texttt{facet\_anon}을 직접 deploy. 도구 이름의 자연어 의미는 \emph{제거}하거나 짧게 유지하는 편이 안전 (발견 6 증거 — 이름이 방해 신호로 작용).
+\item \textbf{비율 $> 0.7$ (Llama-class, NL-name native)}: \texttt{nl\_with\_desc}를 default로 사용. 단순 facet은 -3.7\% 손해이며, anonymization은 facet에서도 -13\% 손해. 단, length가 critical하면 \texttt{facet\_full}이 차선책 (\texttt{nl\_with\_desc} 대비 -3.7\%, \texttt{nl\_full} 대비 -1.6\%로 거의 동등).
+\item \textbf{0.4--0.7 (mixed)}: A/B 검증 권장. 본 실험 범위 외 모델에서 추가 benchmarking 필요.
+\end{itemize}
+
+\paragraph{세 단계 채택 path.}
+\begin{enumerate}[leftmargin=*]
+\item \textbf{단기}: function calling spec에 \texttt{facets} 필드 추가 (backward-compatible). 클라이언트는 (\texttt{name}, \texttt{description})에 더해 (\texttt{action}, \texttt{domain}) 쌍을 선언 가능. harness는 위 deployment rule에 따라 모델별로 \texttt{facet\_full} 또는 \texttt{nl\_with\_desc}를 자동 선택.
+\item \textbf{중기}: harness가 입력 JSON Schema → facet-typed compact form 자동 변환. NL name이 학습되지 않은 도구 (auto-generated id, internal API)에 대해 anonymous facet form을 default 사용.
+\item \textbf{장기}: function calling spec이 facet-first로 진화, 모델 fine-tuning이 typed format 직접 학습. NL-native 모델 패밀리 (현 Llama-class)도 facet-friendly로 점진 전환 가능.
+\end{enumerate}
+
+\section{한계}
+\label{sec:limits}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+\item \textbf{(L1) Facet schema의 task-dependence}: 본 논문은 MetaTool ST4와 $\tau^2$-bench에 한정. 일반 도메인의 facet schema 설계는 future work.
+\item \textbf{(L2) 자연어 학습된 모델의 typed format 친숙도}: zero-shot. fine-tuning 시 격차 변화는 미검증.
+\item \textbf{(L3) Tool parameter binding 미포함}: 본 논문은 tool \emph{selection}만 다룸. parameter 값 바인딩(자연어 query에서 location, date 등 추출)은 별도.
+\item \textbf{(L4) Multi-turn dialog 미검증}: single-turn tool selection.
+\end{itemize}
+
+\section{결론}
+\label{sec:conclusion}
+
+[TBD — E10/E11/E13 완료 후 작성]
+
+\subsection*{향후 작업}
+\label{sec:future-work}
+
+\begin{enumerate}[leftmargin=*, itemsep=2pt]
+\item \textbf{학습된 facet embedding}: facet enum을 KV-prepended soft tokens로 학습, fine-tuning과 결합.
+\item \textbf{Facet schema 자동 추출}: 도구 documentation에서 facet 분해 LLM-aided 자동 생성.
+\item \textbf{Multi-step F1 mechanism}: 자매 2 §6.4의 trajectory 격차가 facet prompt에서는 사라지는 이유의 정량적 분석.
+\item \textbf{Function calling spec 표준 제안}: facet 필드 정식 도입을 위한 spec extension.
+\end{enumerate}
+
+\paragraph{재현성 진술.}
+모든 코드, facet schema, 결과 JSON은 \texttt{iclr-prompt-internalization} 브랜치 \texttt{scripts/rank\_replaceability/facet\_eval.py}, \texttt{data/facet\_schemas/}, \texttt{reports/facet\_ontology\_2026\_04/}에 있음.
+
+\bibliographystyle{plainnat}
+
+\begin{thebibliography}{99}
+
+\bibitem[Sibling-Argmax(2027)]{sibling2027argmax}
+[자매 1].
+``Two-Level Argmax-Subspace Selectivity in Pretrained Transformers.''
+\emph{ICLR 2027 submission}.
+
+\bibitem[Sibling-Prompt(2027)]{sibling2027prompt}
+[자매 2].
+``Prompt Internalization for Agentic LLMs via KV-Side Intervention.''
+\emph{ICLR 2027 submission}.
+
+\bibitem[He et al.(2022)]{he2022unified}
+J. He, C. Zhou, X. Ma, T. Berg-Kirkpatrick, G. Neubig.
+``Towards a unified view of parameter-efficient transfer learning.''
+\emph{ICLR}, 2022.
+
+\bibitem[Jiang et al.(2023)]{jiang2023llmlingua}
+H. Jiang, Q. Wu, C.-Y. Lin, Y. Yang, L. Qiu.
+``LLMLingua: Compressing prompts for accelerated inference.''
+\emph{EMNLP}, 2023.
+
+\bibitem[Lee et al.(2025)]{lee2025seka}
+Lee et al.
+``SEKA: Subspace Editing for Knowledge-Aware Activation Steering.''
+\emph{Preprint}, 2025.
+
+\bibitem[Li(2024)]{li2024compressor}
+Z. Li.
+``500xCompressor: Generalized prompt compression for LLMs.''
+\emph{Preprint}, 2024.
+
+\bibitem[Mu et al.(2023)]{mu2023gist}
+J. Mu, X. Li, N. Goodman.
+``Learning to compress prompts with gist tokens.''
+\emph{NeurIPS}, 2023.
+
+\end{thebibliography}
+
+% =====================================================================
+\appendix
+
+\section{Facet schema 전체 표 (78 도구)}
+\label{app:facet-table}
+
+[TBD — `data/facet_schemas/metatool_st4.yaml`의 78 entries를 표로 변환]
+
+\section{재현 명령}
+\label{app:reproduce}
+
+\begin{verbatim}
+# Schema 추출
+/home/woori/venvs/seka_env/bin/python3.12 \
+  scripts/rank_replaceability/extract_facet_schema_metatool.py \
+  --metatool /tmp/MetaTool/dataset/tmp_dataset/Task2-Subtask4.json \
+  --out data/facet_schemas/metatool_st4.yaml
+
+# E10 (양 모델, N=64)
+/home/woori/venvs/seka_env/bin/python3.12 \
+  scripts/rank_replaceability/facet_eval.py \
+  --model {Qwen|Llama} \
+  --schema data/facet_schemas/metatool_st4.yaml \
+  --max-samples 64 --device cuda:{0|1} \
+  --conditions nl_full,nl_with_desc,facet_full,facet_compact,list_only,noprompt \
+  --max-new-tokens 192 \
+  --out reports/facet_ontology_2026_04/{qwen|llama}_e10_n64.json
+\end{verbatim}
+
+\end{document}

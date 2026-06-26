@@ -1,0 +1,73 @@
+# tau2-bench telecom facet schema (auto-extracted)
+# 17 tools, 3 action classes, 2/17 with canonical description
+schema_version: 1
+source: tau2-bench/data/tau2/domains/telecom/tasks.json
+tools:
+  disconnect_vpn:
+    action: read
+    domain: telecom
+    desc_short: "telecom: disconnect vpn"
+  enable_roaming:
+    action: read
+    domain: telecom
+    desc_short: "telecom: enable roaming"
+  grant_app_permission:
+    action: read
+    domain: telecom
+    desc_short: "telecom: grant app permission"
+  make_payment:
+    action: create
+    domain: telecom
+    desc_short: "telecom: make payment"
+  reboot_device:
+    action: read
+    domain: telecom
+    desc_short: "telecom: reboot device"
+  refuel_data:
+    action: read
+    domain: telecom
+    desc_short: "telecom: refuel data"
+  reseat_sim_card:
+    action: read
+    domain: telecom
+    desc_short: "telecom: reseat sim card"
+  reset_apn_settings:
+    action: read
+    domain: telecom
+    desc_short: "telecom: reset apn settings"
+  resume_line:
+    action: read
+    domain: telecom
+    desc_short: "telecom: resume line"
+  send_payment_request:
+    action: communicate
+    domain: telecom
+    desc_short: "telecom: send payment request"
+  set_network_mode_preference:
+    action: read
+    domain: telecom
+    desc_short: "telecom: set network mode preference"
+  toggle_airplane_mode:
+    action: read
+    domain: telecom
+    desc_short: "telecom: toggle airplane mode"
+  toggle_data:
+    action: read
+    domain: telecom
+    desc_short: "telecom: toggle data"
+  toggle_data_saver_mode:
+    action: read
+    domain: telecom
+    desc_short: "telecom: toggle data saver mode"
+  toggle_roaming:
+    action: read
+    domain: telecom
+    desc_short: "Enable or disable international roaming on a customer's line."
+  toggle_wifi_calling:
+    action: read
+    domain: telecom
+    desc_short: "telecom: toggle wifi calling"
+  transfer_to_human_agents:
+    action: read
+    domain: telecom
+    desc_short: "Transfer the user to a human agent with summary of the issue."

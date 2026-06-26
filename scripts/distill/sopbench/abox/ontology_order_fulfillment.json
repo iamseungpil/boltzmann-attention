@@ -1,0 +1,22 @@
+{
+  "domain": "order_fulfillment",
+  "start": "inv",
+  "steps": ["inv", "cust", "ship", "decide"],
+  "realizes": {
+    "inv": "check_inventory",
+    "cust": "validate_customer",
+    "ship": "calculate_shipping",
+    "decide": "make_fulfillment_decision"
+  },
+  "arg": {
+    "check_inventory": {"product_id": "product_id", "quantity_requested": "quantity_requested"},
+    "validate_customer": {"customer_id": "customer_id", "order_total": "order_total"},
+    "calculate_shipping": {"destination_zip": "destination_zip", "package_weight": "package_weight", "shipping_speed": "shipping_speed"},
+    "make_fulfillment_decision": {"inventory_status": "inventory_status", "customer_status": "customer_status", "shipping_cost": "shipping_cost", "order_priority": "order_priority"}
+  },
+  "produces": {"make_fulfillment_decision": {"decision": "expected_output"}},
+  "precondition": {},
+  "next": {"inv": "cust", "cust": "ship", "ship": "decide", "decide": null},
+  "terminate": [],
+  "output": {"required": ["expected_output"], "format": "xml"}
+}

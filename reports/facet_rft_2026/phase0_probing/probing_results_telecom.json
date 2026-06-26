@@ -1,0 +1,470 @@
+{
+  "metadata": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "domain": "telecom",
+    "n_layers": 28,
+    "go_nogo_threshold": 0.7,
+    "overall_pass": true
+  },
+  "summary": {
+    "precedes": {
+      "best_layer": 1,
+      "best_acc": 1.0,
+      "best_auc": 1.0,
+      "go_nogo_pass": true,
+      "layer_data": [
+        {
+          "acc_mean": 0.49399999999999994,
+          "acc_std": 0.005612486080160918,
+          "auc_mean": 0.494045
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        }
+      ]
+    },
+    "requires": {
+      "best_layer": 1,
+      "best_acc": 1.0,
+      "best_auc": 1.0,
+      "go_nogo_pass": true,
+      "layer_data": [
+        {
+          "acc_mean": 0.51,
+          "acc_std": 0.006519202405202672,
+          "auc_mean": 0.501655
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        }
+      ]
+    },
+    "mutex": {
+      "best_layer": 1,
+      "best_acc": 1.0,
+      "best_auc": 1.0,
+      "go_nogo_pass": true,
+      "layer_data": [
+        {
+          "acc_mean": 0.5,
+          "acc_std": 0.0,
+          "auc_mean": 0.5
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        },
+        {
+          "acc_mean": 1.0,
+          "acc_std": 0.0,
+          "auc_mean": 1.0
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+SKILL — RESOLVE-MISSING-VALUE (apply this procedure whenever you are about to call a tool and one of its
+argument values is not already present in the conversation):
+
+  Step 1. Check the source of every argument value. A value is valid ONLY if it appears in (a) the user's
+          messages, or (b) the output of a tool you already called in this conversation.
+  Step 2. If a required value has neither source, DO NOT call the action tool yet. Instead, identify the
+          tool whose output produces that value (a lookup / get / list tool) and call it first.
+  Step 3. Read the produced value from that tool's output and copy it exactly into the action call. If the
+          producer returned several records, select the one matching the user's description.
+  Step 4. If no producing tool can supply it, ask the user. Never substitute a guessed or example value.
+
+  Worked example (abstract):
+    user: "Do <action> on the record where <attr>=<v>. I don't have its id."
+    -> call list/get producer(...)            # Step 2: fetch, do not invent the id
+    <- [{id: r_8f3a, <attr>: ...}, {id: r_2b9c, <attr>: <v>}]
+    -> <action>(id = r_2b9c)                   # Step 3: copy the matching real id

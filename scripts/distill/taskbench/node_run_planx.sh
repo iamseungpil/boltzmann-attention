@@ -1,0 +1,129 @@
+#!/bin/bash
+# ✅ 2026-06-14 UPDATE (R1b/D5 반영 — 학습부 보류 해제): 구 데이터(ask-user 무·값 memorize)는
+#   base ask-user 파국적 망각 → 인자값 날조 → τ² compliant-pass 0.10/0.05 < base 0.17 이었음.
+#   ⇒ 이제 §2b 값-randomization(memorize 차단) + §2c D5 대조 ask(fetch-우선 카탈로그 게이트)를
+#   파이프라인에 반영. 모델은 "tools= 카탈로그 보고 분기"(getter 有→fetch / 無→ask) 학습 = always-ask 붕괴 방지.
+#   woori 실측: v4(값랜덤+ask) τ² 날조 0-90%→0-5%. v5 = v4와 동일 레시피·ask만 D5 게이트(over_ask=0 보장).
+#   상세 = COWORKER_REQUEST_TB_SCALE.md · R1B_PROVENANCE_DESIGN_2026_06_14.md §3a/D5 · TB결과 §10.5 R1b.
+# ✅✅ 2026-06-14 v6 UPDATE (τ² 전수 autopsy 처방 — fetch-to-obtain-arg): order_id 등 tool-fetchable 값
+#   날조의 뿌리 = "출력→인자" 스킬이 학습데이터에 부재(SOPBench 1.9%·TaskBench 0%). 복원:
+#   ① fc_convert_taskbench가 <node-N>을 상류 출력 ref로 threading(링크-기반·self-ref 금지=R 참조규율;
+#      해소불가 비정합 데이터는 결정론 drop) → tb fetch-chain 0%→41%.
+#   ② §2b가 fc_randomize_fetchable(identity+fetchable)로 교체 → fetch 값도 copy 강제.
+#   = 이 스크립트 그대로 돌리면 v6 파이프라인 자동 적용(변환기·randomizer가 repo서 갱신됨).
+# node_run_planx.sh — CROSS_BENCH_TRANSFER_PLAN (plan X) P3 on an amlt node.
+#   SOPBench(output/ fc-full success rollouts, all teachers×7 domains)
+#   + TaskBench(3 domains tool-graph) -> native OpenAI function-calling 궤적
+#   -> fc_build_sft unified (per-traj random global alias=R1, QC) -> Qwen2.5-7B TBox LoRA.
+# Inputs are all in the public clones (SOPBench output/ ships rollouts; JARVIS taskbench) —
+# fully reproducible on a fresh node. Idempotent + trainer --resume = preemption-safe.
+set -x
+export HF_HUB_CACHE=/scratch/hf_cache
+REPO=/scratch/boltzmann-attention
+SOP=/scratch/SOPBench
+TB=/scratch/JARVIS/taskbench
+PY=/scratch/venvs/sop_env/bin/python   # py3.10: torch/peft/transformers + SOPBench env (match)
+CV=$REPO/scripts/distill/taskbench
+OUT=/scratch/planx
+HFREPO=iamseungpil/sopbench-trackb-h200
+HF=/scratch/venvs/sop_env/bin/hf
+mkdir -p $OUT/fc $OUT/logs
+
+# 0. restore prior state (preemption wipes /scratch): pull planx_v6/ from HF if present.
+#    ★v6 namespace: isolates from the SUPERSEDED v5 state store (ask-무·값-memorize 데이터)
+#    so a preempt-restore can't re-pollute the build with pre-v7 SFT/adapter.
+$HF download $HFREPO --repo-type dataset --local-dir /scratch/hf_planx \
+  --include "planx_v6/*" >> $OUT/logs/restore.log 2>&1 || true
+[ -d /scratch/hf_planx/planx_v6 ] && cp -rn /scratch/hf_planx/planx_v6/* $OUT/ 2>/dev/null || true
+
+# 0a. ★DATA-VERSION GATE (preemption-safe v9 adoption): if local /scratch survived a preempt
+#     with pre-v6 artifacts (stale sentinels / SFT / adapter trained on superseded data), wipe
+#     them so the build regenerates with the v9 converters. The marker is a NON-hidden file =
+#     synced+restored with v6 state, so a LEGIT in-progress v6 run is NOT re-wiped on later preempt.
+DATA_VERSION=v6_fetchteach
+if [ "$(cat $OUT/planx_data_version.txt 2>/dev/null)" != "$DATA_VERSION" ]; then
+  echo "[version-gate] stale/absent data version -> wiping pre-v6 build artifacts" >> $OUT/logs/restore.log
+  rm -f $OUT/fc/.sop_done $OUT/fc/.tb_done $OUT/fc/.rand_done $OUT/fc/.d5_done \
+        $OUT/planx_sft.jsonl $OUT/planx_train_done 2>/dev/null
+  rm -rf $OUT/planx_tbox_7b 2>/dev/null
+  mkdir -p $OUT/fc
+  echo "$DATA_VERSION" > $OUT/planx_data_version.txt
+fi
+
+# 0b. background sync loop: push planx (adapter ckpt + data + logs) every 10min so a
+#     mid-training preemption resumes from the last checkpoint, not from scratch
+( while true; do
+    $HF upload $HFREPO $OUT planx_v6 --repo-type dataset \
+      --commit-message "planx_v6 sync $(date -u +%FT%TZ)" >> $OUT/logs/sync.log 2>&1
+    sleep 600
+  done ) &
+SYNC_PID=$!
+
+# 1. SOPBench converters: every fc-full success rollout (all teachers), 7 domains
+if [ ! -f $OUT/fc/.sop_done ]; then
+  for d in bank dmv healthcare hotel library online_market university; do
+    for f in $SOP/output/$d/ast_*mode_fc-dep_full*tool_full-shuffle_False.json; do
+      [ -f "$f" ] || continue
+      tag=$(basename "$f" .json | tr -c 'A-Za-z0-9' '_')
+      $PY $CV/fc_convert_sopbench.py --rollout "$f" --sopbench_root $SOP --domain $d \
+        --out $OUT/fc/sop_${d}__${tag}.jsonl >> $OUT/logs/conv_sop.log 2>&1
+    done
+  done
+  touch $OUT/fc/.sop_done
+fi
+
+# 2. TaskBench converters: 3 domains
+if [ ! -f $OUT/fc/.tb_done ]; then
+  for d in data_huggingface data_multimedia data_dailylifeapis; do
+    $PY $CV/fc_convert_taskbench.py --data $TB/$d/data.json --tool_desc $TB/$d/tool_desc.json \
+      --out $OUT/fc/tb_${d}.jsonl >> $OUT/logs/conv_tb.log 2>&1
+  done
+  touch $OUT/fc/.tb_done
+fi
+wc -l $OUT/fc/sop_*.jsonl | tail -1; wc -l $OUT/fc/tb_*.jsonl | tail -1
+
+# 2b. v6 값-randomization (identity + tool-fetchable): user-제공 식별값 + tool-출력서 재사용되는 값을
+#     포맷-보존 랜덤토큰으로 일관치환 → memorize 차단·컨텍스트 복사(fetch) 강제 = R1/R2.
+#     (fc_value_randomize=identity-only는 구버전; fc_randomize_fetchable이 상위호환.)
+#     ★주 fetch-to-obtain-arg 신호는 TaskBench <node-N> threading(§2 변환기, 자동). SOPBench fetchable은 희소(1.9%).
+if [ ! -f $OUT/fc/.rand_done ]; then
+  cat $OUT/fc/sop_*.jsonl > $OUT/fc/sop_all.jsonl
+  $PY $CV/fc_randomize_fetchable.py --in $OUT/fc/sop_all.jsonl --out $OUT/fc/sop_rand.jsonl --seed 42 \
+    >> $OUT/logs/build.log 2>&1
+  touch $OUT/fc/.rand_done
+fi
+
+# 2c. D5 대조 ask: ask/fetch 분기를 카탈로그-결정론 게이트로(provenance + getter_map). 휴리스틱 폐기.
+#     getter_map = repo 박제본($CV/getter_map.json, 결정론 산물). frac 0.40 = v4 ask volume 일치(깨끗 A/B).
+if [ ! -f $OUT/fc/.d5_done ]; then
+  $PY $CV/fc_d5_contrastive.py --in $OUT/fc/sop_rand.jsonl --getter_map $CV/getter_map.json \
+    --out_ask $OUT/fc/sop_d5_ask.jsonl --frac 0.40 --seed 42 >> $OUT/logs/build.log 2>&1
+  touch $OUT/fc/.d5_done
+fi
+
+# 3. unified builder (alias=R1 on; balance benches). 입력 = sop_rand(fetch+upfront) + sop_d5_ask(게이트 ask) + tb.
+#    fetch/upfront 예시 = sop_rand 자체(자연 fetch-then-use). ask 예시 = D5 게이트(over_ask=0). 대조는 데이터셋 레벨.
+if [ ! -f $OUT/planx_sft.jsonl ]; then
+  $PY $CV/fc_build_sft.py --inputs $OUT/fc/sop_rand.jsonl $OUT/fc/sop_d5_ask.jsonl $OUT/fc/tb_*.jsonl \
+    --out $OUT/planx_sft.jsonl --max_per_bench 7000 --seed 42 >> $OUT/logs/build.log 2>&1
+fi
+cat $OUT/logs/build.log
+
+# 4. Qwen2.5-7B TBox LoRA (native FC; trainer renders tools+tool_calls, assistant-only mask)
+$HF download Qwen/Qwen2.5-7B-Instruct >> $OUT/logs/hfdl.log 2>&1
+if [ ! -f $OUT/planx_train_done ]; then
+  CUDA_VISIBLE_DEVICES=0 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True $PY \
+    $REPO/scripts/distill/lora_train_chat_toolcall.py \
+    --base-model Qwen/Qwen2.5-7B-Instruct --device cuda:0 \
+    --train-jsonl $OUT/planx_sft.jsonl --out-dir $OUT/planx_tbox_7b \
+    --max-seq-len 6144 --epochs 2 --lora-r 16 --lora-alpha 32 --lr 1e-4 \
+    --val-frac 0.02 --skip-overlong --save-every 100 --resume \
+    > $OUT/logs/train.log 2>&1 && touch $OUT/planx_train_done
+fi
+tail -3 $OUT/logs/train.log
+
+# 5. final sync (stop the loop, one authoritative push)
+kill $SYNC_PID 2>/dev/null || true
+$HF upload $HFREPO $OUT planx_v6 --repo-type dataset \
+  --commit-message "planx_v6 FINAL $(date -u +%FT%TZ)" >> $OUT/logs/sync.log 2>&1 || true
+echo "PLANX_DONE $(date)"

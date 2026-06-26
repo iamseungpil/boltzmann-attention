@@ -1,0 +1,52 @@
+{
+ "_meta": {
+  "compiler": "frontier=Fable-5 (in-session, 2026-06-12) — P-A2-0 frontier 단일샷 baseline",
+  "source": "tau2 data/tau2/domains/airline/policy.md (166줄)",
+  "now_const": "2024-05-15T15:00:00",
+  "caveat": "G4 insurance 분기는 covered-reason(대화)까지 요구 — DB-체크는 안전 superset(보험 보유). db_check는 서술 DSL(검증기가 의미 구현) — 스키마 표현력 한계 = A2_FRONTEND_DISTILL_DESIGN 리스크 4의 실증."
+ },
+ "G1_USER_ID_PROVIDED": {
+  "predicate": "user id provided by the user in this conversation",
+  "satisfiers": {},
+  "ask": "ask the user for their user id (the user must provide it themselves)",
+  "applies_to": ["book_reservation", "cancel_reservation", "get_reservation_details", "get_user_details", "send_certificate", "update_reservation_baggages", "update_reservation_flights", "update_reservation_passengers"],
+  "note": "Book: 'The agent must first obtain the user id from the user'; Modify/Cancel: 'The user must provide their user id'"
+ },
+ "G2_CONFIRM_WRITE": {
+  "predicate": "explicit user confirmation (yes) of the action details in the latest user message",
+  "satisfiers": {},
+  "ask": "list the action details to the user and ask them to confirm",
+  "applies_to": ["book_reservation", "cancel_reservation", "send_certificate", "update_reservation_baggages", "update_reservation_flights", "update_reservation_passengers"]
+ },
+ "G3_RESERVATION_OWNER": {
+  "predicate": "target reservation belongs to the user id provided in this conversation",
+  "satisfiers": {},
+  "terminal": "deny: you can only act on the user's own reservations",
+  "applies_to": ["cancel_reservation", "update_reservation_baggages", "update_reservation_flights", "update_reservation_passengers"],
+  "db_check": "db.reservations[reservation_id].user_id == provided_user_id",
+  "note": "명시 조항 없음 — 'help users ... (their) reservations'에서 함의 (retail G3 대응물)"
+ },
+ "G4_CANCEL_ELIGIBLE": {
+  "predicate": "cancellation permitted: no flown segment AND (booked within 24h OR airline-cancelled segment OR business cabin OR travel insurance)",
+  "satisfiers": {},
+  "terminal": "inform the user the reservation cannot be cancelled under policy; if a segment was already flown, transfer to a human agent",
+  "applies_to": ["cancel_reservation"],
+  "db_check": "not any(seg.status in {flying,landed}) AND (now-created_at < 24h OR any(seg.status==cancelled) OR cabin==business OR insurance==yes)",
+  "note": "'The API does not check that cancellation rules are met' — 결정론 게이트 가치가 명시된 지점"
+ },
+ "G5_MODIFY_RULES": {
+  "predicate": "modification permitted: flight-change requires non-basic-economy and same origin/destination/trip-type; cabin-change requires no flown segment and uniform cabin; passenger count fixed; baggage add-only; no insurance addition post-booking",
+  "satisfiers": {},
+  "terminal": "inform the user this modification is not allowed by policy",
+  "applies_to": ["update_reservation_flights", "update_reservation_passengers", "update_reservation_baggages"],
+  "db_check": "flights-arg!=res.flights => res.cabin!=basic_economy; cabin-arg!=res.cabin => no flown seg; len(passengers-arg)==len(res.passengers); total_baggages-arg>=res.total_baggages",
+  "note": "'The API does not check these for the agent'"
+ },
+ "G6_PAYMENT_RULES": {
+  "predicate": "payment composition valid: <=1 certificate, <=1 credit card, <=3 gift cards, all in user profile; flight-change payment = one gift card or credit card in profile",
+  "satisfiers": {},
+  "terminal": "ask the user for payment methods that satisfy the policy",
+  "applies_to": ["book_reservation", "update_reservation_flights"],
+  "db_check": "type counts over payment ids resolved via db.users[user_id].payment_methods[pid].source; membership required"
+ }
+}

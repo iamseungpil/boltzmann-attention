@@ -1,0 +1,37 @@
+{
+  "domain": "telecom",
+  "n_tools": 25,
+  "step_dist": {
+    "apply_policy_action": 14,
+    "apply_targeted_fix": 4,
+    "gather_account_context": 6,
+    "escalate_or_document": 1
+  },
+  "step_realizes_tool": {
+    "can_send_mms": "apply_policy_action",
+    "check_apn_settings": "apply_policy_action",
+    "check_network_mode_preference": "apply_policy_action",
+    "check_network_status": "apply_policy_action",
+    "check_status_bar": "apply_policy_action",
+    "disable_roaming": "apply_policy_action",
+    "enable_roaming": "apply_targeted_fix",
+    "get_bills_for_customer": "gather_account_context",
+    "get_customer_by_id": "gather_account_context",
+    "get_customer_by_name": "gather_account_context",
+    "get_customer_by_phone": "gather_account_context",
+    "get_data_usage": "gather_account_context",
+    "get_details_by_id": "gather_account_context",
+    "reboot_device": "apply_policy_action",
+    "refuel_data": "apply_targeted_fix",
+    "reseat_sim_card": "apply_policy_action",
+    "reset_apn_settings": "apply_policy_action",
+    "resume_line": "apply_targeted_fix",
+    "run_speed_test": "apply_policy_action",
+    "send_payment_request": "apply_targeted_fix",
+    "set_network_mode_preference": "apply_policy_action",
+    "suspend_line": "apply_policy_action",
+    "toggle_data": "apply_policy_action",
+    "toggle_data_saver_mode": "apply_policy_action",
+    "transfer_to_human_agents": "escalate_or_document"
+  }
+}

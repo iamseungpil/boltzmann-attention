@@ -1,0 +1,188 @@
+{
+  "domain": "telecom",
+  "observation_triggers": {
+    "refuel_data": {
+      "n": 181,
+      "triggers": [
+        {
+          "pred": "get_details_by_id|data_limit_gb=15.0",
+          "support": 104,
+          "precision": 0.8,
+          "recall": 0.57
+        },
+        {
+          "pred": "get_data_usage|data_used_gb=15.1",
+          "support": 69,
+          "precision": 0.95,
+          "recall": 0.38
+        },
+        {
+          "pred": "get_data_usage|data_limit_gb=15.0",
+          "support": 69,
+          "precision": 0.81,
+          "recall": 0.38
+        },
+        {
+          "pred": "get_data_usage|data_refueling_gb=0.0",
+          "support": 69,
+          "precision": 0.84,
+          "recall": 0.38
+        }
+      ]
+    },
+    "enable_roaming": {
+      "n": 146,
+      "triggers": [
+        {
+          "pred": "get_details_by_id|roaming_enabled=False",
+          "support": 87,
+          "precision": 0.81,
+          "recall": 0.6
+        },
+        {
+          "pred": "get_data_usage|data_used_gb=8.7",
+          "support": 11,
+          "precision": 0.92,
+          "recall": 0.08
+        }
+      ]
+    },
+    "send_payment_request": {
+      "n": 270,
+      "triggers": [
+        {
+          "pred": "get_bills_for_customer|0.status=Draft",
+          "support": 194,
+          "precision": 0.85,
+          "recall": 0.72
+        },
+        {
+          "pred": "get_bills_for_customer|1.total_due=150.0",
+          "support": 194,
+          "precision": 0.85,
+          "recall": 0.72
+        },
+        {
+          "pred": "get_bills_for_customer|1.line_items.3.item_type=Fee",
+          "support": 194,
+          "precision": 0.85,
+          "recall": 0.72
+        },
+        {
+          "pred": "get_bills_for_customer|1.status=Issued",
+          "support": 194,
+          "precision": 0.87,
+          "recall": 0.72
+        },
+        {
+          "pred": "get_bills_for_customer|2.total_due=160.5",
+          "support": 194,
+          "precision": 0.85,
+          "recall": 0.72
+        },
+        {
+          "pred": "get_bills_for_customer|2.line_items.3.item_type=Overage",
+          "support": 194,
+          "precision": 0.85,
+          "recall": 0.72
+        },
+        {
+          "pred": "get_bills_for_customer|2.status=Paid",
+          "support": 194,
+          "precision": 0.85,
+          "recall": 0.72
+        },
+        {
+          "pred": "get_bills_for_customer|0.total_due=0.0",
+          "support": 192,
+          "precision": 0.85,
+          "recall": 0.71
+        }
+      ]
+    },
+    "resume_line": {
+      "n": 198,
+      "triggers": [
+        {
+          "pred": "get_details_by_id|status=Paid",
+          "support": 155,
+          "precision": 0.98,
+          "recall": 0.78
+        },
+        {
+          "pred": "get_details_by_id|total_due=65.0",
+          "support": 154,
+          "precision": 0.96,
+          "recall": 0.78
+        },
+        {
+          "pred": "get_details_by_id|line_items.0.item_type=Charge",
+          "support": 154,
+          "precision": 0.96,
+          "recall": 0.78
+        },
+        {
+          "pred": "get_bills_for_customer|3.status=Paid",
+          "support": 18,
+          "precision": 1.0,
+          "recall": 0.09
+        }
+      ]
+    }
+  },
+  "arg_source": {
+    "refuel_data": {
+      "customer_id": {
+        "source": "get_customer_by_phone.customer_id",
+        "support": 180,
+        "frac": 0.97
+      },
+      "line_id": {
+        "source": "get_customer_by_phone.line_ids.1",
+        "support": 168,
+        "frac": 0.89
+      },
+      "gb_amount": {
+        "source": "get_details_by_id.data_refueling_price_per_gb",
+        "support": 33,
+        "frac": 1.0
+      }
+    },
+    "enable_roaming": {
+      "customer_id": {
+        "source": "get_customer_by_phone.customer_id",
+        "support": 161,
+        "frac": 0.98
+      },
+      "line_id": {
+        "source": "get_customer_by_phone.line_ids.1",
+        "support": 140,
+        "frac": 0.83
+      }
+    },
+    "send_payment_request": {
+      "customer_id": {
+        "source": "get_customer_by_phone.customer_id",
+        "support": 308,
+        "frac": 1.0
+      },
+      "bill_id": {
+        "source": "get_customer_by_phone.bill_ids.3",
+        "support": 209,
+        "frac": 0.69
+      }
+    },
+    "resume_line": {
+      "customer_id": {
+        "source": "get_customer_by_phone.customer_id",
+        "support": 205,
+        "frac": 1.0
+      },
+      "line_id": {
+        "source": "get_customer_by_phone.line_ids.1",
+        "support": 203,
+        "frac": 0.99
+      }
+    }
+  }
+}

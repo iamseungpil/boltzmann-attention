@@ -1,0 +1,18 @@
+{
+  "_doc": "A2 grounding-spec (A2_GROUNDING_WIRING_DESIGN §3). retail selection-grounding. ABox-swap 대상·고정 PROVIDE. 엔진(t2_resolve_patch._ground)이 읽어 tool출력→relational rows 투영(π/⋈/σ).",
+  "candidate_source": {
+    "producer": "get_product_details",
+    "field": "variants",
+    "container": "map",
+    "options_path": "options",
+    "available": {"path": "available"},
+    "producer_match_field": "product_id"
+  },
+  "anchor_source": {
+    "producer": "get_order_details",
+    "field": "items",
+    "container": "list",
+    "id_key": "item_id",
+    "match": {"anchor_field": "product_id", "producer_field": "product_id"}
+  }
+}

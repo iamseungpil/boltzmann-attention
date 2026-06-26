@@ -1,0 +1,188 @@
+{
+ "enum": [
+  "book_reservation",
+  "calculate",
+  "cancel_reservation",
+  "get_flight_status",
+  "get_reservation_details",
+  "get_user_details",
+  "list_all_airports",
+  "search_direct_flight",
+  "search_onestop_flight",
+  "send_certificate",
+  "transfer_to_human_agents",
+  "update_reservation_baggages",
+  "update_reservation_flights",
+  "update_reservation_passengers"
+ ],
+ "tools": {
+  "book_reservation": {
+   "type": "WRITE",
+   "required": [
+    "user_id",
+    "origin",
+    "destination",
+    "flight_type",
+    "cabin",
+    "flights",
+    "passengers",
+    "payment_methods",
+    "total_baggages",
+    "nonfree_baggages",
+    "insurance"
+   ],
+   "params": [
+    "cabin",
+    "destination",
+    "flight_type",
+    "flights",
+    "insurance",
+    "nonfree_baggages",
+    "origin",
+    "passengers",
+    "payment_methods",
+    "total_baggages",
+    "user_id"
+   ]
+  },
+  "calculate": {
+   "type": "GENERIC",
+   "required": [
+    "expression"
+   ],
+   "params": [
+    "expression"
+   ]
+  },
+  "cancel_reservation": {
+   "type": "WRITE",
+   "required": [
+    "reservation_id"
+   ],
+   "params": [
+    "reservation_id"
+   ]
+  },
+  "get_reservation_details": {
+   "type": "READ",
+   "required": [
+    "reservation_id"
+   ],
+   "params": [
+    "reservation_id"
+   ]
+  },
+  "get_user_details": {
+   "type": "READ",
+   "required": [
+    "user_id"
+   ],
+   "params": [
+    "user_id"
+   ]
+  },
+  "list_all_airports": {
+   "type": "READ",
+   "required": [],
+   "params": []
+  },
+  "search_direct_flight": {
+   "type": "READ",
+   "required": [
+    "origin",
+    "destination",
+    "date"
+   ],
+   "params": [
+    "date",
+    "destination",
+    "origin"
+   ]
+  },
+  "search_onestop_flight": {
+   "type": "READ",
+   "required": [
+    "origin",
+    "destination",
+    "date"
+   ],
+   "params": [
+    "date",
+    "destination",
+    "origin"
+   ]
+  },
+  "send_certificate": {
+   "type": "WRITE",
+   "required": [
+    "user_id",
+    "amount"
+   ],
+   "params": [
+    "amount",
+    "user_id"
+   ]
+  },
+  "transfer_to_human_agents": {
+   "type": "GENERIC",
+   "required": [
+    "summary"
+   ],
+   "params": [
+    "summary"
+   ]
+  },
+  "update_reservation_baggages": {
+   "type": "WRITE",
+   "required": [
+    "reservation_id",
+    "total_baggages",
+    "nonfree_baggages",
+    "payment_id"
+   ],
+   "params": [
+    "nonfree_baggages",
+    "payment_id",
+    "reservation_id",
+    "total_baggages"
+   ]
+  },
+  "update_reservation_flights": {
+   "type": "WRITE",
+   "required": [
+    "reservation_id",
+    "cabin",
+    "flights",
+    "payment_id"
+   ],
+   "params": [
+    "cabin",
+    "flights",
+    "payment_id",
+    "reservation_id"
+   ]
+  },
+  "update_reservation_passengers": {
+   "type": "WRITE",
+   "required": [
+    "reservation_id",
+    "passengers"
+   ],
+   "params": [
+    "passengers",
+    "reservation_id"
+   ]
+  },
+  "get_flight_status": {
+   "type": "READ",
+   "required": [
+    "flight_number",
+    "date"
+   ],
+   "params": [
+    "date",
+    "flight_number"
+   ]
+  }
+ }
+}

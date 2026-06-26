@@ -1,0 +1,24 @@
+{
+  "mode": "fallback",
+  "domain": "airline",
+  "ontology_domain": "airline",
+  "tool_turns": 307,
+  "deterministic": 20,
+  "miss": 259,
+  "no_step": 28,
+  "deterministic_coverage": 0.0651,
+  "by_tool_det": {
+    "transfer_to_human_agents": 2,
+    "cancel_reservation": 17,
+    "update_reservation_flights": 1
+  },
+  "by_step_det": {
+    "escalate_or_document": 2,
+    "apply_targeted_fix": 18
+  },
+  "by_step_miss": {
+    "gather_account_context": 197,
+    "apply_targeted_fix": 51,
+    "escalate_or_document": 11
+  }
+}

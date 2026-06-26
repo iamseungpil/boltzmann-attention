@@ -1,0 +1,80 @@
+{
+  "variant": "plain",
+  "source": "aux_sonnet",
+  "split": "train",
+  "groups": {
+    "telecom_gpt4omini": {
+      "domain": "telecom",
+      "kept": 96,
+      "success": 96,
+      "in_split": 163,
+      "malformed": 0,
+      "capped": 0,
+      "n_tools": 13,
+      "n_tasks_covered": 46,
+      "split_size": 74,
+      "teachers": [
+        "openai/anthropic/claude-sonnet-4.6"
+      ],
+      "user_sims": [
+        "gpt-4o-mini"
+      ],
+      "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_plain_aux_sonnet_train_telecom_gpt4omini.jsonl"
+    },
+    "telecom_gpt41": {
+      "domain": "telecom",
+      "kept": 22,
+      "success": 22,
+      "in_split": 35,
+      "malformed": 0,
+      "capped": 0,
+      "n_tools": 13,
+      "n_tasks_covered": 22,
+      "split_size": 74,
+      "teachers": [
+        "openai/anthropic/claude-sonnet-4.6"
+      ],
+      "user_sims": [
+        "gpt-4.1"
+      ],
+      "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_plain_aux_sonnet_train_telecom_gpt41.jsonl"
+    },
+    "retail_gpt4omini": {
+      "domain": "retail",
+      "kept": 27,
+      "success": 27,
+      "in_split": 53,
+      "malformed": 0,
+      "capped": 0,
+      "n_tools": 16,
+      "n_tasks_covered": 27,
+      "split_size": 74,
+      "teachers": [
+        "openai/anthropic/claude-sonnet-4.6"
+      ],
+      "user_sims": [
+        "gpt-4o-mini"
+      ],
+      "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_plain_aux_sonnet_train_retail_gpt4omini.jsonl"
+    },
+    "airline_gpt4omini": {
+      "domain": "airline",
+      "kept": 34,
+      "success": 34,
+      "in_split": 47,
+      "malformed": 0,
+      "capped": 0,
+      "n_tools": 14,
+      "n_tasks_covered": 23,
+      "split_size": 30,
+      "teachers": [
+        "openai/anthropic/claude-sonnet-4.6"
+      ],
+      "user_sims": [
+        "gpt-4o-mini"
+      ],
+      "out_file": "reports/facet_rft_2026/phase4_distill/sft_data/sft_plain_aux_sonnet_train_airline_gpt4omini.jsonl"
+    }
+  },
+  "total_kept": 179
+}

@@ -1,0 +1,5 @@
+CRITICAL — FETCH BEFORE USE (never invent identifiers):
+- NEVER invent, guess, or copy an example identifier (order id, user id, item id, payment id, address id). Placeholder values like #W0000000 or johndoe@example.com ALWAYS fail.
+- Every identifier you pass MUST come from the user's messages or from a tool output you already received.
+- If you lack a needed id/value: FIRST authenticate the user (find_user_id_by_email / find_user_id_by_name_zip), THEN call get_user_details to read the user's REAL order ids / payment methods / addresses, and copy the real value from that output.
+- If you cannot obtain it that way, ASK the user. Never proceed with a guessed value.

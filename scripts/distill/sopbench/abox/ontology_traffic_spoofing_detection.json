@@ -1,0 +1,57 @@
+{
+  "start": "investigate",
+  "steps": ["investigate", "analyze", "validate", "risk", "evidence", "decide", "enforce"],
+  "realizes": {
+    "investigate": "InvestigateViolations",
+    "analyze": "AnalyzeTrafficPatterns",
+    "validate": "ValidateReferralSources",
+    "risk": "CalculateRiskScore",
+    "evidence": "GenerateEvidenceReport",
+    "decide": "_decide",
+    "enforce": "ExecuteEnforcementAction"
+  },
+  "arg": {
+    "InvestigateViolations": {
+      "partner_id": "partner_id",
+      "registered_websites": "registered_websites",
+      "earnings_amount": "earnings_amount"
+    },
+    "AnalyzeTrafficPatterns": {
+      "partner_id": "partner_id",
+      "engagement_score": "engagement_score",
+      "conversion_rate": "conversion_rate",
+      "bounce_rate": "bounce_rate"
+    },
+    "ValidateReferralSources": {
+      "partner_id": "partner_id",
+      "unattributed_clicks": "unattributed_clicks",
+      "top_referral_source": "top_referral_source"
+    },
+    "CalculateRiskScore": {
+      "partner_id": "partner_id",
+      "violation_type": "violation_type",
+      "engagement_score": "engagement_score",
+      "conversion_rate": "conversion_rate"
+    },
+    "GenerateEvidenceReport": {
+      "partner_id": "partner_id",
+      "violation_type": "violation_type",
+      "evidence_collected": "evidence_collected"
+    },
+    "ExecuteEnforcementAction": {
+      "partner_id": "partner_id",
+      "risk_level": "risk_level",
+      "violation_type": "violation_type"
+    }
+  },
+  "next": {
+    "investigate": "analyze",
+    "analyze": "validate",
+    "validate": "risk",
+    "risk": "evidence",
+    "evidence": "decide",
+    "decide": "enforce",
+    "enforce": null
+  },
+  "output": {"required": ["enforcement_action"], "format": "xml"}
+}

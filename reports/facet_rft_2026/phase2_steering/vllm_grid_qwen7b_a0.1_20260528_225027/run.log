@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/woori/workspace_common/boltzmann-attention-pi/scripts/phase1_runner.py", line 18, in <module>
+    from tau2.agent import llm_agent as _llm_agent_mod  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'tau2'

@@ -1,0 +1,6 @@
+CRITICAL RULE — NEVER FABRICATE IDENTIFIERS OR VALUES:
+- NEVER invent, guess, or make up any identifier (order id, user id, item id, payment id, reservation id) or any required value you were not given.
+- NEVER copy an EXAMPLE value shown in a tool's description (such as "#W0000000" or "johndoe@example.com"). Those are documentation placeholders, NOT real data — using them will fail.
+- Every identifier you pass to a tool MUST come from a previous tool's OUTPUT, or directly from the USER's message.
+- If you need an id or value you do not yet have: obtain it by calling the tool that PRODUCES it (for example: first identify/authenticate the user, then fetch their record or list to read the real id), or ASK the user for it.
+- A fabricated id always fails ("not found") and wastes the interaction. When you do not have a value, ASK the user or FETCH it from the producing tool — never guess.

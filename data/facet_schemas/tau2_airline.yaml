@@ -1,0 +1,45 @@
+# tau2-bench airline facet schema (auto-extracted)
+# 10 tools, 4 action classes, 4/10 with canonical description
+schema_version: 1
+source: tau2-bench/data/tau2/domains/airline/tasks.json
+tools:
+  book_reservation:
+    action: read
+    domain: airline
+    desc_short: "airline: book reservation"
+  calculate:
+    action: compute
+    domain: airline
+    desc_short: "Calculate the result of a mathematical expression."
+  cancel_reservation:
+    action: read
+    domain: airline
+    desc_short: "Cancel an existing flight reservation."
+  get_reservation_details:
+    action: read
+    domain: airline
+    desc_short: "airline: get reservation details"
+  get_user_details:
+    action: read
+    domain: airline
+    desc_short: "Get details of a user, including their orders."
+  search_direct_flight:
+    action: search
+    domain: airline
+    desc_short: "airline: search direct flight"
+  transfer_to_human_agents:
+    action: read
+    domain: airline
+    desc_short: "Transfer the user to a human agent with summary of the issue."
+  update_reservation_baggages:
+    action: modify
+    domain: airline
+    desc_short: "airline: update reservation baggages"
+  update_reservation_flights:
+    action: modify
+    domain: airline
+    desc_short: "airline: update reservation flights"
+  update_reservation_passengers:
+    action: modify
+    domain: airline
+    desc_short: "airline: update reservation passengers"

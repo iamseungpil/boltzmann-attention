@@ -1,0 +1,51 @@
+{
+ "_meta": "Fable-5 in-session compile of telecom main_policy.md (158 lines) — S1 teacher spec. Mirror of retail/airline gate structure: auth-first + db_check preconditions + price-confirm + transfer-notice. Acceptance: Track-A replay (verifier TBD for telecom) or P5 cross-compile agreement; bootstrap teacher trusted (P-A2-0 airline replay-clean evidences Fable-5 compile fidelity).",
+ "G1_AUTH_FIRST": {
+  "predicate": "authenticated customer identity",
+  "satisfiers": {
+   "get_customer_by_phone": ["phone_number"],
+   "get_customer_by_id": ["customer_id"],
+   "get_customer_by_name": ["full_name", "dob"]
+  },
+  "applies_to": [
+   "disable_roaming", "enable_roaming", "get_bills_for_customer",
+   "get_data_usage", "get_details_by_id", "refuel_data", "resume_line",
+   "send_payment_request", "suspend_line"
+  ],
+  "ask": "identify the customer first (phone, customer id, or full name + date of birth), then retry",
+  "note": "technical support and every account-scoped action require identifying the customer first"
+ },
+ "G2_CONFIRM_PRICE": {
+  "predicate": "explicit user confirmation of the price",
+  "satisfiers": {},
+  "ask": "state the price to the user and obtain explicit confirmation before applying",
+  "applies_to": ["refuel_data"]
+ },
+ "G3_BILL_OVERDUE": {
+  "predicate": "the target bill is in OVERDUE status",
+  "satisfiers": {},
+  "terminal": "deny: a payment request may only be sent for a bill confirmed OVERDUE (the tool does not check this)",
+  "applies_to": ["send_payment_request"],
+  "db_check": "bill.status == OVERDUE AND no other bill is AWAITING_PAYMENT for the customer"
+ },
+ "G4_RESUME_ELIGIBLE": {
+  "predicate": "all overdue bills paid AND the line contract end date is not in the past",
+  "satisfiers": {},
+  "terminal": "deny: a line may be resumed only after all overdue bills are paid; never if the contract end date is in the past",
+  "applies_to": ["resume_line"],
+  "db_check": "all customer bills.status != OVERDUE AND line.contract_end_date >= today"
+ },
+ "G5_REFUEL_LIMIT": {
+  "predicate": "refuel amount within policy limit",
+  "satisfiers": {},
+  "terminal": "deny: the maximum data that can be refueled is 2GB",
+  "applies_to": ["refuel_data"],
+  "db_check": "gb_amount <= 2"
+ },
+ "G6_TRANSFER_MSG": {
+  "predicate": "the mandatory transfer notice has been communicated to the user",
+  "satisfiers": {},
+  "ask": "send the user exactly: 'YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.' — then retry the transfer",
+  "applies_to": ["transfer_to_human_agents"]
+ }
+}
