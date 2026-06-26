@@ -17,8 +17,9 @@ def norm(v):
 
 
 def gold_writes(task):
+    d = task.model_dump() if hasattr(task, "model_dump") else task
     out = []
-    for a in (task.get("evaluation_criteria", {}) or {}).get("actions", []):
+    for a in ((d.get("evaluation_criteria") or {}).get("actions") or []):
         if a.get("name") in WRITES:
             ar = a.get("arguments") or {}
             out.append((a["name"], {k: norm(ar[k]) for k in ("order_id", "item_ids", "new_item_ids", "address1") if k in ar}))
