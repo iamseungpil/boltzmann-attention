@@ -39,6 +39,11 @@ def ask(prompt, model, base, mx=900):
     return json.loads(urllib.request.urlopen(req, timeout=180).read())["choices"][0]["message"]["content"]
 
 
+def norm_oid(o):
+    """주문 id 정규화 (#W123 / W123 / w123 → W123). 계측기 # 불일치 버그 방지."""
+    return str(o).strip().lstrip("#").upper()
+
+
 def gold_structure(task):
     """gold actions → {(action_name, order_id): [frozenset(item_ids) per call]}. operand(new_item_ids) 무시."""
     g = defaultdict(list)
@@ -47,7 +52,7 @@ def gold_structure(task):
         if n not in WRITES:
             continue
         ar = a.get("arguments") or {}
-        oid = ar.get("order_id", "?")
+        oid = norm_oid(ar.get("order_id", "?"))
         items = frozenset(ar.get("item_ids") or [])
         g[(n, oid)].append(items)
     return g
@@ -87,7 +92,7 @@ def parse_plan(txt):
             continue
         n = str(e.get("action") or e.get("name") or "").strip()
         n = next((w for w in WRITES if w in n), n)  # normalize to canonical write name
-        oid = str(e.get("order_id") or e.get("order") or "?").strip()
+        oid = norm_oid(e.get("order_id") or e.get("order") or "?")
         raw_items = e.get("items") or e.get("item_ids") or []
         if isinstance(raw_items, str):
             raw_items = [raw_items]
