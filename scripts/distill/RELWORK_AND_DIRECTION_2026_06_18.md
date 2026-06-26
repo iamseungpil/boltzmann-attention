@@ -2,6 +2,8 @@
 
 > **목적**: 통합 TBox/Scaffold 설계(`INTEGRATED_TBOX_DESIGN_2026_06_18.md`·`INTEGRATED_SCAFFOLD_IMPL_DESIGN_2026_06_18.md`)를 *구현 착수 전*에, 딥리서치(52 검증 claim·~20 출처) + 핵심 4편 primary 재검증으로 정렬한다. **coworker 공유용 자립 문서** — 아래 §1만 읽으면 thesis 프레임이 선다.
 > **한 줄 결론 (정독 종료·2026-06-18)**: "전이"는 우리 신규성이 *아니다*(D3ST/STAR/ToolLLM/TGRL가 schema·tool·습관 전이를 이미 함). **우리 신규 = "tool-use 계획규칙이 *닫힌(closure) 유한 생성원 기저*로 환원되고, *그 규칙-추상화*를 작은 모델이 학습·전이한다"** — 스키마도 도구도 실행도 습관도 아닌 **규칙의 추상화** 전이. 전이는 닫힘의 *귀결*(데모)이지 신규 주장이 아님. 결정론 leg(게이트·복구·deferral·측정)는 전부 발표됨 = 재사용·인용. ⇒ §1.5 핵심주장·§4 차별·§6 keystone.
+>
+> **★★ALIGN 2026-06-26 (make-or-break 이후 whitespace 이동·이 문서는 *선행 클러스터 진실원*으로 유지·whitespace만 재배치)**: make-or-break(operand SFT NO-GO·`MAKEORBREAK_VERDICT_2026_06_26`)가 **"규칙-추상화를 *학습*해 전이"(§1.5/§5 closure whitespace)를 tau2서 미검증/불요**로 판정. ⇒ **이 문서의 선행 *클러스터 맵*(§1.5표·§2·§3·§4·§10)은 그대로 권위본**이나, **whitespace는 4-편 포트폴리오로 *재배치***(`papers/README.md`): **closure/규칙-전이 → Paper #2(A2-gen)·#3(path)·#4(시스템)** / **Paper #1(이론·ICLR)의 whitespace = 새것 = capability×scale×lever 지도 + compliance scale-invariance**(F3↑·F4-gap flat·g2 31→41·gate 모든 scale 0·`LOAD_THEORY_DESIGN`). 즉 "closure가 신규"는 #2~#4로·#1은 "scale이 못 푸는 guarantee + 기능별 레버 지도"가 신규. §10 인지아키텍처(CoALA 우산·SOAR impasse↔빈관계)·§10.3 세 델타는 #1 §2.2(비내성·scale-불변 인식한계)의 정본 선행으로 carry.
 
 ---
 
