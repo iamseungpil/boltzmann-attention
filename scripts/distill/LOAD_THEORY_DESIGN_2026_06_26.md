@@ -1,8 +1,12 @@
 # LOAD THEORY — 부하의 규정·분해·측정 + scaffold=load-reduction + scale의 load-tolerance (설계서)
 
-> **상태**: 설계(리뷰 대기·2026-06-26). 진입=`06-NOW`·`EXPERIMENT_DESIGN §0★★`(마스터 matrix)·`MAKEORBREAK_VERDICT_2026_06_26`·`ORCHESTRATION_CAPABILITY_LEVER_DESIGN_2026_06_26`.
-> **한 줄**: "작은 모델이 *부하 상태*서 큰 모델보다 더 틀린다"의 *부하*를 단일량이 아닌 **5차원 측정가능 벡터**로 규정·분해하고, scale별 **load-response 곡선**(failure-onset)을 측정하고, **scaffold를 load-reduction 연산자**로 정식화해 thesis(small@유효load L′ ≈ large@native load L)를 *증명형태*로 만든다.
+> **상태**: 설계+Phase-L0 관측 완료(리뷰#1·#2 반영·2026-06-26). 진입=`06-NOW`·`EXPERIMENT_DESIGN §0★★`(마스터 matrix)·`MAKEORBREAK_VERDICT_2026_06_26`·`ORCHESTRATION_CAPABILITY_LEVER_DESIGN_2026_06_26`. 결과=`sim_results/load_obs_phase0_2026_06_26.txt.gz`.
+> **한 줄**: "작은 모델이 *부하 상태*서 큰 모델보다 더 틀린다"의 *부하*를 측정가능 feature로 규정·분해하고, scale별 **load-response 곡선**(failure-onset)을 측정하고, **scaffold를 load-reduction 연산자**로 정식화해 thesis(small@유효load L′ ≈ large@native load L)를 *예측틀*(ΔL 독립추정 필수)로 만든다.
 > **★범위 경계(엄수)**: 이건 *새 논문 주제가 아니라* `EXPERIMENT_DESIGN §0★★` scale-map의 **이론 backbone**. make-or-break 헤드라인(결정론 scaffold+base+TCO·operand SFT NO-GO)을 *대체* 아니라 *설명*. **closed-form scaling law·25-bench 동시확산=보류**(§6).
+>
+> **★리뷰#2 반영(2026-06-26·falsification-first)**: (1) **무료 관측 2개를 construct-validity 게이트로 격상·먼저**(기존데이터·gpt-4.1 0). 통과해야 생성·onset(L1+)으로. (2) **L1~L4 미약속**(예산위기·헤드라인 settled·load theory=modest 설명층·예산 승인 시만). (3) **§3 "증명형태"→"예측틀"**: `pass⇔L_eff<L*`는 ΔL·L* 둘 다 fit하면 동어반복→**ΔL을 scaffold의 *기계적* feature-감소량(결과 아닌 동작서)으로 독립추정**해 onset-shift를 *예측*해야 비순환. (4) **5차원=canonical 아님·후보**: 데이터가 collinear/sparse로 줄임(관측이 실제로 2로 줄임·아래). (5) 관측=약한 스크린(난이도 교락)·인과는 통제생성.
+>
+> **★★Phase-L0 관측 결과(2026-06-26·`load_obs.py`·n=112·gpt-4.1 0)**: **게이트 통과 — 단 좁게.** operand 공변량(r=+0.39) 통제 후 **L_len(r|op=+0.37·p<.001)·L_branch(+0.26·p<.01)만 생존**·L_state/L_interf=operand 교락으로 소멸·L_contra=무의미+희소(12/112). **유효 load축=2개**(리뷰어 붕괴예측 확증). 약한 ΔL 스크린: **현 scaffold(present+nest+g15)가 L_branch를 안 깎음**(고분기 task 잔존·조건트리 executor 공백·t37 정합)·L_len은 약하게 감소. ⇒ 이론 무근거 아님이나 **2차원으로 좁혀짐**·proof-form은 미입증(L1+ 필요).
 
 ---
 
@@ -27,8 +31,9 @@
 | **L_interf** 간섭 | 헷갈릴 유사 엔티티 수 | #유사 주문/품목(같은 타입) | t111 엉뚱 주문 | proactive interference |
 | **L_contra** 모순-개정 | 후행 턴이 선행 지시를 뒤집는 횟수 | #(턴 간 제약 revision) | t71 "GC→PayPal" | belief update·recency |
 
-- **부하 벡터** `L = (L_len, L_state, L_branch, L_interf, L_contra)`. 스칼라화는 *측정 후* (가중합/주성분) 결정 — 선험 가중 금지.
+- **부하 벡터** `L = (L_len, L_state, L_branch, L_interf, L_contra)` = **후보**(canonical 아님). 스칼라화·차원선택은 *데이터가* 결정 — 선험 가중 금지.
 - **load ≠ operand 난이도**: operand(어느 변형)=실행능력(이미 100% GIVEN-SPEC). load=그 실행들을 *함께 들고가는* 압력. 직교 통제(load 올리되 operand 고정).
+- **★Phase-L0 관측이 5→2로 줄임(2026-06-26·n=112)**: operand 통제 후 **L_len(+0.37)·L_branch(+0.26)만 fail-예측 생존**. L_state·L_interf=operand 교락으로 소멸·collinear(L_state↔L_interf=.55). **L_contra=무의미+희소(12/112)→tau2서 폐기**(다른 벤치선 재검토). 유효 load축≈2 클러스터{길이+분기 생존 / 상태+간섭 비생존}. → 이후 통제생성은 **L_len·L_branch 2개로 한정.**
 
 ---
 
@@ -100,11 +105,13 @@ closed-form 유도는 과욕. **측정가능 규칙성**만 주장:
 
 ## §7. 단계 (design-first·각 단계 게이트)
 
-1. **Phase L0 — load-decomposition spec 확정**(본 문서·리뷰 후): 5차원 측정식 + scaffold↔load 매핑 + 증명형태 식 동결.
-2. **Phase L1 — load-response probe(free)**: tau2 load-graded 격리 probe·7B/14B/32B·차원별 onset. → L*(N) monotone? 어느 차원이 scale-sensitive?
-3. **Phase L2 — scaffold ΔL 측정(free)**: scaffold on/off 수평이동 → 증명형태(small@L_eff≈large@L) 1차 검증.
-4. **Phase L3 — SOPBench 일반화(조건부)**: control-flow 복잡도 load-response가 tau2와 정합하면 portfolio 확산 승인.
-5. **Phase L4 — live 확인(조건부·유료 1회)**: 곡선 확정 후 end-to-end 1 스케일 확인.
+0. **Phase L0 — 무료 관측 게이트 ✅완료(2026-06-26)**: ① construct-validity(fail↔load 상관·operand 통제)=**통과 좁게**(L_len·L_branch 생존) ② 약한 ΔL 스크린(floor vs scaffold)=**L_branch 미감소·L_len 약감소**. 결과=`sim_results/load_obs_phase0`. → 이론 무근거 아님·2차원으로 좁힘.
+1. **Phase L1 — load-response probe(조건부·미약속)**: **L_len·L_branch만** load-graded 격리 probe·7B/14B/32B·onset. → L*(N) monotone? **예산 승인 시만.**
+2. **Phase L2 — scaffold ΔL 독립추정(조건부)**: ΔL=scaffold 기계적 feature-감소량(독립)→onset-shift 예측(비순환). **orchestration controller 빌드 시 묶음.**
+3. **Phase L3 — SOPBench 일반화(조건부)**: control-flow 복잡도 load-response가 tau2와 정합 + 예산 승인 시.
+4. **Phase L4 — live 확인(조건부·유료 1회)**: 곡선 확정 후 end-to-end 1 스케일.
+
+**★현재 GO = L0(완료)까지.** L1~L4 = 미약속·예산 게이트([[09]]/[[03]]). 헤드라인 settled → load theory는 modest 설명층.
 
 ---
 
