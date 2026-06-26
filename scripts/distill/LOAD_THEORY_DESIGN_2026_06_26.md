@@ -17,6 +17,10 @@
 > | L_contra | +0.06 | +0.13 | +0.04(희소·폐기) |
 >
 > → **scale은 차원을 *순서대로 은퇴*시킨다**: interference·state(L_interf·L_state)=7B→32B 사이 scale이 흡수(32B서 소멸)·**length·conditional(L_len·L_branch)=32B서도 잔존.** "5→2 붕괴"는 **32B 특정**이었음(7B/14B≈4차원 binding). 약한 ΔL: **L_branch는 모든 scale서 scaffold-저항**(branch-executor 공백). ⇒ **(B) 통제생성=4차원{L_len·L_state·L_branch·L_interf} 커버**(L_contra만 폐기)·핵심측정=**차원별 L\*(N) scale-response**(위 표를 인과확정).
+>
+> **★★★L_interf 통제검정(2026-06-26·`load_graded_probe.py`·7B vs 32B)**: 관측의 강한 L_interf@7B(+0.30)가 **통제서 재현 안 됨**(N=16서 7B 0.80 vs 32B 0.87=격차 작음) → 관측신호=task-size **교락**(리뷰어 경고 입증). + **단일-shot probe 범위한계**: L_len/L_branch/L_interf는 한 샷에 나타나 측정가능하나 **L_state/L_contra=멀티턴**이라 단일-shot under-test.
+>
+> **★★★★scale이 못 푸는 부하 = compliance/guarantee (2026-06-26·`f3f4_scale_invariant_compliance`·기존데이터·gpt-4.1 0·논문 백본)**: floor서 **F3(pass)는 scale로 강하게↑**(7B 0.19→32B 0.55=capability 부하 은퇴)지만 **F3-F4(compliant) gap은 scale-FLAT**(0.058→0.064→0.056)·**g2 정책위반은 31→38→41로 안 줄음**(g1 auth류만 57→6 급감) = **compliance 잔여=scale-invariant.** gate(guarantee-scaffold)는 **모든 scale서 위반 0·gap 0**(7B=14B=32B). ⇒ **scale은 capability를 풀지만 guarantee는 원리적으로 못 푼다 → frontier도 gate/A2 필요**([[43]] 환각=목적함수 scale-불변 정합). = **scaffold 2종(capability-scaffold recede[F3]/guarantee-scaffold scale-invariant[F4])의 실증.** caveat: 범위 7B~32B(72B 확인거리)·gated gap=0은 구성상·정보는 floor-gap 비수렴.
 
 ---
 
