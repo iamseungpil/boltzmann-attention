@@ -5,7 +5,29 @@
 
 ---
 
-## §0★★★ (2026-06-26 — ★현재 최상위 정렬·아래 §0★★(06-21)는 *유효·이 블록이 그 위에 실측 수렴 정렬*) — make-or-break 결과로 레버배정 갱신 + 비용규율
+## §0★★★ (2026-06-26 PM — ★현재 최상위·아래 §0★★★(AM)에 *실증 backbone 추가*) — load theory + F3/F4 scale-invariance + orchestration=잔여
+> **이 블록 = §0★★★(AM)의 "scaffold 2종(F3 능력-scaffold recede / F4 보장-scaffold scale-invariant)"을 *실측으로 입증* + make-or-break 이후 잔여(orchestration-under-load)를 규명·이론화.** 새 프레임 아님 — §0★★(매트릭스)·§0★★★(AM)의 *설명층·실증*. 정본 결과 = `sim_results/`(전부 gpt-4.1 0). 메모리 `06-NOW`·`load-theory-scale-invariant-compliance`.
+
+**■ 신규 권위 문서 (이번 세션·2026-06-26)**:
+- [`ORCHESTRATION_CAPABILITY_LEVER_DESIGN_2026_06_26.md`](ORCHESTRATION_CAPABILITY_LEVER_DESIGN_2026_06_26.md) — operand make-or-break NO-GO 이후 *진짜 잔여*=orchestration-under-load. 5기능 분해(plan/state/branch/interf/fab)·**분해(LLM 짧은 plan-spec)/실행(결정론 controller) 분리**·3레버{query/scaffold/learn} 통제비교. plan_probe 결과: 잔여 절반=실행부하(C1/C2)·절반=조건분기/grounding.
+- [`LOAD_THEORY_DESIGN_2026_06_26.md`](LOAD_THEORY_DESIGN_2026_06_26.md) — 부하를 측정가능 feature로 규정·분해·측정. **scaffold=load-reduction 연산자**(L_eff=L−ΔL)·예측틀 small@L_eff≈large@L(ΔL 독립추정 필수·비순환).
+
+**■ ★★실측 1 — F3/F4 scale-invariance = "scale이 못 푸는 부하" (논문 백본·`f3f4_scale_invariant_compliance`)**:
+- floor(gate 없음): **F3(pass)는 scale로 강하게↑**(7B 0.19→32B 0.55=capability 부하 은퇴) 그러나 **F3-F4(compliant) gap은 scale-FLAT**(0.058→0.064→0.056)·**g2 정책위반은 31→38→41 안 줄음**(g1 auth류만 57→6 급감).
+- gated g15: **모든 scale서 위반 0·gap 0**(7B=14B=32B 동일).
+- ⇒ **scale은 capability를 풀지만 guarantee(compliance)는 원리적으로 못 푼다 → frontier도 보장-scaffold(gate)/A2 필요.** = §0★★★(AM) scaffold 2종(F3 recede / F4 scale-invariant)의 **직접 실증**·[[43]] 환각=목적함수 scale-불변 정합. (caveat: 범위 7B~32B·72B 확인거리·gated gap=0은 구성상.)
+
+**■ ★실측 2 — load=scale-의존 binding 차원 (`load_obs` 멀티스케일·`load_graded_probe`)**:
+- operand 통제 후 fail-예측 부하차원: **7B/14B≈4(L_len·L_state·L_branch·L_interf)·32B=2(L_len·L_branch)** — **scale이 차원을 순서대로 은퇴**(interference·state 먼저·length·conditional 잔존). L_contra=tau2 희소(폐기).
+- **관측 confound 경계**: 관측의 L_interf@7B(+0.30)를 통제 probe가 재현 안 함(N16서 7B 0.80 vs 32B 0.87) → 관측=약한 스크린·인과는 통제생성([[08]] 규율). 단일-shot probe는 L_state/L_contra(멀티턴) under-test.
+
+**■ 학습 함의 (부하-내성 SFT)**: 부하-내성 학습 = 결정론 controller의 일(state/sequencing) 침범 = thesis 역행([[10]]/[[13]]). 4차원 중 **L_branch만 학습 유망**(control-flow·SOPBench)·그것도 controller(branch-executor) 먼저·[[20]] 전이음성 prior로 *최후*. ⇒ **부하를 견디게 학습 말고 scaffold로 삭제**(thesis).
+
+**■ 이 블록이 갱신하는 doc**: `CAPABILITY_LEVER`(orchestration 능력행·F4 scale-invariance 실측)·`EPISTEMIC_A2_THESIS`(guarantee-scaffold scale-불변 실증)·`MAKEORBREAK_VERDICT`(잔여=orchestration 규명).
+
+---
+
+## §0★★★ (2026-06-26 AM — ★아래 §0★★(06-21)는 *유효·이 블록이 그 위에 실측 수렴 정렬*) — make-or-break 결과로 레버배정 갱신 + 비용규율
 > **이 블록 = §0★★ 마스터 매트릭스(능력×레버×스케일×field+비용)에 2026-06-26 실측을 정렬.** 새 프레임 아님 — §0★★ 그대로가 "비용-효율 능력 지도". 정본 결과 = `MAKEORBREAK_VERDICT_2026_06_26.md`. 메모리 `06-NOW`.
 
 **■ make-or-break 1차 측정 결과 (tau2 retail·32B·통제실험·gpt-4.1 0원)**:

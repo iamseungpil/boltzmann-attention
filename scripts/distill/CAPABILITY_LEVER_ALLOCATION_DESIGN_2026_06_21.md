@@ -3,6 +3,8 @@
 > ★**마스터 진입점 = [`EXPERIMENT_DESIGN.md §0★★/§0★★★`](EXPERIMENT_DESIGN.md)** (이 문서가 그 spine·평가항목·마스터 실험·문서정렬은 거기). 메모리 `06-NOW`.
 
 > **★2026-06-26 배정 갱신 (make-or-break 통제실험·정본 `MAKEORBREAK_VERDICT_2026_06_26.md`·gpt-4.1 0)**: tau2 retail·32B서 **C10(operand/value-formalize) "minimal LoRA" 배정 갱신** — operand *실행*=GIVEN-SPEC 100%(32B base 네이티브·gap 아님). "operand 실패"=GOAL→spec criterion-해석 = **C9(selection-resolution: argmax/argmin/filter=결정론 compute) + ⋈(present) + user-sim 대화-아티팩트**. ⇒ **C10 minimal-LoRA는 32B서 NO-GO**(닫을 학습잔여 없음)·**소형(7B)서 base가 GIVEN-SPEC도 약할 때만 정당**(미측정·scale 스윕이 판정). 즉 §4 decidability-first가 더 강하게 성립: B(operand)의 실행분도 32B선 scaffold/compute(C9 resolve)로 닫힘, 학습은 최후. scaffold 2종 구분 추가: **능력-scaffold(present/calc/resolve)=scale로 물러남(F3) · 보장-scaffold(gates)=scale-invariant(F4 compliance)**.
+>
+> **★2026-06-26 PM 실증 (claim→confirmed·`EXPERIMENT_DESIGN §0★★★(PM)`·`sim_results/f3f4_scale_invariant_compliance`·gpt-4.1 0)**: scaffold 2종이 *데이터로* 갈림 — floor서 **F3(pass) scale로↑**(7B .19→32B .55=능력-scaffold가 메우던 capability 은퇴) 그러나 **F3-F4 gap scale-FLAT(.056)·g2 정책위반 31→41 안 줄음**·gate는 모든 scale서 위반0 → **보장-scaffold=scale-invariant 실증·frontier도 필요**. + **신규 능력행 = orchestration-under-load**(operand make-or-break 이후 잔여·`ORCHESTRATION_CAPABILITY_LEVER_DESIGN`)·load=scale-의존 binding 차원(7B/14B 4→32B 2·`LOAD_THEORY_DESIGN`)·부하-내성 학습=controller 일 침범=최후([[20]] 전이음성).
 
 > **사용자 지시**: "기능을 더 세분화하고, 비용-효과 관점에서 각 기능을 효율적으로 *조합할 가이드라인을 설계*하는 것이 논문 목표. + 큰 모델이 하는 일을 작은 모델에서 *더 적은 구조/학습으로* 따라잡는 방법을 제시."
 > 상위 = `THESIS_STATEMENT_2026_06_16`(분담 명제·이 doc가 §3 라우팅표를 *완전 가이드라인*으로 확장)·`A2_MINIMIZATION_FRONTIER_DESIGN`·`M_A_RESULTS §35`. 불변 = [[00-thesis]][[05-fixed-vs-variable]][[13-absorption-priority]].
