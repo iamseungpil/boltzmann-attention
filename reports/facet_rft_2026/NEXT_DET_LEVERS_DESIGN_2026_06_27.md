@@ -38,6 +38,19 @@ still passes) — NOT a new join-resolver. Domain-general via gate_spec
 **Verdict:** BUILD after confirming per-order `payment_history` resolution on the
 5 cases (GPU-free, existing trajectories).
 
+**VERIFIED 2026-06-27 (DB ground truth):** for all 5 gold orders, the gold refund
+`payment_method_id` == the order's original payment in `db.json` payment_history:
+#W5490111→credit_card_3124723, #W4689314/#W3916020→credit_card_8105988,
+#W6390527→paypal_7644869, #W7387996→paypal_9497703 — **5/5 MATCH**. The rule is
+deterministic: refund PM ∈ {order's payment_history payment} ∪ {gift cards}. Gate
+confirmed BUILDABLE. **But coupling:** the trajectory extraction returned the gold
+order's payment as `None` in the wrong-order cases — the agent used the wrong card
+*because it operated on the wrong order* (⋈). So the PAYMENT residual is largely a
+**downstream symptom of ⋈**; the refund_target gate enforces payment-consistency
+*given* the order but cannot fix order-choice. **⇒ do Lever B (⋈) first** — it may
+absorb most of the PAYMENT residual, shrinking Lever A's marginal ceiling to the
+right-order-wrong-card slice.
+
 ### Lever B — ⋈ present-quality  [NOT a resolver]
 **Claim:** when the user has several orders, the agent operates on the wrong or a
 missed order. The fix is **present quality, not a resolver** — gate1 forbids a
@@ -91,12 +104,18 @@ artifacts. This bounds the levers as *incremental*, not a ceiling-breaker —
 consistent with the headline (deterministic scaffold + base innate skill + TCO;
 no learn wing on τ²).
 
-## Recommended order
-1. **Verify Lever A** per-order `payment_history` on the 5 PAYMENT cases
-   (GPU-free). If clean → implement `refund_target` gate in the engine
-   (gate_spec-driven) + A2 instance; smoke; measure with double-confirm.
-2. **Lever B** present_fields disambiguator (A2-only); measure ⋈ closure.
+## Recommended order (updated 2026-06-27 after Lever A verification)
+Lever A rule is verified (5/5 DB), but ⋈ is upstream of most PAYMENT fails, so:
+1. **Lever B first** — `present_fields` disambiguator (A2-only, no engine change,
+   gate1 unaffected): enumerate order↔items/status/date so the model picks the
+   right order. Measure ⋈ closure with double-confirm. This may absorb much of the
+   PAYMENT residual.
+2. **Lever A** — implement `refund_target` gate (gate_spec-driven, `fetch_record`
+   payment_history, verified rule) for the right-order-wrong-card residual left
+   after B. Smoke; measure; watch gift-card over-block.
 3. **Bound** Lever C (idempotence) statically; do not build for pass.
-4. Re-run assembled (32B+14B) with A+B; per-case forensic delta vs this baseline.
+4. Re-run assembled (32B+14B) with B(+A); per-case forensic delta vs this
+   baseline (32B 21 / 14B 30 clean robust-fail).
 Do NOT add a scope-inference over-action gate ([[06]]) — that slice is the
-LLM/present residual.
+LLM/present residual. High-scale sweep (72B/235B) abandoned 2026-06-27 (coworker
+unavailable; models not local; out of scope).
