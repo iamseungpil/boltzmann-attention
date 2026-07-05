@@ -26,12 +26,12 @@ run () { local save=$1; local nt=$2; local ntask=$3; shift 3
   env "$@" PYTHONPATH=src:$T2 $PY $T2/t2_run_gated.py --gate 1 --domain retail \
     --agent_model "$M" --agent_base http://localhost:$PORT/v1 \
     --user_llm $USIM --user_temp 0.0 \
-    --num_trials $nt --max_concurrency 8 --save_to "$save" $extra || echo "ARM_FAIL $save"
+    --num_trials $nt --max_concurrency 6 --save_to "$save" $extra || echo "ARM_FAIL $save"
   echo "ARM_DONE $save"; date; }
 # ---- serve 32B-int8 on GPU (kills existing procs on that GPU first) ----
 for p in $(nvidia-smi --id=$GPU --query-compute-apps=pid --format=csv,noheader); do kill -9 $p 2>/dev/null; done; sleep 4
 CUDA_VISIBLE_DEVICES=$GPU setsid nohup $VLLM serve "$M" --port $PORT --enable-auto-tool-choice \
-  --tool-call-parser hermes --max-model-len 16384 --enforce-eager --gpu-memory-utilization 0.92 \
+  --tool-call-parser hermes --max-model-len 32768 --enforce-eager --gpu-memory-utilization 0.95 \
   > $S/vllm_$TAG.log 2>&1 &
 ok=0; for i in $(seq 1 150); do curl -s localhost:$PORT/v1/models 2>/dev/null | grep -q "$M" && ok=1 && break; sleep 10; done
 [ $ok = 1 ] || { echo "SERVE_FAIL"; tail -40 $S/vllm_$TAG.log; exit 1; }
