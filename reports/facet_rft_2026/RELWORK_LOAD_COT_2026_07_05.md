@@ -225,6 +225,50 @@ serialization/CoT for the SYMBOLIC slice (probe5) — because CoT *changes the
 computation* (explicit list-then-compare), not by resampling. The semantic slice
 (intent, ⋈-matching) is recovered by none of these → the scale/capability residual.
 
+## 6d. DR3 (test-time compute / self-consistency vs scale) — corroborates probe6
+
+Verified report (24 confirmed, several refuted). Clean random-vs-systematic split
+on TC0 selection/comparison, directly backing our probes.
+
+**Random/stochastic error — recoverable by test-time compute (bounded):**
+- **Snell et al. 2408.03314:** compute-optimal test-time allocation lets a small
+  model beat a **14× larger** one (FLOPs-matched, >4× more efficient than raw
+  BoN) — **but only on easy/moderate problems, low inference/pretrain ratio;
+  hardest problems need scale.** = the execution-reliability (recoverable) vs
+  capability (needs scale) boundary.
+- **Large Language Monkeys, Brown et al. 2407.21787:** coverage scales over 4
+  orders of magnitude — but converts to accuracy **only with a verifier**; without
+  one, voting/RM **plateaus** (MATH/Llama-3-8B: coverage 82.9→98.4% but voting
+  accuracy 40.5→41.4% flat over 100→10⁴ samples). ← our probe6 flat, at scale.
+
+**Systematic error — repetition/voting CANNOT fix (our probe6, corroborated):**
+- **Byerly & Khashabi, TACL 2026 (2411.01101)** [peer-reviewed, strongest]:
+  self-consistency **actively DEGRADES** on long-context because systematic
+  (position) bias → **correlated errors** → violates SC's independence; worse with
+  **smaller models**. ← exactly our probe6 (correlated, voting fails).
+- **Apple 2026, "Nine Judges, Two Effective Votes" (2605.29800):** 9 judges =
+  **2.18 effective votes** (correlated errors on same items); "bottleneck is
+  correlated judges, not aggregation." ← literature form of our 8/8-same-wrong.
+- **Best-of-Majority, Di et al. 2510.03199:** majority voting has Ω(1) regret
+  (plateau); BoN can degrade with N.
+- **Zheng et al., ICLR 2024 (2309.03882):** LLM selection has systematic
+  **selection bias** toward option IDs (permuting options swings accuracy ±15pts).
+  **PriDe** corrects it **label-free at ~1.15× cost, no scale** (RStd 8.7→1.8,
+  +2.6 acc). ← systematic error is fixable by *targeted deterministic correction*,
+  NOT only scale — a precedent for "scaffold, not scale/voting."
+
+**Net (DR3):** "reduce scope + repeat + aggregate" recovers the **stochastic**
+component and can substitute for scale in a bounded easy-moderate regime, but a
+**systematic (bias/correlated-error) residual persists that only scale/training —
+or a targeted deterministic correction/verifier (= our scaffold) — removes.**
+Refuted (do NOT use): self-certainty BoN making small match large (0-3).
+
+**Whitespace (DR3 open questions) = our contribution:** no source studies the
+exact "select 1-of-N TC0 already-given" task (our probes do); none combines
+scope-reduction + debias + aggregation end-to-end to test small==large on
+selection (our scaffold does); a per-instance stochastic-vs-systematic router is
+open.
+
 ## 7. Candidate bib entries (verify before citing)
 
 - 2310.07923 — Merrill & Sabharwal, Expressive Power of Transformers with CoT, ICLR 2024
@@ -242,4 +286,10 @@ computation* (explicit list-then-compare), not by resampling. The semantic slice
 - 2203.14465 — Zelikman et al., STaR (Self-Taught Reasoner)
 - 2212.08410 — Hsieh et al., Distilling Step-by-Step
 - 2210.03629 — Yao et al., ReAct
+- 2408.03314 — Snell et al., Scaling Test-Time Compute Optimally (>parameter scaling; bounded)
+- 2407.21787 — Brown et al., Large Language Monkeys (coverage vs verifier plateau)
+- 2411.01101 — Byerly & Khashabi, Self-Consistency Falls Short (TACL 2026; correlated errors)
+- 2605.29800 — Apple, Nine Judges Two Effective Votes (correlated judges; post-cutoff verify)
+- 2510.03199 — Di et al., Best-of-Majority (voting/BoN scaling limits)
+- 2309.03882 — Zheng et al., LLMs Are Not Robust MC Selectors / PriDe (ICLR 2024; selection bias)
 - (already in bib) 2402.12875 Li CoT-serial; 2305.15408 Feng; 2207.00729 Merrill parallelism tradeoff
