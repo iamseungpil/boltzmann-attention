@@ -196,9 +196,34 @@ strongly recovers the symbolic-comparison residuals** (+17%, +35%).
   scale/capability residual.
 
 **Caveats:** probes are variant-level (within product), not the live cross-order ⋈;
-a clean adequate-budget re-run of ⋈ order-inference and a self-consistency
-(temp>0, K-sample majority) probe are still pending (the latter tests the
-random-vs-systematic / "repetition" axis). Tool: `cot_probe5.py` on the remote.
+a clean adequate-budget re-run of ⋈ order-inference is still pending. Tool:
+`cot_probe5.py` on the remote.
+
+### Self-consistency probe (does "repetition" overcome the error? random vs systematic)
+
+Single one-shot (temp 0) vs K=5 majority vote (temp 0.8), 14B, `cot_probe6.py`:
+
+| primitive | single | maj@5 | Δ |
+|---|---|---|---|
+| max-of-N | 77% | 77% | +0% |
+| joint-constraint | 55% | 55% | +0% |
+| operation-select | 68% | 68% | +0% |
+
+**Self-consistency gives ZERO gain on all three.** A diversity check (8 samples
+@temp 0.8) confirms this is NOT a no-sampling artifact: the model's output
+distribution is **near-deterministic even at temp 0.8** — e.g., Laptop max-price:
+all 8 samples pick the SAME WRONG id ($2729.32 over gold $2749.56), 8/8;
+T-Shirt/Shoes: 8/8 correct. So the execution error is **systematic AND
+high-confidence (≈zero sampling entropy)**, not stochastic.
+
+**Conclusion (random-vs-systematic, empirically grounded):** repetition / majority
+voting / self-consistency does NOT overcome the selection error — the model
+reliably reproduces the same wrong answer. This matches Mirtaheri 2505.21825
+(parallel voting stays in TC0, cannot add the missing computation). What DOES
+help is (a) scope reduction (scaffold: GIVEN-SPEC 100% vs GOAL 67%) and (b)
+serialization/CoT for the SYMBOLIC slice (probe5) — because CoT *changes the
+computation* (explicit list-then-compare), not by resampling. The semantic slice
+(intent, ⋈-matching) is recovered by none of these → the scale/capability residual.
 
 ## 7. Candidate bib entries (verify before citing)
 
