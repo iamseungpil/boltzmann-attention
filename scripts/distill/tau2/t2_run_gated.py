@@ -43,6 +43,8 @@ def main():
                          "on the shared OpenRouter key. Default REFUSES — user-sim must be gpt-4.1.")
     ap.add_argument("--num_trials", type=int, default=1)
     ap.add_argument("--num_tasks", type=int, default=None)
+    ap.add_argument("--task_ids", default=None,
+                    help="comma-separated task ids; run ONLY these (for targeted re-runs)")
     ap.add_argument("--max_concurrency", type=int, default=8)
     ap.add_argument("--save_to", required=True)
     a = ap.parse_args()
@@ -154,6 +156,7 @@ def main():
         llm_args_user=user_args,
         num_trials=a.num_trials,
         num_tasks=a.num_tasks,
+        task_ids=([t.strip() for t in a.task_ids.split(",")] if a.task_ids else None),
         max_concurrency=a.max_concurrency,
         save_to=a.save_to,
     )
