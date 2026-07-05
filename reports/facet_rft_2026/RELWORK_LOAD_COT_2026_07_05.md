@@ -133,6 +133,37 @@ Scratchpad" (arXiv 2406.06467, NeurIPS 2024).** Close reading:
 4. Whether the load-degradation curves shrink with scale AND flatten under our
    scaffold (the crossover) — not established by current single-model evidence.
 
+## 6b. DR2 (CoT-capability for small models) — salvaged (synth agent glitched; read directly)
+
+DR2's search/verify worked (24 sources, 24 confirmed) but the final synthesis
+returned placeholder text; recovered by reading the decisive sources.
+
+- **★Sprague et al., "To CoT or not to CoT? CoT helps mainly on math and
+  symbolic reasoning" (arXiv 2409.12183).** Meta-analysis of 100+ papers: **CoT
+  gives strong gains PRIMARILY on math/logic; minimal elsewhere.** On MMLU,
+  "directly generating the answer without CoT is almost identical accuracy unless
+  the question involves symbolic operations." **Decisive:** "much of CoT's gain
+  comes from improving symbolic execution, but it UNDERPERFORMS relative to using
+  a symbolic SOLVER."
+  → For us: (a) predicts our probe split — arithmetic max-of-N (symbolic → CoT
+  should help) vs semantic ⋈ order-inference (non-symbolic → CoT should not);
+  (b) **for the symbolic slice, a deterministic SOLVER beats CoT** — reinforces
+  "deterministic scaffold (calc/gate), not learned CoT" for computation residuals.
+- **REFUTED (0-3):** the claim that distillation *systematically* transfers a
+  larger model's reasoning to a small one (distill > human-data), sourced to
+  DeepSeek-R1 (2501.12948), did NOT survive verification. ⇒ "train the small model
+  to serialize (CoT distillation)" is NOT a settled win — supports treating the
+  learn-lever as an open question, not an assumed fix.
+- **RIVAL — AgenticQwen (arXiv 2604.21590, 2026-04, post-cutoff):** small agentic
+  models match larger via multi-round RL on synthetic data + explicit
+  decision-tree structures. Closest "small-agentic == large" precedent, but a
+  DIFFERENT mechanism: learned behavior-trees + domain-target RL, NOT a
+  deterministic domain-general scaffold, and NO compliance / iso-scaffold ×
+  cross-scale axis. Position against (rival for the headline, not our method).
+- Training-to-reason precedents (for the learn-lever discussion): STaR
+  (2203.14465), Distilling Step-by-Step (2212.08410). ReAct (2210.03629) =
+  reason+act over tool state (prompted, large models).
+
 ## 7. Candidate bib entries (verify before citing)
 
 - 2310.07923 — Merrill & Sabharwal, Expressive Power of Transformers with CoT, ICLR 2024
@@ -145,4 +176,9 @@ Scratchpad" (arXiv 2406.06467, NeurIPS 2024).** Close reading:
 - 2506.08184 — Unable to Forget: Proactive Interference reveals WM limits
 - 2506.06843 — CoThinker (CLT for LLMs)
 - 2509.19517 — Cognitive Load Limits in LLMs (weak; single-author)
+- 2409.12183 — Sprague et al., To CoT or not to CoT? (CoT helps mainly math/symbolic; solver > CoT)
+- 2604.21590 — AgenticQwen (RIVAL: small agentic == large via RL + decision-trees; post-cutoff, verify)
+- 2203.14465 — Zelikman et al., STaR (Self-Taught Reasoner)
+- 2212.08410 — Hsieh et al., Distilling Step-by-Step
+- 2210.03629 — Yao et al., ReAct
 - (already in bib) 2402.12875 Li CoT-serial; 2305.15408 Feng; 2207.00729 Merrill parallelism tradeoff
