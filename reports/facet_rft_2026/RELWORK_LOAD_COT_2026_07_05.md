@@ -164,6 +164,42 @@ returned placeholder text; recovered by reading the decisive sources.
   (2203.14465), Distilling Step-by-Step (2212.08410). ReAct (2210.03629) =
   reason+act over tool state (prompted, large models).
 
+## 6c. Our empirical probe (14B, one-shot vs CoT, load-vs-capability)
+
+Isolated single-turn probes at 14B (Qwen2.5-14B-Instruct), temperature 0,
+gpt-4.1 = 0. CoT budget 900 tok, truncation tracked (=0 for all rows below).
+32B reference (make-or-break): variant GIVEN-SPEC 100%, GOAL 70%, genuine-⋈ 54%.
+
+| primitive | one-shot | CoT | Δ | note |
+|---|---|---|---|---|
+| max-of-N (parallel arithmetic compare) | 77% | 93% | +17% | symbolic |
+| joint-constraint (filter AND max) | 50% | 85% | +35% | symbolic (hardest) |
+| operation-select (intent → tool) | 68% | 72% | +4% | semantic |
+
+**★Key result & a corrected earlier error ([[08]]):** an earlier run reported CoT
+Δ≈0 / −27% and nearly concluded "CoT cannot recover parallel comparison." Reading
+the raw responses showed that was a **truncation artifact** (400-tok CoT budget cut
+off many-candidate scans before the answer). With adequate budget (trunc=0), **CoT
+strongly recovers the symbolic-comparison residuals** (+17%, +35%).
+
+**Interpretation (theory-consistent):**
+- The "serial vs parallel" framing I first drew was wrong; the user's point holds
+  — parallel comparison IS serializable (running-max), and CoT executes it: it
+  recovers max-of-N and joint-constraint.
+- The real split is **SYMBOLIC vs SEMANTIC** (matches Sprague 2409.12183): CoT
+  helps the symbolic/arithmetic primitives (+17/+35) and barely helps the semantic
+  intent primitive (+4). Consistent with the earlier ⋈ (order-*matching*, semantic)
+  not improving under CoT.
+- Combined with Sprague's "symbolic SOLVER > CoT": for the symbolic slice, our
+  deterministic scaffold (calc/gate) should beat even trained CoT; for the semantic
+  slice (intent, ⋈ matching), neither CoT nor a solver helps — that is the
+  scale/capability residual.
+
+**Caveats:** probes are variant-level (within product), not the live cross-order ⋈;
+a clean adequate-budget re-run of ⋈ order-inference and a self-consistency
+(temp>0, K-sample majority) probe are still pending (the latter tests the
+random-vs-systematic / "repetition" axis). Tool: `cot_probe5.py` on the remote.
+
 ## 7. Candidate bib entries (verify before citing)
 
 - 2310.07923 — Merrill & Sabharwal, Expressive Power of Transformers with CoT, ICLR 2024
