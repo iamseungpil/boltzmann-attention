@@ -75,3 +75,5 @@ reports/facet_rft_2026/phase1_baseline/base_n114_v1_16k_partial/B0_telecom_base.
 # 회사자산(CDP)·로컬전용·커밋금지
 scripts/distill/CDP_*
 scripts/distill/PLATFORM_DESIGN*
+paper/patent/
+_cdp_private_local/
