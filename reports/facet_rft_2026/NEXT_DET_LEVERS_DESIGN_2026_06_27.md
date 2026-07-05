@@ -68,6 +68,22 @@ operand-formalize (LLM), not present — bound honestly by measurement.
 **Verdict:** BUILD-lite (cheap, A2-only); measure whether disambiguated present
 closes ⋈ or leaves an LLM residual.
 
+**VERIFIED 2026-06-27 → NO-GO (already maximal).** The `G6_SELECT_CONFIRM`
+`present_fields` are already `[status, address, items]`, and `candidate_summary`
+(read-aug, T2_PRESENT_READS) **already fires** in all ⋈-failure cases (32B
+t41/t98/t107, 14B t83/t85/t102/t109/t111 = all True; 248/342 and 259/342 sims
+overall). The DISAMBIGUATION NOTE dumps every order with **item names + prices +
+options + address + status** — e.g. t83 ("return the pricier of two tablets")
+shows both tablets with prices ($938.92 etc.). The model sees the full
+disambiguated list and *still* picks the wrong order. So the ⋈ residual is
+**LLM operand-formalize** (reading + comparing + matching over the enumerated
+candidates), NOT a present-content gap — Lever B as designed is a no-op. This is
+the [[06]] "lever-type ≠ solution" precedent (like eligibility-steer=0), caught
+by measurement *before* a paid re-run. Adding a "compare-across-orders" compute
+would be a new speculative mechanism (make-or-break already offloads
+criterion-comparison to the LLM) — do not build. **⋈ stays in the make-or-break
+LLM region; it retires with scale (forensic 14B 23% → 32B 14%).**
+
 ### Lever C — over-action  [split: gateable vs LLM-residual]
 The forensic's biggest surprise: over-action (executing disallowed / unrequested
 / impossible writes) is the de-facto dominant 32B mode (t62 cancels an order the
@@ -104,18 +120,28 @@ artifacts. This bounds the levers as *incremental*, not a ceiling-breaker —
 consistent with the headline (deterministic scaffold + base innate skill + TCO;
 no learn wing on τ²).
 
-## Recommended order (updated 2026-06-27 after Lever A verification)
-Lever A rule is verified (5/5 DB), but ⋈ is upstream of most PAYMENT fails, so:
-1. **Lever B first** — `present_fields` disambiguator (A2-only, no engine change,
-   gate1 unaffected): enumerate order↔items/status/date so the model picks the
-   right order. Measure ⋈ closure with double-confirm. This may absorb much of the
-   PAYMENT residual.
-2. **Lever A** — implement `refund_target` gate (gate_spec-driven, `fetch_record`
-   payment_history, verified rule) for the right-order-wrong-card residual left
-   after B. Smoke; measure; watch gift-card over-block.
-3. **Bound** Lever C (idempotence) statically; do not build for pass.
-4. Re-run assembled (32B+14B) with B(+A); per-case forensic delta vs this
-   baseline (32B 21 / 14B 30 clean robust-fail).
-Do NOT add a scope-inference over-action gate ([[06]]) — that slice is the
-LLM/present residual. High-scale sweep (72B/235B) abandoned 2026-06-27 (coworker
-unavailable; models not local; out of scope).
+## Recommended order (updated 2026-06-27 after verification)
+- **Lever B — NO-GO (verified).** present_fields already `[status,address,items]`
+  and the DISAMBIGUATION NOTE already fires with full item names/prices in every
+  ⋈ case; the model still mis-picks → LLM operand residual, not present. No build.
+- **Lever A — the one buildable deterministic lever**, rule verified 5/5 (DB). But
+  since wrong-order (⋈) is now LLM-residual, Lever A only helps the
+  *right-order-wrong-card* slice — small (≈ t63; most PAYMENT fails are ⋈-driven).
+  Marginal ceiling ~2–4, with gift-card over-block risk.
+- **Lever C — DEFER** (idempotence bounds cost, not pass); unrequested over-action
+  = LLM scope residual (do NOT gate, [[06]]).
+- **High-scale sweep (72B/235B) — abandoned** (coworker unavailable; models not
+  local).
+
+**Net:** after verification, the deterministic levers are largely **exhausted** —
+the assembled stack (present+nested+gates+constraints+calc) already fires
+maximally; the dominant residuals (⋈ comparison, criterion-formalize, over-action
+scope, wrong-op intent) are **LLM operand/scope-inference** (make-or-break region,
+retiring with scale) plus **benchmark artifacts** (reason enum, tracking#, format,
+user-sim variance). This **strengthens** the headline: deterministic scaffold +
+gates buy compliance and close the mechanical layers; the remaining task-pass gap
+is base-model reasoning that scale (not scaffold, not SFT on τ²) buys.
+**Decision point:** build Lever A for the small right-order-wrong-card slice
+(low ROI, one clean deterministic policy) vs. declare the deterministic levers
+exhausted and pivot to writing up the forensic+scale result. Recommend the latter
+unless the paper needs the refund_target gate as a completeness point.
