@@ -77,3 +77,8 @@ scripts/distill/CDP_*
 scripts/distill/PLATFORM_DESIGN*
 paper/patent/
 _cdp_private_local/
+# 2026-07-05 오늘 생성분·로컬전용(특허 IP·repo 비공개)
+reports/facet_rft_2026/RELWORK_LOAD_COT_2026_07_05.md
+reports/facet_rft_2026/NEXT_DET_LEVERS_DESIGN_2026_06_27.md
+scripts/distill/tau2/f3f4_table.py
+reports/facet_rft_2026/sim_results/f3f4_scale_invariant_compliance_2026_06_26.txt.gz
