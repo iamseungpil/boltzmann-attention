@@ -269,6 +269,41 @@ scope-reduction + debias + aggregation end-to-end to test small==large on
 selection (our scaffold does); a per-instance stochastic-vs-systematic router is
 open.
 
+## 6e. Integration into Paper 1 (recommended: theory-grounding, NOT a new experiment)
+
+Decision (2026-07-05): fold this into Paper 1's relwork/framework as citation-
+grounding + a framing; keep the 14B probes as scoped appendix support. Do NOT
+spin a new paper or promote the probes to a headline experiment ([[03]] anti-drift;
+make-or-break settled; probes are 14B/variant-level/exploratory).
+
+**Framing sentence (for §3/§4 framework):** *A deterministic scaffold is precisely
+the verifier / selector / debiaser that the test-time-compute literature identifies
+as necessary but leaves external — coverage converts to accuracy only with a
+verifier (Brown et al. 2407.21787); systematic selection bias is removed by a
+targeted label-free correction, not scale (Zheng et al. 2309.03882 / PriDe); and
+repetition/voting cannot fix correlated systematic error (Byerly & Khashabi
+2411.01101; Apple 2605.29800). Our scaffold supplies this deterministically and
+domain-generally, so a small base reaches the reliability that would otherwise
+require scale; the residual that remains — semantic intent / cross-entity matching
+— is what scale genuinely buys.*
+
+**Where each cite slots:**
+- §2 relwork, new "load / CoT / test-time compute" paragraph: Merrill&Sabharwal
+  2310.07923, Li 2402.12875, Abbe 2406.06467 (structure breaks the learnability
+  barrier — anchor), Sprague 2409.12183 (CoT=symbolic only; solver>CoT), Snell
+  2408.03314, Brown 2407.21787, Byerly&Khashabi 2411.01101.
+- §3/§4 framework: the framing sentence above + the execution-reliability
+  (recoverable) vs capability (scale) distinction; scaffold as the required
+  verifier/debiaser.
+- §2.5 rivals: AgenticQwen 2604.21590 (small-agentic==large via RL+trees; contrast
+  with our deterministic domain-general + compliance/iso-scaffold axis).
+- Appendix: the 14B probes (scope 100/67, CoT symbolic +17/+35, self-consistency
+  +0 with 8/8-same-wrong) — clearly scoped: 14B, variant-level, illustrative.
+
+**Optional (only if a reviewer/paper needs it) — NOT now:** clean cross-order ⋈
+re-run + 32B probe reference + N-vs-scale scope curve. Deferred to avoid scope
+creep / paid runs.
+
 ## 7. Candidate bib entries (verify before citing)
 
 - 2310.07923 — Merrill & Sabharwal, Expressive Power of Transformers with CoT, ICLR 2024
