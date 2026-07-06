@@ -7,7 +7,7 @@
 
 | # | 디렉터리 | 성격 | 한 줄 | 정본 설계문서 |
 |---|---|---|---|---|
-| **1 (=1+4)** | `paper1_capability_scale_lever/` | **이론·지도 + 시스템·비용** (ICLR 타깃·메인) | 기능×스케일(7B–235B)×레버×**비용** 지도: scale이 *무엇을 사고* / LLM이 *무엇을 진짜 못하고*(compliance=scale-invariant) / scaffold+A2가 *무엇을 싸게 메우나* + **총비용 knee·TCO ~23×**. 벤치=측정도구 | `EXPERIMENT_DESIGN §0★★/★★★`·`LOAD_THEORY_DESIGN`·`MAKEORBREAK_VERDICT`·`CAPABILITY_LEVER_ALLOCATION`·`TCO_TABLE_DESIGN` |
+| **1 (=1+4)** | `paper1_capability_scale_lever/` | **이론·지도 + 시스템·비용** (ICLR 타깃·메인) | 기능×스케일(7B–235B)×레버×**비용** 지도: scale이 *무엇을 사고* / LLM이 *무엇을 진짜 못하고*(compliance=scale-invariant) / scaffold+A2가 *무엇을 싸게 메우나* + **총비용 knee**(온프레미스 비용 이점=방향은 견고·배수는 배포환경 의존 rough estimate). 벤치=측정도구 | `EXPERIMENT_DESIGN §0★★/★★★`·`LOAD_THEORY_DESIGN`·`MAKEORBREAK_VERDICT`·`CAPABILITY_LEVER_ALLOCATION`·`TCO_TABLE_DESIGN` |
 | **2** | `paper2_a2_generation/` | 학습법 (proposal) | NL 정책 → `GATE_SPEC` 컴파일러 학습. #1이 *given*으로 쓰는 A2를 *만드는* 방법(공통 적 A2 비용 절감) | `A2_FRONTEND_DISTILL_DESIGN` |
 | **3** | `paper3_path_selection/` | 학습법·직교축 (proposal) | 도구폭발 하 path-search를 *전이가능 학습 휴리스틱*으로(탐색=offload·LLM=②적용op인식·③value). #1(provenance축)과 직교 | `PATH_SELECTION_AXIS_DESIGN` |
 
@@ -23,7 +23,7 @@
 - **#1·#3 직교**: #1 tau2 = provenance/grounding 축 / #3 = path-search 축. *섞지 않음.* load 발견(L_branch=scaffold-저항)이 #1→#3 handoff.
 
 ## 상태 (2026-06-26)
-- **#1 (=1+4)**: **초안 완성**(md/pdf/latex). 백본 = make-or-break + load 분해 + **F3/F4 compliance scale-invariant**(★g2 per-opportunity rate+CI = §7-1 무료·**제출 선결**) + 비용(TCO ~23×·fleet 2.1×·knee). §7 funded forward plan(≤$1k). [EST]=72B·235B·multi-bench 전이.
+- **#1 (=1+4)**: **초안 완성**(md/pdf/latex). 백본 = make-or-break + load 분해 + **F3/F4 compliance scale-invariant**(★g2 per-opportunity rate+CI = §7-1 무료·**제출 선결**) + 비용(온프레미스 요청당 비용 이점=방향은 견고·정확한 배수는 배포환경 의존이라 rough estimate·측정 아님·fleet=projection·knee). §7 funded forward plan(≤$1k). [EST]=72B·235B·multi-bench 전이·비용 배수.
 - **#2**: proposal. S0 창발·S1 기각·dose-response 설계까지 실측.
 - **#3**: proposal(학술버전만·**CDP/특허 specifics는 GitHub 금지**·confidential은 로컬).
 
