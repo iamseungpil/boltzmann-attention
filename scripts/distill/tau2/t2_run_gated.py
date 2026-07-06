@@ -100,8 +100,13 @@ def main():
 
     if a.gate:
         import t2_gate_patch
-        t2_gate_patch.apply()
-        print("[t2_run] gate ON")
+        if os.environ.get("T2_GATE_REGEN") == "1":
+            # ★replay-safe 게이트: 생성-레벨 deny+regen+R8 종단 (apply() 대체·리더보드-동일 채점).
+            t2_gate_patch.apply_gate_regen(max_regen=int(os.environ.get("T2_GATE_REGEN_K", "1")))
+            print("[t2_run] gate ON (REPLAY-SAFE regen·K=%s)" % os.environ.get("T2_GATE_REGEN_K", "1"))
+        else:
+            t2_gate_patch.apply()
+            print("[t2_run] gate ON")
         regen_on = os.environ.get("T2_PROV_REGEN") == "1"
         badwords_on = os.environ.get("T2_PROV_BADWORDS", "0") == "1"
         ground_on = os.environ.get("T2_PROV_GROUND", "0") == "1"

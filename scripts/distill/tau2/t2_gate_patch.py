@@ -569,6 +569,226 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
     return patched
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# ★REPLAY-SAFE 게이트 (generation-level regen) — REPLAY_SAFE_GATE_DESIGN_2026_07_06
+#   문제: apply()는 deny 시 합성 ToolMessage를 히스토리에 커밋 → tau2 평가의 set_state
+#   replay(mutating tool 재실행·environment.py:389 assertion)가 깨짐 → infrastructure_error.
+#   해결: 게이트를 생성-레벨로 이동 — deny면 작업버퍼서 피드백+재생성(K=MAX_REGEN), 유효 호출만
+#   커밋. R8 종단: K 소진 후에도 deny면 차단 mutating 호출을 커밋 前 제거 → 히스토리 replay-clean.
+#   R1 예산: deny turn마다 orchestrator.num_errors++ (best-of-K 아님·too_many_errors 동일 압박).
+# ═══════════════════════════════════════════════════════════════════════════
+
+_BLOCK_NOTE = ("\n\n[Note: the tool call(s) above were blocked by a policy gate and were NOT "
+               "executed. Satisfy the gate requirement (authenticate / get explicit user confirmation / "
+               "check the record's status / fix the operation) before attempting the action again.]")
+
+
+def _iter_tc_result_pairs(messages):
+    """committed 히스토리서 (assistant ToolCall, matching tool ToolMessage) 쌍 yield."""
+    by_id = {}
+    for m in messages:
+        if getattr(m, "role", None) == "tool" and getattr(m, "id", None) is not None:
+            by_id[m.id] = m
+    for m in messages:
+        if getattr(m, "role", None) == "assistant":
+            for tc in (getattr(m, "tool_calls", None) or []):
+                yield tc, by_id.get(getattr(tc, "id", None))
+
+
+def _rebuild_gate_state(gate, a2, messages):
+    """committed clean 히스토리서 auth 상태 재구성(denied 호출 부재 = 정확)."""
+    gate.state.auth_user = None
+    auth_tools = a2["_auth_tools"]
+    for tc, tm in _iter_tc_result_pairs(messages):
+        name = getattr(tc, "name", None)
+        if name in auth_tools and tm is not None and not getattr(tm, "error", False):
+            gate.observe(name, _args_dict(tc), _content_str(tm))
+
+
+def _regen_last_user(messages):
+    for m in reversed(messages):
+        if getattr(m, "role", None) == "user" and getattr(m, "content", None):
+            c = m.content
+            return c if isinstance(c, str) else str(c)
+    return None
+
+
+def _regen_transfer_sent(messages, notice_text):
+    if not notice_text:
+        return None
+    for m in messages:
+        if getattr(m, "role", None) == "assistant":
+            c = getattr(m, "content", None)
+            if isinstance(c, str) and notice_text in c:
+                return True
+    return False
+
+
+def _denied_calls(am, gate, last_user, transfer_sent):
+    """am의 assistant tool_calls 중 gate-deny 되는 것 = [(tc, gid, why)]."""
+    out = []
+    for tc in (getattr(am, "tool_calls", None) or []):
+        if getattr(tc, "requestor", "assistant") != "assistant":
+            continue
+        ok, gid, why = gate.check(getattr(tc, "name", "") or "", _args_dict(tc),
+                                  last_user_msg=last_user, transfer_msg_sent=transfer_sent)
+        if not ok:
+            out.append((tc, gid, why))
+    return out
+
+
+def _budget_tick(agent):
+    """R1: 차단 turn마다 orchestrator.num_errors++ → too_many_errors 예산 동일(best-of-K 방지)."""
+    orch = getattr(agent, "_t2_orch", None)
+    if orch is not None:
+        try:
+            orch.num_errors = getattr(orch, "num_errors", 0) + 1
+        except Exception:
+            pass
+
+
+def _install_regen_exec():
+    """slim _execute_tool_calls: 실행 + auth observe + read-augment(present/nested/calc). deny 없음
+    (denied 호출은 생성-레벨서 이미 strip). augment=reads라 replay-safe(기존 apply와 동일 로직)."""
+    from tau2.orchestrator.orchestrator import BaseOrchestrator
+    orig_exec = getattr(BaseOrchestrator, "_t2_orig_exec", None) or BaseOrchestrator._execute_tool_calls
+    BaseOrchestrator._t2_orig_exec = orig_exec
+
+    def exec_augment(self, tool_calls):
+        results = orig_exec(self, tool_calls)
+        env = getattr(self, "environment", None)
+        a2 = _domain_a2(getattr(env, "domain_name", None)) if env is not None else None
+        if a2 is None:
+            return results
+        gate = getattr(getattr(self, "agent", None), "_t2_gate", None)
+        by_id = {getattr(r, "id", None): r for r in (results or [])}
+        auth_tools = a2["_auth_tools"]
+        present_on = os.environ.get("T2_PRESENT_READS") == "1"
+        g6 = next((g for g in a2["gates"] if g.get("kind") == "select_confirm"), None) if present_on else None
+        nested_specs = (a2.get("present_specs") or []) if os.environ.get("T2_PRESENT_NESTED") == "1" else []
+        calc_specs = (a2.get("calc_specs") or []) if os.environ.get("T2_CALC") == "1" else []
+        for tc in tool_calls:
+            out = by_id.get(getattr(tc, "id", None))
+            if out is None or getattr(out, "error", False):
+                continue
+            name = getattr(tc, "name", None)
+            if gate is not None and name in auth_tools:
+                gate.observe(name, _args_dict(tc), _content_str(out))
+            if present_on and g6 is not None and gate is not None and name == g6.get("user_producer"):
+                uid = _args_dict(tc).get(g6.get("user_id_arg", "user_id"))
+                summ = candidate_summary(gate.resolvers, g6, uid)
+                if summ:
+                    try:
+                        out.content = _content_str(out) + summ
+                    except Exception:
+                        pass
+            _rec = _parse_json(_content_str(out)) if (nested_specs or calc_specs) else None
+            if nested_specs and _rec is not None:
+                spec = next((s for s in nested_specs if s.get("trigger_tool") == name), None)
+                if spec is not None:
+                    summ = nested_candidate_summary(_rec, spec)
+                    if summ:
+                        try:
+                            out.content = _content_str(out) + summ
+                        except Exception:
+                            pass
+            if calc_specs and _rec is not None:
+                cs = [s for s in calc_specs if s.get("trigger_tool") == name]
+                if cs:
+                    facts = compute_facts(_rec, cs)
+                    if facts:
+                        try:
+                            out.content = _content_str(out) + facts
+                        except Exception:
+                            pass
+        return results
+
+    BaseOrchestrator._execute_tool_calls = exec_augment
+
+
+def apply_gate_regen(max_regen=1):
+    """replay-safe 게이트 (apply() 대체·A/B 위해 apply()는 보존). T2_GATE_KINDS 필터 동일 지원."""
+    import tau2.agent.llm_agent as la
+    from tau2.agent.llm_agent import LLMAgent
+    from tau2.orchestrator.orchestrator import BaseOrchestrator
+    from tau2.data_model.message import ToolMessage, MultiToolMessage
+
+    # (1) orchestrator.__init__ → env-bound gate를 agent에 주입 (per-sim)
+    orig_init = BaseOrchestrator.__init__
+
+    def init_inject(self, *a, **kw):
+        orig_init(self, *a, **kw)
+        env = getattr(self, "environment", None)
+        ag = getattr(self, "agent", None)
+        a2 = _domain_a2(getattr(env, "domain_name", None)) if env is not None else None
+        if a2 is not None and ag is not None and hasattr(ag, "_generate_next_message"):
+            _kinds = os.environ.get("T2_GATE_KINDS")
+            gl = a2["gates"]
+            if _kinds:
+                allow = {k.strip() for k in _kinds.split(",") if k.strip()}
+                gl = [g for g in a2["gates"] if g.get("kind") in allow]
+            ag._t2_gate = GateInterpreter(gl, resolvers=resolvers_from_env(env))
+            ag._t2_a2 = a2
+            ag._t2_orch = self
+            ag._t2_max_regen = max_regen
+
+    BaseOrchestrator.__init__ = init_inject
+
+    # (2) LLMAgent._generate_next_message → gate deny + regen + R8 종단
+    orig_gen = LLMAgent._generate_next_message
+
+    def gen_gated(self, message, state):
+        gate = getattr(self, "_t2_gate", None)
+        if gate is None:
+            return orig_gen(self, message, state)
+        a2 = self._t2_a2
+        if isinstance(message, MultiToolMessage):
+            state.messages.extend(message.tool_messages)
+        else:
+            state.messages.append(message)
+        _rebuild_gate_state(gate, a2, state.messages)
+        last_user = _regen_last_user(state.messages)
+        transfer_sent = _regen_transfer_sent(state.messages, a2["_notice_text"])
+        base = state.system_messages + state.messages
+        am = la.generate(model=self.llm, tools=self.tools, messages=base,
+                         call_name="agent_response", **self.llm_args)
+        n, max_regen_ = 0, getattr(self, "_t2_max_regen", 1)
+        while n < max_regen_:
+            denied = _denied_calls(am, gate, last_user, transfer_sent)
+            if not denied:
+                break
+            _budget_tick(self)
+            dids = {id(tc): (gid, why) for tc, gid, why in denied}
+            fb = [am]
+            for c in (am.tool_calls or []):
+                if id(c) in dids:
+                    gid, why = dids[id(c)]
+                    content = f"Error: [POLICY GATE {gid}] {why}"
+                else:
+                    content = "Error: [POLICY GATE] resolve the blocked action first; do not call this tool yet."
+                fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
+                                      error=True, content=content))
+            am = la.generate(model=self.llm, tools=self.tools, messages=base + fb,
+                             call_name="agent_response_gateregen", **self.llm_args)
+            n += 1
+        # R8 종단: K 소진 후에도 deny → 차단 mutating 호출 제거(히스토리 replay-clean 보장)
+        denied = _denied_calls(am, gate, last_user, transfer_sent)
+        if denied:
+            _budget_tick(self)
+            denied_ids = {tc.id for tc, _, _ in denied}
+            kept = [tc for tc in (am.tool_calls or []) if tc.id not in denied_ids]
+            am.tool_calls = kept or None
+            note = "; ".join(f"[{gid}] {(why or '')[:70]}" for _, gid, why in denied)
+            am.content = (am.content or "") + _BLOCK_NOTE + " (" + note + ")"
+        return am
+
+    LLMAgent._generate_next_message = gen_gated
+
+    # (3) slim exec: 실행 + auth observe + read-augment (deny 없음)
+    _install_regen_exec()
+    return orig_gen
+
+
 if __name__ == "__main__":
     apply()
     print("[t2_gate_patch] applied")
