@@ -110,6 +110,12 @@ def main():
         regen_on = os.environ.get("T2_PROV_REGEN") == "1"
         badwords_on = os.environ.get("T2_PROV_BADWORDS", "0") == "1"
         ground_on = os.environ.get("T2_PROV_GROUND", "0") == "1"
+        # ★이중패치 가드(리뷰⚠️4): apply_gate_regen과 apply_provenance_regen 둘 다
+        #   LLMAgent._generate_next_message 패치 → 동시 활성 시 두 번째가 첫 번째를 덮음.
+        #   T2_GATE_REGEN 모드선 provenance 병행 금지(mutually exclusive·assembled=prov OFF).
+        if os.environ.get("T2_GATE_REGEN") == "1" and (regen_on or badwords_on or ground_on):
+            raise SystemExit("[t2_run] CONFLICT: T2_GATE_REGEN and T2_PROV_* both set — "
+                             "they both patch _generate_next_message (double-patch). Disable one.")
         if regen_on or badwords_on or ground_on:
             # GROUND는 regen 인프라(생성-레벨 작업본) 위에서 동작 → regen 경로 활성 필요
             t2_gate_patch.apply_provenance_regen(

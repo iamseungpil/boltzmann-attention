@@ -772,9 +772,10 @@ def apply_gate_regen(max_regen=1):
                              call_name="agent_response_gateregen", **self.llm_args)
             n += 1
         # R8 종단: K 소진 후에도 deny → 차단 mutating 호출 제거(히스토리 replay-clean 보장)
+        # ★예산(R1·리뷰⚠️2): exhaustion turn은 위 루프서 이미 1 tick 소비 → 여기서 재-tick 안 함
+        #   = "차단 turn당 1 error"로 현 게이트와 동일 예산압박(best-of-K도 double-charge도 아님).
         denied = _denied_calls(am, gate, last_user, transfer_sent)
         if denied:
-            _budget_tick(self)
             denied_ids = {tc.id for tc, _, _ in denied}
             kept = [tc for tc in (am.tool_calls or []) if tc.id not in denied_ids]
             am.tool_calls = kept or None
