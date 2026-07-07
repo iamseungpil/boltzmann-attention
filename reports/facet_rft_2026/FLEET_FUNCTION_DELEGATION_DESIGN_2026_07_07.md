@@ -13,10 +13,14 @@
 task를 결정론 scaffold가 기능으로 분해하고, **각 기능을 측정된 scale-민감도로 정적 분류**해, **scale이 실제로 사는
 기능(예 ⋈)의 sub-call만 큰 tier로 위임**한다. 라우터=난이도-예측기가 아니라 **기능-분류표**(=우리가 지금 실측하는 지도).
 난이도-신호·실패-탐지·silent-leak이 원리적으로 불필요.
-> **★f-실측 판정(2026-07-07·§4b)**: 아키텍처는 유효하나 **tau2-retail 잔여엔 저-ROI**. 위임가능 scale-sensitive 기능
-> (⋈)이 (a)빈번(90% task·1.92/task→$f{≈}0.167$·비쌈)·(b)저-잔여(⋈ 실패 ~7-10 task·scale-lift +8pp→task +1~3pp).
-> 큰 잔여(criterion-flat·coverage-invariant)는 애초에 scale-불가. **⇒ 우선순위=thinking/coverage-controller/learn·
-> fleet=보류**(잔여가 진짜 scale-sensitive한 배포에서만 고가치). [[09]] 무료추정이 과투자 사전차단.
+> **★f-실측 판정(2026-07-07·§4b·2026-07-07 저녁 리뷰-교정)**: 아키텍처는 유효하나 **tau2-retail 잔여엔 저-ROI·보류**.
+> 근거(교정본): (a)**비용은 미측정 가정에 좌우**(prefix-caching·tier비율 R·big-thinking) → realistic 1.1–1.8×·전체
+> 가정공간 1.02–4.2×. 비용은 판정 하중 못 받음(§4b 옛 "0.167·비쌈"은 분모 오류·철회). (b)**benefit이 작고 미측정**
+> (⋈ 실패 ~7-10 task·isolated +9pp는 full-run 전이·present-흡수 미검증·72B +8pp는 순수 외삽·big-tier 미로컬).
+> (c)**하중을 받는 유일 assumption-free 근거 = 잔여-지배**: 잔여 지배축(criterion·coverage)은 scale로 안 닫히거나
+> (coverage invariant) 더 싼 lever가 닫음(criterion=thinking·Phase A +8pp near-free) → fleet 무익. **⇒ 우선순위=
+> thinking/coverage-controller/learn·fleet=보류**(잔여가 진짜 scale-sensitive·⋈-지배인 배포서만 고가치·big-tier 확보 시
+> 재개). [[09]] 무료추정이 과투자 사전차단·[[08]] 분류는 CI 미분리(◐·§2).
 
 ## 1. 재프레임 — 왜 task-level cascade가 아니라 function-level인가
 - **task-level cascade(폐기)**: "이 쿼리 어렵나?"를 판정해 위임 → 난이도-예측기 필요. **confidence=무작위**(τ²-retail AUROC
@@ -29,17 +33,20 @@ task를 결정론 scaffold가 기능으로 분해하고, **각 기능을 측정�
 
 ## 2. ★라우터 = 측정된 scale-민감도 분류표 (지금 실측 중)
 operand_probe·CLEAN_NT4 forensic·Phase A/B·DR#2가 정확히 이 지도를 만든다:
-| 기능 | 측정 scale-민감도 (14B→32B) | 위임 판정 |
+| 기능 | 측정 scale-민감도 (14B→32B·isolated operand_probe) | 위임 판정 |
 |---|---|---|
-| **⋈ reference-matching** | 40% → **49% (+9pp)** = scale-sensitive | **✅ 위임 candidate**(큰 tier가 실제 더 함) |
-| criterion/variant-formalize | 67% → 72% (**+5pp·거의 flat**) | ❌ 위임 무익 → thinking/learn(Phase A/B) |
+| **⋈ reference-matching** | 40%→**49%** (+9pp·n=219·95%CI≈[−0.3,+18]pp) = scale-sensitive**?** | **◐ 위임 candidate**(효과 있으나 CI 미확정·paired McNemar 필요) |
+| criterion/variant-formalize | 67%→72% (+5pp·n=88·CI≈[−8.5,+18.5]pp·**0과 미분리**) | ❌ 위임 아님(flat이라서 아니라 thinking이 더 쌈·Phase A +8pp) |
 | coverage (for-all 전수) | 17≈16 (**scale-invariant**) | ❌ 위임 무익 → coverage-controller(결정론) |
 | compliance (정책 준수) | scale-invariant(위반율 CI 중첩) | ❌ → 게이트(small) |
 | calc (집계·총액) | decidable | ❌ → calc scaffold(결정론·토큰0) |
 | horizon/per-step reliability | scale 삼(DR#2·복리 $p^H$) | ◐ trajectory-level(§5) |
-- **핵심**: 위임은 **scale이 *실제로* 사는 기능(⋈)에만** 가치. flat/invariant 기능(criterion·coverage·compliance)은
-  큰 모델로 보내도 소용없음 → 다른 lever가 닫음. ⇒ **fleet 위임집합 = 좁은 {scale-sensitive 기능}**·나머지=scaffold/
-  learn/thinking. 이 분류가 곧 **결정론 라우터**(학습·confidence 불요).
+- **★[[08]] 단서(2026-07-07 교정)**: +9pp(⋈)와 +5pp(criterion)의 **CI가 대량 중첩** → "⋈=sensitive vs criterion=flat"은
+  **측정으로 분리 안 됨**. n은 충분(219/88)이나 **효과가 작아** unpaired CI가 0·서로와 미분리. 이 분류가 문서 pivot이므로
+  **✅→◐**·paired 검정(McNemar·discordant count)·big-tier 실측 전엔 "시사적"으로만 취급.
+- **핵심(교정)**: 위임의 유일 후보축 ⋈조차 효과가 modest·CI 미확정. flat/invariant 기능(criterion·coverage·compliance)은
+  큰 모델로 보내도 소용없거나(coverage) **더 싼 lever(thinking·scaffold)가 닫음**(criterion) → fleet 위임집합은 좁고
+  저-가치. 나머지=scaffold/learn/thinking. 이 분류가 곧 **결정론 라우터**(학습·confidence 불요)이나 **분류 자체가 측정 중**.
 
 ## 3. 아키텍처 — E1(context-격리 sub-call)과 통합
 - **트리거 = 결정점 탐지(E1과 공유·도메인-일반)**: write-tool + 선택인자(⋈ order_id·변형 new_item) = scale-sensitive
@@ -48,26 +55,48 @@ operand_probe·CLEAN_NT4 forensic·Phase A/B·DR#2가 정확히 이 지도를 �
   - scale-flat-reasoning(criterion) → thinking(Phase A/B) 또는 learn
   - decidable(calc·coverage) → 결정론 scaffold(위임 아님)
 - **입도 = sub-decision**(ToolOrchestra per-tool-call과 동일)·**라우터 = 결정론 기능-분류**(ToolOrchestra 학습RL과 차별).
-- 대부분 궤적(present·calc·gate·orchestration)은 small tier·**희소한 sensitive sub-call만 큰 tier** → 비용 small 근처.
+- 대부분 궤적(present·calc·gate·orchestration)은 small tier·**토큰-희소한 sensitive sub-call만 큰 tier** → 비용 low
+  (★교정: ⋈은 **task-빈번**[90%]하나 궤적당 **토큰-희소**[753/≈19k≈4%]라 둘은 모순 아님·§4b 옛 "비쌈"이 오류 노드) →
+  realistic 1.1~1.8× small(§4b 표).
 - 큰 tier에도 **게이트 부착**(준수는 scale-직교·frontier도 낙폭 −2.2~−5.0pp 실측).
 
 ## 4. 비용 모델
 - $\text{cost} \approx (1-f)\cdot c_{small} + f\cdot c_{big}$, $f$=**scale-sensitive sub-call의 토큰/호출 비중**(task 비중 아님).
-- $f$는 작다: ⋈-resolution은 multi-order task당 1회·전체 토큰의 소수 → $c_{big}=20\times c_{small}$여도 $f{=}0.05$면
-  cost $\approx 0.95{+}1.0 = 1.95\times$ small = 순수 big(20×) 대비 ~10× 쌈. (배수=배포환경 의존·추정·[[09]].)
+- $f$는 작다: ⋈-resolution은 multi-order task당 1.92회·전체 **서빙-비용 토큰**의 소수. ★**분모 주의(2026-07-07 교정)**:
+  분모=trajectory 서빙비용=**prefix-cached prefill(≈peak) + decode**(≈2×peak≈19–20k 실측)이지, 단일 turn snapshot(§4b 옛
+  3755=오류)도 naive throughput(101k·재처리 가정·과대)도 아님. 올바른 분모서 $f≈753/19k≈0.04$ → **§4의 "f 작다" 직관은
+  대략 옳고, §4b가 분모를 과소로 잡아 f·비용을 과대했던 것**(아래 교정). $c_{big}=20\times$·$f{=}0.04$면 cost≈1.8× small
+  = 순수 big(20×) 대비 ~11× 쌈. (배수=배포환경(caching·R·big-thinking) 의존·미측정·[[09]].)
 - ★task-level cascade(전 task escalate·e≈0.36)보다 훨씬 쌈: 위임이 *기능 sub-call*이지 *전 task*가 아니라서.
 - **무료 $f$/이득 추정**: 기존 궤적서 (a)scale-sensitive 결정점 수·(b)그 sub-call 토큰비중·(c)⋈ 14B→32B→(외삽)72B 개선
   → cost-품질 스케치. 신규 런 0.
 
-## 4b. ★f-실측 결과·판정 (2026-07-07·기존 데이터·신규 런 0·`/tmp/f2.py`)
-- **측정**: 궤적 total-context 3755 tok·⋈ sub-call 392 tok·**⋈ 결정 1.92/task·90% task**(희소 아님). → **$f≈0.167$**(total 기준).
-- **cost**: fleet **1.2~4.2× small**(R=2.25~20)·pure-big 대비 **1.9~4.8× 쌈**. 즉 pure-big보다 싸나 **near-small은 아님**(⋈ 빈번).
-- **★ROI 낮음**: ⋈ scale-lift 49%(32B)→~57%(72B 외삽)=**+8pp on ALL ⋈**·단 ⋈ 실패 ~7-10 task뿐 → **task-pass +1~3pp**. 219 ⋈
-  전부 위임(49%는 small도 맞힘)에 $f·R$ 비용 → **modest 이득 × real 비용**.
-- **★잔여-불일치**: 우리 잔여 지배 = **criterion(+5pp·flat)·coverage(scale-invariant)** → **큰 tier로 보내도 소용없음**(fleet 무익).
-  위임가능한 유일 축 ⋈은 저-잔여. ⇒ **tau2-retail 잔여의 최저비용 닫개 = thinking/learn/scaffold이지 fleet 아님.**
-- **판정**: fleet=**조건부 유효**(잔여가 진짜 scale-sensitive·⋈-지배인 배포서 고가치)·**tau2-retail서는 저-ROI·보류**.
-  [[09]] 무료추정이 build 전 과투자 차단([[13]] scale-최소 정합).
+## 4b. ★f-실측 결과·판정 (2026-07-07·기존 데이터·신규 런 0 / ★2026-07-07 저녁 리뷰-교정: 분모 반증·근거 재배치)
+- **★분모 재측정 (asmregen32b nt=4·n=456·per-msg `usage.prompt_tokens` 실측)**: peak single-context **median 9,971 /
+  mean 10,396**·summed throughput(prefill+decode) **median 88,815 / mean 100,981**·mean per-turn context **7,707**·
+  agent turns/sim **median 12**. ⋈ 결정 **1.92/task·90% task**(task-빈번은 맞음). ⋈ sub-call ≈392 tok·delegated=392×1.92≈**753 tok**.
+- **🔴 옛 §4b 분모 3755 = 오류(철회)**: peak의 1/2.8·throughput의 1/27·mean per-turn(7707)의 1/2 — 어떤 궤적-레벨 기준으로도
+  anomalous(추정 早-⋈ turn snapshot). 이 과소분모가 $f≈0.167$·"fleet 1.2~4.2×·비쌈·near-small 아님"을 만들었음 = **철회**.
+- **비용(교정) = fleet/small = 1 + R·753/denom·분모/caching/R에 좌우**:
+
+  | 분모 | R=2.25 | R=20 |
+  |---|---|---|
+  | 옛 3755 (과소·철회) | 1.45× | 5.0× |
+  | **realistic ~19k (prefix-cached prefill+decode·기본 vLLM)** | **1.09×** | **1.79×** |
+  | throughput 101k (재처리 가정·과대) | 1.02× | 1.15× |
+  | peak 10.4k (보수) | 1.16× | 2.44× |
+
+  → realistic **1.1~1.8×**·전체 가정공간 1.02~4.2×. **비용은 미측정 가정(caching·R·big-thinking decode)이 지배 → 판정 하중 못 받음**
+  (옛 "비쌈"도, "near-small(1.02–1.15×)"도 single-endpoint). pure-big(20×)보단 항상 훨씬 쌈은 유지.
+- **🟡 benefit = 작고·미측정(진짜 보류 사유)**: ⋈ scale-lift 49%(32B)→~57%(72B **순수 외삽**)·isolated +9pp는 **full-run 전이
+  미검증**(present-scaffold가 MAKEORBREAK 7/13 이미 흡수 가능·순증분<+9pp)·⋈ 실패 ~7-10 task뿐 → **task-pass +1~3pp=점추정**
+  (상·하한 아님). **big-tier 미로컬 → benefit 사실상 미측정.**
+- **🟢 잔여-지배(assumption-free·하중 근거)**: 잔여 지배 = **criterion·coverage**. coverage=scale-invariant(위임 무익)·
+  criterion=**+5pp이나 CI가 +9pp와 미분리**(flat 단정 불가)·그러나 **thinking이 더 쌈**(Phase A: criterion-simple prompted-CoT
+  **+8pp·near-free**) → 위임 대신 thinking/scaffold이 닫음. 이 논증은 R·caching·전이 미측정에 **무관**하게 성립.
+- **판정(불변·근거 교정)**: fleet=**조건부 유효**(잔여가 진짜 scale-sensitive·⋈-지배·big-tier 확보 배포서만)·**tau2-retail
+  저-ROI·보류**. 보류 사유 = **(비용이 비싸서 아니라) benefit이 작고·미측정 + 잔여-지배축은 더 싼 lever가 닫음**.
+  [[09]] 무료추정이 build 전 과투자 차단·[[08]] 분류 CI 미분리(◐)·[[13]] scale-최소 정합.
 
 ## 5. 두 층 (정직한 뉘앙스·범위)
 1. **이산 기능(⋈·criterion 결정점)** = 깨끗이 분리·sub-call 위임 가능(§3). = 본 설계 핵심 범위.
@@ -87,7 +116,8 @@ operand_probe·CLEAN_NT4 forensic·Phase A/B·DR#2가 정확히 이 지도를 �
   DR(`w5m5cyfss`)이 라우터-신호 증거로 확증 예정.
 
 ## 7. 측정 상태 (분류=라우터가 이미 실측 중)
-- ✅ ⋈ scale-sensitive(+9pp)·criterion flat(+5pp)·coverage invariant = operand_probe·forensic(측정됨).
+- ◐ ⋈ +9pp(n=219)·criterion +5pp(n=88)·coverage invariant = operand_probe·forensic. **★[[08]]: +9pp/+5pp CI 중첩·
+  criterion CI가 0 포함 → sensitive/flat 라벨 미분리**(측정 아니라 시사)·paired McNemar·big-tier 실측 전엔 ◐(✅ 아님).
 - 🔄 Phase A/B(thinking): criterion/⋈이 thinking으로 닫히나(위임 대안) — 닫히면 위임 불요·안 닫히고 scale-sensitive면 위임.
 - 🔄 DR(`w5m5cyfss`): cascade 라우터-신호 선행(confidence 死 vs verifier/정적).
 - ⚠️ **위임 target(72B/235B) 미로컬**(handoff high-scale 포기) → ⋈의 72B 개선은 **외삽**(14B40→32B49→72B?)·또는 frontier를
@@ -102,7 +132,9 @@ operand_probe·CLEAN_NT4 forensic·Phase A/B·DR#2가 정확히 이 지도를 �
 - **thesis 정합**: fleet=cost-optimal 레버맵의 한 축(scale-sensitive→위임)·compliance moat(게이트)는 전 tier 불변·직교.
 
 ## 9. 시퀀싱 (★f-실측 반영·재정렬)
-1. ✅ **무료 $f$ 추정 완료**(§4b): $f≈0.167$·fleet 1.2~4.2× small·**tau2-retail 저-ROI 판정** → fleet **보류**.
+1. ✅ **무료 $f$ 추정 완료·리뷰-교정**(§4b): 분모 재측정(peak 10.4k·throughput 101k·realistic ~19k)로 옛 3755·$f≈0.167$·
+   "1.2~4.2× 비쌈" **철회** → realistic **1.1~1.8×**(비용은 미측정 가정 지배·하중 못 받음). **보류 사유=benefit 작고·미측정
+   + 잔여-지배축(criterion/coverage)은 더 싼 lever가 닫음**(비용 아님). → fleet **보류**(판정 불변·근거 교정).
 2. **★우선순위 재정렬(fleet→후순위)**: 우리 잔여 지배가 scale-flat(criterion)·scale-invariant(coverage)라 fleet 무익
    → **(a) thinking(Phase A/B·진행중) (b) coverage-controller(결정론) (c) learn(criterion-formalize)** 가 최저비용 닫개.
 3. Phase A/B·open-methods DR 회수 → 기능별 닫개 확정(criterion이 thinking/learn으로 닫히나·coverage가 controller로).
