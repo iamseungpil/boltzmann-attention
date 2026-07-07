@@ -70,9 +70,9 @@ def product_of(iid):
     return None
 
 
-def run_decision(prompt, cands, gold, model, base, extra):
+def run_decision(prompt, cands, gold, model, base, extra, cot_max=COT_MAX):
     a0, n0, _ = ask(prompt + " Output ONLY the id.", model, base, DIRECT_MAX, cot=False)
-    a1, n1, tr1 = ask(prompt, model, base, COT_MAX, cot=True)
+    a1, n1, tr1 = ask(prompt, model, base, cot_max, cot=True)
     p0, p1 = extract(a0, cands, False), extract(a1, cands, True)
     r = dict(gold=gold, ok0=(p0 == gold), ok1=(p1 == gold), n0=n0, n1=n1, tr1=tr1)
     r.update(extra)
@@ -85,6 +85,8 @@ def main():
     ap.add_argument("--agent_model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--max", type=int, default=100000)
     ap.add_argument("--save_json", default=None, help="dump raw per-decision rows for [[08]] forensic")
+    ap.add_argument("--cot_max", type=int, default=COT_MAX,
+                    help="CoT/thinking token budget. 900=A1 prompted-CoT (Phase A); 8000=A2 QwQ native (Phase B)")
     a = ap.parse_args()
     vrows, orows = [], []
     for ti, t in enumerate(TASKS):
@@ -113,7 +115,7 @@ def main():
                           f"owns with options {cur.get('options')} (price {cur.get('price')}).\nVariants:\n"
                           + "\n".join(lines) + f"\n\nWhich item_id should this {p['name']} be changed to?")
                 vrows.append(run_decision(prompt, list(vs.keys()), gold_new, a.agent_model, a.agent_base,
-                                          dict(tid=tid, compound=(compound or budget_dep))))
+                                          dict(tid=tid, compound=(compound or budget_dep)), cot_max=a.cot_max))
         # --- cross-order ⋈ ---
         seen = set()
         for act in (t.get("evaluation_criteria", {}) or {}).get("actions", []):
@@ -130,7 +132,7 @@ def main():
             prompt = (f"Customer's request:\n{reason}\n\nThe customer's orders:\n" + "\n".join(lines) +
                       f"\n\nWhich order_id is the one the customer is referring to for this change/return?")
             orows.append(run_decision(prompt, list(uords.keys()), goid, a.agent_model, a.agent_base,
-                                       dict(tid=tid, nord=len(uords))))
+                                       dict(tid=tid, nord=len(uords)), cot_max=a.cot_max))
         if ti % 10 == 0:
             print(f"  ...task {ti}/{len(TASKS)} (v={len(vrows)} o={len(orows)})", flush=True)
 
@@ -158,8 +160,9 @@ def main():
     agg([r for r in vrows if r["compound"]], "  variant compound/budget")
     agg(orows, "BUCKET cross-order ⋈  [isolated-valid; UNDER-SPEC=lower bound]")
     print("\n[scope] coverage=load-only=OUT OF SCOPE (not probed). calc=deterministic scaffold (not probed).")
-    print("[note] A0=direct(60tok) · A1=prompted-CoT(900tok fixed) · same Qwen2.5-32B weights (pure test-time-compute).")
-    print("[note] A2=QwQ-32B native thinking=Phase B (upper bound·thinking+RL). o4-mini=frontier ceiling (elsewhere).")
+    print(f"[note] model={a.agent_model} · A0=direct(60tok) · A1(CoT)=cot_max {a.cot_max}tok.")
+    print("[note] Phase A: model=Qwen2.5-32B, cot_max=900 (A1=pure test-time-compute·same weights).")
+    print("[note] Phase B: model=QwQ-32B-AWQ, cot_max~8000 (A1-column = A2 native thinking·upper bound thinking+RL).")
     print("[guard] Δ>0=promise only (not deployment). ⋈ Δ=0=boundary-SUSPECT (under-spec); full-run confirms (§2/§8).")
     if a.save_json:
         json.dump({"variant": vrows, "cross_order": orows}, open(a.save_json, "w"), indent=1)
