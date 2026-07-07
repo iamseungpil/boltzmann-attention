@@ -1,0 +1,42 @@
+{
+ "violation_sims": {
+  "g1": 60,
+  "g1w": 24,
+  "g2": 64,
+  "g3": 1,
+  "g4": 1,
+  "no_reward": 0
+ },
+ "n_sims": 456,
+ "bench": {
+  "pass^1": 0.4254,
+  "pass^2": 0.2734,
+  "pass^3": 0.193,
+  "pass^4": 0.1491
+ },
+ "write": {
+  "pass^1": 0.3904,
+  "pass^2": 0.25,
+  "pass^3": 0.1776,
+  "pass^4": 0.1404
+ },
+ "strict": {
+  "pass^1": 0.3684,
+  "pass^2": 0.2398,
+  "pass^3": 0.1732,
+  "pass^4": 0.1404
+ },
+ "full": {
+  "pass^1": 0.3268,
+  "pass^2": 0.2032,
+  "pass^3": 0.1447,
+  "pass^4": 0.114
+ },
+ "_domain": "retail",
+ "_constants_nonempty": {
+  "AUTH_TOOLS": 2,
+  "WRITE_TOOLS": 7,
+  "USER_SCOPED": 9,
+  "TRANSFER_MSG": 59
+ }
+}
