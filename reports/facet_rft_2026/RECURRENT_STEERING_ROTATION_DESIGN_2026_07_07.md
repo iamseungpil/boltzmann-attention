@@ -1,5 +1,12 @@
 # 학습-wing 메커니즘 후보 B — recurrent steering×rotation (damped-Hamiltonian DEQ adapter) 설계 (2026-07-07)
 
+> **★★2026-07-07 RETRACTED — 기계적으로 성립하지 않음(cold analysis). 대체=`LEARNED_WING_MECHANISM_DESIGN_2026_07_07.md`.**
+> 철회 사유: (1)LIE_GROUP 회전은 KV *양자화* basis 변경=**내적 보존=출력 불변**(⟨Mk,Mq⟩=⟨k,q⟩)이라 계산을
+> 더하지 않음 — "재-attend"는 틀린 서술. (2)residual-stream loop은 attention/MLP 재실행 없이는 활성을 relax만
+> 할 뿐 coverage/⋈(문맥 재읽기=attention 필요)를 못 함. (3)A<1(수축)=답이 아니라 활성의 완화판으로 수렴=
+> 계산적 무능(안정성이 표현력을 죽임). (4)RLVR(토큰-공간)↔latent DEQ loop(implicit gradient)=미정합·구호 조합.
+> (5)STEERING §8 H2(재가중)·C5(약함)는 열린 리스크 아니라 negative prior. 아래는 기록 보존용(오설계 표본).
+
 > **위치**: `NEXT_LEVERS_DESIGN_2026_07_07.md`(rev2) §3 "학습된 도메인-일반 스킬 wing"의 **메커니즘 후보 B**.
 > 후보 A = four-bench SFT TBox. 둘 다 **동일 make-or-break(τ² ABox-swap 전이로 잔여 닫는가)**로 겨룬다.
 > **통일하는 두 자산(=샛길 아님·기존 이론 병합)**:
