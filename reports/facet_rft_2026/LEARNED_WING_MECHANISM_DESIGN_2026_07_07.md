@@ -44,8 +44,19 @@ sampling으로 도달가능해야 reward 신호 존재). **선행 측정이 버�
 - **★정정**: R-2의 "coverage=게이트"는 유효(복원)·**단 "지배=게이트"는 반증**. 클린 nt=4 지배 = **criterion/variant
   선택(learn·CoT-reachable) ~53%**·coverage-gate는 소수 ~27%. (옛 SEMANTIC_ERROR의 A~12 지배는 다른 run·다른
   scope; clean-nt4는 criterion 지배·t71/79/109는 진짜 ⋈ reference이지 coverage 아님.)
-- **⇒ 학습-wing이 *지배* 부담**(criterion/variant·⋈-매칭·CoT-reachable) + coverage-gate 소수 복원 + genuine-scale
-  tiny. §5 A/A'(SFT/RLVR-CoT)가 지배 잔여에 적용. (3회 과잉정정을 item-level 실증이 마감.)
+- **⇒ 학습-wing이 *지배* 부담**(criterion/variant·⋈-매칭) + coverage-gate 소수 + genuine-scale tiny.
+
+**★★대칭 크레딧 규율(2차 conv 리뷰·[[03]]#9 반영·양방향 과잉정정 방지)**:
+- **gate-**shaped** ≠ gate-**closed****: 재귀속은 "게이트 *형태*로 닫힐 만함"(execution-coverage t41·103·107·
+  feasibility)까지만. **실제 닫힘 = step 2 over-block=0 smoke**로만. 그 전 "지배 잔여=결정론게이트"로 banking 금지.
+- **reachability-**prior** ≠ reachable**: criterion=symbolic-prior(likely)·⋈=uncertain은 **prior**·**per-case
+  best-of-N-with-CoT(G2)**로만 확정. **+4 mean으로 semantic 버킷 G2 건너뛰기 금지**(bimodality·저-delta도 per-case).
+- **exec/spec 분해**: coverage(A)를 **execution-cov(required-set 외부열거 가능→gate: t41·103·107)** vs
+  **spec-cov(무엇이 required인지 오독→gate 참조 ground-truth 없음→learn: t98 유저 오주장 신뢰)**로 분해. 애매→
+  보수적으로 learn. ⇒ gate-shaped = 순수 execution만(~3-4/15).
+- **버킷 수 estimate-pending**: 옛 A~12·B~10은 2-case(t41/t107) 외삽·미확정. ⋈-매칭 reachability도 미측정.
+- **무료 산출의 용도**: gate-shaped→step2 smoke / learn-shaped criterion(symbolic-prior)·⋈(uncertain)→per-case
+  G2. **둘 다 실측 前 banking 금지.** (3회 과잉정정+이번 결정론-낙관 씨앗을 대칭 규율로 마감.)
 - **R-4(CoT 포맷·비용)**: A'(RLVR-CoT)는 CoT가 **native tool_call 포맷을 깨면 안 됨**(§23E op-IR 텍스트→파서붕괴·
   pass 0.075 전례). CoT=assistant content·tool_call 별도 FC 프로토콜/replay 보존 **검증 필수** + CoT 토큰비용
   cost-knee 계상(B의 T×와 같은 정직).
