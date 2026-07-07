@@ -4,10 +4,11 @@
 > 비용대안·1급 레버) + (b)이번 세션 발견(user-sim 노이즈→**isolated 측정이 노이즈-free**)로 격상·확장한 정본.
 > **불변**: [[09]] 무료 isolated 먼저·[[13]] thinking은 학습보다 *테스트-비용*이 싸므로 *먼저* 검증(배포-싸다 아님)·
 > [[05]] thinking=모델레벨 레버·캐논 base=Qwen2.5 불변·[[03]] 측정 먼저·build 금지·[[08]] per-case.
-> **★rev2(2026-07-07·리뷰 반영)**: (1)A2=**QwQ-32B**(=Qwen2.5-32B+native thinking·same-base 격리·o4-mini=frontier
-> 천장 참조·Qwen3-32B 59.6=자기보고라 리더보드-등가 아님) (2)**GO 2단계**(isolated Δ>0=promise만·deployment 결론=
-> full-run robust-partition 후·[[08]] 도약금지) (3)버킷 **isolated-valid(criterion·⋈)/load-only(coverage)** 분할
-> (4)§5 **break-even 쿼리수 $N^*$**(thinking 반복토큰 vs SFT amortize) (5)A1 고정 max_tokens·prompt·null≠무효([[42]]).
+> **★rev2**: (1)A2=QwQ-32B (2)GO 2단계 (3)버킷 isolated-valid/load-only 분할 (4)§5 break-even $N^*$ (5)A1 고정규격.
+> **★rev3(2026-07-07·2차 리뷰 반영)**: (A)**QwQ "순수 thinking/base 변화 0" 오버클레임 삭제** — QwQ=Qwen2.5 init+RL드리프트
+> 라 A2−A0=thinking+RL *상한*·순수격리는 A1뿐(QwQ 유지·락·Qwen3은 교락 더 심함) (E)**⋈ Δ=0=경계-*의심*뿐**(대칭가드·
+> under-spec null≠confirmed boundary·better-spec probe 후 fleet) (F)**A2−A1 토큰-매칭**(native>prompted가 토큰예산 교락)
+> (§10)**산출=promise-맵+scoped 유료런 제안**(최종배분 아님·free-isolated 단독≠배포결론·coverage=범위밖).
 
 ## 0. 한 줄
 잔여 pass(=부하/formalize)를 **test-time-compute(thinking)**가 싸게 닫는지를, **user-sim 노이즈가 없는 isolated-
@@ -32,19 +33,30 @@ compliance moat는 이미 settled(게이트=낙폭0)·이건 **capability 축**�
   - **(ii) "learn/scale 불요" 같은 deployment 결론은 §8 (c) robust-partition full-run 확인 후로 유보.** isolated서
     thinking이 버킷 닫아도 **full-run pass 전이 보장 없음**(MAKEORBREAK: 잔여 지배=orchestration-under-load·isolated
     불가시). 지금 (i) 신호로 (ii) 결론 선언 = 반 칸 앞섬([[06]] 리뷰규율).
-- 못 닫으면(⋈ systematic·투표 vacuous) → thinking-레버 약함 신호 → learn(G2 reachability·RLVR)·scale·fleet 검토(단 이것도 promise 수준).
+- **★못 닫음(Δ=0)도 2단계·대칭 가드([[03]]#9·null≠경계 직결 금지)**: **isolated Δ=0 = "경계-*의심*"뿐**. 특히 ⋈는
+  probe under-spec(§4·40/49%=하한)이라 null이 probe 아티팩트일 수 있음. **confirmed boundary = CoT-delta 판별 +
+  better-spec ⋈ probe 통과 후에만**. 그 전 fleet/scale 직결 금지(promise 방향에만 가드 걸고 경계 방향 무가드 = 06-NOW
+  대칭규율 위반).
 
 ## 3. arms (isolated·residual decision 위·★전부 Qwen2.5-32B *계열*=base 불변)
 | arm | 정체 | 격리하는 것 |
 |---|---|---|
 | **A0 base** | Qwen2.5-32B 직답(현 operand_probe·no CoT) | baseline |
 | **A1 prompted-CoT** | 같은 모델 + 고정 CoT 프롬프트 | prompt-유도 test-time-compute(모델 불변) |
-| **A2 native thinking** | **QwQ-32B**(=Qwen2.5-32B + RL-학습 long-CoT) | **native thinking on 우리 *같은* base**(순수 thinking·base 변화 0) |
+| **A2 native thinking** | **QwQ-32B**(Qwen2.5-32B init + RL/SFT 후학습 long-CoT) | **배포가능·최근접 lineage native-thinking 상한**(=thinking + QwQ RL드리프트·순수 thinking 아님) |
 | (ref) o4-mini | 실-리더보드 frontier thinking(이미 데이터 有·신규런 0) | thinking 천장(비교 기준·probe엔 미사용·유료 회피) |
-- **★A2=QwQ-32B 선택 이유**: QwQ는 **Qwen2.5-32B 기반** → A0/floor와 *동일 base* → A2−A0 = "우리 base에 native
-  thinking 더한 순효과"의 가장 깨끗한 격리. (Qwen3-32B는 base 계열이 달라 base-change 교락·게다가 59.6=자기보고이지
-  우리 프로토콜 리더보드값 아님 → same-base 이점이 이김.) isolated 단일턴 probe는 tool-call 불요 → QwQ의 agentic-포맷
-  약점 무관. 항상-ON thinking도 A2 목적(thinking 켠 상한)에 부합.
+- **★순수 격리는 A1이 담당(A2 아님·rev3 오버클레임 정정)**: A1=**실제 동일 가중치 + 프롬프트**뿐 → *유일한* 순수
+  test-time-compute arm. QwQ는 Qwen2.5-32B init을 공유하나 대규모 RL/SFT 후학습으로 가중치가 이동한 **별개 모델** →
+  **A2−A0 = thinking + QwQ 고유 RL 드리프트**(thinking 단독 격리 아님·1라운드 base-change 교락과 같은 계열·lineage
+  공유라 더 약함). ∴ 옛 "순수 thinking/base 변화 0/동일 base 순효과" **삭제** → A2=**"배포가능·lineage 최근접
+  native-thinking *상한* probe"**로 재캡션. **A2−A0=상한(thinking+RL)·A2−A1="native가 prompted 넘나"(단 F).**
+- **★A2=QwQ 확정(락·[[03]] 오실레이션·모델 3번째 왕복)**: Qwen3-32B로 가면 pretraining 계보까지 달라 A2−A0 교락이
+  *더 심함* → 발견 A는 "Qwen3 가라" 신호가 아니라 "캡션 고쳐라" 신호. QwQ가 우리 base lineage 최근접이라 상한 probe로
+  최적. 59.6=자기보고(rev2 폐기). (Qwen3 하이브리드 ON/OFF의 "드리프트0 native-thinking delta"가 필요하면 Phase B
+  GPU 여유시 *보조 ref*로만 2점 추가·A1 대체 아님·필수 아님 — A1[순수]+QwQ[상한]+o4-mini[천장]로 질문 이미 닫힘.)
+- isolated 단일턴 probe는 tool-call 불요 → QwQ agentic-포맷 약점 무관. 항상-ON thinking도 A2(상한) 목적에 부합.
+- **★F(토큰예산 교락)**: A1(900 고정) < QwQ(수천 토큰)이면 "A2>A1"이 native-RL 덕인지 토큰 더 씀인지 미구분. ∴ "native
+  > prompted" 주장엔 **토큰-매칭 비교**(A1 고-토큰예산 변형 1개) 또는 **Δpass-vs-토큰 커브**(§5) 필수.
 - **★A1 규격(재현·cost 계산)**: 고정 `max_tokens`(예 900·probe5와 동일)·고정 CoT 프롬프트·truncation 카운트(0 확인).
   "충분 토큰"식 미정의 금지.
 - **★A1 null≠thinking 무효([[42]])**: prompted-CoT는 prompt-adherence 천장에 걸릴 수 있음(소형=규칙프롬프트 불복종).
@@ -71,7 +83,10 @@ isolated서 안 보임):
 - **cost-per-pass-point** = thinking 토큰비용 / Δpass. **★단 thinking과 learn은 비용 성격이 달라 쿼리-볼륨 축 필수**:
   - **thinking = 쿼리마다 반복 토큰비용**(추론시 CoT 토큰). learn(SFT) = **1회 학습비 + 무료(짧은) 추론**. scaffold = 결정론(토큰≈0). scale = 큰모델 $/토큰.
   - **break-even 쿼리수** $N^*$ = SFT 1회학습비 / (thinking 쿼리당 추가토큰비 − SFT 쿼리당비). **$N < N^*$면 thinking, $N > N^*$면 learn**이 싸다. 쿼리-볼륨 없이 "thinking=토큰비" vs "learn=1회+무료" 나란히 두면 thinking이 인위적으로 싸 보임 → 반드시 $N^*$ 병기.
-- **판독**: symbolic criterion=CoT-reachable 예상(닫힘·thinking 유력)·⋈=systematic이면 thinking도 못 닫음(경계).
+- **★F(A2−A1 토큰 교락)**: "native(A2) > prompted(A1)" 주장은 A1(900) < QwQ(수천) 토큰차와 교락. ∴ (i)A1 **고-토큰예산
+  변형 1개** 추가(토큰-매칭) 또는 (ii)**Δpass-vs-토큰 커브**로 토큰당 이득을 arm 간 비교. 둘 없이 A2>A1을 native-학습 덕으로 귀속 금지.
+- **판독**: symbolic criterion=CoT-reachable 예상(닫힘·thinking 유력)·⋈ Δ=0은 **경계-의심**(under-spec probe 하한 →
+  confirmed 아님·better-spec ⋈ probe 후 판정·§2 대칭가드).
 
 ## 6. 시퀀싱 (무료 먼저·[[09]])
 1. **Phase A (무료·즉시·GPU有)**: A0 vs **A1 prompted-CoT**를 residual 버킷에 (operand_probe에 CoT 배선). 32B 서버
@@ -82,7 +97,8 @@ isolated서 안 보임):
 4. **★2단계 GO/NO-GO (§2)**:
    - **(i) isolated promise**: isolated-valid 버킷서 Δ(A1 또는 A2)>0 = **진행 신호**뿐(deployment 결론 아님).
    - **(ii) deployment 판정 = §8 (c) robust-partition full-run 확인 후**. "thinking으로 capability 닫음·learn 불요"는
-     여기서만 선언. coverage(load-only)는 full-run서만 판정. ⋈-systematic이면 thinking·RLVR 둘 다 의문(경계·fleet).
+     여기서만 선언. coverage(load-only)는 full-run서만 판정. **⋈ Δ=0=경계-의심뿐**(under-spec)→better-spec ⋈ probe
+     통과 후에만 thinking·RLVR 둘 다 의문(fleet)로 확정(§2 대칭가드).
 
 ## 7. 실험 안정성(user-sim 노이즈)과의 관계 — 이 설계가 해소
 - **capability 측정=isolated → 노이즈 0**(이 설계). 결론은 재현가능.
@@ -97,7 +113,8 @@ isolated서 안 보임):
 
 ## 9. 자가감사
 - [[05]]: thinking=모델레벨(도메인 scaffold 아님·grep if domain 무관). **캐논 base=Qwen2.5 불변**·A2(QwQ)는 base
-  교체가 아니라 "native thinking이면 상한 얼마"의 비교 probe(QwQ=Qwen2.5-32B 기반이라 same-base). clean.
+  교체가 아니라 "native thinking이면 상한 얼마"의 비교 probe(QwQ=Qwen2.5-32B lineage 최근접이나 RL드리프트 有 →
+  A2−A0=thinking+RL 상한·순수격리는 A1). clean.
 - [[13]] **"먼저"의 정확한 의미 = 테스트-비용이 가장 싼 레버 먼저**(thinking probe=무료 GPU / SFT=GPU학습). **배포-비용(TCO)이
   싸다는 뜻 아님** — 배포선 쿼리량 크면 SFT가 amortize해 thinking을 이길 수 있음(§5 $N^*$). 순서=검증비용 기준.
 - [[03]]: build 아님·측정. LEARNED_WING G1 격상(재발명 아님)·G2(RLVR)의 **싼 상계**(thinking⊂reachability: thinking
@@ -107,6 +124,12 @@ isolated서 안 보임):
 - **cheating-surface**: isolated probe는 present 후보만·gold 미접근(operand_probe 동일 규율). thinking=모델 자체 추론
   (scaffold가 답 안 박음).
 
-## 10. 산출물
-버킷×arm 정답률표 + cost-per-pass-point 맵 + GO/NO-GO(버킷별 thinking/scaffold/scale/learn 배분). 정본 doc + 덱/특허
-"cost-optimal 레버 맵(thinking 포함)" 갱신 근거. 도구=`operand_probe_n100.py`+CoT 플래그·`cot_probe5/6.py`(기존).
+## 10. 산출물 (★범위 정직·rev3 하향)
+**Phase A/B(무료·isolated)의 산출물 = *promise-맵* + *scoped 유료런 제안*이지 최종 배분 아님.** 근거: (ii) deployment
+판정은 §8 full-run(=gpt-4.1 유료·[[09]] 예산킬러) 뒤라, **무료 isolated 실험은 자체로 배포결론에 절대 도달 못 하고
+유료 full-run을 greenlight/scope만 한다**(정직).
+- **산출**: isolated-valid 버킷(criterion·⋈) × arm(A0/A1/A2/o4-mini-ref) 정답률표 + Δpass-vs-토큰 커브(§5·F) + break-even
+  $N^*$ 추정 → **promise-맵**(어느 버킷이 thinking으로 열릴 *가능성* + 그 버킷 full-run 확인의 scope/예산).
+- **범위 밖 명기**: **coverage(clean-nt4 잔여 17/16)=load-only → 이 실험 범위 밖**(full-run서만·§4). 최종
+  "thinking/scaffold/scale/learn 배분"은 full-run robust-partition(§8) 후에만 확정.
+- 도구=`operand_probe_n100.py`+고정 CoT 플래그(§3)·`cot_probe5/6.py`(기존). QwQ 서빙=GPU1.
