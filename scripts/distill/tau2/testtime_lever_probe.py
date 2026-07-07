@@ -84,6 +84,7 @@ def main():
     ap.add_argument("--agent_base", default="http://localhost:8140/v1")
     ap.add_argument("--agent_model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--max", type=int, default=100000)
+    ap.add_argument("--save_json", default=None, help="dump raw per-decision rows for [[08]] forensic")
     a = ap.parse_args()
     vrows, orows = [], []
     for ti, t in enumerate(TASKS):
@@ -160,6 +161,9 @@ def main():
     print("[note] A0=direct(60tok) · A1=prompted-CoT(900tok fixed) · same Qwen2.5-32B weights (pure test-time-compute).")
     print("[note] A2=QwQ-32B native thinking=Phase B (upper bound·thinking+RL). o4-mini=frontier ceiling (elsewhere).")
     print("[guard] Δ>0=promise only (not deployment). ⋈ Δ=0=boundary-SUSPECT (under-spec); full-run confirms (§2/§8).")
+    if a.save_json:
+        json.dump({"variant": vrows, "cross_order": orows}, open(a.save_json, "w"), indent=1)
+        print(f"[saved] {a.save_json}  (variant={len(vrows)} cross_order={len(orows)})")
 
 
 if __name__ == "__main__":
