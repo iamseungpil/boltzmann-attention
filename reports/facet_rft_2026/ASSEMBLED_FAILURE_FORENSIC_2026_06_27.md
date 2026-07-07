@@ -230,11 +230,18 @@ user-sim gpt-4.1 ✓·taskset retail 114=114 ✓ / **num_trials 우리 3 vs 리�
 리더보드 제출용은 nt=4 재런 필요). base-vs-assembled 내부비교는 둘 다 nt=3 → 정합.
 
 ### ★결론 (leaderboard-consistent 재판정)
+> **★★2026-07-07 SUPERSEDED — 아래 strict 추정(bound)은 클린 nt=4 재런 실측으로 대체됨.**
+> replay-safe 게이트 구현·`asmregen{14b,32b}_regen_retail_t4`(infra=0·위반=0) 확정값 →
+> `REPLAY_SAFE_GATE_DESIGN_2026_07_06.md §12`. 요지: **진짜 pass^3=32B 0.423/14B 0.336**(옛 strict
+> 0.377/0.272와 drop 0.457/0.313 *사이*). **same-scale 우위 더 큼**(32B +14.2pp·14B +10.8pp). **★crossover
+> 부활·재확립**(14B-asm 0.336 > 32B-floor 0.281 — strict서 flip됐던 게 클린서 되살아남·strict가 방법-유발
+> 크래시 과벌한 탓). **frontier는 모든 k서 ~9pp 아래**(pass 미달·moat=compliance). 아래는 fix 前 bound 기록.
+
 - **같은-scale 우위 = 유지**: 32B 0.3772 > 0.2807(**+9.7pp**)·14B 0.2719 > 0.2281(**+4.4pp**).
-  scaffold는 동일 규모서 base를 이긴다(strict서도).
-- **★cross-scale crossover = FLIP(철회)**: "작은모델+scaffold > 큰모델 bare"(14B-asm >
-  32B-floor)는 CURRENT 0.3131 > 0.2807이나 **STRICT 0.2719 < 0.2807 = 뒤집힘.** current의
-  우위는 assembled 11% 크래시-드롭 인공물. **이 crossover 주장 철회**(특허·덱·논문서 제거/조건화).
+  scaffold는 동일 규모서 base를 이긴다(strict서도). [클린: +14.2/+10.8pp]
+- **★cross-scale crossover = FLIP(철회)** [★클린서 재확립·철회 취소]: "작은모델+scaffold > 큰모델 bare"
+  (14B-asm > 32B-floor)는 CURRENT 0.3131 > 0.2807이나 STRICT 0.2719 < 0.2807 = 뒤집힘(strict의 과벌).
+  **클린 nt=4: 14B-asm 0.336 > 32B-floor 0.281 = 성립**(§12).
 - **★frontier 병치 = k-불일치·철회**(공식 참조로 확정): `data/tau2/results/final/o4-mini-2025-04-16_
   retail_default_gpt-4.1-2025-04-14_4trials.json`을 공식 `compute_metrics`로 채점 → **o4-mini retail
   pass^1 0.715·pass^2 0.594·pass^3 0.5175·pass^4 0.4561**(n=456·**infra 0**·config nt4/steps200/

@@ -447,3 +447,42 @@ def patched_generate(self, message, state):
 - 서빙 **max-model-len 32768**·`T2_GATE_REGEN=1`·**nt=4**(공식 프로토콜)·assembled 14B+32B·floor도
   nt=4·공식 `compute_metrics`(pass^1..4·headline pass^1)·같은-k frontier(o4-mini pass^3 0.5175·
   pass^4 0.4561) 비교. R2 divergence 분류·R3 회귀는 이 런 궤적서 확정.
+
+---
+
+## 12. ★FINAL 결과 — nt=4 클린 재런 (2026-07-07·리더보드-동일·권위)
+`asmregen{14b,32b}_regen_retail_t4`(nt=4·32768·regen·gpt-4.1 user·공식 `compute_metrics`). 영속화:
+`sim_results/asmregen{14b,32b}_regen_retail_t4.results.json.gz`.
+
+### 원측 (둘 다 **infra=0 · 게이트 위반 g1–g4=0**)
+| pass^k | 14B asm | 32B asm | floor 14B | floor 32B | o4-mini(frontier) |
+|---|---|---|---|---|---|
+| pass^1(=avg) | 0.588 | 0.640 | 0.468 | 0.547 | 0.715 |
+| pass^2 | 0.430 | 0.504 | — | — | 0.594 |
+| **pass^3** | **0.336** | **0.423** | 0.228 | 0.281 | 0.518 |
+| pass^4 | 0.272 | 0.360 | — | — | 0.456 |
+*(32B 456 전부 user_stop·14B 453 user_stop+3 too_many_errors[모델 예산실패=fail·드롭 아님]. floor=구 nt=3
+클린[infra~0]·pass^k는 nt-불변이라 same-k 비교 유효. floor pass^1: 14B 0.468·32B 0.547[구 f3f4].)*
+
+### 확정 결론 ([[08]]·infra=0로 드롭 confound 제거·violations=0·per-case 검증)
+1. **진짜값 회수**: 32B pass^3 **0.423**·14B **0.336** = 옛 strict(0.377/0.272)와 옛 drop(0.457/0.313)
+   **사이**. 드롭됐던 hard task가 정직 채점(옛-크래시 32B 중 36·37·71·98·107=fail-all·다수 fail-some).
+2. **★same-scale 우위 = 견고·strict보다 큼**: pass^3 32B **+14.2pp**(0.423>0.281)·14B **+10.8pp**
+   (0.336>0.228). pass^1 32B +9.3pp·14B +11.9pp.
+3. **★cross-scale crossover = 부활·성립(un-retract)**: **14B-asm 0.336 > 32B-floor 0.281**(pass^3
+   +5.5pp)·pass^1 0.588>0.547. strict서 flip(0.272<0.281)됐던 "작은+scaffold>큰 bare"가 **클린 측정서
+   되살아남** — strict가 방법-유발 크래시를 fail로 과벌한 탓이었고, 진짜값이 crossover를 지지. **철회 →
+   재확립**(클린 기반·측정-의존 아님).
+4. **frontier = 모든 k서 아래(정직)**: pass^3 0.423 vs 0.518(-9.5pp)·pass^4 0.360 vs 0.456(-9.6pp)·
+   pass^1 0.640 vs 0.715(-7.5pp). **pass 병치 아님**·일관 ~8-10pp. **moat = compliance**(우리 위반0·
+   scale-불변 vs frontier 간헐 위반).
+5. **R2/R3**: violations=0 = 게이트 집행·auth_user 상태재구성 정상(R3 실증·추가 diff 불요). R2: 옛-크래시
+   G2-confirm task(28·31·33)는 pass·나머지 다수 정직 fail = 게이트 옳음(오탐 아님·모델이 못 푸는 것).
+
+### 헤드라인 갱신 (사전등록 R4 대비)
+- **살아남음**: ① same-scale 우위(32B +14.2pp·14B +10.8pp pass^3) ② compliance moat(위반0·scale-불변)
+  ③ **cross-scale crossover(14B-asm>32B-floor)** ← strict서 철회했으나 클린서 재확립.
+- **철회 유지**: ④ frontier pass 진입/근접(모든 k서 ~9pp 아래).
+- 수치 갱신: 0.457/0.313(drop) → **0.423/0.336(pass^3 클린)** + pass^1 0.640/0.588 병기. paper1/특허/덱
+  전파 대상.
+- **선택 잔여**: floor를 nt=4/32768로 재런하면 pass^4 same-k 완전정합(현재 pass^3 비교는 nt-불변이라 유효).
