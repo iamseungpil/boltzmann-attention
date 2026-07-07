@@ -23,16 +23,21 @@ COT_MAX = 900     # rev3 §3: FIXED reproducible CoT budget
 DIRECT_MAX = 60
 COT_SUFFIX = "\n\nReason step by step. Then on the LAST line write exactly:\nFinal answer: <id>"
 
+# Phase B (QwQ native thinking): reasoning models degenerate at temp 0 -> set --temperature 0.6
+# (QwQ documented setting) and raise --req_timeout for the large thinking budget.
+TEMPERATURE = 0.0   # default preserves Phase A reproducibility (same-weights A0/A1)
+REQ_TIMEOUT = 240
+
 
 def ask(prompt, model, base, max_tokens, cot=False):
     """returns (content, completion_tokens, truncated). robust to errors -> (None,0,False)."""
     body = json.dumps({"model": model,
                        "messages": [{"role": "user", "content": prompt + (COT_SUFFIX if cot else "")}],
-                       "temperature": 0.0, "max_tokens": max_tokens}).encode()
+                       "temperature": TEMPERATURE, "max_tokens": max_tokens}).encode()
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=body,
                                  headers={"Content-Type": "application/json"})
     try:
-        r = json.loads(urllib.request.urlopen(req, timeout=240).read())
+        r = json.loads(urllib.request.urlopen(req, timeout=REQ_TIMEOUT).read())
         ch = r["choices"][0]
         content = ch["message"].get("content") or ""
         ntok = (r.get("usage") or {}).get("completion_tokens", 0)
@@ -87,7 +92,13 @@ def main():
     ap.add_argument("--save_json", default=None, help="dump raw per-decision rows for [[08]] forensic")
     ap.add_argument("--cot_max", type=int, default=COT_MAX,
                     help="CoT/thinking token budget. 900=A1 prompted-CoT (Phase A); 8000=A2 QwQ native (Phase B)")
+    ap.add_argument("--temperature", type=float, default=0.0,
+                    help="0.0=Phase A reproducible (same-weights A0/A1); 0.6=QwQ native (Phase B, avoids temp-0 loops)")
+    ap.add_argument("--req_timeout", type=int, default=240,
+                    help="per-request wall timeout (s). raise for large --cot_max (QwQ 8000 tok can exceed 240s)")
     a = ap.parse_args()
+    global TEMPERATURE, REQ_TIMEOUT
+    TEMPERATURE, REQ_TIMEOUT = a.temperature, a.req_timeout
     vrows, orows = [], []
     for ti, t in enumerate(TASKS):
         if ti >= a.max:
