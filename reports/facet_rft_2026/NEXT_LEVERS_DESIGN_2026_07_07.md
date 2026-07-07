@@ -1,156 +1,113 @@
-# 원인-근거 해결 레버 설계 — 클린 nt=4 실패 극복 (2026-07-07)
+# 잔여 극복 전략 재설계 — scaffold-천장 vs 학습-TBox 전이 vs 경계-지도 (2026-07-07·rev2)
 
-> **입력**: `CLEAN_NT4_FAILURE_FORENSIC_2026_07_07.md`(실패 버킷·기전·극복레버 초안).
-> **목적**: 각 실패 원인에 대응하는 **결정론 레버를 구현-수준으로 설계**.
-> **불변(설계 제약·절대준수)**: [[05]] 엔진=도메인-일반·정책/필드=A2(`a2/<domain>.gate.json`)·retail 하드코딩
-> 0·ABox만 변경. **replay-safe**(REPLAY_SAFE_GATE_DESIGN): READ-증강(reads는 eval-replay서 skip=안전) 또는
-> generation-level regen-gate(히스토리 clean)만 허용·WRITE 히스토리 오염 금지. [[13]] 결정론 먼저·genuine
-> 잔여만 학습. [[03]] 설계 먼저·구현은 리뷰 후.
-
----
-
-## 0. 설계 원리 — 두 메커니즘에만 얹는다
-모든 신규 레버는 **기존 replay-safe 두 축의 확장**으로 한정(새 subsystem 금지):
-- **(R) READ-증강**(`compute_facts`/`nested_candidate_summary`/`candidate_summary` 계열): READ tool 응답에
-  결정론 계산·후보를 텍스트로 첨부. eval-replay서 READ는 skip → **replay-safe**. A2 `*_specs` 구동.
-- **(G) generation-gate/controller**(`apply_gate_regen`): WRITE/종료 시점서 결정론 검사·deny→작업버퍼
-  피드백+재생성. 히스토리엔 compliant만 커밋 → **replay-safe**. A2 `gates` 구동.
-
-각 레버: **엔진 op(도메인-일반)** + **A2 필드(도메인 인스턴스)** + **replay 안전성** + **decidable core vs
-genuine 잔여**(정직 분리) 명시.
+> **rev1 폐기 사유(표류 자기-진단)**: rev1은 τ²-retail 실패 버킷을 보고 **A2-scaffold 레버를 손-저작**했다.
+> 이는 [[13]](scale→학습→*최후*scaffold/A2) 순서 역전·[[05]]/[[46]](최소 A2·도메인-일반·moat=배분 method)
+> 위반·**R1**(주입→복사=steering, paper1 §5.4서 이미 causal effect ~0로 측정=이 프로젝트서 실패한 기전)이다.
+> 목표는 **τ²를 푸는 것이 아니라, 벤치-독립·도메인-독립 scaffold+TBox를 최소 A2로 확립**하는 것(사용자 교정).
+> 본 rev2는 그 목표로 재정렬한다.
+> **불변**: [[00]] 두 날개(결정론 scaffold + 학습 도메인-일반 TBox·ABox-swap 전이)·[[01]] four-bench TBox·
+> [[05]] 고정={TBox+scaffold}·변경={ABox}·[[11]] TBox=학습벤치만·τ²=swap·[[12]] 다양성·[[13]] 학습먼저.
 
 ---
 
-## 1. 변형-선택 calc (within-order·최대 버킷 32B 21·14B 26) — 메커니즘 (R)
-
-**원인(기전)**: 우주문·정확하나 `new_item` **변형을 오선택**(63: 2635 vs gold 3254). 유저 묘사(cheapest·
-bigger·brighter battery>USB·i9/256GB·red)를 변형 item_id에 매핑 실패. present-nested가 변형을 *보여주나*
-argmax/filter를 모델이 틀림.
-
-**설계 — `select_specs`(R·nested present 확장)**: trigger READ의 변형집합에 대해 **결정론 선택-결과를 계산·주입**.
-- **엔진 op(도메인-일반)**:
-  - `argmax/argmin(field)` — cheapest/most-expensive/biggest/highest-X (price·capacity·resolution 등).
-  - `filter(attr=val)` — red/leather/waterproof/i9/256GB (attribute 완전일치).
-  - `rank(pref-order)` — "battery>USB>AC" 선호순위 → 가용 최상위.
-  - `match-keep(field=source-value)` — "same size shoe"·"same color" → 원본 필드값 유지.
-- **A2 필드**: `select_specs:[{trigger_tool, variant_field(=nested_field), id_field, criterion_map}]`.
-  `criterion_map`=유저-표현 토큰→(op,field) 매핑(cheapest→argmin price·bigger→argmax capacity…). 도메인-일반
-  토큰 사전 + 도메인 필드명만 A2.
-- **주입 형식**(census 마커): `[VARIANT SELECT — deterministic]: for 'cheapest' → item_id=X (price=..)`.
-  모델은 이 값을 복사(report-conversion). READ-증강이라 replay-safe.
-- **★decidable core vs genuine 잔여**:
-  - decidable: cheapest/most-expensive/biggest/same-X/색·소재·용량 완전일치 = 대부분.
-  - **genuine 잔여**: 모호 NL→필드 매핑("bigger"가 capacity인지 size인지 도메인 애매)·복합 선호. → 소량.
-    **여기만** 소형 학습 formalizer 후보([[13]] 최후·paper1 "learned path-selection residual"). scaffold는
-    **전체 변형+속성을 명시 제시**해 이 잔여를 최소화(현재도 present하나 계산-주입이 추가 offload).
-- **타깃**: 63·8·37·100·45(변형오선) 등. 우선순위 **1**(최대 버킷·순수 READ-증강이라 저위험).
+## 0. 핵심 재프레임 (한 줄)
+**이번 nt=4 포렌식은 *base Qwen + scaffold*였다(학습 TBox 아님·[[01]]). 잔여(변형선택·coverage·⋈)는
+scaffold가 present한 정보를 *base가 못 쓰는 것* = 도메인-일반 *스킬* gap.** 따라서 잔여는 **scaffold를 더
+얹어 닫는 게 아니라(R1: steering 천장) 학습된 도메인-일반 TBox가 닫는다.** scaffold(present+gate)는 이미
+할 일을 다 했다·FIXED·최소-A2. 이게 원래 두-날개 계획이고, rev1은 그걸 우회한 표류였다.
 
 ---
 
-## 2. Coverage controller (상태추적·32B 17·14B 16) — 메커니즘 (G)
+## 1. 잔여의 정확한 세-몫 귀속 (포렌식 버킷 → 어느 날개)
+CLEAN_NT4_FAILURE_FORENSIC의 버킷을 *닫는 주체*로 재귀속:
 
-**원인**: "**모든**/양쪽/각각 X" 요청에 일부만 처리(41: 2 주문 인지하고도 1개만). 전수-열거 부재.
+| 포렌식 버킷 | 32B/14B | 닫는 주체 | 근거 |
+|---|---|---|---|
+| compliance(위반) | 0 (이미0) | **scaffold-gate**(done) | 결정론·scale-불변·최소 A2 |
+| coverage(상태추적) | 17/16 | **학습-TBox**: state-tracking | TaskBench(data-flow)·SOPBench(control) 프리미티브 |
+| 변형선택(criterion) | 21/26 | **학습-TBox**: content-op select | Synth COMPUTE(filter/argmax over options) |
+| ⋈ cross-order 참조 | 7/10 | **학습-TBox**: reference/join | Synth cfbsynth(fetch-first/COPY) |
+| conditional cascade | (36 등) | **학습-TBox**: control-flow | SOPBench |
+| order-total | 6/3 | **scaffold-calc**(집계) *IF* steering 유효 / 아니면 TBox | §5 probe |
+| over-action(불가능op) | 4/7 | **scaffold-gate**(precondition·done) | 결정론 |
+| over-action(should-not intent) | (소량) | **잔여**(intent·over-block 위험) | 레버 금지·§4 |
+| orchestration load(loop/no-write) | 13/17 | **genuine-scale/load** | plan-execute capacity·scaffold 밖 |
 
-**설계 — `coverage_specs`(G·종료-게이트)**: 모델이 **종료(stop/transfer)하려 할 때** 요청 범위의 미커버
-엔티티가 있으면 deny→regen("아직 #W... 미처리").
-- **엔진(도메인-일반)**:
-  1. **scope 감지**: 최근 유저 발화에서 범위 양화사(all·every·both·each·모두·전부) + 대상 타입 검출(결정론
-     키워드·도메인-일반).
-  2. **엔티티 집합 열거**: A2 producer로 인증유저의 대상 집합(예: pending orders)을 결정론 fetch.
-  3. **커버리지 추적**: 커밋된 히스토리서 실행된 write의 대상 order/item 집합.
-  4. **종료-게이트**: scope 감지 ∧ (집합 − 커버) ≠ ∅ 이면 stop/transfer deny → "미처리: #W.. — 처리 후 종료".
-- **A2 필드**: `coverage_specs:[{scope_tokens, entity_producer, entity_id_field, applies_when_tool_class}]`.
-- **replay 안전**: 종료를 지연시켜 write를 더 유도할 뿐·히스토리엔 실행된 write만 → clean.
-- **★decidable core vs 잔여**: 양화사+대상타입 명시 케이스=decidable. **잔여**: 암묵 범위("정리해줘"가 무엇을
-  포함하는지) = 소형 학습/ASK. over-ask 방지 위해 **명시 양화사에만 발동**(보수적·false-block 회피).
-- **타깃**: 41·103·20·74·98(부분)·112 등. 우선순위 **2**.
-
----
-
-## 3. Cross-order present (⋈ 참조·32B 7·14B 10) — 메커니즘 (R)
-
-**원인**: 주문을 잘못된 키로 식별(71: "최근"으로 골라 오선택·gold=DC주소 주문)·아이템을 잘못된 주문에
-conflate(98: 다른 주문 아이템을 한 주문에). 현 present는 **한 주문 내부**만.
-
-**설계 — `xref_specs`(R·present 확장)**: 인증-후 사용자-레벨 READ(get_user_details 등)에 **주문↔속성·
-아이템↔주문 매핑을 명시 제시**.
-- **엔진(도메인-일반)**: producer로 각 엔티티의 disambiguating 속성 fetch → 매핑 테이블 주입:
-  - order→{address, status, item-summary} (71·109: 주소로 매칭).
-  - item→order (98·107: 어느 주문에 무슨 아이템·conflate 방지).
-- **A2 필드**: `xref_specs:[{root_producer, child_producer, present_fields, id_field}]`(order/reservation
-  swap=필드만 교체).
-- **주입**: `[ORDERS — match by these before any write]: #W1{addr:DC, items:[bike]} · #W2{addr:Charlotte,
-  items:[lamp]}`. READ-증강·replay-safe.
-- **★decidable/잔여**: 속성-매칭(주소·아이템)=decidable. 잔여: 유저 묘사가 어느 속성인지 모호=소량.
-  user-sim 오확인(71)이 마스킹하는 케이스는 present가 올바른 후보를 강제 노출해 완화.
-- **타깃**: 71·79·98·107·109·12. 우선순위 **3**.
+**★관측**: 학습-TBox가 닫을 버킷(coverage+변형+⋈+conditional)이 잔여의 **지배부분**이고, 이들은 **정확히
+four-bench TBox의 학습 프리미티브**(state-tracking·content-op·reference)다. 즉 **포렌식 잔여 = 학습 타깃과
+동형**. rev1이 손-저작하려던 것을 **학습이 도메인-일반으로 설치**해야 한다(그래야 airline/bank로 A2-swap 전이).
 
 ---
 
-## 4. Order-total calc (calc·32B 6·14B 3) — 메커니즘 (R)
-
-**원인**: 주문 총액 오산 보고(67·68: $919.67 vs gold $829.43).
-
-**설계 — `calc_specs`에 order-total 추가**(기존 calc 엔진 그대로): trigger=get_order_details, op=`sum`,
-item_field=price(+할인/조정 필드 A2). 주입 `[COMPUTED FACTS]: order_total: 829.43`. 이미 있는 `compute_facts`
-`sum` op 재사용·A2 spec만 추가. READ-증강·replay-safe. **decidable 100%**(단순 집계). 우선순위 **4**(저위험·즉효).
-- 단서: gold 총액이 item-price 합과 다르면(할인·세금) A2에 조정필드 명시 필요 — 케이스 확인 후.
-
----
-
-## 5. Feasibility/should-not gate (over-action·32B 4·14B 7) — 메커니즘 (G)
-
-**원인**: gold=무write인데 실행(12: 질문만인데 return)·불가능 op 실행.
-
-**설계 — 기존 `preconditions`/`constraints` gate 확장**:
-- **불가능 op**: 부분취소·cross-order 결제 등 = precondition 위반 → 기존 게이트가 이미 block(확장=A2 checks 추가).
-- **should-not-write(질문만)**: 유저가 write를 **명시 요청 안 함**인데 write 시도 → 어려움(intent). 보수적
-  설계: **write 직전 "이 write를 유저가 명시 요청했는가"를 확인-게이트(G2 confirm 강화)**로 — 이미 G2가 confirm
-  요구하나, "질문"에 대한 confirm이 write로 오해되는 케이스. **잔여(genuine intent)** = 소량·학습/ASK 후보.
-- **replay 안전**: G(regen). **decidable**: 불가능 op·precondition. **잔여**: should-not(intent) 소량.
-- 우선순위 **5**.
+## 2. scaffold의 역할은 끝났다 — steering 천장 (R1)
+- scaffold = **present**(후보·변형·주문·집계 노출) + **gate**(compliance). 둘 다 **결정론·도메인-일반·최소 A2**.
+  present는 이미 변형·주문·총액을 노출한다 → **정보는 이미 거기 있다.**
+- **R1(prior 확정)**: 주입→복사(steering)의 causal effect ~0(paper1 §5.4). 즉 **더 present/주입해도 base가
+  안 쓴다.** 잔여는 "정보 부족"이 아니라 "present된 정보를 쓰는 *스킬* 부족" → **scaffold가 아니라 학습**.
+- ⇒ rev1의 R-레버(변형-select 주입·cross-order 주입·order-total 주입)는 **R1 근거로 기각**. scaffold-adding
+  종료.
 
 ---
 
-## 6. Orchestration loop/no-write (32B 13·14B 17) — 부분 (G·정직)
-**원인**: 동일호출 반복(loop)·미실행(no-write). **혼합**(일부 결정론·일부 load).
-- **loop-guard(G)**: 동일-args 반복 write를 재생성 유도(다양화). 단 과거 retry_controller가 예산소진으로
-  **해로웠음**([[06-NOW]]) → **regen 방식(예산 1tick·§R1)으로 재설계 시 무해할 수 있음**·재측정 필요.
-- **no-write**: joint-constraint서 멈춤(64) = §1 변형-select가 후보를 계산해주면 완화. 순수 orchestration
-  capacity 잔여는 **load(scale-의존)**·plan-execute controller 후보. **정직: 이 버킷 일부는 scale/load**.
-- 우선순위 **6**(혼합·부분).
+## 3. make-or-break 실험 — 학습-TBox의 τ² 전이 ([[13]] 학습 먼저)
+**가설**: four-bench 학습 TBox는 state-tracking·content-op·reference를 *도메인-일반 스킬*로 설치하며, 이는
+τ²에 **ABox-swap 전이**돼(τ² never-trained) 포렌식 잔여를 닫는다. scaffold(present+gate)는 FIXED·A2 최소.
+
+**설계**:
+1. **학습(도메인-일반)**: SOPBench(control-flow)+TaskBench(data-flow)+Synth(COMPUTE+cfbsynth)로 통합 TBox
+   학습. [[12]] 표현/구조 다양성 필수(단일템플릿 SFT=표면매핑 역전이 방지·R5). τ² 데이터 **절대 미사용**([[11]]).
+2. **전이 측정**: 학습 TBox를 τ²-retail에 **동일 scaffold**(present+gate·regen·A2 그대로)로 e2e 구동. base
+   Qwen(현 nt=4)과 **동일 조건 A/B**(모델 가중치만 교체).
+3. **판정(포렌식-구동·[[08]])**: 잔여 버킷별 pass 변화 — coverage 17/16·변형 21/26·⋈ 7/10이 **유의하게
+   닫히는가**(per-bucket + 공식 pass^1..4 same-k). 전이 스킬이 base가 못 쓰던 present-정보를 쓰게 하는가.
+4. **overfit 방어(R2)**: 학습=SOPBench/TaskBench/Synth·**τ²는 held-out 도메인** → τ² pass↑는 정의상
+   전이(τ²-특화 불가). A2-cost(R3) 불변(스킬 학습·손-저작 아님).
+
+**사전등록(R4/R5·[[03]])**:
+- **성공**: 전이 TBox가 지배 잔여(coverage+변형+⋈)를 유의하게 닫고 same-scale/frontier-gap 축소 → thesis
+  (학습된 도메인-일반 스킬이 전이).
+- **부분**: 일부 버킷만 닫힘 → 닫힌 것=전이-스킬·안 닫힌 것=§4 경계로 귀속.
+- **실패**: 전이가 잔여를 못 닫음(역전이·flat) → §4 contingency(경계-지도+fleet). **강요 금지.**
 
 ---
 
-## 7. 우선순위·검증·정직 경계
+## 4. contingency — 전이 실패 시의 "다른 방안" (R5·정직)
+R5가 옳다: 학습-전이는 불안정(monolithic SFT 역전이·strict서 crossover flip 실측). **학습된 TBox도 잔여를
+전이로 못 닫으면**, 그건 scaffold로도 학습으로도 안 닫히는 **genuine scale/capacity 경계**다. 그때:
+- **"small=large" 강요 폐기.** 기여를 *닫기*에서 ***특성화(map)*로 전환**:
+  - **능력별 경계 지도**: (a)결정론-scaffold가 닫음(compliance·given-spec) (b)학습-TBox가 전이로 닫음(닫힌
+    버킷) (c)genuine-scale 잔여(안 닫힌 버킷·load). = paper1의 cost×capability×lever 지도(이미 프레임).
+  - **fleet**: genuine 잔여만 frontier로 escalate(닫는 게 아니라 우회)·on-prem 기본.
+- **moat 불변**: 결정론 게이트(compliance 보장·scale-불변) + cost-knee + 배분 method([[46]]). **pass-parity
+  없이 성립** — 이번 forensic이 이미 그걸 지지(frontier-pass 아래여도 compliance는 우리만 보장).
+- ⇒ 실패도 논문이 된다: "무엇이 scaffold-decidable·무엇이 learn-transferable·무엇이 scale-bound인가"의
+  **정직한 경계 census**가 곧 기여.
 
-### 우선순위 (ROI = 버킷크기 × decidability × 저위험)
-| # | 레버 | 메커니즘 | 버킷 32B/14B | 위험 |
-|---|---|---|---|---|
-| 1 | 변형-select calc | R | 21/26 | 저(READ-증강) |
-| 2 | coverage controller | G | 17/16 | 중(종료-게이트·over-ask 측정) |
-| 3 | cross-order present | R | 7/10 | 저(READ-증강) |
-| 4 | order-total calc | R | 6/3 | 저(기존 calc 확장) |
-| 5 | feasibility gate | G | 4/7 | 중(should-not=intent 잔여) |
-| 6 | loop-guard | G | (혼합) | 중(과거 해로움·재측정) |
+---
 
-### 검증 (구현 후·[[08]][[09]])
-- 각 레버는 **A/B smoke**(레버 on/off·같은 task)로 **표적 버킷 pass↑ + over-block/over-ask 0 확인** 후 full.
-- **replay 회귀**: infra=0 유지(READ-증강은 자명·G는 regen 경로).
-- **[[05]] census**: `grep -c "if.*retail\|하드코딩"`=0·airline/bank A2-swap 등가 확인.
-- 공식 compute_metrics pass^1..4로 재측정(같은-k·floor 대비).
+## 5. 유일 잔존 scaffold 작업 = order-total steering probe (GO/NO-GO·무료-급)
+scaffold-천장(R1)을 **이 클린 런서 재확인**하는 최소·결정적 probe:
+- **가장 단순한 steering**: order-total(집계 숫자)을 READ-증강으로 주입 → 모델이 NL 리포트에 복사만 하면 됨.
+- **GO/NO-GO**: 주입해도 67·68류 order-total NL-fail이 **안 닫히면** → **steering 확정 사망** → 모든
+  scaffold-주입 레버 기각 확정·학습만이 유일 경로. 닫히면 → 순수-집계-복사는 여전히 유효(천장이 "자기 판단
+  대신 신뢰"에만 있음)·단 변형/⋈ 주입은 여전히 리스크(R1의 서열).
+- 이 하나만 A2 `calc_specs`에 추가(기존 sum 엔진)·A/B smoke. **scaffold 레버는 이것으로 끝**(더 안 얹음).
 
-### ★정직 경계 (over-claim 금지)
-- decidable core = 변형-select 대부분·coverage(명시양화사)·cross-order(속성매칭)·order-total·불가능op.
-- **genuine 잔여(scaffold로 못 닫음)**: 모호 NL→필드 매핑·암묵 scope·should-not intent·순수 orchestration
-  load. **소량이나 존재** → paper1의 "learned path-selection residual" + load(scale)로 정직 귀속. 전부
-  결정론이라 주장 금지.
-- 규모-불변: 32B·14B 동일 버킷이므로 레버는 두 규모 공통(scale은 빈도).
+---
 
-## 8. 다음 (리뷰 후 구현 순서)
-1. **§4 order-total calc**(최저위험·즉효) → smoke.
-2. **§1 변형-select calc**(최대버킷·READ-증강) → smoke A/B.
-3. **§3 cross-order present**(READ-증강) → smoke.
-4. **§2 coverage controller**(G·over-ask 측정 동반) → smoke.
-5. **§5 feasibility**·**§6 loop-guard**(측정 하에).
-각 단계 full 재런 전 A/B smoke로 표적효과·부작용0 확인([[09]] 무료 먼저).
+## 6. 실험 순서·검증
+1. **order-total steering probe**(§5·무료 A/B·GO/NO-GO scaffold 천장 확인).
+2. **four-bench TBox 학습 상태 점검/학습**([[01]][[12]]·τ² 미사용).
+3. **TBox τ² 전이 measure**(§3 make-or-break·base와 A/B·같은 scaffold).
+4. **분기**: 닫으면 thesis 확정 / 못 닫으면 §4 경계-지도+fleet로 정직 전환.
+- 검증: 공식 compute_metrics pass^1..4 same-k·per-bucket 포렌식([[08]])·[[05]] census(retail 리터럴0 +
+  airline/bank A2-swap 등가)·[[09]] 무료 먼저·유료 승인.
+
+## 7. 불변·정직 경계 (R1–R5 반영)
+- **R1**(steering=0): scaffold-주입 레버 기각·§5 probe로 재확인. **R2**(overfit): 학습=타벤치·τ²=held-out
+  swap. **R3**(A2-cost): 스킬 학습이라 A2 불변·assembled=이동표적 아님. **R4**(over-block): G-레버 미추가로
+  moot. **R5**(learned residual 불안정): 전이 실패를 §4 경계로 열어둠·"학습으로 닫힘" 단정 금지.
+- **over-claim 금지**: 학습-전이 성공도, genuine-scale도 단정하지 않는다 — **측정으로 결정**. 실패면 경계-지도가
+  기여(강요 아님).
+- **표류 방지([[03]])**: 목표=벤치-독립·도메인-독립 scaffold+TBox+최소 A2. τ² pass 극대화 아님. rev1이 이걸
+  잊어 표류했다 — rev2는 매 레버를 "도메인-일반이며 A2 안 늘리는가"로 검문한다.
