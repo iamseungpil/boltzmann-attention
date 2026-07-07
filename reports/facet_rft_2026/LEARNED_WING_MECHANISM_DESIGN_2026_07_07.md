@@ -18,9 +18,42 @@ sampling으로 도달가능해야 reward 신호 존재). **선행 측정이 버�
 
 ---
 
+## 0.5 ★★2차 리뷰 정정 (R-1 온도·R-2 게이트 복원 — 학습-wing 부담 축소)
+- **R-1(reachability 증거 정정)**: ⋈-unreachable 근거였던 "self-consistency 8/8 동일오답"은 **temp 0.8**서
+  잰 것(vacuous 아님·확인)·**단 max-of-N(symbolic) parallel-voting 증거**이지 ⋈이 아님. CoT-reachability
+  판별자 = **voting이 아니라 CoT delta**(symbolic +17/35 reachable vs semantic +4 약함). ⇒ **G2 = best-of-N-
+  with-CoT(temp>0·다양 추론체인)**·직접-sampling G2는 vacuous. **G2를 four-bench(학습신호)+τ²(천장) 둘 다**(R-3).
+- **★R-2(게이트 복원·rev2 과잉정정 교정)**: SEMANTIC_ERROR_FORENSIC per-case(t41/t107)가 이미 확정 —
+  **"⋈ wrong-order" 라벨 대부분이 실제 state-tracking(A)**("모든 주문" 2개 인지하고 1개만·=coverage). 버킷
+  추정 **A(상태추적)~12·B(feasibility)~10·C(symbolic)~5·genuine-scale(F)~2-4/arm(소수)**. ⇒ **지배 잔여 =
+  결정론 게이트/컨트롤러**. rev2가 rev1의 **steering-inject R-레버(dead·R1)**와 **결정론 게이트 G-레버**를
+  함께 버렸으나 **게이트는 R1(steering=0)에 안 걸림**(inject-copy 아니라 compliance-class 강제). **복원**:
+  - **coverage-controller**(양화사+A2열거+미커버시 stop-deny·regen-gate): 결정론·replay-safe·[[05]] A2-구동·
+    compliance 게이트와 같은 class. 모델이 2주문 인지하고 멈춤→완주 강제(행동 대행 아님).
+  - **feasibility-gate**(불가능/should-not write 차단·precondition): 결정론.
+
+**⇒ 정정된 전체 그림**:
+| 잔여 | 닫는 주체 | class |
+|---|---|---|
+| coverage/상태추적(A·지배) + feasibility(B) | **결정론 게이트**(복원) | scaffold-gate(done-class·[[13]] 먼저) |
+| ⋈ 참조-매칭(묘사→엔티티·71/98 일부) | present+confirm(게이트) + **매칭부분=learn** | 학습-wing(소수) |
+| criterion-NL 매핑(bigger→capacity·CoT +17/35) | **learn**(reachable) | 학습-wing |
+| ~~steering-inject(변형/총액 값 주입)~~ | **죽음** | R1 |
+| genuine-scale(F ~2-4/arm) | 경계 | map+fleet |
+- **학습-wing 부담 = 작은 genuine 잔여(⋈-매칭 + criterion-NL)**·reachability-gated. 지배는 결정론 게이트. §5의
+  A/A'(SFT/RLVR-CoT)는 이 **작은 학습-잔여**에만 적용.
+- **R-4(CoT 포맷·비용)**: A'(RLVR-CoT)는 CoT가 **native tool_call 포맷을 깨면 안 됨**(§23E op-IR 텍스트→파서붕괴·
+  pass 0.075 전례). CoT=assistant content·tool_call 별도 FC 프로토콜/replay 보존 **검증 필수** + CoT 토큰비용
+  cost-knee 계상(B의 T×와 같은 정직).
+- **R-5(필요조건)**: G2 pass@N>0(reachable)은 **RL 신호 존재**일 뿐 **학습·전이 성공 아님**(credit-assignment·
+  reward-hack·전이갭 잔존). 전이 make-or-break가 충분조건 판정.
+
+---
+
 ## 1. reasoning-wing이 잔여에 맞는 근거·안 맞는 곳 (냉정)
-잔여(coverage·⋈·criterion/variant)는 "base가 present된 정보를 못 쓰는" 다단계 추론 실패. "더 careful하게
-단계적으로 추론"이 원리적으로 겨냥. **그러나 CoT/RL이 통하려면 정답 행동이 모델 support 안에 있어야 한다.**
+잔여 중 **학습이 닫을 부분(⋈-매칭·criterion-NL)**은 "base가 present된 정보를 못 쓰는" 다단계 추론 실패. "더
+careful하게 단계적으로 추론"이 원리적으로 겨냥. **그러나 CoT/RL이 통하려면 정답 행동이 모델 support 안에 있어야
+한다.** (지배 잔여 coverage/feasibility는 §0.5대로 결정론 게이트가 닫음·학습 불요.)
 
 ## 2. ★핵심 필요조건 — reachability (RL이 작동하는 전제)
 - RLVR(GRPO/PPO)은 **롤아웃을 sampling → 정답이면 보상 → 그 궤적을 upweight**. **정답이 한 번도 sampling되지
