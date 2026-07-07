@@ -6,6 +6,20 @@
 > 할 뿐 coverage/⋈(문맥 재읽기=attention 필요)를 못 함. (3)A<1(수축)=답이 아니라 활성의 완화판으로 수렴=
 > 계산적 무능(안정성이 표현력을 죽임). (4)RLVR(토큰-공간)↔latent DEQ loop(implicit gradient)=미정합·구호 조합.
 > (5)STEERING §8 H2(재가중)·C5(약함)는 열린 리스크 아니라 negative prior. 아래는 기록 보존용(오설계 표본).
+>
+> **★★설계 무효화 조건(2차 리뷰·더 근본·이론이 실패를 예측)**:
+> - **★1 autonomous → 입력 소거**: 식 $x_{t+1}=M(x_t+\alpha g(x_t))$에 **입력 주입항 부재**. 진짜 DEQ
+>   ($z^*=f(z^*,x_{in})$)가 아님. $T\to\infty$로 relax(=인용한 DEQ/Parcae $L_\infty$/열평형 regime)하면
+>   고정점 $x^*=M(x^*+\alpha g(x^*))$ = **입력 무관 상수 = task-blind**. 쓸모 있는 작은 유한 $T$는 이론이
+>   기술하는 regime이 **아님**(weight-tied $T$-layer일 뿐·$T\uparrow$가 입력 지워 해로움·최적 $T$ 유한).
+>   ⇒ **인용한 이론이 기술하는 regime이 곧 입력을 지우는 regime.** 진짜 DEQ이려면 $g$=고정프롬프트
+>   cross-attention → "steering"이 아니라 attention → 설계 정체성 붕괴.
+> - **★2 선형 붕괴**: $g$ 선형(=steering=LoRA regime) → 무한깊이 loop = **단일 선형 adapter·깊이이득 0**.
+>   가치는 $g$ 비선형(F3) 조건부인데, 비선형이면 "작은 recurrent adapter 학습" = **후보 A로 수렴**.
+> - **★3 차별점 소멸**: B의 유일 이점(base-freeze·가역·무망각)을 **후보 A-as-LoRA-SFT가 그대로 가짐**
+>   ($T\times$ latency·형식파탄 없이). ⇒ B = A-as-LoRA-SFT의 열화판. **병렬 bake-off 근거 소멸.**
+> ⇒ **B 완전 폐기·A로 자원 집중.** 교훈: mechanism은 "입력을 매 스텝 다시 읽으며 계산을 더하는가"로 검문
+>   (autonomous relax·출력불변 basis·선형 tied-layer는 계산 아님).
 
 > **위치**: `NEXT_LEVERS_DESIGN_2026_07_07.md`(rev2) §3 "학습된 도메인-일반 스킬 wing"의 **메커니즘 후보 B**.
 > 후보 A = four-bench SFT TBox. 둘 다 **동일 make-or-break(τ² ABox-swap 전이로 잔여 닫는가)**로 겨룬다.

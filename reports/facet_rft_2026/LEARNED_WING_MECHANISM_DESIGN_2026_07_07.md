@@ -48,14 +48,18 @@ RL이 신호를 못 얻어 의문**, coverage는 미확정(측정). = **부분 �
 **G2가 RLVR의 GO/NO-GO** (후보 B의 A<1과 같은 위상): pass@N≈0인 버킷은 **RL로 못 엶**(scale/경계). pass@N 높은
 버킷만 RLVR 투자 가치.
 
-## 5. mechanism 후보 (reachable 버킷 한정)
-| 후보 | 목적 | 형식 | §17-negative 대비 델타 | 리스크 |
-|---|---|---|---|---|
-| **A: four-bench SFT** | imitation | direct(op-IR/native) | §19·§22·§28(생성원·decomp·native) | domain-op 표면매핑 역전이(§17) |
-| **A': RLVR-CoT** | verifiable-reward | explicit reasoning | **RL=generalize>SFT-memorize**·CoT=문맥 재읽기·reachable 버킷만 | reachability 전제·비용↑·reward-hack |
-- 둘 다 **도메인-일반 학습(four-bench)·τ² 미학습·전이로 판정**(rev2 make-or-break). 병렬 겨룸.
-- A'의 델타(§17 넘음): (i) **RL 목적**(imitation 아님)이 표면매핑 역전이를 원리적으로 완화(R1-류 generalize),
-  (ii) **explicit reasoning**이 attention 재실행으로 문맥 재읽기(coverage/⋈에 필요한 것) — 단 G2 reachable 한정.
+## 5. mechanism — A(primary) + RLVR(조건부 hedge) [2차 리뷰 반영]
+| 후보 | 위상 | 목적/형식 | 근거 |
+|---|---|---|---|
+| **A: four-bench LoRA-SFT** | **primary** | imitation·direct(또는 CoT-trace) | four-bench=**gold 궤적 有 → SFT가 표본효율**·base-freeze·가역·무망각(LoRA)·§19/§22/§28 델타 |
+| **A': RLVR-CoT** | **조건부 hedge** | verifiable-reward·explicit reasoning | **A가 §17 역전이할 때만** 정당(RL=generalize>SFT-memorize)·reachable(G2) 버킷 한정 |
+- **★2차 리뷰 수렴**: 후보 B(steering-loop) 폐기 후, "test-time compute" 아이디어는 (i) latent-loop=autonomous
+  입력소거·선형=단일adapter → **A로 붕괴**(RECURRENT doc ★1/★2), (ii) 토큰-공간 CoT=attention 재읽기(★1 무관)
+  지만 **궤적 있으면 SFT가 도구**(§4 함정3). ⇒ **learned-wing = four-bench LoRA-SFT → τ² 전이가 primary이자
+  거의 유일 경로**. LoRA-SFT가 B의 이점(base-freeze·가역·무망각)을 $T\times$ 비용·형식파탄 없이 다 가짐.
+- **RLVR은 hedge**: SFT-on-traces가 §17처럼 역전이하면 → reachable 버킷서 RLVR-CoT(RL이 표면매핑 회피 가능성).
+  궤적 있으므로 **SFT 먼저·RLVR은 SFT 실패 시**. 둘 다 도메인-일반·τ² 미학습·전이 make-or-break로 판정.
+- unreachable 버킷(⋈ 8/8 systematic·G2 pass@N≈0)은 **SFT도 RL도 못 닫음** → 경계(§7).
 
 ## 6. make-or-break·판정 분해 (R-new-3: 미설치 vs 미전이)
 1. **held-out four-bench 전이**: 학습 도메인 외 four-bench 도메인서 잔여 닫히나(스킬 설치+in-substrate 전이).
