@@ -32,16 +32,20 @@ sampling으로 도달가능해야 reward 신호 존재). **선행 측정이 버�
     compliance 게이트와 같은 class. 모델이 2주문 인지하고 멈춤→완주 강제(행동 대행 아님).
   - **feasibility-gate**(불가능/should-not write 차단·precondition): 결정론.
 
-**⇒ 정정된 전체 그림**:
-| 잔여 | 닫는 주체 | class |
-|---|---|---|
-| coverage/상태추적(A·지배) + feasibility(B) | **결정론 게이트**(복원) | scaffold-gate(done-class·[[13]] 먼저) |
-| ⋈ 참조-매칭(묘사→엔티티·71/98 일부) | present+confirm(게이트) + **매칭부분=learn** | 학습-wing(소수) |
-| criterion-NL 매핑(bigger→capacity·CoT +17/35) | **learn**(reachable) | 학습-wing |
-| ~~steering-inject(변형/총액 값 주입)~~ | **죽음** | R1 |
-| genuine-scale(F ~2-4/arm) | 경계 | map+fleet |
-- **학습-wing 부담 = 작은 genuine 잔여(⋈-매칭 + criterion-NL)**·reachability-gated. 지배는 결정론 게이트. §5의
-  A/A'(SFT/RLVR-CoT)는 이 **작은 학습-잔여**에만 적용.
+**⇒ ★★item-level 재귀속 실증(2026-07-07·clean-nt4 32B fail-all 15·`rebucket_item.sh`)이 R-2 강한형태를
+반증·정정**:
+| 잔여 | tasks | 규모 | 닫는 주체 |
+|---|---|---|---|
+| **criterion/variant 선택**(우주문·wrong new_item·most-exp/cheapest/red) | 20·36·37·100·17 | **지배 ~53%**(⋈-매칭 포함) | **학습-wing**(CoT-reachable +17/35·inject는 R1-dead) |
+| **⋈ reference-match**(wrong single order·71·79·109) | 71·79·109 | (위 포함) | 학습-wing(매칭·uncertain) |
+| **coverage**(multi-order·missed write) | 41·98·107·103 | **소수 ~27%** | **결정론 게이트**(coverage-ctrl·복원 정당) |
+| order-total 집계 | 67·68 | ~13% | calc(inject R1-dead→learn/present-report) |
+| no-write/genuine | 64 | ~7% | orchestration/scale |
+- **★정정**: R-2의 "coverage=게이트"는 유효(복원)·**단 "지배=게이트"는 반증**. 클린 nt=4 지배 = **criterion/variant
+  선택(learn·CoT-reachable) ~53%**·coverage-gate는 소수 ~27%. (옛 SEMANTIC_ERROR의 A~12 지배는 다른 run·다른
+  scope; clean-nt4는 criterion 지배·t71/79/109는 진짜 ⋈ reference이지 coverage 아님.)
+- **⇒ 학습-wing이 *지배* 부담**(criterion/variant·⋈-매칭·CoT-reachable) + coverage-gate 소수 복원 + genuine-scale
+  tiny. §5 A/A'(SFT/RLVR-CoT)가 지배 잔여에 적용. (3회 과잉정정을 item-level 실증이 마감.)
 - **R-4(CoT 포맷·비용)**: A'(RLVR-CoT)는 CoT가 **native tool_call 포맷을 깨면 안 됨**(§23E op-IR 텍스트→파서붕괴·
   pass 0.075 전례). CoT=assistant content·tool_call 별도 FC 프로토콜/replay 보존 **검증 필수** + CoT 토큰비용
   cost-knee 계상(B의 T×와 같은 정직).
