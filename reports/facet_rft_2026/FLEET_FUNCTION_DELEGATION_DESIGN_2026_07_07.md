@@ -13,6 +13,10 @@
 task를 결정론 scaffold가 기능으로 분해하고, **각 기능을 측정된 scale-민감도로 정적 분류**해, **scale이 실제로 사는
 기능(예 ⋈)의 sub-call만 큰 tier로 위임**한다. 라우터=난이도-예측기가 아니라 **기능-분류표**(=우리가 지금 실측하는 지도).
 난이도-신호·실패-탐지·silent-leak이 원리적으로 불필요.
+> **★f-실측 판정(2026-07-07·§4b)**: 아키텍처는 유효하나 **tau2-retail 잔여엔 저-ROI**. 위임가능 scale-sensitive 기능
+> (⋈)이 (a)빈번(90% task·1.92/task→$f{≈}0.167$·비쌈)·(b)저-잔여(⋈ 실패 ~7-10 task·scale-lift +8pp→task +1~3pp).
+> 큰 잔여(criterion-flat·coverage-invariant)는 애초에 scale-불가. **⇒ 우선순위=thinking/coverage-controller/learn·
+> fleet=보류**(잔여가 진짜 scale-sensitive한 배포에서만 고가치). [[09]] 무료추정이 과투자 사전차단.
 
 ## 1. 재프레임 — 왜 task-level cascade가 아니라 function-level인가
 - **task-level cascade(폐기)**: "이 쿼리 어렵나?"를 판정해 위임 → 난이도-예측기 필요. **confidence=무작위**(τ²-retail AUROC
@@ -55,6 +59,16 @@ operand_probe·CLEAN_NT4 forensic·Phase A/B·DR#2가 정확히 이 지도를 �
 - **무료 $f$/이득 추정**: 기존 궤적서 (a)scale-sensitive 결정점 수·(b)그 sub-call 토큰비중·(c)⋈ 14B→32B→(외삽)72B 개선
   → cost-품질 스케치. 신규 런 0.
 
+## 4b. ★f-실측 결과·판정 (2026-07-07·기존 데이터·신규 런 0·`/tmp/f2.py`)
+- **측정**: 궤적 total-context 3755 tok·⋈ sub-call 392 tok·**⋈ 결정 1.92/task·90% task**(희소 아님). → **$f≈0.167$**(total 기준).
+- **cost**: fleet **1.2~4.2× small**(R=2.25~20)·pure-big 대비 **1.9~4.8× 쌈**. 즉 pure-big보다 싸나 **near-small은 아님**(⋈ 빈번).
+- **★ROI 낮음**: ⋈ scale-lift 49%(32B)→~57%(72B 외삽)=**+8pp on ALL ⋈**·단 ⋈ 실패 ~7-10 task뿐 → **task-pass +1~3pp**. 219 ⋈
+  전부 위임(49%는 small도 맞힘)에 $f·R$ 비용 → **modest 이득 × real 비용**.
+- **★잔여-불일치**: 우리 잔여 지배 = **criterion(+5pp·flat)·coverage(scale-invariant)** → **큰 tier로 보내도 소용없음**(fleet 무익).
+  위임가능한 유일 축 ⋈은 저-잔여. ⇒ **tau2-retail 잔여의 최저비용 닫개 = thinking/learn/scaffold이지 fleet 아님.**
+- **판정**: fleet=**조건부 유효**(잔여가 진짜 scale-sensitive·⋈-지배인 배포서 고가치)·**tau2-retail서는 저-ROI·보류**.
+  [[09]] 무료추정이 build 전 과투자 차단([[13]] scale-최소 정합).
+
 ## 5. 두 층 (정직한 뉘앙스·범위)
 1. **이산 기능(⋈·criterion 결정점)** = 깨끗이 분리·sub-call 위임 가능(§3). = 본 설계 핵심 범위.
 2. **trajectory horizon 부하**(scale가 per-step reliability로 삼·DR#2) = 단일 기능으로 안 쪼개짐. → scaffold가 부하 축소
@@ -87,8 +101,11 @@ operand_probe·CLEAN_NT4 forensic·Phase A/B·DR#2가 정확히 이 지도를 �
 - [[09]]: $f$/이득 추정=무료(기존 궤적)·big-tier 실측=모델확보·유료 주의·배수 추정 명시.
 - **thesis 정합**: fleet=cost-optimal 레버맵의 한 축(scale-sensitive→위임)·compliance moat(게이트)는 전 tier 불변·직교.
 
-## 9. 시퀀싱
-1. **무료 $f$ 추정**(즉시·기존 데이터): scale-sensitive 결정점 수·sub-call 토큰비중·⋈ 개선 외삽 → cost-품질 스케치.
-2. Phase A/B·open-methods DR 회수 → 기능별 최저비용 닫개 확정(위임 vs thinking vs learn vs scaffold).
-3. big-tier 확보 시(72B/235B or frontier-top-tier) → ⋈ sub-call 위임 smoke(격리 결정점·per-case).
-4. 확정 후 특허 B(cost-knee·레버배분)·덱에 "function-level 결정론 위임" 편입.
+## 9. 시퀀싱 (★f-실측 반영·재정렬)
+1. ✅ **무료 $f$ 추정 완료**(§4b): $f≈0.167$·fleet 1.2~4.2× small·**tau2-retail 저-ROI 판정** → fleet **보류**.
+2. **★우선순위 재정렬(fleet→후순위)**: 우리 잔여 지배가 scale-flat(criterion)·scale-invariant(coverage)라 fleet 무익
+   → **(a) thinking(Phase A/B·진행중) (b) coverage-controller(결정론) (c) learn(criterion-formalize)** 가 최저비용 닫개.
+3. Phase A/B·open-methods DR 회수 → 기능별 닫개 확정(criterion이 thinking/learn으로 닫히나·coverage가 controller로).
+4. **fleet 재개 조건**: 잔여가 진짜 scale-sensitive-지배로 판명되거나(⋈-지배 배포)·big-tier(72B/235B) 확보 시에만.
+   그때 ⋈ sub-call 위임 smoke(격리 결정점·per-case). 지금은 build 안 함.
+5. 특허 B/덱: fleet=cost-knee의 "**조건부**" 축으로 기재(무조건 이점 아님·저-ROI 실측 caveat 병기).
