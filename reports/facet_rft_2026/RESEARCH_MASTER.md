@@ -11,6 +11,9 @@
 symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persistence를 판다**. 그러므로 레버는 독립 배분이 아니라
 **측정된 상쇄에 의한 합성(composition)**으로 배치한다. **부작용 없는 레버는 없다.**
 잔여(semantic reference)는 우리가 시험한 어떤 레버도 열지 못한 **경계**다.
+> ⚠️ **C9 단서(2026-07-08)**: tau2-retail서 **horizon 복리 감쇠는 관측되지 않았고**($p_{step}pprox1.0$ 전 모델),
+> frontier와의 격차는 **F2 symbolic operand**에 집중된다(⋈ 경계는 frontier와 **공유**). ⇒ 이 벤치서 F6은 잔여가 아니며,
+> **격차는 닫히는 축**에 있다. "scale은 horizon을 산다"는 [S-lit](DR#2)이지 우리 벤치의 binding constraint가 아니다.
 
 ## 1. 🔒 LOCKED 프레임 (재론 금지)
 ### 1.1 기능 분해 (에이전트의 논리적 작업)
@@ -74,8 +77,10 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 ## 4. 실험 큐 (우선순위·상태)
 | ID | 실험 | 닫는 것 | 비용 | 상태 |
 |---|---|---|---|---|
-| **E1** | 완결/persistence 게이트 A(offline)→B(smoke)→C(확인) | **C4c** = 모트 | 무료→소액 | ▶ Phase A |
-| **E3** | F3 경계 full-agent 확인 | **C3b [M]→[S]** | 무료 | ▶ 실행 |
+| **E1′** | **격리 formalize 서브콜 (F2)** — 결정점서 thinking sub-call + 결정론 실행 | **C9·C10** = frontier 격차 | 무료→소액 | **▶ 최우선 신설** (부작용 채널 원리적 폐쇄) |
+| **E1** | 완결/persistence 게이트 A→B→C (F4/F5) | C4c (더 작은 잔여·자기-역효과 보유) | 무료→소액 | ✅A(CONDITIONAL GO) · 🔄B 실행중 |
+| **E3** | F3 경계 full-agent 확인 | C3b → **[S] 부분** | 무료 | ✅ 완료 (`E3_E1A_RESULTS`) |
+| **E8** | frontier 격차 분해(horizon vs 기능) | **C9** | 무료 | ✅ 완료 (`HORIZON_GAP_DECOMPOSITION`) |
 | E2 | QwQ+rparser nt=4 | C4b [M]→[S] | 유료(실행중) | 🔄 |
 | E4 | base + 게이트 회귀(Δspurious 필수) | 게이트 일반성 | 소액 | E1 후 |
 | E5 | 7B assembled | C2 사다리 | 소액 | 대기 |
