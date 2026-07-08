@@ -71,13 +71,15 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | C6 | fleet = horizon 전용·저-ROI | **[M]** | `FLEET_FUNCTION_DELEGATION_DESIGN` §4b(rev) |
 | C7 | learn-wing이 F3/mis-formalize를 여는가 | **[?]** | 미실행 (E6) |
 | C8 | TCO ~23× | **[EST]** | `TCO_TABLE_DESIGN` |
-| **C9** | **frontier 격차 ≈ F2 symbolic operand** (horizon 반증 p_step≈1.0 · ⋈ 경계는 frontier와 공유 14 vs 12 · item/variant 13 vs 2) | **[M] 소표본** | `HORIZON_GAP_DECOMPOSITION_2026_07_08` |
+| **C9** | frontier 격차 = **horizon 아님**($p_{step}pprox1.0$) · **⋈ 경계 아님**(frontier와 공유 14 vs 12) · H3-4 write-arg 결손에 집중. ★**기전 라벨 정정**: criterion 아니라 **operand 날조**가 지배(7 vs 5) | **[M]** | `HORIZON_GAP_DECOMPOSITION` + **정정** `E9_OPERAND_GROUNDING_DESIGN` §0 |
+| **C11** | **operand 날조 = frontier-분리 결손** — 우리 5.9% vs gpt-4.1·claude-3.7 **0.0%**(o4-mini 0.2%) · **scaffold도 scale도 미커버** · 술어가 **decidable** | **[M]** | `E9_OPERAND_GROUNDING_DESIGN` §1 |
 | **C10** | **레버 부작용은 scope에서 온다** — 전-궤적 thinking=persistence 매도 / 결정점 격리=채널 폐쇄 | **[D]** | 같은 doc §4 · **E1′가 검정** |
 
 ## 4. 실험 큐 (우선순위·상태)
 | ID | 실험 | 닫는 것 | 비용 | 상태 |
 |---|---|---|---|---|
-| **E1′** | **격리 formalize 서브콜 (F2)** — 결정점서 thinking sub-call + 결정론 실행 | **C9·C10** = frontier 격차 | 무료→소액 | **▶ 최우선 신설** (부작용 채널 원리적 폐쇄) |
+| **E9** | **operand grounding 게이트** — write id 인자의 레지스트리 멤버십(decidable·오탐 구조적 0) | **C11** = frontier-분리 결손(상한 +3.3pp[EST]) | 무료→소액 | **▶ 최우선 신설** ([[05]] 3문 통과) |
+| **E1′** | 격리 formalize 서브콜 (criterion 조각·C10 검정) | 초과 3 (작음) | 무료→소액 | 강등·후순위 |
 | **E1** | 완결/persistence 게이트 A→B→C (F4/F5) | C4c (더 작은 잔여·자기-역효과 보유) | 무료→소액 | ✅A(CONDITIONAL GO) · 🔄B 실행중 |
 | **E3** | F3 경계 full-agent 확인 | C3b → **[S] 부분** | 무료 | ✅ 완료 (`E3_E1A_RESULTS`) |
 | **E8** | frontier 격차 분해(horizon vs 기능) | **C9** | 무료 | ✅ 완료 (`HORIZON_GAP_DECOMPOSITION`) |

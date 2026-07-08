@@ -1,0 +1,9 @@
+=== gpt-5.2 user-sim CLEAN merge (16k-clean-98 + 32k-retry-16 = 114 tasks) ===
+trials/task dist: {4: 114}
+pass^4       : 0.3333  (38/114 tasks all-4-trials reward==1)
+compliant^4  : 0.3246  (pass AND all writes user-confirmed)
+drop (pp)    : +0.9
+pass^1 (ref) : 0.5702   compliant^1: 0.5614
+
+cf. 16k preliminary (contaminated): pass^4 0.307 (lower bound)
+cf. our 32B+scaffold gpt-4.1-sim: 0.457 ; gate drop = 0 (deterministic)
