@@ -76,6 +76,30 @@ non-execution 73 분해(누수마커·transfer-vs-base 교차):
   초과). 잔여 3pp=noise 내·(옵션)transfer-gate로 추가 회복 여지. **정확 pass 확정=nt=4 full 재run(Step3) 필요**(nt=1 noise).
 - thesis 함의: **scaffold/serving이 실행실패 커버·모델은 추론 제공** 실증. 유일 non-fixable=⋈ operand 경계(base 공유).
 
+## 7. ★"reasoning-parser로도 왜 base를 못 넘나" 스텝별 전수 (2026-07-08·qwq_rparser_floor_nt1 vs base·per-case)
+> 제약: **reasoning_content 미저장**(tau2가 버림) → 내부 추론 불가·**행동/발화 스텝**만 대조. nt=1(단일 trial·noise 有·Step3 nt=4가 확정).
+- **landscape**: RP-LOSS 12(QwQ 0/1·base≥3/4) = **RP-WIN 12**(QwQ 1/1·base≤1/4) → **12승=12패=순0=parity**(0.526 vs 0.557).
+- **WIN 12 패턴**: base가 **wrong-execution**(잘못된 operand/args)로 실패(11/12)·t33은 base 6-write **over-action**. QwQ 추론이
+  **단일 결정을 정확히**(올바른 operand·scope·over-action 회피) → 1 correct write. = **reasoning 가치=per-decision 정확도**.
+- **LOSS 12 스텝별 분류**(gold write vs QwQ 실제 write vs base 실제 write):
+  | 유형 | task | 내용 |
+  |---|---|---|
+  | premature transfer(포기) | t13·t30·t106 | 복잡 multi-write(3~4 write)·인증서 즉시 transfer. base는 완수 |
+  | non-exec(읽고 무행동) | t47·t49·t87 | 주문 여러개 read만·write 0. base는 완수 |
+  | incomplete multi-write | t42(2/4)·t55(1/4) | 일부 write만·나머지 누락. base 전부 완수 |
+  | over-action(더 함) | t5(exchange×2 스퓨리어스+return+transfer)·t62 | 안 시킨 변경 추가 |
+  | ⋈ wrong-order | t6(#W7800651≠gold #W6390527) | 틀린 주문 선택 |
+  | variant wrong | t58(new_item 3709608322≠gold 3815173328) | 틀린 변형 |
+- **★핵심(집계)**: LOSS 지배 = **실행/지속 실패 on 복잡 multi-action task = 8/12**(transfer 3 + non-exec 3 + incomplete 2).
+  operand(⋈/variant) 단 2/12·over-action 2/12. ⇒ **잔여는 operand-추론이 아니라 orchestration/persistence**.
+- **★답(왜 순이득 0)**: **reasoning은 per-decision 정확도를 사지만(WIN 12) multi-step 실행/지속을 희생한다(LOSS 8)**. 복잡
+  task서 QwQ는 과숙고→포기(transfer)·미완(부분 write)·무행동(read-only). 근거 정합: QwQ turns/calls 적음(6.3<8.4)=**조기종료
+  편향**(reasoning-RL이 "think→answer once"용이라 긴 tool-loop 지속에 역행). base(instruction-tuned)가 multi-write 완주 더 잘함.
+  agentic 벤치가 multi-action 지배라 (a)결정정확도↑ vs (b)실행지속↓이 상쇄 → parity.
+- **fixability/thesis**: LOSS 8 orchestration은 **completion-enforcing scaffold**(premature-transfer gate + "요청 변경 전부 완료까지 지속")로
+  대부분 복구 가능 → QwQ+scaffold가 base 초과 가능(thesis: scaffold=orchestration·모델=reasoning). non-fixable=⋈/variant 2.
+- caveat: nt=1 단일trial(Step3 nt=4 확정)·reasoning_content 미저장(행동레벨 추론)·QwQ≠Qwen2.5(RL/템플릿).
+
 ## 6. caveat / [[08]] 규율기록
 - **QwQ≠Qwen2.5-32B**(RL-튜닝 다른 모델): transfer-성향·포맷누수는 QwQ 특유 학습/템플릿일 수 있음("thinking 자체" 단정 불가).
   clean thinking-격리 = base-8k 통제(같은 weights·⋈ 0 이득)가 담당·본 forensic은 *reasoning-model-as-agent* 판정.
