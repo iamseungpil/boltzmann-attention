@@ -48,6 +48,25 @@ gold write action 미스매치 유형(QwQ 실제 write args vs gold):
 3. ⇒ 종합: **reasoning은 QwQ의 결정을 나쁘게 하지 않는다. 실행을 나쁘게 한다**(과숙고→포기/포맷깨짐). isolated criterion
    이득(0.86)이 배포서 사라지는 이유 = (a)⋈ 미해결(공유 난관) + (b)실행/지속 저하(신규 모드).
 
+## 6b. ★사용자 도전(2026-07-08): "실행문제는 scaffold/serving으로 커버 가능 아닌가" → 실측=YES (§5 결론 약화·재판정)
+non-execution 73 분해(누수마커·transfer-vs-base 교차):
+| 범주 | 수 | 고칠 수 있나 |
+|---|---|---|
+| **leaked write-JSON in content**(write 생성했으나 파서가 놓침) | **12** | **YES·파서/서빙**(`--reasoning-parser` 부재가 원인) |
+| **premature transfer**(base가 그 task ≥3/4 통과=avoidable) | **19** | **YES·scaffold gate**(transfer 억제) |
+| mid transfer(base 1-2/4) | 17 | 부분 |
+| clean no-action(추론후 무행동·누수 없음) | 10 | 어려움(행동) |
+| other leak, no write | 8 | 애매(파서 가능) |
+| legit transfer(base도 0/4) | 7 | 아니오(진짜 난관·base도 실패) |
+- **누수는 systematic**: 92/456(20%) content에 `</tool_call>`·`<|im_start|>` 마커(passing 16·wrong-exec 53 포함). **내 QwQ 서빙이
+  `--reasoning-parser`(deepseek_r1) 없이 hermes만** → `<think>` 미분리로 tool-call 추출 파손. **=방법 결함**(QwQ capability 아님).
+- **★재판정**: QwQ deficit 52 = non-exec 초과(+61). 그 중 **~30-40(파서 12 + premature-transfer 19 + other-leak 8)이 배관-fixable**.
+  QwQ wrong-exec는 이미 base ≤(181<190). ⇒ **"thinking이 agentic을 해친다"는 robust하지 않음**(내 서빙 handicap + transfer 성향에
+  교란). 공정한 판정 = **reasoning-parser 서빙 + 경량 실행 scaffold(누수 tool-call 재추출 + premature-transfer gate)** 재run 필요.
+- **thesis 정합(중요)**: 이 그림은 오히려 우리 논지에 부합 — **scaffold가 실행/포맷 실패를 커버하고 모델은 추론 제공**. QwQ+파서+실행-
+  scaffold가 base 대등/초과면 = "scaffold가 thinking을 배포가능하게 함"(offload 논지). **유일 non-fixable 잔여 = ⋈ operand 경계**
+  (단 base와 공유·thinking-특이 아님) + 소량(clean-noaction 10·legit-transfer 7).
+
 ## 6. caveat / [[08]] 규율기록
 - **QwQ≠Qwen2.5-32B**(RL-튜닝 다른 모델): transfer-성향·포맷누수는 QwQ 특유 학습/템플릿일 수 있음("thinking 자체" 단정 불가).
   clean thinking-격리 = base-8k 통제(같은 weights·⋈ 0 이득)가 담당·본 forensic은 *reasoning-model-as-agent* 판정.
