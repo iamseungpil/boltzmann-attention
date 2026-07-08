@@ -198,14 +198,19 @@
         "transfer_to_human_agents"
       ],
       "entity_source": {
-        "tool": "get_user_details",
-        "field": "orders"
+        "user_id_arg": "user_id",
+        "resolver_path": [
+          "user_id",
+          "get_user_details",
+          "orders"
+        ]
       },
       "inspect": {
         "tool": "get_order_details",
         "arg": "order_id"
       },
-      "recovery": "You have not yet inspected all of the customer's records before escalating. Inspect the remaining records first, then decide."
+      "predicate": "all candidate records inspected before escalation",
+      "note": "escalation is allowed once every candidate record has been inspected"
     }
   ],
   "present_specs": [

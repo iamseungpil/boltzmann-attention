@@ -82,8 +82,7 @@ class GateState:
         self.auth_user = None       # 인증 확립된 user id
         self.notice_sent = False    # notice 고정문구 송신 여부(=transfer_msg_sent)
         self.presented_select = False  # select_confirm: 후보집합 1회 제시 여부(중복방지)
-        # kind=exhaust_before_escalate (측정 arm·E1 Phase B). 도메인-일반: 후보 엔티티/검사 이력.
-        self.entities = None        # set|None — 인증 사용자 레코드서 얻은 후보 엔티티 id 집합
+        # kind=exhaust_before_escalate (측정 arm·E1 Phase B). 후보 엔티티=DB 결정론 enumerate.
         self.inspected = set()      # 모델이 실제로 조회한 엔티티 id
 
 
@@ -121,22 +120,25 @@ class GateInterpreter:
                     self.state.auth_user = result
 
             elif g.get("kind") == "exhaust_before_escalate":
-                src = g.get("entity_source") or {}
-                if tool_name == src.get("tool"):
-                    rec = _try_json(result)
-                    vals = (rec or {}).get(src.get("field")) if isinstance(rec, dict) else None
-                    if isinstance(vals, (list, tuple, set)):
-                        self.state.entities = {str(v) for v in vals}
                 insp = g.get("inspect") or {}
                 if tool_name == insp.get("tool"):
                     v = args.get(insp.get("arg"))
                     if v:
                         self.state.inspected.add(str(v))
 
-    def _exhaust_remaining(self):
-        if not self.state.entities:
-            return set()          # enumerate 불가 → 보수적 OFF (게이트 미발화)
-        return self.state.entities - self.state.inspected
+    def _exhaust_remaining(self, gate):
+        """후보 엔티티 = 인증 사용자에 대한 **DB 결정론 enumerate**(resolve_field·read-only).
+        enumerate 불가(미인증/리졸버 없음) → 빈 집합 = 보수적 OFF(미발화)."""
+        uid = self.state.auth_user
+        rf = (self.resolvers or {}).get("resolve_field")
+        src = gate.get("entity_source") or {}
+        path = src.get("resolver_path")
+        if not uid or not rf or not path:
+            return set()
+        ids = rf(path, {src.get("user_id_arg", "user_id"): uid})
+        if not isinstance(ids, (list, tuple, set)):
+            return set()
+        return {str(i) for i in ids} - self.state.inspected
 
     def _resolve_owner(self, gate, args):
         """ownership: 직접 owner_field 인자 또는 resolver_path 도출 owner. (owner|None)."""
@@ -198,7 +200,7 @@ class GateInterpreter:
             elif kind == "exhaust_before_escalate":
                 # 측정 arm(E1 Phase B): escalate 도구를, 후보 엔티티를 다 *읽기 전에는* deny.
                 # 강제하는 행동 = 읽기(멱등·무해)뿐. 행동(write) 선택은 여전히 모델 몫.
-                rem = self._exhaust_remaining()
+                rem = self._exhaust_remaining(g)
                 if rem:
                     return False, g["id"], render_recovery(
                         g, detail=f"{len(rem)} not yet inspected: {', '.join(sorted(rem)[:5])}")
