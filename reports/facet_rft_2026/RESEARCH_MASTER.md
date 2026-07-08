@@ -48,6 +48,70 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 > **법칙은 우리 처방에도 적용된다.** 합성은 무한후퇴가 아니라 **측정된 상쇄**여야 한다 → 모든 게이트에 `Δspurious ≤ 0` 같은
 > 반대편 계측을 필수로 단다.
 
+### 1.4 🔒 부하 vs 능력 — 기능별 진단·처방 (측정 기반)
+> **부하(load) 정의**: $\text{load}(s) = p_{iso}(s) - p_{traj}(s) > 0$ — 격리하면 푸는데 궤적서 못 푼다.
+> ★**측정 규율**: $p_{iso}$는 **에이전트가 그 지점에 실제로 갖고 있던 정보와 맞춰야** 한다. 정보가 더 빈약한 프로브로
+> 재면 "부하 없음"이 정보량 차이일 뿐이다(역도 성립). **정보-맞춘 격리 replay만이 부하를 잰다.**
+
+| 기능 | 실패 양상 | 진단 | 측정 근거 | 처방 | 등급 |
+|---|---|---|---|---|---|
+| **F1 compliance** | 확인 없이 write | **결정가능·미집행** | g2 rate scale-flat(.103/.070/.075) | **결정론 게이트** → 위반 0·pass비용 0 | [S] |
+| **reach / plan-structure** | 주문 누락·배칭 오류 | **★부하(load)** | `PLAN_PROBE §1` t99: *격리 계획선 2주문 다 정답, 실제 런선 1주문 누락+날조* | **plan/execute 분리 + 결정론 controller** | [M] |
+| **F2 변형 선택** | 실재하나 틀린 변형 | **★부하 아님 = 능력** | $p_{traj}$**0.762** > $p_{iso}$0.727 (궤적이 정보 더 많음). frontier $p_{traj}$**0.908~0.919** = **15pp 능력격차** | thinking(격리천장 .864<frontier) / scale·fleet(미검) / learn(미검) | **[M]**·정보-맞춤 재검 필요 |
+| **F2b 계산형 기준**(예산·최저가) | compound criterion | **결정가능** | CoT .538→**.538**(thinking 무효) | **형식화(LLM)→결정론 실행(argmin/filter)** | [P] |
+| **F3 ⋈ 참조매칭** | 틀린 주문 | **경계**(+탐색 절반) | 격리천장 ~.44 (scale·budget·CoT·RL 전부) · E3: wrong-pick의 43~52%는 gold **이미 조회**했는데 틀림 · frontier도 동일(14 vs 12) | **없음**(map) · 나머지 절반은 탐색=reach | [S]부분 |
+| **F4 coverage** | all/both 미완 | **불변**(scale·thinking 무효·thinking은 악화) | 17≈16 | 완결 게이트 — **단 write 강제는 금지**(§1.5) | [S]/[D] |
+| **F5 persistence** | 성급한 escalate | **불변**·thinking 악화 | QwQ transfer 24% vs base 13% | persistence 게이트 — **단 결정론 판별 상한 존재**(C3) | [M]/[D] |
+| **F6 horizon** | 복리 붕괴 | **본 벤치서 미발현** | $p_{step}\approx1.0$ 전 모델 | (해당 없음) | [M] |
+| **operand 날조** | 없는 id 발명 | **결정가능·이미 집행중** | 32/32 도구가 거부 · 12/15 복구 후에도 실패 | **레버 아님**(증상 표지) — C12 | [M] |
+| **over-action** | 안 시킨 write | LLM scope 잔여 | passing-spurious QwQ 0 vs base 47 | **게이트 금지**([[06]] 선례) · 반대편 계측만 | [S] |
+
+### 1.5 🔒 원인 → 해결 결정절차 (순서대로·먼저 걸리는 데서 멈춤)
+```
+Q1. 술어가 decidable한가?
+    ├─ yes → Q1b. 그 술어가 이미 집행되고 있나? (환경·기존 scaffold)
+    │        ├─ yes → 레버 아님 (C12: decidable ≠ 유용).  예) operand 날조
+    │        └─ no  → ★결정론 scaffold (부작용 없음).      예) F1 compliance, F2b 계산
+    └─ no  → Q2
+
+Q2. 부하인가?  (정보-맞춘 격리서 p_iso > p_traj)
+    ├─ yes → ★결정론 분리/controller (plan↔execute 분리·context 격리).  예) reach/plan-structure
+    │         ※ thinking·learn 아님. 스킬은 이미 있다.
+    └─ no  → 능력이다 → Q3
+
+Q3. 어떤 종류의 능력인가?
+    ├─ symbolic (비교·계산·기준) → thinking이 산다
+    │     └─ ★scope 주의: 전-궤적 thinking은 F5를 판다 → 결정점 격리 시도(단 F2선 정보손실로 역효과 가능)
+    ├─ semantic (참조·의도) → thinking 무효 → Q4
+    └─ compound/계산형 → Q1으로(결정론 실행)
+
+Q4. scale이 사는가? (측정된 scale-민감도)
+    ├─ yes → scale, 싸게 사려면 fleet(위임)
+    │     ※ 위임 조건 3: (i)큰 tier가 *측정상* 더 잘함 (ii)격리 sub-call이 토큰-싸다 (iii)이산 결정점
+    └─ no  → ★경계(boundary): map·수용. 또는 learn(미검증·C7).   예) F3 ⋈
+
+Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
+    └─ 완결/persistence 게이트 — ★단 **읽기만 강제, 쓰기는 절대 강제 금지**
+       (abstain→forced act 전환은 pass +p / 피해 +(1−p); ⋈서 p≈0.44 <0.5 ⇒ 기대-유해)
+```
+
+### 1.6 🔒 레버별 사정거리 (무엇을 살 수 있고 무엇을 못 사나)
+| 레버 | 산다 | 못 산다 | 부작용 | 적용 조건 |
+|---|---|---|---|---|
+| **결정론 scaffold(게이트)** | decidable·미집행 술어 (F1) | 의미 판단(F3·F5 판별) | **없음**(단 write 강제 시 over-action) | Q1 통과 |
+| **결정론 controller(분리)** | **부하**(reach/plan) | 능력 결손 | 턴 예산 | Q2 yes |
+| **thinking** | symbolic 능력(F2 부분·격리천장 .864) | semantic(F3)·compound(.538 flat) | **전-궤적 적용 시 F5 매도** | Q3 symbolic |
+| **learn** | 미검증(C7) | — | 망각·역전이(C4/M-σ) | Q4 no & 경계 |
+| **scale / fleet(위임)** | 측정된 scale-민감 기능 | scale-flat(F3)·invariant(F1·F4) | 비용 R·on-prem 이탈 | Q4 yes & 위임 3조건 |
+
+### 1.7 ▶ 다음 실험 (이 표가 지시하는 것)
+1. **★E1′ Phase A(무료·단일 결정 실험)** — **정보-맞춘 격리 replay**: 결정 지점에서 에이전트가 *실제로 갖고 있던* 대화·후보를
+   짧은 clean 컨텍스트로 재구성해 재질문. **$>0.762$면 F2=부하(격리 회복)·$\approx0.762$면 F2=능력(15pp 격차·scaffold 무효)**.
+   ⇒ **F2 행의 [M] 진단을 확정하는 유일 실험. E1′의 생사.**
+2. E1 Phase B(게이트·실행중) — F4/F5의 closed 판정 + Δspurious.
+3. F2가 능력으로 확정되면: thinking 격리천장(.864) vs frontier(.908) 간극 → **fleet 재-scope(F2 위임)** or **learn(C7)**.
+   ※ 우리 scale 곡선(14B .732→32B .762 = +3pp/step) 외삽 시 72B≈.79 ⇒ **open big-tier로는 15pp 못 메움**(추정·[EST]).
+
 ## 2. 🔒 불변 규율 (모든 작업에 적용)
 - **[[05]]** scaffold 도메인-일반·A2만 변경·게이트 증식 금지 · **[[13]]** scaffold 최소·scale/learn 최후
 - **[[08]]** 집계→결론 금지·per-case 포렌식·**실측 前 banking 금지** · **[[03]]#9** 대칭크레딧(이득에 증거 요구하면 피해에도)
@@ -73,6 +137,8 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | C8 | TCO ~23× | **[EST]** | `TCO_TABLE_DESIGN` |
 | **C9** | frontier 격차 = **horizon 아님**($p_{step}pprox1.0$) · **⋈ 경계 아님**(frontier와 공유 14 vs 12) · H3-4 write-arg 결손에 집중. ★**기전 라벨 정정**: criterion 아니라 **operand 날조**가 지배(7 vs 5) | **[M]** | `HORIZON_GAP_DECOMPOSITION` + **정정** `E9_OPERAND_GROUNDING_DESIGN` §0 |
 | **C11** | operand 날조율 우리 5.9% vs gpt-4.1·claude-3.7 **0.0%** = **유효한 진단 표지**. ★**단 레버 아님**: 환경이 32/32 거부·12/15 복구 후에도 실패 ⇒ **근인 아님**(상한 +3.3pp **철회**) | **[M]** | `E9_..._DESIGN` §1·**§4b NO-GO** |
+| **C13** | **F2 변형선택에 위치부하 없음** — $p_{traj}$ .762 > $p_{iso}$ .727 · frontier $p_{traj}$ .908~.919 = **15pp 능력격차**. ★단 $p_{iso}$ 프로브가 정보-빈약 → **정보-맞춘 격리(E1′ PhA)가 확정** | **[M]** | `RESEARCH_MASTER §1.4` · `load_measure` |
+| **C14** | **부하는 reach/plan-structure에 실재** — 격리 계획선 정답·실제 런선 주문 누락(t99) · 단 도달률 격차는 frontier 대비 **3pp**뿐 | **[M]** | `PLAN_PROBE_PHASE0_VERDICT §1` |
 | **C12** | **decidable ≠ 유용.** decidability는 *부작용 없음*의 필요조건이지 *이득*의 충분조건이 아니다(환경이 이미 집행 중일 수 있음) | **[M]** | 같은 doc §4b |
 | **C10** | **레버 부작용은 scope에서 온다** — 전-궤적 thinking=persistence 매도 / 결정점 격리=채널 폐쇄 | **[D]** | 같은 doc §4 · **E1′가 검정** |
 
