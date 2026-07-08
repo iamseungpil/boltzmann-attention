@@ -100,6 +100,20 @@ non-execution 73 분해(누수마커·transfer-vs-base 교차):
   대부분 복구 가능 → QwQ+scaffold가 base 초과 가능(thesis: scaffold=orchestration·모델=reasoning). non-fixable=⋈/variant 2.
 - caveat: nt=1 단일trial(Step3 nt=4 확정)·reasoning_content 미저장(행동레벨 추론)·QwQ≠Qwen2.5(RL/템플릿).
 
+## 7b. ★내부 추론 분석 (reasoning_content = `raw_data.choices[0].message.reasoning_content`·재실행 불요·[[09]])
+give-up/non-exec LOSS 6건의 결정지점 추론 정독 → **일관 패턴 = "friction 만나면 policy-literal escalation/give-up"**:
+- **t13**(transfer): *"if I can't handle the request within the tools provided, I should transfer"* — get_order_details 1회 실패를 unrecoverable로 단정. base는 완수(복구가능했음).
+- **t30**(transfer): *"the user might have made a mistake... transferring is the best option"* — **최신 주문 하나만** 보고 못 찾자 포기. gold는 다른 주문들(#W2692684/9373487/7449508). **전수 탐색 안 함**.
+- **t47**(non-exec): *"despite correct ID... perhaps a data entry error... I should transfer"* — lookup 실패를 system-error로 오귀속. base는 찾음.
+- **t106**(transfer): *"I can't authenticate her... policy says to deny requests that can't be authenticated"* — 인증 friction서 정책-literal deny. base 인증 성공.
+- **t49**(non-exec): *"all checked orders don't have earbuds... I can't proceed"* — item↔order 매칭 실패를 "물건 없음"으로 단정·포기(gold item은 #W3470184에 있었음). = ⋈/item-match 실패를 give-up으로.
+- **t87**(non-exec): *"no orders with a Washington DC address"* — **mis-formalize**: 목표주소로 *변경*할 task를 그 주소를 *가진* 주문 *검색*으로 오해→못 찾음→포기.
+- **★핵심**: QwQ 추론이 friction(lookup 실패·인증난관·item 불일치)서 **"정책상 못 하면 escalate/deny"로 스스로를 설득**한다. 숙고할수록
+  give-up을 정당화. = **reasoning-RL 서명**(단일문제 careful-correct용 학습이 agentic friction을 "못 풂→escalate"로 처리). base는
+  추론 적어 그냥 계속 tool 호출→우연히 완수. **즉 reasoning이 persistence를 *깎는다***(WIN의 decision-정확도 이득을 상쇄).
+- **fixability**: 대부분 give-up은 **completion-forcing scaffold**(transfer 차단·"exhaust 전 escalate 금지"·전수탐색 강제)로 복구. 단
+  mis-formalize(t87·t49 일부)는 task-해석 오류라 harder. ⇒ scaffold가 persistence 담당·모델은 decision → base 초과 경로 확인.
+
 ## 6. caveat / [[08]] 규율기록
 - **QwQ≠Qwen2.5-32B**(RL-튜닝 다른 모델): transfer-성향·포맷누수는 QwQ 특유 학습/템플릿일 수 있음("thinking 자체" 단정 불가).
   clean thinking-격리 = base-8k 통제(같은 weights·⋈ 0 이득)가 담당·본 forensic은 *reasoning-model-as-agent* 판정.
