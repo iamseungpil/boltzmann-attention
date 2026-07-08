@@ -70,7 +70,7 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | 원인 | ours | o4-mini | Δ | gpt-4.1 | Δ | 처방 축 |
 |---|---|---|---|---|---|---|
 | **NO-WRITE: 모든 시도 ERROR** | 16 | 1 | **+15** | 1 | **+15** | **repair**(유효 후보 제공·차단 아님) |
-| **NL/communication**(db ok·reward 0) | 23 | 12 | **+11** | 16 | +7 | calc_NL/보고 (일부 벤치 아티팩트) |
+| ~~NL/communication~~ | 23 | 12 | ~~+11~~ | 16 | ~~+7~~ | ❌**철회(C19: 채점기준 불일치)** |
 | **F3 ⋈ 틀린 주문** | 37 | 30 | +7 | 16 | **+21** | 경계(map) + 탐색(reach) |
 | **F2 wrong variant** | 32 | 26 | +6 | 24 | +8 | thinking/능력 (E1′가 판정) |
 | OVER-ACTION | 5 | 0 | +5 | 2 | +3 | 게이트 금지축 |
@@ -165,6 +165,9 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | **C16** | **RBW(읽고쓰기) 격차는 scaffold 아티팩트** — ours+scaffold 21.8% vs **32B floor 95.5%** vs frontier ~100%. present가 주문정보를 주입해 `get_order_details` 호출이 사라짐(우리 sim 66%가 0회·floor 4%). **도구호출 부재 ≠ 정보 부재**. within-arm 상관 반대(안읽고쓴 실패율 33% < 읽고쓴 43%) ⇒ **읽기-부족 인과 기각** | **[M]** | `HARDCORE_STEP_FORENSIC §0` |
 | **C17** | **HARD CORE 10 task(양 frontier ≥3/4 ∧ ours ≤1/4) = 8개 서로 다른 근인.** 단일 상류원인 없음. **역방향 0 task**(우리가 두 frontier를 모두 robust하게 이기는 task 없음). 신규 근인 **N1 값 충실도**(약어)·**N2 write-scope**(item 과포함)·**N3 payment 선택**·**N4 도구 거부**·**N5 present의 읽기 억제**[P] | **[M] 소표본** | `HARDCORE_STEP_FORENSIC §1-2` |
 | **C18** | **frontier의 우위 이름 = precision**(정확히 그 값·그 범위·그 사실). planning도 reading도 아님. 조건부 NL 실패율 ours 7.3% vs frontier 3.6~4.5% | **[M]** | 같은 doc §3 |
+| **★C19** | **채점기준 불일치 발견**: 우리 런 `reward_basis=['DB','NL_ASSERTION']` vs frontier 공식파일 `['DB','COMMUNICATE']`. ⇒ **C15의 "NL/communication +11" 철회**(비교불가). **DB는 공통 기준** | **[M]** | `goldvalid` |
+| **★C20** | **gold action_checks는 보상 아님**(약한 프록시): 통과했는데 write-action 불일치 5~7% · 실패했는데 전부 일치 9~22%(gpt-4.1). ⇒ gold-기반 원인표는 **5~10% 노이즈**(gpt-4.1 22%) | **[M]** | 같은 |
+| **★C21** | **DB-only 재분해(진짜 기준)**: 실패 형태가 o4-mini와 **거의 동일**(50/25/17/5/4 vs 51/30/17/3/0) = *다른 종류가 아니라 같은 종류를 더 자주*. vs o4-mini DB격차 +23: **operand 정밀도 +10 · over-action(MORE+EXTRA) +9(39%·frontier EXTRA=0) · zero-write +4 · 미완 0(철회)**. vs gpt-4.1 +39: 미완 +17·zero +11·operand +14·과잉 **−6** ⇒ **frontier마다 구성이 다름**(o4-mini는 기권형, gpt-4.1은 실행형) | **[M]** | 같은 |
 | **C12** | **decidable ≠ 유용.** decidability는 *부작용 없음*의 필요조건이지 *이득*의 충분조건이 아니다(환경이 이미 집행 중일 수 있음) | **[M]** | 같은 doc §4b |
 | **C10** | **레버 부작용은 scope에서 온다** — 전-궤적 thinking=persistence 매도 / 결정점 격리=채널 폐쇄 | **[D]** | 같은 doc §4 · **E1′가 검정** |
 
