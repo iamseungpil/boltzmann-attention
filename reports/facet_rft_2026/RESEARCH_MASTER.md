@@ -59,10 +59,10 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | C1 | compliance scale-invariant·게이트만 위반0 | **[S]** | `what_scale_buys` §5.3 · `_WRITING_BRIEF §3` |
 | C2 | compliant-pass crossover 14B+scaffold .336 > 32B bare .300 (전 k) | **[S]** | `_WRITING_BRIEF §3` |
 | C3a | 애매모호성 = symbolic vs semantic 이분 | **[S]** | `RELWORK_LOAD_COT_2026_07_05` |
-| C3b | semantic(⋈) = 경계 (scale·budget·CoT·reasoning-RL 다 실패) | **[M]** | `MASTER_FRAME §2` · **E3가 확정** |
+| C3b | semantic(⋈) = 경계 — **정보-present 상태서도 실패**(43~52%)·base≈QwQ 불변 | **[S] 부분** | **`E3_E1A_RESULTS_2026_07_08` §E3** (단 agentic ⋈ 실패의 나머지 ~절반은 *탐색* 실패이지 경계 아님 → 경계 슬라이스 축소) |
 | C4a | present+g15 합성이 이득(+12.3pp) | **[S]** | `PRESENT_G15_DET_CENSUS_2026_06_25` |
 | C4b | thinking: +F2 / −F4·F5 → 순 0 | **[M]** | `QWQ_AGENTIC_FAILURE_FORENSIC §7` |
-| C4c | **합성(thinking+게이트)이 순이득으로 전환** | **[D]** | `THINKING_PERSISTENCE_SCAFFOLD_DESIGN` rev2 · **E1이 확정** |
+| C4c | **합성(thinking+게이트)이 순이득으로 전환** | **[D] · Phase A CONDITIONAL GO** | `E3_E1A_RESULTS` §E1A: recall 3/6·**파손 0**(per-case)·closed 판정은 **Phase B** |
 | C4d | **게이트 자신이 over-action 역효과** | **[M]** | `QWQ_..._FORENSIC §7c` (QwQ passing-spurious 0 vs base 47) |
 | C5 | scale이 사는 유일 축 = horizon | **[S-lit]** | `RELWORK_SCALE_LOAD`(DR#2) |
 | C6 | fleet = horizon 전용·저-ROI | **[M]** | `FLEET_FUNCTION_DELEGATION_DESIGN` §4b(rev) |
