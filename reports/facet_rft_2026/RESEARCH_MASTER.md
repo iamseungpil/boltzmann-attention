@@ -27,7 +27,7 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | 기능 | scale | thinking | scaffold | 최저비용 레버 |
 |---|---|---|---|---|
 | F1 | invariant | 직교 | **위반 0** | **scaffold** |
-| F2 | 미약 | **✅ 싸다** | calc/present(토큰0) | thinking / 결정론 compute |
+| F2 | 미약 | **✅ 싸다**(단 전-궤적 적용 시 F5 매도·**결정점 격리하면 채널 폐쇄**) | calc/present(토큰0) | **격리 thinking sub-call + 결정론 실행** |
 | F3 | flat | ✗ | ✗ | **없음 = 경계** |
 | F4 | invariant | **✗ 악화** | 완결 게이트 | **scaffold** |
 | F5 | ? | **✗ 악화** | persistence 게이트 | **scaffold** |
@@ -68,6 +68,8 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | C6 | fleet = horizon 전용·저-ROI | **[M]** | `FLEET_FUNCTION_DELEGATION_DESIGN` §4b(rev) |
 | C7 | learn-wing이 F3/mis-formalize를 여는가 | **[?]** | 미실행 (E6) |
 | C8 | TCO ~23× | **[EST]** | `TCO_TABLE_DESIGN` |
+| **C9** | **frontier 격차 ≈ F2 symbolic operand** (horizon 반증 p_step≈1.0 · ⋈ 경계는 frontier와 공유 14 vs 12 · item/variant 13 vs 2) | **[M] 소표본** | `HORIZON_GAP_DECOMPOSITION_2026_07_08` |
+| **C10** | **레버 부작용은 scope에서 온다** — 전-궤적 thinking=persistence 매도 / 결정점 격리=채널 폐쇄 | **[D]** | 같은 doc §4 · **E1′가 검정** |
 
 ## 4. 실험 큐 (우선순위·상태)
 | ID | 실험 | 닫는 것 | 비용 | 상태 |
