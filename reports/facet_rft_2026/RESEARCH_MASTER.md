@@ -162,6 +162,9 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | **C11** | operand 날조율 우리 5.9% vs gpt-4.1·claude-3.7 **0.0%** = **유효한 진단 표지**. ★**단 레버 아님**: 환경이 32/32 거부·12/15 복구 후에도 실패 ⇒ **근인 아님**(상한 +3.3pp **철회**) | **[M]** | `E9_..._DESIGN` §1·**§4b NO-GO** |
 | **C13** | **F2 변형선택에 위치부하 없음** — $p_{traj}$ .762 > $p_{iso}$ .727 · frontier $p_{traj}$ .908~.919 = **15pp 능력격차**. ★단 $p_{iso}$ 프로브가 정보-빈약 → **정보-맞춘 격리(E1′ PhA)가 확정** | **[M]** | `RESEARCH_MASTER §1.4` · `load_measure` |
 | **C14** | **부하는 reach/plan-structure에 실재** — 격리 계획선 정답·실제 런선 주문 누락(t99) · 단 도달률 격차는 frontier 대비 **3pp**뿐 | **[M]** | `PLAN_PROBE_PHASE0_VERDICT §1` |
+| **C16** | **RBW(읽고쓰기) 격차는 scaffold 아티팩트** — ours+scaffold 21.8% vs **32B floor 95.5%** vs frontier ~100%. present가 주문정보를 주입해 `get_order_details` 호출이 사라짐(우리 sim 66%가 0회·floor 4%). **도구호출 부재 ≠ 정보 부재**. within-arm 상관 반대(안읽고쓴 실패율 33% < 읽고쓴 43%) ⇒ **읽기-부족 인과 기각** | **[M]** | `HARDCORE_STEP_FORENSIC §0` |
+| **C17** | **HARD CORE 10 task(양 frontier ≥3/4 ∧ ours ≤1/4) = 8개 서로 다른 근인.** 단일 상류원인 없음. **역방향 0 task**(우리가 두 frontier를 모두 robust하게 이기는 task 없음). 신규 근인 **N1 값 충실도**(약어)·**N2 write-scope**(item 과포함)·**N3 payment 선택**·**N4 도구 거부**·**N5 present의 읽기 억제**[P] | **[M] 소표본** | `HARDCORE_STEP_FORENSIC §1-2` |
+| **C18** | **frontier의 우위 이름 = precision**(정확히 그 값·그 범위·그 사실). planning도 reading도 아님. 조건부 NL 실패율 ours 7.3% vs frontier 3.6~4.5% | **[M]** | 같은 doc §3 |
 | **C12** | **decidable ≠ 유용.** decidability는 *부작용 없음*의 필요조건이지 *이득*의 충분조건이 아니다(환경이 이미 집행 중일 수 있음) | **[M]** | 같은 doc §4b |
 | **C10** | **레버 부작용은 scope에서 온다** — 전-궤적 thinking=persistence 매도 / 결정점 격리=채널 폐쇄 | **[D]** | 같은 doc §4 · **E1′가 검정** |
 
