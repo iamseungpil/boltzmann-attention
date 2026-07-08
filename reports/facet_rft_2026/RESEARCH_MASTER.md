@@ -66,6 +66,26 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | **operand 날조** | 없는 id 발명 | **결정가능·이미 집행중** | 32/32 도구가 거부 · 12/15 복구 후에도 실패 | **레버 아님**(증상 표지) — C12 | [M] |
 | **over-action** | 안 시킨 write | LLM scope 잔여 | passing-spurious QwQ 0 vs base 47 | **게이트 금지**([[06]] 선례) · 반대편 계측만 | [S] |
 
+### 1.4b 🔒 frontier 격차 전수 분해 (C15·성공-실행 호출 기준·456 sim)
+| 원인 | ours | o4-mini | Δ | gpt-4.1 | Δ | 처방 축 |
+|---|---|---|---|---|---|---|
+| **NO-WRITE: 모든 시도 ERROR** | 16 | 1 | **+15** | 1 | **+15** | **repair**(유효 후보 제공·차단 아님) |
+| **NL/communication**(db ok·reward 0) | 23 | 12 | **+11** | 16 | +7 | calc_NL/보고 (일부 벤치 아티팩트) |
+| **F3 ⋈ 틀린 주문** | 37 | 30 | +7 | 16 | **+21** | 경계(map) + 탐색(reach) |
+| **F2 wrong variant** | 32 | 26 | +6 | 24 | +8 | thinking/능력 (E1′가 판정) |
+| OVER-ACTION | 5 | 0 | +5 | 2 | +3 | 게이트 금지축 |
+| other operand(address1) | 6 | 2 | +4 | 3 | +3 | operand |
+| MISSED-THIS-WRITE | 21 | 22 | −1 | 21 | 0 | — |
+| other operand(payment) | 3 | 9 | **−6** | 5 | −2 | (우리 우세) |
+| **NO-WRITE: 시도조차 안 함** | 8 | 19 | **−11** | 12 | −4 | (우리 우세·frontier는 기권) |
+| **합계** | | | **+34 = 7.5pp** | | **+46 = 10.1pp** | |
+- **★"F2가 유일한 격차"는 철회.** F2는 34 중 +6(18%).
+- **★최대 조각 = "모든 write 시도가 ERROR"(16 vs 1)** — 날조를 *막는 것*은 무의미(환경이 이미 막음·C12), **유효 후보를 주어 write를
+  *성사*시키는 repair**가 처방. **차단 ≠ 수리.**
+- **★gpt-4.1 대비 ⋈이 +21(46%)** — "⋈은 frontier와 공유"는 H3-4 부분집합 착시였다(전 구간 37 vs 16 = 2.3×).
+- **★A4 실증**: o4-mini는 *기권*(never-attempted 19)해서, 우리는 *틀리게 행동*(all-errored 16·over-action 5)해서 실패한다.
+- caveat: sim당 **근인 1개**만 귀속(다중 원인 가능) · NL 버킷은 judge 의존 · frontier 파일은 공식 하네스.
+
 ### 1.5 🔒 원인 → 해결 결정절차 (순서대로·먼저 걸리는 데서 멈춤)
 ```
 Q1. 술어가 decidable한가?
@@ -109,8 +129,10 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
    짧은 clean 컨텍스트로 재구성해 재질문. **$>0.762$면 F2=부하(격리 회복)·$\approx0.762$면 F2=능력(15pp 격차·scaffold 무효)**.
    ⇒ **F2 행의 [M] 진단을 확정하는 유일 실험. E1′의 생사.**
 2. E1 Phase B(게이트·실행중) — F4/F5의 closed 판정 + Δspurious.
-3. F2가 능력으로 확정되면: thinking 격리천장(.864) vs frontier(.908) 간극 → **fleet 재-scope(F2 위임)** or **learn(C7)**.
-   ※ 우리 scale 곡선(14B .732→32B .762 = +3pp/step) 외삽 시 72B≈.79 ⇒ **open big-tier로는 15pp 못 메움**(추정·[EST]).
+3. F2가 능력으로 확정되면: thinking 격리천장(.864) vs frontier(.908) 간극 → fleet 재-scope or learn(C7).
+   ※ 우리 scale 곡선(14B .732→32B .762 = +3pp/step) 외삽 시 72B≈.79 ⇒ open big-tier로는 못 메움(추정·[EST]).
+4. **★C15 신설로 최우선 재지정**: 격차의 최대 조각 = **"모든 write 시도가 ERROR"(16 vs 1)**. 처방은 **차단 아니라 수리**
+   (present/autofetch로 유효 후보를 주어 유효한 write를 *성사*시킴). E9(차단)는 죽었으나 **repair 레버는 미검증**.
 
 ## 2. 🔒 불변 규율 (모든 작업에 적용)
 - **[[05]]** scaffold 도메인-일반·A2만 변경·게이트 증식 금지 · **[[13]]** scaffold 최소·scale/learn 최후
@@ -135,7 +157,8 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | C6 | fleet = horizon 전용·저-ROI | **[M]** | `FLEET_FUNCTION_DELEGATION_DESIGN` §4b(rev) |
 | C7 | learn-wing이 F3/mis-formalize를 여는가 | **[?]** | 미실행 (E6) |
 | C8 | TCO ~23× | **[EST]** | `TCO_TABLE_DESIGN` |
-| **C9** | frontier 격차 = **horizon 아님**($p_{step}pprox1.0$) · **⋈ 경계 아님**(frontier와 공유 14 vs 12) · H3-4 write-arg 결손에 집중. ★**기전 라벨 정정**: criterion 아니라 **operand 날조**가 지배(7 vs 5) | **[M]** | `HORIZON_GAP_DECOMPOSITION` + **정정** `E9_OPERAND_GROUNDING_DESIGN` §0 |
+| **C9** | frontier 격차 = **horizon 아님**($p_{step}pprox1.0$·H8+선 우리가 gpt-4.1 초과). ⚠️**"⋈은 frontier와 공유"·"F2가 유일"은 둘 다 철회**(H3-4 부분집합 착시) → **C15가 정본** | **[M]·부분철회** | `HORIZON_GAP_DECOMPOSITION` → **정정 C15** |
+| **★C15** | **frontier 격차 전수 분해**(성공-실행 호출 기준·456 sim). vs o4-mini +34(7.5pp): **all-attempts-ERRORED +15** · NL/communication +11 · ⋈ +7 · F2-variant +6 · over-action +5 / **우리가 우세**: never-attempted −11 · payment −6. vs gpt-4.1 +46: **⋈ +21** 최대. ⇒ **F2는 18%에 불과·격차는 최소 5조각**. o4-mini는 *기권*해서, 우리는 *틀리게 행동*해서 실패(A4) | **[M]** | `gapdecomp2` · 본 doc §1.4b |
 | **C11** | operand 날조율 우리 5.9% vs gpt-4.1·claude-3.7 **0.0%** = **유효한 진단 표지**. ★**단 레버 아님**: 환경이 32/32 거부·12/15 복구 후에도 실패 ⇒ **근인 아님**(상한 +3.3pp **철회**) | **[M]** | `E9_..._DESIGN` §1·**§4b NO-GO** |
 | **C13** | **F2 변형선택에 위치부하 없음** — $p_{traj}$ .762 > $p_{iso}$ .727 · frontier $p_{traj}$ .908~.919 = **15pp 능력격차**. ★단 $p_{iso}$ 프로브가 정보-빈약 → **정보-맞춘 격리(E1′ PhA)가 확정** | **[M]** | `RESEARCH_MASTER §1.4` · `load_measure` |
 | **C14** | **부하는 reach/plan-structure에 실재** — 격리 계획선 정답·실제 런선 주문 누락(t99) · 단 도달률 격차는 frontier 대비 **3pp**뿐 | **[M]** | `PLAN_PROBE_PHASE0_VERDICT §1` |
