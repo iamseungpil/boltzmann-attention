@@ -34,8 +34,8 @@
 
 - **★operand 날조는 frontier를 가르는 현상**: 중·상위 frontier = **문자 그대로 0**. 우리 = 5~6%.
 - **우리 scaffold가 못 줄임**(floor 5.0% → +scaffold 5.9%) · **scale도 못 줄임**(14B ≈ 32B). ⇒ 기존 레버로 미커버.
-- **상한 [EST·인용금지]**: 날조∧실패 15/456 = **최대 +3.3pp**. o4-mini와의 compliant 격차(5.3pp)의 절반 이상.
-- **"id ∈ DB"는 완전 decidable** — 의미 판단 0 ⇒ 우리 decidability 기준상 **부작용 없이 살 수 있는 기능**.
+- ~~**상한 [EST]**: 날조∧실패 15/456 = 최대 +3.3pp~~ → **§4b Phase A가 철회**(환경이 이미 거부·근인 아님).
+- **"id ∈ DB"는 완전 decidable**하나, **decidable ≠ 유용**: 환경이 이미 그 술어를 집행하고 있었다(§4b). **decidability는 부작용 없음의 *필요조건*이지 이득의 충분조건이 아니다.**
 
 ## 2. E9 — operand grounding gate (신설·최우선)
 ### 2.1 술어 (결정론·false-positive 구조적 0)
@@ -101,6 +101,21 @@ write-tool 호출의 **id-타입 인자**(A2 `id_args`)의 각 값이 **도메�
 | **C9** | **기전 라벨 정정**: frontier 격차의 지배 조각 = **operand 날조**(criterion 아님). [M] |
 | **신규 C11** | **operand 날조 = frontier-분리 결손**(우리 5.9% vs gpt-4.1·claude-3.7 **0.0%**)·scaffold·scale 둘 다 미커버·**decidable** | **[M]** |
 | **큐** | **E9(operand grounding) 신설·최우선** · E1′ 강등(criterion 조각) |
+
+## 4b. ★E9 Phase A 결과 = **NO-GO** (2026-07-08·무료·offline·`e9_phaseA`)
+사전등록 GO: *"술어 오탐 0 ∧ per-case서 날조가 실패의 근인"*. **둘 다 불통과.**
+| 검사 | 결과 |
+|---|---|
+| 날조 write 32건의 **도구 결과** | **32/32 `Error: Variant not found`** — **환경이 이미 거부**. DB 미변경. 막을 피해가 애초에 없음 |
+| 날조∧실패 **15**건 | 종료 **전부 `user_stop`**(too_many_errors **0** → error 예산도 안 터짐) · **12/15가 이후 정상 write 성공** · 그럼에도 **db_match=False 14/15** |
+| 술어 발화 위치 | **passing sim 12건에서도 발화** ⇒ "over-block 채널 구조적 0"은 **반증** |
+| per-case(t36·t37) | 날조 → `Variant not found` → **정상 write 성공** → 그래도 reward 0 |
+
+- ⇒ **날조는 실패의 *근인*이 아니라 *증상 표지*.** 환경이 막고, 에이전트는 대부분 복구하며, 그래도 실패한다.
+- ⇒ **상한 +3.3pp 철회 [RETRACTED].** §1 census의 5.9% vs 0.0%는 **유효한 진단**이나 **레버가 아니다**.
+- **진짜 결손 재지목**: "사용자 기준 → **실재** 변형 id" 매핑. 날조(없는 id 발명)와 wrong-real-variant는 **같은 결손의 두 얼굴**.
+  ⇒ 처방은 게이트가 아니라 **grounding된 후보 위에서의 선택**(present 품질 + 격리 formalize = **E1′**).
+- **방법 가치**: Phase A(무료·offline)가 **빌드 전에** 레버를 죽였다. deny-게이트 선례(prov harm)를 다시 밟지 않았다.
 
 ## 5. 방법 교훈 ([[08]] 3회차)
 집계 교차표(item/variant 13 vs 2)에서 **기전을 추정**해 설계를 세웠다. **per-case 정독이 그 기전을 반증**했다
