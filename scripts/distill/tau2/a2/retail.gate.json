@@ -189,6 +189,23 @@
         }
       ],
       "_note": "retail 정책 인스턴스: new≠old(disjoint)·count-match(equal_len·remove 연산 없음 교시). 둘 다 env가 이미 강제=false-block 0(env-mirror). 엔진=general op. payment(member_of)=파생필드 [[05]] 위험·미포함."
+    },
+    {
+      "id": "G_EXHAUST",
+      "kind": "exhaust_before_escalate",
+      "_note": "E1 Phase B 측정 arm. 격리 실행 전용(T2_GATE_KINDS=exhaust_before_escalate). 정식 스택 미채택.",
+      "applies_to": [
+        "transfer_to_human_agents"
+      ],
+      "entity_source": {
+        "tool": "get_user_details",
+        "field": "orders"
+      },
+      "inspect": {
+        "tool": "get_order_details",
+        "arg": "order_id"
+      },
+      "recovery": "You have not yet inspected all of the customer's records before escalating. Inspect the remaining records first, then decide."
     }
   ],
   "present_specs": [

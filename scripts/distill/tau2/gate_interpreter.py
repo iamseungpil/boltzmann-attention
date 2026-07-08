@@ -19,7 +19,7 @@ CONFIRM_RE = re.compile(
 
 # deny-message 우선순위 (원 RetailGate 의미 보존: notice→auth→ownership→confirm→preconditions).
 _KIND_PRIORITY = {"notice": 0, "auth": 1, "ownership": 2, "confirm": 3, "preconditions": 4,
-                  "constraints": 4.5, "select_confirm": 5}
+                  "constraints": 4.5, "select_confirm": 5, "exhaust_before_escalate": 6}
 
 # 이미-행동(intermediate) status 토큰 — 정확-매칭 allow에 없어도 "use other tool"이 아니라
 # "already acted, do not retry"로 steer해야 하는 상태(예: "pending (item modified)", "return requested").
@@ -82,6 +82,9 @@ class GateState:
         self.auth_user = None       # 인증 확립된 user id
         self.notice_sent = False    # notice 고정문구 송신 여부(=transfer_msg_sent)
         self.presented_select = False  # select_confirm: 후보집합 1회 제시 여부(중복방지)
+        # kind=exhaust_before_escalate (측정 arm·E1 Phase B). 도메인-일반: 후보 엔티티/검사 이력.
+        self.entities = None        # set|None — 인증 사용자 레코드서 얻은 후보 엔티티 id 집합
+        self.inspected = set()      # 모델이 실제로 조회한 엔티티 id
 
 
 class GateInterpreter:
@@ -107,13 +110,33 @@ class GateInterpreter:
         self.state.auth_user = v
 
     def observe(self, tool_name, args, result, ok=True):
-        """satisfier 도구 성공 → 인증 확립 (kind=auth·satisfiers 키)."""
+        """satisfier 도구 성공 → 인증 확립 (kind=auth·satisfiers 키).
+        + kind=exhaust_before_escalate: 후보 엔티티 집합 수집 / 검사(read) 이력 기록. 전부 A2-구동."""
         if not ok:
             return
+        args = args or {}
         for g in self.gates:
             if g.get("kind") == "auth" and tool_name in (g.get("satisfiers") or {}):
                 if isinstance(result, str) and result:
                     self.state.auth_user = result
+
+            elif g.get("kind") == "exhaust_before_escalate":
+                src = g.get("entity_source") or {}
+                if tool_name == src.get("tool"):
+                    rec = _try_json(result)
+                    vals = (rec or {}).get(src.get("field")) if isinstance(rec, dict) else None
+                    if isinstance(vals, (list, tuple, set)):
+                        self.state.entities = {str(v) for v in vals}
+                insp = g.get("inspect") or {}
+                if tool_name == insp.get("tool"):
+                    v = args.get(insp.get("arg"))
+                    if v:
+                        self.state.inspected.add(str(v))
+
+    def _exhaust_remaining(self):
+        if not self.state.entities:
+            return set()          # enumerate 불가 → 보수적 OFF (게이트 미발화)
+        return self.state.entities - self.state.inspected
 
     def _resolve_owner(self, gate, args):
         """ownership: 직접 owner_field 인자 또는 resolver_path 도출 owner. (owner|None)."""
@@ -171,6 +194,14 @@ class GateInterpreter:
             elif kind == "auth":
                 if self.state.auth_user is None:
                     return False, g["id"], render_recovery(g)
+
+            elif kind == "exhaust_before_escalate":
+                # 측정 arm(E1 Phase B): escalate 도구를, 후보 엔티티를 다 *읽기 전에는* deny.
+                # 강제하는 행동 = 읽기(멱등·무해)뿐. 행동(write) 선택은 여전히 모델 몫.
+                rem = self._exhaust_remaining()
+                if rem:
+                    return False, g["id"], render_recovery(
+                        g, detail=f"{len(rem)} not yet inspected: {', '.join(sorted(rem)[:5])}")
 
             elif kind == "ownership":
                 if self.state.auth_user is not None:
@@ -391,4 +422,29 @@ def auth_satisfier_tools(gates):
     for g in (gates or []):
         if g.get("kind") == "auth":
             s |= set((g.get("satisfiers") or {}).keys())
+    return s
+
+
+def _try_json(s):
+    if isinstance(s, dict):
+        return s
+    try:
+        import json as _j
+        return _j.loads(s)
+    except Exception:
+        return None
+
+
+def observe_tools(gates):
+    """observe()가 상태를 갱신해야 하는 도구 집합 (auth satisfier + exhaust의 entity_source/inspect).
+    도메인-일반: 이름은 전부 A2서 읽음."""
+    s = auth_satisfier_tools(gates)
+    for g in (gates or []):
+        if g.get("kind") == "exhaust_before_escalate":
+            t = (g.get("entity_source") or {}).get("tool")
+            if t:
+                s.add(t)
+            t = (g.get("inspect") or {}).get("tool")
+            if t:
+                s.add(t)
     return s

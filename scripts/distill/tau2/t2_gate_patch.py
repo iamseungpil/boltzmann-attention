@@ -16,6 +16,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gate_interpreter import (  # noqa: E402
+    observe_tools,
     GateInterpreter, auth_satisfier_tools, load_domain_a2, resolvers_from_env,
     candidate_summary, nested_candidate_summary, compute_facts)
 
@@ -35,6 +36,14 @@ COMMON_PLACEHOLDERS = DEFAULT_PLACEHOLDERS  # 호환 alias
 _A2_CACHE = {}
 
 
+def obs_tools_g(gate):
+    """live GateInterpreter -> observe 대상 도구 집합 (A2-구동)."""
+    try:
+        return observe_tools(getattr(gate, 'gates', []) or [])
+    except Exception:
+        return set()
+
+
 def _domain_a2(domain):
     """env.domain_name → augmented A2 dict (없으면 None=게이트 비활성). 캐시."""
     if domain in _A2_CACHE:
@@ -43,6 +52,7 @@ def _domain_a2(domain):
     if a2 is not None:
         a2 = dict(a2)
         a2["_auth_tools"] = auth_satisfier_tools(a2["gates"])
+        a2["_observe_tools"] = observe_tools(a2["gates"])
         a2["_hints"] = tuple(set(DEFAULT_ARG_HINTS) | set(a2.get("identifying_arg_types") or ()))
         a2["_placeholders"] = set(a2.get("placeholders") or ()) | DEFAULT_PLACEHOLDERS
         a2["_producer"] = (a2.get("producers") or {}).get("authenticated_user_record")
@@ -259,7 +269,7 @@ def apply():
                 _mark_fail(key, _content_str(out[0]))
             elif retry_on:
                 self._t2_consec = 0  # 성공 → 연속카운트 리셋
-            if tc.name in auth_tools and out and not out[0].error:
+            if tc.name in obs_tools_g(gate) and out and not out[0].error:
                 gate.observe(tc.name, tc.arguments, _content_str(out[0]))
             # ★REPLAY-SAFE present (T2_PRESENT_READS=1): 후보-producer 읽기 응답에 clean 요약 덧붙임.
             # 읽기는 evaluation replay서 skip → content 증강 안전(write-deny=replay 깨짐과 대조).
@@ -601,7 +611,7 @@ def _rebuild_gate_state(gate, a2, messages):
     auth_tools = a2["_auth_tools"]
     for tc, tm in _iter_tc_result_pairs(messages):
         name = getattr(tc, "name", None)
-        if name in auth_tools and tm is not None and not getattr(tm, "error", False):
+        if name in obs_tools_g(gate) and tm is not None and not getattr(tm, "error", False):
             gate.observe(name, _args_dict(tc), _content_str(tm))
 
 
@@ -672,7 +682,7 @@ def _install_regen_exec():
             if out is None or getattr(out, "error", False):
                 continue
             name = getattr(tc, "name", None)
-            if gate is not None and name in auth_tools:
+            if gate is not None and name in obs_tools_g(gate):
                 gate.observe(name, _args_dict(tc), _content_str(out))
             if present_on and g6 is not None and gate is not None and name == g6.get("user_producer"):
                 uid = _args_dict(tc).get(g6.get("user_id_arg", "user_id"))
