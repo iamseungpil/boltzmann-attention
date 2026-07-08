@@ -67,6 +67,15 @@ non-execution 73 분해(누수마커·transfer-vs-base 교차):
   scaffold가 base 대등/초과면 = "scaffold가 thinking을 배포가능하게 함"(offload 논지). **유일 non-fixable 잔여 = ⋈ operand 경계**
   (단 base와 공유·thinking-특이 아님) + 소량(clean-noaction 10·legit-transfer 7).
 
+## 6c. ★Step1/2 실측 = 재판정 확증 (2026-07-08·서빙 수정)
+- **Step1(무료·구조 테스트)**: QwQ를 `--reasoning-parser deepseek_r1`(+hermes)로 재서빙 → `<think>`가 reasoning_content로
+  분리·content 청정(누수 마커 0)·tool_calls 정상 파싱("go ahead"에 exchange write call 방출). 서빙이 누수 원인 확인.
+- **Step2(유료·nt=1 full·`qwq_rparser_floor_nt1`)**: avg_reward **0.443→0.526**(+8.3pp)·**leak 20%→1%(1/114)**·non-exec
+  29%→11%·transfer 24%→7%. **base 0.557과 3.1pp 차=nt=1 노이즈 안**. ⇒ **deficit의 ~⅔가 내 서빙 handicap**(reasoning-parser
+  부재)이었음이 실증. **"thinking이 agentic 해친다"=철회 확정**. 올바로 서빙하면 reasoning-model ≈ base(+QwQ가 28 task는 base
+  초과). 잔여 3pp=noise 내·(옵션)transfer-gate로 추가 회복 여지. **정확 pass 확정=nt=4 full 재run(Step3) 필요**(nt=1 noise).
+- thesis 함의: **scaffold/serving이 실행실패 커버·모델은 추론 제공** 실증. 유일 non-fixable=⋈ operand 경계(base 공유).
+
 ## 6. caveat / [[08]] 규율기록
 - **QwQ≠Qwen2.5-32B**(RL-튜닝 다른 모델): transfer-성향·포맷누수는 QwQ 특유 학습/템플릿일 수 있음("thinking 자체" 단정 불가).
   clean thinking-격리 = base-8k 통제(같은 weights·⋈ 0 이득)가 담당·본 forensic은 *reasoning-model-as-agent* 판정.
