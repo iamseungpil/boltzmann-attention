@@ -42,7 +42,7 @@
 ## 3. 실험 맵 (미결을 닫는 최소 집합·우선순위)
 | ID | 실험 | 닫는 것 | 비용 | 의존 |
 |---|---|---|---|---|
-| **E1** | **완결/persistence 게이트** Phase A(offline·무료) → B(smoke·무료 user-sim) → C(유료 확인 1회) | **C4c [D]→[M]** = 모트 | 무료→소액 | naive 게이트 over-block 19 → **정밀 트리거 필수** |
+| **E1** | **완결/persistence 게이트** Phase A(offline·무료) → B(smoke·무료 user-sim) → C(유료 확인 1회) | **C4c [D]→[M]** = 모트 | 무료→소액 | naive 프록시 발화 19(확실파손 5)·정밀 over-block **미측정**·**Δspurious≤0이 GO 조건** |
 | E2 | QwQ+rparser **nt=4**(진행중) | C4b [M]→[S] | 유료(실행중) | — |
 | E3 | F3 경계 **full-agent 확인**(agentic wrong-exec order_id 지배 분석 + 맥락-정합 격리 probe) | C3b [M]→[S] | **무료** | 기존 궤적 |
 | E4 | **base + 완결게이트**(일반성 회귀) | 게이트가 QwQ-특이 아님 → C1/C4 강화 | 무료/소액 | E1 후 |

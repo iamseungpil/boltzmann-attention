@@ -44,6 +44,12 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 test-time comput
 | present+g15 | — | — | **+12.3pp passAll** | (합성이 이득) |
 | g15 단독 | over-action↓ | L0↑ | 음성 | — |
 | retry / 투표(self-consistency) | — | 해로움 / +0%(8/8 동일오답) | 음성 | — (죽은 레버) |
+| **★완결게이트 자신** | F4/F5 완결·persistence | **scope 규율(over-action↑)** | **미측정** | — (자기-역효과) |
+- **★법칙은 우리 처방에도 적용된다(2026-07-08 리뷰 발견)**: 완결게이트는 종료를 막아 *행동을 더 하게* 만들므로 **over-action을
+  산출**한다. 실측 기준선: passing sim 내 spurious write = **QwQ 0 vs base 47**(≥1 보유 7% vs 17.5%) ⇒ **QwQ의 낮은 over-action은
+  give-up의 뒷면**. 게이트가 QwQ를 base 쪽으로 민다. 게다가 over-action은 선례가 **명시 게이트 금지**한 축
+  (`NEXT_DET_LEVERS:131` "do NOT gate"·`NEXT_LEVERS:33` "레버 금지")이고 **파괴적**(t62=질문만한 주문 cancel).
+  ⇒ 완결게이트의 GO 조건에 **Δspurious_write ≤ 0** 필수. **부작용 없는 레버는 없다** — 합성은 무한후퇴가 아니라 *측정된 상쇄*여야.
 - **함의(설계원리)**: 기능별 최적 레버를 독립 선택하면 실패한다. **레버 배분 = 교차-기능 간섭을 측정하고, 부작용을 서로
   상쇄하도록 합성하는 문제.** (prior work 부재·[[46]] 노벨티 지형과 정합.)
 - **DR 정합**: self-reflection(내부 피드백 없음)=무효[2310.01798]·long-horizon 조기종료 1%→25% ⇒ **외부 결정론 verifier**가
@@ -70,7 +76,7 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 test-time comput
 ## 6. 무엇이 아직 안 닫혔나 (정직)
 - **F3 경계**: isolated under-spec 하한 — full-agent 맥락서도 경계인지 미확정(agentic wrong-exec의 order_id 지배는 정합적 증거).
 - **주장 4의 [D] 절반**: thinking+완결게이트가 실제로 순이득을 내는지 = `THINKING_PERSISTENCE_SCAFFOLD_DESIGN` Phase A/B 미실행.
-  (offline naive 게이트는 over-block 19 → 정밀 조건 필요.)
+  (offline naive 프록시 게이트가 passing 19에 발화[확실파손 5]·정밀 게이트 over-block은 **미측정**; 게이트 자신의 over-action 역효과=최대 리스크.)
 - **QwQ 결과 [M]**: nt=1(0.526 vs base 0.557)·Step3 nt=4 진행중. QwQ≠Qwen2.5(RL/템플릿) 교란.
 - **learn-wing**: F3 경계·F-mis-formalize를 학습이 여는지 미검증(four-bench→τ² swap).
 

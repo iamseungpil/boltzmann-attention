@@ -114,6 +114,23 @@ give-up/non-exec LOSS 6건의 결정지점 추론 정독 → **일관 패턴 = "
 - **fixability**: 대부분 give-up은 **completion-forcing scaffold**(transfer 차단·"exhaust 전 escalate 금지"·전수탐색 강제)로 복구. 단
   mis-formalize(t87·t49 일부)는 task-해석 오류라 harder. ⇒ scaffold가 persistence 담당·모델은 decision → base 초과 경로 확인.
 
+## 7c. ★게이트-관련 실측 영속 (2026-07-08·외부 리뷰 A 지적 반영 — 인용만 하고 미영속이던 수치)
+데이터=`qwq_rparser_floor_nt1`(nt=1·114) + 대조 `fl32b_floor_retail_t4`(nt=4·456). 스크립트=scratchpad `verify_review`(재현 가능).
+- **(A) naive 게이트 over-block(=passing sim 발화)**: 조건 `transfer OR (writes < base-max-writes)` → **passing 19건 발화**.
+  내역: transfer-type **5**(t10·t12·t25·t46·t50 = **transfer가 gold**·확실 파손) + `nw<base-max` **14**(t1·t11·t14·t22·t28·t33·
+  t45·t48·t50·t56·t57·t64·t65·t66·t83류). ★**14는 나쁜 프록시**(valid한 짧은 해법을 미완으로 오판) ⇒ **정밀 게이트의 over-block은
+  여전히 미측정**. ★§6b의 premature-transfer **19**(old qwq nt=4·*benefit*)와 **수치 우연 일치**(별개 측정·혼동 주의).
+- **(D) over-action 기준선(spurious write = gold action에 없는 write)**:
+  | | spurious 총계 | **passing sim 내** | ≥1 spurious 보유 sim |
+  |---|---|---|---|
+  | QwQ-rp (nt=1·114) | 12 | **0** | 8 (7.0%) |
+  | base (nt=4·456) | 130 | **47** | 80 (17.5%) |
+  ⇒ **QwQ의 낮은 over-action = give-up 성향의 뒷면.** 완결게이트가 종료를 막으면 base 쪽(over-action)으로 밀어낼 구조적 위험.
+  선례가 이 축을 명시 금지(`NEXT_DET_LEVERS:131` "do NOT gate" · `NEXT_LEVERS:33` "레버 금지").
+- **(C) LOSS-12 슬라이스 정정 원장**(writes/xfer/spurious 실측): ①transfer{t13,t30,t106} ①'무행동종료{t47} ②미완{t42(2/4),
+  t55(1/4)} ③mis-formalize{**t87 단독**} operand{t6,t58,**t49**} over-action{t5(sp2),t62(sp1)}. ⇒ **게이트-addressable=6**
+  (옛 "실행/지속 8/12"는 t87·t49를 잘못 포함·철회).
+
 ## 6. caveat / [[08]] 규율기록
 - **QwQ≠Qwen2.5-32B**(RL-튜닝 다른 모델): transfer-성향·포맷누수는 QwQ 특유 학습/템플릿일 수 있음("thinking 자체" 단정 불가).
   clean thinking-격리 = base-8k 통제(같은 weights·⋈ 0 이득)가 담당·본 forensic은 *reasoning-model-as-agent* 판정.
