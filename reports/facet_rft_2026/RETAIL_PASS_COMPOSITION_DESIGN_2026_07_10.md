@@ -116,6 +116,27 @@ _generate_next_message(message, state):
   p4/compliant-p4에서 더 큼(floor 0.333/0.263 vs gpt-4.1 0.526/0.482) — robust 축은 user-sim 분산+체계 실패의 합이라
   scaffold의 결정론성(분산 억제)이 p4에 유리해야 정합 — **COMP가 p4에서도 이겨야 합성 GO**.
 
+## 3d. ★3-arm robust-구조 전수 교차 — floor vs prov vs gpt-4.1 공식 nt=4 (2026-07-10 · [M] · DB-기준·112 공통태스크)
+> `ecomp_p4_frontier_census.py`. 기준=db_match(C19/C21 공통분모)·per-task 대조는 구조 비교 한정(C57 각자-gold·t18/t91/t107 caveat).
+
+| arm | db-p1 | db-p4 | **감쇠(p1−p4)** | wins 히스토그램(0..4) | flaky | robust-pass | robust-fail |
+|---|---|---|---|---|---|---|---|
+| floor | 0.596 | 0.375 | 22.1pp | [12,28,19,11,42] | 58 | 42 | 12 |
+| **prov** | 0.625 | 0.330 | **29.5pp** | [14,13,25,23,37] | 61 | 37 | 14 |
+| gpt-4.1 | 0.781 | 0.571 | **21.0pp** | [7,11,7,23,64] | 41 | 64 | 7 |
+
+- **★발견 1 — 감쇠율은 floor≈gpt-4.1(22.1 vs 21.0pp)·prov만 +7.5pp 초과**: user-sim 공통 노이즈 위에 **prov regen이 분산을 추가**한다. gpt-4.1의 p4 우위는 감쇠가 아니라 **robust-pass 저변**(64 vs 42)에서 온다.
+- **★발견 2 — prov-lost 15태스크 중 12개는 gpt-4.1이 4/4**: 본질적으로 flaky한 태스크가 아니라 **prov가 flaky하게 만든 것**(대부분 3/4·t61만 0/4 체계). prov 신규-flaky 18태스크 목록 §스크립트 출력.
+- **★발견 3 — frontier robust 격차의 해부**: gpt-4.1 4/4인 64태스크 중 floor는 34만 4/4·**27이 flaky·3이 0/4** ⇒ robust 격차(22태스크)의 주성분 = **같은 태스크를 우리가 불안정하게 푸는 것**(능력 부재 아님·flake→robust 전환이 p4의 지렛대). 결정론 레버가 p1보다 p4를 벌어야 하는 이유이자 가능성.
+
+### 3e. 트레이드오프(prov p4 비용) 차단 설계 — [D]
+| # | 처방 | 겨냥 | 성격 |
+|---|---|---|---|
+| **P1 최소-침습 arg-머지** | regen 후 corrected call에서 **flagged-arg 외 변경은 원본 복원**(동일 도구일 때·결정론 diff) | 부수적 재결정(t61형 collateral·12건 분산 일부) | 도메인-일반·규칙0·[[05]] 3-no |
+| **P2 원리-디폴트 검증기** | refund payment ∈ {원결제, 사용자가 명시한 gift card} — A2 정책사실+resolver (=ENDGAME **L3**와 동일물) | t61형 체계 플립 + WRONG_PAYMENT 8건(이득 레버 겸용) | decidable·C58 KEEP .940 정합 |
+| **P3 트리거 협소화(write-only)** | prov regen을 write 도구(A2 confirm applies_to)로 한정 — read의 날조 인자는 env-error 경로(가시·floor와 동일)로 | regen 검출점 축소=경로 분기 감소(분산 12건의 주용의) | 측정 arm 플래그로 |
+- **순서 규율(리뷰 블로킹1 정신)**: COMP/COMP+D는 **GO-arm 정확 중첩 그대로** 먼저 측정(p4 비용이 합성에서 재현되나 자체가 1급 판정) → P1~P3는 **R2 수정 arm**(E-ENDGAME L6)으로 개별 귀속. 관측성은 지금 확보([T2_PROV] stderr·행동 무변경·테스트 ALL PASS).
+
 ## 4. 실행 계획 (비용·순서)
 1. **구현+단위테스트(무료·로컬)**: unified regen — per-lever 예산(게이트 1회 tick·prov 무과금 4회)·R8 strip·같은-콜 이중피드백 금지·DISAMB 채택-전 게이트 재검사·기존 단독 경로 무변경(회귀). tau2 stub 로컬 하네스 + 리모트 실 tau2 재실행.
 2. **스모크(소액)**: 10태스크 nt=1 COMP+D — **★태스크는 발화 조건 보장형으로 의도 선택**(리뷰 반영): t17(날조 정본=prov)·게이트-deny 이력 태스크·DISAMB 후보 다수(⋈ 전패 101/103/109·payment 61/98). 레버 3종 실발화 각≥1 미달 시 중단([[30]])·크래시 0·Δtme 계측.

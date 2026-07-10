@@ -44,6 +44,11 @@
 ### (옵션 L5) GROUND 후보-표면화 — zero-write repair 조각(상한 +4 sims·C27)
 - C40(격리: getter-follow 16→56%)·rule-0 클린(기조회 출력만 표면화). R2 arm에 플래그 변형으로만(효과 작음·복잡도 증가 주의).
 
+### L6. prov p4-비용 차단 패키지 (2026-07-10 신설 · `RETAIL_PASS_COMPOSITION_DESIGN §3d/§3e`)
+- 근거: C53 보강 — prov는 p1을 사고 **p4를 판다**(짝 −5.3pp·감쇠 +7.5pp 초과·prov-lost 15 중 12는 gpt-4.1 4/4 = 레버-유발 flaky).
+- **P1 최소-침습 arg-머지**(regen 후 flagged-arg 외 원본 복원·결정론) · **P2 원리-디폴트 검증기**(=L3와 동일물·refund∈{원결제,명시 gift}) · **P3 write-only 트리거**(측정 플래그).
+- 순서: COMP/COMP+D는 GO-arm 정확 중첩 그대로 先측정(귀속) → L6은 R2 수정 arm. 관측성([T2_PROV] stderr)은 확보됨.
+
 ## 2. R2 arm 구성·귀속 규율
 - **COMP2 = COMP+D + {L1·L2·L3}** — 1런 합산이 정당한 이유: 세 레버의 표적 버킷이 **서로소**(over-action / zero-att / payment-feasibility)이고 발화 마커가 구분됨(stderr 카운터) → per-case 귀속 가능. 각 레버 반대편 계측 필수. 대조군=COMP+D(짝 flip census 1차).
 - **E-PLAN = 별도 456** — 루프 아키텍처 변경이라 합산 금지.

@@ -989,6 +989,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 ptc, k, s = fab
                 self._t2_session_bl.add(s)
                 self._t2_regen = getattr(self, "_t2_regen", 0) + 1
+                # 관측성(행동 무변경): p4-비용 귀속용 발화 로그 (C53 p4 −5.3pp·§3c)
+                print("[T2_PROV] regen fired tool=%s arg=%s val=%s" % (getattr(ptc, "name", "?"), k, s),
+                      file=_sys.stderr, flush=True)
                 main_prov = (ptc, REGEN_FEEDBACK.format(k=k, s=s))
             if do_gate:
                 gate_rounds += 1
