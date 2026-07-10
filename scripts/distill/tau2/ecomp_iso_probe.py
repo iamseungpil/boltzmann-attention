@@ -47,12 +47,16 @@ def gold_writes(task):
 
 
 def first_wrong_write(sim, task):
-    """(msg_index, tool_name, wrong_args, best_gold_args, diff_arg) or None."""
+    """(probe_index, tool_name, wrong_args, best_gold_args, diff_arg) or None.
+    ★probe_index = min(첫 오기 write, 잘못된 값의 최초 assistant 언급) — **오염-전** 문맥.
+    (v2: fail-분기서 write 직전은 이미 오제안→user 동의로 고착된 뒤라 gold-회복이 불공정.
+     t61형 기전 = 대화-경로 오염 고착. 프로브는 첫 오염 이전에 잰다.)"""
     gb = {}
     for nm, ar in gold_writes(task):
         gb.setdefault(nm, []).append(ar)
     msgs = sim.get("messages") or []
     res_by_id = {m.get("id"): m for m in msgs if m.get("role") == "tool"}
+    found = None
     for i, m in enumerate(msgs):
         if m.get("role") != "assistant":
             continue
@@ -72,8 +76,30 @@ def first_wrong_write(sim, task):
             dk = [k for k in ARG_PRIORITY if k in (set(best) | set(ar))
                   and str(best.get(k)) != str(ar.get(k))]
             if dk:
-                return i, nm, ar, best, dk[0]
-    return None
+                found = (i, nm, ar, best, dk[0])
+                break
+        if found:
+            break
+    if not found:
+        return None
+    i, nm, ar, best, darg = found
+    # 오염-전 인덱스: 잘못된 값(gold에 없는 wrong-marker)의 최초 assistant 언급 지점
+    wv = ar.get(darg)
+    gv = best.get(darg)
+    gset = {str(x) for x in (gv if isinstance(gv, list) else [gv])}
+    markers = [str(x) for x in (wv if isinstance(wv, list) else [wv]) if str(x) not in gset and len(str(x)) >= 4]
+    probe_i = i
+    if markers:
+        for j, m in enumerate(msgs[:i]):
+            if m.get("role") != "assistant":
+                continue
+            blob = (m.get("content") or "") if isinstance(m.get("content"), str) else ""
+            for tc in (m.get("tool_calls") or []):
+                blob += json.dumps(args_of(tc.get("arguments")), ensure_ascii=False)
+            if any(mk in blob for mk in markers):
+                probe_i = j
+                break
+    return probe_i, nm, ar, best, darg
 
 
 def transcript(msgs, upto, mode):
@@ -123,9 +149,11 @@ def build_probes(sim, task, point, policy):
     i, nm, wrong, gold, darg = point
     msgs = sim.get("messages") or []
     gv = gold.get(darg)
-    ask = ("\n\nYou are the retail agent at this exact point. The next step is to call `%s`. "
-           "Decide the CORRECT full arguments. Respond with ONLY a JSON object of the arguments "
-           "for `%s` (no prose)." % (nm, nm))
+    ex = json.dumps({darg: (["<id>", "..."] if isinstance(gv, list) else "<value>")})
+    ask = ("\n\nYou are the retail agent at this exact point. You will eventually call `%s` "
+           "for what the customer asked. Decide the CORRECT value of the argument `%s` "
+           "(consult the records above and the policy). Respond with ONLY a JSON object "
+           "exactly of this shape: %s (no prose, no other keys)." % (nm, darg, ex))
     A = transcript(msgs, i, "full") + ask
     B = transcript(msgs, i, "info") + ask
     cands = candidates_for(msgs, i, darg, wrong.get(darg), gv)
