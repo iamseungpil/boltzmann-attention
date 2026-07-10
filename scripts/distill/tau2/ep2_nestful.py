@@ -17,7 +17,76 @@ import re
 import urllib.request
 
 DATA = "/home/woori/scratch/NESTFUL/data_v2/nestful_data.jsonl"
-OUT = "/home/woori/scratch/ep2_nestful_results.jsonl"
+OUT = "/home/woori/scratch/ep2_nestful_v2.jsonl"
+FUNC_DIR = "/home/woori/scratch/NESTFUL/data_v2/executable_functions"
+
+
+# ---- 실행-동치 채점 (v2): 분해가 달라도 최종 실행값이 gold와 같으면 정답 ----
+_FUNC_CACHE = {}
+
+
+def _load_func(name):
+    if name in _FUNC_CACHE:
+        return _FUNC_CACHE[name]
+    import importlib.util
+    fmap = getattr(_load_func, "_map", None)
+    if fmap is None:
+        fmap = json.load(open(f"{FUNC_DIR}/func_file_map.json", encoding="utf-8"))
+        _load_func._map = fmap
+    fn = None
+    for fname in (fmap.get(name), "basic_functions.py"):
+        if not fname:
+            continue
+        try:
+            spec = importlib.util.spec_from_file_location("m_" + name, f"{FUNC_DIR}/{fname}")
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            if hasattr(mod, name):
+                fn = getattr(mod, name)
+                break
+        except Exception:
+            continue
+    _FUNC_CACHE[name] = fn
+    return fn
+
+
+def execute_seq(seq):
+    """시퀀스 실행 -> {label: output}. 실패 시 None."""
+    outs = {}
+    for i, s in enumerate(seq):
+        fn = _load_func(str(s.get("name")))
+        if fn is None:
+            return None
+        kw = {}
+        for k, v in (s.get("arguments") or {}).items():
+            r = ref_of(v)
+            if r:
+                base = outs.get(r[0])
+                if base is None:
+                    return None
+                kw[k] = base.get(r[1]) if isinstance(base, dict) else base
+            else:
+                kw[k] = v
+        try:
+            rv = fn(**kw)
+        except Exception:
+            return None
+        lab = str(s.get("label") or f"$var_{i+1}").lstrip("$")
+        outs[lab] = rv if isinstance(rv, dict) else {"result": rv}
+    return outs
+
+
+def _final_val(outs, seq):
+    if not outs or not seq:
+        return None
+    lab = str(seq[-1].get("label") or "").lstrip("$")
+    v = outs.get(lab)
+    if isinstance(v, dict) and len(v) == 1:
+        v = next(iter(v.values()))
+    try:
+        return round(float(v), 4)
+    except Exception:
+        return str(v)
 
 SYS = ("You are a function-composition assistant. Given TOOLS and a QUESTION, output ONLY a JSON "
        "array of call steps that answers the question, in execution order. Each step: "
@@ -26,7 +95,7 @@ SYS = ("You are a function-composition assistant. Given TOOLS and a QUESTION, ou
        '(e.g. "$var_1.result$"). Use only the provided tools. No prose, no markdown fence — JSON array only.')
 
 
-def chat(port, model, msgs, max_tokens=1600):
+def chat(port, model, msgs, max_tokens=4096):
     p = {"model": model, "messages": msgs, "temperature": 0.0, "max_tokens": max_tokens}
     req = urllib.request.Request(f"http://localhost:{port}/v1/chat/completions",
                                  data=json.dumps(p).encode(), headers={"Content-Type": "application/json"})
@@ -143,20 +212,31 @@ def main():
         tools = json.dumps(s.get("tools") or [], ensure_ascii=False)
         msgs = [{"role": "system", "content": SYS},
                 {"role": "user", "content": "TOOLS:\n" + tools + "\n\nQUESTION: " + s["input"]}]
-        try:
-            txt = chat(a.port, a.model, msgs)
-        except Exception as e:
-            txt = "ERR:" + type(e).__name__
-        pred = parse_pred(txt)
+        pred, txt = None, ""
+        for attempt in range(2):   # 빈 응답/파싱 실패 1회 재시도 (QwQ think-소진 대응)
+            try:
+                txt = chat(a.port, a.model, msgs)
+            except Exception as e:
+                txt = "ERR:" + type(e).__name__
+            pred = parse_pred(txt)
+            if pred is not None:
+                break
+            msgs = msgs + [{"role": "user", "content": "Reply with the JSON array only. Be brief."}]
         if pred is None:
-            rec = {"sample_id": s["sample_id"], "obs": ["PARSE_FAIL"], "exact": False,
+            rec = {"sample_id": s["sample_id"], "obs": ["PARSE_FAIL"], "exact": False, "exec_match": False,
                    "n_gold": len(s["output"]), "raw": (txt or "")[:200]}
         else:
             try:
                 obs, exact = classify(s["output"], pred)
             except Exception as e:
                 obs, exact = ["CLASSIFY_ERR:" + type(e).__name__], False
-            rec = {"sample_id": s["sample_id"], "obs": obs, "exact": exact,
+            gv_ = _final_val(execute_seq(s["output"]), s["output"])
+            pv_ = _final_val(execute_seq(pred), pred)
+            exec_match = gv_ is not None and pv_ is not None and gv_ == pv_
+            if exec_match:
+                obs = []          # 실행-동치면 실패 아님 (분해 자유)
+            rec = {"sample_id": s["sample_id"], "obs": obs, "exact": exact, "exec_match": exec_match,
+                   "gold_val": gv_, "pred_val": pv_,
                    "n_gold": len(s["output"]), "n_pred": len(pred), "pred": pred[:8]}
         fp.write(json.dumps(rec, ensure_ascii=False) + "\n")
         fp.flush()
@@ -165,8 +245,9 @@ def main():
     fp.close()
     rows = [json.loads(l) for l in open(OUT, encoding="utf-8")]
     from collections import Counter
-    print("\n=== E-P2 NESTful (n=%d) ===" % len(rows))
-    print("exact:", sum(1 for r in rows if r.get("exact")), "/", len(rows))
+    print("\n=== E-P2 NESTful v2 (n=%d) ===" % len(rows))
+    print("exec_match:", sum(1 for r in rows if r.get("exec_match")), "· exact-구조:",
+          sum(1 for r in rows if r.get("exact")), "/", len(rows))
     c = Counter(o for r in rows for o in r.get("obs") or [])
     for k, v in c.most_common():
         print("  %-14s %d" % (k, v))
