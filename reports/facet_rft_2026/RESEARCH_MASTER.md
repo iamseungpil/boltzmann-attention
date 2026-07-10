@@ -249,7 +249,7 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | **★E11** | **출처선언 레버**(4지선다+provenance 검증+재발화·GET폴백) | 날조 억제 | 무료 | ✅ **GO**(C45·67→0%·over-block 0·Δspurious 0·단일턴 n=60) |
 | **★E-COMP** | **retail 검증기 합성 arm**(게이트+prov+nested/calc 단일 생성-레벨 통합 → COMP·+DISAMB → COMP+D) | GO 레버 최초 합성(이중패치 해소)·C59 DISAMB e2e 승격·retail pass 상향 | 구현 무료·full 2런(912 sims·승인) | 🔄 **리뷰 GO(블로킹2 반영)·구현+24테스트 PASS·스모크 실행중** — census: disamb-도달 77/193·NL_ONLY 16/19=calc 사정거리·기대 0.63±0.03. `RETAIL_PASS_COMPOSITION_DESIGN §2·§3b`. full은 E-XFER-bank 후 |
 | **E-ENDGAME** | **scaffold 레버 전량 소진 프로그램**(R1 무료빌드: 대화-precond controller·retry이식·feasibility·E-PLAN live / R2: COMP2+E-PLAN arm) | over-action(+9)·coverage 47sims·zero-att 13·feasibility 10 — C21 잔여 조각 합성 | R1 무료·R2 ~912 sims(승인) | **[D]** — `SCAFFOLD_ENDGAME_PLAN_2026_07_10`(타 세션 리뷰 우선순위 반영·T5-B/E6′ 소유권 경계 명기). 도달목표 retail 32B 0.66~0.70 |
-| **★E6′** | **gather 학습 — 데이터 v3 재설계 先** (D7 근접오답+음성사례+on-policy+발명형 rejected) | C7 · **C38: cfbsynth가 결손 재현 못함**(미확립) | 큼 | **▶ 데이터 게이트 통과 前 착수 금지** |
+| **★E6′** | **gather 학습 — 데이터 v3 재설계 先** (D7 근접오답+음성사례+on-policy+발명형 rejected · **★+C60 신규 표적: paraphrase-invariance** — 등가-표현 변주에 동일 결정 감독. C38과 달리 **재현 가능**: 실 궤적 user-발화 패러프레이즈 증강 + 4-trial pass/fail 분기=자연 대조쌍. [[00-thesis]] 도메인-일반 스킬 전형·P4 실증 축) | C7 · **C38: cfbsynth가 결손 재현 못함**(미확립) · C60 표현-민감 잔여 | 큼 | **▶ 데이터 게이트 통과 前 착수 금지** |
 | ~~E10~~ | 정책-precondition 게이트 | C25 over-action +9 | — | ❌ **NO-GO**(C50·무료 격리검증: P1 over-block>TP·P2 환경집행 redundant·불가능성=대화 semantic·게이트 아님) |
 | **E-ASK** | **ASK 위계 R1**(호출가능성·GET-chain·DISAMBIGUATE) | C48 · clarification 벤치서만 R0≠R1 | 무료 | ▶ ToolDial/airline 필요 |
 | ~~E1′~~ | 격리 formalize 서브콜 | C23: F2 −4·payoff 작음 | — | **하향**(우선순위 낮음) |
