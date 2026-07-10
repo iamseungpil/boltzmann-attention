@@ -204,6 +204,30 @@ def order_slot(sim, idx, tool, db, uid, prod_name, item2prod):
     return {"cand": [norm(k) for k in cand], "C": len(cand)}
 
 
+def gold_variant_stats(sims, item2prod):
+    """LOTO용: product -> task -> set(gold new variants). 통계-디폴트 arm의 정직한 산정."""
+    st = defaultdict(lambda: defaultdict(set))
+    for sim in sims:
+        tid = str(sim.get("task_id"))
+        for x in (sim.get("reward_info") or {}).get("action_checks") or []:
+            act = x.get("action") or {}
+            for gv in ((act.get("arguments") or {}).get("new_item_ids") or []):
+                pid = item2prod.get(norm(gv))
+                if pid:
+                    st[pid][tid].add(norm(gv))
+    return st
+
+
+def _pick(seq, seedstr):
+    """결정론적 의사-랜덤 선택 (Date/random 비의존·재현가능)."""
+    if not seq:
+        return None
+    h = 0
+    for ch in seedstr:
+        h = (h * 131 + ord(ch)) % 100003
+    return sorted(seq)[h % len(seq)]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sim", default="fl32b_floor_retail_t4")
@@ -212,6 +236,7 @@ def main():
     data = json.load(gzip.open(f"{REPO}/{a.sim}.results.json.gz", "rt", encoding="utf-8"))
     sims = data["simulations"]
     print("종료사유:", dict(Counter(s.get("termination_reason") for s in sims)))
+    gstats = gold_variant_stats(sims, item2prod)
 
     WRITE = set(WRITE_STATUS) | {"modify_user_address", "place_order"}
     res = defaultdict(list)   # slot_type -> records
@@ -272,6 +297,31 @@ def main():
                     v.update(task=str(sim.get("task_id")), trial=sim.get("trial"), gold=gv,
                              gold_in=gv in v["cand"],
                              fill_ok=(v["C"] == 1 and v["cand"][0] == gv))
+                    # ★T6h: 디폴트 3-arm (같은 오버라이드 기계 위 디폴트만 교체)
+                    pid = v["pid"]
+                    tid = str(sim.get("task_id"))
+                    V = [norm(k) for k, vv in prod_variants[pid].items() if vv.get("available") is not False]
+                    F = v["cand"]  # 증거(단언 속성) 필터 결과
+                    loto = Counter()
+                    for t2k, gs in gstats.get(pid, {}).items():
+                        if t2k != tid:
+                            loto.update(gs)
+                    d_rand = _pick(V, f"{tid}|{sim.get('trial')}|{old}")
+                    d_freq = (loto.most_common(1)[0][0] if loto else d_rand)
+                    d_prin = (v["candB"][0] if v.get("labelB") == "KEEP" and v.get("CB") == 1 else
+                              (norm(old) if norm(old) in V else d_rand))
+                    arms = {}
+                    for nm, d in (("rand", d_rand), ("freq", d_freq), ("prin", d_prin)):
+                        if v["n_cons"] == 0:
+                            ans, mode = d, "default"          # 무증거 → 디폴트
+                        elif len(F) == 1:
+                            ans, mode = F[0], "evidence"      # 증거가 확정 → 디폴트 무관
+                        elif len(F) >= 2:
+                            ans, mode = (d if d in F else _pick(F, f"{tid}|{old}|{nm}")), "enum"
+                        else:
+                            ans, mode = d, "default"          # 증거 모순(F=0) → 디폴트
+                        arms[nm] = (ans, mode, ans == gv)
+                    v["t6h"] = {nm: {"mode": m, "ok": ok} for nm, (ans, m, ok) in arms.items()}
                     res["variant"].append(v)
 
     print("\n=== T6 slot-filling 대조 (arm=%s) ===" % a.sim)
@@ -316,6 +366,24 @@ def main():
             for r in badb:
                 print("   [B-오답·%s] t%s tr%s candB=%s gold=%s" % (
                     r.get("labelB"), r["task"], r["trial"], r["candB"][:2], r["gold"]))
+    # ★T6h: 디폴트 불변성 검정 (variant)
+    th = [r for r in res["variant"] if "t6h" in r]
+    if th:
+        print("\n=== T6h 디폴트 불변성 (variant·n=%d) ===" % len(th))
+        modes = Counter(r["t6h"]["rand"]["mode"] for r in th)
+        print("  결정 경로: evidence(디폴트 무관) %d · enum %d · default(무증거/모순) %d" % (
+            modes.get("evidence", 0), modes.get("enum", 0), modes.get("default", 0)))
+        for nm in ("rand", "freq", "prin"):
+            tot = sum(1 for r in th if r["t6h"][nm]["ok"])
+            dd = [r for r in th if r["t6h"][nm]["mode"] == "default"]
+            dok = sum(1 for r in dd if r["t6h"][nm]["ok"])
+            print("  arm %-4s 최종 %.3f (%d/%d) · default-결정 구간만 %.3f (%d/%d)" % (
+                nm, tot / len(th), tot, len(th), dok / max(len(dd), 1), dok, len(dd)))
+        ev = [r for r in th if r["t6h"]["rand"]["mode"] == "evidence"]
+        evok = sum(1 for r in ev if r["t6h"]["rand"]["ok"])
+        print("  evidence-결정 구간 정확도(모든 arm 동일): %.3f (%d/%d)" % (
+            evok / max(len(ev), 1), evok, len(ev)))
+
     # T6e: 독립근사 vs 정확 (variant)
     vr = [r for r in res["variant"] if r.get("n_cons", 0) >= 1]
     if vr:
