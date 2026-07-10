@@ -120,6 +120,14 @@
 **★핵심 발견 2**: **같은 G가 도메인마다 다른 BC** — G6 OPERAND가 retail=BC4(변형매칭·의미) vs airline=BC3(baggage 계산·decidable). ⇒ **G→BC는 도메인별 per-case 필수**(G 단위 처방 금지). **핵심 발견 2b**: 3도메인 지배 splitter가 **전부 도메인-일반 결정론 구제(calc·persistence게이트·controller)로 라우팅** → A2 전이가설을 *진단 층에서* 지지(처방 실측은 Phase 3).
 - 상태 갱신: 1.2-1.4 splitter BC 셀 **[?]→[M]**(진단). 처방 셀은 여전히 Phase 3.
 
+## 3.5 ★Phase 2+3 banking 착수 기록 (2026-07-10 · 사용자 승인 "banking 우선·여유시 airline")
+- **Phase 2 완료 (banking A2)**: `a2/banking_knowledge.gate.json` — auth-kind 게이트 1개(**GB1: log_verification 성공 전 고객데이터 도구 deny**·정책 "verify 2-of-4 then call the verification logging tool" 인스턴스). **gold 전수 검증**: 97태스크 중 81=gold가 log_verification 포함·순서위반 0 / 예외 4(015·032·033·035)=transfer/incident 내부도구(고객데이터 미접근·정책 정합) → 엔진에 도메인-일반 `applies_when {arg, in/not_in}` 멤버십 가드 추가(`gate_interpreter._gate_applies`·[[05]] 3질문 no·값=A2)로 면제 = **over-block 0 by construction**. confirm/notice/preconditions는 banking 정책에 결정가능 사실 부재 or env-집행(C12)이라 미인스턴스. 단위테스트 `test_banking_gate.py` 23건 PASS(retail 회귀 포함). `t2_compliance`도 `_gate_applies` 재사용으로 G1 census가 applies_when 반영(`82015b16`).
+- **★발견 1 — 기존 32B banking floor는 방법-결함**: `ours_n32int8_floor_bank_t3`(2026-06-24) infra 31/291 = 전부 16384-serve ContextWindowExceeded(banking 장기). → **floor 32768 재런 필수**(bankxfer_floor_bank_t4).
+- **★발견 2 — 러너의 banking 변종 덮어쓰기는 죽은 코드였다**: 갱신된 tau2-bench의 `BaseRunConfig`가 banking일 때 `retrieval_config`를 **'alltools'로 자동 디폴트**→env_kwargs로 `retrieval_variant` 명시 전달→registry partial의 키워드를 **조용히 덮어씀**. "no_knowledge로 돌았다"는 종전 출력은 거짓·실제 alltools. 스모크 궤적의 KB_search 성공으로 발각([[08]] 궤적 정독). 수리=`--retrieval_config` 인자+config 경로 전달(`9baf7b27`)·**Phase 3 변종=openai_embeddings 고정**(dense KB·전 도구 작동. alltools는 sandbox binaries 부재로 shell 도구가 '광고되나 고장' 상태). ⚠️구 floor(6/24)의 변종은 당시 코드 기준 불명 — 어차피 16k 결함으로 대체됨. frontier 대조는 변종 상이 caveat 명기.
+- **스모크 2회**(8140 공유·타 세션 무간섭): ①alltools-우발(8태스크·infra 0·user_stop 8/8·면제 3태스크 무차단·gate 발화 0=**위반 상황 부재의 정상 침묵**, task_004/035는 자발 검증-선행) ②변종 고정 후(3태스크·KB_search 단일 도구 확인·크래시 0). openai_embeddings 도구셋 15개와 A2 applies_to 정합 확인.
+- **Phase 3 발사**(2026-07-10 16:0x): `bankxfer_full_run.sh` — GPU1 전용 32B serve(8142·32k) / floor(`bankxfer_floor_bank_t4`·--gate 0) → arm(`bankxfer_gate_bank_t4`·T2_GATE_REGEN=1·K=1·KINDS=auth) 순차·nt=4·97태스크·gpt-4.1 user-sim·런별 즉시 gzip persist+push. GPU1의 타 세션 잡(ep2_nestful+QwQ serve)은 **사용자 지시로 킬**. GPU0(타 세션 retail 런)=불가침.
+- **판정 기준(예고)**: GO = arm 게이트위반 0(compliance G1) ∧ 면제 태스크 false-block 0 ∧ Δspurious≤0(floor-pass가 게이트 귀속으로 fail 전환 0) ∧ tme 폭증 없음. bench/compliant pass^1..4 = 덱 결과⑩ banking 칸.
+
 ## 4. 리스크·중단조건
 - **A2 전이 실패**(scaffold가 타 도메인서 위반↑/over-block): 경계지도로 후퇴·"도메인-일반" 청구 축소(§15.7 정직).
 - **telecom dual-control**: 우리 프레임(단일-agent write)과 다름 → 별도 취급·과확대 청구 금지.
