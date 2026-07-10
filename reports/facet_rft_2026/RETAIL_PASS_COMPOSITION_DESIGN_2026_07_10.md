@@ -60,6 +60,28 @@ _generate_next_message(message, state):
 - 산출: 공식 pass^1..4 · compliant-pass(t2_compliance) · **레버 실발화 census**(gate deny 라운드·prov regen 수·disamb 발화/switch 수 — stderr 카운터를 러너가 sim별 로그) · tme/infra · Δspurious per-case(floor-pass→arm-fail 전건 정독·레버 귀속) · DISAMB switched-from-gold census.
 - **판정**: ①COMP가 prov-only(0.577) 대비 ≥+2pp ∧ compliant=bench(위반0) ∧ Δspurious≤0 → 합성 GO ②COMP+D가 COMP 대비 ⋈/변형 버킷 감소(per-case) ∧ switched-from-gold ≤ switched-to-gold → DISAMB e2e GO(=T5-B 종결·C59 e2e 승격). pass^1 노이즈 주의(67% flaky) → 주장은 pass^1..4 병기+버킷 per-case로.
 
+## 3b. ★사전 census — prov arm 실패 193건 전수 + 레버-도달가능성 (2026-07-10 · [M] · 무료)
+> `ecomp_fail_census.py` · 대상=`prov_e2e_retail_t4.results.json.gz`(456 sims·C53 canon·pass 263=0.577) ·
+> disamb-도달 = 잘못 쓴 인자의 gold 값이 그 write *이전* 조회 문맥에 실재 ∧ 쓴 값도 실재(=|C|≥2 근사).
+
+| 관찰 버킷 | n | %fail | disamb-도달 | gate-제약위반 | retry루프 |
+|---|---|---|---|---|---|
+| WRONG_ITEMS (변형/집합) | 34 | 17.6% | **33** | 5 | 0 |
+| OVER_ACTION | 30 | 15.5% | 2 | 10 | 4 |
+| WRONG_REF_ORDER (⋈) | 30 | 15.5% | **30** | 4 | 0 |
+| MISSED_WRITE (부분 미완) | 25 | 13.0% | 0 | 1 | 1 |
+| ZERO_WRITE 미시도 | 22 | 11.4% | 0 | 0 | 0 |
+| NL_ONLY (db는 통과) | 19 | 9.8% | 0 | 2 | 2 |
+| ZERO_WRITE 전부에러 | 13 | 6.7% | 0 | 4 | 6 |
+| WRONG_PAYMENT | 8 | 4.1% | **8** | 0 | 1 |
+| WRONG_ADDRESS | 8 | 4.1% | 4 | 1 | 0 |
+| OTHER_ARG | 4 | 2.1% | 0 | 3 | 1 |
+- **합계: disamb-도달 77/193(=16.9pp 천장) · gate-제약위반 30 · retry루프 15 · ★prov-잔존 날조 0**(C45/C53 정합 — 날조 축은 이미 닫힘).
+- per-case 검증(2건 정독): t2=8회 조회 후 item 오선택·gold 문맥 실재(교정 가능형) / t71=체계핵(C56④ "최근 주문" argmax 오적용)·후보 제시만으론 부분 저항 → **체계핵은 calc-argmax(Phase 2) 몫·DISAMB 전환율을 100%로 못 봄**.
+- **★trial-일관성 교차표([[08]] guard 보완)**: disamb-도달 77 = **전패(0/4) 태스크 몫 31**(체계적·안정 질량 — 태스크 101/103/109/71/76=⋈·61/98=payment·37=items·20. ★robust-core 9태스크[8,17,20,34,36,37,71,101,109] 중 **5개+가 disamb-도달**=pass^4도 개선 가능) + **일부통과 태스크 몫 46**(user-sim seed 공변·전환 노이즈). 전패 fail sims 총 76 중 31이 disamb-도달.
+- **기대치([D]·판정은 실측)**: 체계 질량 31×전환 ~40%(t71류 체계핵은 후보제시 부분저항·정독 확인) ≈ +2.7pp + flaky 질량 46×~30% ≈ +3pp ⇒ **DISAMB +4~7pp** · 게이트(제약steer 30·retry 15) **+1~3pp** · 합성 COMP+D = **0.577 → 0.63±0.03**(pass^1·노이즈 1pp≈4.56 sims·주장은 pass^1..4+버킷 per-case). 규칙0-준수로 역사수치 0.640 동급+ 기대. C59 격리 전환율 47%를 e2e 기대의 상한으로.
+- **COMP+D가 못 닫는 잔여** = MISSED(25)+ZERO미시도(22)+NL(19)+OVER_ACTION(~28) ≈ 94 sims ≈ **20.6pp** — coverage/persistence(C32 Δ=0 미확인)·대화-semantic(C50 NO-GO)·NL 채점 축. 이번 scope 밖(정직 명기).
+
 ## 4. 실행 계획 (비용·순서)
 1. **구현+단위테스트(무료·로컬)**: unified regen·기존 두 경로 회귀 테스트(retail A2·mock 시나리오)·이중과금/R8/DISAMB 이식 검증.
 2. **스모크(소액)**: 10태스크 nt=1 COMP+D — 레버 3종 실발화 각≥1 확인([[30]]·미발화시 중단), 크래시 0, tme 폭증 없음.
