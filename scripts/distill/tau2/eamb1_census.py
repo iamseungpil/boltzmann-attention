@@ -111,7 +111,7 @@ def main():
     ap.add_argument("--dump", type=int, default=6)
     a = ap.parse_args()
 
-    data = json.load(gzip.open(f"{SIM_DIR}\\{a.sim}.results.json.gz", "rt", encoding="utf-8"))
+    data = json.load(gzip.open(_os.path.join(SIM_DIR, f"{a.sim}.results.json.gz"), "rt", encoding="utf-8"))
     sims = data["simulations"]
 
     # [[08]] (1) 종료사유 분포
@@ -229,7 +229,7 @@ def main():
             print("  t%s tr%s %s.%s val=%s gold=%s C=%d cand=%s" % (
                 r["task"], r["trial"], r["tool"], r["arg"], r["val"], r["gold"], r["C"], r["cand"][:4]))
 
-    out = f"{SIM_DIR}\\eamb1_{a.sim}_{a.ctx.replace('+', '_')}.jsonl"
+    out = _os.path.join(SIM_DIR, f"eamb1_{a.sim}_{a.ctx.replace('+', '_')}.jsonl")
     with open(out, "w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
