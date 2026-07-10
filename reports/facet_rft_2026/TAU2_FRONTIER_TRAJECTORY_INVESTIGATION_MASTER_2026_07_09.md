@@ -234,7 +234,16 @@ gpt-4.1 db_fail=102: `F2변형 19(최대)·op불일치 17·F3⋈ 10`. ours 32B d
 - **발견/조기중단형 31%**(커버리지<0.5): unlock 체인 미발견(조립)·조기 transfer(중단판단).
 - 나머지 24% 중간.
 
-**★규정**: banking 저-pass = **3중 부하의 곱** — 긴 horizon(med 8~12.5) × 발견 체인(80% 태스크) × all-or-nothing DB 채점 ⇒ per-step p<1의 지수 붕괴(p^H·이론 '지속' 축의 실측 극단). 원인 기능 = 지속×조립 + 인자 정밀(계산/참조-기준형·실행규율) + 완결(자기검증: user_stop으로 '다 했다' 종료). 레버 사상 = gather/unlock controller + 완결게이트[체크리스트] + calc/provenance(인자) + persistence 게이트. **아티팩트 성분 정직 표기 [?]**: all-or-nothing 채점·4-trial 변동으로 벤치 설계 자체가 가혹 — 커버리지 1.00 실패의 일부는 gold 모호 가능성(2~3건 DB-diff 정독으로 확정 필요·미실행).
+**★규정**: banking 저-pass = **3중 부하의 곱** — 긴 horizon(med 8~12.5) × 발견 체인(80% 태스크) × all-or-nothing DB 채점 ⇒ per-step p<1의 지수 붕괴(p^H·이론 '지속' 축의 실측 극단). 원인 기능 = 지속×조립 + 인자 정밀(계산/참조-기준형·실행규율) + 완결(자기검증: user_stop으로 '다 했다' 종료). 레버 사상 = gather/unlock controller + 완결게이트[체크리스트] + calc/provenance(인자) + persistence 게이트. **아티팩트 가설 판정 [M·확정 2026-07-10]**: 커버리지 1.00 실패의 인자-수준 diff 정독(3건) 결과 **gold 모호가 아니라 진짜 인자 오류**로 확정 —
+(i) task_074(gemini25pro): gold 4계좌 fee-refund 27.0/8.0/4.75/3.7 vs 실행 2계좌 24.5/12.0 = **계산(집계) 오류 + 2건 누락**(calc 오프로드 표적).
+(ii) task_087(gemini25pro): gold 20중 19 exact·유일 불일치 = dispute 콜의 enum 2필드(`pin_purchase/card_present_fraud`→`online_purchase/card_not_present_fraud`) = **거래 레코드에서 결정가능한 분류의 오복사**(참조-기준형·provenance/copy 규율 표적).
+(iii) 축퇴 성분의 상한 계량: reward=None 65건(실패의 1.2%·infra와 일치)·gold_acts 空 592건(11.3%·NL/knowledge형 과제로 채점 축이 달라 본 커버리지 분석 밖 — 체인 스토리와 무관). ⇒ **all-or-nothing 채점의 '가혹함'은 실재하나, 완주-후-불일치 45%의 내용물은 벤치 결함이 아니라 결정가능 인자의 실제 오류다** — 우리 레버(calc·provenance·기준 직렬화)가 정확히 겨누는 표적.
+
+**(5) ★전모델 전수 인자-수준 census (17모델·실패 4,632건·`banking_argdiff_census.py`·2026-07-10) [M]**:
+sim-수준 1차 귀속(pooled): **미실행 지배(gold 1/3+ 미실행) 37.8%** / **인자 오류 계열 ~52.9%**(free-text 12.7·수치 9.5·스키마 초과필드 9.2·enum 7.2·id 5.6·필드누락 3.5·날짜 3.2·bool 2.0) / **항-밖 write만 5.6%** / 콜 전부 일치인데 실패 3.8%(순서/유저측).
+- **결정가능-인자 오류**(수치+enum+bool+날짜+id+스키마) ≈ **40%** — 전부 결정론 레버 표적(calc·기준 직렬화·provenance/copy·스키마 검증). per-case 확정 2건(§(4) task_074 집계·task_087 enum)이 이 분포의 실물.
+- **★모델 기울기 = 실패 유형의 이동**: 최약 gemini25pro는 미실행 227/334(**68%**) 지배 ↔ 최강 gpt55는 미실행이 1위 아님(스키마 59·항밖write 38·수치 36 지배). ⇒ **규모·신형화는 '미실행(조립)'을 사되, 결정가능-인자 오류가 잔여로 남는다** — 실패 구성의 재배치가 banking 모델 사다리 안에서도 재현(§3.2e 교차-모델 불변과 정합).
+- caveat: ARG_TEXT 12.7%는 free-text exact-비교라 표현-동치 미판정(이 클래스만 상한 해석). 산출 `_cdp_private_local/banking_argdiff.json`.
 
 ---
 
