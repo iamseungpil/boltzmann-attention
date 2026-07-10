@@ -84,6 +84,21 @@ t109 문맥 후보 {592 Elm Avenue, 760 Elm Avenue}         · 원본도 760(틀
 **진짜 Δspurious = 0.** D″는 멀쩡한 결정을 하나도 깨지 않았다. 파손처럼 보인 3건은 전부 F3 ⋈ 경계(원본도 못 풂).
 ∴ **GO 조건 충족**: 날조 0 · over-block 0(전수) · Δspurious 0. 남은 잔여 = ⋈ (레버 아님·경계).
 
+### 4.2 ★다중턴 e2e 최종 확정 — 456/456 (C53 확정판·2026-07-10)
+> arm=floor+prov(`T2_PROV_REGEN=1`·present/autofetch OFF·gpt-4.1 user-sim·nt=4). 부분런(443)으로 GO 판정했던 C53의 **최종 완주 수치**.
+> **provenance**: `sim_results/prov_e2e_retail_t4.results.json.gz`(456 sims·리모트 로그 `reexp_prov_e2e.log`).
+
+| 지표 | floor(0.547) | **floor+prov 456/456** |
+|---|---|---|
+| reward | 0.547 | **0.5768 (+3.0pp)** |
+| db_pass (db_match) | — | **0.621 (282/454·db_check 부재 2)** |
+| 종료사유 | — | user_stop **454** · too_many_errors **1** · max_steps 1 |
+
+- **tme 1/456(0.2%)** = C38의 재발화-예산 폭증 우려 최종 미발현. infra 0.
+- **per-case([[08]]·최종 gz 재검)**: t17(정본 날조 태스크·floor 4/4 db_fail) → **4/4 db_pass** 유지 · t39 **0/4** 미교정 유지.
+- 부분런(443) 대비: reward 0.580→**0.5768** · db_pass 0.624→**0.621** (stragglers 13이 소폭 하향·**GO 판정 불변**).
+- ⇒ **C53 확정: 단일턴 날조 억제(67→0%·§3)가 다중턴 pass로 전이. [M] 456/456.**
+
 ## 5. 레버 성격 (특허·[[05]] 관점)
 - **엔진**: 결정점 생성(write 직전·인자 단위) · 출처 선언 강제 · 검증(provenance·producer 존재) · 재발화 · 예산.
 - **A2(도메인별)**: `{인자 → producer 도구}` 매핑 **하나뿐**(스키마 도출). 값·내용은 주입 안 함.
