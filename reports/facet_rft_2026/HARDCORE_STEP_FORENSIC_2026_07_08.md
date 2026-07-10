@@ -1,5 +1,14 @@
 # HARD-CORE 전수 스텝 포렌식 — frontier와의 모든 차이 (2026-07-08·무료)
 
+> ## ⚠️ 부분 철회 (2026-07-08 밤 · `DB_ONLY_HARDCORE_FORENSIC_2026_07_08.md`가 정본)
+> 본 문서의 hard-core는 **reward 기준**이라 C19(채점기준 불일치)·C20(gold action_checks 노이즈)에 오염돼 있다.
+> **DB-only 재선별 시 7 task**(t40·t68은 DB 4/4 = 순수 NL 구역, t105는 2/4 ⇒ 전부 탈락).
+> - **N1 "값 충실도(약어)" 철회** — t17은 약어가 아니라 **조회 0회 상태의 주소 통째 날조**(C24).
+> - **N4 "도구 거부" 근거 약화** — t105가 hard-core에서 탈락(all-errored 16의 근인 후보로는 유효).
+> - **§3 "능력의 이름은 precision" 부분정정** — F2 변형·payment는 우리가 앞선다(C23).
+> - **§4 "⋈이 최대 조각" 유지** (DB-only서도 +8 vs o4 / +13 vs g41).
+> 이하 원문은 기록으로 보존한다.
+
 > 상위 = `RESEARCH_MASTER.md`. C15(집계 분해)의 **스텝-레벨 근인 확정**. gpt-4.1 = 0.
 > 방법: task-레벨 짝짓기 → **HARD CORE**(o4-mini ≥3/4 ∧ gpt-4.1 ≥3/4 ∧ ours ≤1/4) **10 task** 전수 스텝 대조
 > (gold action열 vs 우리 호출열[ERR 표기] vs o4-mini 통과 호출열). **역방향(ours≥3 ∧ 두 frontier ≤1) = 0 task.**

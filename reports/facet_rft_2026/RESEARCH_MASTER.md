@@ -2,7 +2,8 @@
 
 > **이 문서가 최상위다.** 모든 실험·설계·특허·논문은 여기서 파생되고 여기로 되돌아온다.
 > 표류 = 이 문서를 안 읽고 지엽에 들어가는 것. **작업 시작 전 §0·§1을 읽고, 작업 종료 시 §3 원장을 갱신한다.**
-> 확정: 2026-07-08 (프레임 LOCK·논문 4분할 사용자 승인). **§1은 LOCKED — 새 측정의 반증 없이 재론 금지([[03]]).**
+> 확정: 2026-07-08 (프레임 LOCK·논문 4분할). **정렬: 2026-07-09**(C43~C48·출처선언 레버·§0·§1.4·§1.7·§4·§5 갱신).
+> **§1 프레임은 LOCKED — 새 측정의 반증 없이 재론 금지([[03]]).**
 
 ---
 
@@ -11,6 +12,10 @@
 symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persistence를 판다**. 그러므로 레버는 독립 배분이 아니라
 **측정된 상쇄에 의한 합성(composition)**으로 배치한다. **부작용 없는 레버는 없다.**
 잔여(semantic reference)는 우리가 시험한 어떤 레버도 열지 못한 **경계**다.
+> ★**2026-07-09 정련(C43~C48)**: frontier 격차의 큰 조각이던 **operand 날조는 능력 결손이 아니라 *정박 치환***(문맥 인접 id의
+> 변형·WM 아님·C43)이고, **"출처를 안 대도 되는 인터페이스"의 산물**이다. **출처 선언 4지선다 + provenance 검증이 pass비용
+> 0로 닫는다**(C45·32B 날조 67→0%·over-block 0·Δspurious 0·present 없이). ⇒ **닫은 뒤 남는 유일 경계 = ⋈**(C46·후보 2+개서
+> 옳은 값 *선택*). learn 축(gather 학습)은 미확립 — cfbsynth가 결손을 재현 못 해 시험된 적 없음(C38).
 > ⚠️ **C9 단서(2026-07-08)**: tau2-retail서 **horizon 복리 감쇠는 관측되지 않았고**($p_{step}pprox1.0$ 전 모델),
 > frontier와의 격차는 **F2 symbolic operand**에 집중된다(⋈ 경계는 frontier와 **공유**). ⇒ 이 벤치서 F6은 잔여가 아니며,
 > **격차는 닫히는 축**에 있다. "scale은 horizon을 산다"는 [S-lit](DR#2)이지 우리 벤치의 binding constraint가 아니다.
@@ -63,8 +68,8 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | **F4 coverage** | all/both 미완 | **불변**(scale·thinking 무효·thinking은 악화) | 17≈16 | 완결 게이트 — **단 write 강제는 금지**(§1.5) | [S]/[D] |
 | **F5 persistence** | 성급한 escalate | **불변**·thinking 악화 | QwQ transfer 24% vs base 13% | persistence 게이트 — **단 결정론 판별 상한 존재**(C3) | [M]/[D] |
 | **F6 horizon** | 복리 붕괴 | **본 벤치서 미발현** | $p_{step}\approx1.0$ 전 모델 | (해당 없음) | [M] |
-| **operand 날조** | 없는 id 발명 | **결정가능·이미 집행중** | 32/32 도구가 거부 · 12/15 복구 후에도 실패 | **레버 아님**(증상 표지) — C12 | [M] |
-| **over-action** | 안 시킨 write | LLM scope 잔여 | passing-spurious QwQ 0 vs base 47 | **게이트 금지**([[06]] 선례) · 반대편 계측만 | [S] |
+| **operand 날조** | 없는 id 발명 | **정박 치환**(WM 아님·C43) — 문맥 인접 id의 edit≤2 변형 70% | 32B 미조회날조 70%가 근접변형·read 0-3회 27%→6+회 2.1% | **★출처 선언+provenance 검증**(C45·67→0%·Δspurious 0) — 차단(C12)은 환경이 이미 함 | **[M]** |
+| **over-action** | 안 시킨 write | LLM scope 잔여 + 정책 precondition(C25 8/12·**단 DB-state 아니라 대화 semantic**·C50) | passing-spurious QwQ 0 vs base 47 | scope=**게이트 금지**([[06]]) / precondition **DB-게이트 NO-GO**(C50)→대화-controller/ASK | [S]/[M] |
 
 ### 1.4b 🔒 frontier 격차 전수 분해 (C15·성공-실행 호출 기준·456 sim)
 | 원인 | ours | o4-mini | Δ | gpt-4.1 | Δ | 처방 축 |
@@ -80,11 +85,30 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 | **NO-WRITE: 시도조차 안 함** | 8 | 19 | **−11** | 12 | −4 | (우리 우세·frontier는 기권) |
 | **합계** | | | **+34 = 7.5pp** | | **+46 = 10.1pp** | |
 - **★"F2가 유일한 격차"는 철회.** F2는 34 중 +6(18%).
-- **★최대 조각 = "모든 write 시도가 ERROR"(16 vs 1)** — 날조를 *막는 것*은 무의미(환경이 이미 막음·C12), **유효 후보를 주어 write를
-  *성사*시키는 repair**가 처방. **차단 ≠ 수리.**
+- ~~**최대 조각 = "모든 write 시도가 ERROR"(16 vs 1)**~~ → **❌ 철회(C27)**: o4-mini의 `never-attempted 19`를 뺀 비교였다.
+  공통 버킷(성공 write 0)으로 재면 **24 vs 20 = +4**. **repair는 최대 조각이 아니다.**
 - **★gpt-4.1 대비 ⋈이 +21(46%)** — "⋈은 frontier와 공유"는 H3-4 부분집합 착시였다(전 구간 37 vs 16 = 2.3×).
 - **★A4 실증**: o4-mini는 *기권*(never-attempted 19)해서, 우리는 *틀리게 행동*(all-errored 16·over-action 5)해서 실패한다.
 - caveat: sim당 **근인 1개**만 귀속(다중 원인 가능) · NL 버킷은 judge 의존 · frontier 파일은 공식 하네스.
+
+### 1.4c 🔒 DB-only 정본 분해 (C22~C28·456 sim·infra 0·최소-diff 매칭)
+> **§1.4b는 gold action_checks 혼입(C20) + index-pairing 아티팩트를 안고 있다. 아래가 정본.**
+
+| 조각 (vs o4-mini) | Δ | 처방 축 |
+|---|---|---|
+| **over-action (MORE+EXTRA)** | **+9** | ★**정책-precondition 게이트**(C25 — scope residual 아님) |
+| **⋈ order_id** | **+8** | 경계(map) |
+| item 집합 혼합 | +6 | write-scope |
+| **주소 free-text 날조** | **+5** | ★**E9′ provenance repair**(C24·Δspurious 0) |
+| ZERO write (repair 대상) | +4 | repair (**최대 조각 아님**·C27) |
+| op 불일치 | +3 | 대부분 상류 날조·user-sim 이탈의 결과(doc §6·§10) |
+| FEWER (미완) | **0** | — (coverage 격차 없음) |
+| **F2 변형선택** | **−4** | (성공-write 한정·선택편향·C23) |
+| **payment_method** | **−11** | (우리 우세) |
+
+- **잔여의 이름은 `precision`이 아니다**(C18 부분정정). 정확히 그 값(F2 변형·payment)은 우리가 앞선다.
+  남는 것은 **⋈ 참조 · 집합 범위 · 미조회 날조**.
+- **reason enum·variant-leak 버그는 레버 아님**(C26·C28).
 
 ### 1.5 🔒 원인 → 해결 결정절차 (순서대로·먼저 걸리는 데서 멈춤)
 ```
@@ -124,15 +148,21 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | **learn** | 미검증(C7) | — | 망각·역전이(C4/M-σ) | Q4 no & 경계 |
 | **scale / fleet(위임)** | 측정된 scale-민감 기능 | scale-flat(F3)·invariant(F1·F4) | 비용 R·on-prem 이탈 | Q4 yes & 위임 3조건 |
 
-### 1.7 ▶ 다음 실험 (이 표가 지시하는 것)
-1. **★E1′ Phase A(무료·단일 결정 실험)** — **정보-맞춘 격리 replay**: 결정 지점에서 에이전트가 *실제로 갖고 있던* 대화·후보를
-   짧은 clean 컨텍스트로 재구성해 재질문. **$>0.762$면 F2=부하(격리 회복)·$\approx0.762$면 F2=능력(15pp 격차·scaffold 무효)**.
-   ⇒ **F2 행의 [M] 진단을 확정하는 유일 실험. E1′의 생사.**
-2. E1 Phase B(게이트·실행중) — F4/F5의 closed 판정 + Δspurious.
-3. F2가 능력으로 확정되면: thinking 격리천장(.864) vs frontier(.908) 간극 → fleet 재-scope or learn(C7).
-   ※ 우리 scale 곡선(14B .732→32B .762 = +3pp/step) 외삽 시 72B≈.79 ⇒ open big-tier로는 못 메움(추정·[EST]).
-4. **★C15 신설로 최우선 재지정**: 격차의 최대 조각 = **"모든 write 시도가 ERROR"(16 vs 1)**. 처방은 **차단 아니라 수리**
-   (present/autofetch로 유효 후보를 주어 유효한 write를 *성사*시킴). E9(차단)는 죽었으나 **repair 레버는 미검증**.
+### 1.7 ▶ 다음 실험 (2026-07-09 정렬 · C43~C48 반영)
+> **오늘 밤 방향 전환**: 날조는 능력이 아니라 *정박 치환*(C43)이고, **출처 선언+provenance 검증이 pass비용 0로 닫는다**
+> (C45·날조 67→0%·over-block 0·Δspurious 0). 남은 유일 경계 = **⋈**(C46). learn 축은 *데이터 실패*로 미확립(C38).
+
+1. **★★prov e2e 다중턴 (🔄 실행중·유료승인·make-or-break)** — 단일턴 날조 억제(67→0%·C45)가 **실제 다중턴 pass**로
+   이어지는가. arm=floor+prov(`T2_PROV_REGEN=1`·present/autofetch OFF·규칙0 준수) vs floor(0.547·재사용).
+   **GO = pass↑ ∧ too_many_errors 폭증 없음**(재발화 예산이 pass를 깎을 수 있음·C38서 SFT가 이걸로 죽음). ⇒ **출처선언 레버의 생사.**
+2. **E6′ v3 (learn·데이터 재설계 先)** — C38: cfbsynth가 결손을 *재현 못함*(결손 큐 100% 제공·base 0.98). **D7 필수**:
+   근접-오답 id를 창에 배치(C43) + 음성사례(C38 SFT 퇴화) + on-policy rejected(C38 DPO off-policy) + 발명형 rejected(C39).
+   **타당성 게이트**(base가 tau2 수준 날조) 통과 전 학습 착수 금지.
+3. **ASK 위계 (C48)** — R1(호출가능성 위계 FIND→GET→DISAMBIGUATE→ASK) 검정. retail/airline선 R0≈R1(저빈도) →
+   **clarification 벤치(ToolDial·τ²-airline)서만 갈림**. DISAMBIGUATE(⋈·retail 45.8%)가 실질 부담.
+4. ~~E10 정책-precondition 게이트~~ → **❌ NO-GO(C50)**: over-action(+9)의 불가능성은 DB-state 아니라 대화(policy+intent)=semantic. DB-게이트 P1 over-block>TP·P2 환경 이미 집행. 남는 후보=대화-precondition controller/ASK(게이트 아님).
+5. ~~E1′ Phase A~~ → **하향(C23: DB-기준 성공-write서 F2 −4·payoff 작음).** C13(15pp)과 긴장은 남으나 우선순위 낮음.
+6. ~~E9′ free-text provenance~~ → **E11에 흡수(C24·C44).**
 
 ## 2. 🔒 불변 규율 (모든 작업에 적용)
 - **[[05]]** scaffold 도메인-일반·A2만 변경·게이트 증식 금지 · **[[13]]** scaffold 최소·scale/learn 최후
@@ -170,30 +200,75 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | **★C21** | **DB-only 재분해(진짜 기준)**: 실패 형태가 o4-mini와 **거의 동일**(50/25/17/5/4 vs 51/30/17/3/0) = *다른 종류가 아니라 같은 종류를 더 자주*. vs o4-mini DB격차 +23: **operand 정밀도 +10 · over-action(MORE+EXTRA) +9(39%·frontier EXTRA=0) · zero-write +4 · 미완 0(철회)**. vs gpt-4.1 +39: 미완 +17·zero +11·operand +14·과잉 **−6** ⇒ **frontier마다 구성이 다름**(o4-mini는 기권형, gpt-4.1은 실행형) | **[M]** | 같은 |
 | **C12** | **decidable ≠ 유용.** decidability는 *부작용 없음*의 필요조건이지 *이득*의 충분조건이 아니다(환경이 이미 집행 중일 수 있음) | **[M]** | 같은 doc §4b |
 | **C10** | **레버 부작용은 scope에서 온다** — 전-궤적 thinking=persistence 매도 / 결정점 격리=채널 폐쇄 | **[D]** | 같은 doc §4 · **E1′가 검정** |
+| **★C22** | **DB-only hard-core = 7 task**(t17·37·57·63·86·91·111). 기존 reward기준 10 중 **t40·t68은 DB 4/4**(순수 NL=C19 구역)·t105는 2/4 ⇒ 탈락. **역방향 0은 DB 기준으로도 유지.** infra 0·전 arm 456/456 `user_stop` | **[M]** | `DB_ONLY_HARDCORE_FORENSIC_2026_07_08` §0.0·§1 |
+| **★C23** | **"operand 정밀도 +10"은 단일 축이 아니다.** SAME 버킷 write쌍 Δ(vs o4-mini): **⋈ +8 · item집합혼합 +6 · 주소 +5 · op +3** / **F2 변형선택 −4 · payment −11**. ★단 성공-write만 세므로 zero-write 24(우리)·20(o4)의 변형오류는 비가시 = **선택편향**. "F2 우세" **banking 금지** | **[M]·편향주의** | 같은 doc §3·§5 |
+| **★C24** | **free-text 날조는 환경이 못 잡는다.** 문맥에 없던 `address1` write: **ours 5 / o4-mini 0 / gpt-4.1 0**, 5/5 db_fail, **passing-spurious 0**. t17은 조회 0회 상태서 주소 전체 생성(4/4 동일). ⇒ **C11/C12 정련**: id 날조는 환경이 32/32 거부하나 free-text는 타입상 불가 ⇒ **E9 NO-GO는 free-text로 확장되지 않음**. 상한 5 sim=1.1pp | **[M]** | 같은 doc §7 |
+| **★C25** | **over-action(+9)의 실체 = 정책-precondition 위반.** 12건 per-case: 정책-불가능/철회 요청 수행 **8** · ⋈·대상불일치 2 · degenerate write 1(`item_ids:[]`) · **순수 unrequested scope 1**(t111). ⇒ [[06]] "over-action 게이트 금지" 선례가 겨눈 대상(scope residual)과 **다른 술어** | **[M]** | 같은 doc §6 |
+| **★C26** | **tau2-bench 버그**: `retail/tools.py:531-537` `variant` 루프 누수 → 수정된 모든 item이 *마지막* 변형의 price/options 획득 ⇒ **db_hash가 `item_ids` 나열 순서에 의존**. 의미동일 write가 fail. 실측 피해 ours 1 / frontier 0 (**격차 설명력 없음**) | **[M]** | 같은 doc §4 |
+| **★C27** | **`§1.7 #4` repair 최우선 근거 붕괴**(자기교정 #10). "all-errored 16 vs 1=+15"는 o4-mini의 `never-attempted 19`를 제외한 프레이밍. **공통 버킷(성공 write 0) = 24 vs 20 = +4.** DB격차 +23의 최대 조각은 **over-action +9**와 **⋈ +8** | **[M]** | 같은 doc §9 |
+| **★C29** | **★gather-before-act = DB격차의 최대 축.** `new_item_id` 중 **변형목록 미조회 상태의 날조**: ours **63/439(14.4%)** vs o4-mini 1/341 vs gpt-4.1 **0/416**. reads/sim 3.59 vs 5.32/5.92. sim 단위 **28/456**(db_fail **19**·db_pass 9) ⇒ **상한 4.2pp = o4-mini 격차(5.0pp)의 83%**. ★차단은 이미 환경이 함(날조 93/93 ERR·C12) ⇒ 게이트는 **공급(repair)** 이어야 | **[M]** | `DB_ONLY_HARDCORE_FORENSIC` §10.3-10.4 |
+| **★C30** | **프롬프트 천장 실증(우리 데이터)**: `retail/policy.md:18`이 이미 *"do not make up information"* 을 명령하는데 순수 날조 ours **91** vs o4-mini 1 vs gpt-4.1 3. ⇒ **[[42]] scale-emergent prior-override** · prompt-only 레버 무효 확정 | **[M]** | 같은 doc §10.1 |
+| **★C48** | **★ASK는 금지가 아니라 최후위 위계**(자기교정 #19: C44 검증기 `producer 존재→ASK 금지`는 too strong). 교정 = **호출가능성 위계** FIND → GET(producer가 *지금 호출 가능*) → DISAMBIGUATE(후보 열거) → ASK. **실측: R0와 R1이 두 벤치서 거의 같은 답** — 조회가능 인자(id·producer 有)와 물어야 할 인자(선호·producer 無)가 분리돼 R0가 우연히 안전. R0 정당ASK 차단: retail 32B **0**·14B **7**(t48 auth실패)·airline **0**(cabin/flight_type=producer없음). 원리결함 실재하나 저빈도 → **clarification 벤치(ToolDial)서만 갈림**. ★**더 큰 발견: DISAMBIGUATE 모집단=retail write인자 45.8%**(후보2+·전부 gold=FIND)=C46 ⋈이 사는 곳=**날조 닫은 뒤 유일 잔여** | **[M]** | `C49_ASK_HIERARCHY_NOT_BAN_2026_07_09` |
+| **★C45+선행** | **★출처선언 레버 선행 지형 확정**(딥리서치 `wb07r5hi7`·3-vote): **4지선다 완전체·INFER 분기·"producer 있으면 ASK 금지" 규칙 = 정식화한 선행 0 = 신규**. 지지 확립사실: 날조=default(When2Call) · 결정이 **scale로 안 열림**(tau-bench pass^8<25%·retail) · over-asking 실증(단 모델의존). ★**명시 ask-프롬프트가 ask정확도 0.52→0.90 but 최종 call 0.48→0.58만**(Learning-to-Ask)=**우리 D″가 날조 닫되 ⋈ 못 닫음(C46)과 정확히 정합**. ★"tool-field 매칭 병목"(C40)은 선행 미지지→**자체 ablation 필요** | **[M]+[S-lit]** | `C44_..._2026_07_09` §5b |
+| **★C45** | **★출처 선언 레버가 날조를 닫는다** (C44-C48·32B·무료). 결정점서 operand 출처를 4지선다{GET·FIND·INFER·ASK}로 **선언 강제** + 갈래별 결정론 검증기(FIND=문맥실재·GET=producer매칭·**ASK=producer없어야**) + 재발화 + GET폴백. **날조 67% → 0%** (DB주입0·도구대신호출0·학습0). **over-block=0/2650**(전수·tau2 retail은 write인자 ASK 0.0%). **Δspurious=0**(파손3건 전부 원본도 틀린 ⋈지점·자기교정#18). ⇒ **GO 3조건 충족.** [[05]]: A2=`{인자→producer}` 매핑뿐·present/autofetch와 달리 DB 안읽음 | **[M] 소표본(n=60)** | `C44_SOURCE_DECLARATION_LEVER_2026_07_09` |
+| **★C46** | **★provenance 검증은 *날조*를 닫고 *⋈ 오선택*을 격리한다** — 둘은 다른 실패. 날조(정박치환·engineering)=67→0% / FIND-wrong(문맥의 틀린 값 선택)=안닫힘(3/30·FAB·CLEAN 공통). 후자는 **문맥에 후보 2+개일 때** 발생 = **F3 ⋈ 경계(C3b)**. ⇒ "operand 정밀도"를 날조 vs ⋈로 분리(**C23 정련**)·남은 잔여는 오직 ⋈(레버 아님) | **[M]** | 같은 doc §4 |
+| **★C47** | **예시 태그+금지문은 무효**(C45 arm C): `<EXAMPLE>` 씌우고 "쓰지마라" 지시해도 예시복사 9→8. **예시 제거는** 9→0(arm B) but 원천①(47%)만 없앰·근접변형(②·과제내재)은 남음. **4지선다+검증(D″)가 ①②③ 전부를 검증가능한 주장으로 변환** | **[M]** | 같은 doc §1 |
+| **★C43+선행** | **★선행연구가 C43을 지지**(딥리서치 `wy3wbu6o9`·3-vote): 정박치환 기전=**contextual entrainment**(문맥 아무 토큰이나 logit↑·관련성 독립·`2505.09338`)+induction head(`2209.11895`). **WM 가설=반증 foil**(`2506.08184`은 문맥↑서 오류↑ 예측=우리와 정반대). distractor 증거 지지(Context Rot·present 2배와 일치). **off-policy DPO 실패=likelihood displacement**(valid vs fab id=CHES 高·`2410.08847`)=C38 정확히 설명. ★**scale 형태변화·provenance 검증기 tool-arg 효과=선행 없음=원본/whitespace**(C45가 점유) | **[M]+[S-lit]** | `C43_..._2026_07_09` §6 |
+| **★C43** | **★날조 = WM 문제가 아니라 *정박 치환*(anchored substitution).** 전수 4-arm: (a) **H-forget ≈ 0**(32B 71건 중 **1**·읽은 걸 잊지 않음) (b) **외생 부하와 역상관**(사용자 턴 Q1 9.5% → Q4 5.4% · 날조 시점 문맥 median 6,355자 < 정상 9,421자) (c) distractor 밀도는 read 층화 후 무효 (d) **지배 변수 = "아직 안 읽음"**(read 0–3 27.0% → 6–7 **1.0%**) (e) **기전: 32B 미조회 날조 new_item_id의 70%가 문맥 내 기존 id의 edit≤2 변형**(`4127323219→4127323220`). 14B는 placeholder 70%(scale이 양식을 바꿈·C36 정련). **present가 id를 뿌려 재료를 공급 ⇒ 날조 30→64**(C34/C35의 기전). ⇒ 외부 메모장·짧은 문맥은 처방이 아니다(E12 short−full = **+0.03**). 처방 = **창에 근접-오답 금지 · provenance 검증 · gather 강제** | **[M]** | `C43_ANCHORED_SUBSTITUTION_NOT_WM_2026_07_09` |
+| **C42** | 짧은 합성서 base 7B가 4지선다(GET/FIND/INFER/ASK)를 **완벽히** 푼다(1.00/1.00/0.95/1.00·fabricate **0.00**) ⇒ cfbsynth v1·v2 **타당성 게이트 FAIL**(학습 gradient 0). ~~"⇒ 결손은 긴 문맥 = load"~~ → **❌ 철회(C43)**: 합성엔 **정박할 id가 하나도 없어서** 날조가 안 나온 것. **D7 필수**: 근접-오답 id를 창에 배치해야 실패가 재현된다 | **[M]·부분철회** | `C42_SHORT_CONTEXT_SOLVES_FOURWAY_2026_07_09` |
+| **C41** | 짧은 문맥선 **시스템 프롬프트가 작동**(2×2: 규칙有·큐無 gather **0.87** vs 규칙無·큐無 **0.20**). tau2선 같은 규칙(`policy.md:18`) 무효(C30). 규칙 없으면 모델은 날조가 아니라 **묻는다**(ask 0.65) — tau2선 escape-ask 0/15 | **[M]** | 같은 doc §1 |
+| **★C34** | **★규칙 0 위반 scaffold 색출**: `candidate_summary`(`T2_PRESENT_READS`)는 에이전트가 부르지 않은 `get_order_details`를 **엔진이 주문마다 대신 호출**해 주입 · `_autofetch_text`(`T2_AUTOFETCH`)는 provenance-deny 시 **실 레코드를 먹임**. 둘 다 *"DB 내용은 도구로만"* 을 에이전트 대신 우회 ⇒ **폐기**. `nested`·`calc`·gate-kinds·`REGEN_FEEDBACK`은 위반 아님(에이전트 자신이 가져온 내용 위에서 동작) | **[M]** (코드 정독) | `SCAFFOLD_AUDIT_RULE0_2026_07_08` §1 |
+| **★C35** | **★supply 꼼수는 gather를 가르치지 않고 induction head를 *이용*한다** — 더 가까운 **복사 대상**을 문맥에 놓을 뿐. 7B retail: `no_gather` base 36 → **deny 36(무변화)** → **autofetch 24**. 프롬프트 전부 무효(fetchfirst 23 = base 23). ⇒ **present/autofetch가 켜진 채로는 gather를 측정조차 못 한다** | **[M]** | 같은 doc §2b · `c4_dpo_eval_retail.log` |
+| **★C36** | **scale은 날조의 *형태*를 바꾼다**: 7B는 날조 36/36이 **스키마-예시 복사**. 32B는 93건 중 예시복사 18 · 그럴듯한 10자리 id **발명 48** · 조합형 placeholder 16. **복사 → 발명**. 미조회 날조율 7B 38.8% → 14B 7.0% → 32B 6.7%(floor) → frontier **0.0%**(불연속) | **[M]** | 같은 doc §2b · `DB_ONLY..._FORENSIC §10.3` |
+| ~~C37~~ | ~~"gather 학습은 시도된 적이 없다"~~ → **❌ 철회(자기교정 #14)**. `cfbsynth_dpo_pairs.py`에 **`gather` 페어 존재**(prompt=id없음 → chosen=getter 호출 / rejected=예시값 consumer) **+ `copy` 페어**(값 있으면 쓰기) = 조건부 양쪽 모두 학습됨 | — | `cfbsynth_dpo_pairs.py:9-10` |
+| **★C37′** | **★"gather 학습 NO-GO"는 미확립.** (자기교정 #15: 나도 처음엔 "역전이"로 단정) **C4의 pass^1은 해석 불가** — *동일* 7B base가 두 런서 **21 vs 32/114**(nt=1·gpt-4.1 user-sim 편차)로 학습 효과 전체를 삼킨다. 기전 *비율*로 보면: **DPO는 자기가 벌준 것을 눌렀다** `schema_copy` **.439→.376**·`no_gather` .439→.398·도구호출 무손상(tme 12→13). **SFT는 진짜 해로움**(A_notfound .31→.41·`learn-pure` .49·tme 13→**25**). autofetch(꼼수) `no_gather` **.286**. ⇒ **DPO 경로는 살아 있고, 표본이 부족했을 뿐** | **[M]** | `c4_dpo_eval_retail.log` · `c4_ff_eval_retail.log` · 종료사유 전수 |
+| **★C39** | **★DPO는 `rejected`에 넣은 것만 배운다.** 벌점 대상 = 스키마-예시값 ⇒ `schema_copy`만 −6.3pp 감소. **그런데 32B의 실패 양식은 예시복사가 아니라 *발명*** (93건 중 예시복사 18 · 발명 48 · 조합형 16·C36). ⇒ **7B용 rejected 집합은 32B의 실패를 벌하지 않는다.** E6′는 rejected를 {예시값, 발명형 id, 조합형 placeholder}로 확장해야 | **[M]** | `E6PRIME_GATHER_LEARN_DESIGN §2 T3` |
+| **★C38** | ✅ **측정 완료** → **"학습 NO-GO"는 *데이터*의 실패였다.** held-out 합성(seed 7): **base** gather 규칙有 **0.98** / 규칙除 **0.40** · **sft** 규칙除 **1.00**(완벽 학습) · **dpo** 규칙除 **0.33**(base보다 낮음) + copy **0.77→0.63**(피해만). ⇒ (a) cfbsynth 사용자 발화가 *"I don't have the id"* 큐를 **150/150(100%)** 제공(tau2는 120 sim 중 **1건**) + 시스템에 규칙 명시 ⇒ **base가 이미 0.98 = 학습 여지 없음** (b) SFT 궤적 **2000/2000이 lookup으로 시작**·직접-act **0** ⇒ **무조건 조회(퇴화 정책)** 학습 → tau2서 `too_many_errors` 13→**25** (c) DPO chosen/rejected 둘 다 **off-policy**(모델은 산문을 냄) ⇒ 마진이 지지집합 밖. **learn 축은 진짜 결손 위에서 시험된 적이 없다** | **[M]** | `C38_INDIST_GATHER_RESULT_2026_07_09` |
+| **★C40** | **E11-a(정보주입 0 provenance 피드백)는 32B서 작동한다** — 격리 단일턴·짝지음·**충실도 50/50(ARM env ≡ ORIG)**. 다음 행동이 getter: env 8/50(16%) → **e11a 28/50(56%)**, 살림 22·망침 2. ★단 **getter ≠ 올바른 getter**: 정합 판정서 23건 중 12건만 올바른 원천. **주소는 getter가 오답**(gold 주소는 사용자 발화에 있어야 함) · E11 주소 발화 21건 중 **수리 가능 7건**(나머지는 user-sim이 주소 미제공 5 · gold에 그 write 부재 7) | **[M]** | `e11a_isolated_probe.py` · `E11_..._DESIGN §6` |
+| **★C31** | **present는 학습 신호를 파괴한다**: 주입이 궤적에서 `read→act`를 지움(reads 3.59 vs frontier 5.9). ⇒ learn-wing(P4·C7)이 배워야 할 감독 신호가 사라짐. **주입보다 강제 조회가 학습-정합적** | **[D]** | 같은 doc §10.5 |
+| **★C32** | **E1 Phase B는 게이트 이득을 보이지 않는다(짝맞춤 후)**: arm-off 10 중 **2 infra**(t12·t68) ⇒ 공통 8 task 짝비교 **off .625 = on .625, Δ=0.000**(flip: t46 +1 / **t57 −1**). 비-짝 `.625→.667`은 **task 구성 아티팩트** | **[M] 소표본** | `e1pb_{off,on}/results.json` |
+| **★C33** | **QwQ arm은 비대칭 결측을 만든다**: QwQ가 `finish_reason=length`로 `content=None ∧ tool_calls=[]`(reasoning만) → tau2 `AssistantMessage` 검증 실패 → 3회 재시도 → `infrastructure_error`. Step3 **8/359(2.2%)**(task 1·16·27·113) vs base arm **infra 0**. ⇒ "생각하다 행동 못 함"을 인프라로 버림 = **thinking에 유리한 표본 삭감**. C4b/E2는 **infra-as-failure 민감도분석 없이는 [S] 승격 불가** | **[M]** | 같은 · `reexp_qwq_rparser_nt4.log` |
+| **★C28** | **reason enum 불일치 = arm 공통 하네스 노이즈**(ours 8/93 · o4 5/84 · g41 4/97). 절반은 **user-sim이 gold와 모순**(t38 사용자 *"Ordered by mistake"* ↔ gold `no longer needed`; o4-mini는 5/5가 이 경우). **레버 아님** | **[M]** | 같은 doc §8 |
+| **★C54** | **★능력 재조합(BC0-7)·G→BC는 도메인별·전이가설 진단지지** — G1-9는 관찰층·**BC(원인+구제)는 처방층**·§1.5 라우팅 명시화. **G→BC split은 도메인별 per-case 필수**(Phase 0): 같은 **G6 OPERAND가 retail=BC4(변형매칭·의미) vs airline=BC0/scope(baggage 필드의미·과삽입)**. ★**정정(자기교정·per-case 전수)**: airline baggage는 처음 휴리스틱이 "BC3 계산"이라 했으나 **전수 스텝정독서 gold 9/9=0**(사용자 짐 안부침·모델이 허용량/기본값 삽입)=계산 아니라 필드의미+scope. **numeric-arg 휴리스틱이 오분류→per-case 필수성 강화**([[08]] 실증). telecom G4=**BC6 조기포기**(fix 미시도 17/30·per-case) · banking G2=**BC2 부하**(KB검색함 119/125·조립실패·능력 아님). ★**3도메인 지배 splitter가 전부 도메인-일반 결정론 구제(calc·persistence게이트·controller)로 라우팅** = A2 전이가설을 *진단층*서 지지(처방 실측=Phase 3). **status·계획 정본**=`DOMAIN_TRANSFER_STATUS_AND_PLAN_2026_07_09`·`phase0_bc_split.py`·`fine/aggregate` | **[M]진단·[D]처방** | 같은 doc §3.4 |
+| **★C53** | **★출처선언 레버 다중턴 e2e = GO(make-or-break 통과)** — floor+prov(`T2_PROV_REGEN=1`·present OFF·gpt-4.1 user-sim·nt=4·443/456). **reward 0.580 > floor 0.547(+3.3pp)·db_pass 0.624·tme 1/443(0.2%)**=C38 재발화-예산 폭증 우려 미발현·infra 0. **per-case([[08]])**: t17(정본 날조 태스크·floor 4/4 db_fail) → prov **4/4 db_pass**(날조 교정 실증)·t39 미교정(일부 잔존). ⇒ **단일턴 날조 억제(67→0·C45)가 다중턴 pass로 전이.** ★13 stragglers(느린 sim·1000s+·최종 gz 미persist) → 확정은 456 후. 출처선언 레버 특허 D·P? 승격 근거 | **[M] 443/456** | `reexp_prov_e2e.log` · `C44 §4.1` | 
+| **★C52** | **★교차-도메인 기능 불변성 = 도메인-일반 규칙 실증**(retail vs banking_knowledge·top frontier·gpt-5.2 sim·per-case 2건 검증). **도메인-불변 실패기능 = {F1 verify · reach/절차조립 · F4 coverage}** 양 도메인 재현 → 결정론 scaffold(게이트+controller) 타깃·**TBox 도메인-일반 규칙 후보**(같은 추상규칙·ABox만 교체). **도메인-의존 *능력* stress는 다름**: retail=F2 operand(→thinking·operand argdiff 지배) / banking=**reach(MISS_P_reach 24~48%)+coverage(MISS write 20~26%)+F6 horizon(gold 절차 median 8단계)**·operand argdiff **0**. ⇒ 단일 "그 잔여" 없음·**scaffold 기능은 불변·binding 능력축만 도메인마다 다름**. banking이 retail 못 본 F6/reach 실측 → F1-F6 프레임 도메인-일반 교차검증. ★**fine 9-기능 taxonomy(§3.2d·4도메인·reward통일기준·telecom=ENV_ASSERTION)**: G1 COVERAGE(전 도메인 40~57%·**최강 불변**)·G2 REACH·G3 VERIFY·G4 PERSISTENCE·G5 SCOPE = **도메인-불변→도메인-일반 결정론 구제(게이트/controller)·ABox만 교체** / G6 OPERAND(thinking·retail27%)·G7 REFERENCE(경계)·G8 HORIZON(banking 9단계·scale) = 능력축·stress 도메인의존 / G9 GUIDANCE=telecom 특이. **구제방법 일반화 지도.** **특허 "도메인-일반 게이트·계획정책" 실측 지지** | **[M]·per-case** | `TAU2_FRONTIER_..._MASTER §3.2c·§3.2d` · `fine_function_decomp.py`·`opus45/gpt52/gpt55 × 4도메인` |
+| **★C51** | **frontier 자신의 잔여 = F2 변형(F3 아님)·신형까지 측정·per-case 검증** — per-arm db_fail 구성(456 sim·db_match). **① baseline(gpt-4.1 sim)**: F2변형 평탄(ours 3.9·o4 4.4·g41 4.2·claude-3.7 3.9=scale-불변)·F3⋈ 감소(3.1→3.1→1.5→**0.9**=scale가 삼). **② 신형 top 8(gpt-5.2 sim·S3 재다운로드)**: 거의 전 모델 F2변형이 최대 잔여클래스(F2 9~16건)·F3⋈ 전부 <1.8%. **③ Qwen3.5-397B-think(챔피언 0.855)만 F2=0.4%** = F2 symbolic은 **thinking이 산다**(C13·명제 확증). **④ per-case 정독(Opus4.5 5건)**: exec new_item_id가 gold와 함께 **둘 다 문맥 카탈로그에 실재** = 진짜 변형-오선택(날조 C9·leak C26 아님). ⇒ **C3b("F3 scale-flat 경계")는 구성된 격리프로브·agentic선 작음**·경계=order-⋈ 아니라 fine 속성매칭(F2 변형). reason_enum=노이즈(C28)·payment=우리우세(C23). **표류종식**=[[47]] | **[M]·per-case 검증** | `TAU2_FRONTIER_..._MASTER_2026_07_09` §3.2·**§3.2b** · `frontier_function_decomp.py`·`f3_probe1/2` |
+| **★C55** | **★애매모호성 이론 T1·T2 = 카디널리티 단조성 실증**(무료 재분석·fl32b floor 456 sim·infra 0). **T1**: 결정론 후보 열거기 유효(gold∉C 3.7%<10%)·**전수 write-인자 census $\|C\|\ge2$ = 75.5%**. ⚠️**C48의 45.8%는 repo에 산정 스크립트·로그 부재(provenance 미비)** — 모집단 규약 변형 전부 71~78%로 재현 불가·c50 `candidate_count`(order_id=0 처리·모집단=날조지점)일 개연성 → 리모트 검증 항목·**"45.8%" 인용 시 모집단 명시 필수**. **T2**: 실패율 $\|C\|$ 단조 — **env-수락∧gold∈C 정본 슬라이스: $\|C\|$=1 실패 0/351 → 2: .047 → 3+: .093 (CA z=6.17)**·**4 trial 각각 독립 재현**($\|C\|$=1 전 trial 0·전 trial 단조)·within-task MH OR 2.27·공변량 역방향·per-case 2궤적 정독(t11=정책-불가 시도 오염 발견→env-수락 한정 확정·t16=진짜 order-⋈). **★발견: 1차 분할=gold∈X(측정 축·gold∉C면 70~100% $\|C\|$-무관)·2차=$\|C\|$ 단조(선택 축)** = 이론 형식화/참조 분리의 데이터 실증. P2b/c(prov arm)=리모트 보류 | **[M]·per-case** | `E_AMB_MEASUREMENT_PLAN_2026_07_10 §7` · `eamb1_census.py` |
+| **★C56** | **★T3: 동-scale thinking은 $\|C\|\ge2$ 선택을 못 산다 + 체계성 2성분**(base vs QwQ 32B·456 sim each·infra 0). ① **T2 제2-arm 재현**: QwQ 정본 슬라이스 0/293→.071→.106 = 단조성 arm-불변 ② **E-AMB-3 예측(a) 반증**: 변형선택 실패 base .145 = QwQ **.143(동일)**·item .047→.107 악화 — C51③ 챔피언 효과는 397B+think로 **scale과 분리 불가**·동-scale에선 F2b(CoT flat)와 정합 ⇒ 기준-형식화형 레버 = thinking 아니라 **formalize→결정론 직렬화** ③ thinking은 측정 축(gold∉C 4.7→6.6%)도 무개선 ④ **체계성 2성분**: $\|C\|\ge2$ 실패점 51 = 부분실패 45(경로·user-sim 변동 지배) + **전-trial 동일-오답 체계핵 6**(t8 변형 4/4·t71 주문 4/4·t82 결제 3/3 — 대화가 달라도 같은 오답). **체계핵 정독(t71 전문·순환매칭 감사 통과)**: 순수 ⋈(t8·t82)와 **형식화-가능 기준 오적용**(t71 "최근 주문"=argmax날짜·4/4 오적용·user-sim 오확인 고착·나머지 선택 전부 정답)의 **혼합** ⇒ 표적 레버 = DISAMBIGUATE + **calc 직렬화**. "분산 0 체계성"(§3c)은 고정-문맥·체계핵 스코프로 한정 | **[M]·per-case** | `E_AMB_MEASUREMENT_PLAN_2026_07_10 §7b` |
+| **★C50** | **E10 정책-precondition 게이트 = NO-GO**(무료 격리검증·arm asmregen32b·db.json). over-action(+9·C25)의 "precondition"은 **decidable하나 DB-state 아니라 대화(policy+intent)** 에 산다: P1(refund-target) over-block 6 > TP 5·비판별(t99 pass/fail 동일 PM) · P2(status) 실행 write ineligible **0/602**=환경 이미 집행(C12 redundant) · per-case 5 task 전부 환불 PM=주문 pm_orig 일치·status-eligible. ⇒ **C25 "decidable ∧ 미집행" 정련**: policy-decidable ≠ DB-decidable · [[06]] "over-action 게이트 금지"가 DB-게이트에 한해 재확인 · Lever A(2026-06-27) 동형. 남는 후보=대화-precondition controller/ASK(게이트 아님) | **[M]** | `E10_PRECONDITION_GATE_DESIGN_2026_07_09` §5.1 · `e10_precond_probe.py` |
 
-## 4. 실험 큐 (우선순위·상태)
+## 4. 실험 큐 (우선순위·상태 · 2026-07-09 정렬)
 | ID | 실험 | 닫는 것 | 비용 | 상태 |
 |---|---|---|---|---|
-| ~~E9~~ | operand grounding 게이트 | — | 무료 | ❌ **Phase A NO-GO**(환경이 이미 거부·근인 아님·passing 12 발화) |
-| **E1′** | **격리 formalize 서브콜** — grounding된 후보 위 선택(날조+wrong-real-variant = 같은 결손의 두 얼굴) | **C9 잔여 전체** + C10 검정 | 무료→소액 | **▶ 최우선 복귀**(E9 사망으로) |
-| **E1** | 완결/persistence 게이트 A→B→C (F4/F5) | C4c (더 작은 잔여·자기-역효과 보유) | 무료→소액 | ✅A(CONDITIONAL GO) · 🔄B 실행중 |
-| **E3** | F3 경계 full-agent 확인 | C3b → **[S] 부분** | 무료 | ✅ 완료 (`E3_E1A_RESULTS`) |
-| **E8** | frontier 격차 분해(horizon vs 기능) | **C9** | 무료 | ✅ 완료 (`HORIZON_GAP_DECOMPOSITION`) |
-| E2 | QwQ+rparser nt=4 | C4b [M]→[S] | 유료(실행중) | 🔄 |
-| E4 | base + 게이트 회귀(Δspurious 필수) | 게이트 일반성 | 소액 | E1 후 |
+| **★E11-e2e** | **출처선언 레버 다중턴 e2e** (floor+prov·`T2_PROV_REGEN=1`·present OFF) | **make-or-break**: 단일턴 날조 67→0(C45)이 pass로 이어지나 | 유료(승인) | ✅ **GO**(C53·443/456·reward 0.580>floor 0.547 +3.3pp·db_pass 0.624·**tme 1/443**·t17 날조 0/4→4/4 교정·per-case) |
+| **★E11** | **출처선언 레버**(4지선다+provenance 검증+재발화·GET폴백) | 날조 억제 | 무료 | ✅ **GO**(C45·67→0%·over-block 0·Δspurious 0·단일턴 n=60) |
+| **★E6′** | **gather 학습 — 데이터 v3 재설계 先** (D7 근접오답+음성사례+on-policy+발명형 rejected) | C7 · **C38: cfbsynth가 결손 재현 못함**(미확립) | 큼 | **▶ 데이터 게이트 통과 前 착수 금지** |
+| ~~E10~~ | 정책-precondition 게이트 | C25 over-action +9 | — | ❌ **NO-GO**(C50·무료 격리검증: P1 over-block>TP·P2 환경집행 redundant·불가능성=대화 semantic·게이트 아님) |
+| **E-ASK** | **ASK 위계 R1**(호출가능성·GET-chain·DISAMBIGUATE) | C48 · clarification 벤치서만 R0≠R1 | 무료 | ▶ ToolDial/airline 필요 |
+| ~~E1′~~ | 격리 formalize 서브콜 | C23: F2 −4·payoff 작음 | — | **하향**(우선순위 낮음) |
+| ~~E1~~ | 완결/persistence 게이트 | C32: 짝맞춤 Δ=0 | — | **[M] 게이트 이득 미확인**(소표본) |
+| **E3** | F3 경계 full-agent | C3b **[S]부분** | 무료 | ✅ 완료 |
+| **E8** | frontier 격차 분해 | C9 | 무료 | ✅ 완료 |
+| ~~E9 / E9′~~ | operand grounding 게이트 / free-text | — | — | ❌ E9 NO-GO(환경이 거부) · E9′ **E11에 흡수** |
+| ~~present / autofetch~~ | — | **규칙 0 위반**(C34) | — | ❌ **영구 폐기** |
+| E2 | QwQ+rparser nt=4 | C4b [M]→[S] | 유료 | ✅ 완료(clean 0.547·infra=fail 0.537·C33 해소) |
 | E5 | 7B assembled | C2 사다리 | 소액 | 대기 |
-| E6 | learn-wing four-bench→τ² swap | C7 | 큼 | E3 후 |
+| E6 | learn-wing four-bench→τ² swap | C7 | 큼 | **E6′로 대체**(τ² 전 데이터 타당성) |
 | E7 | fleet | C6 | 보류 | big-tier 시 |
+| **E-AMB** | 애매모호성 이론(고전 정식화) 검증 T1~T5: \|C\| census→실패율 단조→처리-이득 층화→앙상블-불일치 대리→라우터 e2e | 이론 [D]→[M] 승격·제2발명 배분의 단일-원리 유도 | **T1~T4 무료(재분석)**·T5만 유료(승인) | ✅ **T1·T2·T3 완료(C55·C56)**: 단조성 2-arm 재현(base 0/351·QwQ 0/293)·census 75.5%·C48 45.8% provenance 미비 발견·**thinking 선택-이득 반증**·체계핵 6점 식별 ▶ **T4 리모트 보류**·T5 승인 필요(표적=체계핵) — `E_AMB_..._PLAN §7·§7b` |
 **GO 조건(공통)**: per-case 복구 ∧ over-block=0 ∧ **Δspurious ≤ 0** ∧ turn-예산 초과 0. pass 비교는 nt=4 후 *부차*.
 
-## 5. 논문 4분할 (승인됨 2026-07-08) · 특허 매핑
+## 5. 논문 4분할 (승인됨 2026-07-08 · 2026-07-09 특허 정련)
 | 논문 | 담는 주장 | 상태 | 게이팅 | 특허 |
 |---|---|---|---|---|
-| **P1** *What Scale Buys* | C1·C2·C3a·C5·C8 | **[S] 즉시 출고** | (E5 강화) | **A**(게이트·present/calc) + **B**(배분·knee) |
+| **P1** *What Scale Buys* | C1·C2·C3a·C5·C8 | **[S] 즉시 출고** | (E5 강화) | **A**(게이트·calc) + **B**(배분·knee) |
 | **P2** *Levers Interfere* (**모트**) | C4a·C4b·C4c·**C4d** | C4c=[D] | **E1** | **B 확장 → 특허 C 후보**(간섭-보상 배분) |
-| **P3** *The Semantic Boundary* | C3a·C3b | C3b=[M] | **E3** | B(배분 경계) |
-| **P4** *Learned TBox Transfer* | C7 | [?] | E6 | **A**(재학습0 전이) 실증 |
+| **P3** *The Semantic Boundary* | C3a·C3b·**C46**(날조 닫은 뒤 ⋈만 남음) | C3b=[M] | **E3** | B(배분 경계) |
+| **P4** *Learned TBox Transfer* | C7 | [?] | **E6′**(데이터 v3 先·C38) | **A**(재학습0 전이) 실증 |
+| **★P?** *Source Declaration* (신규 후보) | **C43(정박치환)·C45(출처선언 레버)·C48(ASK 위계)** | E11-e2e 게이팅 | **prov e2e** | ★**특허 D 후보**(출처선언+provenance 집행·DB 안읽음=present 차별) |
 | P5 | A2 frontend | 범위 밖 | — | 후속 |
+> ★**present/autofetch는 특허 A에서 제거**(C34 규칙0 위반). 출처선언 레버(C45)가 그 자리를 대체하되 **DB를 대신 읽지 않는다**는
+> 점이 신규성(present 선행과 차별·[[46]]). **E11-e2e가 GO면 특허 D 우선 출원 후보.**
 
 ### 5.1 🔒 시퀀싱 제약 (특허 우선)
 특허 A/B 명세: **"논문 공개 전 출원 필수(신규성)"**.
@@ -201,9 +276,18 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 **E1 결과가 특허 C의 뒷받침이므로 E1 > P2 집필.**
 
 ## 6. 문서 지도 (마스터 → 하위)
+- ★**명명 권위본(통일)**: `UNIFIED_TAXONOMY_2026_07_09.md` — **F1-F6·G1-G9·BC0-7·N1-N4 코드 폐기·서술형 이름만**(3축: 관찰·근본기능 11개·해결레버·4도메인). C51~C54의 F2/F3/BC 표현은 이 통일명으로 읽어라([[48]]). 상세근거=`CAPABILITY_BC_LEVER_TRADEOFF`·`DOMAIN_TRANSFER_STATUS_AND_PLAN`·`TAU2_FRONTIER_..._MASTER`.
+- **★이론 정본(2026-07-10)**: `THEORY_AMBIGUITY_CLASSICAL_2026_07_10.md` — 애매모호성의 고전 정보이론 정식화(세-수준 분해 H(gold|φ(X))/H(gold|X)·카디널리티 삼분법·DPI/Fano·2축). 3계층·레버 배분을 연역으로 유도, 기존 [S]/[M] 실측의 retrodiction. **등급 [D] — 실측처럼 인용 금지.** 검증 설계 = `E_AMB_MEASUREMENT_PLAN_2026_07_10.md`(T1~T4 무료 재분석·T5 유료 승인). 덱 반영 = `_cdp_private_local/PATENT_BRIEF_DECK_2026_07_10_rev2_theory.pptx` 부록 C(103~110).
 - **프레임 상세**: `MASTER_FRAME_LEVER_COMPOSITION_2026_07_08.md`
 - **포트폴리오/실험맵**: `PORTFOLIO_ROADMAP_2026_07_08.md`
-- **포렌식(정본)**: `QWQ_AGENTIC_FAILURE_FORENSIC_2026_07_08.md`(thinking 약점·§7c 게이트 실측) ·
+- **★출처선언 레버·날조 정본(2026-07-09)**: `C43_ANCHORED_SUBSTITUTION_NOT_WM_2026_07_09.md`(정박치환·WM 반증) ·
+  `C44_SOURCE_DECLARATION_LEVER_2026_07_09.md`(4지선다+provenance·67→0%·Δspurious 0) ·
+  `C49_ASK_HIERARCHY_NOT_BAN_2026_07_09.md`(ASK 위계) · `C42_SHORT_CONTEXT_SOLVES_FOURWAY_2026_07_09.md` ·
+  `C38_INDIST_GATHER_RESULT_2026_07_09.md`(learn 데이터 실패) · `SCAFFOLD_AUDIT_RULE0_2026_07_08.md`(present/autofetch 폐기) ·
+  `E11_GATHER_BEFORE_ACT_DESIGN` · `E6PRIME_GATHER_LEARN_DESIGN`. 스크립트: `c47_dprime.py`·`c48_dprime_full.py`·`e11a_isolated_probe.py`.
+- **포렌식(정본)**: **`DB_ONLY_HARDCORE_FORENSIC_2026_07_08.md`(★DB-only 정본 분해·C22~C28·재현 `scripts/distill/tau2/dbonly_forensic.py`)** ·
+  `HARDCORE_STEP_FORENSIC_2026_07_08.md`(**N1·N4 철회됨 — C24/C22 참조**) ·
+  `QWQ_AGENTIC_FAILURE_FORENSIC_2026_07_08.md`(thinking 약점·§7c 게이트 실측) ·
   `CLEAN_NT4_FAILURE_FORENSIC_2026_07_07.md` · `PRESENT_G15_DET_CENSUS_2026_06_25.md` · `ASSEMBLED_FAILURE_FORENSIC_2026_06_27.md`
 - **설계**: `THINKING_PERSISTENCE_SCAFFOLD_DESIGN_2026_07_08.md`(rev2·E1) · `LOAD_REDUCTION_ARCH_DESIGN_2026_07_07.md`(E1/E2 원형) ·
   `FLEET_FUNCTION_DELEGATION_DESIGN_2026_07_07.md`(E7) · `LEARNED_WING_MECHANISM_DESIGN_2026_07_07.md`(E6) ·
