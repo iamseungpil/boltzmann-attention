@@ -129,6 +129,19 @@ _generate_next_message(message, state):
 - **★발견 2 — prov-lost 15태스크 중 12개는 gpt-4.1이 4/4**: 본질적으로 flaky한 태스크가 아니라 **prov가 flaky하게 만든 것**(대부분 3/4·t61만 0/4 체계). prov 신규-flaky 18태스크 목록 §스크립트 출력.
 - **★발견 3 — frontier robust 격차의 해부**: gpt-4.1 4/4인 64태스크 중 floor는 34만 4/4·**27이 flaky·3이 0/4** ⇒ robust 격차(22태스크)의 주성분 = **같은 태스크를 우리가 불안정하게 푸는 것**(능력 부재 아님·flake→robust 전환이 p4의 지렛대). 결정론 레버가 p1보다 p4를 벌어야 하는 이유이자 가능성.
 
+### 3f. ★"user-sim 노이즈" 재해부 — flip의 사인(死因)은 agent brittleness ([M]·per-step 전수·2026-07-10)
+> `ecomp_divergence_census.py` — prov-lost 15태스크의 pass-trial vs fail-trial 17쌍 스텝 정렬.
+- **① 최초 분기 주체 = 17/17 user 발화** (assistant는 동일-prefix서 결정론적 = vLLM/seed 비결정성 기각).
+- **② 그러나 user 차이의 실체는 대부분 등가-표현**: 사실-토큰(id·수치·속성) 완전 동일 **5/17**인데 결과가 뒤집힘 —
+  t10 "everything I ordered→bought"에 EXTRA return 3발 · t30 "get→give me the tracking number"에 reason 오기 ·
+  t43/t77/t87 사실상 동일 발화에 주소/item 오기. diff_facts 12/17도 상당수 = **계시-순서 차이**(agent의 다른 질문이 상류).
+- **③ gpt-4.1은 같은 표현-분산 아래서 12/15를 4/4로 버팀**(§3d) = 대처 가능함의 실증.
+- ⇒ **재프레임: "flip의 95%=user-sim seed"(2026-07-07 [M])는 방아쇠 귀속이지 사인 귀속이 아니다.** 방아쇠=user 표현분산(자연스러운 수준),
+  사인=**agent의 paraphrase-brittleness**(같은 사실에 다른 결정·F2 계열 + over-action/coverage 동요). flaky 질량은
+  "노이즈 천장"이 아니라 **주소 가능한 표면**(원리-디폴트·DISAMB·plan-walk·[[12]] 다양성-학습 축). 단 prov regen은
+  이 표면을 +7.5pp 더 흔들었다(§3d) — 검증기 개입 자체가 표현-민감성과 상호작용.
+- caveat: 12/17 diff_facts 중 sim이 자발적으로 덜/다르게 공개한 몫과 agent-유발 몫의 분리는 미완(혼합·정직).
+
 ### 3e. 트레이드오프(prov p4 비용) 차단 설계 — [D]
 | # | 처방 | 겨냥 | 성격 |
 |---|---|---|---|
