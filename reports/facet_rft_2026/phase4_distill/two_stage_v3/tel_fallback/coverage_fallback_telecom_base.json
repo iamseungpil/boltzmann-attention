@@ -1,0 +1,23 @@
+{
+  "mode": "fallback",
+  "domain": "telecom",
+  "ontology_domain": "telecom",
+  "tool_turns": 1221,
+  "deterministic": 244,
+  "miss": 962,
+  "no_step": 15,
+  "deterministic_coverage": 0.1998,
+  "by_tool_det": {
+    "refuel_data": 12,
+    "enable_roaming": 34,
+    "send_payment_request": 198
+  },
+  "by_step_det": {
+    "apply_targeted_fix": 244
+  },
+  "by_step_miss": {
+    "gather_account_context": 924,
+    "apply_targeted_fix": 8,
+    "escalate_or_document": 30
+  }
+}

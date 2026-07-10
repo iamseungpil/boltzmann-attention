@@ -1,0 +1,22 @@
+{
+  "base_model": "Qwen/Qwen2.5-7B-Instruct",
+  "format": "chat_toolcall_v1",
+  "train_jsonl": "/home/woori/scratch/sft_alias_run/lodo_train_s1_gate.jsonl",
+  "n_train": 2263,
+  "n_val": 119,
+  "epochs": 3,
+  "lr": 0.0001,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_target": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "max_seq_len": 2048,
+  "best_val_loss": 0.08873827293247523
+}

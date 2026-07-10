@@ -1,0 +1,1836 @@
+2026-05-30 10:27:17.979 | WARNING  | tau2.utils.utils:<module>:15 - No .env file found
+2026-05-30 10:27:17.980 | INFO     | tau2.utils.utils:<module>:28 - Using data directory from source: /home/woori/workspace_common/boltzmann-attention/external/tau2-bench/data
+2026-05-30 10:27:19.444 | INFO     | tau2.utils.llm_utils:<module>:102 - LiteLLM: Cache is disabled
+2026-05-30 10:27:19.495 | DEBUG    | tau2.registry:<module>:281 - Registering default components...
+2026-05-30 10:27:19.496 | DEBUG    | tau2.registry:<module>:292 - Voice dependencies not installed, skipping voice user registration
+2026-05-30 10:27:19.496 | DEBUG    | tau2.registry:<module>:350 - Default components registered successfully. Registry info: {
+  "domains": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ],
+  "agents": [
+    "llm_agent",
+    "llm_agent_gt",
+    "llm_agent_solo",
+    "discrete_time_audio_native_agent"
+  ],
+  "users": [
+    "user_simulator",
+    "dummy_user"
+  ],
+  "task_sets": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom_full",
+    "telecom_small",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ]
+}
+[nl-judge] routed nl_assertions judge -> openrouter/openai/gpt-4.1 (patched: ['tau2.evaluator.evaluator_nl_assertions', 'tau2.config'])
+
+=== Running B0 ===
+  task_set=airline num_tasks=None trials=1
+  agent_llm=openai/qwen7b_full base_url=http://127.0.0.1:9100/v1
+  save_to=/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/eval_transfer/full_airline2/B0_airline_test.json
+╭────────────────────────── Simulation Configuration ──────────────────────────╮
+│ Domain: airline  Task Set: airline  Tasks: All                               │
+│ Trials: 1  Max Steps: 200  Max Errors: 10                                    │
+│                                                                              │
+│ Agent: llm_agent → openai/qwen7b_full                                        │
+│ User:  user_simulator → openai/openai/gpt-4.1                                │
+│                                                                              │
+│ Save:                                                                        │
+│ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/p │
+│ hase4_distill/eval_transfer/full_airline2/B0_airline_test.json  Concurrency: │
+│ 4  Verbose: False                                                            │
+╰──────────────────────────────────────────────────────────────────────────────╯
+2026-05-30 10:27:19.596 | INFO     | tau2.runner.checkpoint:try_resume:73 - Saving simulation batch to /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/eval_transfer/full_airline2/B0_airline_test.json/results.json
+
+1/20 (trial 1/1). Running task 6, trial 1
+2026-05-30 10:27:19.599 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 6, Agent: llm_agent, User: user_simulator
+
+2/20 (trial 1/1). Running task 8, trial 1
+2026-05-30 10:27:19.600 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 8, Agent: llm_agent, User: user_simulator
+
+0/20 (trial 1/1). Running task 2, trial 1
+2026-05-30 10:27:19.600 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 2, Agent: llm_agent, User: user_simulator
+
+3/20 (trial 1/1). Running task 13, trial 1
+2026-05-30 10:27:19.600 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 13, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:27:20.023 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:27:20.035 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:27:20.042 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:27:20.054 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:27:22.122 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:23.532 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:23.845 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:24.023 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:24.055 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:25.255 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:26.060 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:26.729 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:27.044 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:27.518 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:27.806 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:28.831 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:29.538 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:29.972 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:30.686 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:31.167 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:31.686 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:31.720 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:32.287 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:32.765 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:33.759 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:36.395 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:37.896 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:37.896 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:713 - 1
+
+2026-05-30 10:27:37.896 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:714 - 1
+
+2026-05-30 10:27:38.346 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:39.402 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:41.556 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:41.744 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:43.166 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:44.261 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:44.719 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:46.407 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:47.521 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:49.059 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:49.418 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 0/20 complete. Avg reward: N/A. 4 running: 6.0(30s), 8.0(30s), 2.0(30s),
+13.0(30s)
+2026-05-30 10:27:50.345 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:51.655 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:52.400 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:55.147 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:55.298 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:56.330 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:56.513 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:59.174 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:27:59.562 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:00.135 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:00.989 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:03.662 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:04.496 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:04.505 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=13, reward=0.0
+
+2026-05-30 10:28:04.505 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 13, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 13                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 41.58s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0087                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent transfer_to_human_agents [generic] ❌ 0.0                         │
+│                                                                              │
+│ Partial Action Reward: 0/1 (0.0%)                                            │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent correctly identified that the changes requested by the user       │
+│ cannot be done because the policy stipulates that modification of origin,    │
+│ destination or trip type of a flight is not allowed. ❌                      │
+│         The agent did not mention any policy restrictions regarding changing │
+│ the destination or trip type. Instead, the agent proceeded to offer and      │
+│ process the change from ATL-LAX to ATL-LAS, which typically is not allowed   │
+│ under standard airline policies. The agent should have informed the user     │
+│ that changing the destination is not permitted, but instead completed the    │
+│ change as requested.                                                         │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+4/20 (trial 1/1). Running task 16, trial 1
+2026-05-30 10:28:04.516 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 16, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:28:04.627 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:28:04.867 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:05.185 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:06.696 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:713 - 1
+
+2026-05-30 10:28:06.696 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:714 - 1
+
+2026-05-30 10:28:07.187 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:08.135 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:08.143 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=6, reward=1.0
+
+2026-05-30 10:28:08.144 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 6, Reward: 1.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 6                                                                   │
+│ Trial: 0                                                                     │
+│ Duration: 46.49s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0165                                                           │
+│ Reward: ✅ 1.0000 (COMMUNICATE: 1.0, DB: 1.0)                                │
+│                                                                              │
+│ DB Check:✅ 1.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_reservation_details [read] ✅ 1.0                             │
+│                                                                              │
+│ Partial Action Reward: 1/1 (100.0%)                                          │
+│   Read:  1/1 (100.0%)                                                        │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent should not allow user to add insurance. ✅                        │
+│         Throughout the conversation, the agent consistently informs the user │
+│ that insurance cannot be added after booking, citing system and policy       │
+│ limitations. The agent does not attempt to add insurance or make any         │
+│ unauthorized changes, and instead offers alternatives such as transferring   │
+│ to a human agent or suggesting the user purchase insurance separately. At no │
+│ point does the agent allow or process the addition of insurance to the       │
+│ existing reservation.                                                        │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+5/20 (trial 1/1). Running task 18, trial 1
+2026-05-30 10:28:08.158 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 18, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:28:08.256 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:28:08.259 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:08.267 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=2, reward=1.0
+
+2026-05-30 10:28:08.267 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 2, Reward: 1.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 2                                                                   │
+│ Trial: 0                                                                     │
+│ Duration: 44.59s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0136                                                           │
+│ Reward: ✅ 1.0000 (COMMUNICATE: 1.0, DB: 1.0)                                │
+│                                                                              │
+│ DB Check:✅ 1.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_user_details [read] ✅ 1.0                                    │
+│ - 1: agent get_reservation_details [read] ✅ 1.0                             │
+│ - 2: agent get_reservation_details [read] ✅ 1.0                             │
+│                                                                              │
+│ Partial Action Reward: 3/3 (100.0%)                                          │
+│   Read:  3/3 (100.0%)                                                        │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent should not offer compensation unless the user asks for it. ✅     │
+│         The agent did not proactively offer compensation. They only          │
+│ discussed compensation after the user brought up the issue and asked about   │
+│ it. The agent followed policy and did not offer any compensation until the   │
+│ user specifically requested it.                                              │
+│ - 1: Agent should check that the flight was indeed delayed. ✅               │
+│         The agent checked the reservation status and confirmed that none of  │
+│ the flights were officially marked as delayed. The agent also asked the user │
+│ for more details to verify the delay before discussing compensation.         │
+│ - 2: Agent should detect that the number of passengers on the delayed flight │
+│ mentioned by the user is incorrect. ✅                                       │
+│         The agent noticed the discrepancy when the user said there were      │
+│ three passengers, but the reservations only showed one or two. The agent     │
+│ asked clarifying questions and pointed out the number of passengers in each  │
+│ reservation, prompting the user to realize their mistake.                    │
+│ - 3: Agent should not offer a certificate of $50 as the user does not want   │
+│ to change or cancel the reservation. ✅                                      │
+│         The agent did not offer a certificate or any compensation,           │
+│ explaining that compensation is only available for officially delayed        │
+│ flights and that the user's reservation did not qualify. No certificate was  │
+│ offered at any point.                                                        │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+6/20 (trial 1/1). Running task 19, trial 1
+2026-05-30 10:28:08.284 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 19, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:28:08.380 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:28:08.999 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:10.367 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:10.758 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:10.845 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:10.902 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:12.074 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:13.298 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:13.356 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:14.279 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:14.338 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:15.298 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:16.155 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:16.609 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:17.059 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:17.266 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:17.276 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=8, reward=0.0
+
+2026-05-30 10:28:17.276 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 8, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 8                                                                   │
+│ Trial: 0                                                                     │
+│ Duration: 52.69s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0108                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_user_details [read] ✅ 1.0                                    │
+│ - 1: agent get_reservation_details [read] ✅ 1.0                             │
+│ - 2: agent search_direct_flight [read] ✅ 1.0                                │
+│ - 3: agent book_reservation [write] ❌ 0.0                                   │
+│                                                                              │
+│ Partial Action Reward: 3/4 (75.0%)                                           │
+│   Read:  3/3 (100.0%)                                                        │
+│   Write: 0/1 (0.0%)                                                          │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent get sophia_silva_7557 user details. ✅                            │
+│         The agent requests and receives the user ID (sophia_silva_7557) from │
+│ the customer and uses it to look up the user's reservations and payment      │
+│ methods.                                                                     │
+│ - 1: Agent identifies reservation id as WUNA5K. ✅                           │
+│         The agent correctly identifies the May 10 ORD-PHL reservation as     │
+│ WUNA5K and provides the relevant flight details to the customer.             │
+│ - 2: Agent books one-way flight HAT271, May 26, in economy, no travel        │
+│ insurance, no baggage. Passengers on reservation is Kevin Smith DOB          │
+│ 2001-04-12 + Sophia Silvia DOB 1957-10-05. ❌                                │
+│         The agent books a one-way flight HAT271 on May 26 in economy for     │
+│ both Sophia Silva and Kevin Smith, with no travel insurance. However, the    │
+│ agent states '2 free checked bags' instead of 'no baggage.' The booking      │
+│ itself is correct, but the baggage detail does not match the expectation of  │
+│ 'no baggage.'                                                                │
+│ - 3: Agent uses single certificate for payment. ✅                           │
+│         The agent confirms the total price, checks that a single certificate │
+│ can cover the cost, and uses certificate 8045380 for the full payment as     │
+│ requested by the customer.                                                   │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+7/20 (trial 1/1). Running task 22, trial 1
+2026-05-30 10:28:17.299 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 22, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:28:17.405 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:28:19.118 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 4/20 complete. Avg reward: 0.50 (N=4). 4 running: 16.0(15s), 18.0(11s), 
+19.0(11s), 22.0(2s)
+2026-05-30 10:28:19.905 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:20.258 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:21.194 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:22.738 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:23.127 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:24.530 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:25.294 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:26.377 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:27.276 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:28.202 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:28.235 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:31.758 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:32.127 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:33.011 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:34.951 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:37.096 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:39.305 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:39.980 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:42.141 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:42.445 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:43.847 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:44.338 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:45.591 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:46.418 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:46.428 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=16, reward=0.0
+
+2026-05-30 10:28:46.428 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 16, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 16                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 38.80s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0094                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent update_reservation_flights [write] ❌ 0.0                         │
+│                                                                              │
+│ Partial Action Reward: 0/1 (0.0%)                                            │
+│   Write: 0/1 (0.0%)                                                          │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent updates M05KNL to economy with the following flights: HAT110 and  │
+│ HAT172 on 2024-05-24. ❌                                                     │
+│         The agent updated reservation M05KNL to economy class, but the       │
+│ selected and confirmed flights were HAT227 (ATL→ORD) and HAT271 (ORD→PHL) on │
+│ 2024-05-24, not HAT110 and HAT172. The customer specifically chose option 3, │
+│ which matches the updated reservation details. Therefore, the agent did not  │
+│ update to the specified flights in the expected outcome.                     │
+│ - 1: Agent uses payment id gift_card_8887175. ✅                             │
+│         The agent confirmed that the fare difference was charged to the gift │
+│ card ending in 8887175, and the payment history in the reservation update    │
+│ also shows the use of payment_id 'gift_card_8887175'.                        │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+8/20 (trial 1/1). Running task 24, trial 1
+2026-05-30 10:28:46.452 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 24, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:28:46.564 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:28:47.183 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:47.183 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:713 - 1
+
+2026-05-30 10:28:47.183 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:714 - 2
+
+2026-05-30 10:28:48.222 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 5/20 complete. Avg reward: 0.40 (N=5). 4 running: 18.0(41s), 19.0(41s), 
+22.0(32s), 24.0(3s)
+2026-05-30 10:28:50.001 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:50.125 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:50.655 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:51.689 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:51.933 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:52.024 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:52.689 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:53.851 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:54.800 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:55.304 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:55.643 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:56.005 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:56.014 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=18, reward=0.0
+
+2026-05-30 10:28:56.014 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 18, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 18                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 44.05s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0066                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 0.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent update_reservation_flights [write] ✅ 1.0                         │
+│ - 1: agent update_reservation_flights [write] ❌ 0.0                         │
+│ - 2: agent update_reservation_flights [write] ✅ 1.0                         │
+│ - 3: agent update_reservation_flights [write] ❌ 0.0                         │
+│ - 4: agent update_reservation_flights [write] ❌ 0.0                         │
+│                                                                              │
+│ Partial Action Reward: 2/5 (40.0%)                                           │
+│   Write: 2/5 (40.0%)                                                         │
+│                                                                              │
+│ Communicate Checks:                                                          │
+│ - 0: 23553 ❌                                                                │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Reservation JG7FMM is updated to economy. ✅                            │
+│         The agent processed the downgrade for reservation JG7FMM, confirmed  │
+│ the change to economy, and communicated the refund details to the user.      │
+│ - 1: Reservation 2FBBAH is updated to economy. ✅                            │
+│         The agent processed the downgrade for reservation 2FBBAH, confirmed  │
+│ the change to economy, and communicated the refund details to the user.      │
+│ - 2: Reservation X7BYG1 is updated to economy.  ✅                           │
+│         The agent processed the downgrade for reservation X7BYG1, confirmed  │
+│ the change to economy, and communicated the refund details to the user.      │
+│ - 3: Reservation BOH180 is updated to economy.  ❌                           │
+│         There is no evidence in the conversation or tool outputs that        │
+│ reservation BOH180 was updated or even considered for downgrade. The agent   │
+│ only addressed JG7FMM, 2FBBAH, and X7BYG1.                                   │
+│ - 4: Reservation EQ1G6C is updated to economy. ❌                            │
+│         There is no evidence in the conversation or tool outputs that        │
+│ reservation EQ1G6C was updated or even considered for downgrade. The agent   │
+│ only addressed JG7FMM, 2FBBAH, and X7BYG1.                                   │
+│ - 5: Agent communicates that user will save $23553 in total. ❌              │
+│         The agent communicated a total savings of $4,065, not $23,553 as     │
+│ expected.                                                                    │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: None                                                            │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+9/20 (trial 1/1). Running task 25, trial 1
+2026-05-30 10:28:56.037 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 25, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:28:56.175 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:28:56.931 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:57.437 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:57.686 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:713 - 1
+
+2026-05-30 10:28:57.686 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:714 - 2
+
+2026-05-30 10:28:57.770 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:713 - 1
+
+2026-05-30 10:28:57.770 | INFO     | tau2.domains.airline.tools:update_reservation_passengers:714 - 1
+
+2026-05-30 10:28:58.399 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:28:58.486 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:28:59.001 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:00.303 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:00.894 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:00.906 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=19, reward=0.0
+
+2026-05-30 10:29:00.906 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 19, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 19                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 49.82s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0155                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent cancel_reservation [write] ❌ 0.0                                 │
+│                                                                              │
+│ Partial Action Reward: 0/1 (0.0%)                                            │
+│   Write: 0/1 (0.0%)                                                          │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent cancels reservation Z7GOZK ❌                                     │
+│         The agent did not cancel reservation Z7GOZK. Instead, the agent      │
+│ explained the cancellation policy and the limitations of travel insurance    │
+│ for the user's membership level. When the user asked about cancellation      │
+│ options and potential refunds, the agent informed them that no refund or     │
+│ credit would be issued due to the booking being made more than 24 hours ago. │
+│ The user then decided to keep the reservation, and the agent did not proceed │
+│ with cancellation.                                                           │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+10/20 (trial 1/1). Running task 26, trial 1
+2026-05-30 10:29:00.937 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 26, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:29:01.054 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:29:01.154 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:01.163 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=22, reward=0.0
+
+2026-05-30 10:29:01.163 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 22, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 22                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 40.09s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0114                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent update_reservation_flights [write] ❌ 0.0                         │
+│ - 1: agent update_reservation_passengers [write] ❌ 0.0                      │
+│ - 2: agent update_reservation_baggages [write] ❌ 0.0                        │
+│                                                                              │
+│ Partial Action Reward: 0/3 (0.0%)                                            │
+│   Write: 0/3 (0.0%)                                                          │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent updates reservation FQ8APE to economy with payment method         │
+│ gift_card_8190333. ❌                                                        │
+│         The user requested changes to the EWR to ORD reservation, which is   │
+│ FQ8APE. However, the agent mistakenly referenced and attempted to update     │
+│ reservation QKRY03 (MCO to DTW) instead. No changes were made to FQ8APE, and │
+│ the agent did not update the cabin class or payment method for FQ8APE.       │
+│ - 1: Agent updates reservation FQ8APE passenger to Omar Rossi. ❌            │
+│         The agent did not update the passenger list for FQ8APE. Instead, the │
+│ agent attempted to update QKRY03, and even then, was unable to change the    │
+│ passenger list due to system limitations. No action was taken on FQ8APE.     │
+│ - 2: Agent updates reservation FQ8APE baggages to 3 free baggages. ❌        │
+│         The agent did not update the baggage allowance for FQ8APE. The       │
+│ attempted baggage update was for QKRY03, and even then, the bags were set as │
+│ non-free (paid). No changes were made to FQ8APE.                             │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+2026-05-30 10:29:01.181 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+11/20 (trial 1/1). Running task 29, trial 1
+2026-05-30 10:29:01.203 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 29, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:29:01.334 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:29:03.515 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:03.691 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:05.496 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:05.757 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:05.757 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:29:06.930 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:07.296 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:09.320 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:09.675 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:11.213 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:12.327 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:13.015 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:13.914 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:14.244 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:15.167 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:16.625 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:16.906 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 8/20 complete. Avg reward: 0.25 (N=8). 4 running: 24.0(33s), 25.0(24s), 
+26.0(19s), 29.0(18s)
+2026-05-30 10:29:19.915 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:19.921 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:21.639 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:21.639 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:29:23.716 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:24.786 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:24.816 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:25.772 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:29:27.314 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:27.370 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:27.379 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=26, reward=0.0
+
+2026-05-30 10:29:27.379 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 26, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 26                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 24.53s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0075                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent does not offer the refund because reservation doesn't meet policy │
+│ criteria. ❌                                                                 │
+│         The agent offered and processed a full refund for the basic economy  │
+│ reservation without checking or mentioning any refund policy criteria.       │
+│ Typically, basic economy fares are non-refundable unless there are special   │
+│ circumstances or policies in place. The agent did not verify eligibility or  │
+│ communicate any policy restrictions before issuing the refund.               │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: {'note': 'No actions to evaluate'}                                   │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+12/20 (trial 1/1). Running task 30, trial 1
+2026-05-30 10:29:27.410 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 30, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:29:27.517 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:29:29.364 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:30.441 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:32.345 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:32.355 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=25, reward=1.0
+
+2026-05-30 10:29:32.355 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 25, Reward: 1.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 25                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 33.82s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0089                                                           │
+│ Reward: ✅ 1.0000 (COMMUNICATE: 1.0, DB: 1.0)                                │
+│                                                                              │
+│ DB Check:✅ 1.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent book_reservation [write] ✅ 1.0                                   │
+│                                                                              │
+│ Partial Action Reward: 1/1 (100.0%)                                          │
+│   Write: 1/1 (100.0%)                                                        │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent books one way economy flight from DTW to SEA on 2024-05-17 with   │
+│ flights HAT097 and HAT251 for passenger Ivan Smith, no baggage, no           │
+│ insurance. ✅                                                                │
+│         The agent confirms and books a one-way economy flight from DTW to    │
+│ SEA on 2024-05-17, using flights HAT097 and HAT251. The reservation is made  │
+│ for Ivan Smith only, with no checked bags and no travel insurance, as        │
+│ requested by the customer. The final confirmation message to the customer    │
+│ accurately reflects these details.                                           │
+│ - 1: Agent charges $128 to gift_card_8516878 and $247 to                     │
+│ credit_card_3563913. ✅                                                      │
+│         The tool output for the new reservation shows a payment history of   │
+│ $128 charged to gift_card_8516878 and $247 to credit_card_3563913, matching  │
+│ the customer's instructions and the expected outcome.                        │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+13/20 (trial 1/1). Running task 31, trial 1
+2026-05-30 10:29:32.385 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 31, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:29:32.485 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:29:32.559 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:33.069 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:34.724 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:35.580 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:35.637 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:35.784 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:37.985 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:38.868 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:40.326 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:41.708 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:44.041 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:44.805 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:45.440 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:46.947 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:48.432 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:49.550 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 10/20 complete. Avg reward: 0.30 (N=10). 4 running: 24.0(63s), 
+29.0(48s), 30.0(22s), 31.0(17s)
+2026-05-30 10:29:50.755 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:51.664 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:52.577 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:54.105 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:54.722 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:55.818 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:29:56.149 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:57.650 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:58.256 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:29:58.265 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=29, reward=0.0
+
+2026-05-30 10:29:58.266 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 29, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 29                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 54.17s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0139                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_reservation_details [read] ✅ 1.0                             │
+│ - 1: agent cancel_reservation [write] ❌ 0.0                                 │
+│ - 2: agent book_reservation [write] ❌ 0.0                                   │
+│                                                                              │
+│ Partial Action Reward: 1/3 (33.3%)                                           │
+│   Read:  1/1 (100.0%)                                                        │
+│   Write: 0/2 (0.0%)                                                          │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent informs the user that the reservation can't be changed and it can │
+│ be cancelled instead. ❌                                                     │
+│         The agent did not inform the user that the reservation can't be      │
+│ changed. Instead, the agent proceeded to change the flights as requested,    │
+│ indicating that changes were possible due to the user's travel insurance.    │
+│ - 1: Agent cancelled reservation VA5SGQ. ❌                                  │
+│         The agent did not cancel reservation VA5SGQ. Instead, the agent      │
+│ modified the existing reservation by changing the flights and adding a       │
+│ checked bag, as requested by the user.                                       │
+│ - 2: Agent books new round trip reservation with flights HAT169 and HAT033   │
+│ with one bag. ✅                                                             │
+│         The agent successfully updated the reservation to include flights    │
+│ HAT169 and HAT033, and confirmed the addition of one checked bag at no extra │
+│ charge. The agent also confirmed the refund and provided a summary of the    │
+│ new itinerary.                                                               │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+14/20 (trial 1/1). Running task 32, trial 1
+2026-05-30 10:29:58.300 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 32, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:29:58.415 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:29:59.839 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:00.413 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:02.580 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:02.794 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:02.854 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:04.272 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:05.245 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:05.485 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:05.980 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:06.593 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:08.159 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:08.313 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:08.324 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=31, reward=1.0
+
+2026-05-30 10:30:08.324 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 31, Reward: 1.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 31                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 34.31s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0082                                                           │
+│ Reward: ✅ 1.0000 (COMMUNICATE: 1.0, DB: 1.0)                                │
+│                                                                              │
+│ DB Check:✅ 1.0                                                              │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent doesn't book any flight. ✅                                       │
+│         Throughout the conversation, the agent provides options, calculates  │
+│ fare differences, and explains fees, but never proceeds to book or confirm a │
+│ new flight for the customer. The customer ultimately decides not to change   │
+│ their booking, and the agent acknowledges this without making any changes.   │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: {'note': 'No actions to evaluate'}                                   │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+15/20 (trial 1/1). Running task 35, trial 1
+2026-05-30 10:30:08.359 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 35, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:30:08.460 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:30:09.075 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:09.315 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:09.976 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:10.900 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:11.339 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:13.940 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:14.087 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:14.562 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:15.044 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:16.353 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:18.590 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:19.138 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 12/20 complete. Avg reward: 0.33 (N=12). 4 running: 24.0(93s), 
+30.0(52s), 32.0(21s), 35.0(11s)
+2026-05-30 10:30:20.087 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:20.096 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=30, reward=0.0
+
+2026-05-30 10:30:20.097 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 30, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 30                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 49.64s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0132                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_reservation_details [read] ✅ 1.0                             │
+│ - 1: agent search_direct_flight [read] ✅ 1.0                                │
+│ - 2: agent update_reservation_flights [write] ❌ 0.0                         │
+│                                                                              │
+│ Partial Action Reward: 2/3 (66.7%)                                           │
+│   Read:  2/2 (100.0%)                                                        │
+│   Write: 0/1 (0.0%)                                                          │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent updates reservation to flights HAT266 and HAT112. ❌              │
+│         The agent updated the reservation to flights HAT175 for both         │
+│ outbound and return trips, not to HAT266 and HAT112 as specified in the      │
+│ expected outcome. The customer specifically requested nonstop flights, and   │
+│ the agent provided and booked HAT175, which matches the customer's request   │
+│ but not the expected outcome.                                                │
+│ - 1: Agent does not make modifications to checked bags since policy doesn't  │
+│ allow to remove bags. ❌                                                     │
+│         The agent removed the checked bag and processed a refund, which      │
+│ contradicts the expected outcome that modifications to checked bags should   │
+│ not be made due to policy restrictions. The agent did not mention any policy │
+│ preventing the removal of checked bags and proceeded with the customer's     │
+│ request.                                                                     │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+16/20 (trial 1/1). Running task 37, trial 1
+2026-05-30 10:30:20.134 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 37, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:30:20.244 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:30:21.228 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:22.015 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:23.712 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:25.217 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:25.801 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:26.037 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:26.220 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:29.797 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:29.987 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:31.051 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:31.424 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:32.963 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:32.963 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:30:34.062 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:34.739 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:35.245 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:35.703 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:36.657 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:30:37.603 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:37.873 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:40.604 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:40.888 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:40.899 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=24, reward=0.0
+
+2026-05-30 10:30:40.899 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 24, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 24                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 109.89s                                                            │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0252                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent book_reservation [write] ✅ 1.0                                   │
+│                                                                              │
+│ Partial Action Reward: 1/1 (100.0%)                                          │
+│   Write: 1/1 (100.0%)                                                        │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent does not cancel reservation H9ZU1C because it doesn't meet        │
+│ criteria set by policy. ❌                                                   │
+│         The agent did cancel reservation H9ZU1C after confirming the user's  │
+│ intent and explaining the cancellation fee, even though the user requested   │
+│ it. The expectation is that the agent should not cancel the reservation if   │
+│ it doesn't meet policy criteria, but the agent stated the policy (full fee   │
+│ applies after 24 hours) and then processed the cancellation as requested by  │
+│ the user. Therefore, the agent did not meet this expectation.                │
+│ - 1: Agent books basic economy round trip from JFK to SEA leaving 2024-05-20 │
+│ (flight HAT069) and returning 2024-05-25 (flight HAT276), with 1 free bag.   │
+│ ✅                                                                           │
+│         The agent successfully booked a round-trip basic economy flight for  │
+│ the user: outbound on HAT069 (JFK to SEA, 2024-05-20) and return on HAT276   │
+│ (SEA to JFK, 2024-05-25), and confirmed 1 free checked bag as per the user's │
+│ silver status and request.                                                   │
+│ - 2: Agent charges $67 to gift_card_7773485 and $39 to gift_card_7359776. ✅ │
+│         The agent confirmed and processed payment using $39 from             │
+│ gift_card_7359776 and $67 from gift_card_7773485, matching the user's        │
+│ instructions and the booking details.                                        │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+17/20 (trial 1/1). Running task 44, trial 1
+2026-05-30 10:30:40.944 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 44, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:30:41.063 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:30:42.481 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:42.889 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:43.643 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:44.732 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:45.218 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:45.718 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:46.647 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:46.923 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:47.274 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:47.560 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:47.800 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:48.522 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:49.230 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:49.289 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 14/20 complete. Avg reward: 0.29 (N=14). 4 running: 32.0(51s), 
+35.0(41s), 37.0(29s), 44.0(9s)
+2026-05-30 10:30:49.785 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:52.610 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:54.759 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:57.145 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:30:57.624 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:00.830 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:00.889 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:01.695 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:31:01.919 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:03.521 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:04.715 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:04.726 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:04.735 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=37, reward=0.0
+
+2026-05-30 10:31:04.735 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 37, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 37                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 41.26s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0127                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_reservation_details [read] ✅ 1.0                             │
+│ - 1: agent search_direct_flight [read] ❌ 0.0                                │
+│ - 2: agent search_direct_flight [read] ❌ 0.0                                │
+│ - 3: agent update_reservation_flights [write] ❌ 0.0                         │
+│                                                                              │
+│ Partial Action Reward: 1/4 (25.0%)                                           │
+│   Read:  1/3 (33.3%)                                                         │
+│   Write: 0/1 (0.0%)                                                          │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent does not cancel reservation NQNU5R since it is in the past. ✅    │
+│         The agent refused to cancel reservation NQNU5R, but the reason given │
+│ was that it was already in business class, not because it was in the past.   │
+│ However, the outcome (not cancelling) matches the expectation.               │
+│ - 1: Agent does not cancel reservation IFOYYZ since it doesn't meet          │
+│ criteria. ❌                                                                 │
+│         The agent did cancel reservation IFOYYZ after confirming the user's  │
+│ intent and reason. There is no indication in the conversation that IFOYYZ    │
+│ did not meet cancellation criteria; in fact, the agent processed the         │
+│ cancellation and refund. Therefore, the agent did not meet this expectation. │
+│ - 2: Agent upgrades M20IZO to business class. ✅                             │
+│         The agent successfully upgraded reservation M20IZO to business class │
+│ after confirming payment details and processed the fare difference.          │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+18/20 (trial 1/1). Running task 45, trial 1
+2026-05-30 10:31:04.775 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 45, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:31:04.875 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:31:05.915 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:07.098 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:07.389 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:08.315 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:09.022 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:09.575 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:10.781 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:10.837 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:11.628 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:11.945 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:13.131 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:14.296 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:14.352 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:15.552 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:15.671 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:16.745 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:17.955 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:18.638 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:19.263 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 15/20 complete. Avg reward: 0.27 (N=15). 4 running: 32.0(81s), 
+35.0(71s), 44.0(39s), 45.0(15s)
+2026-05-30 10:31:20.341 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:20.480 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:20.822 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:21.742 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:22.682 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:22.960 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:24.194 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:24.406 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:25.246 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:25.506 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:25.821 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:26.714 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:27.935 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:29.167 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:29.661 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:30.390 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:31.630 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:32.856 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:33.381 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:33.410 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:34.142 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:35.175 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:35.367 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:35.816 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:35.816 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:31:36.619 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:37.693 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:37.862 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:38.123 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:39.110 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:40.364 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:40.596 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:40.601 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:41.382 | WARNING  | tau2.domains.airline.tools:cancel_reservation:367 - Seats release not implemented for cancellation!!!
+
+2026-05-30 10:31:41.557 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:42.819 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:43.313 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:43.321 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=45, reward=0.0
+
+2026-05-30 10:31:43.321 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 45, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 45                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 36.33s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0137                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_reservation_details [read] ✅ 1.0                             │
+│                                                                              │
+│ Partial Action Reward: 1/1 (100.0%)                                          │
+│   Read:  1/1 (100.0%)                                                        │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent should not cancel reservation PEP4E0. ❌                          │
+│         The agent proceeded to cancel reservation PEP4E0 after the user      │
+│ confirmed they wanted to cancel, despite the expectation that the agent      │
+│ should not cancel the reservation.                                           │
+│ - 1: Agent should not change PEP4E0 flight. ✅                               │
+│         The agent did not change the PEP4E0 flight. Instead, the agent       │
+│ explained that changes were not allowed for basic economy and only offered   │
+│ cancellation as an option.                                                   │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+19/20 (trial 1/1). Running task 48, trial 1
+2026-05-30 10:31:43.362 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: airline, Task: 48, Agent: llm_agent, User: user_simulator
+
+2026-05-30 10:31:43.457 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 10:31:43.995 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:44.668 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:45.109 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:45.273 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:46.481 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:46.764 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:46.774 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=35, reward=1.0
+
+2026-05-30 10:31:46.774 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 35, Reward: 1.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 35                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 90.38s                                                             │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0225                                                           │
+│ Reward: ✅ 1.0000 (COMMUNICATE: 1.0, DB: 1.0)                                │
+│                                                                              │
+│ DB Check:✅ 1.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent book_reservation [write] ✅ 1.0                                   │
+│                                                                              │
+│ Partial Action Reward: 1/1 (100.0%)                                          │
+│   Write: 1/1 (100.0%)                                                        │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent does not cancel the reservation since this is not allowed. ✅     │
+│         The agent repeatedly explained the refund policy, clarified that a   │
+│ full refund was not possible outside of health or weather reasons, and did   │
+│ not proceed with the cancellation after the user declined to accept a        │
+│ partial refund. The agent also offered to transfer to a human agent but did  │
+│ not cancel the reservation.                                                  │
+│ - 1: Agent books a one-way one-stop flight from JFK to SFO on 2024-05-24     │
+│ with flights HAT069 and HAT258. ✅                                           │
+│         The agent presented the correct one-stop options, identified the     │
+│ second cheapest (HAT069 and HAT258), confirmed the user's details, and       │
+│ successfully booked the requested itinerary as shown in the final            │
+│ reservation details.                                                         │
+│ - 2: Agent charges $290 to credit card credit_card_907483 ✅                 │
+│         The user requested to use the credit card ending in 7334, which      │
+│ corresponds to credit_card_9074831. The booking tool output shows the        │
+│ payment was made with credit_card_9074831 for $290, and the agent confirmed  │
+│ this in the summary.                                                         │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+2026-05-30 10:31:47.489 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:47.626 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:47.734 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:48.911 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:48.966 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 17/20 complete. Avg reward: 0.29 (N=17). 3 running: 32.0(111s), 
+44.0(69s), 48.0(6s)
+2026-05-30 10:31:50.091 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:51.302 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:51.890 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:52.477 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:52.695 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:53.704 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:53.885 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:54.991 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:55.001 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=48, reward=1.0
+
+2026-05-30 10:31:55.002 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 48, Reward: 1.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 48                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 9.89s                                                              │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0049                                                           │
+│ Reward: ✅ 1.0000 (COMMUNICATE: 1.0, DB: 1.0)                                │
+│                                                                              │
+│ DB Check:✅ 1.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_reservation_details [read] ✅ 1.0                             │
+│                                                                              │
+│ Partial Action Reward: 1/1 (100.0%)                                          │
+│   Read:  1/1 (100.0%)                                                        │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent does not cancel 3RK2T9. ✅                                        │
+│         The agent did not proceed with canceling the reservation. Instead,   │
+│ after the customer clarified that the booking was within the 24-hour window, │
+│ the agent transferred the customer to a human agent without taking any       │
+│ cancellation action.                                                         │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+2026-05-30 10:31:55.053 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:56.237 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:57.425 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:58.606 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:59.108 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:31:59.774 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:00.949 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:02.139 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:03.324 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:04.509 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:05.696 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:05.980 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:06.858 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:08.042 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:09.232 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:10.418 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:11.604 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:12.546 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:12.809 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:13.148 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:13.986 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:15.222 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:16.288 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=gpt-4.1-2025-04-14, custom_llm_provider=openrouter. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:16.298 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=32, reward=0.0
+
+2026-05-30 10:32:16.298 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 32, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 32                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 135.36s                                                            │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0290                                                           │
+│ Reward: ❌ 0.0000 (COMMUNICATE: 1.0, DB: 0.0)                                │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: agent get_user_details [read] ✅ 1.0                                    │
+│ - 1: agent get_reservation_details [read] ✅ 1.0                             │
+│ - 2: agent search_direct_flight [read] ✅ 1.0                                │
+│ - 3: agent update_reservation_flights [write] ✅ 1.0                         │
+│ - 4: agent update_reservation_flights [write] ❌ 0.0                         │
+│                                                                              │
+│ Partial Action Reward: 4/5 (80.0%)                                           │
+│   Read:  3/3 (100.0%)                                                        │
+│   Write: 1/2 (50.0%)                                                         │
+│                                                                              │
+│ NL Assertions:                                                               │
+│ - 0: Agent update reservation OWZ4XL to economy. ✅                          │
+│         The agent successfully processed the upgrade for the user's own      │
+│ ticket from basic economy to economy class for $83, as requested. The agent  │
+│ confirmed the upgrade and provided a summary of the change, meeting the      │
+│ user's request to handle this step separately before proceeding to the next  │
+│ step.                                                                        │
+│ - 1: Agent updates reservation OWZ4XL to flight HAT041. ❌                   │
+│         The agent was unable to update the reservation to flight HAT041 for  │
+│ just the single passenger as requested. The agent explained the system       │
+│ limitation and ultimately escalated the case to a human agent, but did not   │
+│ complete the requested change to the nonstop flight for the user.            │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: None                                                                     │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+2026-05-30 10:32:16.383 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:17.540 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:18.691 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 19/20 complete. Avg reward: 0.32 (N=19). 1 running: 44.0(99s)
+2026-05-30 10:32:19.856 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:21.012 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:22.162 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:23.466 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:24.626 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:25.786 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:26.946 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:28.108 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:29.269 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:30.427 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:31.592 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:32.758 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:33.921 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:35.090 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:36.254 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:37.421 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:38.592 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:39.763 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:40.932 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:42.103 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:43.275 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:44.453 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:45.626 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:46.797 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:47.977 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:49.147 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 19/20 complete. Avg reward: 0.32 (N=19). 1 running: 44.0(129s)
+2026-05-30 10:32:50.320 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:51.494 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:52.665 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_full, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 10:32:52.675 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=airline, task=44, reward=0.0
+
+2026-05-30 10:32:52.675 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: airline, Task: 44, Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID: 44                                                                  │
+│ Trial: 0                                                                     │
+│ Duration: 131.60s                                                            │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.MAX_STEPS                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0052                                                           │
+│ Reward: ❌ 0.0000 ()                                                         │
+│                                                                              │
+│ Additional Info:                                                             │
+│ note: Simulation terminated prematurely. Termination reason: max_steps       │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Successfully completed all simulations!
+To review the simulations, run: tau2 view
+╭───────────────────────── Agent Performance Metrics ──────────────────────────╮
+│   ═══ Overview ═══                                                           │
+│   Total Simulations         20                                               │
+│   Total Tasks               20                                               │
+│                                                                              │
+│   ═══ Reward Metrics ═══                                                     │
+│   🏆 Average Reward         0.3000                                           │
+│      Pass^1                 0.300                                            │
+│   💰 Avg Cost/Conversation  $0.0000                                          │
+│                                                                              │
+│   ═══ Action Metrics ═══                                                     │
+│   📖 Read Actions           16/18 (88.9%)                                    │
+│   ✏️  Write Actions         6/20 (30.0%)                                     │
+│                                                                              │
+│   ═══ DB Match ═══                                                           │
+│   🗄️  DB Match              ✓ 6 / ✗ 13 (31.6%)                               │
+│                                                                              │
+│   ═══ Authentication ═══                                                     │
+│      Not Checked            20                                               │
+│                                                                              │
+│   ═══ Termination ═══                                                        │
+│   🛑 Normal Stop            19 (👤 19 / 🤖 0)                                │
+│   ⏱️  Max Steps             1                                                │
+│                                                                              │
+│   ═══ LLM Judge Review ═══                                                   │
+│   🤖 Agent Errors           0 errors                                         │
+│      Sims by severity       -                                                │
+│   👤 User Errors            0 errors                                         │
+│      Sims by severity       -                                                │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+  done. saved to /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/eval_transfer/full_airline2/B0_airline_test.json

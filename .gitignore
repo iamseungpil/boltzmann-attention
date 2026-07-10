@@ -82,3 +82,7 @@ reports/facet_rft_2026/RELWORK_LOAD_COT_2026_07_05.md
 reports/facet_rft_2026/NEXT_DET_LEVERS_DESIGN_2026_06_27.md
 scripts/distill/tau2/f3f4_table.py
 reports/facet_rft_2026/sim_results/f3f4_scale_invariant_compliance_2026_06_26.txt.gz
+
+# >100MB GitHub limit (2026-07-10 push repair)
+reports/facet_rft_2026/phase4_distill/sft_runs/**/adapter_model.safetensors
+*.safetensors

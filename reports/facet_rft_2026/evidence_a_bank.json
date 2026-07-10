@@ -1,0 +1,491 @@
+{
+  "domain": "bank",
+  "n_should_true": 48,
+  "oracle_cannot_succeed": 8,
+  "by_goal": {
+    "cancel_credit_card": 6,
+    "pay_bill_with_credit_card": 2
+  },
+  "rows": [
+    {
+      "goal": "apply_credit_card",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 3,
+      "cc_type": "list"
+    },
+    {
+      "goal": "apply_credit_card",
+      "idx": 1,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 3,
+      "cc_type": "list"
+    },
+    {
+      "goal": "apply_credit_card",
+      "idx": 2,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "apply_credit_card",
+      "idx": 3,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "cancel_credit_card",
+      "idx": 0,
+      "goal_return": "False",
+      "goal_returned_true": false,
+      "action_successfully_called": false,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "cancel_credit_card",
+      "idx": 1,
+      "goal_return": "False",
+      "goal_returned_true": false,
+      "action_successfully_called": false,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "cancel_credit_card",
+      "idx": 2,
+      "goal_return": "False",
+      "goal_returned_true": false,
+      "action_successfully_called": false,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "cancel_credit_card",
+      "idx": 3,
+      "goal_return": "False",
+      "goal_returned_true": false,
+      "action_successfully_called": false,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "cancel_credit_card",
+      "idx": 4,
+      "goal_return": "False",
+      "goal_returned_true": false,
+      "action_successfully_called": false,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "cancel_credit_card",
+      "idx": 5,
+      "goal_return": "False",
+      "goal_returned_true": false,
+      "action_successfully_called": false,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "close_account",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 3,
+      "cc_type": "list"
+    },
+    {
+      "goal": "deposit_funds",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 3,
+      "cc_type": "list"
+    },
+    {
+      "goal": "deposit_funds",
+      "idx": 1,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "exchange_foreign_currency",
+      "idx": 0,
+      "goal_return": "(True, 93.0)",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 2,
+      "cc_type": "NoneType"
+    },
+    {
+      "goal": "exchange_foreign_currency",
+      "idx": 1,
+      "goal_return": "(True, 465.0)",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 2,
+      "cc_type": "NoneType"
+    },
+    {
+      "goal": "get_account_owed_balance",
+      "idx": 0,
+      "goal_return": "(True, 200.0)",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "get_loan",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "get_loan",
+      "idx": 1,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "get_loan",
+      "idx": 2,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "get_loan",
+      "idx": 3,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "open_account",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 3,
+      "cc_type": "NoneType"
+    },
+    {
+      "goal": "pay_bill",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "pay_bill",
+      "idx": 1,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "pay_bill_with_credit_card",
+      "idx": 0,
+      "goal_return": "KeyError: 'credit_limit'",
+      "goal_returned_true": false,
+      "action_successfully_called": false,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "pay_bill_with_credit_card",
+      "idx": 1,
+      "goal_return": "KeyError: 'credit_limit'",
+      "goal_returned_true": false,
+      "action_successfully_called": false,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "pay_loan",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "pay_loan",
+      "idx": 1,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "pay_loan",
+      "idx": 2,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "pay_loan",
+      "idx": 3,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_account_information",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": true,
+      "n_calls": 3,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 1,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 2,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 3,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 4,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 5,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 6,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 7,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 8,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "set_safety_box",
+      "idx": 9,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "transfer_funds",
+      "idx": 0,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 3,
+      "cc_type": "list"
+    },
+    {
+      "goal": "transfer_funds",
+      "idx": 1,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "transfer_funds",
+      "idx": 2,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "transfer_funds",
+      "idx": 3,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "transfer_funds",
+      "idx": 4,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "transfer_funds",
+      "idx": 5,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 4,
+      "cc_type": "list"
+    },
+    {
+      "goal": "transfer_funds",
+      "idx": 6,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    },
+    {
+      "goal": "transfer_funds",
+      "idx": 7,
+      "goal_return": "True",
+      "goal_returned_true": true,
+      "action_successfully_called": true,
+      "success": false,
+      "n_calls": 5,
+      "cc_type": "list"
+    }
+  ]
+}

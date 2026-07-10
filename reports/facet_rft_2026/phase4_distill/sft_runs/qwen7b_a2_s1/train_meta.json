@@ -1,0 +1,22 @@
+{
+  "base_model": "Qwen/Qwen2.5-7B-Instruct",
+  "format": "chat_toolcall_v1",
+  "train_jsonl": "/home/woori/scratch/a2_s1/sft_a2_s1.jsonl",
+  "n_train": 204,
+  "n_val": 12,
+  "epochs": 3,
+  "lr": 0.0001,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_target": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "max_seq_len": 8192,
+  "best_val_loss": 0.015298922114501087
+}

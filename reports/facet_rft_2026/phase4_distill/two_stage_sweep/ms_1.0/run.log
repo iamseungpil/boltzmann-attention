@@ -1,0 +1,70 @@
+2026-05-30 18:46:25.351 | WARNING  | tau2.utils.utils:<module>:15 - No .env file found
+2026-05-30 18:46:25.351 | INFO     | tau2.utils.utils:<module>:28 - Using data directory from source: /home/woori/workspace_common/boltzmann-attention/external/tau2-bench/data
+2026-05-30 18:46:26.748 | INFO     | tau2.utils.llm_utils:<module>:102 - LiteLLM: Cache is disabled
+2026-05-30 18:46:26.797 | DEBUG    | tau2.registry:<module>:281 - Registering default components...
+2026-05-30 18:46:26.798 | DEBUG    | tau2.registry:<module>:292 - Voice dependencies not installed, skipping voice user registration
+2026-05-30 18:46:26.798 | DEBUG    | tau2.registry:<module>:350 - Default components registered successfully. Registry info: {
+  "domains": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ],
+  "agents": [
+    "llm_agent",
+    "llm_agent_gt",
+    "llm_agent_solo",
+    "discrete_time_audio_native_agent"
+  ],
+  "users": [
+    "user_simulator",
+    "dummy_user"
+  ],
+  "task_sets": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom_full",
+    "telecom_small",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ]
+}
+[two_stage] resolver ontology = telecom (steps: {'apply_policy_action': 14, 'apply_targeted_fix': 4, 'gather_account_context': 6, 'escalate_or_document': 1})
+=== two_stage mode=resolver domain=telecom agent=openai/qwen7b_telret_abstract base=http://127.0.0.1:9100/v1 ===
+  save_to=reports/facet_rft_2026/phase4_distill/two_stage_sweep/ms_1.0/resolver_telecom_test.json
+╭────────────────────────── Simulation Configuration ──────────────────────────╮
+│ Domain: telecom  Task Set: telecom  Tasks: All                               │
+│ Trials: 1  Max Steps: 50  Max Errors: 10                                     │
+│                                                                              │
+│ Agent: llm_agent → openai/qwen7b_telret_abstract                             │
+│ User:  user_simulator → openai/qwen7b_telret_abstract                        │
+│                                                                              │
+│ Save:                                                                        │
+│ reports/facet_rft_2026/phase4_distill/two_stage_sweep/ms_1.0/resolver_teleco │
+│ m_test.json  Concurrency: 4  Verbose: False                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+File 
+/home/woori/workspace_common/boltzmann-attention/external/tau2-bench/data/simula
+tions/reports/facet_rft_2026/phase4_distill/two_stage_sweep/ms_1.0/resolver_tele
+com_test.json/results.json already exists. Do you want to resume the run? (y/n) Traceback (most recent call last):
+  File "/home/woori/workspace_common/boltzmann-attention-pi/scripts/distill/two_stage_agent.py", line 338, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/woori/workspace_common/boltzmann-attention-pi/scripts/distill/two_stage_agent.py", line 313, in main
+    run_domain(cfg)
+  File "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench/src/tau2/runner/batch.py", line 895, in run_domain
+    simulation_results = run_tasks(
+                         ^^^^^^^^^^
+  File "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench/src/tau2/runner/batch.py", line 579, in run_tasks
+    simulation_results, done_runs, tasks = try_resume(
+                                           ^^^^^^^^^^^
+  File "/home/woori/workspace_common/boltzmann-attention/external/tau2-bench/src/tau2/runner/checkpoint.py", line 82, in try_resume
+    ConsoleDisplay.console.input(
+  File "/home/woori/venvs/seka_env/lib/python3.12/site-packages/rich/console.py", line 2189, in input
+    result = input()
+             ^^^^^^^
+EOFError: EOF when reading a line

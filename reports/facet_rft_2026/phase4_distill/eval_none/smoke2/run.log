@@ -1,0 +1,391 @@
+2026-05-30 08:52:02.497 | WARNING  | tau2.utils.utils:<module>:15 - No .env file found
+2026-05-30 08:52:02.497 | INFO     | tau2.utils.utils:<module>:28 - Using data directory from source: /home/woori/workspace_common/boltzmann-attention/external/tau2-bench/data
+2026-05-30 08:52:03.937 | INFO     | tau2.utils.llm_utils:<module>:102 - LiteLLM: Cache is disabled
+2026-05-30 08:52:03.986 | DEBUG    | tau2.registry:<module>:281 - Registering default components...
+2026-05-30 08:52:03.988 | DEBUG    | tau2.registry:<module>:292 - Voice dependencies not installed, skipping voice user registration
+2026-05-30 08:52:03.988 | DEBUG    | tau2.registry:<module>:350 - Default components registered successfully. Registry info: {
+  "domains": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ],
+  "agents": [
+    "llm_agent",
+    "llm_agent_gt",
+    "llm_agent_solo",
+    "discrete_time_audio_native_agent"
+  ],
+  "users": [
+    "user_simulator",
+    "dummy_user"
+  ],
+  "task_sets": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom_full",
+    "telecom_small",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ]
+}
+
+=== Running NONE ===
+  task_set=telecom num_tasks=3 trials=1
+  agent_llm=openai/qwen7b_none base_url=http://127.0.0.1:9000/v1
+  save_to=/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/eval_none/smoke2/NONE_telecom_test.json
+╭────────────────────────── Simulation Configuration ──────────────────────────╮
+│ Domain: telecom  Task Set: telecom  Tasks: All                               │
+│ Trials: 1  Max Steps: 100  Max Errors: 10                                    │
+│                                                                              │
+│ Agent: llm_agent → openai/qwen7b_none                                        │
+│ User:  user_simulator → openai/openai/gpt-4.1                                │
+│                                                                              │
+│ Save:                                                                        │
+│ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/p │
+│ hase4_distill/eval_none/smoke2/NONE_telecom_test.json  Concurrency: 3        │
+│ Verbose: False                                                               │
+╰──────────────────────────────────────────────────────────────────────────────╯
+2026-05-30 08:52:04.423 | INFO     | tau2.runner.checkpoint:try_resume:73 - Saving simulation batch to /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/eval_none/smoke2/NONE_telecom_test.json/results.json
+
+0/3 (trial 1/1). Running task 
+[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Ea
+sy], trial 1
+2026-05-30 08:52:04.425 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: telecom, Task: [mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy], Agent: llm_agent, User: user_simulator
+
+1/3 (trial 1/1). Running task 
+[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disab
+led_on[PERSONA:None], trial 1
+2026-05-30 08:52:04.426 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: telecom, Task: [mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None], Agent: llm_agent, User: user_simulator
+
+2/3 (trial 1/1). Running task 
+[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_o
+ff[PERSONA:Hard], trial 1
+2026-05-30 08:52:04.430 | INFO     | tau2.runner.batch:run_single_task:381 - STARTING SIMULATION: Domain: telecom, Task: [mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard], Agent: llm_agent, User: user_simulator
+
+2026-05-30 08:52:04.468 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 08:52:04.520 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 08:52:04.520 | INFO     | tau2.domains.telecom.tools:disable_roaming:587 - Roaming disabled for line L1002
+
+2026-05-30 08:52:04.521 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=UserSimulator
+
+2026-05-30 08:52:04.522 | INFO     | tau2.domains.telecom.tools:disable_roaming:587 - Roaming disabled for line L1002
+
+2026-05-30 08:52:07.973 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:07.990 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:09.085 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:09.765 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:09.872 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:11.220 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:11.657 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:11.749 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:12.372 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:12.464 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:13.089 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:13.175 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:13.286 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:14.326 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:14.675 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:17.868 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:18.805 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:19.314 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:20.181 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:22.966 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:23.703 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:24.518 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:24.819 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:26.771 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:27.544 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:29.788 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:31.963 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:33.258 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 0/3 complete. Avg reward: N/A. 3 running: 
+[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Ea
+sy].0(30s), 
+[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disab
+led_on[PERSONA:None].0(30s), 
+[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_o
+ff[PERSONA:Hard].0(30s)
+2026-05-30 08:52:35.069 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:36.653 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:38.111 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:39.312 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:41.923 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:42.543 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:44.573 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:46.270 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:46.914 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:50.380 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:50.970 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:51.231 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:56.050 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:58.623 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:52:58.629 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:02.279 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 0/3 complete. Avg reward: N/A. 3 running: 
+[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Ea
+sy].0(60s), 
+[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disab
+led_on[PERSONA:None].0(60s), 
+[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_o
+ff[PERSONA:Hard].0(60s)
+2026-05-30 08:53:05.302 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:08.199 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:09.231 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:11.545 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:11.649 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:19.594 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:20.684 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:24.199 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:25.185 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:26.225 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:31.441 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 0/3 complete. Avg reward: N/A. 3 running: 
+[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Ea
+sy].0(90s), 
+[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disab
+led_on[PERSONA:None].0(90s), 
+[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_o
+ff[PERSONA:Hard].0(90s)
+2026-05-30 08:53:35.143 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:37.569 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:41.838 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:41.969 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:42.465 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:48.825 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:49.390 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:49.861 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:50.454 | INFO     | tau2.domains.telecom.tools:disable_roaming:587 - Roaming disabled for line L1002
+
+2026-05-30 08:53:50.459 | INFO     | tau2.domains.telecom.tools:disable_roaming:587 - Roaming disabled for line L1002
+
+2026-05-30 08:53:50.459 | INFO     | tau2.domains.telecom.tools:enable_roaming:561 - Roaming enabled for line L1002
+
+2026-05-30 08:53:50.460 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=telecom, task=[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard], reward=0.0
+
+2026-05-30 08:53:50.460 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: telecom, Task: [mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard], Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID:                                                                     │
+│ [mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabl │
+│ ed_off[PERSONA:Hard]                                                         │
+│ Trial: 0                                                                     │
+│ Duration: 105.90s                                                            │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0968                                                           │
+│ Reward: ❌ 0.0000 (ENV_ASSERTION: 0.0)                                       │
+│                                                                              │
+│ DB Check:❌ 0.0                                                              │
+│                                                                              │
+│ Env Assertions:                                                              │
+│ - 0: user assert_mobile_data_status ❌ 0.0                                   │
+│ - 1: user assert_internet_speed ❌ 0.0                                       │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: user set_network_mode_preference [write] ✅ 1.0                         │
+│ - 1: user disconnect_vpn [write] ✅ 1.0                                      │
+│ - 2: agent enable_roaming [write] ❌ 0.0                                     │
+│ - 3: user toggle_roaming [write] ❌ 0.0                                      │
+│                                                                              │
+│ Partial Action Reward: 2/4 (50.0%)                                           │
+│   Write: 2/4 (50.0%)                                                         │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: {'note': 'No nl_assertions to evaluate'}                                 │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+2026-05-30 08:53:51.400 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:55.833 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:53:56.460 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:54:03.136 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 1/3 complete. Avg reward: 0.00 (N=1). 2 running: 
+[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Ea
+sy].0(120s), 
+[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disab
+led_on[PERSONA:None].0(120s)
+2026-05-30 08:54:05.000 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=telecom, task=[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy], reward=1.0
+
+2026-05-30 08:54:05.000 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: telecom, Task: [mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy], Reward: 1.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID:                                                                     │
+│ [mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSON │
+│ A:Easy]                                                                      │
+│ Trial: 0                                                                     │
+│ Duration: 120.49s                                                            │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.USER_STOP                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.0983                                                           │
+│ Reward: ✅ 1.0000 (ENV_ASSERTION: 1.0)                                       │
+│                                                                              │
+│ DB Check:✅ 1.0                                                              │
+│                                                                              │
+│ Env Assertions:                                                              │
+│ - 0: user assert_mobile_data_status ✅ 1.0                                   │
+│ - 1: user assert_internet_speed ✅ 1.0                                       │
+│                                                                              │
+│ Action Checks:                                                               │
+│ - 0: user toggle_data_saver_mode [write] ✅ 1.0                              │
+│ - 1: user toggle_roaming [write] ✅ 1.0                                      │
+│                                                                              │
+│ Partial Action Reward: 2/2 (100.0%)                                          │
+│   Write: 2/2 (100.0%)                                                        │
+│                                                                              │
+│ Additional Info:                                                             │
+│ env: None                                                                    │
+│ nl: {'note': 'No nl_assertions to evaluate'}                                 │
+│ communicate: {'note': 'No communicate_info to evaluate'}                     │
+│ action: None                                                                 │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+2026-05-30 08:54:06.606 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:54:11.493 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:54:16.374 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:54:21.467 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:54:26.327 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:54:31.444 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+Status: 2/3 complete. Avg reward: 0.50 (N=2). 1 running: 
+[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disab
+led_on[PERSONA:None].0(150s)
+2026-05-30 08:54:37.164 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=qwen7b_none, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+
+2026-05-30 08:54:37.172 | INFO     | tau2.runner.simulation:run_simulation:87 - Simulation complete: domain=telecom, task=[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None], reward=0.0
+
+2026-05-30 08:54:37.172 | INFO     | tau2.runner.batch:run_single_task:442 - FINISHED SIMULATION: Domain: telecom, Task: [mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None], Reward: 0.0
+
+╭──────────────────────────── Simulation Overview ─────────────────────────────╮
+│ Task ID:                                                                     │
+│ [mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_d │
+│ isabled_on[PERSONA:None]                                                     │
+│ Trial: 0                                                                     │
+│ Duration: 152.64s                                                            │
+│ Mode: half_duplex                                                            │
+│ Termination Reason: TerminationReason.MAX_STEPS                              │
+│ Agent Cost: $0.0000                                                          │
+│ User Cost: $0.1551                                                           │
+│ Reward: ❌ 0.0000 ()                                                         │
+│                                                                              │
+│ Additional Info:                                                             │
+│ note: Simulation terminated prematurely. Termination reason: max_steps       │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Successfully completed all simulations!
+To review the simulations, run: tau2 view
+╭───────────────────────── Agent Performance Metrics ──────────────────────────╮
+│   ═══ Overview ═══                                                           │
+│   Total Simulations         3                                                │
+│   Total Tasks               3                                                │
+│                                                                              │
+│   ═══ Reward Metrics ═══                                                     │
+│   🏆 Average Reward         0.3333                                           │
+│      Pass^1                 0.333                                            │
+│   💰 Avg Cost/Conversation  $0.0000                                          │
+│                                                                              │
+│   ═══ Action Metrics ═══                                                     │
+│   📖 Read Actions           -                                                │
+│   ✏️  Write Actions         4/6 (66.7%)                                      │
+│                                                                              │
+│   ═══ DB Match ═══                                                           │
+│   🗄️  DB Match              ✓ 1 / ✗ 1 (50.0%)                                │
+│                                                                              │
+│   ═══ Authentication ═══                                                     │
+│      Not Checked            3                                                │
+│                                                                              │
+│   ═══ Termination ═══                                                        │
+│   🛑 Normal Stop            2 (👤 2 / 🤖 0)                                  │
+│   ⏱️  Max Steps             1                                                │
+│                                                                              │
+│   ═══ LLM Judge Review ═══                                                   │
+│   🤖 Agent Errors           0 errors                                         │
+│      Sims by severity       -                                                │
+│   👤 User Errors            0 errors                                         │
+│      Sims by severity       -                                                │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+  done. saved to /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/phase4_distill/eval_none/smoke2/NONE_telecom_test.json

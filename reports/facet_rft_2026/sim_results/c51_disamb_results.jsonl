@@ -1,0 +1,400 @@
+{"task": "0", "trial": 0, "idx": 18, "arg": "new_item_ids", "gold": "7706410293", "ncand": 37, "A": "['7706410293', '7747408585']", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"exchange_delivered", "B_ok": 0}
+{"task": "0", "trial": 1, "idx": 16, "arg": "item_ids", "gold": "1151293680", "ncand": 10, "A": "[\"1151293680\", \"4983901480\"]", "A_ok": 0, "B": "[\"1151293680\", \"4983901480\"]", "B_ok": 0}
+{"task": "0", "trial": 1, "idx": 20, "arg": "item_ids", "gold": "1151293680", "ncand": 10, "A": "['1151293680', '4983901480']", "A_ok": 0, "B": "[\"1151293680\", \"4983901480\"]", "B_ok": 0}
+{"task": "0", "trial": 1, "idx": 24, "arg": "item_ids", "gold": "1151293680", "ncand": 10, "A": "['1151293680', '4983901480']", "A_ok": 0, "B": "[\"1151293680\", \"4983901480\"]", "B_ok": 0}
+{"task": "0", "trial": 1, "idx": 28, "arg": "item_ids", "gold": "1151293680", "ncand": 10, "A": "['1151293680', '4983901480']", "A_ok": 0, "B": "[\"1151293680\", \"4983901480\"]", "B_ok": 0}
+{"task": "0", "trial": 2, "idx": 18, "arg": "new_item_ids", "gold": "7706410293", "ncand": 37, "A": "['7706410293', '7747408585']", "A_ok": 0, "B": "[\"7706410293\", \"7747408585\"]", "B_ok": 0}
+{"task": "0", "trial": 3, "idx": 18, "arg": "new_item_ids", "gold": "7706410293", "ncand": 37, "A": "[\"7706410293\", \"7747408585\"]", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"exchange_delivered", "B_ok": 0}
+{"task": "1", "trial": 0, "idx": 22, "arg": "new_item_ids", "gold": "7747408585", "ncand": 37, "A": "7747408585", "A_ok": 1, "B": "7747408585", "B_ok": 1}
+{"task": "1", "trial": 1, "idx": 22, "arg": "new_item_ids", "gold": "7747408585", "ncand": 37, "A": "7747408585", "A_ok": 1, "B": "<tool_call>\n{\"name\": \"exchange_delivered", "B_ok": 0}
+{"task": "1", "trial": 2, "idx": 18, "arg": "item_ids", "gold": "4983901480", "ncand": 29, "A": "[\"4983901480\"]", "A_ok": 0, "B": "4983901480", "B_ok": 1}
+{"task": "1", "trial": 2, "idx": 26, "arg": "new_item_ids", "gold": "7747408585", "ncand": 37, "A": "['7747408585']", "A_ok": 0, "B": "7747408585", "B_ok": 1}
+{"task": "1", "trial": 3, "idx": 20, "arg": "new_item_ids", "gold": "7747408585", "ncand": 37, "A": "7747408585", "A_ok": 1, "B": "7747408585", "B_ok": 1}
+{"task": "2", "trial": 1, "idx": 34, "arg": "item_ids", "gold": "4602305039", "ncand": 60, "A": "<tool_call>\n{\"name\": \"return_delivered_o", "A_ok": 0, "B": "[\"4202497723\", \"9408160950\"]", "B_ok": 0}
+{"task": "2", "trial": 2, "idx": 25, "arg": "item_ids", "gold": "4602305039", "ncand": 60, "A": "['4202497723', '4602305039', '9408160950']", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"return_delivered_o", "B_ok": 0}
+{"task": "2", "trial": 3, "idx": 26, "arg": "item_ids", "gold": "4602305039", "ncand": 60, "A": "<tool_call>\n{\"name\": \"return_delivered_o", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"return_delivered_o", "B_ok": 0}
+{"task": "3", "trial": 0, "idx": 32, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "<tool_call>\n{\"name\": \"modify_pending_ord", "A_ok": 0, "B": "9647292434", "B_ok": 1}
+{"task": "3", "trial": 1, "idx": 26, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "['9647292434']", "A_ok": 0, "B": "9647292434", "B_ok": 1}
+{"task": "3", "trial": 2, "idx": 25, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "<tool_call>\n{\"name\": \"modify_pending_ord", "A_ok": 0, "B": "9647292434", "B_ok": 1}
+{"task": "3", "trial": 3, "idx": 24, "arg": "new_item_ids", "gold": "9647292434", "ncand": 64, "A": "<tool_call>\n{\"name\": \"modify_pending_ord", "A_ok": 0, "B": "9647292434", "B_ok": 1}
+{"task": "4", "trial": 0, "idx": 25, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "<tool_call>\n{\"name\": \"modify_pending_ord", "A_ok": 0, "B": "[\"9647292434\", \"9647292434\"]", "B_ok": 0}
+{"task": "4", "trial": 0, "idx": 25, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "<tool_call>\n{\"name\": \"modify_pending_ord", "A_ok": 0, "B": "[\"9647292434\", \"9647292434\"]", "B_ok": 0}
+{"task": "4", "trial": 1, "idx": 28, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "<tool_call>\n{\"name\": \"get_product_detail", "A_ok": 0, "B": "[\"9647292434\", \"9647292434\"]", "B_ok": 0}
+{"task": "4", "trial": 1, "idx": 30, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "['9647292434']", "A_ok": 0, "B": "9647292434", "B_ok": 1}
+{"task": "4", "trial": 2, "idx": 34, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "['9647292434', '9647292434']", "A_ok": 0, "B": "9647292434", "B_ok": 1}
+{"task": "4", "trial": 2, "idx": 36, "arg": "new_item_ids", "gold": "9647292434", "ncand": 70, "A": "['9647292434']", "A_ok": 0, "B": "9647292434", "B_ok": 1}
+{"task": "4", "trial": 3, "idx": 18, "arg": "new_item_ids", "gold": "9647292434", "ncand": 62, "A": "<tool_call>\n{\"name\": \"get_product_detail", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"modify_pending_ord", "B_ok": 0}
+{"task": "4", "trial": 3, "idx": 28, "arg": "new_item_ids", "gold": "9647292434", "ncand": 64, "A": "<tool_call>\n{\"name\": \"modify_pending_ord", "A_ok": 0, "B": "9647292434", "B_ok": 1}
+{"task": "5", "trial": 0, "idx": 38, "arg": "item_ids", "gold": "8538875209", "ncand": 88, "A": "8538875209", "A_ok": 1, "B": "8538875209", "B_ok": 1}
+{"task": "5", "trial": 1, "idx": 38, "arg": "item_ids", "gold": "8538875209", "ncand": 48, "A": "['8538875209']", "A_ok": 0, "B": "8538875209", "B_ok": 1}
+{"task": "5", "trial": 2, "idx": 54, "arg": "item_ids", "gold": "8538875209", "ncand": 71, "A": "['8538875209']", "A_ok": 0, "B": "8538875209", "B_ok": 1}
+{"task": "5", "trial": 3, "idx": 24, "arg": "item_ids", "gold": "8538875209", "ncand": 17, "A": "['8538875209']", "A_ok": 0, "B": "8538875209", "B_ok": 1}
+{"task": "6", "trial": 0, "idx": 24, "arg": "new_item_ids", "gold": "7453605304", "ncand": 34, "A": "7453605304", "A_ok": 1, "B": "7453605304", "B_ok": 1}
+{"task": "6", "trial": 1, "idx": 24, "arg": "new_item_ids", "gold": "7453605304", "ncand": 17, "A": "7453605304", "A_ok": 1, "B": "7453605304", "B_ok": 1}
+{"task": "6", "trial": 2, "idx": 28, "arg": "new_item_ids", "gold": "7453605304", "ncand": 48, "A": "7453605304", "A_ok": 1, "B": "7453605304", "B_ok": 1}
+{"task": "6", "trial": 3, "idx": 24, "arg": "new_item_ids", "gold": "7453605304", "ncand": 34, "A": "['7453605304']", "A_ok": 0, "B": "7453605304", "B_ok": 1}
+{"task": "7", "trial": 0, "idx": 52, "arg": "new_item_ids", "gold": "1569765161", "ncand": 88, "A": "['5320792178']", "A_ok": 0, "B": "5320792178", "B_ok": 0}
+{"task": "7", "trial": 1, "idx": 22, "arg": "new_item_ids", "gold": "1569765161", "ncand": 17, "A": "['5320792178']", "A_ok": 0, "B": "5320792178", "B_ok": 0}
+{"task": "7", "trial": 2, "idx": 28, "arg": "new_item_ids", "gold": "1569765161", "ncand": 40, "A": "['1569765161']", "A_ok": 0, "B": "1569765161", "B_ok": 1}
+{"task": "7", "trial": 3, "idx": 24, "arg": "new_item_ids", "gold": "1569765161", "ncand": 34, "A": "['1569765161']", "A_ok": 0, "B": "1569765161", "B_ok": 1}
+{"task": "8", "trial": 0, "idx": 28, "arg": "new_item_ids", "gold": "9083642334", "ncand": 40, "A": "['1270145486']", "A_ok": 0, "B": "1270145486", "B_ok": 0}
+{"task": "8", "trial": 0, "idx": 32, "arg": "new_item_ids", "gold": "9083642334", "ncand": 40, "A": "['7453605304']", "A_ok": 0, "B": "7453605304", "B_ok": 0}
+{"task": "8", "trial": 1, "idx": 22, "arg": "new_item_ids", "gold": "9083642334", "ncand": 64, "A": "['7453605304']", "A_ok": 0, "B": "7453605304", "B_ok": 0}
+{"task": "8", "trial": 2, "idx": 22, "arg": "new_item_ids", "gold": "9083642334", "ncand": 64, "A": "7453605304", "A_ok": 0, "B": "7453605304", "B_ok": 0}
+{"task": "8", "trial": 3, "idx": 38, "arg": "new_item_ids", "gold": "9083642334", "ncand": 88, "A": "['1270145486']", "A_ok": 0, "B": "1270145486", "B_ok": 0}
+{"task": "8", "trial": 3, "idx": 46, "arg": "new_item_ids", "gold": "9083642334", "ncand": 88, "A": "['7453605304']", "A_ok": 0, "B": "7453605304", "B_ok": 0}
+{"task": "8", "trial": 3, "idx": 56, "arg": "new_item_ids", "gold": "9083642334", "ncand": 88, "A": "['7453605304']", "A_ok": 0, "B": "7453605304", "B_ok": 0}
+{"task": "9", "trial": 0, "idx": 24, "arg": "new_item_ids", "gold": "7624783998", "ncand": 31, "A": "['7624783998']", "A_ok": 0, "B": "7624783998", "B_ok": 1}
+{"task": "9", "trial": 1, "idx": 34, "arg": "new_item_ids", "gold": "7624783998", "ncand": 68, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "7624783998", "B_ok": 1}
+{"task": "9", "trial": 2, "idx": 28, "arg": "new_item_ids", "gold": "7624783998", "ncand": 23, "A": "['7624783998']", "A_ok": 0, "B": "7624783998", "B_ok": 1}
+{"task": "9", "trial": 3, "idx": 40, "arg": "new_item_ids", "gold": "7624783998", "ncand": 71, "A": "7624783998", "A_ok": 1, "B": "7624783998", "B_ok": 1}
+{"task": "11", "trial": 0, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "paypal_9497703", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "11", "trial": 0, "idx": 26, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "11", "trial": 0, "idx": 28, "arg": "payment_method_id", "gold": "paypal_9497703", "ncand": 2, "A": "paypal_9497703", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 0}
+{"task": "11", "trial": 1, "idx": 28, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "paypal_9497703", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "11", "trial": 1, "idx": 30, "arg": "payment_method_id", "gold": "paypal_9497703", "ncand": 2, "A": "paypal_9497703", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 0}
+{"task": "11", "trial": 2, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "paypal_9497703", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "11", "trial": 2, "idx": 26, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "11", "trial": 2, "idx": 28, "arg": "payment_method_id", "gold": "paypal_9497703", "ncand": 2, "A": "paypal_9497703", "A_ok": 1, "B": "paypal_9497703", "B_ok": 1}
+{"task": "11", "trial": 3, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "<tool_call>\n{\"name\": \"return_delivered_o", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "11", "trial": 3, "idx": 26, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "11", "trial": 3, "idx": 28, "arg": "payment_method_id", "gold": "paypal_9497703", "ncand": 2, "A": "paypal_9497703", "A_ok": 1, "B": "paypal_9497703", "B_ok": 1}
+{"task": "13", "trial": 0, "idx": 22, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "paypal_9497703", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "13", "trial": 0, "idx": 26, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "13", "trial": 1, "idx": 22, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "13", "trial": 1, "idx": 28, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "paypal_9497703", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "13", "trial": 1, "idx": 36, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "paypal_9497703", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "13", "trial": 2, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "paypal_9497703", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "13", "trial": 2, "idx": 24, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "13", "trial": 3, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "paypal_9497703", "A_ok": 0, "B": "paypal_9497703", "B_ok": 0}
+{"task": "13", "trial": 3, "idx": 24, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "14", "trial": 0, "idx": 20, "arg": "payment_method_id", "gold": "paypal_9497703", "ncand": 2, "A": "paypal_9497703", "A_ok": 1, "B": "paypal_9497703", "B_ok": 1}
+{"task": "14", "trial": 0, "idx": 22, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "14", "trial": 1, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "<tool_call>\n{\"name\": \"return_delivered_o", "A_ok": 0, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "14", "trial": 1, "idx": 22, "arg": "payment_method_id", "gold": "paypal_9497703", "ncand": 2, "A": "paypal_9497703", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 0}
+{"task": "14", "trial": 2, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "14", "trial": 2, "idx": 22, "arg": "payment_method_id", "gold": "paypal_9497703", "ncand": 2, "A": "paypal_9497703", "A_ok": 1, "B": "paypal_9497703", "B_ok": 1}
+{"task": "14", "trial": 3, "idx": 18, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "14", "trial": 3, "idx": 22, "arg": "payment_method_id", "gold": "credit_card_3124723", "ncand": 2, "A": "credit_card_3124723", "A_ok": 1, "B": "credit_card_3124723", "B_ok": 1}
+{"task": "14", "trial": 3, "idx": 24, "arg": "payment_method_id", "gold": "paypal_9497703", "ncand": 2, "A": "credit_card_3124723", "A_ok": 0, "B": "credit_card_3124723", "B_ok": 0}
+{"task": "15", "trial": 1, "idx": 18, "arg": "payment_method_id", "gold": "paypal_5364164", "ncand": 2, "A": "paypal_5364164", "A_ok": 1, "B": "paypal_5364164", "B_ok": 1}
+{"task": "15", "trial": 1, "idx": 26, "arg": "new_item_ids", "gold": "3613716226", "ncand": 42, "A": "['2648909398']", "A_ok": 0, "B": "2648909398", "B_ok": 0}
+{"task": "15", "trial": 1, "idx": 34, "arg": "new_item_ids", "gold": "3613716226", "ncand": 42, "A": "['3613716226']", "A_ok": 0, "B": "3613716226", "B_ok": 1}
+{"task": "15", "trial": 3, "idx": 18, "arg": "payment_method_id", "gold": "paypal_5364164", "ncand": 2, "A": "paypal_5364164", "A_ok": 1, "B": "paypal_5364164", "B_ok": 1}
+{"task": "15", "trial": 3, "idx": 28, "arg": "new_item_ids", "gold": "3613716226", "ncand": 42, "A": "['3613716226']", "A_ok": 0, "B": "3613716226", "B_ok": 1}
+{"task": "16", "trial": 0, "idx": 18, "arg": "order_id", "gold": "#W5199551", "ncand": 3, "A": "#W5199551", "A_ok": 1, "B": "#W5199551", "B_ok": 1}
+{"task": "16", "trial": 0, "idx": 20, "arg": "order_id", "gold": "#W8665881", "ncand": 3, "A": "#W8665881", "A_ok": 1, "B": "#W5199551", "B_ok": 0}
+{"task": "16", "trial": 0, "idx": 24, "arg": "payment_method_id", "gold": "paypal_5364164", "ncand": 2, "A": "paypal_5364164", "A_ok": 1, "B": "paypal_5364164", "B_ok": 1}
+{"task": "16", "trial": 1, "idx": 20, "arg": "order_id", "gold": "#W5199551", "ncand": 3, "A": "#W5199551", "A_ok": 1, "B": "#W5199551", "B_ok": 1}
+{"task": "16", "trial": 1, "idx": 22, "arg": "order_id", "gold": "#W8665881", "ncand": 3, "A": "#W8665881", "A_ok": 1, "B": "#W8665881", "B_ok": 1}
+{"task": "16", "trial": 1, "idx": 26, "arg": "payment_method_id", "gold": "paypal_5364164", "ncand": 2, "A": "paypal_5364164", "A_ok": 1, "B": "paypal_5364164", "B_ok": 1}
+{"task": "16", "trial": 2, "idx": 16, "arg": "order_id", "gold": "#W5199551", "ncand": 3, "A": "#W5199551", "A_ok": 1, "B": "#W5199551", "B_ok": 1}
+{"task": "16", "trial": 2, "idx": 18, "arg": "order_id", "gold": "#W8665881", "ncand": 3, "A": "#W8665881", "A_ok": 1, "B": "#W8665881", "B_ok": 1}
+{"task": "16", "trial": 2, "idx": 22, "arg": "payment_method_id", "gold": "paypal_5364164", "ncand": 2, "A": "paypal_5364164", "A_ok": 1, "B": "paypal_5364164", "B_ok": 1}
+{"task": "16", "trial": 3, "idx": 16, "arg": "order_id", "gold": "#W5199551", "ncand": 3, "A": "#W5199551", "A_ok": 1, "B": "#W5199551", "B_ok": 1}
+{"task": "16", "trial": 3, "idx": 18, "arg": "order_id", "gold": "#W8665881", "ncand": 3, "A": "#W8665881", "A_ok": 1, "B": "#W8665881", "B_ok": 1}
+{"task": "16", "trial": 3, "idx": 22, "arg": "payment_method_id", "gold": "paypal_5364164", "ncand": 2, "A": "paypal_5364164", "A_ok": 1, "B": "paypal_5364164", "B_ok": 1}
+{"task": "18", "trial": 0, "idx": 26, "arg": "item_ids", "gold": "8069050545", "ncand": 8, "A": "[\"8069050545\"]", "A_ok": 0, "B": "8069050545", "B_ok": 1}
+{"task": "18", "trial": 1, "idx": 28, "arg": "item_ids", "gold": "8069050545", "ncand": 18, "A": "['8069050545']", "A_ok": 0, "B": "8069050545", "B_ok": 1}
+{"task": "18", "trial": 2, "idx": 26, "arg": "new_item_ids", "gold": "1071497737", "ncand": 30, "A": "['1071497737']", "A_ok": 0, "B": "1071497737", "B_ok": 1}
+{"task": "18", "trial": 3, "idx": 26, "arg": "item_ids", "gold": "8069050545", "ncand": 18, "A": "[\"8069050545\"]", "A_ok": 0, "B": "8069050545", "B_ok": 1}
+{"task": "19", "trial": 0, "idx": 24, "arg": "item_ids", "gold": "2366567022", "ncand": 44, "A": "['2366567022']", "A_ok": 0, "B": "2366567022", "B_ok": 1}
+{"task": "19", "trial": 1, "idx": 22, "arg": "item_ids", "gold": "2366567022", "ncand": 34, "A": "2366567022", "A_ok": 1, "B": "2366567022", "B_ok": 1}
+{"task": "19", "trial": 2, "idx": 26, "arg": "item_ids", "gold": "2366567022", "ncand": 44, "A": "[\"2366567022\"]", "A_ok": 0, "B": "2366567022", "B_ok": 1}
+{"task": "19", "trial": 3, "idx": 20, "arg": "item_ids", "gold": "2366567022", "ncand": 34, "A": "['2366567022']", "A_ok": 0, "B": "2366567022", "B_ok": 1}
+{"task": "20", "trial": 0, "idx": 32, "arg": "new_item_ids", "gold": "4579334072", "ncand": 68, "A": "['7867398203', '9690244451', '4107812777', '5012998807']", "A_ok": 0, "B": "[\"7843064651\", \"7706410293\", \"4107812777\", \"5012998807\"]", "B_ok": 0}
+{"task": "20", "trial": 1, "idx": 40, "arg": "new_item_ids", "gold": "4579334072", "ncand": 100, "A": "['4579334072', '7706410293', '4153505238', '5012998807']", "A_ok": 0, "B": "[\"4579334072\", \"7706410293\", \"4153505238\", \"5012998807\"]", "B_ok": 0}
+{"task": "20", "trial": 2, "idx": 44, "arg": "new_item_ids", "gold": "4579334072", "ncand": 106, "A": "['4579334072', '7706410293', '4153505238', '5012998807']", "A_ok": 0, "B": "[\"4579334072\", \"7706410293\", \"4153505238\", \"5012998807\"]", "B_ok": 0}
+{"task": "20", "trial": 3, "idx": 30, "arg": "new_item_ids", "gold": "4579334072", "ncand": 66, "A": "['7533802601', '9690244451', '1775591963', '5012998807']", "A_ok": 0, "B": "[\"7843064651\", \"7706410293\", \"1775591963\", \"5012998807\"]", "B_ok": 0}
+{"task": "21", "trial": 0, "idx": 28, "arg": "new_item_ids", "gold": "4107812777", "ncand": 23, "A": "['4107812777', '1421289881']", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"modify_pending_ord", "B_ok": 0}
+{"task": "21", "trial": 1, "idx": 30, "arg": "payment_method_id", "gold": "gift_card_4332117", "ncand": 2, "A": "gift_card_4332117", "A_ok": 1, "B": "gift_card_4332117", "B_ok": 1}
+{"task": "21", "trial": 3, "idx": 30, "arg": "payment_method_id", "gold": "gift_card_4332117", "ncand": 2, "A": "gift_card_4332117", "A_ok": 1, "B": "gift_card_4332117", "B_ok": 1}
+{"task": "22", "trial": 0, "idx": 14, "arg": "order_id", "gold": "#W9911714", "ncand": 3, "A": "#W4967593", "A_ok": 0, "B": "#W4967593", "B_ok": 0}
+{"task": "22", "trial": 0, "idx": 20, "arg": "order_id", "gold": "#W9911714", "ncand": 3, "A": "#W9911714", "A_ok": 1, "B": "#W9911714", "B_ok": 1}
+{"task": "22", "trial": 1, "idx": 20, "arg": "order_id", "gold": "#W9911714", "ncand": 3, "A": "#W9911714", "A_ok": 1, "B": "#W9911714", "B_ok": 1}
+{"task": "23", "trial": 0, "idx": 26, "arg": "new_item_ids", "gold": "8573379326", "ncand": 40, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "8573379326", "B_ok": 1}
+{"task": "23", "trial": 0, "idx": 38, "arg": "new_item_ids", "gold": "8926329222", "ncand": 48, "A": "['8926329222']", "A_ok": 0, "B": "8926329222", "B_ok": 1}
+{"task": "23", "trial": 0, "idx": 46, "arg": "new_item_ids", "gold": "7082455361", "ncand": 48, "A": "['7082455361']", "A_ok": 0, "B": "7082455361", "B_ok": 1}
+{"task": "23", "trial": 1, "idx": 32, "arg": "new_item_ids", "gold": "8573379326", "ncand": 40, "A": "['8573379326']", "A_ok": 0, "B": "8573379326", "B_ok": 1}
+{"task": "23", "trial": 1, "idx": 48, "arg": "new_item_ids", "gold": "8926329222", "ncand": 48, "A": "['8926329222']", "A_ok": 0, "B": "8926329222", "B_ok": 1}
+{"task": "23", "trial": 1, "idx": 68, "arg": "new_item_ids", "gold": "7082455361", "ncand": 48, "A": "['7082455361']", "A_ok": 0, "B": "7082455361", "B_ok": 1}
+{"task": "23", "trial": 2, "idx": 20, "arg": "new_item_ids", "gold": "8573379326", "ncand": 21, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "8573379326", "B_ok": 1}
+{"task": "23", "trial": 2, "idx": 38, "arg": "new_item_ids", "gold": "8926329222", "ncand": 47, "A": "['8926329222']", "A_ok": 0, "B": "8926329222", "B_ok": 1}
+{"task": "23", "trial": 2, "idx": 52, "arg": "new_item_ids", "gold": "7082455361", "ncand": 58, "A": "['7082455361']", "A_ok": 0, "B": "7082455361", "B_ok": 1}
+{"task": "23", "trial": 3, "idx": 24, "arg": "new_item_ids", "gold": "8573379326", "ncand": 30, "A": "['8573379326']", "A_ok": 0, "B": "8573379326", "B_ok": 1}
+{"task": "23", "trial": 3, "idx": 38, "arg": "new_item_ids", "gold": "8926329222", "ncand": 48, "A": "['8926329222']", "A_ok": 0, "B": "8926329222", "B_ok": 1}
+{"task": "23", "trial": 3, "idx": 46, "arg": "new_item_ids", "gold": "7082455361", "ncand": 58, "A": "<tool_call>\n{\"name\": \"modify_pending_ord", "A_ok": 0, "B": "7082455361", "B_ok": 1}
+{"task": "26", "trial": 0, "idx": 20, "arg": "item_ids", "gold": "7602931732", "ncand": 18, "A": "['7602931732', '9570044148']", "A_ok": 0, "B": "[\"7602931732\", \"9570044148\"]", "B_ok": 0}
+{"task": "26", "trial": 1, "idx": 20, "arg": "item_ids", "gold": "7602931732", "ncand": 16, "A": "[\"7602931732\", \"9570044148\"]", "A_ok": 0, "B": "[\"7602931732\", \"9570044148\"]", "B_ok": 0}
+{"task": "26", "trial": 2, "idx": 24, "arg": "item_ids", "gold": "7602931732", "ncand": 18, "A": "[\"7602931732\", \"9570044148\"]", "A_ok": 0, "B": "[\"7602931732\", \"9570044148\"]", "B_ok": 0}
+{"task": "26", "trial": 3, "idx": 24, "arg": "item_ids", "gold": "7602931732", "ncand": 18, "A": "[\"7602931732\", \"9570044148\"]", "A_ok": 0, "B": "[\"7602931732\", \"9570044148\"]", "B_ok": 0}
+{"task": "27", "trial": 0, "idx": 20, "arg": "new_item_ids", "gold": "8277474082", "ncand": 28, "A": "['8277474082']", "A_ok": 0, "B": "8277474082", "B_ok": 1}
+{"task": "27", "trial": 0, "idx": 23, "arg": "new_item_ids", "gold": "8277474082", "ncand": 28, "A": "['8277474082']", "A_ok": 0, "B": "8277474082", "B_ok": 1}
+{"task": "27", "trial": 0, "idx": 29, "arg": "new_item_ids", "gold": "8277474082", "ncand": 28, "A": "['8277474082']", "A_ok": 0, "B": "8277474082", "B_ok": 1}
+{"task": "27", "trial": 1, "idx": 20, "arg": "new_item_ids", "gold": "8277474082", "ncand": 28, "A": "['8277474082']", "A_ok": 0, "B": "8277474082", "B_ok": 1}
+{"task": "27", "trial": 2, "idx": 24, "arg": "new_item_ids", "gold": "8277474082", "ncand": 30, "A": "['8277474082']", "A_ok": 0, "B": "8277474082", "B_ok": 1}
+{"task": "27", "trial": 2, "idx": 32, "arg": "new_item_ids", "gold": "8277474082", "ncand": 30, "A": "['8277474082']", "A_ok": 0, "B": "8277474082", "B_ok": 1}
+{"task": "27", "trial": 3, "idx": 20, "arg": "item_ids", "gold": "8118291112", "ncand": 12, "A": "['8118291112']", "A_ok": 0, "B": "8118291112", "B_ok": 1}
+{"task": "27", "trial": 3, "idx": 36, "arg": "new_item_ids", "gold": "8277474082", "ncand": 30, "A": "['8277474082']", "A_ok": 0, "B": "8277474082", "B_ok": 1}
+{"task": "28", "trial": 0, "idx": 24, "arg": "item_ids", "gold": "4293355847", "ncand": 27, "A": "[\"4293355847\"]", "A_ok": 0, "B": "4293355847", "B_ok": 1}
+{"task": "28", "trial": 0, "idx": 34, "arg": "item_ids", "gold": "5753502325", "ncand": 27, "A": "['5753502325', '9851293632']", "A_ok": 0, "B": "[\"5753502325\", \"9851293632\"]", "B_ok": 0}
+{"task": "28", "trial": 0, "idx": 44, "arg": "item_ids", "gold": "9570044148", "ncand": 27, "A": "['9570044148']", "A_ok": 0, "B": "9570044148", "B_ok": 1}
+{"task": "28", "trial": 0, "idx": 48, "arg": "item_ids", "gold": "9570044148", "ncand": 27, "A": "['6857426243']", "A_ok": 0, "B": "6857426243", "B_ok": 0}
+{"task": "28", "trial": 0, "idx": 52, "arg": "item_ids", "gold": "9570044148", "ncand": 27, "A": "['9570044148', '6857426243']", "A_ok": 0, "B": "['9570044148', '6857426243']", "B_ok": 0}
+{"task": "28", "trial": 0, "idx": 56, "arg": "item_ids", "gold": "9570044148", "ncand": 27, "A": "['9570044148', '6857426243']", "A_ok": 0, "B": "9570044148,6857426243", "B_ok": 0}
+{"task": "28", "trial": 1, "idx": 24, "arg": "item_ids", "gold": "4293355847", "ncand": 27, "A": "4293355847", "A_ok": 1, "B": "4293355847", "B_ok": 1}
+{"task": "28", "trial": 1, "idx": 30, "arg": "item_ids", "gold": "5753502325", "ncand": 27, "A": "['5753502325', '9851293632']", "A_ok": 0, "B": "[\"5753502325\", \"9851293632\"]", "B_ok": 0}
+{"task": "28", "trial": 1, "idx": 36, "arg": "item_ids", "gold": "9570044148", "ncand": 27, "A": "['9570044148', '6857426243']", "A_ok": 0, "B": "[\"9570044148\", \"6857426243\"]", "B_ok": 0}
+{"task": "28", "trial": 2, "idx": 22, "arg": "item_ids", "gold": "4293355847", "ncand": 27, "A": "[\"4293355847\"]", "A_ok": 0, "B": "4293355847", "B_ok": 1}
+{"task": "28", "trial": 2, "idx": 32, "arg": "item_ids", "gold": "5753502325", "ncand": 27, "A": "['5753502325', '9851293632']", "A_ok": 0, "B": "[\"5753502325\", \"9851293632\"]", "B_ok": 0}
+{"task": "28", "trial": 2, "idx": 40, "arg": "item_ids", "gold": "9570044148", "ncand": 27, "A": "['9570044148', '6857426243']", "A_ok": 0, "B": "[\"9570044148\", \"6857426243\"]", "B_ok": 0}
+{"task": "28", "trial": 3, "idx": 24, "arg": "item_ids", "gold": "4293355847", "ncand": 27, "A": "[\"4293355847\"]", "A_ok": 0, "B": "4293355847", "B_ok": 1}
+{"task": "28", "trial": 3, "idx": 30, "arg": "item_ids", "gold": "5753502325", "ncand": 27, "A": "['5753502325', '9851293632']", "A_ok": 0, "B": "[\"5753502325\", \"9851293632\"]", "B_ok": 0}
+{"task": "28", "trial": 3, "idx": 36, "arg": "item_ids", "gold": "9570044148", "ncand": 27, "A": "['9570044148', '6857426243']", "A_ok": 0, "B": "[\"9570044148\", \"6857426243\"]", "B_ok": 0}
+{"task": "29", "trial": 1, "idx": 20, "arg": "new_item_ids", "gold": "8176740019", "ncand": 74, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "[\"8176740019\", \"5206946487\"]", "B_ok": 0}
+{"task": "29", "trial": 1, "idx": 32, "arg": "new_item_ids", "gold": "8176740019", "ncand": 74, "A": "['8176740019']", "A_ok": 0, "B": "8176740019", "B_ok": 1}
+{"task": "29", "trial": 1, "idx": 42, "arg": "new_item_ids", "gold": "8176740019", "ncand": 74, "A": "['8176740019']", "A_ok": 0, "B": "8176740019", "B_ok": 1}
+{"task": "29", "trial": 2, "idx": 34, "arg": "new_item_ids", "gold": "8176740019", "ncand": 39, "A": "['8176740019']", "A_ok": 0, "B": "8176740019", "B_ok": 1}
+{"task": "29", "trial": 2, "idx": 44, "arg": "new_item_ids", "gold": "5206946487", "ncand": 39, "A": "['8176740019', '5206946487']", "A_ok": 0, "B": "['8176740019', '5206946487']", "B_ok": 0}
+{"task": "29", "trial": 3, "idx": 24, "arg": "new_item_ids", "gold": "5206946487", "ncand": 27, "A": "['5206946487']", "A_ok": 0, "B": "5206946487", "B_ok": 1}
+{"task": "29", "trial": 3, "idx": 34, "arg": "new_item_ids", "gold": "8176740019", "ncand": 45, "A": "['6956751343']", "A_ok": 0, "B": "6956751343", "B_ok": 0}
+{"task": "30", "trial": 0, "idx": 26, "arg": "item_ids", "gold": "3788616824", "ncand": 6, "A": "['3788616824']", "A_ok": 0, "B": "3788616824", "B_ok": 1}
+{"task": "30", "trial": 0, "idx": 30, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "30", "trial": 0, "idx": 44, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "30", "trial": 1, "idx": 28, "arg": "item_ids", "gold": "3788616824", "ncand": 10, "A": "['3788616824']", "A_ok": 0, "B": "3788616824", "B_ok": 1}
+{"task": "30", "trial": 1, "idx": 32, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "30", "trial": 1, "idx": 36, "arg": "item_ids", "gold": "6477915553", "ncand": 10, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "30", "trial": 2, "idx": 24, "arg": "item_ids", "gold": "3788616824", "ncand": 6, "A": "['3788616824']", "A_ok": 0, "B": "3788616824", "B_ok": 1}
+{"task": "30", "trial": 2, "idx": 28, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "30", "trial": 2, "idx": 40, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "30", "trial": 3, "idx": 28, "arg": "item_ids", "gold": "3788616824", "ncand": 6, "A": "['3788616824']", "A_ok": 0, "B": "3788616824", "B_ok": 1}
+{"task": "30", "trial": 3, "idx": 36, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "30", "trial": 3, "idx": 52, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "31", "trial": 0, "idx": 32, "arg": "order_id", "gold": "#W7449508", "ncand": 5, "A": "#W2692684", "A_ok": 0, "B": "#W2692684", "B_ok": 0}
+{"task": "31", "trial": 0, "idx": 40, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "31", "trial": 0, "idx": 64, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "31", "trial": 1, "idx": 22, "arg": "order_id", "gold": "#W7449508", "ncand": 5, "A": "#W2692684", "A_ok": 0, "B": "#W2692684", "B_ok": 0}
+{"task": "31", "trial": 1, "idx": 28, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "31", "trial": 1, "idx": 52, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "31", "trial": 2, "idx": 28, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "31", "trial": 2, "idx": 40, "arg": "order_id", "gold": "#W7449508", "ncand": 5, "A": "#W7449508", "A_ok": 1, "B": "#W7449508", "B_ok": 1}
+{"task": "31", "trial": 2, "idx": 48, "arg": "item_ids", "gold": "6477915553", "ncand": 10, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "31", "trial": 3, "idx": 28, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "31", "trial": 3, "idx": 50, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "32", "trial": 0, "idx": 24, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "32", "trial": 0, "idx": 36, "arg": "order_id", "gold": "#W5481803", "ncand": 5, "A": "#W5481803", "A_ok": 1, "B": "#W5481803", "B_ok": 1}
+{"task": "32", "trial": 0, "idx": 48, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "32", "trial": 1, "idx": 22, "arg": "order_id", "gold": "#W7449508", "ncand": 5, "A": "#W2692684", "A_ok": 0, "B": "#W2692684", "B_ok": 0}
+{"task": "32", "trial": 1, "idx": 24, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "32", "trial": 1, "idx": 36, "arg": "order_id", "gold": "#W5481803", "ncand": 5, "A": "#W5481803", "A_ok": 1, "B": "#W5481803", "B_ok": 1}
+{"task": "32", "trial": 1, "idx": 48, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "32", "trial": 2, "idx": 24, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "32", "trial": 2, "idx": 38, "arg": "order_id", "gold": "#W5481803", "ncand": 5, "A": "#W5481803", "A_ok": 1, "B": "#W5481803", "B_ok": 1}
+{"task": "32", "trial": 2, "idx": 50, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "['6477915553']", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "32", "trial": 3, "idx": 26, "arg": "order_id", "gold": "#W9373487", "ncand": 5, "A": "#W9373487", "A_ok": 1, "B": "#W9373487", "B_ok": 1}
+{"task": "32", "trial": 3, "idx": 38, "arg": "order_id", "gold": "#W5481803", "ncand": 5, "A": "#W5481803", "A_ok": 1, "B": "#W5481803", "B_ok": 1}
+{"task": "32", "trial": 3, "idx": 50, "arg": "item_ids", "gold": "6477915553", "ncand": 14, "A": "<tool_call>\n{\"name\": \"return_delivered_o", "A_ok": 0, "B": "6477915553", "B_ok": 1}
+{"task": "33", "trial": 1, "idx": 24, "arg": "address1", "gold": "517 Lakeview Drive", "ncand": 2, "A": "517 Lakeview Drive", "A_ok": 1, "B": "517 Lakeview Drive", "B_ok": 1}
+{"task": "35", "trial": 0, "idx": 34, "arg": "item_ids", "gold": "6704763132", "ncand": 74, "A": "6704763132", "A_ok": 1, "B": "6704763132", "B_ok": 1}
+{"task": "35", "trial": 0, "idx": 38, "arg": "new_item_ids", "gold": "5052031638", "ncand": 74, "A": "['5052031638']", "A_ok": 0, "B": "5052031638", "B_ok": 1}
+{"task": "35", "trial": 1, "idx": 36, "arg": "new_item_ids", "gold": "5052031638", "ncand": 74, "A": "5052031638", "A_ok": 1, "B": "5052031638", "B_ok": 1}
+{"task": "35", "trial": 1, "idx": 40, "arg": "item_ids", "gold": "6704763132", "ncand": 74, "A": "['6704763132']", "A_ok": 0, "B": "6704763132", "B_ok": 1}
+{"task": "36", "trial": 0, "idx": 20, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "6117189161", "A_ok": 1, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 1, "idx": 16, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 1, "idx": 20, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 2, "idx": 18, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 2, "idx": 24, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 2, "idx": 28, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 2, "idx": 32, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['9879255677', '7453605304', '3799046073', '9851293632']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 3, "idx": 18, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "6117189161", "A_ok": 1, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 3, "idx": 22, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "36", "trial": 3, "idx": 38, "arg": "item_ids", "gold": "6117189161", "ncand": 50, "A": "['9879255677', '7453605304', '3799046073', '9851293632']", "A_ok": 0, "B": "[\"9879255677\", \"7453605304\", \"3799046073\", \"9851293632\"]", "B_ok": 0}
+{"task": "36", "trial": 3, "idx": 42, "arg": "item_ids", "gold": "6117189161", "ncand": 50, "A": "['9879255677', '7453605304', '3799046073', '9851293632']", "A_ok": 0, "B": "[\"9879255677\", \"7453605304\", \"3799046073\", \"9851293632\"]", "B_ok": 0}
+{"task": "37", "trial": 0, "idx": 18, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "6117189161", "A_ok": 1, "B": "6117189161", "B_ok": 1}
+{"task": "37", "trial": 0, "idx": 20, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "37", "trial": 0, "idx": 46, "arg": "new_item_ids", "gold": "6700049080", "ncand": 61, "A": "['6700049080', '9879255677', '5320792178', '9354168549', '3928046918']", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"modify_pending_ord", "B_ok": 0}
+{"task": "37", "trial": 0, "idx": 48, "arg": "new_item_ids", "gold": "6700049080", "ncand": 61, "A": "['6700049080', '2001307871', '5320792178', '9354168549', '3928046918']", "A_ok": 0, "B": "[\"6700049080\", \"2001307871\", \"5320792178\", \"9354168549\", \"3928046918\"]", "B_ok": 0}
+{"task": "37", "trial": 1, "idx": 18, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "37", "trial": 2, "idx": 18, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "['6117189161']", "A_ok": 0, "B": "6117189161", "B_ok": 1}
+{"task": "37", "trial": 3, "idx": 18, "arg": "item_ids", "gold": "6117189161", "ncand": 10, "A": "6117189161", "A_ok": 1, "B": "6117189161", "B_ok": 1}
+{"task": "39", "trial": 3, "idx": 22, "arg": "address1", "gold": "157 Oak Street", "ncand": 2, "A": "<tool_call>\n{\"name\": \"modify_user_addres", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"modify_user_addres", "B_ok": 0}
+{"task": "40", "trial": 0, "idx": 14, "arg": "payment_method_id", "gold": "credit_card_8897086", "ncand": 4, "A": "credit_card_8897086", "A_ok": 1, "B": "credit_card_8897086", "B_ok": 1}
+{"task": "40", "trial": 1, "idx": 18, "arg": "payment_method_id", "gold": "credit_card_8897086", "ncand": 4, "A": "credit_card_8897086", "A_ok": 1, "B": "credit_card_8897086", "B_ok": 1}
+{"task": "40", "trial": 2, "idx": 16, "arg": "payment_method_id", "gold": "credit_card_8897086", "ncand": 4, "A": "credit_card_8897086", "A_ok": 1, "B": "credit_card_8897086", "B_ok": 1}
+{"task": "40", "trial": 3, "idx": 16, "arg": "payment_method_id", "gold": "credit_card_8897086", "ncand": 4, "A": "gift_card_8245350", "A_ok": 0, "B": "gift_card_8245350", "B_ok": 0}
+{"task": "40", "trial": 3, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_8897086", "ncand": 4, "A": "credit_card_8897086", "A_ok": 1, "B": "credit_card_8554680", "B_ok": 0}
+{"task": "40", "trial": 3, "idx": 24, "arg": "payment_method_id", "gold": "credit_card_8897086", "ncand": 4, "A": "gift_card_8245350", "A_ok": 0, "B": "gift_card_8245350", "B_ok": 0}
+{"task": "41", "trial": 0, "idx": 18, "arg": "order_id", "gold": "#W9583042", "ncand": 2, "A": "#W9583042", "A_ok": 1, "B": "#W9583042", "B_ok": 1}
+{"task": "41", "trial": 0, "idx": 22, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "41", "trial": 0, "idx": 32, "arg": "new_item_ids", "gold": "1096508426", "ncand": 34, "A": "['1096508426']", "A_ok": 0, "B": "[\"1096508426\"]", "B_ok": 0}
+{"task": "41", "trial": 1, "idx": 20, "arg": "new_item_ids", "gold": "1096508426", "ncand": 72, "A": "['1096508426']", "A_ok": 0, "B": "1096508426", "B_ok": 1}
+{"task": "41", "trial": 1, "idx": 22, "arg": "new_item_ids", "gold": "1096508426", "ncand": 72, "A": "['1096508426']", "A_ok": 0, "B": "1096508426", "B_ok": 1}
+{"task": "41", "trial": 1, "idx": 24, "arg": "new_item_ids", "gold": "1096508426", "ncand": 72, "A": "['1096508426']", "A_ok": 0, "B": "1096508426", "B_ok": 1}
+{"task": "41", "trial": 1, "idx": 26, "arg": "new_item_ids", "gold": "1096508426", "ncand": 72, "A": "['1096508426']", "A_ok": 0, "B": "1096508426", "B_ok": 1}
+{"task": "41", "trial": 2, "idx": 18, "arg": "payment_method_id", "gold": "paypal_4768213", "ncand": 2, "A": "paypal_4768213", "A_ok": 1, "B": "paypal_4768213", "B_ok": 1}
+{"task": "41", "trial": 2, "idx": 26, "arg": "new_item_ids", "gold": "1096508426", "ncand": 34, "A": "['1096508426']", "A_ok": 0, "B": "1096508426", "B_ok": 1}
+{"task": "41", "trial": 3, "idx": 22, "arg": "new_item_ids", "gold": "1096508426", "ncand": 34, "A": "['1096508426']", "A_ok": 0, "B": "[\"1096508426\"]", "B_ok": 0}
+{"task": "41", "trial": 3, "idx": 26, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "41", "trial": 3, "idx": 28, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 0, "idx": 16, "arg": "order_id", "gold": "#W9583042", "ncand": 2, "A": "#W9583042", "A_ok": 1, "B": "#W9583042", "B_ok": 1}
+{"task": "42", "trial": 0, "idx": 24, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 0, "idx": 26, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 0, "idx": 38, "arg": "new_item_ids", "gold": "1096508426", "ncand": 76, "A": "1096508426", "A_ok": 1, "B": "[\"1096508426\"]", "B_ok": 0}
+{"task": "42", "trial": 1, "idx": 20, "arg": "order_id", "gold": "#W9583042", "ncand": 2, "A": "#W9583042", "A_ok": 1, "B": "#W9583042", "B_ok": 1}
+{"task": "42", "trial": 1, "idx": 22, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 1, "idx": 26, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 1, "idx": 38, "arg": "new_item_ids", "gold": "1096508426", "ncand": 34, "A": "9665100170", "A_ok": 0, "B": "9665100170", "B_ok": 0}
+{"task": "42", "trial": 2, "idx": 14, "arg": "order_id", "gold": "#W9583042", "ncand": 2, "A": "#W9583042", "A_ok": 1, "B": "#W9583042", "B_ok": 1}
+{"task": "42", "trial": 2, "idx": 16, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 2, "idx": 20, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 2, "idx": 30, "arg": "new_item_ids", "gold": "1096508426", "ncand": 76, "A": "1096508426", "A_ok": 1, "B": "<tool_call>\n{\"name\": \"modify_pending_ord", "B_ok": 0}
+{"task": "42", "trial": 3, "idx": 20, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 3, "idx": 22, "arg": "address1", "gold": "445 Maple Drive", "ncand": 2, "A": "445 Maple Drive", "A_ok": 1, "B": "445 Maple Drive", "B_ok": 1}
+{"task": "42", "trial": 3, "idx": 30, "arg": "new_item_ids", "gold": "1096508426", "ncand": 34, "A": "1096508426", "A_ok": 1, "B": "1096508426", "B_ok": 1}
+{"task": "43", "trial": 0, "idx": 20, "arg": "address1", "gold": "943 Maple Drive", "ncand": 2, "A": "943 Maple Drive", "A_ok": 1, "B": "943 Maple Drive", "B_ok": 1}
+{"task": "43", "trial": 1, "idx": 20, "arg": "address1", "gold": "943 Maple Drive", "ncand": 2, "A": "943 Maple Drive", "A_ok": 1, "B": "943 Maple Drive", "B_ok": 1}
+{"task": "43", "trial": 2, "idx": 16, "arg": "address1", "gold": "943 Maple Drive", "ncand": 2, "A": "943 Maple Drive", "A_ok": 1, "B": "943 Maple Drive", "B_ok": 1}
+{"task": "43", "trial": 3, "idx": 20, "arg": "address1", "gold": "943 Maple Drive", "ncand": 2, "A": "943 Maple Drive", "A_ok": 1, "B": "943 Maple Drive", "B_ok": 1}
+{"task": "44", "trial": 0, "idx": 18, "arg": "new_item_ids", "gold": "5320792178", "ncand": 62, "A": "5320792178", "A_ok": 1, "B": "5320792178", "B_ok": 1}
+{"task": "44", "trial": 1, "idx": 16, "arg": "new_item_ids", "gold": "5320792178", "ncand": 13, "A": "1569765161", "A_ok": 0, "B": "1569765161", "B_ok": 0}
+{"task": "44", "trial": 2, "idx": 14, "arg": "new_item_ids", "gold": "5320792178", "ncand": 13, "A": "['1569765161']", "A_ok": 0, "B": "1569765161", "B_ok": 0}
+{"task": "44", "trial": 3, "idx": 16, "arg": "new_item_ids", "gold": "5320792178", "ncand": 13, "A": "1569765161", "A_ok": 0, "B": "1569765161", "B_ok": 0}
+{"task": "45", "trial": 0, "idx": 20, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "7958300294", "A_ok": 1, "B": "7958300294", "B_ok": 1}
+{"task": "45", "trial": 0, "idx": 28, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "['7958300294']", "A_ok": 0, "B": "7958300294", "B_ok": 1}
+{"task": "45", "trial": 1, "idx": 16, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "7958300294", "A_ok": 1, "B": "7958300294", "B_ok": 1}
+{"task": "45", "trial": 1, "idx": 22, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "['7958300294']", "A_ok": 0, "B": "['7958300294']", "B_ok": 0}
+{"task": "45", "trial": 1, "idx": 24, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "['7958300294']", "A_ok": 0, "B": "7958300294", "B_ok": 1}
+{"task": "45", "trial": 2, "idx": 22, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "[\"7958300294\"]", "A_ok": 0, "B": "7958300294", "B_ok": 1}
+{"task": "45", "trial": 2, "idx": 28, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "7958300294", "B_ok": 1}
+{"task": "45", "trial": 3, "idx": 16, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "7958300294", "B_ok": 1}
+{"task": "45", "trial": 3, "idx": 26, "arg": "new_item_ids", "gold": "7958300294", "ncand": 20, "A": "['7958300294']", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"exchange_delivered", "B_ok": 0}
+{"task": "46", "trial": 0, "idx": 16, "arg": "item_ids", "gold": "6259501109", "ncand": 9, "A": "[\"9534205511\", \"6259501109\"]", "A_ok": 0, "B": "[\"9534205511\", \"6259501109\"]", "B_ok": 0}
+{"task": "46", "trial": 1, "idx": 20, "arg": "item_ids", "gold": "6259501109", "ncand": 9, "A": "[\"9534205511\", \"6259501109\"]", "A_ok": 0, "B": "[\"2872451762\", \"9534205511\"]", "B_ok": 0}
+{"task": "46", "trial": 2, "idx": 20, "arg": "item_ids", "gold": "6259501109", "ncand": 9, "A": "[\"9534205511\", \"6259501109\"]", "A_ok": 0, "B": "[\"2872451762\", \"9534205511\"]", "B_ok": 0}
+{"task": "46", "trial": 3, "idx": 16, "arg": "item_ids", "gold": "6259501109", "ncand": 9, "A": "[\"9534205511\", \"6259501109\"]", "A_ok": 0, "B": "[\"9534205511\", \"6259501109\"]", "B_ok": 0}
+{"task": "47", "trial": 0, "idx": 22, "arg": "item_ids", "gold": "2872451762", "ncand": 9, "A": "[\"9534205511\", \"2872451762\"]", "A_ok": 0, "B": "[\"9534205511\", \"2872451762\"]", "B_ok": 0}
+{"task": "47", "trial": 1, "idx": 16, "arg": "item_ids", "gold": "2872451762", "ncand": 9, "A": "[\"2872451762\", \"9534205511\"]", "A_ok": 0, "B": "[\"2872451762\", \"9534205511\"]", "B_ok": 0}
+{"task": "47", "trial": 2, "idx": 22, "arg": "item_ids", "gold": "2872451762", "ncand": 9, "A": "[\"2872451762\", \"9534205511\"]", "A_ok": 0, "B": "[\"2872451762\", \"9534205511\"]", "B_ok": 0}
+{"task": "47", "trial": 3, "idx": 20, "arg": "item_ids", "gold": "2872451762", "ncand": 9, "A": "[\"9534205511\", \"2872451762\"]", "A_ok": 0, "B": "[\"2872451762\", \"9534205511\"]", "B_ok": 0}
+{"task": "48", "trial": 0, "idx": 20, "arg": "item_ids", "gold": "9534205511", "ncand": 13, "A": "['9534205511']", "A_ok": 0, "B": "9534205511", "B_ok": 1}
+{"task": "48", "trial": 1, "idx": 18, "arg": "item_ids", "gold": "9534205511", "ncand": 9, "A": "['9534205511']", "A_ok": 0, "B": "9534205511", "B_ok": 1}
+{"task": "48", "trial": 2, "idx": 14, "arg": "order_id", "gold": "#W9502127", "ncand": 3, "A": "#W9502127", "A_ok": 1, "B": "#W9502127", "B_ok": 1}
+{"task": "48", "trial": 2, "idx": 24, "arg": "item_ids", "gold": "9534205511", "ncand": 9, "A": "['9534205511']", "A_ok": 0, "B": "9534205511", "B_ok": 1}
+{"task": "48", "trial": 3, "idx": 18, "arg": "item_ids", "gold": "9534205511", "ncand": 9, "A": "[\"9534205511\"]", "A_ok": 0, "B": "9534205511", "B_ok": 1}
+{"task": "49", "trial": 0, "idx": 28, "arg": "new_item_ids", "gold": "1646531091", "ncand": 20, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "1646531091", "B_ok": 1}
+{"task": "49", "trial": 1, "idx": 22, "arg": "new_item_ids", "gold": "1646531091", "ncand": 22, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "1646531091", "B_ok": 1}
+{"task": "49", "trial": 2, "idx": 24, "arg": "new_item_ids", "gold": "1646531091", "ncand": 22, "A": "1646531091", "A_ok": 1, "B": "1646531091", "B_ok": 1}
+{"task": "49", "trial": 3, "idx": 16, "arg": "new_item_ids", "gold": "1646531091", "ncand": 8, "A": "['1646531091']", "A_ok": 0, "B": "1646531091", "B_ok": 1}
+{"task": "51", "trial": 0, "idx": 16, "arg": "payment_method_id", "gold": "credit_card_8105988", "ncand": 3, "A": "<tool_call>\n{\"name\": \"get_order_details\"", "A_ok": 0, "B": "credit_card_3951670", "B_ok": 0}
+{"task": "51", "trial": 0, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_8105988", "ncand": 3, "A": "credit_card_3951670", "A_ok": 0, "B": "credit_card_3951670", "B_ok": 0}
+{"task": "51", "trial": 0, "idx": 24, "arg": "payment_method_id", "gold": "credit_card_8105988", "ncand": 3, "A": "credit_card_3951670", "A_ok": 0, "B": "credit_card_3951670", "B_ok": 0}
+{"task": "51", "trial": 1, "idx": 22, "arg": "payment_method_id", "gold": "credit_card_8105988", "ncand": 3, "A": "credit_card_8105988", "A_ok": 1, "B": "credit_card_8105988", "B_ok": 1}
+{"task": "51", "trial": 2, "idx": 22, "arg": "payment_method_id", "gold": "credit_card_8105988", "ncand": 3, "A": "credit_card_8105988", "A_ok": 1, "B": "credit_card_8105988", "B_ok": 1}
+{"task": "51", "trial": 3, "idx": 20, "arg": "payment_method_id", "gold": "credit_card_8105988", "ncand": 3, "A": "credit_card_8105988", "A_ok": 1, "B": "credit_card_8105988", "B_ok": 1}
+{"task": "52", "trial": 0, "idx": 24, "arg": "new_item_ids", "gold": "9228757377", "ncand": 64, "A": "['4326528037']", "A_ok": 0, "B": "4326528037", "B_ok": 0}
+{"task": "52", "trial": 1, "idx": 22, "arg": "new_item_ids", "gold": "9228757377", "ncand": 15, "A": "9228757377", "A_ok": 1, "B": "9228757377", "B_ok": 1}
+{"task": "52", "trial": 2, "idx": 38, "arg": "new_item_ids", "gold": "9228757377", "ncand": 70, "A": "7255224608", "A_ok": 0, "B": "7255224608", "B_ok": 0}
+{"task": "52", "trial": 3, "idx": 24, "arg": "new_item_ids", "gold": "9228757377", "ncand": 35, "A": "9228757377", "A_ok": 1, "B": "9228757377", "B_ok": 1}
+{"task": "53", "trial": 3, "idx": 22, "arg": "payment_method_id", "gold": "credit_card_8105988", "ncand": 3, "A": "credit_card_8105988", "A_ok": 1, "B": "credit_card_8105988", "B_ok": 1}
+{"task": "54", "trial": 0, "idx": 30, "arg": "order_id", "gold": "#W4836353", "ncand": 6, "A": "#W4836353", "A_ok": 1, "B": "#W4836353", "B_ok": 1}
+{"task": "54", "trial": 0, "idx": 34, "arg": "order_id", "gold": "#W7342738", "ncand": 6, "A": "#W7342738", "A_ok": 1, "B": "#W7342738", "B_ok": 1}
+{"task": "54", "trial": 0, "idx": 44, "arg": "item_ids", "gold": "5669664287", "ncand": 50, "A": "[\"5669664287\", \"4900990404\", \"9862136885\", \"6777246137\"]", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"return_delivered_o", "B_ok": 0}
+{"task": "54", "trial": 1, "idx": 58, "arg": "order_id", "gold": "#W4836353", "ncand": 6, "A": "#W4836353", "A_ok": 1, "B": "#W4836353", "B_ok": 1}
+{"task": "54", "trial": 1, "idx": 60, "arg": "order_id", "gold": "#W7342738", "ncand": 6, "A": "#W4836353", "A_ok": 0, "B": "#W7342738", "B_ok": 1}
+{"task": "54", "trial": 1, "idx": 62, "arg": "item_ids", "gold": "5669664287", "ncand": 32, "A": "To return the items from the delivered o", "A_ok": 0, "B": "Based on the delivered orders we need to", "B_ok": 0}
+{"task": "54", "trial": 1, "idx": 64, "arg": "item_ids", "gold": "5669664287", "ncand": 32, "A": "['5669664287', '4900990404', '9862136885', '6777246137']", "A_ok": 0, "B": "['5669664287', '4900990404', '9862136885', '6777246137']", "B_ok": 0}
+{"task": "54", "trial": 2, "idx": 34, "arg": "order_id", "gold": "#W4836353", "ncand": 6, "A": "#W4836353", "A_ok": 1, "B": "#W4836353", "B_ok": 1}
+{"task": "54", "trial": 2, "idx": 38, "arg": "order_id", "gold": "#W7342738", "ncand": 6, "A": "#W7342738", "A_ok": 1, "B": "#W7342738", "B_ok": 1}
+{"task": "54", "trial": 3, "idx": 52, "arg": "order_id", "gold": "#W4836353", "ncand": 6, "A": "#W4836353", "A_ok": 1, "B": "#W4836353", "B_ok": 1}
+{"task": "54", "trial": 3, "idx": 54, "arg": "order_id", "gold": "#W7342738", "ncand": 6, "A": "#W4836353", "A_ok": 0, "B": "#W4836353", "B_ok": 0}
+{"task": "54", "trial": 3, "idx": 58, "arg": "item_ids", "gold": "5669664287", "ncand": 32, "A": "<tool_call>\n{\"name\": \"return_delivered_o", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"return_delivered_o", "B_ok": 0}
+{"task": "54", "trial": 3, "idx": 60, "arg": "item_ids", "gold": "5669664287", "ncand": 32, "A": "['5669664287', '4900990404', '9862136885', '6777246137']", "A_ok": 0, "B": "['5669664287', '4900990404', '9862136885', '6777246137']", "B_ok": 0}
+{"task": "55", "trial": 0, "idx": 22, "arg": "order_id", "gold": "#W4836353", "ncand": 6, "A": "#W4836353", "A_ok": 1, "B": "#W4836353", "B_ok": 1}
+{"task": "55", "trial": 0, "idx": 22, "arg": "order_id", "gold": "#W7342738", "ncand": 6, "A": "#W4836353", "A_ok": 0, "B": "#W4836353", "B_ok": 0}
+{"task": "55", "trial": 0, "idx": 29, "arg": "item_ids", "gold": "5669664287", "ncand": 32, "A": "<tool_call>\n{\"name\": \"return_delivered_o", "A_ok": 0, "B": "[\"5669664287\", \"4900990404\", \"9862136885\", \"6777246137\", \"8277474082\"]", "B_ok": 0}
+{"task": "55", "trial": 0, "idx": 29, "arg": "item_ids", "gold": "8277474082", "ncand": 32, "A": "<tool_call>\n{\"name\": \"return_delivered_o", "A_ok": 0, "B": "[\"5669664287\", \"4900990404\", \"9862136885\", \"6777246137\", \"8277474082\"]", "B_ok": 0}
+{"task": "55", "trial": 1, "idx": 30, "arg": "item_ids", "gold": "5669664287", "ncand": 20, "A": "[\"5669664287\", \"4900990404\", \"9862136885\", \"6777246137\"]", "A_ok": 0, "B": "[\"5669664287\", \"4900990404\", \"9862136885\", \"6777246137\"]", "B_ok": 0}
+{"task": "55", "trial": 1, "idx": 38, "arg": "order_id", "gold": "#W4836353", "ncand": 6, "A": "#W4836353", "A_ok": 1, "B": "#W4836353", "B_ok": 1}
+{"task": "55", "trial": 1, "idx": 48, "arg": "item_ids", "gold": "8277474082", "ncand": 26, "A": "['8277474082']", "A_ok": 0, "B": "8277474082", "B_ok": 1}
+{"task": "55", "trial": 1, "idx": 56, "arg": "order_id", "gold": "#W7342738", "ncand": 6, "A": "#W7342738", "A_ok": 1, "B": "#W7342738", "B_ok": 1}
+{"task": "55", "trial": 2, "idx": 32, "arg": "order_id", "gold": "#W4836353", "ncand": 6, "A": "#W4836353", "A_ok": 1, "B": "#W4836353", "B_ok": 1}
+{"task": "55", "trial": 2, "idx": 34, "arg": "order_id", "gold": "#W7342738", "ncand": 6, "A": "#W7342738", "A_ok": 1, "B": "<tool_call>\n{\"name\": \"cancel_pending_ord", "B_ok": 0}
+{"task": "55", "trial": 2, "idx": 38, "arg": "item_ids", "gold": "5669664287", "ncand": 32, "A": "['5669664287', '4900990404', '9862136885', '6777246137', '8277474082']", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"return_delivered_o", "B_ok": 0}
+{"task": "55", "trial": 2, "idx": 40, "arg": "item_ids", "gold": "8277474082", "ncand": 32, "A": "['8277474082']", "A_ok": 0, "B": "['8277474082']", "B_ok": 0}
+{"task": "55", "trial": 3, "idx": 25, "arg": "order_id", "gold": "#W4836353", "ncand": 6, "A": "#W4836353", "A_ok": 1, "B": "#W4836353", "B_ok": 1}
+{"task": "55", "trial": 3, "idx": 27, "arg": "order_id", "gold": "#W7342738", "ncand": 6, "A": "#W4836353", "A_ok": 0, "B": "#W7342738", "B_ok": 1}
+{"task": "55", "trial": 3, "idx": 29, "arg": "item_ids", "gold": "5669664287", "ncand": 32, "A": "[\"5669664287\", \"4900990404\", \"9862136885\", \"6777246137\", \"8277474082\"]", "A_ok": 0, "B": "[\"5669664287\", \"4900990404\", \"9862136885\", \"6777246137\", \"8277474082\"]", "B_ok": 0}
+{"task": "55", "trial": 3, "idx": 31, "arg": "item_ids", "gold": "8277474082", "ncand": 32, "A": "['5669664287', '4900990404', '9862136885', '6777246137']", "A_ok": 0, "B": "['5669664287', '4900990404', '9862136885', '6777246137']", "B_ok": 0}
+{"task": "56", "trial": 0, "idx": 22, "arg": "payment_method_id", "gold": "gift_card_9368765", "ncand": 2, "A": "<tool_call>\n{\"name\": \"get_user_details\",", "A_ok": 0, "B": "gift_card_9368765", "B_ok": 1}
+{"task": "56", "trial": 0, "idx": 26, "arg": "payment_method_id", "gold": "gift_card_9368765", "ncand": 2, "A": "gift_card_9368765", "A_ok": 1, "B": "gift_card_9368765", "B_ok": 1}
+{"task": "56", "trial": 0, "idx": 38, "arg": "new_item_ids", "gold": "9534205511", "ncand": 71, "A": "['9534205511']", "A_ok": 0, "B": "9534205511", "B_ok": 1}
+{"task": "56", "trial": 1, "idx": 28, "arg": "new_item_ids", "gold": "9534205511", "ncand": 71, "A": "['9375701158']", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"modify_pending_ord", "B_ok": 0}
+{"task": "56", "trial": 2, "idx": 22, "arg": "payment_method_id", "gold": "gift_card_9368765", "ncand": 2, "A": "credit_card_7455506", "A_ok": 0, "B": "credit_card_7455506", "B_ok": 0}
+{"task": "56", "trial": 2, "idx": 28, "arg": "payment_method_id", "gold": "gift_card_9368765", "ncand": 2, "A": "gift_card_9368765", "A_ok": 1, "B": "gift_card_9368765", "B_ok": 1}
+{"task": "56", "trial": 2, "idx": 38, "arg": "new_item_ids", "gold": "9534205511", "ncand": 68, "A": "['1327854740']", "A_ok": 0, "B": "1327854740", "B_ok": 0}
+{"task": "56", "trial": 3, "idx": 20, "arg": "payment_method_id", "gold": "gift_card_9368765", "ncand": 2, "A": "<tool_call>\n{\"name\": \"get_user_details\",", "A_ok": 0, "B": "gift_card_9368765", "B_ok": 1}
+{"task": "56", "trial": 3, "idx": 22, "arg": "payment_method_id", "gold": "gift_card_9368765", "ncand": 2, "A": "gift_card_9368765", "A_ok": 1, "B": "gift_card_9368765", "B_ok": 1}
+{"task": "56", "trial": 3, "idx": 32, "arg": "new_item_ids", "gold": "9534205511", "ncand": 71, "A": "['1327854740']", "A_ok": 0, "B": "1327854740", "B_ok": 0}
+{"task": "58", "trial": 0, "idx": 22, "arg": "new_item_ids", "gold": "3815173328", "ncand": 42, "A": "['3815173328', '1684786391']", "A_ok": 0, "B": "[\"3815173328\", \"1684786391\"]", "B_ok": 0}
+{"task": "58", "trial": 0, "idx": 26, "arg": "new_item_ids", "gold": "3815173328", "ncand": 42, "A": "['3815173328', '1684786391']", "A_ok": 0, "B": "['3815173328', '1684786391']", "B_ok": 0}
+{"task": "58", "trial": 1, "idx": 24, "arg": "new_item_ids", "gold": "3815173328", "ncand": 42, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"exchange_delivered", "B_ok": 0}
+{"task": "58", "trial": 2, "idx": 28, "arg": "new_item_ids", "gold": "3815173328", "ncand": 87, "A": "[\"3815173328\", \"6017636844\"]", "A_ok": 0, "B": "[\"3815173328\", \"6017636844\"]", "B_ok": 0}
+{"task": "58", "trial": 3, "idx": 26, "arg": "new_item_ids", "gold": "3815173328", "ncand": 42, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"exchange_delivered", "B_ok": 0}
+{"task": "59", "trial": 0, "idx": 20, "arg": "order_id", "gold": "#W8268610", "ncand": 3, "A": "#W2702727", "A_ok": 0, "B": "#W2702727", "B_ok": 0}
+{"task": "59", "trial": 0, "idx": 22, "arg": "order_id", "gold": "#W2702727", "ncand": 3, "A": "#W8268610", "A_ok": 0, "B": "#W8268610", "B_ok": 0}
+{"task": "59", "trial": 1, "idx": 14, "arg": "order_id", "gold": "#W2702727", "ncand": 2, "A": "#W2702727", "A_ok": 1, "B": "#W2702727", "B_ok": 1}
+{"task": "59", "trial": 1, "idx": 20, "arg": "order_id", "gold": "#W8268610", "ncand": 2, "A": "#W2702727", "A_ok": 0, "B": "#W2702727", "B_ok": 0}
+{"task": "59", "trial": 2, "idx": 12, "arg": "order_id", "gold": "#W8268610", "ncand": 2, "A": "#W8268610", "A_ok": 1, "B": "#W8268610", "B_ok": 1}
+{"task": "59", "trial": 3, "idx": 18, "arg": "order_id", "gold": "#W8268610", "ncand": 2, "A": "#W8268610", "A_ok": 1, "B": "#W8268610", "B_ok": 1}
+{"task": "59", "trial": 3, "idx": 20, "arg": "order_id", "gold": "#W2702727", "ncand": 2, "A": "#W2702727", "A_ok": 1, "B": "#W2702727", "B_ok": 1}
+{"task": "60", "trial": 0, "idx": 16, "arg": "new_item_ids", "gold": "6077640618", "ncand": 19, "A": "['6077640618']", "A_ok": 0, "B": "6077640618", "B_ok": 1}
+{"task": "60", "trial": 1, "idx": 12, "arg": "new_item_ids", "gold": "6077640618", "ncand": 19, "A": "['6077640618']", "A_ok": 0, "B": "6077640618", "B_ok": 1}
+{"task": "60", "trial": 2, "idx": 16, "arg": "new_item_ids", "gold": "6077640618", "ncand": 19, "A": "['6077640618']", "A_ok": 0, "B": "6077640618", "B_ok": 1}
+{"task": "60", "trial": 3, "idx": 12, "arg": "new_item_ids", "gold": "6077640618", "ncand": 19, "A": "['6077640618']", "A_ok": 0, "B": "6077640618", "B_ok": 1}
+{"task": "61", "trial": 0, "idx": 12, "arg": "new_item_ids", "gold": "8555936349", "ncand": 19, "A": "['8555936349']", "A_ok": 0, "B": "8555936349", "B_ok": 1}
+{"task": "61", "trial": 1, "idx": 16, "arg": "new_item_ids", "gold": "8555936349", "ncand": 65, "A": "[\"8555936349\"]", "A_ok": 0, "B": "8555936349", "B_ok": 1}
+{"task": "61", "trial": 2, "idx": 12, "arg": "new_item_ids", "gold": "8555936349", "ncand": 19, "A": "['8555936349']", "A_ok": 0, "B": "8555936349", "B_ok": 1}
+{"task": "61", "trial": 3, "idx": 12, "arg": "new_item_ids", "gold": "8555936349", "ncand": 19, "A": "['8555936349']", "A_ok": 0, "B": "8555936349", "B_ok": 1}
+{"task": "63", "trial": 0, "idx": 18, "arg": "payment_method_id", "gold": "paypal_3742148", "ncand": 2, "A": "paypal_3742148", "A_ok": 1, "B": "paypal_3742148", "B_ok": 1}
+{"task": "63", "trial": 0, "idx": 28, "arg": "new_item_ids", "gold": "2635605237", "ncand": 70, "A": "['2635605237']", "A_ok": 0, "B": "2635605237", "B_ok": 1}
+{"task": "63", "trial": 1, "idx": 32, "arg": "new_item_ids", "gold": "2635605237", "ncand": 70, "A": "['2635605237']", "A_ok": 0, "B": "2635605237", "B_ok": 1}
+{"task": "63", "trial": 2, "idx": 20, "arg": "payment_method_id", "gold": "paypal_3742148", "ncand": 2, "A": "paypal_3742148", "A_ok": 1, "B": "paypal_3742148", "B_ok": 1}
+{"task": "63", "trial": 2, "idx": 24, "arg": "payment_method_id", "gold": "paypal_3742148", "ncand": 2, "A": "paypal_3742148", "A_ok": 1, "B": "paypal_3742148", "B_ok": 1}
+{"task": "63", "trial": 2, "idx": 36, "arg": "new_item_ids", "gold": "2635605237", "ncand": 70, "A": "['2635605237']", "A_ok": 0, "B": "2635605237", "B_ok": 1}
+{"task": "63", "trial": 3, "idx": 20, "arg": "payment_method_id", "gold": "paypal_3742148", "ncand": 2, "A": "paypal_3742148", "A_ok": 1, "B": "paypal_3742148", "B_ok": 1}
+{"task": "63", "trial": 3, "idx": 24, "arg": "payment_method_id", "gold": "paypal_3742148", "ncand": 2, "A": "paypal_3742148", "A_ok": 1, "B": "paypal_3742148", "B_ok": 1}
+{"task": "63", "trial": 3, "idx": 26, "arg": "payment_method_id", "gold": "paypal_3742148", "ncand": 2, "A": "paypal_3742148", "A_ok": 1, "B": "paypal_3742148", "B_ok": 1}
+{"task": "64", "trial": 0, "idx": 30, "arg": "new_item_ids", "gold": "6700049080", "ncand": 76, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "6700049080", "B_ok": 1}
+{"task": "64", "trial": 0, "idx": 34, "arg": "new_item_ids", "gold": "6700049080", "ncand": 76, "A": "['6700049080']", "A_ok": 0, "B": "6700049080", "B_ok": 1}
+{"task": "64", "trial": 1, "idx": 32, "arg": "new_item_ids", "gold": "6700049080", "ncand": 66, "A": "['6700049080']", "A_ok": 0, "B": "6700049080", "B_ok": 1}
+{"task": "64", "trial": 3, "idx": 36, "arg": "new_item_ids", "gold": "6700049080", "ncand": 66, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "6700049080", "B_ok": 1}
+{"task": "64", "trial": 3, "idx": 40, "arg": "new_item_ids", "gold": "6700049080", "ncand": 66, "A": "['6700049080']", "A_ok": 0, "B": "6700049080", "B_ok": 1}
+{"task": "66", "trial": 1, "idx": 24, "arg": "order_id", "gold": "#W3361211", "ncand": 2, "A": "#W3361211", "A_ok": 1, "B": "#W3361211", "B_ok": 1}
+{"task": "66", "trial": 2, "idx": 20, "arg": "order_id", "gold": "#W3361211", "ncand": 2, "A": "#W3361211", "A_ok": 1, "B": "#W3361211", "B_ok": 1}
+{"task": "66", "trial": 3, "idx": 22, "arg": "order_id", "gold": "#W3361211", "ncand": 2, "A": "#W3361211", "A_ok": 1, "B": "#W3361211", "B_ok": 1}
+{"task": "69", "trial": 3, "idx": 18, "arg": "order_id", "gold": "#W2417020", "ncand": 3, "A": "#W2417020", "A_ok": 1, "B": "#W2417020", "B_ok": 1}
+{"task": "70", "trial": 0, "idx": 20, "arg": "new_item_ids", "gold": "9013366374", "ncand": 21, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "9013366374", "B_ok": 1}
+{"task": "70", "trial": 1, "idx": 20, "arg": "new_item_ids", "gold": "9013366374", "ncand": 21, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "9013366374", "B_ok": 1}
+{"task": "70", "trial": 2, "idx": 24, "arg": "new_item_ids", "gold": "9013366374", "ncand": 40, "A": "['9013366374']", "A_ok": 0, "B": "9013366374", "B_ok": 1}
+{"task": "70", "trial": 3, "idx": 18, "arg": "new_item_ids", "gold": "9013366374", "ncand": 21, "A": "<tool_call>\n{\"name\": \"exchange_delivered", "A_ok": 0, "B": "9013366374", "B_ok": 1}
+{"task": "71", "trial": 0, "idx": 14, "arg": "order_id", "gold": "#W5270061", "ncand": 4, "A": "#W5782623", "A_ok": 0, "B": "#W5782623", "B_ok": 0}
+{"task": "71", "trial": 0, "idx": 26, "arg": "new_item_ids", "gold": "5917587651", "ncand": 65, "A": "<tool_call>\n{\"name\": \"modify_pending_ord", "A_ok": 0, "B": "5917587651", "B_ok": 1}
+{"task": "71", "trial": 1, "idx": 14, "arg": "order_id", "gold": "#W5270061", "ncand": 4, "A": "#W5782623", "A_ok": 0, "B": "#W5782623", "B_ok": 0}
+{"task": "71", "trial": 1, "idx": 20, "arg": "payment_method_id", "gold": "paypal_7729105", "ncand": 2, "A": "gift_card_1711656", "A_ok": 0, "B": "gift_card_1711656", "B_ok": 0}
+{"task": "71", "trial": 1, "idx": 28, "arg": "new_item_ids", "gold": "5917587651", "ncand": 17, "A": "['5917587651']", "A_ok": 0, "B": "5917587651", "B_ok": 1}
+{"task": "71", "trial": 2, "idx": 14, "arg": "order_id", "gold": "#W5270061", "ncand": 4, "A": "#W5782623", "A_ok": 0, "B": "#W5782623", "B_ok": 0}
+{"task": "71", "trial": 2, "idx": 26, "arg": "new_item_ids", "gold": "5917587651", "ncand": 17, "A": "['5917587651']", "A_ok": 0, "B": "[\"5917587651\"]", "B_ok": 0}
+{"task": "71", "trial": 3, "idx": 14, "arg": "order_id", "gold": "#W5270061", "ncand": 4, "A": "#W5782623", "A_ok": 0, "B": "#W5782623", "B_ok": 0}
+{"task": "71", "trial": 3, "idx": 34, "arg": "new_item_ids", "gold": "5917587651", "ncand": 17, "A": "['5917587651']", "A_ok": 0, "B": "5917587651", "B_ok": 1}
+{"task": "72", "trial": 0, "idx": 16, "arg": "order_id", "gold": "#W5270061", "ncand": 4, "A": "#W7032009", "A_ok": 0, "B": "#W7032009", "B_ok": 0}
+{"task": "72", "trial": 0, "idx": 20, "arg": "payment_method_id", "gold": "paypal_7729105", "ncand": 2, "A": "gift_card_1711656", "A_ok": 0, "B": "gift_card_1711656", "B_ok": 0}
+{"task": "72", "trial": 0, "idx": 32, "arg": "new_item_ids", "gold": "5917587651", "ncand": 27, "A": "['5917587651']", "A_ok": 0, "B": "5917587651", "B_ok": 1}
+{"task": "72", "trial": 1, "idx": 22, "arg": "order_id", "gold": "#W5270061", "ncand": 4, "A": "#W5782623", "A_ok": 0, "B": "#W5782623", "B_ok": 0}
+{"task": "72", "trial": 1, "idx": 24, "arg": "new_item_ids", "gold": "5917587651", "ncand": 17, "A": "[\"5917587651\"]", "A_ok": 0, "B": "5917587651", "B_ok": 1}
+{"task": "72", "trial": 2, "idx": 20, "arg": "order_id", "gold": "#W5270061", "ncand": 4, "A": "#W5782623", "A_ok": 0, "B": "#W5782623", "B_ok": 0}
+{"task": "72", "trial": 2, "idx": 32, "arg": "new_item_ids", "gold": "5917587651", "ncand": 17, "A": "['5917587651']", "A_ok": 0, "B": "5917587651", "B_ok": 1}
+{"task": "72", "trial": 3, "idx": 16, "arg": "address1", "gold": "159 Hickory Lane", "ncand": 2, "A": "159 Hickory Lane", "A_ok": 1, "B": "159 Hickory Lane", "B_ok": 1}
+{"task": "72", "trial": 3, "idx": 32, "arg": "new_item_ids", "gold": "5917587651", "ncand": 30, "A": "['5917587651']", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"modify_pending_ord", "B_ok": 0}
+{"task": "73", "trial": 0, "idx": 14, "arg": "item_ids", "gold": "7228247242", "ncand": 9, "A": "[\"3320557165\", \"2698416822\", \"8098621301\", \"7228247242\"]", "A_ok": 0, "B": "[\"3320557165\", \"2698416822\", \"8098621301\", \"7228247242\"]", "B_ok": 0}
+{"task": "73", "trial": 1, "idx": 16, "arg": "item_ids", "gold": "7228247242", "ncand": 9, "A": "[\"3320557165\", \"2698416822\", \"8098621301\", \"7228247242\"]", "A_ok": 0, "B": "<tool_call>\n{\"name\": \"return_delivered_o", "B_ok": 0}
+{"task": "73", "trial": 2, "idx": 14, "arg": "item_ids", "gold": "7228247242", "ncand": 9, "A": "[\"3320557165\", \"2698416822\", \"8098621301\", \"7228247242\"]", "A_ok": 0, "B": "[3320557165, 2698416822, 8098621301, 7228247242]", "B_ok": 0}

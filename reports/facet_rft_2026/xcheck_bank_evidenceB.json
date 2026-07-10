@@ -1,0 +1,1110 @@
+{
+  "domain": "bank",
+  "scanned": 2497,
+  "n_instances": 48,
+  "never_passed": 14,
+  "never_goals": [
+    "cancel_credit_card",
+    "get_loan",
+    "pay_bill",
+    "pay_bill_with_credit_card",
+    "set_safety_box",
+    "transfer_funds"
+  ],
+  "passed_goals": [
+    "apply_credit_card",
+    "close_account",
+    "deposit_funds",
+    "exchange_foreign_currency",
+    "get_account_owed_balance",
+    "get_loan",
+    "open_account",
+    "pay_bill",
+    "pay_loan",
+    "set_account_information",
+    "set_safety_box",
+    "transfer_funds"
+  ],
+  "instances": {
+    "apply_credit_card|0": {
+      "seen": 53,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 18,
+        "constraint_not_violated": 8,
+        "action_called_correctly": 2
+      }
+    },
+    "apply_credit_card|1": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-instruct",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 11,
+        "constraint_not_violated": 8,
+        "no_tool_call_error": 1,
+        "action_called_correctly": 4
+      }
+    },
+    "apply_credit_card|2": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "llama3.1-70b-instruct",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "constraint_not_violated": 14,
+        "dirgraph_satisfied": 14,
+        "no_tool_call_error": 1,
+        "action_called_correctly": 3
+      }
+    },
+    "apply_credit_card|3": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "constraint_not_violated": 13,
+        "dirgraph_satisfied": 15,
+        "action_called_correctly": 5
+      }
+    },
+    "cancel_credit_card|0": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "constraint_not_violated": 26,
+        "database_match": 3,
+        "action_called_correctly": 48,
+        "no_tool_call_error": 6,
+        "dirgraph_satisfied": 13
+      }
+    },
+    "cancel_credit_card|1": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "constraint_not_violated": 30,
+        "database_match": 4,
+        "action_called_correctly": 48,
+        "dirgraph_satisfied": 26
+      }
+    },
+    "cancel_credit_card|2": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "constraint_not_violated": 21,
+        "database_match": 3,
+        "action_called_correctly": 47,
+        "no_tool_call_error": 7,
+        "dirgraph_satisfied": 8
+      }
+    },
+    "cancel_credit_card|3": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "constraint_not_violated": 32,
+        "database_match": 6,
+        "action_called_correctly": 47,
+        "dirgraph_satisfied": 11
+      }
+    },
+    "cancel_credit_card|4": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "constraint_not_violated": 36,
+        "database_match": 5,
+        "action_called_correctly": 47,
+        "dirgraph_satisfied": 13,
+        "no_tool_call_error": 4
+      }
+    },
+    "cancel_credit_card|5": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "constraint_not_violated": 36,
+        "database_match": 6,
+        "action_called_correctly": 48,
+        "dirgraph_satisfied": 12,
+        "no_tool_call_error": 2
+      }
+    },
+    "close_account|0": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "no_tool_call_error": 2,
+        "constraint_not_violated": 8,
+        "action_called_correctly": 5,
+        "database_match": 5,
+        "dirgraph_satisfied": 5
+      }
+    },
+    "deposit_funds|0": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 10,
+        "no_tool_call_error": 2,
+        "action_called_correctly": 5,
+        "constraint_not_violated": 3
+      }
+    },
+    "deposit_funds|1": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-instruct",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "constraint_not_violated": 5,
+        "database_match": 5,
+        "dirgraph_satisfied": 5
+      }
+    },
+    "exchange_foreign_currency|0": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "llama3.1-70b-it-fireworks",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 4,
+        "action_called_correctly": 25,
+        "constraint_not_violated": 1
+      }
+    },
+    "exchange_foreign_currency|1": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "llama3.1-70b-it-fireworks",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 4,
+        "action_called_correctly": 25
+      }
+    },
+    "get_account_owed_balance|0": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "llama3.1-70b-it-fireworks",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "action_called_correctly": 24,
+        "no_tool_call_error": 1,
+        "constraint_not_violated": 1,
+        "dirgraph_satisfied": 1
+      }
+    },
+    "get_loan|0": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "dirgraph_satisfied": 38,
+        "constraint_not_violated": 30,
+        "action_called_correctly": 10,
+        "no_tool_call_error": 2,
+        "database_match": 2
+      }
+    },
+    "get_loan|1": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 8,
+        "action_called_correctly": 5,
+        "constraint_not_violated": 6,
+        "database_match": 4,
+        "no_tool_call_error": 1
+      }
+    },
+    "get_loan|2": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "dirgraph_satisfied": 37,
+        "no_tool_call_error": 1,
+        "action_called_correctly": 11,
+        "constraint_not_violated": 31
+      }
+    },
+    "get_loan|3": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 11,
+        "constraint_not_violated": 6,
+        "database_match": 6,
+        "action_called_correctly": 4,
+        "no_tool_call_error": 1
+      }
+    },
+    "open_account|0": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "gpt-4.1-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-instruct",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 9,
+        "database_match": 21,
+        "action_called_correctly": 7,
+        "constraint_not_violated": 1
+      }
+    },
+    "pay_bill|0": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "dirgraph_satisfied": 20,
+        "action_called_correctly": 27,
+        "no_tool_call_error": 1,
+        "constraint_not_violated": 10
+      }
+    },
+    "pay_bill|1": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-instruct",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 16,
+        "action_called_correctly": 2,
+        "constraint_not_violated": 2,
+        "database_match": 2
+      }
+    },
+    "pay_bill_with_credit_card|0": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "no_tool_call_error": 8,
+        "constraint_not_violated": 21,
+        "database_match": 9,
+        "action_called_correctly": 47,
+        "dirgraph_satisfied": 22
+      }
+    },
+    "pay_bill_with_credit_card|1": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "no_tool_call_error": 15,
+        "action_called_correctly": 48,
+        "dirgraph_satisfied": 17,
+        "constraint_not_violated": 22,
+        "database_match": 2
+      }
+    },
+    "pay_loan|0": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "action_called_correctly": 25,
+        "no_tool_call_error": 1,
+        "dirgraph_satisfied": 22,
+        "constraint_not_violated": 11
+      }
+    },
+    "pay_loan|1": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "gemini-2.0-flash-thinking-exp",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "action_called_correctly": 32,
+        "dirgraph_satisfied": 17,
+        "constraint_not_violated": 12
+      }
+    },
+    "pay_loan|2": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gpt-4o",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 7,
+        "no_tool_call_error": 1,
+        "action_called_correctly": 33,
+        "constraint_not_violated": 2,
+        "database_match": 2
+      }
+    },
+    "pay_loan|3": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 12,
+        "action_called_correctly": 18,
+        "constraint_not_violated": 1
+      }
+    },
+    "set_account_information|0": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "constraint_not_violated": 14,
+        "database_match": 13,
+        "dirgraph_satisfied": 14,
+        "action_called_correctly": 2,
+        "no_tool_call_error": 1
+      }
+    },
+    "set_safety_box|0": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "dirgraph_satisfied": 33,
+        "constraint_not_violated": 19,
+        "no_tool_call_error": 1,
+        "action_called_correctly": 14
+      }
+    },
+    "set_safety_box|1": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-instruct",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "action_called_correctly": 12,
+        "no_tool_call_error": 1,
+        "dirgraph_satisfied": 12,
+        "constraint_not_violated": 6,
+        "database_match": 5
+      }
+    },
+    "set_safety_box|2": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 26,
+        "constraint_not_violated": 6,
+        "database_match": 6
+      }
+    },
+    "set_safety_box|3": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gpt-4.1",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 23,
+        "constraint_not_violated": 7,
+        "database_match": 7,
+        "action_called_correctly": 2,
+        "no_tool_call_error": 1
+      }
+    },
+    "set_safety_box|4": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "action_called_correctly": 28,
+        "constraint_not_violated": 18,
+        "dirgraph_satisfied": 25
+      }
+    },
+    "set_safety_box|5": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 23,
+        "constraint_not_violated": 5,
+        "database_match": 5,
+        "action_called_correctly": 4
+      }
+    },
+    "set_safety_box|6": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 21,
+        "constraint_not_violated": 4,
+        "database_match": 4,
+        "action_called_correctly": 1
+      }
+    },
+    "set_safety_box|7": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "action_called_correctly": 14,
+        "no_tool_call_error": 1,
+        "dirgraph_satisfied": 18,
+        "constraint_not_violated": 7,
+        "database_match": 6
+      }
+    },
+    "set_safety_box|8": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 24,
+        "no_tool_call_error": 2,
+        "constraint_not_violated": 6,
+        "database_match": 6,
+        "action_called_correctly": 1
+      }
+    },
+    "set_safety_box|9": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 18,
+        "constraint_not_violated": 6,
+        "database_match": 6,
+        "action_called_correctly": 1,
+        "no_tool_call_error": 1
+      }
+    },
+    "transfer_funds|0": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "action_called_correctly": 13,
+        "dirgraph_satisfied": 11,
+        "constraint_not_violated": 3
+      }
+    },
+    "transfer_funds|1": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-instruct",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 17,
+        "database_match": 2,
+        "action_called_correctly": 1,
+        "constraint_not_violated": 1
+      }
+    },
+    "transfer_funds|2": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 15,
+        "constraint_not_violated": 7,
+        "database_match": 8,
+        "action_called_correctly": 5,
+        "no_tool_call_error": 1
+      }
+    },
+    "transfer_funds|3": {
+      "seen": 52,
+      "any": false,
+      "passers": [],
+      "fail": {
+        "dirgraph_satisfied": 29,
+        "action_called_correctly": 19,
+        "constraint_not_violated": 13,
+        "no_tool_call_error": 1
+      }
+    },
+    "transfer_funds|4": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219-thinking",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 18,
+        "constraint_not_violated": 6,
+        "database_match": 6,
+        "action_called_correctly": 5,
+        "no_tool_call_error": 1
+      }
+    },
+    "transfer_funds|5": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "llama3.1-8b-instruct",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct",
+        "qwen2.5-72b-instruct",
+        "qwen2.5-7b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 19,
+        "constraint_not_violated": 4,
+        "database_match": 3,
+        "action_called_correctly": 4
+      }
+    },
+    "transfer_funds|6": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-32b-instruct"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 19,
+        "constraint_not_violated": 6,
+        "database_match": 5,
+        "action_called_correctly": 7,
+        "no_tool_call_error": 1
+      }
+    },
+    "transfer_funds|7": {
+      "seen": 52,
+      "any": true,
+      "passers": [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+        "deepseek-r1",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-thinking-exp",
+        "gpt-4.1-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5",
+        "llama3.1-70b-it-fireworks",
+        "o4-mini-high",
+        "o4-mini",
+        "qwen2.5-14b-instruct",
+        "qwen2.5-72b-it-fireworks"
+      ],
+      "fail": {
+        "dirgraph_satisfied": 13,
+        "constraint_not_violated": 3,
+        "database_match": 3,
+        "no_tool_call_error": 2,
+        "action_called_correctly": 7
+      }
+    }
+  }
+}
