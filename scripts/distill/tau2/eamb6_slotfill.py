@@ -109,8 +109,22 @@ def variant_slot(sim, idx, old_item, db, item2prod, prod_variants):
         p = sum(1 for v in variants.values()
                 if v.get("available") is not False and norm((v.get("options") or {}).get(a, "")) == val) / max(N, 1)
         ind *= p
+    # ★모드 B (T6g): 디폴트 = 기존 속성 유지 ⊕ 단언된 변경만 오버라이드
+    consB = {a: norm(val) for a, val in old_opts.items()}
+    label = "KEEP"
+    for a, val in cons.items():
+        if consB.get(a) != val:
+            consB[a] = val
+            label = "OVERRIDE"
+    candB = []
+    for vid, v in variants.items():
+        if v.get("available") is False:
+            continue
+        opts = {a: norm(val) for a, val in (v.get("options") or {}).items()}
+        if all(opts.get(a) == val for a, val in consB.items()):
+            candB.append(str(vid))
     return {"cand": cand, "C": len(cand), "n_cons": len(cons), "conflict_old": conflict_old,
-            "C_ind": ind, "pid": pid}
+            "C_ind": ind, "pid": pid, "candB": candB, "CB": len(candB), "labelB": label}
 
 
 def payment_slot(sim, idx, call_oid, db, uid):
@@ -139,7 +153,27 @@ def payment_slot(sim, idx, call_oid, db, uid):
         if p >= 0 and (best is None or p > best[1]):
             best = (pref, p)
     cand = [p for p in pms if best is None or p.startswith(best[0])]
-    return {"cand": cand, "C": len(cand), "cue": best[0] if best else None}
+    out = {"cand": cand, "C": len(cand), "cue": best[0] if best else None}
+    # ★모드 B (T6g): 디폴트 = 원결제(정책-도출·cue 불요), 타입-cue가 다르면 OVERRIDE
+    o = None
+    for k, v in db["orders"].items():
+        if norm(k) == norm(call_oid):
+            o = v
+            break
+    dflt = None
+    if o:
+        ph = o.get("payment_history") or []
+        if ph and ph[0].get("payment_method_id"):
+            dflt = str(ph[0]["payment_method_id"])
+    if dflt:
+        if best and not dflt.startswith(best[0]):
+            cB = [p for p in pms if p.startswith(best[0])]
+            out.update(candB=cB, CB=len(cB), labelB="OVERRIDE")
+        else:
+            out.update(candB=[dflt], CB=1, labelB="KEEP")
+    else:
+        out.update(candB=cand, CB=len(cand), labelB="NO-DEFAULT")
+    return out
 
 
 def order_slot(sim, idx, tool, db, uid, prod_name, item2prod):
@@ -265,6 +299,23 @@ def main():
             print("   [FILL-오답] t%s tr%s cand=%s gold=%s %s" % (
                 r["task"], r["trial"], r["cand"][:2], r["gold"],
                 ("cons=%d" % r.get("n_cons")) if "n_cons" in r else r.get("cue", "")))
+        # ★T6g 모드 B (명시적 디폴트 ⊕ 오버라이드)
+        wb = [r for r in rows if "CB" in r]
+        if wb:
+            fb = [r for r in wb if r["CB"] == 1]
+            g = lambda r: (r["gold"] if isinstance(r["gold"], str) else None)
+            okb = sum(1 for r in fb if g(r) and norm(r["candB"][0]) == g(r))
+            keep = [r for r in wb if r.get("labelB") == "KEEP"]
+            okk = sum(1 for r in keep if r["CB"] == 1 and g(r) and norm(r["candB"][0]) == g(r))
+            ov = [r for r in wb if r.get("labelB") == "OVERRIDE"]
+            oko = sum(1 for r in ov if r["CB"] == 1 and g(r) and norm(r["candB"][0]) == g(r))
+            print("  ★T6g 모드B: FILL(CB=1) %d/%d · 정확도 %.3f | KEEP %d(정확 %.3f) · OVERRIDE %d(정확 %.3f)" % (
+                len(fb), len(wb), okb / max(len(fb), 1),
+                len(keep), okk / max(len(keep), 1), len(ov), oko / max(len(ov), 1)))
+            badb = [r for r in fb if g(r) and norm(r["candB"][0]) != g(r)][:5]
+            for r in badb:
+                print("   [B-오답·%s] t%s tr%s candB=%s gold=%s" % (
+                    r.get("labelB"), r["task"], r["trial"], r["candB"][:2], r["gold"]))
     # T6e: 독립근사 vs 정확 (variant)
     vr = [r for r in res["variant"] if r.get("n_cons", 0) >= 1]
     if vr:
