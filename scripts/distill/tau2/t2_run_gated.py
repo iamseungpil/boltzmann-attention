@@ -106,24 +106,35 @@ def main():
 
     if a.gate:
         import t2_gate_patch
-        if os.environ.get("T2_GATE_REGEN") == "1":
-            # ★replay-safe 게이트: 생성-레벨 deny+regen+R8 종단 (apply() 대체·리더보드-동일 채점).
-            t2_gate_patch.apply_gate_regen(max_regen=int(os.environ.get("T2_GATE_REGEN_K", "1")))
-            print("[t2_run] gate ON (REPLAY-SAFE regen·K=%s)" % os.environ.get("T2_GATE_REGEN_K", "1"))
-        else:
-            t2_gate_patch.apply()
-            print("[t2_run] gate ON")
         regen_on = os.environ.get("T2_PROV_REGEN") == "1"
         badwords_on = os.environ.get("T2_PROV_BADWORDS", "0") == "1"
         ground_on = os.environ.get("T2_PROV_GROUND", "0") == "1"
         disamb_on = os.environ.get("T2_DISAMB", "0") == "1"
-        # ★이중패치 가드(리뷰⚠️4): apply_gate_regen과 apply_provenance_regen 둘 다
-        #   LLMAgent._generate_next_message 패치 → 동시 활성 시 두 번째가 첫 번째를 덮음.
-        #   T2_GATE_REGEN 모드선 provenance 병행 금지(mutually exclusive·assembled=prov OFF).
+        _unified = os.environ.get("T2_GATE_REGEN") == "1" and (
+            regen_on or badwords_on or ground_on or disamb_on)
+        if os.environ.get("T2_GATE_REGEN") == "1" and not _unified:
+            # ★replay-safe 게이트: 생성-레벨 deny+regen+R8 종단 (apply() 대체·리더보드-동일 채점).
+            t2_gate_patch.apply_gate_regen(max_regen=int(os.environ.get("T2_GATE_REGEN_K", "1")))
+            print("[t2_run] gate ON (REPLAY-SAFE regen·K=%s)" % os.environ.get("T2_GATE_REGEN_K", "1"))
+        elif not _unified:
+            t2_gate_patch.apply()
+            print("[t2_run] gate ON")
+        # ★E-COMP unified (2026-07-10·리뷰 반영): T2_GATE_REGEN ∧ T2_PROV_REGEN/T2_DISAMB 동시
+        #   활성 시 단일 통합 패치(apply_unified_regen)로 라우팅 — 구 이중패치 CONFLICT 해소.
+        #   예산 semantics = 두 GO arm 승계(게이트 1라운드 tick·prov 무과금 K=4). GROUND는 scope 밖.
         if os.environ.get("T2_GATE_REGEN") == "1" and (regen_on or badwords_on or ground_on or disamb_on):
-            raise SystemExit("[t2_run] CONFLICT: T2_GATE_REGEN and T2_PROV_*/T2_DISAMB both set — "
-                             "they both patch _generate_next_message (double-patch). Disable one.")
-        if regen_on or badwords_on or ground_on or disamb_on:
+            if ground_on:
+                raise SystemExit("[t2_run] T2_PROV_GROUND is not supported in unified mode (E-COMP scope).")
+            t2_gate_patch.apply_unified_regen(
+                max_prov_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")),
+                domain=a.domain,
+                disamb=disamb_on,
+                use_badwords=badwords_on)
+            print("[t2_run] UNIFIED regen ON: gate(K=1·tick) + prov(K=%s·무과금)%s%s"
+                  % (os.environ.get("T2_PROV_REGEN_K", "4"),
+                     " + DISAMB" if disamb_on else "",
+                     " + badwords" if badwords_on else ""))
+        elif regen_on or badwords_on or ground_on or disamb_on:
             # GROUND/DISAMB는 regen 인프라(생성-레벨 작업본) 위에서 동작 → regen 경로 활성 필요
             t2_gate_patch.apply_provenance_regen(
                 max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")) if (regen_on or ground_on) else 0,

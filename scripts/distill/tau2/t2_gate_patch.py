@@ -892,6 +892,215 @@ def apply_gate_regen(max_regen=1):
     return orig_gen
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# ★E-COMP 통합 생성-레벨 검증 체인 (RETAIL_PASS_COMPOSITION_DESIGN_2026_07_10 §2·리뷰 반영)
+#   = 게이트(replay-safe regen) + provenance 검증기 + (선택) DISAMB 를 한 패치로.
+#   예산 semantics는 두 GO arm을 *그대로 승계* (리뷰 블로킹1 — 귀속 오염 방지):
+#     게이트: deny 피드백 라운드 최대 1회·그 라운드만 num_errors++ (apply_gate_regen K=1 동일)
+#             잔존 deny = R8 strip(재과금 없음·replay-safe)
+#     prov  : 무과금·재발화 최대 max_prov_retries=4 (apply_provenance_regen=C53 동일)
+#     DISAMB: 1회 재확인·★채택 전 게이트 재검사 — deny면 원 am 유지 (리뷰 블로킹2)
+#   present/autofetch/GROUND 미지원(C34 폐기·scope 밖). 도메인-일반: 게이트·힌트 전부 A2-구동.
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwords=False):
+    import sys as _sys
+    from tau2.agent.llm_agent import LLMAgent
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import ToolMessage, UserMessage, MultiToolMessage
+    from tau2.orchestrator.orchestrator import BaseOrchestrator
+
+    a2d = _domain_a2(domain) if domain else None
+    hints = a2d["_hints"] if a2d else DEFAULT_ARG_HINTS
+    placeholders = a2d["_placeholders"] if a2d else DEFAULT_PLACEHOLDERS
+    disamb_tools = _confirm_write_tools(a2d) if disamb else set()
+
+    # (1) per-sim 게이트 주입 (apply_gate_regen과 동일 패턴·T2_GATE_KINDS 지원)
+    orig_init = BaseOrchestrator.__init__
+
+    def init_inject(self, *a, **kw):
+        orig_init(self, *a, **kw)
+        env = getattr(self, "environment", None)
+        ag = getattr(self, "agent", None)
+        a2 = _domain_a2(getattr(env, "domain_name", None)) if env is not None else None
+        if a2 is not None and ag is not None and hasattr(ag, "_generate_next_message"):
+            _kinds = os.environ.get("T2_GATE_KINDS")
+            gl = a2["gates"]
+            if _kinds:
+                allow = {k.strip() for k in _kinds.split(",") if k.strip()}
+                gl = [g for g in a2["gates"] if g.get("kind") in allow]
+            ag._t2_gate = GateInterpreter(gl, resolvers=resolvers_from_env(env))
+            ag._t2_a2 = a2
+            ag._t2_orch = self
+
+    BaseOrchestrator.__init__ = init_inject
+
+    def _append(state, message):
+        if isinstance(message, UserMessage) and getattr(message, "is_audio", False):
+            raise ValueError("audio not supported")
+        if isinstance(message, MultiToolMessage):
+            state.messages.extend(message.tool_messages)
+        else:
+            state.messages.append(message)
+
+    def _gen(self, work, bad_words, call_name):
+        kw = dict(self.llm_args)
+        if use_badwords and bad_words:
+            eb = dict(kw.get("extra_body") or {})
+            eb["bad_words"] = sorted(bad_words)
+            kw["extra_body"] = eb
+        return la.generate(model=self.llm, tools=self.tools,
+                           messages=self._system_messages + work, call_name=call_name, **kw)
+
+    def unified(self, message, state):
+        if not hasattr(self, "_t2_static_bl"):
+            self._t2_static_bl = _static_blacklist(self.tools, placeholders)
+            self._t2_session_bl = set()
+        self._system_messages = state.system_messages
+        _append(state, message)
+        gate = getattr(self, "_t2_gate", None)
+        a2 = getattr(self, "_t2_a2", None)
+        last_user = transfer_sent = None
+        if gate is not None:
+            _rebuild_gate_state(gate, a2, state.messages)
+            last_user = _regen_last_user(state.messages)
+            transfer_sent = _regen_transfer_sent(state.messages, a2["_notice_text"])
+        ctx = _ctx_from_messages(state.messages)
+
+        def bw():
+            return [v for v in (self._t2_static_bl | self._t2_session_bl) if v.lower() not in ctx]
+
+        work = list(state.messages)
+        am = _gen(self, work, bw(), "agent_response")
+        gate_rounds = prov_rounds = 0
+        while True:
+            fab = _first_fab_call(am, ctx, hints)
+            denied = _denied_calls(am, gate, last_user, transfer_sent) if gate is not None else []
+            denied_by_objid = {id(tc): (gid, why) for tc, gid, why in denied}
+            do_gate = bool(denied) and gate_rounds < 1
+            fab_covered = fab is not None and do_gate and id(fab[0]) in denied_by_objid
+            do_prov = (fab is not None) and prov_rounds < max_prov_retries and not fab_covered
+            if not do_gate and not do_prov:
+                break
+            main_prov = None
+            if do_prov:
+                prov_rounds += 1
+                ptc, k, s = fab
+                self._t2_session_bl.add(s)
+                self._t2_regen = getattr(self, "_t2_regen", 0) + 1
+                main_prov = (ptc, REGEN_FEEDBACK.format(k=k, s=s))
+            if do_gate:
+                gate_rounds += 1
+                self._t2_gate_rounds = getattr(self, "_t2_gate_rounds", 0) + 1
+                _budget_tick(self)  # ★게이트 라운드만 과금 (prov=무과금=C53 semantics)
+            fb = [am]
+            for c in (am.tool_calls or []):
+                if do_gate and id(c) in denied_by_objid:
+                    gid, why = denied_by_objid[id(c)]
+                    content = f"Error: [POLICY GATE {gid}] {why}"
+                elif main_prov is not None and c is main_prov[0]:
+                    content = main_prov[1]
+                else:
+                    content = "Error: resolve the flagged call(s) first; do not call this tool yet."
+                fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
+                                      error=True, content=content))
+            work = work + fb
+            am = _gen(self, work, bw(), "agent_response_unified_regen")
+
+        # R8 종단: 잔존 게이트-deny 호출 strip (재과금 없음·히스토리 replay-clean)
+        if gate is not None:
+            denied = _denied_calls(am, gate, last_user, transfer_sent)
+            if denied:
+                d_ids = {tc.id for tc, _, _ in denied}
+                kept = [tc for tc in (am.tool_calls or []) if tc.id not in d_ids]
+                am.tool_calls = kept or None
+                note = "; ".join(f"[{gid}] {(why or '')[:70]}" for _, gid, why in denied)
+                am.content = (am.content or "") + _BLOCK_NOTE + " (" + note + ")"
+                self._t2_gate_strips = getattr(self, "_t2_gate_strips", 0) + 1
+                print("[T2_UNIFIED] R8 strip: %s" % note[:140], file=_sys.stderr, flush=True)
+        # prov-fab 잔존 = 통과 (기존 prov semantics·id 날조는 env가 거부=C12)
+
+        # ── DISAMB: 문맥-실재값·같은-형식 후보 2+ → 1회 재확인 (기존 로직 이식) ──
+        if disamb_tools and getattr(am, "tool_calls", None):
+            if not hasattr(self, "_t2_disamb_seen"):
+                self._t2_disamb_seen = set()
+            hit = None
+            for tc in am.tool_calls:
+                if getattr(tc, "name", None) not in disamb_tools:
+                    continue
+                for k, v in _args_dict(tc).items():
+                    if not any(h in k.lower() for h in hints):
+                        continue
+                    for val in _flatten(v):
+                        s = str(val).strip()
+                        if len(s) < 4 or s.lower() not in ctx:
+                            continue
+                        memo = (tc.name, k, s.lower())
+                        if memo in self._t2_disamb_seen:
+                            continue
+                        cands = _grounded_candidates(k, s, state.messages)
+                        if len(cands) >= 2 and any(s.lower() == str(c).lower() for c in cands):
+                            hit = (tc, k, s, cands, memo)
+                            break
+                    if hit:
+                        break
+                if hit:
+                    break
+            if hit:
+                tc, k, s, cands, memo = hit
+                self._t2_disamb_seen.add(memo)
+                self._t2_disamb = getattr(self, "_t2_disamb", 0) + 1
+                print("[T2_DISAMB] fired tool=%s arg=%s val=%s ncand=%d" % (tc.name, k, s, len(cands)),
+                      file=_sys.stderr, flush=True)
+                dwork = list(work) + [am]
+                fbtxt = DISAMB_FEEDBACK.format(k=k, s=s, n=len(cands),
+                                               cands=", ".join(repr(c) for c in cands[:8]))
+                for c in (am.tool_calls or []):
+                    reason = fbtxt if c is tc else \
+                        "Error: [DISAMBIGUATE] re-check pending; re-emit this call after resolving."
+                    dwork.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
+                                             error=True, content=reason))
+                am2 = _gen(self, dwork, bw(), "agent_response_disamb")
+                n2 = 0
+                while n2 < 2:  # 재확인 응답의 신규 날조는 prov 루프로 정화(2회 한도·무과금)
+                    fab2 = _first_fab_call(am2, ctx, hints)
+                    if fab2 is None:
+                        break
+                    tc2, k2, s2 = fab2
+                    n2 += 1
+                    self._t2_session_bl.add(s2)
+                    dwork = dwork + [am2]
+                    for c in (am2.tool_calls or []):
+                        reason = REGEN_FEEDBACK.format(k=k2, s=s2) if c is tc2 else \
+                            "Error: [PROVENANCE] resolve the invented value first; do not call this yet."
+                        dwork.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
+                                                 error=True, content=reason))
+                    am2 = _gen(self, dwork, bw(), "agent_response_regen")
+                if _first_fab_call(am2, ctx, hints) is None:
+                    # ★리뷰 블로킹2: 재확인 switch가 게이트-deny 호출을 들여오면 원 am(게이트-클린) 유지
+                    if gate is not None and _denied_calls(am2, gate, last_user, transfer_sent):
+                        self._t2_disamb_gate_reject = getattr(self, "_t2_disamb_gate_reject", 0) + 1
+                        print("[T2_UNIFIED] DISAMB rejected: switch is gate-denied; keeping original",
+                              file=_sys.stderr, flush=True)
+                    else:
+                        if getattr(am2, "tool_calls", None):
+                            sw = any(str(vv).strip().lower() != s.lower()
+                                     for c2 in am2.tool_calls if c2.name == tc.name
+                                     for kk, vv0 in _args_dict(c2).items() if kk == k
+                                     for vv in _flatten(vv0))
+                            if sw:
+                                print("[T2_DISAMB] switched arg=%s from=%s" % (k, s),
+                                      file=_sys.stderr, flush=True)
+                        am = am2
+        return am
+
+    LLMAgent._generate_next_message = unified
+    # (3) exec-side: auth observe + nested/calc 읽기증강 (게이트 경로와 동일·직교)
+    _install_regen_exec()
+    return unified
+
+
 if __name__ == "__main__":
     apply()
     print("[t2_gate_patch] applied")

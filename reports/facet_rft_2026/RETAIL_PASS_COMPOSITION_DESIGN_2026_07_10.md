@@ -30,21 +30,28 @@
 ```
 _generate_next_message(message, state):
   commit(message); rebuild_gate_state(committed); ctx = ctx_from(committed)
-  am = generate(base)
-  for round in 1..K_UNIFIED(=4):
-      fb = []
-      fb += prov_violations(am, ctx)        # 날조 인자 → REGEN_FEEDBACK
-      fb += gate_denials(am, gate)          # 정책 deny → POLICY GATE 피드백
-      if not fb: break
-      num_errors++  (라운드당 1회 — 이중과금 금지·기존 두 경로와 동일 예산압박)
-      am = generate(base + [am] + fb-as-tool-errors)
+  am = generate(base); gate_rounds = prov_rounds = 0
+  loop:
+      fab    = first_fab_call(am, ctx)                       # 날조 인자
+      denied = gate_denials(am, gate)                        # 정책 deny
+      do_gate = denied and gate_rounds < 1                   # ★게이트 피드백 라운드 = 최대 1 (기존 K=1 승계)
+      do_prov = fab and prov_rounds < 4                      # ★prov = 최대 4 (기존 K=4 승계)
+                and not (do_gate and fab-call ∈ denied)      # 같은 콜엔 게이트 피드백 우선(이중피드백 금지)
+      if not do_gate and not do_prov: break
+      if do_gate: gate_rounds++; num_errors++                # ★게이트 라운드만 과금 (블로킹1: prov=무과금=C53 semantics)
+      if do_prov: prov_rounds++                              # 무과금
+      am = generate(base + [am] + 병합-피드백(gate reason 우선, prov, 나머지 hold))
   # 종단
-  gate-denied mutating 호출 → R8 strip + _BLOCK_NOTE   (replay-safe 필수·기존 게이트 semantics)
-  prov-fab 잔존 호출 → 통과(실행)                        (기존 prov semantics·env가 id 거부=C12)
-  if clean and DISAMB: 1회 재확인 규칙 그대로(기존 코드 이식·재확인 후 prov 정화 2회 한도)
+  gate-denied 잔존 호출 → R8 strip + _BLOCK_NOTE (재과금 없음·replay-safe·기존 semantics)
+  prov-fab 잔존 호출 → 통과(실행) (기존 semantics·env가 id 거부=C12)
+  if DISAMB and clean:
+      am2 = 1회 재확인(기존 규칙·prov 정화 2회 한도)
+      ★if gate_denials(am2): am2 폐기·원 am 유지            # (블로킹2: 재확인 switch가 게이트-deny 호출을 들여오는 구멍 봉쇄)
+      else: am = am2
   return am
 ```
-- **순서**: prov와 gate 피드백을 **같은 라운드에 병합**(핑퐁 방지·토큰 절약). DISAMB는 클린 확정 후 마지막(기존과 동일).
+- **★예산 semantics = 두 GO arm 그대로 승계**(리뷰 블로킹1 반영): 게이트 deny가 포함된 라운드만 tick·게이트 피드백 최대 1회(그 후 잔존은 즉시 R8 경로)·prov는 무과금·최대 4. ⇒ **COMP = 두 GO arm의 정확한 중첩·나눠 쓰는 것은 토큰뿐**(K_UNIFIED 논점 소거·§5의 K=6 에스컬레이션 조항 폐기).
+- **순서**: prov와 gate 피드백을 **같은 라운드에 병합**(핑퐁 방지·토큰 절약)·같은 콜에는 게이트 reason 우선. DISAMB는 클린 확정 후 마지막·**채택 전 게이트 재검사 필수**(블로킹2).
 - **exec-side**: `_install_regen_exec`(observe+nested+calc 읽기증강) 그대로 재사용 — 생성-레벨과 직교.
 - **게이트 상태**: 라운드 내 재생성된 am은 커밋 전이므로 gate state는 라운드 간 불변(기존 gen_gated와 동일).
 - t2_run_gated: CONFLICT guard 제거 → `T2_GATE_REGEN=1 ∧ T2_PROV_REGEN=1` 시 unified 경로. 단독 플래그는 기존 경로 유지(회귀 0).
@@ -57,8 +64,9 @@ _generate_next_message(message, state):
 | prov-only | C53 | 재사용(0.5768) |
 | **COMP** | 게이트(kinds 6종)+nested+calc+prov | **★신규** |
 | **COMP+D** | COMP + T2_DISAMB | **★신규** |
-- 산출: 공식 pass^1..4 · compliant-pass(t2_compliance) · **레버 실발화 census**(gate deny 라운드·prov regen 수·disamb 발화/switch 수 — stderr 카운터를 러너가 sim별 로그) · tme/infra · Δspurious per-case(floor-pass→arm-fail 전건 정독·레버 귀속) · DISAMB switched-from-gold census.
-- **판정**: ①COMP가 prov-only(0.577) 대비 ≥+2pp ∧ compliant=bench(위반0) ∧ Δspurious≤0 → 합성 GO ②COMP+D가 COMP 대비 ⋈/변형 버킷 감소(per-case) ∧ switched-from-gold ≤ switched-to-gold → DISAMB e2e GO(=T5-B 종결·C59 e2e 승격). pass^1 노이즈 주의(67% flaky) → 주장은 pass^1..4 병기+버킷 per-case로.
+- ★metric 명시(리뷰 반영): §0의 floor 0.557=**pass^1**·C53 floor 0.547=**reward 평균**·prov-only 0.5768=**reward 평균**. **판정 ①의 "+2pp"는 reward 기준(0.577 대비)**·pass^1..4는 병기. arm 표 대조: floor reward 0.547 / prov-only reward 0.5768.
+- 산출: 공식 pass^1..4 + reward 평균 · compliant-pass(t2_compliance) · **레버 실발화 census**(gate deny 라운드·R8 strip·prov regen·disamb 발화/switch — stderr 카운터·**preconditions/constraints deny는 env-error와의 중복 여부 표기**=env-mirror 귀속·리뷰 소견) · tme/infra · **★짝지은 flip census를 1차 증거로**(같은 456 task×trial에서 prov-only-pass→COMP-fail / 역방향·C32 교훈: 비-짝 Δ=구성 아티팩트) · Δspurious per-case 정독 · DISAMB switched-from-gold census.
+- **판정**: ①COMP가 prov-only(reward 0.577) 대비 ≥+2pp(짝 flip census 1차·집계 부차) ∧ compliant=bench(위반0) ∧ Δspurious≤0 → 합성 GO ②COMP+D가 COMP 대비 ⋈/변형 버킷 감소(per-case) ∧ switched-from-gold ≤ switched-to-gold → DISAMB e2e GO(=T5-B 종결·C59 e2e 승격). pass^1 노이즈 주의(67% flaky).
 
 ## 3b. ★사전 census — prov arm 실패 193건 전수 + 레버-도달가능성 (2026-07-10 · [M] · 무료)
 > `ecomp_fail_census.py` · 대상=`prov_e2e_retail_t4.results.json.gz`(456 sims·C53 canon·pass 263=0.577) ·
@@ -83,13 +91,13 @@ _generate_next_message(message, state):
 - **COMP+D가 못 닫는 잔여** = MISSED(25)+ZERO미시도(22)+NL(19)+OVER_ACTION(~28) ≈ 94 sims ≈ **20.6pp** — coverage/persistence(C32 Δ=0 미확인)·대화-semantic(C50 NO-GO)·NL 채점 축. 이번 scope 밖(정직 명기).
 
 ## 4. 실행 계획 (비용·순서)
-1. **구현+단위테스트(무료·로컬)**: unified regen·기존 두 경로 회귀 테스트(retail A2·mock 시나리오)·이중과금/R8/DISAMB 이식 검증.
-2. **스모크(소액)**: 10태스크 nt=1 COMP+D — 레버 3종 실발화 각≥1 확인([[30]]·미발화시 중단), 크래시 0, tme 폭증 없음.
-3. **full 2런(유료·승인必)**: COMP → COMP+D 순차. 456×2=912 sims ≈ C53 규모 2배. **GPU: banking full 완료 후 GPU1**(타 세션 GPU0 불가침). distinct tag `comp_retail_t4`·`compd_retail_t4`·런별 즉시 persist.
+1. **구현+단위테스트(무료·로컬)**: unified regen — per-lever 예산(게이트 1회 tick·prov 무과금 4회)·R8 strip·같은-콜 이중피드백 금지·DISAMB 채택-전 게이트 재검사·기존 단독 경로 무변경(회귀). tau2 stub 로컬 하네스 + 리모트 실 tau2 재실행.
+2. **스모크(소액)**: 10태스크 nt=1 COMP+D — **★태스크는 발화 조건 보장형으로 의도 선택**(리뷰 반영): t17(날조 정본=prov)·게이트-deny 이력 태스크·DISAMB 후보 다수(⋈ 전패 101/103/109·payment 61/98). 레버 3종 실발화 각≥1 미달 시 중단([[30]])·크래시 0·Δtme 계측.
+3. **full 2런(유료·승인됨)**: **COMP 456 완료 → ★중간 체크포인트**(리뷰 반영: per-case 정독 先 — Δspurious>0 or GO 대폭 미달 시 COMP+D 발사 전 재검토·[[09]] 최악 456 sims 절약) → COMP+D 456. **GPU: banking full(E-XFER-bank) 완료 후 GPU1**. distinct tag `comp_retail_t4`·`compd_retail_t4`·런별 즉시 persist.
 4. 종료: 원장 C-신규(합성·DISAMB e2e)·§4 갱신·덱 결과 그래프(규칙0-준수 스택으로 0.640 대체 여부 판단).
 
 ## 5. 리스크·중단조건
-- **regen 예산 상호잠식**: 게이트+prov 피드백이 같은 K를 나눠 씀 → tme↑ 가능. 스모크서 tme>10% 시 K_UNIFIED 6으로 1회 조정(그 이상은 중단·설계 재검토).
+- **regen 상호잠식**: per-lever 예산 승계(블로킹1)로 과금·한도는 기존과 동일 — 나눠 쓰는 것은 토큰뿐. 잔여 리스크는 스모크 Δtme 계측이 커버. ~~tme>10%시 K=6 조정~~ **폐기**(리뷰: K↑는 prov semantics를 C53에서 멀어지게 함).
 - **DISAMB 역효과**: 맞은 선택을 흔들어 switch-from-gold>switch-to-gold면 **DISAMB만 제거**(COMP는 독립 판정).
 - **0.640과의 비교 함정**: 그 수치는 present 포함 — COMP가 0.640에 못 미쳐도 실패 아님(**비교 기준은 prov-only 0.577과 floor**). 덱·문서에 present 철회 명기.
 - 게이트 이득이 bench-pass에 안 나올 수 있음(C32 짝맞춤 Δ=0 소표본) — 그 경우에도 compliant-pass=bench(위반0)가 산출물(모트 주장 유지·C2 계열).
