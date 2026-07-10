@@ -246,6 +246,7 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | **★E-XFER-bank** | **Phase 3 도메인 전이 실측 — banking**(32B floor 32k 재런 + 게이트 arm·GB1 verify·nt=4·97태스크) | A2 전이가설(처방 전이)·덱 결과⑩ banking 칸·특허 도메인-일반 청구 | 유료(**승인 2026-07-10**·banking 우선·여유시 airline·telecom 제외) | 🔄 **실행중**(bankxfer_floor/gate_bank_t4·GPU1). Phase 2 완료=banking A2+applies_when 엔진확장+gold전수검증. ★구 floor=16k 결함(infra 31/291)·러너 변종 덮어쓰기=죽은코드 발견→openai_embeddings 고정. 상세=`DOMAIN_TRANSFER §3.5` |
 | **★E11-e2e** | **출처선언 레버 다중턴 e2e** (floor+prov·`T2_PROV_REGEN=1`·present OFF) | **make-or-break**: 단일턴 날조 67→0(C45)이 pass로 이어지나 | 유료(승인) | ✅ **GO 확정**(C53·**456/456**·reward 0.5768>floor 0.547 +3.0pp·db_pass 0.621·**tme 1/456**·t17 날조 0/4→4/4 교정·per-case·gz persist) |
 | **★E11** | **출처선언 레버**(4지선다+provenance 검증+재발화·GET폴백) | 날조 억제 | 무료 | ✅ **GO**(C45·67→0%·over-block 0·Δspurious 0·단일턴 n=60) |
+| **★E-COMP** | **retail 검증기 합성 arm**(게이트+prov+nested/calc 단일 생성-레벨 통합 → COMP·+DISAMB → COMP+D) | GO 레버 최초 합성(이중패치 해소)·C59 DISAMB e2e 승격·retail pass 상향 | 구현 무료·full 2런(912 sims·승인) | **[D] 설계 완료·리뷰 대기** — `RETAIL_PASS_COMPOSITION_DESIGN_2026_07_10`. 실행은 E-XFER-bank 완료 후 GPU1 |
 | **★E6′** | **gather 학습 — 데이터 v3 재설계 先** (D7 근접오답+음성사례+on-policy+발명형 rejected) | C7 · **C38: cfbsynth가 결손 재현 못함**(미확립) | 큼 | **▶ 데이터 게이트 통과 前 착수 금지** |
 | ~~E10~~ | 정책-precondition 게이트 | C25 over-action +9 | — | ❌ **NO-GO**(C50·무료 격리검증: P1 over-block>TP·P2 환경집행 redundant·불가능성=대화 semantic·게이트 아님) |
 | **E-ASK** | **ASK 위계 R1**(호출가능성·GET-chain·DISAMBIGUATE) | C48 · clarification 벤치서만 R0≠R1 | 무료 | ▶ ToolDial/airline 필요 |
