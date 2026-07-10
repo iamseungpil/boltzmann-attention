@@ -1,0 +1,46 @@
+{
+  "_meta": {
+    "domain": "banking_knowledge",
+    "source": "policy_header.md + additional_instructions.md (no_knowledge variant) — 'verify identity (2 of 4 fields) then call the verification logging tool BEFORE accessing/modifying customer information in internal databases'",
+    "compiler": "Fable-5 in-session 2026-07-10 (Phase 2 · DOMAIN_TRANSFER_STATUS_AND_PLAN §3.2)",
+    "gold_validation": "97 tasks census: 81 gold include log_verification, ordering violations 0; 4 exception tasks (015/032/033/035) are transfer/incident inner tools or give get_referral_link — handled via applies_when.not_in + give_discoverable_user_tool excluded (over-block 0 by construction)",
+    "not_instantiated": "confirm(정책에 전역 확인규칙 없음)·notice(고정문구 없음)·ownership(auth_user=검증마커라 owner비교 불가)·preconditions/constraints(도구가 이미 검증=env-enforced·C12)·present/calc_specs(도구출력=포맷문자열·JSON 아님→no-op)"
+  },
+  "gates": [
+    {
+      "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS",
+      "kind": "auth",
+      "predicate": "customer identity verified and logged (log_verification) in this conversation",
+      "satisfiers": {
+        "log_verification": [
+          "name",
+          "user_id",
+          "address",
+          "email",
+          "phone_number",
+          "date_of_birth",
+          "time_verified"
+        ]
+      },
+      "applies_to": [
+        "change_user_email",
+        "get_referrals_by_user",
+        "get_credit_card_transactions_by_user",
+        "get_credit_card_accounts_by_user",
+        "call_discoverable_agent_tool"
+      ],
+      "applies_when": {
+        "arg": "agent_tool_name",
+        "not_in": [
+          "initial_transfer_to_human_agent_0218",
+          "initial_transfer_to_human_agent_1822",
+          "emergency_credit_bureau_incident_transfer_1114"
+        ]
+      },
+      "note": "verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time() — only then perform account actions. Transfer/incident tools do not need verification."
+    }
+  ],
+  "producers": {},
+  "_note_applies_when": "call_discoverable_agent_tool = 디스패처(인자 agent_tool_name이 내부 도구 지정). gold 예외 3태스크의 내부 도구(전부 무인자 transfer/incident형)는 고객데이터 미접근 → not_in 면제(A2 도메인 사실). 직접 도구 4개(change_user_email 등)는 applies_when의 arg 부재 → not_in만으로는 항상 적용(엔진 _gate_applies 보수 규칙).",
+  "_note_minimize_a2": "identifying_arg_types·placeholders 미기재 = scaffold DEFAULT 폴백 (minimize-A2). give_discoverable_user_tool·unlock_discoverable_agent_tool은 미게이트(전자=고객데이터 접근 아님이 태스크-조건적·후자=env가 unlock-before-call 이미 집행=C12)."
+}
