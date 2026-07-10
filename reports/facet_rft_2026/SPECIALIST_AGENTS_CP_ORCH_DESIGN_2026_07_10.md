@@ -60,5 +60,15 @@
 - 7/7 `LOAD_REDUCTION_ARCH`의 E1(격리 서브콜)·E2(결정론 dispatch)가 이 설계의 ①③·오케스트레이터 원형 — 당시 NO-GO가 아니라 **미도달**이었고, 오늘 실측(t61·C60·C53·E-ISO)이 좌석 근거를 채움.
 - 특허 관점: "결정유형별 전문 검증기 + pin 상태기계 + 도메인-일반 오케스트레이터(A2-스왑)" = 특허 A/B 결합의 시스템 청구 후보(검토는 특허 세션).
 
+## 6b. 상용 대조 — Genspark Mixture-of-Agents (2026-07-10 사용자 제공·선행기술 기록)
+Genspark Super Agent = 중앙 LLM-오케스트레이터 + frontier 9모델 혼합 + 80~150 도구 + reflection 교차검증.
+| 축 | Genspark | 우리(E-SPEC) | 근거 |
+|---|---|---|---|
+| 전문가 분할·감독 루프 | ✅ | ✅ 동형(CP 라우팅) | — 수렴 |
+| **감독자** | **LLM** | **결정론 코드(pin ledger)** — 비결정가능 분해만 ①전문가(검증됨) | 준수·완결=scale-invariant(C1/C52)·LLM 감독=실패 상속([[10]]·7/7 설계) — **보장(위반0)은 코드만 가능** |
+| 전문가 실체 | 타사 frontier 9모델 혼합 | **같은 32B 격리 서브콜 + scaffold/A2 슬라이스 차등** | on-prem·TCO 23×(C8)·fleet 저-ROI(C6) |
+| 품질 기전 | reflection(LLM 교차검증)·best-effort | 결정론 검증기 + 반대편 계측 | 투표·retry=죽은 레버(§1.3)·동-scale thinking 무효(C56)·열거도 설계의존(C61) |
+- ⇒ **특허 주의**: generic "전문 에이전트+오케스트레이터"는 Genspark 등으로 선점 — 청구 정박점 = ①결정론 검증기-오케스트레이터(pin·위반0 보장) ②{전문가,검증기,A2슬라이스} 3중쌍 ③A2-스왑 전이 ④소형 단일모델 크로스오버. relwork(41 계열)에 등재 필요.
+
 ## 7. 상태
-[D]·리뷰 대기. Phase A는 E-ISO full 완료 즉시 무료 실행 가능. Phase B 구현은 리뷰 후.
+[D]·리뷰 대기. Phase A는 E-ISO full 완료로 **좌석 판정 확정 가능**(C61): ①intent+pin=오염 20% ✓ · ③operand=ITEMS/PAYMENT ✓(PAYMENT는 결정론 P2 우선) · E-PLAN=PREINFO+coverage ✓ · 격리서브콜=ITEMS +13pp 소폭(약) · ⋈ 전용 전문가=좌석 없음(경계). Phase B 구현은 리뷰 후.
