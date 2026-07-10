@@ -220,6 +220,22 @@ gpt-4.1 db_fail=102: `F2변형 19(최대)·op불일치 17·F3⋈ 10`. ours 32B d
 
 **caveats([[08]])**: telecom cell >100%=다중결함/케이스 · telecom·banking의 SCOPE/OPERAND/REFERENCE "0"=reward 온톨로지(env-assertion·discoverable-tool) capture-limit이지 부재 증명 아님. reward 통일기준(관대). glm52·distyl 미취득. **결론 방향은 pooled(§3.2d)와 일치·모델별로도 재현**.
 
+### 3.2f ★banking 저-pass 근본원인 전수 포렌식 (17모델·2026-07-10·[[08]] 완주)
+**동기(사용자)**: banking은 frontier도 pass 0.098~0.374로 매우 낮다 — 왜인가. 스크립트 `banking_forensic.py`.
+
+**(1) 종료사유 [M]**: crash 아님 — user_stop 5923(92%)·too_many_errors 405(glm5 197·qwen397B 208에 집중)·max_steps 122·infra 65. ⇒ 대다수는 **정상 대화 종료 후 채점 실패**(agent가 끝났다고 믿음). glm5·qwen35의 최저치는 하네스 오류 성분 포함(아티팩트 down-weight).
+
+**(2) 태스크-레벨 교차표 [M]**: 97태스크 중 **28개(29%) = 17모델×4trial 전패(universal-fail)**·≤2모델 통과까지 36%·17/17 통과 4개뿐. universal-fail 28/28 전부 `unlock_discoverable_agent_tool→call` **발견 체인** 요구·horizon med 12.5(전체 8.0).
+
+**(3) 부하 기울기 [M]**: pass는 gold 길이에 단조 급락 — 1-3act **0.442** → 4-6 0.187 → 7-9 0.133 → **10+ 0.079**(최대 버킷 n=2546). unlock/discover 요구 유 0.132 vs 무 0.468(3.5×). basis=['DB'] all-or-nothing.
+
+**(4) 실패 2형 분해 (universal-fail 실패궤적 n=1005·gold-체인 이름 커버리지) [M]**:
+- **완주-후-불일치형 45%**(커버리지≥0.8·Q3=1.00 — 4분의 1은 체인 100% 실행): gold 액션을 이름 수준으로 다 하고도 최종 DB 불일치 = 인자 수준 오류(다계좌 중 오선택·금액)·추가/누락 write·순서. per-case: gpt55 task_049 = gold 19중 대부분 실행·reward 0.0.
+- **발견/조기중단형 31%**(커버리지<0.5): unlock 체인 미발견(조립)·조기 transfer(중단판단).
+- 나머지 24% 중간.
+
+**★규정**: banking 저-pass = **3중 부하의 곱** — 긴 horizon(med 8~12.5) × 발견 체인(80% 태스크) × all-or-nothing DB 채점 ⇒ per-step p<1의 지수 붕괴(p^H·이론 '지속' 축의 실측 극단). 원인 기능 = 지속×조립 + 인자 정밀(계산/참조-기준형·실행규율) + 완결(자기검증: user_stop으로 '다 했다' 종료). 레버 사상 = gather/unlock controller + 완결게이트[체크리스트] + calc/provenance(인자) + persistence 게이트. **아티팩트 성분 정직 표기 [?]**: all-or-nothing 채점·4-trial 변동으로 벤치 설계 자체가 가혹 — 커버리지 1.00 실패의 일부는 gold 모호 가능성(2~3건 DB-diff 정독으로 확정 필요·미실행).
+
 ---
 
 ## 4. 확정·미측정 정리

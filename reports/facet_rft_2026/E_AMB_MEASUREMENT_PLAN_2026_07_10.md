@@ -154,6 +154,25 @@ $|C|\ge2$·3+trial 등장 결정점(task,tool,arg 키): base 260개 = 무실패 
 
 **판정**: T3 완료 [M] — 예측 (a) 반증·(b) 지지(순수 참조에 thinking 이득 없음). T2는 2-arm 재현으로 강화. **T4 보류(리모트)** · T5는 체계핵 6점이 곧 표적임을 확인(설계 유효).
 
+## 7c. ★결과 — P2b/P2c 완결 (prov arm·2026-07-10 리모트) + T2 제3-arm 재현
+> arm = `prov_e2e_retail_t4`(C53·floor+prov). 종료: user_stop 454·tme 1·max_steps 1.
+
+- **P2b 지지**: prov arm $|C|$=1 실패 .031 (base .062) — **payment $|C|$=1: 0/319**(base 17/376) = provenance가 placeholder-날조 칸을 정확히 닫음. $|C|$=1 잔여 13건은 전부 address1(.26) = free-text·C24 유형(gold가 발화에 부재/regex 한계) — id-류는 전멸 0.
+- **P2c 지지**: $|C|\ge2$ 잔존 그대로 — payment .22(=base)·order .10·item .12 = **provenance는 ⋈을 못 닫는다**(C46 재확인·이론 §6 예측 그대로).
+- **T2 제3-arm 재현**: 단조성 유지(z=4.28·MH OR **5.43**·공변량 역방향). 단 $|C|$=2(.161)>$|C|$=3+(.123) 국소 역전 — 정직 기록(전체 추세는 유의).
+
+## 7d. ★결과 — T4 해독기-앙상블 불일치 (리모트·frontier baseline 3종 + 우리 5 arm)
+> 해독기 8종(fr: claude-3.7·gpt-4.1·o4-mini + ours: fl32b·fl14b·qwq·asm32b·prov32b)·gold 슬롯 505·산출 `sim_results/eamb4_ensemble_rows.jsonl`·스크립트 `eamb4_ensemble.py`. 신형 17모델 raw는 소실([[47]] §1.3)로 이번 앙상블서 제외(재다운로드 = 별도 확장).
+
+- **★방법 사고 1건 (per-case가 잡음·[[08]])**: 초판은 모든 해독기를 *우리* gold로 채점 → t107 정독에서 **하네스 간 gold-버전 불일치 발견**(our gold=8106223139 vs 공식파일 gold=1615379700 "동일-item 새제품 교환"). **정정판 = 각 해독기를 자기 파일의 gold로 채점 + gold-불일치 슬롯 분리**. 불일치 슬롯 = **t18·t91·t107** (3/505) — C19(채점기준 불일치) 계열의 신규 사례·별도 기록 가치.
+- **P4a 지지(약한 n)**: gold-일치 502슬롯서 frontier-공통실패 7개 — 고-H 2.8% vs 저-H 1.0%로 집중·공통실패 H 평균 **0.95 vs 0.39**. n=7이라 서술적 보고만.
+- **반증조건 미발동**: same-wrong(공유-prior형) 2 vs **scatter(미결정형) 5** — 공유-prior 지배 아님. scatter 최상위 = **t20**(우리 체계핵과 동일 지점·frontier도 흩어짐 = 진짜 미결정 후보).
+- 시사: 미결정 섹터는 실재하되 소수(공통실패 7/502=1.4%)·체계핵과 겹침 — ASK/DISAMBIGUATE의 표적은 좁고 정확하다.
+
+## 7e. 진행 중 (2026-07-10 오후 기동)
+- **T5-A**: `c51_disambig_boundary.py` n=400·arm A(full)/B(enumerate)·32B(8140) — 실행 중(~307/400 확인).
+- **T5-B**: `reexp_router.sh` — **SMOKE 통과**(n=10·infra 0·tme 0·DISAMB 14회 실발화·switched 1) → **full nt=4 실행 중**(tag `routerv1`·기준선 prov_e2e 0.580·자동 영속). GO 판정은 완료 후 §0 공통조건으로.
+
 ## 8. 원장 갱신 계획
 
 각 실험 종료 시: 본 doc에 결과 절 추가(수치+provenance) → RESEARCH_MASTER §3에 C-항목 신설(T1→C5x…) → §4 큐 상태 갱신. T2·T4가 살면 P3 논문의 정량 절 승격 후보, T5가 살면 특허 제2발명 명세의 실시예 승격 후보.
