@@ -656,6 +656,8 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                                                  error=True, content=reason))
                     am2 = _gen(self, dwork, bw(), "agent_response_regen")
                 if _first_fab_call(am2, ctx, hints) is None:
+                    # ★T5-C fix(C61 H-C): 재확인 응답이 tool_calls 없는 텍스트-only면 원 호출 유지.
+                    #   무조건 수락이 write 유실(39건·−37시행)의 코드-확정 기전 — 원값은 문맥-실재라 유지 무해.
                     if getattr(am2, "tool_calls", None):
                         sw = any(str(vv).strip().lower() != s.lower()
                                  for c2 in am2.tool_calls if c2.name == tc.name
@@ -664,7 +666,11 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                         if sw:
                             print("[T2_DISAMB] switched arg=%s from=%s" % (k, s),
                                   file=sys.stderr, flush=True)
-                    am = am2
+                        am = am2
+                    else:
+                        self._t2_disamb_nowrite_keep = getattr(self, "_t2_disamb_nowrite_keep", 0) + 1
+                        print("[T2_DISAMB] rejected: re-check dropped tool_calls; keeping original",
+                              file=sys.stderr, flush=True)
         return am
 
     LLMAgent._generate_next_message = patched
@@ -1086,16 +1092,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         self._t2_disamb_gate_reject = getattr(self, "_t2_disamb_gate_reject", 0) + 1
                         print("[T2_UNIFIED] DISAMB rejected: switch is gate-denied; keeping original",
                               file=_sys.stderr, flush=True)
-                    else:
-                        if getattr(am2, "tool_calls", None):
-                            sw = any(str(vv).strip().lower() != s.lower()
-                                     for c2 in am2.tool_calls if c2.name == tc.name
-                                     for kk, vv0 in _args_dict(c2).items() if kk == k
-                                     for vv in _flatten(vv0))
-                            if sw:
-                                print("[T2_DISAMB] switched arg=%s from=%s" % (k, s),
-                                      file=_sys.stderr, flush=True)
+                    elif getattr(am2, "tool_calls", None):
+                        sw = any(str(vv).strip().lower() != s.lower()
+                                 for c2 in am2.tool_calls if c2.name == tc.name
+                                 for kk, vv0 in _args_dict(c2).items() if kk == k
+                                 for vv in _flatten(vv0))
+                        if sw:
+                            print("[T2_DISAMB] switched arg=%s from=%s" % (k, s),
+                                  file=_sys.stderr, flush=True)
                         am = am2
+                    else:
+                        # ★T5-C fix(C61 H-C): 텍스트-only 재확인은 원 호출 유지(write 유실 차단)
+                        self._t2_disamb_nowrite_keep = getattr(self, "_t2_disamb_nowrite_keep", 0) + 1
+                        print("[T2_DISAMB] rejected: re-check dropped tool_calls; keeping original",
+                              file=_sys.stderr, flush=True)
         return am
 
     LLMAgent._generate_next_message = unified
