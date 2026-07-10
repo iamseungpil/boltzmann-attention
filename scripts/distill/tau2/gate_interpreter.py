@@ -180,12 +180,29 @@ class GateInterpreter:
         head = gate.get("message", "DISAMBIGUATION CHECK — verify the target id matches the customer's request.")
         return head + "\n" + "\n".join(lines)
 
+    @staticmethod
+    def _gate_applies(g, tool_name, args):
+        """applies_to 멤버십 + (선택) applies_when arg-조건 — 도메인-일반 결정론 멤버십 검사.
+        applies_when: {"arg": <인자명>, "in": [...]} 또는 {"arg": ..., "not_in": [...]} (값 목록=A2 도메인 사실).
+        용례: 디스패처형 도구(예: 이름-인자로 내부 도구를 고르는 wrapper)에서 일부 내부 대상만 게이트.
+        인자 부재 시 조건 불성립으로 보아 게이트 적용(보수) — 단 not_in만 있으면 부재=적용."""
+        if tool_name not in g.get("applies_to", []):
+            return False
+        aw = g.get("applies_when")
+        if aw:
+            v = str((args or {}).get(aw.get("arg")) or "")
+            if "in" in aw and v not in set(aw["in"]):
+                return False
+            if "not_in" in aw and v in set(aw["not_in"]):
+                return False
+        return True
+
     def check(self, tool_name, args, last_user_msg=None, transfer_msg_sent=None):
         """returns (allowed, gate_id|None, reason|None).
         last_user_msg=None → confirm skip(replay). transfer_msg_sent=None → notice skip."""
         args = args or {}
         for g in self.gates:
-            if tool_name not in g.get("applies_to", []):
+            if not self._gate_applies(g, tool_name, args):
                 continue
             kind = g.get("kind")
 
