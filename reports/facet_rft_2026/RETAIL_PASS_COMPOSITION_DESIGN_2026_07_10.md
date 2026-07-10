@@ -91,6 +91,31 @@ _generate_next_message(message, state):
 - **COMP+D가 못 닫는 잔여** = MISSED(25)+ZERO미시도(22)+NL(19)+OVER_ACTION(~28) ≈ 94 sims ≈ **20.6pp** — coverage/persistence(C32 Δ=0 미확인)·대화-semantic(C50 NO-GO)·NL 채점 축. 이번 scope 밖(정직 명기).
 - **★수정(2026-07-10 NL_ONLY 19건 전수 분류 + 궤적 정독 3건)**: NL_ONLY는 judge 노이즈가 아니라 **진짜 미/오보고**. **count-계열 11건(tasks 2/3/4×trials) = calc 사정거리 확인** — t3/0 정독: `get_product_details` 2회 조회(=calc 트리거 실발화) 후 "**12** available options" **오산 보고**(gold=10) = 정확히 `count_where available` spec이 고치는 F2b 실례. t4/0: 조회 1회·미보고 = calc 주입 후 report-conversion 조건부. **총액/환불액 5건** = sum spec 조건부 커버. **밖 3건**(t40 지불수단 보고·t104 tracking#·t105 coverage형). **prov arm은 calc OFF·COMP arm은 T2_CALC=1** → 최대 +2~3pp 상향 요인(조건부). 진짜 scope-밖 잔여 ≈ **78~81 sims(≈17pp)** = MISSED+ZERO미시도+OVER_ACTION+기타. 후속 레버 지도(plan/execute C1·feasibility·retry)=`FIXABLE_FAIL_CENSUS_2026_07_06` + 본 census 교차.
 
+## 3c. ★정본-지표 정렬 — pass^1..4 + compliant (2026-07-10 · [M] · 무료 재계산)
+> 사용자 지적: §3b 기대치는 reward/pass^1 계열 — **덱 결과표 정본은 pass^1..4 + compliant**. prov arm의 공식 pass^k를
+> 최초 산출(compute_metrics + t2_compliance·`/tmp/prov_eval_dir`)하고 floor와 **114태스크 짝** 교차.
+
+| arm (retail·gpt-4.1 sim·nt=4) | bench p1 | p2 | p3 | **p4** | compliant-full p1 | **p4** | 위반 |
+|---|---|---|---|---|---|---|---|
+| 32B floor | 0.557 | 0.411 | 0.358 | **0.333** | 0.509 | 0.263 | g2=53 |
+| **32B floor+prov (C53)** | 0.577 | 0.420 | 0.331 | **0.281** | 0.524 | 0.237 | **g1=0·g2=37** |
+| 32B+scaffold(구·present 포함=참조용) | 0.640 | 0.504 | 0.423 | 0.360 | =bench | 0.360 | 0 |
+| 14B+scaffold | 0.588 | 0.430 | 0.336 | 0.272 | =bench | 0.272 | 0 |
+| gpt-4.1 | 0.741 | 0.642 | 0.579 | 0.526 | 0.715 | 0.482 | — |
+| o4-mini | 0.715 | — | 0.518 | 0.456 | 0.693 | — | — |
+
+- **★신규 발견: prov 레버는 p1을 사고 p4를 판다** — 짝지은 114태스크: p1 0.557→0.577(+2.0pp) / **p4 0.333→0.281(−5.3pp)**.
+  robust-pass(4/4) 태스크: floor-only 16 vs prov-only 10 (both 22). 상실 16 중 **12는 4/4→3/4**(regen-유발 분산 양상),
+  **t61은 4/4→0/4 체계 파손**: 전 인자 동일·payment만 floor=paypal(gold=원결제 KEEP) 4/4 vs prov=gift_card 4/4.
+  사용자는 환불수단 미지정(정독) → 원리 디폴트(원결제 유지·C58 KEEP .940) 위반 방향으로 arm이 체계적으로 밀림.
+  기전=[P] (regen이 결정점 재선택을 유발·regen은 커밋 히스토리 비가시라 재현 replay 필요). **제1원리 실증 사례 추가**(부작용 없는 레버 없음).
+- **함의**: ①C53의 GO(날조·pass^1·tme)는 유지되나 **robust 지표에선 비용이 있다** — 원장 C53 보강 필요.
+  ②COMP/COMP+D 판정은 이미 pass^1..4+짝 flip을 요구(§3) — **p4 회귀 여부가 1급 판정 축**으로 승격.
+  ③compliant 축: prov는 g1(auth)=0이나 **g2(confirm)=37 잔존**(게이트 없음) — COMP의 게이트가 이걸 0으로 만들며
+  compliant-pass에서 floor+prov 대비 구조적 우위 예상(scaffold arm은 compliant=bench). ④frontier와의 진짜 격차는
+  p4/compliant-p4에서 더 큼(floor 0.333/0.263 vs gpt-4.1 0.526/0.482) — robust 축은 user-sim 분산+체계 실패의 합이라
+  scaffold의 결정론성(분산 억제)이 p4에 유리해야 정합 — **COMP가 p4에서도 이겨야 합성 GO**.
+
 ## 4. 실행 계획 (비용·순서)
 1. **구현+단위테스트(무료·로컬)**: unified regen — per-lever 예산(게이트 1회 tick·prov 무과금 4회)·R8 strip·같은-콜 이중피드백 금지·DISAMB 채택-전 게이트 재검사·기존 단독 경로 무변경(회귀). tau2 stub 로컬 하네스 + 리모트 실 tau2 재실행.
 2. **스모크(소액)**: 10태스크 nt=1 COMP+D — **★태스크는 발화 조건 보장형으로 의도 선택**(리뷰 반영): t17(날조 정본=prov)·게이트-deny 이력 태스크·DISAMB 후보 다수(⋈ 전패 101/103/109·payment 61/98). 레버 3종 실발화 각≥1 미달 시 중단([[30]])·크래시 0·Δtme 계측.
