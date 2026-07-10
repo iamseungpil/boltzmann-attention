@@ -18,7 +18,7 @@ GATE_SPEC 상태기계를 종료된 trajectory 위에 replay = A2 산출물 3중
 import argparse, json, math, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gate_interpreter import (CONFIRM_RE, auth_satisfier_tools,  # noqa: E402
+from gate_interpreter import (CONFIRM_RE, GateInterpreter, auth_satisfier_tools,  # noqa: E402
                               load_domain_a2)
 
 
@@ -29,10 +29,18 @@ def domain_constants(domain):
     gates = (load_domain_a2(domain) or {"gates": []})["gates"]
     return {
         "AUTH_TOOLS": auth_satisfier_tools(gates),
+        "AUTH_GATES": [g for g in gates if g.get("kind") == "auth"],
         "WRITE_TOOLS": {t for g in gates if g.get("kind") == "confirm" for t in g.get("applies_to", [])},
         "USER_SCOPED": {t for g in gates if g.get("kind") == "auth" for t in g.get("applies_to", [])},
         "TRANSFER_MSG": next((g.get("notice_text") for g in gates if g.get("kind") == "notice"), ""),
     }
+
+
+def _user_scoped_applies(C, name, args):
+    """auth 게이트 적용 판정 — 엔진 _gate_applies 재사용 = applies_when(arg-조건 면제) 반영.
+    (구 `name in USER_SCOPED` 멤버십은 banking call_discoverable_agent_tool의 transfer-면제를
+    몰라 G1 과검출. retail=applies_when 부재라 동일 결과=회귀 없음.)"""
+    return any(GateInterpreter._gate_applies(g, name, args) for g in C.get("AUTH_GATES", []))
 
 
 def pass_hat_k(per_task, k):
@@ -103,7 +111,7 @@ def violations_of_sim(sim, C, order_owner=None):
             if name == "transfer_to_human_agents" and res is not None \
                     and not res.get("error"):
                 transfer_executed = True
-            if not authed and name in USER_SCOPED:
+            if not authed and _user_scoped_applies(C, name, _args_of(tc)):
                 v["g1"] = True
                 if name in WRITE_TOOLS:
                     v["g1w"] = True
