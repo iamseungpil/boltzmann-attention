@@ -114,6 +114,24 @@ def decoder_answers(sims):
     return ans
 
 
+def decoder_golds(sims):
+    """이 파일 자신의 gold: (task, tool, gold_oid, argkey) -> gold value key.
+    ★하네스 간 gold 버전이 다를 수 있다(t107 실증) — 각 해독기는 자기 gold로 채점."""
+    g = {}
+    for sim in sims:
+        tid = str(sim.get("task_id"))
+        for a in (sim.get("reward_info") or {}).get("action_checks") or []:
+            act = a.get("action") or {}
+            if act.get("name") not in WRITE:
+                continue
+            args = act.get("arguments") or {}
+            oid = norm(args.get("order_id") or "")
+            for k in ARGS:
+                if k in args and args.get(k) not in (None, [], ""):
+                    g[(tid, act.get("name"), oid, k)] = as_key(args.get(k))
+    return g
+
+
 def main():
     frontier = {}
     for f in glob.glob(FRONTIER_DIR + "/*_retail_default_*4trials.json"):
@@ -127,50 +145,64 @@ def main():
     all_slots = [(t,) + s for t, ss in slots_by_task.items() for s in ss]
     print("gold slots:", len(all_slots))
 
-    answers = {}
+    answers, golds = {}, {}
     for name, sims in list(frontier.items()) + list(ours.items()):
         answers[name] = decoder_answers(sims)
+        golds[name] = decoder_golds(sims)
 
     fr_names = sorted(frontier)
     all_names = fr_names + sorted(ours)
     rows = []
+    gold_mismatch = 0
     for (tid, tool, goid, k, gkey) in all_slots:
         slot = (tid, tool, goid, k)
         vals = {n: answers[n].get(slot, "<ABSENT>") for n in all_names}
         present = {n: v for n, v in vals.items() if v not in ("<ABSENT>",)}
         if len(present) < 6:
             continue
+        # ★각 해독기 자신의 gold (하네스 gold-버전 차 분리)
+        own_gold = {n: golds[n].get(slot) for n in all_names}
+        gset = set(g for g in own_gold.values() if g is not None)
+        mismatch = len(gset) > 1
+        gold_mismatch += mismatch
         cnt = Counter(present.values())
         N = sum(cnt.values())
         H = -sum(c / N * math.log2(c / N) for c in cnt.values())
-        fr_vals = [vals[n] for n in fr_names if vals[n] != "<ABSENT>"]
-        fr_wrong = [v for v in fr_vals if v != gkey and v != "<NO-WRITE>"]
-        fr_common_fail = len(fr_vals) >= 3 and all(v != gkey for v in fr_vals)
+        # correctness = 자기 gold 기준
+        fr_res = [(vals[n], own_gold[n]) for n in fr_names if vals[n] != "<ABSENT>" and own_gold[n]]
+        fr_wrong = [v for v, g in fr_res if v != g and v != "<NO-WRITE>"]
+        fr_common_fail = len(fr_res) >= 3 and all(v != g for v, g in fr_res)
         same_wrong = fr_common_fail and len(set(fr_wrong)) == 1 and fr_wrong
         rows.append({"task": tid, "tool": tool, "arg": k, "gold": gkey, "H": round(H, 3),
-                     "n_dec": N, "fr_common_fail": fr_common_fail,
+                     "n_dec": N, "fr_common_fail": fr_common_fail, "gold_mismatch": mismatch,
                      "same_wrong": bool(same_wrong), "vals": vals})
+    print("gold-버전 불일치 슬롯: %d (공통실패 분석서 분리)" % gold_mismatch)
 
-    print("\n=== 슬롯 %d개 (해독기>=6 응답) ===" % len(rows))
-    med = sorted(r["H"] for r in rows)[len(rows) // 2]
-    hi = [r for r in rows if r["H"] > med]
-    lo = [r for r in rows if r["H"] <= med]
+    clean = [r for r in rows if not r["gold_mismatch"]]
+    print("\n=== 슬롯 %d개 (해독기>=6 응답) · gold-일치 %d개만 공통실패 분석 ===" % (len(rows), len(clean)))
+    med = sorted(r["H"] for r in clean)[len(clean) // 2]
+    hi = [r for r in clean if r["H"] > med]
+    lo = [r for r in clean if r["H"] <= med]
     for lbl, grp in (("고-H(>%.2f)" % med, hi), ("저-H", lo)):
         cf = sum(1 for r in grp if r["fr_common_fail"])
         print("  %-12s n=%4d  frontier-공통실패 %d (%.1f%%)" % (lbl, len(grp), cf, 100 * cf / max(len(grp), 1)))
-    cf_rows = [r for r in rows if r["fr_common_fail"]]
+    cf_rows = [r for r in clean if r["fr_common_fail"]]
     sw = sum(1 for r in cf_rows if r["same_wrong"])
     print("  공통실패 %d개 중 same-wrong(공유-prior형) %d · scatter(미결정형) %d" % (len(cf_rows), sw, len(cf_rows) - sw))
     print("  공통실패 H 평균 %.2f vs 나머지 %.2f" % (
         sum(r["H"] for r in cf_rows) / max(len(cf_rows), 1),
-        sum(r["H"] for r in rows if not r["fr_common_fail"]) / max(len(rows) - len(cf_rows), 1)))
+        sum(r["H"] for r in clean if not r["fr_common_fail"]) / max(len(clean) - len(cf_rows), 1)))
+    mm = [r for r in rows if r["gold_mismatch"]]
+    print("\n=== gold-버전 불일치 슬롯 (하네스 벤치 버전 차·별도 계수) ===")
+    for r in mm[:10]:
+        print(" t%s %s.%s ourgold=%s" % (r["task"], r["tool"], r["arg"], r["gold"][:40]))
 
-    print("\n=== frontier-공통실패 슬롯 전수 (per-case 정독 대상) ===")
+    print("\n=== frontier-공통실패 슬롯 전수 (gold-일치·per-case 정독 대상) ===")
     for r in sorted(cf_rows, key=lambda x: -x["H"]):
         print(" t%s %s.%s gold=%s H=%.2f %s" % (r["task"], r["tool"], r["arg"], r["gold"][:34], r["H"],
               "SAME-WRONG" if r["same_wrong"] else "scatter"))
         for n, v in r["vals"].items():
-            if v != gkey:
+            if v != r["gold"]:
                 print("    %-16s -> %s" % (n, str(v)[:60]))
 
     out = REPO + "/eamb4_ensemble_rows.jsonl"
