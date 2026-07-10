@@ -495,13 +495,36 @@ GROUND_FEEDBACK = (
     "and read the answer from its output. Now emit a corrected tool call."
 )
 
+# ─── ★T2_DISAMB=1: |C|>=2 write-인자 재확인 (E-AMB T5 라우터·규칙0 준수) ───
+# 값이 문맥에 실재하되 같은-형식 후보가 2+개면(⋈ 지점) 한 번만 재확인 피드백 → 재생성.
+# 열거하는 후보 = 이미 조회된 도구출력에서만(_grounded_candidates) = DB 주입 0.
+DISAMB_FEEDBACK = (
+    "Error: [DISAMBIGUATE] argument '{k}'='{s}' is one of {n} same-type values already seen in prior "
+    "tool outputs: {cands}. Multiple candidates exist, so re-check against what the user explicitly "
+    "asked for (the exact attributes, which order, the required payment rule) before writing. "
+    "If '{s}' is exactly right, re-emit the SAME tool call unchanged. Otherwise emit the corrected "
+    "call, or — only if the conversation truly does not determine the answer — ask the user to pick. "
+    "Never invent values."
+)
 
-def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domain=None):
+
+def _confirm_write_tools(a2):
+    """A2-도출 write 도구 집합 = kind=='confirm' 게이트의 applies_to (도메인 리터럴 0)."""
+    tools = set()
+    for g in (a2 or {}).get("gates", []) or []:
+        if g.get("kind") == "confirm":
+            tools |= set(g.get("applies_to") or [])
+    return tools
+
+
+def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domain=None, disamb=False):
     """LLMAgent._generate_next_message 패치 — R1b 통합 (A2-구동 hints/placeholders).
       L1 = bad_words 디코드-마스크(정적 블랙리스트=A2 placeholders ∪ 스키마-example + 세션-flagged − context).
       L2 = provenance 검증기 + 내부 재생성.
       GROUND = config-도출 candidate-surfacing.
+      DISAMB = |C|>=2 write-인자 1회 재확인(선택은 모델에 남김·T5 라우터).
     domain 주면 A2서 hints/placeholders 도출(없으면 도메인-일반 기본)."""
+    import sys
     from tau2.agent.llm_agent import LLMAgent
     import tau2.agent.llm_agent as la
     from tau2.data_model.message import ToolMessage, UserMessage, MultiToolMessage
@@ -509,6 +532,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
     a2 = _domain_a2(domain) if domain else None
     hints = a2["_hints"] if a2 else DEFAULT_ARG_HINTS
     placeholders = a2["_placeholders"] if a2 else DEFAULT_PLACEHOLDERS
+    disamb_tools = _confirm_write_tools(a2) if disamb else set()
 
     def _append(state, message):
         if isinstance(message, UserMessage) and getattr(message, "is_audio", False):
@@ -573,6 +597,74 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                 work.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                         error=True, content=reason))
             am = _gen(self, work, bw(), "agent_response_regen")
+
+        # ─── DISAMB: 문맥-실재값인데 같은-형식 후보 2+개 → 1회 재확인 (선택은 모델) ───
+        if disamb_tools and getattr(am, "tool_calls", None):
+            if not hasattr(self, "_t2_disamb_seen"):
+                self._t2_disamb_seen = set()
+            hit = None
+            for tc in am.tool_calls:
+                if getattr(tc, "name", None) not in disamb_tools:
+                    continue
+                for k, v in _args_dict(tc).items():
+                    if not any(h in k.lower() for h in hints):
+                        continue
+                    for val in _flatten(v):
+                        s = str(val).strip()
+                        if len(s) < 4 or s.lower() not in ctx:
+                            continue
+                        memo = (tc.name, k, s.lower())
+                        if memo in self._t2_disamb_seen:
+                            continue
+                        cands = _grounded_candidates(k, s, state.messages)
+                        if len(cands) >= 2 and any(s.lower() == str(c).lower() for c in cands):
+                            hit = (tc, k, s, cands, memo)
+                            break
+                    if hit:
+                        break
+                if hit:
+                    break
+            if hit:
+                tc, k, s, cands, memo = hit
+                self._t2_disamb_seen.add(memo)
+                self._t2_disamb = getattr(self, "_t2_disamb", 0) + 1
+                print("[T2_DISAMB] fired tool=%s arg=%s val=%s ncand=%d" % (tc.name, k, s, len(cands)),
+                      file=sys.stderr, flush=True)
+                dwork = list(work) + [am]
+                fb = DISAMB_FEEDBACK.format(k=k, s=s, n=len(cands),
+                                            cands=", ".join(repr(c) for c in cands[:8]))
+                for c in (am.tool_calls or []):
+                    reason = fb if c is tc else \
+                        "Error: [DISAMBIGUATE] re-check pending; re-emit this call after resolving."
+                    dwork.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
+                                             error=True, content=reason))
+                am2 = _gen(self, dwork, bw(), "agent_response_disamb")
+                # 재확인 응답이 날조를 새로 들이면 prov 루프로 정화(2회 한도)·실패 시 원 응답 유지
+                n2 = 0
+                while n2 < 2:
+                    fab2 = _first_fab_call(am2, ctx, hints)
+                    if fab2 is None:
+                        break
+                    tc2, k2, s2 = fab2
+                    n2 += 1
+                    self._t2_session_bl.add(s2)
+                    dwork = dwork + [am2]
+                    for c in (am2.tool_calls or []):
+                        reason = REGEN_FEEDBACK.format(k=k2, s=s2) if c is tc2 else \
+                            "Error: [PROVENANCE] resolve the invented value first; do not call this yet."
+                        dwork.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
+                                                 error=True, content=reason))
+                    am2 = _gen(self, dwork, bw(), "agent_response_regen")
+                if _first_fab_call(am2, ctx, hints) is None:
+                    if getattr(am2, "tool_calls", None):
+                        sw = any(str(vv).strip().lower() != s.lower()
+                                 for c2 in am2.tool_calls if c2.name == tc.name
+                                 for kk, vv0 in _args_dict(c2).items() if kk == k
+                                 for vv in _flatten(vv0))
+                        if sw:
+                            print("[T2_DISAMB] switched arg=%s from=%s" % (k, s),
+                                  file=sys.stderr, flush=True)
+                    am = am2
         return am
 
     LLMAgent._generate_next_message = patched

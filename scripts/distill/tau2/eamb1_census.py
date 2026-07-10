@@ -21,7 +21,8 @@ import math
 import re
 from collections import Counter, defaultdict
 
-SIM_DIR = r"C:\workspace\ba-frft\reports\facet_rft_2026\sim_results"
+import os as _os
+SIM_DIR = _os.environ.get("EAMB_SIM_DIR", r"C:\workspace\ba-frft\reports\facet_rft_2026\sim_results")
 
 # ---------------- A2 (도메인 데이터 · 엔진 아님) ----------------
 WRITE = {"return_delivered_order_items", "exchange_delivered_order_items", "cancel_pending_order",
