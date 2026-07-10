@@ -243,9 +243,15 @@ def main():
                     print("SKIP t%s/%s no-wrong-write" % (r["task_id"], r["trial"]), flush=True)
                 continue
             probes, gv, cands = build_probes(sim, task, point, policy)
+            # gold 정보가 probe 시점 문맥(도구출력)에 실재했나 — 부재면 선택 실패가 아니라
+            # gather-선행 실패(조립)로 별도 버킷 (PREINFO·정직 분리)
+            _ctx_tools = " ".join((m.get("content") or "") for m in (sim.get("messages") or [])[:point[0]]
+                                  if m.get("role") == "tool" and isinstance(m.get("content"), str))
+            _gvals = gv if isinstance(gv, list) else [gv]
+            gold_in_ctx = all(str(v) in _ctx_tools for v in _gvals if v is not None)
             rec = {"task": r["task_id"], "trial": r["trial"], "bucket": r["bucket"],
-                   "tool": point[1], "arg": point[4], "gold": gv,
-                   "wrote": point[2].get(point[4]), "ncand": len(cands)}
+                   "tool": point[1], "arg": point[4], "gold": gv, "gold_in_ctx": gold_in_ctx,
+                   "wrote": point[2].get(point[4]), "ncand": len(cands), "probe_i": point[0]}
             for label in ("A", "B", "C"):
                 sysmsg, um = probes[label]
                 if label == "C" and (not cands or not any(
@@ -278,15 +284,16 @@ def main():
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     agg = {}
     for rec in results:
-        b = agg.setdefault(rec["bucket"], {"n": 0, "A": [0, 0], "B": [0, 0], "C": [0, 0]})
+        key = (rec["bucket"], "info" if rec.get("gold_in_ctx") else "PREINFO")
+        b = agg.setdefault(key, {"n": 0, "A": [0, 0], "B": [0, 0], "C": [0, 0]})
         b["n"] += 1
         for L in ("A", "B", "C"):
             if rec.get(L) is not None:
                 b[L][1] += 1
                 b[L][0] += 1 if rec[L] else 0
-    print("\n== EISO 집계 (정답률·n=판정가능) ==")
-    for k, v in agg.items():
-        line = "%-17s n=%d" % (k, v["n"])
+    print("\n== EISO 집계 (정답률·n=판정가능·PREINFO=gold 미조회 시점=gather-선행 실패) ==")
+    for k, v in sorted(agg.items()):
+        line = "%-17s %-8s n=%d" % (k[0], k[1], v["n"])
         for L in ("A", "B", "C"):
             c, n = v[L]
             line += "  %s=%s(%d/%d)" % (L, ("%.2f" % (c / n)) if n else "NA", c, n)
