@@ -230,6 +230,21 @@ $|C|\ge2$·3+trial 등장 결정점(task,tool,arg 키): base 260개 = 무실패 
 - T3와 정합: thinking(연산)은 못 열고 **구조(명시 열거)는 연다** — "선택지를 명시하면 분류가 된다"(T6g 설계 원리의 격리 실증). **T5-B DISAMB arm의 Phase A GO 근거.**
 - caveat: 격리 단일턴·JSON-only 프로토콜이라 절대 수준은 e2e와 다름(A/B 대조만 내적 타당).
 
+## 7h. ★결과 — T5-B 라우터 e2e 완주·판정 (2026-07-10 완주·07-11 기록)
+> arm=`routerv1_retail_t4`(floor+prov+**DISAMB**·C53 invocation 정확 재현+T2_DISAMB=1)·456/456·**infra 0·tme 0**(user_stop 454·max_steps 2)·gz 자동 영속. DISAMB 발화 **1,274회**(2.8/sim)·**switched 26회(2.0%)**. 공식 compute_metrics.
+
+| pass^k | floor | prov(C53) | **routerv1** | Δ(vs prov) |
+|---|---|---|---|---|
+| 1 (=avg) | .557 | .577 | .570 | −0.7pp (잡음권) |
+| 2 | .411 | .420 | **.434** | **+1.5pp** |
+| 3 | .358 | .331 | **.357** | **+2.6pp** |
+| 4 (robust·1급 축) | .333 | .281 | **.298** | **+1.8pp** |
+
+- **flip census (vs prov)**: robust 상승 **8**(★**t61 0/4→4/4 — prov의 최악 파손을 완전 환매**·t16/t18=T2 체계핵 2→4·t17 4/4 유지) vs 하락 **6**(t46 4→0·t47 4→1·t95 4→1·경미 3). 순 +2 tasks ≈ p4 +1.8pp 정합.
+- **Δspurious per-case**: 대표 파손 t46 정독 — **switch-오답이 아니라 무-write 탈선**(router 궤적서 write 호출 자체가 소멸·prov는 4/4 정답 write). 기전 [P]: DISAMB 재확인 후 재발화 경로가 행동을 유실시키는 계열 — t47/t95 포함 후속 정독 필요. switched 26건의 인자 구성: item_ids 다수·order_id 4·payment 1.
+- **★판정 = 조건부 GO — "robust-축 환매 레버"로 재정의.** 사전등록 갈래 대비: pass^1은 중립 갈래(사전 상한 +2.9pp 미달 예상 그대로)·그러나 **1급 축(pass^4)에서 prov의 매도(−5.3pp)를 +1.8pp 부분 환매**하고 체계핵 표적(t16·t61)을 정확히 적중. **완전 환매는 아님**(floor p4 대비 여전히 −3.5pp) ⇒ prov⊕DISAMB 합성은 간섭-보상(B09 5-1)의 실증 사례이되 미완 — 완전 상쇄 조합 탐색은 E-COMP 축과 합류.
+- **이론 접속**: c51 격리 +31pp → e2e p1 ≈0 = **"격리 이득 ≠ e2e 이득" 정량 사례 2호**(C45 67→0%→e2e +2~3pp와 동형 희석)·이득이 robust 축으로 발현 = 재확인이 정답을 새로 만들기보다 **trial-간 일관성**을 만든다(이론: 열거는 정보를 안 늘리고 해독 분산을 줄인다 — DPI 정합).
+
 ## 8. 원장 갱신 계획
 
 각 실험 종료 시: 본 doc에 결과 절 추가(수치+provenance) → RESEARCH_MASTER §3에 C-항목 신설(T1→C5x…) → §4 큐 상태 갱신. T2·T4가 살면 P3 논문의 정량 절 승격 후보, T5가 살면 특허 제2발명 명세의 실시예 승격 후보.
