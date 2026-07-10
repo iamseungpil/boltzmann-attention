@@ -24,6 +24,12 @@ def main():
                     help="도메인-일반 rules-prompt 파일(닫힌 기저 명시) 주입 = prompt-vs-SFT arm B. "
                          "비지정 시 미주입(floor/SFT arm).")
     ap.add_argument("--domain", default="retail")
+    ap.add_argument("--retrieval_config", default=None,
+                    help="knowledge-domain retrieval variant (banking_knowledge). ★미지정 시 banking은 "
+                         "'openai_embeddings'(dense KB·전 도구 작동·샌드박스 불요)로 고정 — RunConfig의 "
+                         "자동 디폴트 'alltools'는 shell 도구를 노출하나 sandbox binaries(srt/rg/socat) "
+                         "부재 시 고장난 도구가 스키마에 실림. (2026-07-10: 구 registry-override는 "
+                         "RunConfig.retrieval_config가 env_kwargs로 partial 키워드를 덮어써 무효였음)")
     ap.add_argument("--agent_model", default="Qwen/Qwen2.5-7B-Instruct")
     ap.add_argument("--agent_base", default="http://localhost:8351/v1")
     ap.add_argument("--user_model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
@@ -68,18 +74,18 @@ def main():
         print("[COST GUARD][WARN] frontier override ON — billing Claude to the OpenRouter key: "
               + ", ".join(f"{n}={v}" for n, v in _bad))
 
-    if a.domain == "banking_knowledge":  # 기본 alltools=grep-shell 샌드박스(srt/rg/socat) 필요 → 회피.
-        # openai_embeddings 변종 = dense KB(OPENAI_API_KEY 사용·1회 캐시)·샌드박스 불요. bench 소스 미편집.
-        from functools import partial
-        from tau2.registry import registry as _reg
-        from tau2.domains.banking_knowledge.environment import get_environment as _bank_ge
-        # no_knowledge = KB 도구 없음(임베딩 불요)·DB 도구만 = id-grounding 테스트에 충분.
-        _reg._domains["banking_knowledge"] = partial(_bank_ge, retrieval_variant="no_knowledge")  # 덮어쓰기(register는 중복거부)
-        # build_tools가 변종 무관 _create_sandbox(터미널 도구) 호출 → 샌드박스 binaries(srt/rg/socat) 요구.
-        # DB-only 태스크는 shell 도구 안 씀 → 의존성 체크 no-op stub(실제 sandbox 미사용).
+    if a.domain == "banking_knowledge":
+        # ★변종은 RunConfig.retrieval_config(지원 경로)로만 지정한다.
+        #   (구 방식 registry._domains partial-override는 죽은 코드였음: RunConfig가
+        #    banking일 때 retrieval_config를 'alltools'로 자동 디폴트 → env_kwargs로
+        #    retrieval_variant를 명시 전달 → partial 키워드를 덮어씀. 2026-07-10 발견 —
+        #    "no_knowledge로 돌았다"는 종전 출력은 거짓이었고 실제는 alltools.)
+        if a.retrieval_config is None:
+            a.retrieval_config = "openai_embeddings"  # dense KB·bm25/shell 없음 = 전 도구 작동
+        # sandbox 의존성 체크 stub: 변종 무관 build_tools가 체크 호출 — 실사용 안 함(shell 미노출 변종).
         import tau2.knowledge.sandbox_manager as _sbm
         _sbm._check_sandbox_dependencies = lambda *a, **k: None
-        print("[t2_run] banking_knowledge -> no_knowledge variant + sandbox-check stubbed (DB tools only)")
+        print(f"[t2_run] banking_knowledge retrieval_config={a.retrieval_config} + sandbox-check stubbed")
 
     if a.resolve:
         import t2_resolve_patch
@@ -160,7 +166,11 @@ def main():
     # 비결정성은 serve-side enforce-eager/max-num-seqs=1로, seed는 샘플링-RNG 보조)
     if a.agent_seed is not None and not a.agent_llm:
         llm_args_agent["seed"] = a.agent_seed
+    _extra_cfg = {}
+    if a.retrieval_config:
+        _extra_cfg["retrieval_config"] = a.retrieval_config
     cfg = TextRunConfig(
+        **_extra_cfg,
         domain=a.domain,
         agent="llm_agent",
         llm_agent=llm_agent,
