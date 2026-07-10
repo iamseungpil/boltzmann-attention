@@ -44,6 +44,14 @@
 ### (옵션 L5) GROUND 후보-표면화 — zero-write repair 조각(상한 +4 sims·C27)
 - C40(격리: getter-follow 16→56%)·rule-0 클린(기조회 출력만 표면화). R2 arm에 플래그 변형으로만(효과 작음·복잡도 증가 주의).
 
+### L0. ★E-ISO — 정보-맞춘 3단 격리 replay (진단·레버 배정의 선결·무료급 · 2026-07-10 신설)
+- **동기(사용자 재고 지시)**: "semantic 잔여가 사실 부하 아닌가" — C13(부하 없음=능력)은 **정보-빈약 프로브**였고 재검(E1′ PhA)은 C23으로 하향·미실행. 이후 증거는 부하 쪽: C59 열거 +31pp(구조화하면 고름)·C60 표현-민감(표면 분산이 결정 오염)·C14(격리 계획선 정답). §1.5 Q2를 semantic 슬라이스에 규율대로 재실행.
+- **설계**: census 실패 결정점(WRONG_ITEMS/REF/PAYMENT 77 + C60 flip 쌍)마다 에이전트가 실제 가진 정보를 고정,
+  **A 궤적-재현**(전체 prefix) / **B 격리-원문**(같은 정보·잡음 압축) / **C 격리-형식화**(명시 열거+요청 재진술).
+  판정: B≫A=궤적-간섭 부하(분리/controller) · B≈A∧C≫B=**형식화-부하**(직렬화·열거=예상) · C 낮음=진짜 능력/경계(그때만 learn/scale).
+- **출력 = learn 표적의 사전 필터**: E6′ 표적(paraphrase-invariance·over-action)을 "부하 몫 제거 후 잔여"로 정의 — [[13]]·§1.5 순서 준수. 기반 코드=`c51_disambig_boundary.py`(C59) 확장. 32B 로컬만(무료·GPU 한가할 때).
+- **horizon 별도 처방 확인**: C43 "메모장 무효"는 날조 한정 — horizon/coverage엔 미검. banking "완주-후-불일치 45%"=단계별 결과 기록 부재 서명 → **E-PLAN walk + banking 절차조립 controller가 그 처방**(learn/scale 아님·지속=분해 축·taxonomy 정합).
+
 ### L6. prov p4-비용 차단 패키지 (2026-07-10 신설 · `RETAIL_PASS_COMPOSITION_DESIGN §3d/§3e`)
 - 근거: C53 보강 — prov는 p1을 사고 **p4를 판다**(짝 −5.3pp·감쇠 +7.5pp 초과·prov-lost 15 중 12는 gpt-4.1 4/4 = 레버-유발 flaky).
 - **P1 최소-침습 arg-머지**(regen 후 flagged-arg 외 원본 복원·결정론) · **P2 원리-디폴트 검증기**(=L3와 동일물·refund∈{원결제,명시 gift}) · **P3 write-only 트리거**(측정 플래그).
