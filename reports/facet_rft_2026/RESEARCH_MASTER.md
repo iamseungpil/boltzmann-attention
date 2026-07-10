@@ -258,7 +258,8 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | E5 | 7B assembled | C2 사다리 | 소액 | 대기 |
 | E6 | learn-wing four-bench→τ² swap | C7 | 큼 | **E6′로 대체**(τ² 전 데이터 타당성) |
 | E7 | fleet | C6 | 보류 | big-tier 시 |
-| **E-AMB** | 애매모호성 이론(고전 정식화) 검증 T1~T5: \|C\| census→실패율 단조→처리-이득 층화→앙상블-불일치 대리→라우터 e2e | 이론 [D]→[M] 승격·제2발명 배분의 단일-원리 유도 | **T1~T4 무료(재분석)**·T5만 유료(승인) | ✅ **T1·T2·T3 완료(C55·C56)**: 단조성 2-arm 재현(base 0/351·QwQ 0/293)·census 75.5%·C48 45.8% provenance 미비 발견·**thinking 선택-이득 반증**·체계핵 6점 식별 ▶ **T4 리모트 보류**·T5 승인 필요(표적=체계핵) — `E_AMB_..._PLAN §7·§7b` |
+| **E-AMB** | 애매모호성 이론(고전 정식화) 검증 T1~T6 | 이론 [D]→[M] 승격·제2발명 배분의 단일-원리 유도 | T1~T4·T6 무료·T5-B 유료(승인됨) | ✅ **T1~T4·T5-A·T6 완료**(C55~C59): 단조성 3-arm 재현·P2b/c(prov가 \|C\|=1만 닫음)·앙상블 P4a 지지·**열거가 ⋈ 엶(.345→.657·C59)**·slot-filling+디폴트 불변성 기각(C58·T6h-2: FORCED 1.000 vs CHOICE .840→디폴트 개념 폐기) ▶ **T5-B full 실행 중**(routerv1·prov+DISAMB·자동영속) — `E_AMB_..._PLAN §7~§7g` |
+| **E-P1~3** | 21벤치 tier2 분해(P_OC §4·몫 안정성): E-P1 BFCL miss_param(P10 검증)·E-P2 NESTful·E-P3 CFB/WorkBench/ToolEmu | 새 non-empty C-류 0 수렴 가설 | 무료(로컬 생성·8141) | ▶ **사용자 승인(2026-07-10)·진행 중**: 공개 궤적 부재 확인(전부 데이터만)→로컬 생성 경로. **E-P2 실행 중**(NESTful 200샘플·QwQ 8141)·E-P1 스테이징 완료(gorilla clone·bfcl_eval import OK·데이터 v4 확보·생성은 T5-B 후 8140)·CFB/ToolEmu clone 완료 |
 **GO 조건(공통)**: per-case 복구 ∧ over-block=0 ∧ **Δspurious ≤ 0** ∧ turn-예산 초과 0. pass 비교는 nt=4 후 *부차*.
 
 ## 5. 논문 4분할 (승인됨 2026-07-08 · 2026-07-09 특허 정련)
