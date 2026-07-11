@@ -295,6 +295,7 @@ content 동일-치환 옵션 · N8 V0에 spurious-이동 항(§7 반영) · N9 o
 - gold = **2주문 각 별도 exchange**(#W2905754·#W4073673). 에이전트는 한 주문(#W4073673)만 찾고 그 안 item을 `[2216...,2216...]` **중복복제**해 2대 표현 시도→env-ERR→transfer 포기.
 - = **둘째 주문 미발견 coverage/reach 실패**. ★constraints 게이트 **미발화**(disjoint/equal_len 통과)=env가 중복 직접거부 ⇒ **C62 "constraints over-steer" 가설 t95엔 오귀속·정정**.
 - ★처방 = **E-PLAN coverage walk**(대상 item 포함 주문 전수 발견→주문당 1write·ENDGAME L4). 부하-레버·더 크나 경계 아님. silent-repair 범위 밖(별도 레버).
+- ★**"왜 silent로는 못 닫나" 정밀 이유**(사용자 질문): silent-repair는 **write의 *인자값*을 고침** — t95는 **아예 없는 write**(#W2905754 exchange를 시도조차 안 함)라 고칠 인자가 없음. 없는 write를 엔진이 생성=도메인행동 수행([[05]] Q3 위반·autofetch류)=금지. ⇒ 정답은 write생성이 아니라 **빠진 주문을 *발견하게* 함**(read 강제=§1.5 허용). floor는 get_user_details→3주문 전수조회로 발견(3/4), 우리는 #W2905754 미조회. **E-PLAN이 discovery-read를 강제해 둘째 주문 표면화→에이전트가 2 write**. C14 축(격리계획 정답·궤적 누락=reach부하)·경계 아님.
 
 ### ★종합 정정
 - **§12의 "범위 밖 잔여 2건(⋈ 경계)"은 부정확** — 둘 다 경계 아님: **t61=decidable(P2 값싼 즉시)·t95=부하(E-PLAN 큰 레버)**. 진짜 ⋈ 경계는 이 6표적엔 없음.
