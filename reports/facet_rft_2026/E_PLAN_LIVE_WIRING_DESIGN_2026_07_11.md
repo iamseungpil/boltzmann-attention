@@ -177,3 +177,8 @@ coverage_gap() -> list:   # ★v1.2: CP5서 replan 기준으로 diff (CP0 planne
 3. A2에 `enumerator_spec`(retail: {list: get_user_details, detail: get_order_details}) 추가 + SCOPE_TOKEN 파서.
 4. 격리 검증 §5(d) ①~⑤ — 무료·GPU 한가할 때. **⑤(재-plan C14 재검증)가 최우선**(CP5 주축의 생사).
 5. → 표적 nt=1 (승인 필요). *(step b 리뷰 + v1.2 비판적 재해석 = 2026-07-11 완료·설계 확정)*
+
+## 부록 Y. 품목-나열 힌트의 지위 강등 (2026-07-11 사용자 비판 반영)
+- **재분류**: `_enum_items` 구문 힌트 = **임시 결정론 센서·과소근사** — 의무-검출의 해답이 아님. 켜는 것은 read/리마인더뿐(결정 0)·실패 비대칭 안전(miss=현상유지·false-fire=read 1회·456-census 0)이라 유지하되:
+- **caveat(C58 동형)**: 측정된 recall/무해성은 gpt-4.1 user-sim의 정돈된 영어 산문에 결합된 값 — 쉼표-부재·타 구분자·턴-분산 나열·비영어서 무력. **전이 주장에 이 센서의 recall을 계상 금지.**
+- **원리적 후계 = 의무-형식화(formalize-obligation)**: LLM 격리 서브콜이 "사용자가 요청한 write-의무 목록"을 구조(JSON)로 추출 → 결정론 ledger diff([[10]] 분담 정위치). = v1.3서 [D] 강등된 "형식화-프롬프트 재-plan"의 승격판. FORMALIZE-EXEC(기준-형식화·NEXT_LEVER_GEN §2)와 함께 **차세대 형식화 트랙 2종**으로 — 검증은 E-ISO C-프로토콜(형식화 정확도 EM 선측정) 재사용.
