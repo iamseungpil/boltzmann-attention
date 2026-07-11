@@ -13,7 +13,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from t2_eplan_patch import (  # noqa: E402
     PlanLedger, expand_scope, discovery_L1, discovery_L2, coverage_gap,
     is_scope_token, load_eplan_spec, _covers, discovery_precondition,
-    _enum_items, walk_required_n)
+    _enum_items, walk_required_n, _intent_match, ledger_summary,
+    structured_replan_prompt, parse_obligations, transcript_text)
 
 # 가짜 A2 eplan spec — 엔진이 도구명 하드코딩 0([[05]])임을 도구명 자체로 검증
 SPEC = {"list_enumerator": "list_tool", "detail_reader": "detail_tool", "entity_key": "eid"}
@@ -200,5 +201,72 @@ _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2", "retail.gate
 with open(_p, encoding="utf-8") as f:
     _full = json.load(f)
 ok("gates" in _full and "eplan" in _full, "retail.gate.json 전체 json.load 무결")
+
+# ── 9. ★레버4 formalize-obligation (T2_EPLAN_REPLAN·부록 Y·2026-07-11) ──────
+# 9a. _intent_match: 축약형('exchange')이 executed 도구명을 커버 (양방향 포함)
+ok(_intent_match("exchange", "exchange_delivered_items_tool"), "intent: 축약⊂도구명")
+ok(_intent_match("exchange_delivered_items_tool", "exchange"), "intent: 역방향 포함")
+ok(_intent_match("cancel_tool", "cancel_tool"), "intent: 정확 일치")
+ok(not _intent_match("exchange", "cancel_tool"), "intent: 무관 도구 불일치")
+ok(not _intent_match("", "cancel_tool") and not _intent_match(None, "x"),
+   "intent: 빈/None 불일치(안전측)")
+
+# 9b. _covers가 intent 포함관계로 커버 (레버4 replan 산출 정합)
+e9 = {"intent_class": "exchange_delivered_items_tool", "entity": "W1",
+      "items": frozenset({"i1"})}
+p9 = {"intent_class": "exchange", "entity": "W1", "items": frozenset()}
+ok(_covers(e9, p9), "covers: 축약 intent + items 관대")
+ok(not _covers(e9, dict(p9, entity="W2")), "covers: entity 불일치는 여전히 gap")
+
+# 9c. ledger_summary — qty·listed·examined·executed 열거(결정론·도메인일반 어휘)
+l9 = PlanLedger(SPEC)
+l9.accumulate_qty("exchange two things")
+l9.listed = {"W1", "W2"}
+l9.examined = {"W1"}
+l9.note_write("exchange_tool", "W1", {"i1"})
+s9 = ledger_summary(l9)
+ok("max quantity the user mentioned: 2" in s9, "summary: qty 열거")
+ok("W1, W2" in s9 and "EXAMINED" in s9, "summary: listed/examined 열거")
+ok("exchange_tool on W1" in s9 and "items: i1" in s9, "summary: executed 열거")
+l9e = PlanLedger(SPEC)
+ok("(none)" in ledger_summary(l9e), "summary: 빈 ledger는 (none)")
+
+# 9d. structured_replan_prompt — ledger + 의무-JSON 지시 + entity_key(A2) + 전사
+p = structured_replan_prompt(l9, "[user] hello", "eid")
+ok(p.startswith("[LEDGER"), "prompt: ledger 요약이 선두(구조화 문맥=⑤ raw-실패 교정)")
+ok('"eid"' in p and '"action"' in p and "JSON array" in p, "prompt: 의무-JSON 스키마(entity_key=ABox)")
+ok("--- TRANSCRIPT ---" in p and "[user] hello" in p, "prompt: 전사 포함")
+
+# 9e. parse_obligations — 정상/산문 속/실패=None/빈 배열
+arr = parse_obligations('Here: [{"action": "exchange_tool", "eid": "W2", "items": ["i2"]}]', "eid")
+ok(arr is not None and len(arr) == 1 and arr[0]["intent_class"] == "exchange_tool"
+   and arr[0]["entity"] == "W2" and arr[0]["items"] == ["i2"], "parse: 산문 속 JSON 배열")
+ok(parse_obligations("no json", "eid") is None, "parse: JSON 없음 → None(결정론 폴백)")
+ok(parse_obligations('{"action": "x"}', "eid") is None, "parse: 배열 아님 → None")
+ok(parse_obligations("[]", "eid") == [], "parse: 빈 배열 = 유효(의무 0)")
+ok(parse_obligations('[{"eid": "W1"}, "junk", {"action": "cancel_tool", "entity": "W3"}]',
+                     "eid") == [{"intent_class": "cancel_tool", "entity": "W3",
+                                 "items": (), "qty": 1}],
+   "parse: action 없는 항목·비dict 스킵 + entity 폴백 키")
+
+# 9f. replan 경로 e2e(순수): 의무 2건 중 1건만 executed → gap 1건 (coverage_gap 재사용)
+l9.set_replan(parse_obligations(
+    '[{"action": "exchange", "eid": "W1", "items": ["i1"]},'
+    ' {"action": "exchange", "eid": "W2", "items": ["i2"]}]', "eid"))
+g9 = coverage_gap(l9)
+ok(len(g9) == 1 and g9[0]["entity"] == "W2",
+   "replan diff: 축약 intent로도 executed(W1) 커버·W2만 gap")
+l9.note_write("exchange_tool", "W2", {"i2"})
+ok(coverage_gap(l9) == [], "replan diff: W2 수행 후 gap=∅(즉시 종결·R1b)")
+
+# 9g. transcript_text — dict 메시지·툴콜 라인·절단(앞뒤 보존)
+msgs9 = [{"role": "user", "content": "hi"},
+         {"role": "assistant", "content": "ok",
+          "tool_calls": [{"name": "detail_tool", "arguments": '{"eid": "W1"}'}]}]
+t9 = transcript_text(msgs9)
+ok("[user] hi" in t9 and "[assistant->tool] detail_tool" in t9 and '"eid": "W1"' in t9,
+   "transcript: 텍스트+툴콜 라인(dict 겸용)")
+tlong = transcript_text([{"role": "user", "content": "A" * 300}], max_chars=100)
+ok("[middle truncated]" in tlong and tlong.find("A") >= 0, "transcript: 절단 시 앞뒤 보존")
 
 print("ALL PASS (%d checks)" % N)

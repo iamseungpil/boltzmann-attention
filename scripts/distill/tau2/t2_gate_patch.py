@@ -56,6 +56,8 @@ def _domain_a2(domain):
         a2["_hints"] = tuple(set(DEFAULT_ARG_HINTS) | set(a2.get("identifying_arg_types") or ()))
         a2["_placeholders"] = set(a2.get("placeholders") or ()) | DEFAULT_PLACEHOLDERS
         a2["_producer"] = (a2.get("producers") or {}).get("authenticated_user_record")
+        # ⚠ deprecated(NOTICE-PERGATE 2026-07-11): first-notice 스칼라 — 진단 스크립트
+        #   호환용으로만 보존. ★신규 소비 금지 — 게이트 판정은 per-gate 커링(check callable)로.
         a2["_notice_text"] = next(
             (g.get("notice_text") for g in a2["gates"] if g.get("kind") == "notice"), "")
     _A2_CACHE[domain] = a2
@@ -207,7 +209,8 @@ def apply():
         producer = a2["_producer"]
         hints = a2["_hints"]
         last_user = _last_user_text(self)
-        tms = _transfer_msg_sent(self, a2["_notice_text"])
+        # ★NOTICE-PERGATE: 문구-매개 클로저(커링) — check()가 게이트별 notice_text로 평가.
+        tms = lambda text: _transfer_msg_sent(self, text)  # noqa: E731
 
         # T2_PRESENT_READS=1 = REPLAY-SAFE present: 후보-producer 읽기응답에 clean 요약 덧붙임(deny 아님·측정 arm).
         present_on = os.environ.get("T2_PRESENT_READS") == "1"
@@ -559,6 +562,45 @@ def _confirm_write_tools(a2):
     return tools
 
 
+# ─── ★NL-NUM-PROV (T2_NLNUM_PROV=1) — t47형 NL-산술 환각 검사 (2026-07-11) ───
+# 어시스턴트 *텍스트 발화*의 통화-금액(통화기호+숫자·도메인 어휘 0)이 ①이전 문맥(user/tool
+# 텍스트)에 원문-부재 ∧ ②calculate류 도구 출력에도 부재(②⊂①: calc 출력=tool 텍스트)면
+# 생성-레벨 regen 1회: "암산 금지·calculate 도구로 검증 후 재진술". 상한 1/턴·무과금·
+# 채택 전 게이트 재검사(안전측). calculate 도구명은 A2 키 `calc_tool`(ABox·[[05]]).
+_MONEY_RE = re.compile(r"[$€£¥]\s?(\d[\d,]*\.\d{1,2})\b")
+
+
+def _num_variants(num):
+    """금액 숫자부의 대조 변형 집합: 콤마 제거·float 정규형('875.50'→'875.5')."""
+    s = num.replace(",", "")
+    v = {s}
+    try:
+        v.add(repr(float(s)))
+    except ValueError:
+        pass
+    t = s.rstrip("0").rstrip(".") if "." in s else s
+    if t:
+        v.add(t)
+    return v
+
+
+def _unverified_amounts(text, ctx_numeric):
+    """text(어시스턴트 발화)의 통화-금액 중 ctx(user/tool 텍스트·콤마 정규화)에 부재분."""
+    out = []
+    for m in _MONEY_RE.finditer(text or ""):
+        if not any(v in ctx_numeric for v in _num_variants(m.group(1))):
+            out.append(m.group(0).strip())
+    return out
+
+
+NLNUM_FEEDBACK = (
+    "Error: [NL-NUM] your reply states the amount '{amt}', which does not appear anywhere in the "
+    "conversation or in any tool output — it looks like mental arithmetic. Do NOT do mental "
+    "arithmetic. Verify the amount by calling the {tool} tool with the exact expression, then "
+    "restate your reply using the verified value."
+)
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ★T5-C silent repair (2026-07-11) — 정본 `T5C_SILENT_REPAIR_DESIGN_2026_07_11.md` §6
 #   불변량: (i) 커밋될 턴 불파기 (ii) 대화에 새 텍스트 0 (iii) 실행=기록(replay-clean)
@@ -785,10 +827,22 @@ def _t5c_disamb_subcall(self, la, UserMessage, state_msgs, tc, k, s, sub_args):
         records = _candidate_records(k, s, state_msgs)
         if len(records) < 2:
             return "unsure"
+        # ★FORMALIZE-EXEC(레버3·T2_FEXEC=1·NEXT_LEVER_GEN §2): 기준-형식화 서브콜 →
+        #   결정론 실행 → 결과를 이 DISAMB 서브콜 *프롬프트*에 비커밋 후보-주석으로 첨부
+        #   (P-B 좌석 공유·별도 후크 0·대화/턴 불변). 실패/none = 주석 없음(기존 폴백·§2.4).
+        fx_note = ""
+        if os.environ.get("T2_FEXEC") == "1":
+            try:
+                import t2_formalize_exec as _fx
+                fx_note = _fx.fexec_for_disamb(self, la, UserMessage, state_msgs, k, s) or ""
+            except Exception as _fe:
+                print("[T2_FEXEC] error (no-op): %r" % (_fe,), file=sys.stderr, flush=True)
+                fx_note = ""
         prompt = (SUBCALL_SYS + "\n\n=== Conversation ===\n" + _text_transcript(state_msgs)
                   + "\n\n=== Candidates for '" + str(k) + "' ===\n"
                   + "\n".join("- %s%s" % (c, ("   | record: " + sn) if sn else "")
                               for c, sn in records)
+                  + (("\n\n" + fx_note) if fx_note else "")
                   + "\n\nThe agent currently chose '" + s + "'. Which single candidate does "
                     "the user intend? Answer with EXACTLY one candidate value, or UNSURE.")
         try:
@@ -1193,7 +1247,8 @@ def apply_gate_regen(max_regen=1):
             state.messages.append(message)
         _rebuild_gate_state(gate, a2, state.messages)
         last_user = _regen_last_user(state.messages)
-        transfer_sent = _regen_transfer_sent(state.messages, a2["_notice_text"])
+        # ★NOTICE-PERGATE 커링 (apply()와 동형)
+        transfer_sent = lambda text: _regen_transfer_sent(state.messages, text)  # noqa: E731
         base = state.system_messages + state.messages
         am = la.generate(model=self.llm, tools=self.tools, messages=base,
                          call_name="agent_response", **self.llm_args)
@@ -1311,7 +1366,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         if gate is not None:
             _rebuild_gate_state(gate, a2, state.messages)
             last_user = _regen_last_user(state.messages)
-            transfer_sent = _regen_transfer_sent(state.messages, a2["_notice_text"])
+            # ★NOTICE-PERGATE 커링 (apply()와 동형)
+            transfer_sent = lambda text: _regen_transfer_sent(state.messages, text)  # noqa: E731
         ctx = _ctx_from_messages(state.messages)
 
         # ★E-PLAN v1.3 (T2_EPLAN=1): committed 히스토리서 결정론 ledger 재구성(관측만·[[10]])
@@ -1555,6 +1611,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             nsub = _apply_principle_default(am, a2, gate, uctx)
             if nsub:
                 self._t2_principle_default = getattr(self, "_t2_principle_default", 0) + nsub
+        # ★NL-NUM-PROV (opt-in T2_NLNUM_PROV=1·t47형): 최종 반환 직전 텍스트 발화의
+        #   통화-금액 provenance 검사 → 생성-레벨 regen 1회(무과금·비커밋). 상한 1/턴
+        #   (이 블록은 턴당 1회 실행·루프 없음). 채택 전 게이트 재검사 — regen이
+        #   게이트-deny 호출을 새로 들이면 원 am 유지(안전측·부작용 0).
+        if (os.environ.get("T2_NLNUM_PROV") == "1" and (a2 or {}).get("calc_tool")
+                and isinstance(getattr(am, "content", None), str)):
+            ctx_num = _ctx_from_messages(state.messages).replace(",", "")
+            bad = _unverified_amounts(am.content, ctx_num)
+            if bad:
+                self._t2_nlnum = getattr(self, "_t2_nlnum", 0) + 1
+                print("[T2_NLNUM] fired amount=%s" % bad[0], file=_sys.stderr, flush=True)
+                fbtxt = NLNUM_FEEDBACK.format(amt=bad[0], tool=a2["calc_tool"])
+                try:
+                    nfb = UserMessage(role="user", content=fbtxt)
+                except TypeError:
+                    nfb = UserMessage(content=fbtxt)
+                am2 = _gen(self, work + [am, nfb], bw(), "agent_response_nlnum")
+                if gate is not None and _denied_calls(am2, gate, last_user, transfer_sent):
+                    self._t2_nlnum_gate_reject = getattr(self, "_t2_nlnum_gate_reject", 0) + 1
+                    print("[T2_NLNUM] rejected: regen introduced gate-denied call; keeping original",
+                          file=_sys.stderr, flush=True)
+                else:
+                    am = am2
         return am
 
     LLMAgent._generate_next_message = unified

@@ -207,7 +207,13 @@ class GateInterpreter:
             kind = g.get("kind")
 
             if kind == "notice":
-                if transfer_msg_sent is False:
+                # ★NOTICE-PERGATE(2026-07-11·NEXT_LEVER_GEN §1.1①): callable이면 per-gate 평가
+                #   (그 게이트의 notice_text로 송신 여부 계산·다중 notice 공존 가능) /
+                #   스칼라(bool·None)면 현행과 바이트-동일(None=skip·False=deny·True=allow).
+                #   notice_text = A2 데이터 — 도메인 리터럴 0 불변식 유지.
+                sent = (transfer_msg_sent(g.get("notice_text"))
+                        if callable(transfer_msg_sent) else transfer_msg_sent)
+                if sent is False:
                     return False, g["id"], render_recovery(g)
 
             elif kind == "auth":

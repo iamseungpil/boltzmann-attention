@@ -288,11 +288,20 @@ def discovery_L2(ledger, intent_class):
     return sorted(ledger.listed - ledger.examined)
 
 
+def _intent_match(a, b):
+    """intent 정합(도메인일반): 정확 일치 또는 소문자 포함관계 — 재-plan 산출의 축약형
+    ('exchange')이 executed 도구명('exchange_delivered_order_items')을 커버(레버4·부록 Y).
+    도메인 어휘 0 — 포함관계는 문자열 연산만."""
+    a, b = str(a or "").strip().lower(), str(b or "").strip().lower()
+    return bool(a) and bool(b) and (a == b or a in b or b in a)
+
+
 def _covers(e, p):
-    """executed e가 planned/replan p를 커버하나: intent_class 일치 + entity 일치 +
+    """executed e가 planned/replan p를 커버하나: intent 정합(_intent_match) + entity 일치 +
     items 관대(어느 한쪽 비었거나 부분집합 관계면 커버 — 항목 과소지정 plan이
     실제 write를 gap으로 오판하는 false-positive 방지)."""
-    if e["intent_class"] != p["intent_class"] or _norm(e["entity"]) != _norm(p["entity"]):
+    if not _intent_match(e["intent_class"], p["intent_class"]) \
+            or _norm(e["entity"]) != _norm(p["entity"]):
         return False
     pi, ei = p.get("items") or frozenset(), e.get("items") or frozenset()
     return (not pi) or (not ei) or pi <= ei or ei <= pi
@@ -351,6 +360,121 @@ def build_ledger_from_messages(messages, spec, write_tools):
                     out = _g(tm, "content") if (tm is not None and not _g(tm, "error")) else None
                     led.note_read(nm, ar, out if isinstance(out, str) else None)
     return led
+
+
+# ── ★레버4 formalize-obligation (T2_EPLAN_REPLAN=1·부록 Y·t81 후계) ──────────
+# CP5 walk의 서브콜 변형: 리마인더 전에 격리 서브콜 1회 — 프롬프트 = **결정론 ledger
+# 요약(qty·listed·examined·executed 열거) + "사용자가 요청한 write-의무 목록 JSON"**
+# (v1.3 ⑤ raw-실패의 교정 = 구조화 문맥). 산출 → 결정론 diff(coverage_gap replan 경로
+# 재사용) → gap 있으면 기존 리마인더. 서브콜/파싱 실패 = 기존 결정론 신호 폴백(안전측).
+# [[10]]: 의무-추출(NL→구조)=LLM / diff·판정=결정론. write 강제 0(리마인더 비강제 불변).
+
+def ledger_summary(led):
+    """결정론 ledger 요약(도메인일반 어휘) — 구조화 재-plan 프롬프트의 1부."""
+    ex = ["  - %s on %s%s" % (e["intent_class"], e["entity"] or "?",
+                              (" (items: %s)" % ", ".join(sorted(e["items"])))
+                              if e["items"] else "")
+          for e in led.executed] or ["  (none)"]
+    return ("[LEDGER — deterministic summary of what actually happened]\n"
+            "- max quantity the user mentioned: %d\n"
+            "- records LISTED (returned by the list tool): %s\n"
+            "- records EXAMINED (details read): %s\n"
+            "- executed WRITE actions:\n%s"
+            % (led.qty_mentioned,
+               ", ".join(sorted(led.listed)) or "(none)",
+               ", ".join(sorted(led.examined)) or "(none)",
+               "\n".join(ex)))
+
+
+OBLIGATION_PROMPT = (
+    "You are auditing a finished customer-service conversation. Above is a DETERMINISTIC "
+    "LEDGER of what actually happened; below is the transcript. Using BOTH, list every WRITE "
+    "obligation the user requested in this conversation — including ones the agent failed to "
+    "perform. Output ONLY a JSON array; each element: "
+    '{"action": "<the exact write tool name>", "%s": "<the record id as it appears>", '
+    '"items": ["..."]}. Use ids exactly as they appear in the ledger/transcript; '
+    "do not invent ids."
+)
+
+
+def transcript_text(messages, max_chars=60000):
+    """전사(텍스트 턴 + assistant 툴콜 라인) — dict/객체 겸용(_g). 절단=앞뒤 보존."""
+    lines = []
+    for m in messages:
+        role, c = _g(m, "role"), _g(m, "content")
+        if isinstance(c, str) and c.strip():
+            lines.append("[%s] %s" % (role, c.strip()))
+        if role == "assistant":
+            for tc in (_g(m, "tool_calls") or []):
+                ar = _g(tc, "arguments")
+                if isinstance(ar, str):
+                    try:
+                        ar = json.loads(ar)
+                    except Exception:
+                        ar = {}
+                lines.append("[assistant->tool] %s %s"
+                             % (_g(tc, "name"),
+                                json.dumps(ar if isinstance(ar, dict) else {},
+                                           ensure_ascii=False, default=str)))
+    txt = "\n".join(lines)
+    if len(txt) > max_chars:
+        keep = max_chars // 2
+        txt = txt[:keep] + "\n...[middle truncated]...\n" + txt[-keep:]
+    return txt
+
+
+def structured_replan_prompt(led, transcript, entity_key):
+    """구조화 재-plan 프롬프트 = ledger 요약 + 의무-JSON 지시 + 전사. entity_key=A2(ABox)."""
+    return (ledger_summary(led) + "\n\n" + (OBLIGATION_PROMPT % entity_key)
+            + "\n\n--- TRANSCRIPT ---\n" + transcript)
+
+
+def parse_obligations(txt, entity_key):
+    """서브콜 응답 → replan write 목록 | None(형식 실패 = 결정론 폴백 신호).
+    빈 배열 = 유효(의무 0 → gap 진단은 coverage_gap 몫)."""
+    if not isinstance(txt, str):
+        return None
+    i = txt.find("[")
+    if i < 0:
+        return None
+    try:
+        arr, _ = json.JSONDecoder().raw_decode(txt[i:])
+    except Exception:
+        return None
+    if not isinstance(arr, list):
+        return None
+    out = []
+    for w in arr:
+        if not isinstance(w, dict):
+            continue
+        act = w.get("action")
+        if not isinstance(act, str) or not act.strip():
+            continue
+        ent = w.get(entity_key) or w.get("entity")
+        items = w.get("items")
+        out.append({"intent_class": act.strip(), "entity": _norm(ent),
+                    "items": [str(x) for x in items] if isinstance(items, list) else (),
+                    "qty": 1})
+    return out
+
+
+def _cp5_replan_subcall(orch, led, msgs, spec):
+    """격리 서브콜 1회(히스토리 밖·비커밋) → 의무 목록 | None(실패=폴백). 예외는 호출측서."""
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import UserMessage
+    ag = orch.agent
+    ekey = spec.get("entity_key") or "entity"
+    prompt = structured_replan_prompt(led, transcript_text(msgs), ekey)
+    try:
+        um = UserMessage(role="user", content=prompt)
+    except TypeError:
+        um = UserMessage(content=prompt)
+    kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items()
+          if "tool" not in k}
+    sub = la.generate(model=ag.llm, tools=None, messages=[um],
+                      call_name="eplan_replan_subcall", **kw)
+    _mark("replan subcall fired (structured ledger prompt)")
+    return parse_obligations(getattr(sub, "content", None) or "", ekey)
 
 
 def cp5_gap_reminder(n, m, unexamined):
@@ -500,17 +624,37 @@ def apply():
                 msgs = self.get_messages() if hasattr(self, "get_messages") else []
                 led = build_ledger_from_messages(msgs, spec, wt)
                 unexamined = sorted(led.listed - led.examined)
-                n = walk_required_n(led, unexamined)  # 나열 힌트 OR (t81·미검토 있을 때만)
-                m = len({e["entity"] for e in led.executed})
-                if n <= 1 or n <= m:
-                    return r  # gap 없음 = 개입 0 (R1b)
+                reminder = None
+                # ★레버4(T2_EPLAN_REPLAN=1): 격리 서브콜(구조화 ledger 프롬프트) →
+                #   결정론 diff(coverage_gap replan 경로). 실패=기존 결정론 신호 폴백(안전측).
+                if os.environ.get("T2_EPLAN_REPLAN") == "1":
+                    try:
+                        obligations = _cp5_replan_subcall(self, led, msgs, spec)
+                    except Exception as _re:
+                        obligations = None
+                        _mark("replan subcall failed (%r) — deterministic fallback" % (_re,))
+                    if obligations is not None:
+                        led.set_replan(obligations)
+                        gaps = coverage_gap(led)
+                        if gaps:
+                            reminder = cp5_reminder(gaps)
+                            _mark("replan gap: %d item(s)" % len(gaps))
+                        else:
+                            _mark("replan: no gap — terminate")
+                            return r  # 의무 전부 커버 = 개입 0 종결 (R1b)
+                if reminder is None:  # flag off 또는 서브콜/파싱 실패 → 기존 결정론 신호
+                    n = walk_required_n(led, unexamined)  # 나열 힌트 OR (t81·미검토 있을 때만)
+                    m = len({e["entity"] for e in led.executed})
+                    if n <= 1 or n <= m:
+                        return r  # gap 없음 = 개입 0 (R1b)
+                    reminder = cp5_gap_reminder(n, m, unexamined)
                 self._t2_eplan_walked = True
                 self.done = False
                 self.termination_reason = None
                 ag = getattr(self, "agent", None)
                 if ag is not None:
-                    ag._t2_eplan_reminder = cp5_gap_reminder(n, m, unexamined)
-                _mark("walk: user_stop 보류(1회)·reminder 세팅 n=%d m=%d" % (n, m))
+                    ag._t2_eplan_reminder = reminder
+                _mark("walk: user_stop 보류(1회)·reminder 세팅")
             except Exception as e:  # walk는 best-effort — 실패 시 종결 그대로
                 _mark("walk skipped: %r" % (e,))
             return r

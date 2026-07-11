@@ -15,7 +15,9 @@ usage:
 import argparse, gzip, json, sys, os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from t2_eplan_patch import PlanLedger, load_eplan_spec, discovery_L1, discovery_L2  # noqa: E402
+from t2_eplan_patch import (  # noqa: E402
+    PlanLedger, load_eplan_spec, discovery_L1, discovery_L2,
+    build_ledger_from_messages, load_write_tools, structured_replan_prompt)
 
 WR = ("modify", "exchange", "return", "cancel")
 
@@ -102,11 +104,14 @@ def _canon_action(name):
     return n
 
 
-def mode_replan(sims, task_id, gold_pairs, base, model, max_chars=60000):
+def mode_replan(sims, task_id, gold_pairs, base, model, max_chars=60000,
+                structured=False, spec=None, domain="retail"):
     import urllib.request
-    print(f"== ⑤ stop-time 재-plan (task {task_id}·C14 재검증) gold={gold_pairs} ==")
+    tag = "structured(레버4·ledger+의무-JSON)" if structured else "raw"
+    print(f"== ⑤ stop-time 재-plan [{tag}] (task {task_id}·C14 재검증) gold={gold_pairs} ==")
     tot = 0
     full = 0
+    wt = load_write_tools(domain) if structured else None
     for s in sorted([x for x in sims if str(x.get("task_id")) == str(task_id)],
                     key=lambda x: x.get("trial") or 0):
         lines = []
@@ -120,8 +125,15 @@ def mode_replan(sims, task_id, gold_pairs, base, model, max_chars=60000):
         if len(txt) > max_chars:  # 절단 필요 시 중간을 접고 앞(초기 조회·details)+뒤(결말) 보존
             keep = max_chars // 2
             txt = txt[:keep] + "\n...[middle truncated]...\n" + txt[-keep:]
+        if structured:
+            # ★레버4 V0: 구조화-프롬프트 = 결정론 ledger 요약 + 의무-JSON 지시 + 전사
+            #   (라이브 structured_replan_prompt 그대로 = probe-라이브 동형성)
+            led = build_ledger_from_messages(s.get("messages") or [], spec or {}, wt)
+            prompt = structured_replan_prompt(led, txt, (spec or {}).get("entity_key") or "entity")
+        else:
+            prompt = PLAN_PROMPT + txt
         body = json.dumps({"model": model, "temperature": 0.0, "max_tokens": 600,
-                           "messages": [{"role": "user", "content": PLAN_PROMPT + txt}]}).encode()
+                           "messages": [{"role": "user", "content": prompt}]}).encode()
         req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=body,
                                      headers={"Content-Type": "application/json"})
         try:
@@ -153,6 +165,8 @@ def main():
     ap.add_argument("--task", required=True)
     ap.add_argument("--domain", default="retail")
     ap.add_argument("--gold", default="", help="replan용: 'action:order,action:order'")
+    ap.add_argument("--structured", action="store_true",
+                    help="★레버4 V0: 재-plan 프롬프트를 구조화(ledger 요약+의무-JSON·부록 Y)로")
     ap.add_argument("--base", default="http://localhost:8141/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     a = ap.parse_args()
@@ -162,7 +176,8 @@ def main():
         mode_predicate(sims, a.task, spec)
     else:
         gold = [tuple(x.split(":", 1)) for x in a.gold.split(",") if ":" in x]
-        mode_replan(sims, a.task, gold, a.base, a.model)
+        mode_replan(sims, a.task, gold, a.base, a.model,
+                    structured=a.structured, spec=spec, domain=a.domain)
 
 
 if __name__ == "__main__":

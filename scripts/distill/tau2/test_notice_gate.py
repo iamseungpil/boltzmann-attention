@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""notice-kind 단위 프로브 — NOTICE-REFUND(§3b CENSUS_LEVERS_DESIGN_2026_07_11) 지원성 판정.
+"""notice-kind 단위 프로브 — NOTICE-PERGATE (레버2·NEXT_LEVER_GEN_DESIGN §1) 검증.
 
-gate_interpreter를 직접 임포트해 두 가지를 고정한다:
-  [A] 현행 notice 의미론(단일 게이트) — "지정 문구를 행동 전에 송신해야 통과":
+★2026-07-11 갱신: 엔진이 per-gate notice로 바뀜(check()의 transfer_msg_sent가
+callable이면 게이트별 notice_text로 평가·스칼라면 현행과 바이트-동일). 이에 따라
+구 [B] "한계 실증"(B1-B4·2-notice 배선 불가)을 **반전** — 2-notice 공존이 PASS 기대.
+
+  [A] 현행 notice 의미론(단일 게이트·스칼라) — 하위호환 불변:
       check(tool, args, transfer_msg_sent=False) → deny / True → allow / None → skip(replay).
-  [B] ★한계 실증: notice 판정 입력이 *게이트별*이 아니라 스칼라 1개 — 호출부
-      (t2_gate_patch.py:59-60 `_notice_text` = gates 중 *첫* notice의 notice_text,
-       :210/:1196/:1314 = 그 한 문구의 송신 여부만 계산 → check()에 스칼라로 전달;
-       t2_compliance.py:35·t2_gate.py:40 도 동일한 first-notice 가정)라서,
-      notice_text가 다른 2번째 notice 게이트(G8 환불-목적지, applies_to=cancel)는
-      A2만으로는 배선 불가:
-        · G4 앞(JSON 순서상 G4가 첫 notice): cancel이 G8에 걸리는데 unblock 조건은
-          *G4 transfer 문구* 송신 → 환불 고지를 보내도 영구 deny (교착).
-        · G8을 첫 notice로: G4 transfer가 *환불 문구* 기준으로 판정 + compliance의
-          TRANSFER_MSG가 환불 문구로 바뀜 → G4/위반계측 파괴.
-      [B]의 체크는 "현행 코드가 이렇게 동작한다"의 고정 — 엔진이 per-gate notice로
-      바뀌면 이 프로브를 갱신하고 G8을 A2에 실제 추가할 것.
+  [B] per-gate 의미론(callable 커링 = t2_gate_patch 호출부 동형):
+      B2′ 환불 고지 송신 → cancel allow(교착 해소) · B3′ 순서-무관 ·
+      B5 G4/G8 독립 판정 · B6 스칼라 2-notice 하위호환 · B4′ callable 통로 실증.
+  [C] compliance per-gate 측정 leg(t2_compliance.violations_of_sim) 단위.
+
+주의: G8은 **A2 미부착**(notice_pergate_census 2026-07-11: passing-cancel 가상-deny
+16.6% > 2% 상한 → 설계 §1.4 착수 게이트 판정 = 보고만). 이 파일의 G8 = 프로브 전용 초안.
 
 usage: PYTHONIOENCODING=utf-8 py -3 scripts/distill/tau2/test_notice_gate.py
 """
@@ -43,7 +41,7 @@ G4 = {
            "HUMAN AGENT. PLEASE HOLD ON.\" — then retry the transfer",
     "applies_to": ["transfer_to_human_agents"],
 }
-# §3b 후보 게이트(미채택·프로브 전용) — 정책-사실 정적 문구(동적 값 없음)
+# §3b 후보 게이트(A2 미부착·프로브 전용) — 정책-사실 정적 문구(동적 값 없음)
 G8 = {
     "id": "G8_REFUND_NOTICE", "kind": "notice",
     "predicate": "the refund-destination policy notice has been communicated to the user",
@@ -56,20 +54,13 @@ G8 = {
 }
 
 
-def caller_notice_text(gates):
-    """t2_gate_patch.py:59-60 동형: 호출부가 쓰는 notice_text = *첫* notice 게이트 것."""
-    return next((g.get("notice_text") for g in gates if g.get("kind") == "notice"), "")
-
-
-def caller_sent(assistant_texts, notice_text):
-    """t2_gate_patch._transfer_msg_sent(:337)/_regen_transfer_sent(:1061) 동형."""
-    if not notice_text:
-        return None
-    return any(notice_text in t for t in assistant_texts)
+def sent_fn(assistant_texts):
+    """t2_gate_patch 커링 동형: text -> 송신 여부 callable (게이트별 평가 통로)."""
+    return lambda text: (None if not text else any(text in t for t in assistant_texts))
 
 
 def main():
-    print("[A] 현행 notice 의미론 (단일 게이트 = G4)")
+    print("[A] 스칼라 notice 의미론 (단일 게이트 = G4) — 하위호환 불변")
     gi = GateInterpreter([G4])
     allowed, gid, why = gi.check("transfer_to_human_agents", {}, transfer_msg_sent=False)
     ok("A1 문구 미송신(False) → deny", allowed is False and gid == "G4_TRANSFER_MSG")
@@ -80,43 +71,100 @@ def main():
     ok("A3 판정불가(None·replay) → skip=allow", allowed is True)
     allowed, _, _ = gi.check("cancel_pending_order", {}, transfer_msg_sent=False)
     ok("A4 applies_to 밖 도구엔 미적용", allowed is True)
-    # 실제 A2(retail)의 notice 게이트로도 동일 의미론 확인
+    # 실제 A2(retail)의 notice 게이트로도 동일 의미론 확인 (G8=미부착이라 여전히 1개)
     a2 = load_domain_a2("retail")
-    ok("A5 retail A2 로드·notice 게이트 정확히 1개",
+    ok("A5 retail A2 로드·notice 게이트 정확히 1개(G8 미부착)",
        a2 is not None and sum(1 for g in a2["gates"] if g.get("kind") == "notice") == 1)
     gi = GateInterpreter([g for g in a2["gates"] if g.get("kind") == "notice"])
     allowed, gid, _ = gi.check("transfer_to_human_agents", {}, transfer_msg_sent=False)
     ok("A6 retail G4 문구 미송신 → deny", allowed is False and gid == "G4_TRANSFER_MSG")
 
-    print("[B] 한계 실증 — notice 2개(문구 상이)는 현행 배선으로 불가")
-    # (B-1) G4 먼저(현 JSON 순서에 G8을 뒤에 append한 경우)
+    print("[B] per-gate 의미론 — notice 2개(문구 상이) 공존 (구 B1-B4 반전)")
     gates = [G4, G8]
-    nt = caller_notice_text(gates)
-    ok("B1 호출부 _notice_text = 첫 notice(G4 transfer 문구)만", nt == G4["notice_text"])
-    # 에이전트가 §3b 기대 행동을 완수: 환불 고지문을 이미 송신
-    sent = caller_sent([G8["notice_text"]], nt)  # 호출부는 G4 문구 기준으로만 판정
     gi = GateInterpreter(gates)
-    allowed, gid, _ = gi.check("cancel_pending_order", {}, transfer_msg_sent=sent)
-    ok("B2 환불 고지 송신 후에도 cancel 영구 deny (교착·over-block)",
-       allowed is False and gid == "G8_REFUND_NOTICE")
-    # (B-2) G8을 앞에 두면 이번엔 G4가 파괴됨
-    nt2 = caller_notice_text([G8, G4])
-    sent2 = caller_sent([G4["notice_text"]], nt2)  # transfer 문구는 보냈지만 판정 기준=환불 문구
-    gi2 = GateInterpreter([G8, G4])
-    allowed, gid, _ = gi2.check("transfer_to_human_agents", {}, transfer_msg_sent=sent2)
-    ok("B3 (역순) transfer 문구 송신에도 G4 deny = 기존 게이트 파괴",
+    # B2′: 환불 고지를 송신했으면 cancel allow (구 B2 교착 해소)
+    f = sent_fn([G8["notice_text"]])
+    allowed, gid, _ = gi.check("cancel_pending_order", {}, transfer_msg_sent=f)
+    ok("B2' 환불 고지 송신 → cancel allow (교착 해소)", allowed is True)
+    # 환불 고지만 송신·transfer는 여전히 G4 문구 기준 deny
+    allowed, gid, _ = gi.check("transfer_to_human_agents", {}, transfer_msg_sent=f)
+    ok("B2'b 환불 고지만으론 transfer 여전히 deny(G4)",
        allowed is False and gid == "G4_TRANSFER_MSG")
-    # (B-3) 엔진 check() 자체가 게이트별 문구를 받을 통로가 없음(스칼라 1개)
-    import inspect
-    sig = inspect.signature(GateInterpreter.check)
-    ok("B4 check() notice 입력 = 스칼라 transfer_msg_sent 1개(게이트별 통로 없음)",
-       "transfer_msg_sent" in sig.parameters and len(sig.parameters) == 5)
+    # B3′: 게이트 순서-무관 (G8을 앞에 둬도 G4 판정은 G4 문구 기준 = 구 B3 파괴 해소)
+    gi2 = GateInterpreter([G8, G4])
+    f2 = sent_fn([G4["notice_text"]])
+    allowed, _, _ = gi2.check("transfer_to_human_agents", {}, transfer_msg_sent=f2)
+    ok("B3' (역순) transfer 문구 송신 → G4 allow (순서-무관)", allowed is True)
+    allowed, gid, _ = gi2.check("cancel_pending_order", {}, transfer_msg_sent=f2)
+    ok("B3'b (역순) transfer 문구만으론 cancel deny(G8)",
+       allowed is False and gid == "G8_REFUND_NOTICE")
+    # B5: 독립 판정 — 두 문구 다 송신하면 둘 다 allow / 둘 다 미송신이면 각자 deny
+    fboth = sent_fn([G4["notice_text"], G8["notice_text"]])
+    a1, _, _ = gi.check("transfer_to_human_agents", {}, transfer_msg_sent=fboth)
+    a2ok, _, _ = gi.check("cancel_pending_order", {}, transfer_msg_sent=fboth)
+    ok("B5 두 문구 송신 → transfer/cancel 모두 allow", a1 is True and a2ok is True)
+    fnone = sent_fn([])
+    a1, g1, _ = gi.check("transfer_to_human_agents", {}, transfer_msg_sent=fnone)
+    a2v, g2, _ = gi.check("cancel_pending_order", {}, transfer_msg_sent=fnone)
+    ok("B5b 둘 다 미송신 → 각자 자기 게이트로 deny",
+       a1 is False and g1 == "G4_TRANSFER_MSG" and a2v is False and g2 == "G8_REFUND_NOTICE")
+    # B6: 스칼라 2-notice 하위호환 (False=전 게이트 deny·True=allow·None=skip — 구 동작 보존)
+    a1, g1, _ = gi.check("cancel_pending_order", {}, transfer_msg_sent=False)
+    ok("B6 스칼라 False → cancel deny(G8·바이트-동일 경로)", a1 is False and g1 == "G8_REFUND_NOTICE")
+    a1, _, _ = gi.check("cancel_pending_order", {}, transfer_msg_sent=True)
+    a2v, _, _ = gi.check("cancel_pending_order", {}, transfer_msg_sent=None)
+    ok("B6b 스칼라 True → allow · None → skip", a1 is True and a2v is True)
+    # B4′: callable이 게이트별 notice_text로 호출되는지 (게이트별 통로 실증)
+    seen = []
+    def probe(text):
+        seen.append(text)
+        return False
+    gi.check("cancel_pending_order", {}, transfer_msg_sent=probe)
+    ok("B4' callable에 그 게이트의 notice_text 전달(per-gate 통로)",
+       seen == [G8["notice_text"]])
+
+    print("[C] compliance 측정 leg — per-gate 위반 검출 (t2_compliance)")
+    from t2_compliance import violations_of_sim, domain_constants
+    C = {"AUTH_TOOLS": set(), "AUTH_GATES": [], "WRITE_TOOLS": set(), "USER_SCOPED": set(),
+         "TRANSFER_MSG": G4["notice_text"], "NOTICE_GATES": [G4, G8]}
+    def sim(msgs):
+        return {"messages": msgs}
+    def tcall(name, cid):
+        return {"role": "assistant", "content": None,
+                "tool_calls": [{"id": cid, "name": name, "arguments": {}}]}
+    def tres(cid):
+        return {"role": "tool", "id": cid, "content": "{}", "error": False}
+    # C1: cancel 실행 + 환불 문구 부재 → G8 위반·G4 비위반
+    v = violations_of_sim(sim([tcall("cancel_pending_order", "c1"), tres("c1")]), C)
+    ok("C1 cancel 실행·환불문구 부재 → G8 위반만",
+       v["notice_by_gate"] == {"G4_TRANSFER_MSG": False, "G8_REFUND_NOTICE": True}
+       and v["g4"] is True)
+    # C2: cancel 실행 + 환불 문구 송신 → 위반 없음
+    v = violations_of_sim(sim([
+        {"role": "assistant", "content": G8["notice_text"]},
+        tcall("cancel_pending_order", "c2"), tres("c2")]), C)
+    ok("C2 환불문구 송신 후 cancel → 위반 0", v["g4"] is False)
+    # C3: transfer 실행 + G4 문구 부재 → G4 위반 (기존 의미론 연속)
+    v = violations_of_sim(sim([tcall("transfer_to_human_agents", "c3"), tres("c3")]), C)
+    ok("C3 transfer 실행·G4 문구 부재 → G4 위반",
+       v["notice_by_gate"]["G4_TRANSFER_MSG"] is True
+       and v["notice_by_gate"]["G8_REFUND_NOTICE"] is False)
+    # C4: deny된 호출(POLICY GATE)은 미실행 = 비위반 (기존 의미론 승계)
+    v = violations_of_sim(sim([
+        tcall("transfer_to_human_agents", "c4"),
+        {"role": "tool", "id": "c4", "content": "Error: [POLICY GATE G4] blocked", "error": True}]), C)
+    ok("C4 gate-deny된 transfer = 미실행 = 비위반", v["g4"] is False)
+    # C5: retail A2 도출 상수 — NOTICE_GATES 1개·구 TRANSFER_MSG export 보존
+    Cr = domain_constants("retail")
+    ok("C5 retail 상수: NOTICE_GATES 1개 + TRANSFER_MSG 호환 보존",
+       len(Cr["NOTICE_GATES"]) == 1
+       and Cr["TRANSFER_MSG"] == Cr["NOTICE_GATES"][0]["notice_text"])
 
     if FAILS:
         print("FAILED: %s" % FAILS)
         sys.exit(1)
-    print("ALL PASS — [A] 현행 의미론 고정, [B] NOTICE-REFUND는 A2-only로 배선 불가(엔진 "
-          "per-gate notice 필요). 결론: G8 미추가 (CENSUS §3b 보고 참조).")
+    print("ALL PASS — [A] 스칼라 하위호환 불변, [B] per-gate 2-notice 공존 동작, "
+          "[C] compliance per-gate 검출. G8 자체는 A2 미부착(census over-block 16.6%>2%).")
 
 
 if __name__ == "__main__":

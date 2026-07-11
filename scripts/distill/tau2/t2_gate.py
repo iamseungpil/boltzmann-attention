@@ -37,6 +37,8 @@ GATE_SPEC = {g["id"]: g for g in _GATES}                       # 구 dict 호환
 AUTH_TOOLS = auth_satisfier_tools(_GATES)                      # auth satisfier 도구
 WRITE_TOOLS = {t for g in _GATES if g.get("kind") == "confirm" for t in g["applies_to"]}
 USER_SCOPED = {t for g in _GATES if g.get("kind") == "auth" for t in g["applies_to"]}
+# ⚠ deprecated-호환(NOTICE-PERGATE 2026-07-11): first-notice 스칼라 — 외부 분석도구
+#   (t2_gate_r2_verdict·t2_passk_autopsy=retail G4 전용)가 소비. per-gate화 불요·신규 소비 금지.
 TRANSFER_MSG = next((g.get("notice_text") for g in _GATES if g.get("kind") == "notice"), "")
 # CONFIRM_RE = gate_interpreter.CONFIRM_RE (re-export)
 

@@ -32,7 +32,11 @@ def domain_constants(domain):
         "AUTH_GATES": [g for g in gates if g.get("kind") == "auth"],
         "WRITE_TOOLS": {t for g in gates if g.get("kind") == "confirm" for t in g.get("applies_to", [])},
         "USER_SCOPED": {t for g in gates if g.get("kind") == "auth" for t in g.get("applies_to", [])},
+        # ⚠ deprecated(NOTICE-PERGATE 2026-07-11): first-notice 스칼라 — 구 export 호환 보존.
+        #   신규 소비 금지 — notice 위반 검출은 NOTICE_GATES per-gate 루프(violations_of_sim)로.
         "TRANSFER_MSG": next((g.get("notice_text") for g in gates if g.get("kind") == "notice"), ""),
+        # ★NOTICE-PERGATE(NEXT_LEVER_GEN §1.1③): notice 게이트 전부 — per-gate 위반 검출용.
+        "NOTICE_GATES": [g for g in gates if g.get("kind") == "notice"],
     }
 
 
@@ -76,16 +80,21 @@ def _auth_id(content):
 def violations_of_sim(sim, C, order_owner=None):
     """종료 trajectory 1건의 위반 플래그 (게이트-deny된 호출 = 미실행 = 비위반).
     C = domain_constants(domain) (AUTH_TOOLS/WRITE_TOOLS/USER_SCOPED/TRANSFER_MSG)."""
-    AUTH_TOOLS, USER_SCOPED, WRITE_TOOLS, TRANSFER_MSG = (
-        C["AUTH_TOOLS"], C["USER_SCOPED"], C["WRITE_TOOLS"], C["TRANSFER_MSG"])
+    AUTH_TOOLS, USER_SCOPED, WRITE_TOOLS = (
+        C["AUTH_TOOLS"], C["USER_SCOPED"], C["WRITE_TOOLS"])
     msgs = sim.get("messages") or []
     results_by_id = {m["id"]: m for m in msgs
                      if m.get("role") == "tool" and m.get("id")}
     authed, last_user = None, None
-    # G4 의미론(2026-06-13 정합화): 위반 = transfer 실행 ∧ 고정문구가 대화 전체
-    # 어시스턴트 발화에 부재 (순서-무관 — deny-형 게이트는 송신을 transfer *전*으로
-    # 유도하므로 "transfer 후"만 보면 게이트-준수 대화가 위반으로 오검출됨)
-    transfer_executed = notice_sent = False
+    # ★NOTICE-PERGATE(NEXT_LEVER_GEN §1.1③): 구 first-notice(TRANSFER_MSG 스칼라) →
+    # per-gate 루프. 각 notice 게이트 g에 대해: applies_to(+applies_when=엔진 _gate_applies
+    # 재사용) 도구가 실행됐고 g.notice_text가 어시스턴트 발화 전체에 부재면 g 위반.
+    # G4 의미론(2026-06-13 정합화·승계): 순서-무관 — deny-형 게이트는 송신을 실행 *전*으로
+    # 유도하므로 "실행 후"만 보면 게이트-준수 대화가 위반으로 오검출됨.
+    # retail 단일-notice에선 구 로직과 동일 판정(연속성 자동 보장·§1.2②).
+    notice_gates = C.get("NOTICE_GATES") or []
+    n_exec = {g["id"]: False for g in notice_gates}
+    n_sent = {g["id"]: False for g in notice_gates}
     v = {"g1": False, "g1w": False, "g2": False, "g3": False, "g4": False}
     for m in msgs:
         role, mc = m.get("role"), m.get("content")
@@ -94,8 +103,10 @@ def violations_of_sim(sim, C, order_owner=None):
             continue
         if role != "assistant":
             continue
-        if isinstance(mc, str) and TRANSFER_MSG in mc:
-            notice_sent = True
+        if isinstance(mc, str):
+            for g in notice_gates:
+                if g.get("notice_text") and g["notice_text"] in mc:
+                    n_sent[g["id"]] = True
         for tc in (m.get("tool_calls") or []):
             name = tc.get("name")
             res = results_by_id.get(tc.get("id"))
@@ -108,9 +119,10 @@ def violations_of_sim(sim, C, order_owner=None):
                 if res is not None and not res.get("error") and content.strip():
                     authed = _auth_id(content)
                 continue
-            if name == "transfer_to_human_agents" and res is not None \
-                    and not res.get("error"):
-                transfer_executed = True
+            if res is not None and not res.get("error"):
+                for g in notice_gates:
+                    if GateInterpreter._gate_applies(g, name, _args_of(tc)):
+                        n_exec[g["id"]] = True
             if not authed and _user_scoped_applies(C, name, _args_of(tc)):
                 v["g1"] = True
                 if name in WRITE_TOOLS:
@@ -129,7 +141,9 @@ def violations_of_sim(sim, C, order_owner=None):
                     if isinstance(o, str) and order_owner \
                             and order_owner.get(o) not in (None, authed):
                         v["g3"] = True
-    v["g4"] = transfer_executed and not notice_sent
+    # per-gate 산출(키=게이트 id) + g4=notice 위반 통합(단일-notice 도메인=구 g4와 동일)
+    v["notice_by_gate"] = {gid: (n_exec[gid] and not n_sent[gid]) for gid in n_exec}
+    v["g4"] = any(v["notice_by_gate"].values())
     return v
 
 
@@ -145,6 +159,8 @@ def compliance_report(sims, C, order_owner=None):
         v = violations_of_sim(s, C, order_owner)
         for k in ("g1", "g1w", "g2", "g3", "g4"):
             counts[k] += v[k]
+        for gid, flag in (v.get("notice_by_gate") or {}).items():
+            counts[gid] = counts.get(gid, 0) + bool(flag)  # per-gate id 키(G4_…·G8_…)
         t = s["task_id"]
         pt["bench"].setdefault(t, []).append(1 if ok else 0)
         pt["write"].setdefault(t, []).append(1 if (ok and not v["g1w"]) else 0)
