@@ -164,6 +164,7 @@ coverage_gap() -> list:   # ★v1.2: CP5서 replan 기준으로 diff (CP0 planne
 - **R3 종결 지연**: walk 리마인더 상한(1~2회) 없으면 max_steps 낭비. 상한 하드코딩.
 - **R4 banking 전이**: enumerator_spec/SCOPE_TOKEN이 banking 절차-집합에 매핑되나 = Phase 3 실측(retail 확정 후).
 - **소유권**: E-SPEC(오케스트레이터 재설계)와 CP5 좌석 공유 — E-PLAN은 coverage-walk만·E-SPEC은 전체 재배치. 중복 구현 금지.
+- **★ledger 이중 소속 (v1.3·`CENSUS_LEVERS_DESIGN §3a` 교차)**: ledger를 두 층으로 분리 — **관측-전용 부품**(CP0 plan-추출+executed/listed/examined 기록만·에이전트 창 불변·개입 0·교란=plan 서브콜 1회/sim뿐) vs **개입 레버**(discovery L1/L2·CP5 walk). E-PLAN *arm*(합산 금지) 소속은 개입 레버만. 관측-전용 ledger는 CENSUS-레버 stage B 스택(EXCLUSIVITY가 planned 참조)에 동거 가능. toggle도 분리: `T2_EPLAN_LEDGER=1`(관측만) / `T2_EPLAN=1`(개입 포함·전자 함의).
 
 ---
 

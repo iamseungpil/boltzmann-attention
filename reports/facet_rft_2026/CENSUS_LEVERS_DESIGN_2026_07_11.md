@@ -2,7 +2,8 @@
 
 > 파생: `RETAIL_FULL_FAIL_CENSUS_2026_07_11`(C64) §3 라우팅의 설계-구체화. [[05]]/[[10]]/제1원리(반대편 계측) 전 레버 적용.
 > **범위**: 무료 엔진-증분 4종(§1~§4) + B-잔여 스케치(§5) + 단계 B 편입(§6). **A클래스(coverage/discovery)는 별도 정본** = `E_PLAN_LIVE_WIRING_DESIGN`(v1.2 확정).
-> 상태: **[D] 설계서.** 각 레버 V0(무료 census) → 단위 → 26-task nt=1 사이클 순. 유료는 승인 후.
+> 상태: **[D] 설계서 v1.1 — 리뷰(2026-07-11) 반영.** 각 레버 V0(무료 census) → 단위 → 26-task nt=1 사이클 순. 유료는 승인 후.
+> v1.1 변경: ①§3a 폴백 무효 판정·삭제(2번째-write deny는 첫 write 해악 후라 t27 못 닫음) ②ledger 관측-전용 분리로 §3a↔E-PLAN arm 충돌 해소 ③§1 fuzzy 정의 강화(숫자-토큰 불일치 금지·역치환 break-모드 명시·검출규칙 신설임을 명확화) ④§2a pairwise_diff_sum을 confirm-시점 notice 채널로 이동.
 
 ---
 
@@ -27,13 +28,16 @@
 **표적 실측**: t17 = 사용자가 "Suite 641만 변경" 요청 → 에이전트가 address1을 `"123 Elm St"`로 **축약 복사**(문맥 원문 `"123 Elm Street"`·4/4 동일·v25e 잔존). t39 = address1/2를 **빈 문자열**로 write.
 
 **엔진 op (도메인일반)**: write-인자 값 v에 대해, 문맥(에이전트-기조회 tool 출력)의 해당 필드 후보 집합 C를 구성.
-- **fuzzy-|C|=1 치환**: C에서 v와 *유일하게* fuzzy-match(축약·공백·대소문자·구두점 정규화 후 일치 or 접두 토큰 포함)하는 원문 c가 있고 exact-match가 아니면 → **v를 c 원문으로 silent 치환**(T5-C P-A |C|=1 채널 재사용·대화 불변·replay-clean).
+- **fuzzy-|C|=1 치환**: C에서 v와 *유일하게* fuzzy-match하는 원문 c가 있고 exact-match가 아니면 → **v를 c 원문으로 silent 치환**(T5-C P-A |C|=1 *치환 메커니즘* 재사용·대화 불변·replay-clean).
+- **fuzzy 정의 (v1.1 확정·단위테스트로 고정)**: 정규화(공백·대소문자·구두점) 후 일치 **or** 토큰 다중집합이 축약-등가(Street↔St·Avenue↔Ave류 일반 축약표=엔진 상수·도메인일반). **★숫자 토큰은 완전 일치 필수** — 숫자 하나라도 다르면 매치 금지(Suite 641 vs Suite 640 = 비매치). 모호했던 "접두 토큰 포함"은 **삭제** — 역치환 break-모드(사용자가 *의도적으로* 구값과 유사한 새 값 요청 → 엔진이 구값으로 되돌림)의 주 통로라서. V0 break census가 이 모드를 1차 감시.
+- **검출규칙 신설임 명시 (v1.1·코드 확정)**: t17이 v25e에 *잔존*한 이유 = `_provenance_deny`(t2_gate_patch.py:127)는 address를 검사하나(`DEFAULT_ARG_HINTS`:24에 "address" 有) 판정이 **소문자-substring 포함**(:139 `s.lower() not in ctx`)이라 접두-축약 "123 elm st" ⊂ "123 elm street" → **grounded 통과** → P-A/GROUND 채널 자체가 미발화. (일반화: 모든 접두-축약 오복사는 현 fab-검출의 구조적 구멍.) ∴ GROUND-VERBATIM = 치환 메커니즘은 P-A 재사용이나 **검출 규칙(substring-통과·비-exact-필드-일치)은 신설**·`_provenance_deny` 통과 뒤에 위치 → 독립 toggle·자기 마커([T2_GVERB])·자기 Δ계측 필수(P-A 실적에 합산 금지).
 - **empty-값 처리(t39)**: v가 빈 값 ∧ |C|=1이면 치환 **후보**로만 — 엔진이 값을 '선택'하는 경계 사례라 **V0서 fix/break 실측 후 채택 결정**(break>0이면 empty는 제외하고 fuzzy만).
 - 발화 조건 밖(exact-match·|C|≥2·C=∅)은 무개입. |C|≥2는 DISAMB 관할(§4·서로소 관할 원칙).
 
 **A2 (ABox)**: `ground_verbatim_fields: ["address1","address2","city","state","zip","country"]` — 필드 목록만. 엔진 리터럴 0.
 **[[05]]**: 값 원천=에이전트-기조회 문맥(DB 안 읽음·C34 클린). 치환=이미 GO된 P-A 채널.
-**검증**: V0 — COMP 167 실패 전수에 오프라인 적용 → fix/break census(t5c_v0_whitelist.py 확장). GO = fix≥5 ∧ break=0. 단위 = 정규화 함수(축약/공백/빈값/다중후보 케이스).
+**스코프 한계 (v1.1 명시)**: C 원천 = tool 출력만(`_grounded_candidates` 구조 동일). **사용자 발화-원천 값의 오복사**(사용자가 대화로 불러준 새 주소를 축약 write)는 이 레버 밖 — V0 분해에 "원문 원천(tool/dialogue)" 컬럼 추가해 크기 실측.
+**검증**: V0 — COMP 167 실패 전수에 오프라인 적용 → fix/break census(t5c_v0_whitelist.py 확장·원천 컬럼 포함). GO = fix≥5 ∧ break=0. 단위 = 정규화 함수(축약/공백/빈값/다중후보/**숫자-토큰 불일치**/역치환 케이스).
 **반대편 계측**: 치환-유발 flip(원래 맞던 값을 바꿈) = V0 break 카운트 + 라이브 Δspurious.
 
 ## 2. CALC 확장 — compound-criterion과 NL의 분리 (C·G클래스)
@@ -45,7 +49,8 @@
 | `argmax_where` / `argmin_where` | get_product_details → "가장 비싼/싼 available 변형: <item_id·price>" | t20(최고가 업그레이드)·t36/t37(최저가 다운그레이드 후보) |
 | `most_recent` | 주문 목록/타임스탬프 → "가장 최근 주문: <order_id·date>" | t71(argmax 날짜·C56 체계핵) |
 | `pairwise_diff_sum` | 제안된 exchange (old,new) 쌍들의 가격차 합 → "오늘 지불 총액: $X" | t95-NL(총액)·t99류 |
-- 전부 **에이전트-기조회 데이터 위 계산**(트리거=해당 tool 출력·주석으로 부착) = nested/calc 선례. 엔진=op 3개(도메인일반)·A2=trigger/field 선언.
+- argmax/argmin·most_recent는 **에이전트-기조회 데이터 위 계산**(트리거=해당 tool 출력·주석으로 부착) = nested/calc 선례(calc_specs=trigger_tool-키·:210). 엔진=op(도메인일반)·A2=trigger/field 선언.
+- **★pairwise_diff_sum 채널 (v1.1 정정)**: (old,new) 쌍은 tool *출력*이 아니라 **write 인자 + 기조회 가격**에서 옴 → calc-주석(trigger_tool) 채널에 안 맞음. **confirm-시점 notice 채널(§3b와 동일)**로 이동: exchange-class write의 confirm 직전, 인자의 item 쌍 × 문맥 가격으로 총액 주석. A2 = write-class + 가격 필드 선언.
 - t37의 "조합이 예산 이하" 전역 제약은 argmin 주석+sum으로 재료 제공까지(조합 탐색은 에이전트 몫 — 조합최적화를 엔진이 풀면 도메인행동 경계·1차 스코프 밖).
 - t79("다른 병과 같은 색")류 **cross-record attr-match는 여기 아님** → §4 DISAMB 열거(옵션 필드 표시)가 관할.
 
@@ -63,7 +68,8 @@
 - **실측 기전**(t27): 동일 주문에 반품+교환 동시 요청·"하나만 되면 교환 선호" → 에이전트가 반품 먼저 실행 → status 변경 → 교환 env-불가 → gold(교환만) 실패 3/4.
 - **스펙**: `exclusivity_specs: [{classes:["item_return","item_change_delivered"], scope:"order_id"}]` (A2). 엔진: **E-PLAN ledger의 planned에 같은 scope의 배타-class write가 2+개**일 때 첫 write 시도를 **deny-once + "정책상 동시 불가·사용자에게 어느 쪽인지 확인하라" 피드백**(replay-safe regen 채널) → 에이전트가 ask → 사용자 선호(교환)만 실행.
 - 결정성: 배타성=도구/정책 사실(decidable·Q1)·발화 조건=ledger 상태(결정론). **write 강제 0**(ask 유도만). C50과 구분: DB-state 아니라 도구스키마 사실 + 자기-plan 참조.
-- 의존: E-PLAN ledger (planned). E-PLAN 미배선 시 폴백 = 대화 내 두 intent 모두 write-시도로 나타난 뒤 2번째에 deny(약한 판)·1차는 ledger판.
+- **의존 (v1.1 정정)**: E-PLAN ledger(planned) **필수**. v1.0의 폴백("2번째 write 시도에 deny")은 **무효 판정·삭제** — t27의 해악은 *첫* write(반품 실행→status 변경→교환 env-불가)이고, 2번째 시도 시점엔 이미 회복 불가. 첫 write *전에* 배타-쌍을 알려면 plan(ledger)이 유일한 결정론 원천(대화서 두 intent를 첫 write 전에 읽는 건 semantic 파싱=C50 경계라 불가).
+- **arm 충돌 해소 (v1.1)**: ledger를 **관측-전용 부품**으로 분리 — CP0 plan-추출+기록만·에이전트 창 불변·개입 0(주입·deny·리마인더 없음). 관측-전용 ledger는 stage B 스택에 동거 가능(교란 0·추가 비용=plan 서브콜 1회/sim뿐). E-PLAN *arm* 소속은 개입 레버(discovery-enforce·CP5 walk)만. → `E_PLAN_..._DESIGN`에도 이 분리 명문화 필요(v1.3 항목).
 
 ### 3b. 환불-목적지 notice (t57형·`notice_specs` 확장)
 - **실측 기전**(t57): 조건체인 끝="gift card 환불 안 되면 취소도 하지 말라" → 에이전트가 취소 실행 + **"gift card로 환불했다" 허위 발화**.
@@ -84,7 +90,7 @@
 
 ## 6. 단계 B 편입 (T5-C 사이클·`§0b` 프로토콜)
 - **config 추가**: `T2_GROUND_VERBATIM=1`(§1) `T2_CALC_EXT=1`(§2a) `T2_EXCLUSIVITY=1`(§3a·ledger-有시) `T2_NOTICE_REFUND=1`(§3b) `T2_DISAMB_ADDR=1`(§4) — 각각 독립 toggle·stderr 마커(`[T2_GVERB]`·`[T2_CALCX]`·`[T2_EXCL]`·`[T2_NOTICE_R]`·`[T2_DISAMB addr]`) = per-case 귀속.
-- **순서**: ① 각 레버 V0/오프라인 census+단위(무료·병렬 가능) → ② GO 레버만 스택에 → ③ 표적 26 task(기지 13+신규 SYSTEMIC 13) × nt=1 사이클 → ④ per-case → 사이클 반복. E-PLAN은 **별도 arm 유지**(합산 금지) — 단 §3a ledger 의존분은 E-PLAN 배선 후.
+- **순서**: ① 각 레버 V0/오프라인 census+단위(무료·병렬 가능) → ② GO 레버만 스택에 → ③ 표적 26 task(기지 13+신규 SYSTEMIC 13) × nt=1 사이클 → ④ per-case → 사이클 반복. E-PLAN *개입 레버*(discovery·walk)는 **별도 arm 유지**(합산 금지). §3a는 **관측-전용 ledger**(§3a v1.1·창 불변) 배선 후 stage B 동거 가능 — 단 첫 사이클은 §3a 제외 권장(ledger 부품 자체의 단위·격리 검증 선행).
 - **공통 GO**: per-case 복구 ∧ Δspurious≤0 ∧ over-block=0 ∧ Δtme≤0 ∧ 위반0 유지. 실패 레버는 개별 제거(§1.3).
 - **기대 커버(정직·상한)**: F≈7·C≈15·G-compute≈6·B-decidable≈5 sims 상당. **D는 V0 분해 전 크기 미정**(문맥-실재분만·§4). 중첩·확률분(§3b user-sim 의존) 있어 전부 상한 — **실제 커버는 V0 census가 레버별로 확정**. FLAKY 52-task 질량은 개별 아니라 robust-레버(P2·DISAMB·pin)의 분산 축소로.
 
