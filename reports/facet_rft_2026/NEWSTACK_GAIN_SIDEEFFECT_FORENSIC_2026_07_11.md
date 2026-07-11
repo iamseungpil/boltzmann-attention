@@ -58,3 +58,26 @@
 1. **인과 확정**: v25e(nt=4·COMP 짝) trial-flip 또는 C단계(456 사이클) — nt=1 신호를 pass^k로 경화.
 2. **수리-후 재측정**: b78c2는 conflation 수리 전 → 수리-후 스택(현재 working tree)으로 재런 시 deny-루부작용 추가 감소 기대.
 3. per-case 정독 확장: DISAMB 55%·L2 56%의 "귀속 통과"가 진짜 이득인지 실패-표적서 fail→pass 짝 정독(C단계 per-case).
+
+## §G b78c2 실패 37건 per-step 근원 재확정 (2026-07-11 밤·전수 write-diff + 정독)
+> 버킷(ecomp_fail_census): ZERO_WRITE_NEV 7·WRONG_ITEMS 6·MISSED_WRITE 6·WRONG_REF 5·WRONG_ADDR 3·OVER_ACTION 3·NL 2·OTHER 2·ZERO_ATT 2·PAY 1.
+
+### 근원 클래스 (신스택 기준·per-case)
+| 클래스 | task | 근원 | 레버 상태 |
+|---|---|---|---|
+| **⋈ 선택 경계** (~9) | t8·t58·t100(변형) · t71·t74·t94·t103·t102(주문) | DISAMB **발화했으나 오선택** = C46 잔여 경계. t58=조건체인 변형(8→9→7bar) | DISAMB fire·미해결(경계) |
+| **coverage 미완** (~6) | t41·t76·t86·t110·t111·t112 | 멀티엔티티 write 누락. **E-PLAN L2/walk 발화(93+39)했으나 미완** = **발견≠실행**(walk=read강제·write 비강제) | E-PLAN fire·한계 |
+| **GET-chain lookup 오값** (~5) | t22·t96·t97·t109·t102 | 문맥의 틀린 주소 복사(760≠592·619 Broadway≠144 Lakeview) | D-class·DISAMB-addr 미편입(V0 NO-GO) |
+| **compound/budget 형식화** (~3) | t36·t37(예산 item-set)·t64(가격내 최고해상도) | 기준 형식화 실패(품목집합 과/부족) | FORMALIZE-EXEC 미편입 |
+| **derailment/오행동** (~4) | t39·t77(신규주문 대신)·t40(NL만)·t3 | 부차 질문에 이탈·정답 write 미수행 | 레버 밖 |
+| **조건체인/transfer** (~3) | t82·t64·t99 | 조건체인→transfer or 철회수행 | C50 경계 |
+
+### ★신규 부작용 2건 (레버-유발·확정)
+1. **t17 PERARG 과교정** [M]: 이전 = 축약주소 **날조 write**(wrong). 신스택 = PERARG 발화("실값 조회/질문") → 에이전트가 **반복 질문**(전체주소) → 사용자 거부(프라이버시) → **무-write·transfer**. **정답 경로(get_order_details로 기존 "123 Elm Street" 읽기)를 안 밟음**. ⇒ wrong-write→no-write 전환(둘 다 db_fail이나 실패*양식* 변경). 근원 = regen 피드백이 GET보다 ASK로 유도 + single-entity 주소읽기 controller 부재. **처방**: PERARG 피드백에 "해당 레코드 getter를 부르라" 강화 or E-PLAN L2를 주소-read에 확장.
+2. **t102 degeneration 루프** [M]: DISAMB 1회 발화(오주문 #W6729841 선택·gold #W4219264=⋈오선택) 후 에이전트가 **동일 wrong write 20회 반복**(주문 pending 유지→매번 성공). 루프 자체는 DISAMB 재발화 아님(1회)=에이전트 degeneration이나, **⋈ 오선택이 방아쇠**. Qwen `<tool_call>`/`<|im_start|>` 누출(t64도)과 동류 = 32B 퇴화. 처방 = 동일-write dedup 가드(저ROI·기존 죽은레버) or repair.
+
+### 재확정 결론
+- **PERARG는 날조를 없앴다**(t17 fab write 소멸·Δspurious 음성 §C 정합) — 단 **no-write로 전환**(정답 미달·getter 경로 필요).
+- **잔여 지배 = ⋈ 선택 경계(9) + coverage 미완(6)**. 전자는 C46 경계(scaffold 한계), 후자는 E-PLAN 발견≠실행(walk가 write 비강제=§1.5 규율의 정직한 대가).
+- **레버-유발 순부작용 = t17(과교정)·t102(⋈유발 루프) 2건** — Δspurius 순증 0(§C)과 양립: 둘 다 wrong→no-write 또는 wrong-반복이지 *안 시킨* write 추가 아님.
+- **다음 표적**(우선순위): ① PERARG getter-강화(t17형) ② E-PLAN write-미완의 정직한 한계 인정(경계) ③ ⋈ 경계는 learn/scale(E-REF 라인).
