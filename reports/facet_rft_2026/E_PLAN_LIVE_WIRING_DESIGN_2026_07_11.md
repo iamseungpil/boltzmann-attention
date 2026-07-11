@@ -1,7 +1,8 @@
 # E-PLAN live 배선 설계 (plan/execute e2e) — 2026-07-11
 
 > 로컬 편집·repo 커밋. 등대 §1.5 Q2(부하) · `SCAFFOLD_ENDGAME_PLAN §L4·CP5` · [[14-eplan-priority]] 파생.
-> **상태: [D] 설계서 (step a). 리뷰(step b) 대기.** 유료 e2e 검증은 승인 후에만.
+> **상태: [D] 설계서 v1.1 — 리뷰(step b) 반영 완료 2026-07-11.** 유료 e2e 검증은 승인 후에만.
+> v1.1 변경: ①CP5·discovery 주입 채널을 **생성-레벨(히스토리 비커밋)**으로 확정(REPLAY_SAFE 교훈·`t2_gate_patch.py:997` — 합성 메시지 커밋=set_state replay 파손=infra_error 선례) ②§2규칙0↔§7R2 모순 해소 ③coverage_gap SCOPE_TOKEN 확장 로직 추가 ④USER_STOP-후 walk 검증항목 등재.
 > 비용: 설계·구현·단위·격리검증 = **무료**(로컬 32B/오프라인). 표적 nt=1 = 소액(승인).
 
 ---
@@ -37,17 +38,21 @@
     plan-spec 생성(모델·도메인일반 프롬프트) → 정규화(기존 controller: batch/status/provenance)
         │  plan-ledger = {planned_writes: [(intent_class, entity_scope, ...)]}
         ▼
-[DISCOVERY-ENFORCE]  plan이 참조하는 entity-scope가 미조회면
-    read-only enumerator 강제(A2 enumerator_spec: retail=get_user_details)
-    → 발견된 전 entity를 에이전트에 표면화(리마인더·값판단 0) → 에이전트 재-plan
+[DISCOVERY-ENFORCE]  plan-scope 미조회 상태에서 해당 intent-class *첫 write 시도* 시
+    기존 replay-safe deny+regen 게이트로 발화: write를 생성-레벨서 deny +
+    "먼저 enumerator(A2 enumerator_spec: retail=get_user_details)로 전체를 조회하라" 피드백
+    → *에이전트 자신이* enumerator 호출 → 결과(전 주문)가 정상 tool-result로 창에 들어옴 → 재-plan
         │  ★핵심: plan 완결성은 discovery에 의존. 안 읽으면 안 계획됨(t95 기전).
+        │  ★t95 발화 경로: 첫 exchange 시도 시 게이트 발화 → get_user_details → 둘째 주문 표면화.
+        │    (에이전트가 write를 아예 안 하는 sim은 CP5 walk가 담당 — 두 컴포넌트의 분담.)
         ▼
 [에이전트 자유 실행]  기존 루프(gated 인터셉터가 실행된 write를 ledger에 관측 기록)
         ▼
 [CP5 COVERAGE-WALK]  종결(is_stop) 직전
     planned_writes ⊋ executed_writes 이면
-    → 미실행 planned 항목을 리마인더로 재프롬프트(에이전트 자신의 plan·gold 아님·read/write 강제 0)
-    → 재확인 후에도 미완이면 통과(강제 없음·harm 회피)
+    → self.done 보류 + 미실행 planned 항목 리마인더를 **생성-레벨(에이전트 생성 버퍼에만·히스토리 비커밋)**로 주입
+      (에이전트 자신의 plan 재진술·gold 아님·read/write 강제 0) → 에이전트가 사용자에게 재확인 발화
+    → 재확인 후에도 미완이면 통과(강제 없음·harm 회피·상한 1~2회)
 ```
 
 **설계 원칙 (FIXABLE §0 재프레이밍·★핵심)**: 32B fail 16 중 **14가 격리 계획선 이미 core_ok·controller 0발화**. ⇒ 이득은 batch/status 정규화가 아니라 **discovery + 완료-추적**에서 나온다. batch/status controller는 14B·부하 시만 발화(보조). **주기능 = walk-reminder + discovery-enforce.**
@@ -63,11 +68,13 @@ E-PLAN 후킹 (별도 patch·`t2_eplan_patch.py`·기존 gate_patch와 독립 to
 | 컴포넌트 | 후크 | 방식 |
 |---|---|---|
 | CP0 plan-extract | 첫 agent step 직전 (`initialize()` 후·first user msg 확정 후) | orchestrator 인스턴스에 `_eplan_ledger` 부착·1회 plan 생성 |
-| discovery-enforce | agent 응답 생성 후·tool 실행 전 (`gated` 진입점 재사용 or step 후크) | enumerator 미호출 ∧ plan-scope 미발견이면 read-only enumerator 주입 |
-| ledger 관측 | `gated(tool_calls)` (기존 인터셉터 확장) | 실행된 write tool_call을 `executed_writes`에 기록 |
-| CP5 coverage-walk | `is_stop`/`_check_termination` 직전 | 미완 planned 있으면 `self.done` 보류 + 리마인더 UserMessage 주입(1~2회 상한) |
+| discovery-enforce | **기존 replay-safe deny+regen 게이트에 precondition 추가** (신규 후크 불필요) | plan-scope 미발견 ∧ intent-class 첫 write 시도 → 생성-레벨 deny + enumerator-선행 피드백 |
+| ledger 관측 | `gated(tool_calls)` (기존 인터셉터 확장) | 실행된 write tool_call을 `executed_writes`에 기록·enumerator 호출/결과서 `discovered_scope` 갱신 |
+| CP5 coverage-walk | `is_stop`/`_check_termination` 직전 | 미완 planned 있으면 `self.done` 보류 + **생성-레벨 리마인더**(히스토리 비커밋·1~2회 상한) |
 
-**규칙0 준수**: 주입 메시지는 전부 리마인더(에이전트 자신의 plan 재진술 + "아직 처리 안 한 주문이 있다")·**DB 내용 주입 0**·enumerator는 에이전트가 부를 *도구를 강제*할 뿐 결과를 대신 읽지 않음. (present/autofetch와 차별 = C34 폐기선 안 밟음.)
+**★채널 절대규칙 (REPLAY_SAFE 교훈·`t2_gate_patch.py:997-1004`)**: 합성 메시지를 committed 히스토리에 넣으면 tau2 평가 `set_state` replay(mutating tool 재실행·environment.py:389 assertion)가 깨져 infrastructure_error가 난다 — 이미 밟고 generation-level로 옮겨 해결한 함정. **E-PLAN의 모든 개입(discovery deny-피드백·CP5 리마인더)은 생성-레벨(작업버퍼)만 사용·히스토리 커밋 금지.** 커밋되는 것은 에이전트가 실제 수행한 호출·발화뿐.
+
+**규칙0 준수**: 주입(생성-레벨) 내용은 전부 리마인더(에이전트 자신의 plan 재진술 + "아직 처리 안 한 항목 N건")·**DB 내용 주입 0**·discovery는 에이전트가 부를 *도구를 지시*할 뿐 엔진이 대신 실행·대신 읽지 않음(에이전트가 스스로 호출→정상 tool-result). (present/autofetch와 차별 = C34 폐기선 안 밟음. autofetch=엔진이 실행+결과 주입, E-PLAN=도구-선행 요구만.)
 
 ---
 
@@ -81,9 +88,14 @@ plan_ledger:
   executed : [(intent_class, order_id, items)]               # gated서 관측
   discovered_scope : set(order_id)                            # enumerator 결과서 파생
 
+expand_scope(planned, discovered_scope) -> list:
+  # ★v1.1: SCOPE_TOKEN 확장 — (exchange, ALL_PENDING)이 discovered_scope={W1,W2}와 만나면
+  # [(exchange,W1),(exchange,W2)]로 구체화. 확장 없인 planned(토큰) vs executed(구체 id) 매칭 불가.
+  # discovery 전엔 토큰 그대로 두고 coverage_gap이 "미확장 토큰 존재"를 discovery_needed 신호로 씀.
+
 coverage_gap() -> list:
-  # planned 중 executed에 매칭 없는 항목 (intent_class + order_id 기준)
-  return [p for p in planned if not any(_covers(e, p) for e in executed)]
+  # expand_scope 후, planned 중 executed에 매칭 없는 항목 (intent_class + order_id 기준)
+  return [p for p in expand_scope(planned, discovered_scope) if not any(_covers(e, p) for e in executed)]
 
 discovery_needed() -> bool:
   # plan이 "전 주문" 스코프(SCOPE_TOKEN=ALL_PENDING 등)인데 enumerator 미호출
@@ -100,7 +112,7 @@ discovery_needed() -> bool:
 
 | 부작용 | 계측 | GO 조건 |
 |---|---|---|
-| over-read (불필요 enumerator·턴 낭비) | `_eplan_reads_added` / sim · turn 예산 | Δtme ≤ 0 (too_many_errors 미증) |
+| over-read (불필요 enumerator·턴 낭비) | `_eplan_reads_added` / sim · turn 예산 (**CP0 plan-extract 추가 생성 1회/sim 포함 계상**) | Δtme ≤ 0 (too_many_errors 미증) |
 | **over-action** (walk가 안 시킨 write 유도) | passing-spurious Δ (vs floor) | **Δspurious ≤ 0** |
 | walk-reminder가 멀쩡한 종결 흔듦 (C53 p4형) | 짝 flip census (pass→fail) | robust 상실 ≤ 획득 |
 | plan-extract 오염 (틀린 plan을 walk가 강화) | plan pre/post core_ok (오프라인) | plan 정확도 유지 |
@@ -115,7 +127,7 @@ discovery_needed() -> bool:
 |---|---|---|---|
 | (c) 단위 | `test_eplan.py`: ledger/coverage_gap/discovery_needed 순수로직 (tau2-stub·오프라인) | 무료 | ALL PASS |
 | (c) 오프라인 replay | 기존 `plan_execute_orch --replay`로 controller 정규화 무회귀 확인 | 무료 | pre/post 무변 |
-| (d) 격리 검증 | t95 등 표적의 실 궤적에 discovery-enforce 격리 주입 → 둘째 주문 표면화되나 (32B 로컬·유료런과 GPU 경합 회피) | 무료 | 표적서 enumerator 발화 ∧ scope 발견 |
+| (d) 격리 검증 | t95 등 표적의 실 궤적에 discovery-enforce 격리 주입 → 둘째 주문 표면화되나 (32B 로컬·유료런과 GPU 경합 회피). **v1.1 추가 확인항목**: ①USER_STOP 후 walk 시 user-sim이 재관여하나(에이전트의 재확인 발화에 sim이 응답하나 — sim instruction에 둘째 주문 의도 有→기대 합리·실측 필요) ②잔여 step < walk 소요면 walk 스킵하는 가드 발화 ③CP5 리마인더 문구 A/B(id 명시 vs 개수만 — C43 정박치환 재료 여부) | 무료 | 표적서 enumerator 발화 ∧ scope 발견 |
 | (e) 표적 nt=1 | t95+coverage class 소수(≤13) × nt=1 사이클(§0b 프로토콜) | 소액(승인) | per-case 복구 ∧ Δspurious≤0 ∧ Δtme≤0 |
 | full | 별도 456 (루프 아키텍처 변경·**합산 금지**·`§CP5`) | 유료(승인) | GO 조건(아래) |
 
@@ -132,7 +144,7 @@ discovery_needed() -> bool:
 ## 7. 미해결 · 리스크
 
 - **R1 plan 오염**: 첫 plan이 틀리면 walk가 틀린 걸 강화. 완화 = plan은 리마인더용일 뿐 강제 아님·에이전트 재판단 여지.
-- **R2 discovery 과잉**: enumerator가 무관 entity 대량 표면화 → 창 오염(C43 정박치환 재료 공급 위험!). 완화 = enumerator 결과를 controller가 scope 필터 후 *개수만* 리마인드(id 나열 최소화). **← C43과 직접 긴장·격리서 측정 필수.**
+- **R2 discovery 과잉 (v1.1 재정식화)**: 에이전트가 *스스로* enumerator를 부르므로 전체 결과가 어차피 정상 tool-result로 창에 들어옴 — "controller가 결과를 필터해 개수만 노출"은 주경로에서 **불가능**(그러려면 controller가 결과를 대신 읽어야 = 규칙0 위반. v1.0의 내부모순·해소). C43 노출 재평가: retail enumerator=get_user_details=**본인 주문만** 표면화 → 무관-entity 오염은 구조적으로 제한적. "개수만 vs id 명시" 선택지는 **CP5 리마인더 문구에만** 적용(리마인더 원천=에이전트 자신의 plan·DB 아님) → §5(d)③ A/B로 격리 측정. **C43 잔여 긴장 = 본인 주문 중 무관 주문 id가 write 인자로 새는지 — Δspurious 계측이 그 센서.**
 - **R3 종결 지연**: walk 리마인더 상한(1~2회) 없으면 max_steps 낭비. 상한 하드코딩.
 - **R4 banking 전이**: enumerator_spec/SCOPE_TOKEN이 banking 절차-집합에 매핑되나 = Phase 3 실측(retail 확정 후).
 - **소유권**: E-SPEC(오케스트레이터 재설계)와 CP5 좌석 공유 — E-PLAN은 coverage-walk만·E-SPEC은 전체 재배치. 중복 구현 금지.
@@ -140,8 +152,8 @@ discovery_needed() -> bool:
 ---
 
 ## 8. 다음 액션 (구현 순서)
-1. `t2_eplan_patch.py` 스켈레톤 (ledger 부착·gated 확장 관측·CP5 후크) — 무료.
-2. `test_eplan.py` 단위 (coverage_gap·discovery_needed·ledger) — 무료.
+1. `t2_eplan_patch.py` 스켈레톤 (ledger 부착·gated 확장 관측·CP5 후크·discovery=기존 deny+regen에 precondition 추가) — 무료.
+2. `test_eplan.py` 단위 (coverage_gap·**expand_scope**·discovery_needed·ledger) — 무료.
 3. A2에 `enumerator_spec`(retail) 1줄 추가 + SCOPE_TOKEN 파서.
-4. 격리 검증 (t95 궤적 discovery 주입) — 무료·GPU 한가할 때.
-5. → 리뷰(step b) 후 표적 nt=1 (승인).
+4. 격리 검증 (t95 궤적 discovery 주입 + §5(d) v1.1 확인항목 ①②③) — 무료·GPU 한가할 때.
+5. → 표적 nt=1 (승인 필요). *(step b 리뷰 = 2026-07-11 반영 완료)*
