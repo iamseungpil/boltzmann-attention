@@ -255,3 +255,7 @@ if kind == "notice":
   - 레버3 FORMALIZE-EXEC: **full-EM 0.00**(op/field 0.68·cons 0 — cons 채점 규약 재검 여지 있으나 게이트 불통과) + P-B 좌석 shadowing(표적 결정점 0/34) → **미편입**.
   - 레버4 formalize-obligation: **structured 재-plan = raw와 동일**(t95 0/4·t81 1/4) → **미편입·CP5 결정론 1차 재확증**(3중).
 - aprime2 4/10(t81=나열힌트 직격 회복)·B(b78c2·78 task) 발사됨.
+
+## 부록 W. 사용자 제안 레버 2종 등재 (2026-07-11 밤·[D])
+- **NL-POLICY-PROV** (t57): 발화-수준 주장-트리거 출처검사 — "refund+결제수단-토큰(A2 어휘)" 언급 ∧ ≠주문 실제 pm(기조회) → regen(정책사실 고지). G8 실패(무조건 고지·over-block 16.6%)의 트리거-반전판 = 허위-주장 시만 발화 → over-block ~0 기대. 검증=decidable·NL-NUM-PROV 자매. V0: COMP 허위-목적지 주장 census + passing over-fire.
+- **CALC-ANCHOR** (t20): anchor(write item_ids)의 옵션-차원별 유지-argmax를 결정론 열거("size=9 유지 최고가: X …") → 바인딩을 생성→선택으로 이동(C59 원리). constraints-구성 0% 우회. 리스크=주석 부피(C43)→차원 상한·Δfab. E-REF와 상보(열거로 닫히면 scaffold 승·잔여=진짜 능력).
