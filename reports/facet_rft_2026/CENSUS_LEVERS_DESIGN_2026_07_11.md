@@ -86,7 +86,8 @@
 - **의존 (v1.1 정정)**: E-PLAN ledger(planned) **필수**. v1.0의 폴백("2번째 write 시도에 deny")은 **무효 판정·삭제** — t27의 해악은 *첫* write(반품 실행→status 변경→교환 env-불가)이고, 2번째 시도 시점엔 이미 회복 불가. 첫 write *전에* 배타-쌍을 알려면 plan(ledger)이 유일한 결정론 원천(대화서 두 intent를 첫 write 전에 읽는 건 semantic 파싱=C50 경계라 불가).
 - **arm 충돌 해소 (v1.1)**: ledger를 **관측-전용 부품**으로 분리 — CP0 plan-추출+기록만·에이전트 창 불변·개입 0(주입·deny·리마인더 없음). 관측-전용 ledger는 stage B 스택에 동거 가능(교란 0·추가 비용=plan 서브콜 1회/sim뿐). E-PLAN *arm* 소속은 개입 레버(discovery-enforce·CP5 walk)만. → `E_PLAN_..._DESIGN`에도 이 분리 명문화 필요(v1.3 항목).
 
-### 3b. 환불-목적지 notice (t57형·`notice_specs` 확장)
+### 3b. 환불-목적지 notice (t57형) — **⛔superseded by `NEXT_LEVER_GEN_DESIGN §1.3` G8_REFUND_NOTICE (2026-07-11)**
+> 같은 표적(t57)을 **정적-문구 notice 게이트(G8)**가 대체 — 동적 `<pm>` 주석안은 notice_text 동적-값 금지 규약(NEXT_LEVER §1.4)과 충돌해 폐기. 이중 구현 금지. 아래는 기록 보존.
 - **실측 기전**(t57): 조건체인 끝="gift card 환불 안 되면 취소도 하지 말라" → 에이전트가 취소 실행 + **"gift card로 환불했다" 허위 발화**.
 - **스펙**: cancel-class write의 confirm 시점에 정책-사실 주석: "환불은 **원결제수단**(<pm>)으로 감" — 기존 notice kind에 A2 1줄. 정책 사실=decidable(policy.md)·DB 값은 에이전트-기조회 pm 사용.
 - 기대 경로: 에이전트가 정확한 목적지를 사용자에 전달 → user-sim(체인 보유)이 "그럼 취소하지 마라" → no-op = gold. **에이전트 판단 경유·강제 0.**

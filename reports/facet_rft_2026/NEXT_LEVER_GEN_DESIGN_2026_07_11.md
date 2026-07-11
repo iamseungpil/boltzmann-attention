@@ -1,6 +1,7 @@
 # 차세대 레버 2종 설계서 — NOTICE-PERGATE · FORMALIZE-EXEC (2026-07-11)
 
-> **상태 = [D] 설계서 (설계만·구현 0·커밋 0). 현 스택 동결 중(사용자 2026-07-11) — 착수는 S4/S5 완료 후.**
+> **상태 = [D] 설계서 v1.1 (리뷰 반영·2026-07-11). 현 스택 동결 중(사용자 2026-07-11) — 스택 편입·라이브 arm은 S4/S5 완료 후.**
+> v1.1 변경: ①§2.6 V0 결정점 수확을 전-456-sim으로 확장(희소 타입 n≥30 구조적 불충족 해소+통과-sim over-fire 계측 동시 획득) ②§1.1③ 산출-키 하류 소비자 감사·G4 레거시 키 dual-emit 추가 ③CENSUS §3b(동적 `<pm>` 주석)를 G8로 supersede 명기(이중 구현 방지) ④상태 표기 사실 정정(원판도 05d71c27로 커밋됨 — "커밋 0" 기재는 오기였음).
 > (RESEARCH_MASTER §4 E-XGRAMMAR 행과 동일 규율: "스택 동결 — S4/S5 후". 두 레버 모두 지금은 등재·설계 고정만.)
 > 파생: 레버1 = S1c 보고의 기확정 변경안 정식화(`test_notice_gate.py` B1-B4 실증 위) · 레버2 = §1.5 Q3-compound 경로
 > + C56 처방("formalize→결정론 직렬화") + C61 E-ISO(형식화-부하 실재)의 설계-구체화.
@@ -95,6 +96,10 @@ if kind == "notice":
   retail 단일-notice에서 자동 보장(회귀 검증 항목).
 - `t2_gate.py:40` `TRANSFER_MSG`·`transferred_then_notice(:86)`는 deprecated-호환 export로 유지(외부 분석도구
   `t2_gate_r2_verdict.py`·`t2_passk_autopsy.py`가 소비) — 이들은 retail G4 전용이라 per-gate화 불요·주석만.
+- **★하류 키-소비자 감사 (v1.1·U단계 체크리스트)**: 산출 키가 게이트-id별(`G4_TRANSFER_MSG`…)로 바뀌면
+  `violations_of_sim` 출력 키를 *직접* 읽는 집계(make_figs_results류·리더보드 파이프·과거 비교 스크립트)가 깨질 수 있다
+  — t2_gate.py export 보존만으론 부족. 처방: ① 구 키 `TRANSFER_MSG`를 G4 값으로 **dual-emit**(과거 수치 연속성)
+  ② 소비처 grep 감사(`TRANSFER_MSG` 검색)를 U단계 필수 항목으로.
 
 ### §1.2 하위호환 보장 논거
 1. **스칼라 경로 바이트-동일**: ①은 callable 분기 추가뿐 — 기존 테스트([A] A1~A6·B4 시그니처)와 스칼라 호출자
@@ -111,6 +116,9 @@ if kind == "notice":
   안 되면 취소도 하지 마라")에서 에이전트가 취소 실행+허위 발화 — G8은 취소 *전* 정책-사실 고지를 강제 →
   user-sim(체인 보유)이 "그럼 취소하지 마라" → no-op = gold. **에이전트 판단 경유·write 강제 0**(deny+ask만·§1.5 Q5 준수).
   한계 정직(§3b 승계): user-sim이 재확인 안 하면 못 닫음 — 커버는 확률적·Δ로 실측.
+  **★§3b supersede (v1.1)**: `CENSUS_LEVERS_DESIGN §3b`의 동적 `<pm>` confirm-주석안은 **G8 정적-문구 notice
+  게이트로 대체**(같은 표적 t57·이중 구현 금지). 정적 문구가 §1.4 "notice_text 동적 값 금지" 규약과도 정합 —
+  CENSUS §3b에 역방향 표기 필요.
 - **banking GB2와의 공존**: banking A2의 notice 게이트(GB2)와 향후 2번째 notice가 같은 도메인에 서도 B2/B3 없이 동작
   — 전이(E-XFER-bank 재개) 전 엔진 선행조건. per-gate화 후 스모크(UNI_OK 동형)로 확인.
 
@@ -220,14 +228,19 @@ if kind == "notice":
 ### §2.6 검증 계획 (격리 재현 → 오프라인 단위 → 표적 nt=1 · §7c 사이클 규율)
 | 단계 | 내용 | GO |
 |---|---|---|
-| **V0 격리 재현(무료·S4/S5 대기 중 가능)** | A′/COMP 궤적의 C클래스 결정점 재생(E-ISO C 프로토콜 재사용·정보-맞춘) — ① **형식화 정확도 선측정**: 서브콜 JSON을 per-결정점 gold-기준과 EM 대조(op/field/constraints 분해 채점) ② 실행기 오프라인 적용 → 채널 A/B(fix/break) 대조 ③ 타입별 P(정답\|불일치) — T5C B5 정량 GO 동형(차이>0 ∧ CI 하한>−0.05 ∧ n≥30/타입) | 통과 타입만 `formalize_sub_args` 등재 — **불통과면 스택 편입 금지(C23 재발 방지 게이트)** |
+| **V0 격리 재현(무료·S4/S5 대기 중 가능)** | **★수확 범위 = 전 456 sim(v1.1)** — C클래스 실패 궤적만이 아니라 통과-sim 포함 전체서 기준-형식화형 결정점 수확(E-ISO C 프로토콜 재사용·정보-맞춘). 이유: ① C클래스만으론 희소 타입이 n≥30 **구조적 불충족**(t79 = 1 task×4 trial ≈ 결정점 4개 — 실력이 아니라 표본 부족으로 영구 편입 불가) ② 통과-sim 결정점 = gold 기지 + **over-fire(오발화) 실측** = Δspurious 예고 계측 무료 획득. — ① **형식화 정확도 선측정**: 서브콜 JSON을 per-결정점 gold-기준과 EM 대조(op/field/constraints 분해 채점) ② 실행기 오프라인 적용 → 채널 A/B(fix/break) 대조 ③ 타입별 P(정답\|불일치) — T5C B5 정량 GO 동형(차이>0 ∧ CI 하한>−0.05 ∧ n≥30/타입·**n<30 타입은 pooled 추론+타입별 기술통계 병기로 판정**(Wilson CI 정직 보고)) | 통과 타입만 `formalize_sub_args` 등재 — **불통과면 스택 편입 금지(C23 재발 방지 게이트)** |
 | V1 단위 | 실행기 op×constraints 전수(동률·필드부재·빈후보·파싱실패=UNSURE)·치환 왕복·기존 플래그 회귀 | 전부 PASS |
 | V2 표적 nt=1 | t20·t37·t79·t71 + 무회귀 대조군(t0·t28형) — **S4/S5 후·승인 후·opt-in env(`T2_FORMALIZE=1`)·stderr 마커 `[T2_FORMALIZE]`** | per-task 복구 ∧ Δspurious≤0 ∧ Δtme≤0 ∧ 위반0 |
 
 ---
 
 ## §3. 상태·다음 행동 (동결 준수)
-- 본 문서 = **[D]**. 두 레버 모두 **구현·스택 편입·A2 변경 없음**(이 파일 1개가 산출물 전부·커밋도 하지 않음).
+- 본 문서 = **[D]·커밋됨(05d71c27·v1.1 별도 커밋)**. 동결의 대상 = **스택 편입·라이브 arm·A2 라이브 변경** —
+  오프라인·무료 준비물(단위·census 스크립트·V0 측정)은 스택-불변이라 동결과 양립(§0b.2와 동일 논리·레버1 census도 동형).
+- **⚠️작업트리 관찰(2026-07-11 리뷰 시점)**: `gate_interpreter.py`(§1.1① 문자 그대로)·`t2_compliance.py`·`t2_gate.py`
+  수정 + `notice_pergate_census.py`가 작업트리에 **이미 존재**(미커밋·본 리뷰가 만들지 않음). 레버1 U/O 단계가
+  진행 중인 것으로 보임 — **출처·승인 여부는 사용자 확인 필요**(스프린트 공지 범위는 t81/t2_eplan_patch였음).
+  확인 전까지 해당 파일 커밋 금지.
 - **착수 시점 = S4/S5 후**(현 스택 동결·사용자 2026-07-11). 착수 순서 = §0b(NOTICE-PERGATE → FORMALIZE-EXEC·
   단 FORMALIZE V0 격리 측정은 무료·스택-불변이라 대기 중 병렬 가능).
 - 착수 시 선행 확인: ① 특허 taxonomy 부록 X의 (a)~(f) 정본과 §0a 재구성 대조 ② banking A2 GB2 notice 스펙 실물 확인
