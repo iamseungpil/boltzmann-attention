@@ -82,3 +82,158 @@ DISAMB 원값은 문맥-실재라 유지 무해. **banking full-stack arm(bankxf
    silent형 = P-A/P-B 구현 후. **권고: silent형까지 구현·스모크 후 1회 재런**(재런 2회 방지).
 2. P-C(prov 구조대)를 같은 재런에 합류시킬지 (arm 수 증가 없이 단일 arm 통합이 E-COMP 정신).
 3. banking arm은 §3 수정 포함 자동 진행 중 — 개입 불요.
+
+---
+
+# 구현 설계서 (rev1 · 2026-07-11 · 리뷰 대상)
+
+> 절차: 본 설계 → 적대 리뷰(블로킹/비블로킹) → 반영(rev2) → 구현+V1 → (V0 GPU 확보 시) → V2/V3는 승인 후.
+> 터치 파일 = `scripts/distill/tau2/t2_gate_patch.py` 단일. 기존 경로(C53/C60 재현)는 전부 보존, 신규는 opt-in env.
+
+## §6. 구현 명세
+
+### §6.0 공통 헬퍼 (신규)
+
+```
+_candidate_records(arg_key, orig_value, msgs, limit=6) -> list[(value, snippet)]
+```
+- `_grounded_candidates`와 동일한 후보 열거(기존 로직 재사용) + 각 후보에 대해 **그 후보가 등장한
+  가장 최근 tool 출력에서 최소 enclosing JSON 객체**를 추출해 snippet(≤500자·초과 시 스칼라 필드만)으로 동봉.
+- 근거: **E-ISO ③(C61) — id-only 열거는 판별정보가 없어 역효과**(order-⋈ C .21 < A/B .32).
+  C59의 GO는 내용-매칭 열거였음. ⇒ 열거는 반드시 내용 동봉.
+- 규칙0: 원천은 `_parse_tool_outputs(msgs)` = **에이전트 자신이 조회한 tool 출력만**. DB 접근 0.
+- 도메인-일반: JSON 구조 연산만·스키마/필드명 리터럴 0 ([[05]] 통과).
+
+### §6.1 P-A — GROUND 제자리 치환의 unified 이식 (기본 ON: `T2_GROUND=1`)
+
+- 위치: `apply_unified_regen`의 prov 루프( fab 감지 직후·regen 前 ) — `apply_provenance_regen`의
+  기존 575-583 블록과 동일 로직 복제:
+  `cands = _grounded_candidates(k, s, state.messages); if len(cands)==1 and cands[0]!=s → tc.arguments[k]=cands[0]; subs+=1; continue`
+- |C|=1 = 판단 없음 = decidable(§1.5 Q1) → 결정론 치환 정당. P2b/c(C57): prov가 payment |C|=1 날조를
+  0/319로 닫음 = 이 칸의 정답률 근거.
+- 턴 불파기·대화 불변·실행=기록. 치환 상한 subs<8/턴(기존과 동일). 카운터 `_t2_ground_sub`.
+- **★[B1 반영] 원소-치환 알고리즘 확정** — 신규 헬퍼 `_subst_arg_value(tc, k, old, new) -> bool`:
+  `d = _args_dict(tc)`(str-JSON이면 새 dict 반환이므로 **반드시 `tc.arguments = d` 재할당**·N2) 후
+  `d[k]`가 (a) 스칼라·`str(d[k]).strip()==old` → `d[k]=new` (b) **리스트 → old와 일치하는 원소만
+  위치 보존 교체**·new가 이미 리스트에 존재하면(중복 발생) **no-op·False** (c) nested dict/그 외 →
+  no-op·False. 성공 시에만 카운터/`continue`. **기존 GROUND 블록(575-583)의 `d[k]=cands[0]` 통짜
+  치환도 이 헬퍼로 교체**(list-인자 파괴 버그의 원천 수정 — GROUND는 e2e 미측정 레버라 버전 침해 없음).
+
+### §6.2 P-B — DISAMB-silent: 격리 서브콜 + 인자 제자리 치환 (`T2_DISAMB_MODE=subcall`)
+
+fire 조건(기존과 동일): confirm-write 도구 · arg가 hints 매칭 · **값이 문맥 실재** · `_grounded_candidates ≥2`
+· `(tool,k,val)` memo 미방문. fire 시 — in-dialogue 재확인(dwork 주입·재생성) **전면 폐지**, 대신:
+
+```
+records = _candidate_records(k, s, state.messages)
+transcript = user/assistant 텍스트 턴 전사(tool 원문 제외·_BLOCK_NOTE 등 개입 메타텍스트 필터=N5)
+sub_msgs = [UserMessage(role="user", content=SUBCALL_SYS + "\n\n" + transcript
+                        + "\n\nCandidates for '{k}':\n" + enumerate(records)
+                        + "\n원값: '{s}'. Which candidate does the user intend? "
+                          "Answer EXACTLY one candidate value, or UNSURE.")]   # ★[B4] kwargs 생성·단일 user 턴(SystemMessage 미검증 클래스 회피)
+kw = {k2: v for k2, v in self.llm_args.items() if "tool" not in k2}            # ★[B4] tool_choice류 strip
+sub = la.generate(model=self.llm, tools=None, messages=sub_msgs,
+                  call_name="disamb_subcall", **kw)                            # ★[B4] tools=None(빈 [] 금지)
+txt = (getattr(sub, "content", None) or "").strip()                           # ★[B4] None 가드
+ans = 파싱(txt): ① strip(따옴표·공백·구두점) 후 txt 전체가 정확히 후보 1개 → 수락(N3 우선규칙)
+                 ② 아니면 경계-인식 부분검색서 유일 매치만 수락 ③ 그 외 UNSURE
+if ans == s or ans is UNSURE:  no-op (원턴 그대로)          # _t2_subcall_keep/_unsure
+elif ans in cands and _key_tokens(k) ∩ A2.disamb_sub_args:
+    _subst_arg_value(tc, k, s, ans)                          # _t2_subcall_switch (B1 헬퍼·실패 시 no-op)
+else: no-op(로깅만)                                          # confirm-only 타입
+```
+서브콜 전체를 try/except로 감싸 **어떤 예외도 no-op**(에이전트 크래시=episode infra 사망 금지·B4).
+
+- **원턴·대화 완전 불변**(서브콜은 히스토리 밖) · 재생성 0 · num_errors 0 · replay-clean(§1 보장).
+- **★[B2 반영] arg-type 게이팅은 A2 config로**: 엔진은 "후보 arg의 `_key_tokens`가
+  `a2.disamb_sub_args`(신규 필드·key-token 리스트)와 교집합일 때만 치환" 규칙만 가짐 — **엔진에 도메인
+  어휘 0**. retail 초기값 = `["item"]`(c51: item .079→.545·new_item .116→.658 [M]) — V0가 갱신.
+  order-id형 등 미등재 타입 = confirm-only(치환 OFF·로깅만). 타 도메인 전이 시 = 그 도메인 V0-동형
+  측정으로 필드 채움(§7). 근거: E-ISO ③(id-열거 역효과)·[[05]](A2만 변경).
+- **비대칭 안전성(핵심 리스크)**: fire 지점의 원값 정답률은 높다(1,274 fire 중 실패-관여는 소수) —
+  블라인드 치환은 유해 가능. 서브콜이 **불일치일 때만** 치환하고, V0에서
+  **P(서브콜 정답 | 불일치) > P(원값 정답 | 불일치)** 를 c51 데이터로 선검증(§7 V0). V0 불통과 타입은 confirm-only.
+- 문맥 전사 = user/assistant 텍스트만(도구 원문 제외·후보 records가 내용을 담당) — E-ISO CP1/CP2
+  오염-경로(20%)를 서브콜에 재주입하지 않기 위한 선택. 리뷰 포인트(§9-R3).
+- memo·세션당 서브콜 상한 32(폭주 방지). latency ≈ 짧은 생성 1회/fire.
+
+### §6.3 P-C — prov 구조대 모드 (`T2_PROV_MODE=rescue`; 기본은 기존 `full`)
+
+fab 감지 시 순서: **(a)** P-A 제자리 치환(|C|=1) → **(b)** rescue 조건 분기:
+- **★[B3 반영] env-검증형 판별자**: "인자→producer 매핑"은 A2에 존재하지 않음(producers=auth 단일).
+  대체 = **A2 `preconditions` 게이트들의 `resolver_path[0]` 인자명 집합**(예: `[order_id,
+  get_order_details, status]` → `order_id`) = env가 lookup으로 검증하는 id-형의 기존-A2-파생 집합
+  (`gate_interpreter.py:240-250`이 이미 이 경로로 live-read). 도메인 리터럴 신규 주입 0.
+  보조: `_sig(s) in {hashid, numid}`(id-형 시그니처)와 AND.
+- **개입 생략(pass-through)**: 인자가 위 env-검증형 **∧** 에러-루프 아님 → 그대로 커밋(환경이 거부 —
+  C61 H-D: 70/70 차단·중복). 카운터 `_t2_prov_skipped_envdup`.
+- **개입 유지(기존 regen)**: free-text형(env-검증형 집합 밖·env가 못 잡음·C24) 또는 **에러-루프 중**.
+  **★[N6] 에러-루프 감지** = committed `state.messages`의 최근 **tool-result 쌍 6개** 안에
+  같은 tool 이름의 `error=True` ToolMessage 존재 — assistant `tool_calls.id ↔ ToolMessage.id` join으로
+  tool 이름 복원(`_iter_tc_result_pairs` 패턴). unified 경로선 deny가 히스토리에 안 남으므로
+  "error=True = env-오류" 동치 성립(리뷰 검증).
+- REGEN_FEEDBACK **중립화**(스펙#2): 예시 나열("payment methods, or addresses") 삭제 — t61형 오도([P]·
+  [[42]] priming 동형) 제거. GROUND_FEEDBACK의 괄호 예시("which order contains that item")도 동일 처리.
+- 폴백 불변량: regen 최종 am이 텍스트-only면 — **fab가 id-형이면 원 am 유지**(env 거부=floor 동형),
+  **free-text형이면 현행 유지(am2 수락)** — free-text는 원턴 복원이 날조-write 커밋이 되는 비대칭(§3) 때문.
+
+### §6.4 arm 정의·플래그 (재현성)
+
+| arm | env | 비고 |
+|---|---|---|
+| routerv1 (C60·보존) | `T2_PROV_REGEN=1 T2_DISAMB=1` | 기존 경로 그대로(+§3 fix) |
+| **routerv2 = T5-C** | `T2_PROV_REGEN=1 T2_PROV_MODE=rescue T2_GROUND=1 T2_DISAMB=1 T2_DISAMB_MODE=subcall` | 단일 arm(P-A+P-B+P-C 통합) |
+- unified(gate) 분기에도 동일 플래그 해석 이식(E-COMP/banking 계열 후속용).
+- 레버 버전 라벨: prov-v2/disamb-v2 (P_OC rev4 — 셀 불변·버전 갱신).
+- **신규 플래그 전부 opt-in·기본값서 v1 동작과 바이트-동일**(리모트 드라이버가 persist 단계서
+  `git pull --rebase`로 코드를 당기므로 — 실행 중/대기 중 arm(banking full-stack 포함)에 무영향 필수·V1 회귀로 보증).
+- [N9] orchestrator-레벨 `apply()` 게이트와 **상호배타**(`_deny_msg` 히스토리 커밋=replay-파괴 기지·`:681-686`).
+
+### §6.5 계측 (stderr 마커·census 호환)
+
+`_t2_ground_sub` · `_t2_subcall_{fired,keep,switch,unsure}` · `_t2_prov_skipped_envdup` ·
+`_t2_disamb_nowrite_keep`(§3) — 각각 `[T2_*]` stderr 마커 동반(기존 eamb7/checkpoint census가 집계 가능).
+
+## §7. 검증 계획
+
+| 단계 | 내용 | 비용 | GO |
+|---|---|---|---|
+| **V0** | **★[B5 확정 절차]** (a) c51_disamb_results.jsonl에는 원값 컬럼이 없음 → `fl32b_floor_retail_t4.results.json.gz`와 (task,trial,idx,arg) **join으로 에이전트 원값 복원** (b) P-B 프로토콜 그대로(텍스트 턴 전사+records·R5 해소) 로컬 vLLM 재현 런 → 타입별 **P(sub 정답\|불일치)−P(orig 정답\|불일치)** (c) **정량 GO: 차이>0 ∧ 95% CI 하한>−0.05 ∧ n≥30/타입** (d) 편향 명기: c51 수집이 gold∈C 조건화(`c51_disambig_boundary.py:92-93`) → live(gold∉C 3.7%·C55) 대비 과대추정 ⇒ 임계 보수 적용 (e) [N8] 불일치∩both-wrong에서 env-거부형→env-수락형 이동(spurious 순증) 계수 | 무료(GPU 대기) | (c) 통과 타입만 A2 `disamb_sub_args` 등재 |
+| **V1** | 단위테스트: (i) silent 경로서 반환 am.tool_calls ≥ 원 am (ii) 대화 텍스트 불변 (iii) 치환=fire 인자 1개만 (iv) list-원소 치환 왕복 (v) 기존 플래그 조합 회귀(§3 fix 포함) (vi) rescue 분기표 전수 | 무료 | 전부 PASS |
+| **V2** | 스모크 10task×1(routerv2) — 발화 카운터>0·crash 0·공식 채점 통과(replay-clean 실증) | 유료 소액(승인 후) | 라이브 발화 확인 |
+| **V3** | full 456×nt4 단일 arm | 유료(승인) | **p1≥.577 ∧ p4>.281 ∧ Δspurious≤0 ∧ no-write≤12(floor) ∧ per-case(t61 4/4 유지·t46/47/95 복구·t17 4/4 유지)** |
+
+## §8. [[05]]·제1원리 점검 + 리스크
+
+- [[05]] 3문: 도메인-특화 순증 0(JSON-구조 연산·A2 기존 매핑 재사용·리터럴 0) / 유동성 동결 —
+  P-A는 |C|=1(판단 없음=decidable)만·P-B는 **선택을 LLM(서브콜)에 유지**·전달만 결정론 / 대행 수행 0
+  (조회·행동 없음, 에이전트 자신의 호출·자신이 조회한 문맥만).
+- 제1원리(부작용 계측): 치환의 반대편 = **정답→오답 스위치**(Δspurious 동형) — V3 per-case로 계수,
+  `switch` 전건 로깅으로 사후 감사 가능. P-C의 반대편 = pass-through로 인한 에러예산 소모(tme) — V3서 tme 계측.
+- 잔여 리스크: ① gold∉C 3.7%(C55)서 P-A 치환이 env-수락 오답 write 생성 가능(id-형은 env-거부 예정
+  케이스만 치환되므로 실질 free-text 칸 — P-A는 id-형 위주라 소폭) ② 서브콜 파싱 실패 → UNSURE(안전측)
+  ③ user-sim 나비효과는 **P-B에서 구조적으로 0**(대화 불변) — 이것이 v1 대비 핵심 개선.
+
+## §9. 리뷰 결과 (rev1 → rev2 · 적대 리뷰 2026-07-11 · 판정: 조건부 GO)
+
+**블로킹 5 — 전부 rev2 본문 반영**:
+- **B1** list-인자 통짜 치환 버그(기존 GROUND 575-583 포함·fire 지배형이 `item_ids`=리스트라 주경로)
+  → `_subst_arg_value` 원소-치환 헬퍼 확정(§6.1)·기존 블록도 교체(GROUND e2e-미측정=버전 침해 없음).
+- **B2** 화이트리스트 `{item}` 하드코딩=[[05]] 위반 → A2 신규 필드 `disamb_sub_args`로 이관(§6.2).
+- **B3** "인자→producer 매핑" 부재(A2 producers=auth 단일) → preconditions `resolver_path[0]` 파생
+  집합으로 대체(§6.3). P-C는 이 해소 전 NO-GO였음.
+- **B4** 서브콜 API 미검증(SystemMessage 존재 미확인·위치인자 생성·tools=[] 거부 가능·content None·
+  tool_choice 충돌) → 단일 user 턴·kwargs·tools=None·가드·llm_args strip·전체 try/except(§6.2)
+  + V1에 리모트 실-generate 프로브 1콜 추가.
+- **B5** V0 계산 불가(원값 컬럼 부재)+GO 비정량 → fl32b join·정량 GO·gold∈C 편향 명기(§7).
+
+**비블로킹 9 — 반영/예정**: N1 GROUND 블록은 unified 루프서 `fab` 감지 직후·`_denied_calls` **앞**
+배치(게이트 check가 상태-변이(one-shot select_confirm)라 버려질 반복서 소진 금지) · N2 `_args_dict`
+str-경로 재할당(§6.1 반영) · N3 파싱 우선규칙(§6.2 반영) · N4 `_parse_tool_outputs`가 augment-append
+content서 침묵 실패 → leading-JSON 파싱 방어(구현) · N5 전사서 `_BLOCK_NOTE` 필터(§6.2 반영) ·
+N6 에러-루프 감지 명세(§6.3 반영) · N7 텍스트-콜 불일치는 NL축 신규 채널 후보 — V2서 관찰·필요시
+content 동일-치환 옵션 · N8 V0에 spurious-이동 항(§7 반영) · N9 orchestrator-레벨 `apply()`와
+상호배타(§6.4에 명기: replay-파괴 기지).
+
+**리뷰어 판정**: P-A/P-B = B1·B2·B4 반영 후 GO / P-C = B3 해소로 부활(V3 arm 포함 여부는 V1 후 확정)
+/ V0 = B5 반영 전 화이트리스트 입력으로 사용 불가.
