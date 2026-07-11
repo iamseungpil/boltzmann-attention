@@ -245,3 +245,13 @@ if kind == "notice":
   단 FORMALIZE V0 격리 측정은 무료·스택-불변이라 대기 중 병렬 가능).
 - 착수 시 선행 확인: ① 특허 taxonomy 부록 X의 (a)~(f) 정본과 §0a 재구성 대조 ② banking A2 GB2 notice 스펙 실물 확인
   ③ RESEARCH_MASTER §4 큐 등재(두 레버 모두 — E-XGRAMMAR 행과 동일 형식·[D]·동결 표기).
+
+## 부록 Z. 상태 갱신 — 동결 해제·구현·V0 판정 (2026-07-11 저녁)
+- **동결 해제 출처**: 사용자 지시 "B 실시 전 차세대 레버 다 실험 후 통과하고 B" — 리뷰가 관찰한 작업트리 구현은 이 지시의 산물(위반 아님). 이후 4종 전부 구현·커밋됨.
+- **v1.1 리뷰 3건 반영 확인**: ①§2.6 전-456 수확(774케이스·통과-sim over-fire 동시계측) ②구 키 dual-emit+소비처 grep 감사 ③t57 G8 supersede(CENSUS §3b 동적-주석은 폐기).
+- **★V0 실측 판정 (설계-GO를 덮음)**:
+  - 레버1 NL-NUM-PROV: t47 재현 ✓·over-fire 44.3% → **기본 off·표적 실측으로만 재론**.
+  - 레버2 NOTICE-PERGATE: **엔진 per-gate화 편입 GO**(456/456 동일성·banking 2nd-notice 전이 선행조건). **G8 자체는 over-block 16.6%>2% → A2 미부착** ⇒ t57은 차세대로도 미폐쇄(정직 잔여).
+  - 레버3 FORMALIZE-EXEC: **full-EM 0.00**(op/field 0.68·cons 0 — cons 채점 규약 재검 여지 있으나 게이트 불통과) + P-B 좌석 shadowing(표적 결정점 0/34) → **미편입**.
+  - 레버4 formalize-obligation: **structured 재-plan = raw와 동일**(t95 0/4·t81 1/4) → **미편입·CP5 결정론 1차 재확증**(3중).
+- aprime2 4/10(t81=나열힌트 직격 회복)·B(b78c2·78 task) 발사됨.
