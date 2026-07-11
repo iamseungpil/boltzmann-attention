@@ -236,6 +236,63 @@ def coverage_gap(ledger):
     return gaps
 
 
+# ── 히스토리 → ledger 결정론 재구성 (v1.3·CP0 LLM 불필요·④ 실증 로직) ────────
+def _g(m, k, default=None):
+    """dict/객체 겸용 접근자 — gz(dict)와 tau2 Message(attr) 양쪽서 동작."""
+    if isinstance(m, dict):
+        return m.get(k, default)
+    return getattr(m, k, default)
+
+
+def build_ledger_from_messages(messages, spec, write_tools):
+    """committed 히스토리 1-pass → PlanLedger. 전부 결정론([[10]])·에이전트-기수행 관측만.
+    qty=user 발화 누적 / listed·examined=read 관측 / executed=성공 write.
+    ④(eplan_iso_probe)서 실궤적 검증된 로직의 객체-호환판."""
+    led = PlanLedger(spec)
+    res_by_id = {}
+    for m in messages:
+        if _g(m, "role") == "tool" and _g(m, "id") is not None:
+            res_by_id[_g(m, "id")] = m
+    for m in messages:
+        role = _g(m, "role")
+        c = _g(m, "content")
+        if role == "user" and isinstance(c, str):
+            led.accumulate_qty(c)
+        if role == "assistant":
+            for tc in (_g(m, "tool_calls") or []):
+                nm = _g(tc, "name") or ""
+                ar = _g(tc, "arguments")
+                if isinstance(ar, str):
+                    try:
+                        ar = json.loads(ar)
+                    except Exception:
+                        ar = {}
+                ar = ar if isinstance(ar, dict) else {}
+                tm = res_by_id.get(_g(tc, "id"))
+                ok = tm is not None and not _g(tm, "error")
+                if nm in write_tools:
+                    if ok:
+                        led.note_write(nm, ar.get(spec.get("entity_key")),
+                                       ar.get("item_ids") or ())
+                else:
+                    out = _g(tm, "content") if (tm is not None and not _g(tm, "error")) else None
+                    led.note_read(nm, ar, out if isinstance(out, str) else None)
+    return led
+
+
+def cp5_gap_reminder(n, m, unexamined):
+    """CP5 결정론 리마인더(v1.3·비강제·DB내용 0): 요청수량 N > 수행 M.
+    미검토 sibling 있으면 read-지시·없으면 사용자-재확인 지시."""
+    _mark("walk gap: qty=%d executed=%d unexamined=%d" % (n, m, len(unexamined)))
+    if unexamined:
+        return ("[E-PLAN] The user mentioned %d item(s)/record(s) for this request but you have "
+                "completed %d. You have listed record(s) %s without reading their details — read "
+                "them first, then decide." % (n, m, ", ".join(unexamined)))
+    return ("[E-PLAN] The user mentioned %d item(s)/record(s) for this request but you have "
+            "completed %d. Before ending, re-check with the user whether anything is left, "
+            "then act or explain." % (n, m))
+
+
 # ── 피드백 텍스트 (생성-레벨 전용·히스토리 커밋 금지) ─────────────────────────
 def l1_feedback(ledger, spec):
     """L1 deny 피드백(t81형·"목록 먼저"). 도구명 = A2서."""
@@ -324,19 +381,70 @@ def _cp5_walk(orch, ledger, spec):
     raise NotImplementedError("step d: live 배선 미구현")
 
 
+def load_write_tools(domain):
+    """A2 파일서 confirm-게이트 applies_to = write 도구 집합(도메인일반 파생·gate 임포트 없이)."""
+    path = os.path.join(_A2_DIR, "%s.gate.json" % domain) if domain else None
+    if not path or not os.path.exists(path):
+        return set()
+    with open(path, encoding="utf-8") as f:
+        a2 = json.load(f)
+    return {t for g in (a2.get("gates") or []) if g.get("kind") == "confirm"
+            for t in (g.get("applies_to") or [])}
+
+
 def apply():
-    """E-PLAN 활성화 — T2_EPLAN=1 게이트. tau2 임포트는 여기서만(지연·모듈 로드 순수).
-    이번 단계(step c)는 결정론 로직만 실장 — live monkeypatch는 step d TODO."""
+    """E-PLAN 활성화(v1.3 step-d).
+    · L1/L2 discovery deny + 리마인더 소비 = t2_gate_patch.unified()에 배선됨(T2_EPLAN=1).
+    · CP5 walk(user_stop 보류 + 결정론 gap 리마인더) = 여기서 orchestrator wrap(T2_EPLAN_WALK=1).
+    tau2 임포트는 여기서만(지연·모듈 로드 순수)."""
     if os.environ.get("T2_EPLAN") != "1":
         return None
-    # 지연 임포트(오프라인 테스트 시 tau2 불필요·t2_gate_patch.apply() 패턴)
-    from tau2.orchestrator.orchestrator import BaseOrchestrator  # noqa: F401
-    _mark("apply(): step-c — 결정론 로직만 로드·live 배선 TODO(step d)")
-    # TODO(step d): 설계 §2 표 순서대로 —
-    #   ① Orchestrator initialize 후 첫 agent step 직전에 _cp0_seed 배선
-    #      (orch._eplan_ledger = PlanLedger(load_eplan_spec(env.domain_name))).
-    #   ② t2_gate_patch의 replay-safe deny+regen 검사 체인에 discovery_precondition 삽입
-    #      (write 시도만·intent_class는 A2 도출·deny도 생성-레벨 — 합성 ToolMessage 커밋 금지).
-    #   ③ gated() 성공 경로에 _observe_gated 배선(executed+listed+examined).
-    #   ④ _check_termination/is_stop 직전에 _cp5_walk 배선(기존 gate_patch와 독립 toggle 유지).
-    return None
+    _mark("apply(): ledger+L1/L2=unified 배선·walk=%s"
+          % ("ON" if os.environ.get("T2_EPLAN_WALK") == "1" else "off"))
+    if os.environ.get("T2_EPLAN_WALK") != "1":
+        return None
+
+    import tau2.orchestrator.orchestrator as _om
+
+    def _wrap(cls):
+        orig = cls.__dict__.get("_check_termination")
+        if orig is None or getattr(orig, "_t2_eplan_wrapped", False):
+            return
+        def wrapped(self, *a, _orig=orig, **kw):
+            r = _orig(self, *a, **kw)
+            try:
+                if not getattr(self, "done", False):
+                    return r
+                if "user_stop" not in str(getattr(self, "termination_reason", "")).lower():
+                    return r
+                if getattr(self, "_t2_eplan_walked", False):
+                    return r
+                dom = getattr(getattr(self, "environment", None), "domain_name", None)
+                spec = load_eplan_spec(dom)
+                if not spec:
+                    return r
+                wt = load_write_tools(dom)
+                msgs = self.get_messages() if hasattr(self, "get_messages") else []
+                led = build_ledger_from_messages(msgs, spec, wt)
+                n = led.required_qty()
+                m = len({e["entity"] for e in led.executed})
+                if n <= 1 or n <= m:
+                    return r  # gap 없음 = 개입 0 (R1b)
+                unexamined = sorted(led.listed - led.examined)
+                self._t2_eplan_walked = True
+                self.done = False
+                self.termination_reason = None
+                ag = getattr(self, "agent", None)
+                if ag is not None:
+                    ag._t2_eplan_reminder = cp5_gap_reminder(n, m, unexamined)
+                _mark("walk: user_stop 보류(1회)·reminder 세팅 n=%d m=%d" % (n, m))
+            except Exception as e:  # walk는 best-effort — 실패 시 종결 그대로
+                _mark("walk skipped: %r" % (e,))
+            return r
+        wrapped._t2_eplan_wrapped = True
+        cls._check_termination = wrapped
+
+    for _cls in list(vars(_om).values()):
+        if isinstance(_cls, type) and "_check_termination" in vars(_cls):
+            _wrap(_cls)
+    return True

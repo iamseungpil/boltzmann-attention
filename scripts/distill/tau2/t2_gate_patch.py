@@ -1314,12 +1314,33 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             transfer_sent = _regen_transfer_sent(state.messages, a2["_notice_text"])
         ctx = _ctx_from_messages(state.messages)
 
+        # ★E-PLAN v1.3 (T2_EPLAN=1): committed 히스토리서 결정론 ledger 재구성(관측만·[[10]])
+        #   discovery L1/L2 = read-강제 deny(§1.5 허용축)·CP5 리마인더 소비 = 생성-레벨(비커밋)
+        ep_led = ep_spec = _epmod = None
+        ep_writes = set()
+        if os.environ.get("T2_EPLAN") == "1" and a2 is not None and a2.get("eplan"):
+            try:
+                import t2_eplan_patch as _epmod
+                ep_spec = a2.get("eplan")
+                ep_writes = _confirm_write_tools(a2)
+                ep_led = _epmod.build_ledger_from_messages(state.messages, ep_spec, ep_writes)
+            except Exception as _e:
+                print("[T2_EPLAN] ledger build failed: %r" % (_e,), file=_sys.stderr, flush=True)
+                ep_led = None
+
         def bw():
             return [v for v in (self._t2_static_bl | self._t2_session_bl) if v.lower() not in ctx]
 
         work = list(state.messages)
+        _rem = getattr(self, "_t2_eplan_reminder", None)
+        if _rem:  # CP5 walk 리마인더(작업버퍼만·히스토리 비커밋 = 채널 절대규칙)
+            self._t2_eplan_reminder = None
+            try:
+                work = work + [UserMessage(role="user", content=_rem)]
+            except TypeError:
+                work = work + [UserMessage(content=_rem)]
         am = _gen(self, work, bw(), "agent_response")
-        gate_rounds = prov_rounds = 0
+        gate_rounds = prov_rounds = eplan_rounds = 0
         subs = 0
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
@@ -1356,7 +1377,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             do_gate = bool(denied) and gate_rounds < 1
             fab_covered = fab is not None and do_gate and id(fab[0]) in denied_by_objid
             do_prov = (fab is not None) and prov_rounds < max_prov_retries and not fab_covered
-            if not do_gate and not do_prov:
+            # ★E-PLAN discovery deny (L1/L2·read-강제만·무과금·상한 2)
+            ep_fb = None
+            if ep_led is not None and eplan_rounds < 2 and not do_gate and not do_prov:
+                for c in (am.tool_calls or []):
+                    nm = getattr(c, "name", None)
+                    if nm in ep_writes and id(c) not in denied_by_objid:
+                        try:
+                            fb = _epmod.discovery_precondition(ep_led, ep_spec, nm)
+                        except Exception:
+                            fb = None
+                        if fb:
+                            ep_fb = (c, fb)
+                            break
+            if not do_gate and not do_prov and ep_fb is None:
                 break
             main_prov = None
             if do_prov:
@@ -1373,6 +1407,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 gate_rounds += 1
                 self._t2_gate_rounds = getattr(self, "_t2_gate_rounds", 0) + 1
                 _budget_tick(self)  # ★게이트 라운드만 과금 (prov=무과금=C53 semantics)
+            if ep_fb is not None:
+                eplan_rounds += 1
+                self._t2_eplan_deny = getattr(self, "_t2_eplan_deny", 0) + 1
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -1380,6 +1417,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = f"Error: [POLICY GATE {gid}] {why}"
                 elif main_prov is not None and c is main_prov[0]:
                     content = main_prov[1]
+                elif ep_fb is not None and c is ep_fb[0]:
+                    content = "Error: " + ep_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
