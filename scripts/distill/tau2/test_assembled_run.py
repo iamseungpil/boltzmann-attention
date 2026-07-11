@@ -69,7 +69,7 @@ check("calc 주입이 파싱가능 'label: value'", facts and re.search(r"- avai
 # ─── A2 정합 (calc_specs·G7 로드·disjoint 동작) ───
 print("A2 정합:")
 a2 = load_domain_a2("retail")
-check("calc_specs 2개 로드", len(a2.get("calc_specs") or []) == 2)
+check("calc_specs 4개 로드(기존2 + CALC-EXT argmax/argmin 2)", len(a2.get("calc_specs") or []) == 4)
 check("G7_OP_CONSTRAINTS(disjoint) 로드", any(g.get("id") == "G7_OP_CONSTRAINTS" for g in a2["gates"]))
 gi_c = GateInterpreter([g for g in a2["gates"] if g.get("kind") == "constraints"])
 ok1, _, _ = gi_c.check("exchange_delivered_order_items", {"item_ids": ["x"], "new_item_ids": ["x"]})

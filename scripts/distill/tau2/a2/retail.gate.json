@@ -253,9 +253,30 @@
       "nested_field": "items",
       "item_field": "price",
       "label": "sum of current item prices in this order (USD)"
+    },
+    {
+      "trigger_tool": "get_product_details",
+      "op": "argmax_where",
+      "nested_field": "variants",
+      "cond_field": "available",
+      "cond_value": true,
+      "rank_field": "price",
+      "id_field": "item_id",
+      "label": "most expensive available variant"
+    },
+    {
+      "trigger_tool": "get_product_details",
+      "op": "argmin_where",
+      "nested_field": "variants",
+      "cond_field": "available",
+      "cond_value": true,
+      "rank_field": "price",
+      "id_field": "item_id",
+      "label": "cheapest available variant"
     }
   ],
   "_note_calc_specs": "calc_NL offload(계산/수치 NL 실패·~20%). engine compute_facts=general op{count_where·sum}만·경로(variants/available·items/price)=여기 retail 사실. flag=T2_CALC·report-conversion 측정. airline swap=다른 calc_specs. (refund-of-subset=operand 의존이라 미포함·available-count·order-total=깨끗.)",
+  "_note_calc_ext": "CALC-EXT(CENSUS_LEVERS_DESIGN_2026_07_11 §2a v1.1): argmax_where/argmin_where 스펙 2개 추가(표적 t20 최고가·t36/t37 최저가). 스키마=comp_retail_t4.gz 실데이터 확인(variants=dict-of-dict·available:bool·price:float·item_id). most_recent op는 엔진에 있으나 retail 스펙 미부착 — comp gz 456 sim 전수서 tool 출력에 날짜 필드 부재(t71은 이 op로 못 닫음). pairwise_diff_sum=v1.1서 notice 채널로 이동·calc 아님.",
   "producers": {
     "authenticated_user_record": {
       "tool": "get_user_details",

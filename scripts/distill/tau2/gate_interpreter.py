@@ -401,7 +401,10 @@ def nested_candidate_summary(output_record, spec):
 
 def compute_facts(record, specs):
     """REPLAY-SAFE 결정론 집계 주입(calc_NL offload·measurement arm): read record서 A2-spec aggregate 계산.
-    엔진=general op{count_where·count·sum·lookup}만·nested_field/cond_field/item_field=A2 calc_specs(retail 필드 0).
+    엔진=general op{count_where·count·sum·lookup·argmax_where·argmin_where·most_recent}만
+    ·nested_field/cond_field/item_field/rank_field/id_field/date_field=A2 calc_specs(retail 필드 0).
+    CALC-EXT(CENSUS_LEVERS_DESIGN_2026_07_11 §2a v1.1): argmax_where/argmin_where/most_recent 3종 추가
+    (pairwise_diff_sum은 v1.1 리뷰서 confirm-시점 notice 채널로 이동 — 여기 구현 안 함).
     모델이 *틀리는* 산술/집계(available 필터·총액)를 결정론 계산·주입 → 보고는 모델(report-conversion 측정).
     반환=주입 텍스트(파싱가능 'label: value' = report-conversion census 마커)·없으면 None."""
     if not isinstance(record, dict):
@@ -425,6 +428,38 @@ def compute_facts(record, specs):
                 val = round(sum(float(it.get(itf, 0)) for it in items if isinstance(it, dict)), 2)
             except (TypeError, ValueError):
                 val = None
+        elif op in ("argmax_where", "argmin_where") and items is not None:
+            # CALC-EXT: cond_field==cond_value 후보 중 rank_field 최대/최소 원소(동률=전부 나열).
+            # 전 필드명=A2 spec 인자(도메인일반). cond_field 생략 시 무필터.
+            cf, cv = sp.get("cond_field"), sp.get("cond_value")
+            rk = sp.get("rank_field")
+            idf = sp.get("id_field", "id")
+            ranked = []
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                if cf is not None and it.get(cf) != cv:
+                    continue
+                try:
+                    ranked.append((float(it.get(rk)), it))
+                except (TypeError, ValueError):
+                    continue
+            if ranked:
+                best = (max if op == "argmax_where" else min)(r[0] for r in ranked)
+                val = "; ".join(f"{idf}={it.get(idf)} ({rk}={it.get(rk)})"
+                                for r, it in ranked if r == best)
+        elif op == "most_recent" and items is not None:
+            # CALC-EXT: date_field(문자열 정렬가능 날짜) 최대 원소의 id_field(동률=전부 나열).
+            # ⚠ retail A2엔 스펙 미부착 — comp gz 456 sim 전수서 어떤 tool 출력에도 날짜 필드 부재
+            #   (calcext_offline_census.py로 확인) → 트리거 불가. op 자체는 도메인일반으로 유지.
+            df = sp.get("date_field")
+            idf = sp.get("id_field", "id")
+            dated = [(str(it.get(df)), it) for it in items
+                     if isinstance(it, dict) and it.get(df) is not None]
+            if dated:
+                best = max(d for d, _ in dated)
+                val = "; ".join(f"{idf}={it.get(idf)} ({df}={d})"
+                                for d, it in dated if d == best)
         elif op == "lookup":
             val = record.get(sp.get("field"))
         if val is not None:
