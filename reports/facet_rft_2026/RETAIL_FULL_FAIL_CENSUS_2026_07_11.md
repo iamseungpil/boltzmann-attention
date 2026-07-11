@@ -56,13 +56,14 @@ t3(옵션 개수 count) t19 t24 t40(gift-card 적용 가능답) t46 t47 t95-tr2(
 t76 tr1 reason enum(C28 하네스 노이즈) · FLAKY 52 task 질량의 상당수=C60 paraphrase-brittleness(개별 수리 아니라 robust-레버로) · B클래스 semantic 절반 = P3 경계.
 
 ## 3. 복구 라우팅 (레버 → 커버 sims 추정·구현 순서)
+> **★설계 구체화 완료(2026-07-11)**: 행 2~7의 설계 명세 = **`CENSUS_LEVERS_DESIGN_2026_07_11`**(§1 GROUND-VERBATIM·§2 CALC-EXT+relay-gap 분리·§3 EXCLUSIVITY/NOTICE·§4 DISAMB-ADDR·§5 B-잔여·§6 단계B 편입) + **`E_PLAN_LIVE_WIRING_DESIGN`**(v1.2·A클래스+D-미조회분).
 
 | # | 레버 | 클래스 | 표적 sims(대략) | 상태 | 비용 |
 |---|---|---|---|---|---|
 | 1 | ~~게이트 deny-피드백 수정/cooldown~~ → **철회**(§4·3/3 정독 반증: 게이트는 옳게 차단·근인은 상류) | H | — (deny 마커는 진단용으로만) | 철회 | — |
 | 2 | **COMP+D-v2 = T5-C silent 스택**(P-A/P-B/P-C/P2) | E·F(일부) | disamb-도달 63 중 상당분 + t61형 | 구현완료·단계 B 대기 | 사이클 nt=1 |
 | 3 | **GROUND 확장(원문-치환·address)** | F | t17·t39형(≈7) | V0 화이트리스트 재검증 | 무료 |
-| 4 | **calc/formalize 확장**(argmax/filter/attr-lookup + NL count/총액) | C·G | ≈25–30 | A2 스펙 설계 필요 | 무료 구현 |
+| 4 | **calc/formalize 확장**(argmax/most_recent/diff_sum) — ⚠️**후속 실측 정정**: t3 4-trial 프로브서 기존 calc **4/4 정확 발화**·실패는 **relay-gap**(전달 누락 2/4)+write-loss(1/4) ⇒ G의 절반은 calc로 못 닫음·"≈25–30" 과대추정 | C·G-compute | C≈15 + G-compute≈6 (relay분 제외) | `CENSUS_LEVERS_DESIGN §2` | 무료 구현 |
 | 5 | **E-PLAN**(discovery+coverage-walk) | A | MISSED+ZERO 52 중 멀티엔티티분(≈20) | 설계 v1.1 완료·구현 착수 | 무료 구현 |
 | 6 | **L3 feasibility**(반품∧교환 배타 등) | B(t27형) | ≈5 | ENDGAME L3 설계 있음 | 무료 구현 |
 | 7 | 대화-precondition controller/ASK | B(잔여) | ≈12 | ENDGAME R1 [D] | 설계 필요 |

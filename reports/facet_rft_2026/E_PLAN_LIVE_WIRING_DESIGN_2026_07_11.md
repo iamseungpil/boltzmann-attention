@@ -21,6 +21,7 @@
 - `FIXABLE_FAIL_CENSUS §1`: **⋈-missed(멀티엔티티 미완) ~11건** = 결정론 fixable 최대 조각.
 - **정본 대표 = t95** (`T5C_SILENT_REPAIR_DESIGN §13` + **v1.2 8-trial 전수 재실측**·[M]): 2주문 exchange 미완이나 **실패 형상은 두 가지가 반반** — ⓐ **미조회-gap**(COMP tr1/tr3: `#W2905754` details 미조회·둘째 laptop 미발견) ⓑ **binding-gap**(COMP tr0/tr2: **두 gold 주문 details 다 읽고도** 한 주문에 item_id 중복 시도 = 읽기≠조립). `get_user_details`(목록)는 **8/8 기호출**. floor는 3/4 통과. ⇒ 레버도 두 갈래: ⓐ=detail-read 강제, ⓑ=stop-time 재-plan walk(§1). **주의: t95는 NL-calc(총액) 이중결손**(v25e tr2: 두 write 성공·db=True·reward 0) → **E-PLAN GO 판정은 db_match로**(reward 단독 금지·`RETAIL_FULL_FAIL_CENSUS §5`).
 - retail·**banking 공통**: banking REACH 결손(MISS_P_reach 24~48%·C52) + "완주-후-불일치 45%"(단계별 결과기록 부재·C52) 동일 처방.
+- **(v1.2·C64 교차) D클래스 미조회-원천분도 L2 표적**: "주소는 내 주문 중 하나에 있다"(t86-tr2 "unable to locate"=정답 미조회 시사) = 미검토 sibling 신호 → L2 detail-read 강제가 관할. 문맥-실재분은 DISAMB-주소(`CENSUS_LEVERS_DESIGN §4`)·분해는 그쪽 V0가 확정.
 
 **왜 silent-repair로 못 닫나** (사용자 질문·§13 정본):
 - silent = write의 *인자값*을 제자리 치환. t95는 *없는 write* → 고칠 인자가 없음.
@@ -141,7 +142,7 @@ coverage_gap() -> list:   # ★v1.2: CP5서 replan 기준으로 diff (CP0 planne
 |---|---|---|---|
 | (c) 단위 | `test_eplan.py`: ledger/coverage_gap/**expand_scope**/discovery_**L1·L2** 순수로직 (tau2-stub·오프라인) | 무료 | ALL PASS |
 | (c) 오프라인 replay | 기존 `plan_execute_orch --replay`로 controller 정규화 무회귀 확인 | 무료 | pre/post 무변 |
-| (d) 격리 검증 | 표적 실 궤적에 격리 주입 (32B 로컬·유료런과 GPU 경합 회피). 확인항목: ①USER_STOP 후 walk 시 user-sim이 재관여하나(sim instruction에 둘째 주문 의도 有→기대 합리·실측 필요) ②잔여 step < walk 소요면 walk 스킵 가드 ③CP5 리마인더 문구 A/B(id 명시 vs 개수만 — C43 재료 여부) **④(v1.2) L2 술어가 t95 tr1/tr3형(미검토 sibling)서 발화하고 tr0/tr2형(전부 검토)선 침묵하는지 — 술어 특이도** **⑤(v1.2) stop-time 재-plan이 t95 전문맥(양 주문 details+‘두 대’ 계시 포함)서 2-exchange plan을 내는지 = C14 정보-맞춤 재검증** | 무료 | ④⑤ 통과 = 두 형상 각각의 레버 유효 |
+| (d) 격리 검증 | 표적 실 궤적에 격리 주입 (32B 로컬·유료런과 GPU 경합 회피). 확인항목: ①USER_STOP 후 walk 시 user-sim이 재관여하나(sim instruction에 둘째 주문 의도 有→기대 합리·실측 필요) ②잔여 step < walk 소요면 walk 스킵 가드 ③CP5 리마인더 문구 A/B(id 명시 vs 개수만 — C43 재료 여부) **④(v1.2) L2 술어가 t95 tr1/tr3형(미검토 sibling)서 발화하고 tr0/tr2형(전부 검토)선 침묵하는지 — 술어 특이도** **⑤(v1.2) stop-time 재-plan이 t95 전문맥(양 주문 details+‘두 대’ 계시 포함)서 2-exchange plan을 내는지 = C14 정보-맞춤 재검증** **⑥(C64-G 프로브·스코프 밖 사전조사) 재-plan이 write-의무 외 communicate-의무("답해야 할 질문")도 안정 추출하는지 — t3형 relay-gap(`CENSUS_LEVERS_DESIGN §2b`)의 CP5-확장 타당성 판단용·측정만** | 무료 | ④⑤ 통과 = 두 형상 각각의 레버 유효 |
 | (e) 표적 nt=1 | C64 A클래스(t41·t76·t81·t95·t100·t102·t103·t111) × nt=1 사이클(§0b 프로토콜) | 소액(승인) | per-case 복구(**t95는 db_match 기준**·NL-calc 병발 분리) ∧ Δspurious≤0 ∧ Δtme≤0 |
 | full | 별도 456 (루프 아키텍처 변경·**합산 금지**·`§CP5`) | 유료(승인) | GO 조건(아래) |
 
