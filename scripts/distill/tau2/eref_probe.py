@@ -368,11 +368,60 @@ def call_server(base, model, prompt, timeout=240):
     return out["choices"][0]["message"]["content"]
 
 
+# ─────────────────────── V2 오염 축 (직접실행·2026-07-11) ───────────────────────
+# R1(clean)=1.00 기준에 소음 주입. gold 불변·bind/answer는 기존 score() 그대로.
+# 구현 축: C(문맥-부하·Context-Rot) · A(후보-distractor 밀도·C43 정박치환).
+# 유보: B(key-토큰 부재 패러프레이즈=상품별 표현 필요) · D(실궤적 replay=comp 추출) — 별도 spec.
+def _pad_text(rng, nchars, prods):
+    """무관 catalog JSON을 nchars까지 — 부하 주입(내용은 결정과 무관·field 이름 회피)."""
+    pids = list(prods.keys())
+    buf = []
+    tot = 0
+    while tot < nchars:
+        pid = pids[rng.randrange(len(pids))]
+        blob = json.dumps({"unrelated_catalog_entry": pid,
+                           "info": prods[pid].get("name", "item")}, ensure_ascii=False)
+        buf.append(blob)
+        tot += len(blob)
+    return "\n".join(buf)
+
+
+def build_case_v2(sc, idx, prods, axis, level):
+    """P1(1-hop·clean 1.00) 기반 + 축별 소음. base = build_case(P1)."""
+    base = build_case(sc, "P1", idx, prods)
+    rng = random.Random(hash((sc["pid"], sc["key"], axis, level)) & 0xFFFFFFFF)
+    p = base["prompt"]
+    if axis == "C":  # 문맥-부하: 후보 리스트 앞에 무관 텍스트 level자 삽입
+        pad = _pad_text(rng, level, prods)
+        p = p.replace("=== Candidate records",
+                      "=== Unrelated context (ignore) ===\n" + pad
+                      + "\n\n=== Candidate records", 1)
+    elif axis == "A":  # 후보-distractor 밀도: 다른 상품 변형을 가짜 후보로 level개 주입
+        others = [pp for pp in prods if pp != sc["pid"]]
+        extra = []
+        for _ in range(level):
+            op = others[rng.randrange(len(others))]
+            ov = prods[op]["variants"]
+            if not ov:
+                continue
+            vid, v = list(ov.items())[rng.randrange(len(ov))]
+            extra.append("- %s   | record: %s" % (vid, json.dumps(v, ensure_ascii=False)))
+        if extra:  # 후보 블록 끝(선택 지시 앞)에 삽입
+            p = p.replace("\n\nThe agent must now choose",
+                          "\n" + "\n".join(extra) + "\n\nThe agent must now choose", 1)
+    base["prompt"] = p
+    base["axis"] = axis
+    base["level"] = level
+    return base
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gz", required=True)
     ap.add_argument("--n", type=int, default=36)
     ap.add_argument("--cells", default="P0,P1,P2")
+    ap.add_argument("--v2", default=None,
+                    help="오염 사다리: 'C:2000,8000,20000' or 'A:2,5,10' (axis:levels)")
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--out", default=None)
     ap.add_argument("--base", default="http://localhost:8140/v1")
@@ -382,8 +431,20 @@ def main():
     prods = load_products(a.gz)
     scens = build_scenarios(prods, n_target=a.n)
     cells = [c.strip() for c in a.cells.split(",") if c.strip()]
-    print("products=%d paired-scenarios=%d cells=%s" % (len(prods), len(scens), cells), flush=True)
-    cases = [build_case(sc, cell, i, prods) for i, sc in enumerate(scens) for cell in cells]
+    if a.v2:  # V2 오염 사다리 — R1(P1 clean) + 축별 level 사다리
+        axis, lv = a.v2.split(":")
+        levels = [int(x) for x in lv.split(",")]
+        cases = ([build_case(sc, "P1", i, prods) for i, sc in enumerate(scens)]  # level 0 = clean
+                 + [build_case_v2(sc, i, prods, axis, L)
+                    for L in levels for i, sc in enumerate(scens)])
+        for c in cases:
+            c.setdefault("axis", axis)
+            c.setdefault("level", 0)
+        print("V2 axis=%s levels=[0]+%s n/level=%d total=%d"
+              % (axis, levels, len(scens), len(cases)), flush=True)
+    else:
+        print("products=%d paired-scenarios=%d cells=%s" % (len(prods), len(scens), cells), flush=True)
+        cases = [build_case(sc, cell, i, prods) for i, sc in enumerate(scens) for cell in cells]
     if a.dry:
         if a.out:
             with open(a.out, "w", encoding="utf-8") as f:
@@ -418,6 +479,22 @@ def main():
         with open(a.out, "w", encoding="utf-8") as f:
             for r in rows:
                 f.write(json.dumps(r, ensure_ascii=False, default=str) + "\n")
+    # V2 사다리 집계 (level별 낙폭)
+    if a.v2:
+        axis = a.v2.split(":")[0]
+        print("\n== E-REF V2 오염 사다리 (axis=%s·R1=level0 기준) ==" % axis)
+        print("level    n   parse  bind   fullEM answer")
+        bylv = {}
+        for r in rows:
+            bylv.setdefault(r.get("level", 0), []).append(r)
+        for L in sorted(bylv):
+            rs = bylv[L]
+            n = len(rs)
+            f = lambda k: sum(1 for r in rs if r.get(k)) / n
+            print("%-8s %3d   %.2f   %.2f   %.2f   %.2f"
+                  % (L, n, f("parsed"), f("bind"), f("em"), f("answer")))
+        print("★bind 낙폭 = 소음이 참조-바인딩을 부수는가 (부수면 scaffold/scale/learn 축 갈림)")
+        return
     # 집계
     print("\n== E-REF V1 집계 (채점-정규화 후 / strict 병기) ==")
     hdr = "cell  n   parse  op    field cons  fullEM bind  answer | EMstrict"
