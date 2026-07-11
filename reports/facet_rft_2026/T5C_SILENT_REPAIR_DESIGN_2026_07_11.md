@@ -237,3 +237,29 @@ content 동일-치환 옵션 · N8 V0에 spurious-이동 항(§7 반영) · N9 o
 
 **리뷰어 판정**: P-A/P-B = B1·B2·B4 반영 후 GO / P-C = B3 해소로 부활(V3 arm 포함 여부는 V1 후 확정)
 / V0 = B5 반영 전 화이트리스트 입력으로 사용 불가.
+
+## §10. 최종 리뷰 반영 (rev3 · 2026-07-11 · 사용자 "새 실험에 추가" 지시)
+
+> 맥락 정정: 사용자가 **중단한 것은 naive COMP+D**(게이트6종+calc/nested+prov+disamb·7/456서 정지)이고,
+> "재개"의 대상은 그 **개선판**이다. rev2의 `routerv2`(게이트 없는 prov+disamb)는 이 목표와 불일치.
+
+### R-α (헤드라인 재정의·블로킹) — 새 실험 = **COMP+D-v2**, routerv2는 격리 ablation로 강등
+- **COMP+D-v2** = 전체 unified 스택 + **silent** prov/disamb: `T2_GATE_REGEN=1 T2_GATE_KINDS=<§R-β> T2_PRESENT_NESTED=1 T2_CALC=1 T2_PROV_REGEN=1 T2_PROV_MODE=rescue T2_GROUND=1 T2_DISAMB=1 T2_DISAMB_MODE=subcall`.
+- **비교 기준선 = C62 COMP(reward .634/.480/.382/.316·db .665/../.375·위반0)** — prov(.577) 아님.
+  합성 GO질문 = "silent DISAMB/prov가 게이트 위 COMP에 **순증**하나(p1↑) ∧ **p4 비퇴행**(≥.316, silent가 naive의 재생성분산 제거)".
+- ⇒ **P-A/P-B/P-C의 unified 분기 이식이 이번 범위**(rev2 §6.4 "후속용" 철회). §6.1~6.3 로직은 prov-disamb 분기와 동일·unified의 `unified()` 함수에 동형 배치. routerv2(게이트 무)는 **budget 허용 시에만** 격리 ablation(silent가 게이트와 독립임을 증명·기준선 routerv1/C60).
+- 근거: 사용자가 정지한 것이 COMP+D·C62가 COMP까지만 측정(DISAMB 미측정)·retail-pass 최종 산출물은 COMP+D.
+
+### R-β (게이트 부작용·보정) — COMP+D-v2에서 `constraints` kind 제외
+- C62 Δspurious 후보 **t95**(floor 3/4→COMP 0/4) = `constraints`(equal_len) 게이트 over-steer(gold=2주문 각1item 교환인데 steer가 1주문 중복 유도). retail.gate.json G7 `_note` 자인: "env가 이미 강제=env-mirror·false-block 0" ⇒ **결과적으로 redundant인데 1건 유해**.
+- 처방: COMP+D-v2 kinds = `auth,confirm,ownership,notice,preconditions`(**constraints 제외**). env가 disjoint/equal_len 여전히 집행(정확성 무손실·[[13]] scaffold 감소). V3 per-case서 t95 회복 확인 = 이 판단의 검정. (constraints steer의 순이득은 미측정이나 유일 측정치가 유해라 제외가 보수적.)
+
+### R-γ (계측·정합) — V3 GO 기준선·per-case를 C62로 재정박
+- V3 GO(§7 갱신): **p1 ≥ COMP .634 ∧ p4 ≥ COMP .316 ∧ Δspurious ≤ 0 ∧ no-write ≤ floor(12) ∧ 위반0 유지(compliant=bench)** + per-case **t95 복구(constraints 제외 효과)·t61 4/4 유지·t46/47 write-loss 복구·t17 4/4 유지**.
+- routerv2 ablation(선택)은 rev2 §7 기준(vs prov .577/.281) 유지 — silent 기전의 게이트-독립 증명용.
+- **불변**: V0(무료)·V1(무료)은 R-α와 무관하게 rev2대로 선행(서브콜 per-type 정답·replay-clean 단위). V0 통과 타입만 `disamb_sub_args` 등재는 그대로.
+
+### 리뷰 잔여(비블로킹·기록)
+- N10: 서브콜이 same-32B라 E-ISO C-정확도(ITEMS .44)가 상한 — 오답 치환은 V0 보수임계+"불일치 시만" 가드로 억제하나 gold∉C(3.7%)서 잔여 spurious 가능(§8-①과 동일·수용). N11: COMP+D-v2는 calc/nested 포함이라 서브콜 문맥 전사에 calc 주입텍스트([COMPUTED FACTS]) 혼입 가능 → N5 필터에 `[COMPUTED FACTS]`·`[OPERAND DISAMBIGUATION]`·`[DISAMBIGUATION NOTE]` 마커 추가(silent 서브콜은 augment-전 원문만 봐야). N12: routerv1(C60)은 naive DISAMB 버그 포함 수치 → C60 인용 시 "버그-포함" 명기(수정판과 비교 금지).
+
+**rev3 판정**: R-α/R-β/R-γ 반영 시 새 실험 = **COMP+D-v2 단일 V3 arm**(headline) + routerv2(optional ablation). 구현 범위 = §6.1~6.3 로직의 prov-disamb·**unified 양 분기**(R-α) + N11 필터 + kinds 조정(R-β). V0/V1 무료 선행 후 V3 승인.
