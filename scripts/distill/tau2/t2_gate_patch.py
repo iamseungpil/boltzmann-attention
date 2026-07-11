@@ -1377,9 +1377,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             do_gate = bool(denied) and gate_rounds < 1
             fab_covered = fab is not None and do_gate and id(fab[0]) in denied_by_objid
             do_prov = (fab is not None) and prov_rounds < max_prov_retries and not fab_covered
-            # ★E-PLAN discovery deny (L1/L2·read-강제만·무과금·상한 2)
+            # ★E-PLAN discovery deny (L1/L2·read-강제만·무과금·상한 = 턴당 2 + ★sim당 T2_EPLAN_DENY_CAP)
+            # ★sim-cap 근거(A′ t5c_aprime1 t103/t27 포렌식·2026-07-11): eplan_rounds는 턴-로컬이라
+            #   모델이 deny 피드백에 불응(텍스트-사과 커밋)하면 매 턴 ledger가 동일 재구성 → 동일 L2
+            #   deny 무한 반복(무과금=too_many_errors 탈출로도 없음) → t103 max_steps(200)·t27 유저 포기.
+            #   read-강제는 sim당 유한 예산으로 — 소진 후엔 write 통과(env/gold 판정에 맡김·개입 최소).
             ep_fb = None
-            if ep_led is not None and eplan_rounds < 2 and not do_gate and not do_prov:
+            _ep_cap = int(os.environ.get("T2_EPLAN_DENY_CAP", "4"))
+            if (ep_led is not None and eplan_rounds < 2 and not do_gate and not do_prov
+                    and getattr(self, "_t2_eplan_deny", 0) < _ep_cap):
                 for c in (am.tool_calls or []):
                     nm = getattr(c, "name", None)
                     if nm in ep_writes and id(c) not in denied_by_objid:
@@ -1410,6 +1416,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if ep_fb is not None:
                 eplan_rounds += 1
                 self._t2_eplan_deny = getattr(self, "_t2_eplan_deny", 0) + 1
+                if self._t2_eplan_deny == _ep_cap:  # 관측 마커(sim당 1회): 이후 discovery deny 중단
+                    print("[T2_EPLAN] deny cap %d reached — no further discovery denies this sim"
+                          % _ep_cap, file=_sys.stderr, flush=True)
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:

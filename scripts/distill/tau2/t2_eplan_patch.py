@@ -62,6 +62,54 @@ _QTY_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
 _QTY_DIGIT_RE = re.compile(r"\b([1-9]|10)\b")
 _QTY_WORD_RE = re.compile(r"\b(%s)\b" % "|".join(_QTY_WORDS), re.I)
 
+# ── 품목-나열 힌트 (A′ t81 교정·2026-07-11) — 도메인일반 *구문* 신호(어휘 0·[[05]]) ──
+# 근거(t5c_aprime1 t81 정독): 사용자가 상품명 6개를 나열("the hiking boots, watch,
+# keyboard, charger, jacket, and running shoes")했으나 수사/수량어 0 → qty=1 →
+# L1/L2/walk 전부 침묵 → 두 주문 중 하나만 cancel(두번째 주문 미검토). 나열 자체가
+# 멀티엔티티 신호인데 소사전이 못 봄.
+# 술어(보수적·나열>=3만): 한 문장 안에서 쉼표/and 로 구분된 세그먼트 중
+#   digit-free·1~4단어·순수 알파벳(상품명-류) 세그먼트의 *연속 run* 이 distinct >=3.
+#   — 주소류("921 Park Avenue, Suite 892, Chicago, IL 60612")는 digit 세그먼트가
+#     run 을 끊어 미발화 / 2-나열("a bookshelf and a jigsaw")= 미달 → 미발화.
+_ENUM_MIN = 3
+_ENUM_LEAD_RE = re.compile(
+    r"^(?:the|a|an|my|your|his|her|our|their|some|this|that|these|those)\s+", re.I)
+_ENUM_WORD_RE = re.compile(r"^[A-Za-z][A-Za-z\-']*$")
+# 담화 filler(닫힌 기능어류·도메인 어휘 아님): "Oh, um, yes, please" 같은 간투사 체인이
+# 나열로 오인되는 것 차단(comp_retail_t4 4443발화 census서 확인된 유일 대량 FP류).
+# filler-만 세그먼트 = 구분자 취급(skip·run 유지 — 실제 나열 사이 간투사는 무해).
+_ENUM_FILLERS = {
+    "oh", "um", "uh", "er", "ah", "hmm", "hm", "well", "okay", "ok", "alright",
+    "yes", "yeah", "yep", "no", "nope", "please", "sure", "right", "thanks",
+    "thank you", "hi", "hello", "hey", "wow", "so", "now", "also", "again",
+    "actually", "honestly", "sorry", "great", "perfect", "fine", "correct",
+    "exactly", "absolutely", "definitely", "of course", "got it", "i see",
+    "you know", "let me see", "let's see", "wait", "anyway", "then", "too"}
+
+
+def _enum_items(text):
+    """발화 1건서 최대 나열 run 길이(distinct). >=_ENUM_MIN 일 때만 그 값, 아니면 0."""
+    if not text:
+        return 0
+    best = 0
+    for sent in re.split(r"[.!?;:\n]+", str(text)):
+        if sent.count(",") < 2:          # 쉼표 2개 미만 = 3-나열 불가(보수)
+            continue
+        run, best_run = set(), 0
+        for seg in re.split(r",|\band\b", sent, flags=re.I):
+            s = _ENUM_LEAD_RE.sub("", seg.strip())
+            if not s or s.lower() in _ENUM_FILLERS:
+                continue                 # ", and" 아티팩트·간투사 = 구분자(run 유지)
+            w = s.split()
+            if 1 <= len(w) <= 4 and all(_ENUM_WORD_RE.match(x) for x in w):
+                run.add(s.lower())
+            else:                        # digit/장문 세그먼트 = run 절단(주소·문장 보호)
+                best_run = max(best_run, len(run))
+                run = set()
+        best_run = max(best_run, len(run))
+        best = max(best, best_run)
+    return best if best >= _ENUM_MIN else 0
+
 
 def is_scope_token(v):
     return isinstance(v, str) and bool(_SCOPE_RE.match(v.strip()))
@@ -133,6 +181,7 @@ class PlanLedger:
         self.examined = set()           # detail-reader 호출 기록 (v1.2)
         self.replan = []                # CP5 stop-time 재-plan 산출 (v1.2)
         self.qty_mentioned = 1          # 사용자 발화 누적 수량(최대값 유지)
+        self.enum_items = 0             # 품목-나열 힌트: 최대 나열 길이(>= _ENUM_MIN만·t81)
 
     # CP0: plan-spec 정규화 결과를 seed
     def seed(self, planned):
@@ -164,10 +213,18 @@ class PlanLedger:
 
     def accumulate_qty(self, user_text):
         """사용자 발화의 수량 언급 누적 — 최대값 유지("실은 두 대" 중반 계시 반영·v1.2).
-        수량 신호 없으면 불변(단수 관사로 하향 안 함)."""
+        수량 신호 없으면 불변(단수 관사로 하향 안 함). 품목-나열 힌트도 여기서 누적(t81)."""
         q = _parse_qty(user_text)
         if q > self.qty_mentioned:
             self.qty_mentioned = q
+        e = _enum_items(user_text)
+        if e > self.enum_items:
+            self.enum_items = e
+
+    @property
+    def multi_entity_hint(self):
+        """품목-나열(>=3) 관측 여부 — L1/walk 의 멀티엔티티 조건에 OR (L2/required_qty 불변)."""
+        return self.enum_items >= _ENUM_MIN
 
     def set_replan(self, writes):
         """CP5 stop-time 재-plan 산출 기록(+마커)."""
@@ -197,9 +254,25 @@ def expand_scope(writes, listed):
 
 
 def discovery_L1(ledger):
-    """목록-수준(t81형): 멀티엔티티 의도(SCOPE_TOKEN 또는 수량>=2) ∧ 목록 미조회."""
+    """목록-수준(t81형): 멀티엔티티 의도(SCOPE_TOKEN 또는 수량>=2 또는 품목-나열>=3)
+    ∧ 목록 미조회. 나열 힌트 OR = A′ t81 교정(수량어 없는 6-품목 나열)."""
     has_tok = any(is_scope_token(p.get("entity")) for p in ledger.planned)
-    return (has_tok or ledger.required_qty() >= 2) and not ledger.listed
+    return ((has_tok or ledger.required_qty() >= 2
+             or getattr(ledger, "multi_entity_hint", False))
+            and not ledger.listed)
+
+
+def walk_required_n(ledger, unexamined):
+    """CP5 walk 의 요구수량 N. 기본 = required_qty(qty-소사전). 품목-나열 힌트는
+    *미검토 sibling 존재 시에만* N에 기여(t81 시그니처 = 나열 + 안 읽은 주문 잔존).
+    보수 근거(comp_retail_t4 456-sim census·2026-07-11): 무조건 기여 시 신규 walk 11건 중
+    reward=1.0 sim 5건이 spurious — 그 5건 전부 unexamined=0, 실패 t81류는 전부 >=1
+    → 이 조건이 passing-sim 과발화를 0으로 만들고 표적은 전부 보존.
+    L2 는 불변(required_qty 그대로) — 나열=품목 수·L2 의 M=레코드 수라 conflation 방지."""
+    n = ledger.required_qty()
+    if unexamined:
+        n = max(n, getattr(ledger, "enum_items", 0))
+    return n
 
 
 def discovery_L2(ledger, intent_class):
@@ -426,11 +499,11 @@ def apply():
                 wt = load_write_tools(dom)
                 msgs = self.get_messages() if hasattr(self, "get_messages") else []
                 led = build_ledger_from_messages(msgs, spec, wt)
-                n = led.required_qty()
+                unexamined = sorted(led.listed - led.examined)
+                n = walk_required_n(led, unexamined)  # 나열 힌트 OR (t81·미검토 있을 때만)
                 m = len({e["entity"] for e in led.executed})
                 if n <= 1 or n <= m:
                     return r  # gap 없음 = 개입 0 (R1b)
-                unexamined = sorted(led.listed - led.examined)
                 self._t2_eplan_walked = True
                 self.done = False
                 self.termination_reason = None

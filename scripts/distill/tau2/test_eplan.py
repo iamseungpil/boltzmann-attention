@@ -12,7 +12,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from t2_eplan_patch import (  # noqa: E402
     PlanLedger, expand_scope, discovery_L1, discovery_L2, coverage_gap,
-    is_scope_token, load_eplan_spec, _covers, discovery_precondition)
+    is_scope_token, load_eplan_spec, _covers, discovery_precondition,
+    _enum_items, walk_required_n)
 
 # 가짜 A2 eplan spec — 엔진이 도구명 하드코딩 0([[05]])임을 도구명 자체로 검증
 SPEC = {"list_enumerator": "list_tool", "detail_reader": "detail_tool", "entity_key": "eid"}
@@ -143,6 +144,40 @@ ok(nr2.listed == {"#W7"}, "note_read: entity_key 중첩 dict 형태도 수집")
 nr3 = PlanLedger(SPEC)
 nr3.note_read("list_tool", {}, "not-json output")
 ok(nr3.listed == set(), "note_read: 비JSON 출력 → 안전측(무갱신)")
+
+# ── 6b. 품목-나열 힌트 (A′ t81 교정·도메인일반 구문 신호) ────────────────────
+T81 = ("But I can tell you which items I don't need anymore: the hiking boots, "
+       "watch, keyboard, charger, jacket, and running shoes.")
+ok(_enum_items(T81) == 6, "나열: t81 실발화 6-품목 나열 → 6")
+ok(_enum_items("I need to cancel and return a bookshelf and a jigsaw I got") == 0,
+   "나열: 2-품목(and만·쉼표 0) → 미발화(보수)")
+ok(_enum_items("Yes, that's the right address—921 Park Avenue, Suite 892, "
+               "Chicago, IL 60612.") == 0,
+   "나열: 주소(digit 세그먼트가 run 절단) → 미발화")
+ok(_enum_items("please make sure the refund is done within 3 days, not 5 to 7") == 0,
+   "나열: 날짜/수치 문구 → 미발화")
+ok(_enum_items("") == 0 and _enum_items(None) == 0, "나열: 빈 입력 → 0")
+ok(_enum_items("I want the hose, backpack, and hiking boots") == 3,
+   "나열: 3-품목(쉼표 2 + and) → 3 (하한 경계)")
+en = PlanLedger(SPEC)
+en.accumulate_qty(T81)
+ok(en.qty_mentioned == 1, "나열 힌트는 qty-소사전 불변(L2 conflation 방지)")
+ok(en.multi_entity_hint is True and en.enum_items == 6, "ledger가 나열 힌트 누적")
+ok(discovery_L1(en) is True, "L1: 수량어 0이어도 나열>=3 ∧ listed 비면 True")
+en.listed = {"W1"}
+ok(discovery_L1(en) is False, "L1: listed 차면 나열 힌트 있어도 False")
+ok(discovery_L2(en, "item_change") == [], "L2: 나열 힌트에 불변(qty=1 → 침묵 유지)")
+ok(walk_required_n(en, ["W2"]) == 6,
+   "walk N: 나열 + 미검토 sibling 존재 → 6 (t81 stop-time walk 발화)")
+ok(walk_required_n(en, []) == 1,
+   "walk N: 미검토 없으면 나열 힌트 무기여(passing-sim 과발화 0·census 근거)")
+en2 = PlanLedger(SPEC)
+en2.accumulate_qty("just a laptop")
+ok(walk_required_n(en2, ["W2"]) == 1, "walk N: 힌트 없으면 기존 required_qty 그대로")
+ok(_enum_items("Oh, um, yes, please. I'd like to change it.") == 0,
+   "나열: 간투사 체인(filler) → 미발화")
+ok(_enum_items("Oh, um, the hiking boots, watch, and keyboard please") == 3,
+   "나열: 간투사 섞인 실나열 → filler skip 후 3")
 
 # ── 7. 경계 ─────────────────────────────────────────────────────────────────
 eb = PlanLedger(SPEC)                                   # qty=1 → L2 침묵
