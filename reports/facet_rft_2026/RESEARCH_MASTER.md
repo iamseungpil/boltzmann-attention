@@ -264,6 +264,7 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 | **★E6′** | **gather 학습 — 데이터 v3 재설계 先** (D7 근접오답+음성사례+on-policy+발명형 rejected · **★+C60 신규 표적: paraphrase-invariance** — 등가-표현 변주에 동일 결정 감독. C38과 달리 **재현 가능**: 실 궤적 user-발화 패러프레이즈 증강 + 4-trial pass/fail 분기=자연 대조쌍. [[00-thesis]] 도메인-일반 스킬 전형·P4 실증 축) | C7 · **C38: cfbsynth가 결손 재현 못함**(미확립) · C60 표현-민감 잔여 | 큼 | **▶ 데이터 게이트 통과 前 착수 금지** |
 | ~~E10~~ | 정책-precondition 게이트 | C25 over-action +9 | — | ❌ **NO-GO**(C50·무료 격리검증: P1 over-block>TP·P2 환경집행 redundant·불가능성=대화 semantic·게이트 아님) |
 | **E-ASK** | **ASK 위계 R1**(호출가능성·GET-chain·DISAMBIGUATE) | C48 · clarification 벤치서만 R0≠R1 | 무료 | ▶ ToolDial/airline 필요 |
+| **E-XGRAMMAR** | **디코드-시점 제약 채널(f)**(xgrammar guided decoding·현 스택 미포함=전 개입이 생성-후) — 1차 표적: banking 도구명 날조 61 sims(유한집합 스키마 제약·ASK 불필요=위험 최소·`BANKING_FLOOR_LEVER_FIT`) / 값-수준(문맥-실재 열거)은 **ASK/null 분기 필수**(§1.5 abstain 봉쇄 위험·C48 위계·C58 통계-디폴트 동형 경계) 설계 후. 배선=tau2→litellm per-call extra_body | 채널-분화 제3실증(판정 동일·채널 상이)·특허 실시예 축(taxonomy 부록 X) | 무료 구현 | **[D] 등재만(2026-07-11 사용자 지시)·스택 동결 — S4/S5 후 검토** |
 | ~~E1′~~ | 격리 formalize 서브콜 | C23: F2 −4·payoff 작음 | — | **하향**(우선순위 낮음) |
 | ~~E1~~ | 완결/persistence 게이트 | C32: 짝맞춤 Δ=0 | — | **[M] 게이트 이득 미확인**(소표본) |
 | **E3** | F3 경계 full-agent | C3b **[S]부분** | 무료 | ✅ 완료 |
