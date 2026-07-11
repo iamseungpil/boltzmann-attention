@@ -177,7 +177,13 @@ def scan_sim(sim, write_tools):
             try:
                 tool_jsons.append(json.loads(c))
             except Exception:
-                pass
+                # lenient: nested/calc augment가 JSON 뒤에 텍스트를 붙임(v25e류 arm)
+                # → 선행 JSON만 raw_decode로 구제 (t2_gate_patch lenient 동기·no_match 과대 방지)
+                try:
+                    obj, _ = json.JSONDecoder().raw_decode(c.lstrip())
+                    tool_jsons.append(obj)
+                except Exception:
+                    pass
     return events, ctx_parts, tool_jsons
 
 
