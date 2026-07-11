@@ -282,6 +282,24 @@ content 동일-치환 옵션 · N8 V0에 spurious-이동 항(§7 반영) · N9 o
 3. **범위 밖 잔여 2건**: t61 payment(⋈ 경계·V0가 제외 정당화)·t95 2-order 조율(COMP도 실패·능력축).
 4. ⇒ **단계 B(표적13 nt1 사이클) 진입 가능** — t17 수정 반영·t95/t61은 "silent 무관 잔여"로 분리 계측.
 
+## §13. t61·t95 per-step 재분해 — "범위 밖" 정정: 둘 다 경계 아님 (2026-07-11 · [M]·floor 대조)
+> 사용자 지시("해결법 없나·per-step 재확인"). floor(둘 다 통과)와 결정점 대조.
+
+### t61 = **원리-디폴트 payment (결정가능·경계 아님)** — 정정
+- 주문 #W5061109 tool출력의 payment id = **paypal_3742148 하나**(=gold). 우리가 쓴 `gift_card_3406421`은 **사용자 계정**(get_user_details) 목록서 옴. 사용자는 payment **미언급**(단지 "가격 같거나 낮게·차액 환불").
+- ⇒ 규칙: **refund/modify payment = 주문 원결제**(사용자 명시 override 없으면). **decidable**(order 조회→payment 필드·§1.5 Q1). C58 실측: 원리디폴트 .940 vs LLM .38.
+- DISAMB 미개입은 옳음(payment=규칙이지 열거-선택 아님·V0 net−1 정당) — **단 "경계"가 아니라 *다른 레버 필요***.
+- ★**처방 = P2 원리-디폴트 검증기**(silent·§3e P2=ENDGAME L3): write 시 payment_method_id ∉ {주문 원결제, 사용자 명시값} → **원결제로 제자리 치환**. A2-표현(resolver_path=[order_id, get_order_details, payment_method_id]·preconditions와 동형·[[05]] 통과)·decidable·silent(턴불파기). **미구현·즉시 구현 가능.**
+
+### t95 = **coverage/discovery (부하·경계 아님)**
+- gold = **2주문 각 별도 exchange**(#W2905754·#W4073673). 에이전트는 한 주문(#W4073673)만 찾고 그 안 item을 `[2216...,2216...]` **중복복제**해 2대 표현 시도→env-ERR→transfer 포기.
+- = **둘째 주문 미발견 coverage/reach 실패**. ★constraints 게이트 **미발화**(disjoint/equal_len 통과)=env가 중복 직접거부 ⇒ **C62 "constraints over-steer" 가설 t95엔 오귀속·정정**.
+- ★처방 = **E-PLAN coverage walk**(대상 item 포함 주문 전수 발견→주문당 1write·ENDGAME L4). 부하-레버·더 크나 경계 아님. silent-repair 범위 밖(별도 레버).
+
+### ★종합 정정
+- **§12의 "범위 밖 잔여 2건(⋈ 경계)"은 부정확** — 둘 다 경계 아님: **t61=decidable(P2 값싼 즉시)·t95=부하(E-PLAN 큰 레버)**. 진짜 ⋈ 경계는 이 6표적엔 없음.
+- silent 스택에 **P2 추가 권고**(t61형 원리-디폴트·payment WRONG_PAYMENT 8건 census 겸용·C58 .940). t95는 E-ENDGAME L4로 라우팅.
+
 ## §11. V0·V1 실측 결과 (2026-07-11 · 무료)
 - **V0 (화이트리스트 검증·`t5c_v0_whitelist.py`·c51 400행)**: arg-type별 A_ok(orig 근사)→B_ok(서브콜 근사) fix/break —
   **item 129fix/3break net+126 CI-lo .935 = GO** / order 2/2 net0·payment 3fix/4break **net−1**(서브콜이 해침) = **제외 정당**(E-ISO ③ id-열거 역효과 재확인). ⇒ **`disamb_sub_args=["item"]` 검증 통과**(key-token "item"이 item_ids+new_item_ids 커버·변경 불요). spurious(break) 1.2%.
