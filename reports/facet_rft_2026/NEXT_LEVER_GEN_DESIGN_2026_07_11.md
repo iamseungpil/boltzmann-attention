@@ -252,7 +252,7 @@ if kind == "notice":
 - **★V0 실측 판정 (설계-GO를 덮음)**:
   - 레버1 NL-NUM-PROV: t47 재현 ✓·over-fire 44.3% → **기본 off·표적 실측으로만 재론**.
   - 레버2 NOTICE-PERGATE: **엔진 per-gate화 편입 GO**(456/456 동일성·banking 2nd-notice 전이 선행조건). **G8 자체는 over-block 16.6%>2% → A2 미부착** ⇒ t57은 차세대로도 미폐쇄(정직 잔여).
-  - 레버3 FORMALIZE-EXEC: **full-EM 0.00**(op/field 0.68·cons 0 — cons 채점 규약 재검 여지 있으나 게이트 불통과) + P-B 좌석 shadowing(표적 결정점 0/34) → **미편입**.
+  - 레버3 FORMALIZE-EXEC: ~~**full-EM 0.00**(op/field 0.68·cons 0)~~ **[폐기 — 채점버그(손작성 단일-gold)]**. **실행-채점 재판정**(`fexec_exec_probe.py`·E_REF_BOUNDARY_DESIGN §0a·2026-07-11): tau2 gold new_item_id 실행-대조 = **exec-correct 0.79**(변형-선택 클래스 87)·**0.88**(target t20/37/79). 형식화는 대체로 gold를 냄(무제약 argmax/argmin 0.86~0.92·잔여=constrained 0.73). ⇒ V0 게이트 판정은 **실행-채점으로 대체**(구 EM 미편입 근거 무효). P-B 좌석 shadowing(표적 결정점 0/34)은 별도 라이브-편입 이슈로 잔존.
   - 레버4 formalize-obligation: **structured 재-plan = raw와 동일**(t95 0/4·t81 1/4) → **미편입·CP5 결정론 1차 재확증**(3중).
 - aprime2 4/10(t81=나열힌트 직격 회복)·B(b78c2·78 task) 발사됨.
 

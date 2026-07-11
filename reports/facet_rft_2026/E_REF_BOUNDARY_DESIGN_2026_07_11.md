@@ -26,6 +26,37 @@ E-REF는 이 셋을 분리한다: **(1)은 strict/normalized 이중 채점**으�
 **(3)은 hop 수 통제(P0/P1/P2)**로 격리한다. 오늘 V0의 "cons 0%"가 규약+잡음이면 P0(정규화 후)는 높아야 하고,
 바인딩이 진짜 결손이면 P0→P1/P2 낙폭으로 나타난다. → **§2b 실측이 판정.**
 
+> **⚠️ §0 수치(full-EM 0.00·cons 0.00) 폐기 — 채점버그였음(2026-07-11 확정).** 아래 §0a가 근거.
+> 구 `fexec_iso_probe.py`는 **태스크당 손작성 단일-gold**(`GOLD[tid]["cons_fields"]`)로 전 결정점을
+> field-집합 EM 채점 — t20은 4품목이 각각 다른 size 값(신발=9·나머지=무제약)을 요구하는데 하나의
+> gold로 뭉갰고, t37 gold `{price}`·availability 암묵제약은 미반영. per-case 정독(n2 88% 실패 =
+> **gold-깨짐 44% + 애매 32% + 진짜실패 12%**)로 확정. **그 EM 수치(0.00·n2 12%) 전량 폐기.**
+
+### §0a. 실행-기반 재판정 — §0 (1)의 in-vivo 확증 [M] (`fexec_exec_probe.py`·2026-07-11)
+
+손작성 gold를 **완전 제거**한 실행-채점으로 §0 문제를 in-vivo 재측정. 각 결정점 = tau2
+`evaluation_criteria`의 변형-선택 write action(`modify/exchange_..._items(item_ids=[a..],
+new_item_ids=[A..])`)의 위치쌍 (a→A). old item a의 product 변형(카탈로그·**available 우주** =
+tau2 환경규칙: 미가용 변형으로는 교체 불가·도메인일반) 위에서 모델 형식화 spec을 실행 →
+결과 == {A}이면 **exec-correct**. gold(A)는 tau2 action서 직접·손작성 0. `execute_spec`/`norm_field`/
+`parse_spec`는 `eref_probe`에서 재사용. 프롬프트 = 실 comp 궤적(write 직전 문맥)+`FORMALIZE_SYS`.
+
+**결과 (32B·Qwen2.5-32B-Int8·`sim_results/fexec_exec_{all,target}_32b.jsonl`):**
+
+| 셋 | n | parse | **exec-correct[avail]** | exec-correct[all] | empty-cons |
+|---|---|---|---|---|---|
+| **target (t20·t37·t79)** | 8 | 1.00 | **0.88** (7/8) | 0.75 | 0.75 |
+| **변형-선택 클래스 전수** | 87 | 0.99 | **0.79** | 0.74 | 0.16 |
+
+- 태스크별: t20 **1.00**(4/4)·t37 **1.00**(3/3)·t79 **0.00**(1건). exec_status[avail]: ok 76·unresolvable 6·empty 2·none 2·parse-fail 1.
+- ref_op(자동-도출·손작성 0)별: **무제약 argmax 0.92**(n=13)·**argmin 0.86**(n=22)·**constrained(deixis/교차레코드 제약 필요) 0.73**(n=52).
+- **[[08]] 포렌식(8 target 전건 정독 + census)**: ① 8건 전부 이상 spec으로 gold 유일-재현 검증(solvable) — 채점기 자체는 정상. ② t79 유일 실패 = **교차-레코드 참조-바인딩 오류**(gold=다른 1L병 색=red인데 모델이 old 500ml병 색 black으로 오해·op=filter는 맞음) — 채점버그 아닌 진짜 형식화 결손. ③ 품목-지시 프롬프트 실림 87/87.
+
+**판독**: §0 (1) **확증** — 구 "cons 0.00"은 능력 결손이 아니라 채점-규약/손작성-gold 아티팩트였다
+(§2b clean 세팅의 0.90 하한과 정합). in-vivo 32B는 변형-선택 형식화를 **0.79** 해결(무제약 랭킹은
+0.86–0.92로 거의 닫힘). 잔여 = **constrained 0.73** = 문맥-의존 제약 추출(deixis·교차레코드) — E-REF
+P0/P1/P2·V2가 격리하려는 바로 그 축이며, FORMALIZE-EXEC 재상정의 실제 병목이 여기임을 확인.
+
 ## §1. 문제의 형식화 (이론 골자 · 논문 §2 후보)
 
 ### §1.1 분해 q = f(g(X))
