@@ -264,6 +264,24 @@ content 동일-치환 옵션 · N8 V0에 spurious-이동 항(§7 반영) · N9 o
 - 각 사이클 종료 = 즉시 영속(distinct tag `..._cN`)·per-case 검사·중단 가능. V3(§7)의 "full 456×nt4"는 **폐기** → C+D로 대체.
 - 병합: 같은 config nt=1 사이클 N개를 (task,trial) union → 공식 compute_metrics pass^1..N.
 
+## §12. V2.5b 6-표적 전수 궤적 포렌식 — 원인 확정 (2026-07-11 · [M]·per-case·nt=1 단일trial 노이즈 주의)
+> `t5c_v25_forensic.py`. gold write vs v25b write vs floor/COMP(nt4) 패턴 대조.
+
+| 표적 | 기전 | v25b(nt1) | floor/COMP(nt4) | **원인 확정 판정** |
+|---|---|---|---|---|
+| **t0** | 무회귀 | gold-정확 exchange·pass | fl3/4·COMP4/4 | ✅ **무회귀 확인**(silent가 정상 pass 안 깸) |
+| **t47** | write-loss | write 복구·gold정확·pass | fl4/4·COMP3/4 | ✅ **fix#1 작동**(write 소멸 해소) |
+| **t40** | P-C no-write | write [ok]·**db=True**·reward0 | fl0/4·COMP2/4 | ✅ **P-C 부작용 없음** — 실패는 **NL judge축**(db 정답·직교·gift카드 설명 부재) |
+| **t61** | silent-DISAMB | item switch 정확·**payment 오답**(gift vs paypal) | fl4/4·COMP2/4 | ◐ **설계대로**: payment=화이트리스트 제외(V0 net−1)라 DISAMB 미개입·**부작용 없음**·payment는 사정거리 밖(⋈ 경계) |
+| **t17** | 날조유지 | **no-write**(회귀) | fl0/4(write하나 오답)·COMP3/4 pass | ✗→✅**원인확정=`REGEN_FEEDBACK_NEUTRAL` 과교정**: 중립화가 priming(필드예시)뿐 아니라 **getter-호출 지시까지 약화**+"user가 말한 것" 탈출구 추가 → 조회 대신 되묻기 루프→no-write. **silent 핵심 아님·문구 수정**(getter-호출 강명령 복원·필드예시만 제거·V1 회귀0) |
+| **t95** | constraints | 2-order 병합·item 중복·**env-ERR**·transfer포기 | fl3/4·**COMP0/4** | ✗ **미해결·but silent 표적 아님**: 2-order exchange 조율 실패(두 주문을 한 콜에 중복 병합)·COMP도 0/4·constraints 단독원인 아님(env가 ERR)·별도 능력축 |
+
+**★종합 판정**:
+1. **silent 핵심 기전 = 부작용 0 확정**: write-loss 복구(t47)·P-C no-write 부재(t40 db정답)·silent-DISAMB 클린(t61 item정확·payment 불개입). **Δspurious=0**(정답 write를 오답으로 뒤집은 케이스 0).
+2. **회귀 1건(t17) = 문구 과교정**(핵심 기전 무결)→ **수정 완료**(REGEN_FEEDBACK_NEUTRAL getter-지시 복원).
+3. **범위 밖 잔여 2건**: t61 payment(⋈ 경계·V0가 제외 정당화)·t95 2-order 조율(COMP도 실패·능력축).
+4. ⇒ **단계 B(표적13 nt1 사이클) 진입 가능** — t17 수정 반영·t95/t61은 "silent 무관 잔여"로 분리 계측.
+
 ## §11. V0·V1 실측 결과 (2026-07-11 · 무료)
 - **V0 (화이트리스트 검증·`t5c_v0_whitelist.py`·c51 400행)**: arg-type별 A_ok(orig 근사)→B_ok(서브콜 근사) fix/break —
   **item 129fix/3break net+126 CI-lo .935 = GO** / order 2/2 net0·payment 3fix/4break **net−1**(서브콜이 해침) = **제외 정당**(E-ISO ③ id-열거 역효과 재확인). ⇒ **`disamb_sub_args=["item"]` 검증 통과**(key-token "item"이 item_ids+new_item_ids 커버·변경 불요). spurious(break) 1.2%.

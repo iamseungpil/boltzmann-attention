@@ -383,9 +383,12 @@ REGEN_FEEDBACK = (
 
 # T5-C 스펙#2 (prov_mode=rescue 전용): 예시 나열 제거 — 나열 자체가 프라이밍([[42]] 동형·t61형 오도 [P])
 REGEN_FEEDBACK_NEUTRAL = (
+    # ★V2.5 t17 교정(2026-07-11): 중립화가 priming(필드 예시)뿐 아니라 *getter-호출 지시*까지
+    #   약화 → 에이전트가 조회 대신 사용자에게 되물어 no-write(회귀). 필드 예시만 제거하고
+    #   "getter 도구를 *호출*해 그 출력에서 읽어라"는 행동 지시는 강하게 유지(사용자-되묻기 탈출구 삭제).
     "Error: [PROVENANCE] argument '{k}'='{s}' was not provided by the user nor returned by any tool "
-    "— it looks invented. Do NOT use placeholder/example values. Obtain the real value from a lookup "
-    "tool output or from what the user explicitly said, then emit a corrected tool call."
+    "— it looks invented. Do NOT use placeholder/example values. Call the lookup/getter tool that "
+    "produces this value and read the real value from its output, then emit a corrected tool call."
 )
 
 
