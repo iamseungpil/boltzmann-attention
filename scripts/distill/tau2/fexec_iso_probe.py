@@ -158,15 +158,31 @@ def decision_points(sim, write_tools, hints=("item",)):
     return pts
 
 
-def em_score(spec, gold):
-    """분해 EM: op / field / constraints field-집합."""
+def _cf_norm(field, strip_prefix=False):
+    """제약 필드명 정규화 — E-REF 규약(접두 무시). strip_prefix면 마지막 . 뒤만."""
+    s = str(field).strip().lower()
+    if strip_prefix and "." in s:
+        s = s.rsplit(".", 1)[-1]  # options.size -> size
+    return s
+
+
+def em_score(spec, gold, mode="strict"):
+    """분해 EM: op / field / constraints field-집합.
+    mode: strict(원판) / n1(접두 제거만) / n2(접두 제거 + availability don't-care).
+    ★n1/n2는 손튜닝 승리 회피 위해 병기 — n2는 '탈락 원인이 available 암묵제약뿐인가'를
+      격리(deictic 제약 필드만 대조). 셋 다 리포트."""
     if spec is None:
         return {"op": False, "field": False, "cons": False, "em": False}
     op_ok = spec["op"] == gold["op"]
     f_ok = (spec.get("field") or None) == gold["field"] or \
         (gold["field"] is None and not spec.get("field"))
-    got_cf = {str(c["field"]).strip().lower() for c in spec.get("constraints") or []}
-    cons_ok = got_cf == {f.lower() for f in gold["cons_fields"]}
+    strip = mode in ("n1", "n2")
+    got_cf = {_cf_norm(c["field"], strip) for c in spec.get("constraints") or []}
+    gold_cf = {f.lower() for f in gold["cons_fields"]}
+    if mode == "n2":  # availability(암묵 실행-디폴트)를 양쪽서 제거 → deictic 제약만
+        got_cf = got_cf - {"available", "availability", "in_stock"}
+        gold_cf = gold_cf - {"available", "availability", "in_stock"}
+    cons_ok = got_cf == gold_cf
     return {"op": op_ok, "field": f_ok, "cons": cons_ok, "em": op_ok and f_ok and cons_ok}
 
 
@@ -230,8 +246,9 @@ def main():
                     f.write(json.dumps(c, ensure_ascii=False, default=list) + "\n")
             print("[dry] %d case(s) → %s (32B 서버 가용 시 --dry 없이 재실행=EM 실측)" % (len(cases), a.out))
         return
-    # 실측 (서버 필요)
-    agg = {"n": 0, "op": 0, "field": 0, "cons": 0, "em": 0}
+    # 실측 (서버 필요) — strict/n1/n2 3규약 병기(E-REF 후속·채점-아티팩트 격리)
+    MODES = ("strict", "n1", "n2")
+    agg = {m: {"n": 0, "op": 0, "field": 0, "cons": 0, "em": 0} for m in MODES}
     for c in cases:
         try:
             ans = call_server(a.base, a.model, c["prompt"])
@@ -239,18 +256,23 @@ def main():
             print("  t%s tr%s: SERVER_ERR %s" % (c["task"], c["trial"], type(e).__name__))
             continue
         spec = FX.parse_formalize(ans)
-        sc = em_score(spec, c["gold"]) if c["gold"] else {}
-        agg["n"] += 1
-        for kk in ("op", "field", "cons", "em"):
-            agg[kk] += bool(sc.get(kk))
-        print("  t%s tr%s arg=%s: spec=%s | EM %s"
+        scs = {m: (em_score(spec, c["gold"], m) if c["gold"] else {}) for m in MODES}
+        for m in MODES:
+            agg[m]["n"] += 1
+            for kk in ("op", "field", "cons", "em"):
+                agg[m][kk] += bool(scs[m].get(kk))
+        print("  t%s tr%s arg=%s: spec=%s | strict-em=%s n1-cons=%s n2-em=%s"
               % (c["task"], c["trial"], c["arg"],
-                 json.dumps(spec, ensure_ascii=False, default=str) if spec else "UNSURE", sc))
-    if agg["n"]:
-        print("\nEM 집계: n=%d op=%.2f field=%.2f cons=%.2f full-EM=%.2f"
-              % (agg["n"], agg["op"] / agg["n"], agg["field"] / agg["n"],
-                 agg["cons"] / agg["n"], agg["em"] / agg["n"]))
-        print("V0 게이트: full-EM 낮으면 스택 미편입(C23 재발 방지·§2.6)")
+                 json.dumps(spec, ensure_ascii=False, default=str) if spec else "UNSURE",
+                 scs["strict"].get("em"), scs["n1"].get("cons"), scs["n2"].get("em")))
+    for m in MODES:
+        if agg[m]["n"]:
+            g = agg[m]
+            print("[%s] n=%d op=%.2f field=%.2f cons=%.2f full-EM=%.2f"
+                  % (m, g["n"], g["op"] / g["n"], g["field"] / g["n"],
+                     g["cons"] / g["n"], g["em"] / g["n"]))
+    print("V0 게이트: strict full-EM 낮으면 스택 미편입(C23·§2.6). "
+          "n2(접두+availability 정규화)가 높으면 = 채점-아티팩트 지배(E-REF 정합).")
 
 
 if __name__ == "__main__":
