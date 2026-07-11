@@ -124,6 +124,16 @@ def _context_text(orch):
     return " ".join(parts).lower()
 
 
+def _ctx_has(s, ctx):
+    """값 s의 ctx-매칭 (PROV-RESCUE-PERARG ②: id '#'-접두 정규화).
+    '#W8665881' vs ctx의 'w8665881'(사용자 발화) = 접두 불일치 거짓양성 fab(t17 1차 방아쇠) →
+    '#' 접두만 벗겨 재매칭. 정규화는 '#' 하나에 한정(과잉 정규화 금지)·strip 후에도 4자 이상일 때만."""
+    if s.lower() in ctx:
+        return True
+    t = s.lstrip("#")
+    return t != s and len(t) >= 4 and t.lower() in ctx
+
+
 def _provenance_deny(tc, ctx, hints=DEFAULT_ARG_HINTS):
     """identifying 인자값이 컨텍스트에 없으면 fabricated → (gate, reason) 반환, 아니면 None."""
     args = _args_dict(tc)
@@ -136,7 +146,7 @@ def _provenance_deny(tc, ctx, hints=DEFAULT_ARG_HINTS):
             s = str(val).strip()
             if len(s) < 4:
                 continue
-            if s.lower() not in ctx:
+            if not _ctx_has(s, ctx):
                 return ("PROVENANCE_R1B",
                         f"argument '{k}'='{s}' was not provided by the user nor returned by any tool — it looks invented "
                         "(possibly copied from a schema example value). Do NOT call any tool with a guessed/placeholder value. "
@@ -402,16 +412,21 @@ def _ctx_from_messages(msgs):
     return " ".join(parts).lower()
 
 
-def _first_fab_call(am, ctx, hints=DEFAULT_ARG_HINTS):
-    """am.tool_calls 중 첫 날조 호출 (tc, k, s) 또는 None."""
+def _first_fab_call(am, ctx, hints=DEFAULT_ARG_HINTS, exclude=frozenset()):
+    """am.tool_calls 중 첫 날조 (tc, k, s) 또는 None.
+    exclude (PROV-RESCUE-PERARG ①): rescue-스킵된 (id(tc), k, s) 집합 — 해당 인자만 건너뛰고
+    같은 호출의 다음 fab 인자·다음 호출을 계속 스캔 (구현: per-call 첫 인자 반환+break의 입도 구멍 봉합)."""
     for tc in (getattr(am, "tool_calls", None) or []):
-        if _provenance_deny(tc, ctx, hints):
-            for k, v in _args_dict(tc).items():
-                for val in _flatten(v):
-                    s = str(val).strip()
-                    if any(h in k.lower() for h in hints) and len(s) >= 4 and s.lower() not in ctx:
-                        return (tc, k, s)
-            return (tc, "?", "?")
+        for k, v in _args_dict(tc).items():
+            if not any(h in k.lower() for h in hints):
+                continue
+            for val in _flatten(v):
+                s = str(val).strip()
+                if len(s) < 4 or _ctx_has(s, ctx):
+                    continue
+                if (id(tc), k, s) in exclude:
+                    continue
+                return (tc, k, s)
     return None
 
 
@@ -862,10 +877,11 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
         am = _gen(self, work, bw(), "agent_response")
         n = 0
         subs = 0
+        rescue_skipped = set()  # PROV-RESCUE-PERARG ①: (id(tc), k, s) — rescue 개별 pass-through
         while n < max_retries:
-            fab = _first_fab_call(am, ctx, hints)
+            fab = _first_fab_call(am, ctx, hints, exclude=rescue_skipped)
             if fab is None:
-                break
+                break  # 잔여 fab 없음 or 전부 rescue-스킵일 때만 탈출 (구 break 의미 보존)
             tc, k, s = fab
 
             if ground and subs < 8:
@@ -882,10 +898,14 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                     _sig(s) in ("hashid", "numid") and \
                     not _in_error_loop(state.messages, getattr(tc, "name", None)):
                 # P-C: env-검증형 id 날조는 개입 생략(환경이 거부=C61 H-D 100% 중복) — 에러-루프 시만 개입
+                # ★PROV-RESCUE-PERARG ①(2026-07-11 t17): 구 break=regen 루프 전체 탈출 → 같은 호출의
+                #   자유텍스트 fab(address1류)이 미검사. per-arg 스킵 후 continue로 다음 fab 계속 스캔.
+                #   exclude가 재방문 차단 → 카운터·마커는 스킵당 1회. n 미증가(rescue 무과금·현행 보존).
+                rescue_skipped.add((id(tc), k, s))
                 self._t2_prov_skipped_envdup = getattr(self, "_t2_prov_skipped_envdup", 0) + 1
                 print("[T2_PROV] rescue pass-through tool=%s arg=%s val=%s"
                       % (getattr(tc, "name", "?"), k, s), file=sys.stderr, flush=True)
-                break
+                continue
 
             n += 1
             self._t2_session_bl.add(s)
@@ -1302,8 +1322,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         gate_rounds = prov_rounds = 0
         subs = 0
         rescue_skipped = set()
+        rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
         while True:
-            fab = _first_fab_call(am, ctx, hints)
+            fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl)
             # ★T5-C P-A (N1: _denied_calls 前 — 게이트 check는 상태-변이라 버려질 반복서 소진 금지)
             if fab is not None and ground and subs < 8:
                 gtc, gk, gs = fab
@@ -1314,8 +1335,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     print("[T2_GROUND] substituted arg=%s val=%s -> %s" % (gk, gs, gcands[0]),
                           file=_sys.stderr, flush=True)
                     continue  # 치환값은 문맥-실재 → 다음 반복서 fab 해소·게이트가 최종 인자를 검사
-            # ★T5-C P-C: env-검증형 id 날조 = 개입 생략(env가 거부·C61 H-D) — 게이트 검사는 그대로 진행
-            if fab is not None and prov_mode == "rescue":
+            # ★T5-C P-C + PERARG(C65): env-검증형 id 날조 = *개별* 스킵 후 다음 fab 재스캔
+            #   (구: fab=None → 같은 호출의 둘째 자유텍스트 fab[t17 address1]이 영영 미검사)
+            while fab is not None and prov_mode == "rescue":
                 rtc, rk, rs = fab
                 if (_key_tokens(rk) & env_args) and _sig(rs) in ("hashid", "numid") \
                         and not _in_error_loop(state.messages, getattr(rtc, "name", None)):
@@ -1325,7 +1347,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         self._t2_prov_skipped_envdup = getattr(self, "_t2_prov_skipped_envdup", 0) + 1
                         print("[T2_PROV] rescue pass-through tool=%s arg=%s val=%s" % rkey,
                               file=_sys.stderr, flush=True)
-                    fab = None
+                    rescue_excl.add((id(rtc), rk, rs))
+                    fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl)
+                else:
+                    break
             denied = _denied_calls(am, gate, last_user, transfer_sent) if gate is not None else []
             denied_by_objid = {id(tc): (gid, why) for tc, gid, why in denied}
             do_gate = bool(denied) and gate_rounds < 1
