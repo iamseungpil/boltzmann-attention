@@ -251,6 +251,19 @@ content 동일-치환 옵션 · N8 V0에 spurious-이동 항(§7 반영) · N9 o
 **리뷰어 판정**: P-A/P-B = B1·B2·B4 반영 후 GO / P-C = B3 해소로 부활(V3 arm 포함 여부는 V1 후 확정)
 / V0 = B5 반영 전 화이트리스트 입력으로 사용 불가.
 
+## §7c. ★단계적 nt=1-사이클 프로토콜 (사용자 지시 2026-07-11 · 비용 규율·표준)
+> 배경: 어제부터 nt=4 전체를 한 번에 돌려 실패-대기로 비용 폭증. ⇒ **nt≥2를 한 번에 절대 금지·항상 nt=1 사이클 누적·사이클마다 검사**. 실패 손실이 한 사이클(≤456 sims)로 제한.
+
+| 단계 | 규모 | 통과 게이트 → 다음 |
+|---|---|---|
+| **A** (진행중·`t5c_v25b`) | 기전 대표 **6 sim nt=1**(t0/17/40/47/61/95) | 6개 전부 부작용 없이 해소(per-case 궤적) |
+| **B** | 표적 13 × **nt=1 사이클 4회**(≠nt4-한방·사이클마다 검사) | 표적 robust 복구·Δspurious 0·no-write≤floor |
+| **C** | 456 전체 × **nt=1 사이클 1** | pass 방향(≥COMP p1 .634 근사)·위반0·crash0 |
+| **D+** | 456 nt=1 **사이클 추가**(2→3→4)·task-단위 병합 → pass^1,2,3,4 | 사이클마다 중단 판단(누적 pass^k 추세) |
+
+- 각 사이클 종료 = 즉시 영속(distinct tag `..._cN`)·per-case 검사·중단 가능. V3(§7)의 "full 456×nt4"는 **폐기** → C+D로 대체.
+- 병합: 같은 config nt=1 사이클 N개를 (task,trial) union → 공식 compute_metrics pass^1..N.
+
 ## §11. V0·V1 실측 결과 (2026-07-11 · 무료)
 - **V0 (화이트리스트 검증·`t5c_v0_whitelist.py`·c51 400행)**: arg-type별 A_ok(orig 근사)→B_ok(서브콜 근사) fix/break —
   **item 129fix/3break net+126 CI-lo .935 = GO** / order 2/2 net0·payment 3fix/4break **net−1**(서브콜이 해침) = **제외 정당**(E-ISO ③ id-열거 역효과 재확인). ⇒ **`disamb_sub_args=["item"]` 검증 통과**(key-token "item"이 item_ids+new_item_ids 커버·변경 불요). spurious(break) 1.2%.
