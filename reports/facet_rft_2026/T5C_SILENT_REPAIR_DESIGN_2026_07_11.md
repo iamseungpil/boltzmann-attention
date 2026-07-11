@@ -251,6 +251,12 @@ content 동일-치환 옵션 · N8 V0에 spurious-이동 항(§7 반영) · N9 o
 **리뷰어 판정**: P-A/P-B = B1·B2·B4 반영 후 GO / P-C = B3 해소로 부활(V3 arm 포함 여부는 V1 후 확정)
 / V0 = B5 반영 전 화이트리스트 입력으로 사용 불가.
 
+## §11. V0·V1 실측 결과 (2026-07-11 · 무료)
+- **V0 (화이트리스트 검증·`t5c_v0_whitelist.py`·c51 400행)**: arg-type별 A_ok(orig 근사)→B_ok(서브콜 근사) fix/break —
+  **item 129fix/3break net+126 CI-lo .935 = GO** / order 2/2 net0·payment 3fix/4break **net−1**(서브콜이 해침) = **제외 정당**(E-ISO ③ id-열거 역효과 재확인). ⇒ **`disamb_sub_args=["item"]` 검증 통과**(key-token "item"이 item_ids+new_item_ids 커버·변경 불요). spurious(break) 1.2%.
+- **V1 (단위테스트·`test_t5c_silent.py` 48 checks + 회귀)**: **ALL PASS**. ★코드 버그 1건 수정: unified P-B의 게이트-revert가 switch-무관 기존 deny까지 되돌려 좋은 switch 손실 → **switch-*유발*分만 복원**으로 정정(pre/post deny 비교). U5 축퇴 테스트도 well-pose.
+- ⇒ **V2.5(표적 복구·유료 소액) 진입 조건 충족.**
+
 ## §10. 최종 리뷰 반영 (rev3 · 2026-07-11 · 사용자 "새 실험에 추가" 지시)
 
 > 맥락 정정: 사용자가 **중단한 것은 naive COMP+D**(게이트6종+calc/nested+prov+disamb·7/456서 정지)이고,
@@ -263,9 +269,10 @@ content 동일-치환 옵션 · N8 V0에 spurious-이동 항(§7 반영) · N9 o
 - ⇒ **P-A/P-B/P-C의 unified 분기 이식이 이번 범위**(rev2 §6.4 "후속용" 철회). §6.1~6.3 로직은 prov-disamb 분기와 동일·unified의 `unified()` 함수에 동형 배치. routerv2(게이트 무)는 **budget 허용 시에만** 격리 ablation(silent가 게이트와 독립임을 증명·기준선 routerv1/C60).
 - 근거: 사용자가 정지한 것이 COMP+D·C62가 COMP까지만 측정(DISAMB 미측정)·retail-pass 최종 산출물은 COMP+D.
 
-### R-β (게이트 부작용·보정) — COMP+D-v2에서 `constraints` kind 제외
-- C62 Δspurious 후보 **t95**(floor 3/4→COMP 0/4) = `constraints`(equal_len) 게이트 over-steer(gold=2주문 각1item 교환인데 steer가 1주문 중복 유도). retail.gate.json G7 `_note` 자인: "env가 이미 강제=env-mirror·false-block 0" ⇒ **결과적으로 redundant인데 1건 유해**.
-- 처방: COMP+D-v2 kinds = `auth,confirm,ownership,notice,preconditions`(**constraints 제외**). env가 disjoint/equal_len 여전히 집행(정확성 무손실·[[13]] scaffold 감소). V3 per-case서 t95 회복 확인 = 이 판단의 검정. (constraints steer의 순이득은 미측정이나 유일 측정치가 유해라 제외가 보수적.)
+### R-β (게이트 부작용) — ★rev4 정정: constraints **유지**, t95는 V2.5 실측으로 결정
+- C62 Δspurious 후보 **t95**(floor 3/4→COMP 0/4) = `constraints`(equal_len) steer over-steer(gold=2주문 각1item 교환인데 steer가 1주문 중복 유도).
+- ★**V1 발견(2026-07-11)**: constraints(disjoint)는 **P-B 서브콜의 축퇴 스위치(item→new_item 자기교환)를 revert하는 안전장치**(U3/U5 실증). ⇒ 미리 드롭하면 서브콜 안전성 손실. C62 over-steer 1건으로 드롭은 과잉.
+- 처방 정정: COMP+D-v2 kinds = **`auth,confirm,ownership,notice,preconditions,constraints`(유지)**. **t95를 V2.5 표적에 포함**해 실측 — COMP+D-v2(silent)서도 constraints가 t95를 over-steer로 깨면 그때 steer 문구 완화 or 드롭(V3 전 결정). "미측정 순이득을 실측으로"([[08]]).
 
 ### R-γ (계측·정합) — V3 GO 기준선·per-case를 C62로 재정박
 - V3 GO(§7 갱신): **p1 ≥ COMP .634 ∧ p4 ≥ COMP .316 ∧ Δspurious ≤ 0 ∧ no-write ≤ floor(12) ∧ 위반0 유지(compliant=bench)** + per-case **t95 복구(constraints 제외 효과)·t61 4/4 유지·t46/47 write-loss 복구·t17 4/4 유지**.
