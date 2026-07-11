@@ -683,6 +683,50 @@ def _parse_subcall_answer(txt, cands):
     return found[0] if len(found) == 1 else None
 
 
+def _apply_principle_default(am, a2, gate, ctx):
+    """★T5-C P2 원리-디폴트(silent): write tool의 특정 인자가 A2 default_specs에 있으면
+    그 인자의 *기본값*을 resolver_path로 조회(read-only)하고, 현재값이 기본값과 다르며
+    사용자가 명시 override하지 않았으면(현재값이 user 발화 ctx에 미등장) 기본값으로 제자리 치환.
+    C58 원리디폴트 .940(payment=주문 원결제·환불규칙). 턴 불파기·대화 불변·엔진 general.
+    a2=augmented dict·gate=GateInterpreter(resolvers)·ctx=user-발화 lower 텍스트. 카운터 반환."""
+    import sys as _s
+    specs = (a2 or {}).get("default_specs") or []
+    if not specs or gate is None:
+        return 0
+    rf = (getattr(gate, "resolvers", None) or {}).get("resolve_field")
+    if not rf:
+        return 0
+    n = 0
+    for tc in (getattr(am, "tool_calls", None) or []):
+        nm = getattr(tc, "name", None)
+        d = _args_dict(tc)
+        for sp in specs:
+            arg = sp.get("arg")
+            if nm not in (sp.get("applies_to") or []) or arg not in d:
+                continue
+            path = sp.get("resolver_path")
+            if not path or not d.get(path[0]):
+                continue
+            try:
+                default_val = rf(path, d)          # 주문 원결제 (read-only)
+            except Exception:
+                default_val = None
+            if not default_val:
+                continue
+            cur = str(d.get(arg)).strip()
+            if cur == str(default_val).strip():
+                continue                            # 이미 원결제 = 정답
+            # 사용자가 현재값을 명시했나 (override) → 유지·유동성 보존
+            if cur.lower() in (ctx or ""):
+                continue
+            # 원리-디폴트 위반 = 원결제로 제자리 치환 (str-JSON 재할당 N2 = _subst 사용)
+            if _subst_arg_value(tc, arg, cur, str(default_val)):
+                n += 1
+                print("[T2_PRINCIPLE_DEFAULT] %s.%s %s -> %s" % (nm, arg, cur, default_val),
+                      file=_s.stderr, flush=True)
+    return n
+
+
 def _env_verified_args(a2):
     """env가 lookup으로 검증하는 id-형 인자의 key-token 집합 (B3): A2 preconditions/ownership
     게이트의 resolver_path[0] 파생 — 기존 A2 사실만 사용·신규 도메인 리터럴 0."""
@@ -1430,6 +1474,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         self._t2_disamb_nowrite_keep = getattr(self, "_t2_disamb_nowrite_keep", 0) + 1
                         print("[T2_DISAMB] rejected: re-check dropped tool_calls; keeping original",
                               file=_sys.stderr, flush=True)
+        # ★T5-C P2 원리-디폴트(opt-in T2_PRINCIPLE_DEFAULT=1): write operand 기본값(원결제 등)
+        #   위반 시 제자리 치환. user-발화만 override 근거(tool출력의 계정값 아님).
+        if os.environ.get("T2_PRINCIPLE_DEFAULT") == "1" and gate is not None:
+            uctx = " ".join(str(getattr(m, "content", "") or "").lower()
+                            for m in state.messages if getattr(m, "role", None) == "user")
+            nsub = _apply_principle_default(am, a2, gate, uctx)
+            if nsub:
+                self._t2_principle_default = getattr(self, "_t2_principle_default", 0) + nsub
         return am
 
     LLMAgent._generate_next_message = unified

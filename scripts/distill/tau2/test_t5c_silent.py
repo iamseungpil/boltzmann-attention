@@ -315,6 +315,50 @@ check("U5_turn_preserved_switch", am is orig_am and w.arguments["item_ids"] == [
 
 # U5: unified 기본값(=v1) 회귀 — 기존 test_unified_regen.py 전체가 별도 프로세스서 검증됨(러너에서 실행)
 
+# ===== P2 원리-디폴트 (_apply_principle_default) 단위 =====
+class FakeGate:
+    def __init__(self, orig_pay):
+        # resolve_field(path, args) → 주문 원결제
+        self.resolvers = {"resolve_field": lambda path, args: orig_pay}
+A2P = {"default_specs": [{"arg": "payment_method_id",
+        "resolver_path": ["order_id", "get_order_details", "payment_method_id"],
+        "applies_to": ["modify_pending_order_items", "modify_pending_order_payment"]}]}
+
+# P2-1: 계정 gift_card(원결제 아님·user 미언급) → 원결제 paypal로 치환
+w = ToolCall("modify_pending_order_items",
+             {"order_id": "#W5061109", "item_ids": ["a"], "payment_method_id": "gift_card_3406421"})
+am2 = AM(tool_calls=[w])
+n = G._apply_principle_default(am2, A2P, FakeGate("paypal_3742148"), "i want blue earbuds price same")
+check("P2_1_substituted", n == 1 and w.arguments["payment_method_id"] == "paypal_3742148", w.arguments)
+
+# P2-2: 이미 원결제 → no-op
+w = ToolCall("modify_pending_order_items", {"order_id": "#W1", "payment_method_id": "paypal_3742148"})
+am2 = AM(tool_calls=[w])
+check("P2_2_already_default_noop",
+      G._apply_principle_default(am2, A2P, FakeGate("paypal_3742148"), "") == 0
+      and w.arguments["payment_method_id"] == "paypal_3742148")
+
+# P2-3: user가 gift_card 명시(override) → 유지(유동성 보존)
+w = ToolCall("modify_pending_order_items", {"order_id": "#W1", "payment_method_id": "gift_card_3406421"})
+am2 = AM(tool_calls=[w])
+check("P2_3_user_override_keep",
+      G._apply_principle_default(am2, A2P, FakeGate("paypal_3742148"),
+                                 "please use my gift_card_3406421 instead") == 0
+      and w.arguments["payment_method_id"] == "gift_card_3406421")
+
+# P2-4: applies_to 밖 도구 → no-op
+w = ToolCall("cancel_pending_order", {"order_id": "#W1", "payment_method_id": "gift_card_3406421"})
+am2 = AM(tool_calls=[w])
+check("P2_4_tool_scope_noop",
+      G._apply_principle_default(am2, A2P, FakeGate("paypal_3742148"), "") == 0)
+
+# P2-5: resolver None(조회 실패) → no-op(안전측)
+w = ToolCall("modify_pending_order_items", {"order_id": "#W1", "payment_method_id": "gift_card_x"})
+am2 = AM(tool_calls=[w])
+check("P2_5_resolver_none_noop",
+      G._apply_principle_default(am2, A2P, FakeGate(None), "") == 0
+      and w.arguments["payment_method_id"] == "gift_card_x")
+
 print()
 if FAILS:
     print("FAILED: %d -> %s" % (len(FAILS), FAILS))

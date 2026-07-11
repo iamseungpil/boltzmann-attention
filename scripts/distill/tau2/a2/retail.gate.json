@@ -266,5 +266,18 @@
   },
   "_note_minimize_a2": "identifying_arg_types·placeholders 제거 = 도메인-일반→scaffold DEFAULT_ARG_HINTS/DEFAULT_PLACEHOLDERS 폴백 (minimize-A2·2026-06-22). A2=도메인 사실(gates·producers·resolver_path)만.",
   "disamb_sub_args": ["item"],
+  "default_specs": [
+    {
+      "arg": "payment_method_id",
+      "resolver_path": ["order_id", "get_order_details", "payment_method_id"],
+      "applies_to": [
+        "modify_pending_order_payment",
+        "modify_pending_order_items",
+        "exchange_delivered_order_items",
+        "return_delivered_order_items"
+      ]
+    }
+  ],
+  "_note_default_specs": "T5-C P2 원리-디폴트(C58 .940): refund/modify의 payment_method_id 기본=주문 원결제(resolver_path=order서 조회). 사용자가 명시 override(그 값이 user 발화에 등장)하지 않으면 원결제로 제자리 치환. 엔진=general(resolve→비교→치환)·이 spec=retail 정책사실(arg·resolver_path)·[[05]] 통과. C58: 원리디폴트 .940 vs LLM .38·V0 payment net-1(열거로는 못 여는 규칙). silent(턴불파기).",
   "_note_disamb_sub_args": "T5-C P-B(subcall) 치환 화이트리스트 = key-token(측정-도출·엔진에 어휘 0=[B2]). 근거 c51 [M]: item .079→.545·new_item .116→.658 / order·payment·address는 미등재(confirm-only — E-ISO ③ id-열거 역효과·이미 높음). V0(T5C_SILENT_REPAIR_DESIGN §7)가 정량 GO로 갱신."
 }
