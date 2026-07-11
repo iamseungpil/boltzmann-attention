@@ -201,7 +201,20 @@ fab 감지 시 순서: **(a)** P-A 제자리 치환(|C|=1) → **(b)** rescue �
 | **V0** | **★[B5 확정 절차]** (a) c51_disamb_results.jsonl에는 원값 컬럼이 없음 → `fl32b_floor_retail_t4.results.json.gz`와 (task,trial,idx,arg) **join으로 에이전트 원값 복원** (b) P-B 프로토콜 그대로(텍스트 턴 전사+records·R5 해소) 로컬 vLLM 재현 런 → 타입별 **P(sub 정답\|불일치)−P(orig 정답\|불일치)** (c) **정량 GO: 차이>0 ∧ 95% CI 하한>−0.05 ∧ n≥30/타입** (d) 편향 명기: c51 수집이 gold∈C 조건화(`c51_disambig_boundary.py:92-93`) → live(gold∉C 3.7%·C55) 대비 과대추정 ⇒ 임계 보수 적용 (e) [N8] 불일치∩both-wrong에서 env-거부형→env-수락형 이동(spurious 순증) 계수 | 무료(GPU 대기) | (c) 통과 타입만 A2 `disamb_sub_args` 등재 |
 | **V1** | 단위테스트: (i) silent 경로서 반환 am.tool_calls ≥ 원 am (ii) 대화 텍스트 불변 (iii) 치환=fire 인자 1개만 (iv) list-원소 치환 왕복 (v) 기존 플래그 조합 회귀(§3 fix 포함) (vi) rescue 분기표 전수 | 무료 | 전부 PASS |
 | **V2** | 스모크 10task×1(routerv2) — 발화 카운터>0·crash 0·공식 채점 통과(replay-clean 실증) | 유료 소액(승인 후) | 라이브 발화 확인 |
-| **V3** | full 456×nt4 단일 arm | 유료(승인) | **p1≥.577 ∧ p4>.281 ∧ Δspurious≤0 ∧ no-write≤12(floor) ∧ per-case(t61 4/4 유지·t46/47/95 복구·t17 4/4 유지)** |
+| **★V2.5** | **표적 복구 실험**(사용자 지시 2026-07-11: "전체 재실험 전에 실패 케이스 대표만 골라 복구 확인") — **13태스크×nt4=52 sims**(≈full의 11%)·COMP+D-v2 config. 기전별 표적+대조군·per-task로 **모든 설계 기능의 복구를 개별 검정** | 유료 소액 | **아래 기전별 GO 전부 통과 시에만 V3** |
+| **V3** | full 456×nt4 = **COMP+D-v2**(rev3) | 유료(승인·**V2.5 게이트 후**) | **p1≥COMP .634 ∧ p4≥.316 ∧ Δspurious≤0 ∧ no-write≤12 ∧ 위반0** |
+
+### §7b. V2.5 표적 명세 (기전 → 태스크 → 판정)
+| 기전 | 표적 태스크(근거) | 복구 판정(per-task·vs 기록된 COMP/routerv1/floor 패턴) |
+|---|---|---|
+| **fix#1+P-B** write-loss 소멸 | **t46·t47**(C60/C62 write-loss·derail) · **t95**(write-loss+constraints) | write 호출 재출현(no-write trial 0) ∧ pass ≥ COMP 패턴 |
+| **R-β** constraints 제외 | **t95**(COMP 0/4·floor 3/4·over-steer) | **≥2/4**(steer 소멸 시 floor-형 복원) |
+| **P-B** silent-DISAMB 회복력 | **t61**(naive DISAMB가 0/4→4/4 회복했던 것—silent도 되나) · **t2·t101·t103**(⋈/변형 표적) | t61 **≥3/4** ∧ 나머지 COMP 대비 비퇴행·합계 ≥1 개선 |
+| **P-C** prov 무-write 부작용 제거 | **t40·t69·t92**(prov no-write 배증 피해·C62②[P]) | no-write trial ≤ floor 패턴(0-1) |
+| **P-A/P-C** 날조 억제 유지 | **t17**(prov 정본·4/4) | **4/4 유지**(rescue 모드가 free-text 개입 보존 증명) |
+| **무회귀 대조군** | **t0·t28**(COMP 신규-robust) | **4/4 유지** |
+- 발화 카운터 필수: `_t2_subcall_fired>0`·`_t2_prov_skipped_envdup>0`(rescue 실발화)·`_t2_disamb_nowrite_keep` 관찰·crash/infra 0.
+- 판정 원칙: 기전별 독립 판정(하나라도 실패 → 그 기전 수정 후 V2.5만 재실행·V3 금지). 52 sims라 pass^k 통계 아님 — **per-task 패턴 대조**가 판정 단위([[08]]).
 
 ## §8. [[05]]·제1원리 점검 + 리스크
 
