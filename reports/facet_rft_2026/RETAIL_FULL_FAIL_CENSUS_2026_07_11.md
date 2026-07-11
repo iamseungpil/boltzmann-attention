@@ -87,7 +87,7 @@ t76 tr1 reason enum(C28 하네스 노이즈) · FLAKY 52 task 질량의 상당�
 | t0 | 4/4 | ✅ 닫힘 |
 | t61 | 4/4 | ✅ **P2(원리-디폴트) GO** — gift_card→원결제 교정 실증 |
 | t47 | 3/4 | ✅ write-loss 복구(fix#1)·잔여 1 trial은 NL |
-| t17 | 0/4 | ❌ 신규 원인 = **값충실도(St≠Street)** → §2F GROUND 확장 표적 |
+| t17 | 0/4 | ❌ ~~값충실도~~ → **재진단(V0+코드 확정)**: read 0회 **미조회 자유텍스트 날조** + prov rescue per-call `break` 구멍(`#`-접두 거짓양성 fab이 선점) — `CENSUS_LEVERS_DESIGN §1` PROV-RESCUE-PERARG가 표적 |
 | t40 | 0/4 | ❌ 2 trial db=True·NL축(gift-card 적용답) → §2G calc-NL |
 | t95 | 0/4 | ❌ discovery(E-PLAN) + tr2는 db=True·NL 총액(calc) — **이중 결손 확정** |
 

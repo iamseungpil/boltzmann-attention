@@ -23,9 +23,23 @@
 
 ---
 
-## 1. GROUND-VERBATIM — 값충실도 제자리 정규화 (F클래스·t17/t39형)
+## 1. GROUND-VERBATIM — ❌ **V0 NO-GO 확정·레버 폐기 → 진짜 레버 = prov rescue per-arg 수정 (2026-07-11 실측)**
 
-**표적 실측**: t17 = 사용자가 "Suite 641만 변경" 요청 → 에이전트가 address1을 `"123 Elm St"`로 **축약 복사**(문맥 원문 `"123 Elm Street"`·4/4 동일·v25e 잔존). t39 = address1/2를 **빈 문자열**로 write.
+### V0 판정 (`census_v0_gverb_addr.py`·COMP 167 + v25e 13 fail·lenient 파싱)
+- **fuzzy 치환 표적 = 양 arm 0건**(fix 0·break 0). **empty-치환 = break 실재**(t59: gold address2가 정당한 빈 값인데 'Suite 165' 채움) → 설계의 empty-게이트가 기각 확정. ⇒ **GROUND-VERBATIM 폐기(죽은 레버·§1.3).**
+
+### ★t17 재진단 — "축약-복사"는 오진·실체는 **미조회 날조 + prov rescue 입도 구멍** ([M]·전수)
+1. **v25e 4/4 + v25d 전수**: `modify_pending_order_address` write 시점 **read 0회**·"Elm Street"(정답 원문)가 사용자 발화·tool 출력 어디에도 **부재**. "123 Elm St"는 문맥-복사가 아니라 **자유생성 날조**(실주소 근사 = 훈련-데이터 오염 의심). GROUND는 C=∅ → 무개입이 정상 동작.
+2. **prov가 못 잡은 진짜 기전**(v25e 로그 157-158행 + 코드 정독으로 확정): prov는 이 write서 fab을 감지했다 — 단 **첫 fab 인자 = order_id `#W8665881`**(사용자는 `W8665881`로 발화·msg[7] 실측 → `#` 접두 불일치 = **거짓양성 fab**) → rescue 분기(`t2_gate_patch.py:881-888`)가 env-검증형 id 조건(`_key_tokens∩env_args ∧ _sig∈{hashid,numid}`) 충족 → **`break`로 regen while-루프 전체 탈출** → 둘째 fab 인자 **address1(자유텍스트)은 검사 자체가 안 됨**. `_first_fab_call`(:405)이 per-call 첫 인자만 반환 + rescue가 per-call `break`인 이중 구조.
+3. (v1.1 리뷰의 "substring 통과" 가설은 **기각** — 문맥에 매칭 대상 자체가 없었음. 단 substring 관대함은 별개 구조 구멍으로 유효할 수 있으나 t17의 작동 원인 아님.)
+
+### ⇒ 대체 레버: **PROV-RESCUE-PERARG** (엔진 수정·무료·decidable)
+- **수정**(2점·`t2_gate_patch.py`): ① rescue `break`(:888)를 **해당 fab의 스킵-마킹 + 다음 fab 인자 계속 스캔**으로(`_first_fab_call`에 exclusion set 인자) — env-검증형 id fab만 개별 pass-through·**자유텍스트 fab이 남으면 그 인자로 regen 발화**. ② **id `#`-접두 정규화**: ctx 매칭 전 `s.lstrip('#')`류 비교로 거짓양성 fab 자체를 제거(t17의 1차 방아쇠).
+- 기대: t17 4/4 → regen 피드백("getter로 실값 조회") → 에이전트 read → 정확 write. C24(free-text 날조는 환경이 못 잡음)의 정확한 봉합·C29 gather 정합.
+- [[05]]: 기존 prov 엔진의 입도 수정(도메인 리터럴 0)·A2 불변. 반대편 계측: regen 과발화(Δtme)·over-block(정당 자유텍스트 인자 — 사용자-발화 값은 ctx에 있어 fab 아님 = 구조적 안전).
+- 검증: 단위(다중-fab 인자 순회·`#`정규화) → v25e t17 4-trial 오프라인 재현(fab 검출이 address1에 닿는지) → 표적 nt=1.
+
+**(기각된 원 설계는 기록으로 하단 보존·t39 빈값도 미조회 계열(V0 addr: gold not_found 3/3)로 같은 레버 관할.)**
 
 **엔진 op (도메인일반)**: write-인자 값 v에 대해, 문맥(에이전트-기조회 tool 출력)의 해당 필드 후보 집합 C를 구성.
 - **fuzzy-|C|=1 치환**: C에서 v와 *유일하게* fuzzy-match하는 원문 c가 있고 exact-match가 아니면 → **v를 c 원문으로 silent 치환**(T5-C P-A |C|=1 *치환 메커니즘* 재사용·대화 불변·replay-clean).
