@@ -264,5 +264,7 @@
       }
     }
   },
-  "_note_minimize_a2": "identifying_arg_types·placeholders 제거 = 도메인-일반→scaffold DEFAULT_ARG_HINTS/DEFAULT_PLACEHOLDERS 폴백 (minimize-A2·2026-06-22). A2=도메인 사실(gates·producers·resolver_path)만."
+  "_note_minimize_a2": "identifying_arg_types·placeholders 제거 = 도메인-일반→scaffold DEFAULT_ARG_HINTS/DEFAULT_PLACEHOLDERS 폴백 (minimize-A2·2026-06-22). A2=도메인 사실(gates·producers·resolver_path)만.",
+  "disamb_sub_args": ["item"],
+  "_note_disamb_sub_args": "T5-C P-B(subcall) 치환 화이트리스트 = key-token(측정-도출·엔진에 어휘 0=[B2]). 근거 c51 [M]: item .079→.545·new_item .116→.658 / order·payment·address는 미등재(confirm-only — E-ISO ③ id-열거 역효과·이미 높음). V0(T5C_SILENT_REPAIR_DESIGN §7)가 정량 GO로 갱신."
 }

@@ -381,6 +381,13 @@ REGEN_FEEDBACK = (
     "Now emit a corrected tool call."
 )
 
+# T5-C 스펙#2 (prov_mode=rescue 전용): 예시 나열 제거 — 나열 자체가 프라이밍([[42]] 동형·t61형 오도 [P])
+REGEN_FEEDBACK_NEUTRAL = (
+    "Error: [PROVENANCE] argument '{k}'='{s}' was not provided by the user nor returned by any tool "
+    "— it looks invented. Do NOT use placeholder/example values. Obtain the real value from a lookup "
+    "tool output or from what the user explicitly said, then emit a corrected tool call."
+)
+
 
 def _ctx_from_messages(msgs):
     parts = []
@@ -446,8 +453,10 @@ def _iter_scalars(obj, key=None):
         yield (key, obj)
 
 
-def _parse_tool_outputs(msgs):
-    """role==tool·비-error 메시지 content를 JSON 파싱(최근→과거 순)."""
+def _parse_tool_outputs(msgs, lenient=False):
+    """role==tool·비-error 메시지 content를 JSON 파싱(최근→과거 순).
+    lenient=True(T5-C 신규 경로 전용): JSON 뒤에 augment 텍스트가 append된 content도
+    leading-JSON으로 구제(N4). 기본 False = v1 동작 바이트-동일."""
     outs = []
     for m in reversed(msgs):
         if getattr(m, "role", None) != "tool":
@@ -460,17 +469,24 @@ def _parse_tool_outputs(msgs):
         try:
             outs.append(json.loads(c))
         except Exception:
+            if lenient:
+                try:
+                    obj, _ = json.JSONDecoder().raw_decode(c.strip())
+                    outs.append(obj)
+                    continue
+                except Exception:
+                    pass
             outs.append(c)
     return outs
 
 
-def _grounded_candidates(arg_key, fab_value, msgs, limit=8):
+def _grounded_candidates(arg_key, fab_value, msgs, limit=8, lenient=False):
     """arg_key 타입에 맞는 grounded 후보값을 tool 출력서 추출(최근 우선·dedup·순서보존)."""
     toks = _key_tokens(arg_key)
     want_sig = _sig(fab_value)
     seen = set()
     key_cands, sig_cands = [], []
-    for out in _parse_tool_outputs(msgs):
+    for out in _parse_tool_outputs(msgs, lenient=lenient):
         if not isinstance(out, (dict, list)):
             continue
         for kk, vv in _iter_scalars(out):
@@ -495,6 +511,14 @@ GROUND_FEEDBACK = (
     "and read the answer from its output. Now emit a corrected tool call."
 )
 
+# T5-C 스펙#2 (prov_mode=rescue 전용): 예시 절 제거(프라이밍 원천 중립화)
+GROUND_FEEDBACK_NEUTRAL = (
+    "Error: [PROVENANCE] argument '{k}'='{s}' is invented — never use placeholder/guessed IDs. "
+    "The real, grounded {k} value(s) already available from prior tool results are: {cands}. "
+    "Use ONLY one of these, or determine the right one by reading prior tool outputs. "
+    "Now emit a corrected tool call."
+)
+
 # ─── ★T2_DISAMB=1: |C|>=2 write-인자 재확인 (E-AMB T5 라우터·규칙0 준수) ───
 # 값이 문맥에 실재하되 같은-형식 후보가 2+개면(⋈ 지점) 한 번만 재확인 피드백 → 재생성.
 # 열거하는 후보 = 이미 조회된 도구출력에서만(_grounded_candidates) = DB 주입 0.
@@ -517,12 +541,235 @@ def _confirm_write_tools(a2):
     return tools
 
 
-def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domain=None, disamb=False):
+# ═══════════════════════════════════════════════════════════════════════════
+# ★T5-C silent repair (2026-07-11) — 정본 `T5C_SILENT_REPAIR_DESIGN_2026_07_11.md` §6
+#   불변량: (i) 커밋될 턴 불파기 (ii) 대화에 새 텍스트 0 (iii) 실행=기록(replay-clean)
+#           (iv) 실패 시 폴백=무개입(레버 ≥ floor pointwise)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _subst_arg_value(tc, k, old, new):
+    """인자 k 안의 old 값만 제자리 치환(위치 보존). 성공 True·그 외 no-op False. (B1)
+    스칼라=전체 일치 시 교체 / 리스트=일치 원소가 정확히 1개일 때 그 원소만(new 중복 시 no-op)
+    / nested dict=no-op. str-JSON arguments도 재할당으로 보존(N2)."""
+    try:
+        d = _args_dict(tc)
+        if k not in d:
+            return False
+        v = d[k]
+        new_s = str(new).strip()
+        if isinstance(v, dict):
+            return False
+        if isinstance(v, list):
+            hits = [i for i, x in enumerate(v) if str(x).strip() == old]
+            if len(hits) != 1 or any(str(x).strip() == new_s for x in v):
+                return False
+            v2 = list(v)
+            v2[hits[0]] = new
+            d[k] = v2
+        else:
+            if str(v).strip() != old:
+                return False
+            d[k] = new
+        tc.arguments = d
+        return True
+    except Exception:
+        return False
+
+
+def _min_enclosing_record(obj, target):
+    """target 스칼라를 담는 최소 dict 반환(깊은 쪽 우선·재귀). 없으면 None."""
+    if isinstance(obj, dict):
+        for vv in obj.values():
+            if isinstance(vv, (dict, list)):
+                r = _min_enclosing_record(vv, target)
+                if r is not None:
+                    return r
+        for kk, vv in obj.items():
+            if isinstance(vv, (dict, list)):
+                if isinstance(vv, list) and any(
+                        not isinstance(x, (dict, list)) and str(x).strip() == target for x in vv):
+                    return obj
+                continue
+            if str(vv).strip() == target or str(kk).strip() == target:
+                return obj
+        return None
+    if isinstance(obj, list):
+        for vv in obj:
+            if isinstance(vv, (dict, list)):
+                r = _min_enclosing_record(vv, target)
+                if r is not None:
+                    return r
+        return None
+    return None
+
+
+def _record_snippet(rec, limit=500):
+    try:
+        s = json.dumps(rec, ensure_ascii=False, default=str)
+    except Exception:
+        s = str(rec)
+    if len(s) > limit and isinstance(rec, dict):
+        flat = {kk: vv for kk, vv in rec.items() if not isinstance(vv, (dict, list))}
+        try:
+            s = json.dumps(flat, ensure_ascii=False, default=str)
+        except Exception:
+            s = str(flat)
+    return s[:limit]
+
+
+def _candidate_records(arg_key, orig_value, msgs, limit=6):
+    """후보값 + 그 후보가 등장한 최소 enclosing 레코드 snippet. (E-ISO ③: id-only 열거 금지)
+    원천 = 에이전트 자신이 조회한 tool 출력만(규칙0·리뷰 N5 검증)."""
+    cands = _grounded_candidates(arg_key, orig_value, msgs, limit=limit, lenient=True)
+    outs = _parse_tool_outputs(msgs, lenient=True)
+    recs = []
+    for c in cands:
+        snip = ""
+        for out in outs:
+            if isinstance(out, (dict, list)):
+                r = _min_enclosing_record(out, str(c).strip())
+                if r is not None:
+                    snip = _record_snippet(r)
+                    break
+        recs.append((c, snip))
+    return recs
+
+
+SUBCALL_SYS = (
+    "You are resolving ONE ambiguous tool-call argument for a customer-service agent. "
+    "Read the conversation transcript and the candidate values (each shown with the data record "
+    "it came from), then decide which single candidate the user actually intends."
+)
+
+
+def _text_transcript(msgs, limit_chars=6000):
+    """user/assistant 텍스트 턴만 전사(tool 원문 제외·_BLOCK_NOTE 등 개입 메타텍스트 절단=N5)."""
+    parts = []
+    for m in msgs:
+        role = getattr(m, "role", None)
+        c = getattr(m, "content", None)
+        if role not in ("user", "assistant") or not isinstance(c, str) or not c.strip():
+            continue
+        t = c
+        i = t.find(_BLOCK_NOTE)
+        if i >= 0:
+            t = t[:i]
+        if t.strip():
+            parts.append(("User: " if role == "user" else "Agent: ") + t.strip())
+    out = "\n".join(parts)
+    return out[-limit_chars:]
+
+
+def _parse_subcall_answer(txt, cands):
+    """서브콜 응답 파싱(N3): ① 응답 전체가 정확히 후보 1개(따옴표/공백/구두점 strip) → 수락
+    ② 경계-인식 부분검색 유일 매치 → 수락 ③ 그 외 None(UNSURE)."""
+    raw = (txt or "").strip()
+    t = raw.strip().strip('"\'`.,;: \n\t')
+    for c in cands:
+        if t == str(c).strip():
+            return c
+    found = []
+    for c in cands:
+        cs = str(c).strip()
+        idx = raw.find(cs)
+        if idx >= 0:
+            before = raw[idx - 1] if idx > 0 else " "
+            after = raw[idx + len(cs)] if idx + len(cs) < len(raw) else " "
+            if not (before.isalnum() or after.isalnum()):
+                found.append(c)
+    return found[0] if len(found) == 1 else None
+
+
+def _env_verified_args(a2):
+    """env가 lookup으로 검증하는 id-형 인자의 key-token 집합 (B3): A2 preconditions/ownership
+    게이트의 resolver_path[0] 파생 — 기존 A2 사실만 사용·신규 도메인 리터럴 0."""
+    toks = set()
+    for g in (a2 or {}).get("gates", []) or []:
+        if g.get("kind") not in ("preconditions", "ownership"):
+            continue
+        paths = [g.get("resolver_path")] + [ch.get("resolver_path")
+                                            for ch in (g.get("checks") or [])]
+        for rp in paths:
+            if rp:
+                toks |= _key_tokens(rp[0])
+    return toks
+
+
+def _in_error_loop(msgs, tool_name, npairs=6):
+    """최근 npairs개 tool-result 중 같은 tool의 error=True 존재 여부 (N6: tool_calls.id↔ToolMessage.id join).
+    unified/prov 경로선 deny가 히스토리에 안 남으므로 error=True ≡ env-오류."""
+    id2name = {}
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            id2name[getattr(tc, "id", None)] = getattr(tc, "name", None)
+    pairs = 0
+    for m in reversed(msgs):
+        if getattr(m, "role", None) != "tool":
+            continue
+        pairs += 1
+        if pairs > npairs:
+            break
+        if getattr(m, "error", False) and id2name.get(getattr(m, "id", None)) == tool_name:
+            return True
+    return False
+
+
+def _t5c_disamb_subcall(self, la, UserMessage, state_msgs, tc, k, s, sub_args):
+    """P-B: 격리 서브콜로 |C|>=2 선택 판정 → 서브콜 답이 원값과 다르고 화이트리스트(A2
+    disamb_sub_args) 타입일 때만 인자 제자리 치환. 원턴·대화 완전 불변·모든 예외 = no-op.
+    반환: 'switch'|'keep'|'unsure'|'error' (계측용)."""
+    import sys
+    try:
+        records = _candidate_records(k, s, state_msgs)
+        if len(records) < 2:
+            return "unsure"
+        prompt = (SUBCALL_SYS + "\n\n=== Conversation ===\n" + _text_transcript(state_msgs)
+                  + "\n\n=== Candidates for '" + str(k) + "' ===\n"
+                  + "\n".join("- %s%s" % (c, ("   | record: " + sn) if sn else "")
+                              for c, sn in records)
+                  + "\n\nThe agent currently chose '" + s + "'. Which single candidate does "
+                    "the user intend? Answer with EXACTLY one candidate value, or UNSURE.")
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        kw = {kk: vv for kk, vv in dict(getattr(self, "llm_args", None) or {}).items()
+              if "tool" not in kk}
+        sub = la.generate(model=self.llm, tools=None, messages=[um],
+                          call_name="disamb_subcall", **kw)
+        self._t2_subcall_fired = getattr(self, "_t2_subcall_fired", 0) + 1
+        ans = _parse_subcall_answer(getattr(sub, "content", None) or "",
+                                    [c for c, _ in records])
+        if ans is None:
+            self._t2_subcall_unsure = getattr(self, "_t2_subcall_unsure", 0) + 1
+            return "unsure"
+        if str(ans).strip().lower() == s.lower():
+            self._t2_subcall_keep = getattr(self, "_t2_subcall_keep", 0) + 1
+            return "keep"
+        if (_key_tokens(k) & set(sub_args or ())) and _subst_arg_value(tc, k, s, ans):
+            self._t2_subcall_switch = getattr(self, "_t2_subcall_switch", 0) + 1
+            print("[T2_SUBCALL] switched arg=%s from=%s to=%s" % (k, s, ans),
+                  file=sys.stderr, flush=True)
+            return "switch"
+        self._t2_subcall_confirmonly = getattr(self, "_t2_subcall_confirmonly", 0) + 1
+        return "keep"
+    except Exception as e:
+        try:
+            print("[T2_SUBCALL] error (no-op): %r" % (e,), file=sys.stderr, flush=True)
+        except Exception:
+            pass
+        return "error"
+
+
+def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domain=None, disamb=False,
+                           disamb_mode="dialog", prov_mode="full"):
     """LLMAgent._generate_next_message 패치 — R1b 통합 (A2-구동 hints/placeholders).
       L1 = bad_words 디코드-마스크(정적 블랙리스트=A2 placeholders ∪ 스키마-example + 세션-flagged − context).
       L2 = provenance 검증기 + 내부 재생성.
       GROUND = config-도출 candidate-surfacing.
-      DISAMB = |C|>=2 write-인자 1회 재확인(선택은 모델에 남김·T5 라우터).
+      DISAMB = |C|>=2 write-인자 1회 재확인. disamb_mode='subcall'(T5-C P-B)이면 재확인을
+        in-dialogue 재생성 대신 격리 서브콜+제자리 치환으로 수행(원턴·대화 불변).
+      prov_mode='rescue'(T5-C P-C): env-검증형 id 날조는 개입 생략(env가 거부)·free-text/에러-루프만 개입.
     domain 주면 A2서 hints/placeholders 도출(없으면 도메인-일반 기본)."""
     import sys
     from tau2.agent.llm_agent import LLMAgent
@@ -533,6 +780,8 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
     hints = a2["_hints"] if a2 else DEFAULT_ARG_HINTS
     placeholders = a2["_placeholders"] if a2 else DEFAULT_PLACEHOLDERS
     disamb_tools = _confirm_write_tools(a2) if disamb else set()
+    env_args = _env_verified_args(a2) if prov_mode == "rescue" else set()
+    sub_args = set((a2 or {}).get("disamb_sub_args") or [])  # B2: 치환 화이트리스트는 A2 필드
 
     def _append(state, message):
         if isinstance(message, UserMessage) and getattr(message, "is_audio", False):
@@ -573,24 +822,36 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
             tc, k, s = fab
 
             if ground and subs < 8:
-                cands = _grounded_candidates(k, s, state.messages)
-                if len(cands) == 1 and cands[0] != s:
-                    d = _args_dict(tc)
-                    d[k] = cands[0]
-                    tc.arguments = d
+                cands = _grounded_candidates(k, s, state.messages, lenient=True)
+                # B1: 원소-치환 헬퍼(리스트 인자 통짜-덮어쓰기 버그 수정) — 실패 시 regen 폴백
+                if len(cands) == 1 and cands[0] != s and _subst_arg_value(tc, k, s, cands[0]):
                     self._t2_ground_sub = getattr(self, "_t2_ground_sub", 0) + 1
                     subs += 1
+                    print("[T2_GROUND] substituted arg=%s val=%s -> %s" % (k, s, cands[0]),
+                          file=sys.stderr, flush=True)
                     continue
+
+            if prov_mode == "rescue" and (_key_tokens(k) & env_args) and \
+                    _sig(s) in ("hashid", "numid") and \
+                    not _in_error_loop(state.messages, getattr(tc, "name", None)):
+                # P-C: env-검증형 id 날조는 개입 생략(환경이 거부=C61 H-D 100% 중복) — 에러-루프 시만 개입
+                self._t2_prov_skipped_envdup = getattr(self, "_t2_prov_skipped_envdup", 0) + 1
+                print("[T2_PROV] rescue pass-through tool=%s arg=%s val=%s"
+                      % (getattr(tc, "name", "?"), k, s), file=sys.stderr, flush=True)
+                break
 
             n += 1
             self._t2_session_bl.add(s)
             self._t2_regen = getattr(self, "_t2_regen", 0) + 1
             work = work + [am]
-            cands = _grounded_candidates(k, s, state.messages) if ground else []
+            cands = _grounded_candidates(k, s, state.messages,
+                                         lenient=(prov_mode == "rescue")) if ground else []
             if ground and cands:
-                main_reason = GROUND_FEEDBACK.format(k=k, s=s, cands=", ".join(repr(c) for c in cands))
+                tmpl = GROUND_FEEDBACK_NEUTRAL if prov_mode == "rescue" else GROUND_FEEDBACK
+                main_reason = tmpl.format(k=k, s=s, cands=", ".join(repr(c) for c in cands))
             else:
-                main_reason = REGEN_FEEDBACK.format(k=k, s=s)
+                tmpl = REGEN_FEEDBACK_NEUTRAL if prov_mode == "rescue" else REGEN_FEEDBACK
+                main_reason = tmpl.format(k=k, s=s)
             for c in (am.tool_calls or []):
                 reason = main_reason if c is tc else \
                     "Error: [PROVENANCE] resolve the invented value first; do not call this yet."
@@ -624,6 +885,15 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                         break
                 if hit:
                     break
+            if hit and disamb_mode == "subcall":
+                # ★T5-C P-B: in-dialogue 재확인 폐지 — 격리 서브콜 판정 + 제자리 치환(원턴·대화 불변)
+                tc, k, s, cands, memo = hit
+                self._t2_disamb_seen.add(memo)
+                self._t2_disamb = getattr(self, "_t2_disamb", 0) + 1
+                print("[T2_DISAMB] fired tool=%s arg=%s val=%s ncand=%d mode=subcall"
+                      % (tc.name, k, s, len(cands)), file=sys.stderr, flush=True)
+                _t5c_disamb_subcall(self, la, UserMessage, state.messages, tc, k, s, sub_args)
+                hit = None
             if hit:
                 tc, k, s, cands, memo = hit
                 self._t2_disamb_seen.add(memo)
@@ -910,7 +1180,8 @@ def apply_gate_regen(max_regen=1):
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwords=False):
+def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwords=False,
+                        ground=False, disamb_mode="dialog", prov_mode="full"):
     import sys as _sys
     from tau2.agent.llm_agent import LLMAgent
     import tau2.agent.llm_agent as la
@@ -921,6 +1192,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
     hints = a2d["_hints"] if a2d else DEFAULT_ARG_HINTS
     placeholders = a2d["_placeholders"] if a2d else DEFAULT_PLACEHOLDERS
     disamb_tools = _confirm_write_tools(a2d) if disamb else set()
+    env_args = _env_verified_args(a2d) if prov_mode == "rescue" else set()   # T5-C P-C (B3)
+    sub_args = set((a2d or {}).get("disamb_sub_args") or [])                 # T5-C P-B (B2)
 
     # (1) per-sim 게이트 주입 (apply_gate_regen과 동일 패턴·T2_GATE_KINDS 지원)
     orig_init = BaseOrchestrator.__init__
@@ -980,8 +1253,32 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         work = list(state.messages)
         am = _gen(self, work, bw(), "agent_response")
         gate_rounds = prov_rounds = 0
+        subs = 0
+        rescue_skipped = set()
         while True:
             fab = _first_fab_call(am, ctx, hints)
+            # ★T5-C P-A (N1: _denied_calls 前 — 게이트 check는 상태-변이라 버려질 반복서 소진 금지)
+            if fab is not None and ground and subs < 8:
+                gtc, gk, gs = fab
+                gcands = _grounded_candidates(gk, gs, state.messages, lenient=True)
+                if len(gcands) == 1 and gcands[0] != gs and _subst_arg_value(gtc, gk, gs, gcands[0]):
+                    self._t2_ground_sub = getattr(self, "_t2_ground_sub", 0) + 1
+                    subs += 1
+                    print("[T2_GROUND] substituted arg=%s val=%s -> %s" % (gk, gs, gcands[0]),
+                          file=_sys.stderr, flush=True)
+                    continue  # 치환값은 문맥-실재 → 다음 반복서 fab 해소·게이트가 최종 인자를 검사
+            # ★T5-C P-C: env-검증형 id 날조 = 개입 생략(env가 거부·C61 H-D) — 게이트 검사는 그대로 진행
+            if fab is not None and prov_mode == "rescue":
+                rtc, rk, rs = fab
+                if (_key_tokens(rk) & env_args) and _sig(rs) in ("hashid", "numid") \
+                        and not _in_error_loop(state.messages, getattr(rtc, "name", None)):
+                    rkey = (getattr(rtc, "name", None), rk, rs)
+                    if rkey not in rescue_skipped:
+                        rescue_skipped.add(rkey)
+                        self._t2_prov_skipped_envdup = getattr(self, "_t2_prov_skipped_envdup", 0) + 1
+                        print("[T2_PROV] rescue pass-through tool=%s arg=%s val=%s" % rkey,
+                              file=_sys.stderr, flush=True)
+                    fab = None
             denied = _denied_calls(am, gate, last_user, transfer_sent) if gate is not None else []
             denied_by_objid = {id(tc): (gid, why) for tc, gid, why in denied}
             do_gate = bool(denied) and gate_rounds < 1
@@ -998,7 +1295,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 # 관측성(행동 무변경): p4-비용 귀속용 발화 로그 (C53 p4 −5.3pp·§3c)
                 print("[T2_PROV] regen fired tool=%s arg=%s val=%s" % (getattr(ptc, "name", "?"), k, s),
                       file=_sys.stderr, flush=True)
-                main_prov = (ptc, REGEN_FEEDBACK.format(k=k, s=s))
+                main_prov = (ptc, (REGEN_FEEDBACK_NEUTRAL if prov_mode == "rescue"
+                                   else REGEN_FEEDBACK).format(k=k, s=s))
             if do_gate:
                 gate_rounds += 1
                 self._t2_gate_rounds = getattr(self, "_t2_gate_rounds", 0) + 1
@@ -1056,6 +1354,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         break
                 if hit:
                     break
+            if hit and disamb_mode == "subcall":
+                # ★T5-C P-B: 격리 서브콜 판정 + 제자리 치환(원턴·대화 불변). switch가 게이트-deny를
+                #   ★*새로* 유발할 때만 원값 복원(리뷰 블로킹2 정신). 스위치는 whitelist operand(item)만
+                #   바꾸므로 통상 게이트-무관 — *이미* deny되던 호출(다른 사유)은 R8이 어차피 strip하니
+                #   되돌리면 좋은 switch만 손실. 그래서 pre/post deny 비교로 switch-유발分만 복원.
+                tc, k, s, cands, memo = hit
+                self._t2_disamb_seen.add(memo)
+                self._t2_disamb = getattr(self, "_t2_disamb", 0) + 1
+                print("[T2_DISAMB] fired tool=%s arg=%s val=%s ncand=%d mode=subcall"
+                      % (tc.name, k, s, len(cands)), file=_sys.stderr, flush=True)
+                import copy as _copy
+                _snap = _copy.deepcopy(getattr(tc, "arguments", None))
+                _pre_denied = ({d[0].id for d in _denied_calls(am, gate, last_user, transfer_sent)}
+                               if gate is not None else set())
+                res = _t5c_disamb_subcall(self, la, UserMessage, state.messages, tc, k, s, sub_args)
+                if res == "switch" and gate is not None:
+                    _post = {d[0].id for d in _denied_calls(am, gate, last_user, transfer_sent)}
+                    if tc.id in _post and tc.id not in _pre_denied:  # switch가 *새로* 유발한 deny만
+                        tc.arguments = _snap
+                        self._t2_disamb_gate_reject = getattr(self, "_t2_disamb_gate_reject", 0) + 1
+                        print("[T2_UNIFIED] SUBCALL switch reverted: switch-caused gate-deny",
+                              file=_sys.stderr, flush=True)
+                hit = None
             if hit:
                 tc, k, s, cands, memo = hit
                 self._t2_disamb_seen.add(memo)

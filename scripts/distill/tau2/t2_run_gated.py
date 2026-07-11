@@ -110,8 +110,12 @@ def main():
         badwords_on = os.environ.get("T2_PROV_BADWORDS", "0") == "1"
         ground_on = os.environ.get("T2_PROV_GROUND", "0") == "1"
         disamb_on = os.environ.get("T2_DISAMB", "0") == "1"
+        # ★T5-C silent repair (opt-in·기본값=v1 동작): T5C_SILENT_REPAIR_DESIGN_2026_07_11 §6.4
+        ground2_on = os.environ.get("T2_GROUND", "0") == "1"          # P-A (양 분기)
+        disamb_mode = os.environ.get("T2_DISAMB_MODE", "dialog")      # P-B: dialog|subcall
+        prov_mode = os.environ.get("T2_PROV_MODE", "full")            # P-C: full|rescue
         _unified = os.environ.get("T2_GATE_REGEN") == "1" and (
-            regen_on or badwords_on or ground_on or disamb_on)
+            regen_on or badwords_on or ground_on or ground2_on or disamb_on)
         if os.environ.get("T2_GATE_REGEN") == "1" and not _unified:
             # ★replay-safe 게이트: 생성-레벨 deny+regen+R8 종단 (apply() 대체·리더보드-동일 채점).
             t2_gate_patch.apply_gate_regen(max_regen=int(os.environ.get("T2_GATE_REGEN_K", "1")))
@@ -122,28 +126,34 @@ def main():
         # ★E-COMP unified (2026-07-10·리뷰 반영): T2_GATE_REGEN ∧ T2_PROV_REGEN/T2_DISAMB 동시
         #   활성 시 단일 통합 패치(apply_unified_regen)로 라우팅 — 구 이중패치 CONFLICT 해소.
         #   예산 semantics = 두 GO arm 승계(게이트 1라운드 tick·prov 무과금 K=4). GROUND는 scope 밖.
-        if os.environ.get("T2_GATE_REGEN") == "1" and (regen_on or badwords_on or ground_on or disamb_on):
+        if _unified:
             if ground_on:
-                raise SystemExit("[t2_run] T2_PROV_GROUND is not supported in unified mode (E-COMP scope).")
+                raise SystemExit("[t2_run] T2_PROV_GROUND is not supported in unified mode (E-COMP scope). Use T2_GROUND=1.")
             t2_gate_patch.apply_unified_regen(
                 max_prov_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")),
                 domain=a.domain,
                 disamb=disamb_on,
-                use_badwords=badwords_on)
-            print("[t2_run] UNIFIED regen ON: gate(K=1·tick) + prov(K=%s·무과금)%s%s"
-                  % (os.environ.get("T2_PROV_REGEN_K", "4"),
-                     " + DISAMB" if disamb_on else "",
+                use_badwords=badwords_on,
+                ground=ground2_on,
+                disamb_mode=disamb_mode,
+                prov_mode=prov_mode)
+            print("[t2_run] UNIFIED regen ON: gate(K=1·tick) + prov(K=%s·무과금·mode=%s)%s%s%s"
+                  % (os.environ.get("T2_PROV_REGEN_K", "4"), prov_mode,
+                     " + DISAMB(%s)" % disamb_mode if disamb_on else "",
+                     " + GROUND" if ground2_on else "",
                      " + badwords" if badwords_on else ""))
-        elif regen_on or badwords_on or ground_on or disamb_on:
+        elif regen_on or badwords_on or ground_on or ground2_on or disamb_on:
             # GROUND/DISAMB는 regen 인프라(생성-레벨 작업본) 위에서 동작 → regen 경로 활성 필요
             t2_gate_patch.apply_provenance_regen(
-                max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")) if (regen_on or ground_on) else 0,
+                max_retries=int(os.environ.get("T2_PROV_REGEN_K", "4")) if (regen_on or ground_on or ground2_on) else 0,
                 use_badwords=badwords_on,
-                ground=ground_on,
+                ground=(ground_on or ground2_on),
                 domain=a.domain,
-                disamb=disamb_on)
-            print("[t2_run] provenance L1(badwords)=%s L2(regen)=%s GROUND=%s DISAMB=%s"
-                  % (badwords_on, regen_on, ground_on, disamb_on))
+                disamb=disamb_on,
+                disamb_mode=disamb_mode,
+                prov_mode=prov_mode)
+            print("[t2_run] provenance L1(badwords)=%s L2(regen)=%s mode=%s GROUND=%s DISAMB=%s(%s)"
+                  % (badwords_on, regen_on, prov_mode, (ground_on or ground2_on), disamb_on, disamb_mode))
 
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
