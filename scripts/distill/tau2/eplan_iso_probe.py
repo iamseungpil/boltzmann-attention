@@ -38,8 +38,11 @@ def args_of(a):
 
 
 def replay_ledger(sim, spec):
-    """궤적 → (ledger, write_events). write_events=[(ledger 스냅샷 판정용 시점, tool, ok)]."""
+    """궤적 → (ledger, write_events). write_events=[(ledger 스냅샷 판정용 시점, tool, ok)].
+    attempt_items(A2 items_key)를 L1/L2에 전달 = 라이브 배선(t2_gate_patch)과 동형
+    (qty-conflation 가드·2026-07-11 t27 교정)."""
     led = PlanLedger(spec)
+    ikey = spec.get("items_key", "item_ids")
     res_by_id = {m.get("id"): m for m in (sim.get("messages") or []) if m.get("role") == "tool"}
     fire_log = []
     for m in sim.get("messages") or []:
@@ -54,13 +57,15 @@ def replay_ledger(sim, spec):
                 ok = tm is not None and not tm.get("error")
                 if any(w in nm for w in WR):
                     # write 시도 시점의 L1/L2 판정 (deny 시뮬레이션·개입은 안 함=관측만)
-                    l1 = discovery_L1(led)
-                    l2 = discovery_L2(led, intent_class=nm)
+                    ai = ar.get(ikey) or ()
+                    l1 = discovery_L1(led, attempt_items=ai)
+                    l2 = discovery_L2(led, intent_class=nm, attempt_items=ai)
                     fire_log.append({"tool": nm, "ok": ok, "L1": l1, "L2": list(l2),
                                      "qty": led.qty_mentioned,
+                                     "cov": led.item_coverage(ai),
                                      "listed": len(led.listed), "examined": len(led.examined)})
                     if ok:
-                        led.note_write(nm, ar.get(spec.get("entity_key")), ar.get("item_ids") or ())
+                        led.note_write(nm, ar.get(spec.get("entity_key")), ar.get(ikey) or ())
                 else:
                     out = None
                     if tm is not None and isinstance(tm.get("content"), str) and not tm.get("error"):
@@ -80,7 +85,8 @@ def mode_predicate(sims, task_id, spec):
         for ev in log:
             fired = "L1" if ev["L1"] else ("L2->%s" % ",".join(ev["L2"]) if ev["L2"] else "-")
             print(f"   write {ev['tool']}({'ok' if ev['ok'] else 'ERR'}) "
-                  f"qty={ev['qty']} listed={ev['listed']} examined={ev['examined']} | fire: {fired}")
+                  f"qty={ev['qty']} cov={ev.get('cov', '?')} "
+                  f"listed={ev['listed']} examined={ev['examined']} | fire: {fired}")
         # 종결 시점 L2 (walk 직전 관점)
         l2_end = discovery_L2(led, intent_class=None)
         print(f"   [end] L2(any-class): {l2_end if l2_end else '침묵'}")

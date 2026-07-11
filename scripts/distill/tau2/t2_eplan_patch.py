@@ -62,6 +62,21 @@ _QTY_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
 _QTY_DIGIT_RE = re.compile(r"\b([1-9]|10)\b")
 _QTY_WORD_RE = re.compile(r"\b(%s)\b" % "|".join(_QTY_WORDS), re.I)
 
+# ── qty 오염 가드 (t47 교정·T27_T103_PERSTEP §t27 부결함②·2026-07-11) ─────────
+# 시간/기간 단위(닫힌 기능어 집합 — 도메인 어휘 아님)에 인접한 수사는 수량 신호가
+# 아니다: "within 3 days"·"5 to 7 business days"의 3/7이 required_qty N으로 직행해
+# 거짓 L1/L2를 유발(ap2 t47 = L1×1+L2×3 전부 이 오염·cap 소진). 파싱 전에 절제.
+# ①bare 범위("5 to 7" — 단위 생략형 포함): 범위 표현 자체가 확정-수량이 아니라
+#   추정/기간 언어 → 통째로 비신호(보수). ②수사+시간단위(선행 수식 business/working/
+#   calendar·"couple of days"형 of 허용).
+_TIME_UNIT = r"(?:second|minute|hour|day|week|month|year)s?"
+_NUM_TOK = r"(?:[0-9]{1,3}|%s)" % "|".join(_QTY_WORDS)
+_QTY_RANGE_RE = re.compile(
+    r"\b%(n)s\s*(?:to|-|–|—)\s*%(n)s\b" % {"n": _NUM_TOK}, re.I)
+_QTY_TIME_RE = re.compile(
+    r"\b%(n)s(?:\s+of)?(?:\s+(?:business|working|calendar))?\s+%(u)s\b"
+    % {"n": _NUM_TOK, "u": _TIME_UNIT}, re.I)
+
 # ── 품목-나열 힌트 (A′ t81 교정·2026-07-11) — 도메인일반 *구문* 신호(어휘 0·[[05]]) ──
 # 근거(t5c_aprime1 t81 정독): 사용자가 상품명 6개를 나열("the hiking boots, watch,
 # keyboard, charger, jacket, and running shoes")했으나 수사/수량어 0 → qty=1 →
@@ -156,9 +171,12 @@ def _extract_entity_ids(output_text, entity_key):
 
 
 def _parse_qty(text):
-    """발화 1건서 수량 후보 최대값(없으면 0). 단수 관사("a laptop")=수량 신호 없음."""
+    """발화 1건서 수량 후보 최대값(없으면 0). 단수 관사("a laptop")=수량 신호 없음.
+    시간/기간-인접 수사·bare 범위는 절제 후 파싱(t47 오염 가드·위 _QTY_*_RE)."""
     if not text:
         return 0
+    text = _QTY_RANGE_RE.sub(" ", str(text))
+    text = _QTY_TIME_RE.sub(" ", text)
     best = 0
     for m in _QTY_DIGIT_RE.finditer(text):
         best = max(best, int(m.group(1)))
@@ -237,6 +255,17 @@ class PlanLedger:
               if intent_class is None or p["intent_class"] == intent_class]
         return max(qs + [self.qty_mentioned, 1])
 
+    def item_coverage(self, extra=()):
+        """실행 성공 write들 + (현재 시도 call의) 품목 id를 합친 distinct 개수.
+        수량-conflation 가드(qty_item_covered)의 재료 — 중복 id(t95 ap2의
+        ["x","x"] 이중지정)는 set이라 1로 계수(=미커버 신호 보존)."""
+        if isinstance(extra, (str, bytes)):
+            extra = (extra,)
+        ids = {str(i) for e in self.executed for i in (e["items"] or ())}
+        ids |= {str(x) for x in (extra or ()) if x is not None}
+        ids.discard("")
+        return len(ids)
+
 
 # ── 결정론 술어 (설계 §3 의사코드 그대로) ─────────────────────────────────────
 def expand_scope(writes, listed):
@@ -253,12 +282,32 @@ def expand_scope(writes, listed):
     return out
 
 
-def discovery_L1(ledger):
+def qty_item_covered(ledger, n, attempt_items=()):
+    """★수량-conflation 보수화 가드 (T27_T103_PERSTEP §t27 부결함②·2026-07-11).
+    발화 수량 N의 지시 대상이 entity(주문)인지 item(품목)인지는 *의미 판단*이라
+    결정론으로 못 가른다("two items"=1주문 2품목 vs "two laptops"=실제 2주문 —
+    표면 신호 동일·유저 둘 다 '한 주문' 주장). 대신 관측-가능 프록시로 보수화:
+      N이 "이미 실행된 write들 + 지금 시도 중인 write의 distinct 품목 id 수"로
+      전부 설명되면 → 수량은 품목-급으로 충족 가능 → qty만으로 deny하지 않는다.
+    검증(오프라인 replay): t27(couple=2·return 2품목)=침묵 전환 / t47("both"=2·
+    return 2품목)=침묵 / t95(two laptops·시도가 1품목 or 동일-id 중복)=발화 유지.
+    ★정직 한계: (a) N이 여러 write에 분산되고 아직 아무것도 실행 전이면(ap1 t27:
+    qty=3·첫 시도 exchange 1품목) 가드 불발 → deny 지속(상한=T2_EPLAN_DENY_CAP).
+    (b) 진짜 멀티-entity 요청인데 에이전트가 한 entity에 N개 *distinct* 품목을 쓰면
+    오-침묵(t95 ap2는 동일-id 중복이라 escape). (c) "size 9"류 속성-수사 오염은
+    미해결(coverage 9 불충족 → 잔존·비표적 r=0 sim에서만 관측). 품목/entity 구분
+    자체는 결정론화하지 않음 — semantic이라서."""
+    return n >= 2 and ledger.item_coverage(attempt_items) >= n
+
+
+def discovery_L1(ledger, attempt_items=()):
     """목록-수준(t81형): 멀티엔티티 의도(SCOPE_TOKEN 또는 수량>=2 또는 품목-나열>=3)
-    ∧ 목록 미조회. 나열 힌트 OR = A′ t81 교정(수량어 없는 6-품목 나열)."""
+    ∧ 목록 미조회. 나열 힌트 OR = A′ t81 교정(수량어 없는 6-품목 나열).
+    수량>=2 항만 qty_item_covered 가드 적용(토큰·나열 신호는 qty-conflation 무관)."""
     has_tok = any(is_scope_token(p.get("entity")) for p in ledger.planned)
-    return ((has_tok or ledger.required_qty() >= 2
-             or getattr(ledger, "multi_entity_hint", False))
+    qty_sig = (ledger.required_qty() >= 2
+               and not qty_item_covered(ledger, ledger.required_qty(), attempt_items))
+    return ((has_tok or qty_sig or getattr(ledger, "multi_entity_hint", False))
             and not ledger.listed)
 
 
@@ -275,15 +324,19 @@ def walk_required_n(ledger, unexamined):
     return n
 
 
-def discovery_L2(ledger, intent_class):
+def discovery_L2(ledger, intent_class, attempt_items=()):
     """상세-수준(v1.2·t95 ⓐ tr1/tr3형): 요구수량 N > 매칭 distinct entity M
     ∧ 미검토 sibling(목록엔 있으나 detail 미조회) 존재 → 그 id들(정렬) 반환.
     N<2면 침묵(단일-엔티티 요청에 전수-읽기 강요 = over-read·설계 §4 Δtme 위반 방지).
-    전부 examined면 [] — ⓑ(binding-gap·tr0/tr2형)은 CP5 재-plan walk 관할(술어 특이도 §5④)."""
+    전부 examined면 [] — ⓑ(binding-gap·tr0/tr2형)은 CP5 재-plan walk 관할(술어 특이도 §5④).
+    ★qty_item_covered 가드(t27 교정): N이 품목-급으로 충족되면 침묵 —
+    attempt_items = 지금 deny 판정 대상인 write 호출의 품목 id(배선측이 전달)."""
     n = ledger.required_qty(intent_class)
     m = len({e["entity"] for e in ledger.executed
              if e["intent_class"] == intent_class})
     if n < 2 or n <= m:
+        return []
+    if qty_item_covered(ledger, n, attempt_items):
         return []
     return sorted(ledger.listed - ledger.examined)
 
@@ -329,8 +382,11 @@ def _g(m, k, default=None):
 def build_ledger_from_messages(messages, spec, write_tools):
     """committed 히스토리 1-pass → PlanLedger. 전부 결정론([[10]])·에이전트-기수행 관측만.
     qty=user 발화 누적 / listed·examined=read 관측 / executed=성공 write.
-    ④(eplan_iso_probe)서 실궤적 검증된 로직의 객체-호환판."""
+    ④(eplan_iso_probe)서 실궤적 검증된 로직의 객체-호환판.
+    items 인자 키 = A2 spec "items_key"(ABox·retail="item_ids") — 기본값은 기존
+    엔진 리터럴과의 하위호환(spec 미지정 도메인 = 종전 동작 그대로)."""
     led = PlanLedger(spec)
+    ikey = spec.get("items_key", "item_ids")
     res_by_id = {}
     for m in messages:
         if _g(m, "role") == "tool" and _g(m, "id") is not None:
@@ -355,7 +411,7 @@ def build_ledger_from_messages(messages, spec, write_tools):
                 if nm in write_tools:
                     if ok:
                         led.note_write(nm, ar.get(spec.get("entity_key")),
-                                       ar.get("item_ids") or ())
+                                       ar.get(ikey) or ())
                 else:
                     out = _g(tm, "content") if (tm is not None and not _g(tm, "error")) else None
                     led.note_read(nm, ar, out if isinstance(out, str) else None)
@@ -519,12 +575,14 @@ def cp5_reminder(gaps):
             "they still want them, then act or explain:\n" + "\n".join(lines))
 
 
-def discovery_precondition(ledger, spec, intent_class):
+def discovery_precondition(ledger, spec, intent_class, attempt_items=()):
     """discovery-enforce 술어(순수) — write 시도 시 호출·deny 피드백 문자열 또는 None.
-    기존 replay-safe deny+regen 게이트의 precondition으로 삽입(신규 후크 불요·설계 §1)."""
-    if discovery_L1(ledger):
+    기존 replay-safe deny+regen 게이트의 precondition으로 삽입(신규 후크 불요·설계 §1).
+    attempt_items = 시도 중인 write 호출의 품목 id(A2 items_key로 배선측 추출) —
+    qty_item_covered 가드 재료(미전달=기존 동작·qty-conflation 가드만 비활성)."""
+    if discovery_L1(ledger, attempt_items):
         return l1_feedback(ledger, spec)
-    ids = discovery_L2(ledger, intent_class)
+    ids = discovery_L2(ledger, intent_class, attempt_items)
     if ids:
         return l2_feedback(ids, spec)
     return None
@@ -647,6 +705,13 @@ def apply():
                     m = len({e["entity"] for e in led.executed})
                     if n <= 1 or n <= m:
                         return r  # gap 없음 = 개입 0 (R1b)
+                    if qty_item_covered(led, n):
+                        # ★t27 교정: N이 실행된 write들의 distinct 품목 수로 설명되면
+                        #   품목-급 수량 → 거짓 gap(ap2 t27 walk qty=2 executed=1) 억제.
+                        #   t81(cancel=품목 인자 0→coverage 0)·t95(중복-id=1)는 불변 발화.
+                        _mark("walk suppressed: qty item-covered (n=%d cov=%d)"
+                              % (n, led.item_coverage()))
+                        return r
                     reminder = cp5_gap_reminder(n, m, unexamined)
                 self._t2_eplan_walked = True
                 self.done = False

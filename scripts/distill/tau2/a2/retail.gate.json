@@ -306,7 +306,8 @@
   "eplan": {
     "list_enumerator": "get_user_details",
     "detail_reader": "get_order_details",
-    "entity_key": "order_id"
+    "entity_key": "order_id",
+    "items_key": "item_ids"
   },
-  "_note_eplan": "E-PLAN(E_PLAN_LIVE_WIRING_DESIGN v1.2·t2_eplan_patch) 도메인 사실: list-enumerator/detail-reader/entity_key만 ABox — 엔진=도메인일반(SCOPE_TOKEN 어휘·수량 소사전만 엔진 보유). flag=T2_EPLAN."
+  "_note_eplan": "E-PLAN(E_PLAN_LIVE_WIRING_DESIGN v1.2·t2_eplan_patch) 도메인 사실: list-enumerator/detail-reader/entity_key/items_key만 ABox — 엔진=도메인일반(SCOPE_TOKEN 어휘·수량 소사전만 엔진 보유). items_key=write 호출의 품목-id 인자명(qty-conflation 가드 qty_item_covered 재료·2026-07-11 t27 교정 — 기존 엔진 리터럴 item_ids의 ABox 이관). flag=T2_EPLAN."
 }

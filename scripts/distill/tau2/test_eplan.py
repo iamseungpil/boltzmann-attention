@@ -14,7 +14,8 @@ from t2_eplan_patch import (  # noqa: E402
     PlanLedger, expand_scope, discovery_L1, discovery_L2, coverage_gap,
     is_scope_token, load_eplan_spec, _covers, discovery_precondition,
     _enum_items, walk_required_n, _intent_match, ledger_summary,
-    structured_replan_prompt, parse_obligations, transcript_text)
+    structured_replan_prompt, parse_obligations, transcript_text,
+    qty_item_covered, _parse_qty)
 
 # 가짜 A2 eplan spec — 엔진이 도구명 하드코딩 0([[05]])임을 도구명 자체로 검증
 SPEC = {"list_enumerator": "list_tool", "detail_reader": "detail_tool", "entity_key": "eid"}
@@ -201,6 +202,76 @@ _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2", "retail.gate
 with open(_p, encoding="utf-8") as f:
     _full = json.load(f)
 ok("gates" in _full and "eplan" in _full, "retail.gate.json 전체 json.load 무결")
+
+# ── 8b. ★qty-conflation 수리 (T27_T103_PERSTEP §t27 부결함②·2026-07-11) ─────
+# (i) t47형: 시간/기간-인접 수사 + bare 범위 = 수량 아님 (닫힌 기능어 집합·도메인 0)
+ok(_parse_qty("please make sure the refund is done within 3 days") == 0,
+   "t47형: '3 days' → 시간단위 인접 = 수량 아님")
+ok(_parse_qty("completed within 3 days, not 5 to 7") == 0,
+   "t47형: bare 범위 '5 to 7'(단위 생략) → 수량 아님")
+ok(_parse_qty("it usually takes 5 to 7 business days") == 0,
+   "t47형: '5 to 7 business days' → 수량 아님")
+ok(_parse_qty("I'll wait a couple of weeks then") == 0,
+   "t47형: 'couple of weeks' → 수량 아님")
+ok(_parse_qty("exchange two laptops in 3 days") == 2,
+   "t47형 특이도: 시간구만 절제·'two laptops'=2 보존")
+t47l = PlanLedger(SPEC)
+t47l.accumulate_qty("Please process the refund within 3 days, not 5 to 7.")
+ok(t47l.required_qty() == 1 and discovery_L1(t47l) is False,
+   "t47형: 기간 오염 제거 → qty=1·L1 침묵")
+ok(discovery_L2(t47l, "return_tool") == [], "t47형: L2도 침묵")
+
+# (ii) t27형: 단일 주문 다품목 — 발화 수량("a couple of things")이 품목 수.
+#     시도 write의 distinct 품목 id가 N을 설명하면 deny 침묵 (qty_item_covered).
+t27l = PlanLedger(SPEC)
+t27l.accumulate_qty("I need to return a couple of things from my recent order")
+ok(t27l.required_qty() == 2, "t27형: 'couple' → qty=2 (소사전 불변)")
+t27l.listed = {"W1", "W2", "W3"}
+t27l.examined = {"W1"}
+ok(discovery_L2(t27l, "return_tool", attempt_items=("i1", "i2")) == [],
+   "t27형: 시도 write 2품목 = qty 2 커버 → L2 침묵 (거짓 sibling-deny 제거)")
+ok(discovery_precondition(t27l, SPEC, "return_tool", attempt_items=("i1", "i2")) is None,
+   "t27형: precondition 통과 (ap2 t27 3중 deny 소멸 경로)")
+ok(discovery_L2(t27l, "return_tool", attempt_items=("i1",)) == ["W2", "W3"],
+   "t27형 한계(정직): 1품목 시도는 qty=2 미커버 → deny 유지 (ap1형 잔존·cap이 상한)")
+# 실행-누적 커버: 이전 write 1품목 + 시도 1품목 = 2 → 침묵
+t27c = PlanLedger(SPEC)
+t27c.accumulate_qty("return a couple of things")
+t27c.listed = {"W1", "W2"}
+t27c.note_write("return_tool", "W1", {"i1"})
+ok(discovery_L2(t27c, "exchange_tool", attempt_items=("i2",)) == [],
+   "t27형: 실행품목+시도품목 누적 커버 → 침묵 (intent 불문 goods 계정)")
+# walk 억제: 실행 2품목이 qty=2 설명 → 거짓 gap 아님 (ap2 t27 walk 962-963 대응)
+t27w = PlanLedger(SPEC)
+t27w.accumulate_qty("return a couple of things from my order")
+t27w.listed = {"W1", "W2", "W3"}
+t27w.note_write("return_tool", "W1", {"i1", "i2"})
+ok(qty_item_covered(t27w, walk_required_n(t27w, ["W2", "W3"])) is True,
+   "t27형: walk N=2가 실행 2품목으로 커버 → walk 억제 재료")
+
+# (iii) t95형(회귀 필수): 진짜 2주문 — 시도가 1품목(tr1/tr3) 또는 동일-id 중복(ap2)
+#      → 미커버 → L2 발화 유지.
+t95l = PlanLedger(SPEC)
+t95l.accumulate_qty("I just received a couple of laptops")
+t95l.accumulate_qty("exchange two laptops for the i7 model")
+t95l.listed = {"W1", "W2", "W3"}
+t95l.examined = {"W1", "W2"}
+ok(discovery_L2(t95l, "exchange_tool", attempt_items=("i1",)) == ["W3"],
+   "t95형 유지: 1품목 시도 < qty 2 → 미검토 sibling 발화")
+ok(discovery_L2(t95l, "exchange_tool", attempt_items=("i1", "i1")) == ["W3"],
+   "t95형 유지: 동일-id 중복(ap2 이중지정)은 distinct 1 → 발화 유지")
+ok("W3" in (discovery_precondition(t95l, SPEC, "exchange_tool",
+                                   attempt_items=("i1", "i1")) or ""),
+   "t95형 유지: precondition이 L2 피드백 반환")
+# t95 walk 유지: 실행 0 또는 중복-id → coverage < 2 → walk 발화 재료 유지
+ok(qty_item_covered(t95l, 2) is False, "t95형: 실행 0 → walk 억제 없음")
+# t81형 불변: cancel(품목 인자 0) → coverage 0 → 나열-힌트 walk 불변
+t81l = PlanLedger(SPEC)
+t81l.accumulate_qty(T81)
+t81l.listed = {"W1", "W2"}
+t81l.note_write("cancel_tool", "W1", ())
+ok(qty_item_covered(t81l, walk_required_n(t81l, ["W2"])) is False,
+   "t81형 불변: 품목-인자 없는 write → coverage 0 → walk 유지")
 
 # ── 9. ★레버4 formalize-obligation (T2_EPLAN_REPLAN·부록 Y·2026-07-11) ──────
 # 9a. _intent_match: 축약형('exchange')이 executed 도구명을 커버 (양방향 포함)

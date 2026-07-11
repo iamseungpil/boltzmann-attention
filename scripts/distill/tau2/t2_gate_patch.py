@@ -1446,7 +1446,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     nm = getattr(c, "name", None)
                     if nm in ep_writes and id(c) not in denied_by_objid:
                         try:
-                            fb = _epmod.discovery_precondition(ep_led, ep_spec, nm)
+                            # ★qty-conflation 가드(t27): 시도 call의 품목 id를 술어에 전달
+                            #   (키=A2 "items_key"·ABox) — N이 품목-급으로 충족되면 deny 안 함.
+                            _ep_items = _args_dict(c).get(
+                                ep_spec.get("items_key", "item_ids")) or ()
+                            fb = _epmod.discovery_precondition(
+                                ep_led, ep_spec, nm, attempt_items=_ep_items)
                         except Exception:
                             fb = None
                         if fb:
