@@ -74,6 +74,7 @@
 - **relay-gap → calc로 못 닫음.** 후보 = CP5 walk의 **communicate-의무 확장**(재-plan이 "답해야 할 질문"도 추출 → 미답이면 리마인더) — E-PLAN CP5와 좌석 공유·**[D]·격리 프로브 先**(재-plan이 질문-의무를 안정 추출하는지 + NL diff의 결정론성 한계 정직 평가). 1차 스코프 밖·E-PLAN §5(d)에 프로브 항목 추가.
 
 **검증**: 단위(op 3종) + 오프라인 재계산(COMP 궤적서 t20/t71/t95 트리거 시점에 주석이 정답을 내는지 = 무료 census) + 라이브 발화율([[30]] 스모크).
+**★V0 결과 (2026-07-11·구현+census 완료·`calcext_offline_census.py`)**: ① 단위 28 PASS·A2 argmax/argmin 2스펙 부착. ② **t20 census: 4 product 중 3 MATCH**(Water Bottle·Keyboard·Makeup Kit) / Running Shoes = **구조적 MISS**(gold=주문과 같은 size 9 중 최고가 — 제약값이 주문-문맥 의존이라 정적 주석 불가·same-size 추론은 에이전트 몫 = 설계 의도 그대로). ③ **most_recent = retail 사망**: 전 456 sim·전 tool 출력에 날짜형 필드 **0건** → 스펙 미부착. **★t71 재라우팅**: "최근 주문"은 도구로 결정 불가(producer 부재) ⇒ **C48 위계상 ASK가 정답** — calc 아니라 DISAMB/ASK 채널로 이관(t71은 user-sim 오확인 고착 이력 있어 재확인형 한계도 계상·C56).
 **반대편 계측**: 주석-과잉(무관 주석이 창 오염=C43 재료) → 주석은 트리거 tool 출력에만·개수 상한·Δfab 계측.
 
 ## 3. FEASIBILITY·NOTICE — B클래스 결정가능분 (t27·t57 일부)

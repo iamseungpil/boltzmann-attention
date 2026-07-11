@@ -9,6 +9,9 @@
 > (c) 첫 사용자 발화 8중 7이 단수 "a laptop" — "실은 두 대"는 **대화 중반 계시** → CP0 단발 plan은 이 의무를 구조적으로 못 담음.
 > ⇒ ②의 골자(기존 replay-safe deny+regen 재사용·신규 후크 불요)는 유지하되 **술어를 2-수준으로 재설계**(§1) + **CP5 근거를 stop-time 전문맥 재-plan으로 교체**(§1·C14 정합). t95 GO 판정은 **db_match 기준**(reward 단독 금지 — NL-calc 이중결손 병발·`RETAIL_FULL_FAIL_CENSUS §5`).
 > 비용: 설계·구현·단위·격리검증 = **무료**(로컬 32B/오프라인). 표적 nt=1 = 소액(승인).
+> **★v1.3 (격리검증 ④⑤ 실측 반영·2026-07-11·`eplan_iso_probe.py`)**:
+> **④ PASS** — L2 술어 특이도 실궤적 재현: t95 미조회형(tr1/tr3) `#W2905754` 정확 지목-발화 / 전부-검토형(tr0/tr2) 침묵(over-read 0). qty 추출 "two laptops"→2 작동.
+> **⑤ 재-plan 약함 — CP5 주축 교체**: raw-transcript stop-time 재-plan full-cover **t95 0/4·t81 1/4·t41 0/4**(32B·이름정규화·앞부분-보존 절단 후). 대화-표면(실패한 흐름)을 따라가 한 주문만 냄 — C14의 "격리 계획선 정답"은 *구조화된 주문-문맥 제공* 조건이었고 raw 원문과 다름 = **E-ISO C61 형식화-부하(B≈A<C)의 재확인**. ⇒ **CP5 1차 신호 = 결정론 ledger**(qty N > executed distinct M — t95 전 trial서 이 신호만으로 gap 검출됨·④): (a) 미검토 sibling 있으면 L2-read 리마인더 (b) 전부 검토면 "요청 수량 N 중 M만 수행" 재확인 리마인더. **LLM 재-plan은 [D] 강등**(형식화-프롬프트: ledger 요약+명시 열거를 얹은 변형으로 후속 검증·qty로 안 잡히는 의무 유형 커버가 목적).
 
 ---
 
