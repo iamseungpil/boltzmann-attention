@@ -93,10 +93,18 @@ PLAN_PROMPT = (
 )
 
 
-def mode_replan(sims, task_id, gold_pairs, base, model, max_chars=24000):
+def _canon_action(name):
+    """재-plan 산출의 축약형('exchange')을 intent-class로 정규화해 gold full-name과 대조."""
+    n = str(name).lower()
+    for w in WR:
+        if w in n:
+            return w
+    return n
+
+
+def mode_replan(sims, task_id, gold_pairs, base, model, max_chars=60000):
     import urllib.request
     print(f"== ⑤ stop-time 재-plan (task {task_id}·C14 재검증) gold={gold_pairs} ==")
-    hits = 0, 0
     tot = 0
     full = 0
     for s in sorted([x for x in sims if str(x.get("task_id")) == str(task_id)],
@@ -108,7 +116,10 @@ def mode_replan(sims, task_id, gold_pairs, base, model, max_chars=24000):
                 lines.append(f"[{role}] {c.strip()}")
             for tc in (m.get("tool_calls") or []) if role == "assistant" else []:
                 lines.append(f"[assistant->tool] {tc.get('name')} {json.dumps(args_of(tc.get('arguments')), ensure_ascii=False)}")
-        txt = "\n".join(lines)[-max_chars:]
+        txt = "\n".join(lines)
+        if len(txt) > max_chars:  # 절단 필요 시 중간을 접고 앞(초기 조회·details)+뒤(결말) 보존
+            keep = max_chars // 2
+            txt = txt[:keep] + "\n...[middle truncated]...\n" + txt[-keep:]
         body = json.dumps({"model": model, "temperature": 0.0, "max_tokens": 600,
                            "messages": [{"role": "user", "content": PLAN_PROMPT + txt}]}).encode()
         req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=body,
@@ -124,9 +135,9 @@ def mode_replan(sims, task_id, gold_pairs, base, model, max_chars=24000):
         except Exception:
             print(f"-- trial {s.get('trial')}: PARSE_FAIL {ans[:120]!r}")
             continue
-        got = {(str(w.get("action", "")).strip(), str(w.get("order_id", "")).strip()) for w in arr}
-        want = set(gold_pairs)
-        cov = want & {(a, o) for (a, o) in got}
+        got = {(_canon_action(w.get("action", "")), str(w.get("order_id", "")).strip()) for w in arr}
+        want = {(_canon_action(a), o) for (a, o) in gold_pairs}
+        cov = want & got
         tot += 1
         full += (cov == want)
         print(f"-- trial {s.get('trial')}: replan={sorted(got)} | gold-cover {len(cov)}/{len(want)}"
