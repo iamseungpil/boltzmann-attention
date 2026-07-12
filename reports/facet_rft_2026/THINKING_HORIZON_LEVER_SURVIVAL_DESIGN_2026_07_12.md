@@ -126,7 +126,54 @@ frontier가 못하는 것(§3.2f-5 census·모델 기울기): 규모·신형화�
 - ⇒ **주장 = "scale로는 banking 상용 수준을 충분히·싸게 못 산다 → 같은 per-step을 scaffold로 더 명확하고 싸게 산다"**(§2-2). horizon = "더 싼 레버로 극복하는 영역".
 - **2509.09677 대비 방향**: 합성 task는 per-step 실패=계산오류라 scale/thinking이 삼 → "scale이 horizon 산다"처럼 보임. banking(실 tool-use)은 per-step 실패=구조라 scale이 느리고·불충분 → **scaffold가 더 싸게 사는 게 옳음**. **E-HORIZON(synth)=통제-인과 짝·banking=실-도메인 관측**. 덱/논문/특허 horizon 재프레임의 실측 앵커.
 
-### 7.5 caveats([[08]]·[[40]])
+## 8. ★E-HORIZON 결과 [M] — verify가 per-step을 scale보다 급격·싸게 산다 (2026-07-12·무료·GPU1)
+직접-증분 running-sum(dict-free·단일-스텝 easy·실패=순수 누적)·H=30·runs=12·Qwen2.5 사다리·결정론 gold. `eref_horizon.py`·`sim_results/ehoriz_qwen25-*.jsonl`.
+
+| 모델 | base(scale) | verify | detect | verify−base | self-cond acc_post(base/verify) |
+|---|---|---|---|---|---|
+| 0.5B | 0.006 | 0.019 | 0.000 | +0.014 | 0.006/0.020 |
+| 1.5B | 0.069 | 0.361 | 0.072 | +0.292 | 0.000/0.329 |
+| 3B | 0.039 | 0.167 | 0.039 | +0.128 | 0.003/0.139 |
+| 7B | 0.258 | 0.825 | 0.258 | +0.567 | 0.010/0.795 |
+| **14B** | **0.322** | **0.911** | 0.344 | **+0.589** | **0.044/0.910** |
+
+- **scale=완만**: 0.5B→14B(28× 파라미터) per-step 0.006→**0.322**(상용 미달·retail operand 포화와 대조).
+- **verify=급격**: 14B 0.322→**0.911**(+0.589·pass-cost 0·결정론). verify_gain이 scale과 함께 커짐(단일-스텝 되는 모델서 verify가 더 크게 산다).
+- **★기전=self-conditioning 절단(E-HORIZON-2)**: base acc_post(첫 오류 후) 0.04 = 고착(한번 틀리면 문맥 오염→cascade) vs verify 0.91 = 교정으로 루프 절단(14B 20× 회복). **detect≈base**(0.32) = *탐지*로는 안 되고 *교정*(오류 문맥진입 前 제거)이 핵심.
+- ⇒ **"scale이 느리게 개선하는 per-step을 verify(싼 결정론)가 더 명확히 개선"**(사용자 지시 실증). horizon=per-step^H이므로 verify가 per-step→0.91로 올리면 horizon도 산다·scale-불변·pass-cost 0.
+- caveats([[08]]): n=12(잡음권·1.5B>3B는 전이대역 noise)·synth(2509.09677 동형)·verify는 첫 오류는 못 막고 *cascade*를 막음(=self-conditioning 절단 정확). thinking arm(E-THINK)·in-vivo tool-use는 별도.
+
+## 9. ★horizon = 동적오염의 시간축 (통합 이론·사용자 통찰 형식화)
+**사용자 통찰(2026-07-12)**: "horizon 문제는 동적오염과 직접 연관 — 길게 이어지면 혼란스러운 지시가 누적돼 일관성 유지가 힘들다." → **형식화·확증**:
+- 과제 성공 = `∏ₜ pₜ`(스텝 정확도 곱). 독립이면 `p^H`(2509.09677). **그러나 pₜ는 시간에 따라 하락**: `pₜ = p₀ − f(Cₜ)`, Cₜ = 스텝 t까지 문맥에 누적된 **동적오염**.
+- **Cₜ의 원천 = 오염 축들(누적)**: (a) self-conditioning(모델 자기오류·E-HORIZON acc_post 0.04=cascade) + (d) 멀티턴 상충 지시(사용자 지시 축적→일관성 부하) + (c) distractor 누적(near-miss anchor 밀도↑·C69).
+- ⇒ **horizon 붕괴 = 동적오염의 스텝-적분**. 길수록 오염 누적→pₜ 하락→성공 초-지수 붕괴(p^H보다 급함). **horizon(시간축)과 동적오염(기전)은 같은 현상의 두 얼굴** — "길면 어렵다"의 *이유*가 "동적오염이 누적된다".
+- **증거**: E-HORIZON(축 a: verify 절단→pₜ 유지·[M]) · C69(축 c: near-miss 바인딩 파손·[M]) · Laban 2505.06120(축 d: 멀티턴 reliability +112% 보편·[미검]).
+
+### 9.1 ★극복법 (사용자 "이걸 극복할 방법이 있나?" → YES·오염-방화벽)
+오염은 *문맥에 누적*된다 → pₜ≈p₀ 유지하려면 **오염이 문맥에 쌓이기 전에 각 스텝서 제거**. 축별 결정론 레버 = **오염 방화벽**:
+| 오염 축 | 극복 레버(결정론·pass-cost 0) | 증거 |
+|---|---|---|
+| (a) self-conditioning | **per-step verify-correct**(오류 문맥진입 前 교정) | E-HORIZON [M](acc_post 0.04→0.91) |
+| (d) 상충 지시/멀티턴 | **canonical-state controller**(정본 상태를 LLM 문맥 밖 결정론 유지·LLM은 턴 delta만 번역·오염된 히스토리 미참조) | E-PLAN/controller [D] |
+| (c) distractor 정박 | **provenance/gather 게이트**(검증된 출처 레코드서만 바인딩) | C45/C69 [M] |
+| (정책) | **compliance 게이트** | C1/C53 [M/S] |
+| — thinking(부분·비쌈) | 축 a만(자기오류 commit 안 함)·축 c/d 무력 | 2509.09677·C56 |
+⇒ **오염-방화벽이 pₜ를 horizon 길이·scale과 무관하게 p₀ 근처로 유지** = horizon을 scale 아니라 scaffold로 산다.
+
+## 10. ★큰 서사 + tool-use 스코핑 (사용자 지시: 논문/특허 주장 가능성)
+### 10.1 서사 (동적오염×horizon×thinking×scale 통합)
+> **tool-use 에이전트는 추론 부족이 아니라 *누적 간섭 하 실행*으로 실패한다.** 과제가 길어질수록(horizon) 문맥에 동적오염이 쌓인다 — 모델 자기오류(self-conditioning)·사용자 상충지시(멀티턴)·distractor 레코드. 각 오염이 스텝 정확도 pₜ를 떨어뜨리고, 성공=pₜ^H인데 pₜ 자체가 오염 누적으로 하락하니 horizon이 초-지수 붕괴한다. **scale**은 기저 pₜ를 올리나 *느리고 상용 미달*(banking 0/18)·비쌈. **thinking**은 자기-오염만 끊되(축 a) 외부 오염(축 c/d)엔 무력·비쌈(inference-scaling). **비용효율 답 = 결정론 오염-방화벽**(per-step verify + canonical-state controller + provenance/compliance 게이트)으로 pₜ를 horizon·scale 무관 p₀ 근처 유지·pass-cost 0. **scale은 추상이 지배하는 다른 분야선 여전히 답이나, 간섭이 지배하는 tool-use선 scaffold-조합이 답이다.**
+
+### 10.2 ★스코핑 = tool-use 도메인 한정 (필수·정직·모트 강화)
+- **주장 범위 = tool-use 25 벤치(τ²/SOPBench/TaskBench/Synth 등)로 명시 한정.** "scale 무용론" *아님* — scale은 추론·지식·일반능력서 답. 우리 주장 = **간섭-지배 tool-use 영역서 per-step 잔여(compliance·reach·coverage·binding-under-contamination)가 *구조적*이라 scaffold가 scale보다 싸게 닫는다**.
+- **왜 정직한 좁힘이 모트를 강화하나**: (1) 과대주장("소형=대형") 회피→"버금가는"([[46]]) (2) scale이 이기는 곳 인정→신뢰 (3) 모트가 도메인-스코프됨=tool-use=저추상·고간섭(추상능력 1.5B emergent·C66 / 격차=동적오염·C69).
+### 10.3 논문·특허 주장 가능성 = **YES (조건부)**
+- **가능(지금 증거로)**: compliance scale-불변(C1 [S]) · banking 0/18 frontier 상용미달(C71 [M]) · E-HORIZON verify≫scale per-step(§8 [M]) · C69 동적오염 바인딩파손([M]) · thinking≠⋈(C56 [M]). ⇒ "tool-use서 scale은 비용효율 답 아님·scaffold-조합이 답"을 **측정 근거로 주장 가능**.
+- **표현 규율([[40]])**: "tool-use 도메인서"를 항상 명시·"scale은 X 분야선 답이나 tool-use 간섭영역선 아니다" 대조 프레임. horizon은 "scale 영토"가 아니라 "오염-방화벽으로 극복하는 영역"으로 기술.
+- **반영 대상**: Paper1 §1 동기·§6 lever allocation(오염-방화벽 통합) · 특허 A§3.5 헤드라인(오염축별 레버)·B§5.A(horizon=동적오염 스코프) · 덱 §서사 슬라이드. **[미검] 축 d(canonical-state)·in-vivo는 표기.**
+
+## 7.5 caveats([[08]]·[[40]])
 - pass=p^H는 근사(단계 독립 가정·self-conditioning 있으면 실제 더 급함). banking universal-fail은 H=12.5라 p 함의가 H=8보다 높게 나옴(장기일수록 완주가 더 정보적) — 도메인 median H=8 기준 채택.
 - banking_knowledge는 τ³ KB-검색 축(우리 operand 프레임과 부분 다름·§3.2c caveat)·EXTRA_read ~100%=탐색 비인과. all-or-nothing DB 채점 가혹성 실재(단 완주-후-불일치 45%=진짜 인자오류·§3.2f-4 per-case 3건 확정).
 - **미측정**: banking에 결정론 scaffold(controller+calc+prov+coverage) 실붙임 후 per-step→1·pass 상향 = **E-XFER-bank gate arm**(유료·승인대기). 본 §은 *frontier가 못함*의 기록이지 *우리가 함*의 증명 아님(후자=E-XFER-bank).
