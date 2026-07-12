@@ -96,3 +96,23 @@
 1. ✅**확정(사용자 2026-07-12)**: "scale 느림" 주장=**banking(실)**이 짊어짐 / **synth=banking-난이도 보정**해 그 지점서 verify/inject 작동 통제실증(E1 재설계). synth→banking 일반화 금지·역할 분담 명기.
 2. E2b(⋈ 경계) 없이 E2a만으로 "A2가 sd 닫음" 주장 시 과대 위험 — E2a/b 쌍 필수?
 3. E4 in-vivo decision-quality가 [M]이면 synth→tool-use 일반화 문장 허용? (현재 [[40]]로 금지)
+
+## 6. 리뷰 판정 (2026-07-12·코드/데이터 대조·리뷰어 세션)
+> banking per-step 원파일(`sim_results/banking_perstep_frontier_2026_07_12.txt`) + `eref_horizon.py` 대조. 설계 전반 견고·사전등록/gold-independence 규율 모범. E1 재설계 방향 **승인**·단 재설계가 들인 신규 리스크 3건 + §5.2/5.3 판정 + E6 갭.
+
+**§5.1 (E1 banking-보정) — 승인.** banking이 크기, synth가 기전+개입을 나누고 일반화를 금지한 게 정확. 근거 확증: banking per-step은 **리더보드 pass1 역산**(p_step=pass1^(1/H)·H=8 가정)이라 E-HORIZON 직접측정과 **동일 곡선 금지**가 맞고(역산이 pass=p_step^H를 이미 가정), banking 실패기전=reach/unlock 발견체인(파일 명시)≠running-sum이라 "같은 태스크 어렵게"가 아닌 것도 맞다. **단 재설계 신규 리스크 3건(사전등록 필수)**:
+- **★FE1-b (중대·confound 재유입)**: 원 E-HORIZON은 lookup을 *의도적으로 제거*해 실패를 순수 상태추적으로 격리(`eref_horizon.py:32` "dict-free…self-conditioning으로 격리"). 난이도 보정에 **lookup 재도입 시 그 격리가 깨진다** — 보정-태스크의 실패 = lookup-오류 ∨ 상태-발산. ⇒ **기전 주장(E3 inject=순수 running-sum)과 verify 주장(E1=lookup-보정)이 서로 다른 태스크 위에 앉는다.** 처방: inject/self-consistency를 **보정 난이도에서도** 실행(sd 기전이 그 난이도서 유지되나) — 안 하면 "쉬운 데서 기전, 어려운 데서 verify" 분리를 리뷰어가 정면 타격. 대안: 난이도 상향을 lookup 아닌 **순수-산술 부하(큰수/음수/K↑)만**으로 국한해 기전 단일 유지(권장).
+- **FE1-a (post-hoc 방지)**: 보정 목표 [0.75~0.88]을 **verify 효과 보기 前 사전등록**. "0.8서 verify가 산다"는 그 0.8이 결과-무관하게 고정됐을 때만 통제 — 보정을 멈춘 지점이 우호적 결과가 나온 지점이면 안 됨.
+- **FE1-c (gold-independence at 보정)**: lookup 재도입 시 verify 재계산이 **문맥-내 제공 테이블에서만** 재계산해야 gold-independent 유지. 숨은 store 조회면 R3 위반.
+
+**§5.2 (E2a/b 쌍 필수?) — 예·강제. 이미 반영됨·강화 권고.** E2a 단독으로 "A2가 sd 닫음" = F8형 과대주장(⋈ 잔여를 은폐). E2b(⋈ 안 닫힘)가 바로 [[05]]-정직한 경계(A2는 결정가능분만·의도 필요분=잔여)이자 모트의 정직성 그 자체. **쌍 필수 확정.** + gold-independence 구현 게이트: E2 제약검증이 **에이전트-기조회 레코드만** 읽고 env/DB 직접조회 0임을 코드로 확인(autofetch 선 안 밟음·C34). 설계 문구(§40)는 옳으나 구현 시 이 지점이 유일 위험.
+
+**§5.3 (E4[M]→일반화 문장 허용?) — 아니오. E4는 일반화를 *허용*하는 게 아니라 *불필요화*한다.** E4가 in-vivo면 tool-use 주장은 E4를 *직접* 인용하면 됨 — "synth→tool-use 일반화" 문장은 여전히 금지([[40]] 유지)·대신 "in-vivo(E4)가 synth가 격리한 동일 sd 기전을 확인"으로 각 주장이 *자기-도메인 증거*를 인용. 일반화 문장은 어디에도 안 씀. (E4 실패 시 서사 수정은 사전등록대로.)
+
+**E6 [[05]]/gold-independence 감사 — 갭 2건(구현 前 해소).**
+- **E6-i (gold-independence 미명시)**: controller의 "정본상태"를 무엇으로 아나? verify는 입력서 재계산(gold-무관)인데, 상충지시에서 정본 = **"최신 지시가 이전을 supersede"의 결정론적 recency**(대화순서서 파생·gold 아님)여야 함. 이걸 명시 안 하면 controller가 gold-peek로 의심받음. **명시 필수: canonical = 최신-대화-지시(구조적 recency)·gold 아님.**
+- **E6-ii (스코프 caveat·C50 경계)**: synth 상충은 템플릿이라 상충-*탐지*가 구조적(턴순서)이나, in-vivo선 상충 탐지 자체가 semantic(C50 대화-semantic·게이트 불가 경계). ⇒ **E6가 재는 것 = "상충이 탐지된 조건에서 canonical-state가 회복시키나"이지 "상충을 탐지할 수 있나"가 아님.** 이 caveat 없이 [M] 주장하면 in-vivo 전이 과대(CENSUS §5 B-잔여 semantic과 동일 한계). 판정규칙에 명기.
+
+**E3/E4/기타 [[05]] — 클린 확인.** E3 inject=F9 무료-재분석의 정확한 실현(self-consistency로 sd/sc 판별·✅). E4=순수측정(A2 0·prior-error 주입이 gold-유래 아니면 클린·주입값 구성만 주의). R1-R7 = F1-F9 교훈의 정직한 코드화.
+
+**종합**: E1 방향 승인+FE1-a/b/c 사전등록 / E2a/b 필수 확정+구현 게이트 / E4는 일반화 불필요화(문장 금지 유지) / E6 갭2 해소 후 구현. **구현 착수 승인** — 단 FE1-b(lookup 확산)는 "순수-산술 부하만"으로 국한하는 쪽을 강권(기전 단일성 보존 = 논문 방어력 최대).
