@@ -31,7 +31,8 @@ retail을 **결정론 scaffold로 소진**(닫히는 건 다 닫고 ⋈는 경�
 | C compound-criterion (≈6) | CALC-EXT (argmax/argmin/diff) | `CENSUS_LEVERS §2a` | **구현+V0 완료**(t20 3/4·28단위 PASS·most_recent→ASK) | 무료 |
 | F 값충실도 (t17·t39) | **PROV-RESCUE-PERARG**(GROUND-VERBATIM 폐기) | `CENSUS_LEVERS §1` | **구현됨**(`d33db23`)·엔진수정 V0 재확인 필요 | 무료 |
 | D GET-chain lookup (≈5) | DISAMB-ADDR(P-B 확장) + 미조회분=E-PLAN L2 | `CENSUS_LEVERS §4` | **구현됨**(`d33db23`)·V0 분해(gold-실재/미조회) 재확인 | 무료 |
-| B over-action decidable (≈5) | EXCLUSIVITY(관측-ledger 필요) | `CENSUS_LEVERS §3a` | 구현됨·관측-ledger 분리 확인 필요 | 무료 |
+| B over-action decidable (≈5) | **t27형**=EXCLUSIVITY(관측-ledger) · **t57형=G8 NOTICE-PERGATE**(CENSUS §3b는 G8로 superseded — 이중구현 금지) | `CENSUS_LEVERS §3a`·`NEXT_LEVER_GEN §1` | EXCLUSIVITY 구현됨·ledger 분리 확인 / **G8=동결 레버**(스택 편입 S4/S5 후·오프라인 준비물[census·단위]은 양립) | 무료 |
+| **C-잔여 문맥-의존 제약** (t20 Running Shoes·t79) | **FORMALIZE-EXEC**(CALC-EXT 정적 spec의 구조적 MISS 칸 — §2a V0가 실증) | `NEXT_LEVER_GEN §2` | [D] **동결 레버**·단 V0 격리 측정(형식화-정확도 EM)은 무료·동결 양립(§0b.2) | V0 무료 |
 | E DISAMB 잔여 (63) | T5-C COMP+D-v2 | `T5C_SILENT_REPAIR` | **단계 A 완료**(t0/t61 4/4)·단계 B 대기 | V0 무료·nt1 소액 |
 | G-relay (t3형) | CP5 communicate-의무 확장 | `CENSUS_LEVERS §2b` | [D] 프로브先·**learn 대상 아님** | 무료 프로브 |
 | B semantic 잔여·H·I | (경계·미개척) | `CENSUS_LEVERS §5`·C63 | P3 경계 계상 | — |
@@ -73,6 +74,7 @@ retail-B 소진 = **다음이 동시 성립**:
 1. C64 결정가능 클래스(A/C/D-실재/F/B-decidable) 각각 GO 레버 스택 편입·C에서 발화 확인.
 2. 신규 census 레버의 V0 fix가 **수렴**(추가 레버가 새 non-empty fix 클래스를 못 냄 = E-P류 "새 C-류 0 수렴" 동형).
 3. 잔여가 **{⋈ 경계 · 대화-semantic(C50) · NL-relay(C64-G) · FLAKY 분산}**으로만 구성(per-case census 확인).
+4. **(리뷰 추가) 동결-레버 계상**: G8·FORMALIZE-EXEC은 동결 중이라 스택 밖일 수 있음 — 그 표적(t57·t20잔여·t79)은 **"경계"가 아니라 "설계-완료·동결-대기"로 별도 계상**(소진 판정·Part II 입력에서 제외). 이걸 안 하면 설계된 레버가 있는 잔여를 경계로 오분류 → 분기 판정 오염.
 
 ⇒ 이 시점의 잔여 = Part II 판단 실험의 입력. **주의**: "0.70 도달"은 목표지 소진 기준 아님 — 소진 기준은 **레버-수렴 + 잔여-성격**(pass 수치 아님·[[08]]).
 
@@ -99,7 +101,7 @@ C-잔여 실패 f 마다:
 
 **사전등록 판정 기준 (motivated-filling 방지·F3 규율)**:
 - θ_reach·유의미 임계 = **learn-후보 버킷이 robust하게 ≥ N_min sims**(제안 N_min = 4·robust=전-trial 도달) ∧ **그 버킷이 형식화-부하(R2)로 이미 설명 안 됨**.
-- **분기 A (learn GO)**: R3 도달가능 버킷 ≥ N_min ∧ E-ISO C 낮음(부하 아님) → **synth 학습 정당** → E6′ 데이터 v3 설계(그 버킷 표적·C38 3결함 수정: (i)결손 재현 데이터 D7 근접오답 (ii)무조건조회 퇴화 방지 음성사례 (iii)on-policy rejected).
+- **분기 A (learn GO)**: R3 도달가능 버킷 ≥ N_min ∧ E-ISO C 낮음(부하 아님) → **synth 학습 정당** → E6′ 데이터 v3 설계(그 버킷 표적·C38 3결함 수정: (i)결손 재현 데이터 D7 근접오답 (ii)무조건조회 퇴화 방지 음성사례 (iii)on-policy rejected). **★[[11]] 가드(리뷰 추가)**: learn 표적 = 버킷의 **스킬-클래스 추상화**(도메인-일반 P-primitive로 승격 → synth/cfbsynth 합성·[[12]] 다양성) — retail 엔티티/템플릿/사례를 학습 데이터에 넣는 것은 도메인-타깃 학습 = **금지**. 분기 A조차 four-bench→τ² swap 구도 불변.
 - **분기 B (learn NO-GO·전이 우선)**: 잔여가 {경계 + 이미-scaffold된 부하}로만 → **learning 못 닫음** → **banking 전이(E-XFER-bank)** 우선 = "고정 scaffold 도메인-일반성" 증명 + ⋈ 경계 = P3 정직 주장.
 
 ## 5. 사전 prior (판정 前 명시·대칭크레딧 [[03]]#9)
@@ -124,7 +126,8 @@ banking 전이는 분기 결과이자 **판정 도구**이기도 하다(잔여 �
 |---|---|---|---|
 | J0 | C-잔여 per-case census(C64 도구 재사용) → R1/R2/R3 라우팅 라벨 | 무료 | 잔여 성격 분포 |
 | J1 | E-ISO C-프로토콜(A/B/C)을 C-잔여 결정점에 재실행(`ecomp_iso_probe.py`·C61 확장) | 무료(32B 로컬) | 부하 몫 제거 |
-| J2 | reachability 게이트(best-of-N-CoT·격리 + 실-궤적 CoT 둘 다) | 무료(로컬) | 도달가능 버킷 |
+| J2 | reachability 게이트(best-of-N-CoT·격리 + **실-궤적 재현**) | 무료(로컬) | 도달가능 버킷 |
+| J2′ | **(리뷰 추가·정직) true-e2e CoT 확인** — §5/§8의 "e2e 축 필수"는 user-sim 필요 = **유료**. J2의 실-궤적 재현(기록 궤적에 CoT 주입·무료)은 **e2e 근사일 뿐**(C60 교훈 자체가 격리→e2e 붕괴). learn GO 최종 확정 前 도달가능 버킷 대표 sims만 최소-scope e2e(승인) | 유료(최소·승인) | learn GO 확정 증거 |
 | J3 | **분기 판정**(사전등록 §4 기준) → learn GO / NO-GO | — | 결정 |
 | J4a | (분기 A) E6′ 데이터 v3 설계·타당성 게이트(base가 결손 재현) | 무료 설계·학습 유료 | learn 표적 |
 | J4b | (분기 B) E-XFER-bank 최종 scaffold arm(banking 전이) | 유료(승인·재시퀀싱됨) | 전이 증명 + banking 잔여 |
