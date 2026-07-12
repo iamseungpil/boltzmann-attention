@@ -21,10 +21,17 @@ from gate_interpreter import (  # noqa: E402
     candidate_summary, nested_candidate_summary, compute_facts)
 
 # ── 도메인-일반 기본값 (A2가 override·enrich; retail/도메인 하드코딩 아님) ──
-DEFAULT_ARG_HINTS = ("email", "name", "zip", "user_id", "order_id", "username", "id",
-                     "payment", "address", "phone", "item", "reservation")
+# ★[[05]] 감사(2026-07-13): 도메인-일반 식별 토큰만 엔진에. 도메인-특화 어휘
+#   (order_id·item=retail·reservation=airline)는 A2 identifying_arg_types로 이관 —
+#   엔진 DEFAULT가 도메인-union이면 새 도메인(banking)에 retail/airline 어휘가 누수됨.
+#   'id'가 *_id 계열(order_id·item_ids·reservation_id) 전부 포괄하므로 이관은 behavior-preserving.
+#   payment·address = 커머스-교차 일반(retail∩airline)이라 엔진 잔류. 도메인 어휘는 A2가 union.
+DEFAULT_ARG_HINTS = ("email", "name", "zip", "user_id", "username", "id",
+                     "payment", "address", "phone")
 DEFAULT_PLACEHOLDERS = {
-    "#W0000000", "something@example.com", "jane_doe@example.com",
+    # 도메인-일반 placeholder만(엔진). 도메인-특화 포맷(#W0000000=retail 주문-id)은
+    # A2 placeholders로 이관(2026-07-13 [[05]] 감사). 아래는 전 도메인 공통 test-값.
+    "something@example.com", "jane_doe@example.com",
     "john.doe@example.com", "johndoe@example.com", "john@example.com",
     "jane@example.com", "user@example.com", "test@example.com",
     "example@example.com", "123 Main St", "123 Main Street",
