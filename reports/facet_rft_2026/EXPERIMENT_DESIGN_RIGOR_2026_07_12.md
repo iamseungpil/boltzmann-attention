@@ -21,13 +21,14 @@
 
 ## 1. 실험 큐 (각: 가설·arms·지표·판정규칙[사전등록]·비용·[[05]])
 
-### E1. 난이도-스케일링 × 32B (헤드라인 rigor 핵심)
-- **동기**: 32B가 단순 running-sum(K=2) 거의 풂 → "scale 느림/상용미달"이 *난이도 의존*임을 정직히 보여야(2509.09677 정합: scale은 horizon 사되 더 어려우면 부족). banking(실·어려움)=0/18이 실-도메인 앵커.
-- **설계**: E-HORIZON을 **난이도 격자**로 — K∈{2,4,8}(스텝당 부하) × H∈{30,60}. 전 Qwen2.5 사다리 **0.5B~32B**(32B=8140).
-- **arms**: base·verify·detect·inject.
-- **지표**: base per-step(k,scale) 곡면 · verify−base gap.
-- **판정(사전등록)**: (i) 고난이도(K=8)서 32B base per-step이 여전히 <상용(예 <0.9)이고 verify gap 유지 → "scale 느림"은 *난이도 조건부*로 정직 성립·banking이 그 조건. (ii) 전 난이도서 32B가 풀면 → synth는 존재증명만·**주장은 banking(실)로 이관**(synth는 기전 격리용). 어느 쪽이든 반영가능.
-- **비용**: 무료(로컬). **[[05]]**: 무관(순수 능력측정).
+### E1. banking-보정 난이도 × 32B (사용자 제안 2026-07-12·재설계)
+- **★역할 분담(정직·핵심)**: **"scale 느림/상용미달" 주장 = banking(실·구조적 per-step)이 짊어진다**(C71: 전 18 frontier per-step 0.748~0.884·0/18 상용). synth는 그 주장의 근거 *아님*. **synth의 고유 가치 = (a) 기전 sd/sc 인과(inject) (b) verify 개입 실증** — 실 banking선 싸게 불가(유료 e2e).
+- **동기**: 단순 running-sum(K=2)은 per-step=산술이라 32B 포화(base 14B 0.322→32B **0.748**·selfcons 0.96). banking per-step=구조적(도구발견+바인딩+검증)이라 frontier도 0.75~0.88. ⇒ synth를 **banking 난이도로 보정**하면 "scale 느린 그 지점서 verify가 산다"를 통제로 실증.
+- **설계**: per-step 난이도 상향(lookup 재도입·큰수/음수·K↑)으로 **32B base per-step을 banking frontier 범위 [0.75~0.88]로 보정**(현 0.96→목표 ~0.8). 그 보정 난이도서 전 Qwen2.5 사다리 0.5B~32B × arms{base,verify,detect,inject}.
+- **지표**: 보정 확인(32B base∈[0.75,0.88]) · scale 곡선 · verify−base gap(비포화 확인).
+- **판정(사전등록)**: (i) 보정 성공 ∧ 32B서도 verify≫base 유지 → "scale 느린 난이도서 verify 우위" [M](banking-충실 통제). (ii) 보정해도 verify 이득 소멸 → verify의 이득이 *쉬운 난이도 아티팩트*였음 → 서사 수정(verify 주장 하향). 어느 쪽이든 반영.
+- **★정직 명기**: per-step "매칭"=*난이도-수준* 매칭(둘 다 p~0.8)이지 *기전 동일 아님*(banking=구조·synth=산술). synth는 "그 난이도에서 verify 작동"의 통제 증명·banking은 실-앵커. **synth→banking 일반화 문장 금지([[40]]).**
+- **비용**: 무료(로컬). **[[05]]**: 무관(측정).
 
 ### E2. near-miss provenance-constraint arm — **A2가 C69를 닫나 ([미검]→[M])**
 - **가설**: sd의 *결정가능-provenance* 부분은 A2 resolver-제약으로 gold 없이 닫힌다.
@@ -92,6 +93,6 @@
 - **유료 없음**: 전 실험 격리/로컬/결정론gold. in-vivo e2e(E-XFER-bank류·유료)는 결론-후-확인 대기열([[09]]).
 
 ## 5. 리뷰 포인트 (다른 세션/리뷰어 판단 요청)
-1. E1 난이도 보정으로 "scale 느림"을 *조건부*로 정직화 vs synth를 기전-격리로만 쓰고 주장은 banking로 이관 — 어느 프레임?
+1. ✅**확정(사용자 2026-07-12)**: "scale 느림" 주장=**banking(실)**이 짊어짐 / **synth=banking-난이도 보정**해 그 지점서 verify/inject 작동 통제실증(E1 재설계). synth→banking 일반화 금지·역할 분담 명기.
 2. E2b(⋈ 경계) 없이 E2a만으로 "A2가 sd 닫음" 주장 시 과대 위험 — E2a/b 쌍 필수?
 3. E4 in-vivo decision-quality가 [M]이면 synth→tool-use 일반화 문장 허용? (현재 [[40]]로 금지)
