@@ -376,11 +376,16 @@ def score(case, spec, prods):
 
 # ─────────────────────────── 5. 실행·집계 ───────────────────────────
 
-def call_server(base, model, prompt, timeout=240):
+def call_server(base, model, prompt, timeout=240, think=None, max_tokens=500):
     import urllib.request
-    body = json.dumps({"model": model, "temperature": 0.0, "max_tokens": 500,
-                       "messages": [{"role": "user", "content": prompt}]}).encode()
-    req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=body,
+    body = {"model": model, "temperature": 0.0, "max_tokens": max_tokens,
+            "messages": [{"role": "user", "content": prompt}]}
+    if think is True:   # Qwen3 thinking arm (enable_thinking)
+        body["chat_template_kwargs"] = {"enable_thinking": True}
+    elif think is False:
+        body["chat_template_kwargs"] = {"enable_thinking": False}
+    req = urllib.request.Request(base.rstrip("/") + "/chat/completions",
+                                 data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json"})
     out = json.load(urllib.request.urlopen(req, timeout=timeout))
     return out["choices"][0]["message"]["content"]
@@ -583,7 +588,11 @@ def main():
     ap.add_argument("--base", default="http://localhost:8140/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--workers", type=int, default=4, help="동시 요청 수(공유 GPU 배려·기본 4)")
+    ap.add_argument("--think", default="none", choices=["none", "off", "on"],
+                    help="Qwen3 thinking: on=enable_thinking·off=disable·none=모델 기본")
+    ap.add_argument("--max_tokens", type=int, default=500, help="thinking arm은 크게(예 3000)")
     a = ap.parse_args()
+    _think = {"none": None, "off": False, "on": True}[a.think]
     prods = load_products(a.gz)
     cells = [c.strip() for c in a.cells.split(",") if c.strip()]
     if a.v2:  # V2 오염 사다리 — R1(P1 clean) + 축별 level 사다리
@@ -628,7 +637,8 @@ def main():
     from concurrent.futures import ThreadPoolExecutor
     def run_one(c):
         try:
-            return c, call_server(a.base, a.model, c["prompt"]), None
+            return c, call_server(a.base, a.model, c["prompt"], think=_think,
+                                  max_tokens=a.max_tokens), None
         except Exception as e:
             return c, None, type(e).__name__
     rows = []
