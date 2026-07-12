@@ -2,6 +2,10 @@
 
 > 상위 = `RESEARCH_MASTER.md`(F1-F6 프레임·제1원리 상쇄). 선행 = `SCALE_DYNAMIC_CONTAMINATION_PRIORWORK §8`(2509.09677 정독) · `OVERNIGHT_RESULTS §결과4`(C69 동적바인딩) · C56(동-scale thinking ⋈ 못삼) · C53/C62(prov·게이트 e2e).
 > 규율: [[05]] A2만 변경·엔진 도메인-일반 · [[08]] 집계→결론 前 per-case · [[09]] 무료 우선(로컬 사다리·결정론gold·user-sim 0). **본 문서 = 설계 + 무료 실험 큐**(유료 full-run 없음).
+>
+> **★★정렬 배너 (2026-07-12·후속 실험 반영·[[48]] 명명통일·문서 동시정렬)**:
+> - **(A·확정 [M])** 본문의 **"self-conditioning" 기전 라벨은 전부 "상태-발산(state-divergence)"으로 교체**(F9 재분석·inject 자기일관 0.969@32B). 정본 = `UNIFIED_TAXONOMY 근본기능6 지속`의 2기전 중 sd. 2509.09677 self-conditioning은 distinct mode·인용만. **명명 = 근본기능 서술형(M-코드 금지·[[48]]).**
+> - **(B·[진행·재검토])** 본문 §1·§10의 **"thinking은 외부오염(near-miss)엔 무력·축a만"은 E-THINK2 예비가 반증**(파싱수정후 4b L4 0.28→0.97). **8b/14b 확정 시 F3 분기②(비용-우위 서사)로 §1 decidability 3분할·방화벽 표 축c/thinking행 동시 갱신**. 그전까지 이 주장 [진행]·[M] 단정 금지(F8 교훈).
 
 ## 0. 재프레임 (사용자 지시 2026-07-12·정밀화)
 1. **우리는 선행의 역(逆)이다.** 선행(2509.09677·METR·scaling law)은 "**scale이 능력 X를 어떻게 사는가**"를 묻는다. 우리는 반대다 — "**tool-use의 어느 세부능력이 scale보다 *싼 것*으로 사지는가, 그리고 그 조합을 어떻게 비용-최적화하는가**". 핵심 주장 = **특정 tool-use 영역에서 scale을 {retrieval·verify-scaffold·결정론 게이트·도메인-일반 learn}으로 대체하는 것이 비용-효율적이다.**
