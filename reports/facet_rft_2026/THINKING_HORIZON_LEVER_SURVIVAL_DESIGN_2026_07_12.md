@@ -4,8 +4,8 @@
 > 규율: [[05]] A2만 변경·엔진 도메인-일반 · [[08]] 집계→결론 前 per-case · [[09]] 무료 우선(로컬 사다리·결정론gold·user-sim 0). **본 문서 = 설계 + 무료 실험 큐**(유료 full-run 없음).
 >
 > **★★정렬 배너 (2026-07-12·후속 실험 반영·[[48]] 명명통일·문서 동시정렬)**:
-> - **(A·확정 [M])** 본문의 **"self-conditioning" 기전 라벨은 전부 "상태-발산(state-divergence)"으로 교체**(F9 재분석·inject 자기일관 0.969@32B). 정본 = `UNIFIED_TAXONOMY 근본기능6 지속`의 2기전 중 sd. 2509.09677 self-conditioning은 distinct mode·인용만. **명명 = 근본기능 서술형(M-코드 금지·[[48]]).**
-> - **(B·[진행·재검토])** 본문 §1·§10의 **"thinking은 외부오염(near-miss)엔 무력·축a만"은 E-THINK2 예비가 반증**(파싱수정후 4b L4 0.28→0.97). **8b/14b 확정 시 F3 분기②(비용-우위 서사)로 §1 decidability 3분할·방화벽 표 축c/thinking행 동시 갱신**. 그전까지 이 주장 [진행]·[M] 단정 금지(F8 교훈).
+> - **(A·확정 [M])** 본문의 **"self-conditioning" 기전 라벨은 전부 "상태-발산(state-divergence)"으로 교체**(F9 재분석·inject 자기일관 selfcons_postinj ≈ clean base **전 scale 불변**: 7B 0.806·14B 0.931·32B 0.969·회수 2026-07-12). 정본 = `UNIFIED_TAXONOMY 근본기능6 지속`의 2기전 중 sd. 2509.09677 self-conditioning은 distinct mode·인용만. **명명 = 근본기능 서술형(M-코드 금지·[[48]]).**
+> - **(B·✅확정 [M]·2026-07-12 회수)** **"thinking은 외부오염(near-miss)엔 무력·축a만"은 반증·폐기** — E-THINK2 전 사다리(jsonl직접): lv4 near-miss bind **thinking-on** 1.7B 0.69→4B 0.97→**8B 1.00**→**14B 1.00** vs **off** 0.00/0.28/0.33·32B-GPTQ 0.47. **8B서 완결.** 1차 "무력"은 파싱 아티팩트(parse 0.4~0.7)였음. ⇒ **decidability 3분할 정정(F3분기②)**: near-miss = **decidable**(thinking OR prov OR scale이 닫음) / ⋈ = **진짜 잔여**(C56·thinking도 못 닫음). 서사 = thinking inference-cost vs scaffold pass-cost≈0 = **비용-우위**. §1 표 near-miss/thinking행 ✅로 갱신. **thinking 특허청구는 여전히 금지**(결정론 verify만).
 
 ## 0. 재프레임 (사용자 지시 2026-07-12·정밀화)
 1. **우리는 선행의 역(逆)이다.** 선행(2509.09677·METR·scaling law)은 "**scale이 능력 X를 어떻게 사는가**"를 묻는다. 우리는 반대다 — "**tool-use의 어느 세부능력이 scale보다 *싼 것*으로 사지는가, 그리고 그 조합을 어떻게 비용-최적화하는가**". 핵심 주장 = **특정 tool-use 영역에서 scale을 {retrieval·verify-scaffold·결정론 게이트·도메인-일반 learn}으로 대체하는 것이 비용-효율적이다.**
@@ -21,7 +21,7 @@
 | 실패 유형 | thinking | verify-scaffold | retrieval | scale | learn | 근거 |
 |---|---|---|---|---|---|---|
 | **자기-생성 계산오류**(running-sum 오산·조립 순서) | ✅ 재계산 | ✅ 재계산-체크(교정) | — | ✅ | ✅ | 2509.09677 |
-| **참조/검색 오류**(near-miss 값 오바인딩·미조회 날조) | ❌ *틀린 anchor 위 더 생각해도 안 고침* | ✅ DB/provenance 대조 | ✅ fetch-first | ❌(C69·C36) | 부분(cfbsynth) | C69·C43·C29 |
+| **참조/검색 오류**(near-miss 값 오바인딩·미조회 날조) | ✅ **near-miss는 닫음**(E-THINK2·8B/14B lv4 1.00) / ❌ 날조분(재조회 필요) | ✅ DB/provenance 대조 | ✅ fetch-first | 부분(near-miss emergent·C69 off 0.47) | 부분(cfbsynth) | **C72 F3②**·C69·C43·C29 |
 | **의미 모호성**(사용자 의도 ⋈·criterion) | ❌(C56) | ❌ *대조할 ground-truth 없음* | — | 부분(포화 ~.44) | 부분 | C56·C3b·C51 |
 
 **왜 이렇게 갈리나(제1원리):** thinking은 *더 계산*할 뿐 *없는 정보를 만들거나*(retrieval) *외부 오염을 밀어내거나*(near-miss) *진짜 모호를 해소*(⋈)하지 못한다. verify는 *ground-truth 대조*가 가능한 곳(계산 재현·참조 실재)만 닫고, 대조 대상이 없는 의미모호엔 무력하다. ⇒ **thinking과 verify는 서로 다른 decidability 조각을 닫는다**(thinking=계산-재현가능·verify=참조-대조가능). 교집합=자기-생성 계산오류, 여집합=참조오류(verify만)·의미모호(둘 다 무력·scale/learn/ASK 잔여).

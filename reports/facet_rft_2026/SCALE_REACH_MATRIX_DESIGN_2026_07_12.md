@@ -12,7 +12,7 @@
 | 기전(근본기능) | 격리 프로브 | 난이도 축 | 도메인 | 현황 | 예상 scale 거동 |
 |---|---|---|---|---|---|
 | **M1 상태추적/sd** | E-HORIZON(순수-산술·FE1-b) | 값범위·K·H | synth | ✅ 일부(C72·32B) | 쉬우면 32B 포화·어려우면 flat |
-| **M2 참조/near-miss** | E-REF/E-THINK | decoy 밀도(L1-L4) | retail(상품) | ✅ C66/C69 + E-THINK2 진행 | thinking/prov 닫음(§ E-THINK2 ②) |
+| **M2 참조/near-miss** | E-REF/E-THINK | decoy 밀도(L1-L4) | retail(상품) | ✅ C66/C69 + **E-THINK2 확정(F3②)** | **thinking 닫음 [M]**(8B/14B lv4 1.00·C72) |
 | **M3 ⋈ 의미모호** | ⋈-probe(NEW) | 유효후보 수 | retail(주문) | ❌ NEW(C56/C59 부분) | **전 scale flat**(C56) |
 | **M4 reach/발견** | banking-reach probe(NEW) | 발견체인 깊이 | banking(도구) | ❌ NEW(frontier=§3.2f) | banking 지배 잔여 |
 | **M5 coverage/완결** | coverage-probe(NEW) | 항목 수 | retail/telecom | ❌ NEW(C52 frontier) | 전-도메인 flat |
@@ -42,7 +42,7 @@
 - 순수-산술 running-sum(lookup 금지)·난이도=값범위/K/H. arms{base,verify,detect,inject}. 기전=sd(inject 자기일관·F9). 난이도 보정=FE1-a 사전등록(32B base∈[0.75,0.88]).
 
 ### M2 참조/near-miss — E-REF/E-THINK (기존·확장·정본=근본기능5 참조-기준형)
-- retail 상품 바인딩·decoy 밀도 L1-L4(C69). arms{base, +thinking, +prov-constraint(E2)}. **E-THINK2 예비**: thinking이 near-miss 닫음(4b L4 0.28→0.97·**parse율 수정후**). ⇒ **M2=decidable 단정은 [진행·조건부]**(리뷰 신규발견2): parse-게이트(≥0.95) 통과 + **8b/14b 확정 후에만** [M]. F8 교훈(2모델·아티팩트 재발 방지).
+- retail 상품 바인딩·decoy 밀도 L1-L4(C69). arms{base, +thinking, +prov-constraint(E2)}. **✅E-THINK2 확정(2026-07-12 회수·jsonl직접·parse 0.99~1.00)**: thinking이 near-miss 닫음 — lv4 bind on 1.7B 0.69→4B 0.97→**8B 1.00→14B 1.00** vs off 0.00/0.28/0.33·32B 0.47. ⇒ **M2=decidable [M] 확정**(F3분기②·8B서 완결). parse-게이트 통과(아티팩트 아님·1차 무력설은 파싱 0.4~0.7 아티팩트였음).
 - **★교차-문서 갱신 등재(8b/14b 확정 시)**: M2 confirmed = **F3 분기②**(thinking이 축c near-miss 닫음) → `INTEGRATION §1`·`THINKING_HORIZON` 방화벽 표의 **축c행·thinking행을 비용-우위 프레임으로 *동시* 갱신**("thinking=축a만·외부오염 무력" 폐기·thinking 닫되 inference-scaling 비용 vs scaffold pass-cost≈0). 행렬 doc만 갱신·서사 doc 방치 = 문서분열 금지.
 
 ### M3 ⋈ 의미모호 — ⋈-probe (NEW)
