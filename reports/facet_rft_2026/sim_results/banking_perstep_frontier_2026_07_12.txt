@@ -1,0 +1,27 @@
+banking_knowledge per-step 도출 (2026-07-12) — pass = p_step^H, H=8 (gold 절차 median).
+source = tau2-bench 리더보드 submission.json 캐시(전 2026 frontier·user_sim gpt-5.2). 스크립트 = bk2.sh.
+전 frontier per-step = 0.748~0.884(spread 13.6pp). 0/18 이 상용 pass=0.7(p=0.956) 도달. 0/18 이 pass=0.5 도달.
+기전(왜 정체) = §3.2f [M]·per-case: 구조적 per-step(reach/unlock 발견체인 + 결정가능-인자). caveat: glm5/qwen397B banking엔 too_many_errors 아티팩트.
+
+model                                         pass1  p_step   err%
+glm-5-think_sierra_2026-03-02                0.098  0.748   25.2   (retail 챔피언·banking 최약·아티팩트)
+qwen3.5-397b-a17b-think_sierra_2026-03-02    0.098  0.748   25.2   (retail 챔피언·banking 최약·아티팩트)
+gpt-5-2-none_sierra_2026-02-26               0.111  0.760   24.0
+grok-4-1-fast_sierra_2026-05-05              0.124  0.770   23.0
+gemini-2-5-pro_sierra_2026-05-05             0.128  0.773   22.7
+grok-4-fast_sierra_2026-05-05                0.142  0.783   21.7
+gemini-3-pro_sierra_2026-03-02               0.157  0.794   20.6
+grok-4-2_sierra_2026-05-05                   0.176  0.805   19.5
+gemini-3-flash_sierra_2026-03-02             0.206  0.821   17.9
+claude-opus-4-5_sierra_2026-02-26            0.214  0.825   17.5
+claude-sonnet-4-5_sierra_2026-02-26          0.224  0.830   17.0
+gemini-3-1-pro-preview_sierra_2026-05-05     0.225  0.830   17.0
+claude-opus-4-6_sierra_2026-05-05            0.245  0.839   16.1
+gpt-5-2_sierra_2026-02-26                    0.247  0.840   16.0
+claude-opus-4-7_sierra_2026-05-05            0.253  0.842   15.8
+gpt-5-4_sierra_2026-03-25                    0.307  0.863   13.7
+distyl-buttonagent_distyl_2026-03-25         0.312  0.864   13.6
+gpt-5-5_sierra_2026-05-05                    0.374  0.884   11.6   (18모델 최강·상용까지 2.6x)
+
+상용 pass=0.7 필요 p_step=0.956(err 4.4%) — 도달 0/18.
+결론: 전 frontier가 per-step을 느리게 개선(13.6pp)·상용 임계 전멸 → scaffold(controller/calc/prov/coverage)가 구조적 per-step을 p→1·pass-cost0로 산다(§7.3-7.4).

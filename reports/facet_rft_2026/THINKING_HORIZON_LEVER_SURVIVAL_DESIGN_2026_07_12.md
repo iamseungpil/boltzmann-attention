@@ -98,17 +98,21 @@ per-step 결정론 검증이 **하나의 장치로 둘을 산다**: (a) 준수 �
 - pass가 gold 길이에 단조 급락: 1-3act 0.442→10+ **0.079**. 종료=user_stop 92%(crash 아님·"다 했다" 오종료).
 - **★규정(기존)**: banking 저-pass = **3중 부하의 곱**(긴 horizon × 발견체인 × all-or-nothing DB) ⇒ **per-step p<1의 지수붕괴 p^H**.
 
-### 7.2 ★per-step 엄밀 도출 (pass = p_step^H·H=8)
-| 모델 | pass | 함의 p_step | per-step err |
-|---|---|---|---|
-| gemini2.5pro (최약) | 0.098 | 0.748 | 25.2% |
-| Opus 4.5 | 0.245 | 0.839 | 16.1% |
-| **GPT-5.5 (17모델 최강)** | 0.384 | **0.887** | **11.3%** |
-| *pass=0.7 도달에 필요* | 0.700 | **0.956** | **4.4%** |
+### 7.2 ★per-step 엄밀 도출 (pass = p_step^H·H=8·**전 18 frontier 모델**·submission.json 캐시)
+전 2026 frontier submission.json서 banking_knowledge pass_1 추출·per-step=pass^(1/8) 도출(`bk2.sh`·데이터 `sim_results/banking_perstep_frontier_2026_07_12.txt`):
 
-- **정직한 관측([[08]])**: per-step은 scale로 *개선된다*(0.748→0.887·err 25%→11%). "전혀 안 준다"는 아니다.
-- **★그러나 horizon 수요에 턱없이 부족**: pass=0.7@H=8엔 p_step=0.956(err 4.4%) 필요 — **17 frontier 최강조차 err 11.3%=2.6× 초과**. GPT-5.5의 0.887이 H=8서 0.887⁸=0.373·H=12.5서 0.214에 갇힘. **horizon이 frontier per-step 정확도를 소진.**
-- **대조 retail**: p_step~1.0(operand 포화·C-B §3.2)·H~4-5 → pass~0.95. 차이는 전적으로 banking per-step이 ~0.89서 **정체**.
+| 모델(대표) | pass_1 | 함의 p_step | per-step err |
+|---|---|---|---|
+| qwen3.5-397b·glm-5 (retail 챔피언·banking 최약) | 0.098 | 0.748 | 25.2% |
+| gemini-2.5-pro / grok-4 | 0.12~0.18 | 0.77~0.81 | ~20% |
+| Opus 4.5/4.6/4.7 · GPT-5.2 | 0.21~0.25 | 0.83~0.84 | ~16% |
+| **GPT-5.5 (18모델 최강)** | 0.374 | **0.884** | **11.6%** |
+| *상용 pass=0.7 도달 필요* | 0.700 | **0.956** | **4.4%** |
+
+- **★전-frontier per-step = 0.748~0.884 (spread 13.6pp)**. per-step은 frontier 진전으로 *개선된다*(느리게·실측). "전혀 안 준다"는 틀림([[08]] 정직).
+- **★그러나 상용 미달·전멸**: **0/18이 pass=0.7 도달**(p=0.956 필요)·**0/18이 pass=0.5도 미달**(p=0.917). 최강 gpt-5-5도 err 11.6%=상용(4.4%)의 **2.6×**. 0.884⁸=0.373에 갇힘(H=8). ⇒ **전 frontier가 상용 임계 아래**.
+- **★능력축 도메인-특이(C52 정합)**: retail 챔피언(qwen3.5-397b 0.855·glm-5)이 banking **최약(0.098)** — scale이 사는 축이 도메인마다 다름(단 glm/qwen banking엔 too_many_errors 아티팩트 성분·§3.2f).
+- **대조 retail**: p_step~1.0(operand 포화·C-B §3.2)·H~4-5 → pass~0.95. 차이는 전적으로 banking per-step이 ~0.88서 **정체**(구조적 실패·§7.3).
 
 ### 7.3 ★정체 원인 = 구조적 per-step 실패 (scale-불변 잔여)
 frontier가 못하는 것(§3.2f-5 census·모델 기울기): 규모·신형화는 **미실행(reach/조립)을 *부분* 사되**(최약 미실행 68%→최강 gpt55 미실행 아님), **결정가능-인자 오류(calc·enum·schema·copy)가 잔여로 남는다**. 둘 다 **구조적**(무작위 계산정확도 아님):
