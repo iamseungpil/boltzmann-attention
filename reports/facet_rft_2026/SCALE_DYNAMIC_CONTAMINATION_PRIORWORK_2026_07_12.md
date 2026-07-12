@@ -91,3 +91,40 @@ verdict V11-V17 refuted=false·high. 축 (a) 존재 증거:
 - **★[미검] 처리**: 축 b/c/d 소스(Perez 2212.09251·Sharma 2310.13548·Laban 2505.06120·Lost-in-Middle 2307.03172·GSM-IC 2302.00093·entrainment·MultiChallenge·SYCON-Bench)는 **verdict 미실행**. 논문 relwork/특허 인용 전 **arXiv ID·연도·주장 정합 verification 패스**(딥리서치 재발사 or WebFetch 개별검증). 특히 Laban 2505.06120·entrainment 논문 = 축 d/c 대표라 우선.
 - **인용 즉시 가능([지지])**: 2509.09677·2305.13534(+ 반박 대조군 2606.07937 인용금지·2511.12869 강한주장 인용금지).
 - **whitespace 확정**: 미선점·2509.09677 수렴 구분. Paper1 relwork "동적오염 축" 절 + 특허 positioning에 반영.
+
+## 8. ★2509.09677 심층 positioning (정독·WebFetch v3·2026-07-12)
+가장 강한 인접 선행이라 별도 심층. **"The Illusion of Diminishing Returns: Measuring Long Horizon Execution in LLMs"** (Sinha, Arun, Goel, Staab, **Geiping**; 2025-09-11 v1 / v3 2026-03-13; **ICLR 2026**).
+
+### 8.1 논문 요지 (정독)
+- **task = 순수 합성 key-value 룩업 + 누적합**: 사전(5글자 단어→[-99,99] 정수)·플랜(뽑을 키 K개)을 **다 주고** 매 턴 `Sₜ=Sₜ₋₁+ΣD[kₜ]`만. 지식·계획 제공 = **실행(execution)만 격리**(추론 아님). **도구호출·대화·사용자 0**.
+- 모델: Qwen3 4B/8B/14B/32B/235B · Gemma3 4B/12B/27B · frontier(GPT-5·Claude-4-Sonnet·Grok-4·Gemini-2.5·Kimi-K2 1026B·DeepSeek-V3 670B/R1).
+- **5 발견**: ①scale=실행길이 구매(단일턴 완벽해도 큰 모델이 더 많은 턴·미세개선→task길이 지수증가) ②스텝정확도가 턴수와 붕괴(Qwen3-32B K=1인데 15턴 내 <50%) ③self-conditioning(문맥 오류율 0/25/50% 주입→turn100 저하·long-context 아님) ④**scale 못 고침**(200B+도 저하) ⑤**thinking 고침**(Qwen3-thinking turn100 오류율무관 안정·단일턴 horizon GPT-5 **2176**·Claude-4-Sonnet 432·Grok-4 384·비-thinking 4-6스텝 붕괴). Appendix: 실벤치(ALFWorld/GAIA/WebShop) 실패의 ~20-48%가 self-conditioning 패턴.
+
+### 8.2 우리와 같은 점 (수렴)
+| 논문 | 우리 |
+|---|---|
+| scale이 사는 것=실행길이/horizon | F6·C5 [S-lit] "scale 유일 축=horizon" |
+| 작은 모델 단일턴 능력 보유 | C66 바인딩 1.5B emergent |
+| self-conditioning=scale-불변 잔여 | C69·[[45]] 동적오염 scale-불변 부하 |
+| 잔여는 비-scale 레버(thinking)가 닫음 | 잔여=비-scale scaffold가 닫음 |
+| capable-but-fails(능력결손 아님) | C43·전 census |
+⇒ **Paper1 헤드라인의 가장 강한 독립 선행 확증**(합성 task 엄밀 사다리).
+
+### 8.3 우리와 다른 점 (whitespace)
+1. **도메인**: 그들=합성 key-value+산술(도구·대화·사용자 0) / 우리=실제 agentic tool-use(τ²·멀티턴·DB부작용).
+2. **오염축**: 그들=1축(self-conditioning=*자기* 오류) / 우리=4축 통제주입(a자기·b*사용자*sycophancy·c distractor·d 바인딩). C69 near-miss=*외생* 주입=자기생성과 오염원 다름.
+3. **레버**: 그들=thinking이 THE 레버 / 우리=결정론 scaffold, **thinking은 부분레버 실증**(Laban reasoning o3/R1 멀티턴 못고침·C56 동-scale thinking ⋈ 못삼) → **thinking-fixes는 축 a(합성) 국한·축 d(agentic 바인딩/⋈)엔 무효 = 축-의존성은 우리 소유**.
+4. **guarantee 차원**: 그들=실행정확도 / 우리=**compliance(위반0 게이트)** = 그들 프레임에 없는 직교축. 모트=compliant-pass crossover(C1/C2).
+5. **비용 crossover**: 그들=pro-scale(클수록 길다) / 우리=소형+scaffold≈대형 신뢰성·비용 knee(pro-scaffold).
+
+### 8.4 특허 관점
+- 선행리스크 **제한적**: 이 논문=**진단**(실행길이+self-conditioning)이지 **장치** 아님. 우리 청구(provenance검증기·Δspurious≤0 게이트·오프로드·도메인-일반 TBox·ABox-swap)를 안 가르침.
+- **오히려 유리**: "scale 혼자 잔여 못 닫음" 확립→비-scale scaffold **motivation 강화**(명세 §배경 인용).
+- **★지뢰**: 청구항이 "test-time compute로 누적오류 오염 감소"에 읽히면 **선점당함** → **thinking 청구 금지**(우리는 애초 안 함=안전).
+- **공개**: 2025-09이라 출원 前 공지자산 개시 대상·positioning="수렴 동기 인용·장치로 차별".
+
+### 8.5 논문(Paper1) 관점
+- relwork **최우선 인용**(헤드라인 독립확증). "scale buys execution length"=양보(인용·위에 쌓기).
+- **살아남는 노벨티**: (a)compliance/guarantee 차원 (b)crossover+비용 knee (c)실 agentic 다축 통제주입 (d)오프로드/TBox-전이 장치.
+- **★예상 반론**: "2509.09677이 이미 scale=horizon+비-scale레버 보였다·뭐가 새로운가?" **답**: 그들 레버(thinking)=*그 자체가 inference-scaling*·**합성 단일축**만 닫음. 우리=**결정론·pass-비용-0 scaffold**가 **실 다축 agentic** compliance 닫고 **비용 crossover 정량화**.
+- **★정직할 긴장**: 그들 "thinking이 self-conditioning 고침" ↔ 우리 "scale/thinking 잔여 못닫음" 부분충돌 → **축별 스코프 필수**: thinking=축 a(자기오류·합성) 닫되 축 d(멀티턴 바인딩/⋈) 못닫음(Laban·C56). 이 축-의존성 명시적 소유가 안전.
