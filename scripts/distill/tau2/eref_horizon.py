@@ -62,8 +62,10 @@ def call_server(base, model, messages, timeout=240, max_tokens=600, think=False)
     out = json.load(urllib.request.urlopen(req, timeout=timeout))
     return out["choices"][0]["message"]["content"]
 
-def run_dialog(base, model, plan, arm, think=False, max_tokens=600):
-    """한 run(H턴) 실행. arm ∈ {base,verify,detect}. 반환 = 턴별 기록 리스트."""
+def run_dialog(base, model, plan, arm, think=False, max_tokens=600, inject_at=None, inject_off=7):
+    """한 run(H턴) 실행. arm ∈ {base,verify,detect,inject}. 반환 = 턴별 기록 리스트.
+    inject arm(sd/sc 결정적 판별·2509.09677식): inject_at 턴에 모델 답 무시하고 *틀린* S(gold+off)를
+    문맥에 강제 주입 → downstream 자기-일관 P(got_t=got_{t-1}+step)를 측정. clean 대비 하락=sc·유지=sd."""
     msgs = [{"role": "system", "content": HDR}]
     gold_S = 0
     rec = []
@@ -78,17 +80,29 @@ def run_dialog(base, model, plan, arm, think=False, max_tokens=600):
             rec.append({"t": t + 1, "err": type(e).__name__}); break
         got = parse_int(ans)
         correct = (got == gold_S)
+        injected = (arm == "inject" and inject_at is not None and (t + 1) == inject_at)
+        # 자기-일관: 이번 got이 (문맥의 직전 상태 + step)과 맞는가 = 산술 무결성(gold 무관)
+        ctx_prev = rec[-1]["ctx_state"] if rec and rec[-1].get("ctx_state") is not None else 0
+        selfcons = (got is not None) and (got == ctx_prev + step)
         rec.append({"t": t + 1, "gold": gold_S, "got": got, "correct": bool(correct),
-                    "prev_gold": gold_S - step})
+                    "prev_gold": gold_S - step, "injected": injected,
+                    "post_inject": (arm == "inject" and inject_at is not None and (t + 1) > inject_at),
+                    "selfcons": bool(selfcons), "ctx_prev": ctx_prev})
         # 문맥 조립 = arm 차이 (핵심)
         if arm == "verify":
-            # 결정론 재계산으로 gold를 '확정 상태'로 주입 → 모델 오류 진입 前 교정(self-cond 절단)
-            msgs.append({"role": "assistant", "content": "S = %d" % gold_S})
+            msgs.append({"role": "assistant", "content": "S = %d" % gold_S}); ctx_state = gold_S
         elif arm == "detect":
-            # 오류 탐지는 하되 교정 안 함: 모델값을 그대로 문맥에 (오류가 문맥 진입 = self-cond 유지)
-            msgs.append({"role": "assistant", "content": "S = %d" % (got if got is not None else gold_S)})
+            v = got if got is not None else gold_S
+            msgs.append({"role": "assistant", "content": "S = %d" % v}); ctx_state = v
+        elif arm == "inject":
+            if injected:  # 모델 답 무시하고 *틀린* S 강제 주입(통제 오류)
+                v = gold_S + inject_off
+            else:
+                v = got if got is not None else (ctx_prev + step)
+            msgs.append({"role": "assistant", "content": "S = %d" % v}); ctx_state = v
         else:  # base
-            msgs.append({"role": "assistant", "content": ans[:60]})
+            msgs.append({"role": "assistant", "content": ans[:60]}); ctx_state = got if got is not None else (ctx_prev + step)
+        rec[-1]["ctx_state"] = ctx_state
     return rec
 
 def summarize(rec, H):
@@ -100,9 +114,14 @@ def summarize(rec, H):
     # self-conditioning: 첫 오류 전 정확도 vs 후 정확도
     pre = [a for r, a in zip(steps, accs) if r["t"] < ff]
     post = [a for r, a in zip(steps, accs) if r["t"] > ff]
+    # 자기-일관: 전체 + post-inject (sd/sc 판별 = post-inject selfcons ≈ clean이면 sd·하락이면 sc)
+    sc_all = [1 if r.get("selfcons") else 0 for r in steps]
+    sc_postinj = [1 if r.get("selfcons") else 0 for r in steps if r.get("post_inject")]
     return {"acc_step": sum(accs) / len(accs), "first_fail": ff, "survived": ff > H,
             "n": len(steps), "acc_pre": (sum(pre) / len(pre)) if pre else None,
-            "acc_post": (sum(post) / len(post)) if post else None}
+            "acc_post": (sum(post) / len(post)) if post else None,
+            "selfcons": (sum(sc_all) / len(sc_all)) if sc_all else None,
+            "selfcons_postinj": (sum(sc_postinj) / len(sc_postinj)) if sc_postinj else None}
 
 def main():
     ap = argparse.ArgumentParser()
@@ -138,7 +157,9 @@ def main():
     jobs = [(arm, i, plan) for arm in arms for (i, plan) in tasks]
     def run_one(job):
         arm, i, plan = job
-        rec = run_dialog(a.base, a.model, plan, arm, think=think, max_tokens=a.max_tokens)
+        iat = (a.H // 3) if arm == "inject" else None
+        rec = run_dialog(a.base, a.model, plan, arm, think=think, max_tokens=a.max_tokens,
+                         inject_at=iat)
         s = summarize(rec, a.H)
         return {"arm": arm, "run": i, "model": a.model, "think": a.think, "H": a.H, "K": a.K,
                 **s, "rec": rec}

@@ -248,6 +248,9 @@ def parse_spec(txt):
     """t2_formalize_exec.parse_formalize 동형(자족 사본·검증 동일)."""
     if not isinstance(txt, str):
         return None
+    # thinking arm: <think>...</think> 내부의 '{' 오탐 방지 — 닫힘 태그 이후만 파싱.
+    if "</think>" in txt:
+        txt = txt.rsplit("</think>", 1)[1]
     i = txt.find("{")
     if i < 0:
         return None
