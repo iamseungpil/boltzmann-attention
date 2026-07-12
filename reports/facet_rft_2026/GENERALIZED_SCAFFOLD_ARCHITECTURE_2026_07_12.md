@@ -40,6 +40,12 @@
   - **gate_spec 내용 = 도메인별 정책 해석**: confirm="모든 write"=거의 기계적(스키마서 write식별) / **preconditions·constraints="shipped면 cancel불가" 등 = 진짜 정책해석**(1회·구조화·LLM보조·검증필수) = **opex per domain**(엔진 수정 아님·요청당 아님).
   - **"고정" = 온톨로지가 새 도메인 규칙을 커버하는 한 조건부 성립**. 온톨로지 밖 규칙종류=새 kind=엔진확장=고정깨짐. 4도메인 OK·보편 미증명.
   - ⇒ 수정: "A2 무료"→**"schema-파생분(validity·prov·confirm)=무료·정책-해석분(precondition·constraint)=bounded opex"**.
+- **★★재교정 (2026-07-12 사용자·특허 방어 핵심)**: "per-domain 정책 *해석*"은 잘못된 프레이밍(="도메인마다 scaffold 수정"=특허 자살). **올바름 = 정책을 A2 데이터로 기술 + 고정 일반 compliance-reader가 읽음.** 
+  - **gate kinds(auth·confirm·ownership·precondition·constraint) = 고정 정책-DSL** · 도메인 정책 = 그 DSL을 채운 **데이터** · 엔진 무수정.
+  - 구현 2안(둘 다 엔진 고정): **(a) offline 고정 컴파일러**(NL정책→gate_spec DSL·LLM보조+검증·도메인=DSL데이터) / **(b) runtime 고정 인터프리터**(NL정책 그대로 읽고 enforce).
+  - **특허 청구 = "고정 compliance 엔진이 선언적/NL 정책명세(A2)를 읽어 enforce·도메인적응=정책명세 공급·엔진 무수정"** → "도메인마다 scaffold 수정" 반론 무력화(vs Palantir/BPM 룰-엔진 재구축).
+  - **질문이 바뀜**: "per-domain 해석비용?" → **"정책-DSL/reader가 임의 정책 담을 표현력(universal)?"** = 4도메인 커버(C52) 증거·universal 미증명(온톨로지 밖 정책구조=DSL확장 필요).
+  - **★진짜 TODO(make-or-break·특허C 핵심)**: 현 gate_spec=**손저작**(수동·당신 우려 현구현에 실재) → **정책→gate_spec 일반 도출 구축**(고정 컴파일러 or 런타임 판독)이 도메인-일반 compliance 주장의 make-or-break.
 
 ## 4. GET→FIND→INFER→ASK 루프 = 출처-해소 엔진 (LOCK·기구현 C44-C48/C67)
 operand 값의 출처는 고정 아님(사용자/getter/추론). A2는 **getter-available 플래그**만, 일반 루프가 해소:
