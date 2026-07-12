@@ -2,7 +2,7 @@
 
 > 등대 §4 큐(E-COMP·T5-C·E-PLAN·E-XFER-bank·E6′) + 기존 설계서 **시퀀싱**. 재발명 금지([[48]]).
 > **이 문서 = 오케스트레이션 설계**: 개별 레버 명세는 각 정본 doc(참조)에 있고, 여기서는 (I) 무료-先 순서로 retail-B를 한계까지 밀고 (II) **C-잔여로 두 날개(전이/학습)를 가르는 판단 실험을 사전등록**한다.
-> 상태: **[D] v1 — 리뷰 대기**(독립 적대리뷰 spawn). 유료(C·banking·learn)는 승인 후.
+> 상태: **[D] v2 — 독립 적대리뷰 반영 완료**(Part II §4-§5 REJECT→재설계: pass@N-라우터 폐기·3층 경계+C38 타당성 게이트 / Part I F3·F5 수정). 유료(J2″·C·banking·learn)는 승인 후.
 > 불변: [[05]] A2만·엔진 도메인일반 · [[08]] per-case·집계금지 · [[09]] 무료先·유료 최소 · [[13]] scaffold 소진→그다음 learn · 제1원리 Δspurious≤0.
 
 ---
@@ -37,7 +37,7 @@ retail을 **결정론 scaffold로 소진**(닫히는 건 다 닫고 ⋈는 경�
 | G-relay (t3형) | CP5 communicate-의무 확장 | `CENSUS_LEVERS §2b` | [D] 프로브先·**learn 대상 아님** | 무료 프로브 |
 | B semantic 잔여·H·I | (경계·미개척) | `CENSUS_LEVERS §5`·C63 | P3 경계 계상 | — |
 
-**핵심(정정)**: A(E-PLAN)가 최대 headroom(MISSED+ZERO_NEV 47 sims=10.3pp·`SCAFFOLD_ENDGAME §L4`)·지배 레버이며 **이미 구축·배선됨**. 현 병목 = **레버 부작용 소진**(deny-loop cap이 1호·제1원리 Δspurious 계측)과 **격리검증 §5(d)⑤(CP5 재-plan 생사)** + **nt=1 표적 사이클** — "구현"이 아니라 "검증·튜닝".
+**핵심(정정·리뷰 F3)**: A(E-PLAN)가 지배 레버이며 **이미 구축·배선됨**. ★**headroom 수치 정직화**: "47 sims=10.3pp"(`SCAFFOLD_ENDGAME §L4`)는 **pre-COMP raw 상한**이지 [M] E-PLAN 몫 아님 — §L4 자체 caveat: 32B fail 16 중 **14가 격리 계획선 이미 core_ok·controller 0발화**(이득은 batch/status가 아니라 CP5 coverage-walk서). 현 COMP census 기준 A클래스 = **≈8 sims**. ⇒ 실현 headroom = coverage-walk에 게이팅된 ≈8 sims(10.3pp는 상한). 현 병목 = **레버 부작용 소진**(deny-loop cap이 1호·제1원리 Δspurious)과 **격리검증 §5(d)⑤(CP5 재-plan 생사)** + **nt=1 표적** — "구현"이 아니라 "검증·튜닝".
 
 ## 2. 무료-先 실행 순서 (병렬 가능 지점 표시)
 
@@ -72,7 +72,7 @@ retail을 **결정론 scaffold로 소진**(닫히는 건 다 닫고 ⋈는 경�
 
 retail-B 소진 = **다음이 동시 성립**:
 1. C64 결정가능 클래스(A/C/D-실재/F/B-decidable) 각각 GO 레버 스택 편입·C에서 발화 확인.
-2. 신규 census 레버의 V0 fix가 **수렴**(추가 레버가 새 non-empty fix 클래스를 못 냄 = E-P류 "새 C-류 0 수렴" 동형).
+2. 신규 census 레버의 V0 fix가 **수렴** = **≥2 연속 라운드** 새 non-empty fix 클래스 0(임계 명시·리뷰 soft note·E-P류 "새 C-류 0 수렴" 동형).
 3. 잔여가 **{⋈ 경계 · 대화-semantic(C50) · NL-relay(C64-G) · FLAKY 분산}**으로만 구성(per-case census 확인).
 4. **(리뷰 추가) 동결-레버 계상**: G8·FORMALIZE-EXEC은 동결 중이라 스택 밖일 수 있음 — 그 표적(t57·t20잔여·t79)은 **"경계"가 아니라 "설계-완료·동결-대기"로 별도 계상**(소진 판정·Part II 입력에서 제외). 이걸 안 하면 설계된 레버가 있는 잔여를 경계로 오분류 → 분기 판정 오염.
 
@@ -82,35 +82,46 @@ retail-B 소진 = **다음이 동시 성립**:
 
 # PART II — 날개-판단 실험 (C-잔여 → {전이 | 학습})
 
-## 4. 판단 원리 (§1.5 라우팅의 잔여-적용)
+## 4. 판단 원리 — 3층 경계 분류 + C38 타당성 게이트 (v2·reachability-router 폐기)
 
-C-잔여의 각 실패를 **§1.5 결정절차 + reachability 게이트**로 라우팅해, 잔여의 *성격 분포*가 분기를 결정한다.
-learn(synth)이 정당한 필요충분 = **"scaffold로 안 닫히는데 *도달가능*한(sampling이 정답에 닿는) 잔여 버킷이 유의미하게 존재"**.
+> **★리뷰 REJECT(F1/F2/F5) 전면 반영 + 사용자 재프레이밍**(learn=경계 (b)층 정조준). v1의 "reachability 게이트(pass@N)로 learn-후보 *라우팅*"은 폐기:
+> - **F1**: pass@N은 발명품(원장·§1.5에 부재)이고 **C38이 반증** — 도달가능 base **0.98**인데 learn *실패*(SFT 퇴화·DPO 0.33) = pass@N은 learnability의 필요·충분조건 아님. **진짜 게이트 = C38 데이터-타당성**(learn-GO *앞*에 둠).
+> - **F2**: "systematic 동일오답 → 경계"는 형식화-가능(C56 t71=argmax날짜 4/4·C68 fexec 0.79)을 경계로 **오분류** → learn/경계로 새기 전 **calc-직렬화 프로브 필수**(열거-only는 C61③서 order-⋈에 역효과).
+
+**learn의 표적(사용자 초점)** = scaffold-불가 중 **(b)층: 문맥-해소 ⋈** — scaffold의 열거가 격리선 엶(C59 +31pp)나 e2e서 전달-기전이 해치는(C60/C61 −37 write소멸) 그 자리. "learn이 F3 여나" = 정확히 이 (b)를 부작용 없이 해내나.
 
 ```
-C-잔여 실패 f 마다:
-  R1. decidable ∧ 미scaffold?  → scaffold 갭(retail-B 미완·S0로 복귀·판단대상 아님)
-  R2. 부하(load)?  E-ISO C-프로토콜: p_iso(A 궤적재현) vs B(격리원문) vs C(격리형식화)
-       ├ B≫A            → 궤적-간섭 부하 → controller(scaffold) → 학습 아님
-       ├ B≈A ∧ C≫B      → 형식화-부하   → 직렬화(FORMALIZE-EXEC·scaffold) → 학습 아님
-       └ C 낮음          → R3
-  R3. reachability 게이트: best-of-N-with-CoT(temp>0·N≥8·four-bench+τ² 격리케이스)
-       ├ pass@N > θ_reach ∧ 비체계(오답 분산)  → ★도달가능·scaffold-불가 → **learn 후보**
-       └ pass@N ≈ 0 ∧ 체계(전-trial 동일오답·C56)  → **경계(⋈·map)** → 학습도 못 닫음
+C-잔여 실패 f 마다 (잔여의 3층 구조·§1.5 + C55/C58):
+  R1. decidable ∧ 미scaffold?  → scaffold 갭(S0 복귀·판단대상 아님)
+  R2. 부하(load)?  E-ISO A/B/C + ★calc-직렬화 프로브(C68 fexec·열거-only 금지·C61③)
+       ├ B≫A                        → 궤적-간섭 부하 → controller(scaffold)
+       ├ B≈A ∧ (C≫B ∨ fexec=gold)   → 형식화-부하 → 직렬화(FORMALIZE-EXEC)  ← (a)층·scaffold
+       └ 둘 다 아님                  → R3
+  R3. 경계 3분 (정답이 관측입력의 함수인가·C55 H(gold|X)):
+       (a) 형식화-가능    → 이미 R2서 포착(scaffold·learn 아님)
+       (b) 문맥-해소 ⋈   → 후보 2+·정답 문맥-내·선택자 문맥-결정가능·격리open/e2e유해
+                          → ★learn 후보 (단 C38 타당성 게이트 경유·pass@N 아님)
+       (c) 의도-미결정    → 정답이 입력의 함수 아님(H(gold|X)>0·C58 디폴트-폐기) → ASK/map·learn 원리상 불가
+  [보조·router 아님] boundary-exclusion: pass@N≈0 전-trial ⇒ trivially-reachable 아님(경계 정합)
+       — **learn 승격 근거로 쓰지 않음**(F1). 오직 (c) 경계 정합성 확인용.
 ```
 
-**사전등록 판정 기준 (motivated-filling 방지·F3 규율)**:
-- θ_reach·유의미 임계 = **learn-후보 버킷이 robust하게 ≥ N_min sims**(제안 N_min = 4·robust=전-trial 도달) ∧ **그 버킷이 형식화-부하(R2)로 이미 설명 안 됨**.
-- **분기 A (learn GO)**: R3 도달가능 버킷 ≥ N_min ∧ E-ISO C 낮음(부하 아님) → **synth 학습 정당** → E6′ 데이터 v3 설계(그 버킷 표적·C38 3결함 수정: (i)결손 재현 데이터 D7 근접오답 (ii)무조건조회 퇴화 방지 음성사례 (iii)on-policy rejected). **★[[11]] 가드(리뷰 추가)**: learn 표적 = 버킷의 **스킬-클래스 추상화**(도메인-일반 P-primitive로 승격 → synth/cfbsynth 합성·[[12]] 다양성) — retail 엔티티/템플릿/사례를 학습 데이터에 넣는 것은 도메인-타깃 학습 = **금지**. 분기 A조차 four-bench→τ² swap 구도 불변.
-- **분기 B (learn NO-GO·전이 우선)**: 잔여가 {경계 + 이미-scaffold된 부하}로만 → **learning 못 닫음** → **banking 전이(E-XFER-bank)** 우선 = "고정 scaffold 도메인-일반성" 증명 + ⋈ 경계 = P3 정직 주장.
+**learn 후보 → GO 게이트 = C38 데이터-타당성 (pass@N 아님·F1)**:
+1. (b) 버킷을 **도메인-일반 스킬-클래스로 추상화**([[11]]·retail 리터럴·템플릿·사례 학습데이터 투입 금지=도메인-타깃) → synth/cfbsynth 데이터 v3.
+2. **타당성 게이트(C38·필수·GO 前)**: base가 그 추상 스킬서 **결손을 재현**하나? (합성이 base≈0.98이면 gradient 0 = C38 실패 재현 = 착수 금지). 데이터 결함 **4종** 수정: (i)D7 근접오답 (ii)음성사례(무조건조회 퇴화 방지) (iii)on-policy rejected (iv)**발명형-id rejected**(C39·32B 실패=발명 48/93·리뷰 F5).
+3. 타당성 통과 후에만 학습 → **full-scaffold 위 한계 Δ**(C37′ 혼입 규율) → **e2e 확인**(J2′·격리 pass 단독 금지·C60).
+
+**분기 (사전등록·양방향)**:
+- **A (learn GO)**: (b) 버킷 ≥ N_min(**4·전-trial robust**) ∧ **타당성 게이트 통과** ∧ 한계Δ>0(e2e) → synth 학습 정당(P4).
+- **B (전이 우선)**: 잔여 = {(a)scaffold + (c)ASK-경계 + flaky}로만 → learn 표적 부재 → **banking 전이(E-XFER-bank)** = 고정 scaffold 도메인-일반성(P1) + (c) 경계 정직(P3).
 
 ## 5. 사전 prior (판정 前 명시·대칭크레딧 [[03]]#9)
 
 측정 前 prior는 **분기 B(전이) 쪽**이 강함 — 단 판단 실험이 *반증 가능*하게 설계돼야 함:
 - C38: learn 미확립(cfbsynth 결손 재현 실패·SFT 퇴화·DPO off-policy) = 데이터 실패지 원리 실패 아님(재현 가능).
 - C56: thinking이 ⋈ 못 닫음(동-scale). C59: 열거가 격리서 ⋈ 엶(+31pp) **but** C60/C61: e2e-0(전달 기전이 유해).
-- ⇒ ⋈ 잔여는 **격리선 도달가능처럼 보이나 e2e 미도달** = reachability 게이트가 *격리 pass@N*과 *e2e*를 **둘 다** 봐야 함(격리 도달가능 ≠ learn e2e 이득 — C60 교훈). **판정에 e2e 축 필수**(격리 pass@N > θ 단독으로 learn GO 금지).
-- **반증 조건**(prior를 뒤집는 관측): C-잔여에 "전-trial 도달가능(best-of-N pass) ∧ 격리 아닌 실-궤적서도 CoT로 회복 ∧ 형식화-부하 아님" 버킷이 ≥ N_min → 분기 A. 이건 실측으로만 갈림.
+- ⇒ (b)층 ⋈는 **격리선 도달가능처럼 보이나 e2e 미도달**(C60 교훈). 그러므로 learn 판정은 **격리 신호 단독 금지** — C38 타당성 게이트(base가 결손 재현) + full-scaffold 위 한계Δ + e2e(J2′) 3중.
+- **반증 조건**(prior B를 뒤집어 분기 A로): (b) 버킷이 ≥ N_min ∧ **타당성 게이트 통과**(합성이 base 결손 재현) ∧ 학습 후 full-scaffold 위 **e2e 한계Δ>0**. pass@N은 이 사슬의 근거가 아님(C38 반증) — 오직 (c) 경계 정합 확인용 보조.
 
 ## 6. 판단 실험 = banking이 *일부* 겸함 (전이 자체가 판정의 절반)
 
@@ -124,21 +135,22 @@ banking 전이는 분기 결과이자 **판정 도구**이기도 하다(잔여 �
 
 | 단계 | 내용 | 비용 | 산출 |
 |---|---|---|---|
-| J0 | C-잔여 per-case census(C64 도구 재사용) → R1/R2/R3 라우팅 라벨 | 무료 | 잔여 성격 분포 |
-| J1 | E-ISO C-프로토콜(A/B/C)을 C-잔여 결정점에 재실행(`ecomp_iso_probe.py`·C61 확장) | 무료(32B 로컬) | 부하 몫 제거 |
-| J2 | reachability 게이트(best-of-N-CoT·격리 + **실-궤적 재현**) | 무료(로컬) | 도달가능 버킷 |
-| J2′ | **(리뷰 추가·정직) true-e2e CoT 확인** — §5/§8의 "e2e 축 필수"는 user-sim 필요 = **유료**. J2의 실-궤적 재현(기록 궤적에 CoT 주입·무료)은 **e2e 근사일 뿐**(C60 교훈 자체가 격리→e2e 붕괴). learn GO 최종 확정 前 도달가능 버킷 대표 sims만 최소-scope e2e(승인) | 유료(최소·승인) | learn GO 확정 증거 |
-| J3 | **분기 판정**(사전등록 §4 기준) → learn GO / NO-GO | — | 결정 |
-| J4a | (분기 A) E6′ 데이터 v3 설계·타당성 게이트(base가 결손 재현) | 무료 설계·학습 유료 | learn 표적 |
+| J0 | C-잔여 per-case census(C64 도구 재사용) → R1/R2/R3 3층 라벨 | 무료 | 잔여 성격 분포 |
+| J1 | E-ISO A/B/C + **calc-직렬화 프로브**(`ecomp_iso_probe.py`+C68 fexec·C61 확장) → (a)형식화층 제거 | 무료(32B 로컬) | (a) 분리·부하 몫 제거 |
+| J2 | (b)/(c) 분별: 후보 열거 + 선택자 문맥-결정가능성(C55 H(gold\|X)). boundary-exclusion pass@N=**보조만** | 무료(로컬) | (b) 문맥-⋈ 버킷 |
+| J2′ | **(b) 후보 → C38 타당성 게이트**: 추상 스킬-클래스 합성 → base가 결손 재현하나(gradient>0) | 무료(설계·오프라인) | learn 착수 자격 |
+| J2″ | (타당성 통과분) 학습 → full-scaffold 위 **e2e 한계Δ**(대표 sims 최소-scope·격리 단독 금지·C60) | 유료(최소·승인) | learn GO 확정 |
+| J3 | **분기 판정**(사전등록 §4·양방향) → learn GO / NO-GO | — | 결정 |
+| J4a | (분기 A) E6′ 데이터 v3 본체(4결함 수정·C39 포함)·[[11]] 추상화 | 학습 유료 | learn 표적 |
 | J4b | (분기 B) E-XFER-bank 최종 scaffold arm(banking 전이) | 유료(승인·재시퀀싱됨) | 전이 증명 + banking 잔여 |
 | J5 | retail∩banking 잔여 교집합 = 진짜 도메인-일반 learn 표적(있으면) | — | 최종 날개 결정 |
 
 ## 8. GO/판정 요약 (사전등록)
 
-- **retail-B 소진**(Part I §3): 레버-수렴 ∧ 잔여={경계·semantic·relay·flaky}.
-- **learn GO**(분기 A): R3 도달가능 버킷 ≥ 4 robust sims ∧ 형식화-부하 아님 ∧ **e2e CoT 회복 실재**(격리 단독 금지).
-- **전이 우선**(분기 B): 위 미충족 → banking 전이로 도메인-일반성 증명 + 경계 정직 주장.
-- 어느 분기든 **⋈ 경계는 map**(강제 학습·강제 write 금지·§1.5).
+- **retail-B 소진**(Part I §3): 레버-수렴(≥2 연속 null V0 census 라운드) ∧ 잔여={(a)형식화·(b)⋈·(c)ASK경계·relay·flaky} ∧ 동결-레버 표적 별도 계상.
+- **learn GO**(분기 A): (b) 버킷 ≥ 4 전-trial robust ∧ **C38 타당성 게이트 통과**(base 결손 재현) ∧ full-scaffold 위 **e2e 한계Δ>0**. ★pass@N은 근거 아님(C38 반증).
+- **전이 우선**(분기 B): 위 미충족(잔여=(a)+(c)+flaky) → banking 전이로 도메인-일반성 증명 + (c) 경계 정직.
+- 어느 분기든 **(c) 의도-미결정은 map/ASK**(강제 학습·강제 write 금지·§1.5·C58).
 
 ---
 
@@ -148,8 +160,9 @@ banking 전이는 분기 결과이자 **판정 도구**이기도 하다(잔여 �
 3. 도메인-타깃 학습? → ✅ 학습은 분기 A에서만·four-bench(도메인일반)→τ² swap([[11]])·retail-타깃 학습 금지.
 
 ## 10. 리스크·미해결
-- **R-a**: retail-B "소진" 판정이 주관적 → §3 3조건(수렴+성격)으로 객관화·per-case.
-- **R-b**: reachability 격리 pass@N이 e2e 이득 과대추정(C60) → §5 e2e 축 필수·격리 단독 금지.
-- **R-c**: E-PLAN 미구현이 전체 병목 → S0 최우선·무료·GPU 무관(스켈레톤/단위/오프라인).
-- **R-d**: 비용 — C·banking·learn 전부 유료 → 무료 J0~J3로 분기를 *먼저* 좁힌 뒤 유료 최소 scope([[09]]).
+- **R-a**: retail-B "소진" 판정이 주관적 → §3 4조건(수렴 ≥2 null라운드 + 성격 + 동결계상)으로 객관화·per-case.
+- **R-b (리뷰 F1/F2 반영)**: v1의 pass@N-라우터는 폐기됨. 잔여 위험 = **(a)/(b)/(c) 3분의 오분류** — 특히 형식화-가능(a·C56 t71·C68)을 경계로 새는 것 → J1 calc-직렬화 프로브가 1차 방어·(b)/(c)는 J2 문맥-결정가능성 + J2′ 타당성이 걸러냄.
+- **R-c (정정)**: E-PLAN은 **구축·배선됨**(§1)·병목은 부작용 소진 + 격리검증 §5(d)⑤(CP5 재-plan 생사) + nt=1 — 무료·GPU 필요(회수 후).
+- **R-d**: 비용 — J2″·C·banking·learn 유료 → 무료 J0~J2′로 (b) 버킷·타당성을 *먼저* 확정한 뒤 유료 최소 scope([[09]]).
 - **소유권**: E-PLAN(coverage-walk)·T5-C(silent repair)·E-SPEC(오케스트레이터 재설계) 좌석 공유 — 중복 구현 금지·본 doc은 시퀀싱만.
+- **리뷰 미해결 잔여**: §3 "동결-레버(G8·FORMALIZE-EXEC) 표적을 경계로 오분류 금지"(사용자 §3.4)는 Part II 입력 정제의 핵심 — J0 census서 동결-레버 표적 sims를 "설계완료·동결대기"로 태그(분기 판정 모집단서 제외).
