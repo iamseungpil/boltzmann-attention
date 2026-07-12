@@ -1789,17 +1789,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 try:
                     import t2_formalize_exec as _fx
                     import copy as _copy
+                    anchor_op = (v_spec or {}).get("anchor_operand")
                     for tc in (am.tool_calls or []):
                         d = _args_dict(tc)
                         for k in list(d.keys()):
                             if k not in v_ops:
                                 continue
-                            for cur in _flatten(d.get(k)):
+                            newv = d.get(k)
+                            newl = newv if isinstance(newv, list) else [newv]
+                            anchl = d.get(anchor_op) if anchor_op else None
+                            anchl = anchl if isinstance(anchl, list) else ([anchl] if anchl else [])
+                            for i, cur in enumerate(newl):    # ★인덱스 짝: new_item[i]↔item[i]=anchor
                                 cur = str(cur).strip()
                                 if len(cur) < 3:
                                     continue
+                                anchor = anchl[i] if i < len(anchl) else (anchl[0] if len(anchl) == 1 else None)
                                 vr = _fx.fexec_variant_decide(self, la, UserMessage, state.messages,
-                                                              k, cur, v_spec, req_text)
+                                                              k, cur, v_spec, req_text, anchor_id=anchor)
                                 if vr.get("status") == "one":
                                     win = str(vr["ids"][0]).strip()
                                     self._t2_l4 = getattr(self, "_t2_l4", 0) + 1

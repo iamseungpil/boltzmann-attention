@@ -411,13 +411,9 @@ _BARE_MAGNITUDE = {
 }
 
 
-def _variant_records(msgs, spec, limit=40):
-    """get_product_details 출력의 variants(dict) -> [(item_id, variant_record)].
-    A2 present_spec 재사용(엔진 리터럴 0): spec={producer|trigger_tool, nested_field, id_field}.
-    available==False만 제외. I6: variant 구조 order와 달라 dict.values() 순회."""
+def _iter_product_variants(msgs, spec):
+    """get_product_details 출력 각각 -> variants dict (제품 단위·안 합침). yield vs(dict)."""
     nested = spec.get("nested_field") or "variants"
-    idf = spec.get("id_field") or "item_id"
-    out = []
     for o in _parse_tool_outputs(msgs, lenient=True):
         if not isinstance(o, dict):
             continue
@@ -427,15 +423,42 @@ def _variant_records(msgs, spec, limit=40):
                 if isinstance(v, dict) and isinstance(v.get(nested), dict):
                     vs = v[nested]
                     break
-        if not isinstance(vs, dict):
+        if isinstance(vs, dict):
+            yield vs
+
+
+def _vs_to_records(vs, idf):
+    out = []
+    for iid, rec in vs.items():
+        if not isinstance(rec, dict) or rec.get("available") is False:
             continue
-        for iid, rec in vs.items():
-            if not isinstance(rec, dict):
-                continue
-            if rec.get("available") is False:
-                continue
-            rid = str(rec.get(idf) or iid).strip()
-            out.append((rid, rec))
+        out.append((str(rec.get(idf) or iid).strip(), rec))
+    return out
+
+
+def _variant_records_for(msgs, spec, anchor_id):
+    """★제품별 스코핑(2026-07-13 probe 버그수정): anchor_id(대체 대상 원품목 item_id)를
+    variants에 담는 *그 제품* 하나로 스코프 — 전역 pool 금지(t20 argmax 전역-max·t0 오매칭 원인).
+    anchor 못 찾으면 [] (스코프 불가 = 치환 안 함·보수)."""
+    idf = spec.get("id_field") or "item_id"
+    aid = str(anchor_id or "").strip()
+    if not aid:
+        return []
+    for vs in _iter_product_variants(msgs, spec):
+        keys = {str(k).strip() for k in vs.keys()} | {str(r.get(idf)).strip() for r in vs.values()
+                                                       if isinstance(r, dict)}
+        if aid in keys:
+            return _vs_to_records(vs, idf)
+    return []
+
+
+def _variant_records(msgs, spec, limit=40):
+    """(폴백·전역) get_product_details variants 전부 -> [(item_id, record)]. 스코핑 실패 시만.
+    A2 present_spec 재사용(엔진 리터럴 0). available==False 제외."""
+    idf = spec.get("id_field") or "item_id"
+    out = []
+    for vs in _iter_product_variants(msgs, spec):
+        out.extend(_vs_to_records(vs, idf))
         if len(out) >= limit:
             break
     seen, uniq = set(), []
@@ -517,22 +540,40 @@ def _ground_variant_criterion(request_text, records):
     return {"op": op or "filter", "field": field, "constraints": uc}
 
 
+def _floor_ok(result, cur_value):
+    """★보수 floor-guard(2026-07-13 probe 버그수정): 결과 status/ids -> 치환 판정.
+    - cur가 기준-만족집합 ∈ → 'keep'(에이전트 이미 옳음·정답 파괴 금지·t0)
+    - cur ∉ ∧ 단일 → 'one'(치환) / ≥2 → 'many' / 0 → fallback."""
+    ids = [str(i).strip() for i in result.get("ids") or []]
+    if not ids:
+        return None
+    if str(cur_value).strip() in ids:
+        return {"status": "keep", "ids": [str(cur_value).strip()], "why": "agent-value in criterion-set"}
+    if len(ids) == 1:
+        return {"status": "one", "ids": ids, "why": result.get("why", "")}
+    return {"status": "many", "ids": ids, "why": result.get("why", "")}
+
+
 def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_spec,
-                         request_text, max_formalize=2):
-    """L4: new_item(variant) operand 해소. 결정론 기준(L4a/L4b) 先 -> 없으면 formalize 폴백.
-    반환 {status: one|many|fallback, ids, why}. I7 floor-guard: one=confident 치환·그 외 no-op/ASK."""
-    records = _variant_records(msgs, a2_spec)
+                         request_text, anchor_id=None, max_formalize=2):
+    """L4: new_item(variant) operand 해소. ★제품별 스코핑(anchor_id=대체 대상 원품목)·전역 pool 금지.
+    결정론 기준(L4a/L4b) 先 -> 없으면 formalize 폴백. I7 보수 floor-guard(cur∈집합=keep=정답 미파괴)."""
+    records = _variant_records_for(msgs, a2_spec, anchor_id) if anchor_id else []
+    scope = "product" if records else "none"
     if len(records) < 2:
-        return {"status": "fallback", "ids": [], "why": "variants<2"}
+        # 스코핑 실패(anchor 못 찾음)=치환 안 함(보수). 전역 pool 폴백은 금지(t20/t0 파손 원인).
+        return {"status": "fallback", "ids": [], "why": "no product scope (%s)" % scope}
     spec = _ground_variant_criterion(request_text, records)
     if spec is not None:
         agent._t2_l4_field_det = getattr(agent, "_t2_l4_field_det", 0) + 1
         result = execute_formalized(spec, records)
         if result["status"] == "ok":
-            st = "one" if len(result["ids"]) == 1 else "many"
-            _mark("L4 %s(det) arg=%s op=%s ids=%s (%s)"
-                  % (st, arg_key, spec["op"], ",".join(map(str, result["ids"])), result["why"]))
-            return {"status": st, "ids": result["ids"], "why": "det:" + result["why"]}
+            fg = _floor_ok(result, cur_value)
+            if fg is None:
+                return {"status": "fallback", "ids": [], "why": "det:empty"}
+            _mark("L4 %s(det) arg=%s op=%s ids=%s scope=%s (%s)"
+                  % (fg["status"], arg_key, spec["op"], ",".join(fg["ids"]), scope, result["why"]))
+            return {"status": fg["status"], "ids": fg["ids"], "why": "det:" + result["why"]}
     agent._t2_l4_field_form = getattr(agent, "_t2_l4_field_form", 0) + 1
     prompt = build_formalize_prompt(msgs, arg_key, cur_value, records)
     kw = {kk: vv for kk, vv in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in kk}
@@ -548,9 +589,10 @@ def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_sp
             return {"status": "fallback", "ids": [], "why": "form:" + (fspec["op"] if fspec else "unsure")}
         result = execute_formalized(fspec, records)
         if result["status"] == "ok":
-            st = "one" if len(result["ids"]) == 1 else "many"
-            _mark("L4 %s(form) arg=%s ids=%s" % (st, arg_key, ",".join(map(str, result["ids"]))))
-            return {"status": st, "ids": result["ids"], "why": "form:" + result["why"]}
+            fg = _floor_ok(result, cur_value)
+            if fg is not None:
+                _mark("L4 %s(form) arg=%s ids=%s" % (fg["status"], arg_key, ",".join(fg["ids"])))
+                return {"status": fg["status"], "ids": fg["ids"], "why": "form:" + result["why"]}
         if result["status"] == "empty" and attempt + 1 < max_formalize:
             prompt = prompt + "\n\n[Note] previous formalization matched NO variant; re-read options."
             continue
