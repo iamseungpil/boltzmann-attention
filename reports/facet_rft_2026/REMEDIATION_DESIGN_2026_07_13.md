@@ -93,7 +93,7 @@
 - frontier도 이 영역서 실패(~16%) = scale가 닫는 지점([[46]] crossover).
 
 ## 6. Open / 미검
-- **prov-rescue 확정**: A1-nt2 + COMP−present+eplan+rescue arm(진행중) → t6·46·55 rescue 인과·L8 확정.
+- **★prov-rescue 무죄 판명(2026-07-13)**: `compabl_noP_eplan_rescue`(COMP−present+eplan+**rescue**) arm이 **t6·46·55 전부 2/2 통과** → rescue가 이들을 안 깬다. cap도 실발화 0. ⇒ **t6·46·55 A1 실패 = run-to-run variance**(COMP 4/4가 100%를 뜻하진 않음·nt=1 stochastic tail·arm이 A1-config로도 통과 가능함을 실증). **L8(prov 강도) 근거 소멸** — 보류/철회. rescue arm이 arm2(full)와 거의 동일(t7 1/2·t58 0/2·t43 1/2) → prov full/rescue는 회귀 driver 아님. A1-nt2가 최종 확인(진행중).
 - **examined-safe Δspurious**: eplan-help 8(21·23·33·42·52·94·108·110) 무회귀 확인 필수(과-완화 금지).
 - **GET-forcing 과-read 비용**: 전수 GET이 over-read/latency 유발 안 하는지(설계 §4d over-ask tradeoff 동형).
 - **L4 fexec-variants**: variant record가 order record와 구조 달라 _field_values 점경로 재검 필요.
