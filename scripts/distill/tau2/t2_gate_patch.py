@@ -1777,6 +1777,52 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         self._t2_disamb_nowrite_keep = getattr(self, "_t2_disamb_nowrite_keep", 0) + 1
                         print("[T2_DISAMB] rejected: re-check dropped tool_calls; keeping original",
                               file=_sys.stderr, flush=True)
+        # ★L4 fexec-variants (opt-in T2_L4=1·A1_V3): write 도구의 variant operand(A2 variant_operand,
+        #   예 new_item_ids)를 극값/속성 결정론 선택으로 치환. I7 floor-guard: one=치환·그 외 no-op.
+        #   [[05]]: variant_operand/spec = A2 데이터(엔진 리터럴 0)·fexec_variant_decide = 도메인일반.
+        if os.environ.get("T2_L4") == "1" and a2 is not None and getattr(am, "tool_calls", None):
+            v_ops = set((a2 or {}).get("variant_operand") or [])
+            v_spec = (a2 or {}).get("variant_spec")
+            if v_ops and v_spec:
+                req_text = " ".join(str(getattr(m, "content", "") or "")
+                                    for m in state.messages if getattr(m, "role", None) == "user")
+                try:
+                    import t2_formalize_exec as _fx
+                    import copy as _copy
+                    for tc in (am.tool_calls or []):
+                        d = _args_dict(tc)
+                        for k in list(d.keys()):
+                            if k not in v_ops:
+                                continue
+                            for cur in _flatten(d.get(k)):
+                                cur = str(cur).strip()
+                                if len(cur) < 3:
+                                    continue
+                                vr = _fx.fexec_variant_decide(self, la, UserMessage, state.messages,
+                                                              k, cur, v_spec, req_text)
+                                if vr.get("status") == "one":
+                                    win = str(vr["ids"][0]).strip()
+                                    self._t2_l4 = getattr(self, "_t2_l4", 0) + 1
+                                    if win.lower() != cur.lower():
+                                        _snap = _copy.deepcopy(getattr(tc, "arguments", None))
+                                        _pre = ({dd[0].id for dd in _denied_calls(am, gate, last_user, transfer_sent)}
+                                                if gate is not None else set())
+                                        if _subst_arg_value(tc, k, cur, win):
+                                            self._t2_l4_sub = getattr(self, "_t2_l4_sub", 0) + 1
+                                            print("[T2_L4] substituted arg=%s from=%s to=%s"
+                                                  % (k, cur, win), file=_sys.stderr, flush=True)
+                                            if gate is not None:
+                                                _post = {dd[0].id for dd in
+                                                         _denied_calls(am, gate, last_user, transfer_sent)}
+                                                if tc.id in _post and tc.id not in _pre:  # I7: switch-유발 deny 복원
+                                                    tc.arguments = _snap
+                                                    print("[T2_L4] reverted: switch-caused gate-deny",
+                                                          file=_sys.stderr, flush=True)
+                                    else:
+                                        print("[T2_L4] confirmed arg=%s val=%s" % (k, cur),
+                                              file=_sys.stderr, flush=True)
+                except Exception as _le:
+                    print("[T2_L4] error (no-op): %r" % (_le,), file=_sys.stderr, flush=True)
         # ★T5-C P2 원리-디폴트(opt-in T2_PRINCIPLE_DEFAULT=1): write operand 기본값(원결제 등)
         #   위반 시 제자리 치환. user-발화만 override 근거(tool출력의 계정값 아님).
         if os.environ.get("T2_PRINCIPLE_DEFAULT") == "1" and gate is not None:
