@@ -24,8 +24,8 @@ unset T2_PRESENT_NESTED T2_PRESENT_READS T2_GROUND T2_DISAMB T2_DISAMB_MODE T2_P
 cd $TB
 TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids $TASKS"
 rm -rf "$TB/data/simulations/gen_$TAG"
-timeout 5400 $PY $T2/t2_run_gated.py --gate 1 --domain retail --agent_model "$M" --agent_base http://localhost:$PORT/v1 \
-  --user_llm openrouter/openai/gpt-4.1 --user_temp 0.0 --num_trials $NT --max_concurrency 6 \
+timeout 10800 $PY $T2/t2_run_gated.py --gate 1 --domain retail --agent_model "$M" --agent_base http://localhost:$PORT/v1 \
+  --user_llm openrouter/openai/gpt-4.1 --user_temp 0.0 --num_trials $NT --max_concurrency 10 \
   --save_to "gen_$TAG" $TIDARG || echo "ARM_FAIL $TAG"
 date; echo RUN_DONE
 # ── 레버-발화 검증 (스모크 핵심) ──
