@@ -71,7 +71,26 @@
 - 절단: `scripts/distill/tau2/abl_sysprompt_106.sh`(additive)·`abl_sysprompt_106_sub.sh`(subtractive)·`sim_results` 미영속(진단·요약 본 doc §3). 절단 결과 회수 = 세션 폴러 `bakh4duov`.
 - COMP exports = `comp_full.log` (GATE_REGEN K1·PROV_REGEN K4·PRESENT_NESTED·CALC / GROUND·DISAMB·PRINCIPLE·EPLAN·PROV_MODE 없음).
 
-## 8. 실세계 분포 확정 (nt4·진행중)
-> `abl_realworld_6fail.sh` = 6-fail × {comp·full·guard-only} × nt4 = 72 sim. persist `sim_results/bstack_{comp,full,guard}.results.json.gz`.
-> guard-only = COMP + PROV-rescue + cap (개입레버 0) = "regression-safe 최소스택" 가설 검정.
-> GO = full < comp(개입 회귀 실재) ∧ guard ≈ comp(가드 안전). **[결과 회수 후 기입]**
+## 8. 실세계 분포 (nt4) — prompt-rx 완료 · B pathology
+### 8a. prompt-rx (COMP + 5규칙 advise·D-v2 엔진OFF·GPU1·nt4·`sim_results/prompt_rx.results.json.gz`)
+| task | COMP | full(override) | **prompt-rx(advise)** |
+|---|---|---|---|
+| 1 | 1.00 | broke(loop) | **1.00** ✓ |
+| 6 | 1.00 | broke(transfer) | **1.00** ✓ |
+| 7 | 1.00 | broke(variant) | **1.00** ✓ |
+| 23 | 1.00 | broke(coverage) | 0.75 |
+| 75 | 1.00 | broke | **1.00** ✓ |
+| 106 | 1.00 | broke(variant) | **0.00** ✗ |
+| overall | 1.00 | ~0 | **0.79** |
+
+- **decidable 5건(1,6,7,75+23) 회복** = 이들 부작용원 = **override 기전**(advise가 강제 안 하니 valid 유지). ★단 prompt-rx advise=**(a) 상주채널**(dead·[[42]])라 hard-이득 없음이 사전등록됨 → 여기 "회복"은 override-부작용 부재이지 신규 이득 아님. router-adv(c채널)와 별개.
+- **106 = 0/4 잔여**: per-case 정독(trial0)=intent-ambiguity. user "one size smaller"(XXL→**XL**=gold 2060066974) vs 대화 중 "small size/black small" → agent가 **black SMALL(1176194968)** 씀. COMP 우연히 맞음(user-sim "XL instead of XXL")·**override(red-L)·advise(black-S) 둘 다 경로분기로 오답**. = **valid-but-wrong-for-user**·정답=ASK·§4b/E7. 어떤 scaffold도 못 닫음(모트 실증).
+
+### 8b. B(comp/full/guard nt4) — 미완(full 스택 runtime pathology·kill)
+- full 스택 sim이 **20-58분**(DISAMB subcall+gate 루프로 대화 병적 확장·task7/23)·한 stack에 stuck sim 1개면 results.json 영영 미기록 → B kill(자원낭비·부분적으론 prompt-rx 동시실행이 openrouter 32-concurrent 유발).
+- **finding 추가**: 개입레버 full-스택은 **정확도 회귀뿐 아니라 runtime 폭발**(추가 harm 차원).
+- 잔여 gap: **guard-only nt4 실task 안전 확인 미측정**(ablation은 guard 무죄 실증·prompt-rx가 non-override 대부분 안전 시사). guard는 long-sim pathology 없어 재런 저렴(comp+guard만·타임아웃가드).
+
+### 8c. 종합 판정
+- **개입 회귀 실재**(full broke 6/6·COMP 16/16 robust) ✓ · **부작용원=override 기전**(advise가 decidable 해소) ✓ · **잔여=valid-but-wrong intent-ambiguity**(106·scaffold 불가·ASK/E7) ✓.
+- 로드맵(§SCAFFOLD_STATE_ROUTER): router(결핍-게이트+router-adv c채널)로 scaffold-max → 잔여(106형) 크기=P3 → E7.
