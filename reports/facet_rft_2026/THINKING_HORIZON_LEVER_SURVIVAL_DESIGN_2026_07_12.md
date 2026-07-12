@@ -84,3 +84,38 @@ per-step 결정론 검증이 **하나의 장치로 둘을 산다**: (a) 준수 �
 3. **E-LEVER-BAKE**(조합 지도 완성).
 4. 확인 후 → RESEARCH_MASTER §3 원장 등재 · 논문/특허/덱 horizon 재프레임 반영(현 "scale이 horizon 산다"→"verify가 horizon 산다·scale은 ⋈ 잔여만").
 - ⚠️ verify-scaffold = 결정론 per-step 검증기 = **[[05]] 고정 엔진**(도메인-일반·running-sum은 재계산·tool-use는 provenance/gate). 도메인 리터럴 0 유지.
+
+## 7. ★banking = horizon 재프레임의 실증 증거 (기존 데이터 재해석·2026-07-12·[[47]] 재런 없음)
+2509.09677은 *합성* task서 "scale이 horizon 산다"를 보였다. **banking(실제 tool-use·τ³·17 frontier 모델)은 그 반대의 실증** — scale이 긴 horizon을 *못* 산다. 데이터 = `TAU2_FRONTIER..._MASTER §3.2f`([M]·17모델·4632 실패·[[08]] 완주·`banking_forensic.py`/`banking_argdiff_census.py`).
+
+### 7.1 관측 (기존 [M])
+- frontier banking pass **0.098~0.384**(17모델·gpt-5.2 sim·GPT-5.5 최강 0.384·Opus4.5 0.245·gemini2.5pro 최약 0.098). gold 절차 **median 8**(universal-fail 12.5)=4도메인 최장.
+- **28/97(29%) universal-fail**(17모델×4trial 전패)·전부 `unlock_discoverable_tool→call` 발견체인 요구.
+- pass가 gold 길이에 단조 급락: 1-3act 0.442→10+ **0.079**. 종료=user_stop 92%(crash 아님·"다 했다" 오종료).
+- **★규정(기존)**: banking 저-pass = **3중 부하의 곱**(긴 horizon × 발견체인 × all-or-nothing DB) ⇒ **per-step p<1의 지수붕괴 p^H**.
+
+### 7.2 ★per-step 엄밀 도출 (pass = p_step^H·H=8)
+| 모델 | pass | 함의 p_step | per-step err |
+|---|---|---|---|
+| gemini2.5pro (최약) | 0.098 | 0.748 | 25.2% |
+| Opus 4.5 | 0.245 | 0.839 | 16.1% |
+| **GPT-5.5 (17모델 최강)** | 0.384 | **0.887** | **11.3%** |
+| *pass=0.7 도달에 필요* | 0.700 | **0.956** | **4.4%** |
+
+- **정직한 관측([[08]])**: per-step은 scale로 *개선된다*(0.748→0.887·err 25%→11%). "전혀 안 준다"는 아니다.
+- **★그러나 horizon 수요에 턱없이 부족**: pass=0.7@H=8엔 p_step=0.956(err 4.4%) 필요 — **17 frontier 최강조차 err 11.3%=2.6× 초과**. GPT-5.5의 0.887이 H=8서 0.887⁸=0.373·H=12.5서 0.214에 갇힘. **horizon이 frontier per-step 정확도를 소진.**
+- **대조 retail**: p_step~1.0(operand 포화·C-B §3.2)·H~4-5 → pass~0.95. 차이는 전적으로 banking per-step이 ~0.89서 **정체**.
+
+### 7.3 ★정체 원인 = 구조적 per-step 실패 (scale-불변 잔여)
+frontier가 못하는 것(§3.2f-5 census·모델 기울기): 규모·신형화는 **미실행(reach/조립)을 *부분* 사되**(최약 미실행 68%→최강 gpt55 미실행 아님), **결정가능-인자 오류(calc·enum·schema·copy)가 잔여로 남는다**. 둘 다 **구조적**(무작위 계산정확도 아님):
+- **reach/unlock 발견체인**(universal-fail 28/28) = §1 참조/조립 오류 → thinking ❌·**verify/controller ✅**
+- **결정가능-인자**(≈40%·calc/enum/id/schema) = §1 계산·참조 오류 → **calc-offload·provenance ✅**
+이 둘이 정확히 **결정론 scaffold가 p→1로 만드는 것**(gather/unlock controller·calc·provenance·coverage 게이트). scale은 못 만든다(잔여로 남음).
+
+### 7.4 결론 — banking이 §2 재프레임을 확증
+**scale은 banking horizon이 요구하는 per-step 정확도(p≥0.956)를 못 산다**(최강 frontier 0.887서 정체). 잔여 per-step 실패가 **구조적**이고, 구조적 per-step은 **결정론 scaffold가 p=1로 만든다**. ⇒ **horizon = scale 영토 아니라 scaffold 영토**(§2)의 *실제-도메인* 증거. 2509.09677의 합성-task 결과를 실 tool-use서 뒤집는다: 합성서 per-step 실패=계산오류(scale가 삼)·banking서 per-step 실패=구조(scale 못 삼·scaffold가 삼). ⇒ **E-HORIZON 실험(synth)의 실-도메인 짝**: banking이 관측, E-HORIZON이 통제-인과. **덱/논문/특허 horizon 재프레임의 실측 앵커.**
+
+### 7.5 caveats([[08]]·[[40]])
+- pass=p^H는 근사(단계 독립 가정·self-conditioning 있으면 실제 더 급함). banking universal-fail은 H=12.5라 p 함의가 H=8보다 높게 나옴(장기일수록 완주가 더 정보적) — 도메인 median H=8 기준 채택.
+- banking_knowledge는 τ³ KB-검색 축(우리 operand 프레임과 부분 다름·§3.2c caveat)·EXTRA_read ~100%=탐색 비인과. all-or-nothing DB 채점 가혹성 실재(단 완주-후-불일치 45%=진짜 인자오류·§3.2f-4 per-case 3건 확정).
+- **미측정**: banking에 결정론 scaffold(controller+calc+prov+coverage) 실붙임 후 per-step→1·pass 상향 = **E-XFER-bank gate arm**(유료·승인대기). 본 §은 *frontier가 못함*의 기록이지 *우리가 함*의 증명 아님(후자=E-XFER-bank).
